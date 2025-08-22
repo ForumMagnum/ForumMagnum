@@ -4,6 +4,7 @@ import { loggerConstructor } from "../../lib/utils/logging";
 import { serverId } from "@/server/analytics/serverAnalyticsWriter";
 import { DatabaseServerSetting } from "../databaseSettings";
 import { CloudFrontClient, CreateInvalidationCommand } from "@aws-sdk/client-cloudfront";
+import { backgroundTask } from "../utils/backgroundTask";
 
 export const swrCachingEnabledSetting = new DatabaseServerSetting<boolean>('swrCaching.enabled', false)
 const swrCachingInvalidationIntervalMsSetting = new DatabaseServerSetting<number>('swrCaching.invalidationIntervalMs', 30_000)
@@ -121,7 +122,7 @@ export const scheduleQueueProcessing = () => {
     const logger = loggerConstructor(`swr-invalidation-queue`)
     logger(`Running invalidateUrlFromQueue from setTimeout. serverId: ${serverId}`)
 
-    void invalidateUrlFromQueue();
+    backgroundTask(invalidateUrlFromQueue());
     eager = true;
     scheduleQueueProcessing();
   }, swrCachingInvalidationIntervalMsSetting.get());
@@ -142,7 +143,7 @@ export const swrInvalidatePostRoute = async (postId: string) => {
   invalidationQueue.push(url)
   if (eager) {
     eager = false;
-    void invalidateUrlFromQueue();
+    backgroundTask(invalidateUrlFromQueue());
   }
 };
 

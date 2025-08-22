@@ -20,13 +20,12 @@ import { HIDE_SUBSCRIBED_FEED_SUGGESTED_USERS, LAST_VISITED_FRONTPAGE_COOKIE, RE
 import { RecombeeConfiguration } from '../../lib/collections/users/recommendationSettings';
 import { PostFeedDetails, homepagePostFeedsSetting } from '../../lib/instanceSettings';
 import { gql } from "@/lib/generated/gql-codegen";
-import { ObservableQuery, useMutation } from '@apollo/client';
+import { useMutationNoCache } from '@/lib/crud/useMutationNoCache';
 import { useQuery } from "@/lib/crud/useQuery";
 import { vertexEnabledSetting } from '../../lib/publicSettings';
 import { userHasSubscribeTabFeed } from '@/lib/betas';
 import { isServer } from '@/lib/executionEnvironment';
 import isEqual from 'lodash/isEqual';
-import { registerComponent } from "../../lib/vulcan-lib/components";
 import { capitalize } from "../../lib/vulcan-lib/utils";
 import { filterNonnull } from '@/lib/utils/typeGuardUtils';
 import FeedPostCommentsCard from "../recentDiscussion/FeedPostCommentsCard";
@@ -34,7 +33,7 @@ import SettingsButton from "../icons/SettingsButton";
 import SingleColumnSection from "./SingleColumnSection";
 import PostsList2 from "../posts/PostsList2";
 import TagFilterSettings from "../tagging/TagFilterSettings";
-import RecombeePostsList from "../posts/RecombeePostsList";
+import { RecombeePostsList } from "../posts/RecombeePostsList";
 import CuratedPostsList from "../recommendations/CuratedPostsList";
 import RecombeePostsListSettings from "../posts/RecombeePostsListSettings";
 import BookmarksList from "../bookmarks/BookmarksList";
@@ -44,6 +43,12 @@ import { MixedTypeFeed } from "./MixedTypeFeed";
 import SuggestedFeedSubscriptions from "../subscriptions/SuggestedFeedSubscriptions";
 import PostsItem from "../posts/PostsItem";
 import { SubscribedFeedQuery } from './feeds/feedQueries';
+import { ObservableQuery } from '@apollo/client';
+import { SuspenseWrapper } from './SuspenseWrapper';
+import { defineStyles, useStyles } from '../hooks/useStyles';
+import PostsLoading from '../posts/PostsLoading';
+import { registerComponent } from '@/lib/vulcan-lib/components';
+import AnalyticsInViewTracker from './AnalyticsInViewTracker';
 
 const SubscriptionStateMultiQuery = gql(`
   query multiSubscriptionLWHomePostsQuery($selector: SubscriptionSelector, $limit: Int, $enableTotal: Boolean) {
@@ -69,7 +74,7 @@ const PostsListWithVotesQuery = gql(`
 // Key is the algorithm/tab name
 type RecombeeCookieSettings = [string, RecombeeConfiguration][];
 
-const styles = (theme: ThemeType) => ({
+const styles = defineStyles("LWHomePost", (theme: ThemeType) => ({
   title: {
     ...sectionTitleStyle(theme),
     display: "inline",
@@ -166,7 +171,7 @@ const styles = (theme: ThemeType) => ({
     marginTop: 10,
     marginLeft: 3,
   },
-});
+}));
 
 export const filterSettingsToggleLabels = {
   desktopVisible: "Customize (Hide)",
@@ -288,7 +293,7 @@ function isTabEnabled(
   tab: PostFeedDetails,
   currentUser: UsersCurrent | null,
   query: Record<string, string>,
-  continueReading: ContinueReadingQueryQuery_ContinueReading_RecommendResumeSequence[]
+  hasContinueReading: boolean,
 ): boolean {
   if (tab.disabled) {
     return false;
@@ -303,10 +308,9 @@ function isTabEnabled(
 
   const activeSubscribedTabDisabled = tab.name === 'forum-subscribed-authors' && !userHasSubscribeTabFeed(currentUser);
 
-  const hasBookmarks = (currentUser?.bookmarkedPostsMetadata?.length ?? 0) >= 1;
+  const hasBookmarks = currentUser?.hasAnyBookmarks ?? false;
   const activeBookmarkTabDisabled = tab.name === 'forum-bookmarks' && !hasBookmarks;
 
-  const hasContinueReading = (continueReading?.length ?? 0) >= 1;
   const activeContinueReadingTabDisabled = tab.name === 'forum-continue-reading' && !hasContinueReading;
 
   return enabledForCurrentUser && !activeSubscribedTabDisabled && !activeBookmarkTabDisabled && !activeContinueReadingTabDisabled;
@@ -363,7 +367,6 @@ const FrontpageSettingsButton = ({
   styleDesktopButton = true,
   labelOverride,
   labelClassName,
-  classes
 }: {
   selectedTab: string;
   changeShowTagFilterSettingsDesktop: () => void;
@@ -375,8 +378,8 @@ const FrontpageSettingsButton = ({
   styleDesktopButton?: boolean;
   labelOverride?: (settingsVisible: boolean) => string;
   labelClassName?: string;
-  classes: ClassesType<typeof styles>;
 }) => {
+  const classes = useStyles(styles);
   const currentUser = useCurrentUser();
   const { captureEvent } = useTracking();
 
@@ -434,34 +437,40 @@ const FrontpageSettingsButton = ({
   </>;
 }
 
-const LWHomePosts = ({ children, classes }: {
+const useHasContinueReadingTab = (currentUser: UsersCurrent|null) => {
+  if (currentUser) {
+    return currentUser.hasContinueReading;
+  } else {
+    return true;
+  }
+}
+
+const LWHomePosts = ({ children, }: {
   children: React.ReactNode,
-  classes: ClassesType<typeof styles>}
-) => {
+}) => {
+  const classes = useStyles(styles);
   const { captureEvent } = useTracking();
 
   const currentUser = useCurrentUser();
   const { query } = useLocation();
   const now = useCurrentTime();
-  const { continueReading } = useContinueReading();
+  const hasContinueReading = useHasContinueReadingTab(currentUser);
 
-  const [sendVertexViewHomePageEvent] = useMutation(gql(`
+  const [sendVertexViewHomePageEvent] = useMutationNoCache(gql(`
     mutation sendVertexViewHomePageEventMutation {
       sendVertexViewHomePageEvent
     }
-  `), {
-    ignoreResults: true
-  });
+  `));
 
   const availableTabs: PostFeedDetails[] = homepagePostFeedsSetting.get()
-  const enabledTabs = availableTabs.filter(tab => isTabEnabled(tab, currentUser, query, continueReading));
+  const enabledTabs = availableTabs.filter(tab => isTabEnabled(tab, currentUser, query, hasContinueReading ?? false));
 
   const [selectedTab, setSelectedTab] = useSelectedTab(currentUser, enabledTabs);
   const selectedTabSettings = availableTabs.find(t=>t.name===selectedTab)!;
 
   
   // While hiding desktop settings is stateful over time, on mobile the filter settings always start out hidden
-  const { filterSettings, setPersonalBlogFilter, setTagFilter, removeTagFilter } = useFilterSettings();
+  const { filterSettings, suggestedTagsQueryRef, setPersonalBlogFilter, setTagFilter, removeTagFilter } = useFilterSettings();
   const { desktopSettingsVisible, toggleDesktopSettingsVisible } = useDefaultSettingsVisibility(currentUser, 'desktop', selectedTab);
   const { mobileSettingsVisible, toggleMobileSettingsVisible } = useDefaultSettingsVisibility(currentUser, 'mobile', selectedTab);
   
@@ -541,7 +550,7 @@ const LWHomePosts = ({ children, classes }: {
 
   const mobileSettingsButtonLabel = mobileSettingsVisible ? 'Hide' : 'Customize'
 
-  const settingsButtonProps = { selectedTab, changeShowTagFilterSettingsDesktop, desktopSettingsVisible, mobileSettingsVisible, mobileSettingsButtonLabel, filterSettings, classes };
+  const settingsButtonProps = { selectedTab, changeShowTagFilterSettingsDesktop, desktopSettingsVisible, mobileSettingsVisible, mobileSettingsButtonLabel, filterSettings };
 
   const inlineTabSettingsButton = <FrontpageSettingsButton
     {...settingsButtonProps}
@@ -556,7 +565,7 @@ const LWHomePosts = ({ children, classes }: {
   />;
 
   const settingsPotentiallyVisible = desktopSettingsVisible || mobileSettingsVisible;
-  const settingsVisibileClassName = classNames({
+  const settingsVisibleClassName = classNames({
     [classes.hideOnDesktop]: !desktopSettingsVisible,
     [classes.hideOnMobile]: !mobileSettingsVisible,
   });
@@ -567,9 +576,10 @@ const LWHomePosts = ({ children, classes }: {
 
   const filterSettingsElement = (
     <AnalyticsContext pageSectionContext="tagFilterSettings">
-      {settingsPotentiallyVisible && <div className={settingsVisibileClassName}>
+      {settingsPotentiallyVisible && <div className={settingsVisibleClassName}>
         <TagFilterSettings
           filterSettings={filterSettings} 
+          suggestedTagsQueryRef={suggestedTagsQueryRef}
           setPersonalBlogFilter={setPersonalBlogFilter} 
           setTagFilter={setTagFilter} 
           removeTagFilter={removeTagFilter} 
@@ -583,25 +593,9 @@ const LWHomePosts = ({ children, classes }: {
     </AnalyticsContext>
   );
 
-  const { data } = useQuery(PostsListWithVotesQuery, {
-    variables: { documentId: '5rygaBBH7B4LNqQkz' },
-    skip: !currentUser || selectedTab !== 'forum-subscribed-authors',
-  });
-  const subscribedTabAnnouncementPost = data?.post?.result;
-
-  const subscriptionSettingsElement = <>
-    {settingsPotentiallyVisible && <div className={settingsVisibileClassName}>
-      <SuggestedFeedSubscriptions
-        refetchFeed={refetchSubscriptionContent}
-        settingsButton={suggestedUsersSettingsButton}
-        existingSubscriptions={userSubscriptions}
-      />
-      {subscribedTabAnnouncementPost && !subscribedTabAnnouncementPost.isRead && <PostsItem post={subscribedTabAnnouncementPost} className={classes.subscribedAnnouncementPost} />}
-    </div>}
-  </>;
 
   const recombeeSettingsElement = <>
-    {settingsPotentiallyVisible && <div className={settingsVisibileClassName}>
+    {settingsPotentiallyVisible && <div className={settingsVisibleClassName}>
       {userIsAdmin(currentUser) && <RecombeePostsListSettings settings={scenarioConfig} updateSettings={updateScenarioConfig} />}
     </div>}
   </>;
@@ -610,28 +604,32 @@ const LWHomePosts = ({ children, classes }: {
   if (selectedTab === 'forum-classic') { 
     settings = filterSettingsElement;
   } else if (selectedTab === 'forum-subscribed-authors') {
-    settings = subscriptionSettingsElement;
+    settings = <SubscriptionSettings
+      settingsPotentiallyVisible={settingsPotentiallyVisible}
+      settingsVisibleClassName={settingsVisibleClassName}
+      refetchSubscriptionContent={refetchSubscriptionContent}
+      suggestedUsersSettingsButton={suggestedUsersSettingsButton}
+      userSubscriptions={userSubscriptions}
+    />;
   } else if (selectedTab === 'recombee-hybrid') {
     settings = filterSettingsElement;
   } else if (selectedTab.includes('recombee')) {
     settings = recombeeSettingsElement;
   }
 
-  const limit = parseInt(query.limit) || defaultLimit;
   const dateCutoff = moment(now).subtract(frontpageDaysAgoCutoffSetting.get()*24, 'hours').startOf('hour').toISOString();
 
-  const recentPostsTerms = {
-    ...query,
+  const recentPostsTerms: PostsViewTerms = {
     filterSettings,
     after: dateCutoff,
     view: "magic",
     forum: true,
-    limit:limit
-  } as const;
+    limit: defaultLimit
+  };
 
   useEffect(() => {
     if (currentUser && vertexEnabledSetting.get()) {
-      void sendVertexViewHomePageEvent();
+      void sendVertexViewHomePageEvent({});
     }
     // We explicitly only want to send it once on page load, no matter what changes
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -639,6 +637,10 @@ const LWHomePosts = ({ children, classes }: {
 
   return (
     // TODO: do we need capturePostItemOnMount here?
+    <AnalyticsInViewTracker
+      eventProps={{inViewType: "postsFeed"}}
+      observerProps={{threshold:[0, 0.5, 1]}}
+    >
     <AnalyticsContext pageSectionContext="postsFeed">
       <SingleColumnSection>
         <div className={classes.settingsVisibilityControls}>
@@ -653,23 +655,29 @@ const LWHomePosts = ({ children, classes }: {
           {showInlineTabSettingsButton && inlineTabSettingsButton}
         </div>
         {settings}
-        {/* TODO: reenable, disabled for testing to see how often duplication happens */}
-        <HideRepeatedPostsProvider>
+        <SuspenseWrapper name="LWHomePostsInner">
             {/* Allow hiding posts from the front page*/}
             <AllowHidingFrontPagePostsContext.Provider value={true}>
-
               {/* LATEST POSTS (Hacker News Algorithm) */}
               {/* Frustratingly, the AnalyticsContext update doesn't update upon switching tab so it's necessary to have a wrapper around each section individually, could be investigated further */}
               {(selectedTab === 'forum-classic') && <AnalyticsContext feedType={selectedTab}>
-                <WelcomePostItem />
-                <CuratedPostsList overrideLimit={2}/>
-                <PostsList2 
-                  terms={recentPostsTerms} 
-                  alwaysShowLoadMore 
-                  hideHiddenFrontPagePosts
+                <SuspenseWrapper
+                  name="LWHomePosts-forum-classic"
+                  fallback={<PostsLoading placeholderCount={defaultLimit+2} loadMore/>}
                 >
-                  <Link to={"/allPosts"}>{advancedSortingText}</Link>
-                </PostsList2> 
+                  <HideRepeatedPostsProvider>
+                    <WelcomePostItem repeatedPostsPrecedence={1} />
+                    <CuratedPostsList overrideLimit={2} repeatedPostsPrecedence={2}/>
+                    <PostsList2
+                      terms={recentPostsTerms}
+                      alwaysShowLoadMore
+                      hideHiddenFrontPagePosts
+                      repeatedPostsPrecedence={3}
+                    >
+                      <Link to={"/allPosts"}>{advancedSortingText}</Link>
+                    </PostsList2> 
+                  </HideRepeatedPostsProvider>
+                </SuspenseWrapper>
               </AnalyticsContext>}
               
               {/* ENRICHED LATEST POSTS */}
@@ -697,8 +705,8 @@ const LWHomePosts = ({ children, classes }: {
               </AnalyticsContext>}
               
               {/* CONTINUE READING */}
-              {(selectedTab === 'forum-continue-reading') && (continueReading?.length > 0) && <AnalyticsContext feedType={selectedTab}>
-                <ContinueReadingList continueReading={continueReading} limit={6} shuffle />
+              {(selectedTab === 'forum-continue-reading') && hasContinueReading && <AnalyticsContext feedType={selectedTab}>
+                <ContinueReadingTab/>
               </AnalyticsContext>}
 
               {/* SUBSCRIBED */}
@@ -721,18 +729,57 @@ const LWHomePosts = ({ children, classes }: {
               </AnalyticsContext>}
 
             </AllowHidingFrontPagePostsContext.Provider>
-        </HideRepeatedPostsProvider>
+        </SuspenseWrapper>
         
         {!selectedTabSettings.isInfiniteScroll && <>
           {children}
         </>}
       </SingleColumnSection>
     </AnalyticsContext>
+    </AnalyticsInViewTracker>
   )
-
-
 }
 
-export default registerComponent('LWHomePosts', LWHomePosts, {styles});
+function ContinueReadingTab() {
+  const { continueReading } = useContinueReading();
+  return <ContinueReadingList continueReading={continueReading} limit={6} shuffle />
+}
+
+function SubscriptionSettings({
+  settingsPotentiallyVisible,
+  settingsVisibleClassName,
+  refetchSubscriptionContent,
+  suggestedUsersSettingsButton,
+  userSubscriptions,
+}: {
+  settingsPotentiallyVisible: boolean,
+  settingsVisibleClassName: string,
+  refetchSubscriptionContent: () => void,
+  suggestedUsersSettingsButton: React.ReactNode,
+  userSubscriptions?: SubscriptionState[],
+}) {
+  const classes = useStyles(styles);
+  const currentUser = useCurrentUser();
+  const { data } = useQuery(PostsListWithVotesQuery, {
+    variables: { documentId: '5rygaBBH7B4LNqQkz' },
+    skip: !currentUser,
+  });
+  const subscribedTabAnnouncementPost = data?.post?.result;
+
+  return <>
+    {settingsPotentiallyVisible && <div className={settingsVisibleClassName}>
+      <SuggestedFeedSubscriptions
+        refetchFeed={refetchSubscriptionContent}
+        settingsButton={suggestedUsersSettingsButton}
+        existingSubscriptions={userSubscriptions}
+      />
+      {subscribedTabAnnouncementPost && !subscribedTabAnnouncementPost.isRead && <PostsItem post={subscribedTabAnnouncementPost} className={classes.subscribedAnnouncementPost} />}
+    </div>}
+  </>;
+}
+
+export default registerComponent("LWHomePosts", LWHomePosts, {
+  areEqual: "auto",
+});
 
 

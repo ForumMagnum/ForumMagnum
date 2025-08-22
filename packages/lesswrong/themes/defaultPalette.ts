@@ -141,6 +141,7 @@ export const defaultShadePalette = (): ThemeShadePalette => {
   const greyAlpha = (alpha: number) => `rgba(0,0,0,${alpha})`;
   const inverseGreyAlpha = (alpha: number) => `rgba(255,255,255,${alpha})`;
   return {
+    dark: false,
     grey,
     greyAlpha,
     inverseGreyAlpha,
@@ -297,6 +298,8 @@ export const defaultComponentPalette = (shades: ThemeShadePalette): ThemeCompone
   border: {
     normal: shades.greyBorder("1px", .2),
     itemSeparatorBottom: shades.greyBorder("2px", .05),
+    itemSeparatorBottomStrong: shades.greyBorder("2px", .1),
+    itemSeparatorBottomIntense: shades.greyBorder("2px", .2),
     slightlyFaint: shades.greyBorder("1px", .15),
     slightlyIntense: shades.greyBorder("1px", .25),
     slightlyIntense2: shades.greyBorder("1px", .3),
@@ -545,7 +548,6 @@ export const defaultComponentPalette = (shades: ThemeShadePalette): ThemeCompone
     bannerAdBlurLight: 'none',
     bannerAdBlurMedium: 'none',
     bannerAdBlurHeavy: 'none',
-    headerBackdropFilter: 'none',
   },
 
   geosuggest: {
@@ -707,6 +709,14 @@ export const defaultComponentPalette = (shades: ThemeShadePalette): ThemeCompone
   },
   ultraFeed: {
     dim: shades.grey[600],
-    cardSeparator: `8px solid ${shades.greyAlpha(0.05)}`,
+    cardSeparator: `12px solid ${shades.greyAlpha(0.005)}`,
+    readBackground: shades.grey[300],
+    readBackgroundMobile: shades.grey[100],
+    readOpacity: {
+      root: 0.7,
+      rootMobile: 0.7,
+      content: 0.8,
+      contentMobile: 0.7,
+    },
   }
 })

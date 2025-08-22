@@ -28,7 +28,23 @@ export const spotlightGqlMutations = {
   }
 }
 
+export const spotlightGqlQueries = {
+  async currentSpotlight(root: void, args: {}, context: ResolverContext, info: AnyBecauseTodo) {
+    const mostRecentlyPromoted = await Spotlights.findOne(
+      { draft: false, deletedDraft: false, lastPromotedAt: {$lt: new Date()} },
+      {
+        sort: {lastPromotedAt: -1, position: 1}
+      }
+    );
+    return mostRecentlyPromoted;
+  }
+};
+
 export const spotlightGqlTypeDefs = gql`
   extend type Mutation {
     publishAndDeDuplicateSpotlight(spotlightId: String): Spotlight
-  }`
+  }
+  extend type Query {
+    currentSpotlight: Spotlight
+  }
+`

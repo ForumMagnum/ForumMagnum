@@ -5,7 +5,7 @@ import type { Hit } from 'react-instantsearch-core';
 import { Snippet } from 'react-instantsearch-dom';
 import { cloudinaryCloudNameSetting } from '../../lib/publicSettings';
 import { tagGetUrl } from '../../lib/collections/tags/helpers';
-import { requireCssVar } from '../../themes/cssVars';
+import { useThemeColor } from '../themes/useTheme';
 
 const styles = (theme: ThemeType) => ({
   root: {
@@ -56,14 +56,14 @@ const styles = (theme: ThemeType) => ({
 
 const cloudinaryCloudName = cloudinaryCloudNameSetting.get()
 
-const translucentBackground = requireCssVar("palette", "panelBackground", "translucent3");
-const greyBackground = requireCssVar("palette", "grey", 0);
-
 const ExpandedTagsSearchHit = ({hit, classes}: {
   hit: Hit<any>,
   classes: ClassesType<typeof styles>,
 }) => {
   const tag = hit as SearchTag
+  const translucentBackground = useThemeColor(theme => theme.palette.panelBackground.translucent3);
+  const greyBackground = useThemeColor(theme => theme.palette.grey[0]);
+
 
   const style = tag.bannerImageId ? {
     background: `linear-gradient(to left, transparent, ${translucentBackground} 70px, ${greyBackground} 140px), no-repeat right url(https://res.cloudinary.com/${cloudinaryCloudName}/image/upload/c_crop,g_custom/c_fill,h_115,w_140,q_auto,f_auto/${tag.bannerImageId})`

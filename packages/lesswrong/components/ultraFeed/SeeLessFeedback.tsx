@@ -129,6 +129,7 @@ export interface FeedbackOptions {
   author: boolean;
   topic: boolean;
   contentType: boolean;
+  repetitive: boolean;
   other: boolean;
   text?: string;
 }
@@ -139,6 +140,7 @@ const SeeLessFeedback = ({ onUndo, onFeedbackChange }: SeeLessFeedbackProps) => 
     author: false,
     topic: false,
     contentType: false,
+    repetitive: false,
     other: false,
     text: '',
   });
@@ -184,6 +186,7 @@ const SeeLessFeedback = ({ onUndo, onFeedbackChange }: SeeLessFeedbackProps) => 
     { key: 'author', label: 'See less from this author' },
     { key: 'topic', label: 'See less of this topic' },
     { key: 'contentType', label: 'See less of this content type' },
+    { key: 'repetitive', label: 'Too repetitive' },
     { key: 'other', label: 'Other reason' },
   ];
 

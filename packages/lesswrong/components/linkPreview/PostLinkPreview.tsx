@@ -18,7 +18,6 @@ import PostsTooltip from "../posts/PostsPreviewTooltip/PostsTooltip";
 import SequencesTooltip from "../sequences/SequencesTooltip";
 import LWPopper from "../common/LWPopper";
 import ContentStyles from "../common/ContentStyles";
-import ErrorBoundary from '../common/ErrorBoundary';
 import { apolloSSRFlag } from '@/lib/helpers';
 
 
@@ -824,7 +823,7 @@ export const ArbitalPreview = ({href, id, className, children}: {
       }
     }
   `), {
-    ssr: true,
+    ssr: false,
     skip: !arbitalSlug,
     variables: {
       arbitalSlug,

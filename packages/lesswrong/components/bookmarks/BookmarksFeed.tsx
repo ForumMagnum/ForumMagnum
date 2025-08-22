@@ -2,7 +2,8 @@ import React from 'react';
 import { AnalyticsContext } from "../../lib/analyticsEvents";
 import { useCurrentUser } from '../common/withUser';
 import { FeedPostMetaInfo, FeedCommentMetaInfo, DisplayFeedCommentThread, FeedItemDisplayStatus } from '../ultraFeed/ultraFeedTypes';
-import { DEFAULT_SETTINGS, UltraFeedSettingsType } from '../ultraFeed/ultraFeedSettingsTypes';
+import { UltraFeedSettingsType } from '../ultraFeed/ultraFeedSettingsTypes';
+import { useUltraFeedSettings } from '../hooks/useUltraFeedSettings';
 import { UltraFeedObserverProvider } from '../ultraFeed/UltraFeedObserver';
 import { OverflowNavObserverProvider } from '../ultraFeed/OverflowNavObserverContext';
 import SingleColumnSection from "../common/SingleColumnSection";
@@ -27,6 +28,7 @@ const BookmarksFeedItemFragmentMultiQuery = gql(`
 
 const BookmarksFeed = () => {
   const currentUser = useCurrentUser();
+  const { settings } = useUltraFeedSettings();
 
   const { data, error, loading } = useQuery(BookmarksFeedItemFragmentMultiQuery, {
     variables: {
@@ -50,10 +52,10 @@ const BookmarksFeed = () => {
     return <SingleColumnSection><p>Error loading bookmarks: {error.message}</p></SingleColumnSection>;
   }
 
-  const settings: UltraFeedSettingsType = {
-    ...DEFAULT_SETTINGS,
+  const bookmarkSettings: UltraFeedSettingsType = {
+    ...settings,
     displaySettings: {
-      ...DEFAULT_SETTINGS.displaySettings,
+      ...settings.displaySettings,
       postInitialWords: 50,
       postMaxWords: 500,
       commentCollapsedInitialWords: 50,
@@ -61,7 +63,7 @@ const BookmarksFeed = () => {
       commentMaxWords: 500,
     },
     resolverSettings: {
-      ...DEFAULT_SETTINGS.resolverSettings,
+      ...settings.resolverSettings,
       incognitoMode: true,
     },
   };
@@ -79,6 +81,7 @@ const BookmarksFeed = () => {
             const postMetaInfo: FeedPostMetaInfo = {
               sources: ["bookmarks"],
               displayStatus: "expanded" as FeedItemDisplayStatus,
+              highlight: false,
             };
             return (
               <FeedItemWrapper key={typedBookmark._id || `post-${index}`}>
@@ -86,7 +89,7 @@ const BookmarksFeed = () => {
                   post={typedBookmark.post}
                   postMetaInfo={postMetaInfo}
                   index={index}
-                  settings={settings}
+                  settings={bookmarkSettings}
                 />
               </FeedItemWrapper>
             );
@@ -100,6 +103,7 @@ const BookmarksFeed = () => {
                 lastViewed: null, 
                 lastInteracted: null,
                 postedAt: commentData.postedAt,
+                descendentCount: commentData.descendentCount,
                 directDescendentCount: commentData.directChildrenCount,
               }
             };
@@ -113,7 +117,7 @@ const BookmarksFeed = () => {
                 <UltraFeedThreadItem
                   thread={threadData}
                   index={index}
-                  settings={settings}
+                  settings={bookmarkSettings}
                 />
               </FeedItemWrapper>
             );

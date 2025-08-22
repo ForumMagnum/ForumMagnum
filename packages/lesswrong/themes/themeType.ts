@@ -68,6 +68,7 @@ declare global {
     710: ColorString,
   }
   type ThemeShadePalette = {
+    dark: boolean,
     grey: ThemeGreyscale,
     greyAlpha: (alpha: number) => ColorString,
     inverseGreyAlpha: (alpha: number) => ColorString,
@@ -274,6 +275,8 @@ declare global {
     border: {
       normal: string,
       itemSeparatorBottom: string,
+      itemSeparatorBottomStrong: string,
+      itemSeparatorBottomIntense: string,
       slightlyFaint: string,
       extraFaint: string,
       slightlyIntense: string,
@@ -491,7 +494,6 @@ declare global {
       bannerAdBlurLight: string,
       bannerAdBlurMedium: string,
       bannerAdBlurHeavy: string,
-      headerBackdropFilter: string,
     },
     geosuggest: {
       dropdownBackground: ColorString,
@@ -626,6 +628,14 @@ declare global {
     ultraFeed: {
       dim: ColorString,
       cardSeparator: string,
+      readBackground: ColorString,
+      readBackgroundMobile: ColorString,
+      readOpacity: {
+        root: number,
+        rootMobile: number,
+        content: number,
+        contentMobile: number,
+      },
     }
   };
   type ThemePalette = Merge<ThemeShadePalette,ThemeComponentPalette> & {
@@ -635,6 +645,7 @@ declare global {
   type ThemeType = {
     forumType: ForumTypeString,
     themeOptions: ThemeOptions,
+    dark: boolean,
 
     baseFontSize: number,
     

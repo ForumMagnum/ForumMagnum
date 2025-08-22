@@ -1,7 +1,6 @@
 import Users from '../../server/collections/users/collection';
 import { asyncForeachSequential } from '../../lib/utils/asyncUtils';
 
-const fixKarma = false;
 const mainPostKarmaWeight = 10;
 const mainCommentKarmaWeight = 1;
 const discussionPostKarmaWeight = 1;
@@ -9,7 +8,7 @@ const discussionCommentKarmaWeight = 1;
 const upvoteWeight = 1;
 const downvoteWeight = 1;
 
-if (fixKarma) { void (async ()=>{
+export async function fixKarma() {
   let usersCount = 0;
   const allUsers = await Users.find().fetch();
   await asyncForeachSequential(allUsers, async (user) => {
@@ -50,4 +49,4 @@ if (fixKarma) { void (async ()=>{
       }
     }
   })
-})() }
+}

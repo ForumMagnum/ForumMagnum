@@ -1,30 +1,29 @@
 import React, {useRef, useState, useCallback, useEffect, FC, ReactNode, useMemo} from 'react';
 import { registerComponent } from '../lib/vulcan-lib/components';
 import classNames from 'classnames'
-import { useTheme } from './themes/useTheme';
+import { useTheme, useThemeColor } from './themes/useTheme';
 import { useLocation } from '../lib/routeUtil';
 import { AnalyticsContext } from '../lib/analyticsEvents'
-import { UserContext } from './common/withUser';
+import { UserContext, UserContextProvider } from './common/withUser';
 import { TimezoneWrapper } from './common/withTimezone';
 import { DialogManager } from './common/withDialog';
 import { CommentBoxManager } from './hooks/useCommentBox';
 import { ItemsReadContextWrapper } from './hooks/useRecordPostView';
-import { commentBodyStyles, pBodyStyle } from '../themes/stylePiping';
+import { pBodyStyle } from '../themes/stylePiping';
 import { DatabasePublicSetting, blackBarTitle, googleTagManagerIdSetting } from '../lib/publicSettings';
 import { isAF, isEAForum, isLW, isLWorAF } from '../lib/instanceSettings';
 import { globalStyles } from '../themes/globalStyles/globalStyles';
-import { userCanDo } from '../lib/vulcan-users/permissions';
-import { Helmet } from '../lib/utils/componentsWithChildren';
+import { userCanDo, userIsAdmin } from '../lib/vulcan-users/permissions';
+import { Helmet } from "./common/Helmet";
 import { DisableNoKibitzContext } from './users/UsersNameDisplay';
 import { LayoutOptions, LayoutOptionsContext } from './hooks/useLayoutOptions';
 // enable during ACX Everywhere
 // import { HIDE_MAP_COOKIE } from '../lib/cookies/cookies';
 import Header, { HEADER_HEIGHT } from './common/Header';
-import { useCookiePreferences } from './hooks/useCookiesWithConsent';
+import { useCookiePreferences, useCookiesWithConsent } from './hooks/useCookiesWithConsent';
 import { useHeaderVisible } from './hooks/useHeaderVisible';
 import StickyBox from '../lib/vendor/react-sticky-box';
 import { isFriendlyUI } from '../themes/forumTheme';
-import { requireCssVar } from '../themes/cssVars';
 import { UnreadNotificationsContextProvider } from './hooks/useUnreadNotifications';
 import { CurrentAndRecentForumEventsProvider } from './hooks/useCurrentForumEvent';
 export const petrovBeforeTime = new DatabasePublicSetting<number>('petrov.beforeTime', 0)
@@ -42,7 +41,6 @@ import Footer from "./common/Footer";
 import FlashMessages from "./common/FlashMessages";
 import AnalyticsClient from "./common/AnalyticsClient";
 import AnalyticsPageInitializer from "./common/AnalyticsPageInitializer";
-import NavigationEventSender from "./hooks/useOnNavigate";
 import EAOnboardingFlow from "./ea-forum/onboarding/EAOnboardingFlow";
 import BasicOnboardingFlow from "./onboarding/BasicOnboardingFlow";
 import { CommentOnSelectionPageWrapper } from "./comments/CommentOnSelection";
@@ -51,19 +49,20 @@ import HomepageCommunityMap from "./seasonal/HomepageMap/HomepageCommunityMap";
 import AdminToggle from "./admin/AdminToggle";
 import SunshineSidebar from "./sunshineDashboard/SunshineSidebar";
 import EAHomeRightHandSide from "./ea-forum/EAHomeRightHandSide";
-import CloudinaryImage2 from "./common/CloudinaryImage2";
 import ForumEventBanner from "./forumEvents/ForumEventBanner";
 import GlobalHotkeys from "./common/GlobalHotkeys";
 import LanguageModelLauncherButton from "./languageModels/LanguageModelLauncherButton";
 import LlmChatWrapper from "./languageModels/LlmChatWrapper";
-import TabNavigationMenuFooter from "./common/TabNavigationMenu/TabNavigationMenuFooter";
-import ReviewVotingCanvas from "./review/ReviewVotingCanvas";
 import LWBackgroundImage from "./LWBackgroundImage";
 import IntercomWrapper from "./common/IntercomWrapper";
 import CookieBanner from "./common/CookieBanner/CookieBanner";
 import { defineStyles, useStyles } from './hooks/useStyles';
-import { useMutation } from "@apollo/client";
+import { useMutationNoCache } from '@/lib/crud/useMutationNoCache';
 import { gql } from "@/lib/generated/gql-codegen";
+import { DelayedLoading } from './common/DelayedLoading';
+import { SuspenseWrapper } from './common/SuspenseWrapper';
+import { AutoDarkModeWrapper } from './themes/ThemeContextProvider';
+import { NO_ADMIN_NEXT_REDIRECT_COOKIE } from '@/lib/cookies/cookies';
 
 const UsersCurrentUpdateMutation = gql(`
   mutation updateUserLayout($selector: SelectorInput!, $data: UpdateUserDataInput!) {
@@ -245,8 +244,6 @@ const styles = defineStyles("Layout", (theme: ThemeType) => ({
   },
 }));
 
-const wrappedBackgroundColor = requireCssVar("palette", "wrapped", "background")
-
 const StickyWrapper = ({children}: {
   children: ReactNode,
 }) => {
@@ -276,13 +273,14 @@ const Layout = ({currentUser, children}: {
   children?: React.ReactNode,
 }) => {
   const classes = useStyles(styles);
+  const currentUserId = currentUser?._id;
   const searchResultsAreaRef = useRef<HTMLDivElement|null>(null);
   const [disableNoKibitz, setDisableNoKibitz] = useState(false); 
   const [autosaveEditorState, setAutosaveEditorState] = useState<(() => Promise<void>) | null>(null);
   const hideNavigationSidebarDefault = currentUser ? !!(currentUser?.hideNavigationSidebar) : false
   const [hideNavigationSidebar,setHideNavigationSidebar] = useState(hideNavigationSidebarDefault);
   const theme = useTheme();
-  const {currentRoute, pathname} = useLocation();
+  const {currentRoute, pathname, query} = useLocation();
   const layoutOptionsState = React.useContext(LayoutOptionsContext);
 
   // enable during ACX Everywhere
@@ -290,13 +288,13 @@ const Layout = ({currentUser, children}: {
   const renderCommunityMap = false // replace with following line to enable during ACX Everywhere
   // (isLW) && (currentRoute?.name === 'home') && (!currentUser?.hideFrontpageMap) && !cookies[HIDE_MAP_COOKIE]
   
-  const [updateUser] = useMutation(UsersCurrentUpdateMutation);
+  const [updateUserNoCache] = useMutationNoCache(UsersCurrentUpdateMutation);
   
   const toggleStandaloneNavigation = useCallback(() => {
-    if (currentUser) {
-      void updateUser({
+    if (currentUserId) {
+      void updateUserNoCache({
         variables: {
-          selector: { _id: currentUser._id },
+          selector: { _id: currentUserId },
           data: {
             hideNavigationSidebar: !hideNavigationSidebar
           }
@@ -304,7 +302,7 @@ const Layout = ({currentUser, children}: {
       })
     }
     setHideNavigationSidebar(!hideNavigationSidebar);
-  }, [updateUser, currentUser, hideNavigationSidebar]);
+  }, [updateUserNoCache, currentUserId, hideNavigationSidebar]);
 
   // Some pages (eg post pages) have a solid white background, others (eg front page) have a gray
   // background against which individual elements in the central column provide their own
@@ -347,6 +345,7 @@ const Layout = ({currentUser, children}: {
 
   let headerBackgroundColor: ColorString;
   // For the EAF Wrapped page, we change the header's background color to a dark blue.
+  const wrappedBackgroundColor = useThemeColor(theme => theme.palette.wrapped.background)
   if (isWrapped) {
     headerBackgroundColor = wrappedBackgroundColor;
   } else if (pathname.startsWith("/voting-portal")) {
@@ -354,6 +353,23 @@ const Layout = ({currentUser, children}: {
   } else if (blackBarTitle.get()) {
     headerBackgroundColor = 'rgba(0, 0, 0, 0.7)';
   }
+
+  const [cookies, setCookie] = useCookiesWithConsent([NO_ADMIN_NEXT_REDIRECT_COOKIE]);
+
+  // Temporary redirect for admins while we're testing NextJS
+  useEffect(() => {
+    const redirectUrl = new URL(window.location.href);
+    if (query.disableRedirect) {
+      setCookie(NO_ADMIN_NEXT_REDIRECT_COOKIE, true, { path: '/' });
+    } else if (isLW && userIsAdmin(currentUser) && !cookies[NO_ADMIN_NEXT_REDIRECT_COOKIE] && redirectUrl.host === 'www.lesswrong.com') {
+      redirectUrl.host = 'baserates-prod-test.vercel.app';
+      // These two are necessary when testing this on localhost
+      // redirectUrl.port = '';
+      // redirectUrl.protocol = 'https';
+      window.location.replace(redirectUrl.toString());
+    }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   const render = () => {
     const baseLayoutOptions: LayoutOptions = {
@@ -384,7 +400,8 @@ const Layout = ({currentUser, children}: {
     
     return (
       <AnalyticsContext path={pathname}>
-      <UserContext.Provider value={currentUser}>
+      <AutoDarkModeWrapper>
+      <UserContextProvider value={currentUser}>
       <UnreadNotificationsContextProvider>
       <TimezoneWrapper>
       <ItemsReadContextWrapper>
@@ -397,12 +414,13 @@ const Layout = ({currentUser, children}: {
       <CurrentAndRecentForumEventsProvider>
         <div className={classNames(
           "wrapper",
-          {'alignment-forum': isAF, [classes.fullscreen]: currentRoute?.fullscreen, [classes.wrapper]: isLWorAF}
+          {'alignment-forum': isAF, [classes.fullscreen]: currentRoute?.fullscreen, [classes.wrapper]: isLWorAF},
+          useWhiteBackground && classes.whiteBackground
         )} id="wrapper">
           {buttonBurstSetting.get() && <GlobalButtonBurst />}
           <DialogManager>
             <CommentBoxManager>
-              <Helmet>
+              <Helmet name="fonts">
                 {theme.typography.fontDownloads &&
                   theme.typography.fontDownloads.map(
                     (url: string)=><link rel="stylesheet" key={`font-${url}`} href={url}/>
@@ -413,7 +431,6 @@ const Layout = ({currentUser, children}: {
 
               <AnalyticsClient/>
               <AnalyticsPageInitializer/>
-              <NavigationEventSender/>
               <GlobalHotkeys/>
               {/* Only show intercom after they have accepted cookies */}
               <DeferRender ssr={false}>
@@ -424,17 +441,25 @@ const Layout = ({currentUser, children}: {
               {/* Google Tag Manager i-frame fallback */}
               <noscript><iframe src={`https://www.googletagmanager.com/ns.html?id=${googleTagManagerIdSetting.get()}`} height="0" width="0" style={{display:"none", visibility:"hidden"}}/></noscript>
 
-              {!currentRoute?.standalone && <Header
-                searchResultsArea={searchResultsAreaRef}
-                standaloneNavigationPresent={standaloneNavigation}
-                sidebarHidden={hideNavigationSidebar}
-                toggleStandaloneNavigation={toggleStandaloneNavigation}
-                stayAtTop={!!currentRoute?.staticHeader}
-                backgroundColor={headerBackgroundColor}
-              />}
-              <ForumEventBanner />
+              {!currentRoute?.standalone && <SuspenseWrapper name="Header">
+                <Header
+                  searchResultsArea={searchResultsAreaRef}
+                  standaloneNavigationPresent={standaloneNavigation}
+                  sidebarHidden={hideNavigationSidebar}
+                  toggleStandaloneNavigation={toggleStandaloneNavigation}
+                  stayAtTop={!!currentRoute?.staticHeader}
+                  backgroundColor={headerBackgroundColor}
+                />
+              </SuspenseWrapper>}
+              <SuspenseWrapper name="ForumEventBanner">
+                <ForumEventBanner />
+              </SuspenseWrapper>
               {/* enable during ACX Everywhere */}
-              {renderCommunityMap && <span className={classes.hideHomepageMapOnMobile}><HomepageCommunityMap dontAskUserLocation={true}/></span>}
+              {renderCommunityMap && <span className={classes.hideHomepageMapOnMobile}>
+                <SuspenseWrapper name="HomepageCommunityMap">
+                  <HomepageCommunityMap dontAskUserLocation={true}/>
+                </SuspenseWrapper>
+              </span>}
 
               <div className={classNames({
                 [classes.spacedGridActivated]: shouldUseGridLayout && !unspacedGridLayout,
@@ -444,21 +469,22 @@ const Layout = ({currentUser, children}: {
               }
               )}>
                 {isFriendlyUI && !isWrapped && <AdminToggle />}
-                {standaloneNavigation &&
+                {standaloneNavigation && <SuspenseWrapper fallback={<span/>} name="NavigationStandalone" >
                   <MaybeStickyWrapper sticky={friendlyHomeLayout}>
                     <DeferRender ssr={true} clientTiming='mobile-aware'>
-                      <NavigationStandalone
-                        sidebarHidden={hideNavigationSidebar}
-                        unspacedGridLayout={unspacedGridLayout}
-                        noTopMargin={friendlyHomeLayout}
-                      />
+                      <SuspenseWrapper name="NavigationStandalone">
+                        <NavigationStandalone
+                          sidebarHidden={hideNavigationSidebar}
+                          unspacedGridLayout={unspacedGridLayout}
+                          noTopMargin={friendlyHomeLayout}
+                        />
+                      </SuspenseWrapper>
                     </DeferRender>
                   </MaybeStickyWrapper>
-                }
+                </SuspenseWrapper>}
                 {/* {isLWorAF && navigationFooterBar && <TabNavigationMenuFooter />} */}
                 <div ref={searchResultsAreaRef} className={classes.searchResultsArea} />
                 <div className={classNames(classes.main, {
-                  [classes.whiteBackground]: useWhiteBackground,
                   [classes.mainNoFooter]: currentRoute?.noFooter,
                   [classes.mainFullscreen]: currentRoute?.fullscreen,
                   [classes.mainUnspacedGrid]: shouldUseGridLayout && unspacedGridLayout,
@@ -467,8 +493,12 @@ const Layout = ({currentUser, children}: {
                     <FlashMessages />
                   </ErrorBoundary>
                   <ErrorBoundary>
-                    {children}
-                    {!isIncompletePath && isEAForum ? <EAOnboardingFlow/> : <BasicOnboardingFlow/>}
+                    <SuspenseWrapper name="Route" fallback={<DelayedLoading/>}>
+                      {children}
+                    </SuspenseWrapper>
+                    <SuspenseWrapper name="OnboardingFlow">
+                      {!isIncompletePath && isEAForum ? <EAOnboardingFlow/> : <BasicOnboardingFlow/>}
+                    </SuspenseWrapper>
                   </ErrorBoundary>
                   {!currentRoute?.fullscreen && !currentRoute?.noFooter && <Footer />}
                 </div>
@@ -477,13 +507,17 @@ const Layout = ({currentUser, children}: {
                   friendlyHomeLayout &&
                   <MaybeStickyWrapper sticky={friendlyHomeLayout}>
                     <DeferRender ssr={true} clientTiming='mobile-aware'>
-                      <EAHomeRightHandSide />
+                      <SuspenseWrapper name="EAHomeRightHandSide">
+                        <EAHomeRightHandSide />
+                      </SuspenseWrapper>
                     </DeferRender>
                   </MaybeStickyWrapper>
                 }
                 {renderSunshineSidebar && <div className={classes.sunshine}>
                   <DeferRender ssr={false}>
-                    <SunshineSidebar/>
+                    <SuspenseWrapper name="SunshineSidebar">
+                      <SunshineSidebar/>
+                    </SuspenseWrapper>
                   </DeferRender>
                 </div>}
                 {renderLanguageModelChatLauncher && <div>
@@ -505,7 +539,8 @@ const Layout = ({currentUser, children}: {
       </ItemsReadContextWrapper>
       </TimezoneWrapper>
       </UnreadNotificationsContextProvider>
-      </UserContext.Provider>
+      </UserContextProvider>
+      </AutoDarkModeWrapper>
       </AnalyticsContext>
     )
   };

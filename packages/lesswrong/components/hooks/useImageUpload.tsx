@@ -1,11 +1,10 @@
 import React, { useCallback } from "react";
-import { requireCssVar } from "../../themes/cssVars";
 import {
   cloudinaryCloudNameSetting,
   DatabasePublicSetting,
 } from "../../lib/publicSettings";
-import { useTheme } from "../themes/useTheme";
-import { Helmet } from "../../lib/utils/componentsWithChildren";
+import { useTheme, useThemeColor } from "../themes/useTheme";
+import { Helmet } from "../common/Helmet";
 
 const cloudinaryUploadPresetGridImageSetting = new DatabasePublicSetting<string>(
   "cloudinary.uploadPresetGridImage",
@@ -191,24 +190,6 @@ const cloudinaryArgsByImageType = {
   },
 } as const;
 
-const primaryMain = requireCssVar("palette", "primary", "main");
-
-/**
- * In order to work in both light and dark mode, we need to store the colors in a CSS
- * variable. However, the cloudinary widget is loaded in an iframe which can't access
- * the CSS variables so we need to extract the color back out again. This means the
- * color won't update if the theme changes from light to dark or vice versa whilst the
- * dialog is open, but that seems pretty niche.
- */
-const getCssVarValue = (varRef: string): string => {
-  const varName = varRef.match(/var\((.*)\)/)?.[1];
-  if (!varName) {
-    throw new Error("Invalid var ref: " + varRef);
-  }
-  const style = getComputedStyle(document.body);
-  return style.getPropertyValue(varName);
-}
-
 export type ImageType = keyof typeof cloudinaryArgsByImageType;
 
 export type UseImageUploadProps = {
@@ -225,6 +206,7 @@ export const useImageUpload = ({
   croppingAspectRatio,
 }: UseImageUploadProps) => {
   const theme = useTheme();
+  const primaryMainColor = useThemeColor(theme => theme.palette.primary.main);
 
   const uploadImage = useCallback(() => {
     if (!window.cloudinary) {
@@ -241,7 +223,7 @@ export const useImageUpload = ({
       throw new Error(`Cloudinary upload preset not configured for ${imageType}`)
     }
 
-    const color = getCssVarValue(primaryMain);
+    const color = primaryMainColor;
 
     window.cloudinary.openUploadWidget({
       multiple: false,
@@ -298,12 +280,13 @@ export const useImageUpload = ({
     onUploadError,
     theme.typography.cloudinaryFont.stack,
     theme.typography.cloudinaryFont.url,
+    primaryMainColor,
   ]);
 
   return {
     uploadImage,
     ImageUploadScript: () => (
-      <Helmet>
+      <Helmet name="imageUploadScript">
         <script
           src="https://upload-widget.cloudinary.com/global/all.js"
           type="text/javascript"

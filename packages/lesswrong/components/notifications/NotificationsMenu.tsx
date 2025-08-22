@@ -1,5 +1,4 @@
-import { registerComponent } from '../../lib/vulcan-lib/components';
-import React, { useState } from 'react';
+import React, { useCallback, useState } from 'react';
 import { useUnreadNotifications } from '../hooks/useUnreadNotifications';
 import { Badge } from "@/components/widgets/Badge";
 import Tab from '@/lib/vendor/@material-ui/core/src/Tab';
@@ -8,14 +7,16 @@ import ClearIcon from '@/lib/vendor/@material-ui/icons/src/Clear';
 import PostsIcon from '@/lib/vendor/@material-ui/icons/src/Description';
 import CommentsIcon from '@/lib/vendor/@material-ui/icons/src/ModeComment';
 import MailIcon from '@/lib/vendor/@material-ui/icons/src/Mail';
-import { useCurrentUser } from '../common/withUser';
-import withErrorBoundary from '../common/withErrorBoundary';
+import { useCurrentUserId } from '../common/withUser';
 import { isFriendlyUI } from '../../themes/forumTheme';
 import { defineStyles, useStyles } from '../hooks/useStyles';
 import { Drawer } from '@/components/material-ui/Drawer'
 import ForumIcon from "../common/ForumIcon";
 import ErrorBoundary from "../common/ErrorBoundary";
 import NotificationsList from "./NotificationsList";
+import { useReadQuery } from '@apollo/client/react';
+import { SuspenseWrapper } from '../common/SuspenseWrapper';
+import { registerComponent } from '@/lib/vulcan-lib/components';
 
 const styles = defineStyles("NotificationsMenu", (theme: ThemeType) => ({
   root: {
@@ -46,15 +47,19 @@ const styles = defineStyles("NotificationsMenu", (theme: ThemeType) => ({
       color: theme.palette.greyAlpha(1.0),
     },
   },
-  cancel: {
+  cancelWrapper: {
     position: "absolute",
     top: 0,
-    right: 5,
-    margin: "10px",
+    height: 48,
+    right: 0,
+    paddingRight: 5,
     cursor: "pointer",
+  },
+  cancel: {
+    margin: "10px",
 
     color: theme.palette.icon.dim5,
-    "&:hover": {
+    "$cancelWrapper:hover &": {
       color: theme.palette.icon.normal,
     },
   },
@@ -72,17 +77,17 @@ const styles = defineStyles("NotificationsMenu", (theme: ThemeType) => ({
   },
 }));
 
-const NotificationsMenu = ({open, setIsOpen, hasOpened}: {
+const NotificationsMenuInner = ({open, setIsOpen, hasOpened}: {
   open: boolean,
   setIsOpen: (isOpen: boolean) => void,
   hasOpened: boolean,
 }) => {
   const classes = useStyles(styles);
-  const currentUser = useCurrentUser();
-  const {unreadPrivateMessages} = useUnreadNotifications();
+  const currentUserId = useCurrentUserId();
   const [tab,setTab] = useState(0);
+  const onClose = useCallback(() => setIsOpen(false), [setIsOpen]);
 
-  if (!currentUser) {
+  if (!currentUserId) {
     return null;
   }
   const notificationCategoryTabs: Array<{ name: string, icon: () => React.ReactNode, terms: NotificationsViewTerms }> = [
@@ -107,7 +112,11 @@ const NotificationsMenu = ({open, setIsOpen, hasOpened}: {
         <Badge
           className={classes.badgeContainer}
           badgeClassName={classes.badge}
-          badgeContent={unreadPrivateMessages>0 ? `${unreadPrivateMessages}` : ""}
+          badgeContent={<SuspenseWrapper name="UnreadPrivateMessagesCountBadge">
+            <ErrorBoundary hideMessage>
+              <UnreadPrivateMessagesCountBadge/>
+            </ErrorBoundary>
+          </SuspenseWrapper>}
         >
           <MailIcon className={classes.icon} />
         </Badge>
@@ -124,7 +133,7 @@ const NotificationsMenu = ({open, setIsOpen, hasOpened}: {
         {open && <Drawer
           open={open}
           anchor="right"
-          onClose={() => setIsOpen(false)}
+          onClose={onClose}
           paperClassName={classes.drawerPaper}
           variant="persistent"
         >
@@ -160,8 +169,10 @@ const NotificationsMenu = ({open, setIsOpen, hasOpened}: {
                 */}
               <Tab className={classes.hiddenTab} />
             </Tabs>
-            <ClearIcon className={classes.cancel} onClick={() => setIsOpen(false)} />
-            <NotificationsList terms={{...notificationTerms, userId: currentUser._id}} currentUser={currentUser}/>
+            <div className={classes.cancelWrapper} onClick={() => setIsOpen(false)}>
+              <ClearIcon className={classes.cancel} />
+            </div>
+            <NotificationsList terms={{...notificationTerms, userId: currentUserId}}/>
           </div>}
         </Drawer>}
       </ErrorBoundary>
@@ -169,8 +180,27 @@ const NotificationsMenu = ({open, setIsOpen, hasOpened}: {
   )
 };
 
-export default registerComponent('NotificationsMenu', NotificationsMenu, {
-  hocs: [withErrorBoundary]
+const UnreadPrivateMessagesCountBadge = () => {
+  const {unreadNotificationCountsQueryRef} = useUnreadNotifications();
+  const {data} = useReadQuery(unreadNotificationCountsQueryRef!);
+  const unreadPrivateMessages = data?.unreadNotificationCounts?.unreadPrivateMessages ?? 0;
+  return unreadPrivateMessages>0 ? `${unreadPrivateMessages}` : ""
+}
+
+const NotificationsMenu = ({open, setIsOpen, hasOpened}: {
+  open: boolean,
+  setIsOpen: (isOpen: boolean) => void,
+  hasOpened: boolean,
+}) => {
+  return <SuspenseWrapper name="NotificationsMenu">
+    <ErrorBoundary>
+      <NotificationsMenuInner open={open} setIsOpen={setIsOpen} hasOpened={hasOpened}/>
+    </ErrorBoundary>
+  </SuspenseWrapper>
+}
+
+export default registerComponent("NotificationsMenu", NotificationsMenu, {
+  areEqual: "auto"
 });
 
 

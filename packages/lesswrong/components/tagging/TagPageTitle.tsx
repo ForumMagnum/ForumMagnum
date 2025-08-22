@@ -2,19 +2,17 @@ import React from 'react';
 import { useLocation } from '../../lib/routeUtil';
 import { useTagBySlug } from './useTag';
 import { Link } from '../../lib/reactRouterWrapper';
-import { styles } from '../common/HeaderSubtitle';
+import { headerSubtitleStyles } from '../common/HeaderSubtitle';
 import { taggingNamePluralCapitalSetting } from '../../lib/instanceSettings';
 import { getAllTagsPath } from '@/lib/pathConstants';
-import { Helmet } from '../../lib/utils/componentsWithChildren';
-import { defineStyles, useStyles } from '../hooks/useStyles';
-
-const titleComponentStyles = defineStyles('TagPageTitle', styles);
+import { useStyles } from '../hooks/useStyles';
+import { Helmet } from '../common/Helmet';
 
 export const TagPageTitle = ({isSubtitle, siteName}: {
   isSubtitle: boolean,
   siteName: string
 }) => {
-  const classes = useStyles(titleComponentStyles);
+  const classes = useStyles(headerSubtitleStyles);
 
   const { params } = useLocation();
   const { slug } = params;
@@ -28,7 +26,7 @@ export const TagPageTitle = ({isSubtitle, siteName}: {
   } else if (!tag) {
     return null;
   } else {
-    return <Helmet>
+    return <Helmet name="title">
       <title>{titleString}</title>
       <meta property='og:title' content={titleString}/>
     </Helmet>

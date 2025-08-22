@@ -96,16 +96,6 @@ export function registerComponent<PropType>(
   return composeComponent({ name, rawComponent, hocs, options });
 }
 
-// If true, `importComponent` imports immediately (rather than deferring until
-// first use) and checks that the file registered the components named, with a
-// lot of log-spam.
-const debugComponentImports = false;
-
-
-export function importAllComponents() {
-  require('@/lib/generated/allComponents');
-}
-
 const composeComponent = (componentMeta: ComponentsTableEntry) => {
   const componentWithMemo = componentMeta.options?.areEqual
     ? memoizeComponent(componentMeta.options.areEqual, componentMeta.rawComponent, componentMeta.name, !!componentMeta.options.debugRerenders)
@@ -200,14 +190,3 @@ const memoizeComponent = (areEqual: AreEqualOption, component: any, name: string
     });
   }
 }
-
-/**
- * Called once on app startup
- *
- * See debugComponentImports for intended use
- */
-export const populateComponentsAppDebug = (): void => {
-  if (debugComponentImports) {
-    importAllComponents();
-  }
-};

@@ -2,9 +2,9 @@ import { htmlToText } from 'html-to-text';
 import Juice from 'juice';
 import { sendEmailSmtp } from './sendEmail';
 import React from 'react';
-import { ApolloProvider } from '@apollo/client';
-import { getDataFromTree } from '@apollo/client/react/ssr';
-import { renderToString } from 'react-dom/server';
+import { ApolloProvider } from '@apollo/client/react';
+import { getMarkupFromTree } from '@apollo/client/react/ssr';
+import { renderToStaticMarkup, renderToString } from 'react-dom/server';
 import { TimezoneContext } from '../../components/common/withTimezone';
 import { UserContext } from '../../components/common/withUser';
 import { getUserEmail, userEmailAddressIsVerified} from '../../lib/collections/users/helpers';
@@ -20,14 +20,14 @@ import { cheerioParse } from '../utils/htmlUtil';
 import { getSiteUrl } from '@/lib/vulcan-lib/utils';
 import { createLWEvent } from '../collections/lwevents/mutations';
 import { createAnonymousContext } from '../vulcan-lib/createContexts';
-import { FMJssProvider } from '@/components/hooks/FMJssProvider';
 import { createStylesContext } from '@/components/hooks/useStyles';
 import { generateEmailStylesheet } from '../styleGeneration';
-import { ThemeContextProvider } from '@/components/themes/ThemeContextProvider';
+import { FMJssProvider, ThemeContextProvider } from '@/components/themes/ThemeContextProvider';
 import { ThemeOptions } from '@/themes/themeNames';
 import { EmailWrapper } from '../emailComponents/EmailWrapper';
 import CookiesProvider from '@/lib/vendor/react-cookie/CookiesProvider';
 import { utmifyForumBacklinks, UtmParam } from '../analytics/utm-tracking';
+import { backgroundTask } from '../utils/backgroundTask';
 
 export interface RenderedEmail {
   user: DbUser | null,
@@ -159,7 +159,7 @@ export async function generateEmail({user, to, from, subject, bodyComponent, boi
   
   const themeOptions: ThemeOptions = {name: "default", siteThemeOverride: {}};
   const theme = getForumTheme(themeOptions);
-  const stylesContext = createStylesContext(theme);
+  const stylesContext = createStylesContext(theme, themeOptions);
   
   // Wrap the body in Apollo, JSS, and MUI wrappers.
   const wrappedBodyComponent = (
@@ -182,7 +182,11 @@ export async function generateEmail({user, to, from, subject, bodyComponent, boi
   
   // Traverse the tree, running GraphQL queries and expanding the tree
   // accordingly.
-  await getDataFromTree(wrappedBodyComponent);
+  await getMarkupFromTree({
+    tree: wrappedBodyComponent,
+    context: {},
+    renderFunction: renderToStaticMarkup,
+  });
   
   // Render the REACT tree to an HTML string
   const body = renderToString(wrappedBodyComponent);
@@ -289,7 +293,7 @@ export const wrapAndSendEmail = async ({
   try {
     const email = await wrapAndRenderEmail({ user, to: destinationAddress, from, subject, body, utmParams });
     const succeeded = await sendEmail(email);
-    void logSentEmail(email, user, {succeeded});
+    backgroundTask(logSentEmail(email, user, {succeeded}));
     return succeeded;
   } catch(e) {
     // eslint-disable-next-line no-console

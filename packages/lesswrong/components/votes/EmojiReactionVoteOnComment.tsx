@@ -4,7 +4,7 @@ import { CommentVotingComponentProps, EmojiReactionType, emojiReactions } from '
 import { useVote } from './withVote';
 import { useHover } from '../common/withHover';
 import { useDialog } from '../common/withDialog';
-import { useCurrentUser } from '../common/withUser';
+import { useCurrentUserId } from '../common/withUser';
 import classNames from 'classnames';
 import { VotingProps } from './votingProps';
 import LoginPopup from "../users/LoginPopup";
@@ -94,10 +94,10 @@ const BallotEmojiReaction = ({reaction, voteProps, classes}: {
 }) => {
   const isSelected = !!voteProps.document?.currentUserExtendedVote?.[reaction.name]
   const { openDialog } = useDialog()
-  const currentUser = useCurrentUser()
+  const currentUserId = useCurrentUserId()
   
   return <div className={classNames(classes.voteButton, {[classes.voteButtonSelected]: isSelected})} onClick={async () => {
-    if (!currentUser) {
+    if (!currentUserId) {
       openDialog({
         name: "LoginPopup",
         contents: ({onClose}) => <LoginPopup onClose={onClose}/>
@@ -110,7 +110,6 @@ const BallotEmojiReaction = ({reaction, voteProps, classes}: {
           ...voteProps.document.currentUserExtendedVote,
           [reaction.name]: !isSelected,
         },
-        currentUser,
       })
     }
   }}>

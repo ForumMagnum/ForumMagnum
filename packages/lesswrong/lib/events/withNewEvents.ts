@@ -2,8 +2,9 @@ import { useState, useEffect, useCallback } from 'react';
 import { v4 as uuid } from 'uuid';
 import { hookToHoc } from '../../lib/hocUtils';
 import * as _ from 'underscore';
-import { useMutation } from "@apollo/client";
+import { useMutationNoCache } from '../crud/useMutationNoCache';
 import { gql } from "@/lib/generated/gql-codegen";
+import { backgroundTask } from '@/server/utils/backgroundTask';
 
 const newEventFragmentMutation = gql(`
   mutation createLWEventwithNewEvents($data: CreateLWEventDataInput!) {
@@ -17,9 +18,7 @@ const newEventFragmentMutation = gql(`
 
 export const useNewEvents = () => {
   const [events, setEvents] = useState<any>({});
-  const [createLWEvent] = useMutation(newEventFragmentMutation, {
-    ignoreResults: true,
-  });
+  const [createLWEvent] = useMutationNoCache(newEventFragmentMutation);
   
   const recordEvent = useCallback((name: string, closeOnLeave: boolean, properties: any): string => {
     const { userId, documentId, important, intercom, ...rest} = properties;
@@ -40,7 +39,7 @@ export const useNewEvents = () => {
       setEvents({ ...events, eventId: event });
     }
     
-    void createLWEvent({ variables: { data: event } });
+    backgroundTask(createLWEvent({ variables: { data: event } }));
     return eventId;
   }, [events, createLWEvent]);
   
@@ -48,7 +47,7 @@ export const useNewEvents = () => {
     let event = events[eventId];
     let currentTime = new Date();
     
-    void createLWEvent({
+    backgroundTask(createLWEvent({
       variables: {
         data: {
           ...event,
@@ -60,8 +59,8 @@ export const useNewEvents = () => {
           },
         }
       }
-});
-    
+    }));
+
     setEvents(_.omit(events, eventId));
     return eventId;
   }, [events, createLWEvent]);

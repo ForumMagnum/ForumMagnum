@@ -5,15 +5,12 @@ import sortBy from 'lodash/sortBy';
 import keyBy from 'lodash/keyBy';
 import { randomId } from '@/lib/random';
 import { z } from 'zod';
-import markdownIt from "markdown-it";
-import markdownItContainer from "markdown-it-container";
-import markdownItFootnote from "markdown-it-footnote";
-import markdownItSub from "markdown-it-sub";
-import markdownItSup from "markdown-it-sup";
-import { useMutation } from "@apollo/client";
+import { useMutation } from "@apollo/client/react";
 import { useQuery } from "@/lib/crud/useQuery";
 import { gql } from "@/lib/generated/gql-codegen";
 import { maybeDate } from '@/lib/utils/dateUtils';
+import { userHasLlmChat } from '@/lib/betas';
+import { getMarkdownItNoMathjax } from '@/lib/utils/markdownItPlugins';
 
 const LlmConversationsFragmentMultiQuery = gql(`
   query multiLlmConversationLlmChatWrapperQuery($selector: LlmConversationSelector, $limit: Int, $enableTotal: Boolean) {
@@ -45,14 +42,6 @@ const LlmConversationsWithMessagesFragmentQuery = gql(`
     }
   }
 `);
-
-// FIXME This is a copy-paste of a markdown config from conversionUtils that has gotten out of sync
-const mdi = markdownIt({ linkify: true });
-// mdi.use(markdownItMathjax()) // for performance, don't render mathjax
-mdi.use(markdownItContainer as AnyBecauseHard, "spoiler");
-mdi.use(markdownItFootnote);
-mdi.use(markdownItSub);
-mdi.use(markdownItSup);
 
 export const RAG_MODE_SET = ['Auto', 'None', 'CurrentPost', 'Search', 'Provided'] as const;
 export type RagModeType = typeof RAG_MODE_SET[number];
@@ -192,8 +181,10 @@ const LlmChatWrapper = ({children}: {
       limit: 50,
       enableTotal: false,
     },
-    skip: !currentUser,
-    notifyOnNetworkStatusChange: true,
+    skip: !currentUser || !userHasLlmChat(currentUser),
+    // Not to SSRed because this is a context provider around the whole
+    // page, so it would waterfall with the main page contents
+    ssr: false,
   });
 
   const userLlmConversations = data?.llmConversations?.results;
@@ -215,7 +206,10 @@ const LlmChatWrapper = ({children}: {
 
   const { data: dataLlmConversationsWithMessages } = useQuery(LlmConversationsWithMessagesFragmentQuery, {
     variables: { documentId: currentConversationId },
-    skip: !currentConversationId,
+    skip: !currentConversationId || !userHasLlmChat(currentUser),
+    // Not to SSRed because this is a context provider around the whole
+    // page, so it would waterfall with the main page contents
+    ssr: false,
   });
   const currentConversationWithMessages = dataLlmConversationsWithMessages?.llmConversation?.result;
 
@@ -290,7 +284,7 @@ const LlmChatWrapper = ({children}: {
         newBuffer = chunk;
       }
 
-      const parsedContent = mdi.render(newBuffer, { docId: randomId() });
+      const parsedContent = getMarkdownItNoMathjax().render(newBuffer, { docId: randomId() });
   
       const newMessage: NewLlmMessage = { 
         conversationId,

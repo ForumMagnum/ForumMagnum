@@ -43,6 +43,15 @@ export function parseColor(color: string): ColorTuple|null
       return [r/15.0, g/15.0, b/15.0, 1.0];
     }
   } else {
+    const match = /rgba?\((\d+)\s*,\s*(\d+)\s*,\s*(\d+)\s*(,\s*\d+)?\)/.exec(color);
+    if (match) {
+      const [color,r,g,b,a] = match;
+      const parsedR = parseFloat(r) / 255.0;
+      const parsedG = parseFloat(g) / 255.0;
+      const parsedB = parseFloat(b) / 255.0;
+      const parsedA = (a !== undefined) ? parseFloat(a.substring(1)) : 1.0;
+      return [parsedR, parsedG, parsedB, parsedA];
+    }
     // TODO: Support more color formats
     return null;
   }
@@ -95,4 +104,37 @@ export function invertHexColor(color: string): string {
   const inverted = invertColor(parsed!);
   validateColor(inverted);
   return colorToString(inverted);
+}
+
+/**
+ * Converts an HSL color value to RGB. Conversion formula
+ * adapted from https://en.wikipedia.org/wiki/HSL_color_space.
+ * Assumes h, s, and l are contained in the set [0, 1] and
+ * returns r, g, and b in the set [0, 255].
+ *
+ * Source: https://stackoverflow.com/questions/2353211/hsl-to-rgb-color-conversion
+ */
+function hslToRgb(h: number, s: number, l: number): ColorTuple {
+  let r, g, b;
+
+  if (s === 0) {
+    r = g = b = l; // achromatic
+  } else {
+    const q = (l < 0.5) ? (l * (1 + s)) : (l + s - (l * s));
+    const p = (2*l) - q;
+    r = hueToRgb(p, q, h + (1/3));
+    g = hueToRgb(p, q, h);
+    b = hueToRgb(p, q, h - (1/3));
+  }
+
+  return [Math.round(r * 255), Math.round(g * 255), Math.round(b * 255), 1.0];
+}
+
+function hueToRgb(p: number, q: number, t: number) {
+  if (t < 0) t += 1;
+  if (t > 1) t -= 1;
+  if (t < 1/6) return p + ((q-p) * 6 * t);
+  if (t < 1/2) return q;
+  if (t < 2/3) return p + ((q-p) * ((2/3) - t) * 6);
+  return p;
 }

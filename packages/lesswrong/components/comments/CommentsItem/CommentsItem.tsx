@@ -1,8 +1,8 @@
-import React, { useRef, useState } from 'react';
+import React, { useCallback, useMemo, useRef, useState } from 'react';
 import { registerComponent } from '../../../lib/vulcan-lib/components';
 import classNames from 'classnames';
 import withErrorBoundary from '../../common/withErrorBoundary';
-import { useCurrentUser } from '../../common/withUser';
+import { useCurrentUserId, useFilteredCurrentUser } from '../../common/withUser';
 import { Link } from '../../../lib/reactRouterWrapper';
 import { tagGetCommentLink } from "../../../lib/collections/tags/helpers";
 import { AnalyticsContext } from "../../../lib/analyticsEvents";
@@ -34,9 +34,11 @@ import CoreTagIcon from "../../tagging/CoreTagIcon";
 import RejectedReasonDisplay from "../../sunshineDashboard/RejectedReasonDisplay";
 import HoveredReactionContextProvider from "../../votes/lwReactions/HoveredReactionContextProvider";
 import CommentBottom from "./CommentBottom";
+import pick from 'lodash/pick';
+import { defineStyles, useStyles } from '@/components/hooks/useStyles';
 
 
-const styles = (theme: ThemeType) => ({
+const styles = defineStyles("CommentsItem", (theme: ThemeType) => ({
   root: {
     paddingLeft: theme.spacing.unit*1.5,
     paddingRight: theme.spacing.unit*1.5,
@@ -161,6 +163,8 @@ const styles = (theme: ThemeType) => ({
   excerpt: {
     marginBottom: 8,
   },
+}), {
+  stylePriority: -1,
 });
 
 /**
@@ -187,7 +191,6 @@ export const CommentsItem = ({
   displayTagIcon=false,
   excerptLines,
   className,
-  classes,
 }: {
   treeOptions: CommentTreeOptions,
   comment: CommentsList|CommentsListWithParentMetadata,
@@ -207,30 +210,29 @@ export const CommentsItem = ({
   displayTagIcon?: boolean,
   excerptLines?: number,
   className?: string,
-  classes: ClassesType<typeof styles>,
 }) => {
+  const classes = useStyles(styles);
   const commentBodyRef = useRef<ContentItemBodyImperative|null>(null); // passed into CommentsItemBody for use in InlineReactSelectionWrapper
   const [replyFormIsOpen, setReplyFormIsOpen] = useState(false);
   const [showEditState, setShowEditState] = useState(treeOptions.initialShowEdit || false);
   const [showParentState, setShowParentState] = useState(showParentDefault);
   const isMinimalist = treeOptions.formStyle === "minimalist"
-  const currentUser = useCurrentUser();
+  const currentUserId = useCurrentUserId();
+  const currentUserEligibleToNominate = useFilteredCurrentUser(u => eligibleToNominate(u));
 
   const {
-    postPage, tag, post, refetch, showPostTitle, hideReviewVoteButtons,
-    moderatedCommentId, hideParentCommentToggleForTopLevel,
+    postPage, tag, post, refetch, hideReviewVoteButtons,
+    hideParentCommentToggleForTopLevel,
   } = treeOptions;
 
   const showCommentTitle = !!(commentAllowTitle({tagCommentType: comment.tagCommentType as TagCommentType, parentCommentId: comment.parentCommentId}) && comment.title && !comment.deleted && !showEditState)
 
-  const openReplyForm = (event: React.MouseEvent) => {
+  const openReplyForm = useCallback((event: React.MouseEvent) => {
     event.preventDefault();
     setReplyFormIsOpen(true);
-  }
+  }, []);
 
-  const closeReplyForm = () => {
-    setReplyFormIsOpen(false);
-  }
+  const closeReplyForm = useCallback(() => setReplyFormIsOpen(false), []);
 
   const replySuccessCallback = () => {
     if (refetch) {
@@ -239,9 +241,9 @@ export const CommentsItem = ({
     setReplyFormIsOpen(false);
   }
 
-  const setShowEdit = () => {
+  const setShowEdit = useCallback(() => {
     setShowEditState(true);
-  }
+  }, [])
 
   const editCancelCallback = () => {
     setShowEditState(false);
@@ -260,9 +262,9 @@ export const CommentsItem = ({
     }
   }
 
-  const toggleShowParent = () => {
-    setShowParentState(!showParentState);
-  }
+  const toggleShowParent = useCallback(() => {
+    setShowParentState(s => !s);
+  }, []);
 
   const renderBodyOrEditor = (voteProps: VotingProps<VoteableTypeClient>) => {
     if (showEditState) {
@@ -318,11 +320,19 @@ export const CommentsItem = ({
     reviewIsActive() &&
     comment.reviewingForReview === REVIEW_YEAR+"" &&
     post &&
-    currentUser?._id !== post.userId &&
-    eligibleToNominate(currentUser)
+    currentUserId !== post.userId &&
+    currentUserEligibleToNominate;
 
   const voteProps = useVote(comment, "Comments", votingSystem);
   const showInlineCancel = replyFormIsOpen && isMinimalist
+
+  const replacementReplyButton = treeOptions?.replaceReplyButtonsWith?.(comment);
+  const replyButton = useMemo(() => (replacementReplyButton || <a
+    className={classNames("comments-item-reply-link", classes.replyLink)}
+    onClick={showInlineCancel ? closeReplyForm : openReplyForm}
+  >
+    {showInlineCancel ? "Cancel" : "Reply"}
+  </a>), [replacementReplyButton, showInlineCancel, classes.replyLink, openReplyForm, closeReplyForm]);
 
   return (
     <AnalyticsContext pageElementContext="commentItem" commentId={comment._id}>
@@ -350,21 +360,7 @@ export const CommentsItem = ({
           </div> 
         )}
         
-        <div className={classes.postTitleRow}>
-          {showPinnedOnProfile && comment.isPinnedOnProfile && <div className={classes.pinnedIconWrapper}>
-            <ForumIcon icon="Pin" className={classes.pinnedIcon} />
-          </div>}
-          {moderatedCommentId === comment._id && <FlagIcon className={classes.flagIcon} />}
-          {showPostTitle && !isChild && hasPostField(comment) && comment.postId && comment.post && <PostsTooltip inlineBlock postId={comment.postId}>
-              <Link className={classes.postTitle} to={commentGetPageUrlFromIds({postId: comment.postId, commentId: comment._id, postSlug: ""})}>
-                {comment.post.draft && "[Draft] "}
-                {comment.post.title}
-              </Link>
-            </PostsTooltip>}
-          {showPostTitle && !isChild && hasTagField(comment) && comment.tag && <Link className={classes.postTitle} to={tagGetCommentLink({tagSlug: comment.tag.slug, tagCommentType: comment.tagCommentType})}>
-            {startCase(comment.tag.name)}
-          </Link>}
-        </div>
+        <CommentTitleRow comment={comment} treeOptions={treeOptions} isChild={isChild} showPinnedOnProfile={showPinnedOnProfile} />
         <div className={classNames(classes.body)}>
           {showCommentTitle && <div className={classes.title}>
             {(displayTagIcon && tag) ? <span className={classes.tagIcon}>
@@ -403,14 +399,7 @@ export const CommentsItem = ({
             votingSystem={votingSystem}
             voteProps={voteProps}
             commentBodyRef={commentBodyRef}
-            replyButton={
-              treeOptions?.replaceReplyButtonsWith?.(comment) || <a
-                className={classNames("comments-item-reply-link", classes.replyLink)}
-                onClick={showInlineCancel ? closeReplyForm : openReplyForm}
-              >
-                {showInlineCancel ? "Cancel" : "Reply"}
-              </a>
-            }
+            replyButton={replyButton}
           />}
         </div>
         {displayReviewVoting && !collapsed && <div className={classes.reviewVotingButtons}>
@@ -429,10 +418,43 @@ export const CommentsItem = ({
   )
 }
 
+const CommentTitleRow = ({comment, treeOptions, isChild, showPinnedOnProfile}: {
+  comment: CommentsList|CommentsListWithParentMetadata,
+  treeOptions: CommentTreeOptions,
+  isChild?: boolean,
+  showPinnedOnProfile?: boolean,
+}) => {
+  const classes = useStyles(styles);
+  const { showPostTitle, moderatedCommentId } = treeOptions;
+
+  const visible = (
+    (showPinnedOnProfile && comment.isPinnedOnProfile)
+    || (moderatedCommentId === comment._id)
+    || (showPostTitle && !isChild && hasPostField(comment) && comment.postId && comment.post)
+    || (showPostTitle && !isChild && hasTagField(comment) && comment.tag)
+  );
+  
+  if (!visible) return null;
+
+  return <div className={classes.postTitleRow}>
+    {showPinnedOnProfile && comment.isPinnedOnProfile && <div className={classes.pinnedIconWrapper}>
+      <ForumIcon icon="Pin" className={classes.pinnedIcon} />
+    </div>}
+    {moderatedCommentId === comment._id && <FlagIcon className={classes.flagIcon} />}
+    {showPostTitle && !isChild && hasPostField(comment) && comment.postId && comment.post && <PostsTooltip inlineBlock postId={comment.postId}>
+        <Link className={classes.postTitle} to={commentGetPageUrlFromIds({postId: comment.postId, commentId: comment._id, postSlug: ""})}>
+          {comment.post.draft && "[Draft] "}
+          {comment.post.title}
+        </Link>
+      </PostsTooltip>}
+    {showPostTitle && !isChild && hasTagField(comment) && comment.tag && <Link className={classes.postTitle} to={tagGetCommentLink({tagSlug: comment.tag.slug, tagCommentType: comment.tagCommentType})}>
+      {startCase(comment.tag.name)}
+    </Link>}
+  </div>
+}
+
 export default registerComponent(
   'CommentsItem', CommentsItem, {
-    styles,
-    stylePriority: -1,
     hocs: [withErrorBoundary],
     areEqual: {
       treeOptions: "shallow",

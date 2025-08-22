@@ -5,33 +5,34 @@ import Headroom from '../../lib/react-headroom'
 import Toolbar from '@/lib/vendor/@material-ui/core/src/Toolbar';
 import IconButton from '@/lib/vendor/@material-ui/core/src/IconButton';
 import TocIcon from '@/lib/vendor/@material-ui/icons/src/Toc';
-import { useCurrentUser } from '../common/withUser';
+import { useCurrentUserId, useFilteredCurrentUser, useGetCurrentUser } from '../common/withUser';
 import { SidebarsContext } from './SidebarsWrapper';
 import withErrorBoundary from '../common/withErrorBoundary';
 import classNames from 'classnames';
 import { AnalyticsContext, useTracking } from '../../lib/analyticsEvents';
-import { forumHeaderTitleSetting, forumShortTitleSetting, isAF, isEAForum, isLW } from '../../lib/instanceSettings';
+import { forumHeaderTitleSetting, forumShortTitleSetting, isAF, isEAForum } from '../../lib/instanceSettings';
 import { useUnreadNotifications } from '../hooks/useUnreadNotifications';
 import { isBookUI, isFriendlyUI } from '../../themes/forumTheme';
-import { hasProminentLogoSetting, lightconeFundraiserUnsyncedAmount, lightconeFundraiserThermometerBgUrl, lightconeFundraiserThermometerGoalAmount, lightconeFundraiserActive, lightconeFundraiserPostId } from '../../lib/publicSettings';
+import { hasProminentLogoSetting } from '../../lib/publicSettings';
 import { useLocation } from '../../lib/routeUtil';
 import { useCurrentAndRecentForumEvents } from '../hooks/useCurrentForumEvent';
 import { makeCloudinaryImageUrl } from './CloudinaryImage2';
 import { hasForumEvents } from '@/lib/betas';
-import { useFundraiserStripeTotal, useLivePercentage } from '@/lib/lightconeFundraiser';
 import SearchBar from "./SearchBar";
 import UsersMenu from "../users/UsersMenu";
 import UsersAccountMenu from "../users/UsersAccountMenu";
 import NotificationsMenuButton from "../notifications/NotificationsMenuButton";
 import NavigationDrawer from "./TabNavigationMenu/NavigationDrawer";
 import NotificationsMenu from "../notifications/NotificationsMenu";
-import KarmaChangeNotifier from "../users/KarmaChangeNotifier";
+import { KarmaChangeNotifier } from "../users/KarmaChangeNotifier";
 import HeaderSubtitle from "./HeaderSubtitle";
 import { Typography } from "./Typography";
 import ForumIcon from "./ForumIcon";
 import ActiveDialogues from "../dialogues/ActiveDialogues";
 import SiteLogo from "../ea-forum/SiteLogo";
 import MessagesMenuButton from "../messaging/MessagesMenuButton";
+import { SuspenseWrapper } from './SuspenseWrapper';
+import { forumSelect } from '@/lib/forumTypeUtils';
 
 /** Height of top header. On Book UI sites, this is for desktop only */
 export const HEADER_HEIGHT = isBookUI ? 64 : 66;
@@ -114,8 +115,29 @@ export const styles = (theme: ThemeType) => ({
   appBar: {
     boxShadow: theme.palette.boxShadow.appBar,
     color: theme.palette.text.bannerAdOverlay,
-    background: theme.palette.panelBackground.bannerAdTranslucent,
-    backdropFilter: theme.palette.filters.headerBackdropFilter,
+
+    ...(forumSelect({
+      LWAF: (theme.dark
+        ? {
+          background: theme.palette.panelBackground.bannerAdTranslucent,
+          backdropFilter: 'blur(4px) brightness(1.1)',
+          "&$blackBackgroundAppBar": {
+            boxShadow: theme.palette.boxShadow.appBarDarkBackground,
+            background: theme.palette.panelBackground.appBarDarkBackground,
+          },
+        } : {
+          backgroundColor: theme.palette.header.background,
+          backdropFilter: 'blur(4px)',
+          "&$blackBackgroundAppBar": {
+            boxShadow: theme.palette.boxShadow.appBar,
+            background: theme.palette.header.background,
+          },
+        }
+      ) as any,
+      default: {
+        backgroundColor: theme.palette.header.background,
+      },
+    })),
     position: "static",
     width: "100%",
     display: "flex",
@@ -135,10 +157,6 @@ export const styles = (theme: ThemeType) => ({
       },
     } : {}),
   },
-  blackBackgroundAppBar: {
-    boxShadow: theme.palette.boxShadow.appBarDarkBackground,
-    background: theme.palette.panelBackground.appBarDarkBackground,
-  },
   appBarDarkBackground: {
     ...textColorOverrideStyles({
       theme,
@@ -148,6 +166,7 @@ export const styles = (theme: ThemeType) => ({
     "--header-text-color": theme.palette.text.alwaysWhite,
     "--header-contrast-color": theme.palette.text.alwaysBlack,
   },
+  blackBackgroundAppBar: {},
   root: {
     // This height (including the breakpoint at xs/600px) is set by Headroom, and this wrapper (which surrounds
     // Headroom and top-pads the page) has to match.
@@ -314,7 +333,9 @@ const Header = ({
   const [notificationHasOpened, setNotificationHasOpened] = useState(false);
   const [searchOpen, setSearchOpenState] = useState(false);
   const [unFixed, setUnFixed] = useState(true);
-  const currentUser = useCurrentUser();
+  const getCurrentUser = useGetCurrentUser();
+  const isLoggedIn = !!useCurrentUserId();
+  const usernameUnset = useFilteredCurrentUser(u => !!u?.usernameUnset);
   const {toc} = useContext(SidebarsContext)!;
   const { captureEvent } = useTracking()
   const { notificationsOpened } = useUnreadNotifications();
@@ -330,16 +351,16 @@ const Header = ({
   }, [pathname, hash]);
 
   const hasNotificationsPopover = isFriendlyUI;
-  const hasKarmaChangeNotifier = !isFriendlyUI && currentUser && !currentUser.usernameUnset;
-  const hasMessagesButton = isFriendlyUI && currentUser && !currentUser.usernameUnset;
+  const hasKarmaChangeNotifier = !isFriendlyUI && isLoggedIn && !usernameUnset;
+  const hasMessagesButton = isFriendlyUI && isLoggedIn && !usernameUnset;
 
   const setNavigationOpen = (open: boolean) => {
     setNavigationOpenState(open);
     captureEvent("navigationBarToggle", {open: open})
   }
 
-  const handleSetNotificationDrawerOpen = async (isOpen: boolean): Promise<void> => {
-    if (!currentUser) return;
+  const handleSetNotificationDrawerOpen = useCallback(async (isOpen: boolean): Promise<void> => {
+    if (!isLoggedIn) return;
     if (isOpen) {
       setNotificationOpen(true);
       setNotificationHasOpened(true);
@@ -347,11 +368,12 @@ const Header = ({
     } else {
       setNotificationOpen(false);
     }
-  }
+  }, [isLoggedIn, notificationsOpened]);
 
   const handleNotificationToggle = () => {
+    const currentUser = getCurrentUser()!
     if (!currentUser) return;
-    const { lastNotificationsCheck } = currentUser
+    const { lastNotificationsCheck } = currentUser;
 
     if (hasNotificationsPopover) {
       captureEvent("notificationsIconToggle", {
@@ -440,7 +462,7 @@ const Header = ({
   )
 
   const usersMenuClass = isFriendlyUI ? classes.hideXsDown : classes.hideMdDown
-  const usersMenuNode = currentUser && <div className={searchOpen ? usersMenuClass : undefined}>
+  const usersMenuNode = isLoggedIn && <div className={searchOpen ? usersMenuClass : undefined}>
     <AnalyticsContext pageSectionContext="usersMenu">
       <UsersMenu />
     </AnalyticsContext>
@@ -450,21 +472,20 @@ const Header = ({
   const rightHeaderItemsNode = <div className={classNames(classes.rightHeaderItems)}>
     <SearchBar onSetIsActive={setSearchOpen} searchResultsArea={searchResultsArea} />
     {!isFriendlyUI && usersMenuNode}
-    {!currentUser && <UsersAccountMenu />}
+    {!isLoggedIn && <UsersAccountMenu />}
     {hasKarmaChangeNotifier && <KarmaChangeNotifier
-      currentUser={currentUser}
       className={(isFriendlyUI && searchOpen) ? classes.hideXsDown : undefined}
     />}
-    {currentUser && !currentUser.usernameUnset && <NotificationsMenuButton
+    {isLoggedIn && !usernameUnset && <NotificationsMenuButton
       toggle={handleNotificationToggle}
       open={notificationOpen}
       className={(isFriendlyUI && searchOpen) ? classes.hideXsDown : undefined}
     />}
-    {hasMessagesButton &&
+    {hasMessagesButton && <SuspenseWrapper name="MesagesMenuButton">
       <MessagesMenuButton
         className={(isFriendlyUI && searchOpen) ? classes.hideXsDown : undefined}
       />
-    }
+    </SuspenseWrapper>}
     {isFriendlyUI && usersMenuNode}
   </div>
 
@@ -477,7 +498,7 @@ const Header = ({
   />
 
   // the right side notifications menu
-  const headerNotificationsMenu = currentUser && !hasNotificationsPopover
+  const headerNotificationsMenu = isLoggedIn && !hasNotificationsPopover
     && (
       <NotificationsMenu
         open={notificationOpen}
@@ -552,7 +573,7 @@ const Header = ({
                   </Link>
                 </div>
               </Typography>
-              {!isEAForum &&<ActiveDialogues />}
+              {!isEAForum && isLoggedIn && <ActiveDialogues />}
               {rightHeaderItemsNode}
             </Toolbar>
           </header>

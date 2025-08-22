@@ -6,8 +6,6 @@ import {
   UltraFeedSettingsType,
   sourceWeightConfigs,
   truncationLevels,
-  levelToWordCountMap,
-  levelToPostWordCountMap,
   DEFAULT_SETTINGS,
   ThreadInterestModelFormState,
   CommentScoringFormState
@@ -316,18 +314,22 @@ export const SourceWeightsSettings: React.FC<SourceWeightsSettingsProps> = ({
   );
 };
 
-const getCommentLevelLabel = (level: TruncationLevel): string => {
+const getCommentLevelLabel = (
+  level: TruncationLevel,
+  commentMap: Record<TruncationLevel, number>
+): string => {
   // if (level === 'Very Short') return `${level} (2 lines)`; // uncomment if we reintroduce line clamp as default
   if (level === 'Full') return `${level} (no limit)`;
-  
-  const wordCount = levelToWordCountMap[level];
+  const wordCount = commentMap[level];
   return typeof wordCount === 'number' ? `${level} (${wordCount} words)` : level;
 };
 
-const getPostLevelLabel = (level: TruncationLevel): string => {
+const getPostLevelLabel = (
+  level: TruncationLevel,
+  postMap: Record<TruncationLevel, number>
+): string => {
   if (level === 'Full') return `${level} (no limit)`;
-  
-  const wordCount = levelToPostWordCountMap[level];
+  const wordCount = postMap[level];
   return typeof wordCount === 'number' ? `${level} (${wordCount} words)` : level;
 };
 
@@ -344,17 +346,21 @@ interface TruncationLevelDropdownProps {
   value: TruncationLevel;
   onChange: (field: keyof SimpleViewTruncationLevels, value: TruncationLevel) => void;
   label: string;
+  maps: { commentMap: Record<TruncationLevel, number>, postMap: Record<TruncationLevel, number> };
 }
 
 const TruncationLevelDropdown: React.FC<TruncationLevelDropdownProps> = ({
   field,
   value,
   onChange,
-  label
+  label,
+  maps
 }) => {
   const classes = useStyles(styles);
   const isPostDropdown = field.startsWith('post');
-  const getLabel = isPostDropdown ? getPostLevelLabel : getCommentLevelLabel;
+  const getLabel = isPostDropdown
+    ? (lvl: TruncationLevel) => getPostLevelLabel(lvl, maps.postMap)
+    : (lvl: TruncationLevel) => getCommentLevelLabel(lvl, maps.commentMap);
   
   return (
     <div className={classes.truncationItem}>
@@ -424,9 +430,14 @@ const TruncationInput: React.FC<TruncationInputProps> = ({
   );
 };
 
-const checkForNonstandardValues = (originalSettings: UltraFeedSettingsType) => { 
-  const allowedCommentValues = new Set(Object.values(levelToWordCountMap));
-  const allowedPostValues = new Set(Object.values(levelToPostWordCountMap));
+const checkForNonstandardValues = (
+  originalSettings: UltraFeedSettingsType,
+  maps: { commentMap: Record<TruncationLevel, number>, postMap: Record<TruncationLevel, number> }
+) => { 
+  const commentMap = maps.commentMap;
+  const postMap = maps.postMap;
+  const allowedCommentValues = new Set(Object.values(commentMap));
+  const allowedPostValues = new Set(Object.values(postMap));
 
   const { displaySettings } = originalSettings;
 
@@ -450,6 +461,7 @@ export interface TruncationGridSettingsProps {
   defaultOpen?: boolean;
   postBreakpointError?: string;
   commentBreakpointError?: string;
+  maps: { commentMap: Record<TruncationLevel, number>, postMap: Record<TruncationLevel, number> };
 }
 
 export const TruncationGridSettings: React.FC<TruncationGridSettingsProps> = ({
@@ -459,9 +471,10 @@ export const TruncationGridSettings: React.FC<TruncationGridSettingsProps> = ({
   defaultOpen = true,
   postBreakpointError,
   commentBreakpointError,
+  maps,
 }) => {
   const classes = useStyles(styles);
-  const showWarning = checkForNonstandardValues(originalSettings);
+  const showWarning = checkForNonstandardValues(originalSettings, maps);
 
   return (
     <CollapsibleSettingGroup title="Content Display Length" defaultOpen={defaultOpen} className={classes.settingGroup}>
@@ -484,12 +497,14 @@ export const TruncationGridSettings: React.FC<TruncationGridSettingsProps> = ({
           value={levels.postInitialLevel}
           onChange={onChange}
           label="Initial words to display"
+          maps={maps}
         />
         <TruncationLevelDropdown
           field="postMaxLevel"
           value={levels.postMaxLevel}
           onChange={onChange}
           label="Max words in-place"
+          maps={maps}
         />
         {postBreakpointError && (
           <p className={classes.errorMessage}>{postBreakpointError}</p>
@@ -503,18 +518,21 @@ export const TruncationGridSettings: React.FC<TruncationGridSettingsProps> = ({
           value={levels.commentCollapsedInitialLevel}
           onChange={onChange}
           label="Initial (deemphasized)"
+          maps={maps}
         />
         <TruncationLevelDropdown
           field="commentExpandedInitialLevel"
           value={levels.commentExpandedInitialLevel}
           onChange={onChange}
           label="Initial (emphasized)"
+          maps={maps}
         />
         <TruncationLevelDropdown
           field="commentMaxLevel"
           value={levels.commentMaxLevel}
           onChange={onChange}
           label="Max words in-place"
+          maps={maps}
         />
         {commentBreakpointError && (
           <p className={classes.errorMessage}>{commentBreakpointError}</p>
@@ -726,12 +744,6 @@ export const MultipliersSettings: React.FC<MultipliersSettingsProps> = ({
       min: 1, max: 5, step: 0.1, defaultVal: defaultCommentScoringSettings.commentSubscribedAuthorMultiplier,
     },
     {
-      key: 'ultraFeedSeenPenalty' as const,
-      label: "Seen Penalty",
-      description: `Score multiplier for items already marked as seen (0 to 1). Default: ${defaultCommentScoringSettings.ultraFeedSeenPenalty}`,
-      min: 0, max: 1, step: 0.01, defaultVal: defaultCommentScoringSettings.ultraFeedSeenPenalty,
-    },
-    {
       key: 'commentDecayFactor' as const,
       label: "Decay Factor",
       description: `Controls how quickly comments lose score over time. Higher values mean faster decay. Default: ${defaultCommentScoringSettings.commentDecayFactor}`,
@@ -770,7 +782,7 @@ export const MultipliersSettings: React.FC<MultipliersSettingsProps> = ({
       <div className={classes.groupDescription}>
         <p className={classes.formulaDescription}>
           <code>timeDecayedKarma = ((karma + 1) / (ageHours + commentDecayBiasHours)^(commentDecayFactor))</code><br/>
-          <code>individualCommentScore = timeDecayedKarma * quickTakeBoost * subscribedMultiplier * seenPenalty</code><br/>
+          <code>individualCommentScore = timeDecayedKarma * quickTakeBoost * subscribedMultiplier * (0 if seen already)</code><br/>
           <code>baseThreadScore = aggregateMethod(firstN(individualCommentScore))</code>
         </p>
       </div>
@@ -904,6 +916,18 @@ export const ThreadInterestTuningSettings: React.FC<ThreadInterestTuningSettings
       description: "The maximum final multiplier applied to the thread's base score (e.g., 20 for max 20× boost).",
       min: 1.0, max: 20.0, step: 0.5, defaultVal: defaultThreadInterestModelSettings.maxOverallMultiplier,
     },
+    {
+      key: 'repetitionDecayHours' as const,
+      label: "Repetition Decay Hours",
+      description: "Hours added to time-since-serving for hyperbolic decay calculation. Higher values mean slower penalty decay.",
+      min: 0.5, max: 8.0, step: 0.5, defaultVal: defaultThreadInterestModelSettings.repetitionDecayHours,
+    },
+    {
+      key: 'repetitionPenaltyStrength' as const,
+      label: "Repetition Penalty Strength",
+      description: "How much to penalize a thread each time it's recently shown (0 = no penalty, 0.5 = 50% penalty per recent showing).",
+      min: 0, max: 0.5, step: 0.05, defaultVal: defaultThreadInterestModelSettings.repetitionPenaltyStrength,
+    },
   ];
 
   return (
@@ -911,7 +935,8 @@ export const ThreadInterestTuningSettings: React.FC<ThreadInterestTuningSettings
       <div className={classes.groupDescription}>
         <p className={classes.formulaDescription}>
           <code>engagementFactor = (1+commentCoeff*numComments) * (1+voteCoeff*voteScore) * (1+viewCoeff*viewScore) * onReadPostFactor</code><br/>
-          <code>threadMultiplier = 1 + log(engagementFactor) * logImpactFactor</code><br/>
+          <code>repetitionPenalty = ∏(1 - repetitionPenaltyStrength / (1 + hoursAgo/repetitionDecayHours))</code><br/>
+          <code>threadMultiplier = (1 + log(engagementFactor) * logImpactFactor) * repetitionPenalty</code><br/>
           <code>clampedThreadMultiplier = clamped(threadMultiplier, minOverallMultiplier, maxOverallMultiplier)</code><br/><br/>
           <code>overallThreadScore = baseThreadScore * clampedThreadMultiplier</code>
         </p>
@@ -920,6 +945,7 @@ export const ThreadInterestTuningSettings: React.FC<ThreadInterestTuningSettings
           <li>voteScore: smallUpvotes = 1 vote unit, bigUpovtes = 5</li>
           <li>viewScore: itemOnViewport = 1 view unit, itemExpanded = 3 view units</li>
           <li>onReadPostFactor applies if thread is on a post user has read, otherwise 1.0</li>
+          <li>repetitionPenalty applies exponentially decaying penalty for each recent showing of the thread</li>
         </ul>
       </div>
       {fields.map(f => {

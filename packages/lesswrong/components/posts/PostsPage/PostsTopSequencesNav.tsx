@@ -43,7 +43,7 @@ const styles = (theme: ThemeType) => ({
       color: theme.palette.greyAlpha(0.7),
       fontWeight: 500,
     }),
-    ...(isFriendlyUI && theme.themeOptions.name === 'dark' && {
+    ...(isFriendlyUI && theme.dark && {
       color: theme.palette.icon.dim,
     }),
   },

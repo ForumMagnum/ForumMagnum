@@ -15,8 +15,21 @@ import LWTooltip from "../common/LWTooltip";
 import Row from "../common/Row";
 import ReactionDescription from "./lwReactions/ReactionDescription";
 import MetaInfo from "../common/MetaInfo";
-import { useMutation } from "@apollo/client";
+import { useMutation } from "@apollo/client/react";
 import { gql } from "@/lib/generated/gql-codegen";
+import { 
+  getCuratedActiveReactions,
+  listPrimary as listPrimaryNames,
+  listEmotions as listEmotionNames,
+  gridPrimary as gridPrimaryNames,
+  gridEmotions as gridEmotionNames,
+  gridSectionB as gridSectionBNames,
+  gridSectionC as gridSectionCNames,
+  likelihoods as likelihoodNames,
+  listViewSectionB as listViewSectionBNames,
+  listViewSectionC as listViewSectionCNames,
+  listViewSectionD as listViewSectionDNames
+} from '../../lib/voting/curatedReactionsList';
 
 const UsersCurrentUpdateMutation = gql(`
   mutation updateUserReactionsPalette($selector: SelectorInput!, $data: UpdateUserDataInput!) {
@@ -173,8 +186,7 @@ const ReactionsPalette = ({getCurrentUserReactionVote, toggleReaction, quote}: {
   const [displayStyle, setDisplayStyle] = useState<ReactPaletteStyle>(reactPaletteStyle);
   const debouncedCaptureEvent = useRef(debounce(captureEvent, 500))
   
-  const activeReacts = namesAttachedReactions.filter(r=>!r.deprecated);
-  const reactionsToShow = reactionsSearch(activeReacts, searchText);
+  const reactionsToShow = getCuratedActiveReactions(searchText);
 
   const [updateUser] = useMutation(UsersCurrentUpdateMutation);
 
@@ -206,58 +218,16 @@ const ReactionsPalette = ({getCurrentUserReactionVote, toggleReaction, quote}: {
 
   const getReactionFromName = (name: string) => namesAttachedReactions.find(r => r.name === name && reactionsToShow.includes(r));
 
-  const listPrimary = [
-    'agree', 'disagree', 'important', 'dontUnderstand', 'shrug', 'thinking', 'surprise', 'seen', 'thanks', 
-  ].map(r => getReactionFromName(r)).filter(r => r);
-
-  const listEmotions = [
-    'smile', 'laugh', 'disappointed', 'confused', 'roll', 'excitement', 'thumbs-up', 'thumbs-down', 'paperclip', 
-  ].map(r => getReactionFromName(r)).filter(r => r);
-
-  const gridPrimary = [
-    'agree', 'disagree', 'important', 'dontUnderstand', 'changemind', 'shrug', 'thinking', 'surprise', 'seen',  
-  ].map(r => getReactionFromName(r)).filter(r => r);
-
-  const gridEmotions = [
-    'smile', 'laugh', 'disappointed', 'confused', 'roll', 'excitement', 'thumbs-up', 'thumbs-down', 'thanks', 
-  ].map(r => getReactionFromName(r)).filter(r => r);
-  
-  const gridSectionB = [
-    'crux',       'hitsTheMark', 'locallyValid',   'scout',     'facilitation',             'concrete',  'yeswhatimean', 'clear', 'betTrue',
-    'notacrux',   'miss',        'locallyInvalid', 'soldier',   'unnecessarily-combative','examples',  'strawman',     'muddled', 'betFalse',
-  ].map(r => getReactionFromName(r)).filter(r => r);
-
-  const gridSectionC = [
-    'heart', 'insightful', 'taboo',  'offtopic',  'elaborate',  'timecost',  'typo', 'scholarship', 'why'
-  ].map(r => getReactionFromName(r)).filter(r => r);
-
-  const likelihoods = [
-    '1percent', '10percent', '25percent', '40percent', '50percent', '60percent', '75percent', '90percent', '99percent',
-  ].map(r => getReactionFromName(r)).filter(r => r);
-
-  const listViewSectionB = [
-    'changemind',   'insightful',
-    'thanks',       'heart',
-    'typo',         'why', 
-    'offtopic',     'elaborate',
-  ].map(r => getReactionFromName(r)).filter(r => r);
-
-  const listViewSectionC = [
-    'hitsTheMark',  'miss',
-    'crux',         'notacrux',
-    'locallyValid', 'locallyInvalid',
-    'facilitation', 'unnecessarily-combative',
-    'yeswhatimean', 'strawman',
-    'concrete',     'examples',
-    'clear',        'muddled',
-    'betTrue',     'betFalse',
-    'scout',        'soldier',
-  ].map(r => getReactionFromName(r)).filter(r => r);
-
-  const listViewSectionD = [
-    'scholarship',  'taboo',             
-    'coveredAlready','timecost',
-  ].map(r => getReactionFromName(r)).filter(r => r );
+  const listPrimary = listPrimaryNames.map(r => getReactionFromName(r)).filter(r => r);
+  const listEmotions = listEmotionNames.map(r => getReactionFromName(r)).filter(r => r);
+  const gridPrimary = gridPrimaryNames.map(r => getReactionFromName(r)).filter(r => r);
+  const gridEmotions = gridEmotionNames.map(r => getReactionFromName(r)).filter(r => r);
+  const gridSectionB = gridSectionBNames.map(r => getReactionFromName(r)).filter(r => r);
+  const gridSectionC = gridSectionCNames.map(r => getReactionFromName(r)).filter(r => r);
+  const likelihoods = likelihoodNames.map(r => getReactionFromName(r)).filter(r => r);
+  const listViewSectionB = listViewSectionBNames.map(r => getReactionFromName(r)).filter(r => r);
+  const listViewSectionC = listViewSectionCNames.map(r => getReactionFromName(r)).filter(r => r);
+  const listViewSectionD = listViewSectionDNames.map(r => getReactionFromName(r)).filter(r => r);
 
   const gridReactButton = (reaction: NamesAttachedReactionType, size=24) => {
     const currentUserVote = getCurrentUserReactionVote(reaction.name, quote);
@@ -365,19 +335,6 @@ const ReactionsPalette = ({getCurrentUserReactionVote, toggleReaction, quote}: {
       </a>}
     </div>
   </div>
-}
-
-export function reactionsSearch(candidates: NamesAttachedReactionType[], searchText: string): NamesAttachedReactionType[] {
-  if (!searchText || !searchText.length)
-    return candidates;
-  
-  searchText = searchText.toLowerCase();
-
-  return candidates.filter(
-    reaction => reaction.name.toLowerCase().startsWith(searchText)
-      || reaction.label.toLowerCase().startsWith(searchText)
-      || reaction.searchTerms?.some(searchTerm => searchTerm.toLowerCase().startsWith(searchText))
-  );
 }
 
 export default registerComponent('ReactionsPalette', ReactionsPalette);

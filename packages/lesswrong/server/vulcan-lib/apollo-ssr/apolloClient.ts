@@ -1,8 +1,11 @@
-import { ApolloClient, ApolloLink, InMemoryCache } from '@apollo/client';
+import { ApolloClient, ApolloLink, InMemoryCache, Observable, Operation, FetchResult, NextLink } from '@apollo/client';
 import { createSchemaLink, createHttpLink, createErrorLink } from '../../../lib/apollo/links';
 import { fmCrosspostBaseUrlSetting } from "../../../lib/instanceSettings";
-import { makeExecutableSchema } from '@graphql-tools/schema';
-import { typeDefs, resolvers } from '../apollo-server/initGraphQL';
+import { getExecutableSchema } from '../apollo-server/initGraphQL';
+import { type DocumentNode, type GraphQLSchema, execute, print } from 'graphql';
+import stringify from 'json-stringify-deterministic';
+import { SwrCache } from '@/lib/utils/swrCache';
+import { createAnonymousContext } from '../createContexts';
 
 // This client is used to prefetch data server side (necessary for SSR)
 // It is recreated on every request.
@@ -16,7 +19,9 @@ export const createClient = async (context: ResolverContext | null, foreign = fa
     links.push(createHttpLink(fmCrosspostBaseUrlSetting.get() ?? "/"));
   } else if (context) {
     links.push(createErrorLink());
-    const schema = makeExecutableSchema({ typeDefs, resolvers });
+    const schema = getExecutableSchema();
+    links.push(new LoggedOutCacheSchemaLink(schema));
+
     // schemaLink will fetch data directly based on the executable schema
     // context here is the resolver context
     links.push(createSchemaLink(schema, context));
@@ -34,3 +39,76 @@ export const createClient = async (context: ResolverContext | null, foreign = fa
   await client.clearStore();
   return client;
 };
+
+
+/**
+ * Apollo link, for use during SSR, which checks whether queries have
+ * {loggedOutCache: true} in their context and, if so, executes them with
+ * executeWithCache instead of the normal graphql execution path. This is
+ * currently used only for the LW front page spotlight.
+ */
+class LoggedOutCacheSchemaLink extends ApolloLink {
+  public schema: GraphQLSchema
+
+  constructor(schema: GraphQLSchema) {
+    super();
+    this.schema = schema;
+  }
+
+  public request(operation: Operation, forward?: NextLink): Observable<FetchResult>|null {
+    const wantsLoggedOutCache = operation.getContext()?.loggedOutCache === true;
+    if (!wantsLoggedOutCache) {
+      return forward?.(operation) ?? null;
+    }
+
+    return new Observable<FetchResult>((observer) => {
+      new Promise<FetchResult>((resolve) => {
+        resolve(executeWithCache({
+          schema: this.schema,
+          document: operation.query,
+          rootValue: undefined,
+          variableValues: operation.variables,
+          operationName: operation.operationName,
+        }));
+      })
+        .then((data) => {
+          if (!observer.closed) {
+            observer.next(data);
+            observer.complete();
+          }
+        })
+        .catch((error) => {
+          if (!observer.closed) {
+            observer.error(error);
+          }
+        });
+    });
+  }
+}
+
+const loggedOutQueryCache: Record<string, SwrCache<FetchResult, []>> = {};
+
+async function executeWithCache({ schema, document, rootValue, variableValues, operationName }: {
+  schema: GraphQLSchema,
+  document: DocumentNode,
+  rootValue: any,
+  variableValues: any,
+  operationName: string,
+}): Promise<FetchResult> {
+  const queryString = print(document);
+  const cacheKey = stringify({ queryString, variableValues });
+  
+  if (!loggedOutQueryCache[cacheKey]) {
+    loggedOutQueryCache[cacheKey] = new SwrCache({
+      generate: async () => {
+        const context = createAnonymousContext();
+        return await execute({
+          schema, document, rootValue, contextValue: context, variableValues, operationName
+        });
+      },
+      expiryMs: 120000,
+    });
+  }
+  
+  return loggedOutQueryCache[cacheKey].get();
+}

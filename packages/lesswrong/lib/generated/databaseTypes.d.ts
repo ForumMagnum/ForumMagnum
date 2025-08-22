@@ -53,13 +53,13 @@ type AutomatedContentEvaluationsCollection = CollectionBase<"AutomatedContentEva
 
 interface DbAutomatedContentEvaluation extends DbObject {
   __collectionName?: "AutomatedContentEvaluations"
-  aiChoice: "accept" | "review"
-  aiCoT: string
-  aiReasoning: string
+  aiChoice: "accept" | "review" | null
+  aiCoT: string | null
+  aiReasoning: string | null
   createdAt: Date
   revisionId: string
-  score: number
-  sentenceScores: { sentence: string; score: number; }[]
+  score: number | null
+  sentenceScores: { sentence: string; score: number; }[] | null
 }
 
 type BansCollection = CollectionBase<"Bans">;
@@ -1687,6 +1687,7 @@ interface DbUser extends DbObject {
   biography: EditableFieldContents | null
   biography_latest: string | null
   blueskyProfileURL: string | null
+  bookmarksCount: number
   careerStage: Array<string> | null
   collapseModerationGuidelines: boolean | null
   commentCount: number

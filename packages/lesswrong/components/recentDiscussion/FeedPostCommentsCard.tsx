@@ -7,11 +7,11 @@ import withErrorBoundary from '../common/withErrorBoundary'
 
 import { Link } from '../../lib/reactRouterWrapper';
 import { postGetPageUrl } from '../../lib/collections/posts/helpers';
-import { AnalyticsContext } from "../../lib/analyticsEvents";
+import { AnalyticsContext, useTracking } from "../../lib/analyticsEvents";
 import type { CommentTreeOptions } from '../comments/commentTree';
 import { isFriendlyUI } from '../../themes/forumTheme';
 import { useRecentDiscussionThread } from './useRecentDiscussionThread';
-import CommentsNodeInner from "../comments/CommentsNode";
+import CommentsNode from "../comments/CommentsNode";
 import FeedPostsHighlight from "../posts/FeedPostsHighlight";
 import PostActionsButton from "../dropdowns/posts/PostActionsButton";
 import FeedPostCardMeta from "../posts/FeedPostCardMeta";
@@ -128,6 +128,7 @@ const FeedPostCommentsBranch = ({ comment, treeOptions, expandAllThreads, classe
   classes: ClassesType<typeof styles>
 }) => {
   const [expanded, setExpanded] = useState(expandAllThreads);
+  const { captureEvent } = useTracking();
 
   const flattenedCommentBranch = flattenCommentBranch(comment);
   let commentBranchWithGaps = flattenedCommentBranch.slice(1);
@@ -145,13 +146,22 @@ const FeedPostCommentsBranch = ({ comment, treeOptions, expandAllThreads, classe
 
   const showExtraChildrenButton =
     extraChildrenCount > 0 ? (
-      <a className={classes.showChildren} onClick={() => setExpanded(true)}>
+      <a className={classes.showChildren} onClick={() => {
+        captureEvent("showMoreCommentsClicked", {
+          parentCommentId: comment.item._id,
+          postId: comment.item.postId,
+          shownCount: commentBranchWithGaps.length,
+          totalCount: flattenedCommentBranch.length - 1,
+          hiddenCount: extraChildrenCount,
+        });
+        setExpanded(true);
+      }}>
         Showing {commentBranchWithGaps.length} of {flattenedCommentBranch.length - 1} replies (Click to show all)
       </a>
     ) : null;
 
   return <div key={comment.item._id}>
-    <CommentsNodeInner
+    <CommentsNode
       treeOptions={treeOptions}
       startThreadTruncated={true}
       showExtraChildrenButton={showExtraChildrenButton}

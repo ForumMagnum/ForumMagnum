@@ -12,6 +12,8 @@ const restrictedImportsPaths = [
   { name: "@/lib/vendor/@material-ui/core/src/Popper", importNames: ["Popper"], message: "Don't use material-UI's Popper component directly, use LWPopper instead" },
   { name: "@/lib/vendor/@material-ui/core/src/MenuItem", message: "Don't use material-UI's MenuItem component directly; use Components.MenuItem or JSS styles" },
   { name: "@/lib/vendor/@material-ui/core/src/NoSsr", importNames: ["Popper"], message: "Don't use @/lib/vendor/@material-ui/core/src/NoSsr/NoSsr; use react-no-ssr instead" },
+  { name: "@apollo/client", importNames: ["useQuery"], message: "Don't import useQuery from Apollo directly; use the wrapper in lib/crud/useQuery" },
+  { name: "@apollo/client", importNames: ["gql"], message: "Don't import gql from Apollo; use @/lib/generated/gql-codegen" },
   { name: "react-router", message: "Don't import react-router, use lib/reactRouterWrapper" },
   { name: "react-router-dom", message: "Don't import react-router-dom, use lib/reactRouterWrapper" },
   { name: "@/lib/vendor/@material-ui/core/src/ClickAwayListener", message: "Don't use material-UI's ClickAwayListener component; use LWClickAwayListener instead" },
@@ -176,12 +178,17 @@ module.exports = {
       ]
     }],
 
-    // Warn on missing await
+    // Warn on missing await. We use ignoreVoid: true by default but change it
+    // to false for lib/ and server/ because you should use the
+    // `backgroundTask()` function rather than void, except in the `components`
+    // folder in which void is allowed (specified in the `overrides` section
+    // below).
     // The ignoreVoid option makes it so that
     //   void someAwaitableFunction()
     // can be used as a way of marking a function as deliberately not-awaited.
     "@typescript-eslint/no-floating-promises": [1, {
-      ignoreVoid: true
+      ignoreVoid: true,
+      ignoreIIFE: true,
     }],
 
     // Like no-implicit-any, but specifically for things that are exported. Turn
@@ -318,6 +325,20 @@ module.exports = {
           ...clientRestrictedImportPaths
         ]}],
       }
+    },
+    {
+      "files": [
+        "packages/lesswrong/lib/**/*.ts",
+        "packages/lesswrong/lib/**/*.tsx",
+        "packages/lesswrong/server/**/*.ts",
+        "packages/lesswrong/server/**/*.tsx",
+      ],
+      "rules": {
+        "@typescript-eslint/no-floating-promises": [1, {
+          ignoreVoid: false,
+          ignoreIIFE: true,
+        }],
+      },
     }
   ],
   "env": {

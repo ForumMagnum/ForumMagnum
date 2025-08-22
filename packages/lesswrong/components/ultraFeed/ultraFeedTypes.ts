@@ -1,6 +1,6 @@
 // Define source type arrays for runtime iteration
-export const feedPostSourceTypesArray = [ 'hacker-news', 'recombee-lesswrong-custom', 'bookmarks', 'subscriptions' ] as const;
-export const feedCommentSourceTypesArray = ['recentComments', 'bookmarks', 'subscriptions'] as const;
+export const feedPostSourceTypesArray = [ 'hacker-news', 'recombee-lesswrong-custom', 'bookmarks', 'subscriptionsPosts' ] as const;
+export const feedCommentSourceTypesArray = ['quicktakes', 'recentComments', 'subscriptionsComments', 'bookmarks'] as const;
 export const feedSpotlightSourceTypesArray = ['spotlights'] as const;
 export const allFeedItemSourceTypes = [
   ...feedPostSourceTypesArray,
@@ -22,7 +22,7 @@ export type FeedItemRenderType = typeof feedItemRenderTypes[number];
 
 export type FeedItemType = FeedItemRenderType | "feedComment";
  
-export type FeedItemDisplayStatus = "expanded" | "collapsed" | "hidden";
+export type FeedItemDisplayStatus = "expanded" | "collapsed" | "hidden" | "expandedToMaxInPlace";
 export interface RecombeeMetaInfo {
   scenario: string;
   recommId: string;
@@ -34,12 +34,15 @@ export interface FeedPostMetaInfo {
   lastServed?: Date | null;
   lastViewed?: Date | null;
   lastInteracted?: Date | null;
+  highlight: boolean;
   displayStatus: FeedItemDisplayStatus;
   servedEventId?: string;
 }
 export interface FeedCommentMetaInfo {
   sources: FeedItemSourceType[];
-  directDescendentCount: number;
+  descendentCount: number;
+  /** @deprecated Use descendentCount instead. This field previously had a typo and only counted direct children. */
+  directDescendentCount?: number;
   lastServed?: Date | null;
   lastViewed?: Date | null;
   lastInteracted?: Date | null;
@@ -47,6 +50,11 @@ export interface FeedCommentMetaInfo {
   highlight?: boolean;
   displayStatus?: FeedItemDisplayStatus;
   servedEventId?: string;
+}
+
+export interface FeedSpotlightMetaInfo {
+  sources: FeedItemSourceType[];
+  servedEventId: string;
 }
 
 export interface FeedCommentFromDb {
@@ -58,17 +66,13 @@ export interface FeedCommentFromDb {
   baseScore: number;
   shortform: boolean | null;
   sources: string[];
+  primarySource?: string;
+  isInitialCandidate?: boolean;
   lastServed: Date | null;
   lastViewed: Date | null;
   lastInteracted: Date | null;
   postedAt: Date | null;
-}
-
-export interface FeedPostFromDb extends DbPost {
-  sourceType: FeedItemSourceType;
-  lastServed: Date | null;
-  lastViewed: Date | null;
-  lastInteracted: Date | null;
+  descendentCount?: number;
 }
 
 export interface PreDisplayFeedComment {
@@ -83,6 +87,9 @@ export type PreDisplayFeedCommentThread = PreDisplayFeedComment[];
 
 export interface FeedCommentsThread {
   comments: PreDisplayFeedComment[];
+  primarySource?: FeedItemSourceType;
+  isOnReadPost?: boolean | null;
+  postSources?: FeedItemSourceType[];
 }
 
 export interface FeedPostStub {
@@ -97,6 +104,8 @@ export interface FeedFullPost {
 
 export interface FeedSpotlight {
   spotlightId: string;
+  documentType: string;
+  documentId: string;
 }
 
 export type FeedItem = FeedCommentsThread | FeedSpotlight | FeedFullPost;
@@ -105,6 +114,9 @@ export interface FeedCommentsThreadResolverType {
   _id: string;
   comments: DbComment[];
   commentMetaInfos: {[commentId: string]: FeedCommentMetaInfo};
+  isOnReadPost?: boolean | null;
+  postSources?: FeedItemSourceType[];
+  post?: DbPost | null;
 }
 
 export interface FeedPostResolverType {
@@ -116,6 +128,8 @@ export interface FeedPostResolverType {
 export interface FeedSpotlightResolverType {
   _id: string;
   spotlight: DbSpotlight;
+  post?: DbPost;
+  spotlightMetaInfo: FeedSpotlightMetaInfo;
 }
 
 export type FeedItemResolverType = FeedPostResolverType | FeedCommentsThreadResolverType | FeedSpotlightResolverType;
@@ -131,6 +145,9 @@ export interface DisplayFeedCommentThread {
   _id: string;
   comments: UltraFeedComment[];
   commentMetaInfos: {[commentId: string]: FeedCommentMetaInfo};
+  isOnReadPost?: boolean | null;
+  postSources?: FeedItemSourceType[] | null;
+  post?: PostsListWithVotes | null;
 }
 
 export interface DisplayFeedPost {
@@ -153,7 +170,7 @@ export interface LinearCommentThreadStatistics {
 }
 
 export interface UltraFeedAnalyticsContext {
-  sessionId: string;
+  feedSessionId: string;
 }
 export interface ThreadEngagementStats {
   threadTopLevelId: string;
@@ -161,6 +178,8 @@ export interface ThreadEngagementStats {
   participationCount: number;
   viewScore: number;
   isOnReadPost: boolean;
+  recentServingCount: number;
+  servingHoursAgo: number[];
 }
 
 export interface ServedEventData {

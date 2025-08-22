@@ -2,7 +2,7 @@ import React, { useState, useCallback, useRef, useEffect, useMemo } from "react"
 import { registerComponent } from "../../lib/vulcan-lib/components";
 import { AnalyticsContext, useTracking } from "../../lib/analyticsEvents";
 import { defineStyles, useStyles } from "../hooks/useStyles";
-import { postGetPageUrl } from "@/lib/collections/posts/helpers";
+import { postGetPageUrl, postGetLink, postGetLinkTarget, detectLinkpost } from "@/lib/collections/posts/helpers";
 import { FeedPostMetaInfo, FeedItemSourceType } from "./ultraFeedTypes";
 import { nofollowKarmaThreshold } from "../../lib/publicSettings";
 import { UltraFeedSettingsType, DEFAULT_SETTINGS } from "./ultraFeedSettingsTypes";
@@ -14,9 +14,7 @@ import { useOverflowNav } from "./OverflowNavObserverContext";
 import { useDialog } from "../common/withDialog";
 import { isPostWithForeignId } from "../hooks/useForeignCrosspost";
 import { useForeignApolloClient } from "../hooks/useForeignApolloClient";
-import { Link } from "../../lib/reactRouterWrapper";
 import UltraFeedPostDialog from "./UltraFeedPostDialog";
-import TruncatedAuthorsList from "../posts/TruncatedAuthorsList";
 import FormatDate from "../common/FormatDate";
 import PostActionsButton from "../dropdowns/posts/PostActionsButton";
 import FeedContentBody from "./FeedContentBody";
@@ -34,6 +32,12 @@ import { SparkleIcon } from "../icons/sparkleIcon";
 import SeeLessFeedback from "./SeeLessFeedback";
 import { useCurrentUser } from "../common/withUser";
 import { useSeeLess } from "./useSeeLess";
+import { UltraFeedCommentItem } from "./UltraFeedCommentItem";
+import type { FeedCommentMetaInfo } from "./ultraFeedTypes";
+import PostsUserAndCoauthors from "../posts/PostsUserAndCoauthors";
+import TruncatedAuthorsList from "../posts/TruncatedAuthorsList";
+import ForumIcon from "../common/ForumIcon";
+import { RecombeeRecommendationsContextWrapper } from "../recommendations/RecombeeRecommendationsContextWrapper";
 
 const localPostQuery = gql(`
   query LocalPostQuery($documentId: String!) {
@@ -59,17 +63,43 @@ const styles = defineStyles("UltraFeedPostItem", (theme: ThemeType) => ({
   root: {
     position: 'relative',
     paddingTop: 12,
-    paddingBottom: 12,
-    paddingLeft: 16,
+    paddingLeft: 20,
     paddingRight: 16,
     fontFamily: theme.palette.fonts.sansSerifStack,
     background: theme.palette.panelBackground.bannerAdTranslucentHeavy,
     backdropFilter: theme.palette.filters.bannerAdBlurHeavy,
     borderRadius: 4,
+    display: 'flex',
+    flexDirection: 'row',
+    transition: 'background-color 1.0s ease-out',
+    [theme.breakpoints.down('sm')]: {
+      paddingTop: 16,
+      paddingLeft: 20,
+      paddingRight: 20,
+    },
+  },
+  rootWithReadStyles: {
+    backgroundColor: theme.palette.ultraFeed.readBackground,
+    opacity: theme.palette.ultraFeed.readOpacity.root,
+    '&:hover': {
+      opacity: 1,
+    },
+    [theme.breakpoints.down('sm')]: {
+      backgroundColor: theme.palette.ultraFeed.readBackgroundMobile,
+      borderTop: theme.palette.border.itemSeparatorBottom,
+      borderBottom: theme.palette.border.itemSeparatorBottom,
+      opacity: theme.palette.ultraFeed.readOpacity.rootMobile,
+    },
+  },
+  rootWithAnimation: {
+    backgroundColor: `${theme.palette.primary.main}3b`,
+    transition: 'none',
   },
   mainContent: {
     display: 'flex',
     flexDirection: 'column',
+    flexGrow: 1,
+    minWidth: 0,
   },
   greyedOut: {
     opacity: 0.5,
@@ -77,86 +107,107 @@ const styles = defineStyles("UltraFeedPostItem", (theme: ThemeType) => ({
     pointerEvents: 'none',
   },
   tripleDotMenu: {
+    position: 'relative',
+    bottom: 1,
+    color: theme.palette.ultraFeed.dim,
     opacity: 0.7,
-    position: 'absolute',
-    right: 2,
-    top: 5,
-    padding: 5,
-    marginLeft: 4,
     "& svg": {
       fontSize: 18,
       cursor: "pointer",
-      color: theme.palette.text.dim,
-    }
+    },
+    [theme.breakpoints.down('sm')]: {
+      position: 'absolute',
+      right: 16,
+      top: 12,
+      padding: 5,
+      marginLeft: 4,
+      zIndex: 10,
+    },
   },
   header: {
     display: 'flex',
-    flexDirection: 'column',
-    gap: '4px',
     marginBottom: 12,
+    marginRight: -10, //so triple dot lines up on both posts and comments
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'baseline',
+    gap: 16,
+    [theme.breakpoints.down('sm')]: {
+      marginRight: 0,
+      position: 'relative',
+      flexDirection: 'column',
+      gap: '4px',
+      alignItems: 'stretch',
+    },
   },
   titleContainer: {
     display: 'flex',
-    justifyContent: 'flex-start',
-    alignItems: 'center',
-    width: '100%',
+    alignItems: 'baseline',
+    flexGrow: 1,
+    minWidth: 0,
     [theme.breakpoints.down('sm')]: {
+      width: '100%',
+      paddingRight: '30px', // To leave space for the absolutely positioned triple-dot menu
     },
   },
   title: {
     fontFamily: theme.palette.fonts.sansSerifStack,
-    fontSize: '1.4rem',
     fontWeight: 600,
     opacity: 0.8,
     lineHeight: 1.15,
     textWrap: 'balance',
-    width: '100%',
     color: theme.palette.text.bannerAdOverlay,
     '&:hover': {
       opacity: 0.9,
       textDecoration: 'none',
       cursor: 'pointer',
     },
-    flexGrow: 1,
-    paddingRight: 8,
+    fontSize: '1.3rem',
+    whiteSpace: 'normal',
     [theme.breakpoints.down('sm')]: {
-      fontSize: 20.5,
+      width: '100%',
+      flexGrow: 1,
+      paddingRight: 8,
     },
   },
   titleIsRead: {
-    opacity: 0.5,
-    color: theme.palette.text.bannerAdOverlay,
-    '&:hover': {
-      opacity: 0.9,
-    },
   },
   metaRow: {
     display: "flex",
-    flexWrap: "wrap",
-    alignItems: "baseline",
-    rowGap: "6px",
     color: theme.palette.text.dim,
     fontFamily: theme.palette.fonts.sansSerifStack,
     fontSize: theme.typography.body2.fontSize,
+    alignItems: 'baseline',
+    flexShrink: 0,
+    flexWrap: 'nowrap',
+    columnGap: '8px',
     [theme.breakpoints.down('sm')]: {
-      fontSize: "1.3rem",
+      flexWrap: "nowrap",
+      alignItems: "baseline",
+      rowGap: "6px",
+      flexShrink: 1,
+      width: 'auto',
     },
   },
   sourceIcon: {
     width: 16,
     height: 16,
-    marginRight: 8,
     color: theme.palette.grey[600],
     opacity: 0.7,
     position: 'relative',
-    top: 3,
+    top: 2,
     flexShrink: 0,
   },
   metaDateContainer: {
-    marginRight: 8,
+    order: 3,
+    [theme.breakpoints.down('sm')]: {
+      order: 2,
+      flexShrink: 0,
+    },
   },
   footer: {
     marginTop: 12,
+    marginBottom: 12,
   },
   footerGreyedOut: {
     opacity: 0.5,
@@ -173,22 +224,81 @@ const styles = defineStyles("UltraFeedPostItem", (theme: ThemeType) => ({
     justifyContent: "center",
     padding: "20px 0",
   },
+  authorsListWrapper: {
+    flexGrow: 1,
+    minWidth: 0,
+    order: 2,
+    display: 'block',
+    whiteSpace: 'nowrap',
+    overflow: 'hidden',
+    [theme.breakpoints.down('sm')]: {
+      display: 'none',
+    },
+  },
+  mobileAuthorsListWrapper: {
+    order: 1,
+    minWidth: 0,
+    display: 'none',
+    [theme.breakpoints.down('sm')]: {
+      display: 'block',
+    },
+  },
   authorsList: {
     fontSize: 'inherit',
     color: 'inherit',
     fontFamily: 'inherit',
-    marginRight: 8,
-    flexShrink: 1,
-    minWidth: 0,
-    overflow: 'hidden',
-    whiteSpace: 'nowrap',
   },
-
+  newCommentContainer: {
+    marginTop: 16,
+    marginLeft: -16,
+    marginRight: -16,
+    paddingLeft: 16,
+    paddingRight: 16,
+    borderTop: `1px solid ${theme.palette.greyAlpha(0.1)}`,
+    paddingTop: 8,
+  },
+  sourceIconsContainer: {
+    display: 'flex',
+    alignItems: 'center',
+    order: 1,
+    gap: '4px',
+    [theme.breakpoints.down('sm')]: {
+      order: 3,
+      flexShrink: 0,
+    },
+  },
+  desktopTripleDotWrapper: {
+    display: 'block',
+    order: 4,
+    [theme.breakpoints.down('sm')]: {
+      display: 'none',
+    },
+  },
+  mobileTripleDotWrapper: {
+    display: 'none',
+    [theme.breakpoints.down('sm')]: {
+      display: 'block',
+      position: 'absolute',
+      right: -10,
+      top: 0,
+      height: 'auto',
+      width: 'auto',
+    },
+  },
+  contentWithReadStyles: {
+    opacity: theme.palette.ultraFeed.readOpacity.content,
+    '&:hover': {
+      opacity: 1,
+    },
+    [theme.breakpoints.down('sm')]: {
+      opacity: theme.palette.ultraFeed.readOpacity.contentMobile,
+    },
+  },
 }));
 
 const sourceIconMap: Array<{ source: FeedItemSourceType, icon: any, tooltip: string }> = [
   { source: 'bookmarks' as FeedItemSourceType, icon: BookmarksIcon, tooltip: "From your bookmarks" },
-  { source: 'subscriptions' as FeedItemSourceType, icon: SubscriptionsIcon, tooltip: "From users you follow" },
+  { source: 'subscriptionsPosts' as FeedItemSourceType, icon: SubscriptionsIcon, tooltip: "From users you follow" },
   { source: 'recombee-lesswrong-custom' as FeedItemSourceType, icon: SparkleIcon, tooltip: "Recommended for you" },
   { source: 'hacker-news' as FeedItemSourceType, icon: ClockIcon, tooltip: "Latest posts" },
 ];
@@ -198,6 +308,8 @@ interface UltraFeedPostItemHeaderProps {
   isRead: boolean;
   handleOpenDialog: () => void;
   sources: FeedItemSourceType[];
+  isSeeLessMode: boolean;
+  handleSeeLess: () => void;
 }
 
 const UltraFeedPostItemHeader = ({
@@ -205,9 +317,11 @@ const UltraFeedPostItemHeader = ({
   isRead,
   handleOpenDialog,
   sources,
+  handleSeeLess,
+  isSeeLessMode,
 }: UltraFeedPostItemHeaderProps) => {
   const classes = useStyles(styles);
-  const authorListRef = useRef<HTMLDivElement>(null);
+  const metaRowRef = useRef<HTMLDivElement>(null);
 
   const handleTitleClick = (event: React.MouseEvent<HTMLAnchorElement>) => {
     if (event.button === 0 && !event.metaKey && !event.ctrlKey && !event.altKey && !event.shiftKey) {
@@ -220,6 +334,8 @@ const UltraFeedPostItemHeader = ({
     .filter(({ source }) => sources.includes(source))
     .map(({ source, icon, tooltip }) => ({ icon, tooltip, key: source }));
 
+  const { isLinkpost, linkpostDomain } = detectLinkpost(post);
+
   return (
     <div className={classes.header}>
       <div className={classes.titleContainer}>
@@ -231,40 +347,51 @@ const UltraFeedPostItemHeader = ({
           {post.title}
         </a>
       </div>
-      <div className={classes.metaRow}>
-        {sourceIcons.map((iconInfo) => (
-          <LWTooltip key={iconInfo.key} title={iconInfo.tooltip} placement="top">
-            <span>
-              <iconInfo.icon className={classes.sourceIcon} />
-            </span>
-          </LWTooltip>
-        ))}
-        <TruncatedAuthorsList post={post} useMoreSuffix={false} expandContainer={authorListRef} className={classes.authorsList} />
+      <div className={classes.metaRow} ref={metaRowRef}>
+        <div className={classes.mobileAuthorsListWrapper}>
+          <TruncatedAuthorsList post={post} useMoreSuffix={false} expandContainer={metaRowRef} className={classes.authorsList} />
+        </div>
+        <div className={classes.authorsListWrapper}>
+          <PostsUserAndCoauthors post={post} abbreviateIfLong={true} tooltipPlacement="top" />
+        </div>
         {post.postedAt && (
           <span className={classes.metaDateContainer}>
             <FormatDate date={post.postedAt} />
           </span>
         )}
+        <div className={classes.sourceIconsContainer}>
+          {sourceIcons.map((iconInfo) => (
+            <LWTooltip key={iconInfo.key} title={iconInfo.tooltip} placement="top">
+              <span>
+                <iconInfo.icon className={classes.sourceIcon} />
+              </span>
+            </LWTooltip>
+          ))}
+          {isLinkpost && (
+            <LWTooltip title={`Linkpost from ${linkpostDomain}`} placement="top">
+              <a href={postGetLink(post)} target={postGetLinkTarget(post)} onClick={(e) => e.stopPropagation()}>
+                <ForumIcon icon="Link" className={classes.sourceIcon} />
+              </a>
+            </LWTooltip>
+          )}
+        </div>
+        <div className={classes.desktopTripleDotWrapper}>
+          <AnalyticsContext pageElementContext="tripleDotMenu">
+            <PostActionsButton
+              post={post}
+              vertical={true}
+              autoPlace
+              includeBookmark
+              onSeeLess={handleSeeLess}
+              isSeeLessMode={isSeeLessMode}
+              ActionsComponent={UltraFeedPostActions}
+              className={classnames(classes.tripleDotMenu, { [classes.greyedOut]: isSeeLessMode })}
+            />
+          </AnalyticsContext>
+        </div>
       </div>
     </div>
   );
-};
-
-const calculateDisplayWordCount = (
-  fullPost: PostsPage | UltraFeedPostFragment | null | undefined,
-  post: PostsListWithVotes,
-  displayHtml: string | undefined
-): number | undefined => {
-  if (fullPost?.contents?.wordCount) {
-    return fullPost.contents.wordCount;
-  }
-  if (displayHtml === post.contents?.htmlHighlight && displayHtml) {
-    return Math.floor(displayHtml.length / 5);
-  }
-  if (post.shortform) {
-    return 0;
-  }
-  return post.contents?.wordCount;
 };
 
 const UltraFeedPostItem = ({
@@ -273,12 +400,14 @@ const UltraFeedPostItem = ({
   index,
   showKarma,
   settings = DEFAULT_SETTINGS,
+  isHighlightAnimating = false,
 }: {
   post: PostsListWithVotes,
   postMetaInfo: FeedPostMetaInfo,
   index: number,
   showKarma?: boolean,
   settings?: UltraFeedSettingsType,
+  isHighlightAnimating?: boolean,
 }) => {
   const classes = useStyles(styles);
   const { observe, trackExpansion } = useUltraFeedObserver();
@@ -299,16 +428,18 @@ const UltraFeedPostItem = ({
   const [isLoadingFull, setIsLoadingFull] = useState(isForeignCrosspost || needsFullPostInitially);
   const [resetSig, setResetSig] = useState(0);
   const [isContentExpanded, setIsContentExpanded] = useState(false);
-  
+  const [isReplying, setIsReplying] = useState(false);
+  const [newComment, setNewComment] = useState<UltraFeedComment | null>(null);
+  const [newCommentMetaInfo, setNewCommentMetaInfo] = useState<FeedCommentMetaInfo | null>(null);
+
   const {
     isSeeLessMode,
-    handleSeeLess,
-    handleUndoSeeLess,
+    handleSeeLessClick,
     handleFeedbackChange,
   } = useSeeLess({
     documentId: post._id,
-    documentType: 'post',
-    recommId: postMetaInfo.recommInfo?.recommId,
+    collectionName: 'Posts',
+    metaInfo: postMetaInfo,
   });
 
   const { data: localPostData, loading: loadingLocalPost } = useQuery(localPostQuery, {
@@ -341,10 +472,11 @@ const UltraFeedPostItem = ({
       observe(currentElement, { 
         documentId: post._id, 
         documentType: 'post',
-        servedEventId: postMetaInfo.servedEventId
+        servedEventId: postMetaInfo.servedEventId,
+        feedCardIndex: index
       });
     }
-  }, [observe, post._id, postMetaInfo.servedEventId]);
+  }, [observe, post._id, postMetaInfo.servedEventId, index]);
 
   const handleContentExpand = useCallback((expanded: boolean, wordCount: number) => {
     setIsContentExpanded(expanded);
@@ -360,10 +492,10 @@ const UltraFeedPostItem = ({
       maxLevelReached: expanded,
       wordCount,
       servedEventId: postMetaInfo.servedEventId,
+      feedCardIndex: index,
     });
 
     captureEvent("ultraFeedPostItemExpanded", {
-      postId: post._id,
       expanded,
       wordCount,
     });
@@ -382,6 +514,7 @@ const UltraFeedPostItem = ({
     isLoadingFull, 
     fullPost,
     postMetaInfo.servedEventId,
+    index,
   ]);
 
   const handleCollapse = () => {
@@ -389,8 +522,50 @@ const UltraFeedPostItem = ({
     setIsContentExpanded(false);
   };
 
-  const handleOpenDialog = useCallback(() => {
-    captureEvent("ultraFeedPostItemTitleClicked", {postId: post._id});
+  const handleReplyClick = useCallback(() => {
+    setIsReplying(!isReplying);
+  }, [isReplying]);
+
+  const handleReplySubmit = useCallback((newComment: UltraFeedComment) => {
+    setIsReplying(false);
+    setNewComment(newComment);
+    
+    const defaultMetaInfo: FeedCommentMetaInfo = {
+      displayStatus: 'expanded',
+      sources: [],
+      descendentCount: 0,
+      directDescendentCount: 0,
+      highlight: false,
+      lastServed: new Date(),
+      lastViewed: null,
+      lastInteracted: new Date(),
+      postedAt: newComment.postedAt ? new Date(newComment.postedAt) : new Date(),
+    };
+    setNewCommentMetaInfo(defaultMetaInfo);
+  }, []);
+
+  const handleReplyCancel = useCallback(() => {
+    setIsReplying(false);
+  }, []);
+
+  const handleCommentEdit = useCallback((editedComment: CommentsList) => {
+    if (newComment && editedComment._id === newComment._id) {
+      setNewComment({
+        ...editedComment,
+        post,
+      });
+    }
+  }, [newComment, post]);
+
+  const replyConfig = useMemo(() => ({
+    isReplying,
+    onReplyClick: handleReplyClick,
+    onReplySubmit: handleReplySubmit,
+    onReplyCancel: handleReplyCancel,
+  }), [isReplying, handleReplyClick, handleReplySubmit, handleReplyCancel]);
+
+  const handleOpenDialog = useCallback((location: "title" | "content") => {
+    captureEvent("ultraFeedPostDialogOpened", { location });
     trackExpansion({
       documentId: post._id,
       documentType: 'post',
@@ -398,6 +573,7 @@ const UltraFeedPostItem = ({
       maxLevelReached: true,
       wordCount: post.contents?.wordCount ?? 0,
       servedEventId: postMetaInfo.servedEventId,
+      feedCardIndex: index,
     });
     
     if (!hasRecordedViewOnExpand) {
@@ -425,6 +601,7 @@ const UltraFeedPostItem = ({
     postMetaInfo,
     hasRecordedViewOnExpand,
     recordPostView,
+    index,
   ]);
 
   const shortformHtml = post.shortform 
@@ -433,8 +610,7 @@ const UltraFeedPostItem = ({
 
   const displayHtml = fullPost?.contents?.html ?? post.contents?.htmlHighlight ?? shortformHtml;
   
-  // Calculate the appropriate word count based on what content we're displaying
-  const displayWordCount = calculateDisplayWordCount(fullPost, post, displayHtml);
+  const displayWordCount = post.shortform ? 0 : post.contents?.wordCount;
 
   const truncationParams = useMemo(() => {
     return {
@@ -448,31 +624,43 @@ const UltraFeedPostItem = ({
   }
 
   return (
-    <AnalyticsContext ultraFeedElementType="feedPost" postId={post._id} ultraFeedCardIndex={index}>
-    <div className={classes.root}>
+    <RecombeeRecommendationsContextWrapper postId={post._id} recommId={postMetaInfo.recommInfo?.recommId}>
+    <AnalyticsContext ultraFeedElementType="feedPost" postId={post._id} feedCardIndex={index} ultraFeedSources={postMetaInfo.sources}>
+    <div className={classnames(classes.root, { 
+      [classes.rootWithReadStyles]: isRead,
+      [classes.rootWithAnimation]: isHighlightAnimating,
+    })}>
       <div ref={elementRef} className={classes.mainContent}>
-        <AnalyticsContext pageElementContext="tripleDotMenu">
-          <PostActionsButton
-            post={post}
-            vertical={true}
-            autoPlace
-            ActionsComponent={UltraFeedPostActions}
-            className={classnames(classes.tripleDotMenu, { [classes.greyedOut]: isSeeLessMode })}
-          />
-        </AnalyticsContext>
+        {/* On small screens, the triple dot menu is positioned absolutely to the root */}
+        <div className={classes.mobileTripleDotWrapper}>
+          <AnalyticsContext pageElementContext="tripleDotMenu">
+            <PostActionsButton
+              post={post}
+              vertical={true}
+              autoPlace
+              onSeeLess={handleSeeLessClick}
+              isSeeLessMode={isSeeLessMode}
+              ActionsComponent={UltraFeedPostActions}
+              includeBookmark={true}
+              className={classnames(classes.tripleDotMenu, { [classes.greyedOut]: isSeeLessMode })}
+            />
+          </AnalyticsContext>
+        </div>
 
         <div className={classnames({ [classes.greyedOut]: isSeeLessMode })}>
           <UltraFeedPostItemHeader
             post={post}
             isRead={isRead}
-            handleOpenDialog={handleOpenDialog}
+            handleOpenDialog={() => handleOpenDialog("title")}
             sources={postMetaInfo.sources}
+            isSeeLessMode={isSeeLessMode}
+            handleSeeLess={handleSeeLessClick}
           />
         </div>
 
         {isSeeLessMode && (
           <SeeLessFeedback
-            onUndo={handleUndoSeeLess}
+            onUndo={handleSeeLessClick}
             onFeedbackChange={handleFeedbackChange}
           />
         )}
@@ -484,10 +672,11 @@ const UltraFeedPostItem = ({
             maxWordCount={truncationParams.maxWordCount}
             wordCount={displayWordCount ?? 200}
             nofollow={(post.user?.karma ?? 0) < nofollowKarmaThreshold.get()}
-            onContinueReadingClick={handleOpenDialog}
+            onContinueReadingClick={() => handleOpenDialog("content")}
             onExpand={handleContentExpand}
             hideSuffix={loadingFullPost}
             resetSignal={resetSig}
+            className={isRead ? classes.contentWithReadStyles : undefined}
           />
         )}
         
@@ -497,25 +686,49 @@ const UltraFeedPostItem = ({
             <Loading />
           </div>
         )}
-
+        
         <UltraFeedItemFooter 
           document={post} 
           collectionName="Posts" 
           metaInfo={postMetaInfo} 
           className={classnames(classes.footer, { [classes.footerGreyedOut]: isSeeLessMode })}
-          onSeeLess={isSeeLessMode ? handleUndoSeeLess : handleSeeLess}
-          isSeeLessMode={isSeeLessMode}
+          replyConfig={replyConfig}
         />
+        
+        {/* Show new comment if one was just created */}
+        {newComment && newCommentMetaInfo && !isSeeLessMode && (
+          <div className={classes.newCommentContainer}>
+            <UltraFeedCommentItem
+              comment={newComment}
+              metaInfo={newCommentMetaInfo}
+              onChangeDisplayStatus={() => {}}
+              showPostTitle={false}
+              highlight={false}
+              isFirstComment={true}
+              isLastComment={true}
+              settings={settings}
+              parentAuthorName={null}
+              isHighlightAnimating={false}
+              replyConfig={{
+                isReplying: false,
+                onReplyClick: () => {},
+                onReplySubmit: () => {},
+                onReplyCancel: () => {},
+              }}
+              cannotReplyReason="You cannot reply to your own comment within the feed"
+              onEditSuccess={handleCommentEdit}
+              threadIndex={index}
+              commentIndex={0}
+            />
+          </div>
+        )}
       </div>
       
       {(overflowNav.showUp || overflowNav.showDown) && <OverflowNavButtons nav={overflowNav} onCollapse={isContentExpanded ? handleCollapse : undefined} />}
     </div>
     </AnalyticsContext>
+    </RecombeeRecommendationsContextWrapper>
   );
 };
 
 export default registerComponent("UltraFeedPostItem", UltraFeedPostItem);
-
-
-
- 

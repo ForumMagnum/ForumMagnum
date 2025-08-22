@@ -1,9 +1,8 @@
 // Client-side React wrapper/context provider
 import React, { useEffect, useMemo, useState, useTransition } from 'react';
-import { ApolloProvider } from '@apollo/client';
+import { ApolloProvider } from '@apollo/client/react';
 import type { ApolloClient, NormalizedCacheObject } from '@apollo/client';
 import { ForeignApolloClientProvider } from '../components/hooks/useForeignApolloClient';
-import { PrefersDarkModeProvider } from '../components/themes/usePrefersDarkMode';
 import CookiesProvider from "@/lib/vendor/react-cookie/CookiesProvider";
 // eslint-disable-next-line no-restricted-imports
 import { BrowserRouter } from 'react-router-dom';
@@ -13,37 +12,38 @@ import { LayoutOptionsContextProvider } from '../components/hooks/useLayoutOptio
 import { SSRMetadata, EnvironmentOverride, EnvironmentOverrideContext } from '../lib/utils/timeUtil';
 import { ThemeContextProvider } from '@/components/themes/ThemeContextProvider';
 import AppComponent from '../components/vulcan-core/App';
+import { HelmetProvider } from 'react-helmet-async';
 
 // Client-side wrapper around the app. There's another AppGenerator which is
 // the server-side version, which differs in how it sets up the wrappers for
 // routing and cookies and such.
 const AppGenerator = ({ apolloClient, foreignApolloClient, abTestGroupsUsed, themeOptions, ssrMetadata }: {
-  apolloClient: ApolloClient<NormalizedCacheObject>,
-  foreignApolloClient: ApolloClient<NormalizedCacheObject>,
+  apolloClient: ApolloClient,
+  foreignApolloClient: ApolloClient,
   abTestGroupsUsed: RelevantTestGroupAllocation,
   themeOptions: AbstractThemeOptions,
   ssrMetadata?: SSRMetadata,
 }) => {
   return (
+    <HelmetProvider>
     <ApolloProvider client={apolloClient}>
       <ForeignApolloClientProvider value={foreignApolloClient}>
         <CookiesProvider>
           <BrowserRouter>
           <ThemeContextProvider options={themeOptions} isEmail={false}>
             <ABTestGroupsUsedContext.Provider value={abTestGroupsUsed}>
-              <PrefersDarkModeProvider>
-                <LayoutOptionsContextProvider>
-                  <EnvironmentOverrideContextProvider ssrMetadata={ssrMetadata}>
-                    <AppComponent apolloClient={apolloClient} />
-                  </EnvironmentOverrideContextProvider>
-                </LayoutOptionsContextProvider>
-              </PrefersDarkModeProvider>
+              <LayoutOptionsContextProvider>
+                <EnvironmentOverrideContextProvider ssrMetadata={ssrMetadata}>
+                  <AppComponent apolloClient={apolloClient} />
+                </EnvironmentOverrideContextProvider>
+              </LayoutOptionsContextProvider>
             </ABTestGroupsUsedContext.Provider>
           </ThemeContextProvider>
           </BrowserRouter>
         </CookiesProvider>
       </ForeignApolloClientProvider>
     </ApolloProvider>
+    </HelmetProvider>
   );
 };
 

@@ -1,4 +1,4 @@
-import { useApolloClient } from "@apollo/client";
+import { useApolloClient } from "@apollo/client/react";
 import { useQuery } from "@/lib/crud/useQuery"
 import classNames from 'classnames';
 import React, { FC, Fragment, useCallback, useEffect, useState } from 'react';
@@ -45,6 +45,7 @@ import TagTableOfContents from "./TagTableOfContents";
 import TagVersionHistoryButton from "../editor/TagVersionHistory";
 import ContentStyles from "../common/ContentStyles";
 import CommentsListCondensed from "../common/CommentsListCondensed";
+import { StructuredData } from "../common/StructuredData";
 import { gql } from "@/lib/generated/gql-codegen";
 
 const TagWithFlagsFragmentMultiQuery = gql(`
@@ -330,7 +331,8 @@ const EATagPage = ({classes}: {
   }
 
   const terms = {
-    ...tagPostTerms(tag, query),
+    ...tagPostTerms(tag),
+    ...(query.sortedBy ? {sortedBy: query.sortedBy as PostSortingModeWithRelevanceOption} : {}),
     limit: 15
   }
 
@@ -379,9 +381,9 @@ const EATagPage = ({classes}: {
   >
     <HeadTags
       description={headTagDescription}
-      structuredData={getTagStructuredData(tag)}
       noIndex={tag.noindex}
     />
+    <StructuredData generate={() => getTagStructuredData(tag)}/>
     {hoveredContributorId && <style>
       {`.by_${hoveredContributorId} {background: rgba(95, 155, 101, 0.35);}`}
     </style>}

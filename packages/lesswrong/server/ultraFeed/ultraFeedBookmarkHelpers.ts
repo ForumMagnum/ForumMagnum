@@ -16,6 +16,7 @@ function prepareBookmarksForUltraFeed(bookmarks: UltraFeedBookmark[]): PreparedB
             postMetaInfo: { 
               sources: ['bookmarks'] as const, 
               displayStatus: 'expanded',
+              highlight: false,
             }
           }
         };
@@ -27,7 +28,8 @@ function prepareBookmarksForUltraFeed(bookmarks: UltraFeedBookmark[]): PreparedB
           lastViewed: null,
           lastInteracted: null,
           postedAt: null,
-          directDescendentCount: b.directChildrenCount ?? 0,
+          descendentCount: b.descendentCount ?? 0,
+          directDescendentCount: b.descendentCount ?? 0,
         };
         const comment: PreDisplayFeedComment = {
           commentId: b.documentId, postId: b.postId, baseScore: 0, metaInfo,

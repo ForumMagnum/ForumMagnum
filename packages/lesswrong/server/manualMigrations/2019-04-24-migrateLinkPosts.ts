@@ -1,6 +1,7 @@
 import { registerMigration } from './migrationUtils';
 import { Posts } from '../../server/collections/posts/collection'
 import * as _ from 'underscore';
+import { backgroundTask } from '../utils/backgroundTask';
 
 export default registerMigration({
   name: "migrateLinkPosts",
@@ -41,7 +42,7 @@ export default registerMigration({
     }));
     
     if (updates.length > 0) {
-      void Posts.rawCollection().bulkWrite(updates, { ordered: false });
+      backgroundTask(Posts.rawCollection().bulkWrite(updates, { ordered: false }));
     }
   }
 });

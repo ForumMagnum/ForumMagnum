@@ -34,7 +34,7 @@ function getQueryName(query: any) {
  * corresponding to the given typeName. This abuses private apollo-client APIs,
  * and runs client-side only.
  */
-export const findWatchesByTypeName = (store: ApolloCache<any>, typeName: string) => {
+export const findWatchesByTypeName = (store: ApolloCache, typeName: string) => {
   // Use a private variable on ApolloCache to cover an API hole (no good way to
   // do this directly, though upgrading apollo-client maybe adds functions that
   // offer a more elegant solution.)

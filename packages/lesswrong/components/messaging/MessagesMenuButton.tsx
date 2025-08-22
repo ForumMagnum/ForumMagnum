@@ -8,12 +8,17 @@ import classNames from "classnames";
 import { useLocation, useNavigate } from "../../lib/routeUtil";
 import LWTooltip from "../common/LWTooltip";
 import ForumIcon from "../common/ForumIcon";
+import { useReadQuery } from "@apollo/client/react";
+import { useStyles } from "../hooks/useStyles";
 
-const MessagesMenuButton = ({className, classes}: {
+const MessagesMenuButton = ({className}: {
   className?: string,
-  classes: ClassesType<typeof styles>,
 }) => {
-  const {unreadPrivateMessages} = useUnreadNotifications();
+  const classes = useStyles(styles);
+  const {unreadNotificationCountsQueryRef} = useUnreadNotifications();
+  const {data} = useReadQuery(unreadNotificationCountsQueryRef!);
+  const unreadPrivateMessages = data?.unreadNotificationCounts.unreadPrivateMessages;
+  
   const {pathname} = useLocation();
   const navigate = useNavigate();
   const onClick = useCallback(() => {
@@ -53,7 +58,6 @@ const MessagesMenuButton = ({className, classes}: {
 export default registerComponent(
   "MessagesMenuButton",
   MessagesMenuButton,
-  {styles},
 );
 
 

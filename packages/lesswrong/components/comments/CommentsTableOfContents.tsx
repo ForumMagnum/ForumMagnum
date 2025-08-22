@@ -31,8 +31,6 @@ const styles = defineStyles("CommentsTableOfContents", (theme: ThemeType) => ({
     textAlign: "right",
     marginRight: 4,
   },
-  commentAuthor: {
-  },
   collapseButtonWrapper: {
     marginLeft: 4,
     height: 24,
@@ -173,7 +171,7 @@ const ToCCommentBlock = ({commentTree, indentLevel, highlightedCommentId, highli
     ? comment.afBaseScore
     : comment.baseScore;
   
-  return <div>
+  return <>
     <TableOfContentsRow
       indentLevel={indentLevel}
       highlighted={highlightedCommentId===comment._id}
@@ -203,12 +201,10 @@ const ToCCommentBlock = ({commentTree, indentLevel, highlightedCommentId, highli
         [classes.highlightUnread]: highlightDate && new Date(comment.postedAt) > new Date(highlightDate),
       })}>
         <span className={classes.commentKarma}>{score}</span>
-        <span className={classes.commentAuthor}>
-          {comment.deleted
-            ? <span>[comment deleted]</span>
-            : <UsersNameDisplay user={comment.user} simple/>
-          }
-        </span>
+        {comment.deleted
+          ? <span>[comment deleted]</span>
+          : <UsersNameDisplay user={comment.user} simple/>
+        }
       </span>
     </TableOfContentsRow>
     
@@ -221,7 +217,7 @@ const ToCCommentBlock = ({commentTree, indentLevel, highlightedCommentId, highli
         indentLevel={indentLevel+1}
       />
     )}
-  </div>
+  </>
 }
 
 function flattenCommentTree(commentTree: CommentTreeNode<CommentsList>[]): CommentsList[] {

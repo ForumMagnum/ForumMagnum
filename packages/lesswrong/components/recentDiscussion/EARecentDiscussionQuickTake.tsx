@@ -6,8 +6,9 @@ import type { CommentTreeNode } from "../../lib/utils/unflatten";
 import EARecentDiscussionItem, { EARecentDiscussionItemProps } from "./EARecentDiscussionItem";
 import classNames from "classnames";
 import CommentsItem from "../comments/CommentsItem/CommentsItem";
-import CommentsNodeInner from "../comments/CommentsNode";
+import CommentsNode from "../comments/CommentsNode";
 import { maybeDate } from "@/lib/utils/dateUtils";
+import { AnalyticsContext } from "../../lib/analyticsEvents";
 
 const styles = (_theme: ThemeType) => ({
   quickTakeBody: {
@@ -84,12 +85,14 @@ const EARecentDiscussionQuickTake = ({
   comments,
   refetch,
   expandAllThreads: initialExpandAllThreads,
+  index,
   classes,
 }: {
   post: ShortformRecentDiscussion,
   comments?: CommentsListWithTopLevelComment[],
   refetch: () => void,
   expandAllThreads?: boolean,
+  index?: number,
   classes: ClassesType<typeof styles>,
 }) => {
   const {
@@ -111,7 +114,7 @@ const EARecentDiscussionQuickTake = ({
   const splitComments = splitByTopLevelComment(nestedComments);
   return (
     <>
-      {splitComments.map((comments) => {
+      {splitComments.map((comments, splitIndex) => {
         if (!comments.length) {
           return null;
         }
@@ -123,8 +126,8 @@ const EARecentDiscussionQuickTake = ({
           return null;
         }
         return (
+          <AnalyticsContext key={quickTake._id} feedCardIndex={index}>
           <EARecentDiscussionItem
-            key={quickTake._id}
             {...getItemProps(post, comments[0])}
           >
             <CommentsItem
@@ -138,7 +141,7 @@ const EARecentDiscussionQuickTake = ({
               })}
             />
             {hasComments && comments.map((comment) => (
-              <CommentsNodeInner
+              <CommentsNode
                 key={comment.item._id}
                 treeOptions={{
                   ...treeOptions,
@@ -153,6 +156,7 @@ const EARecentDiscussionQuickTake = ({
               />
             ))}
           </EARecentDiscussionItem>
+          </AnalyticsContext>
         );
       })}
     </>

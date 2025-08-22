@@ -2,7 +2,8 @@
 // addGraphQLResolvers &c.
 
 import gql from 'graphql-tag'; 
-import type { GraphQLResolveInfo, GraphQLScalarType } from 'graphql';
+import { makeExecutableSchema } from '@graphql-tools/schema';
+import type { GraphQLResolveInfo, GraphQLScalarType, GraphQLSchema } from 'graphql';
 import GraphQLJSON from 'graphql-type-json';
 import GraphQLDate from './graphql-date';
 import { graphqlTypeDefs as notificationTypeDefs, graphqlQueries as notificationQueries } from '@/server/notificationBatching';
@@ -55,7 +56,7 @@ import { importUrlAsDraftPostGqlMutation, importUrlAsDraftPostTypeDefs } from '@
 import { revisionResolversGraphQLQueries, revisionResolversGraphQLMutations, revisionResolversGraphQLTypeDefs } from '@/server/resolvers/revisionResolvers';
 import { moderationGqlMutations, moderationGqlQueries, moderationGqlTypeDefs } from '@/server/resolvers/moderationResolvers';
 import { multiDocumentMutations, multiDocumentTypeDefs } from '@/server/resolvers/multiDocumentResolvers';
-import { spotlightGqlMutations, spotlightGqlTypeDefs } from '@/server/resolvers/spotlightResolvers';
+import { spotlightGqlMutations, spotlightGqlQueries, spotlightGqlTypeDefs } from '@/server/resolvers/spotlightResolvers';
 import { typingIndicatorsGqlMutations, typingIndicatorsGqlTypeDefs } from '@/server/resolvers/typingIndicatorsResolvers';
 import { acceptCoauthorRequestMutations, acceptCoauthorRequestTypeDefs } from '@/server/acceptCoauthorRequest';
 import { hidePostGqlMutations, hidePostGqlTypeDefs } from '@/server/hidePostMutation';
@@ -491,6 +492,7 @@ export const resolvers = {
     ...surveyResolversGraphQLQueries,
     ...tagResolversGraphQLQueries,
     ...ultraFeedGraphQLQueries,
+    ...spotlightGqlQueries,
 
     // CRUD Query Handlers
     ...advisorRequestGqlQueryHandlers,
@@ -801,4 +803,13 @@ export type SchemaGraphQLFieldDescription = {
   directive?: string
   required?: boolean
 };
+
+let _executableSchema: GraphQLSchema|null = null;
+export function getExecutableSchema() {
+  if (!_executableSchema) {
+    _executableSchema = makeExecutableSchema({ typeDefs, resolvers });
+  }
+  return _executableSchema;
+}
+
 

@@ -76,7 +76,7 @@ type CoauthorStatusOutput {
 }
 
 type SocialPreviewOutput {
-  imageId: String!
+  imageId: String
   text: String
 }
 
@@ -1275,6 +1275,10 @@ extend type Mutation {
   publishAndDeDuplicateSpotlight(spotlightId: String): Spotlight
 }
 
+extend type Query {
+  currentSpotlight: Spotlight
+}
+
 extend type Mutation {
   upsertUserTypingIndicator(documentId: String!): TypingIndicator
 }
@@ -1383,6 +1387,11 @@ extend type Mutation {
   increasePostViewCount(postId: String): Float
 }
 
+type FeedSpotlightMetaInfo {
+  sources: [String!]!
+  servedEventId: String!
+}
+
 type FeedPost {
   _id: String!
   postMetaInfo: JSON
@@ -1394,11 +1403,15 @@ type FeedCommentThread {
   commentMetaInfos: JSON
   comments: [Comment!]!
   post: Post
+  isOnReadPost: Boolean
+  postSources: [String!]
 }
 
 type FeedSpotlightItem {
   _id: String!
   spotlight: Spotlight
+  post: Post
+  spotlightMetaInfo: FeedSpotlightMetaInfo
 }
 
 type UltraFeedQueryResults {
@@ -1541,11 +1554,11 @@ type AutomatedContentEvaluation {
   _id: String!
   createdAt: Date!
   revisionId: String!
-  score: Float!
-  sentenceScores: [SentenceScore!]!
-  aiChoice: String!
-  aiReasoning: String!
-  aiCoT: String!
+  score: Float
+  sentenceScores: [SentenceScore!]
+  aiChoice: String
+  aiReasoning: String
+  aiCoT: String
 }
 
 type SentenceScore {
@@ -2055,6 +2068,18 @@ enum TagCommentType {
   DISCUSSION
 }
 
+enum CommentSortingMode {
+  top
+  groupByPost
+  new
+  newest
+  old
+  oldest
+  magic
+  recentComments
+  recentDiscussion
+}
+
 input SingleCommentInput {
   selector: SelectorInput
   resolverArgs: JSON
@@ -2179,6 +2204,7 @@ input CommentsProfileCommentsInput {
   minimumKarma: Int
   authorIsUnreviewed: Boolean
   sortBy: String
+  drafts: String
   limit: String
 }
 
@@ -2308,7 +2334,7 @@ input CommentsTopShortformInput {
   authorIsUnreviewed: Boolean
   before: String
   after: String
-  shortformFrontpage: String
+  shortformFrontpage: Boolean
 }
 
 input CommentsShortformInput {
@@ -2357,6 +2383,8 @@ input CommentsNominations2018Input {
   commentIds: [String!]
   minimumKarma: Int
   authorIsUnreviewed: Boolean
+  postId: String
+  sortBy: CommentSortingMode
 }
 
 input CommentsNominations2019Input {
@@ -2364,6 +2392,8 @@ input CommentsNominations2019Input {
   commentIds: [String!]
   minimumKarma: Int
   authorIsUnreviewed: Boolean
+  postId: String
+  sortBy: CommentSortingMode
 }
 
 input CommentsReviews2018Input {
@@ -2371,6 +2401,8 @@ input CommentsReviews2018Input {
   commentIds: [String!]
   minimumKarma: Int
   authorIsUnreviewed: Boolean
+  postId: String
+  sortBy: CommentSortingMode
 }
 
 input CommentsReviews2019Input {
@@ -2378,6 +2410,8 @@ input CommentsReviews2019Input {
   commentIds: [String!]
   minimumKarma: Int
   authorIsUnreviewed: Boolean
+  postId: String
+  sortBy: CommentSortingMode
 }
 
 input CommentsReviewsInput {
@@ -4558,6 +4592,7 @@ type Post {
   generateDraftJargon: Boolean
   curationNotices: [CurationNotice!]
   reviews: [Comment!]
+  automatedContentEvaluations: AutomatedContentEvaluation
   currentUserVote: String
   currentUserExtendedVote: JSON
   voteCount: Float!
@@ -6128,7 +6163,7 @@ type RSSFeed {
   nickname: String!
   url: String!
   status: String
-  rawFeed: JSON!
+  rawFeed: JSON
   setCanonicalUrl: Boolean!
   importAsDraft: Boolean!
 }
@@ -6447,7 +6482,6 @@ type Revision {
   post: Post
   lens: MultiDocument
   summary: MultiDocument
-  automatedContentEvaluations: AutomatedContentEvaluation
   currentUserVote: String
   currentUserExtendedVote: JSON
   voteCount: Float!
@@ -7799,6 +7833,8 @@ type User {
   bannedUserIds: [String!]
   bannedPersonalUserIds: [String!]
   bookmarkedPostsMetadata: [PostMetadataOutput!]
+  bookmarksCount: Int
+  hasAnyBookmarks: Boolean
   bookmarkedPosts: [Post!]
   hiddenPostsMetadata: [PostMetadataOutput!]
   hiddenPosts: [Post!]
@@ -7907,6 +7943,7 @@ type User {
   shortformFeed: Post
   viewUnreviewedComments: Boolean
   partiallyReadSequences: [PartiallyReadSequenceItemOutput!]
+  hasContinueReading: Boolean
   beta: Boolean
   reviewVotesQuadratic: Boolean
   reviewVotesQuadratic2019: Boolean
@@ -9417,7 +9454,7 @@ input CreateRSSFeedDataInput {
   displayFullContent: Boolean
   nickname: String!
   url: String!
-  rawFeed: JSON!
+  rawFeed: JSON
   setCanonicalUrl: Boolean
   importAsDraft: Boolean
 }

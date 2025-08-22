@@ -1,26 +1,28 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect } from 'react';
 import { AnalyticsContext } from "../../lib/analyticsEvents";
 import { getReviewPhase, reviewIsActive, REVIEW_YEAR } from '../../lib/reviewUtils';
-import { showReviewOnFrontPageIfActive, lightconeFundraiserThermometerGoalAmount, lightconeFundraiserActive } from '../../lib/publicSettings';
+import { showReviewOnFrontPageIfActive, lightconeFundraiserThermometerGoalAmount, lightconeFundraiserActive, ultraFeedEnabledSetting } from '../../lib/publicSettings';
 import { useCookiesWithConsent } from '../hooks/useCookiesWithConsent';
-import { LAST_VISITED_FRONTPAGE_COOKIE } from '../../lib/cookies/cookies';
+import { LAST_VISITED_FRONTPAGE_COOKIE, ULTRA_FEED_ENABLED_COOKIE } from '../../lib/cookies/cookies';
 import moment from 'moment';
 import { userHasUltraFeed,visitorGetsDynamicFrontpage } from '../../lib/betas';
 import { isLW, isAF } from '@/lib/instanceSettings';
 import { useCurrentUser } from './withUser';
 import { combineUrls, getSiteUrl } from "../../lib/vulcan-lib/utils";
 import { registerComponent } from "../../lib/vulcan-lib/components";
-import BestOfLessWrongAnnouncement from '../posts/PostsPage/BestOfLessWrong/BestOfLessWrongAnnouncement';
+import { useABTest } from '../../lib/abTestImpl';
+import { ultraFeedABTest } from '../../lib/abTests';
 import RecentDiscussionFeed from "../recentDiscussion/RecentDiscussionFeed";
 import AnalyticsInViewTracker from "./AnalyticsInViewTracker";
 import FrontpageReviewWidget from "../review/FrontpageReviewWidget";
 import SingleColumnSection from "./SingleColumnSection";
 import EAPopularCommentsSection from "../ea-forum/EAPopularCommentsSection";
-import DismissibleSpotlightItem from "../spotlights/DismissibleSpotlightItem";
+import DismissibleSpotlightItem, { SpotlightItemFallback } from "../spotlights/DismissibleSpotlightItem";
 import QuickTakesSection from "../quickTakes/QuickTakesSection";
 import LWHomePosts from "./LWHomePosts";
-import HeadTags from "./HeadTags";
 import UltraFeed from "../ultraFeed/UltraFeed";
+import { StructuredData } from './StructuredData';
+import { SuspenseWrapper } from './SuspenseWrapper';
 import { defineStyles, useStyles } from '../hooks/useStyles';
 
 const getStructuredData = () => ({
@@ -53,48 +55,63 @@ const getStructuredData = () => ({
 
 const styles = defineStyles("LWHome", (theme: ThemeType) => ({
   hideOnDesktop: {
-    [theme.breakpoints.up('md')]: {
-      display: 'none',
+    ['@media(min-width: 1200px)']: {
+      display: 'none'
     },
   },
 }))
 
 const LWHome = () => {
-  const [isUltraFeedShowing, setIsUltraFeedShowing] = useState(false);
   const classes = useStyles(styles);
+  const currentUser = useCurrentUser();
+  const abTestGroup = useABTest(ultraFeedABTest);
+  const [cookies] = useCookiesWithConsent([ULTRA_FEED_ENABLED_COOKIE]);
+  
+  // Check if user has already made a choice via checkbox (which sets a cookie)
+  const cookieValue = cookies[ULTRA_FEED_ENABLED_COOKIE];
+  const hasExplicitPreference = cookieValue === "true" || cookieValue === "false";
+  
+  // Determine which feed to show: if cookie is set, use that preference, otherwise use A/B test assignment
+  const shouldShowUltraFeed = ultraFeedEnabledSetting.get() && currentUser && (cookieValue === "true" || (!hasExplicitPreference && abTestGroup === 'ultraFeed')
+  );
 
   return (
       <AnalyticsContext pageContext="homePage">
         <React.Fragment>
-          <HeadTags structuredData={getStructuredData()}/>
+          <StructuredData generate={() => getStructuredData()}/>
           <UpdateLastVisitCookie />
           {reviewIsActive() && <>
             {getReviewPhase() !== "RESULTS" && <SingleColumnSection>
-              <FrontpageReviewWidget reviewYear={REVIEW_YEAR}/>
+              <SuspenseWrapper name="FrontpageReviewWidget">
+                <FrontpageReviewWidget reviewYear={REVIEW_YEAR}/>
+              </SuspenseWrapper>
             </SingleColumnSection>}
           </>}
-          {(!reviewIsActive() || getReviewPhase() === "RESULTS" || !showReviewOnFrontPageIfActive.get()) && !lightconeFundraiserActive.get() && <SingleColumnSection>
-          <div className={classes.hideOnDesktop}>
-            <DismissibleSpotlightItem current/> 
-          </div>
+          {(!reviewIsActive() || getReviewPhase() === "RESULTS" || !showReviewOnFrontPageIfActive.get()) && !lightconeFundraiserActive.get() && <SingleColumnSection className={classes.hideOnDesktop}>
+            <SuspenseWrapper name="DismissibleSpotlightItem" fallback={<SpotlightItemFallback/>}>
+              <DismissibleSpotlightItem/> 
+            </SuspenseWrapper>
           </SingleColumnSection>}
-          <AnalyticsInViewTracker
-            eventProps={{inViewType: "homePosts"}}
-            observerProps={{threshold:[0, 0.5, 1]}}
-          >
+          <SuspenseWrapper name="LWHomePosts" fallback={<div style={{height: 800}}/>}>
             <LWHomePosts>
               <QuickTakesSection />
-              <EAPopularCommentsSection />
-              <UltraFeed onShowingChange={setIsUltraFeedShowing} />
-              {!isUltraFeedShowing && (
-                <RecentDiscussionFeed
-                  af={false}
-                  commentsLimit={4}
-                  maxAgeHours={18}
-                />
-              )}
+              <SuspenseWrapper name="EAPopularCommentsSection">
+                <EAPopularCommentsSection />
+              </SuspenseWrapper>
+              
+              <AnalyticsInViewTracker eventProps={{inViewType: "feedSection"}} observerProps={{threshold:[0, 0.5, 1]}}>
+                <SuspenseWrapper name="UltraFeed">
+                  {shouldShowUltraFeed && <UltraFeed />}
+                  {!shouldShowUltraFeed && <RecentDiscussionFeed
+                      af={false}
+                      commentsLimit={4}
+                      maxAgeHours={18}
+                    />}
+                </SuspenseWrapper>
+              </AnalyticsInViewTracker>
+
             </LWHomePosts>
-          </AnalyticsInViewTracker>
+          </SuspenseWrapper>
         </React.Fragment>
       </AnalyticsContext>
   )
@@ -112,6 +129,8 @@ const UpdateLastVisitCookie = () => {
   return <></>
 }
 
-export default registerComponent('LWHome', LWHome);
+export default registerComponent('LWHome', LWHome, {
+  areEqual: "auto",
+});
 
 

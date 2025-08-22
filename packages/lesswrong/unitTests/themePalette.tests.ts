@@ -1,16 +1,72 @@
-import { importAllComponents } from '../lib/vulcan-lib/components';
 import { getForumTheme } from '../themes/forumTheme';
 import * as _ from 'underscore';
 import { topLevelStyleDefinitions } from '@/components/hooks/useStyles';
 import type { JssStyles } from '@/lib/jssStyles';
+import fs from "fs";
+import path from "path";
 
-/*
- * We call `importAllComponents` in the test to actually call `require` on all
- * the components that are registed in the deferred components table, but we
- * need this import to actually get the components _into_ the deferred
- * components table in the first place.
- */
-import '../lib/generated/allComponents';
+// Mock defineStyles and withAddStyles to add some extra correctness checks:
+// That every call to defineStyles has a unique name and a unique stylesheet.
+const mockNamesUsed = new Set<string>();
+const mockStyleFnsUsed = new Set<any>();
+jest.mock("../components/hooks/useStyles", () => {
+  const originalModule = jest.requireActual('../components/hooks/useStyles');
+  const wrappedDefineStyles = jest.fn((name, styles, options) => {
+    if (mockNamesUsed.has(name)) {
+      throw new Error(`Style name ${name} is reused in multiple defineStyles calls; this will break if both are on the page simultaneously`);
+    }
+    mockNamesUsed.add(name);
+    if (mockStyleFnsUsed.has(styles)) {
+      throw new Error(`Style ${name} has a reused stylesheet; this will lead to duplicate styles in the page. Reuse the result of calling defineStyles, not the function passed into it.`);
+    }
+    mockStyleFnsUsed.add(styles);
+    return originalModule.defineStyles(name, styles, options);
+  });
+  const wrappedWithAddClasses = jest.fn((styles, name, options) => {
+    wrappedDefineStyles(name, styles, options);
+    return originalModule.withAddClasses(styles, name, options);
+  });
+  return {
+    __esModule: true,
+    ...originalModule,
+    defineStyles: wrappedDefineStyles,
+    withAddClasses: wrappedWithAddClasses,
+  };
+});
+
+function enumerateFiles(dirPath: string): string[] {
+  let fileList: string[] = [];
+  const entries = fs.readdirSync(dirPath, { withFileTypes: true });
+
+  for (const entry of entries) {
+    const fullPath = path.join(dirPath, entry.name);
+
+    if (entry.isDirectory()) {
+      fileList = fileList.concat(enumerateFiles(fullPath));
+    } else if (entry.isFile()) {
+      fileList.push(fullPath);
+    }
+  }
+
+  return fileList;
+}
+
+function importAllFilesWithStyles() {
+  const defineStylesRegex = /defineStyles\s*\(\s*["'](\w+)["']/gm;
+  const registerComponentRegex = /registerComponent\s*(<\s*\w*\s*>)?\s*\(\s*["'](\w+)["']/gm;
+  const filesWithStyles = enumerateFiles("packages/lesswrong/components").filter(path => {
+    const fileContents = fs.readFileSync(path, "utf-8");
+    return !!(defineStylesRegex.exec(fileContents) || registerComponentRegex.exec(fileContents));
+  });
+  for (const file of filesWithStyles) {
+    //eslint-disable-next-line import/no-dynamic-require
+    require('../../../' + file);
+  }
+}
+
+beforeAll(() => {
+  importAllFilesWithStyles();
+});
 
 describe('JSS', () => {
   /**
@@ -24,7 +80,6 @@ describe('JSS', () => {
    * dark mode and accidentally make something black-on-black.
    */
   it('uses only colors that come from the theme palette or change in dark mode', () => {
-    importAllComponents();
     const lightTheme = getForumTheme({name: "default", siteThemeOverride: {}}) as unknown as ThemeType;
     const darkTheme = getForumTheme({name: "dark", siteThemeOverride: {}}) as unknown as ThemeType;
     const stubbedLightTheme = replacePaletteWithStubs(lightTheme);
@@ -58,7 +113,7 @@ function assertNoNonPaletteColorsRec(componentName: string, path: string, lightM
   if (typeof lightModeStyleFragment === "string") {
     const mentionedColor = stringMentionsAnyColor(lightModeStyleFragment);
     if (mentionedColor && lightModeStyleFragment === darkModeStyleFragment) {
-      outNonPaletteColors.push(`Non-palette color in styles for ${componentName} at ${path} - ${mentionedColor}`);
+      outNonPaletteColors.push(`Color for ${componentName} at ${path} (${mentionedColor}) is the same in light mode and dark mode. To prevent black-on-black text, use either a theme palette color, or check for dark mode with theme.dark ? colorOne : colorTwo. Or disable the warning for this component by passing {allowNonThemeColors: true} in the stylesheet options.`);
     }
   } else if (typeof lightModeStyleFragment === "object") {
     for (let key of Object.keys(lightModeStyleFragment)) {

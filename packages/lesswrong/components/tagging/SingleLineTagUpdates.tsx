@@ -101,8 +101,9 @@ const styles = (theme: ThemeType) => ({
   usernames: {
     marginRight: 16,
     maxWidth: 310,
+    whiteSpace: "nowrap",
+    overflow: "hidden",
     textOverflow: "ellipsis",
-    overflowX: "hidden",
     textAlign: "right",
     [theme.breakpoints.down('xs')]: {
       maxWidth: 160
@@ -205,6 +206,7 @@ const SingleLineTagUpdates = ({tag, revisionIds, commentCount, commentIds, users
           treeOptions={{
             tag,
           }}
+          loadChildren={true}
         />
       )}
     </div>}

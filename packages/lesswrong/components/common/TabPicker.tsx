@@ -15,9 +15,9 @@ const rightFadeStyle = (theme: ThemeType) => ({
     width: 50,
     content: '\'\'',
     background: `linear-gradient(to left, ${theme.palette.background.default}, ${theme.palette.background.transparent})`,
-    [isIfAnyoneBuildsItFrontPage]: {
+    ...isIfAnyoneBuildsItFrontPage({
       background: 'none',
-    },
+    }),
     pointerEvents: 'none',
   },
 });
@@ -64,9 +64,9 @@ const styles = (theme: ThemeType) => ({
       // This is load-bearing UX because otherwise the fact that the tabs have
       // horizontal scroll might not be detectable.
       background: `linear-gradient(to left, ${theme.palette.background.default}, ${theme.palette.background.transparent})`,
-      [isIfAnyoneBuildsItFrontPage]: {
+      ...isIfAnyoneBuildsItFrontPage({
         background: 'none',
-      },
+      }),
       pointerEvents: 'none',
       zIndex: 1,
     },
@@ -118,7 +118,7 @@ const styles = (theme: ThemeType) => ({
     }
   },
   inactiveTab: {
-    ...(theme.themeOptions.name === 'dark' ? {
+    ...(theme.dark ? {
       backgroundColor: theme.palette.tab.inactive.bannerAdBackground,
       backdropFilter: theme.palette.filters.bannerAdBlurMedium,
       color: theme.palette.text.bannerAdOverlay,

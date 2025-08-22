@@ -7,6 +7,7 @@ import { createAdminContext } from "../../vulcan-lib/createContexts";
 import { createSpotlight as createSpotlightMutator } from "@/server/collections/spotlights/mutations";
 import { ReviewWinnerTopPostsPage } from "@/lib/collections/reviewWinners/fragments";
 import { PostsWithNavigation } from "@/lib/collections/posts/fragments";
+import { backgroundTask } from "@/server/utils/backgroundTask";
 
 async function queryClaudeJailbreak(prompt: PromptCachingBetaMessageParam[], maxTokens: number) {
   const client = getAnthropicPromptCachingClientOrThrow()
@@ -23,7 +24,7 @@ function createSpotlight (post: PostsWithNavigation, reviewWinner: ReviewWinnerW
   const postYear = new Date(post.postedAt).getFullYear()
   const cloudinaryImageUrl = reviewWinner?.reviewWinner.reviewWinnerArt?.splashArtImageUrl
 
-  void createSpotlightMutator({
+  backgroundTask(createSpotlightMutator({
     data: {
       documentId: post._id,
       documentType: "Post",
@@ -36,7 +37,7 @@ function createSpotlight (post: PostsWithNavigation, reviewWinner: ReviewWinnerW
       description: { originalContents: { type: 'ckEditorMarkup', data: summary } },
       lastPromotedAt: new Date(0),
     }
-  }, context);
+  }, context));
 }
 
 async function getPromptInfo(): Promise<{posts: PostsWithNavigation[], spotlights: DbSpotlight[]}> {

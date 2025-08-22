@@ -1,15 +1,16 @@
-import React, { useState, useMemo, useEffect, useLayoutEffect } from 'react';
+import React, { useState, useMemo, useEffect, useLayoutEffect, useContext } from 'react';
 import { getForumTheme } from '../../themes/forumTheme';
 import { AbstractThemeOptions, abstractThemeToConcrete } from '../../themes/themeNames';
-import { usePrefersDarkMode } from './usePrefersDarkMode';
 import moment from 'moment';
 import { isEAForum } from '../../lib/instanceSettings';
 import { THEME_COOKIE } from '../../lib/cookies/cookies';
 import { useCookiesWithConsent } from '../hooks/useCookiesWithConsent';
 import stringify from 'json-stringify-deterministic';
-import { FMJssProvider } from '../hooks/FMJssProvider';
-import { ThemeContext, useIsThemeOverridden, useThemeOptions } from './useTheme';
-import { defineStyles } from '../hooks/useStyles';
+import { ThemeContext, useTheme, useThemeOptions } from './useTheme';
+import { isClient, isServer } from '@/lib/executionEnvironment';
+import { useTracking } from '@/lib/analyticsEvents';
+import { createStylesContext, regeneratePageStyles, serverEmbeddedStyles, setClientMountedStyles, StylesContext, type StylesContextType } from '../hooks/useStyles';
+import { useServerInsertedHtml } from '../hooks/useServerInsertedHtml';
 
 export const ThemeContextProvider = ({options, isEmail, children}: {
   options: AbstractThemeOptions,
@@ -20,10 +21,6 @@ export const ThemeContextProvider = ({options, isEmail, children}: {
   const themeCookie = cookies[THEME_COOKIE];
   const [themeOptions, setThemeOptions] = useState(options);
   const prefersDarkMode = usePrefersDarkMode();
-  
-  // This is safe despite breaking hook rules because the isEmail prop never changes
-  // eslint-disable-next-line react-hooks/rules-of-hooks
-  const themeIsOverridden = !isEmail && useIsThemeOverridden();
 
   useEffect(() => {
     if (isEAForum) {
@@ -38,95 +35,85 @@ export const ThemeContextProvider = ({options, isEmail, children}: {
     }
   }, [themeOptions, themeCookie, setCookie, removeCookie]);
   
-  const overriddenThemeOptions = useMemo(() => themeIsOverridden
-    ? {name: "dark"} as const
-    : themeOptions,
-    [themeOptions, themeIsOverridden]
-  );
-  const concreteTheme = abstractThemeToConcrete(overriddenThemeOptions, prefersDarkMode);
+  const concreteThemeOptions = abstractThemeToConcrete(themeOptions, prefersDarkMode);
 
   const theme: any = useMemo(() =>
-    getForumTheme(concreteTheme),
-    [concreteTheme]
+    getForumTheme(concreteThemeOptions),
+    [concreteThemeOptions]
   );
   const themeContext = useMemo(() => (
-    {theme, themeOptions: overriddenThemeOptions, setThemeOptions}),
-    [theme, overriddenThemeOptions, setThemeOptions]
+    {theme, abstractThemeOptions: themeOptions, concreteThemeOptions, setThemeOptions}),
+    [theme, themeOptions, concreteThemeOptions, setThemeOptions]
   );
   
+  const [stylesContext] = useState(() => createStylesContext(theme, themeOptions));
+  
   return <ThemeContext.Provider value={themeContext}>
-    <FMJssProvider>
-      {!isEmail && <ThemeStylesheetSwapper/>}
+    <FMJssProvider stylesContext={stylesContext}>
+      {isClient && <ThemeStylesheetSwapper/>}
+      {isServer && !isEmail && <StyleHTMLInjector/>}
       {children}
     </FMJssProvider>
   </ThemeContext.Provider>
 }
 
-const styles = defineStyles("ThemeStylesheetSwapper", () => ({
-  "@global": {
-    "body.themeChangeLoadingDark": {
-      background: "black",
-      "& > *": {
-        display: "none",
-      }
-    },
-    "body.themeChangeLoadingLight": {
-      background: "white",
-      "& > *": {
-        display: "none",
-      }
-    },
-  },
-}), {allowNonThemeColors: true});
+export const AutoDarkModeWrapper = ({children}: {
+  children: React.ReactNode
+}) => {
+  const themeOptions = useThemeOptions();
+  if (themeOptions.name === "auto") {
+    return <div>{children}</div>
+  } else if (themeOptions.name === "dark") {
+    return <div style={{colorScheme: "only dark"}}>{children}</div>
+  } else if (themeOptions.name === "default") {
+    return <div style={{colorScheme: "only light"}}>{children}</div>
+  }
+}
+
+export const FMJssProvider = ({stylesContext, children}: {
+  stylesContext: StylesContextType
+  children: React.ReactNode
+}) => {
+  if (isClient) {
+    setClientMountedStyles(stylesContext);
+  }
+  
+  return <StylesContext.Provider value={stylesContext}>
+    {children}
+  </StylesContext.Provider>
+}
+
 
 const ThemeStylesheetSwapper = () => {
-  const themeOptions = useThemeOptions();
-  const prefersDarkMode = usePrefersDarkMode();
-  const concreteTheme = abstractThemeToConcrete(themeOptions, prefersDarkMode);
-  const [isFirstLoad, setIsFirstLoad] = useState(true);
+  const themeContext = useContext(ThemeContext)!;
+  const stylesContext = useContext(StylesContext)!;
+  const abstractThemeOptions = themeContext!.abstractThemeOptions;
 
   useLayoutEffect(() => {
-    if (stringify(themeOptions) !== stringify(window.themeOptions)) {
-      window.themeOptions = themeOptions;
-      const stylesId = "main-styles";
-      const tempStylesId = stylesId + "-temp";
-      const oldStyles = document.getElementById(stylesId);
-      if (oldStyles) {
-        oldStyles.setAttribute("id", tempStylesId);
-        const onFinish = (error?: string | Event) => {
-          if (error) {
-            // eslint-disable-next-line no-console
-            console.error("Failed to load stylesheet for theme:", themeOptions, "Error:", error);
-          } else {
-            oldStyles.parentElement!.removeChild(oldStyles);
-          }
-          document.body.classList.remove("themeChangeLoadingDark");
-          document.body.classList.remove("themeChangeLoadingLight");
-        }
-
-        if (isFirstLoad) {
-          setIsFirstLoad(false);
-        } else {
-          if (themeOptions.name === 'dark') {
-            document.body.classList.add("themeChangeLoadingDark");
-          } else {
-            document.body.classList.add("themeChangeLoadingLight");
-          }
-        }
-        if (themeOptions.name === "auto") {
-          addAutoStylesheet(stylesId, onFinish, concreteTheme.siteThemeOverride);
-        } else {
-          addStylesheet(makeStylesheetUrl(concreteTheme), stylesId, onFinish);
-        }
-      }
+    if (stringify(abstractThemeOptions) !== stringify(window.themeOptions)) {
+      window.themeOptions = abstractThemeOptions;
+      regeneratePageStyles(themeContext, stylesContext);
     }
-  }, [themeOptions, concreteTheme, isFirstLoad]);
+  }, [abstractThemeOptions, themeContext, stylesContext]);
   
   return null;
 }
 
-const makeStylesheetUrl = (themeOptions: AbstractThemeOptions) =>
-  `/allStyles?theme=${encodeURIComponent(stringify(themeOptions))}`;
+const StyleHTMLInjector = () => {
+  const stylesContext = useContext(StylesContext)!;
+  const themeContext = useContext(ThemeContext)!;
+  
+  useServerInsertedHtml(() => {
+    if (stylesContext.stylesAwaitingServerInjection.length > 0) {
+      const injectedStyles = serverEmbeddedStyles(themeContext.abstractThemeOptions, stylesContext.stylesAwaitingServerInjection)
+      stylesContext.stylesAwaitingServerInjection = [];
+      return injectedStyles;
+    }
+    return null;
+  });
+  
+  return null;
+}
 
 type OnFinish = (error?: string | Event) => void;
 
@@ -143,24 +130,39 @@ const addStylesheet = (href: string, id: string, onFinish: OnFinish) => {
 }
 
 
-/**
- * The 'auto' stylesheet is an inline style that will automatically import
- * either the light or dark theme based on the device preferences. If the
- * preference changes whilst the site is open, the sheet will automatically
- * be switched.
- */
-const addAutoStylesheet = (id: string, onFinish: OnFinish, siteThemeOverride?: SiteThemeOverride) => {
-  const light = makeStylesheetUrl({name: "default", siteThemeOverride})
-  const dark = makeStylesheetUrl({name: "dark", siteThemeOverride})
-  const styleNode = document.createElement("style");
-  styleNode.setAttribute("id", id);
-  styleNode.innerHTML = `
-    @import url("${light}") screen and (prefers-color-scheme: light);
-    @import url("${dark}") screen and (prefers-color-scheme: dark);
-  `;
-  styleNode.onload = () => {
-    onFinish();
-  }
-  styleNode.onerror = onFinish;
-  document.head.appendChild(styleNode);
+const buildPrefersDarkModeQuery = () =>
+  isClient && "matchMedia" in window
+    ? window.matchMedia("(prefers-color-scheme: dark)")
+    : {
+      matches: false,
+      addEventListener: () => {},
+      removeEventListener: () => {},
+    };
+
+export const usePrefersDarkMode = () => {
+  const [query] = useState(() => buildPrefersDarkModeQuery());
+  const [prefersDarkMode, setPrefersDarkMode] = useState(query.matches);
+  const { captureEvent } = useTracking();
+
+  useEffect(() => {
+    const handler = ({matches}: MediaQueryListEvent) => {
+      setPrefersDarkMode(matches);
+      captureEvent("prefersDarkModeChange", {
+        prefersDarkMode: matches,
+      });
+    }
+    // Check that query.addEventListener exists before using it, because on
+    // some browsers (older iOS Safari) it doesn't.
+    if (query.addEventListener) {
+      query.addEventListener("change", handler);
+      return () => query.removeEventListener("change", handler);
+    }
+  }, [query, captureEvent]);
+  
+  return prefersDarkMode;
+}
+
+export const devicePrefersDarkMode = () => {
+  const query = buildPrefersDarkModeQuery();
+  return query?.matches ?? false;
 }

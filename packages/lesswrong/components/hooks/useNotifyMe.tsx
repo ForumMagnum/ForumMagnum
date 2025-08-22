@@ -12,7 +12,7 @@ import type { SubscriptionType } from "../../lib/collections/subscriptions/helpe
 import { max } from "underscore";
 import { userIsDefaultSubscribed, userSubscriptionStateIsFixed } from "../../lib/subscriptionUtil";
 import LoginPopup from "../users/LoginPopup";
-import { useMutation } from "@apollo/client";
+import { useMutation } from "@apollo/client/react";
 import { useQuery } from "@/lib/crud/useQuery"
 import { gql } from "@/lib/generated/gql-codegen";
 
@@ -164,7 +164,24 @@ export const useNotifyMe = ({
         type: subscriptionType,
       } as const;
 
-      await createSubscription({ variables: { data: newSubscription } });
+      await createSubscription({ 
+        variables: { data: newSubscription },
+        refetchQueries: [{
+          query: SubscriptionStateMultiQuery,
+          variables: {
+            selector: { 
+              subscriptionState: { 
+                documentId: document._id, 
+                userId: currentUser._id, 
+                type: subscriptionType, 
+                collectionName 
+              } 
+            },
+            limit: 1,
+            enableTotal: false,
+          }
+        }]
+      });
 
       // We have to manually invalidate the cache as this hook can sometimes be
       // unmounted before the create mutation has finished (eg; when used inside

@@ -9,7 +9,7 @@ import LinearProgress from "@/lib/vendor/@material-ui/core/src/LinearProgress";
 import { CommentTreeOptions } from "../comments/commentTree";
 import debounce from "lodash/debounce";
 import PostsItem from "../posts/PostsItem";
-import CommentsNodeInner from "../comments/CommentsNode";
+import CommentsNode from "../comments/CommentsNode";
 import ForumIcon from "../common/ForumIcon";
 import SingleColumnSection from "../common/SingleColumnSection";
 import Loading from "../vulcan-core/Loading";
@@ -348,7 +348,7 @@ const AuthorSection = ({
             onToggle={onToggle}
             onSelectAll={onSelectAll}
             ItemComponent={({ item }) => (
-              <CommentsNodeInner
+              <CommentsNode
                 treeOptions={{ forceSingleLine: true } as CommentTreeOptions}
                 comment={item as CommentsList}
               />
@@ -500,7 +500,7 @@ const AutocompleteModelSettings = ({ classes }: { classes: ClassesType<typeof st
               onToggle={setSelectedItems}
               onSelectAll={handleSelectAll}
               ItemComponent={({ item }) => (
-                <CommentsNodeInner
+                <CommentsNode
                   treeOptions={{ forceSingleLine: true } as CommentTreeOptions}
                   comment={item as CommentsList}
                 />

@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { registerComponent } from '../../../lib/vulcan-lib/components';
 import MoreVertIcon from '@/lib/vendor/@material-ui/icons/src/MoreVert';
 import { Menu } from '@/components/widgets/Menu';
-import { useCurrentUser } from '../../common/withUser';
+import { useCurrentUserId } from '../../common/withUser';
 import { useTracking } from "../../../lib/analyticsEvents";
 import { isFriendlyUI } from '../../../themes/forumTheme';
 import CommentActions from "./CommentActions";
@@ -22,20 +22,23 @@ const styles = (_theme: ThemeType) => ({
 })
 
 interface CommentsMenuComponentProps {
-  currentUser: UsersCurrent;
   comment: CommentsList;
   post?: PostsMinimumInfo;
   tag?: TagBasicInfo | null;
   showEdit: () => void;
+  onSeeLess?: () => void;
+  isSeeLessMode?: boolean;
 }
 
-const CommentsMenu = ({classes, className, comment, post, tag, showEdit, icon, ActionsComponent}: {
+const CommentsMenu = ({classes, className, comment, post, tag, showEdit, onSeeLess, isSeeLessMode, icon, ActionsComponent}: {
   classes: ClassesType<typeof styles>,
   className?: string,
   comment: CommentsList,
   post?: PostsMinimumInfo,
   tag?: TagBasicInfo,
   showEdit: () => void,
+  onSeeLess?: () => void,
+  isSeeLessMode?: boolean,
   icon?: any,
   ActionsComponent?: React.ComponentType<CommentsMenuComponentProps>,
 }) => {
@@ -45,10 +48,10 @@ const CommentsMenu = ({classes, className, comment, post, tag, showEdit, icon, A
   // contents when closed after open, because of closing animation).
   const [everOpened, setEverOpened] = useState(false);
 
-  const currentUser = useCurrentUser();
+  const isLoggedIn = !!useCurrentUserId();
   const { captureEvent } = useTracking({eventType: "commentMenuClicked", eventProps: {commentId: comment._id, itemType: "comment"}})
 
-  if (!currentUser) return null
+  if (!isLoggedIn) return null
 
   const MenuComponent = ActionsComponent ?? CommentActions;
 
@@ -74,11 +77,12 @@ const CommentsMenu = ({classes, className, comment, post, tag, showEdit, icon, A
         className={classes.root}
       >
         {everOpened && <MenuComponent
-          currentUser={currentUser}
           comment={comment}
           post={post}
           tag={tag}
           showEdit={showEdit}
+          onSeeLess={onSeeLess}
+          isSeeLessMode={isSeeLessMode}
         />}
       </Menu>
     </>

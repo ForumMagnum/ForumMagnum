@@ -1,14 +1,12 @@
 import React, { FC, MouseEvent, useMemo } from 'react';
 import { registerComponent } from '../../../lib/vulcan-lib/components';
-import { getResponseCounts, postGetAnswerCountStr, postGetCommentCountStr } from '../../../lib/collections/posts/helpers';
+import { getResponseCounts, parseUnsafeUrl, postGetAnswerCountStr, postGetCommentCountStr } from '../../../lib/collections/posts/helpers';
 import { AnalyticsContext } from "../../../lib/analyticsEvents";
 import { extractVersionsFromSemver } from '../../../lib/editor/utils';
 import classNames from 'classnames';
 import { isServer } from '../../../lib/executionEnvironment';
 import { isBookUI, isFriendlyUI } from '../../../themes/forumTheme';
-import { captureException } from '@sentry/core';
 import type { AnnualReviewMarketInfo } from '../../../lib/collections/posts/annualReviewMarkets';
-import { getUrlClass } from '@/server/utils/getUrlClass';
 import PostsPageTitle from "./PostsPageTitle";
 import PostsAuthors from "./PostsAuthors";
 import LWTooltip from "../../common/LWTooltip";
@@ -156,56 +154,6 @@ const styles = (theme: ThemeType) => ({
   }
 });
 
-// On the server, use the 'url' library for parsing hostname out of feed URLs.
-// On the client, we instead create an <a> tag, set its href, and extract
-// properties from that. (There is a URL class which theoretically would work,
-// but it doesn't have the hostname field on IE11 and it's missing entirely on
-// Opera Mini.)
-const URLClass = getUrlClass()
-
-export function getProtocol(url: string): string {
-  if (isServer)
-    return new URLClass(url).protocol;
-
-  // From https://stackoverflow.com/questions/736513/how-do-i-parse-a-url-into-hostname-and-path-in-javascript
-  var parser = document.createElement('a');
-  parser.href = url;
-  return parser.protocol;
-}
-
-export function getHostname(url: string): string {
-  if (isServer)
-    return new URLClass(url).hostname;
-
-  // From https://stackoverflow.com/questions/736513/how-do-i-parse-a-url-into-hostname-and-path-in-javascript
-  var parser = document.createElement('a');
-  parser.href = url;
-  return parser.hostname;
-}
-
-/**
- * Intended to be used when you have a url-like string that might be missing the protocol (http(s)://) prefix
- * Trying to parse those with `new URL()`/`new URLClass()` blows up, so this tries to correctly handle them
- * We default to logging an error to sentry and returning nothing if even that fails, but not confident we shouldn't just continue to throw in a visible way
- */
-export function parseUnsafeUrl(url: string) {
-  const urlWithProtocol = url.slice(0, 4) === 'http'
-    ? url
-    : `https://${url}`;
-
-  try {
-    const parsedUrl = new URLClass(urlWithProtocol);
-    const protocol = getProtocol(urlWithProtocol);
-    const hostname = getHostname(urlWithProtocol);
-  
-    return { protocol, hostname, parsedUrl };
-  } catch (err) {
-    captureException(`Tried to parse url ${url} as ${urlWithProtocol} and failed`);
-  }
-
-  return {};
-}
-
 export const CommentsLink: FC<{
   anchor: string,
   children: React.ReactNode,
@@ -234,7 +182,7 @@ export const CommentsLink: FC<{
 const PostsPagePostHeader = ({post, answers = [], dialogueResponses = [], showEmbeddedPlayer, toggleEmbeddedPlayer, hideMenu, hideTags, annualReviewMarketInfo, classes}: {
   post: PostsWithNavigation|PostsWithNavigationAndRevision|PostsListWithVotes,
   answers?: CommentsList[],
-  dialogueResponses?: CommentsList[],
+  dialogueResponses?: readonly CommentsList[],
   showEmbeddedPlayer?: boolean,
   toggleEmbeddedPlayer?: () => void,
   hideMenu?: boolean,

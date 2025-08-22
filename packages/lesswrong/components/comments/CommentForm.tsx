@@ -32,7 +32,7 @@ import FormGroupNoStyling from "../form-components/FormGroupNoStyling";
 import FormGroupQuickTakes from "../form-components/FormGroupQuickTakes";
 import FormComponentCheckbox from "../form-components/FormComponentCheckbox";
 import { withDateFields } from "@/lib/utils/dateUtils";
-import { useMutation } from "@apollo/client";
+import { useMutation } from "@apollo/client/react";
 import { gql } from "@/lib/generated/gql-codegen";
 import { hasDraftComments } from '@/lib/betas';
 import CommentsSubmitDropdown from "./CommentsSubmitDropdown";
@@ -64,10 +64,10 @@ const formStyles = defineStyles('CommentForm', (theme: ThemeType) => ({
   fieldWrapper: {
     marginTop: theme.spacing.unit * 2,
     marginBottom: theme.spacing.unit * 2,
-    [isIfAnyoneBuildsItFrontPage]: {
+    ...isIfAnyoneBuildsItFrontPage( {
       background: theme.palette.editor.bannerAdBackground,
       color: theme.palette.text.bannerAdOverlay,
-    },
+    }),
   },
   submitButton: submitButtonStyles(theme),
   cancelButton: cancelButtonStyles(theme),
@@ -261,6 +261,7 @@ export const CommentForm = ({
   initialData,
   prefilledProps,
   alignmentForumPost,
+  hideAlignmentForumCheckbox,
   quickTakesFormGroup,
   formClassName,
   editorHintText,
@@ -291,6 +292,7 @@ export const CommentForm = ({
     forumEventMetadata?: DbComment['forumEventMetadata'];
   }
   alignmentForumPost?: boolean;
+  hideAlignmentForumCheckbox?: boolean;
   quickTakesFormGroup?: boolean;
   formClassName?: string;
   editorHintText?: string;
@@ -312,7 +314,7 @@ export const CommentForm = ({
 
   const formType = initialData ? 'edit' : 'new';
 
-  const showAfCheckbox = !isAF && alignmentForumPost && (userIsMemberOf(currentUser, 'alignmentForum') || userIsAdmin(currentUser));
+  const showAfCheckbox = !hideAlignmentForumCheckbox && !isAF && alignmentForumPost && (userIsMemberOf(currentUser, 'alignmentForum') || userIsAdmin(currentUser));
 
   const DefaultFormGroupLayout = quickTakesFormGroup
     ? FormGroupQuickTakes

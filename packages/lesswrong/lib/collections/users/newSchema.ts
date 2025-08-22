@@ -1418,14 +1418,39 @@ const schema = {
       canRead: [userOwns, "sunshineRegiment", "admins"],
       resolver: async (user: DbUser, args: unknown, context: ResolverContext) => {
         const { Bookmarks } = context;
-        const bookmarks = await Bookmarks.find({ 
-          userId: user._id, 
-          collectionName: "Posts",
-          active: true 
-        }, 
-        {sort: {lastUpdated: -1}}
+        const bookmarks = await Bookmarks.find(
+          {
+            userId: user._id,
+            collectionName: "Posts",
+            active: true
+          },
+          {sort: {lastUpdated: -1}}
         ).fetch();
         return bookmarks.map((bookmark: DbBookmark) => ({ postId: bookmark.documentId }));
+      },
+    },
+  },
+  bookmarksCount: {
+    database: {
+      type: "INTEGER",
+      nullable: false,
+      defaultValue: 0,
+      denormalized: true,
+    },
+    graphql: {
+      outputType: "Int",
+      canRead: [userOwns, "sunshineRegiment", "admins"],
+      validation: {
+        optional: true,
+      },
+    },
+  },
+  hasAnyBookmarks: {
+    graphql: {
+      outputType: "Boolean",
+      canRead: [userOwns, "sunshineRegiment", "admins"],
+      resolver: async (user: DbUser, args: unknown, context: ResolverContext) => {
+        return user.bookmarksCount > 0;
       },
     },
   },
@@ -3020,6 +3045,16 @@ const schema = {
       inputType: "[PartiallyReadSequenceItemInput!]",
       canRead: [userOwns, "sunshineRegiment", "admins"],
       canUpdate: [userOwns],
+    },
+  },
+  hasContinueReading: {
+    graphql: {
+      outputType: "Boolean",
+      canRead: [userOwns, "sunshineRegiment", "admins"],
+      resolver: async (user: DbUser, args: unknown, context: ResolverContext) => {
+        const sequences = user.partiallyReadSequences;
+        return sequences && sequences.length>0;
+      }
     },
   },
   beta: {

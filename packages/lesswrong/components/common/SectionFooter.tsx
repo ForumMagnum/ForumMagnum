@@ -33,9 +33,9 @@ const styles = (theme: ThemeType) => ({
     marginRight: theme.spacing.unit/2,
     marginLeft: theme.spacing.unit/2,
     color: theme.palette.lwTertiary.main,
-    [isIfAnyoneBuildsItFrontPage]: {
+    ...isIfAnyoneBuildsItFrontPage({
       color: theme.palette.text.bannerAdOverlay,
-    },
+    }),
     flexWrap: "wrap",
     ...separatorBulletStyles(theme),
     ...(isFriendlyUI

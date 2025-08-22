@@ -1,4 +1,6 @@
 import { ZodType, z } from "zod";
+import { combineUrls } from "../vulcan-lib/utils";
+import { fmCrosspostBaseUrlSetting } from "../instanceSettings";
 
 export class FMCrosspostRoute<
   RequestSchema extends ZodType,
@@ -24,10 +26,23 @@ export class FMCrosspostRoute<
     return `/api/v2/crosspost/${this.config.routeName}`;
   }
 
-  async makeRequest(data: RequestData): Promise<ResponseData> {
+  getForeignPath() {
+    const baseUrl = fmCrosspostBaseUrlSetting.get();
+    if (!baseUrl) {
+      throw new Error("Foreign crosspost base URL is not configured");
+    }
+    return combineUrls(baseUrl, this.getPath());
+  }
+
+  async makeRequest(
+    data: RequestData,
+    {foreignRequest}: {foreignRequest?: boolean} = {},
+  ): Promise<ResponseData> {
+    const path = foreignRequest ? this.getForeignPath() : this.getPath();
     const parsedData = this.config.requestSchema.parse(data);
-    const response = await fetch(this.getPath(), {
+    const response = await fetch(path, {
       method: "POST",
+      headers: { "Content-Type": "application/json" },
       body: JSON.stringify(parsedData),
     });
     const result = await response.json();

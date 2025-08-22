@@ -2,7 +2,7 @@ import { registerComponent } from '../../../lib/vulcan-lib/components';
 import React from 'react';
 import classNames from 'classnames';
 import { commentExcerptFromHTML } from '../../../lib/editor/ellipsize'
-import { useCurrentUser } from '../../common/withUser'
+import { useFilteredCurrentUser } from '../../common/withUser'
 import { nofollowKarmaThreshold } from '../../../lib/publicSettings';
 import ContentStyles, { ContentStyleType } from '../../common/ContentStyles';
 import { VotingProps } from '../../votes/votingProps';
@@ -60,7 +60,8 @@ const CommentBody = ({
   className?: string,
   classes: ClassesType<typeof styles>,
 }) => {
-  const currentUser = useCurrentUser();
+  // Do not truncate for users who have disabled it in their user settings
+  const truncationDisabledByUserConfig = useFilteredCurrentUser((u) => u && (postPage ? u.noCollapseCommentsPosts : u.noCollapseCommentsFrontpage));
   const { html = "" } = comment.contents || {}
 
   const bodyClasses = classNames(
@@ -73,7 +74,7 @@ const CommentBody = ({
   if (comment.deleted) { return <CommentDeletedMetadata documentId={comment._id}/> }
   if (collapsed) { return null }
 
-  const innerHtml = truncated ? commentExcerptFromHTML(comment, currentUser, postPage) : (html ?? '')
+  const innerHtml = (truncated && !truncationDisabledByUserConfig) ? commentExcerptFromHTML(comment, postPage) : (html ?? '')
 
   let contentType: ContentStyleType;
   if (comment.answer) {

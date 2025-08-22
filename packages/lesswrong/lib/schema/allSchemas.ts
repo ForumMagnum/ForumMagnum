@@ -5,7 +5,6 @@
 import SimpleSchema, { SchemaDefinition } from 'simpl-schema';
 import { isAnyTest, isCodegen } from '../executionEnvironment';
 import '../utils/extendSimpleSchemaOptions';
-import { makeExecutableSchema } from '@graphql-tools/schema';
 import GraphQLJSON from 'graphql-type-json';
 import type { GraphQLSchema } from 'graphql';
 
@@ -250,8 +249,8 @@ function isPlausiblyFormField(field: CollectionFieldSpecification<CollectionName
 
 function getSchemaDefinition(schema: SchemaType<CollectionNameString>): Record<string, SchemaDefinition> {
   // We unfortunately need this while we still have SimpleSchema implemented, so that it doesn't barf on graphql enum types.
-  const { resolvers, typeDefs }: typeof import('@/server/vulcan-lib/apollo-server/initGraphQL') = require('@/server/vulcan-lib/apollo-server/initGraphQL');
-  const graphqlSchema = makeExecutableSchema({ typeDefs, resolvers });
+  const { getExecutableSchema }: typeof import('@/server/vulcan-lib/apollo-server/initGraphQL') = require('@/server/vulcan-lib/apollo-server/initGraphQL');
+  const graphqlSchema = getExecutableSchema();
 
   return Object.entries(schema).reduce((acc, [key, value]) => {
     if (!value.graphql) {

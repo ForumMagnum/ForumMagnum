@@ -41,6 +41,10 @@ export const Backdrop = ({visible, style="darken"}: {
     }, 0);
   }, []);
   
+  if (!ready) {
+    return null;
+  }
+  
   return <>{createPortal(
     <div className={classNames(classes.root, {
       [classes.visible]: visible && ready,

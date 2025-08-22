@@ -16,7 +16,8 @@ import CommentShortformIcon from "./CommentsItem/CommentShortformIcon";
 import PostsItemComments from "../posts/PostsItemComments";
 import ContentStyles from "../common/ContentStyles";
 import LWPopper from "../common/LWPopper";
-import CommentsNodeInner from "./CommentsNode";
+import CommentsNode from "./CommentsNode";
+import { defineStyles, useStyles } from '../hooks/useStyles';
 
 export const SINGLE_LINE_PADDING_TOP = 5
 
@@ -35,10 +36,13 @@ export const singleLineStyles = (theme: ThemeType) => ({
   fontFamily: isFriendlyUI ? theme.palette.fonts.sansSerifStack : undefined,
 })
 
-const styles = (theme: ThemeType) => ({
+const styles = defineStyles("SingleLineComment", (theme: ThemeType) => ({
   root: {
     position: "relative",
     cursor: "pointer",
+  },
+  placeholder: {
+    height: 30,
   },
   commentInfo: {
     display: "flex",
@@ -156,9 +160,9 @@ const styles = (theme: ThemeType) => ({
   deemphasize: {
     opacity: 0.5
   }
-})
+}))
 
-const SingleLineComment = ({treeOptions, comment, nestingLevel, parentCommentId, hideKarma, showDescendentCount, displayTagIcon=false, classes }: {
+const SingleLineComment = ({treeOptions, comment, nestingLevel, parentCommentId, hideKarma, showDescendentCount, displayTagIcon=false }: {
   treeOptions: CommentTreeOptions,
   comment: CommentsList,
   nestingLevel: number,
@@ -166,8 +170,8 @@ const SingleLineComment = ({treeOptions, comment, nestingLevel, parentCommentId,
   hideKarma?: boolean,
   showDescendentCount?: boolean,
   displayTagIcon?: boolean,
-  classes: ClassesType<typeof styles>,
 }) => {
+  const classes = useStyles(styles);
   const {anchorEl, hover, eventHandlers} = useHover();
   
   if (!comment) return null
@@ -241,7 +245,7 @@ const SingleLineComment = ({treeOptions, comment, nestingLevel, parentCommentId,
         clickable={false}
       >
           <div className={classes.preview}>
-            <CommentsNodeInner
+            <CommentsNode
               truncated
               nestingLevel={1}
               comment={comment}
@@ -262,8 +266,23 @@ const SingleLineComment = ({treeOptions, comment, nestingLevel, parentCommentId,
   )
 };
 
+export const SingleLineCommentPlaceholder = ({nestingLevel}: {
+  nestingLevel: number
+}) => {
+  const classes = useStyles(styles);
+  return <div className={classes.root}>
+    <ContentStyles
+      contentType={"comment"}
+      className={classNames(
+        classes.placeholder,
+        classes.commentInfo,
+        ((nestingLevel%2) !== 0) && classes.odd,
+      )}
+    >{" "}</ContentStyles>
+  </div>
+}
+
 export default registerComponent('SingleLineComment', SingleLineComment, {
-  styles,
   hocs: [withErrorBoundary],
   areEqual: {
     treeOptions: "shallow",

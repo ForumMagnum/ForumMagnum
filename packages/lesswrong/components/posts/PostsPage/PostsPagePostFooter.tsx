@@ -2,7 +2,7 @@ import React from 'react';
 import { registerComponent } from '../../../lib/vulcan-lib/components';
 import { userHasPingbacks } from '../../../lib/betas';
 import { AnalyticsContext } from "../../../lib/analyticsEvents";
-import { useCurrentUser } from '../../common/withUser';
+import { useFilteredCurrentUser } from '../../common/withUser';
 import { MAX_COLUMN_WIDTH } from './constants';
 import { isLW, isLWorAF } from '../../../lib/instanceSettings';
 import { getVotingSystemByName } from '../../../lib/voting/getVotingSystem';
@@ -15,6 +15,7 @@ import PostActionsButton from "../../dropdowns/posts/PostActionsButton";
 import BottomNavigation from "../../sequences/BottomNavigation";
 import PingbacksList from "../PingbacksList";
 import FooterTagList from "../../tagging/FooterTagList";
+import { SuspenseWrapper } from '@/components/common/SuspenseWrapper';
 
 const styles = (theme: ThemeType) => ({
   footerSection: {
@@ -86,7 +87,7 @@ const PostsPagePostFooter = ({post, sequenceId, classes}: {
   sequenceId: string|null,
   classes: ClassesType<typeof styles>,
 }) => {
-  const currentUser = useCurrentUser();
+  const hasPingbacks = useFilteredCurrentUser(u => userHasPingbacks(u));
   const votingSystemName = post.votingSystem || "default";
   const votingSystem = getVotingSystemByName(votingSystemName);
   const wordCount = post.contents?.wordCount || 0
@@ -95,11 +96,13 @@ const PostsPagePostFooter = ({post, sequenceId, classes}: {
 
   return <>
     {isLWorAF && !post.shortform && !post.isEvent &&
-      <AnalyticsContext pageSectionContext="tagFooter">
-        <div className={classes.footerTagList}>
-          <FooterTagList post={post}/>
-        </div>
-      </AnalyticsContext>
+      <SuspenseWrapper name="FooterTagList">
+        <AnalyticsContext pageSectionContext="tagFooter">
+          <div className={classes.footerTagList}>
+            <FooterTagList post={post}/>
+          </div>
+        </AnalyticsContext>
+      </SuspenseWrapper>
     }
     {!post.shortform && (isLW || isEAEmojis) &&
       <>
@@ -134,12 +137,15 @@ const PostsPagePostFooter = ({post, sequenceId, classes}: {
       </AnalyticsContext>}
     </div>}
 
-    {userHasPingbacks(currentUser) && <AnalyticsContext pageSectionContext="pingbacks">
-      <PingbacksList postId={post._id}/>
-    </AnalyticsContext>}
+    {hasPingbacks && <SuspenseWrapper name="pingbacks">
+      <AnalyticsContext pageSectionContext="pingbacks">
+        <PingbacksList postId={post._id}/>
+      </AnalyticsContext>
+    </SuspenseWrapper>}
   </>
 }
 
-export default registerComponent("PostsPagePostFooter", PostsPagePostFooter, {styles});
-
-
+export default registerComponent("PostsPagePostFooter", PostsPagePostFooter, {
+  styles,
+  areEqual: "auto",
+});

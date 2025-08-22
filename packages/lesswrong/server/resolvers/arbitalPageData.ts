@@ -1,10 +1,10 @@
-import markdownIt from 'markdown-it'
-import markdownItMathjax from '../editor/markdown-mathjax'
 import { mjPagePromise } from '../editor/conversionUtils';
 import { trimLatexAndAddCSS } from '../editor/latexUtils';
 import { ArbitalCaches } from '../collections/arbitalCache/collection';
 import { addCronJob } from '../cron/cronUtil';
 import gql from 'graphql-tag';
+import { getMarkdownItArbital } from '@/lib/utils/markdownItPlugins';
+import { backgroundTask } from '../utils/backgroundTask';
 
 export const arbitalCacheExpirationMs = 2*60*60*1000;
 
@@ -22,10 +22,6 @@ type ArbitalPageData = {
   html: string
   title: string
 }
-
-const mdi = markdownIt({linkify: true})
-mdi.use(markdownItMathjax())
-
 
 
 async function fetchArbitalPageData(pageAlias: string) {
@@ -95,7 +91,7 @@ async function fetchArbitalPageAsHtml(pageAlias: string): Promise<ArbitalPageDat
   )
   let htmlWithLaTeX: string;
   try {
-    const htmlNoLaTeX = mdi.render(fixedMarkdown)
+    const htmlNoLaTeX = getMarkdownItArbital().render(fixedMarkdown)
     htmlWithLaTeX = await mjPagePromise(htmlNoLaTeX, trimLatexAndAddCSS)
   } catch(e) {
     throw new Error(`Error during Arbital hover-preview markdown/LaTeX conversion for "${pageAlias}"`);
@@ -123,12 +119,12 @@ async function getArbitalPageWithCache(pageAlias: string): Promise<{ html: strin
   
   const result =  await fetchArbitalPageAsHtml(pageAlias);
   if (!result) return null;
-  void ArbitalCaches.rawInsert({
+  backgroundTask(ArbitalCaches.rawInsert({
     pageAlias,
     title: result.title,
     fetchedAt: now,
     sanitizedHtml: result.html, //TODO: This came out of a markdown conversion; is it safe?
-  });
+  }));
   
   return result;
 }

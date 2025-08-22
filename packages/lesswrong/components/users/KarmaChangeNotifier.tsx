@@ -28,6 +28,9 @@ import LWPopper from "../common/LWPopper";
 import ForumIcon from "../common/ForumIcon";
 import ReactionIcon from "../votes/ReactionIcon";
 import LWTooltip from "../common/LWTooltip";
+import { SuspenseWrapper } from '../common/SuspenseWrapper';
+import { defineStyles, useStyles } from '../hooks/useStyles';
+import ErrorBoundary from '../common/ErrorBoundary';
 import { isIfAnyoneBuildsItFrontPage } from '../seasonal/IfAnyoneBuildsItSplash';
 
 const UserKarmaChangesQuery = gql(`
@@ -40,11 +43,12 @@ const UserKarmaChangesQuery = gql(`
   }
 `);
 
-const styles = (theme: ThemeType) => ({
+const styles = defineStyles("KarmaChangeNotifier", (theme: ThemeType) => ({
   root: {
     display: 'flex',
     alignItems: 'center',
   },
+  placeholder: {},
   karmaNotifierButton: {
   },
   karmaNotifierPaper: {
@@ -54,9 +58,9 @@ const styles = (theme: ThemeType) => ({
   },
   starIcon: {
     color: isFriendlyUI ? theme.palette.grey[600] : theme.palette.header.text,
-    [isIfAnyoneBuildsItFrontPage]: {
+    ...isIfAnyoneBuildsItFrontPage({
       color: theme.palette.text.bannerAdOverlay,
-    },
+    }),
   },
   title: {
     display: 'block',
@@ -119,15 +123,15 @@ const styles = (theme: ThemeType) => ({
       color: theme.palette.grey[500]
     }
   },
-});
+}), {stylePriority: -1});
 
 // Given a number, return a span of it as a string, with a plus sign if it's
 // positive, and green, red, or black coloring for positive, negative, and
 // zero, respectively.
-const ColoredNumber = ({n, classes}: {
+const ColoredNumber = ({n}: {
   n: number,
-  classes: ClassesType<typeof styles>
 }) => {
+  const classes = useStyles(styles);
   if (n>0) {
     return <span className={classes.gainedPoints}>{`+${n}`}</span>
   } else if (n===0) {
@@ -137,11 +141,11 @@ const ColoredNumber = ({n, classes}: {
   }
 }
 
-const KarmaChangesDisplay = ({karmaChanges, classes, handleClose }: {
+const KarmaChangesDisplay = ({karmaChanges, handleClose }: {
   karmaChanges: any,
-  classes: ClassesType<typeof styles>,
   handleClose: (ev: React.MouseEvent) => any,
 }) => {
+  const classes = useStyles(styles);
   const { posts, comments, tagRevisions, updateFrequency } = karmaChanges
   const currentUser = useCurrentUser();
   const noKarmaChanges = !(
@@ -167,10 +171,10 @@ const KarmaChangesDisplay = ({karmaChanges, classes, handleClose }: {
                 key={postChange._id}
               >
                 {(postChange.scoreChange !== 0) && <span className={classes.votedItemScoreChange}>
-                  <ColoredNumber n={postChange.scoreChange} classes={classes}/>
+                  <ColoredNumber n={postChange.scoreChange}/>
                 </span>}
                 <span className={classes.votedItemReacts}>
-                  <NewReactions reactionChanges={postChange.addedReacts} classes={classes}/>
+                  <NewReactions reactionChanges={postChange.addedReacts}/>
                 </span>
                 <div className={classes.votedItemDescription}>
                   {postChange.title}
@@ -185,10 +189,10 @@ const KarmaChangesDisplay = ({karmaChanges, classes, handleClose }: {
                 to={commentGetPageUrlFromIds({postId:commentChange.postId, tagSlug:commentChange.tagSlug, tagCommentType:commentChange.tagCommentType as TagCommentType, commentId: commentChange._id})} key={commentChange._id}
               >
                 {(commentChange.scoreChange !== 0) && <span className={classes.votedItemScoreChange}>
-                  <ColoredNumber n={commentChange.scoreChange} classes={classes}/>
+                  <ColoredNumber n={commentChange.scoreChange}/>
                 </span>}
                 {!!commentChange.addedReacts.length && <span className={classes.votedItemReacts}>
-                  <NewReactions reactionChanges={commentChange.addedReacts} classes={classes}/>
+                  <NewReactions reactionChanges={commentChange.addedReacts}/>
                 </span>}
                 <div className={classes.votedItemDescription}>
                   {commentChange.description}
@@ -202,10 +206,10 @@ const KarmaChangesDisplay = ({karmaChanges, classes, handleClose }: {
                 to={`${tagGetHistoryUrl({slug: tagChange.tagSlug})}?user=${currentUser!.slug}`}
               >
                 <span className={classes.votedItemScoreChange}>
-                  <ColoredNumber n={tagChange.scoreChange} classes={classes}/>
+                  <ColoredNumber n={tagChange.scoreChange}/>
                 </span>
                 <span className={classes.votedItemReacts}>
-                  <NewReactions reactionChanges={tagChange.addedReacts} classes={classes}/>
+                  <NewReactions reactionChanges={tagChange.addedReacts}/>
                 </span>
                 <div className={classes.votedItemDescription}>
                   {tagChange.tagName}
@@ -222,11 +226,11 @@ const KarmaChangesDisplay = ({karmaChanges, classes, handleClose }: {
   );
 }
 
-const KarmaChangeNotifier = ({currentUser, className, classes}: {
-  currentUser: UsersCurrent, //component can only be used if logged in
+const KarmaChangeNotifierLoaded = ({className}: {
   className?: string,
-  classes: ClassesType<typeof styles>,
 }) => {
+  const classes = useStyles(styles);
+  const currentUser = useCurrentUser()!;
   const updateCurrentUser = useUpdateCurrentUser();
   const [cleared,setCleared] = useState(false);
   const [open, setOpen] = useState(false);
@@ -291,7 +295,7 @@ const KarmaChangeNotifier = ({currentUser, className, classes}: {
               ? <ForumIcon icon="KarmaOutline" className={classes.starIcon}/>
               : <Badge badgeContent={
                   <span className={classes.pointBadge}>
-                    {(!!totalChange) && <ColoredNumber n={totalChange} classes={classes}/>}
+                    {(!!totalChange) && <ColoredNumber n={totalChange}/>}
                   </span>}
                 >
                   <ForumIcon icon="Karma" className={classes.starIcon}/>
@@ -307,7 +311,7 @@ const KarmaChangeNotifier = ({currentUser, className, classes}: {
         >
           <LWClickAwayListener onClickAway={handleClose}>
             <Paper className={classes.karmaNotifierPaper}>
-              <KarmaChangesDisplay karmaChanges={karmaChanges} classes={classes} handleClose={handleClose} />
+              <KarmaChangesDisplay karmaChanges={karmaChanges} handleClose={handleClose} />
             </Paper>
           </LWClickAwayListener>
         </LWPopper>
@@ -318,10 +322,21 @@ const KarmaChangeNotifier = ({currentUser, className, classes}: {
   return render();
 }
 
-const NewReactions = ({reactionChanges, classes}: {
-  reactionChanges: ReactionChange[],
-  classes: ClassesType<typeof styles>,
+const KarmaChangeNotifierPlaceholder = ({className}: {
+  className?: string
 }) => {
+  const classes = useStyles(styles);
+  return <div className={classNames(classes.root, classes.placeholder, className)}>
+    <IconButton className={classes.karmaNotifierButton}>
+      <ForumIcon icon="KarmaOutline" className={classes.starIcon}/>
+    </IconButton>
+  </div>
+}
+
+const NewReactions = ({reactionChanges}: {
+  reactionChanges: ReactionChange[],
+}) => {
+  const classes = useStyles(styles);
   const distinctReactionTypes = new Set<string>();
   for (let reactionChange of reactionChanges)
     distinctReactionTypes.add(reactionChange.reactionType);
@@ -361,8 +376,16 @@ const NewReactions = ({reactionChanges, classes}: {
   </span>
 }
 
-export default registerComponent('KarmaChangeNotifier', KarmaChangeNotifier, {
-  styles, stylePriority: -1, hocs: [withErrorBoundary]
-});
-
+export const KarmaChangeNotifier = ({className}: {
+  className?: string,
+}) => {
+  return <SuspenseWrapper
+    name="KarmaChangeNotifier"
+    fallback={<KarmaChangeNotifierPlaceholder className={className}
+  />}>
+    <ErrorBoundary>
+      <KarmaChangeNotifierLoaded className={className}/>
+    </ErrorBoundary>
+  </SuspenseWrapper>
+}
 

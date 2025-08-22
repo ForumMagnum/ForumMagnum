@@ -1,9 +1,10 @@
 import React, { ErrorInfo } from 'react';
-import { registerComponent } from '../../lib/vulcan-lib/components';
 import { configureScope, captureException }from '@sentry/core';
 import ErrorMessage from "./ErrorMessage";
 
 interface ErrorBoundaryProps {
+  fallback?: React.ReactNode
+  hideMessage?: boolean
   children: React.ReactNode,
 }
 
@@ -17,7 +18,7 @@ interface ErrorBoundaryState {
   errorLocation?: string,
 }
 
-class ErrorBoundaryInner extends React.Component<ErrorBoundaryProps, ErrorBoundaryState> {
+export class ErrorBoundary extends React.Component<ErrorBoundaryProps, ErrorBoundaryState> {
   constructor(props: ErrorBoundaryProps) {
     super(props);
     this.state = { error: false };
@@ -48,7 +49,13 @@ class ErrorBoundaryInner extends React.Component<ErrorBoundaryProps, ErrorBounda
 
   render() {
     if (this.state.error) {
-      return <ErrorMessage message={this.state.error}/>
+      if (this.props.fallback) {
+        return this.props.fallback;
+      } else if (this.props.hideMessage) {
+        return null;
+      } else {
+        return <ErrorMessage message={this.state.error}/>
+      }
     }
     if (this.props.children)
       return this.props.children;
@@ -57,6 +64,6 @@ class ErrorBoundaryInner extends React.Component<ErrorBoundaryProps, ErrorBounda
   }
 }
 
-export default registerComponent("ErrorBoundary", ErrorBoundaryInner);
+export default ErrorBoundary;
 
 

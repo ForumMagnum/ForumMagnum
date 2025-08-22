@@ -118,7 +118,7 @@ const deserializeThemeOptions = (themeOptions: object | string): AbstractThemeOp
 }
 
 const getSerializedThemeOptions = (
-  themeCookie: string | object,
+  themeCookie: string | null,
   user: DbUser|UsersCurrent | null,
 ): string|AbstractThemeOptions => {
   // Try to read from the cookie
@@ -136,7 +136,7 @@ const getSerializedThemeOptions = (
 }
 
 export const getThemeOptions = (
-  themeCookie: string | object,
+  themeCookie: string | null,
   user: DbUser|UsersCurrent | null,
 ): AbstractThemeOptions =>
   deserializeThemeOptions(getSerializedThemeOptions(themeCookie, user));

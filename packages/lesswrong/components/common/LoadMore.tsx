@@ -5,20 +5,18 @@ import { queryIsUpdating } from './queryStatusUtils'
 import {useTracking} from "../../lib/analyticsEvents";
 import { LoadMoreCallback } from '../hooks/useQueryWithLoadMore';
 import { useIsFirstRender } from "../hooks/useFirstRender";
-
 import { isBookUI, isFriendlyUI, preferredHeadingCase } from '../../themes/forumTheme';
 import { isAF } from '@/lib/instanceSettings';
 import Loading from "../vulcan-core/Loading";
-import type { ObservableQueryFields } from '@apollo/client';
 import type { WrappedFetchMore } from '../hooks/useQueryWithLoadMore';
-import { isIfAnyoneBuildsItFrontPage } from '../seasonal/IfAnyoneBuildsItSplash';
+import { defineStyles, useStyles } from '../hooks/useStyles';
 
-const styles = (theme: ThemeType) => ({
+const styles = defineStyles("LoadMore", (theme: ThemeType) => ({
   root: {
     ...theme.typography.body2,
     ...theme.typography.commentStyle,
     color: theme.palette.lwTertiary.main,
-    ...(isBookUI && theme.themeOptions.name === 'dark' && {
+    ...(isBookUI && theme.dark && {
       color: theme.palette.text.bannerAdOverlay,
     }),
     display: "inline-block",
@@ -58,8 +56,7 @@ const styles = (theme: ThemeType) => ({
       marginRight: "0 !important",
     }
   }
-})
-
+}), {stylePriority: -1})
 
 /**
  * Load More button. The simplest way to use this is to take `loadMoreProps`
@@ -77,13 +74,12 @@ const LoadMore = ({
   loading=false,
   hideLoading=false,
   hidden=false,
-  classes,
   sectionFooterStyles,
   afterPostsListMarginTop,
   message=preferredHeadingCase("Load More"),
 }: {
   // loadMore: Callback when clicked.
-  loadMore: WrappedFetchMore<ObservableQueryFields<any, any>['fetchMore']> | LoadMoreCallback,
+  loadMore: WrappedFetchMore | LoadMoreCallback,
   // count/totalCount: If provided, looks like "Load More (10/25)"
   count?: number,
   totalCount?: number,
@@ -97,11 +93,11 @@ const LoadMore = ({
   // hideLoading: Reserve space for the load spinner as normal, but don't show it
   hideLoading?: boolean,
   hidden?: boolean,
-  classes: ClassesType<typeof styles>,
   sectionFooterStyles?: boolean,
   afterPostsListMarginTop?: boolean,
   message?: string,
 }) => {
+  const classes = useStyles(styles);
   const { captureEvent } = useTracking()
 
   // Don't show the loading animation on the initial render
@@ -134,6 +130,15 @@ const LoadMore = ({
   )
 }
 
-export default registerComponent('LoadMore', LoadMore, {styles, stylePriority: -1});
+export const LoadMorePlaceholder = ({sectionFooterStyles}: {
+  sectionFooterStyles?: boolean,
+}) => {
+  const classes = useStyles(styles);
+  return <a className={classNames(classes.root, sectionFooterStyles && classes.sectionFooterStyles)} href="#" >
+    {preferredHeadingCase("Load More")}
+  </a>
+}
+
+export default LoadMore;
 
 

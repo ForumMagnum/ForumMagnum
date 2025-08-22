@@ -1,3 +1,4 @@
+import { backgroundTask } from "@/server/utils/backgroundTask";
 import { manifoldAPIKeySetting, highlightReviewWinnerThresholdSetting } from "../../instanceSettings";
 import { getWithCustomLoader, loadByIds } from "../../loaders";
 import { filterNonnull } from "../../utils/typeGuardUtils";
@@ -160,14 +161,14 @@ export const getPostMarketInfo = async (post: DbPost, context: ResolverContext):
   });
 
   if (!cacheItem) {
-    void refreshMarketInfoInCache(post, context)
+    backgroundTask(refreshMarketInfoInCache(post, context))
     return undefined;
   }
 
   const timeDifference = new Date().getTime() - cacheItem.lastUpdated.getTime();
 
   if (timeDifference >= 10_000) {
-    void refreshMarketInfoInCache(post, context);
+    backgroundTask(refreshMarketInfoInCache(post, context));
   }
 
   return { probability: cacheItem.probability, isResolved: cacheItem.isResolved, year: cacheItem.year, url: cacheItem.url ?? '' };

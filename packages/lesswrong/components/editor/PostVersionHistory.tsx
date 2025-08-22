@@ -4,7 +4,7 @@ import { useDialog } from '../common/withDialog';
 import classNames from 'classnames';
 import { CENTRAL_COLUMN_WIDTH } from '../posts/PostsPage/constants';
 import {commentBodyStyles, postBodyStyles} from "../../themes/stylePiping";
-import { useMutation } from '@apollo/client';
+import { useMutation } from "@apollo/client/react";
 import { useQuery } from "@/lib/crud/useQuery"
 import { useTracking } from '../../lib/analyticsEvents';
 import { useCurrentUser } from '../common/withUser';
@@ -41,6 +41,7 @@ const RevisionDisplayQuery = gql(`
     revision(input: { selector: { documentId: $documentId } }) {
       result {
         ...RevisionDisplay
+        ...RevisionMetadata
       }
     }
   }

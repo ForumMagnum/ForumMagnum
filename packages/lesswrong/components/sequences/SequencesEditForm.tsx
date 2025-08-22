@@ -1,15 +1,15 @@
 import React from 'react';
 import { styles } from './SequencesNewForm';
-import { registerComponent } from "../../lib/vulcan-lib/components";
 import { SequencesForm } from './SequencesForm';
+import { useStyles } from '../hooks/useStyles';
 
-const SequencesEditForm = ({ sequence, currentUser, successCallback, cancelCallback, classes }: {
+const SequencesEditForm = ({ sequence, currentUser, successCallback, cancelCallback }: {
   sequence: SequencesEdit,
   currentUser: UsersCurrent,
   successCallback: () => void,
   cancelCallback: () => void,
-  classes: ClassesType<typeof styles>,
 }) => {
+  const classes = useStyles(styles);
   return (
     <div className={classes.sequencesForm}>
       <SequencesForm
@@ -22,7 +22,4 @@ const SequencesEditForm = ({ sequence, currentUser, successCallback, cancelCallb
   )
 }
 
-export default registerComponent('SequencesEditForm', SequencesEditForm, {styles});
-
-
-
+export default SequencesEditForm;
