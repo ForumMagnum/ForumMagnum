@@ -144,6 +144,10 @@ const UltraFeedThreadCommentsList = ({
           const nextItemIsRead = isNextItemRead(commentIndex);
           const isReadAndNextItemIsRead = isRead && nextItemIsRead;
           
+          const shouldShowPostTitle = focusedCommentId 
+            ? cId === focusedCommentId 
+            : (isFirstItem && !postInitiallyExpanded);
+          
           return (
             <div 
               key={cId} 
@@ -166,7 +170,7 @@ const UltraFeedThreadCommentsList = ({
                 }}
                 onPostTitleClick={onPostExpansion}
                 onChangeDisplayStatus={(newStatus) => onSetDisplayStatus(cId, newStatus)}
-                showPostTitle={focusedCommentId ? cId === focusedCommentId : (isFirstItem && !postInitiallyExpanded)}
+                showPostTitle={shouldShowPostTitle}
                 postInitiallyExpanded={postInitiallyExpanded}
                 highlight={highlightStatuses[cId] || false}
                 isFirstComment={isFirstItem}

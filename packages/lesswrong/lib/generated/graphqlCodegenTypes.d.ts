@@ -23563,7 +23563,6 @@ type UserContentFeedPostsQuery_Query = { __typename?: 'Query', posts: UserConten
 type UserContentFeedPostsQueryVariables = Exact<{
   userId: Scalars['String']['input'];
   limit: Scalars['Int']['input'];
-  offset: InputMaybe<Scalars['Int']['input']>;
   sortedBy: Scalars['String']['input'];
 }>;
 
@@ -23593,7 +23592,6 @@ type UserContentFeedCommentsQuery_Query = { __typename?: 'Query', comments: User
 type UserContentFeedCommentsQueryVariables = Exact<{
   userId: Scalars['String']['input'];
   limit: Scalars['Int']['input'];
-  offset: InputMaybe<Scalars['Int']['input']>;
   sortBy: Scalars['String']['input'];
 }>;
 

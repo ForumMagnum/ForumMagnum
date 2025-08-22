@@ -9,14 +9,14 @@ import { useDialogNavigation } from '../hooks/useDialogNavigation';
 import { useDisableBodyScroll } from '../hooks/useDisableBodyScroll';
 import { userGetProfileUrl } from '../../lib/collections/users/helpers';
 import FollowUserButton from '../users/FollowUserButton';
-import { userHasSubscribeTabFeed } from '@/lib/betas';
-import { useCurrentUser } from '../common/withUser';
+import { useCurrentUserId } from '../common/withUser';
 import { Link } from '../../lib/reactRouterWrapper';
 import UserActionsButton from '../dropdowns/users/UserActionsButton';
 import { UltraFeedContextProvider } from './UltraFeedContextProvider';
 import { UltraFeedObserverProvider } from './UltraFeedObserver';
 import { OverflowNavObserverProvider } from './OverflowNavObserverContext';
 import { useUltraFeedSettings } from '../hooks/useUltraFeedSettings';
+import { userContentFeedStyles } from '../users/UserContentFeed';
 
 const styles = defineStyles("UltraFeedUserDialog", (theme: ThemeType) => ({
   dialogContent: {
@@ -154,12 +154,15 @@ const UltraFeedUserDialog = ({
   onClose: () => void;
 }) => {
   const classes = useStyles(styles);
-  const currentUser = useCurrentUser();
+  // Preload UserContentFeed styles to ensure they're available when modal opens (fixes bug due issue with StylesContext)
+  useStyles(userContentFeedStyles);
+  
+  const currentUserId = useCurrentUserId();
   const [nameHidden, setNameHidden] = useState(false);
   const { settings } = useUltraFeedSettings();
   const incognitoMode = settings.resolverSettings.incognitoMode;
   
-  const profileUrl = user ?  `${userGetProfileUrl(user)}?${qs.stringify({ from: 'feedModal' })}` : undefined;
+  const profileUrl = user ? `${userGetProfileUrl(user)}?${qs.stringify({ from: 'feedModal' })}` : undefined;
   useDialogNavigation(onClose, profileUrl);
   useDisableBodyScroll();
 
@@ -167,7 +170,7 @@ const UltraFeedUserDialog = ({
     setNameHidden(isHidden);
   };
 
-    return (
+  return (
     <UltraFeedContextProvider openInNewTab={true}>
     <UltraFeedObserverProvider incognitoMode={incognitoMode}>
     <OverflowNavObserverProvider>
@@ -192,16 +195,14 @@ const UltraFeedUserDialog = ({
                     {user.displayName}
                   </Link>
                   <div className={classes.headerButtonsContainer}>
-                    {currentUser && currentUser._id !== user._id && (
+                    {currentUserId !== user._id && (
                       <UserActionsButton 
                         user={user} 
                         from="ultraFeedModal"
                         placement="bottom-end"
                       />
                     )}
-                    {userHasSubscribeTabFeed(currentUser) && (
-                      <FollowUserButton user={user} styleVariant="ultraFeed" />
-                    )}
+                    <FollowUserButton user={user} styleVariant="ultraFeed" />
                   </div>
                 </div>
               )}

@@ -5,14 +5,15 @@ import { gql } from '@/lib/generated/gql-codegen';
 import Loading from '../vulcan-core/Loading';
 import UltraFeedPostItem from '../ultraFeed/UltraFeedPostItem';
 import UltraFeedThreadItem from "../ultraFeed/UltraFeedThreadItem";
-import { UltraFeedSettingsType, DEFAULT_SETTINGS } from '../ultraFeed/ultraFeedSettingsTypes';
-import { FeedPostMetaInfo, FeedCommentMetaInfo, FeedItemDisplayStatus, DisplayFeedCommentThread } from '../ultraFeed/ultraFeedTypes';
+import { UltraFeedSettingsType } from '../ultraFeed/ultraFeedSettingsTypes';
+import { FeedPostMetaInfo, DisplayFeedCommentThread, FeedItemSourceType } from '../ultraFeed/ultraFeedTypes';
 import classNames from 'classnames';
 import { useUltraFeedSettings } from '../hooks/useUltraFeedSettings';
+import { useQueryWithLoadMore } from '../hooks/useQueryWithLoadMore';
 
 const USER_POSTS_QUERY = gql(`
-  query UserContentFeedPosts($userId: String!, $limit: Int!, $offset: Int, $sortedBy: String!) {
-    posts(selector: { userPosts: { userId: $userId, sortedBy: $sortedBy } }, limit: $limit, offset: $offset, enableTotal: true) {
+  query UserContentFeedPosts($userId: String!, $limit: Int!, $sortedBy: String!) {
+    posts(selector: { userPosts: { userId: $userId, sortedBy: $sortedBy } }, limit: $limit, enableTotal: true) {
       results {
         ...PostsListWithVotes
       }
@@ -22,8 +23,8 @@ const USER_POSTS_QUERY = gql(`
 `);
 
 const USER_COMMENTS_QUERY = gql(`
-  query UserContentFeedComments($userId: String!, $limit: Int!, $offset: Int, $sortBy: String!) {
-    comments(selector: { profileComments: { userId: $userId, sortBy: $sortBy } }, limit: $limit, offset: $offset, enableTotal: true) {
+  query UserContentFeedComments($userId: String!, $limit: Int!, $sortBy: String!) {
+    comments(selector: { profileComments: { userId: $userId, sortBy: $sortBy } }, limit: $limit, enableTotal: true) {
       results {
         ...CommentsList
         post {
@@ -48,7 +49,7 @@ const THREAD_BY_TOPLEVEL_QUERY = gql(`
   }
 `);
 
-const styles = defineStyles("UserContentFeed", (theme: ThemeType) => ({
+export const userContentFeedStyles = defineStyles("UserContentFeed", (theme: ThemeType) => ({
   root: {
     display: 'flex',
     flexDirection: 'column',
@@ -130,8 +131,8 @@ export function UltraFeedPrefetchedThreadItem({ comment, index, feedSettings }: 
   // Build ancestry chain: results in array of comments from root down to focused comment
   const ancestryChain = useMemo(() => {
     const allThreadComments = threadData?.comments?.results ?? [comment];
-    const chain: Array<UltraFeedComment & { __typename?: 'Comment' }> = [];
-    const byId: Record<string, UltraFeedComment & { __typename?: 'Comment' }> = {};
+    const chain: Array<UltraFeedComment> = [];
+    const byId: Record<string, UltraFeedComment> = {};
     
     allThreadComments.forEach((c) => {
       byId[c._id] = c;
@@ -156,17 +157,17 @@ export function UltraFeedPrefetchedThreadItem({ comment, index, feedSettings }: 
     const now = new Date();
     return Object.fromEntries(
       ancestryChain.map((c) => [
-        c._id as string,
+        c._id,
         {
-          sources: ['subscriptionsComments'] as const,
-          displayStatus: c._id === comment._id ? 'expanded' as FeedItemDisplayStatus : 'hidden' as FeedItemDisplayStatus,
+          sources: ['subscriptionsComments'] as FeedItemSourceType[],
+          displayStatus: (c._id === comment._id ? 'expanded' as const : 'hidden' as const),
           lastServed: now,
           lastViewed: null,
           lastInteracted: null,
           postedAt: new Date(c.postedAt),
           descendentCount: c.descendentCount ?? 0,
           directDescendentCount: c.directChildrenCount ?? 0,
-        } as FeedCommentMetaInfo,
+        },
       ])
     );
   }, [ancestryChain, comment._id]);
@@ -197,46 +198,79 @@ interface UserContentFeedProps {
 
 type SortMode = 'recent' | 'top';
 
-type PostItem = PostsListWithVotes & { __typename?: 'Post' };
-type CommentItem = CommentsList & { __typename?: 'Comment', post: PostItem | null };
+type PostItem = PostsListWithVotes;
+type CommentItem = CommentsList & { post: PostItem | null };
 
-interface FeedItem {
-  type: 'post' | 'comment';
-  data: PostItem | CommentItem;
-  postedAt: Date;
-}
+type FeedItem = 
+  | { type: 'post'; data: PostItem; postedAt: Date }
+  | { type: 'comment'; data: CommentItem; postedAt: Date };
+
+const UserContentFeedItem = ({ item, index, feedSettings }: {
+  item: FeedItem;
+  index: number;
+  feedSettings: UltraFeedSettingsType;
+}) => {
+  if (item.type === 'post') {
+    const post = item.data;
+    const postMetaInfo: FeedPostMetaInfo = {
+      sources: ["subscriptionsPosts"],
+      displayStatus: "expanded",
+      highlight: false,
+    };
+    return (
+      <UltraFeedPostItem
+        post={post}
+        postMetaInfo={postMetaInfo}
+        index={index}
+        settings={feedSettings}
+      />
+    );
+  } else {
+    const comment = item.data;
+    return (
+      <UltraFeedPrefetchedThreadItem
+        comment={comment}
+        index={index}
+        feedSettings={feedSettings}
+      />
+    );
+  }
+};
 
 const UserContentFeed = ({ userId, initialLimit = 10, scrollContainerRef }: UserContentFeedProps) => {
-  const classes = useStyles(styles);
+  const classes = useStyles(userContentFeedStyles);
   const [sortMode, setSortMode] = useState<SortMode>('recent');
-  const [offset, setOffset] = useState(0);
-  const [postsOffset, setPostsOffset] = useState(0);
-  const [commentsOffset, setCommentsOffset] = useState(0);
   const [loadingMore, setLoadingMore] = useState(false);
   const sentinelRef = useRef<HTMLDivElement | null>(null);
-
-  const pageFetchSize = 20;
 
   const postsSortBy = sortMode === 'recent' ? 'new' : 'top';
   const commentsSortBy = sortMode === 'recent' ? 'new' : 'top';
 
-  const { data: postsData, loading: postsLoading, fetchMore: fetchMorePosts } = useQuery<UserContentFeedPostsQuery, UserContentFeedPostsQueryVariables>(
+  const { 
+    data: postsData, 
+    loading: postsLoading, 
+    loadMoreProps: postsLoadMoreProps 
+  } = useQueryWithLoadMore(
     USER_POSTS_QUERY,
     {
-      variables: { userId, limit: pageFetchSize, offset: 0, sortedBy: postsSortBy },
+      variables: { userId, limit: initialLimit, sortedBy: postsSortBy },
       skip: !userId,
-      notifyOnNetworkStatusChange: false,
       fetchPolicy: 'cache-and-network',
+      itemsPerPage: 10,
     }
   );
 
-  const { data: commentsData, loading: commentsLoading, fetchMore: fetchMoreComments } = useQuery<UserContentFeedCommentsQuery, UserContentFeedCommentsQueryVariables>(
+  const { 
+    data: commentsData, 
+    loading: commentsLoading, 
+    loadMoreProps: commentsLoadMoreProps 
+  } = useQueryWithLoadMore(
     USER_COMMENTS_QUERY,
     {
-      variables: { userId, limit: pageFetchSize, offset: 0, sortBy: commentsSortBy },
+      variables: { userId, limit: initialLimit, sortBy: commentsSortBy },
       skip: !userId,
-      notifyOnNetworkStatusChange: false,
       fetchPolicy: 'cache-and-network',
+      itemsPerPage: 10,
     }
   );
 
@@ -279,69 +313,30 @@ const UserContentFeed = ({ userId, initialLimit = 10, scrollContainerRef }: User
     return items;
   }, [postsData, commentsData, sortMode]);
 
-  const displayedItems = mixedFeed.slice(0, initialLimit + offset);
-  
-  const hasMoreLocal = displayedItems.length < mixedFeed.length;
-  const postsTotal = postsData?.posts?.totalCount ?? null;
-  const commentsTotal = commentsData?.comments?.totalCount ?? null;
-  const postsLoaded = (postsData?.posts?.results ?? []).length;
-  const commentsLoaded = (commentsData?.comments?.results ?? []).length;
-  const postsHasMore = postsTotal == null ? true : postsLoaded < postsTotal;
-  const commentsHasMore = commentsTotal == null ? true : commentsLoaded < commentsTotal;
+  const postsHasMore = !postsLoadMoreProps.hidden;
+  const commentsHasMore = !commentsLoadMoreProps.hidden;
   const hasMoreRemote = postsHasMore || commentsHasMore;
 
   const { settings: feedSettings } = useUltraFeedSettings();
 
   const handleLoadMore = useCallback(async () => {
-    if (loadingMore) return;
+    if (loadingMore || !hasMoreRemote) return;
     
-    setOffset(prev => prev + 10);
-    
-    const needMore = (initialLimit + offset + 12) >= mixedFeed.length;
-    
-    if (needMore && hasMoreRemote) {
-      setLoadingMore(true);
-      try {
-        if (postsHasMore && fetchMorePosts) {
-          const newPostsOffset = postsOffset + pageFetchSize;
-          await fetchMorePosts({
-            variables: { offset: newPostsOffset, sortedBy: postsSortBy },
-            updateQuery: (prev, { fetchMoreResult }) => {
-              if (!fetchMoreResult) return prev;
-              return {
-                posts: {
-                  ...fetchMoreResult.posts,
-                  results: [...(prev.posts?.results ?? []), ...(fetchMoreResult.posts?.results ?? [])],
-                  totalCount: fetchMoreResult.posts?.totalCount ?? null
-                }
-              };
-            }
-          });
-          setPostsOffset(newPostsOffset);
-        }
-        
-        if (commentsHasMore && fetchMoreComments) {
-          const newCommentsOffset = commentsOffset + pageFetchSize;
-          await fetchMoreComments({
-            variables: { offset: newCommentsOffset, sortBy: commentsSortBy },
-            updateQuery: (prev, { fetchMoreResult }) => {
-              if (!fetchMoreResult) return prev;
-              return {
-                comments: {
-                  ...fetchMoreResult.comments,
-                  results: [...(prev.comments?.results ?? []), ...(fetchMoreResult.comments?.results ?? [])],
-                  totalCount: fetchMoreResult.comments?.totalCount ?? null
-                }
-              };
-            }
-          });
-          setCommentsOffset(newCommentsOffset);
-        }
-      } finally {
-        setLoadingMore(false);
+    setLoadingMore(true);
+    try {
+      // Load more from both queries in parallel
+      const promises = [];
+      if (postsHasMore) {
+        promises.push(postsLoadMoreProps.loadMore());
       }
+      if (commentsHasMore) {
+        promises.push(commentsLoadMoreProps.loadMore());
+      }
+      await Promise.all(promises);
+    } finally {
+      setLoadingMore(false);
     }
-  }, [loadingMore, initialLimit, offset, mixedFeed.length, hasMoreRemote, postsHasMore, fetchMorePosts, commentsHasMore, fetchMoreComments, postsOffset, commentsOffset, postsSortBy, commentsSortBy]);
+  }, [loadingMore, hasMoreRemote, postsHasMore, commentsHasMore, postsLoadMoreProps, commentsLoadMoreProps]);
 
   // Set up infinite scroll
   useEffect(() => {
@@ -352,7 +347,7 @@ const UserContentFeed = ({ userId, initialLimit = 10, scrollContainerRef }: User
     
     const observer = new IntersectionObserver(
       ([entry]) => {
-        if (entry.isIntersecting && !loadingMore && (hasMoreLocal || hasMoreRemote)) {
+        if (entry.isIntersecting && !loadingMore && hasMoreRemote) {
           void handleLoadMore();
         }
       },
@@ -365,45 +360,14 @@ const UserContentFeed = ({ userId, initialLimit = 10, scrollContainerRef }: User
     
     observer.observe(sentinel);
     return () => observer.disconnect();
-  }, [scrollContainerRef, mixedFeed.length, offset, loadingMore, handleLoadMore, hasMoreLocal, hasMoreRemote]);
+  }, [scrollContainerRef, loadingMore, handleLoadMore, hasMoreRemote]);
 
-  const renderItem = (item: FeedItem, index: number) => {
-    if (item.type === 'post') {
-      const post = item.data as PostItem;
-      const postMetaInfo: FeedPostMetaInfo = {
-        sources: ["subscriptionsPosts"],
-        displayStatus: "expanded" as FeedItemDisplayStatus,
-        highlight: false,
-      };
-      return (
-        <UltraFeedPostItem
-          key={`post-${post._id}`}
-          post={post}
-          postMetaInfo={postMetaInfo}
-          index={index}
-          settings={feedSettings}
-        />
-      );
-    } else {
-      const comment = item.data as CommentItem;
-      return (
-        <UltraFeedPrefetchedThreadItem
-          key={`comment-${comment._id}`}
-          comment={comment}
-          index={index}
-          feedSettings={feedSettings}
-        />
-      );
-    }
-  };
+
 
 
   const handleSortModeChange = useCallback((newMode: SortMode) => {
     if (newMode !== sortMode) {
       setSortMode(newMode);
-      setOffset(0);
-      setPostsOffset(0);
-      setCommentsOffset(0);
     }
   }, [sortMode]);
 
@@ -461,8 +425,15 @@ const UserContentFeed = ({ userId, initialLimit = 10, scrollContainerRef }: User
         <Loading />
       </div>}
       {!isLoading && <div className={classes.feedContent}>
-        {displayedItems.map((item, index) => renderItem(item, index))}
-        {(hasMoreLocal || hasMoreRemote) && <div ref={sentinelRef} style={{height: 1}} />}
+        {mixedFeed.map((item, index) => (
+          <UserContentFeedItem 
+            key={item.type === 'post' ? `post-${item.data._id}` : `comment-${item.data._id}`}
+            item={item} 
+            index={index} 
+            feedSettings={feedSettings} 
+          />
+        ))}
+        {hasMoreRemote && <div ref={sentinelRef} style={{height: 1}} />}
       </div>}
     </div>
   );

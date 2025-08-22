@@ -1,8 +1,7 @@
-import React from 'react';
+import React, { useEffect, useRef, useCallback } from 'react';
 import classNames from 'classnames';
 import { defineStyles, useStyles } from '../hooks/useStyles';
-import { userHasSubscribeTabFeed } from '@/lib/betas';
-import { useCurrentUser } from '../common/withUser';
+import { useCurrentUserId } from '../common/withUser';
 import { useDialog } from '../common/withDialog';
 import FollowUserButton from "../users/FollowUserButton";
 import UserMetaInfo from "../users/UserMetaInfo";
@@ -142,12 +141,12 @@ const UltraFeedUserCard = ({ user, inModal = false, onNameVisibilityChange }: {
   onNameVisibilityChange?: (isHidden: boolean) => void;
 }) => {
   const classes = useStyles(styles);
-  const currentUser = useCurrentUser();
+  const currentUserId = useCurrentUserId();
   const { openDialog } = useDialog();
-  const nameRef = React.useRef<HTMLDivElement | null>(null);
-  const scrollContainerRef = React.useRef<HTMLDivElement | null>(null);
-
-  const handleOpenUserModal = React.useCallback(() => {
+  const nameRef = useRef<HTMLDivElement | null>(null);
+  const scrollContainerRef = useRef<HTMLDivElement | null>(null);
+  
+  const handleOpenUserModal = useCallback(() => {
     if (!user) return;
     openDialog({
       name: "UltraFeedUserDialog",
@@ -162,7 +161,7 @@ const UltraFeedUserCard = ({ user, inModal = false, onNameVisibilityChange }: {
   }, [openDialog, user]);
 
   // Track visibility of the name row when in modal
-  React.useEffect(() => {
+  useEffect(() => {
     if (!inModal || !onNameVisibilityChange || !nameRef.current || !scrollContainerRef.current) return;
 
     const observer = new IntersectionObserver(
@@ -181,7 +180,7 @@ const UltraFeedUserCard = ({ user, inModal = false, onNameVisibilityChange }: {
     return () => observer.disconnect();
   }, [inModal, onNameVisibilityChange]);
 
-  if (!user || !user._id) {
+  if (!user?._id) {
     return <div className={classes.root}>User not found</div>;
   }
 
@@ -200,18 +199,16 @@ const UltraFeedUserCard = ({ user, inModal = false, onNameVisibilityChange }: {
                 </Link>
               </div>
               <div className={classes.buttonsContainer}>
-                {currentUser && currentUser._id !== user._id && (
+                {currentUserId !== user._id && (
                   <UserActionsButton 
                     user={user} 
                     from="ultraFeedModal"
                     placement="bottom-end"
                   />
                 )}
-                {userHasSubscribeTabFeed(currentUser) && (
-                  <div className={classes.followButton}>
-                    <FollowUserButton user={user} styleVariant="ultraFeed" />
-                  </div>
-                )}
+                <div className={classes.followButton}>
+                  <FollowUserButton user={user} styleVariant="ultraFeed" />
+                </div>
               </div>
             </div>
             <div className={classes.metaRow}>
@@ -249,17 +246,13 @@ const UltraFeedUserCard = ({ user, inModal = false, onNameVisibilityChange }: {
           >
             {displayName}
           </div>
-          {userHasSubscribeTabFeed(currentUser) && (
-            <div className={classes.followButton}>
-              <FollowUserButton user={user} styleVariant="ultraFeed" />
-            </div>
-          )}
+          <div className={classes.followButton}>
+            <FollowUserButton user={user} styleVariant="ultraFeed" />
+          </div>
         </div>
-
         <div className={classes.metaRow}>
           <UserMetaInfo user={user} />
         </div>
-
         {htmlBio && (
           <FeedContentBody
             html={htmlBio}
@@ -269,9 +262,6 @@ const UltraFeedUserCard = ({ user, inModal = false, onNameVisibilityChange }: {
             className={classes.bio}
           />
         )}
-        
-
-
       </div>
     </div>
   );

@@ -1,5 +1,4 @@
 import React from 'react';
-import { registerComponent } from '../../../lib/vulcan-lib/components';
 import DropdownMenu from "../DropdownMenu";
 import DropdownItem from "../DropdownItem";
 import { useCurrentUser } from '../../common/withUser';
@@ -11,21 +10,22 @@ import { MINIMUM_COAUTHOR_KARMA } from '../../../lib/collections/posts/helpers';
 import { userOverNKarmaOrApproved } from '../../../lib/vulcan-users/permissions';
 import { dialoguesEnabled } from '../../../lib/betas';
 import NotifyMeToggleDropdownItem from "../NotifyMeToggleDropdownItem";
+import { defineStyles, useStyles } from '../../hooks/useStyles';
 
-const styles = (_theme: ThemeType) => ({
+const styles = defineStyles("UserActions", (_theme: ThemeType) => ({
   root: {
     minWidth: 220,
     maxWidth: "calc(100vw - 100px)",
   },
-});
+}));
 
-const UserActions = ({user, closeMenu, from = "userActions", classes}: {
+const UserActions = ({user, closeMenu, from = "userActions"}: {
   user: UsersMinimumInfo,
   closeMenu: () => void,
   from?: string,
-  classes: ClassesType<typeof styles>,
 }) => {
   const currentUser = useCurrentUser();
+  const classes = useStyles(styles);
   const { openDialog } = useDialog();
   
   const isCurrentUser = currentUser?._id === user._id;
@@ -87,4 +87,5 @@ const UserActions = ({user, closeMenu, from = "userActions", classes}: {
   );
 };
 
-export default registerComponent('UserActions', UserActions, {styles});
+export default UserActions;
+
