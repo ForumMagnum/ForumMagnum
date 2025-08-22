@@ -277,6 +277,7 @@ declare global {
       itemSeparatorBottom: string,
       itemSeparatorBottomStrong: string,
       itemSeparatorBottomIntense: string,
+      readUltraFeedBorder: string,
       slightlyFaint: string,
       extraFaint: string,
       slightlyIntense: string,

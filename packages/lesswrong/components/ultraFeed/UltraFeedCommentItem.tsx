@@ -505,6 +505,7 @@ export const UltraFeedCommentItem = ({
                   onContinueReadingClick={handleContinueReadingClick}
                   hideSuffix={false}
                   resetSignal={resetSig}
+                  isRead={isRead}
                 />
               )}
             </div>

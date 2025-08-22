@@ -305,7 +305,6 @@ const sourceIconMap: Array<{ source: FeedItemSourceType, icon: any, tooltip: str
 
 interface UltraFeedPostItemHeaderProps {
   post: PostsListWithVotes;
-  isRead: boolean;
   handleOpenDialog: () => void;
   sources: FeedItemSourceType[];
   isSeeLessMode: boolean;
@@ -314,7 +313,6 @@ interface UltraFeedPostItemHeaderProps {
 
 const UltraFeedPostItemHeader = ({
   post,
-  isRead,
   handleOpenDialog,
   sources,
   handleSeeLess,
@@ -342,7 +340,7 @@ const UltraFeedPostItemHeader = ({
         <a
           href={postGetPageUrl(post)}
           onClick={handleTitleClick}
-          className={classnames(classes.title, { [classes.titleIsRead]: isRead })}
+          className={classes.title}
         >
           {post.title}
         </a>
@@ -627,7 +625,6 @@ const UltraFeedPostItem = ({
     <RecombeeRecommendationsContextWrapper postId={post._id} recommId={postMetaInfo.recommInfo?.recommId}>
     <AnalyticsContext ultraFeedElementType="feedPost" postId={post._id} feedCardIndex={index} ultraFeedSources={postMetaInfo.sources}>
     <div className={classnames(classes.root, { 
-      [classes.rootWithReadStyles]: isRead,
       [classes.rootWithAnimation]: isHighlightAnimating,
     })}>
       <div ref={elementRef} className={classes.mainContent}>
@@ -650,7 +647,6 @@ const UltraFeedPostItem = ({
         <div className={classnames({ [classes.greyedOut]: isSeeLessMode })}>
           <UltraFeedPostItemHeader
             post={post}
-            isRead={isRead}
             handleOpenDialog={() => handleOpenDialog("title")}
             sources={postMetaInfo.sources}
             isSeeLessMode={isSeeLessMode}
@@ -676,7 +672,7 @@ const UltraFeedPostItem = ({
             onExpand={handleContentExpand}
             hideSuffix={loadingFullPost}
             resetSignal={resetSig}
-            className={isRead ? classes.contentWithReadStyles : undefined}
+            className={undefined}
           />
         )}
         
