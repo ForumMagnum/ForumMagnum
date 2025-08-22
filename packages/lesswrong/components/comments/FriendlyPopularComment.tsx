@@ -16,6 +16,7 @@ import UsersName from "../users/UsersName";
 import LWTooltip from "../common/LWTooltip";
 import SmallSideVote from "../votes/SmallSideVote";
 import CommentBody from "./CommentsItem/CommentBody";
+import CommentsItemDate from "./CommentsItem/CommentsItemDate";
 
 const styles = (theme: ThemeType) => ({
   root: {
@@ -158,14 +159,7 @@ const FriendlyPopularComment = ({comment, classes}: {
         }
         <InteractionWrapper className={classNames(classes.row, classes.wrap)}>
           <UsersName user={comment.user} className={classes.username} />
-          <div className={classes.date}>
-            <LWTooltip
-              placement="right"
-              title={<ExpandedDate date={comment.postedAt} />}
-            >
-              {moment(new Date(comment.postedAt)).fromNow()}
-            </LWTooltip>
-          </div>
+          <CommentsItemDate comment={comment} post={comment.post} className={classes.date} preventDateFormatting />
           {!comment.debateResponse && !comment.rejected &&
             <SmallSideVote
               document={comment}
