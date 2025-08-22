@@ -10,9 +10,9 @@ import SmallSideVote from "../votes/SmallSideVote";
 
 const styles = (theme: ThemeType) => ({
   root: {
-    marginBottom: isFriendlyUI ? 12 : undefined,
+    marginBottom: theme.isFriendlyUI ? 12 : undefined,
   },
-  tagName: isFriendlyUI
+  tagName: theme.isFriendlyUI
     ? {
       fontFamily: theme.palette.fonts.sansSerifStack,
       fontSize: 16,
@@ -28,7 +28,7 @@ const styles = (theme: ThemeType) => ({
       display: "block",
       fontSize: "1.75rem",
     },
-  metadata: isFriendlyUI
+  metadata: theme.isFriendlyUI
     ? {
       fontFamily: theme.palette.fonts.sansSerifStack,
       fontSize: 14,
@@ -43,14 +43,14 @@ const styles = (theme: ThemeType) => ({
       ...theme.typography.commentStyle
     },
   metadataText: {
-    fontStyle: isFriendlyUI ? "italic" : undefined,
+    fontStyle: theme.isFriendlyUI ? "italic" : undefined,
   },
   username: {
     ...theme.typography.commentStyle,
     color: theme.palette.text.normal,
   },
   changeMetrics: {
-    marginRight: isFriendlyUI ? 8 : undefined,
+    marginRight: theme.isFriendlyUI ? 8 : undefined,
   },
 });
 

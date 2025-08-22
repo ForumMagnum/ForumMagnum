@@ -10,7 +10,7 @@ import LWTooltip from "../../common/LWTooltip";
 const styles = (theme: ThemeType) => ({
   date: {
     color: theme.palette.text.dim3,
-    fontSize: isFriendlyUI ? undefined : theme.typography.body2.fontSize,
+    fontSize: theme.isFriendlyUI ? undefined : theme.typography.body2.fontSize,
     cursor: 'default'
   },
   mobileDate: {

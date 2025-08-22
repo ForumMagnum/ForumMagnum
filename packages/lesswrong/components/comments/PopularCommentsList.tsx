@@ -14,7 +14,7 @@ const styles = (theme: ThemeType) => ({
     flexDirection: "column",
     gap: "4px",
     fontFamily: theme.palette.fonts.sansSerifStack,
-    fontSize: isFriendlyUI ? 14 : '1.16rem',
+    fontSize: theme.isFriendlyUI ? 14 : '1.16rem',
     fontWeight: 500,
     color: theme.palette.grey[1000],
   },

@@ -2,7 +2,6 @@ import React from 'react';
 import { registerComponent } from '../../lib/vulcan-lib/components';
 import FormatDate, { ExpandedDate } from '../common/FormatDate';
 import moment from '../../lib/moment-timezone';
-import { isFriendlyUI } from '../../themes/forumTheme';
 import classNames from 'classnames';
 import { useCurrentTime } from '../../lib/utils/timeUtil';
 import { formatRelative } from '@/lib/utils/timeFormat';
@@ -15,7 +14,7 @@ export const POSTED_AT_WIDTH = 38
 export const START_TIME_WIDTH = 72
 const HOUR_IN_MS = 60*60*1000;
 
-const customStyles = (theme: ThemeType) => isFriendlyUI
+const customStyles = (theme: ThemeType) => theme.isFriendlyUI
   ? {}
   : {
     fontWeight: 300,
@@ -24,7 +23,7 @@ const customStyles = (theme: ThemeType) => isFriendlyUI
 
 const styles = (theme: ThemeType) => ({
   postedAt: {
-    ...(isFriendlyUI && {display: "flex"}),
+    ...(theme.isFriendlyUI && {display: "flex"}),
     '&&': {
       cursor: "pointer",
       width: POSTED_AT_WIDTH,

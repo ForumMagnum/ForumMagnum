@@ -8,7 +8,7 @@ import ForumIcon from "../common/ForumIcon";
 const styles = (theme: ThemeType) => ({
   root: {
     color: "inherit",
-    ...(isFriendlyUI && {
+    ...(theme.isFriendlyUI && {
       display: "block",
       maxWidth: 500,
       overflow: "hidden",

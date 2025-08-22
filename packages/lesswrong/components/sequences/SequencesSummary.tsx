@@ -29,13 +29,13 @@ const ChaptersFragmentMultiQuery = gql(`
 const styles = (theme: ThemeType) => ({
   root: {
     padding: 16,
-    width: isFriendlyUI ? FRIENDLY_HOVER_OVER_WIDTH : 450,
+    width: theme.isFriendlyUI ? FRIENDLY_HOVER_OVER_WIDTH : 450,
   },
   title: {
     ...theme.typography.body1,
     ...theme.typography.postStyle,
     ...theme.typography.smallCaps,
-    ...(isFriendlyUI && {
+    ...(theme.isFriendlyUI && {
       fontFamily: theme.palette.fonts.sansSerifStack,
       fontSize: "1.3rem",
       fontWeight: 700,
@@ -50,7 +50,7 @@ const styles = (theme: ThemeType) => ({
   },
   author: {
     color: theme.palette.text.dim,
-    ...(isFriendlyUI && {
+    ...(theme.isFriendlyUI && {
       fontFamily: theme.palette.fonts.sansSerifStack,
       fontSize: 13,
       fontWeight: 500,
@@ -58,7 +58,7 @@ const styles = (theme: ThemeType) => ({
       marginBottom: 14,
     }),
   },
-  wordcount: isFriendlyUI
+  wordcount: theme.isFriendlyUI
     ? {}
     : {
       ...theme.typography.commentStyle,

@@ -26,11 +26,11 @@ const PostsEditMutation = gql(`
 const styles = (theme: ThemeType) => ({
   dialog: {
     padding: 24,
-    paddingBottom: isFriendlyUI ? undefined : 12,
+    paddingBottom: theme.isFriendlyUI ? undefined : 12,
     fontFamily: theme.typography.fontFamily,
     color: theme.palette.text.normal,
     "& .MuiDialogActions-root": {
-      margin: isFriendlyUI ? 0 : undefined,
+      margin: theme.isFriendlyUI ? 0 : undefined,
     },
   },
   inputRow: {

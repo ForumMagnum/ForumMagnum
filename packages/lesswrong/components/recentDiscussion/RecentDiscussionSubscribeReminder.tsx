@@ -15,7 +15,6 @@ import withErrorBoundary from '../common/withErrorBoundary'
 import { AnalyticsContext, useTracking } from "../../lib/analyticsEvents";
 import { forumTitleSetting, forumTypeSetting, isAF, isEAForum, isLW, isLWorAF } from '../../lib/instanceSettings';
 import TextField from '@/lib/vendor/@material-ui/core/src/TextField';
-import { isFriendlyUI } from '../../themes/forumTheme';
 import LoginForm from "../users/LoginForm";
 import SignupSubscribeToCurated from "../users/SignupSubscribeToCurated";
 import Loading from "../vulcan-core/Loading";
@@ -28,10 +27,10 @@ const styles = (theme: ThemeType) => ({
   root: {
     marginBottom: theme.spacing.unit*4,
     position: "relative",
-    backgroundColor: isFriendlyUI
+    backgroundColor: theme.isFriendlyUI
       ? theme.palette.grey[0]
       : theme.palette.panelBackground.recentDiscussionThread,
-    border: isFriendlyUI ? `1px solid ${theme.palette.grey[200]}` : undefined,
+    border: theme.isFriendlyUI ? `1px solid ${theme.palette.grey[200]}` : undefined,
 
     padding: 16,
     ...theme.typography.body2,

@@ -14,7 +14,6 @@ import { forumSelect } from '../../lib/forumTypeUtils';
 import { useMessages } from '../common/withMessages';
 import { isLWorAF, taggingNamePluralSetting } from '../../lib/instanceSettings';
 import stringify from 'json-stringify-deterministic';
-import { isFriendlyUI } from '../../themes/forumTheme';
 import { FRIENDLY_HOVER_OVER_WIDTH } from '../common/FriendlyHoverOver';
 import { AnnualReviewMarketInfo } from '../../lib/collections/posts/annualReviewMarkets';
 import { stableSortTags } from '../../lib/collections/tags/helpers';
@@ -28,7 +27,7 @@ import PostsAnnualReviewMarketTag from "../posts/PostsAnnualReviewMarketTag";
 import { apolloSSRFlag } from "@/lib/helpers";
 
 const styles = (theme: ThemeType) => ({
-  root: isFriendlyUI ? {
+  root: theme.isFriendlyUI ? {
     marginTop: 8,
     marginBottom: 8,
   } : {
@@ -42,7 +41,7 @@ const styles = (theme: ThemeType) => ({
     justifyContent: 'flex-end'
   },
   allowTruncate: {
-    display: isFriendlyUI ? "block" : "inline-flex",
+    display: theme.isFriendlyUI ? "block" : "inline-flex",
     // Truncate to 1 row (webkit-line-clamp would be ideal here but it adds an ellipsis
     // which can't be removed)
     maxHeight: 33,
@@ -53,12 +52,12 @@ const styles = (theme: ThemeType) => ({
     marginBottom: 0,
   },
   postTypeLink: {
-    "&:hover": isFriendlyUI ? {opacity: 1} : {},
+    "&:hover": theme.isFriendlyUI ? {opacity: 1} : {},
   },
   frontpageOrPersonal: {
     ...tagStyle(theme),
     backgroundColor: theme.palette.tag.hollowTagBackground,
-    ...(isFriendlyUI
+    ...(theme.isFriendlyUI
       ? {
         marginBottom: 0,
         "&:hover": {
@@ -87,7 +86,7 @@ const styles = (theme: ThemeType) => ({
   },
   card: {
     padding: 16,
-    ...(isFriendlyUI
+    ...(theme.isFriendlyUI
       ? {
         paddingTop: 12,
         width: FRIENDLY_HOVER_OVER_WIDTH,

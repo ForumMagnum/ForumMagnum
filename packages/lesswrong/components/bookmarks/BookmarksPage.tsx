@@ -19,9 +19,9 @@ type TabType = 'bookmarks' | 'readhistory' | 'votehistory';
 const styles = (theme: ThemeType) => ({
   headline: {
     color: theme.palette.grey[1000],
-    fontSize: isFriendlyUI ? 28 : undefined,
-    fontFamily: isFriendlyUI ? undefined : theme.palette.fonts.serifStack,
-    marginTop: isFriendlyUI ? 10 : 0,
+    fontSize: theme.isFriendlyUI ? 28 : undefined,
+    fontFamily: theme.isFriendlyUI ? undefined : theme.palette.fonts.serifStack,
+    marginTop: theme.isFriendlyUI ? 10 : 0,
     marginBottom: 20,
     [theme.breakpoints.down('sm')]: {
       marginTop: 20,
@@ -33,7 +33,7 @@ const styles = (theme: ThemeType) => ({
   },
   tab: {
     fontSize: 14,
-    fontWeight: isFriendlyUI ? '700' : undefined,
+    fontWeight: theme.isFriendlyUI ? '700' : undefined,
     [theme.breakpoints.down('xs')]: {
       fontSize: 13,
     }

@@ -2,7 +2,6 @@ import React, { CSSProperties } from 'react';
 import { postBodyStyles, smallPostStyles, commentBodyStyles } from '../../themes/stylePiping'
 import { registerComponent } from '../../lib/vulcan-lib/components';
 import classNames from 'classnames';
-import { isFriendlyUI } from '../../themes/forumTheme';
 import { defineStyles, useStyles } from '../hooks/useStyles';
 
 const styles = defineStyles("ContentStyles", (theme: ThemeType) => ({
@@ -14,7 +13,7 @@ const styles = defineStyles("ContentStyles", (theme: ThemeType) => ({
   postHighlight: {
     ...smallPostStyles(theme),
     '& h1, & h2, & h3': {
-      fontSize: isFriendlyUI ? "1.1rem" : "1.6rem",
+      fontSize: theme.isFriendlyUI ? "1.1rem" : "1.6rem",
       // Cancel out a negative margin which would cause clipping
       marginBlockStart: "0 !important",
     },

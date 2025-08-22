@@ -7,7 +7,6 @@ import OutlinedInput from '@/lib/vendor/@material-ui/core/src/OutlinedInput';
 import { distance } from './LocalGroups';
 import { useTracking } from '../../../lib/analyticsEvents';
 import type { BasicDoc, SearchBoxProvided, StateResultsProvided } from 'react-instantsearch-core';
-import { isFriendlyUI } from '../../../themes/forumTheme';
 import { InstantSearch } from '../../../lib/utils/componentsWithChildren';
 import CloudinaryImage2 from "../../common/CloudinaryImage2";
 import SearchResultsMap from "./SearchResultsMap";
@@ -51,7 +50,7 @@ const styles = (theme: ThemeType) => ({
   fullMapLink: {
     color: theme.palette.primary.main,
     ...theme.typography.commentStyle,
-    fontSize: isFriendlyUI ? 14 : 13,
+    fontSize: theme.isFriendlyUI ? 14 : 13,
     margin: '0 5px'
   },
   noResults: {

@@ -6,7 +6,6 @@ import { tagGetUrl, tagGetDiscussionUrl, tagGetHistoryUrl } from '../../lib/coll
 import { Link } from '../../lib/reactRouterWrapper';
 import { ExpandedDate } from '../common/FormatDate';
 import moment from 'moment';
-import { isFriendlyUI } from '../../themes/forumTheme';
 import { tagUrlBaseSetting } from '@/lib/instanceSettings';
 import AllPostsPageTagDocDeletionItem, { DocumentDeletion } from './AllPostsPageTagDocDeletionItem';
 import ChangeMetricsDisplay from "./ChangeMetricsDisplay";
@@ -21,7 +20,7 @@ export const POSTED_AT_WIDTH = 38
 
 const styles = (theme: ThemeType) => ({
   root: {
-    ...(isFriendlyUI
+    ...(theme.isFriendlyUI
       ? {
         background: theme.palette.grey[0],
         border: `1px solid ${theme.palette.grey[100]}`,
@@ -52,10 +51,10 @@ const styles = (theme: ThemeType) => ({
     cursor: "pointer",
     padding: 4,
     fontFamily: theme.typography.fontFamily,
-    fontSize: isFriendlyUI ? 14 : 17,
-    fontWeight: isFriendlyUI ? 600 : undefined,
+    fontSize: theme.isFriendlyUI ? 14 : 17,
+    fontWeight: theme.isFriendlyUI ? 600 : undefined,
     ...theme.typography.smallCaps,
-    marginLeft: isFriendlyUI ? 2 : undefined,
+    marginLeft: theme.isFriendlyUI ? 2 : undefined,
   },
   expandedBody: {
     marginTop: 8,
@@ -69,11 +68,11 @@ const styles = (theme: ThemeType) => ({
     marginBottom: 8,
   },
   commentBubble: {
-    margin: `-5px ${isFriendlyUI ? 6 : 0}px 0 11px`,
+    margin: `-5px ${theme.isFriendlyUI ? 6 : 0}px 0 11px`,
   },
   changeMetrics: {
     cursor: "pointer",
-    margin: isFriendlyUI ? "0 4px -2px 2px" : undefined,
+    margin: theme.isFriendlyUI ? "0 4px -2px 2px" : undefined,
   },
   postedAt: {
     '&&': {
@@ -96,7 +95,7 @@ const styles = (theme: ThemeType) => ({
     fontSize: "1rem",
     fontFamily: theme.typography.fontFamily,
     color: theme.palette.link.dim3,
-    margin: `${isFriendlyUI ? -4 : -8}px 0 8px 8px`,
+    margin: `${theme.isFriendlyUI ? -4 : -8}px 0 8px 8px`,
   },
   usernames: {
     marginRight: 16,

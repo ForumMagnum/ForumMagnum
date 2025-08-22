@@ -4,8 +4,6 @@ import { useCurrentUser } from '../common/withUser';
 import { useGlobalKeydown } from '../common/withGlobalKeydown';
 import { forumSelect } from '../../lib/forumTypeUtils';
 import { AnalyticsContext } from '../../lib/analyticsEvents';
-import AddBoxIcon from '@/lib/vendor/@material-ui/icons/src/AddBox'
-import { isLWorAF } from '../../lib/instanceSettings';
 import {showSubscribeReminderInFeed} from '../../lib/publicSettings'
 import { ObservableQuery } from '@apollo/client';
 import RecentDiscussionThread from "./RecentDiscussionThread";
@@ -24,7 +22,6 @@ import AnalyticsInViewTracker from "../common/AnalyticsInViewTracker";
 import { RecentDiscussionFeedQuery } from '../common/feeds/feedQueries';
 import FeedSelectorDropdown from '../common/FeedSelectorCheckbox';
 import { defineStyles, useStyles } from '../hooks/useStyles';
-import { isBookUI } from '@/themes/forumTheme';
 import { randomId } from '../../lib/random';
 
 const styles = defineStyles("RecentDiscussionFeed", (theme: ThemeType) => ({
@@ -33,7 +30,7 @@ const styles = defineStyles("RecentDiscussionFeed", (theme: ThemeType) => ({
     columnGap: 10,
     alignItems: 'center',
     width: '100%',
-    ...(isBookUI && {
+    ...(theme.isBookUI && {
       color: theme.palette.text.bannerAdOverlay,
     }),
   },

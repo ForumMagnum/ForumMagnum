@@ -8,7 +8,6 @@ import Button from '@/lib/vendor/@material-ui/core/src/Button';
 import { DialogActions } from '../../widgets/DialogActions';
 import { DialogTitle } from '../../widgets/DialogTitle';
 import { useCurrentUser } from '../../common/withUser';
-import { isFriendlyUI } from '../../../themes/forumTheme';
 import { useNavigate } from '../../../lib/routeUtil';
 import { registerComponent } from "../../../lib/vulcan-lib/components";
 import LWDialog from "../../common/LWDialog";
@@ -22,7 +21,7 @@ export const responseToText: Record<RsvpResponse,string> = {
 }
 
 const styles = (theme: ThemeType) => ({
-  emailMessage: isFriendlyUI
+  emailMessage: theme.isFriendlyUI
     ? {
       fontFamily: theme.palette.fonts.sansSerifStack,
     }

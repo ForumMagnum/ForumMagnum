@@ -16,8 +16,8 @@ const CommentsListUpdateMutation = gql(`
   }
 `);
 
-const styles = (_: ThemeType) => ({
-  icon: isFriendlyUI
+const styles = (theme: ThemeType) => ({
+  icon: theme.isFriendlyUI
     ? {fontSize: "18px"}
     : {},
 });

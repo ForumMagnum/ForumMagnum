@@ -145,7 +145,7 @@ export const styles = (theme: ThemeType) => ({
     boxSizing: "border-box",
     flexShrink: 0,
     flexDirection: "column",
-    ...(isFriendlyUI ? {
+    ...(theme.isFriendlyUI ? {
       maxWidth: "100vw",
       overflow: "hidden",
       padding: '1px 20px',
@@ -203,7 +203,7 @@ export const styles = (theme: ThemeType) => ({
     },
     display: 'flex',
     alignItems: 'center',
-    fontWeight: isFriendlyUI ? 400 : undefined,
+    fontWeight: theme.isFriendlyUI ? 400 : undefined,
     height: isFriendlyUI ? undefined : '19px',
     
     ...(isAF && {
@@ -255,7 +255,7 @@ export const styles = (theme: ThemeType) => ({
     marginRight: -theme.spacing.unit,
     marginLeft: "auto",
     display: "flex",
-    alignItems: isFriendlyUI ? 'center' : undefined,
+    alignItems: theme.isFriendlyUI ? 'center' : undefined,
   },
   // Prevent rearranging of mobile header when search loads after SSR
   searchSSRStandin: {

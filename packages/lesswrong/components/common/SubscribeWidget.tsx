@@ -1,7 +1,6 @@
 import React, { useState } from 'react';
 import { useTracking } from "../../lib/analyticsEvents";
 import { isEAForum } from '../../lib/instanceSettings';
-import { isFriendlyUI } from '../../themes/forumTheme';
 import { defineStyles, useStyles } from '../hooks/useStyles';
 import TabNavigationSubItem from "./TabNavigationMenu/TabNavigationSubItem";
 import SubscribeDialog from "./SubscribeDialog";
@@ -9,8 +8,8 @@ import SubscribeDialog from "./SubscribeDialog";
 const styles = defineStyles('SubscribeWidget', (theme: ThemeType) => ({
   root: {
     "&:hover": {
-      opacity: isFriendlyUI ? 1 : undefined,
-      color: isFriendlyUI ? theme.palette.grey[800] : undefined,
+      opacity: theme.isFriendlyUI ? 1 : undefined,
+      color: theme.isFriendlyUI ? theme.palette.grey[800] : undefined,
     },
   },
 }));

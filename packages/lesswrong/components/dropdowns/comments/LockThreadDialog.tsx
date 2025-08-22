@@ -7,13 +7,12 @@ import { DialogTitle } from '@/components/widgets/DialogTitle';
 import Button from '@/lib/vendor/@material-ui/core/src/Button';
 import { gql } from "@/lib/generated/gql-codegen";
 import moment from 'moment';
-import { isFriendlyUI } from '../../../themes/forumTheme';
 import LWDialog from "../../common/LWDialog";
 import { DatePicker } from "../../form-components/FormComponentDateTime";
 
 const styles = (theme: ThemeType) => ({
   message: {
-    fontFamily: isFriendlyUI ? theme.palette.fonts.sansSerifStack : undefined,
+    fontFamily: theme.isFriendlyUI ? theme.palette.fonts.sansSerifStack : undefined,
   },
 });
 

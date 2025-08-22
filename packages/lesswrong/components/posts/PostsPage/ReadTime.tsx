@@ -1,12 +1,11 @@
 import React, { useMemo } from 'react';
-import { isFriendlyUI } from '@/themes/forumTheme';
 import { registerComponent } from "@/lib/vulcan-lib/components";
 import LWTooltip from "../../common/LWTooltip";
 
 const styles = (theme: ThemeType) => ({
   root: {
-    fontWeight: isFriendlyUI ? 450 : undefined,
-    fontSize: isFriendlyUI ? undefined : theme.typography.body2.fontSize,
+    fontWeight: theme.isFriendlyUI ? 450 : undefined,
+    fontSize: theme.isFriendlyUI ? undefined : theme.typography.body2.fontSize,
     cursor: 'default',
     "@media print": { display: "none" },
   },

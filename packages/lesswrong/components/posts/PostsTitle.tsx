@@ -8,7 +8,6 @@ import { postGetPageUrl } from '../../lib/collections/posts/helpers';
 import { idSettingIcons, tagSettingIcons } from "../../lib/collections/posts/constants";
 import { communityPath } from '@/lib/pathConstants';
 import { InteractionWrapper } from '../common/useClickableCell';
-import { isBookUI, isFriendlyUI } from '../../themes/forumTheme';
 import { smallTagTextStyle, tagStyle } from '../tagging/FooterTag';
 import { useCurrentAndRecentForumEvents } from '../hooks/useCurrentForumEvent';
 import { tagGetUrl } from '../../lib/collections/tags/helpers';
@@ -23,8 +22,8 @@ const styles = (theme: ThemeType) => ({
     color: theme.palette.text.normal,
     position: "relative",
     lineHeight: "1.7rem",
-    fontWeight: isFriendlyUI ? 600 : undefined,
-    fontFamily: isFriendlyUI ? theme.palette.fonts.sansSerifStack : theme.typography.postStyle.fontFamily,
+    fontWeight: theme.isFriendlyUI ? 600 : undefined,
+    fontFamily: theme.isFriendlyUI ? theme.palette.fonts.sansSerifStack : theme.typography.postStyle.fontFamily,
     zIndex: theme.zIndexes.postItemTitle,
     [theme.breakpoints.down('xs')]: {
       paddingLeft: 2,
@@ -41,7 +40,7 @@ const styles = (theme: ThemeType) => ({
     marginRight: theme.spacing.unit,
   },
   onGrayBackground: {
-    ...(isBookUI && theme.dark && {
+    ...(theme.isBookUI && theme.dark && {
       color: theme.palette.greyAlpha(1),
     }),
   },
@@ -49,13 +48,13 @@ const styles = (theme: ThemeType) => ({
     whiteSpace: "normal",
   },
   sticky: {
-    paddingLeft: isFriendlyUI ? 2 : undefined,
-    paddingRight: isFriendlyUI ? 8 : 10,
+    paddingLeft: theme.isFriendlyUI ? 2 : undefined,
+    paddingRight: theme.isFriendlyUI ? 8 : 10,
     position: "relative",
     top: 2,
     color: theme.palette.icon["dim4"],
   },
-  stickyIcon: isFriendlyUI
+  stickyIcon: theme.isFriendlyUI
     ? {
       width: 16,
       height: 16,
@@ -69,7 +68,7 @@ const styles = (theme: ThemeType) => ({
     color: theme.palette.icon.dim55,
     paddingRight: theme.spacing.unit,
     top: -2,
-    width: isFriendlyUI ? 26 : "auto",
+    width: theme.isFriendlyUI ? 26 : "auto",
     position: "relative",
     verticalAlign: "middle",
   },
@@ -79,7 +78,7 @@ const styles = (theme: ThemeType) => ({
       color: theme.palette.text.normal,
     }
   },
-  eaTitleDesktopEllipsis: isFriendlyUI ? {
+  eaTitleDesktopEllipsis: theme.isFriendlyUI ? {
     '&:hover': {
       opacity: 0.5
     },

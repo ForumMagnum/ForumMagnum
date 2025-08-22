@@ -4,7 +4,6 @@ import ListItemIcon from "@/lib/vendor/@material-ui/core/src/ListItemIcon";
 import { Link } from "../../lib/reactRouterWrapper";
 import type { HashLinkProps } from "../common/HashLink";
 import classNames from "classnames";
-import { isFriendlyUI } from "../../themes/forumTheme";
 import { MenuItem } from "../common/Menus";
 import Loading from "../vulcan-core/Loading";
 import LWTooltip from "../common/LWTooltip";
@@ -12,14 +11,14 @@ import { defineStyles, useStyles } from "../hooks/useStyles";
 
 const styles = defineStyles("DropdownItem", (theme: ThemeType) => ({
   root: {
-    ...(isFriendlyUI && {
+    ...(theme.isFriendlyUI && {
       "&:hover": {
         opacity: 1,
       },
     }),
   },
   main: {
-    ...(isFriendlyUI && {
+    ...(theme.isFriendlyUI && {
       borderRadius: theme.borderRadius.default,
       padding: 8,
       "&:hover": {
@@ -29,12 +28,12 @@ const styles = defineStyles("DropdownItem", (theme: ThemeType) => ({
         },
       },
       "& .ForumIcon-root": {
-        fontSize: isFriendlyUI ? 20 : undefined,
+        fontSize: theme.isFriendlyUI ? 20 : undefined,
       },
     }),
   },
   noIcon: {
-    paddingLeft: isFriendlyUI ? 12 : undefined,
+    paddingLeft: theme.isFriendlyUI ? 12 : undefined,
   },
   title: {
     flexGrow: 1,

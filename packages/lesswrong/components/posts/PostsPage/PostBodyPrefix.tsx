@@ -35,7 +35,7 @@ const styles = (theme: ThemeType) => ({
     ...theme.typography.contentNotice,
     ...theme.typography.postStyle,
     maxWidth: 600,
-    ...(isFriendlyUI && {
+    ...(theme.isFriendlyUI && {
       fontFamily: theme.palette.fonts.sansSerifStack,
     }),
   },

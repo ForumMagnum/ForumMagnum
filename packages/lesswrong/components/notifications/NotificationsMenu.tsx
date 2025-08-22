@@ -8,7 +8,6 @@ import PostsIcon from '@/lib/vendor/@material-ui/icons/src/Description';
 import CommentsIcon from '@/lib/vendor/@material-ui/icons/src/ModeComment';
 import MailIcon from '@/lib/vendor/@material-ui/icons/src/Mail';
 import { useCurrentUserId } from '../common/withUser';
-import { isFriendlyUI } from '../../themes/forumTheme';
 import { defineStyles, useStyles } from '../hooks/useStyles';
 import { Drawer } from '@/components/material-ui/Drawer'
 import ForumIcon from "../common/ForumIcon";
@@ -36,7 +35,7 @@ const styles = defineStyles("NotificationsMenu", (theme: ThemeType) => ({
     backgroundColor: 'inherit',
     color: theme.palette.text.notificationCount,
     fontSize: "12px",
-    fontWeight: isFriendlyUI ? 450 : 500,
+    fontWeight: theme.isFriendlyUI ? 450 : 500,
     right: "-15px",
     top: 0,
     pointerEvents: "none",

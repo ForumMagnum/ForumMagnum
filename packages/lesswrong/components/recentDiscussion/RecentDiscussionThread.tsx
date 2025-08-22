@@ -12,7 +12,7 @@ import { postGetPageUrl } from '../../lib/collections/posts/helpers';
 import { AnalyticsContext } from "../../lib/analyticsEvents";
 import type { CommentTreeOptions } from '../comments/commentTree';
 import { useCurrentUser } from '../common/withUser';
-import { isFriendlyUI } from '../../themes/forumTheme';
+import { isFriendlyUI } from '@/themes/forumTheme';
 import { useRecentDiscussionThread } from './useRecentDiscussionThread';
 import { useRecentDiscussionViewTracking } from './useRecentDiscussionViewTracking';
 import PostsGroupDetails from "../posts/PostsGroupDetails";
@@ -23,11 +23,11 @@ import PostActionsButton from "../dropdowns/posts/PostActionsButton";
 
 const styles = (theme: ThemeType) => ({
   root: {
-    marginBottom: isFriendlyUI ? theme.spacing.unit*2 : theme.spacing.unit*4,
+    marginBottom: theme.isFriendlyUI ? theme.spacing.unit*2 : theme.spacing.unit*4,
     position: "relative",
     minHeight: 58,
     boxShadow: theme.palette.boxShadow.default,
-    borderRadius: theme.borderRadius[isFriendlyUI ? "default" : "small"],
+    borderRadius: theme.borderRadius[theme.isFriendlyUI ? "default" : "small"],
   },
   plainBackground: {
     backgroundColor: theme.palette.panelBackground.recentDiscussionThread,
@@ -91,10 +91,10 @@ const styles = (theme: ThemeType) => ({
     }
   },
   post: {
-    paddingTop: isFriendlyUI ? 12 : 18,
+    paddingTop: theme.isFriendlyUI ? 12 : 18,
     paddingLeft: 16,
     paddingRight: 16,
-    borderRadius: theme.borderRadius[isFriendlyUI ? "default" : "small"],
+    borderRadius: theme.borderRadius[theme.isFriendlyUI ? "default" : "small"],
     marginBottom: 4,
     
     [theme.breakpoints.down('xs')]: {
@@ -114,7 +114,7 @@ const styles = (theme: ThemeType) => ({
     marginBottom: 8,
     display: "block",
     fontSize: "2rem",
-    ...(isFriendlyUI ? {
+    ...(theme.isFriendlyUI ? {
       fontSize: 22,
       fontWeight: 600,
       lineHeight: 1.25,

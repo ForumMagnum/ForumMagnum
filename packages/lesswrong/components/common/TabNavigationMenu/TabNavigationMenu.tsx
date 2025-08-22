@@ -8,7 +8,6 @@ import menuTabs from './menuTabs'
 import { AnalyticsContext, useTracking } from "../../../lib/analyticsEvents";
 import { forumSelect } from '../../../lib/forumTypeUtils';
 import classNames from 'classnames';
-import { isBookUI, isFriendlyUI } from '../../../themes/forumTheme';
 import EventsList from './EventsList';
 import { SubscribeWidget } from '../SubscribeWidget';
 
@@ -21,7 +20,7 @@ const styles = (theme: ThemeType) => {
       flexDirection: "column",
       maxWidth: TAB_NAVIGATION_MENU_WIDTH,
       paddingTop: 15,
-      ...(isFriendlyUI
+      ...(theme.isFriendlyUI
         ? {
           paddingLeft: 6,
           height: "100%",
@@ -41,12 +40,12 @@ const styles = (theme: ThemeType) => {
     divider: {
       width: 50,
       borderBottom: theme.palette.border.normal,
-      ...(isBookUI && theme.dark && {
+      ...(theme.isBookUI && theme.dark && {
         color: theme.palette.text.bannerAdOverlay,
         background: theme.palette.text.bannerAdOverlay,
       }),
       marginBottom: theme.spacing.unit * 2.5,
-      ...(isFriendlyUI
+      ...(theme.isFriendlyUI
         ? {
           marginLeft: theme.spacing.unit * 2.5,
           marginTop: theme.spacing.unit * 2.5,

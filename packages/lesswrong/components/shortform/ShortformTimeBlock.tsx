@@ -19,9 +19,9 @@ const ShortformCommentsMultiQuery = gql(`
   }
 `);
 
-const styles = (_: ThemeType) => ({
+const styles = (theme: ThemeType) => ({
   shortformGroup: {
-    marginTop: isFriendlyUI ? 20 : 12,
+    marginTop: theme.isFriendlyUI ? 20 : 12,
   },
   subtitle: {
     marginTop: 6,
