@@ -20,6 +20,16 @@ import { gql } from "@/lib/generated/gql-codegen/gql";
 import { useQueryWithLoadMore } from "@/components/hooks/useQueryWithLoadMore";
 import NewConversationDialog from "./NewConversationDialog";
 import Button from '@/lib/vendor/@material-ui/core/src/Button/Button';
+import { defineStyles } from '@/lib/vulcan-lib/components';
+import { useStyles } from '../hooks/useStyles';
+
+const styles = defineStyles("InboxNavigation", (theme: ThemeType) => ({
+  newConversationButton: {
+    ...theme.typography.commentStyle,
+    color: theme.palette.primary.main,
+    cursor: "pointer",
+  }
+}))
 
 const ConversationsListMultiQuery = gql(`
   query multiConversationInboxNavigationQuery($selector: ConversationSelector, $limit: Int, $enableTotal: Boolean) {
@@ -39,6 +49,7 @@ const InboxNavigation = ({
   title=preferredHeadingCase("Your Conversations"),
 }: InboxComponentProps) => {
   const location = useLocation();
+  const classes = useStyles(styles);
   const { currentRoute, query } = location;
   const navigate = useNavigate();
   const { openDialog } = useDialog();
@@ -81,15 +92,15 @@ const InboxNavigation = ({
     <SingleColumnSection>
         <SectionTitle title={title}>
           <SectionFooter>
-            <Button onClick={openNewConversationDialog} variant="outlined">
-              New Conversation
-            </Button>
             <SectionFooterCheckbox
               onClick={expandCheckboxClick}
               value={expanded}
               label={"Expand"}
             />
             {showModeratorLink && <Link to={"/moderatorInbox"}>Mod Inbox</Link>}
+            <div onClick={openNewConversationDialog} className={classes.newConversationButton}>
+              New Conversation
+            </div>
           </SectionFooter>
         </SectionTitle>
         {results?.length ?

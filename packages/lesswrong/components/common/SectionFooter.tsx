@@ -27,6 +27,7 @@ const styles = (theme: ThemeType) => ({
   root: {
     display: "flex",
     justifyContent: "flex-end",
+    alignItems: "center",
     marginTop: theme.spacing.unit,
     marginBottom: theme.spacing.unit,
     marginRight: theme.spacing.unit/2,
