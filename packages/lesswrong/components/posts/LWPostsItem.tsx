@@ -428,7 +428,7 @@ export const styles = defineStyles("LWPostsItem", (theme: ThemeType) => ({
     marginLeft: "auto",
     flexShrink: 0,
   },
-}))
+}), { stylePriority: 1 });
 
 const cloudinaryCloudName = cloudinaryCloudNameSetting.get()
 export type PostsList2Props = PostsItemConfig;
@@ -689,7 +689,6 @@ const LWPostsItem = (props: PostsItemConfig) => {
 };
 
 export default registerComponent('LWPostsItem', LWPostsItem, {
-  stylePriority: 1,
   hocs: [withErrorBoundary],
   areEqual: {
     terms: "deep",
