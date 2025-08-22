@@ -728,6 +728,13 @@ declare global {
     },
     transitions: MuiTransitions,
     direction: "ltr"|"rtl",
+    
+    isBookUI: boolean,
+    isFriendlyUI: boolean,
+    isLW: boolean,
+    isAF: boolean,
+    isLWorAF: boolean,
+    isEAForum: boolean,
   };
 
   type NativeThemeType = Omit<ThemeType,"palette"|"forumType"|"themeOptions"|"breakpoints"> & { breakpoints: Omit<ThemeType["breakpoints"], "up"|"down"> };
