@@ -23,6 +23,7 @@ import LWTooltip from "../common/LWTooltip";
 import { useTracking, AnalyticsContext } from "../../lib/analyticsEvents";
 import UltraFeedReplyEditor from "./UltraFeedReplyEditor";
 import { ReplyConfig } from "./UltraFeedCommentItem";
+import { useUltraFeedContext } from "./UltraFeedContextProvider";
 
 
 const UltraFeedEventsDefaultFragmentMutation = gql(`
@@ -478,6 +479,7 @@ const UltraFeedItemFooterCore = ({
 
 const UltraFeedPostFooter = ({ post, metaInfo, className, replyConfig, hideReacts }: { post: PostsListWithVotes, metaInfo: FeedPostMetaInfo, className?: string, replyConfig: ReplyConfig, hideReacts?: boolean }) => {
   const { openDialog } = useDialog();
+  const { openInNewTab } = useUltraFeedContext();
 
   const votingSystem = getVotingSystemByName(post?.votingSystem || "default");
   const voteProps = useVote(post, "Posts", votingSystem);
@@ -486,16 +488,21 @@ const UltraFeedPostFooter = ({ post, metaInfo, className, replyConfig, hideReact
   const bookmarkProps: BookmarkProps = {documentId: post._id, highlighted: metaInfo.sources?.includes("bookmarks")};
   
   const onClickComments = () => {
-    openDialog({
-      name: "UltraFeedPostDialog",
-      closeOnNavigate: true,
-      contents: ({onClose}) => <UltraFeedPostDialog 
-        partialPost={post}
-        postMetaInfo={metaInfo}
-        openAtComments={true}
-        onClose={onClose}
-      />
-    });
+    if (openInNewTab) {
+      const postUrl = `/posts/${post._id}/${post.slug}#comments`;
+      window.open(postUrl, '_blank');
+    } else {
+      openDialog({
+        name: "UltraFeedPostDialog",
+        closeOnNavigate: true,
+        contents: ({onClose}) => <UltraFeedPostDialog 
+          partialPost={post}
+          postMetaInfo={metaInfo}
+          openAtComments={true}
+          onClose={onClose}
+        />
+      });
+    }
   }
 
   const { isReplying, onReplySubmit, onReplyCancel } = replyConfig;
@@ -526,18 +533,23 @@ const UltraFeedPostFooter = ({ post, metaInfo, className, replyConfig, hideReact
           onReplySubmit={onReplySubmit}
           onReplyCancel={onReplyCancel}
           onViewAllComments={() => {
-            openDialog({
-              name: "UltraFeedPostDialog",
-              closeOnNavigate: true,
-              contents: ({ onClose }) => (
-                <UltraFeedPostDialog
-                  partialPost={post}
-                  postMetaInfo={metaInfo}
-                  openAtComments={true}
-                  onClose={onClose}
-                />
-              ),
-            });
+            if (openInNewTab) {
+              const postUrl = `/posts/${post._id}/${post.slug}#comments`;
+              window.open(postUrl, '_blank');
+            } else {
+              openDialog({
+                name: "UltraFeedPostDialog",
+                closeOnNavigate: true,
+                contents: ({ onClose }) => (
+                  <UltraFeedPostDialog
+                    partialPost={post}
+                    postMetaInfo={metaInfo}
+                    openAtComments={true}
+                    onClose={onClose}
+                  />
+                ),
+              });
+            }
           }}
         />
       )}
@@ -548,6 +560,7 @@ const UltraFeedPostFooter = ({ post, metaInfo, className, replyConfig, hideReact
 
 const UltraFeedCommentFooter = ({ comment, metaInfo, className, replyConfig, cannotReplyReason, hideReacts }: { comment: UltraFeedComment, metaInfo: FeedCommentMetaInfo, className?: string, replyConfig: ReplyConfig, cannotReplyReason?: string | null, hideReacts?: boolean }) => {
   const { openDialog } = useDialog();
+  const { openInNewTab } = useUltraFeedContext();
 
   const parentPost = comment.post;
   const votingSystem = getVotingSystemByName(parentPost?.votingSystem || "default");
@@ -565,22 +578,27 @@ const UltraFeedCommentFooter = ({ comment, metaInfo, className, replyConfig, can
     
     const post = comment.post;
     
-    openDialog({
-      name: "UltraFeedPostDialog", 
-      closeOnNavigate: true,
-      contents: ({onClose}) => <UltraFeedPostDialog 
-        partialPost={post}
-        postMetaInfo={{
-          sources: metaInfo.sources,
-          displayStatus: 'expanded' as const,
-          servedEventId: metaInfo.servedEventId ?? '',
-          highlight: false,
-        }}
-        targetCommentId={comment._id}
-        topLevelCommentId={post.shortform ? (comment.topLevelCommentId ?? comment._id) : undefined}
-        onClose={onClose}
-      />
-    });
+    if (openInNewTab) {
+      const postUrl = `/posts/${post._id}/${post.slug}?commentId=${comment._id}`;
+      window.open(postUrl, '_blank');
+    } else {
+      openDialog({
+        name: "UltraFeedPostDialog", 
+        closeOnNavigate: true,
+        contents: ({onClose}) => <UltraFeedPostDialog 
+          partialPost={post}
+          postMetaInfo={{
+            sources: metaInfo.sources,
+            displayStatus: 'expanded' as const,
+            servedEventId: metaInfo.servedEventId ?? '',
+            highlight: false,
+          }}
+          targetCommentId={comment._id}
+          topLevelCommentId={post.shortform ? (comment.topLevelCommentId ?? comment._id) : undefined}
+          onClose={onClose}
+        />
+      });
+    }
   };
   
   const { isReplying, onReplySubmit, onReplyCancel } = replyConfig;

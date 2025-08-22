@@ -19,6 +19,7 @@ import { SHOW_ALL_BREAKPOINT_VALUE } from './ultraFeedSettingsTypes';
 import { isRegularClick } from '../posts/TableOfContents/TableOfContentsList';
 import { useCurrentTime } from '@/lib/utils/timeUtil';
 import { FeedPostMetaInfo, FeedSpotlightMetaInfo } from './ultraFeedTypes';
+import UsersNameWithModal from './UsersNameWithModal';
 
 const SIDE_MARGIN = 150;
 
@@ -102,7 +103,7 @@ const useUltraFeedSpotlightItemStyles = defineStyles(
       flexDirection: "column",
       width: "100%",
       position: "relative",
-      zIndex: 2,
+      zIndex: 1,
       paddingTop: 12,
       paddingLeft: 16,
       paddingRight: 16,
@@ -127,7 +128,7 @@ const useUltraFeedSpotlightItemStyles = defineStyles(
       maxWidth: `calc(100% - ${SIDE_MARGIN}px)`,
       marginBottom: 4,
       position: 'relative',
-      zIndex: 3,
+      zIndex: 1,
       [theme.breakpoints.down('sm')]: {
         maxWidth: '100%',
         gap: '4px',
@@ -165,6 +166,8 @@ const useUltraFeedSpotlightItemStyles = defineStyles(
       columnGap: '16px',
       rowGap: '4px',
       marginBottom: '12px',
+      position: 'relative',
+      zIndex: 1,
       [theme.breakpoints.down('sm')]: {
         columnGap: '8px',
         rowGap: '0px',
@@ -200,7 +203,7 @@ const useUltraFeedSpotlightItemStyles = defineStyles(
     },
     imageContainer: {
       position: "absolute",
-      zIndex: 1,
+      zIndex: 0,
       alignSelf: "stretch",
       display: "flex",
       justifyContent: "flex-end",
@@ -281,7 +284,7 @@ const useUltraFeedSpotlightItemStyles = defineStyles(
       },
     },
     descriptionArea: {
-      zIndex: 3,
+      zIndex: 1,
       display: "flex",
       flexDirection: "column",
       gap: '8px',
@@ -316,7 +319,7 @@ const useUltraFeedSpotlightItemStyles = defineStyles(
       marginTop: 8,
       marginBottom: 12,
       position: 'relative',
-      zIndex: 3,
+      zIndex: 1,
       '& .UltraFeedItemFooter-bookmarkButton': {
         filter: `
             drop-shadow(0px 0px 2px ${theme.palette.background.default})
@@ -419,7 +422,7 @@ const SpotlightTitle = ({ spotlight, isPost, url, handleContentClick, className 
 
 const SpotlightMetaRow = ({ spotlight, spotlightDocument, post, showSubtitle, className }: {
   spotlight: SpotlightDisplay;
-  spotlightDocument: any;
+  spotlightDocument: { user?: UsersMinimumInfo | null } | null;
   post?: PostsListWithVotes;
   showSubtitle: boolean;
   className?: string;
@@ -435,9 +438,7 @@ const SpotlightMetaRow = ({ spotlight, spotlightDocument, post, showSubtitle, cl
   return (
     <div className={className}>
       {spotlight.showAuthor && spotlightDocument?.user && (
-        <Link to={userGetProfileUrlFromSlug(spotlightDocument?.user.slug)}>
-          {spotlightDocument?.user.displayName}
-        </Link>
+        <UsersNameWithModal user={spotlightDocument.user} />
       )}
       
       {post?.contents?.wordCount && (
@@ -460,7 +461,7 @@ const SpotlightMetaRow = ({ spotlight, spotlightDocument, post, showSubtitle, cl
 
 const SpotlightImage = ({ spotlight, spotlightDocument, className }: {
   spotlight: SpotlightDisplay;
-  spotlightDocument: any;
+  spotlightDocument: { user?: UsersMinimumInfo | null } | null;
   className?: string;
 }) => {
   const classes = useStyles(useUltraFeedSpotlightItemStyles);

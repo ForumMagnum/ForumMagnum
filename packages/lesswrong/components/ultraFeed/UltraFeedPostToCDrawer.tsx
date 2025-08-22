@@ -45,7 +45,7 @@ interface UltraFeedPostToCDrawerProps {
   onClose: () => void;
   toc: ToCData | null;
   post: PostsListWithVotes | PostsPage | UltraFeedPostFragment;
-  scrollContainerRef: React.RefObject<HTMLElement | null>;
+  scrollContainerRef: React.RefObject<HTMLDivElement | null>;
 }
 
 const UltraFeedPostToCDrawer = ({

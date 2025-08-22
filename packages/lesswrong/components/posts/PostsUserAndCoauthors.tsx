@@ -5,6 +5,7 @@ import classNames from 'classnames';
 import type { Placement as PopperPlacementType } from "popper.js"
 import { usePostsUserAndCoauthors } from './usePostsUserAndCoauthors';
 import UsersName from "../users/UsersName";
+import UsersNameWithModal from "../ultraFeed/UsersNameWithModal";
 import UserNameDeleted from "../users/UserNameDeleted";
 import UserCommentMarkers from "../users/UserCommentMarkers";
 
@@ -18,6 +19,9 @@ const styles = (theme: ThemeType) => ({
     [theme.breakpoints.down('xs')]: {
       maxWidth: 160
     },
+  },
+  lengthLimitedCompact: {
+    maxWidth: 200,
   },
   userMarkers: {
     marginLeft: 4,
@@ -51,6 +55,8 @@ const PostsUserAndCoauthors = ({
   tooltipPlacement="left",
   newPromotedComments,
   showMarkers,
+  useUltraFeedModal=false,
+  compact=false,
 }: {
   post: PostsList | SunshinePostsList,
   abbreviateIfLong?: boolean,
@@ -59,16 +65,23 @@ const PostsUserAndCoauthors = ({
   tooltipPlacement?: PopperPlacementType,
   newPromotedComments?: boolean,
   showMarkers?: boolean,
+  useUltraFeedModal?: boolean,
+  compact?: boolean,
 }) => {
   const {isAnon, topCommentAuthor, authors} = usePostsUserAndCoauthors(post);
+  const UserNameComponent = useUltraFeedModal ? UsersNameWithModal : UsersName;
   if (isAnon)
     return <UserNameDeleted/>;
 
-  return <div className={abbreviateIfLong ? classes.lengthLimited : classes.lengthUnlimited}>
+  return <div className={classNames({
+    [classes.lengthLimited]: abbreviateIfLong,
+    [classes.lengthLimitedCompact]: abbreviateIfLong && compact,
+    [classes.lengthUnlimited]: !abbreviateIfLong,
+  })}>
     {authors.map((author, i) =>
       <React.Fragment key={author._id}>
         {i > 0 ? ", " : ""}
-        <UsersName user={author} simple={simple} tooltipPlacement={tooltipPlacement}/>
+        <UserNameComponent user={author} simple={simple} tooltipPlacement={tooltipPlacement}/>
         {showMarkers &&
           <UserCommentMarkers user={author} className={classes.userMarkers} />
         }
@@ -77,7 +90,7 @@ const PostsUserAndCoauthors = ({
     }
     {topCommentAuthor && <span className={classNames(classes.topCommentAuthor, {[classes.new]: newPromotedComments})}>
       {", "}<ModeCommentIcon className={classNames(classes.topAuthorIcon, {[classes.new]: newPromotedComments})}/>
-      <UsersName user={topCommentAuthor || undefined} simple={simple} tooltipPlacement={tooltipPlacement} />
+      <UserNameComponent user={topCommentAuthor || undefined} simple={simple} tooltipPlacement={tooltipPlacement} />
     </span>}
   </div>;
 };

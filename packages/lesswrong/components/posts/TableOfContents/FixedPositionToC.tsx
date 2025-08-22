@@ -246,7 +246,7 @@ const FixedPositionToc = ({tocSections, title, heading, onClickSection, displayO
   displayOptions?: ToCDisplayOptions,
   classes: ClassesType<typeof styles>,
   hover?: boolean,
-  scrollContainerRef?: React.RefObject<HTMLElement>,
+  scrollContainerRef?: React.RefObject<HTMLDivElement | null>,
 }) => {
   const navigate = useNavigate();
   const location = useLocation();
