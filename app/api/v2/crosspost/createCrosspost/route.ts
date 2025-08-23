@@ -1,6 +1,10 @@
-import { createCrosspostCrosspostHandler } from "@/server/crossposting/handlers";
+import { createCrosspostCrosspostHandler, crosspostOptionsHandler } from "@/server/crossposting/handlers";
 import type { NextRequest } from "next/server";
 
 export function POST(req: NextRequest) {
   return createCrosspostCrosspostHandler(req);
+}
+
+export function OPTIONS(req: NextRequest) {
+  return crosspostOptionsHandler(req);
 }
