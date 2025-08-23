@@ -412,6 +412,8 @@ const UltraFeedCommentsItemMeta = ({
         <CommentUserName
           comment={comment}
           className={classes.username}
+          useUltraFeedModal={true}
+          tooltipPlacement="bottom-start"
         />
         {!hideDate && post && <span className={classNames({[classes.newContentDateStyling]: isNewContent})}>
           <CommentsItemDate comment={comment} post={post} className={classes.date}/>
