@@ -49,6 +49,7 @@ export async function sendCurationEmail({users, postId, reason, subject}: {
   // ...but it might actually be better to not, since this allows us to e.g. edit the post after the job has started if there's some egregious issue
   const post = await Posts.findOne(postId);
   if (!post) throw Error(`Can't find post to send by email: ${postId}`)
+  if (!post.curatedDate) throw Error(`Post is not curated`);
 
   for (const user of users) {
     await wrapAndSendEmail({
