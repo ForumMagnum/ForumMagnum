@@ -3,7 +3,6 @@ import { registerComponent } from '../../lib/vulcan-lib/components';
 import { Link } from '../../lib/reactRouterWrapper';
 import { tagGetUrl } from '../../lib/collections/tags/helpers';
 import { siteImageSetting } from '@/lib/instanceSettings';
-import { isFriendlyUI } from '../../themes/forumTheme';
 import CloudinaryImage2 from "../common/CloudinaryImage2";
 import SubscribeButton from "./SubscribeButton";
 
@@ -38,10 +37,10 @@ const styles = (theme: ThemeType) => ({
     minWidth: 0, // required for text-overflow to work
   },
   title: {
-    ...theme.typography[isFriendlyUI ? "headerStyle" : "headline"],
+    ...theme.typography[theme.isFriendlyUI ? "headerStyle" : "headline"],
     fontSize: 16,
     lineHeight: "20px",
-    fontWeight: isFriendlyUI ? 600 : 700,
+    fontWeight: theme.isFriendlyUI ? 600 : 700,
     whiteSpace: "nowrap",
     overflow: "hidden",
   },

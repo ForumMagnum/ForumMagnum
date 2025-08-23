@@ -1,7 +1,6 @@
 import { registerComponent } from '../../lib/vulcan-lib/components';
 import React from 'react';
 import classNames from 'classnames';
-import { isFriendlyUI } from '../../themes/forumTheme';
 
 const styles = (theme: ThemeType) => ({
   root: {
@@ -16,7 +15,7 @@ const styles = (theme: ThemeType) => ({
     ...theme.typography.postStyle,
     overflow: "hidden",
     lineHeight: "1.2rem",
-    fontFamily: isFriendlyUI ? theme.palette.fonts.sansSerifStack : undefined,
+    fontFamily: theme.isFriendlyUI ? theme.palette.fonts.sansSerifStack : undefined,
   },
   hover: {
     backgroundColor: theme.palette.grey[50]

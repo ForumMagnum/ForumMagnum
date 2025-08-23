@@ -10,7 +10,6 @@ import type { CommentTreeOptions } from '../commentTree';
 import type { VotingSystem } from '@/lib/voting/votingSystemTypes';
 import type { ContentItemBodyImperative } from '../../contents/contentBodyUtil';
 import { userIsAllowedToComment } from '../../../lib/collections/users/helpers';
-import { isFriendlyUI } from '../../../themes/forumTheme';
 import CommentBottomCaveats from "./CommentBottomCaveats";
 import { commentGetPageUrlFromIds } from '@/lib/collections/comments/helpers';
 import { Link } from '@/lib/reactRouterWrapper';
@@ -20,10 +19,10 @@ const styles = (theme: ThemeType) => ({
   bottom: {
     display: "flex",
     alignItems: "center",
-    paddingBottom: isFriendlyUI ? 12 : 5,
-    paddingTop: isFriendlyUI ? 4 : undefined,
+    paddingBottom: theme.isFriendlyUI ? 12 : 5,
+    paddingTop: theme.isFriendlyUI ? 4 : undefined,
     minHeight: 12,
-    ...(isFriendlyUI ? {} : {fontSize: 12}),
+    ...(theme.isFriendlyUI ? {} : {fontSize: 12}),
   },
   bottomWithReacts: {
     justifyContent: "space-between"

@@ -61,7 +61,7 @@ export const sequencesImageScrim = (theme: ThemeType) => ({
 
 const styles = (theme: ThemeType) => ({
   root: {
-    paddingTop: isFriendlyUI ? (270 + HEADER_HEIGHT) : 380,
+    paddingTop: theme.isFriendlyUI ? (270 + HEADER_HEIGHT) : 380,
   },
   deletedText: {
     paddingTop: 20,
@@ -101,7 +101,7 @@ const styles = (theme: ThemeType) => ({
   description: {
     marginTop: theme.spacing.unit * 2,
     marginLeft: theme.spacing.unit/2,
-    marginBottom: isFriendlyUI ? 40 : theme.spacing.unit * 2,
+    marginBottom: theme.isFriendlyUI ? 40 : theme.spacing.unit * 2,
   },
   banner: {
     position: "absolute",
@@ -140,8 +140,8 @@ const styles = (theme: ThemeType) => ({
       marginTop: -100,
     },
     [theme.breakpoints.down('xs')]: {
-      marginTop: isFriendlyUI ? undefined : theme.spacing.unit,
-      padding: isFriendlyUI ? 16 : theme.spacing.unit
+      marginTop: theme.isFriendlyUI ? undefined : theme.spacing.unit,
+      padding: theme.isFriendlyUI ? 16 : theme.spacing.unit
     },
   },
   leftAction: {

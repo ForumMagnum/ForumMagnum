@@ -9,7 +9,7 @@ import { DEFAULT_LOW_KARMA_THRESHOLD, MAX_LOW_KARMA_THRESHOLD } from '../../lib/
 
 import { SORT_ORDER_OPTIONS, SettingsOption } from '../../lib/collections/posts/dropdownOptions';
 import { isEAForum } from '../../lib/instanceSettings';
-import { isFriendlyUI, preferredHeadingCase } from '../../themes/forumTheme';
+import { preferredHeadingCase } from '../../themes/forumTheme';
 import { ForumOptions, forumSelect } from '../../lib/forumTypeUtils';
 import pick from 'lodash/pick';
 import { timeframeLabels, timeframeSettings as defaultTimeframes, TimeframeSettingType } from "./timeframeUtils";
@@ -103,11 +103,11 @@ const styles = (theme: ThemeType) => ({
     display: "flex",
     alignItems: "flex-start",
     justifyContent: "space-between",
-    marginTop: isFriendlyUI ? 10 : undefined,
+    marginTop: theme.isFriendlyUI ? 10 : undefined,
     marginBottom: theme.spacing.unit,
     flexWrap: "wrap",
     background: theme.palette.panelBackground.default,
-    padding: isFriendlyUI ? "16px 24px 16px 24px" : "12px 24px 8px 12px",
+    padding: theme.isFriendlyUI ? "16px 24px 16px 24px" : "12px 24px 8px 12px",
     borderRadius: theme.borderRadius.default,
     [theme.breakpoints.down('xs')]: {
       flexDirection: "column",
@@ -120,7 +120,7 @@ const styles = (theme: ThemeType) => ({
   },
   checkbox: {
     padding: "1px 12px 0 0",
-    paddingRight: isFriendlyUI ? 6 : undefined,
+    paddingRight: theme.isFriendlyUI ? 6 : undefined,
   },
   checkboxGroup: {
     display: "flex",

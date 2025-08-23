@@ -6,7 +6,6 @@ import { Marker as BadlyTypedMarker } from 'react-map-gl';
 import PersonIcon from '@/lib/vendor/@material-ui/icons/src/Person';
 import classNames from 'classnames';
 import { componentWithChildren } from '../../lib/utils/componentsWithChildren';
-import {isFriendlyUI} from '../../themes/forumTheme'
 import { filterNonnull } from '../../lib/utils/typeGuardUtils';
 import { spreadMapMarkers } from '../../lib/utils/spreadMapMarkers';
 import { useMapStyle } from '../hooks/useMapStyle';
@@ -90,7 +89,7 @@ const styles = (theme: ThemeType) => ({
   mapButtons: {
     alignItems: "flex-end",
     position: "absolute",
-    top: isFriendlyUI ? 40 : 10,
+    top: theme.isFriendlyUI ? 40 : 10,
     right: 10,
     display: "flex",
     flexDirection: "column",

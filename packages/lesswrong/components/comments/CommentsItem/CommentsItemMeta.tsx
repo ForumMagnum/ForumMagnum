@@ -39,11 +39,11 @@ const styles = defineStyles("CommentsItemMeta", (theme: ThemeType) => ({
     marginBottom: 8,
     color: theme.palette.text.dim,
     paddingTop: "0.6em",
-    marginRight: isFriendlyUI ? 40 : 20,
+    marginRight: theme.isFriendlyUI ? 40 : 20,
 
     "& a:hover, & a:active": {
       textDecoration: "none",
-      color: isFriendlyUI ? undefined : `${theme.palette.linkHover.dim} !important`,
+      color: theme.isFriendlyUI ? undefined : `${theme.palette.linkHover.dim} !important`,
     },
   },
   sideCommentMeta: {
@@ -54,14 +54,14 @@ const styles = defineStyles("CommentsItemMeta", (theme: ThemeType) => ({
     ...metaNoticeStyles(theme),
   },
   collapse: {
-    marginRight: isFriendlyUI ? 6 : 5,
+    marginRight: theme.isFriendlyUI ? 6 : 5,
     opacity: 0.8,
     fontSize: "0.8rem",
     lineHeight: "1rem",
-    paddingBottom: isFriendlyUI ? 4 : 2,
-    display: isFriendlyUI ? "inline-block" : "flex",
+    paddingBottom: theme.isFriendlyUI ? 4 : 2,
+    display: theme.isFriendlyUI ? "inline-block" : "flex",
     verticalAlign: "middle",
-    transform: isFriendlyUI ? "translateY(3px)" : undefined,
+    transform: theme.isFriendlyUI ? "translateY(3px)" : undefined,
 
     "& span": {
       fontFamily: "monospace",
@@ -78,7 +78,7 @@ const styles = defineStyles("CommentsItemMeta", (theme: ThemeType) => ({
     transform: 'translateY(0.75px)',
   },
   username: {
-    marginRight: isFriendlyUI ? 0 : 6,
+    marginRight: theme.isFriendlyUI ? 0 : 6,
 
     "$sideCommentMeta &": {
       flexGrow: 1,
@@ -115,7 +115,7 @@ const styles = defineStyles("CommentsItemMeta", (theme: ThemeType) => ({
   },
   rightSection: {
     position: "absolute",
-    right: isFriendlyUI ? -46 : -26,
+    right: theme.isFriendlyUI ? -46 : -26,
     top: 12,
     display: "flex",
   },
@@ -132,7 +132,7 @@ const styles = defineStyles("CommentsItemMeta", (theme: ThemeType) => ({
     stroke: "currentColor",
     color: theme.palette.primary.main
   },
-  menu: isFriendlyUI
+  menu: theme.isFriendlyUI
     ? {
       color: theme.palette.icon.dim,
     }

@@ -5,7 +5,6 @@ import Button from '@/lib/vendor/@material-ui/core/src/Button';
 import classNames from 'classnames';
 import TextField from '@/lib/vendor/@material-ui/core/src/TextField';
 import JargonEditorRow, { formStyles } from './JargonEditorRow';
-import { isFriendlyUI } from '@/themes/forumTheme';
 import { useJargonCounts } from '@/components/hooks/useJargonCounts';
 import Checkbox from '@/lib/vendor/@material-ui/core/src/Checkbox';
 import { useLocalStorageState } from '../hooks/useLocalStorageState';
@@ -233,7 +232,7 @@ const styles = (theme: ThemeType) => ({
   formSectionHeadingTitle: {
     marginBottom: 5,
     fontSize: "1.25rem",
-    fontWeight: isFriendlyUI ? 600 : undefined,
+    fontWeight: theme.isFriendlyUI ? 600 : undefined,
   },
   promptEditorWarning: {
     color: theme.palette.error.main,

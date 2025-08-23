@@ -40,7 +40,7 @@ export type FormDisplayMode = "default" | "minimalist"
 
 
 const styles = (theme: ThemeType) => ({
-  root: isFriendlyUI ? {
+  root: theme.isFriendlyUI ? {
     '& .form-component-EditorFormComponent': {
       marginTop: 0
     }
@@ -64,7 +64,7 @@ const styles = (theme: ThemeType) => ({
       borderTopRightRadius: theme.borderRadius.quickTakesEntry,
     },
   },
-  quickTakesSubmitButtonAtBottom: isFriendlyUI
+  quickTakesSubmitButtonAtBottom: theme.isFriendlyUI
     ? {
       "& .form-component-EditorFormComponent": {
         background: "transparent",

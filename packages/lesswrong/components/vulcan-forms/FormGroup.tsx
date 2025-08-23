@@ -1,7 +1,6 @@
 import React from 'react';
 import { registerComponent } from '../../lib/vulcan-lib/components';
 import classNames from 'classnames';
-import { isFriendlyUI } from '../../themes/forumTheme';
 
 const headerStyles = (theme: ThemeType) => ({
   formSectionHeading: {
@@ -19,7 +18,7 @@ const headerStyles = (theme: ThemeType) => ({
   formSectionHeadingTitle: {
     marginBottom: 5,
     fontSize: "1.25rem",
-    fontWeight: isFriendlyUI ? 600 : undefined,
+    fontWeight: theme.isFriendlyUI ? 600 : undefined,
   },
 });
 

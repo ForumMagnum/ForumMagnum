@@ -4,7 +4,6 @@ import React from 'react';
 import { useHover } from '../common/withHover';
 import { highlightReviewWinnerThresholdSetting } from '@/lib/instanceSettings';
 import { tagStyle } from '../tagging/FooterTag';
-import { isFriendlyUI } from '@/themes/forumTheme';
 import { Card } from "@/components/widgets/Paper";
 import { FRIENDLY_HOVER_OVER_WIDTH } from '../common/FriendlyHoverOver';
 import HoverOver from "../common/HoverOver";
@@ -19,12 +18,12 @@ const sharedStyles = (theme: ThemeType) => ({
   boxSizing: 'border-box',
   paddingLeft: 6,
   paddingRight: 6,
-  marginRight: isFriendlyUI ? 3 : undefined,
-  marginBottom: isFriendlyUI ? 8 : undefined,
+  marginRight: theme.isFriendlyUI ? 3 : undefined,
+  marginBottom: theme.isFriendlyUI ? 8 : undefined,
   fontWeight: theme.typography.body1.fontWeight,
   ...theme.typography.commentStyle,
   cursor: "pointer",
-  whiteSpace: isFriendlyUI ? "nowrap": undefined,
+  whiteSpace: theme.isFriendlyUI ? "nowrap": undefined,
 })
 
 const styles = (theme: ThemeType) => ({
@@ -44,7 +43,7 @@ const styles = (theme: ThemeType) => ({
   },
   card: {
     padding: 16,
-    ...(isFriendlyUI
+    ...(theme.isFriendlyUI
       ? {
         paddingTop: 12,
         width: FRIENDLY_HOVER_OVER_WIDTH,

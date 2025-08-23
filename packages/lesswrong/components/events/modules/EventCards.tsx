@@ -9,7 +9,6 @@ import { getDefaultEventImg } from './HighlightedEventCard';
 import { useCurrentUser } from '../../common/withUser';
 import classNames from 'classnames';
 import { communityPath } from '@/lib/pathConstants';
-import { isFriendlyUI } from '../../../themes/forumTheme';
 import { forumSelect } from '../../../lib/forumTypeUtils';
 import AddToCalendarButton from "../../posts/AddToCalendar/AddToCalendarButton";
 import PostsItemTooltipWrapper from "../../posts/PostsItemTooltipWrapper";
@@ -80,7 +79,7 @@ const styles = (theme: ThemeType) => ({
     overflow: 'hidden',
     marginTop: 8,
     marginBottom: 0,
-    ...(isFriendlyUI && {
+    ...(theme.isFriendlyUI && {
       fontFamily: theme.palette.fonts.sansSerifStack,
     }),
   },

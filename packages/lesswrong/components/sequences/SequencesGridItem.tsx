@@ -3,7 +3,6 @@ import React from 'react';
 import { legacyBreakpoints } from '../../lib/utils/theme';
 import classNames from 'classnames';
 import { getCollectionOrSequenceUrl } from '../../lib/collections/sequences/helpers';
-import { isFriendlyUI } from '../../themes/forumTheme';
 import { defaultSequenceBannerIdSetting, isLWorAF } from '../../lib/instanceSettings';
 import DeferRender from '../common/DeferRender';
 import CloudinaryImage from "../common/CloudinaryImage";
@@ -35,7 +34,7 @@ const styles = (theme: ThemeType) => ({
 
   title: {
     fontSize: 16,
-    ...(isFriendlyUI
+    ...(theme.isFriendlyUI
       ? {
         lineHeight: 1.25,
         maxHeight: 42,
@@ -78,7 +77,7 @@ const styles = (theme: ThemeType) => ({
     flexDirection: "column",
     justifyContent: "center",
     background: theme.palette.panelBackground.default,
-    ...(isFriendlyUI
+    ...(theme.isFriendlyUI
       ? {
         borderRadius: `0 0 ${theme.borderRadius.small}px ${theme.borderRadius.small}px`,
         fontFamily: theme.palette.fonts.sansSerifStack,
@@ -103,7 +102,7 @@ const styles = (theme: ThemeType) => ({
     backgroundColor: theme.palette.grey[200],
     display: 'block',
     height: 95,
-    borderRadius: isFriendlyUI
+    borderRadius: theme.isFriendlyUI
       ? `${theme.borderRadius.small}px ${theme.borderRadius.small}px 0 0`
       : undefined,
     [legacyBreakpoints.maxSmall]: {
@@ -112,7 +111,7 @@ const styles = (theme: ThemeType) => ({
     "& img": {
       width: "100%",
       height: 95,
-      borderRadius: isFriendlyUI
+      borderRadius: theme.isFriendlyUI
         ? `${theme.borderRadius.small}px ${theme.borderRadius.small}px 0 0`
         : undefined,
       [legacyBreakpoints.maxSmall]: {

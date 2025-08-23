@@ -7,7 +7,6 @@ import { useLocation } from '../../lib/routeUtil';
 import { tagGetUrl } from '../../lib/collections/tags/helpers';
 import { Link } from '../../lib/reactRouterWrapper';
 import { defineStyles, useStyles } from '../hooks/useStyles';
-import { isFriendlyUI } from '@/themes/forumTheme';
 import SingleColumnSection from "../common/SingleColumnSection";
 import CompareRevisions from "../revisions/CompareRevisions";
 import RevisionComparisonNotice from "../revisions/RevisionComparisonNotice";
@@ -28,10 +27,10 @@ const RevisionHistoryEntryMultiQuery = gql(`
 
 const styles = defineStyles('TagCompareRevisions', (theme) => ({
   title: {
-    ...theme.typography[isFriendlyUI ? "display2" : "display3"],
-    ...theme.typography[isFriendlyUI ? "headerStyle" : "commentStyle"],
+    ...theme.typography[theme.isFriendlyUI ? "display2" : "display3"],
+    ...theme.typography[theme.isFriendlyUI ? "headerStyle" : "commentStyle"],
     marginTop: 0,
-    fontWeight: isFriendlyUI ? 700 : 600,
+    fontWeight: theme.isFriendlyUI ? 700 : 600,
     ...theme.typography.smallCaps,
   },
   description: {},

@@ -1,7 +1,7 @@
 import { registerComponent } from '../../lib/vulcan-lib/components';
 import React from 'react';
 import { useVote } from './withVote';
-import { isAF, isLW } from '../../lib/instanceSettings';
+import { isAF } from '../../lib/instanceSettings';
 import { useVoteButtonsDisabled } from './useVoteButtonsDisabled';
 import { VotingSystem } from '@/lib/voting/votingSystemTypes';
 import { TooltipSpan } from '../common/FMTooltip';
@@ -29,7 +29,7 @@ const styles = (theme: ThemeType) => ({
     },
   },
   voteScoresHorizontal: {
-    margin: isLW ? '-2px 8px' : '-4px 8px'
+    margin: theme.isLW ? '-2px 8px' : '-4px 8px'
   },
   voteScore: {
     color: theme.palette.grey[600],

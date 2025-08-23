@@ -38,7 +38,6 @@ import PostMostValuableCheckbox from "./PostMostValuableCheckbox";
 import { ResponseIcon } from "./PostsPage/RSVPs";
 import { maybeDate } from '@/lib/utils/dateUtils';
 import { isIfAnyoneBuildsItFrontPage } from '../seasonal/styles';
-import { isBookUI } from '@/themes/forumTheme';
 import { defineStyles, useStyles } from '../hooks/useStyles';
 
 export const KARMA_WIDTH = 32;
@@ -80,7 +79,7 @@ export const styles = defineStyles("LWPostsItem", (theme: ThemeType) => ({
   background: {
     width: "100%",
     background: theme.palette.panelBackground.default,
-    ...(isBookUI && theme.dark && {
+    ...(theme.isBookUI && theme.dark && {
       background: theme.palette.panelBackground.bannerAdTranslucent,
       backdropFilter: theme.palette.filters.bannerAdBlur,
       ...isIfAnyoneBuildsItFrontPage({
@@ -113,7 +112,7 @@ export const styles = defineStyles("LWPostsItem", (theme: ThemeType) => ({
   withGrayHover: {
     '&:hover': {
       backgroundColor: theme.palette.panelBackground.postsItemHover,
-      ...(isBookUI && theme.dark && {
+      ...(theme.isBookUI && theme.dark && {
         backgroundColor: theme.palette.panelBackground.bannerAdTranslucentHeavy,
       }),
     },

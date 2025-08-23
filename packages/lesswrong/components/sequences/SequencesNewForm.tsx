@@ -3,7 +3,6 @@
 import { useMessages } from '../common/withMessages';
 import React from 'react';
 import { useCurrentUser } from '../common/withUser';
-import { isFriendlyUI } from '../../themes/forumTheme';
 import { useNavigate } from '../../lib/routeUtil';
 import { SequencesForm } from './SequencesForm';
 import { defineStyles, useStyles } from '../hooks/useStyles';
@@ -114,7 +113,7 @@ export const styles = defineStyles("SequencesNewForm", (theme: ThemeType) => ({
         },
         "& .form-input-errors": {
           position: "absolute",
-          top: isFriendlyUI ? 84 : 45,
+          top: theme.isFriendlyUI ? 84 : 45,
           left: 7,
           textAlign: "left",
         }
@@ -160,8 +159,8 @@ export const styles = defineStyles("SequencesNewForm", (theme: ThemeType) => ({
 }));
 
 const SequencesNewForm = ({ redirect, cancelCallback }: {
-  redirect: any,
-  cancelCallback: any,
+  redirect?: any,
+  cancelCallback?: any,
 }) => {
   const classes = useStyles(styles);
   const currentUser = useCurrentUser();

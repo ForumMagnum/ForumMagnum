@@ -17,7 +17,6 @@ import { getCurrentContentCount, UserContentCountPartial } from '../../lib/colle
 import { hideScrollBars } from '../../themes/styleUtils';
 import { getSignature, getSignatureWithNote } from '../../lib/collections/users/helpers';
 import { hideUnreviewedAuthorCommentsSettings } from '@/lib/instanceSettings';
-import { isFriendlyUI } from '../../themes/forumTheme';
 import { useDialog } from '../common/withDialog';
 import NewModeratorActionDialog from "./NewModeratorActionDialog";
 import LWTooltip from "../common/LWTooltip";

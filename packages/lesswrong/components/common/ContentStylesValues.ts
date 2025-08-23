@@ -1,8 +1,6 @@
 import { defineStyles } from '../hooks/defineStyles';
-import { isFriendlyUI } from '../../themes/forumTheme';
 import { postBodyStyles, smallPostStyles, commentBodyStyles } from '../../themes/stylePiping'
 import classNames from 'classnames';
-import { JssStyles } from '@/lib/jssStyles';
 
 export const styles = defineStyles("ContentStyles", (theme: ThemeType) => ({
   base: {
@@ -13,7 +11,7 @@ export const styles = defineStyles("ContentStyles", (theme: ThemeType) => ({
   postHighlight: {
     ...smallPostStyles(theme),
     '& h1, & h2, & h3': {
-      fontSize: isFriendlyUI ? "1.1rem" : "1.6rem",
+      fontSize: theme.isFriendlyUI ? "1.1rem" : "1.6rem",
       // Cancel out a negative margin which would cause clipping
       marginBlockStart: "0 !important",
     },

@@ -15,7 +15,6 @@ import OutlinedInput from '@/lib/vendor/@material-ui/core/src/OutlinedInput';
 import Tab from '@/lib/vendor/@material-ui/core/src/Tab';
 import Tabs from '@/lib/vendor/@material-ui/core/src/Tabs';
 import { Chip } from "@/components/widgets/Chip";
-import { isFriendlyUI } from '../../themes/forumTheme';
 import { Link } from "../../lib/reactRouterWrapper";
 import { useLocation, useNavigate } from "../../lib/routeUtil";
 import EventNotificationsDialog from "../localGroups/EventNotificationsDialog";
@@ -57,14 +56,14 @@ const styles = (theme: ThemeType) => ({
       marginTop: 30,
     },
     [theme.breakpoints.up('sm')]: {
-      marginTop: isFriendlyUI ? 20 : undefined,
+      marginTop: theme.isFriendlyUI ? 20 : undefined,
     },
   },
   sectionHeading: {
     ...theme.typography.headline,
     fontSize: 34,
     margin: 0,
-    ...(isFriendlyUI && {
+    ...(theme.isFriendlyUI && {
       fontFamily: theme.palette.fonts.sansSerifStack,
     }),
   },
@@ -171,7 +170,7 @@ const styles = (theme: ThemeType) => ({
   },
   localGroupsBtn: {
     textTransform: 'none',
-    fontSize: isFriendlyUI ? 13 : 12,
+    fontSize: theme.isFriendlyUI ? 13 : 12,
   },
   localGroupsBtnIcon: {
     fontSize: 15,
@@ -203,7 +202,7 @@ const styles = (theme: ThemeType) => ({
   eventsPageLink: {
     backgroundColor: theme.palette.primary.main,
     color: theme.palette.text.invertedBackgroundText,
-    fontSize: isFriendlyUI ? 14 : 13,
+    fontSize: theme.isFriendlyUI ? 14 : 13,
     padding: '8px 16px',
     borderRadius: 4,
     marginTop: 10

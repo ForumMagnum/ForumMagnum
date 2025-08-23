@@ -7,7 +7,6 @@ import { useTagBySlug } from './useTag';
 import { tagGetUrl } from '../../lib/collections/tags/helpers';
 import { Link } from '../../lib/reactRouterWrapper';
 import { taggingNameIsSet, taggingNameSetting } from '../../lib/instanceSettings';
-import { isFriendlyUI } from '../../themes/forumTheme';
 import SingleColumnSection from "../common/SingleColumnSection";
 import TagDiscussionSection from "./TagDiscussionSection";
 import ContentStyles from "../common/ContentStyles";
@@ -17,7 +16,7 @@ const styles = (theme: ThemeType) => ({
     ...theme.typography.display3,
     ...theme.typography.commentStyle,
     marginTop: 0,
-    fontWeight: isFriendlyUI ? 700 : 600,
+    fontWeight: theme.isFriendlyUI ? 700 : 600,
     ...theme.typography.smallCaps,
   },
   description: {

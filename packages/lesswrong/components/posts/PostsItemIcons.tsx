@@ -18,8 +18,8 @@ import { defineStyles, useStyles } from '../hooks/useStyles';
 
 const styles = defineStyles("PostsItemIcons", (theme: ThemeType) => ({
   iconSet: {
-    marginLeft: isFriendlyUI ? 6 : theme.spacing.unit,
-    marginRight: isFriendlyUI ? 2 : theme.spacing.unit,
+    marginLeft: theme.isFriendlyUI ? 6 : theme.spacing.unit,
+    marginRight: theme.isFriendlyUI ? 2 : theme.spacing.unit,
     lineHeight: "1.0rem",
     '&:empty': {
       display: 'none',
@@ -34,23 +34,23 @@ const styles = defineStyles("PostsItemIcons", (theme: ThemeType) => ({
     '&&': {
       "--icon-size": "15.6px",
       fontSize: "15.6px",
-      color: isFriendlyUI ? theme.palette.grey[600] : theme.palette.icon.dim4,
+      color: theme.isFriendlyUI ? theme.palette.grey[600] : theme.palette.icon.dim4,
       position: "relative",
       top: 3,
     },
   },
   curatedIcon: {
     "--icon-size": "15.6px",
-    color: isFriendlyUI ? theme.palette.grey[600] : theme.palette.icon.dim4,
+    color: theme.isFriendlyUI ? theme.palette.grey[600] : theme.palette.icon.dim4,
     position: "relative",
-    top: isFriendlyUI ? 2 : 3,
+    top: theme.isFriendlyUI ? 2 : 3,
   },
   curatedIconColor: {
-    color: isFriendlyUI ? theme.palette.icon.yellow : theme.palette.primary.main,
+    color: theme.isFriendlyUI ? theme.palette.icon.yellow : theme.palette.primary.main,
   },
   question: {
     "--icon-size": "15.6px",
-    color: isFriendlyUI ? theme.palette.grey[600] : theme.palette.icon.dim4,
+    color: theme.isFriendlyUI ? theme.palette.grey[600] : theme.palette.icon.dim4,
     fontWeight: '600'
   },
   alignmentIcon: {
@@ -61,7 +61,7 @@ const styles = defineStyles("PostsItemIcons", (theme: ThemeType) => ({
   linkIcon: {
     position: "relative",
     "--icon-size": "15.6px",
-    ...(isFriendlyUI
+    ...(theme.isFriendlyUI
       ? {
         top: 1,
         color: theme.palette.grey[600],
@@ -72,10 +72,10 @@ const styles = defineStyles("PostsItemIcons", (theme: ThemeType) => ({
       }),
   },
   dialogueIcon: {
-    strokeWidth: isFriendlyUI ? "2px" : undefined,
+    strokeWidth: theme.isFriendlyUI ? "2px" : undefined,
   },
   recommendationIcon: {
-    color: isFriendlyUI ? theme.palette.grey[600] : theme.palette.icon.dim4,
+    color: theme.isFriendlyUI ? theme.palette.grey[600] : theme.palette.icon.dim4,
     '&:hover': {
       opacity: 0.5
     }

@@ -120,7 +120,7 @@ export const styles = defineStyles("PostsPage", (theme: ThemeType) => ({
     marginLeft: 'auto',
     marginRight: 'auto',
     maxWidth: CENTRAL_COLUMN_WIDTH, // this necessary in both friendly and non-friendly UI to prevent Comment Permalinks from overflowing the page
-    ...(isFriendlyUI && {
+    ...(theme.isFriendlyUI && {
       [theme.breakpoints.down('sm')]: {
         // This can only be used when display: "block" is applied, otherwise the 100% confuses the
         // grid layout into adding loads of left margin
@@ -129,7 +129,7 @@ export const styles = defineStyles("PostsPage", (theme: ThemeType) => ({
     }),
   },
   postBody: {
-    ...(isFriendlyUI && {
+    ...(theme.isFriendlyUI && {
       width: "100%",
     }),
   },
@@ -140,7 +140,7 @@ export const styles = defineStyles("PostsPage", (theme: ThemeType) => ({
     },
   },
   postContent: {
-    marginBottom: isFriendlyUI ? 40 : undefined
+    marginBottom: theme.isFriendlyUI ? 40 : undefined
   },
   betweenPostAndComments: {
     minHeight: 24,
@@ -158,7 +158,7 @@ export const styles = defineStyles("PostsPage", (theme: ThemeType) => ({
     // TODO: This is to prevent the Table of Contents from overlapping with the comments section. Could probably fine-tune the breakpoints and spacing to avoid needing this.
     background: theme.palette.background.pageActiveAreaBackground,
     position: "relative",
-    paddingTop: isFriendlyUI ? 16 : undefined
+    paddingTop: theme.isFriendlyUI ? 16 : undefined
   },
   noCommentsPlaceholder: {
     marginTop: 60,
@@ -256,7 +256,7 @@ export const styles = defineStyles("PostsPage", (theme: ThemeType) => ({
   },
   dateAtBottom: {
     color: theme.palette.text.dim3,
-    fontSize: isFriendlyUI ? undefined : theme.typography.body2.fontSize,
+    fontSize: theme.isFriendlyUI ? undefined : theme.typography.body2.fontSize,
     cursor: 'default'
   },
   reviewVoting: {

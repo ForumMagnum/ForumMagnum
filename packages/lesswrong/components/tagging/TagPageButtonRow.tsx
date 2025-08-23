@@ -13,7 +13,6 @@ import { useTagBySlug } from './useTag';
 import { tagGetHistoryUrl, tagMinimumKarmaPermissions, tagUserHasSufficientKarma, isTagAllowedType3Audio } from '../../lib/collections/tags/helpers';
 import { isLWorAF } from '@/lib/instanceSettings';
 import type { TagLens } from '@/lib/arbital/useTagLenses';
-import { isFriendlyUI } from '@/themes/forumTheme';
 import { AnalyticsContext, useTracking } from '@/lib/analyticsEvents';
 import LoginPopup from "../users/LoginPopup";
 import NewLensDialog from "./lenses/NewLensDialog";
@@ -31,14 +30,14 @@ const PODCAST_ICON_PADDING = 3;
 const styles = (theme: ThemeType) => ({
   buttonsRow: {
     ...theme.typography.body2,
-    marginTop: isFriendlyUI ? 2 : undefined,
-    marginBottom: isFriendlyUI ? 16 : undefined,
+    marginTop: theme.isFriendlyUI ? 2 : undefined,
+    marginBottom: theme.isFriendlyUI ? 16 : undefined,
     color: theme.palette.grey[700],
     display: "flex",
     flexWrap: "wrap",
     columnGap: 16,
     [theme.breakpoints.down('xs')]: {
-      marginTop: isFriendlyUI ? 8 : undefined,
+      marginTop: theme.isFriendlyUI ? 8 : undefined,
     },
     '& svg': {
       height: 20,
@@ -87,7 +86,7 @@ const styles = (theme: ThemeType) => ({
   },
   subscribeToWrapper: {
     display: "flex !important",
-    ...(isFriendlyUI ? {
+    ...(theme.isFriendlyUI ? {
     } : {
       marginLeft: -2,
       marginRight: -5,
@@ -116,7 +115,7 @@ const styles = (theme: ThemeType) => ({
     width: PODCAST_ICON_SIZE + (PODCAST_ICON_PADDING * 2) + "px !important",
     height: PODCAST_ICON_SIZE + (PODCAST_ICON_PADDING * 2) + "px !important",
     padding: PODCAST_ICON_PADDING,
-    transform: isFriendlyUI ? undefined : `translateY(-3px)`,
+    transform: theme.isFriendlyUI ? undefined : `translateY(-3px)`,
     marginRight: -3
   },
   audioIconOn: {

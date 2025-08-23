@@ -25,10 +25,10 @@ const styles = (theme: ThemeType) => ({
     columnGap: 20,
     alignItems: 'center',
     fontSize: '1.4em',
-    paddingTop: isFriendlyUI ? 30 : undefined,
-    borderTop: isFriendlyUI ? theme.palette.border.grey300 : undefined,
-    marginTop: isFriendlyUI ? 40 : undefined,
-    marginBottom: isFriendlyUI ? 40 : undefined
+    paddingTop: theme.isFriendlyUI ? 30 : undefined,
+    borderTop: theme.isFriendlyUI ? theme.palette.border.grey300 : undefined,
+    marginTop: theme.isFriendlyUI ? 40 : undefined,
+    marginBottom: theme.isFriendlyUI ? 40 : undefined
   },
   bookmarkButton: {
     marginBottom: -5,
@@ -47,14 +47,14 @@ const styles = (theme: ThemeType) => ({
     },
   },
   voteBottom: {
-    flexGrow: isFriendlyUI ? 1 : undefined,
+    flexGrow: theme.isFriendlyUI ? 1 : undefined,
     position: 'relative',
     fontSize: 42,
     textAlign: 'center',
     display: 'inline-block',
-    marginLeft: isFriendlyUI ? undefined : 'auto',
-    marginRight: isFriendlyUI ? undefined : 'auto',
-    marginBottom: isFriendlyUI ? undefined : 40,
+    marginLeft: theme.isFriendlyUI ? undefined : 'auto',
+    marginRight: theme.isFriendlyUI ? undefined : 'auto',
+    marginBottom: theme.isFriendlyUI ? undefined : 40,
     "@media print": { display: "none" },
   },
   secondaryInfoRight: {

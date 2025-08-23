@@ -62,7 +62,7 @@ const TEXT_WIDTH = 350;
 
 export const descriptionStyles = (theme: ThemeType) => ({
   ...postBodyStyles(theme),
-  ...(isBookUI ? theme.typography.body2 : {}),
+  ...(theme.isBookUI ? theme.typography.body2 : {}),
   lineHeight: '1.65rem',
   '& p': {
     marginTop: ".5em",
@@ -106,7 +106,7 @@ const styles = defineStyles("SpotlightItem", (theme: ThemeType) => ({
       opacity: .2
     },
     '&:hover $closeButton': {
-      ...(isFriendlyUI ? {
+      ...(theme.isFriendlyUI ? {
         color: theme.palette.grey[100],
         background: theme.palette.panelBackground.default,
       } : {
@@ -133,7 +133,7 @@ const styles = defineStyles("SpotlightItem", (theme: ThemeType) => ({
     padding: '.5em',
     minHeight: '.75em',
     minWidth: '.75em',
-    color: isFriendlyUI ? theme.palette.text.alwaysWhite : theme.palette.grey[300],
+    color: theme.isFriendlyUI ? theme.palette.text.alwaysWhite : theme.palette.grey[300],
     zIndex: theme.zIndexes.spotlightItemCloseButton,
   },
   hideButton: {
@@ -158,7 +158,7 @@ const styles = defineStyles("SpotlightItem", (theme: ThemeType) => ({
     position: "relative",
     zIndex: theme.zIndexes.spotlightItem,
     // Drop shadow that helps the text stand out from the background image
-    textShadow: isFriendlyUI ? undefined : `
+    textShadow: theme.isFriendlyUI ? undefined : `
       0px 0px 10px ${theme.palette.background.default},
       0px 0px 20px ${theme.palette.background.default}
     `,
@@ -185,7 +185,7 @@ const styles = defineStyles("SpotlightItem", (theme: ThemeType) => ({
     [theme.breakpoints.down('xs')]: {
       display: "none"
     },
-    ...(isFriendlyUI ? {
+    ...(theme.isFriendlyUI ? {
       fontSize: 13,
       fontWeight: 500,
       fontFamily: theme.palette.fonts.sansSerifStack,
@@ -207,7 +207,7 @@ const styles = defineStyles("SpotlightItem", (theme: ThemeType) => ({
   },
   title: {
     ...theme.typography.postStyle,
-    ...(isFriendlyUI
+    ...(theme.isFriendlyUI
       ? {
         fontSize: 22,
         fontWeight: 700,
@@ -225,7 +225,7 @@ const styles = defineStyles("SpotlightItem", (theme: ThemeType) => ({
   subtitle: {
     ...theme.typography.postStyle,
     ...theme.typography.italic,
-    ...(isFriendlyUI ? {
+    ...(theme.isFriendlyUI ? {
       fontSize: 13,
       fontWeight: 500,
       fontFamily: theme.palette.fonts.sansSerifStack,
@@ -238,7 +238,7 @@ const styles = defineStyles("SpotlightItem", (theme: ThemeType) => ({
       marginTop: -1,
     }),
   },
-  startOrContinue: isFriendlyUI
+  startOrContinue: theme.isFriendlyUI
     ? {
       marginTop: 0,
       [theme.breakpoints.down("xs")]: {
@@ -253,7 +253,7 @@ const styles = defineStyles("SpotlightItem", (theme: ThemeType) => ({
     position: "absolute",
     top: 0,
     right: 0,
-    ...(isFriendlyUI
+    ...(theme.isFriendlyUI
       ? {
           borderRadius: theme.borderRadius.default,
           width: "100%",

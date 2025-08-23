@@ -5,7 +5,6 @@ import { isLWorAF, commentPermalinkStyleSetting } from '@/lib/instanceSettings';
 import { registerComponent } from '../../lib/vulcan-lib/components';
 import { isNotRandomId } from '@/lib/random';
 import { scrollFocusOnElement } from '@/lib/scrollUtils';
-import { isBookUI } from '@/themes/forumTheme';
 import { useQuery } from "@/lib/crud/useQuery";
 import { gql } from "@/lib/generated/gql-codegen";
 import Loading from "../vulcan-core/Loading";
@@ -28,7 +27,7 @@ const styles = (theme: ThemeType) => ({
   root: {
     ...theme.typography.body2,
     ...theme.typography.commentStyle,
-    ...(isBookUI ? {
+    ...(theme.isBookUI ? {
       marginTop: 64
     } : {}),
   },

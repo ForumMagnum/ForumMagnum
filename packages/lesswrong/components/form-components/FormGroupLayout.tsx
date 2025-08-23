@@ -1,7 +1,6 @@
 import React from 'react';
 import { registerComponent } from '../../lib/vulcan-lib/components';
 import classNames from 'classnames';
-import { isFriendlyUI } from '../../themes/forumTheme';
 import { slugify } from '@/lib/utils/slugify';
 
 const styles = (theme: ThemeType) => ({
@@ -10,7 +9,7 @@ const styles = (theme: ThemeType) => ({
     border: theme.palette.border.grey300,
     marginBottom: theme.spacing.unit,
     background: theme.palette.background.pageActiveAreaBackground,
-    ...(isFriendlyUI ? {borderRadius: 6} : {})
+    ...(theme.isFriendlyUI ? {borderRadius: 6} : {})
   },
   formSectionBody: {
     paddingTop: theme.spacing.unit,

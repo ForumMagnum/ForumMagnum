@@ -23,7 +23,7 @@ const styles = (theme: ThemeType) => ({
       opacity: 0.5
     }
   },
-  icon: isFriendlyUI ? {
+  icon: theme.isFriendlyUI ? {
     color: theme.palette.grey[900],
     fontSize: 16,
     marginRight: 6,

@@ -2,7 +2,7 @@ import { registerComponent } from '../../lib/vulcan-lib/components';
 import React, { Ref } from 'react';
 import classNames from 'classnames';
 import { useVote } from './withVote';
-import { isAF, isLW } from '../../lib/instanceSettings';
+import { isAF } from '../../lib/instanceSettings';
 import { useVoteButtonsDisabled } from './useVoteButtonsDisabled';
 import { VotingSystem } from '@/lib/voting/votingSystemTypes';
 import { isFriendlyUI } from '../../themes/forumTheme';
@@ -35,10 +35,10 @@ const styles = (theme: ThemeType) => ({
   voteScores: {
     margin:"15%",
     
-    ...(isLW && {
+    ...(theme.isLW && {
       margin: "25% 15% 15% 15%"
     }),
-    ...(isAF && {
+    ...(theme.isAF && {
       fontVariantNumeric: "lining-nums",
     }),
   },
@@ -46,13 +46,13 @@ const styles = (theme: ThemeType) => ({
     margin: '0 12px'
   },
   voteScore: {
-    color: isFriendlyUI ? theme.palette.grey[600] : theme.palette.grey[500],
-    fontFamily: isFriendlyUI ? theme.palette.fonts.sansSerifStack : undefined,
+    color: theme.isFriendlyUI ? theme.palette.grey[600] : theme.palette.grey[500],
+    fontFamily: theme.isFriendlyUI ? theme.palette.fonts.sansSerifStack : undefined,
     position: 'relative',
     zIndex: theme.zIndexes.postsVote,
-    fontSize: isFriendlyUI ? '50%' : '55%',
+    fontSize: theme.isFriendlyUI ? '50%' : '55%',
     
-    ...(isFriendlyUI && {
+    ...(theme.isFriendlyUI && {
       paddingTop:4,
       paddingBottom:2,
       paddingLeft:1,
@@ -81,7 +81,7 @@ const styles = (theme: ThemeType) => ({
     backgroundColor: theme.palette.panelBackground.default,
     transition: 'opacity 150ms cubic-bezier(0.4, 0, 1, 1) 0ms',
     marginLeft: 0,
-    paddingTop: isFriendlyUI ? 12 : 0
+    paddingTop: theme.isFriendlyUI ? 12 : 0
   },
 });
 

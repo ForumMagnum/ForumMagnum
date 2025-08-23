@@ -71,7 +71,7 @@ const styles = (theme: ThemeType) => ({
   },
   checkboxLabel: {
     ...theme.typography.body2,
-    fontWeight: isEAForum ? 600 : undefined,
+    fontWeight: theme.isEAForum ? 600 : undefined,
   },
   checkedLabel: {
     color: theme.palette.text.tooltipText,

@@ -4,7 +4,6 @@ import CheckBoxOutlineBlankIcon from '@/lib/vendor/@material-ui/icons/src/CheckB
 import CheckBoxTwoToneIcon from '@/lib/vendor/@material-ui/icons/src/CheckBoxTwoTone';
 import { useItemsRead } from '../hooks/useRecordPostView';
 import classNames from 'classnames';
-import { isFriendlyUI } from '../../themes/forumTheme';
 import LWTooltip from "../common/LWTooltip";
 import { useMutation } from "@apollo/client/react";
 import { gql } from '@/lib/generated/gql-codegen';
@@ -14,7 +13,7 @@ const styles = (theme: ThemeType) => ({
     cursor: "pointer",
   },
   read: {
-    color: isFriendlyUI
+    color: theme.isFriendlyUI
       ? theme.palette.primary.main
       : theme.palette.primary.light,
   },

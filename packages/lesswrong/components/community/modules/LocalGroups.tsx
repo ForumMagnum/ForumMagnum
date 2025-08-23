@@ -4,7 +4,6 @@ import { Link } from '../../../lib/reactRouterWrapper';
 import { cloudinaryCloudNameSetting } from '@/lib/instanceSettings';
 import Button from '@/lib/vendor/@material-ui/core/src/Button';
 import { useThemeColor } from '@/components/themes/useTheme';
-import { isFriendlyUI } from '../../../themes/forumTheme';
 import CommunityMapWrapper from "../../localGroups/CommunityMapWrapper";
 import CloudinaryImage2 from "../../common/CloudinaryImage2";
 import { useQuery } from "@/lib/crud/useQuery";
@@ -99,9 +98,9 @@ const styles = (theme: ThemeType) => ({
     alignItems: 'baseline',
   },
   localGroupName: {
-    ...theme.typography[isFriendlyUI ? "headerStyle" : "headline"],
+    ...theme.typography[theme.isFriendlyUI ? "headerStyle" : "headline"],
     fontSize: 18,
-    fontWeight: isFriendlyUI ? 700 : undefined,
+    fontWeight: theme.isFriendlyUI ? 700 : undefined,
     display: '-webkit-box',
     "-webkit-line-clamp": 2,
     "-webkit-box-orient": 'vertical',

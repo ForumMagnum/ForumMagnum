@@ -4,12 +4,11 @@ import MoreVertIcon from '@/lib/vendor/@material-ui/icons/src/MoreVert';
 import { Menu } from '@/components/widgets/Menu';
 import { useCurrentUserId } from '../../common/withUser';
 import { useTracking } from "../../../lib/analyticsEvents";
-import { isFriendlyUI } from '../../../themes/forumTheme';
 import CommentActions from "./CommentActions";
 
-const styles = (_theme: ThemeType) => ({
+const styles = (theme: ThemeType) => ({
   root: {
-    ...(isFriendlyUI && {
+    ...(theme.isFriendlyUI && {
       "& .MuiList-padding": {
         padding: 0,
       },

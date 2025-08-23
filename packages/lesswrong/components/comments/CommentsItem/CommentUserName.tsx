@@ -17,13 +17,13 @@ const styles = (theme: ThemeType) => ({
   author: {
     ...theme.typography.body2,
     fontWeight: 600,
-    ...(isFriendlyUI && {
+    ...(theme.isFriendlyUI && {
       marginRight: 2,
     }),
   },
   authorAnswer: {
     ...theme.typography.body2,
-    fontFamily: isFriendlyUI
+    fontFamily: theme.isFriendlyUI
       ? theme.palette.fonts.sansSerifStack
       : theme.typography.postStyle.fontFamily,
     fontWeight: 600,

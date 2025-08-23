@@ -3,14 +3,13 @@ import React from 'react';
 import { commentGetPageUrlFromIds } from "../../../lib/collections/comments/helpers";
 import { Link } from '../../../lib/reactRouterWrapper';
 import { isEAForum } from '../../../lib/instanceSettings';
-import { isFriendlyUI } from '../../../themes/forumTheme';
 import { defineStyles, useStyles } from '@/components/hooks/useStyles';
 import classNames from 'classnames';
 import LWTooltip from "../../common/LWTooltip";
 import ForumIcon from "../../common/ForumIcon";
 
 const styles = defineStyles("CommentShortformIcon", (theme: ThemeType) => ({
-  smallIcon: isFriendlyUI ? {
+  smallIcon: theme.isFriendlyUI ? {
     cursor: "pointer",
     color: theme.palette.grey[1000],
     height: 16,

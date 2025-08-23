@@ -11,7 +11,6 @@ import HelpOutlineIcon from '@/lib/vendor/@material-ui/icons/src/HelpOutline';
 import HighlightOffIcon from '@/lib/vendor/@material-ui/icons/src/HighlightOff';
 import { useMutation } from "@apollo/client/react";
 import { gql } from '@/lib/generated/gql-codegen';
-import { isFriendlyUI } from '../../../themes/forumTheme';
 import groupBy from "lodash/groupBy";
 import mapValues from "lodash/mapValues";
 import { registerComponent } from "../../../lib/vulcan-lib/components";
@@ -22,7 +21,7 @@ const styles = (theme: ThemeType) => ({
     marginBottom: 48
   },
   rsvpItem: {
-    width:  isFriendlyUI ? "33%" : "25%",
+    width:  theme.isFriendlyUI ? "33%" : "25%",
     display: "inline-block",
     marginRight: 16,
     paddingTop: 4,
@@ -98,7 +97,7 @@ const styles = (theme: ThemeType) => ({
       display: "block"
     },
   },
-  rsvpMessage: isFriendlyUI
+  rsvpMessage: theme.isFriendlyUI
     ? {
       fontFamily: theme.palette.fonts.sansSerifStack,
     }

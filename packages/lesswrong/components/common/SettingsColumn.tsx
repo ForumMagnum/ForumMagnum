@@ -3,7 +3,6 @@ import { registerComponent } from '../../lib/vulcan-lib/components';
 import { QueryLink } from '../../lib/reactRouterWrapper'
 import classNames from 'classnames'
 import { SettingsOption } from '../../lib/collections/posts/dropdownOptions';
-import { isFriendlyUI } from '../../themes/forumTheme';
 import { TooltipSpan } from './FMTooltip';
 import MetaInfo from "./MetaInfo";
 
@@ -20,8 +19,8 @@ const styles = (theme: ThemeType) => ({
     '&&': {
       // Increase specifity to remove import-order conflict with MetaInfo
       display: "block",
-      fontStyle: isFriendlyUI ? undefined : "italic",
-      fontWeight: isFriendlyUI ? undefined : 600,
+      fontStyle: theme.isFriendlyUI ? undefined : "italic",
+      fontWeight: theme.isFriendlyUI ? undefined : 600,
       marginBottom: theme.spacing.unit/2
     },
   },

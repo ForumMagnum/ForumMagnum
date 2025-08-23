@@ -14,9 +14,9 @@ import LWTooltip from "../common/LWTooltip";
 export const styles = defineStyles('PostSubmit', (theme: ThemeType) => ({
   formButton: {
     fontFamily: theme.typography.commentStyle.fontFamily,
-    fontSize: isFriendlyUI ? 14 : 16,
+    fontSize: theme.isFriendlyUI ? 14 : 16,
     marginLeft: 5,
-    ...(isFriendlyUI ? {
+    ...(theme.isFriendlyUI ? {
       textTransform: 'none',
     } : {
       paddingBottom: 4,
@@ -27,7 +27,7 @@ export const styles = defineStyles('PostSubmit', (theme: ThemeType) => ({
     })
   },
   secondaryButton: {
-    ...(isFriendlyUI ? {
+    ...(theme.isFriendlyUI ? {
       color: theme.palette.grey[680],
       padding: '8px 12px'
     } : {
@@ -38,7 +38,7 @@ export const styles = defineStyles('PostSubmit', (theme: ThemeType) => ({
     marginLeft: 'auto'
   },
   submitButton: {
-    ...(isFriendlyUI ? {
+    ...(theme.isFriendlyUI ? {
       backgroundColor: theme.palette.buttons.alwaysPrimary,
       color: theme.palette.text.alwaysWhite,
       boxShadow: 'none',
