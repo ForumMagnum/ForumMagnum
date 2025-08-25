@@ -108,10 +108,11 @@ async function writeEventsToAnalyticsDB(events: {type: string, timestamp: Date, 
         inFlightRequestCounter.inFlightRequests--;
       }
     } catch (err){
-      //eslint-disable-next-line no-console
-      console.error("Error sending events to analytics DB:");
-      //eslint-disable-next-line no-console
-      console.error(err);
+      // Filter out noisy connection terminated errors, which happen when the client kills the connection (frequently on NextJS)
+      if (!(err instanceof Error) || !err.message.includes('Connection terminated unexpectedly')) {
+        //eslint-disable-next-line no-console
+        console.error("Error sending events to analytics DB:", err);
+      }
     }
   }
 }
