@@ -362,7 +362,7 @@ const Layout = ({currentUser, children}: {
     if (query.disableRedirect) {
       setCookie(NO_ADMIN_NEXT_REDIRECT_COOKIE, true, { path: '/' });
     } else if (isLW && userIsAdmin(currentUser) && !cookies[NO_ADMIN_NEXT_REDIRECT_COOKIE] && redirectUrl.host === 'www.lesswrong.com') {
-      redirectUrl.host = 'baserates-prod-test.vercel.app';
+      redirectUrl.host = 'baserates-test.vercel.app';
       // These two are necessary when testing this on localhost
       // redirectUrl.port = '';
       // redirectUrl.protocol = 'https';
