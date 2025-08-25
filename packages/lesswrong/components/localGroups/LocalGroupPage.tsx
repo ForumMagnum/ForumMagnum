@@ -16,7 +16,6 @@ import Person from '@/lib/vendor/@material-ui/icons/src/Person';
 import { useQuery } from "@/lib/crud/useQuery";
 import { gql } from "@/lib/generated/gql-codegen";
 import ForumIcon from "../common/ForumIcon";
-import HeadTags from "../common/HeadTags";
 import CommunityMapWrapper from "./CommunityMapWrapper";
 import SingleColumnSection from "../common/SingleColumnSection";
 import SectionTitle from "../common/SectionTitle";
@@ -217,7 +216,7 @@ const styles = (theme: ThemeType) => ({
   },
   contactUsHeadline: {
     marginBottom: 16,
-    ...(isEAForum && {
+    ...(theme.isEAForum && {
       fontFamily: theme.palette.fonts.sansSerifStack,
       fontWeight: 500,
     }),
@@ -225,7 +224,7 @@ const styles = (theme: ThemeType) => ({
   eventsHeadline: {
     marginTop: 40,
     marginBottom: 16,
-    ...(isEAForum && {
+    ...(theme.isEAForum && {
       fontFamily: theme.palette.fonts.sansSerifStack,
       fontWeight: 500,
     }),
@@ -431,11 +430,6 @@ const LocalGroupPage = ({ classes, documentId: groupId }: {
 
   return (
     <div className={classes.root}>
-      <HeadTags
-        title={group.name}
-        description={group.contents?.plaintextDescription}
-        image={group.bannerImageId && `https://res.cloudinary.com/cea/image/upload/q_auto,f_auto/${group.bannerImageId}.jpg`}
-      />
       {topSection}
       <SingleColumnSection>
         <div className={classes.titleRow}>

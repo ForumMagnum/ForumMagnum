@@ -1,12 +1,9 @@
-import { captureException } from '@sentry/core';
+import { captureException } from '@sentry/nextjs';
 import { DebouncerEvents } from '../server/collections/debouncerEvents/collection';
-import { isAF, testServerSetting } from '../lib/instanceSettings';
+import { isAF } from '../lib/instanceSettings';
 import moment from '../lib/moment-timezone';
-import { addCronJob } from './cron/cronUtil';
 import DebouncerEventsRepo from './repos/DebouncerEventsRepo';
 import { isAnyTest } from '../lib/executionEnvironment';
-
-let eventDebouncersByName: Partial<Record<string,EventDebouncer<any>>> = {};
 
 type DebouncerCallback<KeyType> = (key: KeyType, events: string[]) => void | Promise<void>;
 
@@ -87,15 +84,9 @@ export class EventDebouncer<KeyType = string>
     defaultTiming: DebouncerTiming,
     callback: DebouncerCallback<KeyType>,
   }) {
-    if (!name || !callback)
-      throw new Error("EventDebouncer constructor: missing required argument");
-    if (name in eventDebouncersByName)
-      throw new Error(`Duplicate name for EventDebouncer: ${name}`);
-    
     this.name = name;
     this.defaultTiming = defaultTiming;
     this.callback = callback;
-    eventDebouncersByName[name] = this;
   }
   
   // Add a debounced event.
@@ -200,7 +191,8 @@ export const getWeeklyBatchTimeAfter = (now: Date, timeOfDayGMT: number, dayOfWe
 }
 
 const dispatchEvent = async (event: DbDebouncerEvents) => {
-  const eventDebouncer = eventDebouncersByName[event.name];
+  const { getDebouncerByName } = require("./getDebouncerByName");
+  const eventDebouncer = getDebouncerByName(event.name);
   if (!eventDebouncer) {
     // eslint-disable-next-line no-console
     throw new Error(`Unrecognized event type: ${event.name}`);
@@ -307,16 +299,6 @@ export const forcePendingEvents = async (
   // eslint-disable-next-line no-console
   console.log(`Forced ${countHandled} pending event${countHandled === 1 ? "" : "s"}`);
 }
-
-export const cronDebouncedEventHandler = addCronJob({
-  name: "Debounced event handler",
-  // Once per minute, on the minute
-  cronStyleSchedule: '* * * * *',
-  disabled: testServerSetting.get(),
-  job() {
-    void dispatchPendingEvents();
-  }
-});
 
 function sleepWithVariance(ms: number)
 {

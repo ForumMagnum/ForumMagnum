@@ -1,3 +1,5 @@
+"use client";
+
 import React, { FC, RefObject, ReactElement, useEffect, useRef, useState } from 'react';
 import { registerComponent } from '../../lib/vulcan-lib/components';
 import qs from 'qs';

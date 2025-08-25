@@ -8,10 +8,9 @@ import {
   SHOW_QUICK_TAKES_SECTION_COOKIE,
   SHOW_QUICK_TAKES_SECTION_COMMUNITY_COOKIE,
 } from "../../lib/cookies/cookies";
-import { isEAForum } from "../../lib/instanceSettings";
+import { isEAForum, quickTakesMaxAgeDaysSetting } from '@/lib/instanceSettings';
 import { isFriendlyUI, preferredHeadingCase } from "../../themes/forumTheme";
 import { Link } from '../../lib/reactRouterWrapper';
-import {quickTakesMaxAgeDaysSetting} from '../../lib/publicSettings'
 import ExpandableSection from "../common/ExpandableSection";
 import LWTooltip from "../common/LWTooltip";
 import QuickTakesEntry from "./QuickTakesEntry";
@@ -21,6 +20,8 @@ import SectionFooter from "../common/SectionFooter";
 import LoadMore from "../common/LoadMore";
 import { useQueryWithLoadMore } from "@/components/hooks/useQueryWithLoadMore";
 import { gql } from "@/lib/generated/gql-codegen";
+import { defineStyles, useStyles } from "../hooks/useStyles";
+import { SuspenseWrapper } from "../common/SuspenseWrapper";
 
 const ShortformCommentsMultiQuery = gql(`
   query multiCommentQuickTakesSectionQuery($selector: CommentSelector, $limit: Int, $enableTotal: Boolean) {
@@ -33,7 +34,7 @@ const ShortformCommentsMultiQuery = gql(`
   }
 `);
 
-const styles = (theme: ThemeType) => ({
+const styles = defineStyles("QuickTakesSection", (theme: ThemeType) => ({
   communityToggle: {
     userSelect: "none",
     cursor: "pointer",
@@ -52,7 +53,7 @@ const styles = (theme: ThemeType) => ({
   },
   list: {
     marginTop: 4,
-    ...(isFriendlyUI ? {} : {
+    ...(theme.isFriendlyUI ? {} : {
       display: "flex",
       flexDirection: "column",
       gap: "4px",  
@@ -60,12 +61,45 @@ const styles = (theme: ThemeType) => ({
       fontSize: '1.16rem',
     })
   },
-});
+}));
 
-const QuickTakesSection = ({classes}: {
-  classes: ClassesType<typeof styles>,
+const QuickTakesSectionLoaded = ({showCommunity}: {
+  showCommunity: boolean
 }) => {
+  const classes = useStyles(styles);
   const currentUser = useCurrentUser();
+  const maxAgeDays = quickTakesMaxAgeDaysSetting.get()
+
+  const { data, loading, refetch, loadMoreProps } = useQueryWithLoadMore(ShortformCommentsMultiQuery, {
+    variables: {
+      selector: { shortformFrontpage: { showCommunity, maxAgeDays } },
+      limit: 5,
+      enableTotal: true,
+    },
+  });
+
+  const results = data?.comments?.results;
+
+  const showLoadMore = !loadMoreProps.hidden;
+
+  return <>
+    {(userCanQuickTake(currentUser) || !currentUser) && <QuickTakesEntry currentUser={currentUser} successCallback={refetch} />}
+    <div className={classes.list}>
+      {results?.map((result) => (
+        <QuickTakesListItem key={result._id} quickTake={result} />
+      ))}
+      {loading && <Loading />}
+      {showLoadMore && (
+        <SectionFooter>
+          <LoadMore {...loadMoreProps} sectionFooterStyles />
+        </SectionFooter>
+      )}
+    </div>
+  </>
+}
+
+const QuickTakesSection = () => {
+  const classes = useStyles(styles);
 
   const {expanded, toggleExpanded} = useExpandedFrontpageSection({
     section: "quickTakes",
@@ -89,20 +123,6 @@ const QuickTakesSection = ({classes}: {
     cookieName: SHOW_QUICK_TAKES_SECTION_COMMUNITY_COOKIE,
     forceSetCookieIfUndefined: true,
   });
-
-  const maxAgeDays = quickTakesMaxAgeDaysSetting.get()
-
-  const { data, loading, refetch, loadMoreProps } = useQueryWithLoadMore(ShortformCommentsMultiQuery, {
-    variables: {
-      selector: { shortformFrontpage: { showCommunity, maxAgeDays } },
-      limit: 5,
-      enableTotal: true,
-    },
-  });
-
-  const results = data?.comments?.results;
-
-  const showLoadMore = !loadMoreProps.hidden;
 
   const titleText = preferredHeadingCase("Quick Takes");
   const titleTooltip = (
@@ -135,33 +155,21 @@ const QuickTakesSection = ({classes}: {
     )
   : undefined;
 
-  return (
-    <ExpandableSection
-      pageSectionContext="quickTakesSection"
-      expanded={expanded}
-      toggleExpanded={toggleExpanded}
-      title={title}
-      afterTitleTo={afterTitleTo}
-      AfterTitleComponent={AfterTitleComponent}
-    >
-      {(userCanQuickTake(currentUser) || !currentUser) && <QuickTakesEntry currentUser={currentUser} successCallback={refetch} />}
-      <div className={classes.list}>
-        {results?.map((result) => (
-          <QuickTakesListItem key={result._id} quickTake={result} />
-        ))}
-        {loading && <Loading />}
-        {showLoadMore && (
-          <SectionFooter>
-            <LoadMore {...loadMoreProps} sectionFooterStyles />
-          </SectionFooter>
-        )}
-      </div>
-    </ExpandableSection>
-  );
+  return <ExpandableSection
+    pageSectionContext="quickTakesSection"
+    expanded={expanded}
+    toggleExpanded={toggleExpanded}
+    title={title}
+    afterTitleTo={afterTitleTo}
+    AfterTitleComponent={AfterTitleComponent}
+  >
+    <SuspenseWrapper name="QuickTakesSection">
+      <QuickTakesSectionLoaded showCommunity={showCommunity}/>
+    </SuspenseWrapper>
+  </ExpandableSection>
 }
 
 export default registerComponent("QuickTakesSection", QuickTakesSection, {
-  styles,
   areEqual: "auto"
 });
 

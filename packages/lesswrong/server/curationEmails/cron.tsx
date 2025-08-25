@@ -5,7 +5,6 @@ import { Posts } from "../../server/collections/posts/collection";
 import Users from "../../server/collections/users/collection";
 import { isEAForum, testServerSetting } from "../../lib/instanceSettings";
 import { randomId } from "../../lib/random";
-import { addCronJob } from "../cron/cronUtil";
 import { wrapAndSendEmail } from "../emails/renderEmail";
 import CurationEmailsRepo from "../repos/CurationEmailsRepo";
 import UsersRepo from "../repos/UsersRepo";
@@ -13,6 +12,7 @@ import UsersRepo from "../repos/UsersRepo";
 import chunk from "lodash/chunk";
 import moment from "moment";
 import { PostsEmail } from "../emailComponents/PostsEmail";
+import { executePromiseQueue } from "@/lib/utils/asyncUtils";
 
 export async function findUsersToEmail(filter: MongoSelector<DbUser>) {
   let usersMatchingFilter = await Users.find(filter).fetch();
@@ -50,13 +50,14 @@ export async function sendCurationEmail({users, postId, reason, subject}: {
   const post = await Posts.findOne(postId);
   if (!post) throw Error(`Can't find post to send by email: ${postId}`)
 
-  for (const user of users) {
+  // Send emails to all users in parallel
+  await executePromiseQueue(users.map((user) => async () => {
     await wrapAndSendEmail({
       user,
       subject: subject ?? post.title,
-      body: <PostsEmail postIds={[post._id]} reason={reason}/>
+      body: (emailContext) => <PostsEmail postIds={[post._id]} reason={reason} emailContext={emailContext}/>
     });
-  }
+  }), 10);
 }
 
 export async function hydrateCurationEmailsQueue(postId: string) {
@@ -90,7 +91,7 @@ function isWithinSanityCheckPeriod(post: DbPost) {
   return moment(post.curatedDate).isAfter(twentyMinutesAgo);
 }
 
-async function sendCurationEmails() {
+export async function sendCurationEmails() {
   const lastCuratedPost = await Posts.findOne({ curatedDate: { $exists: true } }, { sort: { curatedDate: -1 } });
 
   // We specifically don't want to include the curatedDate filter in the SQL query because we want to skip doing anything if a post was newly curated in the last 20 minutes
@@ -117,12 +118,3 @@ async function sendCurationEmails() {
     emailToSend = await curationEmailsRepo.removeFromQueue();
   }
 }
-
-export const sendCurationEmailsCron = addCronJob({
-  name: 'sendCurationEmailsCron',
-  interval: 'every 1 minute',
-  disabled: testServerSetting.get() || !useCurationEmailsCron,
-  async job() {
-    await sendCurationEmails();
-  }
-});

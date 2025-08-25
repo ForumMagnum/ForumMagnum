@@ -1,7 +1,6 @@
 import { registerComponent } from '../../lib/vulcan-lib/components';
 import React from 'react';
 import { useLocation } from '../../lib/routeUtil';
-import { isFriendlyUI } from '../../themes/forumTheme';
 import { CommentTreeNode } from '../../lib/utils/unflatten';
 import Answer from "./Answer";
 import SectionTitle from "../common/SectionTitle";
@@ -22,7 +21,7 @@ const styles = (theme: ThemeType) => ({
   answersSorting:{
     ...theme.typography.body1,
     color: theme.palette.text.secondary,
-    ...(isFriendlyUI
+    ...(theme.isFriendlyUI
       ? {
         fontFamily: theme.palette.fonts.sansSerifStack,
       }

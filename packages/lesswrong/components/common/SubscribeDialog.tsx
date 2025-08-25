@@ -10,7 +10,6 @@ import { DialogActions } from '../widgets/DialogActions';
 import { DialogContent } from '../widgets/DialogContent';
 import { DialogContentText } from '../widgets/DialogContentText';
 import Radio from '@/lib/vendor/@material-ui/core/src/Radio';
-import RadioGroup from '@/lib/vendor/@material-ui/core/src/RadioGroup';
 import FormControlLabel from '@/lib/vendor/@material-ui/core/src/FormControlLabel';
 import FormControl from '@/lib/vendor/@material-ui/core/src/FormControl';
 import InputLabel from '@/lib/vendor/@material-ui/core/src/InputLabel';
@@ -253,20 +252,20 @@ const SubscribeDialog = (props: {
 
           {(view === "community" || view === "frontpage") && <div>
             <DialogContentText>Generate a RSS link to posts in {viewNames[view]} of this karma and above.</DialogContentText>
-            <RadioGroup
-              value={threshold}
-              onChange={ (event, value) => selectThreshold(value) }
-              className={classes.thresholdSelector}
-            >
-              { thresholds.map((t: AnyBecauseTodo) => t.toString()).map((threshold: AnyBecauseTodo) =>
-                <FormControlLabel
-                  control={<Radio value={threshold} />}
-                  label={threshold}
-                  key={`labelKarmaThreshold${threshold}`}
-                  className={classes.thresholdButton}
-                />
-              ) }
-            </RadioGroup>
+            {thresholds.map((t: AnyBecauseTodo) => t.toString()).map((radioThreshold: AnyBecauseTodo) =>
+              <FormControlLabel
+                control={<Radio
+                  value={radioThreshold}
+                  checked={threshold===radioThreshold}
+                  onChange={(ev, checked) => {
+                    if (checked) setThreshold(radioThreshold)
+                  }}
+                />}
+                label={radioThreshold}
+                key={`labelKarmaThreshold${radioThreshold}`}
+                className={classes.thresholdButton}
+              />
+            )}
             <DialogContentText className={classes.estimate}>
               That's roughly { postsPerWeek[threshold] } posts per week
               ({ timePerWeekFromPosts(postsPerWeek[threshold]) } of reading)

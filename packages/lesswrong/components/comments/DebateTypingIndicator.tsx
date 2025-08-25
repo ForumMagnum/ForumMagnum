@@ -1,11 +1,11 @@
 import React, {useState} from 'react';
-import {useOnServerSentEvent} from '../hooks/useUnreadNotifications';
 import {useCurrentUser} from '../common/withUser';
 import {useGlobalKeydown} from '../common/withGlobalKeydown';
-import {gql, useMutation} from '@apollo/client';
+import {useMutation} from '@apollo/client/react';
 import throttle from 'lodash/throttle';
 import { isDialogueParticipant } from '@/lib/collections/posts/helpers';
 import { registerComponent } from "../../lib/vulcan-lib/components";
+import { gql } from '@/lib/generated/gql-codegen';
 
 const styles = (theme: ThemeType) => ({
   root: {
@@ -43,14 +43,6 @@ export const DebateTypingIndicator = ({classes, post}: {
       void upsertTypingIndicator({variables: {documentId: post._id}})
     }
   }, INCIDATOR_UPDATE_PERIOD));
-
-  useOnServerSentEvent('typingIndicator', currentUser, (message) => {
-    const typingIndicators = message.typingIndicators
-    const filteredIndicators = typingIndicators.filter((typingIndicator) => {
-      return typingIndicator.documentId === post._id
-    })
-    setTypingIndicators(filteredIndicators)
-  });
 
   if (!currentUser) return null;
 

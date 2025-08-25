@@ -5,9 +5,8 @@ import withErrorBoundary from '../common/withErrorBoundary';
 import classNames from 'classnames';
 import { useRecordPostView } from '../hooks/useRecordPostView';
 import { AnalyticsContext } from "../../lib/analyticsEvents";
-import { cloudinaryCloudNameSetting } from '../../lib/publicSettings';
+import { cloudinaryCloudNameSetting } from '@/lib/instanceSettings';
 import { KARMA_WIDTH } from './LWPostsItem';
-import { isFriendlyUI } from '../../themes/forumTheme';
 import KarmaDisplay from "../common/KarmaDisplay";
 import PostsTitle from "./PostsTitle";
 import PostsUserAndCoauthors from "./PostsUserAndCoauthors";
@@ -21,7 +20,7 @@ const IMAGE_HEIGHT = 96;
 export const styles = (theme: ThemeType)=> ({
   root: {
     position: "relative",
-    borderRadius: isFriendlyUI ? theme.borderRadius.small : undefined,
+    borderRadius: theme.isFriendlyUI ? theme.borderRadius.small : undefined,
     [theme.breakpoints.down('xs')]: {
       width: "100%",
     },

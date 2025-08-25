@@ -4,7 +4,7 @@ import { useCurrentAndRecentForumEvents } from "../hooks/useCurrentForumEvent";
 import { useLocation } from "../../lib/routeUtil";
 import { hasForumEvents } from "../../lib/betas";
 import { AnalyticsContext } from "@/lib/analyticsEvents";
-import { makeCloudinaryImageUrl } from "../common/CloudinaryImage2";
+import { makeCloudinaryImageUrl } from '../common/cloudinaryHelpers';
 import ForumEventPoll, { getForumEventVoteForUser } from "./ForumEventPoll";
 import { Link } from "@/lib/reactRouterWrapper";
 import { useConcreteThemeOptions } from "../themes/useTheme";

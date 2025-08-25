@@ -1,0 +1,10 @@
+{
+  "extends": "./tsconfig-shared.json",
+  "compilerOptions": {
+    "module": "commonjs",
+    "moduleResolution": "node"
+  },
+  "ts-node": {
+    "transpileOnly": true
+  }
+}

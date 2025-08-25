@@ -1,6 +1,6 @@
 import { slugify } from '@/lib/utils/slugify';
 import pick from 'lodash/pick';
-import SimpleSchema from 'simpl-schema';
+import SimpleSchema from '@/lib/utils/simpleSchema';
 import { getUserEmail, userCanEditUser } from "../../lib/collections/users/helpers";
 import { isEAForum, airtableApiKeySetting } from '../../lib/instanceSettings';
 import { userIsAdminOrMod } from '../../lib/vulcan-users/permissions';
@@ -12,6 +12,7 @@ import { getUnusedSlugByCollectionName } from '../utils/slugUtil';
 import gql from 'graphql-tag';
 import { updateUser } from '../collections/users/mutations';
 import { accessFilterSingle } from '@/lib/utils/schemaUtils';
+import { backgroundTask } from '../utils/backgroundTask';
 
 type NewUserUpdates = {
   username: string
@@ -248,7 +249,7 @@ export const graphqlQueries = {
 
       // Start a background refresh if data is stale and no fetch is in progress
       if (isStale && !inFlightPromise) {
-        void startAirtableFetch();
+        backgroundTask(startAirtableFetch());
       }
 
       // Always return cached data (stale-while-revalidate pattern)

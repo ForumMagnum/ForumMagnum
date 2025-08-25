@@ -2,7 +2,6 @@ import React from "react";
 import { registerComponent } from "../../lib/vulcan-lib/components";
 import moment from "moment";
 import { forumSelect } from "../../lib/forumTypeUtils";
-import { isFriendlyUI } from "@/themes/forumTheme";
 import { GRAPH_LEFT_MARGIN } from "./AnalyticsGraph";
 import { Typography } from "../common/Typography";
 
@@ -23,7 +22,7 @@ const dataCollectionFirstDay = forumSelect({
 });
 
 const styles = (theme: ThemeType) => ({
-  root: isFriendlyUI
+  root: theme.isFriendlyUI
     ? {
       fontFamily: theme.palette.fonts.sansSerifStack,
       margin: `0 ${GRAPH_LEFT_MARGIN}px`,

@@ -2,7 +2,7 @@ import React from 'react';
 import { registerComponent } from '../../../lib/vulcan-lib/components';
 import { userHasPingbacks } from '../../../lib/betas';
 import { AnalyticsContext } from "../../../lib/analyticsEvents";
-import { useCurrentUser } from '../../common/withUser';
+import { useFilteredCurrentUser } from '../../common/withUser';
 import { MAX_COLUMN_WIDTH } from './constants';
 import { isLW, isLWorAF } from '../../../lib/instanceSettings';
 import { getVotingSystemByName } from '../../../lib/voting/getVotingSystem';
@@ -15,6 +15,9 @@ import PostActionsButton from "../../dropdowns/posts/PostActionsButton";
 import BottomNavigation from "../../sequences/BottomNavigation";
 import PingbacksList from "../PingbacksList";
 import FooterTagList from "../../tagging/FooterTagList";
+import { SuspenseWrapper } from '@/components/common/SuspenseWrapper';
+import { postBottomSecondaryVotingComponents } from '@/lib/voting/votingSystemComponents';
+import type { VotingSystemName } from '@/lib/voting/votingSystemNames';
 
 const styles = (theme: ThemeType) => ({
   footerSection: {
@@ -22,10 +25,10 @@ const styles = (theme: ThemeType) => ({
     columnGap: 20,
     alignItems: 'center',
     fontSize: '1.4em',
-    paddingTop: isFriendlyUI ? 30 : undefined,
-    borderTop: isFriendlyUI ? theme.palette.border.grey300 : undefined,
-    marginTop: isFriendlyUI ? 40 : undefined,
-    marginBottom: isFriendlyUI ? 40 : undefined
+    paddingTop: theme.isFriendlyUI ? 30 : undefined,
+    borderTop: theme.isFriendlyUI ? theme.palette.border.grey300 : undefined,
+    marginTop: theme.isFriendlyUI ? 40 : undefined,
+    marginBottom: theme.isFriendlyUI ? 40 : undefined
   },
   bookmarkButton: {
     marginBottom: -5,
@@ -44,14 +47,14 @@ const styles = (theme: ThemeType) => ({
     },
   },
   voteBottom: {
-    flexGrow: isFriendlyUI ? 1 : undefined,
+    flexGrow: theme.isFriendlyUI ? 1 : undefined,
     position: 'relative',
     fontSize: 42,
     textAlign: 'center',
     display: 'inline-block',
-    marginLeft: isFriendlyUI ? undefined : 'auto',
-    marginRight: isFriendlyUI ? undefined : 'auto',
-    marginBottom: isFriendlyUI ? undefined : 40,
+    marginLeft: theme.isFriendlyUI ? undefined : 'auto',
+    marginRight: theme.isFriendlyUI ? undefined : 'auto',
+    marginBottom: theme.isFriendlyUI ? undefined : 40,
     "@media print": { display: "none" },
   },
   secondaryInfoRight: {
@@ -86,20 +89,22 @@ const PostsPagePostFooter = ({post, sequenceId, classes}: {
   sequenceId: string|null,
   classes: ClassesType<typeof styles>,
 }) => {
-  const currentUser = useCurrentUser();
-  const votingSystemName = post.votingSystem || "default";
+  const hasPingbacks = useFilteredCurrentUser(u => userHasPingbacks(u));
+  const votingSystemName = (post.votingSystem || "default") as VotingSystemName;
   const votingSystem = getVotingSystemByName(votingSystemName);
   const wordCount = post.contents?.wordCount || 0
-  const PostBottomSecondaryVotingComponent = votingSystem?.getPostBottomSecondaryVotingComponent?.();
+  const PostBottomSecondaryVotingComponent = postBottomSecondaryVotingComponents[votingSystemName]?.() ?? null;
   const isEAEmojis = votingSystemName === "eaEmojis";
 
   return <>
     {isLWorAF && !post.shortform && !post.isEvent &&
-      <AnalyticsContext pageSectionContext="tagFooter">
-        <div className={classes.footerTagList}>
-          <FooterTagList post={post}/>
-        </div>
-      </AnalyticsContext>
+      <SuspenseWrapper name="FooterTagList">
+        <AnalyticsContext pageSectionContext="tagFooter">
+          <div className={classes.footerTagList}>
+            <FooterTagList post={post}/>
+          </div>
+        </AnalyticsContext>
+      </SuspenseWrapper>
     }
     {!post.shortform && (isLW || isEAEmojis) &&
       <>
@@ -134,12 +139,15 @@ const PostsPagePostFooter = ({post, sequenceId, classes}: {
       </AnalyticsContext>}
     </div>}
 
-    {userHasPingbacks(currentUser) && <AnalyticsContext pageSectionContext="pingbacks">
-      <PingbacksList postId={post._id}/>
-    </AnalyticsContext>}
+    {hasPingbacks && <SuspenseWrapper name="pingbacks">
+      <AnalyticsContext pageSectionContext="pingbacks">
+        <PingbacksList postId={post._id}/>
+      </AnalyticsContext>
+    </SuspenseWrapper>}
   </>
 }
 
-export default registerComponent("PostsPagePostFooter", PostsPagePostFooter, {styles});
-
-
+export default registerComponent("PostsPagePostFooter", PostsPagePostFooter, {
+  styles,
+  areEqual: "auto",
+});

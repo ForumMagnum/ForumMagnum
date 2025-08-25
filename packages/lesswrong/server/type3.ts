@@ -1,16 +1,9 @@
 import { isPostAllowedType3Audio, postGetPageUrl } from "@/lib/collections/posts/helpers";
-import { DatabaseServerSetting } from "./databaseSettings";
+import { type3ApiTokenSetting, type3SourceUrlSetting } from "./databaseSettings";
 import { Posts } from "@/server/collections/posts/collection.ts";
 import { serverCaptureEvent as captureEvent } from "@/server/analytics/serverAnalyticsWriter";
 import { isTagAllowedType3Audio, tagGetUrl } from "@/lib/collections/tags/helpers";
 import { Tags } from "@/server/collections/tags/collection";
-
-/* Currently unused
-const type3ClientIdSetting = new DatabaseServerSetting<string | null>('type3.clientId', null)
-const type3WebhookSecretSetting = new DatabaseServerSetting<string | null>('type3.webhookSecret', null)
-*/
-const type3ApiTokenSetting = new DatabaseServerSetting<string | null>("type3.apiToken", null);
-const type3SourceUrlSetting = new DatabaseServerSetting<string>("type3.sourceUrl", "");
 
 export const hasType3ApiAccess = () => !!type3ApiTokenSetting.get();
 

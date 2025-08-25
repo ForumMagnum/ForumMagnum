@@ -1,7 +1,7 @@
 import { registerComponent } from '../../lib/vulcan-lib/components';
 import React from 'react';
 import qs from 'qs'
-import * as _ from 'underscore';
+import isEmpty from 'lodash/isEmpty';
 import InlineSelect, { Option } from '../common/InlineSelect';
 import { isFriendlyUI, preferredHeadingCase } from '../../themes/forumTheme';
 import { useLocation, useNavigate } from "../../lib/routeUtil";
@@ -23,7 +23,7 @@ const AnswersSorting = ({ post }: {
   const handleSortingClick = (opt: Option) => {
     const sorting = opt.value;
     const { query } = location;
-    const currentQuery = _.isEmpty(query) ? { answersSorting: "top" } : query;
+    const currentQuery = isEmpty(query) ? { answersSorting: "top" } : query;
     const newQuery = { ...currentQuery, answersSorting: sorting, postId: post ? post._id : undefined };
     navigate({ ...location.location, search: `?${qs.stringify(newQuery)}` });
   };

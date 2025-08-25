@@ -1,12 +1,26 @@
+/* eslint-disable no-console */
+/* eslint-disable no-useless-escape */
 import fs from 'fs';
 import path from 'path';
-import '@/lib/routes'
+// import '@/lib/routes'
 import { Routes, Route } from '@/lib/vulcan-lib/routes';
 import util from 'util';
-import { parsePath, parseRoute } from '@/lib/vulcan-core/appContext';
+// import { parseRoute } from '@/lib/vulcan-core/appContext';
+// import { parsePath } from '@/lib/vulcan-lib/routes';
+import type { Redirect } from 'next/dist/lib/load-custom-routes';
 
 const routesFileContents = fs.readFileSync('packages/lesswrong/lib/routes.ts', 'utf8');
 const routesFileLines = routesFileContents.split('\n');
+
+function getAbsoluteComponentPathFromImportLine(importLine: string): string {
+  let importPathString = importLine.split('from ')[1];
+  if (importPathString.endsWith(';')) {
+    importPathString = importPathString.slice(0, -1);
+  }
+  importPathString = importPathString.slice(1, -1);
+
+  return importPathString.replace('@', 'packages/lesswrong') + '.tsx';
+}
 
 function getComponentImport(componentName: string): string {
   const routeImportLine = routesFileLines.find(line => (line.startsWith('import') || line.startsWith('// import')) && line.includes(` ${componentName} `));
@@ -52,22 +66,49 @@ function convertToNextJsPath(routePath: string): string {
     .replace(/\?/g, ''); // Remove optional markers
 }
 
-function extractMetadataFields(route: Route): Record<string, any> {
-  const fields = [
-    'title', 'subtitle', 'headerSubtitle', 
-    'subtitleLink', 'description', 'noIndex',
-    'background', 'hasLeftNavigationColumn', 
-    'isAdmin', 'noFooter'
-  ];
+const titleComponentMetadataFunctionMap = {
+  PostsPageHeaderTitle: `export const generateMetadata = getPostPageMetadataFunction<{ /* TODO: fill this in based on this route's params! */ }>(({ _id }) => _id);`,
+  TagPageTitle: `export const generateMetadata = getTagPageMetadataFunction<{ slug: string }>(({ slug }) => slug);`,
+  TagHistoryPageTitle: `export const generateMetadata = getTagPageMetadataFunction<{ slug: string }>(({ slug }) => slug, { historyPage: true });`,
+  LocalgroupPageTitle: `export async function generateMetadata({ params }: { params: Promise<{ groupId: string }> }): Promise<Metadata> { /* TODO: fill this in! */ }`,
+  UserPageTitle: `export async function generateMetadata({ params }: { params: Promise<{ slug: string }> }): Promise<Metadata> { /* TODO: fill this in! */ }`,
+  SequencesPageTitle: `export async function generateMetadata({ params }: { params: Promise<{ _id: string }> }): Promise<Metadata> { /* TODO: fill this in! */ }`,
+};
 
+const routeMetadataFields = ['title', 'subtitle', 'description', 'noIndex'] as const;
+
+const routeConfigFields = [
+  'subtitle', 'headerSubtitle', 'subtitleLink',
+  'background', 'hasLeftNavigationColumn', 
+  'isAdmin', 'noFooter'
+];
+
+function extractMetadataFields(route: Route) {
   const componentFields = ['titleComponent', 'subtitleComponent'] as const;
   
-  const metadata: Record<string, any> = {};
+  const routeConfig: Record<string, any> = {};
+  const staticMetadata: {
+    title?: string;
+    subtitle?: string;
+    description?: string;
+    noIndex?: boolean;
+  } = {};
+
   const imports = new Set<string>();
 
-  for (const field of fields) {
+  for (const field of routeConfigFields) {
     if (route[field as keyof Route] !== undefined) {
-      metadata[field] = route[field as keyof Route];
+      routeConfig[field] = route[field as keyof Route];
+    }
+  }
+
+  for (const field of routeMetadataFields) {
+    if (route[field] !== undefined) {
+      if (field === 'noIndex') {
+        staticMetadata[field] = route[field] ? true : false;
+      } else {
+        staticMetadata[field] = route[field];
+      }
     }
   }
 
@@ -76,12 +117,13 @@ function extractMetadataFields(route: Route): Record<string, any> {
     const componentName = component?.displayName ?? component?.name;
     if (componentName) {
       const componentImport = getComponentImport(componentName);
+      addUseClientDirectiveToEntryComponent(componentImport);
       imports.add(componentImport);
-      metadata[field] = componentName;
+      routeConfig[field] = componentName;
     }
   }
   
-  return { metadata, imports: Array.from(imports) };
+  return { routeConfig, staticMetadata, imports: Array.from(imports) };
 }
 
 const configLevelRedirects = [
@@ -93,28 +135,117 @@ const configLevelRedirects = [
   '/votesByYear/:year',
 ];
 
+function addUseClientDirectiveToEntryComponent(importLine: string) {
+  const componentPath = getAbsoluteComponentPathFromImportLine(importLine);
+  const componentFileContents = fs.readFileSync(componentPath, 'utf8');
+  const useClientDirective = componentFileContents.includes('use client');
+  if (!useClientDirective) {
+    fs.writeFileSync(componentPath, `"use client";\n\n${componentFileContents}`);
+  }
+}
+
+const generateMetadataFunctionTemplate = `export function generateMetadata(): Metadata {
+  return merge({}, defaultMetadata, {
+    $(titleLine)
+    $(noIndexLine)
+  }$(descriptionFields));
+}`;
+
+const reactImport = 'import React from "react";';
+const defaultMetadataImport = 'import { defaultMetadata } from "@/server/pageMetadata/sharedMetadata";';
+const metadataTypeImport = 'import type { Metadata } from "next";';
+
 function generatePageContent(route: Route): string {
   if (route.redirect && !route.component) {
     return generateRedirectPage(route);
   }
 
+  if (route.redirect && route.component) {
+    console.warn(`Route ${route.path} has both a redirect and a component!`);
+  }
+
   const componentName = route.component?.displayName ?? route.component?.name ?? 'UnknownComponent';
   const componentImport = getComponentImport(componentName);
-  const { metadata, imports } = extractMetadataFields(route);
-  const hasMetadata = Object.keys(metadata).length > 0;
+  addUseClientDirectiveToEntryComponent(componentImport);
   
-  let pageContent = `${componentImport}${imports.length > 0 ? '\n' : ''}${imports.join('\n')}\n`;
+  const { routeConfig, staticMetadata, imports } = extractMetadataFields(route);
+  const hasRouteConfig = Object.keys(routeConfig).length > 0;
+  const hasStaticMetadata = Object.keys(staticMetadata).length > 0;
+
+  const pageImports: string[] = [reactImport, componentImport, ...imports];
+
+  let pageContent = ''; // `import React from "react";\n${componentImport}${imports.length > 0 ? '\n' : ''}${imports.join('\n')}\n`;
   
-  if (hasMetadata) {
-    pageContent += `import { RouteMetadataSetter } from '@/components/RouteMetadataContext';\n\n`;
+  if (hasRouteConfig) {
+    pageImports.push('import { RouteMetadataSetter } from "@/components/RouteMetadataContext";');
+  }
+
+  if (routeConfig.titleComponent && hasStaticMetadata) {
+    console.warn(`Route ${route.path} has both a titleComponent and static metadata!`);
+  }
+
+  if (routeConfig.titleComponent) {
+    const titleComponentMetadataFunction = titleComponentMetadataFunctionMap[routeConfig.titleComponent as keyof typeof titleComponentMetadataFunctionMap];
+    if (!titleComponentMetadataFunction) {
+      throw new Error(`No metadata function found for title component ${route.path} (titleComponent: ${routeConfig.titleComponent})`);
+    }
+
+    if (routeConfig.titleComponent === 'PostsPageHeaderTitle') {
+      pageImports.push('import { getPostPageMetadataFunction } from "@/server/pageMetadata/postPageMetadata";');
+    } else if (routeConfig.titleComponent === 'TagPageTitle' || routeConfig.titleComponent === 'TagHistoryPageTitle') {
+      pageImports.push('import { getTagPageMetadataFunction } from "@/server/pageMetadata/tagPageMetadata";');
+    } else {
+      pageImports.push(metadataTypeImport);
+    }
+
+    if (hasStaticMetadata && (routeConfig.titleComponent !== 'PostsPageHeaderTitle' || Object.keys(staticMetadata).some(key => key !== 'subtitle'))) {
+      pageContent += `// TODO: This route has both a titleComponent and static metadata (${util.inspect(staticMetadata, {depth: null})})!  You will need to manually merge the two.\n\n`;
+    }
+
+    pageContent += titleComponentMetadataFunction;
+    pageContent += '\n\n';
+  } else if (hasStaticMetadata) {
+    pageImports.push(defaultMetadataImport);
+    pageImports.push(metadataTypeImport);
+    pageImports.push('import merge from "lodash/merge";');
+
+    const routeTitle = staticMetadata.title ?? staticMetadata.subtitle;
+    const routeDescription = staticMetadata.description;
+    const routeNoIndex = staticMetadata.noIndex;
+
+    let generateMetadataBuilder = generateMetadataFunctionTemplate;
+
+    if (routeTitle) {
+      generateMetadataBuilder = generateMetadataBuilder.replace('$(titleLine)', `title: '${routeTitle}',`);
+    } else {
+      generateMetadataBuilder = generateMetadataBuilder.replace('    $(titleLine)\n', '');
+    }
+
+    if (routeNoIndex) {
+      generateMetadataBuilder = generateMetadataBuilder.replace('$(noIndexLine)', 'robots: { index: false },');
+    } else {
+      generateMetadataBuilder = generateMetadataBuilder.replace('    $(noIndexLine)\n', '');
+    }
+
+    if (routeDescription) {
+      pageImports[pageImports.indexOf(defaultMetadataImport)] = defaultMetadataImport.replace(' }', ', getMetadataDescriptionFields }');
+      generateMetadataBuilder = generateMetadataBuilder.replace('$(descriptionFields)', `, getMetadataDescriptionFields('${routeDescription}')`);
+    } else {
+      generateMetadataBuilder = generateMetadataBuilder.replace('$(descriptionFields)', '');
+    }
+
+    pageContent += generateMetadataBuilder;
+    pageContent += '\n\n';
   } else {
     pageContent += '\n';
   }
   
   pageContent += `export default function Page() {\n`;
+
+  let routeMetadataSetter = '';
   
-  if (hasMetadata) {
-    pageContent += `  <RouteMetadataSetter metadata={${util.inspect(metadata, {depth: null})
+  if (hasRouteConfig) {
+    routeMetadataSetter = `<RouteMetadataSetter metadata={${util.inspect(routeConfig, {depth: null})
       .split('\n')
       .map(line => {
         let updatedLine = line;
@@ -126,8 +257,7 @@ function generatePageContent(route: Route): string {
         }
         return updatedLine;
       })
-      .join('\n  ')}} />\n`;
-    pageContent += `  \n`;
+      .join('\n    ')}} />`;
   }
   
   if (route.enableResourcePrefetch) {
@@ -137,6 +267,8 @@ function generatePageContent(route: Route): string {
     pageContent += `  // enableResourcePrefetch was: ${prefetchValue}\n`;
     pageContent += `  \n`;
   }
+
+  let finalComponentString = '';
   
   // Handle _id prop for PostsSingleRoute
   if (route._id && componentName === 'PostsSingleRoute') {
@@ -144,14 +276,24 @@ function generatePageContent(route: Route): string {
     const idProp = route._id.includes('Setting.get()') 
       ? ` _id={${route._id}}`
       : ` _id="${route._id}"`;
-    pageContent += `  return <${componentName}${idProp} />;\n`;
+
+    finalComponentString = `<${componentName}${idProp} />`;
   } else {
-    pageContent += `  return <${componentName} />;\n`;
+    finalComponentString = `<${componentName} />`;
   }
-  
+
+  if (routeMetadataSetter) {
+    pageContent += `  return <>
+    ${routeMetadataSetter}
+    ${finalComponentString}
+  </>;\n`;
+  } else {
+    pageContent += `  return ${finalComponentString};\n`;
+  }
+
   pageContent += `}\n`;
   
-  return pageContent;
+  return pageImports.join('\n') + '\n\n' + pageContent;
 }
 
 function generateRedirectPage(route: Route): string {
@@ -162,23 +304,34 @@ function generateRedirectPage(route: Route): string {
 
   let redirectValue: string | null = null;
   if (redirectFunc.startsWith('()=>')) {
-    redirectValue = `'${route.redirect(null as AnyBecauseHard)}'`;
+    redirectValue = `${route.redirect(null as AnyBecauseHard)}`;
   } else {
     console.log(`Complex redirect function in ${route.path}: ${redirectFunc}`);
     redirectValue = `'' /* TODO: handle this manually! */`;
   }
-  
-  // Check whether the route has path params
-  const parsedPath = parsePath(route.path);
-  const parsedRoute = parseRoute({location: parsedPath});
-  // TODO: maybe we actually just want to put all the redirects into next.config.js for performance reasons :(
-  const hasPathParams = Object.keys(parsedRoute.params).length > 0;
-  
-  return `import { redirect } from 'next/navigation';
 
-export default function Page() {
-  redirect(${redirectValue});
-}\n`;
+  const previousRedirects: Redirect[] = JSON.parse(fs.readFileSync('redirects.json', 'utf8'));
+  previousRedirects.push({
+    source: route.path,
+    destination: redirectValue,
+    permanent: true,
+  });
+
+  fs.writeFileSync('redirects.json', JSON.stringify(previousRedirects, null, 2));
+
+  return '';
+  
+//   // Check whether the route has path params
+//   const parsedPath = parsePath(route.path);
+//   const parsedRoute = parseRoute({location: parsedPath});
+//   // TODO: maybe we actually just want to put all the redirects into next.config.js for performance reasons :(
+//   const hasPathParams = Object.keys(parsedRoute.params).length > 0;
+  
+//   return `import { redirect } from 'next/navigation';
+
+// export default function Page() {
+//   redirect(${redirectValue});
+// }\n`;
 }
 
 function hasMultipleConsecutiveOptionals(path: string): boolean {
@@ -260,56 +413,6 @@ ${Object.entries(mapping).map(([path, func]) =>
   console.log('Created: packages/lesswrong/lib/routeMappings/pingbacks.ts');
 }
 
-async function generatePreviewComponentMapping(routes: Route[]) {
-  const mapping: Record<string, string> = {};
-  const components = new Set<string>();
-  
-  for (const route of routes) {
-    if (route.previewComponent) {
-      const componentName = route.previewComponent.name;
-      mapping[route.path] = componentName;
-      components.add(componentName);
-    }
-  }
-  
-  // Group components by their likely import paths
-  const importGroups: Record<string, string[]> = {};
-  for (const component of components) {
-    const importPath = component.includes('PostLinkPreview') || 
-                       component.includes('CommentLinkPreview') ||
-                       component.includes('SequencePreview')
-      ? '@/components/linkPreview/PostLinkPreview'
-      : component.includes('TagHoverPreview')
-      ? '@/components/tagging/TagHoverPreview'
-      : '@/components/linkPreview/DefaultPreview';
-    
-    if (!importGroups[importPath]) {
-      importGroups[importPath] = [];
-    }
-    importGroups[importPath].push(component);
-  }
-  
-  const imports = Object.entries(importGroups)
-    .map(([path, comps]) => `import { ${comps.join(', ')} } from '${path}';`)
-    .join('\n');
-
-  const content = `${imports}
-
-export const routePreviewComponentMapping: Record<string, React.ComponentType<any>> = {
-${Object.entries(mapping).map(([path, comp]) => 
-  `  '${path}': ${comp},`
-).join('\n')}
-};`;
-  
-  const dir = 'packages/lesswrong/lib/routeMappings';
-  if (!fs.existsSync(dir)) {
-    fs.mkdirSync(dir, { recursive: true });
-  }
-  
-  fs.writeFileSync(path.join(dir, 'previewComponents.tsx'), content);
-  console.log('Created: packages/lesswrong/lib/routeMappings/previewComponents.tsx');
-}
-
 async function generateMiddleware(routes: Route[]) {
   const complexRoutes = routes.filter(route => 
     hasMultipleConsecutiveOptionals(route.path) || 
@@ -357,73 +460,15 @@ export const config = {
   console.log('Created: middleware.ts');
 }
 
-async function updatePostsSingleRoute() {
-  const updatedContent = `import { registerComponent } from '../../lib/vulcan-lib/components';
-import React from 'react';
-import { useLocation } from '../../lib/routeUtil';
-import PostsPageWrapper from "./PostsPage/PostsPageWrapper";
-import Error404 from "../common/Error404";
-
-interface PostsSingleRouteProps {
-  _id?: string;
-}
-
-const PostsSingleRoute = ({ _id }: PostsSingleRouteProps) => {
-  const { query } = useLocation();
-  const version = query?.revision;
-  
-  if (_id) {
-    return <PostsPageWrapper documentId={_id} sequenceId={null} version={version} />
-  } else {
-    return <Error404/>
-  }
-};
-
-export default registerComponent('PostsSingleRoute', PostsSingleRoute);\n`;
-  
-  const filePath = 'packages/lesswrong/components/posts/PostsSingleRoute.tsx';
-  fs.writeFileSync(filePath, updatedContent);
-  console.log(`Updated: ${filePath}`);
-}
-
-async function generateRouteChecks() {
-  const fullscreenRoutes = ['/inbox', '/moderatorInbox', '/conversation'];
-  
-  const content = `// Route check helpers for Layout.tsx
-export const isSunshineSidebarRoute = (pathname: string) => pathname === '/';
-
-export const isStandaloneRoute = (pathname: string) => 
-  ['/crosspostLogin', '/groups-map'].includes(pathname);
-
-export const isStaticHeaderRoute = (pathname: string) => 
-  /^\\/admin\\/digests\\/[^\\/]+$/.test(pathname);
-
-export const isFullscreenRoute = (pathname: string) => 
-  ${JSON.stringify(fullscreenRoutes)}.some(route => pathname.startsWith(route));
-
-export const isUnspacedGridRoute = (pathname: string) => {
-  // Check for the subforum2 route pattern
-  const tagUrlBase = process.env.NEXT_PUBLIC_TAG_URL_BASE || 'tag';
-  const pattern = new RegExp(\`^/\${tagUrlBase}/[^/]+/subforum2$\`);
-  return pattern.test(pathname);
-};
-`;
-  
-  const dir = 'packages/lesswrong/lib/routeChecks';
-  if (!fs.existsSync(dir)) {
-    fs.mkdirSync(dir, { recursive: true });
-  }
-  
-  fs.writeFileSync(path.join(dir, 'index.ts'), content);
-  console.log('Created: packages/lesswrong/lib/routeChecks/index.ts');
-}
-
 export async function main() {
   console.log('Starting route migration...');
   console.log(`Found ${Object.keys(Routes).length} routes to migrate`);
   
   const routes = Object.values(Routes);
   const filteredRoutes = routes.filter(route => !configLevelRedirects.some(redirect => route.path.startsWith(redirect)));
+
+  // Reset the redirects file
+  fs.writeFileSync('redirects.json', '[]');
   
   for (const route of filteredRoutes) {
     await generatePageFiles(route);
@@ -431,16 +476,9 @@ export async function main() {
   
   console.log('\nGenerating mapping files...');
   await generatePingbackMapping(filteredRoutes);
-  await generatePreviewComponentMapping(filteredRoutes);
   
   console.log('\nGenerating middleware...');
   await generateMiddleware(filteredRoutes);
-  
-  console.log('\nUpdating PostsSingleRoute component...');
-  await updatePostsSingleRoute();
-  
-  console.log('\nGenerating route check helpers...');
-  await generateRouteChecks();
   
   console.log('\nMigration complete!');
   console.log('\nNext steps:');
@@ -460,3 +498,26 @@ export function getAllComponents() {
   console.log(componentNames);
 }
 
+function addUseClientDirectiveToComponent(componentPath: string) {
+  const componentFileContents = fs.readFileSync(componentPath, 'utf8');
+  const useClientDirective = componentFileContents.includes('use client');
+  if (!useClientDirective) {
+    fs.writeFileSync(componentPath, `"use client";\n\n${componentFileContents}`);
+  }
+}
+
+export function addUseClientToAllComponents() {
+  const allComponentsFile = fs.readFileSync('packages/lesswrong/lib/generated/allComponents.ts', 'utf8');
+  const nonRegisteredComponentsFile = fs.readFileSync('packages/lesswrong/lib/generated/nonRegisteredComponents.ts', 'utf8');
+
+  const allComponentImports = allComponentsFile.split('\n').filter(line => line.startsWith('import')).map(line => line.split('"')[1].replace('../../', 'packages/lesswrong/'));
+  const nonRegisteredComponentImports = nonRegisteredComponentsFile.split('\n').filter(line => line.startsWith('import')).map(line => line.split('"')[1].replace('../../', 'packages/lesswrong/'));
+
+  for (const importLine of allComponentImports) {
+    addUseClientDirectiveToComponent(importLine);
+  }
+
+  for (const importLine of nonRegisteredComponentImports) {
+    addUseClientDirectiveToComponent(importLine);
+  }
+}

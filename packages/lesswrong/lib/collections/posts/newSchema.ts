@@ -11,7 +11,8 @@ import {
   getDenormalizedFieldOnUpdate,
   getForeignKeySqlResolver,
   getFillIfMissing,
-  throwIfSetToNull
+  throwIfSetToNull,
+  optionalUrlRegex
 } from "../../utils/schemaUtils";
 import {
   postCanEditHideCommentKarma,
@@ -25,15 +26,15 @@ import {
   isDialogueParticipant,
   MINIMUM_COAUTHOR_KARMA,
   DEFAULT_QUALITATIVE_VOTE,
-  userPassesCrosspostingKarmaThreshold
+  userPassesCrosspostingKarmaThreshold,
+  getDefaultVotingSystem
 } from "./helpers";
 import { postStatuses, sideCommentAlwaysExcludeKarma, sideCommentFilterMinKarma } from "./constants";
 import { userGetDisplayNameById } from "../../vulcan-users/helpers";
 import { loadByIds, getWithLoader, getWithCustomLoader } from "../../loaders";
-import SimpleSchema from "simpl-schema";
+import SimpleSchema from "@/lib/utils/simpleSchema";
 import { getCollaborativeEditorAccess } from "./collabEditingPermissions";
 import { eaFrontpageDateDefault, isEAForum, isLWorAF, requireReviewToFrontpagePostsSetting, reviewUserBotSetting } from "../../instanceSettings";
-import * as _ from "underscore";
 import { userCanCommentLock, userCanModeratePost, userIsSharedOn } from "../users/helpers";
 import {
   sequenceGetNextPostID,
@@ -67,56 +68,13 @@ import { getPostReviewWinnerInfo } from "@/server/review/reviewWinnersCache";
 import { matchSideComments } from "@/server/sideComments";
 import { getToCforPost } from "@/server/tableOfContents";
 import { cheerioParse } from "@/server/utils/htmlUtil";
-import { captureException } from "@sentry/core";
+import { captureException } from "@sentry/nextjs";
 import keyBy from "lodash/keyBy";
 import { filterNonnull } from "@/lib/utils/typeGuardUtils";
-import gql from "graphql-tag";
 import { CommentsViews } from "../comments/views";
 import { commentIncludedInCounts } from "../comments/helpers";
-import { getDefaultVotingSystem } from "./helpers";
-
-export const graphqlTypeDefs = gql`
-  type SocialPreviewType {
-    _id: String!
-    imageId: String
-    imageUrl: String!
-    text: String
-  }
-
-  input CoauthorStatusInput {
-    userId: String!
-    confirmed: Boolean!
-    requested: Boolean!
-  }
-
-  input SocialPreviewInput {
-    imageId: String!
-    text: String
-  }
-
-  input CrosspostInput {
-    isCrosspost: Boolean!
-    hostedHere: Boolean
-    foreignPostId: String
-  }
-
-  type CoauthorStatusOutput {
-    userId: String!
-    confirmed: Boolean!
-    requested: Boolean!
-  }
-
-  type SocialPreviewOutput {
-    imageId: String!
-    text: String
-  }
-
-  type CrosspostOutput {
-    isCrosspost: Boolean!
-    hostedHere: Boolean
-    foreignPostId: String
-  }
-`
+import { votingSystemNames } from "@/lib/voting/votingSystemNames";
+import { backgroundTask } from "@/server/utils/backgroundTask";
 
 // TODO: This disagrees with the value used for the book progress bar
 export const READ_WORDS_PER_MINUTE = 250;
@@ -1921,9 +1879,7 @@ const schema = {
       // This differs from the `defaultValue` because it varies by forum-type
       // and we don't have a setup for `accepted_schema.sql` to vary by forum type.
       onCreate: async ({ document }) => {
-        // This is to break an annoying import cycle that causes a crash on start.
-        const { getVotingSystemByName } = await import('@/lib/voting/getVotingSystem');
-        const votingSystem = ('votingSystem' in document && !!getVotingSystemByName(document.votingSystem as string))
+        const votingSystem = ('votingSystem' in document && !!votingSystemNames.safeParse(document.votingSystem as string).success)
           ? document.votingSystem
           : getDefaultVotingSystem();
 
@@ -2198,7 +2154,7 @@ const schema = {
         // did a hacky thing.
         if (!post.suggestForCuratedUserIds) return null;
         const users = await Promise.all(
-          _.map(post.suggestForCuratedUserIds, async (userId) => {
+          post.suggestForCuratedUserIds.map(async (userId) => {
             const user = await context.loaders.Users.load(userId);
             return user.displayName;
           })
@@ -2364,7 +2320,7 @@ const schema = {
       inputType: "SocialPreviewInput",
       validation: { blackbox: true },
       canRead: ["guests"],
-      canUpdate: [userOwns, "sunshineRegiment", "admins"],
+      canUpdate: ["members", "sunshineRegiment", "admins"],
       canCreate: ["members", "sunshineRegiment", "admins"],
     },
   },
@@ -3154,7 +3110,7 @@ const schema = {
       canUpdate: ["members"],
       canCreate: ["members"],
       validation: {
-        regEx: SimpleSchema.RegEx.Url,
+        regEx: optionalUrlRegex,
         optional: true,
       },
     },
@@ -3169,7 +3125,7 @@ const schema = {
       canUpdate: ["members"],
       canCreate: ["members"],
       validation: {
-        regEx: SimpleSchema.RegEx.Url,
+        regEx: optionalUrlRegex,
         optional: true,
       },
     },
@@ -3282,7 +3238,7 @@ const schema = {
       canUpdate: ["members", "sunshineRegiment", "admins"],
       canCreate: ["members"],
       validation: {
-        regEx: SimpleSchema.RegEx.Url,
+        regEx: optionalUrlRegex,
         optional: true,
       },
     },
@@ -3297,7 +3253,7 @@ const schema = {
       canUpdate: ["members", "sunshineRegiment", "admins"],
       canCreate: ["members"],
       validation: {
-        regEx: SimpleSchema.RegEx.Url,
+        regEx: optionalUrlRegex,
         optional: true,
       },
     },
@@ -3312,7 +3268,7 @@ const schema = {
       canUpdate: ["members", "sunshineRegiment", "admins"],
       canCreate: ["members"],
       validation: {
-        regEx: SimpleSchema.RegEx.Url,
+        regEx: optionalUrlRegex,
         optional: true,
       },
     },
@@ -3598,11 +3554,11 @@ const schema = {
             })),
           });
 
-          void context.repos.sideComments.saveSideCommentCache(
+          backgroundTask(context.repos.sideComments.saveSideCommentCache(
             post._id,
             sideCommentMatches.html,
             sideCommentMatches.sideCommentsByBlock
-          );
+          ));
 
           unfilteredResult = {
             annotatedHtml: sideCommentMatches.html,
@@ -4404,6 +4360,28 @@ const schema = {
         return await accessFilterMultiple(currentUser, "Comments", reviews, context);
       },
     },
+  },
+  automatedContentEvaluations: {
+    graphql: {
+      outputType: "AutomatedContentEvaluation",
+      canRead: ["sunshineRegiment", "admins"],
+      resolver: async (post, args, context) => {
+        if (!isLWorAF) return null;
+        const {AutomatedContentEvaluations, Revisions} =  context;
+        const revisionIds = (await Revisions.find({
+          documentId: post._id,
+          fieldName: "contents",
+        }, {
+          sort: { editedAt: -1 },
+        }, {_id: 1}).fetch()).map(r => r._id);
+
+        return AutomatedContentEvaluations.findOne({
+          revisionId: {$in:revisionIds},
+        }, {
+          sort: { createdAt: -1 },
+        })
+      }
+    }
   },
   currentUserVote: DEFAULT_CURRENT_USER_VOTE_FIELD,
   currentUserExtendedVote: DEFAULT_CURRENT_USER_EXTENDED_VOTE_FIELD,

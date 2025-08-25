@@ -3,7 +3,6 @@ import { LegacyData } from '../../server/collections/legacyData/collection';
 import { Comments } from '../../server/collections/comments/collection';
 import { Posts } from '../../server/collections/posts/collection';
 import Users from '../../server/collections/users/collection';
-import * as _ from 'underscore';
 
 export default registerMigration({
   name: "moveLegacyData",
@@ -21,7 +20,7 @@ export default registerMigration({
         },
         migrate: async (documents) => {
           // Write legacyData into legacyData table
-          const addNewUpdates = _.map(documents, (doc: any): any => {
+          const addNewUpdates = documents.map((doc: any): any => {
             return {
               insertOne: {
                 objectId: doc._id,
@@ -37,7 +36,7 @@ export default registerMigration({
           
           
           // Remove legacyData from the other collection
-          const removeOldUpdates = _.map(documents, (doc: any): any => {
+          const removeOldUpdates = documents.map((doc: any): any => {
             return {
               updateOne: {
                 filter: {_id: doc._id},

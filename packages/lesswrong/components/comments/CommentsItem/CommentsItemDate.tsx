@@ -2,7 +2,6 @@ import React from 'react';
 import { registerComponent } from '../../../lib/vulcan-lib/components';
 import { useCommentLink, UseCommentLinkProps } from './useCommentLink';
 import classNames from 'classnames';
-import { isBookUI, isFriendlyUI } from '../../../themes/forumTheme';
 import { isLWorAF } from '../../../lib/instanceSettings';
 import DeferRender from '@/components/common/DeferRender';
 import { defineStyles, useStyles } from '@/components/hooks/useStyles';
@@ -15,7 +14,7 @@ const EDIT_GRACE_PERIOD = 60*60*1000; //1hr
 
 const styles = defineStyles("CommentsItemDate", (theme: ThemeType) => ({
   root: {
-    ...(isFriendlyUI ? {
+    ...(theme.isFriendlyUI ? {
       marginLeft: 2,
       marginRight: 7,
     } : {
@@ -39,10 +38,10 @@ const styles = defineStyles("CommentsItemDate", (theme: ThemeType) => ({
     whiteSpace: "nowrap",
 
     zIndex: theme.zIndexes.commentPermalinkIcon,
-  },
-  answerDate: {},
-  date: {
     color: theme.palette.text.dim,
+  },
+  answerDate: {
+    color: "inherit",
   },
   postTitle: {
     marginRight: 5,
@@ -99,7 +98,6 @@ const CommentsItemDate = ({comment, preventDateFormatting, className, ...rest}: 
   return (
     <span className={classNames(
       classes.root,
-      !comment.answer && classes.date,
       comment.answer && classes.answerDate,
       className,
     )}>

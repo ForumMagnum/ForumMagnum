@@ -1,15 +1,11 @@
 import React from "react";
 import { registerComponent } from "../../lib/vulcan-lib/components";
-import { DatabasePublicSetting } from "../../lib/publicSettings";
+import { siteNameWithArticleSetting, explanationText, maintenanceTime } from '@/lib/instanceSettings';
 import { ExpandedDate } from "../common/FormatDate";
-import { siteNameWithArticleSetting } from "../../lib/instanceSettings";
 import { isMobile } from "../../lib/utils/isMobile";
 import classNames from "classnames";
 import startCase from "lodash/startCase";
 import SingleColumnSection from "./SingleColumnSection";
-
-export const maintenanceTime = new DatabasePublicSetting<string | null>("maintenanceBannerTime", null);
-const explanationText = new DatabasePublicSetting<string>("maintenanceBannerExplanationText", "");
 
 const urgentCutoff = 2 * 60 * 60 * 1000; // 2 hours
 

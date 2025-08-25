@@ -54,16 +54,7 @@ jobs:
     - name: Setup database
       run: psql postgres://postgres:password@localhost:5433/postgres -f schema/accepted_schema.sql
     - name: Create database connection string file
-      run: echo "postgres://postgres:password@localhost:5433/postgres" > dev-pg-conn.txt
-    - name: Start the server
-      uses: JarvusInnovations/background-action@v1
-      with:
-        run: yarn start-ci &
-        wait-on: http://localhost:3000/api/health
-        wait-for: 1m
-        tail: true
-        log-output: true
-        log-output-resume: stderr
+      run: echo "postgres://postgres:password@localhost:5433/postgres" > dev-pg-conn.txt 
     - name: Run code generation (EA Forum)
       run: yarn generate test
     - name: Throw if code changed
@@ -72,7 +63,7 @@ jobs:
       run: |
         sed -i -e 's/"forumType": "EAForum"/"forumType": "LessWrong"/g' settings-test.json
     - name: Run code generation (LessWrong)
-      run: yarn generate test
+      run: FORUM_TYPE=LessWrong yarn generate test
     - name: Throw if forum schemas differ
       run: if [[ `git status --porcelain ./schema ./packages` ]]; then git status --porcelain ./schema ./packages; echo "LessWrong/EA Forum database schemas differ"; exit 1; fi
 
@@ -102,6 +93,10 @@ jobs:
     env:
       NODE_OPTIONS: "--max_old_space_size=4096"
       SLOW_QUERY_REPORT_CUTOFF_MS: "-1"
+      ENV_NAME: test
+      FORUM_TYPE: LessWrong
+      PG_URL: postgres://postgres:password@localhost:5433/postgres
+      E2E: true
     steps:
     - name: Checkout code
       uses: actions/checkout@v4
@@ -113,6 +108,8 @@ jobs:
         psql postgres://postgres:password@localhost:5433/postgres -f playwright/fixtures.sql
     - name: Install browsers
       run: yarn playwright install ${{ matrix.project }} --with-deps
+    - name: Build project
+      run: yarn next build
     - name: Run playwright tests
       run: yarn playwright test --project ${{ matrix.project }}
     - name: Upload playwright report
@@ -165,6 +162,9 @@ jobs:
     env:
       NODE_OPTIONS: "--max_old_space_size=4096"
       SLOW_QUERY_REPORT_CUTOFF_MS: "-1"
+      ENV_NAME: test
+      FORUM_TYPE: LessWrong
+      E2E: true
     steps:
     - name: Checkout code
       uses: actions/checkout@v4
@@ -178,6 +178,8 @@ jobs:
         psql postgres://postgres:password@localhost:5434/postgres -f playwright/fixtures.sql
     - name: Install browsers
       run: yarn playwright install chromium --with-deps
+    - name: Build project
+      run: yarn next build
     - name: Run crossposting tests
       run: yarn playwright-test-crosspost
     - name: Upload crosspost report

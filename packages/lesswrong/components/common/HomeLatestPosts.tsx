@@ -2,13 +2,12 @@ import React, { useState } from 'react';
 import { registerComponent } from '../../lib/vulcan-lib/components';
 import { useCurrentUser } from '../common/withUser';
 import { Link } from '../../lib/reactRouterWrapper';
-import { useLocation } from '../../lib/routeUtil';
 import { AnalyticsContext, useOnMountTracking } from '../../lib/analyticsEvents';
 import { FilterSettings } from '../../lib/filterSettings';
 import { useFilterSettings } from '../hooks/useFilterSettings';
 import moment from '../../lib/moment-timezone';
 import { useCurrentTime } from '../../lib/utils/timeUtil';
-import { isEAForum, isLW, isLWorAF, taggingNamePluralSetting, taggingNameSetting} from '../../lib/instanceSettings';
+import { isEAForum, isLW, isLWorAF, taggingNamePluralSetting, taggingNameSetting, frontpageDaysAgoCutoffSetting } from '@/lib/instanceSettings';
 import SectionTitle, { sectionTitleStyle } from '../common/SectionTitle';
 import { AllowHidingFrontPagePostsContext } from '../dropdowns/posts/PostActions';
 import { HideRepeatedPostsProvider } from '../posts/HideRepeatedPostsContext';
@@ -16,7 +15,6 @@ import classNames from 'classnames';
 import {useUpdateCurrentUser} from "../hooks/useUpdateCurrentUser";
 import { reviewIsActive } from '../../lib/reviewUtils';
 import { forumSelect } from '../../lib/forumTypeUtils';
-import { frontpageDaysAgoCutoffSetting } from '../../lib/scoring';
 import { isFriendlyUI } from '../../themes/forumTheme';
 import { EA_FORUM_TRANSLATION_TOPIC_ID } from '../../lib/collections/tags/helpers';
 import { useCurrentFrontpageSurvey } from '../hooks/useCurrentFrontpageSurvey';
@@ -113,11 +111,10 @@ const applyConstantFilters = (filterSettings: FilterSettings): FilterSettings =>
 }
 
 const HomeLatestPosts = ({classes}: {classes: ClassesType<typeof styles>}) => {
-  const location = useLocation();
   const updateCurrentUser = useUpdateCurrentUser();
   const currentUser = useCurrentUser();
 
-  const {filterSettings, setPersonalBlogFilter, setTagFilter, removeTagFilter} = useFilterSettings()
+  const {filterSettings, suggestedTagsQueryRef, setPersonalBlogFilter, setTagFilter, removeTagFilter} = useFilterSettings()
   // While hiding desktop settings is stateful over time, on mobile the filter settings always start out hidden
   // (except that on the EA Forum/FriendlyUI it always starts out hidden)
   const [filterSettingsVisibleDesktop, setFilterSettingsVisibleDesktop] = useState(isFriendlyUI ? false : !currentUser?.hideFrontpageFilterSettingsDesktop);
@@ -131,19 +128,15 @@ const HomeLatestPosts = ({classes}: {classes: ClassesType<typeof styles>}) => {
     },
     captureOnMount: true,
   })
-  const { query } = location;
-  const limit = parseInt(query.limit) || defaultLimit;
-
   const now = useCurrentTime();
   const dateCutoff = moment(now).subtract(frontpageDaysAgoCutoffSetting.get()*24, 'hours').startOf('hour').toISOString()
 
   const recentPostsTerms = {
-    ...query,
     filterSettings: applyConstantFilters(filterSettings),
     after: dateCutoff,
     view: "magic",
     forum: true,
-    limit:limit
+    limit: defaultLimit,
   } as const;
   
   const changeShowTagFilterSettingsDesktop = () => {
@@ -206,14 +199,20 @@ const HomeLatestPosts = ({classes}: {classes: ClassesType<typeof styles>}) => {
               [classes.hideOnMobile]: !filterSettingsVisibleMobile,
             })}>
               <TagFilterSettings
-                filterSettings={filterSettings} setPersonalBlogFilter={setPersonalBlogFilter} setTagFilter={setTagFilter} removeTagFilter={removeTagFilter}
+                filterSettings={filterSettings}
+                suggestedTagsQueryRef={suggestedTagsQueryRef}
+                setPersonalBlogFilter={setPersonalBlogFilter}
+                setTagFilter={setTagFilter}
+                removeTagFilter={removeTagFilter}
               />
             </div>
           )}
         </AnalyticsContext>
         {isFriendlyUI && <StickiedPosts />}
         <HideRepeatedPostsProvider>
-          {showCurated && <CuratedPostsList />}
+          {showCurated && <CuratedPostsList
+            repeatedPostsPrecedence={1}
+          />}
           {survey?.survey &&
             <SurveyPostsItem
               survey={survey.survey}
@@ -229,6 +228,7 @@ const HomeLatestPosts = ({classes}: {classes: ClassesType<typeof styles>}) => {
                 alwaysShowLoadMore
                 hideHiddenFrontPagePosts
                 viewType="fromContext"
+                repeatedPostsPrecedence={2}
               >
                 <Link to={"/allPosts"}>{advancedSortingText}</Link>
               </PostsList2>

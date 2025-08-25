@@ -1,7 +1,6 @@
 import React, { FC, ReactNode, useCallback, useState } from "react";
 import { registerComponent } from "../../lib/vulcan-lib/components";
 import { useTagPreview } from "./useTag";
-import { isFriendlyUI } from "../../themes/forumTheme";
 import { Link } from '../../lib/reactRouterWrapper';
 import classNames from "classnames";
 import type { Placement as PopperPlacementType } from "popper.js"
@@ -20,14 +19,14 @@ import TagPreview from "./TagPreview";
 import LWClickAwayListener from "../common/LWClickAwayListener";
 
 const styles = defineStyles("TagsTooltip", theme => ({
-  tooltip: isFriendlyUI
+  tooltip: theme.isFriendlyUI
     ? {}
     : {
       padding: 0,
       background: theme.palette.panelBackground.default,
       boxShadow: theme.palette.boxShadow.lwTagHoverOver,
     },
-  tooltipTitle: isFriendlyUI
+  tooltipTitle: theme.isFriendlyUI
     ? {}
     : {
       maxWidth: "unset",

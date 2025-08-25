@@ -1,8 +1,9 @@
+"use client";
+
 import React, { useMemo, useState } from 'react'
 import { registerComponent } from '../../../lib/vulcan-lib/components';
 import { useTagBySlug } from '../useTag';
 import { useLocation } from '../../../lib/routeUtil';
-import { isFriendlyUI } from '../../../themes/forumTheme';
 import { addDefaultLensToLenses, TagLens } from '@/lib/arbital/useTagLenses';
 import keyBy from 'lodash/keyBy';
 import { RevealHiddenBlocks, RevealHiddenBlocksContext } from '@/components/editor/conditionalVisibilityBlock/ConditionalVisibilityBlockDisplay';
@@ -23,7 +24,7 @@ import TagRevisionItem from "../TagRevisionItem";
 import LensRevisionItem from "./LensRevisionItem";
 import SummaryRevisionItem from "./SummaryRevisionItem";
 import FormatDate from "../../common/FormatDate";
-import CommentsNodeInner from "../../comments/CommentsNode";
+import CommentsNode from "../../comments/CommentsNode";
 import Loading from "../../vulcan-core/Loading";
 import LinkToPost from "../../linkPreview/LinkToPost";
 import SingleLineFeedEvent from "../../common/SingleLineFeedEvent";
@@ -34,7 +35,7 @@ import { TagHistoryFeedQuery } from '@/components/common/feeds/feedQueries';
 
 export const tagHistoryStyles = defineStyles("TagHistoryPage", (theme: ThemeType) => ({
   title: {
-    fontFamily: isFriendlyUI ? theme.palette.fonts.sansSerifStack : undefined,
+    fontFamily: theme.isFriendlyUI ? theme.palette.fonts.sansSerifStack : undefined,
   },
   feed: {
     ...theme.typography.body2,
@@ -197,7 +198,7 @@ const TagHistoryPage = () => {
               return null;
             return <div>
               <SingleLineFeedEvent icon={<ForumIcon className={classNames(classes.feedIcon, classes.commentIcon)} icon="Comment"/>}>
-                <CommentsNodeInner
+                <CommentsNode
                   treeOptions={{ tag, forceSingleLine: collapseAll }}
                   comment={comment}
                   loadChildrenSeparately={true}

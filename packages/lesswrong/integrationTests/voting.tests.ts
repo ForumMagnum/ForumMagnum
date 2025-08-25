@@ -13,6 +13,7 @@ import isNil from "lodash/isNil";
 import { slugify } from "@/lib/utils/slugify";
 import { createAnonymousContext } from "@/server/vulcan-lib/createContexts";
 import { updatePost } from "@/server/collections/posts/mutations";
+import { waitForBackgroundTasks } from "@/server/utils/backgroundTask";
 
 describe('Voting', function() {
   describe('batchUpdating', function() {
@@ -33,6 +34,7 @@ describe('Voting', function() {
       const user = await createDummyUser();
       const sixty_days_ago = new Date().getTime()-(60*24*60*60*1000)
       const post = await createDummyPost(user, {postedAt: new Date(sixty_days_ago), inactive: false})
+      await waitForBackgroundTasks();
       await waitUntilPgQueriesFinished();
 
       const updatedPost = await Posts.find({_id: post._id}).fetch();

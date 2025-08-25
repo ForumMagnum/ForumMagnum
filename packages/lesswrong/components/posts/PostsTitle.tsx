@@ -1,13 +1,12 @@
 import React, { CSSProperties, FC, PropsWithChildren } from 'react';
 import { registerComponent } from '../../lib/vulcan-lib/components';
 import classNames from 'classnames';
-import { useCurrentUser } from "../common/withUser";
+import { useCurrentUser, useCurrentUserId } from "../common/withUser";
 import { useLocation } from '../../lib/routeUtil';
 import { Link } from '../../lib/reactRouterWrapper';
 import { postGetPageUrl } from '../../lib/collections/posts/helpers';
 import { communityPath } from '@/lib/pathConstants';
 import { InteractionWrapper } from '../common/useClickableCell';
-import { isFriendlyUI } from '../../themes/forumTheme';
 import { smallTagTextStyle, tagStyle } from '../tagging/FooterTag';
 import { useCurrentAndRecentForumEvents } from '../hooks/useCurrentForumEvent';
 import { tagGetUrl } from '../../lib/collections/tags/helpers';
@@ -15,22 +14,20 @@ import { useTheme } from '../themes/useTheme';
 import { PostsItemIcons, CuratedIcon } from "./PostsItemIcons";
 import ForumIcon from "../common/ForumIcon";
 import TagsTooltip from "../tagging/TagsTooltip";
-import { amaTagIdSetting, annualReviewAnnouncementPostPathSetting, openThreadTagIdSetting } from '@/lib/publicSettings';
-import { startHerePostIdSetting } from '@/lib/publicSettings';
-import { DatabasePublicSetting } from '@/lib/publicSettings';
+import { amaTagIdSetting, annualReviewAnnouncementPostPathSetting, openThreadTagIdSetting, startHerePostIdSetting, isEAForum } from '@/lib/instanceSettings';
 import QuestionAnswerIcon from '@/lib/vendor/@material-ui/icons/src/QuestionAnswer';
 import ArrowForwardIcon from '@/lib/vendor/@material-ui/icons/src/ArrowForward';
 import AllInclusiveIcon from '@/lib/vendor/@material-ui/icons/src/AllInclusive';
 import StarIcon from '@/lib/vendor/@material-ui/icons/src/Star';
-import { isEAForum } from '@/lib/instanceSettings';
+import { useIsOnGrayBackground } from '../hooks/useIsOnGrayBackground';
 
 const styles = (theme: ThemeType) => ({
   root: {
     color: theme.palette.text.normal,
     position: "relative",
     lineHeight: "1.7rem",
-    fontWeight: isFriendlyUI ? 600 : undefined,
-    fontFamily: isFriendlyUI ? theme.palette.fonts.sansSerifStack : theme.typography.postStyle.fontFamily,
+    fontWeight: theme.isFriendlyUI ? 600 : undefined,
+    fontFamily: theme.isFriendlyUI ? theme.palette.fonts.sansSerifStack : theme.typography.postStyle.fontFamily,
     zIndex: theme.zIndexes.postItemTitle,
     [theme.breakpoints.down('xs')]: {
       paddingLeft: 2,
@@ -46,17 +43,22 @@ const styles = (theme: ThemeType) => ({
     },
     marginRight: theme.spacing.unit,
   },
+  onGrayBackground: {
+    ...(theme.isBookUI && theme.dark && {
+      color: theme.palette.greyAlpha(1),
+    }),
+  },
   wrap: {
     whiteSpace: "normal",
   },
   sticky: {
-    paddingLeft: isFriendlyUI ? 2 : undefined,
-    paddingRight: isFriendlyUI ? 8 : 10,
+    paddingLeft: theme.isFriendlyUI ? 2 : undefined,
+    paddingRight: theme.isFriendlyUI ? 8 : 10,
     position: "relative",
     top: 2,
     color: theme.palette.icon["dim4"],
   },
-  stickyIcon: isFriendlyUI
+  stickyIcon: theme.isFriendlyUI
     ? {
       width: 16,
       height: 16,
@@ -70,7 +72,7 @@ const styles = (theme: ThemeType) => ({
     color: theme.palette.icon.dim55,
     paddingRight: theme.spacing.unit,
     top: -2,
-    width: isFriendlyUI ? 26 : "auto",
+    width: theme.isFriendlyUI ? 26 : "auto",
     position: "relative",
     verticalAlign: "middle",
   },
@@ -80,7 +82,7 @@ const styles = (theme: ThemeType) => ({
       color: theme.palette.text.normal,
     }
   },
-  eaTitleDesktopEllipsis: isFriendlyUI ? {
+  eaTitleDesktopEllipsis: theme.isFriendlyUI ? {
     '&:hover': {
       opacity: 0.5
     },
@@ -129,10 +131,10 @@ const styles = (theme: ThemeType) => ({
     padding: "0 6px",
     height: 20,
     border: "none",
-    backgroundColor: theme.themeOptions.name === "dark"
+    backgroundColor: theme.dark
       ? "var(--post-title-tag-foreground)"
       : "var(--post-title-tag-background)",
-    color: theme.themeOptions.name === "dark"
+    color: theme.dark
       ? "var(--post-title-tag-background)"
       : "var(--post-title-tag-foreground)",
   },
@@ -145,7 +147,7 @@ const styles = (theme: ThemeType) => ({
   },
 });
 
-const tagSettingIcons = new Map<DatabasePublicSetting<string | null>, React.ComponentType<React.SVGProps<SVGElement>>>([
+const tagSettingIcons = new Map([
   [amaTagIdSetting, QuestionAnswerIcon], 
   [openThreadTagIdSetting, AllInclusiveIcon],
 ]);
@@ -160,7 +162,7 @@ const reviewPostIdSetting = {
 const idSettingIcons = new Map([
   [startHerePostIdSetting, ArrowForwardIcon],
   // use an imposter to avoid duplicating annualReviewAnnouncementPostPathSetting, which is a path not a post id
-  [reviewPostIdSetting as DatabasePublicSetting<string | null>, StarIcon]
+  [reviewPostIdSetting, StarIcon]
 ]);
 
 const postIcon = (post: PostsBase|PostsListBase) => {
@@ -233,11 +235,12 @@ const PostsTitle = ({
   className?: string,
   classes: ClassesType<typeof styles>,
 }) => {
-  const currentUser = useCurrentUser();
+  const currentUserId = useCurrentUserId();
   const { pathname } = useLocation();
   const {event: taggedEvent, current: taggedEventIsCurrent} = useTaggedEvent(showEventTag ?? false, post) ?? {};
   const theme = useTheme();
-  const shared = post.draft && (post.userId !== currentUser?._id) && post.shareWithUsers
+  const shared = post.draft && (post.userId !== currentUserId) && post.shareWithUsers
+  const isOnGrayBackground = useIsOnGrayBackground();
 
   const shouldRenderEventsTag = (pathname !== communityPath) && (pathname !== '/pastEvents') && (pathname !== '/upcomingEvents') &&
     !pathname.includes('/events') && !pathname.includes('/groups') && !pathname.includes('/community');
@@ -266,6 +269,7 @@ const PostsTitle = ({
       classes.root,
       read && classes.read,
       wrap && classes.wrap,
+      isOnGrayBackground && classes.onGrayBackground,
       strikethroughTitle && classes.strikethroughTitle,
       className,
     )}>

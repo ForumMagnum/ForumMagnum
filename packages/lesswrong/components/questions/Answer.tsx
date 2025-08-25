@@ -12,7 +12,7 @@ import type { ContentItemBodyImperative } from '../contents/contentBodyUtil';
 import { useVote } from '../votes/withVote';
 import { getVotingSystemByName } from '../../lib/voting/getVotingSystem';
 import type { CommentTreeOptions } from '../comments/commentTree';
-import { commentPermalinkStyleSetting } from '@/lib/publicSettings';
+import { commentPermalinkStyleSetting } from '@/lib/instanceSettings';
 import CommentsEditForm from "../comments/CommentsEditForm";
 import SmallSideVote from "../votes/SmallSideVote";
 import AnswerCommentsList from "./AnswerCommentsList";
@@ -51,7 +51,7 @@ const styles = (theme: ThemeType) => ({
     display: 'inline-block',
     fontWeight: 600,
     ...theme.typography.postStyle,
-    ...(isFriendlyUI
+    ...(theme.isFriendlyUI
       ? {
         fontFamily: theme.palette.fonts.sansSerifStack,
       }
@@ -71,7 +71,7 @@ const styles = (theme: ThemeType) => ({
     flexShrink: 0,
     flexGrow: 1,
     position: "relative",
-    top: isFriendlyUI ? 0 : -4,
+    top: theme.isFriendlyUI ? 0 : -4,
   },
   footer: {
     marginTop: 5,

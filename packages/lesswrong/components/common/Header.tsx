@@ -5,33 +5,36 @@ import Headroom from '../../lib/react-headroom'
 import Toolbar from '@/lib/vendor/@material-ui/core/src/Toolbar';
 import IconButton from '@/lib/vendor/@material-ui/core/src/IconButton';
 import TocIcon from '@/lib/vendor/@material-ui/icons/src/Toc';
-import { useCurrentUser } from '../common/withUser';
+import { useCurrentUserId, useFilteredCurrentUser, useGetCurrentUser } from '../common/withUser';
 import { SidebarsContext } from './SidebarsWrapper';
 import withErrorBoundary from '../common/withErrorBoundary';
 import classNames from 'classnames';
 import { AnalyticsContext, useTracking } from '../../lib/analyticsEvents';
-import { forumHeaderTitleSetting, forumShortTitleSetting, isAF, isEAForum, isLW } from '../../lib/instanceSettings';
+import { forumHeaderTitleSetting, forumShortTitleSetting, isAF, hasProminentLogoSetting } from '@/lib/instanceSettings';
 import { useUnreadNotifications } from '../hooks/useUnreadNotifications';
 import { isBookUI, isFriendlyUI } from '../../themes/forumTheme';
-import { hasProminentLogoSetting, lightconeFundraiserUnsyncedAmount, lightconeFundraiserThermometerBgUrl, lightconeFundraiserThermometerGoalAmount, lightconeFundraiserActive, lightconeFundraiserPostId } from '../../lib/publicSettings';
 import { useLocation } from '../../lib/routeUtil';
 import { useCurrentAndRecentForumEvents } from '../hooks/useCurrentForumEvent';
-import { makeCloudinaryImageUrl } from './CloudinaryImage2';
+import { makeCloudinaryImageUrl } from './cloudinaryHelpers';
 import { hasForumEvents } from '@/lib/betas';
-import { useFundraiserStripeTotal, useLivePercentage } from '@/lib/lightconeFundraiser';
 import SearchBar from "./SearchBar";
 import UsersMenu from "../users/UsersMenu";
 import UsersAccountMenu from "../users/UsersAccountMenu";
 import NotificationsMenuButton from "../notifications/NotificationsMenuButton";
 import NavigationDrawer from "./TabNavigationMenu/NavigationDrawer";
-import NotificationsMenu from "../notifications/NotificationsMenu";
-import KarmaChangeNotifier from "../users/KarmaChangeNotifier";
+import { KarmaChangeNotifier } from "../users/karmaChanges/KarmaChangeNotifier";
 import HeaderSubtitle from "./HeaderSubtitle";
 import { Typography } from "./Typography";
 import ForumIcon from "./ForumIcon";
-import ActiveDialogues from "../dialogues/ActiveDialogues";
 import SiteLogo from "../ea-forum/SiteLogo";
 import MessagesMenuButton from "../messaging/MessagesMenuButton";
+import { SuspenseWrapper } from './SuspenseWrapper';
+import { isHomeRoute } from '@/lib/routeChecks';
+import { useRouteMetadata } from '../ClientRouteMetadataContext';
+import { forumSelect } from '@/lib/forumTypeUtils';
+
+import dynamic from 'next/dynamic';
+const NotificationsMenu = dynamic(() => import("../notifications/NotificationsMenu"), { ssr: false });
 
 /** Height of top header. On Book UI sites, this is for desktop only */
 export const HEADER_HEIGHT = isBookUI ? 64 : 66;
@@ -113,8 +116,30 @@ const textColorOverrideStyles = ({
 export const styles = (theme: ThemeType) => ({
   appBar: {
     boxShadow: theme.palette.boxShadow.appBar,
-    color: theme.palette.header.text,
-    backgroundColor: theme.palette.header.background,
+    color: theme.palette.text.bannerAdOverlay,
+
+    ...(forumSelect({
+      LWAF: (theme.dark
+        ? {
+          background: theme.palette.panelBackground.bannerAdTranslucent,
+          backdropFilter: 'blur(4px) brightness(1.1)',
+          "&$blackBackgroundAppBar": {
+            boxShadow: theme.palette.boxShadow.appBarDarkBackground,
+            background: theme.palette.panelBackground.appBarDarkBackground,
+          },
+        } : {
+          backgroundColor: theme.palette.header.background,
+          backdropFilter: 'blur(4px)',
+          "&$blackBackgroundAppBar": {
+            boxShadow: theme.palette.boxShadow.appBar,
+            background: theme.palette.header.background,
+          },
+        }
+      ) as any,
+      default: {
+        backgroundColor: theme.palette.header.background,
+      },
+    })),
     position: "static",
     width: "100%",
     display: "flex",
@@ -122,7 +147,7 @@ export const styles = (theme: ThemeType) => ({
     boxSizing: "border-box",
     flexShrink: 0,
     flexDirection: "column",
-    ...(isFriendlyUI ? {
+    ...(theme.isFriendlyUI ? {
       maxWidth: "100vw",
       overflow: "hidden",
       padding: '1px 20px',
@@ -143,6 +168,7 @@ export const styles = (theme: ThemeType) => ({
     "--header-text-color": theme.palette.text.alwaysWhite,
     "--header-contrast-color": theme.palette.text.alwaysBlack,
   },
+  blackBackgroundAppBar: {},
   root: {
     // This height (including the breakpoint at xs/600px) is set by Headroom, and this wrapper (which surrounds
     // Headroom and top-pads the page) has to match.
@@ -171,7 +197,7 @@ export const styles = (theme: ThemeType) => ({
     color: theme.palette.text.secondary,
   },
   titleLink: {
-    color: theme.palette.header.text,
+    color: theme.palette.text.bannerAdOverlay,
     fontSize: 19,
     '&:hover, &:active': {
       textDecoration: 'none',
@@ -179,7 +205,7 @@ export const styles = (theme: ThemeType) => ({
     },
     display: 'flex',
     alignItems: 'center',
-    fontWeight: isFriendlyUI ? 400 : undefined,
+    fontWeight: theme.isFriendlyUI ? 400 : undefined,
     height: isFriendlyUI ? undefined : '19px',
     
     ...(isAF && {
@@ -231,7 +257,7 @@ export const styles = (theme: ThemeType) => ({
     marginRight: -theme.spacing.unit,
     marginLeft: "auto",
     display: "flex",
-    alignItems: isFriendlyUI ? 'center' : undefined,
+    alignItems: theme.isFriendlyUI ? 'center' : undefined,
   },
   // Prevent rearranging of mobile header when search loads after SSR
   searchSSRStandin: {
@@ -309,11 +335,14 @@ const Header = ({
   const [notificationHasOpened, setNotificationHasOpened] = useState(false);
   const [searchOpen, setSearchOpenState] = useState(false);
   const [unFixed, setUnFixed] = useState(true);
-  const currentUser = useCurrentUser();
+  const getCurrentUser = useGetCurrentUser();
+  const isLoggedIn = !!useCurrentUserId();
+  const usernameUnset = useFilteredCurrentUser(u => !!u?.usernameUnset);
   const {toc} = useContext(SidebarsContext)!;
   const { captureEvent } = useTracking()
   const { notificationsOpened } = useUnreadNotifications();
-  const { currentRoute, pathname, hash } = useLocation();
+  const { pathname, hash } = useLocation();
+  const { metadata: routeMetadata } = useRouteMetadata();
   const {currentForumEvent} = useCurrentAndRecentForumEvents();
   useEffect(() => {
     // When we move to a different page we will be positioned at the top of
@@ -325,16 +354,16 @@ const Header = ({
   }, [pathname, hash]);
 
   const hasNotificationsPopover = isFriendlyUI;
-  const hasKarmaChangeNotifier = !isFriendlyUI && currentUser && !currentUser.usernameUnset;
-  const hasMessagesButton = isFriendlyUI && currentUser && !currentUser.usernameUnset;
+  const hasKarmaChangeNotifier = !isFriendlyUI && isLoggedIn && !usernameUnset;
+  const hasMessagesButton = isFriendlyUI && isLoggedIn && !usernameUnset;
 
   const setNavigationOpen = (open: boolean) => {
     setNavigationOpenState(open);
     captureEvent("navigationBarToggle", {open: open})
   }
 
-  const handleSetNotificationDrawerOpen = async (isOpen: boolean): Promise<void> => {
-    if (!currentUser) return;
+  const handleSetNotificationDrawerOpen = useCallback(async (isOpen: boolean): Promise<void> => {
+    if (!isLoggedIn) return;
     if (isOpen) {
       setNotificationOpen(true);
       setNotificationHasOpened(true);
@@ -342,11 +371,12 @@ const Header = ({
     } else {
       setNotificationOpen(false);
     }
-  }
+  }, [isLoggedIn, notificationsOpened]);
 
   const handleNotificationToggle = () => {
+    const currentUser = getCurrentUser()!
     if (!currentUser) return;
-    const { lastNotificationsCheck } = currentUser
+    const { lastNotificationsCheck } = currentUser;
 
     if (hasNotificationsPopover) {
       captureEvent("notificationsIconToggle", {
@@ -435,7 +465,7 @@ const Header = ({
   )
 
   const usersMenuClass = isFriendlyUI ? classes.hideXsDown : classes.hideMdDown
-  const usersMenuNode = currentUser && <div className={searchOpen ? usersMenuClass : undefined}>
+  const usersMenuNode = isLoggedIn && <div className={searchOpen ? usersMenuClass : undefined}>
     <AnalyticsContext pageSectionContext="usersMenu">
       <UsersMenu />
     </AnalyticsContext>
@@ -445,21 +475,20 @@ const Header = ({
   const rightHeaderItemsNode = <div className={classNames(classes.rightHeaderItems)}>
     <SearchBar onSetIsActive={setSearchOpen} searchResultsArea={searchResultsArea} />
     {!isFriendlyUI && usersMenuNode}
-    {!currentUser && <UsersAccountMenu />}
+    {!isLoggedIn && <UsersAccountMenu />}
     {hasKarmaChangeNotifier && <KarmaChangeNotifier
-      currentUser={currentUser}
       className={(isFriendlyUI && searchOpen) ? classes.hideXsDown : undefined}
     />}
-    {currentUser && !currentUser.usernameUnset && <NotificationsMenuButton
+    {isLoggedIn && !usernameUnset && <NotificationsMenuButton
       toggle={handleNotificationToggle}
       open={notificationOpen}
       className={(isFriendlyUI && searchOpen) ? classes.hideXsDown : undefined}
     />}
-    {hasMessagesButton &&
+    {hasMessagesButton && <SuspenseWrapper name="MesagesMenuButton">
       <MessagesMenuButton
         className={(isFriendlyUI && searchOpen) ? classes.hideXsDown : undefined}
       />
-    }
+    </SuspenseWrapper>}
     {isFriendlyUI && usersMenuNode}
   </div>
 
@@ -472,7 +501,7 @@ const Header = ({
   />
 
   // the right side notifications menu
-  const headerNotificationsMenu = currentUser && !hasNotificationsPopover
+  const headerNotificationsMenu = isLoggedIn && !hasNotificationsPopover
     && (
       <NotificationsMenu
         open={notificationOpen}
@@ -486,7 +515,7 @@ const Header = ({
   // If we're explicitly given a backgroundColor, that overrides any event header
   if (backgroundColor) {
     headerStyle.backgroundColor = backgroundColor
-  } else if (hasForumEvents && currentRoute?.name === "home" && bannerImageId && currentForumEvent?.eventFormat !== "BASIC") {
+  } else if (hasForumEvents && isHomeRoute(pathname) && bannerImageId && currentForumEvent?.eventFormat !== "BASIC") {
     // On EAF, forum events with polls or stickers also update the home page header background and text
     const darkColor = currentForumEvent.darkColor;
     const background = `top / cover no-repeat url(${makeCloudinaryImageUrl(bannerImageId, {
@@ -521,7 +550,8 @@ const Header = ({
           <header
             className={classNames(
               classes.appBar,
-              useContrastText && classes.appBarDarkBackground
+              useContrastText && classes.appBarDarkBackground,
+              routeMetadata.background === "white" && classes.blackBackgroundAppBar,
             )}
             style={headerStyle}
           >
@@ -546,7 +576,6 @@ const Header = ({
                   </Link>
                 </div>
               </Typography>
-              {!isEAForum &&<ActiveDialogues />}
               {rightHeaderItemsNode}
             </Toolbar>
           </header>

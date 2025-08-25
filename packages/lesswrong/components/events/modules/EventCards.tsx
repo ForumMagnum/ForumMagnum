@@ -1,7 +1,6 @@
 import { registerComponent } from '../../../lib/vulcan-lib/components';
 import React from 'react';
 import { Link } from '../../../lib/reactRouterWrapper';
-import * as _ from 'underscore';
 import { Card } from "@/components/widgets/Paper";
 import CardContent from '@/lib/vendor/@material-ui/core/src/CardContent';
 import { useTimezone } from '../../common/withTimezone';
@@ -10,7 +9,6 @@ import { getDefaultEventImg } from './HighlightedEventCard';
 import { useCurrentUser } from '../../common/withUser';
 import classNames from 'classnames';
 import { communityPath } from '@/lib/pathConstants';
-import { isFriendlyUI } from '../../../themes/forumTheme';
 import { forumSelect } from '../../../lib/forumTypeUtils';
 import AddToCalendarButton from "../../posts/AddToCalendar/AddToCalendarButton";
 import PostsItemTooltipWrapper from "../../posts/PostsItemTooltipWrapper";
@@ -81,7 +79,7 @@ const styles = (theme: ThemeType) => ({
     overflow: 'hidden',
     marginTop: 8,
     marginBottom: 0,
-    ...(isFriendlyUI && {
+    ...(theme.isFriendlyUI && {
       fontFamily: theme.palette.fonts.sansSerifStack,
     }),
   },
@@ -141,7 +139,7 @@ const EventCards = ({events, loading, numDefaultCards, hideSpecialCards, hideGro
   // while the data is loading, show some placeholder empty cards
   if (loading && !events.length) {
     return numDefaultCards ? <>
-      {_.range(numDefaultCards).map((i) => {
+      {Array.from({ length: numDefaultCards }, (_, i) => {
         return <Card key={i} className={classNames(classes.eventCard, cardClassName)}></Card>
       })}
     </> : null

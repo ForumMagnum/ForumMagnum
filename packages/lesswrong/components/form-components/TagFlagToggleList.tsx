@@ -1,6 +1,5 @@
 import React from 'react';
 import { registerComponent } from '../../lib/vulcan-lib/components';
-import * as _ from 'underscore';
 import DeferRender from '../common/DeferRender';
 import { UpdateCurrentValues } from '../vulcan-forms/propTypes';
 import Loading from "../vulcan-core/Loading";
@@ -31,7 +30,7 @@ const TagFlagToggleList = ({ value, path, updateCurrentValues }: {
   const handleClick = (option: string) => {    
     if (value.includes(option)) {
       void updateCurrentValues({
-        [path]: _.without(value, option)
+        [path]: value.filter(v => v !== option)
       })
     } else {
       void updateCurrentValues({
@@ -56,7 +55,7 @@ const TagFlagToggleList = ({ value, path, updateCurrentValues }: {
     {results?.map(({_id}) => {
       const selected = value && value.includes(_id);
       return <a key={_id} onClick={() => handleClick(_id)}>
-        <TagFlagItem documentId={_id} style={selected ? "grey" : "white"} showNumber={false} />
+        <TagFlagItem documentId={_id} style={selected ? "grey" : "white"} />
       </a>
     })}
   </div></DeferRender>

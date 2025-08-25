@@ -4,6 +4,7 @@ import { getCollection } from "@/server/collections/allCollections";
 import { searchIndexedCollectionNamesSet } from "@/lib/search/searchUtil";
 import { collectionNameToTypeName } from "@/lib/generated/collectionTypeNames";
 import { allSchemas } from "@/lib/schema/allSchemas";
+import { backgroundTask } from "../utils/backgroundTask";
 
 interface InvertedCountOfReferenceOptions {
   sourceCollectionName: CollectionNameString,
@@ -186,7 +187,7 @@ function getSharedCountOfReferenceFunctionOptions<N extends CollectionNameString
   const resync = (documentId: string) => {
     if (resyncElastic && searchIndexedCollectionNamesSet.has(sourceCollectionName)) {
       const { elasticSyncDocument } = require("../search/elastic/elasticCallbacks"); //cycle-breaking
-      void elasticSyncDocument(sourceCollectionName, documentId);
+      backgroundTask(elasticSyncDocument(sourceCollectionName, documentId));
     }
   }
 

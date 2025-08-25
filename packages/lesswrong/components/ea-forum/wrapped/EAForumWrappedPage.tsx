@@ -4,7 +4,7 @@ import { AnalyticsContext } from "@/lib/analyticsEvents";
 import { useLocation } from "@/lib/routeUtil";
 import { HEADER_HEIGHT, MOBILE_HEADER_HEIGHT } from "@/components/common/Header";
 import { useCurrentUser } from "@/components/common/withUser";
-import { makeCloudinaryImageUrl } from "@/components/common/CloudinaryImage2";
+import { makeCloudinaryImageUrl } from '@/components/common/cloudinaryHelpers';
 import { ForumWrappedProvider, useForumWrapped } from "./hooks";
 import { isWrappedYear } from "./constants";
 import moment from "moment";

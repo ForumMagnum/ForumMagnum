@@ -330,6 +330,7 @@ export const PostsList = gql(`
       hostedHere
       foreignPostId
     }
+    bannedUserIds
   }
 `)
 
@@ -712,18 +713,10 @@ export const SunshinePostsList = gql(`
       htmlHighlight
       wordCount
       version
+    }
 
-      automatedContentEvaluations {
-        _id
-        score
-        sentenceScores {
-          sentence
-          score
-        }
-        aiChoice
-        aiReasoning
-        aiCoT
-      }
+    automatedContentEvaluations {
+      ...AutomatedContentEvaluationsFragment
     }
 
     moderationGuidelines {

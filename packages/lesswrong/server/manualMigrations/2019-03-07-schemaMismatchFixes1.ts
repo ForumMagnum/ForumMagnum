@@ -1,6 +1,5 @@
 import { registerMigration, migrateDocuments, dropUnusedField } from './migrationUtils';
 import { Posts } from '../../server/collections/posts/collection';
-import * as _ from 'underscore';
 
 export const scoreExceededDateFalseToNull = registerMigration({
   name: "scoreExceededDateFalseToNull",
@@ -22,7 +21,7 @@ export const scoreExceededDateFalseToNull = registerMigration({
         },
         batchSize: 1000,
         migrate: async (documents) => {
-          let updates = _.map(documents, doc => ({
+          let updates = documents.map(doc => ({
             updateOne: {
               filter: { _id: doc._id },
               update: {

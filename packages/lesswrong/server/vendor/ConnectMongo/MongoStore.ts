@@ -10,6 +10,7 @@ import * as session from 'express-session';
 import { assert } from 'console';
 import { loggerConstructor } from '../../../lib/utils/logging';
 import SessionsRepo, { UpsertSessionData } from '../../repos/SessionsRepo';
+import { backgroundTask } from '@/server/utils/backgroundTask';
 
 const debug = loggerConstructor('connect-mongo');
 
@@ -69,7 +70,7 @@ export default class MongoStore extends session.Store {
     this.collection = options.collection;
     this.options = options;
     this.collection = options.collection;
-    void this.setAutoRemove(this.collection);
+    backgroundTask(this.setAutoRemove(this.collection));
   }
 
   getCollection(): ConnectMongoCollection {
@@ -96,7 +97,7 @@ export default class MongoStore extends session.Store {
       case 'interval':
         debug('create Timer to remove expired sessions');
         this.timer = setInterval(
-          () => void collection.rawRemove(removeQuery()),
+          () => backgroundTask(collection.rawRemove(removeQuery())),
           this.options.autoRemoveInterval * 1000 * 60
         );
         this.timer.unref();
@@ -115,6 +116,7 @@ export default class MongoStore extends session.Store {
     sid: string,
     callback: (err: any, session?: session.SessionData | null) => void
   ): void {
+    // eslint-disable-next-line @typescript-eslint/no-floating-promises
     void (async () => {
       try {
         debug(`MongoStore#get=${sid}`);

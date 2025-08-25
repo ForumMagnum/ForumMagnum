@@ -16,15 +16,19 @@ const COLLAPSED_HEIGHT = 40;
 const styles = (theme: ThemeType) => ({
   root: {
     background: theme.palette.panelBackground.default,
+    border: `1px solid ${theme.palette.grey[200]}`,
+    ...(theme.isBookUI && {
+      background: theme.palette.panelBackground.bannerAdTranslucentStrong,
+      border: "none",
+    }),
     borderRadius: theme.borderRadius.quickTakesEntry,
     fontFamily: theme.palette.fonts.sansSerifStack,
-    border: `1px solid ${theme.palette.grey[200]}`,
   },
   commentEditor: {
     "& .ck-placeholder": {
-      marginTop: isFriendlyUI ? "-3px !important" : undefined,
+      marginTop: theme.isFriendlyUI ? "-3px !important" : undefined,
       "&::before": {
-        color: isFriendlyUI ? theme.palette.grey[600] : undefined,
+        color: theme.isFriendlyUI ? theme.palette.grey[600] : undefined,
         fontFamily: theme.palette.fonts.sansSerifStack,
         fontSize: 14,
         fontWeight: 500,

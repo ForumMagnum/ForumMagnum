@@ -1,5 +1,3 @@
-'use client';
-
 import React from 'react';
 import { postGetPageUrl } from '../../lib/collections/posts/helpers';
 import groupBy from 'lodash/groupBy';
@@ -8,7 +6,8 @@ import { tagGetSubforumUrl, tagGetDiscussionUrl } from '../../lib/collections/ta
 import { commentGetPageUrl } from '../../lib/collections/comments/helpers';
 import startCase from 'lodash/startCase';
 import { isFriendlyUI } from '@/themes/forumTheme';
-import { defineStyles, useStyles } from '@/components/hooks/useStyles';
+import { defineStyles } from "@/components/hooks/defineStyles";
+import { EmailContextType, useEmailStyles } from "./emailContext";
 import { EmailFormatDate } from './EmailFormatDate';
 import { EmailUsername } from './EmailUsername';
 import { EmailContentItemBody } from './EmailContentItemBody';
@@ -65,10 +64,11 @@ const styles = defineStyles("EmailComment", (theme: ThemeType) => ({
   },
 }));
 
-export const EmailCommentBatch = ({comments}: {
+export const EmailCommentBatch = ({comments, emailContext}: {
   comments: Partial<DbComment>[],
+  emailContext: EmailContextType,
 }) => {
-  const classes = useStyles(styles);
+  const classes = useEmailStyles(styles, emailContext);
   const commentsOnPosts = filter(comments, comment => !!comment.postId)
   const commentsByPostId = groupBy(commentsOnPosts, (comment: DbComment)=>comment.postId);
   const commentsOnTags = filter(comments, comment => !!comment.tagId && comment.tagCommentType === "DISCUSSION")
@@ -81,7 +81,7 @@ export const EmailCommentBatch = ({comments}: {
       <>
         {comments?.map((comment, idx) => (
           <div key={comment._id}>
-            <EmailComment commentId={comment._id ?? ""} hideTitle={hideTitle} />
+            <EmailComment commentId={comment._id ?? ""} hideTitle={hideTitle} emailContext={emailContext} />
             {idx !== comments.length - 1 && <hr className={classes.commentHr} />}
           </div>
         ))}
@@ -96,24 +96,28 @@ export const EmailCommentBatch = ({comments}: {
 
       return (
         <div key={postId}>
-          <EmailCommentsOnPostHeader postId={postId} allShortform={allShortform} />
+          <EmailCommentsOnPostHeader postId={postId} allShortform={allShortform} emailContext={emailContext} />
           {commentsListComponent(comments, true)}
         </div>
       );
     })}
     {Object.keys(commentsByTagId).map(tagId => <div key={tagId}>
-      <EmailCommentsOnTagHeader tagId={tagId} isSubforum={false}/>
+      <EmailCommentsOnTagHeader tagId={tagId} isSubforum={false} emailContext={emailContext}/>
       {commentsListComponent(commentsByTagId[tagId])}
     </div>)}
     {Object.keys(commentsBySubforumTagId).map(tagId => <div key={tagId}>
-      <EmailCommentsOnTagHeader tagId={tagId} isSubforum={true}/>
+      <EmailCommentsOnTagHeader tagId={tagId} isSubforum={true} emailContext={emailContext}/>
       {commentsListComponent(commentsBySubforumTagId[tagId])}
     </div>)}
   </div>;
 }
 
-const HeadingLink = ({ text, href }: { text: string; href: string; }) => {
-  const classes = useStyles(styles);
+const HeadingLink = ({ text, href, emailContext }: {
+  text: string,
+  href: string,
+  emailContext: EmailContextType,
+}) => {
+  const classes = useEmailStyles(styles, emailContext);
   return (
     <h1>
       <a href={href} className={classes.headingLink}>
@@ -123,7 +127,11 @@ const HeadingLink = ({ text, href }: { text: string; href: string; }) => {
   );
 };
 
-const EmailCommentsOnPostHeader = ({postId, allShortform}: {postId: string, allShortform: boolean}) => {
+const EmailCommentsOnPostHeader = ({postId, allShortform, emailContext}: {
+  postId: string,
+  allShortform: boolean,
+  emailContext: EmailContextType,
+}) => {
   const { data } = useQuery(PostsListQuery, {
     variables: { documentId: postId },
   });
@@ -132,10 +140,14 @@ const EmailCommentsOnPostHeader = ({postId, allShortform}: {postId: string, allS
 
   const title = allShortform ? post.title : `New comments on ${post.title}`
 
-  return <HeadingLink text={title} href={postGetPageUrl(post, true)}/>
+  return <HeadingLink text={title} href={postGetPageUrl(post, true)} emailContext={emailContext}/>
 }
 
-const EmailCommentsOnTagHeader = ({tagId, isSubforum}: {tagId: string, isSubforum: boolean}) => {
+const EmailCommentsOnTagHeader = ({tagId, isSubforum, emailContext}: {
+  tagId: string,
+  isSubforum: boolean,
+  emailContext: EmailContextType
+}) => {
   const { data } = useQuery(TagPreviewFragmentQuery, {
     variables: { documentId: tagId },
   });
@@ -143,15 +155,25 @@ const EmailCommentsOnTagHeader = ({tagId, isSubforum}: {tagId: string, isSubforu
   if (!tag)
     return null;
   
-  const props = isSubforum
-    ? { text: `New comments in the ${startCase(tag.name)} subforum`, href: tagGetSubforumUrl(tag, true) }
-    : { text: `New discussion comments on ${tag.name}`, href: tagGetDiscussionUrl(tag) };
-  return <HeadingLink {...props}/>
+  if (isSubforum) {
+    return <HeadingLink
+      text={`New comments in the ${startCase(tag.name)} subforum`}
+      href={tagGetSubforumUrl(tag, true)}
+      emailContext={emailContext}
+    />
+  } else {
+    return <HeadingLink
+      text={`New discussion comments on ${tag.name}`}
+      href={tagGetDiscussionUrl(tag)}
+      emailContext={emailContext}
+    />
+  }
 }
 
-export const EmailComment = ({commentId, hideTitle}: {
+export const EmailComment = ({commentId, hideTitle, emailContext}: {
   commentId: string,
   hideTitle?: boolean,
+  emailContext: EmailContextType,
 }) => {
   const { loading, error, data } = useQuery(CommentsListWithParentMetadataQuery, {
     variables: { documentId: commentId },

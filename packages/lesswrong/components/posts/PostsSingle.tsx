@@ -6,12 +6,13 @@ import React from 'react';
 import { isLWorAF } from '../../lib/instanceSettings';
 import PermanentRedirect from "../common/PermanentRedirect";
 import PostsPageWrapper from "./PostsPage/PostsPageWrapper";
+import { isE2E } from '@/lib/executionEnvironment';
 
 const PostsSingle = () => {
   const { params, query } = useLocation();
   const version = query?.revision;
 
-  if (((params._id.length !== 17 && params._id.length !== 24) || params._id.includes("-")) && isLWorAF) { 
+  if (((params._id.length !== 17 && params._id.length !== 24) || params._id.includes("-")) && isLWorAF && !isE2E) { 
     return <PermanentRedirect status={307} url={'/posts/slug/' + params._id}/>
   }
 

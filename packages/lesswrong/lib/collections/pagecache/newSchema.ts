@@ -4,9 +4,10 @@ import type { AbstractThemeOptions } from "@/themes/themeNames";
 declare global {
   interface RenderResultFieldType {
     ssrBody: string;
-    headers: string[];
+    headers: string;
     serializedApolloState: string;
     serializedForeignApolloState: string;
+    structuredData: Record<string,any>|null
     jssSheets: string;
     status: number;
     redirectUrl: string;

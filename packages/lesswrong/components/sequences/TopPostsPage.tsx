@@ -1,6 +1,8 @@
+"use client";
+
 import React, { useEffect, useRef, useState } from 'react';
 import { AnalyticsContext } from "../../lib/analyticsEvents";
-import { siteNameWithArticleSetting } from '../../lib/instanceSettings';
+import { CoordinateInfo, ReviewYearGroupInfo, ReviewSectionInfo, reviewWinnerYearGroupsInfo, reviewWinnerSectionsInfo } from '@/lib/instanceSettings';
 import { useLocation } from '../../lib/routeUtil';
 import { postGetPageUrl } from '../../lib/collections/posts/helpers';
 import { Link } from '../../lib/reactRouterWrapper';
@@ -14,14 +16,12 @@ import qs from "qs";
 import { SECTION_WIDTH } from '../common/SingleColumnSection';
 import { filterWhereFieldsNotNull } from '@/lib/utils/typeGuardUtils';
 import { getSpotlightUrl } from '@/lib/collections/spotlights/helpers';
-import { CoordinateInfo, ReviewYearGroupInfo, ReviewSectionInfo, reviewWinnerYearGroupsInfo, reviewWinnerSectionsInfo } from '@/lib/publicSettings';
 import { ReviewYear, ReviewWinnerCategory, reviewWinnerCategories, BEST_OF_LESSWRONG_PUBLISH_YEAR, PublishedReviewYear, publishedReviewYears } from '@/lib/reviewUtils';
 import { registerComponent } from "../../lib/vulcan-lib/components";
 import SectionTitle from "../common/SectionTitle";
-import HeadTags from "../common/HeadTags";
 import ContentStyles from "../common/ContentStyles";
 import Loading from "../vulcan-core/Loading";
-import SpotlightItem from "../spotlights/SpotlightItem";
+import { SpotlightItem } from "../spotlights/SpotlightItem";
 import LWTooltip from "../common/LWTooltip";
 
 /** In theory, we can get back posts which don't have review winner info, but given we're explicitly querying for review winners... */
@@ -78,8 +78,6 @@ const DEFAULT_SPLASH_ART_COORDINATES: CoordinateInfo = {
   middleHeightPct: .2, middleWidthPct: .2, middleXPct: .2, middleYPct: .2, middleFlipped: false,
   rightHeightPct: .2, rightWidthPct: .2, rightXPct: .2, rightYPct: .2, rightFlipped: false,
 };
-
-const description = `${siteNameWithArticleSetting.get()}'s best posts`;
 
 const BOOK_OFFSETS_TO_COORDINATE_POSITIONS: Partial<Record<number, CoordinatePosition>> = {
   0: 'left',
@@ -785,7 +783,6 @@ const TopPostsPage = ({ classes }: { classes: ClassesType<typeof styles> }) => {
 
   return (
     <>
-      <HeadTags description={description} image={"https://res.cloudinary.com/lesswrong-2-0/image/upload/f_auto,q_auto/v1709263848/Screen_Shot_2024-02-29_at_7.30.43_PM_m5pyah.png"} />
       {/** TODO: change pageContext when/if we rename component */}
       <AnalyticsContext pageContext="topPostsPage">
         <div className={classes.widerColumn}>

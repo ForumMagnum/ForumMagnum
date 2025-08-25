@@ -1,12 +1,11 @@
 import { Images } from '../../server/collections/images/collection';
-import { DatabaseServerSetting } from '../databaseSettings';
-import { ckEditorUploadUrlSetting, cloudinaryCloudNameSetting } from '../../lib/publicSettings';
+import { cloudinaryApiKey, cloudinaryApiSecret } from '../databaseSettings';
+import { ckEditorUploadUrlSetting, cloudinaryCloudNameSetting, ckEditorUploadUrlOverrideSetting } from '../../lib/instanceSettings';
 import { randomId } from '../../lib/random';
 import type { UploadApiResponse } from 'cloudinary';
 import cheerio from 'cheerio';
 import { cheerioParse } from '../utils/htmlUtil';
 import { URL } from 'url';
-import { ckEditorUploadUrlOverrideSetting } from '../../lib/instanceSettings';
 import uniq from 'lodash/uniq';
 import { loggerConstructor } from '../../lib/utils/logging';
 import { Posts } from '../../server/collections/posts/collection';
@@ -20,8 +19,6 @@ import { sleep } from '@/lib/utils/asyncUtils';
 import SideCommentCaches from '@/server/collections/sideCommentCaches/collection';
 import { createAnonymousContext } from '../vulcan-lib/createContexts';
 
-const cloudinaryApiKey = new DatabaseServerSetting<string>("cloudinaryApiKey", "");
-const cloudinaryApiSecret = new DatabaseServerSetting<string>("cloudinaryApiSecret", "");
 
 export type CloudinaryCredentials = {
   cloud_name: string,
@@ -146,7 +143,7 @@ export async function getOrCreateCloudinaryImage({
   upload,
 }: {
   identifier: string;
-  identifierType: string;
+  identifierType: 'originalUrl' | 'sha256Hash';
   upload: (credentials: CloudinaryCredentials) => Promise<UploadApiResponse>;
 }) {
   const cloudinary = await import('cloudinary');
@@ -173,6 +170,7 @@ export async function getOrCreateCloudinaryImage({
     identifier,
     identifierType,
     cdnHostedUrl: autoQualityFormatUrl,
+    originalUrl: null,
   });
 
   return autoQualityFormatUrl;
@@ -374,7 +372,7 @@ export async function convertImagesInObject<N extends CollectionNameString>(
       _id: randomId(),
       html: newHtml,
       editedAt: now,
-      updateType: "patch",
+      updateType: "patch" as const,
       version: newVersion,
       commitMessage: "Move images to CDN",
       changeMetrics: htmlToChangeMetrics(oldHtml, newHtml),

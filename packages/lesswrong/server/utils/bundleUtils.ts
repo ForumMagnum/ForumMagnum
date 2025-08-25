@@ -1,7 +1,7 @@
 import fs from 'fs';
 import crypto from 'crypto';
 import path from 'path'
-import { zlib } from 'mz';
+import zlib from 'zlib';
 import { isProduction } from '../../lib/executionEnvironment';
 
 export type CompressedCacheResource = {

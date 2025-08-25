@@ -2,9 +2,7 @@ import React from 'react';
 import { registerComponent } from '../../lib/vulcan-lib/components';
 import { QueryLink } from '../../lib/reactRouterWrapper'
 import classNames from 'classnames'
-import * as _ from 'underscore';
 import { SettingsOption } from '../../lib/collections/posts/dropdownOptions';
-import { isFriendlyUI } from '../../themes/forumTheme';
 import { TooltipSpan } from './FMTooltip';
 import MetaInfo from "./MetaInfo";
 
@@ -21,8 +19,8 @@ const styles = (theme: ThemeType) => ({
     '&&': {
       // Increase specifity to remove import-order conflict with MetaInfo
       display: "block",
-      fontStyle: isFriendlyUI ? undefined : "italic",
-      fontWeight: isFriendlyUI ? undefined : 600,
+      fontStyle: theme.isFriendlyUI ? undefined : "italic",
+      fontWeight: theme.isFriendlyUI ? undefined : 600,
       marginBottom: theme.spacing.unit/2
     },
   },
@@ -53,7 +51,7 @@ const styles = (theme: ThemeType) => ({
 interface Props {
   type: string;
   title: string;
-  options: Partial<Record<string, SettingsOption>>;
+  options: Partial<Record<string, SettingsOption | string>>;
   currentOption: string;
   classes: ClassesType<typeof styles>;
   setSetting: (type: string, newSetting: any) => void;
@@ -65,8 +63,8 @@ const SettingsColumn = ({type, title, options, currentOption, classes, setSettin
     <MetaInfo className={classes.selectionTitle}>
       {title}
     </MetaInfo>
-    {Object.entries(options).map(([name, optionValue]: any) => {
-      const label = _.isString(optionValue) ? optionValue : optionValue.label
+    {Object.entries(options).map(([name, optionValue]) => {
+      const label = typeof optionValue === 'string' ? optionValue : optionValue?.label
       const nofollowTag = nofollow ? { rel: 'nofollow' } : {};
       return (
         <QueryLink
@@ -78,7 +76,7 @@ const SettingsColumn = ({type, title, options, currentOption, classes, setSettin
           {...nofollowTag}
         >
           <MetaInfo className={classNames(classes.menuItem, {[classes.selected]: currentOption === name})}>
-            {optionValue.tooltip ?
+            {typeof optionValue === 'object' && optionValue.tooltip ?
               <TooltipSpan title={<div>{optionValue.tooltip}</div>} placement="left-start">
                 {label}
               </TooltipSpan> :

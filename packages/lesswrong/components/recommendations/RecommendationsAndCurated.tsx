@@ -23,7 +23,7 @@ import CuratedPostsList from "./CuratedPostsList";
 import ForumIcon from "../common/ForumIcon";
 
 const styles = (theme: ThemeType) => ({
-  section: isFriendlyUI ? {} : {
+  section: theme.isFriendlyUI ? {} : {
     marginTop: -12,
   },
   continueReadingList: {
@@ -91,7 +91,7 @@ const styles = (theme: ThemeType) => ({
     '@media (max-width: 350px)': {
       display: 'none'
     },
-    ...(isFriendlyUI && {
+    ...(theme.isFriendlyUI && {
       "&:hover": {
         color: theme.palette.grey[1000],
         opacity: 1,
@@ -178,7 +178,7 @@ const RecommendationsAndCurated = ({
       <div><em>(Click to see more recommendations)</em></div>
     </div>
 
-    const renderBookmarks = !isEAForum && ((currentUser?.bookmarkedPostsMetadata?.length || 0) > 0) && !settings.hideBookmarks
+    const renderBookmarks = !isEAForum && currentUser?.hasAnyBookmarks && !settings.hideBookmarks;
     const renderContinueReading = !isEAForum && currentUser && (continueReading?.length > 0) && !settings.hideContinueReading
     
     const renderRecommendations = !settings.hideFrontpage
@@ -228,7 +228,7 @@ const RecommendationsAndCurated = ({
       <>
         {isLW && (
           <AnalyticsContext pageSubSectionContext="frontpageCuratedCollections">
-            <DismissibleSpotlightItem current />
+            <DismissibleSpotlightItem />
           </AnalyticsContext>
         )}
 

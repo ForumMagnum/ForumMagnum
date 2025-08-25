@@ -1,14 +1,13 @@
 import React, { useState, useCallback, useRef } from 'react';
 import { registerComponent } from '../../lib/vulcan-lib/components';
-import { sequenceGetPageUrl } from '../../lib/collections/sequences/helpers';
 import { userCanDo, userOwns } from '../../lib/vulcan-users/permissions';
 import { useCurrentUser } from '../common/withUser';
 import { sectionFooterLeftStyles } from '../users/UsersProfile'
 import {AnalyticsContext} from "../../lib/analyticsEvents";
-import { defaultSequenceBannerIdSetting, nofollowKarmaThreshold } from '../../lib/publicSettings';
+import { defaultSequenceBannerIdSetting, nofollowKarmaThreshold } from '@/lib/instanceSettings';
 import { HEADER_HEIGHT, MOBILE_HEADER_HEIGHT } from '../common/Header';
 import { isFriendlyUI } from '../../themes/forumTheme';
-import { makeCloudinaryImageUrl } from '../common/CloudinaryImage2';
+import { makeCloudinaryImageUrl } from '../common/cloudinaryHelpers';
 import { allowSubscribeToSequencePosts } from '../../lib/betas';
 import { Link } from '../../lib/reactRouterWrapper';
 import DeferRender from '../common/DeferRender';
@@ -18,7 +17,6 @@ import { ChaptersForm } from './ChaptersForm';
 import Error404 from "../common/Error404";
 import Loading from "../vulcan-core/Loading";
 import SequencesEditForm from "./SequencesEditForm";
-import HeadTags from "../common/HeadTags";
 import CloudinaryImage from "../common/CloudinaryImage";
 import SingleColumnSection from "../common/SingleColumnSection";
 import SectionSubtitle from "../common/SectionSubtitle";
@@ -63,7 +61,7 @@ export const sequencesImageScrim = (theme: ThemeType) => ({
 
 const styles = (theme: ThemeType) => ({
   root: {
-    paddingTop: isFriendlyUI ? (270 + HEADER_HEIGHT) : 380,
+    paddingTop: theme.isFriendlyUI ? (270 + HEADER_HEIGHT) : 380,
   },
   deletedText: {
     paddingTop: 20,
@@ -103,7 +101,7 @@ const styles = (theme: ThemeType) => ({
   description: {
     marginTop: theme.spacing.unit * 2,
     marginLeft: theme.spacing.unit/2,
-    marginBottom: isFriendlyUI ? 40 : theme.spacing.unit * 2,
+    marginBottom: theme.isFriendlyUI ? 40 : theme.spacing.unit * 2,
   },
   banner: {
     position: "absolute",
@@ -142,8 +140,8 @@ const styles = (theme: ThemeType) => ({
       marginTop: -100,
     },
     [theme.breakpoints.down('xs')]: {
-      marginTop: isFriendlyUI ? undefined : theme.spacing.unit,
-      padding: isFriendlyUI ? 16 : theme.spacing.unit
+      marginTop: theme.isFriendlyUI ? undefined : theme.spacing.unit,
+      padding: theme.isFriendlyUI ? 16 : theme.spacing.unit
     },
   },
   leftAction: {
@@ -176,12 +174,6 @@ const styles = (theme: ThemeType) => ({
     "& h3": {
       fontSize: "2em",
       marginBottom: "1em",
-    },
-    "& label.control-label": {
-      display: "none",
-    },
-    "& .col-sm-9": {
-      padding: 0,
     },
     "& .input-title input": {
       fontSize: "2em",
@@ -267,13 +259,6 @@ const SequencesPage = ({ documentId, classes }: {
     
   return <AnalyticsContext pageContext="sequencesPage">
     <div className={classes.root}>
-      <HeadTags
-        canonicalUrl={sequenceGetPageUrl(document, true)}
-        title={document.title}
-        description={plaintextDescription || undefined}
-        image={socialImageUrl}
-        noIndex={document.noindex}
-      />
       {bannerId && <div className={classes.banner}>
         <div className={classes.bannerWrapper}>
           <DeferRender ssr={false}>

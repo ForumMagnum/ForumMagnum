@@ -1,5 +1,4 @@
 import type { ApolloCache } from '@apollo/client';
-import * as _ from 'underscore';
 import { camelCaseify } from "../vulcan-lib/utils";
 import { pluralize } from "../vulcan-lib/pluralize";
 
@@ -34,7 +33,7 @@ function getQueryName(query: any) {
  * corresponding to the given typeName. This abuses private apollo-client APIs,
  * and runs client-side only.
  */
-export const findWatchesByTypeName = (store: ApolloCache<any>, typeName: string) => {
+export const findWatchesByTypeName = (store: ApolloCache, typeName: string) => {
   // Use a private variable on ApolloCache to cover an API hole (no good way to
   // do this directly, though upgrading apollo-client maybe adds functions that
   // offer a more elegant solution.)
@@ -46,14 +45,4 @@ export const findWatchesByTypeName = (store: ApolloCache<any>, typeName: string)
     const multiQueryName = getMultiQueryName(typeName);
     return name === multiQueryName
   })
-}
-
-/**
- * Extract `extraVariables` (fed to resolvers where referenced in fragments)
- * from options passed to an HoC mutation. Obsolete-ish since we've almost
- * fully gotten rid of HoCs in this context, but may be needed by the few HoC
- * mutation usages still hanging on.
- */
-export const getExtraVariables = (props: any, extraVariables: any) => {
-  return _.pick(props || {}, Object.keys(extraVariables || {}))
 }

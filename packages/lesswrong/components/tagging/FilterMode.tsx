@@ -8,8 +8,7 @@ import { Link } from '../../lib/reactRouterWrapper';
 import { AnalyticsContext } from "../../lib/analyticsEvents";
 import { userHasNewTagSubscriptions } from '../../lib/betas';
 import { useCurrentUser } from '../common/withUser';
-import { taggingNameSetting } from '../../lib/instanceSettings';
-import { defaultVisibilityTags } from '../../lib/publicSettings';
+import { taggingNameSetting, defaultVisibilityTags } from '@/lib/instanceSettings';
 import { tagGetUrl } from '../../lib/collections/tags/helpers';
 import { forumSelect } from '../../lib/forumTypeUtils';
 import VisibilityOff from '@/lib/vendor/@material-ui/icons/src/VisibilityOff';
@@ -60,9 +59,9 @@ const styles = (theme: ThemeType) => ({
     flexGrow: 1,
     textAlign: "center",
     fontWeight: theme.typography.body1.fontWeight,
-    color: isFriendlyUI ? theme.palette.lwTertiary.main : theme.palette.primary.main,
+    color: theme.isFriendlyUI ? theme.palette.lwTertiary.main : theme.palette.primary.main,
     boxShadow: theme.palette.boxShadow.default,
-    ...(isFriendlyUI ? {
+    ...(theme.isFriendlyUI ? {
       marginBottom: 4,
       marginRight: 4,
     } : {
@@ -78,7 +77,7 @@ const styles = (theme: ThemeType) => ({
     alignItems: 'center',
     justifyContent: 'center',
     fontWeight: theme.typography.body1.fontWeight,
-    overflow: isFriendlyUI ? undefined : 'hidden',
+    overflow: theme.isFriendlyUI ? undefined : 'hidden',
   },
   filterScore: {
     color: theme.palette.primary.main,
@@ -135,7 +134,7 @@ const styles = (theme: ThemeType) => ({
     marginBottom: -4,
     borderRadius: 2,
     
-    ...(isFriendlyUI && {
+    ...(theme.isFriendlyUI && {
       color: theme.palette.primary.main
     }),
   },
@@ -179,6 +178,7 @@ const FilterModeRawComponent = ({tagId="", label, mode, canRemove=false, onChang
   const { data } = useQuery(TagPreviewFragmentQuery, {
     variables: { documentId: tagId },
     skip: !tagId,
+    ssr: false,
   });
   const tag = data?.tag?.result;
 
@@ -248,7 +248,7 @@ const FilterModeRawComponent = ({tagId="", label, mode, canRemove=false, onChang
   const showPlusSign = typeof otherValue === 'number' && otherValue >= 1;
 
   return <span {...eventHandlers} className={classes.tag}>
-    <AnalyticsContext pageElementContext="tagFilterMode" tagId={tag?._id} tagName={tag?.name}>
+    <AnalyticsContext pageElementContext="tagFilterMode" tagId={tagId} tagName={label}>
       {tag ? (
         <>
           <Link to={tagGetUrl(tag)} className={classes.hideOnMobile}>

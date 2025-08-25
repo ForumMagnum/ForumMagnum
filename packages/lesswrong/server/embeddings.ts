@@ -2,14 +2,15 @@ import Posts from "../server/collections/posts/collection";
 import PostEmbeddingsRepo from "./repos/PostEmbeddingsRepo";
 import PostsRepo from "./repos/PostsRepo";
 import { forEachDocumentBatchInCollection } from "./manualMigrations/migrationUtils";
-import { getOpenAI } from "./languageModels/languageModelIntegration";
+import { getOpenAI, isOpenAIAPIEnabled } from "./languageModels/languageModelIntegration";
 import { htmlToTextDefault } from "../lib/htmlToText";
 import { inspect } from "util";
 import md5 from "md5";
 import { isAnyTest, isE2E } from "../lib/executionEnvironment";
 import { isEAForum, isLWorAF } from "../lib/instanceSettings";
-import { addCronJob } from "./cron/cronUtil";
-import { TiktokenModel, encodingForModel as encoding_for_model } from "js-tiktoken";
+// Avoid importing all of js-tiktoken, it's very large and increases bundle size noticeably
+import { Tiktoken, type TiktokenModel } from "js-tiktoken/lite";
+import cl100k_base from "js-tiktoken/ranks/cl100k_base";
 import { fetchFragment, fetchFragmentSingle } from "./fetchFragment";
 import mapValues from "lodash/mapValues";
 import chunk from "lodash/chunk";
@@ -67,7 +68,7 @@ const trimText = (
   model: TiktokenModel,
   maxTokens: number,
 ): string => {
-  const encoding = encoding_for_model(model);
+  const encoding = new Tiktoken(cl100k_base);
 
   for (
     let encoded = encoding.encode(text);
@@ -178,6 +179,10 @@ export const getEmbeddingsFromApi = async (text: string): Promise<EmbeddingsResu
   };
 }
 
+export const isEmbeddingsAPIEnabled = () => {
+  return isOpenAIAPIEnabled();
+}
+
 type EmbeddingsWithHash = EmbeddingsResult & { hash: string };
 
 const getEmbeddingsForPost = async (
@@ -218,6 +223,9 @@ const getEmbeddingsForPosts = async (
 
 // Exported to allow running manually with yarn repl
 export const updatePostEmbeddings = async (postId: string) => {
+  if (!isEmbeddingsAPIEnabled()) {
+    return;
+  }
   const {hash, embeddings, model} = await getEmbeddingsForPost(postId);
   const repo = new PostEmbeddingsRepo();
   await repo.setPostEmbeddings(postId, hash, model, embeddings);
@@ -284,10 +292,3 @@ export const updateMissingPostEmbeddings = async () => {
     }
   }
 }
-
-export const cronUpdateMissingEmbeddings = addCronJob({
-  name: "updateMissingEmbeddings",
-  interval: "every 24 hours",
-  disabled: !HAS_EMBEDDINGS_FOR_RECOMMENDATIONS,
-  job: updateMissingPostEmbeddings,
-});

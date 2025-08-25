@@ -1,5 +1,4 @@
 import React, { useEffect, useRef, useState, useCallback, useContext } from 'react';
-import { registerComponent } from '../../lib/vulcan-lib/components';
 import classNames from 'classnames';
 import DeferRender from '../common/DeferRender';
 import Button from '@/lib/vendor/@material-ui/core/src/Button';
@@ -7,7 +6,8 @@ import { useMessages } from '../common/withMessages';
 import Select from '@/lib/vendor/@material-ui/core/src/Select';
 import CloseIcon from '@/lib/vendor/@material-ui/icons/src/Close';
 import { useLocation } from "../../lib/routeUtil";
-import { NewLlmMessage, PromptContextOptions, RAG_MODE_SET, RagModeType, useLlmChat } from './LlmChatWrapper';
+import { NewLlmMessage, useLlmChat } from './LlmChatWrapper';
+import { PromptContextOptions, RAG_MODE_SET, RagModeType } from './schema';
 import type { Editor } from '@ckeditor/ckeditor5-core';
 import CKEditor from '@/lib/vendor/ckeditor5-react/ckeditor';
 import { getCkCommentEditor } from '@/lib/wrapCkEditor';
@@ -17,13 +17,15 @@ import { ckEditorStyles } from '@/themes/stylePiping';
 import { HIDE_LLM_CHAT_GUIDE_COOKIE } from '@/lib/cookies/cookies';
 import { useCookiesWithConsent } from '../hooks/useCookiesWithConsent';
 import { AnalyticsContext } from '@/lib/analyticsEvents';
-import { AutosaveEditorStateContext } from '../editor/EditorFormComponent';
+import { AutosaveEditorStateContext } from '../common/sharedContexts';
 import { ContentItemBody } from "../contents/ContentItemBody";
 import ContentStyles from "../common/ContentStyles";
 import Loading from "../vulcan-core/Loading";
 import { MenuItem } from "../common/Menus";
+import { CkEditorPortalContext, CKEditorPortalProvider } from '../editor/CKEditorPortalProvider';
+import { defineStyles, useStyles } from '../hooks/useStyles';
 
-const styles = (theme: ThemeType) => ({
+const styles = defineStyles("LanguageModelChat", (theme: ThemeType) => ({
   root: {
     height: "calc(100vh - 190px)"
   },
@@ -151,14 +153,14 @@ const styles = (theme: ThemeType) => ({
   loadingSpinner: {
     marginTop: 10
   },
-});
+}));
 
 const NEW_CONVERSATION_MENU_ITEM = "New Conversation";
 
-const LLMChatMessageInner = ({message, classes}: {
+export const LlmChatMessage = ({message}: {
   message: LlmMessagesFragment | NewLlmMessage,
-  classes: ClassesType<typeof styles>,
 }) => {
+  const classes = useStyles(styles);
   const { role, content } = message;
 
   return <ContentStyles contentType="llmChat" className={classes.chatMessageContent}>
@@ -172,20 +174,19 @@ const LLMChatMessageInner = ({message, classes}: {
   </ContentStyles>
 }
 
-export const LlmChatMessage = registerComponent('LlmChatMessage', LLMChatMessageInner, {styles});
-
-const LLMInputTextbox = ({onSubmit, classes}: {
+const LLMInputTextbox = ({onSubmit}: {
   onSubmit: (message: string) => void,
-  classes: ClassesType<typeof styles>,
 }) => {
+  const classes = useStyles(styles);
   const [currentMessage, setCurrentMessage] = useState('');
+  const portalContext = useContext(CkEditorPortalContext);
   const ckEditorRef = useRef<CKEditor<any> | null>(null);
   const editorRef = useRef<Editor | null>(null);
 
   // TODO: we probably want to come back to this and enable cloud services for image uploading
   const editorConfig = {
     placeholder: 'Type here.  Ctrl/Cmd + Enter to submit.',
-    mention: mentionPluginConfiguration,
+    mention: mentionPluginConfiguration(portalContext),
   };
 
   const submitEditorContentAndClear = useCallback(() => {
@@ -236,6 +237,7 @@ const LLMInputTextbox = ({onSubmit, classes}: {
   // TODO: styling and debouncing
   return <ContentStyles className={classes.inputTextbox} contentType='comment'>
     <div className={classes.editor}>
+      <CKEditorPortalProvider>
       <CKEditor
         data={currentMessage}
         ref={ckEditorRef}
@@ -261,6 +263,7 @@ const LLMInputTextbox = ({onSubmit, classes}: {
         }}
         config={editorConfig}
       />
+      </CKEditorPortalProvider>
     </div>
     {submitButton}
   </ContentStyles>
@@ -304,9 +307,8 @@ function useCurrentPostContext(): CurrentPostContext {
   return {};
 }
 
-export const ChatInterface = ({classes}: {
-  classes: ClassesType<typeof styles>,
-}) => {
+export const ChatInterface = () => {
+  const classes = useStyles(styles);
   const { currentConversation, setCurrentConversation, archiveConversation, orderedConversations, submitMessage, currentConversationLoading } = useLlmChat();
   const { currentPostId, postContext } = useCurrentPostContext();
   const { autosaveEditorState } = useContext(AutosaveEditorStateContext);
@@ -467,26 +469,25 @@ export const ChatInterface = ({classes}: {
   return <div className={classes.subRoot}>
     {messagesForDisplay}
     {currentConversationLoading && <Loading className={classes.loadingSpinner}/>}
-    <LLMInputTextbox onSubmit={handleSubmit} classes={classes} />
+    <LLMInputTextbox onSubmit={handleSubmit} />
     {options}
   </div>
 }
 
 
 // Wrapper component needed so we can use deferRender
-const LanguageModelChat = ({classes}: {
-  classes: ClassesType<typeof styles>,
-}) => {
+const LanguageModelChat = () => {
+  const classes = useStyles(styles);
   return <DeferRender ssr={false}>
     <AnalyticsContext pageSectionContext='llmChat'>
       <div className={classes.root}>
-        <ChatInterface classes={classes} />
+        <ChatInterface />
       </div>
     </AnalyticsContext>
   </DeferRender>;
 }
 
-export default registerComponent('LanguageModelChat', LanguageModelChat, {styles});
+export default LanguageModelChat;
 
 
 

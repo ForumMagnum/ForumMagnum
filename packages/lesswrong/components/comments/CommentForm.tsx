@@ -15,8 +15,7 @@ import { EditCommentTitle } from "@/components/editor/EditCommentTitle";
 import { FormComponentQuickTakesTags } from "@/components/form-components/FormComponentQuickTakesTags";
 import { commentAllowTitle } from "@/lib/collections/comments/helpers";
 import { userIsAdmin, userIsAdminOrMod, userIsMemberOf } from "@/lib/vulcan-users/permissions";
-import { quickTakesTagsEnabledSetting } from "@/lib/publicSettings";
-import { isAF, isLWorAF } from "@/lib/instanceSettings";
+import { quickTakesTagsEnabledSetting, isAF, isLWorAF } from "@/lib/instanceSettings";
 import type { TagCommentType } from "@/lib/collections/comments/types";
 import type { ReviewYear } from "@/lib/reviewUtils";
 import { useCurrentUser } from "../common/withUser";
@@ -32,12 +31,13 @@ import FormGroupNoStyling from "../form-components/FormGroupNoStyling";
 import FormGroupQuickTakes from "../form-components/FormGroupQuickTakes";
 import FormComponentCheckbox from "../form-components/FormComponentCheckbox";
 import { withDateFields } from "@/lib/utils/dateUtils";
-import { useMutation } from "@apollo/client";
+import { useMutation } from "@apollo/client/react";
 import { gql } from "@/lib/generated/gql-codegen";
 import { hasDraftComments } from '@/lib/betas';
 import CommentsSubmitDropdown from "./CommentsSubmitDropdown";
 import { useTracking } from "@/lib/analyticsEvents";
 import { CommentsList } from "@/lib/collections/comments/fragments";
+import { isIfAnyoneBuildsItFrontPage } from '../seasonal/styles';
 
 const CommentsListUpdateMutation = gql(`
   mutation updateCommentCommentForm($selector: SelectorInput!, $data: UpdateCommentDataInput!) {
@@ -63,6 +63,10 @@ const formStyles = defineStyles('CommentForm', (theme: ThemeType) => ({
   fieldWrapper: {
     marginTop: theme.spacing.unit * 2,
     marginBottom: theme.spacing.unit * 2,
+    ...isIfAnyoneBuildsItFrontPage( {
+      background: theme.palette.editor.bannerAdBackground,
+      color: theme.palette.text.bannerAdOverlay,
+    }),
   },
   submitButton: submitButtonStyles(theme),
   cancelButton: cancelButtonStyles(theme),
@@ -83,14 +87,14 @@ const customSubmitButtonStyles = defineStyles('CommentSubmit', (theme: ThemeType
     borderBottomLeftRadius: theme.borderRadius.quickTakesEntry,
     borderBottomRightRadius: theme.borderRadius.quickTakesEntry,
   },
-  submitQuickTakesButtonAtBottom: isFriendlyUI
+  submitQuickTakesButtonAtBottom: theme.isFriendlyUI
     ? {
       marginTop: 20,
       padding: 20,
       borderTop: `1px solid ${theme.palette.grey[300]}`,
     }
     : {},
-  formButton: isFriendlyUI ? {
+  formButton: theme.isFriendlyUI ? {
     fontSize: 14,
     textTransform: 'none',
     padding: '6px 12px',
@@ -107,9 +111,9 @@ const customSubmitButtonStyles = defineStyles('CommentSubmit', (theme: ThemeType
     },
   },
   cancelButton: {
-    color: isFriendlyUI ? undefined : theme.palette.grey[400],
+    color: theme.isFriendlyUI ? undefined : theme.palette.grey[400],
   },
-  submitButton: isFriendlyUI ? {
+  submitButton: theme.isFriendlyUI ? {
     backgroundColor: theme.palette.buttons.alwaysPrimary,
     color: theme.palette.text.alwaysWhite,
     '&:disabled': {
@@ -256,6 +260,7 @@ export const CommentForm = ({
   initialData,
   prefilledProps,
   alignmentForumPost,
+  hideAlignmentForumCheckbox,
   quickTakesFormGroup,
   formClassName,
   editorHintText,
@@ -286,6 +291,7 @@ export const CommentForm = ({
     forumEventMetadata?: DbComment['forumEventMetadata'];
   }
   alignmentForumPost?: boolean;
+  hideAlignmentForumCheckbox?: boolean;
   quickTakesFormGroup?: boolean;
   formClassName?: string;
   editorHintText?: string;
@@ -307,7 +313,7 @@ export const CommentForm = ({
 
   const formType = initialData ? 'edit' : 'new';
 
-  const showAfCheckbox = !isAF && alignmentForumPost && (userIsMemberOf(currentUser, 'alignmentForum') || userIsAdmin(currentUser));
+  const showAfCheckbox = !hideAlignmentForumCheckbox && !isAF && alignmentForumPost && (userIsMemberOf(currentUser, 'alignmentForum') || userIsAdmin(currentUser));
 
   const DefaultFormGroupLayout = quickTakesFormGroup
     ? FormGroupQuickTakes

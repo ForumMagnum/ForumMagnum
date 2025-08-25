@@ -1,8 +1,10 @@
 import Migrations from '../../server/collections/migrations/collection';
 import { availableMigrations } from './migrationUtils';
-import * as _ from 'underscore';
 import moment from 'moment';
 import gql from 'graphql-tag';
+import groupBy from 'lodash/groupBy';
+import sortBy from 'lodash/sortBy';
+import max from 'lodash/max';
 
 export const migrationsDashboardGraphQLTypeDefs = gql`
   type MigrationsDashboardData {
@@ -31,11 +33,11 @@ export const migrationsDashboardGraphQLQueries = {
       throw new Error("MigrationsDashboard graphQL API requires being logged in as an admin");
     
     const allMigrationRuns = await Migrations.find({}).fetch();
-    const runsByMigration = _.groupBy(allMigrationRuns, m=>m.name);
+    const runsByMigration = groupBy(allMigrationRuns, m=>m.name);
     
     const migrationNamesByDateWrittenDesc =
-      _.sortBy(
-        _.pairs(availableMigrations),
+      sortBy(
+        Object.entries(availableMigrations),
         ([name, {dateWritten}]) => dateWritten
       )
       .reverse()
@@ -59,7 +61,7 @@ const makeMigrationStatus = (name: string, runsByMigration: AnyBecauseTodo) => {
   let lastRun = ''
   if (runs.length) {
     const startDates = runs.map((run: AnyBecauseTodo) => run.started)
-    lastRun = moment.utc(_.max(startDates)).format('YYYY-MM-DD')
+    lastRun = moment.utc(max(startDates)).format('YYYY-MM-DD')
   }
 
   const result = {

@@ -15,18 +15,14 @@ import { useDialog } from '../common/withDialog'
 import { useHover } from '../common/withHover'
 import {afNonMemberDisplayInitialPopup} from "../../lib/alignment-forum/displayAFNonMemberPopups";
 import { MINIMUM_COAUTHOR_KARMA } from "@/lib/collections/posts/helpers";
-import { DisableNoKibitzContext } from './UsersNameDisplay';
+import { DisableNoKibitzContext } from '../common/sharedContexts';
 import { useAdminToggle } from '../admin/useAdminToggle';
 import { isFriendlyUI, preferredHeadingCase, styleSelect } from '../../themes/forumTheme';
 import { isMobile } from '../../lib/utils/isMobile'
 import { SHOW_NEW_SEQUENCE_KARMA_THRESHOLD } from '../../lib/collections/sequences/helpers';
-import { isAF, isEAForum, taggingNameCapitalSetting } from '../../lib/instanceSettings';
-import { blackBarTitle } from '../../lib/publicSettings';
+import { isAF, isEAForum, taggingNameCapitalSetting, blackBarTitle } from '@/lib/instanceSettings';
 import { tagUserHasSufficientKarma } from '../../lib/collections/tags/helpers';
 import { InteractionWrapper } from '../common/useClickableCell';
-import NewDialogueDialog from "../posts/NewDialogueDialog";
-import NewShortformDialog from "../shortform/NewShortformDialog";
-import AFApplicationForm from "../alignment-forum/AFApplicationForm";
 import LWPopper from "../common/LWPopper";
 import LWTooltip from "../common/LWTooltip";
 import ThemePickerMenu from "../themes/ThemePickerMenu";
@@ -36,25 +32,34 @@ import DropdownDivider from "../dropdowns/DropdownDivider";
 import UsersProfileImage from "./UsersProfileImage";
 import ForumIcon from "../common/ForumIcon";
 import NewWikiTagMenu from "../tagging/NewWikiTagMenu";
+import { isIfAnyoneBuildsItFrontPage } from '../seasonal/styles';
+
+import dynamic from 'next/dynamic';
+const NewDialogueDialog = dynamic(() => import("../posts/NewDialogueDialog"), { ssr: false });
+const NewShortformDialog = dynamic(() => import("../shortform/NewShortformDialog"), { ssr: false });
+const AFApplicationForm = dynamic(() => import("../alignment-forum/AFApplicationForm"), { ssr: false });
 
 const styles = (theme: ThemeType) => ({
   root: {
-    marginTop: isFriendlyUI ? undefined : 5,
+    marginTop: theme.isFriendlyUI ? undefined : 5,
     wordBreak: 'break-all',
     position: "relative"
   },
   userButtonRoot: {
     // Mui default is 16px, so we're halving it to bring it into line with the
     // rest of the header components
-    paddingLeft: isFriendlyUI ? 12 : theme.spacing.unit,
+    paddingLeft: theme.isFriendlyUI ? 12 : theme.spacing.unit,
     paddingRight: theme.spacing.unit,
-    borderRadius: isFriendlyUI ? theme.borderRadius.default : undefined
+    borderRadius: theme.isFriendlyUI ? theme.borderRadius.default : undefined
   },
   userButtonContents: {
     textTransform: 'none',
     fontSize: '16px',
-    fontWeight: isFriendlyUI ? undefined : 400,
+    fontWeight: theme.isFriendlyUI ? undefined : 400,
     color: blackBarTitle.get() ? theme.palette.text.alwaysWhite : theme.palette.header.text,
+    ...isIfAnyoneBuildsItFrontPage({
+      color: theme.palette.text.bannerAdOverlay,
+    }),
     wordBreak: 'break-word'
   },
   userImageButton: {
@@ -71,7 +76,7 @@ const styles = (theme: ThemeType) => ({
     opacity: 0.9
   },
   icon: {
-    color: isFriendlyUI ? undefined : theme.palette.grey[500]
+    color: theme.isFriendlyUI ? undefined : theme.palette.grey[500]
   },
   deactivatedTooltip: {
     maxWidth: 230
@@ -80,7 +85,7 @@ const styles = (theme: ThemeType) => ({
     color: theme.palette.grey[600],
     marginLeft: 20
   },
-  adminToggleItem: isFriendlyUI ? {
+  adminToggleItem: theme.isFriendlyUI ? {
     display: 'none',
     [theme.breakpoints.down('xs')]: {
       display: 'block'
@@ -220,10 +225,12 @@ const UsersMenu = ({classes}: {
       ? (
         <DropdownItem
           title={styleSelect({friendly: "Dialogue", default: preferredHeadingCase("New Dialogue")})}
-          onClick={() => openDialog({
-            name:"NewDialogueDialog",
-            contents: ({onClose}) => <NewDialogueDialog onClose={onClose}/>
-          })}
+          onClick={() => {
+            openDialog({
+              name:"NewDialogueDialog",
+              contents: ({onClose}) => <NewDialogueDialog onClose={onClose}/>
+            })}
+          }
         />
       )
     : null,
@@ -237,10 +244,12 @@ const UsersMenu = ({classes}: {
         ? (
           <DropdownItem
             title={styleSelect({friendly: "Quick take", default: preferredHeadingCase("New Quick Take")})}
-            onClick={() => openDialog({
-              name:"NewShortformDialog",
-              contents: ({onClose}) => <NewShortformDialog onClose={onClose}/>
-            })}
+            onClick={() => {
+              openDialog({
+                name:"NewShortformDialog",
+                contents: ({onClose}) => <NewShortformDialog onClose={onClose}/>
+              });
+            }}
           />
         )
       : null,
@@ -270,7 +279,7 @@ const UsersMenu = ({classes}: {
         : null,
   } as const;
 
-  const hasBookmarks = isEAForum || (currentUser?.bookmarkedPostsMetadata?.length ?? 0) >= 1;
+  const hasBookmarks = isEAForum || currentUser?.hasAnyBookmarks;
 
   const order: (keyof typeof items)[] = isFriendlyUI
     ? ["newPost", "newShortform", "divider", "newEvent", "newDialogue", "newSequence"]
@@ -345,10 +354,12 @@ const UsersMenu = ({classes}: {
               {isAF && !isAfMember &&
                 <DropdownItem
                   title={preferredHeadingCase("Apply for Membership")}
-                  onClick={() => openDialog({
-                    name: "AFApplicationForm",
-                    contents: ({onClose}) => <AFApplicationForm onClose={onClose}/>
-                  })}
+                  onClick={() => {
+                    openDialog({
+                      name: "AFApplicationForm",
+                      contents: ({onClose}) => <AFApplicationForm onClose={onClose}/>
+                    })
+                  }}
                 />
               }
               {currentUser.noKibitz &&

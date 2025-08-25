@@ -35,7 +35,7 @@ export const addOrUpvoteTag = async ({tagId, postId, currentUser, ignoreParent =
     return tagRel;
   } else {
     // Upvote the tag
-    const { performVoteServer } = require("../voteServer");
+    const { performVoteServer } = await import("../voteServer");
     const {modifiedDocument: votedTagRel} = await performVoteServer({
       document: existingTagRel,
       voteType: 'smallUpvote',

@@ -10,7 +10,7 @@ import UserMultiselect from "../form-components/UserMultiselect";
 import LWDialog from "../common/LWDialog";
 import Loading from "../vulcan-core/Loading";
 import EAButton from "../ea-forum/EAButton";
-import { useMutation } from "@apollo/client";
+import { useMutation } from "@apollo/client/react";
 import { gql } from "@/lib/generated/gql-codegen";
 
 const PostsEditMutation = gql(`
@@ -26,11 +26,11 @@ const PostsEditMutation = gql(`
 const styles = (theme: ThemeType) => ({
   dialog: {
     padding: 24,
-    paddingBottom: isFriendlyUI ? undefined : 12,
+    paddingBottom: theme.isFriendlyUI ? undefined : 12,
     fontFamily: theme.typography.fontFamily,
     color: theme.palette.text.normal,
     "& .MuiDialogActions-root": {
-      margin: isFriendlyUI ? 0 : undefined,
+      margin: theme.isFriendlyUI ? 0 : undefined,
     },
   },
   inputRow: {
