@@ -56,7 +56,8 @@ const AppComponent = ({ children }: { children: React.ReactNode }) => {
       }
 
       if (subscribeLocationContext.current) {
-        Object.assign(subscribeLocationContext.current, { hash: newHash });
+        // Reassign the reference to force subscribed consumers to rerender if it changes
+        subscribeLocationContext.current = { ...subscribeLocationContext.current, hash: newHash };
       }
     };
 
