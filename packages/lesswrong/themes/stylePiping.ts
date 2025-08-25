@@ -671,7 +671,7 @@ export const emailBodyStyles = baseBodyStyles
 export const smallPostStyles = (theme: ThemeType) => {
   return {
     ...theme.typography.body2,
-    fontSize: isFriendlyUI ? 14.3 : 16.64,
+    fontSize: isFriendlyUI ? 16 : 16.64,
     lineHeight: "22.75px",
     ...theme.typography.postStyle,
     '& blockquote': {
@@ -684,15 +684,15 @@ export const smallPostStyles = (theme: ThemeType) => {
     '& li': {
       ...theme.typography.body2,
       ...theme.typography.postStyle,
-      fontSize: isFriendlyUI ? 14.3 : 16.64,
+      fontSize: isFriendlyUI ? 16 : 16.64,
       lineHeight: "23.4px",
     }
   };
 }
 
 export const pBodyStyle = (_theme: ThemeType) => ({
-  marginTop: "1em",
-  marginBottom: "1em",
+  marginTop: isFriendlyUI ? 12 : "1em",
+  marginBottom: isFriendlyUI ? 12 : "1em",
   '&:first-child': {
     marginTop: 0,
   },

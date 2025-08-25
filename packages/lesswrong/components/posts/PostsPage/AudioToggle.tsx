@@ -12,15 +12,15 @@ const PODCAST_ICON_PADDING = isFriendlyUI ? 4 : 2
 
 const styles = (theme: ThemeType) => ({
   togglePodcastContainer: {
-    alignSelf: 'center',
+    alignSelf: isFriendlyUI ? undefined : 'center',
     color: theme.palette.text.dim3,
-    height: PODCAST_ICON_SIZE,
+    height: isFriendlyUI ? undefined : PODCAST_ICON_SIZE,
   },
   audioIcon: {
     width: PODCAST_ICON_SIZE + (PODCAST_ICON_PADDING * 2),
     height: PODCAST_ICON_SIZE + (PODCAST_ICON_PADDING * 2),
     padding: PODCAST_ICON_PADDING,
-    transform: isFriendlyUI ? undefined : `translateY(-${PODCAST_ICON_PADDING}px)`,
+    transform: `translateY(-${PODCAST_ICON_PADDING}px)`,
   },
   audioIconOn: {
     background: theme.palette.icon.dim05,
