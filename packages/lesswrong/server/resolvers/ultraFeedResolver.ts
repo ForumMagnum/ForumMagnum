@@ -70,6 +70,11 @@ export const ultraFeedGraphQLTypeDefs = gql`
     spotlightMetaInfo: FeedSpotlightMetaInfo
   }
 
+  type FeedSubscriptionSuggestions {
+    _id: String!
+    suggestedUsers: [User!]!
+  }
+
   type UltraFeedQueryResults {
     cutoff: Date
     endOffset: Int!
@@ -81,6 +86,7 @@ export const ultraFeedGraphQLTypeDefs = gql`
     feedCommentThread
     feedPost
     feedSpotlight
+    feedSubscriptionSuggestions
   }
 
   type UltraFeedEntry {
@@ -88,6 +94,7 @@ export const ultraFeedGraphQLTypeDefs = gql`
     feedCommentThread: FeedCommentThread
     feedPost: FeedPost
     feedSpotlight: FeedSpotlightItem
+    feedSubscriptionSuggestions: FeedSubscriptionSuggestions
   }
 
   extend type Query {
@@ -101,12 +108,12 @@ export const ultraFeedGraphQLTypeDefs = gql`
   }
 `;
 
-// items now carry `type`
 type SampledItem =
   | { type: "feedCommentThread"; feedCommentThread: FeedCommentsThread }
   | { type: "feedPostWithContents"; feedPost: FeedFullPost }
   | { type: "feedPost"; feedPostStub: FeedPostStub }
-  | { type: "feedSpotlight"; feedSpotlight: FeedSpotlight };
+  | { type: "feedSpotlight"; feedSpotlight: FeedSpotlight }
+  | { type: "feedSubscriptionSuggestions"; feedSubscriptionSuggestions: { suggestedUserIds: string[] } };
 
 interface WeightedSource {
   weight: number;
@@ -165,6 +172,8 @@ const getSampledItemKey = (item: SampledItem): string | undefined => {
     }
     case "feedSpotlight":
       return item.feedSpotlight.spotlightId;
+    case "feedSubscriptionSuggestions":
+      return "subscription-suggestions"; // Fixed key since we only want one per feed
     default:
       return undefined;
   }
@@ -315,12 +324,40 @@ const createSourcesMap = (
 };
 
 /**
+ * Insert subscription suggestions into the sampled items with probability P
+ * at a random position (but not first)
+ */
+const maybeInsertSubscriptionSuggestions = (
+  sampled: SampledItem[],
+  probability: number = 0.2, // out of 5 pages // TODO: make this higher on initial load
+): SampledItem[] => {
+  if (sampled.length === 0 || Math.random() > probability) {
+    return sampled;
+  }
+  
+  // Insert at a random position between index 4 and length
+  const insertPosition = Math.floor(Math.random() * (sampled.length - 4)) + 4;
+  
+  const subscriptionSuggestion: SampledItem = {
+    type: "feedSubscriptionSuggestions",
+    feedSubscriptionSuggestions: {
+      suggestedUserIds: []
+    }
+  };
+  
+  const result = [...sampled];
+  result.splice(insertPosition, 0, subscriptionSuggestion);
+  return result;
+};
+
+/**
  * Extract IDs that need to be loaded from sampled items
  */
 const extractIdsToLoad = (sampled: SampledItem[]) => {
   const postIds: string[] = [];
   const spotlightIds: string[] = [];
   const commentIdsSet = new Set<string>();
+  let needsSuggestedUsers = false;
 
   sampled.forEach(it => {
     if (it.type === "feedSpotlight") {
@@ -338,13 +375,16 @@ const extractIdsToLoad = (sampled: SampledItem[]) => {
       }
     } else if (it.type === "feedPost") {
       postIds.push(it.feedPostStub.postId);
+    } else if (it.type === "feedSubscriptionSuggestions") {
+      needsSuggestedUsers = true;
     }
   });
 
   return {
     spotlightIds,
     commentIds: Array.from(commentIdsSet),
-    postIds
+    postIds,
+    needsSuggestedUsers
   };
 };
 
@@ -408,7 +448,8 @@ const transformItemsForResolver = (
   sampled: SampledItem[],
   spotlightsById: Map<string, DbSpotlight>,
   commentsById: Map<string, DbComment>,
-  postsById: Map<string, DbPost>
+  postsById: Map<string, DbPost>,
+  suggestedUsers?: DbUser[]
 ): UltraFeedResolverType[] => {
   return filterNonnull(sampled.map((item, index): UltraFeedResolverType | null => {
     if (item.type === "feedSpotlight") {
@@ -529,6 +570,16 @@ const transformItemsForResolver = (
             ...postMetaInfo,
             servedEventId: randomId()
           }
+        }
+      };
+    }
+
+    if (item.type === "feedSubscriptionSuggestions") {
+      return {
+        type: "feedSubscriptionSuggestions",
+        feedSubscriptionSuggestions: {
+          _id: `subscription-suggestions-${index}`,
+          suggestedUsers: suggestedUsers ?? []
         }
       };
     }
@@ -731,16 +782,24 @@ export const ultraFeedGraphQLQueries = {
 
       // Sample items from sources based on weights
       const sampledItemsRaw = weightedSample(populatedSources, limit);
-      const sampledItems = dedupSampledItems(sampledItemsRaw);
+      const sampledItemsDeduped = dedupSampledItems(sampledItemsRaw);
+      
+      // Maybe insert subscription suggestions with 30% probability
+      const sampledItems = maybeInsertSubscriptionSuggestions(sampledItemsDeduped, 1);
       
       // Extract IDs to load
-      const { spotlightIds, commentIds, postIds } = extractIdsToLoad(sampledItems);
+      const { spotlightIds, commentIds, postIds, needsSuggestedUsers } = extractIdsToLoad(sampledItems);
+
+      const suggestedUsersPromise = needsSuggestedUsers
+        ? context.repos.users.getSubscriptionFeedSuggestedUsers(currentUser._id, 30)
+        : Promise.resolve([]);
       
       // Load full content for sampled items
-      const [spotlightsResults, commentsResults, postsResults] = await Promise.all([
+      const [spotlightsResults, commentsResults, postsResults, suggestedUsers] = await Promise.all([
         loadByIds(context, "Spotlights", spotlightIds),
         loadByIds(context, "Comments", commentIds),
-        loadByIds(context, "Posts",     postIds)
+        loadByIds(context, "Posts",     postIds),
+        suggestedUsersPromise
       ]);
       
       // Create lookup maps for loaded content
@@ -761,7 +820,7 @@ export const ultraFeedGraphQLQueries = {
       const postsById = new Map<string, DbPost>();
       postsResults.forEach(p => p?._id && postsById.set(p._id, p));
       
-      const resultsWithoutDuplication = transformItemsForResolver(sampledItems, spotlightsById, commentsById, postsById);
+      const resultsWithoutDuplication = transformItemsForResolver(sampledItems, spotlightsById, commentsById, postsById, suggestedUsers);
       
       const results = deduplicatePostsInThreads(resultsWithoutDuplication);
       

@@ -28,6 +28,7 @@ import { ultraFeedEnabledSetting } from '../../lib/publicSettings';
 import { Link } from '../../lib/reactRouterWrapper';
 import { useUltraFeedSettings } from '../hooks/useUltraFeedSettings';
 import AnalyticsInViewTracker from '../common/AnalyticsInViewTracker';
+import SuggestedFeedSubscriptions from '../subscriptions/SuggestedFeedSubscriptions';
 
 
 const styles = defineStyles("UltraFeed", (theme: ThemeType) => ({
@@ -298,6 +299,19 @@ const UltraFeedContent = ({
                             showSubtitle={true}
                             index={index}
                           />
+                        </FeedItemWrapper>
+                      );
+                    }
+                  },
+                  feedSubscriptionSuggestions: {
+                    render: (item: FeedSubscriptionSuggestionsFragment, index?: number) => {
+                      if (!item || !item.suggestedUsers) {
+                        return null;
+                      }
+                      
+                      return (
+                        <FeedItemWrapper>
+                          <SuggestedFeedSubscriptions suggestedUsers={item.suggestedUsers} />
                         </FeedItemWrapper>
                       );
                     }
