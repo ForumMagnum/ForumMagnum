@@ -67,6 +67,12 @@ const UsersNameWithModal = ({
   }
 
   const handleClick = (e: React.MouseEvent) => {
+    const hasModifier = e.metaKey || e.ctrlKey || e.shiftKey || e.altKey;
+    
+    if (hasModifier) {
+      return;
+    }
+    
     e.preventDefault();
     e.stopPropagation();
     
