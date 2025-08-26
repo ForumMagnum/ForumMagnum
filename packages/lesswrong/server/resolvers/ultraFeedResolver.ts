@@ -329,7 +329,7 @@ const createSourcesMap = (
  */
 const maybeInsertSubscriptionSuggestions = (
   sampled: SampledItem[],
-  probability: number = 0.2, // out of 5 pages // TODO: make this higher on initial load
+  probability: number = 0.2, // TODO: make this higher on initial load
 ): SampledItem[] => {
   if (sampled.length === 0 || Math.random() > probability) {
     return sampled;
@@ -784,8 +784,8 @@ export const ultraFeedGraphQLQueries = {
       const sampledItemsRaw = weightedSample(populatedSources, limit);
       const sampledItemsDeduped = dedupSampledItems(sampledItemsRaw);
       
-      // Maybe insert subscription suggestions with 30% probability
-      const sampledItems = maybeInsertSubscriptionSuggestions(sampledItemsDeduped, 1);
+      // Maybe insert subscription suggestions with 20% probability
+      const sampledItems = maybeInsertSubscriptionSuggestions(sampledItemsDeduped, 0.2);
       
       // Extract IDs to load
       const { spotlightIds, commentIds, postIds, needsSuggestedUsers } = extractIdsToLoad(sampledItems);
