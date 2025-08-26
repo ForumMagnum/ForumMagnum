@@ -25,7 +25,7 @@ const UserRecentPostsQuery = gql(`
   }
 `);
 
-const styles = defineStyles("UltraFeedUserCardCompact", (theme: ThemeType) => ({
+const styles = defineStyles("UltraFeedSuggestedUserCard", (theme: ThemeType) => ({
   root: {
     display: "flex",
     flexDirection: "column",
@@ -90,7 +90,6 @@ const styles = defineStyles("UltraFeedUserCardCompact", (theme: ThemeType) => ({
     },
   },
   bio: {
-    // marginTop: 8,
     marginBottom: 8,
     lineHeight: "1.2rem",
     fontSize: "0.9rem",
@@ -98,8 +97,6 @@ const styles = defineStyles("UltraFeedUserCardCompact", (theme: ThemeType) => ({
   bioText: {
     ...commentBodyStyles(theme),
     marginTop: 0,
-    // fontSize: "0.9rem",
-    // lineHeight: "1.2rem",
     display: '-webkit-box',
     WebkitLineClamp: 2,
     WebkitBoxOrient: 'vertical',
@@ -142,7 +139,7 @@ const styles = defineStyles("UltraFeedUserCardCompact", (theme: ThemeType) => ({
     flexDirection: 'column',
     gap: 4,
     boxSizing: 'border-box',
-    overflow: 'visible', // Changed from 'hidden' to allow nested tooltips
+    overflow: 'hidden',
     position: 'relative',
     zIndex: 1,
   },
@@ -196,7 +193,7 @@ const styles = defineStyles("UltraFeedUserCardCompact", (theme: ThemeType) => ({
   }
 }));
 
-const UltraFeedUserCardCompact = ({ 
+const UltraFeedSuggestedUserCard = ({ 
   user, 
   onFollowToggle
 }: {
@@ -250,14 +247,6 @@ const UltraFeedUserCardCompact = ({
     e.stopPropagation();
     onFollowToggle?.(user);
   }, [user, onFollowToggle]);
-
-  const handleFollowMouseEnter = useCallback(() => {
-    setTooltipDisabled(true);
-  }, []);
-
-  const handleFollowMouseLeave = useCallback(() => {
-    setTooltipDisabled(false);
-  }, []);
 
   if (!user?._id) {
     return <div className={classes.root}>User not found</div>;
@@ -318,8 +307,8 @@ const UltraFeedUserCardCompact = ({
           ref={followButtonRef}
           className={classes.followButtonWrapper}
           onClick={handleFollowClick}
-          onMouseEnter={handleFollowMouseEnter}
-          onMouseLeave={handleFollowMouseLeave}
+          onMouseEnter={() => setTooltipDisabled(true)}
+          onMouseLeave={() => setTooltipDisabled(false)}
         >
           <FollowUserButton 
             user={user} 
@@ -365,25 +354,23 @@ const UltraFeedUserCardCompact = ({
     </div>
   );
 
-  if (tooltipContent && !tooltipDisabled) {
-    return (
-      <LWTooltip
-        title={tooltipContent}
-        placement="bottom"
-        popperClassName={classes.tooltipPopper}
-        clickable
-        flip={false}
-        disabledOnMobile
-        hideOnTouchScreens
-      >
-        {cardContent}
-      </LWTooltip>
-    );
-  }
+  return (
+    <LWTooltip
+      title={tooltipContent}
+      placement="bottom"
+      popperClassName={classes.tooltipPopper}
+      clickable
+      flip={false}
+      disabledOnMobile
+      hideOnTouchScreens
+      disabled={!tooltipContent || tooltipDisabled}
+    >
+      {cardContent}
+    </LWTooltip>
+  );
 
-  return cardContent;
 };
 
-export default UltraFeedUserCardCompact;
+export default UltraFeedSuggestedUserCard;
 
 

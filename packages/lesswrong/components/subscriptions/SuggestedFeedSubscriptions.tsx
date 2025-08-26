@@ -16,7 +16,7 @@ import ForumIcon from "../common/ForumIcon";
 import Loading from "../vulcan-core/Loading";
 import { useQuery } from "@/lib/crud/useQuery"
 import { gql } from "@/lib/generated/gql-codegen";
-import UltraFeedUserCardCompact from "../ultraFeed/UltraFeedUserCardCompact";
+import UltraFeedSuggestedUserCard from "../ultraFeed/UltraFeedSuggestedUserCard";
 import { defineStyles, useStyles } from '../hooks/useStyles';
 import { useIsMobile } from '../hooks/useScreenWidth';
 
@@ -268,7 +268,7 @@ export const SuggestedFeedSubscriptions = ({ suggestedUsers, settingsButton }: {
       setShownUserIds(new Set(batch.map(u => u._id)));
     }
     
-    captureEvent("refreshedSuggestions");
+    captureEvent("refreshedUltraFeedSuggestedUsers");
   };
 
   const subscribeToUser = (user: HasIdType & UserDisplayNameInfo) => {
@@ -291,7 +291,7 @@ export const SuggestedFeedSubscriptions = ({ suggestedUsers, settingsButton }: {
     {!showLoadingState && (<>
       <div className={classes.userSubscribeCards}>
         {currentBatch.map((user) => (
-          <UltraFeedUserCardCompact
+          <UltraFeedSuggestedUserCard
             key={user._id}
             user={user}
             onFollowToggle={() => subscribeToUser(user)}

@@ -179,7 +179,7 @@ export interface FeedContentBodyProps {
   resetSignal?: number;
   /** If true, use serif style for the content */
   serifStyle?: boolean;
-  /** If true, item has been read - shows fade and changes text to "read again" */
+  /** If true, item has been read - apply style changes and text to "read again" */
   isRead?: boolean;
 }
 
@@ -214,7 +214,7 @@ const FeedContentBody = ({
   }, [resetSignal]);
 
   const currentWordLimit = isExpanded ? maxWordCount : initialWordCount;
-  const applyLineClamp = false //clampOverride && clampOverride > 0 && !isExpanded; //to-do fix and reenable
+  const applyLineClamp = false; //to-do fix and reenable
 
   const handleExpand = useCallback(() => {
     if (isExpanded) return;
