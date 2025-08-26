@@ -17460,6 +17460,15 @@ export type multiSubscriptionFollowUserSearchQueryQuery = { __typename?: 'Query'
       & SubscriptionState
     )> } | null };
 
+export type UserFollowingCountQueryVariables = Exact<{
+  selector?: InputMaybe<SubscriptionSelector>;
+  limit?: InputMaybe<Scalars['Int']['input']>;
+  enableTotal?: InputMaybe<Scalars['Boolean']['input']>;
+}>;
+
+
+export type UserFollowingCountQuery = { __typename?: 'Query', subscriptions: { __typename?: 'MultiSubscriptionOutput', totalCount: number | null } | null };
+
 export type SuggestedFeedSubscriptionUsersQueryVariables = Exact<{
   limit?: InputMaybe<Scalars['Int']['input']>;
 }>;
@@ -19215,16 +19224,6 @@ export type ForeignPostQueryQuery = { __typename?: 'Query', post: { __typename?:
       & PostsPage
     ) | null } | null };
 
-export type UltraFeedThreadItemQueryVariables = Exact<{
-  documentId?: InputMaybe<Scalars['String']['input']>;
-}>;
-
-
-export type UltraFeedThreadItemQuery = { __typename?: 'Query', post: { __typename?: 'SinglePostOutput', result: (
-      { __typename?: 'Post' }
-      & PostsListWithVotes
-    ) | null } | null };
-
 export type UserRecentPostsForCompactCardQueryVariables = Exact<{
   selector?: InputMaybe<PostSelector>;
   limit?: InputMaybe<Scalars['Int']['input']>;
@@ -19236,6 +19235,16 @@ export type UserRecentPostsForCompactCardQuery = { __typename?: 'Query', posts: 
       { __typename?: 'Post' }
       & PostsList
     )> } | null };
+
+export type UltraFeedThreadItemQueryVariables = Exact<{
+  documentId?: InputMaybe<Scalars['String']['input']>;
+}>;
+
+
+export type UltraFeedThreadItemQuery = { __typename?: 'Query', post: { __typename?: 'SinglePostOutput', result: (
+      { __typename?: 'Post' }
+      & PostsListWithVotes
+    ) | null } | null };
 
 export type createUltraFeedEventSeeLessMutationVariables = Exact<{
   data: CreateUltraFeedEventDataInput;
@@ -22562,6 +22571,7 @@ export const UserContentFeedThreadDocument = {"kind":"Document","definitions":[{
 export const UserEAGDetailsDefaultFragmentDoc = {"kind":"Document","definitions":[UserEAGDetailsDefaultFragmentFragmentDef]} as unknown as DocumentNode<UserEAGDetailsDefaultFragment, unknown>;
 export const UserEAGDetailsMinimumInfoDoc = {"kind":"Document","definitions":[UserEAGDetailsMinimumInfoFragmentDef]} as unknown as DocumentNode<UserEAGDetailsMinimumInfo, unknown>;
 export const UserExpandFrontpageSectionDocument = {"kind":"Document","definitions":[{"kind":"OperationDefinition","operation":"mutation","name":{"kind":"Name","value":"UserExpandFrontpageSection"},"variableDefinitions":[{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"section"}},"type":{"kind":"NonNullType","type":{"kind":"NamedType","name":{"kind":"Name","value":"String"}}}},{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"expanded"}},"type":{"kind":"NonNullType","type":{"kind":"NamedType","name":{"kind":"Name","value":"Boolean"}}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"UserExpandFrontpageSection"},"arguments":[{"kind":"Argument","name":{"kind":"Name","value":"section"},"value":{"kind":"Variable","name":{"kind":"Name","value":"section"}}},{"kind":"Argument","name":{"kind":"Name","value":"expanded"},"value":{"kind":"Variable","name":{"kind":"Name","value":"expanded"}}}]}]}}]} as unknown as DocumentNode<UserExpandFrontpageSectionMutation, UserExpandFrontpageSectionMutationVariables>;
+export const UserFollowingCountDocument = {"kind":"Document","definitions":[{"kind":"OperationDefinition","operation":"query","name":{"kind":"Name","value":"UserFollowingCount"},"variableDefinitions":[{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"selector"}},"type":{"kind":"NamedType","name":{"kind":"Name","value":"SubscriptionSelector"}}},{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"limit"}},"type":{"kind":"NamedType","name":{"kind":"Name","value":"Int"}}},{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"enableTotal"}},"type":{"kind":"NamedType","name":{"kind":"Name","value":"Boolean"}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"subscriptions"},"arguments":[{"kind":"Argument","name":{"kind":"Name","value":"selector"},"value":{"kind":"Variable","name":{"kind":"Name","value":"selector"}}},{"kind":"Argument","name":{"kind":"Name","value":"limit"},"value":{"kind":"Variable","name":{"kind":"Name","value":"limit"}}},{"kind":"Argument","name":{"kind":"Name","value":"enableTotal"},"value":{"kind":"Variable","name":{"kind":"Name","value":"enableTotal"}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"totalCount"}}]}}]}}]} as unknown as DocumentNode<UserFollowingCountQuery, UserFollowingCountQueryVariables>;
 export const UserJobAdsDefaultFragmentDoc = {"kind":"Document","definitions":[UserJobAdsDefaultFragmentFragmentDef]} as unknown as DocumentNode<UserJobAdsDefaultFragment, unknown>;
 export const UserJobAdsMinimumInfoDoc = {"kind":"Document","definitions":[UserJobAdsMinimumInfoFragmentDef]} as unknown as DocumentNode<UserJobAdsMinimumInfo, unknown>;
 export const UserKarmaChangesDoc = {"kind":"Document","definitions":[UserKarmaChangesFragmentDef]} as unknown as DocumentNode<UserKarmaChanges, unknown>;

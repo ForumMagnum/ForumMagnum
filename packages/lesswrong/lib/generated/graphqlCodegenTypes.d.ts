@@ -20322,6 +20322,20 @@ type multiSubscriptionFollowUserSearchQueryQueryVariables = Exact<{
 
 type multiSubscriptionFollowUserSearchQueryQuery = multiSubscriptionFollowUserSearchQueryQuery_Query;
 
+type UserFollowingCountQuery_subscriptions_MultiSubscriptionOutput = { __typename?: 'MultiSubscriptionOutput', totalCount: number | null };
+
+type UserFollowingCountQuery_Query = { __typename?: 'Query', subscriptions: UserFollowingCountQuery_subscriptions_MultiSubscriptionOutput | null };
+
+
+type UserFollowingCountQueryVariables = Exact<{
+  selector: InputMaybe<SubscriptionSelector>;
+  limit: InputMaybe<Scalars['Int']['input']>;
+  enableTotal: InputMaybe<Scalars['Boolean']['input']>;
+}>;
+
+
+type UserFollowingCountQuery = UserFollowingCountQuery_Query;
+
 type SuggestedFeedSubscriptionUsersQuery_SuggestedFeedSubscriptionUsers_SuggestedFeedSubscriptionUsersResult_results_User = (
   { __typename?: 'User' }
   & UsersMinimumInfo
@@ -23166,23 +23180,6 @@ type ForeignPostQueryQueryVariables = Exact<{
 
 type ForeignPostQueryQuery = ForeignPostQueryQuery_Query;
 
-type UltraFeedThreadItemQuery_post_SinglePostOutput_result_Post = (
-  { __typename?: 'Post' }
-  & PostsListWithVotes
-);
-
-type UltraFeedThreadItemQuery_post_SinglePostOutput = { __typename?: 'SinglePostOutput', result: UltraFeedThreadItemQuery_post_SinglePostOutput_result_Post | null };
-
-type UltraFeedThreadItemQuery_Query = { __typename?: 'Query', post: UltraFeedThreadItemQuery_post_SinglePostOutput | null };
-
-
-type UltraFeedThreadItemQueryVariables = Exact<{
-  documentId: InputMaybe<Scalars['String']['input']>;
-}>;
-
-
-type UltraFeedThreadItemQuery = UltraFeedThreadItemQuery_Query;
-
 type UserRecentPostsForCompactCardQuery_posts_MultiPostOutput_results_Post = (
   { __typename?: 'Post' }
   & PostsList
@@ -23201,6 +23198,23 @@ type UserRecentPostsForCompactCardQueryVariables = Exact<{
 
 
 type UserRecentPostsForCompactCardQuery = UserRecentPostsForCompactCardQuery_Query;
+
+type UltraFeedThreadItemQuery_post_SinglePostOutput_result_Post = (
+  { __typename?: 'Post' }
+  & PostsListWithVotes
+);
+
+type UltraFeedThreadItemQuery_post_SinglePostOutput = { __typename?: 'SinglePostOutput', result: UltraFeedThreadItemQuery_post_SinglePostOutput_result_Post | null };
+
+type UltraFeedThreadItemQuery_Query = { __typename?: 'Query', post: UltraFeedThreadItemQuery_post_SinglePostOutput | null };
+
+
+type UltraFeedThreadItemQueryVariables = Exact<{
+  documentId: InputMaybe<Scalars['String']['input']>;
+}>;
+
+
+type UltraFeedThreadItemQuery = UltraFeedThreadItemQuery_Query;
 
 type createUltraFeedEventSeeLessMutation_createUltraFeedEvent_UltraFeedEventOutput_data_UltraFeedEvent = (
   { __typename?: 'UltraFeedEvent' }

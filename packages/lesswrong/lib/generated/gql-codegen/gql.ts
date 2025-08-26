@@ -439,6 +439,7 @@ type Documents = {
     "\n  query multiSpotlightSpotlightsPageQuery($selector: SpotlightSelector, $limit: Int, $enableTotal: Boolean) {\n    spotlights(selector: $selector, limit: $limit, enableTotal: $enableTotal) {\n      results {\n        ...SpotlightDisplay\n      }\n      totalCount\n    }\n  }\n": typeof types.multiSpotlightSpotlightsPageQueryDocument,
     "\n    mutation publishAndDeDuplicateSpotlight($spotlightId: String) {\n      publishAndDeDuplicateSpotlight(spotlightId: $spotlightId) {\n        ...SpotlightDisplay\n      }\n    }\n  ": typeof types.publishAndDeDuplicateSpotlightDocument,
     "\n  query multiSubscriptionFollowUserSearchQuery($selector: SubscriptionSelector, $limit: Int, $enableTotal: Boolean) {\n    subscriptions(selector: $selector, limit: $limit, enableTotal: $enableTotal) {\n      results {\n        ...SubscriptionState\n      }\n      totalCount\n    }\n  }\n": typeof types.multiSubscriptionFollowUserSearchQueryDocument,
+    "\n  query UserFollowingCount($selector: SubscriptionSelector, $limit: Int, $enableTotal: Boolean) {\n    subscriptions(selector: $selector, limit: $limit, enableTotal: $enableTotal) {\n      totalCount\n    }\n  }\n": typeof types.UserFollowingCountDocument,
     "\n    query SuggestedFeedSubscriptionUsers($limit: Int) {\n      SuggestedFeedSubscriptionUsers(limit: $limit) {\n        results {\n          ...UsersMinimumInfo\n        }\n      }\n    }\n  ": typeof types.SuggestedFeedSubscriptionUsersDocument,
     "\n  mutation updateCommentAFSuggestCommentsItem($selector: SelectorInput!, $data: UpdateCommentDataInput!) {\n    updateComment(selector: $selector, data: $data) {\n      data {\n        ...SuggestAlignmentComment\n      }\n    }\n  }\n": typeof types.updateCommentAFSuggestCommentsItemDocument,
     "\n  query multiCommentAFSuggestCommentsListQuery($selector: CommentSelector, $limit: Int, $enableTotal: Boolean) {\n    comments(selector: $selector, limit: $limit, enableTotal: $enableTotal) {\n      results {\n        ...SuggestAlignmentComment\n      }\n      totalCount\n    }\n  }\n": typeof types.multiCommentAFSuggestCommentsListQueryDocument,
@@ -596,8 +597,8 @@ type Documents = {
     "\n  query UltraFeedTargetComment($documentId: String) {\n    comment(input: { selector: { documentId: $documentId } }) {\n      result {\n        ...CommentWithRepliesFragment\n      }\n    }\n  }\n": typeof types.UltraFeedTargetCommentDocument,
     "\n  query LocalPostQuery($documentId: String!) {\n    post(selector: { _id: $documentId }) {\n      result {\n        ...UltraFeedPostFragment\n      }\n    }\n  }\n": typeof types.LocalPostQueryDocument,
     "\n  query ForeignPostQuery($documentId: String!) {\n    post(selector: { _id: $documentId }) {\n      result {\n        ...PostsPage\n      }\n    }\n  }\n": typeof types.ForeignPostQueryDocument,
-    "\n  query UltraFeedThreadItem($documentId: String) {\n    post(selector: { _id: $documentId }) {\n      result {\n        ...PostsListWithVotes\n      }\n    }\n  }\n": typeof types.UltraFeedThreadItemDocument,
     "\n  query UserRecentPostsForCompactCard($selector: PostSelector, $limit: Int, $enableTotal: Boolean) {\n    posts(selector: $selector, limit: $limit, enableTotal: $enableTotal) {\n      results {\n        ...PostsList\n      }\n    }\n  }\n": typeof types.UserRecentPostsForCompactCardDocument,
+    "\n  query UltraFeedThreadItem($documentId: String) {\n    post(selector: { _id: $documentId }) {\n      result {\n        ...PostsListWithVotes\n      }\n    }\n  }\n": typeof types.UltraFeedThreadItemDocument,
     "\n  mutation createUltraFeedEventSeeLess($data: CreateUltraFeedEventDataInput!) {\n    createUltraFeedEvent(data: $data) {\n      data {\n        ...UltraFeedEventsDefaultFragment\n      }\n    }\n  }\n": typeof types.createUltraFeedEventSeeLessDocument,
     "\n  mutation updateUltraFeedEvent($selector: String!, $data: UpdateUltraFeedEventDataInput!) {\n    updateUltraFeedEvent(selector: $selector, data: $data) {\n      data {\n        _id\n      }\n    }\n  }\n": typeof types.updateUltraFeedEventDocument,
     "\n    mutation connectCrossposter($token: String) {\n      connectCrossposter(token: $token)\n    }\n  ": typeof types.connectCrossposterDocument,
@@ -1432,6 +1433,7 @@ const documents: Documents = {
     "\n  query multiSpotlightSpotlightsPageQuery($selector: SpotlightSelector, $limit: Int, $enableTotal: Boolean) {\n    spotlights(selector: $selector, limit: $limit, enableTotal: $enableTotal) {\n      results {\n        ...SpotlightDisplay\n      }\n      totalCount\n    }\n  }\n": types.multiSpotlightSpotlightsPageQueryDocument,
     "\n    mutation publishAndDeDuplicateSpotlight($spotlightId: String) {\n      publishAndDeDuplicateSpotlight(spotlightId: $spotlightId) {\n        ...SpotlightDisplay\n      }\n    }\n  ": types.publishAndDeDuplicateSpotlightDocument,
     "\n  query multiSubscriptionFollowUserSearchQuery($selector: SubscriptionSelector, $limit: Int, $enableTotal: Boolean) {\n    subscriptions(selector: $selector, limit: $limit, enableTotal: $enableTotal) {\n      results {\n        ...SubscriptionState\n      }\n      totalCount\n    }\n  }\n": types.multiSubscriptionFollowUserSearchQueryDocument,
+    "\n  query UserFollowingCount($selector: SubscriptionSelector, $limit: Int, $enableTotal: Boolean) {\n    subscriptions(selector: $selector, limit: $limit, enableTotal: $enableTotal) {\n      totalCount\n    }\n  }\n": types.UserFollowingCountDocument,
     "\n    query SuggestedFeedSubscriptionUsers($limit: Int) {\n      SuggestedFeedSubscriptionUsers(limit: $limit) {\n        results {\n          ...UsersMinimumInfo\n        }\n      }\n    }\n  ": types.SuggestedFeedSubscriptionUsersDocument,
     "\n  mutation updateCommentAFSuggestCommentsItem($selector: SelectorInput!, $data: UpdateCommentDataInput!) {\n    updateComment(selector: $selector, data: $data) {\n      data {\n        ...SuggestAlignmentComment\n      }\n    }\n  }\n": types.updateCommentAFSuggestCommentsItemDocument,
     "\n  query multiCommentAFSuggestCommentsListQuery($selector: CommentSelector, $limit: Int, $enableTotal: Boolean) {\n    comments(selector: $selector, limit: $limit, enableTotal: $enableTotal) {\n      results {\n        ...SuggestAlignmentComment\n      }\n      totalCount\n    }\n  }\n": types.multiCommentAFSuggestCommentsListQueryDocument,
@@ -1589,8 +1591,8 @@ const documents: Documents = {
     "\n  query UltraFeedTargetComment($documentId: String) {\n    comment(input: { selector: { documentId: $documentId } }) {\n      result {\n        ...CommentWithRepliesFragment\n      }\n    }\n  }\n": types.UltraFeedTargetCommentDocument,
     "\n  query LocalPostQuery($documentId: String!) {\n    post(selector: { _id: $documentId }) {\n      result {\n        ...UltraFeedPostFragment\n      }\n    }\n  }\n": types.LocalPostQueryDocument,
     "\n  query ForeignPostQuery($documentId: String!) {\n    post(selector: { _id: $documentId }) {\n      result {\n        ...PostsPage\n      }\n    }\n  }\n": types.ForeignPostQueryDocument,
-    "\n  query UltraFeedThreadItem($documentId: String) {\n    post(selector: { _id: $documentId }) {\n      result {\n        ...PostsListWithVotes\n      }\n    }\n  }\n": types.UltraFeedThreadItemDocument,
     "\n  query UserRecentPostsForCompactCard($selector: PostSelector, $limit: Int, $enableTotal: Boolean) {\n    posts(selector: $selector, limit: $limit, enableTotal: $enableTotal) {\n      results {\n        ...PostsList\n      }\n    }\n  }\n": types.UserRecentPostsForCompactCardDocument,
+    "\n  query UltraFeedThreadItem($documentId: String) {\n    post(selector: { _id: $documentId }) {\n      result {\n        ...PostsListWithVotes\n      }\n    }\n  }\n": types.UltraFeedThreadItemDocument,
     "\n  mutation createUltraFeedEventSeeLess($data: CreateUltraFeedEventDataInput!) {\n    createUltraFeedEvent(data: $data) {\n      data {\n        ...UltraFeedEventsDefaultFragment\n      }\n    }\n  }\n": types.createUltraFeedEventSeeLessDocument,
     "\n  mutation updateUltraFeedEvent($selector: String!, $data: UpdateUltraFeedEventDataInput!) {\n    updateUltraFeedEvent(selector: $selector, data: $data) {\n      data {\n        _id\n      }\n    }\n  }\n": types.updateUltraFeedEventDocument,
     "\n    mutation connectCrossposter($token: String) {\n      connectCrossposter(token: $token)\n    }\n  ": types.connectCrossposterDocument,
@@ -3717,6 +3719,10 @@ export function gql(source: "\n  query multiSubscriptionFollowUserSearchQuery($s
 /**
  * The gql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
  */
+export function gql(source: "\n  query UserFollowingCount($selector: SubscriptionSelector, $limit: Int, $enableTotal: Boolean) {\n    subscriptions(selector: $selector, limit: $limit, enableTotal: $enableTotal) {\n      totalCount\n    }\n  }\n"): (typeof documents)["\n  query UserFollowingCount($selector: SubscriptionSelector, $limit: Int, $enableTotal: Boolean) {\n    subscriptions(selector: $selector, limit: $limit, enableTotal: $enableTotal) {\n      totalCount\n    }\n  }\n"];
+/**
+ * The gql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
+ */
 export function gql(source: "\n    query SuggestedFeedSubscriptionUsers($limit: Int) {\n      SuggestedFeedSubscriptionUsers(limit: $limit) {\n        results {\n          ...UsersMinimumInfo\n        }\n      }\n    }\n  "): (typeof documents)["\n    query SuggestedFeedSubscriptionUsers($limit: Int) {\n      SuggestedFeedSubscriptionUsers(limit: $limit) {\n        results {\n          ...UsersMinimumInfo\n        }\n      }\n    }\n  "];
 /**
  * The gql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
@@ -4345,11 +4351,11 @@ export function gql(source: "\n  query ForeignPostQuery($documentId: String!) {\
 /**
  * The gql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
  */
-export function gql(source: "\n  query UltraFeedThreadItem($documentId: String) {\n    post(selector: { _id: $documentId }) {\n      result {\n        ...PostsListWithVotes\n      }\n    }\n  }\n"): (typeof documents)["\n  query UltraFeedThreadItem($documentId: String) {\n    post(selector: { _id: $documentId }) {\n      result {\n        ...PostsListWithVotes\n      }\n    }\n  }\n"];
+export function gql(source: "\n  query UserRecentPostsForCompactCard($selector: PostSelector, $limit: Int, $enableTotal: Boolean) {\n    posts(selector: $selector, limit: $limit, enableTotal: $enableTotal) {\n      results {\n        ...PostsList\n      }\n    }\n  }\n"): (typeof documents)["\n  query UserRecentPostsForCompactCard($selector: PostSelector, $limit: Int, $enableTotal: Boolean) {\n    posts(selector: $selector, limit: $limit, enableTotal: $enableTotal) {\n      results {\n        ...PostsList\n      }\n    }\n  }\n"];
 /**
  * The gql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
  */
-export function gql(source: "\n  query UserRecentPostsForCompactCard($selector: PostSelector, $limit: Int, $enableTotal: Boolean) {\n    posts(selector: $selector, limit: $limit, enableTotal: $enableTotal) {\n      results {\n        ...PostsList\n      }\n    }\n  }\n"): (typeof documents)["\n  query UserRecentPostsForCompactCard($selector: PostSelector, $limit: Int, $enableTotal: Boolean) {\n    posts(selector: $selector, limit: $limit, enableTotal: $enableTotal) {\n      results {\n        ...PostsList\n      }\n    }\n  }\n"];
+export function gql(source: "\n  query UltraFeedThreadItem($documentId: String) {\n    post(selector: { _id: $documentId }) {\n      result {\n        ...PostsListWithVotes\n      }\n    }\n  }\n"): (typeof documents)["\n  query UltraFeedThreadItem($documentId: String) {\n    post(selector: { _id: $documentId }) {\n      result {\n        ...PostsListWithVotes\n      }\n    }\n  }\n"];
 /**
  * The gql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
  */

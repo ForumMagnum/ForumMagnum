@@ -23,6 +23,15 @@ import { useIsMobile } from '../hooks/useScreenWidth';
 const INITIAL_USERS_TO_SHOW_DESKTOP = 4;
 const INITIAL_USERS_TO_SHOW_MOBILE = 2;
 
+const UserFollowingCountQuery = gql(`
+  query UserFollowingCount($selector: SubscriptionSelector, $limit: Int, $enableTotal: Boolean) {
+    subscriptions(selector: $selector, limit: $limit, enableTotal: $enableTotal) {
+      totalCount
+    }
+  }
+`);
+
+
 const styles = defineStyles("SuggestedFeedSubscriptions", (theme: ThemeType) => ({
   root: {
     display: "flex",
@@ -123,6 +132,9 @@ const styles = defineStyles("SuggestedFeedSubscriptions", (theme: ThemeType) => 
     display: "inline-block",
     minHeight: 20,
   },
+  followingCount: {
+    fontWeight: 600,
+  },
   refreshButton: {
     ...theme.typography.body2,
     ...theme.typography.commentStyle,
@@ -221,6 +233,7 @@ export const SuggestedFeedSubscriptions = ({ suggestedUsers, settingsButton }: {
   const classes = useStyles(styles);
   const isMobile = useIsMobile();
   const usersToShow = isMobile ? INITIAL_USERS_TO_SHOW_MOBILE : INITIAL_USERS_TO_SHOW_DESKTOP;
+  const currentUser = useCurrentUser();
   
   // For UltraFeed integration, we always use provided user (from the resolver), for standalone usage, we fetch them
   const { availableUsers: fetchedUsers, loadingSuggestedUsers } = useSuggestedUsers(!!suggestedUsers);
@@ -240,6 +253,24 @@ export const SuggestedFeedSubscriptions = ({ suggestedUsers, settingsButton }: {
   
   const [shownUserIds, setShownUserIds] = useState<Set<string>>(new Set());
   const [currentBatch, setCurrentBatch] = useState<UsersMinimumInfo[]>([]);
+  
+  const { data: followingCountData } = useQuery(UserFollowingCountQuery, {
+    variables: {
+      selector: { 
+        subscriptionsOfType: { 
+          userId: currentUser?._id, 
+          collectionName: 'Users', 
+          subscriptionType: 'newActivityForFeed',
+        } 
+      },
+      limit: 1,
+      enableTotal: true,
+    },
+    skip: !currentUser,
+    ssr: false,
+  });
+  
+  const followingCount = followingCountData?.subscriptions?.totalCount ?? 0;
 
   const { captureEvent } = useTracking();
 
@@ -302,7 +333,7 @@ export const SuggestedFeedSubscriptions = ({ suggestedUsers, settingsButton }: {
           </div>
           <div className={classes.bottomButtonsContainer}>
             <Link to="/manageSubscriptions" className={classes.manageButton}>
-              Manage Subscriptions
+              <span className={classes.followingCount}>{followingCount}</span> following
             </Link>
             {availableUsers.length > usersToShow && (
               <a className={classes.refreshButton} onClick={refreshSuggestions}>
