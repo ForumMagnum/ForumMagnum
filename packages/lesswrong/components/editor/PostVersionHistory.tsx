@@ -41,6 +41,7 @@ const RevisionDisplayQuery = gql(`
     revision(input: { selector: { documentId: $documentId } }) {
       result {
         ...RevisionDisplay
+        ...RevisionMetadata
       }
     }
   }

@@ -5,9 +5,10 @@ import { isFriendlyUI } from '../../themes/forumTheme';
 import { useNavigate } from '../../lib/routeUtil';
 import { registerComponent } from "../../lib/vulcan-lib/components";
 import { SequencesForm } from './SequencesForm';
+import { defineStyles, useStyles } from '../hooks/useStyles';
 
 // Also used by SequencesEditForm
-export const styles = (theme: ThemeType) => ({
+export const styles = defineStyles("SequencesNewForm", (theme: ThemeType) => ({
   sequencesForm: {
     position: "absolute",
     top: 0,
@@ -155,14 +156,14 @@ export const styles = (theme: ThemeType) => ({
       width: "100%",
     }
   },
-});
+}));
 
-const SequencesNewForm = ({ redirect, cancelCallback, removeSuccessCallback, classes }: {
+const SequencesNewForm = ({ redirect, cancelCallback, removeSuccessCallback }: {
   redirect: any,
   cancelCallback: any,
   removeSuccessCallback: any,
-  classes: ClassesType<typeof styles>,
 }) => {
+  const classes = useStyles(styles);
   const currentUser = useCurrentUser();
   const { flash } = useMessages();
   const navigate = useNavigate();
@@ -185,6 +186,6 @@ const SequencesNewForm = ({ redirect, cancelCallback, removeSuccessCallback, cla
   }
 }
 
-export default registerComponent('SequencesNewForm', SequencesNewForm, {styles});
+export default SequencesNewForm;
 
 
