@@ -1,5 +1,5 @@
 import React, { useEffect, useRef, useState } from 'react';
-import { useTracking } from "../../lib/analyticsEvents";
+import { AnalyticsContext, useTracking } from "../../lib/analyticsEvents";
 import { useMessages } from '../common/withMessages';
 import { UserDisplayNameInfo, userGetDisplayName } from '../../lib/collections/users/helpers';
 import { Link } from '../../lib/reactRouterWrapper';
@@ -277,39 +277,43 @@ export const SuggestedFeedSubscriptions = ({ suggestedUsers, settingsButton }: {
 
   const showLoadingState = loadingSuggestedUsers && !availableUsers.length && !suggestedUsers;
   
-  return <div className={classes.root}>
-    <div className={classes.titleRow}>
-      <div className={classes.titleAndManageLink}>
-        <div className={classes.sectionTitle}>
-          Suggested Users for You
+  return (
+    <AnalyticsContext pageFeedElementContext="suggestedFeedSubscriptions">
+      <div className={classes.root}>
+        <div className={classes.titleRow}>
+          <div className={classes.titleAndManageLink}>
+            <div className={classes.sectionTitle}>
+              Suggested Users for You
+            </div>
+            <FollowUserSearchButton onUserSelected={subscribeToUser} />
+            {settingsButton}
+          </div>
         </div>
-        <FollowUserSearchButton onUserSelected={subscribeToUser} />
-        {settingsButton}
+        {showLoadingState && <Loading />}
+        {!showLoadingState && (<>
+          <div className={classes.userSubscribeCards}>
+            {currentBatch.map((user) => (
+              <UltraFeedSuggestedUserCard
+                key={user._id}
+                user={user}
+                onFollowToggle={() => subscribeToUser(user)}
+              />
+            ))}
+          </div>
+          <div className={classes.bottomButtonsContainer}>
+            <Link to="/manageSubscriptions" className={classes.manageButton}>
+              Manage Subscriptions
+            </Link>
+            {availableUsers.length > usersToShow && (
+              <a className={classes.refreshButton} onClick={refreshSuggestions}>
+                Refresh
+              </a>
+            )}
+          </div>
+        </>)}
       </div>
-    </div>
-    {showLoadingState && <Loading />}
-    {!showLoadingState && (<>
-      <div className={classes.userSubscribeCards}>
-        {currentBatch.map((user) => (
-          <UltraFeedSuggestedUserCard
-            key={user._id}
-            user={user}
-            onFollowToggle={() => subscribeToUser(user)}
-          />
-        ))}
-      </div>
-      <div className={classes.bottomButtonsContainer}>
-        <Link to="/manageSubscriptions" className={classes.manageButton}>
-          Manage Subscriptions
-        </Link>
-        {availableUsers.length > usersToShow && (
-          <a className={classes.refreshButton} onClick={refreshSuggestions}>
-            Refresh
-          </a>
-        )}
-      </div>
-    </>)}
-  </div>;
+    </AnalyticsContext>
+  );
 }
 
 export default SuggestedFeedSubscriptions;

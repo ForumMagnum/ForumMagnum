@@ -14,6 +14,7 @@ import { useQuery } from "@/lib/crud/useQuery";
 import { gql } from "@/lib/generated/gql-codegen";
 import Loading from "../vulcan-core/Loading";
 import TagSmallPostLink from '../tagging/TagSmallPostLink';
+import { AnalyticsContext } from '../../lib/analyticsEvents';
 
 const UserRecentPostsQuery = gql(`
   query UserRecentPostsForCompactCard($selector: PostSelector, $limit: Int, $enableTotal: Boolean) {
@@ -355,18 +356,20 @@ const UltraFeedSuggestedUserCard = ({
   );
 
   return (
-    <LWTooltip
-      title={tooltipContent}
-      placement="bottom"
-      popperClassName={classes.tooltipPopper}
-      clickable
-      flip={false}
-      disabledOnMobile
-      hideOnTouchScreens
-      disabled={!tooltipContent || tooltipDisabled}
-    >
-      {cardContent}
-    </LWTooltip>
+    <AnalyticsContext pageElementContext="suggestedUserCard" userIdDisplayed={user._id}>
+      <LWTooltip
+        title={tooltipContent}
+        placement="bottom"
+        popperClassName={classes.tooltipPopper}
+        clickable
+        flip={false}
+        disabledOnMobile
+        hideOnTouchScreens
+        disabled={!tooltipContent || tooltipDisabled}
+      >
+        {cardContent}
+      </LWTooltip>
+    </AnalyticsContext>
   );
 
 };
