@@ -130,18 +130,19 @@ const styles = defineStyles("UltraFeed", (theme: ThemeType) => ({
 
 const UltraFeedContent = ({
   alwaysShow = false,
-  hideTitle = false,
   settingsVisible,
   onSettingsToggle,
+  internalSettingsVisible,
+  setInternalSettingsVisible,
 }: {
   alwaysShow?: boolean
-  hideTitle?: boolean
   settingsVisible?: boolean
   onSettingsToggle?: () => void
+  internalSettingsVisible?: boolean
+  setInternalSettingsVisible?: (value: boolean) => void
 }) => {
   const classes = useStyles(styles);
   const currentUser = useCurrentUser();
-  const [internalSettingsVisible, setInternalSettingsVisible] = useState(false);
 
   const { openDialog } = useDialog();
   const { captureEvent } = useTracking();
@@ -163,32 +164,12 @@ const UltraFeedContent = ({
   if (!currentUser) {
     return null;
   }
-
-  const toggleSettings = (e: React.MouseEvent) => {
-    e.stopPropagation();
-    captureEvent("ultraFeedSettingsToggled", { open: !actualSettingsVisible });
-    if (isControlled) {
-      onSettingsToggle?.();
-    } else {
-      setInternalSettingsVisible(!internalSettingsVisible);
-    }
-  };
   
   const resetSettingsToDefault = () => {
     resetSettings();
   };
 
   const { resolverSettings } = settings;
-  
-  const customTitle = <>
-    <div className={classes.titleContainer}>
-      <span className={classes.titleText}>
-        <Link to="/feed" className={classes.titleLink}>
-          Update Feed
-        </Link>
-      </span>
-    </div>
-  </>;
 
   return (
     <AnalyticsContext pageSectionContext="ultraFeed" ultraFeedContext={{ feedSessionId: sessionId }}>
@@ -196,30 +177,13 @@ const UltraFeedContent = ({
       <div className={classes.root}>
         <UltraFeedObserverProvider incognitoMode={resolverSettings.incognitoMode}>
         <OverflowNavObserverProvider>
-          <SingleColumnSection>
-            {!hideTitle && (
-              <SectionTitle title={customTitle} titleClassName={classes.sectionTitle}>
-                <div className={classes.feedCheckboxAndSettingsContainer}>
-                {!alwaysShow && <FeedSelectorDropdown currentFeedType="new" />}
-                {!isControlled && (
-                  <div className={classes.settingsButtonContainer}>
-                    <SettingsButton 
-                      showIcon={true}
-                      onClick={toggleSettings}
-                    />
-                  </div>
-                )}
-              </div>
-              </SectionTitle>
-            )}
-
             {actualSettingsVisible && (
               <div className={isControlled ? classes.settingsContainerExternal : classes.settingsContainer}>
                 <UltraFeedSettings 
                   settings={settings}
                   updateSettings={updateSettings}
                   resetSettingsToDefault={resetSettingsToDefault}
-                  onClose={() => isControlled ? onSettingsToggle?.() : setInternalSettingsVisible(false)} 
+                  onClose={() => isControlled ? onSettingsToggle?.() : setInternalSettingsVisible?.(false)} 
                   truncationMaps={truncationMaps}
                 />
               </div>
@@ -319,7 +283,6 @@ const UltraFeedContent = ({
                 }}
               />
             </div>
-          </SingleColumnSection>
         </OverflowNavObserverProvider>
         </UltraFeedObserverProvider>
         
@@ -347,6 +310,8 @@ const UltraFeed = ({
 }) => {
   const classes = useStyles(styles);
   const currentUser = useCurrentUser();
+  const [internalSettingsVisible, setInternalSettingsVisible] = useState(false);
+  const { captureEvent } = useTracking();
 
   if (!currentUser) {
     return null;
@@ -362,16 +327,59 @@ const UltraFeed = ({
     );
   }
 
+  const isControlled = settingsVisible !== undefined;
+  const actualSettingsVisible = isControlled ? settingsVisible : internalSettingsVisible;
+
+  const toggleSettings = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    captureEvent("ultraFeedSettingsToggled", { open: !actualSettingsVisible });
+    if (isControlled) {
+      onSettingsToggle?.();
+    } else {
+      setInternalSettingsVisible(!internalSettingsVisible);
+    }
+  };
+
+  const customTitle = <>
+    <div className={classes.titleContainer}>
+      <span className={classes.titleText}>
+        <Link to="/feed" className={classes.titleLink}>
+          Update Feed
+        </Link>
+      </span>
+    </div>
+  </>;
+
   return (
     <>
-      <DeferRender ssr={false}>
-        <UltraFeedContent 
-          alwaysShow={alwaysShow}
-          hideTitle={hideTitle}
-          settingsVisible={settingsVisible}
-          onSettingsToggle={onSettingsToggle}
-        />
-      </DeferRender>
+      <SingleColumnSection>
+        {!hideTitle && (
+          <SectionTitle title={customTitle} titleClassName={classes.sectionTitle}>
+            <DeferRender ssr={false}>
+              <div className={classes.feedCheckboxAndSettingsContainer}>
+                {!alwaysShow && <FeedSelectorDropdown currentFeedType="new" />}
+                {!isControlled && (
+                  <div className={classes.settingsButtonContainer}>
+                    <SettingsButton 
+                      showIcon={true}
+                      onClick={toggleSettings}
+                    />
+                  </div>
+                )}
+              </div>
+            </DeferRender>
+          </SectionTitle>
+        )}
+        <DeferRender ssr={false}>
+          <UltraFeedContent 
+            alwaysShow={alwaysShow}
+            settingsVisible={actualSettingsVisible}
+            onSettingsToggle={() => setInternalSettingsVisible(!internalSettingsVisible)}
+            internalSettingsVisible={internalSettingsVisible}
+            setInternalSettingsVisible={setInternalSettingsVisible}
+          />
+        </DeferRender>
+      </SingleColumnSection>
     </>
   );
 };
