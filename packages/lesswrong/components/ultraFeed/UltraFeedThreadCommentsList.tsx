@@ -44,6 +44,7 @@ interface UltraFeedThreadCommentsListProps {
   postInitiallyExpanded: boolean;
   settings: UltraFeedSettingsType;
   threadIndex: number;
+  focusedCommentId?: string;
   onSetDisplayStatus: (commentId: string, newStatus: FeedItemDisplayStatus) => void;
   onPostExpansion: () => void;
   onParentHighlight: (commentId: string) => void;
@@ -68,6 +69,7 @@ const UltraFeedThreadCommentsList = ({
   postInitiallyExpanded,
   settings,
   threadIndex,
+  focusedCommentId,
   onSetDisplayStatus,
   onPostExpansion,
   onParentHighlight,
@@ -142,6 +144,10 @@ const UltraFeedThreadCommentsList = ({
           const nextItemIsRead = isNextItemRead(commentIndex);
           const isReadAndNextItemIsRead = isRead && nextItemIsRead;
           
+          const shouldShowPostTitle = focusedCommentId 
+            ? cId === focusedCommentId 
+            : (isFirstItem && !postInitiallyExpanded);
+          
           return (
             <div 
               key={cId} 
@@ -164,7 +170,7 @@ const UltraFeedThreadCommentsList = ({
                 }}
                 onPostTitleClick={onPostExpansion}
                 onChangeDisplayStatus={(newStatus) => onSetDisplayStatus(cId, newStatus)}
-                showPostTitle={isFirstItem && !postInitiallyExpanded}
+                showPostTitle={shouldShowPostTitle}
                 postInitiallyExpanded={postInitiallyExpanded}
                 highlight={highlightStatuses[cId] || false}
                 isFirstComment={isFirstItem}

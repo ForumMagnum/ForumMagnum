@@ -23550,6 +23550,72 @@ type multiSubscriptionSubscriptionsListQueryQueryVariables = Exact<{
 
 type multiSubscriptionSubscriptionsListQueryQuery = multiSubscriptionSubscriptionsListQueryQuery_Query;
 
+type UserContentFeedPostsQuery_posts_MultiPostOutput_results_Post = (
+  { __typename?: 'Post' }
+  & PostsListWithVotes
+);
+
+type UserContentFeedPostsQuery_posts_MultiPostOutput = { __typename?: 'MultiPostOutput', totalCount: number | null, results: Array<UserContentFeedPostsQuery_posts_MultiPostOutput_results_Post> };
+
+type UserContentFeedPostsQuery_Query = { __typename?: 'Query', posts: UserContentFeedPostsQuery_posts_MultiPostOutput | null };
+
+
+type UserContentFeedPostsQueryVariables = Exact<{
+  userId: Scalars['String']['input'];
+  limit: Scalars['Int']['input'];
+  sortedBy: Scalars['String']['input'];
+}>;
+
+
+type UserContentFeedPostsQuery = UserContentFeedPostsQuery_Query;
+
+type UserContentFeedCommentsQuery_comments_MultiCommentOutput_results_Comment_post_Post = (
+  { __typename?: 'Post' }
+  & PostsListWithVotes
+);
+
+type UserContentFeedCommentsQuery_comments_MultiCommentOutput_results_Comment_topLevelComment_Comment = (
+  { __typename?: 'Comment' }
+  & CommentsListWithTopLevelComment
+);
+
+type UserContentFeedCommentsQuery_comments_MultiCommentOutput_results_Comment = (
+  { __typename?: 'Comment', post: UserContentFeedCommentsQuery_comments_MultiCommentOutput_results_Comment_post_Post | null, topLevelComment: UserContentFeedCommentsQuery_comments_MultiCommentOutput_results_Comment_topLevelComment_Comment | null }
+  & CommentsList
+);
+
+type UserContentFeedCommentsQuery_comments_MultiCommentOutput = { __typename?: 'MultiCommentOutput', totalCount: number | null, results: Array<UserContentFeedCommentsQuery_comments_MultiCommentOutput_results_Comment> };
+
+type UserContentFeedCommentsQuery_Query = { __typename?: 'Query', comments: UserContentFeedCommentsQuery_comments_MultiCommentOutput | null };
+
+
+type UserContentFeedCommentsQueryVariables = Exact<{
+  userId: Scalars['String']['input'];
+  limit: Scalars['Int']['input'];
+  sortBy: Scalars['String']['input'];
+}>;
+
+
+type UserContentFeedCommentsQuery = UserContentFeedCommentsQuery_Query;
+
+type UserContentFeedThreadQuery_comments_MultiCommentOutput_results_Comment = (
+  { __typename?: 'Comment' }
+  & UltraFeedComment
+);
+
+type UserContentFeedThreadQuery_comments_MultiCommentOutput = { __typename?: 'MultiCommentOutput', results: Array<UserContentFeedThreadQuery_comments_MultiCommentOutput_results_Comment> };
+
+type UserContentFeedThreadQuery_Query = { __typename?: 'Query', comments: UserContentFeedThreadQuery_comments_MultiCommentOutput | null };
+
+
+type UserContentFeedThreadQueryVariables = Exact<{
+  topLevelCommentId: Scalars['String']['input'];
+  limit: InputMaybe<Scalars['Int']['input']>;
+}>;
+
+
+type UserContentFeedThreadQuery = UserContentFeedThreadQuery_Query;
+
 type UsersNameWrapperQuery_user_SingleUserOutput_result_User = (
   { __typename?: 'User' }
   & UsersMinimumInfo
@@ -25498,17 +25564,26 @@ type SpotlightHeaderEventSubtitle = (
   & SpotlightMinimumInfo
 );
 
-type SpotlightDisplay_Spotlight_post_Post_user_User = { __typename?: 'User', _id: string, displayName: string, slug: string };
+type SpotlightDisplay_Spotlight_post_Post_user_User = (
+  { __typename?: 'User' }
+  & UsersMinimumInfo
+);
 
 type SpotlightDisplay_Spotlight_post_Post_reviews_Comment = { __typename?: 'Comment', _id: string };
 
 type SpotlightDisplay_Spotlight_post_Post = { __typename?: 'Post', _id: string, slug: string, title: string, user: SpotlightDisplay_Spotlight_post_Post_user_User | null, reviews: Array<SpotlightDisplay_Spotlight_post_Post_reviews_Comment> | null };
 
-type SpotlightDisplay_Spotlight_sequence_Sequence_user_User = { __typename?: 'User', _id: string, displayName: string, slug: string };
+type SpotlightDisplay_Spotlight_sequence_Sequence_user_User = (
+  { __typename?: 'User' }
+  & UsersMinimumInfo
+);
 
 type SpotlightDisplay_Spotlight_sequence_Sequence = { __typename?: 'Sequence', _id: string, title: string, user: SpotlightDisplay_Spotlight_sequence_Sequence_user_User | null };
 
-type SpotlightDisplay_Spotlight_tag_Tag_user_User = { __typename?: 'User', _id: string, displayName: string, slug: string };
+type SpotlightDisplay_Spotlight_tag_Tag_user_User = (
+  { __typename?: 'User' }
+  & UsersMinimumInfo
+);
 
 type SpotlightDisplay_Spotlight_tag_Tag = { __typename?: 'Tag', _id: string, name: string, slug: string, user: SpotlightDisplay_Spotlight_tag_Tag_user_User | null };
 
