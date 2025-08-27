@@ -354,7 +354,7 @@ const EventsHome = ({classes}: {
   // on the EA Forum, we insert some special event cards (ex. Intro VP card)
   let numSpecialCards = currentUser ? 1 : 2
   // hide them on other forums, and when certain filters are set
-  if (!isEAForum || modeFilter === 'in-person' || (formatFilter.length > 0 && !formatFilter.includes('course'))) {
+  if (!isEAForum() || modeFilter === 'in-person' || (formatFilter.length > 0 && !formatFilter.includes('course'))) {
     numSpecialCards = 0
   }
 

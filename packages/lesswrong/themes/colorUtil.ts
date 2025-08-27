@@ -72,16 +72,18 @@ export function colorToString(color: ColorTuple): string
 
 // HACK: Gamma here is tuned empirically for a visual result, not based on
 // anything principled.
-const GAMMA = !isLWorAF ? 1.24 : 1.5;
+const getGamma = () => !isLWorAF() ? 1.24 : 1.5;
 
-const applyInversionBias = !isLWorAF
-  ? (color: number) => (0.92 * color) + 0.08
-  : (color: number) => color;
+const applyInversionBias = (color: number) => (
+  !isLWorAF()
+    ? ((0.92 * color) + 0.08)
+    : color
+);
 
 const invertChannel = (channel: number) => {
-  const linearized = Math.pow(channel, GAMMA);
+  const linearized = Math.pow(channel, getGamma());
   const invertedLinearized = 1.0-linearized;
-  const inverted = Math.pow(invertedLinearized, 1.0 / GAMMA);
+  const inverted = Math.pow(invertedLinearized, 1.0 / getGamma());
   return applyInversionBias(inverted);
 }
 

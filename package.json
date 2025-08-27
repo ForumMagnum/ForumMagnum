@@ -3,6 +3,7 @@
   "version": "2.1.0",
   "scripts": {
     "run-next": "NODE_OPTIONS='--inspect --no-deprecation' next dev --turbopack",
+    "run-next-w": "NODE_OPTIONS='--inspect --no-deprecation' next dev",
     "postinstall": "scripts/postinstall.sh",
     "checktypes": "scripts/lint_and_checktypes.sh",
     "lint": "scripts/lint_and_checktypes.sh",
@@ -78,7 +79,7 @@
     "graphql-codegen": "graphql-codegen --config codegen.ts",
     "depcruise": "dependency-cruiser packages app --config .dependency-cruiser.js",
     "depcruise:validate": "dependency-cruiser packages app --validate .dependency-cruiser.js",
-    "next-start": "next start"
+    "next-start": "NODE_OPTIONS='--inspect --no-deprecation --enable-source-maps' next start"
   },
   "dependencies": {
     "@anthropic-ai/sdk": "^0.30.1",
@@ -347,6 +348,7 @@
     "eslint-import-resolver-typescript": "^3.6.1",
     "eslint-plugin-babel": "^5.3.1",
     "eslint-plugin-import": "^2.29.1",
+    "eslint-plugin-local": "file:./eslint-plugin-local",
     "eslint-plugin-no-barrel-files": "^1.2.1",
     "eslint-plugin-react": "^7.32.2",
     "eslint-plugin-react-hooks": "^4.2.0",

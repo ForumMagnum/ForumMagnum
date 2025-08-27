@@ -56,7 +56,7 @@ export const Paper = ({elevation=2, square=false, className, nodeRef, style, chi
 const cardStyles = defineStyles("Card", (theme) => ({
   root: {
     overflow: "hidden",
-    ...(isLW && {
+    ...(isLW() && {
       borderRadius: 1,
       boxShadow: theme.palette.boxShadow.lwCard,
     })

@@ -20,7 +20,7 @@ import { DisableNoKibitzContext, AutosaveEditorStateContext } from './common/sha
 import { LayoutOptions, LayoutOptionsContext } from './hooks/useLayoutOptions';
 // enable during ACX Everywhere
 // import { HIDE_MAP_COOKIE } from '../lib/cookies/cookies';
-import Header, { HEADER_HEIGHT } from './common/Header';
+import Header, { getHeaderHeight } from './common/Header';
 import { useCookiePreferences, useCookiesWithConsent } from './hooks/useCookiesWithConsent';
 import { useHeaderVisible } from './hooks/useHeaderVisible';
 import StickyBox from '../lib/vendor/react-sticky-box';
@@ -92,7 +92,7 @@ const styles = defineStyles("Layout", (theme: ThemeType) => ({
     marginRight: "auto",
     // Make sure the background extends to the bottom of the page, I'm sure there is a better way to do this
     // but almost all pages are bigger than this anyway so it's not that important
-    minHeight: `calc(100vh - ${HEADER_HEIGHT}px)`,
+    minHeight: `calc(100vh - ${getHeaderHeight()}px)`,
     gridArea: 'main',
     [theme.breakpoints.down('md')]: {
       paddingTop: theme.isFriendlyUI ? 0 : theme.spacing.mainLayoutPaddingTop,
@@ -147,7 +147,7 @@ const styles = defineStyles("Layout", (theme: ThemeType) => ({
         minmax(0, min-content)
         minmax(0, 1fr)
         minmax(0, min-content)
-        minmax(0, ${isLWorAF ? 7 : 1}fr)
+        minmax(0, ${isLWorAF() ? 7 : 1}fr)
         minmax(0, min-content)
       `,
     },
@@ -240,7 +240,7 @@ const styles = defineStyles("Layout", (theme: ThemeType) => ({
     marginBottom: 20,
   },
   stickyWrapperHeaderVisible: {
-    transform: `translateY(${HEADER_HEIGHT + STICKY_SECTION_TOP_MARGIN}px)`,
+    transform: `translateY(${getHeaderHeight() + STICKY_SECTION_TOP_MARGIN}px)`,
   },
 }));
 
@@ -292,7 +292,7 @@ const Layout = ({currentUser, children}: {
   // also uncomment out the dynamic import and render of the HomepageCommunityMap.
   // (they're commented out to reduce the split bundle size.)
   const renderCommunityMap = false
-  // (isLW) && isHomeRoute(pathname) && (!currentUser?.hideFrontpageMap) && !cookies[HIDE_MAP_COOKIE]
+  // (isLW()) && isHomeRoute(pathname) && (!currentUser?.hideFrontpageMap) && !cookies[HIDE_MAP_COOKIE]
   
   const [updateUserNoCache] = useMutationNoCache(UsersCurrentUpdateMutation);
   
@@ -367,7 +367,7 @@ const Layout = ({currentUser, children}: {
     const redirectUrl = new URL(window.location.href);
     if (query.disableRedirect) {
       setCookie(NO_ADMIN_NEXT_REDIRECT_COOKIE, true, { path: '/' });
-    } else if (isLW && userIsAdmin(currentUser) && !cookies[NO_ADMIN_NEXT_REDIRECT_COOKIE] && redirectUrl.host === 'www.lesswrong.com') {
+    } else if (isLW() && userIsAdmin(currentUser) && !cookies[NO_ADMIN_NEXT_REDIRECT_COOKIE] && redirectUrl.host === 'www.lesswrong.com') {
       redirectUrl.host = 'baserates-prod-test.vercel.app';
       // These two are necessary when testing this on localhost
       // redirectUrl.port = '';
@@ -399,7 +399,7 @@ const Layout = ({currentUser, children}: {
     const shouldUseGridLayout = overrideLayoutOptions.shouldUseGridLayout ?? baseLayoutOptions.shouldUseGridLayout
     const unspacedGridLayout = overrideLayoutOptions.unspacedGridLayout ?? baseLayoutOptions.unspacedGridLayout
     // The friendly home page has a unique grid layout, to account for the right hand side column.
-    const friendlyHomeLayout = isFriendlyUI && isHomeRoute(pathname);
+    const friendlyHomeLayout = isFriendlyUI() && isHomeRoute(pathname);
 
     const isIncompletePath = allowedIncompletePaths.some(path => pathname.startsWith(`/${path}`));
     
@@ -419,7 +419,7 @@ const Layout = ({currentUser, children}: {
       <CurrentAndRecentForumEventsProvider>
         <div className={classNames(
           "wrapper",
-          {'alignment-forum': isAF, [classes.fullscreen]: isFullscreenRoute(pathname), [classes.wrapper]: isLWorAF},
+          {'alignment-forum': isAF(), [classes.fullscreen]: isFullscreenRoute(pathname), [classes.wrapper]: isLWorAF()},
           useWhiteBackground && classes.whiteBackground
         )} id="wrapper">
           {buttonBurstSetting.get() && <GlobalButtonBurst />}
@@ -473,7 +473,7 @@ const Layout = ({currentUser, children}: {
                 [classes.fullscreenBodyWrapper]: isFullscreenRoute(pathname),
               }
               )}>
-                {isFriendlyUI && !isWrapped && <AdminToggle />}
+                {isFriendlyUI() && !isWrapped && <AdminToggle />}
                 {standaloneNavigation && <SuspenseWrapper fallback={<span/>} name="NavigationStandalone" >
                   <MaybeStickyWrapper sticky={friendlyHomeLayout}>
                     <DeferRender ssr={true} clientTiming='mobile-aware'>
@@ -501,12 +501,12 @@ const Layout = ({currentUser, children}: {
                       {children}
                     </SuspenseWrapper>
                     {/* <SuspenseWrapper name="OnboardingFlow">
-                      {!isIncompletePath && isEAForum ? <EAOnboardingFlow/> : <BasicOnboardingFlow/>}
+                      {!isIncompletePath && isEAForum() ? <EAOnboardingFlow/> : <BasicOnboardingFlow/>}
                     </SuspenseWrapper> */}
                   </ErrorBoundary>
                   {!isFullscreenRoute(pathname) && !routeMetadata.noFooter && <Footer />}
                 </div>
-                {isLW && <LWBackgroundImage standaloneNavigation={standaloneNavigation} />}
+                {isLW() && <LWBackgroundImage standaloneNavigation={standaloneNavigation} />}
                 {/* {!renderSunshineSidebar &&
                   friendlyHomeLayout &&
                   <MaybeStickyWrapper sticky={friendlyHomeLayout}>

@@ -13,7 +13,7 @@ declare global {
  * When changing this, also update getViewableSequencesSelector.
  */
 function defaultView(terms: SequencesViewTerms) {
-  const alignmentForum = isAF ? {af: true} : {}
+  const alignmentForum = isAF() ? {af: true} : {}
   let params = {
     selector: {
       hidden: false,
@@ -97,7 +97,7 @@ function curatedSequences(terms: SequencesViewTerms) {
 }
 
 function communitySequences(terms: SequencesViewTerms) {
-  const gridImageFilter = isLWorAF ? {gridImageId: {$ne: null}} : undefined
+  const gridImageFilter = isLWorAF() ? {gridImageId: {$ne: null}} : undefined
 
   return {
     selector: {

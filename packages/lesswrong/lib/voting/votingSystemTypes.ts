@@ -32,7 +32,7 @@ export interface VotingSystem<ExtendedVoteType = any, ExtendedScoreType = any> {
   name: VotingSystemName;
   description: string;
   hasInlineReacts?: boolean;
-  userCanActivate?: boolean; // toggles whether non-admins use this voting system
+  userCanActivate?: () => boolean; // toggles whether non-admins use this voting system
   addVoteClient: (props: {
     voteType: string | null;
     document: VoteableTypeClient;

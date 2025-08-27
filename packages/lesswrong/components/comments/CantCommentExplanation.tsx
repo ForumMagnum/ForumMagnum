@@ -59,7 +59,7 @@ const CantCommentExplanation = ({post, classes}: {
   const currentUser = useCurrentUser();
   const author = post.user ?? null;
   const email = moderationEmail.get()
-  if (isFriendlyUI && post.shortform) {
+  if (isFriendlyUI() && post.shortform) {
     return null;
   }
   return (

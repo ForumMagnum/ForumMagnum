@@ -1,5 +1,5 @@
 import { Type, IdType } from "./Type";
-import { forumTypeSetting, ForumTypeString } from "@/lib/instanceSettings";
+import { ForumTypeString } from "@/lib/instanceSettings";
 import type PgCollection from "./PgCollection";
 
 /**
@@ -56,10 +56,8 @@ class Table<T extends DbObject> {
     T extends DbObject = ObjectsByCollectionName[N]
   >(
     collection: PgCollection<N>,
-    forumType?: ForumTypeString,
   ): Table<T> {
     const table = new Table<T>(collection.collectionName);
-    forumType ??= forumTypeSetting.get() ?? "EAForum";
 
     table.writeAheadLogged = collection.options?.writeAheadLogged ?? true;
 
@@ -77,7 +75,7 @@ class Table<T extends DbObject> {
           const indexSchema = schema[`${field}.$`];
           table.addField(
             field,
-            Type.fromSchema(collection.collectionName, field, fieldSchema.database, fieldSchema.graphql, forumType),
+            Type.fromSchema(collection.collectionName, field, fieldSchema.database, fieldSchema.graphql),
           );
         }
       }

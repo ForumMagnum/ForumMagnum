@@ -70,7 +70,7 @@ const styles = (theme: ThemeType) => ({
 });
 
 const shouldShow = (atBottom: boolean, timeForCuration: boolean, currentUser: UsersCurrent | null, hasCurationDrafts: boolean) => {
-  if (isEAForum) {
+  if (isEAForum()) {
     return !atBottom && (currentUser?.isAdmin || userIsMemberOf(currentUser, 'canSuggestCuration'));
   } else {
     return (atBottom === hasCurationDrafts) || timeForCuration;
@@ -132,7 +132,7 @@ const SunshineCuratedSuggestionsList = ({ limit = 7, atBottom, classes, setCurat
   }
 
   let statusClass = '';
-  if (isLWorAF) {
+  if (isLWorAF()) {
     const daysSinceCurated = Math.floor(
       (new Date().getTime() - curatedDate.getTime()) / (24 * 60 * 60 * 1000)
     );

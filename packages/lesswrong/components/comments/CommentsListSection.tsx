@@ -167,7 +167,7 @@ const CommentsListSection = ({
   return (
     <div className={classNames(classes.root, {[classes.maxWidthRoot]: !tag})}>
       <div id="comments"/>
-      {isFriendlyUI && (newForm || !!totalComments) && !post?.shortform &&
+      {isFriendlyUI() && (newForm || !!totalComments) && !post?.shortform &&
         <div className={classes.commentsHeadline}>
           Comments{commentCountNode}
         </div>
@@ -180,16 +180,16 @@ const CommentsListSection = ({
         <div
           id="posts-thread-new-comment"
           className={classNames(classes.newComment, {
-            [classes.newQuickTake]: isEAForum && post?.shortform,
+            [classes.newQuickTake]: isEAForum() && post?.shortform,
           })}
         >
-          {!isEAForum && <div className={classes.newCommentLabel}>{preferredHeadingCase("New Comment")}</div>}
+          {!isEAForum() && <div className={classes.newCommentLabel}>{preferredHeadingCase("New Comment")}</div>}
           {post?.isEvent && !!post.rsvps?.length && (
             <div className={classes.newCommentSublabel}>
               Everyone who RSVP'd to this event will be notified.
             </div>
           )}
-          {isEAForum && post?.shortform
+          {isEAForum() && post?.shortform
             ? <QuickTakesEntry currentUser={currentUser} />
             : (
               <CommentsNewForm
@@ -233,7 +233,7 @@ const CommentsListSection = ({
         loading={loading}
       />
       <PostsPageCrosspostComments />
-      {!isEAForum && <Row justifyContent="flex-end">
+      {!isEAForum() && <Row justifyContent="flex-end">
         <LWTooltip title="View deleted comments and banned users">
           <Link to="/moderation">
             <MetaInfo>Moderation Log</MetaInfo>
@@ -302,11 +302,11 @@ function CommentsListSectionTitle({
     <span>
       {postGetCommentCountStr(post, totalComments)}, sorted by <CommentsViews post={post} setRestoreScrollPos={setRestoreScrollPos} />
     </span>
-  if (isFriendlyUI) {
+  if (isFriendlyUI()) {
     commentSortNode = <>Sorted by <CommentsViews post={post} setRestoreScrollPos={setRestoreScrollPos} /></>
   }
 
-  const contentType = isEAForum && post?.shortform
+  const contentType = isEAForum() && post?.shortform
     ? "quick takes"
     : "comments";
 

@@ -96,7 +96,7 @@ async function permanentlyDeleteUser(user: DbUser, options: DeleteOptions) {
   const mailchimpEAForumListId = mailchimpEAForumListIdSetting.get();
 
   const listIdsToDeleteFrom = [mailchimpEAForumListId, mailchimpForumDigestListId].filter(v => v) as string[];
-  if (isEAForum && options.includingNonForumData) {
+  if (isEAForum() && options.includingNonForumData) {
     listIdsToDeleteFrom.push(...EAF_EXTRA_MAILCHIMP_LISTS);
   }
 

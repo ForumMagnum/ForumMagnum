@@ -91,6 +91,7 @@ export async function POST(request: NextRequest) {
       }
 
       const isolationScope = getIsolationScope();
+
       const userId = isolationScope.getUser()?.id;
 
       return {

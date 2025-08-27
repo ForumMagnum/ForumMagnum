@@ -8,7 +8,7 @@ import {
   PLAINTEXT_HTML_TRUNCATION_LENGTH
 } from '@/lib/collections/revisions/revisionConstants';
 import { randomId } from "../../lib/random";
-import { ckEditorName } from "../editor/Editor";
+import { getCkEditorName } from "../editor/Editor";
 import Input from "@/lib/vendor/@material-ui/core/src/Input";
 import { getSiteUrl, sanitize } from "../../lib/vulcan-lib/utils";
 import type { TypedFieldApi } from '@/components/tanstack-form-components/BaseAppForm';
@@ -153,7 +153,7 @@ const buildPreviewFromDocument = (
   const processContents = (contents: { type: string; data: string }) => {
     if (!["html", "ckEditorMarkup", "markdown"].includes(contents.type)) {
       return {
-        description: `<Description preview not supported for this editor type (${contents.type}), switch to HTML, Markdown, or ${ckEditorName} to see the description preview>`,
+        description: `<Description preview not supported for this editor type (${contents.type}), switch to HTML, Markdown, or ${getCkEditorName} to see the description preview>`,
         image: null,
       };
     }

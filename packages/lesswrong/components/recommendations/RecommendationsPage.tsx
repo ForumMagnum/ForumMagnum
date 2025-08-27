@@ -11,7 +11,7 @@ import SpotlightHistory from "../spotlights/SpotlightHistory";
 const RecommendationsPage = () => {
   return (
     <AnalyticsContext pageSectionContext={"recommendationsPage"} capturePostItemOnMount>
-      {isLW && <SpotlightHistory/>}
+      {isLW() && <SpotlightHistory/>}
       <RecommendationsPageCuratedList/>
       <ConfigurableRecommendationsList configName="recommendationspage" />
     </AnalyticsContext>

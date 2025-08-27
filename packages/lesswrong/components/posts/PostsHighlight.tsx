@@ -68,7 +68,7 @@ const TruncatedSuffix: FC<{
   }
   return (
     <Link to={postGetPageUrl(post)} eventProps={{intent: 'expandPost'}}>
-      {isFriendlyUI
+      {isFriendlyUI()
         ? "Continue reading"
         : `(Continue Reading${moreWordsText})`
       }

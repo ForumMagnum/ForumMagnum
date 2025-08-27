@@ -5,4 +5,4 @@ import { isFriendlyUI } from "@/themes/forumTheme";
  */
 export const noDeletionPmReason = 'Requested account deletion';
 
-export const COMMENTS_NEW_FORM_PADDING = isFriendlyUI ? 12 : 10;
+export const getCommentsNewFormPadding = (theme: ThemeType) => theme.isFriendlyUI ? 12 : 10;

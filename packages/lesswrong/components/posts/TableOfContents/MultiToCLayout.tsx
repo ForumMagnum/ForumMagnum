@@ -2,7 +2,7 @@ import classNames from 'classnames';
 import React, { useEffect, useRef } from 'react';
 import { MAX_COLUMN_WIDTH } from '../PostsPage/constants';
 import { fullHeightToCEnabled } from '../../../lib/betas';
-import { HEADER_HEIGHT } from '@/components/common/Header';
+import { getHeaderHeight } from '@/components/common/Header';
 import { defineStyles, useStyles } from '@/components/hooks/useStyles';
 
 export const MAX_CONTENT_WIDTH = 720;
@@ -63,8 +63,8 @@ const styles = defineStyles("MultiToCLayout", (theme: ThemeType) => ({
   toc: {
     position: 'unset',
     width: 'unset',
-    marginTop: fullHeightToCEnabled ? -50 : -TOC_OFFSET_TOP,
-    marginBottom: fullHeightToCEnabled ? undefined : -TOC_OFFSET_BOTTOM,
+    marginTop: fullHeightToCEnabled() ? -50 : -TOC_OFFSET_TOP,
+    marginBottom: fullHeightToCEnabled() ? undefined : -TOC_OFFSET_BOTTOM,
     [theme.breakpoints.down('sm')]:{
       display: "none",
       marginTop: 0,
@@ -88,8 +88,8 @@ const styles = defineStyles("MultiToCLayout", (theme: ThemeType) => ({
   '@global': {
     // Hard-coding this class name as a workaround for one of the JSS plugins being incapable of parsing a self-reference ($titleContainer) while inside @global
     [`body:has(.headroom--pinned) .${STICKY_BLOCK_SCROLLER_CLASS_NAME}, body:has(.headroom--unfixed) .${STICKY_BLOCK_SCROLLER_CLASS_NAME}`]: {
-      top: HEADER_HEIGHT,
-      height: `calc(100vh - ${HEADER_HEIGHT}px - var(--fixed-toc-footer-height, ${DEFAULT_FIXED_TOC_COMMENT_COUNT_HEIGHT}px))`
+      top: getHeaderHeight(),
+      height: `calc(100vh - ${getHeaderHeight()}px - var(--fixed-toc-footer-height, ${DEFAULT_FIXED_TOC_COMMENT_COUNT_HEIGHT}px))`
     }
   },
   stickyBlockScroller: {
@@ -102,7 +102,7 @@ const styles = defineStyles("MultiToCLayout", (theme: ThemeType) => ({
     paddingLeft: theme.spacing.unit*2,
     textAlign: "left",
     maxHeight: `calc(100vh - var(--fixed-toc-footer-height, ${DEFAULT_FIXED_TOC_COMMENT_COUNT_HEIGHT}px))`,
-    height: fullHeightToCEnabled ? `calc(100vh - var(--fixed-toc-footer-height, ${DEFAULT_FIXED_TOC_COMMENT_COUNT_HEIGHT}px))` : undefined,
+    height: fullHeightToCEnabled() ? `calc(100vh - var(--fixed-toc-footer-height, ${DEFAULT_FIXED_TOC_COMMENT_COUNT_HEIGHT}px))` : undefined,
     overflowY: "auto",
     
     scrollbarWidth: "none", //Firefox-specific
@@ -117,9 +117,9 @@ const styles = defineStyles("MultiToCLayout", (theme: ThemeType) => ({
   stickyBlock: {
     // Cancels the direction:rtl in stickyBlockScroller
     direction: "ltr",
-    height: fullHeightToCEnabled ? "100%" : undefined,
-    paddingTop: fullHeightToCEnabled ? undefined : TOC_OFFSET_TOP,
-    paddingBottom: fullHeightToCEnabled ? undefined : TOC_OFFSET_BOTTOM,
+    height: fullHeightToCEnabled() ? "100%" : undefined,
+    paddingTop: fullHeightToCEnabled() ? undefined : TOC_OFFSET_TOP,
+    paddingBottom: fullHeightToCEnabled() ? undefined : TOC_OFFSET_BOTTOM,
   },
   content: {},
   rhs: {},

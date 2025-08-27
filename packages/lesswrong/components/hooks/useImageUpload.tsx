@@ -94,7 +94,7 @@ declare global {
   }
 }
 
-const cloudinaryArgsByImageType = {
+const getCloudinaryArgsByImageType = () => ({
   gridImageId: {
     minImageHeight: 80,
     minImageWidth: 203,
@@ -156,9 +156,9 @@ const cloudinaryArgsByImageType = {
     cropping: false,
     uploadPreset: cloudinaryUploadPresetDigestSetting.get()
   },
-} as const;
+} as const);
 
-export type ImageType = keyof typeof cloudinaryArgsByImageType;
+export type ImageType = keyof ReturnType<typeof getCloudinaryArgsByImageType>;
 
 export type UseImageUploadProps = {
   imageType: ImageType,
@@ -181,7 +181,7 @@ export const useImageUpload = ({
       throw new Error("Cloudinary is not loaded");
     }
 
-    const cloudinaryArgs = cloudinaryArgsByImageType[imageType];
+    const cloudinaryArgs = getCloudinaryArgsByImageType()[imageType];
     if (!cloudinaryArgs) {
       throw new Error("Unsupported image upload type")
     }

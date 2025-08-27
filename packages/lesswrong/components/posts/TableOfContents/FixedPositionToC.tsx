@@ -256,7 +256,7 @@ const FixedPositionToc = ({tocSections, title, heading, onClickSection, displayO
   const [hasLoaded, setHasLoaded] = useState(false);
 
   const postContext = usePostsPageContext()?.fullPost;
-  const disableProgressBar = ((!isLWorAF && !postContext) || isServer || postContext?.shortform);
+  const disableProgressBar = ((!isLWorAF() && !postContext) || isServer || postContext?.shortform);
 
   const { readingProgressBarRef } = usePostReadProgress({
     updateProgressBar: (element, scrollPercent) => element.style.setProperty("--scrollAmount", `${scrollPercent}%`),
@@ -311,7 +311,7 @@ const FixedPositionToc = ({tocSections, title, heading, onClickSection, displayO
       });
       const sectionYdocumentSpace = anchorY + window.scrollY;
 
-      if (!isLWorAF) {
+      if (!isLWorAF()) {
         scrollFocusOnElement({ id: anchor, options: { behavior: 'smooth' } });
       } else {
         jumpToY(sectionYdocumentSpace);

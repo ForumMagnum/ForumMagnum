@@ -125,7 +125,7 @@ const UserPaymentInfoForm = ({
         <form.Subscribe selector={(s) => [s.canSubmit, s.isSubmitting]}>
           {([canSubmit, isSubmitting]) => (
             <Button
-              variant={isBookUI ? 'outlined' : undefined}
+              variant={isBookUI() ? 'outlined' : undefined}
               type="submit"
               disabled={!canSubmit || isSubmitting}
               className={classNames("primary-form-submit-button", classes.submitButton)}

@@ -2,7 +2,7 @@ import React from "react"
 import { registerComponent } from "@/lib/vulcan-lib/components";
 import { AnalyticsContext } from "@/lib/analyticsEvents";
 import { useLocation } from "@/lib/routeUtil";
-import { HEADER_HEIGHT, MOBILE_HEADER_HEIGHT } from "@/components/common/Header";
+import { getHeaderHeight, getMobileHeaderHeight } from "@/components/common/Header";
 import { useCurrentUser } from "@/components/common/withUser";
 import { makeCloudinaryImageUrl } from '@/components/common/cloudinaryHelpers';
 import { ForumWrappedProvider, useForumWrapped } from "./hooks";
@@ -31,14 +31,14 @@ const styles = (theme: ThemeType) => ({
     textAlign: "center",
     // Compensate for the padding added in Layout.tsx and the site header, so
     // that section starts at the top of the page
-    marginTop: -HEADER_HEIGHT - theme.spacing.mainLayoutPaddingTop,
-    paddingTop: HEADER_HEIGHT,
+    marginTop: -getHeaderHeight() - theme.spacing.mainLayoutPaddingTop,
+    paddingTop: getHeaderHeight(),
     [theme.breakpoints.down("md")]: {
-      marginTop: -HEADER_HEIGHT,
+      marginTop: -getHeaderHeight(),
     },
     [theme.breakpoints.down("xs")]: {
-      marginTop: -MOBILE_HEADER_HEIGHT,
-      paddingTop: MOBILE_HEADER_HEIGHT,
+      marginTop: -getMobileHeaderHeight(),
+      paddingTop: getMobileHeaderHeight(),
     },
     [theme.breakpoints.down("sm")]: {
       marginLeft: -8,

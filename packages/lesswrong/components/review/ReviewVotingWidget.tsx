@@ -1,7 +1,7 @@
 import { useMutation } from "@apollo/client/react";
 import { gql } from "@/lib/generated/gql-codegen";
 import React, { useCallback } from 'react';
-import { eligibleToNominate, REVIEW_NAME_IN_SITU, REVIEW_YEAR, VoteIndex } from '../../lib/reviewUtils';
+import { eligibleToNominate, getReviewNameInSitu, REVIEW_YEAR, VoteIndex } from '../../lib/reviewUtils';
 import { Link } from '../../lib/reactRouterWrapper';
 import { ReviewOverviewTooltip } from './FrontpageReviewWidget';
 import { useCurrentUser } from '../common/withUser';
@@ -56,7 +56,7 @@ const ReviewVotingWidget = ({classes, post, setNewVote, showTitle=true}: {classe
   return <ErrorBoundary>
       <div className={classes.root}>
         {showTitle && <p>
-          Vote on this post for the <LWTooltip title={<ReviewOverviewTooltip/>}><Link to={"/reviewVoting"}>{REVIEW_NAME_IN_SITU}</Link></LWTooltip>
+          Vote on this post for the <LWTooltip title={<ReviewOverviewTooltip/>}><Link to={"/reviewVoting"}>{getReviewNameInSitu()}</Link></LWTooltip>
         </p>}
         <ReviewVotingButtons post={post} dispatch={dispatchQualitativeVote} currentUserVote={currentUserVote}/>
       </div>

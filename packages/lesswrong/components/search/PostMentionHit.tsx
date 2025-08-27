@@ -24,7 +24,7 @@ const PostMentionHit = ({hit, classes}: {
   hit: SearchPost,
   classes: ClassesType<typeof styles>,
 }) => {
-  const icon = isFriendlyUI
+  const icon = isFriendlyUI()
     ? <ForumIcon icon="Document" className={classes.icon} />
     : "📃";
   return (

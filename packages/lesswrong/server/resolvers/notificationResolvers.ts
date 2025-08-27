@@ -119,7 +119,7 @@ export const notificationResolversGqlQueries = {
       unreadPrivateMessages,
       newNotifications,
     ] = await Promise.all([
-      isFriendlyUI
+      isFriendlyUI()
         ? Notifications.find({
           ...selector,
           type: "newMessage",
@@ -131,7 +131,7 @@ export const notificationResolversGqlQueries = {
         ...(lastNotificationsCheck && {
           createdAt: {$gt: lastNotificationsCheck},
         }),
-        ...(isFriendlyUI && {
+        ...(isFriendlyUI() && {
           type: {$ne: "newMessage"},
           viewed: {$ne: true},
         }),

@@ -216,7 +216,7 @@ export const MaybeStickyDigestAd = ({post}: {
   // postReadCount is currently only used by StickyDigestAd, to only show the ad after the client has visited multiple posts.
   const ls = getBrowserLocalStorage()
   useEffect(() => {
-    if (ls && hasDigests) {
+    if (ls && hasDigests()) {
       const postReadCount = ls.getItem('postReadCount') ?? '0'
       ls.setItem('postReadCount', `${parseInt(postReadCount) + 1}`)
     }
@@ -224,7 +224,7 @@ export const MaybeStickyDigestAd = ({post}: {
 
   // On the EA Forum, show a digest ad at the bottom of the screen after the user scrolled down.
   useEffect(() => {
-    if (!isEAForum || isServer || post.isEvent || post.question || post.shortform) return
+    if (!isEAForum() || isServer || post.isEvent || post.question || post.shortform) return
 
     checkShowDigestAd()
     window.addEventListener('scroll', checkShowDigestAd)

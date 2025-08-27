@@ -111,7 +111,7 @@ const SunshineCuratedSuggestionsItem = ({classes, post, setCurationPost, timeFor
   }
 
   // On the EA Forum, only admins can curate and remove from curation suggestions
-  const canCurate = isEAForum ? currentUser?.isAdmin : true;
+  const canCurate = isEAForum() ? currentUser?.isAdmin : true;
 
   return (
     <span {...eventHandlers}>

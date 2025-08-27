@@ -8,7 +8,7 @@ export async function elasticSyncDocument(
   collectionName: SearchIndexCollectionName,
   documentId: string,
 ) {
-  if (!isElasticEnabled) {
+  if (!isElasticEnabled()) {
     return;
   }
   try {

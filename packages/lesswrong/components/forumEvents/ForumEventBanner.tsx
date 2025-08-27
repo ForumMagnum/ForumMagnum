@@ -23,7 +23,7 @@ export const ForumEventBanner = () => {
   const bannerType = getBannerType(pathname);
   const {currentForumEvent} = useCurrentAndRecentForumEvents();
   
-  if (!hasForumEvents) {
+  if (!hasForumEvents()) {
     return null;
   }
 

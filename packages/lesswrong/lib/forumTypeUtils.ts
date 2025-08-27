@@ -1,4 +1,38 @@
-import { forumTypeSetting, ForumTypeString } from "./instanceSettings"
+import { getIsolationScope } from "@sentry/nextjs";
+import { isProduction, isServer } from "./executionEnvironment";
+import type { ForumTypeString } from "./instanceSettings"
+
+export const forumTypeSetting: { get: () => ForumTypeString } = {
+  get: () => {
+    let urlObj: URL;
+    if (isServer) {
+      const scope = getIsolationScope();
+      const url = scope.getScopeData().sdkProcessingMetadata.normalizedRequest?.url;
+      if (!url) {
+        if (isProduction) {
+          // eslint-disable-next-line no-console
+          console.error('No URL found in scope', scope.getScopeData());
+        }
+        return process.env.FORUM_TYPE as ForumTypeString | undefined ?? 'LessWrong';
+      }
+      urlObj = new URL(url);
+    } else {
+      urlObj = new URL(window.location.href);
+    }
+    if (urlObj.hostname.includes('alignmentforum.org')) {
+      return 'AlignmentForum';
+    } else if (urlObj.hostname.includes('forum.effectivealtruism.org')) {
+      return 'EAForum';
+    } else {
+      return process.env.FORUM_TYPE as ForumTypeString | undefined ?? 'LessWrong';
+    }
+  }
+};
+
+export const isLW = () => forumTypeSetting.get() === "LessWrong"
+export const isEAForum = () => forumTypeSetting.get() === "EAForum"
+export const isAF = () => forumTypeSetting.get() === "AlignmentForum"
+export const isLWorAF = () => isLW() || isAF()
 
 //Partial Type adds "undefined" erroneously to T, so we need to explicitly tell TS that it can't be undefined.
 type NonUndefined<T> = T extends undefined ? never : T;

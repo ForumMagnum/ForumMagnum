@@ -33,7 +33,8 @@
     "./build.ts",
     ".next/types/**/*.ts",
     "app",
-    "app/**/.*/**/*"
+    "app/**/.*/**/*",
+    "scripts/**/*.ts"
   ],
   "exclude": [
     "node_modules",

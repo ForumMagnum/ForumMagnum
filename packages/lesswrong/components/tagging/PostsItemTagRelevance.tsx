@@ -61,7 +61,7 @@ const PostsItemTagRelevance = ({tagRel, classes}: {
     {!canVote && whyYouCantVote}
   </div>
 
-  const solidArrow = isBookUI;
+  const solidArrow = isBookUI();
 
   return <PostsItem2MetaInfo className={classes.root}>
     <TooltipSpan title={tooltip} placement="left-end"><>

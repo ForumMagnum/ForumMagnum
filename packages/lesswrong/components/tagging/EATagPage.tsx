@@ -5,7 +5,7 @@ import React, { FC, Fragment, useCallback, useEffect, useState } from 'react';
 import { AnalyticsContext, useTracking } from "../../lib/analyticsEvents";
 import { userHasNewTagSubscriptions } from "../../lib/betas";
 import { subscriptionTypes } from '../../lib/collections/subscriptions/helpers';
-import { tagGetUrl, tagMinimumKarmaPermissions, tagUserHasSufficientKarma } from '../../lib/collections/tags/helpers';
+import { tagGetUrl, getTagMinimumKarmaPermissions, tagUserHasSufficientKarma } from '../../lib/collections/tags/helpers';
 import { truncate } from '../../lib/editor/ellipsize';
 import { Link } from '../../lib/reactRouterWrapper';
 import { useLocation } from '../../lib/routeUtil';
@@ -18,7 +18,7 @@ import { useTagBySlug } from './useTag';
 import { taggingNameCapitalSetting, taggingNamePluralCapitalSetting, taggingNamePluralSetting, quickTakesTagsEnabledSetting } from '@/lib/instanceSettings';
 import truncateTagDescription from "../../lib/utils/truncateTagDescription";
 import { getTagStructuredData } from "./TagPageRouter";
-import { HEADER_HEIGHT } from "../common/Header";
+import { getHeaderHeight } from "../common/Header";
 import { isFriendlyUI } from "../../themes/forumTheme";
 import DeferRender from "../common/DeferRender";
 import { RelevanceLabel, tagPageHeaderStyles, tagPostTerms } from "./TagPageUtils";
@@ -91,7 +91,7 @@ const styles = (theme: ThemeType) => ({
       width: '100%',
     },
     position: 'absolute',
-    top: HEADER_HEIGHT,
+    top: getHeaderHeight(),
     [theme.breakpoints.down('sm')]: {
       width: 'unset',
       '& > picture > img': {
@@ -208,7 +208,7 @@ const PostsListHeading: FC<{
   query: Record<string, string>,
   classes: ClassesType<typeof styles>,
 }> = ({tag, query, classes}) => {
-  if (isFriendlyUI) {
+  if (isFriendlyUI()) {
     return (
       <>
         <SectionTitle title={`Posts tagged ${tag.name}`} />
@@ -320,7 +320,7 @@ const EATagPage = ({classes}: {
     return <PermanentRedirect url={tagGetUrl(tag)} />
   }
   if (editing && !tagUserHasSufficientKarma(currentUser, "edit")) {
-    throw new Error(`Sorry, you cannot edit ${taggingNamePluralSetting.get()} without ${tagMinimumKarmaPermissions.edit} or more karma.`)
+    throw new Error(`Sorry, you cannot edit ${taggingNamePluralSetting.get()} without ${getTagMinimumKarmaPermissions().edit} or more karma.`)
   }
 
   // if no sort order was selected, try to use the tag page's default sort order for posts
@@ -342,7 +342,7 @@ const EATagPage = ({classes}: {
   const htmlWithAnchors = tag.tableOfContents?.html ?? tag.description?.html ?? "";
   let description = htmlWithAnchors;
   // EA Forum wants to truncate much less than LW
-  if (isFriendlyUI) {
+  if (isFriendlyUI()) {
     description = truncated
       ? truncateTagDescription(htmlWithAnchors, tag.descriptionTruncationCount)
       : htmlWithAnchors;

@@ -80,7 +80,7 @@ const NewUserGuidelinesDialog = ({classes, onClose, post, user}: {
           {!html && !loading && <div className={classes.moderationGuidelines}><em>A moderator will need to review your account before your posts will appear publicly.</em></div>}
         </ContentStyles>
         <DialogActions>
-          {isLW && <Button>
+          {isLW() && <Button>
             This was your father's rock
           </Button>}
           <Button onClick={handleClick}>

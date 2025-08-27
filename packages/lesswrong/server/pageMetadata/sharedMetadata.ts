@@ -4,9 +4,6 @@ import { getSiteUrl } from "@/lib/vulcan-lib/utils";
 import type { Metadata } from "next";
 import { headers } from "next/headers";
 
-const defaultDescription = taglineSetting.get();
-const siteImage = siteImageSetting.get();
-
 export const CommentPermalinkMetadataQuery = gql(`
   query CommentPermalinkMetadata($commentId: String) {
     comment(selector: { _id: $commentId }) {
@@ -35,18 +32,18 @@ export async function getDefaultMetadata() {
   const userAgent = headersList.get("user-agent");
   return {
     title: tabLongTitleSetting.get() || tabTitleSetting.get(),
-    description: defaultDescription,
+    description: taglineSetting.get(),
     twitter: {
-      description: defaultDescription,
-      images: siteImage,
+      description: taglineSetting.get(),
+      images: siteImageSetting.get(),
       ...(userAgent?.startsWith("Slackbot-LinkExpanding") ? { card: "summary_large_image" } : { card: "summary" }),
     },
     openGraph: {
       title: tabLongTitleSetting.get() || tabTitleSetting.get(),
       type: 'article',
       url: getSiteUrl(),
-      description: defaultDescription,
-      images: siteImage,
+      description: taglineSetting.get(),
+      images: siteImageSetting.get(),
     },
     alternates: {
       canonical: getSiteUrl(),

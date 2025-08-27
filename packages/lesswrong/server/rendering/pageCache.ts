@@ -6,7 +6,7 @@ import { getCookieFromReq, getPathFromReq } from '@/server/utils/httpUtil';
 import { isValidSerializedThemeOptions, getDefaultThemeOptions } from '@/themes/themeNames';
 import PageCacheRepo, { maxCacheAgeMs } from '@/server/repos/PageCacheRepo';
 import { dbPageCacheEnabledSetting } from '@/server/databaseSettings';
-import { isDatadogEnabled } from '@/lib/instanceSettings';
+// import { isDatadogEnabled } from '@/lib/instanceSettings';
 import stringify from 'json-stringify-deterministic';
 import { ResponseManager } from './ResponseManager';
 import { backgroundTask } from '../utils/backgroundTask';

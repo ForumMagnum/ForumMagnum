@@ -184,9 +184,9 @@ const SearchBar = ({onSetIsActive, searchResultsArea, classes}: {
         <div className={classNames(
           classes.searchInputArea,
           {"open": inputOpen},
-          {[classes.alignmentForum]: isAF, [classes.searchInputAreaSmall]: !currentUser}
+          {[classes.alignmentForum]: isAF(), [classes.searchInputAreaSmall]: !currentUser}
         )}>
-          {isAF && <VirtualMenu attribute="af" defaultRefinement="true" />}
+          {isAF() && <VirtualMenu attribute="af" defaultRefinement="true" />}
           <div onClick={handleSearchTap}>
             <IconButton className={classNames(classes.searchIconButton, {[classes.searchIconButtonSmall]: !currentUser})}>
               <ForumIcon icon="Search" className={classes.searchIcon} />

@@ -101,13 +101,13 @@ const styles = (theme: ThemeType) => ({
 });
 
 const getFrontPageOverwrites = (haveCurrentUser: boolean): Partial<RecommendationsAlgorithm> => {
-  if (isFriendlyUI) {
+  if (isFriendlyUI()) {
     return {
       method: haveCurrentUser ? 'sample' : 'top',
       count: haveCurrentUser ? 3 : 5
     }
   }
-  if (isLW) {
+  if (isLW()) {
     return {
       lwRationalityOnly: true,
       method: 'sample',
@@ -134,7 +134,7 @@ const RecommendationsAndCurated = ({
     section: "recommendations",
     onExpandEvent: "recommendationsSectionExpanded",
     onCollapseEvent: "recommendationsSectionCollapsed",
-    defaultExpanded: isEAForum ? "loggedOut" : "all",
+    defaultExpanded: isEAForum() ? "loggedOut" : "all",
     cookieName: SHOW_RECOMMENDATIONS_SECTION_COOKIE,
   });
 
@@ -162,14 +162,14 @@ const RecommendationsAndCurated = ({
     </div>
 
     const bookmarksTooltip = <div>
-      <div>Individual posts that you've {isFriendlyUI ? 'saved' : 'bookmarked'}</div>
+      <div>Individual posts that you've {isFriendlyUI() ? 'saved' : 'bookmarked'}</div>
       <div><em>(Click to see all)</em></div>
     </div>
 
     // Disabled during 2018 Review [and coronavirus]
     const recommendationsTooltip = <div>
       <div>
-        {isEAForum ?
+        {isEAForum() ?
           'Assorted suggested reading, including some of the ' :
           'Recently curated posts, as well as a random sampling of '}
         top-rated posts of all time
@@ -178,27 +178,27 @@ const RecommendationsAndCurated = ({
       <div><em>(Click to see more recommendations)</em></div>
     </div>
 
-    const renderBookmarks = !isEAForum && currentUser?.hasAnyBookmarks && !settings.hideBookmarks;
-    const renderContinueReading = !isEAForum && currentUser && (continueReading?.length > 0) && !settings.hideContinueReading
+    const renderBookmarks = !isEAForum() && currentUser?.hasAnyBookmarks && !settings.hideBookmarks;
+    const renderContinueReading = !isEAForum() && currentUser && (continueReading?.length > 0) && !settings.hideContinueReading
     
     const renderRecommendations = !settings.hideFrontpage
 
     const bookmarksLimit = (settings.hideFrontpage && settings.hideContinueReading) ? 6 : 3
 
-    const titleText = isEAForum ? "Classic posts" : "Recommendations"
+    const titleText = isEAForum() ? "Classic posts" : "Recommendations"
     const titleNode = (
       <div>
         <SectionTitle
           title={
             <>
-              {isEAForum ? (
+              {isEAForum() ? (
                 <>{ titleText }</>
               ) : (
                 <LWTooltip title={recommendationsTooltip} placement="left">
                   <Link to={"/recommendations"}>{titleText}</Link>
                 </LWTooltip>
               )}
-              {isEAForum && (
+              {isEAForum() && (
                 <LWTooltip title={expanded ? "Collapse" : "Expand"} hideOnTouchScreens>
                   <ForumIcon
                     icon={expanded ? "ThickChevronDown" : "ThickChevronRight"}
@@ -210,12 +210,12 @@ const RecommendationsAndCurated = ({
             </>
           }
         >
-          {!isEAForum && currentUser && (
+          {!isEAForum() && currentUser && (
             <LWTooltip title="Customize your recommendations">
               <SettingsButton showIcon={false} onClick={toggleSettings} label="Customize" textShadow />
             </LWTooltip>
           )}
-          {isEAForum && expanded && (
+          {isEAForum() && expanded && (
             <Link to="/recommendations" className={classes.readMoreLink}>
               View more
             </Link>
@@ -226,14 +226,14 @@ const RecommendationsAndCurated = ({
 
     const bodyNode = (
       <>
-        {isLW && (
+        {isLW() && (
           <AnalyticsContext pageSubSectionContext="frontpageCuratedCollections">
             <DismissibleSpotlightItem />
           </AnalyticsContext>
         )}
 
         {/*Delete after the dust has settled on other Recommendations stuff*/}
-        {!currentUser && isLW && (
+        {!currentUser && isLW() && (
           <div>
             {/* <div className={classes.largeScreenLoggedOutSequences}>
             <AnalyticsContext pageSectionContext="frontpageCuratedSequences">
@@ -257,7 +257,7 @@ const RecommendationsAndCurated = ({
                 <RecommendationsList algorithm={frontpageRecommendationSettings} />
               </AnalyticsContext>
             )}
-            {!isEAForum && (
+            {!isEAForum() && (
               <div className={classes.curated}>
                 <CuratedPostsList />
               </div>
@@ -288,8 +288,8 @@ const RecommendationsAndCurated = ({
               capturePostItemOnMount
             >
               <LWTooltip placement="top-start" title={bookmarksTooltip}>
-                <Link to={isFriendlyUI ? "/saved" : "/bookmarks"}>
-                  <SectionSubtitle>{isFriendlyUI ? "Saved posts" : "Bookmarks"}</SectionSubtitle>
+                <Link to={isFriendlyUI() ? "/saved" : "/bookmarks"}>
+                  <SectionSubtitle>{isFriendlyUI() ? "Saved posts" : "Bookmarks"}</SectionSubtitle>
                 </Link>
               </LWTooltip>
               <BookmarksList limit={bookmarksLimit} hideLoadMore={true} />
@@ -313,7 +313,7 @@ const RecommendationsAndCurated = ({
             settings={frontpageRecommendationSettings}
             onChange={(newSettings) => setSettings(newSettings)}
           /> }
-        {(expanded || !isEAForum) && bodyNode}
+        {(expanded || !isEAForum()) && bodyNode}
       </AnalyticsContext>
     </SingleColumnSection>
   }

@@ -5,7 +5,6 @@ import { cloudinaryCloudNameSetting, eventBannerDesktopImageSetting, eventBanner
 import { Link } from '../../lib/reactRouterWrapper';
 
 const bannerHeight = 250
-const container = cloudinaryCloudNameSetting.get()
 
 const styles = (theme: ThemeType) => ({
   link: {
@@ -32,8 +31,8 @@ const EventBanner = ({ classes }: {
   const desktopImageId = eventBannerDesktopImageSetting.get()
   const featuredPost = eventBannerLinkSetting.get()
 
-  const mobileImage = `https://res.cloudinary.com/${container}/image/upload/w_${SECTION_WIDTH*2},h_${bannerHeight*2}/${mobileImageId}`
-  const desktopImage = `https://res.cloudinary.com/${container}/image/upload/w_${SECTION_WIDTH*2},h_${bannerHeight*2}/${desktopImageId}`
+  const mobileImage = `https://res.cloudinary.com/${cloudinaryCloudNameSetting.get()}/image/upload/w_${SECTION_WIDTH*2},h_${bannerHeight*2}/${mobileImageId}`
+  const desktopImage = `https://res.cloudinary.com/${cloudinaryCloudNameSetting.get()}/image/upload/w_${SECTION_WIDTH*2},h_${bannerHeight*2}/${desktopImageId}`
   
   return <SingleColumnSection>
     <Link to={featuredPost} className={classes.link}>

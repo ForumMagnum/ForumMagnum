@@ -357,7 +357,7 @@ const LocalGroupPage = ({ classes, documentId: groupId }: {
   
   // the EA Forum shows the group's events as event cards instead of post list items
   let upcomingEventsList = <PostsList2 terms={{view: 'upcomingEvents', groupId: groupId}} />
-  if (isEAForum) {
+  if (isEAForum()) {
     upcomingEventsList = !!upcomingEvents?.length ? (
       <div className={classes.eventCards}>
         <EventCards
@@ -381,7 +381,7 @@ const LocalGroupPage = ({ classes, documentId: groupId }: {
   }
   
   let tbdEventsList: React.JSX.Element|null = <PostsList2 terms={{view: 'tbdEvents', groupId: groupId}} showNoResults={false} />
-  if (isEAForum) {
+  if (isEAForum()) {
     tbdEventsList = tbdEvents?.length ? <>
       <Typography variant="headline" className={classes.eventsHeadline}>
         Events yet to be scheduled
@@ -404,7 +404,7 @@ const LocalGroupPage = ({ classes, documentId: groupId }: {
     </Typography>
     <PostsList2 terms={{view: 'pastEvents', groupId: groupId}} />
   </>
-  if (isEAForum) {
+  if (isEAForum()) {
     pastEventsList = pastEvents?.length ? <>
       <Typography variant="headline" className={classes.eventsHeadline}>
         Past events
@@ -434,11 +434,11 @@ const LocalGroupPage = ({ classes, documentId: groupId }: {
       <SingleColumnSection>
         <div className={classes.titleRow}>
           <div>
-            {isEAForum ? <Typography variant="display1" className={classes.groupName}>
+            {isEAForum() ? <Typography variant="display1" className={classes.groupName}>
               {groupNameHeading}
             </Typography> : <SectionTitle title={groupNameHeading} noTopMargin />}
 
-            {!isEAForum && <div className={classes.groupOrganizers}>
+            {!isEAForum() && <div className={classes.groupOrganizers}>
               <Person className={classes.organizersIcon}/>
               <div className={classes.organizedBy}>
                 Organized by: {group.organizers.map((user, i) => <>
@@ -469,9 +469,9 @@ const LocalGroupPage = ({ classes, documentId: groupId }: {
             </SectionButton>}
             <SectionFooter className={classes.organizerActions}>
               {canCreateEvent &&
-                (!isEAForum || isAdmin || isGroupAdmin) && <SectionButton>
+                (!isEAForum() || isAdmin || isGroupAdmin) && <SectionButton>
                   <HoverOver
-                    disabled={!isLWorAF}
+                    disabled={!isLWorAF()}
                     title={<div>
                       Note: If this is a recurring event, you might want to open the menu on a previous event and choose Duplicate Event.
                     </div>}
@@ -482,7 +482,7 @@ const LocalGroupPage = ({ classes, documentId: groupId }: {
                   </HoverOver>
                 </SectionButton>}
               {canEditGroup &&
-                (!isEAForum || isAdmin || isGroupAdmin) &&
+                (!isEAForum() || isAdmin || isGroupAdmin) &&
                   <GroupFormLink documentId={groupId} />
               }
             </SectionFooter>

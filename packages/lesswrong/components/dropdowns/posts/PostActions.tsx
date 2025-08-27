@@ -67,7 +67,7 @@ const PostActions = ({post, closeMenu, includeBookmark=true, classes}: {
     <DropdownMenu className={classes.root} >
       <EditPostDropdownItem post={post} />
       <ResyncRssDropdownItem post={post} closeMenu={closeMenu} />
-      {isBookUI && <SharePostSubmenu post={post} closeMenu={closeMenu} />}
+      {isBookUI() && <SharePostSubmenu post={post} closeMenu={closeMenu} />}
       <DuplicateEventDropdownItem post={post} />
       <PostAnalyticsDropdownItem post={post} />
       <PostSubscriptionsDropdownItem post={post} />

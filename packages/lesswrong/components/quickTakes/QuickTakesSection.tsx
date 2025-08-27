@@ -130,7 +130,7 @@ const QuickTakesSection = () => {
       A feed of quick takes by other users, sorted by recency and karma.
     </div>
   );
-  const title = isFriendlyUI
+  const title = isFriendlyUI()
     ? titleText
     : (<>
         <LWTooltip title={titleTooltip} placement="left">
@@ -138,9 +138,9 @@ const QuickTakesSection = () => {
         </LWTooltip>
       </>);
 
-  const afterTitleTo = isFriendlyUI ? "/quicktakes" : undefined;
+  const afterTitleTo = isFriendlyUI() ? "/quicktakes" : undefined;
 
-  const AfterTitleComponent = isEAForum 
+  const AfterTitleComponent = isEAForum() 
     ? () => (
       <LWTooltip
         title='Show quick takes tagged "Community"'

@@ -34,7 +34,7 @@ import { EmailContextType } from './emailComponents/emailContext';
 
 interface ServerNotificationType {
   name: string,
-  from?: string,
+  from?: () => string | undefined,
   canCombineEmails?: boolean,
   skip: ({user, notifications}: {user: DbUser, notifications: DbNotification[]}) => Promise<boolean>,
   loadData?: ({user, notifications, context}: {user: DbUser, notifications: DbNotification[], context: ResolverContext}) => Promise<any>,
@@ -456,7 +456,7 @@ const newMessageEmails: ForumOptions<string | null> = {
   EAForum: 'The EA Forum <forum-noreply@effectivealtruism.org>',
   default: null,
 }
-const forumNewMessageEmail = forumSelect(newMessageEmails) ?? undefined
+const forumNewMessageEmail = () => forumSelect(newMessageEmails) ?? undefined
 
 export const NewMessageNotification = createServerNotificationType({
   name: "newMessage",

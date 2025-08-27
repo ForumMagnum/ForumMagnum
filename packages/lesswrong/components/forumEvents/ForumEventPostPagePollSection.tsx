@@ -103,7 +103,7 @@ export const ForumEventPostPagePollSection = ({postId, forumEventId, classes, ..
 
   const { data } = useQuery(PostsDetailsQuery, {
     variables: { documentId: params._id },
-    skip: !!forumEventId || !hasForumEvents || !params._id || !event?.tagId || event.eventFormat !== "POLL",
+    skip: !!forumEventId || !hasForumEvents() || !params._id || !event?.tagId || event.eventFormat !== "POLL",
   });
   const post = data?.post?.result;
 

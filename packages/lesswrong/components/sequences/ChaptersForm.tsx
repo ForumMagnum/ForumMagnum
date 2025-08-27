@@ -1,4 +1,4 @@
-import { defaultEditorPlaceholder } from '@/lib/editor/defaultEditorPlaceholder';
+import { getDefaultEditorPlaceholder } from '@/lib/editor/defaultEditorPlaceholder';
 import { useForm } from "@tanstack/react-form";
 import classNames from "classnames";
 import React from "react";
@@ -164,7 +164,7 @@ export const ChaptersForm = ({
                   verify: false,
                 };
               }}
-              hintText={defaultEditorPlaceholder}
+              hintText={getDefaultEditorPlaceholder()}
               fieldName="contents"
               collectionName="Chapters"
               commentEditor={false}

@@ -14,7 +14,7 @@ import { getIsolationScope } from '@sentry/nextjs';
 import { app } from './expressServer';
 import path from 'path'
 import { expressSessionSecretSetting, botProtectionCommentRedirectSetting } from './databaseSettings';
-import { addForumSpecificMiddleware } from './forumSpecificMiddleware';
+// import { addForumSpecificMiddleware } from './forumSpecificMiddleware';
 import { logGraphqlQueryStarted, logGraphqlQueryFinished } from './logging';
 import expressSession from 'express-session';
 import MongoStore from './vendor/ConnectMongo/MongoStore';
@@ -132,7 +132,7 @@ export async function startWebserver() {
   app.use('/analyticsEvent', express.json({ limit: '50mb' }));
   app.use('/ckeditor-webhook', express.json({ limit: '50mb' }));
 
-  if (isElasticEnabled) {
+  if (isElasticEnabled()) {
     // We register this here (before the auth middleware) to avoid blocking
     // search requests whilst waiting to fetch the current user from Postgres,
     // which is never actually used.
@@ -142,10 +142,10 @@ export async function startWebserver() {
   // Most middleware need to run after those added by addAuthMiddlewares, so that they can access the user that passport puts on the request.  Be careful if moving it!
   // addAuthMiddlewares(addMiddleware);
   // addAdminRoutesMiddleware(addMiddleware);
-  addForumSpecificMiddleware(addMiddleware);
+  // addForumSpecificMiddleware(addMiddleware);
   // addSentryMiddlewares(addMiddleware);
   addCacheControlMiddleware(addMiddleware);
-  if (isDatadogEnabled) {
+  if (isDatadogEnabled()) {
     app.use(datadogMiddleware);
   }
   app.use(pickerMiddleware);
@@ -256,7 +256,7 @@ export async function startWebserver() {
   }));
   
   app.get('/api/eag-application-data', async function(req, res, next) {
-    if (!isEAForum) {
+    if (!isEAForum()) {
       next()
       return
     }

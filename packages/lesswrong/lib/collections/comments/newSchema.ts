@@ -42,6 +42,10 @@ async function isParentPostKarmaHidden(comment: DbComment, context: ResolverCont
   return !!post.hideCommentKarma;
 };
 
+function canReadUser(user: DbUser | null, comment: DbComment) {
+  return isEAForum() ? documentIsNotDeleted(user, comment) : true;
+}
+
 const schema = {
   _id: DEFAULT_ID_FIELD,
   schemaVersion: DEFAULT_SCHEMA_VERSION_FIELD,
@@ -317,7 +321,7 @@ const schema = {
     },
     graphql: {
       outputType: "String",
-      canRead: [isEAForum ? documentIsNotDeleted : "guests"],
+      canRead: [canReadUser],
       canCreate: ["members"],
       validation: {
         optional: true,
@@ -327,7 +331,7 @@ const schema = {
   user: {
     graphql: {
       outputType: "User",
-      canRead: [isEAForum ? documentIsNotDeleted : "guests"],
+      canRead: [canReadUser],
       resolver: generateIdResolverSingle({ foreignCollectionName: "Users", fieldName: "userId" }),
     },
   },
@@ -1228,7 +1232,7 @@ const schema = {
       canRead: ["guests"],
       resolver: async (comment, _, context) => {
         const { extendedScore } = comment;
-        if (!isEAForum || !extendedScore || Object.keys(extendedScore).length < 1 || "agreement" in extendedScore) {
+        if (!isEAForum() || !extendedScore || Object.keys(extendedScore).length < 1 || "agreement" in extendedScore) {
           return {};
         }
         if (!comment.postId) return {};

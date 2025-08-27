@@ -11,7 +11,7 @@ import { upsertPolls } from "@/server/callbacks/forumEventCallbacks";
 import { addLinkSharingKey, addReferrerToPost, applyNewPostTags, assertPostTitleHasNoEmojis, autoTagNewPost, autoTagUndraftedPost, checkRecentRepost, checkTosAccepted, clearCourseEndTime, createNewJargonTermsCallback, eventUpdatedNotifications, extractSocialPreviewImage, fixEventStartAndEndTimes, lwPostsNewUpvoteOwnPost, notifyUsersAddedAsCoauthors, notifyUsersAddedAsPostCoauthors, oldPostsLastCommentedAt, onEditAddLinkSharingKey, onPostPublished, postsNewDefaultLocation, postsNewDefaultTypes, postsNewPostRelation, postsNewRateLimit, postsNewUserApprovedStatus, postsUndraftRateLimit, removeFrontpageDate, removeRedraftNotifications, resetDialogueMatches, resetPostApprovedDate, scheduleCoauthoredPostWhenUndrafted, scheduleCoauthoredPostWithUnconfirmedCoauthors, sendCoauthorRequestNotifications, sendEAFCuratedAuthorsNotification, sendLWAFPostCurationEmails, sendNewPublishedDialogueMessageNotifications, sendPostApprovalNotifications, sendPostSharedWithUserNotifications, maybeSendRejectionPM, sendUsersSharedOnPostNotifications, setPostUndraftedFields, syncTagRelevance, triggerReviewForNewPostIfNeeded, updateCommentHideKarma, updatedPostMaybeTriggerReview, updatePostEmbeddingsOnChange, updatePostShortform, updateRecombeePost, updateUserNotesOnPostDraft, updateUserNotesOnPostRejection, maybeCreateAutomatedContentEvaluation } from "@/server/callbacks/postCallbackFunctions";
 import { sendAlignmentSubmissionApprovalNotifications } from "@/server/callbacks/sharedCallbackFunctions";
 import { createInitialRevisionsForEditableFields, reuploadImagesIfEditableFieldsChanged, uploadImagesInEditableFields, notifyUsersOfNewPingbackMentions, createRevisionsForEditableFields, updateRevisionsDocumentIds, notifyUsersOfPingbackMentions } from "@/server/editor/make_editable_callbacks";
-import { HAS_EMBEDDINGS_FOR_RECOMMENDATIONS } from "@/server/embeddings";
+import { hasEmbeddingsForRecommendations } from "@/server/embeddings";
 import { logFieldChanges } from "@/server/fieldChanges";
 import { handleCrosspostUpdate } from "@/server/fmCrosspost/crosspost";
 import { rehostPostMetaImages } from "@/server/scripts/convertImagesToCloudinary";
@@ -75,7 +75,7 @@ export async function createPost({ data }: { data: CreatePostDataInput & { _id?:
   });
 
   // former newSync callbacks
-  if (isEAForum) {
+  if (isEAForum()) {
     data = checkTosAccepted(currentUser, data);
     assertPostTitleHasNoEmojis(data);
   }
@@ -134,13 +134,13 @@ export async function createPost({ data }: { data: CreatePostDataInput & { _id?:
   await triggerReviewForNewPostIfNeeded(asyncProperties);
   await autoTagNewPost(asyncProperties);
 
-  if (isElasticEnabled) {
+  if (isElasticEnabled()) {
     backgroundTask(elasticSyncDocument('Posts', documentWithId._id));
   }
 
   // former newAsync callbacks
   await sendUsersSharedOnPostNotifications(documentWithId);
-  if (HAS_EMBEDDINGS_FOR_RECOMMENDATIONS) {
+  if (hasEmbeddingsForRecommendations()) {
     await updatePostEmbeddingsOnChange(documentWithId, undefined);
   }
 
@@ -172,7 +172,7 @@ export async function updatePost({ selector, data }: { data: UpdatePostDataInput
 
   data = await runSlugUpdateBeforeCallback(updateCallbackProperties);
 
-  if (isEAForum) {
+  if (isEAForum()) {
     data = checkTosAccepted(currentUser, data);
     assertPostTitleHasNoEmojis(data);
   }
@@ -239,11 +239,11 @@ export async function updatePost({ selector, data }: { data: UpdatePostDataInput
   await sendNewPublishedDialogueMessageNotifications(updatedDocument, oldDocument, context);
   await removeRedraftNotifications(updatedDocument, oldDocument, context);
 
-  if (isEAForum) {
+  if (isEAForum()) {
     await sendEAFCuratedAuthorsNotification(updatedDocument, oldDocument, context);
   }
 
-  if (isLWorAF) {
+  if (isLWorAF()) {
     await sendLWAFPostCurationEmails(updatedDocument, oldDocument);
   }
 
@@ -259,7 +259,7 @@ export async function updatePost({ selector, data }: { data: UpdatePostDataInput
     props: updateCallbackProperties,
   });
 
-  if (isElasticEnabled) {
+  if (isElasticEnabled()) {
     backgroundTask(elasticSyncDocument('Posts', updatedDocument._id));
   }
 

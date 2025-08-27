@@ -60,12 +60,6 @@ export interface ToCData {
   sections: ToCSection[],
 }
 
-// Number of headings below which a table of contents won't be generated.
-// If comments-ToC is enabled, this is 0 because we need a post-ToC (even if
-// it's empty) to keep the horizontal position of things on the page from
-// being imbalanced.
-const MIN_HEADINGS_FOR_TOC = commentsTableOfContentsEnabled ? 0 : 1;
-
 // Tags which define headings. Currently <h1>-<h4>, <strong>, and <b>. Excludes
 // <h5> and <h6> because their usage in historical (HTML) wasn't as a ToC-
 // worthy heading.
@@ -260,8 +254,15 @@ export function shouldShowTableOfContents({
   post?: { question: boolean } | null;
 }): boolean {
   
-  if (isLWorAF) return true;
-  return sections.length > MIN_HEADINGS_FOR_TOC || (post?.question ?? false);
+  if (isLWorAF()) return true;
+
+  // Number of headings below which a table of contents won't be generated.
+  // If comments-ToC is enabled, this is 0 because we need a post-ToC (even if
+  // it's empty) to keep the horizontal position of things on the page from
+  // being imbalanced.
+  const minHeadingsForToC = commentsTableOfContentsEnabled() ? 0 : 1;
+
+  return sections.length > minHeadingsForToC || (post?.question ?? false);
 }
 
 /**

@@ -115,7 +115,7 @@ export function getPostPageMetadataFunction<Params>(paramsToPostIdConverter: (pa
       const ogUrl = postGetPageUrl(post, true);
       const canonicalUrl = post.canonicalSource ?? ogUrl;
       const socialPreviewImageUrl = getSocialPreviewImageUrl(post);
-      const postNoIndex = post.noIndex || post.rejected || (post.baseScore <= 0 && isEAForum);
+      const postNoIndex = post.noIndex || post.rejected || (post.baseScore <= 0 && isEAForum());
       const noIndex = postNoIndex || commentId || options?.noIndex;
   
       const titleFields = getPageTitleFields(post.title);

@@ -90,7 +90,7 @@ const LinkToEditorGuideButton = () => {
   const classes = useStyles(styles);
   const navigate = useNavigate();
 
-  if (isLWorAF) {
+  if (isLWorAF()) {
     return (
       <LWTooltip title='The Editor Guide covers sharing drafts, co-authoring, crossposting, LaTeX, footnotes, internal linking, and more!'>
         <EAButton

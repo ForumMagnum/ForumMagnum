@@ -58,7 +58,7 @@ export async function createTag({ data }: CreateTagInput, context: ResolverConte
     newDocument: documentWithId,
   };
 
-  if (isElasticEnabled) {
+  if (isElasticEnabled()) {
     backgroundTask(elasticSyncDocument('Tags', documentWithId._id));
   }
 
@@ -111,7 +111,7 @@ export async function updateTag({ selector, data }: UpdateTagInput, context: Res
     props: updateCallbackProperties,
   });
 
-  if (isElasticEnabled) {
+  if (isElasticEnabled()) {
     backgroundTask(elasticSyncDocument('Tags', updatedDocument._id));
   }
 

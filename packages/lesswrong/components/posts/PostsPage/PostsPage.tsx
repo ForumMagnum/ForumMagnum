@@ -150,7 +150,7 @@ export const styles = defineStyles("PostsPage", (theme: ThemeType) => ({
     margin: "0 auto 40px",
   },
   commentsSection: {
-    minHeight: hasPostRecommendations ? undefined : 'calc(70vh - 100px)',
+    minHeight: hasPostRecommendations() ? undefined : 'calc(70vh - 100px)',
     [theme.breakpoints.down('sm')]: {
       paddingRight: 0,
       marginLeft: 0
@@ -373,7 +373,7 @@ const PostsPage = ({fullPost, postPreload, refetch}: {
   // and we don't want to hide the splash header for any post that _is_ part of a sequence, since that's many review winners
 
   const isReviewWinner = ('reviewWinner' in post) && post.reviewWinner;
-  const showSplashPageHeader = isLWorAF && !!isReviewWinner && !params.sequenceId;
+  const showSplashPageHeader = isLWorAF() && !!isReviewWinner && !params.sequenceId;
 
   useEffect(() => {
     if (!query[SHARE_POPUP_QUERY_PARAM]) return;
@@ -486,7 +486,7 @@ const PostsPage = ({fullPost, postPreload, refetch}: {
   });
   const htmlWithAnchors = sectionData?.html || fullPost?.contents?.html || postPreload?.contents?.htmlHighlight || "";
 
-  const showRecommendations = hasPostRecommendations &&
+  const showRecommendations = hasPostRecommendations() &&
     !currentUser?.hidePostsRecommendations &&
     !post.shortform &&
     !post.draft &&
@@ -537,7 +537,7 @@ const PostsPage = ({fullPost, postPreload, refetch}: {
 
   // If the user has just posted a comment, and they are sorting by magic, put it at the top of the list for them
   const comments = useMemo(() => {
-    if (!isEAForum || !rawComments || view !== "postCommentsMagic") return rawComments;
+    if (!isEAForum() || !rawComments || view !== "postCommentsMagic") return rawComments;
 
     const recentUserComments = rawComments
       .filter((c) => c.userId === currentUser?._id && now.getTime() - new Date(c.postedAt).getTime() < 60000)
@@ -562,7 +562,7 @@ const PostsPage = ({fullPost, postPreload, refetch}: {
   // rewrite crossposting.
   const hasTableOfContents = !!sectionData && !isCrosspostedQuestion;
   const tableOfContents = hasTableOfContents
-    ? (isLWorAF
+    ? (isLWorAF()
         ? <TableOfContents
             sectionData={sectionData}
             title={post.title}
@@ -625,7 +625,7 @@ const PostsPage = ({fullPost, postPreload, refetch}: {
             />
           </div>}
           <PostCoauthorRequest post={post} currentUser={currentUser} />
-          {isBookUI && <LWPostsPageHeader
+          {isBookUI() && <LWPostsPageHeader
             post={post}
             showEmbeddedPlayer={showEmbeddedPlayer}
             dialogueResponses={debateResponses}
@@ -634,7 +634,7 @@ const PostsPage = ({fullPost, postPreload, refetch}: {
             annualReviewMarketInfo={marketInfo}
             showSplashPageHeader={showSplashPageHeader}
             />}
-          {!isBookUI && <PostsPagePostHeader
+          {!isBookUI() && <PostsPagePostHeader
             post={post}
             answers={answers ?? []}
             showEmbeddedPlayer={showEmbeddedPlayer}
@@ -656,10 +656,10 @@ const PostsPage = ({fullPost, postPreload, refetch}: {
     </DeferRender>
   );
 
-  const rightColumnChildren = (welcomeBox || hasSidenotes || (showRecommendations && recommendationsPosition === "right")) && <>
+  const rightColumnChildren = (welcomeBox || hasSidenotes() || (showRecommendations && recommendationsPosition === "right")) && <>
     {welcomeBox}
     {showRecommendations && recommendationsPosition === "right" && fullPost && <PostSideRecommendations post={fullPost} />}
-    {hasSidenotes && <>
+    {hasSidenotes() && <>
       <div className={classes.reserveSpaceForSidenotes}/>
       <SideItemsSidebar/>
     </>}
@@ -669,7 +669,7 @@ const PostsPage = ({fullPost, postPreload, refetch}: {
 
 
   // If this is a non-AF post being viewed on AF, redirect to LW.
-  if (isAF && !post.af) {
+  if (isAF() && !post.af) {
     const lwURL = "https://www.lesswrong.com" + location.url;
     return <PermanentRedirect url={lwURL}/>
   }
@@ -692,9 +692,9 @@ const PostsPage = ({fullPost, postPreload, refetch}: {
       classes.postBody,
       !showEmbeddedPlayer && classes.audioPlayerHidden
     )}>
-      {isBookUI && header}
+      {isBookUI() && header}
       {/* Body */}
-      {fullPost && isEAForum && <PostsAudioPlayerWrapper showEmbeddedPlayer={showEmbeddedPlayer} post={fullPost}/>}
+      {fullPost && isEAForum() && <PostsAudioPlayerWrapper showEmbeddedPlayer={showEmbeddedPlayer} post={fullPost}/>}
       {fullPost && post.isEvent && fullPost.activateRSVPs &&  <RSVPs post={fullPost} />}
       {!post.debate && <ContentStyles
         contentType="post"
@@ -712,7 +712,7 @@ const PostsPage = ({fullPost, postPreload, refetch}: {
                 isOldVersion={isOldVersion}
                 voteProps={voteProps}
               />
-              {post.isEvent && isBookUI && <p className={classes.dateAtBottom}>Posted on: <PostsPageDate post={post} hasMajorRevision={false} /></p>
+              {post.isEvent && isBookUI() && <p className={classes.dateAtBottom}>Posted on: <PostsPageDate post={post} hasMajorRevision={false} /></p>
               }
               </>
             }
@@ -735,7 +735,7 @@ const PostsPage = ({fullPost, postPreload, refetch}: {
         </div>
       </Row>}
 
-      {post.isEvent && post.group && isBookUI &&
+      {post.isEvent && post.group && isBookUI() &&
           <Row justifyContent="center">
             <div className={classes.bottomOfPostSubscribe}>
               <LWTooltip title={<div>Subscribed users get emails for future events by<div>{post.group?.name}</div></div>} placement='bottom'>
@@ -804,9 +804,9 @@ const PostsPage = ({fullPost, postPreload, refetch}: {
               highlightDate={highlightDate ?? undefined}
               setHighlightDate={setHighlightDate}
             />}
-            {isAF && <AFUnreviewedCommentCount post={post}/>}
+            {isAF() && <AFUnreviewedCommentCount post={post}/>}
           </AnalyticsContext>
-          {isFriendlyUI && Math.max(post.commentCount, comments?.length ?? 0) < 1 &&
+          {isFriendlyUI() && Math.max(post.commentCount, comments?.length ?? 0) < 1 &&
             <div className={classes.noCommentsPlaceholder}>
               <div>No comments on this post yet.</div>
               <div>Be the first to respond.</div>
@@ -833,7 +833,7 @@ const PostsPage = ({fullPost, postPreload, refetch}: {
     <SideItemVisibilityContextProvider post={fullPost}>
     <ReadingProgressBar post={post}/>
     {splashHeaderImage}
-    {commentsTableOfContentsEnabled
+    {commentsTableOfContentsEnabled()
       ? <MultiToCLayout
           segments={[
             {
@@ -869,8 +869,8 @@ const PostsPage = ({fullPost, postPreload, refetch}: {
         </ToCColumn>
     }
   
-    {isEAForum && <DeferRender ssr={false}><MaybeStickyDigestAd post={post} /></DeferRender>}
-    {hasPostRecommendations && fullPost && <AnalyticsInViewTracker eventProps={{inViewType: "postPageFooterRecommendations"}}>
+    {isEAForum() && <DeferRender ssr={false}><MaybeStickyDigestAd post={post} /></DeferRender>}
+    {hasPostRecommendations() && fullPost && <AnalyticsInViewTracker eventProps={{inViewType: "postPageFooterRecommendations"}}>
       <PostBottomRecommendations
         post={post}
         hasTableOfContents={hasTableOfContents}

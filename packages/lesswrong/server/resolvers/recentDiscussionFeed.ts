@@ -87,7 +87,7 @@ export const recentDiscussionFeedGraphQLQueries = {
       hiddenRelatedQuestion: viewFieldAllowAny,
       groupId: viewFieldAllowAny,
       ...(af ? {af: true} : undefined),
-      ...(isEAForum
+      ...(isEAForum()
         ? {$and: [
           postCommentedEventsCriteria,
           postCommentedExcludeCommunity,
@@ -156,7 +156,7 @@ export const recentDiscussionFeedGraphQLQueries = {
         // Suggestion to subscribe to curated
         fixedIndexSubquery({
           type: "subscribeReminder",
-          index: isEAForum ? 3 : 6,
+          index: isEAForum() ? 3 : 6,
           result: {},
         }),
         // Suggestion to subscribe to meetups

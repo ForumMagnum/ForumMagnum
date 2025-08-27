@@ -30,7 +30,7 @@ class ElasticClient {
   private client: Client;
 
   constructor() {
-    if (!isElasticEnabled) {
+    if (!isElasticEnabled()) {
       throw new Error("Elasticsearch is not enabled");
     }
 

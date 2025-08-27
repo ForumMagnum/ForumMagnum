@@ -27,7 +27,7 @@ let analyticsConnectionPools: Map<string, AnalyticsConnectionPool> = new Map();
 let missingConnectionStringWarned = false;
 
 function getAnalyticsConnectionFromString(connectionString: string | null): AnalyticsConnectionPool | null {
-  if (isAnyTest && !isEAForum) {
+  if (isAnyTest && !isEAForum()) {
     return null;
   }
   if (!connectionString) {

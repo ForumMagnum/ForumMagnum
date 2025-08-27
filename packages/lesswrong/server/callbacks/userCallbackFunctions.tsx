@@ -104,7 +104,7 @@ async function sendWelcomeMessageTo(userId: string) {
   
   // the EA Forum has a separate "welcome email" series that is sent via mailchimp,
   // so we're not sending the email notification for this welcome PM
-  if (!isEAForum) {
+  if (!isEAForum()) {
     await wrapAndSendEmail({
       user,
       subject: subjectLine,
@@ -122,7 +122,7 @@ export const welcomeMessageDelayer = new EventDebouncer({
   // something, and derailing them with a bunch of stuff to read at that
   // particular moment could be bad.
   // LW wants people to see site intro before posting
-  defaultTiming: isLW ? {type: "none"} : {type: "delayed", delayMinutes: 5},
+  defaultTiming: () => isLW() ? {type: "none"} : {type: "delayed", delayMinutes: 5},
   
   callback: (userId: string) => {
     backgroundTask(sendWelcomeMessageTo(userId));
@@ -159,7 +159,7 @@ const utils = {
       throw new Error(`You do not have permission to update this user`)
     }
   
-    if (!isEAForum) return;
+    if (!isEAForum()) return;
   
     const sinceDaysAgo = sinceDaysAgoSetting.get();
     const MS_PER_DAY = 24*60*60*1000;
@@ -267,7 +267,7 @@ export async function subscribeOnSignup(user: DbUser) {
  * (as of 2021-08-11) drip campaign.
  */
 export async function subscribeToEAForumAudience(user: DbUser) {
-  if (isAnyTest || !isEAForum) {
+  if (isAnyTest || !isEAForum()) {
     return;
   }
   const mailchimpAPIKey = mailchimpAPIKeySetting.get();
@@ -330,10 +330,10 @@ export async function updateMailchimpSubscription(data: UpdateUserDataInput, {ol
   // - When a user deactivates their account
   const unsubscribedFromAll = data.unsubscribeFromAll && !oldDocument.unsubscribeFromAll
   const deactivatedAccount = data.deleted && !oldDocument.deleted
-  if (hasDigests && (unsubscribedFromAll || deactivatedAccount)) {
+  if (hasDigests() && (unsubscribedFromAll || deactivatedAccount)) {
     data.subscribedToDigest = false
   }
-  if (hasNewsletter && (unsubscribedFromAll || deactivatedAccount)) {
+  if (hasNewsletter() && (unsubscribedFromAll || deactivatedAccount)) {
     data.subscribedToNewsletter = false
   }
 
@@ -350,10 +350,10 @@ export async function updateMailchimpSubscription(data: UpdateUserDataInput, {ol
     return data;
   }
 
-  const noDigestUpdate = !hasDigests ||
+  const noDigestUpdate = !hasDigests() ||
     data.subscribedToDigest === undefined ||
     data.subscribedToDigest === oldDocument.subscribedToDigest
-  const noNewsletterUpdate = !hasNewsletter ||
+  const noNewsletterUpdate = !hasNewsletter() ||
     data.subscribedToNewsletter === undefined ||
     data.subscribedToNewsletter === oldDocument.subscribedToNewsletter
   if (isAnyTest || (noDigestUpdate && noNewsletterUpdate)) {
@@ -367,11 +367,11 @@ export async function updateMailchimpSubscription(data: UpdateUserDataInput, {ol
   if (!mailchimpAPIKey) {
     return handleErrorCase("Error updating subscription: Mailchimp not configured")
   }
-  if (hasDigests && !mailchimpForumDigestListId) {
+  if (hasDigests() && !mailchimpForumDigestListId) {
     // eslint-disable-next-line no-console
     console.error("Digest list not configured, failing to update subscription");
   }
-  if (hasNewsletter && !mailchimpEANewsletterListId) {
+  if (hasNewsletter() && !mailchimpEANewsletterListId) {
     // eslint-disable-next-line no-console
     console.error("Newsletter list not configured, failing to update subscription");
   }
@@ -430,7 +430,7 @@ export async function updateDisplayName(data: UpdateUserDataInput, { oldDocument
     if (await Users.findOne({displayName: data.displayName})) {
       throw new Error("This display name is already taken");
     }
-    if (data.shortformFeedId && !isLWorAF) {
+    if (data.shortformFeedId && !isLWorAF()) {
       backgroundTask(updatePost({
         data: {title: userShortformPostTitle(newDocument)},
         selector: { _id: data.shortformFeedId }

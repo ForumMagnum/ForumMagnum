@@ -97,7 +97,7 @@ const PostsPagePostFooter = ({post, sequenceId, classes}: {
   const isEAEmojis = votingSystemName === "eaEmojis";
 
   return <>
-    {isLWorAF && !post.shortform && !post.isEvent &&
+    {isLWorAF() && !post.shortform && !post.isEvent &&
       <SuspenseWrapper name="FooterTagList">
         <AnalyticsContext pageSectionContext="tagFooter">
           <div className={classes.footerTagList}>
@@ -106,20 +106,20 @@ const PostsPagePostFooter = ({post, sequenceId, classes}: {
         </AnalyticsContext>
       </SuspenseWrapper>
     }
-    {!post.shortform && (isLW || isEAEmojis) &&
+    {!post.shortform && (isLW() || isEAEmojis) &&
       <>
         <div className={classes.footerSection}>
-          <div className={classNames(classes.voteBottom, isLWorAF && classes.lwVote)}>
+          <div className={classNames(classes.voteBottom, isLWorAF() && classes.lwVote)}>
             <AnalyticsContext pageSectionContext="lowerVoteButton">
-              <PostsVote post={post} useHorizontalLayout={isFriendlyUI} isFooter />
+              <PostsVote post={post} useHorizontalLayout={isFriendlyUI()} isFooter />
             </AnalyticsContext>
           </div>
-          {isFriendlyUI && <div className={classes.secondaryInfoRight}>
+          {isFriendlyUI() && <div className={classes.secondaryInfoRight}>
             <BookmarkButton documentId={post._id} collectionName="Posts" className={classes.bookmarkButton} placement='bottom-start' />
             <SharePostButton post={post} />
             <span className={classes.actions}>
               <AnalyticsContext pageElementContext="tripleDotMenu">
-                <PostActionsButton post={post} includeBookmark={!isFriendlyUI} />
+                <PostActionsButton post={post} includeBookmark={!isFriendlyUI()} />
               </AnalyticsContext>
             </span>
           </div>}

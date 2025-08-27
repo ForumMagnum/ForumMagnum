@@ -271,17 +271,17 @@ const CommunityMapFilter = ({
 
   // FIXME: Unstable component will lose state on rerender
   // eslint-disable-next-line react/no-unstable-nested-components
-  const GroupIcon = () => isEAForum
+  const GroupIcon = () => isEAForum()
     ? <StarIcon className={classes.eaButtonIcon}/>
     : <GroupIconSVG className={classes.buttonIcon}/>;
   // FIXME: Unstable component will lose state on rerender
   // eslint-disable-next-line react/no-unstable-nested-components
-  const EventIcon = () => isEAForum
+  const EventIcon = () => isEAForum()
     ? <RoomIcon className={classes.eaButtonIcon}/>
     : <ArrowSVG className={classes.buttonIcon}/>;
   // FIXME: Unstable component will lose state on rerender
   // eslint-disable-next-line react/no-unstable-nested-components
-  const PersonIcon = () => isEAForum
+  const PersonIcon = () => isEAForum()
     ? <PersonPinIcon className={classes.eaButtonIcon}/>
     : <PersonSVG className={classes.buttonIcon}/>;
 
@@ -289,7 +289,7 @@ const CommunityMapFilter = ({
 
   return (
     <Paper>
-      {!isFriendlyUI && <div className={classes.filters}>
+      {!isFriendlyUI() && <div className={classes.filters}>
         {availableFilters.map((value, i) => {
           const checked = filters.includes(value)
           return (
@@ -324,7 +324,7 @@ const CommunityMapFilter = ({
           </span>
           <span className={classes.buttonText}>Groups</span>
           <span className={classes.actionContainer}>
-            {(!isEAForum || isAdmin) && <TooltipSpan title="Create New Group">
+            {(!isEAForum() || isAdmin) && <TooltipSpan title="Create New Group">
               <AddIcon
                 className={classNames(classes.actionIcon, classes.addIcon)}
                 onClick={createFallBackDialogHandler(

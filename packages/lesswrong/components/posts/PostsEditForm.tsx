@@ -204,10 +204,10 @@ const PostsEditForm = ({ documentId, version }: {
   }
 
   // on LW, show a moderation message to users who haven't been approved yet
-  const postWillBeHidden = isLW && !currentUser?.reviewedByUserId
+  const postWillBeHidden = isLW() && !currentUser?.reviewedByUserId
 
   return (
-    <DynamicTableOfContents title={document.title} rightColumnChildren={isEAForum && <NewPostHowToGuides/>}>
+    <DynamicTableOfContents title={document.title} rightColumnChildren={isEAForum() && <NewPostHowToGuides/>}>
       <div className={classes.postForm}>
         {currentUser && <PostsAcceptTos currentUser={currentUser} />}
         {postWillBeHidden && <NewPostModerationWarning />}
@@ -228,7 +228,7 @@ const PostsEditForm = ({ documentId, version }: {
                 } else {
                   // If they are publishing a draft, show the share popup
                   // Note: we can't use isDraft here because it gets updated to true when they click "Publish"
-                  const showSharePopup = isEAForum && wasEverDraft.current && !post.draft
+                  const showSharePopup = isEAForum() && wasEverDraft.current && !post.draft
                   const sharePostQuery = `?${SHARE_POPUP_QUERY_PARAM}=true`
                   navigate({pathname: postGetPageUrl(post), search: showSharePopup ? sharePostQuery : ''})
 

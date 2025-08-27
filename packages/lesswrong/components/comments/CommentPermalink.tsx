@@ -83,7 +83,7 @@ const CommentPermalink = ({
       Comment Permalink 
       <p>Error: Sorry, this comment is hidden</p>
     </div>
-    {isLWorAF && <div className={classes.dividerMargins}>
+    {isLWorAF() && <div className={classes.dividerMargins}>
       <Divider />
     </div>}
   </div>
@@ -132,7 +132,7 @@ const CommentPermalink = ({
           }}>See in context</a>
         </div>
       </div>
-      {isLWorAF && <div className={classes.dividerMargins}>
+      {isLWorAF() && <div className={classes.dividerMargins}>
         <Divider />
       </div>}
     </div>

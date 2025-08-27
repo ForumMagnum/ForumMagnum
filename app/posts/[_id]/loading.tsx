@@ -8,7 +8,7 @@ export default function PostsLoadingPage() {
   return (<>
     <RouteMetadataSetter metadata={{
       background: 'white',
-      noFooter: hasPostRecommendations,
+      noFooter: hasPostRecommendations(),
       titleComponent: PostsPageHeaderTitle
     }} />
     <PostsSingle />

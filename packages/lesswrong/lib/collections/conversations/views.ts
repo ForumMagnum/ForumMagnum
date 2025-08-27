@@ -14,7 +14,7 @@ declare global {
 
 // will be common to all other view unless specific properties are overwritten
 function defaultView(terms: ConversationsViewTerms) {
-  const alignmentForum = isAF ? {af: true} : {}
+  const alignmentForum = isAF() ? {af: true} : {}
   return {
     selector: {
       ...alignmentForum
@@ -36,7 +36,7 @@ function moderatorConversations(terms: ConversationsViewTerms) {
 // notifications for a specific user (what you see in the notifications menu)
 function userConversations(terms: ConversationsViewTerms) {
   const showArchivedFilter = terms.showArchive ? {} : {archivedByIds: {$ne: terms.userId}}
-  const moderatorSelector = isLW ? {moderator: {$ne: true}} : {}
+  const moderatorSelector = isLW() ? {moderator: {$ne: true}} : {}
   return {
     selector: {participantIds: terms.userId, messageCount: {$gt: 0}, ...showArchivedFilter, ...moderatorSelector},
     options: {sort: {latestActivity: -1}}

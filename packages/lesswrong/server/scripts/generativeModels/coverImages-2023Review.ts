@@ -201,7 +201,7 @@ const getPromptTextElements = async (openAiClient: OpenAI, essay: {title: string
 }
 
 fal.config({
-  credentials: falApiKey.get()
+  credentials: () => falApiKey.get()
 });
 
 const generateImage = async (prompt: string, imageUrl: string): Promise<string> => {

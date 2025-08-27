@@ -72,7 +72,7 @@ export async function createUser({ data }: CreateUserInput, context: ResolverCon
 
   createRecombeeUser(asyncProperties);
 
-  if (isElasticEnabled) {
+  if (isElasticEnabled()) {
     backgroundTask(elasticSyncDocument('Users', documentWithId._id));
   }
 
@@ -150,7 +150,7 @@ export async function updateUser({ selector, data }: { data: UpdateUserDataInput
     props: updateCallbackProperties,
   });
 
-  if (isElasticEnabled) {
+  if (isElasticEnabled()) {
     backgroundTask(elasticSyncDocument('Users', updatedDocument._id));
   }
 

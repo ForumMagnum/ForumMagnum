@@ -2,8 +2,8 @@ import React, { useContext, useState } from 'react'
 import { registerComponent } from '../../lib/vulcan-lib/components';
 import { ckEditorBundleVersion, getCkCommentEditor } from '../../lib/wrapCkEditor';
 import { generateTokenRequest } from '../../lib/ckEditorUtils';
-import { ckEditorUploadUrlSetting, ckEditorWebsocketUrlSetting, ckEditorUploadUrlOverrideSetting, ckEditorWebsocketUrlOverrideSetting, forumTypeSetting, isEAForum, isLWorAF } from '@/lib/instanceSettings';
-import { defaultEditorPlaceholder } from '@/lib/editor/defaultEditorPlaceholder';
+import { ckEditorUploadUrlSetting, ckEditorWebsocketUrlSetting, ckEditorUploadUrlOverrideSetting, ckEditorWebsocketUrlOverrideSetting, isEAForum, isLWorAF } from '@/lib/instanceSettings';
+import { getDefaultEditorPlaceholder } from '@/lib/editor/defaultEditorPlaceholder';
 import { mentionPluginConfiguration } from "../../lib/editor/mentionsConfig";
 import { cloudinaryConfig } from '../../lib/editor/cloudinaryConfig'
 import CKEditor from '../../lib/vendor/ckeditor5-react/ckeditor';
@@ -18,7 +18,7 @@ import { ckEditorPluginStyles } from './ckEditorStyles';
 // Uncomment the import and the line below to activate the debugger
 // import CKEditorInspector from '@ckeditor/ckeditor5-inspector';
 
-const commentEditorToolbarConfig = {
+const getCommentEditorToolbarConfig = () => ({
   toolbar: [
     'heading',
     '|',
@@ -35,12 +35,12 @@ const commentEditorToolbarConfig = {
     'math',
     // Similar to the post editor, we don't have the collapsible sections plugin in the selected-text toolbar,
     // because the behavior of creating a collapsible section while text is selected is non-obvious and we want to fix it first
-    ...(isEAForum ? ['imageUpload', 'ctaButtonToolbarItem', 'pollToolbarItem'] : []),
+    ...(isEAForum() ? ['imageUpload', 'ctaButtonToolbarItem', 'pollToolbarItem'] : []),
     'footnote',
-    ...(isLWorAF ? ['collapsibleSectionButton'] : []),
-    ...(isLWorAF ? ['insertClaimButton'] : []),
+    ...(isLWorAF() ? ['collapsibleSectionButton'] : []),
+    ...(isLWorAF() ? ['insertClaimButton'] : []),
   ],
-};
+});
 
 const CKCommentEditor = ({
   data,
@@ -70,10 +70,10 @@ const CKCommentEditor = ({
 
   const [editorObject, setEditorObject] = useState<Editor | null>(null);
 
-  const actualPlaceholder = placeholder ?? defaultEditorPlaceholder;
+  const actualPlaceholder = placeholder ?? getDefaultEditorPlaceholder();
 
   const editorConfig = {
-    ...commentEditorToolbarConfig,
+    ...getCommentEditorToolbarConfig,
     cloudServices: ckEditorCloudConfigured ? {
       // A tokenUrl token is needed here in order for image upload to work.
       // (It's accessible via drag-and-drop onto the comment box, and is

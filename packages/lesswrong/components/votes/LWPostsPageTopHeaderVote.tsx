@@ -67,7 +67,7 @@ const LWPostsPageTopHeaderVote = ({
 
   const tooltipText = <div>
     <div>{`${voteProps.voteCount} ${voteProps.voteCount === 1 ? "vote" : "votes"}`}</div>
-    {post.af && !isAF && <div><em>{post.afBaseScore} karma on AlignmentForum</em></div>}
+    {post.af && !isAF() && <div><em>{post.afBaseScore} karma on AlignmentForum</em></div>}
   </div>
 
   return (

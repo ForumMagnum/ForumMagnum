@@ -6,7 +6,7 @@ import { Card } from "@/components/widgets/Paper";
 import { AnalyticsContext } from "../../../lib/analyticsEvents";
 import { Link } from '../../../lib/reactRouterWrapper';
 import { useForeignApolloClient } from '../../hooks/useForeignApolloClient';
-import { POST_PREVIEW_ELEMENT_CONTEXT, POST_PREVIEW_WIDTH } from './helpers';
+import { POST_PREVIEW_ELEMENT_CONTEXT, getPostPreviewWidth } from './helpers';
 import type { PostsPreviewTooltipProps } from './PostsPreviewTooltip';
 import { useQuery } from "@/lib/crud/useQuery";
 import { gql } from "@/lib/generated/gql-codegen";
@@ -75,7 +75,7 @@ const highlightStyles = (theme: ThemeType) => ({
 
 const styles = (theme: ThemeType) => ({
   root: {
-    width: POST_PREVIEW_WIDTH,
+    width: getPostPreviewWidth(),
     position: "relative",
     '& img': {
       maxHeight: "200px"

@@ -54,7 +54,7 @@ export function getReviewYearFromString(yearParam: string): ReviewYear {
 
 
 // Deprecated in favor of getReviewTitle and getReviewShortTitle 
-export const REVIEW_NAME_IN_SITU = isEAForum ? 'Decade Review' : `${REVIEW_YEAR} Review`
+export const getReviewNameInSitu = () => isEAForum() ? 'Decade Review' : `${REVIEW_YEAR} Review`
 
 export const reviewElectionName = `reviewVoting${REVIEW_YEAR}`
 
@@ -158,19 +158,19 @@ export const VOTING_PHASE_REVIEW_THRESHOLD = 1
 
 /** Is there an active review taking place? */
 export function reviewIsActive(): boolean {
-  return isLWorAF && getReviewPhase() !== "COMPLETE" && getReviewPhase() !== "UNSTARTED"
+  return isLWorAF() && getReviewPhase() !== "COMPLETE" && getReviewPhase() !== "UNSTARTED"
 }
 
 export function eligibleToNominate (currentUser: UsersCurrent|DbUser|null) {
   if (!currentUser) return false;
-  if (isLWorAF && moment.utc(currentUser.createdAt).isAfter(moment.utc(`${REVIEW_YEAR}-01-01`))) return false
-  if (isEAForum && moment.utc(currentUser.createdAt).isAfter(getReviewStart(REVIEW_YEAR))) return false
+  if (isLWorAF() && moment.utc(currentUser.createdAt).isAfter(moment.utc(`${REVIEW_YEAR}-01-01`))) return false
+  if (isEAForum() && moment.utc(currentUser.createdAt).isAfter(getReviewStart(REVIEW_YEAR))) return false
   return true
 }
 
 export function postEligibleForReview (post: PostsBase) {
   if (moment.utc(post.postedAt) > moment.utc(`${REVIEW_YEAR+1}-01-01`)) return false
-  if (isLWorAF && moment.utc(post.postedAt) < moment.utc(`${REVIEW_YEAR}-01-01`)) return false
+  if (isLWorAF() && moment.utc(post.postedAt) < moment.utc(`${REVIEW_YEAR}-01-01`)) return false
   if (post.shortform) return false
   return true
 }
@@ -187,8 +187,8 @@ export function canNominate (currentUser: UsersCurrent|null, post: PostsListBase
 
 export const currentUserCanVote = (currentUser: UsersCurrent|null) => {
   if (!currentUser) return false
-  if (isLWorAF && moment.utc(currentUser.createdAt).isAfter(moment.utc(`${REVIEW_YEAR+1}-01-01`))) return false
-  if (isEAForum && moment.utc(currentUser.createdAt).isAfter(getReviewStart(REVIEW_YEAR))) return false
+  if (isLWorAF() && moment.utc(currentUser.createdAt).isAfter(moment.utc(`${REVIEW_YEAR+1}-01-01`))) return false
+  if (isEAForum() && moment.utc(currentUser.createdAt).isAfter(getReviewStart(REVIEW_YEAR))) return false
   return true
 }
 

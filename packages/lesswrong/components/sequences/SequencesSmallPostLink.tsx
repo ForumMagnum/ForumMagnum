@@ -50,12 +50,12 @@ const SequencesSmallPostLink = ({classes, post, sequenceId, large, placement="le
     <span className={classes.checkbox}>
       <PostReadCheckbox
         post={post}
-        width={isFriendlyUI ? 14 : undefined}
+        width={isFriendlyUI() ? 14 : undefined}
       />
     </span>
     <PostsTooltip
       post={post}
-      postsList={isLWorAF}
+      postsList={isLWorAF()}
       placement={placement}
       inlineBlock={false}
       clickable

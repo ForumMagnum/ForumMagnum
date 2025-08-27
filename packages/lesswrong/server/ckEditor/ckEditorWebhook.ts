@@ -110,7 +110,7 @@ export async function handleCkEditorWebhook(message: any) {
     case "commentthread.restored":
       break
     case "collaboration.user.connected": {
-      if (ckEditorUserSessionsEnabled) {
+      if (ckEditorUserSessionsEnabled()) {
         const userConnectedPayload = payload as CkEditorUserConnectionChange;
         const userId = userConnectedPayload?.user?.id;
         const ckEditorDocumentId = userConnectedPayload?.document?.id;
@@ -130,7 +130,7 @@ export async function handleCkEditorWebhook(message: any) {
     case "document.user.connected":
       break
     case "collaboration.user.disconnected": {
-      if (ckEditorUserSessionsEnabled) {
+      if (ckEditorUserSessionsEnabled()) {
         const userDisconnectedPayload = payload as CkEditorUserConnectionChange;
         const userId = userDisconnectedPayload?.user?.id;
         const ckEditorDocumentId = userDisconnectedPayload?.document?.id;

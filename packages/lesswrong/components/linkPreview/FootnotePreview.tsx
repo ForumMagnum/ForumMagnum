@@ -205,11 +205,11 @@ const FootnotePreview = ({classes, href, id, rel, contentStyleType="postHighligh
   const sidenotesDisabledOnPost = post?.disableSidenotes;
   const screenIsWideEnoughForSidenotes = useIsAboveBreakpoint("lg");
   const hasSideItemsSidebar = useHasSideItemsSidebar();
-  const sidenoteIsVisible = hasSidenotes && hasSideItemsSidebar && !sidenotesDisabledOnPost && screenIsWideEnoughForSidenotes;
+  const sidenoteIsVisible = hasSidenotes() && hasSideItemsSidebar && !sidenotesDisabledOnPost && screenIsWideEnoughForSidenotes;
 
   return (
     <span>
-      {hasSidenotes && !sidenotesDisabledOnPost && footnoteHTML !== null &&
+      {hasSidenotes() && !sidenotesDisabledOnPost && footnoteHTML !== null &&
         <SideItem options={{offsetTop: -6}}>
           <div
             {...sidenoteEventHandlers}

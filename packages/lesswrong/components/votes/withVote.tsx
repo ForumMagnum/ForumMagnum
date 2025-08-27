@@ -171,7 +171,7 @@ export const useVote = <T extends VoteableTypeClient, CollectionName extends Vot
   }, [messages, mutate, collectionName, votingSystemOrDefault, getCurrentUser]);
 
   const result = optimisticResponseDocument || document;
-  const baseScore = (isAF ? result.afBaseScore : result.baseScore) || 0;
+  const baseScore = (isAF() ? result.afBaseScore : result.baseScore) || 0;
   const voteCount = (result.voteCount) || 0;
   return useMemo(
     () => ({ vote, collectionName, document: result, baseScore, voteCount }),

@@ -164,7 +164,7 @@ async function updateKarma({newDocument, vote}: VoteDocTuple, collection: Collec
   }
 
   
-  if (!!newDocument.userId && isLWorAF && ['Posts', 'Comments'].includes(vote.collectionName) && votesCanTriggerReview(newDocument as DbPost | DbComment)) {
+  if (!!newDocument.userId && isLWorAF() && ['Posts', 'Comments'].includes(vote.collectionName) && votesCanTriggerReview(newDocument as DbPost | DbComment)) {
     backgroundTask(checkForStricterRateLimits(newDocument.userId, context));
   }
 }
@@ -295,7 +295,7 @@ async function maybeCreateReviewMarket({newDocument, vote}: VoteDocTuple, collec
   const { Posts } = context;
 
   // Forum gate
-  if (!isLWorAF) return;
+  if (!isLWorAF()) return;
 
   if (collection.collectionName !== "Posts") return;
   if (vote.power <= 0 || vote.cancelled) return; // In principle it would be fine to make a market here, but it should never be first created here
@@ -323,7 +323,7 @@ async function maybeCreateReviewMarket({newDocument, vote}: VoteDocTuple, collec
 }
 
 async function maybeCreateModeratorAlertsAfterVote({ newDocument, vote }: VoteDocTuple, collection: CollectionBase<VoteableCollectionName>, user: DbUser, context: ResolverContext) {
-  if (!isLWorAF || vote.collectionName !== 'Comments' || !newDocument.userId) {
+  if (!isLWorAF() || vote.collectionName !== 'Comments' || !newDocument.userId) {
     return;
   }
 

@@ -25,7 +25,7 @@ const ModeratorInboxWrapper = () => {
     return <FriendlyInbox terms={terms} currentUser={currentUser} conversationId={conversationId} isModInbox />;
   }
 
-  const InboxComponent = isFriendlyUI ? FriendlyInbox : InboxNavigation;
+  const InboxComponent = isFriendlyUI() ? FriendlyInbox : InboxNavigation;
   return (
     <InboxComponent
       terms={terms}

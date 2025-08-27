@@ -58,7 +58,7 @@ const BookmarkButton = ({
       <Component onClick={toggleBookmark} className={classNames({
         [classes.container]: !withText,
         [classes.iconWithText]: withText,
-        [classes.iconWithTextFriendlyUI]: withText && isFriendlyUI,
+        [classes.iconWithTextFriendlyUI]: withText && isFriendlyUI(),
       })}>
         <ForumIcon
           icon={icon}

@@ -31,7 +31,7 @@ const EASequenceCard = ({sequence, className}: {
   const imageId =
     sequence.gridImageId ||
     sequence.bannerImageId ||
-    (isEAForum ? "Banner/yeldubyolqpl3vqqy0m6.jpg" : "sequences/vnyzzznenju0hzdv6pqb.jpg");
+    (isEAForum() ? "Banner/yeldubyolqpl3vqqy0m6.jpg" : "sequences/vnyzzznenju0hzdv6pqb.jpg");
   const href = sequenceGetPageUrl(sequence);
 
   const TitleWrapper = useCallback(({children}: {children: ReactNode}) => {

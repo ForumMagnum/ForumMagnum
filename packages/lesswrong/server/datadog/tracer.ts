@@ -2,7 +2,7 @@ import tracer from "dd-trace";
 import { StatsD } from "hot-shots";
 import { isDatadogEnabled } from "../../lib/instanceSettings";
 
-if (isDatadogEnabled) {
+if (isDatadogEnabled()) {
   tracer.init({
     hostname: process.env.IS_DOCKER ? "172.17.0.1" : undefined,
     sampleRate: 1,
@@ -19,7 +19,7 @@ if (isDatadogEnabled) {
   })
 }
 
-export const dogstatsd = isDatadogEnabled
+export const dogstatsd = isDatadogEnabled()
   ? new StatsD({
       host: process.env.IS_DOCKER ? "172.17.0.1" : undefined,
       prefix: 'forummagnum.',

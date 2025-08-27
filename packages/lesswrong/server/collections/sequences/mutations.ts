@@ -66,7 +66,7 @@ export async function createSequence({ data }: CreateSequenceInput, context: Res
     newDocument: documentWithId,
   };
 
-  if (isElasticEnabled) {
+  if (isElasticEnabled()) {
     backgroundTask(elasticSyncDocument('Sequences', documentWithId._id));
   }
 
@@ -115,7 +115,7 @@ export async function updateSequence({ selector, data }: UpdateSequenceInput, co
     props: updateCallbackProperties,
   });
 
-  if (isElasticEnabled) {
+  if (isElasticEnabled()) {
     backgroundTask(elasticSyncDocument('Sequences', updatedDocument._id));
   }
 

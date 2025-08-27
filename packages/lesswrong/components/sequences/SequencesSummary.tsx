@@ -80,7 +80,7 @@ const SequenceMeta: FC<{
   wordCountNode: ReactNode,
   classes: ClassesType<typeof styles>,
 }> = ({user, postCount, wordCountNode, classes}) => {
-  return isFriendlyUI
+  return isFriendlyUI()
     ? (
       <div className={classes.author}>
         <UsersName user={user} />
@@ -173,7 +173,7 @@ export const SequencesSummary = ({classes, sequence, showAuthor=true, maxPosts}:
         classes={classes}
       />
     }
-    {!isFriendlyUI &&
+    {!isFriendlyUI() &&
       <ContentStyles contentType="postHighlight" className={classes.description}>
         <ContentItemTruncated
           maxLengthWords={100}
@@ -197,7 +197,7 @@ export const SequencesSummary = ({classes, sequence, showAuthor=true, maxPosts}:
         classes={classes}
       />
     }
-    {!isFriendlyUI && wordCountNode}
+    {!isFriendlyUI() && wordCountNode}
   </Card>;
 }
 

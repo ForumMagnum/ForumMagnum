@@ -10,7 +10,7 @@ import LockIcon from '@/lib/vendor/@material-ui/icons/src/Lock';
 import { userHasNewTagSubscriptions } from '../../lib/betas';
 import classNames from 'classnames';
 import { useTagBySlug } from './useTag';
-import { tagGetHistoryUrl, tagMinimumKarmaPermissions, tagUserHasSufficientKarma, isTagAllowedType3Audio } from '../../lib/collections/tags/helpers';
+import { tagGetHistoryUrl, getTagMinimumKarmaPermissions, tagUserHasSufficientKarma, isTagAllowedType3Audio } from '../../lib/collections/tags/helpers';
 import { isLWorAF } from '@/lib/instanceSettings';
 import type { TagLens } from '@/lib/arbital/useTagLenses';
 import { AnalyticsContext, useTracking } from '@/lib/analyticsEvents';
@@ -214,9 +214,9 @@ const TagPageButtonRow = ({
     && canEdit
     && (!!refetchTag && !!updateSelectedLens)
     && (undeletedLensCount < 5)
-    && isLWorAF;
+    && isLWorAF();
 
-  const editTooltipHasContent = noEditNotAuthor || noEditKarmaTooLow || (numFlags && !isLWorAF) || beginnersGuideContentTag
+  const editTooltipHasContent = noEditNotAuthor || noEditKarmaTooLow || (numFlags && !isLWorAF()) || beginnersGuideContentTag
   const editTooltip = editTooltipHasContent && <>
     {noEditNotAuthor && <>
       <div>
@@ -226,11 +226,11 @@ const TagPageButtonRow = ({
     </>}
     {noEditKarmaTooLow && <>
       <div>
-      You must have at least {tagMinimumKarmaPermissions.edit} karma to edit this topic
+      You must have at least {getTagMinimumKarmaPermissions().edit} karma to edit this topic
     </div>
     <br />
     </>}
-    {!!numFlags && !isLWorAF && <>
+    {!!numFlags && !isLWorAF() && <>
       <div>
         This article has the following flag{tag.tagFlagsIds?.length > 1 ? "s" : ""}:{' '}
         {tag.tagFlags.map((flag, i) => <span key={flag._id}>{flag.name}{(i + 1) < tag.tagFlags?.length && ", "}</span>)}
@@ -313,7 +313,7 @@ const TagPageButtonRow = ({
         </a>
       </LWTooltip>}
       
-      {isLWorAF && <TagPageActionsMenuButton
+      {isLWorAF() && <TagPageActionsMenuButton
         tagOrLens={selectedLens}
         createLens={canCreateLens ? handleNewLensClick : null}
         handleEditClick={!editing && canEdit ? handleEditClick : null}

@@ -6,7 +6,7 @@ import Input from '@/lib/vendor/@material-ui/core/src/Input';
 import Select from '@/lib/vendor/@material-ui/core/src/Select';
 import debounce from 'lodash/debounce';
 import { isClient } from '../../lib/executionEnvironment';
-import { forumTypeSetting, isEAForum } from '../../lib/instanceSettings';
+import { isEAForum } from '../../lib/instanceSettings';
 import type { CollaborativeEditingAccessLevel } from '../../lib/collections/posts/collabEditingPermissions';
 import { styles as greyEditorStyles } from "../ea-forum/onboarding/EAOnboardingInput";
 import FormLabel from '@/lib/vendor/@material-ui/core/src/FormLabel';
@@ -20,8 +20,8 @@ import { MenuItem } from "../common/Menus";
 import Loading from "../vulcan-core/Loading";
 import SectionTitle from "../common/SectionTitle";
 
-const postEditorHeight = isEAForum ? 250 : 400;
-const questionEditorHeight = isEAForum ? 150 : 400;
+const getPostEditorHeight = () => isEAForum() ? 250 : 400;
+const getQuestionEditorHeight = () => isEAForum() ? 150 : 400;
 const commentEditorHeight = 100;
 const quickTakesEditorHeight = 100;
 const commentMinimalistEditorHeight = 28;
@@ -98,9 +98,9 @@ export const styles = (theme: ThemeType) => ({
     }
   },
   postEditorHeight: {
-    minHeight: postEditorHeight,
+    minHeight: getPostEditorHeight(),
     '& .ck.ck-content': {
-      minHeight: postEditorHeight,
+      minHeight: getPostEditorHeight(),
     },
     '& .ck-sidebar .ck-content': {
       minHeight: "unset"
@@ -127,9 +127,9 @@ export const styles = (theme: ThemeType) => ({
     },
   },
   questionEditorHeight: {
-    minHeight: questionEditorHeight,
+    minHeight: getQuestionEditorHeight(),
     '& .ck.ck-content': {
-      minHeight: questionEditorHeight,
+      minHeight: getQuestionEditorHeight(),
     }
   },
   maxHeight: {
@@ -182,17 +182,17 @@ export const styles = (theme: ThemeType) => ({
 
 const autosaveInterval = 3000; //milliseconds
 const validationInterval = 500; //milliseconds
-export const ckEditorName = forumTypeSetting.get() === 'EAForum' ? 'EA Forum Docs' : 'LessWrong Docs'
+export const getCkEditorName = () => isEAForum() ? 'EA Forum Docs' : 'LessWrong Docs'
 
 export type EditorTypeString = "html"|"markdown"|"ckEditorMarkup";
 export type LegacyEditorTypeString = EditorTypeString|"draftJS";
 
-export const editorTypeToDisplay: Record<LegacyEditorTypeString,{name: string, postfix?: string}> = {
+export const getEditorTypeToDisplayMap = (): Record<LegacyEditorTypeString,{name: string, postfix?: string}> => ({
   html: {name: 'HTML', postfix: '[Admin Only]'},
-  ckEditorMarkup: {name: ckEditorName},
+  ckEditorMarkup: {name: getCkEditorName()},
   markdown: {name: 'Markdown'},
   draftJS: {name: "DraftJS"},
-}
+});
 
 export const nonAdminEditors: EditorTypeString[] = ['ckEditorMarkup', 'markdown']
 export const adminEditors: EditorTypeString[] = ['html', 'ckEditorMarkup', 'markdown']
@@ -203,7 +203,7 @@ export const getUserDefaultEditor = (user: UsersCurrent|null): EditorTypeString 
 }
 
 export function isValidEditorType(editorType: string): editorType is EditorTypeString {
-  return editorType in editorTypeToDisplay && editorType !== 'draftJS';
+  return editorType in getEditorTypeToDisplayMap() && editorType !== 'draftJS';
 }
 
 // Contents of an editor, with `value` in the native format of the editor

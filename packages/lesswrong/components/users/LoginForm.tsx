@@ -108,15 +108,15 @@ type LoginFormProps = {
 }
 
 const LoginForm = (props: LoginFormProps) => {
-  if (isFriendlyUI) {
+  if (isFriendlyUI()) {
     return <LoginFormEA {...props} />
   }
   return <LoginFormDefault {...props} />
 }
 
 const LoginFormDefault = ({ startingState = "login", classes }: LoginFormProps) => {
-  const hasSubscribeToCuratedCheckbox = !isEAForum && !isAF;
-  const hasOauthSection = !isEAForum;
+  const hasSubscribeToCuratedCheckbox = !isEAForum && !isAF();
+  const hasOauthSection = !isEAForum();
 
   const { pathname } = useLocation()
   const reCaptchaToken = useRef<string|null>(null);

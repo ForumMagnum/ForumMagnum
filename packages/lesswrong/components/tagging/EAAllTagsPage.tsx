@@ -9,7 +9,7 @@ import { Link } from '../../lib/reactRouterWrapper';
 import AddBoxIcon from '@/lib/vendor/@material-ui/icons/src/AddBox';
 import { useDialog } from '../common/withDialog';
 import { taggingNameCapitalSetting, taggingNamePluralCapitalSetting, taggingNamePluralSetting } from '../../lib/instanceSettings';
-import { tagCreateUrl, tagUserHasSufficientKarma } from '../../lib/collections/tags/helpers';
+import { getTagCreateUrl, tagUserHasSufficientKarma } from '../../lib/collections/tags/helpers';
 import LoginPopup from "../users/LoginPopup";
 import AllTagsAlphabetical from "./AllTagsAlphabetical";
 import SectionButton from "../common/SectionButton";
@@ -106,7 +106,7 @@ const EAAllTagsPage = ({classes}: {
           <SectionTitle title={portalTitle}>
             <SectionButton>
               {currentUser && tagUserHasSufficientKarma(currentUser, "new") && <Link
-                to={tagCreateUrl}
+                to={getTagCreateUrl()}
               >
                 <AddBoxIcon className={classes.addTagButton}/>
                 New {taggingNameCapitalSetting.get()}

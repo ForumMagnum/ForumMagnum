@@ -11,7 +11,6 @@ import { PromptContextOptions, RAG_MODE_SET, RagModeType } from './schema';
 import type { Editor } from '@ckeditor/ckeditor5-core';
 import CKEditor from '@/lib/vendor/ckeditor5-react/ckeditor';
 import { getCkCommentEditor } from '@/lib/wrapCkEditor';
-import { forumTypeSetting } from '@/lib/instanceSettings';
 import { mentionPluginConfiguration } from '@/lib/editor/mentionsConfig';
 import { ckEditorStyles } from '@/themes/stylePiping';
 import { HIDE_LLM_CHAT_GUIDE_COOKIE } from '@/lib/cookies/cookies';

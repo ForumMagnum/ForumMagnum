@@ -13,7 +13,7 @@ import MailOutline from '@/lib/vendor/@material-ui/icons/src/MailOutline'
 import CheckRounded from '@/lib/vendor/@material-ui/icons/src/CheckRounded'
 import withErrorBoundary from '../common/withErrorBoundary'
 import { AnalyticsContext, useTracking } from "../../lib/analyticsEvents";
-import { forumTitleSetting, forumTypeSetting, isAF, isEAForum, isLW, isLWorAF } from '../../lib/instanceSettings';
+import { forumTitleSetting, isAF, isEAForum, isLW, isLWorAF } from '../../lib/instanceSettings';
 import TextField from '@/lib/vendor/@material-ui/core/src/TextField';
 import LoginForm from "../users/LoginForm";
 import SignupSubscribeToCurated from "../users/SignupSubscribeToCurated";
@@ -147,12 +147,12 @@ const RecentDiscussionSubscribeReminder = ({classes}: {
     if (adminBranch === -1 && currentUser?.isAdmin) {
       // EA Forum only has 4 branches, LW has 5. Fortunately LW's extra branch
       // is the last one, so we can exclude it easily.
-      setAdminBranch(randInt(!isLWorAF ? 4 : 5));
+      setAdminBranch(randInt(!isLWorAF() ? 4 : 5));
     }
   }, [adminBranch, currentUser?.isAdmin]);
 
   // disable on AlignmentForum
-  if (isAF) {
+  if (isAF()) {
     return null;
   }
 
@@ -162,7 +162,7 @@ const RecentDiscussionSubscribeReminder = ({classes}: {
 
   // adjust functionality based on forum type
   let currentUserSubscribed
-  if (isLW) {
+  if (isLW()) {
     currentUserSubscribed = currentUser?.emailSubscribedToCurated;
   } else {
     currentUserSubscribed = currentUser?.subscribedToDigest;
@@ -198,7 +198,7 @@ const RecentDiscussionSubscribeReminder = ({classes}: {
   const updateAndMaybeVerifyEmail = async () => {
     setLoading(true);
     // subscribe to different emails based on forum type
-    const userSubscriptionData: UpdateUserDataInput = isLW ?
+    const userSubscriptionData: UpdateUserDataInput = isLW() ?
     {emailSubscribedToCurated: true} : {subscribedToDigest: true};
     // since they chose to subscribe to an email, make sure this is false
     userSubscriptionData.unsubscribeFromAll = false;
@@ -251,7 +251,7 @@ const RecentDiscussionSubscribeReminder = ({classes}: {
   } else if (subscriptionConfirmed) {
     // Show the confirmation after the user subscribes
     let confirmText;
-    if (isLW) {
+    if (isLW()) {
       confirmText = "You are subscribed to the best posts of LessWrong!";
     } else {
       confirmText = `You are subscribed to the ${forumTitleSetting} Digest`;
@@ -273,14 +273,14 @@ const RecentDiscussionSubscribeReminder = ({classes}: {
     </AnalyticsWrapper>
   } else if (!currentUser || adminBranch===0) {
     // Not logged in. Show a create-account form and a brief pitch.
-    const subscribeTextNode = isEAForum ? eaForumSubscribePrompt : (
+    const subscribeTextNode = isEAForum() ? eaForumSubscribePrompt : (
       <div className={classes.message}>
         To get the best posts emailed to you, create an account! {subscriptionDescription}
       </div>
     );
     return <AnalyticsWrapper branch="logged-out">
       {subscribeTextNode}
-      {isEAForum ? <form action={eaForumDigestSubscribeURL} method="post" className={classes.digestForm}>
+      {isEAForum() ? <form action={eaForumDigestSubscribeURL} method="post" className={classes.digestForm}>
         <TextField label="Email address" name="EMAIL" required className={classes.digestFormInput} />
         <Button variant="contained" type="submit" color="primary" className={classes.digestFormSubmitBtn}>
           Sign up
@@ -291,7 +291,7 @@ const RecentDiscussionSubscribeReminder = ({classes}: {
       {adminUiMessage}
     </AnalyticsWrapper>
   } else if (!userHasEmailAddress(currentUser) || adminBranch===1) {
-    const emailType = isEAForum ? 'our weekly digest email' : 'curated posts';
+    const emailType = isEAForum() ? 'our weekly digest email' : 'curated posts';
     // Logged in, but no email address associated. Probably a legacy account.
     // Show a text box for an email address, with a submit button and a subscribe
     // checkbox.
@@ -310,7 +310,7 @@ const RecentDiscussionSubscribeReminder = ({classes}: {
             setLoading(true);
             try {
               // subscribe to different emails based on forum type
-              const userSubscriptionData: UpdateUserDataInput = isEAForum ?
+              const userSubscriptionData: UpdateUserDataInput = isEAForum() ?
                 {subscribedToDigest: subscribeChecked} : {emailSubscribedToCurated: subscribeChecked};
               userSubscriptionData.email = emailAddress?.value;
               userSubscriptionData.unsubscribeFromAll = false;
@@ -349,7 +349,7 @@ const RecentDiscussionSubscribeReminder = ({classes}: {
     // on re-subscribing. A big Subscribe button, which clears the
     // unsubscribe-from-all option, activates curation emails (if not already
     // activated), and sends a confirmation email (if needed).
-    const subscribeTextNode = forumTypeSetting.get() === 'EAForum' ? eaForumSubscribePrompt : (
+    const subscribeTextNode = isEAForum() ? eaForumSubscribePrompt : (
       <div className={classes.message}>
         You previously unsubscribed from all emails from LessWrong.
         Re-subscribe to get the best posts emailed to you! {subscriptionDescription}
@@ -372,7 +372,7 @@ const RecentDiscussionSubscribeReminder = ({classes}: {
     // account, but is not subscribed to curated posts. A Subscribe button which
     // sets the subscribe-to-curated option, and (if their email address isn't
     // verified) resends the verification email.
-    const subscribeTextNode = forumTypeSetting.get() === 'EAForum' ? eaForumSubscribePrompt : (
+    const subscribeTextNode = isEAForum() ? eaForumSubscribePrompt : (
       <div className={classes.message}>
         Subscribe to get the best of LessWrong emailed to you. {subscriptionDescription}
       </div>

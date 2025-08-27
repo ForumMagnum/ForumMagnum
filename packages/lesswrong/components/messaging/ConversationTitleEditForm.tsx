@@ -92,7 +92,7 @@ const ConversationTitleEditForm = ({ onClose, conversation }: {
             {(field) => (
               <MuiTextField
                 field={field}
-                label={isFriendlyUI ? "Conversation title (visible to all)" : "Conversation Title"}
+                label={isFriendlyUI() ? "Conversation title (visible to all)" : "Conversation Title"}
               />
             )}
           </form.Field>
@@ -109,7 +109,7 @@ const ConversationTitleEditForm = ({ onClose, conversation }: {
           </form.Field>
         </div>
 
-        {isLWorAF && userIsAdmin(currentUser) && <div className={classes.fieldWrapper}>
+        {isLWorAF() && userIsAdmin(currentUser) && <div className={classes.fieldWrapper}>
           <form.Field name="af">
             {(field) => (
               <FormComponentCheckbox

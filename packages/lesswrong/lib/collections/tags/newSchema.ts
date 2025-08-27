@@ -23,6 +23,7 @@ import { isLW } from "@/lib/instanceSettings";
 import { permissionGroups } from "@/lib/permissions";
 import type { TagCommentType } from "../comments/types";
 import { CommentsViews } from "../comments/views";
+import { userIsMemberOf } from "@/lib/vulcan-users/permissions";
 
 async function getTagMultiDocuments(context: ResolverContext, tagId: string) {
   const { MultiDocuments } = context;
@@ -556,7 +557,7 @@ const schema = {
       inputType: "Boolean",
       canRead: ["guests"],
       canUpdate: ["sunshineRegiment", "admins"],
-      canCreate: [...(isLW ? ['members' as const] : []), 'sunshineRegiment', 'admins'],
+      canCreate: [(user) => isLW() ? userIsMemberOf(user, 'members') : true, 'sunshineRegiment', 'admins'],
       validation: {
         optional: true,
       },

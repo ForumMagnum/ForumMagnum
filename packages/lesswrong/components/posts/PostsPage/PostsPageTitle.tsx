@@ -88,8 +88,8 @@ const PostsPageTitle = ({post, className}: {
   const classes = useStyles(styles);
   const sourcePostRelations = ('sourcePostRelations' in post) ? post.sourcePostRelations : null;
   const parentPost = sourcePostRelations?.filter(rel => !!rel.sourcePost)?.[0]?.sourcePost;
-  const showLinkIcon = post.url && isFriendlyUI;
-  const showDialogueIcon = post.collabEditorDialogue && isFriendlyUI;
+  const showLinkIcon = post.url && isFriendlyUI();
+  const showDialogueIcon = post.collabEditorDialogue && isFriendlyUI();
 
   const words = post.title.trim().split(/\s+/);
   const mostOfTitle = words.slice(0, -1).join(" ");

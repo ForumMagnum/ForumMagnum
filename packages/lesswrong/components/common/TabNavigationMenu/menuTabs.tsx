@@ -1,5 +1,5 @@
 import React from 'react';
-import { communityPath, getAllTagsPath } from '@/lib/pathConstants';
+import { getCommunityPath, getAllTagsPath } from '@/lib/pathConstants';
 import { REVIEW_YEAR } from '../../../lib/reviewUtils';
 import { preferredHeadingCase } from '../../../themes/forumTheme';
 import { ForumOptions } from '../../../lib/forumTypeUtils';
@@ -99,7 +99,7 @@ export type MenuTabRegular = {
 
 type MenuTab = MenuTabDivider | MenuTabCustomComponent | MenuTabRegular
 
-export const menuTabs: ForumOptions<Array<MenuTab>> = {
+export const getMenuTabs = (): ForumOptions<Array<MenuTab>> => ({
   LessWrong: [
     {
       id: 'home',
@@ -178,7 +178,7 @@ export const menuTabs: ForumOptions<Array<MenuTab>> = {
       id: 'events',
       title: 'Community Events', // Events hide on mobile
       mobileTitle: 'Community',
-      link: communityPath,
+      link: getCommunityPath(),
       icon: communityGlobeIcon,
       tooltip: 'Find a meetup near you.',
       showOnMobileStandalone: true,
@@ -334,7 +334,7 @@ export const menuTabs: ForumOptions<Array<MenuTab>> = {
     }, {
       id: 'community',
       title: 'Groups directory',
-      link: communityPath,
+      link: getCommunityPath(),
       iconComponent: GroupsIcon,
       selectedIconComponent: GroupsSelectedIcon,
       tooltip: 'Join a group near you or meet others online',
@@ -421,7 +421,7 @@ export const menuTabs: ForumOptions<Array<MenuTab>> = {
       id: 'events',
       title: 'Community and Events',
       mobileTitle: 'Events',
-      link: communityPath,
+      link: getCommunityPath(),
       iconComponent: SupervisedUserCircleIcon,
       tooltip: 'See groups and events in your area',
       showOnMobileStandalone: true,
@@ -455,6 +455,6 @@ export const menuTabs: ForumOptions<Array<MenuTab>> = {
       subItem: true,
     }
   ]
-}
+});
 
-export default menuTabs;
+export default getMenuTabs;

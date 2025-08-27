@@ -1,7 +1,7 @@
 import React from "react";
 import { registerComponent } from "../../lib/vulcan-lib/components";
 import type { Placement as PopperPlacementType } from "popper.js"
-import { forumTypeSetting } from "../../lib/instanceSettings";
+import { isAF } from "../../lib/instanceSettings";
 import LWTooltip from "./LWTooltip";
 
 const KarmaDisplay = ({document, placement="left", linkItem}: {
@@ -9,10 +9,10 @@ const KarmaDisplay = ({document, placement="left", linkItem}: {
   placement?: PopperPlacementType,
   linkItem?: React.ReactNode,
 }) => {
-  const baseScore = forumTypeSetting.get() === "AlignmentForum"
+  const baseScore = isAF()
     ? document.afBaseScore
     : document.baseScore;
-  const afBaseScore = forumTypeSetting.get() !== "AlignmentForum" && document.af
+  const afBaseScore = !isAF() && document.af
     ? document.afBaseScore
     : null;
   return (

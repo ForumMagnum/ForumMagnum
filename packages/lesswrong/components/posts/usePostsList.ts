@@ -103,7 +103,7 @@ export type PostsListConfig = {
   repeatedPostsPrecedence?: number
 }
 
-const defaultTooltipPlacement = isFriendlyUI
+const getDefaultTooltipPlacement = () => isFriendlyUI()
   ? "bottom-start"
   : "bottom-end";
 
@@ -132,7 +132,7 @@ export const usePostsList = <TagId extends string | undefined = undefined>({
   hideTag = false,
   hideTrailingButtons = false,
   hideTagRelevance = false,
-  tooltipPlacement=defaultTooltipPlacement,
+  tooltipPlacement=getDefaultTooltipPlacement(),
   boxShadow = true,
   curatedIconLeft = false,
   showFinalBottomBorder = false,

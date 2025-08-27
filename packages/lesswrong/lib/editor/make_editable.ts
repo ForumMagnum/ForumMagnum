@@ -4,7 +4,7 @@ import { accessFilterMultiple } from '../utils/schemaUtils';
 import { getWithLoader } from '../loaders';
 import type { MakeEditableOptions } from './makeEditableOptions';
 import { getCollectionAccessFilter } from '@/server/permissions/accessFilters';
-import { defaultEditorPlaceholder } from './defaultEditorPlaceholder';
+import { getDefaultEditorPlaceholder } from './defaultEditorPlaceholder';
 
 const defaultOptions: MakeEditableOptions<CollectionNameString> = {
   // Determines whether to use the comment editor configuration (e.g. Toolbars)
@@ -27,7 +27,7 @@ const defaultOptions: MakeEditableOptions<CollectionNameString> = {
     canCreate: ['members']
   },
   order: 0,
-  hintText: () => defaultEditorPlaceholder,
+  hintText: () => getDefaultEditorPlaceholder(),
   pingbacks: false,
   revisionsHaveCommitMessages: false,
 }

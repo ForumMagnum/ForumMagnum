@@ -62,7 +62,7 @@ const PostsAcceptTos = ({currentUser, classes}: {
     }
   }, [loading, setLoading, flash, updateCurrentUser]);
 
-  if (isLWorAF || accepted) {
+  if (isLWorAF() || accepted) {
     return null;
   }
 

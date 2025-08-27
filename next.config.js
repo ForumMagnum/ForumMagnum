@@ -36,7 +36,8 @@ module.exports = {
   compiler: {
     define: {
       ...(process.env.E2E === 'true' ? { 'process.env.E2E': 'true' } : {}),
-    }
+      'process.env.FORUM_TYPE': process.env.FORUM_TYPE ?? 'LessWrong',
+    },
   },
   productionBrowserSourceMaps: true,
   experimental: {

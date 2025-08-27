@@ -1,5 +1,5 @@
 import moment from 'moment';
-import { forumTypeSetting, isEAForum, hideUnreviewedAuthorCommentsSettings } from '@/lib/instanceSettings';
+import { isEAForum, hideUnreviewedAuthorCommentsSettings, isAF } from '@/lib/instanceSettings';
 import { ReviewYear } from '../../reviewUtils';
 import pick from 'lodash/pick';
 import { TupleSet, UnionOf } from '@/lib/utils/typeGuardUtils';
@@ -106,7 +106,7 @@ const getDraftSelector = ({ drafts = "include-my-draft-replies", context }: { dr
 function defaultView(terms: CommentsViewTerms, _: ApolloClient, context?: ResolverContext) {
   const validFields = pick(terms, 'userId', 'authorIsUnreviewed');
 
-  const alignmentForum = forumTypeSetting.get() === 'AlignmentForum' ? {af: true} : {}
+  const alignmentForum = isAF() ? {af: true} : {}
   const hideSince = hideUnreviewedAuthorCommentsSettings.get()
   
   const notDeletedOrDeletionIsPublic = {
@@ -376,7 +376,7 @@ function rejected(terms: CommentsViewTerms) {
 function recentDiscussionThread(terms: CommentsViewTerms) {
   // The forum has fewer comments, and so wants a more expansive definition of
   // "recent"
-  const eighteenHoursAgo = moment().subtract(forumTypeSetting.get() === 'EAForum' ? 36 : 18, 'hours').toDate();
+  const eighteenHoursAgo = moment().subtract(isEAForum() ? 36 : 18, 'hours').toDate();
   return {
     selector: {
       postId: terms.postId,
@@ -408,7 +408,7 @@ function postsItemComments(terms: CommentsViewTerms) {
       postId: terms.postId,
       deleted: false,
       postedAt: terms.after ? {$gt: new Date(terms.after)} : null,
-      ...(!isEAForum && {score: {$gt: 0}}),
+      ...(!isEAForum() && {score: {$gt: 0}}),
     },
     options: {sort: {postedAt: -1}, limit: terms.limit || 15},
   };
@@ -509,7 +509,7 @@ function topShortform(terms: CommentsViewTerms) {
   );
 
   const shortformFrontpage =
-    isEAForum && typeof terms.shortformFrontpage === "boolean"
+    isEAForum() && typeof terms.shortformFrontpage === "boolean"
       ? {shortformFrontpage: terms.shortformFrontpage}
       : {};
 

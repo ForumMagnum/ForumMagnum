@@ -2,10 +2,10 @@
 import { scheduleQueueProcessing } from './cache/swr';
 import { initRenderQueueLogging } from './rendering/requestQueue';
 import { startMemoryUsageMonitor } from './logging';
-import { initLegacyRoutes } from '@/lib/routes';
+// import { initLegacyRoutes } from '@/lib/routes';
 import { startupSanityChecks } from './startupSanityChecks';
 import { refreshKarmaInflationCache } from './karmaInflation/cron';
-import { addLegacyRssRoutes } from './legacy-redirects/routes';
+// import { addLegacyRssRoutes } from './legacy-redirects/routes';
 import { initReviewWinnerCache } from './resolvers/reviewWinnerResolvers';
 import { startAnalyticsWriter, serverCaptureEvent as captureEvent } from '@/server/analytics/serverAnalyticsWriter';
 import { startSyncedCron } from './cron/startCron';
@@ -44,10 +44,10 @@ export async function runServerOnStartupFunctions() {
   scheduleQueueProcessing();
   initRenderQueueLogging();
   startMemoryUsageMonitor();
-  initLegacyRoutes();
+  // initLegacyRoutes();
   backgroundTask(startupSanityChecks());
   backgroundTask(refreshKarmaInflationCache());
-  addLegacyRssRoutes();
+  // addLegacyRssRoutes();
   backgroundTask(initReviewWinnerCache());
   backgroundTask(updateStripeIntentsCache());
 

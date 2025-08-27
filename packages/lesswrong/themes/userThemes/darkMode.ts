@@ -3,7 +3,7 @@ import { invertHexColor, invertColor, colorToString, zeroTo255 } from '../colorU
 import { forumSelect } from '../../lib/forumTypeUtils';
 import deepmerge from 'deepmerge';
 
-export const invertedGreyscale = {
+export const getInvertedGreyscale = () => ({
   // Present in @/lib/vendor/@material-ui/core/src/colors/grey
   50: invertHexColor('#fafafa'),
   100: invertHexColor('#f5f5f5'),
@@ -43,7 +43,7 @@ export const invertedGreyscale = {
   620: invertHexColor("#888888"),
   650: invertHexColor('#808080'),
   680: invertHexColor('#666666'),
-};
+});
 
 const greyAlpha = (alpha: number) => `rgba(255,255,255,${alpha})`;
 
@@ -62,7 +62,7 @@ const inverseGreyAlpha = (alpha: number) => {
 // We handle this in ContentItemBody with transformStylesForDarkMode. The
 // colors below have dedicated color-mappings; all other colors use `parseColor`
 // and `invertColor` from `colorUtil.ts`.
-export const colorReplacements: Record<string,string> = {
+export const getColorReplacements = (): Record<string,string> => ({
   "initial":            "rgba(255,255,255,.87)",
   "rgba(255,255,255,.5)": "rgba(0,0,0.5)",
   "hsl(0, 0%, 90%)":    "hsl(0, 0%, 10%)",
@@ -73,7 +73,7 @@ export const colorReplacements: Record<string,string> = {
   "#FFEEBB":            invertHexColor("#ffeebb"),
   "rgb(255, 238, 187)": colorToString(invertColor([255/255.0,238/255.0,187/255.0,1])),
   "rgb(230, 230, 230)": colorToString(invertColor([230/255.0,230/255.0,230/255.0,1])),
-} as const;
+} as const);
 
 const forumComponentPalette = (shadePalette: ThemeShadePalette) =>
   forumSelect({
@@ -151,10 +151,10 @@ const forumOverrides = (palette: ThemePalette): PartialDeep<ThemeType['overrides
     default: {},
   });
 
-export const darkModeTheme: UserThemeSpecification = {
+export const getDarkModeTheme = (): UserThemeSpecification => ({
   shadePalette: {
     dark: true,
-    grey: invertedGreyscale,
+    grey: getInvertedGreyscale(),
     greyAlpha,
     inverseGreyAlpha,
     boxShadowColor: (alpha: number) => greyAlpha(alpha),
@@ -328,4 +328,4 @@ export const darkModeTheme: UserThemeSpecification = {
     overrides: forumOverrides(palette),
     rawCSS: []
   }),
-};
+});

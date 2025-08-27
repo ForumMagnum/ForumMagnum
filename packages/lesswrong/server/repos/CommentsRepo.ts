@@ -128,8 +128,8 @@ class CommentsRepo extends AbstractRepo<"Comments"> {
     const excludedTagIdParam = excludeTagId ? { excludedTagId } : {};
     const excludedTagIdCondition = excludeTagId ? 'AND COALESCE((p."tagRelevance"->$(excludedTagId))::INTEGER, 0) < 1' : '';
 
-    const lookbackPeriod = isAF ? '1 month' : '1 week';
-    const afCommentsFilter = isAF ? 'AND "af" IS TRUE' : '';
+    const lookbackPeriod = isAF() ? '1 month' : '1 week';
+    const afCommentsFilter = isAF() ? 'AND "af" IS TRUE' : '';
 
     return this.any(`
       -- CommentsRepo.getPopularComments

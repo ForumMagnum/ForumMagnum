@@ -3,7 +3,7 @@ import { getPostCollaborateUrl, postGetAuthorName, postGetEditUrl } from './coll
 import { commentGetAuthorName } from './collections/comments/helpers';
 import { responseToText } from './collections/posts/constants';
 import sortBy from 'lodash/sortBy';
-import { REVIEW_NAME_IN_SITU } from './reviewUtils';
+import { getReviewNameInSitu } from './reviewUtils';
 import startCase from 'lodash/startCase';
 import { userGetDisplayName } from './collections/users/helpers'
 import { Link } from './reactRouterWrapper';
@@ -111,7 +111,7 @@ export interface NotificationType<Name extends string> {
     Localgroup: FC,
   }>,
   getLink?: (props: { documentType: string|null, documentId: string|null, extraData: Record<string,any> }) => string
-  causesRedBadge?: boolean
+  causesRedBadge?: () => boolean
 }
 
 const createNotificationType = <Name extends string>({allowedChannels = ["onsite", "email"], ...otherArgs}: NotificationType<Name>) => {
@@ -165,7 +165,7 @@ export const PostNominatedNotification = createNotificationType({
   userSettingField: "notificationPostsNominatedReview",
   async getMessage({documentType, documentId, context}: GetMessageProps) {
     let post: DbPost = await getDocument(documentType, documentId, context) as DbPost;
-    return `Your post is nominated for the ${REVIEW_NAME_IN_SITU}: "${post.title}"`
+    return `Your post is nominated for the ${getReviewNameInSitu()}: "${post.title}"`
   },
 })
 
@@ -266,7 +266,7 @@ export const NewDialogueMessagesNotification = createNotificationType({
   }): string => {
     return `/editPost?postId=${documentId}`;
   },
-  causesRedBadge: true,
+  causesRedBadge: () => true,
   Display: ({User, Post}) => <><User /> left a new reply in your dialogue <Post /></>,
 });
 
@@ -298,7 +298,7 @@ export const NewPublishedDialogueMessagesNotification = createNotificationType({
     let post = await getDocument(documentType, documentId, context) as DbPost;
     return `New content in the dialogue "${post.title}"`;
   },
-  causesRedBadge: false,
+  causesRedBadge: () => false,
   Display: ({Post}) => <>New content in the dialogue <Post /></>,
 });
 
@@ -354,7 +354,7 @@ export const NewDebateReplyNotification = createNotificationType({
     let document = await getDocument(documentType, documentId, context) as DbComment;
     return await commentGetAuthorName(document, context) + ' left a new reply on the dialogue "' + await getCommentParentTitle(document, context) + '"';
   },
-  causesRedBadge: true,
+  causesRedBadge: () => true,
 });
 
 export const NewShortformNotification = createNotificationType({
@@ -447,7 +447,7 @@ export const NewMessageNotification = createNotificationType({
     let conversation = await Conversations.findOne(document.conversationId);
     return (await Users.findOne(document.userId))?.displayName + ' sent you a new message' + (conversation?.title ? (' in the conversation ' + conversation.title) : "") + '!';
   },
-  causesRedBadge: !isFriendlyUI,
+  causesRedBadge: () => !isFriendlyUI(),
 });
 
 export const WrappedNotification = createNotificationType({

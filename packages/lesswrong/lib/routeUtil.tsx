@@ -169,7 +169,7 @@ const LwAfDomainWhitelist: DomainList = {
 }
 
 const URLClass = getUrlClass()
-const forumDomainWhitelist: ForumOptions<DomainList> = {
+const getForumDomainWhitelist = (): ForumOptions<DomainList> => ({
   LessWrong: LwAfDomainWhitelist,
   AlignmentForum: LwAfDomainWhitelist,
   EAForum: {
@@ -189,9 +189,9 @@ const forumDomainWhitelist: ForumOptions<DomainList> = {
     ],
     mirrorDomains: [],
   }
-}
+})
 
-const domainWhitelist: DomainList = forumSelect(forumDomainWhitelist)
+const getDomainWhitelist = (): DomainList => forumSelect(getForumDomainWhitelist())
 
 export const classifyHost = (host: string): "onsite"|"offsite"|"mirrorOfUs" => {
   let urlType: "onsite"|"offsite"|"mirrorOfUs" = "offsite";
@@ -201,11 +201,11 @@ export const classifyHost = (host: string): "onsite"|"offsite"|"mirrorOfUs" => {
     return a===b || "www."+a===b || a==="www."+b;
   }
 
-  domainWhitelist.onsiteDomains.forEach((domain) => {
+  getDomainWhitelist().onsiteDomains.forEach((domain) => {
     if (isSameDomainModuloWWW(host, domain))
       urlType = "onsite";
   })
-  domainWhitelist.mirrorDomains.forEach((domain) => {
+  getDomainWhitelist().mirrorDomains.forEach((domain) => {
     if (isSameDomainModuloWWW(host, domain))
       urlType = "mirrorOfUs";
   })

@@ -95,12 +95,12 @@ const MessageItem = ({message, classes}: {
   const colorClassName = classNames({[classes.whiteMeta]: isCurrentUser})
 
   let profilePhoto: React.ReactNode|null = null;
-  if (!isCurrentUser && isFriendlyUI) {
+  if (!isCurrentUser && isFriendlyUI()) {
     profilePhoto = <ProfilePhoto user={message.user} className={classes.profileImg} />
   }
   
   return (
-    <div className={classNames(classes.root, {[classes.rootWithImages]: isFriendlyUI, [classes.rootCurrentUserWithImages]: isFriendlyUI && isCurrentUser})}>
+    <div className={classNames(classes.root, {[classes.rootWithImages]: isFriendlyUI(), [classes.rootCurrentUserWithImages]: isFriendlyUI() && isCurrentUser})}>
       {profilePhoto}
       <Typography variant="body2" className={classNames(classes.message, {[classes.backgroundIsCurrent]: isCurrentUser})}>
         <div className={classes.meta}>

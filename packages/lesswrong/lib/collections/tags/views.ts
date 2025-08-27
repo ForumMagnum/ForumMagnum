@@ -245,7 +245,7 @@ function allArbitalTags(terms: TagsViewTerms) {
   }
 }
 
-const pingbackSelector = (terms: TagsViewTerms) => hasWikiLenses
+const pingbackSelector = (terms: TagsViewTerms) => hasWikiLenses()
   ? jsonArrayContainsSelector("pingbacks.Tags", terms.tagId)
   : {
     $or: [

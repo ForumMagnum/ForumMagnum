@@ -10,7 +10,7 @@ function pathnameMatchesRoutePath(pathname: string, routePath: string) {
   });
 }
 
-export const isHomeRoute = (pathname: string) => pathnameMatchesRoutePath(pathname, '/') && !isAF;
+export const isHomeRoute = (pathname: string) => pathnameMatchesRoutePath(pathname, '/') && !isAF();
 
 export const isSunshineSidebarRoute = (pathname: string) => pathnameMatchesRoutePath(pathname, '/');
 

@@ -90,13 +90,13 @@ export const PostSubmit = ({
 
   const submitWithoutConfirmation = () => formApi.setFieldValue('draft', false);
 
-  const requireConfirmation = isLW && !!document.debate;
+  const requireConfirmation = isLW() && !!document.debate;
 
   const onSubmitClick = requireConfirmation ? submitWithConfirmation : submitWithoutConfirmation;
   const requestFeedbackKarmaLevel = requestFeedbackKarmaLevelSetting.get()
   // EA Forum title is Effective Altruism Forum, which is unecessarily long
-  const eaOrOtherFeedbackTitle = isEAForum ? 'the EA Forum team' : `the ${forumTitleSetting.get()} team`
-  const feedbackTitle = `Request feedback from ${isLWorAF ? 'our editor' : eaOrOtherFeedbackTitle}`
+  const eaOrOtherFeedbackTitle = isEAForum() ? 'the EA Forum team' : `the ${forumTitleSetting.get()} team`
+  const feedbackTitle = `Request feedback from ${isLWorAF() ? 'our editor' : eaOrOtherFeedbackTitle}`
 
   return (
     <React.Fragment>
@@ -158,7 +158,7 @@ export const PostSubmit = ({
           onClick={onSubmitClick}
           disabled={disabled}
           className={classNames("primary-form-submit-button", classes.formButton, classes.submitButton)}
-          {...(isFriendlyUI ? {
+          {...(isFriendlyUI() ? {
             variant: "contained",
             color: "primary",
           } : {})}

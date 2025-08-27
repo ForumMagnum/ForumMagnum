@@ -7,7 +7,7 @@ import { useLocation } from '../../lib/routeUtil';
 import { useCurrentUser } from '../common/withUser';
 import { MAX_LOW_KARMA_THRESHOLD } from '../../lib/collections/posts/views'
 import { AnalyticsContext, useTracking } from "../../lib/analyticsEvents";
-import { SORT_ORDER_OPTIONS } from '../../lib/collections/posts/dropdownOptions';
+import { getSortOrderOptions } from '../../lib/collections/posts/dropdownOptions';
 import { isFriendlyUI, preferredHeadingCase } from '../../themes/forumTheme';
 import DeferRender from '../common/DeferRender';
 import { TooltipRef } from '../common/FMTooltip';
@@ -39,8 +39,8 @@ const styles = (theme: ThemeType) => ({
 });
 
 const formatSort = (sorting: PostSortingMode) => {
-  const sort = SORT_ORDER_OPTIONS[sorting].label
-  return isFriendlyUI ? sort : `Sorted by ${sort}`;
+  const sort = getSortOrderOptions()[sorting].label
+  return isFriendlyUI() ? sort : `Sorted by ${sort}`;
 }
 
 const AllPostsPage = ({classes, defaultHideSettings}: {classes: ClassesType<typeof styles>, defaultHideSettings?: boolean}) => {
@@ -83,14 +83,14 @@ const AllPostsPage = ({classes, defaultHideSettings}: {classes: ClassesType<type
           >
             {(ref: Ref<HTMLDivElement>) => <div ref={ref} className={classes.title} onClick={toggleSettings}>
               <SectionTitle title={preferredHeadingCase("All Posts")}>
-                {isFriendlyUI ?
+                {isFriendlyUI() ?
                   <SortButton label={formatSort(currentSorting)} /> :
-                  <SettingsButton label={`Sorted by ${ SORT_ORDER_OPTIONS[currentSorting].label }`}/>
+                  <SettingsButton label={`Sorted by ${ getSortOrderOptions()[currentSorting].label }`}/>
                 }
               </SectionTitle>
             </div>}
           </TooltipRef>
-          {isFriendlyUI && !showSettings && <hr className={classes.divider} />}
+          {isFriendlyUI() && !showSettings && <hr className={classes.divider} />}
           <PostsListSettings
             hidden={!showSettings}
             currentTimeframe={currentTimeframe}

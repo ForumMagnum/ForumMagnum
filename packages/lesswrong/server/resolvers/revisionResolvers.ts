@@ -1,5 +1,5 @@
 import { dataToMarkdown, dataToHTML, dataToCkEditor, buildRevision } from '../editor/conversionUtils'
-import { tagMinimumKarmaPermissions, tagUserHasSufficientKarma } from '../../lib/collections/tags/helpers';
+import { getTagMinimumKarmaPermissions, tagUserHasSufficientKarma } from '../../lib/collections/tags/helpers';
 import isEqual from 'lodash/isEqual';
 import { EditorContents } from '../../components/editor/Editor';
 import { userOwns } from '../../lib/vulcan-users/permissions';
@@ -27,7 +27,7 @@ export const revisionResolversGraphQLMutations = {
   revertTagToRevision: async (root: void, { tagId, revertToRevisionId }: { tagId: string, revertToRevisionId: string }, context: ResolverContext) => {
     const { currentUser, loaders, Tags } = context;
     if (!tagUserHasSufficientKarma(currentUser, 'edit')) {
-      throw new Error(`Must be logged in and have ${tagMinimumKarmaPermissions['edit']} karma to revert tags to older revisions`);
+      throw new Error(`Must be logged in and have ${getTagMinimumKarmaPermissions().edit} karma to revert tags to older revisions`);
     }
 
     const [tag, revertToRevision, latestRevision] = await Promise.all([

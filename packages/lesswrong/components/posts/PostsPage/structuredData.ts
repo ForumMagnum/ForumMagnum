@@ -29,14 +29,14 @@ const getCommentStructuredData = ({
         interactionType: {
           "@type": "http://schema.org/CommentAction",
         },
-        userInteractionCount: comment.item.user?.[isAF ? "afCommentCount" : "commentCount"],
+        userInteractionCount: comment.item.user?.[isAF() ? "afCommentCount" : "commentCount"],
       },
       {
         "@type": "InteractionCounter",
         interactionType: {
           "@type": "http://schema.org/WriteAction",
         },
-        userInteractionCount: comment.item.user?.[isAF ? "afPostCount" : "postCount"],
+        userInteractionCount: comment.item.user?.[isAF() ? "afPostCount" : "postCount"],
       },
     ],
   }],

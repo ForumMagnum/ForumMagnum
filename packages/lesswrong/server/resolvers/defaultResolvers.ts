@@ -413,7 +413,7 @@ export const performQueryFromViewParameters = async <N extends CollectionNameStr
 }
 
 async function getUserActivity(user: DbUser|null, clientId: string|null): Promise<DbUserActivity|null> {
-  if ((user || clientId) && (isEAForum || visitorGetsDynamicFrontpage(user))) {
+  if ((user || clientId) && (isEAForum() || visitorGetsDynamicFrontpage(user))) {
     if (user) {
       return await UserActivities.findOne({visitorId: user._id, type: 'userId'});
     } else if (clientId) {

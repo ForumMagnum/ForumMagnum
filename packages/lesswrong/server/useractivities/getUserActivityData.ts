@@ -11,7 +11,7 @@ export interface ActivityWindowData {
 /*
  * When running this script locally we want it to use the real analytics events
  */
-const liveEnvDescriptions = forumSelect<Record<string, string>>({
+const getLiveEnvDescriptions = () => forumSelect<Record<string, string>>({
   EAForum: {
     "production": 'production',
     "staging": 'staging',
@@ -61,7 +61,7 @@ export async function getUserActivityData(
   if (startDate > endDate) {
     throw new Error('startDate must be before endDate');
   }
-  const liveEnvDescription = liveEnvDescriptions[environmentDescriptionSetting.get()]
+  const liveEnvDescription = getLiveEnvDescriptions()[environmentDescriptionSetting.get()]
   if (!liveEnvDescription) {
     throw new Error(`Unknown environmentDescriptionSetting: ${environmentDescriptionSetting.get()}`);
   }

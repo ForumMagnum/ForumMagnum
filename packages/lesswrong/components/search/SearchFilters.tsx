@@ -12,7 +12,7 @@ import {
   formatElasticSorting,
   getElasticSortingsForCollection,
 } from '../../lib/search/searchUtil';
-import { communityPath } from '@/lib/pathConstants';
+import { getCommunityPath } from '@/lib/pathConstants';
 import IconButton from '@/lib/vendor/@material-ui/core/src/IconButton';
 import TagMultiselect from "../form-components/TagMultiselect";
 import { Typography } from "../common/Typography";
@@ -166,8 +166,8 @@ const SearchFilters = ({classes, tab, tagsFilter, handleUpdateTagsFilter, onSort
     />}
     <ClearRefinements />
 
-    {tab === 'Users' && isEAForum && <div className={classes.mapLink}>
-      <Link to={`${communityPath}#individuals`}>View community map</Link>
+    {tab === 'Users' && isEAForum() && <div className={classes.mapLink}>
+      <Link to={`${getCommunityPath()}#individuals`}>View community map</Link>
     </div>}
 
     {elasticCollectionIsCustomSortable(tab) &&

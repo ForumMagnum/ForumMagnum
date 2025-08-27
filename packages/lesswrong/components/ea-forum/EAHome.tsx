@@ -36,7 +36,7 @@ const getStructuredData = () => ({
     "@type": "WebPage",
     "@id": `${getSiteUrl()}`,
   },
-  ...(isEAForum && {
+  ...(isEAForum() && {
     "description": [
       "A forum for discussions and updates on effective altruism. Topics covered include",
       "global health, AI safety, biosecurity, animal welfare, philosophy, policy, forecasting,",
@@ -88,7 +88,7 @@ const EAHome = ({classes}: {classes: ClassesType<typeof styles>}) => {
   const maintenanceTimeValue = maintenanceTime.get()
   const isBeforeMaintenanceTime = maintenanceTimeValue && Date.now() < new Date(maintenanceTimeValue).getTime() + (5*60*1000)
   const shouldRenderMaintenanceBanner = showMaintenanceBannerSetting.get() && isBeforeMaintenanceTime
-  const shouldRenderBotSiteBanner = isBotSiteSetting.get() && isEAForum
+  const shouldRenderBotSiteBanner = isBotSiteSetting.get() && isEAForum()
 
   const FrontpageNodeWithClasses = useCallback(
     () => <FrontpageNode classes={classes} />,

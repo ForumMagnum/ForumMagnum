@@ -23,7 +23,7 @@ export async function GET(req: NextRequest) {
     ...(lastNotificationsCheck && {
       createdAt: {$gt: lastNotificationsCheck},
     }),
-    ...(isFriendlyUI && {
+    ...(isFriendlyUI() && {
       type: {$ne: "newMessage"},
       viewed: {$ne: true},
     }),

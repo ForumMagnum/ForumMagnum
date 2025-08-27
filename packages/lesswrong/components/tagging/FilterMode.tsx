@@ -31,7 +31,7 @@ const TagPreviewFragmentQuery = gql(`
   }
 `);
 
-const LATEST_POSTS_NAME = isFriendlyUI ? 'Frontpage Posts' : 'Latest Posts';
+const getLatestPostsName = () => isFriendlyUI() ? 'Frontpage Posts' : 'Latest Posts';
 const INPUT_PAUSE_MILLISECONDS = 1500;
 
 export const filteringStyles = (theme: ThemeType) => ({
@@ -303,7 +303,7 @@ const FilterModeRawComponent = ({tagId="", label, mode, canRemove=false, onChang
             <div className={classes.rightContainer}>
               {canRemove && !tag?.suggestedAsFilter &&
                 <div className={classes.removeLabel} onClick={_ev => {if (onRemove) onRemove()}}>
-                  <LWTooltip title={<div><div>This filter will no longer appear in {LATEST_POSTS_NAME}.</div><div>You can add it back later if you want</div></div>}>
+                  <LWTooltip title={<div><div>This filter will no longer appear in {getLatestPostsName()}.</div><div>You can add it back later if you want</div></div>}>
                     <a>Remove</a>
                   </LWTooltip>
                 </div>}
@@ -334,9 +334,9 @@ function filterModeToTooltip(mode: FilterModeType): React.ReactNode {
   }
   switch (modeWithoutFloat) {
     case "Required":
-      return <div><em>Required.</em> ONLY posts with this {taggingNameSetting.get()} will appear in {LATEST_POSTS_NAME}.</div>
+      return <div><em>Required.</em> ONLY posts with this {taggingNameSetting.get()} will appear in {getLatestPostsName()}.</div>
     case "Hidden":
-      return <div><em>Hidden.</em> Posts with this {taggingNameSetting.get()} will be not appear in {LATEST_POSTS_NAME}.</div>
+      return <div><em>Hidden.</em> Posts with this {taggingNameSetting.get()} will be not appear in {getLatestPostsName()}.</div>
     case "Reduced":
       return <div><em>Reduced.</em> Posts with this {taggingNameSetting.get()} with be shown as if they had half as much karma.</div>
     case "0.5":

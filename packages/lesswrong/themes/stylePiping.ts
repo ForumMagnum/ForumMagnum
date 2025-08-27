@@ -188,7 +188,7 @@ const tableStyles = (theme: ThemeType) => ({
   height: "100%",
   textAlign: "left",
   width: '100%',
-  ...(isFriendlyUI && {
+  ...(theme.isFriendlyUI && {
     "& *": {
       fontFamily: theme.palette.fonts.sansSerifStack,
       fontSize: 14,
@@ -211,7 +211,7 @@ const tableCellStyles = (theme: ThemeType) => ({
   '& p': {
     marginTop: '0.5em',
     marginBottom: '0.5em',
-    ...(isFriendlyUI && {
+    ...(theme.isFriendlyUI && {
       marginLeft: 2,
       marginRight: 2,
       lineHeight: "1.4em",
@@ -269,9 +269,9 @@ const collapsibleSectionStyles = (theme: ThemeType) => ({
     // This conflicts with a CkEditor style on `.ck .ck-editor__nested-editable`
     // that tries to turn border off and on to indicate selection. Use
     // !important to ensure it's visible.
-    border: isFriendlyUI ? undefined : theme.palette.border.normal+' !important',
+    border: theme.isFriendlyUI ? undefined : theme.palette.border.normal+' !important',
     borderRadius: 8,
-    marginTop: isFriendlyUI ? 0 : 8,
+    marginTop: theme.isFriendlyUI ? 0 : 8,
     marginBottom: 8,
   },
   '& .detailsBlockTitle': {
@@ -281,7 +281,7 @@ const collapsibleSectionStyles = (theme: ThemeType) => ({
     // give background !important to take precedence over CkEditor making it
     // pure-white when the cursor is inside it, which would make the
     // title-vs-contents distinction invisible
-    background: isFriendlyUI ? undefined : theme.palette.panelBackground.darken05+'!important',
+    background: theme.isFriendlyUI ? undefined : theme.palette.panelBackground.darken05+'!important',
     
     "&>*": {
       display: "inline",
@@ -295,7 +295,7 @@ const collapsibleSectionStyles = (theme: ThemeType) => ({
     cursor: "pointer",
   },
   '& .detailsBlockContent': {
-    padding: isFriendlyUI ? "0 8px 8px 20px" : 8,
+    padding: theme.isFriendlyUI ? "0 8px 8px 20px" : 8,
   },
   // Cancel out a global paragraph style that adds bottom margin to paragraphs
   // in the editor for some reason, which would create a page/editor mismatch
@@ -323,11 +323,11 @@ const collapsibleSectionStyles = (theme: ThemeType) => ({
   // the editor it would be a <summary> tag)
   '& div.detailsBlockTitle': {
     position: "relative",
-    paddingLeft: isFriendlyUI ? 20 : 24,
+    paddingLeft: theme.isFriendlyUI ? 20 : 24,
     fontFamily: theme.palette.fonts.sansSerifStack,
-    fontSize: isFriendlyUI ? "20.8px" : undefined,
-    lineHeight: isFriendlyUI ? "1.25em" : undefined,
-    fontWeight: isFriendlyUI ? 600 : undefined,
+    fontSize: theme.isFriendlyUI ? "20.8px" : undefined,
+    lineHeight: theme.isFriendlyUI ? "1.25em" : undefined,
+    fontWeight: theme.isFriendlyUI ? 600 : undefined,
   },
 
   // The 'div' part of this selector makes it specific to the editor (outside
@@ -335,10 +335,10 @@ const collapsibleSectionStyles = (theme: ThemeType) => ({
   '& div.detailsBlockTitle::before': {
     content: '"▼"',
     cursor: "pointer",
-    fontSize: isFriendlyUI ? 12 : 14,
+    fontSize: theme.isFriendlyUI ? 12 : 14,
     paddingRight: 4,
     position: "absolute",
-    left: isFriendlyUI ? 0 : 8,
+    left: theme.isFriendlyUI ? 0 : 8,
   },
   '& .detailsBlock.closed div.detailsBlockTitle::before': {
     content: '"▶"',
@@ -368,7 +368,7 @@ const ctaButtonStyles = (theme: ThemeType) => ({
     lineHeight: '20px',
     textTransform: 'none',
     padding: '12px 16px',
-    borderRadius: isFriendlyUI ? theme.borderRadius.default : theme.borderRadius.small,
+    borderRadius: theme.isFriendlyUI ? theme.borderRadius.default : theme.borderRadius.small,
     boxShadow: 'none',
     backgroundColor: theme.palette.buttons.alwaysPrimary,
     color: theme.palette.text.alwaysWhite,
@@ -484,7 +484,7 @@ const baseBodyStyles = (theme: ThemeType) => ({
   '& a:visited, & a.visited': {
     color: theme.palette.link.visited
   },
-  '& a:visited:hover, & a.visited:hover, & a:visited:active, & a.visited:active': isFriendlyUI ? {
+  '& a:visited:hover, & a.visited:hover, & a:visited:active, & a.visited:active': theme.isFriendlyUI ? {
     color: theme.palette.link.visitedHover,
   } : {},
   '& table': {
@@ -554,7 +554,7 @@ export const postBodyStyles = (theme: ThemeType) => {
       marginTop: 40,
       fontSize: '0.9em',
       paddingTop: 40,
-      borderTop: isFriendlyUI ? theme.palette.border.grey300 : theme.palette.border.normal,
+      borderTop: theme.isFriendlyUI ? theme.palette.border.grey300 : theme.palette.border.normal,
       '& sup': {
         marginRight: 10,
       },
@@ -606,7 +606,7 @@ export const commentBodyStyles = (theme: ThemeType, dontIncludePointerEvents?: b
     ...theme.typography.body2,
     ...theme.typography.commentStyle,
 
-    '& .footnotes': isFriendlyUI ? {} : {
+    '& .footnotes': theme.isFriendlyUI ? {} : {
       marginTop: 0,
       paddingTop: 8,
       paddingLeft: 16,
@@ -660,7 +660,7 @@ export const emailBodyStyles = baseBodyStyles
 export const smallPostStyles = (theme: ThemeType) => {
   return {
     ...theme.typography.body2,
-    fontSize: isFriendlyUI ? 14.3 : 16.64,
+    fontSize: theme.isFriendlyUI ? 14.3 : 16.64,
     lineHeight: "22.75px",
     ...theme.typography.postStyle,
     '& blockquote': {
@@ -673,7 +673,7 @@ export const smallPostStyles = (theme: ThemeType) => {
     '& li': {
       ...theme.typography.body2,
       ...theme.typography.postStyle,
-      fontSize: isFriendlyUI ? 14.3 : 16.64,
+      fontSize: theme.isFriendlyUI ? 14.3 : 16.64,
       lineHeight: "23.4px",
     }
   };

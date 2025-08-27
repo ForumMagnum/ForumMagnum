@@ -1,7 +1,7 @@
 import type { NextRequest } from 'next/server';
 import { clearOldCronHistories } from '@/server/cron/cronUtil';
 import { maintainAnalyticsViews } from '@/server/analytics/analyticsViews';
-import { updateMissingPostEmbeddings, HAS_EMBEDDINGS_FOR_RECOMMENDATIONS } from '@/server/embeddings';
+import { updateMissingPostEmbeddings, hasEmbeddingsForRecommendations } from '@/server/embeddings';
 import { sendInactiveUserSurveyEmails } from '@/server/inactiveUserSurveyCron';
 import { refreshKarmaInflation } from '@/server/karmaInflation/cron';
 import { pruneOldPerfMetrics } from '@/server/analytics/serverAnalyticsWriter';
@@ -25,17 +25,17 @@ export async function GET(request: NextRequest) {
   tasks.push(clearOldCronHistories());
 
   // Maintain analytics views (EA Forum only)
-  if (isEAForum) {
+  if (isEAForum()) {
     tasks.push(maintainAnalyticsViews());
   }
 
   // Update missing embeddings
-  if (HAS_EMBEDDINGS_FOR_RECOMMENDATIONS) {
+  if (hasEmbeddingsForRecommendations()) {
     tasks.push(updateMissingPostEmbeddings());
   }
 
   // Send inactive user survey emails (EA Forum only)
-  if (isEAForum) {
+  if (isEAForum()) {
     tasks.push(sendInactiveUserSurveyEmails());
   }
 
@@ -55,7 +55,7 @@ export async function GET(request: NextRequest) {
   tasks.push(clearOldUltraFeedServedEvents());
 
   // Send job ad reminder emails (EA Forum only)
-  if (isEAForum) {
+  if (isEAForum()) {
     tasks.push(sendJobAdReminderEmails());
   }
 

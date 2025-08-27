@@ -54,7 +54,7 @@ export const TagHoverPreview = ({
   const linkTarget = normalizeTagLink(href);
 
   const isRead = tag?.isRead;
-  const isRedLink = hasWikiLenses && ((!tag && !noPrefetch && !loading) || tag?.isPlaceholderPage);
+  const isRedLink = hasWikiLenses() && ((!tag && !noPrefetch && !loading) || tag?.isPlaceholderPage);
   return (
     <TagsTooltip
       tagSlug={previewSlug}

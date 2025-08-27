@@ -132,7 +132,7 @@ const ViewSubscriptionsList = ({currentUser, classes}: {
         subscriptionTypeDescription="You will be notified of new activity by your dialogue partners on these dialogues."
       />
 
-      {isLW && <SubscriptionsList
+      {isLW() && <SubscriptionsList
         title="Subscribed to Old-Style Dialogues (as a reader)"
         collectionName="Posts"
         subscriptionType="newDebateComments"
@@ -182,7 +182,7 @@ const ViewSubscriptionsList = ({currentUser, classes}: {
         subscriptionTypeDescription="You will be notified when posts have these tags added"
       />
 
-      {allowSubscribeToSequencePosts && <SubscriptionsList
+      {allowSubscribeToSequencePosts() && <SubscriptionsList
         title="Notifications of New Post Added to Sequences"
         collectionName="Sequences"
         subscriptionType="newSequencePosts"

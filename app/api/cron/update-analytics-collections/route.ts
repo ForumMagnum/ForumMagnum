@@ -8,7 +8,7 @@ export async function GET(request: NextRequest) {
     return new Response('Unauthorized', { status: 401 });
   }
 
-  if (!isEAForum) {
+  if (!isEAForum()) {
     return new Response('OK', { status: 200 });
   }
 

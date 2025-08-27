@@ -48,7 +48,7 @@ export const RejectedContentControls = ({ contentWrapper }: {
 
   // Gate the visibility based on forum settings
   if (collectionName === 'Posts' && !hasRejectedContentSectionSetting.get()) return null;
-  if (collectionName === 'Comments' && !isLWorAF) return null;
+  if (collectionName === 'Comments' && !isLWorAF()) return null;
 
   const automatedContentEvaluations = 'automatedContentEvaluations' in document ? document.automatedContentEvaluations : null;
 

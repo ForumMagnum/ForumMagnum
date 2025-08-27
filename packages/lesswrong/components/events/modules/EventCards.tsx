@@ -8,7 +8,7 @@ import { isEAForum } from '../../../lib/instanceSettings';
 import { getDefaultEventImg } from './HighlightedEventCard';
 import { useCurrentUser } from '../../common/withUser';
 import classNames from 'classnames';
-import { communityPath } from '@/lib/pathConstants';
+import { getCommunityPath } from '@/lib/pathConstants';
 import { forumSelect } from '../../../lib/forumTypeUtils';
 import AddToCalendarButton from "../../posts/AddToCalendar/AddToCalendarButton";
 import PostsItemTooltipWrapper from "../../posts/PostsItemTooltipWrapper";
@@ -175,7 +175,7 @@ const EventCards = ({events, loading, numDefaultCards, hideSpecialCards, hideGro
   })
   
   // on the EA Forum, insert card(s) advertising Virtual Programs
-  if (isEAForum && !hideSpecialCards) {
+  if (isEAForum() && !hideSpecialCards) {
     // NOTE: splice() will just insert the card at the end of the list if the first param > length
     if (currentUser) {
       // for logged in users, just display the In-Depth / Precipice VP card
@@ -198,7 +198,7 @@ const EventCards = ({events, loading, numDefaultCards, hideSpecialCards, hideGro
     return <div className={classes.noResults}>
       <div className={classes.noResultsText}>No upcoming events matching your search</div>
       <div className={classes.noResultsCTA}>
-        <Link to={communityPath} className={classes.communityLink}>
+        <Link to={getCommunityPath()} className={classes.communityLink}>
           Explore the {communityName}
         </Link>
       </div>

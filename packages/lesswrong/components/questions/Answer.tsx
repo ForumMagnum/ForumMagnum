@@ -172,7 +172,7 @@ const Answer = ({ comment, post, childComments, classes }: {
   }, []);
 
   const CommentLinkWrapper = useCommentLink({comment, post});
-  const menuIcon = isFriendlyUI
+  const menuIcon = isFriendlyUI()
     ? undefined
     : <MoreHorizIcon />;
 
@@ -193,7 +193,7 @@ const Answer = ({ comment, post, childComments, classes }: {
           <Typography variant="body2" className={classes.deleted}>
             Answer was deleted
           </Typography>
-          {isFriendlyUI &&
+          {isFriendlyUI() &&
             <CommentLinkWrapper>
               <ForumIcon icon="Link" className={classNames(classes.linkIcon, {[classes.linkIconHighlighted]: highlightLinkIcon})} />
             </CommentLinkWrapper>
@@ -221,7 +221,7 @@ const Answer = ({ comment, post, childComments, classes }: {
                 <span className={classes.vote}>
                   <SmallSideVote document={comment} collectionName="Comments"/>
                 </span>
-                {isFriendlyUI &&
+                {isFriendlyUI() &&
                   <CommentLinkWrapper>
                     <ForumIcon icon="Link" className={classNames(classes.linkIcon, {[classes.linkIconHighlighted]: highlightLinkIcon})} />
                   </CommentLinkWrapper>

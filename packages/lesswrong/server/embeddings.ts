@@ -17,7 +17,8 @@ import chunk from "lodash/chunk";
 import { EMBEDDINGS_VECTOR_SIZE } from "../lib/collections/postEmbeddings/newSchema";
 import { forumSelect } from "@/lib/forumTypeUtils";
 import { PostsPage } from "@/lib/collections/posts/fragments";
-export const HAS_EMBEDDINGS_FOR_RECOMMENDATIONS = (isEAForum || isLWorAF) && !isE2E;
+
+export const hasEmbeddingsForRecommendations = () => (isEAForum() || isLWorAF()) && !isE2E;
 
 const LEGACY_EMBEDDINGS_MODEL: TiktokenModel = "text-embedding-ada-002";
 const DEFAULT_EMBEDDINGS_MODEL = "text-embedding-3-large";
@@ -29,7 +30,7 @@ const TOKENIZER_MODEL: TiktokenModel = 'text-embedding-ada-002'
 
 const DEFAULT_EMBEDDINGS_MODEL_MAX_TOKENS = 8191;
   
-export const embeddingsSettings = forumSelect({
+export const getEmbeddingsSettings = () => forumSelect({
   "EAForum": {
     "tokenizerModel": TOKENIZER_MODEL,
     "embeddingModel": LEGACY_EMBEDDINGS_MODEL,
@@ -94,7 +95,7 @@ const getBatchEmbeddingsFromApi = async (inputs: Record<string, string>) => {
     throw new Error("OpenAI client is not configured");
   }
 
-  const { tokenizerModel, embeddingModel, maxTokens, dimensions } = embeddingsSettings
+  const { tokenizerModel, embeddingModel, maxTokens, dimensions } = getEmbeddingsSettings()
 
   const trimmedInputTuples: [string, string][] = [];
   for (const [postId, postText] of Object.entries(inputs)) {
@@ -156,7 +157,7 @@ export const getEmbeddingsFromApi = async (text: string): Promise<EmbeddingsResu
     throw new Error("OpenAI client is not configured");
   }
 
-  const { maxTokens, embeddingModel, tokenizerModel, dimensions } = embeddingsSettings
+  const { maxTokens, embeddingModel, tokenizerModel, dimensions } = getEmbeddingsSettings()
 
   const trimmedText = trimText(text, tokenizerModel, maxTokens);
   const result = await api.embeddings.create({
@@ -254,7 +255,7 @@ export const updateAllPostEmbeddings = async () => {
       // eslint-disable-next-line no-console
       console.log("Processing next batch")
       try {
-        if (embeddingsSettings.supportsBatchUpdate) {
+        if (getEmbeddingsSettings().supportsBatchUpdate) {
           await batchUpdatePostEmbeddings(posts.map(({_id}) => _id));
         } else {
           await Promise.all(posts.map(({_id}) => updatePostEmbeddings(_id)));
@@ -271,7 +272,7 @@ export const updateAllPostEmbeddings = async () => {
 export const updateMissingPostEmbeddings = async () => {
   const ids = await new PostsRepo().getPostIdsWithoutEmbeddings();
 
-  if (embeddingsSettings.supportsBatchUpdate) {
+  if (getEmbeddingsSettings().supportsBatchUpdate) {
     for (const idBatch of chunk(ids, 50)) {
       try {
         await batchUpdatePostEmbeddings(idBatch);

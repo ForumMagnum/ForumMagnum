@@ -27,6 +27,8 @@ const emailComponentRestrictedImportPaths = [
   { name: "@/components/hooks/useStyles", message: "Don't import defineStyles from @/components/hooks/useStyles; use @/components/hooks/defineStyles instead" },
 ];
 
+const BANNED_TOP_LEVEL_FUNCTIONS = ['isLW', 'isAF', 'isEAForum', 'isLWorAF', 'forumSelect'];
+
 module.exports = {
   "extends": [
     "eslint:recommended",
@@ -181,6 +183,17 @@ module.exports = {
       patterns: [
         "@/lib/vendor/@material-ui/core/src/colors/*"
       ]
+    }],
+
+    "local/no-top-level-indirect-calls-to": ["error", {
+      names: BANNED_TOP_LEVEL_FUNCTIONS,
+      maxDepth: 7,
+      checkMemberCalls: true,
+      crossFile: true,
+      forbiddenMethods: [{
+        className: "PublicInstanceSetting",
+        methodNames: ["get"],
+      }],
     }],
 
     // Warn on missing await. We use ignoreVoid: true by default but change it
@@ -352,6 +365,7 @@ module.exports = {
         "packages/lesswrong/lib/**/*.tsx",
         "packages/lesswrong/server/**/*.ts",
         "packages/lesswrong/server/**/*.tsx",
+        "app/**/*.ts",
       ],
       "rules": {
         "@typescript-eslint/no-floating-promises": [1, {
@@ -375,6 +389,7 @@ module.exports = {
     "import",
     "no-barrel-files",
     "@stylistic/ts",
+    "local"
   ],
   "settings": {
     "import/core-modules": [

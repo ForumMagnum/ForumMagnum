@@ -1,7 +1,7 @@
 import type { NextRequest } from 'next/server';
 import { sendCurationEmails } from '@/server/curationEmails/cron';
 import { testServerSetting } from '@/lib/instanceSettings';
-import { useCurationEmailsCron } from '@/lib/betas';
+import { usesCurationEmailsCron } from '@/lib/betas';
 import { dispatchPendingEvents } from '@/server/debouncer';
 import { checkAndSendUpcomingEventEmails } from '@/server/eventReminders';
 import { updateScoreActiveDocuments } from '@/server/votingCron';
@@ -18,7 +18,7 @@ export async function GET(request: NextRequest) {
   const tasks: Promise<void>[] = [];
 
   // Send curation emails
-  if (!isTestServer && useCurationEmailsCron) {
+  if (!isTestServer && usesCurationEmailsCron()) {
     tasks.push(sendCurationEmails());
   }
 

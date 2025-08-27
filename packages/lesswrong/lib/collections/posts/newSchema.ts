@@ -53,6 +53,8 @@ import mapValues from "lodash/mapValues";
 import groupBy from "lodash/groupBy";
 import {
   documentIsNotDeleted,
+  userIsAdmin,
+  userIsAdminOrMod,
   userOverNKarmaOrApproved,
   userOwns,
 } from "../../vulcan-users/permissions";
@@ -186,6 +188,10 @@ async function getLastPublishedDialogueMessageTimestamp(post: DbPost, context: R
   const lastTimestamp = messageTimestamps[messageTimestamps.length - 1];
   return lastTimestamp;
 };
+
+function adminOnlyOnEAForum(user: DbUser | null) {
+  return isEAForum() ? userIsAdmin(user) : userIsAdminOrMod(user);
+}
 
 const schema = {
   _id: DEFAULT_ID_FIELD,
@@ -548,7 +554,7 @@ const schema = {
       canUpdate: ["sunshineRegiment", "admins"],
       canCreate: ["sunshineRegiment", "admins"],
       onCreate: ({ document: post }) => {
-        if (!isEAForum && !post.sticky) {
+        if (!isEAForum() && !post.sticky) {
           return false;
         }
       },
@@ -556,7 +562,7 @@ const schema = {
         // WH 2025-03-17: I think this is a bug in general, as a non-admin editing this post will cause
         // sticky to be set to false. Forum-gating to EAF to speed up fixing this live bug for us, but
         // I believe this function and `onCreate`
-        if (!isEAForum && !modifier.$set.sticky) {
+        if (!isEAForum() && !modifier.$set.sticky) {
           return false;
         }
       },
@@ -1222,7 +1228,7 @@ const schema = {
       outputType: "Float",
       canRead: ["guests"],
       resolver: async (post, args, context) => {
-        if (!isLWorAF) {
+        if (!isLWorAF()) {
           return 0;
         }
         const market = await getWithCustomLoader(context, "manifoldMarket", post._id, marketInfoLoader(context));
@@ -1235,7 +1241,7 @@ const schema = {
       outputType: "Boolean",
       canRead: ["guests"],
       resolver: async (post, args, context) => {
-        if (!isLWorAF) {
+        if (!isLWorAF()) {
           return false;
         }
         const market = await getWithCustomLoader(context, "manifoldMarket", post._id, marketInfoLoader(context));
@@ -1248,7 +1254,7 @@ const schema = {
       outputType: "Int",
       canRead: ["guests"],
       resolver: async (post, args, context) => {
-        if (!isLWorAF) {
+        if (!isLWorAF()) {
           return 0;
         }
         const market = await getWithCustomLoader(context, "manifoldMarket", post._id, marketInfoLoader(context));
@@ -1261,7 +1267,7 @@ const schema = {
       outputType: "String",
       canRead: ["guests"],
       resolver: async (post, args, context) => {
-        if (!isLWorAF) {
+        if (!isLWorAF()) {
           return 0;
         }
         const market = await getWithCustomLoader(context, "manifoldMarket", post._id, marketInfoLoader(context));
@@ -1788,7 +1794,7 @@ const schema = {
       outputType: "ReviewVote",
       canRead: ["members"],
       resolver: async (post, args, context) => {
-        if (!isLWorAF) {
+        if (!isLWorAF()) {
           return null;
         }
         const { ReviewVotes, currentUser } = context;
@@ -1824,7 +1830,7 @@ const schema = {
       outputType: "ReviewWinner",
       canRead: ["guests"],
       resolver: async (post, args, context) => {
-        if (!isLWorAF) {
+        if (!isLWorAF()) {
           return null;
         }
         const { currentUser } = context;
@@ -2102,8 +2108,8 @@ const schema = {
     graphql: {
       outputType: "Date",
       canRead: ["guests"],
-      canUpdate: isEAForum ? ['admins'] : ['sunshineRegiment', 'admins'],
-      canCreate: isEAForum ? ['admins'] : ['sunshineRegiment', 'admins'],
+      canUpdate: [adminOnlyOnEAForum],
+      canCreate: [adminOnlyOnEAForum],
       validation: {
         optional: true,
       },
@@ -2179,25 +2185,33 @@ const schema = {
       canRead: ["guests"],
       canUpdate: ["sunshineRegiment", "admins"],
       canCreate: ["members"],
-      ...(!requireReviewToFrontpagePostsSetting.get() && {
-        onCreate: ({ document: { isEvent, submitToFrontpage, draft } }) => eaFrontpageDateDefault(
+      onCreate: ({ document: { isEvent, submitToFrontpage, draft } }) => {
+        if (requireReviewToFrontpagePostsSetting.get()) {
+          return undefined;
+        }
+
+        return eaFrontpageDateDefault(
           isEvent ?? undefined,
           submitToFrontpage ?? undefined,
           draft ?? undefined,
-        ),
-        onUpdate: ({ data, oldDocument }) => {
-          if (oldDocument.draft && data.draft === false && !oldDocument.frontpageDate) {
-            return eaFrontpageDateDefault(
-              data.isEvent ?? oldDocument.isEvent,
-              data.submitToFrontpage ?? oldDocument.submitToFrontpage,
-              false,
-            );
-          }
-          // Setting frontpageDate to null is a special case that means "move to personal blog",
-          // if frontpageDate is actually undefined then we want to use the old value.
-          return data.frontpageDate === undefined ? oldDocument.frontpageDate : data.frontpageDate;
-        },
-      }),
+        );
+      },
+      onUpdate: ({ data, oldDocument }) => {
+        if (requireReviewToFrontpagePostsSetting.get()) {
+          return undefined;
+        }
+
+        if (oldDocument.draft && data.draft === false && !oldDocument.frontpageDate) {
+          return eaFrontpageDateDefault(
+            data.isEvent ?? oldDocument.isEvent,
+            data.submitToFrontpage ?? oldDocument.submitToFrontpage,
+            false,
+          );
+        }
+        // Setting frontpageDate to null is a special case that means "move to personal blog",
+        // if frontpageDate is actually undefined then we want to use the old value.
+        return data.frontpageDate === undefined ? oldDocument.frontpageDate : data.frontpageDate;
+      },
       validation: {
         optional: true,
       },
@@ -3027,8 +3041,8 @@ const schema = {
     graphql: {
       outputType: "String",
       canRead: ["guests"],
-      canUpdate: isEAForum ? ['admins'] : ['sunshineRegiment', 'admins'],
-      canCreate: isEAForum ? ['admins'] : ['sunshineRegiment', 'admins'],
+      canUpdate: [adminOnlyOnEAForum],
+      canCreate: [adminOnlyOnEAForum],
       validation: {
         optional: true,
       },
@@ -3480,7 +3494,7 @@ const schema = {
       canRead: ["guests"],
       resolver: async (post, _args, context) => {
         const { SideCommentCaches, Comments } = context;
-        if (!hasSideComments || isNotHostedHere(post)) {
+        if (!hasSideComments() || isNotHostedHere(post)) {
           return null;
         }
         // If the post was fetched with a SQL resolver then we will already
@@ -3634,7 +3648,7 @@ const schema = {
       canRead: ["guests"],
       resolver: ({ _id }, _, context) => {
         const { SideCommentCaches } = context;
-        if (!hasSideComments) {
+        if (!hasSideComments()) {
           return null;
         }
         return SideCommentCaches.findOne({
@@ -3642,18 +3656,17 @@ const schema = {
           version: sideCommentCacheVersion,
         });
       },
-      ...(hasSideComments && {
-        sqlResolver: ({field, join}) => join({
-          table: "SideCommentCaches",
-          type: "left",
-          on: {
-            postId: field("_id"),
-            version: `${sideCommentCacheVersion}`,
-          },
-          resolver: (sideCommentsField) => sideCommentsField("*"),
-        }),
-        sqlPostProcess: () => null,
+      sqlResolver: ({field, join}) => join({
+        table: "SideCommentCaches",
+        type: "left",
+        on: {
+          postId: field("_id"),
+          version: `${sideCommentCacheVersion}`,
+        },
+        resolver: (sideCommentsField) => sideCommentsField("*"),
       }),
+      skipSqlResolver: () => hasSideComments(),
+      sqlPostProcess: () => null,
     },
   },
   // This is basically deprecated. We now have them enabled by default
@@ -3830,7 +3843,7 @@ const schema = {
           deletedPublic: false,
           postedAt: { $gt: timeCutoff },
           ...(af ? { af: true } : {}),
-          ...(isLWorAF ? { userId: { $ne: reviewUserBotSetting.get() } } : {}),
+          ...(isLWorAF() ? { userId: { $ne: reviewUserBotSetting.get() } } : {}),
         };
         const comments = await getWithCustomLoader(context, loaderName, post._id, (postIds) => {
           return context.repos.comments.getRecentCommentsOnPosts(postIds, commentsLimit ?? 5, filter);
@@ -3961,7 +3974,7 @@ const schema = {
       canRead: ["guests"],
       resolver: async (post, _, context) => {
         const { extendedScore } = post;
-        if (!isEAForum || !extendedScore || Object.keys(extendedScore).length < 1 || "agreement" in extendedScore) {
+        if (!isEAForum() || !extendedScore || Object.keys(extendedScore).length < 1 || "agreement" in extendedScore) {
           return {};
         }
         const reactors = await context.repos.posts.getPostEmojiReactorsWithCache(post._id);
@@ -4366,7 +4379,7 @@ const schema = {
       outputType: "AutomatedContentEvaluation",
       canRead: ["sunshineRegiment", "admins"],
       resolver: async (post, args, context) => {
-        if (!isLWorAF) return null;
+        if (!isLWorAF()) return null;
         const {AutomatedContentEvaluations, Revisions} =  context;
         const revisionIds = (await Revisions.find({
           documentId: post._id,

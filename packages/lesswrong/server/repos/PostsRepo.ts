@@ -118,7 +118,7 @@ function constructFilteredScoreSql(filterSettings: FilterSettings): string {
   `;
   
   const timeDecayFactor = TIME_DECAY_FACTOR.get();
-  const ageOffset = isAF ? 6 : SCORE_BIAS;
+  const ageOffset = isAF() ? 6 : SCORE_BIAS;
   
   const timeDecayDenominatorSql = `
     POWER(
@@ -165,7 +165,7 @@ class PostsRepo extends AbstractRepo<"Posts"> {
   }
 
   async postRouteWillDefinitelyReturn200(id: string): Promise<boolean> {
-    const maybeRequireAF = isAF ? "AND af IS TRUE" : ""
+    const maybeRequireAF = isAF() ? "AND af IS TRUE" : ""
     const res = await this.getRawDb().oneOrNone<{exists: boolean}>(`
       -- PostsRepo.postRouteWillDefinitelyReturn200
       SELECT EXISTS(

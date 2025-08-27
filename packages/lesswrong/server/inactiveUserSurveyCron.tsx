@@ -12,7 +12,7 @@ import { backgroundTask } from './utils/backgroundTask';
  * Exported to allow running with "yarn repl".
  */
 export const sendInactiveUserSurveyEmails = async () => {
-  if (!isEAForum) return
+  if (!isEAForum()) return
   
   const logger = loggerConstructor(`cron-sendInactiveUserSurveyEmails`)
   

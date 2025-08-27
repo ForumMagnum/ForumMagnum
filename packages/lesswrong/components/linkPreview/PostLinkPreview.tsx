@@ -299,7 +299,7 @@ const PostLinkPreviewWithPost = ({href, post, id, className, children}: {
       post={post}
       hash={hash}
       placement="bottom-start"
-      clickable={!isFriendlyUI}
+      clickable={!isFriendlyUI()}
       As="span"
     >
       <Link className={classNames(classes.link, visited && "visited", className)} to={href} id={id} smooth>
@@ -331,7 +331,7 @@ const CommentLinkPreviewWithComment = ({href, comment, post, id, className, chil
       comment={comment}
       placement="bottom-start"
       As="span"
-      clickable={!isFriendlyUI}
+      clickable={!isFriendlyUI()}
     >
       <Link className={classNames(classes.link, className)} to={href} id={id}>
         {children}

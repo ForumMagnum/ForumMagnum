@@ -62,7 +62,7 @@ const EditorTopBar = ({accessLevel, collaborationMode, setCollaborationMode, pos
   const canEditOnlyBecauseAdmin = isAdmin && !accessLevelCan(accessLevel, "edit");
   const alwaysShownUserIds = [post.userId ?? '', ...(post.coauthorStatuses?.map(u=>u.userId) ?? [])]
 
-  if (isFriendlyUI && post.collabEditorDialogue) {
+  if (isFriendlyUI() && post.collabEditorDialogue) {
     return null;
   }
 

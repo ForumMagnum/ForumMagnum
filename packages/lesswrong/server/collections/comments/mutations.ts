@@ -113,7 +113,7 @@ export async function createComment({ data }: CreateCommentInput, context: Resol
   await trackCommentRateLimitHit(asyncProperties);
   await checkModGPTOnCommentCreate(asyncProperties);
 
-  if (isElasticEnabled) {
+  if (isElasticEnabled()) {
     backgroundTask(elasticSyncDocument('Comments', documentWithId._id));
   }
 
@@ -191,7 +191,7 @@ export async function updateComment({ selector, data }: UpdateCommentInput, cont
     props: updateCallbackProperties,
   });
 
-  if (isElasticEnabled) {
+  if (isElasticEnabled()) {
     backgroundTask(elasticSyncDocument('Comments', updatedDocument._id));
   }
 

@@ -1,4 +1,4 @@
-import { FLAGGED_FOR_N_DMS, MAX_ALLOWED_CONTACTS_BEFORE_BLOCK, MAX_ALLOWED_CONTACTS_BEFORE_FLAG } from "@/lib/collections/moderatorActions/constants";
+import { FLAGGED_FOR_N_DMS, getMaxAllowedContactsBeforeBlock, MAX_ALLOWED_CONTACTS_BEFORE_FLAG } from "@/lib/collections/moderatorActions/constants";
 import { loggerConstructor } from '../../lib/utils/logging';
 import { UpdateCallbackProperties } from '../mutationCallbacks';
 import { getAdminTeamAccount } from '../utils/adminTeamAccount';
@@ -80,9 +80,9 @@ export async function flagOrBlockUserOnManyDMs({
     selector: { _id: currentUser._id }
   }, createAnonymousContext()));
   
-  if (allUsersEverContacted.length > MAX_ALLOWED_CONTACTS_BEFORE_BLOCK && !currentUser.reviewedAt) {
+  if (allUsersEverContacted.length > getMaxAllowedContactsBeforeBlock() && !currentUser.reviewedAt) {
     logger('Blocking user')
-    throw new Error(`You cannot message more than ${MAX_ALLOWED_CONTACTS_BEFORE_BLOCK} users before your account has been reviewed. Please contact us if you'd like to message more people.`)
+    throw new Error(`You cannot message more than ${getMaxAllowedContactsBeforeBlock()} users before your account has been reviewed. Please contact us if you'd like to message more people.`)
   }
   
   logger('flagOrBlockUserOnManyDMs() return')

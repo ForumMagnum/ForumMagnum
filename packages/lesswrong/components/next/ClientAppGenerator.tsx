@@ -33,7 +33,15 @@ import { localeSetting } from '@/lib/instanceSettings';
 import { initClientOnce } from '@/client/initClient';
 import { useEffectOnce } from '@/components/hooks/useEffectOnce';
 
-initClientOnce();
+if (isClient) {
+  // This has a downstream call to `googleTagManagerIdSetting.get()`.
+  // Normally top-level calls to settings are prohibited because settings
+  // are scoped to a request depending on the host (i.e. lesswrong.com vs
+  // alignmentforum.org), but on the client we're getting them from the
+  // settings injected into the window by the root layout so it's fine.
+  // eslint-disable-next-line local/no-top-level-indirect-calls-to
+  initClientOnce();
+}
 
 const AppComponent = ({ children }: { children: React.ReactNode }) => {
   const locationContext = useRef<RouterLocation | null>(null);

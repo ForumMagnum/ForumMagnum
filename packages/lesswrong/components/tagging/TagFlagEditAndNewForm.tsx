@@ -1,4 +1,4 @@
-import { defaultEditorPlaceholder } from '@/lib/editor/defaultEditorPlaceholder';
+import { getDefaultEditorPlaceholder } from '@/lib/editor/defaultEditorPlaceholder';
 import Button from '@/lib/vendor/@material-ui/core/src/Button';
 import { DialogContent } from "@/components/widgets/DialogContent";
 import { DialogTitle } from "@/components/widgets/DialogTitle";
@@ -173,7 +173,7 @@ const TagFlagEditAndNewForm = ({ initialData, onClose }: {
                       verify: false,
                     };
                   }}
-                  hintText={defaultEditorPlaceholder}
+                  hintText={getDefaultEditorPlaceholder()}
                   fieldName="contents"
                   collectionName="TagFlags"
                   commentEditor={false}

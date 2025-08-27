@@ -75,8 +75,6 @@ export const highlightMarket = (info: AnnualReviewMarketInfo | undefined): boole
   !!info && !info.isResolved && info.probability > highlightReviewWinnerThresholdSetting.get()
 
 
-const manifoldAPIKey = manifoldAPIKeySetting.get()
-
 export const postGetMarketInfoFromManifold = async (post: DbPost): Promise<AnnualReviewMarketInfo | null > => {
   if (!post.manifoldReviewMarketId) return null;
 
@@ -99,6 +97,7 @@ export const postGetMarketInfoFromManifold = async (post: DbPost): Promise<Annua
 }
 
 export const createManifoldMarket = async (question: string, descriptionMarkdown: string, closeTime: Date, visibility: string, initialProb: number, idKey: string): Promise<LiteMarket | undefined> => {
+  const manifoldAPIKey = manifoldAPIKeySetting.get()
 
   //eslint-disable-next-line no-console
   if (!manifoldAPIKey) console.error("Manifold API key not found");

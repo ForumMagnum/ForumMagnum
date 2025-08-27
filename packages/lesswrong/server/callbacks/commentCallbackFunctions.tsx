@@ -439,7 +439,7 @@ const utils = {
       }
   
       // EAForum always sends an email when deleting comments. Other ForumMagnum sites send emails if the user has been approved, but not otherwise (so that admins can delete comments by mediocre users without sending them an email notification that might draw their attention back to the site.)
-      const noEmail = isEAForum
+      const noEmail = isEAForum()
       ? false 
       : !(!!commentUser?.reviewedByUserId && !commentUser.snoozedUntilContentCount)
   
@@ -481,7 +481,7 @@ const utils = {
     let messageContents = getRejectionMessage(rejectedContentLink, comment.rejectedReason)
     
     // EAForum always sends an email when deleting comments. Other ForumMagnum sites send emails if the user has been approved, but not otherwise (so that admins can reject comments by mediocre users without sending them an email notification that might draw their attention back to the site.)
-    const noEmail = isEAForum 
+    const noEmail = isEAForum() 
     ? false 
     : !(!!commentUser?.reviewedByUserId && !commentUser.snoozedUntilContentCount)
   
@@ -876,7 +876,7 @@ export async function checkModGPTOnCommentCreate({document, context}: AfterCreat
   // On the EA Forum, ModGPT checks earnest comments on posts for norm violations.
   // We skip comments by unreviewed authors, because those will be reviewed by a human.
   if (
-    !isEAForum ||
+    !isEAForum() ||
     !document.postId ||
     document.deleted ||
     document.deletedPublic ||
@@ -1093,7 +1093,7 @@ export async function checkModGPTOnCommentUpdate({oldDocument, newDocument, cont
   // On the EA Forum, ModGPT checks earnest comments on posts for norm violations.
   // We skip comments by unreviewed authors, because those will be reviewed by a human.
   if (
-    !isEAForum ||
+    !isEAForum() ||
     !newDocument.postId ||
     newDocument.deleted ||
     newDocument.deletedPublic ||

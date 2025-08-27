@@ -429,7 +429,6 @@ export const styles = defineStyles("LWPostsItem", (theme: ThemeType) => ({
   },
 }), { stylePriority: 1 });
 
-const cloudinaryCloudName = cloudinaryCloudNameSetting.get()
 export type PostsList2Props = PostsItemConfig;
 
 const LWPostsItem = (props: PostsItemConfig) => {
@@ -568,7 +567,7 @@ const LWPostsItem = (props: PostsItemConfig) => {
               {/* space in-between title and author if there is width remaining */}
               <span className={classes.spacer} />
 
-              {isLW && post.isEvent && post.rsvpCounts?.yes>=5 && <PostsItem2MetaInfo className={classes.rsvps}>
+              {isLW() && post.isEvent && post.rsvpCounts?.yes>=5 && <PostsItem2MetaInfo className={classes.rsvps}>
                 {post.rsvpCounts?.yes && <>
                   <ResponseIcon response="yes"/>
                   <span className={classes.rsvpCount}>{post.rsvpCounts.yes}</span>
@@ -640,7 +639,7 @@ const LWPostsItem = (props: PostsItemConfig) => {
               {resumeReading &&
                 <div className={classes.sequenceImage}>
                   <img className={classes.sequenceImageImg}
-                    src={`https://res.cloudinary.com/${cloudinaryCloudName}/image/upload/c_fill,dpr_2.0,g_custom,h_96,q_auto,w_292/v1/${
+                    src={`https://res.cloudinary.com/${cloudinaryCloudNameSetting.get()}/image/upload/c_fill,dpr_2.0,g_custom,h_96,q_auto,w_292/v1/${
                       resumeReading.sequence?.gridImageId
                         || resumeReading.collection?.gridImageId
                         || "sequences/vnyzzznenju0hzdv6pqb.jpg"

@@ -218,7 +218,7 @@ export const CommentsItemMeta = ({
     return `/reviewVoting/${year}`;
   }
 
-  const reviewingForReview = isEAForum && comment.reviewingForReview === "2020"
+  const reviewingForReview = isEAForum() && comment.reviewingForReview === "2020"
     ? "the Decade"
     : comment.reviewingForReview;
 
@@ -260,7 +260,7 @@ export const CommentsItemMeta = ({
       }
       {(showCollapseButtons || collapsed) &&
         <a className={classes.collapse} onClick={toggleCollapse}>
-          {isFriendlyUI
+          {isFriendlyUI()
             ? <ForumIcon icon="ThickChevronRight" className={classNames(
                 classes.collapseChevron, !collapsed && classes.collapseChevronOpen
               )} />
@@ -321,7 +321,7 @@ export const CommentsItemMeta = ({
             hoverable={true}
             key={tag._id}
             className={classes.relevantTag}
-            neverCoreStyling={isBookUI}
+            neverCoreStyling={isBookUI()}
             smallText
           />
         )}
@@ -333,9 +333,9 @@ export const CommentsItemMeta = ({
       </span>}
       <CommentPollVote comment={comment} />
 
-      {(rightSectionElements || isFriendlyUI || menuVisible) && <span className={classes.rightSection}>
+      {(rightSectionElements || isFriendlyUI() || menuVisible) && <span className={classes.rightSection}>
         {rightSectionElements}
-        {isFriendlyUI &&
+        {isFriendlyUI() &&
           <CommentLinkWrapper>
             <ForumIcon icon="Link" className={classNames(classes.linkIcon, {[classes.linkIconHighlighted]: highlightLinkIcon})} />
           </CommentLinkWrapper>

@@ -49,7 +49,7 @@ const UsersAccount = ({ classes }: { classes: ClassesType<typeof styles> }) => {
         {preferredHeadingCase("Account Settings")}
       </Typography>
       <UsersEditForm terms={terms} />
-      {hasAccountDeletionFlow && (
+      {hasAccountDeletionFlow() && (
         <>
           <Typography variant="display2" className={classes.header}>
             {preferredHeadingCase("Manage Account")}

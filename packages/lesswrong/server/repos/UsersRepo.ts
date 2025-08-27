@@ -547,7 +547,7 @@ class UsersRepo extends AbstractRepo<"Users"> {
   }
 
   async getCurationSubscribedUserIds(): Promise<string[]> {
-    const verifiedEmailFilter = !isEAForum ? 'AND fm_has_verified_email(emails)' : '';
+    const verifiedEmailFilter = !isEAForum() ? 'AND fm_has_verified_email(emails)' : '';
 
     const userIdRecords = await this.getRawDb().any<Record<'_id', string>>(`
       SELECT _id

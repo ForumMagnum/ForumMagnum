@@ -15,7 +15,7 @@ export const styles = defineStyles("KarmaChangeNotifier", (theme: ThemeType) => 
     zIndex: theme.zIndexes.karmaChangeNotifier,
   },
   starIcon: {
-    color: isFriendlyUI ? theme.palette.grey[600] : theme.palette.header.text,
+    color: theme.isFriendlyUI ? theme.palette.grey[600] : theme.palette.header.text,
     ...isIfAnyoneBuildsItFrontPage({
       color: theme.palette.text.bannerAdOverlay,
     }),
@@ -37,12 +37,12 @@ export const styles = defineStyles("KarmaChangeNotifier", (theme: ThemeType) => 
     textAlign: "right",
   },
   votedItemReacts: {
-    marginLeft: isEAForum ? 12 : 6,
+    marginLeft: isEAForum() ? 12 : 6,
   },
   individualAddedReact: {
-    color: isEAForum ? theme.palette.primary.main : undefined,
+    color: isEAForum() ? theme.palette.primary.main : undefined,
     marginLeft: 2,
-    marginRight: isEAForum ? 6 : undefined,
+    marginRight: isEAForum() ? 6 : undefined,
   },
   votedItemDescription: {
     display: "inline-block",

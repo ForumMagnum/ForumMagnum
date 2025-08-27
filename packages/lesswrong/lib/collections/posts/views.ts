@@ -17,7 +17,7 @@ import type { ApolloClient } from '@apollo/client';
 export const DEFAULT_LOW_KARMA_THRESHOLD = -10
 export const MAX_LOW_KARMA_THRESHOLD = -1000
 
-const eventBuffer = isEAForum
+const getEventBuffer = () => isEAForum()
   ? { startBuffer: 1, endBuffer: null }
   : { startBuffer: 6, endBuffer: 3 };
 
@@ -124,7 +124,7 @@ function defaultView(terms: PostsViewTerms, _: ApolloClient, context?: ResolverC
     {[`tagRelevance.${EA_FORUM_COMMUNITY_TOPIC_ID}`]: {$exists: false}},
   ]}
 
-  const alignmentForum = isAF ? {af: true} : {}
+  const alignmentForum = isAF() ? {af: true} : {}
   let params: any = {
     selector: {
       status: postStatuses.STATUS_APPROVED,
@@ -318,7 +318,7 @@ function filterSettingsToParams(filterSettings: FilterSettings, terms: PostsView
     t => (t.filterMode!=="Hidden" && t.filterMode!=="Required" && t.filterMode!=="Default" && t.filterMode!==0)
   );
 
-  const useSlowerFrontpage = !!context && ((!!context.currentUser && isEAForum) || visitorGetsDynamicFrontpage(context.currentUser ?? null));
+  const useSlowerFrontpage = !!context && ((!!context.currentUser && isEAForum()) || visitorGetsDynamicFrontpage(context.currentUser ?? null));
 
   const syntheticFields = {
     filteredScore: {$divide:[
@@ -425,7 +425,7 @@ const stickiesIndexPrefix = {
 
 function magic(terms: PostsViewTerms) {
   let selector = { isEvent: false };
-  if (isEAForum) {
+  if (isEAForum()) {
     selector = {
       ...selector,
       ...filters.nonSticky,
@@ -801,8 +801,8 @@ function reviewRecentDiscussionThreadsList2019(terms: PostsViewTerms) {
 
 function globalEvents(terms: PostsViewTerms) {
   const timeSelector = {$or: [
-    {startTime: {$gt: moment().subtract(eventBuffer.startBuffer).toDate()}},
-    {endTime: {$gt: moment().subtract(eventBuffer.endBuffer).toDate()}}
+    {startTime: {$gt: moment().subtract(getEventBuffer().startBuffer).toDate()}},
+    {endTime: {$gt: moment().subtract(getEventBuffer().endBuffer).toDate()}}
   ]}
   
   let onlineEventSelector: {} = terms.onlineEvent ? {onlineEvent: true} : {}
@@ -842,8 +842,8 @@ function globalEvents(terms: PostsViewTerms) {
 
 function nearbyEvents(terms: PostsViewTerms) {
   const timeSelector = {$or: [
-    {startTime: {$gt: moment().subtract(eventBuffer.startBuffer).toDate()}},
-    {endTime: {$gt: moment().subtract(eventBuffer.endBuffer).toDate()}}
+    {startTime: {$gt: moment().subtract(getEventBuffer().startBuffer).toDate()}},
+    {endTime: {$gt: moment().subtract(getEventBuffer().endBuffer).toDate()}}
   ]}
   
   let onlineEventSelector: {} = terms.onlineEvent ? {onlineEvent: true} : {}
@@ -899,8 +899,8 @@ function nearbyEvents(terms: PostsViewTerms) {
 function events(terms: PostsViewTerms) {
   const timeSelector = {
     $or: [
-      { startTime: { $gt: moment().subtract(eventBuffer.startBuffer, 'hours').toDate() } },
-      { endTime: { $gt: moment().subtract(eventBuffer.endBuffer, 'hours').toDate() } },
+      { startTime: { $gt: moment().subtract(getEventBuffer().startBuffer, 'hours').toDate() } },
+      { endTime: { $gt: moment().subtract(getEventBuffer().endBuffer, 'hours').toDate() } },
     ],
   };
   const twoMonthsAgo = moment().subtract(60, 'days').toDate();
@@ -955,7 +955,7 @@ function eventsInTimeRange(terms: PostsViewTerms) {
 }
 
 function upcomingEvents(terms: PostsViewTerms) {
-  const timeCutoff = moment().subtract(eventBuffer.startBuffer).toDate();
+  const timeCutoff = moment().subtract(getEventBuffer().startBuffer).toDate();
   
   return {
     selector: {
@@ -972,7 +972,7 @@ function upcomingEvents(terms: PostsViewTerms) {
 }
 
 function pastEvents(terms: PostsViewTerms) {
-  const timeCutoff = moment().subtract(eventBuffer.startBuffer).toDate();
+  const timeCutoff = moment().subtract(getEventBuffer().startBuffer).toDate();
   
   return {
     selector: {

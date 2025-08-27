@@ -3,7 +3,7 @@ import { registerComponent } from "../../lib/vulcan-lib/components";
 import { defineStyles, useStyles } from "../hooks/useStyles";
 import { submitButtonStyles } from "@/components/tanstack-form-components/TanStackSubmit";
 import Button from "@/lib/vendor/@material-ui/core/src/Button";
-import { defaultEditorPlaceholder } from '@/lib/editor/defaultEditorPlaceholder';
+import { getDefaultEditorPlaceholder } from '@/lib/editor/defaultEditorPlaceholder';
 import { useForm } from "@tanstack/react-form";
 import classNames from "classnames";
 import { getUpdatedFieldValues } from "@/components/tanstack-form-components/helpers";
@@ -152,7 +152,7 @@ const InnerForumEventForm = ({
                   verify: true,
                 };
               }}
-              hintText={defaultEditorPlaceholder}
+              hintText={getDefaultEditorPlaceholder()}
               fieldName="frontpageDescription"
               collectionName="ForumEvents"
               commentEditor={true}
@@ -179,7 +179,7 @@ const InnerForumEventForm = ({
                   verify: true,
                 };
               }}
-              hintText={defaultEditorPlaceholder}
+              hintText={getDefaultEditorPlaceholder()}
               fieldName="frontpageDescriptionMobile"
               collectionName="ForumEvents"
               commentEditor={true}
@@ -206,7 +206,7 @@ const InnerForumEventForm = ({
                   verify: true,
                 };
               }}
-              hintText={defaultEditorPlaceholder}
+              hintText={getDefaultEditorPlaceholder()}
               fieldName="postPageDescription"
               collectionName="ForumEvents"
               commentEditor={true}

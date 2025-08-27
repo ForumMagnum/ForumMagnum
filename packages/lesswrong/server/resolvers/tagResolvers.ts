@@ -389,7 +389,7 @@ function getParentTagId(documentId: string, lensesByTagId: Record<string, Partia
 }
 
 async function getDocumentDeletionsInTimeBlock({before, after, lensesByTagId, summariesByTagId, context}: GetDocumentDeletionsInTimeBlockArgs) {
-  if (!hasWikiLenses) {
+  if (!hasWikiLenses()) {
     return {};
   }
 

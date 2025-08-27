@@ -11,7 +11,7 @@ export default function PostPage() {
   return <>
     <RouteMetadataSetter metadata={{
       background: 'white',
-      noFooter: hasPostRecommendations,
+      noFooter: hasPostRecommendations(),
       titleComponent: PostsPageHeaderTitle
     }} />
     <PostsSingle />

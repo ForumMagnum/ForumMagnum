@@ -1,5 +1,5 @@
 import React, { useState, useCallback, useRef, useEffect, useContext } from 'react';
-import { debateEditorPlaceholder, defaultEditorPlaceholder, linkpostEditorPlaceholder, questionEditorPlaceholder } from '@/lib/editor/defaultEditorPlaceholder';
+import { debateEditorPlaceholder, getDefaultEditorPlaceholder, linkpostEditorPlaceholder, questionEditorPlaceholder } from '@/lib/editor/defaultEditorPlaceholder';
 import { getLSHandlers, getLSKeyPrefix } from '../editor/localStorageHandlers';
 import { userCanCreateCommitMessages, userHasPostAutosave } from '../../lib/betas';
 import { useCurrentUser } from '../common/withUser';
@@ -37,7 +37,7 @@ const getPostPlaceholder = (post: PostsBase) => {
   if (post.debate) return debateEditorPlaceholder; // note: this version of debates are deprecated in favor of post.collabEditorDialogue
   if (effectiveCategory === "question") return questionEditorPlaceholder;
   if (effectiveCategory === "linkpost") return linkpostEditorPlaceholder;
-  return defaultEditorPlaceholder;
+  return getDefaultEditorPlaceholder();
 };
 
 const definedStyles = defineStyles('EditorFormComponent', styles);
@@ -232,7 +232,7 @@ function InnerEditorFormComponent<S, R>({
     // We're currently skipping linkposts, since the linked post's author is
     // not always the same person posting it on the forum.
     if (
-      !isEAForum ||
+      !isEAForum() ||
       collectionName !== 'Posts' ||
       conflictingCardVisible ||
       document.isEvent ||

@@ -29,7 +29,7 @@ const MoveToAlignmentPostDropdownItem = ({post}: {post: PostsBase}) => {
   }
 
   if (
-    !isLWorAF ||
+    !isLWorAF() ||
     !userCanMakeAlignmentPost(currentUser, post)
   ) {
     return null;

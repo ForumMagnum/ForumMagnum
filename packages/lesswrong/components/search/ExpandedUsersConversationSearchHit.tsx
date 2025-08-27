@@ -91,7 +91,7 @@ const ExpandedUsersConversationSearchHit = ({
   return (
     <div className={classNames(className, classes.root)}>
       <div onClick={() => onSelect(user)} className={classes.link}>
-        {isFriendlyUI && (
+        {isFriendlyUI() && (
           <div className={classes.profilePhotoCol}>
             <UsersProfileImage user={user} size={36} />
           </div>

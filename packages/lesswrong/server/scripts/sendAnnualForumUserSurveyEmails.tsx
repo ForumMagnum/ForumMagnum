@@ -19,7 +19,7 @@ import { EmailAnnualForumUserSurvey } from './../emailComponents/EmailAnnualForu
  * Exported to allow running manually with "yarn repl"
  */
 export const sendUserSurveyEmails = async (limit=10) => {
-  if (!isEAForum) return
+  if (!isEAForum()) return
   
   const logger = loggerConstructor(`sendUserSurveyEmails`)
   

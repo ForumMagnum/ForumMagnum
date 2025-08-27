@@ -77,7 +77,7 @@ const BookmarksPage = ({ classes }: {
         onChange={handleChangeTab}
         className={classes.tabs}
       >
-        <Tab className={classes.tab} value='bookmarks' label={isFriendlyUI ? 'Saved' : 'Bookmarks'} />
+        <Tab className={classes.tab} value='bookmarks' label={isFriendlyUI() ? 'Saved' : 'Bookmarks'} />
         <Tab className={classes.tab} value='readhistory' label='Read History' />
         <Tab className={classes.tab} value='votehistory' label='Vote History' />
       </Tabs>

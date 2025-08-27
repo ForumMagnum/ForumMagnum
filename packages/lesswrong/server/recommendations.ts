@@ -81,7 +81,7 @@ const getInclusionSelector = (algorithm: DefaultRecommendationsAlgorithm) => {
   }
   // NOTE: this section is currently unused and should probably be removed -Ray
   if (algorithm.reviewReviews) {
-    if (isEAForum) {
+    if (isEAForum()) {
       return {
         postedAt: {$lt: new Date(`${(algorithm.reviewReviews as number) + 1}-01-01`)},
         positiveReviewVoteCount: {$gte: getPositiveVoteThreshold()}, // EA-forum look here
@@ -105,7 +105,7 @@ const getInclusionSelector = (algorithm: DefaultRecommendationsAlgorithm) => {
     }
   }
   if (algorithm.reviewNominations) {
-    if (isEAForum) {
+    if (isEAForum()) {
       return {postedAt: {$lt: new Date(`${(algorithm.reviewNominations as number) + 1}-01-01`)}}
     }
     return {
@@ -152,7 +152,7 @@ const recommendablePostFilter = (algorithm: DefaultRecommendationsAlgorithm) => 
     disableRecommendation: {$ne: true},
   }
 
-  if (isEAForum) {
+  if (isEAForum()) {
     recommendationFilter = {$and: [
       recommendationFilter,
       {$or: [

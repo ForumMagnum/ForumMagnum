@@ -234,7 +234,7 @@ const RecentDiscussionThread = ({
             </div>}
           </div>
           <div className={classNames(classes.threadMeta, {[classes.smallerMeta]: smallerFonts})} onClick={showHighlight}>
-            <PostsItemMeta post={post} hideTags={!isFriendlyUI}/>
+            <PostsItemMeta post={post} hideTags={!isFriendlyUI()}/>
           </div>
         </div>
         <div className={highlightClasses}>

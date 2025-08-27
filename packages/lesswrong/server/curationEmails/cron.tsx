@@ -1,5 +1,5 @@
 import React from "react";
-import { useCurationEmailsCron } from "../../lib/betas";
+import { usesCurationEmailsCron } from "../../lib/betas";
 import CurationEmails from "../../server/collections/curationEmails/collection";
 import { Posts } from "../../server/collections/posts/collection";
 import Users from "../../server/collections/users/collection";
@@ -16,7 +16,7 @@ import { executePromiseQueue } from "@/lib/utils/asyncUtils";
 
 export async function findUsersToEmail(filter: MongoSelector<DbUser>) {
   let usersMatchingFilter = await Users.find(filter).fetch();
-  if (isEAForum) {
+  if (isEAForum()) {
     return usersMatchingFilter
   }
 

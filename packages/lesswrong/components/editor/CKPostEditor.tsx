@@ -2,10 +2,10 @@ import React, { useRef, useState, useEffect, useContext } from 'react'
 import { ckEditorBundleVersion, getCkPostEditor } from '../../lib/wrapCkEditor';
 import { getCKEditorDocumentId, generateTokenRequest} from '../../lib/ckEditorUtils'
 import { CollaborativeEditingAccessLevel, accessLevelCan } from '../../lib/collections/posts/collabEditingPermissions';
-import { ckEditorUploadUrlSetting, ckEditorWebsocketUrlSetting, ckEditorUploadUrlOverrideSetting, ckEditorWebsocketUrlOverrideSetting, forumTypeSetting, isEAForum, isLWorAF } from '@/lib/instanceSettings';
+import { ckEditorUploadUrlSetting, ckEditorWebsocketUrlSetting, ckEditorUploadUrlOverrideSetting, ckEditorWebsocketUrlOverrideSetting, isEAForum, isLWorAF } from '@/lib/instanceSettings';
 import EditorTopBar, { CollaborationMode } from './EditorTopBar';
 import { useSubscribedLocation } from '../../lib/routeUtil';
-import { defaultEditorPlaceholder } from '@/lib/editor/defaultEditorPlaceholder';
+import { getDefaultEditorPlaceholder } from '@/lib/editor/defaultEditorPlaceholder';
 import { mentionPluginConfiguration } from "../../lib/editor/mentionsConfig";
 import { useCurrentUser } from '../common/withUser';
 import { useMessages } from '../common/withMessages';
@@ -325,7 +325,7 @@ export type ConnectedUserInfo = {
 
 const readOnlyPermissionsLock = Symbol("ckEditorReadOnlyPermissions");
 
-const postEditorToolbarConfig = {
+const getPostEditorToolbarConfig = () => ({
   blockToolbar: {
     items: [
       'imageUpload',
@@ -333,10 +333,10 @@ const postEditorToolbarConfig = {
       'horizontalLine',
       'mathDisplay',
       'mediaEmbed',
-      ...(isEAForum ? ['ctaButtonToolbarItem', 'pollToolbarItem'] : ['collapsibleSectionButton']),
-      //...(isLWorAF ? ['conditionallyVisibleSectionButton'] : []),
+      ...(isEAForum() ? ['ctaButtonToolbarItem', 'pollToolbarItem'] : ['collapsibleSectionButton']),
+      //...(isLWorAF() ? ['conditionallyVisibleSectionButton'] : []),
       'footnote',
-      ...(isLWorAF ? ['insertClaimButton'] : []),
+      ...(isLWorAF() ? ['insertClaimButton'] : []),
     ],
     
     /* At some point the default icon for the block toolbar changed from a
@@ -364,13 +364,13 @@ const postEditorToolbarConfig = {
       'math',
       // We don't have the collapsible sections plugin in the selected-text toolbar yet,
       // because the behavior of creating a collapsible section is non-obvious and we want to fix it first
-      ...(isEAForum ? ['ctaButtonToolbarItem', 'pollToolbarItem'] : []),
+      ...(isEAForum() ? ['ctaButtonToolbarItem', 'pollToolbarItem'] : []),
       'footnote',
-      ...(isLWorAF ? ['insertClaimButton'] : []),
+      ...(isLWorAF() ? ['insertClaimButton'] : []),
     ],
     shouldNotGroupWhenFull: true,
   },
-};
+});
 
 const CKPostEditor = ({
   data,
@@ -525,13 +525,13 @@ const CKPostEditor = ({
     collaborationModeRef.current = mode;
   }
 
-  const actualPlaceholder = placeholder ?? defaultEditorPlaceholder;
+  const actualPlaceholder = placeholder ?? getDefaultEditorPlaceholder();
 
   // This is AnyBecauseHard because it contains plugin-specific configs that are
   // added to the EditorConfig type via augmentations, but we don't get those
   // augmentations because we're only importing those in the CkEditor bundle.
   const editorConfig: AnyBecauseHard = {
-    ...postEditorToolbarConfig,
+    ...getPostEditorToolbarConfig,
     autosave: {
       save (editor: any) {
         return onSave && onSave(editor.getData())
@@ -728,7 +728,7 @@ const CKPostEditor = ({
       }}
       config={editorConfig}
     />}
-    {post.collabEditorDialogue && !isFriendlyUI ? <DialogueEditorFeedback post={post} /> : null}
+    {post.collabEditorDialogue && !isFriendlyUI() ? <DialogueEditorFeedback post={post} /> : null}
   </div>
 }
 

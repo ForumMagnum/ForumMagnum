@@ -28,8 +28,6 @@ const PostSideCommentsQuery = gql(`
   }
 `);
 
-const enableInlineReactsOnPosts = inlineReactsHoverEnabled;
-
 function useDisplayGlossary(post: PostsWithNavigation | PostsWithNavigationAndRevision| PostsListWithVotes) {
   const { captureEvent } = useTracking();
   const [showAllTerms, setShowAllTerms] = useState(false);
@@ -80,7 +78,7 @@ const PostBody = ({post, html, isOldVersion, voteProps}: {
   const sideItemVisibilityContext = useContext(SideItemVisibilityContext);
   const sideCommentMode= isOldVersion ? "hidden" : (sideItemVisibilityContext?.sideCommentMode ?? "hidden")
   const includeSideComments =
-    hasSideComments &&
+    hasSideComments() &&
     sideCommentMode &&
     sideCommentMode !== "hidden";
 
@@ -131,7 +129,7 @@ const PostBody = ({post, html, isOldVersion, voteProps}: {
     />
   }
   
-  if (enableInlineReactsOnPosts) {
+  if (inlineReactsHoverEnabled()) {
     return <InlineReactSelectionWrapper
       contentRef={contentRef}
       voteProps={voteProps}

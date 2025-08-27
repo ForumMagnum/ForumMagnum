@@ -93,8 +93,8 @@ export const DialogueSubmit = ({
 
   const submitWithoutConfirmation = () => formApi.setFieldValue('draft', false);
 
-  const requireConfirmation = isLW && !!document.debate;
-  const showShortformButton = !!userShortformId && !isFriendlyUI;
+  const requireConfirmation = isLW() && !!document.debate;
+  const showShortformButton = !!userShortformId && !isFriendlyUI();
 
   const onSubmitClick = requireConfirmation ? submitWithConfirmation : submitWithoutConfirmation;
   return (
@@ -140,7 +140,7 @@ export const DialogueSubmit = ({
         onClick={onSubmitClick}
         disabled={disabled}
         className={classNames("primary-form-submit-button", classes.formButton, classes.submitButton)}
-        {...(isFriendlyUI ? {
+        {...(isFriendlyUI() ? {
           variant: "contained",
           color: "primary",
         } : {})}

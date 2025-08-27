@@ -14,7 +14,7 @@ export default function ScrollToTop() {
   // I have disabled this for EAF because I think not-scrolling is a better default, and
   // specifically to support in-context comments. This will cause some subtle behavior differences
   // between EAF and other forums (e.g. changing filters on the allPosts page won't re-scroll to top)
-  const queryAsStr = isLWorAF && stringify(query);
+  const queryAsStr = isLWorAF() && stringify(query);
   
   useEffect(() => {
     // Skip scrolling to the top the first time this useEffect runs, because that's

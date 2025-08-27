@@ -2,7 +2,7 @@
 
 import React from 'react';
 import { useCurrentUser } from '../common/withUser';
-import { tagGetUrl, tagMinimumKarmaPermissions, tagUserHasSufficientKarma } from '../../lib/collections/tags/helpers';
+import { tagGetUrl, getTagMinimumKarmaPermissions, tagUserHasSufficientKarma } from '../../lib/collections/tags/helpers';
 import { isEAForum, taggingNameCapitalSetting, taggingNamePluralSetting } from '../../lib/instanceSettings';
 import { slugify } from '@/lib/utils/slugify';
 import { registerComponent } from "../../lib/vulcan-lib/components";
@@ -72,7 +72,7 @@ const NewTagPage = ({classes}: {classes: ClassesType<typeof styles>}) => {
         <SectionTitle title={`New ${taggingNameCapitalSetting.get()}`}/>
         <div>
           You do not have enough karma to define new {taggingNamePluralSetting.get()}. You must have
-          at least {tagMinimumKarmaPermissions.new} karma.
+          at least {getTagMinimumKarmaPermissions().new} karma.
         </div>
       </SingleColumnSection>
     );
@@ -110,7 +110,7 @@ const NewTagPage = ({classes}: {classes: ClassesType<typeof styles>}) => {
           }}
         />
       )}
-      {isEAForum &&
+      {isEAForum() &&
         <div className={classes.guide}>
           <NewTagInfoBox />
         </div>

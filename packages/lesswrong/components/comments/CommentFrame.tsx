@@ -184,7 +184,7 @@ const CommentFrame = ({
     isChild && classes.child,
     isNewComment && classes.new,
     comment.deleted && classes.deleted,
-    isFriendlyUI && showPinnedOnProfile && comment.isPinnedOnProfile && classes.isPinnedOnProfile,
+    isFriendlyUI() && showPinnedOnProfile && comment.isPinnedOnProfile && classes.isPinnedOnProfile,
     comment.answer && classes.isAnswer,
     isReplyToAnswer && classes.answerChildComment,
     isChild && isReplyToAnswer && classes.childAnswerComment,

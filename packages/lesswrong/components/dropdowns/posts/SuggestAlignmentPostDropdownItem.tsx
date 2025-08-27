@@ -24,7 +24,7 @@ const SuggestAlignmentPostDropdownItem = ({post}: {post: PostsBase}) => {
   const [updatePost] = useMutation(PostsListUpdateMutation);
 
   if (
-    !isLWorAF ||
+    !isLWorAF() ||
     !currentUser ||
     !userCanSuggestPostForAlignment({currentUser, post})
   ) {

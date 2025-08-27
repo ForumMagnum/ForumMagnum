@@ -82,8 +82,8 @@ const FeedPostCardMeta = ({post, className, classes}: {
   const authorExpandContainer = useRef(null);
   // TODO: Think about styling for events
 
-  const baseScore = (isAF ? post.afBaseScore : post.baseScore) ?? 0
-  const showAfScore = !isAF && post.af && !post.shortform && !post.isEvent;
+  const baseScore = (isAF() ? post.afBaseScore : post.baseScore) ?? 0
+  const showAfScore = !isAF() && post.af && !post.shortform && !post.isEvent;
   const afBaseScore = showAfScore ? post.afBaseScore : null
 
   const separatorElement = <span className={classes.dot}>·</span>

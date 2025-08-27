@@ -33,7 +33,7 @@ export const surveyResolversGraphQLQueries = {
     _args: void,
     {currentUser, clientId, headers, repos: {surveySchedules}}: ResolverContext,
   ): Promise<SurveyScheduleWithSurvey | null> {
-    if (!hasSurveys || !clientId) {
+    if (!hasSurveys() || !clientId) {
       return null;
     }
 

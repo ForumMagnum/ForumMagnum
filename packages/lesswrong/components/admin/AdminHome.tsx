@@ -71,12 +71,12 @@ const AdminHome = ({ classes }: {
 
       <h3>Site Admin</h3>
       <ul>
-        {isEAForum && <li><Link className={classes.link} to="/admin/election-candidates">Donation Election Candidates</Link></li>}
-        {hasDigests && <li><Link className={classes.link} to="/admin/digests">Digests</Link></li>}
-        {hasTwitterFeatures && <li><Link className={classes.link} to="/admin/twitter">Twitter tools</Link></li>}
+        {isEAForum() && <li><Link className={classes.link} to="/admin/election-candidates">Donation Election Candidates</Link></li>}
+        {hasDigests() && <li><Link className={classes.link} to="/admin/digests">Digests</Link></li>}
+        {hasTwitterFeatures() && <li><Link className={classes.link} to="/admin/twitter">Twitter tools</Link></li>}
         <li><Link className={classes.link} to="/spotlights">Spotlights</Link></li>
-        {hasSurveys && <li><Link className={classes.link} to="/admin/surveys">Surveys</Link></li>}
-        {hasForumEvents &&
+        {hasSurveys() && <li><Link className={classes.link} to="/admin/surveys">Surveys</Link></li>}
+        {hasForumEvents() &&
           <li><Link className={classes.link} to="/adminForumEvents">Forum events</Link></li>
         }
         <li><Link className={classes.link} to="/reviewAdmin">Review Admin (current year)</Link></li>

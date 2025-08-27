@@ -23,14 +23,14 @@ const defaultReviewerByForum: ForumOptions<string | null> = {
   EAForum: '9qZsZAzbC2zxsPHzN',    // JP
   default: null,
 }
-const defaultReviewer = forumSelect(defaultReviewerByForum)
+const defaultReviewer = () => forumSelect(defaultReviewerByForum)
 
 export default registerMigration({
   name: "guaranteedPostReviewer",
   dateWritten: "2020-11-12",
   idempotent: true,
   action: async () => {
-    if (!defaultReviewer) throw new Error("This migration requires a default reviewer")
+    if (!defaultReviewer()) throw new Error("This migration requires a default reviewer")
     await forEachDocumentBatchInCollection({
       collection: Posts,
       batchSize: 100,

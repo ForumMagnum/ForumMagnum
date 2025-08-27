@@ -1,4 +1,4 @@
-import { forumTypeSetting, isEAForum, verifyEmailsSetting, newUserIconKarmaThresholdSetting } from '@/lib/instanceSettings';
+import { isEAForum, verifyEmailsSetting, newUserIconKarmaThresholdSetting, isAF, isLW } from '@/lib/instanceSettings';
 import { combineUrls, getSiteUrl } from '../../vulcan-lib/utils';
 import { userOwns, userCanDo, userIsMemberOf, PermissionableUser } from '../../vulcan-users/permissions';
 import type { PermissionResult } from '../../make_voteable';
@@ -31,7 +31,7 @@ export const userGetDisplayName = (user: UserDisplayNameInfo | null): string => 
   if (!user) {
     return "";
   } else {
-    return (forumTypeSetting.get() === 'AlignmentForum'
+    return (isAF()
       ? (user.fullName || user.displayName) ?? ""
       : (user.displayName || getUserName(user)) ?? ""
     ).trim();
@@ -69,7 +69,7 @@ export const isNewUser = (user: UsersMinimumInfo): boolean => {
   // For the EA forum, return true if either:
   // 1. the user is below the karma threshold, or
   // 2. the user was created less than a week ago
-  if (isEAForum) {
+  if (isEAForum()) {
     return userBelowKarmaThreshold || userCreatedAt.getTime() > new Date().getTime() - oneWeekInMs;
   }
 
@@ -126,7 +126,7 @@ export const userCanEditUsersBannedUserIds = (currentUser: DbUser|null, targetUs
 const postHasModerationGuidelines = (
   post: PostsBase | PostsModerationGuidelines | DbPost,
 ): boolean => {
-  if (!hasAuthorModeration) {
+  if (!hasAuthorModeration()) {
     return false;
   }
   // Because of a bug in Vulcan that doesn't adequately deal with nested fields
@@ -390,7 +390,7 @@ export const userGetLocation = (currentUser: UsersCurrent|DbUser|null): {
 }
 
 export const userGetPostCount = (user: UsersMinimumInfo|DbUser): number => {
-  if (forumTypeSetting.get() === 'AlignmentForum') {
+  if (isAF()) {
     return user.afPostCount;
   } else {
     return user.postCount;
@@ -398,7 +398,7 @@ export const userGetPostCount = (user: UsersMinimumInfo|DbUser): number => {
 }
 
 export const userGetCommentCount = (user: UsersMinimumInfo|DbUser): number => {
-  if (forumTypeSetting.get() === 'AlignmentForum') {
+  if (isAF()) {
     return user.afCommentCount;
   } else {
     return user.commentCount;
@@ -431,7 +431,7 @@ const SHOW_NEW_USER_GUIDELINES_AFTER = new Date('10-07-2022');
 export const requireNewUserGuidelinesAck = (user: UsersCurrent) => {
   if (isE2E) return false;
   
-  if (forumTypeSetting.get() !== 'LessWrong') return false;
+  if (!isLW()) return false;
 
   const userCreatedAfterCutoff = user.createdAt
     ? new Date(user.createdAt) > SHOW_NEW_USER_GUIDELINES_AFTER
@@ -494,7 +494,7 @@ export const socialMediaSiteNameToHref = (
   : profileFieldToSocialMediaHref(`${siteName}ProfileURL`, userUrl);
 
 export const userShortformPostTitle = (user: Pick<DbUser, "displayName">) => {
-  const shortformName = isEAForum ? "Quick takes" : "Shortform";
+  const shortformName = isEAForum() ? "Quick takes" : "Shortform";
 
   // Emoji's aren't allowed in post titles, see `assertPostTitleHasNoEmojis`
   const displayNameWithoutEmojis = user.displayName?.replace(/\p{Extended_Pictographic}/gu, '');

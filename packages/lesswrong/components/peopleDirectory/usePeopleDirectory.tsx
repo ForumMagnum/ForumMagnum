@@ -2,7 +2,7 @@ import React, { ReactNode, createContext, useCallback, useContext, useEffect, us
 import { getSearchClient } from "../../lib/search/searchUtil";
 import { MultiSelectResult, MultiSelectState, useMultiSelect } from "../hooks/useMultiSelect";
 import { CAREER_STAGES, MULTISELECT_SUGGESTION_LIMIT } from "@/lib/collections/users/helpers";
-import { PeopleDirectoryColumn, peopleDirectoryColumns } from "./peopleDirectoryColumns";
+import { PeopleDirectoryColumn, getPeopleDirectoryColumns } from "./peopleDirectoryColumns";
 import { SearchableMultiSelectResult, useSearchableMultiSelect } from "../hooks/useSearchableMultiSelect";
 import { useSearchAnalytics } from "../search/useSearchAnalytics";
 import { captureException } from "@sentry/nextjs";
@@ -196,7 +196,7 @@ export const PeopleDirectoryProvider = ({children}: {children: ReactNode}) => {
     careerStages.selectedValues.length === 0 &&
     tags.selectedValues.length === 0;
 
-  const [columns, setColumns] = useState(peopleDirectoryColumns);
+  const [columns, setColumns] = useState(getPeopleDirectoryColumns());
   const [columnsEdited, setColumnsEdited] = useState(false);
   const toggleColumn = useCallback((columnLabel: string) => {
     setColumns((columns) => columns.map((column) => {
@@ -210,7 +210,7 @@ export const PeopleDirectoryProvider = ({children}: {children: ReactNode}) => {
     setColumnsEdited(true);
   }, []);
   const resetColumns = useCallback(() => {
-    setColumns(peopleDirectoryColumns);
+    setColumns(getPeopleDirectoryColumns());
     setColumnsEdited(false);
   }, []);
   const columnSelectState = useMemo(() => {

@@ -113,7 +113,7 @@ export const graphqlMutations = {
       throw new Error('Cannot change username without being logged in')
     }
     // Check they accepted the terms of use
-    if (isEAForum && !acceptedTos) {
+    if (isEAForum() && !acceptedTos) {
       throw new Error("You must accept the terms of use to continue");
     }
     // Only for new users. Existing users should need to contact support to

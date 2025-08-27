@@ -61,7 +61,7 @@ const styles = defineStyles("SubscribeDialog", (theme: ThemeType) => ({
   infoMsg: {},
 }));
 
-const thresholds = forumSelect({
+const getThresholds = () => forumSelect({
   LessWrong: [2, 30, 45, 75, 125],
   AlignmentForum: [2, 30, 45],
   EAForum: [2, 30, 75, 125, 200],
@@ -83,7 +83,7 @@ function timePerWeekFromPosts(posts: number) {
 }
 
 /** Posts per week as of May 2022 */
-const postsPerWeek = forumSelect<Record<string, number>>({
+const getPostsPerWeek = () => forumSelect<Record<string, number>>({
   EAForum: {
     '2': 119,
     '30': 24,
@@ -234,7 +234,7 @@ const SubscribeDialog = (props: {
       open={open}
       onClose={onClose}
     >
-      {isLWorAF && <Tabs
+      {isLWorAF() && <Tabs
         value={method}
         indicatorColor="primary"
         textColor="primary"
@@ -252,7 +252,7 @@ const SubscribeDialog = (props: {
 
           {(view === "community" || view === "frontpage") && <div>
             <DialogContentText>Generate a RSS link to posts in {viewNames[view]} of this karma and above.</DialogContentText>
-            {thresholds.map((t: AnyBecauseTodo) => t.toString()).map((radioThreshold: AnyBecauseTodo) =>
+            {getThresholds().map((t: AnyBecauseTodo) => t.toString()).map((radioThreshold: AnyBecauseTodo) =>
               <FormControlLabel
                 control={<Radio
                   value={radioThreshold}
@@ -267,8 +267,8 @@ const SubscribeDialog = (props: {
               />
             )}
             <DialogContentText className={classes.estimate}>
-              That's roughly { postsPerWeek[threshold] } posts per week
-              ({ timePerWeekFromPosts(postsPerWeek[threshold]) } of reading)
+              That's roughly { getPostsPerWeek()[threshold] } posts per week
+              ({ timePerWeekFromPosts(getPostsPerWeek()[threshold]) } of reading)
             </DialogContentText>
           </div>}
 
@@ -289,7 +289,7 @@ const SubscribeDialog = (props: {
               !emailFeedExists(view) && <DialogContentText key="dialogNoFeed" className={classes.errorMsg}>
                 Sorry, there's currently no email feed for {viewNames[view]}.
               </DialogContentText>,
-              subscribedByEmail && !userEmailAddressIsVerified(currentUser) && !isEAForum && <DialogContentText key="dialogCheckForVerification" className={classes.infoMsg}>
+              subscribedByEmail && !userEmailAddressIsVerified(currentUser) && !isEAForum() && <DialogContentText key="dialogCheckForVerification" className={classes.infoMsg}>
                 We need to confirm your email address. We sent a link to {getUserEmail(currentUser)}; click the link to activate your subscription.
               </DialogContentText>
             ]

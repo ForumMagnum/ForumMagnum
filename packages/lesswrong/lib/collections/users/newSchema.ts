@@ -7,7 +7,7 @@ import {
   karmaChangeUpdateFrequencies,
 } from "./helpers";
 import { userGetEditUrl } from "../../vulcan-users/helpers";
-import { userOwns, userIsAdmin, userHasntChangedName } from "../../vulcan-users/permissions";
+import { userOwns, userIsAdmin, userHasntChangedName, userIsMemberOf } from "../../vulcan-users/permissions";
 import { isAF, isEAForum } from "../../instanceSettings";
 import {
   accessFilterMultiple, arrayOfForeignKeysOnCreate, generateIdResolverMulti,
@@ -68,6 +68,10 @@ const ownsOrIsAdmin = (user: DbUser | null, document: any) => {
 
 const ownsOrIsMod = (user: DbUser | null, document: any) => {
   return userOwns(user, document) || userIsAdmin(user) || (user?.groups?.includes("sunshineRegiment") ?? false);
+};
+
+const canUpdateName = (user: DbUser | null) => {
+  return isEAForum() ? userIsMemberOf(user, 'members') : userHasntChangedName(user);
 };
 
 const DEFAULT_NOTIFICATION_GRAPHQL_OPTIONS = {
@@ -429,7 +433,7 @@ const schema = {
       outputType: "String!",
       canRead: ["guests"],
       // On the EA Forum name changing is rate limited in rateLimitCallbacks
-      canUpdate: ["sunshineRegiment", "admins", isEAForum ? 'members' : userHasntChangedName],
+      canUpdate: ["sunshineRegiment", "admins", canUpdateName],
       canCreate: ["sunshineRegiment", "admins"],
       onCreate: ({ document: user }) => {
         return user.displayName || createDisplayName(user);
@@ -1650,7 +1654,7 @@ const schema = {
     },
     graphql: {
       ...DEFAULT_NOTIFICATION_GRAPHQL_OPTIONS,
-      ...(isEAForum ? { onCreate: () => dailyEmailBatchNotificationSettingOnCreate } : {}),
+      onCreate: () => isEAForum() ? dailyEmailBatchNotificationSettingOnCreate : undefined,
     },
   },
   notificationShortformContent: {
@@ -1662,7 +1666,7 @@ const schema = {
     },
     graphql: {
       ...DEFAULT_NOTIFICATION_GRAPHQL_OPTIONS,
-      ...(isEAForum ? { onCreate: () => dailyEmailBatchNotificationSettingOnCreate } : {}),
+      onCreate: () => isEAForum() ? dailyEmailBatchNotificationSettingOnCreate : undefined,
     },
   },
   notificationRepliesToMyComments: {
@@ -1674,7 +1678,7 @@ const schema = {
     },
     graphql: {
       ...DEFAULT_NOTIFICATION_GRAPHQL_OPTIONS,
-      ...(isEAForum ? { onCreate: () => emailEnabledNotificationSettingOnCreate } : {}),
+      onCreate: () => isEAForum() ? emailEnabledNotificationSettingOnCreate : undefined,
     },
   },
   notificationRepliesToSubscribedComments: {
@@ -1686,7 +1690,7 @@ const schema = {
     },
     graphql: {
       ...DEFAULT_NOTIFICATION_GRAPHQL_OPTIONS,
-      ...(isEAForum ? { onCreate: () => dailyEmailBatchNotificationSettingOnCreate } : {}),
+      onCreate: () => isEAForum() ? dailyEmailBatchNotificationSettingOnCreate : undefined,
     },
   },
   notificationSubscribedUserPost: {
@@ -1698,7 +1702,7 @@ const schema = {
     },
     graphql: {
       ...DEFAULT_NOTIFICATION_GRAPHQL_OPTIONS,
-      ...(isEAForum ? { onCreate: () => dailyEmailBatchNotificationSettingOnCreate } : {}),
+      onCreate: () => isEAForum() ? dailyEmailBatchNotificationSettingOnCreate : undefined,
     },
   },
   notificationSubscribedUserComment: {
@@ -1710,7 +1714,7 @@ const schema = {
     },
     graphql: {
       ...DEFAULT_NOTIFICATION_GRAPHQL_OPTIONS,
-      ...(isEAForum ? { onCreate: () => dailyEmailBatchNotificationSettingOnCreate } : {}),
+      onCreate: () => isEAForum() ? dailyEmailBatchNotificationSettingOnCreate : undefined,
     },
   },
   notificationPostsInGroups: {
@@ -1785,7 +1789,7 @@ const schema = {
     },
     graphql: {
       ...DEFAULT_NOTIFICATION_GRAPHQL_OPTIONS,
-      ...(isEAForum ? { onCreate: () => emailEnabledNotificationSettingOnCreate } : {}),
+      onCreate: () => isEAForum() ? emailEnabledNotificationSettingOnCreate : undefined,
     },
   },
   notificationRSVPs: {
@@ -1845,7 +1849,7 @@ const schema = {
     },
     graphql: {
       ...DEFAULT_NOTIFICATION_GRAPHQL_OPTIONS,
-      ...(isEAForum ? { onCreate: () => emailEnabledNotificationSettingOnCreate } : {}),
+      onCreate: () => isEAForum() ? emailEnabledNotificationSettingOnCreate : undefined,
     },
   },
   notificationDialogueMessages: {
@@ -4235,7 +4239,7 @@ const schema = {
           startDate,
           endDate,
           nextBatchDate,
-          af: isAF,
+          af: isAF(),
           context,
         });
       },

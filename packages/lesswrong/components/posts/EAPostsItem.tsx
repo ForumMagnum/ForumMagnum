@@ -261,10 +261,11 @@ export const styles = (theme: ThemeType) => ({
   },
 });
 
-const cloudinaryBase = `${cloudinaryCloudNameSetting.get()}/image/upload/`;
 
-const formatImageUrl = (url: string) =>
-  url.replace(cloudinaryBase, `${cloudinaryBase}c_fill,w_${CARD_IMG_WIDTH},h_${CARD_IMG_HEIGHT},dpr_2,`);
+const formatImageUrl = (url: string) => {
+  const cloudinaryBase = `${cloudinaryCloudNameSetting.get()}/image/upload/`;
+  return url.replace(cloudinaryBase, `${cloudinaryBase}c_fill,w_${CARD_IMG_WIDTH},h_${CARD_IMG_HEIGHT},dpr_2,`);
+}
 
 export type EAPostsItemProps = PostsItemConfig & {
   openInNewTab?: boolean,

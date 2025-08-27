@@ -1,9 +1,11 @@
-import { isServer, isDevelopment, isAnyTest, isE2E } from './executionEnvironment';
+import { isServer, isDevelopment, isAnyTest, isE2E, isProduction } from './executionEnvironment';
 import { pluralize } from './vulcan-lib/pluralize';
 import startCase from 'lodash/startCase' // AKA: capitalize, titleCase
 import { TupleSet, UnionOf } from './utils/typeGuardUtils';
 import {initializeSetting} from './settingsCache'
 import { getInstanceSettings } from './getInstanceSettings';
+import { getIsolationScope } from '@sentry/nextjs';
+import { forumTypeSetting, isAF, isEAForum, isLW, isLWorAF } from '@/lib/forumTypeUtils';
 import type { FilterTag } from './filterSettings';
 import type { ReviewWinnerCategory, ReviewYear } from './reviewUtils';
 
@@ -116,12 +118,10 @@ class PublicInstanceSetting<SettingValueType> {
 
 export const allForumTypes = new TupleSet(["LessWrong","AlignmentForum","EAForum"] as const);
 export type ForumTypeString = UnionOf<typeof allForumTypes>;
-export const forumTypeSetting = new PublicInstanceSetting<ForumTypeString>('forumType', 'LessWrong', 'warning') // What type of Forum is being run, {LessWrong, AlignmentForum, EAForum}
+// export const forumTypeSetting = new PublicInstanceSetting<ForumTypeString>('forumType', 'LessWrong', 'warning') // What type of Forum is being run, {LessWrong, AlignmentForum, EAForum}
 
-export const isLW = forumTypeSetting.get() === "LessWrong"
-export const isEAForum = forumTypeSetting.get() === "EAForum"
-export const isAF = forumTypeSetting.get() === "AlignmentForum"
-export const isLWorAF = isLW || isAF
+// eslint-disable-next-line no-barrel-files/no-barrel-files
+export { forumTypeSetting, isLW, isEAForum, isAF, isLWorAF };
 
 export const forumTitleSetting = new PublicInstanceSetting<string>('title', 'LessWrong', 'warning') // Default title for URLs
 
@@ -139,7 +139,7 @@ export const taggingNameCapitalSetting = {get: () => startCase(taggingNameSettin
 export const taggingNamePluralSetting = {get: () => pluralize(taggingNameSetting.get())}
 export const taggingNamePluralCapitalSetting = {get: () => pluralize(startCase(taggingNameSetting.get()))}
 export const taggingNameIsSet = {get: () => taggingNameSetting.get() !== 'tag'}
-export const taggingNameIsPluralized = {get: () => !isLWorAF && taggingNameIsSet.get()};
+export const taggingNameIsPluralized = {get: () => !isLWorAF() && taggingNameIsSet.get()};
 export const taggingNameCapitalizedWithPluralizationChoice = { get: () => {
   if (taggingNameIsPluralized.get()) {
     return taggingNamePluralCapitalSetting.get();
@@ -222,7 +222,7 @@ export const tabLongTitleSetting = new PublicInstanceSetting<string | null>('for
 export const noIndexSetting = new PublicInstanceSetting<boolean>('noindex', false, "optional")
 
 /** Whether this forum verifies user emails */
-export const verifyEmailsSetting = new PublicInstanceSetting<boolean>("verifyEmails", !isEAForum, "optional");
+export const verifyEmailsSetting = new PublicInstanceSetting<boolean>("verifyEmails", true, "optional");
 
 export const hasCuratedPostsSetting = new PublicInstanceSetting<boolean>("hasCuratedPosts", false, "optional");
 
@@ -230,10 +230,10 @@ export const performanceMetricLoggingEnabled = new PublicInstanceSetting<boolean
 export const performanceMetricLoggingBatchSize = new PublicInstanceSetting<number>('performanceMetricLogging.batchSize', 100, "optional");
 export const performanceMetricLoggingSqlSampleRate = new PublicInstanceSetting<number>('performanceMetricLogging.sqlSampleRate', 0.05, "optional");
 
-export const hasSideCommentsSetting = new PublicInstanceSetting<boolean>("comments.sideCommentsEnabled", isLWorAF, "optional");
-export const hasCommentsTableOfContentSetting = new PublicInstanceSetting<boolean>("comments.tableOfContentsEnabled", isLWorAF, "optional");
+export const hasSideCommentsSetting = new PublicInstanceSetting<boolean>("comments.sideCommentsEnabled", true, "optional");
+export const hasCommentsTableOfContentSetting = new PublicInstanceSetting<boolean>("comments.tableOfContentsEnabled", true, "optional");
 export const hasDialoguesSetting = new PublicInstanceSetting<boolean>("dialogues.enabled", true, "optional");
-export const hasPostInlineReactionsSetting = new PublicInstanceSetting<boolean>("posts.inlineReactionsEnabled", isLWorAF, "optional");
+export const hasPostInlineReactionsSetting = new PublicInstanceSetting<boolean>("posts.inlineReactionsEnabled", true, "optional");
 
 const disableElastic = new PublicInstanceSetting<boolean>(
   "disableElastic",
@@ -241,9 +241,9 @@ const disableElastic = new PublicInstanceSetting<boolean>(
   "optional",
 );
 
-export const isElasticEnabled = !isAnyTest && !isE2E && !disableElastic.get();
+export const isElasticEnabled = () => !isAnyTest && !isE2E && !disableElastic.get();
 
-export const requireReviewToFrontpagePostsSetting = new PublicInstanceSetting<boolean>('posts.requireReviewToFrontpage', !isEAForum, "optional")
+export const requireReviewToFrontpagePostsSetting = new PublicInstanceSetting<boolean>('posts.requireReviewToFrontpage', true, "optional")
 export const eaFrontpageDateDefault = (
   isEvent?: boolean,
   submitToFrontpage?: boolean,
@@ -270,7 +270,7 @@ export const recombeeDatabaseIdSetting = new PublicInstanceSetting<string | null
 export const recombeePublicApiTokenSetting = new PublicInstanceSetting<string | null>('recombee.publicApiToken', null, "optional");
 export const recombeePrivateApiTokenSetting = new PublicInstanceSetting<string | null>('recombee.privateApiToken', null, "optional");
 
-export const isDatadogEnabled = isEAForum;
+export const isDatadogEnabled = () => isEAForum();
 
 export type PostFeedDetails = {
   name: string,
@@ -344,7 +344,7 @@ export const instanceDebuggersSetting = new PublicInstanceSetting<string[]>('ins
 /** Path of the certificate file *relative* to the instance settings file (so we don't have to store the full cert in instance settings) */
 export const sslCAFileSetting = new PublicInstanceSetting<string | null>(
   "analytics.caFilePath",
-  isEAForum ? "./certs/us-east-1-bundle.cer" : null,
+  null,
   "optional"
 );
 
@@ -532,12 +532,12 @@ export const recommendationsTabManuallyStickiedPostIdsSetting = new PublicInstan
 
 export const blackBarTitle = new PublicInstanceSetting<string | null>('blackBarTitle', null, "optional");
 
-export const quickTakesTagsEnabledSetting = new PublicInstanceSetting<boolean>('quickTakes.tagsEnabled', isEAForum, "optional");
+export const quickTakesTagsEnabledSetting = new PublicInstanceSetting<boolean>('quickTakes.tagsEnabled', false, "optional");
 
 export const vertexEnabledSetting = new PublicInstanceSetting<boolean>('googleVertex.enabled', false, "optional");
 
 /** Whether to show permalinked (?commentId=...) comments at the top of the page, vs scrolling to show them in context */
-export const commentPermalinkStyleSetting = new PublicInstanceSetting<'top' | 'in-context'>('commentPermalinkStyle', isEAForum ? 'in-context' : 'top', "optional");
+export const commentPermalinkStyleSetting = new PublicInstanceSetting<'top' | 'in-context'>('commentPermalinkStyle', 'top', "optional");
 
 export const userIdsWithAccessToLlmChat = new PublicInstanceSetting<string[]>('llmChat.userIds', [], "optional");
 

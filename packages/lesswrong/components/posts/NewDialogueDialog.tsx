@@ -113,7 +113,7 @@ const NewDialogueDialog = ({initialParticipantIds, onClose, classes}: {
     }
   }
 
-  const ButtonComponent = isFriendlyUI ? EAButton : Button;
+  const ButtonComponent = isFriendlyUI() ? EAButton : Button;
   return <LWDialog
     open={true}
     onClose={onClose}

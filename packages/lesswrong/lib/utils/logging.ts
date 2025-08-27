@@ -19,8 +19,6 @@
 import util from 'util'
 import { instanceDebuggersSetting, databaseDebuggersSetting } from '../instanceSettings'
 
-const instanceDebuggers = instanceDebuggersSetting.get()
-
 type Logger = (...args: any[]) => void
 
 const manuallyEnabledDebuggers: string[] = []
@@ -28,7 +26,7 @@ const manuallyEnabledDebuggers: string[] = []
 const scopeIsActive = (scope: string): boolean => {
   // We only need to re-check the cache for database settings. Changing instance
   // settings requires a rebuild
-  if (databaseDebuggersSetting.get().includes(scope) || instanceDebuggers.includes(scope) || manuallyEnabledDebuggers.includes(scope)) {
+  if (databaseDebuggersSetting.get().includes(scope) || instanceDebuggersSetting.get().includes(scope) || manuallyEnabledDebuggers.includes(scope)) {
     return true
   }
   return false

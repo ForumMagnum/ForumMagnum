@@ -6,7 +6,6 @@ import { useCurrentUser } from '../common/withUser';
 import CKEditor from '@/lib/vendor/ckeditor5-react/ckeditor';
 import { getCkPostEditor, getCkCommentEditor } from '@/lib/wrapCkEditor';
 import { ckEditorStyles } from '@/themes/stylePiping';
-import { forumTypeSetting } from '@/lib/instanceSettings';
 import classNames from 'classnames';
 import { useMessages } from '../common/withMessages';
 import ContentStyles from "../common/ContentStyles";

@@ -51,7 +51,7 @@ const styles = defineStyles("EmailComment", (theme: ThemeType) => ({
     textDecoration: "none",
     fontWeight: "normal",
     fontFamily: theme.typography.headerStyle.fontFamily,
-    ...(isFriendlyUI ? {
+    ...(theme.isFriendlyUI ? {
       fontSize: "2.0rem",
       fontWeight: 500,
       lineHeight: '1.25em'

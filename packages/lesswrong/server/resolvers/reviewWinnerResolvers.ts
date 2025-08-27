@@ -8,7 +8,7 @@ import { backgroundTask } from "../utils/backgroundTask";
 
 
 export async function initReviewWinnerCache() {
-  if (isLWorAF) {
+  if (isLWorAF()) {
     const context = createAnonymousContext();
     backgroundTask(reviewWinnerCache.get(context));
     backgroundTask(splashArtCoordinateCache.get(context));

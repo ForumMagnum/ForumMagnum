@@ -3,7 +3,7 @@ import { defineStyles } from '../hooks/useStyles';
 
 export const linkStyles = defineStyles("LinkStyles", (theme: ThemeType) => ({
   link: {
-    ...(visitedLinksHaveFilledInCircle
+    ...(visitedLinksHaveFilledInCircle()
       ? {
         '&:after': {
           content: '""',
@@ -55,7 +55,7 @@ export const linkStyles = defineStyles("LinkStyles", (theme: ThemeType) => ({
     )
   },
   redLink: {
-    ...(visitedLinksHaveFilledInCircle ? {
+    ...(visitedLinksHaveFilledInCircle() ? {
       color: `${theme.palette.error.main} !important`,
       '&:after': {
         border: `1.2px solid ${theme.palette.error.main}`,

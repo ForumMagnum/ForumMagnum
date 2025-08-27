@@ -8,7 +8,7 @@ import { EditablePost } from '@/lib/collections/posts/helpers';
 import { useForm } from '@tanstack/react-form';
 import { EditorFormComponent, useEditorFormCallbacks } from '@/components/editor/EditorFormComponent';
 import { getUpdatedFieldValues } from '@/components/tanstack-form-components/helpers';
-import { defaultEditorPlaceholder } from '@/lib/editor/defaultEditorPlaceholder';
+import { getDefaultEditorPlaceholder } from '@/lib/editor/defaultEditorPlaceholder';
 import { FormComponentSelect } from '@/components/form-components/FormComponentSelect';
 import { MODERATION_GUIDELINES_OPTIONS } from '@/lib/collections/posts/constants';
 import { defineStyles, useStyles } from '@/components/hooks/useStyles';
@@ -154,7 +154,7 @@ const PostModerationGuidelinesForm = ({
             document={form.state.values}
             addOnSubmitCallback={addOnSubmitCallback}
             addOnSuccessCallback={addOnSuccessCallback}
-            hintText={defaultEditorPlaceholder}
+            hintText={getDefaultEditorPlaceholder()}
             fieldName="moderationGuidelines"
             collectionName="Posts"
             commentEditor={true}

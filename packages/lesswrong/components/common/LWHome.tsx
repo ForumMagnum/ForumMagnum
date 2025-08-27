@@ -42,14 +42,14 @@ const getStructuredData = () => ({
     "@type": "WebPage",
     "@id": `${getSiteUrl()}`,
   },
-  ...(isLW && {
+  ...(isLW() && {
     "description": [
       "LessWrong is an online forum and community dedicated to improving human reasoning and decision-making.", 
       "We seek to hold true beliefs and to be effective at accomplishing our goals.", 
       "Each day, we aim to be less wrong about the world than the day before."
     ].join(' ')
   }),
-  ...(isAF && {
+  ...(isAF() && {
     "description": [
       "The Alignment Forum is a single online hub for researchers to discuss all ideas related to ensuring that transformatively powerful AIs are aligned with human values.", 
       "Discussion ranges from technical models of agency to the strategic landscape, and everything in between."

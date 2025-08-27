@@ -76,7 +76,7 @@ const UserRateLimitModerationLogQuery = gql(`
   }
 `);
 
-const shouldShowEndUserModerationToNonMods = forumSelect({
+const shouldShowEndUserModerationToNonMods = () => forumSelect({
   EAForum: false,
   LessWrong: true,
   AlignmentForum: true,
@@ -303,7 +303,7 @@ const ModerationLog = ({classes}: {
   classes: ClassesType<typeof styles>
 }) => {
   const currentUser = useCurrentUser()
-  const shouldShowEndUserModeration = (currentUser && isMod(currentUser)) || shouldShowEndUserModerationToNonMods;
+  const shouldShowEndUserModeration = (currentUser && isMod(currentUser)) || shouldShowEndUserModerationToNonMods();
 
   const {
     data: deletedCommentsData,

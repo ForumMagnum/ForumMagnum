@@ -18,18 +18,18 @@ export type SiteUIStyle = "book" | "friendly";
  * hinge on this setting, making a bit like a, "which tribe are you" question,
  * in addition to controlling the basic UI style.
  */
-export const siteUIStyle = forumSelect<SiteUIStyle>({
+const getSiteUIStyle = (): SiteUIStyle => forumSelect<SiteUIStyle>({
   LWAF: "book",
   EAForum: "friendly",
   default: "friendly",
 })
-export const isBookUI = siteUIStyle === "book";
-export const isFriendlyUI = siteUIStyle === "friendly";
+export const isBookUI = () => getSiteUIStyle() === "book";
+export const isFriendlyUI = () => getSiteUIStyle() === "friendly";
 
 type StyleOptions<T> = (Record<SiteUIStyle, T> & Partial<Record<"default", T>>) | (Partial<Record<SiteUIStyle, T>> & Record<"default", T>);
 
 export function styleSelect<T>(styleOptions: StyleOptions<T>, uiStyle?: SiteUIStyle): T {
-  uiStyle ??= siteUIStyle;
+  uiStyle ??= getSiteUIStyle();
 
   const value = styleOptions[uiStyle];
   if (value) return value;
@@ -95,4 +95,4 @@ const buildTheme = (
  * Convert heading to sentence case in Friendly UI sites, leave as is on LW (will usually be "start case" e.g. "Set Topics").
  * In the event of edge cases (e.g. "EA Forum" -> "Ea forum"), it's probably best to do an inline forumTypeSetting check
  */
-export const preferredHeadingCase = isFriendlyUI ? capitalize : (s: string) => s;
+export const preferredHeadingCase = (input: string) => isFriendlyUI() ? capitalize(input) : input;

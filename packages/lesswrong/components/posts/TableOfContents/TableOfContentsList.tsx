@@ -59,7 +59,7 @@ const TableOfContentsList = ({tocSections, title, onClickSection, displayOptions
       });
 
       // This is forum-gating of a fairly subtle change in scroll behaviour, LW may want to adopt scrollFocusOnElement
-      if (!isLWorAF) {
+      if (!isLWorAF()) {
         scrollFocusOnElement({ id: anchor, options: {behavior: "smooth"}})
       } else {
         let sectionYdocumentSpace = anchorY + window.scrollY;

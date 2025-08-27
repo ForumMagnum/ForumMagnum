@@ -124,13 +124,13 @@ const UsersMenu = ({classes}: {
     return <div className={classes.root}>
       <Button href='/logout' classes={{root: classes.userButtonRoot}}>
         <span className={classes.userButtonContents}>
-          {isFriendlyUI ? "Log out" : "LOG OUT"}
+          {isFriendlyUI() ? "Log out" : "LOG OUT"}
         </span>
       </Button>
     </div>
   }
   
-  const showNewButtons = (!isAF || userCanDo(currentUser, 'posts.alignment.new')) && !currentUser.deleted
+  const showNewButtons = (!isAF() || userCanDo(currentUser, 'posts.alignment.new')) && !currentUser.deleted
   const isAfMember = currentUser.groups && currentUser.groups.includes('alignmentForum')
   // By default, we show the user's display name as the menu button.
   let userButtonNode = <span className={classes.userButtonContents}>
@@ -144,10 +144,10 @@ const UsersMenu = ({classes}: {
     </div>}>
       <span className={classes.deactivated}>[Deactivated]</span>
     </LWTooltip>}
-    {isAF && !isAfMember && <span className={classes.notAMember}> (Not a Member) </span>}
+    {isAF() && !isAfMember && <span className={classes.notAMember}> (Not a Member) </span>}
   </span>
   // On the EA Forum, if the user isn't deactivated, we instead show their profile image and a little arrow.
-  if (isFriendlyUI && !currentUser.deleted) {
+  if (isFriendlyUI() && !currentUser.deleted) {
     userButtonNode = <div className={classes.userImageButton}>
       <UsersProfileImage user={currentUser} size={32} />
       <ForumIcon icon="ThickChevronDown" className={classes.arrowIcon} />
@@ -165,7 +165,7 @@ const UsersMenu = ({classes}: {
   
   const profileNode =
     !currentUser.deleted &&
-    (isFriendlyUI ? (
+    (isFriendlyUI() ? (
       <>
         <DropdownItem
           title={
@@ -200,7 +200,7 @@ const UsersMenu = ({classes}: {
   />
   
   const canCreateDialogue = userCanPost(currentUser)
-    && dialoguesEnabled
+    && dialoguesEnabled()
     && userOverNKarmaOrApproved(MINIMUM_COAUTHOR_KARMA)(currentUser)
 
   const items = {
@@ -279,13 +279,13 @@ const UsersMenu = ({classes}: {
         : null,
   } as const;
 
-  const hasBookmarks = isEAForum || currentUser?.hasAnyBookmarks;
+  const hasBookmarks = isEAForum() || currentUser?.hasAnyBookmarks;
 
-  const order: (keyof typeof items)[] = isFriendlyUI
+  const order: (keyof typeof items)[] = isFriendlyUI()
     ? ["newPost", "newShortform", "divider", "newEvent", "newDialogue", "newSequence"]
     : ["newShortform", "newPost", "newWikitag", "newEvent"];
 
-  const writeNewNode = isFriendlyUI ? (
+  const writeNewNode = isFriendlyUI() ? (
     <InteractionWrapper>
       <LWTooltip
         title={
@@ -346,12 +346,12 @@ const UsersMenu = ({classes}: {
                 forceUnHover();
               }}
             >
-              {isFriendlyUI && profileNode}
+              {isFriendlyUI() && profileNode}
               {writeNewNode}
 
-              {!isFriendlyUI && <DropdownDivider />}
+              {!isFriendlyUI() && <DropdownDivider />}
 
-              {isAF && !isAfMember &&
+              {isAF() && !isAfMember &&
                 <DropdownItem
                   title={preferredHeadingCase("Apply for Membership")}
                   onClick={() => {
@@ -376,8 +376,8 @@ const UsersMenu = ({classes}: {
                   }
                 />
               }
-              {!isFriendlyUI && profileNode}
-              {!isEAForum &&
+              {!isFriendlyUI() && profileNode}
+              {!isEAForum() &&
                 <DropdownItem
                   title={preferredHeadingCase("My Drafts")}
                   to="/drafts"
@@ -385,7 +385,7 @@ const UsersMenu = ({classes}: {
                   iconClassName={classes.icon}
                 />
               }
-              {!isFriendlyUI && messagesNode}
+              {!isFriendlyUI() && messagesNode}
               {userHasThemePicker(currentUser) &&
                 <ThemePickerMenu>
                   <DropdownItem
@@ -406,7 +406,7 @@ const UsersMenu = ({classes}: {
                 icon={styleSelect({friendly: "BookmarkBorder", default: "Bookmarks"})}
                 iconClassName={classes.icon}
               />}
-              {isEAForum && <DropdownItem
+              {isEAForum() && <DropdownItem
                 title={"Post stats"}
                 to={userGetAnalyticsUrl(currentUser)}
                 icon="BarChart"

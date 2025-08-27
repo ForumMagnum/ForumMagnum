@@ -5,7 +5,7 @@ import { useQuery } from "@/lib/crud/useQuery";
 import { gql } from '@/lib/generated/gql-codegen';
 import { useCurrentUserId } from '../common/withUser';
 import { useTracking, useOnMountTracking } from "../../lib/analyticsEvents";
-import { contentTypes } from '../posts/PostsPage/ContentType';
+import { getContentTypes } from '../posts/PostsPage/ContentType';
 import FooterTag, { tagStyle, smallTagTextStyle } from './FooterTag';
 import classNames from 'classnames';
 import { Card } from "@/components/widgets/Paper";
@@ -242,7 +242,7 @@ const FooterTagList = ({
     eventProps: {tagIds},
     captureOnMount: eventProps => eventProps.tagIds.length > 0,
     // LW doesn't get a lot of use out of `tagListMounted` events and there are a lot of them
-    skip: isLWorAF || !tagIds.length || loading
+    skip: isLWorAF() || !tagIds.length || loading
   });
 
   // The fragment in this mutation must match the query above
@@ -286,7 +286,7 @@ const FooterTagList = ({
     }
   }
 
-  const contentTypeInfo = forumSelect(contentTypes);
+  const contentTypeInfo = forumSelect(getContentTypes());
 
   const PostTypeTag = useCallback(({tooltipBody, label, neverCoreStyling}: {
     tooltipBody: ReactNode,
@@ -379,7 +379,7 @@ const FooterTagList = ({
       )}
       {!hidePostTypeTag && postType}
       {eventTag}
-      {isLWorAF && annualReviewMarketInfo && isRecent && (
+      {isLWorAF() && annualReviewMarketInfo && isRecent && (
         <PostsAnnualReviewMarketTag annualReviewMarketInfo={annualReviewMarketInfo} />
       )}
       {tagRight && currentUserId && !hideAddTag && addTagButton}

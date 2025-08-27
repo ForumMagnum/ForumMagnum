@@ -1,5 +1,5 @@
-import { userIsSubforumModerator, TAG_POSTS_SORT_ORDER_OPTIONS } from "@/lib/collections/tags/helpers";
-import { defaultEditorPlaceholder } from '@/lib/editor/defaultEditorPlaceholder';
+import { userIsSubforumModerator, getTagPostsSortOrderOptions } from "@/lib/collections/tags/helpers";
+import { getDefaultEditorPlaceholder } from '@/lib/editor/defaultEditorPlaceholder';
 import { isEAForum, isLW, isLWorAF } from "@/lib/instanceSettings";
 import Button from "@/lib/vendor/@material-ui/core/src/Button";
 import { userIsAdmin, userIsAdminOrMod } from "@/lib/vulcan-users/permissions";
@@ -58,7 +58,7 @@ const formStyles = defineStyles('TagForm', (theme: ThemeType) => ({
 function showWikiOnlyField(currentUser: UsersCurrent | null, formType: 'new' | 'edit') {
   // LessWrong shows this field on the new tag form, but EA Forum does not
   if (formType === 'new') {
-    return isLW || userIsAdminOrMod(currentUser);
+    return isLW() || userIsAdminOrMod(currentUser);
   }
 
   return userIsAdminOrMod(currentUser);
@@ -73,7 +73,7 @@ type ShowSubforumWelcomeTextFieldProps = {
 });
 
 function showSubforumWelcomeTextField({ currentUser, editingTag }: ShowSubforumWelcomeTextFieldProps) {
-  if (!isEAForum) {
+  if (!isEAForum()) {
     return false;
   }
 
@@ -231,7 +231,7 @@ export const TagForm = ({
                 };
               }}
               revisionsHaveCommitMessages={true}
-              hintText={defaultEditorPlaceholder}
+              hintText={getDefaultEditorPlaceholder()}
               fieldName="description"
               collectionName="Tags"
               commentEditor={false}
@@ -288,7 +288,7 @@ export const TagForm = ({
             </form.Field>
           </div>
 
-          {isEAForum && <div className={classes.fieldWrapper}>
+          {isEAForum() && <div className={classes.fieldWrapper}>
             <form.Field name="isPostType">
               {(field) => (
                 <FormComponentCheckbox
@@ -405,7 +405,7 @@ export const TagForm = ({
             </form.Field>
           </div>}
 
-          {isEAForum && <div className={classes.fieldWrapper}>
+          {isEAForum() && <div className={classes.fieldWrapper}>
             <form.Field name="bannerImageId">
               {(field) => (
                 <LWTooltip title="Minimum 200x600 px" placement="left-start" inlineBlock={false}>
@@ -418,7 +418,7 @@ export const TagForm = ({
             </form.Field>
           </div>}
 
-          {isEAForum && <div className={classes.fieldWrapper}>
+          {isEAForum() && <div className={classes.fieldWrapper}>
             <form.Field name="squareImageId">
               {(field) => (
                 <LWTooltip title="Minimum 200x200 px" placement="left-start" inlineBlock={false}>
@@ -447,7 +447,7 @@ export const TagForm = ({
               {(field) => (
                 <FormComponentSelect
                   field={field}
-                  options={Object.entries(TAG_POSTS_SORT_ORDER_OPTIONS).map(([key, val]) => ({
+                  options={Object.entries(getTagPostsSortOrderOptions()).map(([key, val]) => ({
                     value: key,
                     label: val.label,
                   }))}
@@ -587,7 +587,7 @@ export const TagForm = ({
                   document={form.state.values}
                   addOnSubmitCallback={addOnSubmitCallback}
                   addOnSuccessCallback={addOnSuccessCallback}
-                  hintText={defaultEditorPlaceholder}
+                  hintText={getDefaultEditorPlaceholder()}
                   fieldName="subforumWelcomeText"
                   collectionName="Tags"
                   commentEditor={false}
@@ -600,7 +600,7 @@ export const TagForm = ({
         </LegacyFormGroupLayout>
       )}
 
-      {initialData && isLWorAF && <LegacyFormGroupLayout label="Summaries" startCollapsed={true}>
+      {initialData && isLWorAF() && <LegacyFormGroupLayout label="Summaries" startCollapsed={true}>
         <div className={classes.fieldWrapper}>
           {/* <form.Field name="summaries">
             {() => ( */}

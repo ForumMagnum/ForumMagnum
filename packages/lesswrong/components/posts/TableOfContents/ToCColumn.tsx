@@ -166,7 +166,7 @@ export const ToCColumn = ({
     shouldHideToggleContentsButton,
   );
   const [hidden, setHidden] = useState(false);
-  const hideable = isFriendlyUI && !notHideable && !!tableOfContents;
+  const hideable = isFriendlyUI() && !notHideable && !!tableOfContents;
 
   useEffect(() => {
     const handler = () => setHideTocButtonHidden(

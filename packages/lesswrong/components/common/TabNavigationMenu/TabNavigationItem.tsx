@@ -13,7 +13,7 @@ import { MenuItemLink } from "../Menus";
 
 export const iconWidth = 30
 
-const iconTransform = forumSelect({
+const getIconTransform = () => forumSelect({
   LessWrong: "scale(0.8)",
   EAForum: "scale(0.7)",
   default: undefined,
@@ -83,7 +83,7 @@ const styles = (theme: ThemeType) => ({
     "& svg": {
       fill: theme.isFriendlyUI ? undefined : "currentColor",
       color: theme.isFriendlyUI ? undefined : theme.palette.icon.navigationSidebarIcon,
-      transform: iconTransform,
+      transform: getIconTransform(),
     },
     ...(theme.isFriendlyUI && {
       opacity: 1,

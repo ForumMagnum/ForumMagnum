@@ -6,7 +6,7 @@ import isEmpty from 'lodash/isEmpty';
 import qs from 'qs'
 import { commentsTableOfContentsEnabled } from '../../lib/betas';
 import classNames from 'classnames';
-import { forumTypeSetting } from '@/lib/instanceSettings';
+import { isAF } from '@/lib/instanceSettings';
 import { commentIdToLandmark, getCurrentSectionMark, getLandmarkY } from '@/lib/scrollUtils';
 import { useLocation, useNavigate } from "../../lib/routeUtil";
 import TableOfContentsDivider from "../posts/TableOfContents/TableOfContentsDivider";
@@ -93,7 +93,7 @@ const CommentsTableOfContents = ({commentTree, answersTree, post, highlightDate}
     return null;
   }
   
-  if (!commentsTableOfContentsEnabled) {
+  if (!commentsTableOfContentsEnabled()) {
     return null;
   }
 
@@ -166,7 +166,7 @@ const ToCCommentBlock = ({commentTree, indentLevel, highlightedCommentId, highli
   const { query, location } = useLocation();
   const comment = commentTree.item;
   
-  const score = forumTypeSetting.get() === "AlignmentForum"
+  const score = isAF()
     ? comment.afBaseScore
     : comment.baseScore;
   

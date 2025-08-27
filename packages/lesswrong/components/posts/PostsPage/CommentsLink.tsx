@@ -19,7 +19,7 @@ export const CommentsLink: FC<{
     }
   };
   return (
-    <a className={className} {...(isFriendlyUI ? { onClick } : { href: anchor })}>
+    <a className={className} {...(isFriendlyUI() ? { onClick } : { href: anchor })}>
       {children}
     </a>
   );

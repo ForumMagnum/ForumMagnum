@@ -55,7 +55,7 @@ export const T3AudioPlayer = ({classes, showEmbeddedPlayer, documentId, collecti
     <div className={classNames(classes.embeddedPlayer, { [classes.hideEmbeddedPlayer]: !showEmbeddedPlayer })}>
       {type3scriptLoaded && (
         /* @ts-ignore */
-        isEAForum ? <type-3-player analytics="custom" sticky="true" header-play-buttons="true" title=""></type-3-player> : <type-3-player sticky="true" analytics="custom"></type-3-player>
+        isEAForum() ? <type-3-player analytics="custom" sticky="true" header-play-buttons="true" title=""></type-3-player> : <type-3-player sticky="true" analytics="custom"></type-3-player>
       )}
     </div>
   </div>

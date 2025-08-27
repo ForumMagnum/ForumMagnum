@@ -23,7 +23,7 @@ import { SearchIndexCollectionName } from "../../../lib/search/searchUtil";
  * be exact - just a date a little older than the oldest searchable
  * records.
  */
-export const SEARCH_ORIGIN_DATE = new Date(searchOriginDate.get());
+export const getSearchOriginDate = () => new Date(searchOriginDate.get());
 
 export type QueryFilterOperator = "gt" | "gte" | "lt" | "lte" | "eq";
 
@@ -85,7 +85,7 @@ class ElasticQuery {
       expr = `saturation(Math.max(${min}, doc['${field}'].value), ${scoring.pivot}L)`;
       break;
     case "date":
-      const start = SEARCH_ORIGIN_DATE;
+      const start = getSearchOriginDate();
       const delta = Date.now() - start.getTime();
       const dayRange = Math.ceil(delta / (1000 * 60 * 60 * 24));
       expr = `1 - decayDateLinear('${start.toISOString()}', '${dayRange}d', '0', 0.5, doc['${field}'].value)`;

@@ -164,7 +164,7 @@ function tagNameIsBoldedAnywhere(html: string, rawTagName: string): boolean {
 /* from the main description.
 */
 const tagShowTitle = (tag: (TagPreviewFragment | TagSectionPreviewFragment) & { summaries?: MultiDocumentContentDisplay[] }) => {
-  if (isFriendlyUI) {
+  if (isFriendlyUI()) {
     return false;
   }
 
@@ -208,7 +208,7 @@ const TagPreview = ({
     setForceOpen?.(true);
   };
 
-  const showPosts = postCount > 0 && !!tag?._id && !isFriendlyUI;
+  const showPosts = postCount > 0 && !!tag?._id && !isFriendlyUI();
   const { view, limit, ...selectorTerms } = tagPostTerms(tag);
   const { data } = useQuery(PostsListMultiQuery, {
     variables: {
@@ -242,7 +242,7 @@ const TagPreview = ({
   )) ?? [];
 
   const showRelatedTags =
-    !isFriendlyUI &&
+    !isFriendlyUI() &&
     !hideRelatedTags &&
     !!(tag.parentTag || tag.subTags.length);
 
@@ -257,7 +257,7 @@ const TagPreview = ({
   const hasMultipleSummaries = summaryTabs.length > 1;
   return (
     <div className={classNames(classes.root, {
-      [classes.rootEAWidth]: isFriendlyUI && hasDescription,
+      [classes.rootEAWidth]: isFriendlyUI() && hasDescription,
     })}>
       {hasMultipleSummaries && <div className={classes.tabsContainer}>
        {summaryTabs}
@@ -340,7 +340,7 @@ const TagPreview = ({
           }
         </>
         }
-        {isFriendlyUI &&
+        {isFriendlyUI() &&
           <div className={classNames(classes.footerCount, {
             [classes.footerMarginTop]: hasDescription,
           })}>

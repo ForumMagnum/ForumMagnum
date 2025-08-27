@@ -28,7 +28,7 @@ import StickiedPosts from "../ea-forum/StickiedPosts";
 import PostsListViewToggle from "../posts/PostsListViewToggle";
 import SurveyPostsItem from "../surveys/SurveyPostsItem";
 
-const titleWrapper = isLWorAF ? {
+const getTitleWrapperStyles = () => isLWorAF() ? {
   marginBottom: 8
 } : {
   display: "flex",
@@ -38,7 +38,7 @@ const titleWrapper = isLWorAF ? {
 };
 
 const styles = (theme: ThemeType) => ({
-  titleWrapper,
+  titleWrapper: getTitleWrapperStyles(),
   title: {
     ...sectionTitleStyle(theme),
     display: "inline",
@@ -69,9 +69,9 @@ const styles = (theme: ThemeType) => ({
   },
 });
 
-const latestPostsName = isFriendlyUI ? 'New & upvoted' : 'Latest Posts'
+const getLatestPostsName = () => isFriendlyUI() ? 'New & upvoted' : 'Latest Posts'
 
-export const filterSettingsToggleLabels = forumSelect({
+const getFilterSettingsToggleLabels = () => forumSelect({
   EAForum: {
     desktopVisible: "Customize feed",
     desktopHidden: "Customize feed",
@@ -86,14 +86,14 @@ export const filterSettingsToggleLabels = forumSelect({
   }
 })
 
-const advancedSortingText = isFriendlyUI
+const getAdvancedSortingText = () => isFriendlyUI()
   ? "Advanced sorting & filtering"
   : "Advanced Sorting/Filtering";
 
-const defaultLimit = isFriendlyUI ? 11 : 13;
+const getDefaultLimit = () => isFriendlyUI() ? 11 : 13;
 
 const applyConstantFilters = (filterSettings: FilterSettings): FilterSettings => {
-  if (!isEAForum) {
+  if (!isEAForum()) {
     return filterSettings;
   }
   const tags = filterSettings.tags.filter(
@@ -117,7 +117,7 @@ const HomeLatestPosts = ({classes}: {classes: ClassesType<typeof styles>}) => {
   const {filterSettings, suggestedTagsQueryRef, setPersonalBlogFilter, setTagFilter, removeTagFilter} = useFilterSettings()
   // While hiding desktop settings is stateful over time, on mobile the filter settings always start out hidden
   // (except that on the EA Forum/FriendlyUI it always starts out hidden)
-  const [filterSettingsVisibleDesktop, setFilterSettingsVisibleDesktop] = useState(isFriendlyUI ? false : !currentUser?.hideFrontpageFilterSettingsDesktop);
+  const [filterSettingsVisibleDesktop, setFilterSettingsVisibleDesktop] = useState(isFriendlyUI() ? false : !currentUser?.hideFrontpageFilterSettingsDesktop);
   const [filterSettingsVisibleMobile, setFilterSettingsVisibleMobile] = useState(false);
   const { captureEvent } = useOnMountTracking({
     eventType:"frontpageFilterSettings",
@@ -136,12 +136,12 @@ const HomeLatestPosts = ({classes}: {classes: ClassesType<typeof styles>}) => {
     after: dateCutoff,
     view: "magic",
     forum: true,
-    limit: defaultLimit,
+    limit: getDefaultLimit(),
   } as const;
   
   const changeShowTagFilterSettingsDesktop = () => {
     setFilterSettingsVisibleDesktop(!filterSettingsVisibleDesktop)
-    if (isLWorAF) {
+    if (isLWorAF()) {
       void updateCurrentUser({hideFrontpageFilterSettingsDesktop: filterSettingsVisibleDesktop})
     }
     
@@ -151,14 +151,14 @@ const HomeLatestPosts = ({classes}: {classes: ClassesType<typeof styles>}) => {
     })
   }
 
-  const showCurated = isFriendlyUI || (isLW && reviewIsActive())
+  const showCurated = isFriendlyUI() || (isLW() && reviewIsActive())
 
   const {survey, refetch: refetchSurvey} = useCurrentFrontpageSurvey();
 
   return (
     <AnalyticsContext pageSectionContext="latestPosts">
       <SingleColumnSection>
-        <SectionTitle title={latestPostsName} noTopMargin={isFriendlyUI} noBottomPadding>
+        <SectionTitle title={getLatestPostsName()} noTopMargin={isFriendlyUI()} noBottomPadding>
           <div className={classes.postsListSettings}>
             <LWTooltip
               title={`Use these buttons to increase or decrease the visibility of posts based on ${taggingNameSetting.get()}. Use the "+" button at the end to add additional ${taggingNamePluralSetting.get()} to boost or reduce them.`}
@@ -167,17 +167,17 @@ const HomeLatestPosts = ({classes}: {classes: ClassesType<typeof styles>}) => {
               <SettingsButton
                 className={classes.hideOnMobile}
                 label={filterSettingsVisibleDesktop ?
-                  filterSettingsToggleLabels.desktopVisible :
-                  filterSettingsToggleLabels.desktopHidden}
+                  getFilterSettingsToggleLabels().desktopVisible :
+                  getFilterSettingsToggleLabels().desktopHidden}
                 showIcon={false}
                 onClick={changeShowTagFilterSettingsDesktop}
-                textShadow={isLWorAF}
+                textShadow={isLWorAF()}
               />
               <SettingsButton
                 className={classes.hideOnDesktop}
                 label={filterSettingsVisibleMobile ?
-                  filterSettingsToggleLabels.mobileVisible :
-                  filterSettingsToggleLabels.mobileHidden}
+                  getFilterSettingsToggleLabels().mobileVisible :
+                  getFilterSettingsToggleLabels().mobileHidden}
                 showIcon={false}
                 onClick={() => {
                   setFilterSettingsVisibleMobile(!filterSettingsVisibleMobile)
@@ -188,7 +188,7 @@ const HomeLatestPosts = ({classes}: {classes: ClassesType<typeof styles>}) => {
                   })
                 }} />
             </LWTooltip>
-            {isFriendlyUI && <PostsListViewToggle />}
+            {isFriendlyUI() && <PostsListViewToggle />}
           </div>
         </SectionTitle>
 
@@ -208,7 +208,7 @@ const HomeLatestPosts = ({classes}: {classes: ClassesType<typeof styles>}) => {
             </div>
           )}
         </AnalyticsContext>
-        {isFriendlyUI && <StickiedPosts />}
+        {isFriendlyUI() && <StickiedPosts />}
         <HideRepeatedPostsProvider>
           {showCurated && <CuratedPostsList
             repeatedPostsPrecedence={1}
@@ -230,7 +230,7 @@ const HomeLatestPosts = ({classes}: {classes: ClassesType<typeof styles>}) => {
                 viewType="fromContext"
                 repeatedPostsPrecedence={2}
               >
-                <Link to={"/allPosts"}>{advancedSortingText}</Link>
+                <Link to={"/allPosts"}>{getAdvancedSortingText()}</Link>
               </PostsList2>
             </AllowHidingFrontPagePostsContext.Provider>
           </AnalyticsContext>

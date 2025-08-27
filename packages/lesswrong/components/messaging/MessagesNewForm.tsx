@@ -8,7 +8,7 @@ import { registerComponent } from "../../lib/vulcan-lib/components";
 import { useMutation } from "@apollo/client/react";
 import { useQuery } from "@/lib/crud/useQuery";
 import { gql } from "@/lib/generated/gql-codegen";
-import { defaultEditorPlaceholder } from '@/lib/editor/defaultEditorPlaceholder';
+import { getDefaultEditorPlaceholder } from '@/lib/editor/defaultEditorPlaceholder';
 import { useForm } from "@tanstack/react-form";
 import { defineStyles, useStyles } from "../hooks/useStyles";
 import { useEditorFormCallbacks, EditorFormComponent } from "../editor/EditorFormComponent";
@@ -142,7 +142,7 @@ const InnerMessagesNewForm = ({
   const currentUser = useCurrentUser();
   
   const formButtonClass = isMinimalist ? classes.formButtonMinimalist : classes.formButton;
-  const hintText = isMinimalist ? "Type a new message..." : defaultEditorPlaceholder;
+  const hintText = isMinimalist ? "Type a new message..." : getDefaultEditorPlaceholder();
   const commentMinimalistStyle = isMinimalist ? true : false;
 
   const {

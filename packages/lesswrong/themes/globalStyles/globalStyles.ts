@@ -34,7 +34,7 @@ const clearStyle = (theme: ThemeType) => ({
   "textarea, textarea:focus, input, input:focus": {
     border: "none",
     outline: "none",
-    fontFamily: isFriendlyUI ? theme.palette.fonts.sansSerifStack : undefined,
+    fontFamily: theme.isFriendlyUI ? theme.palette.fonts.sansSerifStack : undefined,
     color: theme.palette.text.maxIntensity,
   },
   
@@ -124,7 +124,7 @@ const globalStyle = (theme: ThemeType) => ({
   },
   
   // Mapbox
-  ...(isFriendlyUI ? {
+  ...(theme.isFriendlyUI ? {
     ".mapboxgl-popup-content": {
       background: `${theme.palette.panelBackground.mapboxTooltip} !important`
     },
@@ -271,7 +271,7 @@ const dialogueStyle = (theme: ThemeType) => ({
     position: 'relative',
     margin: '12px 0',
     order: 2,
-    ...(isFriendlyUI
+    ...(theme.isFriendlyUI
       ? {
         fontSize: "1.1rem",
         "& p, & div, & span, & li, & blockquote, & pre": {
@@ -304,15 +304,15 @@ const dialogueStyle = (theme: ThemeType) => ({
     position: 'absolute',
     top: -14,
     backgroundColor: theme.palette.grey[0],
-    padding: isFriendlyUI ? "4px 8px" : 4,
-    borderRadius: isFriendlyUI ? theme.borderRadius.small : undefined,
+    padding: theme.isFriendlyUI ? "4px 8px" : 4,
+    borderRadius: theme.isFriendlyUI ? theme.borderRadius.small : undefined,
   },
 
   '.dialogue-message-input button': {
     marginRight: -8,
     display: 'block',
     position: 'absolute',
-    ...(isFriendlyUI
+    ...(theme.isFriendlyUI
       ? {
         right: 12,
         bottom: 5,
@@ -335,7 +335,7 @@ const dialogueStyle = (theme: ThemeType) => ({
   '.dialogue-message': {
     marginTop: 6,
     position: 'relative',
-    ...(isFriendlyUI
+    ...(theme.isFriendlyUI
       ? {
         fontSize: "1.1rem",
         "& p, & div, & span, & li, & blockquote, & pre": {
@@ -381,7 +381,7 @@ const dialogueStyle = (theme: ThemeType) => ({
 
   '.dialogue-message-header': {
     position: 'absolute',
-    top: isFriendlyUI ? -4 : 0,
+    top: theme.isFriendlyUI ? -4 : 0,
   },
 
   '.dialogue-message-header b': {

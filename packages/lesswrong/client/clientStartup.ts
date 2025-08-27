@@ -9,7 +9,7 @@ import '../client';
 import { CLIENT_ID_COOKIE } from '../lib/cookies/cookies';
 import { initAutoRefresh } from './autoRefresh';
 import { rememberScrollPositionOnPageReload } from './scrollRestoration';
-import { initLegacyRoutes } from '@/lib/routes';
+// import { initLegacyRoutes } from '@/lib/routes';
 import { hydrateClient } from './start';
 import { googleTagManagerInit } from './ga';
 import { initReCaptcha } from './reCaptcha';
@@ -49,7 +49,7 @@ async function clientStartup() {
 
   initAutoRefresh();
   rememberScrollPositionOnPageReload();
-  initLegacyRoutes();
+  // initLegacyRoutes();
   hydrateClient();
   
   // See comment in server/rendering/eventCapture.ts

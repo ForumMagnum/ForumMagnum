@@ -252,7 +252,7 @@ const PostsNewForm = () => {
   if (userIsMemberOf(currentUser, 'alignmentForum')) {
     prefilledProps = {
       ...prefilledProps,
-      af: isAF || (query && !!query.af),
+      af: isAF() || (query && !!query.af),
     };
   }
 
@@ -275,7 +275,7 @@ const PostsNewForm = () => {
           ? sanitizeEditableFieldValues(prefilledProps, ['contents'])
           : prefilledProps;
 
-        const moderationGuidelinesField = currentUserWithModerationGuidelines.moderationGuidelines?.originalContents && hasAuthorModeration
+        const moderationGuidelinesField = currentUserWithModerationGuidelines.moderationGuidelines?.originalContents && hasAuthorModeration()
           ? { moderationGuidelines: sanitizeEditableFieldValues(currentUserWithModerationGuidelines, ['moderationGuidelines']).moderationGuidelines }
           : {};
 

@@ -77,10 +77,10 @@ const TagRevisionItemFullMetadata = ({tag, revision, classes}: {
         {" "}
         <ChangeMetricsDisplay
           changeMetrics={revision.changeMetrics}
-          showCharacters={isFriendlyUI}
+          showCharacters={isFriendlyUI()}
           className={classes.changeMetrics}
         />
-        {!isFriendlyUI &&
+        {!isFriendlyUI() &&
           <>
             {" "}
             <FormatDate

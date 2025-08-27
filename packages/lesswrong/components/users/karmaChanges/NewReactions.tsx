@@ -24,7 +24,7 @@ export const NewReactions = ({ reactionChanges }: {
       // On EAF, if the emoji is not in the list of non-anonymous reacts (eaEmojiPalette),
       // then make sure not to show any usernames of voters. They should not be available here anyway,
       // but we also don't want to show [anonymous], so we disable the tooltip altogether.
-      if (!EAEmojiComponent && isEAForum) {
+      if (!EAEmojiComponent && isEAForum()) {
         EAEmojiComponent = eaAnonymousEmojiPalette.find(emoji => emoji.name === reactionType)?.Component;
         disableTooltip = true;
       }
@@ -41,7 +41,7 @@ export const NewReactions = ({ reactionChanges }: {
             </>)}
           disabled={disableTooltip}
         >
-          {(EAEmojiComponent && isEAForum) ? <EAEmojiComponent /> : <ReactionIcon
+          {(EAEmojiComponent && isEAForum()) ? <EAEmojiComponent /> : <ReactionIcon
             react={reactionType} />}
         </LWTooltip>
       </span>;

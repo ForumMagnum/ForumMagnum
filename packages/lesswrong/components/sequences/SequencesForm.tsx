@@ -1,4 +1,4 @@
-import { defaultEditorPlaceholder } from '@/lib/editor/defaultEditorPlaceholder';
+import { getDefaultEditorPlaceholder } from '@/lib/editor/defaultEditorPlaceholder';
 import { preferredHeadingCase } from "@/themes/forumTheme";
 import { useForm } from "@tanstack/react-form";
 import classNames from "classnames";
@@ -153,7 +153,7 @@ export const SequencesForm = ({
               document={form.state.values}
               addOnSubmitCallback={addOnSubmitCallback}
               addOnSuccessCallback={addOnSuccessCallback}
-              hintText={defaultEditorPlaceholder}
+              hintText={getDefaultEditorPlaceholder()}
               fieldName="contents"
               collectionName="Sequences"
               commentEditor={false}

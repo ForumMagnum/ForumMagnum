@@ -32,7 +32,7 @@ const checkIsCriticism = async (api: OpenAI, text: string) => {
  */
 export async function postIsCriticism(post: PostIsCriticismRequest, currentUserId?: string): Promise<boolean> {
   // Only run this on the EA Forum on production, since it costs money.
-  if (!isEAForum || !isProduction) return false
+  if (!isEAForum() || !isProduction) return false
   
   if (!post.body) {
     if (!isAnyTest) {

@@ -1,6 +1,5 @@
 import { getSearchClient, getSearchIndexName } from '../search/searchUtil'
-import React, { useContext } from 'react'
-import {createRoot} from 'react-dom/client'
+import React from 'react'
 import {userGetDisplayName} from '../collections/users/helpers'
 import {userMentionQueryString} from '../pingback'
 import {tagUrlBaseSetting} from '@/lib/instanceSettings'
@@ -9,13 +8,13 @@ import { getSiteUrl } from "../vulcan-lib/utils";
 import UserMentionHit from '@/components/search/UserMentionHit'
 import PostMentionHit from '@/components/search/PostMentionHit'
 import TagMentionHit from '@/components/search/TagMentionHit'
-import { CkEditorPortalContext, CkEditorPortalContextType } from '@/components/editor/CKEditorPortalProvider'
+import { CkEditorPortalContextType } from '@/components/editor/CKEditorPortalProvider'
 
 const MARKER = "@";
 
-const linkPrefix = getSiteUrl()
-
 const formatSearchHit = (hit: SearchUser | SearchPost | SearchTag) => {
+  const linkPrefix = getSiteUrl();
+
   switch (hit._index) {
     case "users":
       const displayName = MARKER + userGetDisplayName(hit);

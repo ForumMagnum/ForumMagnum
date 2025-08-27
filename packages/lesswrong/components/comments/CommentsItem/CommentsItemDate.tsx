@@ -101,7 +101,7 @@ const CommentsItemDate = ({comment, preventDateFormatting, className, ...rest}: 
       comment.answer && classes.answerDate,
       className,
     )}>
-      <DeferRender ssr={!isLWorAF} fallback={linkContents}>
+      <DeferRender ssr={!isLWorAF()} fallback={linkContents}>
         <LinkWrapper>
           {linkContents}
         </LinkWrapper>

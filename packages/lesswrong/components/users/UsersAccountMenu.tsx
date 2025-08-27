@@ -11,8 +11,9 @@ import LWClickAwayListener from "../common/LWClickAwayListener";
 import LWPopper from "../common/LWPopper";
 import LoginForm from "./LoginForm";
 import { Paper } from '../widgets/Paper';
+import { defineStyles, useStyles } from '../hooks/useStyles';
 
-const styles = (theme: ThemeType) => ({
+const styles = defineStyles('UsersAccountMenu', (theme: ThemeType) => ({
   root: {
     marginTop: theme.isFriendlyUI ? undefined : 5,
   },
@@ -33,11 +34,10 @@ const styles = (theme: ThemeType) => ({
       display: 'none'
     }
   },
-})
+}));
 
-const EAUsersAccountMenu = ({classes}: {
-  classes: ClassesType<typeof styles>,
-}) => {
+export const EAUsersAccountMenu = () => {
+  const classes = useStyles(styles);
   const {onLogin, onSignup} = useLoginPopoverContext();
   return (
     <div className={classes.root}>
@@ -61,9 +61,8 @@ const EAUsersAccountMenu = ({classes}: {
   );
 }
 
-const LWUsersAccountMenu = ({classes}: {
-  classes: ClassesType<typeof styles>,
-}) => {
+export const LWUsersAccountMenu = () => {
+  const classes = useStyles(styles);
   const {captureEvent} = useTracking();
   const [open, setOpen] = useState(false);
   const [anchorEl, setAnchorEl] = useState<HTMLElement | null>(null);
@@ -100,11 +99,3 @@ const LWUsersAccountMenu = ({classes}: {
     </div>
   );
 }
-
-export default registerComponent(
-  "UsersAccountMenu",
-  isFriendlyUI ? EAUsersAccountMenu : LWUsersAccountMenu,
-  {styles},
-);
-
-

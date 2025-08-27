@@ -39,7 +39,7 @@ const PopularCommentsList = ({classes}: {classes: ClassesType<typeof styles>}) =
 
   const results = data?.PopularComments?.results;
 
-  const CommentComponent = isFriendlyUI ? FriendlyPopularComment : LWPopularComment;
+  const CommentComponent = isFriendlyUI() ? FriendlyPopularComment : LWPopularComment;
   return (
     <AnalyticsContext pageSectionContext="popularCommentsList">
       <div className={classes.root}>

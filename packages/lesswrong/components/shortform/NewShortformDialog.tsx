@@ -30,7 +30,7 @@ const NewShortformDialog = ({onClose, classes}: {
       open={open}
       onClose={onClose}
       fullWidth
-      maxWidth={isFriendlyUI ? "md" : "sm"}
+      maxWidth={isFriendlyUI() ? "md" : "sm"}
       disableBackdropClick={true}
       disableEscapeKeyDown={true}
       paperClassName={classes.dialogPaper}
@@ -39,14 +39,14 @@ const NewShortformDialog = ({onClose, classes}: {
         <ShortformSubmitForm
           successCallback={() => {
             onClose();
-            navigate(isFriendlyUI ? '/quicktakes' : '/shortform');
+            navigate(isFriendlyUI() ? '/quicktakes' : '/shortform');
           }}
           cancelCallback={() => {
             setOpen(false);
             onClose?.();
           }}
-          defaultExpanded={!isFriendlyUI}
-          submitButtonAtBottom={!isFriendlyUI}
+          defaultExpanded={!isFriendlyUI()}
+          submitButtonAtBottom={!isFriendlyUI()}
         />
       </DialogContent>
     </LWDialog>

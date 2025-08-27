@@ -14,7 +14,7 @@ export default function Page() {
   return <>
     <RouteMetadataSetter metadata={{
       background: 'white',
-      noFooter: hasPostRecommendations,
+      noFooter: hasPostRecommendations(),
       titleComponent: PostsPageHeaderTitle
     }} />
     <PostsSingleSlugRedirect />

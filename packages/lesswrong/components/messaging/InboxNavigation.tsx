@@ -104,7 +104,7 @@ const InboxNavigation = ({
         {results?.length ?
           results.map(conversation => <ConversationItem key={conversation._id} conversation={conversation} currentUser={currentUser} expanded={expanded}/>
           ) :
-          loading ? <Loading /> : <Typography variant="body2">You are all done! You have no more open conversations.{isLWorAF && " Go and be free."}</Typography>
+          loading ? <Loading /> : <Typography variant="body2">You are all done! You have no more open conversations.{isLWorAF() && " Go and be free."}</Typography>
         }
         <SectionFooter>
           <LoadMore {...loadMoreProps} sectionFooterStyles/>

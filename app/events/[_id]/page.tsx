@@ -13,7 +13,7 @@ export default function Page() {
       subtitle: 'Community',
       subtitleLink: '/community',
       background: 'white',
-      noFooter: hasPostRecommendations,
+      noFooter: hasPostRecommendations(),
       titleComponent: PostsPageHeaderTitle
     }} />
     <PostsSingle />

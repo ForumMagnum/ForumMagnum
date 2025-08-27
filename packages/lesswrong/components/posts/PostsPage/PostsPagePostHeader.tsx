@@ -185,7 +185,7 @@ const PostsPagePostHeader = ({post, answers = [], dialogueResponses = [], showEm
     commentCount,
   } = useMemo(() => getResponseCounts({ post, answers }), [post, answers]);
 
-  const minimalSecondaryInfo = post.isEvent || (isFriendlyUI && post.shortform);
+  const minimalSecondaryInfo = post.isEvent || (isFriendlyUI() && post.shortform);
 
   const answersNode = !post.question || minimalSecondaryInfo
     ? null
@@ -202,7 +202,7 @@ const PostsPagePostHeader = ({post, answers = [], dialogueResponses = [], showEm
   const tripleDotMenuNode = !hideMenu &&
     <span className={classes.actions}>
       <AnalyticsContext pageElementContext="tripleDotMenu">
-        <PostActionsButton post={post} includeBookmark={isBookUI} flip={true}/>
+        <PostActionsButton post={post} includeBookmark={isBookUI()} flip={true}/>
       </AnalyticsContext>
     </span>
 

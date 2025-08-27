@@ -565,7 +565,7 @@ export const SpotlightItem = ({
               {spotlight.customSubtitle && showSubtitle && <div className={classes.subtitle}>
                 {subtitleComponent}
               </div>}
-              {(spotlight.description?.html || isBookUI) && <div className={classes.description}>
+              {(spotlight.description?.html || isBookUI()) && <div className={classes.description}>
                 {(editDescription && editableSpotlight) ? 
                   <div className={classes.editDescription}>
                     <SpotlightForm
@@ -605,7 +605,7 @@ export const SpotlightItem = ({
           </div>
           {spotlightReviews.length > 0 && <SpotlightReviews reviewIds={spotlightReviews.map(r=>r._id)}/>}
           {hideBanner && (
-            isFriendlyUI
+            isFriendlyUI()
               ? (
                 <ForumIcon
                   icon="Close"

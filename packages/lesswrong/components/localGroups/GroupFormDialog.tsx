@@ -224,7 +224,7 @@ const LocalGroupForm = ({
         </form.Field>
       </div>
 
-      {isLW && <div className={classes.fieldWrapper}>
+      {isLW() && <div className={classes.fieldWrapper}>
         <form.Field name="types">
           {(field) => (
             <MultiSelectButtons
@@ -236,7 +236,7 @@ const LocalGroupForm = ({
         </form.Field>
       </div>}
 
-      {isEAForum && <div className={classes.fieldWrapper}>
+      {isEAForum() && <div className={classes.fieldWrapper}>
         <form.Field name="categories">
           {(field) => (
             <FormComponentMultiSelect
@@ -278,7 +278,7 @@ const LocalGroupForm = ({
               {(field) => (
                 <LocationFormComponent
                   field={field}
-                  label={isFriendlyUI ? "Group location" : "Group Location"}
+                  label={isFriendlyUI() ? "Group location" : "Group Location"}
                   stringVersionFieldName="location"
                 />
               )}
@@ -359,7 +359,7 @@ const LocalGroupForm = ({
             <LWTooltip inlineBlock={false} placement="left-start" title='Recommend 1640x856 px, 1.91:1 aspect ratio (same as Facebook)'>
               <ImageUpload
                 field={field}
-                label={isFriendlyUI ? "Banner image" : "Banner Image"}
+                label={isFriendlyUI() ? "Banner image" : "Banner Image"}
                 croppingAspectRatio={1.91}
               />
             </LWTooltip>

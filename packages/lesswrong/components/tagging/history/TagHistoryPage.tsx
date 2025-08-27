@@ -300,7 +300,7 @@ const TagHistoryFeedSettings = ({expanded, settings, setSettings, lenses}: {
       />
       <span className={classes.label}>Show changes to metadata</span>
     </div>
-    {hasWikiLenses && lenses.length > 1 && <div>
+    {hasWikiLenses() && lenses.length > 1 && <div>
       Lens
       <Select
         value={settings.lensId}

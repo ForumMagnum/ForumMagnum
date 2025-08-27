@@ -3,7 +3,7 @@ import { isEAForum, ddRumSampleRate, ddSessionReplaySampleRate, ddTracingSampleR
 import { getCookiePreferences } from '../lib/cookies/utils';
 import { isE2E, isServer } from '../lib/executionEnvironment';
 
-const hasDatadog = isEAForum && !isE2E;
+const hasDatadog = () => isEAForum() && !isE2E;
 
 let datadogInitialized = false;
 
@@ -12,7 +12,7 @@ export async function initDatadog() {
 
   const analyticsCookiesAllowed = cookiePreferences.includes("analytics");
 
-  if (isServer || !hasDatadog) return
+  if (isServer || !hasDatadog()) return
   
   const { datadogRum } = await import('@datadog/browser-rum');
 
@@ -49,7 +49,7 @@ export async function initDatadog() {
 }
 
 export async function configureDatadogRum(user: UsersCurrent | UsersEdit | EditableUser | DbUser | null) {
-  if (!hasDatadog || !datadogInitialized) return
+  if (!hasDatadog() || !datadogInitialized) return
   
   const { datadogRum } = await import('@datadog/browser-rum');
 

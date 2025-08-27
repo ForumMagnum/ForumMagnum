@@ -17,7 +17,7 @@ import ContentStyles from "../../common/ContentStyles";
 import PostPageReviewButton from "./PostPageReviewButton";
 import { BOOKUI_LINKPOST_WORDCOUNT_THRESHOLD } from '@/components/posts/PostsPage/constants';
 
-const shortformDraftMessage = isFriendlyUI
+const getShortformDraftMessage = () => isFriendlyUI()
   ? "This is a special post that holds your quick takes. Because it's marked as a draft, your quick takes will not be displayed. To un-draft it, pick Edit from the menu above, then click Publish."
   : "This is a special post that holds your short-form writing. Because it's marked as a draft, your short-form posts will not be displayed. To un-draft it, pick Edit from the menu above, then click Publish.";
 
@@ -55,7 +55,7 @@ const styles = (theme: ThemeType) => ({
   },
 });
 
-const forumNewUserProcessingTime = forumSelect({
+const getForumNewUserProcessingTime = () => forumSelect({
   EAForum: 24,
   LessWrong: 72,
   AlignmentForum: 72,
@@ -75,7 +75,7 @@ const PostBodyPrefix = ({post, query, classes}: {
     <AlignmentPendingApprovalMessage post={post} />
 
     {post.shortform && post.draft && <div className={classes.contentNotice}>
-      {shortformDraftMessage}
+      {getShortformDraftMessage()}
     </div>}
     {post.shortform && !post.draft && <div className={classes.contentNotice}>
       <>
@@ -96,14 +96,14 @@ const PostBodyPrefix = ({post, query, classes}: {
       }
       <LWTooltip title={<p>
         New users' first posts on {siteNameWithArticleSetting.get()} are checked by moderators before they appear on the site.
-        Most posts will be approved within {forumNewUserProcessingTime} hours; posts that are spam or that don't meet site
+        Most posts will be approved within {getForumNewUserProcessingTime()} hours; posts that are spam or that don't meet site
         standards will be deleted. After you've had a post approved, future posts will appear
         immediately without waiting for review.
       </p>}>
         <Info className={classes.infoIcon}/>
       </LWTooltip>
     </div>}
-    {(isFriendlyUI || ((post.contents?.wordCount ?? 0) < BOOKUI_LINKPOST_WORDCOUNT_THRESHOLD)) && <LinkPostMessage post={post} negativeTopMargin={isFriendlyUI} />}
+    {(isFriendlyUI() || ((post.contents?.wordCount ?? 0) < BOOKUI_LINKPOST_WORDCOUNT_THRESHOLD)) && <LinkPostMessage post={post} negativeTopMargin={isFriendlyUI()} />}
     {query?.revision && post.contents && <PostsRevisionMessage post={post} />}
   </>;
 }

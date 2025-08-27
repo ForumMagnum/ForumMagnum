@@ -75,7 +75,7 @@ async function applyArbitalPathReplacements(html: string) {
 }
 
 export function applyCustomArbitalScripts(html: string) {
-  if (!isLWorAF) {
+  if (!isLWorAF()) {
     return html;
   }
 

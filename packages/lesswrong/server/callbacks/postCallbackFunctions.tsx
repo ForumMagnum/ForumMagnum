@@ -1,5 +1,5 @@
 import React from "react";
-import { useCurationEmailsCron, userCanPassivelyGenerateJargonTerms } from "@/lib/betas";
+import { usesCurationEmailsCron, userCanPassivelyGenerateJargonTerms } from "@/lib/betas";
 import { MOVED_POST_TO_DRAFT, REJECTED_POST } from "@/lib/collections/moderatorActions/constants";
 import { Posts } from "@/server/collections/posts/collection";
 import { postStatuses } from "@/lib/collections/posts/constants";
@@ -949,7 +949,7 @@ export async function sendRejectionPM({ post, currentUser, context }: {post: DbP
   let messageContents = getRejectionMessage(rejectedContentLink, post.rejectedReason)
 
   // FYI EA Forum: Decide if you want this to always send emails the way you do for deletion. We think it's better not to.
-  const noEmail = isEAForum
+  const noEmail = isEAForum()
   ? false 
   : !(!!postUser?.reviewedByUserId && !postUser.snoozedUntilContentCount)
   const adminAccount = currentUser ?? await getAdminTeamAccount(context);
@@ -1146,7 +1146,7 @@ export async function sendLWAFPostCurationEmails(post: DbPost, oldPost: DbPost) 
       subject: `[Admin preview] ${post.title}`,
     });
     
-    if (!useCurationEmailsCron) {
+    if (!usesCurationEmailsCron()) {
       await curationEmailDelayDebouncer.recordEvent({
         key: post._id,
         af: false
@@ -1218,7 +1218,7 @@ export async function oldPostsLastCommentedAt(post: DbPost, context: ResolverCon
 }
 
 export async function maybeCreateAutomatedContentEvaluation(post: DbPost, oldPost: DbPost, context: ResolverContext) {
-  const shouldEvaluate = isLW && !post.draft && oldPost.draft && !context.currentUser?.reviewedByUserId;
+  const shouldEvaluate = isLW() && !post.draft && oldPost.draft && !context.currentUser?.reviewedByUserId;
   if (shouldEvaluate) {
     const revision = await getLatestContentsRevision(post, context);
     if (revision) {

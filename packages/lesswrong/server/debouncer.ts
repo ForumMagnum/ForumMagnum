@@ -76,12 +76,12 @@ export type DebouncerTiming =
 export class EventDebouncer<KeyType = string>
 {
   name: string
-  defaultTiming?: DebouncerTiming
+  defaultTiming?: DebouncerTiming | (() => DebouncerTiming)
   callback: DebouncerCallback<KeyType>
 
   constructor({ name, defaultTiming, callback }: {
     name: string,
-    defaultTiming: DebouncerTiming,
+    defaultTiming: DebouncerTiming | (() => DebouncerTiming),
     callback: DebouncerCallback<KeyType>,
   }) {
     this.name = name;
@@ -121,7 +121,11 @@ export class EventDebouncer<KeyType = string>
     );
   }
 
-  parseTiming = (timing: DebouncerTiming) => {
+  parseTiming = (timing: DebouncerTiming | (() => DebouncerTiming)) => {
+    if (typeof timing === "function") {
+      timing = timing();
+    }
+    
     const now = new Date();
     const msPerMin = 60*1000;
     
@@ -215,7 +219,7 @@ export const dispatchPendingEvents = async () => {
     const queryResult: any = await DebouncerEvents.rawCollection().findOneAndUpdate(
       {
         dispatched: false,
-        af: isAF,
+        af: isAF(),
         $or: [
           { delayTime: {$lt: now} },
           { upperBoundTime: {$lt: now} }
@@ -278,7 +282,7 @@ export const forcePendingEvents = async (
     const queryResult = await DebouncerEvents.rawCollection().findOneAndUpdate(
       {
         dispatched: false,
-        af: isAF,
+        af: isAF(),
         ...timeCondition,
       },
       { $set: { dispatched: true } },

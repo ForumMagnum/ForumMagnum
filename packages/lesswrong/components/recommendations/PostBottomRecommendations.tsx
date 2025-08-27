@@ -57,7 +57,7 @@ const WrapperComponent = ({hasTableOfContents, children}: {
   hasTableOfContents: boolean
   children: React.ReactNode
 }) => {
-  if (isFriendlyUI) {
+  if (isFriendlyUI()) {
     return <ToCColumn
       tableOfContents={hasTableOfContents ? <div /> : null}
       notHideable
@@ -117,7 +117,7 @@ const PostBottomRecommendations = ({post, hasTableOfContents, ssr = false}: {
     post,
     maxAgeInDays: 60,
     ssr,
-    skip: !isFriendlyUI,
+    skip: !isFriendlyUI(),
   });
 
   const profileUrl = userGetProfileUrl(post.user);
@@ -161,7 +161,7 @@ const PostBottomRecommendations = ({post, hasTableOfContents, ssr = false}: {
               }
               <AnalyticsContext pageSubSectionContext="curatedAndPopular">
                 {curatedAndPopularPosts?.map((post) => (
-                  isFriendlyUI ? <EALargePostsItem
+                  isFriendlyUI() ? <EALargePostsItem
                     key={post._id}
                     post={post}
                     className={classes.largePostItem}
@@ -170,7 +170,7 @@ const PostBottomRecommendations = ({post, hasTableOfContents, ssr = false}: {
                 ))}
               </AnalyticsContext>
             </div>
-            {isFriendlyUI && <div className={classes.section}>
+            {isFriendlyUI() && <div className={classes.section}>
               <div className={classes.sectionHeading}>
                 {coreTagLabel ? "Recent" : "Relevant"} opportunities{coreTagLabel ? ` in ${coreTagLabel}` : ""}
               </div>

@@ -24,7 +24,7 @@ import SimpleSchema from '@/lib/utils/simpleSchema';
 import util from 'util';
 import { exec as execSync } from 'child_process';
 import { forumTypeSetting } from '@/lib/instanceSettings';
-import { defaultEditorPlaceholder } from '@/lib/editor/defaultEditorPlaceholder';
+import { getDefaultEditorPlaceholder } from '@/lib/editor/defaultEditorPlaceholder';
 import { collectionNameToTypeName } from '@/lib/generated/collectionTypeNames';
 import { userOwns } from '@/lib/vulcan-users/permissions';
 
@@ -183,7 +183,7 @@ function inlineFormField<T>(key: string, value: T, fieldName: string, collection
   if (['hintText', 'inputPrefix'].includes(key) && typeof value === 'function') {
     value = value();
 
-    if (value === defaultEditorPlaceholder) {
+    if (value === getDefaultEditorPlaceholder()) {
       value = `{defaultEditorPlaceholder}` as T;
       // Early return before `jsxLiteral` call to avoid it being stringified further
       return `${key}=${value}` as ReturnType;
@@ -666,7 +666,7 @@ export const ${className} = ({
     }
 
     const submitVariantProp = collectionName === 'Users'
-      ? `\n            variant={isBookUI ? 'outlined' : undefined}`
+      ? `\n            variant={isBookUI() ? 'outlined' : undefined}`
       : '';
 
     const submitOnClickProp = collectionName === 'Posts'

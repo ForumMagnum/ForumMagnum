@@ -73,7 +73,7 @@ export const collectionIsSearchIndexed = (collectionName: CollectionNameString):
 }
 
 // TODO: Hide search-UI if neither Elastic nor Algolia is configured
-export const isSearchEnabled = () => isElasticEnabled
+export const isSearchEnabled = () => isElasticEnabled()
 
 let searchClientsByOptions: Record<string,Client> = {};
 

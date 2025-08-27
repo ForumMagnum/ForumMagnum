@@ -6,13 +6,13 @@ import InlineSelect, { Option } from '../common/InlineSelect';
 import { isFriendlyUI, preferredHeadingCase } from '../../themes/forumTheme';
 import { useLocation, useNavigate } from "../../lib/routeUtil";
 
-const sortingNames = {
-  'top': isFriendlyUI ? 'Top' : 'top scoring',
-  'magic': isFriendlyUI ? 'New & upvoted' : 'magic (new & upvoted)',
-  'newest': isFriendlyUI ? 'New' : 'newest',
-  'oldest': isFriendlyUI ? 'Old' : 'oldest',
+const getSortingNames = () => ({
+  'top': isFriendlyUI() ? 'Top' : 'top scoring',
+  'magic': isFriendlyUI() ? 'New & upvoted' : 'magic (new & upvoted)',
+  'newest': isFriendlyUI() ? 'New' : 'newest',
+  'oldest': isFriendlyUI() ? 'Old' : 'oldest',
   'recentComments': preferredHeadingCase('latest reply'),
-}
+})
 
 const AnswersSorting = ({ post }: {
   post?: PostsList,
@@ -28,11 +28,11 @@ const AnswersSorting = ({ post }: {
     navigate({ ...location.location, search: `?${qs.stringify(newQuery)}` });
   };
 
-  const sortings = [...Object.keys(sortingNames)] as (keyof typeof sortingNames)[];
+  const sortings = [...Object.keys(getSortingNames())] as (keyof ReturnType<typeof getSortingNames>)[];
   const currentSorting = query?.answersSorting || "top";
   
   const viewOptions: Array<Option> = sortings.map((view) => {
-    return {value: view, label: sortingNames[view] || view}
+    return {value: view, label: getSortingNames()[view] || view}
   })
   const selectedOption = viewOptions.find((option) => option.value === currentSorting) || viewOptions[0]
 

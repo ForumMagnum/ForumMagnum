@@ -23,7 +23,7 @@ export const CombinedSubscriptionsDropdownItem = ({notifyMeItems}: {
   notifyMeItems: Array<NotifyMeDropdownItemProps & NotifyMeToggleDropdownItemPropsExternal>,
 }) => {
   const classes = useStyles(styles);
-  if (isFriendlyUI) {
+  if (isFriendlyUI()) {
     return <LWTooltip
       title={
         <div className={classes.dropdownWrapper}>

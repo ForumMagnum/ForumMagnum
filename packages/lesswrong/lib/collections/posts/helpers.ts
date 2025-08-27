@@ -250,7 +250,7 @@ export type PostWithCommentCounts = { commentCount: number; afCommentCount: numb
  * Get the total (cached) number of comments, including replies and answers
  */
 export const postGetCommentCount = (post: PostWithCommentCounts): number => {
-  if (isAF) {
+  if (isAF()) {
     return post.afCommentCount || 0;
   } else {
     return post.commentCount || 0;
@@ -297,7 +297,7 @@ export const getResponseCounts = ({ post, answers }: { post: PostWithCommentCoun
 };
 
 export const postGetLastCommentedAt = (post: PostsBase|DbPost): Date | null => {
-  if (isAF) {
+  if (isAF()) {
     return post.afLastCommentedAt ? new Date(post.afLastCommentedAt) : null;
   } else {
     return post.lastCommentedAt ? new Date(post.lastCommentedAt) : null;
@@ -305,7 +305,7 @@ export const postGetLastCommentedAt = (post: PostsBase|DbPost): Date | null => {
 }
 
 export const postGetLastCommentPromotedAt = (post: PostsBase|DbPost): Date|null => {
-  if (isAF) return null
+  if (isAF()) return null
   // TODO: add an afLastCommentPromotedAt
   return post.lastCommentPromotedAt ? new Date(post.lastCommentPromotedAt) : null;
 }
@@ -359,7 +359,7 @@ export const postCanDelete = (currentUser: UsersCurrent|null, post: PostsBase): 
 }
 
 export const postGetKarma = (post: PostsBase|DbPost): number => {
-  const baseScore = isAF ? post.afBaseScore : post.baseScore
+  const baseScore = isAF() ? post.afBaseScore : post.baseScore
   return baseScore || 0
 }
 

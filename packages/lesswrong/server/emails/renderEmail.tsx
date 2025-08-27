@@ -208,7 +208,7 @@ export async function generateEmail({user, to, from, subject, bodyComponent, boi
     user,
     to,
     from: fromAddress,
-    subject: isLWorAF ? taggedSubject : subject,
+    subject: isLWorAF() ? taggedSubject : subject,
     html: emailDoctype + inlinedHTML,
     text: plaintext,
   }

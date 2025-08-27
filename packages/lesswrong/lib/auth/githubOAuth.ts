@@ -35,8 +35,8 @@ export function generateOAuthState(): string {
 }
 
 export function getGitHubCredentials() {
-  const clientId = isAF ? afGithubClientIdSetting.get() : githubClientIdSetting.get();
-  const clientSecret = isAF ? afGithubOAuthSecretSetting.get() : githubOAuthSecretSetting.get();
+  const clientId = isAF() ? afGithubClientIdSetting.get() : githubClientIdSetting.get();
+  const clientSecret = isAF() ? afGithubOAuthSecretSetting.get() : githubOAuthSecretSetting.get();
   
   return { clientId, clientSecret };
 }

@@ -8,7 +8,7 @@ import { useCurrentUser } from '../common/withUser';
 import { useLocation } from '../../lib/routeUtil';
 import { useDialog } from '../common/withDialog'
 import {AnalyticsContext} from "../../lib/analyticsEvents";
-import { forumTypeSetting } from '../../lib/instanceSettings';
+import { isEAForum } from '../../lib/instanceSettings';
 import { userIsAdmin } from '../../lib/vulcan-users/permissions'
 import LibraryAddIcon from '@/lib/vendor/@material-ui/icons/src/LibraryAdd';
 import { pickBestReverseGeocodingResult } from '../../lib/geocoding';
@@ -72,8 +72,6 @@ const CommunityHome = ({classes}: {
   
   const [updateUser] = useMutation(UsersProfileUpdateMutation);
   
-  const isEAForum = forumTypeSetting.get() === 'EAForum';
-  
   // this gets the location from the current user settings or from the user's browser
   const currentUserLocation = useUserLocation(currentUser)
   
@@ -81,10 +79,12 @@ const CommunityHome = ({classes}: {
   // assign their browser location to their user settings location
   const [mapsLoaded, googleMaps] = useGoogleMaps()
   const [geocodeError, setGeocodeError] = useState(false)
+  
+  const onEAForum = isEAForum();
   const updateUserLocation = useCallback(async ({lat, lng, known}: {
     lat: number, lng: number, known: boolean
   }) => {
-    if (isEAForum && mapsLoaded && !geocodeError && currentUser && !currentUser.location && known) {
+    if (onEAForum && mapsLoaded && !geocodeError && currentUser && !currentUser.location && known) {
       try {
         // get a list of matching Google locations for the current lat/lng
         const geocoder = new googleMaps.Geocoder();
@@ -111,14 +111,14 @@ const CommunityHome = ({classes}: {
         console.error(e?.message)
       }
     }
-  }, [isEAForum, mapsLoaded, googleMaps, geocodeError, currentUser, updateUser])
+  }, [onEAForum, mapsLoaded, googleMaps, geocodeError, currentUser, updateUser])
 
   useEffect(() => {
     // if we've gotten a location from the browser, save it
-    if (isEAForum && currentUser && !currentUser.location && !currentUserLocation.loading && currentUserLocation.known) {
+    if (onEAForum && currentUser && !currentUser.location && !currentUserLocation.loading && currentUserLocation.known) {
       void updateUserLocation(currentUserLocation)
     }
-  }, [isEAForum, currentUser, currentUserLocation, updateUserLocation])
+  }, [onEAForum, currentUser, currentUserLocation, updateUserLocation])
 
   const openSetPersonalLocationForm = () => {
     if (currentUser) {
@@ -150,7 +150,7 @@ const CommunityHome = ({classes}: {
 
   const isAdmin = userIsAdmin(currentUser);
   const canCreateEvents = currentUser;
-  const canCreateGroups = currentUser && (!isEAForum || isAdmin);
+  const canCreateGroups = currentUser && (!isEAForum() || isAdmin);
 
   const render = () => {
     const filters: string[] = query.filters
@@ -182,8 +182,8 @@ const CommunityHome = ({classes}: {
       filters: filters,
     };
 
-    const title = forumTypeSetting.get() === 'EAForum' ? 'Community' : 'Welcome to the Community Section';
-    const WelcomeText = () => (isEAForum ?
+    const title = isEAForum() ? 'Community' : 'Welcome to the Community Section';
+    const WelcomeText = () => (isEAForum() ?
     <Typography variant="body2" className={classes.welcomeText}>
       <p>
         On the map above you can find upcoming events (blue pin icons) and local groups (green star icons),
@@ -274,7 +274,7 @@ const CommunityHome = ({classes}: {
                   </LocalGroupsList>
               }
             </SingleColumnSection>
-            {!isEAForum && <SingleColumnSection>
+            {!isEAForum() && <SingleColumnSection>
               <SectionTitle title="Resources"/>
               <AnalyticsContext listContext={"communityResources"}>
                 <PostsList2 terms={{view: 'communityResourcePosts'}} showLoadMore={false} />

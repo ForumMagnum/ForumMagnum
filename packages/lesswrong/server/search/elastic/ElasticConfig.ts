@@ -149,7 +149,7 @@ const objectMapping = (
   properties: Record<string, MappingProperty>,
 ): MappingProperty => ({properties});
 
-const elasticSearchConfig: Record<SearchIndexCollectionName, IndexConfig> = {
+const elasticSearchConfig: () => Record<SearchIndexCollectionName, IndexConfig> = () => ({
   Comments: {
     fields: [
       "body",
@@ -228,7 +228,7 @@ const elasticSearchConfig: Record<SearchIndexCollectionName, IndexConfig> = {
       {term: {authorIsUnreviewed: false}},
       {term: {unlisted: false}},
       {term: {status: postStatuses.STATUS_APPROVED}},
-      ...(isEAForum ? [] : [{range: {baseScore: {gte: 0}}}]),
+      ...(isEAForum() ? [] : [{range: {baseScore: {gte: 0}}}]),
     ],
     mappings: {
       title: fullTextMapping,
@@ -266,7 +266,7 @@ const elasticSearchConfig: Record<SearchIndexCollectionName, IndexConfig> = {
       "organization",
       "howICanHelpOthers",
       "howOthersCanHelpMe",
-      ...(isFriendlyUI
+      ...(isFriendlyUI()
         ? [
           "tags.name",
           "posts.title",
@@ -411,7 +411,7 @@ const elasticSearchConfig: Record<SearchIndexCollectionName, IndexConfig> = {
       "deleted",
     ],
   },
-};
+});
 
 export const indexToCollectionName = (index: string): SearchIndexCollectionName => {
   const data: Record<string, SearchIndexCollectionName> = {
@@ -430,7 +430,7 @@ export const indexToCollectionName = (index: string): SearchIndexCollectionName 
 export const collectionNameToConfig = (
   collectionName: SearchIndexCollectionName,
 ): IndexConfig => {
-  const config = elasticSearchConfig[collectionName];
+  const config = elasticSearchConfig()[collectionName];
   if (!config) {
     throw new Error("Config not found for collection: " + collectionName);
   }
@@ -446,7 +446,7 @@ export const isFullTextField = <N extends SearchIndexCollectionName>(
   collectionName: N,
   fieldName: string,
 ) => {
-  const config = elasticSearchConfig[collectionName];
+  const config = elasticSearchConfig()[collectionName];
   if (!config) {
     throw new Error(`Invalid elastic collection name: ${collectionName}`);
   }

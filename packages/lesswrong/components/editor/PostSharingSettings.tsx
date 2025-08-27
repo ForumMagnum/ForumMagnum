@@ -10,7 +10,7 @@ import { CopyToClipboard } from 'react-copy-to-clipboard';
 import PersonAddIcon from '@/lib/vendor/@material-ui/icons/src/PersonAdd';
 import { moderationEmail } from '@/lib/instanceSettings';
 import { EditablePost, getPostCollaborateUrl, PostSubmitMeta } from '../../lib/collections/posts/helpers';
-import { ckEditorName } from './Editor';
+import { getCkEditorName } from './Editor';
 import { isFriendlyUI } from '../../themes/forumTheme';
 import { TypedFieldApi } from '@/components/tanstack-form-components/BaseAppForm';
 import { defineStyles, useStyles } from '../hooks/useStyles';
@@ -86,7 +86,7 @@ const PostSharingIcon: FC<{
   className?: string,
   onClick?: () => void,
 }> = (props) => {
-  return isFriendlyUI
+  return isFriendlyUI()
     ? (
       <ForumIcon icon="Share" {...props} />
     )
@@ -95,11 +95,7 @@ const PostSharingIcon: FC<{
     );
 }
 
-const shareTooltip = isFriendlyUI
-  ? "Share this post"
-  : "Share this document";
-
-const noSharePermissionTooltip = isFriendlyUI
+const getNoSharePermissionTooltip = () => isFriendlyUI()
   ? "You need at least 1 karma or to be approved by a moderator to share this post"
   : "You need at least 1 karma or to be approved by a mod to share";
 
@@ -140,7 +136,7 @@ export const PostSharingSettings = ({ field, post, formType, editorType }: PostS
       flash("Edit the document first to enable sharing");
       return;
     } else if (derivedEditorType !== "ckEditorMarkup") {
-      flash(`Change the editor type to ${ckEditorName} to enable sharing`);
+      flash(`Change the editor type to ${getCkEditorName} to enable sharing`);
       return;
     }
     
@@ -174,7 +170,7 @@ export const PostSharingSettings = ({ field, post, formType, editorType }: PostS
   }, [openDialog, closeDialog, formType, post, field, initialSharingSettings, flash, editorType]);
   const canUseSharing = userCanUseSharing(currentUser)
 
-  return <LWTooltip title={canUseSharing ? undefined : noSharePermissionTooltip}>
+  return <LWTooltip title={canUseSharing ? undefined : getNoSharePermissionTooltip()}>
       <EAButton
         className={classes.friendlyButton}
         onClick={userCanUseSharing(currentUser) ? onClickShare : undefined}

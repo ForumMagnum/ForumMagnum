@@ -436,7 +436,7 @@ const schema = {
       canCreate: ["admins", "sunshineRegiment"],
       // Note that `onCreate` has a forum-specific default value,
       // because we can't use forumType conditionals in `defaultValue` while sharing an `accepted_schema.sql` file
-      onCreate: ({ document }) => document.imageFade ?? (isLWorAF ? false : true),
+      onCreate: ({ document }) => document.imageFade ?? (isLWorAF() ? false : true),
       validation: {
         optional: true,
       },

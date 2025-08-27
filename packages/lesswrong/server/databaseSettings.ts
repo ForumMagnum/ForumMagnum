@@ -245,22 +245,16 @@ interface SSLSettings {
 
 export const sslSetting = new ParsedServerSetting<SSLSettings | null>(
   "analytics.ssl",
-  forumSelect({
-    EAForum: {
-      require: true,
-      allowUnauthorized: false,
-    },
-    default: null,
-  })
+  null,
 );
 
-export const commentAncestorsToNotifySetting = new ParsedServerSetting<number>('commentAncestorsToNotifySetting', forumSelect({EAForum: 5, default: 1}));
+export const commentAncestorsToNotifySetting = new ParsedServerSetting<number>('commentAncestorsToNotifySetting', 1);
 
 export const changesAllowedSetting = new ParsedServerSetting<number>('displayNameRateLimit.changesAllowed', 1);
 export const sinceDaysAgoSetting = new ParsedServerSetting<number>('displayNameRateLimit.sinceDaysAgo', 60);
 
 // Anti-DDoS measure
-export const botProtectionCommentRedirectSetting = new ParsedServerSetting<boolean>("botProtectionCommentRedirect", forumSelect({EAForum: true, default: false}));
+export const botProtectionCommentRedirectSetting = new ParsedServerSetting<boolean>("botProtectionCommentRedirect", false);
 
 const gigabytes = 1024*1024*1024;
 export const consoleLogMemoryUsageThreshold = new ParsedServerSetting<number>("consoleLogMemoryUsage", 1.5*gigabytes);

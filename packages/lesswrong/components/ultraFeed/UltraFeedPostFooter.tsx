@@ -66,7 +66,7 @@ const UltraFeedPostFooter = ({post}: {
   const currentUser = useCurrentUser();
 
   return <>
-    {isLWorAF && !post.shortform && !post.isEvent &&
+    {isLWorAF() && !post.shortform && !post.isEvent &&
       <AnalyticsContext pageSectionContext="tagFooter">
         <div className={classes.footerTagList}>
           <FooterTagList post={post}/>

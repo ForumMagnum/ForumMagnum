@@ -1,6 +1,6 @@
 import { registerComponent } from '../../lib/vulcan-lib/components';
 import React from 'react';
-import { forumTypeSetting } from '../../lib/instanceSettings';
+import { isAF } from '../../lib/instanceSettings';
 import { Link } from "../../lib/reactRouterWrapper";
 import { useCurrentUser } from "../common/withUser";
 
@@ -20,7 +20,7 @@ const AlignmentPendingApprovalMessage = ({post, classes}: {
   
   const userSubmittedPost = !!post.suggestForAlignmentUserIds && post.suggestForAlignmentUserIds.includes(currentUser._id)
   
-  if (!post.af && userSubmittedPost && forumTypeSetting.get() === 'AlignmentForum') {
+  if (!post.af && userSubmittedPost && isAF()) {
     return (
       <div className={classes.root}>
         <p>

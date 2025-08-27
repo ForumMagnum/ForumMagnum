@@ -97,7 +97,7 @@ export const userOwns = function (user: UsersMinimumInfo|DbUser|null, document: 
 };
 
 export const userOwnsAndOnLW = function (user: UsersMinimumInfo|DbUser|null, document: OwnableDocument): boolean {
-  return isLW && userOwns(user, document)
+  return isLW() && userOwns(user, document)
 }
 
 export const documentIsNotDeleted = (

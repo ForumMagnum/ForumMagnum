@@ -55,7 +55,7 @@ const SuggestCuratedDropdownItem = ({post}: {post: PostsBase}) => {
     && !userIsMemberOf(currentUser, 'canSuggestCuration')) {
     return null;
   }
-  if (isAF) {
+  if (isAF()) {
     return null;
   }
 

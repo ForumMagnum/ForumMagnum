@@ -9,7 +9,7 @@ import { userCanEditUser, userGetDisplayName, userGetProfileUrlFromSlug, PROGRAM
 import { getBrowserLocalStorage } from '../editor/localStorageHandlers';
 import { siteNameWithArticleSetting, taggingNameIsSet, taggingNameCapitalSetting, taglineSetting, isEAForum, nofollowKarmaThreshold } from '@/lib/instanceSettings';
 import { DEFAULT_LOW_KARMA_THRESHOLD } from '../../lib/collections/posts/views'
-import { SORT_ORDER_OPTIONS } from '../../lib/collections/posts/dropdownOptions';
+import { getSortOrderOptions } from '../../lib/collections/posts/dropdownOptions';
 import EAUsersProfileTabbedSection, { eaUsersProfileSectionStyles, UserProfileTabType } from '../ea-forum/users/modules/EAUsersProfileTabbedSection';
 import { getUserFromResults } from './UsersProfile';
 import InfoIcon from '@/lib/vendor/@material-ui/icons/src/Info'
@@ -524,7 +524,7 @@ const FriendlyUsersProfile = ({terms, slug, classes}: {
     <AnalyticsContext pageContext="userPage">
       <SingleColumnSection>
         <div className={classNames(classes.section, classes.mainSection)}>
-          {isEAForum && userCanEditUser(currentUser, user) &&
+          {isEAForum() && userCanEditUser(currentUser, user) &&
             <div className={classes.editProfile}>
               <Button
                 type="submit"
@@ -589,7 +589,7 @@ const FriendlyUsersProfile = ({terms, slug, classes}: {
               Posts <div className={classes.sectionHeadingCount}>{(userPostsCount || user.postCount)}</div>
             </Typography>
             <SortButton onClick={() => setShowPostSettings(!showPostSettings)}
-              label={`Sorted by ${ SORT_ORDER_OPTIONS[currentSorting].label }`} />
+              label={`Sorted by ${ getSortOrderOptions()[currentSorting].label }`} />
           </div>
           {showPostSettings && <PostsListSettings
             hidden={false}

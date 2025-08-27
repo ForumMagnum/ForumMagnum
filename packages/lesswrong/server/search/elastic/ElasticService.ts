@@ -5,7 +5,7 @@ import { indexNameToConfig } from "./ElasticConfig";
 import {
   QueryFilter,
   QueryFilterOperator,
-  SEARCH_ORIGIN_DATE,
+  getSearchOriginDate,
 } from "./ElasticQuery";
 import moment from "moment";
 import type { SearchOptions, SearchQuery } from "@/lib/search/NativeSearchClient";
@@ -120,7 +120,7 @@ class ElasticService {
       },
       facets_stats: {
         publicDateMs: {
-          min: SEARCH_ORIGIN_DATE.getTime(),
+          min: getSearchOriginDate().getTime(),
           max: new Date().getTime(),
         },
       },

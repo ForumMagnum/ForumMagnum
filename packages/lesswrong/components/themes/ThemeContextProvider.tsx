@@ -26,7 +26,7 @@ export const ThemeContextProvider = ({options, isEmail, children}: {
   const prefersDarkMode = usePrefersDarkMode();
 
   useEffect(() => {
-    if (isEAForum) {
+    if (isEAForum()) {
       removeCookie(THEME_COOKIE, {path: "/"});
     } else {
       if (stringify(themeOptions) !== themeCookie) {

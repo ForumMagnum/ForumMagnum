@@ -37,7 +37,7 @@ const CommentShortformIcon = ({comment, post, simple, iconClassName}: {
 }) => {
   const classes = useStyles(styles);
   // Top level shortform posts should show this icon/button, both to make shortform posts a bit more visually distinct, and to make it easier to grab permalinks for shortform posts.
-  if (!comment.shortform || comment.topLevelCommentId || isEAForum) return null
+  if (!comment.shortform || comment.topLevelCommentId || isEAForum()) return null
   
   if (simple) return <ForumIcon icon="Shortform" className={classNames(classes.smallIcon, iconClassName)} />
 

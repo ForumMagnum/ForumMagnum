@@ -315,12 +315,12 @@ export const baseTheme: BaseThemeSpecification = {
           initial-value: 36%;
         }`
       ],
-      isBookUI,
-      isFriendlyUI,
-      isLW,
-      isAF,
-      isLWorAF,
-      isEAForum,
+      isBookUI: isBookUI(),
+      isFriendlyUI: isFriendlyUI(),
+      isLW: isLW(),
+      isAF: isAF(),
+      isLWorAF: isLWorAF(),
+      isEAForum: isEAForum(),
     };
   }
 };

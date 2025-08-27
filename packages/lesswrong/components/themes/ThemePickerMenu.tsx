@@ -1,7 +1,7 @@
 import React from 'react';
 import { registerComponent } from '../../lib/vulcan-lib/components';
 import { useUpdateCurrentUser } from '../hooks/useUpdateCurrentUser';
-import { ThemeMetadata, themeMetadata, getForumType, AbstractThemeOptions } from '../../themes/themeNames';
+import { ThemeMetadata, getThemeMetadata, getForumType, AbstractThemeOptions } from '../../themes/themeNames';
 import { ForumTypeString, allForumTypes, forumTypeSetting, isEAForum, isLWorAF } from '../../lib/instanceSettings';
 import { ThemeContext } from './useTheme';
 import { useCurrentUser } from '../common/withUser';
@@ -44,7 +44,7 @@ const ThemePickerMenu = ({children, classes}: {
   const selectedForumTheme = getForumType(currentThemeOptions);
 
   const persistUserTheme = (newThemeOptions: AbstractThemeOptions) => {
-    if (isEAForum && currentUser) {
+    if (isEAForum() && currentUser) {
       void updateCurrentUser({
         theme: newThemeOptions as DbUser['theme'],
       });
@@ -84,9 +84,9 @@ const ThemePickerMenu = ({children, classes}: {
   const submenu = (
     <Paper>
       <DropdownMenu>
-        {isLWorAF &&
+        {isLWorAF() &&
           <>
-            {themeMetadata.map((themeMetadata: ThemeMetadata) =>
+            {getThemeMetadata().map((themeMetadata: ThemeMetadata) =>
               <DropdownItem
                 key={themeMetadata.name}
                 title={themeMetadata.label}

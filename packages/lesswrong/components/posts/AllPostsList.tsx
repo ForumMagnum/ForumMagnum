@@ -22,13 +22,6 @@ import PostsTimeframeListExponential from "./PostsTimeframeListExponential";
 import PostsList2 from "./PostsList2";
 import { returnIfValidNumber } from "@/lib/utils/typeGuardUtils";
 
-const timeframeToNumTimeBlocks = {
-  daily: forumAllPostsNumDaysSetting.get(),
-  weekly: forumAllPostsNumWeeksSetting.get(),
-  monthly: forumAllPostsNumMonthsSetting.get(),
-  yearly: forumAllPostsNumYearsSetting.get(),
-}
-
 const AllPostsList = ({
   currentTimeframe,
   currentSorting,
@@ -72,12 +65,19 @@ const AllPostsList = ({
             ...baseTerms,
             limit: 50
           }}
-          dimWhenLoading={showSettings && !isFriendlyUI}
-          showLoading={isFriendlyUI}
+          dimWhenLoading={showSettings && !isFriendlyUI()}
+          showLoading={isFriendlyUI()}
         />
       </AnalyticsContext>
     );
   }
+
+  const timeframeToNumTimeBlocks = {
+    daily: forumAllPostsNumDaysSetting.get(),
+    weekly: forumAllPostsNumWeeksSetting.get(),
+    monthly: forumAllPostsNumMonthsSetting.get(),
+    yearly: forumAllPostsNumYearsSetting.get(),
+  };
   
   const numTimeBlocks = timeframeToNumTimeBlocks[currentTimeframe as TimeframeType];
   const timeBlock = timeframeToTimeBlock[currentTimeframe as TimeframeType];
@@ -141,7 +141,7 @@ const AllPostsList = ({
             timeframe={currentTimeframe as TimeframeType}
             postListParameters={postListParameters}
             numTimeBlocks={numTimeBlocks}
-            dimWhenLoading={showSettings && !isFriendlyUI}
+            dimWhenLoading={showSettings && !isFriendlyUI()}
             after={after}
             before={before}
             reverse={query.reverse === "true"}

@@ -36,7 +36,7 @@ export const GlobalHotkeys = () => {
       });
     }
 
-    if (isLW && userIsAdminOrMod(currentUser) && e.altKey && e.shiftKey && !e.ctrlKey && !e.metaKey && e.keyCode === 85) {
+    if (isLW() && userIsAdminOrMod(currentUser) && e.altKey && e.shiftKey && !e.ctrlKey && !e.metaKey && e.keyCode === 85) {
       replaceText();
     }
   });

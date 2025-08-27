@@ -21,7 +21,7 @@ async function getTocAnswersServer(document: DbPost, context: ResolverContext) {
     draft: false,
     deleted:false,
   }
-  if (isAF) {
+  if (isAF()) {
     answersTerms.af = true
   }
   const answers = await Comments.find(answersTerms, {sort:questionAnswersSortings.top}).fetch();
@@ -38,7 +38,7 @@ async function getTocCommentsServer(document: DbPost, context: ResolverContext) 
     parentAnswerId: null,
     postId: document._id
   }
-  if (document.af && isAF) {
+  if (document.af && isAF()) {
     commentSelector.af = true
   }
   const commentCount = await Comments.find(commentSelector).count()

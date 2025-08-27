@@ -6,8 +6,6 @@ import { runQuery } from "../vulcan-lib/query";
 import { createPetrovDayAction } from "../collections/petrovDayActions/mutations";
 import { computeContextFromUser } from "../vulcan-lib/apollo-server/context";
 
-const context = createAdminContext()
-
 export const assignPetrov2024Roles = async () => {
   // eslint-disable-next-line no-console
   console.log("Assigning Petrov 2024 roles")
@@ -43,7 +41,7 @@ export const assignPetrov2024Roles = async () => {
       }
       `,
       variables,
-      { ...context, headers: new Headers({'x-forwarded-for': '127.0.0.1'}) }  
+      { ...createAdminContext(), headers: new Headers({'x-forwarded-for': '127.0.0.1'}) }  
     );
 
     if (errors) {

@@ -24,7 +24,7 @@ const TagMentionHit = ({hit, classes}: {
   hit: SearchTag,
   classes: ClassesType<typeof styles>,
 }) => {
-  const icon = isFriendlyUI
+  const icon = isFriendlyUI()
     ? <ForumIcon icon="Tag" className={classes.icon} />
     : "🏷️";
   return (

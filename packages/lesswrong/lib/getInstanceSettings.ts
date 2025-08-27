@@ -2,19 +2,13 @@
 import { getSettings } from "@/server/settings/settings";
 import { isServer } from "./executionEnvironment";
 
-let instanceSettings: any = null;
-export const getInstanceSettings = (): any => {
-  if (!instanceSettings) {
-    if (isServer) {
-      instanceSettings = getSettings();
-    } else {
-      instanceSettings = {
-        public: window.publicInstanceSettings,
-      };
-    }
+export const getInstanceSettings = () => {
+  if (isServer) {
+    return getSettings();
+  } else {
+    return {
+      public: window.publicInstanceSettings,
+      private: undefined,
+    };
   }
-  return instanceSettings;
-}
-export const setInstanceSettings = (settings: any) => {
-  instanceSettings = settings;
 }

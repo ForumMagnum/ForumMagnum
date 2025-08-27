@@ -6,7 +6,7 @@ import TabNavigationMenu, { TAB_NAVIGATION_MENU_WIDTH } from './TabNavigationMen
 import { isFriendlyUI } from '../../../themes/forumTheme';
 import { HOME_RHS_MAX_SCREEN_WIDTH } from '@/components/ea-forum/constants';
 import { defineStyles, useStyles } from '@/components/hooks/useStyles';
-import { communityPath } from '@/lib/pathConstants';
+import { getCommunityPath } from '@/lib/pathConstants';
 
 const styles = (theme: ThemeType) => ({
   // This wrapper is on friendly sites so that when this sidebar is hidden
@@ -55,7 +55,7 @@ const NavigationStandalone = ({
 }) => {
   const { location } = useLocation();
 
-  const background = location.pathname === communityPath;
+  const background = location.pathname === getCommunityPath();
 
   return <>
     <div className={classNames({[classes.sidebarWrapper]: isFriendlyUI})}>

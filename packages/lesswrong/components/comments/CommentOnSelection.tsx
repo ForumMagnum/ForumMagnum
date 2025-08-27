@@ -29,7 +29,7 @@ const selectedTextToolbarStyles = defineStyles("CommentOnSelectionContentWrapper
 
     // Hide on mobile to avoid horizontal scrolling
     [theme.breakpoints.down('xs')]: {
-      display: hasSideComments ? "none" : "initial",
+      display: hasSideComments() ? "none" : "initial",
     },
   },
 }));
@@ -216,7 +216,7 @@ export const CommentOnSelectionContentWrapper = ({post, children}: {
     }
   }, [onClickComment]);
   
-  if (!hasSideComments) {
+  if (!hasSideComments()) {
     return <>{children}</>;
   }
   

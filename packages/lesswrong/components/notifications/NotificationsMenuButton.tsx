@@ -213,7 +213,7 @@ const FriendlyNotificationsMenuButtonPlaceholder = ({toggle}: {
 }
 
 const NotificationsMenuButton = ({ open, toggle, className }: NotificationsMenuButtonProps) => {
-  const fallback = isFriendlyUI
+  const fallback = isFriendlyUI()
     ? <FriendlyNotificationsMenuButtonPlaceholder toggle={toggle} />
     : <BookNotificationsMenuButtonPlaceholder toggle={toggle} />
   return <SuspenseWrapper
@@ -221,7 +221,7 @@ const NotificationsMenuButton = ({ open, toggle, className }: NotificationsMenuB
     fallback={fallback}
   >
     <ErrorBoundary fallback={fallback}>
-      {isFriendlyUI
+      {isFriendlyUI()
         ? <FriendlyNotificationsMenuButtonInner open={open} toggle={toggle} className={className}/>
         : <BookNotificationsMenuButtonInner open={open} toggle={toggle} className={className}/>
       }

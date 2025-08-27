@@ -109,8 +109,6 @@ const styles = (theme: ThemeType) => ({
   },
 })
 
-export const taggedPostWording = taggingNameIsSet.get() ? `posts on this ${taggingNameSetting.get()}` : "posts with this tag"
-
 const SubscribeButton = ({
   tag,
   subscribeMessage,
@@ -210,6 +208,10 @@ const SubscribeButton = ({
       flash({messageString: error.message});
     }
   }
+
+  const taggedPostWording = taggingNameIsSet.get()
+    ? `posts on this ${taggingNameSetting.get()}`
+    : "posts with this tag";
 
   return (
     <div className={classNames(className, classes.root)}>

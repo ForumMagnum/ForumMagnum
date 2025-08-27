@@ -139,7 +139,7 @@ const ForumDropdownMultiselect = ({
       return `${prev}, ${nextLabel}`
     }, '');
 
-  const dropdownIcon = isFriendlyUI ? <ForumIcon icon="ThickChevronDown" className={classes.dropdownIcon} /> : <ArrowDropDownIcon className={classes.dropdownIcon}/>
+  const dropdownIcon = isFriendlyUI() ? <ForumIcon icon="ThickChevronDown" className={classes.dropdownIcon} /> : <ArrowDropDownIcon className={classes.dropdownIcon}/>
   return (
     <div className={classNames(classes.root, className)}>
       <Button
@@ -166,7 +166,7 @@ const ForumDropdownMultiselect = ({
           >
             {icon && <ForumIcon icon={icon} className={classes.optionIcon} />}
             {label}
-            {values.includes(option) && isFriendlyUI && (
+            {values.includes(option) && isFriendlyUI() && (
               <>
                 <div style={{width: paddingSize}} />
                 <ForumIcon icon="Check" className={classes.selectedIcon} />

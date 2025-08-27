@@ -10,8 +10,9 @@ import { testSettings } from "./test";
 import { testCrosspostSettings } from "./testCrosspost";
 import { z } from "zod";
 import { isAnyTest } from "@/lib/executionEnvironment";
+import { isAF } from "@/lib/forumTypeUtils";
 
-const validEnvNames = z.enum(["test", "testCrosspost", "baserates", "localAfDevDb", "localAfProdDb", "localLwDevDb", "localLwProdDb", "prodAf", "prodLw"]);
+const validEnvNames = z.enum(["test", "testCrosspost", "baserates","localLwDevDb", "localLwProdDb", "prodLw"]);
 
 function getPublicSettings() {
   if (isAnyTest) {
@@ -40,18 +41,12 @@ function getPublicSettings() {
       return testCrosspostSettings;
     case "baserates":
       return baserates;
-    case "localAfDevDb":
-      return localAfDevDb;
-    case "localAfProdDb":
-      return localAfProdDb;
     case "localLwDevDb":
-      return localLwDevDb;
+      return isAF() ? localAfDevDb : localLwDevDb;
     case "localLwProdDb":
-      return localLwProdDb;
-    case "prodAf":
-      return prodAf;
+      return isAF() ? localAfProdDb : localLwProdDb;
     case "prodLw":
-      return prodLw;
+      return isAF() ? prodAf : prodLw;
   }
 }
 
