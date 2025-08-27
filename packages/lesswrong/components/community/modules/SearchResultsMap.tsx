@@ -10,10 +10,11 @@ import { isFriendlyUI } from '@/themes/forumTheme';
 import CloudinaryImage2 from "../../common/CloudinaryImage2";
 import StyledMapPopup from "../../localGroups/StyledMapPopup";
 import { WrappedReactMapGL } from '../WrappedReactMapGL';
+import { defineStyles, useStyles } from '@/components/hooks/useStyles';
 
 const Marker = componentWithChildren(BadlyTypedMarker);
 
-const styles = (theme: ThemeType) => ({
+const styles = defineStyles("SearchResultsMap", (theme: ThemeType) => ({
   root: {
     width: "100%",
   },
@@ -53,7 +54,7 @@ const styles = (theme: ThemeType) => ({
     "-webkit-box-orient": 'vertical',
     overflow: 'hidden',
   }
-});
+}));
 
 const defaultCenter = {lat: 18.586392, lng: -11.334020}
 
@@ -68,15 +69,14 @@ const SearchResultsMap = ({
   from = "community_members_tab",
   hits,
   className,
-  classes,
 }: {
   center?: LatLng,
   zoom?: number,
   from?: string,
   hits: Array<Hit<SearchUser>>,
   className?: string,
-  classes: ClassesType<typeof styles>,
 }) => {
+  const classes = useStyles(styles);
   const [activeResultId, setActiveResultId] = useState('')
   
   const [viewport, setViewport] = useState({
@@ -170,7 +170,7 @@ type SearchResultsMapProps = {
 }
 const ConnectedSearchResultsMap: React.ComponentClass<SearchResultsMapProps, any> = connectHits(SearchResultsMap)
 
-export const RawSearchResultsMap = registerComponent("RawSearchResultsMap", SearchResultsMap, { styles });
-export default registerComponent("SearchResultsMap", ConnectedSearchResultsMap, { styles });
+export const RawSearchResultsMap = registerComponent("RawSearchResultsMap", SearchResultsMap);
+export default registerComponent("SearchResultsMap", ConnectedSearchResultsMap);
 
 

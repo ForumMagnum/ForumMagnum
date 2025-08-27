@@ -1,13 +1,12 @@
 import React from 'react';
 import { useLocation } from '../../lib/routeUtil';
 import { getReviewShortTitle, getReviewYearFromString } from '../../lib/reviewUtils';
-import { registerComponent } from '../../lib/vulcan-lib/components';
-import { styles } from '../common/HeaderSubtitle';
+import { headerSubtitleStyles } from '../common/HeaderSubtitle';
 import { Link } from '../../lib/reactRouterWrapper';
+import { useStyles } from '../hooks/useStyles';
 
-export const ReviewHeaderTitle = ({classes}: {
-  classes: ClassesType<typeof styles>,
-}) => {
+export const ReviewHeaderTitle = () => {
+  const classes = useStyles(headerSubtitleStyles);
   const { params } = useLocation()
   const reviewYear = getReviewYearFromString(params.year)
   return <div className={classes.subtitle}>
@@ -15,7 +14,7 @@ export const ReviewHeaderTitle = ({classes}: {
   </div>;
 }
 
-export default registerComponent('ReviewHeaderTitle', ReviewHeaderTitle, {styles});
+export default ReviewHeaderTitle;
 
 
 

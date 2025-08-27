@@ -1,6 +1,5 @@
 import React from 'react';
 import classNames from 'classnames';
-import IconButton from '@/lib/vendor/@material-ui/core/src/IconButton';
 import { BaseVoteArrowIconProps } from './VoteArrowIcon';
 import ForumIcon from "../common/ForumIcon";
 import { defineStyles, useStyles } from '../hooks/useStyles';
@@ -8,15 +7,7 @@ import { getVoteButtonColor, voteButtonSharedStyles } from './VoteButton';
 
 const styles = defineStyles("VoteAgreementIcon", (theme: ThemeType) => ({
   root: {
-    color: theme.palette.grey[400],
-    fontSize: 'inherit',
-    width: 'initial',
-    height: 'initial',
-    padding: 0,
     bottom: 2,
-    '&:hover': {
-      backgroundColor: 'transparent',
-    }
   },
   check: {
     fontSize: '50%',
@@ -140,17 +131,22 @@ const VoteAgreementIcon = ({
     )
 
   return (
-    <IconButton
-      className={classNames(classes.root, {[classes.disabled]: !enabled})}
+    <button
+      className={classNames(
+        classes.root,
+        sharedClasses.root,
+        !enabled && classes.disabled,
+      )}
+      type="button"
       onMouseDown={handlers.handleMouseDown}
       onMouseUp={handlers.handleMouseUp}
       onMouseOut={handlers.clearState}
       onClick={handlers.handleClick}
-      disableRipple
     >
+    <span className={sharedClasses.inner}>
       <div className={classes.iconsContainer}>
         <ForumIcon
-          icon={primaryIcon}  
+          icon={primaryIcon}
           className={classNames(
             (upOrDown === "Downvote") ? classes.clear : classes.check,
             bigVoteVisible && classes.hideIcon,
@@ -174,7 +170,8 @@ const VoteAgreementIcon = ({
           )}
         />
       </div>
-    </IconButton>
+    </span>
+    </button>
   )
 }
 
