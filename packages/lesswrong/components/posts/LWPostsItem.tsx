@@ -190,7 +190,6 @@ export const styles = defineStyles("LWPostsItem", (theme: ThemeType) => ({
     marginRight: theme.spacing.unit*1.5,
     zIndex: theme.zIndexes.postItemAuthor,
     flex: 1000,
-    minWidth: "fit-content",
     maxWidth: "fit-content",
     ...isIfAnyoneBuildsItFrontPage({
       color: theme.palette.text.bannerAdDim,
