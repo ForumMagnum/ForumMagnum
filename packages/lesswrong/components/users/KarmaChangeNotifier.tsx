@@ -14,7 +14,7 @@ import { TagCommentType } from '../../lib/collections/comments/types';
 import { tagGetHistoryUrl } from '../../lib/collections/tags/helpers';
 import type { ReactionChange } from '../../server/collections/users/karmaChangesGraphQL';
 import { getKarmaNotificationTimingChoices } from './KarmaChangeNotifierSettings';
-import { isFriendlyUI, preferredHeadingCase } from '../../themes/forumTheme';
+import { preferredHeadingCase } from '../../themes/forumTheme';
 import { isEAForum } from '../../lib/instanceSettings';
 import { eaAnonymousEmojiPalette, eaEmojiPalette } from '../../lib/voting/eaEmojiPalette';
 import classNames from 'classnames';
@@ -57,7 +57,7 @@ const styles = defineStyles("KarmaChangeNotifier", (theme: ThemeType) => ({
     zIndex: theme.zIndexes.karmaChangeNotifier,
   },
   starIcon: {
-    color: isFriendlyUI ? theme.palette.grey[600] : theme.palette.header.text,
+    color: theme.isFriendlyUI ? theme.palette.grey[600] : theme.palette.header.text,
     ...isIfAnyoneBuildsItFrontPage({
       color: theme.palette.text.bannerAdOverlay,
     }),
@@ -80,12 +80,12 @@ const styles = defineStyles("KarmaChangeNotifier", (theme: ThemeType) => ({
     textAlign: "right",
   },
   votedItemReacts: {
-    marginLeft: isEAForum ? 12 : 6,
+    marginLeft: theme.isEAForum ? 12 : 6,
   },
   individualAddedReact: {
-    color: isEAForum ? theme.palette.primary.main : undefined,
+    color: theme.isEAForum ? theme.palette.primary.main : undefined,
     marginLeft: 2,
-    marginRight: isEAForum ? 6 : undefined,
+    marginRight: theme.isEAForum ? 6 : undefined,
   },
   votedItemDescription: {
     display: "inline-block",

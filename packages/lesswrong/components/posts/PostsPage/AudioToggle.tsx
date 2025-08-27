@@ -1,26 +1,25 @@
 import React from 'react';
 import { registerComponent } from '../../../lib/vulcan-lib/components';
 import classNames from 'classnames';
-import { isFriendlyUI } from '@/themes/forumTheme';
 import { postHasAudioPlayer } from './PostsAudioPlayerWrapper';
 import LWTooltip from "../../common/LWTooltip";
 import ForumIcon from "../../common/ForumIcon";
 
-const PODCAST_ICON_SIZE = isFriendlyUI ? 22 : 24;
+const podcastIconSize = (theme: ThemeType) => theme.isFriendlyUI ? 22 : 24;
 // some padding around the icon to make it look like a stateful toggle button
-const PODCAST_ICON_PADDING = isFriendlyUI ? 4 : 2
+const podcastIconPadding = (theme: ThemeType) => theme.isFriendlyUI ? 4 : 2
 
 const styles = (theme: ThemeType) => ({
   togglePodcastContainer: {
     alignSelf: 'center',
     color: theme.palette.text.dim3,
-    height: PODCAST_ICON_SIZE,
+    height: podcastIconSize,
   },
   audioIcon: {
-    width: PODCAST_ICON_SIZE + (PODCAST_ICON_PADDING * 2),
-    height: PODCAST_ICON_SIZE + (PODCAST_ICON_PADDING * 2),
-    padding: PODCAST_ICON_PADDING,
-    transform: isFriendlyUI ? undefined : `translateY(-${PODCAST_ICON_PADDING}px)`,
+    width: podcastIconSize(theme) + (podcastIconPadding(theme) * 2),
+    height: podcastIconSize(theme) + (podcastIconPadding(theme) * 2),
+    padding: podcastIconPadding(theme),
+    transform: theme.isFriendlyUI ? undefined : `translateY(-${podcastIconPadding}px)`,
   },
   audioIconOn: {
     background: theme.palette.icon.dim05,

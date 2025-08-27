@@ -1,6 +1,6 @@
 import React from 'react';
 import { taggingNameCapitalSetting, taggingNameSetting } from '../../lib/instanceSettings';
-import { isFriendlyUI, preferredHeadingCase } from '../../themes/forumTheme';
+import { preferredHeadingCase } from '../../themes/forumTheme';
 import { useVoteButtonsDisabled } from '../votes/useVoteButtonsDisabled';
 import { registerComponent } from '../../lib/vulcan-lib/components';
 import { useVote } from '../votes/withVote';
@@ -11,7 +11,7 @@ import LWTooltip from "../common/LWTooltip";
 
 const styles = (theme: ThemeType) => ({
   relevance: {
-    marginTop: isFriendlyUI ? undefined : 2,
+    marginTop: theme.isFriendlyUI ? undefined : 2,
     marginLeft: 16,
     ...theme.typography.commentStyle,
   },
@@ -22,7 +22,7 @@ const styles = (theme: ThemeType) => ({
   voteButton: {
     display: "inline-block",
     fontSize: 25,
-    transform: isFriendlyUI ? "translateY(2px)" : undefined,
+    transform: theme.isFriendlyUI ? "translateY(2px)" : undefined,
   },
   score: {
     marginLeft: 4,
@@ -30,7 +30,7 @@ const styles = (theme: ThemeType) => ({
     color: theme.palette.grey[1000],
   },
   removeButton: {
-    ...(isFriendlyUI
+    ...(theme.isFriendlyUI
       ? {
         float: "right",
         marginTop: 10,
@@ -43,7 +43,7 @@ const styles = (theme: ThemeType) => ({
       }),
   },
   removed: {
-    ...(isFriendlyUI
+    ...(theme.isFriendlyUI
       ? {
         float: "right",
         marginTop: 12,

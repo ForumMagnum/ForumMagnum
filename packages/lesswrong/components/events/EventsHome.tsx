@@ -19,7 +19,7 @@ import Checkbox from '@/lib/vendor/@material-ui/core/src/Checkbox';
 import ListItemText from '@/lib/vendor/@material-ui/core/src/ListItemText';
 import classNames from 'classnames';
 
-import { isFriendlyUI, preferredHeadingCase } from '../../themes/forumTheme';
+import { preferredHeadingCase } from '../../themes/forumTheme';
 import EventNotificationsDialog from "../localGroups/EventNotificationsDialog";
 import LoginPopup from "../users/LoginPopup";
 import HighlightedEventCard from "./modules/HighlightedEventCard";
@@ -74,7 +74,7 @@ const styles = (theme: ThemeType) => ({
     ...theme.typography.headline,
     fontSize: 34,
     margin: 0,
-    ...(isFriendlyUI && {
+    ...(theme.isFriendlyUI && {
       fontFamily: theme.palette.fonts.sansSerifStack,
     }),
   },

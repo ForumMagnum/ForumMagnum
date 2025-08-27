@@ -38,13 +38,13 @@ export const styles = defineStyles("NotificationsMenuButton", (theme: ThemeType)
   badgeContainer: {
     padding: "none",
     verticalAlign: "inherit",
-    fontFamily: isFriendlyUI
+    fontFamily: theme.isFriendlyUI
       ? theme.palette.fonts.sansSerifStack
       : 'freight-sans-pro, sans-serif',
   },
   badge: {
     pointerEvents: "none",
-    ...(isFriendlyUI
+    ...(theme.isFriendlyUI
       ? {
         top: 3,
         right: 6,
@@ -65,17 +65,17 @@ export const styles = defineStyles("NotificationsMenuButton", (theme: ThemeType)
       }),
   },
   badgeBackground: {
-    backgroundColor: isFriendlyUI
+    backgroundColor: theme.isFriendlyUI
       ? theme.palette.primary.main
       : "inherit",
   },
-  badge1Char: isFriendlyUI
+  badge1Char: theme.isFriendlyUI
     ? {
       width: 18,
       height: 18,
     }
     : {},
-  badge2Chars: isFriendlyUI
+  badge2Chars: theme.isFriendlyUI
     ? {
       width: 20,
       height: 20,
@@ -83,13 +83,13 @@ export const styles = defineStyles("NotificationsMenuButton", (theme: ThemeType)
     : {},
   buttonOpen: {
     backgroundColor: theme.palette.buttons.notificationsBellOpen.background,
-    color: isFriendlyUI
+    color: theme.isFriendlyUI
       ? theme.palette.grey[600]
       : theme.palette.buttons.notificationsBellOpen.icon,
   },
   buttonClosed: {
     backgroundColor: "transparent",
-    color: isFriendlyUI
+    color: theme.isFriendlyUI
       ? theme.palette.grey[600]
       : theme.palette.header.text,
   },

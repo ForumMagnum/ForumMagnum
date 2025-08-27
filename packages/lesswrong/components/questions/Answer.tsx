@@ -51,7 +51,7 @@ const styles = (theme: ThemeType) => ({
     display: 'inline-block',
     fontWeight: 600,
     ...theme.typography.postStyle,
-    ...(isFriendlyUI
+    ...(theme.isFriendlyUI
       ? {
         fontFamily: theme.palette.fonts.sansSerifStack,
       }
@@ -71,7 +71,7 @@ const styles = (theme: ThemeType) => ({
     flexShrink: 0,
     flexGrow: 1,
     position: "relative",
-    top: isFriendlyUI ? 0 : -4,
+    top: theme.isFriendlyUI ? 0 : -4,
   },
   footer: {
     marginTop: 5,

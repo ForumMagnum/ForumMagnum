@@ -3,7 +3,6 @@ import moment from '../../../lib/moment-timezone';
 import { useTracking } from "../../../lib/analyticsEvents";
 import makeUrls from './makeUrls';
 import classNames from 'classnames';
-import { isFriendlyUI } from '../../../themes/forumTheme';
 import { useQuery } from "@/lib/crud/useQuery";
 import { gql } from "@/lib/generated/gql-codegen";
 import LWTooltip from "../../common/LWTooltip";
@@ -30,18 +29,18 @@ const styles = defineStyles("AddToCalendarButton", (theme: ThemeType) => ({
     background: 'transparent',
     color: theme.palette.grey[600],
     font: 'inherit',
-    fontSize: isFriendlyUI ? undefined : 14,
+    fontSize: theme.isFriendlyUI ? undefined : 14,
     verticalAlign: 'text-bottom',
     '&:hover': {
       opacity: 0.5
     }
   },
   icon: {
-    height: isFriendlyUI ? 18 : 16,
+    height: theme.isFriendlyUI ? 18 : 16,
     fill: theme.palette.grey[600]
   },
   label: {
-    marginLeft: isFriendlyUI ? 7 : 8,
+    marginLeft: theme.isFriendlyUI ? 7 : 8,
   },
   dropdown: {
     background: theme.palette.panelBackground.default,

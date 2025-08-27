@@ -6,7 +6,6 @@ import PersonIcon from '@/lib/vendor/@material-ui/icons/src/PersonPin';
 import type { Hit } from 'react-instantsearch-core';
 import classNames from 'classnames';
 import { componentWithChildren } from '../../../lib/utils/componentsWithChildren';
-import { isFriendlyUI } from '@/themes/forumTheme';
 import CloudinaryImage2 from "../../common/CloudinaryImage2";
 import StyledMapPopup from "../../localGroups/StyledMapPopup";
 import { WrappedReactMapGL } from '../WrappedReactMapGL';
@@ -29,7 +28,7 @@ const styles = defineStyles("SearchResultsMap", (theme: ThemeType) => ({
     display: 'flex',
     columnGap: 10,
     alignItems: 'center',
-    color: isFriendlyUI ? undefined : theme.palette.text.alwaysBlack,
+    color: theme.isFriendlyUI ? undefined : theme.palette.text.alwaysBlack,
   },
   profileImage: {
     'box-shadow': '3px 3px 1px ' + theme.palette.boxShadowColor(.25),

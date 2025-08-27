@@ -39,7 +39,7 @@ const styles = (theme: ThemeType) => ({
     ...theme.typography.postStyle,
     position: "sticky",
     zIndex: 1,
-    ...(isFriendlyUI
+    ...(theme.isFriendlyUI
       ? {
         fontFamily: theme.palette.fonts.sansSerifStack,
         fontWeight: 600,
@@ -66,9 +66,9 @@ const styles = (theme: ThemeType) => ({
     marginTop: 6,
   },
   noPosts: {
-    marginLeft: isFriendlyUI ? 0 : 23,
+    marginLeft: theme.isFriendlyUI ? 0 : 23,
     color: theme.palette.text.dim,
-    ...(isFriendlyUI
+    ...(theme.isFriendlyUI
       ? {
         marginTop: 18,
         fontFamily: theme.palette.fonts.sansSerifStack,
@@ -77,20 +77,20 @@ const styles = (theme: ThemeType) => ({
   },
   posts: {
     boxShadow: theme.palette.boxShadow.default,
-    marginBottom: isFriendlyUI ? 8 : 0,
+    marginBottom: theme.isFriendlyUI ? 8 : 0,
   },
-  subtitle: isFriendlyUI ? {
+  subtitle: theme.isFriendlyUI ? {
     marginTop: 12,
   } : {},
   frontpageSubtitle: {
     marginBottom: 6
   },
   otherSubtitle: {
-    marginTop: isFriendlyUI ? 0 : 6,
+    marginTop: theme.isFriendlyUI ? 0 : 6,
     marginBottom: 6
   },
   divider: {
-    ...(isFriendlyUI && {
+    ...(theme.isFriendlyUI && {
       display: 'none'
     }),
   }

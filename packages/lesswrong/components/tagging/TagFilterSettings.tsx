@@ -5,7 +5,6 @@ import { tagStyle } from './FooterTag';
 import { usePersonalBlogpostInfo } from './usePersonalBlogpostInfo';
 import { userHasNewTagSubscriptions } from '../../lib/betas';
 import { taggingNameCapitalSetting } from '../../lib/instanceSettings';
-import { isFriendlyUI } from '../../themes/forumTheme';
 import AddTagButton from "./AddTagButton";
 import LWTooltip from "../common/LWTooltip";
 import FilterMode, { filteringStyles } from './FilterMode';
@@ -21,7 +20,7 @@ const styles = defineStyles("TagFilterSettings", (theme: ThemeType) => ({
     display: "flex",
     flexWrap: "wrap",
     alignItems: "center",
-    ...(isFriendlyUI
+    ...(theme.isFriendlyUI
       ? {
         marginTop: 8,
       } : {
@@ -48,7 +47,7 @@ const styles = defineStyles("TagFilterSettings", (theme: ThemeType) => ({
     ...filteringStyles(theme),
   },
   personalAndPlus: {
-    ...(isFriendlyUI ? {} : {
+    ...(theme.isFriendlyUI ? {} : {
       gap: "4px",
       display: "flex",
       alignItems: "center"

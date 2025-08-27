@@ -5,7 +5,6 @@ import { useCurrentUser } from '../common/withUser';
 import { forumTitleSetting } from '../../lib/instanceSettings';
 import { canNominate, getCostData, getReviewPhase, REVIEW_YEAR, VoteIndex } from '../../lib/reviewUtils';
 import classNames from 'classnames';
-import { isFriendlyUI } from '../../themes/forumTheme';
 import ReviewVotingWidget from "./ReviewVotingWidget";
 import LWPopper from "../common/LWPopper";
 import LWTooltip from "../common/LWTooltip";
@@ -65,7 +64,7 @@ const styles = (theme: ThemeType) => ({
     display: "inline-block"
   },
   card: {
-    padding: isFriendlyUI ? "8px 24px" : 8,
+    padding: theme.isFriendlyUI ? "8px 24px" : 8,
     textAlign: "center",
   },
   reviewButton: {

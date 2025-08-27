@@ -153,11 +153,11 @@ const styles = defineStyles("LWTagPage", (theme: ThemeType) => ({
     }
   },
   title: {
-    ...theme.typography[isFriendlyUI ? "display2" : "display3"],
-    ...theme.typography[isFriendlyUI ? "headerStyle" : "commentStyle"],
+    ...theme.typography[theme.isFriendlyUI ? "display2" : "display3"],
+    ...theme.typography[theme.isFriendlyUI ? "headerStyle" : "commentStyle"],
     marginTop: 4,
     marginBottom: 12,
-    fontWeight: isFriendlyUI ? 700 : 600,
+    fontWeight: theme.isFriendlyUI ? 700 : 600,
     lineHeight: 1.05,
     [theme.breakpoints.down('sm')]: {
       fontSize: '27px',
@@ -211,7 +211,7 @@ const styles = defineStyles("LWTagPage", (theme: ThemeType) => ({
     "-webkit-line-clamp": 2,
     "-webkit-box-orient": 'vertical',
     overflow: 'hidden',
-    fontFamily: isFriendlyUI ? theme.palette.fonts.sansSerifStack : undefined,
+    fontFamily: theme.isFriendlyUI ? theme.palette.fonts.sansSerifStack : undefined,
   },
   relatedTagLink : {
     color: theme.palette.lwTertiary.dark

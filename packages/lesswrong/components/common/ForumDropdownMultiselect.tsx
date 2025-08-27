@@ -16,7 +16,7 @@ const styles = (theme: ThemeType) => ({
     ...theme.typography.commentStyle,
     color: theme.palette.grey[600],
     textAlign: "center",
-    ...(!isFriendlyUI && {
+    ...(!theme.isFriendlyUI && {
       "& button:hover": {
         backgroundColor: "transparent",
       },
@@ -34,7 +34,7 @@ const styles = (theme: ThemeType) => ({
     paddingLeft: 12,
     paddingRight: 6,
     backgroundColor: "transparent",
-    ...(isFriendlyUI && {
+    ...(theme.isFriendlyUI && {
       color: "inherit",
       "&:hover": {
         backgroundColor: theme.palette.grey[250],
@@ -43,7 +43,7 @@ const styles = (theme: ThemeType) => ({
     }),
   },
   openButton: {
-    ...(isFriendlyUI && {
+    ...(theme.isFriendlyUI && {
       backgroundColor: theme.palette.grey[250],
       color: theme.palette.grey[1000],
     }),
@@ -51,7 +51,7 @@ const styles = (theme: ThemeType) => ({
   dropdownIcon: {
     verticalAlign: "middle",
     position: "relative",
-    ...(isFriendlyUI && { width: 10, fontSize: "18px!important", height: 12, marginLeft: 4, padding: 1}),
+    ...(theme.isFriendlyUI && { width: 10, fontSize: "18px!important", height: 12, marginLeft: 4, padding: 1}),
   },
   selectedIcon: {
     verticalAlign: "middle",
@@ -64,7 +64,7 @@ const styles = (theme: ThemeType) => ({
   },
   menu: {
     marginTop: 28,
-    ...(isFriendlyUI && {
+    ...(theme.isFriendlyUI && {
       "& .MuiPopover-paper": {
         backgroundColor: theme.palette.dropdown.background,
         border: `1px solid ${theme.palette.dropdown.border}`,
@@ -83,7 +83,7 @@ const styles = (theme: ThemeType) => ({
     marginTop: 46
   },
   menuItem: {
-    ...(isFriendlyUI && {
+    ...(theme.isFriendlyUI && {
       color: theme.palette.grey[1000],
       borderRadius: theme.borderRadius.small,
       padding: "6px 8px",

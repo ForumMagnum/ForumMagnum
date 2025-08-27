@@ -12,7 +12,7 @@ import LWClickAwayListener from "../common/LWClickAwayListener";
 import DropdownMenu from "../dropdowns/DropdownMenu";
 import NotifyMeToggleDropdownItem from "../dropdowns/NotifyMeToggleDropdownItem";
 
-const styles = (_theme: ThemeType) => ({
+const styles = (theme: ThemeType) => ({
   buttonContent: {
     display: "flex",
     gap: "4px",
@@ -26,7 +26,7 @@ const styles = (_theme: ThemeType) => ({
     marginTop: 6,
   },
   dropdown: {
-    width: isFriendlyUI ? 200 : 220,
+    width: theme.isFriendlyUI ? 200 : 220,
     maxWidth: "100vw",
   },
 });

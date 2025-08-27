@@ -95,10 +95,10 @@ const styles = defineStyles("Layout", (theme: ThemeType) => ({
     minHeight: `calc(100vh - ${HEADER_HEIGHT}px)`,
     gridArea: 'main',
     [theme.breakpoints.down('md')]: {
-      paddingTop: isFriendlyUI ? 0 : theme.spacing.mainLayoutPaddingTop,
+      paddingTop: theme.isFriendlyUI ? 0 : theme.spacing.mainLayoutPaddingTop,
     },
     [theme.breakpoints.down('sm')]: {
-      paddingTop: isFriendlyUI ? 0 : 10,
+      paddingTop: theme.isFriendlyUI ? 0 : 10,
       paddingLeft: 8,
       paddingRight: 8,
     },

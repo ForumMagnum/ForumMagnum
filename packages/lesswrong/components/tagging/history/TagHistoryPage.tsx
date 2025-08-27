@@ -2,7 +2,6 @@ import React, { useMemo, useState } from 'react'
 import { registerComponent } from '../../../lib/vulcan-lib/components';
 import { useTagBySlug } from '../useTag';
 import { useLocation } from '../../../lib/routeUtil';
-import { isFriendlyUI } from '../../../themes/forumTheme';
 import { addDefaultLensToLenses, TagLens } from '@/lib/arbital/useTagLenses';
 import keyBy from 'lodash/keyBy';
 import { RevealHiddenBlocks, RevealHiddenBlocksContext } from '@/components/editor/conditionalVisibilityBlock/ConditionalVisibilityBlockDisplay';
@@ -34,7 +33,7 @@ import { TagHistoryFeedQuery } from '@/components/common/feeds/feedQueries';
 
 export const tagHistoryStyles = defineStyles("TagHistoryPage", (theme: ThemeType) => ({
   title: {
-    fontFamily: isFriendlyUI ? theme.palette.fonts.sansSerifStack : undefined,
+    fontFamily: theme.isFriendlyUI ? theme.palette.fonts.sansSerifStack : undefined,
   },
   feed: {
     ...theme.typography.body2,

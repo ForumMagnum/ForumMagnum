@@ -5,8 +5,7 @@ import { queryIsUpdating } from './queryStatusUtils'
 import {useTracking} from "../../lib/analyticsEvents";
 import { LoadMoreCallback } from '../hooks/useQueryWithLoadMore';
 import { useIsFirstRender } from "../hooks/useFirstRender";
-import { isBookUI, isFriendlyUI, preferredHeadingCase } from '../../themes/forumTheme';
-import { isAF } from '@/lib/instanceSettings';
+import { preferredHeadingCase } from '../../themes/forumTheme';
 import Loading from "../vulcan-core/Loading";
 import type { WrappedFetchMore } from '../hooks/useQueryWithLoadMore';
 import { defineStyles, useStyles } from '../hooks/useStyles';
@@ -16,19 +15,19 @@ const styles = defineStyles("LoadMore", (theme: ThemeType) => ({
     ...theme.typography.body2,
     ...theme.typography.commentStyle,
     color: theme.palette.lwTertiary.main,
-    ...(isBookUI && theme.dark && {
+    ...(theme.isBookUI && theme.dark && {
       color: theme.palette.text.bannerAdOverlay,
     }),
     display: "inline-block",
     minHeight: 20,
-    ...(isFriendlyUI
+    ...(theme.isFriendlyUI
       ? {
         fontSize: 14,
         fontWeight: 600,
         lineHeight: "24px",
       }
       : {}),
-    ...(isAF && {
+    ...(theme.isAF && {
       fontWeight: 500,
     }),
   },

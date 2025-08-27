@@ -2,13 +2,12 @@ import React from 'react';
 import { registerComponent } from '../../lib/vulcan-lib/components';
 import { useCurrentUser } from './withUser';
 import { useServerRequestStatus } from '../../lib/routeUtil'
-import { isFriendlyUI } from '../../themes/forumTheme';
 import LoginForm from "../users/LoginForm";
 import SingleColumnSection from "./SingleColumnSection";
 import { Typography } from "./Typography";
 
 const styles = (theme: ThemeType) => ({
-  root: isFriendlyUI
+  root: theme.isFriendlyUI
     ? {
       fontFamily: theme.palette.fonts.sansSerifStack,
       fontSize: 16,

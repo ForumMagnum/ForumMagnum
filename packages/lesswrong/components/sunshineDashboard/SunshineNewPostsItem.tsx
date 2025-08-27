@@ -12,7 +12,6 @@ import HomeIcon from '@/lib/vendor/@material-ui/icons/src/Home';
 import ClearIcon from '@/lib/vendor/@material-ui/icons/src/Clear';
 import VisibilityOutlinedIcon from '@/lib/vendor/@material-ui/icons/src/VisibilityOutlined';
 import { MANUAL_FLAG_ALERT } from "@/lib/collections/moderatorActions/constants";
-import { isFriendlyUI } from '../../themes/forumTheme';
 import MetaInfo from "../common/MetaInfo";
 import LinkPostMessage from "../posts/LinkPostMessage";
 import { ContentItemBody } from "../contents/ContentItemBody";
@@ -72,7 +71,7 @@ const styles = (theme: ThemeType) => ({
     marginBottom: 8,
     display: "flex",
     alignItems: "center",
-    fontFamily: isFriendlyUI ? theme.palette.fonts.sansSerifStack : undefined,
+    fontFamily: theme.isFriendlyUI ? theme.palette.fonts.sansSerifStack : undefined,
   },
   vote: {
     marginRight: 8

@@ -1,6 +1,5 @@
 import { postGetPageUrl } from '@/lib/collections/posts/helpers';
 import { Link } from '@/lib/reactRouterWrapper';
-import { isFriendlyUI } from '@/themes/forumTheme';
 import classNames from 'classnames';
 import React, { useState } from 'react';
 import { registerComponent } from "../../lib/vulcan-lib/components";
@@ -45,7 +44,7 @@ const CommentsListMutation = gql(`
 const styles = (theme: ThemeType) => ({
   root: {
     border: theme.palette.border.commentBorder,
-    borderRadius: isFriendlyUI ? theme.borderRadius.small : undefined,
+    borderRadius: theme.isFriendlyUI ? theme.borderRadius.small : undefined,
     cursor: "default",
     marginBottom: 20,
     background: theme.palette.background.pageActiveAreaBackground,
@@ -92,10 +91,10 @@ const styles = (theme: ThemeType) => ({
     marginBottom: 8,
     color: theme.palette.text.dim,
     paddingTop: "0.6em",
-    marginRight: isFriendlyUI ? 40 : 20,
+    marginRight: theme.isFriendlyUI ? 40 : 20,
     "& a:hover, & a:active": {
       textDecoration: "none",
-      color: isFriendlyUI ? undefined : `${theme.palette.linkHover.dim} !important`,
+      color: theme.isFriendlyUI ? undefined : `${theme.palette.linkHover.dim} !important`,
     },
   },
   postTitle: {

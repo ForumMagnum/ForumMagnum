@@ -3,7 +3,7 @@ import { registerComponent } from '../../lib/vulcan-lib/components';
 import { useVote } from '../votes/withVote';
 import { useVoteButtonsDisabled } from '../votes/useVoteButtonsDisabled';
 import classNames from 'classnames';
-import { isBookUI, isFriendlyUI } from '../../themes/forumTheme';
+import { isBookUI } from '../../themes/forumTheme';
 import { forumSelect } from '@/lib/forumTypeUtils';
 import { TooltipSpan } from '../common/FMTooltip';
 import OverallVoteButton from "../votes/OverallVoteButton";
@@ -24,7 +24,7 @@ const styles = (theme: ThemeType) => ({
   // these interact with whether the vote icons are solid or hollow (i.e. different components). Not ideally set up, so nb. 
   vertLayoutVoteUp: {
     position: "absolute",
-    left: isFriendlyUI ? 9 : 10,
+    left: theme.isFriendlyUI ? 9 : 10,
     top: forumSelect({
       LessWrong: -17,
       AlignmentForum: -15,
@@ -34,7 +34,7 @@ const styles = (theme: ThemeType) => ({
   // these interact with whether the vote icons are solid or hollow (i.e. different components). Not ideally set up, so nb. 
   vertLayoutVoteDown: {
     position: "absolute",
-    left: isFriendlyUI ? 9 : 10,
+    left: theme.isFriendlyUI ? 9 : 10,
     top: forumSelect({
       LessWrong: 8,
       AlignmentForum: 10,

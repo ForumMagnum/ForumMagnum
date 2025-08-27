@@ -251,7 +251,14 @@ export const eaForumTheme: SiteThemeSpecification = {
             borderRadius: defaultBorderRadius
           }
         }
-      }
+      },
+
+      isBookUI: false,
+      isFriendlyUI: true,
+      isLW: false,
+      isAF: false,
+      isLWorAF: false,
+      isEAForum: true,
     }
   }
 };

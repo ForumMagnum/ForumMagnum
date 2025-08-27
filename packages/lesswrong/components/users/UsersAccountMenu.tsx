@@ -14,11 +14,11 @@ import { Paper } from '../widgets/Paper';
 
 const styles = (theme: ThemeType) => ({
   root: {
-    marginTop: isFriendlyUI ? undefined : 5,
+    marginTop: theme.isFriendlyUI ? undefined : 5,
   },
   userButton: {
     fontSize: '14px',
-    fontWeight: isFriendlyUI ? undefined : 400,
+    fontWeight: theme.isFriendlyUI ? undefined : 400,
     opacity: .8,
     color: blackBarTitle.get() ? theme.palette.text.alwaysWhite : theme.palette.header.text,
   },

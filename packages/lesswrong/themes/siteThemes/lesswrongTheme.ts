@@ -129,6 +129,13 @@ export const lessWrongTheme: SiteThemeSpecification = {
           paddingBottom: 8
         }
       },
-    }
+    },
+
+    isBookUI: true,
+    isFriendlyUI: false,
+    isLW: true,
+    isAF: false,
+    isLWorAF: true,
+    isEAForum: false,
   }),
 };

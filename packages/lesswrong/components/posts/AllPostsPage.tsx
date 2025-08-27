@@ -21,7 +21,7 @@ import AllPostsList from "./AllPostsList";
 const styles = (theme: ThemeType) => ({
   title: {
     cursor: "pointer",
-    "& .SectionTitle-title": isFriendlyUI
+    "& .SectionTitle-title": theme.isFriendlyUI
       ? {
         color: theme.palette.grey[1000],
         textTransform: "none",
