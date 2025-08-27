@@ -471,11 +471,13 @@ const Header = ({
     </AnalyticsContext>
   </div>
 
+  const loginButtonNode = isFriendlyUI() ? <EAUsersAccountMenu /> : <LWUsersAccountMenu />;
+
   // the items on the right-hand side (search, notifications, user menu, login/sign up buttons)
   const rightHeaderItemsNode = <div className={classNames(classes.rightHeaderItems)}>
     <SearchBar onSetIsActive={setSearchOpen} searchResultsArea={searchResultsArea} />
     {!isFriendlyUI() && usersMenuNode}
-    {!isLoggedIn && isFriendlyUI() ? <EAUsersAccountMenu /> : <LWUsersAccountMenu />}
+    {!isLoggedIn && loginButtonNode}
     {hasKarmaChangeNotifier && <KarmaChangeNotifier
       className={(isFriendlyUI() && searchOpen) ? classes.hideXsDown : undefined}
     />}
