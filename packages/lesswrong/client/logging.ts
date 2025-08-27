@@ -32,26 +32,28 @@ export function onUserChanged(user: UsersCurrent | null) {
   // void import('./datadogRum').then(module => module.configureDatadogRum(user));
 }
 
-window.addEventListener('load', ev => {
-  const urlParams = new URLSearchParams(document.location?.search)
+if (typeof window !== 'undefined') {
+  window.addEventListener('load', ev => {
+    const urlParams = new URLSearchParams(document.location?.search)
 
-  const eventPayload: Record<CamelCaseify<UtmParam, '_'>, string | null> & Record<string, AnyBecauseIsInput> = {
-    url: document.location?.href,
-    referrer: document.referrer,
-    utmSource: urlParams.get('utm_source'),
-    utmMedium: urlParams.get('utm_medium'),
-    utmCampaign: urlParams.get('utm_campaign'),
-    utmContent: urlParams.get('utm_content'),
-    utmTerm: urlParams.get('utm_term'),
-    utmUserId: urlParams.get('utm_user_id'),
-    browserProps: browserProperties(),
-    prefersDarkMode: devicePrefersDarkMode(),
-    performance: {
-      memory: (window as any).performance?.memory?.usedJSHeapSize,
-      timeOrigin: window.performance?.timeOrigin,
-      timing: window.performance?.timing?.toJSON?.(),
-    },
-  }
+    const eventPayload: Record<CamelCaseify<UtmParam, '_'>, string | null> & Record<string, AnyBecauseIsInput> = {
+      url: document.location?.href,
+      referrer: document.referrer,
+      utmSource: urlParams.get('utm_source'),
+      utmMedium: urlParams.get('utm_medium'),
+      utmCampaign: urlParams.get('utm_campaign'),
+      utmContent: urlParams.get('utm_content'),
+      utmTerm: urlParams.get('utm_term'),
+      utmUserId: urlParams.get('utm_user_id'),
+      browserProps: browserProperties(),
+      prefersDarkMode: devicePrefersDarkMode(),
+      performance: {
+        memory: (window as any).performance?.memory?.usedJSHeapSize,
+        timeOrigin: window.performance?.timeOrigin,
+        timing: window.performance?.timing?.toJSON?.(),
+      },
+    }
 
-  captureEvent("pageLoadFinished", eventPayload);
-});
+    captureEvent("pageLoadFinished", eventPayload);
+  });
+}

@@ -200,6 +200,13 @@ export default () => createJestConfig({
   // },
 
   moduleNameMapper: {
+    // Because of https://github.com/apollographql/apollo-client-integrations/issues/353,
+    // we need to stub out this file so that we can successfully import anything in the
+    // app/ directory for testing purposes (which we want to do e.g. in forumTypeUtils.tests
+    // to check that we aren't making any forbidden top-level calls by importing all of
+    // our entrypoints that import the rest of the source graph).
+    "(.*)/nextApolloClient": "<rootDir>/packages/lesswrong/stubs/emptyModule.js",
+
     // Should match "paths" in tsconfig.json
     "@/client/(.*)": "<rootDir>/packages/lesswrong/stubs/client/$1",
     "@/viteClient/(.*)": "<rootDir>/packages/lesswrong/stubs/viteClient/$1",

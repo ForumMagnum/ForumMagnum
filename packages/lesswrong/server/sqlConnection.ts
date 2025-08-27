@@ -254,22 +254,38 @@ function getWrappedClient(
   return client;
 }
 
+type SqlClientMap = Record<string, SqlClient>;
+
 declare global {
-  var pgClients: Record<string, SqlClient>;
+  var pgClients: SqlClientMap;
 }
 
 if (!globalThis['pgClients']) {
-  globalThis['pgClients'] = {
-    ...(process.env.PG_URL ? {
-      [process.env.PG_URL]: getWrappedClient(process.env.PG_URL, false),
-    } : {}),
-    ...(process.env.PG_READ_URL ? {
-      [process.env.PG_READ_URL]: getWrappedClient(process.env.PG_READ_URL, false),
-    } : {}),
-    ...(process.env.PG_NO_TRANSACTION_URL ? {
-      [process.env.PG_NO_TRANSACTION_URL]: getWrappedClient(process.env.PG_NO_TRANSACTION_URL, false),
-    } : {}),
-  };
+  // Wrapped in a proxy to defer initialization, so that we don't end up calling
+  // a setting `.get()` (pgConnIdleTimeoutMsSetting in getWrappedClient) at
+  // import-time, which shouldn't matter in the case of this setting but
+  // there's a unit test prohibiting it.
+  globalThis['pgClients'] = new Proxy({}, {
+    get(target: SqlClientMap, url: string) {
+      if (url in target) {
+        return target[url];
+      }
+
+      if (process.env.PG_URL) {
+        target[process.env.PG_URL] = getWrappedClient(process.env.PG_URL, false);
+      }
+
+      if (process.env.PG_READ_URL) {
+        target[process.env.PG_READ_URL] = getWrappedClient(process.env.PG_READ_URL, false);
+      }
+
+      if (process.env.PG_NO_TRANSACTION_URL) {
+        target[process.env.PG_NO_TRANSACTION_URL] = getWrappedClient(process.env.PG_NO_TRANSACTION_URL, false);
+      }
+
+      return target[url];
+    }
+  });
 }
 
 export const createSqlConnection = (

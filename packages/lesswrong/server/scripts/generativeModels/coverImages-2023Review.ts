@@ -6,7 +6,7 @@ import { fetchFragment } from '../../fetchFragment.ts';
 import ReviewWinners from '@/server/collections/reviewWinners/collection.ts';
 import ReviewWinnerArts from '@/server/collections/reviewWinnerArts/collection.ts';
 import { moveImageToCloudinary } from '../convertImagesToCloudinary.ts';
-import { fal } from '@fal-ai/client';
+import { fal as _fal } from '@fal-ai/client';
 import sample from 'lodash/sample';
 import { falApiKey } from '@/lib/instanceSettings.ts';
 import { artPrompt } from '@/lib/collections/reviewWinnerArts/constants.ts';
@@ -200,9 +200,22 @@ const getPromptTextElements = async (openAiClient: OpenAI, essay: {title: string
   }
 }
 
-fal.config({
-  credentials: () => falApiKey.get()
-});
+// Avoid top-level `.config` call, since we can't call setting .get() at import-time.
+// Here we end up caching the client so the setting doesn't end up being sensitive to
+// the request context, but this isn't a setting where we care about scoping it to
+// the request context, so it's fine.
+const getFalClient = (() => {
+  let fal: typeof _fal;
+  return () => {
+    if (!fal) {
+      fal = _fal;
+      fal.config({
+        credentials: () => falApiKey.get()
+      });
+    }
+    return fal;
+  }
+})();
 
 const generateImage = async (prompt: string, imageUrl: string): Promise<string> => {
   // eslint-disable-next-line no-console
@@ -221,7 +234,7 @@ const generateImage = async (prompt: string, imageUrl: string): Promise<string> 
         image_strength: .2
       }
     }
-    const result = await fal.subscribe("fal-ai/flux-pro/v1.1-ultra/redux", runOptions);
+    const result = await getFalClient().subscribe("fal-ai/flux-pro/v1.1-ultra/redux", runOptions);
 
     // eslint-disable-next-line no-console
     // console.log(result)
@@ -248,7 +261,7 @@ const generateHighResImage = async (essay: Essay, prompt: string, imageUrl: stri
       }
     };
     
-    const result = await fal.subscribe("fal-ai/esrgan", upscaleOptions);
+    const result = await getFalClient().subscribe("fal-ai/esrgan", upscaleOptions);
     // eslint-disable-next-line no-console
     console.log("result", essay.title, prompt.split(artPrompt)[0])
     // eslint-disable-next-line no-console

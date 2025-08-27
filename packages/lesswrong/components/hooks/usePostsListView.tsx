@@ -13,7 +13,7 @@ export const isPostsListViewType = (value: string): value is PostsListViewType =
   postsListViewTypes.has(value);
 
 type PostsListViewContext = {
-  view: PostsListViewType,
+  getView: () => PostsListViewType,
   setView: (view: PostsListViewType) => void,
 }
 
@@ -23,7 +23,7 @@ const getDefaultView: () => PostsListViewType = () => {
 }
 
 const postsListViewContext = createContext<PostsListViewContext>({
-  view: getDefaultView(),
+  getView: getDefaultView,
   // eslint-disable-next-line no-console
   setView: () => console.error("Can't set view outside of PostsListViewProvider"),
 });
@@ -51,13 +51,15 @@ export const PostsListViewProvider: FC<{children: ReactNode}> = ({children}) => 
   const {cookieValue, setCookieValue} = useCookieValue();
   const [view, setView_] = useState<PostsListViewType>(cookieValue ?? getDefaultView());
 
+  const getView = useCallback(() => view, [view]);
+
   const setView = useCallback((newValue: PostsListViewType) => {
     setView_(newValue);
     setCookieValue(newValue);
   }, [setCookieValue]);
 
   return (
-    <postsListViewContext.Provider value={{view, setView}}>
+    <postsListViewContext.Provider value={{getView, setView}}>
       {children}
     </postsListViewContext.Provider>
   );

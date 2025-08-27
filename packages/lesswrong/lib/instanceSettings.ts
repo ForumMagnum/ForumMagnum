@@ -70,22 +70,9 @@ const getSetting = <T>(settingName: string, settingDefault?: T): T => {
 };
 
 /* 
-  A setting which is configured via Meteor's configuration system, ie in `settings.json`, as opposed to a database setting.
-
-  For documentation on database settings, see `databaseSettings.ts`
-  
-  arguments: 
-    settingName: JSON path to the setting in the settings.json file
-    defaultValue: What value <Setting>.get() returns when no value is found in the JSON file
-    settingType: 
-      "warning": Logs a console warning when no value is provided in the settings.json path
-      "required": Throws an error when no value is provided in the settings.json path
-      "optional": No warnings or errors are logged when no value is provided in the specified settings.json path
-
-  Method: 
-    get: Returns the current value of the setting
+  Only exported for testing purposes; do not create setting instances outside of this file!
 */
-class PublicInstanceSetting<SettingValueType> {
+export class PublicInstanceSetting<SettingValueType> {
   constructor(
     private settingName: string, 
     private defaultValue: SettingValueType,

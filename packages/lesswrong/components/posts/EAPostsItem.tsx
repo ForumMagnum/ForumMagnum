@@ -318,7 +318,8 @@ const EAPostsItem = ({
   const cardView = viewType === "card";
   // When card view is active, *all* post items change font weight,
   // even those that are not a card, so that all titles are consistent.
-  const {view} = usePostsListView()
+  const {getView} = usePostsListView()
+  const view = getView();
 
   const {postContents} = usePostContents({
     post,

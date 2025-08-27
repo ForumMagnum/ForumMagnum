@@ -245,7 +245,8 @@ export const usePostsList = <TagId extends string | undefined = undefined>({
       return {postId: post._id, score: post.score, baseScore: post.baseScore}
     });
 
-  const {view: contextViewType} = usePostsListView();
+  const {getView} = usePostsListView();
+  const contextViewType = getView();
   const viewType: PostsListViewType = configuredViewType === "fromContext"
     ? contextViewType
     : configuredViewType;
