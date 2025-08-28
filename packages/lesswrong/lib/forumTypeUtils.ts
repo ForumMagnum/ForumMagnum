@@ -1,6 +1,7 @@
-import { getIsolationScope, captureException } from "@sentry/nextjs";
+import { getIsolationScope, captureException, isInitialized } from "@sentry/nextjs";
 import { isProduction, isServer } from "./executionEnvironment";
 import type { ForumTypeString } from "./instanceSettings"
+import { RequestAsyncStorage } from "node_modules/@sentry/nextjs/build/types/config/templates/requestAsyncStorageShim";
 
 export const forumTypeSetting: { get: () => ForumTypeString } = {
   get: () => {
@@ -10,12 +11,21 @@ export const forumTypeSetting: { get: () => ForumTypeString } = {
       const url = scope.getScopeData().sdkProcessingMetadata.normalizedRequest?.url;
       if (!url) {
         if (isProduction) {
+          const { workUnitAsyncStorage }: typeof import("next/dist/server/app-render/work-unit-async-storage.external") = require("next/dist/server/app-render/work-unit-async-storage.external");
+          const asyncLocalStorage = workUnitAsyncStorage.getStore() as ReturnType<RequestAsyncStorage['getStore']>;
+          const headerReferer = asyncLocalStorage?.headers.get('referer');
+
           // eslint-disable-next-line no-console
-          console.error('No URL found in scope', scope.getScopeData().sdkProcessingMetadata.normalizedRequest);
+          console.error(
+            'No URL found in scope',
+            scope.getScopeData().sdkProcessingMetadata.normalizedRequest,
+            headerReferer,
+            asyncLocalStorage?.headers,
+          );
           // eslint-disable-next-line no-console
           console.error(new Error());
 
-          captureException(new Error('No URL found in scope'));
+          // captureException(new Error('No URL found in scope'));
         }
         return process.env.FORUM_TYPE as ForumTypeString | undefined ?? 'LessWrong';
       }
