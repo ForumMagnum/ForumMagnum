@@ -28,10 +28,10 @@ export const forumTypeSetting: { get: () => ForumTypeString } = {
         const fallbackHost = headerReferer ?? headerHost;
         if (fallbackHost) {
           urlObj = new URL(fallbackHost);
+        } else {
+          // eslint-disable-next-line no-console
+          console.error('No fallback host found, using default.', headers);
         }
-
-        // eslint-disable-next-line no-console
-        console.error('No fallback host found, using default.', headers);
       }
 
       if (!urlObj) {
