@@ -1,4 +1,4 @@
-import { getIsolationScope } from "@sentry/nextjs";
+import { getIsolationScope, captureException } from "@sentry/nextjs";
 import { isProduction, isServer } from "./executionEnvironment";
 import type { ForumTypeString } from "./instanceSettings"
 
@@ -13,9 +13,9 @@ export const forumTypeSetting: { get: () => ForumTypeString } = {
           // eslint-disable-next-line no-console
           console.error('No URL found in scope', scope.getScopeData().sdkProcessingMetadata.normalizedRequest);
           // eslint-disable-next-line no-console
-          console.error(new Error().stack);
-          // eslint-disable-next-line no-console
           console.error(new Error());
+
+          captureException(new Error('No URL found in scope'));
         }
         return process.env.FORUM_TYPE as ForumTypeString | undefined ?? 'LessWrong';
       }
