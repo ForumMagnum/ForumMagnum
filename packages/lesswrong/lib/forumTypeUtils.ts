@@ -1,28 +1,8 @@
-import { getIsolationScope, captureException, isInitialized } from "@sentry/nextjs";
+import { getIsolationScope } from "@sentry/nextjs";
 import { isProduction, isServer } from "./executionEnvironment";
+import { winterCGHeadersToDict } from "./vendor/sentry/request";
 import type { ForumTypeString } from "./instanceSettings"
 import type { RequestAsyncStorage } from "node_modules/@sentry/nextjs/build/types/config/templates/requestAsyncStorageShim";
-import type { WebFetchHeaders } from "@sentry/core";
-
-/**
- * Transforms a `Headers` object that implements the `Web Fetch API` (https://developer.mozilla.org/en-US/docs/Web/API/Headers) into a simple key-value dict.
- * The header keys will be lower case: e.g. A "Content-Type" header will be stored as "content-type".
- */
-export function winterCGHeadersToDict(winterCGHeaders: WebFetchHeaders): Record<string, string> {
-  const headers: Record<string, string> = {};
-  try {
-    winterCGHeaders.forEach((value, key) => {
-      if (typeof value === 'string') {
-        // We check that value is a string even though it might be redundant to make sure prototype pollution is not possible.
-        headers[key] = value;
-      }
-    });
-  } catch {
-    // just return the empty headers
-  }
-
-  return headers;
-}
 
 export const forumTypeSetting: { get: () => ForumTypeString } = {
   get: () => {
@@ -30,28 +10,31 @@ export const forumTypeSetting: { get: () => ForumTypeString } = {
     if (isServer) {
       const scope = getIsolationScope();
       const url = scope.getScopeData().sdkProcessingMetadata.normalizedRequest?.url;
-      if (!url) {
-        if (isProduction) {
-          const { workUnitAsyncStorage }: typeof import("next/dist/server/app-render/work-unit-async-storage.external") = require("next/dist/server/app-render/work-unit-async-storage.external");
-          const asyncLocalStorage = workUnitAsyncStorage.getStore() as ReturnType<RequestAsyncStorage['getStore']>;
-          const headers = asyncLocalStorage?.headers ? winterCGHeadersToDict(asyncLocalStorage.headers) : {};
-          const headerReferer = headers.referer;
+      if (url) {
+        urlObj = new URL(url);
+      // We've observed that Sentry sometimes doesn't have a `normalizedRequest` in its `sdkProcessingMetadata`
+      // immediately post-deploy, or otherwise with timing that seems a bit like it's related to cold starts,
+      // so in those cases we use the same undocumented private NextJS feature to grab the headers from the
+      // current request, which do seem to more reliably exist.
+      } else if (isProduction) {
+        const { workUnitAsyncStorage }: typeof import("next/dist/server/app-render/work-unit-async-storage.external") = require("next/dist/server/app-render/work-unit-async-storage.external");
+        const asyncLocalStorage = workUnitAsyncStorage.getStore() as ReturnType<RequestAsyncStorage['getStore']>;
+        const headers = asyncLocalStorage?.headers ? winterCGHeadersToDict(asyncLocalStorage.headers) : {};
+        // We get the referer when handling requests to server components and generation functions (i.e. for metadata)
+        const headerReferer = headers.referer;
+        // We get the host when handling requests to API route handlers
+        const headerHost = headers['x-forwarded-host'] ?? headers['host'];
 
-          // eslint-disable-next-line no-console
-          console.error(
-            'No URL found in scope',
-            scope.getScopeData().sdkProcessingMetadata.normalizedRequest,
-            headerReferer,
-            headers,
-          );
-          // eslint-disable-next-line no-console
-          console.error(new Error());
-
-          // captureException(new Error('No URL found in scope'));
+        const fallbackHost = headerReferer ?? headerHost;
+        if (fallbackHost) {
+          urlObj = new URL(fallbackHost);
         }
-        return process.env.FORUM_TYPE as ForumTypeString | undefined ?? 'LessWrong';
+
+        // eslint-disable-next-line no-console
+        console.error('No fallback host found, using default.', headers);
       }
-      urlObj = new URL(url);
+
+      return process.env.FORUM_TYPE as ForumTypeString | undefined ?? 'LessWrong';
     } else {
       urlObj = new URL(window.location.href);
     }
