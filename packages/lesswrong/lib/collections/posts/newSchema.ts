@@ -3665,7 +3665,7 @@ const schema = {
         },
         resolver: (sideCommentsField) => sideCommentsField("*"),
       }),
-      skipSqlResolver: () => hasSideComments(),
+      skipSqlResolver: () => !hasSideComments(),
       sqlPostProcess: () => null,
     },
   },
