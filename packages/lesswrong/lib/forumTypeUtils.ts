@@ -6,7 +6,7 @@ import type { RequestAsyncStorage } from "node_modules/@sentry/nextjs/build/type
 
 export const forumTypeSetting: { get: () => ForumTypeString } = {
   get: () => {
-    let urlObj: URL;
+    let urlObj: URL | undefined = undefined;
     if (isServer) {
       const scope = getIsolationScope();
       const url = scope.getScopeData().sdkProcessingMetadata.normalizedRequest?.url;
@@ -34,7 +34,9 @@ export const forumTypeSetting: { get: () => ForumTypeString } = {
         console.error('No fallback host found, using default.', headers);
       }
 
-      return process.env.FORUM_TYPE as ForumTypeString | undefined ?? 'LessWrong';
+      if (!urlObj) {
+        return process.env.FORUM_TYPE as ForumTypeString | undefined ?? 'LessWrong';
+      }
     } else {
       urlObj = new URL(window.location.href);
     }
