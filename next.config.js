@@ -536,7 +536,18 @@ module.exports = {
       destination: "/posts/:id/:slug?commentId=:commentId",
       permanent: true
     }, {
-      source: "/:section(r)?/:subreddit(all|discussion|lesswrong)?/lw/:id*",
+      // I didn't want to figure out how to use a regex to say
+      // "at least one of these two path parameters", so just
+      // spell out all 3 combinations manually.
+      source: "/:section(r)/:subreddit(all|discussion|lesswrong)?/lw/:id*",
+      destination: "/lw/:id*",
+      permanent: false,
+    }, {
+      source: "/:section(r)?/:subreddit(all|discussion|lesswrong)/lw/:id*",
+      destination: "/lw/:id*",
+      permanent: false,
+    }, {
+      source: "/r/:subreddit(all|discussion|lesswrong)/lw/:id*",
       destination: "/lw/:id*",
       permanent: false,
     }, {
