@@ -13,7 +13,7 @@ export const forumTypeSetting: { get: () => ForumTypeString } = {
         if (isProduction) {
           const { workUnitAsyncStorage }: typeof import("next/dist/server/app-render/work-unit-async-storage.external") = require("next/dist/server/app-render/work-unit-async-storage.external");
           const asyncLocalStorage = workUnitAsyncStorage.getStore() as ReturnType<RequestAsyncStorage['getStore']>;
-          const headerReferer = asyncLocalStorage?.headers.get('referer');
+          const headerReferer = asyncLocalStorage?.headers?.get('referer');
 
           // eslint-disable-next-line no-console
           console.error(
