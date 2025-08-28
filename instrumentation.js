@@ -37,6 +37,12 @@ export async function register() {
   if (process.env.NEXT_RUNTIME === 'edge') {
     await import('./sentry.edge.config');
   }
+
+  // Sleep for 10 seconds to let Sentry finish initializing,
+  // otherwise requests hitting a cold started instance won't
+  // have a url in their isolation scope for deciding the
+  // forumType.
+  // await new Promise(resolve => setTimeout(resolve, 30_000));
 }
 
 export const onRequestError = process.env.NODE_ENV === "production"
