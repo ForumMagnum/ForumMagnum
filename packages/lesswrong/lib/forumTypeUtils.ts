@@ -1,4 +1,4 @@
-import { getIsolationScope } from "@sentry/nextjs";
+import { captureException, getIsolationScope } from "@sentry/nextjs";
 import { isProduction, isServer } from "./executionEnvironment";
 import { winterCGHeadersToDict } from "./vendor/sentry/request";
 import type { ForumTypeString } from "./instanceSettings"
@@ -31,6 +31,7 @@ export const forumTypeSetting: { get: () => ForumTypeString } = {
         } else {
           // eslint-disable-next-line no-console
           console.error('No fallback host found, using default.', headers);
+          captureException(new Error('No fallback host found for determining forum type, using default.'));
         }
       }
 
