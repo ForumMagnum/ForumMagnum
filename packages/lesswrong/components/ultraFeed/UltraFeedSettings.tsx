@@ -4,10 +4,7 @@ import {
   DEFAULT_SOURCE_WEIGHTS, 
   DEFAULT_SETTINGS,
   TruncationLevel,
-  levelToWordCountMap,
-  levelToPostWordCountMap,
-  getCommentWordCountLevel,
-  getPostWordCountLevel,
+  getWordCountLevel,
   SettingsFormState,
   ThreadInterestModelFormState,
   CommentScoringFormState,
@@ -303,12 +300,15 @@ const deriveFormValuesFromSettings = (settings: UltraFeedSettingsType): Settings
   };
 };
 
-const deriveSimpleViewTruncationLevelsFromSettings = (settings: UltraFeedSettingsType) => ({
-  commentCollapsedInitialLevel: getCommentWordCountLevel(settings.displaySettings.commentCollapsedInitialWords),
-  commentExpandedInitialLevel: getCommentWordCountLevel(settings.displaySettings.commentExpandedInitialWords),
-  commentMaxLevel: getCommentWordCountLevel(settings.displaySettings.commentMaxWords),
-  postInitialLevel: getPostWordCountLevel(settings.displaySettings.postInitialWords),
-  postMaxLevel: getPostWordCountLevel(settings.displaySettings.postMaxWords),
+const deriveSimpleViewTruncationLevelsFromSettings = (
+  settings: UltraFeedSettingsType,
+  maps: { commentMap: Record<TruncationLevel, number>, postMap: Record<TruncationLevel, number> }
+) => ({
+  commentCollapsedInitialLevel: getWordCountLevel(settings.displaySettings.commentCollapsedInitialWords, maps.commentMap),
+  commentExpandedInitialLevel: getWordCountLevel(settings.displaySettings.commentExpandedInitialWords, maps.commentMap),
+  commentMaxLevel: getWordCountLevel(settings.displaySettings.commentMaxWords, maps.commentMap),
+  postInitialLevel: getWordCountLevel(settings.displaySettings.postInitialWords, maps.postMap),
+  postMaxLevel: getWordCountLevel(settings.displaySettings.postMaxWords, maps.postMap),
 });
 
 const ViewModeButton: React.FC<{
@@ -341,13 +341,15 @@ const UltraFeedSettings = ({
   updateSettings,
   resetSettingsToDefault,
   onClose,
-  initialViewMode = 'simple'
+  initialViewMode = 'simple',
+  truncationMaps,
 }: {
   settings: UltraFeedSettingsType,
   updateSettings: (newSettings: Partial<UltraFeedSettingsType>) => void,
   resetSettingsToDefault: () => void,
   onClose?: () => void,
-  initialViewMode?: 'simple' | 'advanced'
+  initialViewMode?: 'simple' | 'advanced',
+  truncationMaps: { commentMap: Record<TruncationLevel, number>, postMap: Record<TruncationLevel, number> },
 }) => {
   const { captureEvent } = useTracking();
   const classes = useStyles(styles);
@@ -363,7 +365,7 @@ const UltraFeedSettings = ({
   };
 
   const [simpleViewTruncationLevels, setSimpleViewTruncationLevels] = useState(() => 
-    deriveSimpleViewTruncationLevelsFromSettings(settings)
+    deriveSimpleViewTruncationLevelsFromSettings(settings, truncationMaps)
   );
 
   const [formValues, setFormValues] = useState<SettingsFormState>(() => 
@@ -382,8 +384,8 @@ const UltraFeedSettings = ({
 
   useEffect(() => {
     setFormValues(deriveFormValuesFromSettings(settings));
-    setSimpleViewTruncationLevels(deriveSimpleViewTruncationLevelsFromSettings(settings));
-  }, [settings]);
+    setSimpleViewTruncationLevels(deriveSimpleViewTruncationLevelsFromSettings(settings, truncationMaps));
+  }, [settings, truncationMaps]);
 
   const updateForm = useCallback(<K extends keyof SettingsFormState>(
     key: K,
@@ -558,11 +560,11 @@ const UltraFeedSettings = ({
     if (viewMode === 'simple') {
       // In simple mode, convert truncation levels back to word counts
       settingsToUpdate.displaySettings!.lineClampNumberOfLines = 0; // No line clamping in simple mode
-      settingsToUpdate.displaySettings!.commentCollapsedInitialWords = levelToWordCountMap[simpleViewTruncationLevels.commentCollapsedInitialLevel];
-      settingsToUpdate.displaySettings!.commentExpandedInitialWords = levelToWordCountMap[simpleViewTruncationLevels.commentExpandedInitialLevel];
-      settingsToUpdate.displaySettings!.commentMaxWords = levelToWordCountMap[simpleViewTruncationLevels.commentMaxLevel];
-      settingsToUpdate.displaySettings!.postInitialWords = levelToPostWordCountMap[simpleViewTruncationLevels.postInitialLevel];
-      settingsToUpdate.displaySettings!.postMaxWords = levelToPostWordCountMap[simpleViewTruncationLevels.postMaxLevel];
+      settingsToUpdate.displaySettings!.commentCollapsedInitialWords = truncationMaps.commentMap[simpleViewTruncationLevels.commentCollapsedInitialLevel];
+      settingsToUpdate.displaySettings!.commentExpandedInitialWords = truncationMaps.commentMap[simpleViewTruncationLevels.commentExpandedInitialLevel];
+      settingsToUpdate.displaySettings!.commentMaxWords = truncationMaps.commentMap[simpleViewTruncationLevels.commentMaxLevel];
+      settingsToUpdate.displaySettings!.postInitialWords = truncationMaps.postMap[simpleViewTruncationLevels.postInitialLevel];
+      settingsToUpdate.displaySettings!.postMaxWords = truncationMaps.postMap[simpleViewTruncationLevels.postMaxLevel];
       
     } else {
       // In advanced mode, use the form values directly
@@ -611,7 +613,7 @@ const UltraFeedSettings = ({
       newSettings: result.data
     });
 
-  }, [formValues, simpleViewTruncationLevels, updateSettings, captureEvent, settings, viewMode, flash]);
+  }, [formValues, simpleViewTruncationLevels, updateSettings, captureEvent, settings, viewMode, flash, truncationMaps]);
   
   const handleReset = useCallback(() => {
     resetSettingsToDefault();
@@ -623,6 +625,7 @@ const UltraFeedSettings = ({
     levels: simpleViewTruncationLevels,
     onChange: handleSimpleTruncationLevelChange,
     originalSettings: settings,
+    maps: truncationMaps,
     postBreakpointError: zodErrors?.displaySettings?.postInitialWords?._errors?.[0] || zodErrors?.displaySettings?.postMaxWords?._errors?.[0],
     commentBreakpointError: zodErrors?.displaySettings?.commentCollapsedInitialWords?._errors?.[0] || zodErrors?.displaySettings?.commentExpandedInitialWords?._errors?.[0] || zodErrors?.displaySettings?.commentMaxWords?._errors?.[0],
   };

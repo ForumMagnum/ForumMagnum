@@ -8,8 +8,10 @@ import { useFilteredCurrentUser } from '../../common/withUser';
 import { isFriendlyUI } from '../../../themes/forumTheme';
 import UserNameDeleted from "../../users/UserNameDeleted";
 import UsersName from "../../users/UsersName";
+import UsersNameWithModal from "../../ultraFeed/UsersNameWithModal";
 import UsersProfileImage from "../../users/UsersProfileImage";
 import UserTooltip from "../../users/UserTooltip";
+import type { Placement as PopperPlacementType } from "popper.js";
 
 const PROFILE_IMAGE_SIZE = 20;
 
@@ -69,14 +71,20 @@ const CommentUserName = ({
   classes,
   simple = false,
   className,
+  useUltraFeedModal = false,
+  tooltipPlacement,
 }: {
   comment: CommentsList,
   classes: ClassesType<typeof styles>,
   simple?: boolean,
-  className?: string
+  className?: string,
+  useUltraFeedModal?: boolean,
+  tooltipPlacement?: PopperPlacementType,
 }) => {
   const currentUserHasProfileImages = useFilteredCurrentUser(u => userHasCommentProfileImages(u));
   const author = comment.user;
+
+  const UserNameComponent = useUltraFeedModal ? UsersNameWithModal : UsersName;
 
   if (comment.deleted) {
     return <span className={className}>[comment deleted]</span>
@@ -87,7 +95,11 @@ const CommentUserName = ({
   } else if (comment.answer) {
     return (
       <span className={classNames(className, classes.authorAnswer)}>
-        Answer by <UsersName user={author} simple={simple}/>
+        Answer by <UserNameComponent 
+          user={author} 
+          simple={simple}
+          tooltipPlacement={tooltipPlacement}
+        />
       </span>
     );
   } else if (isFriendlyUI) {
@@ -131,11 +143,11 @@ const CommentUserName = ({
   }
 
   return (
-    <UsersName
+    <UserNameComponent
       user={author}
       simple={simple}
       className={classNames(className, classes.author)}
-      tooltipPlacement="bottom-start"
+      tooltipPlacement={tooltipPlacement ?? "bottom-start"}
     />
   );
 }
