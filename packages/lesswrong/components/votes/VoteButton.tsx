@@ -1,10 +1,8 @@
-import React, { useState } from 'react';
-import { registerComponent } from '../../lib/vulcan-lib/components';
+import React, { useReducer, useRef } from 'react';
 import { isMobile } from '../../lib/utils/isMobile'
-import { useTheme } from '../themes/useTheme';
-import type { VoteArrowIconProps } from './VoteArrowIcon';
 import { defineStyles } from '../hooks/useStyles';
 import { JssStyles } from '@/lib/jssStyles';
+import { strongVoteDelay } from './constants';
 
 export type VoteColor = "error"|"primary"|"secondary";
 
@@ -76,6 +74,17 @@ export const voteButtonSharedStyles = defineStyles("VoteButton", theme => ({
   colorLightError: {
     color: theme.palette.error.light,
   },
+  entering: {
+    animation: `${strongVoteDelay}ms 1 normal strongVote`,
+    transition: `opacity ${strongVoteDelay}ms cubic-bezier(0.74, -0.01, 1, 1) 0ms`,
+    //transition: `opacity ${strongVoteDelay}ms linear 0ms`,
+  },
+  "@keyframes strongVote": {
+    from: { opacity: 0 },
+    to: {
+      opacity: 0.7,
+    }
+  },
 }));
 
 export const getVoteButtonColor = (classes: JssStyles<keyof ReturnType<typeof voteButtonSharedStyles.styles>>, color: VoteColor, shade: "main"|"light") => {
@@ -94,94 +103,147 @@ export const getVoteButtonColor = (classes: JssStyles<keyof ReturnType<typeof vo
   }
 }
 
-const VoteButton = ({
-  vote, currentStrength, upOrDown,
-  color = "secondary",
-  orientation = "up",
-  enabled,
-  solidArrow,
-  largeArrow,
-  VoteIconComponent,
+type VoteStrength = "big"|"small"|"neutral";
+type VoteButtonAnimationState =
+    { mode: "idle", vote: VoteStrength }
+  | { mode: "animating", from: VoteStrength, timer: ReturnType<typeof setTimeout> }
+  | { mode: "completed", from: VoteStrength }
+export type VoteButtonAnimationHandlers = {
+  state: VoteButtonAnimationState
+  eventHandlers: {
+    onMouseDown: any,
+    onMouseUp: any,
+    onMouseOut: any,
+    onClick: any
+  }
+}
+
+export const VoteButtonAnimation = ({
+  vote, currentStrength,
+  children,
 }: {
   vote: (strength: "big"|"small"|"neutral") => void,
   currentStrength: "big"|"small"|"neutral",
-  
-  upOrDown: "Upvote"|"Downvote",
-  color: VoteColor,
-  orientation: "up"|"down"|"left"|"right",
-  enabled: boolean,
   solidArrow?: boolean,
   largeArrow?: boolean,
-  VoteIconComponent: React.ComponentType<VoteArrowIconProps>,
+  children: (animationHandlers: VoteButtonAnimationHandlers) => React.ReactNode
 }) => {
-  const theme = useTheme();
-  const [votingTransition, setVotingTransition] = useState<any>(null);
-  const [bigVotingTransition, setBigVotingTransition] = useState(false);
-  const [bigVoteCompleted, setBigVoteCompleted] = useState(false);
-  const strongVoteDelay = theme.voting.strongVoteDelay;
-  
-  const wrappedVote = (strength: "big"|"small"|"neutral") => {
-    if (strength === currentStrength)
-      vote("neutral")
-    else
-      vote(strength);
-  }
-
+  const [_renderCount, forceRerender] = useReducer(c => c+1, 0);
+  const animationState = useRef<VoteButtonAnimationState>({
+    mode: "idle",
+    vote: currentStrength
+    
+  });
   const handleMouseDown = () => { // This handler is only used on desktop
+    console.log(`handleMouseDown; animationState=${JSON.stringify(animationState.current)}`);
     if(!isMobile()) {
-      setBigVotingTransition(true);
-      setVotingTransition(setTimeout(() => {
-        setBigVoteCompleted(true);
-      }, strongVoteDelay))
+      if (animationState.current.mode === "idle") {
+        if (animationState.current.vote === "big") {
+          vote("small");
+          animationState.current = {
+            mode: "idle",
+            vote: "small",
+          };
+        } else {
+          const initialVote = animationState.current.vote;
+          animationState.current = {
+            mode: "animating",
+            from: initialVote,
+            timer: setTimeout(() => {
+              if (animationState.current.mode === "animating") {
+                clearTimeout(animationState.current.timer);
+              }
+              animationState.current = {
+                mode: "completed",
+                from: initialVote,
+              };
+              forceRerender();
+            }, strongVoteDelay),
+          };
+        }
+      }
+      forceRerender();
     }
   }
 
   const clearState = () => {
-    clearTimeout(votingTransition);
-    setBigVotingTransition(false);
-    setBigVoteCompleted(false);
+    if (animationState.current.mode === "animating") {
+      clearTimeout(animationState.current.timer);
+      animationState.current = { mode: "idle", vote: animationState.current.from };
+      forceRerender();
+    }
   }
 
   const handleMouseUp = () => { // This handler is only used on desktop
+    console.log(`handleMouseUp; animationState=${JSON.stringify(animationState.current)}`);
     if(!isMobile()) {
-      if (bigVoteCompleted) {
-        wrappedVote("big")
-      } else {
-        wrappedVote("small")
+      if (animationState.current.mode === "completed") {
+        vote("big");
+        animationState.current = {
+          mode: "idle",
+          vote: "big",
+        };
+      } else if (animationState.current.mode === "animating") {
+        clearTimeout(animationState.current.timer);
+        if (animationState.current.from === "neutral") {
+          vote("small");
+          animationState.current = {
+            mode: "idle",
+            vote: "small",
+          };
+        } else if (animationState.current.from === "small") {
+          vote("neutral");
+          animationState.current = {
+            mode: "idle",
+            vote: "neutral",
+          };
+        }
       }
-      clearState()
+      forceRerender();
     }
   }
-
-  const voted = currentStrength !== "neutral";
-  const bigVoted = currentStrength === "big";
   
   const handleClick = () => { // This handler is only used for mobile
+    console.log(`handleClick; animationState=${JSON.stringify(animationState.current)}`);
     if(isMobile()) {
       // This causes the following behavior (repeating after 3rd click):
       // 1st Click: small upvote; 2nd Click: big upvote; 3rd Click: cancel big upvote (i.e. going back to no vote)
-      if (voted) {
-        wrappedVote("big")
+      if (currentStrength === "small") {
+        vote("big")
+        animationState.current = {
+          mode: "idle",
+          vote: "big",
+        };
+      } else if (currentStrength === "neutral") {
+        vote("small")
+        animationState.current = {
+          mode: "idle",
+          vote: "small",
+        };
       } else {
-        wrappedVote("small")
+        vote("neutral")
+        animationState.current = {
+          mode: "idle",
+          vote: "neutral",
+        };
       }
       clearState()
     }
   }
+  
+  const handleMouseOut = () => {
+    //console.log(`handleMouseOut; animationState=${JSON.stringify(animationState.current)}`);
+    //clearState();
+    handleMouseUp();
+  }
 
-  const voteArrowProps = {
-    solidArrow, largeArrow, strongVoteDelay, orientation, enabled, color, voted,
-    bigVotingTransition, bigVoted,
-    bigVoteCompleted, theme,
-    eventHandlers: {handleMouseDown, handleMouseUp, handleClick, clearState},
-    alwaysColored: false,
-  };
-  return <VoteIconComponent {...voteArrowProps} />
+  return children({
+    eventHandlers: {
+      onMouseDown: handleMouseDown,
+      onMouseUp: handleMouseUp,
+      onClick: handleClick,
+      onMouseOut: handleMouseOut
+    },
+    state: animationState.current,
+  });
 }
-
-export default registerComponent('VoteButton', VoteButton, {
-  areEqual: "auto"
-});
-
-
-
