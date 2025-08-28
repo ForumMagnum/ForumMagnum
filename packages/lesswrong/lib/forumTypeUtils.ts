@@ -1,7 +1,28 @@
 import { getIsolationScope, captureException, isInitialized } from "@sentry/nextjs";
 import { isProduction, isServer } from "./executionEnvironment";
 import type { ForumTypeString } from "./instanceSettings"
-import { RequestAsyncStorage } from "node_modules/@sentry/nextjs/build/types/config/templates/requestAsyncStorageShim";
+import type { RequestAsyncStorage } from "node_modules/@sentry/nextjs/build/types/config/templates/requestAsyncStorageShim";
+import type { WebFetchHeaders } from "@sentry/core";
+
+/**
+ * Transforms a `Headers` object that implements the `Web Fetch API` (https://developer.mozilla.org/en-US/docs/Web/API/Headers) into a simple key-value dict.
+ * The header keys will be lower case: e.g. A "Content-Type" header will be stored as "content-type".
+ */
+export function winterCGHeadersToDict(winterCGHeaders: WebFetchHeaders): Record<string, string> {
+  const headers: Record<string, string> = {};
+  try {
+    winterCGHeaders.forEach((value, key) => {
+      if (typeof value === 'string') {
+        // We check that value is a string even though it might be redundant to make sure prototype pollution is not possible.
+        headers[key] = value;
+      }
+    });
+  } catch {
+    // just return the empty headers
+  }
+
+  return headers;
+}
 
 export const forumTypeSetting: { get: () => ForumTypeString } = {
   get: () => {
@@ -13,14 +34,15 @@ export const forumTypeSetting: { get: () => ForumTypeString } = {
         if (isProduction) {
           const { workUnitAsyncStorage }: typeof import("next/dist/server/app-render/work-unit-async-storage.external") = require("next/dist/server/app-render/work-unit-async-storage.external");
           const asyncLocalStorage = workUnitAsyncStorage.getStore() as ReturnType<RequestAsyncStorage['getStore']>;
-          const headerReferer = asyncLocalStorage?.headers?.get('referer');
+          const headers = asyncLocalStorage?.headers ? winterCGHeadersToDict(asyncLocalStorage.headers) : {};
+          const headerReferer = headers.referer;
 
           // eslint-disable-next-line no-console
           console.error(
             'No URL found in scope',
             scope.getScopeData().sdkProcessingMetadata.normalizedRequest,
             headerReferer,
-            asyncLocalStorage?.headers,
+            headers,
           );
           // eslint-disable-next-line no-console
           console.error(new Error());
