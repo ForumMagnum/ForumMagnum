@@ -12,6 +12,10 @@ export const forumTypeSetting: { get: () => ForumTypeString } = {
         if (isProduction) {
           // eslint-disable-next-line no-console
           console.error('No URL found in scope', scope.getScopeData().sdkProcessingMetadata.normalizedRequest);
+          // eslint-disable-next-line no-console
+          console.error(new Error().stack);
+          // eslint-disable-next-line no-console
+          console.error(new Error());
         }
         return process.env.FORUM_TYPE as ForumTypeString | undefined ?? 'LessWrong';
       }
