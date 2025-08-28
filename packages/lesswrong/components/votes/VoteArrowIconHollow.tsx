@@ -4,7 +4,6 @@ import { isEAForum } from '../../lib/instanceSettings';
 import type { VoteArrowIconProps } from './VoteArrowIcon';
 import { defineStyles, useStyles } from '../hooks/useStyles';
 import { getVoteButtonColor, voteButtonSharedStyles } from './VoteButton';
-import { strongVoteDelay } from './constants';
 
 const styles = defineStyles("VoteArrowIconHollow", (theme: ThemeType) => ({
   disabled: {
@@ -34,8 +33,6 @@ const styles = defineStyles("VoteArrowIconHollow", (theme: ThemeType) => ({
     top: '-70%',
     fontSize: '82%',
     pointerEvents: 'none',
-    //opacity: 0,
-    //transition: `opacity ${strongVoteDelay}ms cubic-bezier(0.74, -0.01, 1, 1) 0ms`,
 
     width: '1em',
     height: '1em',

@@ -135,7 +135,6 @@ export const VoteButtonAnimation = ({
     
   });
   const handleMouseDown = () => { // This handler is only used on desktop
-    console.log(`handleMouseDown; animationState=${JSON.stringify(animationState.current)}`);
     if(!isMobile()) {
       if (animationState.current.mode === "idle") {
         if (animationState.current.vote === "big") {
@@ -175,7 +174,6 @@ export const VoteButtonAnimation = ({
   }
 
   const handleMouseUp = () => { // This handler is only used on desktop
-    console.log(`handleMouseUp; animationState=${JSON.stringify(animationState.current)}`);
     if(!isMobile()) {
       if (animationState.current.mode === "completed") {
         vote("big");
@@ -204,7 +202,6 @@ export const VoteButtonAnimation = ({
   }
   
   const handleClick = () => { // This handler is only used for mobile
-    console.log(`handleClick; animationState=${JSON.stringify(animationState.current)}`);
     if(isMobile()) {
       // This causes the following behavior (repeating after 3rd click):
       // 1st Click: small upvote; 2nd Click: big upvote; 3rd Click: cancel big upvote (i.e. going back to no vote)
@@ -232,8 +229,6 @@ export const VoteButtonAnimation = ({
   }
   
   const handleMouseOut = () => {
-    //console.log(`handleMouseOut; animationState=${JSON.stringify(animationState.current)}`);
-    //clearState();
     handleMouseUp();
   }
 
