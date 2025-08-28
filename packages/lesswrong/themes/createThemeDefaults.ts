@@ -265,7 +265,7 @@ export const baseTheme: BaseThemeSpecification = {
       },
       postImageStyles: {},
       voting: {
-        strongVoteDelay: 5000,
+        strongVoteDelay: 1000,
       },
       shadows: [
         // All from material-UI
