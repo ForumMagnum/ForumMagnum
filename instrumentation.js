@@ -42,7 +42,7 @@ export async function register() {
   // otherwise requests hitting a cold started instance won't
   // have a url in their isolation scope for deciding the
   // forumType.
-  await new Promise(resolve => setTimeout(resolve, 30_000));
+  // await new Promise(resolve => setTimeout(resolve, 30_000));
 }
 
 export const onRequestError = process.env.NODE_ENV === "production"
