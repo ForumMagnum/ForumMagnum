@@ -19,8 +19,7 @@ import repeat from 'lodash/repeat';
 import { captureException } from '@sentry/core';
 import { colorReplacements } from '@/themes/userThemes/darkMode';
 import { colorToString, invertColor, parseColor } from '@/themes/colorUtil';
-import mapValues from 'lodash/mapValues';
-import { ThemeContext, useThemeOptions } from '../themes/useTheme';
+import { ThemeContext } from '../themes/useTheme';
 
 type PassedThroughContentItemBodyProps = Pick<ContentItemBodyProps, "description"|"noHoverPreviewPrefetch"|"nofollow"|"contentStyleType"|"replacedSubstrings"|"idInsertions"> & {
   themeName: UserThemeSetting,
