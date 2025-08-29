@@ -13,11 +13,19 @@ const styles = defineStyles("UltraFeedThreadCommentsList", (theme: ThemeType) =>
       borderBottom: 'none',
     },
   },
-  commentItemWithReadStyles: {
+  readItem: {
+    [theme.breakpoints.down('sm')]: {
+      borderLeft: theme.palette.border.readUltraFeedBorder,
+      borderRight: theme.palette.border.readUltraFeedBorder,
+    },
+  },
+  readWithReadNext: {
     borderBottom: theme.palette.border.itemSeparatorBottom,
+  },
+  firstItemRead: {
     [theme.breakpoints.down('sm')]: {
       '&:first-child': {
-        borderTop: theme.palette.border.itemSeparatorBottom
+        borderTop: theme.palette.border.readUltraFeedBorder
       },
     },
   },
@@ -113,15 +121,17 @@ const UltraFeedThreadCommentsList = ({
           return (
             <div 
               className={classNames(classes.commentItem, {
-                [classes.commentItemWithReadStyles]: isReadAndNextItemIsRead 
+                [classes.readItem]: allRead,
+                [classes.readWithReadNext]: isReadAndNextItemIsRead,
+                [classes.firstItemRead]: commentIndex === 0 && allRead
               })} 
               key={`placeholder-${commentIndex}`}
             >
               <UltraFeedCompressedCommentsItem
                 numComments={hiddenCount}
                 setExpanded={() => {
-                  // Always expand max 3 comments at a time
-                  item.hiddenComments.slice(0, 3).forEach(h => {
+                  // Always expand max 5 comments at a time, from the bottom
+                  item.hiddenComments.slice(-5).forEach(h => {
                     onSetDisplayStatus(h._id, "expandedToMaxInPlace");
                   });
                 }}
@@ -152,7 +162,9 @@ const UltraFeedThreadCommentsList = ({
             <div 
               key={cId} 
               className={classNames(classes.commentItem, { 
-                [classes.commentItemWithReadStyles]: isReadAndNextItemIsRead 
+                [classes.readItem]: isRead,
+                [classes.readWithReadNext]: isReadAndNextItemIsRead,
+                [classes.firstItemRead]: commentIndex === 0 && isRead
               })}
             >
               <UltraFeedCommentItem
