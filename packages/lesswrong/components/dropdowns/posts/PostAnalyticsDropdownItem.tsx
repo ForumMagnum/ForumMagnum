@@ -9,7 +9,7 @@ import DropdownItem from "../DropdownItem";
 const PostAnalyticsDropdownItem = ({post}: {post: PostsBase}) => {
   const currentUser = useCurrentUser();
   const isEditor = canUserEditPostMetadata(currentUser, post);
-  if (!isEAForum || !isEditor) {
+  if (!isEAForum() || !isEditor) {
     return null;
   }
 

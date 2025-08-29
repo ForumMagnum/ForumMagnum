@@ -6,7 +6,7 @@ import _sortBy from 'lodash/sortBy';
 import { userCanCreateTags } from '../../lib/betas';
 import { useCurrentUser } from '../common/withUser';
 import { taggingNameCapitalSetting, taggingNamePluralCapitalSetting, taggingNamePluralSetting } from '../../lib/instanceSettings';
-import { tagCreateUrl, tagUserHasSufficientKarma } from '../../lib/collections/tags/helpers';
+import { getTagCreateUrl, tagUserHasSufficientKarma } from '../../lib/collections/tags/helpers';
 import TagsListItem from "./TagsListItem";
 import SectionTitle from "../common/SectionTitle";
 import SectionButton from "../common/SectionButton";
@@ -67,7 +67,7 @@ const AllTagsAlphabetical = ({classes}: {
         {userCanCreateTags(currentUser) && tagUserHasSufficientKarma(currentUser, "new") &&
           <SectionButton>
             <AddBoxIcon/>
-            <Link to={tagCreateUrl}>
+            <Link to={getTagCreateUrl()}>
               New {taggingNameCapitalSetting.get()}
             </Link>
           </SectionButton>

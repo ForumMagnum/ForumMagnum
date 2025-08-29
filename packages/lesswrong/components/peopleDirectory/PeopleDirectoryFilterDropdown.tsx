@@ -1,12 +1,12 @@
 import React, { ReactNode, useCallback, useRef, useState } from "react";
-import { registerComponent } from "../../lib/vulcan-lib/components";
 import { useEventListener } from "../hooks/useEventListener";
 import ForumIcon, { ForumIconName } from "../common/ForumIcon";
 import classNames from "classnames";
 import LWPopper from "../common/LWPopper";
 import LWClickAwayListener from "../common/LWClickAwayListener";
+import { defineStyles, useStyles } from "../hooks/useStyles";
 
-export const styles = (theme: ThemeType) => ({
+export const styles = defineStyles("PeopleDirectoryFilterDropdown", (theme: ThemeType) => ({
   root: {
     display: "inline-block",
   },
@@ -78,6 +78,8 @@ export const styles = (theme: ThemeType) => ({
     border: `1px solid ${theme.palette.grey[120]}`,
     boxShadow: theme.palette.boxShadow.eaCard,
   },
+}), {
+  stylePriority: -1,
 });
 
 const PeopleDirectoryFilterDropdown = ({
@@ -93,7 +95,6 @@ const PeopleDirectoryFilterDropdown = ({
   className,
   rootClassName,
   titleClassName,
-  classes,
 }: {
   title: ReactNode,
   active?: boolean,
@@ -107,8 +108,8 @@ const PeopleDirectoryFilterDropdown = ({
   className?: string,
   rootClassName?: string,
   titleClassName?: string,
-  classes: ClassesType<typeof styles>,
 }) => {
+  const classes = useStyles(styles);
   const [open, setOpen] = useState(false);
   const anchorRef = useRef<HTMLDivElement | null>(null);
 
@@ -167,10 +168,5 @@ const PeopleDirectoryFilterDropdown = ({
   );
 }
 
-export default registerComponent(
-  "PeopleDirectoryFilterDropdown",
-  PeopleDirectoryFilterDropdown,
-  {styles, stylePriority: -1},
-);
-
+export default PeopleDirectoryFilterDropdown;
 

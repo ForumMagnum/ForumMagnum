@@ -1,12 +1,10 @@
 import { getSqlClientOrThrow } from "../sql/sqlClient";
 import { calculateActivityFactor } from "../../lib/collections/useractivities/utils";
-import { activityHalfLifeSetting } from "../../lib/scoring";
-import { fs } from "mz";
-
-const defaultHalfLife = activityHalfLifeSetting.get()
+import { activityHalfLifeSetting } from '@/lib/instanceSettings';
+import fs from "fs";
 
 // Exported to allow running manually with "yarn repl"
-export const generateUserActivityReport = async (activityHalfLifeHours: number = defaultHalfLife) => {
+export const generateUserActivityReport = async (activityHalfLifeHours: number = activityHalfLifeSetting.get()) => {
   const db = getSqlClientOrThrow()
 
   const query = `

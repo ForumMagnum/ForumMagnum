@@ -1,9 +1,7 @@
 import React from 'react';
 import { registerComponent } from '../../lib/vulcan-lib/components';
-import { useCurrentUser } from '../common/withUser';
-import { voteButtonsDisabledForUser } from '../../lib/collections/users/helpers';
+import { useVoteButtonsDisabled } from './useVoteButtonsDisabled';
 import { VotingProps } from './votingProps';
-import { isFriendlyUI } from '../../themes/forumTheme';
 import { defineStyles, useStyles } from '../hooks/useStyles';
 import classNames from 'classnames';
 import VoteAgreementIcon from "./VoteAgreementIcon";
@@ -20,7 +18,7 @@ const styles = defineStyles('AgreementVoteAxis', (theme: ThemeType) => ({
     lineHeight: 0.6,
     height: 24,
     minWidth: 60,
-    borderRadius: isFriendlyUI ? theme.borderRadius.small : 2,
+    borderRadius: theme.isFriendlyUI ? theme.borderRadius.small : 2,
     textAlign: 'center',
     whiteSpace: "nowrap",
   },
@@ -43,8 +41,7 @@ const AgreementVoteAxis = ({ document, hideKarma=false, voteProps, agreementScor
   const classes = useStyles(styles);
   const voteCount = voteProps.document?.extendedScore?.agreementVoteCount || 0;
   const karma = voteProps.document?.extendedScore?.agreement || 0;
-  const currentUser = useCurrentUser();
-  const {fail, reason: whyYouCantVote} = voteButtonsDisabledForUser(currentUser);
+  const {fail, reason: whyYouCantVote} = useVoteButtonsDisabled();
   const canVote = !fail;
 
   let documentTypeName = "comment";

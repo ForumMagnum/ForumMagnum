@@ -1,9 +1,7 @@
-import { isFriendlyUI } from '../../themes/forumTheme';
-
 export const submitButtonStyles = (theme: ThemeType) => ({
   fontFamily: theme.typography.fontFamily,
   marginLeft: "5px",
-  ...(isFriendlyUI
+  ...(theme.isFriendlyUI
     ? {
       fontSize: 14,
       fontWeight: 500,
@@ -31,7 +29,7 @@ export const cancelButtonStyles = (theme: ThemeType) => ({
   "&:hover": {
     background: theme.palette.panelBackground.darken05,
   },
-  ...(isFriendlyUI
+  ...(theme.isFriendlyUI
     ? {
       fontSize: 14,
       fontWeight: 500,

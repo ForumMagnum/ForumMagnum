@@ -104,7 +104,7 @@ const PostsEditBotTips = ({handleDismiss, postId, className, nodeRef, classes}: 
 }) => {
   const {captureEvent} = useTracking()
   
-  if (!isEAForum) {
+  if (!isEAForum()) {
     return null
   }
 

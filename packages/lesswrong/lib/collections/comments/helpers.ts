@@ -1,11 +1,10 @@
-import { isAF, isEAForum, taggingNameSetting } from '../../instanceSettings';
+import { isAF, isEAForum, taggingNameSetting, commentPermalinkStyleSetting, hideUnreviewedAuthorCommentsSettings } from '@/lib/instanceSettings';
 import { getSiteUrl } from '../../vulcan-lib/utils';
 import { postGetPageUrl } from '../posts/helpers';
 import { userCanDo } from '../../vulcan-users/permissions';
 import { userGetDisplayName } from "../users/helpers";
 import { tagGetCommentLink } from '../tags/helpers';
 import { TagCommentType } from './types';
-import { commentPermalinkStyleSetting, hideUnreviewedAuthorCommentsSettings } from '../../publicSettings';
 import { forumSelect } from '../../forumTypeUtils';
 
 // Get a comment author's name
@@ -73,7 +72,7 @@ export const commentGetRSSUrl = function(comment: HasIdType, isAbsolute = false)
 };
 
 export const commentDefaultToAlignment = (currentUser: UsersCurrent|null, post: PostsMinimumInfo|undefined, comment?: CommentsList): boolean => {
-  if (isAF) { return true }
+  if (isAF()) { return true }
   if (comment) {
     return !!(userCanDo(currentUser, "comments.alignment.new") && post?.af && comment.af)
   } else {
@@ -94,7 +93,7 @@ export const commentGetDefaultView = (post: PostsDetails|PostsList|DbPost|null, 
 }
 
 export const commentGetKarma = (comment: CommentsList|DbComment): number => {
-  const baseScore = isAF ? comment.afBaseScore : comment.baseScore
+  const baseScore = isAF() ? comment.afBaseScore : comment.baseScore
   return baseScore || 0
 }
 
@@ -131,7 +130,7 @@ export async function getVotingSystemNameForDocument(document: VoteableType, col
     return "reactionsAndLikes";
   }
   if ((document as DbComment).tagId) {
-    return isEAForum ? "eaEmojis" : "namesAttachedReactions";
+    return isEAForum() ? "eaEmojis" : "namesAttachedReactions";
   }
   if ((document as DbComment).postId) {
     const post = await context.loaders.Posts.load((document as DbComment).postId!);

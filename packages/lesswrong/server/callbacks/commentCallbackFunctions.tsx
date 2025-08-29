@@ -5,8 +5,7 @@ import { REJECTED_COMMENT } from "@/lib/collections/moderatorActions/constants";
 import { tagGetDiscussionUrl, EA_FORUM_COMMUNITY_TOPIC_ID } from "@/lib/collections/tags/helpers";
 import { userShortformPostTitle } from "@/lib/collections/users/helpers";
 import { isAnyTest } from "@/lib/executionEnvironment";
-import { isEAForum } from "@/lib/instanceSettings";
-import { recombeeEnabledSetting } from "@/lib/publicSettings";
+import { isEAForum, recombeeEnabledSetting } from '@/lib/instanceSettings';
 import { randomId } from "@/lib/random";
 import { userCanDo, userIsAdminOrMod } from "@/lib/vulcan-users/permissions";
 import { noDeletionPmReason } from "@/lib/collections/comments/constants";
@@ -23,14 +22,17 @@ import { akismetKeySetting, commentAncestorsToNotifySetting } from "../databaseS
 import { checkForAkismetSpam } from "../akismet";
 import { getUsersToNotifyAboutEvent } from "../notificationCallbacks";
 import { getConfirmedCoauthorIds, postGetPageUrl } from "@/lib/collections/posts/helpers";
-import { wrapAndSendEmail } from "../emails/renderEmail";
+import { createEmailContext, wrapAndSendEmail } from "../emails/renderEmail";
 import { subscriptionTypes } from "@/lib/collections/subscriptions/helpers";
 import { swrInvalidatePostRoute } from "../cache/swr";
 import { getAdminTeamAccount } from "../utils/adminTeamAccount";
-import _ from "underscore";
 import moment from "moment";
 import isEqual from "lodash/isEqual";
 import uniq from "lodash/uniq";
+import maxBy from "lodash/maxBy";
+import difference from "lodash/difference";
+import intersection from "lodash/intersection";
+import union from "lodash/union";
 import { createConversation } from "../collections/conversations/mutations";
 import { computeContextFromUser } from "../vulcan-lib/apollo-server/context";
 import { createMessage } from "../collections/messages/mutations";
@@ -42,6 +44,7 @@ import { updateUser } from "../collections/users/mutations";
 import { updateComment } from "../collections/comments/mutations";
 import { EmailComment } from "../emailComponents/EmailComment";
 import { PostsOriginalContents, PostsRevision } from "@/lib/collections/posts/fragments";
+import { backgroundTask } from "../utils/backgroundTask";
 
 interface SendModerationPMParams {
   action: 'deleted' | 'rejected',
@@ -68,10 +71,10 @@ export async function recalculateAFCommentMetadata(postId: string|null, context:
     deleted: false
   }).fetch()
 
-  const lastComment: DbComment = _.max(afComments, function(c){return c.postedAt;})
+  const lastComment = maxBy(afComments, (c) => c.postedAt)
   const lastCommentedAt = (lastComment && lastComment.postedAt) || (await loaders.Posts.load(postId))?.postedAt || new Date()
 
-  void updatePost({
+  backgroundTask(updatePost({
     data: {
       // Needs to be recomputed after anything moves to/from AF; can't be handled
       // incrementally by simpler callbacks because a comment being removed from
@@ -82,7 +85,7 @@ export async function recalculateAFCommentMetadata(postId: string|null, context:
       afCommentCount: afComments.length,
     },
     selector: { _id: postId }
-  }, createAnonymousContext())
+  }, createAnonymousContext()))
 }
 
 const utils = {
@@ -150,12 +153,12 @@ const utils = {
     for (let {userId,email} of emailsToNotify) {
       if (!email) continue;
       const user = await Users.findOne(userId);
-      
+
       await wrapAndSendEmail({
         user: user,
         to: email,
         subject: `New comment on ${post.title}`,
-        body: <EmailComment commentId={comment._id}/>,
+        body: (emailContext) => <EmailComment commentId={comment._id} emailContext={emailContext}/>,
       });
     }
   },
@@ -196,12 +199,12 @@ const utils = {
           potentiallyDefaultSubscribedUserIds: [currentParentCommentAuthorId],
           userIsDefaultSubscribed: u => u.auto_subscribe_to_my_comments
         })
-        const subscribedUserIds = _.map(subscribedUsers, u=>u._id);
+        const subscribedUserIds = subscribedUsers.map(u=>u._id);
   
         // Don't notify the author of their own comment, and filter out the author
         // of the parent-comment to be treated specially (with a newReplyToYou
         // notification instead of a newReply notification).
-        newReplyUserIds = [...newReplyUserIds, ..._.difference(subscribedUserIds, [comment.userId, currentParentCommentAuthorId])]
+        newReplyUserIds = [...newReplyUserIds, ...difference(subscribedUserIds, [comment.userId, currentParentCommentAuthorId])]
   
         // Separately notify authors of replies to their own comments
         if (subscribedUserIds.includes(currentParentCommentAuthorId) && currentParentCommentAuthorId !== comment.userId) {
@@ -214,8 +217,8 @@ const utils = {
       }
 
       // Take the difference to prevent double-notifying
-      newReplyUserIds = uniq(_.difference(newReplyUserIds, [...newReplyToYouDirectUserIds, ...newReplyToYouIndirectUserIds]));
-      newReplyToYouIndirectUserIds = uniq(_.difference(newReplyToYouIndirectUserIds, newReplyToYouDirectUserIds)); // Direct replies take precedence over indirect replies
+      newReplyUserIds = uniq(difference(newReplyUserIds, [...newReplyToYouDirectUserIds, ...newReplyToYouIndirectUserIds]));
+      newReplyToYouIndirectUserIds = uniq(difference(newReplyToYouIndirectUserIds, newReplyToYouDirectUserIds)); // Direct replies take precedence over indirect replies
       newReplyToYouDirectUserIds = uniq(newReplyToYouDirectUserIds);
   
       await Promise.all([
@@ -230,7 +233,7 @@ const utils = {
     // 2. If this comment is a debate comment, notify users who are subscribed to the post as a debate (`newDebateComments`)
     if (post && comment.debateResponse) {
       // Get all the debate participants, but exclude the comment author if they're a debate participant
-      const debateParticipantIds = _.difference([post.userId, ...(post.coauthorStatuses ?? []).map(coauthor => coauthor.userId)], [comment.userId]);
+      const debateParticipantIds = difference([post.userId, ...(post.coauthorStatuses ?? []).map(coauthor => coauthor.userId)], [comment.userId]);
   
       const debateSubscribers = await getSubscribedUsers({
         documentId: comment.postId,
@@ -243,11 +246,11 @@ const utils = {
       // Handle debate readers
       // Filter out debate participants, since they get a different notification type
       // (We shouldn't have notified any users for these comments previously, but leaving that in for sanity)
-      const debateSubscriberIdsToNotify = _.difference(debateSubscriberIds, [...debateParticipantIds, ...notifiedUsers, comment.userId]);
+      const debateSubscriberIdsToNotify = difference(debateSubscriberIds, [...debateParticipantIds, ...notifiedUsers, comment.userId]);
       await createNotifications({ userIds: debateSubscriberIdsToNotify, notificationType: 'newDebateComment', documentType: 'comment', documentId: comment._id });
   
       // Handle debate participants
-      const subscribedParticipantIds = _.intersection(debateSubscriberIds, debateParticipantIds);
+      const subscribedParticipantIds = intersection(debateSubscriberIds, debateParticipantIds);
       await createNotifications({ userIds: subscribedParticipantIds, notificationType: 'newDebateReply', documentType: 'comment', documentId: comment._id });
   
       // Avoid notifying users who are subscribed to both the debate comments and regular comments on a debate twice 
@@ -263,7 +266,7 @@ const utils = {
       potentiallyDefaultSubscribedUserIds: post ? [post.userId, ...getConfirmedCoauthorIds(post)] : [],
       userIsDefaultSubscribed: u => u.auto_subscribe_to_my_posts
     })
-    userIdsSubscribedToPost = _.map(usersSubscribedToPost, u=>u._id);
+    userIdsSubscribedToPost = usersSubscribedToPost.map(u=>u._id);
     
     // if the post is associated with a group, also (potentially) notify the group organizers
     if (post && post.groupId) {
@@ -276,7 +279,7 @@ const utils = {
           potentiallyDefaultSubscribedUserIds: group.organizerIds,
           userIsDefaultSubscribed: u => u.autoSubscribeAsOrganizer
         })
-        userIdsSubscribedToPost = _.union(userIdsSubscribedToPost, _.map(subsWithOrganizers, u=>u._id))
+        userIdsSubscribedToPost = union(userIdsSubscribedToPost, subsWithOrganizers.map(u=>u._id))
       }
     }
   
@@ -287,14 +290,14 @@ const utils = {
         collectionName: "Posts",
         type: subscriptionTypes.newShortform
       })
-      const userIdsSubscribedToShortform = _.map(usersSubscribedToShortform, u=>u._id);
+      const userIdsSubscribedToShortform = usersSubscribedToShortform.map(u=>u._id);
       await createNotifications({userIds: userIdsSubscribedToShortform, notificationType: 'newShortform', documentType: 'comment', documentId: comment._id});
       notifiedUsers = [ ...userIdsSubscribedToShortform, ...notifiedUsers]
     }
     
     // remove userIds of users that have already been notified
     // and of comment author (they could be replying in a thread they're subscribed to)
-    const postSubscriberIdsToNotify = _.difference(userIdsSubscribedToPost, [...notifiedUsers, comment.userId])
+    const postSubscriberIdsToNotify = difference(userIdsSubscribedToPost, [...notifiedUsers, comment.userId])
     if (postSubscriberIdsToNotify.length > 0) {
       await createNotifications({userIds: postSubscriberIdsToNotify, notificationType: 'newComment', documentType: 'comment', documentId: comment._id})
       notifiedUsers = [ ...notifiedUsers, ...postSubscriberIdsToNotify]
@@ -316,7 +319,7 @@ const utils = {
           subforumEmailNotifications: true,
         }).fetch()
       ).map((u) => u.userId);
-      const subforumSubscriberIdsToNotify = _.difference(subforumSubscriberIdsMaybeNotify, [...notifiedUsers, comment.userId])
+      const subforumSubscriberIdsToNotify = difference(subforumSubscriberIdsMaybeNotify, [...notifiedUsers, comment.userId])
   
       await createNotifications({
         userIds: subforumSubscriberIdsToNotify,
@@ -333,7 +336,7 @@ const utils = {
       type: subscriptionTypes.newUserComments
     })
     const commentAuthorSubscriberIds = commentAuthorSubscribers.map(({ _id }) => _id)
-    const commentAuthorSubscriberIdsToNotify = _.difference(commentAuthorSubscriberIds, notifiedUsers)
+    const commentAuthorSubscriberIdsToNotify = difference(commentAuthorSubscriberIds, notifiedUsers)
     await createNotifications({
       userIds: commentAuthorSubscriberIdsToNotify, 
       notificationType: 'newUserComment', 
@@ -371,7 +374,7 @@ const utils = {
       ...(action === 'rejected' ? { moderator: true } : {})
     };
 
-    const lwAccountContext = await computeContextFromUser({ user: lwAccount, req: context.req, res: context.res, isSSR: context.isSSR });
+    const lwAccountContext = computeContextFromUser({ user: lwAccount, isSSR: context.isSSR });
 
     const conversation = await createConversation({
       data: conversationData,
@@ -436,7 +439,7 @@ const utils = {
       }
   
       // EAForum always sends an email when deleting comments. Other ForumMagnum sites send emails if the user has been approved, but not otherwise (so that admins can delete comments by mediocre users without sending them an email notification that might draw their attention back to the site.)
-      const noEmail = isEAForum
+      const noEmail = isEAForum()
       ? false 
       : !(!!commentUser?.reviewedByUserId && !commentUser.snoozedUntilContentCount)
   
@@ -478,7 +481,7 @@ const utils = {
     let messageContents = getRejectionMessage(rejectedContentLink, comment.rejectedReason)
     
     // EAForum always sends an email when deleting comments. Other ForumMagnum sites send emails if the user has been approved, but not otherwise (so that admins can reject comments by mediocre users without sending them an email notification that might draw their attention back to the site.)
-    const noEmail = isEAForum 
+    const noEmail = isEAForum() 
     ? false 
     : !(!!commentUser?.reviewedByUserId && !commentUser.snoozedUntilContentCount)
   
@@ -501,20 +504,20 @@ const utils = {
     if (comment.postId) {
       const comments = await Comments.find({postId:comment.postId, deleted: false, debateResponse: false}).fetch()
     
-      const lastComment: DbComment = _.max(comments, (c) => c.postedAt)
+      const lastComment = maxBy(comments, (c) => c.postedAt)
       const lastCommentedAt = (lastComment && lastComment.postedAt) || (await loaders.Posts.load(comment.postId))?.postedAt || new Date()
     
-      void updatePost({
+      backgroundTask(updatePost({
         data: {
           lastCommentedAt: new Date(lastCommentedAt),
         },
         selector: { _id: comment.postId }
-      }, createAnonymousContext())
+      }, createAnonymousContext()));
     }
     if (action === 'deleted') {
-      void utils.commentsDeleteSendPMAsync(comment, currentUser, context);
+      backgroundTask(utils.commentsDeleteSendPMAsync(comment, currentUser, context));
     } else {
-      void utils.commentsRejectSendPMAsync(comment, currentUser, context);
+      backgroundTask(utils.commentsRejectSendPMAsync(comment, currentUser, context));
     }
   }
 };
@@ -620,8 +623,8 @@ export async function createShortformPost(comment: CreateCommentDataInput, { cur
 
 export function addReferrerToComment(comment: CreateCommentDataInput, properties: CreateCallbackProperties<"Comments">) {
   if (properties && properties.context && properties.context.headers) {
-    let referrer = properties.context.headers["referer"];
-    let userAgent = properties.context.headers["user-agent"];
+    let referrer = properties.context.headers.get("referer");
+    let userAgent = properties.context.headers.get("user-agent");
     
     return {
       ...comment,
@@ -722,7 +725,7 @@ export async function commentsNewOperations(comment: CreateCommentDataInput, _: 
       const post = await loaders.Posts.load(comment.postId)
       if (post) {
         // eslint-disable-next-line no-console
-        void recombeeApi.upsertPost(post, context).catch(e => console.log('Error when sending commented on post to recombee', { e }));  
+        backgroundTask(recombeeApi.upsertPost(post, context).catch(e => console.log('Error when sending commented on post to recombee', { e })));
       }
     }
 
@@ -758,9 +761,9 @@ export async function handleForumEventMetadataNew(comment: CreateCommentDataInpu
 
 
 /* CREATE AFTER */
-export function invalidatePostOnCommentCreate({ postId }: DbComment) {
+export function invalidatePostOnCommentCreate({ postId }: DbComment, context: ResolverContext) {
   if (!postId) return;
-  void swrInvalidatePostRoute(postId);
+  backgroundTask(swrInvalidatePostRoute(postId, context));
 }
 
 export async function updateDescendentCommentCountsOnCreate(comment: DbComment, properties: AfterCreateCallbackProperties<'Comments'>) {
@@ -783,7 +786,7 @@ export async function lwCommentsNewUpvoteOwnComment(comment: DbComment, currentU
   const start = Date.now();
   var commentAuthor = await loaders.Users.load(comment.userId);
   if (!commentAuthor) throw new Error(`Could not find user: ${comment.userId}`);
-  const { performVoteServer } = require("../voteServer");
+  const { performVoteServer } = await import("../voteServer");
   const {modifiedDocument: votedComment} = await performVoteServer({
     document: comment,
     voteType: 'smallUpvote',
@@ -873,7 +876,7 @@ export async function checkModGPTOnCommentCreate({document, context}: AfterCreat
   // On the EA Forum, ModGPT checks earnest comments on posts for norm violations.
   // We skip comments by unreviewed authors, because those will be reviewed by a human.
   if (
-    !isEAForum ||
+    !isEAForum() ||
     !document.postId ||
     document.deleted ||
     document.deletedPublic ||
@@ -901,7 +904,7 @@ export async function checkModGPTOnCommentCreate({document, context}: AfterCreat
   const postTags = post.tagRelevance
   if (!postTags || !Object.keys(postTags).includes(EA_FORUM_COMMUNITY_TOPIC_ID)) return
   
-  void checkModGPT(document, post, context)
+  backgroundTask(checkModGPT(document, post, context))
 }
 
 // Elastic callback might go here
@@ -924,7 +927,7 @@ export async function commentsNewNotifications(comment: DbComment, context: Reso
   // if the site is currently hiding comments by unreviewed authors, do not send notifications if this comment should be hidden
   if (commentIsNotPublicForAnyReason(comment)) return
   
-  void utils.sendNewCommentNotifications(comment, context)
+  backgroundTask(utils.sendNewCommentNotifications(comment, context))
 }
 
 /* UPDATE VALIDATE */
@@ -933,9 +936,12 @@ export async function commentsNewNotifications(comment: DbComment, context: Reso
 /* UPDATE BEFORE */
 export function updatePostLastCommentPromotedAt(data: UpdateCommentDataInput, { oldDocument, newDocument, context, currentUser }: UpdateCallbackProperties<"Comments">) {
   if (data?.promoted && !oldDocument.promoted && newDocument.postId) {
-    void updatePost({ data: {
-            lastCommentPromotedAt: new Date(),
-          }, selector: { _id: newDocument.postId } }, context);
+    backgroundTask(updatePost({
+      data: {
+        lastCommentPromotedAt: new Date(),
+      },
+      selector: { _id: newDocument.postId }
+    }, context));
     const promotedByUserId = currentUser?._id;
     return { ...data, promotedByUserId };
   }
@@ -978,7 +984,7 @@ export async function validateDeleteOperations(data: UpdateCommentDataInput, pro
     if (properties.newDocument.deleted && !properties.oldDocument.deleted) {
       // Deletion
       const childrenComments = await Comments.find({parentCommentId: properties.newDocument._id}).fetch()
-      const filteredChildrenComments = _.filter(childrenComments, (c) => !(c && c.deleted))
+      const filteredChildrenComments = childrenComments.filter((c) => !(c && c.deleted))
       if (
         filteredChildrenComments &&
         (filteredChildrenComments.length > 0) &&
@@ -1038,9 +1044,9 @@ export async function handleForumEventMetadataEdit(modifier: MongoModifier, comm
 }
 
 /* UPDATE AFTER */
-export function invalidatePostOnCommentUpdate({ postId }: { postId: string | null }) {
+export function invalidatePostOnCommentUpdate({ postId }: { postId: string | null }, context: ResolverContext) {
   if (!postId) return;
-  void swrInvalidatePostRoute(postId);
+  backgroundTask(swrInvalidatePostRoute(postId, context));
 }
 
 export async function updateDescendentCommentCountsOnEdit(comment: DbComment, properties: UpdateCallbackProperties<"Comments">) {
@@ -1073,13 +1079,13 @@ export async function updatedCommentMaybeTriggerReview({ currentUser, context }:
 
 export async function updateUserNotesOnCommentRejection({ newDocument, oldDocument, currentUser, context }: UpdateCallbackProperties<"Comments">) {
   if (!oldDocument.rejected && newDocument.rejected) {
-    void createModeratorAction({
+    backgroundTask(createModeratorAction({
       data: {
         userId: newDocument.userId,
         type: REJECTED_COMMENT,
         endedAt: new Date(),
       }
-    }, context);
+    }, context));
   }
 }
 
@@ -1087,7 +1093,7 @@ export async function checkModGPTOnCommentUpdate({oldDocument, newDocument, cont
   // On the EA Forum, ModGPT checks earnest comments on posts for norm violations.
   // We skip comments by unreviewed authors, because those will be reviewed by a human.
   if (
-    !isEAForum ||
+    !isEAForum() ||
     !newDocument.postId ||
     newDocument.deleted ||
     newDocument.deletedPublic ||
@@ -1119,7 +1125,7 @@ export async function checkModGPTOnCommentUpdate({oldDocument, newDocument, cont
   const postTags = post.tagRelevance
   if (!postTags || !Object.keys(postTags).includes(EA_FORUM_COMMUNITY_TOPIC_ID)) return
   
-  void checkModGPT(newDocument, post, context)
+  backgroundTask(checkModGPT(newDocument, post, context))
 }
 
 /* EDIT ASYNC */
@@ -1147,6 +1153,6 @@ export async function commentsEditSoftDeleteCallback(comment: DbComment, oldComm
 
 export async function commentsPublishedNotifications(comment: DbComment, oldComment: DbComment, context: ResolverContext) {
   if (commentIsNotPublicForAnyReason(oldComment) && !commentIsNotPublicForAnyReason(comment)) {
-    void utils.sendNewCommentNotifications(comment, context)
+    backgroundTask(utils.sendNewCommentNotifications(comment, context))
   }
 }

@@ -1,7 +1,7 @@
 import { isFriendlyUI } from '@/themes/forumTheme';
 
 
-export const defaultEditorPlaceholder = isFriendlyUI ?
+export const getDefaultEditorPlaceholder = () => isFriendlyUI() ?
   `Highlight text to format it. Type @ to mention a user, post, or topic.` :
 
   `Text goes here! See lesswrong.com/editor for info about everything the editor can do.

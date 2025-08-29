@@ -8,7 +8,6 @@ import { userIsSharedOn } from "@/lib/collections/users/helpers";
 import { extractVersionsFromSemver } from "@/lib/editor/utils";
 import { constantTimeCompare } from "@/lib/helpers";
 import { userCanDo, userIsAdmin, userIsAdminOrMod, userOwns } from "@/lib/vulcan-users/permissions";
-import _ from "underscore";
 
 
 const defaultCheckAccess: CheckAccessFunction<CollectionNameString> = async () => false;
@@ -189,7 +188,7 @@ const postCheckAccess: CheckAccessFunction<'Posts'> = async (currentUser, post, 
   } else if (post.authorIsUnreviewed && !post.rejected) {
     return false
   } else {
-    const status = _.findWhere(postStatusLabels, {value: post.status});
+    const status = postStatusLabels.find(label => label.value === post.status);
     if (!status) return false;
     return userCanDo(currentUser, `posts.view.${status.label}`);
   }

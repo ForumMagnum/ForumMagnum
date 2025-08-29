@@ -1,10 +1,9 @@
-import { registerComponent } from '../../lib/vulcan-lib/components';
 import React from 'react';
 import { userIsAdmin } from '../../lib/vulcan-users/permissions';
 import moment from '../../lib/moment-timezone';
 import { useCurrentUser } from '../common/withUser';
 import { isAF } from '../../lib/instanceSettings';
-import { voteButtonsDisabledForUser } from '../../lib/collections/users/helpers';
+import { useVoteButtonsDisabled } from './useVoteButtonsDisabled';
 import type { VotingProps } from './votingProps';
 import OverallVoteButton, { OverallVoteButtonProps } from './OverallVoteButton';
 import classNames from 'classnames';
@@ -17,12 +16,12 @@ const styles = defineStyles('OverallVoteAxis', theme => ({
   overallSection: {
     display: 'inline-block',
     height: 24,
-    paddingTop: isFriendlyUI ? 2.5 : 0
+    paddingTop: theme.isFriendlyUI ? 2.5 : 0
   },
   overallSectionBox: {
     marginLeft: 8,
     outline: theme.palette.border.commentBorder,
-    borderRadius: isFriendlyUI ? theme.borderRadius.small : 2,
+    borderRadius: theme.isFriendlyUI ? theme.borderRadius.small : 2,
     textAlign: 'center',
     minWidth: 60
   },
@@ -68,7 +67,7 @@ const styles = defineStyles('OverallVoteAxis', theme => ({
   },
 }));
 
-const karmaQuestion = isFriendlyUI ? 'Is this a valuable contribution?' : 'How much do you like this overall?'
+const getKarmaQuestion = () => isFriendlyUI() ? 'Is this a valuable contribution?' : 'How much do you like this overall?'
 
 const OverallVoteAxis = ({
   document,
@@ -94,23 +93,16 @@ const OverallVoteAxis = ({
   secondaryScoreClassName?: string,
 }) => {
   const classes = useStyles(styles);
-
-  const currentUser = useCurrentUser();
   const collectionName = voteProps.collectionName;
   const extendedScore = voteProps.document?.extendedScore
   const voteCount = extendedScore && ("approvalVoteCount" in extendedScore)
     ? extendedScore.approvalVoteCount
     : (voteProps.voteCount || 0);
   const karma = voteProps.baseScore;
-  const {fail, reason: whyYouCantVote} = voteButtonsDisabledForUser(currentUser);
+  const {fail, reason: whyYouCantVote} = useVoteButtonsDisabled();
   const canVote = !fail;
 
-  let moveToAlignnmentUserId: string | null = "";
   let documentTypeName = "comment";
-  if (collectionName === "Comments") {
-    const comment = document as CommentsList
-    moveToAlignnmentUserId = comment.moveToAlignmentUserId
-  }
   if (collectionName === "Posts") {
     documentTypeName = "post";
   }
@@ -119,14 +111,7 @@ const OverallVoteAxis = ({
   }
 
   const af = (document as any).af;
-  const afDate = (document as any).afDate;
   const afBaseScore = voteProps.document.afBaseScore;
-
-  const moveToAfInfo = userIsAdmin(currentUser) && !!moveToAlignnmentUserId && (
-    <div className={classes.tooltipHelp}>
-      <span>Moved to AF by <UsersName documentId={moveToAlignnmentUserId }/> on { afDate && moment(new Date(afDate)).format('YYYY-MM-DD') }</span>
-    </div>
-  )
 
   const karmaTooltipTitle = React.useMemo(() =>  hideKarma
     ? 'This post has disabled karma visibility'
@@ -168,14 +153,14 @@ const OverallVoteAxis = ({
 
   return <TooltipIfDisabled>
     <span className={classes.vote}>
-      {!!af && !isAF && !hideAfScore &&
+      {!!af && !isAF() && !hideAfScore &&
         <LWTooltip
           placement={tooltipPlacement}
           popperClassName={classes.tooltip}
           title={
             <div>
               <p>AI Alignment Forum Karma</p>
-              { moveToAfInfo }
+              <MoveToAFInfo collectionName={collectionName} document={document} />
             </div>
           }
         >
@@ -185,7 +170,7 @@ const OverallVoteAxis = ({
           </span>
         </LWTooltip>
       }
-      {!af && isAF &&
+      {!af && isAF() &&
         <LWTooltip
           title="LessWrong Karma"
           placement={tooltipPlacement}
@@ -197,13 +182,13 @@ const OverallVoteAxis = ({
           </span>
         </LWTooltip>
       }
-      {(!isAF || !!af) &&
+      {(!isAF() || !!af) &&
         <span className={classNames(classes.overallSection, className, {
           [classes.overallSectionBox]: showBox,
           [classes.verticalArrows]: verticalArrows,
         })}>
           <TooltipIfEnabled
-            title={<div><b>Overall Karma: Downvote</b><br />{karmaQuestion}<br /><em>For strong downvote, click-and-hold<br />(Click twice on mobile)</em></div>}
+            title={<div><b>Overall Karma: Downvote</b><br />{getKarmaQuestion()}<br /><em>For strong downvote, click-and-hold<br />(Click twice on mobile)</em></div>}
             placement={tooltipPlacement}
           >
             <OverallVoteButton
@@ -224,7 +209,7 @@ const OverallVoteAxis = ({
             }
           </TooltipIfEnabled>
           <TooltipIfEnabled
-            title={<div><b>Overall Karma: Upvote</b><br />{karmaQuestion}<br /><em>For strong upvote, click-and-hold<br />(Click twice on mobile)</em></div>}
+            title={<div><b>Overall Karma: Upvote</b><br />{getKarmaQuestion()}<br /><em>For strong upvote, click-and-hold<br />(Click twice on mobile)</em></div>}
             placement={tooltipPlacement}
           >
             <OverallVoteButton
@@ -242,8 +227,28 @@ const OverallVoteAxis = ({
   </TooltipIfDisabled>
 }
 
-export default registerComponent('OverallVoteAxis', OverallVoteAxis);
+const MoveToAFInfo = ({collectionName, document}: {
+  collectionName: CollectionNameString,
+  document: VoteableTypeClient,
+}) => {
+  const classes = useStyles(styles);
+  const currentUser = useCurrentUser();
 
+  let moveToAlignnmentUserId: string | null = "";
+  if (collectionName === "Comments") {
+    const comment = document as CommentsList
+    moveToAlignnmentUserId = comment.moveToAlignmentUserId
+  }
 
+  const afDate = (document as any).afDate;
 
+  return userIsAdmin(currentUser) && !!moveToAlignnmentUserId && (
+    <div className={classes.tooltipHelp}>
+      <span>Moved to AF by <UsersName documentId={moveToAlignnmentUserId }/> on { afDate && moment(new Date(afDate)).format('YYYY-MM-DD') }</span>
+    </div>
+  )
+
+}
+
+export default OverallVoteAxis;
 

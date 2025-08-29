@@ -1,12 +1,10 @@
 import React from "react";
 import Input from "@/lib/vendor/@material-ui/core/src/Input";
-import { DatabasePublicSetting } from "../../lib/publicSettings";
+import { placeholderSetting } from '@/lib/instanceSettings';
 import type { EditablePost } from '../../lib/collections/posts/helpers';
 import type { TypedFieldApi } from '@/components/tanstack-form-components/BaseAppForm';
 import { defineStyles, useStyles } from '../hooks/useStyles';
 import { Typography } from "../common/Typography";
-
-const placeholderSetting = new DatabasePublicSetting<string>("linkpostUrlPlaceholder", "http://example.com/blog/2017/reality-has-a-surprising-amount-of-detail")
 
 const styles = defineStyles('EditLinkpostUrl', (theme: ThemeType) => ({
   root: {
@@ -37,7 +35,7 @@ interface EditLinkpostUrlProps {
 }
 
 // TODO: these two fields were on the form definition in the schema, but didn't seem to actually do anything.
-// hintText={isEAForum ? "UrlHintText" : "Please write what you liked about the post and sample liberally! If the author allows it, copy in the entire post text. (Link-posts without text get far fewer views and most people don't click offsite links.)"}
+// hintText={isEAForum() ? "UrlHintText" : "Please write what you liked about the post and sample liberally! If the author allows it, copy in the entire post text. (Link-posts without text get far fewer views and most people don't click offsite links.)"}
 // labels={{ inactive: 'Link-post?', active: 'Add a linkpost URL' }}
 
 export const EditLinkpostUrl = ({ field, post }: EditLinkpostUrlProps) => {

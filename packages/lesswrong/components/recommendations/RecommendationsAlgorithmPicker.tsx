@@ -11,7 +11,7 @@ import { ForumOptions, forumSelect } from '../../lib/forumTypeUtils';
 import { isFriendlyUI } from '../../themes/forumTheme';
 import SectionFooterCheckbox from "../form-components/SectionFooterCheckbox";
 
-export const archiveRecommendationsName = isEAForum ? 'Forum Favorites' : 'Archive Recommendations'
+export const getArchiveRecommendationsName = () => isEAForum() ? 'Forum Favorites' : 'Archive Recommendations'
 
 const styles = (theme: ThemeType) => ({
   root: {
@@ -48,7 +48,7 @@ export function getRecommendationSettings({settings, currentUser, configName}: {
   currentUser: UsersCurrent|null,
   configName: string,
 }): DefaultRecommendationsAlgorithm {
-  if (isEAForum) return defaultAlgorithmSettings
+  if (isEAForum()) return defaultAlgorithmSettings
 
   if (settings) {
     return {
@@ -71,7 +71,7 @@ const forumIncludeExtra: ForumOptions<{humanName: string, machineName: 'includeP
   EAForum: {humanName: 'Community', machineName: 'includeMeta'},
   default: {humanName: 'Personal Blogposts', machineName: 'includePersonal'},
 }
-const includeExtra = forumSelect(forumIncludeExtra)
+const getIncludeExtra = () => forumSelect(forumIncludeExtra)
 
 const RecommendationsAlgorithmPicker = ({ settings, configName, onChange, showAdvanced=false, classes }: {
   settings: DefaultRecommendationsAlgorithm,
@@ -109,8 +109,8 @@ const RecommendationsAlgorithmPicker = ({ settings, configName, onChange, showAd
         <SectionFooterCheckbox
           value={!settings.hideBookmarks}
           onClick={(ev: React.MouseEvent) => applyChange({ ...settings, hideBookmarks: !settings.hideBookmarks })}
-          label={isFriendlyUI ? "Saved posts" : "Bookmarks"}
-          tooltip={`Posts that you have ${isFriendlyUI ? "saved" : "bookmarked"} will appear in Recommendations.`}
+          label={isFriendlyUI() ? "Saved posts" : "Bookmarks"}
+          tooltip={`Posts that you have ${isFriendlyUI() ? "saved" : "bookmarked"} will appear in Recommendations.`}
         />
       </span>
     </span>}
@@ -148,7 +148,7 @@ const RecommendationsAlgorithmPicker = ({ settings, configName, onChange, showAd
           value={!!settings.onlyUnread && !!currentUser}
           onClick={(ev: React.MouseEvent) => applyChange({ ...settings, onlyUnread: !settings.onlyUnread })}
           label={`Unread ${!currentUser ? "(Requires login)" : ""}`}
-          tooltip={`'${archiveRecommendationsName}' will only show unread posts`}
+          tooltip={`'${getArchiveRecommendationsName()}' will only show unread posts`}
         />
       </span>
 
@@ -156,10 +156,10 @@ const RecommendationsAlgorithmPicker = ({ settings, configName, onChange, showAd
       <span className={classes.setting}>
         <SectionFooterCheckbox
           disabled={!currentUser}
-          value={settings[includeExtra.machineName] ?? false}
-          onClick={(ev: React.MouseEvent) => applyChange({ ...settings, [includeExtra.machineName]: !settings[includeExtra.machineName] })}
-          label={includeExtra.humanName}
-          tooltip={`'${archiveRecommendationsName}' will include ${includeExtra.humanName}`}
+          value={settings[getIncludeExtra().machineName] ?? false}
+          onClick={(ev: React.MouseEvent) => applyChange({ ...settings, [getIncludeExtra().machineName]: !settings[getIncludeExtra().machineName] })}
+          label={getIncludeExtra().humanName}
+          tooltip={`'${getArchiveRecommendationsName()}' will include ${getIncludeExtra().humanName}`}
         />
       </span>
     </span>

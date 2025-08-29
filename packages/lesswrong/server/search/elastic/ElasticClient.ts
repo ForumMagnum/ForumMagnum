@@ -8,8 +8,7 @@ import type {
 import ElasticQuery, { QueryData } from "./ElasticQuery";
 import ElasticMultiQuery, { MultiQueryData } from "./ElasticMultiQuery";
 import sortBy from "lodash/sortBy";
-import { elasticCloudIdSetting, elasticPasswordSetting, elasticUsernameSetting } from "./elasticSettings";
-import { isElasticEnabled } from "../../../lib/instanceSettings";
+import { elasticCloudIdSetting, elasticPasswordSetting, elasticUsernameSetting, isElasticEnabled } from "../../../lib/instanceSettings";
 import take from "lodash/take";
 
 export type ElasticDocument = Exclude<SearchDocument, "_id">;
@@ -31,7 +30,7 @@ class ElasticClient {
   private client: Client;
 
   constructor() {
-    if (!isElasticEnabled) {
+    if (!isElasticEnabled()) {
       throw new Error("Elasticsearch is not enabled");
     }
 

@@ -1,3 +1,6 @@
+import type { Either, Left } from "fp-ts/lib/Either";
+import type { NonEmptyArray } from "fp-ts/lib/NonEmptyArray";
+
 export function fieldIn<T extends {}>(field: string | number | symbol, ...objects: T[]): field is keyof T {
   return objects.every(object => field in object);
 }
@@ -93,3 +96,10 @@ export function returnIfValidNumber(value: string | undefined): number | undefin
   return isNaN(num) ? undefined : num;
 }
 
+export function isLeft<L>(input: Either<L, AnyBecauseIsInput>): input is Left<L> {
+  return input._tag === 'Left';
+}
+
+export function isNonEmpty<T>(input: T[]): input is NonEmptyArray<T> {
+  return input.length > 0;
+}

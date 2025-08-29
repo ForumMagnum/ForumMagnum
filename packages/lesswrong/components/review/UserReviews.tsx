@@ -61,24 +61,26 @@ const UserReviews = () => {
 
   if (!nominationsView || !reviewsView) return <Error404 />
 
-  const nominationTerms: CommentsViewTerms = {
-    view: nominationsView,
-    userId: user._id,
-    limit: 50
-  }
+  const limit = 50;
 
-  const reviewTerms: CommentsViewTerms = {
-    view: reviewsView,
-    userId: user._id,
-    limit: 50
-  }
+  const nominationTerms: CommentSelector = {
+    [nominationsView]: {
+      userId: user._id,
+    }
+  };
+
+  const reviewTerms: CommentSelector = {
+    [reviewsView]: {
+      userId: user._id,
+    }
+  };
 
   return (
     <SingleColumnSection>
       <SectionTitle title={`${user.displayName}'s ${year} Reviews`}/>
-      <RecentComments terms={reviewTerms} truncated noResultsMessage="No Reviews Found"/>
+      <RecentComments selector={reviewTerms} limit={limit} truncated noResultsMessage="No Reviews Found"/>
       <SectionTitle title={`${user.displayName}'s ${year} Nominations`}/>
-      <RecentComments terms={nominationTerms} truncated noResultsMessage="No Nominations Found"/>
+      <RecentComments selector={nominationTerms} limit={limit} truncated noResultsMessage="No Nominations Found"/>
     </SingleColumnSection>
   )
 

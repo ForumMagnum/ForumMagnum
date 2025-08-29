@@ -1,12 +1,11 @@
 import React from 'react';
 import { registerComponent } from '../../../lib/vulcan-lib/components';
 import classNames from 'classnames';
-import { isBookUI, isFriendlyUI } from '../../../themes/forumTheme';
 import { fullHeightToCEnabled } from '../../../lib/betas';
 import { defineStyles, useStyles } from '@/components/hooks/useStyles';
 import TableOfContentsDivider from "./TableOfContentsDivider";
 
-const sectionOffsetStyling = (fullHeightToCEnabled ? {
+const getSectionOffsetStyling = () => (fullHeightToCEnabled() ? {
   display: 'flex',
   flexDirection: 'column-reverse',
 } : {});
@@ -25,7 +24,7 @@ const styles = defineStyles("TableOfContentsRow", (theme: ThemeType) => ({
       color: theme.palette.link.tocLinkHighlighted,
     },
     '& $highlightDot:after': {
-      content: isBookUI ? null : `"•"`,
+      content: theme.isBookUI ? null : `"•"`,
       marginLeft: 3,
       position: 'relative',
       top: 1
@@ -44,12 +43,12 @@ const styles = defineStyles("TableOfContentsRow", (theme: ThemeType) => ({
     paddingTop: 6,
     paddingBottom: 6,
     color: theme.palette.link.tocLink,
-    lineHeight: fullHeightToCEnabled ? "1em" : "1.2em",
+    lineHeight: fullHeightToCEnabled() ? "1em" : "1.2em",
     '&:hover':{
       color: theme.palette.link.tocLinkHighlighted,
-      opacity: isFriendlyUI ? 1 : undefined
+      opacity: theme.isFriendlyUI ? 1 : undefined
     },
-    ...(isFriendlyUI && {
+    ...(theme.isFriendlyUI && {
       lineHeight: "1.1rem",
       fontSize: "1rem",
     }),
@@ -60,7 +59,7 @@ const styles = defineStyles("TableOfContentsRow", (theme: ThemeType) => ({
     paddingTop: 3,
     paddingBottom: theme.spacing.unit*1.5,
     borderBottom: theme.palette.border.faint,
-    fontSize: isFriendlyUI ? "1em" : undefined,
+    fontSize: theme.isFriendlyUI ? "1em" : undefined,
     '&:hover': {
       opacity: "unset"
     }
@@ -77,28 +76,28 @@ const styles = defineStyles("TableOfContentsRow", (theme: ThemeType) => ({
     '& $link:after': {
       display: "none",
     },
-    ...sectionOffsetStyling,
+    ...getSectionOffsetStyling(),
   },
   level1: {
     paddingLeft: 0,
-    ...sectionOffsetStyling,
+    ...getSectionOffsetStyling(),
   },
   level2: {
     fontSize:"1.1rem",
-    paddingLeft: isFriendlyUI ? 16 : 12,
-    ...sectionOffsetStyling,
+    paddingLeft: theme.isFriendlyUI ? 16 : 12,
+    ...getSectionOffsetStyling(),
   },
   level3: {
     fontSize:"1.1rem",
     color: theme.palette.text.dim700,
-    paddingLeft: isFriendlyUI ? 32 : 24,
-    ...sectionOffsetStyling,
+    paddingLeft: theme.isFriendlyUI ? 32 : 24,
+    ...getSectionOffsetStyling(),
   },
   level4: {
     fontSize:"1.1rem",
     color: theme.palette.text.dim700,
-    paddingLeft: isFriendlyUI ? 48 : 36,
-    ...sectionOffsetStyling,
+    paddingLeft: theme.isFriendlyUI ? 48 : 36,
+    ...getSectionOffsetStyling(),
   },
   titleContainer: {
     height: '100%',

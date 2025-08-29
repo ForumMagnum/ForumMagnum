@@ -67,7 +67,7 @@ interface FormComponentPostEditorTaggingProps {
 export const FormComponentPostEditorTagging = ({ field, postCategory, placeholder }: FormComponentPostEditorTaggingProps) => {
   const classes = useStyles(styles);
 
-  const showCoreAndTypesTopicSections = isEAForum;
+  const showCoreAndTypesTopicSections = isEAForum();
 
   const coreTagResult = useQuery(TagFragmentMultiQuery, {
     variables: {

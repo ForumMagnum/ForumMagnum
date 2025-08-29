@@ -6,9 +6,7 @@ import { Link } from '../../lib/reactRouterWrapper'
 import { useCurrentUser } from '../common/withUser';
 import { useHover } from '../common/withHover'
 import withErrorBoundary from '../common/withErrorBoundary'
-import * as _ from 'underscore';
 import classNames from 'classnames';
-import { isFriendlyUI } from '@/themes/forumTheme';
 import CurationNoticesItem from "../admin/CurationNoticesItem";
 import SunshineListItem from "./SunshineListItem";
 import SidebarHoverOver from "./SidebarHoverOver";
@@ -19,7 +17,7 @@ import SidebarAction from "./SidebarAction";
 import SidebarActionMenu from "./SidebarActionMenu";
 import ForumIcon from "../common/ForumIcon";
 import FormatDate from "../common/FormatDate";
-import { useMutation } from "@apollo/client";
+import { useMutation } from "@apollo/client/react";
 import { gql } from "@/lib/generated/gql-codegen";
 import { isEAForum } from '@/lib/instanceSettings';
 
@@ -41,13 +39,13 @@ const styles = (theme: ThemeType) => ({
     position: "relative",
     top: 2
   },
-  postTitle: isFriendlyUI ? {} : {
+  postTitle: theme.isFriendlyUI ? {} : {
     ...theme.typography.body2,
     ...theme.typography.postStyle,
     fontSize: "1rem",
     fontWeight: 500,
   },
-  titleWithCurationNotice: isFriendlyUI ? {} : {
+  titleWithCurationNotice: theme.isFriendlyUI ? {} : {
     color: 'green',
     fontWeight: 600,
   },
@@ -87,7 +85,7 @@ const SunshineCuratedSuggestionsItem = ({classes, post, setCurationPost, timeFor
   }
 
   const handleSuggestCurated = () => {
-    let suggestUserIds = _.clone(post.suggestForCuratedUserIds) || []
+    let suggestUserIds = [...post.suggestForCuratedUserIds ?? []]
     if (!suggestUserIds.includes(currentUser!._id)) {
       suggestUserIds.push(currentUser!._id)
     }
@@ -100,9 +98,9 @@ const SunshineCuratedSuggestionsItem = ({classes, post, setCurationPost, timeFor
   }
 
   const handleUnsuggestCurated = () => {
-    let suggestUserIds = _.clone(post.suggestForCuratedUserIds) || []
+    let suggestUserIds = [...post.suggestForCuratedUserIds ?? []]
     if (suggestUserIds.includes(currentUser!._id)) {
-      suggestUserIds = _.without(suggestUserIds, currentUser!._id);
+      suggestUserIds = suggestUserIds.filter(id => id !== currentUser!._id);
     }
     void updatePost({
       variables: {
@@ -113,7 +111,7 @@ const SunshineCuratedSuggestionsItem = ({classes, post, setCurationPost, timeFor
   }
 
   // On the EA Forum, only admins can curate and remove from curation suggestions
-  const canCurate = isEAForum ? currentUser?.isAdmin : true;
+  const canCurate = isEAForum() ? currentUser?.isAdmin : true;
 
   return (
     <span {...eventHandlers}>

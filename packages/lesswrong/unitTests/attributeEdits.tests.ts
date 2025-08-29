@@ -1,7 +1,6 @@
 import { attributeEdits, attributionsToSpans, spansToAttributions, applyAttributionsToText } from '../server/attributeEdits';
 import { cheerioParse } from '../server/utils/htmlUtil';
 import chai from 'chai';
-import * as _ from 'underscore';
 
 describe('Diff attribution tracking', () => {
   it('applyAttributionsToText', () => {
@@ -35,28 +34,28 @@ describe('Diff attribution tracking', () => {
 
   it('attributeEdits', () => {
     chai.assert.deepEqual(
-      attributeEdits("<div>Asdf</div>", "<div>Asdf ghjk</div>", "2", [..._.times(4, ()=>"1")]),
-      [..._.times(4, ()=>"1"), ..._.times(5, ()=>"2")]
+      attributeEdits("<div>Asdf</div>", "<div>Asdf ghjk</div>", "2", [...Array.from({ length: 4 }, ()=>"1")]),
+      [...Array.from({ length: 4 }, ()=>"1"), ...Array.from({ length: 5 }, ()=>"2")]
     );
     
     chai.assert.deepEqual(
-      attributeEdits("<div> Asdf</div>", "<div> Asdf ghjk</div>", "2", [..._.times(5, ()=>"1")]),
-      [..._.times(5, ()=>"1"), ..._.times(5, ()=>"2")]
+      attributeEdits("<div> Asdf</div>", "<div> Asdf ghjk</div>", "2", [...Array.from({ length: 5 }, ()=>"1")]),
+      [...Array.from({ length: 5 }, ()=>"1"), ...Array.from({ length: 5 }, ()=>"2")]
     );
     
     chai.assert.deepEqual(
-      attributeEdits("<div> Asdf ghjk</div>", "<div> Asdf</div>", "2", [..._.times(10, ()=>"1")]),
-      [..._.times(5, ()=>"1")]
+      attributeEdits("<div> Asdf ghjk</div>", "<div> Asdf</div>", "2", [...Array.from({ length: 10 }, ()=>"1")]),
+      [...Array.from({ length: 5 }, ()=>"1")]
     );
     
     chai.assert.deepEqual(
-      attributeEdits("<div> <span>x</span> Asdf</div>", "<div>  Asdf ghjk</div>", "2", [..._.times(7, ()=>"1")]),
-      [..._.times(6, ()=>"1"), ..._.times(5, ()=>"2")]
+      attributeEdits("<div> <span>x</span> Asdf</div>", "<div>  Asdf ghjk</div>", "2", [...Array.from({ length: 7 }, ()=>"1")]),
+      [...Array.from({ length: 6 }, ()=>"1"), ...Array.from({ length: 5 }, ()=>"2")]
     );
     
     chai.assert.deepEqual(
-      attributeEdits("<div>x y</div>", "<div>x  z</div>", "2", [..._.times(3, ()=>"1")]),
-      [..._.times(3, ()=>"1"), "2"]
+      attributeEdits("<div>x y</div>", "<div>x  z</div>", "2", [...Array.from({ length: 3 }, ()=>"1")]),
+      [...Array.from({ length: 3 }, ()=>"1"), "2"]
     );
     
     chai.assert.deepEqual(
@@ -64,18 +63,18 @@ describe('Diff attribution tracking', () => {
         "<div><p>Lorem ipsum.</p></div>",
         "<div><p>Lorem ipsum.</p><p>Second paragraph.</p></div>",
         "3",
-        [..._.times(6, ()=>"1"), ..._.times(6, ()=>"2")]),
-      [..._.times(6, ()=>"1"), ..._.times(6, ()=>"2"),  ..._.times(17, ()=>"3")]
+        [...Array.from({ length: 6 }, ()=>"1"), ...Array.from({ length: 6 }, ()=>"2")]),
+      [...Array.from({ length: 6 }, ()=>"1"), ...Array.from({ length: 6 }, ()=>"2"),  ...Array.from({ length: 17 }, ()=>"3")]
     );
   });
   it("doesn't crash on test case reduced derived from rationality tag 1.1.0", () => {
     const oldHtml = "<div><p>A C D E</p></div>";
     const newHtml = "<div><p>B</p> <p>F C G</p></div>";
-    attributeEdits(oldHtml, newHtml, "user2", [..._.times(oldHtml.length, ()=>"user1")]);
+    attributeEdits(oldHtml, newHtml, "user2", [...Array.from({ length: oldHtml.length }, ()=>"user1")]);
   });
   it("doesn't crash on test case reduced from rationality tag 1.3.0", () => {
     const oldHtml = "<div>1 YZ</div>"
     const newHtml = "<div>1  Y W</div>"
-    attributeEdits(oldHtml, newHtml, "user2", [..._.times(oldHtml.length, ()=>"user1")]);
+    attributeEdits(oldHtml, newHtml, "user2", [...Array.from({ length: oldHtml.length }, ()=>"user1")]);
   });
 });

@@ -30,7 +30,7 @@ const PostsListMultiQuery = gql(`
 
 const styles = defineStyles('TagPreview', (theme: ThemeType) => ({
   root: {
-    ...(isFriendlyUI ? {
+    ...(theme.isFriendlyUI ? {
       paddingTop: 8,
       paddingLeft: 16,
       paddingRight: 16,
@@ -46,7 +46,7 @@ const styles = defineStyles('TagPreview', (theme: ThemeType) => ({
     width: FRIENDLY_HOVER_OVER_WIDTH,
   },
   mainContent: {
-    ...(!isFriendlyUI && {
+    ...(!theme.isFriendlyUI && {
       paddingLeft: 16,
       paddingRight: 16,
       maxHeight: 600,
@@ -65,7 +65,7 @@ const styles = defineStyles('TagPreview', (theme: ThemeType) => ({
   relatedTagWrapper: {
     ...theme.typography.body2,
     ...theme.typography.postStyle,
-    fontFamily: isFriendlyUI ? theme.palette.fonts.sansSerifStack : undefined,
+    fontFamily: theme.isFriendlyUI ? theme.palette.fonts.sansSerifStack : undefined,
     fontSize: "1.1rem",
     color: theme.palette.grey[900],
     display: '-webkit-box',
@@ -139,7 +139,7 @@ const styles = defineStyles('TagPreview', (theme: ThemeType) => ({
     },
   },
   description: {
-    ...(!isFriendlyUI && { marginTop: 16 }),
+    ...(!theme.isFriendlyUI && { marginTop: 16 }),
   },
 }));
 
@@ -164,7 +164,7 @@ function tagNameIsBoldedAnywhere(html: string, rawTagName: string): boolean {
 /* from the main description.
 */
 const tagShowTitle = (tag: (TagPreviewFragment | TagSectionPreviewFragment) & { summaries?: MultiDocumentContentDisplay[] }) => {
-  if (isFriendlyUI) {
+  if (isFriendlyUI()) {
     return false;
   }
 
@@ -208,8 +208,8 @@ const TagPreview = ({
     setForceOpen?.(true);
   };
 
-  const showPosts = postCount > 0 && !!tag?._id && !isFriendlyUI;
-  const { view, limit, ...selectorTerms } = tagPostTerms(tag, {});
+  const showPosts = postCount > 0 && !!tag?._id && !isFriendlyUI();
+  const { view, limit, ...selectorTerms } = tagPostTerms(tag);
   const { data } = useQuery(PostsListMultiQuery, {
     variables: {
       selector: { [view]: selectorTerms },
@@ -242,7 +242,7 @@ const TagPreview = ({
   )) ?? [];
 
   const showRelatedTags =
-    !isFriendlyUI &&
+    !isFriendlyUI() &&
     !hideRelatedTags &&
     !!(tag.parentTag || tag.subTags.length);
 
@@ -257,7 +257,7 @@ const TagPreview = ({
   const hasMultipleSummaries = summaryTabs.length > 1;
   return (
     <div className={classNames(classes.root, {
-      [classes.rootEAWidth]: isFriendlyUI && hasDescription,
+      [classes.rootEAWidth]: isFriendlyUI() && hasDescription,
     })}>
       {hasMultipleSummaries && <div className={classes.tabsContainer}>
        {summaryTabs}
@@ -340,7 +340,7 @@ const TagPreview = ({
           }
         </>
         }
-        {isFriendlyUI &&
+        {isFriendlyUI() &&
           <div className={classNames(classes.footerCount, {
             [classes.footerMarginTop]: hasDescription,
           })}>

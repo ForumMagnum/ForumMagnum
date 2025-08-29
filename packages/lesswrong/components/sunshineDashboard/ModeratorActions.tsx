@@ -16,15 +16,14 @@ import Input from '@/lib/vendor/@material-ui/core/src/Input';
 import { getCurrentContentCount, UserContentCountPartial } from '../../lib/collections/moderatorActions/helpers';
 import { hideScrollBars } from '../../themes/styleUtils';
 import { getSignature, getSignatureWithNote } from '../../lib/collections/users/helpers';
-import { hideUnreviewedAuthorCommentsSettings } from '../../lib/publicSettings';
-import { isFriendlyUI } from '../../themes/forumTheme';
+import { hideUnreviewedAuthorCommentsSettings } from '@/lib/instanceSettings';
 import { useDialog } from '../common/withDialog';
 import NewModeratorActionDialog from "./NewModeratorActionDialog";
 import LWTooltip from "../common/LWTooltip";
 import ModeratorActionItem from "./ModeratorUserInfo/ModeratorActionItem";
 import { MenuItem } from "../common/Menus";
 import UserRateLimitItem from "./UserRateLimitItem";
-import { useMutation } from "@apollo/client";
+import { useMutation } from "@apollo/client/react";
 import { gql } from "@/lib/generated/gql-codegen";
 
 const SunshineUsersListUpdateMutation = gql(`

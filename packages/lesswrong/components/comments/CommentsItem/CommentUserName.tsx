@@ -4,7 +4,7 @@ import classNames from 'classnames';
 import { userGetProfileUrl } from '../../../lib/collections/users/helpers';
 import { Link } from '../../../lib/reactRouterWrapper';
 import { userHasCommentProfileImages } from '../../../lib/betas';
-import { useCurrentUser } from '../../common/withUser';
+import { useFilteredCurrentUser } from '../../common/withUser';
 import { isFriendlyUI } from '../../../themes/forumTheme';
 import UserNameDeleted from "../../users/UserNameDeleted";
 import UsersName from "../../users/UsersName";
@@ -17,13 +17,13 @@ const styles = (theme: ThemeType) => ({
   author: {
     ...theme.typography.body2,
     fontWeight: 600,
-    ...(isFriendlyUI && {
+    ...(theme.isFriendlyUI && {
       marginRight: 2,
     }),
   },
   authorAnswer: {
     ...theme.typography.body2,
-    fontFamily: isFriendlyUI
+    fontFamily: theme.isFriendlyUI
       ? theme.palette.fonts.sansSerifStack
       : theme.typography.postStyle.fontFamily,
     fontWeight: 600,
@@ -75,7 +75,7 @@ const CommentUserName = ({
   simple?: boolean,
   className?: string
 }) => {
-  const currentUser = useCurrentUser();
+  const currentUserHasProfileImages = useFilteredCurrentUser(u => userHasCommentProfileImages(u));
   const author = comment.user;
 
   if (comment.deleted) {
@@ -90,7 +90,7 @@ const CommentUserName = ({
         Answer by <UsersName user={author} simple={simple}/>
       </span>
     );
-  } else if (isFriendlyUI) {
+  } else if (isFriendlyUI()) {
     // FIXME: Unstable component will lose state on rerender
     // eslint-disable-next-line react/no-unstable-nested-components
     const Wrapper = ({children}: {children: ReactNode}) => simple
@@ -111,7 +111,7 @@ const CommentUserName = ({
       );
     return (
       <Wrapper>
-        {userHasCommentProfileImages(currentUser)
+        {currentUserHasProfileImages
           ? <UsersProfileImage
             user={author}
             size={PROFILE_IMAGE_SIZE}

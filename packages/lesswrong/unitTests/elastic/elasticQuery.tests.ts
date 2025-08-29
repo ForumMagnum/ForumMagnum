@@ -1,4 +1,4 @@
-import ElasticQuery, { QueryData, SEARCH_ORIGIN_DATE } from "../../server/search/elastic/ElasticQuery";
+import ElasticQuery, { QueryData, getSearchOriginDate } from "../../server/search/elastic/ElasticQuery";
 
 describe("ElasticQuery", () => {
   const testQuery: QueryData = {
@@ -6,8 +6,8 @@ describe("ElasticQuery", () => {
     search: "test query",
     filters: [],
   };
-  const originDate = SEARCH_ORIGIN_DATE.toISOString();
-  const delta = Date.now() - SEARCH_ORIGIN_DATE.getTime();
+  const originDate = getSearchOriginDate().toISOString();
+  const delta = Date.now() - getSearchOriginDate().getTime();
   const dayRange = Math.ceil(delta / (1000 * 60 * 60 * 24));
 
   it("Can compile numeric ascending ranking", () => {

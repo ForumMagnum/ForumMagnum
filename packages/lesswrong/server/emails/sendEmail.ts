@@ -1,8 +1,6 @@
-import { DatabaseServerSetting } from '../databaseSettings';
+import { mailUrlSetting } from '../databaseSettings';
 import type { RenderedEmail } from './renderEmail';
 import nodemailer from 'nodemailer';
-
-export const mailUrlSetting = new DatabaseServerSetting<string | null>('mailUrl', null) // The SMTP URL used to send out email
 
 const getMailUrl = () => {
   if (mailUrlSetting.get())

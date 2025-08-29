@@ -6,14 +6,14 @@ import { Card } from "@/components/widgets/Paper";
 import { AnalyticsContext } from "../../../lib/analyticsEvents";
 import { Link } from '../../../lib/reactRouterWrapper';
 import { useForeignApolloClient } from '../../hooks/useForeignApolloClient';
-import { POST_PREVIEW_ELEMENT_CONTEXT, POST_PREVIEW_WIDTH } from './helpers';
+import { POST_PREVIEW_ELEMENT_CONTEXT, getPostPreviewWidth } from './helpers';
 import type { PostsPreviewTooltipProps } from './PostsPreviewTooltip';
 import { useQuery } from "@/lib/crud/useQuery";
 import { gql } from "@/lib/generated/gql-codegen";
 import PostsUserAndCoauthors from "../PostsUserAndCoauthors";
 import PostsTitle from "../PostsTitle";
 import { ContentItemBody } from "../../contents/ContentItemBody";
-import CommentsNodeInner from "../../comments/CommentsNode";
+import CommentsNode from "../../comments/CommentsNode";
 import BookmarkButton from "../BookmarkButton";
 import FormatDate from "../../common/FormatDate";
 import Loading from "../../vulcan-core/Loading";
@@ -75,7 +75,7 @@ const highlightStyles = (theme: ThemeType) => ({
 
 const styles = (theme: ThemeType) => ({
   root: {
-    width: POST_PREVIEW_WIDTH,
+    width: getPostPreviewWidth(),
     position: "relative",
     '& img': {
       maxHeight: "200px"
@@ -253,7 +253,7 @@ const LWPostsPreviewTooltip = ({
         </div>
         {renderedComment
           ? <div className={classes.comment}>
-              <CommentsNodeInner
+              <CommentsNode
                 treeOptions={{
                   post,
                   hideReply: true,

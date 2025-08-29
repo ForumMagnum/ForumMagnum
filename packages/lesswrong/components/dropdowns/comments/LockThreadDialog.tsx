@@ -1,19 +1,18 @@
 import React, { useState } from 'react';
 import { registerComponent } from '../../../lib/vulcan-lib/components';
-import { useMutation } from '@apollo/client';
+import { useMutation } from "@apollo/client/react";
 import { DialogActions } from '@/components/widgets/DialogActions';
 import { DialogContent } from '@/components/widgets/DialogContent';
 import { DialogTitle } from '@/components/widgets/DialogTitle';
 import Button from '@/lib/vendor/@material-ui/core/src/Button';
 import { gql } from "@/lib/generated/gql-codegen";
 import moment from 'moment';
-import { isFriendlyUI } from '../../../themes/forumTheme';
 import LWDialog from "../../common/LWDialog";
 import { DatePicker } from "../../form-components/FormComponentDateTime";
 
 const styles = (theme: ThemeType) => ({
   message: {
-    fontFamily: isFriendlyUI ? theme.palette.fonts.sansSerifStack : undefined,
+    fontFamily: theme.isFriendlyUI ? theme.palette.fonts.sansSerifStack : undefined,
   },
 });
 

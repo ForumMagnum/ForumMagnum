@@ -1,34 +1,24 @@
 import React from 'react';
 import classNames from 'classnames';
-import IconButton from '@/lib/vendor/@material-ui/core/src/IconButton';
 import { SoftUpArrowIcon } from '../icons/softUpArrowIcon';
 import { SoftUpArrowIconCap } from '../icons/softUpArrowIconCap';
-import { useVoteColors } from './useVoteColors';
-import { registerComponent } from '@/lib/vulcan-lib/components';
-import { isEAForum } from '../../lib/instanceSettings';
 import type { BaseVoteArrowIconProps } from './VoteArrowIcon';
+import { defineStyles, useStyles } from '../hooks/useStyles';
+import { getVoteButtonColor, voteButtonSharedStyles } from './VoteButton';
 
-const styles = (theme: ThemeType) => ({
+const styles = defineStyles("VoteArrowIconSolid", (theme: ThemeType) => ({
   root: {
-    color: theme.palette.grey[400],
-    fontSize: 'inherit',
-    width: 'initial',
-    height: 'initial',
-    padding: 0,
     position: 'relative',
-    '&:hover': {
-      backgroundColor: 'transparent',
-    },
   },
   disabled: {
     cursor: 'not-allowed',
   },
   smallArrow: {
-    opacity: isEAForum ? 0.7 : 0.6,
+    opacity: theme.isEAForum ? 0.7 : 0.6,
     pointerEvents: 'none',
   },
   smallArrowLarge: {
-    opacity: isEAForum ? 0.7 : 0.6,
+    opacity: theme.isEAForum ? 0.7 : 0.6,
     pointerEvents: 'none',
   },
   up: {
@@ -94,7 +84,7 @@ const styles = (theme: ThemeType) => ({
   entering: {
     transition: `opacity ${theme.voting.strongVoteDelay}ms cubic-bezier(0.74, -0.01, 1, 1) 0ms`,
   }
-});
+}));
 
 const VoteArrowIconSolid = ({
   orientation,
@@ -108,23 +98,22 @@ const VoteArrowIconSolid = ({
   alwaysColored,
   strongVoteDelay,
   largeArrow = false,
-  classes,
-}: BaseVoteArrowIconProps & {
-  classes: ClassesType<typeof styles>
-}) => {
-
-  const { mainColor, lightColor } = useVoteColors(color);
+}: BaseVoteArrowIconProps) => {
+  const classes = useStyles(styles);
+  const sharedClasses = useStyles(voteButtonSharedStyles);
 
   const iconSize = largeArrow ? 14 : 10;
 
   const Icon = (
     <SoftUpArrowIcon
       style={{
-        color: voted || alwaysColored ? mainColor : 'inherit',
         height: iconSize,
         width: iconSize,
       }}
-      className={classNames(largeArrow ? classes.smallArrowLarge : classes.smallArrow)}
+      className={classNames(
+        largeArrow ? classes.smallArrowLarge : classes.smallArrow,
+        (voted || alwaysColored) && getVoteButtonColor(sharedClasses, color, "main")
+      )}
     />
   );
 
@@ -145,31 +134,31 @@ const VoteArrowIconSolid = ({
     );
 
   return (
-    <IconButton
+    <button
       className={classNames(
         classes.root,
+        sharedClasses.root,
         classes[orientation],
         largeArrow && classes[`${orientation}Large`],
-        !enabled && classes.disabled
+        !enabled && classes.disabled,
       )}
+      type="button"
       onMouseDown={handlers.handleMouseDown}
       onMouseUp={handlers.handleMouseUp}
       onMouseOut={handlers.clearState}
       onClick={handlers.handleClick}
-      disableRipple
     >
+    <span className={sharedClasses.inner}>
       {Icon}
       <SoftUpArrowIconCap
-        style={bigVoteCompleted || bigVoted ? { color: lightColor } : {}}
-        className={accentIconClasses}
+        className={classNames(
+          accentIconClasses,
+          (bigVoteCompleted || bigVoted) && getVoteButtonColor(sharedClasses, color, "light")
+        )}
       />
-    </IconButton>
+    </span>
+    </button>
   );
 };
 
-export default registerComponent( 'VoteArrowIconSolid', VoteArrowIconSolid, {styles});
-
-
-
-
-
+export default VoteArrowIconSolid;

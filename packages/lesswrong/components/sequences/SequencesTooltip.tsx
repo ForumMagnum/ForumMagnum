@@ -24,7 +24,7 @@ export const SequencesTooltip = ({
         <SequencesSummary
           sequence={sequence}
           showAuthor={showAuthor}
-          maxPosts={isFriendlyUI ? 8 : undefined}
+          maxPosts={isFriendlyUI() ? 8 : undefined}
         />
       }
       tooltip={false}

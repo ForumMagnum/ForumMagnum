@@ -8,6 +8,13 @@ scalar JSON
 
 scalar Date
 
+scalar ContentTypeData
+
+type ContentType {
+  type: String!
+  data: ContentTypeData!
+}
+
 input SelectorInput {
   _id: String
   documentId: String
@@ -59,7 +66,7 @@ input CoauthorStatusInput {
 }
 
 input SocialPreviewInput {
-  imageId: String!
+  imageId: String
   text: String
 }
 
@@ -76,7 +83,7 @@ type CoauthorStatusOutput {
 }
 
 type SocialPreviewOutput {
-  imageId: String!
+  imageId: String
   text: String
 }
 
@@ -84,13 +91,6 @@ type CrosspostOutput {
   isCrosspost: Boolean!
   hostedHere: Boolean
   foreignPostId: String
-}
-
-scalar ContentTypeData
-
-type ContentType {
-  type: String!
-  data: ContentTypeData!
 }
 
 type TagContributor {
@@ -688,14 +688,6 @@ extend type Query {
   MyDialogues(limit: Int): MyDialoguesResult
 }
 
-type GoogleVertexPostsResult {
-  results: [VertexRecommendedPost!]!
-}
-
-extend type Query {
-  GoogleVertexPosts(settings: JSON, limit: Int): GoogleVertexPostsResult
-}
-
 type CrossedKarmaThresholdResult {
   results: [Post!]!
 }
@@ -1203,12 +1195,6 @@ extend type Query {
   GetAllReviewWinners: [Post!]!
 }
 
-extend type Mutation {
-  sendVertexViewItemEvent(postId: String!, attributionId: String): Boolean!
-  sendVertexMediaCompleteEvent(postId: String!, attributionId: String): Boolean!
-  sendVertexViewHomePageEvent: Boolean!
-}
-
 type CoauthorStatus {
   userId: String
   confirmed: Boolean
@@ -1273,6 +1259,10 @@ extend type Mutation {
 
 extend type Mutation {
   publishAndDeDuplicateSpotlight(spotlightId: String): Spotlight
+}
+
+extend type Query {
+  currentSpotlight: Spotlight
 }
 
 extend type Mutation {
@@ -1383,6 +1373,11 @@ extend type Mutation {
   increasePostViewCount(postId: String): Float
 }
 
+type FeedSpotlightMetaInfo {
+  sources: [String!]!
+  servedEventId: String!
+}
+
 type FeedPost {
   _id: String!
   postMetaInfo: JSON
@@ -1394,11 +1389,15 @@ type FeedCommentThread {
   commentMetaInfos: JSON
   comments: [Comment!]!
   post: Post
+  isOnReadPost: Boolean
+  postSources: [String!]
 }
 
 type FeedSpotlightItem {
   _id: String!
   spotlight: Spotlight
+  post: Post
+  spotlightMetaInfo: FeedSpotlightMetaInfo
 }
 
 type UltraFeedQueryResults {
@@ -1541,11 +1540,11 @@ type AutomatedContentEvaluation {
   _id: String!
   createdAt: Date!
   revisionId: String!
-  score: Float!
-  sentenceScores: [SentenceScore!]!
-  aiChoice: String!
-  aiReasoning: String!
-  aiCoT: String!
+  score: Float
+  sentenceScores: [SentenceScore!]
+  aiChoice: String
+  aiReasoning: String
+  aiCoT: String
 }
 
 type SentenceScore {
@@ -2055,6 +2054,18 @@ enum TagCommentType {
   DISCUSSION
 }
 
+enum CommentSortingMode {
+  top
+  groupByPost
+  new
+  newest
+  old
+  oldest
+  magic
+  recentComments
+  recentDiscussion
+}
+
 input SingleCommentInput {
   selector: SelectorInput
   resolverArgs: JSON
@@ -2179,6 +2190,7 @@ input CommentsProfileCommentsInput {
   minimumKarma: Int
   authorIsUnreviewed: Boolean
   sortBy: String
+  drafts: String
   limit: String
 }
 
@@ -2308,7 +2320,7 @@ input CommentsTopShortformInput {
   authorIsUnreviewed: Boolean
   before: String
   after: String
-  shortformFrontpage: String
+  shortformFrontpage: Boolean
 }
 
 input CommentsShortformInput {
@@ -2357,6 +2369,8 @@ input CommentsNominations2018Input {
   commentIds: [String!]
   minimumKarma: Int
   authorIsUnreviewed: Boolean
+  postId: String
+  sortBy: CommentSortingMode
 }
 
 input CommentsNominations2019Input {
@@ -2364,6 +2378,8 @@ input CommentsNominations2019Input {
   commentIds: [String!]
   minimumKarma: Int
   authorIsUnreviewed: Boolean
+  postId: String
+  sortBy: CommentSortingMode
 }
 
 input CommentsReviews2018Input {
@@ -2371,6 +2387,8 @@ input CommentsReviews2018Input {
   commentIds: [String!]
   minimumKarma: Int
   authorIsUnreviewed: Boolean
+  postId: String
+  sortBy: CommentSortingMode
 }
 
 input CommentsReviews2019Input {
@@ -2378,6 +2396,8 @@ input CommentsReviews2019Input {
   commentIds: [String!]
   minimumKarma: Int
   authorIsUnreviewed: Boolean
+  postId: String
+  sortBy: CommentSortingMode
 }
 
 input CommentsReviewsInput {
@@ -4558,6 +4578,7 @@ type Post {
   generateDraftJargon: Boolean
   curationNotices: [CurationNotice!]
   reviews: [Comment!]
+  automatedContentEvaluations: AutomatedContentEvaluation
   currentUserVote: String
   currentUserExtendedVote: JSON
   voteCount: Float!
@@ -6128,7 +6149,7 @@ type RSSFeed {
   nickname: String!
   url: String!
   status: String
-  rawFeed: JSON!
+  rawFeed: JSON
   setCanonicalUrl: Boolean!
   importAsDraft: Boolean!
 }
@@ -6447,7 +6468,6 @@ type Revision {
   post: Post
   lens: MultiDocument
   summary: MultiDocument
-  automatedContentEvaluations: AutomatedContentEvaluation
   currentUserVote: String
   currentUserExtendedVote: JSON
   voteCount: Float!
@@ -7415,8 +7435,8 @@ type UltraFeedEvent {
   _id: String!
   createdAt: Date!
   documentId: String
-  collectionName: String
-  eventType: String
+  collectionName: UltraFeedEventCollectionName
+  eventType: UltraFeedEventEventType
   userId: String
   event: JSON
   feedItemId: String
@@ -7799,6 +7819,8 @@ type User {
   bannedUserIds: [String!]
   bannedPersonalUserIds: [String!]
   bookmarkedPostsMetadata: [PostMetadataOutput!]
+  bookmarksCount: Int
+  hasAnyBookmarks: Boolean
   bookmarkedPosts: [Post!]
   hiddenPostsMetadata: [PostMetadataOutput!]
   hiddenPosts: [Post!]
@@ -7907,6 +7929,7 @@ type User {
   shortformFeed: Post
   viewUnreviewedComments: Boolean
   partiallyReadSequences: [PartiallyReadSequenceItemOutput!]
+  hasContinueReading: Boolean
   beta: Boolean
   reviewVotesQuadratic: Boolean
   reviewVotesQuadratic2019: Boolean
@@ -8423,6 +8446,8 @@ input UpdateCommentDataInput {
   legacyData: JSON
   contents: CreateRevisionDataInput
   postedAt: Date
+  postId: String
+  tagId: String
   subforumStickyPriority: Float
   authorIsUnreviewed: Boolean
   answer: Boolean
@@ -9415,7 +9440,7 @@ input CreateRSSFeedDataInput {
   displayFullContent: Boolean
   nickname: String!
   url: String!
-  rawFeed: JSON!
+  rawFeed: JSON
   setCanonicalUrl: Boolean
   importAsDraft: Boolean
 }
@@ -9971,17 +9996,35 @@ extend type Mutation {
   updateTag(selector: SelectorInput!, data: UpdateTagDataInput!): TagOutput
 }
 
+enum UltraFeedEventCollectionName {
+  Comments
+  Posts
+  Spotlights
+}
+
+enum UltraFeedEventEventType {
+  served
+  viewed
+  expanded
+  interacted
+  seeLess
+}
+
 input CreateUltraFeedEventDataInput {
   documentId: String!
-  collectionName: String!
-  eventType: String!
+  collectionName: UltraFeedEventCollectionName!
+  eventType: UltraFeedEventEventType!
   userId: String
-  event: JSON
+  event: JSON!
   feedItemId: String
 }
 
 input CreateUltraFeedEventInput {
   data: CreateUltraFeedEventDataInput!
+}
+
+input UpdateUltraFeedEventDataInput {
+  event: JSON
 }
 
 type UltraFeedEventOutput {
@@ -9990,6 +10033,7 @@ type UltraFeedEventOutput {
 
 extend type Mutation {
   createUltraFeedEvent(data: CreateUltraFeedEventDataInput!): UltraFeedEventOutput
+  updateUltraFeedEvent(selector: String!, data: UpdateUltraFeedEventDataInput!): UltraFeedEventOutput
 }
 
 input CreateUserEAGDetailDataInput {

@@ -1,23 +1,13 @@
 import React from 'react';
-import { registerComponent } from '../../lib/vulcan-lib/components';
-import { useTheme } from '../themes/useTheme';
 import classNames from 'classnames';
-import IconButton from '@/lib/vendor/@material-ui/core/src/IconButton';
-import { useVoteColors } from './useVoteColors';
 import { BaseVoteArrowIconProps } from './VoteArrowIcon';
 import ForumIcon from "../common/ForumIcon";
+import { defineStyles, useStyles } from '../hooks/useStyles';
+import { getVoteButtonColor, voteButtonSharedStyles } from './VoteButton';
 
-const styles = (theme: ThemeType) => ({
+const styles = defineStyles("VoteAgreementIcon", (theme: ThemeType) => ({
   root: {
-    color: theme.palette.grey[400],
-    fontSize: 'inherit',
-    width: 'initial',
-    height: 'initial',
-    padding: 0,
     bottom: 2,
-    '&:hover': {
-      backgroundColor: 'transparent',
-    }
   },
   check: {
     fontSize: '50%',
@@ -90,7 +80,7 @@ const styles = (theme: ThemeType) => ({
   entering: {
     transition: `opacity ${theme.voting.strongVoteDelay}ms cubic-bezier(0.74, -0.01, 1, 1) 0ms`,
   }
-})
+}))
 
 const VoteAgreementIcon = ({
   orientation,
@@ -102,10 +92,9 @@ const VoteAgreementIcon = ({
   bigVoted,
   bigVoteCompleted,
   alwaysColored,
-  classes,
-}: BaseVoteArrowIconProps & {
-  classes: ClassesType<typeof styles>
-}) => {
+}: BaseVoteArrowIconProps) => {
+  const classes = useStyles(styles);
+  const sharedClasses = useStyles(voteButtonSharedStyles);
   const upOrDown = orientation === "left" ? "Downvote" : "Upvote"
   
   const primaryIcon =  (upOrDown === "Downvote") ? "CrossReaction" : "TickReaction"
@@ -113,7 +102,6 @@ const VoteAgreementIcon = ({
 
   const handlers = enabled ? eventHandlers : {};
 
-  const {mainColor, lightColor} = useVoteColors(color);
   const bigVoteVisible = bigVotingTransition || bigVoteCompleted || bigVoted
 
   const strongVoteLargeIconClasses = (upOrDown === "Downvote")
@@ -142,47 +130,49 @@ const VoteAgreementIcon = ({
       {[classes.hideIcon]: !bigVoted}
     )
 
-  
-  
   return (
-    <IconButton
-      className={classNames(classes.root, {[classes.disabled]: !enabled})}
+    <button
+      className={classNames(
+        classes.root,
+        sharedClasses.root,
+        !enabled && classes.disabled,
+      )}
+      type="button"
       onMouseDown={handlers.handleMouseDown}
       onMouseUp={handlers.handleMouseUp}
       onMouseOut={handlers.clearState}
       onClick={handlers.handleClick}
-      disableRipple
     >
+    <span className={sharedClasses.inner}>
       <div className={classes.iconsContainer}>
         <ForumIcon
-          icon={primaryIcon}  
+          icon={primaryIcon}
           className={classNames(
             (upOrDown === "Downvote") ? classes.clear : classes.check,
-            bigVoteVisible && classes.hideIcon
+            bigVoteVisible && classes.hideIcon,
+            (voted || alwaysColored) && getVoteButtonColor(sharedClasses, color, "main"),
           )}
-          style={{color: voted || alwaysColored ? mainColor : "inherit"}}
         />
 
         {/* Strong vote icons */}
         <ForumIcon
           icon={primaryIcon}
-          style={bigVoteCompleted || bigVoted ? {color: lightColor} : {}}
-          className={strongVoteLargeIconClasses}
+          className={classNames(
+            strongVoteLargeIconClasses,
+            (bigVoteCompleted || bigVoted) && getVoteButtonColor(sharedClasses, color, "light"),
+          )}
         />
         <ForumIcon
           icon={bigVoteAccentIcon}
-          style={bigVoteCompleted || bigVoted ? {color: lightColor} : undefined}
-          className={strongVoteAccentIconClasses}
+          className={classNames(
+            strongVoteAccentIconClasses,
+            (bigVoteCompleted || bigVoted) && getVoteButtonColor(sharedClasses, color, "light"),
+          )}
         />
       </div>
-    </IconButton>
+    </span>
+    </button>
   )
 }
 
-export default registerComponent('VoteAgreementIcon', VoteAgreementIcon, {styles});
-
-
-
-
-
-
+export default VoteAgreementIcon;

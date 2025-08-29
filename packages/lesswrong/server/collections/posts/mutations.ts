@@ -1,4 +1,3 @@
-
 import { canUserEditPostMetadata, userIsPostGroupOrganizer } from "@/lib/collections/posts/helpers";
 import schema from "@/lib/collections/posts/newSchema";
 import { userCanPost } from "@/lib/collections/users/helpers";
@@ -9,21 +8,22 @@ import { swrInvalidatePostRoute } from "@/server/cache/swr";
 import { moveToAFUpdatesUserAFKarma } from "@/server/callbacks/alignment-forum/callbacks";
 import { updateCountOfReferencesOnOtherCollectionsAfterCreate, updateCountOfReferencesOnOtherCollectionsAfterUpdate } from "@/server/callbacks/countOfReferenceCallbacks";
 import { upsertPolls } from "@/server/callbacks/forumEventCallbacks";
-import { addLinkSharingKey, addReferrerToPost, applyNewPostTags, assertPostTitleHasNoEmojis, autoTagNewPost, autoTagUndraftedPost, checkRecentRepost, checkTosAccepted, clearCourseEndTime, createNewJargonTermsCallback, eventUpdatedNotifications, extractSocialPreviewImage, fixEventStartAndEndTimes, lwPostsNewUpvoteOwnPost, notifyUsersAddedAsCoauthors, notifyUsersAddedAsPostCoauthors, oldPostsLastCommentedAt, onEditAddLinkSharingKey, onPostPublished, postsNewDefaultLocation, postsNewDefaultTypes, postsNewPostRelation, postsNewRateLimit, postsNewUserApprovedStatus, postsUndraftRateLimit, removeFrontpageDate, removeRedraftNotifications, resetDialogueMatches, resetPostApprovedDate, scheduleCoauthoredPostWhenUndrafted, scheduleCoauthoredPostWithUnconfirmedCoauthors, sendCoauthorRequestNotifications, sendEAFCuratedAuthorsNotification, sendLWAFPostCurationEmails, sendNewPublishedDialogueMessageNotifications, sendPostApprovalNotifications, sendPostSharedWithUserNotifications, sendRejectionPM, sendUsersSharedOnPostNotifications, setPostUndraftedFields, syncTagRelevance, triggerReviewForNewPostIfNeeded, updateCommentHideKarma, updatedPostMaybeTriggerReview, updatePostEmbeddingsOnChange, updatePostShortform, updateRecombeePost, updateUserNotesOnPostDraft, updateUserNotesOnPostRejection } from "@/server/callbacks/postCallbackFunctions";
+import { addLinkSharingKey, addReferrerToPost, applyNewPostTags, assertPostTitleHasNoEmojis, autoTagNewPost, autoTagUndraftedPost, checkRecentRepost, checkTosAccepted, clearCourseEndTime, createNewJargonTermsCallback, eventUpdatedNotifications, extractSocialPreviewImage, fixEventStartAndEndTimes, lwPostsNewUpvoteOwnPost, notifyUsersAddedAsCoauthors, notifyUsersAddedAsPostCoauthors, oldPostsLastCommentedAt, onEditAddLinkSharingKey, onPostPublished, postsNewDefaultLocation, postsNewDefaultTypes, postsNewPostRelation, postsNewRateLimit, postsNewUserApprovedStatus, postsUndraftRateLimit, removeFrontpageDate, removeRedraftNotifications, resetDialogueMatches, resetPostApprovedDate, scheduleCoauthoredPostWhenUndrafted, scheduleCoauthoredPostWithUnconfirmedCoauthors, sendCoauthorRequestNotifications, sendEAFCuratedAuthorsNotification, sendLWAFPostCurationEmails, sendNewPublishedDialogueMessageNotifications, sendPostApprovalNotifications, sendPostSharedWithUserNotifications, maybeSendRejectionPM, sendUsersSharedOnPostNotifications, setPostUndraftedFields, syncTagRelevance, triggerReviewForNewPostIfNeeded, updateCommentHideKarma, updatedPostMaybeTriggerReview, updatePostEmbeddingsOnChange, updatePostShortform, updateRecombeePost, updateUserNotesOnPostDraft, updateUserNotesOnPostRejection, maybeCreateAutomatedContentEvaluation } from "@/server/callbacks/postCallbackFunctions";
 import { sendAlignmentSubmissionApprovalNotifications } from "@/server/callbacks/sharedCallbackFunctions";
 import { createInitialRevisionsForEditableFields, reuploadImagesIfEditableFieldsChanged, uploadImagesInEditableFields, notifyUsersOfNewPingbackMentions, createRevisionsForEditableFields, updateRevisionsDocumentIds, notifyUsersOfPingbackMentions } from "@/server/editor/make_editable_callbacks";
-import { HAS_EMBEDDINGS_FOR_RECOMMENDATIONS } from "@/server/embeddings";
+import { hasEmbeddingsForRecommendations } from "@/server/embeddings";
 import { logFieldChanges } from "@/server/fieldChanges";
 import { handleCrosspostUpdate } from "@/server/fmCrosspost/crosspost";
 import { rehostPostMetaImages } from "@/server/scripts/convertImagesToCloudinary";
 import { elasticSyncDocument } from "@/server/search/elastic/elasticCallbacks";
+import { backgroundTask } from "@/server/utils/backgroundTask";
 import { runSlugCreateBeforeCallback, runSlugUpdateBeforeCallback } from "@/server/utils/slugUtil";
 import { getCreatableGraphQLFields, getUpdatableGraphQLFields } from "@/server/vulcan-lib/apollo-server/graphqlTemplates";
 import { makeGqlCreateMutation, makeGqlUpdateMutation } from "@/server/vulcan-lib/apollo-server/helpers";
-import { getLegacyCreateCallbackProps, getLegacyUpdateCallbackProps, insertAndReturnCreateAfterProps, runFieldOnCreateCallbacks, runFieldOnUpdateCallbacks, updateAndReturnDocument, assignUserIdToData } from "@/server/vulcan-lib/mutators";
-import { dataToModifier, modifierToData } from "@/server/vulcan-lib/validation";
+import { getLegacyCreateCallbackProps, getLegacyUpdateCallbackProps, insertAndReturnCreateAfterProps, runFieldOnCreateCallbacks, runFieldOnUpdateCallbacks, updateAndReturnDocument, assignUserIdToData, dataToModifier, modifierToData } from '@/server/vulcan-lib/mutators';
 import gql from "graphql-tag";
 import cloneDeep from "lodash/cloneDeep";
+import { createAutomatedContentEvaluation } from "../automatedContentEvaluations/helpers";
 
 
 async function newCheck(user: DbUser | null, document: CreatePostDataInput | null, context: ResolverContext) {
@@ -75,7 +75,7 @@ export async function createPost({ data }: { data: CreatePostDataInput & { _id?:
   });
 
   // former newSync callbacks
-  if (isEAForum) {
+  if (isEAForum()) {
     data = checkTosAccepted(currentUser, data);
     assertPostTitleHasNoEmojis(data);
   }
@@ -92,9 +92,9 @@ export async function createPost({ data }: { data: CreatePostDataInput & { _id?:
   let documentWithId = afterCreateProperties.document;
 
   // former createAfter callbacks
-  await swrInvalidatePostRoute(documentWithId._id);
+  await swrInvalidatePostRoute(documentWithId._id, context);
   if (!documentWithId.authorIsUnreviewed && !documentWithId.draft) {
-    void onPostPublished(documentWithId, context);
+    backgroundTask(onPostPublished(documentWithId, context));
   }
   documentWithId = await applyNewPostTags(documentWithId, afterCreateProperties);
   documentWithId = await createNewJargonTermsCallback(documentWithId, afterCreateProperties);
@@ -134,13 +134,13 @@ export async function createPost({ data }: { data: CreatePostDataInput & { _id?:
   await triggerReviewForNewPostIfNeeded(asyncProperties);
   await autoTagNewPost(asyncProperties);
 
-  if (isElasticEnabled) {
-    void elasticSyncDocument('Posts', documentWithId._id);
+  if (isElasticEnabled()) {
+    backgroundTask(elasticSyncDocument('Posts', documentWithId._id));
   }
 
   // former newAsync callbacks
   await sendUsersSharedOnPostNotifications(documentWithId);
-  if (HAS_EMBEDDINGS_FOR_RECOMMENDATIONS) {
+  if (hasEmbeddingsForRecommendations()) {
     await updatePostEmbeddingsOnChange(documentWithId, undefined);
   }
 
@@ -172,7 +172,7 @@ export async function updatePost({ selector, data }: { data: UpdatePostDataInput
 
   data = await runSlugUpdateBeforeCallback(updateCallbackProperties);
 
-  if (isEAForum) {
+  if (isEAForum()) {
     data = checkTosAccepted(currentUser, data);
     assertPostTitleHasNoEmojis(data);
   }
@@ -203,7 +203,7 @@ export async function updatePost({ selector, data }: { data: UpdatePostDataInput
   let updatedDocument = await updateAndReturnDocument(data, Posts, postSelector, context);
 
   // former updateAfter callbacks
-  await swrInvalidatePostRoute(updatedDocument._id);
+  await swrInvalidatePostRoute(updatedDocument._id, context);
   updatedDocument = await sendCoauthorRequestNotifications(updatedDocument, updateCallbackProperties);
   updatedDocument = await syncTagRelevance(updatedDocument, updateCallbackProperties);
   updatedDocument = await resetDialogueMatches(updatedDocument, updateCallbackProperties);
@@ -227,7 +227,7 @@ export async function updatePost({ selector, data }: { data: UpdatePostDataInput
   await notifyUsersAddedAsCoauthors(updateCallbackProperties);
   await updatePostEmbeddingsOnChange(updateCallbackProperties.newDocument, updateCallbackProperties.oldDocument);
   await updatedPostMaybeTriggerReview(updateCallbackProperties);
-  await sendRejectionPM(updateCallbackProperties);
+  await maybeSendRejectionPM(updateCallbackProperties);
   await updateUserNotesOnPostDraft(updateCallbackProperties);
   await updateUserNotesOnPostRejection(updateCallbackProperties);
   await updateRecombeePost(updateCallbackProperties);
@@ -239,11 +239,11 @@ export async function updatePost({ selector, data }: { data: UpdatePostDataInput
   await sendNewPublishedDialogueMessageNotifications(updatedDocument, oldDocument, context);
   await removeRedraftNotifications(updatedDocument, oldDocument, context);
 
-  if (isEAForum) {
+  if (isEAForum()) {
     await sendEAFCuratedAuthorsNotification(updatedDocument, oldDocument, context);
   }
 
-  if (isLWorAF) {
+  if (isLWorAF()) {
     await sendLWAFPostCurationEmails(updatedDocument, oldDocument);
   }
 
@@ -259,11 +259,12 @@ export async function updatePost({ selector, data }: { data: UpdatePostDataInput
     props: updateCallbackProperties,
   });
 
-  if (isElasticEnabled) {
-    void elasticSyncDocument('Posts', updatedDocument._id);
+  if (isElasticEnabled()) {
+    backgroundTask(elasticSyncDocument('Posts', updatedDocument._id));
   }
 
-  void logFieldChanges({ currentUser, collection: Posts, oldDocument, data: origData });
+  backgroundTask(logFieldChanges({ currentUser, collection: Posts, oldDocument, data: origData }));
+  backgroundTask(maybeCreateAutomatedContentEvaluation(updatedDocument, oldDocument, context));
 
   return updatedDocument;
 }

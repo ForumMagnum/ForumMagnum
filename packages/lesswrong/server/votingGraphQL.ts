@@ -2,7 +2,7 @@ import { collectionNameToTypeName } from '@/lib/generated/collectionTypeNames';
 import gql from 'graphql-tag';
 
 const performVoteMutation = async (args: {documentId: string, voteType: DbVote['voteType']|null, extendedVote?: any}, context: ResolverContext, collectionName: VoteableCollectionName) => {
-  const { performVoteServer, clearVotesServer }: typeof import('./voteServer') = require('./voteServer');
+  const { performVoteServer, clearVotesServer } = await import('./voteServer');
   const {documentId, voteType, extendedVote} = args;
   const {currentUser} = context;
   const collection: CollectionBase<VoteableCollectionName> = context[collectionName];

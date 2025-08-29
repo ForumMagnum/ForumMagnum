@@ -13,10 +13,9 @@ import PencilIcon from '@/lib/vendor/@material-ui/icons/src/Create'
 import classNames from 'classnames';
 import { useCurrentUser } from '../common/withUser';
 import {AnalyticsContext} from "../../lib/analyticsEvents";
-import { hasEventsSetting, siteNameWithArticleSetting, taggingNameIsSet, taggingNameCapitalSetting, taggingNameSetting, taglineSetting, isAF } from '../../lib/instanceSettings';
+import { hasEventsSetting, siteNameWithArticleSetting, taggingNameIsSet, taggingNameCapitalSetting, taggingNameSetting, taglineSetting, isAF, nofollowKarmaThreshold } from '@/lib/instanceSettings';
 import { separatorBulletStyles } from '../common/SectionFooter';
-import { SORT_ORDER_OPTIONS } from '../../lib/collections/posts/dropdownOptions';
-import { nofollowKarmaThreshold } from '../../lib/publicSettings';
+import { getSortOrderOptions } from '../../lib/collections/posts/dropdownOptions';
 import CopyToClipboard from 'react-copy-to-clipboard';
 import { useMessages } from '../common/withMessages';
 import CopyIcon from '@/lib/vendor/@material-ui/icons/src/FileCopy'
@@ -50,12 +49,12 @@ import SettingsButton from "../icons/SettingsButton";
 import { ContentItemBody } from "../contents/ContentItemBody";
 import Loading from "../vulcan-core/Loading";
 import PermanentRedirect from "../common/PermanentRedirect";
-import HeadTags from "../common/HeadTags";
 import { Typography } from "../common/Typography";
 import ContentStyles from "../common/ContentStyles";
 import ReportUserButton from "./ReportUserButton";
 import UserNotifyDropdown from "../notifications/UserNotifyDropdown";
 import CommentsSortBySelector from "../comments/CommentsSortBySelector";
+import { StructuredData } from '../common/StructuredData';
 import { useQuery } from "@/lib/crud/useQuery";
 import { gql } from "@/lib/generated/gql-codegen";
 
@@ -187,7 +186,7 @@ const UsersProfileFn = ({terms, slug, classes}: {
   const { openDialog } = useDialog();
 
   const displaySequenceSection = (canEdit: boolean, user: UsersProfile) => {
-    if (isAF) {
+    if (isAF()) {
         return !!((canEdit && user.afSequenceDraftCount) || user.afSequenceCount) || !!(!canEdit && user.afSequenceCount)
     } else {
         return !!((canEdit && user.sequenceDraftCount) || user.sequenceCount) || !!(!canEdit && user.sequenceCount)
@@ -208,19 +207,19 @@ const UsersProfileFn = ({terms, slug, classes}: {
 
     const userKarma = karma || 0
     const userAfKarma = afKarma || 0
-    const userPostCount = !isAF ? postCount || 0 : afPostCount || 0
-    const userCommentCount = !isAF ? commentCount || 0 : afCommentCount || 0
+    const userPostCount = !isAF() ? postCount || 0 : afPostCount || 0
+    const userCommentCount = !isAF() ? commentCount || 0 : afCommentCount || 0
 
       return <div className={classes.meta}>
 
-        { !isAF && <TooltipSpan title={`${userKarma} karma`} className={classes.userMetaInfo}>
+        { !isAF() && <TooltipSpan title={`${userKarma} karma`} className={classes.userMetaInfo}>
           <StarIcon className={classNames(classes.icon, classes.specificalz)}/>
           <MetaInfo title="Karma">
             {userKarma}
           </MetaInfo>
         </TooltipSpan>}
 
-        {!!userAfKarma && <TooltipSpan title={`${userAfKarma} karma${(!isAF) ? " on alignmentforum.org" : ""}`} className={classes.userMetaInfo}>
+        {!!userAfKarma && <TooltipSpan title={`${userAfKarma} karma${(!isAF()) ? " on alignmentforum.org" : ""}`} className={classes.userMetaInfo}>
           <OmegaIcon className={classNames(classes.icon, classes.specificalz)}/>
           <MetaInfo title="Alignment Karma">
             {userAfKarma}
@@ -312,18 +311,13 @@ const UsersProfileFn = ({terms, slug, classes}: {
     const username = userGetDisplayName(user)
     const metaDescription = `${username}'s profile on ${siteNameWithArticleSetting.get()} — ${taglineSetting.get()}`
     
-    const nonAFMember = (isAF && !userCanDo(currentUser, "posts.alignment.new"))
+    const nonAFMember = (isAF() && !userCanDo(currentUser, "posts.alignment.new"))
 
     const showMessageButton = currentUser?._id !== user._id
 
     return (
       <div className={classNames("page", "users-profile", classes.profilePage)}>
-        <HeadTags
-          description={metaDescription}
-          noIndex={(!user.postCount && !user.commentCount) || user.karma <= 0 || user.noindex}
-          structuredData={getUserStructuredData(user)}
-          image={user.profileImageId && `https://res.cloudinary.com/cea/image/upload/c_crop,g_custom,q_auto,f_auto/${user.profileImageId}.jpg`}
-        />
+        <StructuredData generate={() => getUserStructuredData(user)}/>
         <AnalyticsContext pageContext={"userPage"}>
           {/* Bio Section */}
           <SingleColumnSection>
@@ -344,16 +338,7 @@ const UsersProfileFn = ({terms, slug, classes}: {
                   </LWTooltip>
                 </div>
               }
-              { currentUser?.isAdmin &&
-                <div>
-                  <DialogGroup
-                    actions={[]}
-                    trigger={<a>Register RSS</a>}
-                  >
-                    <div><NewFeedButton user={user} /></div>
-                  </DialogGroup>
-                </div>
-              }
+              { currentUser?.isAdmin && <NewFeedButton user={user} /> }
               { currentUser && currentUser._id === user._id && <Link to="/manageSubscriptions">
                 {preferredHeadingCase("Manage Subscriptions")}
               </Link>}
@@ -428,7 +413,7 @@ const UsersProfileFn = ({terms, slug, classes}: {
           <SingleColumnSection>
             <div className={classes.postsTitle} onClick={() => setShowSettings(!showSettings)}>
               <SectionTitle title={"Posts"}>
-                <SettingsButton label={`Sorted by ${ SORT_ORDER_OPTIONS[currentPostSortingMode].label }`}/>
+                <SettingsButton label={`Sorted by ${ getSortOrderOptions()[currentPostSortingMode].label }`}/>
               </SectionTitle>
             </div>
             {showSettings && <PostsListSettings
@@ -469,7 +454,7 @@ const UsersProfileFn = ({terms, slug, classes}: {
               They are visible to everyone on LessWrong.">
                 <SectionTitle title={"Comment Submissions"} />
               </LWTooltip>
-              <RecentComments terms={{view: 'afSubmissions', authorIsUnreviewed: null, limit: 5, userId: user._id}} />
+              <RecentComments selector={{ afSubmissions: { authorIsUnreviewed: null, userId: user._id } }} limit={5}/>
             </SingleColumnSection>}
             <SingleColumnSection>
               <SectionTitle title={<Link to={`${userGetProfileUrl(user)}/replies`}>Comments</Link>} rootClassName={classes.commentSorting}>
@@ -478,7 +463,8 @@ const UsersProfileFn = ({terms, slug, classes}: {
                 </AnalyticsContext>
               </SectionTitle>
               <RecentComments
-                terms={{view: 'profileComments', sortBy: currentCommentSortBy, authorIsUnreviewed: null, limit: 10, userId: user._id}}
+                selector={{ profileComments: { sortBy: currentCommentSortBy, authorIsUnreviewed: null, userId: user._id } }}
+                limit={10}
                 showPinnedOnProfile
               />
             </SingleColumnSection>

@@ -1,10 +1,10 @@
 import React from 'react';
 import { registerComponent } from '../../../lib/vulcan-lib/components';
-import { POST_PREVIEW_WIDTH } from './helpers';
+import { getPostPreviewWidth } from './helpers';
 import Loading from "../../vulcan-core/Loading";
 
 export const notificationLoadingStyles = (theme: ThemeType) => ({
-  width: POST_PREVIEW_WIDTH,
+  width: getPostPreviewWidth(),
   paddingTop: theme.spacing.unit,
   paddingBottom: theme.spacing.unit,
 });

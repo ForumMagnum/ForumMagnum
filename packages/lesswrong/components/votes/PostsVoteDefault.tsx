@@ -2,10 +2,9 @@ import { registerComponent } from '../../lib/vulcan-lib/components';
 import React, { Ref } from 'react';
 import classNames from 'classnames';
 import { useVote } from './withVote';
-import { isAF, isLW } from '../../lib/instanceSettings';
-import { useCurrentUser } from '../common/withUser';
-import { voteButtonsDisabledForUser } from '../../lib/collections/users/helpers';
-import { VotingSystem } from '../../lib/voting/votingSystems';
+import { isAF } from '../../lib/instanceSettings';
+import { useVoteButtonsDisabled } from './useVoteButtonsDisabled';
+import { VotingSystem } from '@/lib/voting/votingSystemTypes';
 import { isFriendlyUI } from '../../themes/forumTheme';
 import { TooltipRef, TooltipSpan } from '../common/FMTooltip';
 import OverallVoteButton from "./OverallVoteButton";
@@ -36,10 +35,10 @@ const styles = (theme: ThemeType) => ({
   voteScores: {
     margin:"15%",
     
-    ...(isLW && {
+    ...(theme.isLW && {
       margin: "25% 15% 15% 15%"
     }),
-    ...(isAF && {
+    ...(theme.isAF && {
       fontVariantNumeric: "lining-nums",
     }),
   },
@@ -47,13 +46,13 @@ const styles = (theme: ThemeType) => ({
     margin: '0 12px'
   },
   voteScore: {
-    color: isFriendlyUI ? theme.palette.grey[600] : theme.palette.grey[500],
-    fontFamily: isFriendlyUI ? theme.palette.fonts.sansSerifStack : undefined,
+    color: theme.isFriendlyUI ? theme.palette.grey[600] : theme.palette.grey[500],
+    fontFamily: theme.isFriendlyUI ? theme.palette.fonts.sansSerifStack : undefined,
     position: 'relative',
     zIndex: theme.zIndexes.postsVote,
-    fontSize: isFriendlyUI ? '50%' : '55%',
+    fontSize: theme.isFriendlyUI ? '50%' : '55%',
     
-    ...(isFriendlyUI && {
+    ...(theme.isFriendlyUI && {
       paddingTop:4,
       paddingBottom:2,
       paddingLeft:1,
@@ -82,7 +81,7 @@ const styles = (theme: ThemeType) => ({
     backgroundColor: theme.palette.panelBackground.default,
     transition: 'opacity 150ms cubic-bezier(0.4, 0, 1, 1) 0ms',
     marginLeft: 0,
-    paddingTop: isFriendlyUI ? 12 : 0
+    paddingTop: theme.isFriendlyUI ? 12 : 0
   },
 });
 
@@ -101,12 +100,11 @@ const PostsVoteDefault = ({
   classes: ClassesType<typeof styles>
 }) => {
   const voteProps = useVote(post, "Posts", votingSystem);
-  const currentUser = useCurrentUser();
 
-  const {fail, reason: whyYouCantVote} = voteButtonsDisabledForUser(currentUser);
+  const {fail, reason: whyYouCantVote} = useVoteButtonsDisabled();
   const canVote = !fail;
 
-  let tooltipPlacement: "left"|"right"|"top" = isFriendlyUI ? "left" : "right";
+  let tooltipPlacement: "left"|"right"|"top" = isFriendlyUI() ? "left" : "right";
   if (useHorizontalLayout) {
     tooltipPlacement = "top";
   }
@@ -153,7 +151,7 @@ const PostsVoteDefault = ({
           </Typography>
         </TooltipSpan>
 
-        {!!post.af && !!post.afBaseScore && !isAF &&
+        {!!post.af && !!post.afBaseScore && !isAF() &&
           <TooltipSpan
             title="AI Alignment Forum karma"
             placement={tooltipPlacement}

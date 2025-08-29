@@ -1,4 +1,3 @@
-
 import schema from "@/lib/collections/sequences/newSchema";
 import { isElasticEnabled } from "@/lib/instanceSettings";
 import { accessFilterSingle } from "@/lib/utils/schemaUtils";
@@ -8,6 +7,7 @@ import { createFirstChapter } from "@/server/callbacks/sequenceCallbacks";
 import { createInitialRevisionsForEditableFields, reuploadImagesIfEditableFieldsChanged, uploadImagesInEditableFields, notifyUsersOfNewPingbackMentions, createRevisionsForEditableFields, updateRevisionsDocumentIds } from "@/server/editor/make_editable_callbacks";
 import { logFieldChanges } from "@/server/fieldChanges";
 import { elasticSyncDocument } from "@/server/search/elastic/elasticCallbacks";
+import { backgroundTask } from "@/server/utils/backgroundTask";
 import { getCreatableGraphQLFields, getUpdatableGraphQLFields } from "@/server/vulcan-lib/apollo-server/graphqlTemplates";
 import { makeGqlCreateMutation, makeGqlUpdateMutation } from "@/server/vulcan-lib/apollo-server/helpers";
 import { getLegacyCreateCallbackProps, getLegacyUpdateCallbackProps, insertAndReturnCreateAfterProps, runFieldOnCreateCallbacks, runFieldOnUpdateCallbacks, updateAndReturnDocument, assignUserIdToData } from "@/server/vulcan-lib/mutators";
@@ -66,8 +66,8 @@ export async function createSequence({ data }: CreateSequenceInput, context: Res
     newDocument: documentWithId,
   };
 
-  if (isElasticEnabled) {
-    void elasticSyncDocument('Sequences', documentWithId._id);
+  if (isElasticEnabled()) {
+    backgroundTask(elasticSyncDocument('Sequences', documentWithId._id));
   }
 
   createFirstChapter(documentWithId, context);
@@ -115,11 +115,11 @@ export async function updateSequence({ selector, data }: UpdateSequenceInput, co
     props: updateCallbackProperties,
   });
 
-  if (isElasticEnabled) {
-    void elasticSyncDocument('Sequences', updatedDocument._id);
+  if (isElasticEnabled()) {
+    backgroundTask(elasticSyncDocument('Sequences', updatedDocument._id));
   }
 
-  void logFieldChanges({ currentUser, collection: Sequences, oldDocument, data: origData });
+  backgroundTask(logFieldChanges({ currentUser, collection: Sequences, oldDocument, data: origData }));
 
   return updatedDocument;
 }

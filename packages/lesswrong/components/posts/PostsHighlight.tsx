@@ -2,10 +2,10 @@ import { registerComponent } from '../../lib/vulcan-lib/components';
 import { postGetPageUrl } from '../../lib/collections/posts/helpers';
 import React, { FC, MouseEvent, useState, useCallback } from 'react';
 import { Link } from '../../lib/reactRouterWrapper';
-import { nofollowKarmaThreshold } from '../../lib/publicSettings';
+import { nofollowKarmaThreshold } from '@/lib/instanceSettings';
 import { useForeignCrosspost, isPostWithForeignId, PostWithForeignId } from "../hooks/useForeignCrosspost";
 import { useForeignApolloClient } from "../hooks/useForeignApolloClient";
-import { captureException }from "@sentry/core";
+import { captureException }from "@sentry/nextjs";
 import classNames from 'classnames';
 import { isFriendlyUI, preferredHeadingCase } from '../../themes/forumTheme';
 import { useQuery } from "@/lib/crud/useQuery";
@@ -29,7 +29,7 @@ const PostsExpandedHighlightQuery = gql(`
 const styles = (theme: ThemeType) => ({
   highlightContinue: {
     marginTop:theme.spacing.unit*2,
-    fontFamily: isFriendlyUI ? theme.palette.fonts.sansSerifStack : undefined,
+    fontFamily: theme.isFriendlyUI ? theme.palette.fonts.sansSerifStack : undefined,
     '&& a, && a:hover': {
       color: theme.palette.primary.main,
     },
@@ -52,6 +52,9 @@ const TruncatedSuffix: FC<{
   wordsLeft: number|null,
   clickExpand: (ev: MouseEvent) => void,
 }> = ({post, forceSeeMore, wordsLeft, clickExpand}) => {
+  const moreWordsText = (wordsLeft !== null)
+    ? ` - ${wordsLeft} more words`
+    : "";
   if (forceSeeMore || (wordsLeft && wordsLeft < 1000)) {
     return (
       <Link
@@ -59,16 +62,15 @@ const TruncatedSuffix: FC<{
         onClick={clickExpand}
         eventProps={{intent: 'expandPost'}}
       >
-        {"("}{preferredHeadingCase("See More")}
-        {wordsLeft && <>{" – "}{wordsLeft} more words</>}{")"}
+        {`(${preferredHeadingCase("See More")}${moreWordsText})`}
       </Link>
     );
   }
   return (
     <Link to={postGetPageUrl(post)} eventProps={{intent: 'expandPost'}}>
-      {isFriendlyUI
+      {isFriendlyUI()
         ? "Continue reading"
-        : `(Continue Reading – ${wordsLeft} more words)`
+        : `(Continue Reading${moreWordsText})`
       }
     </Link>
   );

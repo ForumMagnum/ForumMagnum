@@ -6,13 +6,12 @@ import { ElicitPredictionData } from '../resolvers/elicitPredictions';
 import { cheerioParse } from '../utils/htmlUtil';
 import { registerMigration } from './migrationUtils';
 import { createAdminContext } from "../vulcan-lib/createContexts";
-import { DatabaseServerSetting } from '../databaseSettings';
+import { elicitAPIKey } from '../databaseSettings';
 import { encode } from 'querystring';
 import { createElicitQuestion } from '../collections/elicitQuestions/mutations';
 import { createElicitQuestionPrediction } from '../collections/elicitQuestionPredictions/mutations';
 
 const elicitAPIUrl = "https://forecast.elicit.org/api/v1"
-const elicitAPIKey = new DatabaseServerSetting('elicitAPIKey', null)
 
 const apiQuestionToDBQuestion = (question: any, id: string): Omit<DbElicitQuestion, 'schemaVersion'|'legacyData'> => ({
   _id: id,

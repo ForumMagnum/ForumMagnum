@@ -14,24 +14,29 @@ import { isBookUI, isFriendlyUI } from '../../themes/forumTheme';
 import { SECTION_WIDTH } from '../common/SingleColumnSection';
 import { getSpotlightUrl } from '../../lib/collections/spotlights/helpers';
 import { usePublishAndDeDuplicateSpotlight } from './withPublishAndDeDuplicateSpotlight';
-import { registerComponent } from "../../lib/vulcan-lib/components";
 import { AnalyticsContext } from '@/lib/analyticsEvents';
-import { SpotlightForm } from './SpotlightForm';
 import MetaInfo from "../common/MetaInfo";
 import FormatDate from "../common/FormatDate";
 import AnalyticsTracker from "../common/AnalyticsTracker";
 import { ContentItemBody } from "../contents/ContentItemBody";
 import CloudinaryImage2 from "../common/CloudinaryImage2";
 import SpotlightEditorStyles from "./SpotlightEditorStyles";
-import SpotlightStartOrContinueReading from "./SpotlightStartOrContinueReading";
+import { SpotlightStartOrContinueReading } from "./SpotlightStartOrContinueReading";
 import { Typography } from "../common/Typography";
 import LWTooltip from "../common/LWTooltip";
 import ForumIcon from "../common/ForumIcon";
-import CommentsNodeInner from "../comments/CommentsNode";
-import { useMutation } from "@apollo/client";
+import { useMutation } from "@apollo/client/react";
 import { useQuery } from '@/lib/crud/useQuery';
 import { gql } from "@/lib/generated/gql-codegen";
 import { withDateFields } from '@/lib/utils/dateUtils';
+import { defineStyles, useStyles } from '../hooks/useStyles';
+import { SuspenseWrapper } from '../common/SuspenseWrapper';
+import range from 'lodash/range';
+import CommentById from '../comments/CommentById';
+import { SingleLineCommentPlaceholder } from '../comments/SingleLineComment';
+
+import dynamic from 'next/dynamic';
+const SpotlightForm = dynamic(() => import('./SpotlightForm').then(mod => ({ default: mod.SpotlightForm })), { ssr: false });
 
 const SpotlightDisplayUpdateMutation = gql(`
   mutation updateSpotlightSpotlightItem($selector: SelectorInput!, $data: UpdateSpotlightDataInput!) {
@@ -57,7 +62,7 @@ const TEXT_WIDTH = 350;
 
 export const descriptionStyles = (theme: ThemeType) => ({
   ...postBodyStyles(theme),
-  ...(isBookUI ? theme.typography.body2 : {}),
+  ...(theme.isBookUI ? theme.typography.body2 : {}),
   lineHeight: '1.65rem',
   '& p': {
     marginTop: ".5em",
@@ -79,7 +84,7 @@ const buildFadeMask = (breakpoints: string[]) => {
   return {mask, "-webkit-mask-image": mask};
 }
 
-const styles = (theme: ThemeType) => ({
+const styles = defineStyles("SpotlightItem", (theme: ThemeType) => ({
   root: {
     marginBottom: 12,
     boxShadow: theme.palette.boxShadow.default,
@@ -101,7 +106,7 @@ const styles = (theme: ThemeType) => ({
       opacity: .2
     },
     '&:hover $closeButton': {
-      ...(isFriendlyUI ? {
+      ...(theme.isFriendlyUI ? {
         color: theme.palette.grey[100],
         background: theme.palette.panelBackground.default,
       } : {
@@ -128,7 +133,7 @@ const styles = (theme: ThemeType) => ({
     padding: '.5em',
     minHeight: '.75em',
     minWidth: '.75em',
-    color: isFriendlyUI ? theme.palette.text.alwaysWhite : theme.palette.grey[300],
+    color: theme.isFriendlyUI ? theme.palette.text.alwaysWhite : theme.palette.grey[300],
     zIndex: theme.zIndexes.spotlightItemCloseButton,
   },
   hideButton: {
@@ -153,7 +158,7 @@ const styles = (theme: ThemeType) => ({
     position: "relative",
     zIndex: theme.zIndexes.spotlightItem,
     // Drop shadow that helps the text stand out from the background image
-    textShadow: isFriendlyUI ? undefined : `
+    textShadow: theme.isFriendlyUI ? undefined : `
       0px 0px 10px ${theme.palette.background.default},
       0px 0px 20px ${theme.palette.background.default}
     `,
@@ -180,7 +185,7 @@ const styles = (theme: ThemeType) => ({
     [theme.breakpoints.down('xs')]: {
       display: "none"
     },
-    ...(isFriendlyUI ? {
+    ...(theme.isFriendlyUI ? {
       fontSize: 13,
       fontWeight: 500,
       fontFamily: theme.palette.fonts.sansSerifStack,
@@ -202,7 +207,7 @@ const styles = (theme: ThemeType) => ({
   },
   title: {
     ...theme.typography.postStyle,
-    ...(isFriendlyUI
+    ...(theme.isFriendlyUI
       ? {
         fontSize: 22,
         fontWeight: 700,
@@ -220,7 +225,7 @@ const styles = (theme: ThemeType) => ({
   subtitle: {
     ...theme.typography.postStyle,
     ...theme.typography.italic,
-    ...(isFriendlyUI ? {
+    ...(theme.isFriendlyUI ? {
       fontSize: 13,
       fontWeight: 500,
       fontFamily: theme.palette.fonts.sansSerifStack,
@@ -233,7 +238,7 @@ const styles = (theme: ThemeType) => ({
       marginTop: -1,
     }),
   },
-  startOrContinue: isFriendlyUI
+  startOrContinue: theme.isFriendlyUI
     ? {
       marginTop: 0,
       [theme.breakpoints.down("xs")]: {
@@ -248,7 +253,7 @@ const styles = (theme: ThemeType) => ({
     position: "absolute",
     top: 0,
     right: 0,
-    ...(isFriendlyUI
+    ...(theme.isFriendlyUI
       ? {
           borderRadius: theme.borderRadius.default,
           width: "100%",
@@ -421,6 +426,8 @@ const styles = (theme: ThemeType) => ({
       backgroundColor: 'unset',
     },
   }
+}), {
+  stylePriority: -1
 });
 
 export function getSpotlightDisplayTitle(spotlight: SpotlightDisplay): string {
@@ -450,7 +457,6 @@ export const SpotlightItem = ({
   refetchAllSpotlights,
   isDraftProcessing,
   className,
-  classes,
   children,
 }: {
   spotlight: SpotlightDisplay,
@@ -461,9 +467,9 @@ export const SpotlightItem = ({
   refetchAllSpotlights?: () => void,
   isDraftProcessing?: boolean,
   className?: string,
-  classes: ClassesType<typeof styles>,
   children?: React.ReactNode,
 }) => {
+  const classes = useStyles(styles);
   const currentUser = useCurrentUser()
 
   const [edit, setEdit] = useState<boolean>(false)
@@ -559,7 +565,7 @@ export const SpotlightItem = ({
               {spotlight.customSubtitle && showSubtitle && <div className={classes.subtitle}>
                 {subtitleComponent}
               </div>}
-              {(spotlight.description?.html || isBookUI) && <div className={classes.description}>
+              {(spotlight.description?.html || isBookUI()) && <div className={classes.description}>
                 {(editDescription && editableSpotlight) ? 
                   <div className={classes.editDescription}>
                     <SpotlightForm
@@ -578,7 +584,9 @@ export const SpotlightItem = ({
               {spotlight.showAuthor && spotlightDocument?.user && <Typography variant='body2' className={classes.author}>
                 by <Link className={classes.authorName} to={userGetProfileUrlFromSlug(spotlightDocument?.user.slug)}>{spotlightDocument?.user.displayName}</Link>
               </Typography>}
-              <SpotlightStartOrContinueReading spotlight={spotlight} className={classes.startOrContinue} />
+              {spotlight.documentType === 'Sequence' && <SuspenseWrapper name="SpotlightStartOrContinueReading">
+                <SpotlightStartOrContinueReading spotlight={spotlight} className={classes.startOrContinue} />
+              </SuspenseWrapper>}
             </div>
             {/* note: if the height of SingleLineComment ends up changing, this will need to be updated */}
             {spotlight.spotlightSplashImageUrl && <div className={classes.splashImageContainer} style={{height: `calc(100% + ${(spotlightReviews.length ?? 0) * 30}px)`}}>
@@ -595,18 +603,9 @@ export const SpotlightItem = ({
               loading="lazy"
             />}
           </div>
-          <div className={classes.reviews}>
-            {spotlightReviews.map(review => <div key={review._id} className={classes.review}>
-              <CommentsNodeInner comment={review} treeOptions={{
-                singleLineCollapse: true,
-                forceSingleLine: true,
-                hideSingleLineMeta: true,
-                post: spotlight.post ?? undefined,
-              }} nestingLevel={1}/>
-            </div>)}
-          </div>
+          {spotlightReviews.length > 0 && <SpotlightReviews reviewIds={spotlightReviews.map(r=>r._id)}/>}
           {hideBanner && (
-            isFriendlyUI
+            isFriendlyUI()
               ? (
                 <ForumIcon
                   icon="Close"
@@ -667,9 +666,40 @@ export const SpotlightItem = ({
   </AnalyticsContext>
 }
 
-export default registerComponent('SpotlightItem', SpotlightItem, {
-  styles,
-  stylePriority: -1,
-});
+const SpotlightReviews = ({reviewIds}: {
+  reviewIds: string[]
+}) => {
+  const classes = useStyles(styles);
+  return <div className={classes.reviews}>
+    <SuspenseWrapper name="SpotlightReviews" fallback={<SpotlightReviewsFallback numReviews={reviewIds.length}/>}>
+      {reviewIds.map(reviewId => <SpotlightReviewComment key={reviewId} id={reviewId}/>)}
+    </SuspenseWrapper>
+  </div>
+}
 
+const SpotlightReviewsFallback = ({numReviews}: {
+  numReviews: number
+}) => {
+  return <>
+    {range(numReviews).map(i => <SingleLineCommentPlaceholder key={i} nestingLevel={0}/>)}
+  </>
+}
+
+const SpotlightReviewComment = ({id}: {
+  id: string
+}) => {
+  const classes = useStyles(styles);
+  return <div className={classes.review}>
+    <CommentById
+      commentId={id}
+      treeOptions={{
+        singleLineCollapse: true,
+        forceSingleLine: true,
+        hideSingleLineMeta: true,
+      }}
+      nestingLevel={1}
+      loadChildren={false}
+    />
+  </div>
+}
 

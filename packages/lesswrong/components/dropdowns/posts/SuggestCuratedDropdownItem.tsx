@@ -2,11 +2,10 @@ import { registerComponent } from '../../../lib/vulcan-lib/components';
 import React from 'react';
 import { userCanDo, userIsMemberOf } from '../../../lib/vulcan-users/permissions';
 import { useCurrentUser } from '../../common/withUser';
-import { clone, without } from 'underscore';
 import { isAF } from '../../../lib/instanceSettings';
 import { preferredHeadingCase } from '../../../themes/forumTheme';
 import DropdownItem from "../DropdownItem";
-import { useMutation } from "@apollo/client";
+import { useMutation } from "@apollo/client/react";
 import { gql } from "@/lib/generated/gql-codegen";
 
 const PostsListUpdateMutation = gql(`
@@ -27,7 +26,7 @@ const SuggestCuratedDropdownItem = ({post}: {post: PostsBase}) => {
     return null;
   
   const handleSuggestCurated = () => {
-    let suggestUserIds = clone(post.suggestForCuratedUserIds) || []
+    let suggestUserIds = [...post.suggestForCuratedUserIds ?? []]
     if (!suggestUserIds.includes(currentUser._id)) {
       suggestUserIds.push(currentUser._id)
     }
@@ -40,9 +39,9 @@ const SuggestCuratedDropdownItem = ({post}: {post: PostsBase}) => {
   }
 
   const handleUnsuggestCurated = () => {
-    let suggestUserIds = clone(post.suggestForCuratedUserIds) || []
+    let suggestUserIds = [...post.suggestForCuratedUserIds ?? []]
     if (suggestUserIds.includes(currentUser._id)) {
-      suggestUserIds = without(suggestUserIds, currentUser._id);
+      suggestUserIds = suggestUserIds.filter(id => id !== currentUser._id);
     }
     void updatePost({
       variables: {
@@ -56,7 +55,7 @@ const SuggestCuratedDropdownItem = ({post}: {post: PostsBase}) => {
     && !userIsMemberOf(currentUser, 'canSuggestCuration')) {
     return null;
   }
-  if (isAF) {
+  if (isAF()) {
     return null;
   }
 

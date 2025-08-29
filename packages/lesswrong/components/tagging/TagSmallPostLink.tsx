@@ -3,7 +3,6 @@ import { registerComponent } from '../../lib/vulcan-lib/components';
 import { Link } from '../../lib/reactRouterWrapper';
 import { postGetPageUrl } from '../../lib/collections/posts/helpers';
 import classNames from 'classnames';
-import { isFriendlyUI } from '../../themes/forumTheme';
 import PostsTooltip from "../posts/PostsPreviewTooltip/PostsTooltip";
 import UsersName from "../users/UsersName";
 import MetaInfo from "../common/MetaInfo";
@@ -32,7 +31,7 @@ const styles = (theme: ThemeType) => ({
     marginBottom: 2,
   },
   title: {
-    ...(isFriendlyUI
+    ...(theme.isFriendlyUI
       ? {
         fontFamily: theme.palette.fonts.sansSerifStack,
         fontWeight: 600,
@@ -51,7 +50,7 @@ const styles = (theme: ThemeType) => ({
     whiteSpace: "unset",
     lineHeight: "1.1em",
     marginBottom: 4,
-    ...(isFriendlyUI && {
+    ...(theme.isFriendlyUI && {
       lineHeight: '1.2em'
     }),
   },

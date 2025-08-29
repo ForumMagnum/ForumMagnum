@@ -1,14 +1,14 @@
 import { isDevelopment } from '@/lib/executionEnvironment';
-import { environmentDescriptionSetting } from './analytics/serverAnalyticsWriter';
+import { environmentDescriptionSetting, performanceMetricLoggingBatchSize } from '@/lib/instanceSettings';
 import chunk from 'lodash/chunk';
-import { performanceMetricLoggingBatchSize } from '@/lib/instanceSettings';
 import { pgPromiseLib, getAnalyticsConnection } from './analytics/postgresConnection'
+import { backgroundTask } from './utils/backgroundTask';
 
 const queuedPerfMetrics: PerfMetric[] = [];
 
 export function queuePerfMetric(perfMetric: PerfMetric) {
   queuedPerfMetrics.push(perfMetric);
-  void flushPerfMetrics();
+  backgroundTask(flushPerfMetrics());
 }
 
 async function flushPerfMetrics() {
@@ -39,10 +39,11 @@ async function flushPerfMetrics() {
       
       await connection?.none(query);
     } catch (err){
-      //eslint-disable-next-line no-console
-      console.error("Error sending events to analytics DB:");
-      //eslint-disable-next-line no-console
-      console.error(err);
+      // Filter out noisy connection terminated errors, which happen when the client kills the connection (frequently on NextJS)
+      if (!(err instanceof Error) || !err.message.includes('Connection terminated unexpectedly')) {
+        //eslint-disable-next-line no-console
+        console.error("Error sending events to analytics DB:", err);
+      }
     }
   }
 }

@@ -79,7 +79,7 @@ export const useDigestAd = () => {
   }, [setLoading, setSubscribeClicked, captureEvent, currentUser, updateCurrentUser, flash, showForm, ls])
 
   // Only show this on sites that have a digest
-  if (!hasDigests) {
+  if (!hasDigests()) {
     return {
       showDigestAd: false,
     }

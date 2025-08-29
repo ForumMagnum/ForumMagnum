@@ -1,6 +1,7 @@
 import { isProduction } from '@/lib/executionEnvironment';
 import type { Request, Response } from 'express';
 import type { IncomingMessage } from 'http';
+import { NextRequest } from 'next/server';
 import Cookies from 'universal-cookie';
 
 // Utility functions for dealing with HTTP requests/responses, eg getting and
@@ -17,24 +18,16 @@ import Cookies from 'universal-cookie';
  *  
  * We need to do this because {@link setCookieOnResponse} can only assign to `cookies`, not `universalCookies`, so sometimes `universalCookies` will exist but won't have the (newly assigned) cookie value.
  */
-export function getCookieFromReq(req: Request | IncomingMessage, cookieName: string) {
+export function getCookieFromReq(req: Request | IncomingMessage | NextRequest, cookieName: string): string|null {
+  if (req instanceof NextRequest) {
+    return req.cookies.get(cookieName)?.value ?? null;
+  }
+
   const untypedReq: any = req;
   if (!untypedReq.universalCookies && !untypedReq.cookies)
     throw new Error("Tried to get a cookie but middleware not correctly configured");
 
   return untypedReq.universalCookies?.get(cookieName) ?? untypedReq.cookies?.[cookieName];
-}
-
-// Given an HTTP request, clear a named cookie. Handles the difference between
-// the Meteor and Express server middleware setups. Works by setting an
-// expiration date in the past, which apparently is the recommended way to
-// remove cookies.
-export function clearCookie(req: Request & { universalCookies?: any }, res: Response<any, Record<string, any>> | undefined, cookieName: string) {
-  if ((req.cookies && req.cookies[cookieName])
-    || (req.universalCookies && req.universalCookies.get(cookieName)))
-  {
-    res?.setHeader("Set-Cookie", `${cookieName}= ; expires=${new Date(0).toUTCString()};`)   
-  }
 }
 
 // Differs between Meteor-wrapped Express and regular Express, for some reason.
@@ -105,3 +98,20 @@ export const trySetResponseStatus = ({ response, status }: { response: Response,
 
   return response;
 }
+
+export function getRequestMetadata(req: Request) {
+  const ip = getIpFromRequest(req)
+  const userAgent = req.headers["user-agent"];
+  const url = getPathFromReq(req);
+
+  return { ip, userAgent, url };
+}
+
+export const getIpFromRequest = (req: Request): string => {
+  let ipOrIpArray = req.headers['x-forwarded-for'] || req.headers["x-real-ip"] || req.connection.remoteAddress || "unknown";
+  let ip = typeof ipOrIpArray === "object" ? ipOrIpArray[0] : ipOrIpArray as string;
+  if (ip.indexOf(",") >= 0) {
+    ip = ip.split(",")[0];
+  }
+  return ip;
+};

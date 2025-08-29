@@ -114,7 +114,7 @@ export async function upsertPolls({
   comment?: DbComment;
   context: ResolverContext;
 }) {
-  if (!hasPolls || !revisionId) return;
+  if (!hasPolls() || !revisionId) return;
 
   const revision = await context.loaders.Revisions.load(revisionId);
 

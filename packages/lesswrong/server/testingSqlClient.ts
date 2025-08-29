@@ -159,9 +159,6 @@ type DropAndCreatePgArgs = {
 
 // Exported to allow running with "yarn repl"
 export const dropAndCreatePg = async ({templateId, dropExisting}: DropAndCreatePgArgs) => {
-  const oldClient = getSqlClient();
-  setSqlClient(await createSqlConnection());
-  await oldClient?.$pool.end();
   // eslint-disable-next-line no-console
   console.log("Creating PG database");
   await createTestingSqlClient(templateId, dropExisting);

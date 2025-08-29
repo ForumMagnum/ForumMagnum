@@ -4,11 +4,7 @@ export const RevisionDisplay = gql(`
   fragment RevisionDisplay on Revision {
     _id
     version
-    updateType
-    editedAt
-    userId
     html
-    commitMessage
     wordCount
     htmlHighlight
     plaintextDescription
@@ -25,6 +21,10 @@ export const RevisionHTML = gql(`
 export const RevisionEdit = gql(`
   fragment RevisionEdit on Revision {
     ...RevisionDisplay
+    updateType
+    editedAt
+    userId
+    commitMessage
     originalContents {
       type
       data

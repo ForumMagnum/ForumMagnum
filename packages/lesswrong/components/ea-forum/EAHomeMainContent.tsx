@@ -64,8 +64,8 @@ const EAHomeMainContent = ({FrontpageNode, classes}: {
 }) => {
   const [activeTab, setActiveTab] = useState<TopicsBarTab>(frontpageTab)
 
-  const topicPostTerms = {
-    ...tagPostTerms(activeTab, {}),
+  const topicPostTerms: PostsViewTerms = {
+    ...tagPostTerms(activeTab),
     sortedBy: 'magic',
     limit: 30
   }
@@ -84,7 +84,7 @@ const EAHomeMainContent = ({FrontpageNode, classes}: {
               <Link to={`/topics/${activeTab.slug}`} className={classes.learnMoreLink}>
                 View more
               </Link>
-              {isFriendlyUI && <PostsListViewToggle />}
+              {isFriendlyUI() && <PostsListViewToggle />}
             </div>
           </SectionTitle>
           <PostsList2

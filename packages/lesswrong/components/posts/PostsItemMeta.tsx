@@ -11,8 +11,14 @@ import PostsUserAndCoauthors from "./PostsUserAndCoauthors";
 import LWTooltip from "../common/LWTooltip";
 import AddToCalendarButton from "./AddToCalendar/AddToCalendarButton";
 import { maybeDate } from '@/lib/utils/dateUtils';
+import { useIsOnGrayBackground } from '../hooks/useIsOnGrayBackground';
 
 const styles = (theme: ThemeType) => ({
+  onGrayBackground: {
+    ...(theme.isBookUI && theme.dark && {
+      color: theme.palette.greyAlpha(1),
+    }),
+  },
   read: {
     opacity: ".8"
   },
@@ -43,11 +49,12 @@ const PostsItemMeta = ({post, read, hideTags, classes}: {
   hideTags?: boolean,
   classes: ClassesType<typeof styles>,
 }) => {
-  const baseScore = isAF ? post.afBaseScore : post.baseScore
-  const showAfScore = (!isAF && post.af);
+  const baseScore = isAF() ? post.afBaseScore : post.baseScore
+  const showAfScore = (!isAF() && post.af);
   const afBaseScore = showAfScore ? post.afBaseScore : null
-  return <span className={classNames({[classes.read]:read})}>
+  const isOnGrayBackground = useIsOnGrayBackground();
 
+  return <span className={classNames(read && classes.read, isOnGrayBackground && classes.onGrayBackground)}>
       {!post.shortform && !post.isEvent && <span className={classes.info}>
         <LWTooltip title={<div>
           This post has { baseScore || 0 } karma<br/>

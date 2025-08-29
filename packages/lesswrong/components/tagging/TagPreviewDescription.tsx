@@ -43,7 +43,7 @@ const getTagParagraphTruncationCount = (tag: TagPreviewFragment | TagSectionPrev
   if (!tag.description || 'htmlHighlight' in tag.description) return 1;
 
   // Show two paragraphs for links to tag section headers
-  return isLWorAF ? 8 : 2;
+  return isLWorAF() ? 8 : 2;
 }
 
 const TagPreviewDescription = ({tag, hash, classes, activeTab}: {
@@ -58,7 +58,7 @@ const TagPreviewDescription = ({tag, hash, classes, activeTab}: {
     return null
   }
 
-  if (isFriendlyUI) {
+  if (isFriendlyUI()) {
     return (
       <TagExcerpt
         tag={tag}
@@ -69,7 +69,7 @@ const TagPreviewDescription = ({tag, hash, classes, activeTab}: {
     );
   }
 
-  const showCustomDescriptionHighlight = isLW && tag.core && !hash;
+  const showCustomDescriptionHighlight = isLW() && tag.core && !hash;
 
   let highlight: string | undefined;
   // If we're on LW and previewing a core tag (but not a section within it), show the custom description

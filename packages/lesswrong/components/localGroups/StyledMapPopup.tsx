@@ -2,7 +2,6 @@ import React, { ReactNode } from 'react';
 import { Link } from '../../lib/reactRouterWrapper';
 import { registerComponent } from '../../lib/vulcan-lib/components';
 import { Popup as BadlyTypedPopup } from 'react-map-gl';
-import { isEAForum } from '../../lib/instanceSettings';
 import { componentWithChildren } from '../../lib/utils/componentsWithChildren';
 
 const Popup = componentWithChildren(BadlyTypedPopup);
@@ -30,11 +29,11 @@ export const styles = (theme: ThemeType) => ({
   contactInfo: {
     marginBottom: "10px",
     marginTop: "10px",
-    fontWeight: isEAForum ? 450 : 400,
+    fontWeight: theme.isEAForum ? 450 : 400,
     color: theme.palette.text.dim60,
   },
   markerPageLink: {
-    fontWeight: isEAForum ? 450 : 400,
+    fontWeight: theme.isEAForum ? 450 : 400,
     color: theme.palette.link.dim3,
     flex: 'none'
   },

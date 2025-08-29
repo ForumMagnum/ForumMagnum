@@ -3,7 +3,7 @@ import classNames from 'classnames';
 import { useCurrentUser } from '../common/withUser'
 import withErrorBoundary from '../common/withErrorBoundary'
 import { useDialog } from '../common/withDialog';
-import { hideUnreviewedAuthorCommentsSettings } from '../../lib/publicSettings';
+import { isLWorAF, hideUnreviewedAuthorCommentsSettings } from '@/lib/instanceSettings';
 import { userCanDo } from '../../lib/vulcan-users/permissions';
 import { requireNewUserGuidelinesAck, userIsAllowedToComment } from '../../lib/collections/users/helpers';
 import { useMessages } from '../common/withMessages';
@@ -12,11 +12,10 @@ import { TagCommentType } from '../../lib/collections/comments/types';
 import { commentDefaultToAlignment } from '../../lib/collections/comments/helpers';
 import { isInFuture } from '../../lib/utils/timeUtil';
 import moment from 'moment';
-import { isLWorAF } from '../../lib/instanceSettings';
 import { useTracking } from "../../lib/analyticsEvents";
 import { isFriendlyUI } from '../../themes/forumTheme';
 import { registerComponent } from "../../lib/vulcan-lib/components";
-import { COMMENTS_NEW_FORM_PADDING } from '@/lib/collections/comments/constants';
+import { getCommentsNewFormPadding } from '@/lib/collections/comments/constants';
 import { CommentForm, type CommentInteractionType } from './CommentForm';
 import NewUserGuidelinesDialog from "./NewUserGuidelinesDialog";
 import ModerationGuidelinesBox from "./ModerationGuidelines/ModerationGuidelinesBox";
@@ -41,7 +40,7 @@ export type FormDisplayMode = "default" | "minimalist"
 
 
 const styles = (theme: ThemeType) => ({
-  root: isFriendlyUI ? {
+  root: theme.isFriendlyUI ? {
     '& .form-component-EditorFormComponent': {
       marginTop: 0
     }
@@ -60,12 +59,12 @@ const styles = (theme: ThemeType) => ({
   rootQuickTakes: {
     "& .form-component-EditorFormComponent": {
       background: theme.palette.grey[100],
-      padding: COMMENTS_NEW_FORM_PADDING,
+      padding: getCommentsNewFormPadding(theme),
       borderTopLeftRadius: theme.borderRadius.quickTakesEntry,
       borderTopRightRadius: theme.borderRadius.quickTakesEntry,
     },
   },
-  quickTakesSubmitButtonAtBottom: isFriendlyUI
+  quickTakesSubmitButtonAtBottom: theme.isFriendlyUI
     ? {
       "& .form-component-EditorFormComponent": {
         background: "transparent",
@@ -80,7 +79,7 @@ const styles = (theme: ThemeType) => ({
     opacity: 0.5
   },
   form: {
-    padding: COMMENTS_NEW_FORM_PADDING,
+    padding: getCommentsNewFormPadding(theme),
   },
   formMinimalist: {
     padding: '12px 10px 8px 10px',
@@ -117,9 +116,9 @@ const shouldOpenNewUserGuidelinesDialog = (
 
 const getSubmitLabel = (isQuickTake: boolean, isAnswer?: boolean) => {
   if (isAnswer) {
-    return isFriendlyUI ? 'Add answer' : 'Submit';
+    return isFriendlyUI() ? 'Add answer' : 'Submit';
   }
-  if (!isFriendlyUI) return 'Submit'
+  if (!isFriendlyUI()) return 'Submit'
   return isQuickTake ? 'Publish' : 'Comment'
 }
 
@@ -147,6 +146,7 @@ export type CommentsNewFormProps = {
   quickTakesSubmitButtonAtBottom?: boolean,
   isAnswer?: boolean,
   cancelLabel?: string,
+  hideAlignmentForumCheckbox?: boolean,
   className?: string,
   classes: ClassesType<typeof styles>,
 }
@@ -169,6 +169,7 @@ const CommentsNewForm = ({
   quickTakesSubmitButtonAtBottom,
   isAnswer,
   cancelLabel,
+  hideAlignmentForumCheckbox,
   className,
   classes,
 }: CommentsNewFormProps) => {
@@ -228,7 +229,7 @@ const CommentsNewForm = ({
           />
         });
       }
-      if (isLWorAF) {
+      if (isLWorAF()) {
         setShowGuidelines(true);
       }
     }, 0);
@@ -302,7 +303,7 @@ const CommentsNewForm = ({
   }), [isMinimalist, overrideHintText]);
 
   const answerFormProps = useMemo(() => isAnswer
-    ? {editorHintText: isFriendlyUI && isAnswer ? 'Write a new answer...' : undefined}
+    ? {editorHintText: isFriendlyUI() && isAnswer ? 'Write a new answer...' : undefined}
     : {}, [isAnswer]);
 
   const parentDocumentId = post?._id || tag?._id
@@ -372,7 +373,8 @@ const CommentsNewForm = ({
               disableSubmitDropdown={isAnswer || post?.question || prefilledProps.tagId}
               interactionType={interactionType}
               alignmentForumPost={post?.af}
-              quickTakesFormGroup={isQuickTake && !(quickTakesSubmitButtonAtBottom && isFriendlyUI)}
+              hideAlignmentForumCheckbox={hideAlignmentForumCheckbox}
+              quickTakesFormGroup={isQuickTake && !(quickTakesSubmitButtonAtBottom && isFriendlyUI())}
               formClassName={mergedFormProps.formClassName}
               editorHintText={mergedFormProps.editorHintText}
               commentMinimalistStyle={mergedFormProps.commentMinimalistStyle}

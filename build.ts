@@ -185,11 +185,7 @@ if (databaseConfig.sshTunnelCommand) {
   startSshTunnel(databaseConfig.sshTunnelCommand);
 }
 
-if (isProduction) {
-  process.env.NODE_ENV="production";
-} else {
-  process.env.NODE_ENV="development";
-}
+(process.env as any).NODE_ENV = isProduction ? "production" : "development";
 
 const clientBundleBanner = `/*
  * LessWrong 2.0 (client JS bundle)
@@ -519,7 +515,7 @@ async function main() {
     },
     external: [
       "node_modules",
-      "akismet-api", "canvas", "express", "mz", "pg", "pg-promise", "mathjax", "mathjax-node",
+      "akismet-api", "canvas", "express", "pg", "pg-promise", "mathjax", "mathjax-node",
       "mathjax-node-page", "jsdom", "@sentry/node", "node-fetch", "later", "turndown",
       "@apollo/server", "graphql", "csso", "io-ts", "fp-ts",
       "bcrypt", "node-pre-gyp", "intercom-client", "node:*",
@@ -591,7 +587,6 @@ async function createViteProxyServer(backend: RunningServer) {
         "@/client/importCkEditor": "/packages/lesswrong/viteClient/importCkEditorVite",
         "@/client": "/packages/lesswrong/client",
         "@/viteClient": "/packages/lesswrong/viteClient",
-        "@/allComponents": "/packages/lesswrong/lib/generated/allComponents",
         "@": "/packages/lesswrong",
         
         // nodejs modules that aren't available on the client, which have

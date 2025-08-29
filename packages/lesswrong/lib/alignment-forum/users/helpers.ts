@@ -32,7 +32,7 @@ export const userCanMakeAlignmentComment = (user: DbUser|UsersCurrent|null) => {
 export const userNeedsAFNonMemberWarning = (user: DbUser|UsersCurrent|null, initial =true) => {
   
   return (!!user
-    && isAF
+    && isAF()
     && (!user.hideAFNonMemberInitialWarning || !initial) 
     && !(userCanDo(user, 'comments.alignment.new')||userCanDo(user, 'posts.alignment.new')))
 }

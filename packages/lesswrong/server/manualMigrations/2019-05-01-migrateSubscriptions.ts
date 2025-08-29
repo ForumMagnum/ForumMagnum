@@ -2,7 +2,6 @@ import { forEachDocumentBatchInCollection, registerMigration } from './migration
 import Users from '../../server/collections/users/collection';
 import { Comments } from '../../server/collections/comments/collection';
 import { Posts } from '../../server/collections/posts/collection';
-import * as _ from 'underscore';
 import { createSubscription } from '../collections/subscriptions/mutations';
 import { computeContextFromUser } from '../vulcan-lib/apollo-server/context';
 
@@ -30,7 +29,7 @@ export default registerMigration({
           // to someone else's post/comment is migrated to the Subscriptions
           // table.
           if (oldSubscriptions?.Comments) {
-            const commentIDs = _.map(oldSubscriptions.Comments, (s: any)=>s.itemId);
+            const commentIDs = oldSubscriptions.Comments.map((s: any)=>s.itemId);
             const comments = await Comments.find({_id: {$in: commentIDs}}).fetch();
             for (let comment of comments) {
               if (comment.userId !== user._id) {
@@ -46,7 +45,7 @@ export default registerMigration({
             }
           }
           if (oldSubscriptions?.Posts) {
-            const postIDs = _.map(oldSubscriptions.Posts, (s: any)=>s.itemId);
+            const postIDs = oldSubscriptions.Posts.map((s: any)=>s.itemId);
             const posts = await Posts.find({_id: {$in: postIDs}}).fetch();
             for (let post of posts) {
               if (post.userId !== user._id) {
@@ -93,7 +92,7 @@ export default registerMigration({
           // Save the resulting subscriptions in the Subscriptions table
           if (newSubscriptions.length > 0) {
             numTotalSubscriptions += newSubscriptions.length;
-            await Promise.all(_.map(newSubscriptions, async sub => {
+            await Promise.all(newSubscriptions.map(async sub => {
               await createSubscription({ data: sub }, await computeContextFromUser({ user, isSSR: false }));
             }));
           }

@@ -1,17 +1,17 @@
 import React, { useEffect, useState } from 'react';
-import { registerComponent } from '../../lib/vulcan-lib/components';
 import { SerializedEditorContents, deserializeEditorContents, EditorContents, nonAdminEditors, adminEditors } from './Editor';
 import { useCurrentUser } from '../common/withUser';
 import { htmlToTextDefault } from '@/lib/htmlToText';
-import { isFriendlyUI, preferredHeadingCase } from '@/themes/forumTheme';
+import { preferredHeadingCase } from '@/themes/forumTheme';
 import ForumIcon from "../common/ForumIcon";
+import { defineStyles, useStyles } from '../hooks/useStyles';
 
-const styles = (theme: ThemeType) => ({
+const styles = defineStyles("LocalStorageCheck", (theme: ThemeType) => ({
   root: {
     display: 'flex',
     justifyContent: 'space-between',
     alignItems: 'center',
-    columnGap: isFriendlyUI ? 8 : 10,
+    columnGap: theme.isFriendlyUI ? 8 : 10,
     fontFamily: theme.typography.commentStyle.fontFamily,
     color: theme.palette.text.primaryAlert,
     fontSize: 14,
@@ -34,14 +34,14 @@ const styles = (theme: ThemeType) => ({
     whiteSpace: 'nowrap',
     paddingLeft: 6,
     paddingRight: 2,
-    fontWeight: isFriendlyUI ? 600 : undefined,
+    fontWeight: theme.isFriendlyUI ? 600 : undefined,
   },
   restoreBody: {
     maxHeight: '1.5em',
     lineHeight: '1.5em',
     fontSize: '1.1rem',
     overflow: 'hidden',
-    ...(isFriendlyUI
+    ...(theme.isFriendlyUI
       ? {
         color: theme.palette.text.primaryAlert,
         fontWeight: 500,
@@ -60,7 +60,7 @@ const styles = (theme: ThemeType) => ({
       color: theme.palette.primary.dark,
     }
   }
-});
+}));
 
 type RestorableState = {
   savedDocument: SerializedEditorContents,
@@ -89,13 +89,15 @@ const getRestorableState = (currentUser: UsersCurrent|null, getLocalStorageHandl
   return null;
 };
 
-const LocalStorageCheck = ({getLocalStorageHandlers, onRestore, classes, getNewPostLocalStorageHandlers, onRestoreNewPostLegacy}: {
+type LocalStorageCheckProps = {
   getLocalStorageHandlers: GetLocalStorageHandlers,
   onRestore: (newState: EditorContents) => void,
-  classes: ClassesType<typeof styles>,
   getNewPostLocalStorageHandlers: GetLocalStorageHandlers,
   onRestoreNewPostLegacy: (newState: EditorContents) => void,
-}) => {
+}
+
+const LocalStorageCheck = (props: LocalStorageCheckProps) => {
+  const {getLocalStorageHandlers, getNewPostLocalStorageHandlers} = props;
   const [localStorageChecked, setLocalStorageChecked] = useState(false);
   const [restorableState, setRestorableState] = useState<{restorableState: RestorableState|null, newPostRestorableState: RestorableState|null} | null>(null);
   const currentUser = useCurrentUser();
@@ -118,13 +120,27 @@ const LocalStorageCheck = ({getLocalStorageHandlers, onRestore, classes, getNewP
   if (!restorableDocument && !newPostRestorableDocument)
     return null;
 
+  return <LocalStorageCheckVisible
+    {...props} restorableDocument={restorableDocument} newPostRestorableDocument={newPostRestorableDocument}
+    clearRestorableState={() => setRestorableState(null)}
+  />
+}
+
+const LocalStorageCheckVisible = (props: LocalStorageCheckProps & {
+  restorableDocument: SerializedEditorContents|null
+  newPostRestorableDocument: SerializedEditorContents|null
+  clearRestorableState: () => void
+}) => {
+  const {onRestore, onRestoreNewPostLegacy, restorableDocument, newPostRestorableDocument, clearRestorableState} = props;
+  const classes = useStyles(styles);
+
   const displayedRestore = restorableDocument ? htmlToTextDefault(deserializeEditorContents(restorableDocument)?.value ?? '') : null;
   const legacyRestored = newPostRestorableDocument ? htmlToTextDefault(deserializeEditorContents(newPostRestorableDocument)?.value ?? '') : null;
 
   return <div className={classes.root}>
     <div>
       <a className={classes.restoreLink} onClick={() => {
-        setRestorableState(null);
+        clearRestorableState();
         const restored = restorableDocument ? deserializeEditorContents(restorableDocument) : null;
         const legacyRestored = newPostRestorableDocument ? deserializeEditorContents(newPostRestorableDocument) : null;
         if (restored) {
@@ -139,10 +155,10 @@ const LocalStorageCheck = ({getLocalStorageHandlers, onRestore, classes, getNewP
     </div>
     <div className={classes.restoreBody}> {displayedRestore || legacyRestored} </div>
 
-    <ForumIcon icon="Close" className={classes.closeIcon} onClick={() => setRestorableState(null)}/>
+    <ForumIcon icon="Close" className={classes.closeIcon} onClick={() => clearRestorableState()}/>
   </div>
 }
 
-export default registerComponent('LocalStorageCheck', LocalStorageCheck, {styles});
+export default LocalStorageCheck;
 
 

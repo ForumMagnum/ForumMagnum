@@ -3,7 +3,6 @@ import { registerComponent } from '../../lib/vulcan-lib/components';
 import { tagStyle, coreTagStyle, smallTagTextStyle } from './FooterTag';
 import { taggingNameSetting } from '../../lib/instanceSettings';
 import classNames from 'classnames';
-import { isFriendlyUI } from '../../themes/forumTheme';
 import LWTooltip from "../common/LWTooltip";
 import LoadMore from "../common/LoadMore";
 import ForumIcon from "../common/ForumIcon";
@@ -30,7 +29,7 @@ const styles = (theme: ThemeType) => ({
       border: theme.palette.border.grey300,
       color: theme.palette.grey[800]
     },
-    ...(isFriendlyUI
+    ...(theme.isFriendlyUI
       ? {
         ...coreTagStyle(theme),
         opacity: 0.6,
@@ -43,7 +42,7 @@ const styles = (theme: ThemeType) => ({
     position: 'relative',
     columnGap: 4,
     ...tagStyle(theme),
-    ...(isFriendlyUI ? coreTagStyle(theme) : {}),
+    ...(theme.isFriendlyUI ? coreTagStyle(theme) : {}),
     cursor: 'default'
   },
   smallTag: {

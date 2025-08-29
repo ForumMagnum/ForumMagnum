@@ -3,11 +3,11 @@ import React, { useEffect, useRef, useState } from 'react';
 import { EditableUser, getUserEmail, SOCIAL_MEDIA_PROFILE_FIELDS, userCanEditUser, userGetDisplayName, userGetProfileUrl } from '@/lib/collections/users/helpers';
 import Button from '@/lib/vendor/@material-ui/core/src/Button';
 import { useCurrentUser } from '@/components/common/withUser';
-import { useMutation, useApolloClient } from '@apollo/client';
+import { useMutation, useApolloClient } from '@apollo/client/react';
 import { useQuery } from "@/lib/crud/useQuery"
 import { hasEventsSetting, isAF, isEAForum, isLW, isLWorAF, verifyEmailsSetting } from '@/lib/instanceSettings';
 import { useThemeOptions, useSetTheme } from '@/components/themes/useTheme';
-import { captureEvent } from '@/lib/analyticsEvents';
+
 import { configureDatadogRum } from '@/client/datadogRum';
 import { isBookUI, isFriendlyUI, preferredHeadingCase } from '@/themes/forumTheme';
 import { useLocation, useNavigate } from '@/lib/routeUtil.tsx';
@@ -20,7 +20,7 @@ import { useEditorFormCallbacks, EditorFormComponent } from '@/components/editor
 import { LocationFormComponent } from '@/components/form-components/LocationFormComponent';
 import { MuiTextField } from '@/components/form-components/MuiTextField';
 import { FormUserMultiselect } from '@/components/form-components/UserMultiselect';
-import { defaultEditorPlaceholder } from '@/lib/editor/defaultEditorPlaceholder';
+import { getDefaultEditorPlaceholder } from '@/lib/editor/defaultEditorPlaceholder';
 import { useForm } from '@tanstack/react-form';
 import classNames from 'classnames';
 import { getCommentViewOptions } from '@/lib/commentViewOptions';
@@ -46,6 +46,7 @@ import ErrorAccessDenied from "../../common/ErrorAccessDenied";
 import { withDateFields } from '@/lib/utils/dateUtils';
 import { gql } from "@/lib/generated/gql-codegen";
 import { useFormErrors } from '@/components/tanstack-form-components/BaseAppForm';
+import { useTracking } from '@/lib/analyticsEvents';
 
 const UsersEditUpdateMutation = gql(`
   mutation updateUserUsersEditForm($selector: SelectorInput!, $data: UpdateUserDataInput!) {
@@ -67,7 +68,7 @@ const GetUserBySlugQuery = gql(`
 
 const styles = defineStyles('UsersEditForm', (theme: ThemeType) => ({
   root: {
-    ...(isFriendlyUI && {
+    ...(theme.isFriendlyUI && {
       "& .form-submit": {
         display: "flex",
         flexDirection: "column",
@@ -237,7 +238,7 @@ const UsersForm = ({
     }}>
       {displayedErrorComponent}
       <div className={classes.defaultGroup}>
-        {!isFriendlyUI && (userHasntChangedName(form.state.values) || userIsAdminOrMod(currentUser)) && <div className={classes.fieldWrapper}>
+        {!isFriendlyUI() && (userHasntChangedName(form.state.values) || userIsAdminOrMod(currentUser)) && <div className={classes.fieldWrapper}>
           <form.Field name="displayName">
             {(field) => (
               <MuiTextField
@@ -264,14 +265,14 @@ const UsersForm = ({
             {(field) => (
               <MuiTextField
                 field={field}
-                disabled={isEAForum && !form.state.values.hasAuth0Id}
+                disabled={isEAForum() && !form.state.values.hasAuth0Id}
                 label="Email"
               />
             )}
           </form.Field>
         </div>
 
-        {isLWorAF && <div className={classes.fieldWrapper}>
+        {isLWorAF() && <div className={classes.fieldWrapper}>
           <form.Field name="fullName">
             {(field) => (
               <MuiTextField
@@ -282,7 +283,7 @@ const UsersForm = ({
           </form.Field>
         </div>}
 
-        {!isEAForum && <div className={classNames("form-component-EditorFormComponent", classes.fieldWrapper)}>
+        {!isEAForum() && <div className={classNames("form-component-EditorFormComponent", classes.fieldWrapper)}>
           <form.Field name="biography">
             {(field) => (
               <EditorFormComponent
@@ -306,7 +307,7 @@ const UsersForm = ({
       </div>
 
       <LegacyFormGroupLayout label={preferredHeadingCase("Site Customizations")} startCollapsed={true && highlightedField !== "googleLocation"}>
-        {!isLWorAF && <div className={classes.fieldWrapper}>
+        {!isLWorAF() && <div className={classes.fieldWrapper}>
           <form.Field name="theme">
             {(field) => (
               <ThemeSelect
@@ -340,7 +341,7 @@ const UsersForm = ({
           </form.Field>
         </div>
 
-        {isLW && <div className={classes.fieldWrapper}>
+        {isLW() && <div className={classes.fieldWrapper}>
           <form.Field name="hideFrontpageMap">
             {(field) => (
               <FormComponentCheckbox
@@ -351,7 +352,7 @@ const UsersForm = ({
           </form.Field>
         </div>}
 
-        {isLWorAF && <div className={classes.fieldWrapper}>
+        {isLWorAF() && <div className={classes.fieldWrapper}>
           <form.Field name="hideFrontpageBook2020Ad">
             {(field) => (
               <FormComponentCheckbox
@@ -375,7 +376,7 @@ const UsersForm = ({
           </form.Field>
         </div>
 
-        {isEAForum && (userIsAdminOrMod(currentUser) || userIsMemberOf(currentUser, 'trustLevel1')) && <div className={classes.fieldWrapper}>
+        {isEAForum() && (userIsAdminOrMod(currentUser) || userIsMemberOf(currentUser, 'trustLevel1')) && <div className={classes.fieldWrapper}>
           <form.Field name="showHideKarmaOption">
             {(field) => (
               <FormComponentCheckbox
@@ -432,7 +433,7 @@ const UsersForm = ({
           </form.Field>
         </div>
 
-        {isAF && <div className={classes.fieldWrapper}>
+        {isAF() && <div className={classes.fieldWrapper}>
           <form.Field name="hideAFNonMemberInitialWarning">
             {(field) => (
               <FormComponentCheckbox
@@ -476,7 +477,7 @@ const UsersForm = ({
           </form.Field>
         </div>
 
-        {isEAForum && <div className={classes.fieldWrapper}>
+        {isEAForum() && <div className={classes.fieldWrapper}>
           <form.Field name="hideCommunitySection">
             {(field) => (
               <FormComponentCheckbox
@@ -487,7 +488,7 @@ const UsersForm = ({
           </form.Field>
         </div>}
 
-        {isEAForum && <div className={classes.fieldWrapper}>
+        {isEAForum() && <div className={classes.fieldWrapper}>
           <form.Field name="showCommunityInRecentDiscussion">
             {(field) => (
               <FormComponentCheckbox
@@ -498,7 +499,7 @@ const UsersForm = ({
           </form.Field>
         </div>}
 
-        {hasPostRecommendations && <div className={classes.fieldWrapper}>
+        {hasPostRecommendations() && <div className={classes.fieldWrapper}>
           <form.Field name="hidePostsRecommendations">
             {(field) => (
               <FormComponentCheckbox
@@ -509,7 +510,7 @@ const UsersForm = ({
           </form.Field>
         </div>}
 
-        {hasSurveys && <div className={classes.fieldWrapper}>
+        {hasSurveys() && <div className={classes.fieldWrapper}>
           <form.Field name="optedOutOfSurveys">
             {(field) => (
               <FormComponentCheckbox
@@ -545,7 +546,7 @@ const UsersForm = ({
           </div>
         </HighlightableField>}
 
-        {!isEAForum && <div className={classes.fieldWrapper}>
+        {!isEAForum() && <div className={classes.fieldWrapper}>
           <form.Field name="mapLocation">
             {(field) => (
               <LocationFormComponent
@@ -557,7 +558,7 @@ const UsersForm = ({
           </form.Field>
         </div>}
 
-        {!isEAForum && <div className={classes.fieldWrapper}>
+        {!isEAForum() && <div className={classes.fieldWrapper}>
           <form.Field name="reactPaletteStyle">
             {(field) => (
               <FormComponentSelect
@@ -623,7 +624,7 @@ const UsersForm = ({
             {(field) => (
               <NotificationTypeSettingsWidget
                 field={field}
-                label={`${isEAForum ? "Quick takes" : "Shortform"} by users I'm subscribed to`}
+                label={`${isEAForum() ? "Quick takes" : "Shortform"} by users I'm subscribed to`}
               />
             )}
           </form.Field>
@@ -697,7 +698,7 @@ const UsersForm = ({
         </div>
         </HighlightableField>
 
-        {allowSubscribeToSequencePosts && <div className={classes.fieldWrapper}>
+        {allowSubscribeToSequencePosts() && <div className={classes.fieldWrapper}>
           <form.Field name="notificationSubscribedSequencePost">
             {(field) => (
               <NotificationTypeSettingsWidget
@@ -730,7 +731,7 @@ const UsersForm = ({
           </form.Field>
         </div>
 
-        {isLWorAF && <div className={classes.fieldWrapper}>
+        {isLWorAF() && <div className={classes.fieldWrapper}>
           <form.Field name="notificationAlignmentSubmissionApproved">
             {(field) => (
               <NotificationTypeSettingsWidget
@@ -860,7 +861,7 @@ const UsersForm = ({
           </form.Field>
         </div>}
 
-        {isLW && <div className={classes.fieldWrapper}>
+        {isLW() && <div className={classes.fieldWrapper}>
           <form.Field name="emailSubscribedToCurated">
             {(field) => (
               <EmailConfirmationRequiredCheckbox
@@ -871,7 +872,7 @@ const UsersForm = ({
           </form.Field>
         </div>}
 
-        {isEAForum && <HighlightableField name="subscribedToDigest">
+        {isEAForum() && <HighlightableField name="subscribedToDigest">
           <div className={classes.fieldWrapper}>
           <form.Field name="subscribedToDigest">
             {(field) => (
@@ -896,7 +897,7 @@ const UsersForm = ({
         </div>
       </LegacyFormGroupLayout>
 
-      {isEAForum && <LegacyFormGroupLayout label={preferredHeadingCase("Privacy Settings")} startCollapsed={true}>
+      {isEAForum() && <LegacyFormGroupLayout label={preferredHeadingCase("Privacy Settings")} startCollapsed={true}>
         <div className={classes.fieldWrapper}>
           <form.Field name="hideFromPeopleDirectory">
             {(field) => (
@@ -923,7 +924,7 @@ const UsersForm = ({
       </LegacyFormGroupLayout>}
 
       {userIsAdminOrMod(currentUser) && <LegacyFormGroupLayout label={preferredHeadingCase("Admin Options")} startCollapsed={true}>
-        {isEAForum && <div className={classes.fieldWrapper}>
+        {isEAForum() && <div className={classes.fieldWrapper}>
           <form.Field name="twitterProfileURLAdmin">
             {(field) => (
               <PrefixedInput
@@ -1098,7 +1099,7 @@ const UsersForm = ({
           </form.Field>
         </div>}
 
-        {isLWorAF && userIsAdmin(currentUser) && <div className={classes.fieldWrapper}>
+        {isLWorAF() && userIsAdmin(currentUser) && <div className={classes.fieldWrapper}>
           <form.Field name="hideSunshineSidebar">
             {(field) => (
               <FormComponentCheckbox
@@ -1110,7 +1111,7 @@ const UsersForm = ({
         </div>}
       </LegacyFormGroupLayout>}
 
-      {isLWorAF && userIsAdmin(currentUser) && <LegacyFormGroupLayout label="Prize/Payment Info" startCollapsed={false}>
+      {isLWorAF() && userIsAdmin(currentUser) && <LegacyFormGroupLayout label="Prize/Payment Info" startCollapsed={false}>
         <div className={classes.fieldWrapper}>
           <form.Field name="paymentEmail">
             {(field) => (
@@ -1188,8 +1189,8 @@ const UsersForm = ({
         </div>
       </LegacyFormGroupLayout>}
 
-      <LegacyFormGroupLayout label={preferredHeadingCase(isFriendlyUI ? "Moderation" : "Moderation & Moderation Guidelines")} startCollapsed={true}>
-        {hasAuthorModeration && <div className={classNames("form-component-EditorFormComponent", classes.fieldWrapper)}>
+      <LegacyFormGroupLayout label={preferredHeadingCase(isFriendlyUI() ? "Moderation" : "Moderation & Moderation Guidelines")} startCollapsed={true}>
+        {hasAuthorModeration() && <div className={classNames("form-component-EditorFormComponent", classes.fieldWrapper)}>
           <form.Field name="moderationGuidelines">
             {(field) => (
               <EditorFormComponent
@@ -1199,7 +1200,7 @@ const UsersForm = ({
                 document={form.state.values}
                 addOnSubmitCallback={addOnSubmitModerationGuidelinesCallback}
                 addOnSuccessCallback={addOnSuccessModerationGuidelinesCallback}
-                hintText={defaultEditorPlaceholder}
+                hintText={getDefaultEditorPlaceholder()}
                 fieldName="moderationGuidelines"
                 collectionName="Users"
                 commentEditor={true}
@@ -1210,7 +1211,7 @@ const UsersForm = ({
           </form.Field>
         </div>}
 
-        {hasAuthorModeration && <div className={classes.fieldWrapper}>
+        {hasAuthorModeration() && <div className={classes.fieldWrapper}>
           <form.Field name="moderationStyle">
             {(field) => (
               <FormComponentSelect
@@ -1222,7 +1223,7 @@ const UsersForm = ({
           </form.Field>
         </div>}
 
-        {hasAuthorModeration && <div className={classes.fieldWrapper}>
+        {hasAuthorModeration() && <div className={classes.fieldWrapper}>
           <form.Field name="moderatorAssistance">
             {(field) => (
               <FormComponentCheckbox
@@ -1233,7 +1234,7 @@ const UsersForm = ({
           </form.Field>
         </div>}
 
-        {hasAuthorModeration && <div className={classes.fieldWrapper}>
+        {hasAuthorModeration() && <div className={classes.fieldWrapper}>
           <form.Field name="collapseModerationGuidelines">
             {(field) => (
               <FormComponentCheckbox
@@ -1313,7 +1314,7 @@ const UsersForm = ({
         <form.Subscribe selector={(s) => [s.canSubmit, s.isSubmitting]}>
           {([canSubmit, isSubmitting]) => (
             <Button
-              variant={isBookUI ? 'outlined' : undefined}
+              variant={isBookUI() ? 'outlined' : undefined}
               type="submit"
               disabled={!canSubmit || isSubmitting}
               className={classNames("primary-form-submit-button", classes.submitButton)}
@@ -1343,6 +1344,7 @@ const UsersEditForm = ({ terms }: {
   `), { errorPolicy: 'all' })
   const currentThemeOptions = useThemeOptions();
   const setTheme = useSetTheme();
+  const { captureEvent } = useTracking();
 
   const userHasEditAccess = userCanEditUser(currentUser, terms);
 
@@ -1395,7 +1397,7 @@ const UsersEditForm = ({ terms }: {
       {/* TODO(EA): Need to add a management API call to get the reset password
           link, but for now users can reset their password from the login
           screen */}
-      {isCurrentUser && !isEAForum && <Button
+      {isCurrentUser && !isEAForum() && <Button
         color="secondary"
         variant="outlined"
         className={classes.resetButton}

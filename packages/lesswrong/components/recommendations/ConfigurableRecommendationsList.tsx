@@ -2,7 +2,7 @@ import React, {useState} from 'react';
 import { registerComponent } from '../../lib/vulcan-lib/components';
 import { useCurrentUser } from '../common/withUser';
 import { Link } from '../../lib/reactRouterWrapper'
-import RecommendationsAlgorithmPicker, { getRecommendationSettings, archiveRecommendationsName } from './RecommendationsAlgorithmPicker'
+import RecommendationsAlgorithmPicker, { getRecommendationSettings, getArchiveRecommendationsName } from './RecommendationsAlgorithmPicker'
 import type { DefaultRecommendationsAlgorithm } from '../../lib/collections/users/recommendationSettings';
 import { isLW } from '../../lib/instanceSettings';
 import SingleColumnSection from "../common/SingleColumnSection";
@@ -33,11 +33,11 @@ const ConfigurableRecommendationsList = ({configName}: {
         title={`A weighted, randomized sample of the highest karma posts${settingsOrDefault.onlyUnread ? " that you haven't read yet" : ""}.`}
       >
         <Link to={'/recommendations'}>
-          {archiveRecommendationsName}
+          {getArchiveRecommendationsName()}
         </Link>
       </LWTooltip>}
     >
-      {isLW && <SettingsButton onClick={toggleSettings}/>}
+      {isLW() && <SettingsButton onClick={toggleSettings}/>}
     </SectionTitle>
     { settingsVisible &&
       <RecommendationsAlgorithmPicker

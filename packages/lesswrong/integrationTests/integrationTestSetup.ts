@@ -86,8 +86,6 @@ afterAll(async () => {
     await new Promise((resolve) => setTimeout(resolve, 100));
   }
 
-  await closeSqlClient(getSqlClientOrThrow());
-
   // Our approach to database cleanup is to just delete all the runs older than 1 day.
   // This allows us to inspect the databases created during the last run if necessary
   // for debugging whilst also making sure that we clean up after ourselves eventually

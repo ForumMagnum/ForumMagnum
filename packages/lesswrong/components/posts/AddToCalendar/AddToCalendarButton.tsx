@@ -1,15 +1,13 @@
-import { registerComponent } from '../../../lib/vulcan-lib/components';
 import React, { useEffect, useState, useRef } from 'react';
 import moment from '../../../lib/moment-timezone';
 import { useTracking } from "../../../lib/analyticsEvents";
 import makeUrls from './makeUrls';
 import classNames from 'classnames';
-import { isFriendlyUI } from '../../../themes/forumTheme';
 import { useQuery } from "@/lib/crud/useQuery";
 import { gql } from "@/lib/generated/gql-codegen";
 import LWTooltip from "../../common/LWTooltip";
 import LWPopper from "../../common/LWPopper";
-
+import { defineStyles, useStyles } from '@/components/hooks/useStyles';
 
 const PostsPlaintextDescriptionQuery = gql(`
   query AddToCalendarButton($documentId: String) {
@@ -21,7 +19,7 @@ const PostsPlaintextDescriptionQuery = gql(`
   }
 `);
 
-const styles = (theme: ThemeType) => ({
+const styles = defineStyles("AddToCalendarButton", (theme: ThemeType) => ({
   root: {
     position: 'relative',
     textAlign: 'left'
@@ -31,18 +29,18 @@ const styles = (theme: ThemeType) => ({
     background: 'transparent',
     color: theme.palette.grey[600],
     font: 'inherit',
-    fontSize: isFriendlyUI ? undefined : 14,
+    fontSize: theme.isFriendlyUI ? undefined : 14,
     verticalAlign: 'text-bottom',
     '&:hover': {
       opacity: 0.5
     }
   },
   icon: {
-    height: isFriendlyUI ? 18 : 16,
+    height: theme.isFriendlyUI ? 18 : 16,
     fill: theme.palette.grey[600]
   },
   label: {
-    marginLeft: isFriendlyUI ? 7 : 8,
+    marginLeft: theme.isFriendlyUI ? 7 : 8,
   },
   dropdown: {
     background: theme.palette.panelBackground.default,
@@ -57,7 +55,7 @@ const styles = (theme: ThemeType) => ({
     whiteSpace: 'nowrap',
     padding: '6px 12px',
   }
-})
+}))
 
 const AddToCalendarIcon = ({className=''}) => {
   return <svg viewBox="207.59 11.407 18.981 20.638" xmlns="http://www.w3.org/2000/svg" className={className}>
@@ -66,14 +64,23 @@ const AddToCalendarIcon = ({className=''}) => {
   </svg>
 }
 
-const AddToCalendarButton = ({post, label, hideTooltip, hideIcon, iconClassName, classes}: {
+interface AddToCalendarButtonProps {
   post: PostsList|PostsWithNavigation|PostsWithNavigationAndRevision|(PostsEdit & { contents?: PostsWithNavigation['contents']}),
   label?: string,
   hideTooltip?: boolean,
   hideIcon?: boolean,
   iconClassName?: string,
-  classes: ClassesType<typeof styles>,
-}) => {
+};
+
+const AddToCalendarButton = (props: AddToCalendarButtonProps) => {
+  if (!props.post.startTime) {
+    return null;
+  }
+  
+  return <AddToCalendarButtonInner {...props}/>
+}
+const AddToCalendarButtonInner = ({post, label, hideTooltip, hideIcon, iconClassName}: AddToCalendarButtonProps) => {
+  const classes = useStyles(styles);
   const { captureEvent } = useTracking()
   const [open, setOpen] = useState(false)
   const buttonRef = useRef(null)
@@ -105,10 +112,6 @@ const AddToCalendarButton = ({post, label, hideTooltip, hideIcon, iconClassName,
     skip: !post.startTime || !post.contents || ('plaintextDescription' in post.contents),
   });
   const data = rawData?.post?.result;
-  
-  if (!post.startTime) {
-    return null;
-  }
   
   if (data) {
     eventDetails = data.contents?.plaintextDescription || eventDetails;
@@ -167,6 +170,4 @@ const AddToCalendarButton = ({post, label, hideTooltip, hideIcon, iconClassName,
   )
 };
 
-export default registerComponent('AddToCalendarButton', AddToCalendarButton, {styles});
-
-
+export default AddToCalendarButton;

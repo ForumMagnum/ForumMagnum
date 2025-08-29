@@ -1,8 +1,10 @@
+"use client";
+
 import { registerComponent } from '@/lib/vulcan-lib/components';
 import React from 'react';
 import { useLocation } from '@/lib/routeUtil';
 import { userCanEditUser } from '@/lib/collections/users/helpers';
-import { isFriendlyUI, preferredHeadingCase } from '@/themes/forumTheme';
+import { preferredHeadingCase } from '@/themes/forumTheme';
 import { useCurrentUser } from '@/components/common/withUser';
 import { hasAccountDeletionFlow } from '@/lib/betas';
 import UsersEditForm from "./UsersEditForm";
@@ -22,9 +24,9 @@ const styles = (theme: ThemeType) => ({
   },
   header: {
     margin: 0,
-    paddingTop: isFriendlyUI ? '32px' : '16px',
-    paddingBottom: isFriendlyUI ? '16px' : '32px',
-    paddingLeft: isFriendlyUI ? '4px' : '16px',
+    paddingTop: theme.isFriendlyUI ? '32px' : '16px',
+    paddingBottom: theme.isFriendlyUI ? '16px' : '32px',
+    paddingLeft: theme.isFriendlyUI ? '4px' : '16px',
     paddingRight: '16px',
     [theme.breakpoints.down('xs')]: {
       paddingLeft: "4px",
@@ -47,7 +49,7 @@ const UsersAccount = ({ classes }: { classes: ClassesType<typeof styles> }) => {
         {preferredHeadingCase("Account Settings")}
       </Typography>
       <UsersEditForm terms={terms} />
-      {hasAccountDeletionFlow && (
+      {hasAccountDeletionFlow() && (
         <>
           <Typography variant="display2" className={classes.header}>
             {preferredHeadingCase("Manage Account")}

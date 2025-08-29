@@ -3,7 +3,7 @@ import { userCanDo } from '../lib/vulcan-users/permissions';
 import { recalculateScore } from '../lib/scoring';
 import { isValidVoteType } from '../lib/voting/voteTypes';
 import { VoteDocTuple, getVotePower } from '../lib/voting/vote';
-import { type VotingSystem } from '../lib/voting/votingSystems';
+import { type VotingSystem } from '@/lib/voting/votingSystemTypes';
 import { getVotingSystemForDocument } from '@/lib/voting/getVotingSystem';
 import { createAdminContext, createAnonymousContext } from './vulcan-lib/createContexts';
 import { randomId } from '../lib/random';
@@ -13,10 +13,10 @@ import { RECEIVED_VOTING_PATTERN_WARNING, POTENTIAL_TARGETED_DOWNVOTING } from "
 import { loadByIds } from '../lib/loaders';
 import { filterNonnull } from '../lib/utils/typeGuardUtils';
 import moment from 'moment';
-import * as _ from 'underscore';
 import sumBy from 'lodash/sumBy'
 import uniq from 'lodash/uniq';
 import keyBy from 'lodash/keyBy';
+import maxBy from 'lodash/maxBy';
 import { voteButtonsDisabledForUser } from '../lib/collections/users/helpers';
 import { elasticSyncDocument } from './search/elastic/elasticCallbacks';
 import { collectionIsSearchIndexed } from '../lib/search/searchUtil';
@@ -29,6 +29,7 @@ import { capitalize } from '@/lib/vulcan-lib/utils';
 import { createVote as createVoteMutator } from '@/server/collections/votes/mutations';
 import { createModeratorAction } from './collections/moderatorActions/mutations';
 import { getSchema } from '@/lib/schema/allSchemas';
+import { backgroundTask } from './utils/backgroundTask';
 
 
 // Test if a user has voted on the server
@@ -81,11 +82,11 @@ const addVoteServer = async ({ document, collection, voteType, extendedVote, use
     },
     {}
   );
-  if (isElasticEnabled && collectionIsSearchIndexed(collection.collectionName)) {
-    void elasticSyncDocument(collection.collectionName, newDocument._id);
+  if (isElasticEnabled() && collectionIsSearchIndexed(collection.collectionName)) {
+    backgroundTask(elasticSyncDocument(collection.collectionName, newDocument._id));
   }
   if (collection.collectionName === "Posts") {
-    void swrInvalidatePostRoute(newDocument._id)
+    backgroundTask(swrInvalidatePostRoute(newDocument._id, context))
   }
   return {newDocument, vote};
 }
@@ -136,7 +137,7 @@ export const clearVotesServer = async ({ document, user, collection, excludeLate
   silenceNotification?: boolean,
   context: ResolverContext,
 }) => {
-  let newDocument = _.clone(document);
+  let newDocument = {...document};
   
   // Fetch existing, uncancelled votes
   const votes = await Votes.find({
@@ -148,7 +149,7 @@ export const clearVotesServer = async ({ document, user, collection, excludeLate
     return newDocument;
   }
   
-  const latestVoteId = _.max(votes, v=>v.votedAt)?._id;
+  const latestVoteId = maxBy(votes, v=>v.votedAt)?._id;
   const votesToCancel = excludeLatest
     ? votes.filter(v=>v._id!==latestVoteId)
     : votes
@@ -204,8 +205,8 @@ export const clearVotesServer = async ({ document, user, collection, excludeLate
     ...newDocument,
     ...newScores,
   };
-  if (isElasticEnabled && collectionIsSearchIndexed(collection.collectionName)) {
-    void elasticSyncDocument(collection.collectionName, newDocument._id);
+  if (isElasticEnabled() && collectionIsSearchIndexed(collection.collectionName)) {
+    backgroundTask(elasticSyncDocument(collection.collectionName, newDocument._id));
   }
   return newDocument;
 }
@@ -296,12 +297,12 @@ export const performVoteServer = async ({ documentId, document, voteType, extend
       const { moderatorActionType } = await checkVotingRateLimits({ document, collection, voteType, user, context });
       if (moderatorActionType && !(await wasVotingPatternWarningDeliveredRecently(user, moderatorActionType))) {
         if (moderatorActionType === RECEIVED_VOTING_PATTERN_WARNING) showVotingPatternWarning = true;
-        void createModeratorAction({
+        backgroundTask(createModeratorAction({
           data: {
             userId: user._id,
             type: moderatorActionType,
           }
-        }, context);
+        }, context));
       }
     }
     
@@ -325,7 +326,7 @@ export const performVoteServer = async ({ documentId, document, voteType, extend
 
     voteDocTuple.newDocument = document
     
-    void onCastVoteAsync(voteDocTuple, collection, user, context);
+    backgroundTask(onCastVoteAsync(voteDocTuple, collection, user, context));
 
     return {
       vote: voteDocTuple.vote,
@@ -614,7 +615,7 @@ export const recalculateDocumentScores = async (document: VoteableType, collecti
   const usersThatVoted = await loadByIds(context, "Users", userIdsThatVoted);
   const usersThatVotedById = keyBy(filterNonnull(usersThatVoted), u=>u._id);
   
-  const afVotes = _.filter(votes, v=>userCanDo(usersThatVotedById[v.userId], "votes.alignment"));
+  const afVotes = votes.filter(v=>userCanDo(usersThatVotedById[v.userId], "votes.alignment"));
 
   const votingSystem = await getVotingSystemForDocument(document, collectionName, context);
   const nonblankVoteCount = votes.filter(v => (!!v.voteType && v.voteType !== "neutral") || votingSystem.isNonblankExtendedVote(v)).length;
@@ -622,8 +623,8 @@ export const recalculateDocumentScores = async (document: VoteableType, collecti
   const baseScore = sumBy(votes, v=>v.power)
   const afBaseScore = sumBy(afVotes, v=>v.afPower ?? 0)
   
-  const voteCount = _.filter(votes, v=>voteHasAnyEffect(votingSystem, v, false)).length;
-  const afVoteCount = _.filter(afVotes, v=>voteHasAnyEffect(votingSystem, v, true)).length;
+  const voteCount = votes.filter(v=>voteHasAnyEffect(votingSystem, v, false)).length;
+  const afVoteCount = afVotes.filter(v=>voteHasAnyEffect(votingSystem, v, true)).length;
   
   return {
     baseScore, afBaseScore,
