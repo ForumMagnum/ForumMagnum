@@ -81,11 +81,14 @@ export const useNavigate = () => {
     } else {
       const updatedLocationDescriptor = getUpdatedLocationDescriptor(location, locationDescriptor);
       const normalizedLocation = createPath(updatedLocationDescriptor);
+      const normalizedOldLocation = createPath(location);
 
       if (options?.openInNewTab) {
         window.open(normalizedLocation, '_blank')?.focus();
       } else if (options?.replace) {
-        history.replace(normalizedLocation);
+        if (normalizedLocation !== normalizedOldLocation) {
+          history.replace(normalizedLocation);
+        }
       } else {
         // The behavior of Next's router.push when handling hash changes
         // while on the same route is either broken or deranged, so we
@@ -107,7 +110,9 @@ export const useNavigate = () => {
             window.dispatchEvent(hashChangeEvent);
           }
         } else {
-          history.push(normalizedLocation);
+          if (normalizedLocation !== normalizedOldLocation) {
+            history.push(normalizedLocation);
+          }
         }
       }
     }
