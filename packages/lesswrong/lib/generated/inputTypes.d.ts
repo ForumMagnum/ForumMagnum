@@ -76,6 +76,7 @@ interface Query {
   RevisionsDiff: string | null;
   UltraFeed: UltraFeedQueryResults;
   UltraFeedHistory: UltraFeedQueryResults;
+  UltraFeedSubscriptions: UltraFeedQueryResults;
   advisorRequest: SingleAdvisorRequestOutput | null;
   advisorRequests: MultiAdvisorRequestOutput | null;
   arbitalTagContentRel: SingleArbitalTagContentRelOutput | null;

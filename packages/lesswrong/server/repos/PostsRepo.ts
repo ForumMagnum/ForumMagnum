@@ -1107,7 +1107,8 @@ class PostsRepo extends AbstractRepo<"Posts"> {
     context: ResolverContext,
     filterSettings: FilterSettings,
     maxAgeDays: number,
-    limit = 100
+    limit = 100,
+    restrictToFollowedAuthors = false,
   ): Promise<FeedFullPost[]> {
     const { currentUser } = context;
     if (!currentUser?._id) {
@@ -1184,16 +1185,29 @@ class PostsRepo extends AbstractRepo<"Posts"> {
         -- Exclude posts that have been read OR viewed in UltraFeed
         AND (rs."isRead" IS NULL OR rs."isRead" = FALSE)
         AND ue."documentId" IS NULL
+        AND (CASE WHEN $(restrictToFollowedAuthors) THEN EXISTS (
+          SELECT 1 
+          FROM "Subscriptions" s 
+          WHERE s."documentId" = p."userId"
+            AND s."userId" = $(userId)
+            AND s.state = 'subscribed'
+            AND s.deleted IS NOT TRUE
+            AND s."collectionName" = 'Users'
+            AND s."type" IN ('newActivityForFeed', 'newPosts')
+        ) ELSE TRUE END)
         ${personalBlogFilter}
         ${hiddenPostIdsCondition}
         ${tagFilterClause ? `AND ${tagFilterClause}` : ''}
-      ORDER BY "isFromSubscribedUser" DESC, "initialFilteredScore" DESC
+      ORDER BY 
+        "isFromSubscribedUser" DESC,
+        ${restrictToFollowedAuthors ? '"postedAt"' : '"initialFilteredScore"'} DESC
       LIMIT $(limit)
     `, { 
       userId: currentUser._id,
       maxAgeDays,
       hiddenPostIds,
-      limit
+      limit,
+      restrictToFollowedAuthors
     });
 
     // Preserve meta fields (isFromSubscribedUser, initialFilteredScore) before running access filtering, because accessFilterMultiple strips any keys not present in the schema.

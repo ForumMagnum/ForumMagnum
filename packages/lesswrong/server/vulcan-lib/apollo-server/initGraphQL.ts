@@ -38,6 +38,7 @@ import { allTagsActivityFeedGraphQLQueries, allTagsActivityFeedGraphQLTypeDefs }
 import { recentDiscussionFeedGraphQLQueries, recentDiscussionFeedGraphQLTypeDefs } from '@/server/resolvers/recentDiscussionFeed';
 import { ultraFeedGraphQLQueries, ultraFeedGraphQLTypeDefs } from '@/server/resolvers/ultraFeedResolver';
 import { ultraFeedHistoryGraphQLQueries, ultraFeedHistoryGraphQLTypeDefs } from '@/server/resolvers/ultraFeedHistoryResolver';
+import { ultraFeedSubscriptionsQueries, ultraFeedSubscriptionsTypeDefs } from '@/server/resolvers/ultraFeedSubscriptionsResolver';
 import { subscribedUsersFeedGraphQLQueries, subscribedUsersFeedGraphQLTypeDefs } from '@/server/resolvers/subscribedUsersFeedResolver';
 import { tagHistoryFeedGraphQLQueries, tagHistoryFeedGraphQLTypeDefs } from '@/server/resolvers/tagHistoryFeed';
 import { subForumFeedGraphQLQueries, subForumFeedGraphQLTypeDefs, tagGraphQLTypeDefs, tagResolversGraphQLMutations, tagResolversGraphQLQueries } from '@/server/resolvers/tagResolvers';
@@ -312,6 +313,7 @@ export const typeDefs = gql`
   ${extraPostResolversGraphQLTypeDefs}
   ${ultraFeedGraphQLTypeDefs}
   ${ultraFeedHistoryGraphQLTypeDefs}
+  ${ultraFeedSubscriptionsTypeDefs}
   ${generateCoverImagesForPostGraphQLTypeDefs}
   ${flipSplashArtImageGraphQLTypeDefs}
   ${elicitQuestionPredictionsGraphQLTypeDefs}
@@ -495,6 +497,7 @@ export const resolvers = {
     ...tagResolversGraphQLQueries,
     ...ultraFeedGraphQLQueries,
     ...ultraFeedHistoryGraphQLQueries,
+    ...ultraFeedSubscriptionsQueries,
     ...spotlightGqlQueries,
 
     // CRUD Query Handlers

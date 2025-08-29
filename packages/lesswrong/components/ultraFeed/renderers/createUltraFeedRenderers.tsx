@@ -3,6 +3,7 @@ import FeedItemWrapper from '../FeedItemWrapper';
 import UltraFeedThreadItem from '../UltraFeedThreadItem';
 import UltraFeedPostItem from '../UltraFeedPostItem';
 import UltraFeedSpotlightItem from '../UltraFeedSpotlightItem';
+import SuggestedFeedSubscriptions from '../../subscriptions/SuggestedFeedSubscriptions';
 import { FeedItemSourceType } from '../ultraFeedTypes';
 import type { UltraFeedSettingsType } from '../ultraFeedSettingsTypes';
 
@@ -56,6 +57,18 @@ export function createUltraFeedRenderers({ settings }: { settings: UltraFeedSett
               spotlightMetaInfo={metaInfo}
               showSubtitle={true}
               index={index}
+            />
+          </FeedItemWrapper>
+        );
+      },
+    },
+    feedSubscriptionSuggestions: {
+      render: (item: FeedSubscriptionSuggestionsFragment, index: number) => {
+        if (!item || !item.suggestedUsers) return null;
+        return (
+          <FeedItemWrapper>
+            <SuggestedFeedSubscriptions
+              suggestedUsers={item.suggestedUsers}
             />
           </FeedItemWrapper>
         );

@@ -146,7 +146,8 @@ export async function getRecommendedPostsForUltraFeed(
 export async function getLatestAndSubscribedPosts(
   context: ResolverContext,
   limit: number,
-  maxAgeDays: number
+  maxAgeDays: number,
+  restrictToFollowedAuthors = false,
 ): Promise<FeedFullPost[]> {
   const { currentUser, repos } = context;
 
@@ -162,7 +163,8 @@ export async function getLatestAndSubscribedPosts(
     context,
     filterSettings,
     maxAgeDays,
-    limit
+    limit,
+    restrictToFollowedAuthors
   );
 }
 

@@ -1,8 +1,8 @@
 import gql from 'graphql-tag';
 import { filterNonnull } from '@/lib/utils/typeGuardUtils';
-import { loadByIds } from '@/lib/loaders';
 import { randomId } from '@/lib/random';
 import { FeedItemSourceType, FeedCommentMetaInfo, FeedItemDisplayStatus, UltraFeedResolverType } from '@/components/ultraFeed/ultraFeedTypes';
+import { loadMultipleEntitiesById, createUltraFeedResponse } from './ultraFeedResolverHelpers';
 
 export const ultraFeedHistoryGraphQLTypeDefs = gql`
   extend type Query {
@@ -37,6 +37,17 @@ export const ultraFeedHistoryGraphQLQueries = {
         limit: 50,
       });
       
+      // Debug: Show top 40 items straight from DB (order the repo returns)
+      // eslint-disable-next-line no-console
+      console.log('[UltraFeedHistory][DBG] Top 40 from DB (raw order):');
+      initialFetch.slice(0, 40).forEach((it, i) => {
+        const docShort = it.documentId.slice(0, 10);
+        const viewed = it.itemWasViewed ? '👁️' : '⚪';
+        const servedTs = it.servedAt.toISOString();
+        // eslint-disable-next-line no-console
+        console.log(`  [DB ${i}] t=${servedTs} sess=${it.sessionId ?? 'ns'} idx=${it.itemIndex ?? -1} viewed=${viewed} doc=${docShort}`);
+      });
+
       const firstViewedIndex = initialFetch.findIndex(item => item.itemWasViewed === true);
       actualOffset = firstViewedIndex > 0 ? firstViewedIndex : offset;
     }
@@ -50,6 +61,19 @@ export const ultraFeedHistoryGraphQLQueries = {
     });
     
     const servedItems = fetchedItems;
+
+    // Debug: Show top 40 items that will be shown in UI for this page
+    if (offset === 0) {
+      // eslint-disable-next-line no-console
+      console.log('[UltraFeedHistory][DBG] Top 40 returned to UI:');
+      servedItems.slice(0, 40).forEach((it, i) => {
+        const docShort = it.documentId.slice(0, 10);
+        const viewed = it.itemWasViewed ? '👁️' : '⚪';
+        const servedTs = it.servedAt.toISOString();
+        // eslint-disable-next-line no-console
+        console.log(`  [UI ${i}] t=${servedTs} sess=${it.sessionId ?? 'ns'} idx=${it.itemIndex ?? -1} viewed=${viewed} doc=${docShort}`);
+      });
+    }
     
     // Collect IDs to load
     const postIds: string[] = [];
@@ -71,20 +95,11 @@ export const ultraFeedHistoryGraphQLQueries = {
       }
     });
 
-    const [spotlightsResults, commentsResults, postsResults] = await Promise.all([
-      loadByIds(context, 'Spotlights', spotlightIds),
-      loadByIds(context, 'Comments', Array.from(commentIdsSet)),
-      loadByIds(context, 'Posts', postIds),
-    ]);
-
-    const spotlightsById = new Map<string, DbSpotlight>();
-    spotlightsResults.forEach(s => s?._id && spotlightsById.set(s._id, s));
-
-    const commentsById = new Map<string, DbComment>();
-    commentsResults.forEach(c => c?._id && commentsById.set(c._id, c));
-
-    const postsById = new Map<string, DbPost>();
-    postsResults.forEach(p => p?._id && postsById.set(p._id, p));
+    const { postsById, commentsById, spotlightsById } = await loadMultipleEntitiesById(context, {
+      posts: postIds,
+      comments: Array.from(commentIdsSet),
+      spotlights: spotlightIds
+    });
 
     const results: UltraFeedResolverType[] = filterNonnull(servedItems.map((item, index) => {
       if (item.type === 'feedSpotlight') {
@@ -94,7 +109,8 @@ export const ultraFeedHistoryGraphQLQueries = {
         return {
           type: 'feedSpotlight',
           feedSpotlight: {
-            _id: item.documentId,
+            // Ensure unique ID per serve instance to avoid key collisions when a spotlight appears multiple times
+            _id: `${item.documentId}-${item.servedAt.getTime()}-${item.sessionId ?? 'nosession'}-${item.itemIndex ?? index}`,
             spotlight,
             ...(post && { post }),
             spotlightMetaInfo: {
@@ -165,15 +181,7 @@ export const ultraFeedHistoryGraphQLQueries = {
       return null;
     }));
 
-    const endOffset = actualOffset + servedItems.length;
-
-    return {
-      __typename: 'UltraFeedQueryResults' as const,
-      cutoff: null,
-      endOffset,
-      results,
-      sessionId: null,
-    };
+    return createUltraFeedResponse(results, offset ?? 0, null, null);
   },
 };
 

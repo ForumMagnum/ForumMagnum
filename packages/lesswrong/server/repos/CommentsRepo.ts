@@ -475,7 +475,8 @@ class CommentsRepo extends AbstractRepo<"Comments"> {
     userId: string,
     maxTotalComments = 1000,
     initialCandidateLookbackDays: number,
-    commentServedEventRecencyHours: number
+    commentServedEventRecencyHours: number,
+    restrictCandidatesToSubscribed = false,
   ): Promise<FeedCommentFromDb[]> {
     const initialCandidateLimit = 500;
 
@@ -514,6 +515,7 @@ class CommentsRepo extends AbstractRepo<"Comments"> {
               AND c."userId" != $(userId)
               AND c."postedAt" > (NOW() - INTERVAL '1 day' * $(initialCandidateLookbackDaysParam))
               AND p.draft IS NOT TRUE
+              AND (CASE WHEN $(restrictCandidatesToSubscribed) THEN c."userId" IN (SELECT "authorId" FROM "SubscribedAuthorIds") ELSE TRUE END)
           ORDER BY c."postedAt" DESC
           LIMIT $(initialCandidateLimit)
       ),
@@ -616,7 +618,8 @@ class CommentsRepo extends AbstractRepo<"Comments"> {
       initialCandidateLimit, 
       maxTotalComments,
       initialCandidateLookbackDaysParam: initialCandidateLookbackDays,
-      commentServedEventRecencyHoursParam: commentServedEventRecencyHours
+      commentServedEventRecencyHoursParam: commentServedEventRecencyHours,
+      restrictCandidatesToSubscribed,
     });
 
     // Safety check for duplicates from the database query

@@ -175,6 +175,8 @@ const UltraFeedHistoryDialog = ({ onClose }: { onClose: () => void }) => {
 
   useDisableBodyScroll();
 
+  const { feedCommentThread, feedPost, feedSpotlight } = createUltraFeedRenderers({ settings });
+
   return (
     <AnalyticsContext pageSectionContext="ultraFeedHistoryDialog">
       <UltraFeedObserverProvider incognitoMode={true}>
@@ -228,7 +230,11 @@ const UltraFeedHistoryDialog = ({ onClose }: { onClose: () => void }) => {
                       firstPageSize={20}
                       pageSize={30}
                       fetchPolicy="network-only"
-                      renderers={createUltraFeedRenderers({ settings })}
+                      renderers={{
+                        feedCommentThread,
+                        feedPost,
+                        feedSpotlight,
+                      }}
                     />
                   </AnalyticsContext>
                 )}

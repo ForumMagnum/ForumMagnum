@@ -266,6 +266,28 @@ export const UltraFeedHistoryQuery = gql(`
   }
 `);
 
+export const UltraFeedSubscriptionsQuery = gql(`
+  query UltraFeedSubscriptions($limit: Int, $cutoff: Date, $offset: Int) {
+    UltraFeedSubscriptions(limit: $limit, cutoff: $cutoff, offset: $offset) {
+      __typename
+      cutoff
+      endOffset
+      results {
+        type
+        feedCommentThread {
+          ...FeedCommentThreadFragment
+        }
+        feedPost {
+          ...FeedPostFragment
+        }
+        feedSubscriptionSuggestions {
+          ...FeedSubscriptionSuggestionsFragment
+        }
+      }
+    }
+  }
+`);
+
 export type FeedQuery = 
   | typeof AllTagsActivityFeedQuery
   | typeof TagHistoryFeedQuery
@@ -277,7 +299,8 @@ export type FeedQuery =
   | typeof SubforumRecentCommentsFeedQuery
   | typeof SubforumTopFeedQuery
   | typeof UltraFeedQuery
-  | typeof UltraFeedHistoryQuery;
+  | typeof UltraFeedHistoryQuery
+  | typeof UltraFeedSubscriptionsQuery;
 
 export interface FeedPaginationResultVariables {
   cutoff?: number | null,

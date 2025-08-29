@@ -3877,6 +3877,12 @@ WHERE
   "collectionName" = 'Comments' AND
   "eventType" = 'served';
 
+-- CustomIndex "ultraFeedEvents_userId_feedItemId_viewed_idx"
+CREATE INDEX IF NOT EXISTS "ultraFeedEvents_userId_feedItemId_viewed_idx" ON "UltraFeedEvents" ("userId", "feedItemId")
+WHERE
+  "eventType" != 'served' AND
+  "feedItemId" IS NOT NULL;
+
 -- Function "fm_build_nested_jsonb"
 CREATE OR
 REPLACE FUNCTION fm_build_nested_jsonb (target_path TEXT[], terminal_element JSONB) RETURNS JSONB LANGUAGE sql IMMUTABLE AS 'SELECT JSONB_BUILD_OBJECT(

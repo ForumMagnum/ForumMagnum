@@ -31,6 +31,7 @@ import AnalyticsInViewTracker from '../common/AnalyticsInViewTracker';
 import UltraFeedBottomBar from './UltraFeedBottomBar';
 import Loading from '../vulcan-core/Loading';
 import { createUltraFeedRenderers } from './renderers/createUltraFeedRenderers';
+import UltraFeedSubscriptionsFeed from './UltraFeedSubscriptionsFeed';
 
 
 const styles = defineStyles("UltraFeed", (theme: ThemeType) => ({
@@ -80,6 +81,49 @@ const styles = defineStyles("UltraFeed", (theme: ThemeType) => ({
   },
   ultraFeedNewContentContainer: {
     position: 'relative',
+  },
+  tabsBar: {
+    display: 'flex',
+    width: '100%',
+    marginTop: 8,
+  },
+  tabButton: {
+    display: 'flex',
+    justifyContent: 'center',
+    alignItems: 'center',
+    fontFamily: theme.typography.fontFamily,
+    fontSize: 14,
+    lineHeight: '20px',
+    fontWeight: 600,
+    padding: '12px 0',
+    width: '50%',
+    cursor: 'pointer',
+    position: 'relative',
+    transition: 'background-color 0.2s',
+    '&:hover': {
+      backgroundColor: theme.palette.grey[100],
+    },
+  },
+  tabButtonInactive: {
+    color: theme.palette.grey[500],
+  },
+  tabButtonActive: {
+    color: theme.palette.text.primary,
+  },
+  tabLabel: {
+    position: 'relative',
+    top: 2,
+    display: 'inline-flex',
+    flexDirection: 'column',
+  },
+  tabUnderline: {
+    position: 'absolute',
+    bottom: -16,
+    left: 0,
+    right: 0,
+    height: 3,
+    backgroundColor: theme.palette.primary.main,
+    borderRadius: '3px 3px 0 0',
   },
   settingsContainer: {
     marginBottom: 32,
@@ -154,6 +198,7 @@ const UltraFeedContent = ({
   const [isRefreshing, setIsRefreshing] = useState(false);
   const [isTopVisible, setIsTopVisible] = useState(true);
   const [isFeedInView, setIsFeedInView] = useState(false);
+  const [activeTab, setActiveTab] = useState<'forYou'|'following'>('forYou');
 
   const { openDialog } = useDialog();
   const { captureEvent } = useTracking();
@@ -219,6 +264,8 @@ const UltraFeedContent = ({
         <UltraFeedObserverProvider incognitoMode={resolverSettings.incognitoMode}>
         <OverflowNavObserverProvider>
             <div ref={topSentinelRef} style={{ scrollMarginTop: 400 }} />
+            
+
             {settingsVisible && (
               <div className={useExternalContainer ? classes.settingsContainerExternal : classes.settingsContainer}>
                 <UltraFeedSettings 
@@ -235,19 +282,24 @@ const UltraFeedContent = ({
               {isRefreshing && <div className={classes.refetchLoading}>
                 <Loading />
               </div>}
-              <MixedTypeFeed
-                query={UltraFeedQuery}
-                variables={{
-                  sessionId,
-                  settings: JSON.stringify(resolverSettings),
-                }}
-                firstPageSize={15}
-                pageSize={30}
-                refetchRef={refetchSubscriptionContentRef}
-                loadMoreDistanceProp={1000}
-                fetchPolicy="cache-first"
-                renderers={createUltraFeedRenderers({ settings })}
-              />
+              {activeTab === 'forYou' && (
+                <MixedTypeFeed
+                  query={UltraFeedQuery}
+                  variables={{
+                    sessionId,
+                    settings: JSON.stringify(resolverSettings),
+                  }}
+                  firstPageSize={15}
+                  pageSize={30}
+                  refetchRef={refetchSubscriptionContentRef}
+                  loadMoreDistanceProp={1000}
+                  fetchPolicy="cache-first"
+                  renderers={createUltraFeedRenderers({ settings })}
+                />
+              )}
+              {activeTab === 'following' && (
+                <UltraFeedSubscriptionsFeed embedded={true} />
+              )}
             </div>
         </OverflowNavObserverProvider>
         </UltraFeedObserverProvider>

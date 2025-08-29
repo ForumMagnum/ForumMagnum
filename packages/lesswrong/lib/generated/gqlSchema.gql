@@ -1449,6 +1449,10 @@ extend type Query {
   UltraFeedHistory(limit: Int, cutoff: Date, offset: Int): UltraFeedQueryResults!
 }
 
+extend type Query {
+  UltraFeedSubscriptions(limit: Int, cutoff: Date, offset: Int): UltraFeedQueryResults!
+}
+
 extend type Mutation {
   generateCoverImagesForPost(postId: String!, prompt: String): [ReviewWinnerArt]
 }
