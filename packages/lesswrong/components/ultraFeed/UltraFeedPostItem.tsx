@@ -38,6 +38,7 @@ import PostsUserAndCoauthors from "../posts/PostsUserAndCoauthors";
 import TruncatedAuthorsList from "../posts/TruncatedAuthorsList";
 import ForumIcon from "../common/ForumIcon";
 import { RecombeeRecommendationsContextWrapper } from "../recommendations/RecombeeRecommendationsContextWrapper";
+import { useUltraFeedContext } from "./UltraFeedContextProvider";
 
 const localPostQuery = gql(`
   query LocalPostQuery($documentId: String!) {
@@ -411,6 +412,7 @@ const UltraFeedPostItem = ({
   const { observe, trackExpansion } = useUltraFeedObserver();
   const elementRef = useRef<HTMLDivElement | null>(null);
   const { openDialog } = useDialog();
+  const { openInNewTab } = useUltraFeedContext();
   const overflowNav = useOverflowNav(elementRef);
   const { captureEvent } = useTracking();
   const { recordPostView, isRead } = useRecordPostView(post);
@@ -579,17 +581,22 @@ const UltraFeedPostItem = ({
       setHasRecordedViewOnExpand(true);
     }
     
-    openDialog({
-      name: "UltraFeedPostDialog",
-      closeOnNavigate: true,
-      contents: ({ onClose }) => (
-        <UltraFeedPostDialog
-          {...(fullPost ? { post: fullPost } : { partialPost: post })}
-          postMetaInfo={postMetaInfo}
-          onClose={onClose}
-        />
-      )
-    });
+    if (openInNewTab) {
+      const postUrl = `/posts/${post._id}/${post.slug}`;
+      window.open(postUrl, '_blank');
+    } else {
+      openDialog({
+        name: "UltraFeedPostDialog",
+        closeOnNavigate: true,
+        contents: ({ onClose }) => (
+          <UltraFeedPostDialog
+            {...(fullPost ? { post: fullPost } : { partialPost: post })}
+            postMetaInfo={postMetaInfo}
+            onClose={onClose}
+          />
+        )
+      });
+    }
   }, [
     openDialog,
     post,
@@ -597,6 +604,7 @@ const UltraFeedPostItem = ({
     fullPost,
     trackExpansion,
     postMetaInfo,
+    openInNewTab,
     hasRecordedViewOnExpand,
     recordPostView,
     index,
