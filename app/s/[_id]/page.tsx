@@ -1,7 +1,6 @@
 import React from "react";
 import SequencesSingle from '@/components/sequences/SequencesSingle';
 import { SequencesPageTitle } from '@/components/titles/SequencesPageTitle';
-import { RouteMetadataSetter } from "@/components/RouteMetadataContext";
 import type { Metadata } from "next";
 import { gql } from "@/lib/generated/gql-codegen";
 import { getClient } from "@/lib/apollo/nextApolloClient";
@@ -9,6 +8,7 @@ import { getDefaultMetadata, getPageTitleFields } from "@/server/pageMetadata/sh
 import merge from "lodash/merge";
 import { combineUrls, getSiteUrl } from "@/lib/vulcan-lib/utils";
 import { sequenceGetPageUrl } from "@/lib/collections/sequences/helpers";
+import RouteRoot from "@/components/next/RouteRoot";
 
 const SequenceMetadataQuery = gql(`
   query SequenceMetadata($sequenceId: String) {
@@ -52,11 +52,10 @@ export async function generateMetadata({ params }: { params: Promise<{ _id: stri
 export default function Page() {
   // enableResourcePrefetch was: function
   
-  return <>
-    <RouteMetadataSetter metadata={{
-      titleComponent: SequencesPageTitle,
-      subtitleComponent: SequencesPageTitle
-    }} />
+  return <RouteRoot metadata={{
+    titleComponent: SequencesPageTitle,
+    subtitleComponent: SequencesPageTitle
+  }}>
     <SequencesSingle />
-  </>;
+  </RouteRoot>;
 }

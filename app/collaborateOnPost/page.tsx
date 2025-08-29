@@ -1,11 +1,10 @@
 import React from "react";
 import PostCollaborationEditor from '@/components/editor/PostCollaborationEditor';
-import { RouteMetadataSetter } from "@/components/RouteMetadataContext";
+import RouteRoot from "@/components/next/RouteRoot";
 
 
 export default function Page() {
-  return <>
-    <RouteMetadataSetter metadata={{ background: 'white' }} />
+  return <RouteRoot metadata={{ background: 'white' }}>
     <PostCollaborationEditor />
-  </>;
+  </RouteRoot>;
 }

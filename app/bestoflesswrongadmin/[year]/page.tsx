@@ -3,6 +3,7 @@ import BestOfLessWrongAdmin from '@/components/review/BestOfLessWrongAdmin';
 import { getDefaultMetadata } from "@/server/pageMetadata/sharedMetadata";
 import type { Metadata } from "next";
 import merge from "lodash/merge";
+import RouteRoot from "@/components/next/RouteRoot";
 
 export async function generateMetadata(): Promise<Metadata> {
   return merge({}, await getDefaultMetadata(), {
@@ -11,5 +12,7 @@ export async function generateMetadata(): Promise<Metadata> {
 }
 
 export default function Page() {
-  return <BestOfLessWrongAdmin />;
+  return <RouteRoot>
+    <BestOfLessWrongAdmin />
+  </RouteRoot>
 }

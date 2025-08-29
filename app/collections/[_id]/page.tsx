@@ -1,6 +1,5 @@
 import React from "react";
 import CollectionsSingle from '@/components/sequences/CollectionsSingle';
-import { RouteMetadataSetter } from "@/components/RouteMetadataContext";
 import { getClient } from "@/lib/apollo/nextApolloClient";
 import { CollectionsPageFragmentQuery } from "@/components/sequences/queries";
 import merge from "lodash/merge";
@@ -8,6 +7,7 @@ import type { Metadata } from "next";
 import { getDefaultMetadata, getMetadataDescriptionFields, getMetadataImagesFields, getPageTitleFields, noIndexMetadata } from "@/server/pageMetadata/sharedMetadata";
 import { taglineSetting } from "@/lib/instanceSettings";
 import { makeCloudinaryImageUrl } from "@/components/common/cloudinaryHelpers";
+import RouteRoot from "@/components/next/RouteRoot";
 
 export async function generateMetadata({ params }: { params: Promise<{ _id: string }> }): Promise<Metadata> {
   const [{ _id }, defaultMetadata] = await Promise.all([params, getDefaultMetadata()]);
@@ -47,8 +47,7 @@ export async function generateMetadata({ params }: { params: Promise<{ _id: stri
 }
 
 export default function Page() {
-  return <>
-    <RouteMetadataSetter metadata={{ hasLeftNavigationColumn: true }} />
+  return <RouteRoot metadata={{ hasLeftNavigationColumn: true }}>
     <CollectionsSingle />
-  </>;
+  </RouteRoot>;
 }

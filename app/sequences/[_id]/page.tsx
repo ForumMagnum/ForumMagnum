@@ -5,6 +5,7 @@ import type { Metadata } from "next";
 import merge from "lodash/merge";
 import { sequenceGetPageUrl } from "@/lib/collections/sequences/helpers";
 import { combineUrls, getSiteUrl } from "@/lib/vulcan-lib/utils";
+import RouteRoot from "@/components/next/RouteRoot";
 
 export async function generateMetadata({ params }: { params: Promise<{ _id: string }> }): Promise<Metadata> {
   const [{ _id }, defaultMetadata] = await Promise.all([
@@ -22,5 +23,7 @@ export async function generateMetadata({ params }: { params: Promise<{ _id: stri
 }
 
 export default function Page() {
-  return <SequencesSingle />;
+  return <RouteRoot>
+    <SequencesSingle />
+  </RouteRoot>
 }

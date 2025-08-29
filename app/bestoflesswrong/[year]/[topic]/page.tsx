@@ -1,10 +1,10 @@
 import React from "react";
 import TopPostsPage from '@/components/sequences/TopPostsPage';
-import { RouteMetadataSetter } from "@/components/RouteMetadataContext";
 import { getDefaultMetadata, getMetadataDescriptionFields, getMetadataImagesFields, getPageTitleFields } from "@/server/pageMetadata/sharedMetadata";
 import type { Metadata } from "next";
 import merge from "lodash/merge";
 import { siteNameWithArticleSetting } from "@/lib/instanceSettings";
+import RouteRoot from "@/components/next/RouteRoot";
 
 export async function generateMetadata(): Promise<Metadata> {
   return merge(
@@ -17,12 +17,11 @@ export async function generateMetadata(): Promise<Metadata> {
 }
 
 export default function Page() {
-  return <>
-    <RouteMetadataSetter metadata={{
-      subtitle: 'The Best of LessWrong',
-      subtitleLink: '/leastwrong',
-      background: '#f8f4ee'
-    }} />
+  return <RouteRoot metadata={{
+    subtitle: 'The Best of LessWrong',
+    subtitleLink: '/leastwrong',
+    background: '#f8f4ee'
+  }}>
     <TopPostsPage />
-  </>;
+  </RouteRoot>;
 }

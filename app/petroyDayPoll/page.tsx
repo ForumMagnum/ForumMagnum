@@ -3,6 +3,7 @@ import PetrovDayPoll from '@/components/seasonal/petrovDay/PetrovDayPoll';
 import { getDefaultMetadata } from "@/server/pageMetadata/sharedMetadata";
 import type { Metadata } from "next";
 import merge from "lodash/merge";
+import RouteRoot from "@/components/next/RouteRoot";
 
 export async function generateMetadata(): Promise<Metadata> {
   return merge({}, await getDefaultMetadata(), {
@@ -11,5 +12,7 @@ export async function generateMetadata(): Promise<Metadata> {
 }
 
 export default function Page() {
-  return <PetrovDayPoll />;
+  return <RouteRoot>
+    <PetrovDayPoll />
+  </RouteRoot>
 }

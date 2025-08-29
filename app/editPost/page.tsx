@@ -1,11 +1,11 @@
 import React from "react";
 import PostsEditPage from '@/components/posts/PostsEditPage';
-import { RouteMetadataSetter } from "@/components/RouteMetadataContext";
 import { Metadata } from "next";
 import { getDefaultMetadata, getPageTitleFields } from "@/server/pageMetadata/sharedMetadata";
 import merge from "lodash/merge";
 import { getClient } from "@/lib/apollo/nextApolloClient";
 import { PostsEditFormQuery } from "@/components/posts/queries";
+import RouteRoot from "@/components/next/RouteRoot";
 
 export async function generateMetadata({ searchParams }: { searchParams: Promise<{ postId?: string, version?: string }> }): Promise<Metadata> {
   const [{ postId, version }, defaultMetadata] = await Promise.all([searchParams, getDefaultMetadata()]);
@@ -30,8 +30,7 @@ export async function generateMetadata({ searchParams }: { searchParams: Promise
 }
 
 export default function Page() {
-  return <>
-    <RouteMetadataSetter metadata={{ background: 'white' }} />
+  return <RouteRoot metadata={{ background: 'white' }}>
     <PostsEditPage />
-  </>;
+  </RouteRoot>;
 }

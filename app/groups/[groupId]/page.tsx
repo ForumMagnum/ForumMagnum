@@ -1,13 +1,13 @@
 import React from "react";
 import LocalGroupSingle from '@/components/localGroups/LocalGroupSingle';
 import { LocalgroupPageTitle } from '@/components/titles/LocalgroupPageTitle';
-import { RouteMetadataSetter } from "@/components/RouteMetadataContext";
 import { gql } from "@/lib/generated/gql-codegen";
 import type { Metadata } from "next";
 import { getClient } from "@/lib/apollo/nextApolloClient";
 import { getDefaultMetadata, getMetadataDescriptionFields, getMetadataImagesFields, getPageTitleFields } from "@/server/pageMetadata/sharedMetadata";
 import merge from "lodash/merge";
 import { cloudinaryCloudNameSetting, taglineSetting } from "@/lib/instanceSettings";
+import RouteRoot from "@/components/next/RouteRoot";
 
 const LocalgroupMetadataQuery = gql(`
   query LocalgroupMetadata($groupId: String) {
@@ -55,12 +55,11 @@ export async function generateMetadata({ params }: { params: Promise<{ groupId: 
 }
 
 export default function Page() {
-  return <>
-    <RouteMetadataSetter metadata={{
-      subtitle: 'Community',
-      subtitleLink: '/community',
-      titleComponent: LocalgroupPageTitle
-    }} />
+  return <RouteRoot metadata={{
+    subtitle: 'Community',
+    subtitleLink: '/community',
+    titleComponent: LocalgroupPageTitle
+  }}>
     <LocalGroupSingle />
-  </>;
+  </RouteRoot>;
 }

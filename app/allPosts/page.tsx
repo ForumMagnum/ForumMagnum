@@ -1,10 +1,10 @@
 import React from "react";
 import AllPostsPage from '@/components/posts/AllPostsPage';
-import { RouteMetadataSetter } from "@/components/RouteMetadataContext";
 import { getDefaultMetadata, getMetadataDescriptionFields, getPageTitleFields } from "@/server/pageMetadata/sharedMetadata";
 import type { Metadata } from "next";
 import merge from "lodash/merge";
 import { siteNameWithArticleSetting } from "@/lib/instanceSettings";
+import RouteRoot from "@/components/next/RouteRoot";
 
 export async function generateMetadata(): Promise<Metadata> {
   return merge(
@@ -18,8 +18,7 @@ export async function generateMetadata(): Promise<Metadata> {
 export default function Page() {
   // enableResourcePrefetch was: true
   
-  return <>
-    <RouteMetadataSetter metadata={{ hasLeftNavigationColumn: true }} />
+  return <RouteRoot metadata={{ hasLeftNavigationColumn: true }}>
     <AllPostsPage />
-  </>;
+  </RouteRoot>;
 }
