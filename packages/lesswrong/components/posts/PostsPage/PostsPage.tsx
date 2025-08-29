@@ -393,7 +393,7 @@ const PostsPage = ({fullPost, postPreload, refetch}: {
     // sharing links with the popup open
     const currentQuery = isEmpty(query) ? {} : query
     const newQuery = {...currentQuery, [SHARE_POPUP_QUERY_PARAM]: undefined}
-    //navigate({...location.location, search: `?${qs.stringify(newQuery)}`})
+    navigate({...location.location, search: `?${qs.stringify(newQuery)}`})
   }, [navigate, location.location, openDialog, fullPost, query]);
 
   const sortBy: CommentSortingMode = (query.answersSorting as CommentSortingMode) || "top";
@@ -466,12 +466,15 @@ const PostsPage = ({fullPost, postPreload, refetch}: {
     // Remove recombee & vertex attribution ids from query once the they're stored to state and initial event fired off, to prevent accidentally
     // sharing links with the query params still present
     const currentQuery = isEmpty(query) ? {} : query;
-    const newQuery = {
-      ...currentQuery,
-      [RECOMBEE_RECOMM_ID_QUERY_PARAM]: undefined,
-      [VERTEX_ATTRIBUTION_ID_QUERY_PARAM]: undefined
-    };
-    //navigate({...location.location, search: `?${qs.stringify(newQuery)}`}, { replace: true });  
+    
+    if (currentQuery[RECOMBEE_RECOMM_ID_QUERY_PARAM] || currentQuery[VERTEX_ATTRIBUTION_ID_QUERY_PARAM]) {
+      const newQuery = {
+        ...currentQuery,
+        [RECOMBEE_RECOMM_ID_QUERY_PARAM]: undefined,
+        [VERTEX_ATTRIBUTION_ID_QUERY_PARAM]: undefined
+      };
+      navigate({...location.location, search: `?${qs.stringify(newQuery)}`}, { replace: true });  
+    }
 
     //eslint-disable-next-line react-hooks/exhaustive-deps
   }, [post._id]);
@@ -510,7 +513,10 @@ const PostsPage = ({fullPost, postPreload, refetch}: {
   
   useEffect(() => {
     if (isDebateResponseLink) {
-      //navigate({ ...location.location, hash: `#debate-comment-${linkedCommentId}` }, {replace: true});
+      const debateCommentHash = `#debate-comment-${linkedCommentId}`;
+      if (window.location.hash !== debateCommentHash) {
+        navigate({ ...location.location, hash: `#debate-comment-${linkedCommentId}` }, {replace: true});
+      }
     }
     // No exhaustive deps to avoid any infinite loops with links to comments
     // eslint-disable-next-line react-hooks/exhaustive-deps
