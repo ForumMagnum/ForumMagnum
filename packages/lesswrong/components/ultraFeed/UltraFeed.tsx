@@ -28,7 +28,9 @@ import { ultraFeedEnabledSetting } from '../../lib/publicSettings';
 import { Link } from '../../lib/reactRouterWrapper';
 import { useUltraFeedSettings } from '../hooks/useUltraFeedSettings';
 import AnalyticsInViewTracker from '../common/AnalyticsInViewTracker';
-import SuggestedFeedSubscriptions from '../subscriptions/SuggestedFeedSubscriptions';
+import UltraFeedBottomBar from './UltraFeedBottomBar';
+import Loading from '../vulcan-core/Loading';
+import { createUltraFeedRenderers } from './renderers/createUltraFeedRenderers';
 
 
 const styles = defineStyles("UltraFeed", (theme: ThemeType) => ({
@@ -77,6 +79,7 @@ const styles = defineStyles("UltraFeed", (theme: ThemeType) => ({
     alignItems: 'center'
   },
   ultraFeedNewContentContainer: {
+    position: 'relative',
   },
   settingsContainer: {
     marginBottom: 32,
@@ -126,6 +129,14 @@ const styles = defineStyles("UltraFeed", (theme: ThemeType) => ({
       opacity: 0.8,
     },
   },
+  refetchLoading: {
+    position: 'absolute',
+    top: 100,
+    left: '50%',
+    transform: 'translateX(-50%) scale(2)',
+    zIndex: 10,
+  },
+
 }));
 
 const UltraFeedContent = ({
@@ -140,19 +151,55 @@ const UltraFeedContent = ({
 }) => {
   const classes = useStyles(styles);
   const currentUser = useCurrentUser();
+  const [isRefreshing, setIsRefreshing] = useState(false);
+  const [isTopVisible, setIsTopVisible] = useState(true);
+  const [isFeedInView, setIsFeedInView] = useState(false);
 
   const { openDialog } = useDialog();
   const { captureEvent } = useTracking();
   const { settings, updateSettings, resetSettings, truncationMaps } = useUltraFeedSettings();
   const [sessionId] = useState<string>(randomId);
   const refetchSubscriptionContentRef = useRef<null | ObservableQuery['refetch']>(null);
-  
+  const topSentinelRef = useRef<HTMLDivElement | null>(null);
+  const feedContainerRef = useRef<HTMLDivElement | null>(null);
+
   const handleOpenQuickTakeDialog = () => {
     captureEvent("ultraFeedComposerQuickTakeDialogOpened");
     openDialog({
       name: "UltraFeedQuickTakeDialog",
       contents: ({onClose}) => <UltraFeedQuickTakeDialog onClose={onClose} currentUser={currentUser} />
     });
+  };
+
+  useEffect(() => {
+    const topEl = topSentinelRef.current;
+    const containerEl = feedContainerRef.current;
+    if (!topEl || !containerEl) return;
+
+    const topObserver = new IntersectionObserver(([entry]) => {
+      setIsTopVisible(entry.isIntersecting);
+    }, { root: null, threshold: 0 });
+
+    const presenceObserver = new IntersectionObserver(([entry]) => {
+      setIsFeedInView(entry.isIntersecting);
+    }, { root: null, threshold: 0 });
+
+    topObserver.observe(topEl);
+    presenceObserver.observe(containerEl);
+
+    return () => {
+      topObserver.disconnect();
+      presenceObserver.disconnect();
+    };
+  }, []);
+
+  const handleRefreshFeed = () => {
+    if (refetchSubscriptionContentRef.current) {
+      setIsRefreshing(true);
+      void refetchSubscriptionContentRef.current().finally(() => {
+        setIsRefreshing(false);
+      });
+    }
   };
 
   if (!currentUser) {
@@ -168,9 +215,10 @@ const UltraFeedContent = ({
   return (
     <AnalyticsContext pageSectionContext="ultraFeed" ultraFeedContext={{ feedSessionId: sessionId }}>
       <AnalyticsInViewTracker eventProps={{inViewType: "ultraFeed"}}>
-      <div className={classes.root}>
+      <div className={classes.root} ref={feedContainerRef}>
         <UltraFeedObserverProvider incognitoMode={resolverSettings.incognitoMode}>
         <OverflowNavObserverProvider>
+            <div ref={topSentinelRef} style={{ scrollMarginTop: 400 }} />
             {settingsVisible && (
               <div className={useExternalContainer ? classes.settingsContainerExternal : classes.settingsContainer}>
                 <UltraFeedSettings 
@@ -184,6 +232,9 @@ const UltraFeedContent = ({
             )}
             
             <div className={classes.ultraFeedNewContentContainer}>
+              {isRefreshing && <div className={classes.refetchLoading}>
+                <Loading />
+              </div>}
               <MixedTypeFeed
                 query={UltraFeedQuery}
                 variables={{
@@ -195,86 +246,7 @@ const UltraFeedContent = ({
                 refetchRef={refetchSubscriptionContentRef}
                 loadMoreDistanceProp={1000}
                 fetchPolicy="cache-first"
-                renderers={{
-                  feedCommentThread: {
-                    render: (item: FeedCommentThreadFragment, index: number) => {
-                      if (!item) {
-                        return null;
-                      }
-                      
-                      const thread = {
-                        ...item,
-                        postSources: item.postSources as FeedItemSourceType[] | null
-                      };
-                      
-                      return (
-                        <FeedItemWrapper>
-                          <UltraFeedThreadItem
-                            thread={thread}
-                            settings={settings}
-                            index={index}
-                          />
-                        </FeedItemWrapper>
-                      );
-                    }
-                  },
-                  feedPost: {
-                    render: (item: FeedPostFragment, index: number) => {
-                      if (!item) {
-                        return null;
-                      }
-                      
-                      return (
-                        <FeedItemWrapper>
-                          <UltraFeedPostItem
-                            post={item.post}
-                            postMetaInfo={item.postMetaInfo}
-                            settings={settings}
-                            index={index} 
-                          />
-                        </FeedItemWrapper>
-                      );
-                    }
-                  },
-                  feedSpotlight: {
-                    render: (item: FeedSpotlightFragment, index: number) => {
-                      const { spotlight, post, spotlightMetaInfo } = item;
-                      if (!spotlight) {
-                        return null;
-                      }
-
-                      const metaInfo = spotlightMetaInfo ? {
-                        ...spotlightMetaInfo,
-                        sources: spotlightMetaInfo.sources as FeedItemSourceType[]
-                      } : undefined;
-
-                      return (
-                        <FeedItemWrapper>
-                          <UltraFeedSpotlightItem 
-                            spotlight={spotlight}
-                            post={post ?? undefined}
-                            spotlightMetaInfo={metaInfo}
-                            showSubtitle={true}
-                            index={index}
-                          />
-                        </FeedItemWrapper>
-                      );
-                    }
-                  },
-                  feedSubscriptionSuggestions: {
-                    render: (item: FeedSubscriptionSuggestionsFragment, index?: number) => {
-                      if (!item || !item.suggestedUsers) {
-                        return null;
-                      }
-                      
-                      return (
-                        <FeedItemWrapper>
-                          <SuggestedFeedSubscriptions suggestedUsers={item.suggestedUsers} />
-                        </FeedItemWrapper>
-                      );
-                    }
-                  }
-                }}
+                renderers={createUltraFeedRenderers({ settings })}
               />
             </div>
         </OverflowNavObserverProvider>
@@ -287,6 +259,11 @@ const UltraFeedContent = ({
         )}
       </div>
       </AnalyticsInViewTracker>
+      <UltraFeedBottomBar
+        refetchFeed={handleRefreshFeed}
+        isTopVisible={isTopVisible}
+        isFeedInView={isFeedInView}
+        feedRootEl={feedContainerRef.current} />
     </AnalyticsContext>
   );
 };
