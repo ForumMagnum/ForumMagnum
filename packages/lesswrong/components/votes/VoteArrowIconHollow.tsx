@@ -1,11 +1,10 @@
-import React, { useRef } from 'react';
+import React from 'react';
 import classNames from 'classnames';
-import UpArrowIcon from '@/lib/vendor/@material-ui/icons/src/KeyboardArrowUp';
-import Transition from 'react-transition-group/Transition';
 import { isEAForum } from '../../lib/instanceSettings';
 import type { VoteArrowIconProps } from './VoteArrowIcon';
 import { defineStyles, useStyles } from '../hooks/useStyles';
 import { getVoteButtonColor, voteButtonSharedStyles } from './VoteButton';
+import { strongVoteDelay } from './constants';
 
 const styles = defineStyles("VoteArrowIconHollow", (theme: ThemeType) => ({
   disabled: {
@@ -14,6 +13,10 @@ const styles = defineStyles("VoteArrowIconHollow", (theme: ThemeType) => ({
   smallArrow: {
     fontSize: '50%',
     opacity: isEAForum ? 0.7 : 0.6,
+    width: "1em",
+    height: "1em",
+    fill: "currentColor",
+    pointerEvents: 'none',
   },
   up: {
   },
@@ -30,40 +33,42 @@ const styles = defineStyles("VoteArrowIconHollow", (theme: ThemeType) => ({
     position: 'absolute',
     top: '-70%',
     fontSize: '82%',
-    opacity: 0,
-    transition: `opacity ${theme.voting.strongVoteDelay}ms cubic-bezier(0.74, -0.01, 1, 1) 0ms`,
+    pointerEvents: 'none',
+    //opacity: 0,
+    //transition: `opacity ${strongVoteDelay}ms cubic-bezier(0.74, -0.01, 1, 1) 0ms`,
+
+    width: '1em',
+    height: '1em',
+    fill: "currentColor",
   },
   bigArrowCompleted: {
     fontSize: '90%',
     top: '-75%',
-  },
-  entering: {
-    opacity: 1,
-  },
-  entered: {
-    opacity: 1,
-  },
-  exiting: {
-    transition: 'opacity 150ms cubic-bezier(0.74, -0.01, 1, 1) 0ms',
+    opacity: 1.0,
   },
 }));
+
+const UpArrowIcon = ({className}: {className: string}) =>
+  <svg
+    className={className}
+    viewBox="6 6 12 12"
+  >
+    <path d="M7.41 15.41L12 10.83l4.59 4.58L18 14l-6-6-6 6z" />
+    <path fill="none" d="M0 0h24v24H0z" />
+  </svg>
+
 
 const VoteArrowIconHollow = ({
   orientation,
   enabled = true,
   color,
-  voted,
-  eventHandlers,
-  bigVotingTransition,
-  bigVoted,
-  bigVoteCompleted,
+  animation,
   alwaysColored,
-  strongVoteDelay,
 }: VoteArrowIconProps) => {
   const classes = useStyles(styles);
+  const { state, eventHandlers } = animation;
   const sharedClasses = useStyles(voteButtonSharedStyles);
-  const handlers = enabled ? eventHandlers : {};
-  const nodeRef = useRef<SVGSVGElement|null>(null);
+  const voted = state.mode !== "idle" || state.vote !== "neutral";
 
   return (
     <button
@@ -73,30 +78,26 @@ const VoteArrowIconHollow = ({
         !enabled && classes.disabled,
       )}
       type="button"
-      onMouseDown={handlers.handleMouseDown}
-      onMouseUp={handlers.handleMouseUp}
-      onMouseOut={handlers.clearState}
-      onClick={handlers.handleClick}
+      {...(enabled ? eventHandlers : {})}
     >
-    <span className={sharedClasses.inner}>
-      <UpArrowIcon
-        className={classNames(classes.smallArrow, (voted || alwaysColored) && getVoteButtonColor(sharedClasses, color, "main"))}
-        viewBox="6 6 12 12"
-      />
-      <Transition in={!!(bigVotingTransition || bigVoted)} timeout={strongVoteDelay} nodeRef={nodeRef as any}>
-        {(state) => (
+      <span className={sharedClasses.inner}>
+        <UpArrowIcon
+          className={classNames(
+            classes.smallArrow,
+            (voted || alwaysColored) && getVoteButtonColor(sharedClasses, color, "main")
+          )}
+        />
+        {((state.mode==="idle" && state.vote==="big") || (state.mode !== "idle")) &&
           <UpArrowIcon
-            nodeRef={nodeRef}
             className={classNames(
+              state.mode === "animating" && sharedClasses.entering,
               classes.bigArrow,
-              bigVoteCompleted && classes.bigArrowCompleted,
-              (classes as AnyBecauseTodo)[state],
+              (state.mode === "completed") && classes.bigArrowCompleted,
               getVoteButtonColor(sharedClasses, color, "light")
             )}
-            viewBox="6 6 12 12"
-        />)}
-      </Transition>
-    </span>
+          />
+        }
+      </span>
     </button>
   );
 };

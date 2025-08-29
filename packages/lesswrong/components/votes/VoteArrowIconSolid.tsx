@@ -53,7 +53,6 @@ const styles = defineStyles("VoteArrowIconSolid", (theme: ThemeType) => ({
     position: 'absolute',
     top: '-70%',
     fontSize: '82%',
-    opacity: 0,
   },
   bigArrowLarge: {
     height: 14,
@@ -62,7 +61,6 @@ const styles = defineStyles("VoteArrowIconSolid", (theme: ThemeType) => ({
     position: 'absolute',
     top: '-90%',
     fontSize: '100%',
-    opacity: 0,
   },
   bigArrowSolid: {
     top: '-35%',
@@ -75,64 +73,27 @@ const styles = defineStyles("VoteArrowIconSolid", (theme: ThemeType) => ({
   bigArrowCompleted: {
     fontSize: '90%',
     top: '-35%',
-    opacity: 1
   },
   bigArrowCompletedLarge: {
     fontSize: '110%',
     top: '-35%',
-    opacity: 1
   },
-  entering: {
-    transition: `opacity ${theme.voting.strongVoteDelay}ms cubic-bezier(0.74, -0.01, 1, 1) 0ms`,
-  }
 }));
 
 const VoteArrowIconSolid = ({
   orientation,
   enabled = true,
   color,
-  voted,
-  eventHandlers,
-  bigVotingTransition,
-  bigVoted,
-  bigVoteCompleted,
+  animation,
   alwaysColored,
-  strongVoteDelay,
   largeArrow = false,
 }: BaseVoteArrowIconProps) => {
   const classes = useStyles(styles);
+  const { state, eventHandlers } = animation;
   const sharedClasses = useStyles(voteButtonSharedStyles);
 
   const iconSize = largeArrow ? 14 : 10;
-
-  const Icon = (
-    <SoftUpArrowIcon
-      style={{
-        height: iconSize,
-        width: iconSize,
-      }}
-      className={classNames(
-        largeArrow ? classes.smallArrowLarge : classes.smallArrow,
-        (voted || alwaysColored) && getVoteButtonColor(sharedClasses, color, "main")
-      )}
-    />
-  );
-
-  const handlers = enabled ? eventHandlers : {};
-
-  const accentIconClasses = largeArrow
-    ? classNames(
-        bigVotingTransition && classes.entering,
-        classes.bigArrowLarge,
-        (bigVotingTransition || bigVoteCompleted || bigVoted) && classes.bigArrowCompletedLarge,
-        classes.bigArrowSolidLarge
-      )
-    : classNames(
-        bigVotingTransition && classes.entering,
-        classes.bigArrow,
-        (bigVotingTransition || bigVoteCompleted || bigVoted) && classes.bigArrowCompleted,
-        classes.bigArrowSolid
-    );
+  const voted = state.mode !== "idle" || state.vote !== "neutral";
 
   return (
     <button
@@ -144,19 +105,27 @@ const VoteArrowIconSolid = ({
         !enabled && classes.disabled,
       )}
       type="button"
-      onMouseDown={handlers.handleMouseDown}
-      onMouseUp={handlers.handleMouseUp}
-      onMouseOut={handlers.clearState}
-      onClick={handlers.handleClick}
+      {...(enabled ? eventHandlers : {})}
     >
     <span className={sharedClasses.inner}>
-      {Icon}
-      <SoftUpArrowIconCap
+      <SoftUpArrowIcon
+        width={iconSize}
+        height={iconSize}
         className={classNames(
-          accentIconClasses,
-          (bigVoteCompleted || bigVoted) && getVoteButtonColor(sharedClasses, color, "light")
+          largeArrow ? classes.smallArrowLarge : classes.smallArrow,
+          (voted || alwaysColored) && getVoteButtonColor(sharedClasses, color, "main")
         )}
       />
+      
+      {((state.mode==="idle" && state.vote==="big") || (state.mode !== "idle")) && <SoftUpArrowIconCap
+        className={classNames(
+          state.mode === "animating" && sharedClasses.entering,
+          largeArrow ? classes.bigArrowLarge : classes.bigArrow,
+          (state.mode === "completed") && (largeArrow ? classes.bigArrowCompletedLarge : classes.bigArrowCompleted),
+          largeArrow ? classes.bigArrowSolidLarge : classes.bigArrowSolid,
+          getVoteButtonColor(sharedClasses, color, "light")
+        )}
+      />}
     </span>
     </button>
   );

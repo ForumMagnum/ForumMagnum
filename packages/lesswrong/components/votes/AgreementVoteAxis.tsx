@@ -1,5 +1,4 @@
 import React from 'react';
-import { registerComponent } from '../../lib/vulcan-lib/components';
 import { useVoteButtonsDisabled } from './useVoteButtonsDisabled';
 import { VotingProps } from './votingProps';
 import { isFriendlyUI } from '../../themes/forumTheme';
@@ -92,7 +91,9 @@ const AgreementVoteAxis = ({ document, hideKarma=false, voteProps, agreementScor
           axis="agreement"
           orientation="left" color="error" upOrDown="Downvote"
           enabled={canVote}
-          {...voteProps}
+          vote={voteProps.vote}
+          collectionName={voteProps.collectionName}
+          document={voteProps.document}
         />
       </TooltipIfEnabled>
 
@@ -116,7 +117,9 @@ const AgreementVoteAxis = ({ document, hideKarma=false, voteProps, agreementScor
           axis="agreement"
           orientation="right" color="secondary" upOrDown="Upvote"
           enabled={canVote}
-          {...voteProps}
+          vote={voteProps.vote}
+          collectionName={voteProps.collectionName}
+          document={voteProps.document}
         />
       </TooltipIfEnabled>
     </span>
@@ -124,7 +127,7 @@ const AgreementVoteAxis = ({ document, hideKarma=false, voteProps, agreementScor
 }
 
 
-export default registerComponent('AgreementVoteAxis', AgreementVoteAxis);
+export default AgreementVoteAxis;
 
 
 
