@@ -2560,6 +2560,12 @@ type FeedSpotlightMetaInfo = {
   sources: Array<Scalars['String']['output']>;
 };
 
+type FeedSubscriptionSuggestions = {
+  __typename?: 'FeedSubscriptionSuggestions';
+  _id: Scalars['String']['output'];
+  suggestedUsers: Array<User>;
+};
+
 type FieldChange = {
   __typename?: 'FieldChange';
   _id: Scalars['String']['output'];
@@ -11114,13 +11120,15 @@ type UltraFeedEntry = {
   feedCommentThread?: Maybe<FeedCommentThread>;
   feedPost?: Maybe<FeedPost>;
   feedSpotlight?: Maybe<FeedSpotlightItem>;
+  feedSubscriptionSuggestions?: Maybe<FeedSubscriptionSuggestions>;
   type: UltraFeedEntryType;
 };
 
 type UltraFeedEntryType =
   | 'feedCommentThread'
   | 'feedPost'
-  | 'feedSpotlight';
+  | 'feedSpotlight'
+  | 'feedSubscriptionSuggestions';
 
 type UltraFeedEvent = {
   __typename?: 'UltraFeedEvent';
@@ -13788,42 +13796,6 @@ type multiTagHomeTagBarQueryQueryVariables = Exact<{
 
 type multiTagHomeTagBarQueryQuery = multiTagHomeTagBarQueryQuery_Query;
 
-type multiSubscriptionLWHomePostsQueryQuery_subscriptions_MultiSubscriptionOutput_results_Subscription = (
-  { __typename?: 'Subscription' }
-  & SubscriptionState
-);
-
-type multiSubscriptionLWHomePostsQueryQuery_subscriptions_MultiSubscriptionOutput = { __typename?: 'MultiSubscriptionOutput', totalCount: number | null, results: Array<multiSubscriptionLWHomePostsQueryQuery_subscriptions_MultiSubscriptionOutput_results_Subscription> };
-
-type multiSubscriptionLWHomePostsQueryQuery_Query = { __typename?: 'Query', subscriptions: multiSubscriptionLWHomePostsQueryQuery_subscriptions_MultiSubscriptionOutput | null };
-
-
-type multiSubscriptionLWHomePostsQueryQueryVariables = Exact<{
-  selector: InputMaybe<SubscriptionSelector>;
-  limit: InputMaybe<Scalars['Int']['input']>;
-  enableTotal: InputMaybe<Scalars['Boolean']['input']>;
-}>;
-
-
-type multiSubscriptionLWHomePostsQueryQuery = multiSubscriptionLWHomePostsQueryQuery_Query;
-
-type LWHomePostsQuery_post_SinglePostOutput_result_Post = (
-  { __typename?: 'Post' }
-  & PostsListWithVotes
-);
-
-type LWHomePostsQuery_post_SinglePostOutput = { __typename?: 'SinglePostOutput', result: LWHomePostsQuery_post_SinglePostOutput_result_Post | null };
-
-type LWHomePostsQuery_Query = { __typename?: 'Query', post: LWHomePostsQuery_post_SinglePostOutput | null };
-
-
-type LWHomePostsQueryVariables = Exact<{
-  documentId: InputMaybe<Scalars['String']['input']>;
-}>;
-
-
-type LWHomePostsQuery = LWHomePostsQuery_Query;
-
 type sendVertexViewHomePageEventMutationMutation_Mutation = { __typename?: 'Mutation', sendVertexViewHomePageEvent: boolean };
 
 
@@ -14229,7 +14201,12 @@ type UltraFeedQuery_UltraFeed_UltraFeedQueryResults_results_UltraFeedEntry_feedS
   & FeedSpotlightFragment
 );
 
-type UltraFeedQuery_UltraFeed_UltraFeedQueryResults_results_UltraFeedEntry = { __typename?: 'UltraFeedEntry', type: UltraFeedEntryType, feedCommentThread: UltraFeedQuery_UltraFeed_UltraFeedQueryResults_results_UltraFeedEntry_feedCommentThread_FeedCommentThread | null, feedPost: UltraFeedQuery_UltraFeed_UltraFeedQueryResults_results_UltraFeedEntry_feedPost_FeedPost | null, feedSpotlight: UltraFeedQuery_UltraFeed_UltraFeedQueryResults_results_UltraFeedEntry_feedSpotlight_FeedSpotlightItem | null };
+type UltraFeedQuery_UltraFeed_UltraFeedQueryResults_results_UltraFeedEntry_feedSubscriptionSuggestions_FeedSubscriptionSuggestions = (
+  { __typename?: 'FeedSubscriptionSuggestions' }
+  & FeedSubscriptionSuggestionsFragment
+);
+
+type UltraFeedQuery_UltraFeed_UltraFeedQueryResults_results_UltraFeedEntry = { __typename?: 'UltraFeedEntry', type: UltraFeedEntryType, feedCommentThread: UltraFeedQuery_UltraFeed_UltraFeedQueryResults_results_UltraFeedEntry_feedCommentThread_FeedCommentThread | null, feedPost: UltraFeedQuery_UltraFeed_UltraFeedQueryResults_results_UltraFeedEntry_feedPost_FeedPost | null, feedSpotlight: UltraFeedQuery_UltraFeed_UltraFeedQueryResults_results_UltraFeedEntry_feedSpotlight_FeedSpotlightItem | null, feedSubscriptionSuggestions: UltraFeedQuery_UltraFeed_UltraFeedQueryResults_results_UltraFeedEntry_feedSubscriptionSuggestions_FeedSubscriptionSuggestions | null };
 
 type UltraFeedQuery_UltraFeed_UltraFeedQueryResults = { __typename: 'UltraFeedQueryResults', cutoff: string | null, endOffset: number, results: Array<UltraFeedQuery_UltraFeed_UltraFeedQueryResults_results_UltraFeedEntry> | null };
 
@@ -20345,22 +20322,19 @@ type multiSubscriptionFollowUserSearchQueryQueryVariables = Exact<{
 
 type multiSubscriptionFollowUserSearchQueryQuery = multiSubscriptionFollowUserSearchQueryQuery_Query;
 
-type createSubscriptionSuggestedFeedSubscriptionsMutation_createSubscription_SubscriptionOutput_data_Subscription = (
-  { __typename?: 'Subscription' }
-  & SubscriptionState
-);
+type UserFollowingCountQuery_subscriptions_MultiSubscriptionOutput = { __typename?: 'MultiSubscriptionOutput', totalCount: number | null };
 
-type createSubscriptionSuggestedFeedSubscriptionsMutation_createSubscription_SubscriptionOutput = { __typename?: 'SubscriptionOutput', data: createSubscriptionSuggestedFeedSubscriptionsMutation_createSubscription_SubscriptionOutput_data_Subscription | null };
-
-type createSubscriptionSuggestedFeedSubscriptionsMutation_Mutation = { __typename?: 'Mutation', createSubscription: createSubscriptionSuggestedFeedSubscriptionsMutation_createSubscription_SubscriptionOutput | null };
+type UserFollowingCountQuery_Query = { __typename?: 'Query', subscriptions: UserFollowingCountQuery_subscriptions_MultiSubscriptionOutput | null };
 
 
-type createSubscriptionSuggestedFeedSubscriptionsMutationVariables = Exact<{
-  data: CreateSubscriptionDataInput;
+type UserFollowingCountQueryVariables = Exact<{
+  selector: InputMaybe<SubscriptionSelector>;
+  limit: InputMaybe<Scalars['Int']['input']>;
+  enableTotal: InputMaybe<Scalars['Boolean']['input']>;
 }>;
 
 
-type createSubscriptionSuggestedFeedSubscriptionsMutation = createSubscriptionSuggestedFeedSubscriptionsMutation_Mutation;
+type UserFollowingCountQuery = UserFollowingCountQuery_Query;
 
 type SuggestedFeedSubscriptionUsersQuery_SuggestedFeedSubscriptionUsers_SuggestedFeedSubscriptionUsersResult_results_User = (
   { __typename?: 'User' }
@@ -23205,6 +23179,25 @@ type ForeignPostQueryQueryVariables = Exact<{
 
 
 type ForeignPostQueryQuery = ForeignPostQueryQuery_Query;
+
+type UserRecentPostsForCompactCardQuery_posts_MultiPostOutput_results_Post = (
+  { __typename?: 'Post' }
+  & PostsList
+);
+
+type UserRecentPostsForCompactCardQuery_posts_MultiPostOutput = { __typename?: 'MultiPostOutput', results: Array<UserRecentPostsForCompactCardQuery_posts_MultiPostOutput_results_Post> };
+
+type UserRecentPostsForCompactCardQuery_Query = { __typename?: 'Query', posts: UserRecentPostsForCompactCardQuery_posts_MultiPostOutput | null };
+
+
+type UserRecentPostsForCompactCardQueryVariables = Exact<{
+  selector: InputMaybe<PostSelector>;
+  limit: InputMaybe<Scalars['Int']['input']>;
+  enableTotal: InputMaybe<Scalars['Boolean']['input']>;
+}>;
+
+
+type UserRecentPostsForCompactCardQuery = UserRecentPostsForCompactCardQuery_Query;
 
 type UltraFeedThreadItemQuery_post_SinglePostOutput_result_Post = (
   { __typename?: 'Post' }
@@ -26572,6 +26565,13 @@ type FeedSpotlightFragment_FeedSpotlightItem_post_Post = (
 type FeedSpotlightFragment_FeedSpotlightItem_spotlightMetaInfo_FeedSpotlightMetaInfo = { __typename?: 'FeedSpotlightMetaInfo', sources: Array<string>, servedEventId: string };
 
 type FeedSpotlightFragment = { __typename?: 'FeedSpotlightItem', _id: string, spotlight: FeedSpotlightFragment_FeedSpotlightItem_spotlight_Spotlight | null, post: FeedSpotlightFragment_FeedSpotlightItem_post_Post | null, spotlightMetaInfo: FeedSpotlightFragment_FeedSpotlightItem_spotlightMetaInfo_FeedSpotlightMetaInfo | null };
+
+type FeedSubscriptionSuggestionsFragment_FeedSubscriptionSuggestions_suggestedUsers_User = (
+  { __typename?: 'User' }
+  & UsersMinimumInfo
+);
+
+type FeedSubscriptionSuggestionsFragment = { __typename?: 'FeedSubscriptionSuggestions', _id: string, suggestedUsers: Array<FeedSubscriptionSuggestionsFragment_FeedSubscriptionSuggestions_suggestedUsers_User> };
 
 type multiPostsForAutocompleteQueryQuery_posts_MultiPostOutput_results_Post = (
   { __typename?: 'Post' }

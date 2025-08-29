@@ -85,6 +85,7 @@ interface FragmentTypes {
   FeedCommentThreadFragment: FeedCommentThreadFragment
   FeedPostFragment: FeedPostFragment
   FeedSpotlightFragment: FeedSpotlightFragment
+  FeedSubscriptionSuggestionsFragment: FeedSubscriptionSuggestionsFragment
   FieldChangeFragment: FieldChangeFragment
   FieldChangesDefaultFragment: FieldChangesDefaultFragment
   ForumEventsDefaultFragment: ForumEventsDefaultFragment
@@ -378,6 +379,7 @@ interface FragmentTypesByCollection {
   FeedCommentThreads: "FeedCommentThreadFragment"
   FeedPosts: "FeedPostFragment"
   FeedSpotlightItems: "FeedSpotlightFragment"
+  FeedSubscriptionSuggestionses: "FeedSubscriptionSuggestionsFragment"
   FieldChanges: "FieldChangeFragment"|"FieldChangesDefaultFragment"
   ForumEvents: "ForumEventsDefaultFragment"|"ForumEventsDisplay"|"ForumEventsEdit"|"ForumEventsMinimumInfo"
   GardenCodes: "GardenCodeFragment"|"GardenCodeFragmentEdit"|"GardenCodesDefaultFragment"
@@ -517,6 +519,7 @@ interface CollectionNamesByFragmentName {
   FeedCommentThreadFragment: never
   FeedPostFragment: never
   FeedSpotlightFragment: never
+  FeedSubscriptionSuggestionsFragment: never
   FieldChangeFragment: "FieldChanges"
   FieldChangesDefaultFragment: "FieldChanges"
   ForumEventsDefaultFragment: "ForumEvents"
