@@ -205,6 +205,7 @@ class UltraFeedEventsRepo extends AbstractRepo<'UltraFeedEvents'> {
       prepared_comments AS (
         -- Prepare individual comments with their read status and topLevelCommentId
         SELECT
+          bs._id AS served_event_id,
           bs."documentId" AS comment_id,
           bs."createdAt" AS served_at,
           bs.event->>'sessionId' AS session_id,
@@ -239,6 +240,7 @@ class UltraFeedEventsRepo extends AbstractRepo<'UltraFeedEvents'> {
           cg.last_served_at,
           cg.sources,
           cg.post_id,
+          cg.served_event_ids,
           -- Check if the post has been read
           CASE 
             WHEN pve."documentId" IS NOT NULL OR rs."isRead" = TRUE THEN TRUE
@@ -253,6 +255,7 @@ class UltraFeedEventsRepo extends AbstractRepo<'UltraFeedEvents'> {
             MAX(served_at) AS last_served_at,
             (ARRAY_AGG(sources ORDER BY comment_index))[1] AS sources,
             MAX(post_id) AS post_id,
+            ARRAY_AGG(served_event_id ORDER BY comment_index) AS served_event_ids,
             JSONB_AGG(
               jsonb_build_object(
                 'commentId', comment_id,
@@ -284,10 +287,13 @@ class UltraFeedEventsRepo extends AbstractRepo<'UltraFeedEvents'> {
           top_level_comment_id::text AS document_id,
           sources,
           NULL::boolean AS is_read,  -- Read status is per-comment for threads
-          -- Check if any comment in this thread was viewed
+          -- Was any served comment in this thread actually viewed (match by feedItemId)
           EXISTS (
-            SELECT 1 FROM jsonb_array_elements(comments) AS c
-            WHERE (c->>'isRead')::boolean = TRUE
+            SELECT 1
+            FROM "UltraFeedEvents" ve
+            WHERE ve."userId" = $(userId)
+              AND ve."eventType" = 'viewed'
+              AND ve."feedItemId" = ANY(served_event_ids)
           ) AS item_was_viewed,
           session_id,
           item_index,

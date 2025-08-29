@@ -37,17 +37,6 @@ export const ultraFeedHistoryGraphQLQueries = {
         limit: 50,
       });
       
-      // Debug: Show top 40 items straight from DB (order the repo returns)
-      // eslint-disable-next-line no-console
-      console.log('[UltraFeedHistory][DBG] Top 40 from DB (raw order):');
-      initialFetch.slice(0, 40).forEach((it, i) => {
-        const docShort = it.documentId.slice(0, 10);
-        const viewed = it.itemWasViewed ? '👁️' : '⚪';
-        const servedTs = it.servedAt.toISOString();
-        // eslint-disable-next-line no-console
-        console.log(`  [DB ${i}] t=${servedTs} sess=${it.sessionId ?? 'ns'} idx=${it.itemIndex ?? -1} viewed=${viewed} doc=${docShort}`);
-      });
-
       const firstViewedIndex = initialFetch.findIndex(item => item.itemWasViewed === true);
       actualOffset = firstViewedIndex > 0 ? firstViewedIndex : offset;
     }
@@ -61,19 +50,6 @@ export const ultraFeedHistoryGraphQLQueries = {
     });
     
     const servedItems = fetchedItems;
-
-    // Debug: Show top 40 items that will be shown in UI for this page
-    if (offset === 0) {
-      // eslint-disable-next-line no-console
-      console.log('[UltraFeedHistory][DBG] Top 40 returned to UI:');
-      servedItems.slice(0, 40).forEach((it, i) => {
-        const docShort = it.documentId.slice(0, 10);
-        const viewed = it.itemWasViewed ? '👁️' : '⚪';
-        const servedTs = it.servedAt.toISOString();
-        // eslint-disable-next-line no-console
-        console.log(`  [UI ${i}] t=${servedTs} sess=${it.sessionId ?? 'ns'} idx=${it.itemIndex ?? -1} viewed=${viewed} doc=${docShort}`);
-      });
-    }
     
     // Collect IDs to load
     const postIds: string[] = [];
@@ -168,7 +144,7 @@ export const ultraFeedHistoryGraphQLQueries = {
         return {
           type: 'feedCommentThread',
           feedCommentThread: {
-            _id: threadId,
+            _id: `threadId-${item.servedAt.getTime()}-${index}-${item.sessionId ?? 'no-session'}-${item.itemIndex ?? 0}`,
             comments: loadedComments,
             commentMetaInfos,
             isOnReadPost: !!item.isOnReadPost,
