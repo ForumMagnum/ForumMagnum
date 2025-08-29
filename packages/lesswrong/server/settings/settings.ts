@@ -50,23 +50,27 @@ function getPublicSettings() {
   }
 }
 
+let privateSettings: Record<string, string>|null = null;
 export function getPrivateSettings() {
-  const rawPrivateSettings = Object.entries(process.env).filter((setting): setting is [string, string] => {
-    const [key, value] = setting;
-    return key.startsWith("private_") && value !== undefined;
-  });
-
-  const privateSettings: Record<string, string> = {};
-
-  rawPrivateSettings.reduce((acc, [key, value]) => {
-    const [prefix, ...settingNameParts] = key.split("_");
-    if (prefix !== 'private') {
-
+  if (!privateSettings) {
+    const rawPrivateSettings = Object.entries(process.env).filter((setting): setting is [string, string] => {
+      const [key, value] = setting;
+      return key.startsWith("private_") && value !== undefined;
+    });
+  
+    const newPrivateSettings: Record<string, string> = {};
+  
+    rawPrivateSettings.reduce((acc, [key, value]) => {
+      const [prefix, ...settingNameParts] = key.split("_");
+      if (prefix !== 'private') {
+  
+        return acc;
+      }
+      set(acc, settingNameParts, value);
       return acc;
-    }
-    set(acc, settingNameParts, value);
-    return acc;
-  }, privateSettings);
+    }, newPrivateSettings);
+    privateSettings = newPrivateSettings;
+  }
 
   return privateSettings;
 }
