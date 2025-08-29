@@ -680,7 +680,6 @@ const UltraFeedPostItem = ({
             onExpand={handleContentExpand}
             hideSuffix={loadingFullPost}
             resetSignal={resetSig}
-            className={undefined}
           />
         )}
         
