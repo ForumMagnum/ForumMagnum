@@ -129,17 +129,14 @@ const styles = defineStyles("UltraFeed", (theme: ThemeType) => ({
 }));
 
 const UltraFeedContent = ({
-  alwaysShow = false,
   settingsVisible,
-  onSettingsToggle,
-  internalSettingsVisible,
-  setInternalSettingsVisible,
+  onCloseSettings,
+  useExternalContainer,
 }: {
   alwaysShow?: boolean
   settingsVisible?: boolean
-  onSettingsToggle?: () => void
-  internalSettingsVisible?: boolean
-  setInternalSettingsVisible?: (value: boolean) => void
+  onCloseSettings?: () => void
+  useExternalContainer?: boolean
 }) => {
   const classes = useStyles(styles);
   const currentUser = useCurrentUser();
@@ -150,9 +147,6 @@ const UltraFeedContent = ({
   const [sessionId] = useState<string>(randomId);
   const refetchSubscriptionContentRef = useRef<null | ObservableQuery['refetch']>(null);
   
-  const isControlled = settingsVisible !== undefined;
-  const actualSettingsVisible = isControlled ? settingsVisible : internalSettingsVisible;
-
   const handleOpenQuickTakeDialog = () => {
     captureEvent("ultraFeedComposerQuickTakeDialogOpened");
     openDialog({
@@ -177,13 +171,13 @@ const UltraFeedContent = ({
       <div className={classes.root}>
         <UltraFeedObserverProvider incognitoMode={resolverSettings.incognitoMode}>
         <OverflowNavObserverProvider>
-            {actualSettingsVisible && (
-              <div className={isControlled ? classes.settingsContainerExternal : classes.settingsContainer}>
+            {settingsVisible && (
+              <div className={useExternalContainer ? classes.settingsContainerExternal : classes.settingsContainer}>
                 <UltraFeedSettings 
                   settings={settings}
                   updateSettings={updateSettings}
                   resetSettingsToDefault={resetSettingsToDefault}
-                  onClose={() => isControlled ? onSettingsToggle?.() : setInternalSettingsVisible?.(false)} 
+                  onClose={() => onCloseSettings?.()} 
                   truncationMaps={truncationMaps}
                 />
               </div>
@@ -327,7 +321,7 @@ const UltraFeed = ({
     );
   }
 
-  const isControlled = settingsVisible !== undefined;
+  const isControlled = onSettingsToggle !== undefined;
   const actualSettingsVisible = isControlled ? settingsVisible : internalSettingsVisible;
 
   const toggleSettings = (e: React.MouseEvent) => {
@@ -374,9 +368,8 @@ const UltraFeed = ({
           <UltraFeedContent 
             alwaysShow={alwaysShow}
             settingsVisible={actualSettingsVisible}
-            onSettingsToggle={() => setInternalSettingsVisible(!internalSettingsVisible)}
-            internalSettingsVisible={internalSettingsVisible}
-            setInternalSettingsVisible={setInternalSettingsVisible}
+            onCloseSettings={isControlled ? onSettingsToggle : () => setInternalSettingsVisible(false)}
+            useExternalContainer={isControlled}
           />
         </DeferRender>
       </SingleColumnSection>
