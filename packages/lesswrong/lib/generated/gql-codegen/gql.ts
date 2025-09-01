@@ -199,7 +199,6 @@ type Documents = {
     "\n  query multiForumEventuseCurrentForumEventQuery($selector: ForumEventSelector, $limit: Int, $enableTotal: Boolean) {\n    forumEvents(selector: $selector, limit: $limit, enableTotal: $enableTotal) {\n      results {\n        ...ForumEventsDisplay\n      }\n      totalCount\n    }\n  }\n": typeof types.multiForumEventuseCurrentForumEventQueryDocument,
     "\n    query CurrentFrontpageSurvey {\n      CurrentFrontpageSurvey {\n        ...SurveyScheduleMinimumInfo\n      }\n    }\n  ": typeof types.CurrentFrontpageSurveyDocument,
     "\n      mutation UserExpandFrontpageSection($section: String!, $expanded: Boolean!) {\n        UserExpandFrontpageSection(section: $section, expanded: $expanded)\n      }\n    ": typeof types.UserExpandFrontpageSectionDocument,
-    "\n  query GetCrosspostQuery($args: JSON) {\n    getCrosspost(args: $args)\n  }\n": typeof types.GetCrosspostQueryDocument,
     "\n    mutation initiateConversation($participantIds: [String!]!, $af: Boolean, $moderator: Boolean) {\n      initiateConversation(participantIds: $participantIds, af: $af, moderator: $moderator) {\n        ...ConversationsMinimumInfo\n      }\n    }\n  ": typeof types.initiateConversationDocument,
     "\n      mutation markConversationRead($conversationId: String!) {\n        markConversationRead(conversationId: $conversationId)\n      }\n    ": typeof types.markConversationReadDocument,
     "\n  query multiSubscriptionuseNotifyMeQuery($selector: SubscriptionSelector, $limit: Int, $enableTotal: Boolean) {\n    subscriptions(selector: $selector, limit: $limit, enableTotal: $enableTotal) {\n      results {\n        ...SubscriptionState\n      }\n      totalCount\n    }\n  }\n": typeof types.multiSubscriptionuseNotifyMeQueryDocument,
@@ -596,7 +595,6 @@ type Documents = {
     "\n  query UltraFeedPostDialog($documentId: String) {\n    post(input: { selector: { documentId: $documentId } }) {\n      result {\n        ...UltraFeedPostFragment\n      }\n    }\n  }\n": typeof types.UltraFeedPostDialogDocument,
     "\n  query UltraFeedTargetComment($documentId: String) {\n    comment(input: { selector: { documentId: $documentId } }) {\n      result {\n        ...CommentWithRepliesFragment\n      }\n    }\n  }\n": typeof types.UltraFeedTargetCommentDocument,
     "\n  query LocalPostQuery($documentId: String!) {\n    post(selector: { _id: $documentId }) {\n      result {\n        ...UltraFeedPostFragment\n      }\n    }\n  }\n": typeof types.LocalPostQueryDocument,
-    "\n  query ForeignPostQuery($documentId: String!) {\n    post(selector: { _id: $documentId }) {\n      result {\n        ...PostsPage\n      }\n    }\n  }\n": typeof types.ForeignPostQueryDocument,
     "\n  query UserRecentPostsForCompactCard($selector: PostSelector, $limit: Int, $enableTotal: Boolean) {\n    posts(selector: $selector, limit: $limit, enableTotal: $enableTotal) {\n      results {\n        ...PostsList\n      }\n    }\n  }\n": typeof types.UserRecentPostsForCompactCardDocument,
     "\n  query UltraFeedThreadItem($documentId: String) {\n    post(selector: { _id: $documentId }) {\n      result {\n        ...PostsListWithVotes\n      }\n    }\n  }\n": typeof types.UltraFeedThreadItemDocument,
     "\n  mutation createUltraFeedEventSeeLess($data: CreateUltraFeedEventDataInput!) {\n    createUltraFeedEvent(data: $data) {\n      data {\n        ...UltraFeedEventsDefaultFragment\n      }\n    }\n  }\n": typeof types.createUltraFeedEventSeeLessDocument,
@@ -1193,7 +1191,6 @@ const documents: Documents = {
     "\n  query multiForumEventuseCurrentForumEventQuery($selector: ForumEventSelector, $limit: Int, $enableTotal: Boolean) {\n    forumEvents(selector: $selector, limit: $limit, enableTotal: $enableTotal) {\n      results {\n        ...ForumEventsDisplay\n      }\n      totalCount\n    }\n  }\n": types.multiForumEventuseCurrentForumEventQueryDocument,
     "\n    query CurrentFrontpageSurvey {\n      CurrentFrontpageSurvey {\n        ...SurveyScheduleMinimumInfo\n      }\n    }\n  ": types.CurrentFrontpageSurveyDocument,
     "\n      mutation UserExpandFrontpageSection($section: String!, $expanded: Boolean!) {\n        UserExpandFrontpageSection(section: $section, expanded: $expanded)\n      }\n    ": types.UserExpandFrontpageSectionDocument,
-    "\n  query GetCrosspostQuery($args: JSON) {\n    getCrosspost(args: $args)\n  }\n": types.GetCrosspostQueryDocument,
     "\n    mutation initiateConversation($participantIds: [String!]!, $af: Boolean, $moderator: Boolean) {\n      initiateConversation(participantIds: $participantIds, af: $af, moderator: $moderator) {\n        ...ConversationsMinimumInfo\n      }\n    }\n  ": types.initiateConversationDocument,
     "\n      mutation markConversationRead($conversationId: String!) {\n        markConversationRead(conversationId: $conversationId)\n      }\n    ": types.markConversationReadDocument,
     "\n  query multiSubscriptionuseNotifyMeQuery($selector: SubscriptionSelector, $limit: Int, $enableTotal: Boolean) {\n    subscriptions(selector: $selector, limit: $limit, enableTotal: $enableTotal) {\n      results {\n        ...SubscriptionState\n      }\n      totalCount\n    }\n  }\n": types.multiSubscriptionuseNotifyMeQueryDocument,
@@ -1590,7 +1587,6 @@ const documents: Documents = {
     "\n  query UltraFeedPostDialog($documentId: String) {\n    post(input: { selector: { documentId: $documentId } }) {\n      result {\n        ...UltraFeedPostFragment\n      }\n    }\n  }\n": types.UltraFeedPostDialogDocument,
     "\n  query UltraFeedTargetComment($documentId: String) {\n    comment(input: { selector: { documentId: $documentId } }) {\n      result {\n        ...CommentWithRepliesFragment\n      }\n    }\n  }\n": types.UltraFeedTargetCommentDocument,
     "\n  query LocalPostQuery($documentId: String!) {\n    post(selector: { _id: $documentId }) {\n      result {\n        ...UltraFeedPostFragment\n      }\n    }\n  }\n": types.LocalPostQueryDocument,
-    "\n  query ForeignPostQuery($documentId: String!) {\n    post(selector: { _id: $documentId }) {\n      result {\n        ...PostsPage\n      }\n    }\n  }\n": types.ForeignPostQueryDocument,
     "\n  query UserRecentPostsForCompactCard($selector: PostSelector, $limit: Int, $enableTotal: Boolean) {\n    posts(selector: $selector, limit: $limit, enableTotal: $enableTotal) {\n      results {\n        ...PostsList\n      }\n    }\n  }\n": types.UserRecentPostsForCompactCardDocument,
     "\n  query UltraFeedThreadItem($documentId: String) {\n    post(selector: { _id: $documentId }) {\n      result {\n        ...PostsListWithVotes\n      }\n    }\n  }\n": types.UltraFeedThreadItemDocument,
     "\n  mutation createUltraFeedEventSeeLess($data: CreateUltraFeedEventDataInput!) {\n    createUltraFeedEvent(data: $data) {\n      data {\n        ...UltraFeedEventsDefaultFragment\n      }\n    }\n  }\n": types.createUltraFeedEventSeeLessDocument,
@@ -2756,10 +2752,6 @@ export function gql(source: "\n    query CurrentFrontpageSurvey {\n      Current
  * The gql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
  */
 export function gql(source: "\n      mutation UserExpandFrontpageSection($section: String!, $expanded: Boolean!) {\n        UserExpandFrontpageSection(section: $section, expanded: $expanded)\n      }\n    "): (typeof documents)["\n      mutation UserExpandFrontpageSection($section: String!, $expanded: Boolean!) {\n        UserExpandFrontpageSection(section: $section, expanded: $expanded)\n      }\n    "];
-/**
- * The gql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
- */
-export function gql(source: "\n  query GetCrosspostQuery($args: JSON) {\n    getCrosspost(args: $args)\n  }\n"): (typeof documents)["\n  query GetCrosspostQuery($args: JSON) {\n    getCrosspost(args: $args)\n  }\n"];
 /**
  * The gql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
  */
@@ -4344,10 +4336,6 @@ export function gql(source: "\n  query UltraFeedTargetComment($documentId: Strin
  * The gql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
  */
 export function gql(source: "\n  query LocalPostQuery($documentId: String!) {\n    post(selector: { _id: $documentId }) {\n      result {\n        ...UltraFeedPostFragment\n      }\n    }\n  }\n"): (typeof documents)["\n  query LocalPostQuery($documentId: String!) {\n    post(selector: { _id: $documentId }) {\n      result {\n        ...UltraFeedPostFragment\n      }\n    }\n  }\n"];
-/**
- * The gql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
- */
-export function gql(source: "\n  query ForeignPostQuery($documentId: String!) {\n    post(selector: { _id: $documentId }) {\n      result {\n        ...PostsPage\n      }\n    }\n  }\n"): (typeof documents)["\n  query ForeignPostQuery($documentId: String!) {\n    post(selector: { _id: $documentId }) {\n      result {\n        ...PostsPage\n      }\n    }\n  }\n"];
 /**
  * The gql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
  */
