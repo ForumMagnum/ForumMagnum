@@ -1,6 +1,5 @@
 import React from 'react';
 import { isMissingDocumentError, isOperationNotAllowedError } from '../../../lib/utils/errorUtil';
-import PostsPageCrosspostWrapper, { isPostWithForeignId } from "./PostsPageCrosspostWrapper";
 import { commentGetDefaultView } from '../../../lib/collections/comments/helpers';
 import { useCurrentUser } from '../../common/withUser';
 import { useMulti } from '../../../lib/crud/withMulti';
@@ -44,7 +43,7 @@ const PostsPageWrapper = ({ sequenceId, version, documentId }: {
     sequence: sequencePreload,
   } : postPreload;
 
-  const { document: post, refetch, loading, error, fetchProps } = useDisplayedPost(documentId, sequenceId, version);
+  const { document: post, refetch, loading, error } = useDisplayedPost(documentId, sequenceId, version);
 
   // This section is a performance optimisation to make comment fetching start as soon as possible rather than waiting for
   // the post to be fetched first. This is mainly beneficial in SSR. We don't preload comments if the post was preloaded
@@ -73,8 +72,8 @@ const PostsPageWrapper = ({ sequenceId, version, documentId }: {
   const eagerPostComments = skipEagerComments
     ? undefined
     : { terms, queryResponse: commentQueryResult };
-    
   // End of performance section
+
   if (error && !isMissingDocumentError(error) && !isOperationNotAllowedError(error)) {
     throw new Error(error.message);
   } else if (loading && !postPreloadWithSequence) {
@@ -89,8 +88,6 @@ const PostsPageWrapper = ({ sequenceId, version, documentId }: {
     }
   } else if (!post && !postPreloadWithSequence) {
     return <Error404/>
-  } else if (post && isPostWithForeignId(post)) {
-    return <PostsPageCrosspostWrapper post={post} eagerPostComments={eagerPostComments} refetch={refetch} fetchProps={fetchProps} />
   }
 
   return (
@@ -104,5 +101,3 @@ const PostsPageWrapper = ({ sequenceId, version, documentId }: {
 }
 
 export default registerComponent("PostsPageWrapper", PostsPageWrapper);
-
-

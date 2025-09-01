@@ -7,7 +7,6 @@ import { useMessages } from '../../common/withMessages';
 import { StatusField, getEmailDigestPostData, getPostAuthors } from '../../../lib/collections/digests/helpers';
 import type { DigestPost, PostWithRating } from './EditDigest';
 import { postGetPageUrl } from '../../../lib/collections/posts/helpers';
-import { isPostWithForeignId } from '../../hooks/useForeignCrosspost';
 import OverallVoteButton from "../../votes/OverallVoteButton";
 import ForumIcon from "../../common/ForumIcon";
 import LWTooltip from "../../common/LWTooltip";
@@ -230,10 +229,10 @@ const EditDigestTableRow = ({post, postStatus, statusIconsDisabled, handleClickS
     )
     flash({messageString: "Post copied"})
   }
-  const readTime = isPostWithForeignId(post) ? '' : `, ${post.readTimeMinutes} min`
+  const readTime = `, ${post.readTimeMinutes} min`
   const linkpostText = post.url ? ', link-post' : ''
   const visibleTags = post.tags.filter(tag => visibleTagIds.includes(tag._id))
-  
+
   return <tr className={classes.row}>
     {getStatusIconCell(post._id, 'emailDigestStatus', postStatus)}
     {getStatusIconCell(post._id, 'onsiteDigestStatus', postStatus)}
