@@ -33,6 +33,8 @@ function loadTsConfig(configPath) {
 
 /** @type {import('next').NextConfig} */
 module.exports = {
+  reactStrictMode: false,
+
   compiler: {
     define: {
       ...(process.env.E2E === 'true' ? { 'process.env.E2E': 'true' } : {}),
