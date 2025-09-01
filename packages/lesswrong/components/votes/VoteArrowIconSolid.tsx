@@ -1,6 +1,5 @@
 import React from 'react';
 import classNames from 'classnames';
-import IconButton from '@/lib/vendor/@material-ui/core/src/IconButton';
 import { SoftUpArrowIcon } from '../icons/softUpArrowIcon';
 import { SoftUpArrowIconCap } from '../icons/softUpArrowIconCap';
 import { isEAForum } from '../../lib/instanceSettings';
@@ -10,15 +9,7 @@ import { getVoteButtonColor, voteButtonSharedStyles } from './VoteButton';
 
 const styles = defineStyles("VoteArrowIconSolid", (theme: ThemeType) => ({
   root: {
-    color: theme.palette.grey[400],
-    fontSize: 'inherit',
-    width: 'initial',
-    height: 'initial',
-    padding: 0,
     position: 'relative',
-    '&:hover': {
-      backgroundColor: 'transparent',
-    },
   },
   disabled: {
     cursor: 'not-allowed',
@@ -144,19 +135,21 @@ const VoteArrowIconSolid = ({
     );
 
   return (
-    <IconButton
+    <button
       className={classNames(
         classes.root,
+        sharedClasses.root,
         classes[orientation],
         largeArrow && classes[`${orientation}Large`],
-        !enabled && classes.disabled
+        !enabled && classes.disabled,
       )}
+      type="button"
       onMouseDown={handlers.handleMouseDown}
       onMouseUp={handlers.handleMouseUp}
       onMouseOut={handlers.clearState}
       onClick={handlers.handleClick}
-      disableRipple
     >
+    <span className={sharedClasses.inner}>
       {Icon}
       <SoftUpArrowIconCap
         className={classNames(
@@ -164,7 +157,8 @@ const VoteArrowIconSolid = ({
           (bigVoteCompleted || bigVoted) && getVoteButtonColor(sharedClasses, color, "light")
         )}
       />
-    </IconButton>
+    </span>
+    </button>
   );
 };
 

@@ -236,6 +236,9 @@ export const UltraFeedQuery = gql(`
         feedSpotlight {
           ...FeedSpotlightFragment
         }
+        feedSubscriptionSuggestions {
+          ...FeedSubscriptionSuggestionsFragment
+        }
       }
     }
   }

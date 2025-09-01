@@ -1,5 +1,6 @@
 import qs from 'qs';
 import React, { useEffect, useRef, useState, useMemo, useCallback } from "react";
+import classNames from 'classnames';
 import { defineStyles, useStyles } from "../hooks/useStyles";
 import { Link } from "../../lib/reactRouterWrapper";
 import { postGetPageUrl, postGetLink, postGetLinkTarget, detectLinkpost, getResponseCounts } from "@/lib/collections/posts/helpers";
@@ -177,18 +178,21 @@ const styles = defineStyles("UltraFeedPostDialog", (theme: ThemeType) => ({
   closeButton: {
     width: 36, 
     height: 36,
-    color: theme.palette.grey[600],
+    color: theme.palette.grey[700],
     backgroundColor: theme.palette.grey[200],
     borderRadius: 4,
     padding: 6,
     cursor: 'pointer',
     marginRight: 8,
     fontSize: 36,
+    fontWeight: 'bold',
     '&:hover': {
-      color: theme.palette.grey[700],
+      color: theme.palette.grey[900],
+      backgroundColor: theme.palette.grey[300],
     },
     '& svg': {
       display: 'block',
+      strokeWidth: 2.5,
     },
     [theme.breakpoints.down('sm')]: {
       marginLeft: 3,
@@ -398,6 +402,14 @@ const styles = defineStyles("UltraFeedPostDialog", (theme: ThemeType) => ({
   dividerMargins: {
     marginTop: 24,
     marginBottom: 24,
+  },
+  fullHeightFlex: {
+    height: '100%',
+    display: 'flex',
+    flexDirection: 'column',
+  },
+  clickable: {
+    cursor: 'pointer',
   },
 }));
 
@@ -788,7 +800,7 @@ const UltraFeedPostDialog = ({
       >
         <ModalContextWrapper postId={postId} recommId={recommId}>
           <DialogContent className={classes.dialogContent}>
-            <div style={{ height: '100%', display: 'flex', flexDirection: 'column' }}>
+            <div className={classes.fullHeightFlex}>
               <div className={classes.loadingContainer}>
                 <Loading />
               </div>
@@ -816,11 +828,11 @@ const UltraFeedPostDialog = ({
                 <link rel="canonical" href={postUrl} />
               </Helmet>
             )}
-            <div ref={dialogInnerRef} style={{ height: '100%', display: 'flex', flexDirection: 'column' }}>
+            <div ref={dialogInnerRef} className={classes.fullHeightFlex}>
               {/* Header */}
             <div className={classes.stickyHeader}>
               <ForumIcon 
-                icon="Close"
+                icon="ArrowLeft"
                 onClick={handleClose}
                 className={classes.closeButton}
               />
@@ -868,7 +880,7 @@ const UltraFeedPostDialog = ({
                     tocSections={tocData.sections}
                     title={displayPost.title}
                     heading={<PostFixedPositionToCHeading post={displayPost as PostsListWithVotes}/>}
-                    scrollContainerRef={scrollableContentRef as React.RefObject<HTMLElement>}
+                    scrollContainerRef={scrollableContentRef}
                   />
                 )}
               </div>
@@ -932,9 +944,8 @@ const UltraFeedPostDialog = ({
                             </LWTooltip>
                           )}
                           <div 
-                            className={classes.mobileCommentCount} 
-                            onClick={scrollToComments} 
-                            style={{cursor: 'pointer'}}
+                            className={classNames(classes.mobileCommentCount, classes.clickable)} 
+                            onClick={scrollToComments}
                           >
                             <LWCommentCount 
                               commentCount={displayPost.commentCount} 
@@ -1046,9 +1057,8 @@ const UltraFeedPostDialog = ({
             {/* Comment count button (desktop only) */}
             {shouldShowToc && (
               <div 
-                className={classes.commentCount} 
-                onClick={scrollToComments} 
-                style={{ cursor: 'pointer' }}
+                className={classNames(classes.commentCount, classes.clickable)} 
+                onClick={scrollToComments}
               >
                 <LWCommentCount 
                   commentCount={displayPost.commentCount} 
