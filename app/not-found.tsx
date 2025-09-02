@@ -5,7 +5,8 @@ import React from 'react';
 export const dynamic = 'force-dynamic';
 
 export default function NotFound() {
-  return <RouteRoot>
+  /*return <RouteRoot>
     <Error404 />
-  </RouteRoot>
+  </RouteRoot>*/
+  return <div>Not Found</div>
 }
