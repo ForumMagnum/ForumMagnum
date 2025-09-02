@@ -1,7 +1,15 @@
-import { RecommendationFeatureName } from "../../lib/collections/users/recommendationSettings";
+import type { RecommendationFeatureName } from "@/lib/collections/users/recommendationSettings";
 import { embeddingsSettings } from "../embeddings";
+import { getDefaultFilterSettings, type FilterSettings } from "@/lib/filterSettings";
+import {
+  filterModeToAdditiveKarmaModifier,
+  filterModeToMultiplicativeKarmaModifier,
+  resolveFrontpageFilters,
+} from "@/lib/collections/posts/views";
 
 abstract class Feature {
+  constructor(protected currentUser: DbUser | null) {}
+
   getJoin(): string {
     return "";
   }
@@ -20,7 +28,7 @@ abstract class Feature {
 }
 
 type ConstructableFeature = {
-  new(): Feature;
+  new(currentUser: DbUser | null): Feature;
 }
 
 class KarmaFeature extends Feature {
@@ -71,9 +79,10 @@ class CollabFilterFeature extends Feature {
 
 class TextSimilarityFeature extends Feature {
   constructor(
+    currentUser: DbUser | null,
     private model = embeddingsSettings.embeddingModel,
   ) {
-    super();
+    super(currentUser);
   }
 
   getJoin() {
@@ -134,6 +143,95 @@ class SubscribedTagPostsFeature extends Feature {
   }
 }
 
+class FrontpageFilterSettingsFeature extends Feature {
+  private filterClauses: string[] = [];
+  private score: string;
+  private args: Record<string, unknown> = {};
+
+  constructor(currentUser: DbUser | null) {
+    super(currentUser);
+
+    const filterSettings: FilterSettings = currentUser?.frontpageFilterSettings ??
+      getDefaultFilterSettings();
+    const {
+      tagsRequired,
+      tagsExcluded,
+      tagsSoftFiltered,
+    } = resolveFrontpageFilters(filterSettings);
+
+    let argCount = 0;
+    const makeArgName = () => `tagFilter${argCount++}`;
+
+    for (const tag of tagsRequired) {
+      const argName = makeArgName();
+      this.args[argName] = tag.tagId;
+      this.filterClauses.push(
+        `COALESCE((p."tagRelevance"->$(${argName}))::INTEGER, 0) >= 1`,
+      );
+    }
+    for (const tag of tagsExcluded) {
+      const argName = makeArgName();
+      this.args[argName] = tag.tagId;
+      this.filterClauses.push(
+        `COALESCE((p."tagRelevance"->$(${argName}))::INTEGER, 0) < 1`,
+      );
+    }
+
+    const addClauses = ["p.\"baseScore\""];
+    const multClauses = ["1"];
+    for (const tag of tagsSoftFiltered) {
+      const argName = makeArgName();
+      this.args[argName] = tag.tagId;
+      addClauses.push(`(
+        CASE
+          WHEN COALESCE((p."tagRelevance"->$(${argName}))::INTEGER, 0) > 0
+          THEN ${filterModeToAdditiveKarmaModifier(tag.filterMode)}
+          ELSE 0
+        END
+      )`);
+      multClauses.push(`(
+        CASE
+          WHEN COALESCE((p."tagRelevance"->$(${argName}))::INTEGER, 0) > 0
+          THEN ${filterModeToMultiplicativeKarmaModifier(tag.filterMode)}
+          ELSE 1
+        END
+      )`);
+    }
+
+    switch (filterSettings.personalBlog) {
+      case "Hidden":
+        this.filterClauses.push(`p."frontpageDate" IS NOT NULL`);
+        break;
+      case "Required":
+        this.filterClauses.push(`p."frontpageDate" IS NULL`);
+        break;
+      default:
+        addClauses.push(`(
+          CASE
+            WHEN p."frontpageDate" IS NULL
+            THEN 0
+            ELSE ${filterModeToAdditiveKarmaModifier(filterSettings.personalBlog)}
+          END
+        )`);
+        break;
+    }
+
+    this.score = `((${addClauses.join(" + ")}) * ${multClauses.join(" * ")})`;
+  }
+
+  getFilter() {
+    return this.filterClauses.join(" AND ");
+  }
+
+  getScore() {
+    return this.score;
+  }
+
+  getArgs() {
+    return this.args;
+  }
+}
+
 export const featureRegistry: Record<
   RecommendationFeatureName,
   ConstructableFeature
@@ -145,4 +243,5 @@ export const featureRegistry: Record<
   textSimilarity: TextSimilarityFeature,
   subscribedAuthorPosts: SubscribedAuthorPostsFeature,
   subscribedTagPosts: SubscribedTagPostsFeature,
+  frontpageFilterSettings: FrontpageFilterSettingsFeature,
 };
