@@ -116,7 +116,8 @@ class SubscribedAuthorPostsFeature extends Feature {
         author_subs."deleted" IS NOT TRUE AND
         author_subs."type" = 'newPosts' AND
         author_subs."userId" = $(userId) AND
-        author_subs."documentId" = p."userId"
+        (author_subs."documentId" = p."userId" OR
+          author_subs."documentId" = ANY(p."coauthorUserIds"))
     `;
   }
 
