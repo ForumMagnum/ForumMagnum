@@ -17,7 +17,7 @@ export type FeedSpotlightSourceType = typeof feedSpotlightSourceTypesArray[numbe
 export type FeedItemSourceType = FeedPostSourceType | FeedCommentSourceType | FeedSpotlightSourceType;
 
 // Define render types
-export const feedItemRenderTypes = ["feedCommentThread", "feedPost", "feedSpotlight"] as const;
+export const feedItemRenderTypes = ["feedCommentThread", "feedPost", "feedSpotlight", "feedSubscriptionSuggestions"] as const;
 export type FeedItemRenderType = typeof feedItemRenderTypes[number];
 
 export type FeedItemType = FeedItemRenderType | "feedComment";
@@ -132,13 +132,19 @@ export interface FeedSpotlightResolverType {
   spotlightMetaInfo: FeedSpotlightMetaInfo;
 }
 
-export type FeedItemResolverType = FeedPostResolverType | FeedCommentsThreadResolverType | FeedSpotlightResolverType;
+export interface FeedSubscriptionSuggestionsResolverType {
+  _id: string;
+  suggestedUsers: DbUser[];
+}
+
+export type FeedItemResolverType = FeedPostResolverType | FeedCommentsThreadResolverType | FeedSpotlightResolverType | FeedSubscriptionSuggestionsResolverType;
 
 export interface UltraFeedResolverType {
   type: FeedItemRenderType;
   feedPost?: FeedPostResolverType;
   feedCommentThread?: FeedCommentsThreadResolverType;
   feedSpotlight?: FeedSpotlightResolverType;
+  feedSubscriptionSuggestions?: FeedSubscriptionSuggestionsResolverType;
 }
 
 export interface DisplayFeedCommentThread {

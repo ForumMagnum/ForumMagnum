@@ -1,12 +1,17 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { ultraFeedEnabledSetting } from '../../lib/instanceSettings';
 import { registerComponent } from "../../lib/vulcan-lib/components";
 import DeferRender from '../common/DeferRender';
 import SingleColumnSection from "../common/SingleColumnSection";
 import { useCurrentUser } from '../common/withUser';
 import { defineStyles, useStyles } from '../hooks/useStyles';
+import SettingsButton from "../icons/SettingsButton";
+import FeedSelectorDropdown from '../common/FeedSelectorCheckbox';
+import { Link } from '../../lib/reactRouterWrapper';
 
 import dynamic from 'next/dynamic';
+import { useTracking } from '@/lib/analyticsEvents';
+import SectionTitle from '../common/SectionTitle';
 const UltraFeedContent = dynamic(() => import('./UltraFeedContent'), { ssr: false });
 
 const styles = defineStyles("UltraFeed", (theme: ThemeType) => ({
@@ -59,6 +64,10 @@ const styles = defineStyles("UltraFeed", (theme: ThemeType) => ({
   settingsContainer: {
     marginBottom: 32,
   },
+  settingsContainerExternal: {
+    marginTop: 16,
+    marginBottom: 32,
+  },
   composerButton: {
     display: 'none',
     [theme.breakpoints.down('sm')]: {
@@ -102,11 +111,22 @@ const styles = defineStyles("UltraFeed", (theme: ThemeType) => ({
   },
 }));
 
-const UltraFeed = ({alwaysShow = false}: {
+
+const UltraFeed = ({
+  alwaysShow = false,
+  hideTitle = false,
+  settingsVisible,
+  onSettingsToggle,
+}: {
   alwaysShow?: boolean
+  hideTitle?: boolean
+  settingsVisible?: boolean
+  onSettingsToggle?: () => void
 }) => {
   const classes = useStyles(styles);
   const currentUser = useCurrentUser();
+  const [internalSettingsVisible, setInternalSettingsVisible] = useState(false);
+  const { captureEvent } = useTracking();
 
   if (!currentUser) {
     return null;
@@ -122,11 +142,58 @@ const UltraFeed = ({alwaysShow = false}: {
     );
   }
 
+  const isControlled = onSettingsToggle !== undefined;
+  const actualSettingsVisible = isControlled ? settingsVisible : internalSettingsVisible;
+
+  const toggleSettings = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    captureEvent("ultraFeedSettingsToggled", { open: !actualSettingsVisible });
+    if (isControlled) {
+      onSettingsToggle?.();
+    } else {
+      setInternalSettingsVisible(!internalSettingsVisible);
+    }
+  };
+
+  const customTitle = <>
+    <div className={classes.titleContainer}>
+      <span className={classes.titleText}>
+        <Link to="/feed" className={classes.titleLink}>
+          Update Feed
+        </Link>
+      </span>
+    </div>
+  </>;
+
   return (
     <>
-      <DeferRender ssr={false}>
-        <UltraFeedContent alwaysShow={alwaysShow} />
-      </DeferRender>
+      <SingleColumnSection>
+        {!hideTitle && (
+          <SectionTitle title={customTitle} titleClassName={classes.sectionTitle}>
+            <DeferRender ssr={false}>
+              <div className={classes.feedCheckboxAndSettingsContainer}>
+                {!alwaysShow && <FeedSelectorDropdown currentFeedType="new" />}
+                {!isControlled && (
+                  <div className={classes.settingsButtonContainer}>
+                    <SettingsButton 
+                      showIcon={true}
+                      onClick={toggleSettings}
+                    />
+                  </div>
+                )}
+              </div>
+            </DeferRender>
+          </SectionTitle>
+        )}
+        <DeferRender ssr={false}>
+          <UltraFeedContent 
+            alwaysShow={alwaysShow}
+            settingsVisible={actualSettingsVisible}
+            onCloseSettings={isControlled ? onSettingsToggle : () => setInternalSettingsVisible(false)}
+            useExternalContainer={isControlled}
+          />
+        </DeferRender>
+      </SingleColumnSection>
     </>
   );
 };

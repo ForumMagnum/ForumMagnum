@@ -18,6 +18,7 @@ import { useSeeLess } from "./useSeeLess";
 import { useCurrentUser } from "../common/withUser";
 import { userIsAdmin, userOwns } from "../../lib/vulcan-users/permissions";
 import CommentsEditForm from "../comments/CommentsEditForm";
+import { useUltraFeedContext } from "./UltraFeedContextProvider";
 
 
 const commentHeaderPaddingDesktop = 12;
@@ -294,6 +295,7 @@ export const UltraFeedCommentItem = ({
   const { observe, unobserve, trackExpansion } = useUltraFeedObserver();
   const elementRef = useRef<HTMLDivElement | null>(null);
   const { openDialog } = useDialog();
+  const { openInNewTab } = useUltraFeedContext();
   const overflowNav = useOverflowNav(elementRef);
   const currentUser = useCurrentUser();
   const { captureEvent } = useTracking();
@@ -387,25 +389,30 @@ export const UltraFeedCommentItem = ({
     
     const post = comment.post;
     
-    openDialog({
-      name: "UltraFeedPostDialog",
-      closeOnNavigate: true,
-      contents: ({ onClose }) => (
-        <UltraFeedPostDialog 
-          partialPost={post}
-          postMetaInfo={{
-            sources: metaInfo.sources,
-            displayStatus: 'expanded' as const,
-            servedEventId: metaInfo.servedEventId ?? '',
-            highlight: false
-          }}
-          targetCommentId={comment._id}
-          topLevelCommentId={comment.topLevelCommentId ?? comment._id}
-          onClose={onClose}
-        />
-      )
-    });
-  }, [openDialog, comment, captureEvent, metaInfo]);
+    if (openInNewTab) {
+      const postUrl = `/posts/${post._id}/${post.slug}?commentId=${comment._id}`;
+      window.open(postUrl, '_blank');
+    } else {
+      openDialog({
+        name: "UltraFeedPostDialog",
+        closeOnNavigate: true,
+        contents: ({ onClose }) => (
+          <UltraFeedPostDialog 
+            partialPost={post}
+            postMetaInfo={{
+              sources: metaInfo.sources,
+              displayStatus: 'expanded' as const,
+              servedEventId: metaInfo.servedEventId ?? '',
+              highlight: false
+            }}
+            targetCommentId={comment._id}
+            topLevelCommentId={comment.topLevelCommentId ?? comment._id}
+            onClose={onClose}
+          />
+        )
+      });
+    }
+  }, [openDialog, comment, captureEvent, metaInfo, openInNewTab]);
 
   const truncationParams = useMemo(() => {
     const { displaySettings } = settings;
@@ -505,6 +512,7 @@ export const UltraFeedCommentItem = ({
                   onContinueReadingClick={handleContinueReadingClick}
                   hideSuffix={false}
                   resetSignal={resetSig}
+                  isRead={isRead}
                 />
               )}
             </div>

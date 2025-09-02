@@ -68,6 +68,7 @@ export type AnalyticsProps = {
   pageElementSubContext?: string,
   pageParentElementContext?: string,
   pageModalContext?: string,
+  pageFeedElementContext?: string,
   /** WARNING: read the documentation before using this.  Avoid unless you have a very good reason. */
   nestedPageElementContext?: string,
   reviewYear?: string,

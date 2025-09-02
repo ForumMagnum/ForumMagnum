@@ -300,6 +300,7 @@ export const defaultComponentPalette = (shades: ThemeShadePalette): ThemeCompone
     itemSeparatorBottom: shades.greyBorder("2px", .05),
     itemSeparatorBottomStrong: shades.greyBorder("2px", .1),
     itemSeparatorBottomIntense: shades.greyBorder("2px", .2),
+    readUltraFeedBorder: `2px solid ${shades.grey[200]}`,
     slightlyFaint: shades.greyBorder("1px", .15),
     slightlyIntense: shades.greyBorder("1px", .25),
     slightlyIntense2: shades.greyBorder("1px", .3),

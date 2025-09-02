@@ -1,6 +1,6 @@
 import { AnnualReviewMarketInfo, highlightMarket } from '../../lib/collections/posts/annualReviewMarkets';
 import { registerComponent } from '../../lib/vulcan-lib/components';
-import React from 'react';
+import React, { useMemo } from 'react';
 import { useHover } from '../common/withHover';
 import { highlightReviewWinnerThresholdSetting } from '@/lib/instanceSettings';
 import { tagStyle } from '../tagging/FooterTag';
@@ -63,9 +63,16 @@ const PostsAnnualReviewMarketTag = ({ annualReviewMarketInfo, classes }: {
 
   const year = annualReviewMarketInfo.year
   const marketUrl = annualReviewMarketInfo.url
+  const marketLongSlug = useMemo(() => {
+    const [, userAndSlug] = marketUrl.match(/^https?:\/\/manifold\.markets\/(\w+\/[\w-]+)/) || [];
+    return userAndSlug;
+  }, [marketUrl]);
 
   const marketOutcomeClass = (highlightMarket(annualReviewMarketInfo)) ? "expectedWinner" : "expectedLoser"
-  const tooltipBody = `<p>The <a href="https://www.lesswrong.com/bestoflesswrong">LessWrong Review</a> runs every year to select the posts that have most stood the test of time. This post is not yet eligible for review, but will be at the end of ${year+1}. The top fifty or so posts are featured prominently on the site throughout the year.</p><p>Hopefully, the review is better than karma at judging enduring value. If we have accurate prediction markets on the review results, maybe we can have better incentives on LessWrong today. <a href="${marketUrl}">Will this post make the top fifty?</a></p>
+  const tooltipBody = `<p><a href="${marketUrl}">Will this post make the top fifty of the ${year+1} Annual Review?</a><p>The <a href="https://www.lesswrong.com/bestoflesswrong">LessWrong Review</a> runs every year to select the posts that have most stood the test of time. This post is not yet eligible for review, but will be at the end of ${year+1}. The top fifty or so posts are featured prominently on the site throughout the year.</p><p>Hopefully, the review is better than karma at judging enduring value. If we have accurate prediction markets on the review results, maybe we can have better incentives on LessWrong today.</p>
+  <div data-manifold-id="${marketLongSlug}" class="manifold-preview">
+    <iframe style="height: 405px; width: 100%; border: none;" src="https://manifold.markets/embed/${marketLongSlug}"/>
+  </div>
   `
 
   const decimalPlaces = 0;
@@ -82,9 +89,9 @@ const PostsAnnualReviewMarketTag = ({ annualReviewMarketInfo, classes }: {
           tooltip={false}
           clickable={true}
         >
-        <div className={classes.preview}>
+        <a href={marketUrl} className={classes.preview}>
           {annualReviewMarketInfo.year} Top Fifty: {parseFloat((annualReviewMarketInfo.probability * 100).toFixed(decimalPlaces))}%
-        </div>
+        </a>
       </HoverOver>
       }
     </div>
