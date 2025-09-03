@@ -31,7 +31,7 @@ const UserActions = ({user, closeMenu, from = "userActions"}: {
   const isCurrentUser = currentUser?._id === user._id;
   
   const canCreateDialogue = currentUser && userCanPost(currentUser) 
-    && dialoguesEnabled 
+    && dialoguesEnabled()
     && userOverNKarmaOrApproved(MINIMUM_COAUTHOR_KARMA)(currentUser);
 
   const handleDialogueClick = () => {
