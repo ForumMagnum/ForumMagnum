@@ -26,6 +26,53 @@ const styles = defineStyles('FeedContentBody', (theme: ThemeType) => ({
       display: 'inline',
       marginLeft: 0,
     },
+    '& .read-suffix-desktop': {
+      [theme.breakpoints.down('sm')]: {
+        display: 'none',
+      },
+    },
+    '& .read-suffix-mobile': {
+      display: 'none',
+      [theme.breakpoints.down('sm')]: {
+        display: 'inline',
+      },
+    },
+  },
+  readActionButton: {
+    display: 'none',
+    [theme.breakpoints.down('sm')]: {
+      display: 'inline-block',
+      position: 'absolute',
+      right: 8,
+      bottom: 0,
+      backgroundColor: theme.palette.ultraFeed.readBackgroundMobile,
+      paddingLeft: 8,
+      paddingRight: 4,
+      zIndex: 2,
+      fontSize: 'inherit',
+      fontFamily: theme.palette.fonts.sansSerifStack,
+      color: theme.palette.ultraFeed.dim,
+      cursor: 'pointer',
+    },
+  },
+  contentWrapper: {
+    position: 'relative',
+  },
+  fadeOverlay: {
+    display: 'none',
+    [theme.breakpoints.down('sm')]: {
+      display: 'block',
+      position: 'absolute',
+      bottom: 0,
+      left: 0,
+      right: 0,
+      // LessWrong body2 lineHeight is 19.8px, so 3 lines = ~60px
+      height: 60,
+      background: `linear-gradient(to bottom, transparent 0%, ${theme.palette.ultraFeed.readBackgroundMobile} 100%)`,
+      pointerEvents: 'none',
+      zIndex: 1,
+      opacity: 0.8,
+    },
   },
   readMoreButton: {
     fontSize: theme.typography.body2.fontSize,
@@ -132,6 +179,8 @@ export interface FeedContentBodyProps {
   resetSignal?: number;
   /** If true, use serif style for the content */
   serifStyle?: boolean;
+  /** If true, item has been read - apply style changes and text to "read again" */
+  isRead?: boolean;
 }
 
 const FeedContentBody = ({
@@ -147,6 +196,7 @@ const FeedContentBody = ({
   hideSuffix,
   resetSignal,
   serifStyle = false,
+  isRead = false,
 }: FeedContentBodyProps) => {
 
   const classes = useStyles(styles);
@@ -164,7 +214,7 @@ const FeedContentBody = ({
   }, [resetSignal]);
 
   const currentWordLimit = isExpanded ? maxWordCount : initialWordCount;
-  const applyLineClamp = false //clampOverride && clampOverride > 0 && !isExpanded; //to-do fix and reenable
+  const applyLineClamp = false; //to-do fix and reenable
 
   const handleExpand = useCallback(() => {
     if (isExpanded) return;
@@ -178,15 +228,17 @@ const FeedContentBody = ({
     wasTruncated: boolean;
     wordsLeft: number;
     suffix: string;
+    actionText: string | null;
   } => {
     let truncatedHtml = html;
     let wasTruncated = false;
     let wordsLeft = 0;
     let suffix = '';
+    let actionText: string | null = null;
 
     // If wordCount is undefined, show all content without truncation
     if (wordCount === undefined) {
-      return { truncatedHtml: html, wasTruncated: false, wordsLeft: 0, suffix: '' };
+      return { truncatedHtml: html, wasTruncated: false, wordsLeft: 0, suffix: '', actionText: null };
     }
 
     if (applyLineClamp) {
@@ -206,11 +258,18 @@ const FeedContentBody = ({
       } else if (willTruncate && !isExpanded) {
         // Determine which action to take when content is truncated:
         // 1. If total content exceeds maxWordCount → show word count
-        // 2. If total content fits within maxWordCount → show "(read more)"
-        if (wordCount > maxWordCount) {
-          suffix = `...<span class="read-more-suffix">(read ${wordsRemaining} more ${wordsRemaining === 1 ? 'word' : 'words'} →)</span>`;
+        // 2. If total content fits within maxWordCount → show "(read more)" or "(read again)"
+        if (isRead) {
+          // The truncated text needs ellipsis, Desktop shows action inline (via suffix), Mobile hides the suffix and shows action as positioned button
+          actionText = (wordCount > maxWordCount) ? `(read again, ${wordsRemaining} words →)` : '(read again)';
+          // Add both desktop suffix (hidden on mobile) and mobile ellipsis (hidden on desktop)
+          suffix = `<span class="read-suffix-mobile">...</span><span class="read-more-suffix read-suffix-desktop">... ${actionText}</span>`;
         } else {
-          suffix = '...<span class="read-more-suffix">(read more)</span>';
+          if (wordCount > maxWordCount) {
+            suffix = `<span class="read-more-suffix">... (read ${wordsRemaining} more words →)</span>`;
+          } else {
+            suffix = `<span class="read-more-suffix">... (read more)</span>`;
+          }
         }
       }
 
@@ -227,10 +286,10 @@ const FeedContentBody = ({
       wordsLeft = result.wordsLeft;
     }
 
-    return { truncatedHtml, wasTruncated, wordsLeft, suffix };
+    return { truncatedHtml, wasTruncated, wordsLeft, suffix, actionText };
   };
 
-  const { truncatedHtml, wasTruncated, suffix } = calculateTruncationState();
+  const { truncatedHtml, wasTruncated, actionText } = calculateTruncationState();
 
   const handleContentClick = useCallback((e: React.MouseEvent) => {
     const target = e.target as HTMLElement;
@@ -280,6 +339,19 @@ const FeedContentBody = ({
 
   const styleType = serifStyle ? 'ultraFeedPost' : 'ultraFeed';
 
+  const handleActionClick = useCallback((e: React.MouseEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    
+    // If total content exceeds maxWordCount → open modal
+    // If total content fits within maxWordCount → expand inline
+    if (wordCount && wordCount > maxWordCount && onContinueReadingClick) {
+      onContinueReadingClick();
+    } else {
+      handleExpand();
+    }
+  }, [wordCount, maxWordCount, onContinueReadingClick, handleExpand]);
+
   return (
     <div
       className={classNames(
@@ -288,22 +360,35 @@ const FeedContentBody = ({
       )}
     >
       <ContentStyles contentType={styleType}>
-        <div 
-          onClick={handleContentClick}
-          className={classNames({
-            [classes.clickableContent]: wasTruncated && !isExpanded,
-          })}
-        >
-          <ContentItemBody
-            dangerouslySetInnerHTML={{ __html: truncatedHtml }}
-            nofollow={nofollow}
+        <div className={classes.contentWrapper}>
+          <div 
+            onClick={handleContentClick}
             className={classNames({
-              [classes.maxHeight]: !applyLineClamp && !isExpanded && wasTruncated,
-              [classes.lineClamp]: applyLineClamp && wasTruncated,
-              [getLineClampClass()]: applyLineClamp && wasTruncated,
-              [classes.levelZero]: !isExpanded,
+              [classes.clickableContent]: wasTruncated && !isExpanded,
             })}
-          />
+          >
+            <ContentItemBody
+              dangerouslySetInnerHTML={{ __html: truncatedHtml }}
+              nofollow={nofollow}
+              className={classNames({
+                [classes.maxHeight]: !applyLineClamp && !isExpanded && wasTruncated,
+                [classes.lineClamp]: applyLineClamp && wasTruncated,
+                [getLineClampClass()]: applyLineClamp && wasTruncated,
+                [classes.levelZero]: !isExpanded,
+              })}
+            />
+          </div>
+          {wasTruncated && !isExpanded && isRead && (
+            <div className={classes.fadeOverlay} />
+          )}
+          {actionText && wasTruncated && !isExpanded && (
+            <span 
+              className={classes.readActionButton}
+              onClick={handleActionClick}
+            >
+              {actionText}
+            </span>
+          )}
         </div>
       </ContentStyles>
     </div>

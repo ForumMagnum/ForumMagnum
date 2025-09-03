@@ -5,7 +5,6 @@ import { postGetPageUrl, postGetKarma, postGetCommentCountStr } from '../../../l
 import { Card } from "@/components/widgets/Paper";
 import { AnalyticsContext } from "../../../lib/analyticsEvents";
 import { Link } from '../../../lib/reactRouterWrapper';
-import { useForeignApolloClient } from '../../hooks/useForeignApolloClient';
 import { POST_PREVIEW_ELEMENT_CONTEXT, POST_PREVIEW_WIDTH } from './helpers';
 import type { PostsPreviewTooltipProps } from './PostsPreviewTooltip';
 import { useQuery } from "@/lib/crud/useQuery";
@@ -142,24 +141,6 @@ const styles = (theme: ThemeType) => ({
   },
 })
 
-const getPostCategory = (post: PostsBase) => {
-  const categories: Array<string> = [];
-
-  if (post.isEvent) return null
-  if (post.curatedDate) categories.push(`Curated Post`)
-  if (post.af) categories.push(`AI Alignment Forum Post`);
-  if (post.frontpageDate && !post.curatedDate && !post.af) categories.push(`Frontpage Post`)
-
-  if (categories.length > 0)
-    return categories.join(', ');
-  else if (post.question)
-    return "Question";
-  else if (post.reviewedByUserId)
-    return `Personal Blogpost`
-  else
-    return null;
-}
-
 type LWPostsPreviewTooltipProps = PostsPreviewTooltipProps & {
   classes: ClassesType<typeof styles>,
 }
@@ -174,13 +155,10 @@ const LWPostsPreviewTooltip = ({
 }: LWPostsPreviewTooltipProps) => {
   const [expanded, setExpanded] = useState(false)
 
-  const foreignApolloClient = useForeignApolloClient();
-  const isForeign = post?.fmCrosspost?.isCrosspost && !post.fmCrosspost.hostedHere && !!post.fmCrosspost.foreignPostId;
   const { loading, data: dataHighlight } = useQuery(HighlightWithHashQuery, {
     variables: { documentId: post?.fmCrosspost?.foreignPostId ?? post?._id, hash },
     skip: !post || (!hash && !!post.contents),
     fetchPolicy: "cache-first",
-    client: isForeign ? foreignApolloClient : undefined,
   });
   const postWithHighlight = dataHighlight?.post?.result;
 
@@ -190,7 +168,6 @@ const LWPostsPreviewTooltip = ({
     variables: { documentId: post?.fmCrosspost?.foreignPostId ?? post?._id, dialogueMessageId },
     skip: !post || !dialogueMessageId,
     fetchPolicy: "cache-first",
-    client: isForeign ? foreignApolloClient : undefined,
   });
   const postWithDialogueMessage = dataPostDialogueMessage?.post?.result;
 

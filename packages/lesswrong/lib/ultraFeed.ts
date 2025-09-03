@@ -41,3 +41,12 @@ export const FeedSpotlightFragment = gql(`
   }
 `)
 
+export const FeedSubscriptionSuggestionsFragment = gql(`
+  fragment FeedSubscriptionSuggestionsFragment on FeedSubscriptionSuggestions {
+    _id
+    suggestedUsers {
+      ...UsersMinimumInfo
+    }
+  }
+`)
+
