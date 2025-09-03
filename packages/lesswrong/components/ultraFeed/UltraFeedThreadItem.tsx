@@ -1,4 +1,4 @@
-import React, { useMemo, useState, useCallback } from "react";
+import React, { useMemo, useState, useCallback, useEffect } from "react";
 import { AnalyticsContext, useTracking } from "../../lib/analyticsEvents";
 import { defineStyles, useStyles } from "../hooks/useStyles";
 import { DisplayFeedCommentThread, FeedCommentMetaInfo, FeedItemDisplayStatus, FeedItemSourceType } from "./ultraFeedTypes";
@@ -106,19 +106,15 @@ const compressCollapsedComments = (
 
 const calculateInitialDisplayStatuses = (
   comments: UltraFeedComment[],
-  metaInfos: Record<string, FeedCommentMetaInfo> | undefined
+  metaInfos: Record<string, FeedCommentMetaInfo> | undefined,
+  focusedCommentId?: string
 ): CommentDisplayStatusMap => {
   const result: CommentDisplayStatusMap = {};
   for (const [commentId, meta] of Object.entries(metaInfos ?? {})) {
-    // For the first comment, ensure it's at least "collapsed"
-    if (comments.length > 0 && commentId === comments[0]._id) {
-      const firstCommentStatus = meta.displayStatus === "hidden"
-      ? "collapsed"
-      : meta.displayStatus ?? "collapsed";
-      result[commentId] = firstCommentStatus;
-    } else {
-      result[commentId] = meta.displayStatus ?? "collapsed"; 
-    }
+    const isFirstComment = comments.length > 0 && commentId === comments[0]._id;
+    const shouldUpgradeHidden = !focusedCommentId && isFirstComment && meta.displayStatus === "hidden";
+    
+    result[commentId] = shouldUpgradeHidden ? "collapsed" : (meta.displayStatus ?? "collapsed");
   }
   return result;
 };
@@ -135,11 +131,13 @@ const initializeHighlightStatuses = (
   return result;
 };
 
-const UltraFeedThreadItem = ({thread, index, settings = DEFAULT_SETTINGS, startReplyingTo}: {
+const UltraFeedThreadItem = ({thread, index, settings = DEFAULT_SETTINGS, startReplyingTo, forceParentPostCollapsed = false, focusedCommentId}: {
   thread: DisplayFeedCommentThread,
   index: number,
   settings?: UltraFeedSettingsType,
   startReplyingTo?: string,
+  forceParentPostCollapsed?: boolean,
+  focusedCommentId?: string,
 }) => {
   const classes = useStyles(styles);
   
@@ -147,7 +145,7 @@ const UltraFeedThreadItem = ({thread, index, settings = DEFAULT_SETTINGS, startR
   const {captureEvent} = useTracking();
 
   const isShortform = comments[0].shortform
-  const postInitiallyExpanded = !isOnReadPost && !isShortform;
+  const postInitiallyExpanded = !forceParentPostCollapsed && !isOnReadPost && !isShortform;
   const [ postExpanded, setPostExpanded ] = useState(postInitiallyExpanded);
   const [animatingCommentIds, setAnimatingCommentIds] = useState<Set<string>>(new Set());
   const [postIsAnimating, setPostIsAnimating] = useState(false);
@@ -179,10 +177,23 @@ const UltraFeedThreadItem = ({thread, index, settings = DEFAULT_SETTINGS, startR
     }
   }
 
-  const initialDisplayStatuses = calculateInitialDisplayStatuses(comments, commentMetaInfos);
+  const initialDisplayStatuses = calculateInitialDisplayStatuses(comments, commentMetaInfos, focusedCommentId);
   const initialHighlightStatuses = initializeHighlightStatuses(initialDisplayStatuses, commentMetaInfos);
   const [commentDisplayStatuses, setCommentDisplayStatuses] = useState<CommentDisplayStatusMap>(initialDisplayStatuses);
   const [highlightStatuses] = useState<Record<string, boolean>>(initialHighlightStatuses);
+
+  // When thread comments change (e.g., parents loaded in user content feed), ensure they have display statuses
+  useEffect(() => {
+    if (!focusedCommentId) return;
+    
+    setCommentDisplayStatuses( () => {
+      const newStatuses: CommentDisplayStatusMap = {};
+      for (const comment of comments) {
+        newStatuses[comment._id] = comment._id === focusedCommentId ? "expanded" : "hidden";
+      }
+      return newStatuses;
+    });
+  }, [comments, focusedCommentId]);
   
   const commentAuthorsMap = useMemo(() => {
     const authorsMap: Record<string, string | null> = {};
@@ -233,10 +244,12 @@ const UltraFeedThreadItem = ({thread, index, settings = DEFAULT_SETTINGS, startR
     const comment = comments.find(c => c._id === commentId);
     
     if (comment && !comment.parentCommentId && postExpanded) {
-      setPostIsAnimating(true);
-      setTimeout(() => {
-        setPostIsAnimating(false);
-      }, 100);
+      if (!focusedCommentId) {
+        setPostIsAnimating(true);
+        setTimeout(() => {
+          setPostIsAnimating(false);
+        }, 100);
+      }
       
       captureEvent("ultraFeedReplyIconClicked", { commentId, parentType: "post", postId: comment.postId });
     } else if (comment?.parentCommentId) {
@@ -249,19 +262,21 @@ const UltraFeedThreadItem = ({thread, index, settings = DEFAULT_SETTINGS, startR
         setDisplayStatus(parentCommentId, "expanded");
       }
       
-      const highlightDelay = wasCollapsed ? 300 : 0;
-      
-      setTimeout(() => {
-        setAnimatingCommentIds(prev => new Set(prev).add(parentCommentId));
+      if (!focusedCommentId) {
+        const highlightDelay = wasCollapsed ? 300 : 0;
         
         setTimeout(() => {
-          setAnimatingCommentIds(prev => {
-            const newSet = new Set(prev);
-            newSet.delete(parentCommentId);
-            return newSet;
-          });
-        }, 100);
-      }, highlightDelay);
+          setAnimatingCommentIds(prev => new Set(prev).add(parentCommentId));
+          
+          setTimeout(() => {
+            setAnimatingCommentIds(prev => {
+              const newSet = new Set(prev);
+              newSet.delete(parentCommentId);
+              return newSet;
+            });
+          }, 100);
+        }, highlightDelay);
+      }
       
       captureEvent("ultraFeedReplyIconClicked", {
         commentId,
@@ -269,7 +284,7 @@ const UltraFeedThreadItem = ({thread, index, settings = DEFAULT_SETTINGS, startR
         wasCollapsed,
       });
     }
-  }, [comments, commentDisplayStatuses, setDisplayStatus, captureEvent, postExpanded]);
+  }, [comments, commentDisplayStatuses, setDisplayStatus, captureEvent, postExpanded, focusedCommentId]);
 
   const handleReplyClick = (commentId: string) => {
     setReplyingToCommentId(commentId);

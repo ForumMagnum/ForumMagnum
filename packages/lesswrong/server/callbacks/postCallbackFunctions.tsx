@@ -53,6 +53,7 @@ import { EventUpdatedEmail } from "../emailComponents/EventUpdatedEmail";
 import { PostsHTML } from "@/lib/collections/posts/fragments";
 import { backgroundTask } from "../utils/backgroundTask";
 import { createAutomatedContentEvaluation } from "../collections/automatedContentEvaluations/helpers";
+import CurationEmails from "../collections/curationEmails/collection";
 
 
 /**
@@ -1154,6 +1155,16 @@ export async function sendLWAFPostCurationEmails(post: DbPost, oldPost: DbPost) 
     } else {
       await hydrateCurationEmailsQueue(post._id);
     }
+  }
+}
+
+/**
+ * If we uncurate a post by unsetting its curatedDate, we want to
+ * purge the curation email queue to avoid sending any emails
+ */
+export async function purgeCurationEmailQueueWhenUncurating(newPost: DbPost, oldPost: DbPost) {
+  if (!newPost.curatedDate && oldPost.curatedDate) {
+    await CurationEmails.rawRemove({ postId: newPost._id });
   }
 }
 

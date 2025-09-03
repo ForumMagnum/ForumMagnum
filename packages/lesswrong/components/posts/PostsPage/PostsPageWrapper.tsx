@@ -1,16 +1,13 @@
 import React, { useCallback } from 'react';
 import { isMissingDocumentError, isOperationNotAllowedError } from '../../../lib/utils/errorUtil';
-import PostsPageCrosspostWrapper, { isPostWithForeignId } from "./PostsPageCrosspostWrapper";
-import { useSubscribedLocation } from '../../../lib/routeUtil';
 import { useApolloClient } from '@apollo/client/react';
 import { useQuery } from "@/lib/crud/useQuery"
 import { registerComponent } from "../../../lib/vulcan-lib/components";
 import { gql } from "@/lib/generated/gql-codegen";
-import PostsPage, { postCommentsThreadQuery, usePostCommentTerms } from './PostsPage';
+import PostsPage from './PostsPage';
 import ErrorAccessDenied from "../../common/ErrorAccessDenied";
 import Error404 from "../../common/Error404";
 import Loading from "../../vulcan-core/Loading";
-import { PostFetchProps } from '@/components/hooks/useForeignCrosspost';
 import { PostsListWithVotes } from '@/lib/collections/posts/fragments';
 import { SequencesPageFragment } from '@/lib/collections/sequences/fragments';
 import { StatusCodeSetter } from '@/components/next/StatusCodeSetter';
@@ -40,8 +37,6 @@ const PostsPageWrapper = ({ sequenceId, version, documentId }: {
   version?: string,
   documentId: string,
 }) => {
-  const { query } = useSubscribedLocation();
-
   // Check the cache for a copy of the post with the PostsListWithVotes fragment, so that when you click through
   // a PostsItem, you can see the start of the post (the part of the text that was in the hover-preview) while
   // it loads the rest.
@@ -85,13 +80,6 @@ const PostsPageWrapper = ({ sequenceId, version, documentId }: {
     else await refetchPostWithoutRevision();
   }, [refetchPostWithRevision, refetchPostWithoutRevision, version]);
 
-  const crosspostFetchProps: PostFetchProps<'PostsWithNavigation' | 'PostsWithNavigationAndRevision'> = {
-    collectionName: 'Posts',
-    fragmentName: version ? 'PostsWithNavigationAndRevision' : 'PostsWithNavigation',
-    extraVariables: { sequenceId: 'String', ...(version ? { version: 'String' } : {}) },
-    extraVariablesValues: { sequenceId, ...(version ? { version } : {}) },
-  };
-
   // End of performance section
   if (error && !isMissingDocumentError(error) && !isOperationNotAllowedError(error)) {
     throw new Error(error.message);
@@ -107,8 +95,6 @@ const PostsPageWrapper = ({ sequenceId, version, documentId }: {
     }
   } else if (!post && !postPreloadWithSequence) {
     return <Error404/>
-  } else if (post && isPostWithForeignId(post)) {
-    return <PostsPageCrosspostWrapper post={post} refetch={refetch} fetchProps={crosspostFetchProps} />
   }
 
   return <>
@@ -122,5 +108,3 @@ const PostsPageWrapper = ({ sequenceId, version, documentId }: {
 }
 
 export default registerComponent("PostsPageWrapper", PostsPageWrapper);
-
-

@@ -181,6 +181,9 @@ export const styles = defineStyles("LWPostsItem", (theme: ThemeType) => ({
     },
   },
   author: {
+    '&&': {
+      flex: 1000,
+    },
     justifyContent: "flex",
     overflow: "hidden",
     whiteSpace: "nowrap",

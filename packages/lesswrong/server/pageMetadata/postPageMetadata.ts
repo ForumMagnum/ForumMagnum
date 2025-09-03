@@ -7,6 +7,7 @@ import { CommentPermalinkMetadataQuery, getCommentDescription, getDefaultMetadat
 import { postCoauthorIsPending, postGetPageUrl } from "@/lib/collections/posts/helpers";
 import { getPostDescription } from "@/components/posts/PostsPage/structuredData";
 import { captureException } from "@sentry/nextjs";
+import { notFound } from "next/navigation";
 
 const PostMetadataQuery = gql(`
   query PostMetadata($postId: String) {
@@ -106,7 +107,7 @@ export function getPostPageMetadataFunction<Params>(paramsToPostIdConverter: (pa
       const post = postData?.post?.result;
       const comment = commentData?.comment?.result;
   
-      if (!post) return {};
+      if (!post) return notFound();
   
       const description = comment
         ? getCommentDescription(comment)
@@ -140,7 +141,7 @@ export function getPostPageMetadataFunction<Params>(paramsToPostIdConverter: (pa
       //eslint-disable-next-line no-console
       console.error('Error generating post page metadata:', error);
       captureException(error);
-      return {};
+      return notFound();
     }
   }
 }

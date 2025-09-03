@@ -12,11 +12,9 @@ export async function GET(req: NextRequest) {
   }
 
   const post = await Posts.findOne({ url }, { sort: { postedAt: -1, createdAt: -1 } });
-  if (!post || !post.url) {
-    return new Response(`Invalid URL: ${url}`, { status: 404 });
+  if (post) {
+    backgroundTask(Posts.rawUpdateOne({ _id: post._id }, { $inc: { clickCount: 1 } }));
   }
 
-  backgroundTask(Posts.rawUpdateOne({ _id: post._id }, { $inc: { clickCount: 1 } }));
-
-  redirect(post.url);
+  redirect(url);
 }

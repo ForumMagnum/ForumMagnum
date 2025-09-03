@@ -28,10 +28,10 @@ import type { WebFetchHeaders } from "@sentry/core";
  * Transforms a `Headers` object that implements the `Web Fetch API` (https://developer.mozilla.org/en-US/docs/Web/API/Headers) into a simple key-value dict.
  * The header keys will be lower case: e.g. A "Content-Type" header will be stored as "content-type".
  */
-export function winterCGHeadersToDict(winterCGHeaders: WebFetchHeaders): Record<string, string> {
+export function winterCGHeadersToDict(winterCGHeaders?: WebFetchHeaders): Record<string, string> {
   const headers: Record<string, string> = {};
   try {
-    winterCGHeaders.forEach((value, key) => {
+    winterCGHeaders?.forEach((value, key) => {
       if (typeof value === 'string') {
         // We check that value is a string even though it might be redundant to make sure prototype pollution is not possible.
         headers[key] = value;

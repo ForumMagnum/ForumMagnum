@@ -1,8 +1,7 @@
 import React from "react";
 import { registerComponent } from "../../../lib/vulcan-lib/components";
 import { isMissingDocumentError, isOperationNotAllowedError } from "../../../lib/utils/errorUtil";
-import { PostFetchProps, useForeignCrosspost } from "../../hooks/useForeignCrosspost";
-import PostsPage, { EagerPostComments } from "./PostsPage";
+import PostsPage from "./PostsPage";
 import Error404 from "../../common/Error404";
 import Loading from "../../vulcan-core/Loading";
 import { CrosspostContext, crosspostContext } from "./CrosspostContext";
