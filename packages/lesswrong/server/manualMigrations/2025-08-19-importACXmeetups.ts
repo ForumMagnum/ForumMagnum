@@ -38,9 +38,7 @@ export default registerMigration({
       // Figure out whether user with email address already exists
       // This used to be userFindByEmail from /lib/vulcan-users/helpers. That seems to have become userFindOneByEmail from /lib/collections/users/commonQueries, but you should check that those actually behaved the same.
       const email = row["Email address"] as string|undefined;
-      // Does not seem relevant anymore. The email address is not present in the data
-      // const lookupEmail = email === 'ed@newspeak.house' ? 'edsaperia@gmail.com' : email;
-      const lookupEmail = email
+      const lookupEmail = email === 'ed@newspeak.house' ? 'edsaperia@gmail.com' : email;
       const existingUser = lookupEmail ? await userFindOneByEmail(lookupEmail) : undefined;
       // If not, create them (and send them an email, maybe?)
       if (existingUser) {
@@ -106,7 +104,7 @@ export default registerMigration({
           title,
           postedAt: new Date(),
           userId: eventOrganizer._id,
-          submitToFrontpage: true,
+          submitToFrontpage: false,
           activateRSVPs: true,
           draft: false,
           meta: false,
