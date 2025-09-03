@@ -42,6 +42,7 @@ module.exports = {
     },
   },
   productionBrowserSourceMaps: true,
+  typedRoutes: true,
   experimental: {
     serverSourceMaps: true,
   },

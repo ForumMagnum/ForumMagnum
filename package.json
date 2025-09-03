@@ -8,7 +8,7 @@
     "checktypes": "scripts/lint_and_checktypes.sh",
     "lint": "scripts/lint_and_checktypes.sh",
     "tsc": "tsc --noEmit --skipLibCheck",
-    "eslint": "eslint --max-warnings 0 --cache --ext .jsx,js,tsx,ts packages",
+    "eslint": "eslint --max-warnings 0 --cache --ext .jsx,js,tsx,ts packages app",
     "build": "ts-node --transpile-only ./build.ts",
     "migrate": "ts-node -r tsconfig-paths/register --swc --project tsconfig-repl.json ./migrate.ts",
     "gfrepl": "NODE_OPTIONS='--inspect --no-deprecation' SETTINGS_FILE=settings-local-dev-devdb-ea.json ts-node --swc -r tsconfig-paths/register --project tsconfig-repl.json scripts/repl.ts",

@@ -1,8 +1,8 @@
 import { captureException, getIsolationScope } from "@sentry/nextjs";
 import { isProduction, isServer } from "./executionEnvironment";
 import { winterCGHeadersToDict } from "./vendor/sentry/request";
+import { getInternalNextJsStore } from "@/lib/unsafe/nextInternals";
 import type { ForumTypeString } from "./instanceSettings"
-import type { RequestAsyncStorage } from "node_modules/@sentry/nextjs/build/types/config/templates/requestAsyncStorageShim";
 
 export const forumTypeSetting: { get: () => ForumTypeString } = {
   get: () => {
@@ -17,9 +17,8 @@ export const forumTypeSetting: { get: () => ForumTypeString } = {
       // so in those cases we use the same undocumented private NextJS feature to grab the headers from the
       // current request, which do seem to more reliably exist.
       } else if (isProduction) {
-        const { workUnitAsyncStorage }: typeof import("next/dist/server/app-render/work-unit-async-storage.external") = require("next/dist/server/app-render/work-unit-async-storage.external");
-        const asyncLocalStorage = workUnitAsyncStorage.getStore() as ReturnType<RequestAsyncStorage['getStore']>;
-        const headers = asyncLocalStorage?.headers ? winterCGHeadersToDict(asyncLocalStorage.headers) : {};
+        const internalNextJsStore = getInternalNextJsStore();
+        const headers = winterCGHeadersToDict(internalNextJsStore.headers);
         // We get the referer when handling requests to server components and generation functions (i.e. for metadata)
         const headerReferer = headers.referer;
         // We get the host when handling requests to API route handlers
@@ -30,7 +29,7 @@ export const forumTypeSetting: { get: () => ForumTypeString } = {
           urlObj = new URL(fallbackHost);
         } else {
           // eslint-disable-next-line no-console
-          console.error('No fallback host found, using default.', headers);
+          console.error('No fallback host found, using default.', internalNextJsStore);
           captureException(new Error('No fallback host found for determining forum type, using default.'));
         }
       }

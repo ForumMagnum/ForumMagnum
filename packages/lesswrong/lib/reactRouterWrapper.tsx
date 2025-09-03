@@ -4,11 +4,9 @@ import React, { CSSProperties, FC, useState } from 'react';
 import { useTracking } from '../lib/analyticsEvents';
 import NextLink from 'next/link';
 import { HashLink, HashLinkProps } from "../components/common/HashLink";
-import { classifyHost } from './routeUtil';
-import { parseQuery } from './vulcan-lib/routes';
+import { classifyHost, useLocation } from './routeUtil';
 import qs from 'qs'
 import { getUrlClass } from '@/server/utils/getUrlClass';
-import { usePathname, useSearchParams } from 'next/navigation';
 
 export type LinkProps = {
   to: HashLinkProps['to']|null
@@ -88,24 +86,16 @@ export const QueryLink: FC<Omit<LinkProps, "to"> & {
   merge=false,
   ...rest
 }) => {
-  // TODO: confirm that this is correct or otherwise replace link functionality
-  const pathname = usePathname();
-  const params = useSearchParams();
-  const location = {
-    pathname,
-    search: params.toString(),
-    // TODO: figure out hash
-    hash: ''
-  };
+  const { query: currentQuery, hash } = useLocation();
 
   const newSearchString = merge
-    ? qs.stringify({...parseQuery(location), ...query})
+    ? qs.stringify({...currentQuery, ...query})
     : qs.stringify(query);
   
-  // TODO: this isn't really tested, just implemented to unblock in case it was imported somewhere downstream of LWHome
-  const url = `${location.pathname}${newSearchString ? `?${newSearchString}` : ''}${location.hash ? `#${location.hash}` : ''}`;
+  const url = `${location.pathname}${newSearchString ? `?${newSearchString}` : ''}${hash ? hash : ''}`;
   return <NextLink
     {...rest}
+    prefetch={false}
     href={url}
   />
 }
