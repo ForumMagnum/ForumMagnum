@@ -17,7 +17,6 @@ import ClientIDAssigner from "@/components/analytics/ClientIDAssigner";
 import ClientIdsRepo from "@/server/repos/ClientIdsRepo";
 import { CLIENT_ID_COOKIE, THEME_COOKIE, TIMEZONE_COOKIE } from "@/lib/cookies/cookies";
 import { getDefaultAbsoluteUrl } from "@/lib/instanceSettings";
-import { getRequestStatus } from "@/components/next/RequestStatus";
 
 export default async function RootLayout({
   children,
@@ -53,14 +52,6 @@ export default async function RootLayout({
   const headerEntries = Object.fromEntries(Array.from((headerValues as AnyBecauseHard).entries() as [string, string][]));
 
   const routeMetadata = getRouteMetadata().get();
-  
-  const status = await getRequestStatus();
-  if (status !== 200) {
-    return <html><body>
-      <div>Not Found</div>
-      {children}
-    </body></html>
-  }
 
   return (
     <html>

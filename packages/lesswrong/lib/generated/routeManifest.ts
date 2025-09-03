@@ -560,9 +560,11 @@ export const routeTrie: RouteNode ={
                     ".rss": ".rss"
                   }
                 }
-              }
+              },
+              "hasRoute": true
             }
-          }
+          },
+          "hasRoute": true
         }
       }
     },
