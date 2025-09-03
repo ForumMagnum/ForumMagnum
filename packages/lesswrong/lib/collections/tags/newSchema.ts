@@ -38,7 +38,7 @@ export const graphqlTypeDefs = gql`
     totalCount: Int!
   }
   type UserLikingTag {
-    _id: String!
+    userId: String!
     displayName: String!
   }
 `
@@ -1327,9 +1327,12 @@ const schema = {
       resolver: async (tag, args, context) => {
         const multiDocuments = await getTagMultiDocuments(context, tag._id);
         const tagUsersWhoLiked = tag.extendedScore?.usersWhoLiked ?? [];
-        const multiDocUsersWhoLiked = multiDocuments.flatMap((md) => md.extendedScore?.usersWhoLiked ?? []);
-        const usersWhoLiked = uniqBy(tagUsersWhoLiked.concat(multiDocUsersWhoLiked), "_id");
-        return usersWhoLiked;
+        const multiDocUsersWhoLiked: Array<{_id: string, displayName: string}> = multiDocuments.flatMap((md) => md.extendedScore?.usersWhoLiked ?? []);
+        const usersWhoLiked = uniqBy([...tagUsersWhoLiked, ...multiDocUsersWhoLiked], "_id");
+        return usersWhoLiked.map(u => ({
+          userId: u._id,
+          displayName: u.displayName,
+        }));
       },
     },
   },

@@ -6,12 +6,9 @@ import { backgroundTask } from '../utils/backgroundTask';
 const redirect = (res: ServerResponse, url: string, post: DbPost | null) => {
   if (post) {
     backgroundTask(Posts.rawUpdateOne({_id: post._id}, { $inc: { clickCount: 1 } }));
-    res.writeHead(301, {'Location': url});
-    res.end();
-  } else {
-    // Don't redirect if we can't find a post for that link
-    res.end(`Invalid URL: ${url}`);
   }
+  res.writeHead(301, {'Location': url});
+  res.end();
 }
 
 // Click-tracking redirector for outgoing links in linkposts
