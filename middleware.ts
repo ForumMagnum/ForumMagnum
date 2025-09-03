@@ -1,4 +1,4 @@
-import { NextRequest, NextResponse } from 'next/server'
+import { MiddlewareConfig, NextRequest, NextResponse } from 'next/server'
 import { canonicalizePath } from "./packages/lesswrong/lib/generated/routeManifest";
 import { randomId } from './packages/lesswrong/lib/random';
 
@@ -39,18 +39,6 @@ export async function middleware(request: NextRequest) {
   
   const clientIdCookie = request.cookies.get(CLIENT_ID_COOKIE);
   const addedClientId = clientIdCookie ? null : randomId();
-
-  const pathname = request.nextUrl.pathname;
-  if (
-    pathname.startsWith("/_next")
-    || pathname.startsWith("/graphql")
-    || pathname.startsWith("/analyticsEvent")
-    || pathname.startsWith("/public")
-    || pathname.startsWith("/ckeditor-token")
-    || pathname.startsWith("/reactionImages")
-  ) {
-    return NextResponse.next()
-  }
 
   const isForwarded = request.headers.get(ForwardingHeaderName);
   if (isForwarded) {
@@ -180,5 +168,19 @@ async function findStatusCodeInStream(stream: ReadableStream<Uint8Array<ArrayBuf
   }
 }
 
-export const config = {
+export const config: MiddlewareConfig = {
+  matcher: [
+    /*
+     * Match all request paths except for the ones starting with:
+     * - api (a subset of API routes)
+     * - auth (auth routes)
+     * - graphql, analyticsEvent, ckeditor-token (high-volume API routes)
+     * - public, reactionImages (static files)
+     * The rest of these were copied from their docs:
+     * - _next/static (static files)
+     * - _next/image (image optimization files)
+     * - favicon.ico, sitemap.xml, robots.txt (metadata files)
+     */
+    '/((?!api|auth|graphql|analyticsEvent|public|ckeditor-token|reactionImages|_next/static|_next/image|favicon.ico|sitemap.xml|robots.txt).*)',
+  ]
 }

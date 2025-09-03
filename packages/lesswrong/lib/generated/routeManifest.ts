@@ -11,7 +11,7 @@ export type RouteNode = {
   lowerCase?: Record<string, string>
 }
 
-export const routeTrie: RouteNode ={
+export const routeTrie = {
   "staticChildren": {
     "abTestGroups": {
       "hasPage": true
@@ -1133,7 +1133,7 @@ export const routeTrie: RouteNode ={
     "wikitags": "wikitags"
   },
   "hasPage": true
-}
+} satisfies RouteNode;
 
 export function canonicalizePath(pathname: string): string | null {
   // Normalize
