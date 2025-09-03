@@ -30,7 +30,7 @@ const styles = (theme: ThemeType) => ({
     [theme.breakpoints.down('md')]: {
       display: "none"
     },
-    ...(isFriendlyUI && {
+    ...(theme.isFriendlyUI && {
       top: 26,
     })
   },

@@ -6,7 +6,6 @@ import {
 } from "../../../lib/instanceSettings";
 import { compassIcon } from "../../icons/compassIcon";
 import { lightbulbIcon } from "../../icons/lightbulbIcon";
-import { isFriendlyUI } from "../../../themes/forumTheme";
 import { registerComponent } from "../../../lib/vulcan-lib/components";
 import { combineUrls } from "../../../lib/vulcan-lib/utils";
 import LWTooltip from "../../common/LWTooltip";
@@ -19,7 +18,7 @@ const styles = (theme: ThemeType) => ({
     color: theme.palette.text.dim3,
     display: "inline-block",
     width: 20,
-    marginLeft: isFriendlyUI ? undefined : -6,
+    marginLeft: theme.isFriendlyUI ? undefined : -6,
     verticalAlign: "sub",
   },
 });

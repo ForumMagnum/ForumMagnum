@@ -68,7 +68,7 @@ const GetUserBySlugQuery = gql(`
 
 const styles = defineStyles('UsersEditForm', (theme: ThemeType) => ({
   root: {
-    ...(isFriendlyUI && {
+    ...(theme.isFriendlyUI && {
       "& .form-submit": {
         display: "flex",
         flexDirection: "column",

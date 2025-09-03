@@ -17,10 +17,10 @@ const styles = (theme: ThemeType) => ({
     ...theme.typography.postStyle,
     color: theme.palette.grey[900],
     display: "flex",
-    alignItems: isFriendlyUI ? "flex-start" : "center",
+    alignItems: theme.isFriendlyUI ? "flex-start" : "center",
     marginBottom: 6,
     marginTop: 6,
-    ...(isFriendlyUI && {
+    ...(theme.isFriendlyUI && {
       fontFamily: theme.palette.fonts.sansSerifStack,
       fontSize: 14,
       fontWeight: 500,
@@ -34,7 +34,7 @@ const styles = (theme: ThemeType) => ({
   },
   checkbox: {
     position: "relative",
-    top: isFriendlyUI ? -1 : 1,
+    top: theme.isFriendlyUI ? -1 : 1,
     marginRight: 10
   }
 });

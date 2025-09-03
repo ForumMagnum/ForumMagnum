@@ -4,7 +4,6 @@ import classNames from 'classnames';
 import { useLocation } from '../../../lib/routeUtil';
 import { MenuTabRegular } from './menuTabs';
 import { forumSelect } from '../../../lib/forumTypeUtils';
-import { isBookUI, isFriendlyUI } from '../../../themes/forumTheme';
 import { useCurrentUser } from '../withUser';
 import { useCookiesWithConsent } from '@/components/hooks/useCookiesWithConsent';
 import { NAV_MENU_FLAG_COOKIE_PREFIX } from '@/lib/cookies/cookies';
@@ -26,12 +25,12 @@ const styles = (theme: ThemeType) => ({
       opacity: 1,
     },
     '& $navText': {
-      color: theme.palette.grey[isFriendlyUI ? 1000 : 900],
+      color: theme.palette.grey[theme.isFriendlyUI ? 1000 : 900],
       fontWeight: 600,
     },
   },
   menuItem: {
-    width: isFriendlyUI ? 210 : 190,
+    width: theme.isFriendlyUI ? 210 : 190,
   },
   desktopOnly: {
     [theme.breakpoints.down("xs")]: {
@@ -40,16 +39,16 @@ const styles = (theme: ThemeType) => ({
   },
   navButton: {
     '&:hover': {
-      opacity: isFriendlyUI ? 1 : 0.6,
-      color: isFriendlyUI ? theme.palette.grey[800] : undefined,
+      opacity: theme.isFriendlyUI ? 1 : 0.6,
+      color: theme.isFriendlyUI ? theme.palette.grey[800] : undefined,
       backgroundColor: 'transparent', // Prevent MUI default behavior of rendering solid background on hover
       
-      ...(isFriendlyUI && {
+      ...(theme.isFriendlyUI && {
         paddingTop: 10,
         paddingBottom: 10,
       }),
     },
-    color: theme.palette.grey[isFriendlyUI ? 600 : 800],
+    color: theme.palette.grey[theme.isFriendlyUI ? 600 : 800],
     ...(theme.forumType === "LessWrong"
       ? {
         paddingTop: 7,
@@ -72,7 +71,7 @@ const styles = (theme: ThemeType) => ({
     paddingRight: 0,
     '&:hover': {
       backgroundColor: 'transparent', // Prevent MUI default behavior of rendering solid background on hover
-      opacity: isFriendlyUI ? 1 : undefined,
+      opacity: theme.isFriendlyUI ? 1 : undefined,
     }
   },
   icon: {
@@ -82,23 +81,23 @@ const styles = (theme: ThemeType) => ({
     marginRight: 16,
     display: "inline",
     "& svg": {
-      fill: isFriendlyUI ? undefined : "currentColor",
-      color: isFriendlyUI ? undefined : theme.palette.icon.navigationSidebarIcon,
+      fill: theme.isFriendlyUI ? undefined : "currentColor",
+      color: theme.isFriendlyUI ? undefined : theme.palette.icon.navigationSidebarIcon,
       transform: iconTransform,
     },
-    ...(isFriendlyUI && {
+    ...(theme.isFriendlyUI && {
       opacity: 1,
     }),
   },
   selectedIcon: {
     "& svg": {
-      color: isFriendlyUI ? theme.palette.grey[1000] : undefined,
+      color: theme.isFriendlyUI ? theme.palette.grey[1000] : undefined,
     },
   },
   navText: {
     ...theme.typography.body2,
     color: "inherit",
-    ...(isBookUI && theme.dark && {
+    ...(theme.isBookUI && theme.dark && {
       color: theme.palette.text.bannerAdOverlay,
     }),
     textTransform: "none !important",
@@ -111,7 +110,7 @@ const styles = (theme: ThemeType) => ({
     }
   },
   tooltip: {
-    maxWidth: isFriendlyUI ? 190 : undefined,
+    maxWidth: theme.isFriendlyUI ? 190 : undefined,
   },
   flag: {
     padding: "2px 4px",

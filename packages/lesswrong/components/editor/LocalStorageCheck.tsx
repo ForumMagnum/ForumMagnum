@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { SerializedEditorContents, deserializeEditorContents, EditorContents, nonAdminEditors, adminEditors } from './Editor';
 import { useCurrentUser } from '../common/withUser';
 import { htmlToTextDefault } from '@/lib/htmlToText';
-import { isFriendlyUI, preferredHeadingCase } from '@/themes/forumTheme';
+import { preferredHeadingCase } from '@/themes/forumTheme';
 import ForumIcon from "../common/ForumIcon";
 import { defineStyles, useStyles } from '../hooks/useStyles';
 
@@ -11,7 +11,7 @@ const styles = defineStyles("LocalStorageCheck", (theme: ThemeType) => ({
     display: 'flex',
     justifyContent: 'space-between',
     alignItems: 'center',
-    columnGap: isFriendlyUI ? 8 : 10,
+    columnGap: theme.isFriendlyUI ? 8 : 10,
     fontFamily: theme.typography.commentStyle.fontFamily,
     color: theme.palette.text.primaryAlert,
     fontSize: 14,
@@ -34,14 +34,14 @@ const styles = defineStyles("LocalStorageCheck", (theme: ThemeType) => ({
     whiteSpace: 'nowrap',
     paddingLeft: 6,
     paddingRight: 2,
-    fontWeight: isFriendlyUI ? 600 : undefined,
+    fontWeight: theme.isFriendlyUI ? 600 : undefined,
   },
   restoreBody: {
     maxHeight: '1.5em',
     lineHeight: '1.5em',
     fontSize: '1.1rem',
     overflow: 'hidden',
-    ...(isFriendlyUI
+    ...(theme.isFriendlyUI
       ? {
         color: theme.palette.text.primaryAlert,
         fontWeight: 500,

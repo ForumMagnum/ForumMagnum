@@ -1,7 +1,6 @@
 import { useMessages } from '../common/withMessages';
 import React from 'react';
 import { useCurrentUser } from '../common/withUser';
-import { isFriendlyUI } from '../../themes/forumTheme';
 import { useNavigate } from '../../lib/routeUtil';
 import { registerComponent } from "../../lib/vulcan-lib/components";
 import { SequencesForm } from './SequencesForm';
@@ -113,7 +112,7 @@ export const styles = defineStyles("SequencesNewForm", (theme: ThemeType) => ({
         },
         "& .form-input-errors": {
           position: "absolute",
-          top: isFriendlyUI ? 84 : 45,
+          top: theme.isFriendlyUI ? 84 : 45,
           left: 7,
           textAlign: "left",
         }
