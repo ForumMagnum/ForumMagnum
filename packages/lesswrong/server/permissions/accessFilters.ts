@@ -51,7 +51,7 @@ const commentCheckAccess: CheckAccessFunction<'Comments'> = async (currentUser, 
 }
 
 const conversationCheckAccess: CheckAccessFunction<'Conversations'> = async (currentUser, document, context): Promise<boolean> => {
-  if (!currentUser || !document) return false;
+  if (!currentUser || !document || context.isGreaterWrong) return false;
   return document.participantIds?.includes(currentUser._id)
     ? userCanDo(currentUser, 'conversations.view.own')
     : userCanDo(currentUser, `conversations.view.all`);
@@ -129,7 +129,7 @@ const lweventCheckAccess: CheckAccessFunction<'LWEvents'> = async (currentUser, 
 const messageCheckAccess: CheckAccessFunction<'Messages'> = async (currentUser, document, context): Promise<boolean> => {
   const { Conversations } = context;
 
-  if (!currentUser || !document) return false;
+  if (!currentUser || !document || context.isGreaterWrong) return false;
 
   return (await Conversations.findOne({_id: document.conversationId}))?.participantIds?.includes(currentUser._id)
     ? userCanDo(currentUser, 'messages.view.own')
@@ -175,11 +175,11 @@ const postCheckAccess: CheckAccessFunction<'Posts'> = async (currentUser, post, 
       outReasonDenied.reason = "This post is only visible to logged-in users.";
     return false;
   }
-  if (userCanDo(currentUser, 'posts.view.all')) {
+  if (userCanDo(currentUser, 'posts.view.all') && !context.isGreaterWrong) {
     return true
-  } else if (userOwns(currentUser, post) || userIsSharedOn(currentUser, post) || await userIsPostGroupOrganizer(currentUser, post, context)) {
+  } else if ((userOwns(currentUser, post) || userIsSharedOn(currentUser, post) || await userIsPostGroupOrganizer(currentUser, post, context)) && !context.isGreaterWrong) {
     return true;
-  } else if (!currentUser && !!canonicalLinkSharingKey && constantTimeCompare({ correctValue: canonicalLinkSharingKey, unknownValue: unvalidatedLinkSharingKey })) {
+  } else if ((!currentUser && !!canonicalLinkSharingKey && constantTimeCompare({ correctValue: canonicalLinkSharingKey, unknownValue: unvalidatedLinkSharingKey })) && !context.isGreaterWrong) {
     return true;
   } else if (post.isFuture || post.draft || post.deletedDraft) {
     return false;
