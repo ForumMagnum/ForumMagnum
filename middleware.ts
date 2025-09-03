@@ -64,7 +64,11 @@ export async function middleware(request: NextRequest) {
     return forwardedFetchResponse;
   }
   const [statusCodeFinderStream, responseStream] = originalBody.tee();
-  const status = await findStatusCodeInStream(statusCodeFinderStream);
+  const { status, redirectTarget } = await findStatusCodeInStream(statusCodeFinderStream);
+  if (redirectTarget) {
+    return NextResponse.redirect(redirectTarget, status);
+  }
+  
   const response = new Response(responseStream, {
     ...forwardedFetchResponse,
     headers: addedClientId ? addClientIdToResponseHeaders(forwardedFetchResponse.headers, addedClientId) : forwardedFetchResponse.headers,
@@ -97,35 +101,17 @@ function addClientIdToResponseHeaders(headers: Headers, clientId: string): Heade
   return clone;
 }
 
-type StatusCodeMetadata = number;
+type StatusCodeMetadata = { status: number, redirectTarget?: string };
 
-async function filterResponseForStatusCodes(response: NextResponse): Promise<NextResponse> {
-  const originalBody = response.body
-  if (!originalBody) {
-    return response;
-  }
-  console.log("Body available for filtering");
-
-  const [statusCodeFinderStream, responseStream] = originalBody.tee();
-  
-  const status = await findStatusCodeInStream(statusCodeFinderStream);
-  console.log(`Got status ${JSON.stringify(status)} at ${new Date().toISOString()}`);
-  const clonedResponse = new NextResponse(responseStream, {
-    ...response,
-    ...(status && {status: status}),
-  });
-  return clonedResponse;
-}
-
-const searchString: Uint8Array = new TextEncoder().encode('<div data-response-status="');
+const searchString: Uint8Array = new TextEncoder().encode('<div data-response-metadata="');
 const doubleQuoteAscii = '\"'.charCodeAt(0);
 
 /**
  * Look for a substring that looks like
- *   <div data-response-status="200">
+ *   <div data-response-metadata="eyJzdGF0dXMiOjQwNH0=">
  * in a ReadableStream, parse the attribute, and return it as a StatusCodeMetadata.
- * The stream is UTF-8 encoded, and the thing we're looking for may span chunk
- * boundaries.
+ * The stream is UTF-8 encoded, and the thing we're looking for is a base64-encoded
+ * string representing a serialized object, which may span chunk boundaries.
  */
 async function findStatusCodeInStream(stream: ReadableStream<Uint8Array<ArrayBufferLike>>): Promise<StatusCodeMetadata> {
   let matchIndex = 0;
@@ -161,10 +147,14 @@ async function findStatusCodeInStream(stream: ReadableStream<Uint8Array<ArrayBuf
   }
   
   if (isReadingResult) {
-    const resultStr = new TextDecoder().decode(new Uint8Array(result));
-    return parseInt(resultStr);
+    const base64EncodedStr = new TextDecoder().decode(new Uint8Array(result));
+    const binaryString = atob(base64EncodedStr);
+    const bytes = Uint8Array.from(binaryString, c => c.charCodeAt(0));
+    const decodedStr = new TextDecoder().decode(bytes);
+    const parsed: { status: number, redirectTarget?: string } = JSON.parse(decodedStr);
+    return parsed;
   } else {
-    return 200;
+    return { status: 200 };
   }
 }
 

@@ -1,7 +1,6 @@
-import { isServer } from './executionEnvironment';
 import qs from 'qs';
 import React, { useCallback, useContext } from 'react';
-import { LocationContext, ServerRequestStatusContext, SubscribeLocationContext, ServerRequestStatusContextType, NavigationContext } from './vulcan-core/appContext';
+import { LocationContext, SubscribeLocationContext, NavigationContext } from './vulcan-core/appContext';
 import type { RouterLocation, SegmentedUrl } from './vulcan-lib/routes';
 import { ForumOptions, forumSelect } from './forumTypeUtils';
 import { createPath, type LocationDescriptor, parsePath } from 'history';
@@ -35,13 +34,6 @@ import { getUrlClass } from '@/server/utils/getUrlClass';
 // to rerender on navigations, use useSubscribedLocation instead.
 export const useLocation = (): RouterLocation => {
   return useContext(LocationContext)!;
-}
-
-// React Hook which returns the server-side server request status, used to set 404s or redirects
-// The relevant handling happens in the renderPage function
-// This hook only works on the server and will throw an error when called on the client
-export const useServerRequestStatus = (): ServerRequestStatusContextType|null => {
-  return useContext(ServerRequestStatusContext)
 }
 
 // React Hook which returns the page location, formatted as in useLocation, and

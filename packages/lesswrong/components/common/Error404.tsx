@@ -2,7 +2,6 @@
 
 import { registerComponent } from '../../lib/vulcan-lib/components';
 import React from 'react';
-import { useServerRequestStatus } from '../../lib/routeUtil'
 import SingleColumnSection from "./SingleColumnSection";
 import { defineStyles, useStyles } from '../hooks/useStyles';
 import { StatusCodeSetter } from '../next/StatusCodeSetter';
@@ -15,8 +14,6 @@ const styles = defineStyles('Error404', (theme: ThemeType) => ({
 
 const Error404 = () => {
   const classes = useStyles(styles);
-  const serverRequestStatus = useServerRequestStatus()
-  if (serverRequestStatus) serverRequestStatus.status = 404
   
   return (
     <SingleColumnSection className={classes.root}>

@@ -1,10 +1,10 @@
 import React from 'react';
 import { registerComponent } from '../../lib/vulcan-lib/components';
 import { useCurrentUser } from './withUser';
-import { useServerRequestStatus } from '../../lib/routeUtil'
 import LoginForm from "../users/LoginForm";
 import SingleColumnSection from "./SingleColumnSection";
 import { Typography } from "./Typography";
+import { StatusCodeSetter } from '../next/StatusCodeSetter';
 
 const styles = (theme: ThemeType) => ({
   root: theme.isFriendlyUI
@@ -34,22 +34,26 @@ const ErrorAccessDenied = ({explanation, skipLoginPrompt, classes}: {
   skipLoginPrompt?: boolean,
   classes: ClassesType<typeof styles>,
 }) => {
-  const serverRequestStatus = useServerRequestStatus()
   const currentUser = useCurrentUser();
-  if (serverRequestStatus) serverRequestStatus.status = 403
   
   if (currentUser || skipLoginPrompt) {
     const message = `Sorry, you don't have access to this page.${(explanation ? ` ${explanation}` : "")}`
-    return <SingleColumnSection>
-      <div className={classes.root}>{message}</div>
-    </SingleColumnSection>
+    return <>
+      <StatusCodeSetter status={403}/>
+      <SingleColumnSection>
+        <div className={classes.root}>{message}</div>
+      </SingleColumnSection>
+    </>
   } else {
-    return <SingleColumnSection>
-      <Typography variant='body1' className={classes.root}>
-        Please log in to access this page.
-      </Typography>
-      <LoginForm startingState='login'/>
-    </SingleColumnSection>
+    return <>
+      <StatusCodeSetter status={403}/>
+      <SingleColumnSection>
+        <Typography variant='body1' className={classes.root}>
+          Please log in to access this page.
+        </Typography>
+        <LoginForm startingState='login'/>
+      </SingleColumnSection>
+    </>
   }
 }
 
