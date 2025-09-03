@@ -4,7 +4,6 @@ import { Link } from '../../../lib/reactRouterWrapper';
 import { useLocation } from '../../../lib/routeUtil';
 import classNames from 'classnames';
 import { MenuTabRegular } from './menuTabs';
-import { isFriendlyUI } from '../../../themes/forumTheme';
 import { TooltipRef } from '../FMTooltip';
 import TabNavigationSubItem from "./TabNavigationSubItem";
 
@@ -14,15 +13,15 @@ const styles = (theme: ThemeType) => ({
   selected: {
     '& $icon': {
       opacity: 1,
-      color: isFriendlyUI ? theme.palette.text.alwaysWhite : undefined,
+      color: theme.isFriendlyUI ? theme.palette.text.alwaysWhite : undefined,
     },
     '& $navText': {
-      color: isFriendlyUI ? theme.palette.text.alwaysWhite : theme.palette.grey[900],
+      color: theme.isFriendlyUI ? theme.palette.text.alwaysWhite : theme.palette.grey[900],
       fontWeight: 600,
     },
     backgroundColor: theme.palette.grey[400],
     
-    ...(isFriendlyUI && {
+    ...(theme.isFriendlyUI && {
       backgroundColor: theme.palette.secondary.main
     }),
   },
@@ -36,7 +35,7 @@ const styles = (theme: ThemeType) => ({
     alignItems: "center",
     justifyContent: "space-around",
     flexDirection: "column",
-    ...(isFriendlyUI
+    ...(theme.isFriendlyUI
       ? {
         color: theme.palette.grey[600],
         "&:hover": {
@@ -48,19 +47,19 @@ const styles = (theme: ThemeType) => ({
   },
   icon: {
     display: "block",
-    opacity: isFriendlyUI ? 1 : 0.45,
+    opacity: theme.isFriendlyUI ? 1 : 0.45,
     width: smallIconSize,
     height: smallIconSize,
     '& svg': {
       width: smallIconSize,
       height: smallIconSize,
-      fill: isFriendlyUI ? undefined : "currentColor",
-      color: isFriendlyUI ? "inherit" : undefined,
+      fill: theme.isFriendlyUI ? undefined : "currentColor",
+      color: theme.isFriendlyUI ? "inherit" : undefined,
     }
   },
   navText: {
     ...theme.typography.body2,
-    color: isFriendlyUI ? "inherit" : theme.palette.grey[700],
+    color: theme.isFriendlyUI ? "inherit" : theme.palette.grey[700],
     fontSize: '.8rem',
   },
   homeIcon: {

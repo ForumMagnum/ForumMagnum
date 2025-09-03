@@ -2,7 +2,6 @@ import { registerComponent } from '../../lib/vulcan-lib/components';
 import React from 'react';
 import { Link } from '../../lib/reactRouterWrapper';
 import classNames from 'classnames'
-import { isFriendlyUI } from '../../themes/forumTheme';
 import { useQuery } from "@/lib/crud/useQuery";
 import { gql } from "@/lib/generated/gql-codegen";
 
@@ -27,7 +26,7 @@ const styles = (theme: ThemeType) => ({
     ...theme.typography.smallCaps,
   },
   notRecentDiscussionTitle: {
-    fontFamily: isFriendlyUI
+    fontFamily: theme.isFriendlyUI
       ? theme.palette.fonts.sansSerifStack
       : theme.typography.body1.fontFamily,
   },
@@ -36,7 +35,7 @@ const styles = (theme: ThemeType) => ({
     fontFamily: theme.typography.fontFamily
   },
   root: {
-    marginBottom: isFriendlyUI ? 5 : 12, 
+    marginBottom: theme.isFriendlyUI ? 5 : 12, 
     marginTop: 10
   }
 })

@@ -2,7 +2,6 @@ import React from 'react';
 import classNames from 'classnames';
 import { SoftUpArrowIcon } from '../icons/softUpArrowIcon';
 import { SoftUpArrowIconCap } from '../icons/softUpArrowIconCap';
-import { isEAForum } from '../../lib/instanceSettings';
 import type { BaseVoteArrowIconProps } from './VoteArrowIcon';
 import { defineStyles, useStyles } from '../hooks/useStyles';
 import { getVoteButtonColor, voteButtonSharedStyles } from './VoteButton';
@@ -15,11 +14,11 @@ const styles = defineStyles("VoteArrowIconSolid", (theme: ThemeType) => ({
     cursor: 'not-allowed',
   },
   smallArrow: {
-    opacity: isEAForum ? 0.7 : 0.6,
+    opacity: theme.isEAForum ? 0.7 : 0.6,
     pointerEvents: 'none',
   },
   smallArrowLarge: {
-    opacity: isEAForum ? 0.7 : 0.6,
+    opacity: theme.isEAForum ? 0.7 : 0.6,
     pointerEvents: 'none',
   },
   up: {

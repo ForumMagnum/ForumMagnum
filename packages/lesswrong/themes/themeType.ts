@@ -643,6 +643,15 @@ declare global {
     shadePalette: ThemeShadePalette
   }
   
+  type ForumTypeFlags = {
+    isBookUI: boolean,
+    isFriendlyUI: boolean,
+    isLW: boolean,
+    isAF: boolean,
+    isLWorAF: boolean,
+    isEAForum: boolean,
+  }
+  
   type ThemeType = {
     forumType: ForumTypeString,
     themeOptions: ThemeOptions,
@@ -729,7 +738,7 @@ declare global {
     },
     transitions: MuiTransitions,
     direction: "ltr"|"rtl",
-  };
+  } & ForumTypeFlags;
 
   type NativeThemeType = Omit<ThemeType,"palette"|"forumType"|"themeOptions"|"breakpoints"> & { breakpoints: Omit<ThemeType["breakpoints"], "up"|"down"> };
   

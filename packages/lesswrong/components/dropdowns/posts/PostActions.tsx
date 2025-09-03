@@ -1,7 +1,7 @@
 import React from 'react';
 import { registerComponent } from '../../../lib/vulcan-lib/components';
 import { useCurrentUser } from '../../common/withUser';
-import { isBookUI, isFriendlyUI } from '../../../themes/forumTheme';
+import { isBookUI } from '../../../themes/forumTheme';
 import { hasCuratedPostsSetting } from '../../../lib/instanceSettings';
 import MoveToDraftDropdownItem from "./MoveToDraftDropdownItem";
 import BookmarkDropdownItem from "./BookmarkDropdownItem";
@@ -35,9 +35,9 @@ export const AllowHidingFrontPagePostsContext = React.createContext<boolean>(fal
 // Same as above context provider but for whether a post is being served as a recommendation
 export const IsRecommendationContext = React.createContext<boolean>(false);
 
-const styles = (_theme: ThemeType) => ({
+const styles = (theme: ThemeType) => ({
   root: {
-    minWidth: isFriendlyUI ? undefined : 300,
+    minWidth: theme.isFriendlyUI ? undefined : 300,
     maxWidth: "calc(100vw - 100px)",
   },
 })

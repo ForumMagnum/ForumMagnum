@@ -39,7 +39,7 @@ const styles = (theme: ThemeType) => ({
       // on mobile. This fixes that.
       display: "flex",
     },
-    ...(isFriendlyUI ? {
+    ...(theme.isFriendlyUI ? {
       padding: '18px 0px',
       marginTop: "auto",
     } : {

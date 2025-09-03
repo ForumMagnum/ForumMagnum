@@ -11,7 +11,7 @@ export const CONDENSED_MARGIN_BOTTOM = 4
 const styles = (theme: ThemeType) => ({
   node: {
     border: theme.palette.border.commentBorder,
-    borderRadius: isFriendlyUI ? theme.borderRadius.small : undefined,
+    borderRadius: theme.isFriendlyUI ? theme.borderRadius.small : undefined,
     cursor: "default",
     // Higher specificity to override child class (variant syntax)
     '&$deleted': {
@@ -28,15 +28,15 @@ const styles = (theme: ThemeType) => ({
     borderTop: theme.palette.border.commentBorder,
     borderBottom: theme.palette.border.commentBorder,
     borderRight: "none",
-    borderRadius: isFriendlyUI
+    borderRadius: theme.isFriendlyUI
       ? `${theme.borderRadius.small}px 0 0 ${theme.borderRadius.small}px`
       : "2px 0 0 2px",
   },
   new: {
     '&&': {
-      borderLeft: `solid 5px ${theme.palette.secondary.light}${isFriendlyUI ? '' : '8c'}`,
+      borderLeft: `solid 5px ${theme.palette.secondary.light}${theme.isFriendlyUI ? '' : '8c'}`,
       '&:hover': {
-        borderLeft: `solid 5px ${theme.palette.secondary.main}${isFriendlyUI ? '' : '8c'}`
+        borderLeft: `solid 5px ${theme.palette.secondary.main}${theme.isFriendlyUI ? '' : '8c'}`
       },
     }
   },
@@ -73,7 +73,7 @@ const styles = (theme: ThemeType) => ({
   },
   shortformTop: {
     '&&': {
-      marginTop: isFriendlyUI ? theme.spacing.unit*2 : theme.spacing.unit*4,
+      marginTop: theme.isFriendlyUI ? theme.spacing.unit*2 : theme.spacing.unit*4,
       marginBottom: 0,
     }
   },
@@ -120,7 +120,7 @@ const styles = (theme: ThemeType) => ({
       left: 1,
       boxSizing: "border-box",
       backgroundColor: theme.palette.panelBackground.default,
-      borderRadius: isFriendlyUI ? theme.borderRadius.small : 0,
+      borderRadius: theme.isFriendlyUI ? theme.borderRadius.small : 0,
     },
     position: "relative",
     backgroundImage: `linear-gradient(to bottom right, ${theme.palette.border.secondaryHighlight}, ${theme.palette.border.primaryHighlight})`,

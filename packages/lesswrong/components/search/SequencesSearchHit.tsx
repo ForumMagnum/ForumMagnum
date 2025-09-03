@@ -5,7 +5,6 @@ import type { Hit } from 'react-instantsearch-core';
 import LocalLibraryIcon from '@/lib/vendor/@material-ui/icons/src/LocalLibrary';
 import { Snippet } from 'react-instantsearch-dom';
 import { SearchHitComponentProps } from './types';
-import { isFriendlyUI } from '../../themes/forumTheme';
 import FormatDate from "../common/FormatDate";
 import LWTooltip from "../common/LWTooltip";
 import MetaInfo from "../common/MetaInfo";
@@ -23,7 +22,7 @@ const styles = (theme: ThemeType) => ({
     ...theme.typography.postStyle,
     fontSize: "1.25rem",
     ...theme.typography.smallCaps,
-    ...(isFriendlyUI && {
+    ...(theme.isFriendlyUI && {
       fontFamily: theme.palette.fonts.sansSerifStack,
     }),
     marginRight: 8,

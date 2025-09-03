@@ -24,7 +24,7 @@ const styles = (theme: ThemeType) => ({
     color: theme.palette.text.dim2,
     whiteSpace: "no-wrap",
     fontSize: theme.typography.body2.fontSize,
-    ...(isFriendlyUI && {
+    ...(theme.isFriendlyUI && {
       color: theme.palette.grey[800],
       fontWeight: 600
     }),
@@ -35,7 +35,7 @@ const styles = (theme: ThemeType) => ({
     position: "relative",
     top: 3,
     marginRight: 4,
-    ...(isFriendlyUI && {
+    ...(theme.isFriendlyUI && {
       color: theme.palette.grey[800]
     }),
   },
