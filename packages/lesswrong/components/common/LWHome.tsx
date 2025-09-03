@@ -90,7 +90,7 @@ const LWHome = () => {
               </SuspenseWrapper>
             </SingleColumnSection>}
           </>}
-          {(!reviewIsActive() || getReviewPhase() === "RESULTS" || !showReviewOnFrontPageIfActive.get()) && !lightconeFundraiserActive.get() && <SingleColumnSection className={classes.hideOnDesktop}>
+          {(!reviewIsActive() || getReviewPhase() === "RESULTS" || !showReviewOnFrontPageIfActive.get()) && !lightconeFundraiserActive.get() && <SingleColumnSection>
             <SuspenseWrapper name="DismissibleSpotlightItem" fallback={<SpotlightItemFallback/>}>
               <DismissibleSpotlightItem/> 
             </SuspenseWrapper>
