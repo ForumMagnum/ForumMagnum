@@ -57,6 +57,7 @@ const PostsUserAndCoauthors = ({
   showMarkers,
   useUltraFeedModal=false,
   compact=false,
+  showSubscribedIcon=false,
 }: {
   post: PostsList | SunshinePostsList,
   abbreviateIfLong?: boolean,
@@ -67,6 +68,7 @@ const PostsUserAndCoauthors = ({
   showMarkers?: boolean,
   useUltraFeedModal?: boolean,
   compact?: boolean,
+  showSubscribedIcon?: boolean,
 }) => {
   const {isAnon, topCommentAuthor, authors} = usePostsUserAndCoauthors(post);
   const UserNameComponent = useUltraFeedModal ? UsersNameWithModal : UsersName;
@@ -81,7 +83,12 @@ const PostsUserAndCoauthors = ({
     {authors.map((author, i) =>
       <React.Fragment key={author._id}>
         {i > 0 ? ", " : ""}
-        <UserNameComponent user={author} simple={simple} tooltipPlacement={tooltipPlacement}/>
+        <UserNameComponent 
+          user={author} 
+          simple={simple} 
+          tooltipPlacement={tooltipPlacement}
+          {...(useUltraFeedModal && { showSubscribedIcon })}
+        />
         {showMarkers &&
           <UserCommentMarkers user={author} className={classes.userMarkers} />
         }
@@ -90,7 +97,12 @@ const PostsUserAndCoauthors = ({
     }
     {topCommentAuthor && <span className={classNames(classes.topCommentAuthor, {[classes.new]: newPromotedComments})}>
       {", "}<ModeCommentIcon className={classNames(classes.topAuthorIcon, {[classes.new]: newPromotedComments})}/>
-      <UserNameComponent user={topCommentAuthor || undefined} simple={simple} tooltipPlacement={tooltipPlacement} />
+      <UserNameComponent 
+        user={topCommentAuthor || undefined} 
+        simple={simple} 
+        tooltipPlacement={tooltipPlacement}
+        {...(useUltraFeedModal && { showSubscribedIcon })}
+      />
     </span>}
   </div>;
 };

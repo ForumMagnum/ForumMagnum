@@ -267,8 +267,8 @@ export const UltraFeedHistoryQuery = gql(`
 `);
 
 export const UltraFeedSubscriptionsQuery = gql(`
-  query UltraFeedSubscriptions($limit: Int, $cutoff: Date, $offset: Int) {
-    UltraFeedSubscriptions(limit: $limit, cutoff: $cutoff, offset: $offset) {
+  query UltraFeedSubscriptions($limit: Int, $cutoff: Date, $offset: Int, $settings: JSON) {
+    UltraFeedSubscriptions(limit: $limit, cutoff: $cutoff, offset: $offset, settings: $settings) {
       __typename
       cutoff
       endOffset

@@ -1105,10 +1105,19 @@ class PostsRepo extends AbstractRepo<"Posts"> {
    */
   async getLatestAndSubscribedFeedPosts(
     context: ResolverContext,
-    filterSettings: FilterSettings,
-    maxAgeDays: number,
-    limit = 100,
-    restrictToFollowedAuthors = false,
+    {
+      filterSettings,
+      maxAgeDays,
+      limit = 100,
+      restrictToFollowedAuthors = false,
+      filterOutReadOrViewed = true,
+    }: {
+      filterSettings: FilterSettings;
+      maxAgeDays: number;
+      limit?: number;
+      restrictToFollowedAuthors?: boolean;
+      filterOutReadOrViewed?: boolean;
+    },
   ): Promise<FeedFullPost[]> {
     const { currentUser } = context;
     if (!currentUser?._id) {
@@ -1141,7 +1150,15 @@ class PostsRepo extends AbstractRepo<"Posts"> {
       ? `AND p."_id" NOT IN ($(hiddenPostIds:csv))` 
       : '';
 
-    const feedPostsData = await this.getRawDb().manyOrNone<DbPost & { initialFilteredScore: number, isFromSubscribedUser: boolean }>(`
+    type LatestSubscribedFeedPostRow = DbPost & {
+      initialFilteredScore: number,
+      isFromSubscribedUser: boolean,
+      lastViewed: Date | null,
+      lastInteracted: Date | null,
+      isRead: boolean,
+    };
+
+    const feedPostsData = await this.getRawDb().manyOrNone<LatestSubscribedFeedPostRow>(`
       -- PostsRepo.getLatestAndSubscribedFeedPosts
       SELECT 
         p.*,
@@ -1155,36 +1172,51 @@ class PostsRepo extends AbstractRepo<"Posts"> {
             AND s.deleted IS NOT TRUE
             AND s."collectionName" = 'Users'
             AND s."type" IN ('newActivityForFeed', 'newPosts')
-        ) AS "isFromSubscribedUser"
+        ) AS "isFromSubscribedUser",
+        ue."lastViewed",
+        ue."lastInteracted",
+        (ue."lastViewed" IS NOT NULL OR ue."lastInteracted" IS NOT NULL) AS "isRead"
       FROM "Posts" p
       LEFT JOIN (
         -- Only consider read statuses updated within the lookback window
-        SELECT "postId", "isRead"
+        SELECT "postId", "isRead", "lastUpdated"
         FROM "ReadStatuses"
         WHERE 
           "userId" = $(userId)
           AND "lastUpdated" > NOW() - INTERVAL '$(maxAgeDays) days'
       ) rs ON p._id = rs."postId"
       LEFT JOIN (
-        -- Check if the post was viewed in UltraFeedEvents within the same lookback window
-        -- We only need to know if it was viewed, not when
-        SELECT DISTINCT "documentId"
-        FROM "UltraFeedEvents"
-        WHERE 
-          "userId" = $(userId)
-          AND "collectionName" = 'Posts'
-          AND "eventType" = 'viewed'
-          AND "createdAt" > NOW() - INTERVAL '$(maxAgeDays) days'
-        LIMIT 2000
+        -- Aggregate latest viewed and interacted timestamps from a bounded subset of UltraFeedEvents, plus implied views from ReadStatuses
+        WITH ufe_limited AS (
+          SELECT "documentId", "createdAt", "eventType"
+          FROM "UltraFeedEvents"
+          WHERE 
+            "userId" = $(userId)
+            AND "collectionName" = 'Posts'
+            AND "createdAt" > NOW() - INTERVAL '$(maxAgeDays) days'
+          ORDER BY "createdAt" DESC
+          LIMIT 2000
+        ),
+        combined_events AS (
+          SELECT "documentId", "createdAt", "eventType" FROM ufe_limited
+          UNION ALL
+          SELECT rs."postId" AS "documentId", rs."lastUpdated" AS "createdAt", 'viewed' AS "eventType"
+          FROM "ReadStatuses" rs
+          WHERE rs."userId" = $(userId)
+            AND rs."lastUpdated" > NOW() - INTERVAL '$(maxAgeDays) days'
+        )
+        SELECT ce."documentId",
+          MAX(CASE WHEN ce."eventType" = 'viewed' THEN ce."createdAt" ELSE NULL END) AS "lastViewed",
+          MAX(CASE WHEN ce."eventType" <> 'viewed' AND ce."eventType" <> 'served' THEN ce."createdAt" ELSE NULL END) AS "lastInteracted"
+        FROM combined_events ce
+        GROUP BY ce."documentId"
       ) ue ON p._id = ue."documentId"
       WHERE
         p."postedAt" > NOW() - INTERVAL '$(maxAgeDays) days'
         AND p."baseScore" >= 2
         AND p.rejected IS NOT TRUE
         AND ${getViewablePostsSelector('p')}
-        -- Exclude posts that have been read OR viewed in UltraFeed
-        AND (rs."isRead" IS NULL OR rs."isRead" = FALSE)
-        AND ue."documentId" IS NULL
+        ${filterOutReadOrViewed ? 'AND (rs."isRead" IS NULL OR rs."isRead" = FALSE) AND ue."lastViewed" IS NULL' : ''}
         AND (CASE WHEN $(restrictToFollowedAuthors) THEN EXISTS (
           SELECT 1 
           FROM "Subscriptions" s 
@@ -1210,12 +1242,18 @@ class PostsRepo extends AbstractRepo<"Posts"> {
       restrictToFollowedAuthors
     });
 
-    // Preserve meta fields (isFromSubscribedUser, initialFilteredScore) before running access filtering, because accessFilterMultiple strips any keys not present in the schema.
-    const metaById = new Map(feedPostsData.map(p => [p._id!, { isFromSubscribedUser: p.isFromSubscribedUser, }]));
+    // Preserve meta fields before running access filtering
+    const metaInfoById = new Map(feedPostsData.map(p => [p._id!, { 
+      isFromSubscribedUser: p.isFromSubscribedUser,
+      lastViewed: p.lastViewed,
+      lastInteracted: p.lastInteracted,
+      isRead: p.isRead,
+    }]));
     const filteredPosts: Partial<DbPost>[] = await accessFilterMultiple(currentUser, 'Posts', feedPostsData, context);
 
     return filteredPosts.map((post): FeedFullPost => {
-      const isFromSubscribedUser = metaById.get(post._id!)?.isFromSubscribedUser ?? false;
+      const metaInfo = metaInfoById.get(post._id!);
+      const isFromSubscribedUser = metaInfo?.isFromSubscribedUser ?? false;
       // Determine sources - all posts are "latest" (hacker-news) and posts from subscribed users also get "subscriptionsPosts"
       const sources: FeedItemSourceType[] = ['hacker-news'];
       if (isFromSubscribedUser) {
@@ -1227,10 +1265,54 @@ class PostsRepo extends AbstractRepo<"Posts"> {
         postMetaInfo: {
           sources,
           displayStatus: 'expanded',
-          highlight: true, // All posts from this query are unviewed, so highlight them all
+          lastViewed: metaInfo?.lastViewed ?? null,
+          lastInteracted: metaInfo?.lastInteracted ?? null,
+          highlight: filterOutReadOrViewed ? true : !(metaInfo?.isRead ?? false),
         },
       };
     });
+  }
+
+  /**
+   * Get read status for multiple posts efficiently
+   * Returns a map of postId -> isRead boolean
+   */
+  async getPostReadStatuses(
+    postIds: string[],
+    userId: string | null,
+  ): Promise<Map<string, boolean>> {
+    if (!userId || postIds.length === 0) {
+      return new Map();
+    }
+
+    const result = await this.getRawDb().manyOrNone<{ postId: string; isRead: boolean }>(`
+      SELECT 
+        p._id as "postId",
+        CASE 
+          WHEN rs."lastUpdated" IS NOT NULL OR ue."lastViewed" IS NOT NULL OR ue."lastInteracted" IS NOT NULL 
+          THEN true 
+          ELSE false 
+        END as "isRead"
+      FROM UNNEST($1::text[]) AS p(_id)
+      LEFT JOIN "ReadStatuses" rs ON 
+        rs."postId" = p._id 
+        AND rs."userId" = $2
+        AND rs."isRead" = true
+      LEFT JOIN (
+        SELECT 
+          "documentId",
+          MAX(CASE WHEN "eventType" = 'viewed' THEN "createdAt" END) as "lastViewed",
+          MAX(CASE WHEN "eventType" IN ('upvote', 'downvote', 'strongUpvote', 'strongDownvote', 'comment') THEN "createdAt" END) as "lastInteracted"
+        FROM "UltraFeedEvents"
+        WHERE 
+          "userId" = $2
+          AND "documentId" = ANY($1::text[])
+          AND "collectionName" = 'Posts'
+        GROUP BY "documentId"
+      ) ue ON ue."documentId" = p._id
+    `, [postIds, userId]);
+
+    return new Map(result.map(row => [row.postId, row.isRead]));
   }
 }
 

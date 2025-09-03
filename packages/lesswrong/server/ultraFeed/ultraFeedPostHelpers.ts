@@ -161,10 +161,12 @@ export async function getLatestAndSubscribedPosts(
 
   return await repos.posts.getLatestAndSubscribedFeedPosts(
     context,
-    filterSettings,
-    maxAgeDays,
-    limit,
-    restrictToFollowedAuthors
+    {
+      filterSettings,
+      maxAgeDays,
+      limit,
+      restrictToFollowedAuthors,
+    }
   );
 }
 

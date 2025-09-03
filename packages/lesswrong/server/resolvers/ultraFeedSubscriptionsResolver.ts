@@ -3,6 +3,7 @@ import { filterNonnull } from '@/lib/utils/typeGuardUtils';
 import { randomId } from '@/lib/random';
 import { buildDistinctLinearThreads, generateThreadHash } from '@/server/ultraFeed/ultraFeedThreadHelpers';
 import { FilterSettings } from '@/lib/filterSettings';
+import { FeedPostMetaInfo, FeedCommentMetaInfo } from '@/components/ultraFeed/ultraFeedTypes';
 import { 
   loadMultipleEntitiesById, 
   insertUltraFeedEvents, 
@@ -29,7 +30,8 @@ export const ultraFeedSubscriptionsTypeDefs = gql`
     UltraFeedSubscriptions(
       limit: Int,
       cutoff: Date,
-      offset: Int
+      offset: Int,
+      settings: JSON
     ): UltraFeedQueryResults!
   }
 `;
@@ -38,6 +40,7 @@ interface UltraFeedSubscriptionsArgs {
   limit?: number;
   cutoff?: Date | null;
   offset?: number;
+  settings?: any;
 }
 
 interface SliceTarget {
@@ -52,7 +55,7 @@ export const ultraFeedSubscriptionsQueries = {
 
     const limit = args.limit ?? 20;
     const offset = args.offset ?? 0;
-    const cutoff = args.cutoff ?? null;
+    const hideRead = !!(args.settings?.subscriptionsFeedSettings?.hideRead);
 
     const postsRepo = context.repos.posts;
     const commentsRepo = context.repos.comments;
@@ -63,11 +66,14 @@ export const ultraFeedSubscriptionsQueries = {
     };
 
     const postRows = await postsRepo.getLatestAndSubscribedFeedPosts(
-      context, 
-      subscribedPostFilterSettings, 
-      60, 
-      1000, 
-      true // restrictToFollowedAuthors
+      context,
+      {
+        filterSettings: subscribedPostFilterSettings,
+        maxAgeDays: 60,
+        limit: 1000,
+        restrictToFollowedAuthors: true,
+        filterOutReadOrViewed: false,
+      }
     );
 
     const subscriptionComments = await commentsRepo.getCommentsForFeed(
@@ -83,11 +89,17 @@ export const ultraFeedSubscriptionsQueries = {
     const allPostIds = Array.from(new Set([...postIdsFromPosts, ...postIdsFromComments]));
 
     const commentIds = subscriptionComments.map(c => c.commentId);
+    const commentDataById = new Map<string, typeof subscriptionComments[number]>(
+      subscriptionComments.map(c => [c.commentId, c])
+    );
 
     const { postsById, commentsById } = await loadMultipleEntitiesById(context, {
       posts: allPostIds,
       comments: commentIds
     });
+
+    // Get read statuses for all posts that appear in comment threads
+    const postReadStatuses = await postsRepo.getPostReadStatuses(postIdsFromComments, currentUser?._id ?? null);
 
     const targetsByHourAndThread = new Map<string, Map<string, SliceTarget[]>>();
 
@@ -116,19 +128,43 @@ export const ultraFeedSubscriptionsQueries = {
       commentsByThread.get(threadId)!.push(c);
     }
 
-    type FeedItem = { type: SubscribedFeedEntryType; sortDate: Date; data: any };
+    type FeedItem = { 
+      type: SubscribedFeedEntryType; 
+      sortDate: Date; 
+      data: {
+        _id: string;
+        post?: DbPost | null;
+        postMetaInfo?: FeedPostMetaInfo;
+        comments?: DbComment[];
+        commentMetaInfos?: Record<string, FeedCommentMetaInfo>;
+        isOnReadPost?: boolean;
+        postSources?: string[];
+        users?: DbUser[];
+      };
+    };
     const feedItems: FeedItem[] = [];
 
     for (const row of postRows) {
       const post = row.post;
       if (!post?._id) continue;
+      if (hideRead && (row.postMetaInfo?.lastViewed || row.postMetaInfo?.lastInteracted)) {
+        continue;
+      }
       feedItems.push({
         type: 'feedPost',
         sortDate: post.postedAt ?? new Date(),
         data: {
           _id: post._id,
-          post,
-          postMetaInfo: { servedEventId: randomId(), sources: ['subscriptionsPosts'] },
+          post: post as DbPost,
+          postMetaInfo: { 
+            servedEventId: randomId(), 
+            sources: ['subscriptionsPosts'] as const,
+            lastViewed: row.postMetaInfo?.lastViewed ?? null,
+            lastInteracted: row.postMetaInfo?.lastInteracted ?? null,
+            highlight: !(row.postMetaInfo?.lastViewed || row.postMetaInfo?.lastInteracted),
+            displayStatus: 'expanded' as const,
+            isRead: !!(row.postMetaInfo?.lastViewed || row.postMetaInfo?.lastInteracted),
+          },
         },
       });
     }
@@ -179,17 +215,41 @@ export const ultraFeedSubscriptionsQueries = {
           const postId = firstComment.postId;
           const post = postId ? postsById.get(postId) : undefined;
 
-          const commentMetaInfos: { [commentId: string]: any } = {};
+          const commentMetaInfos: Record<string, FeedCommentMetaInfo> = {};
           loadedComments.forEach(c => {
+            const src = commentDataById.get(c._id);
             commentMetaInfos[c._id] = {
-              sources: ['subscriptionsComments'],
-              displayStatus: 'collapsed',
+              sources: ['subscriptionsComments'] as const,
+              displayStatus: 'expanded' as const,
               servedEventId: randomId(),
               postedAt: c.postedAt,
+              descendentCount: c.descendentCount ?? 0,
+              directDescendentCount: 0,
+              highlight: !(src?.lastViewed || src?.lastInteracted),
+              lastServed: null,
+              lastViewed: src?.lastViewed ?? null,
+              lastInteracted: src?.lastInteracted ?? null,
+              fromSubscribedUser: !!src?.fromSubscribedUser,
             };
           });
 
           const threadStableId = generateThreadHash(loadedComments.map(c => c._id));
+
+          // If hideRead is enabled, skip threads where all comments by subscribed authors are read
+          if (hideRead) {
+            const allCommentsRead = loadedComments
+              .filter((c: DbComment) => commentDataById.get(c._id)?.fromSubscribedUser)
+              .every((c: DbComment) => {
+                const { fromSubscribedUser, lastViewed, lastInteracted } = commentDataById.get(c._id) ?? {};
+
+                return fromSubscribedUser && (!!(lastViewed || lastInteracted));
+              });
+            if (allCommentsRead) {
+              continue;
+            }
+          }
+
+          const isOnReadPost = postId ? (postReadStatuses.get(postId) ?? false) : false;
 
           feedItems.push({
             type: 'feedCommentThread',
@@ -198,7 +258,7 @@ export const ultraFeedSubscriptionsQueries = {
               _id: `${threadStableId}_${hourStr}`,
               comments: loadedComments,
               commentMetaInfos,
-              isOnReadPost: false,
+              isOnReadPost,
               postSources: ['subscriptionsComments'],
               post,
             },
@@ -209,16 +269,23 @@ export const ultraFeedSubscriptionsQueries = {
 
     feedItems.sort((a, b) => (b.sortDate.getTime() - a.sortDate.getTime()) || (a.type < b.type ? -1 : 1));
 
-    const filteredByCutoff = cutoff ? feedItems.filter(fi => fi.sortDate < cutoff) : feedItems;
-    
-    // Maybe insert subscription suggestions with 20% probability
-    const withSuggestions = insertSubscriptionSuggestions(filteredByCutoff, () => ({
-      type: 'feedSubscriptionSuggestions' as const,
-      sortDate: new Date(),
-      data: {}
-    }), 0.2, 4);
-    
-    const pageItems = withSuggestions.slice(offset, offset + limit);
+    // Use offset-based pagination (ignore cutoff) to align with main feed behavior
+    const pageStart = offset ?? 0;
+    const pageEnd = pageStart + (limit ?? 20);
+    const pageCore = feedItems.slice(pageStart, pageEnd);
+    const pageItems: typeof feedItems = [];
+    // Insert a suggestions entry after every 40 feed items
+    for (let i = 0; i < pageCore.length; i++) {
+      pageItems.push(pageCore[i]);
+      const globalIndex = pageStart + i + 1;
+      if (globalIndex % 40 === 0) {
+        pageItems.push({
+          type: 'feedSubscriptionSuggestions',
+          sortDate: new Date(),
+          data: { _id: randomId() }
+        });
+      }
+    }
     
     // Load suggested users if we have a suggestions item
     const hasSuggestions = pageItems.some(it => it.type === 'feedSubscriptionSuggestions');
@@ -237,7 +304,7 @@ export const ultraFeedSubscriptionsQueries = {
             eventType: 'served',
             collectionName: 'Posts',
             documentId: post._id,
-            event: { feedType: 'subscribedFeed', itemIndex, sources: ['subscriptionsPosts'] },
+            event: { feedType: 'following', itemIndex, sources: ['subscriptionsPosts'] },
           });
         }
       } else if (item.type === 'feedCommentThread') {
@@ -250,7 +317,7 @@ export const ultraFeedSubscriptionsQueries = {
             eventType: 'served',
             collectionName: 'Comments',
             documentId: c._id,
-            event: { feedType: 'subscribedFeed', itemIndex, commentIndex, sources: ['subscriptionsComments'] },
+            event: { feedType: 'following', itemIndex, commentIndex, sources: ['subscriptionsComments'] },
           });
         });
       }
@@ -258,7 +325,7 @@ export const ultraFeedSubscriptionsQueries = {
     insertUltraFeedEvents(eventsToCreate);
 
     const results = pageItems.map(item => {
-      if (item.type === 'feedPost') {
+      if (item.type === 'feedPost' && item.data.post) {
         return { type: 'feedPost', feedPost: { _id: item.data.post._id, post: item.data.post, postMetaInfo: item.data.postMetaInfo } };
       }
       if (item.type === 'feedCommentThread') {

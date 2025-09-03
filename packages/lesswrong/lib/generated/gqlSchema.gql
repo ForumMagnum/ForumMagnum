@@ -1450,7 +1450,7 @@ extend type Query {
 }
 
 extend type Query {
-  UltraFeedSubscriptions(limit: Int, cutoff: Date, offset: Int): UltraFeedQueryResults!
+  UltraFeedSubscriptions(limit: Int, cutoff: Date, offset: Int, settings: JSON): UltraFeedQueryResults!
 }
 
 extend type Mutation {

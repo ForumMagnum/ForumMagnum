@@ -11,8 +11,20 @@ import UserNameDeleted from '../users/UserNameDeleted';
 import { defineStyles, useStyles } from '../hooks/useStyles';
 import { useDialog } from '../common/withDialog';
 import { useUltraFeedContext } from './UltraFeedContextProvider';
+import classNames from 'classnames';
+import SubscriptionsIcon from '@/lib/vendor/@material-ui/icons/src/NotificationsNone';
 
-const styles = defineStyles("UsersNameWithModal", () => ({
+const styles = defineStyles("UsersNameWithModal", (theme: ThemeType) => ({
+  root: {
+  },
+  subscribeIcon: {
+    width: 15,
+    height: 15,
+    color: theme.palette.grey[600],
+    position: 'relative',
+    top: 3,
+    marginLeft: 3,
+  },
   cardWrapper: {
     padding: 0,
     background: "unset",
@@ -31,6 +43,7 @@ const UsersNameWithModal = ({
   tooltipPlacement = "bottom-start",
   className,
   simple = false,
+  showSubscribedIcon = false,
   ...otherProps
 }: {
   user?: UsersMinimumInfo | null | undefined;
@@ -39,6 +52,7 @@ const UsersNameWithModal = ({
   tooltipPlacement?: PopperPlacementType;
   className?: string;
   simple?: boolean;
+  showSubscribedIcon?: boolean;
   color?: boolean;
   pageSectionContext?: string;
 }) => {
@@ -63,7 +77,11 @@ const UsersNameWithModal = ({
   const profileUrl = userGetProfileUrl(user);
 
   if (simple) {
-    return <span className={className}>{displayName}</span>;
+    return <span className={classNames( classes.root, className
+    )}>
+      {displayName}
+      {showSubscribedIcon && <SubscriptionsIcon className={classes.subscribeIcon} />}
+    </span>;
   }
 
   const handleClick = (e: React.MouseEvent) => {
@@ -107,11 +125,12 @@ const UsersNameWithModal = ({
       >
         <Link
           to={profileUrl}
-          className={className}
+          className={classNames( classes.root, className)}
           onClick={handleClick}
           {...(nofollow ? { rel: "nofollow" } : {})}
         >
           {displayName}
+          {showSubscribedIcon && <SubscriptionsIcon className={classes.subscribeIcon} />}
         </Link>
       </HoverOver>
     </AnalyticsContext>

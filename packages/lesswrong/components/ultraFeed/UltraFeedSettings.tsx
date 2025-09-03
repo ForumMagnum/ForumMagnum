@@ -27,6 +27,7 @@ import { ZodFormattedError } from 'zod';
 import mergeWith from 'lodash/mergeWith';
 import cloneDeep from 'lodash/cloneDeep';
 import UltraFeedFeedback from './UltraFeedFeedback';
+import FeedSelectorCheckbox from '../common/FeedSelectorCheckbox';
 import {
   SourceWeightsSettings,
   TruncationGridSettings,
@@ -95,6 +96,8 @@ const styles = defineStyles('UltraFeedSettings', (theme: ThemeType) => ({
     flex: '1 1 0',
     display: 'flex',
     justifyContent: 'flex-end',
+    alignItems: 'center',
+    gap: 8,
   },
   feedbackButton: {
     color: theme.palette.grey[600],
@@ -546,6 +549,7 @@ const UltraFeedSettings = ({
           formValues.threadInterestModel,
           (defaultVal, formVal) => parseNumericInputAsZeroOrNumber(formVal, defaultVal)
         ),
+        subscriptionsFeedSettings: settings.resolverSettings.subscriptionsFeedSettings,
       },
       displaySettings: {
         lineClampNumberOfLines: 0, // Placeholder, will be set below
@@ -687,6 +691,7 @@ const UltraFeedSettings = ({
           >
             give feedback
           </span>
+          <FeedSelectorCheckbox currentFeedType="new" />
         </div>
       </div>
       {showFeedback && <UltraFeedFeedback />}

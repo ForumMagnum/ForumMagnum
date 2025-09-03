@@ -1,5 +1,4 @@
 import React, { useState, useCallback, useRef, useEffect, useMemo } from "react";
-import { registerComponent } from "../../lib/vulcan-lib/components";
 import { AnalyticsContext, useTracking } from "../../lib/analyticsEvents";
 import { defineStyles, useStyles } from "../hooks/useStyles";
 import { postGetPageUrl, postGetLink, postGetLinkTarget, detectLinkpost } from "@/lib/collections/posts/helpers";
@@ -310,6 +309,7 @@ interface UltraFeedPostItemHeaderProps {
   sources: FeedItemSourceType[];
   isSeeLessMode: boolean;
   handleSeeLess: () => void;
+  postMetaInfo: FeedPostMetaInfo;
 }
 
 const UltraFeedPostItemHeader = ({
@@ -318,9 +318,14 @@ const UltraFeedPostItemHeader = ({
   sources,
   handleSeeLess,
   isSeeLessMode,
+  postMetaInfo,
 }: UltraFeedPostItemHeaderProps) => {
   const classes = useStyles(styles);
   const metaRowRef = useRef<HTMLDivElement>(null);
+  const { feedType } = useUltraFeedContext();
+  
+  const isSubscribedFeed = feedType === 'following';
+  const isFromSubscribedSource = postMetaInfo.sources.includes('subscriptionsPosts' as const);
 
   const handleTitleClick = (event: React.MouseEvent<HTMLAnchorElement>) => {
     if (event.button === 0 && !event.metaKey && !event.ctrlKey && !event.altKey && !event.shiftKey) {
@@ -348,10 +353,24 @@ const UltraFeedPostItemHeader = ({
       </div>
       <div className={classes.metaRow} ref={metaRowRef}>
         <div className={classes.mobileAuthorsListWrapper}>
-          <TruncatedAuthorsList post={post} useMoreSuffix={false} expandContainer={metaRowRef} className={classes.authorsList} useUltraFeedModal />
+          <TruncatedAuthorsList 
+            post={post} 
+            useMoreSuffix={false} 
+            expandContainer={metaRowRef} 
+            className={classes.authorsList} 
+            useUltraFeedModal 
+            showSubscribedIcon={isSubscribedFeed && isFromSubscribedSource}
+          />
         </div>
         <div className={classes.authorsListWrapper}>
-          <PostsUserAndCoauthors post={post} abbreviateIfLong={true} tooltipPlacement="top" compact useUltraFeedModal />
+          <PostsUserAndCoauthors 
+            post={post} 
+            abbreviateIfLong={true} 
+            tooltipPlacement="top" 
+            compact 
+            useUltraFeedModal 
+            showSubscribedIcon={isSubscribedFeed && isFromSubscribedSource}
+          />
         </div>
         {post.postedAt && (
           <span className={classes.metaDateContainer}>
@@ -412,10 +431,10 @@ const UltraFeedPostItem = ({
   const { observe, trackExpansion } = useUltraFeedObserver();
   const elementRef = useRef<HTMLDivElement | null>(null);
   const { openDialog } = useDialog();
-  const { openInNewTab } = useUltraFeedContext();
+  const { openInNewTab, feedType } = useUltraFeedContext();
   const overflowNav = useOverflowNav(elementRef);
   const { captureEvent } = useTracking();
-  const { recordPostView, isRead } = useRecordPostView(post);
+  const { recordPostView } = useRecordPostView(post);
   const [hasRecordedViewOnExpand, setHasRecordedViewOnExpand] = useState(false);
   const isForeignCrosspost = isPostWithForeignId(post) && !post.fmCrosspost.hostedHere
   const { displaySettings } = settings;
@@ -610,6 +629,8 @@ const UltraFeedPostItem = ({
     index,
   ]);
 
+  const { isRead } = postMetaInfo;
+
   const shortformHtml = post.shortform 
     ? `This is a special post for quick takes (aka "shortform"). Only the owner can create top-level comments.`
     : undefined
@@ -628,14 +649,18 @@ const UltraFeedPostItem = ({
   if (!displayHtml) {
     return null; 
   }
+  
 
   return (
     <RecombeeRecommendationsContextWrapper postId={post._id} recommId={postMetaInfo.recommInfo?.recommId}>
     <AnalyticsContext ultraFeedElementType="feedPost" postId={post._id} feedCardIndex={index} ultraFeedSources={postMetaInfo.sources}>
     <div className={classnames(classes.root, { 
       [classes.rootWithAnimation]: isHighlightAnimating,
+      [classes.rootWithReadStyles]: feedType === 'following' && isRead,
     })}>
-      <div ref={elementRef} className={classes.mainContent}>
+      <div ref={elementRef} className={classnames(classes.mainContent, { 
+        [classes.contentWithReadStyles]: feedType === 'following' && isRead,
+      })}>
         {/* On small screens, the triple dot menu is positioned absolutely to the root */}
         <div className={classes.mobileTripleDotWrapper}>
           <AnalyticsContext pageElementContext="tripleDotMenu">
@@ -659,6 +684,7 @@ const UltraFeedPostItem = ({
             sources={postMetaInfo.sources}
             isSeeLessMode={isSeeLessMode}
             handleSeeLess={handleSeeLessClick}
+            postMetaInfo={postMetaInfo}
           />
         </div>
 
@@ -734,4 +760,4 @@ const UltraFeedPostItem = ({
   );
 };
 
-export default registerComponent("UltraFeedPostItem", UltraFeedPostItem);
+export default UltraFeedPostItem;

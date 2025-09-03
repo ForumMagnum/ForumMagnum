@@ -8015,6 +8015,7 @@ type QueryUltraFeedSubscriptionsArgs = {
   cutoff?: InputMaybe<Scalars['Date']['input']>;
   limit?: InputMaybe<Scalars['Int']['input']>;
   offset?: InputMaybe<Scalars['Int']['input']>;
+  settings?: InputMaybe<Scalars['JSON']['input']>;
 };
 
 
@@ -14297,6 +14298,7 @@ type UltraFeedSubscriptionsQueryVariables = Exact<{
   limit: InputMaybe<Scalars['Int']['input']>;
   cutoff: InputMaybe<Scalars['Date']['input']>;
   offset: InputMaybe<Scalars['Int']['input']>;
+  settings: InputMaybe<Scalars['JSON']['input']>;
 }>;
 
 

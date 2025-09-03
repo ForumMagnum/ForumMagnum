@@ -8,7 +8,7 @@ import { postGetPageUrl } from "@/lib/collections/posts/helpers";
 import PostsTooltip from "../posts/PostsPreviewTooltip/PostsTooltip";
 import CommentsMenu from "../dropdowns/comments/CommentsMenu";
 import CommentsItemDate from "../comments/CommentsItem/CommentsItemDate";
-import CommentUserName from "../comments/CommentsItem/CommentUserName";
+import UsersNameWithModal from "./UsersNameWithModal";
 import UltraFeedCommentActions from "./UltraFeedCommentActions";
 import SubdirectoryArrowLeft from "@/lib/vendor/@material-ui/icons/src/SubdirectoryArrowLeft";
 import LWTooltip from "../common/LWTooltip";
@@ -16,6 +16,7 @@ import ForumIcon from "../common/ForumIcon";
 import DebateIcon from "@/lib/vendor/@material-ui/icons/src/Forum";
 import { FeedCommentMetaInfo } from "./ultraFeedTypes";
 import UltraFeedMetaInfoPill from "./UltraFeedMetaInfoPill";
+import { useUltraFeedContext } from "./UltraFeedContextProvider";
 
 const styles = defineStyles("UltraFeedCommentsItemMeta", (theme: ThemeType) => ({
   root: {
@@ -107,9 +108,6 @@ const styles = defineStyles("UltraFeedCommentsItemMeta", (theme: ThemeType) => (
   username: {
     marginRight: 8,
     textWrap: "nowrap",
-    '& a, & a:hover': {
-      color: theme.palette.link.unmarked,
-    },
     fontWeight: 600,
   },
   moderatorHat: {
@@ -368,7 +366,7 @@ const UltraFeedCommentsItemMeta = ({
   const currentUser = useCurrentUser();
   const [postTitleHighlighted, setPostTitleHighlighted] = useState(false);
   const { post } = comment;
-  const { captureEvent } = useTracking();
+  const { feedType } = useUltraFeedContext();
 
   if (!post) {
     return null;
@@ -380,6 +378,9 @@ const UltraFeedCommentsItemMeta = ({
   const isNewContent = comment.postedAt && (new Date(comment.postedAt) > new Date(Date.now() - (7 * 24 * 60 * 60 * 1000)));
   const isTopLevelComment = !comment.parentCommentId;
   const isRead = !!metaInfo.lastViewed || !!metaInfo.lastInteracted;
+  
+  const isSubscribedFeed = feedType === 'following';
+  const isFromSubscribedAuthor = !!metaInfo.fromSubscribedUser;
   
   const handlePostTitleHighlight = (iconType: 'shortform' | 'debate') => {
     setPostTitleHighlighted(true);
@@ -409,11 +410,11 @@ const UltraFeedCommentsItemMeta = ({
           onReplyIconClick={onReplyIconClick}
           onPostTitleHighlight={handlePostTitleHighlight}
         />
-        <CommentUserName
-          comment={comment}
+        <UsersNameWithModal
+          user={comment.user ?? undefined}
           className={classes.username}
-          useUltraFeedModal={true}
           tooltipPlacement="bottom-start"
+          showSubscribedIcon={isSubscribedFeed && isFromSubscribedAuthor}
         />
         {!hideDate && post && <span className={classNames({[classes.newContentDateStyling]: isNewContent})}>
           <CommentsItemDate comment={comment} post={post} className={classes.date}/>

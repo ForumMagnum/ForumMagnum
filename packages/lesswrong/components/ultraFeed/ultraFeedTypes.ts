@@ -1,6 +1,6 @@
 // Define source type arrays for runtime iteration
 
-export const feedTypes = ["subscribedFeed", "ultraFeed", "userContent", "bookmarksFeed"] as const;
+export const feedTypes = ["following", "ultraFeed", "userContent", "bookmarksFeed"] as const;
 export type FeedType = typeof feedTypes[number];
 
 export const feedPostSourceTypesArray = [ 'hacker-news', 'recombee-lesswrong-custom', 'bookmarks', 'subscriptionsPosts' ] as const;
@@ -41,6 +41,7 @@ export interface FeedPostMetaInfo {
   highlight: boolean;
   displayStatus: FeedItemDisplayStatus;
   servedEventId?: string;
+  isRead?: boolean;
 }
 export interface FeedCommentMetaInfo {
   sources: FeedItemSourceType[];
@@ -54,6 +55,8 @@ export interface FeedCommentMetaInfo {
   highlight?: boolean;
   displayStatus?: FeedItemDisplayStatus;
   servedEventId?: string;
+  fromSubscribedUser?: boolean;
+  isRead?: boolean;
 }
 
 export interface FeedSpotlightMetaInfo {
@@ -77,6 +80,8 @@ export interface FeedCommentFromDb {
   lastInteracted: Date | null;
   postedAt: Date | null;
   descendentCount?: number;
+  fromSubscribedUser?: boolean;
+  isRead?: boolean;
 }
 
 export interface PreDisplayFeedComment {

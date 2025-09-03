@@ -5,33 +5,31 @@ import type { ObservableQuery } from '@apollo/client';
 import { randomId } from '../../lib/random';
 import DeferRender from '../common/DeferRender';
 import { defineStyles, useStyles } from '../hooks/useStyles';
-import { FeedItemSourceType } from './ultraFeedTypes';
 import { UltraFeedObserverProvider } from './UltraFeedObserver';
 import { OverflowNavObserverProvider } from './OverflowNavObserverContext';
 import { AnalyticsContext, useTracking } from '@/lib/analyticsEvents';
 import { userIsAdminOrMod } from '@/lib/vulcan-users/permissions';
-import { MixedTypeFeed } from "../common/MixedTypeFeed";
-import UltraFeedPostItem from "./UltraFeedPostItem";
-import FeedItemWrapper from "./FeedItemWrapper";
-import SectionTitle from "../common/SectionTitle";
+import UltraFeedHeader from './UltraFeedHeader';
 import SingleColumnSection from "../common/SingleColumnSection";
 import SettingsButton from "../icons/SettingsButton";
-import UltraFeedSpotlightItem from "./UltraFeedSpotlightItem";
 import UltraFeedSettings from "./UltraFeedSettings";
-import UltraFeedThreadItem from "./UltraFeedThreadItem";
-import { UltraFeedQuery } from '../common/feeds/feedQueries';
+import UltraFeedFollowingSettings from './UltraFeedFollowingSettings';
 import ForumIcon from '../common/ForumIcon';
 import UltraFeedQuickTakeDialog from './UltraFeedQuickTakeDialog';
 import { useDialog } from '../common/withDialog';
-import FeedSelectorDropdown from '../common/FeedSelectorCheckbox';
 import { ultraFeedEnabledSetting } from '../../lib/publicSettings';
-import { Link } from '../../lib/reactRouterWrapper';
 import { useUltraFeedSettings } from '../hooks/useUltraFeedSettings';
+import type { UltraFeedSettingsType, TruncationLevel } from './ultraFeedSettingsTypes';
 import AnalyticsInViewTracker from '../common/AnalyticsInViewTracker';
 import UltraFeedBottomBar from './UltraFeedBottomBar';
 import Loading from '../vulcan-core/Loading';
-import { createUltraFeedRenderers } from './renderers/createUltraFeedRenderers';
 import UltraFeedSubscriptionsFeed from './UltraFeedSubscriptionsFeed';
+import UltraFeedMainFeed from './UltraFeedMainFeed';
+import { UltraFeedContextProvider } from './UltraFeedContextProvider';
+import { useLocation } from '../../lib/routeUtil';
+import { useCookiesWithConsent } from '../hooks/useCookiesWithConsent';
+import { ULTRA_FEED_ACTIVE_TAB_PREFIX } from '../../lib/cookies/cookies';
+import { FeedType } from './ultraFeedTypes';
 
 
 const styles = defineStyles("UltraFeed", (theme: ThemeType) => ({
@@ -44,6 +42,7 @@ const styles = defineStyles("UltraFeed", (theme: ThemeType) => ({
     display: 'flex',
     alignItems: 'center',
     justifyContent: 'space-between',
+    overflow: 'visible',
   },
   titleContainer: {
     display: 'flex',
@@ -74,18 +73,39 @@ const styles = defineStyles("UltraFeed", (theme: ThemeType) => ({
     justifyContent: 'flex-end',
     alignItems: 'center',
     // gap: 24, // Add spacing between items
+    marginLeft: 'auto',
   },
   settingsButtonContainer: {
     display: 'flex',
-    alignItems: 'center'
+    alignItems: 'center',
+    marginLeft: 'auto',
   },
   ultraFeedNewContentContainer: {
     position: 'relative',
+    width: '100%',
+  },
+  returnToTopBar: {
+    display: 'flex',
+    justifyContent: 'center',
+    alignItems: 'center',
+    paddingTop: 12,
+    paddingBottom: 24,
+  },
+  returnToTopLink: {
+    ...theme.typography.body2,
+    ...theme.typography.commentStyle,
+    color: theme.palette.lwTertiary.main,
+    cursor: 'pointer',
+    textAlign: 'center',
   },
   tabsBar: {
     display: 'flex',
-    width: '100%',
-    marginTop: 8,
+    alignItems: 'center',
+    gap: 0,
+    marginLeft: 24,
+    marginRight: 24,
+    flex: '1 1 auto',
+    paddingBottom: 0,
   },
   tabButton: {
     display: 'flex',
@@ -95,13 +115,13 @@ const styles = defineStyles("UltraFeed", (theme: ThemeType) => ({
     fontSize: 14,
     lineHeight: '20px',
     fontWeight: 600,
-    padding: '12px 0',
-    width: '50%',
+    padding: '20px 12px',
     cursor: 'pointer',
     position: 'relative',
-    transition: 'background-color 0.2s',
+    transition: 'color 0.2s',
+    flex: 1,
     '&:hover': {
-      backgroundColor: theme.palette.grey[100],
+      backgroundColor: theme.palette.background.hover,
     },
   },
   tabButtonInactive: {
@@ -112,7 +132,6 @@ const styles = defineStyles("UltraFeed", (theme: ThemeType) => ({
   },
   tabLabel: {
     position: 'relative',
-    top: 2,
     display: 'inline-flex',
     flexDirection: 'column',
   },
@@ -121,7 +140,7 @@ const styles = defineStyles("UltraFeed", (theme: ThemeType) => ({
     bottom: -16,
     left: 0,
     right: 0,
-    height: 3,
+    height: 2,
     backgroundColor: theme.palette.primary.main,
     borderRadius: '3px 3px 0 0',
   },
@@ -184,29 +203,44 @@ const styles = defineStyles("UltraFeed", (theme: ThemeType) => ({
 }));
 
 const UltraFeedContent = ({
+  settings,
+  updateSettings,
+  resetSettings,
+  truncationMaps,
   settingsVisible,
   onCloseSettings,
   useExternalContainer,
+  activeTab,
 }: {
+  settings: UltraFeedSettingsType,
+  updateSettings: (newSettings: Partial<UltraFeedSettingsType>) => void,
+  resetSettings: () => void,
+  truncationMaps: { commentMap: Record<TruncationLevel, number>, postMap: Record<TruncationLevel, number> },
   alwaysShow?: boolean
   settingsVisible?: boolean
   onCloseSettings?: () => void
   useExternalContainer?: boolean
+  activeTab: FeedType
 }) => {
   const classes = useStyles(styles);
   const currentUser = useCurrentUser();
   const [isRefreshing, setIsRefreshing] = useState(false);
   const [isTopVisible, setIsTopVisible] = useState(true);
   const [isFeedInView, setIsFeedInView] = useState(false);
-  const [activeTab, setActiveTab] = useState<'forYou'|'following'>('forYou');
 
   const { openDialog } = useDialog();
   const { captureEvent } = useTracking();
-  const { settings, updateSettings, resetSettings, truncationMaps } = useUltraFeedSettings();
   const [sessionId] = useState<string>(randomId);
-  const refetchSubscriptionContentRef = useRef<null | ObservableQuery['refetch']>(null);
+  const refetchForYouRef = useRef<null | ObservableQuery['refetch']>(null);
+  const refetchFollowingRef = useRef<null | (() => void)>(null);
   const topSentinelRef = useRef<HTMLDivElement | null>(null);
   const feedContainerRef = useRef<HTMLDivElement | null>(null);
+  const forYouWrapperRef = useRef<HTMLDivElement | null>(null);
+  const followingWrapperRef = useRef<HTMLDivElement | null>(null);
+  const [hasRenderedForYou, setHasRenderedForYou] = useState(activeTab === 'ultraFeed');
+  const [hasRenderedFollowing, setHasRenderedFollowing] = useState(activeTab === 'following');
+  const lastVisibleHeightRef = useRef<number>(0);
+  const [minHeightPx, setMinHeightPx] = useState<number>(0);
 
   const handleOpenQuickTakeDialog = () => {
     captureEvent("ultraFeedComposerQuickTakeDialogOpened");
@@ -238,10 +272,42 @@ const UltraFeedContent = ({
     };
   }, []);
 
+  // When switching to a tab for the first time, mark it as mounted
+  useEffect(() => {
+    if (activeTab === 'following' && !hasRenderedFollowing) {
+      setHasRenderedFollowing(true);
+    }
+    if (activeTab === 'ultraFeed' && !hasRenderedForYou) {
+      setHasRenderedForYou(true);
+    }
+  }, [activeTab, hasRenderedFollowing, hasRenderedForYou]);
+
+  // Observe current active tab height and keep it as min-height to avoid collapse during switches
+  useEffect(() => {
+    const el = activeTab === 'ultraFeed' ? forYouWrapperRef.current : followingWrapperRef.current;
+    if (!el) return;
+    // On switch, keep previous height until new height is known
+    if (lastVisibleHeightRef.current > 0) {
+      setMinHeightPx(lastVisibleHeightRef.current);
+    }
+    const ro = new ResizeObserver(() => {
+      const h = el.offsetHeight || 0;
+      if (h > 0 && h !== lastVisibleHeightRef.current) {
+        lastVisibleHeightRef.current = h;
+        setMinHeightPx(h);
+      }
+    });
+    ro.observe(el);
+    return () => ro.disconnect();
+  }, [activeTab]);
+
+  
+
   const handleRefreshFeed = () => {
-    if (refetchSubscriptionContentRef.current) {
+    const refetchFn = activeTab === 'ultraFeed' ? refetchForYouRef.current : refetchFollowingRef.current;
+    if (refetchFn) {
       setIsRefreshing(true);
-      void refetchSubscriptionContentRef.current().finally(() => {
+      void Promise.resolve(refetchFn()).finally(() => {
         setIsRefreshing(false);
       });
     }
@@ -265,40 +331,61 @@ const UltraFeedContent = ({
         <OverflowNavObserverProvider>
             <div ref={topSentinelRef} style={{ scrollMarginTop: 400 }} />
             
-
             {settingsVisible && (
               <div className={useExternalContainer ? classes.settingsContainerExternal : classes.settingsContainer}>
-                <UltraFeedSettings 
-                  settings={settings}
-                  updateSettings={updateSettings}
-                  resetSettingsToDefault={resetSettingsToDefault}
-                  onClose={() => onCloseSettings?.()} 
-                  truncationMaps={truncationMaps}
-                />
+                {activeTab === 'ultraFeed' ? (
+                  <UltraFeedSettings 
+                    settings={settings}
+                    updateSettings={updateSettings}
+                    resetSettingsToDefault={resetSettingsToDefault}
+                    onClose={() => onCloseSettings?.()} 
+                    truncationMaps={truncationMaps}
+                  />
+                ) : (
+                  <UltraFeedFollowingSettings
+                    settings={settings}
+                    updateSettings={updateSettings}
+                    onClose={() => onCloseSettings?.()}
+                  />
+                )}
               </div>
             )}
             
-            <div className={classes.ultraFeedNewContentContainer}>
+            <div className={classes.ultraFeedNewContentContainer} style={minHeightPx ? { minHeight: minHeightPx } : undefined}>
               {isRefreshing && <div className={classes.refetchLoading}>
                 <Loading />
               </div>}
-              {activeTab === 'forYou' && (
-                <MixedTypeFeed
-                  query={UltraFeedQuery}
-                  variables={{
-                    sessionId,
-                    settings: JSON.stringify(resolverSettings),
-                  }}
-                  firstPageSize={15}
-                  pageSize={30}
-                  refetchRef={refetchSubscriptionContentRef}
-                  loadMoreDistanceProp={1000}
-                  fetchPolicy="cache-first"
-                  renderers={createUltraFeedRenderers({ settings })}
-                />
+              {hasRenderedForYou && (
+                <div
+                  ref={forYouWrapperRef}
+                  style={activeTab === 'ultraFeed' ? undefined : { position: 'absolute', inset: 0, visibility: 'hidden', pointerEvents: 'none' }}
+                >
+                  <UltraFeedMainFeed
+                    settings={settings}
+                    sessionId={sessionId}
+                    refetchRef={refetchForYouRef}
+                    fetchPolicy="cache-first"
+                    loadMoreDistanceProp={1000}
+                    firstPageSize={15}
+                    pageSize={30}
+                  />
+                </div>
               )}
-              {activeTab === 'following' && (
-                <UltraFeedSubscriptionsFeed embedded={true} />
+              {hasRenderedFollowing && (
+                <div
+                  ref={followingWrapperRef}
+                  style={activeTab === 'following' ? undefined : { position: 'absolute', inset: 0, visibility: 'hidden', pointerEvents: 'none' }}
+                >
+                  <UltraFeedContextProvider feedType="following">
+                    <UltraFeedSubscriptionsFeed 
+                      embedded={true} 
+                      refetchRef={refetchFollowingRef}
+                      settings={settings}
+                      updateSettings={updateSettings}
+                      showHideReadToggle={false}
+                    />
+                  </UltraFeedContextProvider>
+                </div>
               )}
             </div>
         </OverflowNavObserverProvider>
@@ -333,8 +420,18 @@ const UltraFeed = ({
 }) => {
   const classes = useStyles(styles);
   const currentUser = useCurrentUser();
+  const location = useLocation();
+  const cookieKey = `${ULTRA_FEED_ACTIVE_TAB_PREFIX}${location.pathname || 'root'}`;
+  const [cookies, setCookie] = useCookiesWithConsent([cookieKey]);
   const [internalSettingsVisible, setInternalSettingsVisible] = useState(false);
+  const [activeTab, setActiveTab] = useState<FeedType>(() => (cookies[cookieKey] === 'following' ? 'following' : 'ultraFeed'));
   const { captureEvent } = useTracking();
+  const { settings, updateSettings, resetSettings, truncationMaps } = useUltraFeedSettings();
+
+  const handleTabChange = (tab: FeedType) => {
+    setActiveTab(tab);
+    setCookie(cookieKey, tab, { path: '/' });
+  };
 
   if (!currentUser) {
     return null;
@@ -366,9 +463,7 @@ const UltraFeed = ({
   const customTitle = <>
     <div className={classes.titleContainer}>
       <span className={classes.titleText}>
-        <Link to="/feed" className={classes.titleLink}>
-          Update Feed
-        </Link>
+        Update Feed
       </span>
     </div>
   </>;
@@ -376,29 +471,27 @@ const UltraFeed = ({
   return (
     <>
       <SingleColumnSection>
-        {!hideTitle && (
-          <SectionTitle title={customTitle} titleClassName={classes.sectionTitle}>
-            <DeferRender ssr={false}>
-              <div className={classes.feedCheckboxAndSettingsContainer}>
-                {!alwaysShow && <FeedSelectorDropdown currentFeedType="new" />}
-                {!isControlled && (
-                  <div className={classes.settingsButtonContainer}>
-                    <SettingsButton 
-                      showIcon={true}
-                      onClick={toggleSettings}
-                    />
-                  </div>
-                )}
-              </div>
-            </DeferRender>
-          </SectionTitle>
-        )}
+        <UltraFeedHeader
+          title={customTitle}
+          hideTitle={hideTitle}
+          titleHref="/feed"
+          activeTab={activeTab}
+          onTabChange={handleTabChange}
+          settingsButton={!isControlled ? <SettingsButton showIcon={true} onClick={toggleSettings} /> : undefined}
+          feedSettings={settings}
+          updateFeedSettings={updateSettings}
+        />
         <DeferRender ssr={false}>
           <UltraFeedContent 
+            settings={settings}
+            updateSettings={updateSettings}
+            resetSettings={resetSettings}
+            truncationMaps={truncationMaps}
             alwaysShow={alwaysShow}
             settingsVisible={actualSettingsVisible}
             onCloseSettings={isControlled ? onSettingsToggle : () => setInternalSettingsVisible(false)}
             useExternalContainer={isControlled}
+            activeTab={activeTab}
           />
         </DeferRender>
       </SingleColumnSection>
