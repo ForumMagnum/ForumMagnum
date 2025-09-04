@@ -22,7 +22,7 @@ import ElasticClient from "../search/elastic/ElasticClient";
 import ElasticExporter from "../search/elastic/ElasticExporter";
 import { hasType3ApiAccess, regenerateAllType3AudioForUser } from "../type3";
 import { editableUserProfileFields, simpleUserProfileFields } from "../userProfileUpdates";
-import { userDeleteContent, userIPBanAndResetLoginTokens } from "../users/moderationUtils";
+import { userDeleteContent } from "../users/moderationUtils";
 import { getAdminTeamAccount } from "../utils/adminTeamAccount";
 import { nullifyVotesForUser } from '../nullifyVotesForUser';
 import { triggerReviewIfNeeded } from "./sunshineCallbackUtils";
@@ -641,7 +641,7 @@ export async function userEditChangeDisplayNameCallbacksAsync(user: DbUser, oldU
   }
 }
 
-export function userEditBannedCallbacksAsync(user: DbUser, oldUser: DbUser) {
+export function userEditBannedCallbacksAsync(user: DbUser, oldUser: DbUser, context: ResolverContext) {
   const currentBanDate = user.banned
   const previousBanDate = oldUser.banned
   const now = new Date()
@@ -649,7 +649,7 @@ export function userEditBannedCallbacksAsync(user: DbUser, oldUser: DbUser) {
   const previousUserWasBanned = !!(previousBanDate && new Date(previousBanDate) > now)
   
   if (updatedUserIsBanned && !previousUserWasBanned) {
-    backgroundTask(userIPBanAndResetLoginTokens(user));
+    backgroundTask(context.repos.users.clearLoginTokens(user._id));
   }
 }
 

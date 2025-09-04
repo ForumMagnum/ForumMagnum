@@ -1,74 +1,15 @@
 import { postStatuses } from "@/lib/collections/posts/constants";
 import Reports from "@/server/collections/reports/collection";
 import Sequences from "@/server/collections/sequences/collection";
-import { asyncForeachSequential } from "@/lib/utils/asyncUtils";
 import { getCollection } from "@/server/collections/allCollections";
 import { postReportPurgeAsSpam, commentReportPurgeAsSpam } from "../akismet";
 import { syncDocumentWithLatestRevision } from "../editor/utils";
-import UsersRepo from "../repos/UsersRepo";
-import { createBan } from "../collections/bans/mutations";
-import { computeContextFromUser } from "@/server/vulcan-lib/apollo-server/context";
 import { updateTag } from "../collections/tags/mutations";
 import { updatePost } from "../collections/posts/mutations";
 import { updateComment } from "../collections/comments/mutations";
 import { updateReport } from "../collections/reports/mutations";
 import { updateSequence } from "../collections/sequences/mutations";
 import { updateNotification } from "../collections/notifications/mutations";
-import { inspect } from "util";
-import { createAdminContext } from "../vulcan-lib/createContexts";
-
-
-
-/**
- * Add user IP address to IP ban list for a day and remove their login tokens
- *
- * NB: We haven't tested the IP ban list in like 3 years and it should not be
- * assumed to work.
- */
-export async function userIPBanAndResetLoginTokens(user: DbUser) {
-  const { runQuery }: typeof import('../vulcan-lib/query') = require('../vulcan-lib/query');
-  // IP ban
-  const query = `
-    query UserIPBan($userId:String) {
-      user(input:{selector: {_id: $userId}}) {
-        result {
-          IPs
-        }
-      }
-    }
-  `;
-  const IPs: any = await runQuery(query, {userId: user._id}, createAdminContext());
-  if (IPs) {
-    try {
-      await asyncForeachSequential(IPs.data.user.result.IPs as Array<string>, async ip => {
-        let tomorrow = new Date();
-        tomorrow.setDate(tomorrow.getDate() + 1);
-        const ban = {
-          expirationDate: tomorrow,
-          userId: user._id,
-          reason: "User account banned",
-          comment: "Automatic IP ban",
-          ip: ip,
-        }
-        const userContext = await computeContextFromUser({ user, isSSR: false });
-        await createBan({ data: ban }, userContext);
-      })
-    } catch (e) {
-      /* eslint-disable no-console */
-      console.error("User object:");
-      console.error(inspect(user, { depth: null, colors: true }));
-      console.error("IPs object (raw result from runQuery):");
-      console.error(inspect(IPs, { depth: null, colors: true }));
-      console.error("Caught error details:");
-      console.error(inspect(e, { showHidden: true, depth: null, colors: true }));
-      /* eslint-enable no-console */
-      throw e;
-    }
-  }
-
-  // Remove login tokens
-  await new UsersRepo().clearLoginTokens(user._id);
-}
 
 
 async function deleteUserTagsAndRevisions(user: DbUser, deletingUser: DbUser, context: ResolverContext) {
@@ -92,7 +33,7 @@ async function deleteUserTagsAndRevisions(user: DbUser, deletingUser: DbUser, co
   const tagRevisions = await Revisions.find({userId: user._id, collectionName: 'Tags'}).fetch()
   // eslint-disable-next-line no-console
   console.info("Deleting tag revisions: ", tagRevisions)
-  await Revisions.rawRemove({userId: user._id})
+  await Revisions.rawRemove({ _id: { $in: tagRevisions.map((revision) => revision._id) } })
   // Revert revision documents
   for (let revision of tagRevisions) {
     if (!revision.collectionName) {

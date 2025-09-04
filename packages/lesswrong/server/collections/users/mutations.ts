@@ -141,7 +141,7 @@ export async function updateUser({ selector, data }: { data: UpdateUserDataInput
   await handleSetShortformPost(updatedDocument, oldDocument, context);
   await updatingPostAudio(updatedDocument, oldDocument);
   await userEditChangeDisplayNameCallbacksAsync(updatedDocument, oldDocument, context);
-  userEditBannedCallbacksAsync(updatedDocument, oldDocument);
+  userEditBannedCallbacksAsync(updatedDocument, oldDocument, context);
   await newAlignmentUserSendPMAsync(updatedDocument, oldDocument, context);
   await newAlignmentUserMoveShortform(updatedDocument, oldDocument, context);
 
