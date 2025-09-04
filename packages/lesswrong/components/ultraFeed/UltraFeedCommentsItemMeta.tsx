@@ -109,6 +109,7 @@ const styles = defineStyles("UltraFeedCommentsItemMeta", (theme: ThemeType) => (
     marginRight: 8,
     textWrap: "nowrap",
     fontWeight: 600,
+    color: `${theme.palette.text.primary} !important`,
   },
   moderatorHat: {
     marginRight: 12,
