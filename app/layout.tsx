@@ -17,6 +17,7 @@ import ClientIDAssigner from "@/components/analytics/ClientIDAssigner";
 import ClientIdsRepo from "@/server/repos/ClientIdsRepo";
 import { CLIENT_ID_COOKIE, THEME_COOKIE, TIMEZONE_COOKIE } from "@/lib/cookies/cookies";
 import { getDefaultAbsoluteUrl } from "@/lib/instanceSettings";
+import { SharedScripts } from "@/components/next/SharedScripts";
 
 export default async function RootLayout({
   children,
@@ -56,11 +57,8 @@ export default async function RootLayout({
   return (
     <html>
       <head>
-        <Script strategy="beforeInteractive" id="public-instance-settings">
-          {`window.publicInstanceSettings = ${toEmbeddableJson(publicInstanceSettings)}`}
-        </Script>
         {globalExternalStylesheets.map(stylesheet => <link key={stylesheet} rel="stylesheet" type="text/css" href={stylesheet}/>)}
-        <script dangerouslySetInnerHTML={{__html: getEmbeddedStyleLoaderScript()}}/>
+        <SharedScripts />
         <meta httpEquiv='delegate-ch' content='sec-ch-dpr https://res.cloudinary.com;' />
         {/* HACK: These insertion-point markers are <script> tags (rather than
           * <style> tags) because <style> is special-cased in a way that
