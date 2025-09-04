@@ -27,6 +27,7 @@ import NewPostModerationWarning from "../sunshineDashboard/NewPostModerationWarn
 import NewPostHowToGuides from "./NewPostHowToGuides";
 import { withDateFields } from '@/lib/utils/dateUtils';
 import { PostsEditFormQuery } from './queries';
+import { StatusCodeSetter } from '../next/StatusCodeSetter';
 
 const UsersCurrentPostRateLimitQuery = gql(`
   query PostsEditFormUser($documentId: String, $eventForm: Boolean) {
@@ -206,7 +207,8 @@ const PostsEditForm = ({ documentId, version }: {
   // on LW, show a moderation message to users who haven't been approved yet
   const postWillBeHidden = isLW() && !currentUser?.reviewedByUserId
 
-  return (
+  return (<>
+    <StatusCodeSetter status={200}/>
     <DynamicTableOfContents title={document.title} rightColumnChildren={isEAForum() && <NewPostHowToGuides/>}>
       <div className={classes.postForm}>
         {currentUser && <PostsAcceptTos currentUser={currentUser} />}
@@ -243,7 +245,7 @@ const PostsEditForm = ({ documentId, version }: {
         </DeferRender>
       </div>
     </DynamicTableOfContents>
-  );
+  </>);
 }
 
 export default registerComponent('PostsEditForm', PostsEditForm);

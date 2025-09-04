@@ -6,7 +6,7 @@ import RouteRoot from "@/components/next/RouteRoot";
 export const generateMetadata = generateUserPageMetadata;
 
 export default function Page() {
-  return <RouteRoot>
+  return <RouteRoot delayedStatusCode>
     <UsersSingle />
   </RouteRoot>
 }

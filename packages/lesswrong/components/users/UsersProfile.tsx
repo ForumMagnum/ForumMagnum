@@ -57,6 +57,7 @@ import CommentsSortBySelector from "../comments/CommentsSortBySelector";
 import { StructuredData } from '../common/StructuredData';
 import { useQuery } from "@/lib/crud/useQuery";
 import { gql } from "@/lib/generated/gql-codegen";
+import { StatusCodeSetter } from '../next/StatusCodeSetter';
 
 const UsersProfileMultiQuery = gql(`
   query multiUserUsersProfileQuery($selector: UserSelector, $limit: Int, $enableTotal: Boolean) {
@@ -317,6 +318,7 @@ const UsersProfileFn = ({terms, slug, classes}: {
 
     return (
       <div className={classNames("page", "users-profile", classes.profilePage)}>
+        <StatusCodeSetter status={200}/>
         <StructuredData generate={() => getUserStructuredData(user)}/>
         <AnalyticsContext pageContext={"userPage"}>
           {/* Bio Section */}
