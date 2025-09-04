@@ -284,7 +284,7 @@ export const linkStyles = defineStyles("LinkStyles", (theme: ThemeType) => ({
   
   owidIframe: {
     width: 600,
-    height: 375,
+    height: 600,
     border: "none",
     maxWidth: "100vw",
   },
