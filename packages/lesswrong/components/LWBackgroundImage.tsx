@@ -7,6 +7,7 @@ import { Link } from '../lib/reactRouterWrapper';
 import ReviewVotingCanvas from "./review/ReviewVotingCanvas";
 import CloudinaryImage2 from "./common/CloudinaryImage2";
 import Inkhaven2025Banner from './seasonal/Inkhaven2025';
+import PetrovDayStory from './seasonal/petrovDay/PetrovDayStory';
 
 const styles = defineStyles("LWBackgroundImage", (theme: ThemeType) => ({
   root: {
@@ -135,6 +136,8 @@ export const LWBackgroundImage = ({standaloneNavigation}: {
         darkPublicId={"happyWizard_mmmnjx"}
       />
   </div>
+
+  return <PetrovDayStory />
 
   let homePageImage = defaultImage
   if (getReviewPhase() === 'VOTING') homePageImage = <ReviewVotingCanvas />
