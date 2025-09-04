@@ -55,7 +55,7 @@ export async function generateMetadata({ params }: { params: Promise<{ groupId: 
 }
 
 export default function Page() {
-  return <RouteRoot metadata={{
+  return <RouteRoot delayedStatusCode metadata={{
     subtitle: 'Community',
     subtitleLink: '/community',
     titleComponent: LocalgroupPageTitle

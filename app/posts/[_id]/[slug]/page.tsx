@@ -8,11 +8,14 @@ import RouteRoot from "@/components/next/RouteRoot";
 export const generateMetadata = getPostPageMetadataFunction<{ _id: string }>(({ _id }) => _id);
 
 export default function PostPage() {
-  return <RouteRoot metadata={{
-    background: 'white',
-    noFooter: hasPostRecommendations(),
-    titleComponent: PostsPageHeaderTitle
-  }}>
+  return <RouteRoot
+    delayedStatusCode
+    metadata={{
+      background: 'white',
+      noFooter: hasPostRecommendations(),
+      titleComponent: PostsPageHeaderTitle
+    }}
+  >
     <PostsSingle />
   </RouteRoot>;
 }

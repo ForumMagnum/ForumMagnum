@@ -152,9 +152,9 @@ export type RouteNode = {
   lowerCase?: Record<string, string>
 }
 
-export const routeTrie: RouteNode = `
-  .trim()
-  const body = JSON.stringify(root, null, 2)
+export const routeTrie = `;
+
+  const body = JSON.stringify(root, null, 2) + ' satisfies RouteNode;'
   const footer = `
 
 export function canonicalizePath(pathname: string): string | null {

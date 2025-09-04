@@ -22,6 +22,7 @@ import PermanentRedirect from "../common/PermanentRedirect";
 import ForeignCrosspostEditForm from "../posts/ForeignCrosspostEditForm";
 import PostVersionHistoryButton from './PostVersionHistory';
 import { gql } from '@/lib/generated/gql-codegen';
+import { StatusCodeSetter } from '../next/StatusCodeSetter';
 
 const styles = (theme: ThemeType) => ({
   title: {
@@ -76,7 +77,10 @@ const PostCollaborationEditor = ({ classes }: {
     if (isMissingDocumentError(error)) {
       return <Error404 />
     }
-    return <SingleColumnSection>Sorry, you don't have access to this draft</SingleColumnSection>
+    return <>
+      <StatusCodeSetter status={500}/>
+      <SingleColumnSection>Sorry, you don't have access to this draft</SingleColumnSection>
+    </>
   }
   
   if (loading) {
@@ -108,33 +112,36 @@ const PostCollaborationEditor = ({ classes }: {
     return <ForeignCrosspostEditForm post={post} />;
   }
 
-  return <SingleColumnSection>
-    <div className={classes.title}>{post.title}</div>
-    <PostsAuthors post={post}/>
-    <CollabEditorPermissionsNotices post={post}/>
-    {/*!post.draft && <div>
-      You are editing an already-published post. The primary author can push changes from the edited revision to the <Link to={postGetPageUrl(post)}>published revision</Link>.
-    </div>*/}
-    <ContentStyles className={classes.editor} contentType="post">
-      <DeferRender ssr={false}>
-        <CKPostEditor
-          documentId={postId}
-          collectionName="Posts"
-          fieldName="contents"
-          formType="edit"
-          userId={currentUser?._id}
-          isCollaborative={true}
-          accessLevel={post.myEditorAccess as CollaborativeEditingAccessLevel}
-          document={post}
-          onReady={()=>{}}
-        />
-        <PostVersionHistoryButton
-          post={post}
-          postId={postId}
-        />
-      </DeferRender>
-    </ContentStyles>
-  </SingleColumnSection>
+  return <>
+    <StatusCodeSetter status={200}/>
+    <SingleColumnSection>
+      <div className={classes.title}>{post.title}</div>
+      <PostsAuthors post={post}/>
+      <CollabEditorPermissionsNotices post={post}/>
+      {/*!post.draft && <div>
+        You are editing an already-published post. The primary author can push changes from the edited revision to the <Link to={postGetPageUrl(post)}>published revision</Link>.
+      </div>*/}
+      <ContentStyles className={classes.editor} contentType="post">
+        <DeferRender ssr={false}>
+          <CKPostEditor
+            documentId={postId}
+            collectionName="Posts"
+            fieldName="contents"
+            formType="edit"
+            userId={currentUser?._id}
+            isCollaborative={true}
+            accessLevel={post.myEditorAccess as CollaborativeEditingAccessLevel}
+            document={post}
+            onReady={()=>{}}
+          />
+          <PostVersionHistoryButton
+            post={post}
+            postId={postId}
+          />
+        </DeferRender>
+      </ContentStyles>
+    </SingleColumnSection>
+  </>
 };
 
 export default registerComponent('PostCollaborationEditor', PostCollaborationEditor, {styles});

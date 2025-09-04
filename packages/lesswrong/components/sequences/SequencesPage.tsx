@@ -29,6 +29,7 @@ import { Typography } from "../common/Typography";
 import SectionButton from "../common/SectionButton";
 import ContentStyles from "../common/ContentStyles";
 import NotifyMeButton from "../notifications/NotifyMeButton";
+import { StatusCodeSetter } from '../next/StatusCodeSetter';
 
 const SequencesPageFragmentQuery = gql(`
   query SequencesPage($documentId: String) {
@@ -209,6 +210,7 @@ const SequencesPage = ({ documentId, classes }: {
   }, []);
   if (document?.isDeleted) {
     return <SingleColumnSection>
+      <StatusCodeSetter status={200}/>
       <Typography variant="body2" className={classes.deletedText}>
         This sequence has been deleted. <Link to="/library" className={classes.link}>Click here to view all sequences.</Link>
       </Typography>
@@ -221,7 +223,10 @@ const SequencesPage = ({ documentId, classes }: {
   }
   if (edit) {
     if (!currentUser) {
-      return <div>You must be logged in to edit this sequence.</div>
+      return <>
+        <StatusCodeSetter status={401}/>
+        <div>You must be logged in to edit this sequence.</div>
+      </>
     }
     if (editLoading) {
       return <Loading />
@@ -229,14 +234,15 @@ const SequencesPage = ({ documentId, classes }: {
     if (!editableDocument) {
       return <Error404/>
     }
-    return (
+    return (<>
+      <StatusCodeSetter status={200}/>
       <SequencesEditForm
         sequence={editableDocument}
         currentUser={currentUser}
         successCallback={showSequence}
         cancelCallback={showSequence}
       />
-    )
+    </>)
   }
 
   const canEdit = userCanDo(currentUser, 'sequences.edit.all') || (userCanDo(currentUser, 'sequences.edit.own') && userOwns(currentUser, document))
@@ -258,6 +264,7 @@ const SequencesPage = ({ documentId, classes }: {
   }) : undefined;
     
   return <AnalyticsContext pageContext="sequencesPage">
+    <StatusCodeSetter status={200}/>
     <div className={classes.root}>
       {bannerId && <div className={classes.banner}>
         <div className={classes.bannerWrapper}>

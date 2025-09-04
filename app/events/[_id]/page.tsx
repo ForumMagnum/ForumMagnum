@@ -8,13 +8,16 @@ import RouteRoot from "@/components/next/RouteRoot";
 export const generateMetadata = getPostPageMetadataFunction<{ _id: string }>(({ _id }) => _id);
 
 export default function Page() {
-  return <RouteRoot metadata={{
-    subtitle: 'Community',
-    subtitleLink: '/community',
-    background: 'white',
-    noFooter: hasPostRecommendations(),
-    titleComponent: PostsPageHeaderTitle
-  }}>
+  return <RouteRoot
+    delayedStatusCode
+    metadata={{
+      subtitle: 'Community',
+      subtitleLink: '/community',
+      background: 'white',
+      noFooter: hasPostRecommendations(),
+      titleComponent: PostsPageHeaderTitle
+    }}
+  >
     <PostsSingle />
   </RouteRoot>;
 }

@@ -65,8 +65,7 @@ export default async function RootLayout({
         {/* HACK: These insertion-point markers are <script> tags (rather than
           * <style> tags) because <style> is special-cased in a way that
           * interacts badly with our dynamic insertion leading to a hydration
-          * mismatch
-          */}
+          * mismatch */}
         <script id="jss-insertion-start"/>
         {/*Style tags are dynamically inserted here*/}
         <script id="jss-insertion-end"/>

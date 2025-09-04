@@ -52,6 +52,7 @@ import { useQueryWithLoadMore } from '@/components/hooks/useQueryWithLoadMore';
 import { gql } from "@/lib/generated/gql-codegen";
 import CommentsDraftList from '../comments/CommentsDraftList';
 import { StructuredData } from '../common/StructuredData';
+import { StatusCodeSetter } from '../next/StatusCodeSetter';
 
 const PostsMinimumInfoMultiQuery = gql(`
   query multiPostFriendlyUsersProfileQuery($selector: PostSelector, $limit: Int, $enableTotal: Boolean) {
@@ -520,6 +521,7 @@ const FriendlyUsersProfile = ({terms, slug, classes}: {
   }
 
   return <div>
+    <StatusCodeSetter status={200}/>
     <StructuredData generate={() => getUserStructuredData(user)}/>
     <AnalyticsContext pageContext="userPage">
       <SingleColumnSection>
