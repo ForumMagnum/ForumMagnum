@@ -6,6 +6,7 @@ import { ForumOptions, forumSelect } from './forumTypeUtils';
 import { createPath, type LocationDescriptor, parsePath } from 'history';
 import {siteUrlSetting} from './instanceSettings'
 import { getUrlClass } from '@/server/utils/getUrlClass';
+import { urlIsAbsolute } from './vulcan-lib/utils';
 
 // React Hook which returns the page location (parsed URL and route).
 // Return value contains:
@@ -208,6 +209,15 @@ export const classifyHost = (host: string): "onsite"|"offsite"|"mirrorOfUs" => {
   })
 
   return urlType;
+}
+
+export const classifyLink = (href: string): "onsite"|"offsite"|"mirrorOfUs" => {
+  if (urlIsAbsolute(href)) {
+    const host = new URLClass(href).host;
+    return classifyHost(host);
+  } else {
+    return "onsite";
+  }
 }
 
 // Returns whether a string could, conservatively, possibly be a database ID.

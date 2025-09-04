@@ -1,7 +1,7 @@
 import React from 'react';
 import { registerComponent } from '../../lib/vulcan-lib/components';
 import { getSiteUrl } from '../../lib/vulcan-lib/utils';
-import { classifyHost, useLocation } from '../../lib/routeUtil';
+import { classifyHost, classifyLink, useLocation } from '../../lib/routeUtil';
 import { AnalyticsContext } from "../../lib/analyticsEvents";
 import withErrorBoundary from '../common/withErrorBoundary';
 import { locationHashIsFootnote, locationHashIsFootnoteBackreference } from '../contents/CollapsedFootnotes';
@@ -65,7 +65,7 @@ const HoverPreviewLink = ({ href, id, rel, noPrefetch, contentStyleType, classNa
     const linkTargetAbsolute = new URLClass(href, currentURL);
 
     const onsiteUrl = linkTargetAbsolute.pathname + linkTargetAbsolute.search + linkTargetAbsolute.hash;
-    const hostType = classifyHost(linkTargetAbsolute.host)
+    const hostType = classifyLink(href);
     if (!linkIsExcludedFromPreview(onsiteUrl) && (hostType==="onsite" || hostType==="mirrorOfUs")) {
       const parsedUrl = parseRouteWithErrors(onsiteUrl)
       const destinationUrl = hostType==="onsite" ? parsedUrl.url : href;
