@@ -151,3 +151,4 @@ import './2025-02-14-updateKarmaNotifDefault'
 import './2023-01-07-updateReviewFinalVote'
 import './2025-02-26-fieldChangesPopulateTable'
 import './2025-05-21-denormalizeCrossposts.ts'
+import './2025-08-19-importACXmeetups.ts';
