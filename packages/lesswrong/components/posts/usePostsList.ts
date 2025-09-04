@@ -9,6 +9,7 @@ import { PostsItemConfig } from "./usePostsItem";
 import { PostsListViewType, usePostsListView } from "../hooks/usePostsListView";
 import { gql } from "@/lib/generated/gql-codegen";
 import { useQueryWithLoadMore } from '../hooks/useQueryWithLoadMore';
+import uniqBy from 'lodash/uniqBy';
 
 const postsListWithVotesQuery = gql(`
   query postsListWithVotes($selector: PostSelector, $limit: Int, $enableTotal: Boolean) {
@@ -231,9 +232,10 @@ export const usePostsList = <TagId extends string | undefined = undefined>({
   const maybeMorePosts = !!(results?.length && (results.length >= limit)) ||
     alwaysShowLoadMore;
 
-  let orderedResults = (order && results) ? sortBy(results, post => order.indexOf(post._id)) : results;
-  if (defaultToShowUnreadComments && results) {
-    orderedResults = sortBy(results, (post) => {
+  const uniqueResults = results ? uniqBy(results, p=>p._id) : results;
+  let orderedResults = (order && results) ? sortBy(uniqueResults, post => order.indexOf(post._id)) : results;
+  if (defaultToShowUnreadComments && orderedResults) {
+    orderedResults = sortBy(orderedResults, (post) => {
       const postLastCommentedAt = postGetLastCommentedAt(post)
       return !post.lastVisitedAt || !postLastCommentedAt || (new Date(post.lastVisitedAt) >= postLastCommentedAt);
     })
