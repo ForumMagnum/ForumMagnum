@@ -107,7 +107,7 @@ type TagContributorsList {
 }
 
 type UserLikingTag {
-  _id: String!
+  userId: String!
   displayName: String!
 }
 

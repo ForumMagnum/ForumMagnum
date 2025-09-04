@@ -12561,8 +12561,8 @@ type UserJobAdsAdsByUserInput = {
 
 type UserLikingTag = {
   __typename?: 'UserLikingTag';
-  _id: Scalars['String']['output'];
   displayName: Scalars['String']['output'];
+  userId: Scalars['String']['output'];
 };
 
 type UserMostValuablePost = {
@@ -26014,7 +26014,7 @@ type ExplorePageTagFragment = (
 
 type ConceptItemFragment_Tag_description_Revision = { __typename?: 'Revision', _id: string, wordCount: number };
 
-type ConceptItemFragment_Tag_usersWhoLiked_UserLikingTag = { __typename?: 'UserLikingTag', _id: string, displayName: string };
+type ConceptItemFragment_Tag_usersWhoLiked_UserLikingTag = { __typename?: 'UserLikingTag', userId: string, displayName: string };
 
 type ConceptItemFragment = { __typename?: 'Tag', _id: string, core: boolean, name: string, slug: string, oldSlugs: Array<string>, postCount: number, baseScore: number, wikiOnly: boolean, isArbitalImport: boolean | null, coreTagId: string | null, maxScore: number | null, description: ConceptItemFragment_Tag_description_Revision | null, usersWhoLiked: Array<ConceptItemFragment_Tag_usersWhoLiked_UserLikingTag> };
 

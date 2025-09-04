@@ -14,7 +14,7 @@ export const graphqlTypeDefs = gql`
     totalCount: Int!
   }
   type UserLikingTag {
-    _id: String!
+    userId: String!
     displayName: String!
   }
 `;

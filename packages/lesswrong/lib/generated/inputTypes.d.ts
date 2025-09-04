@@ -464,7 +464,7 @@ interface TagContributorsList {
 }
 
 interface UserLikingTag {
-  _id: string;
+  userId: string;
   displayName: string;
 }
 
