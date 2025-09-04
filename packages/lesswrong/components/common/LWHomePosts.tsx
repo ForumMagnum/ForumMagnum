@@ -175,7 +175,7 @@ const styles = defineStyles("LWHomePost", (theme: ThemeType) => ({
     display: 'flex',
     justifyContent: 'flex-end',
     alignItems: 'center',
-    marginTop: 16,
+    marginTop: -8,
   },
 }));
 
