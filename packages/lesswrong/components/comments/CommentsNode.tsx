@@ -300,7 +300,7 @@ const CommentsNodeInner = ({
     handleExpand({ event, scroll: scrollOnExpand });
   }, [handleExpand, scrollOnExpand]);
 
-  return <div className={comment.gapIndicator ? classes.gapIndicator : undefined}>
+  const result = (
     <CommentFrame
       comment={comment}
       treeOptions={treeOptions}
@@ -364,7 +364,15 @@ const CommentsNodeInner = ({
         </div>
       }
     </CommentFrame>
-  </div>
+  );
+  
+  if (comment.gapIndicator) {
+    return <div className={classes.gapIndicator}>
+      {result}
+    </div>
+  } else {
+    return result;
+  }
 }
 
 const CommentsNode = registerComponent('CommentsNode', CommentsNodeInner, {

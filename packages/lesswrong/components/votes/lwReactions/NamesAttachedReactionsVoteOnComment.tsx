@@ -107,6 +107,9 @@ const styles = defineStyles("NamesAttachedReactionsVoteOnComment", (theme: Theme
     "&:hover": {
       filter: "opacity(0.8)",
     },
+    "@media print": {
+      display: "none",
+    },
   },
   hoverBallot: {
     fontFamily: theme.typography.commentStyle.fontFamily,

@@ -37,7 +37,10 @@ const styles = (theme: ThemeType) => ({
     transform:"translate(50%, -50%)",
     color: theme.palette.icon.commentsBubble.commentCount,
     fontVariantNumeric:"lining-nums",
-    ...theme.typography.commentStyle
+    ...theme.typography.commentStyle,
+    "@media print": {
+      color: theme.palette.text.normal,
+    },
   },
   noUnreadComments: {
     color: theme.palette.icon.commentsBubble.noUnread,

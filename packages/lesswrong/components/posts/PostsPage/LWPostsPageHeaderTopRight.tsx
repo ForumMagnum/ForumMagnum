@@ -52,6 +52,9 @@ const styles = (theme: ThemeType) => ({
   audioToggle: {
     opacity: 0.55,
     display: 'flex',
+    "@media print": {
+      display: "none",
+    },
   },
   darkerOpacity: {
     opacity: 0.7
