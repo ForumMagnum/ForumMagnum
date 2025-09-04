@@ -69,7 +69,7 @@ if (globalThis.bundleIsCodegen === undefined) {
 
 
 // @ts-ignore next-line
-globalThis.defaultSiteAbsoluteUrl = process.env.VERCEL_URL ? `https://${process.env.VERCEL_BRANCH_URL}` : 'http://localhost:3000';
+globalThis.defaultSiteAbsoluteUrl = process.env.VERCEL_URL ? `https://${process.env.VERCEL_URL}` : 'http://localhost:3000';
 // @ts-ignore next-line
 globalThis.buildProcessPid = 0;
 // @ts-ignore next-line
