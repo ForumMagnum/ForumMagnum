@@ -4,7 +4,7 @@ import RouteRoot from "@/components/next/RouteRoot";
 
 
 export default function Page() {
-  return <RouteRoot>
+  return <RouteRoot delayedStatusCode>
     <MessageUser />
   </RouteRoot>
 }

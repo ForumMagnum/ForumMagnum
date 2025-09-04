@@ -70,6 +70,7 @@ import { StructuredData } from "../common/StructuredData";
 import { gql } from "@/lib/generated/gql-codegen";
 import { withDateFields } from "@/lib/utils/dateUtils";
 import type { TagBySlugQueryOptions } from "./useTag";
+import { StatusCodeSetter } from "../next/StatusCodeSetter";
 
 const TagWithFlagsFragmentMultiQuery = gql(`
   query multiTagLWTagPageQuery($selector: TagSelector, $limit: Int, $enableTotal: Boolean) {
@@ -715,7 +716,10 @@ const LWTagPage = () => {
   if (loadingTag && !tag) {
     return <Loading/>
   } else if (tagError) {
-    return <ErrorPage error={tagError}/>
+    return <>
+      <StatusCodeSetter status={500}/>
+      <ErrorPage error={tagError}/>
+    </>
   } else if (!tag) {
     if (loadingLens && !lens) {
       return <Loading/>
@@ -1012,6 +1016,7 @@ const LWTagPage = () => {
     limit={terms?.limit ?? 0}
   >
     <TagPageContext.Provider value={{selectedLens: selectedLens ?? null}}>
+      <StatusCodeSetter status={200}/>
       <StructuredData generate={() => getTagStructuredData(tag)}/>
       {hoveredContributorId && <style>
         {`.by_${hoveredContributorId} {background: rgba(95, 155, 101, 0.35);}`}

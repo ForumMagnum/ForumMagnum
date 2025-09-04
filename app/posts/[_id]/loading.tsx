@@ -1,16 +1,19 @@
+import React from "react";
+import RouteRoot from "@/components/next/RouteRoot";
 import PostsSingle from "@/components/posts/PostsSingle";
-import { RouteMetadataSetter } from "@/components/RouteMetadataContext";
 import { PostsPageHeaderTitle } from "@/components/titles/PostsPageHeaderTitle";
 import { hasPostRecommendations } from "@/lib/betas";
-import React from "react";
 
-export default function PostsLoadingPage() {
-  return (<>
-    <RouteMetadataSetter metadata={{
+export default async function PostsLoadingPage() {
+  return <RouteRoot
+    delayedStatusCode
+    metadata={{
       background: 'white',
       noFooter: hasPostRecommendations(),
       titleComponent: PostsPageHeaderTitle
-    }} />
+    }}
+  >
     <PostsSingle />
-  </>);
+  </RouteRoot>;
 }
+

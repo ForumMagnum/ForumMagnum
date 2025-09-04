@@ -36,6 +36,7 @@ import HoverOver from "../common/HoverOver";
 import LocalGroupSubscribers from "./LocalGroupSubscribers";
 import UsersNameDisplay from "../users/UsersNameDisplay";
 import { useQueryWithLoadMore } from "@/components/hooks/useQueryWithLoadMore";
+import { StatusCodeSetter } from '../next/StatusCodeSetter';
 
 const PostsListMultiQuery = gql(`
   query multiPostLocalGroupPageQuery($selector: PostSelector, $limit: Int, $enableTotal: Boolean) {
@@ -430,6 +431,7 @@ const LocalGroupPage = ({ classes, documentId: groupId }: {
 
   return (
     <div className={classes.root}>
+      <StatusCodeSetter status={200}/>
       {topSection}
       <SingleColumnSection>
         <div className={classes.titleRow}>

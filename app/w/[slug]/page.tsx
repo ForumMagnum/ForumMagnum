@@ -9,11 +9,14 @@ export const generateMetadata = getTagPageMetadataFunction<{ slug: string }>(({ 
 export default function Page() {
   // enableResourcePrefetch was: function
   
-  return <RouteRoot metadata={{
-    background: 'white',
-    titleComponent: TagPageTitle,
-    subtitleComponent: TagPageTitle
-  }}>
+  return <RouteRoot
+    delayedStatusCode
+    metadata={{
+      background: 'white',
+      titleComponent: TagPageTitle,
+      subtitleComponent: TagPageTitle
+    }}
+  >
     <TagPageRouter />
   </RouteRoot>
 }

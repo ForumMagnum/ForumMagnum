@@ -10,11 +10,14 @@ export const generateMetadata = getPostPageMetadataFunction<{ _id: string }>(({ 
 export default function Page() {
   // enableResourcePrefetch was: function
   
-  return <RouteRoot metadata={{
-    background: 'white',
-    noFooter: hasPostRecommendations(),
-    titleComponent: PostsPageHeaderTitle
-  }}>
+  return <RouteRoot
+    delayedStatusCode
+    metadata={{
+      background: 'white',
+      noFooter: hasPostRecommendations(),
+      titleComponent: PostsPageHeaderTitle
+    }}
+  >
     <PostsSingle />
   </RouteRoot>;
 }

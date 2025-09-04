@@ -10,6 +10,7 @@ import PermanentRedirect from "../common/PermanentRedirect";
 import SingleColumnSection from "../common/SingleColumnSection";
 import { useQuery } from "@/lib/crud/useQuery";
 import { gql } from "@/lib/generated/gql-codegen";
+import { StatusCodeSetter } from "../next/StatusCodeSetter";
 
 const GetUserBySlugQuery = gql(`
   query MessageUserGetUserBySlug($slug: String!) {
@@ -38,11 +39,10 @@ const MessageUserInnerInner = ({ user, classes }: { user: UsersMinimumInfo; clas
   }, []);
 
   if (!conversation) {
-    return conversationLoading ? (
-      <Loading />
-    ) : (
+    return conversationLoading ? <Loading /> : <>
+      <StatusCodeSetter status={500}/>
       <SingleColumnSection className={classes.error}>Failed to create conversation: Unknown error.</SingleColumnSection>
-    );
+    </>;
   }
 
   const url = `/inbox/${conversation._id}?from=magic_link`;
@@ -60,25 +60,30 @@ const MessageUser = ({ classes }: { classes: ClassesType<typeof styles> }) => {
   const user = data?.GetUserBySlug;
 
   if (!currentUser) {
-    return <SingleColumnSection className={classes.error}>Log in to access private messages.</SingleColumnSection>;
+    return <>
+      <StatusCodeSetter status={401}/>
+      <SingleColumnSection className={classes.error}>Log in to access private messages.</SingleColumnSection>
+    </>;
   }
 
   if (!user) {
     return loading ? (
       <Loading />
-    ) : (
+    ) : (<>
+      <StatusCodeSetter status={400}/>
       <SingleColumnSection className={classes.error}>
         Failed to create conversation: User could not be found.
       </SingleColumnSection>
-    );
+    </>);
   }
 
   if (user._id === currentUser._id) {
-    return (
+    return <>
+      <StatusCodeSetter status={400}/>
       <SingleColumnSection className={classes.error}>
         Failed to create conversation: You cannot create a conversation with yourself.
       </SingleColumnSection>
-    );
+    </>;
   }
 
   return <MessageUserInnerInner user={user} classes={classes} />;

@@ -7,11 +7,14 @@ import RouteRoot from "@/components/next/RouteRoot";
 // export const generateMetadata = getPostPageMetadataFunction<{ /* TODO: fill this in based on this route's params! */ }>(({ _id }) => _id);
 
 export default function Page() {
-  return <RouteRoot metadata={{
-    background: 'white',
-    noFooter: false,
-    titleComponent: PostsPageHeaderTitle
-  }}>
+  return <RouteRoot
+    delayedStatusCode
+    metadata={{
+      background: 'white',
+      noFooter: false,
+      titleComponent: PostsPageHeaderTitle
+    }}
+  >
     <PostsSingleSlugRedirect />
   </RouteRoot>;
 }

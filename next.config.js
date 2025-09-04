@@ -197,6 +197,17 @@ module.exports = {
 
     return config;
   },
+  // rewrites: async () => {
+  //   return {
+  //     beforeFiles: [{
+  //       source: '/',
+  //       destination: 'https://d1vz3tbkledbrz.cloudfront.net/',
+  //     }, {
+  //       source: '/:path*',
+  //       destination: 'https://d1vz3tbkledbrz.cloudfront.net/:path*',
+  //     }]
+  //   }
+  // },
   redirects() {
     return [{
       source: '/tag/:slug*',

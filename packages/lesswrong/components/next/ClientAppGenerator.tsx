@@ -10,7 +10,7 @@ import type { AbstractThemeOptions } from '@/themes/themeNames';
 import { LayoutOptionsContextProvider } from '@/components/hooks/useLayoutOptions';
 import { SSRMetadata, EnvironmentOverride, EnvironmentOverrideContext } from '@/lib/utils/timeUtil';
 import { ThemeContextProvider } from '@/components/themes/ThemeContextProvider';
-import { LocationContext, NavigationContext, SubscribeLocationContext, ServerRequestStatusContext } from '@/lib/vulcan-core/appContext';
+import { LocationContext, NavigationContext, SubscribeLocationContext } from '@/lib/vulcan-core/appContext';
 import { parsePath } from '@/lib/vulcan-lib/routes';
 import { MessageContextProvider } from '../common/FlashMessages';
 import { RefetchCurrentUserContext } from '../common/withUser';
@@ -31,7 +31,6 @@ import { onUserChanged } from '@/client/logging';
 import moment from 'moment';
 import { localeSetting } from '@/lib/instanceSettings';
 import { initClientOnce } from '@/client/initClient';
-import { useEffectOnce } from '@/components/hooks/useEffectOnce';
 
 if (isClient) {
   // This has a downstream call to `googleTagManagerIdSetting.get()`.
@@ -131,18 +130,10 @@ const AppComponent = ({ children }: { children: React.ReactNode }) => {
     Object.assign(subscribeLocationContext.current, location);
   }
 
-  useEffectOnce(() => {
-    if (!window.initialRouteRefreshed) {
-      window.initialRouteRefreshed = true;
-      history.refresh();
-    }
-  });
-
   return <HelmetProvider>
   <LocationContext.Provider value={locationContext.current}>
   <NavigationContext.Provider value={navigationContext.current}>
   <SubscribeLocationContext.Provider value={subscribeLocationContext.current}>
-  <ServerRequestStatusContext.Provider value={/*serverRequestStatus||*/null}>
   <RefetchCurrentUserContext.Provider value={refetchCurrentUser}>
     <MessageContextProvider>
       {/* <HeadTags image={siteImageSetting.get()} /> */}
@@ -152,7 +143,6 @@ const AppComponent = ({ children }: { children: React.ReactNode }) => {
       </Layout>
     </MessageContextProvider>
   </RefetchCurrentUserContext.Provider>
-  </ServerRequestStatusContext.Provider>
   </SubscribeLocationContext.Provider>
   </NavigationContext.Provider>
   </LocationContext.Provider>

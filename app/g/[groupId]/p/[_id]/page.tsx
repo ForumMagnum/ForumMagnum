@@ -13,12 +13,15 @@ export async function generateMetadata(): Promise<Metadata> {
 }
 
 export default function Page() {
-  return <RouteRoot metadata={{
-    subtitle: 'Community',
-    subtitleLink: '/community',
-    background: 'white',
-    noFooter: hasPostRecommendations()
-  }}>
+  return <RouteRoot
+    delayedStatusCode
+    metadata={{
+      subtitle: 'Community',
+      subtitleLink: '/community',
+      background: 'white',
+      noFooter: hasPostRecommendations()
+    }}
+  >
     <PostsSingle />
   </RouteRoot>;
 }

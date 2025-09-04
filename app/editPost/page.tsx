@@ -30,7 +30,10 @@ export async function generateMetadata({ searchParams }: { searchParams: Promise
 }
 
 export default function Page() {
-  return <RouteRoot metadata={{ background: 'white' }}>
+  return <RouteRoot
+    delayedStatusCode
+    metadata={{ background: 'white' }}
+  >
     <PostsEditPage />
   </RouteRoot>;
 }
