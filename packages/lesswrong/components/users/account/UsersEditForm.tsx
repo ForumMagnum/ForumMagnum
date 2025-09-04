@@ -6,7 +6,7 @@ import { useCurrentUser } from '@/components/common/withUser';
 import { useMutation, useApolloClient } from '@apollo/client/react';
 import { useQuery } from "@/lib/crud/useQuery"
 import { hasEventsSetting, isAF, isEAForum, isLW, isLWorAF, verifyEmailsSetting } from '@/lib/instanceSettings';
-import { useThemeOptions, useSetTheme } from '@/components/themes/useTheme';
+import { useSetTheme, useAbstractThemeOptions } from '@/components/themes/useTheme';
 
 import { configureDatadogRum } from '@/client/datadogRum';
 import { isBookUI, isFriendlyUI, preferredHeadingCase } from '@/themes/forumTheme';
@@ -1342,7 +1342,7 @@ const UsersEditForm = ({ terms }: {
       resetPassword(email: $email)
     }
   `), { errorPolicy: 'all' })
-  const currentThemeOptions = useThemeOptions();
+  const currentThemeOptions = useAbstractThemeOptions();
   const setTheme = useSetTheme();
   const { captureEvent } = useTracking();
 
