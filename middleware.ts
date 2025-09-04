@@ -11,6 +11,10 @@ export const CLIENT_ID_NEW_COOKIE = 'clientIdUnset';
 
 const ForwardingHeaderName = "X-Forwarded-For-Status-Codes";
 
+function urlIsAbsolute(url: string): boolean {
+  return (url.startsWith('http://') || url.startsWith('https://'));
+}
+
 /**
  * Nextjs middleware. Because nextjs only allows a single middleware function,
  * this is three middlewares jammed into one: One for canonicalizing the
@@ -66,7 +70,12 @@ export async function middleware(request: NextRequest) {
   const [statusCodeFinderStream, responseStream] = originalBody.tee();
   const { status, redirectTarget } = await findStatusCodeInStream(statusCodeFinderStream);
   if (redirectTarget) {
-    return NextResponse.redirect(redirectTarget, status);
+    console.log({ status, redirectTarget });
+    if (urlIsAbsolute(redirectTarget)) {
+      return NextResponse.redirect(redirectTarget, status);
+    } else {
+      return NextResponse.redirect(new URL(redirectTarget, request.url), status);
+    }
   }
   
   const response = new Response(responseStream, {

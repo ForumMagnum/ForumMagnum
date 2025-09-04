@@ -164,8 +164,8 @@ export const sentryEnvironmentSetting = new PublicInstanceSetting<string|null>('
 export const sentryReleaseSetting = new PublicInstanceSetting<string|null>('sentry.release', null, "warning") // Current release, i.e. hash of lattest commit
 
 export const getDefaultAbsoluteUrl = (): string => {
-  if (process.env.VERCEL_URL) {
-    return `https://${process.env.VERCEL_URL}`;
+  if (process.env.VERCEL_BRANCH_URL) {
+    return `https://${process.env.VERCEL_BRANCH_URL}`;
   } else {
     return `http://localhost:3000/`;
   }
