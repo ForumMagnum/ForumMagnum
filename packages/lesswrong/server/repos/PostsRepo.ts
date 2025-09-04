@@ -1160,78 +1160,62 @@ class PostsRepo extends AbstractRepo<"Posts"> {
 
     const feedPostsData = await this.getRawDb().manyOrNone<LatestSubscribedFeedPostRow>(`
       -- PostsRepo.getLatestAndSubscribedFeedPosts
-      SELECT 
-        p.*,
-        (${filteredScoreSql}) AS "initialFilteredScore",
-        EXISTS (
-          SELECT 1 
-          FROM "Subscriptions" s 
-          WHERE s."documentId" = p."userId"
-            AND s."userId" = $(userId)
-            AND s.state = 'subscribed'
-            AND s.deleted IS NOT TRUE
-            AND s."collectionName" = 'Users'
-            AND s."type" IN ('newActivityForFeed', 'newPosts')
-        ) AS "isFromSubscribedUser",
-        ue."lastViewed",
-        ue."lastInteracted",
-        (ue."lastViewed" IS NOT NULL OR ue."lastInteracted" IS NOT NULL) AS "isRead"
-      FROM "Posts" p
-      LEFT JOIN (
-        -- Only consider read statuses updated within the lookback window
-        SELECT "postId", "isRead", "lastUpdated"
-        FROM "ReadStatuses"
+      WITH followed_authors AS (
+        SELECT DISTINCT s."documentId" AS "userId"
+        FROM "Subscriptions" s
+        WHERE s."userId" = $(userId)
+          AND s.state = 'subscribed'
+          AND s.deleted IS NOT TRUE
+          AND s."collectionName" = 'Users'
+          AND s."type" IN ('newActivityForFeed', 'newPosts')
+      ),
+      ufe_limited AS (
+        SELECT "documentId", "createdAt", "eventType"
+        FROM "UltraFeedEvents"
         WHERE 
           "userId" = $(userId)
-          AND "lastUpdated" > NOW() - INTERVAL '$(maxAgeDays) days'
-      ) rs ON p._id = rs."postId"
-      LEFT JOIN (
-        -- Aggregate latest viewed and interacted timestamps from a bounded subset of UltraFeedEvents, plus implied views from ReadStatuses
-        WITH ufe_limited AS (
-          SELECT "documentId", "createdAt", "eventType"
-          FROM "UltraFeedEvents"
-          WHERE 
-            "userId" = $(userId)
-            AND "collectionName" = 'Posts'
-            AND "createdAt" > NOW() - INTERVAL '$(maxAgeDays) days'
-          ORDER BY "createdAt" DESC
-          LIMIT 2000
-        ),
-        combined_events AS (
+          AND "collectionName" = 'Posts'
+          AND "createdAt" > NOW() - INTERVAL '$(maxAgeDays) days'
+        ORDER BY "createdAt" DESC
+        LIMIT 2000
+      ),
+      read_state AS (
+        SELECT
+          ce."documentId",
+          MAX(CASE WHEN ce."eventType" = 'viewed' THEN ce."createdAt" ELSE NULL END) AS "lastViewed",
+          MAX(CASE WHEN ce."eventType" <> 'viewed' AND ce."eventType" <> 'served' THEN ce."createdAt" ELSE NULL END) AS "lastInteracted"
+        FROM (
           SELECT "documentId", "createdAt", "eventType" FROM ufe_limited
           UNION ALL
           SELECT rs."postId" AS "documentId", rs."lastUpdated" AS "createdAt", 'viewed' AS "eventType"
           FROM "ReadStatuses" rs
           WHERE rs."userId" = $(userId)
             AND rs."lastUpdated" > NOW() - INTERVAL '$(maxAgeDays) days'
-        )
-        SELECT ce."documentId",
-          MAX(CASE WHEN ce."eventType" = 'viewed' THEN ce."createdAt" ELSE NULL END) AS "lastViewed",
-          MAX(CASE WHEN ce."eventType" <> 'viewed' AND ce."eventType" <> 'served' THEN ce."createdAt" ELSE NULL END) AS "lastInteracted"
-        FROM combined_events ce
+        ) ce
         GROUP BY ce."documentId"
-      ) ue ON p._id = ue."documentId"
+      )
+      SELECT 
+        p.*,
+        (${filteredScoreSql}) AS "initialFilteredScore",
+        (fa."userId" IS NOT NULL) AS "isFromSubscribedUser",
+        rs."lastViewed",
+        rs."lastInteracted",
+        (rs."lastViewed" IS NOT NULL OR rs."lastInteracted" IS NOT NULL) AS "isRead"
+      FROM "Posts" p
+      LEFT JOIN followed_authors fa ON fa."userId" = p."userId"
+      LEFT JOIN read_state rs ON rs."documentId" = p._id
       WHERE
         p."postedAt" > NOW() - INTERVAL '$(maxAgeDays) days'
         AND p."baseScore" >= 2
         AND p.rejected IS NOT TRUE
         AND ${getViewablePostsSelector('p')}
-        ${filterOutReadOrViewed ? 'AND (rs."isRead" IS NULL OR rs."isRead" = FALSE) AND ue."lastViewed" IS NULL' : ''}
-        AND (CASE WHEN $(restrictToFollowedAuthors) THEN EXISTS (
-          SELECT 1 
-          FROM "Subscriptions" s 
-          WHERE s."documentId" = p."userId"
-            AND s."userId" = $(userId)
-            AND s.state = 'subscribed'
-            AND s.deleted IS NOT TRUE
-            AND s."collectionName" = 'Users'
-            AND s."type" IN ('newActivityForFeed', 'newPosts')
-        ) ELSE TRUE END)
+        ${filterOutReadOrViewed ? 'AND rs."lastViewed" IS NULL' : ''}
+        AND (CASE WHEN $(restrictToFollowedAuthors) THEN fa."userId" IS NOT NULL ELSE TRUE END)
         ${personalBlogFilter}
         ${hiddenPostIdsCondition}
         ${tagFilterClause ? `AND ${tagFilterClause}` : ''}
       ORDER BY 
-        "isFromSubscribedUser" DESC,
+        (CASE WHEN fa."userId" IS NOT NULL THEN 1 ELSE 0 END) DESC,
         ${restrictToFollowedAuthors ? '"postedAt"' : '"initialFilteredScore"'} DESC
       LIMIT $(limit)
     `, { 
