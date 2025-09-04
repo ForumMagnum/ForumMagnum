@@ -86,13 +86,13 @@ export const QueryLink: FC<Omit<LinkProps, "to"> & {
   merge=false,
   ...rest
 }) => {
-  const { query: currentQuery, hash } = useLocation();
+  const { pathname, query: currentQuery, hash } = useLocation();
 
   const newSearchString = merge
     ? qs.stringify({...currentQuery, ...query})
     : qs.stringify(query);
   
-  const url = `${location.pathname}${newSearchString ? `?${newSearchString}` : ''}${hash ? hash : ''}`;
+  const url = `${pathname}${newSearchString ? `?${newSearchString}` : ''}${hash ? hash : ''}`;
   return <NextLink
     {...rest}
     prefetch={false}
