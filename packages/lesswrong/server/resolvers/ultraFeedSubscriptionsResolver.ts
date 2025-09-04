@@ -274,11 +274,11 @@ export const ultraFeedSubscriptionsQueries = {
     const pageEnd = pageStart + (limit ?? 20);
     const pageCore = feedItems.slice(pageStart, pageEnd);
     const pageItems: typeof feedItems = [];
-    // Insert a suggestions entry after every 40 feed items
+    // Insert a suggestions entry after every N feed items
     for (let i = 0; i < pageCore.length; i++) {
       pageItems.push(pageCore[i]);
       const globalIndex = pageStart + i + 1;
-      if (globalIndex % 40 === 0) {
+      if (globalIndex % 30 === 0) {
         pageItems.push({
           type: 'feedSubscriptionSuggestions',
           sortDate: new Date(),
