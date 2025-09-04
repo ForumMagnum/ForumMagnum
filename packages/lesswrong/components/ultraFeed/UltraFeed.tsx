@@ -44,30 +44,6 @@ const styles = defineStyles("UltraFeed", (theme: ThemeType) => ({
     justifyContent: 'space-between',
     overflow: 'visible',
   },
-  titleContainer: {
-    display: 'flex',
-    columnGap: 10,
-    alignItems: 'center',
-    color: theme.palette.text.bannerAdOverlay,
-    [theme.breakpoints.down('sm')]: {
-      marginLeft: 8,
-    },
-  },
-  titleText: {
-  },
-  titleTextDesktop: {
-    display: 'inline',
-    [theme.breakpoints.down('sm')]: {
-      display: 'none',
-    },
-  },
-  titleTextMobile: {
-    display: 'none',
-    marginLeft: 8,
-    [theme.breakpoints.down('sm')]: {
-      display: 'inline',
-    },
-  },
   feedCheckboxAndSettingsContainer: {
     display: 'flex',
     justifyContent: 'flex-end',
@@ -460,21 +436,12 @@ const UltraFeed = ({
     }
   };
 
-  const customTitle = <>
-    <div className={classes.titleContainer}>
-      <span className={classes.titleText}>
-        Update Feed
-      </span>
-    </div>
-  </>;
 
   return (
     <>
       <SingleColumnSection>
         <UltraFeedHeader
-          title={customTitle}
           hideTitle={hideTitle}
-          titleHref="/feed"
           activeTab={activeTab}
           onTabChange={handleTabChange}
           settingsButton={!isControlled ? <SettingsButton showIcon={true} onClick={toggleSettings} /> : undefined}

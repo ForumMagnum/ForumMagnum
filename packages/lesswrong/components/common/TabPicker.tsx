@@ -1,9 +1,9 @@
 import React, { useCallback, useEffect, useRef, useState} from 'react'
 import { registerComponent } from '../../lib/vulcan-lib/components'
 import classNames from 'classnames'
-import LWTooltip from "./LWTooltip";
 import SingleColumnSection from "./SingleColumnSection";
 import ForumIcon from "./ForumIcon";
+import TabButton from "./TabButton";
 import { isIfAnyoneBuildsItFrontPage } from '../seasonal/IfAnyoneBuildsItSplash';
 
 const rightFadeStyle = (theme: ThemeType) => ({
@@ -100,47 +100,6 @@ const styles = (theme: ThemeType) => ({
       ...rightFadeStyle(theme),
     },
   },
-  tab: {
-    display: 'flex',
-    justifyContent: 'center',
-    minWidth: '120px',
-    fontFamily: theme.typography.fontFamily,
-    fontSize: 14,
-    lineHeight: '23px',
-    fontWeight: '500',
-    padding: '4px 8px',
-    borderRadius: 3,
-    cursor: 'pointer',
-    [theme.breakpoints.down('xs')]: {
-      fontSize: 13,
-      padding: '3px 6px',
-      minWidth: '100px',
-    }
-  },
-  inactiveTab: {
-    ...(theme.dark ? {
-      backgroundColor: theme.palette.tab.inactive.bannerAdBackground,
-      backdropFilter: theme.palette.filters.bannerAdBlurMedium,
-      color: theme.palette.text.bannerAdOverlay,
-    } : {
-      backgroundColor: theme.palette.panelBackground.default,
-      color: theme.palette.tab.inactive.text,
-    }),
-    '&:hover': {
-      color: theme.palette.tab.inactive.hover.text
-    },
-  },
-  activeTab: {
-    backgroundColor: theme.palette.tab.active.background,
-    color: theme.palette.text.alwaysWhite,
-    backdropFilter: theme.palette.filters.bannerAdBlurMedium,
-    '&:hover': {
-      backgroundColor: theme.palette.tab.active.hover.background
-    },
-  },
-  tagDescriptionTooltip: {
-    margin: 8,
-  },
   arrow: {
     position: 'absolute',
     top: 0,
@@ -166,34 +125,6 @@ const styles = (theme: ThemeType) => ({
   rightArrow: {
     right: -30,
   },
-  labsIcon: {
-    marginLeft: 3,
-    alignSelf: 'center',
-    height: 14,
-    width: 14,
-    [theme.breakpoints.down('xs')]: {
-      height: 13,
-      width: 13,
-    }
-  },
-  sparkleIcon: {
-    marginLeft: 3,
-    alignSelf: 'center',
-    height: 18,
-    width: 18,
-    [theme.breakpoints.down('xs')]: {
-      height: 13,
-      width: 13,
-    }
-  },
-  personIcon: {
-    position: 'relative',
-    top: 1,
-    marginLeft: 2,
-    alignSelf: 'center',
-    height: 16,
-    width: 16,
-  }
 })
 
 export interface TabRecord {
@@ -338,22 +269,17 @@ const TabPicker = <T extends TabRecord[]>(
           <div ref={tabsListRef} className={classes.topicsBar} onScroll={() => updateArrows()}>
             {sortedTabs.map(tab => {
               const isActive = tab.name === activeTab;
-              return <LWTooltip
-                title={showDescriptionOnHover ? tab.description : null} 
-                popperClassName={classes.tagDescriptionTooltip}
+              return <TabButton
                 key={tab.name}
-                hideOnTouchScreens
-              >
-                <button
-                  onClick={() => updateActiveTab(tab.name)}
-                  className={classNames(classes.tab, { [classes.activeTab]: isActive, [classes.inactiveTab]: !isActive })}
-                >
-                  {tab.label}
-                  {tab.showLabsIcon && <ForumIcon icon="LabBeaker" className={classes.labsIcon} />}
-                  {tab.showSparkleIcon && <ForumIcon icon="Sparkle" className={classes.sparkleIcon} />}
-                  {tab.showPersonIcon && <ForumIcon icon="User" className={classes.personIcon} />}
-                </button>
-              </LWTooltip>
+                label={tab.label}
+                isActive={isActive}
+                onClick={() => updateActiveTab(tab.name)}
+                description={showDescriptionOnHover ? tab.description : null}
+                showLabsIcon={tab.showLabsIcon}
+                showSparkleIcon={tab.showSparkleIcon}
+                showPersonIcon={tab.showPersonIcon}
+                showTooltip={showDescriptionOnHover}
+              />
             })}
           </div>
         </div>

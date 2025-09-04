@@ -1,226 +1,83 @@
 import React, { useCallback } from 'react';
-import classNames from 'classnames';
 import { Link } from '../../lib/reactRouterWrapper';
 import { defineStyles, useStyles } from '../hooks/useStyles';
 import { sectionTitleStyle } from '../common/SectionTitle';
-import SubscribedHideReadCheckbox from './SubscribedHideReadCheckbox';
+import HideReadToggleIcon from './HideReadToggleIcon';
 import { UltraFeedSettingsType } from './ultraFeedSettingsTypes';
 import { useTracking } from '@/lib/analyticsEvents';
 import { FeedType } from './ultraFeedTypes';
+import TabButton from '../common/TabButton';
 
 const styles = defineStyles('UltraFeedHeader', (theme: ThemeType) => ({
   root: {
     display: 'flex',
     alignItems: 'center',
-    justifyContent: 'space-between',
     paddingBottom: 8,
+    rowGap: 8,
     overflow: 'visible',
-  },
-  left: {
-    display: 'flex',
-    alignItems: 'center',
-    gap: 10,
-  },
-  leftMobileWithTitle: {
     [theme.breakpoints.down('sm')]: {
-      justifyContent: 'space-between',
-      width: '100%',
+      flexWrap: 'wrap',
     },
   },
   title: {
     ...sectionTitleStyle(theme),
     whiteSpace: 'nowrap',
+    flex: '1 1 0',
+    minWidth: 0,
+    [theme.breakpoints.down('sm')]: {
+      flex: '1 1 100%',
+    },
   },
   hideTitle: {
     display: 'none'
   },
-  titlePlaceholder: {
-    width: 120,
-    flex: '0 0 auto',
-    justifyContent: 'flex-start',
-    [theme.breakpoints.down('sm')]: {
-      display: 'none',
-    },
-  },
-  right: {
-    display: 'flex',
-    alignItems: 'center',
-    width: '100%',
-    marginLeft: 16,
-  },
-  rightMobileWithTitle: {
-    [theme.breakpoints.down('sm')]: {
-      marginLeft: 0,
-    },
-  },
-  rightControls: {
-    display: 'flex',
-    alignItems: 'center',
-    justifyContent: 'flex-end',
-    marginLeft: 'auto',
-    gap: 12,
-    width: 120,
-    flex: '0 0 auto',
-    [theme.breakpoints.down('sm')]: {
-      marginLeft: 0,
-      width: 'unset',
-    },
-  },
-  tabsBar: {
-    display: 'flex',
-    alignItems: 'center',
+  tabsAndControls: {
     flex: '1 1 auto',
-    gap: 0,
-    marginLeft: 32,
-    marginRight: 32,
-    paddingBottom: 0,
-    marginBottom: 0,
-    [theme.breakpoints.down('sm')]: {
-      marginLeft: 0,
-      marginRight: 0,
-    },
-  },
-  tabsBarMobileNoTitle: {
-    [theme.breakpoints.down('sm')]: {
-      marginLeft: 0,
-      marginRight: 16,
-    },
-  },
-  tabButton: {
-    display: 'flex',
-    justifyContent: 'center',
-    alignItems: 'center',
-    fontFamily: theme.typography.fontFamily,
-    fontSize: 14,
-    lineHeight: '20px',
-    fontWeight: 600,
-    paddingLeft: 12,
-    paddingRight: 12,
-    paddingTop: 16,
-    paddingBottom: 16,
-    cursor: 'pointer',
-    position: 'relative',
-    transition: 'color 0.2s',
-    flex: 1,
-    '&:hover': {
-      backgroundColor: theme.palette.background.hover,
-    },
-    [theme.breakpoints.down('sm')]: {
-      paddingLeft: 6,
-      paddingRight: 6,
-      flex: 'unset',
-      width: 100,
-    },
-  },
-  tabButtonMobileShort: {
-    [theme.breakpoints.down('sm')]: {
-      paddingTop: 12,
-      paddingBottom: 12,
-    },
-  },
-  tabButtonInactive: {
-    color: theme.palette.grey[600],
-  },
-  tabButtonActive: {
-    color: theme.palette.text.primary,
-  },
-  tabLabel: {
-    position: 'relative',
-    display: 'inline-flex',
-    flexDirection: 'column',
-  },
-  tabUnderline: {
-    position: 'absolute',
-    bottom: -10,
-    left: 0,
-    right: 0,
-    height: 3,
-    backgroundColor: theme.palette.primary.main,
-    borderRadius: '2px',
-  },
-  settingsButtonContainer: {
-    display: 'flex',
-    alignItems: 'center',
-    justifyContent: 'center',
-    width: 32,
-  },
-  settingsButtonContainerHideOnMobileWithTitle: {
-    [theme.breakpoints.down('sm')]: {
-      display: 'none',
-    },
-  },
-  settingsButtonContainerInline: {
-    display: 'none',
+    minWidth: 0,
+    display: 'contents',
     [theme.breakpoints.down('sm')]: {
       display: 'flex',
       alignItems: 'center',
-      justifyContent: 'center',
-      width: 32,
-      marginLeft: 8,
+      flex: '1 1 100%',
     },
   },
-  inlineSettingsHidden: {
+  tabs: {
+    display: 'flex',
+    gap: 8,
+    flexWrap: 'nowrap',
+    minWidth: 0,
+    flex: '1 1 auto',
+    justifyContent: 'center',
     [theme.breakpoints.down('sm')]: {
-      display: 'none',
+      flex: '1 1 auto',
+      flexWrap: 'wrap',
+      justifyContent: 'flex-start',
     },
   },
-  checkboxContainer: {
+  controlsContainer: {
+    flex: '1 1 0',
+    display: 'flex',
+    justifyContent: 'flex-end',
+    minWidth: 0,
+    [theme.breakpoints.down('sm')]: {
+      flex: '0 0 auto',
+      marginLeft: 'auto',
+    },
+  },
+  controls: {
     display: 'flex',
     alignItems: 'center',
-    color: theme.palette.grey[600],
-    transition: 'opacity 0.3s ease, visibility 0.3s ease',
+    gap: 8,
+    flex: '0 0 auto',
   },
-  checkboxContainerHidden: {
-    opacity: 0,
-    visibility: 'hidden',
-    pointerEvents: 'none',
-  },
-  checkboxInput: {
-    padding: 4,
-    color: theme.palette.grey[500],
-  },
-  checkboxLabel: {
-    cursor: 'pointer',
-    fontSize: '1.15rem',
-    fontFamily: theme.typography.fontFamily,
-    textWrap: 'nowrap',
-  },
-  rootMobileWithTitle: {
-    [theme.breakpoints.down('sm')]: {
-      flexDirection: 'column',
-      alignItems: 'stretch',
-    },
+  leftSpacer: {
+    flex: '1 1 0',
+    minWidth: 0,
   },
 }));
 
-type TabButtonProps = {
-  label: string;
-  active: boolean;
-  onClick: () => void;
-  compact?: boolean;
-};
-
-const TabButton = ({ label, active, onClick, compact }: TabButtonProps) => {
-  const classes = useStyles(styles);
-  return (
-    <div
-      className={classNames(
-        classes.tabButton,
-        active ? classes.tabButtonActive : classes.tabButtonInactive,
-        compact && classes.tabButtonMobileShort,
-      )}
-      onClick={onClick}
-    >
-      <div className={classes.tabLabel}>
-        {label}
-        {active && <div className={classes.tabUnderline} />}
-      </div>
-    </div>
-  );
-};
-
 export type UltraFeedHeaderProps = {
-  title: React.ReactNode;
+  title?: string;
   hideTitle?: boolean;
   activeTab: FeedType;
   onTabChange: (tab: FeedType) => void;
@@ -231,7 +88,7 @@ export type UltraFeedHeaderProps = {
 };
 
 const UltraFeedHeader = ({
-  title,
+  title = 'Your Feed',
   hideTitle,
   activeTab,
   onTabChange,
@@ -260,44 +117,72 @@ const UltraFeedHeader = ({
   
   const hideReadCheckboxVisible = !!(activeTab === 'following' && feedSettings && updateFeedSettings);
   const hideRead = feedSettings?.resolverSettings?.subscriptionsFeedSettings?.hideRead ?? false;
-  
-  return (
-    <div className={classNames(classes.root, !hideTitle && classes.rootMobileWithTitle)}>
-      <div className={classNames(classes.left, !hideTitle && classes.leftMobileWithTitle)}>
-        <div className={classNames(classes.titlePlaceholder, !hideTitle && classes.hideTitle)} />
-        <div className={classNames(classes.title, hideTitle && classes.hideTitle)}>
-          {titleHref ? <Link to={titleHref}>{title}</Link> : title}
+
+  // When title is hidden, keep tabs centered and controls on the right
+  if (hideTitle) {
+    return (
+      <div className={classes.root}>
+        <div className={classes.leftSpacer} />
+        <div className={classes.tabsAndControls}>
+          <div className={classes.tabs}>
+            <TabButton
+              label="For You"
+              isActive={activeTab === 'ultraFeed'}
+              onClick={() => onTabChange('ultraFeed')}
+              showTooltip={false}
+            />
+            <TabButton
+              label="Following"
+              isActive={activeTab === 'following'}
+              onClick={() => onTabChange('following')}
+              showTooltip={false}
+            />
+          </div>
+          <div className={classes.controlsContainer}>
+            <div className={classes.controls}>
+              <HideReadToggleIcon
+                checked={hideRead}
+                onChange={handleHideReadToggle}
+                visible={hideReadCheckboxVisible}
+              />
+              {settingsButton}
+            </div>
+          </div>
         </div>
-        {settingsButton && !hideTitle && (
-          <div className={classes.settingsButtonContainerInline}>{settingsButton}</div>
-        )}
       </div>
-      <div className={classNames(classes.right, !hideTitle && classes.rightMobileWithTitle)}>
-        <div className={classNames(classes.tabsBar, hideTitle && classes.tabsBarMobileNoTitle)}>
+    );
+  }
+
+  // When title is shown
+  return (
+    <div className={classes.root}>
+      <div className={classes.title}>
+        {titleHref ? <Link to={titleHref}>{title}</Link> : title}
+      </div>
+      <div className={classes.tabsAndControls}>
+        <div className={classes.tabs}>
           <TabButton
             label="For You"
-            active={activeTab === 'ultraFeed'}
+            isActive={activeTab === 'ultraFeed'}
             onClick={() => onTabChange('ultraFeed')}
-            compact={!hideTitle}
+            showTooltip={false}
           />
           <TabButton
             label="Following"
-            active={activeTab === 'following'}
+            isActive={activeTab === 'following'}
             onClick={() => onTabChange('following')}
-            compact={!hideTitle}
+            showTooltip={false}
           />
         </div>
-        <div className={classes.rightControls}>
-          <SubscribedHideReadCheckbox
-            checked={hideRead}
-            onChange={handleHideReadToggle}
-            visible={hideReadCheckboxVisible}
-          />
-          {settingsButton && (
-            <div className={classNames(classes.settingsButtonContainer, !hideTitle && classes.settingsButtonContainerHideOnMobileWithTitle)}>
-              {settingsButton}
-            </div>
-          )}
+        <div className={classes.controlsContainer}>
+          <div className={classes.controls}>
+            <HideReadToggleIcon
+              checked={hideRead}
+              onChange={handleHideReadToggle}
+              visible={hideReadCheckboxVisible}
+            />
+            {settingsButton}
+          </div>
         </div>
       </div>
     </div>
@@ -305,5 +190,6 @@ const UltraFeedHeader = ({
 };
 
 export default UltraFeedHeader;
+
 
 
