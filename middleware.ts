@@ -171,6 +171,9 @@ export const config: MiddlewareConfig = {
      * - _next/image (image optimization files)
      * - favicon.ico, sitemap.xml, robots.txt (metadata files)
      */
-    '/((?!api|auth|graphql|analyticsEvent|public|ckeditor-token|reactionImages|_next/static|_next/image|favicon.ico|sitemap.xml|robots.txt).*)',
+    {
+      source: '/((?!api|auth|graphql|analyticsEvent|public|ckeditor-token|reactionImages|_next/static|_next/image|favicon.ico|sitemap.xml|robots.txt).*)',
+      missing: [{ type: 'header', key: 'next-router-state-tree' }]
+    }
   ]
 }
