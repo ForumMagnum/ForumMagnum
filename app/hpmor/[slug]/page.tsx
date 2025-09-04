@@ -10,7 +10,7 @@ export async function generateMetadata(): Promise<Metadata> {
 }
 
 export default function Page() {
-  return <RouteRoot metadata={{ subtitle: 'HPMoR', subtitleLink: '/hpmor', background: 'white' }}>
+  return <RouteRoot delayedStatusCode metadata={{ subtitle: 'HPMoR', subtitleLink: '/hpmor', background: 'white' }}>
     <PostsSingleSlug />
   </RouteRoot>;
 }

@@ -10,7 +10,7 @@ export async function generateMetadata(): Promise<Metadata> {
 }
 
 export default function Page() {
-  return <RouteRoot metadata={{
+  return <RouteRoot delayedStatusCode metadata={{
     subtitle: 'SlateStarCodex',
     subtitleLink: '/codex',
     background: 'white'

@@ -39,14 +39,14 @@ const ErrorAccessDenied = ({explanation, skipLoginPrompt, classes}: {
   if (currentUser || skipLoginPrompt) {
     const message = `Sorry, you don't have access to this page.${(explanation ? ` ${explanation}` : "")}`
     return <>
-      <StatusCodeSetter status={403}/>
+      <StatusCodeSetter status={401}/>
       <SingleColumnSection>
         <div className={classes.root}>{message}</div>
       </SingleColumnSection>
     </>
   } else {
     return <>
-      <StatusCodeSetter status={403}/>
+      <StatusCodeSetter status={401}/>
       <SingleColumnSection>
         <Typography variant='body1' className={classes.root}>
           Please log in to access this page.
