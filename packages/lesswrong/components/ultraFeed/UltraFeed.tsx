@@ -72,7 +72,6 @@ const styles = defineStyles("UltraFeed", (theme: ThemeType) => ({
     display: 'flex',
     justifyContent: 'flex-end',
     alignItems: 'center',
-    // gap: 24, // Add spacing between items
     marginLeft: 'auto',
   },
   settingsButtonContainer: {
@@ -145,7 +144,7 @@ const styles = defineStyles("UltraFeed", (theme: ThemeType) => ({
     borderRadius: '3px 3px 0 0',
   },
   settingsContainer: {
-    marginBottom: 32,
+    marginBottom: 16,
   },
   settingsContainerExternal: {
     marginTop: 16,
@@ -340,6 +339,7 @@ const UltraFeedContent = ({
                     resetSettingsToDefault={resetSettingsToDefault}
                     onClose={() => onCloseSettings?.()} 
                     truncationMaps={truncationMaps}
+                    showFeedSelector
                   />
                 ) : (
                   <UltraFeedFollowingSettings

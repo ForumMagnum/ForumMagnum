@@ -45,6 +45,8 @@ import { useUltraFeedSettings } from '../hooks/useUltraFeedSettings';
 import SubscribedHideReadCheckbox from '../ultraFeed/SubscribedHideReadCheckbox';
 import UltraFeedMainFeed from '../ultraFeed/UltraFeedMainFeed';
 import UltraFeedWrappers from '../ultraFeed/UltraFeedWrappers';
+import UltraFeedSettings from '../ultraFeed/UltraFeedSettings';
+import UltraFeedFollowingSettings from '../ultraFeed/UltraFeedFollowingSettings';
 
 
 
@@ -122,6 +124,12 @@ const styles = defineStyles("LWHomePost", (theme: ThemeType) => ({
     [theme.breakpoints.up('md')]: {
       display: "none",
     },
+  },
+  ultraFeedSettingsContainer: {
+    marginTop: 16,
+  },
+  ultraFeedFollowingSettingsContainer: {
+    marginTop: 16,
   },
   hideDesktopSettingsButtonOnMobile: {
     [theme.breakpoints.down('sm')]: {
@@ -451,7 +459,7 @@ const LWHomePosts = ({ children, }: {
   const { mobileSettingsVisible, toggleMobileSettingsVisible } = useDefaultSettingsVisibility(currentUser, 'mobile', selectedTab);
   
   const { scenarioConfig, updateScenarioConfig } = useRecombeeSettings(currentUser, enabledTabs, filterSettings);
-  const { settings: ultraFeedSettings, updateSettings: updateUltraFeedSettings } = useUltraFeedSettings();
+  const { settings: ultraFeedSettings, updateSettings: updateUltraFeedSettings, resetSettings: resetUltraFeedSettings, truncationMaps } = useUltraFeedSettings();
 
   const changeShowTagFilterSettingsDesktop = () => {
     toggleDesktopSettingsVisible(!desktopSettingsVisible);
@@ -483,6 +491,7 @@ const LWHomePosts = ({ children, }: {
   const showInlineTabSettingsButton = (
     selectedTab === 'forum-classic' ||
     selectedTab === 'ultrafeed' ||
+    selectedTab === 'following' ||
     selectedTab === 'recombee-hybrid' ||
     (userIsAdmin(currentUser) && selectedTab.includes('recombee'))
   );
@@ -532,11 +541,41 @@ const LWHomePosts = ({ children, }: {
     </div>}
   </>;
 
+  const ultraFeedSettingsElement = (
+    <>
+      {settingsPotentiallyVisible && <div className={classNames(settingsVisibleClassName, classes.ultraFeedSettingsContainer)}>
+        <UltraFeedSettings
+          settings={ultraFeedSettings}
+          updateSettings={updateUltraFeedSettings}
+          resetSettingsToDefault={resetUltraFeedSettings}
+          onClose={() => toggleDesktopSettingsVisible(false)}
+          truncationMaps={truncationMaps}
+        />
+      </div>}
+    </>
+  );
+
+  const ultraFeedFollowingSettingsElement = (
+    <>
+      {settingsPotentiallyVisible && <div className={classNames(settingsVisibleClassName, classes.ultraFeedFollowingSettingsContainer)}>
+        <UltraFeedFollowingSettings
+          settings={ultraFeedSettings}
+          updateSettings={updateUltraFeedSettings}
+          onClose={() => toggleDesktopSettingsVisible(false)}
+        />
+      </div>}
+    </>
+  );
+
   let settings = null;
   if (selectedTab === 'forum-classic') { 
     settings = filterSettingsElement;
   } else if (selectedTab === 'recombee-hybrid') {
     settings = filterSettingsElement;
+  } else if (selectedTab === 'ultrafeed') {
+    settings = ultraFeedSettingsElement;
+  } else if (selectedTab === 'following') {
+    settings = ultraFeedFollowingSettingsElement;
   } else if (selectedTab.includes('recombee')) {
     settings = recombeeSettingsElement;
   }

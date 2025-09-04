@@ -46,6 +46,7 @@ const styles = defineStyles('UltraFeedSettings', (theme: ThemeType) => ({
   root: {
     width: '100%',
     fontFamily: theme.palette.fonts.sansSerifStack,
+    marginBottom: 16,
   },
   viewModeToggle: {
     display: 'flex',
@@ -346,6 +347,7 @@ const UltraFeedSettings = ({
   onClose,
   initialViewMode = 'simple',
   truncationMaps,
+  showFeedSelector = false,
 }: {
   settings: UltraFeedSettingsType,
   updateSettings: (newSettings: Partial<UltraFeedSettingsType>) => void,
@@ -353,6 +355,7 @@ const UltraFeedSettings = ({
   onClose?: () => void,
   initialViewMode?: 'simple' | 'advanced',
   truncationMaps: { commentMap: Record<TruncationLevel, number>, postMap: Record<TruncationLevel, number> },
+  showFeedSelector?: boolean,
 }) => {
   const { captureEvent } = useTracking();
   const classes = useStyles(styles);
@@ -691,7 +694,7 @@ const UltraFeedSettings = ({
           >
             give feedback
           </span>
-          <FeedSelectorCheckbox currentFeedType="new" />
+          {showFeedSelector && <FeedSelectorCheckbox currentFeedType="new" />}
         </div>
       </div>
       {showFeedback && <UltraFeedFeedback />}
