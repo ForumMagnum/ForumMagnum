@@ -1,4 +1,4 @@
-import React, { useCallback, useState, useRef } from 'react';
+import React, { useCallback, useState, useRef, useEffect } from 'react';
 import { useCurrentUser } from '../common/withUser';
 import SingleColumnSection from '../common/SingleColumnSection';
 import SectionTitle from '../common/SectionTitle';
@@ -72,10 +72,38 @@ const UltraFeedSubscriptionsFeed = ({ embedded = false, refetchRef, settings, up
   const currentUser = useCurrentUser();
   const [isLoading, setIsLoading] = useState(true);
   const feedContainerRef = useRef<HTMLDivElement | null>(null);
+  const [minHeightPx, setMinHeightPx] = useState<number>(0);
+  const [isTransitioning, setIsTransitioning] = useState(false);
+  const lastHeightRef = useRef<number>(0);
   
   const handleDataLoaded = useCallback((results: Array<{type: string, [key: string]: unknown}>, loading: boolean) => {
     setIsLoading(loading);
-  }, []);
+    if (!loading && isTransitioning) {
+      setIsTransitioning(false);
+      // Allow height to adjust naturally after a brief delay
+      setTimeout(() => {
+        if (!isTransitioning) {
+          setMinHeightPx(0);
+        }
+      }, 100);
+    }
+  }, [isTransitioning]);
+
+  // Track container height to maintain during transitions
+  useEffect(() => {
+    const el = feedContainerRef.current;
+    if (!el || isTransitioning) return;
+    
+    const resizeObserver = new ResizeObserver(() => {
+      const h = el.offsetHeight || 0;
+      if (h > 0) {
+        lastHeightRef.current = h;
+      }
+    });
+    
+    resizeObserver.observe(el);
+    return () => resizeObserver.disconnect();
+  }, [isTransitioning]);
 
   if (!currentUser) return null;
 
@@ -84,6 +112,17 @@ const UltraFeedSubscriptionsFeed = ({ embedded = false, refetchRef, settings, up
   const hideRead = settings?.resolverSettings?.subscriptionsFeedSettings?.hideRead ?? false;
   const handleToggleHideRead = (checked: boolean) => {
     if (!updateSettings) return;
+    
+    // Capture current height before transition
+    if (feedContainerRef.current) {
+      const currentHeight = feedContainerRef.current.offsetHeight;
+      if (currentHeight > 0) {
+        lastHeightRef.current = currentHeight;
+        setMinHeightPx(currentHeight);
+        setIsTransitioning(true);
+      }
+    }
+    
     updateSettings({
       resolverSettings: {
         ...settings.resolverSettings,
@@ -106,7 +145,11 @@ const UltraFeedSubscriptionsFeed = ({ embedded = false, refetchRef, settings, up
     window.scrollTo({ top: targetTop, behavior: 'smooth' });
   };
 
-  const content = <div ref={feedContainerRef} className={classes.feedContainer}>
+  const content = <div 
+    ref={feedContainerRef} 
+    className={classes.feedContainer}
+    style={minHeightPx > 0 ? { minHeight: minHeightPx } : undefined}
+  >
     {showHideReadToggle && (
       <div className={classes.ultraFeedFollowingHeader}>
         <div className={classes.checkboxContainer}>
