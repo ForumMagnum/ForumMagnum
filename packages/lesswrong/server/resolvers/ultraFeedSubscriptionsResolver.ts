@@ -9,7 +9,6 @@ import {
   insertUltraFeedEvents, 
   createUltraFeedResponse,
   UltraFeedEventInsertData,
-  insertSubscriptionSuggestions,
   getSubscriptionSuggestedUsers
 } from './ultraFeedResolverHelpers';
 
@@ -278,7 +277,7 @@ export const ultraFeedSubscriptionsQueries = {
     for (let i = 0; i < pageCore.length; i++) {
       pageItems.push(pageCore[i]);
       const globalIndex = pageStart + i + 1;
-      if (globalIndex % 30 === 0) {
+      if (globalIndex % 20 === 0) {
         pageItems.push({
           type: 'feedSubscriptionSuggestions',
           sortDate: new Date(),

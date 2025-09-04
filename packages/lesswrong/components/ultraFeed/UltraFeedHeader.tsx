@@ -105,6 +105,12 @@ const styles = defineStyles('UltraFeedHeader', (theme: ThemeType) => ({
     '&:hover': {
       backgroundColor: theme.palette.background.hover,
     },
+    [theme.breakpoints.down('sm')]: {
+      paddingLeft: 6,
+      paddingRight: 6,
+      flex: 'unset',
+      width: 100,
+    },
   },
   tabButtonMobileShort: {
     [theme.breakpoints.down('sm')]: {
