@@ -233,7 +233,7 @@ export const usePostsList = <TagId extends string | undefined = undefined>({
     alwaysShowLoadMore;
 
   const uniqueResults = results ? uniqBy(results, p=>p._id) : results;
-  let orderedResults = (order && results) ? sortBy(uniqueResults, post => order.indexOf(post._id)) : results;
+  let orderedResults = (order && uniqueResults) ? sortBy(uniqueResults, post => order.indexOf(post._id)) : results;
   if (defaultToShowUnreadComments && orderedResults) {
     orderedResults = sortBy(orderedResults, (post) => {
       const postLastCommentedAt = postGetLastCommentedAt(post)
