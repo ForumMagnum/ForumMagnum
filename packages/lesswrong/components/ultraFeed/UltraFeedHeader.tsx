@@ -21,6 +21,12 @@ const styles = defineStyles('UltraFeedHeader', (theme: ThemeType) => ({
     alignItems: 'center',
     gap: 10,
   },
+  leftMobileWithTitle: {
+    [theme.breakpoints.down('sm')]: {
+      justifyContent: 'space-between',
+      width: '100%',
+    },
+  },
   title: {
     ...sectionTitleStyle(theme),
     whiteSpace: 'nowrap',
@@ -32,12 +38,20 @@ const styles = defineStyles('UltraFeedHeader', (theme: ThemeType) => ({
     width: 120,
     flex: '0 0 auto',
     justifyContent: 'flex-start',
+    [theme.breakpoints.down('sm')]: {
+      display: 'none',
+    },
   },
   right: {
     display: 'flex',
     alignItems: 'center',
     width: '100%',
     marginLeft: 16,
+  },
+  rightMobileWithTitle: {
+    [theme.breakpoints.down('sm')]: {
+      marginLeft: 0,
+    },
   },
   rightControls: {
     display: 'flex',
@@ -47,6 +61,10 @@ const styles = defineStyles('UltraFeedHeader', (theme: ThemeType) => ({
     gap: 12,
     width: 120,
     flex: '0 0 auto',
+    [theme.breakpoints.down('sm')]: {
+      marginLeft: 0,
+      width: 'unset',
+    },
   },
   tabsBar: {
     display: 'flex',
@@ -57,6 +75,16 @@ const styles = defineStyles('UltraFeedHeader', (theme: ThemeType) => ({
     marginRight: 32,
     paddingBottom: 0,
     marginBottom: 0,
+    [theme.breakpoints.down('sm')]: {
+      marginLeft: 0,
+      marginRight: 0,
+    },
+  },
+  tabsBarMobileNoTitle: {
+    [theme.breakpoints.down('sm')]: {
+      marginLeft: 0,
+      marginRight: 16,
+    },
   },
   tabButton: {
     display: 'flex',
@@ -76,6 +104,12 @@ const styles = defineStyles('UltraFeedHeader', (theme: ThemeType) => ({
     flex: 1,
     '&:hover': {
       backgroundColor: theme.palette.background.hover,
+    },
+  },
+  tabButtonMobileShort: {
+    [theme.breakpoints.down('sm')]: {
+      paddingTop: 12,
+      paddingBottom: 12,
     },
   },
   tabButtonInactive: {
@@ -104,6 +138,26 @@ const styles = defineStyles('UltraFeedHeader', (theme: ThemeType) => ({
     justifyContent: 'center',
     width: 32,
   },
+  settingsButtonContainerHideOnMobileWithTitle: {
+    [theme.breakpoints.down('sm')]: {
+      display: 'none',
+    },
+  },
+  settingsButtonContainerInline: {
+    display: 'none',
+    [theme.breakpoints.down('sm')]: {
+      display: 'flex',
+      alignItems: 'center',
+      justifyContent: 'center',
+      width: 32,
+      marginLeft: 8,
+    },
+  },
+  inlineSettingsHidden: {
+    [theme.breakpoints.down('sm')]: {
+      display: 'none',
+    },
+  },
   checkboxContainer: {
     display: 'flex',
     alignItems: 'center',
@@ -125,19 +179,30 @@ const styles = defineStyles('UltraFeedHeader', (theme: ThemeType) => ({
     fontFamily: theme.typography.fontFamily,
     textWrap: 'nowrap',
   },
+  rootMobileWithTitle: {
+    [theme.breakpoints.down('sm')]: {
+      flexDirection: 'column',
+      alignItems: 'stretch',
+    },
+  },
 }));
 
 type TabButtonProps = {
   label: string;
   active: boolean;
   onClick: () => void;
+  compact?: boolean;
 };
 
-const TabButton = ({ label, active, onClick }: TabButtonProps) => {
+const TabButton = ({ label, active, onClick, compact }: TabButtonProps) => {
   const classes = useStyles(styles);
   return (
     <div
-      className={classNames(classes.tabButton, active ? classes.tabButtonActive : classes.tabButtonInactive)}
+      className={classNames(
+        classes.tabButton,
+        active ? classes.tabButtonActive : classes.tabButtonInactive,
+        compact && classes.tabButtonMobileShort,
+      )}
       onClick={onClick}
     >
       <div className={classes.tabLabel}>
@@ -191,24 +256,29 @@ const UltraFeedHeader = ({
   const hideRead = feedSettings?.resolverSettings?.subscriptionsFeedSettings?.hideRead ?? false;
   
   return (
-    <div className={classes.root}>
-      <div className={classes.left}>
+    <div className={classNames(classes.root, !hideTitle && classes.rootMobileWithTitle)}>
+      <div className={classNames(classes.left, !hideTitle && classes.leftMobileWithTitle)}>
         <div className={classNames(classes.titlePlaceholder, !hideTitle && classes.hideTitle)} />
         <div className={classNames(classes.title, hideTitle && classes.hideTitle)}>
           {titleHref ? <Link to={titleHref}>{title}</Link> : title}
         </div>
+        {settingsButton && !hideTitle && (
+          <div className={classes.settingsButtonContainerInline}>{settingsButton}</div>
+        )}
       </div>
-      <div className={classes.right}>
-        <div className={classes.tabsBar}>
+      <div className={classNames(classes.right, !hideTitle && classes.rightMobileWithTitle)}>
+        <div className={classNames(classes.tabsBar, hideTitle && classes.tabsBarMobileNoTitle)}>
           <TabButton
             label="For You"
             active={activeTab === 'ultraFeed'}
             onClick={() => onTabChange('ultraFeed')}
+            compact={!hideTitle}
           />
           <TabButton
             label="Following"
             active={activeTab === 'following'}
             onClick={() => onTabChange('following')}
+            compact={!hideTitle}
           />
         </div>
         <div className={classes.rightControls}>
@@ -218,7 +288,9 @@ const UltraFeedHeader = ({
             visible={hideReadCheckboxVisible}
           />
           {settingsButton && (
-            <div className={classes.settingsButtonContainer}>{settingsButton}</div>
+            <div className={classNames(classes.settingsButtonContainer, !hideTitle && classes.settingsButtonContainerHideOnMobileWithTitle)}>
+              {settingsButton}
+            </div>
           )}
         </div>
       </div>
