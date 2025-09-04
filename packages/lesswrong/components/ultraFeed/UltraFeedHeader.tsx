@@ -13,7 +13,6 @@ const styles = defineStyles('UltraFeedHeader', (theme: ThemeType) => ({
     display: 'flex',
     alignItems: 'center',
     justifyContent: 'space-between',
-    // marginTop: theme.spacing.unit*3,
     paddingBottom: 8,
     overflow: 'visible',
   },
@@ -76,7 +75,7 @@ const styles = defineStyles('UltraFeedHeader', (theme: ThemeType) => ({
     transition: 'color 0.2s',
     flex: 1,
     '&:hover': {
-      backgroundColor: '#f0ebe6',
+      backgroundColor: theme.palette.background.hover,
     },
   },
   tabButtonInactive: {
