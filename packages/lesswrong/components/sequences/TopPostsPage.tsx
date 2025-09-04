@@ -1219,7 +1219,13 @@ const ImageGridPost = ({ post, imgSrc, imageGridId, handleToggleFullyOpen, image
       {isShowAll && <div
         key="show-all"
         className={showAllElementClassName}
-        onClick={() => handleToggleFullyOpen(imageGridId)}>
+        // We don't actually want to trigger e.g. navigation (and then scroll, because of Next's Link behavior)
+        // when the user clicks on the "Show All" button, so we need to preventDefault and stopPropagation
+        onClick={(e) => {
+          e.preventDefault();
+          e.stopPropagation();
+          handleToggleFullyOpen(imageGridId);
+          }}>
         Show All
       </div>}
     </div>
