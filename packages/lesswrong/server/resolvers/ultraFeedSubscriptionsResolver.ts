@@ -277,7 +277,9 @@ export const ultraFeedSubscriptionsQueries = {
     for (let i = 0; i < pageCore.length; i++) {
       pageItems.push(pageCore[i]);
       const globalIndex = pageStart + i + 1;
-      if (globalIndex % 20 === 0) {
+      // Avoid inserting a suggestion at page boundaries (where it would appear adjacent to the static suggestions block rendered after the feed)
+      const isLastCoreItem = i === pageCore.length - 1;
+      if (globalIndex % 20 === 0 && !isLastCoreItem) {
         pageItems.push({
           type: 'feedSubscriptionSuggestions',
           sortDate: new Date(),
@@ -342,7 +344,10 @@ export const ultraFeedSubscriptionsQueries = {
 
     const nextCutoff = pageItems.length > 0 ? pageItems[pageItems.length - 1].sortDate : null;
 
-    return createUltraFeedResponse(results, offset ?? 0, null, nextCutoff);
+    // Compute endOffset based on core items only (exclude suggestion entries)
+    const response = createUltraFeedResponse(results, offset ?? 0, null, nextCutoff);
+    const trueEndOffset = pageStart + pageCore.length;
+    return { ...response, endOffset: trueEndOffset };
   },
 };
 
