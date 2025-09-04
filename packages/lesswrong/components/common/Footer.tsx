@@ -4,6 +4,9 @@ import React from 'react';
 const styles = (theme: ThemeType) => ({
   root: {
     height: 150,
+    "@media print": {
+      height: 0,
+    },
   }
 });
 
