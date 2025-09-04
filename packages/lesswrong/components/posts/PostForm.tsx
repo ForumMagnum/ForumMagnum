@@ -83,7 +83,7 @@ const formStyles = defineStyles('PostForm', (theme: ThemeType) => ({
 
 function getFooterTagListPostInfo(post: EditablePost) {
   const {
-    _id, tags, createdAt, postCategory, isEvent,
+    _id, tags, postCategory, isEvent,
     curatedDate = null,
     frontpageDate = null,
     reviewedByUserId = null,
@@ -92,7 +92,6 @@ function getFooterTagListPostInfo(post: EditablePost) {
   return {
     _id,
     tags,
-    createdAt: createdAt?.toISOString() ?? null,
     curatedDate: curatedDate?.toISOString() ?? null,
     frontpageDate: frontpageDate?.toISOString() ?? null,
     reviewedByUserId,
