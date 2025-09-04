@@ -1,3 +1,4 @@
+import { winterCGHeadersToDict } from "@/lib/vendor/sentry/request";
 import { userIsAdmin } from "@/lib/vulcan-users/permissions";
 import { getUserFromReq } from "@/server/vulcan-lib/apollo-server/getUserFromReq";
 import type { NextRequest } from "next/server";
@@ -8,7 +9,7 @@ export async function GET(req: NextRequest) {
     return new Response('Not an admin', { status: 403 });
   }
 
-  const headers = JSON.stringify(req.headers);
+  const headers = JSON.stringify(winterCGHeadersToDict(req.headers));
   const otherIPsources =
     `\n` +
     `request.headers.get('x-forwarded-for'): ${req.headers.get('x-forwarded-for')}\n` +
