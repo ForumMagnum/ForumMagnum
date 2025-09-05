@@ -1,6 +1,7 @@
 import { getExecutableSchema } from '../../packages/lesswrong/server/vulcan-lib/apollo-server/initGraphQL';
 import { startServerAndCreateNextHandler } from '@as-integrations/next';
 import { ApolloServer, ApolloServerPlugin, GraphQLRequestContext } from '@apollo/server';
+import { unwrapResolverError } from '@apollo/server/errors';
 import { configureSentryScope, getContextFromReqAndRes } from '../../packages/lesswrong/server/vulcan-lib/apollo-server/context';
 import type { NextRequest } from 'next/server';
 import { asyncLocalStorage, closePerfMetric, closeRequestPerfMetric, openPerfMetric, setAsyncStoreValue } from '@/server/perfMetrics';
@@ -51,14 +52,16 @@ const server = new ApolloServer<ResolverContext>({
   csrfPrevention: false,
   includeStacktraceInErrorResponses: true,
   plugins: [new ApolloServerLogging()],
-  formatError: (e): GraphQLFormattedError => {
-    captureException(new GraphQLError(e.message, e));
-    const {message, ...properties} = e;
+  formatError: (formattedError, error): GraphQLFormattedError => {
+    captureException(new GraphQLError(formattedError.message, formattedError));
+    captureException(error);
+    captureException(unwrapResolverError(error))
+    const {message, ...properties} = formattedError;
     // eslint-disable-next-line no-console
     console.error(`[GraphQLError: ${message}]`, inspect(properties, {depth: null}));
     // TODO: Replace sketchy apollo-errors package with something first-party
     // and that doesn't require a cast here
-    return formatError(e) as any;
+    return formatError(formattedError) as any;
   },
 });
 
