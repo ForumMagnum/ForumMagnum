@@ -3866,6 +3866,17 @@ CREATE UNIQUE INDEX IF NOT EXISTS "idx_ReadStatuses_userId_postId_tagId" ON publ
   COALESCE("tagId", ''::CHARACTER VARYING)
 );
 
+-- CustomIndex "ultraFeedEvents_sessionId_partial_idx"
+CREATE INDEX IF NOT EXISTS ultraFeedEvents_sessionId_partial_idx ON "UltraFeedEvents" (
+  "userId",
+  "collectionName",
+  "eventType",
+  ((event ->> 'sessionId'))
+) INCLUDE ("documentId")
+WHERE
+  "collectionName" = 'Comments' AND
+  "eventType" = 'served';
+
 -- Function "fm_build_nested_jsonb"
 CREATE OR
 REPLACE FUNCTION fm_build_nested_jsonb (target_path TEXT[], terminal_element JSONB) RETURNS JSONB LANGUAGE sql IMMUTABLE AS 'SELECT JSONB_BUILD_OBJECT(

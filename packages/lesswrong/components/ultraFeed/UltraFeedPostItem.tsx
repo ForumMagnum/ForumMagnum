@@ -12,8 +12,6 @@ import classnames from "classnames";
 import { highlightMaxChars } from "../../lib/editor/ellipsize";
 import { useOverflowNav } from "./OverflowNavObserverContext";
 import { useDialog } from "../common/withDialog";
-import { isPostWithForeignId } from "../hooks/useForeignCrosspost";
-import { useForeignApolloClient } from "../hooks/useForeignApolloClient";
 import UltraFeedPostDialog from "./UltraFeedPostDialog";
 import FormatDate from "../common/FormatDate";
 import PostActionsButton from "../dropdowns/posts/PostActionsButton";
@@ -30,7 +28,6 @@ import SubscriptionsIcon from "@/lib/vendor/@material-ui/icons/src/Notifications
 import LWTooltip from "../common/LWTooltip";
 import { SparkleIcon } from "../icons/sparkleIcon";
 import SeeLessFeedback from "./SeeLessFeedback";
-import { useCurrentUser } from "../common/withUser";
 import { useSeeLess } from "./useSeeLess";
 import { UltraFeedCommentItem } from "./UltraFeedCommentItem";
 import type { FeedCommentMetaInfo } from "./ultraFeedTypes";
@@ -38,22 +35,13 @@ import PostsUserAndCoauthors from "../posts/PostsUserAndCoauthors";
 import TruncatedAuthorsList from "../posts/TruncatedAuthorsList";
 import ForumIcon from "../common/ForumIcon";
 import { RecombeeRecommendationsContextWrapper } from "../recommendations/RecombeeRecommendationsContextWrapper";
+import { useUltraFeedContext } from "./UltraFeedContextProvider";
 
 const localPostQuery = gql(`
   query LocalPostQuery($documentId: String!) {
     post(selector: { _id: $documentId }) {
       result {
         ...UltraFeedPostFragment
-      }
-    }
-  }
-`);
-
-const foreignPostQuery = gql(`
-  query ForeignPostQuery($documentId: String!) {
-    post(selector: { _id: $documentId }) {
-      result {
-        ...PostsPage
       }
     }
   }
@@ -305,7 +293,6 @@ const sourceIconMap: Array<{ source: FeedItemSourceType, icon: any, tooltip: str
 
 interface UltraFeedPostItemHeaderProps {
   post: PostsListWithVotes;
-  isRead: boolean;
   handleOpenDialog: () => void;
   sources: FeedItemSourceType[];
   isSeeLessMode: boolean;
@@ -314,7 +301,6 @@ interface UltraFeedPostItemHeaderProps {
 
 const UltraFeedPostItemHeader = ({
   post,
-  isRead,
   handleOpenDialog,
   sources,
   handleSeeLess,
@@ -342,17 +328,17 @@ const UltraFeedPostItemHeader = ({
         <a
           href={postGetPageUrl(post)}
           onClick={handleTitleClick}
-          className={classnames(classes.title, { [classes.titleIsRead]: isRead })}
+          className={classes.title}
         >
           {post.title}
         </a>
       </div>
       <div className={classes.metaRow} ref={metaRowRef}>
         <div className={classes.mobileAuthorsListWrapper}>
-          <TruncatedAuthorsList post={post} useMoreSuffix={false} expandContainer={metaRowRef} className={classes.authorsList} />
+          <TruncatedAuthorsList post={post} useMoreSuffix={false} expandContainer={metaRowRef} className={classes.authorsList} useUltraFeedModal />
         </div>
         <div className={classes.authorsListWrapper}>
-          <PostsUserAndCoauthors post={post} abbreviateIfLong={true} tooltipPlacement="top" />
+          <PostsUserAndCoauthors post={post} abbreviateIfLong={true} tooltipPlacement="top" compact useUltraFeedModal />
         </div>
         {post.postedAt && (
           <span className={classes.metaDateContainer}>
@@ -398,7 +384,6 @@ const UltraFeedPostItem = ({
   post,
   postMetaInfo,
   index,
-  showKarma,
   settings = DEFAULT_SETTINGS,
   isHighlightAnimating = false,
 }: {
@@ -413,19 +398,14 @@ const UltraFeedPostItem = ({
   const { observe, trackExpansion } = useUltraFeedObserver();
   const elementRef = useRef<HTMLDivElement | null>(null);
   const { openDialog } = useDialog();
+  const { openInNewTab } = useUltraFeedContext();
   const overflowNav = useOverflowNav(elementRef);
   const { captureEvent } = useTracking();
   const { recordPostView, isRead } = useRecordPostView(post);
   const [hasRecordedViewOnExpand, setHasRecordedViewOnExpand] = useState(false);
-  const isForeignCrosspost = isPostWithForeignId(post) && !post.fmCrosspost.hostedHere
   const { displaySettings } = settings;
-  const apolloClient = useForeignApolloClient();
-  const currentUser = useCurrentUser();
-  
-  const documentId = isForeignCrosspost ? (post.fmCrosspost.foreignPostId ?? undefined) : post._id;
-  
   const needsFullPostInitially = displaySettings.postInitialWords > (highlightMaxChars / 5);
-  const [isLoadingFull, setIsLoadingFull] = useState(isForeignCrosspost || needsFullPostInitially);
+  const [isLoadingFull, setIsLoadingFull] = useState(needsFullPostInitially);
   const [resetSig, setResetSig] = useState(0);
   const [isContentExpanded, setIsContentExpanded] = useState(false);
   const [isReplying, setIsReplying] = useState(false);
@@ -442,29 +422,15 @@ const UltraFeedPostItem = ({
     metaInfo: postMetaInfo,
   });
 
-  const { data: localPostData, loading: loadingLocalPost } = useQuery(localPostQuery, {
-    skip: isForeignCrosspost || !isLoadingFull,
+  const { data: fullPostData, loading: loadingFullPost } = useQuery(localPostQuery, {
+    skip: !isLoadingFull,
     fetchPolicy: "cache-first",
     variables: {
-      documentId,
+      documentId: post._id,
     },
   });
 
-  const localPost = localPostData?.post?.result;
-
-  const { data: foreignPostData, loading: loadingForeignPost } = useQuery(foreignPostQuery, {
-    skip: !isForeignCrosspost || !isLoadingFull,
-    fetchPolicy: "cache-first",
-    variables: {
-      documentId,
-    },
-    client: apolloClient,
-  });
-
-  const foreignPost = foreignPostData?.post?.result;
-
-  const fullPost = isForeignCrosspost ? foreignPost : localPost;
-  const loadingFullPost = isForeignCrosspost ? loadingForeignPost : loadingLocalPost;
+  const fullPost = fullPostData?.post?.result;
 
   useEffect(() => {
     const currentElement = elementRef.current;
@@ -581,17 +547,22 @@ const UltraFeedPostItem = ({
       setHasRecordedViewOnExpand(true);
     }
     
-    openDialog({
-      name: "UltraFeedPostDialog",
-      closeOnNavigate: true,
-      contents: ({ onClose }) => (
-        <UltraFeedPostDialog
-          {...(fullPost ? { post: fullPost } : { partialPost: post })}
-          postMetaInfo={postMetaInfo}
-          onClose={onClose}
-        />
-      )
-    });
+    if (openInNewTab) {
+      const postUrl = `/posts/${post._id}/${post.slug}`;
+      window.open(postUrl, '_blank');
+    } else {
+      openDialog({
+        name: "UltraFeedPostDialog",
+        closeOnNavigate: true,
+        contents: ({ onClose }) => (
+          <UltraFeedPostDialog
+            {...(fullPost ? { post: fullPost } : { partialPost: post })}
+            postMetaInfo={postMetaInfo}
+            onClose={onClose}
+          />
+        )
+      });
+    }
   }, [
     openDialog,
     post,
@@ -599,6 +570,7 @@ const UltraFeedPostItem = ({
     fullPost,
     trackExpansion,
     postMetaInfo,
+    openInNewTab,
     hasRecordedViewOnExpand,
     recordPostView,
     index,
@@ -627,7 +599,6 @@ const UltraFeedPostItem = ({
     <RecombeeRecommendationsContextWrapper postId={post._id} recommId={postMetaInfo.recommInfo?.recommId}>
     <AnalyticsContext ultraFeedElementType="feedPost" postId={post._id} feedCardIndex={index} ultraFeedSources={postMetaInfo.sources}>
     <div className={classnames(classes.root, { 
-      [classes.rootWithReadStyles]: isRead,
       [classes.rootWithAnimation]: isHighlightAnimating,
     })}>
       <div ref={elementRef} className={classes.mainContent}>
@@ -650,7 +621,6 @@ const UltraFeedPostItem = ({
         <div className={classnames({ [classes.greyedOut]: isSeeLessMode })}>
           <UltraFeedPostItemHeader
             post={post}
-            isRead={isRead}
             handleOpenDialog={() => handleOpenDialog("title")}
             sources={postMetaInfo.sources}
             isSeeLessMode={isSeeLessMode}
@@ -676,7 +646,6 @@ const UltraFeedPostItem = ({
             onExpand={handleContentExpand}
             hideSuffix={loadingFullPost}
             resetSignal={resetSig}
-            className={isRead ? classes.contentWithReadStyles : undefined}
           />
         )}
         

@@ -7,6 +7,7 @@ import { preferredHeadingCase } from '../../themes/forumTheme';
 import type { InboxComponentProps } from './InboxWrapper';
 import { Link } from "../../lib/reactRouterWrapper";
 import { useLocation, useNavigate } from "../../lib/routeUtil";
+import { useDialog } from '../common/withDialog';
 import SectionTitle from "../common/SectionTitle";
 import SingleColumnSection from "../common/SingleColumnSection";
 import ConversationItem from "./ConversationItem";
@@ -17,6 +18,17 @@ import { Typography } from "../common/Typography";
 import LoadMore from "../common/LoadMore";
 import { gql } from "@/lib/generated/gql-codegen/gql";
 import { useQueryWithLoadMore } from "@/components/hooks/useQueryWithLoadMore";
+import NewConversationDialog from "./NewConversationDialog";
+import Button from '@/lib/vendor/@material-ui/core/src/Button/Button';
+import { defineStyles, useStyles } from '../hooks/useStyles';
+
+const styles = defineStyles("InboxNavigation", (theme: ThemeType) => ({
+  newConversationButton: {
+    ...theme.typography.commentStyle,
+    color: theme.palette.primary.main,
+    cursor: "pointer",
+  }
+}))
 
 const ConversationsListMultiQuery = gql(`
   query multiConversationInboxNavigationQuery($selector: ConversationSelector, $limit: Int, $enableTotal: Boolean) {
@@ -36,8 +48,10 @@ const InboxNavigation = ({
   title=preferredHeadingCase("Your Conversations"),
 }: InboxComponentProps) => {
   const location = useLocation();
+  const classes = useStyles(styles);
   const { currentRoute, query } = location;
   const navigate = useNavigate();
+  const { openDialog } = useDialog();
 
   const { view, limit, ...selectorTerms } = terms;
   const { data, loading, loadMoreProps } = useQueryWithLoadMore(ConversationsListMultiQuery, {
@@ -62,6 +76,15 @@ const InboxNavigation = ({
     navigate({...location, search: `?${qs.stringify({expanded: !expanded})}`})
   }
 
+  const openNewConversationDialog = () => {
+    openDialog({
+      name: "NewConversationDialog",
+      contents: ({onClose}) => <NewConversationDialog
+        onClose={onClose}
+      />
+    });
+  }
+
   const showModeratorLink = userCanDo(currentUser, 'conversations.view.all') && currentRoute?.name !== "moderatorInbox"
 
   return (
@@ -74,6 +97,9 @@ const InboxNavigation = ({
               label={"Expand"}
             />
             {showModeratorLink && <Link to={"/moderatorInbox"}>Mod Inbox</Link>}
+            <div onClick={openNewConversationDialog} className={classes.newConversationButton}>
+              New Conversation
+            </div>
           </SectionFooter>
         </SectionTitle>
         {results?.length ?

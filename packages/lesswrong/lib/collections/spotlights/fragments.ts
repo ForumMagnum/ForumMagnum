@@ -62,9 +62,7 @@ export const SpotlightDisplay = gql(`
       title
 
       user {
-        _id
-        displayName
-        slug
+        ...UsersMinimumInfo
       }
       reviews {
         _id
@@ -74,9 +72,7 @@ export const SpotlightDisplay = gql(`
       _id
       title
       user {
-        _id
-        displayName
-        slug
+        ...UsersMinimumInfo
       }
     }
     tag {
@@ -84,9 +80,7 @@ export const SpotlightDisplay = gql(`
       name
       slug
       user {
-        _id
-        displayName
-        slug
+        ...UsersMinimumInfo
       }
     }
     description {

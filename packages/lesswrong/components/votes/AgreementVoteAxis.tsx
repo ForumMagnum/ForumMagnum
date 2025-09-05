@@ -1,7 +1,6 @@
 import React from 'react';
 import { useVoteButtonsDisabled } from './useVoteButtonsDisabled';
 import { VotingProps } from './votingProps';
-import { isFriendlyUI } from '../../themes/forumTheme';
 import { defineStyles, useStyles } from '../hooks/useStyles';
 import classNames from 'classnames';
 import VoteAgreementIcon from "./VoteAgreementIcon";
@@ -18,7 +17,7 @@ const styles = defineStyles('AgreementVoteAxis', (theme: ThemeType) => ({
     lineHeight: 0.6,
     height: 24,
     minWidth: 60,
-    borderRadius: isFriendlyUI ? theme.borderRadius.small : 2,
+    borderRadius: theme.isFriendlyUI ? theme.borderRadius.small : 2,
     textAlign: 'center',
     whiteSpace: "nowrap",
   },

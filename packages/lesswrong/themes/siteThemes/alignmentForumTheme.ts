@@ -98,7 +98,14 @@ export const alignmentForumTheme: SiteThemeSpecification = {
       },
     },
     overrides: {
-    }
+    },
+
+    isBookUI: true,
+    isFriendlyUI: false,
+    isLW: false,
+    isAF: true,
+    isLWorAF: true,
+    isEAForum: false,
   }),
 };
 

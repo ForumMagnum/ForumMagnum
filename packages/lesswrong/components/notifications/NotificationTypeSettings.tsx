@@ -13,7 +13,6 @@ import {
 } from "@/lib/collections/users/notificationFieldHelpers";
 import { getNotificationTypeByUserSetting } from '../../lib/notificationTypes';
 import BatchTimePicker, { PickedTime } from '../common/BatchTimePicker';
-import { isFriendlyUI } from '../../themes/forumTheme';
 import classNames from 'classnames';
 import type { TypedFieldApi } from '@/components/tanstack-form-components/BaseAppForm';
 import type { EditableUser } from '@/lib/collections/users/helpers';
@@ -30,7 +29,7 @@ const styles = (theme: ThemeType) => ({
     gap: "8px"
   },
   label: {
-    fontFamily: isFriendlyUI ? theme.palette.fonts.sansSerifStack : undefined,
+    fontFamily: theme.isFriendlyUI ? theme.palette.fonts.sansSerifStack : undefined,
   },
   channelLabel: {
     fontSize: 13

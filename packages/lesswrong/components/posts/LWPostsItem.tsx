@@ -39,7 +39,6 @@ import PostMostValuableCheckbox from "./PostMostValuableCheckbox";
 import { ResponseIcon } from "./PostsPage/RSVPs";
 import { maybeDate } from '@/lib/utils/dateUtils';
 import { isIfAnyoneBuildsItFrontPage } from '../seasonal/IfAnyoneBuildsItSplash';
-import { isBookUI } from '@/themes/forumTheme';
 import { defineStyles, useStyles } from '../hooks/useStyles';
 
 export const KARMA_WIDTH = 32;
@@ -81,7 +80,7 @@ export const styles = defineStyles("LWPostsItem", (theme: ThemeType) => ({
   background: {
     width: "100%",
     background: theme.palette.panelBackground.default,
-    ...(isBookUI && theme.dark && {
+    ...(theme.isBookUI && theme.dark && {
       background: theme.palette.panelBackground.bannerAdTranslucent,
       backdropFilter: theme.palette.filters.bannerAdBlur,
       ...isIfAnyoneBuildsItFrontPage({
@@ -114,7 +113,7 @@ export const styles = defineStyles("LWPostsItem", (theme: ThemeType) => ({
   withGrayHover: {
     '&:hover': {
       backgroundColor: theme.palette.panelBackground.postsItemHover,
-      ...(isBookUI && theme.dark && {
+      ...(theme.isBookUI && theme.dark && {
         backgroundColor: theme.palette.panelBackground.bannerAdTranslucentHeavy,
       }),
     },
@@ -183,6 +182,9 @@ export const styles = defineStyles("LWPostsItem", (theme: ThemeType) => ({
     },
   },
   author: {
+    '&&': {
+      flex: 1000,
+    },
     justifyContent: "flex",
     overflow: "hidden",
     whiteSpace: "nowrap",
@@ -429,7 +431,7 @@ export const styles = defineStyles("LWPostsItem", (theme: ThemeType) => ({
     marginLeft: "auto",
     flexShrink: 0,
   },
-}))
+}), { stylePriority: 1 });
 
 const cloudinaryCloudName = cloudinaryCloudNameSetting.get()
 export type PostsList2Props = PostsItemConfig;
@@ -690,7 +692,6 @@ const LWPostsItem = (props: PostsItemConfig) => {
 };
 
 export default registerComponent('LWPostsItem', LWPostsItem, {
-  stylePriority: 1,
   hocs: [withErrorBoundary],
   areEqual: {
     terms: "deep",

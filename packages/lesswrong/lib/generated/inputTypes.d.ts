@@ -468,7 +468,7 @@ interface TagContributorsList {
 }
 
 interface UserLikingTag {
-  _id: string;
+  userId: string;
   displayName: string;
 }
 
@@ -1257,6 +1257,11 @@ interface FeedSpotlightItem {
   spotlightMetaInfo: FeedSpotlightMetaInfo | null;
 }
 
+interface FeedSubscriptionSuggestions {
+  _id: string;
+  suggestedUsers: Array<User>;
+}
+
 interface UltraFeedQueryResults {
   cutoff: Date | null;
   endOffset: number;
@@ -1269,6 +1274,7 @@ interface UltraFeedEntry {
   feedCommentThread: FeedCommentThread | null;
   feedPost: FeedPost | null;
   feedSpotlight: FeedSpotlightItem | null;
+  feedSubscriptionSuggestions: FeedSubscriptionSuggestions | null;
 }
 
 interface ElicitQuestionPredictionCreator {
@@ -9831,6 +9837,7 @@ interface GraphQLTypeMap {
   FeedPost: FeedPost;
   FeedCommentThread: FeedCommentThread;
   FeedSpotlightItem: FeedSpotlightItem;
+  FeedSubscriptionSuggestions: FeedSubscriptionSuggestions;
   UltraFeedQueryResults: UltraFeedQueryResults;
   UltraFeedEntry: UltraFeedEntry;
   ElicitQuestionPredictionCreator: ElicitQuestionPredictionCreator;

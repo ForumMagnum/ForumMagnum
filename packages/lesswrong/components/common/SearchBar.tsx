@@ -11,7 +11,6 @@ import { isAF } from '../../lib/instanceSettings';
 import qs from 'qs'
 import { useSearchAnalytics } from '../search/useSearchAnalytics';
 import { useCurrentUser } from './withUser';
-import { isFriendlyUI } from '../../themes/forumTheme';
 import { useNavigate } from '../../lib/routeUtil';
 import { InstantSearch } from '../../lib/utils/componentsWithChildren';
 import { createPortal } from 'react-dom';
@@ -57,7 +56,7 @@ const styles = (theme: ThemeType) => ({
 
       height: "100%",
       width: "100%",
-      paddingTop: isFriendlyUI ? 5 : undefined,
+      paddingTop: theme.isFriendlyUI ? 5 : undefined,
       paddingRight: 0,
       paddingLeft: 48,
       verticalAlign: "bottom",
@@ -76,16 +75,16 @@ const styles = (theme: ThemeType) => ({
       position: 'fixed',
     },
   },
-  searchInputAreaSmall: isFriendlyUI ? {
+  searchInputAreaSmall: theme.isFriendlyUI ? {
     minWidth: 34,
   } : {},
   searchIcon: {
     "--icon-size": "24px",
   },
   searchIconButton: {
-    color: isFriendlyUI ? theme.palette.grey[600] : theme.palette.header.text ,
+    color: theme.isFriendlyUI ? theme.palette.grey[600] : theme.palette.header.text ,
   },
-  searchIconButtonSmall: isFriendlyUI ? {
+  searchIconButtonSmall: theme.isFriendlyUI ? {
     padding: 6,
     marginTop: 6,
   } : {},
@@ -95,7 +94,7 @@ const styles = (theme: ThemeType) => ({
   searchBarClose: {
     display: "inline-block",
     position: "absolute",
-    top: isFriendlyUI ? 18 : 15,
+    top: theme.isFriendlyUI ? 18 : 15,
     right: 5,
     cursor: "pointer"
   },

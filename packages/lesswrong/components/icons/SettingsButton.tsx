@@ -1,7 +1,6 @@
 import React from 'react';
 import { registerComponent } from '../../lib/vulcan-lib/components';
 import classNames from 'classnames';
-import { isFriendlyUI } from '../../themes/forumTheme';
 import ForumIcon from "../common/ForumIcon";
 
 const styles = (theme: ThemeType) => ({
@@ -23,7 +22,7 @@ const styles = (theme: ThemeType) => ({
     ...theme.typography.body2,
     fontSize: 14,
     color: theme.palette.grey[600],
-    ...(isFriendlyUI ? {fontWeight: 600} : {}),
+    ...(theme.isFriendlyUI ? {fontWeight: 600} : {}),
   },
   blackLabel: {
     color: theme.palette.text.primary,

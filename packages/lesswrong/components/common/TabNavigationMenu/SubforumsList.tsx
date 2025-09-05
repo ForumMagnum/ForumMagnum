@@ -36,7 +36,7 @@ const styles = ((theme: ThemeType) => ({
     paddingLeft: 62,
     paddingBottom: 5,
     ...theme.typography.body2,
-    color: theme.palette.grey[isEAForum ? 600 : 800],
+    color: theme.palette.grey[theme.isEAForum ? 600 : 800],
   },
   subItem: {
     textTransform: 'capitalize',

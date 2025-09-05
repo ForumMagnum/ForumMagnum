@@ -2560,6 +2560,12 @@ type FeedSpotlightMetaInfo = {
   sources: Array<Scalars['String']['output']>;
 };
 
+type FeedSubscriptionSuggestions = {
+  __typename?: 'FeedSubscriptionSuggestions';
+  _id: Scalars['String']['output'];
+  suggestedUsers: Array<User>;
+};
+
 type FieldChange = {
   __typename?: 'FieldChange';
   _id: Scalars['String']['output'];
@@ -11114,13 +11120,15 @@ type UltraFeedEntry = {
   feedCommentThread?: Maybe<FeedCommentThread>;
   feedPost?: Maybe<FeedPost>;
   feedSpotlight?: Maybe<FeedSpotlightItem>;
+  feedSubscriptionSuggestions?: Maybe<FeedSubscriptionSuggestions>;
   type: UltraFeedEntryType;
 };
 
 type UltraFeedEntryType =
   | 'feedCommentThread'
   | 'feedPost'
-  | 'feedSpotlight';
+  | 'feedSpotlight'
+  | 'feedSubscriptionSuggestions';
 
 type UltraFeedEvent = {
   __typename?: 'UltraFeedEvent';
@@ -12568,8 +12576,8 @@ type UserJobAdsAdsByUserInput = {
 
 type UserLikingTag = {
   __typename?: 'UserLikingTag';
-  _id: Scalars['String']['output'];
   displayName: Scalars['String']['output'];
+  userId: Scalars['String']['output'];
 };
 
 type UserMostValuablePost = {
@@ -13788,42 +13796,6 @@ type multiTagHomeTagBarQueryQueryVariables = Exact<{
 
 type multiTagHomeTagBarQueryQuery = multiTagHomeTagBarQueryQuery_Query;
 
-type multiSubscriptionLWHomePostsQueryQuery_subscriptions_MultiSubscriptionOutput_results_Subscription = (
-  { __typename?: 'Subscription' }
-  & SubscriptionState
-);
-
-type multiSubscriptionLWHomePostsQueryQuery_subscriptions_MultiSubscriptionOutput = { __typename?: 'MultiSubscriptionOutput', totalCount: number | null, results: Array<multiSubscriptionLWHomePostsQueryQuery_subscriptions_MultiSubscriptionOutput_results_Subscription> };
-
-type multiSubscriptionLWHomePostsQueryQuery_Query = { __typename?: 'Query', subscriptions: multiSubscriptionLWHomePostsQueryQuery_subscriptions_MultiSubscriptionOutput | null };
-
-
-type multiSubscriptionLWHomePostsQueryQueryVariables = Exact<{
-  selector: InputMaybe<SubscriptionSelector>;
-  limit: InputMaybe<Scalars['Int']['input']>;
-  enableTotal: InputMaybe<Scalars['Boolean']['input']>;
-}>;
-
-
-type multiSubscriptionLWHomePostsQueryQuery = multiSubscriptionLWHomePostsQueryQuery_Query;
-
-type LWHomePostsQuery_post_SinglePostOutput_result_Post = (
-  { __typename?: 'Post' }
-  & PostsListWithVotes
-);
-
-type LWHomePostsQuery_post_SinglePostOutput = { __typename?: 'SinglePostOutput', result: LWHomePostsQuery_post_SinglePostOutput_result_Post | null };
-
-type LWHomePostsQuery_Query = { __typename?: 'Query', post: LWHomePostsQuery_post_SinglePostOutput | null };
-
-
-type LWHomePostsQueryVariables = Exact<{
-  documentId: InputMaybe<Scalars['String']['input']>;
-}>;
-
-
-type LWHomePostsQuery = LWHomePostsQuery_Query;
-
 type sendVertexViewHomePageEventMutationMutation_Mutation = { __typename?: 'Mutation', sendVertexViewHomePageEvent: boolean };
 
 
@@ -14229,7 +14201,12 @@ type UltraFeedQuery_UltraFeed_UltraFeedQueryResults_results_UltraFeedEntry_feedS
   & FeedSpotlightFragment
 );
 
-type UltraFeedQuery_UltraFeed_UltraFeedQueryResults_results_UltraFeedEntry = { __typename?: 'UltraFeedEntry', type: UltraFeedEntryType, feedCommentThread: UltraFeedQuery_UltraFeed_UltraFeedQueryResults_results_UltraFeedEntry_feedCommentThread_FeedCommentThread | null, feedPost: UltraFeedQuery_UltraFeed_UltraFeedQueryResults_results_UltraFeedEntry_feedPost_FeedPost | null, feedSpotlight: UltraFeedQuery_UltraFeed_UltraFeedQueryResults_results_UltraFeedEntry_feedSpotlight_FeedSpotlightItem | null };
+type UltraFeedQuery_UltraFeed_UltraFeedQueryResults_results_UltraFeedEntry_feedSubscriptionSuggestions_FeedSubscriptionSuggestions = (
+  { __typename?: 'FeedSubscriptionSuggestions' }
+  & FeedSubscriptionSuggestionsFragment
+);
+
+type UltraFeedQuery_UltraFeed_UltraFeedQueryResults_results_UltraFeedEntry = { __typename?: 'UltraFeedEntry', type: UltraFeedEntryType, feedCommentThread: UltraFeedQuery_UltraFeed_UltraFeedQueryResults_results_UltraFeedEntry_feedCommentThread_FeedCommentThread | null, feedPost: UltraFeedQuery_UltraFeed_UltraFeedQueryResults_results_UltraFeedEntry_feedPost_FeedPost | null, feedSpotlight: UltraFeedQuery_UltraFeed_UltraFeedQueryResults_results_UltraFeedEntry_feedSpotlight_FeedSpotlightItem | null, feedSubscriptionSuggestions: UltraFeedQuery_UltraFeed_UltraFeedQueryResults_results_UltraFeedEntry_feedSubscriptionSuggestions_FeedSubscriptionSuggestions | null };
 
 type UltraFeedQuery_UltraFeed_UltraFeedQueryResults = { __typename: 'UltraFeedQueryResults', cutoff: string | null, endOffset: number, results: Array<UltraFeedQuery_UltraFeed_UltraFeedQueryResults_results_UltraFeedEntry> | null };
 
@@ -16226,16 +16203,6 @@ type UserExpandFrontpageSectionMutationVariables = Exact<{
 
 
 type UserExpandFrontpageSectionMutation = UserExpandFrontpageSectionMutation_Mutation;
-
-type GetCrosspostQueryQuery_Query = { __typename?: 'Query', getCrosspost: any | null };
-
-
-type GetCrosspostQueryQueryVariables = Exact<{
-  args: InputMaybe<Scalars['JSON']['input']>;
-}>;
-
-
-type GetCrosspostQueryQuery = GetCrosspostQueryQuery_Query;
 
 type initiateConversationMutation_initiateConversation_Conversation = (
   { __typename?: 'Conversation' }
@@ -20345,22 +20312,19 @@ type multiSubscriptionFollowUserSearchQueryQueryVariables = Exact<{
 
 type multiSubscriptionFollowUserSearchQueryQuery = multiSubscriptionFollowUserSearchQueryQuery_Query;
 
-type createSubscriptionSuggestedFeedSubscriptionsMutation_createSubscription_SubscriptionOutput_data_Subscription = (
-  { __typename?: 'Subscription' }
-  & SubscriptionState
-);
+type UserFollowingCountQuery_subscriptions_MultiSubscriptionOutput = { __typename?: 'MultiSubscriptionOutput', totalCount: number | null };
 
-type createSubscriptionSuggestedFeedSubscriptionsMutation_createSubscription_SubscriptionOutput = { __typename?: 'SubscriptionOutput', data: createSubscriptionSuggestedFeedSubscriptionsMutation_createSubscription_SubscriptionOutput_data_Subscription | null };
-
-type createSubscriptionSuggestedFeedSubscriptionsMutation_Mutation = { __typename?: 'Mutation', createSubscription: createSubscriptionSuggestedFeedSubscriptionsMutation_createSubscription_SubscriptionOutput | null };
+type UserFollowingCountQuery_Query = { __typename?: 'Query', subscriptions: UserFollowingCountQuery_subscriptions_MultiSubscriptionOutput | null };
 
 
-type createSubscriptionSuggestedFeedSubscriptionsMutationVariables = Exact<{
-  data: CreateSubscriptionDataInput;
+type UserFollowingCountQueryVariables = Exact<{
+  selector: InputMaybe<SubscriptionSelector>;
+  limit: InputMaybe<Scalars['Int']['input']>;
+  enableTotal: InputMaybe<Scalars['Boolean']['input']>;
 }>;
 
 
-type createSubscriptionSuggestedFeedSubscriptionsMutation = createSubscriptionSuggestedFeedSubscriptionsMutation_Mutation;
+type UserFollowingCountQuery = UserFollowingCountQuery_Query;
 
 type SuggestedFeedSubscriptionUsersQuery_SuggestedFeedSubscriptionUsers_SuggestedFeedSubscriptionUsersResult_results_User = (
   { __typename?: 'User' }
@@ -23189,22 +23153,24 @@ type LocalPostQueryQueryVariables = Exact<{
 
 type LocalPostQueryQuery = LocalPostQueryQuery_Query;
 
-type ForeignPostQueryQuery_post_SinglePostOutput_result_Post = (
+type UserRecentPostsForCompactCardQuery_posts_MultiPostOutput_results_Post = (
   { __typename?: 'Post' }
-  & PostsPage
+  & PostsList
 );
 
-type ForeignPostQueryQuery_post_SinglePostOutput = { __typename?: 'SinglePostOutput', result: ForeignPostQueryQuery_post_SinglePostOutput_result_Post | null };
+type UserRecentPostsForCompactCardQuery_posts_MultiPostOutput = { __typename?: 'MultiPostOutput', results: Array<UserRecentPostsForCompactCardQuery_posts_MultiPostOutput_results_Post> };
 
-type ForeignPostQueryQuery_Query = { __typename?: 'Query', post: ForeignPostQueryQuery_post_SinglePostOutput | null };
+type UserRecentPostsForCompactCardQuery_Query = { __typename?: 'Query', posts: UserRecentPostsForCompactCardQuery_posts_MultiPostOutput | null };
 
 
-type ForeignPostQueryQueryVariables = Exact<{
-  documentId: Scalars['String']['input'];
+type UserRecentPostsForCompactCardQueryVariables = Exact<{
+  selector: InputMaybe<PostSelector>;
+  limit: InputMaybe<Scalars['Int']['input']>;
+  enableTotal: InputMaybe<Scalars['Boolean']['input']>;
 }>;
 
 
-type ForeignPostQueryQuery = ForeignPostQueryQuery_Query;
+type UserRecentPostsForCompactCardQuery = UserRecentPostsForCompactCardQuery_Query;
 
 type UltraFeedThreadItemQuery_post_SinglePostOutput_result_Post = (
   { __typename?: 'Post' }
@@ -23549,6 +23515,72 @@ type multiSubscriptionSubscriptionsListQueryQueryVariables = Exact<{
 
 
 type multiSubscriptionSubscriptionsListQueryQuery = multiSubscriptionSubscriptionsListQueryQuery_Query;
+
+type UserContentFeedPostsQuery_posts_MultiPostOutput_results_Post = (
+  { __typename?: 'Post' }
+  & PostsListWithVotes
+);
+
+type UserContentFeedPostsQuery_posts_MultiPostOutput = { __typename?: 'MultiPostOutput', totalCount: number | null, results: Array<UserContentFeedPostsQuery_posts_MultiPostOutput_results_Post> };
+
+type UserContentFeedPostsQuery_Query = { __typename?: 'Query', posts: UserContentFeedPostsQuery_posts_MultiPostOutput | null };
+
+
+type UserContentFeedPostsQueryVariables = Exact<{
+  userId: Scalars['String']['input'];
+  limit: Scalars['Int']['input'];
+  sortedBy: Scalars['String']['input'];
+}>;
+
+
+type UserContentFeedPostsQuery = UserContentFeedPostsQuery_Query;
+
+type UserContentFeedCommentsQuery_comments_MultiCommentOutput_results_Comment_post_Post = (
+  { __typename?: 'Post' }
+  & PostsListWithVotes
+);
+
+type UserContentFeedCommentsQuery_comments_MultiCommentOutput_results_Comment_topLevelComment_Comment = (
+  { __typename?: 'Comment' }
+  & CommentsListWithTopLevelComment
+);
+
+type UserContentFeedCommentsQuery_comments_MultiCommentOutput_results_Comment = (
+  { __typename?: 'Comment', post: UserContentFeedCommentsQuery_comments_MultiCommentOutput_results_Comment_post_Post | null, topLevelComment: UserContentFeedCommentsQuery_comments_MultiCommentOutput_results_Comment_topLevelComment_Comment | null }
+  & CommentsList
+);
+
+type UserContentFeedCommentsQuery_comments_MultiCommentOutput = { __typename?: 'MultiCommentOutput', totalCount: number | null, results: Array<UserContentFeedCommentsQuery_comments_MultiCommentOutput_results_Comment> };
+
+type UserContentFeedCommentsQuery_Query = { __typename?: 'Query', comments: UserContentFeedCommentsQuery_comments_MultiCommentOutput | null };
+
+
+type UserContentFeedCommentsQueryVariables = Exact<{
+  userId: Scalars['String']['input'];
+  limit: Scalars['Int']['input'];
+  sortBy: Scalars['String']['input'];
+}>;
+
+
+type UserContentFeedCommentsQuery = UserContentFeedCommentsQuery_Query;
+
+type UserContentFeedThreadQuery_comments_MultiCommentOutput_results_Comment = (
+  { __typename?: 'Comment' }
+  & UltraFeedComment
+);
+
+type UserContentFeedThreadQuery_comments_MultiCommentOutput = { __typename?: 'MultiCommentOutput', results: Array<UserContentFeedThreadQuery_comments_MultiCommentOutput_results_Comment> };
+
+type UserContentFeedThreadQuery_Query = { __typename?: 'Query', comments: UserContentFeedThreadQuery_comments_MultiCommentOutput | null };
+
+
+type UserContentFeedThreadQueryVariables = Exact<{
+  topLevelCommentId: Scalars['String']['input'];
+  limit: InputMaybe<Scalars['Int']['input']>;
+}>;
+
+
+type UserContentFeedThreadQuery = UserContentFeedThreadQuery_Query;
 
 type UsersNameWrapperQuery_user_SingleUserOutput_result_User = (
   { __typename?: 'User' }
@@ -25498,17 +25530,26 @@ type SpotlightHeaderEventSubtitle = (
   & SpotlightMinimumInfo
 );
 
-type SpotlightDisplay_Spotlight_post_Post_user_User = { __typename?: 'User', _id: string, displayName: string, slug: string };
+type SpotlightDisplay_Spotlight_post_Post_user_User = (
+  { __typename?: 'User' }
+  & UsersMinimumInfo
+);
 
 type SpotlightDisplay_Spotlight_post_Post_reviews_Comment = { __typename?: 'Comment', _id: string };
 
 type SpotlightDisplay_Spotlight_post_Post = { __typename?: 'Post', _id: string, slug: string, title: string, user: SpotlightDisplay_Spotlight_post_Post_user_User | null, reviews: Array<SpotlightDisplay_Spotlight_post_Post_reviews_Comment> | null };
 
-type SpotlightDisplay_Spotlight_sequence_Sequence_user_User = { __typename?: 'User', _id: string, displayName: string, slug: string };
+type SpotlightDisplay_Spotlight_sequence_Sequence_user_User = (
+  { __typename?: 'User' }
+  & UsersMinimumInfo
+);
 
 type SpotlightDisplay_Spotlight_sequence_Sequence = { __typename?: 'Sequence', _id: string, title: string, user: SpotlightDisplay_Spotlight_sequence_Sequence_user_User | null };
 
-type SpotlightDisplay_Spotlight_tag_Tag_user_User = { __typename?: 'User', _id: string, displayName: string, slug: string };
+type SpotlightDisplay_Spotlight_tag_Tag_user_User = (
+  { __typename?: 'User' }
+  & UsersMinimumInfo
+);
 
 type SpotlightDisplay_Spotlight_tag_Tag = { __typename?: 'Tag', _id: string, name: string, slug: string, user: SpotlightDisplay_Spotlight_tag_Tag_user_User | null };
 
@@ -25969,7 +26010,7 @@ type ExplorePageTagFragment = (
 
 type ConceptItemFragment_Tag_description_Revision = { __typename?: 'Revision', _id: string, wordCount: number };
 
-type ConceptItemFragment_Tag_usersWhoLiked_UserLikingTag = { __typename?: 'UserLikingTag', _id: string, displayName: string };
+type ConceptItemFragment_Tag_usersWhoLiked_UserLikingTag = { __typename?: 'UserLikingTag', userId: string, displayName: string };
 
 type ConceptItemFragment = { __typename?: 'Tag', _id: string, core: boolean, name: string, slug: string, oldSlugs: Array<string>, postCount: number, baseScore: number, wikiOnly: boolean, isArbitalImport: boolean | null, coreTagId: string | null, maxScore: number | null, description: ConceptItemFragment_Tag_description_Revision | null, usersWhoLiked: Array<ConceptItemFragment_Tag_usersWhoLiked_UserLikingTag> };
 
@@ -26497,6 +26538,13 @@ type FeedSpotlightFragment_FeedSpotlightItem_post_Post = (
 type FeedSpotlightFragment_FeedSpotlightItem_spotlightMetaInfo_FeedSpotlightMetaInfo = { __typename?: 'FeedSpotlightMetaInfo', sources: Array<string>, servedEventId: string };
 
 type FeedSpotlightFragment = { __typename?: 'FeedSpotlightItem', _id: string, spotlight: FeedSpotlightFragment_FeedSpotlightItem_spotlight_Spotlight | null, post: FeedSpotlightFragment_FeedSpotlightItem_post_Post | null, spotlightMetaInfo: FeedSpotlightFragment_FeedSpotlightItem_spotlightMetaInfo_FeedSpotlightMetaInfo | null };
+
+type FeedSubscriptionSuggestionsFragment_FeedSubscriptionSuggestions_suggestedUsers_User = (
+  { __typename?: 'User' }
+  & UsersMinimumInfo
+);
+
+type FeedSubscriptionSuggestionsFragment = { __typename?: 'FeedSubscriptionSuggestions', _id: string, suggestedUsers: Array<FeedSubscriptionSuggestionsFragment_FeedSubscriptionSuggestions_suggestedUsers_User> };
 
 type multiPostsForAutocompleteQueryQuery_posts_MultiPostOutput_results_Post = (
   { __typename?: 'Post' }

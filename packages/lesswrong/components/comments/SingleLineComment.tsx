@@ -8,7 +8,6 @@ import { isMobile } from '../../lib/utils/isMobile'
 import { CommentTreeOptions } from './commentTree';
 import CoreTagIcon, { coreTagIconMap } from '../tagging/CoreTagIcon';
 import { metaNoticeStyles } from "./CommentsItem/metaNoticeStyles";
-import { isFriendlyUI } from '../../themes/forumTheme';
 import FormatDate from "../common/FormatDate";
 import ShowParentComment from "./ShowParentComment";
 import CommentUserName from "./CommentsItem/CommentUserName";
@@ -33,7 +32,7 @@ export const singleLineStyles = (theme: ThemeType) => ({
   paddingRight: theme.spacing.unit,
   color: theme.palette.text.dim60,
   whiteSpace: "nowrap",
-  fontFamily: isFriendlyUI ? theme.palette.fonts.sansSerifStack : undefined,
+  fontFamily: theme.isFriendlyUI ? theme.palette.fonts.sansSerifStack : undefined,
 })
 
 const styles = defineStyles("SingleLineComment", (theme: ThemeType) => ({

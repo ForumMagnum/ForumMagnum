@@ -1,7 +1,6 @@
 import React from 'react';
 import { useSubscribedLocation } from '../../lib/routeUtil';
 import { Link } from '../../lib/reactRouterWrapper';
-import { isFriendlyUI } from '../../themes/forumTheme';
 import { blackBarTitle } from '../../lib/publicSettings';
 import HeaderEventSubtitle from "./HeaderEventSubtitle";
 import { defineStyles, useStyles } from '../hooks/useStyles';
@@ -10,7 +9,7 @@ export const headerSubtitleStyles = defineStyles("HeaderSubtitle", (theme: Theme
   subtitle: {
     marginLeft: '1em',
     paddingLeft: '1em',
-    textTransform: isFriendlyUI ? undefined : 'uppercase',
+    textTransform: theme.isFriendlyUI ? undefined : 'uppercase',
     color: blackBarTitle.get() ? theme.palette.text.alwaysWhite : theme.palette.header.text,
     borderLeft: theme.palette.border.appBarSubtitleDivider,
   },

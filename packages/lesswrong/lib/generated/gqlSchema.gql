@@ -107,7 +107,7 @@ type TagContributorsList {
 }
 
 type UserLikingTag {
-  _id: String!
+  userId: String!
   displayName: String!
 }
 
@@ -1414,6 +1414,11 @@ type FeedSpotlightItem {
   spotlightMetaInfo: FeedSpotlightMetaInfo
 }
 
+type FeedSubscriptionSuggestions {
+  _id: String!
+  suggestedUsers: [User!]!
+}
+
 type UltraFeedQueryResults {
   cutoff: Date
   endOffset: Int!
@@ -1425,6 +1430,7 @@ enum UltraFeedEntryType {
   feedCommentThread
   feedPost
   feedSpotlight
+  feedSubscriptionSuggestions
 }
 
 type UltraFeedEntry {
@@ -1432,6 +1438,7 @@ type UltraFeedEntry {
   feedCommentThread: FeedCommentThread
   feedPost: FeedPost
   feedSpotlight: FeedSpotlightItem
+  feedSubscriptionSuggestions: FeedSubscriptionSuggestions
 }
 
 extend type Query {

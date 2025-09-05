@@ -8,7 +8,6 @@ import { useHover } from '../common/withHover'
 import withErrorBoundary from '../common/withErrorBoundary'
 import * as _ from 'underscore';
 import classNames from 'classnames';
-import { isFriendlyUI } from '@/themes/forumTheme';
 import CurationNoticesItem from "../admin/CurationNoticesItem";
 import SunshineListItem from "./SunshineListItem";
 import SidebarHoverOver from "./SidebarHoverOver";
@@ -41,13 +40,13 @@ const styles = (theme: ThemeType) => ({
     position: "relative",
     top: 2
   },
-  postTitle: isFriendlyUI ? {} : {
+  postTitle: theme.isFriendlyUI ? {} : {
     ...theme.typography.body2,
     ...theme.typography.postStyle,
     fontSize: "1rem",
     fontWeight: 500,
   },
-  titleWithCurationNotice: isFriendlyUI ? {} : {
+  titleWithCurationNotice: theme.isFriendlyUI ? {} : {
     color: 'green',
     fontWeight: 600,
   },

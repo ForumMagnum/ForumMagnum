@@ -3,7 +3,6 @@ import React from 'react';
 import { Link } from '../../lib/reactRouterWrapper';
 import classNames from 'classnames';
 import type { CoreReadingCollection } from '../sequences/LWCoreReading';
-import { isFriendlyUI } from '../../themes/forumTheme';
 import LinkCard from "../common/LinkCard";
 import CloudinaryImage from "../common/CloudinaryImage";
 import UsersName from "../users/UsersName";
@@ -40,7 +39,7 @@ const styles = (theme: ThemeType) => ({
     paddingTop: theme.spacing.unit*1.5
   },
   title: {
-    fontFamily: isFriendlyUI ? theme.palette.fonts.sansSerifStack : undefined,
+    fontFamily: theme.isFriendlyUI ? theme.palette.fonts.sansSerifStack : undefined,
   },
   mergeTitle: {
     display: "inline",
@@ -53,7 +52,7 @@ const styles = (theme: ThemeType) => ({
     ...theme.typography.postStyle,
     marginBottom:theme.spacing.unit,
     display: "inline-block",
-    ...(isFriendlyUI && {
+    ...(theme.isFriendlyUI && {
       fontFamily: theme.palette.fonts.sansSerifStack,
     }),
   },

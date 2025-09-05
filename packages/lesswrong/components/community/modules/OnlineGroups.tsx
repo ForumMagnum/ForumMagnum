@@ -5,7 +5,7 @@ import { cloudinaryCloudNameSetting } from '../../../lib/publicSettings';
 import Button from '@/lib/vendor/@material-ui/core/src/Button';
 import { useThemeColor } from '@/components/themes/useTheme';
 
-import { isFriendlyUI, preferredHeadingCase } from '../../../themes/forumTheme';
+import { preferredHeadingCase } from '../../../themes/forumTheme';
 import CloudinaryImage2 from "../../common/CloudinaryImage2";
 import { useQuery } from "@/lib/crud/useQuery";
 import { gql } from "@/lib/generated/gql-codegen";
@@ -103,7 +103,7 @@ const styles = (theme: ThemeType) => ({
       whiteSpace: 'normal'
     }
   },
-  onlineGroupName: isFriendlyUI ? {
+  onlineGroupName: theme.isFriendlyUI ? {
       ...theme.typography.headerStyle,
       fontWeight: 700,
       fontSize: 18,
@@ -145,7 +145,7 @@ const styles = (theme: ThemeType) => ({
     color: theme.palette.primary.main,
     padding: '10px 14px',
     borderRadius: 4,
-    fontSize: isFriendlyUI ? 14 : theme.typography.commentStyle.fontSize,
+    fontSize: theme.isFriendlyUI ? 14 : theme.typography.commentStyle.fontSize,
   },
   postGroupsCTA: {
     textAlign: 'center',

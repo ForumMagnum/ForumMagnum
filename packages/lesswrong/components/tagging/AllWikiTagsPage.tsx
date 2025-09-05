@@ -211,7 +211,7 @@ const uncategorizedRootTag = {
 const prioritySlugs = [
   'rationality', 'rationality-1', 'ai', 'world-modeling', 
   'world-optimization', 'practical', 'community', 'site-meta'
-] as const;
+];
 
 const ArbitalRedirectNotice = ({ onDismiss }: {
   onDismiss: () => void,
@@ -256,7 +256,9 @@ const AllWikiTagsPage = () => {
   const isArbitalRedirect = query.ref === 'arbital';
 
   const { data: tagsData } = useQuery(TagsQuery, {
-    variables: { slugs: [...prioritySlugs] },
+    variables: {
+      slugs: prioritySlugs
+    },
     fetchPolicy: 'cache-and-network',
     ssr: true
   });
@@ -295,7 +297,7 @@ const AllWikiTagsPage = () => {
     captureEvent('searchQueryUpdated', { query: searchState.query });
   };
 
-  const CustomStateResults = connectStateResults(({ searchResults, isSearchStalled }) => {
+  const CustomStateResults = useMemo(() => connectStateResults(({ searchResults, isSearchStalled }) => {
     const hits = (searchResults && searchResults.hits) || [];
     const tagIds = hits.map(hit => hit.objectID);
 
@@ -325,7 +327,7 @@ const AllWikiTagsPage = () => {
       </div>
       </AnalyticsContext>
     );
-  });
+  }), [currentQuery, priorityTags, isArbitalRedirect, classes]);
 
   return (
     <AnalyticsContext pageContext="allWikiTagsPage">
