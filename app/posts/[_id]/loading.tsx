@@ -1,8 +1,8 @@
 import React from "react";
 import RouteRoot from "@/components/next/RouteRoot";
-import PostsSingle from "@/components/posts/PostsSingle";
 import { PostsPageHeaderTitle } from "@/components/titles/PostsPageHeaderTitle";
 import { hasPostRecommendations } from "@/lib/betas";
+import Loading from "@/components/vulcan-core/Loading";
 
 export default async function PostsLoadingPage() {
   return <RouteRoot
@@ -13,7 +13,7 @@ export default async function PostsLoadingPage() {
       titleComponent: PostsPageHeaderTitle
     }}
   >
-    <PostsSingle />
+    <Loading/>
   </RouteRoot>;
 }
 
