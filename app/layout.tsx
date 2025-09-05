@@ -1,5 +1,5 @@
 import React from "react";
-import AppGenerator from "@/components/next/ClientAppGenerator";
+import ClientAppGenerator from "@/components/next/ClientAppGenerator";
 import { getInstanceSettings } from "@/lib/getInstanceSettings";
 import { cookies } from "next/headers";
 import { ClientRouteMetadataProvider } from "@/components/ClientRouteMetadataContext";
@@ -29,18 +29,12 @@ export default async function RootLayout({
   publicInstanceSettings.siteUrl = getDefaultAbsoluteUrl();
 
   const timezoneCookie = cookieStore.get(TIMEZONE_COOKIE);
-  const themeCookie = cookieStore.get(THEME_COOKIE)?.value ?? null;
 
   const timezone = timezoneCookie?.value ?? DEFAULT_TIMEZONE;
   const clientId = cookieStore.get(CLIENT_ID_COOKIE)?.value ?? null;
   const clientIdNewCookieExists = !!cookieStore.get(CLIENT_ID_NEW_COOKIE)?.value;
 
-  const [user, clientIdInvalidated] = await Promise.all([
-    getUser(cookieStore.get("loginToken")?.value ?? null),
-    clientId && new ClientIdsRepo().isClientIdInvalidated(clientId)
-  ]);
-  const abstractThemeOptions = getThemeOptions(themeCookie, user);
-  const themeOptions = abstractThemeToConcrete(abstractThemeOptions, false);
+  const clientIdInvalidated = clientId && await new ClientIdsRepo().isClientIdInvalidated(clientId); // TODO Move off the critical path
 
   const routeMetadata = getRouteMetadata().get();
 
@@ -52,19 +46,17 @@ export default async function RootLayout({
       <body>
         <ClientRouteMetadataProvider initialMetadata={routeMetadata}>
         <ClientIDAssigner clientIdNewCookieExists={clientIdNewCookieExists} clientIdInvalidated={!!clientIdInvalidated}/>
-        <AppGenerator
+        <ClientAppGenerator
           abTestGroupsUsed={{}}
-          themeOptions={abstractThemeOptions}
           ssrMetadata={{
             renderedAt: new Date().toISOString(),
             // TODO: figure out how to port the exising cache-control response header logic here
             cacheFriendly: false,
             timezone,
           }}
-          user={user}
         >
           {children}
-        </AppGenerator>
+        </ClientAppGenerator>
         </ClientRouteMetadataProvider>
       </body>
     </html>

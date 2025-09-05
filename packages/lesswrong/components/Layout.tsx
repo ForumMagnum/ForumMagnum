@@ -6,7 +6,7 @@ import classNames from 'classnames'
 import { useTheme, useThemeColor } from './themes/useTheme';
 import { useLocation } from '../lib/routeUtil';
 import { AnalyticsContext } from '../lib/analyticsEvents'
-import { UserContextProvider } from './common/withUser';
+import { useCurrentUser } from './common/withUser';
 import { TimezoneWrapper } from './common/withTimezone';
 import { DialogManager } from './common/withDialog';
 import { CommentBoxManager } from './hooks/useCommentBox';
@@ -268,11 +268,11 @@ const MaybeStickyWrapper: FC<{
     : <>{children}</>;
 }
 
-const Layout = ({currentUser, children}: {
-  currentUser: UsersCurrent|null,
+const Layout = ({children}: {
   children?: React.ReactNode,
 }) => {
   const classes = useStyles(styles);
+  const currentUser = useCurrentUser();
   const currentUserId = currentUser?._id;
   const searchResultsAreaRef = useRef<HTMLDivElement|null>(null);
   const [disableNoKibitz, setDisableNoKibitz] = useState(false); 
@@ -406,7 +406,6 @@ const Layout = ({currentUser, children}: {
     return (
       <AnalyticsContext path={pathname}>
       <AutoDarkModeWrapper>
-      <UserContextProvider value={currentUser}>
       <UnreadNotificationsContextProvider>
       <TimezoneWrapper>
       <ItemsReadContextWrapper>
@@ -543,7 +542,6 @@ const Layout = ({currentUser, children}: {
       </ItemsReadContextWrapper>
       </TimezoneWrapper>
       </UnreadNotificationsContextProvider>
-      </UserContextProvider>
       </AutoDarkModeWrapper>
       </AnalyticsContext>
     )

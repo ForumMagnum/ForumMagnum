@@ -8,7 +8,6 @@ import {
   InMemoryCache,
 } from "@apollo/client-integration-nextjs";
 import { ApolloNextAppProvider } from "@/lib/vendor/@apollo/client-integration-nextjs/ApolloNextAppProvider";
-import type { RequestCookie } from "next/dist/compiled/@edge-runtime/cookies";
 import { disableFragmentWarnings } from "graphql-tag";
 
 // In the internals of apollo client, they do two round-trips that look like `gql(print(gql(options.query)))`
@@ -18,17 +17,16 @@ import { disableFragmentWarnings } from "graphql-tag";
 // Disabling the warnings should basically be harmless as long as they're still enabled in the codegen context.
 disableFragmentWarnings();
 
-interface MakeClientProps {
-  loginToken?: string,
-  user: DbUser | null,
+async function makeApolloClientForServer({ loginToken, searchParams }: {
+  loginToken: string|null,
   searchParams: Record<string, string>,
-}
-
-async function makeApolloClientForServer({ loginToken, user, searchParams }: MakeClientProps): Promise<ApolloClient<unknown>> {
+}): Promise<ApolloClient<unknown>> {
   if (!isServer) {
     throw new Error("Not server");
   }
 
+  const { getUser } = await import("@/server/vulcan-lib/apollo-server/getUserFromReq");
+  const user = await getUser(loginToken);
   const { cookies, headers } = await import("next/headers");
   const serverCookies = await cookies();
   const serverHeaders = await headers();
@@ -55,7 +53,9 @@ async function makeApolloClientForServer({ loginToken, user, searchParams }: Mak
   });
 }
 
-function makeApolloClientForClient({ loginToken, user, searchParams }: MakeClientProps): ApolloClient<unknown> {
+function makeApolloClientForClient({ loginToken }: {
+  loginToken: string|null
+}): ApolloClient<unknown> {
   if (isServer) {
     throw new Error("Not client")
   }
@@ -69,9 +69,8 @@ function makeApolloClientForClient({ loginToken, user, searchParams }: MakeClien
   });
 }
 
-export function ApolloWrapper({ loginToken, user, searchParams, children }: React.PropsWithChildren<{
-  loginToken?: string,
-  user: DbUser | null,
+export function ApolloWrapper({ loginToken, searchParams, children }: React.PropsWithChildren<{
+  loginToken: string|null,
   searchParams: Record<string, string>,
 }>) {
   // Either this is an SSR context, in which case constructing an apollo client
@@ -83,7 +82,7 @@ export function ApolloWrapper({ loginToken, user, searchParams, children }: Reac
   // if it was client code, which fails at compile time (but it doesn't bundle
   // it this way if it's imported dynamically).
   if (isServer) {
-    const client = use(makeApolloClientForServer({ loginToken, user, searchParams }));
+    const client = use(makeApolloClientForServer({ loginToken, searchParams }));
     return (
       <ApolloNextAppProvider makeClient={() => client}>
         {children}
@@ -91,7 +90,7 @@ export function ApolloWrapper({ loginToken, user, searchParams, children }: Reac
     );
   } else {
     return (
-      <ApolloNextAppProvider makeClient={() => makeApolloClientForClient({ loginToken, user, searchParams })}>
+      <ApolloNextAppProvider makeClient={() => makeApolloClientForClient({ loginToken })}>
         {children}
       </ApolloNextAppProvider>
     );

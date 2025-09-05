@@ -27,7 +27,7 @@ export const createSchemaLink = (schema: GraphQLSchema, context: ResolverContext
 /**
  * Http link is used for client side rendering
  */
-export const createHttpLink = (baseUrl: string, loginToken?: string) => {
+export const createHttpLink = (baseUrl: string, loginToken: string|null) => {
   const uri = baseUrl + 'graphql';
 
   const batchKey = (operation: Operation) => {

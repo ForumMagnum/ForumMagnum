@@ -13,7 +13,7 @@ import { ThemeContextProvider } from '@/components/themes/ThemeContextProvider';
 import { LocationContext, NavigationContext, SubscribeLocationContext } from '@/lib/vulcan-core/appContext';
 import { parsePath } from '@/lib/vulcan-lib/routes';
 import { MessageContextProvider } from '../common/FlashMessages';
-import { RefetchCurrentUserContext } from '../common/withUser';
+import { RefetchCurrentUserContext, UserContextProvider } from '../common/withUser';
 import ScrollToTop from '../vulcan-core/ScrollToTop';
 import { useQueryCurrentUser } from '@/lib/crud/withCurrentUser';
 import { usePathname, useRouter, useSearchParams, useParams } from 'next/navigation';
@@ -89,20 +89,6 @@ const AppComponent = ({ children }: { children: React.ReactNode }) => {
     location: parsedPath,
   };
 
-  const {currentUser, refetchCurrentUser, currentUserLoading} = useQueryCurrentUser();
-
-  const locale = localeSetting.get();
-
-  useEffect(() => {
-    onUserChanged(currentUser);
-    moment.locale(locale);
-  }, [currentUser, locale]);
-
-  useEffect(() => {
-    onUserChanged(currentUser);
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [currentUser?._id]);
-
   // Reuse the container objects for location and navigation context, so that
   // they will be reference-stable and won't trigger spurious rerenders.
   if (!locationContext.current) {
@@ -134,26 +120,22 @@ const AppComponent = ({ children }: { children: React.ReactNode }) => {
   <LocationContext.Provider value={locationContext.current}>
   <NavigationContext.Provider value={navigationContext.current}>
   <SubscribeLocationContext.Provider value={subscribeLocationContext.current}>
-  <RefetchCurrentUserContext.Provider value={refetchCurrentUser}>
     <MessageContextProvider>
       {/* <HeadTags image={siteImageSetting.get()} /> */}
       <ScrollToTop />
-      <Layout currentUser={currentUser}>
+      <Layout>
         {children}
       </Layout>
     </MessageContextProvider>
-  </RefetchCurrentUserContext.Provider>
   </SubscribeLocationContext.Provider>
   </NavigationContext.Provider>
   </LocationContext.Provider>
   </HelmetProvider>;
 }
 
-const AppGenerator = ({ abTestGroupsUsed, themeOptions, ssrMetadata, user, children }: {
+const AppGenerator = ({ abTestGroupsUsed, ssrMetadata, children }: {
   abTestGroupsUsed: RelevantTestGroupAllocation,
-  themeOptions: AbstractThemeOptions,
   ssrMetadata?: SSRMetadata,
-  user: DbUser | null,
   children: React.ReactNode,
 }) => {
   let universalCookies;
@@ -180,12 +162,12 @@ const AppGenerator = ({ abTestGroupsUsed, themeOptions, ssrMetadata, user, child
       // <ForeignApolloClientProvider value={foreignApolloClient}>
         <EnableSuspenseContext.Provider value={isServer}>
         <ApolloWrapper
-          loginToken={loginToken}
-          user={user}
+          loginToken={loginToken ?? null}
           searchParams={Object.fromEntries(urlSearchParams.entries())}
         >
         <CookiesProvider cookies={universalCookies}>
-          <ThemeContextProvider options={themeOptions} isEmail={false}>
+        <UserContextProvider>
+          <ThemeContextProvider>
             <ABTestGroupsUsedContext.Provider value={abTestGroupsUsed}>
               <LayoutOptionsContextProvider>
                 <EnvironmentOverrideContextProvider ssrMetadata={ssrMetadata}>
@@ -196,6 +178,7 @@ const AppGenerator = ({ abTestGroupsUsed, themeOptions, ssrMetadata, user, child
               </LayoutOptionsContextProvider>
             </ABTestGroupsUsedContext.Provider>
           </ThemeContextProvider>
+        </UserContextProvider>
         </CookiesProvider>
         </ApolloWrapper>
         </EnableSuspenseContext.Provider>

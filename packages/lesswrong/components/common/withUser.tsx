@@ -1,22 +1,43 @@
-import React, { ForwardedRef, createContext, forwardRef, useCallback, useContext, useRef } from 'react';
+import React, { ForwardedRef, createContext, forwardRef, useCallback, useContext, useEffect, useRef } from 'react';
 import { useContextSelector } from "use-context-selector";
 import { UserContext } from './sharedContexts';
+import { useQueryCurrentUser } from '@/lib/crud/withCurrentUser';
+import { onUserChanged } from '@/client/logging';
+import { localeSetting } from '@/lib/instanceSettings';
+import moment from 'moment';
 
 export const GetUserContext = createContext<()=>(UsersCurrent|null)>(() => null);
 
-export const UserContextProvider = ({value, children}: {
-  value: UsersCurrent|null
+export const UserContextProvider = ({children}: {
   children: React.ReactNode
 }) => {
-  const lastCurrentUser = useRef(value);
-  lastCurrentUser.current = value;
+  const {currentUser, refetchCurrentUser, currentUserLoading} = useQueryCurrentUser();
+  
+  const locale = localeSetting.get();
+
+  useEffect(() => {
+    onUserChanged(currentUser);
+    moment.locale(locale);
+  }, [currentUser, locale]);
+
+  useEffect(() => {
+    onUserChanged(currentUser);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [currentUser?._id]);
+
+  const lastCurrentUser = useRef(currentUser);
+  lastCurrentUser.current = currentUser;
   const getCurrentUser = useCallback(() => lastCurrentUser.current, []);
 
-  return <UserContext.Provider value={value}>
+  return (
+    <RefetchCurrentUserContext.Provider value={refetchCurrentUser}>
+    <UserContext.Provider value={currentUser}>
     <GetUserContext.Provider value={getCurrentUser}>
       {children}
     </GetUserContext.Provider>
-  </UserContext.Provider>
+    </UserContext.Provider>
+    </RefetchCurrentUserContext.Provider>
+  );
 }
 
 /**

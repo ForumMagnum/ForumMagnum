@@ -2,7 +2,7 @@
 
 import React, { useState, useMemo, useEffect, useLayoutEffect, useContext } from 'react';
 import { getForumTheme } from '../../themes/forumTheme';
-import { AbstractThemeOptions, abstractThemeToConcrete } from '../../themes/themeNames';
+import { AbstractThemeOptions, abstractThemeToConcrete, getThemeOptions } from '../../themes/themeNames';
 import moment from 'moment';
 import { isEAForum } from '../../lib/instanceSettings';
 import { THEME_COOKIE } from '../../lib/cookies/cookies';
@@ -14,15 +14,17 @@ import { useTracking } from '@/lib/analyticsEvents';
 import { createStylesContext, regeneratePageStyles, serverEmbeddedStyles, StylesContext, type StylesContextType } from '../hooks/useStyles';
 import { useServerInsertedHTML } from 'next/navigation';
 import { setClientMountedStyles } from '../hooks/defineStyles';
+import { useCurrentUser } from '../common/withUser';
 
-export const ThemeContextProvider = ({options, isEmail, children}: {
-  options: AbstractThemeOptions,
-  isEmail: boolean,
+export const ThemeContextProvider = ({children}: {
   children: React.ReactNode,
 }) => {
   const [cookies, setCookie, removeCookie] = useCookiesWithConsent([THEME_COOKIE]);
   const themeCookie = cookies[THEME_COOKIE];
-  const [themeOptions, setThemeOptions] = useState(options);
+  const user = useCurrentUser();
+
+  const initialThemeOptions = getThemeOptions(themeCookie, user);
+  const [themeOptions, setThemeOptions] = useState(initialThemeOptions);
   const prefersDarkMode = usePrefersDarkMode();
 
   useEffect(() => {
@@ -54,7 +56,7 @@ export const ThemeContextProvider = ({options, isEmail, children}: {
   return <ThemeContext.Provider value={themeContext}>
     <FMJssProvider stylesContext={stylesContext}>
       {isClient && <ThemeStylesheetSwapper/>}
-      {isServer && !isEmail && <StyleHTMLInjector/>}
+      {isServer && <StyleHTMLInjector/>}
       {children}
     </FMJssProvider>
   </ThemeContext.Provider>
