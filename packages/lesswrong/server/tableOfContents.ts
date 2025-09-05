@@ -12,7 +12,7 @@ import { getEditableFieldNamesForCollection } from '@/lib/editor/editableSchemaF
 import { getCollectionAccessFilter } from './permissions/accessFilters';
 
 async function getTocAnswersServer(document: DbPost, context: ResolverContext) {
-  const { Comments } = context;
+  const { Comments, Users } = context;
 
   if (!document.question) return []
 
@@ -26,7 +26,14 @@ async function getTocAnswersServer(document: DbPost, context: ResolverContext) {
     answersTerms.af = true
   }
   const answers = await Comments.find(answersTerms, {sort:questionAnswersSortings.top}).fetch();
-  return getTocAnswers({post: document, answers})
+  const userIds = Array.from(new Set(answers.map((a) => a.userId)));
+  const users = await Users.find({_id: {$in: userIds}}, {projection: {displayName: 1}}).fetch();
+  const usersRecord: Record<string, { displayName: string }> = {};
+  users.forEach(user => {
+    usersRecord[user._id] = { displayName: user.displayName };
+  });
+
+  return getTocAnswers({post: document, answers, userMap: usersRecord})
 }
 
 async function getTocCommentsServer(document: DbPost, context: ResolverContext) {
