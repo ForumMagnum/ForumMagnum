@@ -255,7 +255,7 @@
     "moment": "^2.29.4",
     "moment-timezone": "^0.5.46",
     "mysql2": "^3.11.4",
-    "next": "^15.5.0",
+    "next": "^15.5.2",
     "node-abort-controller": "^3.1.1",
     "nodemailer": "^6.9.9",
     "normalize-scroll-left": "^0.2.1",

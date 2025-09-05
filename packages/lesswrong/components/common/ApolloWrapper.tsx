@@ -21,15 +21,17 @@ disableFragmentWarnings();
 interface MakeClientProps {
   loginToken?: string,
   user: DbUser | null,
-  cookies: RequestCookie[],
-  headers: Record<string, string>,
   searchParams: Record<string, string>,
 }
 
-async function makeApolloClientForServer({ loginToken, user, cookies, headers, searchParams }: MakeClientProps): Promise<ApolloClient<unknown>> {
+async function makeApolloClientForServer({ loginToken, user, searchParams }: MakeClientProps): Promise<ApolloClient<unknown>> {
   if (!isServer) {
     throw new Error("Not server");
   }
+
+  const { cookies, headers } = await import("next/headers");
+  const serverCookies = await cookies();
+  const serverHeaders = await headers();
 
   const { LoggedOutCacheLink } = await import("@/lib/apollo/loggedOutCacheLink");
   const { computeContextFromUser } = await import("@/server/vulcan-lib/apollo-server/context");
@@ -37,8 +39,8 @@ async function makeApolloClientForServer({ loginToken, user, cookies, headers, s
 
   const context = computeContextFromUser({
     user,
-    cookies,
-    headers: new Headers(headers),
+    cookies: serverCookies.getAll(),
+    headers: new Headers(serverHeaders),
     searchParams: new URLSearchParams(searchParams),
     isSSR: true,
   });
@@ -53,7 +55,7 @@ async function makeApolloClientForServer({ loginToken, user, cookies, headers, s
   });
 }
 
-function makeApolloClientForClient({ loginToken, user, cookies, headers, searchParams }: MakeClientProps): ApolloClient<unknown> {
+function makeApolloClientForClient({ loginToken, user, searchParams }: MakeClientProps): ApolloClient<unknown> {
   if (isServer) {
     throw new Error("Not client")
   }
@@ -62,16 +64,14 @@ function makeApolloClientForClient({ loginToken, user, cookies, headers, searchP
     link: ApolloLink.from([
       headerLink,
       createErrorLink(),
-      createHttpLink(isServer ? getSiteUrl() : '/', loginToken, headers)
+      createHttpLink(isServer ? getSiteUrl() : '/', loginToken)
     ]),
   });
 }
 
-export function ApolloWrapper({ loginToken, user, cookies, headers, searchParams, children }: React.PropsWithChildren<{
+export function ApolloWrapper({ loginToken, user, searchParams, children }: React.PropsWithChildren<{
   loginToken?: string,
   user: DbUser | null,
-  cookies: RequestCookie[],
-  headers: Record<string, string>,
   searchParams: Record<string, string>,
 }>) {
   // Either this is an SSR context, in which case constructing an apollo client
@@ -83,7 +83,7 @@ export function ApolloWrapper({ loginToken, user, cookies, headers, searchParams
   // if it was client code, which fails at compile time (but it doesn't bundle
   // it this way if it's imported dynamically).
   if (isServer) {
-    const client = use(makeApolloClientForServer({ loginToken, user, cookies, headers, searchParams }));
+    const client = use(makeApolloClientForServer({ loginToken, user, searchParams }));
     return (
       <ApolloNextAppProvider makeClient={() => client}>
         {children}
@@ -91,7 +91,7 @@ export function ApolloWrapper({ loginToken, user, cookies, headers, searchParams
     );
   } else {
     return (
-      <ApolloNextAppProvider makeClient={() => makeApolloClientForClient({ loginToken, user, cookies, headers, searchParams })}>
+      <ApolloNextAppProvider makeClient={() => makeApolloClientForClient({ loginToken, user, searchParams })}>
         {children}
       </ApolloNextAppProvider>
     );

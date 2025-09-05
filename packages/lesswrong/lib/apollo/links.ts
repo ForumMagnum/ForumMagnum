@@ -27,7 +27,7 @@ export const createSchemaLink = (schema: GraphQLSchema, context: ResolverContext
 /**
  * Http link is used for client side rendering
  */
-export const createHttpLink = (baseUrl: string, loginToken?: string, headers?: Record<string, string>) => {
+export const createHttpLink = (baseUrl: string, loginToken?: string) => {
   const uri = baseUrl + 'graphql';
 
   const batchKey = (operation: Operation) => {
@@ -51,7 +51,6 @@ export const createHttpLink = (baseUrl: string, loginToken?: string, headers?: R
   };
 
   const isSameSiteRequest = baseUrl === '/' || baseUrl === getSiteUrl();
-  const isWithinSSRRequest = baseUrl === getSiteUrl();
 
   const fetch: typeof globalThis.fetch = isServer
     ? (url, options) => globalThis.fetch(url, {
@@ -70,7 +69,6 @@ export const createHttpLink = (baseUrl: string, loginToken?: string, headers?: R
     batchMax: isServer ? 1 : graphqlBatchMaxSetting.get(),
     fetch,
     batchKey,
-    ...(isWithinSSRRequest ? { headers: { ...headers, isSSR: 'true' } } : {}),
   });
 }
 
