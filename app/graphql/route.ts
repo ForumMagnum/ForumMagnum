@@ -1,12 +1,48 @@
 import { getExecutableSchema } from '../../packages/lesswrong/server/vulcan-lib/apollo-server/initGraphQL';
 import { startServerAndCreateNextHandler } from '@as-integrations/next';
-import { ApolloServer } from '@apollo/server';
+import { ApolloServer, ApolloServerPlugin, GraphQLRequestContext } from '@apollo/server';
 import { configureSentryScope, getContextFromReqAndRes } from '../../packages/lesswrong/server/vulcan-lib/apollo-server/context';
 import type { NextRequest } from 'next/server';
-import { asyncLocalStorage, closeRequestPerfMetric, openPerfMetric, setAsyncStoreValue } from '@/server/perfMetrics';
+import { asyncLocalStorage, closePerfMetric, closeRequestPerfMetric, openPerfMetric, setAsyncStoreValue } from '@/server/perfMetrics';
 import { captureException, getIsolationScope } from '@sentry/nextjs';
 import { getClientIP } from '@/server/utils/getClientIP';
 import { performanceMetricLoggingEnabled } from '@/lib/instanceSettings';
+import { GraphQLError, GraphQLFormattedError } from 'graphql';
+import { inspect } from 'util';
+import { formatError } from 'apollo-errors';
+
+class ApolloServerLogging implements ApolloServerPlugin<ResolverContext> {
+  async requestDidStart({ request, contextValue: context }: GraphQLRequestContext<ResolverContext>) {
+    const { operationName = 'unknownGqlOperation', query, variables } = request;
+
+    //remove sensitive data from variables such as password
+    let filteredVariables = variables;
+    if (variables) {
+      filteredVariables =  Object.keys(variables).reduce((acc, key) => {
+        return (key === 'password') ?  acc : { ...acc, [key]: variables[key] };
+      }, {});
+    }
+
+    let startedRequestMetric: IncompletePerfMetric;
+    if (performanceMetricLoggingEnabled.get()) {
+      startedRequestMetric = openPerfMetric({
+        op_type: 'query',
+        op_name: operationName,
+        parent_trace_id: context.perfMetric?.trace_id,
+        extra_data: filteredVariables,
+        gql_string: query
+      });  
+    }
+    
+    return {
+      async willSendResponse() { // hook for transaction finished
+        if (performanceMetricLoggingEnabled.get()) {
+          closePerfMetric(startedRequestMetric);
+        }
+      }
+    };
+  }
+}
 
 const server = new ApolloServer<ResolverContext>({
   schema: getExecutableSchema(),
@@ -14,6 +50,16 @@ const server = new ApolloServer<ResolverContext>({
   allowBatchedHttpRequests: true,
   csrfPrevention: false,
   includeStacktraceInErrorResponses: true,
+  plugins: [new ApolloServerLogging()],
+  formatError: (e): GraphQLFormattedError => {
+    captureException(new GraphQLError(e.message, e));
+    const {message, ...properties} = e;
+    // eslint-disable-next-line no-console
+    console.error(`[GraphQLError: ${message}]`, inspect(properties, {depth: null}));
+    // TODO: Replace sketchy apollo-errors package with something first-party
+    // and that doesn't require a cast here
+    return formatError(e) as any;
+  },
 });
 
 
