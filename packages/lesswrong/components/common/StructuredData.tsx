@@ -1,6 +1,6 @@
 import React from 'react';
 import { toEmbeddableJson } from '@/lib/utils/jsonUtils';
-import { SuspenseWrapper } from './SuspenseWrapper';
+import DeferRender from './DeferRender';
 
 const StructuredDataInner = ({generate}: {
   generate: () => Record<string,AnyBecauseHard>
@@ -11,7 +11,7 @@ const StructuredDataInner = ({generate}: {
 export const StructuredData = ({generate}: {
   generate: () => Record<string,AnyBecauseHard>
 }) => {
-  return <SuspenseWrapper name="StructuredData">
+  return <DeferRender ssr={false}>
     <StructuredDataInner generate={generate} />
-  </SuspenseWrapper>;
+  </DeferRender>;
 }
