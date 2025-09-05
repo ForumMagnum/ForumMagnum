@@ -5,7 +5,7 @@ import { useCurrentUser } from '../common/withUser';
 import { isAF } from '../../lib/instanceSettings';
 import { useVoteButtonsDisabled } from './useVoteButtonsDisabled';
 import type { VotingProps } from './votingProps';
-import OverallVoteButton, { OverallVoteButtonProps } from './OverallVoteButton';
+import OverallVoteButton from './OverallVoteButton';
 import classNames from 'classnames';
 import { isFriendlyUI } from '../../themes/forumTheme';
 import { defineStyles, useStyles } from '../hooks/useStyles';
@@ -146,11 +146,6 @@ const OverallVoteAxis = ({
 
   const tooltipPlacement = "top"
 
-  const buttonProps: Partial<OverallVoteButtonProps<VoteableTypeClient>> = {largeArrow: largeArrows};
-  if (verticalArrows) {
-    buttonProps.solidArrow = true;
-  }
-
   return <TooltipIfDisabled>
     <span className={classes.vote}>
       {!!af && !isAF() && !hideAfScore &&
@@ -196,8 +191,11 @@ const OverallVoteAxis = ({
               color="error"
               upOrDown="Downvote"
               enabled={canVote}
-              {...voteProps}
-              {...buttonProps}
+              largeArrow={largeArrows}
+              solidArrow={verticalArrows}
+              document={voteProps.document}
+              collectionName={voteProps.collectionName}
+              vote={voteProps.vote}
             />
           </TooltipIfEnabled>
           <TooltipIfEnabled title={karmaTooltipTitle} placement={tooltipPlacement}>
@@ -217,8 +215,11 @@ const OverallVoteAxis = ({
               color="secondary"
               upOrDown="Upvote"
               enabled={canVote}
-              {...voteProps}
-              {...buttonProps}
+              largeArrow={largeArrows}
+              solidArrow={verticalArrows}
+              document={voteProps.document}
+              collectionName={voteProps.collectionName}
+              vote={voteProps.vote}
             />
           </TooltipIfEnabled>
         </span>

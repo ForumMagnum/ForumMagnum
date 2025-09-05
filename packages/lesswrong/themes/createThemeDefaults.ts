@@ -264,9 +264,6 @@ export const baseTheme: BaseThemeSpecification = {
         ...defaultZIndexes
       },
       postImageStyles: {},
-      voting: {
-        strongVoteDelay: 1000,
-      },
       shadows: [
         // All from material-UI
         "none",
