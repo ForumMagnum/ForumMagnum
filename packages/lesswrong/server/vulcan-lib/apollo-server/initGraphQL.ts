@@ -37,7 +37,6 @@ import { alignmentForumMutations, alignmentForumTypeDefs } from '@/server/resolv
 import { allTagsActivityFeedGraphQLQueries, allTagsActivityFeedGraphQLTypeDefs } from '@/server/resolvers/allTagsActivityFeed';
 import { recentDiscussionFeedGraphQLQueries, recentDiscussionFeedGraphQLTypeDefs } from '@/server/resolvers/recentDiscussionFeed';
 import { ultraFeedGraphQLQueries, ultraFeedGraphQLTypeDefs } from '@/server/resolvers/ultraFeedResolver';
-import { ultraFeedHistoryGraphQLQueries, ultraFeedHistoryGraphQLTypeDefs } from '@/server/resolvers/ultraFeedHistoryResolver';
 import { ultraFeedSubscriptionsQueries, ultraFeedSubscriptionsTypeDefs } from '@/server/resolvers/ultraFeedSubscriptionsResolver';
 import { subscribedUsersFeedGraphQLQueries, subscribedUsersFeedGraphQLTypeDefs } from '@/server/resolvers/subscribedUsersFeedResolver';
 import { tagHistoryFeedGraphQLQueries, tagHistoryFeedGraphQLTypeDefs } from '@/server/resolvers/tagHistoryFeed';
@@ -312,7 +311,6 @@ export const typeDefs = gql`
   ${recommendationsGqlTypeDefs}
   ${extraPostResolversGraphQLTypeDefs}
   ${ultraFeedGraphQLTypeDefs}
-  ${ultraFeedHistoryGraphQLTypeDefs}
   ${ultraFeedSubscriptionsTypeDefs}
   ${generateCoverImagesForPostGraphQLTypeDefs}
   ${flipSplashArtImageGraphQLTypeDefs}
@@ -496,7 +494,6 @@ export const resolvers = {
     ...surveyResolversGraphQLQueries,
     ...tagResolversGraphQLQueries,
     ...ultraFeedGraphQLQueries,
-    ...ultraFeedHistoryGraphQLQueries,
     ...ultraFeedSubscriptionsQueries,
     ...spotlightGqlQueries,
 
