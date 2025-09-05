@@ -149,12 +149,11 @@ const AppComponent = ({ children }: { children: React.ReactNode }) => {
   </HelmetProvider>;
 }
 
-const AppGenerator = ({ abTestGroupsUsed, themeOptions, ssrMetadata, user, headers, children }: {
+const AppGenerator = ({ abTestGroupsUsed, themeOptions, ssrMetadata, user, children }: {
   abTestGroupsUsed: RelevantTestGroupAllocation,
   themeOptions: AbstractThemeOptions,
   ssrMetadata?: SSRMetadata,
   user: DbUser | null,
-  headers: Record<string, string>,
   children: React.ReactNode,
 }) => {
   let universalCookies;
@@ -183,8 +182,6 @@ const AppGenerator = ({ abTestGroupsUsed, themeOptions, ssrMetadata, user, heade
         <ApolloWrapper
           loginToken={loginToken}
           user={user}
-          cookies={parsedCookies}
-          headers={headers}
           searchParams={Object.fromEntries(urlSearchParams.entries())}
         >
         <CookiesProvider cookies={universalCookies}>

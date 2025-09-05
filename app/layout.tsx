@@ -62,8 +62,6 @@ export default async function RootLayout({
             timezone,
           }}
           user={user}
-          // TODO: grab the headers from ClientAppGenerator
-          headers={{}}
         >
           {children}
         </AppGenerator>

@@ -70,7 +70,6 @@ export async function middleware(request: NextRequest) {
   const [statusCodeFinderStream, responseStream] = originalBody.tee();
   const { status, redirectTarget } = await findStatusCodeInStream(statusCodeFinderStream);
   if (redirectTarget) {
-    console.log({ status, redirectTarget });
     if (urlIsAbsolute(redirectTarget)) {
       return NextResponse.redirect(redirectTarget, status);
     } else {
