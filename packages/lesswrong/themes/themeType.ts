@@ -724,7 +724,6 @@ declare global {
     zIndexes: ZIndexMap,
     overrides: any,
     postImageStyles: JssStyles,
-    voting: {strongVoteDelay: number},
     
     // Used by material-UI. Not used by us directly (for our styles use
     // `theme.palette.boxShadow` which defines shadows semantically rather than

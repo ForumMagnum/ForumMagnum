@@ -1,16 +1,15 @@
 import React from 'react';
-import { registerComponent } from '../../lib/vulcan-lib/components';
 import VoteArrowIconSolid from "./VoteArrowIconSolid";
 import VoteArrowIconHollow from "./VoteArrowIconHollow";
-import { VoteColor } from './VoteButton';
+import { type VoteButtonAnimationHandlers, type VoteColor } from './VoteButton';
 
 export interface BaseVoteArrowIconProps {
-  strongVoteDelay: number,
   orientation: "up"|"down"|"left"|"right",
   largeArrow?: boolean,
   enabled?: boolean,
   color: VoteColor,
-  voted: boolean,
+  animation: VoteButtonAnimationHandlers,
+  /*voted: boolean,
   eventHandlers: {
     handleMouseDown?: () => void,
     handleMouseUp?: () => void,
@@ -19,7 +18,7 @@ export interface BaseVoteArrowIconProps {
   },
   bigVotingTransition: boolean,
   bigVoted: boolean,
-  bigVoteCompleted: boolean,
+  bigVoteCompleted: boolean,*/
   alwaysColored: boolean,
 }
 
@@ -36,6 +35,6 @@ const VoteArrowIcon = (props: VoteArrowIconProps) => {
   }
 };
 
-export default registerComponent('VoteArrowIcon', VoteArrowIcon);
+export default VoteArrowIcon;
 
 

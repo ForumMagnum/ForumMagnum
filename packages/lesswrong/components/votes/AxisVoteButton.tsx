@@ -1,11 +1,10 @@
 import React from 'react';
-import { registerComponent } from '../../lib/vulcan-lib/components';
 import { useCurrentUserId } from '../common/withUser';
 import { useDialog } from '../common/withDialog';
 import { useTracking } from '../../lib/analyticsEvents';
 import type { VoteArrowIconProps } from '../votes/VoteArrowIcon';
 import LoginPopup from "../users/LoginPopup";
-import VoteButton from "./VoteButton";
+import { VoteButtonAnimation } from "./VoteButton";
 
 const AxisVoteButton = <T extends VoteableTypeClient>({VoteIconComponent, vote, document, axis, upOrDown, color, orientation, enabled, collectionName}: {
   VoteIconComponent: React.ComponentType<VoteArrowIconProps>,
@@ -16,7 +15,7 @@ const AxisVoteButton = <T extends VoteableTypeClient>({VoteIconComponent, vote, 
   color: "error"|"primary"|"secondary",
   orientation: "up"|"down"|"left"|"right",
   enabled: boolean,
-  collectionName?: CollectionNameString,
+  collectionName: CollectionNameString,
 }) => {
   const currentUserId = useCurrentUserId();
   const { openDialog } = useDialog();
@@ -49,18 +48,19 @@ const AxisVoteButton = <T extends VoteableTypeClient>({VoteIconComponent, vote, 
   const currentVoteOnAxis = document.currentUserExtendedVote?.[axis] || "neutral";
   const currentStrength = (currentVoteOnAxis === "small"+upOrDown) ? "small" : (currentVoteOnAxis === "big"+upOrDown) ? "big" : "neutral";
   
-  return <VoteButton
-    VoteIconComponent={VoteIconComponent}
+  return <VoteButtonAnimation
     vote={wrappedVote}
     currentStrength={currentStrength}
-    
-    upOrDown={upOrDown}
-    color={color}
-    orientation={orientation}
-    enabled={enabled}
-  />
+  >
+    {animation => <VoteIconComponent
+      color={color}
+      orientation={orientation}
+      animation={animation}
+      alwaysColored={false}
+    />}
+  </VoteButtonAnimation>;
 }
 
-export default registerComponent('AxisVoteButton', AxisVoteButton);
+export default AxisVoteButton;
 
 

@@ -1,9 +1,15 @@
 import React from "react";
 
-export const SoftUpArrowIcon = (props: React.HTMLAttributes<SVGElement>) => {
+export const SoftUpArrowIcon = ({width=9, height=6, ...props}: {
+  width?: number,
+  height?: number
+  className?: string,
+  onClick?: React.MouseEventHandler<SVGElement>,
+  onMouseDown?: React.MouseEventHandler<SVGElement>,
+}) => {
   return (
-    <svg width="9" height="6" viewBox="0 0 9 6" fill="currentColor" {...props} >
-      <path d="M4.11427 0.967669C4.31426 0.725192 4.68574 0.725192 4.88573 0.967669L8.15534 4.93186C8.42431 5.25798 8.19234 5.75 7.76961 5.75H1.23039C0.807659 5.75 0.575686 5.25798 0.844665 4.93186L4.11427 0.967669Z"/>
+    <svg width={width} height={height} viewBox="0 0 9 6" fill="currentColor" {...props}>
+      <path d="M4.11 0.968C4.31 0.725 4.69 0.725 4.89 0.968L8.16 4.932C8.42 5.26 8.19 5.75 7.77 5.75H1.23C0.808 5.75 0.576 5.26 0.845 4.93L4.11 0.968Z"/>
     </svg>
   );
 }

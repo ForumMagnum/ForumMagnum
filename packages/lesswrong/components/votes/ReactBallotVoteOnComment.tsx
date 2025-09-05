@@ -122,20 +122,18 @@ const AxisDirectionButton = ({axis, voteProps, direction, classes}: {
 }) => {
   return (
     <AxisVoteButton
-      VoteIconComponent={({eventHandlers, voted, ...rest}) => {
+      VoteIconComponent={({animation, ...rest}) => {
+        const { eventHandlers, state } = animation;
         return <div
-          onMouseDown={eventHandlers.handleMouseDown}
-          onMouseUp={eventHandlers.handleMouseUp}
-          onMouseOut={eventHandlers.clearState}
-          onClick={eventHandlers.handleClick}
+          {...eventHandlers}
           className={classNames(classes.voteButton, {
             [classes.goodVersion]: direction==="up",
             [classes.badVersion]: direction==="down",
-            [classes.voteButtonSelected]: voted,
+            [classes.voteButtonSelected]: state.mode==="idle" && state.vote !== "neutral",
           })}
         >
           <span className={classes.voteArrow}>
-            <VoteArrowIcon eventHandlers={{}} voted={voted} {...rest} alwaysColored />
+            <VoteArrowIcon animation={animation} {...rest} alwaysColored />
           </span>
           <span className={classes.buttonLabel}>
             {direction==="up" ? axis.goodLabel : axis.badLabel}
