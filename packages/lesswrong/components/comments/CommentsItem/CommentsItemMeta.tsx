@@ -331,7 +331,7 @@ export const CommentsItemMeta = ({
           className={classes.showMoreTags}
         />}
       </span>}
-      <CommentPollVote comment={comment} />
+      {comment.forumEventId && <CommentPollVote comment={comment} />}
 
       {(rightSectionElements || isFriendlyUI() || menuVisible) && <span className={classes.rightSection}>
         {rightSectionElements}
