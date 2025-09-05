@@ -214,14 +214,25 @@ function elementToToCTitle(element: HTMLElement): string {
 }
 
 type CommentType = CommentsList | DbComment
-export function getTocAnswers({ post, answers }: { post: { question: boolean }; answers: CommentType[] }) {
-  if (!post.question) return []
+export function getTocAnswers({
+  post,
+  answers,
+  userMap,
+}: {
+  post: { question: boolean };
+  answers: CommentType[];
+  userMap?: Record<string, { displayName: string }>;
+}) {
+  if (!post.question) return [];
 
   const answerSections: ToCSection[] = answers.map((answer: CommentType): ToCSection => {
     const { html } = answer.contents || {};
     const highlight = truncate(html, 900);
     let shortHighlight = htmlToTextDefault(answerTocExcerptFromHTML(html ?? ""));
-    const author = ("user" in answer ? answer.user?.displayName : answer.author) ?? null;
+    const author =
+      ("user" in answer ? answer.user?.displayName : null) ??
+      (answer.userId ? userMap?.[answer.userId]?.displayName : null) ??
+      ("author" in answer ? answer.author : null) ?? "[anonymous]";
 
     return {
       title: `${answer.baseScore} ${author}`,
