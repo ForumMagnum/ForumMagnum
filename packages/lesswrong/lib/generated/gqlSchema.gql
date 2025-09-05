@@ -1446,10 +1446,6 @@ extend type Query {
 }
 
 extend type Query {
-  UltraFeedHistory(limit: Int, cutoff: Date, offset: Int): UltraFeedQueryResults!
-}
-
-extend type Query {
   UltraFeedSubscriptions(limit: Int, cutoff: Date, offset: Int, settings: JSON): UltraFeedQueryResults!
 }
 

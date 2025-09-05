@@ -75,7 +75,6 @@ interface Query {
   getCrosspost: any;
   RevisionsDiff: string | null;
   UltraFeed: UltraFeedQueryResults;
-  UltraFeedHistory: UltraFeedQueryResults;
   UltraFeedSubscriptions: UltraFeedQueryResults;
   advisorRequest: SingleAdvisorRequestOutput | null;
   advisorRequests: MultiAdvisorRequestOutput | null;
