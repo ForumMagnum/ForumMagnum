@@ -3,7 +3,7 @@
 // Import needed to get the database settings from the window on the client
 import '@/client/publicSettings';
 
-import React, { useEffect, useMemo, useRef, useState, useTransition } from 'react';
+import React, { use, useEffect, useMemo, useRef, useState, useTransition } from 'react';
 import CookiesProvider from "@/lib/vendor/react-cookie/CookiesProvider";
 import { ABTestGroupsUsedContext, RelevantTestGroupAllocation } from '@/lib/abTestImpl';
 import type { AbstractThemeOptions } from '@/themes/themeNames';
@@ -149,17 +149,31 @@ const AppComponent = ({ children }: { children: React.ReactNode }) => {
   </HelmetProvider>;
 }
 
-const AppGenerator = ({ abTestGroupsUsed, themeOptions, ssrMetadata, user, cookies, headers, children }: {
+const AppGenerator = ({ abTestGroupsUsed, themeOptions, ssrMetadata, user, headers, children }: {
   abTestGroupsUsed: RelevantTestGroupAllocation,
   themeOptions: AbstractThemeOptions,
   ssrMetadata?: SSRMetadata,
   user: DbUser | null,
-  cookies: RequestCookie[],
   headers: Record<string, string>,
   children: React.ReactNode,
 }) => {
+  let universalCookies;
+  let parsedCookies: RequestCookie[];
+  if (isServer) {
+    const { cookies } = use(import('next/headers'));
+    const serverCookies = use(cookies());
+    parsedCookies = serverCookies.getAll();
+    universalCookies = new Cookies(Object.fromEntries(parsedCookies.map((cookie) => [cookie.name, cookie.value])));
+  } else {
+    const browserCookies = document.cookie;
+    parsedCookies = browserCookies.split(';').map((cookie) => {
+      const [name, value] = cookie.split('=');
+      return { name, value };
+    });
+    universalCookies = new Cookies(browserCookies);
+  }
+
   const urlSearchParams = useSearchParams();
-  const universalCookies = new Cookies(Object.fromEntries(cookies.map((cookie) => [cookie.name, cookie.value])));
   const loginToken = universalCookies.get('loginToken');
 
   return (
@@ -169,7 +183,7 @@ const AppGenerator = ({ abTestGroupsUsed, themeOptions, ssrMetadata, user, cooki
         <ApolloWrapper
           loginToken={loginToken}
           user={user}
-          cookies={cookies}
+          cookies={parsedCookies}
           headers={headers}
           searchParams={Object.fromEntries(urlSearchParams.entries())}
         >
