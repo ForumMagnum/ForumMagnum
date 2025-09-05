@@ -68,22 +68,24 @@ export async function middleware(request: NextRequest) {
     return forwardedFetchResponse;
   }
   const [statusCodeFinderStream, responseStream] = originalBody.tee();
-  const { status, redirectTarget } = await findStatusCodeInStream(statusCodeFinderStream);
-  if (redirectTarget) {
+  const statusFromStream = await findStatusCodeInStream(statusCodeFinderStream);
+  console.log(`statusFromStream = ${JSON.stringify(statusFromStream )}`);
+
+  if (statusFromStream?.redirectTarget) {
+    const {status, redirectTarget} = statusFromStream;
     if (urlIsAbsolute(redirectTarget)) {
       return NextResponse.redirect(redirectTarget, status);
     } else {
       return NextResponse.redirect(new URL(redirectTarget, request.url), status);
     }
+  } else {
+    const response = new Response(responseStream, {
+      headers: addedClientId ? addClientIdToResponseHeaders(forwardedFetchResponse.headers, addedClientId) : forwardedFetchResponse.headers,
+      status: statusFromStream ? statusFromStream.status : forwardedFetchResponse.status,
+    });
+    
+    return response
   }
-  
-  const response = new Response(responseStream, {
-    ...forwardedFetchResponse,
-    headers: addedClientId ? addClientIdToResponseHeaders(forwardedFetchResponse.headers, addedClientId) : forwardedFetchResponse.headers,
-    status,
-  });
-  
-  return response
 }
 
 function addClientIdToRequestHeaders(headers: Headers, clientId: string): Headers {
@@ -120,7 +122,7 @@ const doubleQuoteAscii = '\"'.charCodeAt(0);
  * The stream is UTF-8 encoded, and the thing we're looking for is a base64-encoded
  * string representing a serialized object, which may span chunk boundaries.
  */
-async function findStatusCodeInStream(stream: ReadableStream<Uint8Array<ArrayBufferLike>>): Promise<StatusCodeMetadata> {
+async function findStatusCodeInStream(stream: ReadableStream<Uint8Array<ArrayBufferLike>>): Promise<StatusCodeMetadata|null> {
   let matchIndex = 0;
   let isReadingResult = false;
   let result: number[] = [];
@@ -161,7 +163,7 @@ async function findStatusCodeInStream(stream: ReadableStream<Uint8Array<ArrayBuf
     const parsed: { status: number, redirectTarget?: string } = JSON.parse(decodedStr);
     return parsed;
   } else {
-    return { status: 200 };
+    return null;
   }
 }
 
