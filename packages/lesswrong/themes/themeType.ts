@@ -523,6 +523,7 @@ declare global {
       paper: ColorString,
       contrastInDarkMode: ColorString,
       pageActiveAreaBackground: ColorString,
+      hover?: ColorString,
       translucentBackground: ColorString,
       translucentBackgroundHeavy: ColorString,
       loginBackdrop: ColorString,

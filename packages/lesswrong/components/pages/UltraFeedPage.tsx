@@ -41,7 +41,7 @@ const UltraFeedPage = () => {
     );
   }
 
-  return <UltraFeed alwaysShow />;
+  return <UltraFeed alwaysShow hideTitle />;
 };
 
 export default UltraFeedPage;
