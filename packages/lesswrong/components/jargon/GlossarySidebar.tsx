@@ -13,6 +13,7 @@ import { useHover } from '../common/withHover';
 import { SideItem } from "../contents/SideItems";
 import LWTooltip from "../common/LWTooltip";
 import ForumIcon from "../common/ForumIcon";
+import { defineStyles, useStyles } from '../hooks/useStyles';
 
 const lowOpacity = .4;
 const highOpacity = .85;
@@ -25,7 +26,7 @@ export const removeJargonDot = {
   }
 }
 
-const styles = (theme: ThemeType) => ({
+const styles = defineStyles("GlossarySidebar", (theme: ThemeType) => ({
   glossaryAnchor: {
     // HACK: If there is a footnote on the first line, because the footnote
     // anchor is in superscripted text, its position, for purposes of sidenote
@@ -181,16 +182,40 @@ const styles = (theme: ThemeType) => ({
     fontSize: '1rem',
     opacity: pinnedOpacity,
   }
-})
+}))
 
-const GlossarySidebar = ({post, showAllTerms, setShowAllTerms, approvedTermsCount, unapprovedTermsCount, classes}: {
+const GlossarySidebar = ({post, showAllTerms, setShowAllTerms, approvedTermsCount, unapprovedTermsCount}: {
   post: PostsWithNavigationAndRevision | PostsWithNavigation,
   showAllTerms: boolean,
   setShowAllTerms: (e: React.MouseEvent, showAllTerms: boolean, source: string) => void,
   approvedTermsCount: number,
   unapprovedTermsCount: number,
-  classes: ClassesType<typeof styles>,
 }) => {
+  if (!post) {
+    return null;
+  }
+
+  if (approvedTermsCount === 0) {
+    return null;
+  }
+  
+  return <GlossarySidebarInner
+    post={post}
+    showAllTerms={showAllTerms}
+    setShowAllTerms={setShowAllTerms}
+    approvedTermsCount={approvedTermsCount}
+    unapprovedTermsCount={unapprovedTermsCount}
+  />
+}
+
+const GlossarySidebarInner = ({post, showAllTerms, setShowAllTerms, approvedTermsCount, unapprovedTermsCount}: {
+  post: PostsWithNavigationAndRevision | PostsWithNavigation,
+  showAllTerms: boolean,
+  setShowAllTerms: (e: React.MouseEvent, showAllTerms: boolean, source: string) => void,
+  approvedTermsCount: number,
+  unapprovedTermsCount: number,
+}) => {
+  const classes = useStyles();
   const { captureEvent } = useTracking();
   const { postGlossariesPinned, togglePin } = useGlossaryPinnedState();
 
@@ -211,14 +236,6 @@ const GlossarySidebar = ({post, showAllTerms, setShowAllTerms, approvedTermsCoun
   const approvedTerms = sortedTerms.filter(term => term.approved);
   const unapprovedTerms = sortedTerms.filter(term => !term.approved && !term.deleted);
   const deletedTerms = sortedTerms.filter(term => term.deleted);
-
-  if (!post) {
-    return null;
-  }
-
-  if (approvedTermsCount === 0) {
-    return null;
-  }
 
 
   const tooltip = <div>{postGlossariesPinned ? 'Unpin to only highlight the first instance of each term.' : 'Pin to highlight every instance of a term.'}
@@ -330,6 +347,6 @@ const GlossarySidebar = ({post, showAllTerms, setShowAllTerms, approvedTermsCoun
   </SideItem></div>
 }
 
-export default registerComponent('GlossarySidebar', GlossarySidebar, {styles});
+export default GlossarySidebar;
 
 
