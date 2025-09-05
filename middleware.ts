@@ -94,13 +94,12 @@ function addClientIdToRequestHeaders(headers: Headers, clientId: string): Header
     const [k,v] = cookie.split("=");
     cookies[k] = cookie;
   }
-  cookiesByName[CLIENT_ID_COOKIE] = `${CLIENT_ID_COOKIE}=${clientId}`;
-  cookiesByName[CLIENT_ID_NEW_COOKIE] = `${CLIENT_ID_NEW_COOKIE}=true`;
+  cookiesByName[CLIENT_ID_COOKIE] = clientId;
+  cookiesByName[CLIENT_ID_NEW_COOKIE] = "true";
   const newCookies = Object.entries(cookiesByName).map(([k,v]) => `${k}=${v}`).join("; ");
-  return new Headers({
-    ...headers,
-    "Cookie": newCookies,
-  });
+  const newHeaders = new Headers(headers);
+  newHeaders.set("Cookie", newCookies);
+  return newHeaders;
 }
 
 function addClientIdToResponseHeaders(headers: Headers, clientId: string): Headers {
