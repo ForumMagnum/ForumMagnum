@@ -1,6 +1,4 @@
 import { loadByIds } from '@/lib/loaders';
-import { bulkRawInsert } from '../manualMigrations/migrationUtils';
-import { backgroundTask } from '../utils/backgroundTask';
 import { ServedEventData } from '@/components/ultraFeed/ultraFeedTypes';
 
 /**
@@ -51,22 +49,14 @@ export type UltraFeedEventInsertData = Pick<DbUltraFeedEvent, '_id' | 'userId' |
   event?: ServedEventData | any;
 };
 
-/**
- * Bulk insert UltraFeedEvents in the background
- */
-export function insertUltraFeedEvents(events: UltraFeedEventInsertData[]): void {
-  if (events.length > 0) {
-    backgroundTask(bulkRawInsert('UltraFeedEvents', events as DbUltraFeedEvent[]));
-  }
-}
 
 
 
 /**
  * Create UltraFeedQueryResults response object
  */
-export function createUltraFeedResponse(
-  results: any[],
+export function createUltraFeedResponse<T>(
+  results: T[],
   offset: number,
   sessionId: string | null,
   cutoff?: Date | null
@@ -74,7 +64,7 @@ export function createUltraFeedResponse(
   __typename: 'UltraFeedQueryResults';
   cutoff: Date | null;
   endOffset: number;
-  results: any[];
+  results: T[];
   sessionId: string | null;
 } {
   return {
@@ -107,14 +97,4 @@ export function insertSubscriptionSuggestions<T>(
   return result;
 }
 
-/**
- * Fetch suggested users for subscription suggestions
- */
-export async function getSubscriptionSuggestedUsers(
-  context: ResolverContext,
-  userId: string,
-  limit: number = 30,
-): Promise<DbUser[]> {
-  return context.repos.users.getSubscriptionFeedSuggestedUsers(userId, limit);
-}
 

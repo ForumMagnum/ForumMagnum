@@ -91,7 +91,7 @@ export const ultraFeedHistoryGraphQLQueries = {
             ...(post && { post }),
             spotlightMetaInfo: {
               servedEventId: randomId(),
-              sources: (item.sources ?? ['spotlights']) as FeedItemSourceType[],
+              sources: item.sources ?? ['spotlights']
             },
           },
         };
@@ -108,7 +108,7 @@ export const ultraFeedHistoryGraphQLQueries = {
             post,
             postMetaInfo: {
               servedEventId: randomId(),
-              sources: (item.sources ?? []) as FeedItemSourceType[],
+              sources: item.sources ?? [],
               displayStatus: 'expanded',
               highlight: false,
               lastViewed: item.isRead ? item.servedAt : null,
@@ -127,8 +127,8 @@ export const ultraFeedHistoryGraphQLQueries = {
         item.comments.forEach(c => {
           const cid = c.commentId;
           commentMetaInfos[cid] = {
-            sources: (item.sources ?? []) as FeedItemSourceType[],
-            displayStatus: (c.displayStatus as FeedItemDisplayStatus) ?? 'collapsed',
+            sources: item.sources ?? [],
+            displayStatus: c.displayStatus ?? 'collapsed',
             lastServed: item.servedAt,
             lastViewed: c.isRead ? item.servedAt : null,
             lastInteracted: null,
@@ -144,10 +144,10 @@ export const ultraFeedHistoryGraphQLQueries = {
         return {
           type: 'feedCommentThread',
           feedCommentThread: {
-            _id: `threadId-${item.servedAt.getTime()}-${index}-${item.sessionId ?? 'no-session'}-${item.itemIndex ?? 0}`,
+            _id: threadId,
             comments: loadedComments,
             commentMetaInfos,
-            isOnReadPost: !!item.isOnReadPost,
+            isOnReadPost: item.isOnReadPost,
             postSources: undefined,
             post,
           },

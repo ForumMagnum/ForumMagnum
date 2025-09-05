@@ -1,12 +1,11 @@
 import React, { useMemo } from 'react';
-import { createPortal } from 'react-dom';
+import classNames from 'classnames';
 import { defineStyles, useStyles } from '../hooks/useStyles';
 import ForumIcon from '../common/ForumIcon';
 import { useDialog } from '../common/withDialog';
 import { useTracking } from '@/lib/analyticsEvents';
 import LWTooltip from '../common/LWTooltip';
-
-const FEED_TOP_SCROLL_OFFSET = 96;
+import { getFeedScrollTargetTop } from './ultraFeedHelpers';
 
 const styles = defineStyles("UltraFeedBottomBar", (theme: ThemeType) => ({
   wrapper: {
@@ -55,7 +54,7 @@ const styles = defineStyles("UltraFeedBottomBar", (theme: ThemeType) => ({
   },
 }));
 
-const UltraFeedBottomBar = ({ refetchFeed, isTopVisible, isFeedInView, feedRootEl }: { refetchFeed: (() => void) | null, isTopVisible?: boolean, isFeedInView?: boolean, feedRootEl?: HTMLElement | null }) => {
+const UltraFeedBottomBar = ({ refetchFeed, isTopVisible, feedRootEl }: { refetchFeed: (() => void) | null, isTopVisible?: boolean, feedRootEl?: HTMLElement | null }) => {
   const classes = useStyles(styles);
   const { closeDialog, isDialogOpen } = useDialog();
   const { captureEvent } = useTracking();
@@ -70,14 +69,7 @@ const UltraFeedBottomBar = ({ refetchFeed, isTopVisible, isFeedInView, feedRootE
     }
     if (!isAtTop) {
       captureEvent('ultraFeedBottomBarScrollTopClicked');
-      const targetTop = (() => {
-        if (feedRootEl) {
-          const rect = feedRootEl.getBoundingClientRect();
-          return Math.max(0, rect.top + window.pageYOffset - FEED_TOP_SCROLL_OFFSET);
-        }
-        return 0;
-      })();
-      window.scrollTo({ top: targetTop, behavior: 'smooth' });
+      window.scrollTo({ top: getFeedScrollTargetTop(feedRootEl ?? null), behavior: 'smooth' });
       return;
     }
     // At top: Refresh
@@ -93,23 +85,14 @@ const UltraFeedBottomBar = ({ refetchFeed, isTopVisible, isFeedInView, feedRootE
     return 'Autorenew' as const; // refresh symbol at top
   }, [isDialogOpen, isAtTop]);
 
-  // Single floating action button uses handleLeftButton
-
-
-  if (!isFeedInView) {
-    return null;
-  }
-
-  // portal needed to ensure renders above modals (z-index alone isn't enough)
-  return createPortal(
+  return (
     <div className={classes.wrapper}>
       <LWTooltip title={isDialogOpen ? 'Back' : (isAtTop ? 'Refresh feed' : 'Return to top of feed')} placement="left">
         <div className={classes.composerButton} onClick={handleLeftButton}>
-          <ForumIcon icon={leftIconName} className={`${classes.composerIcon} ${(!isDialogOpen && !isAtTop) ? classes.upArrow : ''}`} />
+          <ForumIcon icon={leftIconName} className={classNames(classes.composerIcon, (!isDialogOpen && !isAtTop) && classes.upArrow)} />
         </div>
       </LWTooltip>
-    </div>,
-    document.body
+    </div>
   );
 };
 

@@ -26,11 +26,11 @@ import Loading from '../vulcan-core/Loading';
 import UltraFeedSubscriptionsFeed from './UltraFeedSubscriptionsFeed';
 import UltraFeedMainFeed from './UltraFeedMainFeed';
 import { UltraFeedContextProvider } from './UltraFeedContextProvider';
-import { useLocation } from '../../lib/routeUtil';
 import { useCookiesWithConsent } from '../hooks/useCookiesWithConsent';
-import { ULTRA_FEED_ACTIVE_TAB_PREFIX } from '../../lib/cookies/cookies';
+import { ULTRA_FEED_ACTIVE_TAB_COOKIE } from '../../lib/cookies/cookies';
 import { FeedType } from './ultraFeedTypes';
 
+const FEED_MIN_HEIGHT = 1500;
 
 const styles = defineStyles("UltraFeed", (theme: ThemeType) => ({
   root: {
@@ -214,8 +214,7 @@ const UltraFeedContent = ({
   const followingWrapperRef = useRef<HTMLDivElement | null>(null);
   const [hasRenderedForYou, setHasRenderedForYou] = useState(activeTab === 'ultraFeed');
   const [hasRenderedFollowing, setHasRenderedFollowing] = useState(activeTab === 'following');
-  const lastVisibleHeightRef = useRef<number>(0);
-  const [minHeightPx, setMinHeightPx] = useState<number>(0);
+  const [isTransitioning, setIsTransitioning] = useState(false);
 
   const handleOpenQuickTakeDialog = () => {
     captureEvent("ultraFeedComposerQuickTakeDialogOpened");
@@ -257,26 +256,14 @@ const UltraFeedContent = ({
     }
   }, [activeTab, hasRenderedFollowing, hasRenderedForYou]);
 
-  // Observe current active tab height and keep it as min-height to avoid collapse during switches
+  // Handle tab transitions
   useEffect(() => {
-    const el = activeTab === 'ultraFeed' ? forYouWrapperRef.current : followingWrapperRef.current;
-    if (!el) return;
-    // On switch, keep previous height until new height is known
-    if (lastVisibleHeightRef.current > 0) {
-      setMinHeightPx(lastVisibleHeightRef.current);
-    }
-    const ro = new ResizeObserver(() => {
-      const h = el.offsetHeight || 0;
-      if (h > 0 && h !== lastVisibleHeightRef.current) {
-        lastVisibleHeightRef.current = h;
-        setMinHeightPx(h);
-      }
-    });
-    ro.observe(el);
-    return () => ro.disconnect();
+    setIsTransitioning(true);
+    const timer = setTimeout(() => {
+      setIsTransitioning(false);
+    }, 300);
+    return () => clearTimeout(timer);
   }, [activeTab]);
-
-  
 
   const handleRefreshFeed = () => {
     const refetchFn = activeTab === 'ultraFeed' ? refetchForYouRef.current : refetchFollowingRef.current;
@@ -327,7 +314,7 @@ const UltraFeedContent = ({
               </div>
             )}
             
-            <div className={classes.ultraFeedNewContentContainer} style={minHeightPx ? { minHeight: minHeightPx } : undefined}>
+            <div className={classes.ultraFeedNewContentContainer} style={isTransitioning ? { minHeight: FEED_MIN_HEIGHT } : undefined}>
               {isRefreshing && <div className={classes.refetchLoading}>
                 <Loading />
               </div>}
@@ -374,11 +361,12 @@ const UltraFeedContent = ({
         )}
       </div>
       </AnalyticsInViewTracker>
-      <UltraFeedBottomBar
-        refetchFeed={handleRefreshFeed}
-        isTopVisible={isTopVisible}
-        isFeedInView={isFeedInView}
-        feedRootEl={feedContainerRef.current} />
+      {isFeedInView && (
+        <UltraFeedBottomBar
+          refetchFeed={handleRefreshFeed}
+          isTopVisible={isTopVisible}
+          feedRootEl={feedContainerRef.current} />
+      )}
     </AnalyticsContext>
   );
 };
@@ -396,17 +384,15 @@ const UltraFeed = ({
 }) => {
   const classes = useStyles(styles);
   const currentUser = useCurrentUser();
-  const location = useLocation();
-  const cookieKey = `${ULTRA_FEED_ACTIVE_TAB_PREFIX}${location.pathname || 'root'}`;
-  const [cookies, setCookie] = useCookiesWithConsent([cookieKey]);
+  const [cookies, setCookie] = useCookiesWithConsent([ULTRA_FEED_ACTIVE_TAB_COOKIE]);
   const [internalSettingsVisible, setInternalSettingsVisible] = useState(false);
-  const [activeTab, setActiveTab] = useState<FeedType>(() => (cookies[cookieKey] === 'following' ? 'following' : 'ultraFeed'));
+  const [activeTab, setActiveTab] = useState<FeedType>(() => (cookies[ULTRA_FEED_ACTIVE_TAB_COOKIE] === 'following' ? 'following' : 'ultraFeed'));
   const { captureEvent } = useTracking();
   const { settings, updateSettings, resetSettings, truncationMaps } = useUltraFeedSettings();
 
   const handleTabChange = (tab: FeedType) => {
     setActiveTab(tab);
-    setCookie(cookieKey, tab, { path: '/' });
+    setCookie(ULTRA_FEED_ACTIVE_TAB_COOKIE, tab, { path: '/' });
   };
 
   if (!currentUser) {

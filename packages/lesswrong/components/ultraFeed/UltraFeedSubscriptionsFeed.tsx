@@ -9,16 +9,12 @@ import { createUltraFeedRenderers } from './renderers/createUltraFeedRenderers';
 import { UltraFeedSettingsType } from './ultraFeedSettingsTypes';
 import Checkbox from '@/lib/vendor/@material-ui/core/src/Checkbox';
 import SuggestedFeedSubscriptions from '../subscriptions/SuggestedFeedSubscriptions';
+import { getFeedScrollTargetTop } from './ultraFeedHelpers';
 
-// Keep in sync with UltraFeedBottomBar.tsx
-const FEED_TOP_SCROLL_OFFSET = 96;
+const FEED_MIN_HEIGHT = 1500;
 
 const styles = defineStyles('UltraFeedSubscriptionsFeed', (theme: ThemeType) => ({
   feedContainer: {
-    // marginTop: 16,
-  },
-  titleText: {
-    // Align with SectionTitle expectations; keep default styling
   },
   ultraFeedFollowingHeader: {
     display: 'flex',
@@ -72,38 +68,18 @@ const UltraFeedSubscriptionsFeed = ({ embedded = false, refetchRef, settings, up
   const currentUser = useCurrentUser();
   const [isLoading, setIsLoading] = useState(true);
   const feedContainerRef = useRef<HTMLDivElement | null>(null);
-  const [minHeightPx, setMinHeightPx] = useState<number>(0);
   const [isTransitioning, setIsTransitioning] = useState(false);
-  const lastHeightRef = useRef<number>(0);
   
-  const handleDataLoaded = useCallback((results: Array<{type: string, [key: string]: unknown}>, loading: boolean) => {
+  const handleLoadingStateChange = useCallback((results: Array<{type: string, [key: string]: unknown}>, loading: boolean) => {
     setIsLoading(loading);
     if (!loading && isTransitioning) {
-      setIsTransitioning(false);
-      // Allow height to adjust naturally after a brief delay
+      // Remove min-height after content loads
       setTimeout(() => {
-        if (!isTransitioning) {
-          setMinHeightPx(0);
-        }
+        setIsTransitioning(false);
       }, 100);
     }
   }, [isTransitioning]);
 
-  // Track container height to maintain during transitions
-  useEffect(() => {
-    const el = feedContainerRef.current;
-    if (!el || isTransitioning) return;
-    
-    const resizeObserver = new ResizeObserver(() => {
-      const h = el.offsetHeight || 0;
-      if (h > 0) {
-        lastHeightRef.current = h;
-      }
-    });
-    
-    resizeObserver.observe(el);
-    return () => resizeObserver.disconnect();
-  }, [isTransitioning]);
 
   if (!currentUser) return null;
 
@@ -113,15 +89,8 @@ const UltraFeedSubscriptionsFeed = ({ embedded = false, refetchRef, settings, up
   const handleToggleHideRead = (checked: boolean) => {
     if (!updateSettings) return;
     
-    // Capture current height before transition
-    if (feedContainerRef.current) {
-      const currentHeight = feedContainerRef.current.offsetHeight;
-      if (currentHeight > 0) {
-        lastHeightRef.current = currentHeight;
-        setMinHeightPx(currentHeight);
-        setIsTransitioning(true);
-      }
-    }
+    // Set transitioning state before update
+    setIsTransitioning(true);
     
     updateSettings({
       resolverSettings: {
@@ -135,20 +104,14 @@ const UltraFeedSubscriptionsFeed = ({ embedded = false, refetchRef, settings, up
   };
 
   const handleReturnToTop = () => {
-    const targetTop = (() => {
-      if (feedContainerRef.current) {
-        const rect = feedContainerRef.current.getBoundingClientRect();
-        return Math.max(0, rect.top + window.pageYOffset - FEED_TOP_SCROLL_OFFSET);
-      }
-      return 0;
-    })();
+    const targetTop = getFeedScrollTargetTop(feedContainerRef.current);
     window.scrollTo({ top: targetTop, behavior: 'smooth' });
   };
 
   const content = <div 
     ref={feedContainerRef} 
     className={classes.feedContainer}
-    style={minHeightPx > 0 ? { minHeight: minHeightPx } : undefined}
+    style={isTransitioning ? { minHeight: FEED_MIN_HEIGHT } : undefined}
   >
     {showHideReadToggle && (
       <div className={classes.ultraFeedFollowingHeader}>
@@ -169,7 +132,7 @@ const UltraFeedSubscriptionsFeed = ({ embedded = false, refetchRef, settings, up
       pageSize={30}
       fetchPolicy="network-only"
       refetchRef={refetchRef}
-      onDataLoaded={handleDataLoaded}
+      onLoadingStateChange={handleLoadingStateChange}
       renderers={{
         feedCommentThread,
         feedPost,
@@ -190,7 +153,7 @@ const UltraFeedSubscriptionsFeed = ({ embedded = false, refetchRef, settings, up
 
   return (
     <SingleColumnSection>
-      <SectionTitle title="Following" titleClassName={classes.titleText} />
+      <SectionTitle title="Following" />
       {content}
     </SingleColumnSection>
   );

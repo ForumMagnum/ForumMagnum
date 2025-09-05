@@ -118,47 +118,12 @@ const UltraFeedHeader = ({
   const hideReadCheckboxVisible = !!(activeTab === 'following' && feedSettings && updateFeedSettings);
   const hideRead = feedSettings?.resolverSettings?.subscriptionsFeedSettings?.hideRead ?? false;
 
-  // When title is hidden, keep tabs centered and controls on the right
-  if (hideTitle) {
-    return (
-      <div className={classes.root}>
-        <div className={classes.leftSpacer} />
-        <div className={classes.tabsAndControls}>
-          <div className={classes.tabs}>
-            <TabButton
-              label="For You"
-              isActive={activeTab === 'ultraFeed'}
-              onClick={() => onTabChange('ultraFeed')}
-              showTooltip={false}
-            />
-            <TabButton
-              label="Following"
-              isActive={activeTab === 'following'}
-              onClick={() => onTabChange('following')}
-              showTooltip={false}
-            />
-          </div>
-          <div className={classes.controlsContainer}>
-            <div className={classes.controls}>
-              <HideReadToggleIcon
-                checked={hideRead}
-                onChange={handleHideReadToggle}
-                visible={hideReadCheckboxVisible}
-              />
-              {settingsButton}
-            </div>
-          </div>
-        </div>
-      </div>
-    );
-  }
-
-  // When title is shown
   return (
     <div className={classes.root}>
-      <div className={classes.title}>
+      {hideTitle && <div className={classes.leftSpacer} />}
+      {!hideTitle && <div className={classes.title}>
         {titleHref ? <Link to={titleHref}>{title}</Link> : title}
-      </div>
+        </div>}
       <div className={classes.tabsAndControls}>
         <div className={classes.tabs}>
           <TabButton

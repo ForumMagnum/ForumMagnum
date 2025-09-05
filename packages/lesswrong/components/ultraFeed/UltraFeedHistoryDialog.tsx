@@ -1,4 +1,5 @@
 import React, { useState, useCallback, useEffect } from 'react';
+import classNames from 'classnames';
 import { defineStyles, useStyles } from '../hooks/useStyles';
 import LWDialog from '../common/LWDialog';
 import { DialogContent } from '../widgets/DialogContent';
@@ -149,17 +150,10 @@ const UltraFeedHistoryDialog = ({ onClose }: { onClose: () => void }) => {
   const { captureEvent } = useTracking();
   const [activeTab, setActiveTab] = useState<'history'|'bookmarks'>('history');
   
-  const setHistory = useCallback(() => {
-    if (activeTab !== 'history') {
-      captureEvent('ultraFeedHistoryTabSwitched', { from: activeTab, to: 'history' });
-      setActiveTab('history');
-    }
-  }, [activeTab, captureEvent]);
-  
-  const setBookmarks = useCallback(() => {
-    if (activeTab !== 'bookmarks') {
-      captureEvent('ultraFeedHistoryTabSwitched', { from: activeTab, to: 'bookmarks' });
-      setActiveTab('bookmarks');
+  const handleTabChange = useCallback((newTab: 'history' | 'bookmarks') => {
+    if (activeTab !== newTab) {
+      captureEvent('ultraFeedHistoryTabSwitched', { from: activeTab, to: newTab });
+      setActiveTab(newTab);
     }
   }, [activeTab, captureEvent]);
 
@@ -167,11 +161,6 @@ const UltraFeedHistoryDialog = ({ onClose }: { onClose: () => void }) => {
     captureEvent('ultraFeedHistoryDialogClosed', { activeTab });
     onClose();
   }, [activeTab, captureEvent, onClose]);
-
-  // Track when dialog is opened
-  useEffect(() => {
-    captureEvent('ultraFeedHistoryDialogOpened', { initialTab: activeTab });
-  }, [captureEvent, activeTab]);
 
   useDisableBodyScroll();
 
@@ -198,8 +187,8 @@ const UltraFeedHistoryDialog = ({ onClose }: { onClose: () => void }) => {
                 </div>
                 <div className={classes.headerTabs}>
                   <div
-                    className={`${classes.tabButton} ${activeTab === 'history' ? classes.tabButtonActive : classes.tabButtonInactive}`}
-                    onClick={setHistory}
+                    className={classNames(classes.tabButton, activeTab === 'history' ? classes.tabButtonActive : classes.tabButtonInactive)}
+                    onClick={() => handleTabChange('history')}
                   >
                     <div className={classes.tabLabel}>
                       History
@@ -209,8 +198,8 @@ const UltraFeedHistoryDialog = ({ onClose }: { onClose: () => void }) => {
                     </div>
                   </div>
                   <div
-                    className={`${classes.tabButton} ${activeTab === 'bookmarks' ? classes.tabButtonActive : classes.tabButtonInactive}`}
-                    onClick={setBookmarks}
+                    className={classNames(classes.tabButton, activeTab === 'bookmarks' ? classes.tabButtonActive : classes.tabButtonInactive)}
+                    onClick={() => handleTabChange('bookmarks')}
                   >
                     <div className={classes.tabLabel}>
                       Bookmarks

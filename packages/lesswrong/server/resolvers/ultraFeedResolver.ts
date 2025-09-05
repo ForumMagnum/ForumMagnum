@@ -22,13 +22,13 @@ import { captureEvent } from '@/lib/analyticsEvents';
 import union from 'lodash/union';
 import groupBy from 'lodash/groupBy';
 import mergeWith from 'lodash/mergeWith';
+import { bulkRawInsert } from '../manualMigrations/migrationUtils';
+import { backgroundTask } from '../utils/backgroundTask';
 import { 
   loadMultipleEntitiesById, 
-  insertUltraFeedEvents, 
   createUltraFeedResponse,
   UltraFeedEventInsertData,
-  insertSubscriptionSuggestions,
-  getSubscriptionSuggestedUsers
+  insertSubscriptionSuggestions
 } from './ultraFeedResolverHelpers';
 
 interface UltraFeedDateCutoffs {
@@ -765,18 +765,17 @@ export const ultraFeedGraphQLQueries = {
       // Extract IDs to load
       const { spotlightIds, commentIds, postIds, needsSuggestedUsers } = extractIdsToLoad(sampledItems);
 
-      const suggestedUsersPromise = needsSuggestedUsers
-        ? getSubscriptionSuggestedUsers(context, currentUser._id, 30)
-        : Promise.resolve([]);
-      
-      // Load full content for sampled items
-      const { postsById, commentsById, spotlightsById } = await loadMultipleEntitiesById(context, {
-        posts: postIds,
-        comments: commentIds,
-        spotlights: spotlightIds
-      });
-      
-      const suggestedUsers = await suggestedUsersPromise;
+      // Load full content for sampled items and suggested users in parallel
+      const [{ postsById, commentsById, spotlightsById }, suggestedUsers] = await Promise.all([
+        loadMultipleEntitiesById(context, {
+          posts: postIds,
+          comments: commentIds,
+          spotlights: spotlightIds
+        }),
+        needsSuggestedUsers
+          ? context.repos.users.getSubscriptionFeedSuggestedUsers(currentUser._id, 30)
+          : Promise.resolve([])
+      ]);
       const resultsWithoutDuplication = transformItemsForResolver(sampledItems, spotlightsById, commentsById, postsById, suggestedUsers);
       
       const results = deduplicatePostsInThreads(resultsWithoutDuplication);
@@ -807,7 +806,9 @@ export const ultraFeedGraphQLQueries = {
       if (!incognitoMode) {
         const currentOffset = offset ?? 0; 
         const eventsToCreate = createUltraFeedEvents(results, currentUser._id, sessionId, currentOffset);
-        insertUltraFeedEvents(eventsToCreate);
+        if (eventsToCreate.length > 0) {
+          backgroundTask(bulkRawInsert('UltraFeedEvents', eventsToCreate as DbUltraFeedEvent[]));
+        }
       }
 
       const response = createUltraFeedResponse(results, offset ?? 0, sessionId);

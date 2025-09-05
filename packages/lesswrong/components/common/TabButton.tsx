@@ -1,10 +1,10 @@
 import React from 'react';
 import classNames from 'classnames';
-import { registerComponent } from '../../lib/vulcan-lib/components';
 import LWTooltip from './LWTooltip';
 import ForumIcon from './ForumIcon';
+import { defineStyles, useStyles } from '../hooks/useStyles';
 
-const styles = (theme: ThemeType) => ({
+const styles = defineStyles('TabButton', (theme: ThemeType) => ({
   tab: {
     display: 'flex',
     justifyContent: 'center',
@@ -79,7 +79,7 @@ const styles = (theme: ThemeType) => ({
   tagDescriptionTooltip: {
     margin: 8,
   },
-});
+}));
 
 export interface TabButtonProps {
   label: string;
@@ -107,10 +107,8 @@ const TabButton = ({
   showPersonIcon,
   className,
   showTooltip = true,
-  classes,
-}: TabButtonProps & {
-  classes: ClassesType<typeof styles>;
-}) => {
+}: TabButtonProps) => {
+  const classes = useStyles(styles);
   const buttonContent = (
     <button
       onClick={onClick}
@@ -142,4 +140,4 @@ const TabButton = ({
   return buttonContent;
 };
 
-export default registerComponent('TabButton', TabButton, { styles });
+export default TabButton;
