@@ -48,11 +48,20 @@ class FeatureStrategy extends RecommendationStrategy {
       if (weight === 0) {
         continue;
       }
-      const feature = new featureRegistry[featureName]();
-      joins += ` ${feature.getJoin()}`;
-      filters += ` ${feature.getFilter()}`;
+      const feature = new featureRegistry[featureName](currentUser);
+      const featureJoin = feature.getJoin();
+      if (featureJoin) {
+        joins += ` ${featureJoin}`;
+      }
+      const featureFilter = feature.getFilter();
+      if (featureFilter) {
+        filters += ` ${featureFilter} AND`;
+      }
       const weightName = `${featureName}Weight`;
-      score += ` + ($(${weightName}) * (${feature.getScore()}))`;
+      const featureScore = feature.getScore();
+      if (featureScore) {
+        score += ` + ($(${weightName}) * (${featureScore}))`;
+      }
       args = {...args, ...feature.getArgs(), [weightName]: weight};
     }
 

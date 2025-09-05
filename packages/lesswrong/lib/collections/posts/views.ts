@@ -6,7 +6,6 @@ import { defaultVisibilityTags } from '../../publicSettings';
 import { frontpageTimeDecayExpr, postScoreModifiers, timeDecayExpr } from '../../scoring';
 import { viewFieldAllowAny, viewFieldNullOrMissing, jsonArrayContainsSelector } from '@/lib/utils/viewConstants';
 import { filters, openThreadTagIdSetting, postStatuses, startHerePostIdSetting } from './constants';
-import uniq from 'lodash/uniq';
 import { getPositiveVoteThreshold, QUICK_REVIEW_SCORE_THRESHOLD, ReviewPhase, REVIEW_AND_VOTING_PHASE_VOTECOUNT_THRESHOLD, VOTING_PHASE_REVIEW_THRESHOLD, longformReviewTagId } from '../../reviewUtils';
 import { EA_FORUM_COMMUNITY_TOPIC_ID } from '../tags/helpers';
 import { filter, isEmpty, pick } from 'underscore';
@@ -287,39 +286,65 @@ export function buildInflationAdjustedField(): any {
   }
 }
 
-function filterSettingsToParams(filterSettings: FilterSettings, terms: PostsViewTerms, context?: ResolverContext): any {
-  // We get the default tag relevance from the database config
-  const tagFilterSettingsWithDefaults: FilterTag[] = filterSettings.tags.map(t =>
-    t.filterMode === "TagDefault" ? {
-      tagId: t.tagId,
-      tagName: t.tagName,
-      filterMode: defaultVisibilityTags.get().find(dft => dft.tagId === t.tagId)?.filterMode || 'Default',
-    } :
-    t
-  )
-  const tagsRequired = filter(tagFilterSettingsWithDefaults, t=>t.filterMode==="Required");
-  const tagsExcluded = filter(tagFilterSettingsWithDefaults, t=>t.filterMode==="Hidden");
-  
-  const frontpageFiltering = getFrontpageFilter(filterSettings)
-  
-  const {filter: frontpageFilter, softFilter: frontpageSoftFilter} = frontpageFiltering
-  let tagsFilter = {};
-  const tagFilters: any[] = [];
-  for (let tag of tagsRequired) {
+export const resolveFrontpageFilters = (filterSettings: FilterSettings) => {
+  const defaultTagFilters = defaultVisibilityTags.get();
+  const tagsWithDefaults: FilterTag[] = filterSettings.tags.map((tag) => (
+    tag.filterMode === "TagDefault"
+      ? {
+        tagId: tag.tagId,
+        tagName: tag.tagName,
+        filterMode: defaultTagFilters
+          .find((dft) => dft.tagId === tag.tagId)
+          ?.filterMode || "Default",
+      }
+      : tag
+  ))
+  const tagsRequired = tagsWithDefaults.filter((t) => t.filterMode === "Required");
+  const tagsExcluded = tagsWithDefaults.filter((t) => t.filterMode === "Hidden");
+  const tagsSoftFiltered = tagsWithDefaults.filter((tag) =>
+    tag.filterMode !== "Hidden" &&
+    tag.filterMode !== "Required" &&
+    tag.filterMode !== "Default" &&
+    tag.filterMode !== 0
+  );
+  return {
+    tagsRequired,
+    tagsExcluded,
+    tagsSoftFiltered,
+  };
+}
+
+const filterSettingsToParams = (
+  filterSettings: FilterSettings,
+  terms: PostsViewTerms,
+  context?: ResolverContext,
+): MongoSelector<DbPost> => {
+  const {
+    tagsRequired,
+    tagsExcluded,
+    tagsSoftFiltered,
+  } = resolveFrontpageFilters(filterSettings);
+
+  const {
+    filter: frontpageFilter,
+    softFilter: frontpageSoftFilter,
+  } = getFrontpageFilter(filterSettings);
+
+  const tagFilters: MongoSelector<DbPost>[] = [];
+  for (const tag of tagsRequired) {
     tagFilters.push({[`tagRelevance.${tag.tagId}`]: {$gte: 1}});
   }
-  for (let tag of tagsExcluded) {
+  for (const tag of tagsExcluded) {
     tagFilters.push({$or: [
       {[`tagRelevance.${tag.tagId}`]: {$lt: 1}},
       {[`tagRelevance.${tag.tagId}`]: {$exists: false}},
     ]});
   }
-  
-  const tagsSoftFiltered = tagFilterSettingsWithDefaults.filter(
-    t => (t.filterMode!=="Hidden" && t.filterMode!=="Required" && t.filterMode!=="Default" && t.filterMode!==0)
-  );
 
-  const useSlowerFrontpage = !!context && ((!!context.currentUser && isEAForum) || visitorGetsDynamicFrontpage(context.currentUser ?? null));
+  const useSlowerFrontpage = !!context && (
+    (!!context.currentUser && isEAForum) ||
+    visitorGetsDynamicFrontpage(context.currentUser ?? null)
+  );
 
   const syntheticFields = {
     filteredScore: {$divide:[
@@ -354,7 +379,7 @@ function filterSettingsToParams(filterSettings: FilterSettings, terms: PostsView
       }, context) : timeDecayExpr()
     ]}
   }
-  
+
   return {
     selector: {
       ...frontpageFilter,
@@ -364,7 +389,7 @@ function filterSettingsToParams(filterSettings: FilterSettings, terms: PostsView
   };
 }
 
-function filterModeToAdditiveKarmaModifier(mode: FilterMode): number {
+export const filterModeToAdditiveKarmaModifier = (mode: FilterMode): number => {
   if (typeof mode === "number" && (mode <= 0 || 1 <= mode)) {
     return mode;
   } else switch(mode) {
@@ -374,7 +399,7 @@ function filterModeToAdditiveKarmaModifier(mode: FilterMode): number {
   }
 }
 
-function filterModeToMultiplicativeKarmaModifier(mode: FilterMode): number {
+export const filterModeToMultiplicativeKarmaModifier = (mode: FilterMode): number => {
   // Example: "x10.0" is a multiplier of 10
   const match = typeof mode === "string" && mode.match(/^x(\d+(?:\.\d+)?)$/);
   if (match) {

@@ -6,6 +6,7 @@ import { defaultVisibilityTags } from './publicSettings';
 import filter from 'lodash/filter';
 import findIndex from 'lodash/findIndex'
 import { useTracking } from './analyticsEvents';
+import { hasSuggestedFilterTags } from './betas';
 
 export interface FilterSettings {
   personalBlog: FilterMode,
@@ -92,6 +93,7 @@ export const useFilterSettings = () => {
     collectionName: "Tags",
     fragmentName: "TagBasicInfo",
     limit: 100,
+    skip: !hasSuggestedFilterTags,
   })
   
   if (suggestedTags) {

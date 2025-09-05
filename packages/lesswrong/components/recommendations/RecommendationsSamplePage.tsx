@@ -72,6 +72,7 @@ const getDefaultFeatures = (): Record<RecommendationFeatureName, string> => ({
   textSimilarity: "1",
   subscribedAuthorPosts: "0",
   subscribedTagPosts: "0",
+  frontpageFilterSettings: "0",
 });
 
 const featureInputToFeatures = (
