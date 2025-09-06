@@ -56,7 +56,7 @@ const server = new ApolloServer<ResolverContext>({
     captureException(error);
     const {message, ...properties} = formattedError;
     // eslint-disable-next-line no-console
-    console.error(`[GraphQLError: ${message}]`, inspect(properties, {depth: null}));
+    console.error(`[GraphQLError: ${message}]`, inspect(properties, {depth: null}), error);
     // TODO: Replace sketchy apollo-errors package with something first-party
     // and that doesn't require a cast here
     return formatError(formattedError) as any;
