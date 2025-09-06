@@ -80,11 +80,12 @@ import { defineStyles, useStyles } from '@/components/hooks/useStyles';
 import { ReadingProgressBar } from './ReadingProgressBar';
 import { StructuredData } from '@/components/common/StructuredData';
 import { LWCommentCount } from '../TableOfContents/LWCommentCount';
-import { NetworkStatus, QueryResult } from "@apollo/client";
+import { NetworkStatus } from "@apollo/client";
 import { useQuery } from "@/lib/crud/useQuery"
 import { gql } from "@/lib/generated/gql-codegen";
 import { returnIfValidNumber } from '@/lib/utils/typeGuardUtils';
 import { useQueryWithLoadMore, LoadMoreProps } from '@/components/hooks/useQueryWithLoadMore';
+import type { useQuery as useQueryType } from '@apollo/client/react';
 
 const CommentsListMultiQuery = gql(`
   query multiCommentPostsPageQuery($selector: CommentSelector, $limit: Int, $enableTotal: Boolean) {
@@ -272,7 +273,7 @@ const getDebateResponseBlocks = (responses: readonly CommentsList[], replies: re
 
 export type EagerPostComments = {
   terms: CommentsViewTerms,
-  queryResponse: QueryResult<postCommentsThreadQueryQuery> & { loadMoreProps: LoadMoreProps },
+  queryResponse: useQueryType.Result<postCommentsThreadQueryQuery> & { loadMoreProps: LoadMoreProps },
 }
 
 export const postsCommentsThreadMultiOptions = {

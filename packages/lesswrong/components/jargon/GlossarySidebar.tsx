@@ -215,7 +215,7 @@ const GlossarySidebarInner = ({post, showAllTerms, setShowAllTerms, approvedTerm
   approvedTermsCount: number,
   unapprovedTermsCount: number,
 }) => {
-  const classes = useStyles();
+  const classes = useStyles(styles);
   const { captureEvent } = useTracking();
   const { postGlossariesPinned, togglePin } = useGlossaryPinnedState();
 

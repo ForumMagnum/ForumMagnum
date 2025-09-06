@@ -20,7 +20,7 @@ disableFragmentWarnings();
 async function makeApolloClientForServer({ loginToken, searchParams }: {
   loginToken: string|null,
   searchParams: Record<string, string>,
-}): Promise<ApolloClient<unknown>> {
+}): Promise<ApolloClient> {
   if (!isServer) {
     throw new Error("Not server");
   }
@@ -55,18 +55,26 @@ async function makeApolloClientForServer({ loginToken, searchParams }: {
 
 function makeApolloClientForClient({ loginToken }: {
   loginToken: string|null
-}): ApolloClient<unknown> {
+}): ApolloClient {
   if (isServer) {
     throw new Error("Not client")
   }
-  return new ApolloClient({
+  const client = new ApolloClient({
     cache: new InMemoryCache(),
     link: ApolloLink.from([
       headerLink,
       createErrorLink(),
       createHttpLink(isServer ? getSiteUrl() : '/', loginToken)
-    ]),
+    ])
   });
+
+  client.prioritizeCacheValues = true;
+
+  setTimeout(() => {
+    client.prioritizeCacheValues = false;
+  }, 3000);
+  
+  return client;
 }
 
 export function ApolloWrapper({ loginToken, searchParams, children }: React.PropsWithChildren<{

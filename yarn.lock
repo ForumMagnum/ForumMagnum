@@ -38,26 +38,25 @@
   resolved "https://registry.yarnpkg.com/@apollo/cache-control-types/-/cache-control-types-1.0.3.tgz#5da62cf64c3b4419dabfef4536b57a40c8ff0b47"
   integrity sha512-F17/vCp7QVwom9eG7ToauIKdAxpSoadsJnqIfyryLFSkLSOEqu+eC5Z3N8OXcUVStuOMcNHlyraRsA6rRICu4g==
 
-"@apollo/client-integration-nextjs@^0.12.2":
-  version "0.12.2"
-  resolved "https://registry.yarnpkg.com/@apollo/client-integration-nextjs/-/client-integration-nextjs-0.12.2.tgz#26c4f544c4a2ff91bdffeeaeac2289e514741234"
-  integrity sha512-Nsoe/onkEqCfIcQfoklnimRGibtaYXmkst6moXJw9Jl0sFqxpEyNMv3xvdPXItN6lZABBeKM8N+u+/7iqyZDig==
+"@apollo/client-integration-nextjs@^0.13.1":
+  version "0.13.1"
+  resolved "https://registry.yarnpkg.com/@apollo/client-integration-nextjs/-/client-integration-nextjs-0.13.1.tgz#8fc1a4f2c2dcf82bb505f9fcc7e1c6bf2a498aa2"
+  integrity sha512-NAC2IRpSTrpaBBwkd5KvVK4+RLa0SzoUFRiu668YuyhI41ExxaCj+VDcUBRox9ba1lw60si5gD3TH8o+mLBnRQ==
   dependencies:
-    "@apollo/client-react-streaming" "0.12.2"
+    "@apollo/client-react-streaming" "0.13.1"
 
-"@apollo/client-react-streaming@0.12.2":
-  version "0.12.2"
-  resolved "https://registry.yarnpkg.com/@apollo/client-react-streaming/-/client-react-streaming-0.12.2.tgz#c4436ab00be1f8012d2b6a0307f28187ab7a3458"
-  integrity sha512-zVc6QmvvR+9DZaLPUES1Rp63MC2VAnvHJC7gNVagH5kI3IZgeJGNgxKX/RMpYJ2+a2EclOG50czFCD7XkXe24w==
+"@apollo/client-react-streaming@0.13.1":
+  version "0.13.1"
+  resolved "https://registry.yarnpkg.com/@apollo/client-react-streaming/-/client-react-streaming-0.13.1.tgz#57bcd23dfb2ce999698cdca94a5e6df53b246003"
+  integrity sha512-rdO5D2frQsCKiIBM1/GAOyCeMnioroj831gWbVik8w+78L1ZwPkdROC349UlBwS69+O1f17GDe+/HzTMTJgN0A==
   dependencies:
     "@types/react-dom" "^19.0.0"
     "@wry/equality" "^0.5.6"
-    ts-invariant "^0.10.3"
 
-"@apollo/client@4.0.0-alpha.17":
-  version "4.0.0-alpha.17"
-  resolved "https://registry.yarnpkg.com/@apollo/client/-/client-4.0.0-alpha.17.tgz#a146510d11e567e417d752949261402777ebd630"
-  integrity sha512-SdBNzGrhSVQgaUExCz3L0P9RFrGbNij9CsiD2TjoXcfPrRzxAviikwwHSBhQE14UnNTt14kWzwqGGeO8vt5ldg==
+"@apollo/client@^4.0.4":
+  version "4.0.4"
+  resolved "https://registry.yarnpkg.com/@apollo/client/-/client-4.0.4.tgz#c7f2cc7c62577d7e72337e3ea7421bbfd58cbb17"
+  integrity sha512-3+fTQUA3AdC08urPF7si0ptLiAaVOH5R/3drwXzic8yqzTL4W3ME6klLj/EpgMND0FbWD7sM8TCkEDoe4OckMw==
   dependencies:
     "@graphql-typed-document-node/core" "^3.1.1"
     "@wry/caches" "^1.0.0"
@@ -18890,13 +18889,6 @@ ts-api-utils@^2.1.0:
   version "2.1.0"
   resolved "https://registry.yarnpkg.com/ts-api-utils/-/ts-api-utils-2.1.0.tgz#595f7094e46eed364c13fd23e75f9513d29baf91"
   integrity sha512-CUgTZL1irw8u29bzrOD/nH85jqyc74D6SshFgujOIA7osm2Rz7dYH77agkx7H4FBNxDq7Cjf+IjaX/8zwFW+ZQ==
-
-ts-invariant@^0.10.3:
-  version "0.10.3"
-  resolved "https://registry.yarnpkg.com/ts-invariant/-/ts-invariant-0.10.3.tgz#3e048ff96e91459ffca01304dbc7f61c1f642f6c"
-  integrity sha512-uivwYcQaxAucv1CzRp2n/QdYPo4ILf9VXgH19zEIjFx2EJufV16P0JtJVpYHy89DItG6Kwj2oIUjrcK5au+4tQ==
-  dependencies:
-    tslib "^2.1.0"
 
 ts-jest@^27.0.7:
   version "27.0.7"
