@@ -11,6 +11,7 @@ import { subscriptionTypes } from "@/lib/collections/subscriptions/helpers";
 import { updateTag } from "../collections/tags/mutations";
 import difference from "lodash/difference";
 import { backgroundTask } from "../utils/backgroundTask";
+import { performVoteServer } from "../voteServer";
 
 const utils = {
   isValidTagName: (name: string) => {
@@ -160,7 +161,6 @@ export async function voteForTagWhenCreated(tagRel: DbTagRel, { context }: After
   // When you add a tag, vote for it as relevant
   var tagCreator = await Users.findOne(tagRel.userId);
   if (!tagCreator) throw new Error(`Could not find user ${tagRel.userId}`);
-  const { performVoteServer } = require('../voteServer');
   const {modifiedDocument: votedTagRel} = await performVoteServer({
     document: tagRel,
     voteType: 'smallUpvote',

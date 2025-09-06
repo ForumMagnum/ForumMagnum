@@ -69,7 +69,6 @@ export async function middleware(request: NextRequest) {
   }
   const [statusCodeFinderStream, responseStream] = originalBody.tee();
   const statusFromStream = await findStatusCodeInStream(statusCodeFinderStream);
-  console.log(`statusFromStream = ${JSON.stringify(statusFromStream )}`);
 
   if (statusFromStream?.redirectTarget) {
     const {status, redirectTarget} = statusFromStream;

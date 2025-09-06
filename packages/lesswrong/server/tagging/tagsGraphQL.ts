@@ -4,6 +4,7 @@ import { TagRels } from '../../server/collections/tagRels/collection';
 import { Posts } from '../../server/collections/posts/collection';
 import { accessFilterSingle } from '../../lib/utils/schemaUtils';
 import { createTagRel } from '../collections/tagRels/mutations';
+import { performVoteServer } from '../voteServer';
 
 export const addOrUpvoteTag = async ({tagId, postId, currentUser, ignoreParent = false, context, selfVote = false}: {
   tagId: string,
@@ -35,7 +36,6 @@ export const addOrUpvoteTag = async ({tagId, postId, currentUser, ignoreParent =
     return tagRel;
   } else {
     // Upvote the tag
-    const { performVoteServer } = await import("../voteServer");
     const {modifiedDocument: votedTagRel} = await performVoteServer({
       document: existingTagRel,
       voteType: 'smallUpvote',

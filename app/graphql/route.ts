@@ -53,9 +53,7 @@ const server = new ApolloServer<ResolverContext>({
   includeStacktraceInErrorResponses: true,
   plugins: [new ApolloServerLogging()],
   formatError: (formattedError, error): GraphQLFormattedError => {
-    captureException(new GraphQLError(formattedError.message, formattedError));
     captureException(error);
-    captureException(unwrapResolverError(error))
     const {message, ...properties} = formattedError;
     // eslint-disable-next-line no-console
     console.error(`[GraphQLError: ${message}]`, inspect(properties, {depth: null}));
