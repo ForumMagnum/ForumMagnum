@@ -57,7 +57,7 @@ const CommentPermalink = ({
   classes
 }: {
   documentId: string,
-  post?: PostsDetails,
+  post?: PostsBase,
   silentLoading?: boolean,
   classes: ClassesType<typeof styles>,
 }) => {
@@ -87,11 +87,6 @@ const CommentPermalink = ({
       <Divider />
     </div>}
   </div>
-
-  const ogUrl = post ? postGetPageUrl(post, true) : undefined // open graph
-  const canonicalUrl = post ? post.canonicalSource || ogUrl : undefined
-  // For imageless posts this will be an empty string
-  const socialPreviewImageUrl = post ? post.socialPreviewData?.imageUrl : undefined
 
   const commentNodeProps = {
     treeOptions: {
