@@ -40,7 +40,13 @@ import { defineStyles, useStyles } from '../hooks/useStyles';
 import PostsLoading from '../posts/PostsLoading';
 import { registerComponent } from '@/lib/vulcan-lib/components';
 import AnalyticsInViewTracker from './AnalyticsInViewTracker';
-import UltraFeed from '../ultraFeed/UltraFeed';
+import UltraFeedSubscriptionsFeed from '../ultraFeed/UltraFeedSubscriptionsFeed';
+import { useUltraFeedSettings } from '../hooks/useUltraFeedSettings';
+import SubscribedHideReadCheckbox from '../ultraFeed/SubscribedHideReadCheckbox';
+import UltraFeedMainFeed from '../ultraFeed/UltraFeedMainFeed';
+import UltraFeedWrappers from '../ultraFeed/UltraFeedWrappers';
+import UltraFeedSettings from '../ultraFeed/UltraFeedSettings';
+import UltraFeedFollowingSettings from '../ultraFeed/UltraFeedFollowingSettings';
 
 
 
@@ -119,6 +125,12 @@ const styles = defineStyles("LWHomePost", (theme: ThemeType) => ({
       display: "none",
     },
   },
+  ultraFeedSettingsContainer: {
+    marginTop: 16,
+  },
+  ultraFeedFollowingSettingsContainer: {
+    marginTop: 16,
+  },
   hideDesktopSettingsButtonOnMobile: {
     [theme.breakpoints.down('sm')]: {
       display: "none",
@@ -137,12 +149,33 @@ const styles = defineStyles("LWHomePost", (theme: ThemeType) => ({
       opacity: 0.5,
     }
   },
+  checkboxContainer: {
+    display: 'flex',
+    alignItems: 'center',
+    color: theme.palette.grey[600],
+  },
+  checkboxInput: {
+    padding: 4,
+    color: theme.palette.grey[500],
+  },
+  checkboxLabel: {
+    cursor: 'pointer',
+    fontSize: '1.15rem',
+    fontFamily: theme.typography.fontFamily,
+    textWrap: 'nowrap',
+  },
   enrichedTagFilterNotice: {
     ...theme.typography.commentStyle,
     color: theme.palette.text.slightlyDim2,
     marginBottom: 10,
     marginTop: 10,
     marginLeft: 3,
+  },
+  ultraFeedFollowingHeader: {
+    display: 'flex',
+    justifyContent: 'flex-end',
+    alignItems: 'center',
+    marginTop: -8,
   },
 }));
 
@@ -266,7 +299,7 @@ function isTabEnabled(
 
   const enabledForCurrentUser = (isUserLoggedIn && enabledForLoggedInUsers) || enabledForLoggedOutUsers;
 
-  const activeFeedTabDisabled = tab.name === 'ultrafeed' && !isUserLoggedIn;
+  const activeFeedTabDisabled = (tab.name === 'ultrafeed' || tab.name === 'following') && !isUserLoggedIn;
 
   const hasBookmarks = currentUser?.hasAnyBookmarks ?? false;
   const activeBookmarkTabDisabled = tab.name === 'forum-bookmarks' && !hasBookmarks;
@@ -426,6 +459,7 @@ const LWHomePosts = ({ children, }: {
   const { mobileSettingsVisible, toggleMobileSettingsVisible } = useDefaultSettingsVisibility(currentUser, 'mobile', selectedTab);
   
   const { scenarioConfig, updateScenarioConfig } = useRecombeeSettings(currentUser, enabledTabs, filterSettings);
+  const { settings: ultraFeedSettings, updateSettings: updateUltraFeedSettings, resetSettings: resetUltraFeedSettings, truncationMaps } = useUltraFeedSettings();
 
   const changeShowTagFilterSettingsDesktop = () => {
     toggleDesktopSettingsVisible(!desktopSettingsVisible);
@@ -457,6 +491,7 @@ const LWHomePosts = ({ children, }: {
   const showInlineTabSettingsButton = (
     selectedTab === 'forum-classic' ||
     selectedTab === 'ultrafeed' ||
+    selectedTab === 'following' ||
     selectedTab === 'recombee-hybrid' ||
     (userIsAdmin(currentUser) && selectedTab.includes('recombee'))
   );
@@ -506,11 +541,41 @@ const LWHomePosts = ({ children, }: {
     </div>}
   </>;
 
+  const ultraFeedSettingsElement = (
+    <>
+      {settingsPotentiallyVisible && <div className={classNames(settingsVisibleClassName, classes.ultraFeedSettingsContainer)}>
+        <UltraFeedSettings
+          settings={ultraFeedSettings}
+          updateSettings={updateUltraFeedSettings}
+          resetSettingsToDefault={resetUltraFeedSettings}
+          onClose={() => toggleDesktopSettingsVisible(false)}
+          truncationMaps={truncationMaps}
+        />
+      </div>}
+    </>
+  );
+
+  const ultraFeedFollowingSettingsElement = (
+    <>
+      {settingsPotentiallyVisible && <div className={classNames(settingsVisibleClassName, classes.ultraFeedFollowingSettingsContainer)}>
+        <UltraFeedFollowingSettings
+          settings={ultraFeedSettings}
+          updateSettings={updateUltraFeedSettings}
+          onClose={() => toggleDesktopSettingsVisible(false)}
+        />
+      </div>}
+    </>
+  );
+
   let settings = null;
   if (selectedTab === 'forum-classic') { 
     settings = filterSettingsElement;
   } else if (selectedTab === 'recombee-hybrid') {
     settings = filterSettingsElement;
+  } else if (selectedTab === 'ultrafeed') {
+    settings = ultraFeedSettingsElement;
+  } else if (selectedTab === 'following') {
+    settings = ultraFeedFollowingSettingsElement;
   } else if (selectedTab.includes('recombee')) {
     settings = recombeeSettingsElement;
   }
@@ -608,19 +673,41 @@ const LWHomePosts = ({ children, }: {
               </AnalyticsContext>}
 
               {/* FEED */}
-              {(selectedTab === 'ultrafeed') && <AnalyticsContext feedType={selectedTab}>
-                <UltraFeed 
-                  alwaysShow={true}
-                  hideTitle={true}
-                  settingsVisible={desktopSettingsVisible || mobileSettingsVisible}
-                  onSettingsToggle={() => {
-                    // For UltraFeed, we toggle both states together since it doesn't persist settings
-                    const newState = !(desktopSettingsVisible || mobileSettingsVisible);
-                    toggleDesktopSettingsVisible(newState);
-                    toggleMobileSettingsVisible(newState);
-                  }}
+              {(selectedTab === 'ultrafeed') && <UltraFeedWrappers
+                feedType="ultraFeed"
+                incognitoMode={ultraFeedSettings.resolverSettings.incognitoMode}
+              >
+                <UltraFeedMainFeed
+                  settings={ultraFeedSettings}
+                  fetchPolicy="cache-first"
+                  firstPageSize={15}
+                  pageSize={30}
                 />
-               </AnalyticsContext>}
+              </UltraFeedWrappers>}
+
+              {/* FOLLOWING */}
+              {(selectedTab === 'following') && <>
+                <div className={classes.ultraFeedFollowingHeader}>
+                  <SubscribedHideReadCheckbox
+                    checked={ultraFeedSettings?.resolverSettings?.subscriptionsFeedSettings?.hideRead ?? false}
+                    onChange={(checked) => updateUltraFeedSettings({
+                      resolverSettings: {
+                        ...ultraFeedSettings.resolverSettings,
+                        subscriptionsFeedSettings: {
+                          ...ultraFeedSettings.resolverSettings.subscriptionsFeedSettings,
+                          hideRead: checked,
+                        },
+                      },
+                    })}
+                  />
+                </div>
+                <UltraFeedWrappers
+                  feedType="following"
+                  incognitoMode={ultraFeedSettings.resolverSettings.incognitoMode}
+                >
+                  <UltraFeedSubscriptionsFeed embedded={true} settings={ultraFeedSettings} showHideReadToggle={false} />
+                </UltraFeedWrappers>
+               </>}
 
               {/* CHRONOLIGCAL FEED */}
               {(selectedTab === 'forum-chronological') && <AnalyticsContext feedType={selectedTab}>

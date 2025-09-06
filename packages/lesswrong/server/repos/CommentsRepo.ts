@@ -475,7 +475,8 @@ class CommentsRepo extends AbstractRepo<"Comments"> {
     userId: string,
     maxTotalComments = 1000,
     initialCandidateLookbackDays: number,
-    commentServedEventRecencyHours: number
+    commentServedEventRecencyHours: number,
+    restrictCandidatesToSubscribed = false,
   ): Promise<FeedCommentFromDb[]> {
     const initialCandidateLimit = 500;
 
@@ -514,6 +515,7 @@ class CommentsRepo extends AbstractRepo<"Comments"> {
               AND c."userId" != $(userId)
               AND c."postedAt" > (NOW() - INTERVAL '1 day' * $(initialCandidateLookbackDaysParam))
               AND p.draft IS NOT TRUE
+              AND (CASE WHEN $(restrictCandidatesToSubscribed) THEN c."userId" IN (SELECT "authorId" FROM "SubscribedAuthorIds") ELSE TRUE END)
           ORDER BY c."postedAt" DESC
           LIMIT $(initialCandidateLimit)
       ),
@@ -537,6 +539,7 @@ class CommentsRepo extends AbstractRepo<"Comments"> {
                 WHEN sa."authorId" IS NOT NULL THEN 'subscriptionsComments'
                 ELSE 'recentComments'
               END AS "primarySource",
+              CASE WHEN sa."authorId" IS NOT NULL THEN TRUE ELSE FALSE END AS "fromSubscribedUser",
               (ic."commentId" IS NOT NULL) AS "isInitialCandidate"
           FROM "Comments" c
           JOIN "CandidateThreadTopLevelIds" ct
@@ -603,10 +606,12 @@ class CommentsRepo extends AbstractRepo<"Comments"> {
           c."postedAt",
           c."descendentCount",
           c."primarySource",
+          c."fromSubscribedUser",
           c."isInitialCandidate",
           ce."lastServed",
           ce."lastViewed",
-          ce."lastInteracted"
+          ce."lastInteracted",
+          (ce."lastViewed" IS NOT NULL OR ce."lastInteracted" IS NOT NULL) AS "isRead"
       FROM "AllRelevantComments" c
       LEFT JOIN "CommentEvents" ce ON c._id = ce."documentId"
       ORDER BY COALESCE(c."topLevelCommentId", c._id), c."postedAt"
@@ -616,7 +621,8 @@ class CommentsRepo extends AbstractRepo<"Comments"> {
       initialCandidateLimit, 
       maxTotalComments,
       initialCandidateLookbackDaysParam: initialCandidateLookbackDays,
-      commentServedEventRecencyHoursParam: commentServedEventRecencyHours
+      commentServedEventRecencyHoursParam: commentServedEventRecencyHours,
+      restrictCandidatesToSubscribed,
     });
 
     // Safety check for duplicates from the database query
@@ -642,9 +648,11 @@ class CommentsRepo extends AbstractRepo<"Comments"> {
         sources,
         primarySource: comment.primarySource,
         isInitialCandidate: comment.isInitialCandidate,
+        fromSubscribedUser: !!comment.fromSubscribedUser,
         lastServed: null,
         lastViewed: comment.lastViewed ?? null,
         lastInteracted: comment.lastInteracted ?? null,
+        isRead: !!comment.isRead,
       };
     });
   }

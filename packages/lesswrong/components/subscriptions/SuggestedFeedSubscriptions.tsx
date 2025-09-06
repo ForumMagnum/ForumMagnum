@@ -19,6 +19,10 @@ import { gql } from "@/lib/generated/gql-codegen";
 import UltraFeedSuggestedUserCard from "../ultraFeed/UltraFeedSuggestedUserCard";
 import { defineStyles, useStyles } from '../hooks/useStyles';
 import { useIsMobile } from '../hooks/useScreenWidth';
+import { useCookiesWithConsent } from '../hooks/useCookiesWithConsent';
+import { HIDE_SUBSCRIBED_FEED_SUGGESTED_USERS } from '@/lib/cookies/cookies';
+import moment from 'moment';
+import LWTooltip from '../common/LWTooltip';
 
 const INITIAL_USERS_TO_SHOW_DESKTOP = 4;
 const INITIAL_USERS_TO_SHOW_MOBILE = 2;
@@ -70,20 +74,6 @@ const styles = defineStyles("SuggestedFeedSubscriptions", (theme: ThemeType) => 
       opacity: 0.5,
     }
   },
-  hideButton: {
-    ...theme.typography.commentStyle,
-    padding: 8,
-    borderRadius: 3,
-    fontSize: "1rem",
-    opacity: 0.7,
-    display: "flex",
-    alignItems: "center",
-    flexWrap: "nowrap",
-    '&:hover': {
-      backgroundColor: theme.palette.grey[200],
-      opacity: 0.7,
-    }
-  },
   userSubscribeCards: {
     display: "grid",
     gridTemplateColumns: "repeat(2, 1fr)",
@@ -95,11 +85,12 @@ const styles = defineStyles("SuggestedFeedSubscriptions", (theme: ThemeType) => 
     },
   },
   icon: {
-    width: 17,
+    width: 20,
+    color: theme.palette.grey[600],
     marginBottom: -3,
     cursor: "pointer",
     '&:hover': {
-      backgroundColor: theme.palette.grey[300],
+      color: theme.palette.grey[500],
     }
   },
   followUserSearchButton: {
@@ -226,14 +217,16 @@ const FollowUserSearchButton = ({onUserSelected, tooltipPlacement = "bottom-end"
 }
 
 
-export const SuggestedFeedSubscriptions = ({ suggestedUsers, settingsButton }: {
+export const SuggestedFeedSubscriptions = ({ suggestedUsers, settingsButton, enableDismissButton = true }: {
   suggestedUsers?: UsersMinimumInfo[],
   settingsButton?: React.ReactNode,
+  enableDismissButton?: boolean,
 }) => {
   const classes = useStyles(styles);
   const isMobile = useIsMobile();
   const usersToShow = isMobile ? INITIAL_USERS_TO_SHOW_MOBILE : INITIAL_USERS_TO_SHOW_DESKTOP;
   const currentUser = useCurrentUser();
+  const [cookies, setCookie] = useCookiesWithConsent([HIDE_SUBSCRIBED_FEED_SUGGESTED_USERS]);
   
   // For UltraFeed integration, we always use provided user (from the resolver), for standalone usage, we fetch them
   const { availableUsers: fetchedUsers, loadingSuggestedUsers } = useSuggestedUsers(!!suggestedUsers);
@@ -283,6 +276,19 @@ export const SuggestedFeedSubscriptions = ({ suggestedUsers, settingsButton }: {
     }
   }, [availableUsers, currentBatch.length, usersToShow]);
 
+  if (cookies[HIDE_SUBSCRIBED_FEED_SUGGESTED_USERS] && enableDismissButton) {
+    return null;
+  }
+
+  const hideSuggestions = (e: React.MouseEvent) => {
+    e.preventDefault();
+    setCookie(
+      HIDE_SUBSCRIBED_FEED_SUGGESTED_USERS,
+      "true",
+      { expires: moment().add(60, 'days').toDate() }
+    );
+  };
+
   const refreshSuggestions = (e: React.MouseEvent) => {
     e.preventDefault();
     
@@ -317,6 +323,11 @@ export const SuggestedFeedSubscriptions = ({ suggestedUsers, settingsButton }: {
               Suggested Users for You
             </div>
             <FollowUserSearchButton onUserSelected={subscribeToUser} />
+            {enableDismissButton && <LWTooltip title="Hide suggested users for 60 days">
+              <div onClick={hideSuggestions}>
+                <ForumIcon icon="Close" className={classes.icon}/>
+              </div>
+            </LWTooltip>}
             {settingsButton}
           </div>
         </div>

@@ -7543,6 +7543,7 @@ type Query = {
   TagUpdatesInTimeBlock: Array<TagUpdates>;
   TagsByCoreTagId: TagWithTotalCount;
   UltraFeed: UltraFeedQueryResults;
+  UltraFeedSubscriptions: UltraFeedQueryResults;
   UserReadHistory?: Maybe<UserReadHistoryResult>;
   UserReadsPerCoreTag: Array<UserCoreTagReads>;
   UserWrappedDataByYear?: Maybe<WrappedDataByYear>;
@@ -7998,6 +7999,14 @@ type QueryUltraFeedArgs = {
   limit?: InputMaybe<Scalars['Int']['input']>;
   offset?: InputMaybe<Scalars['Int']['input']>;
   sessionId?: InputMaybe<Scalars['String']['input']>;
+  settings?: InputMaybe<Scalars['JSON']['input']>;
+};
+
+
+type QueryUltraFeedSubscriptionsArgs = {
+  cutoff?: InputMaybe<Scalars['Date']['input']>;
+  limit?: InputMaybe<Scalars['Int']['input']>;
+  offset?: InputMaybe<Scalars['Int']['input']>;
   settings?: InputMaybe<Scalars['JSON']['input']>;
 };
 
@@ -14223,6 +14232,38 @@ type UltraFeedQueryVariables = Exact<{
 
 
 type UltraFeedQuery = UltraFeedQuery_Query;
+
+type UltraFeedSubscriptionsQuery_UltraFeedSubscriptions_UltraFeedQueryResults_results_UltraFeedEntry_feedCommentThread_FeedCommentThread = (
+  { __typename?: 'FeedCommentThread' }
+  & FeedCommentThreadFragment
+);
+
+type UltraFeedSubscriptionsQuery_UltraFeedSubscriptions_UltraFeedQueryResults_results_UltraFeedEntry_feedPost_FeedPost = (
+  { __typename?: 'FeedPost' }
+  & FeedPostFragment
+);
+
+type UltraFeedSubscriptionsQuery_UltraFeedSubscriptions_UltraFeedQueryResults_results_UltraFeedEntry_feedSubscriptionSuggestions_FeedSubscriptionSuggestions = (
+  { __typename?: 'FeedSubscriptionSuggestions' }
+  & FeedSubscriptionSuggestionsFragment
+);
+
+type UltraFeedSubscriptionsQuery_UltraFeedSubscriptions_UltraFeedQueryResults_results_UltraFeedEntry = { __typename?: 'UltraFeedEntry', type: UltraFeedEntryType, feedCommentThread: UltraFeedSubscriptionsQuery_UltraFeedSubscriptions_UltraFeedQueryResults_results_UltraFeedEntry_feedCommentThread_FeedCommentThread | null, feedPost: UltraFeedSubscriptionsQuery_UltraFeedSubscriptions_UltraFeedQueryResults_results_UltraFeedEntry_feedPost_FeedPost | null, feedSubscriptionSuggestions: UltraFeedSubscriptionsQuery_UltraFeedSubscriptions_UltraFeedQueryResults_results_UltraFeedEntry_feedSubscriptionSuggestions_FeedSubscriptionSuggestions | null };
+
+type UltraFeedSubscriptionsQuery_UltraFeedSubscriptions_UltraFeedQueryResults = { __typename: 'UltraFeedQueryResults', cutoff: string | null, endOffset: number, results: Array<UltraFeedSubscriptionsQuery_UltraFeedSubscriptions_UltraFeedQueryResults_results_UltraFeedEntry> | null };
+
+type UltraFeedSubscriptionsQuery_Query = { __typename?: 'Query', UltraFeedSubscriptions: UltraFeedSubscriptionsQuery_UltraFeedSubscriptions_UltraFeedQueryResults };
+
+
+type UltraFeedSubscriptionsQueryVariables = Exact<{
+  limit: InputMaybe<Scalars['Int']['input']>;
+  cutoff: InputMaybe<Scalars['Date']['input']>;
+  offset: InputMaybe<Scalars['Int']['input']>;
+  settings: InputMaybe<Scalars['JSON']['input']>;
+}>;
+
+
+type UltraFeedSubscriptionsQuery = UltraFeedSubscriptionsQuery_Query;
 
 type updateUserCommunityMutation_updateUser_UserOutput_data_User = (
   { __typename?: 'User' }
