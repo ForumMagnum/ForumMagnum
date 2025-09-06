@@ -8,7 +8,7 @@ import { EditablePost } from '@/lib/collections/posts/helpers';
 import { useForm } from '@tanstack/react-form';
 import { EditorFormComponent, useEditorFormCallbacks } from '@/components/editor/EditorFormComponent';
 import { getUpdatedFieldValues } from '@/components/tanstack-form-components/helpers';
-import { defaultEditorPlaceholder } from '@/lib/editor/defaultEditorPlaceholder';
+import { getDefaultEditorPlaceholder } from '@/lib/editor/defaultEditorPlaceholder';
 import { FormComponentSelect } from '@/components/form-components/FormComponentSelect';
 import { MODERATION_GUIDELINES_OPTIONS } from '@/lib/collections/posts/constants';
 import { defineStyles, useStyles } from '@/components/hooks/useStyles';
@@ -17,7 +17,7 @@ import LWDialog from "../../common/LWDialog";
 import { Typography } from "../../common/Typography";
 import Loading from "../../vulcan-core/Loading";
 import { gql } from '@/lib/generated/gql-codegen';
-import { useMutation } from '@apollo/client';
+import { useMutation } from "@apollo/client/react";
 import { useQuery } from "@/lib/crud/useQuery";
 
 const postUpdateMutation = gql(`
@@ -154,7 +154,7 @@ const PostModerationGuidelinesForm = ({
             document={form.state.values}
             addOnSubmitCallback={addOnSubmitCallback}
             addOnSuccessCallback={addOnSuccessCallback}
-            hintText={defaultEditorPlaceholder}
+            hintText={getDefaultEditorPlaceholder()}
             fieldName="moderationGuidelines"
             collectionName="Posts"
             commentEditor={true}

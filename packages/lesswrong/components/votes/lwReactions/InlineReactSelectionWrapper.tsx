@@ -5,15 +5,7 @@ import type { VotingProps } from '../votingProps';
 import AddInlineReactionButton from "./AddInlineReactionButton";
 import LWPopper from "../../common/LWPopper";
 
-export const hideSelectorClassName = "hidden-selector";
-const hiddenSelector = `& .${hideSelectorClassName}`;
-
 const styles = (theme: ThemeType) => ({
-  root: {
-    [hiddenSelector]: {
-      backgroundColor: theme.palette.background.primaryTranslucentHeavy
-    }
-  },
   popper: {
     height: 0,
   },
@@ -86,7 +78,7 @@ const InlineReactSelectionWrapper = ({contentRef, voteProps, styling, children, 
   const buttonOffsetTop = (styling==="comment") ? -10 : 0;
 
   return (
-    <div className={classes.root} ref={commentTextRef}>
+    <div ref={commentTextRef}>
       <LWPopper
         className={classes.popper}
         open={!!anchorEl} anchorEl={anchorEl}

@@ -5,12 +5,13 @@ import { Votes } from '../../server/collections/votes/collection';
 import { createAdminContext } from "../vulcan-lib/createContexts";
 import { silentlyReverseVote } from '../voteServer';
 import { nullifyVotesForUser } from '../nullifyVotesForUser';
+import { backgroundTask } from '../utils/backgroundTask';
 
 // Exported to allow running manually with "yarn repl"
 export const nullifyVotesForNullifiedUsers = async () => {
   const users = await Users.find({nullifyVotes: true}).fetch();
   users.forEach((user) => {
-    void nullifyVotesForUser(user);
+    backgroundTask(nullifyVotesForUser(user));
   })
   //eslint-disable-next-line no-console
   console.warn(`Nullified votes for ${users.length} users`);

@@ -1,16 +1,16 @@
 import React, { useRef } from "react";
 import { registerComponent } from "../../../lib/vulcan-lib/components";
 import { AnalyticsContext } from "../../../lib/analyticsEvents";
-import { POST_PREVIEW_ELEMENT_CONTEXT, POST_PREVIEW_WIDTH } from "./helpers";
+import { POST_PREVIEW_ELEMENT_CONTEXT, getPostPreviewWidth } from "./helpers";
 import type { PostsPreviewTooltipProps } from "./PostsPreviewTooltip";
 import PostExcerpt from "../../common/excerpts/PostExcerpt";
 import EAPostMeta from "../../ea-forum/EAPostMeta";
 import TruncatedTagsList from "../../tagging/TruncatedTagsList";
-import CommentsNodeInner from "../../comments/CommentsNode";
+import CommentsNode from "../../comments/CommentsNode";
 
 const styles = (theme: ThemeType) => ({
   root: {
-    width: POST_PREVIEW_WIDTH,
+    width: getPostPreviewWidth(),
     fontFamily: theme.palette.fonts.sansSerifStack,
     overflow: "hidden",
     [theme.breakpoints.down("xs")]: {
@@ -96,7 +96,7 @@ const EAPostsPreviewTooltip = ({
           </div>
           {comment
             ? (
-              <CommentsNodeInner
+              <CommentsNode
                 treeOptions={{
                   post,
                   hideReply: true,

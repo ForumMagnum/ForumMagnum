@@ -423,7 +423,7 @@ export const postGqlMutations = {
       return await Posts.findOne({_id: postId})
     } else {
       let afField = {};
-      if (isAF) {
+      if (isAF()) {
         afField = !userCanDo(currentUser, 'posts.alignment.new')
           ? { suggestForAlignmentUserIds: [currentUser._id] }
           : { af: true };

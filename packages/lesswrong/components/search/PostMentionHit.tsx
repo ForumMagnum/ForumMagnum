@@ -3,9 +3,9 @@ import { registerComponent } from "../../lib/vulcan-lib/components";
 import { isFriendlyUI } from "@/themes/forumTheme";
 import ForumIcon from "../common/ForumIcon";
 
-const styles = () => ({
+const styles = (theme: ThemeType) => ({
   root: {
-    ...(isFriendlyUI && {
+    ...(theme.isFriendlyUI && {
       display: "block",
       maxWidth: 500,
       overflow: "hidden",
@@ -24,7 +24,7 @@ const PostMentionHit = ({hit, classes}: {
   hit: SearchPost,
   classes: ClassesType<typeof styles>,
 }) => {
-  const icon = isFriendlyUI
+  const icon = isFriendlyUI()
     ? <ForumIcon icon="Document" className={classes.icon} />
     : "📃";
   return (

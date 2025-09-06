@@ -1,3 +1,5 @@
+"use client";
+
 import Button from '@/lib/vendor/@material-ui/core/src/Button';
 import { isBookUI, preferredHeadingCase } from '@/themes/forumTheme';
 import { useForm } from '@tanstack/react-form';
@@ -17,7 +19,7 @@ import LWTooltip from "../common/LWTooltip";
 import Error404 from "../common/Error404";
 import SectionTitle from "../common/SectionTitle";
 import ContentStyles from "../common/ContentStyles";
-import { useMutation } from "@apollo/client";
+import { useMutation } from "@apollo/client/react";
 import { gql } from "@/lib/generated/gql-codegen";
 
 const UsersEditUpdateMutation = gql(`
@@ -123,7 +125,7 @@ const UserPaymentInfoForm = ({
         <form.Subscribe selector={(s) => [s.canSubmit, s.isSubmitting]}>
           {([canSubmit, isSubmitting]) => (
             <Button
-              variant={isBookUI ? 'outlined' : undefined}
+              variant={isBookUI() ? 'outlined' : undefined}
               type="submit"
               disabled={!canSubmit || isSubmitting}
               className={classNames("primary-form-submit-button", classes.submitButton)}

@@ -57,23 +57,22 @@ export const SpotlightDisplay = gql(`
   fragment SpotlightDisplay on Spotlight {
     ...SpotlightMinimumInfo
     post {
-      ...PostsMinimumInfo
+      _id
+      slug
+      title
+
       user {
-        _id
-        displayName
-        slug
+        ...UsersMinimumInfo
       }
       reviews {
-        ...CommentsList
+        _id
       }
     }
     sequence {
       _id
       title
       user {
-        _id
-        displayName
-        slug
+        ...UsersMinimumInfo
       }
     }
     tag {
@@ -81,13 +80,8 @@ export const SpotlightDisplay = gql(`
       name
       slug
       user {
-        _id
-        displayName
-        slug
+        ...UsersMinimumInfo
       }
-    }
-    sequenceChapters {
-      ...ChaptersFragment
     }
     description {
       html

@@ -1,5 +1,4 @@
 import { Comments } from '../../server/collections/comments/collection';
-import * as _ from 'underscore';
 
 // Return the IDs of all ancestors of the given comment (not including the provided
 // comment itself).

@@ -16,7 +16,7 @@ export const useCurrentFrontpageSurvey = (): {
       }
     }
   `), {
-    skip: !hasSurveys,
+    skip: !hasSurveys(),
     ssr: true,
   });
   const refetch = useCallback(async () => { await refetch_(); }, [refetch_]);

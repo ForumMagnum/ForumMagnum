@@ -4,7 +4,6 @@ import { Link } from '../../lib/reactRouterWrapper';
 import { ReviewYear, REVIEW_YEAR } from '../../lib/reviewUtils';
 import { registerComponent } from '../../lib/vulcan-lib/components';
 import SingleColumnSection, { SECTION_WIDTH } from '../common/SingleColumnSection';
-import * as _ from 'underscore';
 import { useQuery } from "@/lib/crud/useQuery";
 import { gql } from "@/lib/generated/gql-codegen";
 import SectionTitle from "../common/SectionTitle";
@@ -49,7 +48,7 @@ const styles = (theme: ThemeType) => ({
   },
   title: {
     // This is how much text-shadow you need in order to have the black text reliably show up against complex dark backgrounds
-    textShadow: _.times(16, i=>"0 0 35px rgb(250 255 250)").join(", ")
+    textShadow: Array.from({ length: 16 }, (_, i) => "0 0 35px rgb(250 255 250)").join(", ")
   },
   viewResultsCTA: {
     background: theme.palette.panelBackground.default,

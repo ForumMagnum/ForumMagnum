@@ -14,7 +14,6 @@ import { DialogContentsFn, OpenDialogContextType, useDialog } from '../common/wi
 import { useCurrentUser } from '../common/withUser';
 import { PersonSVG, ArrowSVG, GroupIconSVG } from './Icons'
 import qs from 'qs'
-import { without } from 'underscore';
 import { isEAForum } from '../../lib/instanceSettings';
 import { userIsAdmin } from '../../lib/vulcan-users/permissions';
 import {isFriendlyUI} from '../../themes/forumTheme'
@@ -72,7 +71,7 @@ const styles = (theme: ThemeType) => ({
   },
   checkboxLabel: {
     ...theme.typography.body2,
-    fontWeight: isEAForum ? 600 : undefined,
+    fontWeight: theme.isEAForum ? 600 : undefined,
   },
   checkedLabel: {
     color: theme.palette.text.tooltipText,
@@ -243,7 +242,7 @@ const CommunityMapFilter = ({
   const handleCheck = useCallback((filter: string) => {
     let newFilters: AnyBecauseTodo[] = [];
     if (Array.isArray(filters) && filters.includes(filter)) {
-      newFilters = without(filters, filter);
+      newFilters = filters.filter(f => f !== filter);
     } else {
       newFilters = [...filters, filter];
     }
@@ -272,17 +271,17 @@ const CommunityMapFilter = ({
 
   // FIXME: Unstable component will lose state on rerender
   // eslint-disable-next-line react/no-unstable-nested-components
-  const GroupIcon = () => isEAForum
+  const GroupIcon = () => isEAForum()
     ? <StarIcon className={classes.eaButtonIcon}/>
     : <GroupIconSVG className={classes.buttonIcon}/>;
   // FIXME: Unstable component will lose state on rerender
   // eslint-disable-next-line react/no-unstable-nested-components
-  const EventIcon = () => isEAForum
+  const EventIcon = () => isEAForum()
     ? <RoomIcon className={classes.eaButtonIcon}/>
     : <ArrowSVG className={classes.buttonIcon}/>;
   // FIXME: Unstable component will lose state on rerender
   // eslint-disable-next-line react/no-unstable-nested-components
-  const PersonIcon = () => isEAForum
+  const PersonIcon = () => isEAForum()
     ? <PersonPinIcon className={classes.eaButtonIcon}/>
     : <PersonSVG className={classes.buttonIcon}/>;
 
@@ -290,7 +289,7 @@ const CommunityMapFilter = ({
 
   return (
     <Paper>
-      {!isFriendlyUI && <div className={classes.filters}>
+      {!isFriendlyUI() && <div className={classes.filters}>
         {availableFilters.map((value, i) => {
           const checked = filters.includes(value)
           return (
@@ -325,7 +324,7 @@ const CommunityMapFilter = ({
           </span>
           <span className={classes.buttonText}>Groups</span>
           <span className={classes.actionContainer}>
-            {(!isEAForum || isAdmin) && <TooltipSpan title="Create New Group">
+            {(!isEAForum() || isAdmin) && <TooltipSpan title="Create New Group">
               <AddIcon
                 className={classNames(classes.actionIcon, classes.addIcon)}
                 onClick={createFallBackDialogHandler(

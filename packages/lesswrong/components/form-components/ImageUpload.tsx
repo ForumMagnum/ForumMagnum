@@ -137,7 +137,7 @@ const TriggerButton: FC<{
   const classes = useStyles(styles);
   let mainClass = classes.button;
   let showIcon = true;
-  if (isFriendlyUI && imageType === "profileImageId") {
+  if (isFriendlyUI() && imageType === "profileImageId") {
     label = "profile image";
     mainClass = classes.profileImageButton;
     showIcon = false;
@@ -167,7 +167,7 @@ const RemoveButton: FC<{
     return null;
   }
 
-  const mainClass = isFriendlyUI && imageType === "profileImageId"
+  const mainClass = isFriendlyUI() && imageType === "profileImageId"
     ? classes.removeProfileImageButton
     : classes.removeButton;
   return (
@@ -222,7 +222,7 @@ export const ImageUpload = ({
   const formPreviewSize = formPreviewSizeByImageType[imageType];
   if (!formPreviewSize) throw new Error("Unsupported image upload type")
 
-  const showUserProfileImage = isFriendlyUI && imageType === "profileImageId";
+  const showUserProfileImage = isFriendlyUI() && imageType === "profileImageId";
 
   return (
     <div className={classes.root}>

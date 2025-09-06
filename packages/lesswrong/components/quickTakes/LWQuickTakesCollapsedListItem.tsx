@@ -7,16 +7,17 @@ import classNames from "classnames";
 import { commentBodyStyles } from "../../themes/stylePiping";
 import ForumIcon from "../common/ForumIcon";
 import LWPopper from "../common/LWPopper";
-import CommentsNodeInner from "../comments/CommentsNode";
+import CommentsNode from "../comments/CommentsNode";
 import CommentsItemMeta from "../comments/CommentsItem/CommentsItemMeta";
 import CommentBottomCaveats from "../comments/CommentsItem/CommentBottomCaveats";
 
 const styles = (theme: ThemeType) => ({
   root: {
-    color: theme.palette.greyAlpha(0.5),
-    background: theme.palette.grey[0],
+    color: theme.palette.text.bannerAdOverlay,
+    background: theme.palette.panelBackground.bannerAdTranslucentMedium,
+    backdropFilter: theme.palette.filters.bannerAdBlurHeavy,
     borderRadius: theme.borderRadius.small,
-    border: `1px solid ${theme.palette.grey[200]}`,
+    border: "none",
     paddingLeft: 12,
     paddingRight: 12,
     paddingBottom: 10,
@@ -48,6 +49,7 @@ const styles = (theme: ThemeType) => ({
   },
   body: {
     ...commentBodyStyles(theme),
+    color: theme.palette.text.bannerAdOverlay,
     position: "relative",
     overflow: "hidden",
     display: "-webkit-box",
@@ -56,6 +58,7 @@ const styles = (theme: ThemeType) => ({
   },
   hoverOver: {
     width: 400,
+    background: theme.palette.panelBackground.bannerAdTranslucentDeep,
   },
   commentCountText: {
     marginTop: -4,
@@ -137,7 +140,7 @@ const LWQuickTakesCollapsedListItem = ({ quickTake, setExpanded, classes }: {
       clickable={false}
     >
       <div className={classes.hoverOver}>
-        <CommentsNodeInner
+        <CommentsNode
           truncated
           nestingLevel={1}
           comment={quickTake}

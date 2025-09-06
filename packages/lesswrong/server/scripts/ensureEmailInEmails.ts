@@ -1,5 +1,6 @@
 import { wrapVulcanAsyncScript } from './utils'
 import Users from '../../server/collections/users/collection'
+import { backgroundTask } from '../utils/backgroundTask';
 
 /*
  * This script attempts to ensure that all users with an "email" value
@@ -44,7 +45,7 @@ export const ensureEmailInEmails = wrapVulcanAsyncScript(
         // add email to emails
         const newEmail = {address: user.email, verified: true};
         const newEmails = user.emails ? [...user.emails, newEmail] : [newEmail]
-        void Users.rawUpdateOne(user._id, {$set: {'emails': newEmails}});
+        backgroundTask(Users.rawUpdateOne(user._id, {$set: {'emails': newEmails}}));
         // eslint-disable-next-line no-console
         console.log('updating user account:', user.email, user.emails, newEmails);
       }

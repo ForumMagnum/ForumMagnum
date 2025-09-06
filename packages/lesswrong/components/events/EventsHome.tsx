@@ -19,7 +19,7 @@ import Checkbox from '@/lib/vendor/@material-ui/core/src/Checkbox';
 import ListItemText from '@/lib/vendor/@material-ui/core/src/ListItemText';
 import classNames from 'classnames';
 
-import { isFriendlyUI, preferredHeadingCase } from '../../themes/forumTheme';
+import { preferredHeadingCase } from '../../themes/forumTheme';
 import EventNotificationsDialog from "../localGroups/EventNotificationsDialog";
 import LoginPopup from "../users/LoginPopup";
 import HighlightedEventCard from "./modules/HighlightedEventCard";
@@ -28,7 +28,7 @@ import Loading from "../vulcan-core/Loading";
 import DistanceUnitToggle from "../community/modules/DistanceUnitToggle";
 import { MenuItem } from "../common/Menus";
 import ForumIcon from "../common/ForumIcon";
-import { useMutation } from "@apollo/client";
+import { useMutation } from "@apollo/client/react";
 import { gql } from "@/lib/generated/gql-codegen";
 import { useQueryWithLoadMore } from "@/components/hooks/useQueryWithLoadMore";
 
@@ -74,7 +74,7 @@ const styles = (theme: ThemeType) => ({
     ...theme.typography.headline,
     fontSize: 34,
     margin: 0,
-    ...(isFriendlyUI && {
+    ...(theme.isFriendlyUI && {
       fontFamily: theme.palette.fonts.sansSerifStack,
     }),
   },
@@ -354,7 +354,7 @@ const EventsHome = ({classes}: {
   // on the EA Forum, we insert some special event cards (ex. Intro VP card)
   let numSpecialCards = currentUser ? 1 : 2
   // hide them on other forums, and when certain filters are set
-  if (!isEAForum || modeFilter === 'in-person' || (formatFilter.length > 0 && !formatFilter.includes('course'))) {
+  if (!isEAForum() || modeFilter === 'in-person' || (formatFilter.length > 0 && !formatFilter.includes('course'))) {
     numSpecialCards = 0
   }
 

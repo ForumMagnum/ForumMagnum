@@ -1,3 +1,4 @@
+import { backgroundTask } from "@/server/utils/backgroundTask";
 import { manifoldAPIKeySetting, highlightReviewWinnerThresholdSetting } from "../../instanceSettings";
 import { getWithCustomLoader, loadByIds } from "../../loaders";
 import { filterNonnull } from "../../utils/typeGuardUtils";
@@ -74,8 +75,6 @@ export const highlightMarket = (info: AnnualReviewMarketInfo | undefined): boole
   !!info && !info.isResolved && info.probability > highlightReviewWinnerThresholdSetting.get()
 
 
-const manifoldAPIKey = manifoldAPIKeySetting.get()
-
 export const postGetMarketInfoFromManifold = async (post: DbPost): Promise<AnnualReviewMarketInfo | null > => {
   if (!post.manifoldReviewMarketId) return null;
 
@@ -98,6 +97,7 @@ export const postGetMarketInfoFromManifold = async (post: DbPost): Promise<Annua
 }
 
 export const createManifoldMarket = async (question: string, descriptionMarkdown: string, closeTime: Date, visibility: string, initialProb: number, idKey: string): Promise<LiteMarket | undefined> => {
+  const manifoldAPIKey = manifoldAPIKeySetting.get()
 
   //eslint-disable-next-line no-console
   if (!manifoldAPIKey) console.error("Manifold API key not found");
@@ -160,14 +160,14 @@ export const getPostMarketInfo = async (post: DbPost, context: ResolverContext):
   });
 
   if (!cacheItem) {
-    void refreshMarketInfoInCache(post, context)
+    backgroundTask(refreshMarketInfoInCache(post, context))
     return undefined;
   }
 
   const timeDifference = new Date().getTime() - cacheItem.lastUpdated.getTime();
 
   if (timeDifference >= 10_000) {
-    void refreshMarketInfoInCache(post, context);
+    backgroundTask(refreshMarketInfoInCache(post, context));
   }
 
   return { probability: cacheItem.probability, isResolved: cacheItem.isResolved, year: cacheItem.year, url: cacheItem.url ?? '' };

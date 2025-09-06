@@ -72,12 +72,7 @@ const EAUsersProfileLinks = ({user, classes}: {
       }
       {currentUser?.isAdmin &&
         <div className={classes.registerRssLink}>
-          <DialogGroup
-            actions={[]}
-            trigger={<a>Register RSS</a>}
-          >
-            <div><NewFeedButton user={user} /></div>
-          </DialogGroup>
+          <NewFeedButton user={user} />
         </div>
       }
       {currentUser && currentUser._id === user._id &&

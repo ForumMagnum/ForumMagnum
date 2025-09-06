@@ -4,7 +4,6 @@ import { SettingsOption } from "../posts/dropdownOptions"
 import { TupleSet, UnionOf } from "../../utils/typeGuardUtils"
 import { DIGEST_STATUSES } from "../digestPosts/newSchema"
 import type { DigestPost } from "../../../components/ea-forum/digest/EditDigest"
-import { isPostWithForeignId } from "../../../components/hooks/useForeignCrosspost"
 
 export const DIGEST_STATUS_OPTIONS = new TupleSet([...DIGEST_STATUSES, 'pending'] as const)
 export type InDigestStatusOption = UnionOf<typeof DIGEST_STATUS_OPTIONS>
@@ -56,7 +55,7 @@ export const getPostAuthors = (post: PostsListBase) => {
 export const getEmailDigestPostData = ({ post, digestNum }: { post: PostsListWithVotes; digestNum: number }) => {
   let url = combineUrls(getSiteUrl(), `/posts/${post._id}/${post.slug}`);
   url += `?utm_source=forum_digest&utm_medium=email&utm_campaign=digest_${digestNum}`;
-  const readTimeText = isPostWithForeignId(post) ? '' : `, ${post.readTimeMinutes} min`;
+  const readTimeText = `, ${post.readTimeMinutes} min`;
   const linkpostText = post.url ? ', link-post' : '';
   return `<a href="${url}">${post.title}</a> (${getPostAuthors(post)}${readTimeText}${linkpostText})`;
 }

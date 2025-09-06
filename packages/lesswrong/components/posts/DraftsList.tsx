@@ -14,7 +14,7 @@ import DraftsListSettings from "./DraftsListSettings";
 import LoadMore from "../common/LoadMore";
 import PostsItem from "./PostsItem";
 import Loading from "../vulcan-core/Loading";
-import { useMutation } from "@apollo/client";
+import { useMutation } from "@apollo/client/react";
 import { gql } from "@/lib/generated/gql-codegen";
 import { useQueryWithLoadMore } from "@/components/hooks/useQueryWithLoadMore";
 

@@ -32,13 +32,14 @@ const currentAndRecentForumEventsContext = createContext<ForumEventsContext>(def
 export const CurrentAndRecentForumEventsProvider: FC<{
   children: ReactNode,
 }> = ({children}) => {
+  // ea-forum-look-here FIXME: This query will waterfall with pageload
   const { data, refetch } = useQuery(ForumEventsDisplayMultiQuery, {
     variables: {
       selector: { currentAndRecentForumEvents: {} },
       limit: 10,
       enableTotal: false,
     },
-    skip: !hasForumEvents,
+    skip: !hasForumEvents(),
     notifyOnNetworkStatusChange: true,
   });
 
@@ -75,7 +76,7 @@ export const CurrentAndRecentForumEventsProvider: FC<{
 
   // Refetch on mount if forum events are enabled, and when the current event ends
   useEffect(() => {
-    if (hasForumEvents) {
+    if (hasForumEvents()) {
       void refetch();
     }
   }, [refetch, eventEnded]);

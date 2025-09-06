@@ -1,17 +1,15 @@
 'use client';
 
-import React, { CSSProperties, FC } from 'react';
+import React, { CSSProperties, FC, useState } from 'react';
 import { useTracking } from '../lib/analyticsEvents';
 import NextLink from 'next/link';
 import { HashLink, HashLinkProps } from "../components/common/HashLink";
-import { classifyHost } from './routeUtil';
-import { parseQuery } from './vulcan-core/appContext'
+import { classifyHost, useLocation } from './routeUtil';
 import qs from 'qs'
 import { getUrlClass } from '@/server/utils/getUrlClass';
-import { usePathname, useSearchParams } from 'next/navigation';
 
 export type LinkProps = {
-  to?: HashLinkProps['to']|null
+  to: HashLinkProps['to']|null
   doOnDown?: boolean
   onMouseEnter?: HashLinkProps['onMouseEnter']
   onMouseLeave?: HashLinkProps['onMouseLeave']
@@ -32,7 +30,22 @@ const isLinkValid = (props: LinkProps): props is HashLinkProps => {
   return typeof props.to === "string" || typeof props.to === "object";
 };
 
+const isPrefetchablePostLink = (to: string) => {
+  // TODO: maybe we want this to be a configurable prop at the callsite?
+  return to.startsWith('/posts/') || /^\/s\/[a-z0-9]+\/p\/[a-z0-9]+$/.test(to);
+};
+
+const getLinkPrefetch = (to: string, everHovered: boolean) => {
+  if (isPrefetchablePostLink(to)) {
+    return true;
+  }
+
+  return everHovered ? true : false;
+}
+
 export const Link = ({eventProps, ...props}: LinkProps) => {
+  const [hovered, setHovered] = useState(false);
+  
   const { captureEvent } = useTracking({
     eventType: "linkClicked",
     eventProps: {
@@ -55,7 +68,9 @@ export const Link = ({eventProps, ...props}: LinkProps) => {
   if (to && typeof to === 'string' && isOffsiteLink(to)) {
     return <a href={to} {...otherProps} onMouseDown={handleClick}/>
   } else {
-    return <HashLink {...props} onMouseDown={handleClick}/>
+    const prefetch = getLinkPrefetch(to, hovered);
+    const propsWithPrefetch = { ...props, prefetch };
+    return <HashLink {...propsWithPrefetch} onMouseDown={handleClick} onMouseEnter={() => setHovered(true)}/>
   }
 }
 
@@ -71,24 +86,16 @@ export const QueryLink: FC<Omit<LinkProps, "to"> & {
   merge=false,
   ...rest
 }) => {
-  // TODO: confirm that this is correct or otherwise replace link functionality
-  const pathname = usePathname();
-  const params = useSearchParams();
-  const location = {
-    pathname,
-    search: params.toString(),
-    // TODO: figure out hash
-    hash: ''
-  };
+  const { pathname, query: currentQuery, hash } = useLocation();
 
   const newSearchString = merge
-    ? qs.stringify({...parseQuery(location), ...query})
+    ? qs.stringify({...currentQuery, ...query})
     : qs.stringify(query);
   
-  // TODO: this isn't really tested, just implemented to unblock in case it was imported somewhere downstream of LWHome
-  const url = `${location.pathname}${newSearchString ? `?${newSearchString}` : ''}${location.hash ? `#${location.hash}` : ''}`;
+  const url = `${pathname}${newSearchString ? `?${newSearchString}` : ''}${hash ? hash : ''}`;
   return <NextLink
     {...rest}
+    prefetch={false}
     href={url}
   />
 }

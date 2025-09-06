@@ -1,12 +1,12 @@
 import React from 'react';
 import { registerComponent } from '../../../lib/vulcan-lib/components';
 import { commentBodyStyles } from '../../../themes/stylePiping';
-import { isFriendlyUI, preferredHeadingCase } from '../../../themes/forumTheme';
+import { preferredHeadingCase } from '../../../themes/forumTheme';
 
 const styles = (theme: ThemeType) => ({
   root: {
     backgroundColor: theme.palette.grey[60],
-    ...(isFriendlyUI
+    ...(theme.isFriendlyUI
       ? {
         padding: "16px 16px 0",
         borderRadius: theme.borderRadius.default,
@@ -18,7 +18,7 @@ const styles = (theme: ThemeType) => ({
       paddingLeft: 20
     }
   },
-  title: isFriendlyUI
+  title: theme.isFriendlyUI
     ? {
       fontFamily: theme.palette.fonts.sansSerifStack,
       fontWeight: 600,

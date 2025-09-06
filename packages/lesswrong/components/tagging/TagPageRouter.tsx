@@ -1,3 +1,5 @@
+"use client";
+
 import React from "react";
 import { useLocation } from "../../lib/routeUtil";
 import { registerComponent } from "../../lib/vulcan-lib/components";
@@ -37,7 +39,7 @@ export const getTagStructuredData = (tag: TagPageFragment | TagPageWithRevisionF
  * Wrapper component for routing to either the subforum page or the ordinary tag page.
  */
 const TagPageRouter = () => {
-  const TagPage = isFriendlyUI ? EATagPage : LWTagPage;
+  const TagPage = isFriendlyUI() ? EATagPage : LWTagPage;
   const { query, params: { slug } } = useLocation();
   const [overridenLayoutOptions, setOverridenLayoutOptions] = useOverrideLayoutOptions();
 
@@ -56,10 +58,10 @@ const TagPageRouter = () => {
     } : {
       contributorsLimit,
     },
-    skip: !hasSubforums,
+    skip: !hasSubforums(),
   });
   
-  if (!hasSubforums) {
+  if (!hasSubforums()) {
     return <TagPage/>;
   }
 

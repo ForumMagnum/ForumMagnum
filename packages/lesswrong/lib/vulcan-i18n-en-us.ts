@@ -6,7 +6,7 @@ import { preferredHeadingCase } from '../themes/forumTheme';
  * these are used via formatMessage.
  */
 
-export const i18nStrings: Partial<Record<string,string>> = {
+export const getI18nStrings = (): Partial<Record<string,string>> => ({
   'forms.submit': 'Submit',
   'forms.cancel': 'Cancel',
   'forms.select_option': '-- select option --',
@@ -210,4 +210,4 @@ export const i18nStrings: Partial<Record<string,string>> = {
 
   "questions.comments.moved_to_answers": "Comment moved to the Answers section.",
   "questions.comments.moved_to_comments": "Answer moved to the Comments section.",
-}
+});

@@ -35,7 +35,6 @@ interface Query {
   CuratedAndPopularThisWeek: CuratedAndPopularThisWeekResult | null;
   RecentlyActiveDialogues: RecentlyActiveDialoguesResult | null;
   MyDialogues: MyDialoguesResult | null;
-  GoogleVertexPosts: GoogleVertexPostsResult | null;
   CrossedKarmaThreshold: CrossedKarmaThresholdResult | null;
   RecombeeLatestPosts: RecombeeLatestPostsResult | null;
   RecombeeHybridPosts: RecombeeHybridPostsResult | null;
@@ -67,6 +66,7 @@ interface Query {
   convertDocument: any;
   latestGoogleDocMetadata: any;
   moderatorViewIPAddress: ModeratorIPAddressInfo | null;
+  currentSpotlight: Spotlight | null;
   RssPostChanges: RssPostChangeInfo;
   AdminMetadata: string | null;
   currentUser: User | null;
@@ -255,9 +255,6 @@ interface Mutation {
   RemoveForumEventSticker: boolean | null;
   unlockPost: Post | null;
   revertPostToRevision: Post | null;
-  sendVertexViewItemEvent: boolean;
-  sendVertexMediaCompleteEvent: boolean;
-  sendVertexViewHomePageEvent: boolean;
   importUrlAsDraftPost: ExternalPostImportData;
   revertTagToRevision: Tag | null;
   autosaveRevision: Revision | null;
@@ -359,6 +356,7 @@ interface Mutation {
   createTag: TagOutput | null;
   updateTag: TagOutput | null;
   createUltraFeedEvent: UltraFeedEventOutput | null;
+  updateUltraFeedEvent: UltraFeedEventOutput | null;
   createUserEAGDetail: UserEAGDetailOutput | null;
   updateUserEAGDetail: UserEAGDetailOutput | null;
   createUserJobAd: UserJobAdOutput | null;
@@ -371,6 +369,11 @@ interface Mutation {
   updateUserTagRel: UserTagRelOutput | null;
   createUser: UserOutput | null;
   updateUser: UserOutput | null;
+}
+
+interface ContentType {
+  type: string;
+  data: ContentTypeData;
 }
 
 interface SelectorInput {
@@ -420,7 +423,7 @@ interface CoauthorStatusInput {
 }
 
 interface SocialPreviewInput {
-  imageId: string;
+  imageId?: string | null;
   text?: string | null;
 }
 
@@ -437,7 +440,7 @@ interface CoauthorStatusOutput {
 }
 
 interface SocialPreviewOutput {
-  imageId: string;
+  imageId: string | null;
   text: string | null;
 }
 
@@ -445,11 +448,6 @@ interface CrosspostOutput {
   isCrosspost: boolean;
   hostedHere: boolean | null;
   foreignPostId: string | null;
-}
-
-interface ContentType {
-  type: string;
-  data: ContentTypeData;
 }
 
 interface TagContributor {
@@ -466,7 +464,7 @@ interface TagContributorsList {
 }
 
 interface UserLikingTag {
-  _id: string;
+  userId: string;
   displayName: string;
 }
 
@@ -880,10 +878,6 @@ interface MyDialoguesResult {
   results: Array<Post>;
 }
 
-interface GoogleVertexPostsResult {
-  results: Array<VertexRecommendedPost>;
-}
-
 interface CrossedKarmaThresholdResult {
   results: Array<Post>;
 }
@@ -1228,6 +1222,11 @@ interface RssPostChangeInfo {
   htmlDiff: string;
 }
 
+interface FeedSpotlightMetaInfo {
+  sources: Array<string>;
+  servedEventId: string;
+}
+
 interface FeedPost {
   _id: string;
   postMetaInfo: any;
@@ -1239,11 +1238,20 @@ interface FeedCommentThread {
   commentMetaInfos: any;
   comments: Array<Comment>;
   post: Post | null;
+  isOnReadPost: boolean | null;
+  postSources: Array<string> | null;
 }
 
 interface FeedSpotlightItem {
   _id: string;
   spotlight: Spotlight | null;
+  post: Post | null;
+  spotlightMetaInfo: FeedSpotlightMetaInfo | null;
+}
+
+interface FeedSubscriptionSuggestions {
+  _id: string;
+  suggestedUsers: Array<User>;
 }
 
 interface UltraFeedQueryResults {
@@ -1258,6 +1266,7 @@ interface UltraFeedEntry {
   feedCommentThread: FeedCommentThread | null;
   feedPost: FeedPost | null;
   feedSpotlight: FeedSpotlightItem | null;
+  feedSubscriptionSuggestions: FeedSubscriptionSuggestions | null;
 }
 
 interface ElicitQuestionPredictionCreator {
@@ -1358,11 +1367,11 @@ interface AutomatedContentEvaluation {
   _id: string;
   createdAt: Date;
   revisionId: string;
-  score: number;
-  sentenceScores: Array<SentenceScore>;
-  aiChoice: string;
-  aiReasoning: string;
-  aiCoT: string;
+  score: number | null;
+  sentenceScores: Array<SentenceScore> | null;
+  aiChoice: string | null;
+  aiReasoning: string | null;
+  aiCoT: string | null;
 }
 
 interface SentenceScore {
@@ -1951,6 +1960,7 @@ interface CommentsProfileCommentsInput {
   minimumKarma?: number | null;
   authorIsUnreviewed?: boolean | null;
   sortBy?: string | null;
+  drafts?: string | null;
   limit?: string | null;
 }
 
@@ -2080,7 +2090,7 @@ interface CommentsTopShortformInput {
   authorIsUnreviewed?: boolean | null;
   before?: string | null;
   after?: string | null;
-  shortformFrontpage?: string | null;
+  shortformFrontpage?: boolean | null;
 }
 
 interface CommentsShortformInput {
@@ -2129,6 +2139,8 @@ interface CommentsNominations2018Input {
   commentIds?: Array<string> | null;
   minimumKarma?: number | null;
   authorIsUnreviewed?: boolean | null;
+  postId?: string | null;
+  sortBy?: CommentSortingMode | null;
 }
 
 interface CommentsNominations2019Input {
@@ -2136,6 +2148,8 @@ interface CommentsNominations2019Input {
   commentIds?: Array<string> | null;
   minimumKarma?: number | null;
   authorIsUnreviewed?: boolean | null;
+  postId?: string | null;
+  sortBy?: CommentSortingMode | null;
 }
 
 interface CommentsReviews2018Input {
@@ -2143,6 +2157,8 @@ interface CommentsReviews2018Input {
   commentIds?: Array<string> | null;
   minimumKarma?: number | null;
   authorIsUnreviewed?: boolean | null;
+  postId?: string | null;
+  sortBy?: CommentSortingMode | null;
 }
 
 interface CommentsReviews2019Input {
@@ -2150,6 +2166,8 @@ interface CommentsReviews2019Input {
   commentIds?: Array<string> | null;
   minimumKarma?: number | null;
   authorIsUnreviewed?: boolean | null;
+  postId?: string | null;
+  sortBy?: CommentSortingMode | null;
 }
 
 interface CommentsReviewsInput {
@@ -4135,6 +4153,7 @@ interface Post {
   generateDraftJargon: boolean | null;
   curationNotices: Array<CurationNotice> | null;
   reviews: Array<Comment> | null;
+  automatedContentEvaluations: AutomatedContentEvaluation | null;
   currentUserVote: string | null;
   currentUserExtendedVote: any;
   voteCount: number;
@@ -5988,7 +6007,6 @@ interface Revision {
   post: Post | null;
   lens: MultiDocument | null;
   summary: MultiDocument | null;
-  automatedContentEvaluations: AutomatedContentEvaluation | null;
   currentUserVote: string | null;
   currentUserExtendedVote: any;
   voteCount: number;
@@ -6873,8 +6891,8 @@ interface UltraFeedEvent {
   _id: string;
   createdAt: Date;
   documentId: string | null;
-  collectionName: string | null;
-  eventType: string | null;
+  collectionName: UltraFeedEventCollectionName | null;
+  eventType: UltraFeedEventEventType | null;
   userId: string | null;
   event: any;
   feedItemId: string | null;
@@ -7215,6 +7233,8 @@ interface User {
   bannedUserIds: Array<string> | null;
   bannedPersonalUserIds: Array<string> | null;
   bookmarkedPostsMetadata: Array<PostMetadataOutput> | null;
+  bookmarksCount: number | null;
+  hasAnyBookmarks: boolean | null;
   bookmarkedPosts: Array<Post> | null;
   hiddenPostsMetadata: Array<PostMetadataOutput> | null;
   hiddenPosts: Array<Post> | null;
@@ -7323,6 +7343,7 @@ interface User {
   shortformFeed: Post | null;
   viewUnreviewedComments: boolean | null;
   partiallyReadSequences: Array<PartiallyReadSequenceItemOutput> | null;
+  hasContinueReading: boolean | null;
   beta: boolean | null;
   reviewVotesQuadratic: boolean | null;
   reviewVotesQuadratic2019: boolean | null;
@@ -7750,6 +7771,8 @@ interface UpdateCommentDataInput {
   legacyData?: any;
   contents?: CreateRevisionDataInput | null;
   postedAt?: Date | null;
+  postId?: string | null;
+  tagId?: string | null;
   subforumStickyPriority?: number | null;
   authorIsUnreviewed?: boolean | null;
   answer?: boolean | null;
@@ -9138,8 +9161,8 @@ interface TagOutput {
 
 interface CreateUltraFeedEventDataInput {
   documentId: string;
-  collectionName: string;
-  eventType: string;
+  collectionName: UltraFeedEventCollectionName;
+  eventType: UltraFeedEventEventType;
   userId?: string | null;
   event?: any;
   feedItemId?: string | null;
@@ -9147,6 +9170,10 @@ interface CreateUltraFeedEventDataInput {
 
 interface CreateUltraFeedEventInput {
   data: CreateUltraFeedEventDataInput;
+}
+
+interface UpdateUltraFeedEventDataInput {
+  event?: any;
 }
 
 interface UltraFeedEventOutput {
@@ -9668,6 +9695,7 @@ interface UserOutput {
 interface GraphQLTypeMap {
   Query: Query;
   Mutation: Mutation;
+  ContentType: ContentType;
   SelectorInput: SelectorInput;
   EmptyViewInput: EmptyViewInput;
   EmailPreview: EmailPreview;
@@ -9680,7 +9708,6 @@ interface GraphQLTypeMap {
   CoauthorStatusOutput: CoauthorStatusOutput;
   SocialPreviewOutput: SocialPreviewOutput;
   CrosspostOutput: CrosspostOutput;
-  ContentType: ContentType;
   TagContributor: TagContributor;
   TagContributorsList: TagContributorsList;
   UserLikingTag: UserLikingTag;
@@ -9746,7 +9773,6 @@ interface GraphQLTypeMap {
   CuratedAndPopularThisWeekResult: CuratedAndPopularThisWeekResult;
   RecentlyActiveDialoguesResult: RecentlyActiveDialoguesResult;
   MyDialoguesResult: MyDialoguesResult;
-  GoogleVertexPostsResult: GoogleVertexPostsResult;
   CrossedKarmaThresholdResult: CrossedKarmaThresholdResult;
   RecombeeLatestPostsResult: RecombeeLatestPostsResult;
   RecombeeHybridPostsResult: RecombeeHybridPostsResult;
@@ -9798,9 +9824,11 @@ interface GraphQLTypeMap {
   ToggleBookmarkInput: ToggleBookmarkInput;
   ToggleBookmarkOutput: ToggleBookmarkOutput;
   RssPostChangeInfo: RssPostChangeInfo;
+  FeedSpotlightMetaInfo: FeedSpotlightMetaInfo;
   FeedPost: FeedPost;
   FeedCommentThread: FeedCommentThread;
   FeedSpotlightItem: FeedSpotlightItem;
+  FeedSubscriptionSuggestions: FeedSubscriptionSuggestions;
   UltraFeedQueryResults: UltraFeedQueryResults;
   UltraFeedEntry: UltraFeedEntry;
   ElicitQuestionPredictionCreator: ElicitQuestionPredictionCreator;
@@ -10630,6 +10658,7 @@ interface GraphQLTypeMap {
   TagOutput: TagOutput;
   CreateUltraFeedEventDataInput: CreateUltraFeedEventDataInput;
   CreateUltraFeedEventInput: CreateUltraFeedEventInput;
+  UpdateUltraFeedEventDataInput: UpdateUltraFeedEventDataInput;
   UltraFeedEventOutput: UltraFeedEventOutput;
   CreateUserEAGDetailDataInput: CreateUserEAGDetailDataInput;
   CreateUserEAGDetailInput: CreateUserEAGDetailInput;

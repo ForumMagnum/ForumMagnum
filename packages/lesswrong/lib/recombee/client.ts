@@ -1,5 +1,5 @@
 import { AddDetailView, AddRating, ApiClient, SetViewPortion } from 'recombee-js-api-client';
-import { captureException } from '@sentry/core';
+import { captureException } from '@sentry/nextjs';
 import { recombeeDatabaseIdSetting, recombeePublicApiTokenSetting } from '../instanceSettings';
 
 export interface RecombeeViewPortionProps {

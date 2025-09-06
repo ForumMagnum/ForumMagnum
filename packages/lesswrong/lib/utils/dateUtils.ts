@@ -2,7 +2,7 @@ import mapValues from "lodash/mapValues";
 import omit from "lodash/omit";
 import pick from "lodash/pick";
 
-export function maybeDate<T extends string | null | undefined>(stringDate: T) {
+export function maybeDate<T extends Date | string | null | undefined>(stringDate: T) {
   if (typeof stringDate !== 'string') {
     return stringDate as Exclude<T, string>;
   }

@@ -2,7 +2,6 @@ import Collections from "../../server/collections/collections/collection";
 import Sequences from "../../server/collections/sequences/collection";
 import { Posts } from "../../server/collections/posts/collection";
 import { asyncForeachSequential } from '../../lib/utils/asyncUtils';
-import * as _ from 'underscore';
 
 async function getCompleteCollection(id: string) {
   const { runQuery }: typeof import('../vulcan-lib/query') = require('../vulcan-lib/query');
@@ -75,7 +74,7 @@ async function getAllCollectionPosts(id: string | null) {
 }
 
 async function updateCollectionSequences(sequences: Array<DbSequence>, collectionSlug: string) {
-  await asyncForeachSequential(_.range(sequences.length), async (i) => {
+  await asyncForeachSequential(Array.from({ length: sequences.length }, (_, i) => i), async (i) => {
     await Sequences.rawUpdateOne(sequences[i]._id, {$set: {
       canonicalCollectionSlug: collectionSlug,
     }});
@@ -83,7 +82,7 @@ async function updateCollectionSequences(sequences: Array<DbSequence>, collectio
 }
 
 async function updateCollectionPosts(posts: Array<DbPost>, collectionSlug: string) {
-  await asyncForeachSequential(_.range(posts.length), async (i) => {
+  await asyncForeachSequential(Array.from({ length: posts.length }, (_, i) => i), async (i) => {
     const currentPost = posts[i]
 
     let prevPost = {slug:""}

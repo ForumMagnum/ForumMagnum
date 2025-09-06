@@ -1,7 +1,9 @@
+"use client";
+
 import React, { FC, useState, useEffect, useCallback, ChangeEvent } from "react";
 import { registerComponent } from "../../lib/vulcan-lib/components";
 import { gql } from "@/lib/generated/gql-codegen";
-import { useMutation } from "@apollo/client";
+import { useMutation } from "@apollo/client/react";
 import { useQuery } from "@/lib/crud/useQuery";
 import TextField from "@/lib/vendor/@material-ui/core/src/TextField";
 import Button from "@/lib/vendor/@material-ui/core/src/Button";

@@ -120,7 +120,7 @@ interface GetContributorsListOptions {
 }
 
 function contributionStatsNeedInvalidation(contributionStats: ContributorStatsMap): boolean {
-  if (!isLWorAF) return false;
+  if (!isLWorAF()) return false;
 
   return Object.values(contributionStats).some(stats => stats?.currentAttributionCharCount === undefined);
 }

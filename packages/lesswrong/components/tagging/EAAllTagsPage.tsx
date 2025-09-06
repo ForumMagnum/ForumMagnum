@@ -9,8 +9,7 @@ import { Link } from '../../lib/reactRouterWrapper';
 import AddBoxIcon from '@/lib/vendor/@material-ui/icons/src/AddBox';
 import { useDialog } from '../common/withDialog';
 import { taggingNameCapitalSetting, taggingNamePluralCapitalSetting, taggingNamePluralSetting } from '../../lib/instanceSettings';
-import { tagCreateUrl, tagUserHasSufficientKarma } from '../../lib/collections/tags/helpers';
-import { isFriendlyUI } from '@/themes/forumTheme';
+import { getTagCreateUrl, tagUserHasSufficientKarma } from '../../lib/collections/tags/helpers';
 import LoginPopup from "../users/LoginPopup";
 import AllTagsAlphabetical from "./AllTagsAlphabetical";
 import SectionButton from "../common/SectionButton";
@@ -61,7 +60,7 @@ const styles = (theme: ThemeType) => ({
         height: 'inherit !important'
       }
     },
-    ...(isFriendlyUI && {
+    ...(theme.isFriendlyUI && {
       background: theme.palette.grey[0],
       marginTop: 'unset',
       marginBottom: 'unset',
@@ -107,7 +106,7 @@ const EAAllTagsPage = ({classes}: {
           <SectionTitle title={portalTitle}>
             <SectionButton>
               {currentUser && tagUserHasSufficientKarma(currentUser, "new") && <Link
-                to={tagCreateUrl}
+                to={getTagCreateUrl()}
               >
                 <AddBoxIcon className={classes.addTagButton}/>
                 New {taggingNameCapitalSetting.get()}

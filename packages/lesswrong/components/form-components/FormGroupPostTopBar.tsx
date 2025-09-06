@@ -2,9 +2,8 @@ import React from 'react'
 import { registerComponent } from '../../lib/vulcan-lib/components';
 import { FormGroupLayoutProps } from './FormGroupLayout';
 import { useLocation, useNavigate } from '../../lib/routeUtil';
-import { hasGoogleDocImportSetting } from '../../lib/publicSettings';
+import { hasGoogleDocImportSetting, isEAForum, isLW, isLWorAF } from '@/lib/instanceSettings';
 import { defineStyles, useStyles } from '../hooks/useStyles';
-import { isEAForum, isLW, isLWorAF } from '@/lib/instanceSettings';
 import { QuestionIcon } from '../icons/questionIcon';
 import { tagGetUrl } from '@/lib/collections/tags/helpers';
 import { Link } from "../../lib/reactRouterWrapper";
@@ -91,7 +90,7 @@ const LinkToEditorGuideButton = () => {
   const classes = useStyles(styles);
   const navigate = useNavigate();
 
-  if (isLWorAF) {
+  if (isLWorAF()) {
     return (
       <LWTooltip title='The Editor Guide covers sharing drafts, co-authoring, crossposting, LaTeX, footnotes, internal linking, and more!'>
         <EAButton

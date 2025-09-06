@@ -4,13 +4,12 @@ import { useUpdateCurrentUser } from '../hooks/useUpdateCurrentUser';
 import classNames from 'classnames'
 import Checkbox from '@/lib/vendor/@material-ui/core/src/Checkbox';
 import { QueryLink } from '../../lib/reactRouterWrapper'
-import * as _ from 'underscore';
 import { useCurrentUser } from '../common/withUser';
 import { DEFAULT_LOW_KARMA_THRESHOLD, MAX_LOW_KARMA_THRESHOLD } from '../../lib/collections/posts/views'
 
-import { SORT_ORDER_OPTIONS, SettingsOption } from '../../lib/collections/posts/dropdownOptions';
+import { getSortOrderOptions, SettingsOption } from '../../lib/collections/posts/dropdownOptions';
 import { isEAForum } from '../../lib/instanceSettings';
-import { isFriendlyUI, preferredHeadingCase } from '../../themes/forumTheme';
+import { preferredHeadingCase } from '../../themes/forumTheme';
 import { ForumOptions, forumSelect } from '../../lib/forumTypeUtils';
 import pick from 'lodash/pick';
 import { timeframeLabels, timeframeSettings as defaultTimeframes, TimeframeSettingType } from "./timeframeUtils";
@@ -97,18 +96,18 @@ const FILTERS_ALL: ForumOptions<Partial<Record<Filters, SettingsOption>>> = {
   }
 }
 
-const FILTERS = forumSelect(FILTERS_ALL)
+const getFilters = () => forumSelect(FILTERS_ALL)
 
 const styles = (theme: ThemeType) => ({
   root: {
     display: "flex",
     alignItems: "flex-start",
     justifyContent: "space-between",
-    marginTop: isFriendlyUI ? 10 : undefined,
+    marginTop: theme.isFriendlyUI ? 10 : undefined,
     marginBottom: theme.spacing.unit,
     flexWrap: "wrap",
     background: theme.palette.panelBackground.default,
-    padding: isFriendlyUI ? "16px 24px 16px 24px" : "12px 24px 8px 12px",
+    padding: theme.isFriendlyUI ? "16px 24px 16px 24px" : "12px 24px 8px 12px",
     borderRadius: theme.borderRadius.default,
     [theme.breakpoints.down('xs')]: {
       flexDirection: "column",
@@ -121,7 +120,7 @@ const styles = (theme: ThemeType) => ({
   },
   checkbox: {
     padding: "1px 12px 0 0",
-    paddingRight: isFriendlyUI ? 6 : undefined,
+    paddingRight: theme.isFriendlyUI ? 6 : undefined,
   },
   checkboxGroup: {
     display: "flex",
@@ -145,7 +144,7 @@ const USER_SETTING_NAMES = {
 
 export const postListSettingUrlParameterNames = Object.keys(USER_SETTING_NAMES);
 
-const PostsListSettings = ({persistentSettings, hidden, currentTimeframe, currentSorting, currentFilter, currentShowLowKarma, currentIncludeEvents, currentHideCommunity = false, timeframes=defaultTimeframes, sortings=SORT_ORDER_OPTIONS, showTimeframe, classes}: {
+const PostsListSettings = ({persistentSettings, hidden, currentTimeframe, currentSorting, currentFilter, currentShowLowKarma, currentIncludeEvents, currentHideCommunity = false, timeframes=defaultTimeframes, sortings=getSortOrderOptions(), showTimeframe, classes}: {
   persistentSettings?: any,
   hidden: boolean,
   currentTimeframe?: any,
@@ -193,7 +192,7 @@ const PostsListSettings = ({persistentSettings, hidden, currentTimeframe, curren
         <SettingsColumn
           type={'filter'}
           title={'Filtered by:'}
-          options={FILTERS}
+          options={getFilters()}
           currentOption={currentFilter}
           setSetting={setSetting}
           nofollow
@@ -244,7 +243,7 @@ const PostsListSettings = ({persistentSettings, hidden, currentTimeframe, curren
             </QueryLink>
           </TooltipSpan>
 
-          {isEAForum && <TooltipSpan
+          {isEAForum() && <TooltipSpan
             title={<div>
               <div>By default, Community posts are shown.</div>
               <div>Toggle to hide them.</div>

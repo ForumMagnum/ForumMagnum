@@ -5,7 +5,7 @@ import { ReviewYear } from '../../lib/reviewUtils';
 import { TupleSet, UnionOf } from '../../lib/utils/typeGuardUtils';
 import sortBy from 'lodash/sortBy';
 import { Typography } from "../common/Typography";
-import CommentsNodeInner from "../comments/CommentsNode";
+import CommentsNode from "../comments/CommentsNode";
 import SectionTitle from "../common/SectionTitle";
 import ReviewsLeaderboard from "./ReviewsLeaderboard";
 import Loading from "../vulcan-core/Loading";
@@ -77,7 +77,7 @@ export const ReviewsList = ({classes, title, defaultSort, reviewYear}: {
       {(loading) && <Loading />}
       {sortedReviews.map(comment =>
         <div key={comment._id} id={comment._id}>
-          <CommentsNodeInner
+          <CommentsNode
             treeOptions={{
               condensed: false,
               post: comment.post ?? undefined,

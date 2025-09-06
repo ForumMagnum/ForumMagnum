@@ -7,14 +7,13 @@ import { useHover } from '../common/withHover'
 import ClearIcon from '@/lib/vendor/@material-ui/icons/src/Clear';
 import DoneIcon from '@/lib/vendor/@material-ui/icons/src/Done';
 import withErrorBoundary from '../common/withErrorBoundary'
-import * as _ from 'underscore';
 import SunshineListItem from "./SunshineListItem";
 import SidebarHoverOver from "./SidebarHoverOver";
 import { Typography } from "../common/Typography";
 import MetaInfo from "../common/MetaInfo";
 import SidebarActionMenu from "./SidebarActionMenu";
 import SidebarAction from "./SidebarAction";
-import { useMutation } from "@apollo/client";
+import { useMutation } from "@apollo/client/react";
 import { gql } from "@/lib/generated/gql-codegen";
 
 const SunshineUsersListUpdateMutation = gql(`
@@ -42,7 +41,7 @@ const AFSuggestUsersItem = ({user}: {
         selector: { _id: user._id },
         data: {
           reviewForAlignmentForumUserId: currentUser!._id,
-          groups: _.unique([...(user.groups || []), 'alignmentForum'])
+          groups: [...new Set([...(user.groups || []), 'alignmentForum'])]
         }
       }
     })

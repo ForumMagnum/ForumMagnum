@@ -2,7 +2,7 @@ import React, { useEffect } from "react";
 import { registerComponent } from "@/lib/vulcan-lib/components";
 import { useForumWrappedContext } from "./hooks";
 import { getWrappedVideo } from "./videos";
-import { Helmet } from "@/lib/utils/componentsWithChildren";
+import { Helmet } from "../../common/Helmet";
 import range from "lodash/range";
 import classNames from "classnames";
 import ForumIcon from "../../common/ForumIcon";
@@ -107,7 +107,7 @@ const WrappedApp = ({classes}: {
   const personalityVideo = getWrappedVideo(personality);
   return (
     <div className={classes.root}>
-      <Helmet>
+      <Helmet name="prefetchVideo">
         <link rel="prefetch" href={personalityVideo.frame} crossOrigin="anonymous" />
       </Helmet>
       <div className={classes.app}>

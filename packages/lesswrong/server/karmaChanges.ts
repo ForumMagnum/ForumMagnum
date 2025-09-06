@@ -185,7 +185,7 @@ export const getKarmaChanges = async ({user, startDate, endDate, nextBatchDate=n
     showNegative: showNegativeKarma,
   };
 
-  if (isFriendlyUI) {
+  if (isFriendlyUI()) {
     const args = {
       ...queryArgs,
       ...limitDateRange({...queryArgs, maxDays: 40}),

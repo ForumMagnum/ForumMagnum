@@ -1,21 +1,26 @@
 import React, { useContext } from 'react';
-import { registerComponent } from '../../lib/vulcan-lib/components';
-import { useCurrentUser } from '../common/withUser';
+import { useGetCurrentUser } from '../common/withUser';
 import { useDialog } from '../common/withDialog';
 import { useTracking } from '../../lib/analyticsEvents';
 import { recombeeApi } from '../../lib/recombee/client';
 import { RecombeeRecommendationsContext } from '../recommendations/RecombeeRecommendationsContextWrapper';
-import { recombeeEnabledSetting } from '../../lib/publicSettings';
+import { recombeeEnabledSetting } from '@/lib/instanceSettings';
 import LoginPopup from "../users/LoginPopup";
-import VoteButton from "./VoteButton";
+import { VoteButtonAnimation } from "./VoteButton";
 import VoteArrowIcon from "./VoteArrowIcon";
 
-export interface OverallVoteButtonProps<T extends VoteableTypeClient> {
+const OverallVoteButton = <T extends VoteableTypeClient>({
+  vote, collectionName, document, upOrDown,
+  color = "secondary",
+  orientation = "up",
+  enabled,
+  solidArrow,
+  largeArrow,
+}: {
   vote?: (props: {
     document: T,
     voteType: string|null,
     extendedVote?: any,
-    currentUser: UsersCurrent,
   }) => void,
   collectionName: CollectionNameString,
   document: T,
@@ -25,59 +30,51 @@ export interface OverallVoteButtonProps<T extends VoteableTypeClient> {
   enabled: boolean,
   solidArrow?: boolean,
   largeArrow?: boolean
-}
-
-const OverallVoteButton = <T extends VoteableTypeClient>({
-  vote, collectionName, document, upOrDown,
-  color = "secondary",
-  orientation = "up",
-  enabled,
-  solidArrow,
-  largeArrow,
-}: OverallVoteButtonProps<T>) => {
-  const currentUser = useCurrentUser();
+}) => {
+  const getCurrentUser = useGetCurrentUser();
   const { openDialog } = useDialog();
   const { captureEvent } = useTracking();
   const recombeeRecommendationsContext = useContext(RecombeeRecommendationsContext);
 
   const wrappedVote = (strength: "big"|"small"|"neutral") => {
     const voteType = strength === 'neutral' ? 'neutral' : strength+upOrDown;
+    const currentUserId = getCurrentUser()?._id;
     
-    if(!currentUser){
+    if(!currentUserId){
       openDialog({
         name: "LoginPopup",
         contents: ({onClose}) => <LoginPopup onClose={onClose}/>
       });
     } else {
-      vote?.({document, voteType: voteType, extendedVote: document?.currentUserExtendedVote, currentUser});
+      vote?.({document, voteType: voteType, extendedVote: document?.currentUserExtendedVote});
       captureEvent("vote", {collectionName});
       if (recombeeEnabledSetting.get() && collectionName === "Posts" && recombeeRecommendationsContext?.postId === document._id) {
-        void recombeeApi.createRating(document._id, currentUser._id, voteType, recombeeRecommendationsContext.recommId);
+        void recombeeApi.createRating(document._id, currentUserId, voteType, recombeeRecommendationsContext.recommId);
       }
     }
   }
 
-  return <VoteButton
-    VoteIconComponent={VoteArrowIcon}
+  const currentStrength = (document.currentUserVote === "big"+upOrDown)
+    ? "big"
+    : (document.currentUserVote === "small"+upOrDown)
+      ? "small"
+      : "neutral";
+
+  return <VoteButtonAnimation
     vote={wrappedVote}
-    currentStrength={
-      (document.currentUserVote === "big"+upOrDown)
-        ? "big"
-        : (
-        (document.currentUserVote === "small"+upOrDown)
-          ? "small"
-          : "neutral"
-      )
-    }
-    upOrDown={upOrDown}
-    color={color}
-    orientation={orientation}
-    solidArrow={solidArrow}
-    largeArrow={largeArrow}
-    enabled={enabled}
-  />
+    currentStrength={currentStrength}
+  >
+    {animation => <VoteArrowIcon
+      animation={animation}
+      color={color}
+      orientation={orientation}
+      solidArrow={solidArrow}
+      largeArrow={largeArrow}
+      alwaysColored={false}
+    />}
+  </VoteButtonAnimation>
 }
 
-export default registerComponent('OverallVoteButton', OverallVoteButton);
+export default OverallVoteButton;
 
 

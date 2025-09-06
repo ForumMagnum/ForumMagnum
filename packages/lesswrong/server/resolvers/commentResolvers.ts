@@ -25,7 +25,7 @@ const { Query: popularCommentsQuery, typeDefs: popularCommentsTypeDefs } = creat
     context: ResolverContext,
     limit: number,
   ): Promise<DbComment[]> => {
-    const recencyFactor = isLWorAF ? 175_000 : 250_000;
+    const recencyFactor = isLWorAF() ? 175_000 : 250_000;
     return context.repos.comments.getPopularComments({limit, recencyFactor});
   },
   cacheMaxAgeMs: 300000, // 5 mins

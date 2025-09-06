@@ -106,7 +106,7 @@ export const CoauthorsListEditor = ({ field, post, label }: CoauthorsListEditorP
           className={classes.list}
         />
       </div>
-      {isEAForum && <div className={classes.checkboxContainer}>
+      {isEAForum() && <div className={classes.checkboxContainer}>
         <LWTooltip
           title='If this box is left unchecked then these users will be asked if they want to be co-authors. If you click Publish with pending co-authors, publishing will be delayed for up to 24 hours to allow for co-authors to give permission.'
           placement='left'

@@ -75,4 +75,4 @@ export const MODERATOR_ACTION_TYPES = {
 export const MAX_ALLOWED_CONTACTS_BEFORE_FLAG = 2;
 
 /** The max # of users an unapproved account is allowed to DM */
-export const MAX_ALLOWED_CONTACTS_BEFORE_BLOCK = forumSelect({ EAForum: 4, default: 9 });
+export const getMaxAllowedContactsBeforeBlock = () => forumSelect({ EAForum: 4, default: 9 });

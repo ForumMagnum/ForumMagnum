@@ -1,16 +1,17 @@
 import React, { useState } from 'react';
 import { useTracking } from "../../lib/analyticsEvents";
 import { isEAForum } from '../../lib/instanceSettings';
-import { isFriendlyUI } from '../../themes/forumTheme';
 import { defineStyles, useStyles } from '../hooks/useStyles';
 import TabNavigationSubItem from "./TabNavigationMenu/TabNavigationSubItem";
-import SubscribeDialog from "./SubscribeDialog";
+
+import dynamic from 'next/dynamic';
+const SubscribeDialog = dynamic(() => import('./SubscribeDialog'), { ssr: false });
 
 const styles = defineStyles('SubscribeWidget', (theme: ThemeType) => ({
   root: {
     "&:hover": {
-      opacity: isFriendlyUI ? 1 : undefined,
-      color: isFriendlyUI ? theme.palette.grey[800] : undefined,
+      opacity: theme.isFriendlyUI ? 1 : undefined,
+      color: theme.isFriendlyUI ? theme.palette.grey[800] : undefined,
     },
   },
 }));
@@ -32,12 +33,12 @@ export const SubscribeWidget = () => {
   return (
     <div>
       <a onClick={() => openDialog("rss")} className={classes.root}>
-        <TabNavigationSubItem>{isEAForum ? "RSS" : "Subscribe (RSS/Email)"}</TabNavigationSubItem>
+        <TabNavigationSubItem>{isEAForum() ? "RSS" : "Subscribe (RSS/Email)"}</TabNavigationSubItem>
       </a>
       { dialogOpen && <SubscribeDialog
         open={true}
         onClose={() => setDialogOpen(false)}
-        view={isEAForum ? "frontpage" : "curated"}
+        view={isEAForum() ? "frontpage" : "curated"}
         method={method} /> }
     </div>
   )

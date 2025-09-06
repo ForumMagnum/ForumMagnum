@@ -1,14 +1,13 @@
 import React from 'react';
 import { registerComponent } from '../../lib/vulcan-lib/components';
 import { useUpdateCurrentUser } from '../hooks/useUpdateCurrentUser';
-import { ThemeMetadata, themeMetadata, getForumType, AbstractThemeOptions } from '../../themes/themeNames';
+import { ThemeMetadata, getThemeMetadata, getForumType, AbstractThemeOptions } from '../../themes/themeNames';
 import { ForumTypeString, allForumTypes, forumTypeSetting, isEAForum, isLWorAF } from '../../lib/instanceSettings';
-import { useThemeOptions, useSetTheme } from './useTheme';
+import { ThemeContext } from './useTheme';
 import { useCurrentUser } from '../common/withUser';
 import { isMobile } from '../../lib/utils/isMobile'
 import { Paper }from '@/components/widgets/Paper';
 import Info from '@/lib/vendor/@material-ui/icons/src/Info';
-import { isFriendlyUI } from '../../themes/forumTheme';
 import LWTooltip from "../common/LWTooltip";
 import { Typography } from "../common/Typography";
 import DropdownMenu from "../dropdowns/DropdownMenu";
@@ -16,7 +15,7 @@ import DropdownItem from "../dropdowns/DropdownItem";
 import DropdownDivider from "../dropdowns/DropdownDivider";
 import ForumIcon from "../common/ForumIcon";
 
-const styles = (_theme: ThemeType) => ({
+const styles = (theme: ThemeType) => ({
   check: {
     width: 20,
     marginRight: 8,
@@ -30,7 +29,7 @@ const styles = (_theme: ThemeType) => ({
   },
   infoIcon: {
     fontSize: 14,
-    marginLeft: isFriendlyUI ? 6 : 0,
+    marginLeft: theme.isFriendlyUI ? 6 : 0,
   },
 })
 
@@ -38,15 +37,14 @@ const ThemePickerMenu = ({children, classes}: {
   children: React.ReactNode,
   classes: ClassesType<typeof styles>,
 }) => {
-  const currentThemeOptions = useThemeOptions();
-  const setTheme = useSetTheme();
+  const themeContext = React.useContext(ThemeContext)!;
+  const currentThemeOptions = themeContext!.abstractThemeOptions;
   const currentUser = useCurrentUser();
   const updateCurrentUser = useUpdateCurrentUser();
-
   const selectedForumTheme = getForumType(currentThemeOptions);
 
   const persistUserTheme = (newThemeOptions: AbstractThemeOptions) => {
-    if (isEAForum && currentUser) {
+    if (isEAForum() && currentUser) {
       void updateCurrentUser({
         theme: newThemeOptions as DbUser['theme'],
       });
@@ -66,7 +64,7 @@ const ThemePickerMenu = ({children, classes}: {
     dontCloseMenu(event);
 
     const newThemeOptions = {...currentThemeOptions, name};
-    setTheme(newThemeOptions);
+    themeContext.setThemeOptions(newThemeOptions);
     persistUserTheme(newThemeOptions);
   }
 
@@ -80,15 +78,15 @@ const ThemePickerMenu = ({children, classes}: {
         [forumTypeSetting.get()]: forumType,
       },
     };
-    setTheme(newThemeOptions);
+    themeContext.setThemeOptions(newThemeOptions);
     persistUserTheme(newThemeOptions);
   }
   const submenu = (
     <Paper>
       <DropdownMenu>
-        {isLWorAF &&
+        {isLWorAF() &&
           <>
-            {themeMetadata.map((themeMetadata: ThemeMetadata) =>
+            {getThemeMetadata().map((themeMetadata: ThemeMetadata) =>
               <DropdownItem
                 key={themeMetadata.name}
                 title={themeMetadata.label}
@@ -145,7 +143,6 @@ const ThemePickerMenu = ({children, classes}: {
     {children}
   </LWTooltip>
 }
-
 
 export default registerComponent('ThemePickerMenu', ThemePickerMenu, {styles});
 

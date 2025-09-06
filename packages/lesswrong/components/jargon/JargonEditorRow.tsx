@@ -7,7 +7,7 @@ import { JargonTermForm } from './JargonTermForm';
 import JargonTooltip from "./JargonTooltip";
 import { ContentItemBody } from "../contents/ContentItemBody";
 import LWTooltip from "../common/LWTooltip";
-import { useMutation } from "@apollo/client";
+import { useMutation } from "@apollo/client/react";
 import { gql } from "@/lib/generated/gql-codegen";
 
 const JargonTermsUpdateMutation = gql(`

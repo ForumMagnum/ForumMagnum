@@ -1,3 +1,5 @@
+"use client";
+
 import React, { useState } from "react";
 import { NetworkStatus } from "@apollo/client";
 import { useQuery } from '@/lib/crud/useQuery';

@@ -1,4 +1,4 @@
-import { requireCssVar } from "./cssVars";
+import { isIfAnyoneBuildsItFrontPage } from '@/components/seasonal/styles';
 import { isFriendlyUI } from "./forumTheme";
 
 const hideSpoilers = (theme: ThemeType) => ({
@@ -20,9 +20,6 @@ const spoilerStyles = (theme: ThemeType) => ({
     padding: 8,
     pointerEvents: 'auto',
     minHeight: theme.typography.commentStyle.fontSize,
-    '& .public-DraftStyleDefault-block': {
-      margin: 0,
-    },
     '&:not(:hover)': { // using ':not(:hover)' means we don't need to manually reset elements with special colors or backgrounds, instead they just automatically stay the same if we're not hovering
       ...hideSpoilers(theme),
     }
@@ -191,7 +188,7 @@ const tableStyles = (theme: ThemeType) => ({
   height: "100%",
   textAlign: "left",
   width: '100%',
-  ...(isFriendlyUI && {
+  ...(theme.isFriendlyUI && {
     "& *": {
       fontFamily: theme.palette.fonts.sansSerifStack,
       fontSize: 14,
@@ -214,7 +211,7 @@ const tableCellStyles = (theme: ThemeType) => ({
   '& p': {
     marginTop: '0.5em',
     marginBottom: '0.5em',
-    ...(isFriendlyUI && {
+    ...(theme.isFriendlyUI && {
       marginLeft: 2,
       marginRight: 2,
       lineHeight: "1.4em",
@@ -272,9 +269,9 @@ const collapsibleSectionStyles = (theme: ThemeType) => ({
     // This conflicts with a CkEditor style on `.ck .ck-editor__nested-editable`
     // that tries to turn border off and on to indicate selection. Use
     // !important to ensure it's visible.
-    border: isFriendlyUI ? undefined : theme.palette.border.normal+' !important',
+    border: theme.isFriendlyUI ? undefined : theme.palette.border.normal+' !important',
     borderRadius: 8,
-    marginTop: isFriendlyUI ? 0 : 8,
+    marginTop: theme.isFriendlyUI ? 0 : 8,
     marginBottom: 8,
   },
   '& .detailsBlockTitle': {
@@ -284,7 +281,7 @@ const collapsibleSectionStyles = (theme: ThemeType) => ({
     // give background !important to take precedence over CkEditor making it
     // pure-white when the cursor is inside it, which would make the
     // title-vs-contents distinction invisible
-    background: isFriendlyUI ? undefined : theme.palette.panelBackground.darken05+'!important',
+    background: theme.isFriendlyUI ? undefined : theme.palette.panelBackground.darken05+'!important',
     
     "&>*": {
       display: "inline",
@@ -298,7 +295,7 @@ const collapsibleSectionStyles = (theme: ThemeType) => ({
     cursor: "pointer",
   },
   '& .detailsBlockContent': {
-    padding: isFriendlyUI ? "0 8px 8px 20px" : 8,
+    padding: theme.isFriendlyUI ? "0 8px 8px 20px" : 8,
   },
   // Cancel out a global paragraph style that adds bottom margin to paragraphs
   // in the editor for some reason, which would create a page/editor mismatch
@@ -326,11 +323,11 @@ const collapsibleSectionStyles = (theme: ThemeType) => ({
   // the editor it would be a <summary> tag)
   '& div.detailsBlockTitle': {
     position: "relative",
-    paddingLeft: isFriendlyUI ? 20 : 24,
+    paddingLeft: theme.isFriendlyUI ? 20 : 24,
     fontFamily: theme.palette.fonts.sansSerifStack,
-    fontSize: isFriendlyUI ? "20.8px" : undefined,
-    lineHeight: isFriendlyUI ? "1.25em" : undefined,
-    fontWeight: isFriendlyUI ? 600 : undefined,
+    fontSize: theme.isFriendlyUI ? "20.8px" : undefined,
+    lineHeight: theme.isFriendlyUI ? "1.25em" : undefined,
+    fontWeight: theme.isFriendlyUI ? 600 : undefined,
   },
 
   // The 'div' part of this selector makes it specific to the editor (outside
@@ -338,10 +335,10 @@ const collapsibleSectionStyles = (theme: ThemeType) => ({
   '& div.detailsBlockTitle::before': {
     content: '"▼"',
     cursor: "pointer",
-    fontSize: isFriendlyUI ? 12 : 14,
+    fontSize: theme.isFriendlyUI ? 12 : 14,
     paddingRight: 4,
     position: "absolute",
-    left: isFriendlyUI ? 0 : 8,
+    left: theme.isFriendlyUI ? 0 : 8,
   },
   '& .detailsBlock.closed div.detailsBlockTitle::before': {
     content: '"▶"',
@@ -359,23 +356,6 @@ const conditionallyVisibleBlockStyles = (theme: ThemeType) => ({
   },
 });
 
-// Calling requireCssVar results in the variable being defined in the stylesheet
-// (e.g. --palette-fonts-sansSerifStack). These are required for use in styles that
-// are within the ckeditor bundle (in ckEditor/src/ckeditor5-cta-button/ctaform.css
-// and ckEditor/src/ckeditor5-poll/poll.css)
-requireCssVar("palette", "fonts", "sansSerifStack")
-requireCssVar("borderRadius", "default")
-requireCssVar("borderRadius", "small")
-requireCssVar("palette", "buttons", "alwaysPrimary")
-requireCssVar("palette", "text", "alwaysWhite")
-requireCssVar("palette", "primary", "dark")
-requireCssVar("palette", "panelBackground", "default")
-requireCssVar("palette", "error", "main")
-requireCssVar("palette", "grey", 200)
-requireCssVar("palette", "grey", 300)
-requireCssVar("palette", "grey", 600)
-requireCssVar("palette", "grey", 1000)
-
 const ctaButtonStyles = (theme: ThemeType) => ({
   '& .ck-cta-button': {
     display: 'block',
@@ -388,7 +368,7 @@ const ctaButtonStyles = (theme: ThemeType) => ({
     lineHeight: '20px',
     textTransform: 'none',
     padding: '12px 16px',
-    borderRadius: isFriendlyUI ? theme.borderRadius.default : theme.borderRadius.small,
+    borderRadius: theme.isFriendlyUI ? theme.borderRadius.default : theme.borderRadius.small,
     boxShadow: 'none',
     backgroundColor: theme.palette.buttons.alwaysPrimary,
     color: theme.palette.text.alwaysWhite,
@@ -504,7 +484,7 @@ const baseBodyStyles = (theme: ThemeType) => ({
   '& a:visited, & a.visited': {
     color: theme.palette.link.visited
   },
-  '& a:visited:hover, & a.visited:hover, & a:visited:active, & a.visited:active': isFriendlyUI ? {
+  '& a:visited:hover, & a.visited:hover, & a:visited:active, & a.visited:active': theme.isFriendlyUI ? {
     color: theme.palette.link.visitedHover,
   } : {},
   '& table': {
@@ -574,7 +554,7 @@ export const postBodyStyles = (theme: ThemeType) => {
       marginTop: 40,
       fontSize: '0.9em',
       paddingTop: 40,
-      borderTop: isFriendlyUI ? theme.palette.border.grey300 : theme.palette.border.normal,
+      borderTop: theme.isFriendlyUI ? theme.palette.border.grey300 : theme.palette.border.normal,
       '& sup': {
         marginRight: 10,
       },
@@ -620,10 +600,13 @@ export const commentBodyStyles = (theme: ThemeType, dontIncludePointerEvents?: b
     marginTop: ".5em",
     marginBottom: ".25em",
     wordBreak: "break-word",
+    ...isIfAnyoneBuildsItFrontPage({
+      color: theme.palette.text.bannerAdOverlay,
+    }),
     ...theme.typography.body2,
     ...theme.typography.commentStyle,
 
-    '& .footnotes': isFriendlyUI ? {} : {
+    '& .footnotes': theme.isFriendlyUI ? {} : {
       marginTop: 0,
       paddingTop: 8,
       paddingLeft: 16,
@@ -633,11 +616,17 @@ export const commentBodyStyles = (theme: ThemeType, dontIncludePointerEvents?: b
     '& blockquote': {
       ...theme.typography.commentBlockquote,
       ...theme.typography.body2,
-      ...theme.typography.commentStyle
+      ...theme.typography.commentStyle,
+      ...isIfAnyoneBuildsItFrontPage({
+        color: theme.palette.text.bannerAdOverlay,
+      }),
     },
     '& li': {
       ...theme.typography.body2,
-      ...theme.typography.commentStyle
+      ...theme.typography.commentStyle,
+      ...isIfAnyoneBuildsItFrontPage({
+        color: theme.palette.text.bannerAdOverlay,
+      }),
     },
     '& h1, & h2, & h3': {
       ...theme.typography.commentHeader,
@@ -671,7 +660,7 @@ export const emailBodyStyles = baseBodyStyles
 export const smallPostStyles = (theme: ThemeType) => {
   return {
     ...theme.typography.body2,
-    fontSize: isFriendlyUI ? 14.3 : 16.64,
+    fontSize: theme.isFriendlyUI ? 14.3 : 16.64,
     lineHeight: "22.75px",
     ...theme.typography.postStyle,
     '& blockquote': {
@@ -684,7 +673,7 @@ export const smallPostStyles = (theme: ThemeType) => {
     '& li': {
       ...theme.typography.body2,
       ...theme.typography.postStyle,
-      fontSize: isFriendlyUI ? 14.3 : 16.64,
+      fontSize: theme.isFriendlyUI ? 14.3 : 16.64,
       lineHeight: "23.4px",
     }
   };
@@ -707,20 +696,12 @@ export const pBodyStyle = (_theme: ThemeType) => ({
 export const ckEditorStyles = (theme: ThemeType) => {
   return {
     '& .ck': {
-      '& code .public-DraftStyleDefault-block': {
-        marginTop: 0,
-        marginBottom: 0,  
-      },
       '& blockquote': {
         fontStyle: "unset",
         ...theme.typography.blockquote,
         '& p': {
           ...pBodyStyle(theme),
         },
-        '& .public-DraftStyleDefault-block': {
-          marginTop: 0,
-          marginBottom: 0,
-        }
       },
       '--ck-spacing-standard': `${theme.spacing.unit}px`,
       '&.ck-content': {
@@ -763,6 +744,9 @@ export const ckEditorStyles = (theme: ThemeType) => {
         },
         '& ol > li > ol > li > ol': {
           listStyle: 'lower-roman !important',
+        },
+        '& .footnote-reference': {
+          scrollMarginTop: '100px',
         },
       },
       '& .ck-placeholder:before': {
@@ -834,18 +818,6 @@ export const ckEditorStyles = (theme: ThemeType) => {
 }
 
 export const editorStyles = (theme: ThemeType) => ({
-    '& .public-DraftStyleDefault-block': {
-      marginTop: '1em',
-      marginBottom: '1em',  
-    },
-    '& code .public-DraftStyleDefault-block': {
-      marginTop: 0,
-      marginBottom: 0,  
-    },
-    '& blockquote .public-DraftStyleDefault-block': {
-      marginTop: 0,
-      marginBottom: 0,
-    },
     // Using '*' selectors is a bit dangerous, as is using '!important'
     // This is necessary to catch spoiler-selectors on 'code' elemenents, as implemented in draft-js, 
     // which involved nested spans with manually set style attributes, which can't be overwritten except via 'important'

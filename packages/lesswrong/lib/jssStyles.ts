@@ -1,4 +1,3 @@
-import { StylesContextType } from "@/components/hooks/useStyles";
 import type { StyleDefinition } from "@/server/styleGeneration";
 import { create as jssCreate, SheetsRegistry } from "jss";
 import jssCamelCase from "jss-plugin-camel-case";
@@ -28,18 +27,6 @@ export function getJss() {
   });
 }
 
-export function createStylesContext(theme: ThemeType): StylesContextType {
-  return {
-    theme,
-    mountedStyles: new Map<string, {
-      refcount: number;
-      styleDefinition: StyleDefinition<any>;
-      styleNode?: HTMLStyleElement;
-    }>()
-  };
-}
-
-
 /**
  * Takes a detached style element, and inserts it into the DOM as a child of
  * the `head` element, at a position determined by the precedence-affecting
@@ -54,7 +41,9 @@ export function createStylesContext(theme: ThemeType): StylesContextType {
  * attribute.
  */
 function insertStyleNodeAtCorrectPosition(styleNode: HTMLStyleElement, name: string, priority: number) {
-  const head = document.head;
+  // TODO: maybe switch back to only scanning the head for the styles with data-priority
+  // if I can figure out how to get the insertion-point tags into the head without them being duplicated
+  // const head = document.head;
   const startNode = document.getElementById('jss-insertion-start');
   const endNode = document.getElementById('jss-insertion-end');
 
@@ -65,7 +54,7 @@ function insertStyleNodeAtCorrectPosition(styleNode: HTMLStyleElement, name: str
   styleNode.setAttribute('data-priority', priority.toString());
   styleNode.setAttribute('data-name', name);
 
-  const styleNodes = Array.from(head.querySelectorAll('style[data-priority]'));
+  const styleNodes = Array.from(document.querySelectorAll('style[data-priority]'));
   let left = 0;
   let right = styleNodes.length - 1;
 
@@ -106,6 +95,7 @@ export function createAndInsertStyleNode(theme: ThemeType, styleDefinition: Styl
   styleNode.append(document.createTextNode(stylesStr));
   styleNode.setAttribute("data-name", styleDefinition.name);
   styleNode.setAttribute("data-priority", styleDefinition.name);
+  styleNode.setAttribute("data-theme-name", theme.themeOptions.name);
   insertStyleNodeAtCorrectPosition(styleNode, styleDefinition.name, styleDefinition.options?.stylePriority ?? 0);
   return styleNode;
 }

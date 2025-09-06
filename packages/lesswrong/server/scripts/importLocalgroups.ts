@@ -1,10 +1,11 @@
-import fs from 'mz/fs';
+import fs from 'fs';
 import Papa from 'papaparse';
 import Localgroups from '../../server/collections/localgroups/collection';
 import { GROUP_CATEGORIES } from "@/lib/collections/localgroups/groupTypes";
 import { wrapVulcanAsyncScript } from './utils';
 import { createLocalgroup, updateLocalgroup } from '../collections/localgroups/mutations';
 import { createAnonymousContext } from "@/server/vulcan-lib/createContexts";
+import { backgroundTask } from '../utils/backgroundTask';
 
 /**
  * Import data for localgroups
@@ -66,7 +67,7 @@ export const importLocalgroups = wrapVulcanAsyncScript(
         }
         // replace any existing data with the imported data
         else {
-          void updateLocalgroup({ data: { ...dataToSet }, selector: { _id: data._id } }, createAnonymousContext())
+          backgroundTask(updateLocalgroup({ data: { ...dataToSet }, selector: { _id: data._id } }, createAnonymousContext()))
         }
       })
   }

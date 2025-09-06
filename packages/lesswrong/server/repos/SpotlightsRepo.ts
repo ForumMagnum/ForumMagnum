@@ -37,11 +37,14 @@ class SpotlightsRepo extends AbstractRepo<"Spotlights"> {
         HAVING COUNT(*) <= 5
       )
       SELECT
-        s._id
+        s._id,
+        s."documentType",
+        s."documentId"
       FROM "Spotlights" s
       LEFT JOIN "RecentViews" rv ON s._id = rv."documentId"
       WHERE s."draft" IS NOT TRUE
         AND s."deletedDraft" IS NOT TRUE
+        AND "documentType" = 'Post'
       order by
         COALESCE(rv."viewCount", 0) ASC,
         RANDOM()
@@ -55,6 +58,8 @@ class SpotlightsRepo extends AbstractRepo<"Spotlights"> {
     const spotlightItems = spotlightRows.map(row => {
       return {
         spotlightId: row._id,
+        documentType: row.documentType,
+        documentId: row.documentId,
       };
     });
     

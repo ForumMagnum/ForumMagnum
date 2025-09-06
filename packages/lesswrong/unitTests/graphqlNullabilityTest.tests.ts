@@ -77,7 +77,12 @@ describe("graphql schemas", () => {
           const outputType = field.graphql.outputType;
           const graphqlNullable = (typeof outputType !== 'string') || !outputType.endsWith("!");
           const hasCustomResolver = !!field.graphql.resolver;
-          if (graphqlNullable && dbNonnull && !fieldPermissionsGated && !hasCustomResolver) {
+
+          // JSON fields can have nullable graphql type and non-nullable DB
+          // type, because null is a valid JSON value.
+          const isJson = (outputType === 'JSON' || outputType === 'JSONB');
+
+          if (graphqlNullable && dbNonnull && !fieldPermissionsGated && !hasCustomResolver && !isJson) {
             badFields.push({
               collectionName: collection.collectionName,
               fieldName: name,

@@ -2,7 +2,7 @@ import React, { useMemo, useState } from "react";
 import { defineStyles, useStyles } from "@/components/hooks/useStyles";
 import classNames from "classnames";
 import { makeSortableListComponent } from "../form-components/sortableList";
-import { useMutation } from "@apollo/client";
+import { useMutation } from "@apollo/client/react";
 import { useQuery } from "@/lib/crud/useQuery"
 import { gql } from "@/lib/generated/gql-codegen";
 import { SummaryForm } from "./SummaryForm";

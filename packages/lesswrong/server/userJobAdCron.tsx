@@ -1,18 +1,17 @@
 import React from 'react';
 import moment from 'moment';
-import { JOB_AD_DATA } from '../components/ea-forum/TargetedJobAd';
-import { addCronJob } from './cron/cronUtil';
+import { JOB_AD_DATA } from '../components/ea-forum/constants';
 import UserJobAds from '../server/collections/userJobAds/collection';
 import { Users } from '../server/collections/users/collection';
-import uniq from 'lodash/fp/uniq';
 import { wrapAndSendEmail } from './emails/renderEmail';
 import { loggerConstructor } from '../lib/utils/logging';
 import { isEAForum } from '../lib/instanceSettings';
 import { EmailJobAdReminder } from './emailComponents/EmailJobAdReminder';
+import { backgroundTask } from './utils/backgroundTask';
 
 // Exported to allow running with "yarn repl"
 export const sendJobAdReminderEmails = async () => {
-  if (!isEAForum) return
+  if (!isEAForum()) return
 
   const logger = loggerConstructor(`cron-sendJobAdReminderEmails`)
 
@@ -35,10 +34,12 @@ export const sendJobAdReminderEmails = async () => {
     logger(`No users to remind for jobs: ${jobNames.join(', ')}`)
     return
   }
+
+  const uniqueUserIds = [...new Set(userJobAds.map(u => u.userId))];
   
   // Get all the email recipient data
   const users = await Users.find({
-    _id: {$in: uniq(userJobAds.map(u => u.userId))},
+    _id: {$in: uniqueUserIds},
     email: {$exists: true},
     deleteContent: {$ne: true},
     deleted: {$ne: true}
@@ -52,24 +53,14 @@ export const sendJobAdReminderEmails = async () => {
     const recipient = users.find(u => u._id === userJobAd.userId)
     if (recipient) {
       const jobAdData = JOB_AD_DATA[userJobAd.jobName]
-      void wrapAndSendEmail({
+      backgroundTask(wrapAndSendEmail({
         user: recipient,
         subject: `Reminder: ${jobAdData.role} role at${jobAdData.insertThe ? ' the ' : ' '}${jobAdData.org}`,
-        body: <EmailJobAdReminder jobName={userJobAd.jobName} />,
+        body: (emailContext) => <EmailJobAdReminder jobName={userJobAd.jobName} emailContext={emailContext} />,
         force: true  // ignore the "unsubscribe to all" in this case, since the user initiated it
-      })
+      }))
     }
   }
   
   logger(`Sent email reminders for ${jobNames.join(', ')} to ${users.length} users`)
 }
-
-export const sendJobAdReminderEmailsCron = addCronJob({
-  name: 'sendJobAdReminderEmails',
-  interval: `every 1 day`,
-  disabled: !isEAForum,
-  job() {
-    void sendJobAdReminderEmails();
-  }
-});
-

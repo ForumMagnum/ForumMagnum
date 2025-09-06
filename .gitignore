@@ -113,3 +113,9 @@ test-results
 dependency-graph.svg
 
 .env
+.vercel
+.env*.local
+
+# Sentry Config File
+.env.sentry-build-plugin
+

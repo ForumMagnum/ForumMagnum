@@ -1,8 +1,10 @@
 import { getEditableCollectionNames, getEditableFieldNamesForCollection, editableFieldIsNormalized } from '@/server/editor/editableSchemaFieldHelpers';
 import { Revisions } from '../../server/collections/revisions/collection';
 import { forEachDocumentBatchInCollection } from '../manualMigrations/migrationUtils';
-import * as _ from 'underscore';
 import { getCollection } from "../collections/allCollections";
+import groupBy from 'lodash/groupBy';
+import sortBy from 'lodash/sortBy';
+import last from 'lodash/last';
 
 // Check that the denormalized contents field of objects with make_editable match
 // the newest revision in the revisions table. This is important because we're
@@ -28,12 +30,12 @@ export const validateMakeEditableDenormalization = async () => {
       await forEachDocumentBatchInCollection({
         collection: collection, batchSize: 100,
         callback: async (documents: Array<any>) => {
-          const documentIds = _.map(documents, d=>d._id);
+          const documentIds = documents.map(d=>d._id);
           const revs = await Revisions.find({
             documentId: {$in: documentIds},
             fieldName: editableField,
           }).fetch();
-          const revsByDocument = _.groupBy(revs, rev=>rev.documentId);
+          const revsByDocument = groupBy(revs, rev=>rev.documentId);
           
           for (let doc of documents) {
             if (!doc[editableField]) {
@@ -44,7 +46,7 @@ export const validateMakeEditableDenormalization = async () => {
               recordError(`Document ${doc._id} has no revisions`);
               continue;
             }
-            const latestRev: DbRevision|undefined = _.last(_.sortBy(revsByDocument[doc._id], r=>r.version));
+            const latestRev: DbRevision|undefined = last(sortBy(revsByDocument[doc._id], r=>r.version));
             
             const denormalizedContents = doc[editableField].originalContents;
             const revContents = latestRev?.originalContents;

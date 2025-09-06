@@ -1,3 +1,5 @@
+"use client";
+
 import React from 'react';
 import { registerComponent } from '../../lib/vulcan-lib/components';
 import { useClientId, getUserABTestKey, getABTestsMetadata } from '../../lib/abTestImpl';
@@ -5,8 +7,6 @@ import { useAllABTests } from '../hooks/useAbTests';
 import { useCurrentUser } from '../common/withUser';
 import { useUpdateCurrentUser } from '../hooks/useUpdateCurrentUser';
 import Select from '@/lib/vendor/@material-ui/core/src/Select';
-import * as _ from 'underscore';
-import { isFriendlyUI } from '../../themes/forumTheme';
 import SingleColumnSection from "../common/SingleColumnSection";
 import SectionTitle from "../common/SectionTitle";
 import { MenuItem } from "../common/Menus";
@@ -14,13 +14,13 @@ import { MenuItem } from "../common/Menus";
 const styles = (theme: ThemeType) => ({
   explanatoryText: {
     ...theme.typography.body1,
-    ...(isFriendlyUI && {
+    ...(theme.isFriendlyUI && {
       fontFamily: theme.palette.fonts.sansSerifStack,
     }),
   },
   abTestsTable: {
     ...theme.typography.body1,
-    ...(isFriendlyUI && {
+    ...(theme.isFriendlyUI && {
       fontFamily: theme.palette.fonts.sansSerifStack,
     }),
     marginTop: 24,
@@ -65,7 +65,7 @@ const UsersViewABTests = ({classes}: {
             <th>Your Group</th>
           </tr></thead>
           <tbody>
-            {_.keys(allABtests).map(abTestName => <tr key={abTestName}>
+            {Object.keys(allABtests).map(abTestName => <tr key={abTestName}>
               <td>{abTestsMetadata[abTestName].description}</td>
               <td>
                 {currentUser &&

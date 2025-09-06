@@ -1,4 +1,4 @@
-import { FLAGGED_FOR_N_DMS, MAX_ALLOWED_CONTACTS_BEFORE_BLOCK, MAX_ALLOWED_CONTACTS_BEFORE_FLAG } from "@/lib/collections/moderatorActions/constants";
+import { FLAGGED_FOR_N_DMS, getMaxAllowedContactsBeforeBlock, MAX_ALLOWED_CONTACTS_BEFORE_FLAG } from "@/lib/collections/moderatorActions/constants";
 import { loggerConstructor } from '../../lib/utils/logging';
 import { UpdateCallbackProperties } from '../mutationCallbacks';
 import { getAdminTeamAccount } from '../utils/adminTeamAccount';
@@ -10,6 +10,7 @@ import { computeContextFromUser } from '../vulcan-lib/apollo-server/context';
 import { createAnonymousContext } from "@/server/vulcan-lib/createContexts";
 import { createMessage } from '../collections/messages/mutations';
 import { updateUser } from '../collections/users/mutations';
+import { backgroundTask } from "../utils/backgroundTask";
 
 /**
  * Before a user has been fully approved, keep track of the number of users
@@ -63,25 +64,25 @@ export async function flagOrBlockUserOnManyDMs({
   if (allUsersEverContacted.length > MAX_ALLOWED_CONTACTS_BEFORE_FLAG && !currentUser.reviewedAt) {
     // Flag users that have sent N+ DMs if they've never been reviewed
     logger('Flagging user')
-    void createModeratorAction({
+    backgroundTask(createModeratorAction({
       data: {
         userId: currentUser._id,
         type: FLAGGED_FOR_N_DMS,
       },
-    }, context);
+    }, context));
   }
   
   // Always update the numUsersContacted field, for denormalization
-  void updateUser({
+  backgroundTask(updateUser({
     data: {
       usersContactedBeforeReview: allUsersEverContacted,
     },
     selector: { _id: currentUser._id }
-  }, createAnonymousContext());
+  }, createAnonymousContext()));
   
-  if (allUsersEverContacted.length > MAX_ALLOWED_CONTACTS_BEFORE_BLOCK && !currentUser.reviewedAt) {
+  if (allUsersEverContacted.length > getMaxAllowedContactsBeforeBlock() && !currentUser.reviewedAt) {
     logger('Blocking user')
-    throw new Error(`You cannot message more than ${MAX_ALLOWED_CONTACTS_BEFORE_BLOCK} users before your account has been reviewed. Please contact us if you'd like to message more people.`)
+    throw new Error(`You cannot message more than ${getMaxAllowedContactsBeforeBlock()} users before your account has been reviewed. Please contact us if you'd like to message more people.`)
   }
   
   logger('flagOrBlockUserOnManyDMs() return')
@@ -100,7 +101,7 @@ export async function sendUserLeavingConversationNotication({newDocument, oldDoc
   }
   for (const userId of usersWhoLeft) {
     const leavingUser = (await Users.findOne(userId));
-    const adminAccountContext = await computeContextFromUser({ user: adminAccount, req: context.req, res: context.res, isSSR: context.isSSR });
+    const adminAccountContext = computeContextFromUser({ user: adminAccount, isSSR: context.isSSR });
 
     await createMessage({
       data: {
