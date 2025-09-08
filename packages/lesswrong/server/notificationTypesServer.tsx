@@ -129,10 +129,10 @@ export const NominatedPostNotification = createServerNotificationType({
   emailSubject: async ({user, notifications}: {user: DbUser, notifications: DbNotification[]}) => {
     return `Your post was nominated for the ${getReviewTitle(REVIEW_YEAR)}`
   },
-  emailBody: async ({user, notifications}: {user: DbUser, notifications: DbNotification[]}) => {
+  emailBody: async ({user, notifications, emailContext}: {user: DbUser, notifications: DbNotification[], emailContext: EmailContextType}) => {
     const postId = notifications[0].documentId;
     if (!postId) throw Error(`Can't find nominated post to generate body for: ${postId}`)
-    return <PostNominatedEmail documentId={postId} />
+    return <PostNominatedEmail documentId={postId} emailContext={emailContext} />
   }
 })
 
@@ -300,10 +300,10 @@ export const NewDialogueMessageNotification = createServerNotificationType({
 
     return `New reply in your dialogue, ${post.title}`;
   },
-  emailBody: async ({ user, notifications }: {user: DbUser, notifications: DbNotification[]}) => {
+  emailBody: async ({ user, notifications, emailContext }: {user: DbUser, notifications: DbNotification[], emailContext: EmailContextType}) => {
     const postId = notifications[0].documentId!; // We skip notifications without a documentId in the skip function
     const dialogueMessageEmailInfo = getDialogueMessageEmailInfo(notifications[0].extraData)
-    return <NewDialogueMessagesEmail documentId={postId} userId={user._id} dialogueMessageEmailInfo={dialogueMessageEmailInfo}/>;
+    return <NewDialogueMessagesEmail documentId={postId} userId={user._id} dialogueMessageEmailInfo={dialogueMessageEmailInfo} emailContext={emailContext}/>;
   },
   skip: async ({ notifications }: {notifications: DbNotification[]}) => {
     return !notifications[0].documentId
@@ -326,10 +326,10 @@ export const NewDialogueMessageBatchNotification = createServerNotificationType(
     if (!post) throw Error(`Can't find dialogue for notification: ${notifications[0]}`)
     return `Multiple new messages in the dialogue you are participating in, ${post.title}`;
   },
-  emailBody: async ({ user, notifications }: {user: DbUser, notifications: DbNotification[]}) => {
+  emailBody: async ({ user, notifications, emailContext }: {user: DbUser, notifications: DbNotification[], emailContext: EmailContextType}) => {
     const postId = notifications[0].documentId;
     if (!postId) throw Error(`Can't find dialogue to generate body for: ${postId}`)
-    return <NewDialogueMessagesEmail documentId={postId} userId={user._id}/>;
+    return <NewDialogueMessagesEmail documentId={postId} userId={user._id} emailContext={emailContext}/>;
   },
 });
 
@@ -342,10 +342,10 @@ export const NewPublishedDialogueMessageNotification = createServerNotificationT
     if (!post) throw Error(`Can't find dialogue for notification: ${notifications[0]}`)
     return `New content in the dialogue you are subscribed to, ${post.title}`;
   },
-  emailBody: async ({ user, notifications }: {user: DbUser, notifications: DbNotification[]}) => {
+  emailBody: async ({ user, notifications, emailContext }: {user: DbUser, notifications: DbNotification[], emailContext: EmailContextType}) => {
     const postId = notifications[0].documentId;
     if (!postId) throw Error(`Can't find dialogue to generate body for: ${postId}`)
-    return <NewDialogueMessagesEmail documentId={postId} userId={user._id}/>;
+    return <NewDialogueMessagesEmail documentId={postId} userId={user._id} emailContext={emailContext}/>;
   },
 });
 
@@ -729,7 +729,7 @@ export const NewCommentOnDraftNotification = createServerNotificationType({
       return `${notifications.length} comments on ${post?.title}`;
     }
   },
-  emailBody: async ({ user, notifications }: {user: DbUser, notifications: DbNotification[]}) => {
+  emailBody: async ({ user, notifications, emailContext }: {user: DbUser, notifications: DbNotification[], emailContext: EmailContextType}) => {
     const firstNotification = notifications[0];
     if (!firstNotification.documentId) {
       throw new Error("NewCommentOnDraftNotification documentId is missing");
@@ -740,7 +740,7 @@ export const NewCommentOnDraftNotification = createServerNotificationType({
     
     return <div>
       {notifications.map((notification,i) => <div key={i}>
-        <div><EmailUsernameByID userID={notification.extraData?.senderUserID}/> commented on <a href={postLink}>{postTitle}</a>:</div>
+        <div><EmailUsernameByID userID={notification.extraData?.senderUserID} emailContext={emailContext}/> commented on <a href={postLink}>{postTitle}</a>:</div>
         <div>
           <blockquote dangerouslySetInnerHTML={{__html: notification.extraData?.commentHtml}}/>
         </div>

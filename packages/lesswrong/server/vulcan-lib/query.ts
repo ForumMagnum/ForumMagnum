@@ -60,8 +60,13 @@ export const useEmailQuery = <
   query: TypedDocumentNode<TData, TVariables>,
   options: {
     variables?: TVariables
-    emailContext: EmailContextType
+    emailContext: EmailContextType,
+    skip?: boolean
   },
 ) => {
+  if (options.skip) {
+    return { data: null, errors: null };
+  }
+
   return runQuery(query, options.variables ?? {}, options.emailContext.resolverContext);
 }

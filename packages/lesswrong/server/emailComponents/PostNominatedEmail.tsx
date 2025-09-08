@@ -2,8 +2,9 @@ import React from 'react';
 import { postGetPageUrl } from '../../lib/collections/posts/helpers';
 import { getNominationPhaseEnd, getReviewNameInSitu, REVIEW_YEAR } from '../../lib/reviewUtils';
 import { getSiteUrl } from '../../lib/vulcan-lib/utils';
-import { useQuery } from "@/lib/crud/useQuery";
 import { gql } from "@/lib/generated/gql-codegen";
+import { useEmailQuery } from '../vulcan-lib/query';
+import { EmailContextType } from './emailContext';
 
 const PostsRevisionQuery = gql(`
   query PostNominatedEmail($documentId: String, $version: String) {
@@ -15,12 +16,14 @@ const PostsRevisionQuery = gql(`
   }
 `);
 
-export const PostNominatedEmail = ({documentId, reason}: {
+export const PostNominatedEmail = async ({documentId, reason, emailContext}: {
   documentId: string,
   reason?: string,
+  emailContext: EmailContextType
 }) => {
-  const { data } = useQuery(PostsRevisionQuery, {
+  const { data } = await useEmailQuery(PostsRevisionQuery, {
     variables: { documentId: documentId },
+    emailContext
   });
   const post = data?.post?.result;
   if (!post) return null;
