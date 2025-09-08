@@ -170,7 +170,7 @@ const onPublishUtils = {
 export async function onPostPublished(post: DbPost, context: ResolverContext) {
   onPublishUtils.updateRecombeeWithPublishedPost(post, context);
   await sendNewPostNotifications(post);
-  const { updateScoreOnPostPublish } = require("./votingCallbacks");
+  const { updateScoreOnPostPublish } = await import("./votingCallbacks");
   await updateScoreOnPostPublish(post, context);
   await onPublishUtils.ensureNonzeroRevisionVersionsAfterUndraft(post, context);
 }
