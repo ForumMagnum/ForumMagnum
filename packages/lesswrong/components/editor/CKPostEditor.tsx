@@ -531,7 +531,7 @@ const CKPostEditor = ({
   // added to the EditorConfig type via augmentations, but we don't get those
   // augmentations because we're only importing those in the CkEditor bundle.
   const editorConfig: AnyBecauseHard = {
-    ...getPostEditorToolbarConfig,
+    ...getPostEditorToolbarConfig(),
     autosave: {
       save (editor: any) {
         return onSave && onSave(editor.getData())
