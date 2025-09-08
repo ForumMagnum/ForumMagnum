@@ -58,7 +58,7 @@ export async function createTagFlag({ data }: CreateTagFlagInput, context: Resol
     newDocument: documentWithId,
   };
 
-  await uploadImagesInEditableFields({
+  uploadImagesInEditableFields({
     newDoc: documentWithId,
     props: asyncProperties,
   });
@@ -98,7 +98,7 @@ export async function updateTagFlag({ selector, data }: UpdateTagFlagInput, cont
 
   await updateCountOfReferencesOnOtherCollectionsAfterUpdate('TagFlags', updatedDocument, oldDocument);
 
-  await reuploadImagesIfEditableFieldsChanged({
+  reuploadImagesIfEditableFieldsChanged({
     newDoc: updatedDocument,
     props: updateCallbackProperties,
   });

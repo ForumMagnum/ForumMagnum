@@ -13,6 +13,7 @@ import { createRevision } from '../collections/revisions/mutations'
 import { buildRevision } from './conversionUtils'
 import { updateDenormalizedHtmlAttributionsDueToRev, upvoteOwnTagRevision } from '../callbacks/revisionCallbacks'
 import { RevisionMetadata } from '@/lib/collections/revisions/fragments'
+import { backgroundTask } from '../utils/backgroundTask'
 
 interface CreateBeforeEditableCallbackProperties<N extends CollectionNameString> {
   doc: CreateInputsByCollectionName[N]['data'];
@@ -381,14 +382,14 @@ export async function notifyUsersOfPingbackMentions<N extends CollectionNameStri
   return mutableDoc;
 }
 
-export async function uploadImagesInEditableFields<N extends CollectionNameString>(runCallbackStageProperties: NewAsyncEditableCallbackProperties<N>) {
+export function uploadImagesInEditableFields<N extends CollectionNameString>(runCallbackStageProperties: NewAsyncEditableCallbackProperties<N>) {
   let { props, newDoc } = runCallbackStageProperties;
   const { context } = props;
 
   const editableFieldsCallbackProps = getEditableFieldsCallbackProps(props);
 
   for (const editableFieldCallbackProps of editableFieldsCallbackProps) {
-    await reuploadImagesInNew(newDoc, editableFieldCallbackProps, context);
+    backgroundTask(reuploadImagesInNew(newDoc, editableFieldCallbackProps, context));
   }
 }
 
@@ -416,13 +417,17 @@ export async function notifyUsersOfNewPingbackMentions<N extends CollectionNameS
   return newDoc;
 }
 
-export async function reuploadImagesIfEditableFieldsChanged<N extends CollectionNameString>(runCallbackStageProperties: EditAsyncEditableCallbackProperties<N>) {
+// This is explicitly not an async function and internalizes the background task for two reasons:
+// 1. if we end up having images to upload, that can take a while and we don't want to block submissions on that
+// 2. for posts in particular, we risk recalculating the side comments cache using a stale revision and caching
+// html that has non-mirrored urls in it.
+export function reuploadImagesIfEditableFieldsChanged<N extends CollectionNameString>(runCallbackStageProperties: EditAsyncEditableCallbackProperties<N>) {
   let { props, newDoc } = runCallbackStageProperties;
   const { context } = props;
 
   const editableFieldsCallbackProps = getEditableFieldsCallbackProps(props);
 
   for (const editableFieldCallbackProps of editableFieldsCallbackProps) {
-    await reuploadImagesInEdit(newDoc, props.oldDocument, editableFieldCallbackProps, context);
+    backgroundTask(reuploadImagesInEdit(newDoc, props.oldDocument, editableFieldCallbackProps, context));
   }
 }

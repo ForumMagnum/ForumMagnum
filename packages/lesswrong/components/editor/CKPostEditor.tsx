@@ -530,7 +530,7 @@ const CKPostEditor = ({
   // This is AnyBecauseHard because it contains plugin-specific configs that are
   // added to the EditorConfig type via augmentations, but we don't get those
   // augmentations because we're only importing those in the CkEditor bundle.
-  const editorConfig: AnyBecauseHard = {
+  const editorConfig = {
     ...getPostEditorToolbarConfig(),
     autosave: {
       save (editor: any) {

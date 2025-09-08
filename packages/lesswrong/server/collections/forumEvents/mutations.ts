@@ -69,7 +69,7 @@ export async function createForumEvent({ data }: CreateForumEventInput, context:
     newDocument: documentWithId,
   };
 
-  await uploadImagesInEditableFields({
+  uploadImagesInEditableFields({
     newDoc: documentWithId,
     props: asyncProperties,
   });
@@ -107,7 +107,7 @@ export async function updateForumEvent({ selector, data }: UpdateForumEventInput
 
   await updateCountOfReferencesOnOtherCollectionsAfterUpdate('ForumEvents', updatedDocument, oldDocument);
 
-  await reuploadImagesIfEditableFieldsChanged({
+  reuploadImagesIfEditableFieldsChanged({
     newDoc: updatedDocument,
     props: updateCallbackProperties,
   });

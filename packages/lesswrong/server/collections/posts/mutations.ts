@@ -146,7 +146,7 @@ export async function createPost({ data }: { data: CreatePostDataInput & { _id?:
 
   await rehostPostMetaImages(documentWithId);
 
-  await uploadImagesInEditableFields({
+  uploadImagesInEditableFields({
     newDoc: documentWithId,
     props: asyncProperties,
   });
@@ -255,7 +255,7 @@ export async function updatePost({ selector, data }: { data: UpdatePostDataInput
   await extractSocialPreviewImage(updatedDocument, updateCallbackProperties);
   await oldPostsLastCommentedAt(updatedDocument, context);  
 
-  await reuploadImagesIfEditableFieldsChanged({
+  reuploadImagesIfEditableFieldsChanged({
     newDoc: updatedDocument,
     props: updateCallbackProperties,
   });
