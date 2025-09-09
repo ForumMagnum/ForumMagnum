@@ -23,8 +23,11 @@ const getFullCAFilePath = (): string | null => {
 }
 
 export type AnalyticsConnectionPool = IDatabase<{}, IClient>;
-let analyticsConnectionPools: Map<string, AnalyticsConnectionPool> = new Map();
 let missingConnectionStringWarned = false;
+
+declare global {
+  var analyticsConnectionPools: Map<string, AnalyticsConnectionPool>|undefined
+}
 
 function getAnalyticsConnectionFromString(connectionString: string | null): AnalyticsConnectionPool | null {
   if (isAnyTest && !isEAForum()) {
@@ -41,6 +44,10 @@ function getAnalyticsConnectionFromString(connectionString: string | null): Anal
     return null;
   }
 
+  if (!globalThis.analyticsConnectionPools) {
+    globalThis.analyticsConnectionPools = new Map<string, AnalyticsConnectionPool>();
+  }
+  const analyticsConnectionPools = globalThis.analyticsConnectionPools;
   if (!analyticsConnectionPools.get(connectionString)) {
     let ssl = sslSetting.get();
     if (ssl) {
