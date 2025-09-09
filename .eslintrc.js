@@ -67,7 +67,9 @@ module.exports = {
         "AppComposer",
         "Query",
         "Map",
-        "List"
+        "List",
+        "GET",
+        "POST",
       ]
     }],
     "babel/array-bracket-spacing": 0,
@@ -112,7 +114,9 @@ module.exports = {
         "AppComposer",
         "Query",
         "Map",
-        "List"
+        "List",
+        "GET",
+        "POST",
       ]
     }],
 
