@@ -1,4 +1,5 @@
 import { handleAnalyticsEventWriteRequest } from "@/server/analytics/serverAnalyticsWriter";
+import { backgroundTask } from "@/server/utils/backgroundTask";
 import type { NextRequest } from "next/server";
 
 export async function POST(req: NextRequest) {
@@ -13,6 +14,6 @@ export async function POST(req: NextRequest) {
     return new Response('analyticsEvent endpoint should be JSON with fields "events" and "now"', { status: 400 });
   }
   
-  void handleAnalyticsEventWriteRequest(body.events, body.now);
+  backgroundTask(handleAnalyticsEventWriteRequest(body.events, body.now));
   return new Response("ok", { status: 200 });
 }

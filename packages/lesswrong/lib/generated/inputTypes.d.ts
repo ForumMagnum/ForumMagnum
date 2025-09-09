@@ -74,6 +74,7 @@ interface Query {
   getCrosspost: any;
   RevisionsDiff: string | null;
   UltraFeed: UltraFeedQueryResults;
+  UltraFeedSubscriptions: UltraFeedQueryResults;
   advisorRequest: SingleAdvisorRequestOutput | null;
   advisorRequests: MultiAdvisorRequestOutput | null;
   arbitalTagContentRel: SingleArbitalTagContentRelOutput | null;

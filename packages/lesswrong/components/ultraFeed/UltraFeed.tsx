@@ -2,115 +2,28 @@ import React, { useState } from 'react';
 import { ultraFeedEnabledSetting } from '../../lib/instanceSettings';
 import { registerComponent } from "../../lib/vulcan-lib/components";
 import DeferRender from '../common/DeferRender';
+import { defineStyles, useStyles } from '../hooks/useStyles';
+import UltraFeedHeader from './UltraFeedHeader';
 import SingleColumnSection from "../common/SingleColumnSection";
 import { useCurrentUser } from '../common/withUser';
-import { defineStyles, useStyles } from '../hooks/useStyles';
 import SettingsButton from "../icons/SettingsButton";
-import FeedSelectorDropdown from '../common/FeedSelectorCheckbox';
-import { Link } from '../../lib/reactRouterWrapper';
 
 import dynamic from 'next/dynamic';
+import { useCookiesWithConsent } from '../hooks/useCookiesWithConsent';
+import { ULTRA_FEED_ACTIVE_TAB_COOKIE } from '@/lib/cookies/cookies';
+import { FeedType } from './ultraFeedTypes';
 import { useTracking } from '@/lib/analyticsEvents';
-import SectionTitle from '../common/SectionTitle';
+import useUltraFeedSettings from '../hooks/useUltraFeedSettings';
 const UltraFeedContent = dynamic(() => import('./UltraFeedContent'), { ssr: false });
 
 const styles = defineStyles("UltraFeed", (theme: ThemeType) => ({
-  root: {
-  },
-  feedComementItem: {
-    marginBottom: 16
-  },
-  sectionTitle: {
-    display: 'flex',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-  },
-  titleContainer: {
-    display: 'flex',
-    columnGap: 10,
-    alignItems: 'center',
-    color: theme.palette.text.bannerAdOverlay,
-    [theme.breakpoints.down('sm')]: {
-      marginLeft: 8,
-    },
-  },
-  titleText: {
-  },
-  titleTextDesktop: {
-    display: 'inline',
-    [theme.breakpoints.down('sm')]: {
-      display: 'none',
-    },
-  },
-  titleTextMobile: {
-    display: 'none',
-    marginLeft: 8,
-    [theme.breakpoints.down('sm')]: {
-      display: 'inline',
-    },
-  },
-  feedCheckboxAndSettingsContainer: {
-    display: 'flex',
-    justifyContent: 'flex-end',
-    alignItems: 'center',
-    // gap: 24, // Add spacing between items
-  },
-  settingsButtonContainer: {
-    display: 'flex',
-    alignItems: 'center'
-  },
-  ultraFeedNewContentContainer: {
-  },
-  settingsContainer: {
-    marginBottom: 32,
-  },
-  settingsContainerExternal: {
-    marginTop: 16,
-    marginBottom: 32,
-  },
-  composerButton: {
-    display: 'none',
-    [theme.breakpoints.down('sm')]: {
-      display: 'flex',
-      position: 'fixed',
-      bottom: 18,
-      right: 18,
-      width: 42,
-      height: 42,
-      borderRadius: 8,
-      backgroundColor: theme.palette.primary.main,
-      color: theme.palette.text.alwaysWhite,
-      alignItems: 'center',
-      justifyContent: 'center',
-      boxShadow: theme.palette.boxShadow.default,
-      cursor: 'pointer',
-      zIndex: theme.zIndexes.intercomButton,
-      '&:hover': {
-        backgroundColor: theme.palette.primary.dark,
-      },
-      '&:active': {
-        transform: 'scale(0.95)',
-      },
-    },
-  },
-  composerIcon: {
-    fontSize: 24,
-  },
   disabledMessage: {
     textAlign: 'center',
     padding: 40,
     ...theme.typography.body1,
     color: theme.palette.text.dim,
   },
-  titleLink: {
-    color: 'inherit',
-    '&:hover': {
-      color: 'inherit',
-      opacity: 0.8,
-    },
-  },
 }));
-
 
 const UltraFeed = ({
   alwaysShow = false,
@@ -125,8 +38,16 @@ const UltraFeed = ({
 }) => {
   const classes = useStyles(styles);
   const currentUser = useCurrentUser();
+  const [cookies, setCookie] = useCookiesWithConsent([ULTRA_FEED_ACTIVE_TAB_COOKIE]);
   const [internalSettingsVisible, setInternalSettingsVisible] = useState(false);
+  const [activeTab, setActiveTab] = useState<FeedType>(() => (cookies[ULTRA_FEED_ACTIVE_TAB_COOKIE] === 'following' ? 'following' : 'ultraFeed'));
   const { captureEvent } = useTracking();
+  const { settings, updateSettings, resetSettings, truncationMaps } = useUltraFeedSettings();
+
+  const handleTabChange = (tab: FeedType) => {
+    setActiveTab(tab);
+    setCookie(ULTRA_FEED_ACTIVE_TAB_COOKIE, tab, { path: '/' });
+  };
 
   if (!currentUser) {
     return null;
@@ -155,42 +76,29 @@ const UltraFeed = ({
     }
   };
 
-  const customTitle = <>
-    <div className={classes.titleContainer}>
-      <span className={classes.titleText}>
-        <Link to="/feed" className={classes.titleLink}>
-          Update Feed
-        </Link>
-      </span>
-    </div>
-  </>;
 
   return (
     <>
       <SingleColumnSection>
-        {!hideTitle && (
-          <SectionTitle title={customTitle} titleClassName={classes.sectionTitle}>
-            <DeferRender ssr={false}>
-              <div className={classes.feedCheckboxAndSettingsContainer}>
-                {!alwaysShow && <FeedSelectorDropdown currentFeedType="new" />}
-                {!isControlled && (
-                  <div className={classes.settingsButtonContainer}>
-                    <SettingsButton 
-                      showIcon={true}
-                      onClick={toggleSettings}
-                    />
-                  </div>
-                )}
-              </div>
-            </DeferRender>
-          </SectionTitle>
-        )}
+        <UltraFeedHeader
+          hideTitle={hideTitle}
+          activeTab={activeTab}
+          onTabChange={handleTabChange}
+          settingsButton={!isControlled ? <SettingsButton showIcon={true} onClick={toggleSettings} /> : undefined}
+          feedSettings={settings}
+          updateFeedSettings={updateSettings}
+        />
         <DeferRender ssr={false}>
           <UltraFeedContent 
+            settings={settings}
+            updateSettings={updateSettings}
+            resetSettings={resetSettings}
+            truncationMaps={truncationMaps}
             alwaysShow={alwaysShow}
             settingsVisible={actualSettingsVisible}
             onCloseSettings={isControlled ? onSettingsToggle : () => setInternalSettingsVisible(false)}
             useExternalContainer={isControlled}
+            activeTab={activeTab}
           />
         </DeferRender>
       </SingleColumnSection>

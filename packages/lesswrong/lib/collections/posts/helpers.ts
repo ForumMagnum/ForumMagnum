@@ -523,7 +523,6 @@ export type EditablePost = UpdatePostDataInput & {
   afCommentCount: number;
   contents: CreateRevisionDataInput & { html: string | null } | null;
   debate: boolean;
-  createdAt: Date | null;
   title: string;
 } & Pick<PostsListBase, 'postCategory'>;
 

@@ -33,10 +33,10 @@ export const withTheme = <T extends {theme: ThemeType}>(Component: React.Compone
   }) as React.ComponentType<Omit<T,"theme">>;
 }
 
-export const useThemeOptions = (): AbstractThemeOptions => {
+export const useAbstractThemeOptions = (): AbstractThemeOptions => {
   const themeContext = React.useContext(ThemeContext);
-  if (!themeContext) throw "useThemeOptions() used without the context available";
-  return themeContext.concreteThemeOptions;
+  if (!themeContext) throw "useConcreteThemeOptions() used without the context available";
+  return themeContext.abstractThemeOptions;
 }
 
 export const useConcreteThemeOptions = (): ThemeOptions => {

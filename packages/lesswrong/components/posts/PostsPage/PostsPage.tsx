@@ -613,7 +613,7 @@ const PostsPage = ({fullPost, postPreload, refetch}: {
         coauthors={post.coauthors
           ?.filter(({ _id }) => !postCoauthorIsPending(post, _id))
           .map(({displayName}) => displayName)}
-        date={post.createdAt ?? undefined}
+        date={post.postedAt ?? undefined}
       />
     </>}
     {/* Header/Title */}

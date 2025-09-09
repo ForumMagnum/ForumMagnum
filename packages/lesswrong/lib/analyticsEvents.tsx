@@ -8,7 +8,7 @@ import { ColorHash } from './vendor/colorHash';
 import { flushIntervalSetting } from './instanceSettings';
 import throttle from 'lodash/throttle';
 import moment from 'moment';
-import { FeedItemSourceType, FeedItemType, UltraFeedAnalyticsContext } from '@/components/ultraFeed/ultraFeedTypes';
+import { FeedItemSourceType, FeedItemType, FeedType, UltraFeedAnalyticsContext } from '@/components/ultraFeed/ultraFeedTypes';
 import { RelevantTestGroupAllocation } from './abTestImpl';
 import { getShowAnalyticsDebug } from './analyticsDebugging';
 import { serverCaptureEvent } from '@/server/analytics/serverAnalyticsWriter';
@@ -107,6 +107,7 @@ export type AnalyticsProps = {
   ultraFeedSources?: FeedItemSourceType[],
   ultraFeedElementType?: FeedItemType,
   ultraFeedCardId?: string,
+  ultraFeedType?: FeedType,
   feedCardIndex?: number,
   modalInstanceId?: string,
   recentDiscussionContext?: { feedSessionId: string },

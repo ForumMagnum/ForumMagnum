@@ -66,7 +66,8 @@ export const lessWrongTheme: SiteThemeSpecification = {
       },
     },
     background: {
-      default: '#f8f4ee'
+      default: '#f8f4ee',
+      hover: '#f0ebe6'
     },
     link: {
       color: "#327E09",

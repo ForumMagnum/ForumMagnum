@@ -228,7 +228,7 @@ const PostsAnalyticsPage = ({ classes }: { classes: ClassesType<typeof styles> }
         </div>
         <AnalyticsGraph
           postIds={post ? [post._id] : []}
-          disclaimerEarliestDate={maybeDate(post?.createdAt ?? undefined)}
+          disclaimerEarliestDate={maybeDate(post?.postedAt ?? undefined)}
         />
       </SingleColumnSection>
     </>

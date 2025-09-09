@@ -1,4 +1,4 @@
-import React, { useRef, useEffect } from 'react';
+import React, { useRef, useEffect, useMemo } from 'react';
 import { ObservableQuery, WatchQueryFetchPolicy } from '@apollo/client';
 import { useQuery } from "@/lib/crud/useQuery";
 import { useOnPageScroll } from './withOnPageScroll';
@@ -61,6 +61,9 @@ export const MixedTypeFeed = <
 
   // Apollo fetch policy
   fetchPolicy?: WatchQueryFetchPolicy;
+  
+  // Callback for tracking loading state changes (fires when loading starts and completes)
+  onLoadingStateChange?: (results: Array<{type: string, [key: string]: unknown}>, loading: boolean) => void;
 }) => {
   const {
     query,
@@ -75,6 +78,7 @@ export const MixedTypeFeed = <
     className,
     loadMoreDistanceProp = defaultLoadMoreDistance,
     fetchPolicy = "cache-and-network",
+    onLoadingStateChange,
   } = args;
 
   // Reference to a bottom-marker used for checking scroll position.
@@ -85,7 +89,7 @@ export const MixedTypeFeed = <
   // updates would be a problem.
   const queryIsPending = useRef(false);
   
-  const {data, error, fetchMore, refetch} = useQuery<Record<string, FeedPaginationResultVariables>>(query, {
+  const {data, error, fetchMore, refetch, loading } = useQuery<Record<string, FeedPaginationResultVariables>>(query, {
     variables: {
       ...variables,
       cutoff: null,
@@ -165,9 +169,19 @@ export const MixedTypeFeed = <
   useEffect(maybeStartLoadingMore);
   useOnPageScroll(maybeStartLoadingMore);
   
-  const results = (data && resolverName && data[resolverName]?.results) || [];
+  const results = useMemo(() => 
+    (data && resolverName && data[resolverName]?.results) || [],
+    [data, resolverName]
+  );
   const orderPolicy = reorderOnRefetch ? 'no-reorder' : undefined;
   const orderedResults = useOrderPreservingArray(results, keyFunc, orderPolicy);
+  
+  // Call onLoadingStateChange when loading state changes
+  useEffect(() => {
+    if (onLoadingStateChange) {
+      onLoadingStateChange(results, loading);
+    }
+  }, [results, loading, onLoadingStateChange]);
 
   return <div className={className}>
     {orderedResults.map((result, index) =>

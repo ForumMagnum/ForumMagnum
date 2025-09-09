@@ -20,6 +20,10 @@ export interface UltraFeedResolverSettings {
   sourceWeights: Record<FeedItemSourceType, number>;
   threadInterestModel: ThreadInterestModelSettings;
   commentScoring: CommentScoringSettings;
+  subscriptionsFeedSettings: UltraFeedSubscriptionFeedSettings;
+}
+interface UltraFeedSubscriptionFeedSettings {
+  hideRead: boolean;
 }
 
 export interface UltraFeedSettingsType {
@@ -85,6 +89,7 @@ export const LEVEL_TO_POST_WORDS_MOBILE: Record<TruncationLevel, number> = {
 };
 
 
+
 export const DEFAULT_SOURCE_WEIGHTS: Record<FeedItemSourceType, number> = {
   'recentComments': 20,
   'quicktakes': 15,
@@ -143,6 +148,7 @@ export const DEFAULT_SETTINGS: UltraFeedSettingsType = {
     sourceWeights: DEFAULT_SOURCE_WEIGHTS,
     commentScoring: DEFAULT_COMMENT_SCORING_SETTINGS,
     threadInterestModel: DEFAULT_THREAD_INTEREST_MODEL_SETTINGS,
+    subscriptionsFeedSettings: { hideRead: true },
   },
 };
 
@@ -156,6 +162,7 @@ export const getDefaultSettingsForDevice = (device: DeviceKind): UltraFeedSettin
       sourceWeights: DEFAULT_SOURCE_WEIGHTS,
       commentScoring: { ...DEFAULT_COMMENT_SCORING_SETTINGS },
       threadInterestModel: { ...DEFAULT_THREAD_INTEREST_MODEL_SETTINGS },
+      subscriptionsFeedSettings: { hideRead: true },
     },
   };
 };

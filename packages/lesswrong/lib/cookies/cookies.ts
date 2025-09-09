@@ -224,6 +224,12 @@ export const ULTRA_FEED_PAGE_VISITED_COOKIE = registerCookie({
   description: "Whether the user has ever visited the ultra feed page",
 })
 
+export const ULTRA_FEED_ACTIVE_TAB_COOKIE = registerCookie({
+  name: 'ultra_feed_active_tab',
+  type: "functional",
+  description: "Stores the last active UltraFeed tab",
+});
+
 export const PINNED_GLOSSARY_COOKIE = registerCookie({
   name: 'pinnedGlossary',
   type: 'functional',

@@ -124,6 +124,7 @@ export async function POST(req: NextRequest) {
         }
       },
       cancel() {
+        // eslint-disable-next-line @typescript-eslint/no-floating-promises
         void reader.cancel();
       }
     });
