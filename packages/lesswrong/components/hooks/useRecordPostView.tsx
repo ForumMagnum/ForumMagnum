@@ -30,14 +30,9 @@ interface RecombeeOptions {
   recommId?: string;
 }
 
-interface VertexOptions {
-  attributionId?: string;
-}
-
 export interface RecommendationOptions {
   skip?: boolean;
   recombeeOptions?: RecombeeOptions;
-  vertexOptions?: VertexOptions;
 }
 
 interface RecordPostViewArgs {

@@ -146,13 +146,6 @@ const onPublishUtils = {
         .catch(e => console.log('Error when sending published post to recombee', { e }))
       );
     }
-  
-    // if (vertexEnabledSetting.get()) {
-    //   backgroundTask(googleVertexApi.upsertPost({ post }, context)
-    //     // eslint-disable-next-line no-console
-    //     .catch(e => console.log('Error when sending published post to google vertex', { e }));
-    //   )
-    // }
   },
 
   ensureNonzeroRevisionVersionsAfterUndraft: async (post: { _id: string }, context: ResolverContext) => {
@@ -170,7 +163,7 @@ const onPublishUtils = {
 export async function onPostPublished(post: DbPost, context: ResolverContext) {
   onPublishUtils.updateRecombeeWithPublishedPost(post, context);
   await sendNewPostNotifications(post);
-  const { updateScoreOnPostPublish } = require("./votingCallbacks");
+  const { updateScoreOnPostPublish } = await import("./votingCallbacks");
   await updateScoreOnPostPublish(post, context);
   await onPublishUtils.ensureNonzeroRevisionVersionsAfterUndraft(post, context);
 }
@@ -1012,13 +1005,6 @@ export async function updateRecombeePost({ newDocument, oldDocument, context }: 
       .catch(e => console.log('Error when sending updated post to recombee', { e }))
     )
   }
-
-  // if (vertexEnabledSetting.get()) {
-  //   backgroundTask(googleVertexApi.upsertPost({ post }, context)
-  //     // eslint-disable-next-line no-console
-  //     .catch(e => console.log('Error when sending updated post to google vertex', { e }));
-  //   )
-  // }
 }
 
 /* EDIT ASYNC */

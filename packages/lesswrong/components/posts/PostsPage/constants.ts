@@ -6,7 +6,6 @@ export const RIGHT_COLUMN_WIDTH_WITHOUT_SIDENOTES = 50;
 export const RIGHT_COLUMN_WIDTH_XS = 5;
 export const SHARE_POPUP_QUERY_PARAM = 'sharePopup';
 export const RECOMBEE_RECOMM_ID_QUERY_PARAM = 'recombeeRecommId';
-export const VERTEX_ATTRIBUTION_ID_QUERY_PARAM = 'vertexAttributionId';
 
 export const BOOKUI_LINKPOST_WORDCOUNT_THRESHOLD = 800;
 

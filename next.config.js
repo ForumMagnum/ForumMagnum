@@ -5,6 +5,8 @@ const serverExternalPackages = [
   'superagent-proxy', 'gpt-3-encoder', 'mathjax-node', 'mathjax', 'turndown', 'cloudinary',
   '@aws-sdk/client-cloudfront', 'auth0', 'jimp', 'juice', '@sentry/nextjs',
   'request', 'stripe', 'openai', 'twitter-api-v2', 'draft-js', 'draft-convert', 'csso',
+  'js-tiktoken', 'cheerio', '@elastic/elasticsearch', '@googlemaps/google-maps-services-js',
+  'intercom-client',
   // Needs to be external for email-rendering to be able to use prerenderToNodeStream,
   // because nextjs bundles a version of react-dom which omits react-dom/static (and
   // doesn't provide anything in its place that would work for server-component email
@@ -704,3 +706,11 @@ module.exports = process.env.E2E ? module.exports : withSentryConfig(
     }
   }
 );
+
+if (process.env.ANALYZE === 'true') {
+  const withBundleAnalyzer = require('@next/bundle-analyzer')({
+    enabled: process.env.ANALYZE === 'true',
+  })
+   
+  module.exports = withBundleAnalyzer(module.exports);  
+}

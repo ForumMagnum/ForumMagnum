@@ -62,7 +62,7 @@ export async function createTag({ data }: CreateTagInput, context: ResolverConte
     backgroundTask(elasticSyncDocument('Tags', documentWithId._id));
   }
 
-  await uploadImagesInEditableFields({
+  uploadImagesInEditableFields({
     newDoc: documentWithId,
     props: asyncProperties,
   });
@@ -106,7 +106,7 @@ export async function updateTag({ selector, data }: UpdateTagInput, context: Res
 
   await updateCountOfReferencesOnOtherCollectionsAfterUpdate('Tags', updatedDocument, oldDocument);
 
-  await reuploadImagesIfEditableFieldsChanged({
+  reuploadImagesIfEditableFieldsChanged({
     newDoc: updatedDocument,
     props: updateCallbackProperties,
   });

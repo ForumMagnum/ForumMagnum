@@ -113,10 +113,6 @@ function validateSettings(registeredSettings: Record<string, "server" | "public"
 export const openAIApiKey = new ServerSetting<string|null>('languageModels.openai.apiKey', null);
 export const openAIOrganizationId = new ServerSetting<string|null>('languageModels.openai.organizationId', null);
 
-export const vertexDocumentServiceParentPathSetting = new ServerSetting<string | null>('googleVertex.documentServiceParentPath', null);
-export const vertexUserEventServiceParentPathSetting = new ServerSetting<string | null>('googleVertex.userEventServiceParentPath', null);
-export const vertexRecommendationServingConfigPathSetting = new ServerSetting<string | null>('googleVertex.recommendationServingConfigPath', null);
-
 export const tagBotAccountSlug = new ServerSetting<string|null>('languageModels.autoTagging.taggerAccountSlug', null);
 export const tagBotActiveTimeSetting = new ServerSetting<"always" | "weekends">('languageModels.autoTagging.activeTime', "always");
 

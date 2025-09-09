@@ -82,7 +82,7 @@ export async function createJargonTerm({ data }: CreateJargonTermInput, context:
     newDocument: documentWithId,
   };
 
-  await uploadImagesInEditableFields({
+  uploadImagesInEditableFields({
     newDoc: documentWithId,
     props: asyncProperties,
   });
@@ -122,7 +122,7 @@ export async function updateJargonTerm({ selector, data }: UpdateJargonTermInput
 
   await updateCountOfReferencesOnOtherCollectionsAfterUpdate('JargonTerms', updatedDocument, oldDocument);
 
-  await reuploadImagesIfEditableFieldsChanged({
+  reuploadImagesIfEditableFieldsChanged({
     newDoc: updatedDocument,
     props: updateCallbackProperties,
   });

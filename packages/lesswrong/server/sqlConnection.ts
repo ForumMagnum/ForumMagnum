@@ -2,7 +2,6 @@ import pgp, { IDatabase, IEventContext } from "pg-promise";
 import type { IClient, IResult } from "pg-promise/typescript/pg-subset";
 import Query from "@/server/sql/Query";
 import { isAnyTest, isDevelopment } from "../lib/executionEnvironment";
-import { pgConnIdleTimeoutMsSetting } from "../lib/instanceSettings";
 import omit from "lodash/omit";
 import { logAllQueries, logQueryArguments, measureSqlBytesDownloaded } from "@/server/sql/sqlClient";
 import { getIsSSRRequest, getParentTraceId, recordSqlQueryPerfMetric } from "./perfMetrics";
@@ -234,7 +233,7 @@ function getWrappedClient(
   const db = pgPromiseLib({
     connectionString: url,
     max: MAX_CONNECTIONS,
-    idleTimeoutMillis: pgConnIdleTimeoutMsSetting.get(),
+    idleTimeoutMillis: 10_000,
   });
 
   const client: SqlClient = {
@@ -261,31 +260,17 @@ declare global {
 }
 
 if (!globalThis['pgClients']) {
-  // Wrapped in a proxy to defer initialization, so that we don't end up calling
-  // a setting `.get()` (pgConnIdleTimeoutMsSetting in getWrappedClient) at
-  // import-time, which shouldn't matter in the case of this setting but
-  // there's a unit test prohibiting it.
-  globalThis['pgClients'] = new Proxy({}, {
-    get(target: SqlClientMap, url: string) {
-      if (url in target) {
-        return target[url];
-      }
-
-      if (process.env.PG_URL) {
-        target[process.env.PG_URL] = getWrappedClient(process.env.PG_URL, false);
-      }
-
-      if (process.env.PG_READ_URL) {
-        target[process.env.PG_READ_URL] = getWrappedClient(process.env.PG_READ_URL, false);
-      }
-
-      if (process.env.PG_NO_TRANSACTION_URL) {
-        target[process.env.PG_NO_TRANSACTION_URL] = getWrappedClient(process.env.PG_NO_TRANSACTION_URL, false);
-      }
-
-      return target[url];
-    }
-  });
+  globalThis['pgClients'] = {
+    ...(process.env.PG_URL ? {
+      [process.env.PG_URL]: getWrappedClient(process.env.PG_URL, false),
+    } : {}),
+    ...(process.env.PG_READ_URL ? {
+      [process.env.PG_READ_URL]: getWrappedClient(process.env.PG_READ_URL, false),
+    } : {}),
+    ...(process.env.PG_NO_TRANSACTION_URL ? {
+      [process.env.PG_NO_TRANSACTION_URL]: getWrappedClient(process.env.PG_NO_TRANSACTION_URL, false),
+    } : {}),
+  };
 }
 
 export const createSqlConnection = (

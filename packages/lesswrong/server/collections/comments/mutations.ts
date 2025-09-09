@@ -120,7 +120,7 @@ export async function createComment({ data }: CreateCommentInput, context: Resol
   await commentsAlignmentNew(documentWithId, context);
   await commentsNewNotifications(documentWithId, context);
 
-  await uploadImagesInEditableFields({
+  uploadImagesInEditableFields({
     newDoc: documentWithId,
     props: asyncProperties,
   });
@@ -186,7 +186,7 @@ export async function updateComment({ selector, data }: UpdateCommentInput, cont
   await commentsPublishedNotifications(updatedDocument, oldDocument, context);
   await sendAlignmentSubmissionApprovalNotifications(updatedDocument, oldDocument);  
 
-  await reuploadImagesIfEditableFieldsChanged({
+  reuploadImagesIfEditableFieldsChanged({
     newDoc: updatedDocument,
     props: updateCallbackProperties,
   });

@@ -64,7 +64,7 @@ export async function createChapter({ data }: CreateChapterInput, context: Resol
 
   await canonizeChapterPostInfo(documentWithId, context);
 
-  await uploadImagesInEditableFields({
+  uploadImagesInEditableFields({
     newDoc: documentWithId,
     props: asyncProperties,
   });
@@ -107,7 +107,7 @@ export async function updateChapter({ selector, data }: UpdateChapterInput, cont
 
   await canonizeChapterPostInfo(updatedDocument, context);
 
-  await reuploadImagesIfEditableFieldsChanged({
+  reuploadImagesIfEditableFieldsChanged({
     newDoc: updatedDocument,
     props: updateCallbackProperties,
   });

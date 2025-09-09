@@ -4,10 +4,10 @@ import { postGetPageUrl } from '../../lib/collections/posts/helpers';
 import { getSiteUrl } from "../../lib/vulcan-lib/utils";
 import { defineStyles } from "@/components/hooks/defineStyles";
 import { EmailContextType, useEmailStyles } from "./emailContext";
-import { useQuery } from "@/lib/crud/useQuery";
 import { gql } from "@/lib/generated/gql-codegen";
 import PrettyEventDateTime from '@/components/events/modules/PrettyEventDateTime';
 import { useEmailRecipientTimezone } from './useEmailRecipientTimezone';
+import { useEmailQuery } from '../vulcan-lib/query';
 
 const PostsBaseQuery = gql(`
   query EventUpdatedEmail($documentId: String) {
@@ -53,18 +53,19 @@ const styles = defineStyles("EventUpdatedEmail", (theme: ThemeType) => ({
   onlineEventLocation: {},
 }));
 
-export const EventUpdatedEmail = ({postId, emailContext}: {
+export const EventUpdatedEmail = async({postId, emailContext}: {
   postId: string,
   emailContext: EmailContextType
 }) => {
   const classes = useEmailStyles(styles, emailContext);
-  const { loading, data } = useQuery(PostsBaseQuery, {
+  const { data } = await useEmailQuery(PostsBaseQuery, {
     variables: { documentId: postId },
+    emailContext
   });
   const post = data?.post?.result;
   const { timezone, timezoneIsKnown } = useEmailRecipientTimezone(emailContext)
   
-  if (loading || !post) return null;
+  if (!post) return null;
   
   const link = postGetPageUrl(post, true);
   

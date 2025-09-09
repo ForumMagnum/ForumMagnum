@@ -5,15 +5,15 @@ import filter from 'lodash/filter';
 import { tagGetSubforumUrl, tagGetDiscussionUrl } from '../../lib/collections/tags/helpers';
 import { commentGetPageUrl } from '../../lib/collections/comments/helpers';
 import startCase from 'lodash/startCase';
-import { isFriendlyUI } from '@/themes/forumTheme';
 import { defineStyles } from "@/components/hooks/defineStyles";
 import { EmailContextType, useEmailStyles } from "./emailContext";
 import { EmailFormatDate } from './EmailFormatDate';
 import { EmailUsername } from './EmailUsername';
 import { EmailContentItemBody } from './EmailContentItemBody';
-import { useQuery } from "@/lib/crud/useQuery";
 import { gql } from "@/lib/generated/gql-codegen";
 import { maybeDate } from '@/lib/utils/dateUtils';
+import { useEmailQuery } from '../vulcan-lib/query';
+import { captureException } from '@sentry/nextjs';
 
 const CommentsListWithParentMetadataQuery = gql(`
   query EmailComment2($documentId: String) {
@@ -127,13 +127,14 @@ const HeadingLink = ({ text, href, emailContext }: {
   );
 };
 
-const EmailCommentsOnPostHeader = ({postId, allShortform, emailContext}: {
+const EmailCommentsOnPostHeader = async ({postId, allShortform, emailContext}: {
   postId: string,
   allShortform: boolean,
   emailContext: EmailContextType,
 }) => {
-  const { data } = useQuery(PostsListQuery, {
+  const { data } = await useEmailQuery(PostsListQuery, {
     variables: { documentId: postId },
+    emailContext
   });
   const post = data?.post?.result;
   if (!post) return null;
@@ -143,13 +144,14 @@ const EmailCommentsOnPostHeader = ({postId, allShortform, emailContext}: {
   return <HeadingLink text={title} href={postGetPageUrl(post, true)} emailContext={emailContext}/>
 }
 
-const EmailCommentsOnTagHeader = ({tagId, isSubforum, emailContext}: {
+const EmailCommentsOnTagHeader = async ({tagId, isSubforum, emailContext}: {
   tagId: string,
   isSubforum: boolean,
   emailContext: EmailContextType
 }) => {
-  const { data } = useQuery(TagPreviewFragmentQuery, {
+  const { data } = await useEmailQuery(TagPreviewFragmentQuery, {
     variables: { documentId: tagId },
+    emailContext
   });
   const tag = data?.tag?.result;
   if (!tag)
@@ -170,20 +172,25 @@ const EmailCommentsOnTagHeader = ({tagId, isSubforum, emailContext}: {
   }
 }
 
-export const EmailComment = ({commentId, hideTitle, emailContext}: {
+export const EmailComment = async ({commentId, hideTitle, emailContext}: {
   commentId: string,
   hideTitle?: boolean,
   emailContext: EmailContextType,
 }) => {
-  const { loading, error, data } = useQuery(CommentsListWithParentMetadataQuery, {
+  const { data, errors } = await useEmailQuery(CommentsListWithParentMetadataQuery, {
     variables: { documentId: commentId },
+    emailContext
   });
   const comment = data?.comment?.result;
+
+  if (errors) {
+    // eslint-disable-next-line no-console
+    console.error(errors);
+    captureException(errors);
+    throw errors;
+  }
   
-  if (loading) return null;
-  if (error) {
-    throw error;
-  } else if (!comment) {
+  if (!comment) {
     throw new Error(`Could not load comment ${commentId} for notification`);
   }
   

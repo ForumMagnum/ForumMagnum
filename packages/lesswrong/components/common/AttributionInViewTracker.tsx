@@ -11,7 +11,6 @@ interface AttributionEventProps {
   post: PostsListBase;
   portion: number;
   recommId?: string;
-  vertexAttributionId?: string;
 }
 
 const AttributionInViewTracker = ({eventProps, observerProps, children}: {
@@ -34,7 +33,7 @@ const AttributionInViewTracker = ({eventProps, observerProps, children}: {
       const { isIntersecting, intersectionRatio } = entry;
       if (!alreadySent && isIntersecting && intersectionRatio > 0) {
         if (recombeeEnabledSetting.get()) {
-          const { vertexAttributionId, post, ...recombeeEventProps } = eventProps;
+          const { post, ...recombeeEventProps } = eventProps;
           if (isRecombeeRecommendablePost(post)) {
             const postId = post._id;
             void sendRecombeeViewPortionEvent({ ...recombeeEventProps, postId, timestamp: new Date(), userId: attributedUserId });

@@ -80,7 +80,7 @@ export async function createUser({ data }: CreateUserInput, context: ResolverCon
   await subscribeToEAForumAudience(documentWithId);
   await sendWelcomingPM(documentWithId);
 
-  await uploadImagesInEditableFields({
+  uploadImagesInEditableFields({
     newDoc: documentWithId,
     props: asyncProperties,
   });
@@ -145,7 +145,7 @@ export async function updateUser({ selector, data }: { data: UpdateUserDataInput
   await newAlignmentUserSendPMAsync(updatedDocument, oldDocument, context);
   await newAlignmentUserMoveShortform(updatedDocument, oldDocument, context);
 
-  await reuploadImagesIfEditableFieldsChanged({
+  reuploadImagesIfEditableFieldsChanged({
     newDoc: updatedDocument,
     props: updateCallbackProperties,
   });

@@ -114,7 +114,6 @@ import './server/resolvers/moderationResolvers';
 import './server/resolvers/typingIndicatorsResolvers';
 import './server/resolvers/databaseSettingsResolvers';
 import './server/resolvers/reviewWinnerResolvers';
-import './server/resolvers/googleVertexResolvers';
 import './server/resolvers/defaultResolvers';
 import './server/resolvers/forumEventResolvers';
 import './server/resolvers/anthropicResolvers';

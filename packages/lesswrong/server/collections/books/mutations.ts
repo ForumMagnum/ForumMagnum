@@ -57,7 +57,7 @@ export async function createBook({ data }: CreateBookInput, context: ResolverCon
     newDocument: documentWithId,
   };
 
-  await uploadImagesInEditableFields({
+  uploadImagesInEditableFields({
     newDoc: documentWithId,
     props: asyncProperties,
   });
@@ -97,7 +97,7 @@ export async function updateBook({ selector, data }: UpdateBookInput, context: R
 
   await updateCollectionLinks(updatedDocument);
 
-  await reuploadImagesIfEditableFieldsChanged({
+  reuploadImagesIfEditableFieldsChanged({
     newDoc: updatedDocument,
     props: updateCallbackProperties,
   });

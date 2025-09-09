@@ -11,11 +11,9 @@ import {
 } from "../../lib/collections/posts/helpers";
 import qs from "qs";
 import type { Placement as PopperPlacementType } from "popper.js"
-import { AnnualReviewMarketInfo, getMarketInfo, highlightMarket } from "../../lib/collections/posts/annualReviewMarkets";
-import { Link } from '../../lib/reactRouterWrapper';
-import { commentGetPageUrl } from '../../lib/collections/comments/helpers';
-import { RECOMBEE_RECOMM_ID_QUERY_PARAM, VERTEX_ATTRIBUTION_ID_QUERY_PARAM } from './PostsPage/constants';
-import { recombeeEnabledSetting, vertexEnabledSetting } from '@/lib/instanceSettings';
+import { AnnualReviewMarketInfo, getMarketInfo } from "../../lib/collections/posts/annualReviewMarkets";
+import { RECOMBEE_RECOMM_ID_QUERY_PARAM } from './PostsPage/constants';
+import { recombeeEnabledSetting } from '@/lib/instanceSettings';
 import type { PostsListViewType } from "../hooks/usePostsListView";
 import { maybeDate } from "@/lib/utils/dateUtils";
 
@@ -86,7 +84,6 @@ export type PostsItemConfig = {
   /** Whether or not to show interactive voting arrows */
   isVoteable?: boolean,
   recombeeRecommId?: string,
-  vertexAttributionId?: string,
   /** Whether or not to make new post items have bold post item dates */
   emphasizeIfNew?: boolean,
   className?: string,
@@ -135,7 +132,6 @@ export const usePostsItem = ({
   useCuratedDate = true,
   isVoteable = false,
   recombeeRecommId,
-  vertexAttributionId,
   emphasizeIfNew = false,
   className,
 }: PostsItemConfig) => {
@@ -148,8 +144,7 @@ export const usePostsItem = ({
 
   const recommendationEventOptions: RecommendationOptions = useMemo(() => ({
     recombeeOptions: { recommId: recombeeRecommId },
-    vertexOptions: { attributionId: vertexAttributionId },
-  }), [recombeeRecommId, vertexAttributionId]);
+  }), [recombeeRecommId]);
 
   const toggleComments = useCallback(
     () => {
@@ -188,9 +183,6 @@ export const usePostsItem = ({
 
   if (recombeeRecommId && recombeeEnabledSetting.get()) {
     postLink = `${postLink}?${RECOMBEE_RECOMM_ID_QUERY_PARAM}=${recombeeRecommId}`
-    // These shouldn't ever both be present at the same time
-  } else if (vertexAttributionId && vertexEnabledSetting.get()) {
-    postLink = `${postLink}?${VERTEX_ATTRIBUTION_ID_QUERY_PARAM}=${vertexAttributionId}`
   }
 
   const showDismissButton = Boolean(currentUser && resumeReading);
@@ -213,7 +205,7 @@ export const usePostsItem = ({
 
   const annualReviewMarketInfo = getMarketInfo(post)
 
-  const isRecommendation = !!recombeeRecommId || !!vertexAttributionId;
+  const isRecommendation = !!recombeeRecommId;
 
   return {
     post,

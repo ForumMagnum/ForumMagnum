@@ -73,7 +73,7 @@ export async function createMessage({ data }: CreateMessageInput, context: Resol
   await updateConversationActivity(documentWithId, context);
   await sendMessageNotifications(documentWithId, context);
 
-  await uploadImagesInEditableFields({
+  uploadImagesInEditableFields({
     newDoc: documentWithId,
     props: asyncProperties,
   });
@@ -105,7 +105,7 @@ export async function updateMessage({ selector, data }: UpdateMessageInput, cont
 
   await updateCountOfReferencesOnOtherCollectionsAfterUpdate('Messages', updatedDocument, updateCallbackProperties.oldDocument);
 
-  await reuploadImagesIfEditableFieldsChanged({
+  reuploadImagesIfEditableFieldsChanged({
     newDoc: updatedDocument,
     props: updateCallbackProperties,
   });

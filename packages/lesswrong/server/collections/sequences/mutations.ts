@@ -72,7 +72,7 @@ export async function createSequence({ data }: CreateSequenceInput, context: Res
 
   createFirstChapter(documentWithId, context);
 
-  await uploadImagesInEditableFields({
+  uploadImagesInEditableFields({
     newDoc: documentWithId,
     props: asyncProperties,
   });
@@ -110,7 +110,7 @@ export async function updateSequence({ selector, data }: UpdateSequenceInput, co
 
   await updateCountOfReferencesOnOtherCollectionsAfterUpdate('Sequences', updatedDocument, oldDocument);
 
-  await reuploadImagesIfEditableFieldsChanged({
+  reuploadImagesIfEditableFieldsChanged({
     newDoc: updatedDocument,
     props: updateCallbackProperties,
   });

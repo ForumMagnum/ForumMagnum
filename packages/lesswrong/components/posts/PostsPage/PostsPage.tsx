@@ -6,7 +6,7 @@ import { useCurrentUser } from '../../common/withUser';
 import withErrorBoundary from '../../common/withErrorBoundary'
 import { useRecordPostView } from '../../hooks/useRecordPostView';
 import { AnalyticsContext, useTracking } from "../../../lib/analyticsEvents";
-import { isAF, isEAForum, isLWorAF, recombeeEnabledSetting, vertexEnabledSetting } from '@/lib/instanceSettings';
+import { isAF, isEAForum, isLWorAF, recombeeEnabledSetting } from '@/lib/instanceSettings';
 import classNames from 'classnames';
 import { hasPostRecommendations, commentsTableOfContentsEnabled, hasSidenotes } from '../../../lib/betas';
 import { useDialog } from '../../common/withDialog';
@@ -74,7 +74,7 @@ import FundraisingThermometer from "../../common/FundraisingThermometer";
 import PostPageReviewButton from "./PostPageReviewButton";
 import HoveredReactionContextProvider from "../../votes/lwReactions/HoveredReactionContextProvider";
 import FixedPositionToCHeading from '../TableOfContents/PostFixedPositionToCHeading';
-import { CENTRAL_COLUMN_WIDTH, MAX_COLUMN_WIDTH, RECOMBEE_RECOMM_ID_QUERY_PARAM, RIGHT_COLUMN_WIDTH_WITH_SIDENOTES, RIGHT_COLUMN_WIDTH_WITHOUT_SIDENOTES, RIGHT_COLUMN_WIDTH_XS, SHARE_POPUP_QUERY_PARAM, sidenotesHiddenBreakpoint, VERTEX_ATTRIBUTION_ID_QUERY_PARAM } from './constants';
+import { CENTRAL_COLUMN_WIDTH, MAX_COLUMN_WIDTH, RECOMBEE_RECOMM_ID_QUERY_PARAM, RIGHT_COLUMN_WIDTH_WITH_SIDENOTES, RIGHT_COLUMN_WIDTH_WITHOUT_SIDENOTES, RIGHT_COLUMN_WIDTH_XS, SHARE_POPUP_QUERY_PARAM, sidenotesHiddenBreakpoint } from './constants';
 import { getPostDescription, getStructuredData } from './structuredData';
 import { defineStyles, useStyles } from '@/components/hooks/useStyles';
 import { ReadingProgressBar } from './ReadingProgressBar';
@@ -447,7 +447,6 @@ const PostsPage = ({fullPost, postPreload, refetch}: {
 
   useEffect(() => {
     const recommId = query[RECOMBEE_RECOMM_ID_QUERY_PARAM];
-    const attributionId = query[VERTEX_ATTRIBUTION_ID_QUERY_PARAM];
 
     void recordPostView({
       post: post,
@@ -456,11 +455,10 @@ const PostsPage = ({fullPost, postPreload, refetch}: {
       },
       recommendationOptions: {
         recombeeOptions: { recommId },
-        vertexOptions: { attributionId }
       }
     });
 
-    if (!recombeeEnabledSetting.get() && !vertexEnabledSetting.get()) return;
+    if (!recombeeEnabledSetting.get()) return;
     setRecommId(recommId);
     setAttributionId(attributionId);
 
@@ -468,11 +466,10 @@ const PostsPage = ({fullPost, postPreload, refetch}: {
     // sharing links with the query params still present
     const currentQuery = isEmpty(query) ? {} : query;
     
-    if (currentQuery[RECOMBEE_RECOMM_ID_QUERY_PARAM] || currentQuery[VERTEX_ATTRIBUTION_ID_QUERY_PARAM]) {
+    if (currentQuery[RECOMBEE_RECOMM_ID_QUERY_PARAM]) {
       const newQuery = {
         ...currentQuery,
         [RECOMBEE_RECOMM_ID_QUERY_PARAM]: undefined,
-        [VERTEX_ATTRIBUTION_ID_QUERY_PARAM]: undefined
       };
       navigate({...location.location, search: `?${qs.stringify(newQuery)}`}, { replace: true });  
     }
@@ -788,7 +785,7 @@ const PostsPage = ({fullPost, postPreload, refetch}: {
 
   const commentsSection =
     <AnalyticsInViewTracker eventProps={{inViewType: "commentsSection"}}>
-      <AttributionInViewTracker eventProps={{ post, portion: 1, recommId, vertexAttributionId: attributionId }}>
+      <AttributionInViewTracker eventProps={{ post, portion: 1, recommId }}>
         {/* Answers Section */}
         {post.question && <div className={classes.centralColumn}>
           <div id="answers"/>

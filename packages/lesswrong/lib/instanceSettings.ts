@@ -163,15 +163,7 @@ export const sentryUrlSetting = new PublicInstanceSetting<string|null>('sentry.u
 export const sentryEnvironmentSetting = new PublicInstanceSetting<string|null>('sentry.environment', null, "warning"); // Environment, i.e. "development"
 export const sentryReleaseSetting = new PublicInstanceSetting<string|null>('sentry.release', null, "warning") // Current release, i.e. hash of lattest commit
 
-export const getDefaultAbsoluteUrl = (): string => {
-  if (process.env.VERCEL_BRANCH_URL) {
-    return `https://${process.env.VERCEL_BRANCH_URL}`;
-  } else {
-    return `http://localhost:3000/`;
-  }
-}
-
-export const siteUrlSetting = new PublicInstanceSetting<string>('siteUrl', getDefaultAbsoluteUrl(), "optional")
+export const siteUrlSetting = new PublicInstanceSetting<string>('siteUrl', 'http://localhost:3000/', "optional")
 
 // FM Crossposting
 export const fmCrosspostSiteNameSetting = new PublicInstanceSetting<string|null>("fmCrosspost.siteName", null, "optional");
@@ -290,11 +282,6 @@ export const homepagePostFeedsSetting = new PublicInstanceSetting<PostFeedDetail
   ]
   , 'optional')
 
-/**
- * This is a filepath that is _relative_ to the location of the instance settings file itself.
- * See full explanation in `google-vertex/client.ts`
- */
-export const googleRecommendationsCredsPath = new PublicInstanceSetting<string | null>('google.recommendationsServiceCredsPath', null, "optional");
 
 export const recombeeCacheTtlMsSetting = new PublicInstanceSetting<number>('recombee.cacheTtlMs', 1000 * 60 * 60 * 24 * 30, "optional");
 
@@ -380,8 +367,6 @@ export const searchOriginDate = new PublicInstanceSetting<string>(
   "2014-06-01T01:00:00Z",
   "optional"
 );
-
-export const pgConnIdleTimeoutMsSetting = new PublicInstanceSetting<number>('pg.idleTimeoutMs', 10000, 'optional');
 
 // Database ID string that this config file should match with
 export const expectedDatabaseIdSetting = new PublicInstanceSetting<string | null>('expectedDatabaseId', null, "warning");
@@ -520,8 +505,6 @@ export const recommendationsTabManuallyStickiedPostIdsSetting = new PublicInstan
 export const blackBarTitle = new PublicInstanceSetting<string | null>('blackBarTitle', null, "optional");
 
 export const quickTakesTagsEnabledSetting = new PublicInstanceSetting<boolean>('quickTakes.tagsEnabled', false, "optional");
-
-export const vertexEnabledSetting = new PublicInstanceSetting<boolean>('googleVertex.enabled', false, "optional");
 
 /** Whether to show permalinked (?commentId=...) comments at the top of the page, vs scrolling to show them in context */
 export const commentPermalinkStyleSetting = new PublicInstanceSetting<'top' | 'in-context'>('commentPermalinkStyle', 'top', "optional");

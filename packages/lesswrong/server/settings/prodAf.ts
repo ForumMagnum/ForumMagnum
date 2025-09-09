@@ -5,6 +5,7 @@ export const prodAf = merge({
   forumType: "AlignmentForum",
   title: "AI Alignment Forum",
   siteNameWithArticle: "the AI Alignment Forum",
+  siteUrl: "https://www.alignmentforum.org",
   sentry: {
     url: "https://1ab1949fc8d04608b43132f37bb2a1b0@sentry.io/1301611",
     environment: "alignmentForum",
