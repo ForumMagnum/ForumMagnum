@@ -381,8 +381,6 @@ export const searchOriginDate = new PublicInstanceSetting<string>(
   "optional"
 );
 
-export const pgConnIdleTimeoutMsSetting = new PublicInstanceSetting<number>('pg.idleTimeoutMs', 10000, 'optional');
-
 // Database ID string that this config file should match with
 export const expectedDatabaseIdSetting = new PublicInstanceSetting<string | null>('expectedDatabaseId', null, "warning");
 
