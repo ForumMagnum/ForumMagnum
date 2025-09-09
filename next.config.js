@@ -5,7 +5,7 @@ const serverExternalPackages = [
   'superagent-proxy', 'gpt-3-encoder', 'mathjax-node', 'mathjax', 'turndown', 'cloudinary',
   '@aws-sdk/client-cloudfront', 'auth0', 'jimp', 'juice', '@sentry/nextjs',
   'request', 'stripe', 'openai', 'twitter-api-v2', 'draft-js', 'draft-convert', 'csso',
-  'js-tiktoken', 'cheerio', '@elastic/elasticsearch', 'zod', '@googlemaps/google-maps-services-js',
+  'js-tiktoken', 'cheerio', '@elastic/elasticsearch', '@googlemaps/google-maps-services-js',
   'intercom-client',
   // Needs to be external for email-rendering to be able to use prerenderToNodeStream,
   // because nextjs bundles a version of react-dom which omits react-dom/static (and
