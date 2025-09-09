@@ -71,17 +71,12 @@ export const prodLw = merge({
         showToLoggedOut: true
       },
       {
-        name: "forum-subscribed-authors",
-        label: "Subscribed",
-        description: "Posts and comments by people you've explicitly subscribed to.",
-        isInfiniteScroll: true
-      },
-      {
-        name: "vertex-default",
-        label: "Vertex",
-        description: "Experimental feed for Google Vertex recommendations.",
+        name: "ultrafeed",
+        label: "Feed",
+        description: "The new LessWrong feed",
         showLabsIcon: true,
-        adminOnly: true
+        isInfiniteScroll: true,
+        disabled: true
       },
       {
         name: "forum-bookmarks",
