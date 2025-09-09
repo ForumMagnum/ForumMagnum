@@ -12,11 +12,9 @@ import {
 } from "@/components/ultraFeed/ultraFeedTypes";
 import { filterNonnull } from "@/lib/utils/typeGuardUtils";
 import gql from 'graphql-tag';
-import { bulkRawInsert } from '../manualMigrations/migrationUtils';
 import cloneDeep from 'lodash/cloneDeep';
 import { getUltraFeedCommentThreads, generateThreadHash } from '@/server/ultraFeed/ultraFeedThreadHelpers';
 import { DEFAULT_SETTINGS as DEFAULT_ULTRAFEED_SETTINGS, UltraFeedResolverSettings } from '@/components/ultraFeed/ultraFeedSettingsTypes';
-import { loadByIds } from '@/lib/loaders';
 import { getUltraFeedPostThreads } from '@/server/ultraFeed/ultraFeedPostHelpers';
 import { getUltraFeedBookmarks, PreparedBookmarkItem } from '../ultraFeed/ultraFeedBookmarkHelpers';
 import { randomId } from '@/lib/random';
@@ -24,7 +22,14 @@ import { captureEvent } from '@/lib/analyticsEvents';
 import union from 'lodash/union';
 import groupBy from 'lodash/groupBy';
 import mergeWith from 'lodash/mergeWith';
-import { backgroundTask } from "../utils/backgroundTask";
+import { bulkRawInsert } from '../manualMigrations/migrationUtils';
+import { backgroundTask } from '../utils/backgroundTask';
+import { 
+  loadMultipleEntitiesById, 
+  createUltraFeedResponse,
+  UltraFeedEventInsertData,
+  insertSubscriptionSuggestions
+} from './ultraFeedResolverHelpers';
 
 interface UltraFeedDateCutoffs {
   latestPostsMaxAgeDays: number;
@@ -323,32 +328,7 @@ const createSourcesMap = (
   return Object.fromEntries(Object.entries(sources).filter(([, v]) => v?.items.length ?? 0 > 0));
 };
 
-/**
- * Insert subscription suggestions into the sampled items with probability P
- * at a random position (but not first)
- */
-const maybeInsertSubscriptionSuggestions = (
-  sampled: SampledItem[],
-  probability: number = 0.2, // TODO: make this higher on initial load
-): SampledItem[] => {
-  if (sampled.length === 0 || Math.random() > probability) {
-    return sampled;
-  }
-  
-  // Insert at a random position between index 4 and length
-  const insertPosition = Math.floor(Math.random() * (sampled.length - 4)) + 4;
-  
-  const subscriptionSuggestion: SampledItem = {
-    type: "feedSubscriptionSuggestions",
-    feedSubscriptionSuggestions: {
-      suggestedUserIds: []
-    }
-  };
-  
-  const result = [...sampled];
-  result.splice(insertPosition, 0, subscriptionSuggestion);
-  return result;
-};
+
 
 /**
  * Extract IDs that need to be loaded from sampled items
@@ -590,8 +570,6 @@ const transformItemsForResolver = (
   }));
 };
 
-type UltraFeedEventInsertData = Pick<DbUltraFeedEvent, '_id' | 'userId' | 'eventType' | 'collectionName' | 'documentId' > & { event?: ServedEventData };
-
 /**
  * Create UltraFeed events for tracking served items
  */
@@ -735,13 +713,7 @@ export const ultraFeedGraphQLQueries = {
       if (totalWeight <= 0) {
         // eslint-disable-next-line no-console
         console.warn("UltraFeedResolver: Total source weight is zero. No items can be fetched or sampled. Returning empty results.");
-        return {
-          __typename: "UltraFeedQueryResults",
-          cutoff: null,
-          endOffset: offset || 0,
-          results: [],
-          sessionId
-        };
+        return createUltraFeedResponse([], offset || 0, sessionId, null);
       }
 
       // TODO: This is a little hand-wavy since fetching them together breaks the paradigm. Figure out better solution later.
@@ -785,41 +757,25 @@ export const ultraFeedGraphQLQueries = {
       const sampledItemsDeduped = dedupSampledItems(sampledItemsRaw);
       
       // Maybe insert subscription suggestions with 20% probability
-      const sampledItems = maybeInsertSubscriptionSuggestions(sampledItemsDeduped, 0.2);
+      const sampledItems = insertSubscriptionSuggestions(sampledItemsDeduped, (): SampledItem => ({
+        type: "feedSubscriptionSuggestions",
+        feedSubscriptionSuggestions: { suggestedUserIds: [] }
+      }), 0.2, 4);
       
       // Extract IDs to load
       const { spotlightIds, commentIds, postIds, needsSuggestedUsers } = extractIdsToLoad(sampledItems);
 
-      const suggestedUsersPromise = needsSuggestedUsers
-        ? context.repos.users.getSubscriptionFeedSuggestedUsers(currentUser._id, 30)
-        : Promise.resolve([]);
-      
-      // Load full content for sampled items
-      const [spotlightsResults, commentsResults, postsResults, suggestedUsers] = await Promise.all([
-        loadByIds(context, "Spotlights", spotlightIds),
-        loadByIds(context, "Comments", commentIds),
-        loadByIds(context, "Posts",     postIds),
-        suggestedUsersPromise
+      // Load full content for sampled items and suggested users in parallel
+      const [{ postsById, commentsById, spotlightsById }, suggestedUsers] = await Promise.all([
+        loadMultipleEntitiesById(context, {
+          posts: postIds,
+          comments: commentIds,
+          spotlights: spotlightIds
+        }),
+        needsSuggestedUsers
+          ? context.repos.users.getSubscriptionFeedSuggestedUsers(currentUser._id, 30)
+          : Promise.resolve([])
       ]);
-      
-      // Create lookup maps for loaded content
-      const spotlightsById = new Map<string, DbSpotlight>();
-      spotlightsResults.forEach(result => {
-        if (result && result._id) {
-          spotlightsById.set(result._id, result);
-        }
-      });
-
-      const commentsById = new Map<string, DbComment>();
-      commentsResults.forEach(result => {
-        if (result && result._id) {
-          commentsById.set(result._id, result);
-        }
-      });
-
-      const postsById = new Map<string, DbPost>();
-      postsResults.forEach(p => p?._id && postsById.set(p._id, p));
-      
       const resultsWithoutDuplication = transformItemsForResolver(sampledItems, spotlightsById, commentsById, postsById, suggestedUsers);
       
       const results = deduplicatePostsInThreads(resultsWithoutDuplication);
@@ -851,17 +807,11 @@ export const ultraFeedGraphQLQueries = {
         const currentOffset = offset ?? 0; 
         const eventsToCreate = createUltraFeedEvents(results, currentUser._id, sessionId, currentOffset);
         if (eventsToCreate.length > 0) {
-          backgroundTask(bulkRawInsert("UltraFeedEvents", eventsToCreate as DbUltraFeedEvent[]));
+          backgroundTask(bulkRawInsert('UltraFeedEvents', eventsToCreate as DbUltraFeedEvent[]));
         }
       }
 
-      const response = {
-        __typename: "UltraFeedQueryResults" as const,
-        cutoff: results.length > 0 ? new Date() : null,
-        endOffset: (offset ?? 0) + results.length,
-        results,
-        sessionId
-      };
+      const response = createUltraFeedResponse(results, offset ?? 0, sessionId);
 
       const executionTime = Date.now() - startTime;
       captureEvent('ultraFeedPerformance', { 

@@ -4,10 +4,14 @@ import { defineStyles, useStyles } from '../../components/hooks/useStyles';
 
 const styles = defineStyles('FeedItemWrapper', (theme: ThemeType) => ({
   wrapper: {
-    marginBottom: 16,
+    '&:not(:empty)': {
+      marginBottom: 16,
+    },
     [theme.breakpoints.down('sm')]: {
       marginBottom: 0,
-      borderBottom: theme.palette.ultraFeed.cardSeparator
+      '&:not(:empty)': {
+        borderBottom: theme.palette.ultraFeed.cardSeparator
+      }
     }
   },
 }));

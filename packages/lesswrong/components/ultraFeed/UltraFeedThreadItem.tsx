@@ -1,7 +1,7 @@
 import React, { useMemo, useState, useCallback, useEffect } from "react";
 import { AnalyticsContext, useTracking } from "../../lib/analyticsEvents";
 import { defineStyles, useStyles } from "../hooks/useStyles";
-import { DisplayFeedCommentThread, FeedCommentMetaInfo, FeedItemDisplayStatus, FeedItemSourceType } from "./ultraFeedTypes";
+import { DisplayFeedCommentThread, FeedCommentMetaInfo, FeedPostMetaInfo, FeedItemDisplayStatus, FeedItemSourceType } from "./ultraFeedTypes";
 import { UltraFeedSettingsType, DEFAULT_SETTINGS } from "./ultraFeedSettingsTypes";
 import UltraFeedPostItem from "./UltraFeedPostItem";
 import UltraFeedThreadCommentsList from "./UltraFeedThreadCommentsList";
@@ -9,6 +9,7 @@ import Loading from "../vulcan-core/Loading";
 import { useQuery } from "@/lib/crud/useQuery";
 import { gql } from "@/lib/generated/gql-codegen";
 import { userGetDisplayName } from "@/lib/collections/users/helpers";
+import { useUltraFeedContext } from "./UltraFeedContextProvider";
 
 // Only used as a fallback when post is not preloaded
 const PostsListWithVotesQuery = gql(`
@@ -143,6 +144,7 @@ const UltraFeedThreadItem = ({thread, index, settings = DEFAULT_SETTINGS, startR
   
   const { comments, commentMetaInfos, isOnReadPost, postSources, post: preloadedPost } = thread;
   const {captureEvent} = useTracking();
+  const { feedType } = useUltraFeedContext();
 
   const isShortform = comments[0].shortform
   const postInitiallyExpanded = !forceParentPostCollapsed && !isOnReadPost && !isShortform;
@@ -162,11 +164,12 @@ const UltraFeedThreadItem = ({thread, index, settings = DEFAULT_SETTINGS, startR
   });
   const post = preloadedPost ?? data?.post?.result;
 
-  const postMetaInfo = {
+  const postMetaInfo: FeedPostMetaInfo = {
     sources: postSources ?? commentMetaInfos?.[comments[0]._id]?.sources ?? [],
     displayStatus: "expanded" as FeedItemDisplayStatus,
     servedEventId: commentMetaInfos?.[comments[0]._id]?.servedEventId ?? '',
     highlight: !isOnReadPost,
+    isRead: !!isOnReadPost,
   }
 
   const postSettings = {
@@ -374,6 +377,17 @@ const UltraFeedThreadItem = ({thread, index, settings = DEFAULT_SETTINGS, startR
     });
     setPostExpanded(true);
   }, [thread._id, comments, captureEvent]);
+
+  // Only show threads in Following feed (with hideRead=true) if there is unread content authored by a subscribed user
+  const hasUnreadFromSubscribedAuthor = useMemo(() => {
+    return comments.some(comment => {
+      const metaInfo = commentMetaInfos?.[comment._id];
+      const isUnread = !(metaInfo?.lastViewed || metaInfo?.lastInteracted);
+      const fromSubscribedUser = !!metaInfo?.fromSubscribedUser;
+      return isUnread && fromSubscribedUser;
+    });
+  }, [comments, commentMetaInfos]);
+
 
   return (
     <AnalyticsContext pageParentElementContext="ultraFeedThread" ultraFeedCardId={thread._id} feedCardIndex={index}>

@@ -63,6 +63,7 @@ const TruncatedAuthorsList = ({
   classes,
   useMoreSuffix = true,
   useUltraFeedModal = false,
+  showSubscribedIcon = false,
 }: {
   post: PostsList | SunshinePostsList | PostsBestOfList,
   expandContainer: RefObject<HTMLDivElement|null>,
@@ -70,6 +71,7 @@ const TruncatedAuthorsList = ({
   classes: ClassesType<typeof styles>,
   useMoreSuffix?: boolean,
   useUltraFeedModal?: boolean,
+  showSubscribedIcon?: boolean,
 }) => {
   const {isAnon, authors, topCommentAuthor} = usePostsUserAndCoauthors(post);
   const UserNameComponent = useUltraFeedModal ? UsersNameWithModal : UsersNameDisplay;
@@ -100,13 +102,13 @@ const TruncatedAuthorsList = ({
     : (
       <div className={classNames(classes.root, className)} ref={ref}>
         <span className={classNames(classes.item, classes.placeholder)}>
-          <UserNameComponent user={authors[0]} {...(useUltraFeedModal && { tooltipPlacement: "bottom-start" })} />
+          <UserNameComponent user={authors[0]} {...(useUltraFeedModal && { tooltipPlacement: "bottom-start", showSubscribedIcon })} />
         </span>
         <div className={classes.scratch} aria-hidden="true">
           {authors.map((author, i) =>
             <span key={author._id} className={classes.item}>
               {i > 0 ? ", " : ""}
-              <UserNameComponent user={author} {...(useUltraFeedModal && { tooltipPlacement: "bottom-start" })} />
+              <UserNameComponent user={author} {...(useUltraFeedModal && { tooltipPlacement: "bottom-start", showSubscribedIcon })} />
             </span>
           )}
           {authors.length > 1 && (
@@ -117,7 +119,7 @@ const TruncatedAuthorsList = ({
                     <UserNameComponent 
                       key={author._id} 
                       user={author} 
-                      {...(useUltraFeedModal && { simple: true })}
+                      {...(useUltraFeedModal && { simple: true, showSubscribedIcon })}
                     />
                   ))}
                 </div>
