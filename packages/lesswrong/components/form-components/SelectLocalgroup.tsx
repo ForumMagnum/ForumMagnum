@@ -44,7 +44,6 @@ export const SelectLocalgroup = (props: SelectLocalgroupProps) => {
   // (ex. you want to be able to select groups for another user).
   const user = props.useDocumentAsUser ? props.document : currentUser
 
-  const limit = 500;
   const view = currentUser?.isAdmin ? 'all' : 'userActiveGroups';
   const selectorTerms = view === 'all' ? {} : { userId: user?._id };
 

@@ -282,11 +282,6 @@ export const homepagePostFeedsSetting = new PublicInstanceSetting<PostFeedDetail
   ]
   , 'optional')
 
-/**
- * This is a filepath that is _relative_ to the location of the instance settings file itself.
- * See full explanation in `google-vertex/client.ts`
- */
-export const googleRecommendationsCredsPath = new PublicInstanceSetting<string | null>('google.recommendationsServiceCredsPath', null, "optional");
 
 export const recombeeCacheTtlMsSetting = new PublicInstanceSetting<number>('recombee.cacheTtlMs', 1000 * 60 * 60 * 24 * 30, "optional");
 
@@ -510,8 +505,6 @@ export const recommendationsTabManuallyStickiedPostIdsSetting = new PublicInstan
 export const blackBarTitle = new PublicInstanceSetting<string | null>('blackBarTitle', null, "optional");
 
 export const quickTakesTagsEnabledSetting = new PublicInstanceSetting<boolean>('quickTakes.tagsEnabled', false, "optional");
-
-export const vertexEnabledSetting = new PublicInstanceSetting<boolean>('googleVertex.enabled', false, "optional");
 
 /** Whether to show permalinked (?commentId=...) comments at the top of the page, vs scrolling to show them in context */
 export const commentPermalinkStyleSetting = new PublicInstanceSetting<'top' | 'in-context'>('commentPermalinkStyle', 'top', "optional");
