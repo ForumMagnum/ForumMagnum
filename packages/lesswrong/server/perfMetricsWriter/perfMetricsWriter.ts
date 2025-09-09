@@ -1,8 +1,8 @@
-import { AnalyticsConnectionPool, pgPromiseLib } from "../analytics/postgresConnection";
+import { AnalyticsConnectionPool, getPgPromiseLib } from "../analytics/postgresConnection";
 import { getGqlStringIdFromCache, insertAndCacheGqlStringsInBatch } from "./tables/gqlStrings";
 import { getSqlStringIdFromCache, insertAndCacheSqlStringsInBatch } from "./tables/sqlStrings";
 
-export const perfMetricsColumnSet = new pgPromiseLib.helpers.ColumnSet(['trace_id', 'op_type', 'op_name', 'started_at', 'ended_at', 'parent_trace_id', 'client_path', 'extra_data', 'gql_string_id', 'sql_string_id', 'ip', 'user_agent', 'user_id', 'queue_priority', 'render_started_at', 'environment'], {table: 'perf_metrics'});
+export const perfMetricsColumnSet = new (getPgPromiseLib().helpers.ColumnSet)(['trace_id', 'op_type', 'op_name', 'started_at', 'ended_at', 'parent_trace_id', 'client_path', 'extra_data', 'gql_string_id', 'sql_string_id', 'ip', 'user_agent', 'user_id', 'queue_priority', 'render_started_at', 'environment'], {table: 'perf_metrics'});
 
 export function insertAndCacheNormalizedDataInBatch(batch: PerfMetric[], connection: AnalyticsConnectionPool) {
   return Promise.all([

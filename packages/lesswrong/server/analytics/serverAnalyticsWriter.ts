@@ -2,7 +2,7 @@ import { isDevelopment, isE2E } from '@/lib/executionEnvironment';
 import { randomId } from '@/lib/random';
 import { environmentDescriptionSetting, performanceMetricLoggingBatchSize } from '@/lib/instanceSettings';
 import { addStaticRoute } from '@/server/vulcan-lib/staticRoutes';
-import { pgPromiseLib, getAnalyticsConnection } from './postgresConnection'
+import { getPgPromiseLib, getAnalyticsConnection } from './postgresConnection'
 import chunk from 'lodash/chunk';
 import gql from 'graphql-tag';
 import type { EventProps } from '@/lib/analyticsEvents';
@@ -75,7 +75,7 @@ export async function handleAnalyticsEventWriteRequest(events: AnyBecauseTodo, c
 
 let inFlightRequestCounter = {inFlightRequests: 0};
 // See: https://stackoverflow.com/questions/37300997/multi-row-insert-with-pg-promise
-const analyticsColumnSet = new pgPromiseLib.helpers.ColumnSet(['environment', 'event_type', 'timestamp', 'event'], {table: 'raw'});
+const analyticsColumnSet = new (getPgPromiseLib().helpers.ColumnSet)(['environment', 'event_type', 'timestamp', 'event'], {table: 'raw'});
 
 // If you want to capture an event, this is not the function you're looking for;
 // use captureEvent.
@@ -92,7 +92,7 @@ async function writeEventsToAnalyticsDB(events: {type: string, timestamp: Date, 
         timestamp: ev.timestamp,
         event: ev.props,
       }));
-      const query = pgPromiseLib.helpers.insert(valuesToInsert, analyticsColumnSet);
+      const query = getPgPromiseLib().helpers.insert(valuesToInsert, analyticsColumnSet);
     
       if (inFlightRequestCounter.inFlightRequests > 500) {
         // eslint-disable-next-line no-console

@@ -7,7 +7,18 @@ import fs from "fs";
 import { getInstanceSettingsFilePath } from "../commandLine";
 import path from "path";
 
-export const pgPromiseLib = pgp({});
+export type AnalyticsConnectionPool = IDatabase<{}, IClient>;
+declare global {
+  var analyticsConnectionPools: Map<string, AnalyticsConnectionPool>|undefined;
+  var pgPromiseLib: ReturnType<typeof pgp>|undefined;
+}
+
+export const getPgPromiseLib = () => {
+  if (!globalThis.pgPromiseLib) {
+    globalThis.pgPromiseLib = pgp({});
+  }
+  return globalThis.pgPromiseLib;
+}
 
 
 const getFullCAFilePath = (): string | null => {
@@ -22,12 +33,7 @@ const getFullCAFilePath = (): string | null => {
   return path.resolve(instanceSettingsDirectory, caFilePath);
 }
 
-export type AnalyticsConnectionPool = IDatabase<{}, IClient>;
 let missingConnectionStringWarned = false;
-
-declare global {
-  var analyticsConnectionPools: Map<string, AnalyticsConnectionPool>|undefined
-}
 
 function getAnalyticsConnectionFromString(connectionString: string | null): AnalyticsConnectionPool | null {
   if (isAnyTest && !isEAForum()) {
@@ -65,7 +71,7 @@ function getAnalyticsConnectionFromString(connectionString: string | null): Anal
       ...(ssl && { ssl })
     };
 
-    analyticsConnectionPools.set(connectionString, pgPromiseLib(connectionOptions));
+    analyticsConnectionPools.set(connectionString, getPgPromiseLib()(connectionOptions));
   }
 
   return analyticsConnectionPools.get(connectionString)!

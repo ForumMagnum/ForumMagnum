@@ -1,7 +1,7 @@
 import { isDevelopment } from '@/lib/executionEnvironment';
 import { environmentDescriptionSetting, performanceMetricLoggingBatchSize } from '@/lib/instanceSettings';
 import chunk from 'lodash/chunk';
-import { pgPromiseLib, getAnalyticsConnection } from './analytics/postgresConnection'
+import { getPgPromiseLib, getAnalyticsConnection } from './analytics/postgresConnection'
 import { backgroundTask } from './utils/backgroundTask';
 
 const queuedPerfMetrics: PerfMetric[] = [];
@@ -35,7 +35,7 @@ async function flushPerfMetrics() {
 
       const environmentDescription = isDevelopment ? "development" : environmentDescriptionSetting.get();
       const valuesToInsert = constructPerfMetricBatchInsertQuery(batch, environmentDescription);
-      const query = pgPromiseLib.helpers.insert(valuesToInsert, perfMetricsColumnSet);
+      const query = getPgPromiseLib().helpers.insert(valuesToInsert, perfMetricsColumnSet);
       
       await connection?.none(query);
     } catch (err){

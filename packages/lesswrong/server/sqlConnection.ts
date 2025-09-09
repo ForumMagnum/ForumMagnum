@@ -27,7 +27,10 @@ const getVectorTypeOid = async (client: IClient): Promise<number | null> => {
   return result.rows[0].oid;
 }
 
-export const pgPromiseLib = pgp({
+declare global {
+  var pgPromiseLib: ReturnType<typeof createPgPromiseLib>|undefined
+}
+const createPgPromiseLib = () => pgp({
   noWarnings: isAnyTest,
   connect: async ({client}) => {
     if (!vectorTypeOidPromise) {
@@ -53,12 +56,19 @@ export const pgPromiseLib = pgp({
   // },
 });
 
+export const getPgPromiseLib = () => {
+  if (!globalThis.pgPromiseLib) {
+    globalThis.pgPromiseLib = createPgPromiseLib();
+  }
+  return globalThis.pgPromiseLib;
+}
+
 export const concat = (queries: Query<any>[]): string => {
   const compiled = queries.map((query) => {
     const {sql, args} = query.compile();
     return {query: sql, values: args};
   });
-  return pgPromiseLib.helpers.concat(compiled);
+  return getPgPromiseLib().helpers.concat(compiled);
 }
 
 /**
@@ -230,7 +240,7 @@ function getWrappedClient(
   url?: string,
   isTestingClient = false,
 ): SqlClient {
-  const db = pgPromiseLib({
+  const db = getPgPromiseLib()({
     connectionString: url,
     max: MAX_CONNECTIONS,
     idleTimeoutMillis: 10_000,
@@ -258,19 +268,21 @@ type SqlClientMap = Record<string, SqlClient>;
 declare global {
   var pgClients: SqlClientMap;
 }
-
-if (!globalThis['pgClients']) {
-  globalThis['pgClients'] = {
-    ...(process.env.PG_URL ? {
-      [process.env.PG_URL]: getWrappedClient(process.env.PG_URL, false),
-    } : {}),
-    ...(process.env.PG_READ_URL ? {
-      [process.env.PG_READ_URL]: getWrappedClient(process.env.PG_READ_URL, false),
-    } : {}),
-    ...(process.env.PG_NO_TRANSACTION_URL ? {
-      [process.env.PG_NO_TRANSACTION_URL]: getWrappedClient(process.env.PG_NO_TRANSACTION_URL, false),
-    } : {}),
-  };
+const getPgClients = (): SqlClientMap => {
+  if (!globalThis.pgClients) {
+    globalThis.pgClients = {
+      ...(process.env.PG_URL ? {
+        [process.env.PG_URL]: getWrappedClient(process.env.PG_URL, false),
+      } : {}),
+      ...(process.env.PG_READ_URL ? {
+        [process.env.PG_READ_URL]: getWrappedClient(process.env.PG_READ_URL, false),
+      } : {}),
+      ...(process.env.PG_NO_TRANSACTION_URL ? {
+        [process.env.PG_NO_TRANSACTION_URL]: getWrappedClient(process.env.PG_NO_TRANSACTION_URL, false),
+      } : {}),
+    };
+  }
+  return globalThis.pgClients;
 }
 
 export const createSqlConnection = (
@@ -283,14 +295,15 @@ export const createSqlConnection = (
     throw new Error("PG_URL not configured");
   }
 
-  const existingClient = globalThis['pgClients'][url];
+  const pgClients = getPgClients();
+  const existingClient = pgClients[url];
   if (existingClient) {
     return existingClient;
   }
 
   const client = getWrappedClient(url, isTestingClient);
 
-  globalThis['pgClients'][url] = client;
+  pgClients[url] = client;
 
   return client;
 }
