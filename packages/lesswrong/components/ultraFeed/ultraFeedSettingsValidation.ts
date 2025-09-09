@@ -67,11 +67,16 @@ const threadInterestModelSchema = z.object({
   path: ["minOverallMultiplier"], 
 });
 
+const subscriptionsFeedSettingsSchema = z.object({
+  hideRead: z.boolean(),
+});
+
 const resolverSettingsSchema = z.object({
   incognitoMode: z.boolean(),
   sourceWeights: sourceWeightsSchema.default(DEFAULT_SETTINGS.resolverSettings.sourceWeights),
   commentScoring: commentScoringSchema.default(DEFAULT_SETTINGS.resolverSettings.commentScoring),
   threadInterestModel: threadInterestModelSchema.default(DEFAULT_SETTINGS.resolverSettings.threadInterestModel),
+  subscriptionsFeedSettings: subscriptionsFeedSettingsSchema.default(DEFAULT_SETTINGS.resolverSettings.subscriptionsFeedSettings),
 });
 
 export const ultraFeedSettingsSchema = z.object({

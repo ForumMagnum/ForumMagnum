@@ -26,7 +26,7 @@ const BookmarksFeedItemFragmentMultiQuery = gql(`
   }
 `);
 
-const BookmarksFeed = () => {
+const BookmarksFeed = ({ hideTitle = false }: { hideTitle?: boolean }) => {
   const currentUser = useCurrentUser();
   const { settings } = useUltraFeedSettings();
 
@@ -73,7 +73,7 @@ const BookmarksFeed = () => {
       <UltraFeedObserverProvider incognitoMode={true} >
       <OverflowNavObserverProvider>
       <SingleColumnSection>
-        <SectionTitle title="All Bookmarks" />
+        {!hideTitle && <SectionTitle title="All Bookmarks" />}
         {bookmarks.map((bookmark: any, index) => {
           const typedBookmark = bookmark;
 

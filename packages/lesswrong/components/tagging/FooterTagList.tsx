@@ -143,7 +143,9 @@ const FooterTagList = ({
   neverCoreStyling = false,
   tagRight = true,
 }: {
-  post: Pick<PostsList, '_id' | 'createdAt' | 'tags' | 'curatedDate' | 'frontpageDate' | 'reviewedByUserId' | 'isEvent' | 'postCategory'>,
+  post: Pick<PostsList, '_id'|'tags'|'curatedDate'|'frontpageDate'|'reviewedByUserId'|'isEvent'|'postCategory'> & {
+    postedAt?: string
+  },
   hideScore?: boolean,
   hideAddTag?: boolean,
   useAltAddTagButton?: boolean,
@@ -347,10 +349,9 @@ const FooterTagList = ({
     {useAltAddTagButton && <span className={classNames(classes.altAddTagButton, noBackground && classes.noBackground)}>+</span>}
   </AddTagButton>
 
-  const postYear = new Date(post.createdAt!).getFullYear(); // 2023
+  const postYear = post.postedAt ? new Date(post.postedAt).getFullYear() : null; // 2023
   const currentYear = new Date().getFullYear(); // 2025
-  const age = currentYear - postYear;
-  const isRecent = age < 2;
+  const isRecent = postYear && ((currentYear - postYear) < 2);
 
   const innerContent = (
     <>

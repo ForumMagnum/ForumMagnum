@@ -1,6 +1,6 @@
 import React from 'react';
 import { getThemeMetadata, getDefaultThemeOptions } from '../../themes/themeNames';
-import { useThemeOptions } from '../themes/useTheme';
+import { useAbstractThemeOptions } from '../themes/useTheme';
 import type { TypedFieldApi } from '@/components/tanstack-form-components/BaseAppForm';
 import { FormComponentSelect } from '@/components/form-components/FormComponentSelect';
 
@@ -26,7 +26,7 @@ interface ThemeSelectProps {
 }
 
 export const ThemeSelect = ({ field }: ThemeSelectProps) => {
-  const themeOptions = useThemeOptions();
+  const themeOptions = useAbstractThemeOptions();
   const options = getThemeMetadata().map(({name, label}) => ({value: name, label}));
 
   const updateTheme = (newName: ThemeField['name']) => {

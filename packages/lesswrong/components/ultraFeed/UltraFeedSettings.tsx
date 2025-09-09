@@ -27,6 +27,7 @@ import { ZodFormattedError } from 'zod';
 import mergeWith from 'lodash/mergeWith';
 import cloneDeep from 'lodash/cloneDeep';
 import UltraFeedFeedback from './UltraFeedFeedback';
+import FeedSelectorCheckbox from '../common/FeedSelectorCheckbox';
 import {
   SourceWeightsSettings,
   TruncationGridSettings,
@@ -45,6 +46,7 @@ const styles = defineStyles('UltraFeedSettings', (theme: ThemeType) => ({
   root: {
     width: '100%',
     fontFamily: theme.palette.fonts.sansSerifStack,
+    marginBottom: 16,
   },
   viewModeToggle: {
     display: 'flex',
@@ -95,6 +97,8 @@ const styles = defineStyles('UltraFeedSettings', (theme: ThemeType) => ({
     flex: '1 1 0',
     display: 'flex',
     justifyContent: 'flex-end',
+    alignItems: 'center',
+    gap: 8,
   },
   feedbackButton: {
     color: theme.palette.grey[600],
@@ -343,6 +347,7 @@ const UltraFeedSettings = ({
   onClose,
   initialViewMode = 'simple',
   truncationMaps,
+  showFeedSelector = false,
 }: {
   settings: UltraFeedSettingsType,
   updateSettings: (newSettings: Partial<UltraFeedSettingsType>) => void,
@@ -350,6 +355,7 @@ const UltraFeedSettings = ({
   onClose?: () => void,
   initialViewMode?: 'simple' | 'advanced',
   truncationMaps: { commentMap: Record<TruncationLevel, number>, postMap: Record<TruncationLevel, number> },
+  showFeedSelector?: boolean,
 }) => {
   const { captureEvent } = useTracking();
   const classes = useStyles(styles);
@@ -546,6 +552,7 @@ const UltraFeedSettings = ({
           formValues.threadInterestModel,
           (defaultVal, formVal) => parseNumericInputAsZeroOrNumber(formVal, defaultVal)
         ),
+        subscriptionsFeedSettings: settings.resolverSettings.subscriptionsFeedSettings,
       },
       displaySettings: {
         lineClampNumberOfLines: 0, // Placeholder, will be set below
@@ -687,6 +694,7 @@ const UltraFeedSettings = ({
           >
             give feedback
           </span>
+          {showFeedSelector && <FeedSelectorCheckbox currentFeedType="new" />}
         </div>
       </div>
       {showFeedback && <UltraFeedFeedback />}

@@ -1,7 +1,7 @@
 import { registerComponent } from '../../lib/vulcan-lib/components';
 import React, { CSSProperties } from 'react';
-import { useThemeOptions } from '../themes/useTheme';
 import { CloudinaryPropsType, makeCloudinaryImageUrl } from './cloudinaryHelpers';
+import { useAbstractThemeOptions } from '../themes/useTheme';
 
 const DEFAULT_HEADER_HEIGHT = 300;
 
@@ -31,7 +31,7 @@ const CloudinaryImage2 = ({
   wrapperClassName?: string,
   loading?: "lazy"|"eager",
 }) => {
-  const themeOptions = useThemeOptions() // Danger, Will Robinson! (It'll be ok, see below.)
+  const themeOptions = useAbstractThemeOptions() // Danger, Will Robinson! (It'll be ok, see below.)
 
   let cloudinaryProps: CloudinaryPropsType = {
     c: "fill",

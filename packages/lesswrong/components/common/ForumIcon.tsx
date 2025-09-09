@@ -120,6 +120,7 @@ import MuiExpandMoreIcon from "@/lib/vendor/@material-ui/icons/src/ExpandMore";
 import MuiExpandLessIcon from "@/lib/vendor/@material-ui/icons/src/ExpandLess";
 import MuiPlaylistAddIcon from "@/lib/vendor/@material-ui/icons/src/PlaylistAdd";
 import PlusOneIcon from '@/lib/vendor/@material-ui/icons/src/PlusOne';
+import MuiReplayIcon from "@/lib/vendor/@material-ui/icons/src/Replay";
 import UndoIcon from '@/lib/vendor/@material-ui/icons/src/Undo';
 import ClearIcon from '@/lib/vendor/@material-ui/icons/src/Clear';
 import FullscreenIcon from '@/lib/vendor/@material-ui/icons/src/Fullscreen';
@@ -259,6 +260,7 @@ export type ForumIconName =
   "ArrowRight" |
   "ArrowRightOutline" |
   "ArrowCircle" |
+  "Autorenew" |
   "EllipsisVertical" |
   "Share" |
   "ClipboardDocumentList" |
@@ -391,6 +393,7 @@ const ICONS: ForumOptions<Record<ForumIconName, IconComponent>> = {
     ArrowLeft: ArrowLeftIcon,
     ArrowRightOutline: ArrowRightOutlineIcon,
     ArrowCircle: ArrowCircleIcon,
+    Autorenew: MuiReplayIcon,
     EllipsisVertical: MuiEllipsisVerticalIcon,
     Share: MuiShareIcon,
     ClipboardDocumentList: ClipboardDocumentListIcon,
@@ -522,6 +525,7 @@ const ICONS: ForumOptions<Record<ForumIconName, IconComponent>> = {
     ArrowRight: ArrowRightIcon,
     ArrowRightOutline: ArrowRightOutlineIcon,
     ArrowCircle: ArrowCircleIcon,
+    Autorenew: MuiReplayIcon,
     EllipsisVertical: EllipsisVerticalIcon,
     Share: ShareIcon,
     ClipboardDocumentList: ClipboardDocumentListIcon,
