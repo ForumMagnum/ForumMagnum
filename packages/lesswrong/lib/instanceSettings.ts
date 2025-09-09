@@ -163,15 +163,7 @@ export const sentryUrlSetting = new PublicInstanceSetting<string|null>('sentry.u
 export const sentryEnvironmentSetting = new PublicInstanceSetting<string|null>('sentry.environment', null, "warning"); // Environment, i.e. "development"
 export const sentryReleaseSetting = new PublicInstanceSetting<string|null>('sentry.release', null, "warning") // Current release, i.e. hash of lattest commit
 
-export const getDefaultAbsoluteUrl = (): string => {
-  if (process.env.VERCEL_BRANCH_URL) {
-    return `https://${process.env.VERCEL_BRANCH_URL}`;
-  } else {
-    return `http://localhost:3000/`;
-  }
-}
-
-export const siteUrlSetting = new PublicInstanceSetting<string>('siteUrl', getDefaultAbsoluteUrl(), "optional")
+export const siteUrlSetting = new PublicInstanceSetting<string>('siteUrl', 'http://localhost:3000/', "optional")
 
 // FM Crossposting
 export const fmCrosspostSiteNameSetting = new PublicInstanceSetting<string|null>("fmCrosspost.siteName", null, "optional");

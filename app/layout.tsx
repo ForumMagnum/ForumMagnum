@@ -10,7 +10,6 @@ import { getRouteMetadata } from "@/components/ServerRouteMetadataContext";
 import ClientIDAssigner from "@/components/analytics/ClientIDAssigner";
 import ClientIdsRepo from "@/server/repos/ClientIdsRepo";
 import { CLIENT_ID_COOKIE, CLIENT_ID_NEW_COOKIE, TIMEZONE_COOKIE } from "@/lib/cookies/cookies";
-import { getDefaultAbsoluteUrl } from "@/lib/instanceSettings";
 import { SharedScripts } from "@/components/next/SharedScripts";
 import { getDefaultMetadata } from "@/server/pageMetadata/sharedMetadata";
 import type { Metadata } from "next";
@@ -27,10 +26,6 @@ export default async function RootLayout({
   const cookieStore = await cookies();
 
   const publicInstanceSettings = getInstanceSettings().public;
-  // Since we can't statically define the site url in one of the settings files,
-  // (because for e.g. preview branches it depends on a value only known to Vercel
-  // at build time & runtime), explicitly embed it at runtime.
-  publicInstanceSettings.siteUrl = getDefaultAbsoluteUrl();
 
   const timezoneCookie = cookieStore.get(TIMEZONE_COOKIE);
 

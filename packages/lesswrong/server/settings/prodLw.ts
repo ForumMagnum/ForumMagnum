@@ -5,6 +5,7 @@ export const prodLw = merge({
   forumType: "LessWrong",
   title: "LessWrong",
   siteNameWithArticle: "LessWrong",
+  siteUrl: "https://www.lesswrong.com",
   sentry: {
     url: "https://1ab1949fc8d04608b43132f37bb2a1b0@sentry.io/1301611",
     environment: "production",
