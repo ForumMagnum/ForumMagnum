@@ -2,6 +2,17 @@ import { getCookiePreferences } from '../lib/cookies/utils';
 import { isServer } from '../lib/executionEnvironment';
 import { reCaptchaSiteKeySetting } from '@/lib/instanceSettings';
 
+declare global {
+  interface Window {
+    onReCaptchaLoaded: () => void;
+    recaptchaLoaded: boolean;
+  }
+}
+
+window.onReCaptchaLoaded = function() {
+  window.recaptchaLoaded = true;
+}
+
 let reCaptchaInitialized = false;
 
 /**
@@ -26,7 +37,7 @@ export async function initReCaptcha() {
 
   // Load and run ReCaptcha script on client
   const script = document.createElement('script');
-  script.src = `https://www.google.com/recaptcha/api.js?render=${reCaptchaSiteKeySetting.get()}`;
+  script.src = `https://www.google.com/recaptcha/api.js?onload=onReCaptchaLoaded&render=${reCaptchaSiteKeySetting.get()}`;
   document.body.appendChild(script);
 
   reCaptchaInitialized = true;
