@@ -115,6 +115,7 @@ export async function POST(req: NextRequest) {
           });
 
           loadingMessagesStream.on("error", (error) => {
+            // eslint-disable-next-line no-console
             console.error("Stream error:", JSON.stringify(error));
             
             if (!streamClosed) {

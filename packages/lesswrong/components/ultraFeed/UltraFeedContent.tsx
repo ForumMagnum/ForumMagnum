@@ -1,26 +1,23 @@
-import React, { useState, useRef } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import { defineStyles, useStyles } from '../hooks/useStyles';
 import { AnalyticsContext, useTracking } from '@/lib/analyticsEvents';
 import { randomId } from '@/lib/random';
 import { userIsAdminOrMod } from '@/lib/vulcan-users/permissions';
 import { ObservableQuery } from '@apollo/client';
-import { UltraFeedQuery } from '../common/feeds/feedQueries';
 import ForumIcon from '../common/ForumIcon';
-import { MixedTypeFeed } from '../common/MixedTypeFeed';
 import { useDialog } from '../common/withDialog';
 import { useCurrentUser } from '../common/withUser';
-import FeedItemWrapper from './FeedItemWrapper';
 import { OverflowNavObserverProvider } from './OverflowNavObserverContext';
 import { UltraFeedObserverProvider } from './UltraFeedObserver';
-import UltraFeedPostItem from './UltraFeedPostItem';
 import UltraFeedQuickTakeDialog from './UltraFeedQuickTakeDialog';
 import UltraFeedSettings from './UltraFeedSettings';
-import UltraFeedThreadItem from './UltraFeedThreadItem';
-import UltraFeedSpotlightItem from './UltraFeedSpotlightItem';
 import AnalyticsInViewTracker from '../common/AnalyticsInViewTracker';
-import useUltraFeedSettings from '../hooks/useUltraFeedSettings';
-import type { FeedItemSourceType } from './ultraFeedTypes';
-import SuggestedFeedSubscriptions from '../subscriptions/SuggestedFeedSubscriptions';
+import UltraFeedFollowingSettings from './UltraFeedFollowingSettings';
+import Loading from '../vulcan-core/Loading';
+import UltraFeedMainFeed from './UltraFeedMainFeed';
+import { UltraFeedContextProvider } from './UltraFeedContextProvider';
+import UltraFeedSubscriptionsFeed from './UltraFeedSubscriptionsFeed';
+import UltraFeedBottomBar from './UltraFeedBottomBar';
 
 const styles = defineStyles("UltraFeedContent", (theme: ThemeType) => ({
   root: {
@@ -330,7 +327,7 @@ const UltraFeedContent = ({
                   style={activeTab === 'following' ? undefined : { position: 'absolute', inset: 0, visibility: 'hidden', pointerEvents: 'none' }}
                 >
                   <UltraFeedContextProvider feedType="following">
-                    <UltraFeedSubscriptionsFeed 
+                    <UltraFeedSubscriptionsFeed
                       embedded={true} 
                       refetchRef={refetchFollowingRef}
                       settings={settings}
