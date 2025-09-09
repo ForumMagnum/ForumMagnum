@@ -6,10 +6,10 @@ import { isEAForum } from '../../lib/instanceSettings';
 import { THEME_COOKIE } from '../../lib/cookies/cookies';
 import { useCookiesWithConsent } from '../hooks/useCookiesWithConsent';
 import stringify from 'json-stringify-deterministic';
-import { ThemeContext, useTheme, useThemeOptions } from './useTheme';
+import { ThemeContext } from './useTheme';
 import { isClient, isServer } from '@/lib/executionEnvironment';
 import { useTracking } from '@/lib/analyticsEvents';
-import { createStylesContext, regeneratePageStyles, serverEmbeddedStyles, setClientMountedStyles, StylesContext, type StylesContextType } from '../hooks/useStyles';
+import { createStylesContext, defineStyles, regeneratePageStyles, serverEmbeddedStyles, setClientMountedStyles, StylesContext, useStyles, type StylesContextType } from '../hooks/useStyles';
 import { useServerInsertedHtml } from '../hooks/useServerInsertedHtml';
 
 export const ThemeContextProvider = ({options, isEmail, children}: {
@@ -57,16 +57,29 @@ export const ThemeContextProvider = ({options, isEmail, children}: {
   </ThemeContext.Provider>
 }
 
+const autoDarkModeWrapperStyles = defineStyles("AutoDarkModeWrapper", theme => ({
+  autoColorScheme: {
+    "@media (prefers-color-sceme: light)": {
+      colorScheme: "only light",
+    },
+    "@media (prefers-color-sceme: dark)": {
+      colorScheme: "only dark",
+    },
+  },
+}));
+
 export const AutoDarkModeWrapper = ({children}: {
   children: React.ReactNode
 }) => {
-  const themeOptions = useThemeOptions();
-  if (themeOptions.name === "auto") {
+  const themeName = useContext(ThemeContext)?.abstractThemeOptions.name ?? "auto";
+  const classes = useStyles(autoDarkModeWrapperStyles);
+
+  if (themeName === "auto") {
     return <div>{children}</div>
-  } else if (themeOptions.name === "dark") {
+  } else if (themeName === "dark") {
     return <div style={{colorScheme: "only dark"}}>{children}</div>
-  } else if (themeOptions.name === "default") {
-    return <div style={{colorScheme: "only light"}}>{children}</div>
+  } else if (themeName === "default") {
+    return <div className={classes.autoColorScheme}>{children}</div>
   }
 }
 
