@@ -18,10 +18,7 @@ const defaultProps = {
   verifyCallbackName: 'verifyCallback',
 }
 
-const isReady = () =>
-  typeof window !== 'undefined' &&
-  typeof window.grecaptcha !== 'undefined' &&
-  typeof window.grecaptcha.execute !== 'undefined'
+const isReady = () => typeof window !== 'undefined' && window.recaptchaLoaded;
 
 let readyCheck: NodeJS.Timeout
 
