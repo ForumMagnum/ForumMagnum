@@ -1,19 +1,23 @@
+import "@/components/momentjs";
+
 import React from "react";
 import ClientAppGenerator from "@/components/next/ClientAppGenerator";
 import { getInstanceSettings } from "@/lib/getInstanceSettings";
 import { cookies } from "next/headers";
 import { ClientRouteMetadataProvider } from "@/components/ClientRouteMetadataContext";
 import { DEFAULT_TIMEZONE } from "@/lib/utils/timeUtil";
-import { getUser } from "@/server/vulcan-lib/apollo-server/getUserFromReq";
-import { abstractThemeToConcrete, getThemeOptions } from "@/themes/themeNames";
 import { getRouteMetadata } from "@/components/ServerRouteMetadataContext";
-
-import "@/components/momentjs";
 import ClientIDAssigner from "@/components/analytics/ClientIDAssigner";
 import ClientIdsRepo from "@/server/repos/ClientIdsRepo";
-import { CLIENT_ID_COOKIE, CLIENT_ID_NEW_COOKIE, THEME_COOKIE, TIMEZONE_COOKIE } from "@/lib/cookies/cookies";
+import { CLIENT_ID_COOKIE, CLIENT_ID_NEW_COOKIE, TIMEZONE_COOKIE } from "@/lib/cookies/cookies";
 import { getDefaultAbsoluteUrl } from "@/lib/instanceSettings";
 import { SharedScripts } from "@/components/next/SharedScripts";
+import { getDefaultMetadata } from "@/server/pageMetadata/sharedMetadata";
+import type { Metadata } from "next";
+
+export async function generateMetadata(): Promise<Metadata> {
+  return await getDefaultMetadata();
+}
 
 export default async function RootLayout({
   children,
