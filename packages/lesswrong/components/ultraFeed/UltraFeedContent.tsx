@@ -18,6 +18,8 @@ import UltraFeedMainFeed from './UltraFeedMainFeed';
 import { UltraFeedContextProvider } from './UltraFeedContextProvider';
 import UltraFeedSubscriptionsFeed from './UltraFeedSubscriptionsFeed';
 import UltraFeedBottomBar from './UltraFeedBottomBar';
+import type { TruncationLevel, UltraFeedSettingsType } from './ultraFeedSettingsTypes';
+import type { FeedType } from './ultraFeedTypes';
 
 const styles = defineStyles("UltraFeedContent", (theme: ThemeType) => ({
   root: {
@@ -163,6 +165,8 @@ const styles = defineStyles("UltraFeedContent", (theme: ThemeType) => ({
   },
 
 }));
+
+const FEED_MIN_HEIGHT = 1500;
 
 const UltraFeedContent = ({
   settings,
