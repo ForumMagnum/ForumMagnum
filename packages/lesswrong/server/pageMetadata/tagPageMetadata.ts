@@ -1,9 +1,9 @@
 import { getClient } from "@/lib/apollo/nextApolloClient";
 import { gql } from "@/lib/generated/gql-codegen";
 import type { Metadata } from "next";
-import { CommentPermalinkMetadataQuery, getCommentDescription, getDefaultMetadata, getMetadataDescriptionFields, getPageTitleFields, noIndexMetadata } from "./sharedMetadata";
+import { CommentPermalinkMetadataQuery, getCommentDescription, getDefaultMetadata, getMetadataDescriptionFields, getPageTitleFields, handleMetadataError, noIndexMetadata } from "./sharedMetadata";
 import merge from "lodash/merge";
-import { captureException } from "@/lib/sentryWrapper";
+import { notFound } from "next/navigation";
 
 const TagMetadataQuery = gql(`
   query TagMetadata($tagSlug: String) {
@@ -54,7 +54,7 @@ export function getTagPageMetadataFunction<Params>(paramsToTagSlugConverter: (pa
       const tag = data?.tags?.results?.[0];
       const comment = commentData?.comment?.result;
 
-      if (!tag) return {};
+      if (!tag) return notFound();
   
       const tagPageTitle = options?.historyPage ? `${tag.name} - History` : tag.name;
       const titleFields = getPageTitleFields(tagPageTitle);
@@ -75,10 +75,7 @@ export function getTagPageMetadataFunction<Params>(paramsToTagSlugConverter: (pa
   
       return merge({}, defaultMetadata, tagMetadata, descriptionFields);
     } catch (error) {
-      //eslint-disable-next-line no-console
-      console.error('Error generating tag page metadata:', error);
-      captureException(error);
-      return {};
+      return handleMetadataError('Error generating tag page metadata', error);
     }
   }
 }

@@ -3,12 +3,10 @@ import { gql } from "@/lib/generated/gql-codegen";
 import { isEAForum, cloudinaryCloudNameSetting } from '@/lib/instanceSettings';
 import type { Metadata } from "next";
 import merge from "lodash/merge";
-import { CommentPermalinkMetadataQuery, getCommentDescription, getDefaultMetadata, getMetadataDescriptionFields, getMetadataImagesFields, getPageTitleFields, noIndexMetadata } from "./sharedMetadata";
+import { CommentPermalinkMetadataQuery, getCommentDescription, getDefaultMetadata, getMetadataDescriptionFields, getMetadataImagesFields, getPageTitleFields, handleMetadataError, noIndexMetadata } from "./sharedMetadata";
 import { postCoauthorIsPending, postGetPageUrl } from "@/lib/collections/posts/helpers";
 import { getPostDescription } from "@/components/posts/PostsPage/structuredData";
-import { captureException } from "@/lib/sentryWrapper";
 import { notFound } from "next/navigation";
-import { GraphQLError } from "graphql";
 
 const PostMetadataQuery = gql(`
   query PostMetadata($postId: String) {
@@ -139,16 +137,7 @@ export function getPostPageMetadataFunction<Params>(paramsToPostIdConverter: (pa
   
       return merge({}, defaultMetadata, postMetadata, titleFields, descriptionFields, imagesFields);
     } catch (error) {
-      // Don't log on noisy permission/not found errors; we have a lot of scrapers which 
-      // end up hitting posts that are now drafts, don't exist, etc.
-      if (error instanceof GraphQLError && (error.message === 'app.operation_not_allowed' || error.message === 'app.missing_document')) {
-        return notFound();
-      }
-
-      //eslint-disable-next-line no-console
-      console.error('Error generating post page metadata:', error);
-      captureException(error);
-      return notFound();
+      return handleMetadataError('Error generating post page metadata', error);
     }
   }
 }

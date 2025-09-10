@@ -1,8 +1,13 @@
 import { gql } from '@/lib/generated/gql-codegen';
 import { noIndexSetting, tabLongTitleSetting, tabTitleSetting, taglineSetting, siteImageSetting } from '@/lib/instanceSettings';
 import { getSiteUrl } from "@/lib/vulcan-lib/utils";
+import { CombinedGraphQLErrors } from '@apollo/client';
+import { captureException } from '@/lib/sentryWrapper';
 import type { Metadata } from "next";
 import { headers } from "next/headers";
+import { notFound } from 'next/navigation';
+
+const IGNORED_ERROR_MESSAGES = new Set(['app.operation_not_allowed', 'app.missing_document']);
 
 export const CommentPermalinkMetadataQuery = gql(`
   query CommentPermalinkMetadata($commentId: String) {
@@ -101,4 +106,29 @@ export function getCommentDescription(comment: CommentPermalinkMetadataQuery_com
     `by ${comment.user.displayName} ` : 
     ''
   }- ${comment.contents?.plaintextMainText}`;
+}
+
+function shouldIgnoreError(error: unknown) {
+  if (error instanceof Error && IGNORED_ERROR_MESSAGES.has(error.message)) {
+    return true;
+  }
+
+  if (error instanceof CombinedGraphQLErrors && error.errors.every(error => IGNORED_ERROR_MESSAGES.has(error.message))) {
+    return true;
+  }
+
+  return false;
+}
+
+export function handleMetadataError(prefix: string, error: unknown) {
+  // Don't log on noisy permission/not found errors; we have a lot of scrapers which 
+  // end up hitting posts that are now drafts, don't exist, etc.
+  if (shouldIgnoreError(error)) {
+    return notFound();
+  }
+
+  //eslint-disable-next-line no-console
+  console.error(`${prefix}:`, error);
+  captureException(error);
+  return notFound();
 }

@@ -1,11 +1,12 @@
 import { getClient } from "@/lib/apollo/nextApolloClient";
 import { gql } from "@/lib/generated/gql-codegen";
-import { getDefaultMetadata, getMetadataDescriptionFields, getMetadataImagesFields, getPageTitleFields, noIndexMetadata } from "./sharedMetadata";
+import { getDefaultMetadata, getMetadataDescriptionFields, getMetadataImagesFields, getPageTitleFields, handleMetadataError, noIndexMetadata } from "./sharedMetadata";
 import type { Metadata } from "next";
 import merge from "lodash/merge";
 import { cloudinaryCloudNameSetting, siteNameWithArticleSetting, taglineSetting } from "@/lib/instanceSettings";
 import { userGetDisplayName } from "@/lib/collections/users/helpers";
 import { captureException } from "@/lib/sentryWrapper";
+import { notFound } from "next/navigation";
 
 const UserMetadataQuery = gql(`
   query UserMetadata($slug: String) {
@@ -40,7 +41,7 @@ export async function generateUserPageMetadata({ params }: { params: Promise<{ s
   
     const user = data?.users?.results?.[0];
   
-    if (!user) return {};
+    if (!user) return notFound();
   
     const displayName = userGetDisplayName(user);
     const description = `${displayName}'s profile on ${siteNameWithArticleSetting.get()} — ${taglineSetting.get()}`;
@@ -59,9 +60,6 @@ export async function generateUserPageMetadata({ params }: { params: Promise<{ s
   
     return merge({}, defaultMetadata, descriptionFields, titleFields, imageFields, noIndexFields);  
   } catch (error) {
-    //eslint-disable-next-line no-console
-    console.error('Error generating user page metadata:', error);
-    captureException(error);
-    return defaultMetadata;
+    return handleMetadataError('Error generating user page metadata', error);
   }
 }

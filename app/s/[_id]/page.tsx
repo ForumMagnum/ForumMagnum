@@ -4,11 +4,12 @@ import { SequencesPageTitle } from '@/components/titles/SequencesPageTitle';
 import type { Metadata } from "next";
 import { gql } from "@/lib/generated/gql-codegen";
 import { getClient } from "@/lib/apollo/nextApolloClient";
-import { getDefaultMetadata, getPageTitleFields } from "@/server/pageMetadata/sharedMetadata";
+import { getDefaultMetadata, getPageTitleFields, handleMetadataError } from "@/server/pageMetadata/sharedMetadata";
 import merge from "lodash/merge";
 import { combineUrls, getSiteUrl } from "@/lib/vulcan-lib/utils";
 import { sequenceGetPageUrl } from "@/lib/collections/sequences/helpers";
 import RouteRoot from "@/components/next/RouteRoot";
+import { notFound } from "next/navigation";
 
 const SequenceMetadataQuery = gql(`
   query SequenceMetadata($sequenceId: String) {
@@ -26,27 +27,31 @@ export async function generateMetadata({ params }: { params: Promise<{ _id: stri
 
   const client = getClient();
 
-  const { data } = await client.query({
-    query: SequenceMetadataQuery,
-    variables: {
-      sequenceId: _id,
-    },
-  });
-
-  const sequence = data?.sequence?.result;
-
-  if (!sequence) return {};
-
-  const titleFields = getPageTitleFields(sequence.title);
-
-  const ogUrl = combineUrls(getSiteUrl(), `/s/${_id}`);
-  const canonicalUrl = sequenceGetPageUrl({ _id }, true);
-
-  return merge({}, await getDefaultMetadata(), {
-    ...titleFields,
-    openGraph: { url: ogUrl },
-    alternates: { canonical: canonicalUrl },
-  });
+  try {
+    const { data } = await client.query({
+      query: SequenceMetadataQuery,
+      variables: {
+        sequenceId: _id,
+      },
+    });
+  
+    const sequence = data?.sequence?.result;
+  
+    if (!sequence) return notFound();
+  
+    const titleFields = getPageTitleFields(sequence.title);
+  
+    const ogUrl = combineUrls(getSiteUrl(), `/s/${_id}`);
+    const canonicalUrl = sequenceGetPageUrl({ _id }, true);
+  
+    return merge({}, await getDefaultMetadata(), {
+      ...titleFields,
+      openGraph: { url: ogUrl },
+      alternates: { canonical: canonicalUrl },
+    });  
+  } catch (error) {
+    return handleMetadataError('Error generating sequence page metadata', error);
+  }
 }
 
 export default function Page() {
