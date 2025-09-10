@@ -60,7 +60,6 @@ const styles = defineStyles("UltraFeed", (theme: ThemeType) => ({
   headerButtons: {
     display: 'flex',
     alignItems: 'center',
-    // gap: 8,
   },
   ultraFeedNewContentContainer: {
     position: 'relative',

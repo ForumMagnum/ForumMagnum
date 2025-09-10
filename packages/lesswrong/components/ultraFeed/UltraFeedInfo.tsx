@@ -4,10 +4,6 @@ import { Link } from '../../lib/reactRouterWrapper';
 import ContentStyles from '../common/ContentStyles';
 
 const styles = defineStyles("UltraFeedInfo", (theme: ThemeType) => ({
-  infoContainer: {
-    marginBottom: 16,
-    fontFamily: theme.palette.fonts.sansSerifStack,
-  },
   settingGroup: {
     backgroundColor: theme.palette.background.paper,
     width: '100%',
@@ -25,69 +21,11 @@ const styles = defineStyles("UltraFeedInfo", (theme: ThemeType) => ({
       paddingBottom: 16,
     },
   },
-  groupTitle: {
-    fontSize: '1.3rem',
-    fontWeight: 600,
-    marginBottom: 12,
-    fontFamily: 'inherit',
-    display: 'flex',
-    alignItems: 'center',
-    gap: 8,
-  },
-  titleIcon: {
-    fontSize: '1.2rem',
-    color: theme.palette.primary.main,
-  },
-  section: {
-    marginBottom: 20,
-  },
-  sectionTitle: {
-    fontSize: '1.15rem',
-    fontWeight: 600,
-    marginBottom: 8,
-    color: theme.palette.text.primary,
-  },
   paragraph: {
     marginBottom: 12,
     color: theme.palette.text.primary,
     fontSize: '1.1rem',
     lineHeight: 1.6,
-  },
-  list: {
-    paddingInlineStart: "30px",
-    marginBottom: 12,
-    '& li': {
-      marginBottom: 6,
-      fontSize: '1.1rem',
-      lineHeight: 1.6,
-    },
-  },
-  codeInline: {
-    fontSize: '0.9rem',
-    fontWeight: 600,
-    backgroundColor: theme.palette.grey[200],
-    padding: '2px 6px',
-    borderRadius: 4,
-    fontFamily: 'monospace',
-  },
-  tipBox: {
-    backgroundColor: theme.palette.panelBackground.hoverHighlightGrey,
-    padding: 12,
-    borderRadius: 4,
-    marginTop: 16,
-    fontSize: '1.05rem',
-    lineHeight: 1.6,
-  },
-  tipTitle: {
-    fontWeight: 600,
-    marginBottom: 4,
-    display: 'flex',
-    alignItems: 'center',
-    gap: 6,
-  },
-  tipIcon: {
-    fontSize: '1rem',
-    color: theme.palette.primary.main,
   },
 }));
 
