@@ -3,6 +3,7 @@ import { manifoldAPIKeySetting, highlightReviewWinnerThresholdSetting } from "..
 import { getWithCustomLoader, loadByIds } from "../../loaders";
 import { filterNonnull } from "../../utils/typeGuardUtils";
 import keyBy from "lodash/keyBy";
+import { captureException } from "@/lib/sentryWrapper";
 
 // Information about a market, but without bets or comments
 export type LiteMarket = {
@@ -78,12 +79,24 @@ export const highlightMarket = (info: AnnualReviewMarketInfo | undefined): boole
 export const postGetMarketInfoFromManifold = async (post: DbPost): Promise<AnnualReviewMarketInfo | null > => {
   if (!post.manifoldReviewMarketId) return null;
 
-  const result = await fetch(`https://api.manifold.markets./v0/market/${post.manifoldReviewMarketId}`, {
-    method: "GET",
-    headers: {
-      "content-type": "application/json"
-    },
-  })
+  let result;
+  try {
+    result = await fetch(`https://api.manifold.markets/v0/market/${post.manifoldReviewMarketId}`, {
+      method: "GET",
+      headers: {
+        "content-type": "application/json"
+      },
+    })
+  } catch (error) {
+    // We see unhelpful "fetch failed" errors from this request pretty frequently
+    // and don't really want them cluttering up the logs
+    if (!(error instanceof TypeError && error.message === 'fetch failed')) {
+      //eslint-disable-next-line no-console
+      console.error('There was a problem with the fetch operation for getting a Manifold Market: ', error);
+      captureException(error);
+    }
+    return null;
+  }
   
   if (!result.ok) {
     //eslint-disable-next-line no-console
