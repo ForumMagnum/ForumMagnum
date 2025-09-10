@@ -201,10 +201,7 @@ const ToCCommentBlock = ({commentTree, indentLevel, highlightedCommentId, highli
         [classes.highlightUnread]: highlightDate && new Date(comment.postedAt) > new Date(highlightDate),
       })}>
         <span className={classes.commentKarma}>{score}</span>
-        {comment.deleted
-          ? <span>[comment deleted]</span>
-          : <UsersNameDisplay user={comment.user} simple/>
-        }
+        <CommentToCUsername comment={comment}/>
       </span>
     </TableOfContentsRow>
     
@@ -218,6 +215,24 @@ const ToCCommentBlock = ({commentTree, indentLevel, highlightedCommentId, highli
       />
     )}
   </>
+}
+
+/**
+ * Username for a comment, shown in the comments table of contents. For hidden/
+ * deleted users, this reproduces the logic in CommentUserName (this isn't a
+ * shared component with CommentUserName because the styling and the click and
+ * tooltip behaviors are different).
+ */
+function CommentToCUsername({comment}: {
+  comment: CommentsList
+}) {
+  if (comment.deleted) {
+    return <span>[comment deleted]</span>
+  } else if (comment.hideAuthor || !comment.user || comment.user.deleted) {
+    return <span>[anonymous]</span>
+  } else {
+    return <UsersNameDisplay user={comment.user} simple/>
+  }
 }
 
 function flattenCommentTree(commentTree: CommentTreeNode<CommentsList>[]): CommentsList[] {
