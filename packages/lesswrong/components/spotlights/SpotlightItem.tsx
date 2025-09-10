@@ -233,6 +233,7 @@ const styles = defineStyles("SpotlightItem", (theme: ThemeType) => ({
       marginTop: 8,
       maxWidth: TEXT_WIDTH,
     } : {
+      minHeight: 25,
       color: theme.palette.grey[700],
       fontSize: 15,
       marginTop: -1,
@@ -680,9 +681,10 @@ const SpotlightReviews = ({reviewIds}: {
 const SpotlightReviewsFallback = ({numReviews}: {
   numReviews: number
 }) => {
-  return <>
-    {range(numReviews).map(i => <SingleLineCommentPlaceholder key={i} nestingLevel={0}/>)}
-  </>
+  const classes = useStyles(styles);
+  return <div className={classes.review}>
+    {range(numReviews).map(i => <SingleLineCommentPlaceholder key={i} nestingLevel={1}/>)}
+  </div>
 }
 
 const SpotlightReviewComment = ({id}: {
