@@ -81,7 +81,7 @@ export async function middleware(request: NextRequest) {
   } else {
     const status = statusFromStream ? statusFromStream.status : forwardedFetchResponse.status;
 
-    const nextResponse = new NextResponse(responseStream, { status });
+    const nextResponse = new NextResponse(responseStream, { headers: forwardedFetchResponse.headers, status });
     if (addedClientId) {
       return addClientIdToResponseHeaders(nextResponse, addedClientId);
     }
