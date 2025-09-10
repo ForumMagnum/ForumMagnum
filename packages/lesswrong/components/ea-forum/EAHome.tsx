@@ -1,3 +1,5 @@
+"use client";
+
 import React, { useCallback } from 'react'
 import { isBotSiteSetting, isEAForum, showEventBannerSetting, showMaintenanceBannerSetting, showSmallpoxSetting, maintenanceTime } from '@/lib/instanceSettings'
 import { useCurrentUser } from '../common/withUser'
