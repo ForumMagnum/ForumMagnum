@@ -401,13 +401,13 @@ const UltraFeed = ({
   const [cookies, setCookie] = useCookiesWithConsent([ULTRA_FEED_ACTIVE_TAB_COOKIE]);
   const [internalSettingsVisible, setInternalSettingsVisible] = useState(false);
   const [internalInfoVisible, setInternalInfoVisible] = useState(false);
-  const [activeTab, setActiveTab] = useState<FeedType>(() => (cookies[cookieKey] === 'following' ? 'following' : 'ultraFeed'));
+  const [activeTab, setActiveTab] = useState<FeedType>(() => (cookies[ULTRA_FEED_ACTIVE_TAB_COOKIE] === 'following' ? 'following' : 'ultraFeed'));
   const { captureEvent } = useTracking();
   const { settings, updateSettings, resetSettings, truncationMaps } = useUltraFeedSettings();
 
   const handleTabChange = (tab: FeedType) => {
     setActiveTab(tab);
-    setCookie(cookieKey, tab, { path: '/' });
+    setCookie(ULTRA_FEED_ACTIVE_TAB_COOKIE, tab, { path: '/' });
     // Close info panel when switching to Following tab
     if (tab === 'following' && internalInfoVisible) {
       setInternalInfoVisible(false);
