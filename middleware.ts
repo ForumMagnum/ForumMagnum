@@ -105,8 +105,11 @@ function addClientIdToRequestHeaders(headers: Headers, clientId: string): Header
 
 function addClientIdToResponseHeaders(headers: Headers, clientId: string): Headers {
   const clone = new Headers(headers);
-  headers.append("Set-Cookie", `${CLIENT_ID_COOKIE}=${clientId}`);
-  headers.append("Set-Cookie", `${CLIENT_ID_NEW_COOKIE}=true`);
+  const maxAge = 1000 * 60 * 60 * 24 * 365;
+  headers.append("Set-Cookie", `${CLIENT_ID_COOKIE}=${clientId}; Path=/; Max-Age=${maxAge}; SameSite=Lax`);
+  headers.append("Set-Cookie", `${CLIENT_ID_NEW_COOKIE}=true; Path=/; Max-Age=${maxAge}; SameSite=Lax`);
+
+  console.log({ headers: Array.from(headers.entries()) });
   return clone;
 }
 
