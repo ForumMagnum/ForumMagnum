@@ -1,6 +1,5 @@
 import React from 'react'
 import { registerComponent } from '../../../lib/vulcan-lib/components';
-import { isFriendlyUI } from '../../../themes/forumTheme';
 import UserNameDeleted from "../../users/UserNameDeleted";
 import UsersName from "../../users/UsersName";
 import UserCommentMarkers from "../../users/UserCommentMarkers";
@@ -15,13 +14,13 @@ export const AUTHOR_MARKER_STYLES = {
 
 const styles = (theme: ThemeType) => ({
   root: {
-    fontFamily: isFriendlyUI ? theme.typography.uiSecondary.fontFamily : undefined,
+    fontFamily: theme.isFriendlyUI ? theme.typography.uiSecondary.fontFamily : undefined,
     textAlign: 'left',
     display: 'inline',
   },
   authorName: {
     fontWeight: 600,
-    marginLeft: isFriendlyUI ? 1 : 0,
+    marginLeft: theme.isFriendlyUI ? 1 : 0,
   },
   authorMarkers: AUTHOR_MARKER_STYLES,
 })

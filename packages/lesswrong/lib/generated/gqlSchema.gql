@@ -107,7 +107,7 @@ type TagContributorsList {
 }
 
 type UserLikingTag {
-  _id: String!
+  userId: String!
   displayName: String!
 }
 
@@ -1443,10 +1443,6 @@ type UltraFeedEntry {
 
 extend type Query {
   UltraFeed(limit: Int, cutoff: Date, offset: Int, sessionId: String, settings: JSON): UltraFeedQueryResults!
-}
-
-extend type Query {
-  UltraFeedHistory(limit: Int, cutoff: Date, offset: Int): UltraFeedQueryResults!
 }
 
 extend type Query {

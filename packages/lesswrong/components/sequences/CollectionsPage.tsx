@@ -6,7 +6,6 @@ import { Link } from '../../lib/reactRouterWrapper';
 import { useCurrentUser } from '../common/withUser';
 import SingleColumnSection, { SECTION_WIDTH } from '../common/SingleColumnSection';
 import { makeCloudinaryImageUrl } from '../common/CloudinaryImage2';
-import { isFriendlyUI } from '@/themes/forumTheme';
 import { useQuery } from "@/lib/crud/useQuery";
 import { gql } from "@/lib/generated/gql-codegen";
 import { BooksForm } from './BooksForm';
@@ -81,7 +80,7 @@ const styles = (theme: ThemeType) => ({
   title: {
     ...theme.typography.headerStyle,
     fontWeight: "bold",
-    textTransform: isFriendlyUI ? undefined : "uppercase",
+    textTransform: theme.isFriendlyUI ? undefined : "uppercase",
     borderTopStyle: "solid",
     borderTopWidth: 4,
     paddingTop: 10,
@@ -90,7 +89,7 @@ const styles = (theme: ThemeType) => ({
   },
   description: {
     marginTop: 30,
-    marginBottom: isFriendlyUI ? 0 : 25,
+    marginBottom: theme.isFriendlyUI ? 0 : 25,
     lineHeight: 1.25,
     maxWidth: 700,
   },

@@ -11,12 +11,9 @@ import UserNameDeleted from '../users/UserNameDeleted';
 import { defineStyles, useStyles } from '../hooks/useStyles';
 import { useDialog } from '../common/withDialog';
 import { useUltraFeedContext } from './UltraFeedContextProvider';
-import classNames from 'classnames';
 import SubscriptionsIcon from '@/lib/vendor/@material-ui/icons/src/NotificationsNone';
 
 const styles = defineStyles("UsersNameWithModal", (theme: ThemeType) => ({
-  root: {
-  },
   subscribeIcon: {
     width: 15,
     height: 15,
@@ -77,8 +74,7 @@ const UsersNameWithModal = ({
   const profileUrl = userGetProfileUrl(user);
 
   if (simple) {
-    return <span className={classNames( classes.root, className
-    )}>
+    return <span className={className}>
       {displayName}
       {showSubscribedIcon && <SubscriptionsIcon className={classes.subscribeIcon} />}
     </span>;
@@ -125,7 +121,7 @@ const UsersNameWithModal = ({
       >
         <Link
           to={profileUrl}
-          className={classNames( classes.root, className)}
+          className={className}
           onClick={handleClick}
           {...(nofollow ? { rel: "nofollow" } : {})}
         >

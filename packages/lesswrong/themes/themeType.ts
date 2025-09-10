@@ -644,6 +644,15 @@ declare global {
     shadePalette: ThemeShadePalette
   }
   
+  type ForumTypeFlags = {
+    isBookUI: boolean,
+    isFriendlyUI: boolean,
+    isLW: boolean,
+    isAF: boolean,
+    isLWorAF: boolean,
+    isEAForum: boolean,
+  }
+  
   type ThemeType = {
     forumType: ForumTypeString,
     themeOptions: ThemeOptions,
@@ -716,7 +725,6 @@ declare global {
     zIndexes: ZIndexMap,
     overrides: any,
     postImageStyles: JssStyles,
-    voting: {strongVoteDelay: number},
     
     // Used by material-UI. Not used by us directly (for our styles use
     // `theme.palette.boxShadow` which defines shadows semantically rather than
@@ -730,7 +738,7 @@ declare global {
     },
     transitions: MuiTransitions,
     direction: "ltr"|"rtl",
-  };
+  } & ForumTypeFlags;
 
   type NativeThemeType = Omit<ThemeType,"palette"|"forumType"|"themeOptions"|"breakpoints"> & { breakpoints: Omit<ThemeType["breakpoints"], "up"|"down"> };
   

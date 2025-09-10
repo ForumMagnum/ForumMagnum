@@ -201,6 +201,7 @@ class UltraFeedEventsRepo extends AbstractRepo<'UltraFeedEvents'> {
         WHERE ue."userId" = $(userId)
           AND ue."eventType" = 'served'
           AND ($(cutoff) IS NULL OR ue."createdAt" < $(cutoff))
+        LIMIT 5000
       ),
       prepared_comments AS (
         -- Prepare individual comments with their read status and topLevelCommentId

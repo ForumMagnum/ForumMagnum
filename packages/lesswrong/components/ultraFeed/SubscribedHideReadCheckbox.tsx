@@ -32,7 +32,6 @@ export type SubscribedHideReadCheckboxProps = {
   onChange: (checked: boolean) => void;
   visible?: boolean;
   disabled?: boolean;
-  id?: string;
   label?: string;
   className?: string;
 };
@@ -42,7 +41,6 @@ const SubscribedHideReadCheckbox = ({
   onChange,
   visible = true,
   disabled = false,
-  id = 'hideReadCheckbox',
   label = 'Hide Read',
   className,
 }: SubscribedHideReadCheckboxProps) => {

@@ -62,8 +62,8 @@ export const MixedTypeFeed = <
   // Apollo fetch policy
   fetchPolicy?: WatchQueryFetchPolicy;
   
-  // Callback when data is loaded
-  onDataLoaded?: (results: Array<{type: string, [key: string]: unknown}>, loading: boolean) => void;
+  // Callback for tracking loading state changes (fires when loading starts and completes)
+  onLoadingStateChange?: (results: Array<{type: string, [key: string]: unknown}>, loading: boolean) => void;
 }) => {
   const {
     query,
@@ -78,7 +78,7 @@ export const MixedTypeFeed = <
     className,
     loadMoreDistanceProp = defaultLoadMoreDistance,
     fetchPolicy = "cache-and-network",
-    onDataLoaded,
+    onLoadingStateChange,
   } = args;
 
   // Reference to a bottom-marker used for checking scroll position.
@@ -176,12 +176,12 @@ export const MixedTypeFeed = <
   const orderPolicy = reorderOnRefetch ? 'no-reorder' : undefined;
   const orderedResults = useOrderPreservingArray(results, keyFunc, orderPolicy);
   
-  // Call onDataLoaded when loading state changes
+  // Call onLoadingStateChange when loading state changes
   useEffect(() => {
-    if (onDataLoaded) {
-      onDataLoaded(results, loading);
+    if (onLoadingStateChange) {
+      onLoadingStateChange(results, loading);
     }
-  }, [results, loading, onDataLoaded]);
+  }, [results, loading, onLoadingStateChange]);
 
   return <div className={className}>
     {orderedResults.map((result, index) =>

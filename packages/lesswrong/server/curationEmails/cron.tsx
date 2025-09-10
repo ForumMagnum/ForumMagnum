@@ -13,6 +13,7 @@ import UsersRepo from "../repos/UsersRepo";
 import chunk from "lodash/chunk";
 import moment from "moment";
 import { PostsEmail } from "../emailComponents/PostsEmail";
+import { backgroundTask } from "../utils/backgroundTask";
 
 export async function findUsersToEmail(filter: MongoSelector<DbUser>) {
   let usersMatchingFilter = await Users.find(filter).fetch();
@@ -48,7 +49,16 @@ export async function sendCurationEmail({users, postId, reason, subject}: {
   // We *could* optimize to avoid refetching the post for every single user we email...
   // ...but it might actually be better to not, since this allows us to e.g. edit the post after the job has started if there's some egregious issue
   const post = await Posts.findOne(postId);
-  if (!post) throw Error(`Can't find post to send by email: ${postId}`)
+  if (!post) {
+    throw new Error(`Can't find post to send by email: ${postId}`);
+  }
+  if (!post.curatedDate) {
+    // If we somehow end up in a situation where we're trying to send out a curation email
+    // for a post that's not currently curated (i.e. because it was un-curated), delete
+    // all remaining queued up emails for that post and bail
+    backgroundTask(CurationEmails.rawRemove({ postId: post._id }));
+    throw new Error(`Post ${post.title} (_id: ${post._id}) is not curated!`);
+  }
 
   for (const user of users) {
     await wrapAndSendEmail({

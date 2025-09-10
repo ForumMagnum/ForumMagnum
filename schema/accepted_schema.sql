@@ -3877,8 +3877,8 @@ WHERE
   "collectionName" = 'Comments' AND
   "eventType" = 'served';
 
--- CustomIndex "ultraFeedEvents_userId_feedItemId_viewed_idx"
-CREATE INDEX IF NOT EXISTS "ultraFeedEvents_userId_feedItemId_viewed_idx" ON "UltraFeedEvents" ("userId", "feedItemId")
+-- CustomIndex "ultraFeedEvents_userId_feedItemId_non_served_idx"
+CREATE INDEX IF NOT EXISTS "ultraFeedEvents_userId_feedItemId_non_served_idx" ON "UltraFeedEvents" ("userId", "feedItemId")
 WHERE
   "eventType" != 'served' AND
   "feedItemId" IS NOT NULL;

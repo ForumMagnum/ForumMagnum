@@ -21,7 +21,7 @@ export const UltraFeedEvents: UltraFeedEventsCollection = createCollection({
     `);
     
     indexSet.addCustomPgIndex(`
-      CREATE INDEX CONCURRENTLY IF NOT EXISTS "ultraFeedEvents_userId_feedItemId_viewed_idx"
+      CREATE INDEX CONCURRENTLY IF NOT EXISTS "ultraFeedEvents_userId_feedItemId_non_served_idx"
       ON "UltraFeedEvents" ("userId", "feedItemId")
       WHERE "eventType" != 'served' AND "feedItemId" IS NOT NULL;
     `);

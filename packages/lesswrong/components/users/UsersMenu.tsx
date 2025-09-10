@@ -40,21 +40,21 @@ import { isIfAnyoneBuildsItFrontPage } from '../seasonal/IfAnyoneBuildsItSplash'
 
 const styles = (theme: ThemeType) => ({
   root: {
-    marginTop: isFriendlyUI ? undefined : 5,
+    marginTop: theme.isFriendlyUI ? undefined : 5,
     wordBreak: 'break-all',
     position: "relative"
   },
   userButtonRoot: {
     // Mui default is 16px, so we're halving it to bring it into line with the
     // rest of the header components
-    paddingLeft: isFriendlyUI ? 12 : theme.spacing.unit,
+    paddingLeft: theme.isFriendlyUI ? 12 : theme.spacing.unit,
     paddingRight: theme.spacing.unit,
-    borderRadius: isFriendlyUI ? theme.borderRadius.default : undefined
+    borderRadius: theme.isFriendlyUI ? theme.borderRadius.default : undefined
   },
   userButtonContents: {
     textTransform: 'none',
     fontSize: '16px',
-    fontWeight: isFriendlyUI ? undefined : 400,
+    fontWeight: theme.isFriendlyUI ? undefined : 400,
     color: blackBarTitle.get() ? theme.palette.text.alwaysWhite : theme.palette.header.text,
     ...isIfAnyoneBuildsItFrontPage({
       color: theme.palette.text.bannerAdOverlay,
@@ -75,7 +75,7 @@ const styles = (theme: ThemeType) => ({
     opacity: 0.9
   },
   icon: {
-    color: isFriendlyUI ? undefined : theme.palette.grey[500]
+    color: theme.isFriendlyUI ? undefined : theme.palette.grey[500]
   },
   deactivatedTooltip: {
     maxWidth: 230
@@ -84,7 +84,7 @@ const styles = (theme: ThemeType) => ({
     color: theme.palette.grey[600],
     marginLeft: 20
   },
-  adminToggleItem: isFriendlyUI ? {
+  adminToggleItem: theme.isFriendlyUI ? {
     display: 'none',
     [theme.breakpoints.down('xs')]: {
       display: 'block'

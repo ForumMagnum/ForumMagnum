@@ -1,6 +1,8 @@
 import transitions from '@/lib/vendor/@material-ui/core/src/styles/transitions';
 import { defaultShadePalette, defaultComponentPalette } from './defaultPalette';
 import { defaultZIndexes } from "./zIndexes";
+import { isBookUI, isFriendlyUI } from './forumTheme';
+import { isAF, isEAForum, isLW, isLWorAF } from '@/lib/instanceSettings';
 
 const monoStack = [
   '"Liberation Mono"',
@@ -262,9 +264,6 @@ export const baseTheme: BaseThemeSpecification = {
         ...defaultZIndexes
       },
       postImageStyles: {},
-      voting: {
-        strongVoteDelay: 1000,
-      },
       shadows: [
         // All from material-UI
         "none",
@@ -313,6 +312,12 @@ export const baseTheme: BaseThemeSpecification = {
           initial-value: 36%;
         }`
       ],
-    }
+      isBookUI,
+      isFriendlyUI,
+      isLW,
+      isAF,
+      isLWorAF,
+      isEAForum,
+    };
   }
 };

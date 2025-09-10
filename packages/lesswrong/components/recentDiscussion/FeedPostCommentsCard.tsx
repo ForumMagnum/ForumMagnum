@@ -9,7 +9,6 @@ import { Link } from '../../lib/reactRouterWrapper';
 import { postGetPageUrl } from '../../lib/collections/posts/helpers';
 import { AnalyticsContext, useTracking } from "../../lib/analyticsEvents";
 import type { CommentTreeOptions } from '../comments/commentTree';
-import { isFriendlyUI } from '../../themes/forumTheme';
 import { useRecentDiscussionThread } from './useRecentDiscussionThread';
 import CommentsNode from "../comments/CommentsNode";
 import FeedPostsHighlight from "../posts/FeedPostsHighlight";
@@ -24,7 +23,7 @@ const styles = (theme: ThemeType) => ({
     position: "relative",
     minHeight: 58,
     boxShadow: theme.palette.boxShadow.default,
-    borderRadius: theme.borderRadius[isFriendlyUI ? "default" : "small"],
+    borderRadius: theme.borderRadius[theme.isFriendlyUI ? "default" : "small"],
     [theme.breakpoints.down('xs')]: {
       paddingTop: 16,
       paddingLeft: 16,

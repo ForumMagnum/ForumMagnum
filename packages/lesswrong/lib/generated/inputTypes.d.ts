@@ -75,7 +75,6 @@ interface Query {
   getCrosspost: any;
   RevisionsDiff: string | null;
   UltraFeed: UltraFeedQueryResults;
-  UltraFeedHistory: UltraFeedQueryResults;
   UltraFeedSubscriptions: UltraFeedQueryResults;
   advisorRequest: SingleAdvisorRequestOutput | null;
   advisorRequests: MultiAdvisorRequestOutput | null;
@@ -470,7 +469,7 @@ interface TagContributorsList {
 }
 
 interface UserLikingTag {
-  _id: string;
+  userId: string;
   displayName: string;
 }
 

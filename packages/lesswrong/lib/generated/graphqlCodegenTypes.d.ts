@@ -7543,7 +7543,6 @@ type Query = {
   TagUpdatesInTimeBlock: Array<TagUpdates>;
   TagsByCoreTagId: TagWithTotalCount;
   UltraFeed: UltraFeedQueryResults;
-  UltraFeedHistory: UltraFeedQueryResults;
   UltraFeedSubscriptions: UltraFeedQueryResults;
   UserReadHistory?: Maybe<UserReadHistoryResult>;
   UserReadsPerCoreTag: Array<UserCoreTagReads>;
@@ -8001,13 +8000,6 @@ type QueryUltraFeedArgs = {
   offset?: InputMaybe<Scalars['Int']['input']>;
   sessionId?: InputMaybe<Scalars['String']['input']>;
   settings?: InputMaybe<Scalars['JSON']['input']>;
-};
-
-
-type QueryUltraFeedHistoryArgs = {
-  cutoff?: InputMaybe<Scalars['Date']['input']>;
-  limit?: InputMaybe<Scalars['Int']['input']>;
-  offset?: InputMaybe<Scalars['Int']['input']>;
 };
 
 
@@ -12593,8 +12585,8 @@ type UserJobAdsAdsByUserInput = {
 
 type UserLikingTag = {
   __typename?: 'UserLikingTag';
-  _id: Scalars['String']['output'];
   displayName: Scalars['String']['output'];
+  userId: Scalars['String']['output'];
 };
 
 type UserMostValuablePost = {
@@ -14240,37 +14232,6 @@ type UltraFeedQueryVariables = Exact<{
 
 
 type UltraFeedQuery = UltraFeedQuery_Query;
-
-type UltraFeedHistoryQuery_UltraFeedHistory_UltraFeedQueryResults_results_UltraFeedEntry_feedCommentThread_FeedCommentThread = (
-  { __typename?: 'FeedCommentThread' }
-  & FeedCommentThreadFragment
-);
-
-type UltraFeedHistoryQuery_UltraFeedHistory_UltraFeedQueryResults_results_UltraFeedEntry_feedPost_FeedPost = (
-  { __typename?: 'FeedPost' }
-  & FeedPostFragment
-);
-
-type UltraFeedHistoryQuery_UltraFeedHistory_UltraFeedQueryResults_results_UltraFeedEntry_feedSpotlight_FeedSpotlightItem = (
-  { __typename?: 'FeedSpotlightItem' }
-  & FeedSpotlightFragment
-);
-
-type UltraFeedHistoryQuery_UltraFeedHistory_UltraFeedQueryResults_results_UltraFeedEntry = { __typename?: 'UltraFeedEntry', type: UltraFeedEntryType, feedCommentThread: UltraFeedHistoryQuery_UltraFeedHistory_UltraFeedQueryResults_results_UltraFeedEntry_feedCommentThread_FeedCommentThread | null, feedPost: UltraFeedHistoryQuery_UltraFeedHistory_UltraFeedQueryResults_results_UltraFeedEntry_feedPost_FeedPost | null, feedSpotlight: UltraFeedHistoryQuery_UltraFeedHistory_UltraFeedQueryResults_results_UltraFeedEntry_feedSpotlight_FeedSpotlightItem | null };
-
-type UltraFeedHistoryQuery_UltraFeedHistory_UltraFeedQueryResults = { __typename: 'UltraFeedQueryResults', cutoff: string | null, endOffset: number, results: Array<UltraFeedHistoryQuery_UltraFeedHistory_UltraFeedQueryResults_results_UltraFeedEntry> | null };
-
-type UltraFeedHistoryQuery_Query = { __typename?: 'Query', UltraFeedHistory: UltraFeedHistoryQuery_UltraFeedHistory_UltraFeedQueryResults };
-
-
-type UltraFeedHistoryQueryVariables = Exact<{
-  limit: InputMaybe<Scalars['Int']['input']>;
-  cutoff: InputMaybe<Scalars['Date']['input']>;
-  offset: InputMaybe<Scalars['Int']['input']>;
-}>;
-
-
-type UltraFeedHistoryQuery = UltraFeedHistoryQuery_Query;
 
 type UltraFeedSubscriptionsQuery_UltraFeedSubscriptions_UltraFeedQueryResults_results_UltraFeedEntry_feedCommentThread_FeedCommentThread = (
   { __typename?: 'FeedCommentThread' }
@@ -16283,16 +16244,6 @@ type UserExpandFrontpageSectionMutationVariables = Exact<{
 
 
 type UserExpandFrontpageSectionMutation = UserExpandFrontpageSectionMutation_Mutation;
-
-type GetCrosspostQueryQuery_Query = { __typename?: 'Query', getCrosspost: any | null };
-
-
-type GetCrosspostQueryQueryVariables = Exact<{
-  args: InputMaybe<Scalars['JSON']['input']>;
-}>;
-
-
-type GetCrosspostQueryQuery = GetCrosspostQueryQuery_Query;
 
 type initiateConversationMutation_initiateConversation_Conversation = (
   { __typename?: 'Conversation' }
@@ -23243,23 +23194,6 @@ type LocalPostQueryQueryVariables = Exact<{
 
 type LocalPostQueryQuery = LocalPostQueryQuery_Query;
 
-type ForeignPostQueryQuery_post_SinglePostOutput_result_Post = (
-  { __typename?: 'Post' }
-  & PostsPage
-);
-
-type ForeignPostQueryQuery_post_SinglePostOutput = { __typename?: 'SinglePostOutput', result: ForeignPostQueryQuery_post_SinglePostOutput_result_Post | null };
-
-type ForeignPostQueryQuery_Query = { __typename?: 'Query', post: ForeignPostQueryQuery_post_SinglePostOutput | null };
-
-
-type ForeignPostQueryQueryVariables = Exact<{
-  documentId: Scalars['String']['input'];
-}>;
-
-
-type ForeignPostQueryQuery = ForeignPostQueryQuery_Query;
-
 type UserRecentPostsForCompactCardQuery_posts_MultiPostOutput_results_Post = (
   { __typename?: 'Post' }
   & PostsList
@@ -24902,7 +24836,7 @@ type PostsTopItemInfo = (
 type PostsBase_Post_group_Localgroup = { __typename?: 'Localgroup', _id: string, name: string, organizerIds: Array<string> };
 
 type PostsBase = (
-  { __typename?: 'Post', url: string | null, postedAt: string, createdAt: string | null, sticky: boolean, metaSticky: boolean, stickyPriority: number, status: number, frontpageDate: string | null, meta: boolean, deletedDraft: boolean, postCategory: PostCategory, tagRelevance: any | null, shareWithUsers: Array<string> | null, sharingSettings: any | null, linkSharingKey: string | null, contents_latest: string | null, commentCount: number, voteCount: number, baseScore: number, extendedScore: any | null, emojiReactors: any | null, unlisted: boolean, score: number, lastVisitedAt: string | null, isFuture: boolean, isRead: boolean | null, lastCommentedAt: string, lastCommentPromotedAt: string | null, canonicalCollectionSlug: string | null, curatedDate: string | null, commentsLocked: boolean | null, commentsLockedToAccountsCreatedAfter: string | null, debate: boolean, question: boolean, hiddenRelatedQuestion: boolean, originalPostRelationSourceId: string | null, userId: string | null, location: string | null, googleLocation: any | null, onlineEvent: boolean, globalEvent: boolean, startTime: string | null, endTime: string | null, localStartTime: string | null, localEndTime: string | null, eventRegistrationLink: string | null, joinEventLink: string | null, facebookLink: string | null, meetupLink: string | null, website: string | null, contactInfo: string | null, isEvent: boolean, eventImageId: string | null, eventType: string | null, types: Array<string> | null, groupId: string | null, reviewedByUserId: string | null, suggestForCuratedUserIds: Array<string> | null, suggestForCuratedUsernames: string | null, reviewForCuratedUserId: string | null, authorIsUnreviewed: boolean, afDate: string | null, suggestForAlignmentUserIds: Array<string>, reviewForAlignmentUserId: string | null, afBaseScore: number | null, afExtendedScore: any | null, afCommentCount: number, afLastCommentedAt: string | null, afSticky: boolean, hideAuthor: boolean, moderationStyle: string | null, ignoreRateLimits: boolean | null, submitToFrontpage: boolean, shortform: boolean, onlyVisibleToLoggedIn: boolean, onlyVisibleToEstablishedAccounts: boolean, reviewCount: number, reviewVoteCount: number, positiveReviewVoteCount: number, manifoldReviewMarketId: string | null, annualReviewMarketProbability: number | null, annualReviewMarketIsResolved: boolean | null, annualReviewMarketYear: number | null, annualReviewMarketUrl: string | null, rsvpCounts: any, podcastEpisodeId: string | null, forceAllowType3Audio: boolean, nominationCount2019: number, reviewCount2019: number, votingSystem: string | null, disableRecommendation: boolean, group: PostsBase_Post_group_Localgroup | null }
+  { __typename?: 'Post', url: string | null, postedAt: string, sticky: boolean, metaSticky: boolean, stickyPriority: number, status: number, frontpageDate: string | null, meta: boolean, deletedDraft: boolean, postCategory: PostCategory, tagRelevance: any | null, shareWithUsers: Array<string> | null, sharingSettings: any | null, linkSharingKey: string | null, contents_latest: string | null, commentCount: number, voteCount: number, baseScore: number, extendedScore: any | null, emojiReactors: any | null, unlisted: boolean, score: number, lastVisitedAt: string | null, isFuture: boolean, isRead: boolean | null, lastCommentedAt: string, lastCommentPromotedAt: string | null, canonicalCollectionSlug: string | null, curatedDate: string | null, commentsLocked: boolean | null, commentsLockedToAccountsCreatedAfter: string | null, debate: boolean, question: boolean, hiddenRelatedQuestion: boolean, originalPostRelationSourceId: string | null, userId: string | null, location: string | null, googleLocation: any | null, onlineEvent: boolean, globalEvent: boolean, startTime: string | null, endTime: string | null, localStartTime: string | null, localEndTime: string | null, eventRegistrationLink: string | null, joinEventLink: string | null, facebookLink: string | null, meetupLink: string | null, website: string | null, contactInfo: string | null, isEvent: boolean, eventImageId: string | null, eventType: string | null, types: Array<string> | null, groupId: string | null, reviewedByUserId: string | null, suggestForCuratedUserIds: Array<string> | null, suggestForCuratedUsernames: string | null, reviewForCuratedUserId: string | null, authorIsUnreviewed: boolean, afDate: string | null, suggestForAlignmentUserIds: Array<string>, reviewForAlignmentUserId: string | null, afBaseScore: number | null, afExtendedScore: any | null, afCommentCount: number, afLastCommentedAt: string | null, afSticky: boolean, hideAuthor: boolean, moderationStyle: string | null, ignoreRateLimits: boolean | null, submitToFrontpage: boolean, shortform: boolean, onlyVisibleToLoggedIn: boolean, onlyVisibleToEstablishedAccounts: boolean, reviewCount: number, reviewVoteCount: number, positiveReviewVoteCount: number, manifoldReviewMarketId: string | null, annualReviewMarketProbability: number | null, annualReviewMarketIsResolved: boolean | null, annualReviewMarketYear: number | null, annualReviewMarketUrl: string | null, rsvpCounts: any, podcastEpisodeId: string | null, forceAllowType3Audio: boolean, nominationCount2019: number, reviewCount2019: number, votingSystem: string | null, disableRecommendation: boolean, group: PostsBase_Post_group_Localgroup | null }
   & PostsMinimumInfo
 );
 
@@ -26117,7 +26051,7 @@ type ExplorePageTagFragment = (
 
 type ConceptItemFragment_Tag_description_Revision = { __typename?: 'Revision', _id: string, wordCount: number };
 
-type ConceptItemFragment_Tag_usersWhoLiked_UserLikingTag = { __typename?: 'UserLikingTag', _id: string, displayName: string };
+type ConceptItemFragment_Tag_usersWhoLiked_UserLikingTag = { __typename?: 'UserLikingTag', userId: string, displayName: string };
 
 type ConceptItemFragment = { __typename?: 'Tag', _id: string, core: boolean, name: string, slug: string, oldSlugs: Array<string>, postCount: number, baseScore: number, wikiOnly: boolean, isArbitalImport: boolean | null, coreTagId: string | null, maxScore: number | null, description: ConceptItemFragment_Tag_description_Revision | null, usersWhoLiked: Array<ConceptItemFragment_Tag_usersWhoLiked_UserLikingTag> };
 

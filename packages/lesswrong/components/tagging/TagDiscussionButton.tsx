@@ -5,7 +5,6 @@ import CommentOutlinedIcon from "@/lib/vendor/@material-ui/icons/src/ModeComment
 import { useHover } from "../common/withHover";
 import { tagGetDiscussionUrl } from "../../lib/collections/tags/helpers";
 import classNames from "classnames";
-import { isFriendlyUI } from "@/themes/forumTheme";
 import TagDiscussion from "./TagDiscussion";
 import PopperCard from "../common/PopperCard";
 import { useQuery } from "@/lib/crud/useQuery";
@@ -41,7 +40,7 @@ const styles = (theme: ThemeType) => ({
   discussionCount: {
     [theme.breakpoints.down('sm')]: {
       alignSelf: "flex-start", //appears too low when there's no label
-      marginTop: isFriendlyUI ? undefined : -2,
+      marginTop: theme.isFriendlyUI ? undefined : -2,
     }
   },
   discussionCountWithoutLabel: {

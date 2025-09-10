@@ -3,12 +3,11 @@ import { registerComponent } from '../../lib/vulcan-lib/components';
 import { useUpdateCurrentUser } from '../hooks/useUpdateCurrentUser';
 import { ThemeMetadata, themeMetadata, getForumType, AbstractThemeOptions } from '../../themes/themeNames';
 import { ForumTypeString, allForumTypes, forumTypeSetting, isEAForum, isLWorAF } from '../../lib/instanceSettings';
-import { useThemeOptions, useSetTheme, ThemeContext } from './useTheme';
+import { ThemeContext } from './useTheme';
 import { useCurrentUser } from '../common/withUser';
 import { isMobile } from '../../lib/utils/isMobile'
 import { Paper }from '@/components/widgets/Paper';
 import Info from '@/lib/vendor/@material-ui/icons/src/Info';
-import { isFriendlyUI } from '../../themes/forumTheme';
 import LWTooltip from "../common/LWTooltip";
 import { Typography } from "../common/Typography";
 import DropdownMenu from "../dropdowns/DropdownMenu";
@@ -16,7 +15,7 @@ import DropdownItem from "../dropdowns/DropdownItem";
 import DropdownDivider from "../dropdowns/DropdownDivider";
 import ForumIcon from "../common/ForumIcon";
 
-const styles = (_theme: ThemeType) => ({
+const styles = (theme: ThemeType) => ({
   check: {
     width: 20,
     marginRight: 8,
@@ -30,7 +29,7 @@ const styles = (_theme: ThemeType) => ({
   },
   infoIcon: {
     fontSize: 14,
-    marginLeft: isFriendlyUI ? 6 : 0,
+    marginLeft: theme.isFriendlyUI ? 6 : 0,
   },
 })
 

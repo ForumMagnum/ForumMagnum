@@ -1285,8 +1285,8 @@ class PostsRepo extends AbstractRepo<"Posts"> {
       LEFT JOIN (
         SELECT 
           "documentId",
-          MAX(CASE WHEN "eventType" = 'viewed' THEN "createdAt" END) as "lastViewed",
-          MAX(CASE WHEN "eventType" IN ('upvote', 'downvote', 'strongUpvote', 'strongDownvote', 'comment') THEN "createdAt" END) as "lastInteracted"
+          MAX(CASE WHEN "eventType" = 'viewed' THEN "createdAt" ELSE NULL END) as "lastViewed",
+          MAX(CASE WHEN "eventType" IN ('upvote', 'downvote', 'strongUpvote', 'strongDownvote', 'comment') THEN "createdAt" ELSE NULL END) as "lastInteracted"
         FROM "UltraFeedEvents"
         WHERE 
           "userId" = $2

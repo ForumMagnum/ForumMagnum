@@ -6,16 +6,16 @@ import { useNavigate } from '../../lib/routeUtil';
 import ShortformSubmitForm from "./ShortformSubmitForm";
 import LWDialog from "../common/LWDialog";
 
-const styles = (_theme: ThemeType) => ({
+const styles = (theme: ThemeType) => ({
   content: {
     // This subselector is needed to beat the specificity of the default
     // MUI styles
     "&:first-child": {
-      padding: isFriendlyUI ? 0 : "0 20px 20px",
+      padding: theme.isFriendlyUI ? 0 : "0 20px 20px",
     },
   },
   dialogPaper: {
-    maxWidth: isFriendlyUI ? 750 : undefined,
+    maxWidth: theme.isFriendlyUI ? 750 : undefined,
   },
 });
 

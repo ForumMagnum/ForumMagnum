@@ -1,11 +1,8 @@
 import React from 'react';
-import { registerComponent } from '../../lib/vulcan-lib/components';
 import { Link } from '../../lib/reactRouterWrapper';
 import classNames from 'classnames';
 import { defineStyles, useStyles } from '../hooks/useStyles';
 import ButtonBase from '@/lib/vendor/@material-ui/core/src/ButtonBase';
-import { isLW } from '@/lib/instanceSettings';
-import { isFriendlyUI } from '@/themes/forumTheme';
 
 export const styles = defineStyles("MenuItem", theme => ({
   root: {
@@ -19,13 +16,13 @@ export const styles = defineStyles("MenuItem", theme => ({
     paddingLeft: 16,
     paddingRight: 16,
     
-    ...(isLW && {
+    ...(theme.isLW && {
       fontFamily: theme.palette.fonts.sansSerifStack,
       color: theme.palette.grey[800],
       fontSize: 14.3,
       lineHeight: "1.1em",
     }),
-    ...(isFriendlyUI && {
+    ...(theme.isFriendlyUI && {
       fontFamily: theme.palette.fonts.sansSerifStack,
       color: theme.palette.grey[900],
       fontWeight: 500,
@@ -51,7 +48,7 @@ export const styles = defineStyles("MenuItem", theme => ({
         backgroundColor: 'transparent',
       },
     },
-    ...(isLW && {
+    ...(theme.isLW && {
       paddingTop: 8,
       paddingBottom: 8
     }),

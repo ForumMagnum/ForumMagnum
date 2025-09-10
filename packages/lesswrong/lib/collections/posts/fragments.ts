@@ -65,7 +65,6 @@ export const PostsBase = gql(`
     # Core fields
     url
     postedAt
-    createdAt
     sticky
     metaSticky
     stickyPriority

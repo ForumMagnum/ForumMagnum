@@ -6,7 +6,6 @@ import { useCurrentUser } from '../common/withUser';
 import { EditTagForm } from './EditTagPage';
 import { useLocation } from '../../lib/routeUtil';
 import classNames from 'classnames'
-import { isFriendlyUI } from '@/themes/forumTheme';
 import LinkCard from "../common/LinkCard";
 import TagPreviewDescription from "./TagPreviewDescription";
 import TagSmallPostLink from "./TagSmallPostLink";
@@ -56,7 +55,7 @@ const styles = (theme: ThemeType) => ({
       width: "100%",
       maxWidth: "unset"
     },
-    ...(isFriendlyUI && {
+    ...(theme.isFriendlyUI && {
       maxWidth: 490,
     }),
   },

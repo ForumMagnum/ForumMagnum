@@ -2,7 +2,7 @@ import React from 'react'
 import { registerComponent } from '../../../lib/vulcan-lib/components';
 import { Link } from '../../../lib/reactRouterWrapper';
 import { postGetPageUrl } from '../../../lib/collections/posts/helpers';
-import { isBookUI, isFriendlyUI } from '../../../themes/forumTheme';
+import { isFriendlyUI } from '../../../themes/forumTheme';
 import { defineStyles, useStyles } from '@/components/hooks/useStyles';
 import classNames from 'classnames';
 import { Typography } from "../../common/Typography";
@@ -15,12 +15,12 @@ export const postPageTitleStyles = (theme: ThemeType) => ({
   ...theme.typography.display3,
   ...theme.typography.postStyle,
   ...theme.typography.headerStyle,
-  marginTop: isFriendlyUI ? 5 : 0,
+  marginTop: theme.isFriendlyUI ? 5 : 0,
   marginLeft: 0,
-  marginBottom: isFriendlyUI ? 12 : 0,
+  marginBottom: theme.isFriendlyUI ? 12 : 0,
   color: theme.palette.text.primary,
-  textWrap: isBookUI ? "balance" : undefined,
-  [theme.breakpoints.down('sm')]: isFriendlyUI
+  textWrap: theme.isBookUI ? "balance" : undefined,
+  [theme.breakpoints.down('sm')]: theme.isFriendlyUI
     ? {
       fontSize: '2.3rem',
       marginTop: 20,
@@ -28,7 +28,7 @@ export const postPageTitleStyles = (theme: ThemeType) => ({
     : {
       fontSize: '3.5rem',
     },
-  ...(isFriendlyUI
+  ...(theme.isFriendlyUI
     ? {
       fontSize: '3rem',
     }
@@ -36,7 +36,7 @@ export const postPageTitleStyles = (theme: ThemeType) => ({
       fontSize: LW_POST_TITLE_FONT_SIZE,
       lineHeight: '1.1',
   }),
-  [theme.breakpoints.down('xs')]: isFriendlyUI
+  [theme.breakpoints.down('xs')]: theme.isFriendlyUI
     ? {
       fontSize: '2.3rem',
     }
@@ -48,7 +48,7 @@ export const postPageTitleStyles = (theme: ThemeType) => ({
 const styles = defineStyles("PostsPageTitle", (theme: ThemeType) => ({
   root: {
     ...postPageTitleStyles(theme),
-    ...(isFriendlyUI && {
+    ...(theme.isFriendlyUI && {
       lineHeight: 1.25,
       fontWeight: 700
     }),

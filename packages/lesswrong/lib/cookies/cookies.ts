@@ -218,12 +218,10 @@ export const ULTRA_FEED_PAGE_VISITED_COOKIE = registerCookie({
   description: "Whether the user has ever visited the ultra feed page",
 })
 
-export const ULTRA_FEED_ACTIVE_TAB_PREFIX = 'ultra_feed_active_tab_';
-registerCookie({
-  name: `${ULTRA_FEED_ACTIVE_TAB_PREFIX}[*]`,
-  matches: (name: string) => name.startsWith(ULTRA_FEED_ACTIVE_TAB_PREFIX),
+export const ULTRA_FEED_ACTIVE_TAB_COOKIE = registerCookie({
+  name: 'ultra_feed_active_tab',
   type: "functional",
-  description: "Stores the last active UltraFeed tab per-page (e.g., home vs /feed)",
+  description: "Stores the last active UltraFeed tab",
 });
 
 export const PINNED_GLOSSARY_COOKIE = registerCookie({
