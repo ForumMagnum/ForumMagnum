@@ -19,6 +19,8 @@ import LoadMore from "../common/LoadMore";
 import { useQuery } from "@/lib/crud/useQuery";
 import { gql } from "@/lib/generated/gql-codegen";
 import { useQueryWithLoadMore } from "@/components/hooks/useQueryWithLoadMore";
+import { useStyles } from "../hooks/useStyles";
+import DeferRender from "../common/DeferRender";
 
 const CommentsListMultiQuery = gql(`
   query multiCommentAutocompleteModelSettingsQuery($selector: CommentSelector, $limit: Int, $enableTotal: Boolean) {
@@ -42,7 +44,7 @@ const PostsListWithVotesMultiQuery = gql(`
   }
 `);
 
-const styles = (theme: ThemeType) => ({
+const styles = defineStyles("AutocompleteModelSettings", (theme: ThemeType) => ({
   root: {
     ...theme.typography.commentStyle,
   },
@@ -138,7 +140,7 @@ const styles = (theme: ThemeType) => ({
     justifyContent: "space-between",
     marginBottom: theme.spacing.unit,
   },
-});
+}));
 
 const MAX_TOKENS = 180000;
 const TOKENS_PER_WORD = 1.3;
@@ -387,7 +389,8 @@ const debouncedSaveSelection = debounce((selectedItems: Record<string, boolean>,
   localStorage.setItem("selectedTrainingComments", JSON.stringify(selectedComments));
 }, 200);
 
-const AutocompleteModelSettings = ({ classes }: { classes: ClassesType<typeof styles> }) => {
+const AutocompleteModelSettingsInner = () => {
+  const classes = useStyles(styles);
   const currentUser = useCurrentUser();
   const [selectedItems, setSelectedItems] = useState<Record<string, boolean>>(() => {
     const savedPosts = JSON.parse(localStorage.getItem("selectedTrainingPosts") ?? "[]");
@@ -527,8 +530,11 @@ const AutocompleteModelSettings = ({ classes }: { classes: ClassesType<typeof st
   );
 };
 
-export default registerComponent("AutocompleteModelSettings", AutocompleteModelSettings, {
-  styles,
-});
+const AutocompleteModelSettings= () => {
+  return <DeferRender ssr={false}>
+    <AutocompleteModelSettingsInner/>
+  </DeferRender>
+}
 
+export default AutocompleteModelSettings;
 
