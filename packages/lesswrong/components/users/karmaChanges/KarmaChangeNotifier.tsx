@@ -79,9 +79,13 @@ const KarmaChangeNotifierLoaded = ({className}: {
   }
 
   const render = () => {
-    if (!document) return null
+    if (!document) {
+      return <KarmaChangeNotifierPlaceholder/>
+    }
     const karmaChanges = stateKarmaChanges || document.karmaChanges; // Covers special case when state was initialized when user wasn't logged in
-    if (!karmaChanges) return null;
+    if (!karmaChanges) {
+      return <KarmaChangeNotifierPlaceholder/>
+    }
 
     const { karmaChangeNotifierSettings: settings } = currentUser
     if (settings && settings.updateFrequency === "disabled")
