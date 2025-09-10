@@ -5,7 +5,7 @@ import { CAREER_STAGES, MULTISELECT_SUGGESTION_LIMIT } from "@/lib/collections/u
 import { PeopleDirectoryColumn, getPeopleDirectoryColumns } from "./peopleDirectoryColumns";
 import { SearchableMultiSelectResult, useSearchableMultiSelect } from "../hooks/useSearchableMultiSelect";
 import { useSearchAnalytics } from "../search/useSearchAnalytics";
-import { captureException } from "@sentry/nextjs";
+import { captureException } from "@/lib/sentryWrapper";
 import { filterNonnull } from "../../lib/utils/typeGuardUtils";
 import { useLocation, useNavigate } from "../../lib/routeUtil";
 import { taggingNamePluralSetting, taggingNameCapitalSetting, algoliaPrefixSetting } from '@/lib/instanceSettings';

@@ -3,7 +3,7 @@ import { cookies } from 'next/headers';
 import { exchangeCodeForTokens, fetchGoogleUserProfile } from '@/lib/auth/googleOAuth';
 import { getOrCreateGoogleUser } from '@/server/authentication/googleAccounts';
 import { createAndSetToken } from '@/server/vulcan-lib/apollo-server/authentication';
-import { captureException } from '@sentry/nextjs';
+import { captureException } from '@/lib/sentryWrapper';
 
 
 export async function GET(request: NextRequest) {

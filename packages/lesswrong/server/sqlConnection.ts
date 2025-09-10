@@ -247,7 +247,7 @@ function getWrappedClient(
   });
 
   const client: SqlClient = {
-    ...omit(db, queryMethods),
+    ...omit(db, queryMethods) as AnyBecauseHard,
     none: wrapQueryMethod(db.none),
     one: wrapQueryMethod(db.one),
     oneOrNone: wrapQueryMethod(db.oneOrNone),

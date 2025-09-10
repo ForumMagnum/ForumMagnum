@@ -16,7 +16,7 @@ import { validateUrl } from '@/lib/vulcan-lib/utils';
 import { useTracking } from '@/lib/analyticsEvents';
 import ForumEventPostPagePollSection from '../forumEvents/ForumEventPostPagePollSection';
 import repeat from 'lodash/repeat';
-import { captureException } from '@sentry/nextjs';
+import { captureException } from '@/lib/sentryWrapper';
 import { getColorReplacements } from '@/themes/userThemes/darkMode';
 import { colorToString, invertColor, parseColor } from '@/themes/colorUtil';
 import { ThemeContext } from '../themes/useTheme';

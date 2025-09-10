@@ -34,7 +34,10 @@
     ".next/types/**/*.ts",
     "app",
     "app/**/.*/**/*",
-    "scripts/**/*.ts"
+    "scripts/**/*.ts",
+    "instrumentation-client.js",
+    "sentry.server.config.ts",
+    "sentry.edge.config.ts"
   ],
   "exclude": [
     "node_modules",

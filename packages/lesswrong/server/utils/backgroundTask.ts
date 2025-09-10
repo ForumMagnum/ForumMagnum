@@ -1,4 +1,4 @@
-import { captureException } from "@sentry/nextjs";
+import { captureException } from "@/lib/sentryWrapper";
 
 /**
  * Run a task (promise), without waiting for the result. If in a serverless

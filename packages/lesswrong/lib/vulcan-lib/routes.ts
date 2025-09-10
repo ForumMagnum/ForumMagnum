@@ -1,6 +1,6 @@
 import { matchPath } from '@/lib/vendor/react-router/matchPath';
 import type { Request, Response } from 'express';
-import { captureException } from '@sentry/nextjs';
+import { captureException } from '@/lib/sentryWrapper';
 import { isClient } from '../executionEnvironment';
 import qs from 'qs';
 

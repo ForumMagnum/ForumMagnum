@@ -1,4 +1,4 @@
-import { captureException } from '@sentry/nextjs';
+import { captureException } from '@/lib/sentryWrapper';
 import { DebouncerEvents } from '../server/collections/debouncerEvents/collection';
 import { isAF } from '../lib/instanceSettings';
 import moment from '../lib/moment-timezone';

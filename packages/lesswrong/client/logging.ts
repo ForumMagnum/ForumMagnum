@@ -4,14 +4,18 @@ import { devicePrefersDarkMode } from '@/components/themes/ThemeContextProvider'
 import { getUserEmail } from "../lib/collections/users/helpers";
 import type { UtmParam } from '@/server/analytics/utm-tracking';
 import { CamelCaseify } from '@/lib/vulcan-lib/utils';
-import { getIsolationScope } from '@sentry/nextjs';
+import { getSentry } from '@/lib/sentryWrapper';
 
 
 // Initializing sentry on the client browser
 function identifyUserToSentry(user: UsersCurrent | null) {
   // Set user in sentry scope, or clear user if they have logged out
   // Requests are carved up with isolation scopes
-  const scope = getIsolationScope();
+  const Sentry = getSentry();
+  if (!Sentry) {
+    return;
+  }
+  const scope = Sentry.getIsolationScope();
   scope.setUser(user ? {id: user._id, email: getUserEmail(user), username: user.username ?? undefined} : null);
 }
 

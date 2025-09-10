@@ -1,5 +1,5 @@
 import type { Profile } from "passport";
-import { captureException } from "@sentry/nextjs";
+import { captureException } from "@/lib/sentryWrapper";
 import { userFindOneByEmail, usersFindAllByEmail } from "../commonQueries";
 import Users from "../../server/collections/users/collection";
 import { promisify } from "util";

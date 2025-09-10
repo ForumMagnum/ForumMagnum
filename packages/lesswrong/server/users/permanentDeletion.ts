@@ -5,7 +5,7 @@ import { loggerConstructor } from "@/lib/utils/logging";
 import { mailchimpAPIKeySetting } from "../databaseSettings";
 import { mailchimpEAForumListIdSetting, mailchimpForumDigestListIdSetting, isEAForum } from "@/lib/instanceSettings";
 import md5 from "md5";
-import { captureException } from "@sentry/nextjs";
+import { captureException } from "@/lib/sentryWrapper";
 import { auth0RemoveAssociationAndTryDeleteUser } from "../authentication/auth0";
 // import { dogstatsd } from "../datadog/tracer";
 import { createAdminContext } from "../vulcan-lib/createContexts";

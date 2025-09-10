@@ -13,7 +13,7 @@ import { LlmVisibleMessageRole, UserVisibleMessageRole, llmVisibleMessageRoles }
 import { asyncMapSequential } from "@/lib/utils/asyncUtils";
 import { markdownToHtml } from "../editor/conversionUtils";
 import { getOpenAI } from "../languageModels/languageModelIntegration";
-import { captureException } from "@sentry/nextjs";
+import { captureException } from "@/lib/sentryWrapper";
 import { runQuery } from "../vulcan-lib/query";
 import { createLlmConversation } from "../collections/llmConversations/mutations";
 import { createLlmMessage } from "../collections/llmMessages/mutations";

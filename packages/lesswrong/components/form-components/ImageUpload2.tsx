@@ -48,7 +48,7 @@ const ImageUpload2 = ({name, value, updateValue, clearField, label, croppingAspe
   placeholderUrl?: string,
   classes: ClassesType<typeof styles>
 }) => {
-  const {uploadImage, ImageUploadScript} = useImageUpload({
+  const {uploadImage} = useImageUpload({
     imageType: name as ImageType,
     onUploadSuccess: (publicImageId: string) => {
       setImageId(publicImageId);
@@ -89,7 +89,6 @@ const ImageUpload2 = ({name, value, updateValue, clearField, label, croppingAspe
 
   return (
     <div className={classes.root}>
-      <ImageUploadScript />
       <div
         className={classes.imageBackground}
         style={imageStyle}

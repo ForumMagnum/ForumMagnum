@@ -3,7 +3,7 @@ import { cookies } from 'next/headers';
 import { exchangeCodeForTokens, fetchGitHubUserProfile, getGitHubPrimaryEmail } from '@/lib/auth/githubOAuth';
 import { getOrCreateGitHubUser } from '@/server/authentication/githubAccounts';
 import { createAndSetToken } from '@/server/vulcan-lib/apollo-server/authentication';
-import { captureException } from '@sentry/nextjs';
+import { captureException } from '@/lib/sentryWrapper';
 
 
 export async function GET(request: NextRequest) {

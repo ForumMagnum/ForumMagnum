@@ -5,7 +5,7 @@ import type { Metadata } from "next";
 import merge from "lodash/merge";
 import { cloudinaryCloudNameSetting, siteNameWithArticleSetting, taglineSetting } from "@/lib/instanceSettings";
 import { userGetDisplayName } from "@/lib/collections/users/helpers";
-import { captureException } from "@sentry/nextjs";
+import { captureException } from "@/lib/sentryWrapper";
 
 const UserMetadataQuery = gql(`
   query UserMetadata($slug: String) {

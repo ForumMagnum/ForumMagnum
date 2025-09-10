@@ -6,7 +6,7 @@ import merge from "lodash/merge";
 import { CommentPermalinkMetadataQuery, getCommentDescription, getDefaultMetadata, getMetadataDescriptionFields, getMetadataImagesFields, getPageTitleFields, noIndexMetadata } from "./sharedMetadata";
 import { postCoauthorIsPending, postGetPageUrl } from "@/lib/collections/posts/helpers";
 import { getPostDescription } from "@/components/posts/PostsPage/structuredData";
-import { captureException } from "@sentry/nextjs";
+import { captureException } from "@/lib/sentryWrapper";
 import { notFound } from "next/navigation";
 
 const PostMetadataQuery = gql(`

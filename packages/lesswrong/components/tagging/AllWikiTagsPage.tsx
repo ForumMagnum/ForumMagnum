@@ -16,6 +16,7 @@ import { useQuery } from "@/lib/crud/useQuery";
 import Loading from "../vulcan-core/Loading";
 import WikiTagGroup from "./WikiTagGroup";
 import NewWikiTagButton from "./NewWikiTagButton";
+import HoverPreviewLink from '../linkPreview/HoverPreviewLink';
 
 
 const styles = defineStyles("AllWikiTagsPage", (theme: ThemeType) => ({
@@ -221,8 +222,8 @@ const ArbitalRedirectNotice = ({ onDismiss }: {
   const classes = useStyles(styles);
   const redirectHtml = <div>
     <h2>You have been redirected from Arbital.com</h2>
-    <p>Following the end of the <a href="/posts/kAgJJa3HLSZxsuSrf/arbital-postmortem">Arbital project</a>, the site's content has been integrated into the LessWrong wiki system, ensuring it is preserved for posterity.</p>
-    <p>Among other goals, Arbital aimed to the best place on the Internet for explanations. It spawned a great number or excellent pages on AI Alignment and math. Some of the best pages of Arbital include: <a href="/w/bayes-rule?lens=bayes_rule_guide">Bayes's Rule Guide</a>, <a href="#">Logarithm Guide</a>, and many <a href="/w/eliezer-s-lost-alignment-articles-the-arbital-sequence">AI alignment pages</a> by Eliezer.</p>
+    <p>Following the end of the <HoverPreviewLink href="/posts/kAgJJa3HLSZxsuSrf/arbital-postmortem">Arbital project</HoverPreviewLink>, the site's content has been integrated into the LessWrong wiki system, ensuring it is preserved for posterity.</p>
+    <p>Among other goals, Arbital aimed to the best place on the Internet for explanations. It spawned a great number or excellent pages on AI Alignment and math. Some of the best pages of Arbital include: <HoverPreviewLink href="/w/bayes-rule?lens=bayes_rule_guide">Bayes's Rule Guide</HoverPreviewLink>, <a href="#">Logarithm Guide</a>, and many <HoverPreviewLink href="/w/eliezer-s-lost-alignment-articles-the-arbital-sequence">AI alignment pages</HoverPreviewLink> by Eliezer.</p>
     <p>Arbital content is indicated with the Arbital theme color and logo.</p>
   </div>
 

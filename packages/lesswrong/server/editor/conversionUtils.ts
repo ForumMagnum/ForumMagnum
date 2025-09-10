@@ -2,7 +2,7 @@ import { trimLatexAndAddCSS, preProcessLatex } from './latexUtils';
 import { randomId } from '../../lib/random';
 import { convertFromRaw } from 'draft-js';
 import { draftToHTML } from '../draftConvert';
-import { captureException } from '@sentry/nextjs';
+import { captureException } from '@/lib/sentryWrapper';
 import type TurndownService from 'turndown';
 import { isAnyTest } from '../../lib/executionEnvironment';
 import { cheerioParse } from '../utils/htmlUtil';

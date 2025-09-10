@@ -60,7 +60,7 @@ module.exports = {
       '@/viteClient/*': { browser: './packages/lesswrong/stubs/viteClient/*' },
       '@/client/*': { browser: './packages/lesswrong/client/*', default: './packages/lesswrong/stubs/client/*' },
       '@/allComponents': './packages/lesswrong/lib/generated/allComponents.ts',
-      ...(process.env.NODE_ENV === 'production' ? {} : { '@sentry/nextjs': './packages/lesswrong/stubs/noSentry.ts' }),
+      ...(process.env.NODE_ENV === 'production' ? {} : { '@/lib/sentryWrapper': './packages/lesswrong/stubs/noSentry.ts' }),
       '@/*': './packages/lesswrong/*',
 
       'superagent-proxy': './packages/lesswrong/stubs/emptyModule.js',
@@ -690,7 +690,7 @@ module.exports = process.env.E2E ? module.exports : withSentryConfig(
     // This can increase your server load as well as your hosting bill.
     // Note: Check that the configured route will not match with your Next.js middleware, otherwise reporting of client-
     // side errors will fail.
-    tunnelRoute: true,
+    tunnelRoute: '/api/sentry',
 
     // Automatically tree-shake Sentry logger statements to reduce bundle size
     disableLogger: true,
@@ -700,6 +700,8 @@ module.exports = process.env.E2E ? module.exports : withSentryConfig(
     // https://docs.sentry.io/product/crons/
     // https://vercel.com/docs/cron-jobs
     automaticVercelMonitors: true,
+
+    authToken: process.env.SENTRY_AUTH_TOKEN,
 
     sourcemaps: {
       deleteSourcemapsAfterUpload: false,

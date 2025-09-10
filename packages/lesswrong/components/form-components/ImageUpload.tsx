@@ -200,7 +200,7 @@ export const ImageUpload = ({
   const classes = useStyles(styles);
   const imageType = field.name as ImageType;
   const currentUser = useCurrentUser();
-  const {uploadImage, ImageUploadScript} = useImageUpload({
+  const {uploadImage} = useImageUpload({
     imageType,
     onUploadSuccess: (publicImageId: string) => {
       field.handleChange(publicImageId);
@@ -226,7 +226,6 @@ export const ImageUpload = ({
 
   return (
     <div className={classes.root}>
-      <ImageUploadScript />
       <div className={classNames(!horizontal && classes.imgVertical)}>
         {showUserProfileImage &&
           <FormProfileImage

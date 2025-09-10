@@ -1,4 +1,4 @@
-import { captureException } from '@sentry/nextjs';
+import { captureException } from '@/lib/sentryWrapper';
 import { isAnyTest } from '../lib/executionEnvironment';
 import { consoleLogMemoryUsageThreshold, sentryErrorMemoryUsageThreshold, memoryUsageCheckInterval, logGraphqlQueriesSetting, logGraphqlMutationsSetting } from './databaseSettings';
 import { printInFlightRequests } from '@/server/rendering/pageCache';

@@ -17,6 +17,7 @@ const restrictedImportsPaths = [
   { name: "react-router", message: "Don't import react-router, use lib/reactRouterWrapper" },
   { name: "react-router-dom", message: "Don't import react-router-dom, use lib/reactRouterWrapper" },
   { name: "@/lib/vendor/@material-ui/core/src/ClickAwayListener", message: "Don't use material-UI's ClickAwayListener component; use LWClickAwayListener instead" },
+  { name: "@sentry/nextjs", message: "Don't import @sentry/nextjs, use @/lib/sentryWrapper instead" },
 ];
 const clientRestrictedImportPaths = [
   { name: "cheerio", message: "Don't import cheerio on the client" },

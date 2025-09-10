@@ -11,7 +11,7 @@ import {
   getEAAnonymousEmojiByName,
   getEAPublicEmojiByName,
 } from "../../../lib/voting/eaEmojiPalette";
-import { captureException } from "@sentry/nextjs";
+import { captureException } from "@/lib/sentryWrapper";
 import { userGetProfileUrlFromSlug } from "../../../lib/collections/users/helpers";
 import { NotifPopoverLink } from "../useNotificationsPopoverContext";
 import type { TagCommentType } from "@/lib/collections/comments/types";
