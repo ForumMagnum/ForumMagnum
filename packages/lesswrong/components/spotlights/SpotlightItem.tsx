@@ -32,7 +32,7 @@ import { withDateFields } from '@/lib/utils/dateUtils';
 import { defineStyles, useStyles } from '../hooks/useStyles';
 import { SuspenseWrapper } from '../common/SuspenseWrapper';
 import range from 'lodash/range';
-import CommentById from '../comments/CommentById';
+import { CommentByIdSuspense } from '../comments/CommentById';
 import { SingleLineCommentPlaceholder } from '../comments/SingleLineComment';
 
 import dynamic from 'next/dynamic';
@@ -692,7 +692,7 @@ const SpotlightReviewComment = ({id}: {
 }) => {
   const classes = useStyles(styles);
   return <div className={classes.review}>
-    <CommentById
+    <CommentByIdSuspense
       commentId={id}
       treeOptions={{
         singleLineCollapse: true,

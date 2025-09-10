@@ -5,7 +5,7 @@ import IconButton from '@/lib/vendor/@material-ui/core/src/IconButton';
 import { Badge } from "@/components/widgets/Badge";
 import { useTracking, AnalyticsContext } from '../../../lib/analyticsEvents';
 import classNames from 'classnames';
-import { useQuery } from "@/lib/crud/useQuery";
+import { useSuspenseQuery } from "@/lib/crud/useQuery";
 import { gql } from "@/lib/generated/gql-codegen";
 import LWClickAwayListener from "../../common/LWClickAwayListener";
 import ForumIcon from "../../common/ForumIcon";
@@ -42,7 +42,7 @@ const KarmaChangeNotifierLoaded = ({className}: {
   const { captureEvent } = useTracking()
   const [karmaChangeLastOpened, setKarmaChangeLastOpened] = useState(currentUser?.karmaChangeLastOpened || new Date());
   
-  const { data } = useQuery(UserKarmaChangesQuery, {
+  const { data } = useSuspenseQuery(UserKarmaChangesQuery, {
     variables: { documentId: currentUser._id },
   });
   const document = data?.user?.result;

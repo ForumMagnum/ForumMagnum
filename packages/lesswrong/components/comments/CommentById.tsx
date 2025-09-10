@@ -1,9 +1,10 @@
 import React from 'react';
-import { registerComponent } from '../../lib/vulcan-lib/components';
 import type { CommentTreeOptions } from './commentTree';
-import { useQuery } from "@/lib/crud/useQuery";
+import { useSuspenseQuery } from "@/lib/crud/useQuery";
 import { gql } from "@/lib/generated/gql-codegen";
 import CommentsNode from "./CommentsNode";
+import { SuspenseWrapper } from '../common/SuspenseWrapper';
+import Loading from '../vulcan-core/Loading';
 
 const CommentsListQuery = gql(`
   query CommentById($documentId: String) {
@@ -15,14 +16,21 @@ const CommentsListQuery = gql(`
   }
 `);
 
-const CommentById = ({commentId, nestingLevel=0, isChild=false, treeOptions, loadChildren}: {
+type CommentByIdProps = {
   commentId: string,
   nestingLevel?: number,
   isChild?: boolean,
   treeOptions: CommentTreeOptions,
   loadChildren: boolean,
-}) => {
-  const { data } = useQuery(CommentsListQuery, {
+};
+
+/**
+ * Load and display a comment by ID. While loading, suspends; if you use this
+ * version of the component you probably want to provide a suspense boundary
+ * for it.
+ */
+export const CommentByIdSuspense = ({commentId, nestingLevel=0, isChild=false, treeOptions, loadChildren}: CommentByIdProps) => {
+  const { data } = useSuspenseQuery(CommentsListQuery, {
     variables: { documentId: commentId },
   });
   const comment = data?.comment?.result;
@@ -37,6 +45,13 @@ const CommentById = ({commentId, nestingLevel=0, isChild=false, treeOptions, loa
   />
 }
 
-export default registerComponent('CommentById', CommentById);
-
+/**
+ * Load and display a comment by ID. While loading, displays a loading spinner
+ * (ie, contains its own suspense boundary).
+ */
+export const CommentById = (props: CommentByIdProps) => {
+  return <SuspenseWrapper name="CommentById" fallback={<Loading/>}>
+    <CommentByIdSuspense {...props}/>
+  </SuspenseWrapper>
+}
 

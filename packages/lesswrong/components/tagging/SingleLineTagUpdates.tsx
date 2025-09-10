@@ -11,10 +11,12 @@ import AllPostsPageTagDocDeletionItem, { DocumentDeletion } from './AllPostsPage
 import ChangeMetricsDisplay from "./ChangeMetricsDisplay";
 import PostsItemComments from "../posts/PostsItemComments";
 import AllPostsPageTagRevisionItem from "./AllPostsPageTagRevisionItem";
-import CommentById from "../comments/CommentById";
+import { CommentByIdSuspense } from "../comments/CommentById";
 import LWTooltip from "../common/LWTooltip";
 import PostsItem2MetaInfo from "../posts/PostsItem2MetaInfo";
 import UsersName from "../users/UsersName";
+import { SuspenseWrapper } from '../common/SuspenseWrapper';
+import Loading from '../vulcan-core/Loading';
 
 export const POSTED_AT_WIDTH = 38
 
@@ -196,18 +198,23 @@ const SingleLineTagUpdates = ({tag, revisionIds, commentCount, commentIds, users
       {commentIds && commentIds.length>0 && <Link to={tagGetDiscussionUrl(tag)} className={classes.subheading}>
         Comment Threads
       </Link>}
-      {commentIds && commentIds.map(commentId =>
-        <CommentById
-          key={commentId}
-          commentId={commentId}
-          nestingLevel={2}
-          isChild={true}
-          treeOptions={{
-            tag,
-          }}
-          loadChildren={true}
-        />
-      )}
+      {commentIds && commentIds.length>0 && <SuspenseWrapper
+        name="SingleLineTagUpdates_comments"
+        fallback={<Loading/>}
+      >
+        {commentIds.map(commentId =>
+          <CommentByIdSuspense
+            key={commentId}
+            commentId={commentId}
+            nestingLevel={2}
+            isChild={true}
+            treeOptions={{
+              tag,
+            }}
+            loadChildren={true}
+          />
+        )}
+      </SuspenseWrapper>}
     </div>}
   </div>
 }
