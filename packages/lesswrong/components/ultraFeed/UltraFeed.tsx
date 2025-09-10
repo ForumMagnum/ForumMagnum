@@ -412,6 +412,7 @@ const UltraFeed = ({
     if (tab === 'following' && internalInfoVisible) {
       setInternalInfoVisible(false);
     }
+    captureEvent("ultraFeedTabChanged", { tab });
   };
 
   if (!currentUser) {
