@@ -14,11 +14,11 @@ const styles = defineStyles('InfoButton', (theme: ThemeType) => ({
     padding: 4,
     transition: 'background-color 0.2s',
     '&:hover': {
-      backgroundColor: theme.palette.grey[200],
+      backgroundColor: theme.palette.background.hover,
     },
   },
   active: {
-    backgroundColor: theme.palette.grey[300],
+    backgroundColor: theme.palette.background.hover,
   },
   icon: {
     color: theme.palette.grey[600],
