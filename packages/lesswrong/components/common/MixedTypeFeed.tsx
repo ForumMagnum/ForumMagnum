@@ -97,7 +97,7 @@ export const MixedTypeFeed = <
       limit: firstPageSize,
     },
     fetchPolicy,
-    nextFetchPolicy: "cache-only",
+    nextFetchPolicy: "cache-first",
     ssr: true,
   });
   
