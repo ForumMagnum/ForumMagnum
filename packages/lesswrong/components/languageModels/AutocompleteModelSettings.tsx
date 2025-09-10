@@ -19,7 +19,7 @@ import LoadMore from "../common/LoadMore";
 import { useQuery } from "@/lib/crud/useQuery";
 import { gql } from "@/lib/generated/gql-codegen";
 import { useQueryWithLoadMore } from "@/components/hooks/useQueryWithLoadMore";
-import { useStyles } from "../hooks/useStyles";
+import { defineStyles, useStyles } from "../hooks/useStyles";
 import DeferRender from "../common/DeferRender";
 
 const CommentsListMultiQuery = gql(`
