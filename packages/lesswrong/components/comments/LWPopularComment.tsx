@@ -12,7 +12,7 @@ import { isMobile } from "../../lib/utils/isMobile";
 import SubdirectoryArrowLeft from "@/lib/vendor/@material-ui/icons/src/SubdirectoryArrowLeft";
 import { commentGetPageUrlFromIds } from "../../lib/collections/comments/helpers";
 import LWPopper from "../common/LWPopper";
-import CommentById from "./CommentById";
+import { CommentById } from "./CommentById";
 import PostsTooltip from "../posts/PostsPreviewTooltip/PostsTooltip";
 import UsersName from "../users/UsersName";
 import CommentsItemDate from "./CommentsItem/CommentsItemDate";
