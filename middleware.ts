@@ -79,12 +79,13 @@ export async function middleware(request: NextRequest) {
       return NextResponse.redirect(new URL(redirectTarget, request.url), status);
     }
   } else {
-    const response = new Response(responseStream, {
-      headers: addedClientId ? addClientIdToResponseHeaders(forwardedFetchResponse.headers, addedClientId) : forwardedFetchResponse.headers,
-      status: statusFromStream ? statusFromStream.status : forwardedFetchResponse.status,
-    });
-    
-    return response
+    const status = statusFromStream ? statusFromStream.status : forwardedFetchResponse.status;
+
+    const nextResponse = new NextResponse(responseStream, { status });
+    if (addedClientId) {
+      return addClientIdToResponseHeaders(nextResponse, addedClientId);
+    }
+    return nextResponse;
   }
 }
 
@@ -103,14 +104,14 @@ function addClientIdToRequestHeaders(headers: Headers, clientId: string): Header
   return newHeaders;
 }
 
-function addClientIdToResponseHeaders(headers: Headers, clientId: string): Headers {
-  const clone = new Headers(headers);
-  const maxAge = 1000 * 60 * 60 * 24 * 365;
-  headers.append("Set-Cookie", `${CLIENT_ID_COOKIE}=${clientId}; Path=/; Max-Age=${maxAge}; SameSite=Lax`);
-  headers.append("Set-Cookie", `${CLIENT_ID_NEW_COOKIE}=true; Path=/; Max-Age=${maxAge}; SameSite=Lax`);
+function addClientIdToResponseHeaders(nextResponse: NextResponse, clientId: string): NextResponse {
+  // Cookie max-age is in seconds, not milliseconds
+  const maxAge = 60 * 60 * 24 * 365;
 
-  console.log({ headers: Array.from(headers.entries()) });
-  return clone;
+  nextResponse.cookies.set({ name: CLIENT_ID_COOKIE, value: clientId, path: "/", maxAge });
+  nextResponse.cookies.set({ name: CLIENT_ID_NEW_COOKIE, value: "true", path: "/", maxAge });
+
+  return nextResponse;
 }
 
 type StatusCodeMetadata = { status: number, redirectTarget?: string };
