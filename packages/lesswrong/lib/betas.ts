@@ -87,6 +87,7 @@ export const hasPostRecommendations = isEAForum;
 /** Some Forums, notably the EA Forum, have a mailchimp email lists */
 export const hasDigests = isEAForum;
 export const hasNewsletter = isEAForum;
+export const hasSuggestedFilterTags = isLWorAF;
 
 /**
  * Whether the instance should have any features for integrating with twitter.

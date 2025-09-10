@@ -59,6 +59,7 @@ const sendInactiveUserSummaryEmail = async (
       name: "feature",
       postId: "",
       features: [
+        {feature: "frontpageFilterSettings", weight: 1},
         {feature: "subscribedAuthorPosts", weight: 1},
         {feature: "subscribedTagPosts", weight: 0.9},
         {feature: "curated", weight: 0.75},
