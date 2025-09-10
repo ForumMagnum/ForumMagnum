@@ -38,13 +38,6 @@ export const PostsTopItemInfo = gql(`
       wordCount
       version
     }
-    customHighlight {
-      _id
-      html
-    }
-    tags {
-      ...TagPreviewFragment
-    }
     reviewWinner {
       ...ReviewWinnerTopPostsPage
     }

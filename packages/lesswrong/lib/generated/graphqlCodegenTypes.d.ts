@@ -24809,13 +24809,6 @@ type PostsMinimumInfo = { __typename?: 'Post', _id: string, slug: string, title:
 
 type PostsTopItemInfo_Post_contents_Revision = { __typename?: 'Revision', _id: string, htmlHighlight: string, wordCount: number, version: string };
 
-type PostsTopItemInfo_Post_customHighlight_Revision = { __typename?: 'Revision', _id: string, html: string | null };
-
-type PostsTopItemInfo_Post_tags_Tag = (
-  { __typename?: 'Tag' }
-  & TagPreviewFragment
-);
-
 type PostsTopItemInfo_Post_reviewWinner_ReviewWinner = (
   { __typename?: 'ReviewWinner' }
   & ReviewWinnerTopPostsPage
@@ -24832,7 +24825,7 @@ type PostsTopItemInfo_Post_reviews_Comment = (
 );
 
 type PostsTopItemInfo = (
-  { __typename?: 'Post', isRead: boolean | null, finalReviewVoteScoreHighKarma: number, contents: PostsTopItemInfo_Post_contents_Revision | null, customHighlight: PostsTopItemInfo_Post_customHighlight_Revision | null, tags: Array<PostsTopItemInfo_Post_tags_Tag>, reviewWinner: PostsTopItemInfo_Post_reviewWinner_ReviewWinner | null, spotlight: PostsTopItemInfo_Post_spotlight_Spotlight | null, reviews: Array<PostsTopItemInfo_Post_reviews_Comment> | null }
+  { __typename?: 'Post', isRead: boolean | null, finalReviewVoteScoreHighKarma: number, contents: PostsTopItemInfo_Post_contents_Revision | null, reviewWinner: PostsTopItemInfo_Post_reviewWinner_ReviewWinner | null, spotlight: PostsTopItemInfo_Post_spotlight_Spotlight | null, reviews: Array<PostsTopItemInfo_Post_reviews_Comment> | null }
   & PostsMinimumInfo
   & PostsAuthors
 );
