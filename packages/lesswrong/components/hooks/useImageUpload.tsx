@@ -2,6 +2,7 @@ import React, { useCallback } from "react";
 import { cloudinaryCloudNameSetting, cloudinaryUploadPresetBannerSetting, cloudinaryUploadPresetDigestSetting, cloudinaryUploadPresetEventImageSetting, cloudinaryUploadPresetGridImageSetting, cloudinaryUploadPresetProfileSetting, cloudinaryUploadPresetSocialPreviewSetting, cloudinaryUploadPresetSpotlightSetting } from '@/lib/instanceSettings';
 import { useTheme, useThemeColor } from "../themes/useTheme";
 import { Helmet } from "../common/Helmet";
+import { useExternalScript } from "./useExternalScript";
 
 type CloudinaryImageUploadError = {
   statusText: string,
@@ -251,15 +252,9 @@ export const useImageUpload = ({
     primaryMainColor,
   ]);
 
+  useExternalScript('https://upload-widget.cloudinary.com/global/all.js', {});
+
   return {
     uploadImage,
-    ImageUploadScript: () => (
-      <Helmet name="imageUploadScript">
-        <script
-          src="https://upload-widget.cloudinary.com/global/all.js"
-          type="text/javascript"
-        />
-      </Helmet>
-    ),
   };
 }

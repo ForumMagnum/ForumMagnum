@@ -7,7 +7,7 @@ import React, {
   useState,
 } from "react";
 import { registerComponent } from "@/lib/vulcan-lib/components";
-import { captureException } from "@sentry/nextjs";
+import { captureException } from "@/lib/sentryWrapper";
 import { useTheme } from "@/components/themes/useTheme";
 import WrappedShareButton, { WRAPPED_SHARE_BUTTON_WIDTH } from "./WrappedShareButton";
 import { useForumWrappedContext } from "./hooks";

@@ -1,12 +1,10 @@
-import type { Scope } from '@sentry/nextjs';
+import type { Scope } from '@/lib/sentryWrapper';
 import DataLoader from 'dataloader';
 import { getAllCollections, getAllCollectionsByName } from '../../collections/allCollections';
 import findByIds from '../findbyids';
 import { getHeaderLocale } from '../intl';
-import { hashLoginToken, tokenExpiration, userIsBanned } from '../../loginTokens';
 import {getUserEmail} from "../../../lib/collections/users/helpers";
 import { getAllRepos } from '../../repos';
-import UsersRepo from '../../repos/UsersRepo';
 import { asyncLocalStorage } from '../../perfMetrics';
 import type { NextRequest } from 'next/server';
 import type { RequestCookie } from 'next/dist/compiled/@edge-runtime/cookies';

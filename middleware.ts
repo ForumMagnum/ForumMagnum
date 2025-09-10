@@ -60,6 +60,7 @@ export async function middleware(request: NextRequest) {
       redirect: 'manual',
       referrer: request.referrer,
       mode: request.mode,
+      body: request.body,
     }
   );
   

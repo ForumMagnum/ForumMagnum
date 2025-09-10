@@ -4,7 +4,6 @@ import startCase from 'lodash/startCase' // AKA: capitalize, titleCase
 import { TupleSet, UnionOf } from './utils/typeGuardUtils';
 import {initializeSetting} from './settingsCache'
 import { getInstanceSettings } from './getInstanceSettings';
-import { getIsolationScope } from '@sentry/nextjs';
 import { forumTypeSetting, isAF, isEAForum, isLW, isLWorAF } from '@/lib/forumTypeUtils';
 import type { FilterTag } from './filterSettings';
 import type { ReviewWinnerCategory, ReviewYear } from './reviewUtils';

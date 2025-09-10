@@ -15,7 +15,7 @@ import AutomatedContentEvaluations from "../automatedContentEvaluations/collecti
 import { z } from "zod"; // Add this import for Zod
 import { getOpenAI } from "@/server/languageModels/languageModelIntegration";
 import { assertPollsAllowed, upsertPolls } from "@/server/callbacks/forumEventCallbacks";
-import { captureException } from "@sentry/nextjs";
+import { captureException } from "@/lib/sentryWrapper";
 import { backgroundTask } from "@/server/utils/backgroundTask";
 import Posts from "../posts/collection";
 import ModerationTemplates from "../moderationTemplates/collection";

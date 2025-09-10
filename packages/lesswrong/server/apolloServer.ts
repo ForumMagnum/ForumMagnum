@@ -10,7 +10,7 @@ import { configureSentryScope, getContextFromReqAndRes } from './vulcan-lib/apol
 import { getUserFromReq } from './vulcan-lib/apollo-server/getUserFromReq';
 import universalCookiesMiddleware from 'universal-cookie-express';
 import { formatError } from 'apollo-errors';
-import { getIsolationScope } from '@sentry/nextjs';
+// import { getIsolationScope } from '@sentry/nextjs';
 import { app } from './expressServer';
 import path from 'path'
 import { expressSessionSecretSetting, botProtectionCommentRedirectSetting } from './databaseSettings';
@@ -194,7 +194,7 @@ export async function startWebserver() {
   app.use('/graphql', expressMiddleware(apolloServer, {
     context: async ({ req, res }: { req: express.Request, res: express.Response }) => {
       const context = await getContextFromReqAndRes({req: requestToNextRequest(req), isSSR: false});
-      configureSentryScope(context, getIsolationScope());
+      // configureSentryScope(context, getIsolationScope());
       return context;
     },
   }))

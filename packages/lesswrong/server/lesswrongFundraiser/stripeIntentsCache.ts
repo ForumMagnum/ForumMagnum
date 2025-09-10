@@ -1,5 +1,5 @@
 import type Stripe from 'stripe';
-import { captureException } from '@sentry/nextjs';
+import { captureException } from '@/lib/sentryWrapper';
 import { lightconeFundraiserPaymentLinkId } from '@/lib/instanceSettings';
 import { lightconeFundraiserStripeSecretKeySetting } from '../databaseSettings';
 import { backgroundTask } from '../utils/backgroundTask';

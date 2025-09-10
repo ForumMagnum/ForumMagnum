@@ -1,5 +1,5 @@
 import React, { ErrorInfo } from 'react';
-import { getIsolationScope, captureException } from "@sentry/nextjs";
+import { getSentry, captureException } from "@/lib/sentryWrapper";
 import ErrorMessage from "./ErrorMessage";
 
 interface ErrorBoundaryProps {
@@ -40,9 +40,12 @@ export class ErrorBoundary extends React.Component<ErrorBoundaryProps, ErrorBoun
       errorLocation: bundleIsServer ? "" : window.location.href,
     });
 
-    const scope = getIsolationScope();
+    const Sentry = getSentry();
+
+    const scope = Sentry?.getIsolationScope();
+
     Object.keys(info).forEach((key: keyof ErrorInfo) => {
-      scope.setExtra(key, info[key]);
+      scope?.setExtra(key, info[key]);
     });
 
     captureException(error);

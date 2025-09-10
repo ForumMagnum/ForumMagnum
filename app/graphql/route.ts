@@ -5,7 +5,7 @@ import { unwrapResolverError } from '@apollo/server/errors';
 import { configureSentryScope, getContextFromReqAndRes } from '../../packages/lesswrong/server/vulcan-lib/apollo-server/context';
 import type { NextRequest } from 'next/server';
 import { asyncLocalStorage, closePerfMetric, closeRequestPerfMetric, openPerfMetric, setAsyncStoreValue } from '@/server/perfMetrics';
-import { captureException, getIsolationScope } from '@sentry/nextjs';
+import { captureException, getSentry } from '@/lib/sentryWrapper';
 import { getClientIP } from '@/server/utils/getClientIP';
 import { performanceMetricLoggingEnabled } from '@/lib/instanceSettings';
 import { GraphQLError, GraphQLFormattedError } from 'graphql';
@@ -67,7 +67,12 @@ const server = new ApolloServer<ResolverContext>({
 const handler = startServerAndCreateNextHandler<NextRequest, ResolverContext>(server, {
   context: async (req) => {
     const context = await getContextFromReqAndRes({ req, isSSR: false });
-    const isolationScope = getIsolationScope();
+    const Sentry = getSentry();
+    if (!Sentry) {
+      return context;
+    }
+    
+    const isolationScope = Sentry.getIsolationScope();
     configureSentryScope(context, isolationScope);
     return context;
   }
@@ -99,7 +104,12 @@ function sharedHandler(request: NextRequest) {
           return;
         }
   
-        const isolationScope = getIsolationScope();
+        const Sentry = getSentry();
+        if (!Sentry) {
+          return incompletePerfMetric;
+        }
+
+        const isolationScope = Sentry.getIsolationScope();
   
         const userId = isolationScope.getUser()?.id;
   

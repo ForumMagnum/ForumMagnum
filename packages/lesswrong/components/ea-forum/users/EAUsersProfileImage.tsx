@@ -42,7 +42,7 @@ const EAUsersProfileImage = ({user, classes}: {
   const currentUser = useCurrentUser();
   const updateCurrentUser = useUpdateCurrentUser();
   const {flash} = useMessages();
-  const {uploadImage, ImageUploadScript} = useImageUpload({
+  const {uploadImage} = useImageUpload({
     imageType: "profileImageId",
     onUploadSuccess: (publicImageId: string) => {
       void updateCurrentUser({
@@ -62,7 +62,6 @@ const EAUsersProfileImage = ({user, classes}: {
 
   return (
     <div className={classes.root} onClick={uploadImage}>
-      <ImageUploadScript />
       <div className={classes.hoverOver}>
         <ForumIcon icon="Pencil" />
       </div>

@@ -13,7 +13,7 @@ import { EmailContentItemBody } from './EmailContentItemBody';
 import { gql } from "@/lib/generated/gql-codegen";
 import { maybeDate } from '@/lib/utils/dateUtils';
 import { useEmailQuery } from '../vulcan-lib/query';
-import { captureException } from '@sentry/nextjs';
+import { captureException } from '@/lib/sentryWrapper';
 
 const CommentsListWithParentMetadataQuery = gql(`
   query EmailComment2($documentId: String) {

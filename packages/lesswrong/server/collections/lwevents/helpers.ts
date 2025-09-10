@@ -1,7 +1,7 @@
 import { getIntercomClient } from "@/server/intercomSetup";
 import { AfterCreateCallbackProperties } from "@/server/mutationCallbacks";
 import { updateSequenceReadStatusForPostRead } from "@/server/partiallyReadSequences";
-import { captureException } from "@sentry/nextjs";
+import { captureException } from "@/lib/sentryWrapper";
 
 export async function updateReadStatus(event: Partial<DbInsertion<DbLWEvent>>, context: ResolverContext) {
   const { repos } = context;

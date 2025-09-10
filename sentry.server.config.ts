@@ -2,9 +2,11 @@
 // The config you add here will be used whenever the server handles a request.
 // https://docs.sentry.io/platforms/javascript/guides/nextjs/
 
-import * as Sentry from "@sentry/nextjs";
+import { getSentry } from "@/lib/sentryWrapper";
 
-Sentry.init({
+const Sentry = getSentry();
+
+Sentry?.init({
   dsn: "https://1ab1949fc8d04608b43132f37bb2a1b0@o195791.ingest.us.sentry.io/1301611",
   environment: process.env.NODE_ENV ?? "development",
   integrations: [
@@ -15,5 +17,5 @@ Sentry.init({
   // Setting this option to true will print useful information to the console while you're setting up Sentry.
   debug: false,
 
-  enabled: process.env.NODE_ENV === "production",
+  enabled: true,
 });
