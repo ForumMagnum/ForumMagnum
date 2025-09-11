@@ -212,6 +212,7 @@ import { createUserRateLimitGqlMutation, updateUserRateLimitGqlMutation, graphql
 import { createUserTagRelGqlMutation, updateUserTagRelGqlMutation, graphqlUserTagRelTypeDefs } from "@/server/collections/userTagRels/mutations";
 import { createUserGqlMutation, updateUserGqlMutation, graphqlUserTypeDefs } from "@/server/collections/users/mutations";
 import { keywordAlertsQueryHandlers, keywordAlertsTypeDefs } from '@/server/keywordAlerts/keywordAlertsResolvers';
+import { eventPostEmailsGqlMutations, eventPostEmailsGqlTypeDefs } from '@/server/eventPostEmails/eventPostEmailsResolvers';
 
 
 const selectorInput = gql`
@@ -290,6 +291,7 @@ export const typeDefs = gql`
   ${jargonTermsGraphQLTypeDefs}
   ${rsvpToEventsTypeDefs}
   ${siteAdminMetadataGraphQLTypeDefs}
+  ${eventPostEmailsGqlTypeDefs}
   ${tagsGqlTypeDefs}
   ${analyticsEventTypeDefs}
   ${usersGraphQLTypeDefs}
@@ -566,6 +568,7 @@ export const resolvers = {
     ...reviewVoteGraphQLMutations,
     ...postGqlMutations,
     ...adminGqlMutations,
+    ...eventPostEmailsGqlMutations,
     ...alignmentForumMutations,
     ...conversationGqlMutations,
     ...databaseSettingsGqlMutations,

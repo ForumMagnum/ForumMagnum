@@ -69,6 +69,7 @@ const AdminHome = ({ classes }: {
 
       <h3>Site Admin</h3>
       <ul>
+        {isEAForum && <li><Link className={classes.link} to="/admin/event-post-email">Send event post email</Link></li>}
         {isEAForum && <li><Link className={classes.link} to="/admin/election-candidates">Donation Election Candidates</Link></li>}
         {hasDigests && <li><Link className={classes.link} to="/admin/digests">Digests</Link></li>}
         {hasTwitterFeatures && <li><Link className={classes.link} to="/admin/twitter">Twitter tools</Link></li>}
