@@ -7,7 +7,8 @@ import { Link } from '../lib/reactRouterWrapper';
 import ReviewVotingCanvas from "./review/ReviewVotingCanvas";
 import CloudinaryImage2 from "./common/CloudinaryImage2";
 import Inkhaven2025Banner from './seasonal/Inkhaven2025';
-import PetrovDayStory from './seasonal/petrovDay/PetrovDayStory';
+
+import MeetupMonthBanner from './seasonal/meetupMonth/MeetupMonthBanner';
 
 const styles = defineStyles("LWBackgroundImage", (theme: ThemeType) => ({
   root: {
@@ -137,14 +138,12 @@ export const LWBackgroundImage = ({standaloneNavigation}: {
       />
   </div>
 
-  return <PetrovDayStory />
-
   let homePageImage = defaultImage
   if (getReviewPhase() === 'VOTING') homePageImage = <ReviewVotingCanvas />
   if (getReviewPhase() === 'RESULTS') homePageImage = reviewCompleteImage
   
   return <div className={classes.root}>
-    {currentRoute?.name === 'home' ? <Inkhaven2025Banner /> : defaultImage}
+    {currentRoute?.name === 'home' ? <MeetupMonthBanner /> : defaultImage}
   </div>;
 }
 

@@ -110,7 +110,7 @@ const localEventMapMarkerWrappersStyles = (theme: ThemeType) => ({
   }
 })
 
-const LocalEventMapMarkerWrappersInner = ({localEvents, classes}: {
+export const LocalEventMapMarkerWrappersInner = ({localEvents, classes}: {
   localEvents: Array<LocalEvent>,
   classes: ClassesType<typeof localEventMapMarkerWrappersStyles>,
 }) => {

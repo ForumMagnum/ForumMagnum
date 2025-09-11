@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { registerComponent } from '../../../lib/vulcan-lib/components';
 import { defineStyles, useStyles } from '../../hooks/useStyles';
 import { WrappedReactMapGL } from '../../community/WrappedReactMapGL';
+import Checkbox from '@/lib/vendor/@material-ui/core/src/Checkbox';
 
 const styles = defineStyles("PetrovDayStory", (theme: ThemeType) => ({
   root: {
@@ -12,27 +13,69 @@ const styles = defineStyles("PetrovDayStory", (theme: ThemeType) => ({
     height: '100vh',
   },
   title: {
-    position: 'absolute',
-    bottom: 100,
-    right: 50,
-    fontSize: 70,
+    fontSize: 60,
     fontWeight: 500,
     fontFamily: theme.typography.headerStyle.fontFamily,
-    textTransform: 'uppercase',
+    fontVariant: 'small-caps',
     color: theme.palette.text.primary,
     zIndex: 2,
     transition: 'opacity 0.3s ease-out',
+    marginBottom: 0,
   },
-  subtitle: {
+  subtitleContainer: {
     position: 'absolute',
     bottom: 100,
     right: 50,
+    zIndex: 2,
+    paddingLeft: 10,
+    '& li': {
+      marginLeft: -10
+    },
+  },
+  subtitle: {
     fontSize: 20,
     fontWeight: 500,
     fontFamily: theme.typography.headerStyle.fontFamily,
     color: theme.palette.text.primary,
-    zIndex: 2,
     transition: 'opacity 0.3s ease-out',
+    marginBottom: 0,
+  },
+  meetupTypes: {
+    display: 'flex',
+    flexDirection: 'column',
+    alignItems: 'flex-start',
+    '& li': {
+      marginLeft: -10
+    },
+  },
+  meetupType: {
+    background: 'transparent',
+    borderRadius: 4,
+    // padding: 16,
+    fontSize: 16,
+    fontWeight: 400,
+    fontFamily: theme.typography.headerStyle.fontFamily,
+    color: theme.palette.text.primary,
+    transition: 'opacity 0.3s ease-out',
+    marginBottom: 10,
+    display: 'flex',
+    alignItems: 'center',
+    gap: 10,
+    '& a': {
+      textDecoration: 'none',
+      color: theme.palette.text.primary,
+    },
+    '& a:hover': {
+      textDecoration: 'none',
+    },
+  },
+  date: {
+    fontSize: 16,
+    fontWeight: 400,
+    color: theme.palette.text.primary,
+    transition: 'opacity 0.3s ease-out',
+    marginBottom: 10,
+    opacity: 0.8,
   },
   mapGradient: {
     position: 'absolute',
@@ -72,6 +115,7 @@ const styles = defineStyles("PetrovDayStory", (theme: ThemeType) => ({
     height: '100%',
     zIndex: 3,
     transition: 'opacity 0.3s ease-out',
+    pointerEvents: 'none',
   },
 }));
 
@@ -119,7 +163,7 @@ export default function PetrovDayStory() {
       // Map, title, subtitle fade out completely by 100vh (1 to 0)
       const fadeOutOpacity = 1 - scrollProgress;
       
-      setScrollOpacity(fadeOutOpacity);
+      // setScrollOpacity(fadeOutOpacity);
     };
 
     window.addEventListener('scroll', handleScroll);
@@ -164,10 +208,18 @@ export default function PetrovDayStory() {
     <div className={classes.mapGradient}/>
     <div className={classes.mapGradientRight} />
     <div className={classes.mapContainer} style={{ opacity: scrollOpacity }}>
-      <h1 className={classes.title} style={{ opacity: scrollOpacity }}>Petrov Day</h1>
-      <h3 className={classes.subtitle} style={{ opacity: scrollOpacity }}>
-        Host a Petrov Day ceremony for your community.
-      </h3>
+      <div className={classes.subtitleContainer}>
+        <h1 className={classes.title} style={{ opacity: scrollOpacity }}>Meetup Month</h1>
+        <h3 className={classes.subtitle} style={{ opacity: scrollOpacity }}>
+          Find communities near you, or start your own
+        </h3>
+        <div className={classes.meetupTypes}>
+          <button className={classes.meetupType}><Checkbox />ACX Meetups</button>
+          <button className={classes.meetupType}><Checkbox /><a href="https://www.ifanyonebuildsit.com/book-clubs" rel="noopener noreferrer" target="_blank">If Anyone Builds It</a> Book Clubs</button>
+          <button className={classes.meetupType}><Checkbox />Petrov Day</button>
+        </div>
+
+      </div>
       <WrappedReactMapGL
         {...viewport}
         width="100%"

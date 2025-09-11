@@ -40,7 +40,7 @@ const localGroupsHomeFragmentMultiQuery = gql(`
   }
 `);
 
-const PostsListMultiQuery = gql(`
+export const PostsListMultiQuery = gql(`
   query multiPostCommunityMapQuery($selector: PostSelector, $limit: Int, $enableTotal: Boolean) {
     posts(selector: $selector, limit: $limit, enableTotal: $enableTotal) {
       results {
@@ -298,7 +298,7 @@ export const PersonalMapLocationMarkersTypes = registerComponent("PersonalMapLoc
   styles: personalMapMarkerStyles
 });
 
-const LocalEventsMapMarkers = ({events, handleClick, handleClose, openWindows}: {
+export const LocalEventsMapMarkers = ({events, handleClick, handleClose, openWindows}: {
   events: Array<PostsList>,
   handleClick: (eventId: string) => void,
   handleClose: (eventId: string) => void,

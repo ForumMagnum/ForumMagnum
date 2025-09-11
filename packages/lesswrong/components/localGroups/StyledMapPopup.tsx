@@ -24,7 +24,25 @@ export const styles = (theme: ThemeType) => ({
     marginTop: 10,
     marginBottom: 10,
     maxHeight: 150,
-    overflowY: 'auto'
+    overflowY: 'auto',
+    wordBreak: 'break-word',
+    // Thin elegant scrollbar
+    '&::-webkit-scrollbar': {
+      width: '2px'
+    },
+    '&::-webkit-scrollbar-track': {
+      background: 'transparent'
+    },
+    '&::-webkit-scrollbar-thumb': {
+      background: theme.palette.grey[400],
+      borderRadius: '2px',
+      '&:hover': {
+        background: theme.palette.grey[600]
+      }
+    },
+    scrollbarWidth: 'thin', // Firefox
+    scrollbarColor: `${theme.palette.grey[400]} transparent` // Firefox
+    
   },
   contactInfo: {
     marginBottom: "10px",
