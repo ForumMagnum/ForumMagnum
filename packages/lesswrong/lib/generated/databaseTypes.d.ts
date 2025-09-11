@@ -2248,6 +2248,7 @@ interface DbUser extends DbObject {
   reviewedAt: Date | null
   reviewedByUserId: string | null
   sendInactiveSummaryEmail: boolean
+  sendMarketingEmails: boolean
   sequenceCount: number
   sequenceDraftCount: number
   services: any | null
