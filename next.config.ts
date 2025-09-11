@@ -1,6 +1,6 @@
 const path = require('path');
 const fs = require('fs');
-const { redirects } = require("packages/lesswrong/lib/redirects");
+const { redirects } = require("./packages/lesswrong/lib/redirects");
 
 const serverExternalPackages = [
   'superagent-proxy', 'gpt-3-encoder', 'mathjax-node', 'mathjax', 'turndown', 'cloudinary',
