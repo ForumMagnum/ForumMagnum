@@ -619,7 +619,7 @@ class UsersRepo extends AbstractRepo<"Users"> {
    */
   async getTopActiveContributors(limit: number, days = 30): Promise<DbUser[]> {
     return this.any(`
-      -- UsersRepo.getPopularActiveContributors
+      -- UsersRepo.getTopActiveContributors
       WITH eligible_users AS (
         -- Pre-filter to established users
         SELECT "_id", karma

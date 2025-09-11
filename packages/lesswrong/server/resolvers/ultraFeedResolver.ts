@@ -7,6 +7,7 @@ import {
   feedCommentSourceTypesArray,
   feedSpotlightSourceTypesArray,
   FeedPostStub,
+  UserOrClientId,
 } from "@/components/ultraFeed/ultraFeedTypes";
 import { filterNonnull } from "@/lib/utils/typeGuardUtils";
 import gql from 'graphql-tag';
@@ -29,9 +30,6 @@ import {
   insertSubscriptionSuggestions
 } from './ultraFeedResolverHelpers';
 
-export type UserOrClientId = 
-  | { type: 'user'; id: string }
-  | { type: 'client'; id: string };
 
 interface UltraFeedDateCutoffs {
   latestPostsMaxAgeDays: number;
@@ -577,11 +575,13 @@ const transformItemsForResolver = (
  */
 const createUltraFeedEvents = (
   results: UltraFeedResolverType[],
-  userId: string,
+  userOrClientId: UserOrClientId,
   sessionId: string,
   offset: number
 ): UltraFeedEventInsertData[] => {
   const eventsToCreate: UltraFeedEventInsertData[] = [];
+  const userId = userOrClientId.id;
+  const isLoggedOut = userOrClientId.type === 'client';
   
   results.forEach((item, index) => {
     const actualItemIndex = offset + index;
@@ -594,7 +594,7 @@ const createUltraFeedEvents = (
         eventType: "served",
         collectionName: "Spotlights",
         documentId: item.feedSpotlight.spotlight._id,
-        event: { sessionId, itemIndex: actualItemIndex, sources: ["spotlights"] }
+        event: { sessionId, itemIndex: actualItemIndex, sources: ["spotlights"], ...(isLoggedOut ? { loggedOut: true } : {}) }
       });
     } else if (item.type === "feedCommentThread" && (item.feedCommentThread?.comments?.length ?? 0) > 0) {
         const threadData = item.feedCommentThread;
@@ -617,7 +617,8 @@ const createUltraFeedEvents = (
                   itemIndex: actualItemIndex, 
                   commentIndex, 
                   displayStatus,
-                  sources
+                  sources,
+                  ...(isLoggedOut ? { loggedOut: true } : {})
                 }
                 });
             }
@@ -634,7 +635,7 @@ const createUltraFeedEvents = (
           eventType: "served", 
           collectionName: "Posts", 
           documentId: feedItem.post._id,
-          event: { sessionId, itemIndex: actualItemIndex, sources }
+          event: { sessionId, itemIndex: actualItemIndex, sources, ...(isLoggedOut ? { loggedOut: true } : {}) }
         });
       }
     }
@@ -816,10 +817,9 @@ export const ultraFeedGraphQLQueries = {
         });
       }
       
-      // Only create served events for logged-in users (not for logged out due to volume)
-      if (!incognitoMode && userOrClientId.type === 'user') {
+      if (!incognitoMode) {
         const currentOffset = offset ?? 0; 
-        const eventsToCreate = createUltraFeedEvents(results, userOrClientId.id, sessionId, currentOffset);
+        const eventsToCreate = createUltraFeedEvents(results, userOrClientId, sessionId, currentOffset);
         if (eventsToCreate.length > 0) {
           backgroundTask(bulkRawInsert('UltraFeedEvents', eventsToCreate as DbUltraFeedEvent[]));
         }

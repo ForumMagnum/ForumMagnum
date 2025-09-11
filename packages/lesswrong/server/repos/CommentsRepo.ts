@@ -572,7 +572,7 @@ class CommentsRepo extends AbstractRepo<"Comments"> {
             ue."eventType"
           FROM "UltraFeedEvents" ue
           WHERE ue."collectionName" = 'Comments'
-            AND "userId" = $(userIdOrClientId$)
+            AND "userId" = $(userIdOrClientId)
             AND (ue."eventType" <> 'served' OR ue."createdAt" > current_timestamp - INTERVAL '1 hour' * $(commentServedEventRecencyHoursParam))
             AND ue."documentId" IN (SELECT _id FROM "AllRelevantComments")
           
