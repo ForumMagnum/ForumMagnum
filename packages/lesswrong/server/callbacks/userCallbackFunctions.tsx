@@ -398,14 +398,20 @@ export async function updateMailchimpSubscription(data: UpdateUserDataInput, {ol
   return data;
 }
 
-export async function updateDisplayName(data: UpdateUserDataInput, { oldDocument, newDocument, context }: UpdateCallbackProperties<"Users">) {
-  const { Posts } = context;
-
-  if (data.displayName !== undefined && data.displayName !== oldDocument.displayName) {
-    if (!data.displayName) {
+export async function updateDisplayName(
+  data: UpdateUserDataInput,
+  { oldDocument, newDocument, context }: UpdateCallbackProperties<"Users">,
+) {
+  const { displayName } = data;
+  if (displayName !== undefined && displayName !== oldDocument.displayName) {
+    if (!displayName) {
       throw new Error("You must enter a display name");
     }
-    if (await Users.findOne({displayName: data.displayName})) {
+    const taken = await context.repos.users.isDisplayNameTaken({
+      displayName,
+      currentUserId: newDocument._id,
+    });
+    if (taken) {
       throw new Error("This display name is already taken");
     }
     if (data.shortformFeedId && !isLWorAF) {

@@ -3897,6 +3897,26 @@ CREATE UNIQUE INDEX IF NOT EXISTS "idx_ReadStatuses_userId_postId_tagId" ON publ
 -- CustomIndex "idx_users_keyword_alerts_not_empty"
 CREATE INDEX idx_users_keyword_alerts_not_empty ON "Users" (("keywordAlerts" <> '{}'));
 
+-- Function "fm_strip_emojis"
+CREATE OR
+REPLACE FUNCTION fm_strip_emojis (input TEXT) RETURNS TEXT AS $$
+      SELECT REGEXP_REPLACE(
+        $1,
+        '[\U0001F1E6-\U0001F1FF\U0001F300-\U0001F5FF\U0001F600-\U0001F64F\U0001F680-\U0001F6FF\U0001F700-\U0001F77F\U0001F900-\U0001F9FF\U0001FA70-\U0001FAFF\u2600-\u26FF\u2700-\u27BF]',
+        '',
+        'g'
+      );
+      $$ LANGUAGE sql IMMUTABLE;
+
+-- Function "fm_normalize_display_name"
+CREATE OR
+REPLACE FUNCTION fm_normalize_display_name (input TEXT) RETURNS TEXT AS $$
+        SELECT LOWER(REGEXP_REPLACE(fm_strip_emojis($1), '\s', '', 'g'));
+      $$ LANGUAGE sql IMMUTABLE;
+
+-- CustomIndex "idx_users_normalized_display_name"
+CREATE INDEX idx_users_normalized_display_name ON "Users" (fm_normalize_display_name ("displayName"));
+
 -- Function "fm_build_nested_jsonb"
 CREATE OR
 REPLACE FUNCTION fm_build_nested_jsonb (target_path TEXT[], terminal_element JSONB) RETURNS JSONB LANGUAGE sql IMMUTABLE AS 'SELECT JSONB_BUILD_OBJECT(
