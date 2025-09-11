@@ -294,7 +294,12 @@ export const forcePendingEvents = async (
     eventToHandle = queryResult.value;
     
     if (eventToHandle) {
-      await dispatchEvent(eventToHandle);
+      try {
+        await dispatchEvent(eventToHandle);
+      } catch (e) {
+        // eslint-disable-next-line no-console
+        console.error("Error dispatching event:", e);
+      }
       countHandled++;
     }
     

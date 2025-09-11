@@ -1,6 +1,6 @@
-import { userIsAdmin } from "@/lib/vulcan-users/permissions";
 import gql from "graphql-tag";
-import { sendEventPostEmail } from "./eventPostEmails";
+import { userIsAdmin } from "@/lib/vulcan-users/permissions";
+import { sendEventPostEmailById, sendEventPostEmails } from "./eventPostEmails";
 
 export const eventPostEmailsGqlTypeDefs = gql`
   extend type Mutation {
@@ -21,9 +21,9 @@ export const eventPostEmailsGqlMutations = {
       throw new Error("Invalid args");
     }
     if (isTest) {
-      await sendEventPostEmail(postId, currentUser._id);
+      await sendEventPostEmailById(postId, currentUser._id);
     } else {
-      throw new Error("Sending non-test emails not yet implemented");
+      void sendEventPostEmails(postId);
     }
     return true;
   }

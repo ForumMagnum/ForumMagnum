@@ -46,7 +46,7 @@ const AdminEventPostEmailPage = ({classes}: {
     }
   `, {errorPolicy: "all"});
 
-  const sendTestEmail = useCallback(async () => {
+  const sendTestEmail = useCallback(async (isTest: boolean) => {
     if (postLoading) {
       flash("Error: Post still loading");
       return;
@@ -59,10 +59,14 @@ const AdminEventPostEmailPage = ({classes}: {
     await sendEmail({
       variables: {
         postId: post._id,
-        isTest: true,
+        isTest,
       },
     });
-    flash(`Sent test email of "${post.title}"`);
+    flash(
+      isTest
+        ? `Sent test email of "${post.title}"`
+        : "Sending emails in background - this will take some time"
+    );
   }, [flash, postLoading, post, sendEmail]);
 
   if (!currentUser?.isAdmin) {
@@ -88,8 +92,11 @@ const AdminEventPostEmailPage = ({classes}: {
                   <Link to={postGetPageUrl(post)}>{post.title}</Link>
                 </PostsTooltip> by <UsersName user={post.user} />
               </div>
-              <EAButton onClick={sendTestEmail}>
+              <EAButton onClick={sendTestEmail.bind(null, true)}>
                 Send test email to myself
+              </EAButton>
+              <EAButton onClick={sendTestEmail.bind(null, false)} style="grey">
+                Send test email to all relevant users
               </EAButton>
             </>
           )
