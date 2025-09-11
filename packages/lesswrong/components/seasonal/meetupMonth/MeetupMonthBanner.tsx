@@ -89,12 +89,11 @@ const styles = defineStyles("MeetupMonthBanner", (theme: ThemeType) => ({
   subtitle: {
     fontSize: 20,
     fontWeight: 500,
-    marginTop: 0,
+    marginTop: 12,
     textShadow: `0 0 5px ${theme.palette.background.default}, 0 0 10px ${theme.palette.background.default}, 0 0 15px ${theme.palette.background.default}`,
     fontFamily: theme.typography.postStyle.fontFamily,
     color: theme.palette.text.primary,
-    transition: 'opacity 0.3s ease-out',
-    marginBottom: 0,
+    transition: 'opacity 0.3s ease-out'
   },
   meetupTypes: {
     display: 'flex',
@@ -226,12 +225,13 @@ const styles = defineStyles("MeetupMonthBanner", (theme: ThemeType) => ({
     bottom: 0,
     width: '100%',
     opacity: 0,
+    marginBottom: 16,
     transform: 'translateX(100%)',
     transition: 'none',
-    marginBottom: 5,
     '& ul': {
       marginTop: 2,
       paddingLeft: 28,
+      marginBottom: 2,
     },
     '& li': {
       margin: 0,
@@ -273,11 +273,9 @@ const styles = defineStyles("MeetupMonthBanner", (theme: ThemeType) => ({
   },
   carouselNavigation: {
     display: 'flex',
-    justifyContent: 'center',
-    width: 'calc(100% - 50px)',
-    alignItems: 'center',
-    margin: "auto",
-    paddingRight: 30,
+    justifyContent: 'space-between',
+    width: 'calc(100% - 30px)',
+    alignItems: 'center', 
     gap: 8,
     zIndex: 4,
   },
@@ -286,16 +284,17 @@ const styles = defineStyles("MeetupMonthBanner", (theme: ThemeType) => ({
     alignItems: 'center',
     justifyContent: 'center',
     ...theme.typography.body2,
-    backgroundColor: theme.palette.grey[900],
-    color: theme.palette.text.alwaysWhite,
+    backgroundColor: theme.palette.background.pageActiveAreaBackground,
+    color: theme.palette.text.grey,
     padding: '8px 14px',
     borderRadius: 4,
     cursor: 'pointer',
     '&.active': {
       backgroundColor: theme.palette.primary.main,
+      color: theme.palette.text.alwaysWhite,
     },
     '&:hover': {
-      backgroundColor: theme.palette.primary.dark,
+      backgroundColor: theme.palette.background.pageActiveAreaBackground,
     },
 
   },
@@ -333,10 +332,10 @@ const styles = defineStyles("MeetupMonthBanner", (theme: ThemeType) => ({
     },
   },
   carouselArrowLeft: {
-    // left: 20,
+    marginRight: 'auto',
   },
   carouselArrowRight: {
-    // right: 20,
+    marginLeft: 'auto',
   },
   zoomScrollbarContainer: {
     margin: '0 auto',
@@ -509,23 +508,23 @@ export default function MeetupMonthBanner() {
     // },
     {
       minorTitle: "ACX Everywhere",
-      subtitle: "Find communities near you, or start your own. Consider hosting an ACX Meetup.",
+      subtitle: <div>Astral Codex Ten meetups are happening around the world. Find an event near you.</div>,
       linkText: "ACX Meetup",
       buttonText: "ACX"
     },
     {
       minorTitle: "If Anyone Builds It",
-      subtitle: "Join book clubs and discussions around the latest ideas in effective altruism.",
+      subtitle: <div>Host a reading group for <a href="https://www.ifanyonebuildsit.com/book-clubs">If Anyone Builds It, Everyone Dies</a>, and get reimbursed for up to ten copies of the book for your community.</div>,
       link: "https://www.ifanyonebuildsit.com/book-clubs",
       linkText: "If Anyone Builds It",
-      buttonText: "Book"
+      buttonText: "If Anyone Builds It"
     },
     {
       minorTitle: "Petrov Day",
       subtitle: "Participate in ceremonies that honor the importance of nuclear safety and rationality.",
       link: "https://www.lesswrong.com/meetups/petrov-day",
       linkText: "Petrov Day",
-      buttonText: "Petrov"
+      buttonText: "Petrov Day"
     }
   ]
   
@@ -667,7 +666,7 @@ export default function MeetupMonthBanner() {
                 if (isCurrentSlide && !isIncomingSlide) {
                   // Current slide sliding out
                   style = { 
-                    transform: slideDirection === 'right' ? 'translateX(-100%)' : 'translateX(100%)', 
+                    transform: slideDirection === 'right' ? 'translateX(100%)' : 'translateX(-100%)', 
                     opacity: 0,
                     transition: 'transform 0.5s ease-in-out, opacity 0.5s ease-in-out',
                     pointerEvents: 'auto' as const
@@ -707,7 +706,7 @@ export default function MeetupMonthBanner() {
                   } else if (isNext) {
                     style = { transform: 'translateX(100%)', opacity: 0, pointerEvents: 'none' as const }
                   } else {
-                    style = { transform: 'translateX(100%)', opacity: 0, pointerEvents: 'none' as const }
+                    style = { transform: 'translateX(-100%)', opacity: 0, pointerEvents: 'none' as const }
                   }
                 }
               }
@@ -731,13 +730,13 @@ export default function MeetupMonthBanner() {
 
           {/* Navigation dots */}
           <div className={classes.carouselNavigation}>
-            <button
+            {/* <button
               className={`${classes.carouselArrow} ${classes.carouselArrowLeft}`}
               aria-label="Previous slide"
               onClick={handlePrevSlide}
             >
               ‹
-            </button>
+            </button> */}
             {carouselSections.map((section, index) => (
               <div
                 key={index}
@@ -763,13 +762,13 @@ export default function MeetupMonthBanner() {
                 }}
               >{section.buttonText}</div>
             ))}
-            <button
+            {/* <button
               className={`${classes.carouselArrow} ${classes.carouselArrowRight}`}
               aria-label="Next slide"
               onClick={handleNextSlide}
             >
               ›
-            </button>
+            </button> */}
             </div>
         </div>
       </div>
