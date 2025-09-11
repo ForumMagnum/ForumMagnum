@@ -587,16 +587,16 @@ module.exports = {
       destination: "/allPosts",
       permanent: true
     }, {
+      source: "/promoted/.rss",
+      destination: "/feed.xml?view=curatedRss",
+      permanent: true
+    }, {
       source: "/:section?/:subreddit?/:new?/.rss",
       destination: "/feed.xml",
       permanent: true
     }, {
       source: "/promoted",
       destination: "/allPosts?filter=curated&sortedBy=new&timeframe=allTime",
-      permanent: true
-    }, {
-      source: "/promoted/.rss",
-      destination: "/feed.xml?view=curatedRss",
       permanent: true
     }, {
       source: "/favicon.ico",
