@@ -24,7 +24,7 @@ const eaOnboardingContext = createContext<EAOnboardingContext>({
   nextStageIsLoading: false,
   currentUser: {} as UsersCurrent,
   updateCurrentUser: async () => {},
-  captureOnboardingEvent: (type?: string, trackingData?: Record<string,any>) => {},
+  captureOnboardingEvent: () => {},
   viewAsAdmin: false,
 });
 
@@ -58,7 +58,14 @@ export const EAOnboardingContextProvider: FC<{
 
   const goToNextStageAfter = useCallback(async function<T>(promise: Promise<T>) {
     setLoading(true);
-    await promise;
+    try {
+      await promise;
+    } catch (e) {
+      // eslint-disable-next-line no-console
+      console.error("Error in 'next stage' promise:", e);
+      setLoading(false);
+      return;
+    }
     await goToNextStage();
   }, [goToNextStage]);
   

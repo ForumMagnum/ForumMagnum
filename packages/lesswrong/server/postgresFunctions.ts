@@ -314,4 +314,33 @@ export const postgresFunctions: PostgresFunction[] = [
     `,
     dependencies: [{type: "collection", name: "LWEvents"}],
   },
+  {
+    // Remove all emojis from a string. Postgres doesn't support
+    // Extended_Pictographic, so we have to specify unicode ranges manually :(
+    source: `
+      CREATE OR REPLACE FUNCTION fm_strip_emojis(input TEXT)
+      RETURNS TEXT AS $$
+      SELECT REGEXP_REPLACE(
+        $1,
+        '[\\U0001F1E6-\\U0001F1FF\\U0001F300-\\U0001F5FF\\U0001F600-\\U0001F64F\\U0001F680-\\U0001F6FF\\U0001F700-\\U0001F77F\\U0001F900-\\U0001F9FF\\U0001FA70-\\U0001FAFF\\u2600-\\u26FF\\u2700-\\u27BF]',
+        '',
+        'g'
+      );
+      $$ LANGUAGE sql IMMUTABLE;
+    `,
+  },
+  {
+    // Normalize a display name for comparing against other display names, to
+    // check for uniqueness:
+    //  - Remove all emojis
+    //  - Remove all whitespace
+    //  - Convert to lowercase
+    source: `
+      CREATE OR REPLACE FUNCTION fm_normalize_display_name(input TEXT)
+      RETURNS TEXT AS $$
+        SELECT LOWER(REGEXP_REPLACE(fm_strip_emojis($1), '\\s', '', 'g'));
+      $$ LANGUAGE sql IMMUTABLE;
+    `,
+    dependencies: [{type: "function", name: "fm_strip_emojis"}],
+  },
 ];
