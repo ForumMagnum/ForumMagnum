@@ -56,6 +56,8 @@ const TableOfContentsList = ({tocSections, title, onClickSection, displayOptions
       navigate({
         search: isEmpty(query) ? '' : `?${qs.stringify(query)}`,
         hash: `#${anchor}`,
+      }, {
+        skipRouter: true,
       });
 
       // This is forum-gating of a fairly subtle change in scroll behaviour, LW may want to adopt scrollFocusOnElement
@@ -119,7 +121,7 @@ const TableOfContentsList = ({tocSections, title, onClickSection, displayOptions
       onClick={ev => {
         if (isRegularClick(ev)) {
           void handleClick(ev, () => {
-            navigate("#");
+            navigate("#", { skipRouter: true });
             jumpToY(0)
           });
         }

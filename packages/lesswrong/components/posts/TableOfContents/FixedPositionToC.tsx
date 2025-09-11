@@ -297,6 +297,8 @@ const FixedPositionToc = ({tocSections, title, heading, onClickSection, displayO
       navigate({
         search: isEmpty(restQuery) ? '' : `?${qs.stringify(restQuery)}`,
         hash: `#${anchor}`,
+      }, {
+        skipRouter: true,
       });
       return;
     }
@@ -308,6 +310,8 @@ const FixedPositionToc = ({tocSections, title, heading, onClickSection, displayO
       navigate({
         search: isEmpty(restQuery) ? '' : `?${qs.stringify(restQuery)}`,
         hash: `#${anchor}`,
+      }, {
+        skipRouter: true,
       });
       const sectionYdocumentSpace = anchorY + window.scrollY;
 
@@ -390,7 +394,9 @@ const FixedPositionToc = ({tocSections, title, heading, onClickSection, displayO
             onClick={ev => {
               if (isRegularClick(ev)) {
                 void handleClick(ev, () => {
-                  navigate("#");
+                  navigate("#", {
+                    skipRouter: true,
+                  });
                   const container = scrollContainerRef?.current;
                   if (container) {
                     container.scrollTo({ top: 0, behavior: 'smooth' });
