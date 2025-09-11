@@ -26,7 +26,7 @@ export async function GET(
     
   if (user) {
     // Redirect to the user's profile page
-    redirect(userGetProfileUrl(user));
+    redirect(userGetProfileUrl(user, true));
   } else {
     //eslint-disable-next-line no-console
     console.log('// Missing legacy user', { slug, additionalParams });

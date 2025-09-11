@@ -51,7 +51,7 @@ const PostsListMultiQuery = gql(`
 
 const localGroupsHomeFragmentQuery = gql(`
   query LocalGroupPage($documentId: String) {
-    localgroup(input: { selector: { documentId: $documentId } }) {
+    localgroup(input: { selector: { documentId: $documentId } }, allowNull: true) {
       result {
         ...localGroupsHomeFragment
       }

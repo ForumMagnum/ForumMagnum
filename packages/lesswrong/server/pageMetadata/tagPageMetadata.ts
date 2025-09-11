@@ -54,7 +54,8 @@ export function getTagPageMetadataFunction<Params>(paramsToTagSlugConverter: (pa
       const tag = data?.tags?.results?.[0];
       const comment = commentData?.comment?.result;
 
-      if (!tag) return notFound();
+      // We can't return a `notFound()` here, because we need to return a RedLinkTagPage rather than the default not-found.
+      if (!tag) return defaultMetadata;
   
       const tagPageTitle = options?.historyPage ? `${tag.name} - History` : tag.name;
       const titleFields = getPageTitleFields(tagPageTitle);

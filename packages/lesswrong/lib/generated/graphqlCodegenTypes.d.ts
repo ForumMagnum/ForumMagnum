@@ -8475,6 +8475,7 @@ type QueryllmConversationsArgs = {
 
 
 type QuerylocalgroupArgs = {
+  allowNull?: InputMaybe<Scalars['Boolean']['input']>;
   input?: InputMaybe<SingleLocalgroupInput>;
   selector?: InputMaybe<SelectorInput>;
 };

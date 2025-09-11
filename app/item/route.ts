@@ -26,11 +26,11 @@ export async function GET(req: NextRequest) {
 
   const post = await findPostByLegacyAFId(parseInt(id));
   if (post) {
-    redirect(postGetPageUrl(post));
+    redirect(postGetPageUrl(post, true));
   } else {
     const comment = await findCommentByLegacyAFId(parseInt(id));
     if (comment) {
-      redirect(await commentGetPageUrlFromDB(comment, context, false));
+      redirect(await commentGetPageUrlFromDB(comment, context, true));
     } else {
       return new Response(`No af legacy item found with: id=${id}`, { status: 404 });
     }
