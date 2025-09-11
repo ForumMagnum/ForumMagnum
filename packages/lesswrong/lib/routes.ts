@@ -182,7 +182,7 @@ const leastWrongSubtitle = { subtitleLink: "/leastwrong", subtitle: "The Best of
 
 const taggingDashboardSubtitle = { subtitleLink: `/${taggingNamePluralSetting.get()}/dashboard`, subtitle: `${taggingNameIsSet.get() ? taggingNamePluralCapitalSetting.get() : 'Wiki-Tag'} Dashboard`}
 
-const faqPostIdSetting = new PublicInstanceSetting<string>('faqPostId', '2rWKkWuPrgTMpLRbp', "warning") // Post ID for the /faq route
+const faqPostIdSetting = new PublicInstanceSetting<string>('faqPostId', '2rWKkWuPrgTMpLRbp', isLWorAF ? "warning" : "optional") // Post ID for the /faq route
 const contactPostIdSetting = new PublicInstanceSetting<string>('contactPostId', "ehcYkvyz7dh9L7Wt8", "warning")
 const introPostIdSetting = new PublicInstanceSetting<string | null>('introPostId', null, "optional")
 
