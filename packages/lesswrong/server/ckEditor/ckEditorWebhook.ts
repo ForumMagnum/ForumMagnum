@@ -1,6 +1,5 @@
 import { Posts } from '../../server/collections/posts/collection';
 import { createNotifications } from '../notificationCallbacksHelpers';
-import { addStaticRoute } from '../vulcan-lib/staticRoutes';
 import { ckEditorApi, ckEditorApiHelpers, documentHelpers } from './ckEditorApi';
 import CkEditorUserSessions from '../../server/collections/ckEditorUserSessions/collection';
 import { ckEditorUserSessionsEnabled } from '../../lib/betas';
@@ -13,7 +12,7 @@ interface CkEditorUserConnectionChange {
   connected_users: Array<{ id: string }>,
 }
 
-addStaticRoute('/ckeditor-webhook', async ({query}, req, res, next) => {
+/*addStaticRoute('/ckeditor-webhook', async ({query}, req, res, next) => {
   if (req.method !== "POST") {
     res.statusCode = 405; // Method not allowed
     res.end("ckeditor-webhook should receive POST");
@@ -26,7 +25,7 @@ addStaticRoute('/ckeditor-webhook', async ({query}, req, res, next) => {
   }
   
   res.end("ok");
-});
+});*/
 
 // Handle a CkEditor webhook. These are documented at:
 //   https://ckeditor.com/docs/cs/latest/guides/webhooks/events.html
