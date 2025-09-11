@@ -352,6 +352,12 @@ export const menuTabs: ForumOptions<Array<MenuTab>> = {
       compressedIconComponent: Info,
       showOnCompressed: true,
     }, {
+      id: 'calendar',
+      title: 'Forum events calendar',
+      link: "https://calendar.google.com/calendar/u/0?cid=Y182M2YxZTI4NmJkNWQyMDYwNjQ1MjRjNTExMWVlYTRjOGM5M2JkZjFkYmNiMmZiOGViZmU5NWIzNzQ2YWViOTYwQGdyb3VwLmNhbGVuZGFyLmdvb2dsZS5jb20",
+      subItem: true,
+      showOnCompressed: true,
+    }, {
       id: 'handbook',
       title: 'EA Handbook',
       link: '/handbook',
