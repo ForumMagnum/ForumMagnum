@@ -1,5 +1,5 @@
 import { getCookiePreferences } from '../lib/cookies/utils';
-import { isServer } from '../lib/executionEnvironment';
+import { isAnyTest, isServer } from '../lib/executionEnvironment';
 import { reCaptchaSiteKeySetting } from '@/lib/instanceSettings';
 
 declare global {
@@ -9,8 +9,10 @@ declare global {
   }
 }
 
-window.onReCaptchaLoaded = function() {
-  window.recaptchaLoaded = true;
+if (!isAnyTest) {
+  window.onReCaptchaLoaded = function() {
+    window.recaptchaLoaded = true;
+  }
 }
 
 let reCaptchaInitialized = false;
