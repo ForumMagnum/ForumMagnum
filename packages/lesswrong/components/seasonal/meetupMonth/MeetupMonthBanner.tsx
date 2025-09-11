@@ -12,6 +12,7 @@ import HomepageMapFilter from '../HomepageMap/HomepageMapFilter';
 import { useQuery } from "@/lib/crud/useQuery";
 import { LocalEventsMapMarkers, PostsListMultiQuery } from '@/components/localGroups/CommunityMap';
 import without from 'lodash/without';
+import { backdatePreviousDigest } from '@/server/callbacks/digestCallbacks';
 
 const localEvents = [
   {
@@ -39,6 +40,45 @@ const localEvents = [
 
 ];
 
+const carouselSections = [
+  {
+    title: "Meetup Month",
+    buttonText: "All",
+    subtitle: <div><div>Find events near you, or annouce your own.</div><ul><li>Attend an <a 
+    href="">ACX Everywhere</a> meetup.</li><li>Host a reading group for <a href="https://www.
+    ifanyonebuildsit.com/book-clubs">If Anyone Builds It</a>.</li><li>Hold a ceremony celebrating <a href="https://www.lesswrong.com/meetups/petrov-day">Petrov Day.</a></li></ul></div>,
+  },
+  // {
+  //   title: "Meetup Month",
+  //   buttonText: "All",
+  //   subtitle: <div><div>Find events near you, or annouce your own. Attend an <a href="">ACX 
+  // Everywhere</a> meetup. Host a reading group for <a href="https://www.ifanyonebuildsit.com/
+  // book-clubs">If Anyone Builds It</a>. Hold a ceremony celebrating <a href="https://www.lesswrong.
+  // com/meetups/petrov-day">Petrov Day.</a></div></div>,
+  // },
+  {
+    minorTitle: "ACX Everywhere",
+    subtitle: <div>Many cities have regular Astral Codex Ten meetup groups. Twice a year, we  advertise their upcoming meetup so that irregular attendees can attend and new readers can learn about them.</div>,
+    linkText: "ACX Meetup",
+    buttonText: "ACX"
+  },
+  {
+    minorTitle: "If Anyone Builds It",
+    subtitle: <div>Eliezer and Nate's new book launches September 16th. If you host a reading group for <a href="https://www.ifanyonebuildsit.com/
+    book-clubs">If Anyone Builds It, Everyone Dies</a>, Lightcone will reimburse you for up to ten copies of the book.</div>,
+    link: "https://www.ifanyonebuildsit.com/book-clubs",
+    linkText: "If Anyone Builds It",
+    buttonText: "If Anyone Builds It"
+  },
+  {
+    minorTitle: "Petrov Day",
+    subtitle: <div>September 26th is the day Stanislav Petrov didn't destroy the world. Host a ceremony observing the day's significance.</div>,
+    link: "https://www.lesswrong.com/meetups/petrov-day",
+    linkText: "Petrov Day",
+    buttonText: "Petrov Day"
+  }
+]
+
 const styles = defineStyles("MeetupMonthBanner", (theme: ThemeType) => ({
   root: {
     position: 'fixed',
@@ -51,7 +91,7 @@ const styles = defineStyles("MeetupMonthBanner", (theme: ThemeType) => ({
     },
   },
   title: {
-    fontSize: 57,
+    fontSize: 45,
     fontWeight: 500,
     fontFamily: theme.typography.headerStyle.fontFamily,
     fontVariant: 'small-caps',
@@ -78,6 +118,7 @@ const styles = defineStyles("MeetupMonthBanner", (theme: ThemeType) => ({
     transition: 'transform 0.5s ease-in-out, opacity 0.5s ease-in-out',
     transform: 'translateX(0)',
     opacity: 1,
+    marginBottom: 14,
     '&.transitioning': {
       transform: 'translateX(-100%)',
       opacity: 0,
@@ -89,37 +130,48 @@ const styles = defineStyles("MeetupMonthBanner", (theme: ThemeType) => ({
   subtitle: {
     fontSize: 20,
     fontWeight: 500,
+    height: 120,
     marginTop: 12,
+    display: 'flex',
+    flexDirection: 'column',
+    justifyContent: 'center',
     textShadow: `0 0 5px ${theme.palette.background.default}, 0 0 10px ${theme.palette.background.default}, 0 0 15px ${theme.palette.background.default}`,
     fontFamily: theme.typography.postStyle.fontFamily,
     color: theme.palette.text.primary,
-    transition: 'opacity 0.3s ease-out'
-  },
-  meetupTypes: {
-    display: 'flex',
-    flexDirection: 'column',
-    alignItems: 'flex-start',
-    paddingTop: 10,
+    transition: 'opacity 0.3s ease-out',
     '& li': {
       marginLeft: -10
     },
+    '& ul': {
+      margin: 0,
+    },
+  },
+  meetupTypes: {
+    display: 'flex',
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: 10,
+    paddingTop: 10,
   },
   meetupType: {
-    background: 'transparent',
     // border: `1px solid ${theme.palette.grey[600]}`,
+    background: theme.palette.grey[400],
+    color: theme.palette.text.alwaysWhite,
     borderRadius: 4,
     paddingLeft: 10,
     paddingRight: 14,
     paddingTop: 6,
     paddingBottom: 6,
+    cursor: 'pointer',
     fontSize: 18,
     fontWeight: 400,
     '&:hover': {
       opacity: 0.5
     },
-    fontFamily: theme.typography.headerStyle.fontFamily,
+    fontFamily: theme.typography.body2.fontFamily,
     // color: theme.palette.text.alwaysWhite,
-    transition: 'opacity 0.3s ease-out',
+    transition: 'opacity 0.1s ease-out',
     marginBottom: 10,
     display: 'flex',
     alignItems: 'center',
@@ -132,6 +184,10 @@ const styles = defineStyles("MeetupMonthBanner", (theme: ThemeType) => ({
     '& a:hover': {
       textDecoration: 'none',
     },
+  },
+  activeMeetupType: {
+    background: theme.palette.primary.main,
+    color: theme.palette.text.alwaysWhite,
   },
   date: {
     fontSize: 16,
@@ -215,127 +271,6 @@ const styles = defineStyles("MeetupMonthBanner", (theme: ThemeType) => ({
     '&:hover': {
       backgroundColor: 'rgba(255, 255, 255, 0.1)',
     },
-  },
-  carouselContainer: {
-
-    position: 'relative',
-  },
-  carouselContent: {
-    position: 'absolute',
-    bottom: 0,
-    width: '100%',
-    opacity: 0,
-    marginBottom: 16,
-    transform: 'translateX(100%)',
-    transition: 'none',
-    '& ul': {
-      marginTop: 2,
-      paddingLeft: 28,
-      marginBottom: 2,
-    },
-    '& li': {
-      margin: 0,
-    },
-    '&.active': {
-      opacity: 1,
-      transform: 'translateX(0)',
-      pointerEvents: 'auto',
-      transition: 'transform 0.5s ease-in-out, opacity 0.5s ease-in-out',
-    },
-    '&.sliding-out-left': {
-      opacity: 0,
-      transform: 'translateX(-100%)',
-      transition: 'transform 0.5s ease-in-out, opacity 0.5s ease-in-out',
-    },
-    '&.sliding-out-right': {
-      opacity: 0,
-      transform: 'translateX(100%)',
-      transition: 'transform 0.5s ease-in-out, opacity 0.5s ease-in-out',
-    },
-    '&.sliding-in-left': {
-      opacity: 1,
-      transform: 'translateX(0)',
-      transition: 'transform 0.5s ease-in-out, opacity 0.5s ease-in-out',
-    },
-    '&.sliding-in-right': {
-      opacity: 1,
-      transform: 'translateX(0)',
-      transition: 'transform 0.5s ease-in-out, opacity 0.5s ease-in-out',
-    },
-    '&.prepare-left': {
-      transform: 'translateX(-100%)',
-      opacity: 0,
-    },
-    '&.prepare-right': {
-      transform: 'translateX(100%)',
-      opacity: 0,
-    },
-  },
-  carouselNavigation: {
-    display: 'flex',
-    justifyContent: 'space-between',
-    width: 'calc(100% - 30px)',
-    alignItems: 'center', 
-    gap: 8,
-    zIndex: 4,
-  },
-  carouselButton: {
-    display: 'flex',
-    alignItems: 'center',
-    justifyContent: 'center',
-    ...theme.typography.body2,
-    backgroundColor: theme.palette.background.pageActiveAreaBackground,
-    color: theme.palette.text.grey,
-    padding: '8px 14px',
-    borderRadius: 4,
-    cursor: 'pointer',
-    '&.active': {
-      backgroundColor: theme.palette.primary.main,
-      color: theme.palette.text.alwaysWhite,
-    },
-    '&:hover': {
-      backgroundColor: theme.palette.background.pageActiveAreaBackground,
-    },
-
-  },
-  carouselDot: {
-    width: 8,
-    height: 8,
-    borderRadius: '50%',
-    backgroundColor: theme.palette.grey[900],
-    cursor: 'pointer',
-    transition: 'background-color 0.3s ease',
-    '&.active': {
-      width: 10,
-      height: 10,
-      backgroundColor: theme.palette.primary.main,
-    },
-    '&:hover': {
-      backgroundColor: theme.palette.primary.dark,
-    },
-  },
-  carouselArrow: {
-    width: 30,
-    height: 30,
-    color: theme.palette.text.primary,
-    backgroundColor: 'transparent',
-    border: 'none',
-    cursor: 'pointer',
-    display: 'flex',
-    alignItems: 'center',
-    justifyContent: 'center',
-    fontSize: 32,
-    zIndex: 4,
-    transition: 'background-color 0.3s ease',
-    '&:hover': {
-      opacity: 0.6
-    },
-  },
-  carouselArrowLeft: {
-    marginRight: 'auto',
-  },
-  carouselArrowRight: {
-    marginLeft: 'auto',
   },
   zoomScrollbarContainer: {
     margin: '0 auto',
@@ -486,55 +421,29 @@ export default function MeetupMonthBanner() {
   const events = useMemo(() => data?.posts?.results ?? [], [data?.posts?.results]);
 
   const [ openWindows, setOpenWindows ] = useState<string[]>([])
-  const [currentCarouselIndex, setCurrentCarouselIndex] = useState(0)
-  const [isTransitioning, setIsTransitioning] = useState(false)
-  const [slideDirection, setSlideDirection] = useState<'left' | 'right'>('right')
-  const [nextCarouselIndex, setNextCarouselIndex] = useState<number | null>(null)
-  const [prepareNextSlide, setPrepareNextSlide] = useState(false)
   const [isMapHovered, setIsMapHovered] = useState(false)
+  const [isTransitioning, setIsTransitioning] = useState(false)
+  const [isSettingUp, setIsSettingUp] = useState(false)
+  const [currentCarouselIndex, setCurrentCarouselIndex] = useState(0)
+  const [nextCarouselIndex, setNextCarouselIndex] = useState<number | null>(null)
 
-  console.log("Do not merge until you've made sure all the links work.")
-  
-  const carouselSections = [
-    {
-      title: "Meetup Month",
-      buttonText: "All",
-      subtitle: <div><div>Find events near you, or annouce your own.</div><ul><li>Attend an <a href="">ACX Everywhere</a> meetup.</li><li>Host a reading group for <a href="https://www.ifanyonebuildsit.com/book-clubs">If Anyone Builds It</a>.</li><li>Hold a ceremony celebrating <a href="https://www.lesswrong.com/meetups/petrov-day">Petrov Day.</a></li></ul></div>,
-    },
-    // {
-    //   title: "Meetup Month",
-    //   buttonText: "All",
-    //   subtitle: <div><div>Find events near you, or annouce your own. Attend an <a href="">ACX Everywhere</a> meetup. Host a reading group for <a href="https://www.ifanyonebuildsit.com/book-clubs">If Anyone Builds It</a>. Hold a ceremony celebrating <a href="https://www.lesswrong.com/meetups/petrov-day">Petrov Day.</a></div></div>,
-    // },
-    {
-      minorTitle: "ACX Everywhere",
-      subtitle: <div>Astral Codex Ten meetups are happening around the world. Find an event near you.</div>,
-      linkText: "ACX Meetup",
-      buttonText: "ACX"
-    },
-    {
-      minorTitle: "If Anyone Builds It",
-      subtitle: <div>Host a reading group for <a href="https://www.ifanyonebuildsit.com/book-clubs">If Anyone Builds It, Everyone Dies</a>, and get reimbursed for up to ten copies of the book for your community.</div>,
-      link: "https://www.ifanyonebuildsit.com/book-clubs",
-      linkText: "If Anyone Builds It",
-      buttonText: "If Anyone Builds It"
-    },
-    {
-      minorTitle: "Petrov Day",
-      subtitle: "Participate in ceremonies that honor the importance of nuclear safety and rationality.",
-      link: "https://www.lesswrong.com/meetups/petrov-day",
-      linkText: "Petrov Day",
-      buttonText: "Petrov Day"
-    }
-  ]
+  const handleMeetupTypeClick = (index: number) => {
+    if (index === currentCarouselIndex) return
+    setIsSettingUp(true)
+    setNextCarouselIndex(index)
+    setTimeout(() => {
+      setIsSettingUp(false)
+      setIsTransitioning(true)
+      setCurrentCarouselIndex(index)
+      setTimeout(() => {
+        setIsTransitioning(false)
+      }, 1000)
+    }, 1000)
+  }
   
   useGlobalKeydown(ev => {
     if (ev.key === 'Escape') {
       setMapActive(false)
-    } else if (ev.key === 'ArrowLeft') {
-      handlePrevSlide()
-    } else if (ev.key === 'ArrowRight') {
-      handleNextSlide()
     }
   });
   
@@ -547,49 +456,6 @@ export default function MeetupMonthBanner() {
     , [openWindows]
   )
   
-  const handlePrevSlide = useCallback(() => {
-    if (!isTransitioning) {
-      const prevIndex = (currentCarouselIndex - 1 + carouselSections.length) % carouselSections.length
-      setNextCarouselIndex(prevIndex)
-      setSlideDirection('left')
-      setPrepareNextSlide(true)
-      
-      // Small delay to position the incoming slide
-      setTimeout(() => {
-        setPrepareNextSlide(false)
-        setIsTransitioning(true)
-        
-        // After animation completes
-        setTimeout(() => {
-          setCurrentCarouselIndex(prevIndex)
-          setNextCarouselIndex(null)
-          setIsTransitioning(false)
-        }, 500)
-      }, 50)
-    }
-  }, [isTransitioning, currentCarouselIndex, carouselSections.length])
-  
-  const handleNextSlide = useCallback(() => {
-    if (!isTransitioning) {
-      const nextIndex = (currentCarouselIndex + 1) % carouselSections.length
-      setNextCarouselIndex(nextIndex)
-      setSlideDirection('right')
-      setPrepareNextSlide(true)
-      
-      // Small delay to position the incoming slide
-      setTimeout(() => {
-        setPrepareNextSlide(false)
-        setIsTransitioning(true)
-        
-        // After animation completes
-        setTimeout(() => {
-          setCurrentCarouselIndex(nextIndex)
-          setNextCarouselIndex(null)
-          setIsTransitioning(false)
-        }, 500)
-      }, 50)
-    }
-  }, [isTransitioning, currentCarouselIndex, carouselSections.length])
 
 
   const renderedMarkers = useMemo(() => {
@@ -619,8 +485,6 @@ export default function MeetupMonthBanner() {
     </div>;
   }
 
-  
-
   return <div className={classes.root}>
     <div className={classes.mapGradient}/>
     <div className={classes.mapGradientRight} />
@@ -644,132 +508,63 @@ export default function MeetupMonthBanner() {
           />
         </div> */}
         
-        <div className={`${classes.textContainer} ${isTransitioning ? 'transitioning' : ''}`}>
-          <div className={classes.carouselContainer}>
-            {carouselSections.map((section, index) => {
-              const isCurrentSlide = index === currentCarouselIndex
-              const isIncomingSlide = index === nextCarouselIndex
-              
-              let style: React.CSSProperties = {}
-              let className = classes.carouselContent
-              
-              if (prepareNextSlide && isIncomingSlide) {
-                // Position the incoming slide without transition
-                const startPosition = slideDirection === 'right' ? '100%' : '-100%'
-                style = { 
-                  transform: `translateX(${startPosition})`, 
-                  opacity: 0,
-                  transition: 'none',
-                  pointerEvents: 'none' as const
-                }
-              } else if (isTransitioning) {
-                if (isCurrentSlide && !isIncomingSlide) {
-                  // Current slide sliding out
-                  style = { 
-                    transform: slideDirection === 'right' ? 'translateX(100%)' : 'translateX(-100%)', 
-                    opacity: 0,
-                    transition: 'transform 0.5s ease-in-out, opacity 0.5s ease-in-out',
-                    pointerEvents: 'auto' as const
-                  }
-                } else if (isIncomingSlide) {
-                  // Incoming slide sliding in from the correct direction
-                  style = { 
-                    transform: 'translateX(0)', 
-                    opacity: 1,
-                    transition: 'transform 0.5s ease-in-out, opacity 0.5s ease-in-out',
-                    pointerEvents: 'auto' as const
-                  }
-                } else {
-                  // Other slides stay hidden
-                  style = { 
-                    transform: 'translateX(100%)', 
-                    opacity: 0,
-                    pointerEvents: 'none' as const
-                  }
-                }
-              } else {
-                if (isCurrentSlide) {
-                  // Active slide when not transitioning
-                  style = { 
-                    transform: 'translateX(0)', 
-                    opacity: 1,
-                    transition: 'none',
-                    pointerEvents: 'auto' as const
-                  }
-                } else {
-                  // Inactive slides positioned based on their relation to current
-                  const isPrevious = index === (currentCarouselIndex - 1 + carouselSections.length) % carouselSections.length
-                  const isNext = index === (currentCarouselIndex + 1) % carouselSections.length
-                  
-                  if (isPrevious) {
-                    style = { transform: 'translateX(-100%)', opacity: 0, pointerEvents: 'none' as const }
-                  } else if (isNext) {
-                    style = { transform: 'translateX(100%)', opacity: 0, pointerEvents: 'none' as const }
-                  } else {
-                    style = { transform: 'translateX(-100%)', opacity: 0, pointerEvents: 'none' as const }
-                  }
-                }
-              }
-              
-              return (
-                <div
-                  key={index}
-                  id={`carousel-slide-${index}`}
-                  className={className}
-                  style={style}
-                >
-                  {section.title && <h1 className={classes.title} style={{ opacity: scrollOpacity }}>{section.title}</h1>}
-                  {section.minorTitle && <h1 className={classes.minorTitle} style={{ opacity: scrollOpacity }}>{section.minorTitle}</h1>}
-                  <p className={classes.subtitle} style={{ opacity: scrollOpacity }}>
-                    {section.subtitle}
-                  </p>
-                </div>
-              )
-            })}
-          </div>
+        <div className={classes.textContainer}>
+          {carouselSections.map((section, index) => {
+            
+            const aboutToTransition = isSettingUp && index === nextCarouselIndex
+            const isTransitioningOut = (isTransitioning && !isSettingUp) && index === currentCarouselIndex
+            const isTransitioningIn = (isTransitioning && !isSettingUp) && index === nextCarouselIndex
+            
+            let translateX = '0'
+            if (isTransitioningOut) {
+              translateX = '-100%'
+            } else if (isTransitioningIn) {
+              translateX = '100%'
+            } else if (aboutToTransition) {
+              translateX = '100%'
+            }
 
-          {/* Navigation dots */}
-          <div className={classes.carouselNavigation}>
-            {/* <button
-              className={`${classes.carouselArrow} ${classes.carouselArrowLeft}`}
-              aria-label="Previous slide"
-              onClick={handlePrevSlide}
-            >
-              ‹
-            </button> */}
-            {carouselSections.map((section, index) => (
-              <div
-                key={index}
-                className={`${classes.carouselButton} ${index === currentCarouselIndex ? 'active' : ''}`}
-                aria-label={`Go to slide ${index + 1}`}
-                onClick={() => {
-                  if (!isTransitioning && index !== currentCarouselIndex) {
-                    setNextCarouselIndex(index)
-                    setSlideDirection(index > currentCarouselIndex ? 'right' : 'left')
-                    setPrepareNextSlide(true)
-                    
-                    setTimeout(() => {
-                      setPrepareNextSlide(false)
-                      setIsTransitioning(true)
-                      
-                      setTimeout(() => {
-                        setCurrentCarouselIndex(index)
-                        setNextCarouselIndex(null)
-                        setIsTransitioning(false)
-                      }, 500)
-                    }, 50)
-                  }
-                }}
-              >{section.buttonText}</div>
-            ))}
-            {/* <button
-              className={`${classes.carouselArrow} ${classes.carouselArrowRight}`}
-              aria-label="Next slide"
-              onClick={handleNextSlide}
-            >
-              ›
-            </button> */}
+            const isVisible = index === currentCarouselIndex || (index === nextCarouselIndex && !isSettingUp)
+
+
+            const handleMeetupTypeClick = (index: number) => {
+              if (index === currentCarouselIndex) return
+              setIsSettingUp(true)
+              setNextCarouselIndex(index)
+              setTimeout(() => {
+                setIsSettingUp(false)
+                setIsTransitioning(true)
+                setCurrentCarouselIndex(index)
+                setTimeout(() => {
+                  setIsTransitioning(false)
+                  setNextCarouselIndex(null)
+                }, 1000)
+              }, 1000)
+            }
+
+            const backgroundColor = isTransitioningOut ? 'red' : isTransitioningIn ? 'blue' : aboutToTransition ? 'yellow' : 'green'
+            return <div key={index} style={{
+              position: 'absolute',
+              bottom: 0,
+              display: isVisible ? 'block' : 'none', 
+              opacity: isVisible ? 1 : aboutToTransition ? 0.5 : 0,
+              transition: !isSettingUp ? 'opacity 0.5s ease-in-out, transform 0.5s ease-in-out' : 'none',
+              transform: `translateX(${translateX})`,
+              backgroundColor: backgroundColor
+            }}>
+              <h1 className={classes.title}>{section.title ?? section.minorTitle}</h1>
+              {/* <h3 className={classes.minorTitle}>{section.minorTitle}</h3> */}
+              <p className={classes.subtitle}>{section.subtitle}</p>
+              <p>i: {index}, C: {currentCarouselIndex}, N: {nextCarouselIndex}, T: {isTransitioning ? 'true' : 'false'}, S: {isSettingUp ? 'true' : 'false'}</p>
             </div>
+          })}
+        </div>
+        <div className={classes.meetupTypes}> 
+          {carouselSections.map((section, index) => (
+            <div className={`${classes.meetupType} ${index === currentCarouselIndex ? classes.activeMeetupType : ''}`} key={index} onClick={() => handleMeetupTypeClick(index)}>
+              {section.buttonText}
+            </div>
+          ))}
         </div>
       </div>
 
