@@ -499,6 +499,7 @@ const Layout = ({children}: {
                     <SuspenseWrapper name="Route" fallback={<DelayedLoading/>}>
                       {children}
                     </SuspenseWrapper>
+                    {/* ea-forum-look-here We've commented out some EAForum-specific components for bundle size reasons */}
                     {/* <SuspenseWrapper name="OnboardingFlow">
                       {!isIncompletePath && isEAForum() ? <EAOnboardingFlow/> : <BasicOnboardingFlow/>}
                     </SuspenseWrapper> */}

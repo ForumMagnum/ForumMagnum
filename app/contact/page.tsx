@@ -1,10 +1,11 @@
 import React from "react";
 import PostsSingleRoute from '@/components/posts/PostsSingleRoute';
 import RouteRoot from "@/components/next/RouteRoot";
+import { contactPostIdSetting } from "@/lib/instanceSettings";
 
 
 export default function Page() {
   return <RouteRoot delayedStatusCode metadata={{ background: 'white' }}>
-    <PostsSingleRoute _id="ehcYkvyz7dh9L7Wt8" />
+    <PostsSingleRoute _id={contactPostIdSetting.get()} />
   </RouteRoot>;
 }

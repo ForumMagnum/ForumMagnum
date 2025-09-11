@@ -1,5 +1,4 @@
 import React from 'react';
-import { testServerSetting } from '../lib/instanceSettings';
 import { Posts } from '../server/collections/posts/collection';
 import { postStatuses } from '../lib/collections/posts/constants';
 import { Users } from '../server/collections/users/collection';

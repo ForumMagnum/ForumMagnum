@@ -1,9 +1,14 @@
-import { disallowCrawlersSetting } from "@/lib/instanceSettings";
 import { robotsTxtSetting } from "@/server/databaseSettings";
-import { NextResponse } from "next/server";
+import type { NextRequest } from "next/server";
 
-export async function GET() {
-  if (disallowCrawlersSetting.get()) {
+// ea-forum-look-here
+const ALLOWED_HOSTS = new Set([
+  'www.lesswrong.com',
+  'www.alignmentforum.org',
+]);
+
+export async function GET(req: NextRequest) {
+  if (!ALLOWED_HOSTS.has(req.nextUrl.host)) {
     return new Response("User-agent: *\nDisallow: /", {status: 200});
   } else if (robotsTxtSetting.get()) {
     return new Response(robotsTxtSetting.get(), {status: 200});

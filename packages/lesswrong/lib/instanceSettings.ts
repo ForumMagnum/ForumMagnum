@@ -213,13 +213,13 @@ export const hasCommentsTableOfContentSetting = new PublicInstanceSetting<boolea
 export const hasDialoguesSetting = new PublicInstanceSetting<boolean>("dialogues.enabled", true, "optional");
 export const hasPostInlineReactionsSetting = new PublicInstanceSetting<boolean>("posts.inlineReactionsEnabled", true, "optional");
 
-const disableElastic = new PublicInstanceSetting<boolean>(
+const disableElastic = new PublicInstanceSetting<'true' | 'false'>(
   "disableElastic",
-  false,
+  'false',
   "optional",
 );
 
-export const isElasticEnabled = () => !isAnyTest && !isE2E && !disableElastic.get();
+export const isElasticEnabled = () => !isAnyTest && !isE2E && disableElastic.get() !== 'true';
 
 export const requireReviewToFrontpagePostsSetting = new PublicInstanceSetting<boolean>('posts.requireReviewToFrontpage', true, "optional")
 export const eaFrontpageDateDefault = (
@@ -334,13 +334,6 @@ export const ckEditorEnvironmentIdOverrideSetting = new PublicInstanceSetting<st
 export const ckEditorSecretKeyOverrideSetting = new PublicInstanceSetting<string | null>('ckEditorOverride.secretKey', null, "optional");
 export const ckEditorApiPrefixOverrideSetting = new PublicInstanceSetting<string | null>('ckEditorOverride.apiPrefix', null, "optional");
 export const ckEditorApiSecretKeyOverrideSetting = new PublicInstanceSetting<string | null>('ckEditorOverride.apiSecretKey', null, "optional");
-
-// disallowCrawlers: If set, robots.txt will request that no crawlers touch the
-// site at all. Use for test and staging servers like lessestwrong.com and
-// baserates.org, so that only the real site will be indexed by search engines.
-//
-// If set, this takes precedence over the robotsTxt setting.
-export const disallowCrawlersSetting = new PublicInstanceSetting<boolean>('disallowCrawlers', false, "optional");
 
 
 export const elasticCloudIdSetting = new PublicInstanceSetting<string | null>(
