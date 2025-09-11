@@ -427,20 +427,6 @@ export default function MeetupMonthBanner() {
   const [currentCarouselIndex, setCurrentCarouselIndex] = useState(0)
   const [nextCarouselIndex, setNextCarouselIndex] = useState<number | null>(null)
 
-  const handleMeetupTypeClick = (index: number) => {
-    if (index === currentCarouselIndex) return
-    setIsSettingUp(true)
-    setNextCarouselIndex(index)
-    setTimeout(() => {
-      setIsSettingUp(false)
-      setIsTransitioning(true)
-      setCurrentCarouselIndex(index)
-      setTimeout(() => {
-        setIsTransitioning(false)
-      }, 1000)
-    }, 1000)
-  }
-  
   useGlobalKeydown(ev => {
     if (ev.key === 'Escape') {
       setMapActive(false)
@@ -478,6 +464,23 @@ export default function MeetupMonthBanner() {
     setIsMapHovered(false)
   }, [])
 
+  const handleMeetupTypeClick = useCallback((index: number) => {
+    if (index === currentCarouselIndex) return
+
+    setIsSettingUp(true)
+    setNextCarouselIndex(index)
+
+    setTimeout(() => {
+      setIsSettingUp(false)
+      setIsTransitioning(true)
+      setTimeout(() => {
+        setIsTransitioning(false)
+        setCurrentCarouselIndex(index)
+        setNextCarouselIndex(null)
+      }, 200)
+    }, 200)
+  }, [currentCarouselIndex])
+
   if (isLoading) {
     return <div className={classes.root}>
       <div className={classes.mapGradient} style={{ opacity: scrollOpacity }}/>
@@ -512,45 +515,39 @@ export default function MeetupMonthBanner() {
           {carouselSections.map((section, index) => {
             
             const aboutToTransition = isSettingUp && index === nextCarouselIndex
-            const isTransitioningOut = (isTransitioning && !isSettingUp) && index === currentCarouselIndex
-            const isTransitioningIn = (isTransitioning && !isSettingUp) && index === nextCarouselIndex
+            const isTransitioningOut = (!isSettingUp && isTransitioning && index === currentCarouselIndex)
+            const isTransitioningIn = (!isSettingUp && isTransitioning && index === nextCarouselIndex)
             
+            // Decide horizontal position
             let translateX = '0'
             if (isTransitioningOut) {
               translateX = '-100%'
-            } else if (isTransitioningIn) {
-              translateX = '100%'
             } else if (aboutToTransition) {
+              // New section is staged off-screen to the right
               translateX = '100%'
+            } else if (isTransitioningIn) {
+              // During the active transition the new section animates to center
+              translateX = '0'
             }
 
-            const isVisible = index === currentCarouselIndex || (index === nextCarouselIndex && !isSettingUp)
-
-
-            const handleMeetupTypeClick = (index: number) => {
-              if (index === currentCarouselIndex) return
-              setIsSettingUp(true)
-              setNextCarouselIndex(index)
-              setTimeout(() => {
-                setIsSettingUp(false)
-                setIsTransitioning(true)
-                setCurrentCarouselIndex(index)
-                setTimeout(() => {
-                  setIsTransitioning(false)
-                  setNextCarouselIndex(null)
-                }, 1000)
-              }, 1000)
+            // A section should render whenever it is either the current or next target
+            const shouldRender = index === currentCarouselIndex || index === nextCarouselIndex
+            
+            // Opacity rules: staged section starts at 0.5, fades to 1 when sliding in, fades to 0 when sliding out
+            let opacity = 1
+            if (aboutToTransition) {
+              opacity = 0
+            } else if (isTransitioningOut) {
+              opacity = 0
             }
 
-            const backgroundColor = isTransitioningOut ? 'red' : isTransitioningIn ? 'blue' : aboutToTransition ? 'yellow' : 'green'
             return <div key={index} style={{
               position: 'absolute',
               bottom: 0,
-              display: isVisible ? 'block' : 'none', 
-              opacity: isVisible ? 1 : aboutToTransition ? 0.5 : 0,
-              transition: !isSettingUp ? 'opacity 0.5s ease-in-out, transform 0.5s ease-in-out' : 'none',
+              display: shouldRender ? 'block' : 'none',
+              opacity,
+              transition: !isSettingUp ? 'opacity 0.2s ease-in-out, transform 0.5s ease-in-out' : 'none',
               transform: `translateX(${translateX})`,
-              backgroundColor: backgroundColor
             }}>
               <h1 className={classes.title}>{section.title ?? section.minorTitle}</h1>
               {/* <h3 className={classes.minorTitle}>{section.minorTitle}</h3> */}
@@ -561,7 +558,9 @@ export default function MeetupMonthBanner() {
         </div>
         <div className={classes.meetupTypes}> 
           {carouselSections.map((section, index) => (
-            <div className={`${classes.meetupType} ${index === currentCarouselIndex ? classes.activeMeetupType : ''}`} key={index} onClick={() => handleMeetupTypeClick(index)}>
+            <div className={`${classes.meetupType} ${index === currentCarouselIndex ? classes.activeMeetupType : ''}`} key={index} onClick={() => {
+              handleMeetupTypeClick(index)
+            }}>
               {section.buttonText}
             </div>
           ))}
