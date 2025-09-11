@@ -1,10 +1,9 @@
-import Posts from "@/server/collections/posts/collection";
+import { commentGetPageUrlFromIds } from "@/lib/collections/comments/helpers";
+import { postGetPageUrl } from "@/lib/collections/posts/helpers";
 import Comments from "@/server/collections/comments/collection";
-import { commentGetRSSUrl } from '@/lib/collections/comments/helpers';
-import { postGetPageUrl } from '@/lib/collections/posts/helpers';
+import Posts from "@/server/collections/posts/collection";
 import { redirect } from "next/navigation";
 import type { NextRequest } from "next/server";
-
 
 async function findPostByLegacyId(legacyId: string) {
   const parsedId = parseInt(legacyId, 36);
@@ -33,9 +32,10 @@ export async function GET(req: NextRequest, { params }: { params: Promise<{ id: 
   ]);
 
   if (post && comment) {
-    redirect(commentGetRSSUrl(comment, true));
+    const url = commentGetPageUrlFromIds({ postId: post._id, postSlug: post.slug, commentId: comment._id, permalink: true, isAbsolute: true });
+    return redirect(url);
   } else if (post) {
-    redirect(postGetPageUrl(post, true));
+    return redirect(postGetPageUrl(post, true));
   } else {
     return new Response(`No post or comment found with: id=${id} commentId=${commentId}`, { status: 404 });
   }

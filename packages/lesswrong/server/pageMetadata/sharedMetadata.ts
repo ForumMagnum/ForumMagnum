@@ -109,6 +109,10 @@ export function getCommentDescription(comment: CommentPermalinkMetadataQuery_com
 }
 
 function shouldIgnoreError(error: unknown) {
+  if (error instanceof Error && 'digest' in error && typeof error.digest === 'string' && error.digest?.endsWith(';404')) {
+    return true;
+  }
+
   if (error instanceof Error && IGNORED_ERROR_MESSAGES.has(error.message)) {
     return true;
   }
