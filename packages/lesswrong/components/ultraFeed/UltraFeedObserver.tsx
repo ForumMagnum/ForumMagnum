@@ -115,7 +115,7 @@ export const UltraFeedObserverProvider = ({ children, incognitoMode }: { childre
   const shortViewedItemsRef = useRef<Set<string>>(new Set());
 
   const logViewEvent = useCallback((elementData: ObserveData, durationMs: number) => {
-    if (!currentUser || incognitoMode || !elementData) return;
+    if (incognitoMode || !elementData) return;
 
     const eventPayload = {
       data: {
@@ -139,11 +139,9 @@ export const UltraFeedObserverProvider = ({ children, incognitoMode }: { childre
       feedCardIndex: elementData.feedCardIndex,
       feedCommentIndex: elementData.feedCommentIndex,
     });
-  }, [createUltraFeedEvent, currentUser, incognitoMode, captureEvent]);
+  }, [createUltraFeedEvent, incognitoMode, captureEvent]);
 
   const handleIntersection = useCallback((entries: IntersectionObserverEntry[]) => {
-    if (!currentUser) return;
-    
     entries.forEach((entry) => {
       const element = entry.target;
       const elementData = elementDataMapRef.current.get(element);
@@ -201,7 +199,7 @@ export const UltraFeedObserverProvider = ({ children, incognitoMode }: { childre
         }
       }
     });
-  }, [logViewEvent, currentUser]);
+  }, [logViewEvent]);
 
   useEffect(() => {
     const currentTimerMap = timerMapRef.current;

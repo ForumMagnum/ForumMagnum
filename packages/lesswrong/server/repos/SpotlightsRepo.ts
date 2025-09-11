@@ -16,11 +16,7 @@ class SpotlightsRepo extends AbstractRepo<"Spotlights"> {
     context: ResolverContext, 
     limit = 5
   ): Promise<FeedSpotlight[]> {
-    const userId = context.currentUser?._id;
-
-    if (!userId) {
-      return [];
-    }
+    const userIdOrClientId = context.userId ?? context.clientId;
     
     const spotlightRows = await this.getRawDb().manyOrNone(`
       -- SpotlightsRepo.getUltraFeedSpotlights - Prioritize by fewest views
@@ -32,7 +28,7 @@ class SpotlightsRepo extends AbstractRepo<"Spotlights"> {
         WHERE "collectionName" = 'Spotlights'
           AND "eventType" = 'viewed'
           AND "createdAt" > NOW() - INTERVAL '90 days'
-          AND "userId" = $(userId)
+          AND "userId" = $(userIdOrClientId)
         GROUP BY "documentId"
         HAVING COUNT(*) <= 5
       )
@@ -49,7 +45,7 @@ class SpotlightsRepo extends AbstractRepo<"Spotlights"> {
         COALESCE(rv."viewCount", 0) ASC,
         RANDOM()
       LIMIT $(limit)
-    `, { limit, userId });
+    `, { limit, userIdOrClientId });
     
     if (!spotlightRows || !spotlightRows.length) {
       return [];
