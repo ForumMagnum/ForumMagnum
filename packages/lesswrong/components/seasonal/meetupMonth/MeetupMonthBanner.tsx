@@ -46,6 +46,9 @@ const styles = defineStyles("MeetupMonthBanner", (theme: ThemeType) => ({
     right: 0,
     width: '50vw',
     height: '100vh',
+    [theme.breakpoints.down(1500)]: {
+      display: 'none',
+    },
   },
   title: {
     fontSize: 57,
@@ -69,12 +72,8 @@ const styles = defineStyles("MeetupMonthBanner", (theme: ThemeType) => ({
     lineHeight: 1.2,
   },
   textContainer: {
-    position: 'absolute',
     width: 425,
-    bottom: 50,
-    right: 100,
     zIndex: 2,
-    paddingLeft: 14,
     lineHeight: 1.5,
     transition: 'transform 0.5s ease-in-out, opacity 0.5s ease-in-out',
     transform: 'translateX(0)',
@@ -219,9 +218,8 @@ const styles = defineStyles("MeetupMonthBanner", (theme: ThemeType) => ({
     },
   },
   carouselContainer: {
-    position: 'absolute',
-    width: '100%',
-    height: '100%',
+
+    position: 'relative',
   },
   carouselContent: {
     position: 'absolute',
@@ -230,8 +228,14 @@ const styles = defineStyles("MeetupMonthBanner", (theme: ThemeType) => ({
     opacity: 0,
     transform: 'translateX(100%)',
     transition: 'none',
-    pointerEvents: 'none',
-    marginBottom: 50,
+    marginBottom: 5,
+    '& ul': {
+      marginTop: 2,
+      paddingLeft: 28,
+    },
+    '& li': {
+      margin: 0,
+    },
     '&.active': {
       opacity: 1,
       transform: 'translateX(0)',
@@ -269,19 +273,31 @@ const styles = defineStyles("MeetupMonthBanner", (theme: ThemeType) => ({
   },
   carouselNavigation: {
     display: 'flex',
-    justifyContent: 'space-between',
+    justifyContent: 'center',
+    width: 'calc(100% - 50px)',
     alignItems: 'center',
-    maxWidth: 300,
     margin: "auto",
     paddingRight: 30,
     gap: 8,
     zIndex: 4,
   },
-  carouselNavItem: {
+  carouselButton: {
     display: 'flex',
     alignItems: 'center',
     justifyContent: 'center',
-    gap: 8,
+    ...theme.typography.body2,
+    backgroundColor: theme.palette.grey[900],
+    color: theme.palette.text.alwaysWhite,
+    padding: '8px 14px',
+    borderRadius: 4,
+    cursor: 'pointer',
+    '&.active': {
+      backgroundColor: theme.palette.primary.main,
+    },
+    '&:hover': {
+      backgroundColor: theme.palette.primary.dark,
+    },
+
   },
   carouselDot: {
     width: 8,
@@ -317,15 +333,13 @@ const styles = defineStyles("MeetupMonthBanner", (theme: ThemeType) => ({
     },
   },
   carouselArrowLeft: {
-    left: 20,
+    // left: 20,
   },
   carouselArrowRight: {
-    right: 20,
+    // right: 20,
   },
   zoomScrollbarContainer: {
-    position: 'absolute',
-    top: 120,
-    right: 100,
+    margin: '0 auto',
     zIndex: 4,
     opacity: 0,
     transition: 'opacity 0.3s ease-in-out',
@@ -338,7 +352,6 @@ const styles = defineStyles("MeetupMonthBanner", (theme: ThemeType) => ({
   zoomScrollbar: {
     width: 200,
     height: 6,
-    background: 'rgba(255, 255, 255, 0.3)',
     borderRadius: 3,
     outline: 'none',
     cursor: 'pointer',
@@ -346,21 +359,30 @@ const styles = defineStyles("MeetupMonthBanner", (theme: ThemeType) => ({
       appearance: 'none',
       width: 16,
       height: 16,
-      background: theme.palette.primary.main,
       borderRadius: '50%',
       cursor: 'pointer',
-      boxShadow: '0 2px 4px rgba(0,0,0,0.2)',
     },
     '&::-moz-range-thumb': {
       width: 16,
       height: 16,
-      background: theme.palette.primary.main,
       borderRadius: '50%',
       cursor: 'pointer',
       border: 'none',
-      boxShadow: '0 2px 4px rgba(0,0,0,0.2)',
     },
   },
+  contentContainer: {
+    width: 'calc(100% - 300px)',
+    paddingTop: 120,
+    paddingBottom: 80,
+    position: 'absolute',
+    zIndex: 1,
+    right: 0,
+    bottom: 0,
+    display: 'flex',
+    flexDirection: 'column',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+  }
 }));
 
 // Function to get user coordinates from IP address
@@ -477,24 +499,33 @@ export default function MeetupMonthBanner() {
   const carouselSections = [
     {
       title: "Meetup Month",
-      subtitle: <div>Find events near you, or annouce your own. Attend an <a href="">ACX Everywhere</a> meetup. Host a reading group for <a href="https://www.ifanyonebuildsit.com/book-clubs">If Anyone Builds It, Everyone Dies</a>. Hold a ceremony celebrating <a href="https://www.lesswrong.com/meetups/petrov-day">Petrov Day.</a></div>,
+      buttonText: "All",
+      subtitle: <div><div>Find events near you, or annouce your own.</div><ul><li>Attend an <a href="">ACX Everywhere</a> meetup.</li><li>Host a reading group for <a href="https://www.ifanyonebuildsit.com/book-clubs">If Anyone Builds It</a>.</li><li>Hold a ceremony celebrating <a href="https://www.lesswrong.com/meetups/petrov-day">Petrov Day.</a></li></ul></div>,
     },
+    // {
+    //   title: "Meetup Month",
+    //   buttonText: "All",
+    //   subtitle: <div><div>Find events near you, or annouce your own. Attend an <a href="">ACX Everywhere</a> meetup. Host a reading group for <a href="https://www.ifanyonebuildsit.com/book-clubs">If Anyone Builds It</a>. Hold a ceremony celebrating <a href="https://www.lesswrong.com/meetups/petrov-day">Petrov Day.</a></div></div>,
+    // },
     {
       minorTitle: "ACX Everywhere",
       subtitle: "Find communities near you, or start your own. Consider hosting an ACX Meetup.",
-      linkText: "ACX Meetup"
+      linkText: "ACX Meetup",
+      buttonText: "ACX"
     },
     {
       minorTitle: "If Anyone Builds It",
       subtitle: "Join book clubs and discussions around the latest ideas in effective altruism.",
       link: "https://www.ifanyonebuildsit.com/book-clubs",
-      linkText: "If Anyone Builds It"
+      linkText: "If Anyone Builds It",
+      buttonText: "Book"
     },
     {
       minorTitle: "Petrov Day",
       subtitle: "Participate in ceremonies that honor the importance of nuclear safety and rationality.",
       link: "https://www.lesswrong.com/meetups/petrov-day",
-      linkText: "Petrov Day"
+      linkText: "Petrov Day",
+      buttonText: "Petrov"
     }
   ]
   
@@ -600,146 +631,147 @@ export default function MeetupMonthBanner() {
       onMouseEnter={handleMapMouseEnter}
       onMouseLeave={handleMapMouseLeave}
     >
-      {/* Zoom scrollbar */}
-      <div className={`${classes.zoomScrollbarContainer} ${isMapHovered ? 'visible' : ''}`}>
-        <input
-          type="range"
-          min="0.5"
-          max="10"
-          step="0.1"
-          value={viewport.zoom}
-          onChange={handleZoomChange}
-          className={classes.zoomScrollbar}
-          aria-label="Map zoom control"
-        />
-      </div>
-      
-      <div className={`${classes.textContainer} ${isTransitioning ? 'transitioning' : ''}`}>
-        <div className={classes.carouselContainer}>
-          {carouselSections.map((section, index) => {
-            const isCurrentSlide = index === currentCarouselIndex
-            const isIncomingSlide = index === nextCarouselIndex
-            
-            let style: React.CSSProperties = {}
-            let className = classes.carouselContent
-            
-            if (prepareNextSlide && isIncomingSlide) {
-              // Position the incoming slide without transition
-              const startPosition = slideDirection === 'right' ? '100%' : '-100%'
-              style = { 
-                transform: `translateX(${startPosition})`, 
-                opacity: 0,
-                transition: 'none',
-                pointerEvents: 'none' as const
-              }
-            } else if (isTransitioning) {
-              if (isCurrentSlide && !isIncomingSlide) {
-                // Current slide sliding out
+      <div className={classes.contentContainer}>
+        {/* <div className={`${classes.zoomScrollbarContainer} ${isMapHovered ? 'visible' : ''}`}>
+          <input
+            type="range"
+            min="0.5"
+            max="10"
+            step="0.1"
+            value={viewport.zoom}
+            onChange={handleZoomChange}
+            className={classes.zoomScrollbar}
+            aria-label="Map zoom control"
+          />
+        </div> */}
+        
+        <div className={`${classes.textContainer} ${isTransitioning ? 'transitioning' : ''}`}>
+          <div className={classes.carouselContainer}>
+            {carouselSections.map((section, index) => {
+              const isCurrentSlide = index === currentCarouselIndex
+              const isIncomingSlide = index === nextCarouselIndex
+              
+              let style: React.CSSProperties = {}
+              let className = classes.carouselContent
+              
+              if (prepareNextSlide && isIncomingSlide) {
+                // Position the incoming slide without transition
+                const startPosition = slideDirection === 'right' ? '100%' : '-100%'
                 style = { 
-                  transform: slideDirection === 'right' ? 'translateX(-100%)' : 'translateX(100%)', 
+                  transform: `translateX(${startPosition})`, 
                   opacity: 0,
-                  transition: 'transform 0.5s ease-in-out, opacity 0.5s ease-in-out',
-                  pointerEvents: 'auto' as const
-                }
-              } else if (isIncomingSlide) {
-                // Incoming slide sliding in from the correct direction
-                style = { 
-                  transform: 'translateX(0)', 
-                  opacity: 1,
-                  transition: 'transform 0.5s ease-in-out, opacity 0.5s ease-in-out',
-                  pointerEvents: 'auto' as const
-                }
-              } else {
-                // Other slides stay hidden
-                style = { 
-                  transform: 'translateX(100%)', 
-                  opacity: 0,
+                  transition: 'none',
                   pointerEvents: 'none' as const
                 }
-              }
-            } else {
-              if (isCurrentSlide) {
-                // Active slide when not transitioning
-                style = { 
-                  transform: 'translateX(0)', 
-                  opacity: 1,
-                  transition: 'none',
-                  pointerEvents: 'auto' as const
+              } else if (isTransitioning) {
+                if (isCurrentSlide && !isIncomingSlide) {
+                  // Current slide sliding out
+                  style = { 
+                    transform: slideDirection === 'right' ? 'translateX(-100%)' : 'translateX(100%)', 
+                    opacity: 0,
+                    transition: 'transform 0.5s ease-in-out, opacity 0.5s ease-in-out',
+                    pointerEvents: 'auto' as const
+                  }
+                } else if (isIncomingSlide) {
+                  // Incoming slide sliding in from the correct direction
+                  style = { 
+                    transform: 'translateX(0)', 
+                    opacity: 1,
+                    transition: 'transform 0.5s ease-in-out, opacity 0.5s ease-in-out',
+                    pointerEvents: 'auto' as const
+                  }
+                } else {
+                  // Other slides stay hidden
+                  style = { 
+                    transform: 'translateX(100%)', 
+                    opacity: 0,
+                    pointerEvents: 'none' as const
+                  }
                 }
               } else {
-                // Inactive slides positioned based on their relation to current
-                const isPrevious = index === (currentCarouselIndex - 1 + carouselSections.length) % carouselSections.length
-                const isNext = index === (currentCarouselIndex + 1) % carouselSections.length
-                
-                if (isPrevious) {
-                  style = { transform: 'translateX(-100%)', opacity: 0, pointerEvents: 'none' as const }
-                } else if (isNext) {
-                  style = { transform: 'translateX(100%)', opacity: 0, pointerEvents: 'none' as const }
+                if (isCurrentSlide) {
+                  // Active slide when not transitioning
+                  style = { 
+                    transform: 'translateX(0)', 
+                    opacity: 1,
+                    transition: 'none',
+                    pointerEvents: 'auto' as const
+                  }
                 } else {
-                  style = { transform: 'translateX(100%)', opacity: 0, pointerEvents: 'none' as const }
+                  // Inactive slides positioned based on their relation to current
+                  const isPrevious = index === (currentCarouselIndex - 1 + carouselSections.length) % carouselSections.length
+                  const isNext = index === (currentCarouselIndex + 1) % carouselSections.length
+                  
+                  if (isPrevious) {
+                    style = { transform: 'translateX(-100%)', opacity: 0, pointerEvents: 'none' as const }
+                  } else if (isNext) {
+                    style = { transform: 'translateX(100%)', opacity: 0, pointerEvents: 'none' as const }
+                  } else {
+                    style = { transform: 'translateX(100%)', opacity: 0, pointerEvents: 'none' as const }
+                  }
                 }
               }
-            }
-            
-            return (
+              
+              return (
+                <div
+                  key={index}
+                  id={`carousel-slide-${index}`}
+                  className={className}
+                  style={style}
+                >
+                  {section.title && <h1 className={classes.title} style={{ opacity: scrollOpacity }}>{section.title}</h1>}
+                  {section.minorTitle && <h1 className={classes.minorTitle} style={{ opacity: scrollOpacity }}>{section.minorTitle}</h1>}
+                  <p className={classes.subtitle} style={{ opacity: scrollOpacity }}>
+                    {section.subtitle}
+                  </p>
+                </div>
+              )
+            })}
+          </div>
+
+          {/* Navigation dots */}
+          <div className={classes.carouselNavigation}>
+            <button
+              className={`${classes.carouselArrow} ${classes.carouselArrowLeft}`}
+              aria-label="Previous slide"
+              onClick={handlePrevSlide}
+            >
+              ‹
+            </button>
+            {carouselSections.map((section, index) => (
               <div
                 key={index}
-                id={`carousel-slide-${index}`}
-                className={className}
-                style={style}
-              >
-                {section.title && <h1 className={classes.title} style={{ opacity: scrollOpacity }}>{section.title}</h1>}
-                {section.minorTitle && <h1 className={classes.minorTitle} style={{ opacity: scrollOpacity }}>{section.minorTitle}</h1>}
-                <p className={classes.subtitle} style={{ opacity: scrollOpacity }}>
-                  {section.subtitle}
-                </p>
-              </div>
-            )
-          })}
-        </div>
-
-        {/* Navigation dots */}
-        <div className={classes.carouselNavigation}>
-          <button
-            className={`${classes.carouselArrow} ${classes.carouselArrowLeft}`}
-            aria-label="Previous slide"
-            onClick={handlePrevSlide}
-          >
-            ‹
-          </button>
-          {carouselSections.map((_, index) => (
-            <div
-              key={index}
-              className={`${classes.carouselDot} ${index === currentCarouselIndex ? 'active' : ''}`}
-              aria-label={`Go to slide ${index + 1}`}
-              onClick={() => {
-                if (!isTransitioning && index !== currentCarouselIndex) {
-                  setNextCarouselIndex(index)
-                  setSlideDirection(index > currentCarouselIndex ? 'right' : 'left')
-                  setPrepareNextSlide(true)
-                  
-                  setTimeout(() => {
-                    setPrepareNextSlide(false)
-                    setIsTransitioning(true)
+                className={`${classes.carouselButton} ${index === currentCarouselIndex ? 'active' : ''}`}
+                aria-label={`Go to slide ${index + 1}`}
+                onClick={() => {
+                  if (!isTransitioning && index !== currentCarouselIndex) {
+                    setNextCarouselIndex(index)
+                    setSlideDirection(index > currentCarouselIndex ? 'right' : 'left')
+                    setPrepareNextSlide(true)
                     
                     setTimeout(() => {
-                      setCurrentCarouselIndex(index)
-                      setNextCarouselIndex(null)
-                      setIsTransitioning(false)
-                    }, 500)
-                  }, 50)
-                }
-              }}
-            />
-          ))}
-          <button
-            className={`${classes.carouselArrow} ${classes.carouselArrowRight}`}
-            aria-label="Next slide"
-            onClick={handleNextSlide}
-          >
-            ›
-          </button>
-          </div>
+                      setPrepareNextSlide(false)
+                      setIsTransitioning(true)
+                      
+                      setTimeout(() => {
+                        setCurrentCarouselIndex(index)
+                        setNextCarouselIndex(null)
+                        setIsTransitioning(false)
+                      }, 500)
+                    }, 50)
+                  }
+                }}
+              >{section.buttonText}</div>
+            ))}
+            <button
+              className={`${classes.carouselArrow} ${classes.carouselArrowRight}`}
+              aria-label="Next slide"
+              onClick={handleNextSlide}
+            >
+              ›
+            </button>
+            </div>
+        </div>
       </div>
 
       <WrappedReactMapGL
