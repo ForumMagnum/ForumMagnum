@@ -558,7 +558,8 @@ export const routeTrie = {
                   },
                   "lowerCase": {
                     ".rss": ".rss"
-                  }
+                  },
+                  "hasRoute": true
                 }
               },
               "hasRoute": true

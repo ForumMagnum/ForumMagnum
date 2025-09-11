@@ -12,7 +12,7 @@ import { useStyles } from '../hooks/useStyles';
 
 const SequencesPageTitleFragmentQuery = gql(`
   query SequencesPageTitle($documentId: String) {
-    sequence(input: { selector: { documentId: $documentId } }) {
+    sequence(input: { selector: { documentId: $documentId } }, allowNull: true) {
       result {
         ...SequencesPageTitleFragment
       }
@@ -30,7 +30,7 @@ export const SequencesPageTitle = ({isSubtitle, siteName}: {
   
   const { loading, data } = useQuery(SequencesPageTitleFragmentQuery, {
     variables: { documentId: _id },
-    fetchPolicy: 'cache-only',
+    fetchPolicy: 'cache-first',
   });
   const sequence = data?.sequence?.result;
   

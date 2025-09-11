@@ -3755,7 +3755,7 @@ type MultiLocalgroupOutput {
 }
 
 extend type Query {
-  localgroup(input: SingleLocalgroupInput @deprecated(reason: "Use the selector field instead"), selector: SelectorInput): SingleLocalgroupOutput
+  localgroup(input: SingleLocalgroupInput @deprecated(reason: "Use the selector field instead"), selector: SelectorInput, allowNull: Boolean): SingleLocalgroupOutput
   localgroups(input: MultiLocalgroupInput @deprecated(reason: "Use the selector field instead"), selector: LocalgroupSelector, limit: Int, offset: Int, enableTotal: Boolean): MultiLocalgroupOutput
 }
 

@@ -4,10 +4,11 @@ import { LocalgroupPageTitle } from '@/components/titles/LocalgroupPageTitle';
 import { gql } from "@/lib/generated/gql-codegen";
 import type { Metadata } from "next";
 import { getClient } from "@/lib/apollo/nextApolloClient";
-import { getDefaultMetadata, getMetadataDescriptionFields, getMetadataImagesFields, getPageTitleFields } from "@/server/pageMetadata/sharedMetadata";
+import { getDefaultMetadata, getMetadataDescriptionFields, getMetadataImagesFields, getPageTitleFields, handleMetadataError } from "@/server/pageMetadata/sharedMetadata";
 import merge from "lodash/merge";
 import { cloudinaryCloudNameSetting, taglineSetting } from "@/lib/instanceSettings";
 import RouteRoot from "@/components/next/RouteRoot";
+import { notFound } from "next/navigation";
 
 const LocalgroupMetadataQuery = gql(`
   query LocalgroupMetadata($groupId: String) {
@@ -29,29 +30,33 @@ export async function generateMetadata({ params }: { params: Promise<{ groupId: 
 
   const client = getClient();
 
-  const { data } = await client.query({
-    query: LocalgroupMetadataQuery,
-    variables: {
-      groupId: paramValues.groupId,
-    },
-  });
-
-  const localgroup = data?.localgroup?.result;
-
-  if (!localgroup) return {};
-
-  const description = localgroup.contents?.plaintextDescription ?? taglineSetting.get();
-  const descriptionFields = getMetadataDescriptionFields(description);
-
-  const titleFields = getPageTitleFields(localgroup.name);
-
-  const imageUrl = localgroup.bannerImageId
-    ? `https://res.cloudinary.com/${cloudinaryCloudNameSetting.get()}/image/upload/q_auto,f_auto/${localgroup.bannerImageId}.jpg`
-    : undefined;
-
-  const imagesFields = imageUrl ? getMetadataImagesFields(imageUrl) : {};
-
-  return merge({}, defaultMetadata, titleFields, descriptionFields, imagesFields);
+  try {
+    const { data } = await client.query({
+      query: LocalgroupMetadataQuery,
+      variables: {
+        groupId: paramValues.groupId,
+      },
+    });
+  
+    const localgroup = data?.localgroup?.result;
+  
+    if (!localgroup) return notFound();
+  
+    const description = localgroup.contents?.plaintextDescription ?? taglineSetting.get();
+    const descriptionFields = getMetadataDescriptionFields(description);
+  
+    const titleFields = getPageTitleFields(localgroup.name);
+  
+    const imageUrl = localgroup.bannerImageId
+      ? `https://res.cloudinary.com/${cloudinaryCloudNameSetting.get()}/image/upload/q_auto,f_auto/${localgroup.bannerImageId}.jpg`
+      : undefined;
+  
+    const imagesFields = imageUrl ? getMetadataImagesFields(imageUrl) : {};
+  
+    return merge({}, defaultMetadata, titleFields, descriptionFields, imagesFields);  
+  } catch (error) {
+    return handleMetadataError('Error generating local group page metadata', error);
+  }
 }
 
 export default function Page() {

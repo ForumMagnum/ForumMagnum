@@ -33,7 +33,7 @@ import { StatusCodeSetter } from '../next/StatusCodeSetter';
 
 const SequencesPageFragmentQuery = gql(`
   query SequencesPage($documentId: String) {
-    sequence(input: { selector: { documentId: $documentId } }) {
+    sequence(input: { selector: { documentId: $documentId } }, allowNull: true) {
       result {
         ...SequencesPageFragment
       }
@@ -43,7 +43,7 @@ const SequencesPageFragmentQuery = gql(`
 
 const SequencesEditQuery = gql(`
   query SequencesEdit($documentId: String) {
-    sequence(input: { selector: { documentId: $documentId } }) {
+    sequence(input: { selector: { documentId: $documentId } }, allowNull: true) {
       result {
         ...SequencesEdit
       }
