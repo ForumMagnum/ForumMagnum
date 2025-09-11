@@ -1,7 +1,8 @@
-import { matchPath } from '@/lib/vendor/react-router/matchPath';
+import { applyParamsToPathname, compilePath, matchPath } from '@/lib/vendor/react-router/matchPath';
 import type { Request, Response } from 'express';
 import { captureException } from '@/lib/sentryWrapper';
 import { isClient } from '../executionEnvironment';
+import { redirects } from "@/lib/redirects";
 import qs from 'qs';
 
 export type PingbackDocument = {
@@ -173,7 +174,8 @@ export function parseRoute<Patterns extends string[]>({ location, onError = null
   onError?: null | ((err: string) => void);
   routePatterns: Patterns;
 }) {
-  const routePattern = getPatternMatchingPathname(location.pathname, routePatterns);
+  const pathnameWithRedirects = applyRedirectsTo(location.pathname);
+  const routePattern = getPatternMatchingPathname(pathnameWithRedirects, routePatterns);
 
   if (routePattern === undefined) {
     if (onError) {
@@ -195,18 +197,33 @@ export function parseRoute<Patterns extends string[]>({ location, onError = null
     }
   }
 
-  const params = routePattern !== undefined ? matchPath<Record<string, string>>(location.pathname, { path: routePattern, exact: true, strict: false })!.params : {};
+  const params = routePattern !== undefined
+    ? matchPath<Record<string, string>>(pathnameWithRedirects, { path: routePattern, exact: true, strict: false })!.params
+    : {};
   const result = {
     routePattern,
     location,
     params,
-    pathname: location.pathname,
-    url: location.pathname + location.search + location.hash,
+    pathname: pathnameWithRedirects,
+    url: pathnameWithRedirects + location.search + location.hash,
     hash: location.hash,
     query: parseQuery(location),
   };
 
   return result;
+}
+
+function applyRedirectsTo(pathname: string): string {
+  for (const redirect of redirects) {
+    const { source, destination } = redirect;
+    const pathOptions = { path: source, exact: true, strict: false, sensitive: false } as const;
+    const match = matchPath(pathname, pathOptions);
+    if (match) {
+      return applyParamsToPathname(destination, match.params);
+    }
+  }
+  
+  return pathname;
 }
 
 function getPatternMatchingPathname<Patterns extends string[]>(pathname: string, routePatterns: Patterns): Patterns[number] | undefined {

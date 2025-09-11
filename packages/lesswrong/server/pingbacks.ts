@@ -19,6 +19,9 @@ interface PingbackDocument {
 
 type GetPingbackFunction = (parsedUrl: RouterLocation, context: ResolverContext) => Promise<PingbackDocument|null> | PingbackDocument|null
 
+// ea-forum-look-here
+const legacyRouteAcronym = 'lw';
+
 const routePingbackMapping = {
   '/users/:slug': getUserPingbackBySlug,
   '/collaborateOnPost': (parsedUrl) => getPostPingbackById(parsedUrl, parsedUrl.query.postId),
@@ -39,7 +42,7 @@ const routePingbackMapping = {
   '/g/:groupId/p/:_id': (parsedUrl) => getPostPingbackById(parsedUrl, parsedUrl.params._id),
   '/posts/:_id/:slug?': (parsedUrl) => getPostPingbackById(parsedUrl, parsedUrl.params._id),
   '/posts/slug/:slug?': (parsedUrl, context) => getPostPingbackBySlug(parsedUrl, parsedUrl.params.slug, context),
-  '/:section(r)?/:subreddit(all|discussion|lesswrong)?/lw/:id/:slug': (parsedUrl, context) => getPostPingbackByLegacyId(parsedUrl, parsedUrl.params.id, context),
+  '/${legacyRotueAcronym}/:id/:slug?': (parsedUrl, context) => getPostPingbackByLegacyId(parsedUrl, parsedUrl.params.id, context),
 } satisfies Record<string, GetPingbackFunction>;
 
 type PingbacksIndex = Partial<Record<CollectionNameString, string[]>>

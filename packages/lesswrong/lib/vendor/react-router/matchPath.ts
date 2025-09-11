@@ -24,7 +24,7 @@
 // Vendored because something about importing from `react-router` on the server was borking pingbacks,
 // and we were only importing it for `matchPath`.
 
-import pathToRegexp from "path-to-regexp";
+import PathToRegexp, { compile, pathToRegexp  } from "path-to-regexp";
 // eslint-disable-next-line no-restricted-imports
 import type { match, RouteProps } from "react-router";
 
@@ -32,16 +32,16 @@ const cache: Record<string, AnyBecauseHard> = {};
 const cacheLimit = 10000;
 let cacheCount = 0;
 
-function compilePath(path: string, options: { end: boolean, strict: boolean, sensitive: boolean }): {
-  regexp: pathToRegexp.PathRegExp;
-  keys: pathToRegexp.Key[];
+export function compilePath(path: string, options: { exact: boolean, strict: boolean, sensitive: boolean }): {
+  regexp: RegExp;
+  keys: PathToRegexp.Key[];
 } {
-  const cacheKey = `${options.end}${options.strict}${options.sensitive}`;
+  const cacheKey = `${options.exact}${options.strict}${options.sensitive}`;
   const pathCache = cache[cacheKey] || (cache[cacheKey] = {});
 
   if (pathCache[path]) return pathCache[path];
 
-  const keys: pathToRegexp.Key[] = [];
+  const keys: PathToRegexp.Key[] = [];
   const regexp = pathToRegexp(path, keys, options);
   const result = { regexp, keys };
 
@@ -65,23 +65,22 @@ export function matchPath<Params extends { [K in keyof Params]?: string; }>(path
 
   const paths = ([] as (string | undefined)[]).concat(path);
 
-  return paths.reduce((matched, path) => {
-    if (!path && path !== "") return null;
-    if (matched) return matched;
+  for (const path of paths) {
+    if (!path && path !== "") continue;
 
     const { regexp, keys } = compilePath(path, {
-      end: exact,
+      exact,
       strict,
       sensitive
     });
     const match = regexp.exec(pathname);
 
-    if (!match) return null;
+    if (!match) continue;
 
     const [url, ...values] = match;
     const isExact = pathname === url;
 
-    if (exact && !isExact) return null;
+    if (exact && !isExact) continue;
 
     return {
       path, // the path used to match
@@ -92,7 +91,14 @@ export function matchPath<Params extends { [K in keyof Params]?: string; }>(path
         return memo;
       }, {} as Params)
     };
-  }, null);
+  }
+  
+  return null;
 }
+
+export function applyParamsToPathname(pathnamePattern: string, params: {}): string {
+  return compile(pathnamePattern, {validate: false})(params);
+}
+
 
 export default matchPath;

@@ -1,6 +1,10 @@
 import { parseRoute, parsePath } from '@/lib/vulcan-lib/routes';
-import { PostCommentLinkPreviewGreaterWrong, PostLinkPreview, PostLinkPreviewSequencePost, PostLinkPreviewSlug, SequencePreview } from './PostLinkPreview';
+import { CommentLinkPreviewLegacy, PostCommentLinkPreviewGreaterWrong, PostLinkPreview, PostLinkPreviewLegacy, PostLinkPreviewSequencePost, PostLinkPreviewSlug, SequencePreview } from './PostLinkPreview';
 import { TagHoverPreview } from '../tagging/TagHoverPreview';
+
+// ea-forum-look-here
+// This matches directory structure in app/lw which will need to be duplicated as app/ea
+const legacyRouteAcronym = 'lw';
 
 export const routePreviewComponentMapping = {
   '/sequences/:_id': SequencePreview,
@@ -17,8 +21,10 @@ export const routePreviewComponentMapping = {
   '/posts/:_id/:slug?': PostLinkPreview,
   '/posts/slug/:slug?': PostLinkPreviewSlug,
   '/posts/:_id/:slug/comment/:commentId?': PostCommentLinkPreviewGreaterWrong,
-};
-
+  [`/${legacyRouteAcronym}/:id/:slug?`]: PostLinkPreviewLegacy,
+    // TODO: Pingback with getPostPingbackByLegacyId
+  [`/${legacyRouteAcronym}/:id/:slug/:commentId`]: CommentLinkPreviewLegacy,
+}
 
 export const parseRouteWithErrors = <const T extends string[] | [] = []>(onsiteUrl: string, extraRoutePatterns?: T) => {
   return parseRoute<((keyof typeof routePreviewComponentMapping) | T[number])[]>({

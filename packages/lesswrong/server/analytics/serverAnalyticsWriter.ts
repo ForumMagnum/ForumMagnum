@@ -1,9 +1,7 @@
 import { isDevelopment, isE2E } from '@/lib/executionEnvironment';
 import { randomId } from '@/lib/random';
-import { environmentDescriptionSetting, performanceMetricLoggingBatchSize } from '@/lib/instanceSettings';
-import { addStaticRoute } from '@/server/vulcan-lib/staticRoutes';
+import { environmentDescriptionSetting } from '@/lib/instanceSettings';
 import { getPgPromiseLib, getAnalyticsConnection } from './postgresConnection'
-import chunk from 'lodash/chunk';
 import gql from 'graphql-tag';
 import type { EventProps } from '@/lib/analyticsEvents';
 import { getShowAnalyticsDebug } from '@/lib/analyticsDebugging';
@@ -27,7 +25,7 @@ export const analyticsEventGraphQLMutations = {
   },
 }
 
-addStaticRoute('/analyticsEvent', ({query}, req, res, next) => {
+/*addStaticRoute('/analyticsEvent', ({query}, req, res, next) => {
   if (req.method !== "POST") {
     res.statusCode = 405; // Method not allowed
     res.end("analyticsEvent endpoint should receive POST");
@@ -47,7 +45,7 @@ addStaticRoute('/analyticsEvent', ({query}, req, res, next) => {
     "Content-Type": "text/plain;charset=UTF-8"
   });
   res.end("ok");
-});
+});*/
 
 export async function handleAnalyticsEventWriteRequest(events: AnyBecauseTodo, clientTime: AnyBecauseTodo) {
   // Adjust timestamps to account for server-client clock skew

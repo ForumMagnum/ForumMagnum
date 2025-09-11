@@ -14,6 +14,7 @@ import moment from 'moment';
 import { isServer } from '@/lib/executionEnvironment';
 import { getUrlClass } from '@/server/utils/getUrlClass';
 import { captureException } from '@/lib/sentryWrapper';
+import matchPath from '@/lib/vendor/react-router/matchPath';
 
 export const postCategories = new TupleSet(['post', 'linkpost', 'question'] as const);
 export type PostCategory = UnionOf<typeof postCategories>;
@@ -469,10 +470,10 @@ export const googleDocIdToUrl = (docId: string): string => {
 };
 
 export const postRouteWillDefinitelyReturn200 = async (req: Request, res: Response, parsedRoute: RouterLocation, context: ResolverContext) => {
-  const matchPostPath = pathToRegexp('/posts/:_id/:slug?');
-  const [_, postId] = matchPostPath.exec(req.path) ?? [];
+  const match = matchPath<any>(req.path, '/posts/:_id/:slug?');
 
-  if (postId) {
+  if (match) {
+    const postId = match.params.postId;
     if (req.query.commentId && commentPermalinkStyleSetting.get() === 'in-context') {
       // Will redirect from ?commentId=... to #...
       return false;
