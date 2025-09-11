@@ -43,50 +43,69 @@ export async function middleware(request: NextRequest) {
   
   const clientIdCookie = request.cookies.get(CLIENT_ID_COOKIE);
   const addedClientId = clientIdCookie ? null : randomId();
-
+  
   const isForwarded = request.headers.get(ForwardingHeaderName);
   if (isForwarded) {
     return NextResponse.next();
   }
   
-  const forwardedHeaders = new Headers(request.headers);
-  forwardedHeaders.set(ForwardingHeaderName, "true");
-  
-  const forwardedFetchResponse = await fetch(
-    request.nextUrl,
-    {
-      headers: addedClientId ? addClientIdToRequestHeaders(forwardedHeaders, addedClientId) : forwardedHeaders,
-      method: request.method,
-      redirect: 'manual',
-      referrer: request.referrer,
-      mode: request.mode,
-      body: request.body,
+  if (shouldProxyForStatusCode(request)) {
+    const forwardedHeaders = new Headers(request.headers);
+    forwardedHeaders.set(ForwardingHeaderName, "true");
+    
+    const forwardedFetchResponse = await fetch(
+      request.nextUrl,
+      {
+        headers: addedClientId ? addClientIdToRequestHeaders(forwardedHeaders, addedClientId) : forwardedHeaders,
+        method: request.method,
+        redirect: 'manual',
+        referrer: request.referrer,
+        mode: request.mode,
+        body: request.body,
+      }
+    );
+    
+    const originalBody = forwardedFetchResponse.body;
+    if (!originalBody) {
+      return forwardedFetchResponse;
     }
-  );
+    const [statusCodeFinderStream, responseStream] = originalBody.tee();
+    const statusFromStream = await findStatusCodeInStream(statusCodeFinderStream);
   
-  const originalBody = forwardedFetchResponse.body;
-  if (!originalBody) {
-    return forwardedFetchResponse;
-  }
-  const [statusCodeFinderStream, responseStream] = originalBody.tee();
-  const statusFromStream = await findStatusCodeInStream(statusCodeFinderStream);
-
-  if (statusFromStream?.redirectTarget) {
-    const {status, redirectTarget} = statusFromStream;
-    if (urlIsAbsolute(redirectTarget)) {
-      return NextResponse.redirect(redirectTarget, status);
+    if (statusFromStream?.redirectTarget) {
+      const {status, redirectTarget} = statusFromStream;
+      if (urlIsAbsolute(redirectTarget)) {
+        return NextResponse.redirect(redirectTarget, status);
+      } else {
+        return NextResponse.redirect(new URL(redirectTarget, request.url), status);
+      }
     } else {
-      return NextResponse.redirect(new URL(redirectTarget, request.url), status);
+      const status = statusFromStream ? statusFromStream.status : forwardedFetchResponse.status;
+  
+      const nextResponse = new NextResponse(responseStream, { headers: forwardedFetchResponse.headers, status });
+      if (addedClientId) {
+        return addClientIdToResponseHeaders(nextResponse, addedClientId);
+      }
+      return nextResponse;
     }
   } else {
-    const status = statusFromStream ? statusFromStream.status : forwardedFetchResponse.status;
-
-    const nextResponse = new NextResponse(responseStream, { headers: forwardedFetchResponse.headers, status });
     if (addedClientId) {
-      return addClientIdToResponseHeaders(nextResponse, addedClientId);
+      addClientIdToRequest(request, addedClientId);
+    }
+    const nextResponse = NextResponse.next();
+    if (addedClientId) {
+      addClientIdToResponseHeaders(nextResponse, addedClientId);
     }
     return nextResponse;
   }
+}
+
+function shouldProxyForStatusCode(req: NextRequest) {
+  if (req.nextUrl.pathname === '/') {
+    return false;
+  }
+  
+  return true;
 }
 
 function addClientIdToRequestHeaders(headers: Headers, clientId: string): Headers {
@@ -102,6 +121,11 @@ function addClientIdToRequestHeaders(headers: Headers, clientId: string): Header
   const newHeaders = new Headers(headers);
   newHeaders.set("Cookie", newCookies);
   return newHeaders;
+}
+
+function addClientIdToRequest(request: NextRequest, clientId: string) {
+  request.cookies.set({ name: CLIENT_ID_COOKIE, value: clientId });
+  request.cookies.set({ name: CLIENT_ID_NEW_COOKIE, value: "true" });
 }
 
 function addClientIdToResponseHeaders(nextResponse: NextResponse, clientId: string): NextResponse {
