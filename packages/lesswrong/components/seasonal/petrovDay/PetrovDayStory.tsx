@@ -137,6 +137,7 @@ const getUserCoordinatesFromIP = async (): Promise<{lat: number, lng: number} | 
     }
     return null;
   } catch (error) {
+    // eslint-disable-next-line no-console
     console.error('Error getting IP coordinates:', error);
     return null;
   }
@@ -194,7 +195,7 @@ export default function PetrovDayStory() {
       setIsLoading(false);
     };
 
-    initializeMap();
+    void initializeMap();
   }, []);
 
   if (isLoading) {

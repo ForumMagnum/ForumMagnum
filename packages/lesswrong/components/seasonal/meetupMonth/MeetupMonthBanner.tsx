@@ -17,7 +17,8 @@ import { SuspenseWrapper } from '@/components/common/SuspenseWrapper';
 import { gql } from '@/lib/generated/gql-codegen';
 import { LocalEvent } from '../HomepageMap/acxEvents';
 
-const breakpoint = 1425
+const hideBreakpoint = 1425
+const smallBreakpoint = 1525
 
 const carouselSections = [
   {
@@ -65,7 +66,7 @@ const styles = defineStyles("MeetupMonthBanner", (theme: ThemeType) => ({
     right: 0,
     width: '50vw',
     height: '100vh',
-    [theme.breakpoints.down(breakpoint)]: {
+    [theme.breakpoints.down(hideBreakpoint)]: {
       display: 'none',
     },
   },
@@ -93,7 +94,7 @@ const styles = defineStyles("MeetupMonthBanner", (theme: ThemeType) => ({
   },
   textContainer: {
     width: 350,
-    [theme.breakpoints.up(1500)]: {
+    [theme.breakpoints.up(smallBreakpoint)]: {
       width: 370,
     },
     zIndex: 4,
@@ -113,7 +114,7 @@ const styles = defineStyles("MeetupMonthBanner", (theme: ThemeType) => ({
   subtitle: {
     fontSize: 16,
     height: 90,
-    [theme.breakpoints.up(1500)]: {
+    [theme.breakpoints.up(smallBreakpoint)]: {
       fontSize: 18,
       height: 120,
     },
@@ -203,7 +204,10 @@ const styles = defineStyles("MeetupMonthBanner", (theme: ThemeType) => ({
     right: 0,
     width: '100%',
     height: '100%',
-    background: `radial-gradient(ellipse at right, transparent 50%, ${theme.palette.background.default} 100%)`,
+    background: `radial-gradient(ellipse at right, transparent 40%, ${theme.palette.background.default} 50%)`,
+    [theme.breakpoints.up(1620)]: {
+      background: `radial-gradient(ellipse at right, transparent 60%, ${theme.palette.background.default} 100%)`,
+    },
     zIndex: 1,
     pointerEvents: 'none',
     transition: 'opacity 0.3s ease-out',
@@ -281,7 +285,10 @@ const styles = defineStyles("MeetupMonthBanner", (theme: ThemeType) => ({
     },
   },
   contentContainer: {
-    width: 'calc(100% - 300px)',
+    width: 'calc(100% - 400px)',
+    [theme.breakpoints.up(smallBreakpoint)]: {
+      width: 'calc(100% - 300px)',
+    },
     paddingTop: 120,
     paddingBottom: 80,
     position: 'absolute',
