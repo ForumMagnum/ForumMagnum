@@ -18,7 +18,7 @@ export async function GET(req: NextRequest) {
 
   const lastNotificationsCheck = currentUser.lastNotificationsCheck;
 
-  const unreadNotifications = await Notifications.find({
+  const unreadNotificationCount = await Notifications.find({
     ...selector,
     ...(lastNotificationsCheck && {
       createdAt: {$gt: lastNotificationsCheck},
@@ -27,7 +27,7 @@ export async function GET(req: NextRequest) {
       type: {$ne: "newMessage"},
       viewed: {$ne: true},
     }),
-  }).fetch();
+  }).count();
 
-  return NextResponse.json({ unreadNotificationCount: unreadNotifications.length });
+  return NextResponse.json({ unreadNotificationCount });
 }

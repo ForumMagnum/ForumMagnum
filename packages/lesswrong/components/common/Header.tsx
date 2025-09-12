@@ -32,9 +32,7 @@ import { SuspenseWrapper } from './SuspenseWrapper';
 import { isHomeRoute } from '@/lib/routeChecks';
 import { useRouteMetadata } from '../ClientRouteMetadataContext';
 import { forumSelect } from '@/lib/forumTypeUtils';
-
-import dynamic from 'next/dynamic';
-const NotificationsMenu = dynamic(() => import("../notifications/NotificationsMenu"), { ssr: false });
+import NotificationsMenu from "../notifications/NotificationsMenu";
 
 /** Height of top header. On Book UI sites, this is for desktop only */
 export const getHeaderHeight = () => isBookUI() ? 64 : 66;

@@ -15,10 +15,11 @@ import { ColoredNumber } from './ColoredNumber';
 import { styles } from './styles';
 import { useStyles } from '../../hooks/useStyles';
 import { useCurrentUser } from '@/components/common/withUser';
-
-import dynamic from 'next/dynamic';
-const KarmaChangesDisplay = dynamic(() => import('./KarmaChangesDisplay'), { ssr: false });
-const LWPopper = dynamic(() => import('../../common/LWPopper'), { ssr: false });
+import KarmaChangesDisplay from './KarmaChangesDisplay';
+import LWPopper from '../../common/LWPopper';
+import DeferRender from '@/components/common/DeferRender';
+import { useLocation } from '@/lib/routeUtil';
+import { canonicalizePath } from '@/lib/generated/routeManifest';
 
 const UserKarmaChangesQuery = gql(`
   query KarmaChangeNotifier($documentId: String) {
@@ -144,13 +145,26 @@ const KarmaChangeNotifierPlaceholder = ({className}: {
 export const KarmaChangeNotifier = ({className}: {
   className?: string,
 }) => {
-  return <SuspenseWrapper
-    name="KarmaChangeNotifier"
-    fallback={<KarmaChangeNotifierPlaceholder className={className}
-  />}>
-    <ErrorBoundary>
-      <KarmaChangeNotifierLoaded className={className}/>
-    </ErrorBoundary>
-  </SuspenseWrapper>
+  // We no-ssr the KarmaChangeNotifier in the case where we aren't hitting a route we recognize
+  // to prevent SSRs caused by 404s from executing the karma change queries if the client doesn't
+  // execute javascript (i.e. is a bot, or if we do something that causes clients to hit api routes
+  // that no longer exist, such as when we're doing cutovers to/from our NextJS branch with some
+  // notification-related routes)
+  const { pathname } = useLocation();
+  const canonicalPathname = canonicalizePath(pathname);
+  const shouldSSR = !!canonicalPathname;
+
+  return (
+    <DeferRender ssr={shouldSSR} fallback={<KarmaChangeNotifierPlaceholder className={className}/>}>
+    <SuspenseWrapper
+      name="KarmaChangeNotifier"
+      fallback={<KarmaChangeNotifierPlaceholder className={className}/>}
+    >
+      <ErrorBoundary>
+        <KarmaChangeNotifierLoaded className={className}/>
+      </ErrorBoundary>
+    </SuspenseWrapper>
+    </DeferRender>
+  )
 }
 

@@ -45,6 +45,9 @@ class ApolloServerLogging implements ApolloServerPlugin<ResolverContext> {
   }
 }
 
+// TODO: decide whether we want to always filter all of these out on /graphql requests
+const NOISY_ERROR_MESSAGES = new Set(['app.operation_not_allowed', 'app.missing_document', 'app.document_not_found']);
+
 const server = new ApolloServer<ResolverContext>({
   schema: getExecutableSchema(),
   introspection: true,
@@ -55,8 +58,11 @@ const server = new ApolloServer<ResolverContext>({
   formatError: (formattedError, error): GraphQLFormattedError => {
     captureException(error);
     const {message, ...properties} = formattedError;
-    // eslint-disable-next-line no-console
-    console.error(`[GraphQLError: ${message}]`, inspect(properties, {depth: null}), error);
+    if (!NOISY_ERROR_MESSAGES.has(message)) {
+      // eslint-disable-next-line no-console
+      console.error(`[GraphQLError: ${message}]`, inspect(properties, {depth: null}), error);
+    }
+
     // TODO: Replace sketchy apollo-errors package with something first-party
     // and that doesn't require a cast here
     return formatError(formattedError) as any;
