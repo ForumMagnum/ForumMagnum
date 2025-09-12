@@ -5,7 +5,7 @@ import '@/client/publicSettings';
 
 import React, { use, useEffect, useMemo, useRef, useState, useTransition } from 'react';
 import CookiesProvider from "@/lib/vendor/react-cookie/CookiesProvider";
-import { ABTestGroupsUsedContext, RelevantTestGroupAllocation } from '@/lib/abTestImpl';
+import { ABTestGroupsUsedContext, RelevantTestGroupAllocation } from '@/components/common/sharedContexts';
 import type { AbstractThemeOptions } from '@/themes/themeNames';
 import { LayoutOptionsContextProvider } from '@/components/hooks/useLayoutOptions';
 import { SSRMetadata, EnvironmentOverride, EnvironmentOverrideContext } from '@/lib/utils/timeUtil';

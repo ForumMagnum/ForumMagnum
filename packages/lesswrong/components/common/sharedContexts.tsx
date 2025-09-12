@@ -32,3 +32,10 @@ export const AutosaveEditorStateContext = React.createContext<AutosaveEditorStat
 });
 export const DisableNoKibitzContext = createContext<DisableNoKibitzContextType>({ disableNoKibitz: false, setDisableNoKibitz: () => { } });
 
+// RelevantTestGroupAllocation: A dictionary from the names of A/B tests to
+// which group a user is in, which is pruned to only the tests which affected
+// a particular page render.
+export type RelevantTestGroupAllocation = Record<string,string>
+
+// Used for tracking which A/B test groups were relevant to the page rendering
+export const ABTestGroupsUsedContext = React.createContext<RelevantTestGroupAllocation>({});

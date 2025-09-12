@@ -1,4 +1,5 @@
-import type { CompleteTestGroupAllocation, RelevantTestGroupAllocation } from "../../lib/abTestImpl";
+import type { CompleteTestGroupAllocation } from "../../lib/abTestImpl";
+import type { RelevantTestGroupAllocation } from "@/components/common/sharedContexts";
 import PageCache from "../../server/collections/pagecache/collection";
 import { randomId } from "../../lib/random";
 import { getServerBundleHash } from "../utils/bundleUtils";

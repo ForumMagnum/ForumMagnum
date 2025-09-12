@@ -10,7 +10,8 @@ import { computeContextFromUser, configureSentryScope } from '@/server/vulcan-li
 import { getUserFromReq } from '../vulcan-lib/apollo-server/getUserFromReq';
 import { createClient } from '@/server/vulcan-lib/apollo-ssr/apolloClient';
 import { cachedPageRender, recordCacheBypass} from './pageCache';
-import { getAllUserABTestGroups, CompleteTestGroupAllocation, RelevantTestGroupAllocation, classesForAbTestGroups } from '@/lib/abTestImpl';
+import { getAllUserABTestGroups, CompleteTestGroupAllocation, classesForAbTestGroups } from '@/lib/abTestImpl';
+import type { RelevantTestGroupAllocation } from '@/components/common/sharedContexts';
 import Head from './Head';
 import { embedAsGlobalVar } from './renderUtil';
 import { healthCheckUserAgentSetting, slowSSRWarnThresholdSetting } from '../databaseSettings';

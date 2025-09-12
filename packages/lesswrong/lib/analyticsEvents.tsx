@@ -9,7 +9,7 @@ import { flushIntervalSetting } from './instanceSettings';
 import throttle from 'lodash/throttle';
 import moment from 'moment';
 import { FeedItemSourceType, FeedItemType, FeedType, UltraFeedAnalyticsContext } from '@/components/ultraFeed/ultraFeedTypes';
-import { RelevantTestGroupAllocation } from './abTestImpl';
+import type { RelevantTestGroupAllocation } from '@/components/common/sharedContexts';
 import { getShowAnalyticsDebug } from './analyticsDebugging';
 import { serverCaptureEvent } from '@/server/analytics/serverAnalyticsWriter';
 

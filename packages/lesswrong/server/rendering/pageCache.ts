@@ -1,6 +1,7 @@
 import LRU from 'lru-cache';
 import type { RenderResult, RenderSuccessResult } from './renderPage';
-import { CompleteTestGroupAllocation, RelevantTestGroupAllocation, getABTestsMetadata, getAllUserABTestGroups } from '@/lib/abTestImpl';
+import { CompleteTestGroupAllocation, getABTestsMetadata, getAllUserABTestGroups } from '@/lib/abTestImpl';
+import type { RelevantTestGroupAllocation } from '@/components/common/sharedContexts';
 import type { Request, Response } from 'express';
 import { getCookieFromReq, getPathFromReq } from '@/server/utils/httpUtil';
 import { isValidSerializedThemeOptions, getDefaultThemeOptions } from '@/themes/themeNames';

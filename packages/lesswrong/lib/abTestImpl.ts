@@ -1,6 +1,3 @@
-'use client';
-
-import React from 'react';
 import rng from './seedrandom';
 import { randomId } from './random';
 import keyBy from 'lodash/keyBy';
@@ -71,14 +68,6 @@ type ABKeyInfo = {
 // which group a user is in, which is complete (includes all of the A/B tests
 // that are defined).
 export type CompleteTestGroupAllocation = Record<string,string>
-
-// RelevantTestGroupAllocation: A dictionary from the names of A/B tests to
-// which group a user is in, which is pruned to only the tests which affected
-// a particular page render.
-export type RelevantTestGroupAllocation = Record<string,string>
-
-// Used for tracking which A/B test groups were relevant to the page rendering
-export const ABTestGroupsUsedContext = React.createContext<RelevantTestGroupAllocation>({});
 
 export function getABTestsMetadata(): Record<string,ABTest> {
   return keyBy(allABTests, ab=>ab.name);

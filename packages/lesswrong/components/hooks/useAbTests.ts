@@ -1,5 +1,6 @@
 import type { ABTest } from '@/lib/abTestClass';
-import { ABTestGroupsUsedContext, getUserABTestGroup, CompleteTestGroupAllocation, getAllUserABTestGroups } from '@/lib/abTestImpl';
+import { getUserABTestGroup, CompleteTestGroupAllocation, getAllUserABTestGroups } from '@/lib/abTestImpl';
+import { ABTestGroupsUsedContext } from '../common/sharedContexts';
 import { useClientId } from './useClientId';
 import { useContext } from 'react';
 import { useCurrentUser } from '../common/withUser';
