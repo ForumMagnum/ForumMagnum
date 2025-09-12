@@ -1,5 +1,1 @@
-<?xml version="1.0" encoding="utf-8"?>
-<svg viewBox="0 0 500 500" xmlns="http://www.w3.org/2000/svg">
-  <text style="fill: rgb(51, 51, 51); font-family: Arial, sans-serif; font-size: 188.1px; font-weight: 500; text-transform: capitalize; white-space: pre;" x="285.514" y="298.31" transform="matrix(0.645257, 0, 0, 0.623094, 117.358612, 80.342728)">%</text>
-  <text style="fill: rgb(51, 51, 51); font-family: Arial, sans-serif; font-size: 188.1px; font-weight: 500; text-transform: capitalize; white-space: pre;" x="84.289" y="297.388">90</text>
-</svg>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 500 500"><text x="285.514" y="298.31" style="fill:#333;font-family:Arial,sans-serif;font-size:188.1px;font-weight:500;text-transform:capitalize;white-space:pre" transform="matrix(.64526 0 0 .6231 117.359 80.343)">%</text><text x="84.289" y="297.388" style="fill:#333;font-family:Arial,sans-serif;font-size:188.1px;font-weight:500;text-transform:capitalize;white-space:pre">90</text></svg>
