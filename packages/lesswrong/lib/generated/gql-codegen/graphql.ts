@@ -7540,6 +7540,7 @@ export type Query = {
   SubforumTopFeed: SubforumTopFeedQueryResults;
   SubscribedFeed: SubscribedFeedQueryResults;
   SuggestedFeedSubscriptionUsers: Maybe<SuggestedFeedSubscriptionUsersResult>;
+  SuggestedTopActiveUsers: Maybe<SuggestedTopActiveUsersResult>;
   TagHistoryFeed: TagHistoryFeedQueryResults;
   TagPreview: Maybe<TagPreviewWithSummaries>;
   TagUpdatesByUser: Maybe<Array<TagUpdates>>;
@@ -7958,6 +7959,11 @@ export type QuerySubscribedFeedArgs = {
 
 
 export type QuerySuggestedFeedSubscriptionUsersArgs = {
+  limit?: InputMaybe<Scalars['Int']['input']>;
+};
+
+
+export type QuerySuggestedTopActiveUsersArgs = {
   limit?: InputMaybe<Scalars['Int']['input']>;
 };
 
@@ -10520,6 +10526,11 @@ export type SubscriptionsSubscriptionsOfTypeInput = {
 
 export type SuggestedFeedSubscriptionUsersResult = {
   __typename?: 'SuggestedFeedSubscriptionUsersResult';
+  results: Array<User>;
+};
+
+export type SuggestedTopActiveUsersResult = {
+  __typename?: 'SuggestedTopActiveUsersResult';
   results: Array<User>;
 };
 
@@ -17500,6 +17511,16 @@ export type SuggestedFeedSubscriptionUsersQuery = { __typename?: 'Query', Sugges
       & UsersMinimumInfo
     )> } | null };
 
+export type SuggestedTopActiveUsersQueryVariables = Exact<{
+  limit?: InputMaybe<Scalars['Int']['input']>;
+}>;
+
+
+export type SuggestedTopActiveUsersQuery = { __typename?: 'Query', SuggestedTopActiveUsers: { __typename?: 'SuggestedTopActiveUsersResult', results: Array<(
+      { __typename?: 'User' }
+      & UsersMinimumInfo
+    )> } | null };
+
 export type updateCommentAFSuggestCommentsItemMutationVariables = Exact<{
   selector: SelectorInput;
   data: UpdateCommentDataInput;
@@ -22492,6 +22513,7 @@ export const SuggestAlignmentCommentDoc = {"kind":"Document","definitions":[Sugg
 export const SuggestAlignmentPostDoc = {"kind":"Document","definitions":[SuggestAlignmentPostFragmentDef,PostsListFragmentDef,PostsListBaseFragmentDef,PostsBaseFragmentDef,PostsMinimumInfoFragmentDef,PostsAuthorsFragmentDef,UsersMinimumInfoFragmentDef,CommentsListFragmentDef,TagPreviewFragmentFragmentDef,TagBasicInfoFragmentDef]} as unknown as DocumentNode<SuggestAlignmentPost, unknown>;
 export const SuggestAlignmentUserDoc = {"kind":"Document","definitions":[SuggestAlignmentUserFragmentDef,UsersMinimumInfoFragmentDef]} as unknown as DocumentNode<SuggestAlignmentUser, unknown>;
 export const SuggestedFeedSubscriptionUsersDocument = {"kind":"Document","definitions":[{"kind":"OperationDefinition","operation":"query","name":{"kind":"Name","value":"SuggestedFeedSubscriptionUsers"},"variableDefinitions":[{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"limit"}},"type":{"kind":"NamedType","name":{"kind":"Name","value":"Int"}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"SuggestedFeedSubscriptionUsers"},"arguments":[{"kind":"Argument","name":{"kind":"Name","value":"limit"},"value":{"kind":"Variable","name":{"kind":"Name","value":"limit"}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"results"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"FragmentSpread","name":{"kind":"Name","value":"UsersMinimumInfo"}}]}}]}}]}},UsersMinimumInfoFragmentDef]} as unknown as DocumentNode<SuggestedFeedSubscriptionUsersQuery, SuggestedFeedSubscriptionUsersQueryVariables>;
+export const SuggestedTopActiveUsersDocument = {"kind":"Document","definitions":[{"kind":"OperationDefinition","operation":"query","name":{"kind":"Name","value":"SuggestedTopActiveUsers"},"variableDefinitions":[{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"limit"}},"type":{"kind":"NamedType","name":{"kind":"Name","value":"Int"}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"SuggestedTopActiveUsers"},"arguments":[{"kind":"Argument","name":{"kind":"Name","value":"limit"},"value":{"kind":"Variable","name":{"kind":"Name","value":"limit"}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"results"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"FragmentSpread","name":{"kind":"Name","value":"UsersMinimumInfo"}}]}}]}}]}},UsersMinimumInfoFragmentDef]} as unknown as DocumentNode<SuggestedTopActiveUsersQuery, SuggestedTopActiveUsersQueryVariables>;
 export const SunshineCurationPostsListDoc = {"kind":"Document","definitions":[SunshineCurationPostsListFragmentDef,PostsListFragmentDef,PostsListBaseFragmentDef,PostsBaseFragmentDef,PostsMinimumInfoFragmentDef,PostsAuthorsFragmentDef,UsersMinimumInfoFragmentDef,CommentsListFragmentDef,TagPreviewFragmentFragmentDef,TagBasicInfoFragmentDef,CurationNoticesFragmentFragmentDef,RevisionEditFragmentDef,RevisionDisplayFragmentDef]} as unknown as DocumentNode<SunshineCurationPostsList, unknown>;
 export const SunshineNewUsersProfileInfoDocument = {"kind":"Document","definitions":[{"kind":"OperationDefinition","operation":"query","name":{"kind":"Name","value":"SunshineNewUsersProfileInfo"},"variableDefinitions":[{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"documentId"}},"type":{"kind":"NamedType","name":{"kind":"Name","value":"String"}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"user"},"arguments":[{"kind":"Argument","name":{"kind":"Name","value":"input"},"value":{"kind":"ObjectValue","fields":[{"kind":"ObjectField","name":{"kind":"Name","value":"selector"},"value":{"kind":"ObjectValue","fields":[{"kind":"ObjectField","name":{"kind":"Name","value":"documentId"},"value":{"kind":"Variable","name":{"kind":"Name","value":"documentId"}}}]}}]}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"result"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"FragmentSpread","name":{"kind":"Name","value":"SunshineUsersList"}}]}}]}}]}},SunshineUsersListFragmentDef,UsersMinimumInfoFragmentDef,ModeratorActionDisplayFragmentDef]} as unknown as DocumentNode<SunshineNewUsersProfileInfoQuery, SunshineNewUsersProfileInfoQueryVariables>;
 export const SunshinePostsListDoc = {"kind":"Document","definitions":[SunshinePostsListFragmentDef,PostsListBaseFragmentDef,PostsBaseFragmentDef,PostsMinimumInfoFragmentDef,PostsAuthorsFragmentDef,UsersMinimumInfoFragmentDef,CommentsListFragmentDef,TagPreviewFragmentFragmentDef,TagBasicInfoFragmentDef,AutomatedContentEvaluationsFragmentFragmentDef,RevisionDisplayFragmentDef,ModeratorActionDisplayFragmentDef]} as unknown as DocumentNode<SunshinePostsList, unknown>;

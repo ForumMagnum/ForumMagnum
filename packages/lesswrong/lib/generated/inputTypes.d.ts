@@ -9,6 +9,7 @@ interface Query {
   NetKarmaChangesForAuthorsOverPeriod: Array<NetKarmaChangesForAuthorsOverPeriod>;
   AirtableLeaderboards: Array<AirtableLeaderboardResult>;
   SuggestedFeedSubscriptionUsers: SuggestedFeedSubscriptionUsersResult | null;
+  SuggestedTopActiveUsers: SuggestedTopActiveUsersResult | null;
   CommentsWithReacts: CommentsWithReactsResult | null;
   PopularComments: PopularCommentsResult | null;
   PostAnalytics: PostAnalyticsResult;
@@ -603,6 +604,10 @@ interface AirtableLeaderboardResult {
 }
 
 interface SuggestedFeedSubscriptionUsersResult {
+  results: Array<User>;
+}
+
+interface SuggestedTopActiveUsersResult {
   results: Array<User>;
 }
 
@@ -9739,6 +9744,7 @@ interface GraphQLTypeMap {
   NetKarmaChangesForAuthorsOverPeriod: NetKarmaChangesForAuthorsOverPeriod;
   AirtableLeaderboardResult: AirtableLeaderboardResult;
   SuggestedFeedSubscriptionUsersResult: SuggestedFeedSubscriptionUsersResult;
+  SuggestedTopActiveUsersResult: SuggestedTopActiveUsersResult;
   VoteResultPost: VoteResultPost;
   VoteResultComment: VoteResultComment;
   VoteResultTagRel: VoteResultTagRel;

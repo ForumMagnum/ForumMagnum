@@ -472,7 +472,7 @@ class CommentsRepo extends AbstractRepo<"Comments"> {
    * Get comments for the UltraFeed
    */
   async getCommentsForFeed(
-    userId: string,
+    userIdOrClientId: string,
     maxTotalComments = 1000,
     initialCandidateLookbackDays: number,
     commentServedEventRecencyHours: number,
@@ -493,7 +493,7 @@ class CommentsRepo extends AbstractRepo<"Comments"> {
           -- Get all user IDs the current user is subscribed to
           SELECT DISTINCT "documentId" AS "authorId"
           FROM "Subscriptions"
-          WHERE "userId" = $(userId)
+          WHERE "userId" = $(userIdOrClientId)
             AND "collectionName" = 'Users'
             AND "state" = 'subscribed'
             AND "type" IN ('newActivityForFeed', 'newPosts', 'newComments')
@@ -512,7 +512,7 @@ class CommentsRepo extends AbstractRepo<"Comments"> {
           INNER JOIN "Posts" p ON c."postId" = p._id
           WHERE
               ${getUniversalCommentFilterClause('c')}
-              AND c."userId" != $(userId)
+              AND c."userId" != $(userIdOrClientId)
               AND c."postedAt" > (NOW() - INTERVAL '1 day' * $(initialCandidateLookbackDaysParam))
               AND p.draft IS NOT TRUE
               AND (CASE WHEN $(restrictCandidatesToSubscribed) THEN c."userId" IN (SELECT "authorId" FROM "SubscribedAuthorIds") ELSE TRUE END)
@@ -558,7 +558,7 @@ class CommentsRepo extends AbstractRepo<"Comments"> {
           'viewed' AS "eventType"
         FROM "AllRelevantComments" c
         JOIN "ReadStatuses" rs ON c."postId" = rs."postId"
-        WHERE rs."userId" = $(userId)
+        WHERE rs."userId" = $(userIdOrClientId)
           AND rs."isRead" IS TRUE
           AND c."postedAt" < rs."lastUpdated"
       ),
@@ -572,7 +572,7 @@ class CommentsRepo extends AbstractRepo<"Comments"> {
             ue."eventType"
           FROM "UltraFeedEvents" ue
           WHERE ue."collectionName" = 'Comments'
-            AND "userId" = $(userId)
+            AND "userId" = $(userIdOrClientId)
             AND (ue."eventType" <> 'served' OR ue."createdAt" > current_timestamp - INTERVAL '1 hour' * $(commentServedEventRecencyHoursParam))
             AND ue."documentId" IN (SELECT _id FROM "AllRelevantComments")
           
@@ -617,7 +617,7 @@ class CommentsRepo extends AbstractRepo<"Comments"> {
       ORDER BY COALESCE(c."topLevelCommentId", c._id), c."postedAt"
       LIMIT $(maxTotalComments) -- Apply final limit
     `, { 
-      userId, 
+      userIdOrClientId, 
       initialCandidateLimit, 
       maxTotalComments,
       initialCandidateLookbackDaysParam: initialCandidateLookbackDays,
@@ -661,7 +661,7 @@ class CommentsRepo extends AbstractRepo<"Comments"> {
    * Fetches consolidated engagement statistics for recently active comment threads.
    */
   async getThreadEngagementStatsForRecentlyActiveThreads(
-    userId: string,
+    userIdOrClientId: string,
     threadEngagementLookbackDays: number
   ): Promise<ThreadEngagementStats[]> {
     const threadCandidateLimit = 200; // Hardcoded
@@ -697,7 +697,7 @@ class CommentsRepo extends AbstractRepo<"Comments"> {
             SUM(CASE WHEN v."voteType" = 'bigUpvote' THEN 5 ELSE 1 END) AS "votingActivityScore"
           FROM "Votes" v
           JOIN "Comments" c_votes ON v."documentId" = c_votes._id
-          WHERE v."userId" = $(userId)
+          WHERE v."userId" = $(userIdOrClientId)
             AND v."collectionName" = 'Comments'
             AND v.power > 0 -- Or your updated v."voteType" IN ('smallUpvote', 'bigUpvote') condition
             AND v."cancelled" IS NOT TRUE
@@ -722,7 +722,7 @@ class CommentsRepo extends AbstractRepo<"Comments"> {
             COALESCE(c_comments."topLevelCommentId", c_comments._id) AS "threadTopLevelId",
             COUNT(*) AS "participationCount"
           FROM "Comments" c_comments
-          WHERE c_comments."userId" = $(userId)
+          WHERE c_comments."userId" = $(userIdOrClientId)
             AND c_comments.deleted IS NOT TRUE
             AND c_comments."postedAt" > (NOW() - INTERVAL $(lookbackInterval))
             AND COALESCE(c_comments."topLevelCommentId", c_comments._id) IN (
@@ -749,7 +749,7 @@ class CommentsRepo extends AbstractRepo<"Comments"> {
             END) AS "viewScore"
           FROM "UltraFeedEvents" ufe
           JOIN "Comments" c_views ON ufe."documentId" = c_views._id
-          WHERE ufe."userId" = $(userId)
+          WHERE ufe."userId" = $(userIdOrClientId)
             AND ufe."eventType" != 'served'
             AND ufe."collectionName" = 'Comments'
             AND ufe."createdAt" > (NOW() - INTERVAL $(lookbackInterval))
@@ -773,13 +773,13 @@ class CommentsRepo extends AbstractRepo<"Comments"> {
           JOIN (
             SELECT "postId"
             FROM "ReadStatuses" rs
-            WHERE rs."userId" = $(userId)
+            WHERE rs."userId" = $(userIdOrClientId)
               AND rs."isRead" IS TRUE
               AND rs."lastUpdated" > (NOW() - INTERVAL $(lookbackInterval))
             UNION DISTINCT
             SELECT DISTINCT "documentId" AS "postId"
             FROM "UltraFeedEvents" ufe_posts
-            WHERE ufe_posts."userId" = $(userId)
+            WHERE ufe_posts."userId" = $(userIdOrClientId)
               AND ufe_posts."collectionName" = 'Posts'
               AND ufe_posts."eventType" != 'served'
               AND ufe_posts."createdAt" > (NOW() - INTERVAL $(lookbackInterval))
@@ -808,7 +808,7 @@ class CommentsRepo extends AbstractRepo<"Comments"> {
             ) AS "servingHoursAgo"
           FROM "UltraFeedEvents" ufe_served
           JOIN "Comments" c_served ON ufe_served."documentId" = c_served._id
-          WHERE ufe_served."userId" = $(userId)
+          WHERE ufe_served."userId" = $(userIdOrClientId)
             AND ufe_served."eventType" = 'served'
             AND ufe_served."collectionName" = 'Comments'
             AND ufe_served."createdAt" > (NOW() - INTERVAL '6 hours') -- Shorter lookback for repetition
@@ -826,7 +826,7 @@ class CommentsRepo extends AbstractRepo<"Comments"> {
           GROUP BY COALESCE(c_served."topLevelCommentId", c_served._id)
         ) recentServings ON recentActiveThreads."threadTopLevelId" = recentServings."threadTopLevelId"
     `, {
-      userId,
+      userIdOrClientId,
       lookbackInterval,
       threadCandidateLimit,
     });

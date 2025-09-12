@@ -14,6 +14,7 @@ import { gql } from "@/lib/generated/gql-codegen";
 import Loading from "../vulcan-core/Loading";
 import TagSmallPostLink from '../tagging/TagSmallPostLink';
 import { AnalyticsContext } from '../../lib/analyticsEvents';
+import { useCurrentUser } from '../common/withUser';
 
 const UserRecentPostsQuery = gql(`
   query UserRecentPostsForCompactCard($selector: PostSelector, $limit: Int, $enableTotal: Boolean) {
@@ -143,6 +144,7 @@ const UltraFeedSuggestedUserCard = ({
   const classes = useStyles(styles);
   const { openDialog } = useDialog();
   const followButtonRef = useRef<HTMLDivElement>(null);
+  const currentUser = useCurrentUser();
   
   const hasBio = !!(user.htmlBio && user.htmlBio.trim().length > 0);
   
@@ -184,8 +186,11 @@ const UltraFeedSuggestedUserCard = ({
 
   const handleFollowClick = useCallback((e: React.MouseEvent) => {
     e.stopPropagation();
-    onFollowToggle?.(user);
-  }, [user, onFollowToggle]);
+    // if user is logged out, the FollowUserButton will open a login popup modal
+    if (currentUser) {
+      onFollowToggle?.(user);
+    }
+  }, [currentUser, user, onFollowToggle]);
 
   if (!user?._id) {
     return <div className={classes.root}>User not found</div>;

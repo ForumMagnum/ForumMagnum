@@ -38,6 +38,17 @@ const {Query: suggestedFeedQuery, typeDefs: suggestedFeedTypeDefs} = createPagin
   }
 });
 
+const {Query: suggestedTopActiveUsersQuery, typeDefs: suggestedTopActiveUsersTypeDefs} = createPaginatedResolver({
+  name: "SuggestedTopActiveUsers",
+  graphQLType: "User",
+  callback: async (
+    context: ResolverContext,
+    limit: number,
+  ): Promise<DbUser[]> => {
+    return await context.repos.users.getTopActiveContributors(limit, 30);
+  }
+});
+
 export const graphqlTypeDefs = gql`
   type CommentCountTag {
     name: String!
@@ -104,6 +115,7 @@ export const graphqlTypeDefs = gql`
   }
 
   ${suggestedFeedTypeDefs}
+  ${suggestedTopActiveUsersTypeDefs}
 `
 
 export const graphqlMutations = {
@@ -224,6 +236,7 @@ export const graphqlQueries = {
     return isTaken;
   },
   ...suggestedFeedQuery,
+  ...suggestedTopActiveUsersQuery,
   async GetUserBySlug(root: void, { slug }: { slug: string }, context: ResolverContext) {
     const { Users } = context;
 

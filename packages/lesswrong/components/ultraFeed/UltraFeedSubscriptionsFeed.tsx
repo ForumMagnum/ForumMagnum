@@ -80,8 +80,13 @@ const UltraFeedSubscriptionsFeed = ({ embedded = false, refetchRef, settings, up
     }
   }, [isTransitioning]);
 
-
-  if (!currentUser) return null;
+  if (!currentUser) {
+    return (
+      <SingleColumnSection>
+        <SuggestedFeedSubscriptions enableDismissButton={false} />
+      </SingleColumnSection>
+    );
+  }
 
   const { feedCommentThread, feedPost, feedSubscriptionSuggestions } = createUltraFeedRenderers({ settings });
 

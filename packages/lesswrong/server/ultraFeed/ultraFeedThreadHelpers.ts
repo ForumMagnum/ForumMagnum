@@ -553,8 +553,8 @@ export async function getUltraFeedCommentThreads(
   threadEngagementLookbackDays: number,
   sessionId?: string
 ): Promise<PreparedFeedCommentsThread[]> {
-  const userId = context.userId;
-  if (!userId) {
+  const userIdOrClientId = context.userId ?? context.clientId;
+  if (!userIdOrClientId) {
     return [];
   }
 
@@ -562,18 +562,18 @@ export async function getUltraFeedCommentThreads(
   const ultraFeedEventsRepo = context.repos.ultraFeedEvents;
 
   const rawCommentsDataPromise = commentsRepo.getCommentsForFeed(
-    userId, 
+    userIdOrClientId, 
     1000, 
     initialCandidateLookbackDays, 
     commentServedEventRecencyHours
   );
   const engagementStatsPromise = commentsRepo.getThreadEngagementStatsForRecentlyActiveThreads(
-    userId,
+    userIdOrClientId,
     threadEngagementLookbackDays
   );
   const subscribedToUserIdsPromise = context.Subscriptions.find({
     collectionName: 'Users',
-    userId,
+    userId: userIdOrClientId,
     state: 'subscribed',
     type: { $in: ['newActivityForFeed', 'newPosts', 'newComments'] },
     deleted: { $ne: true },
@@ -582,7 +582,7 @@ export async function getUltraFeedCommentThreads(
   }).fetch().then(rows => rows.map(row => row.documentId).filter(id => id !== null));
 
   const servedInSessionPromise = sessionId
-    ? ultraFeedEventsRepo.getServedCommentIdsForSession(userId, sessionId)
+    ? ultraFeedEventsRepo.getServedCommentIdsForSession(userIdOrClientId, sessionId)
     : Promise.resolve(new Set<string>());
 
   const [
