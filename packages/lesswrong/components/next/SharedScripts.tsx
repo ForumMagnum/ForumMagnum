@@ -1,5 +1,5 @@
 'use client';
-import React from 'react';
+import React, { useMemo } from 'react';
 
 import { getEmbeddedStyleLoaderScript } from "@/components/hooks/embedStyles";
 import { toEmbeddableJson } from "@/lib/utils/jsonUtils";
@@ -8,7 +8,7 @@ import { globalExternalStylesheets } from "@/themes/globalStyles/externalStyles"
 
 // These exist as a client component to avoid the RSC rehydration protocol
 // putting them into the initial streamed response chunk twice.
-export const SharedScripts = () => {
+const SharedScriptsInner = () => {
   const { public: publicInstanceSettings } = getInstanceSettings();
   return (<>
       {globalExternalStylesheets.map(stylesheet => <link key={stylesheet} rel="stylesheet" type="text/css" href={stylesheet}/>)}
@@ -24,3 +24,7 @@ export const SharedScripts = () => {
       <script id="jss-insertion-end"/>
   </>)
 };
+
+export const SharedScripts = () => {
+  return useMemo(() => <SharedScriptsInner/>, []);
+}

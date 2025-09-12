@@ -589,6 +589,7 @@ const Header = ({
 
 export default registerComponent('Header', Header, {
   styles,
+  areEqual: "auto",
   hocs: [withErrorBoundary]
 });
 
