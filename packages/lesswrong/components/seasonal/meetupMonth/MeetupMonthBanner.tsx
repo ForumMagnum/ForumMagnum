@@ -4,7 +4,7 @@ import { defineStyles, useStyles } from '../../hooks/useStyles';
 import { WrappedReactMapGL } from '../../community/WrappedReactMapGL';
 import Checkbox from '@/lib/vendor/@material-ui/core/src/Checkbox';
 import { grey } from '@/themes/defaultPalette';
-import { LocalEventMapMarkerWrappers } from '../HomepageMap/HomepageCommunityMap';
+import { LocalEventMapMarkerWrappers, LocalEventMapMarkerWrappersInner } from '../HomepageMap/HomepageCommunityMap';
 import { useUserLocation } from '@/lib/collections/users/helpers';
 import { useCurrentUser } from '@/components/common/withUser';
 import { useGlobalKeydown } from '@/components/common/withGlobalKeydown';
@@ -410,13 +410,13 @@ export default function MeetupMonthBannerInner() {
     // return <LocalEventsMapMarkers events={events} handleClick={handleClick} handleClose={handleClose} openWindows={openWindows} />
   
 
-    return <LocalEventMapMarkerWrappers localEvents={events.map(event => ({
+    return <LocalEventMapMarkerWrappersInner localEvents={events.map(event => ({
       _id: event._id,
       lat: event.googleLocation?.geometry?.location?.lat,
       lng: event.googleLocation?.geometry?.location?.lng,
     }))} />
     // }, [events, handleClick, handleClose, openWindows])
-  }, [events, handleClick, handleClose, openWindows])
+  }, [events])
   const handleZoomChange = useCallback((event: React.ChangeEvent<HTMLInputElement>) => {
     const newZoom = parseFloat(event.target.value)
     setViewport(prev => ({

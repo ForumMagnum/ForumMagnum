@@ -16,6 +16,7 @@ import StyledMapPopup from "../../localGroups/StyledMapPopup";
 import GroupLinks from "../../localGroups/GroupLinks";
 import HomepageMapFilter from "./HomepageMapFilter";
 import { WrappedReactMapGL } from '@/components/community/WrappedReactMapGL';
+import { defineStyles, useStyles } from '../../hooks/useStyles';
 
 const PostsListQuery = gql(`
   query HomepageCommunityMap($documentId: String) {
@@ -92,7 +93,7 @@ export const LocalEventWrapperPopUp = ({localEvent, handleClose}: {
 }
 
 
-const localEventMapMarkerWrappersStyles = (theme: ThemeType) => ({
+const localEventMapMarkerWrappersStyles = defineStyles("localEventMapMarkerWrappersStyles", (theme: ThemeType) => ({
   icon: {
     height: 20,
     width: 20,
@@ -108,12 +109,12 @@ const localEventMapMarkerWrappersStyles = (theme: ThemeType) => ({
     fill: theme.palette.primary.dark,
     opacity: 1
   }
-})
+}))
 
-export const LocalEventMapMarkerWrappersInner = ({localEvents, classes}: {
+export const LocalEventMapMarkerWrappersInner = ({localEvents}: {
   localEvents: Array<LocalEvent>,
-  classes: ClassesType<typeof localEventMapMarkerWrappersStyles>,
 }) => {
+  const classes = useStyles(localEventMapMarkerWrappersStyles)
   const [ openWindows, setOpenWindows ] = useState<string[]>([])
   const handleClick = useCallback(
     (id: string) => { setOpenWindows([id]) }
@@ -134,10 +135,11 @@ export const LocalEventMapMarkerWrappersInner = ({localEvents, classes}: {
     {localEvents.map((localEvent, i) => {
       const infoOpen = openWindows.includes(localEvent._id)
       console.log('localEvent', i, localEvent)
+      if (!localEvent.lat || !localEvent.lng) return null
       return <React.Fragment key={`mapEvent${localEvent._id}`}>
       <Marker
-        latitude={12}
-        longitude={12}
+        latitude={localEvent.lat}
+        longitude={localEvent.lng}
         offsetLeft={-7}
         offsetTop={-25}
       >
