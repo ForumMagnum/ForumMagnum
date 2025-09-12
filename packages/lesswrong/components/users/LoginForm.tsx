@@ -4,7 +4,8 @@ import { reCaptchaSiteKeySetting, isAF, isEAForum } from '../../lib/instanceSett
 import { useMutation } from "@apollo/client/react";
 import { gql } from '@/lib/generated/gql-codegen';
 import { useMessages } from '../common/withMessages';
-import { getUserABTestKey, useClientId } from '../../lib/abTestImpl';
+import { getUserABTestKey } from '../../lib/abTestImpl';
+import { useClientId } from '../hooks/useClientId.ts';
 import { useLocation } from '../../lib/routeUtil';
 import {isFriendlyUI} from '../../themes/forumTheme.ts'
 import ContentStyles from "../common/ContentStyles";

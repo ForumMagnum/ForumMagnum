@@ -2,7 +2,8 @@
 
 import React from 'react';
 import { registerComponent } from '../../lib/vulcan-lib/components';
-import { useClientId, getUserABTestKey, getABTestsMetadata } from '../../lib/abTestImpl';
+import { getUserABTestKey, getABTestsMetadata } from '../../lib/abTestImpl';
+import { useClientId } from '../hooks/useClientId';
 import { useAllABTests } from '../hooks/useAbTests';
 import { useCurrentUser } from '../common/withUser';
 import { useUpdateCurrentUser } from '../hooks/useUpdateCurrentUser';

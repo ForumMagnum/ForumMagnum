@@ -7,7 +7,7 @@ import { hookToHoc } from '../../lib/hocUtils';
 import { recombeeApi } from '../../lib/recombee/client';
 import { recombeeEnabledSetting } from '@/lib/instanceSettings';
 import { isRecombeeRecommendablePost } from '@/lib/collections/posts/helpers';
-import { useClientId } from '@/lib/abTestImpl';
+import { useClientId } from './useClientId';
 
 
 export type ItemsReadContextType = {
