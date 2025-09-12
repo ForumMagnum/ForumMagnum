@@ -86,7 +86,7 @@ const styles = defineStyles("MeetupMonthBanner", (theme: ThemeType) => ({
     right: 0,
     width: '50vw',
     height: '100vh',
-    [theme.breakpoints.down(1500)]: {
+    [theme.breakpoints.down(1400)]: {
       display: 'none',
     },
   },
@@ -112,8 +112,8 @@ const styles = defineStyles("MeetupMonthBanner", (theme: ThemeType) => ({
     lineHeight: 1.2,
   },
   textContainer: {
-    width: 425,
-    zIndex: 2,
+    width: 340,
+    zIndex: 4,
     lineHeight: 1.5,
     transition: 'transform 0.5s ease-in-out, opacity 0.5s ease-in-out',
     transform: 'translateX(0)',
@@ -128,7 +128,7 @@ const styles = defineStyles("MeetupMonthBanner", (theme: ThemeType) => ({
     },
   },
   subtitle: {
-    fontSize: 20,
+    fontSize: 16,
     fontWeight: 500,
     height: 120,
     marginTop: 12,
@@ -150,8 +150,9 @@ const styles = defineStyles("MeetupMonthBanner", (theme: ThemeType) => ({
     display: 'flex',
     flexDirection: 'row',
     alignItems: 'center',
-    justifyContent: 'center',
-    gap: 10,
+    justifyContent: 'flex-start',
+    width: 340,
+    gap: 8,
     paddingTop: 10,
   },
   meetupType: {
@@ -160,11 +161,11 @@ const styles = defineStyles("MeetupMonthBanner", (theme: ThemeType) => ({
     color: theme.palette.text.alwaysWhite,
     borderRadius: 4,
     paddingLeft: 10,
-    paddingRight: 14,
-    paddingTop: 6,
-    paddingBottom: 6,
+    paddingRight: 10,
+    paddingTop: 7,
+    paddingBottom: 7,
     cursor: 'pointer',
-    fontSize: 18,
+    fontSize: 14,
     fontWeight: 400,
     '&:hover': {
       opacity: 0.5
@@ -175,8 +176,6 @@ const styles = defineStyles("MeetupMonthBanner", (theme: ThemeType) => ({
     marginBottom: 10,
     display: 'flex',
     alignItems: 'center',
-    gap: 16,
-    marginLeft: 4,
     '& a': {
       textDecoration: 'underline',
       // color: theme.palette.primary.main,
@@ -305,7 +304,7 @@ const styles = defineStyles("MeetupMonthBanner", (theme: ThemeType) => ({
     },
   },
   contentContainer: {
-    width: 'calc(100% - 300px)',
+    width: 'calc(100% - 390px)',
     paddingTop: 120,
     paddingBottom: 80,
     position: 'absolute',
@@ -355,7 +354,7 @@ export default function MeetupMonthBanner() {
   const [mapActive, setMapActive] = useState(false);
   const [viewport, setViewport] = useState({
     latitude: 0,
-    longitude: 40,
+    longitude: 0,
     zoom: 1.1
   });
 
@@ -477,8 +476,8 @@ export default function MeetupMonthBanner() {
         setIsTransitioning(false)
         setCurrentCarouselIndex(index)
         setNextCarouselIndex(null)
-      }, 200)
-    }, 200)
+      }, 300)
+    }, 10)
   }, [currentCarouselIndex])
 
   if (isLoading) {
@@ -546,13 +545,12 @@ export default function MeetupMonthBanner() {
               bottom: 0,
               display: shouldRender ? 'block' : 'none',
               opacity,
-              transition: !isSettingUp ? 'opacity 0.2s ease-in-out, transform 0.5s ease-in-out' : 'none',
+              transition: !isSettingUp ? 'opacity 0.15s ease-in-out, transform 0.3s ease-in-out' : 'none',
               transform: `translateX(${translateX})`,
             }}>
               <h1 className={classes.title}>{section.title ?? section.minorTitle}</h1>
               {/* <h3 className={classes.minorTitle}>{section.minorTitle}</h3> */}
               <p className={classes.subtitle}>{section.subtitle}</p>
-              <p>i: {index}, C: {currentCarouselIndex}, N: {nextCarouselIndex}, T: {isTransitioning ? 'true' : 'false'}, S: {isSettingUp ? 'true' : 'false'}</p>
             </div>
           })}
         </div>
