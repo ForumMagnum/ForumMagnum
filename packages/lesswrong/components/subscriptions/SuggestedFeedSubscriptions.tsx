@@ -243,7 +243,6 @@ export const SuggestedFeedSubscriptions = ({ suggestedUsers, settingsButton, ena
 }) => {
   const classes = useStyles(styles);
   const isMobile = useIsMobile();
-  const usersToShow = isMobile ? INITIAL_USERS_TO_SHOW_MOBILE : INITIAL_USERS_TO_SHOW_DESKTOP;
   const currentUser = useCurrentUser();
   const [cookies, setCookie] = useCookiesWithConsent([HIDE_SUBSCRIBED_FEED_SUGGESTED_USERS]);
   
@@ -283,6 +282,10 @@ export const SuggestedFeedSubscriptions = ({ suggestedUsers, settingsButton, ena
   });
   
   const followingCount = followingCountData?.subscriptions?.totalCount ?? 0;
+  
+  const baseUsersToShow = isMobile ? INITIAL_USERS_TO_SHOW_MOBILE : INITIAL_USERS_TO_SHOW_DESKTOP;
+  // Show twice as many users when following count is < 2
+  const usersToShow = followingCount < 2 ? baseUsersToShow * 2 : baseUsersToShow;
 
   const { captureEvent } = useTracking();
 
@@ -339,7 +342,7 @@ export const SuggestedFeedSubscriptions = ({ suggestedUsers, settingsButton, ena
         <div className={classes.titleRow}>
           <div className={classes.titleAndManageLink}>
             <div className={classes.sectionTitle}>
-              Suggested Users for You
+              {currentUser ? "Suggested Users for You" : "Suggested Users"}
             </div>
             <FollowUserSearchButton onUserSelected={subscribeToUser} />
             {enableDismissButton && <LWTooltip title="Hide suggested users for 60 days">
