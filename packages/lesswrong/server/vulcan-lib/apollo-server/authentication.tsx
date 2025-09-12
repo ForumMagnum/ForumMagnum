@@ -55,7 +55,7 @@ async function authenticateWithPassword(username: string, password: string): Pro
     return { success: false, message: 'Incorrect password.' };
   }
   
-  const match = !!user.services?.password.bcrypt && await comparePasswords(password, user.services.password?.bcrypt);
+  const match = !!user.services?.password?.bcrypt && await comparePasswords(password, user.services.password.bcrypt);
 
   // If no immediate match, we check whether we have a match with their legacy password
   if (!match) {
