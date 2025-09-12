@@ -244,7 +244,6 @@ const ScrollTo: FC<{
 const CustomScrollTo = connectScrollTo(ScrollTo);
 
 const SearchPageTabbed = () => {
-  console.log("SearchPageTabbed.render");
   const classes = useStyles(styles);
   const scrollToRef = useRef<HTMLDivElement>(null);
   const navigate = useNavigate();
@@ -305,7 +304,7 @@ const SearchPageTabbed = () => {
       replace: true,
       skipRouter: true,
     })
-  }, [location, sorting]);
+  }, [location, sorting, navigate]);
 
   const handleChangeTab = (_: React.ChangeEvent, value: SearchIndexCollectionName) => {
     setTab(value);
@@ -327,7 +326,7 @@ const SearchPageTabbed = () => {
       
     updateUrl(updatedSearchState, clearTagFilters ? [] : tagsFilter)
     setSearchState(updatedSearchState)
-  }, [updateUrl])
+  }, [updateUrl, tagsFilter])
 
   useEffect(() => {
     if (searchState.query) {
