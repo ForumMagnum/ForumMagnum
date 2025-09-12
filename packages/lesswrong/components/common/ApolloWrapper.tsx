@@ -1,4 +1,4 @@
-import React, { use } from 'react';
+import React, { use, useCallback } from 'react';
 import { headerLink, createErrorLink, createHttpLink, createSchemaLink } from "@/lib/apollo/links";
 import { isServer } from "@/lib/executionEnvironment";
 import { getSiteUrl } from "@/lib/vulcan-lib/utils";
@@ -91,14 +91,18 @@ export function ApolloWrapper({ loginToken, searchParams, children }: React.Prop
   // it this way if it's imported dynamically).
   if (isServer) {
     const client = use(makeApolloClientForServer({ loginToken, searchParams }));
+    // eslint-disable-next-line react-hooks/rules-of-hooks
+    const makeClient = useCallback(() => client, [client]);
     return (
-      <ApolloNextAppProvider makeClient={() => client}>
+      <ApolloNextAppProvider makeClient={makeClient}>
         {children}
       </ApolloNextAppProvider>
     );
   } else {
+    // eslint-disable-next-line react-hooks/rules-of-hooks
+    const makeClient = useCallback(() => makeApolloClientForClient({ loginToken }), [loginToken]);
     return (
-      <ApolloNextAppProvider makeClient={() => makeApolloClientForClient({ loginToken })}>
+      <ApolloNextAppProvider makeClient={makeClient}>
         {children}
       </ApolloNextAppProvider>
     );
