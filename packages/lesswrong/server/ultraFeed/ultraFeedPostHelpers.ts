@@ -173,7 +173,7 @@ export async function getUltraFeedPostThreads(
   recommendedPostsLimit: number,
   latestAndSubscribedPostsLimit: number,
   settings: UltraFeedResolverSettings,
-  maxAgeDays: number,
+  maxAgeDays: number
 ): Promise<FeedFullPost[]> {
 
   const recombeeScenario = 'recombee-lesswrong-custom';
