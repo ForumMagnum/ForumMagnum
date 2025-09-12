@@ -72,7 +72,7 @@ const LWHome = () => {
   const hasExplicitPreference = cookieValue === "true" || cookieValue === "false";
   
   // Determine which feed to show: if cookie is set, use that preference, otherwise use A/B test assignment
-  const shouldShowUltraFeed = ultraFeedEnabledSetting.get() && currentUser && (cookieValue === "true" || (!hasExplicitPreference && abTestGroup === 'ultraFeed')
+  const shouldShowUltraFeed = ultraFeedEnabledSetting.get() && (cookieValue === "true" || (!hasExplicitPreference && abTestGroup === 'ultraFeed')
   );
 
   return (
