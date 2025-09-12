@@ -127,17 +127,17 @@ export const LocalEventMapMarkerWrappersInner = ({localEvents, classes}: {
   // Sanity check that we updated the acxEvents.ts file with the new events.
   // If we didn't, it's much more obvious during testing that we forgot to update the map pins (since they'll be missing)
   const threeMonthsAgo = moment().subtract(3, 'months');
-  if (threeMonthsAgo.isAfter(ACX_EVENTS_LAST_UPDATED)) {
-    return null;
-  }
-  
+  // if (threeMonthsAgo.isAfter(ACX_EVENTS_LAST_UPDATED)) {
+  //   return null;
+  // }
   return <React.Fragment>
-    {localEvents.map(localEvent => {
+    {localEvents.map((localEvent, i) => {
       const infoOpen = openWindows.includes(localEvent._id)
+      console.log('localEvent', i, localEvent)
       return <React.Fragment key={`mapEvent${localEvent._id}`}>
       <Marker
-        latitude={localEvent.lat}
-        longitude={localEvent.lng}
+        latitude={12}
+        longitude={12}
         offsetLeft={-7}
         offsetTop={-25}
       >
@@ -145,7 +145,7 @@ export const LocalEventMapMarkerWrappersInner = ({localEvents, classes}: {
           <ArrowSVG className={classNames(classes.icon, {[classes.iconSelected]: infoOpen})}/>
         </span>
       </Marker>
-      {infoOpen && <LocalEventWrapperPopUp localEvent={localEvent} handleClose={handleClose}/>}
+      {/* {infoOpen && <LocalEventWrapperPopUp localEvent={localEvent} handleClose={handleClose}/>} */}
     </React.Fragment>
     })}
   </React.Fragment>

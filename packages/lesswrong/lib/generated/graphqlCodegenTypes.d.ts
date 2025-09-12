@@ -19598,6 +19598,22 @@ type petrovDayLaunchResolversQueryVariables = Exact<{ [key: string]: never; }>;
 
 type petrovDayLaunchResolversQuery = petrovDayLaunchResolversQuery_Query;
 
+type meetupMonthyQueryQuery_posts_MultiPostOutput_results_Post = { __typename?: 'Post', _id: string, location: string | null, googleLocation: any | null, onlineEvent: boolean, globalEvent: boolean, startTime: string | null, endTime: string | null, localStartTime: string | null, localEndTime: string | null };
+
+type meetupMonthyQueryQuery_posts_MultiPostOutput = { __typename?: 'MultiPostOutput', totalCount: number | null, results: Array<meetupMonthyQueryQuery_posts_MultiPostOutput_results_Post> };
+
+type meetupMonthyQueryQuery_Query = { __typename?: 'Query', posts: meetupMonthyQueryQuery_posts_MultiPostOutput | null };
+
+
+type meetupMonthyQueryQueryVariables = Exact<{
+  selector: InputMaybe<PostSelector>;
+  limit: InputMaybe<Scalars['Int']['input']>;
+  enableTotal: InputMaybe<Scalars['Boolean']['input']>;
+}>;
+
+
+type meetupMonthyQueryQuery = meetupMonthyQueryQuery_Query;
+
 type multiPetrovDayActionOptIntoPetrovButtonQueryQuery_petrovDayActions_MultiPetrovDayActionOutput_results_PetrovDayAction = (
   { __typename?: 'PetrovDayAction' }
   & PetrovDayActionInfo

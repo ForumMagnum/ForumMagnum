@@ -13,32 +13,11 @@ import { useQuery } from "@/lib/crud/useQuery";
 import { LocalEventsMapMarkers, PostsListMultiQuery } from '@/components/localGroups/CommunityMap';
 import without from 'lodash/without';
 import { backdatePreviousDigest } from '@/server/callbacks/digestCallbacks';
+import { SuspenseWrapper } from '@/components/common/SuspenseWrapper';
+import { gql } from '@/lib/generated/gql-codegen';
+import { LocalEvent } from '../HomepageMap/acxEvents';
 
-const localEvents = [
-  {
-  "_id": "9mpqcnEJWykwd28iZ",
-  "lat": 9.0690546,
-  "lng": 7.4784446
-},
-{
-  "_id": "PzHRajcvf8LgYeYGu",
-  "lat": -33.92817,
-  "lng": 18.42267
-},
-{
-  "_id": "oEY9ASbrEYJuwEMwr",
-  "lat": 0.279938,
-  "lng": 32.820062
-},
-
-{
-  "_id": "5oHsfehy8QWDoJHzd",
-  "lat": -35.2729725,
-  "lng": 149.1324762
-},
-
-
-];
+const breakpoint = 1425
 
 const carouselSections = [
   {
@@ -64,14 +43,14 @@ const carouselSections = [
   },
   {
     minorTitle: "If Anyone Builds It",
-    subtitle: <div>Eliezer and Nate's new book launches September 16th. If you host a reading group for <a href="https://www.ifanyonebuildsit.com/
-    book-clubs">If Anyone Builds It, Everyone Dies</a>, Lightcone will reimburse you for up to ten copies of the book.</div>,
+    subtitle: <div><a href="https://www.ifanyonebuildsit.com/
+    book-clubs">If Anyone Builds It, Everyone Dies</a> is launching September 16th. You can <a href="https://www.ifanyonebuildsit.com/book-clubs">sign up here</a> to get help facilitating a reading group.</div>,
     link: "https://www.ifanyonebuildsit.com/book-clubs",
     linkText: "If Anyone Builds It",
     buttonText: "If Anyone Builds It"
   },
   {
-    minorTitle: "Petrov Day",
+    title: "Petrov Day",
     subtitle: <div>September 26th is the day Stanislav Petrov didn't destroy the world. Host a ceremony observing the day's significance.</div>,
     link: "https://www.lesswrong.com/meetups/petrov-day",
     linkText: "Petrov Day",
@@ -86,7 +65,7 @@ const styles = defineStyles("MeetupMonthBanner", (theme: ThemeType) => ({
     right: 0,
     width: '50vw',
     height: '100vh',
-    [theme.breakpoints.down(1400)]: {
+    [theme.breakpoints.down(breakpoint)]: {
       display: 'none',
     },
   },
@@ -102,9 +81,10 @@ const styles = defineStyles("MeetupMonthBanner", (theme: ThemeType) => ({
     lineHeight: 1.2,
   },
   minorTitle: {
-    fontSize: 40,
+    fontSize: 38,
     fontWeight: 500,
     fontFamily: theme.typography.headerStyle.fontFamily,
+    fontVariant: 'small-caps',
     color: theme.palette.text.primary,
     zIndex: 2,
     transition: 'opacity 0.3s ease-out',
@@ -112,7 +92,10 @@ const styles = defineStyles("MeetupMonthBanner", (theme: ThemeType) => ({
     lineHeight: 1.2,
   },
   textContainer: {
-    width: 340,
+    width: 350,
+    [theme.breakpoints.up(1500)]: {
+      width: 370,
+    },
     zIndex: 4,
     lineHeight: 1.5,
     transition: 'transform 0.5s ease-in-out, opacity 0.5s ease-in-out',
@@ -129,8 +112,12 @@ const styles = defineStyles("MeetupMonthBanner", (theme: ThemeType) => ({
   },
   subtitle: {
     fontSize: 16,
+    height: 90,
+    [theme.breakpoints.up(1500)]: {
+      fontSize: 18,
+      height: 120,
+    },
     fontWeight: 500,
-    height: 120,
     marginTop: 12,
     display: 'flex',
     flexDirection: 'column',
@@ -151,7 +138,10 @@ const styles = defineStyles("MeetupMonthBanner", (theme: ThemeType) => ({
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'flex-start',
-    width: 340,
+    width: 350,
+    [theme.breakpoints.up(1500)]: {
+      width: 370,
+    },
     gap: 8,
     paddingTop: 10,
   },
@@ -258,19 +248,6 @@ const styles = defineStyles("MeetupMonthBanner", (theme: ThemeType) => ({
     },
     ...theme.typography.body2
   },
-  mapClickContainer: {
-    position: 'absolute',
-    top: 0,
-    right: 0,
-    zIndex: 3,
-    width: '35vw',
-    height: '100vh',
-    pointerEvents: 'auto',
-    cursor: 'pointer',
-    '&:hover': {
-      backgroundColor: 'rgba(255, 255, 255, 0.1)',
-    },
-  },
   zoomScrollbarContainer: {
     margin: '0 auto',
     zIndex: 4,
@@ -304,7 +281,7 @@ const styles = defineStyles("MeetupMonthBanner", (theme: ThemeType) => ({
     },
   },
   contentContainer: {
-    width: 'calc(100% - 390px)',
+    width: 'calc(100% - 300px)',
     paddingTop: 120,
     paddingBottom: 80,
     position: 'absolute',
@@ -318,31 +295,28 @@ const styles = defineStyles("MeetupMonthBanner", (theme: ThemeType) => ({
   }
 }));
 
-// Function to get user coordinates from IP address
-const getUserCoordinatesFromIP = async (): Promise<{lat: number, lng: number} | null> => {
-  try {
-    const response = await fetch('https://ipapi.co/json/');
-    if (!response.ok) {
-      throw new Error('Failed to fetch IP geolocation');
-    }
-    const data = await response.json();
-    
-    // ipapi.co returns latitude and longitude in the response
-    if (data.latitude && data.longitude) {
-      return {
-        lat: parseFloat(data.latitude),
-        lng: parseFloat(data.longitude)
-      };
-    }
-    return null;
-  } catch (error) {
-    // eslint-disable-next-line no-console
-    console.error('Error getting IP coordinates:', error);
-    return null;
-  }
-};
 
-export default function MeetupMonthBanner() {
+export const MeetupMonthyQuery = gql(`
+  query meetupMonthyQuery($selector: PostSelector, $limit: Int, $enableTotal: Boolean) {
+    posts(selector: $selector, limit: $limit, enableTotal: $enableTotal) {
+      results {
+        _id
+        location
+        googleLocation
+        onlineEvent
+        globalEvent
+        startTime
+        endTime
+        localStartTime
+        localEndTime
+      }
+      totalCount
+    }
+  }
+`);
+
+
+export default function MeetupMonthBannerInner() {
   const classes = useStyles(styles);
   const [mapViewport, setMapViewport] = useState({
     latitude: 0,
@@ -352,11 +326,14 @@ export default function MeetupMonthBanner() {
   const [isLoading, setIsLoading] = useState(true);
   const [scrollOpacity, setScrollOpacity] = useState(1);
   const [mapActive, setMapActive] = useState(false);
-  const [viewport, setViewport] = useState({
-    latitude: 0,
-    longitude: 0,
+  
+  const defaultViewport = useMemo(() => ({
+    latitude: 20, // Centered roughly over the Atlantic Ocean
+    longitude: -60,
     zoom: 1.1
-  });
+  }), [])
+
+  const [viewport, setViewport] = useState(defaultViewport)
 
   useEffect(() => {
     const handleScroll = () => {
@@ -380,28 +357,16 @@ export default function MeetupMonthBanner() {
 
   useEffect(() => {
     const initializeMap = async () => {
-      // Try to get coordinates from IP address
-      const coordinates = await getUserCoordinatesFromIP();
-      
-      if (coordinates) {
-        setViewport({
-          latitude: coordinates.lat,
-          longitude: coordinates.lng,
-          zoom: 1
-        });
-      } else {
-        // Fallback to default coordinates (center of the world)
-        setViewport({
-          latitude: 20,
-          longitude: 50,
-          zoom: 1
-        });
-      }
+      setViewport({
+        latitude: defaultViewport.latitude,
+        longitude: defaultViewport.longitude,
+        zoom: defaultViewport.zoom
+      });
       setIsLoading(false);
     };
 
     void initializeMap();
-  }, []);
+  }, [defaultViewport]);
 
   const currentUser = useCurrentUser()
   // this is unused in this component, but for Meetup Month it seems good to force the prompt to enter location.
@@ -441,12 +406,17 @@ export default function MeetupMonthBanner() {
     , [openWindows]
   )
   
-
-
   const renderedMarkers = useMemo(() => {
-    return <LocalEventsMapMarkers events={events} handleClick={handleClick} handleClose={handleClose} openWindows={openWindows} />
-  }, [events, handleClick, handleClose, openWindows])
+    // return <LocalEventsMapMarkers events={events} handleClick={handleClick} handleClose={handleClose} openWindows={openWindows} />
+  
 
+    return <LocalEventMapMarkerWrappers localEvents={events.map(event => ({
+      _id: event._id,
+      lat: event.googleLocation?.geometry?.location?.lat,
+      lng: event.googleLocation?.geometry?.location?.lng,
+    }))} />
+    // }, [events, handleClick, handleClose, openWindows])
+  }, [events, handleClick, handleClose, openWindows])
   const handleZoomChange = useCallback((event: React.ChangeEvent<HTMLInputElement>) => {
     const newZoom = parseFloat(event.target.value)
     setViewport(prev => ({
@@ -548,9 +518,9 @@ export default function MeetupMonthBanner() {
               transition: !isSettingUp ? 'opacity 0.15s ease-in-out, transform 0.3s ease-in-out' : 'none',
               transform: `translateX(${translateX})`,
             }}>
-              <h1 className={classes.title}>{section.title ?? section.minorTitle}</h1>
-              {/* <h3 className={classes.minorTitle}>{section.minorTitle}</h3> */}
-              <p className={classes.subtitle}>{section.subtitle}</p>
+              {section.title && <h1 className={classes.title}>{section.title}</h1>}
+              {section.minorTitle && <h3 className={classes.minorTitle}>{section.minorTitle}</h3>}
+              {section.subtitle && <p className={classes.subtitle}>{section.subtitle}</p>}
             </div>
           })}
         </div>
@@ -584,4 +554,8 @@ export default function MeetupMonthBanner() {
   </div>;
 }
 
-registerComponent('MeetupMonthBanner', MeetupMonthBanner)
+export const MeetupMonthBanner = () => {
+  return <SuspenseWrapper name="MeetupMonthBanner">
+    <MeetupMonthBannerInner />
+  </SuspenseWrapper>
+}
