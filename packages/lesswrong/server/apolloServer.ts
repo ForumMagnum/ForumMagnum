@@ -43,6 +43,10 @@ import { getExecutableSchema } from './vulcan-lib/apollo-server/initGraphQL';
 import express from 'express';
 import { getSiteUrl } from '@/lib/vulcan-lib/utils';
 import { botProtectionCommentRedirectSetting } from './databaseSettings';
+import { getDefaultViewSelector } from '@/lib/utils/viewUtils';
+import { NotificationsViews } from '@/lib/collections/notifications/views';
+import Notifications from './collections/notifications/collection';
+import { isFriendlyUI } from '@/themes/forumTheme';
 
 
 class ApolloServerLogging implements ApolloServerPlugin<ResolverContext> {
@@ -314,6 +318,34 @@ export async function startWebserver() {
       response.status(500);
       response.end("");
     }
+  });
+
+  app.get('/api/notificationCount', async (request, response) => {
+    const currentUser = getUserFromReq(request);
+    if (!currentUser) {
+      response.status(401).end("Unauthorized");
+      return;
+    }
+
+    const selector = {
+      ...getDefaultViewSelector(NotificationsViews),
+      userId: currentUser._id,
+    };
+  
+    const lastNotificationsCheck = currentUser.lastNotificationsCheck;
+  
+    const unreadNotificationCount = await Notifications.find({
+      ...selector,
+      ...(lastNotificationsCheck && {
+        createdAt: {$gt: lastNotificationsCheck},
+      }),
+      ...(isFriendlyUI && {
+        type: {$ne: "newMessage"},
+        viewed: {$ne: true},
+      }),
+    }).count();
+
+    response.status(200).json({ unreadNotificationCount });
   });
 
   app.get('*', async (request, response) => handleRequest(request, response));
