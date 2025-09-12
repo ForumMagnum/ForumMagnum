@@ -1,6 +1,6 @@
 "use client";
 
-import React, { FC, RefObject, ReactElement, useEffect, useRef, useState } from 'react';
+import React, { FC, RefObject, ReactElement, useEffect, useRef, useState, useCallback } from 'react';
 import { registerComponent } from '../../lib/vulcan-lib/components';
 import qs from 'qs';
 import type { SearchState } from 'react-instantsearch/connectors';
@@ -39,10 +39,11 @@ import ExpandedSequencesSearchHit from "./ExpandedSequencesSearchHit";
 import LWTooltip from "../common/LWTooltip";
 import ForumIcon from "../common/ForumIcon";
 import LWDialog from '../common/LWDialog';
+import { defineStyles, useStyles } from '../hooks/useStyles';
 
 const hitsPerPage = 10
 
-const styles = (theme: ThemeType) => ({
+const styles = defineStyles("SearchPageTabbed", (theme: ThemeType) => ({
   root: {
     width: "100%",
     maxWidth: 1200,
@@ -203,7 +204,7 @@ const styles = (theme: ThemeType) => ({
       opacity: 0.8,
     },
   },
-});
+}));
 
 export type ExpandedSearchState = SearchState & {
   contentType?: SearchIndexCollectionName,
@@ -242,9 +243,9 @@ const ScrollTo: FC<{
 }
 const CustomScrollTo = connectScrollTo(ScrollTo);
 
-const SearchPageTabbed = ({classes}: {
-  classes: ClassesType<typeof styles>,
-}) => {
+const SearchPageTabbed = () => {
+  console.log("SearchPageTabbed.render");
+  const classes = useStyles(styles);
   const scrollToRef = useRef<HTMLDivElement>(null);
   const navigate = useNavigate();
   const { location, query } = useSubscribedLocation()
@@ -289,7 +290,7 @@ const SearchPageTabbed = ({classes}: {
     }, {replace: true});
   }
   // we try to keep the URL synced with the search state
-  const updateUrl = (search: ExpandedSearchState, tags: Array<string>) => {
+  const updateUrl = useCallback((search: ExpandedSearchState, tags: Array<string>) => {
     navigate({
       ...location,
       search: qs.stringify({
@@ -304,7 +305,7 @@ const SearchPageTabbed = ({classes}: {
       replace: true,
       skipRouter: true,
     })
-  }
+  }, [location, sorting]);
 
   const handleChangeTab = (_: React.ChangeEvent, value: SearchIndexCollectionName) => {
     setTab(value);
@@ -318,7 +319,7 @@ const SearchPageTabbed = ({classes}: {
     updateUrl(searchState, tags)
   }
   
-  const onSearchStateChange = (updatedSearchState: ExpandedSearchState) => {
+  const onSearchStateChange = useCallback((updatedSearchState: ExpandedSearchState) => {
     // clear tags filter if the tag refinements list is empty
     const clearTagFilters = updatedSearchState.refinementList?.tags === ''
     if (clearTagFilters)
@@ -326,7 +327,7 @@ const SearchPageTabbed = ({classes}: {
       
     updateUrl(updatedSearchState, clearTagFilters ? [] : tagsFilter)
     setSearchState(updatedSearchState)
-  }
+  }, [updateUrl])
 
   useEffect(() => {
     if (searchState.query) {
@@ -451,7 +452,7 @@ const SearchPageTabbed = ({classes}: {
             </Link>
           }
           <CustomScrollTo targetRef={scrollToRef}>
-            <Hits hitComponent={(props) => <HitComponent {...props} />} />
+            <Hits hitComponent={HitComponent} />
           </CustomScrollTo>
           <Pagination showLast className={classes.pagination} />
         </ErrorBoundary>
@@ -460,6 +461,6 @@ const SearchPageTabbed = ({classes}: {
   </div>
 }
 
-export default registerComponent("SearchPageTabbed", SearchPageTabbed, {styles});
+export default SearchPageTabbed;
 
 
