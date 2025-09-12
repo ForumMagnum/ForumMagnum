@@ -28,7 +28,7 @@ import classNames from 'classnames';
 import { useCurrentUser } from '../common/withUser';
 import { userHasPeopleDirectory } from '../../lib/betas';
 import { Link } from "../../lib/reactRouterWrapper";
-import { useLocation, useNavigate } from "../../lib/routeUtil";
+import { useLocation, useNavigate, useSubscribedLocation } from "../../lib/routeUtil";
 import SearchFilters from "./SearchFilters";
 import ErrorBoundary from "../common/ErrorBoundary";
 import ExpandedUsersSearchHit from "./ExpandedUsersSearchHit";
@@ -247,7 +247,7 @@ const SearchPageTabbed = ({classes}: {
 }) => {
   const scrollToRef = useRef<HTMLDivElement>(null);
   const navigate = useNavigate();
-  const { location, query } = useLocation()
+  const { location, query } = useSubscribedLocation()
   const captureSearch = useSearchAnalytics();
   const currentUser = useCurrentUser();
 
@@ -300,7 +300,10 @@ const SearchPageTabbed = ({classes}: {
         page: search.page,
         sort: elasticSortingToUrlParam(sorting),
       })
-    }, {replace: true})
+    }, {
+      replace: true,
+      skipRouter: true,
+    })
   }
 
   const handleChangeTab = (_: React.ChangeEvent, value: SearchIndexCollectionName) => {
