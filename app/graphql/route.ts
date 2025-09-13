@@ -1,14 +1,13 @@
 import { getExecutableSchema } from '../../packages/lesswrong/server/vulcan-lib/apollo-server/initGraphQL';
 import { startServerAndCreateNextHandler } from '@as-integrations/next';
 import { ApolloServer, ApolloServerPlugin, GraphQLRequestContext } from '@apollo/server';
-import { unwrapResolverError } from '@apollo/server/errors';
 import { configureSentryScope, getContextFromReqAndRes } from '../../packages/lesswrong/server/vulcan-lib/apollo-server/context';
 import type { NextRequest } from 'next/server';
 import { asyncLocalStorage, closePerfMetric, closeRequestPerfMetric, openPerfMetric, setAsyncStoreValue } from '@/server/perfMetrics';
 import { captureException, getSentry } from '@/lib/sentryWrapper';
 import { getClientIP } from '@/server/utils/getClientIP';
 import { performanceMetricLoggingEnabled } from '@/lib/instanceSettings';
-import { GraphQLError, GraphQLFormattedError } from 'graphql';
+import { GraphQLFormattedError } from 'graphql';
 import { inspect } from 'util';
 import { formatError } from 'apollo-errors';
 

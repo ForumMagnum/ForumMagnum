@@ -15,7 +15,7 @@ import { getDefaultMetadata } from "@/server/pageMetadata/sharedMetadata";
 import type { Metadata } from "next";
 
 export async function generateMetadata(): Promise<Metadata> {
-  return await getDefaultMetadata();
+  return getDefaultMetadata();
 }
 
 export default async function RootLayout({

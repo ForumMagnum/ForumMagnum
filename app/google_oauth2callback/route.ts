@@ -32,7 +32,7 @@ export async function GET(request: NextRequest) {
   }
 
   if (!code) {
-    return NextResponse.redirect(new URL('/admin/googleServiceAccount', request.url));
+    return NextResponse.redirect(new URL('/admin/googleServiceAccount', getSiteUrl()));
   }
 
   const callbackUrl = "google_oauth2callback";
@@ -67,10 +67,10 @@ export async function GET(request: NextRequest) {
       refreshToken: tokens.refresh_token
     });
 
-    return NextResponse.redirect(new URL('/admin/googleServiceAccount', request.url));
+    return NextResponse.redirect(new URL('/admin/googleServiceAccount', getSiteUrl()));
   } catch (error) {
     // eslint-disable-next-line no-console
     console.error('Error retrieving access token', error);
-    return NextResponse.redirect(new URL('/admin/googleServiceAccount', request.url));
+    return NextResponse.redirect(new URL('/admin/googleServiceAccount', getSiteUrl()));
   }
 }

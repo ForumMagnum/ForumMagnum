@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { cookies } from 'next/headers';
 import { isEAForum, siteUrlSetting } from '@/lib/instanceSettings';
 import { auth0ClientIdSetting, auth0DomainSetting } from '@/server/databaseSettings';
+import { getSiteUrl } from '@/lib/vulcan-lib/utils';
 
 export async function GET(request: NextRequest) {
   const cookieStore = await cookies();
@@ -32,7 +33,7 @@ export async function GET(request: NextRequest) {
   }
 
   // Otherwise redirect to homepage
-  return NextResponse.redirect(new URL('/', request.url));
+  return NextResponse.redirect(new URL('/', getSiteUrl()));
 }
 
 // Support POST method as well for forms that might use it

@@ -4,6 +4,7 @@ import { exchangeCodeForTokens, fetchGitHubUserProfile, getGitHubPrimaryEmail } 
 import { getOrCreateGitHubUser } from '@/server/authentication/githubAccounts';
 import { createAndSetToken } from '@/server/vulcan-lib/apollo-server/authentication';
 import { captureException } from '@/lib/sentryWrapper';
+import { getSiteUrl } from '@/lib/vulcan-lib/utils';
 
 
 export async function GET(request: NextRequest) {
@@ -16,17 +17,17 @@ export async function GET(request: NextRequest) {
   
   // Handle errors
   if (error) {
-    return NextResponse.redirect(new URL(`/?error=${error}`, request.url));
+    return NextResponse.redirect(new URL(`/?error=${error}`, getSiteUrl()));
   }
 
   if (!code) {
-    return NextResponse.redirect(new URL('/?error=no_code', request.url));
+    return NextResponse.redirect(new URL('/?error=no_code', getSiteUrl()));
   }
   
   // Verify state
   const storedState = cookieStore.get('github_oauth_state')?.value;
   if (!state || state !== storedState) {
-    return NextResponse.redirect(new URL('/?error=invalid_state', request.url));
+    return NextResponse.redirect(new URL('/?error=invalid_state', getSiteUrl()));
   }
   
   // Clear state cookie
@@ -48,7 +49,7 @@ export async function GET(request: NextRequest) {
     const user = await getOrCreateGitHubUser(profile);
 
     if (user.banned && new Date(user.banned) > new Date()) {
-      return NextResponse.redirect(new URL('/banNotice', request.url));
+      return NextResponse.redirect(new URL('/banNotice', getSiteUrl()));
     }
     
     // Set login token
@@ -58,9 +59,14 @@ export async function GET(request: NextRequest) {
     const returnTo = cookieStore.get('github_oauth_return')?.value ?? '/';
     cookieStore.delete('github_oauth_return');
     
-    return NextResponse.redirect(new URL(returnTo, request.url));
+    return NextResponse.redirect(new URL(returnTo, getSiteUrl()));
   } catch (error) {
+    // eslint-disable-next-line no-console
+    console.error('Error retrieving GitHub OAuth access token', error);
     captureException(error);
-    return NextResponse.redirect(new URL('/?error=authentication_failed', request.url));
+    return NextResponse.redirect(new URL('/?error=authentication_failed', getSiteUrl()));
+  } finally {
+    cookieStore.delete('github_oauth_state');
+    cookieStore.delete('github_oauth_return');
   }
 }

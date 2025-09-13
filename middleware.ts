@@ -12,7 +12,9 @@ export const CLIENT_ID_NEW_COOKIE = 'clientIdUnset';
 const ForwardingHeaderName = "X-Forwarded-For-Status-Codes";
 
 function urlIsAbsolute(url: string): boolean {
-  return (url.startsWith('http://') || url.startsWith('https://'));
+  // Check if the URL starts with a protocol (http:, https:, ftp:, etc.)
+  // or with double slashes (//) which indicates protocol-relative URL
+  return /^([a-z][a-z\d+\-.]*:)?\/\//i.test(url);
 }
 
 /**
