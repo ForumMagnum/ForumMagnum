@@ -36,9 +36,10 @@ const isPrefetchablePostLink = (to: string) => {
 };
 
 const getLinkPrefetch = (to: string, everHovered: boolean) => {
-  if (isPrefetchablePostLink(to)) {
-    return true;
-  }
+  // TODO: disabled to see if this makes a meaningful impact on post page request count and other expensive things.
+  // if (isPrefetchablePostLink(to)) {
+  //   return true;
+  // }
 
   return everHovered ? true : false;
 }
