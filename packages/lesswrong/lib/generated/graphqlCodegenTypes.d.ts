@@ -9241,12 +9241,17 @@ type ReviewVoteSelector = {
   default?: InputMaybe<EmptyViewInput>;
   reviewVotesAdminDashboard?: InputMaybe<ReviewVotesReviewVotesAdminDashboardInput>;
   reviewVotesForPost?: InputMaybe<EmptyViewInput>;
-  reviewVotesForPostAndUser?: InputMaybe<EmptyViewInput>;
+  reviewVotesForPostAndUser?: InputMaybe<ReviewVotesReviewVotesForPostAndUserInput>;
   reviewVotesFromUser?: InputMaybe<ReviewVotesReviewVotesFromUserInput>;
 };
 
 type ReviewVotesReviewVotesAdminDashboardInput = {
   year?: InputMaybe<Scalars['Int']['input']>;
+};
+
+type ReviewVotesReviewVotesForPostAndUserInput = {
+  postId?: InputMaybe<Scalars['String']['input']>;
+  userId?: InputMaybe<Scalars['String']['input']>;
 };
 
 type ReviewVotesReviewVotesFromUserInput = {
@@ -16230,6 +16235,21 @@ type CurrentFrontpageSurveyQueryVariables = Exact<{ [key: string]: never; }>;
 
 
 type CurrentFrontpageSurveyQuery = CurrentFrontpageSurveyQuery_Query;
+
+type reviewVotesForPostAndUserQuery_reviewVotes_MultiReviewVoteOutput_results_ReviewVote = { __typename?: 'ReviewVote', _id: string, qualitativeScore: number, quadraticScore: number };
+
+type reviewVotesForPostAndUserQuery_reviewVotes_MultiReviewVoteOutput = { __typename?: 'MultiReviewVoteOutput', results: Array<reviewVotesForPostAndUserQuery_reviewVotes_MultiReviewVoteOutput_results_ReviewVote> };
+
+type reviewVotesForPostAndUserQuery_Query = { __typename?: 'Query', reviewVotes: reviewVotesForPostAndUserQuery_reviewVotes_MultiReviewVoteOutput | null };
+
+
+type reviewVotesForPostAndUserQueryVariables = Exact<{
+  postId: Scalars['String']['input'];
+  userId: Scalars['String']['input'];
+}>;
+
+
+type reviewVotesForPostAndUserQuery = reviewVotesForPostAndUserQuery_Query;
 
 type UserExpandFrontpageSectionMutation_Mutation = { __typename?: 'Mutation', UserExpandFrontpageSection: boolean | null };
 
@@ -24802,11 +24822,9 @@ type PodcastEpisodeFull = { __typename?: 'PodcastEpisode', _id: string, podcastI
 
 type PodcastSelect = { __typename?: 'Podcast', _id: string, title: string };
 
-type PostsMinimumInfo_Post_currentUserReviewVote_ReviewVote = { __typename?: 'ReviewVote', _id: string, qualitativeScore: number, quadraticScore: number };
-
 type PostsMinimumInfo_Post_coauthorStatuses_CoauthorStatusOutput = { __typename?: 'CoauthorStatusOutput', userId: string, confirmed: boolean, requested: boolean };
 
-type PostsMinimumInfo = { __typename?: 'Post', _id: string, slug: string, title: string, draft: boolean | null, shortform: boolean, hideCommentKarma: boolean, af: boolean, userId: string | null, hasCoauthorPermission: boolean, rejected: boolean, debate: boolean, collabEditorDialogue: boolean, currentUserReviewVote: PostsMinimumInfo_Post_currentUserReviewVote_ReviewVote | null, coauthorStatuses: Array<PostsMinimumInfo_Post_coauthorStatuses_CoauthorStatusOutput> | null };
+type PostsMinimumInfo = { __typename?: 'Post', _id: string, slug: string, title: string, draft: boolean | null, shortform: boolean, hideCommentKarma: boolean, af: boolean, userId: string | null, hasCoauthorPermission: boolean, rejected: boolean, debate: boolean, collabEditorDialogue: boolean, coauthorStatuses: Array<PostsMinimumInfo_Post_coauthorStatuses_CoauthorStatusOutput> | null };
 
 type PostsTopItemInfo_Post_contents_Revision = { __typename?: 'Revision', _id: string, htmlHighlight: string, wordCount: number, version: string };
 
@@ -24866,8 +24884,10 @@ type UltraFeedPostFragment = (
   & PostsListWithVotes
 );
 
+type PostsReviewVotingList_Post_currentUserReviewVote_ReviewVote = { __typename?: 'ReviewVote', _id: string, qualitativeScore: number, quadraticScore: number };
+
 type PostsReviewVotingList = (
-  { __typename?: 'Post', reviewVoteScoreAllKarma: number, reviewVotesAllKarma: Array<number>, reviewVoteScoreHighKarma: number, reviewVotesHighKarma: Array<number>, reviewVoteScoreAF: number, reviewVotesAF: Array<number> }
+  { __typename?: 'Post', reviewVoteScoreAllKarma: number, reviewVotesAllKarma: Array<number>, reviewVoteScoreHighKarma: number, reviewVotesHighKarma: Array<number>, reviewVoteScoreAF: number, reviewVotesAF: Array<number>, currentUserReviewVote: PostsReviewVotingList_Post_currentUserReviewVote_ReviewVote | null }
   & PostsListWithVotes
 );
 

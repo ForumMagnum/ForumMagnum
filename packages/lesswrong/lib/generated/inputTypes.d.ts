@@ -5861,11 +5861,16 @@ interface ReviewVotesReviewVotesAdminDashboardInput {
   year?: number | null;
 }
 
+interface ReviewVotesReviewVotesForPostAndUserInput {
+  postId?: string | null;
+  userId?: string | null;
+}
+
 interface ReviewVoteSelector {
   default: EmptyViewInput | null;
   reviewVotesFromUser: ReviewVotesReviewVotesFromUserInput | null;
   reviewVotesForPost: EmptyViewInput | null;
-  reviewVotesForPostAndUser: EmptyViewInput | null;
+  reviewVotesForPostAndUser: ReviewVotesReviewVotesForPostAndUserInput | null;
   reviewVotesAdminDashboard: ReviewVotesReviewVotesAdminDashboardInput | null;
 }
 
@@ -10277,6 +10282,7 @@ interface GraphQLTypeMap {
   SingleReviewVoteOutput: SingleReviewVoteOutput;
   ReviewVotesReviewVotesFromUserInput: ReviewVotesReviewVotesFromUserInput;
   ReviewVotesReviewVotesAdminDashboardInput: ReviewVotesReviewVotesAdminDashboardInput;
+  ReviewVotesReviewVotesForPostAndUserInput: ReviewVotesReviewVotesForPostAndUserInput;
   ReviewVoteSelector: ReviewVoteSelector;
   MultiReviewVoteInput: MultiReviewVoteInput;
   MultiReviewVoteOutput: MultiReviewVoteOutput;

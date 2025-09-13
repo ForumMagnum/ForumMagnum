@@ -9,11 +9,6 @@ export const PostsMinimumInfo = gql(`
     shortform
     hideCommentKarma
     af
-    currentUserReviewVote {
-      _id
-      qualitativeScore
-      quadraticScore
-    }
     userId
     coauthorStatuses {
       userId
@@ -226,6 +221,11 @@ export const PostsReviewVotingList = gql(`
     reviewVotesHighKarma
     reviewVoteScoreAF
     reviewVotesAF
+    currentUserReviewVote {
+      _id
+      qualitativeScore
+      quadraticScore
+    }
   }
 `)
 
