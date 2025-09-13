@@ -13,6 +13,7 @@ import { getLegacyCreateCallbackProps, getLegacyUpdateCallbackProps, insertAndRe
 import gql from "graphql-tag";
 import cloneDeep from "lodash/cloneDeep";
 import { newCheck, editCheck } from "./helpers";
+import { backgroundTask } from "@/server/utils/backgroundTask";
 
 export async function createTag({ data }: CreateTagInput, context: ResolverContext) {
   const { currentUser } = context;
@@ -57,11 +58,11 @@ export async function createTag({ data }: CreateTagInput, context: ResolverConte
     newDocument: documentWithId,
   };
 
-  if (isElasticEnabled) {
-    void elasticSyncDocument('Tags', documentWithId._id);
+  if (isElasticEnabled()) {
+    backgroundTask(elasticSyncDocument('Tags', documentWithId._id));
   }
 
-  await uploadImagesInEditableFields({
+  uploadImagesInEditableFields({
     newDoc: documentWithId,
     props: asyncProperties,
   });
@@ -105,16 +106,16 @@ export async function updateTag({ selector, data }: UpdateTagInput, context: Res
 
   await updateCountOfReferencesOnOtherCollectionsAfterUpdate('Tags', updatedDocument, oldDocument);
 
-  await reuploadImagesIfEditableFieldsChanged({
+  reuploadImagesIfEditableFieldsChanged({
     newDoc: updatedDocument,
     props: updateCallbackProperties,
   });
 
-  if (isElasticEnabled) {
-    void elasticSyncDocument('Tags', updatedDocument._id);
+  if (isElasticEnabled()) {
+    backgroundTask(elasticSyncDocument('Tags', updatedDocument._id));
   }
 
-  void logFieldChanges({ currentUser, collection: Tags, oldDocument, data: origData });
+  backgroundTask(logFieldChanges({ currentUser, collection: Tags, oldDocument, data: origData }));
 
   return updatedDocument;
 }

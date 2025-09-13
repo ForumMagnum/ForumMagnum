@@ -1,10 +1,10 @@
 import { convertDocumentIdToIdInSelector, UpdateSelector } from '../../lib/vulcan-lib/utils';
-import { dataToModifier } from './validation';
 import { throwError } from './errors';
 import type { CreateCallbackProperties, UpdateCallbackProperties, AfterCreateCallbackProperties } from '../mutationCallbacks';
 import isEmpty from 'lodash/isEmpty';
 import pickBy from 'lodash/pickBy';
 import clone from 'lodash/clone';
+import mapValues from 'lodash/mapValues';
 
 /**
  * @deprecated Prefer to avoid using onCreate callbacks on fields for new collections.
@@ -84,7 +84,7 @@ export async function getLegacyCreateCallbackProps<const T extends CollectionNam
   { context, data, schema }: CheckCreatePermissionsAndReturnArgumentsProps<T, S, D>
 ) {
   const { currentUser } = context;
-  const collection = context[collectionName] as CollectionBase<T>;
+  const collection = context[collectionName] as unknown as PgCollection<T>;
 
   const callbackProps: CreateCallbackProperties<T, D> = {
     collection,
@@ -135,7 +135,7 @@ export async function getLegacyUpdateCallbackProps<const T extends CollectionNam
   { selector, context, data, schema }: CheckUpdatePermissionsAndReturnArgumentsProps<T, S, D>
 ) {
   const { currentUser } = context;
-  const collection = context[collectionName] as CollectionBase<T>;
+  const collection = context[collectionName] as unknown as PgCollection<T>;
   const documentSelector = convertDocumentIdToIdInSelector(selector as UpdateSelector);
   const oldDocument = await getOldDocument(collectionName, selector, context);
 
@@ -163,7 +163,7 @@ export async function getLegacyUpdateCallbackProps<const T extends CollectionNam
  * you might want to use this function to assign the current user's userId to the document,
  * if the userId in fact represents "ownership" or similar.
  */
-export function assignUserIdToData(data: unknown, currentUser: DbUser | null, schema: SchemaType<CollectionNameString> & { userId: CollectionFieldSpecification<CollectionNameString> }) {
+export function assignUserIdToData<T>(data: T, currentUser: DbUser | null, schema: SchemaType<CollectionNameString> & { userId: CollectionFieldSpecification<CollectionNameString> }) {
   // You know, it occurs to me that this seems to allow users to insert arbitrary userIds
   // for documents they're creating if they have a userId field and canCreate: member.
   if (currentUser && schema.userId && !(data as HasUserIdType).userId) {
@@ -171,8 +171,8 @@ export function assignUserIdToData(data: unknown, currentUser: DbUser | null, sc
   }
 }
 
-export async function insertAndReturnDocument<N extends CollectionNameString, T extends CreateInputsByCollectionName[N]['data'] | Partial<ObjectsByCollectionName[N]>>(data: T, collectionName: N, context: ResolverContext) {
-  const collection = context[collectionName] as CollectionBase<N>;
+export async function insertAndReturnDocument<N extends CollectionNameString, T extends InsertionRecord<ObjectsByCollectionName[N]>>(data: T, collectionName: N, context: ResolverContext) {
+  const collection = context[collectionName] as unknown as PgCollection<N>;
   const insertedId = await collection.rawInsert(data);
   const insertedDocument = (await collection.findOne(insertedId))!;
   return insertedDocument;
@@ -188,7 +188,7 @@ export async function insertAndReturnDocument<N extends CollectionNameString, T 
  * Instead, use insertAndReturnDocument.
  */
 export async function insertAndReturnCreateAfterProps<N extends CollectionNameString, T extends CreateInputsByCollectionName[N]['data'] | Partial<ObjectsByCollectionName[N]>>(data: T, collectionName: N, createCallbackProperties: CreateCallbackProperties<N, T>) {
-  const insertedDocument = await insertAndReturnDocument(data, collectionName, createCallbackProperties.context);
+  const insertedDocument = await insertAndReturnDocument(data as InsertionRecord<ObjectsByCollectionName[N]>, collectionName, createCallbackProperties.context);
 
   const afterCreateProperties: AfterCreateCallbackProperties<N> = {
     ...createCallbackProperties,
@@ -244,3 +244,13 @@ export async function updateAndReturnDocument<N extends CollectionNameString>(
 
   return updatedDocument;
 }
+
+export const dataToModifier = <T extends Record<any, any>>(data: T): MongoModifier => ({
+  $set: pickBy(data, f => f !== null),
+  $unset: mapValues(pickBy(data, f => f === null), () => true),
+});
+
+export const modifierToData = (modifier: MongoModifier): any => ({
+  ...modifier.$set,
+  ...mapValues(modifier.$unset, () => null),
+});

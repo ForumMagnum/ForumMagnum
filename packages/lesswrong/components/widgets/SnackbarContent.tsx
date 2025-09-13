@@ -1,7 +1,6 @@
 import React from 'react';
 import classNames from 'classnames';
 import { defineStyles, useStyles } from '../hooks/useStyles';
-import { isFriendlyUI } from '@/themes/forumTheme';
 import { Paper } from './Paper';
 import { Typography } from "../common/Typography";
 
@@ -27,7 +26,7 @@ export const styles = defineStyles("MuiSnackbarContent", theme => {
     message: {
       padding: '8px 0',
       color: theme.palette.text.maxIntensity,
-      fontFamily: isFriendlyUI ? theme.palette.fonts.sansSerifStack : undefined,
+      fontFamily: theme.isFriendlyUI ? theme.palette.fonts.sansSerifStack : undefined,
     },
     /* Styles applied to the action wrapper element if `action` is provided. */
     action: {

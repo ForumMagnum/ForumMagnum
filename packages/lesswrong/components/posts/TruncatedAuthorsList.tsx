@@ -4,6 +4,7 @@ import { usePostsUserAndCoauthors } from "./usePostsUserAndCoauthors";
 import { recalculateTruncation } from "../../lib/truncateUtils";
 import classNames from "classnames";
 import UsersNameDisplay from "../users/UsersNameDisplay";
+import UsersNameWithModal from "../ultraFeed/UsersNameWithModal";
 import UserNameDeleted from "../users/UserNameDeleted";
 import LWTooltip from "../common/LWTooltip";
 
@@ -60,15 +61,20 @@ const TruncatedAuthorsList = ({
   expandContainer,
   className,
   classes,
-  useMoreSuffix = true
+  useMoreSuffix = true,
+  useUltraFeedModal = false,
+  showSubscribedIcon = false,
 }: {
   post: PostsList | SunshinePostsList | PostsBestOfList,
   expandContainer: RefObject<HTMLDivElement|null>,
   className?: string,
   classes: ClassesType<typeof styles>,
   useMoreSuffix?: boolean,
+  useUltraFeedModal?: boolean,
+  showSubscribedIcon?: boolean,
 }) => {
   const {isAnon, authors, topCommentAuthor} = usePostsUserAndCoauthors(post);
+  const UserNameComponent = useUltraFeedModal ? UsersNameWithModal : UsersNameDisplay;
   const ref = useRef<HTMLDivElement>(null);
 
   const reformatAuthorPlaceholderCurried = useCallback(
@@ -96,13 +102,13 @@ const TruncatedAuthorsList = ({
     : (
       <div className={classNames(classes.root, className)} ref={ref}>
         <span className={classNames(classes.item, classes.placeholder)}>
-          <UsersNameDisplay user={authors[0]} />
+          <UserNameComponent user={authors[0]} {...(useUltraFeedModal && { tooltipPlacement: "bottom-start", showSubscribedIcon })} />
         </span>
         <div className={classes.scratch} aria-hidden="true">
           {authors.map((author, i) =>
             <span key={author._id} className={classes.item}>
               {i > 0 ? ", " : ""}
-              <UsersNameDisplay user={author} />
+              <UserNameComponent user={author} {...(useUltraFeedModal && { tooltipPlacement: "bottom-start", showSubscribedIcon })} />
             </span>
           )}
           {authors.length > 1 && (
@@ -110,7 +116,11 @@ const TruncatedAuthorsList = ({
               title={
                 <div className={classes.tooltip}>
                   {authors.slice(1).map((author: UsersMinimumInfo) => (
-                    <UsersNameDisplay key={author._id} user={author} />
+                    <UserNameComponent 
+                      key={author._id} 
+                      user={author} 
+                      {...(useUltraFeedModal && { simple: true, showSubscribedIcon })}
+                    />
                   ))}
                 </div>
               }

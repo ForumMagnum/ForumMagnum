@@ -2,16 +2,15 @@ import React from 'react';
 import { isEAForum } from "../../lib/instanceSettings"
 import { registerComponent } from "../../lib/vulcan-lib/components"
 import { defineStyles, useStyles } from '../hooks/useStyles';
-import { isFriendlyUI } from '@/themes/forumTheme';
 import TagRevisionItem from "../tagging/TagRevisionItem";
 
 const styles = defineStyles("RecentDiscussionTagRevisionItem", (theme) => ({
   root: {
     backgroundColor: theme.palette.panelBackground.recentDiscussionThread,
-    marginBottom: isFriendlyUI ? theme.spacing.unit*2 : theme.spacing.unit*4,
+    marginBottom: theme.isFriendlyUI ? theme.spacing.unit*2 : theme.spacing.unit*4,
     position: "relative",
     boxShadow: theme.palette.boxShadow.default,
-    borderRadius: theme.borderRadius[isFriendlyUI ? "default" : "small"],
+    borderRadius: theme.borderRadius[theme.isFriendlyUI ? "default" : "small"],
 
     paddingLeft: 16,
     paddingRight: 16,
@@ -55,7 +54,7 @@ function RecentDiscussionTagRevisionItem({
   // active tag users doing routine cleanup
   if (
     // Only a problem for the forum
-    isEAForum &&
+    isEAForum() &&
     // Only restrict the most active tag users
     megaTagUsers.includes(revision.userId ?? '') &&
     // Restrict all from cleanup-only users, restrict small edits from other mega users

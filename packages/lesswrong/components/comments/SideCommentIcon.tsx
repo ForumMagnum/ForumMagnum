@@ -1,7 +1,6 @@
-import React, { useRef, useState, useEffect, useContext } from 'react';
-import { registerComponent } from '../../lib/vulcan-lib/components';
+import React, { useRef, useState, useEffect } from 'react';
 import { useHover } from "../common/withHover";
-import { useTheme } from '../themes/useTheme';
+import { useTheme, useThemeColor } from '../themes/useTheme';
 import type { ClickAwayEvent } from '../../lib/vendor/react-click-away-listener';
 import CommentIcon from '@/lib/vendor/@material-ui/icons/src/ModeComment';
 import classNames from 'classnames';
@@ -9,7 +8,7 @@ import { Badge } from "@/components/widgets/Badge";
 import some from 'lodash/some';
 import { useIsMobile } from '../hooks/useScreenWidth';
 import { useDialog } from '../common/withDialog';
-import { useApolloClient } from '@apollo/client';
+import { useApolloClient } from '@apollo/client/react';
 import { useQuery } from "@/lib/crud/useQuery";
 import { CommentWithRepliesFragment } from '@/lib/collections/comments/fragments';
 import { gql } from "@/lib/generated/gql-codegen";
@@ -21,7 +20,7 @@ import LWClickAwayListener from "../common/LWClickAwayListener";
 import CommentWithReplies from "./CommentWithReplies";
 import { defineStyles, useStyles } from '../hooks/useStyles';
 
-const styles = (theme: ThemeType) => ({
+const styles = defineStyles("SideCommentIcon", (theme: ThemeType) => ({
   sideCommentIconWrapper: {
     color: theme.palette.icon.dim6,
     paddingLeft: 8,
@@ -83,22 +82,14 @@ const styles = (theme: ThemeType) => ({
   lineColor: {
     background: theme.palette.sideItemIndicator.sideComment,
   },
-});
+}));
 
-const dialogStyles = () => ({
-  dialogPaper: {
-    marginTop: 48,
-    marginBottom: 48,
-    marginLeft: 18,
-    marginRight: 18,
-  },
-});
 
-const BadgeWrapper = ({commentCount, classes, children}: {
+const BadgeWrapper = ({commentCount, children}: {
   commentCount: number,
-  classes: ClassesType<typeof styles>,
   children: React.ReactNode
 }) => {
+  const classes = useStyles(styles);
   if (commentCount>1) {
     return <Badge
       badgeClassName={classes.badge}
@@ -109,20 +100,26 @@ const BadgeWrapper = ({commentCount, classes, children}: {
   }
 }
 
-const SideCommentIconInner = ({commentIds, post, classes}: {
+export const SideCommentIcon = ({commentIds, post}: {
   commentIds: string[]
   post: PostsList
-  classes: ClassesType<typeof styles>
 }) => {
   const isMobile = useIsMobile();
   if (isMobile) {
-    return <SideCommentIconMobile commentIds={commentIds} post={post} classes={classes} />;
+    return <SideCommentIconMobile commentIds={commentIds} post={post} />;
   } else {
     return <SideCommentIconDesktop commentIds={commentIds} post={post} />;
   }
 }
 
-const sideCommentDialogStyles = defineStyles('SideCommentDialog', dialogStyles);
+const sideCommentDialogStyles = defineStyles('SideCommentDialog', (theme) => ({
+  dialogPaper: {
+    marginTop: 48,
+    marginBottom: 48,
+    marginLeft: 18,
+    marginRight: 18,
+  },
+}));
 
 export const SideCommentDialog = ({ commentIds, post, onClose }: {
   commentIds: string[]
@@ -135,11 +132,11 @@ export const SideCommentDialog = ({ commentIds, post, onClose }: {
   </LWDialog>;
 }
 
-const SideCommentIconMobile = ({commentIds, post, classes}: {
+const SideCommentIconMobile = ({commentIds, post}: {
   commentIds: string[]
   post: PostsList
-  classes: ClassesType<typeof styles>
 }) => {
+  const classes = useStyles(styles);
   const { openDialog } = useDialog();
 
   const openModal = () => {
@@ -152,7 +149,7 @@ const SideCommentIconMobile = ({commentIds, post, classes}: {
       />
     });
   };
-    
+  
   return <SideItem options={{
     format: "icon"
   }}>
@@ -164,13 +161,11 @@ const SideCommentIconMobile = ({commentIds, post, classes}: {
   </SideItem>
 }
 
-const sideCommentIconDesktopStyles = defineStyles('SideCommentIconDesktop', styles);
-
 const SideCommentIconDesktop = ({commentIds, post}: {
   commentIds: string[]
   post: PostsList
 }) => {
-  const classes = useStyles(sideCommentIconDesktopStyles);
+  const classes = useStyles(styles);
   const {eventHandlers, hover, anchorEl} = useHover();
   
   // Three-state pinning: open, closed, or auto ("auto" means visible
@@ -212,7 +207,7 @@ const SideCommentIconDesktop = ({commentIds, post}: {
         className={classes.sideCommentIcon}
       >
         <span className={classes.desktopIcon}>
-          <BadgeWrapper commentCount={commentIds.length} classes={classes}>
+          <BadgeWrapper commentCount={commentIds.length}>
             <CommentIcon className={classNames({[classes.pinned]: (pinned==="open")})} />
           </BadgeWrapper>
           {isOpen && <span className={classes.clickToPinMessage}>
@@ -236,14 +231,12 @@ const SideCommentIconDesktop = ({commentIds, post}: {
   </SideItem>
 }
 
-const sideCommentHoverStyles = defineStyles('SideCommentHover', styles);
-
 const SideCommentHover = ({commentIds, post, closeDialog}: {
   commentIds: string[],
   post: PostsList,
   closeDialog?: () => void,
 }) => {
-  const classes = useStyles(sideCommentHoverStyles);
+  const classes = useStyles(styles);
   // If there's only one comment (not counting replies to that comment), don't
   // truncate it with a read more.
   const dontTruncateRoot = (commentIds.length === 1); 
@@ -256,7 +249,6 @@ const SideCommentHover = ({commentIds, post, closeDialog}: {
         post={post}
         dontTruncateRoot={dontTruncateRoot}
         closeDialog={closeDialog}
-        classes={classes}
       />
     )}
   </div>
@@ -272,15 +264,15 @@ const SideCommentSingleQuery = gql(`
   }
 `);
 
-const SideCommentSingle = ({commentId, post, dontTruncateRoot=false, closeDialog, classes}: {
+const SideCommentSingle = ({commentId, post, dontTruncateRoot=false, closeDialog}: {
   commentId: string,
   post: PostsList,
   dontTruncateRoot?: boolean,
   closeDialog?: () => void,
-  classes: ClassesType<typeof styles>,
 }) => {
+  const classes = useStyles(styles);
   const theme = useTheme();
-  const hoverColor = theme.palette.blockquoteHighlight.commentHovered;
+  const hoverColor = useThemeColor((theme) => theme.palette.blockquoteHighlight.commentHovered);
 
   const apolloClient = useApolloClient();
 
@@ -367,6 +359,3 @@ const SideCommentSingle = ({commentId, post, dontTruncateRoot=false, closeDialog
     />
   </div>
 }
-
-export const SideCommentIcon = registerComponent('SideCommentIcon', SideCommentIconInner, {styles});
-

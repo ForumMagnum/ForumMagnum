@@ -1,3 +1,5 @@
+"use client";
+
 import React, { useState } from 'react';
 import { taggingNameCapitalSetting, taggingNameIsSet, taggingNamePluralCapitalSetting } from '../../lib/instanceSettings';
 import { QueryLink } from '../../lib/reactRouterWrapper';

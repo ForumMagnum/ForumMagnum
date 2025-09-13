@@ -29,6 +29,7 @@ const styles = defineStyles("LWDialog", theme => ({
     flexDirection: 'column',
     margin: '48px auto',
     pointerEvents: "auto",
+    overflowY: "auto",
   },
   paperFullScreen: {
     margin: 0,

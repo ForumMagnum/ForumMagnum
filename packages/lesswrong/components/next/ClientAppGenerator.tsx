@@ -1,138 +1,189 @@
 "use client";
 
-// Client-side React wrapper/context provider
-import React, { useEffect, useMemo, useRef, useState, useTransition } from 'react';
-import { ApolloLink, ApolloProvider, InMemoryCache } from '@apollo/client';
-import { ApolloClient, NormalizedCacheObject } from '@apollo/client';
-import { ForeignApolloClientProvider } from '@/components/hooks/useForeignApolloClient';
-import { PrefersDarkModeProvider } from '@/components/themes/usePrefersDarkMode';
+// Import needed to get the database settings from the window on the client
+import '@/client/publicSettings';
+
+import React, { use, useEffect, useMemo, useRef, useState, useTransition } from 'react';
 import CookiesProvider from "@/lib/vendor/react-cookie/CookiesProvider";
-import { ABTestGroupsUsedContext, RelevantTestGroupAllocation } from '@/lib/abTestImpl';
+import { ABTestGroupsUsedContext, RelevantTestGroupAllocation } from '@/components/common/sharedContexts';
 import type { AbstractThemeOptions } from '@/themes/themeNames';
 import { LayoutOptionsContextProvider } from '@/components/hooks/useLayoutOptions';
 import { SSRMetadata, EnvironmentOverride, EnvironmentOverrideContext } from '@/lib/utils/timeUtil';
-import { ThemeContextProvider } from '@/components/themes/useTheme';
-import { createErrorLink, createHttpLink, headerLink } from '@/lib/apollo/links';
-import { siteImageSetting } from '@/lib/publicSettings';
-import { LocationContext, NavigationContext, SubscribeLocationContext, ServerRequestStatusContext, checkUserRouteAccess, parseRoute } from '@/lib/vulcan-core/appContext';
+import { ThemeContextProvider } from '@/components/themes/ThemeContextProvider';
+import { LocationContext, NavigationContext, SubscribeLocationContext } from '@/lib/vulcan-core/appContext';
+import { parsePath } from '@/lib/vulcan-lib/routes';
 import { MessageContextProvider } from '../common/FlashMessages';
-import HeadTags from '../common/HeadTags';
-import { RefetchCurrentUserContext } from '../common/withUser';
+import { RefetchCurrentUserContext, UserContextProvider } from '../common/withUser';
 import ScrollToTop from '../vulcan-core/ScrollToTop';
-import type { History } from 'history'
 import { useQueryCurrentUser } from '@/lib/crud/withCurrentUser';
-import { useParams, usePathname, useSearchParams, useRouter } from 'next/navigation';
+import { usePathname, useRouter, useSearchParams, useParams } from 'next/navigation';
 import Layout from '../Layout';
+import { HelmetProvider } from 'react-helmet-async';
+import { EnableSuspenseContext } from '@/lib/crud/useQuery';
+import { isClient, isServer } from '@/lib/executionEnvironment';
+import Cookies from 'universal-cookie';
+import { ApolloWrapper } from '@/components/common/ApolloWrapper';
 
-const AppComponent = ({children}: {children: React.ReactNode}) => {
-  const searchParams = useSearchParams();
-  const pathname = usePathname();
-  const params: Record<string, string> = useParams();
-  // TODO: don't override the undefined case, actually fix it
-  const sanitizedQuery = Object.fromEntries(searchParams.entries());
-  // TODO: implement the location and subscribed location values properly
-  const location = { params, pathname, query: sanitizedQuery, hash: '', redirected: false, currentRoute: null, RouteComponent: null, location: { pathname, search: '', hash: '' }, url: '' };
-  const subscribeLocation = location;
+import type { RequestCookie } from 'next/dist/compiled/@edge-runtime/cookies';
+import type { RouterLocation } from '@/lib/vulcan-lib/routes';
+import type { AppRouterInstance } from 'next/dist/shared/lib/app-router-context.shared-runtime';
+import { onUserChanged } from '@/client/logging';
+import moment from 'moment';
+import { localeSetting } from '@/lib/instanceSettings';
+import { initClientOnce } from '@/client/initClient';
 
+if (isClient) {
+  // This has a downstream call to `googleTagManagerIdSetting.get()`.
+  // Normally top-level calls to settings are prohibited because settings
+  // are scoped to a request depending on the host (i.e. lesswrong.com vs
+  // alignmentforum.org), but on the client we're getting them from the
+  // settings injected into the window by the root layout so it's fine.
+  // eslint-disable-next-line local/no-top-level-indirect-calls-to
+  initClientOnce();
+}
+
+const AppComponent = ({ children }: { children: React.ReactNode }) => {
+  const locationContext = useRef<RouterLocation | null>(null);
+  const subscribeLocationContext = useRef<RouterLocation | null>(null);
   const history = useRouter();
-  const navigationContext = useRef<{ history: History<unknown> } | null>({ history });
+  const navigationContext = useRef<{ history: AppRouterInstance } | null>({ history });
 
-  const {currentUser, refetchCurrentUser, currentUserLoading} = useQueryCurrentUser();
+  const urlSearchParams = useSearchParams();
+  const searchParamsString = urlSearchParams.toString();
+  const searchParams = Object.fromEntries(urlSearchParams.entries());
+  const pathname = usePathname();
+  const hash = isClient ? window.location.hash : '';
 
-  // TODO: implement the below logic taken from App.tsx if needed?
-  // const location = checkUserRouteAccess(currentUser, parseRoute({location: reactDomLocation}));
+  useEffect(() => {
+    const eventListener = (e: HashChangeEvent) => {
+      const newHash = new URL(e.newURL).hash;
+
+      if (locationContext.current) {
+        Object.assign(locationContext.current, { hash: newHash });
+      }
+
+      if (subscribeLocationContext.current) {
+        // Reassign the reference to force subscribed consumers to rerender if it changes
+        subscribeLocationContext.current = { ...subscribeLocationContext.current, hash: newHash };
+      }
+    };
+
+    window.addEventListener('hashchange', eventListener);
+    
+    return () => {
+      window.removeEventListener('hashchange', eventListener);
+    };
+  }, []);
+
+  const reconstructedPath = `${pathname}${searchParamsString ? `?${searchParamsString}` : ''}${hash ? hash : ''}`;
+  const parsedPath = parsePath(reconstructedPath);
   
-  // if (location.redirected) {
-  //   return (
-  //     <PermanentRedirect url={location.url} />
-  //   );
-  // }
+  const routeParams = useParams();
 
-  //   // Reuse the container objects for location and navigation context, so that
-  // // they will be reference-stable and won't trigger spurious rerenders.
-  // if (!locationContext.current) {
-  //   locationContext.current = {...location};
-  // } else {
-  //   Object.assign(locationContext.current, location);
-  // }
+  const location: RouterLocation = {
+    hash,
+    params: routeParams as Record<string,string>,
+    pathname,
+    query: searchParams,
+    url: reconstructedPath,
+    location: parsedPath,
+  };
+
+  // Reuse the container objects for location and navigation context, so that
+  // they will be reference-stable and won't trigger spurious rerenders.
+  if (!locationContext.current) {
+    locationContext.current = {...location};
+  } else {
+    Object.assign(locationContext.current, location);
+  }
   
-  // if (!navigationContext.current) {
-  //   navigationContext.current = { history };
-  // } else {
-  //   navigationContext.current.history = history;
-  // }
+  if (!navigationContext.current) {
+    navigationContext.current = { history };
+  } else {
+    navigationContext.current.history = history;
+  }
 
-  // // subscribeLocationContext changes (by shallow comparison) whenever the
-  // // URL changes.
-  // // FIXME: Also needs to include changes to hash and to query params
-  // if (!subscribeLocationContext.current ||
-  //   subscribeLocationContext.current.pathname !== location.pathname ||
-  //   JSON.stringify(subscribeLocationContext.current.query) !== JSON.stringify(location.query) ||
-  //   subscribeLocationContext.current.hash !== location.hash
-  // ) {
-  //   subscribeLocationContext.current = {...location};
-  // } else {
-  //   Object.assign(subscribeLocationContext.current, location);
-  // }
+  // subscribeLocationContext changes (by shallow comparison) whenever the
+  // URL changes.
+  // FIXME: Also needs to include changes to hash and to query params
+  if (!subscribeLocationContext.current ||
+    subscribeLocationContext.current.pathname !== location.pathname ||
+    JSON.stringify(subscribeLocationContext.current.query) !== JSON.stringify(location.query) ||
+    subscribeLocationContext.current.hash !== location.hash
+  ) {
+    subscribeLocationContext.current = {...location};
+  } else {
+    Object.assign(subscribeLocationContext.current, location);
+  }
 
-
-  return <LocationContext.Provider value={location}>
+  return <HelmetProvider>
+  <LocationContext.Provider value={locationContext.current}>
   <NavigationContext.Provider value={navigationContext.current}>
-  <SubscribeLocationContext.Provider value={subscribeLocation}>
-  <ServerRequestStatusContext.Provider value={/*serverRequestStatus||*/null}>
-  <RefetchCurrentUserContext.Provider value={refetchCurrentUser}>
+  <SubscribeLocationContext.Provider value={subscribeLocationContext.current}>
     <MessageContextProvider>
-      <HeadTags image={siteImageSetting.get()} />
+      {/* <HeadTags image={siteImageSetting.get()} /> */}
       <ScrollToTop />
-      <Layout currentUser={currentUser}>
+      <Layout>
         {children}
       </Layout>
     </MessageContextProvider>
-  </RefetchCurrentUserContext.Provider>
-  </ServerRequestStatusContext.Provider>
   </SubscribeLocationContext.Provider>
   </NavigationContext.Provider>
-  </LocationContext.Provider>;
+  </LocationContext.Provider>
+  </HelmetProvider>;
 }
 
-// Client-side wrapper around the app. There's another AppGenerator which is
-// the server-side version, which differs in how it sets up the wrappers for
-// routing and cookies and such.
-const AppGenerator = ({ abTestGroupsUsed, themeOptions, ssrMetadata, children }: {
+const AppGenerator = ({ abTestGroupsUsed, ssrMetadata, children }: {
   abTestGroupsUsed: RelevantTestGroupAllocation,
-  themeOptions: AbstractThemeOptions,
   ssrMetadata?: SSRMetadata,
   children: React.ReactNode,
 }) => {
-  const cache = new InMemoryCache();
-  const apolloClient = new ApolloClient({
-    link: ApolloLink.from([headerLink, createErrorLink(), createHttpLink("/")]),
-    cache,
-    ssrForceFetchDelay: 1,
-  });
-  // TODO: This is a hack to get the foreign apollo client to work.
-  const foreignApolloClient = apolloClient;
-  
+  let universalCookies;
+  let parsedCookies: RequestCookie[];
+  if (isServer) {
+    const { cookies } = use(import('next/headers'));
+    const serverCookies = use(cookies());
+    parsedCookies = serverCookies.getAll();
+    universalCookies = new Cookies(Object.fromEntries(parsedCookies.map((cookie) => [cookie.name, cookie.value])));
+  } else {
+    const browserCookies = document.cookie;
+    parsedCookies = browserCookies.split(';').map((cookie) => {
+      const [name, value] = cookie.split('=');
+      return { name, value };
+    });
+    universalCookies = new Cookies(browserCookies);
+  }
+
+  const urlSearchParams = useSearchParams();
+  const loginToken = universalCookies.get('loginToken');
+
   return (
-    <ApolloProvider client={apolloClient}>
-      <ForeignApolloClientProvider value={foreignApolloClient}>
-        <CookiesProvider>
-          <ThemeContextProvider options={themeOptions}>
+    // <ApolloProvider client={apolloClient}>
+      // <ForeignApolloClientProvider value={foreignApolloClient}>
+        <EnableSuspenseContext.Provider value={isServer}>
+        <ApolloWrapper
+          loginToken={loginToken ?? null}
+          searchParams={Object.fromEntries(urlSearchParams.entries())}
+        >
+        <CookiesProvider cookies={universalCookies}>
+        <UserContextProvider>
+          <ThemeContextProvider>
             <ABTestGroupsUsedContext.Provider value={abTestGroupsUsed}>
-              <PrefersDarkModeProvider>
-                <LayoutOptionsContextProvider>
-                  <EnvironmentOverrideContextProvider ssrMetadata={ssrMetadata}>
-                    <AppComponent>
-                      {children}
-                    </AppComponent>
-                  </EnvironmentOverrideContextProvider>
-                </LayoutOptionsContextProvider>
-              </PrefersDarkModeProvider>
+              <LayoutOptionsContextProvider>
+                <EnvironmentOverrideContextProvider ssrMetadata={ssrMetadata}>
+                  <AppComponent>
+                    {children}
+                  </AppComponent>
+                </EnvironmentOverrideContextProvider>
+              </LayoutOptionsContextProvider>
             </ABTestGroupsUsedContext.Provider>
           </ThemeContextProvider>
+        </UserContextProvider>
         </CookiesProvider>
-      </ForeignApolloClientProvider>
-    </ApolloProvider>
+        </ApolloWrapper>
+        </EnableSuspenseContext.Provider>
+    //   </ForeignApolloClientProvider>
+    // </ApolloProvider>
   );
 };
 

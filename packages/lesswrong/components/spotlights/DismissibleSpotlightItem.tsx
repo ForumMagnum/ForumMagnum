@@ -1,34 +1,35 @@
 import moment from 'moment';
 import React, { useCallback, useMemo } from 'react';
 import { AnalyticsContext, useTracking } from '../../lib/analyticsEvents';
-import { registerComponent } from '../../lib/vulcan-lib/components';
 import { useCookiesWithConsent } from '../hooks/useCookiesWithConsent';
 import { HIDE_SPOTLIGHT_ITEM_PREFIX } from '../../lib/cookies/cookies';
-import { useCurrentFrontpageSpotlight } from '../hooks/useCurrentFrontpageSpotlight';
-import SpotlightItem from "./SpotlightItem";
-import SingleColumnSection from "../common/SingleColumnSection";
+import { SpotlightItem } from "./SpotlightItem";
+import { defineStyles, useStyles } from '../hooks/useStyles';
+import { useSuspenseQuery } from '@/lib/crud/useQuery';
+import { gql } from '@/lib/generated/gql-codegen';
+import Loading from '../vulcan-core/Loading';
+import { SuspenseWrapper } from '../common/SuspenseWrapper';
 
-export const DismissibleSpotlightItem = ({
-  current,
-  spotlight,
-  standaloneSection,
-  className,
-}: {
-  current?: boolean,
-  spotlight?: SpotlightDisplay,
-  standaloneSection?: boolean
+const DisplaySpotlightQuery = gql(`
+  query DisplaySpotlightQuery {
+    currentSpotlight {
+      ...SpotlightDisplay
+    }
+  }
+`);
+
+const DismissibleSpotlightItemInner = ({ className }: {
   className?: string,
 }) => {
   const { captureEvent } = useTracking()
 
-  const currentSpotlight = useCurrentFrontpageSpotlight({
-    fragmentName: "SpotlightDisplay",
-    skip: !current,
+  const { data } = useSuspenseQuery(DisplaySpotlightQuery, {
+    context: {loggedOutCache: true},
   });
-  const displaySpotlight = currentSpotlight ?? spotlight;
-  const spotlightDocument = displaySpotlight?.post ?? displaySpotlight?.sequence ?? displaySpotlight?.tag;
+  const currentSpotlight = data?.currentSpotlight;
+  const spotlightDocument = currentSpotlight?.post ?? currentSpotlight?.sequence ?? currentSpotlight?.tag;
 
-  const cookieName = useMemo(() => `${HIDE_SPOTLIGHT_ITEM_PREFIX}${spotlightDocument?._id}`, [spotlightDocument]); //hiding in one place, hides everywhere
+  const cookieName = `${HIDE_SPOTLIGHT_ITEM_PREFIX}${spotlightDocument?._id}`; //hiding in one place, hides everywhere
   const [cookies, setCookie] = useCookiesWithConsent([cookieName]);
 
   const isHidden = useMemo(() => !!cookies[cookieName], [cookies, cookieName]);
@@ -43,30 +44,43 @@ export const DismissibleSpotlightItem = ({
     captureEvent("spotlightItemHideItemClicked", { document: spotlightDocument })
   }, [setCookie, cookieName, spotlightDocument, captureEvent]);
 
-  if (displaySpotlight && !isHidden) {
-    const spotlightElement = (
-      <AnalyticsContext pageElementContext="spotlightItem">
-        <SpotlightItem
-          key={displaySpotlight._id}
-          spotlight={displaySpotlight}
-          hideBanner={hideBanner}
-          className={className}
-        />
-      </AnalyticsContext>
-    );
-
-    if (standaloneSection) {
-      return (
-        <SingleColumnSection>
-          {spotlightElement}
-        </SingleColumnSection>
-      );
-    }
-    return spotlightElement;
+  if (!currentSpotlight || isHidden) {
+    return null;
   }
-  return null
+
+  return <AnalyticsContext pageElementContext="spotlightItem">
+    <SpotlightItem
+      key={currentSpotlight._id}
+      spotlight={currentSpotlight}
+      hideBanner={hideBanner}
+      className={className}
+    />
+  </AnalyticsContext>
 }
 
-export default registerComponent('DismissibleSpotlightItem', DismissibleSpotlightItem);
+const spotlightItemFallbackStyles = defineStyles("SpotlightItemFallback", (theme) => ({
+  fallback: {
+    height: 181,
+  },
+}));
+
+export const SpotlightItemFallback = () => {
+  const classes = useStyles(spotlightItemFallbackStyles);
+  return <div className={classes.fallback}/>
+}
+
+export const DismissibleSpotlightItem = ({loadingStyle="spinner", className}: {
+  loadingStyle?: "placeholder"|"spinner"
+  className?: string
+}) => {
+  return <SuspenseWrapper
+    name="DismissibleSpotlightItem"
+    fallback={loadingStyle==="placeholder" ? <SpotlightItemFallback/> : <Loading/>}
+  >
+    <DismissibleSpotlightItemInner className={className}/>
+  </SuspenseWrapper>
+}
+
+export default DismissibleSpotlightItem;
 
 

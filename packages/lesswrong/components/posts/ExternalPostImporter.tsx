@@ -1,12 +1,11 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { registerComponent } from '../../lib/vulcan-lib/components';
-import { useMutation } from '@apollo/client';
+import { useMutation } from "@apollo/client/react";
 import Button from '@/lib/vendor/@material-ui/core/src/Button';
 import { useCurrentUser } from '../common/withUser';
 import CKEditor from '@/lib/vendor/ckeditor5-react/ckeditor';
 import { getCkPostEditor, getCkCommentEditor } from '@/lib/wrapCkEditor';
 import { ckEditorStyles } from '@/themes/stylePiping';
-import { forumTypeSetting } from '@/lib/instanceSettings';
 import classNames from 'classnames';
 import { useMessages } from '../common/withMessages';
 import ContentStyles from "../common/ContentStyles";

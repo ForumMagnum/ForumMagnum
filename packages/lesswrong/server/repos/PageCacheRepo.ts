@@ -1,10 +1,11 @@
-import type { CompleteTestGroupAllocation, RelevantTestGroupAllocation } from "../../lib/abTestImpl";
+import type { CompleteTestGroupAllocation } from "../../lib/abTestImpl";
+import type { RelevantTestGroupAllocation } from "@/components/common/sharedContexts";
 import PageCache from "../../server/collections/pagecache/collection";
 import { randomId } from "../../lib/random";
 import { getServerBundleHash } from "../utils/bundleUtils";
 import AbstractRepo from "./AbstractRepo";
 import { recordPerfMetrics } from "./perfMetricWrapper";
-import type { RenderResult } from "../vulcan-lib/apollo-ssr/renderPage"
+import type { RenderResult } from "@/server/rendering/renderPage"
 
 export type MeanPostKarma = {
   _id: number,

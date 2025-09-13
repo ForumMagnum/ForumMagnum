@@ -17,7 +17,7 @@ import { useCurrentUser } from '../common/withUser';
 import { useFormErrors } from '@/components/tanstack-form-components/BaseAppForm';
 import LWDialog from "../common/LWDialog";
 import FormComponentCheckbox from "../form-components/FormComponentCheckbox";
-import { useMutation } from "@apollo/client";
+import { useMutation } from "@apollo/client/react";
 import { gql } from "@/lib/generated/gql-codegen";
 
 const ConversationsListUpdateMutation = gql(`
@@ -92,7 +92,7 @@ const ConversationTitleEditForm = ({ onClose, conversation }: {
             {(field) => (
               <MuiTextField
                 field={field}
-                label={isFriendlyUI ? "Conversation title (visible to all)" : "Conversation Title"}
+                label={isFriendlyUI() ? "Conversation title (visible to all)" : "Conversation Title"}
               />
             )}
           </form.Field>
@@ -109,7 +109,7 @@ const ConversationTitleEditForm = ({ onClose, conversation }: {
           </form.Field>
         </div>
 
-        {isLWorAF && userIsAdmin(currentUser) && <div className={classes.fieldWrapper}>
+        {isLWorAF() && userIsAdmin(currentUser) && <div className={classes.fieldWrapper}>
           <form.Field name="af">
             {(field) => (
               <FormComponentCheckbox

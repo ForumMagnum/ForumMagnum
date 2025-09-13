@@ -90,7 +90,7 @@ const Reviews2018 = ({classes}: {
             <MenuItem value={'groupByPost'}>Grouped by Post</MenuItem>
           </Select>
         </SectionTitle>
-        <RecentComments terms={{ view: "reviews2018", sortBy: sortReviews}} truncated/>
+        <RecentComments selector={{ reviews2018: { sortBy: sortReviews } }} truncated/>
       </SingleColumnSection>
       <SingleColumnSection>
         <SectionTitle title="Nominations">
@@ -104,7 +104,7 @@ const Reviews2018 = ({classes}: {
             <MenuItem value={'groupByPost'}>Grouped by Post</MenuItem>
           </Select>
         </SectionTitle>
-        <RecentComments terms={{ view: "nominations2018", sortBy: sortNominations}} truncated/>
+        <RecentComments selector={{ nominations2018: { sortBy: sortNominations } }} truncated/>
       </SingleColumnSection>
     </div>
   )

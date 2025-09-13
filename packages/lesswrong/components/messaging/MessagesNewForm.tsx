@@ -4,12 +4,11 @@ import { getDraftMessageHtml } from "../../lib/collections/messages/helpers";
 import { TemplateQueryStrings } from "./NewConversationButton";
 import classNames from "classnames";
 import { FormDisplayMode } from "../comments/CommentsNewForm";
-import {isFriendlyUI} from '../../themes/forumTheme'
 import { registerComponent } from "../../lib/vulcan-lib/components";
-import { useMutation } from "@apollo/client";
+import { useMutation } from "@apollo/client/react";
 import { useQuery } from "@/lib/crud/useQuery";
 import { gql } from "@/lib/generated/gql-codegen";
-import { defaultEditorPlaceholder } from '@/lib/editor/defaultEditorPlaceholder';
+import { getDefaultEditorPlaceholder } from '@/lib/editor/defaultEditorPlaceholder';
 import { useForm } from "@tanstack/react-form";
 import { defineStyles, useStyles } from "../hooks/useStyles";
 import { useEditorFormCallbacks, EditorFormComponent } from "../editor/EditorFormComponent";
@@ -80,7 +79,7 @@ const formStyles = defineStyles('MessagesForm', (theme: ThemeType) => ({
   formButton: {
     fontFamily: theme.typography.fontFamily,
     marginLeft: "5px",
-    ...(isFriendlyUI
+    ...(theme.isFriendlyUI
       ? {
           fontSize: 14,
           fontWeight: 500,
@@ -143,7 +142,7 @@ const InnerMessagesNewForm = ({
   const currentUser = useCurrentUser();
   
   const formButtonClass = isMinimalist ? classes.formButtonMinimalist : classes.formButton;
-  const hintText = isMinimalist ? "Type a new message..." : defaultEditorPlaceholder;
+  const hintText = isMinimalist ? "Type a new message..." : getDefaultEditorPlaceholder();
   const commentMinimalistStyle = isMinimalist ? true : false;
 
   const {

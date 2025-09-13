@@ -21,6 +21,10 @@ setPublicSettings({});
 
 jest.setTimeout(20000);
 
+// A few old tests were written with EAForum-gated functionality in mind.
+// We can pull them out or rewrite them, but until then...
+process.env.FORUM_TYPE = "EAForum";
+
 beforeAll(() => {
   chai.should();
   chai.use(chaiAsPromised);

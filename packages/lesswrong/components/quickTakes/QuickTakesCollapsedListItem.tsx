@@ -16,7 +16,7 @@ import LWTooltip from "../common/LWTooltip";
 import FooterTag from "../tagging/FooterTag";
 import CommentsMenu from "../dropdowns/comments/CommentsMenu";
 import LWPopper from "../common/LWPopper";
-import CommentsNodeInner from "../comments/CommentsNode";
+import CommentsNode from "../comments/CommentsNode";
 
 const styles = (theme: ThemeType) => ({
   root: {
@@ -210,7 +210,7 @@ const QuickTakesCollapsedListItem = ({quickTake, setExpanded, classes}: {
         clickable={false}
       >
         <div className={classes.hoverOver}>
-          <CommentsNodeInner
+          <CommentsNode
             truncated
             nestingLevel={1}
             comment={quickTake}

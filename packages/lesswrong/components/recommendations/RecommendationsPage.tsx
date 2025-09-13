@@ -1,3 +1,5 @@
+"use client";
+
 import React from 'react';
 import { registerComponent } from '../../lib/vulcan-lib/components';
 import {AnalyticsContext} from "../../lib/analyticsEvents";
@@ -9,7 +11,7 @@ import SpotlightHistory from "../spotlights/SpotlightHistory";
 const RecommendationsPage = () => {
   return (
     <AnalyticsContext pageSectionContext={"recommendationsPage"} capturePostItemOnMount>
-      {isLW && <SpotlightHistory/>}
+      {isLW() && <SpotlightHistory/>}
       <RecommendationsPageCuratedList/>
       <ConfigurableRecommendationsList configName="recommendationspage" />
     </AnalyticsContext>

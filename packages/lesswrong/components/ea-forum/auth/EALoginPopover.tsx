@@ -7,10 +7,9 @@ import { FacebookIcon } from "../../icons/FacebookIcon";
 import classNames from "classnames";
 import { AnalyticsContext } from "../../../lib/analyticsEvents";
 import { useRefetchCurrentUser } from "../../common/withUser";
-import {forumTitleSetting, siteNameWithArticleSetting} from '../../../lib/instanceSettings'
+import { forumTitleSetting, siteNameWithArticleSetting, auth0FacebookLoginEnabled } from '@/lib/instanceSettings';
 import { LoginAction, useLoginPopoverContext } from "../../hooks/useLoginPopoverContext";
-import { captureException } from '@sentry/core';
-import { auth0FacebookLoginEnabled } from "@/lib/publicSettings";
+import { captureException } from '@/lib/sentryWrapper';
 import BlurredBackgroundModal from "../../common/BlurredBackgroundModal";
 import ForumIcon from "../../common/ForumIcon";
 import EAButton from "../EAButton";

@@ -47,7 +47,7 @@ const PostsByVoteWrapper = ({voteType, year, limit, showMostValuableCheckbox=fal
   const postIds = (votes ?? []).map(vote=>vote.documentId)
 
   return <ErrorBoundary>
-    {isLWorAF ? <LWPostsByVote
+    {isLWorAF() ? <LWPostsByVote
       postIds={postIds}
       year={year}
       limit={limit}

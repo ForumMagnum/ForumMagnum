@@ -1,9 +1,8 @@
 import { registerMigration, forEachDocumentBatchInCollection } from './migrationUtils';
 import { Users } from '../../server/collections/users/collection';
-import * as _ from 'underscore';
 
 const excludeOld = (partiallyReadSequences: Array<any>, dateCutoff: Date): Array<any> => {
-  return _.filter(partiallyReadSequences, s=>s.lastReadTime >= dateCutoff);
+  return partiallyReadSequences.filter(s=>s.lastReadTime >= dateCutoff);
 }
 
 export default registerMigration({

@@ -236,6 +236,31 @@ export const UltraFeedQuery = gql(`
         feedSpotlight {
           ...FeedSpotlightFragment
         }
+        feedSubscriptionSuggestions {
+          ...FeedSubscriptionSuggestionsFragment
+        }
+      }
+    }
+  }
+`);
+
+export const UltraFeedSubscriptionsQuery = gql(`
+  query UltraFeedSubscriptions($limit: Int, $cutoff: Date, $offset: Int, $settings: JSON) {
+    UltraFeedSubscriptions(limit: $limit, cutoff: $cutoff, offset: $offset, settings: $settings) {
+      __typename
+      cutoff
+      endOffset
+      results {
+        type
+        feedCommentThread {
+          ...FeedCommentThreadFragment
+        }
+        feedPost {
+          ...FeedPostFragment
+        }
+        feedSubscriptionSuggestions {
+          ...FeedSubscriptionSuggestionsFragment
+        }
       }
     }
   }
@@ -251,7 +276,8 @@ export type FeedQuery =
   | typeof SubforumOldFeedQuery
   | typeof SubforumRecentCommentsFeedQuery
   | typeof SubforumTopFeedQuery
-  | typeof UltraFeedQuery;
+  | typeof UltraFeedQuery
+  | typeof UltraFeedSubscriptionsQuery;
 
 export interface FeedPaginationResultVariables {
   cutoff?: number | null,

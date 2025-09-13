@@ -3,9 +3,8 @@ import Button from '@/lib/vendor/@material-ui/core/src/Button';
 import classNames from 'classnames';
 import { useCurrentUser } from "../common/withUser";
 import { useTracking } from "../../lib/analyticsEvents";
-import {forumTitleSetting, isEAForum, isLW, isLWorAF } from "../../lib/instanceSettings";
+import { forumTitleSetting, isEAForum, isLW, isLWorAF, requestFeedbackKarmaLevelSetting } from '@/lib/instanceSettings.ts';
 import { isFriendlyUI } from '../../themes/forumTheme';
-import {requestFeedbackKarmaLevelSetting} from '../../lib/publicSettings.ts'
 import { getSiteUrl } from "../../lib/vulcan-lib/utils";
 import type { EditablePost } from '@/lib/collections/posts/helpers.ts';
 import type { TypedFormApi } from '@/components/tanstack-form-components/BaseAppForm.tsx';
@@ -15,9 +14,9 @@ import LWTooltip from "../common/LWTooltip";
 export const styles = defineStyles('PostSubmit', (theme: ThemeType) => ({
   formButton: {
     fontFamily: theme.typography.commentStyle.fontFamily,
-    fontSize: isFriendlyUI ? 14 : 16,
+    fontSize: theme.isFriendlyUI ? 14 : 16,
     marginLeft: 5,
-    ...(isFriendlyUI ? {
+    ...(theme.isFriendlyUI ? {
       textTransform: 'none',
     } : {
       paddingBottom: 4,
@@ -28,7 +27,7 @@ export const styles = defineStyles('PostSubmit', (theme: ThemeType) => ({
     })
   },
   secondaryButton: {
-    ...(isFriendlyUI ? {
+    ...(theme.isFriendlyUI ? {
       color: theme.palette.grey[680],
       padding: '8px 12px'
     } : {
@@ -39,7 +38,7 @@ export const styles = defineStyles('PostSubmit', (theme: ThemeType) => ({
     marginLeft: 'auto'
   },
   submitButton: {
-    ...(isFriendlyUI ? {
+    ...(theme.isFriendlyUI ? {
       backgroundColor: theme.palette.buttons.alwaysPrimary,
       color: theme.palette.text.alwaysWhite,
       boxShadow: 'none',
@@ -91,13 +90,13 @@ export const PostSubmit = ({
 
   const submitWithoutConfirmation = () => formApi.setFieldValue('draft', false);
 
-  const requireConfirmation = isLW && !!document.debate;
+  const requireConfirmation = isLW() && !!document.debate;
 
   const onSubmitClick = requireConfirmation ? submitWithConfirmation : submitWithoutConfirmation;
   const requestFeedbackKarmaLevel = requestFeedbackKarmaLevelSetting.get()
   // EA Forum title is Effective Altruism Forum, which is unecessarily long
-  const eaOrOtherFeedbackTitle = isEAForum ? 'the EA Forum team' : `the ${forumTitleSetting.get()} team`
-  const feedbackTitle = `Request feedback from ${isLWorAF ? 'our editor' : eaOrOtherFeedbackTitle}`
+  const eaOrOtherFeedbackTitle = isEAForum() ? 'the EA Forum team' : `the ${forumTitleSetting.get()} team`
+  const feedbackTitle = `Request feedback from ${isLWorAF() ? 'our editor' : eaOrOtherFeedbackTitle}`
 
   return (
     <React.Fragment>
@@ -159,7 +158,7 @@ export const PostSubmit = ({
           onClick={onSubmitClick}
           disabled={disabled}
           className={classNames("primary-form-submit-button", classes.formButton, classes.submitButton)}
-          {...(isFriendlyUI ? {
+          {...(isFriendlyUI() ? {
             variant: "contained",
             color: "primary",
           } : {})}

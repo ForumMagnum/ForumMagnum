@@ -1,41 +1,5 @@
 import { calculateActivityFactor } from './collections/useractivities/utils';
-import { isLW } from './instanceSettings';
-import { DatabasePublicSetting } from './publicSettings';
-
-/**
- * We apply a score boost to subforum comments using the formula:
- *   max(b, m * (1 - ((x / d) ** p)))
- * where b is the base (the minimum boost received after the duration
- * has expired), m is the magnitude (the maximum boost when the comment
- * is first posted), d is the duration in hours, p is the exponent
- * (defining the dropoff curve), and x is the elapsed time since the
- * comment was posted in hours.
- */
-const defaultSubforumCommentBonus = {
-  base: 5,
-  magnitude: 100,
-  duration: 8,
-  exponent: 0.3,
-} as const;
-
-type SubforumCommentBonus = typeof defaultSubforumCommentBonus;
-
-// LW (and legacy) time decay algorithm settings
-const timeDecayFactorSetting = new DatabasePublicSetting<number>('timeDecayFactor', 1.15)
-const frontpageBonusSetting = new DatabasePublicSetting<number>('frontpageScoreBonus', 10)
-const curatedBonusSetting = new DatabasePublicSetting<number>('curatedScoreBonus', 10)
-const subforumCommentBonusSetting = new DatabasePublicSetting<SubforumCommentBonus>(
-  'subforumCommentBonus',
-  defaultSubforumCommentBonus,
-);
-
-// EA Frontpage time decay algorithm settings
-const startingAgeHoursSetting = new DatabasePublicSetting<number>('frontpageAlgorithm.startingAgeHours', 6)
-const decayFactorSlowestSetting = new DatabasePublicSetting<number>('frontpageAlgorithm.decayFactorSlowest', 0.5)
-const decayFactorFastestSetting = new DatabasePublicSetting<number>('frontpageAlgorithm.decayFactorFastest', 1.08)
-const activityWeightSetting = new DatabasePublicSetting<number>('frontpageAlgorithm.activityWeight', 1.4)
-export const activityHalfLifeSetting = new DatabasePublicSetting<number>('frontpageAlgorithm.activityHalfLife', 60)
-export const frontpageDaysAgoCutoffSetting = new DatabasePublicSetting<number>('frontpageAlgorithm.daysAgoCutoff', 90)
+import { isLW, activityHalfLifeSetting, activityWeightSetting, curatedBonusSetting, decayFactorFastestSetting, decayFactorSlowestSetting, defaultSubforumCommentBonus, frontpageBonusSetting, startingAgeHoursSetting, SubforumCommentBonus, subforumCommentBonusSetting, timeDecayFactorSetting } from './instanceSettings';
 
 export const TIME_DECAY_FACTOR = timeDecayFactorSetting;
 // Basescore bonuses for various categories
@@ -144,7 +108,7 @@ export const frontpageTimeDecayExpr = (props: TimeDecayExprProps, context: Resol
 
 // SCORE_BIAS is used in updateScores.ts which is used for all votable documents, this here is used for frontpage posts only. SCORE_BIAS is weirdly name. 
 // It is just adding to the age of the post to make the score decay faster, preventing low karma posts getting on the frontpage for very long.
-const AGE_OFFSET = isLW ? 6 : SCORE_BIAS 
+const getAgeOffset = () => isLW() ? 6 : SCORE_BIAS 
 
 export const timeDecayExpr = () => {
   return {$pow: [
@@ -155,7 +119,7 @@ export const timeDecayExpr = () => {
         ]},
         60 * 60 * 1000
       ] }, // Age in hours
-      AGE_OFFSET
+      getAgeOffset()
     ]},
     TIME_DECAY_FACTOR.get()
   ]}

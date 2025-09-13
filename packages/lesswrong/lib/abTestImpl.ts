@@ -1,10 +1,4 @@
-'use client';
-
-import React from 'react';
-import * as _ from 'underscore';
 import rng from './seedrandom';
-import { CLIENT_ID_COOKIE } from './cookies/cookies';
-import { useCookiesWithConsent } from '../components/hooks/useCookiesWithConsent';
 import { randomId } from './random';
 import keyBy from 'lodash/keyBy';
 import { allABTests } from './abTests';
@@ -75,14 +69,6 @@ type ABKeyInfo = {
 // that are defined).
 export type CompleteTestGroupAllocation = Record<string,string>
 
-// RelevantTestGroupAllocation: A dictionary from the names of A/B tests to
-// which group a user is in, which is pruned to only the tests which affected
-// a particular page render.
-export type RelevantTestGroupAllocation = Record<string,string>
-
-// Used for tracking which A/B test groups were relevant to the page rendering
-export const ABTestGroupsUsedContext = React.createContext<RelevantTestGroupAllocation>({});
-
 export function getABTestsMetadata(): Record<string,ABTest> {
   return keyBy(allABTests, ab=>ab.name);
 }
@@ -122,10 +108,10 @@ export function getAllUserABTestGroups(abKeyInfo: ABKeyInfo): CompleteTestGroupA
 
 // Given a weighted set of strings and a seed, return a random element of that set.
 export function weightedRandomPick<T extends string>(options: Record<T,number>, seed: string): T {
-  const weights = _.values(options);
+  const weights = Object.values<number>(options);
   if (weights.length === 0)
     throw new Error("Random pick from empty set");
-  const totalWeight: number = _.reduce(weights, (x: number, y: number) => x+y);
+  const totalWeight: number = weights.reduce((x: number, y: number) => x+y, 0);
   const randomRangeValue = totalWeight*rng(seed).double();
   
   let i=0;
@@ -135,19 +121,6 @@ export function weightedRandomPick<T extends string>(options: Record<T,number>, 
       return key;
   }
   throw new Error("Out of range value in weightedRandomPick");
-}
-
-// Returns the user's clientID. This is stored in a cookie separately from
-// accounts; a user may have multiple clientIDs (eg if they have multiple
-// devices) and a clientID may correspond to multiple users (if they log out and
-// log in with a different account).
-//
-// A logged-out user's client ID determines which A/B test groups they are in.
-// A logged-in user has their A/B test groups determined by the client ID they
-// had when they created their account.
-export function useClientId(): string | undefined {
-  const [cookies] = useCookiesWithConsent([CLIENT_ID_COOKIE]);
-  return cookies[CLIENT_ID_COOKIE];
 }
 
 export function classesForAbTestGroups(groups: CompleteTestGroupAllocation) {

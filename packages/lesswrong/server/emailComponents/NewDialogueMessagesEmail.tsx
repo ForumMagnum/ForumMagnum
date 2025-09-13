@@ -2,8 +2,9 @@ import React from 'react';
 import { getConfirmedCoauthorIds, postGetEditUrl, postGetPageUrl } from '../../lib/collections/posts/helpers';
 import { userGetDisplayName } from '../../lib/collections/users/helpers';
 import { EmailContentItemBody } from './EmailContentItemBody';
-import { useQuery } from "@/lib/crud/useQuery";
 import { gql } from "@/lib/generated/gql-codegen";
+import { EmailContextType } from './emailContext';
+import { useEmailQuery } from '../vulcan-lib/query';
 
 const UsersMinimumInfoQuery = gql(`
   query NewDialogueMessagesEmail1($documentId: String) {
@@ -30,18 +31,22 @@ export interface DialogueMessageEmailInfo {
   messageAuthorId: string,
 }
 
-export const NewDialogueMessagesEmail = ({documentId, userId, dialogueMessageEmailInfo}: {
+export const NewDialogueMessagesEmail = async ({documentId, userId, dialogueMessageEmailInfo, emailContext}: {
   documentId: string,
   userId: string,
-  dialogueMessageEmailInfo?: DialogueMessageEmailInfo
+  dialogueMessageEmailInfo?: DialogueMessageEmailInfo,
+  emailContext: EmailContextType
 }) => {
-  const { data: dataPost } = useQuery(PostsRevisionQuery, {
+  const { data: dataPost } = await useEmailQuery(PostsRevisionQuery, {
     variables: { documentId: documentId },
+    emailContext
   });
+
   const post = dataPost?.post?.result;
       
-  const { data: dataUser } = useQuery(UsersMinimumInfoQuery, {
+  const { data: dataUser } = await useEmailQuery(UsersMinimumInfoQuery, {
     variables: { documentId: dialogueMessageEmailInfo?.messageAuthorId },
+    emailContext,
     skip: !dialogueMessageEmailInfo,
   });
   const author = dataUser?.user?.result;

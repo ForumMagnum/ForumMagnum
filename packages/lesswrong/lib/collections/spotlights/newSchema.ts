@@ -436,7 +436,7 @@ const schema = {
       canCreate: ["admins", "sunshineRegiment"],
       // Note that `onCreate` has a forum-specific default value,
       // because we can't use forumType conditionals in `defaultValue` while sharing an `accepted_schema.sql` file
-      onCreate: ({ document }) => document.imageFade ?? (isLWorAF ? false : true),
+      onCreate: ({ document }) => document.imageFade ?? (isLWorAF() ? false : true),
       validation: {
         optional: true,
       },
@@ -508,6 +508,12 @@ const schema = {
         ).fetch();
         return await accessFilterMultiple(context.currentUser, "Chapters", chapters, context);
       },
+      sqlResolver: ({ field }) => `(
+        SELECT ARRAY_AGG(ROW_TO_JSON(c.*) ORDER BY c."number" ASC)
+        FROM "Chapters" c
+        WHERE c."sequenceId" = ${field("documentId")}
+        LIMIT 100
+      )`
     },
   },
 } satisfies Record<string, CollectionFieldSpecification<"Spotlights">>;

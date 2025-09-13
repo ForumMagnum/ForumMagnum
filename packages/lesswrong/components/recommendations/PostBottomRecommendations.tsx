@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useMemo } from "react";
 import { registerComponent } from "../../lib/vulcan-lib/components";
 import { Link } from "../../lib/reactRouterWrapper";
 import { userGetProfileUrl } from "../../lib/collections/users/helpers";
@@ -14,10 +14,12 @@ import UserTooltip from "../users/UserTooltip";
 import PostsItem from "../posts/PostsItem";
 import { useQuery } from "@/lib/crud/useQuery";
 import { gql } from "@/lib/generated/gql-codegen";
+import { RecommendationsAlgorithm } from "@/lib/collections/users/recommendationSettings";
+import { defineStyles, useStyles } from "../hooks/useStyles";
 
-const styles = (theme: ThemeType) => ({
+const styles = defineStyles("PostBottomRecommendations", (theme: ThemeType) => ({
   root: {
-    background: isFriendlyUI ? theme.palette.grey[55] : 'transparent',
+    background: theme.isFriendlyUI ? theme.palette.grey[55] : 'transparent',
     padding: "60px 0 80px 0",
     marginTop: 60,
     [theme.breakpoints.down('sm')]: {
@@ -49,13 +51,13 @@ const styles = (theme: ThemeType) => ({
     fontWeight: 600,
     color: theme.palette.grey[600],
   },
-});
+}));
 
 const WrapperComponent = ({hasTableOfContents, children}: {
   hasTableOfContents: boolean
   children: React.ReactNode
 }) => {
-  if (isFriendlyUI) {
+  if (isFriendlyUI()) {
     return <ToCColumn
       tableOfContents={hasTableOfContents ? <div /> : null}
       notHideable
@@ -67,27 +69,27 @@ const WrapperComponent = ({hasTableOfContents, children}: {
   }
 };
 
-const PostBottomRecommendations = ({post, hasTableOfContents, ssr = false, classes}: {
+const PostBottomRecommendations = ({post, hasTableOfContents, ssr = false}: {
   post: PostsWithNavigation | PostsWithNavigationAndRevision | PostsList,
   hasTableOfContents?: boolean,
   ssr?: boolean,
-  classes: ClassesType<typeof styles>,
 }) => {
+  const classes = useStyles(styles);
+  const postId = post._id;
+  const algorithm: RecommendationsAlgorithm = useMemo(() => ({
+    strategy: {
+      name: "moreFromAuthor",
+      postId: postId,
+      context: "post-footer",
+    },
+    count: 3,
+    disableFallbacks: true,
+  }), [postId]);
+
   const {
     recommendationsLoading: moreFromAuthorLoading,
     recommendations: moreFromAuthorPosts,
-  } = useRecommendations({
-    algorithm: {
-      strategy: {
-        name: "moreFromAuthor",
-        postId: post._id,
-        context: "post-footer",
-      },
-      count: 3,
-      disableFallbacks: true,
-    },
-    ssr
-  });
+  } = useRecommendations({ algorithm, ssr });
 
   const { data: curatedAndPopularData, loading: curatedAndPopularLoading } = useQuery(gql(`
     query CuratedAndPopularThisWeek($limit: Int) {
@@ -100,7 +102,7 @@ const PostBottomRecommendations = ({post, hasTableOfContents, ssr = false, class
   `), {
     variables: { limit: 3 },
     fetchPolicy: "cache-and-network",
-    nextFetchPolicy: "cache-only",
+    nextFetchPolicy: "cache-first",
     ssr
   });
 
@@ -115,7 +117,7 @@ const PostBottomRecommendations = ({post, hasTableOfContents, ssr = false, class
     post,
     maxAgeInDays: 60,
     ssr,
-    skip: !isFriendlyUI,
+    skip: !isFriendlyUI(),
   });
 
   const profileUrl = userGetProfileUrl(post.user);
@@ -159,7 +161,7 @@ const PostBottomRecommendations = ({post, hasTableOfContents, ssr = false, class
               }
               <AnalyticsContext pageSubSectionContext="curatedAndPopular">
                 {curatedAndPopularPosts?.map((post) => (
-                  isFriendlyUI ? <EALargePostsItem
+                  isFriendlyUI() ? <EALargePostsItem
                     key={post._id}
                     post={post}
                     className={classes.largePostItem}
@@ -168,7 +170,7 @@ const PostBottomRecommendations = ({post, hasTableOfContents, ssr = false, class
                 ))}
               </AnalyticsContext>
             </div>
-            {isFriendlyUI && <div className={classes.section}>
+            {isFriendlyUI() && <div className={classes.section}>
               <div className={classes.sectionHeading}>
                 {coreTagLabel ? "Recent" : "Relevant"} opportunities{coreTagLabel ? ` in ${coreTagLabel}` : ""}
               </div>
@@ -194,10 +196,6 @@ const PostBottomRecommendations = ({post, hasTableOfContents, ssr = false, class
   );
 }
 
-export default registerComponent(
-  "PostBottomRecommendations",
-  PostBottomRecommendations,
-  {styles},
-);
-
-
+export default registerComponent("PostBottomRecommendations", PostBottomRecommendations, {
+  areEqual: "auto"
+});

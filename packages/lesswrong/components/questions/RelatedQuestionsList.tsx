@@ -1,7 +1,6 @@
 import { registerComponent } from '../../lib/vulcan-lib/components';
 import React from 'react';
 import withErrorBoundary from '../common/withErrorBoundary';
-import * as _ from 'underscore';
 import PostsItem from "../posts/PostsItem";
 import SectionTitle from "../common/SectionTitle";
 
@@ -30,12 +29,26 @@ const styles = (theme: ThemeType) => ({
   }
 })
 
+export type PostWithRelations = {
+  _id: string;
+  sourcePostRelations: Array<{
+    _id: string;
+    sourcePost?: PostsListWithVotes | null;
+  }>;
+  targetPostRelations: Array<{
+    _id: string;
+    sourcePostId: string;
+    targetPostId: string;
+    targetPost?: PostsListWithVotes | null;
+  }>;
+};
+
 const RelatedQuestionsList = ({ post, classes }: {
-  post: PostsDetails,
+  post: PostWithRelations,
   classes: ClassesType<typeof styles>,
 }) => {
-  const sourcePostRelations = _.filter(post.sourcePostRelations, rel => !!rel.sourcePost)
-  const targetPostRelations = _.filter(post.targetPostRelations, rel => (rel.sourcePostId === post._id && !!rel.targetPost))
+  const sourcePostRelations = post.sourcePostRelations.filter(rel => !!rel.sourcePost)
+  const targetPostRelations = post.targetPostRelations.filter(rel => (rel.sourcePostId === post._id && !!rel.targetPost))
 
   const totalRelatedQuestionCount = sourcePostRelations.length + targetPostRelations.length
   
@@ -60,7 +73,7 @@ const RelatedQuestionsList = ({ post, classes }: {
       {showSubQuestionLabel && <div className={classes.header}>Sub-Questions</div>}
       {targetPostRelations.map((rel, i) => {
         const parentQuestionId = rel.targetPostId;
-        const subQuestionTargetPostRelations = _.filter(post.targetPostRelations, rel => rel.sourcePostId === parentQuestionId);
+        const subQuestionTargetPostRelations = post.targetPostRelations.filter(rel => rel.sourcePostId === parentQuestionId);
         const showSubQuestions = subQuestionTargetPostRelations.length >= 1;
         if (!rel.targetPost) return null
         return (

@@ -1,7 +1,6 @@
 import React from 'react';
 import { registerComponent } from '../../lib/vulcan-lib/components';
 import classNames from 'classnames'
-import { isFriendlyUI } from '../../themes/forumTheme';
 import { isAF } from '@/lib/instanceSettings';
 import { Typography } from "./Typography";
 
@@ -11,12 +10,12 @@ const styles = (theme: ThemeType) => ({
     color: theme.palette.lwTertiary.main,
     display: "flex",
     alignItems: "center",
-    ...(isFriendlyUI ? {fontWeight: 600} : {}),
+    ...(theme.isFriendlyUI ? {fontWeight: 600} : {}),
     '& svg': {
       marginRight: theme.spacing.unit
     },
     
-    ...(isAF && {
+    ...(isAF() && {
       marginTop: 4,
       fontWeight: 500,
     }),

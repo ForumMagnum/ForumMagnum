@@ -17,6 +17,6 @@ export type PostsPreviewTooltipProps = {
 }
 
 export const PostsPreviewTooltip: FC<PostsPreviewTooltipProps> = (props) =>
-  isFriendlyUI
+  isFriendlyUI()
     ? <EAPostsPreviewTooltip {...props} />
     : <LWPostsPreviewTooltip {...props} />;

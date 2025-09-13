@@ -1,9 +1,8 @@
 import Users from '../../server/collections/users/collection';
 import { urlIsBroken } from './utils'
-import htmlparser2 from 'htmlparser2';
+import { Parser } from 'htmlparser2';
 import { URL } from 'url';
 import fs from 'fs';
-import * as _ from 'underscore';
 import { FetchedFragment, fetchFragment } from '../fetchFragment';
 import { PostsPage } from '@/lib/collections/posts/fragments';
 
@@ -20,7 +19,7 @@ function getImagesInHtml(html: string)
 {
   let images: Array<string> = [];
   
-  let parser = new htmlparser2.Parser({
+  let parser = new Parser({
     onopentag: function(name: string, attribs: any) {
       if(name.toLowerCase() === 'img' && attribs.src) {
         images.push(attribs.src);
@@ -39,7 +38,7 @@ function getLinksInHtml(html: string)
 {
   let links: Array<string> = [];
   
-  let parser = new htmlparser2.Parser({
+  let parser = new Parser({
     onopentag: function(name: string, attribs: any) {
       if(name.toLowerCase() === 'a' && attribs.href) {
         links.push(attribs.href);
@@ -130,7 +129,7 @@ export const findBrokenLinks = async (
   if (!output) {
     //eslint-disable-next-line no-console
     write = console.log;
-  } else if(_.isString(output)) {
+  } else if(typeof output === 'string') {
     let outputFile = fs.openSync(output, "a");
     write = (str: string) => fs.writeSync(outputFile, str);
     onFinish = () => fs.closeSync(outputFile);

@@ -1,12 +1,12 @@
 import React from 'react';
-import { registerComponent } from '../../lib/vulcan-lib/components';
 import classNames from 'classnames';
 import { styles } from './LWPostsItem';
+import { useStyles } from '../hooks/useStyles';
 
-const PostsListPlaceholder = ({count, classes}: {
+const PostsListPlaceholder = ({count}: {
   count: number,
-  classes: ClassesType<typeof styles>
 }) => {
+  const classes = useStyles(styles);
   let placeholders: Array<React.JSX.Element> = [];
   for(let i=0; i<count; i++) {
     placeholders.push(
@@ -25,6 +25,6 @@ const PostsListPlaceholder = ({count, classes}: {
   return <React.Fragment>{placeholders}</React.Fragment>;
 }
 
-export default registerComponent("PostsListPlaceholder", PostsListPlaceholder, {styles});
+export default PostsListPlaceholder;
 
 

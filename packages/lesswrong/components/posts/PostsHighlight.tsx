@@ -2,10 +2,7 @@ import { registerComponent } from '../../lib/vulcan-lib/components';
 import { postGetPageUrl } from '../../lib/collections/posts/helpers';
 import React, { FC, MouseEvent, useState, useCallback } from 'react';
 import { Link } from '../../lib/reactRouterWrapper';
-import { nofollowKarmaThreshold } from '../../lib/publicSettings';
-import { useForeignCrosspost, isPostWithForeignId, PostWithForeignId } from "../hooks/useForeignCrosspost";
-import { useForeignApolloClient } from "../hooks/useForeignApolloClient";
-import { captureException }from "@sentry/core";
+import { nofollowKarmaThreshold } from '@/lib/instanceSettings';
 import classNames from 'classnames';
 import { isFriendlyUI, preferredHeadingCase } from '../../themes/forumTheme';
 import { useQuery } from "@/lib/crud/useQuery";
@@ -14,7 +11,6 @@ import ContentStyles from "../common/ContentStyles";
 import LinkPostMessage from "./LinkPostMessage";
 import ContentItemTruncated from "../common/ContentItemTruncated";
 import Loading from "../vulcan-core/Loading";
-
 
 const PostsExpandedHighlightQuery = gql(`
   query PostsHighlight($documentId: String) {
@@ -29,7 +25,7 @@ const PostsExpandedHighlightQuery = gql(`
 const styles = (theme: ThemeType) => ({
   highlightContinue: {
     marginTop:theme.spacing.unit*2,
-    fontFamily: isFriendlyUI ? theme.palette.fonts.sansSerifStack : undefined,
+    fontFamily: theme.isFriendlyUI ? theme.palette.fonts.sansSerifStack : undefined,
     '&& a, && a:hover': {
       color: theme.palette.primary.main,
     },
@@ -52,6 +48,9 @@ const TruncatedSuffix: FC<{
   wordsLeft: number|null,
   clickExpand: (ev: MouseEvent) => void,
 }> = ({post, forceSeeMore, wordsLeft, clickExpand}) => {
+  const moreWordsText = (wordsLeft !== null)
+    ? ` - ${wordsLeft} more words`
+    : "";
   if (forceSeeMore || (wordsLeft && wordsLeft < 1000)) {
     return (
       <Link
@@ -59,31 +58,19 @@ const TruncatedSuffix: FC<{
         onClick={clickExpand}
         eventProps={{intent: 'expandPost'}}
       >
-        {"("}{preferredHeadingCase("See More")}
-        {wordsLeft && <>{" – "}{wordsLeft} more words</>}{")"}
+        {`(${preferredHeadingCase("See More")}${moreWordsText})`}
       </Link>
     );
   }
   return (
     <Link to={postGetPageUrl(post)} eventProps={{intent: 'expandPost'}}>
-      {isFriendlyUI
+      {isFriendlyUI()
         ? "Continue reading"
-        : `(Continue Reading – ${wordsLeft} more words)`
+        : `(Continue Reading${moreWordsText})`
       }
     </Link>
   );
 }
-
-const foreignFetchProps = {
-  collectionName: "Posts",
-  fragmentName: "PostsList",
-} as const;
-
-const expandedFetchProps = {
-  collectionName: "Posts",
-  fragmentName: "PostsExpandedHighlight",
-  fetchPolicy: "cache-first",
-} as const;
 
 const HighlightBody = ({
   post,
@@ -138,57 +125,8 @@ const HighlightBody = ({
   </ContentStyles>
 }
 
-const ForeignPostsHighlightBody = ({post, maxLengthWords, forceSeeMore=false, smallerFonts, loading, classes}: {
-  post: PostsList & PostWithForeignId,
-  maxLengthWords: number,
-  forceSeeMore?: boolean,
-  smallerFonts?: boolean,
-  loading: boolean,
-  classes: ClassesType<typeof styles>,
-}) => {
-  const [expanded, setExpanded] = useState(false);
-  const apolloClient = useForeignApolloClient();
-  const { loading: expandedLoading, data } = useQuery(PostsExpandedHighlightQuery, {
-    variables: { documentId: post.fmCrosspost.foreignPostId },
-    skip: !expanded && !!post.contents,
-    fetchPolicy: "cache-first",
-    client: apolloClient,
-  });
-  const expandedDocument = data?.post?.result ?? undefined;
 
-  return loading
-    ? <Loading />
-    : <HighlightBody {...{
-      post,
-      maxLengthWords,
-      forceSeeMore,
-      smallerFonts,
-      expanded,
-      setExpanded,
-      expandedLoading,
-      expandedDocument,
-      classes,
-    }} />
-}
-
-const ForeignPostsHighlight = ({post, maxLengthWords, forceSeeMore=false, smallerFonts, classes}: {
-  post: PostsList & PostWithForeignId,
-  maxLengthWords: number,
-  forceSeeMore?: boolean,
-  smallerFonts?: boolean,
-  classes: ClassesType<typeof styles>,
-}) => {
-  const {loading, error, combinedPost} = useForeignCrosspost(post, foreignFetchProps);
-  post = combinedPost ?? post;
-  if (error) {
-    captureException(error);
-  }
-  return error
-    ? <LocalPostsHighlight {...{post, maxLengthWords, forceSeeMore, smallerFonts, classes}} />
-    : <ForeignPostsHighlightBody {...{post, maxLengthWords, forceSeeMore, smallerFonts, loading, classes}} />;
-}
-
-const LocalPostsHighlight = ({post, maxLengthWords, forceSeeMore=false, smallerFonts, classes}: {
+const PostsHighlight = ({post, maxLengthWords, forceSeeMore=false, smallerFonts, classes}: {
   post: PostsList,
   maxLengthWords: number,
   forceSeeMore?: boolean,
@@ -214,18 +152,6 @@ const LocalPostsHighlight = ({post, maxLengthWords, forceSeeMore=false, smallerF
     expandedDocument,
     classes,
   }} />
-};
-
-const PostsHighlight = ({post, ...rest}: {
-  post: PostsList,
-  maxLengthWords: number,
-  forceSeeMore?: boolean,
-  smallerFonts?: boolean,
-  classes: ClassesType<typeof styles>,
-}) => isPostWithForeignId(post)
-  ? <ForeignPostsHighlight post={post} {...rest} />
-  : <LocalPostsHighlight post={post} {...rest} />;
+}
 
 export default registerComponent('PostsHighlight', PostsHighlight, {styles});
-
-

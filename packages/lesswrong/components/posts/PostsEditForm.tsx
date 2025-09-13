@@ -19,7 +19,6 @@ import Loading from "../vulcan-core/Loading";
 import PermanentRedirect from "../common/PermanentRedirect";
 import Error404 from "../common/Error404";
 import PostsAcceptTos from "./PostsAcceptTos";
-import HeadTags from "../common/HeadTags";
 import ForeignCrosspostEditForm from "./ForeignCrosspostEditForm";
 import RateLimitWarning from "../editor/RateLimitWarning";
 import PostForm from "./PostForm";
@@ -27,22 +26,14 @@ import DynamicTableOfContents from "./TableOfContents/DynamicTableOfContents";
 import NewPostModerationWarning from "../sunshineDashboard/NewPostModerationWarning";
 import NewPostHowToGuides from "./NewPostHowToGuides";
 import { withDateFields } from '@/lib/utils/dateUtils';
+import { PostsEditFormQuery } from './queries';
+import { StatusCodeSetter } from '../next/StatusCodeSetter';
 
 const UsersCurrentPostRateLimitQuery = gql(`
   query PostsEditFormUser($documentId: String, $eventForm: Boolean) {
     user(input: { selector: { documentId: $documentId } }) {
       result {
         ...UsersCurrentPostRateLimit
-      }
-    }
-  }
-`);
-
-const PostsEditFormQuery = gql(`
-  query PostsEditFormPost($documentId: String, $version: String) {
-    post(input: { selector: { documentId: $documentId } }) {
-      result {
-        ...PostsEditQueryFragment
       }
     }
   }
@@ -61,10 +52,6 @@ const styles = defineStyles("PostsEditForm", (theme: ThemeType) => ({
       margin: 0,
       [theme.breakpoints.down('xs')]: {
         width:125,
-      },
-
-      "& .form-group.row": {
-        marginBottom:0,
       },
 
       "& .checkbox": {
@@ -218,12 +205,12 @@ const PostsEditForm = ({ documentId, version }: {
   }
 
   // on LW, show a moderation message to users who haven't been approved yet
-  const postWillBeHidden = isLW && !currentUser?.reviewedByUserId
+  const postWillBeHidden = isLW() && !currentUser?.reviewedByUserId
 
-  return (
-    <DynamicTableOfContents title={document.title} rightColumnChildren={isEAForum && <NewPostHowToGuides/>}>
+  return (<>
+    <StatusCodeSetter status={200}/>
+    <DynamicTableOfContents title={document.title} rightColumnChildren={isEAForum() && <NewPostHowToGuides/>}>
       <div className={classes.postForm}>
-        <HeadTags title={document.title} />
         {currentUser && <PostsAcceptTos currentUser={currentUser} />}
         {postWillBeHidden && <NewPostModerationWarning />}
         {rateLimitNextAbleToPost && <RateLimitWarning
@@ -234,7 +221,7 @@ const PostsEditForm = ({ documentId, version }: {
         <DeferRender ssr={false}>
           <EditorContext.Provider value={[editorState, setEditorState]}>
             <PostForm
-              initialData={withDateFields(document, ['createdAt', 'postedAt', 'afDate', 'commentsLockedToAccountsCreatedAfter', 'frontpageDate', 'curatedDate', 'startTime', 'endTime'])}
+              initialData={withDateFields(document, ['postedAt', 'afDate', 'commentsLockedToAccountsCreatedAfter', 'frontpageDate', 'curatedDate', 'startTime', 'endTime'])}
               onSuccess={(post, options) => {
                 const alreadySubmittedToAF = post.suggestForAlignmentUserIds && post.suggestForAlignmentUserIds.includes(post.userId!)
                 if (!post.draft && !alreadySubmittedToAF) afNonMemberSuccessHandling(post);
@@ -243,7 +230,7 @@ const PostsEditForm = ({ documentId, version }: {
                 } else {
                   // If they are publishing a draft, show the share popup
                   // Note: we can't use isDraft here because it gets updated to true when they click "Publish"
-                  const showSharePopup = isEAForum && wasEverDraft.current && !post.draft
+                  const showSharePopup = isEAForum() && wasEverDraft.current && !post.draft
                   const sharePostQuery = `?${SHARE_POPUP_QUERY_PARAM}=true`
                   navigate({pathname: postGetPageUrl(post), search: showSharePopup ? sharePostQuery : ''})
 
@@ -258,7 +245,7 @@ const PostsEditForm = ({ documentId, version }: {
         </DeferRender>
       </div>
     </DynamicTableOfContents>
-  );
+  </>);
 }
 
 export default registerComponent('PostsEditForm', PostsEditForm);

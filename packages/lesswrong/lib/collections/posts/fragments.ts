@@ -38,13 +38,6 @@ export const PostsTopItemInfo = gql(`
       wordCount
       version
     }
-    customHighlight {
-      _id
-      html
-    }
-    tags {
-      ...TagPreviewFragment
-    }
     reviewWinner {
       ...ReviewWinnerTopPostsPage
     }
@@ -65,7 +58,6 @@ export const PostsBase = gql(`
     # Core fields
     url
     postedAt
-    createdAt
     sticky
     metaSticky
     stickyPriority
@@ -330,6 +322,7 @@ export const PostsList = gql(`
       hostedHere
       foreignPostId
     }
+    bannedUserIds
   }
 `)
 
@@ -712,18 +705,10 @@ export const SunshinePostsList = gql(`
       htmlHighlight
       wordCount
       version
+    }
 
-      automatedContentEvaluations {
-        _id
-        score
-        sentenceScores {
-          sentence
-          score
-        }
-        aiChoice
-        aiReasoning
-        aiCoT
-      }
+    automatedContentEvaluations {
+      ...AutomatedContentEvaluationsFragment
     }
 
     moderationGuidelines {

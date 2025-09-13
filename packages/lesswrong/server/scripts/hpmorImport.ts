@@ -7,6 +7,7 @@ import { createPost } from '../collections/posts/mutations';
 
 const hpmorImport = false;
 
+// eslint-disable-next-line @typescript-eslint/no-floating-promises
 if (hpmorImport) { void (async ()=>{
   let filepath = process.env["PWD"] + "/packages/lesswrong/assets/hpmor_data.json";
   let f = fs.readFileSync(filepath, 'utf8');
@@ -44,6 +45,7 @@ if (hpmorImport) { void (async ()=>{
 
     if (!oldPost){
       const lwContext = await computeContextFromUser({ user: lwUser, isSSR: false });
+      // eslint-disable-next-line @typescript-eslint/no-floating-promises
       void createPost({
         data: post
       }, lwContext);

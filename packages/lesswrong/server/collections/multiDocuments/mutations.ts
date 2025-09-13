@@ -1,4 +1,3 @@
-
 import { getRootDocument } from "@/lib/collections/multiDocuments/helpers";
 import schema from "@/lib/collections/multiDocuments/newSchema";
 import { accessFilterSingle } from "@/lib/utils/schemaUtils";
@@ -14,6 +13,7 @@ import { getLegacyCreateCallbackProps, getLegacyUpdateCallbackProps, insertAndRe
 import gql from "graphql-tag";
 import cloneDeep from "lodash/cloneDeep";
 import { editCheck as editTagCheck, newCheck as newTagCheck } from "@/server/collections/tags/helpers";
+import { backgroundTask } from "@/server/utils/backgroundTask";
 
 /**
  * The logic for validating whether a user can either create or update a multi-document is basically the same.
@@ -100,7 +100,7 @@ export async function createMultiDocument({ data }: CreateMultiDocumentInput, co
 
   reindexParentTagIfNeeded(documentWithId);
 
-  await uploadImagesInEditableFields({
+  uploadImagesInEditableFields({
     newDoc: documentWithId,
     props: asyncProperties,
   });
@@ -142,12 +142,12 @@ export async function updateMultiDocument({ selector, data }: UpdateMultiDocumen
 
   reindexParentTagIfNeeded(updatedDocument);
 
-  await reuploadImagesIfEditableFieldsChanged({
+  reuploadImagesIfEditableFieldsChanged({
     newDoc: updatedDocument,
     props: updateCallbackProperties,
   });
 
-  void logFieldChanges({ currentUser, collection: MultiDocuments, oldDocument, data: origData });
+  backgroundTask(logFieldChanges({ currentUser, collection: MultiDocuments, oldDocument, data: origData }));
 
   return updatedDocument;
 }

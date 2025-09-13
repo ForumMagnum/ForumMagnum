@@ -1,3 +1,5 @@
+"use client";
+
 import React, { useEffect } from 'react';
 import { useStyles, defineStyles } from '../hooks/useStyles';
 import { useCurrentUser } from '../common/withUser';
@@ -41,7 +43,7 @@ const UltraFeedPage = () => {
     );
   }
 
-  return <UltraFeed alwaysShow />;
+  return <UltraFeed alwaysShow hideTitle />;
 };
 
 export default UltraFeedPage;

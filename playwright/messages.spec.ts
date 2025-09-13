@@ -28,8 +28,8 @@ test("can send and receive messages", async ({browser}) => {
 
   // User B navigates to the conversation in their inbox
   await pageB.goto("/inbox");
-  await expect(pageB.getByText(userA.displayName)).toBeVisible();
-  await pageB.locator(".FriendlyConversationItem-root").click();
+  await expect(pageB.getByText(userA.displayName).first()).toBeVisible();
+  await pageB.locator(".ConversationItem-root").click();
 
   // User B can see the message that user A sent
   const messagesB = pageB.getByTestId("conversation-messages");

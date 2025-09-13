@@ -1,13 +1,11 @@
 import React, { useRef, useState, useEffect, useContext } from 'react'
-import { registerComponent } from '../../lib/vulcan-lib/components';
 import { ckEditorBundleVersion, getCkPostEditor } from '../../lib/wrapCkEditor';
 import { getCKEditorDocumentId, generateTokenRequest} from '../../lib/ckEditorUtils'
 import { CollaborativeEditingAccessLevel, accessLevelCan } from '../../lib/collections/posts/collabEditingPermissions';
-import { ckEditorUploadUrlSetting, ckEditorWebsocketUrlSetting } from '../../lib/publicSettings'
-import { ckEditorUploadUrlOverrideSetting, ckEditorWebsocketUrlOverrideSetting, forumTypeSetting, isEAForum, isLWorAF } from '../../lib/instanceSettings';
+import { ckEditorUploadUrlSetting, ckEditorWebsocketUrlSetting, ckEditorUploadUrlOverrideSetting, ckEditorWebsocketUrlOverrideSetting, isEAForum, isLWorAF } from '@/lib/instanceSettings';
 import EditorTopBar, { CollaborationMode } from './EditorTopBar';
 import { useSubscribedLocation } from '../../lib/routeUtil';
-import { defaultEditorPlaceholder } from '@/lib/editor/defaultEditorPlaceholder';
+import { getDefaultEditorPlaceholder } from '@/lib/editor/defaultEditorPlaceholder';
 import { mentionPluginConfiguration } from "../../lib/editor/mentionsConfig";
 import { useCurrentUser } from '../common/withUser';
 import { useMessages } from '../common/withMessages';
@@ -15,7 +13,7 @@ import { getConfirmedCoauthorIds } from '../../lib/collections/posts/helpers';
 import sortBy from 'lodash/sortBy'
 import uniqBy from 'lodash/uniqBy';
 import { filterNonnull } from '../../lib/utils/typeGuardUtils';
-import { useMutation } from "@apollo/client";
+import { useMutation } from "@apollo/client/react";
 import { useQuery } from "@/lib/crud/useQuery"
 import { gql } from "@/lib/generated/gql-codegen";
 import type { Editor } from '@ckeditor/ckeditor5-core';
@@ -35,6 +33,8 @@ import { useCkEditorInspector } from '@/client/useCkEditorInspector';
 import EditConditionalVisibility from "./conditionalVisibilityBlock/EditConditionalVisibility";
 import DialogueEditorGuidelines from "../posts/dialogues/DialogueEditorGuidelines";
 import DialogueEditorFeedback from "../posts/dialogues/DialogueEditorFeedback";
+import { useStyles } from '../hooks/useStyles';
+import { ckEditorPluginStyles } from './ckEditorStyles';
 
 const PostsMinimumInfoMultiQuery = gql(`
   query multiPostCKPostEditorQuery($selector: PostSelector, $limit: Int, $enableTotal: Boolean) {
@@ -49,28 +49,6 @@ const PostsMinimumInfoMultiQuery = gql(`
 
 // Uncomment this line and the reference below to activate the CKEditor debugger
 // import CKEditorInspector from '@ckeditor/ckeditor5-inspector';
-
-const styles = (theme: ThemeType) => ({
-  sidebar: {
-    position: 'absolute',
-    right: -350,
-    width: 300,
-    [theme.breakpoints.down('md')]: {
-      position: 'absolute',
-      right: -100,
-      width: 50
-    },
-    [theme.breakpoints.down('sm')]: {
-      right: 0
-    }
-  },
-  addMessageButton: {
-    marginBottom: 30,
-  },
-  hidden: {
-    display: "none",
-  },
-})
 
 const DIALOGUE_MESSAGE_INPUT_WRAPPER = 'dialogueMessageInputWrapper';
 const DIALOGUE_MESSAGE_INPUT = 'dialogueMessageInput';
@@ -347,7 +325,7 @@ export type ConnectedUserInfo = {
 
 const readOnlyPermissionsLock = Symbol("ckEditorReadOnlyPermissions");
 
-const postEditorToolbarConfig = {
+const getPostEditorToolbarConfig = () => ({
   blockToolbar: {
     items: [
       'imageUpload',
@@ -355,10 +333,10 @@ const postEditorToolbarConfig = {
       'horizontalLine',
       'mathDisplay',
       'mediaEmbed',
-      ...(isEAForum ? ['ctaButtonToolbarItem', 'pollToolbarItem'] : ['collapsibleSectionButton']),
-      //...(isLWorAF ? ['conditionallyVisibleSectionButton'] : []),
+      ...(isEAForum() ? ['ctaButtonToolbarItem', 'pollToolbarItem'] : ['collapsibleSectionButton']),
+      //...(isLWorAF() ? ['conditionallyVisibleSectionButton'] : []),
       'footnote',
-      ...(isLWorAF ? ['insertClaimButton'] : []),
+      ...(isLWorAF() ? ['insertClaimButton'] : []),
     ],
     
     /* At some point the default icon for the block toolbar changed from a
@@ -386,13 +364,13 @@ const postEditorToolbarConfig = {
       'math',
       // We don't have the collapsible sections plugin in the selected-text toolbar yet,
       // because the behavior of creating a collapsible section is non-obvious and we want to fix it first
-      ...(isEAForum ? ['ctaButtonToolbarItem', 'pollToolbarItem'] : []),
+      ...(isEAForum() ? ['ctaButtonToolbarItem', 'pollToolbarItem'] : []),
       'footnote',
-      ...(isLWorAF ? ['insertClaimButton'] : []),
+      ...(isLWorAF() ? ['insertClaimButton'] : []),
     ],
     shouldNotGroupWhenFull: true,
   },
-};
+});
 
 const CKPostEditor = ({
   data,
@@ -409,7 +387,6 @@ const CKPostEditor = ({
   accessLevel,
   placeholder,
   document,
-  classes
 }: {
   data?: any,
   collectionName: CollectionNameString,
@@ -428,8 +405,8 @@ const CKPostEditor = ({
   accessLevel?: CollaborativeEditingAccessLevel,
   placeholder?: string,
   document?: any,
-  classes: ClassesType<typeof styles>,
 }) => {
+  const classes = useStyles(ckEditorPluginStyles);
   const currentUser = useCurrentUser();
   const { flash } = useMessages();
   const { openDialog } = useDialog();
@@ -548,13 +525,13 @@ const CKPostEditor = ({
     collaborationModeRef.current = mode;
   }
 
-  const actualPlaceholder = placeholder ?? defaultEditorPlaceholder;
+  const actualPlaceholder = placeholder ?? getDefaultEditorPlaceholder();
 
   // This is AnyBecauseHard because it contains plugin-specific configs that are
   // added to the EditorConfig type via augmentations, but we don't get those
   // augmentations because we're only importing those in the CkEditor bundle.
-  const editorConfig: AnyBecauseHard = {
-    ...postEditorToolbarConfig,
+  const editorConfig = {
+    ...getPostEditorToolbarConfig(),
     autosave: {
       save (editor: any) {
         return onSave && onSave(editor.getData())
@@ -582,7 +559,7 @@ const CKPostEditor = ({
     },
     initialData: initData,
     placeholder: actualPlaceholder,
-    mention: mentionPluginConfiguration,
+    mention: mentionPluginConfiguration(portalContext),
     dialogues: dialogueConfiguration,
     conditionalVisibility: conditionalVisibilityPluginConfiguration,
     ...cloudinaryConfig,
@@ -592,7 +569,7 @@ const CKPostEditor = ({
   useSyncCkEditorPlaceholder(editorObject, actualPlaceholder);
   useCkEditorInspector(editorRef);
 
-  return <div>
+  return <div className={classes.ckWrapper}>
     {isBlockOwnershipMode && <>
      {!hasEverDialoguedBefore && <DialogueEditorGuidelines />}
      <style>
@@ -751,9 +728,9 @@ const CKPostEditor = ({
       }}
       config={editorConfig}
     />}
-    {post.collabEditorDialogue && !isFriendlyUI ? <DialogueEditorFeedback post={post} /> : null}
+    {post.collabEditorDialogue && !isFriendlyUI() ? <DialogueEditorFeedback post={post} /> : null}
   </div>
 }
 
-export default registerComponent("CKPostEditor", CKPostEditor, {styles});
+export default CKPostEditor;
 

@@ -1,7 +1,9 @@
+import { backgroundTask } from "@/server/utils/backgroundTask";
 import { manifoldAPIKeySetting, highlightReviewWinnerThresholdSetting } from "../../instanceSettings";
 import { getWithCustomLoader, loadByIds } from "../../loaders";
 import { filterNonnull } from "../../utils/typeGuardUtils";
 import keyBy from "lodash/keyBy";
+import { captureException } from "@/lib/sentryWrapper";
 
 // Information about a market, but without bets or comments
 export type LiteMarket = {
@@ -74,17 +76,27 @@ export const highlightMarket = (info: AnnualReviewMarketInfo | undefined): boole
   !!info && !info.isResolved && info.probability > highlightReviewWinnerThresholdSetting.get()
 
 
-const manifoldAPIKey = manifoldAPIKeySetting.get()
-
 export const postGetMarketInfoFromManifold = async (post: DbPost): Promise<AnnualReviewMarketInfo | null > => {
   if (!post.manifoldReviewMarketId) return null;
 
-  const result = await fetch(`https://api.manifold.markets./v0/market/${post.manifoldReviewMarketId}`, {
-    method: "GET",
-    headers: {
-      "content-type": "application/json"
-    },
-  })
+  let result;
+  try {
+    result = await fetch(`https://api.manifold.markets/v0/market/${post.manifoldReviewMarketId}`, {
+      method: "GET",
+      headers: {
+        "content-type": "application/json"
+      },
+    })
+  } catch (error) {
+    // We see unhelpful "fetch failed" errors from this request pretty frequently
+    // and don't really want them cluttering up the logs
+    if (!(error instanceof TypeError && error.message === 'fetch failed')) {
+      //eslint-disable-next-line no-console
+      console.error('There was a problem with the fetch operation for getting a Manifold Market: ', error);
+      captureException(error);
+    }
+    return null;
+  }
   
   if (!result.ok) {
     //eslint-disable-next-line no-console
@@ -98,6 +110,7 @@ export const postGetMarketInfoFromManifold = async (post: DbPost): Promise<Annua
 }
 
 export const createManifoldMarket = async (question: string, descriptionMarkdown: string, closeTime: Date, visibility: string, initialProb: number, idKey: string): Promise<LiteMarket | undefined> => {
+  const manifoldAPIKey = manifoldAPIKeySetting.get()
 
   //eslint-disable-next-line no-console
   if (!manifoldAPIKey) console.error("Manifold API key not found");
@@ -160,14 +173,14 @@ export const getPostMarketInfo = async (post: DbPost, context: ResolverContext):
   });
 
   if (!cacheItem) {
-    void refreshMarketInfoInCache(post, context)
+    backgroundTask(refreshMarketInfoInCache(post, context))
     return undefined;
   }
 
   const timeDifference = new Date().getTime() - cacheItem.lastUpdated.getTime();
 
   if (timeDifference >= 10_000) {
-    void refreshMarketInfoInCache(post, context);
+    backgroundTask(refreshMarketInfoInCache(post, context));
   }
 
   return { probability: cacheItem.probability, isResolved: cacheItem.isResolved, year: cacheItem.year, url: cacheItem.url ?? '' };

@@ -1,5 +1,5 @@
 import { loggerConstructor } from '../utils/logging';
-import { i18nStrings } from '../vulcan-i18n-en-us';
+import { getI18nStrings } from '../vulcan-i18n-en-us';
 
 const logger = loggerConstructor('intl')
 
@@ -8,7 +8,7 @@ function replaceAll(target: AnyBecauseTodo, search: AnyBecauseTodo, replacement:
 }
 
 export const getString = ({id, values, defaultMessage, locale}: AnyBecauseTodo) => {
-  const messages = i18nStrings || {};
+  const messages = getI18nStrings() || {};
   let message = messages[id];
 
   // use default locale

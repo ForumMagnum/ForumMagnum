@@ -1,4 +1,4 @@
-import React, { useRef, useEffect } from 'react';
+import React, { useRef, useEffect, useMemo } from 'react';
 import { ObservableQuery, WatchQueryFetchPolicy } from '@apollo/client';
 import { useQuery } from "@/lib/crud/useQuery";
 import { useOnPageScroll } from './withOnPageScroll';
@@ -43,7 +43,7 @@ export const MixedTypeFeed = <
   // Ref that will be populated with a function that makes this feed refetch
   // (refetching everything, shrinking it to one page, and potentially scrolling
   // up by a bunch.)
-  refetchRef?: {current: null|ObservableQuery['refetch']},
+  refetchRef?: {current: null | (() => void)},
 
   // By default, MixedTypeFeed preserves the order of elements that persist across refetches.  If you don't want that, pass in true.
   reorderOnRefetch?: boolean,
@@ -61,6 +61,9 @@ export const MixedTypeFeed = <
 
   // Apollo fetch policy
   fetchPolicy?: WatchQueryFetchPolicy;
+  
+  // Callback for tracking loading state changes (fires when loading starts and completes)
+  onLoadingStateChange?: (results: Array<{type: string, [key: string]: unknown}>, loading: boolean) => void;
 }) => {
   const {
     query,
@@ -75,6 +78,7 @@ export const MixedTypeFeed = <
     className,
     loadMoreDistanceProp = defaultLoadMoreDistance,
     fetchPolicy = "cache-and-network",
+    onLoadingStateChange,
   } = args;
 
   // Reference to a bottom-marker used for checking scroll position.
@@ -84,9 +88,8 @@ export const MixedTypeFeed = <
   // because it's accessed from inside callbacks, where the timing of state
   // updates would be a problem.
   const queryIsPending = useRef(false);
-  const {captureEvent} = useTracking();
   
-  const {data, error, fetchMore, refetch} = useQuery<Record<string, FeedPaginationResultVariables>>(query, {
+  const {data, error, fetchMore, refetch, loading } = useQuery<Record<string, FeedPaginationResultVariables>>(query, {
     variables: {
       ...variables,
       cutoff: null,
@@ -94,7 +97,7 @@ export const MixedTypeFeed = <
       limit: firstPageSize,
     },
     fetchPolicy,
-    nextFetchPolicy: "cache-only",
+    nextFetchPolicy: "cache-first",
     ssr: true,
   });
   
@@ -166,9 +169,19 @@ export const MixedTypeFeed = <
   useEffect(maybeStartLoadingMore);
   useOnPageScroll(maybeStartLoadingMore);
   
-  const results = (data && resolverName && data[resolverName]?.results) || [];
+  const results = useMemo(() => 
+    (data && resolverName && data[resolverName]?.results) || [],
+    [data, resolverName]
+  );
   const orderPolicy = reorderOnRefetch ? 'no-reorder' : undefined;
   const orderedResults = useOrderPreservingArray(results, keyFunc, orderPolicy);
+  
+  // Call onLoadingStateChange when loading state changes
+  useEffect(() => {
+    if (onLoadingStateChange) {
+      onLoadingStateChange(results, loading);
+    }
+  }, [results, loading, onLoadingStateChange]);
 
   return <div className={className}>
     {orderedResults.map((result, index) =>

@@ -12,6 +12,7 @@ export interface OpenDialogContextType {
     closeOnNavigate?: boolean,
   }) => void,
   closeDialog: () => void,
+  isDialogOpen: boolean,
 }
 export const OpenDialogContext = React.createContext<OpenDialogContextType|null>(null);
 
@@ -37,8 +38,9 @@ export const DialogManager = ({children}: {
       setDialogContents(() => contents);
       setCloseOnNavigate(closeOnNavigate || false)
     },
-    closeDialog: closeDialog
-  }), [captureEvent, closeDialog]);
+    closeDialog: closeDialog,
+    isDialogOpen: dialogName !== null,
+  }), [captureEvent, closeDialog, dialogName]);
   
   useOnNavigate(() => {
     if (closeOnNavigate) closeDialog()

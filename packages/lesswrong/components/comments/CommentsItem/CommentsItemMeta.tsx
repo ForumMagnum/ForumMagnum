@@ -1,16 +1,14 @@
 import React, { useState }  from "react";
 import classNames from "classnames";
-import { registerComponent } from "../../../lib/vulcan-lib/components";
 import { Link } from "../../../lib/reactRouterWrapper";
-import { isEAForum } from "../../../lib/instanceSettings";
+import { isEAForum, commentPermalinkStyleSetting } from '@/lib/instanceSettings';
 import { userIsPostCoauthor } from "../../../lib/collections/posts/helpers";
 import { useCommentLink, useCommentLinkState } from "./useCommentLink";
 import { userIsAdmin } from "../../../lib/vulcan-users/permissions";
-import { useCurrentUser } from "../../common/withUser";
+import { useFilteredCurrentUser } from "../../common/withUser";
 import { AnalyticsContext } from "../../../lib/analyticsEvents";
 import type { CommentTreeOptions } from "../commentTree";
 import { isBookUI, isFriendlyUI } from "../../../themes/forumTheme";
-import { commentPermalinkStyleSetting } from "@/lib/publicSettings";
 import CommentShortformIcon from "./CommentShortformIcon";
 import CommentDiscussionIcon from "./CommentDiscussionIcon";
 import ShowParentComment from "../ShowParentComment";
@@ -25,8 +23,9 @@ import CommentsMenu from "../../dropdowns/comments/CommentsMenu";
 import UserCommentMarkers from "../../users/UserCommentMarkers";
 import CommentPollVote from "./CommentPollVote";
 import { metaNoticeStyles } from "./metaNoticeStyles";
+import { defineStyles, useStyles } from "@/components/hooks/useStyles";
 
-const styles = (theme: ThemeType) => ({
+const styles = defineStyles("CommentsItemMeta", (theme: ThemeType) => ({
   root: {
     "& > div": {
       marginRight: 5,
@@ -40,11 +39,11 @@ const styles = (theme: ThemeType) => ({
     marginBottom: 8,
     color: theme.palette.text.dim,
     paddingTop: "0.6em",
-    marginRight: isFriendlyUI ? 40 : 20,
+    marginRight: theme.isFriendlyUI ? 40 : 20,
 
     "& a:hover, & a:active": {
       textDecoration: "none",
-      color: isFriendlyUI ? undefined : `${theme.palette.linkHover.dim} !important`,
+      color: theme.isFriendlyUI ? undefined : `${theme.palette.linkHover.dim} !important`,
     },
   },
   sideCommentMeta: {
@@ -55,14 +54,14 @@ const styles = (theme: ThemeType) => ({
     ...metaNoticeStyles(theme),
   },
   collapse: {
-    marginRight: isFriendlyUI ? 6 : 5,
+    marginRight: theme.isFriendlyUI ? 6 : 5,
     opacity: 0.8,
     fontSize: "0.8rem",
     lineHeight: "1rem",
-    paddingBottom: isFriendlyUI ? 4 : 2,
-    display: isFriendlyUI ? "inline-block" : "flex",
+    paddingBottom: theme.isFriendlyUI ? 4 : 2,
+    display: theme.isFriendlyUI ? "inline-block" : "flex",
     verticalAlign: "middle",
-    transform: isFriendlyUI ? "translateY(3px)" : undefined,
+    transform: theme.isFriendlyUI ? "translateY(3px)" : undefined,
 
     "& span": {
       fontFamily: "monospace",
@@ -79,7 +78,7 @@ const styles = (theme: ThemeType) => ({
     transform: 'translateY(0.75px)',
   },
   username: {
-    marginRight: isFriendlyUI ? 0 : 6,
+    marginRight: theme.isFriendlyUI ? 0 : 6,
 
     "$sideCommentMeta &": {
       flexGrow: 1,
@@ -116,7 +115,7 @@ const styles = (theme: ThemeType) => ({
   },
   rightSection: {
     position: "absolute",
-    right: isFriendlyUI ? -46 : -26,
+    right: theme.isFriendlyUI ? -46 : -26,
     top: 12,
     display: "flex",
   },
@@ -133,14 +132,14 @@ const styles = (theme: ThemeType) => ({
     stroke: "currentColor",
     color: theme.palette.primary.main
   },
-  menu: isFriendlyUI
+  menu: theme.isFriendlyUI
     ? {
       color: theme.palette.icon.dim,
     }
     : {
       opacity: 0.35,
     }
-});
+}));
 
 export const CommentsItemMeta = ({
   treeOptions,
@@ -157,7 +156,6 @@ export const CommentsItemMeta = ({
   toggleCollapse,
   setShowEdit,
   rightSectionElements,
-  classes,
 }: {
   treeOptions: CommentTreeOptions,
   comment: CommentsList|CommentsListWithParentMetadata,
@@ -173,9 +171,9 @@ export const CommentsItemMeta = ({
   toggleCollapse?: () => void,
   setShowEdit: () => void,
   rightSectionElements?: React.ReactNode,
-  classes: ClassesType<typeof styles>,
 }) => {
-  const currentUser = useCurrentUser();
+  const classes = useStyles(styles);
+  const currentUserIsAdmin = useFilteredCurrentUser(u => userIsAdmin(u));
   const { scrollToCommentId } = useCommentLinkState();
 
   const {
@@ -202,7 +200,7 @@ export const CommentsItemMeta = ({
    * 2) the user is either an admin, or the moderatorHat isn't deliberately hidden
    */
   const showModeratorCommentAnnotation = comment.moderatorHat && (
-    userIsAdmin(currentUser)
+    currentUserIsAdmin
       ? true
       : !comment.hideModeratorHat
     );
@@ -220,7 +218,7 @@ export const CommentsItemMeta = ({
     return `/reviewVoting/${year}`;
   }
 
-  const reviewingForReview = isEAForum && comment.reviewingForReview === "2020"
+  const reviewingForReview = isEAForum() && comment.reviewingForReview === "2020"
     ? "the Decade"
     : comment.reviewingForReview;
 
@@ -233,6 +231,7 @@ export const CommentsItemMeta = ({
   }
   // Note: This could be decoupled from `commentPermalinkStyleSetting` without any side effects
   const highlightLinkIcon = commentPermalinkStyleSetting.get() === 'in-context' && scrollToCommentId === comment._id
+  const menuVisible = (!isParentComment && !hideActionsMenu);
 
   return (
     <div className={classNames(
@@ -261,7 +260,7 @@ export const CommentsItemMeta = ({
       }
       {(showCollapseButtons || collapsed) &&
         <a className={classes.collapse} onClick={toggleCollapse}>
-          {isFriendlyUI
+          {isFriendlyUI()
             ? <ForumIcon icon="ThickChevronRight" className={classNames(
                 classes.collapseChevron, !collapsed && classes.collapseChevronOpen
               )} />
@@ -322,7 +321,7 @@ export const CommentsItemMeta = ({
             hoverable={true}
             key={tag._id}
             className={classes.relevantTag}
-            neverCoreStyling={isBookUI}
+            neverCoreStyling={isBookUI()}
             smallText
           />
         )}
@@ -332,16 +331,16 @@ export const CommentsItemMeta = ({
           className={classes.showMoreTags}
         />}
       </span>}
-      <CommentPollVote comment={comment} />
+      {comment.forumEventId && <CommentPollVote comment={comment} />}
 
-      <span className={classes.rightSection}>
+      {(rightSectionElements || isFriendlyUI() || menuVisible) && <span className={classes.rightSection}>
         {rightSectionElements}
-        {isFriendlyUI &&
+        {isFriendlyUI() &&
           <CommentLinkWrapper>
             <ForumIcon icon="Link" className={classNames(classes.linkIcon, {[classes.linkIconHighlighted]: highlightLinkIcon})} />
           </CommentLinkWrapper>
         }
-        {!isParentComment && !hideActionsMenu &&
+        {menuVisible &&
           <AnalyticsContext pageElementContext="tripleDotMenu">
             <CommentsMenu
               className={classes.menu}
@@ -352,15 +351,11 @@ export const CommentsItemMeta = ({
             />
           </AnalyticsContext>
         }
-      </span>
+      </span>}
     </div>
   );
 }
 
-export default registerComponent(
-  "CommentsItemMeta",
-  CommentsItemMeta,
-  {styles},
-);
+export default CommentsItemMeta;
 
 

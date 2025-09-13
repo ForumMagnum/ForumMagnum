@@ -2,12 +2,11 @@ import React, {useCallback, useState} from 'react';
 import Input from '@/lib/vendor/@material-ui/core/src/Input';
 import {useMessages} from "../common/withMessages";
 import type { EditablePost, PostCategory } from '../../lib/collections/posts/helpers';
-import { isFriendlyUI } from '../../themes/forumTheme';
 import { isE2E } from '../../lib/executionEnvironment';
 import { LW_POST_TITLE_FONT_SIZE } from '../posts/PostsPage/PostsPageTitle';
 import { TypedFieldApi } from '@/components/tanstack-form-components/BaseAppForm';
 import { defineStyles, useStyles } from '../hooks/useStyles';
-import { useMutation } from "@apollo/client";
+import { useMutation } from "@apollo/client/react";
 import { gql } from "@/lib/generated/gql-codegen";
 
 const PostsMinimumInfoUpdateMutation = gql(`
@@ -24,7 +23,7 @@ const styles = defineStyles('EditTitle', (theme: ThemeType) => ({
   root: {
     ...theme.typography.display3,
     ...theme.typography.headerStyle,
-    ...(isFriendlyUI ? {
+    ...(theme.isFriendlyUI ? {
       fontWeight: 700,
       fontSize: "3rem",
       marginBottom: 12,

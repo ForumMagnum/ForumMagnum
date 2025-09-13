@@ -2,7 +2,8 @@ import React from 'react';
 import { AnalyticsContext } from "../../lib/analyticsEvents";
 import { useCurrentUser } from '../common/withUser';
 import { FeedPostMetaInfo, FeedCommentMetaInfo, DisplayFeedCommentThread, FeedItemDisplayStatus } from '../ultraFeed/ultraFeedTypes';
-import { DEFAULT_SETTINGS, UltraFeedSettingsType } from '../ultraFeed/ultraFeedSettingsTypes';
+import { UltraFeedSettingsType } from '../ultraFeed/ultraFeedSettingsTypes';
+import { useUltraFeedSettings } from '../hooks/useUltraFeedSettings';
 import { UltraFeedObserverProvider } from '../ultraFeed/UltraFeedObserver';
 import { OverflowNavObserverProvider } from '../ultraFeed/OverflowNavObserverContext';
 import SingleColumnSection from "../common/SingleColumnSection";
@@ -25,8 +26,9 @@ const BookmarksFeedItemFragmentMultiQuery = gql(`
   }
 `);
 
-const BookmarksFeed = () => {
+const BookmarksFeed = ({ hideTitle = false }: { hideTitle?: boolean }) => {
   const currentUser = useCurrentUser();
+  const { settings } = useUltraFeedSettings();
 
   const { data, error, loading } = useQuery(BookmarksFeedItemFragmentMultiQuery, {
     variables: {
@@ -50,19 +52,18 @@ const BookmarksFeed = () => {
     return <SingleColumnSection><p>Error loading bookmarks: {error.message}</p></SingleColumnSection>;
   }
 
-  const settings: UltraFeedSettingsType = {
-    ...DEFAULT_SETTINGS,
+  const bookmarkSettings: UltraFeedSettingsType = {
+    ...settings,
     displaySettings: {
-      ...DEFAULT_SETTINGS.displaySettings,
+      ...settings.displaySettings,
       postInitialWords: 50,
-      postMaxWords: 2000,
+      postMaxWords: 500,
       commentCollapsedInitialWords: 50,
-      commentExpandedInitialWords: 500,
-      commentMaxWords: 1000,
-      postTitlesAreModals: true,
+      commentExpandedInitialWords: 200,
+      commentMaxWords: 500,
     },
     resolverSettings: {
-      ...DEFAULT_SETTINGS.resolverSettings,
+      ...settings.resolverSettings,
       incognitoMode: true,
     },
   };
@@ -72,14 +73,15 @@ const BookmarksFeed = () => {
       <UltraFeedObserverProvider incognitoMode={true} >
       <OverflowNavObserverProvider>
       <SingleColumnSection>
-        <SectionTitle title="All Bookmarks" />
+        {!hideTitle && <SectionTitle title="All Bookmarks" />}
         {bookmarks.map((bookmark: any, index) => {
           const typedBookmark = bookmark;
 
           if (typedBookmark.collectionName === 'Posts' && typedBookmark.post) {
             const postMetaInfo: FeedPostMetaInfo = {
               sources: ["bookmarks"],
-              displayStatus: "expanded" as FeedItemDisplayStatus
+              displayStatus: "expanded" as FeedItemDisplayStatus,
+              highlight: false,
             };
             return (
               <FeedItemWrapper key={typedBookmark._id || `post-${index}`}>
@@ -87,7 +89,7 @@ const BookmarksFeed = () => {
                   post={typedBookmark.post}
                   postMetaInfo={postMetaInfo}
                   index={index}
-                  settings={settings}
+                  settings={bookmarkSettings}
                 />
               </FeedItemWrapper>
             );
@@ -101,7 +103,8 @@ const BookmarksFeed = () => {
                 lastViewed: null, 
                 lastInteracted: null,
                 postedAt: commentData.postedAt,
-                directDescendentCount: commentData.directChildrenCount
+                descendentCount: commentData.descendentCount,
+                directDescendentCount: commentData.directChildrenCount,
               }
             };
             const threadData: DisplayFeedCommentThread = {
@@ -114,7 +117,7 @@ const BookmarksFeed = () => {
                 <UltraFeedThreadItem
                   thread={threadData}
                   index={index}
-                  settings={settings}
+                  settings={bookmarkSettings}
                 />
               </FeedItemWrapper>
             );

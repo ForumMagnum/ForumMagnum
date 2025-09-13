@@ -1,6 +1,3 @@
-
-import 'element-closest'
-
 // The below two polyfills are vendored from https://github.com/behnammodi/polyfill/blob/master/window.polyfill.js
 /**
 * window.requestIdleCallback()
@@ -8,7 +5,7 @@ import 'element-closest'
 * Browser Compatibility:
 * https://developer.mozilla.org/en-US/docs/Web/API/Window/requestIdleCallback#browser_compatibility
 */
-if (!window.requestIdleCallback) {
+if (typeof window !== 'undefined' && !window.requestIdleCallback) {
   window.requestIdleCallback = function (callback, inputOptions) {
     const options = inputOptions || {};
     var relaxation = 1;
@@ -33,7 +30,7 @@ if (!window.requestIdleCallback) {
  * Browser Compatibility:
  * https://developer.mozilla.org/en-US/docs/Web/API/Window/cancelIdleCallback#browser_compatibility
  */
-if (!window.cancelIdleCallback) {
+if (typeof window !== 'undefined' && !window.cancelIdleCallback) {
   window.cancelIdleCallback = function (id) {
     clearTimeout(id);
   };

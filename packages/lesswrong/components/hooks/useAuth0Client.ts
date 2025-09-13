@@ -1,4 +1,4 @@
-import { auth0ClientSettings } from "../../lib/publicSettings";
+import { auth0ClientSettings } from '@/lib/instanceSettings';
 import { combineUrls } from "../../lib/vulcan-lib/utils";
 
 class Auth0ClientError extends Error {

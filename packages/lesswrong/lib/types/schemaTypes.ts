@@ -171,6 +171,7 @@ interface GraphQLWriteableFieldSpecification<N extends CollectionNameString> {
 
   arguments?: string,
   sqlResolver?: SqlResolver<N>,
+  skipSqlResolver?: () => boolean,
   sqlPostProcess?: undefined,
 }
 
@@ -181,6 +182,7 @@ interface GraphQLResolverOnlyFieldSpecification<N extends CollectionNameString> 
   arguments?: string|null,
   resolver: (root: ObjectsByCollectionName[N], args: any, context: ResolverContext) => any,
   sqlResolver?: SqlResolver<N>,
+  skipSqlResolver?: () => boolean,
   /**
    * `sqlPostProcess` is run on the result of the database call, in addition
    * to the `sqlResolver`. It should return the value of this `field`, generally

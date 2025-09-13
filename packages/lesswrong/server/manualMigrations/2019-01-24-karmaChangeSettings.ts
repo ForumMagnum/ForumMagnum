@@ -1,6 +1,5 @@
 import { registerMigration, migrateDocuments, fillDefaultValues } from './migrationUtils';
 import Users from '../../server/collections/users/collection';
-import * as _ from 'underscore';
 
 export default registerMigration({
   name: "applyKarmaChangeWidgetDefaults",
@@ -17,7 +16,7 @@ export default registerMigration({
         karmaChangeLastOpened: {$exists:false},
       },
       migrate: async (documents) => {
-        const updates = _.map(documents, user => {
+        const updates = documents.map(user => {
           return {
             updateOne: {
               filter: {_id: user._id},

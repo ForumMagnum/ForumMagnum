@@ -6,7 +6,6 @@ import {
 } from "../../../lib/instanceSettings";
 import { compassIcon } from "../../icons/compassIcon";
 import { lightbulbIcon } from "../../icons/lightbulbIcon";
-import { isFriendlyUI } from "../../../themes/forumTheme";
 import { registerComponent } from "../../../lib/vulcan-lib/components";
 import { combineUrls } from "../../../lib/vulcan-lib/utils";
 import LWTooltip from "../../common/LWTooltip";
@@ -19,7 +18,7 @@ const styles = (theme: ThemeType) => ({
     color: theme.palette.text.dim3,
     display: "inline-block",
     width: 20,
-    marginLeft: isFriendlyUI ? undefined : -6,
+    marginLeft: theme.isFriendlyUI ? undefined : -6,
     verticalAlign: "sub",
   },
 });
@@ -31,7 +30,7 @@ const CrosspostHeaderIcon = ({post, classes}: {
   if (!post.fmCrosspost) {
     return null;
   }
-  const icon = isLW ? lightbulbIcon : compassIcon;
+  const icon = isLW() ? lightbulbIcon : compassIcon;
   const tip = post.fmCrosspost.hostedHere
     ? `This post was crossposted to ${fmCrosspostSiteNameSetting.get()}. Click to view.`
     : `This is a crosspost. Click to view the original on ${fmCrosspostSiteNameSetting.get()}.`;

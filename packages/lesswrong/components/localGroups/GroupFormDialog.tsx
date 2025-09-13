@@ -25,7 +25,7 @@ import Error404 from "../common/Error404";
 import FormComponentCheckbox from "../form-components/FormComponentCheckbox";
 import LWDialog from "../common/LWDialog";
 import Loading from "../vulcan-core/Loading";
-import { useMutation } from "@apollo/client";
+import { useMutation } from "@apollo/client/react";
 import { useQuery } from "@/lib/crud/useQuery";
 import { gql } from "@/lib/generated/gql-codegen";
 import { withDateFields } from '@/lib/utils/dateUtils';
@@ -75,10 +75,6 @@ const styles = defineStyles('GroupFormDialog', (theme: ThemeType) => ({
       textAlign: "right",
     },
     "& .form-component-select": {
-      "& .col-sm-9": {
-        width: "100%",
-        padding: 0,
-      },
       "& label": {
         display: "none",
       },
@@ -175,7 +171,6 @@ const LocalGroupForm = ({
       e.stopPropagation();
       void form.handleSubmit();
     }}>
-      {displayedErrorComponent}
       <div className={classes.fieldWrapper}>
         <form.Field name="name">
           {(field) => (
@@ -229,7 +224,7 @@ const LocalGroupForm = ({
         </form.Field>
       </div>
 
-      {isLW && <div className={classes.fieldWrapper}>
+      {isLW() && <div className={classes.fieldWrapper}>
         <form.Field name="types">
           {(field) => (
             <MultiSelectButtons
@@ -241,7 +236,7 @@ const LocalGroupForm = ({
         </form.Field>
       </div>}
 
-      {isEAForum && <div className={classes.fieldWrapper}>
+      {isEAForum() && <div className={classes.fieldWrapper}>
         <form.Field name="categories">
           {(field) => (
             <FormComponentMultiSelect
@@ -283,7 +278,7 @@ const LocalGroupForm = ({
               {(field) => (
                 <LocationFormComponent
                   field={field}
-                  label={isFriendlyUI ? "Group location" : "Group Location"}
+                  label={isFriendlyUI() ? "Group location" : "Group Location"}
                   stringVersionFieldName="location"
                 />
               )}
@@ -364,7 +359,7 @@ const LocalGroupForm = ({
             <LWTooltip inlineBlock={false} placement="left-start" title='Recommend 1640x856 px, 1.91:1 aspect ratio (same as Facebook)'>
               <ImageUpload
                 field={field}
-                label={isFriendlyUI ? "Banner image" : "Banner Image"}
+                label={isFriendlyUI() ? "Banner image" : "Banner Image"}
                 croppingAspectRatio={1.91}
               />
             </LWTooltip>
@@ -396,6 +391,7 @@ const LocalGroupForm = ({
           />
         )}
       </form.Subscribe>
+      {displayedErrorComponent}
     </form>
   );
 };

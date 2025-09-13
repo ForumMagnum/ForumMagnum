@@ -1,5 +1,5 @@
 import { DeferredForumSelect } from '../lib/forumTypeUtils';
-import { forumTypeSetting } from '../lib/instanceSettings';
+import { forumTypeSetting, isEAForum } from '../lib/instanceSettings';
 import { TupleSet } from '../lib/utils/typeGuardUtils';
 
 export const userThemeNames = new TupleSet(["default", "dark"] as const);
@@ -29,7 +29,7 @@ export type ThemeMetadata = {
   label: string
 }
 
-export const themeMetadata: Array<ThemeMetadata> = forumTypeSetting.get() === "EAForum"
+export const getThemeMetadata = (): Array<ThemeMetadata> => isEAForum()
   ? [
     {
       name: "auto",
@@ -118,7 +118,7 @@ const deserializeThemeOptions = (themeOptions: object | string): AbstractThemeOp
 }
 
 const getSerializedThemeOptions = (
-  themeCookie: string | object,
+  themeCookie: string | null,
   user: DbUser|UsersCurrent | null,
 ): string|AbstractThemeOptions => {
   // Try to read from the cookie
@@ -136,7 +136,7 @@ const getSerializedThemeOptions = (
 }
 
 export const getThemeOptions = (
-  themeCookie: string | object,
+  themeCookie: string | null,
   user: DbUser|UsersCurrent | null,
 ): AbstractThemeOptions =>
   deserializeThemeOptions(getSerializedThemeOptions(themeCookie, user));

@@ -1,5 +1,5 @@
 import { getSqlClient } from "@/server/sql/sqlClient";
-import PgCollection from "@/server/sql/PgCollection";
+import type PgCollection from "@/server/sql/PgCollection";
 
 /**
  * abstractRepo provides the superclass from which all of our collection
@@ -13,10 +13,7 @@ export default abstract class AbstractRepo<N extends CollectionNameString> {
   protected collection: PgCollection<N>;
   private db: SqlClient;
 
-  constructor(collection: CollectionBase<N>, sqlClient?: SqlClient) {
-    if (!(collection instanceof PgCollection)) {
-      throw new Error(`${collection.collectionName} is not a Postgres collection`);
-    }
+  constructor(collection: PgCollection<N>, sqlClient?: SqlClient) {
     this.collection = collection;
     const db = sqlClient ?? getSqlClient();
     if (db) {

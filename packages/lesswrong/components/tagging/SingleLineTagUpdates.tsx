@@ -6,22 +6,23 @@ import { tagGetUrl, tagGetDiscussionUrl, tagGetHistoryUrl } from '../../lib/coll
 import { Link } from '../../lib/reactRouterWrapper';
 import { ExpandedDate } from '../common/FormatDate';
 import moment from 'moment';
-import { isFriendlyUI } from '../../themes/forumTheme';
 import { tagUrlBaseSetting } from '@/lib/instanceSettings';
 import AllPostsPageTagDocDeletionItem, { DocumentDeletion } from './AllPostsPageTagDocDeletionItem';
 import ChangeMetricsDisplay from "./ChangeMetricsDisplay";
 import PostsItemComments from "../posts/PostsItemComments";
 import AllPostsPageTagRevisionItem from "./AllPostsPageTagRevisionItem";
-import CommentById from "../comments/CommentById";
+import { CommentByIdSuspense } from "../comments/CommentById";
 import LWTooltip from "../common/LWTooltip";
 import PostsItem2MetaInfo from "../posts/PostsItem2MetaInfo";
 import UsersName from "../users/UsersName";
+import { SuspenseWrapper } from '../common/SuspenseWrapper';
+import Loading from '../vulcan-core/Loading';
 
 export const POSTED_AT_WIDTH = 38
 
 const styles = (theme: ThemeType) => ({
   root: {
-    ...(isFriendlyUI
+    ...(theme.isFriendlyUI
       ? {
         background: theme.palette.grey[0],
         border: `1px solid ${theme.palette.grey[100]}`,
@@ -52,10 +53,10 @@ const styles = (theme: ThemeType) => ({
     cursor: "pointer",
     padding: 4,
     fontFamily: theme.typography.fontFamily,
-    fontSize: isFriendlyUI ? 14 : 17,
-    fontWeight: isFriendlyUI ? 600 : undefined,
+    fontSize: theme.isFriendlyUI ? 14 : 17,
+    fontWeight: theme.isFriendlyUI ? 600 : undefined,
     ...theme.typography.smallCaps,
-    marginLeft: isFriendlyUI ? 2 : undefined,
+    marginLeft: theme.isFriendlyUI ? 2 : undefined,
   },
   expandedBody: {
     marginTop: 8,
@@ -69,11 +70,11 @@ const styles = (theme: ThemeType) => ({
     marginBottom: 8,
   },
   commentBubble: {
-    margin: `-5px ${isFriendlyUI ? 6 : 0}px 0 11px`,
+    margin: `-5px ${theme.isFriendlyUI ? 6 : 0}px 0 11px`,
   },
   changeMetrics: {
     cursor: "pointer",
-    margin: isFriendlyUI ? "0 4px -2px 2px" : undefined,
+    margin: theme.isFriendlyUI ? "0 4px -2px 2px" : undefined,
   },
   postedAt: {
     '&&': {
@@ -96,13 +97,14 @@ const styles = (theme: ThemeType) => ({
     fontSize: "1rem",
     fontFamily: theme.typography.fontFamily,
     color: theme.palette.link.dim3,
-    margin: `${isFriendlyUI ? -4 : -8}px 0 8px 8px`,
+    margin: `${theme.isFriendlyUI ? -4 : -8}px 0 8px 8px`,
   },
   usernames: {
     marginRight: 16,
     maxWidth: 310,
+    whiteSpace: "nowrap",
+    overflow: "hidden",
     textOverflow: "ellipsis",
-    overflowX: "hidden",
     textAlign: "right",
     [theme.breakpoints.down('xs')]: {
       maxWidth: 160
@@ -196,17 +198,23 @@ const SingleLineTagUpdates = ({tag, revisionIds, commentCount, commentIds, users
       {commentIds && commentIds.length>0 && <Link to={tagGetDiscussionUrl(tag)} className={classes.subheading}>
         Comment Threads
       </Link>}
-      {commentIds && commentIds.map(commentId =>
-        <CommentById
-          key={commentId}
-          commentId={commentId}
-          nestingLevel={2}
-          isChild={true}
-          treeOptions={{
-            tag,
-          }}
-        />
-      )}
+      {commentIds && commentIds.length>0 && <SuspenseWrapper
+        name="SingleLineTagUpdates_comments"
+        fallback={<Loading/>}
+      >
+        {commentIds.map(commentId =>
+          <CommentByIdSuspense
+            key={commentId}
+            commentId={commentId}
+            nestingLevel={2}
+            isChild={true}
+            treeOptions={{
+              tag,
+            }}
+            loadChildren={true}
+          />
+        )}
+      </SuspenseWrapper>}
     </div>}
   </div>
 }

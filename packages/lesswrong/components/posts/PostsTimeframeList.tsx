@@ -17,7 +17,7 @@ const styles = (theme: ThemeType) => ({
   loadMore: {
     ...theme.typography.postStyle,
     color: theme.palette.primary.main,
-    ...(isFriendlyUI
+    ...(theme.isFriendlyUI
       ? {
         fontFamily: theme.palette.fonts.sansSerifStack,
       }
@@ -134,7 +134,7 @@ export const getTimeBlockTitle = (
     return startDate.format('MMMM YYYY');
   }
 
-  if (isFriendlyUI) {
+  if (isFriendlyUI()) {
     const result = size === 'smUp'
       ? startDate.format('ddd, D MMM YYYY')
       : startDate.format('dddd, D MMMM YYYY');

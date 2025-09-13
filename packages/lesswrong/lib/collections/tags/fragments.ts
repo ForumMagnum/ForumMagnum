@@ -486,7 +486,7 @@ export const ConceptItemFragment = gql(`
     coreTagId
     maxScore
     usersWhoLiked {
-      _id
+      userId
       displayName
     }
   }

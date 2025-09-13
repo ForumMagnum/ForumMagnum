@@ -137,3 +137,13 @@ export function useStabilizedCallback<T, O>(fn: (args: T) => O): (args: T) => O 
   callback.current = fn;
   return wrapper.current;
 }
+
+
+export function useStabilizedCallbackAsync<T>(fn: (args: T) => Promise<void>): (args: T) => Promise<void> {
+  const callback = useRef<(args: T) => Promise<void>>(fn);
+  const wrapper = useRef((args: T) => {
+    return callback.current(args);
+  });
+  callback.current = fn;
+  return wrapper.current;
+}

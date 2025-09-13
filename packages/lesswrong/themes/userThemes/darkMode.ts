@@ -3,7 +3,7 @@ import { invertHexColor, invertColor, colorToString, zeroTo255 } from '../colorU
 import { forumSelect } from '../../lib/forumTypeUtils';
 import deepmerge from 'deepmerge';
 
-export const invertedGreyscale = {
+export const getInvertedGreyscale = () => ({
   // Present in @/lib/vendor/@material-ui/core/src/colors/grey
   50: invertHexColor('#fafafa'),
   100: invertHexColor('#f5f5f5'),
@@ -43,7 +43,7 @@ export const invertedGreyscale = {
   620: invertHexColor("#888888"),
   650: invertHexColor('#808080'),
   680: invertHexColor('#666666'),
-};
+});
 
 const greyAlpha = (alpha: number) => `rgba(255,255,255,${alpha})`;
 
@@ -59,41 +59,11 @@ const inverseGreyAlpha = (alpha: number) => {
 // the `background-color` and `border` properties on <table> and <td>
 // elements.
 //
-// We don't have any theme-specific HTML postprocessing, so this poses a bit of
-// a problem. Our solution is to override the `background-color` and `border`
-// properties on <td> and <table> to a safe default, to guarantee there won't
-// be any black-on-black or white-on-white text, and then then use CSS
-// attribute matching to replace specific colors that have been used in
-// posts we care about with proper aesthetic replacements. The CSS winds up
-// looking like this:
-//   .content td, .content table {
-//     background-color: black !important;
-//     border-color: #333 !important;
-//   }
-//   .content td[style*="background-color:rgb(230, 230, 230)"], .content table[style*="background-color:rgb(230, 230, 230)"] {
-//     background-color: #202020 !important;
-//   }
-// (Not real color values, but real syntax.)
-//
-const safeColorFallbacks = (palette: ThemePalette) => `
-.content td[style*="background-color:"] {
-  background-color: black !important;
-}
-.content th[style*="background-color:"] {
-  background-color: ${palette.panelBackground.tableHeading} !important;
-}
-.content table[style*="background-color:"] {
-  background-color: black !important;
-}
-.content td[style*="border:"], .content th[style*="border:"] {
-  border: ${palette.border.tableCell} !important;
-}
-.content table[style*="border:"] {
-  border-color: #333 !important;
-}
-`;
-
-const colorReplacements: Record<string,string> = {
+// We handle this in ContentItemBody with transformStylesForDarkMode. The
+// colors below have dedicated color-mappings; all other colors use `parseColor`
+// and `invertColor` from `colorUtil.ts`.
+export const getColorReplacements = (): Record<string,string> => ({
+  "initial":            "rgba(255,255,255,.87)",
   "rgba(255,255,255,.5)": "rgba(0,0,0.5)",
   "hsl(0, 0%, 90%)":    "hsl(0, 0%, 10%)",
   "#F2F2F2":            invertHexColor("#f2f2f2"),
@@ -103,20 +73,7 @@ const colorReplacements: Record<string,string> = {
   "#FFEEBB":            invertHexColor("#ffeebb"),
   "rgb(255, 238, 187)": colorToString(invertColor([255/255.0,238/255.0,187/255.0,1])),
   "rgb(230, 230, 230)": colorToString(invertColor([230/255.0,230/255.0,230/255.0,1])),
-} as const;
-function generateColorOverrides(): string {
-  return Object.keys(colorReplacements).map((colorString: keyof typeof colorReplacements) => {
-    const replacement = colorReplacements[colorString];
-    return `
-      .content td[style*="background-color:${colorString}"], .content table[style*="background-color:${colorString}"] {
-        background-color: ${replacement} !important;
-      }
-      .content td[style*="border-color:${colorString}"], .content table[style*="border-color:${colorString}"] {
-        border-color: ${replacement} !important;
-      }
-    `;
-  }).join('\n');
-}
+} as const);
 
 const forumComponentPalette = (shadePalette: ThemeShadePalette) =>
   forumSelect({
@@ -128,7 +85,7 @@ const forumComponentPalette = (shadePalette: ThemeShadePalette) =>
       },
       secondary: {
         main: '#3c9eaf',
-        light: '#0c869b',
+        light: '#788e6a',
         dark: '#3c9eaf'
       },
       lwTertiary: {
@@ -168,12 +125,18 @@ const forumComponentPalette = (shadePalette: ThemeShadePalette) =>
       header: {
         background: 'rgba(50,50,50,.75)',
       },
+      ultrafeedModalHeader: {
+        background: 'rgba(50,50,50,.98)',
+      },
       background: {
         translucentBackgroundHeavy: "rgba(0,0,0,.75)",
         translucentBackground: "rgba(0,0,0,.5)",
       }
     },
     default: {
+      ultrafeedModalHeader: {
+        background: shadePalette.greyAlpha(.98),
+      },
       background: {
         translucentBackgroundHeavy: "rgba(0,0,0,.75)",
         translucentBackground: "rgba(0,0,0,.5)",
@@ -188,9 +151,10 @@ const forumOverrides = (palette: ThemePalette): PartialDeep<ThemeType['overrides
     default: {},
   });
 
-export const darkModeTheme: UserThemeSpecification = {
+export const getDarkModeTheme = (): UserThemeSpecification => ({
   shadePalette: {
-    grey: invertedGreyscale,
+    dark: true,
+    grey: getInvertedGreyscale(),
     greyAlpha,
     inverseGreyAlpha,
     boxShadowColor: (alpha: number) => greyAlpha(alpha),
@@ -215,8 +179,14 @@ export const darkModeTheme: UserThemeSpecification = {
         author: greyAlpha(0.65)
       },
       jargonTerm: "#a8742a",
+      // Banner ad compatibility - text colors that work well over background images
+      bannerAdOverlay: '#fff',
+      bannerAdDim: 'rgba(255,255,255,0.6)',
+      bannerAdDim2: 'rgba(255,255,255,0.9)',
+      bannerAdDim3: 'rgba(255,255,255,0.25)',
     },
     link: {
+      color: '#788e6a',
       primaryDim: '#3a7883',
       visited: "#798754",
     },
@@ -226,10 +196,23 @@ export const darkModeTheme: UserThemeSpecification = {
       translucent3: "rgba(0,0,0,.75)",
       translucent4: "rgba(0,0,0,.6)",
       deletedComment: "#3a0505",
+      commentNodeEven: shadePalette.grey[50],
+      commentNodeOdd: shadePalette.grey[25],
+      commentNodeRoot: shadePalette.grey[0],
       commentModeratorHat: "#202719",
+      singleLineComment: 'unset',
       spoilerBlock: "#1b1b1b",
       cookieBanner: shadePalette.grey[900],
       tagLensTab: shadePalette.greyAlpha(.15),
+      // Banner ad compatibility - translucent backgrounds with blur effects
+      bannerAdTranslucent: "rgba(0,0,0,0.2)",
+      bannerAdTranslucentHeavy: "rgba(0,0,0,0.3)",
+      bannerAdTranslucentLight: "rgba(0,0,0,0.1)",
+      bannerAdTranslucentMedium: "rgba(0,0,0,0.4)",
+      bannerAdTranslucentDeep: "rgba(0,0,0,0.5)",
+      bannerAdTranslucentStrong: "rgba(0,0,0,0.6)",
+      recentDiscussionThread: 'rgba(0,0,0,0.4)',
+      appBarDarkBackground: 'rgba(255,255,255,0.1)',
     },
     background: {
       default: shadePalette.grey[100],
@@ -248,6 +231,7 @@ export const darkModeTheme: UserThemeSpecification = {
     },
     border: {
       itemSeparatorBottom: shadePalette.greyBorder("1px", .2),
+      itemSeparatorBottomStrong: shadePalette.greyBorder("1px", .3),
       commentBorder: "1px solid rgba(255,255,255,.2)",
       answerBorder: "2px solid rgba(255,255,255,.2)",
       primaryHighlight: '#314a4e',
@@ -259,6 +243,8 @@ export const darkModeTheme: UserThemeSpecification = {
     },
     boxShadow: {
       graphTooltip: "none",
+      appBar: "none",
+      appBarDarkBackground: `0 1px 1px ${shadePalette.boxShadowColor(.05)}, 0 1px 1px ${shadePalette.boxShadowColor(.05)}`,
     },
     buttons: {
       mentions: {
@@ -287,14 +273,33 @@ export const darkModeTheme: UserThemeSpecification = {
       sideCommentEditorBackground: shadePalette.grey[100],
       commentMarker: "#80792e",
       commentMarkerActive: "#cbc14f",
+      // Banner ad compatibility
+      bannerAdBackground: "rgba(0,0,0,0.5)",
     },
     tab: {
       inactive: {
-        text: shadePalette.grey[600]
+        text: shadePalette.grey[600],
+        bannerAdBackground: "rgba(0,0,0,0.3)",
       },
+      active: {
+        // Banner ad compatibility 
+        bannerAdOpacity: 0.8,
+      }
     },
     arbital: {
       arbitalGreen: '#02796b',
+    },
+    ultraFeed: {
+      dim: shadePalette.grey[400],
+      cardSeparator: `12px solid ${shadePalette.greyAlpha(0.15)}`,
+      readBackground: shadePalette.grey[200],
+      readBackgroundMobile: shadePalette.grey[100],
+      readOpacity: {
+        root: 1,
+        content: 0.9,
+        rootMobile: 0.9,
+        contentMobile: 1,
+      },
     },
     action: {
       active: '#fff',
@@ -303,8 +308,17 @@ export const darkModeTheme: UserThemeSpecification = {
       disabled: greyAlpha(0.3),
       disabledBackground: greyAlpha(0.12),
     },
+    // Banner ad compatibility - CSS filters and effects
+    filters: {
+      bannerAdBlur: 'blur(10px)',
+      bannerAdBlurLight: 'blur(2px)',
+      bannerAdBlurMedium: 'blur(4px)',
+      bannerAdBlurHeavy: 'blur(8px)',
+      headerBackdropFilter: 'blur(4px) brightness(1.1)',
+    }
   }, forumComponentPalette(shadePalette)),
   make: (palette: ThemePalette): PartialDeep<NativeThemeType> => ({
+    dark: true,
     postImageStyles: {
       // Override image background color to white (so that transparent isn't
       // black). Necessary because there are a handful of posts with images that
@@ -312,9 +326,6 @@ export const darkModeTheme: UserThemeSpecification = {
       background: "#ffffff",
     },
     overrides: forumOverrides(palette),
-    rawCSS: [
-      safeColorFallbacks(palette),
-      generateColorOverrides()
-    ]
+    rawCSS: []
   }),
-};
+});

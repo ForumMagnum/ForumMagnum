@@ -44,11 +44,9 @@ export const SelectLocalgroup = (props: SelectLocalgroupProps) => {
   // (ex. you want to be able to select groups for another user).
   const user = props.useDocumentAsUser ? props.document : currentUser
 
-  const { view, limit, ...selectorTerms } = {
-    view: currentUser?.isAdmin ? 'all' : 'userActiveGroups',
-    userId: user?._id,
-    limit: 500
-  };
+  const view = currentUser?.isAdmin ? 'all' : 'userActiveGroups';
+  const selectorTerms = view === 'all' ? {} : { userId: user?._id };
+
   const { data } = useQuery(localGroupsBaseMultiQuery, {
     variables: {
       selector: { [view]: selectorTerms },

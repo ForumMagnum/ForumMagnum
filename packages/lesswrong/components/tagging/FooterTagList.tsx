@@ -1,10 +1,11 @@
 import React, { ReactNode, useCallback, useEffect, useRef, useState } from 'react';
-import { useMutation, NetworkStatus } from '@apollo/client';
+import { useMutation } from '@apollo/client/react';
+import { NetworkStatus } from '@apollo/client';
 import { useQuery } from "@/lib/crud/useQuery";
 import { gql } from '@/lib/generated/gql-codegen';
-import { useCurrentUser } from '../common/withUser';
+import { useCurrentUserId } from '../common/withUser';
 import { useTracking, useOnMountTracking } from "../../lib/analyticsEvents";
-import { contentTypes } from '../posts/PostsPage/ContentType';
+import { getContentTypes } from '../posts/PostsPage/ContentType';
 import FooterTag, { tagStyle, smallTagTextStyle } from './FooterTag';
 import classNames from 'classnames';
 import { Card } from "@/components/widgets/Paper";
@@ -13,7 +14,6 @@ import { forumSelect } from '../../lib/forumTypeUtils';
 import { useMessages } from '../common/withMessages';
 import { isLWorAF, taggingNamePluralSetting } from '../../lib/instanceSettings';
 import stringify from 'json-stringify-deterministic';
-import { isFriendlyUI } from '../../themes/forumTheme';
 import { FRIENDLY_HOVER_OVER_WIDTH } from '../common/FriendlyHoverOver';
 import { AnnualReviewMarketInfo } from '../../lib/collections/posts/annualReviewMarkets';
 import { stableSortTags } from '../../lib/collections/tags/helpers';
@@ -27,7 +27,7 @@ import PostsAnnualReviewMarketTag from "../posts/PostsAnnualReviewMarketTag";
 import { apolloSSRFlag } from "@/lib/helpers";
 
 const styles = (theme: ThemeType) => ({
-  root: isFriendlyUI ? {
+  root: theme.isFriendlyUI ? {
     marginTop: 8,
     marginBottom: 8,
   } : {
@@ -41,7 +41,7 @@ const styles = (theme: ThemeType) => ({
     justifyContent: 'flex-end'
   },
   allowTruncate: {
-    display: isFriendlyUI ? "block" : "inline-flex",
+    display: theme.isFriendlyUI ? "block" : "inline-flex",
     // Truncate to 1 row (webkit-line-clamp would be ideal here but it adds an ellipsis
     // which can't be removed)
     maxHeight: 33,
@@ -52,12 +52,12 @@ const styles = (theme: ThemeType) => ({
     marginBottom: 0,
   },
   postTypeLink: {
-    "&:hover": isFriendlyUI ? {opacity: 1} : {},
+    "&:hover": theme.isFriendlyUI ? {opacity: 1} : {},
   },
   frontpageOrPersonal: {
     ...tagStyle(theme),
     backgroundColor: theme.palette.tag.hollowTagBackground,
-    ...(isFriendlyUI
+    ...(theme.isFriendlyUI
       ? {
         marginBottom: 0,
         "&:hover": {
@@ -86,7 +86,7 @@ const styles = (theme: ThemeType) => ({
   },
   card: {
     padding: 16,
-    ...(isFriendlyUI
+    ...(theme.isFriendlyUI
       ? {
         paddingTop: 12,
         width: FRIENDLY_HOVER_OVER_WIDTH,
@@ -143,7 +143,9 @@ const FooterTagList = ({
   neverCoreStyling = false,
   tagRight = true,
 }: {
-  post: Pick<PostsList, '_id' | 'createdAt' | 'tags' | 'curatedDate' | 'frontpageDate' | 'reviewedByUserId' | 'isEvent' | 'postCategory'>,
+  post: Pick<PostsList, '_id'|'tags'|'curatedDate'|'frontpageDate'|'reviewedByUserId'|'isEvent'|'postCategory'> & {
+    postedAt?: string
+  },
   hideScore?: boolean,
   hideAddTag?: boolean,
   useAltAddTagButton?: boolean,
@@ -167,7 +169,7 @@ const FooterTagList = ({
   const [showAll, setShowAll] = useState(!allowTruncate);
   const [displayShowAllButton, setDisplayShowAllButton] = useState(false);
 
-  const currentUser = useCurrentUser();
+  const currentUserId = useCurrentUserId();
   const { captureEvent } = useTracking()
   const { flash } = useMessages();
 
@@ -242,7 +244,7 @@ const FooterTagList = ({
     eventProps: {tagIds},
     captureOnMount: eventProps => eventProps.tagIds.length > 0,
     // LW doesn't get a lot of use out of `tagListMounted` events and there are a lot of them
-    skip: isLWorAF || !tagIds.length || loading
+    skip: isLWorAF() || !tagIds.length || loading
   });
 
   // The fragment in this mutation must match the query above
@@ -286,7 +288,7 @@ const FooterTagList = ({
     }
   }
 
-  const contentTypeInfo = forumSelect(contentTypes);
+  const contentTypeInfo = forumSelect(getContentTypes());
 
   const PostTypeTag = useCallback(({tooltipBody, label, neverCoreStyling}: {
     tooltipBody: ReactNode,
@@ -319,9 +321,9 @@ const FooterTagList = ({
   // we don't show any indicator). It's uncategorized if it's not frontpaged and doesn't
   // have reviewedByUserId set to anything.
   let postType = post.curatedDate
-    ? <Link to={contentTypeInfo.curated.linkTarget} className={classes.postTypeLink}>
+    ? <MaybeLink to={contentTypeInfo.curated.linkTarget} className={classes.postTypeLink}>
         <PostTypeTag label="Curated" tooltipBody={contentTypeInfo.curated.tooltipBody} neverCoreStyling={neverCoreStyling}/>
-      </Link>
+      </MaybeLink>
     : (post.frontpageDate
       ? <MaybeLink to={contentTypeInfo.frontpage.linkTarget} className={classes.postTypeLink}>
           <PostTypeTag label="Frontpage" tooltipBody={contentTypeInfo.frontpage.tooltipBody} neverCoreStyling={neverCoreStyling}/>
@@ -347,14 +349,13 @@ const FooterTagList = ({
     {useAltAddTagButton && <span className={classNames(classes.altAddTagButton, noBackground && classes.noBackground)}>+</span>}
   </AddTagButton>
 
-  const postYear = new Date(post.createdAt!).getFullYear(); // 2023
+  const postYear = post.postedAt ? new Date(post.postedAt).getFullYear() : null; // 2023
   const currentYear = new Date().getFullYear(); // 2025
-  const age = currentYear - postYear;
-  const isRecent = age < 2;
+  const isRecent = postYear && ((currentYear - postYear) < 2);
 
   const innerContent = (
     <>
-      {!tagRight && currentUser && !hideAddTag && addTagButton}
+      {!tagRight && currentUserId && !hideAddTag && addTagButton}
       {showCoreTags && (
         <div>
           <CoreTagsChecklist existingTagIds={tagIds} onTagSelected={onTagSelected} />
@@ -379,10 +380,10 @@ const FooterTagList = ({
       )}
       {!hidePostTypeTag && postType}
       {eventTag}
-      {isLWorAF && annualReviewMarketInfo && isRecent && (
+      {isLWorAF() && annualReviewMarketInfo && isRecent && (
         <PostsAnnualReviewMarketTag annualReviewMarketInfo={annualReviewMarketInfo} />
       )}
-      {tagRight && currentUser && !hideAddTag && addTagButton}
+      {tagRight && currentUserId && !hideAddTag && addTagButton}
       {isAwaiting && <Loading />}
     </>
   );

@@ -7,7 +7,7 @@ import Edit from '@/lib/vendor/@material-ui/icons/src/Edit';
 import { userCanModeratePost } from '../../../lib/collections/users/helpers';
 import { useDialog } from '../../common/withDialog'
 import withErrorBoundary from '../../common/withErrorBoundary'
-import { frontpageGuidelines, defaultGuidelines } from './ForumModerationGuidelinesContent'
+import { getFrontpageGuidelines, getDefaultGuidelines } from './ForumModerationGuidelinesContent'
 import { userCanModerateSubforum } from '../../../lib/collections/tags/helpers';
 import { preferredHeadingCase } from '../../../themes/forumTheme';
 import { useQuery } from "@/lib/crud/useQuery";
@@ -107,11 +107,11 @@ const getPostModerationGuidelines = (
     ${(html || moderationStyle) ? userGuidelines : ""}
     ${(html && post.frontpageDate) ? '<hr/>' : ''}
     ${post.frontpageDate ?
-      frontpageGuidelines :
+      getFrontpageGuidelines() :
       (
         (html || moderationStyle) ?
           "" :
-          defaultGuidelines
+          getDefaultGuidelines()
       )
     }
   `

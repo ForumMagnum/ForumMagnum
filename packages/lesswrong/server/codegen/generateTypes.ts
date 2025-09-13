@@ -7,87 +7,11 @@ import path from 'path';
 import { generateCollectionTypeNames } from './generateCollectionTypeNames';
 import { generateInputTypes } from './generateInputTypes';
 import { generateDefaultFragmentsFile } from './generateDefaultFragments';
-import { typeDefs } from '../vulcan-lib/apollo-server/initGraphQL';
+import { getTypeDefs } from '../vulcan-lib/apollo-server/initGraphQL';
 import { generate } from '@graphql-codegen/cli'
 import { DefinitionNode, DocumentNode, FragmentDefinitionNode, Kind, print, visit } from 'graphql';
 import graphqlCodegenConfig from '@/../../codegen.ts';
-
-function enumerateFiles(dirPath: string): string[] {
-  let fileList: string[] = [];
-
-  // Read the contents of the directory
-  const entries = fs.readdirSync(dirPath, { withFileTypes: true });
-
-  for (const entry of entries) {
-    const fullPath = path.join(dirPath, entry.name);
-
-    if (entry.isDirectory()) {
-      // If it's a directory, recursively enumerate its contents
-      fileList = fileList.concat(enumerateFiles(fullPath));
-    } else if (entry.isFile()) {
-      // If it's a file, add it to the list
-      fileList.push(fullPath);
-    }
-    // Note: This ignores symlinks and other special types
-  }
-
-  return fileList;
-}
-
-function generateAllComponents(): string {
-  return `// Generated file - run "yarn generate" to update\n` +
-    enumerateFiles("packages/lesswrong/components")
-      .filter(f => f.endsWith(".tsx"))
-      .map(f => {
-        const relativePath = f.replace('packages/lesswrong/components/', '../../components/');
-        return `import "${relativePath}"`;
-      })
-      .join("\n")
-      + "\n\n";
-}
-
-/**
- * `generateAllComponents` only handles components that are registered with `registerComponent`.
- * This function generates a file for components that are not registered, but have a `defineStyles`
- * block that needs to be included in `allStyles`, and so the file needs to be imported somewhere.
- */
-function generateNonRegisteredComponentFiles(): string {
-  const componentsDir = "packages/lesswrong/components";
-  const header = `// Generated file - run "yarn generate" to update
-
-`;
-
-  return header + enumerateFiles(componentsDir)
-    .filter(f => f.endsWith(".tsx") || f.endsWith(".ts"))
-    .map(f => {
-      const relativePath = f.replace('packages/lesswrong/components/', '../../components/');
-      const content = fs.readFileSync(f, 'utf-8');
-      if (!nonRegisteredComponentFileHasDefineStyles(content) || extractComponentNames(content).length > 0) return null;
-
-      return `import "${relativePath}"`;
-    })
-    .filter(line => line !== null)
-    .join("\n")
-    + "\n\n";
-}
-
-function nonRegisteredComponentFileHasDefineStyles(content: string): boolean {
-  const regex = /defineStyles\s*\(\s*["'](\w+)["']/gm;
-  const match = regex.exec(content);
-  return match !== null;
-}
-
-function extractComponentNames(content: string): string[] {
-  const regex = /registerComponent\s*(<\s*\w*\s*>)?\s*\(\s*["'](\w+)["']/gm;
-  const components: string[] = [];
-  let match;
-  
-  while ((match = regex.exec(content)) !== null) {
-    components.push(match[2]);
-  }
-  
-  return components;
-}
+import { generateRouteManifest } from '../scripts/generateRouteManifest';
 
 export async function generateTypes(repoRoot?: string) {
   function writeIfChanged(contents: string, path: string) {
@@ -132,8 +56,7 @@ export async function generateTypes(repoRoot?: string) {
     writeIfChanged(generateFragmentTypes(collectionNameToTypeName, typeNameToCollectionName), "/packages/lesswrong/lib/generated/fragmentTypes.d.ts");
     writeIfChanged(generateDbTypes(), "/packages/lesswrong/lib/generated/databaseTypes.d.ts");
     writeIfChanged(generateViewTypes(), "/packages/lesswrong/lib/generated/viewTypes.ts");
-    writeIfChanged(generateAllComponents(), "/packages/lesswrong/lib/generated/allComponents.ts");
-    writeIfChanged(generateNonRegisteredComponentFiles(), "/packages/lesswrong/lib/generated/nonRegisteredComponents.ts");
+    writeIfChanged(generateRouteManifest(), "/packages/lesswrong/lib/generated/routeManifest.ts");
     await generateGraphQLCodegenTypes();
   } catch(e) {
     // eslint-disable-next-line no-console
@@ -151,7 +74,7 @@ export const generateTypesAndSQLSchema = async (rootDir?: string) => {
 function generateGraphQLSchemaFile(): string {
   const sb: string[] = [];
   sb.push("# Generated file - run 'yarn generate' to update.\n\n");
-  sb.push(print(typeDefs));
+  sb.push(print(getTypeDefs()));
   return sb.join("");
 }
 
@@ -164,8 +87,9 @@ async function generateGraphQLCodegenTypes(): Promise<void> {
   // We could hoist this to `generateTypes` to re-use the list of files in `generateFragmentTypes`,
   // but the scanning is ~100ms and doesn't seem worth it.
   const filesContainingGql = getFilesMaybeContainingGql("packages/lesswrong");
+  const otherFilesContainingGql = getFilesMaybeContainingGql("app");
 
-  graphqlCodegenConfig.documents = filesContainingGql;
+  graphqlCodegenConfig.documents = [...filesContainingGql, ...otherFilesContainingGql];
   const fileOutputs = await generate(graphqlCodegenConfig)
   for (const fileOutput of fileOutputs) {
     fs.writeFileSync(fileOutput.filename, fileOutput.content.replace("InputMaybe<T> = Maybe<T>", "InputMaybe<T> = T | null | undefined"));

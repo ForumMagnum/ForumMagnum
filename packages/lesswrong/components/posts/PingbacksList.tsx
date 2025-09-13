@@ -1,7 +1,6 @@
 import React from 'react';
 import { registerComponent } from '../../lib/vulcan-lib/components';
 import { useOnMountTracking } from "../../lib/analyticsEvents";
-import { isFriendlyUI } from '../../themes/forumTheme';
 import Pingback from "./Pingback";
 import LWTooltip from "../common/LWTooltip";
 import LoadMore from "../common/LoadMore";
@@ -36,7 +35,7 @@ const styles = (theme: ThemeType) => ({
     display: "inline-block",
     lineHeight: "1rem",
     marginBottom: -4,
-    ...(isFriendlyUI
+    ...(theme.isFriendlyUI
       ? {
         fontWeight: 600,
         marginTop: 12,

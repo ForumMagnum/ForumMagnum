@@ -19,10 +19,10 @@ const schema = {
   score: {
     database: {
       type: "DOUBLE PRECISION",
-      nullable: false,
+      nullable: true,
     },
     graphql: {
-      outputType: "Float!",
+      outputType: "Float",
       canRead: ["guests"], 
     }
   },
@@ -30,11 +30,11 @@ const schema = {
   sentenceScores: {
     database: {
       type: "JSONB",
-      nullable: false,
+      nullable: true,
       typescriptType: "{ sentence: string; score: number; }[]",
     },
     graphql: {
-      outputType: "[SentenceScore!]!",
+      outputType: "[SentenceScore!]",
       canRead: ["guests"],
     },
   },
@@ -42,10 +42,10 @@ const schema = {
   aiChoice: {
     database: {
       type: "TEXT",
-      nullable: false,
+      nullable: true,
     },
     graphql: {
-      outputType: "String!",
+      outputType: "String",
       canRead: ["guests"],
       validation: {
         allowedValues: ["accept", "review"],
@@ -56,10 +56,10 @@ const schema = {
   aiReasoning: {
     database: {
       type: "TEXT",
-      nullable: false,
+      nullable: true,
     },
     graphql: {
-      outputType: "String!",
+      outputType: "String",
       canRead: ["guests"],
     },
   },
@@ -67,10 +67,10 @@ const schema = {
   aiCoT: {
     database: {
       type: "TEXT",
-      nullable: false,
+      nullable: true,
     },
     graphql: {
-      outputType: "String!",
+      outputType: "String",
       canRead: ["guests"],
     },
   },

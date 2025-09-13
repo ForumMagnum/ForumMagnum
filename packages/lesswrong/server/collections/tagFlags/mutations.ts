@@ -1,10 +1,10 @@
-
 import schema from "@/lib/collections/tagFlags/newSchema";
 import { accessFilterSingle } from "@/lib/utils/schemaUtils";
 import { userCanDo } from "@/lib/vulcan-users/permissions";
 import { updateCountOfReferencesOnOtherCollectionsAfterCreate, updateCountOfReferencesOnOtherCollectionsAfterUpdate } from "@/server/callbacks/countOfReferenceCallbacks";
 import { createInitialRevisionsForEditableFields, reuploadImagesIfEditableFieldsChanged, uploadImagesInEditableFields, notifyUsersOfNewPingbackMentions, createRevisionsForEditableFields, updateRevisionsDocumentIds } from "@/server/editor/make_editable_callbacks";
 import { logFieldChanges } from "@/server/fieldChanges";
+import { backgroundTask } from "@/server/utils/backgroundTask";
 import { runSlugCreateBeforeCallback, runSlugUpdateBeforeCallback } from "@/server/utils/slugUtil";
 import { getCreatableGraphQLFields, getUpdatableGraphQLFields } from "@/server/vulcan-lib/apollo-server/graphqlTemplates";
 import { makeGqlCreateMutation, makeGqlUpdateMutation } from "@/server/vulcan-lib/apollo-server/helpers";
@@ -58,7 +58,7 @@ export async function createTagFlag({ data }: CreateTagFlagInput, context: Resol
     newDocument: documentWithId,
   };
 
-  await uploadImagesInEditableFields({
+  uploadImagesInEditableFields({
     newDoc: documentWithId,
     props: asyncProperties,
   });
@@ -98,12 +98,12 @@ export async function updateTagFlag({ selector, data }: UpdateTagFlagInput, cont
 
   await updateCountOfReferencesOnOtherCollectionsAfterUpdate('TagFlags', updatedDocument, oldDocument);
 
-  await reuploadImagesIfEditableFieldsChanged({
+  reuploadImagesIfEditableFieldsChanged({
     newDoc: updatedDocument,
     props: updateCallbackProperties,
   });
 
-  void logFieldChanges({ currentUser, collection: TagFlags, oldDocument, data: origData });
+  backgroundTask(logFieldChanges({ currentUser, collection: TagFlags, oldDocument, data: origData }));
 
   return updatedDocument;
 }
