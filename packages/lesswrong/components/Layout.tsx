@@ -360,23 +360,6 @@ const Layout = ({children}: {
     headerBackgroundColor = 'rgba(0, 0, 0, 0.7)';
   }
 
-  const [cookies, setCookie] = useCookiesWithConsent([NO_ADMIN_NEXT_REDIRECT_COOKIE]);
-
-  // Temporary redirect for admins while we're testing NextJS
-  useEffect(() => {
-    const redirectUrl = new URL(window.location.href);
-    if (query.disableRedirect) {
-      setCookie(NO_ADMIN_NEXT_REDIRECT_COOKIE, true, { path: '/' });
-    } else if (isLW() && userIsAdmin(currentUser) && !cookies[NO_ADMIN_NEXT_REDIRECT_COOKIE] && redirectUrl.host === 'www.lesswrong.com') {
-      redirectUrl.host = 'baserates-test.vercel.app';
-      // These two are necessary when testing this on localhost
-      // redirectUrl.port = '';
-      // redirectUrl.protocol = 'https';
-      window.location.replace(redirectUrl.toString());
-    }
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
-
   const render = () => {
     const baseLayoutOptions: LayoutOptions = {
       // Check whether the current route is one which should have standalone
