@@ -116,7 +116,7 @@ const LoginForm = (props: LoginFormProps) => {
 }
 
 const LoginFormDefault = ({ startingState = "login", classes }: LoginFormProps) => {
-  const hasSubscribeToCuratedCheckbox = !isEAForum && !isAF();
+  const hasSubscribeToCuratedCheckbox = !isEAForum() && !isAF();
   const hasOauthSection = !isEAForum();
 
   const { pathname } = useLocation()
