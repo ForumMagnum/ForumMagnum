@@ -102,7 +102,7 @@ const PostBottomRecommendations = ({post, hasTableOfContents, ssr = false}: {
   `), {
     variables: { limit: 3 },
     fetchPolicy: "cache-and-network",
-    nextFetchPolicy: "cache-only",
+    nextFetchPolicy: "cache-first",
     ssr
   });
 

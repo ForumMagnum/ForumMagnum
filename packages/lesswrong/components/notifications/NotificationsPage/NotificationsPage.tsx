@@ -43,7 +43,7 @@ export const NotificationsPage = ({classes}: {
     variables: { documentId: currentUser?._id },
     skip: !currentUser,
     fetchPolicy: "network-only",
-    nextFetchPolicy: "cache-only",
+    nextFetchPolicy: "cache-first",
   });
   const fetchedKarmaChanges = data?.user?.result;
 

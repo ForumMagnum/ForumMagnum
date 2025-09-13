@@ -31,7 +31,7 @@ export const AllReactedCommentsPage = ({classes}: {
   `), {
     variables: { limit: defaultLimit },
     fetchPolicy: "cache-and-network",
-    nextFetchPolicy: "cache-only",
+    nextFetchPolicy: "cache-first",
     itemsPerPage: pageSize,
   });
 

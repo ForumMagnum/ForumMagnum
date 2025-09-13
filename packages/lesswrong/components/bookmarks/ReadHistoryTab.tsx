@@ -52,7 +52,7 @@ const useUserReadHistory = ({currentUser, limit, filter, sort}: {
     {
       ssr: true,
       fetchPolicy: 'cache-and-network',
-      nextFetchPolicy: 'cache-only',
+      nextFetchPolicy: 'cache-first',
       skip: !currentUser,
       variables: {
         limit: limit,

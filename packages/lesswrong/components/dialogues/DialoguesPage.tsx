@@ -39,7 +39,7 @@ const DialoguesPage = () => {
   `), {
     variables: { limit: initialLimit },
     fetchPolicy: "cache-and-network",
-    nextFetchPolicy: "cache-only",
+    nextFetchPolicy: "cache-first",
   });
 
   const dialoguePosts = recentlyActiveDialoguesData?.RecentlyActiveDialogues?.results;
@@ -55,7 +55,7 @@ const DialoguesPage = () => {
   `), {
     variables: { limit: 10 },
     fetchPolicy: "cache-and-network",
-    nextFetchPolicy: "cache-only",
+    nextFetchPolicy: "cache-first",
   });
 
   const myDialogues = myDialoguesData?.MyDialogues?.results;
