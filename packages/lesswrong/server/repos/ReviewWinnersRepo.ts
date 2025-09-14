@@ -2,7 +2,7 @@ import ReviewWinners from "../../server/collections/reviewWinners/collection";
 import AbstractRepo from "./AbstractRepo";
 import { recordPerfMetrics } from "./perfMetricWrapper";
 import type { ReviewWinnerWithPost } from "@/server/review/reviewWinnersCache";
-import { BEST_OF_LESSWRONG_PUBLISH_YEAR } from "../../lib/reviewUtils";
+import type { ReviewYear } from "../../lib/reviewUtils";
 
 class ReviewWinnersRepo extends AbstractRepo<"ReviewWinners"> {
   constructor() {
@@ -61,7 +61,7 @@ class ReviewWinnersRepo extends AbstractRepo<"ReviewWinners"> {
     });
   }
 
-  async getAllReviewWinnersWithPosts(): Promise<ReviewWinnerWithPost[]> {
+  async getAllReviewWinnersWithPosts(reviewYear: ReviewYear): Promise<ReviewWinnerWithPost[]> {
     // We're doing some jank here that's basically identical to `ReviewWinnerArtsRepo.getActiveReviewWinnerArt`
     // This is to avoid an n+1 when fetching all the review winners on the best of lesswrong page,
     // which would otherwise be caused by the gql resolver for the reviewWinnerArt field on reviewWinner
@@ -90,8 +90,8 @@ class ReviewWinnersRepo extends AbstractRepo<"ReviewWinners"> {
       FROM "ReviewWinners" rw
       JOIN "Posts" p
       ON rw."postId" = p._id
-      WHERE rw."reviewYear" <= $1
-    `, [BEST_OF_LESSWRONG_PUBLISH_YEAR]);
+      WHERE rw."reviewYear" = $1
+    `, [reviewYear]);
 
     // We need to do this annoying munging in code because `TO_JSONB` causes date fields to be returned without being serialized into JS Date objects
     return postsWithMetadata.map(postWithMetadata => {
