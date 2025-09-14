@@ -203,7 +203,7 @@ export const config: MiddlewareConfig = {
      * Match all request paths except for the ones starting with:
      * - api (a subset of API routes)
      * - auth (auth routes)
-     * - graphql, analyticsEvent, ckeditor-token (high-volume API routes)
+     * - graphql, analyticsEvent, ckeditor-token, feed.xml (high-volume API routes)
      * - public, reactionImages (static files)
      * The rest of these were copied from their docs:
      * - _next/static (static files)
@@ -211,7 +211,7 @@ export const config: MiddlewareConfig = {
      * - favicon.ico, sitemap.xml, robots.txt (metadata files)
      */
     {
-      source: '/((?!api|auth|graphql|analyticsEvent|public|ckeditor-token|reactionImages|_next/static|_next/image|favicon.ico|sitemap.xml|robots.txt).*)',
+      source: '/((?!api|auth|graphql|analyticsEvent|public|ckeditor-token|feed.xml|reactionImages|_next/static|_next/image|favicon.ico|sitemap.xml|robots.txt).*)',
       missing: [{ type: 'header', key: 'next-router-state-tree' }]
     }
   ]
