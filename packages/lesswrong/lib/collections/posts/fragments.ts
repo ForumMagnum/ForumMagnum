@@ -457,11 +457,6 @@ export const PostsDetails = gql(`
       hostedHere
       foreignPostId
     }
-
-    # Jargon Terms
-    glossary {
-      ...JargonTermsPost
-    }
   }
 `)
 
@@ -532,6 +527,10 @@ export const PostsWithNavigationAndRevision = gql(`
     }
     
     ...PostPodcastEpisode
+
+    glossary {
+      ...JargonTermsPost
+    }
   }
 `)
 
@@ -546,6 +545,10 @@ export const PostsWithNavigation = gql(`
     }
 
     ...PostPodcastEpisode
+
+    glossary {
+      ...JargonTermsPost
+    }
   }
 `)
 

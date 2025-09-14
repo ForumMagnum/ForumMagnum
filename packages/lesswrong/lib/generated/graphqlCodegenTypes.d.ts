@@ -25021,13 +25021,8 @@ type PostsDetails_Post_targetPostRelations_PostRelation = { __typename?: 'PostRe
 
 type PostsDetails_Post_fmCrosspost_CrosspostOutput = { __typename?: 'CrosspostOutput', isCrosspost: boolean, hostedHere: boolean | null, foreignPostId: string | null };
 
-type PostsDetails_Post_glossary_JargonTerm = (
-  { __typename?: 'JargonTerm' }
-  & JargonTermsPost
-);
-
 type PostsDetails = (
-  { __typename?: 'Post', canonicalSource: string | null, noIndex: boolean, viewCount: number | null, tagRelevance: any | null, commentSortOrder: string | null, sideCommentVisibility: string | null, collectionTitle: string | null, canonicalPrevPostSlug: string | null, canonicalNextPostSlug: string | null, canonicalSequenceId: string | null, canonicalBookId: string | null, bannedUserIds: Array<string> | null, moderationStyle: string | null, currentUserVote: string | null, currentUserExtendedVote: any | null, feedLink: string | null, rsvps: Array<any> | null, activateRSVPs: boolean | null, tags: Array<PostsDetails_Post_tags_Tag>, socialPreviewData: PostsDetails_Post_socialPreviewData_SocialPreviewType, canonicalSequence: PostsDetails_Post_canonicalSequence_Sequence | null, canonicalBook: PostsDetails_Post_canonicalBook_Book | null, canonicalCollection: PostsDetails_Post_canonicalCollection_Collection | null, feed: PostsDetails_Post_feed_RSSFeed | null, sourcePostRelations: Array<PostsDetails_Post_sourcePostRelations_PostRelation>, targetPostRelations: Array<PostsDetails_Post_targetPostRelations_PostRelation>, fmCrosspost: PostsDetails_Post_fmCrosspost_CrosspostOutput | null, glossary: Array<PostsDetails_Post_glossary_JargonTerm> }
+  { __typename?: 'Post', canonicalSource: string | null, noIndex: boolean, viewCount: number | null, tagRelevance: any | null, commentSortOrder: string | null, sideCommentVisibility: string | null, collectionTitle: string | null, canonicalPrevPostSlug: string | null, canonicalNextPostSlug: string | null, canonicalSequenceId: string | null, canonicalBookId: string | null, bannedUserIds: Array<string> | null, moderationStyle: string | null, currentUserVote: string | null, currentUserExtendedVote: any | null, feedLink: string | null, rsvps: Array<any> | null, activateRSVPs: boolean | null, tags: Array<PostsDetails_Post_tags_Tag>, socialPreviewData: PostsDetails_Post_socialPreviewData_SocialPreviewType, canonicalSequence: PostsDetails_Post_canonicalSequence_Sequence | null, canonicalBook: PostsDetails_Post_canonicalBook_Book | null, canonicalCollection: PostsDetails_Post_canonicalCollection_Collection | null, feed: PostsDetails_Post_feed_RSSFeed | null, sourcePostRelations: Array<PostsDetails_Post_sourcePostRelations_PostRelation>, targetPostRelations: Array<PostsDetails_Post_targetPostRelations_PostRelation>, fmCrosspost: PostsDetails_Post_fmCrosspost_CrosspostOutput | null }
   & PostsListBase
 );
 
@@ -25079,8 +25074,13 @@ type PostsWithNavigationAndRevision_Post_reviewWinner_ReviewWinner = (
   & ReviewWinnerAll
 );
 
+type PostsWithNavigationAndRevision_Post_glossary_JargonTerm = (
+  { __typename?: 'JargonTerm' }
+  & JargonTermsPost
+);
+
 type PostsWithNavigationAndRevision = (
-  { __typename?: 'Post', tableOfContentsRevision: any | null, customHighlight: PostsWithNavigationAndRevision_Post_customHighlight_Revision | null, reviewWinner: PostsWithNavigationAndRevision_Post_reviewWinner_ReviewWinner | null }
+  { __typename?: 'Post', tableOfContentsRevision: any | null, customHighlight: PostsWithNavigationAndRevision_Post_customHighlight_Revision | null, reviewWinner: PostsWithNavigationAndRevision_Post_reviewWinner_ReviewWinner | null, glossary: Array<PostsWithNavigationAndRevision_Post_glossary_JargonTerm> }
   & PostsRevision
   & PostSequenceNavigation
   & PostPodcastEpisode
@@ -25091,8 +25091,13 @@ type PostsWithNavigation_Post_reviewWinner_ReviewWinner = (
   & ReviewWinnerAll
 );
 
+type PostsWithNavigation_Post_glossary_JargonTerm = (
+  { __typename?: 'JargonTerm' }
+  & JargonTermsPost
+);
+
 type PostsWithNavigation = (
-  { __typename?: 'Post', tableOfContents: any | null, reviewWinner: PostsWithNavigation_Post_reviewWinner_ReviewWinner | null }
+  { __typename?: 'Post', tableOfContents: any | null, reviewWinner: PostsWithNavigation_Post_reviewWinner_ReviewWinner | null, glossary: Array<PostsWithNavigation_Post_glossary_JargonTerm> }
   & PostsPage
   & PostSequenceNavigation
   & PostPodcastEpisode
