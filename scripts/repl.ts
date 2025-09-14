@@ -1,6 +1,7 @@
 import { EnvironmentType, ForumType, detectForumType, getDatabaseConfigFromModeAndForumType, getSettingsFileName, getSettingsFilePath, initGlobals, isCodegen, isEnvironmentType, isForumType } from "./scriptUtil";
 import * as tsNode from 'ts-node';
 import omit from "lodash/omit";
+import { loadEnvConfig } from "@next/env";
 
 interface CommandLineOptions {
   environment: EnvironmentType|null
@@ -26,6 +27,7 @@ function parseCommandLine(): CommandLineOptions {
       case "-h": case "-help": case "--help": case "/?":
         printHelpText();
         process.exit(0);
+        break;
       default:
         if (isForumType(arg)) {
           result.forumType = arg;
@@ -82,6 +84,16 @@ Examples:
 export async function initRepl(commandLineOptions: CommandLineOptions) {
   const mode = commandLineOptions.environment!;
   const forumType = commandLineOptions.forumType!;
+
+  loadEnvConfig(process.cwd());
+  if (!process.env.ENV_NAME) {
+    throw new Error("ENV_NAME is not set when loading .env config");
+  }
+
+  if (!process.env.ENV_NAME.toLowerCase().includes(mode)) {
+    throw new Error(`Tried to run REPL in mode ${mode} but ENV_NAME is ${process.env.ENV_NAME}`);
+  }
+
   const dbConf = getDatabaseConfigFromModeAndForumType(mode, forumType);
   if (dbConf.postgresUrl) {
     process.env.PG_URL = dbConf.postgresUrl;

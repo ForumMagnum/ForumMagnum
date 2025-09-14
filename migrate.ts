@@ -10,7 +10,7 @@ import type { ITask } from "pg-promise";
 // @ts-ignore This is a javascript file without a .d.ts
 import { startSshTunnel } from "./scripts/startup/buildUtil";
 import { detectForumType, getDatabaseConfigFromModeAndForumType, getSettingsFileName, getSettingsFilePath, initGlobals, isEnvironmentType, normalizeEnvironmentType } from "./scripts/scriptUtil";
-
+import { loadEnvConfig } from "@next/env";
 
 (async () => {
   const command = process.argv[2];
@@ -27,6 +27,15 @@ import { detectForumType, getDatabaseConfigFromModeAndForumType, getSettingsFile
   const forumType = detectForumType();
   const forumTypeIsSpecified = forumType !== "none";
   console.log(`Running with forum type "${forumType}"`);
+
+  loadEnvConfig(process.cwd());
+  if (!process.env.ENV_NAME) {
+    throw new Error("ENV_NAME is not set when loading .env config");
+  }
+
+  if (!process.env.ENV_NAME.toLowerCase().includes(mode)) {
+    throw new Error(`Tried to run REPL in mode ${mode} but ENV_NAME is ${process.env.ENV_NAME}`);
+  }
 
   const dbConf = getDatabaseConfigFromModeAndForumType(mode, forumType);
   if (dbConf.postgresUrl) {
