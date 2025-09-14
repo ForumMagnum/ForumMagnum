@@ -1,7 +1,5 @@
-import React, { useRef, useState } from 'react';
-import { registerComponent } from '@/lib/vulcan-lib/components';
+import React, { useRef } from 'react';
 import { useCurrentUser } from '../common/withUser';
-import { userCanViewJargonTerms } from '@/lib/betas';
 import { useGlobalKeydown } from '../common/withGlobalKeydown';
 import classNames from 'classnames';
 import { sidenotesHiddenBreakpoint } from '../posts/PostsPage/constants';
