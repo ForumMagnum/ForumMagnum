@@ -178,11 +178,30 @@ export const PostsWithVotes = gql(`
   }
 `)
 
+export const PostPodcastEpisode = gql(`
+  fragment PostPodcastEpisode on Post {
+    podcastEpisode {
+      _id
+      title
+      podcast {
+        _id
+        title
+        applePodcastLink
+        spotifyPodcastLink
+      }
+      episodeLink
+      externalEpisodeId
+    }
+  }
+`);
+
 export const PostsListWithVotes = gql(`
   fragment PostsListWithVotes on Post {
     ...PostsList
     currentUserVote
     currentUserExtendedVote
+    
+    ...PostPodcastEpisode
   }
 `)
 
@@ -395,20 +414,6 @@ export const PostsDetails = gql(`
       title
     }
 
-    # Podcast
-    podcastEpisode {
-      _id
-      title
-      podcast {
-        _id
-        title
-        applePodcastLink
-        spotifyPodcastLink
-      }
-      episodeLink
-      externalEpisodeId
-    }
-
     # Moderation stuff
     bannedUserIds
     moderationStyle
@@ -525,6 +530,8 @@ export const PostsWithNavigationAndRevision = gql(`
     reviewWinner {
       ...ReviewWinnerAll
     }
+    
+    ...PostPodcastEpisode
   }
 `)
 
@@ -537,6 +544,8 @@ export const PostsWithNavigation = gql(`
     reviewWinner {
       ...ReviewWinnerAll
     }
+
+    ...PostPodcastEpisode
   }
 `)
 

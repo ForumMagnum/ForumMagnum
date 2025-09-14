@@ -9,6 +9,7 @@ export const PostsRevisionMultiQuery = gql(`
     posts(selector: $selector, limit: $limit, enableTotal: $enableTotal) {
       results {
         ...PostsRevision
+        ...PostPodcastEpisode
       }
       totalCount
     }
