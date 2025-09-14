@@ -24824,7 +24824,7 @@ type PodcastSelect = { __typename?: 'Podcast', _id: string, title: string };
 
 type PostsMinimumInfo_Post_coauthorStatuses_CoauthorStatusOutput = { __typename?: 'CoauthorStatusOutput', userId: string, confirmed: boolean, requested: boolean };
 
-type PostsMinimumInfo = { __typename?: 'Post', _id: string, slug: string, title: string, draft: boolean | null, shortform: boolean, hideCommentKarma: boolean, af: boolean, userId: string | null, hasCoauthorPermission: boolean, rejected: boolean, debate: boolean, collabEditorDialogue: boolean, coauthorStatuses: Array<PostsMinimumInfo_Post_coauthorStatuses_CoauthorStatusOutput> | null };
+type PostsMinimumInfo = { __typename?: 'Post', _id: string, slug: string, title: string, draft: boolean | null, shortform: boolean, hideCommentKarma: boolean, af: boolean, userId: string | null, hasCoauthorPermission: boolean, rejected: boolean, collabEditorDialogue: boolean, coauthorStatuses: Array<PostsMinimumInfo_Post_coauthorStatuses_CoauthorStatusOutput> | null };
 
 type PostsTopItemInfo_Post_contents_Revision = { __typename?: 'Revision', _id: string, htmlHighlight: string, wordCount: number, version: string };
 
@@ -25129,13 +25129,8 @@ type PostsPage_Post_contents_Revision = (
   & RevisionDisplay
 );
 
-type PostsPage_Post_customHighlight_Revision = (
-  { __typename?: 'Revision' }
-  & RevisionDisplay
-);
-
 type PostsPage = (
-  { __typename?: 'Post', version: string | null, myEditorAccess: string, contents: PostsPage_Post_contents_Revision | null, customHighlight: PostsPage_Post_customHighlight_Revision | null }
+  { __typename?: 'Post', version: string | null, myEditorAccess: string, contents: PostsPage_Post_contents_Revision | null }
   & PostsDetails
 );
 

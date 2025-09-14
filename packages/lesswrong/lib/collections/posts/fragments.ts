@@ -17,7 +17,6 @@ export const PostsMinimumInfo = gql(`
     }
     hasCoauthorPermission
     rejected
-    debate
     collabEditorDialogue
   }
 `)
@@ -579,9 +578,6 @@ export const PostsPage = gql(`
     ...PostsDetails
     version
     contents {
-      ...RevisionDisplay
-    }
-    customHighlight {
       ...RevisionDisplay
     }
     myEditorAccess
