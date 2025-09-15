@@ -1,21 +1,13 @@
-const titleStack = [
-  'GreekFallback', // Ensures that greek letters render consistently
-  'Inter',
-  'Helvetica Neue',
-  'Helvetica',
-  'Arial',
-  'sans-serif'
-].join(',')
-
 const serifStack = [
   'Merriweather',
+  'Palatino',
+  'Garamond',
   'Baskerville',
   'Libre Baskerville',
   'Georgia',
   'serif'
 ].join(',')
 
-// TODO why is SanSerifStack different from titleStack?
 const sansSerifStack = [
   'GreekFallback', // Ensures that greek letters render consistently
   'Inter',
@@ -166,7 +158,7 @@ export const eaForumTheme: SiteThemeSpecification = {
           ...basicText,
         },
         headerStyle: {
-          fontFamily: titleStack
+          fontFamily: sansSerifStack
         },
         commentStyle: {
           fontFamily: sansSerifStack,
@@ -180,18 +172,18 @@ export const eaForumTheme: SiteThemeSpecification = {
           fontFamily: serifStack,
         },
         subheading: {
-          fontFamily: titleStack
+          fontFamily: sansSerifStack
         },
         title: {
           color: palette.grey[800],
-          fontFamily: titleStack,
+          fontFamily: sansSerifStack,
           fontWeight: 500,
           marginBottom: 5,
         },
         // used by h3
         display0: {
           color: palette.grey[800],
-          fontFamily: titleStack,
+          fontFamily: sansSerifStack,
           fontWeight: 600,
           fontSize: 20.8,
           lineHeight: '1.25em',
@@ -199,7 +191,7 @@ export const eaForumTheme: SiteThemeSpecification = {
         // used by h2
         display1: {
           color: palette.grey[800],
-          fontFamily: titleStack,
+          fontFamily: sansSerifStack,
           fontWeight: 650,
           fontSize: 26,
           lineHeight: '1.25em',
@@ -207,7 +199,7 @@ export const eaForumTheme: SiteThemeSpecification = {
         // used by h1
         display2: {
           color: palette.grey[800],
-          fontFamily: titleStack,
+          fontFamily: sansSerifStack,
           fontWeight: 600,
           fontSize: 31.2,
           lineHeight: '1.25em',
@@ -215,7 +207,7 @@ export const eaForumTheme: SiteThemeSpecification = {
         // used by page title
         display3: {
           color: palette.grey[800],
-          fontFamily: titleStack,
+          fontFamily: sansSerifStack,
           fontWeight: 500,
           lineHeight: '1.25em'
         },
