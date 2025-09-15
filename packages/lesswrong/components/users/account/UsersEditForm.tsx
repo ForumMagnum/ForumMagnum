@@ -882,6 +882,7 @@ const UsersForm = ({
         label="Emails"
         startCollapsed={
           highlightedField !== "subscribedToDigest" &&
+          highlightedField !== "sendMarketingEmails" &&
           highlightedField !== "unsubscribeFromAll"
         }
       >
@@ -914,6 +915,21 @@ const UsersForm = ({
           </form.Field>
         </div>
         </HighlightableField>}
+
+        {isEAForum &&
+          <HighlightableField name="sendMarketingEmails">
+            <div className={classes.fieldWrapper}>
+              <form.Field name="sendMarketingEmails">
+                {(field) => (
+                  <FormComponentCheckbox
+                    field={field}
+                    label="Send me marketing emails from the Forum"
+                  />
+                )}
+              </form.Field>
+            </div>
+          </HighlightableField>
+        }
 
         {hasInactiveSummaryEmail &&
           <div className={classes.fieldWrapper}>

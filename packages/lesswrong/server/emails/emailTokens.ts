@@ -6,18 +6,13 @@ import gql from 'graphql-tag';
 import { createAnonymousContext } from "@/server/vulcan-lib/createContexts";
 import { updateEmailToken } from '../collections/emailTokens/mutations';
 import { updateUser } from '../collections/users/mutations';
-import { EmailTokenResult } from '@/components/users/EmailTokenResult';
-import EmailTokenEmailUnsubscribeResult from '@/components/users/EmailTokenEmailUnsubscribeResult';
+import {
+  EmailTokenResultComponentName,
+  emailTokenResultComponents,
+} from '@/components/users/emailTokens';
 import { userEmailAddressIsVerified } from '@/lib/collections/users/helpers';
 import UsersRepo from '../repos/UsersRepo';
 import { createPasswordHash, validatePassword } from '../vulcan-lib/apollo-server/passwordHelpers';
-
-const emailTokenResultComponents = {
-  EmailTokenResult,
-  EmailTokenEmailUnsubscribeResult,
-};
-
-export type EmailTokenResultComponentName = keyof typeof emailTokenResultComponents;
 
 export class EmailTokenType<T extends EmailTokenResultComponentName> {
   name: DbEmailTokens['tokenType']
@@ -135,6 +130,18 @@ export const emailTokenTypesByName = {
       return {};
     },
     resultComponentName: "EmailTokenEmailUnsubscribeResult",
+  }),
+
+  unsubscribeMarketing: new EmailTokenType({
+    name: "unsubscribeMarketing",
+    onUseAction: async (user: DbUser) => {
+      await updateUser({
+        data: { sendMarketingEmails: false },
+        selector: { _id: user._id }
+      }, createAnonymousContext());
+      return {};
+    },
+    resultComponentName: "EmailTokenEmailUnsubscribeMarketingResult",
   }),
 
   verifyEmail: new EmailTokenType({

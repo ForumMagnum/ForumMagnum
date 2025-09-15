@@ -494,7 +494,7 @@ interface DbEmailTokens extends DbObject {
   legacyData: any | null
   params: any | null
   token: string
-  tokenType: 'unsubscribeAll' | 'verifyEmail' | 'resetPassword'
+  tokenType: 'unsubscribeAll' | 'unsubscribeMarketing' | 'verifyEmail' | 'resetPassword'
   usedAt: Date | null
   userId: string
 }
@@ -2248,6 +2248,7 @@ interface DbUser extends DbObject {
   reviewedAt: Date | null
   reviewedByUserId: string | null
   sendInactiveSummaryEmail: boolean
+  sendMarketingEmails: boolean
   sequenceCount: number
   sequenceDraftCount: number
   services: any | null

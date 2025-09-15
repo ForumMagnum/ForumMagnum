@@ -4077,6 +4077,7 @@ interface User {
   emailSubscribedToCurated: boolean | null;
   subscribedToDigest: boolean | null;
   sendInactiveSummaryEmail: boolean | null;
+  sendMarketingEmails: boolean | null;
   subscribedToNewsletter: boolean | null;
   unsubscribeFromAll: boolean | null;
   hideSubscribePoke: boolean | null;
@@ -6168,6 +6169,7 @@ interface CreateUserDataInput {
   emailSubscribedToCurated?: boolean | null;
   subscribedToDigest?: boolean | null;
   sendInactiveSummaryEmail?: boolean | null;
+  sendMarketingEmails?: boolean | null;
   subscribedToNewsletter?: boolean | null;
   unsubscribeFromAll?: boolean | null;
   hideSubscribePoke?: boolean | null;
@@ -6346,6 +6348,7 @@ interface UpdateUserDataInput {
   emailSubscribedToCurated?: boolean | null;
   subscribedToDigest?: boolean | null;
   sendInactiveSummaryEmail?: boolean | null;
+  sendMarketingEmails?: boolean | null;
   subscribedToNewsletter?: boolean | null;
   unsubscribeFromAll?: boolean | null;
   hideSubscribePoke?: boolean | null;

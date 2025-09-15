@@ -170,6 +170,7 @@ import { communityPath, getAllTagsPath, getAllTagsRedirectPaths } from './pathCo
 import LeaderboardComponent from '@/components/users/Leaderboard';
 import KeywordsPage from '@/components/keywords/KeywordsPage';
 import KeywordResultsPage from '@/components/keywords/KeywordResultsPage';
+import AdminEventPostEmailPage from '@/components/admin/AdminEventPostEmailPage';
 
 const communitySubtitle = { subtitleLink: communityPath, subtitle: isEAForum ? 'Groups' : 'Community' };
 
@@ -978,6 +979,13 @@ const eaLwAfForumSpecificRoutes = forumSelect<Route[]>({
       path: '/admin/twitter',
       component: TwitterAdmin,
       title: 'Twitter tools',
+      isAdmin: true,
+    },
+    {
+      name: 'eventPostEmail',
+      path: '/admin/event-post-email',
+      component: AdminEventPostEmailPage,
+      title: 'Send event post email',
       isAdmin: true,
     },
     {
