@@ -457,6 +457,15 @@ export default function MeetupMonthBannerInner() {
     }, 10)
   }, [currentCarouselIndex])
 
+  // Automatically rotate carousel every 20 seconds
+  useEffect(() => {
+    const intervalId = setInterval(() => {
+      const nextIndex = (currentCarouselIndex + 1) % carouselSections.length
+      handleMeetupTypeClick(nextIndex)
+    }, 20000)
+    return () => clearInterval(intervalId)
+  }, [currentCarouselIndex, handleMeetupTypeClick])
+
   if (isLoading) {
     return <div className={classes.root}>
       <div className={classes.mapGradient} style={{ opacity: scrollOpacity }}/>
