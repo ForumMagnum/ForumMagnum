@@ -315,7 +315,7 @@ export async function startWebserver() {
   });
 
   app.get('/api/notificationCount', async (request, response) => {
-    const currentUser = getUserFromReq(request);
+    const currentUser = await getUserFromReq(requestToNextRequest(request));
     if (!currentUser) {
       response.status(401).end("Unauthorized");
       return;
@@ -333,7 +333,7 @@ export async function startWebserver() {
       ...(lastNotificationsCheck && {
         createdAt: {$gt: lastNotificationsCheck},
       }),
-      ...(isFriendlyUI && {
+      ...(isFriendlyUI() && {
         type: {$ne: "newMessage"},
         viewed: {$ne: true},
       }),
