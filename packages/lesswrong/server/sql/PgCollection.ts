@@ -261,7 +261,7 @@ class PgCollectionClass<
         `you should deploy in two stages. This is the query in question: "${query.compile()?.sql}"`
       )
 
-      const { queueBackgroundTask } = await import("../migrations/meta/utils");
+      const { queueBackgroundTask }: typeof import("../migrations/meta/utils") = require("../migrations/meta/utils");
       queueBackgroundTask(() => this.executeQuery(query, {fieldOrSpec, options}, "noTransaction"))
     }
   }
