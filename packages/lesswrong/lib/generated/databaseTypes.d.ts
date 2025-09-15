@@ -494,7 +494,7 @@ interface DbEmailTokens extends DbObject {
   legacyData: any | null
   params: any | null
   token: string
-  tokenType: 'unsubscribeAll' | 'verifyEmail' | 'resetPassword'
+  tokenType: 'unsubscribeAll' | 'unsubscribeMarketing' | 'verifyEmail' | 'resetPassword'
   usedAt: Date | null
   userId: string
 }

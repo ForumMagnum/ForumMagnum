@@ -107,7 +107,7 @@ const AdminEventPostEmailPage = ({classes}: {
                 Send test email to myself
               </EAButton>
               <EAButton onClick={sendTestEmail.bind(null, false)} style="grey">
-                Send test email to all relevant users
+                Send email to all users
               </EAButton>
             </>
           )

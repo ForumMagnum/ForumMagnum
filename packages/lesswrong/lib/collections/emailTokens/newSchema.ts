@@ -1,5 +1,4 @@
 import { DEFAULT_CREATED_AT_FIELD, DEFAULT_ID_FIELD, DEFAULT_LEGACY_DATA_FIELD, DEFAULT_SCHEMA_VERSION_FIELD } from "@/lib/collections/helpers/sharedFieldConstants";
-import { generateIdResolverSingle } from "../../../lib/utils/schemaUtils";
 
 const schema = {
   _id: DEFAULT_ID_FIELD,
@@ -16,7 +15,7 @@ const schema = {
     database: {
       type: "TEXT",
       nullable: false,
-      typescriptType: "'unsubscribeAll' | 'verifyEmail' | 'resetPassword'",
+      typescriptType: "'unsubscribeAll' | 'unsubscribeMarketing' | 'verifyEmail' | 'resetPassword'",
     },
   },
   userId: {

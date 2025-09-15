@@ -4,6 +4,7 @@ import Users from "../collections/users/collection"
 import { DatabaseServerSetting } from "../databaseSettings";
 import { PostsEmail } from "../emailComponents/PostsEmail";
 import { wrapAndSendEmail } from "../emails/renderEmail";
+import { createUnsubscribeMarketingNode } from "../emails/unsubscribeLink";
 import { forEachDocumentBatchInCollection } from "../manualMigrations/migrationUtils";
 
 // The "sender" for event post emails - will use the normal default email
@@ -14,6 +15,7 @@ const eventPostEmailSetting = new DatabaseServerSetting<string | undefined>(
 );
 
 const sendEventPostEmail = async (post: DbPost, user: DbUser, subject: string) => {
+  const unsubscribeNode = await createUnsubscribeMarketingNode(user);
   await wrapAndSendEmail({
     user,
     from: eventPostEmailSetting.get(),
@@ -31,6 +33,7 @@ const sendEventPostEmail = async (post: DbPost, user: DbUser, subject: string) =
       utm_medium: "email",
       utm_user_id: user._id,
     },
+    unsubscribeNode,
   });
 }
 

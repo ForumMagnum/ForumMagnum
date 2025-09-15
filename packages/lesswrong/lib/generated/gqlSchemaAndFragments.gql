@@ -1273,7 +1273,7 @@ extend type Query {
 }
 
 extend type Mutation {
-  sendEventPostEmail(postId: String!, isTest: Boolean!): Boolean!
+  sendEventPostEmail(postId: String!, subject: String!, isTest: Boolean!): Boolean!
 }
 
 extend type Mutation {
