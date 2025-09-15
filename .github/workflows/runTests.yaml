@@ -51,6 +51,8 @@ jobs:
       uses: actions/checkout@v4
     - name: Setup Environment
       uses: ./.github/actions/setupEnvironment
+    - name: Setup Vercel Environment
+      uses: ./.github/actions/pullVercelDevEnv
     - name: Setup database
       run: psql postgres://postgres:password@localhost:5433/postgres -f schema/accepted_schema.sql
     - name: Create database connection string file
@@ -278,6 +280,8 @@ jobs:
       uses: actions/checkout@v4
     - name: Setup Environment
       uses: ./.github/actions/setupEnvironment
+    - name: Setup Vercel Environment
+      uses: ./.github/actions/pullVercelDevEnv
     - name: Execute Accepted Schema
       run: psql $PG_URL -f ./schema/accepted_schema.sql
     - name: Run Database Bootstrap
