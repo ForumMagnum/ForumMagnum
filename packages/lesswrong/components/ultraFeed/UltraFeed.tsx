@@ -14,9 +14,14 @@ import { ULTRA_FEED_ACTIVE_TAB_COOKIE } from '@/lib/cookies/cookies';
 import { FeedType } from './ultraFeedTypes';
 import { useTracking } from '@/lib/analyticsEvents';
 import useUltraFeedSettings from '../hooks/useUltraFeedSettings';
+import InfoButton from '../icons/InfoButton';
 const UltraFeedContent = dynamic(() => import('./UltraFeedContent'), { ssr: false });
 
 const styles = defineStyles("UltraFeed", (theme: ThemeType) => ({
+  headerButtons: {
+    display: 'flex',
+    alignItems: 'center',
+  },
   disabledMessage: {
     textAlign: 'center',
     padding: 40,
@@ -40,6 +45,7 @@ const UltraFeed = ({
   const currentUser = useCurrentUser();
   const [cookies, setCookie] = useCookiesWithConsent([ULTRA_FEED_ACTIVE_TAB_COOKIE]);
   const [internalSettingsVisible, setInternalSettingsVisible] = useState(false);
+  const [internalInfoVisible, setInternalInfoVisible] = useState(false);
   const [activeTab, setActiveTab] = useState<FeedType>(() => (cookies[ULTRA_FEED_ACTIVE_TAB_COOKIE] === 'following' ? 'following' : 'ultraFeed'));
   const { captureEvent } = useTracking();
   const { settings, updateSettings, resetSettings, truncationMaps } = useUltraFeedSettings();
@@ -47,6 +53,11 @@ const UltraFeed = ({
   const handleTabChange = (tab: FeedType) => {
     setActiveTab(tab);
     setCookie(ULTRA_FEED_ACTIVE_TAB_COOKIE, tab, { path: '/' });
+    // Close info panel when switching to Following tab
+    if (tab === 'following' && internalInfoVisible) {
+      setInternalInfoVisible(false);
+    }
+    captureEvent("ultraFeedTabChanged", { tab });
   };
 
   if (!currentUser) {
@@ -73,6 +84,19 @@ const UltraFeed = ({
       onSettingsToggle?.();
     } else {
       setInternalSettingsVisible(!internalSettingsVisible);
+      if (!internalSettingsVisible && internalInfoVisible) {
+        setInternalInfoVisible(false);
+      }
+    }
+  };
+
+  const toggleInfo = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    captureEvent("ultraFeedInfoToggled", { open: !internalInfoVisible });
+    setInternalInfoVisible(!internalInfoVisible);
+    // Close settings when opening info
+    if (!internalInfoVisible && internalSettingsVisible) {
+      setInternalSettingsVisible(false);
     }
   };
 
@@ -84,7 +108,12 @@ const UltraFeed = ({
           hideTitle={hideTitle}
           activeTab={activeTab}
           onTabChange={handleTabChange}
-          settingsButton={!isControlled ? <SettingsButton showIcon={true} onClick={toggleSettings} /> : undefined}
+          settingsButton={!isControlled ? (
+            <div className={classes.headerButtons}>
+              {activeTab === 'ultraFeed' && <InfoButton onClick={toggleInfo} isActive={internalInfoVisible} tooltip="What is the For You feed?" />}
+              <SettingsButton showIcon={true} onClick={toggleSettings} />
+            </div>
+          ) : undefined}
           feedSettings={settings}
           updateFeedSettings={updateSettings}
         />
@@ -97,6 +126,7 @@ const UltraFeed = ({
             alwaysShow={alwaysShow}
             settingsVisible={actualSettingsVisible}
             onCloseSettings={isControlled ? onSettingsToggle : () => setInternalSettingsVisible(false)}
+            infoVisible={internalInfoVisible}
             useExternalContainer={isControlled}
             activeTab={activeTab}
           />

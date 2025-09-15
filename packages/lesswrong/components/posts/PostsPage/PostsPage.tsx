@@ -232,6 +232,10 @@ export const styles = defineStyles("PostsPage", (theme: ThemeType) => ({
     bottom: 0,
     height: '100vh',
     width: '100vw',
+    
+    "@media print": {
+      display: "none",
+    },
   },
   reserveSpaceForSidenotes: {
     width: RIGHT_COLUMN_WIDTH_WITH_SIDENOTES,

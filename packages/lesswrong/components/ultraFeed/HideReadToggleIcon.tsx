@@ -9,7 +9,6 @@ const styles = defineStyles('HideReadToggleIcon', (theme: ThemeType) => ({
     display: 'flex',
     alignItems: 'center',
     justifyContent: 'center',
-    transition: 'opacity 0.3s ease, visibility 0.3s ease',
   },
   containerHidden: {
     opacity: 0,

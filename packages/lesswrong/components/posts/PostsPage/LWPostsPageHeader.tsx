@@ -142,7 +142,10 @@ const styles = (theme: ThemeType) => ({
   audioToggle: {
     marginRight: 12,
     display: "flex",
-    opacity: 0.75
+    opacity: 0.75,
+    "@media print": {
+      display: "none",
+    },
   },
   readTime: {
     marginRight: 20,
@@ -210,10 +213,12 @@ const styles = (theme: ThemeType) => ({
     marginBottom: 0,
   },
   rootWithSplashPageHeader: {
-    paddingTop: '44vh',
-    [theme.breakpoints.down('xs')]: {
-      marginTop: '44vh',
-      paddingTop: 0,
+    "@media screen": {
+      paddingTop: '44vh',
+      [theme.breakpoints.down('xs')]: {
+        marginTop: '44vh',
+        paddingTop: 0,
+      },
     },
   }
 }); 
