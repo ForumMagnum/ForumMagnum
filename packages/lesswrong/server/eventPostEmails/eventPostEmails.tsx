@@ -1,13 +1,22 @@
 import React from "react";
 import Posts from "../collections/posts/collection";
 import Users from "../collections/users/collection"
+import { DatabaseServerSetting } from "../databaseSettings";
 import { PostsEmail } from "../emailComponents/PostsEmail";
 import { wrapAndSendEmail } from "../emails/renderEmail";
 import { forEachDocumentBatchInCollection } from "../manualMigrations/migrationUtils";
 
+// The "sender" for event post emails - will use the normal default email
+// sender if not defined
+const eventPostEmailSetting = new DatabaseServerSetting<string | undefined>(
+  "eventPostEmail",
+  undefined,
+);
+
 const sendEventPostEmail = async (post: DbPost, user: DbUser, subject: string) => {
   await wrapAndSendEmail({
     user,
+    from: eventPostEmailSetting.get(),
     subject,
     body: (
       <PostsEmail
