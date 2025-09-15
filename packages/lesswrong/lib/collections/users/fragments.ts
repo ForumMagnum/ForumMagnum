@@ -545,6 +545,7 @@ export const UsersEdit = () => frag`
     subscribedToDigest
     subscribedToNewsletter
     sendInactiveSummaryEmail
+    sendMarketingEmails
     unsubscribeFromAll
     hasAuth0Id
 

@@ -1,6 +1,4 @@
-import React from 'react';
-import { siteNameWithArticleSetting } from '../../lib/instanceSettings';
-import { getSiteUrl } from '../../lib/vulcan-lib/utils';
+import React, { ReactNode } from 'react';
 import { isFriendlyUI } from '@/themes/forumTheme';
 import { defineStyles, useStyles } from '@/components/hooks/useStyles';
 import classNames from 'classnames';
@@ -20,14 +18,12 @@ const styles = defineStyles("EmailWrapper", (theme: ThemeType) => ({
 // Wrapper for top-level formatting of emails, eg controling width and
 // background color. See also the global CSS in renderEmail.js. Derived from
 // wrapper.handlebars in Vulcan-Starter.
-export const EmailWrapper = ({unsubscribeAllLink, children}: {
-  unsubscribeAllLink: string | null,
-  children: React.ReactNode,
+export const EmailWrapper = ({unsubscribeNode, children}: {
+  unsubscribeNode: ReactNode,
+  children: ReactNode,
 }) => {
   const classes = useStyles(styles);
-  const accountLink = `${getSiteUrl()}account`
-  const siteNameWithArticle = siteNameWithArticleSetting.get()
-  
+
   // Put props for some HTML elements in any-typed objects, because emails use
   // non-HTML5 attributes which the typechecker will complain about
   const bodyProps: any = {
@@ -84,11 +80,7 @@ export const EmailWrapper = ({unsubscribeAllLink, children}: {
                     <tr>
                       <td className={classNames("container-padding", classes.unsubscribe)}>
                         <br/>
-                        {unsubscribeAllLink && <>
-                          <a href={unsubscribeAllLink}>Unsubscribe</a>{' '}
-                          (from all emails from {siteNameWithArticle})
-                          or <a href={accountLink}>Change your notifications settings</a>
-                        </>}
+                        {unsubscribeNode}
                         <br/>
                       </td>
                     </tr>
@@ -103,4 +95,3 @@ export const EmailWrapper = ({unsubscribeAllLink, children}: {
     </body>
   );
 }
-

@@ -1,8 +1,11 @@
 import { EmailTokenResult } from "./EmailTokenResult";
 import EmailTokenEmailUnsubscribeResult from "./EmailTokenEmailUnsubscribeResult";
-import type { EmailTokenResultComponentName } from "@/server/emails/emailTokens";
+import EmailTokenEmailUnsubscribeMarketingResult from "./EmailTokenEmailUnsubscribeMarketingResult";
 
 export const emailTokenResultComponents = {
   EmailTokenResult,
   EmailTokenEmailUnsubscribeResult,
-} satisfies Record<EmailTokenResultComponentName, React.ComponentType<any>>;
+  EmailTokenEmailUnsubscribeMarketingResult,
+} as const;
+
+export type EmailTokenResultComponentName = keyof typeof emailTokenResultComponents;

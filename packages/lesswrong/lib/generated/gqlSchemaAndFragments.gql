@@ -1273,6 +1273,10 @@ extend type Query {
 }
 
 extend type Mutation {
+  sendEventPostEmail(postId: String!, subject: String!, isTest: Boolean!): Boolean!
+}
+
+extend type Mutation {
   addOrUpvoteTag(tagId: String, postId: String): TagRel
   addTags(postId: String, tagIds: [String]): Boolean
 }
@@ -4859,6 +4863,7 @@ type User {
   emailSubscribedToCurated: Boolean
   subscribedToDigest: Boolean
   sendInactiveSummaryEmail: Boolean
+  sendMarketingEmails: Boolean
   subscribedToNewsletter: Boolean
   unsubscribeFromAll: Boolean
   hideSubscribePoke: Boolean
@@ -7176,6 +7181,7 @@ input CreateUserDataInput {
   emailSubscribedToCurated: Boolean
   subscribedToDigest: Boolean
   sendInactiveSummaryEmail: Boolean
+  sendMarketingEmails: Boolean
   subscribedToNewsletter: Boolean
   unsubscribeFromAll: Boolean
   hideSubscribePoke: Boolean
@@ -7354,6 +7360,7 @@ input UpdateUserDataInput {
   emailSubscribedToCurated: Boolean
   subscribedToDigest: Boolean
   sendInactiveSummaryEmail: Boolean
+  sendMarketingEmails: Boolean
   subscribedToNewsletter: Boolean
   unsubscribeFromAll: Boolean
   hideSubscribePoke: Boolean
@@ -12340,6 +12347,7 @@ fragment UsersDefaultFragment on User {
   emailSubscribedToCurated
   subscribedToDigest
   sendInactiveSummaryEmail
+  sendMarketingEmails
   subscribedToNewsletter
   unsubscribeFromAll
   hideSubscribePoke
@@ -12484,6 +12492,7 @@ fragment UsersEdit on User {
   subscribedToDigest
   subscribedToNewsletter
   sendInactiveSummaryEmail
+  sendMarketingEmails
   unsubscribeFromAll
   hasAuth0Id
 

@@ -1716,6 +1716,7 @@ export const UsersDefaultFragment = `
     emailSubscribedToCurated
     subscribedToDigest
     sendInactiveSummaryEmail
+    sendMarketingEmails
     subscribedToNewsletter
     unsubscribeFromAll
     hideSubscribePoke

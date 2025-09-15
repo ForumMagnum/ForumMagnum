@@ -1,7 +1,7 @@
 import { htmlToText } from 'html-to-text';
 import Juice from 'juice';
 import { sendEmailSmtp } from './sendEmail';
-import React from 'react';
+import React, { ReactNode } from 'react';
 import { ApolloProvider } from '@apollo/client';
 import { getDataFromTree } from '@apollo/client/react/ssr';
 import { renderToString } from 'react-dom/server';
@@ -28,6 +28,7 @@ import { ThemeOptions } from '@/themes/themeNames';
 import { EmailWrapper } from '../emailComponents/EmailWrapper';
 import CookiesProvider from '@/lib/vendor/react-cookie/CookiesProvider';
 import { utmifyForumBacklinks, UtmParam } from '../analytics/utm-tracking';
+import { createUnsubscribeAllNode } from './unsubscribeLink';
 
 export interface RenderedEmail {
   user: DbUser | null,
@@ -252,18 +253,18 @@ export async function generateEmail({
   if (!sitename) {
     throw new Error("No site name configured. Make sure \"title\" is set in your settings.json.");
   }
-  const taggedSubject = `[${sitename}] ${subject}`;
-  
+
   return {
     user,
     to,
     from: fromAddress,
-    subject: isLWorAF ? taggedSubject : subject,
+    subject: isLWorAF ? `[${sitename}] ${subject}` : subject,
     html: emailDoctype + inlinedHTML,
     text: plaintext,
     tag,
   }
 }
+
 export const wrapAndRenderEmail = async ({
   user,
   to,
@@ -271,6 +272,7 @@ export const wrapAndRenderEmail = async ({
   subject,
   body,
   includeCustomFonts,
+  unsubscribeNode,
   utmParams,
   tag,
 }: {
@@ -280,17 +282,18 @@ export const wrapAndRenderEmail = async ({
   subject: string;
   body: React.ReactNode;
   includeCustomFonts?: boolean,
+  unsubscribeNode?: ReactNode,
   utmParams?: Partial<Record<UtmParam, string>>;
   tag: string,
 }): Promise<RenderedEmail> => {
-  const unsubscribeAllLink = user ? await emailTokenTypesByName.unsubscribeAll.generateLink(user._id) : null;
+  unsubscribeNode ??= await createUnsubscribeAllNode(user);
   return await generateEmail({
     user,
     to,
     from,
     subject: subject,
     bodyComponent: (
-      <EmailWrapper unsubscribeAllLink={unsubscribeAllLink}>
+      <EmailWrapper unsubscribeNode={unsubscribeNode}>
         {body}
       </EmailWrapper>
     ),
@@ -308,6 +311,7 @@ export const wrapAndSendEmail = async ({
   subject,
   body,
   includeCustomFonts,
+  unsubscribeNode,
   utmParams,
   tag,
 }: {
@@ -318,6 +322,7 @@ export const wrapAndSendEmail = async ({
   subject: string;
   body: React.ReactNode;
   includeCustomFonts?: boolean,
+  unsubscribeNode?: ReactNode,
   utmParams?: Partial<Record<UtmParam, string>>;
   tag: string,
 }): Promise<boolean> => {
@@ -344,6 +349,7 @@ export const wrapAndSendEmail = async ({
       body,
       utmParams,
       includeCustomFonts,
+      unsubscribeNode,
       tag,
     });
     const succeeded = await sendEmail(email);
