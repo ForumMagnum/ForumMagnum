@@ -11,7 +11,7 @@ import type { ITask } from "pg-promise";
 import { startSshTunnel } from "./scripts/startup/buildUtil";
 import { detectForumType, getDatabaseConfigFromModeAndForumType, getSettingsFileName, getSettingsFilePath, initGlobals, isEnvironmentType, normalizeEnvironmentType } from "./scripts/scriptUtil";
 import { loadEnvConfig } from "@next/env";
-import { runQueuedBackgroundTasksSequentially } from "./packages/lesswrong/server/migrations/meta/backgroundTaskQueue";
+import { runQueuedMigrationTasksSequentially } from "./packages/lesswrong/server/migrations/meta/migrationTaskQueue";
 
 (async () => {
   const command = process.argv[2];
@@ -109,7 +109,7 @@ import { runQueuedBackgroundTasksSequentially } from "./packages/lesswrong/serve
 
   // Wait for any migrations pushed into background tasks (generally indexes created concurrently) finish
   // before shutting down all the connections.
-  await runQueuedBackgroundTasksSequentially();
+  await runQueuedMigrationTasksSequentially();
 
   await db.$pool.end();
   process.exit(exitCode);
