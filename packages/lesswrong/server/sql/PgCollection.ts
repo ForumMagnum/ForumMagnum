@@ -12,6 +12,7 @@ import BulkWriter, { BulkWriterResult } from "./BulkWriter";
 import util from "util";
 import { DatabaseIndexSet } from "../../lib/utils/databaseIndexSet";
 import TableIndex from "./TableIndex";
+import { queueBackgroundTask } from "../migrations/meta/backgroundTaskQueue";
 
 let executingQueries = 0;
 
@@ -260,8 +261,7 @@ class PgCollectionClass<
         `as this would cause a deadlock. If your code relies on this index existing immediately ` +
         `you should deploy in two stages. This is the query in question: "${query.compile()?.sql}"`
       )
-
-      const { queueBackgroundTask }: typeof import("../migrations/meta/utils") = require("../migrations/meta/utils");
+      
       queueBackgroundTask(() => this.executeQuery(query, {fieldOrSpec, options}, "noTransaction"))
     }
   }

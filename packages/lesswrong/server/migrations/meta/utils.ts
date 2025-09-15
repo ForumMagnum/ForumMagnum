@@ -26,7 +26,6 @@ import { getCollection } from "@/server/collections/allCollections";
 import { createAdminContext, createAnonymousContext } from "@/server/vulcan-lib/createContexts";
 import { buildRevision } from "@/server/editor/conversionUtils";
 import { createRevision } from "@/server/collections/revisions/mutations";
-import { captureException } from "@/lib/sentryWrapper";
 
 type SqlClientOrTx = SqlClient | ITask<{}>;
 
@@ -404,29 +403,4 @@ export const denormalizeEditableField = async <N extends CollectionNameString>(
   `);
 };
 
-/**
- * This is needed for migrations to prevent deadlocks when trying to run e.g. concurrent index creation queries.
- */
-const queuedBackgroundTaskFns: Array<() => Promise<any>> = [];
 
-/**
- * Don't use this except for things that are going to be run during migrations,
- * it isn't using Vercel's `after`/`waitUntil` and won't execute _at all_ during
- * runtime in deployed code.
- */
-export const queueBackgroundTask = <T>(fn: () => Promise<T>) => {
-  queuedBackgroundTaskFns.push(fn);
-};
-
-export async function runQueuedBackgroundTasksSequentially() {
-  while (queuedBackgroundTaskFns.length > 0) {
-    const fn = queuedBackgroundTaskFns.shift();
-    try {
-      await fn!();
-    } catch (err) {
-      // eslint-disable-next-line no-console
-      console.error('Uncaught error in queued background task', err);
-      captureException(err);
-    }
-  }
-}
