@@ -92,6 +92,7 @@ export const headerLink = new ApolloLink((operation, forward) => {
 const locationsToStr = (locations: readonly SourceLocation[] = []) =>
   locations.map(({column, line}) => `line ${line}, col ${column}`).join(';');
 
+// TODO: decide whether we want to filter out noisy logs like various `app.` errors (permissions and missing documents)
 /**
  * This is an extra utility link that is currently used for client side error handling
  */
@@ -99,5 +100,5 @@ export const createErrorLink = () =>
   onError((errorResponse) => {
     const { error } = errorResponse;
     // eslint-disable-next-line no-console
-    console.error(error.message);
+    // console.error(error.message);
   });

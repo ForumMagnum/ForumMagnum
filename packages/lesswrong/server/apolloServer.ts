@@ -4,7 +4,7 @@ import { GraphQLError, GraphQLFormattedError } from 'graphql';
 // import { handleRequest } from './rendering/renderPage';
 import cors from 'cors';
 import { isDevelopment } from '../lib/executionEnvironment';
-import { pickerMiddleware, addStaticRoute } from './vulcan-lib/staticRoutes';
+// import { pickerMiddleware, addStaticRoute } from './vulcan-lib/staticRoutes';
 import { graphiqlMiddleware } from './vulcan-lib/apollo-server/graphiql'; 
 import { configureSentryScope, getContextFromReqAndRes } from './vulcan-lib/apollo-server/context';
 import { getUserFromReq } from './vulcan-lib/apollo-server/getUserFromReq';
@@ -152,7 +152,7 @@ export async function startWebserver() {
   if (isDatadogEnabled()) {
     app.use(datadogMiddleware);
   }
-  app.use(pickerMiddleware);
+  // app.use(pickerMiddleware);
   app.use(botRedirectMiddleware);
   app.use(hstsMiddleware);
   
@@ -203,42 +203,42 @@ export async function startWebserver() {
     },
   }))
 
-  addStaticRoute("/js/bundle.js", ({query}, req, res, context) => {
-    const {hash: bundleHash, content: bundleBuffer, brotli: bundleBrotliBuffer} = getClientBundle().resource;
-    let headers: Record<string,string> = {}
-    const acceptBrotli = req.headers['accept-encoding'] && req.headers['accept-encoding'].includes('br')
+  // addStaticRoute("/js/bundle.js", ({query}, req, res, context) => {
+  //   const {hash: bundleHash, content: bundleBuffer, brotli: bundleBrotliBuffer} = getClientBundle().resource;
+  //   let headers: Record<string,string> = {}
+  //   const acceptBrotli = req.headers['accept-encoding'] && req.headers['accept-encoding'].includes('br')
 
-    if ((query.hash && query.hash !== bundleHash) || (acceptBrotli && bundleBrotliBuffer === null)) {
-      // If the query specifies a hash, but it's wrong, this probably means there's a
-      // version upgrade in progress, and the SSR and the bundle were handled by servers
-      // on different versions. Serve whatever bundle we have (there's really not much
-      // else to do), but set the Cache-Control header differently so that it will be
-      // fixed on the next refresh.
-      //
-      // If the client accepts brotli compression but we don't have a valid brotli compressed bundle,
-      // that either means we are running locally (in which case chache control isn't important), or that
-      // the brotli bundle is currently being built (in which case set a short cache TTL to prevent the CDN
-      // from serving the uncompressed bundle for too long).
-      headers = {
-        "Cache-Control": "public, max-age=60",
-        "Content-Type": "text/javascript; charset=utf-8"
-      }
-    } else {
-      headers = {
-        "Cache-Control": "public, max-age=604800, immutable",
-        "Content-Type": "text/javascript; charset=utf-8"
-      }
-    }
+  //   if ((query.hash && query.hash !== bundleHash) || (acceptBrotli && bundleBrotliBuffer === null)) {
+  //     // If the query specifies a hash, but it's wrong, this probably means there's a
+  //     // version upgrade in progress, and the SSR and the bundle were handled by servers
+  //     // on different versions. Serve whatever bundle we have (there's really not much
+  //     // else to do), but set the Cache-Control header differently so that it will be
+  //     // fixed on the next refresh.
+  //     //
+  //     // If the client accepts brotli compression but we don't have a valid brotli compressed bundle,
+  //     // that either means we are running locally (in which case chache control isn't important), or that
+  //     // the brotli bundle is currently being built (in which case set a short cache TTL to prevent the CDN
+  //     // from serving the uncompressed bundle for too long).
+  //     headers = {
+  //       "Cache-Control": "public, max-age=60",
+  //       "Content-Type": "text/javascript; charset=utf-8"
+  //     }
+  //   } else {
+  //     headers = {
+  //       "Cache-Control": "public, max-age=604800, immutable",
+  //       "Content-Type": "text/javascript; charset=utf-8"
+  //     }
+  //   }
 
-    if (bundleBrotliBuffer !== null && acceptBrotli) {
-      headers["Content-Encoding"] = "br";
-      res.writeHead(200, headers);
-      res.end(bundleBrotliBuffer);
-    } else {
-      res.writeHead(200, headers);
-      res.end(bundleBuffer);
-    }
-  });
+  //   if (bundleBrotliBuffer !== null && acceptBrotli) {
+  //     headers["Content-Encoding"] = "br";
+  //     res.writeHead(200, headers);
+  //     res.end(bundleBrotliBuffer);
+  //   } else {
+  //     res.writeHead(200, headers);
+  //     res.end(bundleBuffer);
+  //   }
+  // });
   // Setup CKEditor Token
   app.use("/ckeditor-token", ckEditorTokenHandler)
   
@@ -356,9 +356,9 @@ export async function startWebserver() {
   // Route used for checking whether the server is ready for an auto-refresh
   // trigger. Added last so that async stuff can't lead to auto-refresh
   // happening before the server is ready.
-  addStaticRoute('/api/ready', ({query}, _req, res, next) => {
-    res.end('true');
-  });
+  // addStaticRoute('/api/ready', ({query}, _req, res, next) => {
+  //   res.end('true');
+  // });
 }
 
 /**

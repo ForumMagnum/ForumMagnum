@@ -1,5 +1,5 @@
 import { WrappedYear } from "@/components/ea-forum/wrapped/constants";
-import { getConfirmedCoauthorIds, userIsPostCoauthor } from "@/lib/collections/posts/helpers";
+import { userIsPostCoauthor } from "@/lib/collections/posts/helpers";
 import { userCanEditUser } from "@/lib/collections/users/helpers";
 import countBy from "lodash/countBy";
 import entries from "lodash/fp/entries";
@@ -81,15 +81,14 @@ export const getWrappedDataByYear = async (
       shortform: false,
     }, {}, {
       userId: 1,
-      coauthorStatuses: 1,
-      hasCoauthorPermission: 1,
+      coauthorUserIds: 1,
       tagRelevance: 1,
     }).fetch()
   ).filter((post) => post.userId !== user._id && !userIsPostCoauthor(user, post));
 
   // Get the top 5 authors that the user has read
   const userIds = posts.flatMap(
-    (post) => getConfirmedCoauthorIds(post).concat([post.userId]),
+    (post) =>[...post.coauthorUserIds, post.userId],
   );
   const authorCounts = countBy(userIds);
   const topAuthors = sortBy(entries(authorCounts), last)
@@ -145,7 +144,7 @@ export const getWrappedDataByYear = async (
     ).fetch(),
     Posts.find(
       {
-        $or: [{ userId: user._id }, { "coauthorStatuses.userId": user._id }],
+        $or: [{ userId: user._id }, { coauthorUserIds: user._id }],
         postedAt: { $gte: start, $lte: end },
         status: {$eq: postStatuses.STATUS_APPROVED},
         draft: false,

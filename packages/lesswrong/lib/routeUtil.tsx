@@ -103,12 +103,10 @@ export const useNavigate = () => {
         }
       } else if (options?.replace) {
         if (normalizedLocation !== normalizedOldLocation) {
-          console.log(`history.replace`);
           history.replace(normalizedLocation);
         }
       } else {
         if (normalizedLocation !== normalizedOldLocation) {
-          console.log(`history.push`);
           history.push(normalizedLocation);
         }
       }

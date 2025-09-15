@@ -1,6 +1,5 @@
 import Notifications from '../server/collections/notifications/collection';
 import Users from '../server/collections/users/collection';
-import { getConfirmedCoauthorIds } from '../lib/collections/posts/helpers';
 import type { RSVPType } from "@/lib/collections/posts/helpers";
 import difference from 'lodash/difference';
 import groupBy from 'lodash/groupBy';
@@ -70,7 +69,7 @@ async function notifyDialogueParticipantNewMessage(props: NotifyDialogueParticip
 
 export async function notifyDialogueParticipantsNewMessage(newMessageAuthorId: string, dialogueMessageInfo: DialogueMessageInfo|undefined, post: DbPost) {
   // Get all the debate participants, but exclude the comment author if they're a debate participant
-  const debateParticipantIds = difference([post.userId, ...getConfirmedCoauthorIds(post)], [newMessageAuthorId]);
+  const debateParticipantIds = difference([post.userId, ...post.coauthorUserIds], [newMessageAuthorId]);
   const debateParticipants = await Users.find({_id: {$in: debateParticipantIds}}).fetch();
   const earliestLastNotificationsCheck = min(debateParticipants.map(user => user.lastNotificationsCheck));
 

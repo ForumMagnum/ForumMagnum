@@ -4,7 +4,7 @@ import { isEAForum, cloudinaryCloudNameSetting } from '@/lib/instanceSettings';
 import type { Metadata } from "next";
 import merge from "lodash/merge";
 import { CommentPermalinkMetadataQuery, getCommentDescription, getDefaultMetadata, getMetadataDescriptionFields, getMetadataImagesFields, getPageTitleFields, handleMetadataError, noIndexMetadata } from "./sharedMetadata";
-import { postCoauthorIsPending, postGetPageUrl } from "@/lib/collections/posts/helpers";
+import { postGetPageUrl } from "@/lib/collections/posts/helpers";
 import { getPostDescription } from "@/components/posts/PostsPage/structuredData";
 import { notFound } from "next/navigation";
 
@@ -37,12 +37,7 @@ const PostMetadataQuery = gql(`
           _id
           displayName
         }
-        hasCoauthorPermission
-        coauthorStatuses {
-          userId
-          confirmed
-          requested
-        }
+        coauthorUserIds
         shortform
         eventImageId
         noIndex
@@ -71,7 +66,7 @@ function getCitationTags(post: PostMetadataQuery_post_SinglePostOutput_result_Po
   return {
     citation_title: post.title,
     ...(post.user?.displayName && { citation_author: post.user.displayName }),
-    ...(post.coauthors?.filter(({ _id }) => !postCoauthorIsPending(post, _id))?.map(coauthor => coauthor.displayName) && { citation_author: post.coauthors?.map(coauthor => coauthor.displayName) }),
+    ...(post.coauthors?.filter(({ _id }) => !post.coauthorUserIds.includes(_id))?.map(coauthor => coauthor.displayName) && { citation_author: post.coauthors?.map(coauthor => coauthor.displayName) }),
     ...(formattedDate && { citation_publication_date: formattedDate }),
   } satisfies Metadata['other'];
 }

@@ -9,7 +9,6 @@ import TagDiscussion from "./TagDiscussion";
 import PopperCard from "../common/PopperCard";
 import { useQuery } from "@/lib/crud/useQuery";
 import { gql } from "@/lib/generated/gql-codegen";
-import Loading from "app/loading";
 
 const CommentsListMultiQuery = gql(`
   query multiCommentTagDiscussionButtonQuery($selector: CommentSelector, $limit: Int, $enableTotal: Boolean) {
