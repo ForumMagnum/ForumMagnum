@@ -1,8 +1,8 @@
-import { updateCustomIndexes } from "./meta/utils";import { queueBackgroundTask } from "./meta/backgroundTaskQueue";
-;
+import { queueMigrationTask } from "./meta/migrationTaskQueue";
+import { updateCustomIndexes } from "./meta/utils";
 
 export const up = async ({dbOutsideTransaction}: MigrationContext) => {
-  queueBackgroundTask(() => updateCustomIndexes(dbOutsideTransaction));
+  queueMigrationTask(() => updateCustomIndexes(dbOutsideTransaction));
 }
 
 export const down = async ({db}: MigrationContext) => {

@@ -46,12 +46,12 @@
 export const acceptsSchemaHash = "4478fe67319e5ebbe8327768fc26f5f4";
 
 import { updateCustomIndexes } from "./meta/utils";
-import { queueBackgroundTask } from "./meta/backgroundTaskQueue";
+import { queueMigrationTask } from "./meta/migrationTaskQueue";
 
 export const up = async ({dbOutsideTransaction}: MigrationContext) => {
   // `void` instead of `await` when using `dbOutsideTransaction` to avoid a
   // nasty deadlock
-  queueBackgroundTask(() => updateCustomIndexes(dbOutsideTransaction));
+  queueMigrationTask(() => updateCustomIndexes(dbOutsideTransaction));
 }
 
 export const down = async ({db}: MigrationContext) => {
