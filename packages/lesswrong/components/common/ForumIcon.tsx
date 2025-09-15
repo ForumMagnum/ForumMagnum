@@ -166,6 +166,7 @@ import { CrossReactionIcon } from "../icons/reactions/CrossReactionIcon";
 import { CrossReactionCapIcon } from "../icons/CrossReactionCapIcon";
 import { GivingHandIcon } from "../icons/GivingHandIcon";
 import { DictionaryIcon } from "../icons/Dictionary";
+import { QuestionMarkIcon } from "../icons/QuestionMarkIcon";
 import { defineStyles, useStyles } from "../hooks/useStyles";
 
 /**
@@ -265,6 +266,7 @@ export type ForumIconName =
   "ClipboardDocument" |
   "QuestionMarkCircle" |
   "QuestionMarkCircleFilled" |
+  "QuestionMark" |
   "Search" |
   "ComputerDesktop" |
   "Menu" |
@@ -398,6 +400,7 @@ const ICONS: ForumOptions<Record<ForumIconName, IconComponent>> = {
     ClipboardDocument: ClipboardDocumentIcon,
     QuestionMarkCircle: QuestionMarkCircleIcon,
     QuestionMarkCircleFilled: QuestionMarkCircleFilledIcon,
+    QuestionMark: QuestionMarkIcon,
     Search: MuiSearchIcon,
     ComputerDesktop: ComputerDesktopIcon,
     Menu: MuiMenuIcon,
@@ -530,6 +533,7 @@ const ICONS: ForumOptions<Record<ForumIconName, IconComponent>> = {
     ClipboardDocument: ClipboardDocumentIcon,
     QuestionMarkCircle: QuestionMarkCircleIcon,
     QuestionMarkCircleFilled: QuestionMarkCircleFilledIcon,
+    QuestionMark: QuestionMarkIcon,
     Search: SearchIcon,
     ComputerDesktop: ComputerDesktopIcon,
     Menu: MenuIcon,

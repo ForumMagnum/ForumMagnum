@@ -12,7 +12,9 @@ import { userIsAdminOrMod } from '@/lib/vulcan-users/permissions';
 import UltraFeedHeader from './UltraFeedHeader';
 import SingleColumnSection from "../common/SingleColumnSection";
 import SettingsButton from "../icons/SettingsButton";
+import InfoButton from "../icons/InfoButton";
 import UltraFeedSettings from "./UltraFeedSettings";
+import UltraFeedInfo from "./UltraFeedInfo";
 import UltraFeedFollowingSettings from './UltraFeedFollowingSettings';
 import ForumIcon from '../common/ForumIcon';
 import UltraFeedQuickTakeDialog from './UltraFeedQuickTakeDialog';
@@ -54,6 +56,10 @@ const styles = defineStyles("UltraFeed", (theme: ThemeType) => ({
     display: 'flex',
     alignItems: 'center',
     marginLeft: 'auto',
+  },
+  headerButtons: {
+    display: 'flex',
+    alignItems: 'center',
   },
   ultraFeedNewContentContainer: {
     position: 'relative',
@@ -184,6 +190,7 @@ const UltraFeedContent = ({
   truncationMaps,
   settingsVisible,
   onCloseSettings,
+  infoVisible,
   useExternalContainer,
   activeTab,
 }: {
@@ -194,6 +201,7 @@ const UltraFeedContent = ({
   alwaysShow?: boolean
   settingsVisible?: boolean
   onCloseSettings?: () => void
+  infoVisible?: boolean
   useExternalContainer?: boolean
   activeTab: FeedType
 }) => {
@@ -313,6 +321,12 @@ const UltraFeedContent = ({
                 )}
               </div>
             )}
+
+            {infoVisible && activeTab === 'ultraFeed' && (
+              <div className={useExternalContainer ? classes.settingsContainerExternal : classes.settingsContainer}>
+                <UltraFeedInfo />
+              </div>
+            )}
             
             <div className={classes.ultraFeedNewContentContainer} style={isTransitioning ? { minHeight: FEED_MIN_HEIGHT } : undefined}>
               {isRefreshing && <div className={classes.refetchLoading}>
@@ -386,6 +400,7 @@ const UltraFeed = ({
   const currentUser = useCurrentUser();
   const [cookies, setCookie] = useCookiesWithConsent([ULTRA_FEED_ACTIVE_TAB_COOKIE]);
   const [internalSettingsVisible, setInternalSettingsVisible] = useState(false);
+  const [internalInfoVisible, setInternalInfoVisible] = useState(false);
   const [activeTab, setActiveTab] = useState<FeedType>(() => (cookies[ULTRA_FEED_ACTIVE_TAB_COOKIE] === 'following' ? 'following' : 'ultraFeed'));
   const { captureEvent } = useTracking();
   const { settings, updateSettings, resetSettings, truncationMaps } = useUltraFeedSettings();
@@ -393,6 +408,11 @@ const UltraFeed = ({
   const handleTabChange = (tab: FeedType) => {
     setActiveTab(tab);
     setCookie(ULTRA_FEED_ACTIVE_TAB_COOKIE, tab, { path: '/' });
+    // Close info panel when switching to Following tab
+    if (tab === 'following' && internalInfoVisible) {
+      setInternalInfoVisible(false);
+    }
+    captureEvent("ultraFeedTabChanged", { tab });
   };
 
   if (!currentUser) {
@@ -419,6 +439,19 @@ const UltraFeed = ({
       onSettingsToggle?.();
     } else {
       setInternalSettingsVisible(!internalSettingsVisible);
+      if (!internalSettingsVisible && internalInfoVisible) {
+        setInternalInfoVisible(false);
+      }
+    }
+  };
+
+  const toggleInfo = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    captureEvent("ultraFeedInfoToggled", { open: !internalInfoVisible });
+    setInternalInfoVisible(!internalInfoVisible);
+    // Close settings when opening info
+    if (!internalInfoVisible && internalSettingsVisible) {
+      setInternalSettingsVisible(false);
     }
   };
 
@@ -430,7 +463,12 @@ const UltraFeed = ({
           hideTitle={hideTitle}
           activeTab={activeTab}
           onTabChange={handleTabChange}
-          settingsButton={!isControlled ? <SettingsButton showIcon={true} onClick={toggleSettings} /> : undefined}
+          settingsButton={!isControlled ? (
+            <div className={classes.headerButtons}>
+              {activeTab === 'ultraFeed' && <InfoButton onClick={toggleInfo} isActive={internalInfoVisible} tooltip="What is the For You feed?" />}
+              <SettingsButton showIcon={true} onClick={toggleSettings} />
+            </div>
+          ) : undefined}
           feedSettings={settings}
           updateFeedSettings={updateSettings}
         />
@@ -443,6 +481,7 @@ const UltraFeed = ({
             alwaysShow={alwaysShow}
             settingsVisible={actualSettingsVisible}
             onCloseSettings={isControlled ? onSettingsToggle : () => setInternalSettingsVisible(false)}
+            infoVisible={internalInfoVisible}
             useExternalContainer={isControlled}
             activeTab={activeTab}
           />

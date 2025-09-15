@@ -4,6 +4,7 @@ import { BaseVoteArrowIconProps } from './VoteArrowIcon';
 import ForumIcon from "../common/ForumIcon";
 import { defineStyles, useStyles } from '../hooks/useStyles';
 import { getVoteButtonColor, voteButtonSharedStyles } from './VoteButton';
+import { strongVoteDelay } from './constants';
 
 const styles = defineStyles("VoteAgreementIcon", (theme: ThemeType) => ({
   root: {
@@ -77,58 +78,27 @@ const styles = defineStyles("VoteAgreementIcon", (theme: ThemeType) => ({
   disabled: {
     cursor: 'not-allowed',
   },
-  entering: {
-    transition: `opacity ${theme.voting.strongVoteDelay}ms cubic-bezier(0.74, -0.01, 1, 1) 0ms`,
-  }
 }))
 
 const VoteAgreementIcon = ({
   orientation,
   enabled = true,
   color,
-  voted,
-  eventHandlers,
-  bigVotingTransition,
-  bigVoted,
-  bigVoteCompleted,
+  animation,
   alwaysColored,
 }: BaseVoteArrowIconProps) => {
   const classes = useStyles(styles);
+  const { state, eventHandlers } = animation;
   const sharedClasses = useStyles(voteButtonSharedStyles);
   const upOrDown = orientation === "left" ? "Downvote" : "Upvote"
   
   const primaryIcon =  (upOrDown === "Downvote") ? "CrossReaction" : "TickReaction"
   const bigVoteAccentIcon = (upOrDown === "Downvote") ? "CrossReactionCap" : "TickReaction"
 
-  const handlers = enabled ? eventHandlers : {};
+  const bigVoteVisible = (state.mode==="idle" && state.vote==="big") || (state.mode !== "idle");
 
-  const bigVoteVisible = bigVotingTransition || bigVoteCompleted || bigVoted
-
-  const strongVoteLargeIconClasses = (upOrDown === "Downvote")
-    ? classNames(
-      bigVotingTransition && classes.entering,
-      classes.bigClear,
-      bigVoteVisible && classes.bigClearCompleted,
-    )
-    : classNames(
-      bigVotingTransition && classes.entering,
-      classes.bigCheck,
-      bigVoteVisible && classes.bigCheckCompleted,
-    )
-
-  const strongVoteAccentIconClasses = (upOrDown === "Downvote")
-    ? classNames(
-      bigVotingTransition && classes.entering,
-      classes.smallArrowBigVoted,
-      bigVoteVisible && classes.smallArrowBigVoted,
-      {[classes.hideIcon]: !bigVoted}
-    )
-    : classNames(
-      bigVotingTransition && classes.entering,
-      classes.smallCheckBigVoted,
-      bigVoteVisible && classes.smallCheckBigVoted,
-      {[classes.hideIcon]: !bigVoted}
-    )
+  const voted = state.mode !== "idle" || state.vote !== "neutral";
+  const bigVoted = state.mode !== "idle" || state.vote === "big";
 
   return (
     <button
@@ -138,10 +108,7 @@ const VoteAgreementIcon = ({
         !enabled && classes.disabled,
       )}
       type="button"
-      onMouseDown={handlers.handleMouseDown}
-      onMouseUp={handlers.handleMouseUp}
-      onMouseOut={handlers.clearState}
-      onClick={handlers.handleClick}
+      {...(enabled ? eventHandlers : {})}
     >
     <span className={sharedClasses.inner}>
       <div className={classes.iconsContainer}>
@@ -155,20 +122,27 @@ const VoteAgreementIcon = ({
         />
 
         {/* Strong vote icons */}
-        <ForumIcon
-          icon={primaryIcon}
-          className={classNames(
-            strongVoteLargeIconClasses,
-            (bigVoteCompleted || bigVoted) && getVoteButtonColor(sharedClasses, color, "light"),
-          )}
-        />
-        <ForumIcon
-          icon={bigVoteAccentIcon}
-          className={classNames(
-            strongVoteAccentIconClasses,
-            (bigVoteCompleted || bigVoted) && getVoteButtonColor(sharedClasses, color, "light"),
-          )}
-        />
+        {((state.mode==="idle" && state.vote==="big") || (state.mode !== "idle")) && <>
+          <ForumIcon
+            icon={primaryIcon}
+            className={classNames(
+              state.mode === "animating" && sharedClasses.entering,
+              (upOrDown === "Downvote") ? classes.bigClear : classes.bigCheck,
+              bigVoteVisible && ((upOrDown === "Downvote") ? classes.bigClearCompleted : classes.bigCheckCompleted),
+              getVoteButtonColor(sharedClasses, color, "light"),
+            )}
+          />
+          <ForumIcon
+            icon={bigVoteAccentIcon}
+            className={classNames(
+              state.mode === "animating" && sharedClasses.entering,
+              (upOrDown === "Downvote") ? classes.smallArrowBigVoted : classes.smallCheckBigVoted,
+              bigVoteVisible && (upOrDown === "Downvote") ? classes.smallArrowBigVoted : classes.smallCheckBigVoted,
+              !bigVoted && classes.hideIcon,
+              getVoteButtonColor(sharedClasses, color, "light"),
+            )}
+          />
+        </>}
       </div>
     </span>
     </button>
