@@ -48,12 +48,23 @@ export async function waitForBackgroundTasks() {
 }
 
 /**
- * Wait for all background tasks to complete, but do so sequentially, one at a time.
  * This is needed for migrations to prevent deadlocks when trying to run e.g. concurrent index creation queries
  */
-export async function waitForBackgroundTasksSequentially() {
-  while (pendingBackgroundTasks.length > 0) {
-    const task = pendingBackgroundTasks.shift();
-    await task;
+let queuedBackgroundTaskFns: Array<() => Promise<any>> = [];
+
+export const queueBackgroundTask = <T>(fn: () => Promise<T>) => {
+  queuedBackgroundTaskFns.push(fn);
+}
+
+export async function runQueuedBackgroundTasksSequentially() {
+  while (queuedBackgroundTaskFns.length > 0) {
+    const fn = queuedBackgroundTaskFns.shift();
+    try {
+      await fn!();
+    } catch (err) {
+      // eslint-disable-next-line no-console
+      console.error('Uncaught error in queued background task', err);
+      captureException(err);
+    }
   }
 }
