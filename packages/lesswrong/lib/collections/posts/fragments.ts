@@ -15,12 +15,7 @@ export const PostsMinimumInfo = gql(`
       quadraticScore
     }
     userId
-    coauthorStatuses {
-      userId
-      confirmed
-      requested
-    }
-    hasCoauthorPermission
+    coauthorUserIds
     rejected
     debate
     collabEditorDialogue
@@ -582,11 +577,7 @@ export const PostsEdit = gql(`
     ...PostSideComments
     myEditorAccess
     version
-    coauthorStatuses {
-      userId
-      confirmed
-      requested
-    }
+    coauthorUserIds
     readTimeMinutesOverride
     fmCrosspost {
       isCrosspost

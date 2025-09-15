@@ -40,7 +40,7 @@ export async function importUrlAsDraftPost(url: string, context: ResolverContext
 
   if (existingPost) {
     const latestRevision = await getLatestContentsRevision(existingPost, context);
-    const { _id, slug, title, url, postedAt, createdAt, userId, coauthorStatuses, draft, modifiedAt } = existingPost;
+    const { _id, slug, title, url, postedAt, createdAt, userId, coauthorUserIds, draft, modifiedAt } = existingPost;
 
     return { 
       alreadyExists: true,
@@ -52,7 +52,7 @@ export async function importUrlAsDraftPost(url: string, context: ResolverContext
         postedAt,
         createdAt,
         userId,
-        coauthorStatuses,
+        coauthorUserIds,
         draft,
         modifiedAt,
         content: sanitize(latestRevision?.html ?? '')
@@ -90,7 +90,7 @@ export async function importUrlAsDraftPost(url: string, context: ResolverContext
       url: url,
       contents: {originalContents: {data: sanitize(extractedData.content ?? ''), type: 'ckEditorMarkup'}},
       postedAt: extractedData.published ? new Date(extractedData.published) : undefined,
-      coauthorStatuses: [{userId: context.currentUser._id, confirmed: true, requested: true}],
+      coauthorUserIds: [context.currentUser._id],
       hasCoauthorPermission: true,
       draft: true,
     }
@@ -115,17 +115,12 @@ export async function importUrlAsDraftPost(url: string, context: ResolverContext
       modifiedAt: post.modifiedAt ?? null,
       draft: post.draft ?? false,
       content: latestRevision?.html ?? '',
-      coauthorStatuses: post.coauthorStatuses ?? null,
+      coauthorUserIds: post.coauthorUserIds ?? null,
     }
   }
 }
 
 export const importUrlAsDraftPostTypeDefs = gql`
-  type CoauthorStatus {
-    userId: String
-    confirmed: Boolean
-    requested: Boolean
-  }
   type ExternalPost {
     _id: String!
     slug: String
@@ -137,7 +132,7 @@ export const importUrlAsDraftPostTypeDefs = gql`
     modifiedAt: Date
     draft: Boolean
     content: String
-    coauthorStatuses: [CoauthorStatus!]
+    coauthorUserIds: [String!]
   }
   type ExternalPostImportData {
     alreadyExists: Boolean

@@ -47,11 +47,7 @@ export type ExternalPostImportData = {
     modifiedAt: string | null;
     draft: boolean | null;
     content: string | null;
-    coauthorStatuses: Array<{
-      userId: string | null;
-      confirmed: boolean | null;
-      requested: boolean | null;
-    }> | null;
+    coauthorUserIds: string[] | null;
   };
 };
 
@@ -268,11 +264,7 @@ const ExternalPostImporter = ({ classes, defaultPostedAt }: { classes: ClassesTy
           modifiedAt
           userId
           draft
-          coauthorStatuses {
-            userId
-            confirmed
-            requested
-          }
+          coauthorUserIds
         }
       }
     }

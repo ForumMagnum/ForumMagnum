@@ -1,6 +1,6 @@
 import React, { useEffect, useState, useMemo, useCallback } from 'react';
 import { registerComponent } from '../../../lib/vulcan-lib/components';
-import { getResponseCounts, isDialogueParticipant, postCoauthorIsPending } from '../../../lib/collections/posts/helpers';
+import { getResponseCounts, isDialogueParticipant } from '../../../lib/collections/posts/helpers';
 import { commentGetDefaultView, commentIncludedInCounts } from '../../../lib/collections/comments/helpers'
 import { useCurrentUser } from '../../common/withUser';
 import withErrorBoundary from '../../common/withErrorBoundary'
@@ -42,7 +42,6 @@ import CitationTags from "../../common/CitationTags";
 import PostsPagePostHeader from "./PostsPagePostHeader";
 import PostsPagePostFooter from "./PostsPagePostFooter";
 import PostBodyPrefix from "./PostBodyPrefix";
-import PostCoauthorRequest from "./PostCoauthorRequest";
 import CommentPermalink from "../../comments/CommentPermalink";
 import ToCColumn from "../TableOfContents/ToCColumn";
 import WelcomeBox from "./WelcomeBox";
@@ -610,9 +609,7 @@ const PostsPage = ({fullPost, postPreload, refetch}: {
       <CitationTags
         title={post.title}
         author={post.user?.displayName}
-        coauthors={post.coauthors
-          ?.filter(({ _id }) => !postCoauthorIsPending(post, _id))
-          .map(({displayName}) => displayName)}
+        coauthors={post.coauthors?.map(({displayName}) => displayName)}
         date={post.postedAt ?? undefined}
       />
     </>}
@@ -628,7 +625,6 @@ const PostsPage = ({fullPost, postPreload, refetch}: {
               className={classes.headerImage}
             />
           </div>}
-          <PostCoauthorRequest post={post} currentUser={currentUser} />
           {isBookUI() && <LWPostsPageHeader
             post={post}
             showEmbeddedPlayer={showEmbeddedPlayer}

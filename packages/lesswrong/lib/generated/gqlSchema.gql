@@ -1195,12 +1195,6 @@ extend type Query {
   GetAllReviewWinners: [Post!]!
 }
 
-type CoauthorStatus {
-  userId: String
-  confirmed: Boolean
-  requested: Boolean
-}
-
 type ExternalPost {
   _id: String!
   slug: String
@@ -1212,7 +1206,7 @@ type ExternalPost {
   modifiedAt: Date
   draft: Boolean
   content: String
-  coauthorStatuses: [CoauthorStatus!]
+  coauthorUserIds: [String!]
 }
 
 type ExternalPostImportData {
@@ -1263,14 +1257,6 @@ extend type Mutation {
 
 extend type Query {
   currentSpotlight: Spotlight
-}
-
-extend type Mutation {
-  upsertUserTypingIndicator(documentId: String!): TypingIndicator
-}
-
-extend type Mutation {
-  acceptCoauthorRequest(postId: String, userId: String, accept: Boolean): Post
 }
 
 input ToggleBookmarkInput {
@@ -4477,6 +4463,7 @@ type Post {
   autoFrontpage: String
   collectionTitle: String
   coauthorStatuses: [CoauthorStatusOutput!]
+  coauthorUserIds: [String!]!
   coauthors: [User!]
   hasCoauthorPermission: Boolean!
   socialPreviewImageId: String
@@ -9248,6 +9235,7 @@ input CreatePostDataInput {
   autoFrontpage: String
   collectionTitle: String
   coauthorStatuses: [CoauthorStatusInput!]
+  coauthorUserIds: [String!]
   hasCoauthorPermission: Boolean
   socialPreviewImageId: String
   socialPreviewImageAutoUrl: String
@@ -9363,6 +9351,7 @@ input UpdatePostDataInput {
   autoFrontpage: String
   collectionTitle: String
   coauthorStatuses: [CoauthorStatusInput!]
+  coauthorUserIds: [String!]
   hasCoauthorPermission: Boolean
   socialPreviewImageId: String
   socialPreviewImageAutoUrl: String
