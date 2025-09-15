@@ -1691,6 +1691,7 @@ CREATE TABLE "Posts" (
   "autoFrontpage" TEXT,
   "collectionTitle" TEXT,
   "coauthorStatuses" JSONB[],
+  "coauthorUserIds" TEXT[] NOT NULL DEFAULT '{}',
   "hasCoauthorPermission" BOOL NOT NULL DEFAULT TRUE,
   "socialPreviewImageId" TEXT,
   "socialPreviewImageAutoUrl" TEXT,
@@ -2409,6 +2410,9 @@ CREATE INDEX IF NOT EXISTS "idx_posts_alignmentSuggestedPosts" ON "Posts" USING 
 )
 WHERE
   ("suggestForAlignmentUserIds" [0]) IS NOT NULL;
+
+-- Index "idx_Posts_coauthorUserIds"
+CREATE INDEX IF NOT EXISTS "idx_Posts_coauthorUserIds" ON "Posts" USING gin ("coauthorUserIds");
 
 -- Index "idx_Posts_schemaVersion"
 CREATE INDEX IF NOT EXISTS "idx_Posts_schemaVersion" ON "Posts" USING btree ("schemaVersion");

@@ -46,11 +46,17 @@ jobs:
       NODE_OPTIONS: "--max_old_space_size=4096"
       SLOW_QUERY_REPORT_CUTOFF_MS: "-1"
       PG_URL: postgres://postgres:password@localhost:5433/postgres
+      VERCEL_ORG_ID: ${{ secrets.VERCEL_ORG_ID }}
+      VERCEL_PROJECT_ID: ${{ secrets.VERCEL_PROJECT_ID }}
     steps:
     - name: Checkout code
       uses: actions/checkout@v4
     - name: Setup Environment
       uses: ./.github/actions/setupEnvironment
+    - name: Pull Vercel Environment Information
+      run: |
+        npm install --global vercel@latest
+        vercel env pull --yes --environment=development --token=${{ secrets.VERCEL_ACCESS_TOKEN }}
     - name: Setup database
       run: psql postgres://postgres:password@localhost:5433/postgres -f schema/accepted_schema.sql
     - name: Create database connection string file
@@ -273,11 +279,17 @@ jobs:
       PG_URL: postgres://postgres:postgres@localhost:5432/bootstrap_db
       SETTINGS_FILE: ./settings-test.json
       NODE_OPTIONS: "--max_old_space_size=4096"
+      VERCEL_ORG_ID: ${{ secrets.VERCEL_ORG_ID }}
+      VERCEL_PROJECT_ID: ${{ secrets.VERCEL_PROJECT_ID }}
     steps:
     - name: Checkout code
       uses: actions/checkout@v4
     - name: Setup Environment
       uses: ./.github/actions/setupEnvironment
+    - name: Pull Vercel Environment Information
+      run: |
+        npm install --global vercel@latest
+        vercel env pull --yes --environment=development --token=${{ secrets.VERCEL_ACCESS_TOKEN }}
     - name: Execute Accepted Schema
       run: psql $PG_URL -f ./schema/accepted_schema.sql
     - name: Run Database Bootstrap

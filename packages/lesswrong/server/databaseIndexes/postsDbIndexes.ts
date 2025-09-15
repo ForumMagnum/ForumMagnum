@@ -282,6 +282,7 @@ export function getDbIndexesOnPosts() {
     }
   );
 
+  indexSet.addIndex("Posts", { coauthorUserIds: 1 });
 
   return indexSet;
 }

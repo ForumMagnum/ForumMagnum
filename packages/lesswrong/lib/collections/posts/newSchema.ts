@@ -2261,16 +2261,30 @@ const schema = {
       canCreate: ["sunshineRegiment", "admins", userOverNKarmaOrApproved(MINIMUM_COAUTHOR_KARMA)],
     },
   },
+  coauthorUserIds: {
+    database: {
+      type: "TEXT[]",
+      defaultValue: [],
+      canAutofillDefault: true,
+      nullable: false,
+    },
+    graphql: {
+      outputType: "[String!]!",
+      inputType: "[String!]",
+      canRead: ['guests'],
+      canUpdate: ["sunshineRegiment", "admins", userOverNKarmaOrApproved(MINIMUM_COAUTHOR_KARMA)],
+      canCreate: ["sunshineRegiment", "admins", userOverNKarmaOrApproved(MINIMUM_COAUTHOR_KARMA)],
+      validation: {
+        optional: true,
+      },
+    },
+  },
   coauthors: {
     graphql: {
       outputType: "[User!]",
       canRead: [documentIsNotDeleted],
       resolver: async (post, args, context) => {
-        const resolvedDocs = await loadByIds(
-          context,
-          "Users",
-          post.coauthorStatuses?.map(({ userId }) => userId) || []
-        );
+        const resolvedDocs = await loadByIds(context, "Users", post.coauthorUserIds);
         return await accessFilterMultiple(context.currentUser, "Users", resolvedDocs, context);
       },
     },
@@ -3582,10 +3596,8 @@ const schema = {
 
         const alwaysShownIds = new Set<string>([]);
         alwaysShownIds.add(post.userId);
-        if (post.coauthorStatuses) {
-          for (let { userId } of post.coauthorStatuses) {
-            alwaysShownIds.add(userId);
-          }
+        for (const userId of post.coauthorUserIds) {
+          alwaysShownIds.add(userId);
         }
 
         const commentsById = keyBy(comments, (comment) => comment._id);

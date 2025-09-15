@@ -10,12 +10,7 @@ export const PostsMinimumInfo = gql(`
     hideCommentKarma
     af
     userId
-    coauthorStatuses {
-      userId
-      confirmed
-      requested
-    }
-    hasCoauthorPermission
+    coauthorUserIds
     rejected
     collabEditorDialogue
   }
@@ -590,11 +585,7 @@ export const PostsEdit = gql(`
     ...PostSideComments
     myEditorAccess
     version
-    coauthorStatuses {
-      userId
-      confirmed
-      requested
-    }
+    coauthorUserIds
     readTimeMinutesOverride
     fmCrosspost {
       isCrosspost
