@@ -16,48 +16,53 @@ import { backdatePreviousDigest } from '@/server/callbacks/digestCallbacks';
 import { SuspenseWrapper } from '@/components/common/SuspenseWrapper';
 import { gql } from '@/lib/generated/gql-codegen';
 import { LocalEvent } from '../HomepageMap/acxEvents';
+import { JssStyles } from '@/lib/jssStyles';
 
 const hideBreakpoint = 1425
 const smallBreakpoint = 1525
 
-const carouselSections = [
-  {
-    title: "Meetup Month",
-    buttonText: "All",
-    subtitle: <div><div>Find events near you, or annouce your own.</div><ul><li>Attend an <a 
-    href="">ACX Everywhere</a> meetup.</li><li>Host a reading group for <a href="https://www.
-    ifanyonebuildsit.com/book-clubs">If Anyone Builds It</a>.</li><li>Hold a ceremony celebrating <a href="https://www.lesswrong.com/meetups/petrov-day">Petrov Day.</a></li></ul></div>,
-  },
-  // {
-  //   title: "Meetup Month",
-  //   buttonText: "All",
-  //   subtitle: <div><div>Find events near you, or annouce your own. Attend an <a href="">ACX 
-  // Everywhere</a> meetup. Host a reading group for <a href="https://www.ifanyonebuildsit.com/
-  // book-clubs">If Anyone Builds It</a>. Hold a ceremony celebrating <a href="https://www.lesswrong.
-  // com/meetups/petrov-day">Petrov Day.</a></div></div>,
-  // },
-  {
-    minorTitle: "ACX Everywhere",
-    subtitle: <div>Many cities have regular Astral Codex Ten meetup groups. Twice a year, we  advertise their upcoming meetup so that irregular attendees can attend and new readers can learn about them.</div>,
-    linkText: "ACX Meetup",
-    buttonText: "ACX"
-  },
-  {
-    minorTitle: "If Anyone Builds It",
-    subtitle: <div><a href="https://www.ifanyonebuildsit.com/
-    book-clubs">If Anyone Builds It, Everyone Dies</a> is launching September 16th. You can <a href="https://www.ifanyonebuildsit.com/book-clubs">sign up here</a> to get help facilitating a reading group.</div>,
-    link: "https://www.ifanyonebuildsit.com/book-clubs",
-    linkText: "If Anyone Builds It",
-    buttonText: "If Anyone Builds It"
-  },
-  {
-    title: "Petrov Day",
-    subtitle: <div>September 26th is the day Stanislav Petrov didn't destroy the world. Host a ceremony observing the day's significance.</div>,
-    link: "https://www.lesswrong.com/meetups/petrov-day",
-    linkText: "Petrov Day",
-    buttonText: "Petrov Day"
-  }
+function getCarouselSections(classes: JssStyles) {
+  return [
+    {
+      title: "Meetup Month",
+      buttonText: "All",
+      subtitle: <div><div>Find events near you, or annouce your own.</div><ul><li>Attend an <a 
+      href="">ACX Everywhere</a> meetup.</li><li>Host a reading group for <a href="https://www.
+      ifanyonebuildsit.com/book-clubs">If Anyone Builds It</a>.</li><li>Hold a ceremony celebrating <a href="https://www.lesswrong.com/meetups/petrov-day">Petrov Day.</a></li></ul></div>,
+    },
+    {
+      minorTitle: "ACX Everywhere",
+      subtitle: <div>Many cities have regular Astral Codex Ten meetup groups. Twice a year, we  advertise their upcoming meetup so that irregular attendees can attend and new readers can learn about them.</div>,
+      linkText: "ACX Meetup",
+      buttonText: "ACX"
+    },
+    {
+      minorTitle: "If Anyone Builds It",
+      subtitle: <div>
+        <div><a href="https://www.ifanyonebuildsit.com/
+      book-clubs">If Anyone Builds It, Everyone Dies</a> is launching September 16th. You can <a href="https://www.ifanyonebuildsit.com/book-clubs">sign up here</a> to get help facilitating a reading group.</div>
+      <a href="/newPost?eventForm=true" className={classes.createEventButton}>
+        <span className={classes.createEventButtonIcon}>+</span>
+        CREATE READING GROUP</a>
+      </div>,
+      link: "https://www.ifanyonebuildsit.com/book-clubs",
+      linkText: "If Anyone Builds It",
+      buttonText: "If Anyone Builds It"
+    },
+    {
+      title: "Petrov Day",
+      subtitle: <div>
+        <div>September 26th is the day Stanislav Petrov didn't destroy the world. Host a ceremony observing the day's significance</div>
+        <a href="/newPost?eventForm=true" className={classes.createEventButton}>
+          <span className={classes.createEventButtonIcon}>+</span>
+          CREATE PETROV EVENT</a>
+      </div>,
+      link: "https://www.lesswrong.com/meetups/petrov-day",
+      linkText: "Petrov Day",
+      buttonText: "Petrov Day"
+    }
 ]
+}
 
 const styles = defineStyles("MeetupMonthBanner", (theme: ThemeType) => ({
   root: {
@@ -299,6 +304,22 @@ const styles = defineStyles("MeetupMonthBanner", (theme: ThemeType) => ({
     flexDirection: 'column',
     justifyContent: 'space-between',
     alignItems: 'center',
+  },
+  createEventButton: {
+    ...theme.typography.commentStyle,
+    color: theme.palette.primary.dark,
+    paddingTop: 10,
+    fontSize: 15,
+    display: 'inline-block',
+    cursor: 'pointer',
+    border: 'none',
+  },
+  createEventButtonIcon: {
+    // display: 'none',
+    fontSize: 16,
+    fontWeight: 900,
+    marginRight: 8,
+    marginLeft: 8,
   }
 }));
 
@@ -333,6 +354,7 @@ export default function MeetupMonthBannerInner() {
   const [isLoading, setIsLoading] = useState(true);
   const [scrollOpacity, setScrollOpacity] = useState(1);
   const [mapActive, setMapActive] = useState(false);
+  const carouselSections = useMemo(() => getCarouselSections(classes), [classes]);
   
   const defaultViewport = useMemo(() => ({
     latitude: 20, // Centered roughly over the Atlantic Ocean
@@ -462,9 +484,9 @@ export default function MeetupMonthBannerInner() {
     const intervalId = setInterval(() => {
       const nextIndex = (currentCarouselIndex + 1) % carouselSections.length
       handleMeetupTypeClick(nextIndex)
-    }, 20000)
+    }, 30 * 1000)
     return () => clearInterval(intervalId)
-  }, [currentCarouselIndex, handleMeetupTypeClick])
+  }, [currentCarouselIndex, handleMeetupTypeClick, carouselSections.length])
 
   if (isLoading) {
     return <div className={classes.root}>
@@ -556,6 +578,7 @@ export default function MeetupMonthBannerInner() {
             );
           })}
         </div>
+
       </div>
 
       <WrappedReactMapGL
