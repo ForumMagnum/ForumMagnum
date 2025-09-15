@@ -12,7 +12,7 @@ import BulkWriter, { BulkWriterResult } from "./BulkWriter";
 import util from "util";
 import { DatabaseIndexSet } from "../../lib/utils/databaseIndexSet";
 import TableIndex from "./TableIndex";
-import { queueBackgroundTask } from "../utils/backgroundTask";
+import { queueBackgroundTask } from "../migrations/meta/utils";
 
 let executingQueries = 0;
 

@@ -46,25 +46,3 @@ export async function waitForBackgroundTasks() {
     await Promise.all(taskGroup);
   }
 }
-
-/**
- * This is needed for migrations to prevent deadlocks when trying to run e.g. concurrent index creation queries
- */
-let queuedBackgroundTaskFns: Array<() => Promise<any>> = [];
-
-export const queueBackgroundTask = <T>(fn: () => Promise<T>) => {
-  queuedBackgroundTaskFns.push(fn);
-}
-
-export async function runQueuedBackgroundTasksSequentially() {
-  while (queuedBackgroundTaskFns.length > 0) {
-    const fn = queuedBackgroundTaskFns.shift();
-    try {
-      await fn!();
-    } catch (err) {
-      // eslint-disable-next-line no-console
-      console.error('Uncaught error in queued background task', err);
-      captureException(err);
-    }
-  }
-}
