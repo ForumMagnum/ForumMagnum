@@ -15,7 +15,7 @@ import { PostsRevisionMultiQuery } from './queries';
 import { useEmailQuery } from '../vulcan-lib/query';
 import { EmailContentStyles } from './EmailContentStyles';
 
-const getPodcastInfoElement = (podcastEpisode: Exclude<PostsDetails['podcastEpisode'], null>) => {
+const getPodcastInfoElement = (podcastEpisode: Exclude<PostPodcastEpisode['podcastEpisode'], null>) => {
   const { podcast: { applePodcastLink, spotifyPodcastLink }, episodeLink, externalEpisodeId } = podcastEpisode;
   const episodeUrl = new URL(episodeLink);
 
@@ -142,7 +142,7 @@ export async function PostsEmail({
   }
 
   // Reusable piece to render each post. We take a "truncated" boolean flag:
-  const renderPost = ({ post, truncated }: { post: PostsRevision; truncated: boolean; }) => {
+  const renderPost = ({ post, truncated }: { post: PostsRevision & { podcastEpisode: PostPodcastEpisode['podcastEpisode'] }; truncated: boolean; }) => {
     let eventLocation: string | React.JSX.Element = post.location ?? "";
     if (post.onlineEvent) {
       eventLocation = post.joinEventLink ? (

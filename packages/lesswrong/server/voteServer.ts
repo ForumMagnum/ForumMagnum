@@ -7,7 +7,6 @@ import { type VotingSystem } from '@/lib/voting/votingSystemTypes';
 import { getVotingSystemForDocument } from '@/lib/voting/getVotingSystem';
 import { createAdminContext, createAnonymousContext } from './vulcan-lib/createContexts';
 import { randomId } from '../lib/random';
-import { getConfirmedCoauthorIds } from '../lib/collections/posts/helpers';
 import { ModeratorActions } from '../server/collections/moderatorActions/collection';
 import { RECEIVED_VOTING_PATTERN_WARNING, POTENTIAL_TARGETED_DOWNVOTING } from "@/lib/collections/moderatorActions/constants";
 import { loadByIds } from '../lib/loaders';
@@ -102,7 +101,7 @@ export const createVote = ({ document, collectionName, voteType, extendedVote, u
 }): Partial<DbVote> => {
   let authorIds = document.userId ? [document.userId] : []
   if (collectionName === "Posts")
-    authorIds = authorIds.concat(getConfirmedCoauthorIds(document as DbPost))
+    authorIds = authorIds.concat((document as DbPost).coauthorUserIds)
 
   return {
     // when creating a vote from the server, voteId can sometimes be undefined
@@ -266,8 +265,8 @@ export const performVoteServer = async ({ documentId, document, voteType, extend
 
   if (!selfVote && collectionName === "Comments" && (document as DbComment).debateResponse) {
     const post = await Posts.findOne({_id: (document as DbComment).postId});
-    const acceptedCoauthorIds = post ? [...getConfirmedCoauthorIds(post), post.userId] : [];
-    if (!acceptedCoauthorIds.includes(user._id)) {
+    const coauthorIds = post ? [...post.coauthorUserIds, post.userId] : [];
+    if (!coauthorIds.includes(user._id)) {
       throw new Error("Cannot vote on debate responses unless you're an accepted coauthor");
     }
   }

@@ -155,6 +155,9 @@ export const routeTrie = {
         "notificationCount": {
           "hasRoute": true
         },
+        "notificationEvents": {
+          "hasRoute": true
+        },
         "quit": {
           "hasRoute": true
         },
@@ -224,6 +227,7 @@ export const routeTrie = {
         "dropandcreatepg": "dropAndCreatePg",
         "health": "health",
         "notificationcount": "notificationCount",
+        "notificationevents": "notificationEvents",
         "quit": "quit",
         "registerclientid": "registerClientId",
         "search": "search",

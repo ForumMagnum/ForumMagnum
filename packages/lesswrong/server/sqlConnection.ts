@@ -199,10 +199,14 @@ const logIfSlow = async <T>(
     // eslint-disable-next-line no-console
     console.log(`Finished query #${queryID}, ${getParentTraceId().parent_trace_id} (${milliseconds} ms) (${JSON.stringify(result).length}b)`);
   } else if (SLOW_QUERY_REPORT_CUTOFF_MS >= 0 && milliseconds > SLOW_QUERY_REPORT_CUTOFF_MS && !quiet && !isAnyTest) {
-    const description = isDevelopment ? getDescription(50) : getDescription(5000);
+    const description = isDevelopment ? getDescription(50) : getDescription(2000);
     const message = `Slow Postgres query detected (${milliseconds} ms): ${description}`;
-        // eslint-disable-next-line no-console
-    isDevelopment ? console.error(message) : console.trace(message);
+    // eslint-disable-next-line no-console
+    console.warn(message);
+
+    // If we get source-mapping working with console.trace then we can consider re-enabling this,
+    // but otherwise there's no point and it makes the error logs much noisier.
+    // isDevelopment ? console.error(message) : console.trace(message);
   }
 
   return result;
@@ -243,7 +247,8 @@ function getWrappedClient(
   const db = getPgPromiseLib()({
     connectionString: url,
     max: MAX_CONNECTIONS,
-    idleTimeoutMillis: 10_000,
+    // Trying a relatively shorter idle timeout to see if it reduces the connection starvation we see during deploys on Vercel
+    idleTimeoutMillis: 5_000,
   });
 
   const client: SqlClient = {

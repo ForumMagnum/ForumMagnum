@@ -16,7 +16,6 @@ import { JsonType, Type } from "@/server/sql/Type";
 import LogTableQuery from "@/server/sql/LogTableQuery";
 import type { PostgresView } from "../../postgresView";
 import { sleep } from "../../../lib/utils/asyncUtils";
-import { getInitialVersion } from "@/server/editor/make_editable_callbacks";
 import { getAdminTeamAccount } from "@/server/utils/adminTeamAccount";
 import { undraftPublicPostRevisions } from "@/server/manualMigrations/2024-08-14-undraftPublicRevisions";
 import chunk from "lodash/chunk";
@@ -220,6 +219,14 @@ export const updateView = async (db: SqlClientOrTx, view: PostgresView) => {
   }
 }
 
+function getInitialVersion(document: CreateInputsByCollectionName[CollectionNameString]['data'] | ObjectsByCollectionName[CollectionNameString]) {
+  if ((document as CreatePostDataInput).draft) {
+    return '0.1.0'
+  } else {
+    return '1.0.0'
+  }
+}
+
 // Exported to allow running manually with "yarn repl"
 export const normalizeEditableField = async ({ db: maybeDb, collectionName, fieldName, dropField }: {
   db?: SqlClientOrTx,
@@ -394,4 +401,6 @@ export const denormalizeEditableField = async <N extends CollectionNameString>(
       AND r."fieldName" = '${fieldName}'
       AND p."${fieldName}_latest" = r."_id"
   `);
-}
+};
+
+
