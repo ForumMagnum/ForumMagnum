@@ -11,7 +11,7 @@ import type { ITask } from "pg-promise";
 import { startSshTunnel } from "./scripts/startup/buildUtil";
 import { detectForumType, getDatabaseConfigFromModeAndForumType, getSettingsFileName, getSettingsFilePath, initGlobals, isEnvironmentType, normalizeEnvironmentType } from "./scripts/scriptUtil";
 import { loadEnvConfig } from "@next/env";
-import { runQueuedBackgroundTasksSequentially } from "./packages/lesswrong/server/utils/backgroundTask";
+import { runQueuedBackgroundTasksSequentially } from "./packages/lesswrong/server/migrations/meta/backgroundTaskQueue";
 
 (async () => {
   const command = process.argv[2];
