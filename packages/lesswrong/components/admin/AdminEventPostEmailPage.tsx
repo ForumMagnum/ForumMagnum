@@ -32,6 +32,7 @@ const AdminEventPostEmailPage = ({classes}: {
   const {flash} = useMessages();
   const currentUser = useCurrentUser();
   const [postId, setPostId] = useState("");
+  const [subject, setSubject] = useState("");
 
   const {document: post, loading: postLoading} = useSingle({
     collectionName: "Posts",
@@ -41,8 +42,12 @@ const AdminEventPostEmailPage = ({classes}: {
   });
 
   const [sendEmail] = useMutation(gql`
-    mutation sendEventPostEmail($postId: String!, $isTest: Boolean!) {
-      sendEventPostEmail(postId: $postId, isTest: $isTest)
+    mutation sendEventPostEmail(
+      $postId: String!,
+      $subject: String!,
+      $isTest: Boolean!,
+    ) {
+      sendEventPostEmail(postId: $postId, subject: $subject, isTest: $isTest)
     }
   `, {errorPolicy: "all"});
 
@@ -59,6 +64,7 @@ const AdminEventPostEmailPage = ({classes}: {
     await sendEmail({
       variables: {
         postId: post._id,
+        subject: subject || post.title,
         isTest,
       },
     });
@@ -67,7 +73,7 @@ const AdminEventPostEmailPage = ({classes}: {
         ? `Sent test email of "${post.title}"`
         : "Sending emails in background - this will take some time"
     );
-  }, [flash, postLoading, post, sendEmail]);
+  }, [flash, postLoading, post, subject, sendEmail]);
 
   if (!currentUser?.isAdmin) {
     return (
@@ -81,6 +87,11 @@ const AdminEventPostEmailPage = ({classes}: {
         value={postId}
         setValue={setPostId}
         placeholder="Post ID"
+      />
+      <EAOnboardingInput
+        value={subject}
+        setValue={setSubject}
+        placeholder="Email subject (defaults to post title if empty)"
       />
       {postLoading && <Loading />}
       {postId && !postLoading && (

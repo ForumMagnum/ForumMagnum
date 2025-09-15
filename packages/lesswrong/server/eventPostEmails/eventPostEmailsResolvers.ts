@@ -4,26 +4,26 @@ import { sendEventPostEmailById, sendEventPostEmails } from "./eventPostEmails";
 
 export const eventPostEmailsGqlTypeDefs = gql`
   extend type Mutation {
-    sendEventPostEmail(postId: String!, isTest: Boolean!): Boolean!
+    sendEventPostEmail(postId: String!, subject: String!, isTest: Boolean!): Boolean!
   }
 `;
 
 export const eventPostEmailsGqlMutations = {
   async sendEventPostEmail(
     _root: void,
-    {postId, isTest}: {postId: string, isTest: boolean},
+    {postId, subject, isTest}: {postId: string, subject: string, isTest: boolean},
     {currentUser}: ResolverContext,
   ): Promise<boolean> {
     if (!currentUser || !userIsAdmin(currentUser)) {
       throw new Error("This feature is only available to admins");
     }
-    if (typeof postId !== "string" || typeof isTest !== "boolean") {
-      throw new Error("Invalid args");
+    if (!postId || !subject) {
+      throw new Error("Missing args");
     }
     if (isTest) {
-      await sendEventPostEmailById(postId, currentUser._id);
+      await sendEventPostEmailById(postId, currentUser._id, subject);
     } else {
-      void sendEventPostEmails(postId);
+      void sendEventPostEmails(postId, subject);
     }
     return true;
   }

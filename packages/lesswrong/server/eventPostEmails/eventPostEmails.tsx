@@ -5,10 +5,10 @@ import { PostsEmail } from "../emailComponents/PostsEmail";
 import { wrapAndSendEmail } from "../emails/renderEmail";
 import { forEachDocumentBatchInCollection } from "../manualMigrations/migrationUtils";
 
-const sendEventPostEmail = async (post: DbPost, user: DbUser) => {
+const sendEventPostEmail = async (post: DbPost, user: DbUser, subject: string) => {
   await wrapAndSendEmail({
     user,
-    subject: post.title,
+    subject,
     body: (
       <PostsEmail
         postIds={[post._id]}
@@ -17,10 +17,19 @@ const sendEventPostEmail = async (post: DbPost, user: DbUser) => {
       />
     ),
     tag: "eventPost",
+    utmParams: {
+      utm_source: `eventPost-${post._id}`,
+      utm_medium: "email",
+      utm_user_id: user._id,
+    },
   });
 }
 
-export const sendEventPostEmailById = async (postId: string, userId: string) => {
+export const sendEventPostEmailById = async (
+  postId: string,
+  userId: string,
+  subject: string,
+) => {
   const [post, user] = await Promise.all([
     Posts.findOne({_id: postId}),
     Users.findOne({_id: userId}),
@@ -31,10 +40,10 @@ export const sendEventPostEmailById = async (postId: string, userId: string) => 
   if (!user) {
     throw new Error(`User ${userId} not found`);
   }
-  return sendEventPostEmail(post, user);
+  return sendEventPostEmail(post, user, subject);
 }
 
-export const sendEventPostEmails = async (postId: string) => {
+export const sendEventPostEmails = async (postId: string, subject: string) => {
   const post = await Posts.findOne({_id: postId});
   if (!post) {
     throw new Error(`Post ${postId} not found`);
@@ -52,7 +61,7 @@ export const sendEventPostEmails = async (postId: string) => {
     },
     batchSize: 50,
     callback: async (users) => {
-      await Promise.all(users.map((user) => sendEventPostEmail(post, user)));
+      await Promise.all(users.map((user) => sendEventPostEmail(post, user, subject)));
     },
   });
 }
