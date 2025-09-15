@@ -532,13 +532,20 @@ export default function MeetupMonthBannerInner() {
           })}
         </div>
         <div className={classes.meetupTypes}> 
-          {carouselSections.map((section, index) => (
-            <div className={`${classes.meetupType} ${index === currentCarouselIndex ? classes.activeMeetupType : ''}`} key={index} onClick={() => {
-              handleMeetupTypeClick(index)
-            }}>
-              {section.buttonText}
-            </div>
-          ))}
+          {carouselSections.map((section, index) => {
+            const activeIndex = nextCarouselIndex ?? currentCarouselIndex;
+            return (
+              <div
+                className={`${classes.meetupType} ${index === activeIndex ? classes.activeMeetupType : ''}`}
+                key={index}
+                onClick={() => {
+                  handleMeetupTypeClick(index);
+                }}
+              >
+                {section.buttonText}
+              </div>
+            );
+          })}
         </div>
       </div>
 
