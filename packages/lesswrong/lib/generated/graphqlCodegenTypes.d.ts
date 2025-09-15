@@ -9222,12 +9222,17 @@ type ReviewVoteSelector = {
   default?: InputMaybe<EmptyViewInput>;
   reviewVotesAdminDashboard?: InputMaybe<ReviewVotesReviewVotesAdminDashboardInput>;
   reviewVotesForPost?: InputMaybe<EmptyViewInput>;
-  reviewVotesForPostAndUser?: InputMaybe<EmptyViewInput>;
+  reviewVotesForPostAndUser?: InputMaybe<ReviewVotesReviewVotesForPostAndUserInput>;
   reviewVotesFromUser?: InputMaybe<ReviewVotesReviewVotesFromUserInput>;
 };
 
 type ReviewVotesReviewVotesAdminDashboardInput = {
   year?: InputMaybe<Scalars['Int']['input']>;
+};
+
+type ReviewVotesReviewVotesForPostAndUserInput = {
+  postId?: InputMaybe<Scalars['String']['input']>;
+  userId?: InputMaybe<Scalars['String']['input']>;
 };
 
 type ReviewVotesReviewVotesFromUserInput = {
@@ -16197,6 +16202,21 @@ type CurrentFrontpageSurveyQueryVariables = Exact<{ [key: string]: never; }>;
 
 
 type CurrentFrontpageSurveyQuery = CurrentFrontpageSurveyQuery_Query;
+
+type reviewVotesForPostAndUserQuery_reviewVotes_MultiReviewVoteOutput_results_ReviewVote = { __typename?: 'ReviewVote', _id: string, qualitativeScore: number, quadraticScore: number };
+
+type reviewVotesForPostAndUserQuery_reviewVotes_MultiReviewVoteOutput = { __typename?: 'MultiReviewVoteOutput', results: Array<reviewVotesForPostAndUserQuery_reviewVotes_MultiReviewVoteOutput_results_ReviewVote> };
+
+type reviewVotesForPostAndUserQuery_Query = { __typename?: 'Query', reviewVotes: reviewVotesForPostAndUserQuery_reviewVotes_MultiReviewVoteOutput | null };
+
+
+type reviewVotesForPostAndUserQueryVariables = Exact<{
+  postId: Scalars['String']['input'];
+  userId: Scalars['String']['input'];
+}>;
+
+
+type reviewVotesForPostAndUserQuery = reviewVotesForPostAndUserQuery_Query;
 
 type UserExpandFrontpageSectionMutation_Mutation = { __typename?: 'Mutation', UserExpandFrontpageSection: boolean | null };
 
@@ -24750,9 +24770,7 @@ type PodcastEpisodeFull = { __typename?: 'PodcastEpisode', _id: string, podcastI
 
 type PodcastSelect = { __typename?: 'Podcast', _id: string, title: string };
 
-type PostsMinimumInfo_Post_currentUserReviewVote_ReviewVote = { __typename?: 'ReviewVote', _id: string, qualitativeScore: number, quadraticScore: number };
-
-type PostsMinimumInfo = { __typename?: 'Post', _id: string, slug: string, title: string, draft: boolean | null, shortform: boolean, hideCommentKarma: boolean, af: boolean, userId: string | null, coauthorUserIds: Array<string>, rejected: boolean, debate: boolean, collabEditorDialogue: boolean, currentUserReviewVote: PostsMinimumInfo_Post_currentUserReviewVote_ReviewVote | null };
+type PostsMinimumInfo = { __typename?: 'Post', _id: string, slug: string, title: string, draft: boolean | null, shortform: boolean, hideCommentKarma: boolean, af: boolean, userId: string | null, coauthorUserIds: Array<string>, rejected: boolean, collabEditorDialogue: boolean };
 
 type PostsTopItemInfo_Post_contents_Revision = { __typename?: 'Revision', _id: string, htmlHighlight: string, wordCount: number, version: string };
 
@@ -24789,9 +24807,16 @@ type PostsWithVotes = (
   & PostsBase
 );
 
+type PostPodcastEpisode_Post_podcastEpisode_PodcastEpisode_podcast_Podcast = { __typename?: 'Podcast', _id: string, title: string, applePodcastLink: string | null, spotifyPodcastLink: string | null };
+
+type PostPodcastEpisode_Post_podcastEpisode_PodcastEpisode = { __typename?: 'PodcastEpisode', _id: string, title: string, episodeLink: string, externalEpisodeId: string, podcast: PostPodcastEpisode_Post_podcastEpisode_PodcastEpisode_podcast_Podcast };
+
+type PostPodcastEpisode = { __typename?: 'Post', podcastEpisode: PostPodcastEpisode_Post_podcastEpisode_PodcastEpisode | null };
+
 type PostsListWithVotes = (
   { __typename?: 'Post', currentUserVote: string | null, currentUserExtendedVote: any | null }
   & PostsList
+  & PostPodcastEpisode
 );
 
 type PostsListWithVotesAndSequence_Post_canonicalSequence_Sequence = (
@@ -24812,8 +24837,10 @@ type UltraFeedPostFragment = (
   & PostsListWithVotes
 );
 
+type PostsReviewVotingList_Post_currentUserReviewVote_ReviewVote = { __typename?: 'ReviewVote', _id: string, qualitativeScore: number, quadraticScore: number };
+
 type PostsReviewVotingList = (
-  { __typename?: 'Post', reviewVoteScoreAllKarma: number, reviewVotesAllKarma: Array<number>, reviewVoteScoreHighKarma: number, reviewVotesHighKarma: Array<number>, reviewVoteScoreAF: number, reviewVotesAF: Array<number> }
+  { __typename?: 'Post', reviewVoteScoreAllKarma: number, reviewVotesAllKarma: Array<number>, reviewVoteScoreHighKarma: number, reviewVotesHighKarma: Array<number>, reviewVoteScoreAF: number, reviewVotesAF: Array<number>, currentUserReviewVote: PostsReviewVotingList_Post_currentUserReviewVote_ReviewVote | null }
   & PostsListWithVotes
 );
 
@@ -24919,10 +24946,6 @@ type PostsDetails_Post_canonicalBook_Book = { __typename?: 'Book', _id: string, 
 
 type PostsDetails_Post_canonicalCollection_Collection = { __typename?: 'Collection', _id: string, title: string };
 
-type PostsDetails_Post_podcastEpisode_PodcastEpisode_podcast_Podcast = { __typename?: 'Podcast', _id: string, title: string, applePodcastLink: string | null, spotifyPodcastLink: string | null };
-
-type PostsDetails_Post_podcastEpisode_PodcastEpisode = { __typename?: 'PodcastEpisode', _id: string, title: string, episodeLink: string, externalEpisodeId: string, podcast: PostsDetails_Post_podcastEpisode_PodcastEpisode_podcast_Podcast };
-
 type PostsDetails_Post_feed_RSSFeed = (
   { __typename?: 'RSSFeed' }
   & RSSFeedMinimumInfo
@@ -24944,13 +24967,8 @@ type PostsDetails_Post_targetPostRelations_PostRelation = { __typename?: 'PostRe
 
 type PostsDetails_Post_fmCrosspost_CrosspostOutput = { __typename?: 'CrosspostOutput', isCrosspost: boolean, hostedHere: boolean | null, foreignPostId: string | null };
 
-type PostsDetails_Post_glossary_JargonTerm = (
-  { __typename?: 'JargonTerm' }
-  & JargonTermsPost
-);
-
 type PostsDetails = (
-  { __typename?: 'Post', canonicalSource: string | null, noIndex: boolean, viewCount: number | null, tagRelevance: any | null, commentSortOrder: string | null, sideCommentVisibility: string | null, collectionTitle: string | null, canonicalPrevPostSlug: string | null, canonicalNextPostSlug: string | null, canonicalSequenceId: string | null, canonicalBookId: string | null, bannedUserIds: Array<string> | null, moderationStyle: string | null, currentUserVote: string | null, currentUserExtendedVote: any | null, feedLink: string | null, rsvps: Array<any> | null, activateRSVPs: boolean | null, tags: Array<PostsDetails_Post_tags_Tag>, socialPreviewData: PostsDetails_Post_socialPreviewData_SocialPreviewType, canonicalSequence: PostsDetails_Post_canonicalSequence_Sequence | null, canonicalBook: PostsDetails_Post_canonicalBook_Book | null, canonicalCollection: PostsDetails_Post_canonicalCollection_Collection | null, podcastEpisode: PostsDetails_Post_podcastEpisode_PodcastEpisode | null, feed: PostsDetails_Post_feed_RSSFeed | null, sourcePostRelations: Array<PostsDetails_Post_sourcePostRelations_PostRelation>, targetPostRelations: Array<PostsDetails_Post_targetPostRelations_PostRelation>, fmCrosspost: PostsDetails_Post_fmCrosspost_CrosspostOutput | null, glossary: Array<PostsDetails_Post_glossary_JargonTerm> }
+  { __typename?: 'Post', canonicalSource: string | null, noIndex: boolean, viewCount: number | null, tagRelevance: any | null, commentSortOrder: string | null, sideCommentVisibility: string | null, collectionTitle: string | null, canonicalPrevPostSlug: string | null, canonicalNextPostSlug: string | null, canonicalSequenceId: string | null, canonicalBookId: string | null, bannedUserIds: Array<string> | null, moderationStyle: string | null, currentUserVote: string | null, currentUserExtendedVote: any | null, feedLink: string | null, rsvps: Array<any> | null, activateRSVPs: boolean | null, tags: Array<PostsDetails_Post_tags_Tag>, socialPreviewData: PostsDetails_Post_socialPreviewData_SocialPreviewType, canonicalSequence: PostsDetails_Post_canonicalSequence_Sequence | null, canonicalBook: PostsDetails_Post_canonicalBook_Book | null, canonicalCollection: PostsDetails_Post_canonicalCollection_Collection | null, feed: PostsDetails_Post_feed_RSSFeed | null, sourcePostRelations: Array<PostsDetails_Post_sourcePostRelations_PostRelation>, targetPostRelations: Array<PostsDetails_Post_targetPostRelations_PostRelation>, fmCrosspost: PostsDetails_Post_fmCrosspost_CrosspostOutput | null }
   & PostsListBase
 );
 
@@ -25002,10 +25020,16 @@ type PostsWithNavigationAndRevision_Post_reviewWinner_ReviewWinner = (
   & ReviewWinnerAll
 );
 
+type PostsWithNavigationAndRevision_Post_glossary_JargonTerm = (
+  { __typename?: 'JargonTerm' }
+  & JargonTermsPost
+);
+
 type PostsWithNavigationAndRevision = (
-  { __typename?: 'Post', tableOfContentsRevision: any | null, customHighlight: PostsWithNavigationAndRevision_Post_customHighlight_Revision | null, reviewWinner: PostsWithNavigationAndRevision_Post_reviewWinner_ReviewWinner | null }
+  { __typename?: 'Post', tableOfContentsRevision: any | null, customHighlight: PostsWithNavigationAndRevision_Post_customHighlight_Revision | null, reviewWinner: PostsWithNavigationAndRevision_Post_reviewWinner_ReviewWinner | null, glossary: Array<PostsWithNavigationAndRevision_Post_glossary_JargonTerm> }
   & PostsRevision
   & PostSequenceNavigation
+  & PostPodcastEpisode
 );
 
 type PostsWithNavigation_Post_reviewWinner_ReviewWinner = (
@@ -25013,10 +25037,16 @@ type PostsWithNavigation_Post_reviewWinner_ReviewWinner = (
   & ReviewWinnerAll
 );
 
+type PostsWithNavigation_Post_glossary_JargonTerm = (
+  { __typename?: 'JargonTerm' }
+  & JargonTermsPost
+);
+
 type PostsWithNavigation = (
-  { __typename?: 'Post', tableOfContents: any | null, reviewWinner: PostsWithNavigation_Post_reviewWinner_ReviewWinner | null }
+  { __typename?: 'Post', tableOfContents: any | null, reviewWinner: PostsWithNavigation_Post_reviewWinner_ReviewWinner | null, glossary: Array<PostsWithNavigation_Post_glossary_JargonTerm> }
   & PostsPage
   & PostSequenceNavigation
+  & PostPodcastEpisode
 );
 
 type PostSequenceNavigation_Post_sequence_Sequence = (
@@ -25045,13 +25075,8 @@ type PostsPage_Post_contents_Revision = (
   & RevisionDisplay
 );
 
-type PostsPage_Post_customHighlight_Revision = (
-  { __typename?: 'Revision' }
-  & RevisionDisplay
-);
-
 type PostsPage = (
-  { __typename?: 'Post', version: string | null, myEditorAccess: string, contents: PostsPage_Post_contents_Revision | null, customHighlight: PostsPage_Post_customHighlight_Revision | null }
+  { __typename?: 'Post', version: string | null, myEditorAccess: string, contents: PostsPage_Post_contents_Revision | null }
   & PostsDetails
 );
 
@@ -26718,6 +26743,7 @@ type PostNominatedEmailQuery = PostNominatedEmailQuery_Query;
 type multiPostPostsEmailQueryQuery_posts_MultiPostOutput_results_Post = (
   { __typename?: 'Post' }
   & PostsRevision
+  & PostPodcastEpisode
 );
 
 type multiPostPostsEmailQueryQuery_posts_MultiPostOutput = { __typename?: 'MultiPostOutput', totalCount: number | null, results: Array<multiPostPostsEmailQueryQuery_posts_MultiPostOutput_results_Post> };

@@ -9,6 +9,7 @@ import ReviewVotingWidget from "./ReviewVotingWidget";
 import LWPopper from "../common/LWPopper";
 import LWTooltip from "../common/LWTooltip";
 import ReviewPostButton from "./ReviewPostButton";
+import { useCurrentUserReviewVote } from '../hooks/useCurrentUserReviewVote';
 
 export const voteTextStyling = (theme: ThemeType) => ({
   ...theme.typography.smallText,
@@ -78,15 +79,22 @@ const styles = (theme: ThemeType) => ({
   }
 })
 
-const PostsItemReviewVote = ({classes, post, marginRight=true}: {classes: ClassesType<typeof styles>, post: PostsListBase, marginRight?: boolean}) => {
+const PostsItemReviewVote = ({classes, post, marginRight=true}: {
+  classes: ClassesType<typeof styles>,
+  post: PostsListBase,
+  marginRight?: boolean
+}) => {
   const [anchorEl, setAnchorEl] = useState<any>(null)
   const [newVote, setNewVote] = useState<VoteIndex|null>(null)
 
   const currentUser = useCurrentUser()
 
-  if (!canNominate(currentUser, post)) return null
+  const skip = !canNominate(currentUser, post);
+  const currentUserReviewVote = useCurrentUserReviewVote(post._id, skip);
 
-  const voteIndex = newVote || post.currentUserReviewVote?.qualitativeScore || 0
+  if (skip) return null
+
+  const voteIndex = newVote || currentUserReviewVote?.qualitativeScore || 0
   const displayVote = getCostData({})[voteIndex as VoteIndex]?.value
   const nominationsPhase = getReviewPhase() === "NOMINATIONS"
 

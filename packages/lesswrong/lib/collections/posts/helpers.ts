@@ -405,7 +405,7 @@ export const postGetPrimaryTag = (post: PostsListWithVotes, includeNonCore = fal
 /**
  * Whether the post is allowed AI generated audio
  */
-export const isPostAllowedType3Audio = (post: PostsBase|DbPost): boolean => {
+export const isPostAllowedType3Audio = (post: PostsWithNavigation|PostsWithNavigationAndRevision|PostsListWithVotes|DbPost): boolean => {
   if (!allowTypeIIIPlayerSetting.get()) return false
 
   try {

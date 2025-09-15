@@ -522,7 +522,7 @@ type UltraFeedPostDialogProps = {
   post?: never;
   partialPost: PostsListWithVotes;
 } & UltraFeedPostDialogBaseProps | {
-  post: PostsPage | UltraFeedPostFragment;
+  post: (PostsPage & { podcastEpisode: PostPodcastEpisode['podcastEpisode'] }) | UltraFeedPostFragment;
   partialPost?: never;
 } & UltraFeedPostDialogBaseProps
 

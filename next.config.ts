@@ -1,6 +1,6 @@
-const path = require('path');
-const fs = require('fs');
-const { redirects } = require("./packages/lesswrong/lib/redirects");
+import path from 'path';
+import fs from 'fs';
+import { redirects } from "./packages/lesswrong/lib/redirects";
 
 const serverExternalPackages = [
   'superagent-proxy', 'gpt-3-encoder', 'mathjax-node', 'mathjax', 'turndown', 'cloudinary',
@@ -22,7 +22,7 @@ const webpackExternalPackages = [
 ];
 
 // Helper function to read and parse tsconfig
-function loadTsConfig(configPath) {
+function loadTsConfig(configPath: string) {
   try {
     const content = fs.readFileSync(configPath, 'utf8');
     // Remove comments and parse
@@ -61,7 +61,13 @@ module.exports = {
       '@/viteClient/*': { browser: './packages/lesswrong/stubs/viteClient/*' },
       '@/client/*': { browser: './packages/lesswrong/client/*', default: './packages/lesswrong/stubs/client/*' },
       '@/allComponents': './packages/lesswrong/lib/generated/allComponents.ts',
-      ...(process.env.NODE_ENV === 'production' ? {} : { '@/lib/sentryWrapper': './packages/lesswrong/stubs/noSentry.ts' }),
+      ...(process.env.NODE_ENV === 'production' ? {
+        // This is one of the few things we stub out in production rather than in development.
+        // It's not run in prod and adds non-trivially to the bundle size.
+        '@ckeditor/ckeditor5-inspector': './packages/lesswrong/stubs/emptyModule.js',
+      } : {
+        '@/lib/sentryWrapper': './packages/lesswrong/stubs/noSentry.ts',
+      }),
       '@/*': './packages/lesswrong/*',
 
       'superagent-proxy': './packages/lesswrong/stubs/emptyModule.js',
@@ -153,7 +159,7 @@ module.exports = {
       return config;
     }
 
-    const pathMappings = tsconfig.compilerOptions.paths;
+    const pathMappings = tsconfig.compilerOptions.paths as Record<string, string[]>;
     const baseUrl = __dirname;
 
     config.resolve.plugins = config.resolve.plugins || [];
