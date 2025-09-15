@@ -16,7 +16,6 @@ import { JsonType, Type } from "@/server/sql/Type";
 import LogTableQuery from "@/server/sql/LogTableQuery";
 import type { PostgresView } from "../../postgresView";
 import { sleep } from "../../../lib/utils/asyncUtils";
-import { getInitialVersion } from "@/server/editor/make_editable_callbacks";
 import { getAdminTeamAccount } from "@/server/utils/adminTeamAccount";
 import { undraftPublicPostRevisions } from "@/server/manualMigrations/2024-08-14-undraftPublicRevisions";
 import chunk from "lodash/chunk";
@@ -218,6 +217,14 @@ export const updateView = async (db: SqlClientOrTx, view: PostgresView) => {
   for (const index of view.getCreateIndexQueries()) {
     await db.none(index);
     await sleep(100);
+  }
+}
+
+function getInitialVersion(document: CreateInputsByCollectionName[CollectionNameString]['data'] | ObjectsByCollectionName[CollectionNameString]) {
+  if ((document as CreatePostDataInput).draft) {
+    return '0.1.0'
+  } else {
+    return '1.0.0'
   }
 }
 
