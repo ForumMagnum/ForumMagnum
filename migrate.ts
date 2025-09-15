@@ -35,7 +35,7 @@ import { loadEnvConfig } from "@next/env";
 
   const envName = process.env.ENV_NAME;
 
-  if (!envName.toLowerCase().includes(mode) || (mode === 'test' && envName.toLowerCase().includes('dev'))) {
+  if (!envName.toLowerCase().includes(mode) || (mode === 'test' && !envName.toLowerCase().includes('dev'))) {
     throw new Error(`Tried to run REPL in mode ${mode} but ENV_NAME is ${process.env.ENV_NAME}`);
   }
 
