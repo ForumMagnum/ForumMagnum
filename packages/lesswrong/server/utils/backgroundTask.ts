@@ -46,3 +46,14 @@ export async function waitForBackgroundTasks() {
     await Promise.all(taskGroup);
   }
 }
+
+/**
+ * Wait for all background tasks to complete, but do so sequentially, one at a time.
+ * This is needed for migrations to prevent deadlocks when trying to run e.g. concurrent index creation queries
+ */
+export async function waitForBackgroundTasksSequentially() {
+  while (pendingBackgroundTasks.length > 0) {
+    const task = pendingBackgroundTasks.shift();
+    await task;
+  }
+}
