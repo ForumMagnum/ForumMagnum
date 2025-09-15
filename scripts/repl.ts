@@ -90,7 +90,9 @@ export async function initRepl(commandLineOptions: CommandLineOptions) {
     throw new Error("ENV_NAME is not set when loading .env config");
   }
 
-  if (!process.env.ENV_NAME.toLowerCase().includes(mode)) {
+  const envName = process.env.ENV_NAME;
+
+  if (!envName.toLowerCase().includes(mode) || (mode === 'test' && envName.toLowerCase().includes('dev'))) {
     throw new Error(`Tried to run REPL in mode ${mode} but ENV_NAME is ${process.env.ENV_NAME}`);
   }
 
