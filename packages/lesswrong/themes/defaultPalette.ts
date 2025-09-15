@@ -122,6 +122,7 @@ export const grey = {
   110: "#f3f3f3",
   120: '#f2f2f2',
   140: "#f0f0f0",
+  240: "#e4e4e4",
   250: "#e8e8e8",
   310: "#dddddd",
   315: "#d4d4d4",
@@ -153,6 +154,7 @@ export const defaultShadePalette = (): ThemeShadePalette => {
       // Every site theme overrides these
       sansSerifStack: "sans-serif",
       serifStack: "serif",
+      brandStack: "serif",
     },
     
     type: "light",

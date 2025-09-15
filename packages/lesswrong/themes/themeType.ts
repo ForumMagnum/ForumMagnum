@@ -54,6 +54,7 @@ declare global {
     110: ColorString,
     120: ColorString,
     140: ColorString,
+    240: ColorString,
     250: ColorString,
     310: ColorString,
     315: ColorString,
@@ -79,6 +80,7 @@ declare global {
     fonts: {
       sansSerifStack: string,
       serifStack: string,
+      brandStack: string,
     },
     
     // Used by material-UI for picking some of its own colors, and also by site

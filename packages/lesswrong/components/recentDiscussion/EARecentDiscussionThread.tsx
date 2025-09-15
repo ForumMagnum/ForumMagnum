@@ -10,7 +10,6 @@ import EAPostMeta from "../ea-forum/EAPostMeta";
 import ForumIcon from "../common/ForumIcon";
 import CommentsNodeInner from "../comments/CommentsNode";
 import PostExcerpt from "../common/excerpts/PostExcerpt";
-import LinkPostMessage from "../posts/LinkPostMessage";
 import EAKarmaDisplay from "../common/EAKarmaDisplay";
 import PostsTitle from "../posts/PostsTitle";
 
@@ -124,6 +123,7 @@ const EARecentDiscussionThread = ({
   if (isSkippable) {
     return null;
   }
+
   return (
     <EARecentDiscussionItem {...getItemProps(post, comments)}>
       <div className={classes.header}>
@@ -146,9 +146,6 @@ const EARecentDiscussionThread = ({
           </Link>
         }
       </div>
-      {post.url &&
-        <LinkPostMessage post={post} />
-      }
       <PostExcerpt
         post={post}
         lines={comments?.length ? 3 : 10}
@@ -179,5 +176,3 @@ export default registerComponent(
   EARecentDiscussionThread,
   {styles},
 );
-
-

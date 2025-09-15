@@ -26,13 +26,14 @@ const styles = (theme: ThemeType) => ({
   authorMarkers: AUTHOR_MARKER_STYLES,
 })
 
-const PostsAuthors = ({classes, post, pageSectionContext}: {
+const PostsAuthors = ({classes, post, pageSectionContext, hidePrefix}: {
   classes: ClassesType<typeof styles>,
   post: PostsList,
   pageSectionContext?: string,
+  hidePrefix?: boolean,
 }) => {
   return <Typography variant="body1" component="span" className={classes.root}>
-    by <span className={classes.authorName}>
+    {hidePrefix ? '' : 'by '}<span className={classes.authorName}>
       {!post.user || post.hideAuthor
         ? <UserNameDeleted/>
         : <>
