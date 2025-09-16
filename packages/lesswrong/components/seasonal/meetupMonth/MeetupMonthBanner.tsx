@@ -5,7 +5,6 @@ import { WrappedReactMapGL } from '../../community/WrappedReactMapGL';
 import Checkbox from '@/lib/vendor/@material-ui/core/src/Checkbox';
 import { grey } from '@/themes/defaultPalette';
 import { LocalEventMapMarkerWrappers, LocalEventMapMarkerWrappersInner } from '../HomepageMap/HomepageCommunityMap';
-import { useUserLocation } from '@/lib/collections/users/helpers';
 import { useCurrentUser } from '@/components/common/withUser';
 import { useGlobalKeydown } from '@/components/common/withGlobalKeydown';
 import HomepageMapFilter from '../HomepageMap/HomepageMapFilter';
@@ -17,6 +16,7 @@ import { SuspenseWrapper } from '@/components/common/SuspenseWrapper';
 import { gql } from '@/lib/generated/gql-codegen';
 import { LocalEvent } from '../HomepageMap/acxEvents';
 import { JssStyles } from '@/lib/jssStyles';
+import { useUserLocation } from '@/components/hooks/useUserLocation';
 
 const hideBreakpoint = 1425
 const smallBreakpoint = 1525
