@@ -52,7 +52,6 @@ export const computeContextFromUser = ({user, headers, searchParams, cookies, is
   headers?: Headers,
   searchParams?: URLSearchParams,
   cookies?: RequestCookie[],
-  req?: NextRequest,
   isSSR: boolean
 }): ResolverContext => {
   const clientId = cookies?.find(cookie => cookie.name === "clientId")?.value ?? null;
@@ -106,6 +105,17 @@ export async function getContextFromReqAndRes({req, isSSR}: {
 }): Promise<ResolverContext> {
   // TODO: do we want to abstract this out into something shared across all routes that need to grab the authenticated user for the current request?
   const user = await getUserFromReq(req);
-  const context = computeContextFromUser({user, req, isSSR: isSSR || req.headers.get('isSSR') === 'true'});
+  const cookies = req?.cookies.getAll();
+  const headers = req?.headers;
+  const searchParams = req?.nextUrl.searchParams;
+
+  const context = computeContextFromUser({
+    user,
+    cookies,
+    headers,
+    searchParams,
+    isSSR: isSSR || req.headers.get('isSSR') === 'true'
+  });
+
   return context;
 }

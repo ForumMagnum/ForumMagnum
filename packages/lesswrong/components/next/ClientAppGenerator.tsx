@@ -50,7 +50,23 @@ const AppComponent = ({ children }: { children: React.ReactNode }) => {
 
   const urlSearchParams = useSearchParams();
   const searchParamsString = urlSearchParams.toString();
-  const searchParams = Object.fromEntries(urlSearchParams.entries());
+
+  // Reduce urlSearchParams in a way that preserves multiple values under the same key
+  const searchParams: Record<string, string | string[]> = {};
+
+  [...urlSearchParams.entries()].reduce((acc, [key, value]) => {
+    if (acc[key]) {
+      if (Array.isArray(acc[key])) {
+        acc[key].push(value);
+      } else {
+        acc[key] = [acc[key], value];
+      }
+    } else {
+      acc[key] = value;
+    }
+    return acc;
+  }, searchParams);
+
   const pathname = usePathname();
   const hash = isClient ? window.location.hash : '';
 
@@ -84,7 +100,9 @@ const AppComponent = ({ children }: { children: React.ReactNode }) => {
     hash,
     params: routeParams as Record<string,string>,
     pathname,
-    query: searchParams,
+    // We then need to lie and pretend there aren't arrays here for backwards compatibility
+    // TODO: refactor callsites to acknowledge the possibility of string arrays, or something
+    query: searchParams as Record<string, string>,
     url: reconstructedPath,
     location: parsedPath,
   };
