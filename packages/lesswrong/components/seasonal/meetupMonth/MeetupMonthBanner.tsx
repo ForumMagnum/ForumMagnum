@@ -10,8 +10,10 @@ import { SuspenseWrapper } from '@/components/common/SuspenseWrapper';
 import { gql } from '@/lib/generated/gql-codegen';
 import { JssStyles } from '@/lib/jssStyles';
 import { useUserLocation } from '@/components/hooks/useUserLocation';
+import MagnifyingGlassPlusIcon from '@heroicons/react/24/solid/MagnifyingGlassPlusIcon';
+import MagnifyingGlassMinusIcon from '@heroicons/react/24/solid/MagnifyingGlassMinusIcon';
+import { position } from 'html2canvas/dist/types/css/property-descriptors/position';
 
-const hideBreakpoint = 1425
 const smallBreakpoint = 1525
 
 function getCarouselSections(classes: JssStyles) {
@@ -62,7 +64,12 @@ const styles = defineStyles("MeetupMonthBanner", (theme: ThemeType) => ({
     right: 0,
     width: '50vw',
     height: '100vh',
-    [theme.breakpoints.down(hideBreakpoint)]: {
+    '&:hover': {
+      '& $mapButtons': {
+        opacity: 1,
+      },
+    },
+    [theme.breakpoints.down(1425)]: {
       display: 'none',
     },
   },
@@ -216,69 +223,47 @@ const styles = defineStyles("MeetupMonthBanner", (theme: ThemeType) => ({
     height: '100%',
     transition: 'opacity 0.3s ease-out',
   },
-  petrovDayImage: {
-    position: 'absolute',
-    top: 0,
-    right: 0,
-    width: '100%',
-    height: '100%',
-    zIndex: 3,
-    transition: 'opacity 0.3s ease-out',
-    pointerEvents: 'none',
-  },
-  check: {
-    width: 10,
-    height: 10,
-    color: theme.palette.text.alwaysWhite,
-  },
-  checked: {
-    '&&': {
-      color: theme.palette.text.alwaysWhite,
+  mapButtonsContainer: {
+    position: "absolute",
+    pointerEvents: "none",
+    top: 150,
+    right: 9,
+    zIndex: 4,
+    display: "flex",
+    alignItems: "center",
+    justifyContent: "center",
+    width: 'calc(100% - 800px)',
+    [theme.breakpoints.up(smallBreakpoint)]: {
+      width: 'calc(100% - 300px)',
     },
   },
   mapButtons: {
-    alignItems: "flex-end",
-    position: "absolute",
-    top: 10,
-    right: 10,
+    alignItems: "center",
+    pointerEvents: "auto",
     display: "flex",
-    flexDirection: "column",
+    width: 110,
+    gap: 12,
+    justifyContent: "center",
+    border: `1px solid ${theme.palette.grey[400]}`,
+    borderRadius: 10,
+    padding: 12,
+    opacity: 0,
+    '&&:hover': {
+      opacity: 1,
+    },
     [theme.breakpoints.down('md')]: {
       top: 24
     },
-    ...theme.typography.body2
+    marginBottom: "auto",
   },
-  zoomScrollbarContainer: {
-    margin: '0 auto',
-    zIndex: 4,
-    opacity: 0,
-    transition: 'opacity 0.3s ease-in-out',
-    pointerEvents: 'none',
-    '&.visible': {
+  zoomButton: {
+    width: 30,
+    height: 30,
+    opacity: .2,
+    '&:hover': {
       opacity: 1,
-      pointerEvents: 'auto',
     },
-  },
-  zoomScrollbar: {
-    width: 200,
-    height: 6,
-    borderRadius: 3,
-    outline: 'none',
     cursor: 'pointer',
-    '&::-webkit-slider-thumb': {
-      appearance: 'none',
-      width: 16,
-      height: 16,
-      borderRadius: '50%',
-      cursor: 'pointer',
-    },
-    '&::-moz-range-thumb': {
-      width: 16,
-      height: 16,
-      borderRadius: '50%',
-      cursor: 'pointer',
-      border: 'none',
-    },
   },
   contentContainer: {
     width: 'calc(100% - 400px)',
@@ -293,7 +278,7 @@ const styles = defineStyles("MeetupMonthBanner", (theme: ThemeType) => ({
     bottom: 0,
     display: 'flex',
     flexDirection: 'column',
-    justifyContent: 'space-between',
+    justifyContent: 'flex-end',
     alignItems: 'center',
   },
   createEventButton: {
@@ -422,6 +407,20 @@ export default function MeetupMonthBannerInner() {
       zoom: newZoom
     }))
   }, [])
+  
+  const handleZoomIn = useCallback(() => {
+    setViewport(prev => ({
+      ...prev,
+      zoom: Math.min(prev.zoom + 0.5, 20),
+    }))
+  }, [])
+  
+  const handleZoomOut = useCallback(() => {
+    setViewport(prev => ({
+      ...prev,
+      zoom: Math.max(prev.zoom - 0.5, 0.5),
+    }))
+  }, [])
 
   const handleMapMouseEnter = useCallback(() => {
     setIsMapHovered(true)
@@ -473,20 +472,13 @@ export default function MeetupMonthBannerInner() {
       onMouseEnter={handleMapMouseEnter}
       onMouseLeave={handleMapMouseLeave}
     >
+      <div className={classes.mapButtonsContainer}>
+        <div className={classes.mapButtons}>    
+          <MagnifyingGlassMinusIcon className={classes.zoomButton} onClick={handleZoomOut} />
+          <MagnifyingGlassPlusIcon className={classes.zoomButton} onClick={handleZoomIn} />
+        </div>
+      </div>
       <div className={classes.contentContainer}>
-        {/* <div className={`${classes.zoomScrollbarContainer} ${isMapHovered ? 'visible' : ''}`}>
-          <input
-            type="range"
-            min="0.5"
-            max="10"
-            step="0.1"
-            value={viewport.zoom}
-            onChange={handleZoomChange}
-            className={classes.zoomScrollbar}
-            aria-label="Map zoom control"
-          />
-        </div> */}
-        
         <div className={classes.textContainer}>
           {carouselSections.map((section, index) => {
             
@@ -549,6 +541,7 @@ export default function MeetupMonthBannerInner() {
         </div>
 
       </div>
+
 
       <WrappedReactMapGL
         {...viewport}
