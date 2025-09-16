@@ -8,6 +8,7 @@ import jwt from 'jsonwebtoken'
 import { randomId } from '../../lib/random';
 import { NextRequest } from 'next/server';
 import { z } from 'zod';
+import { captureException } from '@/lib/sentryWrapper';
 
 function permissionsLevelToCkEditorRole(access: CollaborativeEditingAccessLevel): string {
   switch (access) {
@@ -30,9 +31,29 @@ export async function ckEditorTokenHandler(req: NextRequest) {
   const rawFormType = req.headers.get('form-type');
   const linkSharingKey = req.headers.get('link-sharing-key');
   
-  if (!collectionName || collectionName.includes(",")) throw new Error("Missing or multiple collectionName headers");
-  if (documentId?.includes(",")) throw new Error("Multiple documentId headers");
-  if (userId?.includes(",")) throw new Error("Multiple userId headers");
+  if (!collectionName || collectionName.includes(",")) {
+    const error = new Error("Missing or multiple collectionName headers");
+    // eslint-disable-next-line no-console
+    console.error(error);
+    captureException(error);
+    throw error;
+  }
+
+  if (documentId?.includes(",")) {
+    const error = new Error("Multiple documentId headers");
+    // eslint-disable-next-line no-console
+    console.error(error);
+    captureException(error);
+    throw error;
+  }
+  
+  if (userId?.includes(",")) {
+    const error = new Error("Multiple userId headers");
+    // eslint-disable-next-line no-console
+    console.error(error);
+    captureException(error);
+    throw error;
+  }
 
   const urlForContext = req.nextUrl.clone();
   if (linkSharingKey) {
@@ -46,9 +67,11 @@ export async function ckEditorTokenHandler(req: NextRequest) {
   if (collectionName === "Posts") {
     const parsedFormType = formTypeValidator.safeParse(rawFormType);
     if (!parsedFormType.success) {
+      const error = new Error("Invalid formType header");
       // eslint-disable-next-line no-console
-      console.log({ rawFormType, parsedFormType });
-      throw new Error("Invalid formType header");
+      console.error(error);
+      captureException(error);
+      throw error;
     }
   
     const formType = parsedFormType.data;
