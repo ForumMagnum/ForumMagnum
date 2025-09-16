@@ -141,7 +141,7 @@ function useSuggestedUsers(skipFetch = false) {
 
   const initialLimit = 64;
 
-  const { data: suggestedUsersData, loading } = useQuery(gql(`
+  const { data: suggestedUsersData, loading: loadingLoggedIn } = useQuery(gql(`
     query SuggestedFeedSubscriptionUsers($limit: Int) {
       SuggestedFeedSubscriptionUsers(limit: $limit) {
         results {
@@ -157,12 +157,31 @@ function useSuggestedUsers(skipFetch = false) {
     skip: skipFetch || !currentUser || !userHasSubscribeTabFeed(currentUser),
   });
 
-  const results = suggestedUsersData?.SuggestedFeedSubscriptionUsers?.results;
+  // Logged-out fallback based on popular active contributors
+  const { data: popularUsersData, loading: loadingLoggedOut } = useQuery(gql(`
+    query SuggestedTopActiveUsers($limit: Int) {
+      SuggestedTopActiveUsers(limit: $limit) {
+        results {
+          ...UsersMinimumInfo
+        }
+      }
+    }
+  `), {
+    variables: { limit: initialLimit },
+    fetchPolicy: "cache-and-network",
+    nextFetchPolicy: "cache-first",
+    ssr: false,
+    skip: skipFetch || !!currentUser,
+  });
+
+  const results = (suggestedUsersData?.SuggestedFeedSubscriptionUsers?.results
+    ?? popularUsersData?.SuggestedTopActiveUsers?.results);
 
   useEffect(() => {
     setAvailableUsers(shuffle(results ?? []));
   }, [results]);
 
+  const loading = loadingLoggedIn || loadingLoggedOut;
   return { availableUsers, setAvailableUsers, loadingSuggestedUsers: loading };
 }
 
@@ -224,7 +243,6 @@ export const SuggestedFeedSubscriptions = ({ suggestedUsers, settingsButton, ena
 }) => {
   const classes = useStyles(styles);
   const isMobile = useIsMobile();
-  const usersToShow = isMobile ? INITIAL_USERS_TO_SHOW_MOBILE : INITIAL_USERS_TO_SHOW_DESKTOP;
   const currentUser = useCurrentUser();
   const [cookies, setCookie] = useCookiesWithConsent([HIDE_SUBSCRIBED_FEED_SUGGESTED_USERS]);
   
@@ -264,6 +282,10 @@ export const SuggestedFeedSubscriptions = ({ suggestedUsers, settingsButton, ena
   });
   
   const followingCount = followingCountData?.subscriptions?.totalCount ?? 0;
+  
+  const baseUsersToShow = isMobile ? INITIAL_USERS_TO_SHOW_MOBILE : INITIAL_USERS_TO_SHOW_DESKTOP;
+  // Show twice as many users when following count is < 2
+  const usersToShow = followingCount < 2 ? baseUsersToShow * 2 : baseUsersToShow;
 
   const { captureEvent } = useTracking();
 
@@ -320,7 +342,7 @@ export const SuggestedFeedSubscriptions = ({ suggestedUsers, settingsButton, ena
         <div className={classes.titleRow}>
           <div className={classes.titleAndManageLink}>
             <div className={classes.sectionTitle}>
-              Suggested Users for You
+              {currentUser ? "Suggested Users for You" : "Suggested Users"}
             </div>
             <FollowUserSearchButton onUserSelected={subscribeToUser} />
             {enableDismissButton && <LWTooltip title="Hide suggested users for 60 days">

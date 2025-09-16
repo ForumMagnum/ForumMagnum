@@ -3893,6 +3893,12 @@ WHERE
   "eventType" != 'served' AND
   "feedItemId" IS NOT NULL;
 
+-- CustomIndex "ultraFeedEvents_loggedOut_session_idx"
+CREATE INDEX IF NOT EXISTS ultraFeedEvents_loggedOut_session_idx ON "UltraFeedEvents" ("userId", ((event ->> 'sessionId')), "createdAt")
+WHERE
+  "eventType" = 'served' AND
+  ((event ->> 'loggedOut')::BOOLEAN IS TRUE);
+
 -- Function "fm_build_nested_jsonb"
 CREATE OR
 REPLACE FUNCTION fm_build_nested_jsonb (target_path TEXT[], terminal_element JSONB) RETURNS JSONB LANGUAGE sql IMMUTABLE AS 'SELECT JSONB_BUILD_OBJECT(
