@@ -177,7 +177,6 @@ export const LocalEventMapMarkerWrappersInner = ({localEvents}: {
   return <React.Fragment>
     {localEvents.map((localEvent, i) => {
       const infoOpen = openWindows.includes(localEvent._id)
-      console.log('localEvent', i, localEvent)
       if (!localEvent.lat || !localEvent.lng) return null
       return <React.Fragment key={`mapEvent${localEvent._id}`}>
       <Marker
