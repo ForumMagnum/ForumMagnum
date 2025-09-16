@@ -41,7 +41,7 @@ function getCarouselSections(classes: JssStyles) {
       subtitle: <div>
         <div><a href="https://www.ifanyonebuildsit.com/
       book-clubs">If Anyone Builds It, Everyone Dies</a> is launching September 16th. You can <a href="https://www.ifanyonebuildsit.com/book-clubs">sign up here</a> to get help facilitating a reading group.</div>
-      <a href="/newPost?eventForm=true" className={classes.createEventButton}>
+      <a href="/newPost?eventForm=true&iabit=true" target="_blank" rel="noopener noreferrer" className={classes.createEventButton}>
         <span className={classes.createEventButtonIcon}>+</span>
         CREATE READING GROUP</a>
       </div>,
@@ -53,7 +53,7 @@ function getCarouselSections(classes: JssStyles) {
       title: "Petrov Day",
       subtitle: <div>
         <div>September 26th is the day Stanislav Petrov didn't destroy the world. Host a ceremony observing the day's significance</div>
-        <a href="/newPost?eventForm=true" className={classes.createEventButton}>
+        <a href="/newPost?eventForm=true&petrov=true" target="_blank" rel="noopener noreferrer" className={classes.createEventButton}>
           <span className={classes.createEventButtonIcon}>+</span>
           CREATE PETROV EVENT</a>
       </div>,
@@ -209,7 +209,7 @@ const styles = defineStyles("MeetupMonthBanner", (theme: ThemeType) => ({
     right: 0,
     width: '100%',
     height: '100%',
-    background: `radial-gradient(ellipse at right, transparent 40%, ${theme.palette.background.default} 50%)`,
+    background: `linear-gradient(to left, transparent 35%, ${theme.palette.background.default} 70%)`,
     [theme.breakpoints.up(1620)]: {
       background: `radial-gradient(ellipse at right, transparent 60%, ${theme.palette.background.default} 100%)`,
     },

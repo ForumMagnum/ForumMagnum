@@ -13,9 +13,17 @@ export const groupTypes = [
     shortName: "EA",
     longName: "Effective Altruism",
   },
+  // {
+  //   shortName: "MIRIx",
+  //   longName: "MIRIx",
+  // },
   {
-    shortName: "MIRIx",
-    longName: "MIRIx",
+    shortName: "IABIT",
+    longName: "If Anyone Builds It",
+  },
+  {
+    shortName: "PETROV",
+    longName: "Petrov Day",
   }
 ];
 
