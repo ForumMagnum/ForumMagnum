@@ -979,6 +979,7 @@ CREATE TABLE "ForumEvents" (
   "bannerImageId" TEXT,
   "includesPoll" BOOL NOT NULL DEFAULT FALSE,
   "isGlobal" BOOL NOT NULL DEFAULT TRUE,
+  "hideBanner" BOOL NOT NULL DEFAULT FALSE,
   "eventFormat" TEXT NOT NULL DEFAULT 'BASIC',
   "pollQuestion_latest" TEXT,
   "pollAgreeWording" TEXT,

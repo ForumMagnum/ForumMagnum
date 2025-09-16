@@ -24,6 +24,7 @@ import Error404 from "../common/Error404";
 import SectionTitle from "../common/SectionTitle";
 import Loading from "../vulcan-core/Loading";
 import { useFormErrors } from "../tanstack-form-components/BaseAppForm";
+import FormComponentCheckbox from "../form-components/FormComponentCheckbox";
 
 const styles = defineStyles('ForumEventForm', (theme: ThemeType) => ({
   root: {},
@@ -312,6 +313,17 @@ const InnerForumEventForm = ({
             <ImageUpload
               field={field}
               label="Banner image ID"
+            />
+          )}
+        </form.Field>
+      </div>
+
+      <div className={classes.fieldWrapper}>
+        <form.Field name="hideBanner">
+          {(field) => (
+            <FormComponentCheckbox
+              field={field}
+              label="Hide banner"
             />
           )}
         </form.Field>

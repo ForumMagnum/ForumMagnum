@@ -2502,6 +2502,7 @@ type ForumEvent {
   bannerImageId: String
   includesPoll: Boolean!
   isGlobal: Boolean!
+  hideBanner: Boolean!
   eventFormat: String!
   pollQuestion(version: String): Revision
   pollQuestion_latest: String
@@ -5678,6 +5679,7 @@ input CreateForumEventDataInput {
   bannerImageId: String
   includesPoll: Boolean
   isGlobal: Boolean!
+  hideBanner: Boolean
   eventFormat: String
   pollQuestion: CreateRevisionDataInput
   pollAgreeWording: String
@@ -5710,6 +5712,7 @@ input UpdateForumEventDataInput {
   bannerImageId: String
   includesPoll: Boolean
   isGlobal: Boolean
+  hideBanner: Boolean
   eventFormat: String
   pollQuestion: CreateRevisionDataInput
   pollAgreeWording: String
@@ -8588,6 +8591,7 @@ fragment ForumEventsDefaultFragment on ForumEvent {
   bannerImageId
   includesPoll
   isGlobal
+  hideBanner
   eventFormat
   pollQuestion_latest
   pollAgreeWording
@@ -8657,6 +8661,7 @@ fragment ForumEventsMinimumInfo on ForumEvent {
   postId
   commentId
   bannerImageId
+  hideBanner
   eventFormat
   customComponent
   commentPrompt

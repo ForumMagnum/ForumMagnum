@@ -514,6 +514,7 @@ export const ForumEventsDefaultFragment = `
     bannerImageId
     includesPoll
     isGlobal
+    hideBanner
     eventFormat
     pollQuestion_latest
     pollAgreeWording

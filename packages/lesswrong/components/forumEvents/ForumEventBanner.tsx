@@ -17,12 +17,8 @@ export const ForumEventBanner = () => {
   const {currentRoute} = useLocation();
   const bannerType = bannerTypes[currentRoute?.name ?? ""];
   const {currentForumEvent} = useCurrentAndRecentForumEvents();
-  
-  if (!hasForumEvents) {
-    return null;
-  }
 
-  if (!currentForumEvent) {
+  if (!hasForumEvents || !currentForumEvent || currentForumEvent.hideBanner) {
     return null;
   }
 
