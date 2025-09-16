@@ -95,6 +95,8 @@ const deleteByName = async (db: Database, name: string) => {
     databaseIdPromise = Promise.resolve();
   } else if (mode === "staging") {
     databaseIdPromise = setDatabaseId(db, randomId(), "ea-staging");
+  } else if (mode === "dev") {
+    databaseIdPromise = setDatabaseId(db, randomId(), "ea-dev");
   } else {
     databaseIdPromise = deleteByName(db, "databaseId");
   }
