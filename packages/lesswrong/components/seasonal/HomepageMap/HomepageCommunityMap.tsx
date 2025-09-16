@@ -195,9 +195,7 @@ export const LocalEventMapMarkerWrappersInner = ({localEvents}: {
   </React.Fragment>
 }
 
-export const LocalEventMapMarkerWrappers = registerComponent("LocalEventMapMarkerWrappers", LocalEventMapMarkerWrappersInner, {
-  styles: localEventMapMarkerWrappersStyles
-});
+export const LocalEventMapMarkerWrappers = registerComponent("LocalEventMapMarkerWrappers", LocalEventMapMarkerWrappersInner) 
 
 
 export const HomepageCommunityMap = ({dontAskUserLocation = false, classes}: {

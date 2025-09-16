@@ -35,8 +35,7 @@ function getCarouselSections(classes: JssStyles) {
         <div><a href="https://www.ifanyonebuildsit.com/
       book-clubs">If Anyone Builds It, Everyone Dies</a> is launching September 16th. You can <a href="https://www.ifanyonebuildsit.com/book-clubs">sign up here</a> to get help facilitating a reading group.</div>
       <a href="/newPost?eventForm=true&ifanyone=true" target="_blank" rel="noopener noreferrer" className={classes.createEventButton}>
-        <span className={classes.createEventButtonIcon}>+</span>
-        CREATE READING GROUP</a>
+        <span className={classes.createEventButtonIcon}>+</span> CREATE READING GROUP</a>
       </div>,
       link: "https://www.ifanyonebuildsit.com/book-clubs",
       linkText: "If Anyone Builds It",
@@ -47,14 +46,13 @@ function getCarouselSections(classes: JssStyles) {
       subtitle: <div>
         <div>September 26th is the day Stanislav Petrov didn't destroy the world. Host a ceremony observing the day's significance</div>
         <a href="/newPost?eventForm=true&petrov=true" target="_blank" rel="noopener noreferrer" className={classes.createEventButton}>
-          <span className={classes.createEventButtonIcon}>+</span>
-          CREATE PETROV EVENT</a>
+          <span className={classes.createEventButtonIcon}>+</span> CREATE PETROV EVENT</a>
       </div>,
       link: "https://www.lesswrong.com/meetups/petrov-day",
       linkText: "Petrov Day",
       buttonText: "Petrov Day"
     }
-]
+  ]
 }
 
 const styles = defineStyles("MeetupMonthBanner", (theme: ThemeType) => ({
