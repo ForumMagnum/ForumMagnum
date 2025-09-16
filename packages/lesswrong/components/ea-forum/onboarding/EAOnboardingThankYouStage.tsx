@@ -105,6 +105,7 @@ export const EAOnboardingThankYouStage = ({classes}: {
   const {currentStage, goToNextStage, currentUser, updateCurrentUser, captureOnboardingEvent, viewAsAdmin} = useEAOnboarding();
   const [subscribedToDigest, setSubscribedToDigest] = useState(true);
   const [subscribedToNewsletter, setSubscribedToNewsletter] = useState(false);
+  const [sendMarketingEmails, setSendMarketingEmails] = useState(true);
 
   useEffect(() => {
     // Default to subscribing to the digest (unless this is an admin testing)
@@ -131,6 +132,14 @@ export const EAOnboardingThankYouStage = ({classes}: {
       subscribedToNewsletter: value,
     });
     captureOnboardingEvent("toggleNewsletter", {subscribed: value});
+  }, [updateCurrentUser, captureOnboardingEvent, viewAsAdmin]);
+
+  const toggleSendMarketingEmails = useCallback((value: boolean) => {
+    setSendMarketingEmails(value);
+    !viewAsAdmin && void updateCurrentUser({
+      sendMarketingEmails: value,
+    });
+    captureOnboardingEvent("toggleMarketingEmails", {subscribed: value});
   }, [updateCurrentUser, captureOnboardingEvent, viewAsAdmin]);
 
   const onComplete = useCallback(() => {
@@ -187,6 +196,21 @@ export const EAOnboardingThankYouStage = ({classes}: {
             className={classes.toggle}
           />
         </div>
+        <div className={classes.section}>
+          <div>
+            <div className={classes.heading}>
+              Updates from the EA Forum
+            </div>
+            <div className={classes.subheading}>
+              Themed weeks, debates, competitions and reminders
+            </div>
+          </div>
+          <ToggleSwitch
+            value={sendMarketingEmails}
+            setValue={toggleSendMarketingEmails}
+            className={classes.toggle}
+          />
+        </div>
         <div className={classes.helpImproveForum}>
           <div>
             <div className={classes.heading}>
@@ -224,5 +248,3 @@ export default registerComponent(
   EAOnboardingThankYouStage,
   {styles},
 );
-
-
