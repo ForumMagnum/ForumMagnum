@@ -6,9 +6,8 @@ import { Marker as BadlyTypedMarker, Popup as BadlyTypedPopup } from 'react-map-
 import { defaultCenter } from '../../localGroups/CommunityMap';
 import { ArrowSVG } from '../../localGroups/Icons';
 import { postGetPageUrl } from '../../../lib/collections/posts/helpers';
-import { ACX_EVENTS_LAST_UPDATED, localEvents } from './acxEvents';
+import { localEvents } from './acxEvents';
 import classNames from 'classnames';
-import moment from 'moment';
 import { componentWithChildren } from '../../../lib/utils/componentsWithChildren';
 import { useQuery } from "@/lib/crud/useQuery";
 import { gql } from "@/lib/generated/gql-codegen";
@@ -17,7 +16,6 @@ import GroupLinks from "../../localGroups/GroupLinks";
 import HomepageMapFilter from "./HomepageMapFilter";
 import { WrappedReactMapGL } from '@/components/community/WrappedReactMapGL';
 import { defineStyles, useStyles } from '../../hooks/useStyles';
-import Loading from '@/components/vulcan-core/Loading';
 
 const Popup = componentWithChildren(BadlyTypedPopup);
 

@@ -3,17 +3,13 @@ import { defineStyles, useStyles } from '../../hooks/useStyles';
 import { WrappedReactMapGL } from '../../community/WrappedReactMapGL';
 import { LocalEventMapMarkerWrappersInner } from '../HomepageMap/HomepageCommunityMap';
 import { useCurrentUser } from '@/components/common/withUser';
-import { useGlobalKeydown } from '@/components/common/withGlobalKeydown';
 import { useQuery } from "@/lib/crud/useQuery";
-import without from 'lodash/without';
 import { SuspenseWrapper } from '@/components/common/SuspenseWrapper';
 import { gql } from '@/lib/generated/gql-codegen';
 import { JssStyles } from '@/lib/jssStyles';
 import { useUserLocation } from '@/components/hooks/useUserLocation';
 import MagnifyingGlassPlusIcon from '@heroicons/react/24/solid/MagnifyingGlassPlusIcon';
 import MagnifyingGlassMinusIcon from '@heroicons/react/24/solid/MagnifyingGlassMinusIcon';
-import { position } from 'html2canvas/dist/types/css/property-descriptors/position';
-import { localEvents as acxEvents } from '../HomepageMap/acxEvents'
 
 const smallBreakpoint = 1525
 
