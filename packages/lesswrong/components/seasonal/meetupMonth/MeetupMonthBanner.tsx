@@ -41,7 +41,7 @@ function getCarouselSections(classes: JssStyles) {
       subtitle: <div>
         <div><a href="https://www.ifanyonebuildsit.com/
       book-clubs">If Anyone Builds It, Everyone Dies</a> is launching September 16th. You can <a href="https://www.ifanyonebuildsit.com/book-clubs">sign up here</a> to get help facilitating a reading group.</div>
-      <a href="/newPost?eventForm=true&iabit=true" target="_blank" rel="noopener noreferrer" className={classes.createEventButton}>
+      <a href="/newPost?eventForm=true&ifanyone=true" target="_blank" rel="noopener noreferrer" className={classes.createEventButton}>
         <span className={classes.createEventButtonIcon}>+</span>
         CREATE READING GROUP</a>
       </div>,
@@ -324,21 +324,14 @@ const styles = defineStyles("MeetupMonthBanner", (theme: ThemeType) => ({
 }));
 
 
-export const MeetupMonthyQuery = gql(`
-  query meetupMonthyQuery($selector: PostSelector, $limit: Int, $enableTotal: Boolean) {
-    posts(selector: $selector, limit: $limit, enableTotal: $enableTotal) {
-      results {
+export const MeetupMonthQuery = gql(`
+  query meetupMonthQuery {
+    HomepageCommunityEvents(limit: 500) {
+      events {
         _id
-        location
-        googleLocation
-        onlineEvent
-        globalEvent
-        startTime
-        endTime
-        localStartTime
-        localEndTime
+        lat
+        lng
       }
-      totalCount
     }
   }
 `);
@@ -402,16 +395,9 @@ export default function MeetupMonthBannerInner() {
   useUserLocation(currentUser, false)
 
   const { view, ...selectorTerms } = { view: 'events' };
-  const { data } = useQuery(PostsListMultiQuery, {
-    variables: {
-      selector: { [view]: selectorTerms },
-      limit: 500,
-      enableTotal: false,
-    },
-    notifyOnNetworkStatusChange: true,
-  });
+  const { data } = useQuery(MeetupMonthQuery)
 
-  const events = useMemo(() => data?.posts?.results ?? [], [data?.posts?.results]);
+  const events = useMemo(() => data?.HomepageCommunityEvents.events ?? [], [data?.HomepageCommunityEvents.events]);
 
   const [ openWindows, setOpenWindows ] = useState<string[]>([])
   const [isMapHovered, setIsMapHovered] = useState(false)
@@ -436,15 +422,7 @@ export default function MeetupMonthBannerInner() {
   )
   
   const renderedMarkers = useMemo(() => {
-    // return <LocalEventsMapMarkers events={events} handleClick={handleClick} handleClose={handleClose} openWindows={openWindows} />
-  
-
-    return <LocalEventMapMarkerWrappersInner localEvents={events.map(event => ({
-      _id: event._id,
-      lat: event.googleLocation?.geometry?.location?.lat,
-      lng: event.googleLocation?.geometry?.location?.lng,
-    }))} />
-    // }, [events, handleClick, handleClose, openWindows])
+    return <LocalEventMapMarkerWrappersInner localEvents={events} />
   }, [events])
   const handleZoomChange = useCallback((event: React.ChangeEvent<HTMLInputElement>) => {
     const newZoom = parseFloat(event.target.value)

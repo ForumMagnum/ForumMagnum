@@ -287,6 +287,11 @@ export const postGqlQueries = {
 
     return canAccessGoogleDoc(fileUrl)
   },
+  async HomepageCommunityEvents(root: void, { limit }: { limit: number }, context: ResolverContext): Promise<HomepageCommunityEventMarkersResult> {
+    const { repos } = context
+    const events = await repos.posts.getHomepageCommunityEvents(limit)
+    return { events }
+  },
   ...DigestHighlightsQuery,
   ...DigestPostsThisWeekQuery,
   ...CuratedAndPopularThisWeekQuery,
@@ -449,6 +454,7 @@ export const postGqlTypeDefs = gql`
     DigestPosts(num: Int): [Post!]
 
     CanAccessGoogleDoc(fileUrl: String!): Boolean
+    HomepageCommunityEvents(limit: Int!): HomepageCommunityEventMarkersResult!
   }
 
   extend type Mutation {
@@ -496,6 +502,15 @@ export const postGqlTypeDefs = gql`
   type PostWithApprovedJargon {
     post: Post!
     jargonTerms: [JargonTerm!]!
+  }
+  
+  type HomepageCommunityEventMarker {
+    _id: String!
+    lat: Float!
+    lng: Float!
+  }
+  type HomepageCommunityEventMarkersResult {
+    events: [HomepageCommunityEventMarker!]!
   }
   ${DigestHighlightsTypeDefs}
   ${DigestPostsThisWeekTypeDefs}

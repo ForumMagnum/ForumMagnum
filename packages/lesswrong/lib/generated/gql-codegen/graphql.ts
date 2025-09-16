@@ -2760,6 +2760,18 @@ export type GoogleServiceAccountSessionSelector = {
   default?: InputMaybe<EmptyViewInput>;
 };
 
+export type HomepageCommunityEventMarker = {
+  __typename?: 'HomepageCommunityEventMarker';
+  _id: Scalars['String']['output'];
+  lat: Scalars['Float']['output'];
+  lng: Scalars['Float']['output'];
+};
+
+export type HomepageCommunityEventMarkersResult = {
+  __typename?: 'HomepageCommunityEventMarkersResult';
+  events: Array<HomepageCommunityEventMarker>;
+};
+
 export type Images = {
   __typename?: 'Images';
   _id: Scalars['String']['output'];
@@ -7467,6 +7479,7 @@ export type Query = {
   GetRandomUser: Maybe<User>;
   GetUserBySlug: Maybe<User>;
   GivingSeasonHearts: Array<GivingSeasonHeart>;
+  HomepageCommunityEvents: HomepageCommunityEventMarkersResult;
   IsDisplayNameTaken: Scalars['Boolean']['output'];
   Lightcone2024FundraiserStripeAmounts: Maybe<Array<Scalars['Int']['output']>>;
   MigrationsDashboard: Maybe<MigrationsDashboardData>;
@@ -7741,6 +7754,11 @@ export type QueryGetUserBySlugArgs = {
 
 export type QueryGivingSeasonHeartsArgs = {
   electionName: Scalars['String']['input'];
+};
+
+
+export type QueryHomepageCommunityEventsArgs = {
+  limit: Scalars['Int']['input'];
 };
 
 
@@ -16984,14 +17002,10 @@ export type petrovDayLaunchResolversQueryVariables = Exact<{ [key: string]: neve
 
 export type petrovDayLaunchResolversQuery = { __typename?: 'Query', PetrovDayCheckIfIncoming: { __typename?: 'PetrovDayCheckIfIncomingData', launched: boolean | null, createdAt: string | null } | null };
 
-export type meetupMonthyQueryQueryVariables = Exact<{
-  selector?: InputMaybe<PostSelector>;
-  limit?: InputMaybe<Scalars['Int']['input']>;
-  enableTotal?: InputMaybe<Scalars['Boolean']['input']>;
-}>;
+export type meetupMonthQueryQueryVariables = Exact<{ [key: string]: never; }>;
 
 
-export type meetupMonthyQueryQuery = { __typename?: 'Query', posts: { __typename?: 'MultiPostOutput', totalCount: number | null, results: Array<{ __typename?: 'Post', _id: string, location: string | null, googleLocation: any | null, onlineEvent: boolean, globalEvent: boolean, startTime: string | null, endTime: string | null, localStartTime: string | null, localEndTime: string | null }> } | null };
+export type meetupMonthQueryQuery = { __typename?: 'Query', HomepageCommunityEvents: { __typename?: 'HomepageCommunityEventMarkersResult', events: Array<{ __typename?: 'HomepageCommunityEventMarker', _id: string, lat: number, lng: number }> } };
 
 export type multiPetrovDayActionOptIntoPetrovButtonQueryQueryVariables = Exact<{
   selector?: InputMaybe<PetrovDayActionSelector>;
@@ -22740,7 +22754,7 @@ export const lwEventsAdminPageFragmentDoc = {"kind":"Document","definitions":[lw
 export const markAsReadOrUnreadDocument = {"kind":"Document","definitions":[{"kind":"OperationDefinition","operation":"mutation","name":{"kind":"Name","value":"markAsReadOrUnread"},"variableDefinitions":[{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"postId"}},"type":{"kind":"NamedType","name":{"kind":"Name","value":"String"}}},{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"isRead"}},"type":{"kind":"NamedType","name":{"kind":"Name","value":"Boolean"}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"markAsReadOrUnread"},"arguments":[{"kind":"Argument","name":{"kind":"Name","value":"postId"},"value":{"kind":"Variable","name":{"kind":"Name","value":"postId"}}},{"kind":"Argument","name":{"kind":"Name","value":"isRead"},"value":{"kind":"Variable","name":{"kind":"Name","value":"isRead"}}}]}]}}]} as unknown as DocumentNode<markAsReadOrUnreadMutation, markAsReadOrUnreadMutationVariables>;
 export const markConversationReadDocument = {"kind":"Document","definitions":[{"kind":"OperationDefinition","operation":"mutation","name":{"kind":"Name","value":"markConversationRead"},"variableDefinitions":[{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"conversationId"}},"type":{"kind":"NonNullType","type":{"kind":"NamedType","name":{"kind":"Name","value":"String"}}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"markConversationRead"},"arguments":[{"kind":"Argument","name":{"kind":"Name","value":"conversationId"},"value":{"kind":"Variable","name":{"kind":"Name","value":"conversationId"}}}]}]}}]} as unknown as DocumentNode<markConversationReadMutation, markConversationReadMutationVariables>;
 export const markPostCommentsReadDocument = {"kind":"Document","definitions":[{"kind":"OperationDefinition","operation":"mutation","name":{"kind":"Name","value":"markPostCommentsRead"},"variableDefinitions":[{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"postId"}},"type":{"kind":"NonNullType","type":{"kind":"NamedType","name":{"kind":"Name","value":"String"}}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"markPostCommentsRead"},"arguments":[{"kind":"Argument","name":{"kind":"Name","value":"postId"},"value":{"kind":"Variable","name":{"kind":"Name","value":"postId"}}}]}]}}]} as unknown as DocumentNode<markPostCommentsReadMutation, markPostCommentsReadMutationVariables>;
-export const meetupMonthyQueryDocument = {"kind":"Document","definitions":[{"kind":"OperationDefinition","operation":"query","name":{"kind":"Name","value":"meetupMonthyQuery"},"variableDefinitions":[{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"selector"}},"type":{"kind":"NamedType","name":{"kind":"Name","value":"PostSelector"}}},{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"limit"}},"type":{"kind":"NamedType","name":{"kind":"Name","value":"Int"}}},{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"enableTotal"}},"type":{"kind":"NamedType","name":{"kind":"Name","value":"Boolean"}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"posts"},"arguments":[{"kind":"Argument","name":{"kind":"Name","value":"selector"},"value":{"kind":"Variable","name":{"kind":"Name","value":"selector"}}},{"kind":"Argument","name":{"kind":"Name","value":"limit"},"value":{"kind":"Variable","name":{"kind":"Name","value":"limit"}}},{"kind":"Argument","name":{"kind":"Name","value":"enableTotal"},"value":{"kind":"Variable","name":{"kind":"Name","value":"enableTotal"}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"results"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"_id"}},{"kind":"Field","name":{"kind":"Name","value":"location"}},{"kind":"Field","name":{"kind":"Name","value":"googleLocation"}},{"kind":"Field","name":{"kind":"Name","value":"onlineEvent"}},{"kind":"Field","name":{"kind":"Name","value":"globalEvent"}},{"kind":"Field","name":{"kind":"Name","value":"startTime"}},{"kind":"Field","name":{"kind":"Name","value":"endTime"}},{"kind":"Field","name":{"kind":"Name","value":"localStartTime"}},{"kind":"Field","name":{"kind":"Name","value":"localEndTime"}}]}},{"kind":"Field","name":{"kind":"Name","value":"totalCount"}}]}}]}}]} as unknown as DocumentNode<meetupMonthyQueryQuery, meetupMonthyQueryQueryVariables>;
+export const meetupMonthQueryDocument = {"kind":"Document","definitions":[{"kind":"OperationDefinition","operation":"query","name":{"kind":"Name","value":"meetupMonthQuery"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"HomepageCommunityEvents"},"arguments":[{"kind":"Argument","name":{"kind":"Name","value":"limit"},"value":{"kind":"IntValue","value":"500"}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"events"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"_id"}},{"kind":"Field","name":{"kind":"Name","value":"lat"}},{"kind":"Field","name":{"kind":"Name","value":"lng"}}]}}]}}]}}]} as unknown as DocumentNode<meetupMonthQueryQuery, meetupMonthQueryQueryVariables>;
 export const mergeTagsDocument = {"kind":"Document","definitions":[{"kind":"OperationDefinition","operation":"mutation","name":{"kind":"Name","value":"mergeTags"},"variableDefinitions":[{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"sourceTagId"}},"type":{"kind":"NonNullType","type":{"kind":"NamedType","name":{"kind":"Name","value":"String"}}}},{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"targetTagId"}},"type":{"kind":"NonNullType","type":{"kind":"NamedType","name":{"kind":"Name","value":"String"}}}},{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"transferSubtags"}},"type":{"kind":"NonNullType","type":{"kind":"NamedType","name":{"kind":"Name","value":"Boolean"}}}},{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"redirectSource"}},"type":{"kind":"NonNullType","type":{"kind":"NamedType","name":{"kind":"Name","value":"Boolean"}}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"mergeTags"},"arguments":[{"kind":"Argument","name":{"kind":"Name","value":"sourceTagId"},"value":{"kind":"Variable","name":{"kind":"Name","value":"sourceTagId"}}},{"kind":"Argument","name":{"kind":"Name","value":"targetTagId"},"value":{"kind":"Variable","name":{"kind":"Name","value":"targetTagId"}}},{"kind":"Argument","name":{"kind":"Name","value":"transferSubtags"},"value":{"kind":"Variable","name":{"kind":"Name","value":"transferSubtags"}}},{"kind":"Argument","name":{"kind":"Name","value":"redirectSource"},"value":{"kind":"Variable","name":{"kind":"Name","value":"redirectSource"}}}]}]}}]} as unknown as DocumentNode<mergeTagsMutation, mergeTagsMutationVariables>;
 export const messageListFragmentDoc = {"kind":"Document","definitions":[messageListFragmentFragmentDef,UsersMinimumInfoFragmentDef]} as unknown as DocumentNode<messageListFragment, unknown>;
 export const moderateCommentDocument = {"kind":"Document","definitions":[{"kind":"OperationDefinition","operation":"mutation","name":{"kind":"Name","value":"moderateComment"},"variableDefinitions":[{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"commentId"}},"type":{"kind":"NamedType","name":{"kind":"Name","value":"String"}}},{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"deleted"}},"type":{"kind":"NamedType","name":{"kind":"Name","value":"Boolean"}}},{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"deletedReason"}},"type":{"kind":"NamedType","name":{"kind":"Name","value":"String"}}},{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"deletedPublic"}},"type":{"kind":"NamedType","name":{"kind":"Name","value":"Boolean"}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"moderateComment"},"arguments":[{"kind":"Argument","name":{"kind":"Name","value":"commentId"},"value":{"kind":"Variable","name":{"kind":"Name","value":"commentId"}}},{"kind":"Argument","name":{"kind":"Name","value":"deleted"},"value":{"kind":"Variable","name":{"kind":"Name","value":"deleted"}}},{"kind":"Argument","name":{"kind":"Name","value":"deletedReason"},"value":{"kind":"Variable","name":{"kind":"Name","value":"deletedReason"}}},{"kind":"Argument","name":{"kind":"Name","value":"deletedPublic"},"value":{"kind":"Variable","name":{"kind":"Name","value":"deletedPublic"}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"FragmentSpread","name":{"kind":"Name","value":"CommentsList"}}]}}]}},CommentsListFragmentDef,TagPreviewFragmentFragmentDef,TagBasicInfoFragmentDef,UsersMinimumInfoFragmentDef]} as unknown as DocumentNode<moderateCommentMutation, moderateCommentMutationVariables>;

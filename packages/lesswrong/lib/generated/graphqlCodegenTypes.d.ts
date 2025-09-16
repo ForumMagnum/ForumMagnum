@@ -2757,6 +2757,18 @@ type GoogleServiceAccountSessionSelector = {
   default?: InputMaybe<EmptyViewInput>;
 };
 
+type HomepageCommunityEventMarker = {
+  __typename?: 'HomepageCommunityEventMarker';
+  _id: Scalars['String']['output'];
+  lat: Scalars['Float']['output'];
+  lng: Scalars['Float']['output'];
+};
+
+type HomepageCommunityEventMarkersResult = {
+  __typename?: 'HomepageCommunityEventMarkersResult';
+  events: Array<HomepageCommunityEventMarker>;
+};
+
 type Images = {
   __typename?: 'Images';
   _id: Scalars['String']['output'];
@@ -7464,6 +7476,7 @@ type Query = {
   GetRandomUser?: Maybe<User>;
   GetUserBySlug?: Maybe<User>;
   GivingSeasonHearts: Array<GivingSeasonHeart>;
+  HomepageCommunityEvents: HomepageCommunityEventMarkersResult;
   IsDisplayNameTaken: Scalars['Boolean']['output'];
   Lightcone2024FundraiserStripeAmounts?: Maybe<Array<Scalars['Int']['output']>>;
   MigrationsDashboard?: Maybe<MigrationsDashboardData>;
@@ -7738,6 +7751,11 @@ type QueryGetUserBySlugArgs = {
 
 type QueryGivingSeasonHeartsArgs = {
   electionName: Scalars['String']['input'];
+};
+
+
+type QueryHomepageCommunityEventsArgs = {
+  limit: Scalars['Int']['input'];
 };
 
 
@@ -19571,21 +19589,17 @@ type petrovDayLaunchResolversQueryVariables = Exact<{ [key: string]: never; }>;
 
 type petrovDayLaunchResolversQuery = petrovDayLaunchResolversQuery_Query;
 
-type meetupMonthyQueryQuery_posts_MultiPostOutput_results_Post = { __typename?: 'Post', _id: string, location: string | null, googleLocation: any | null, onlineEvent: boolean, globalEvent: boolean, startTime: string | null, endTime: string | null, localStartTime: string | null, localEndTime: string | null };
+type meetupMonthQueryQuery_HomepageCommunityEvents_HomepageCommunityEventMarkersResult_events_HomepageCommunityEventMarker = { __typename?: 'HomepageCommunityEventMarker', _id: string, lat: number, lng: number };
 
-type meetupMonthyQueryQuery_posts_MultiPostOutput = { __typename?: 'MultiPostOutput', totalCount: number | null, results: Array<meetupMonthyQueryQuery_posts_MultiPostOutput_results_Post> };
+type meetupMonthQueryQuery_HomepageCommunityEvents_HomepageCommunityEventMarkersResult = { __typename?: 'HomepageCommunityEventMarkersResult', events: Array<meetupMonthQueryQuery_HomepageCommunityEvents_HomepageCommunityEventMarkersResult_events_HomepageCommunityEventMarker> };
 
-type meetupMonthyQueryQuery_Query = { __typename?: 'Query', posts: meetupMonthyQueryQuery_posts_MultiPostOutput | null };
-
-
-type meetupMonthyQueryQueryVariables = Exact<{
-  selector: InputMaybe<PostSelector>;
-  limit: InputMaybe<Scalars['Int']['input']>;
-  enableTotal: InputMaybe<Scalars['Boolean']['input']>;
-}>;
+type meetupMonthQueryQuery_Query = { __typename?: 'Query', HomepageCommunityEvents: meetupMonthQueryQuery_HomepageCommunityEvents_HomepageCommunityEventMarkersResult };
 
 
-type meetupMonthyQueryQuery = meetupMonthyQueryQuery_Query;
+type meetupMonthQueryQueryVariables = Exact<{ [key: string]: never; }>;
+
+
+type meetupMonthQueryQuery = meetupMonthQueryQuery_Query;
 
 type multiPetrovDayActionOptIntoPetrovButtonQueryQuery_petrovDayActions_MultiPetrovDayActionOutput_results_PetrovDayAction = (
   { __typename?: 'PetrovDayAction' }

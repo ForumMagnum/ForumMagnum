@@ -2,7 +2,7 @@ import Posts from "../../server/collections/posts/collection";
 import AbstractRepo from "./AbstractRepo";
 import { eaPublicEmojiNames } from "../../lib/voting/eaEmojiPalette";
 import LRU from "lru-cache";
-import { getViewablePostsSelector } from "./helpers";
+import { getViewableEventsSelector, getViewablePostsSelector } from "./helpers";
 import { EA_FORUM_COMMUNITY_TOPIC_ID } from "../../lib/collections/tags/helpers";
 import { recordPerfMetrics } from "./perfMetricWrapper";
 import { isAF } from "../../lib/instanceSettings";
@@ -1289,6 +1289,23 @@ class PostsRepo extends AbstractRepo<"Posts"> {
     `, [postIds, userId]);
 
     return new Map(result.map(row => [row.postId, row.isRead]));
+  }
+  
+  async getHomepageCommunityEvents(limit: number): Promise<Array<{ _id: string, lat: number, lng: number }>> {
+    return this.getRawDb().any<{ _id: string, lat: number, lng: number }>(`
+      -- PostsRepo.getHomepageCommunityEvents
+      SELECT 
+        _id, 
+        "googleLocation" -> 'geometry' -> 'location' ->> 'lat' AS "lat",
+        "googleLocation" -> 'geometry' -> 'location' ->> 'lng' AS "lng"
+      FROM "Posts" p
+      WHERE ${getViewableEventsSelector('p')}
+      AND "startTime" > NOW()
+      AND "startTime" < NOW() + INTERVAL '2 months'
+      AND "googleLocation" -> 'geometry' -> 'location' ->> 'lat' IS NOT NULL
+      AND "googleLocation" -> 'geometry' -> 'location' ->> 'lng' IS NOT NULL
+      LIMIT $1
+    `, [limit]);
   }
 }
 

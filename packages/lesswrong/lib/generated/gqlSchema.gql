@@ -598,6 +598,7 @@ extend type Query {
   DigestPlannerData(digestId: String, startDate: Date, endDate: Date): [DigestPlannerPost!]!
   DigestPosts(num: Int): [Post!]
   CanAccessGoogleDoc(fileUrl: String!): Boolean
+  HomepageCommunityEvents(limit: Int!): HomepageCommunityEventMarkersResult!
 }
 
 extend type Mutation {
@@ -646,6 +647,16 @@ type VertexRecommendedPost {
 type PostWithApprovedJargon {
   post: Post!
   jargonTerms: [JargonTerm!]!
+}
+
+type HomepageCommunityEventMarker {
+  _id: String!
+  lat: Float!
+  lng: Float!
+}
+
+type HomepageCommunityEventMarkersResult {
+  events: [HomepageCommunityEventMarker!]!
 }
 
 type DigestHighlightsResult {

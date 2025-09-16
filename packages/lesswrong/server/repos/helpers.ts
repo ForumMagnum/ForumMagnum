@@ -29,6 +29,23 @@ export const getViewablePostsSelector = (postsTableAlias?: string) => {
   `;
 };
 
+export const getViewableEventsSelector = (postsTableAlias?: string) => {
+  const aliasPrefix = postsTableAlias ? `${postsTableAlias}.` : "";
+  return `
+    ${aliasPrefix}"isEvent" IS TRUE AND
+    ${aliasPrefix}"status" = ${postStatuses.STATUS_APPROVED} AND
+    ${aliasPrefix}"draft" IS FALSE AND
+    ${aliasPrefix}"deletedDraft" IS FALSE AND
+    ${aliasPrefix}"isFuture" IS FALSE AND
+    ${aliasPrefix}"unlisted" IS FALSE AND
+    ${aliasPrefix}"shortform" IS FALSE AND
+    ${aliasPrefix}"rejected" IS NOT TRUE AND
+    ${aliasPrefix}"authorIsUnreviewed" IS FALSE AND
+    ${aliasPrefix}"hiddenRelatedQuestion" IS FALSE AND
+    ${aliasPrefix}"postedAt" IS NOT NULL
+  `;
+};
+
 /**
  * When changing this, also update the default view.
  */

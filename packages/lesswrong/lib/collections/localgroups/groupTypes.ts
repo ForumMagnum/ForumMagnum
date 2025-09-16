@@ -16,7 +16,7 @@ export const groupTypes = [
   //   longName: "MIRIx",
   // },
   {
-    shortName: "IABIT",
+    shortName: "IFANYONE",
     longName: "If Anyone Builds It",
   },
   {
