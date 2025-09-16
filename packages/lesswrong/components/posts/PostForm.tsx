@@ -594,7 +594,7 @@ const PostForm = ({
 
       {userCanEditCoauthors(currentUser) && <LegacyFormGroupLayout label="Coauthors" hideHeader>
         <div className={classes.fieldWrapper}>
-          <form.Field name="coauthorStatuses">
+          <form.Field name="coauthorUserIds">
             {(field) => (
               <CoauthorsListEditor
                 field={field}

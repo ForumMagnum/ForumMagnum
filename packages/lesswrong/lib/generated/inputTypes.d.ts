@@ -263,8 +263,6 @@ interface Mutation {
   unlockThread: boolean;
   reorderSummaries: boolean | null;
   publishAndDeDuplicateSpotlight: Spotlight | null;
-  upsertUserTypingIndicator: TypingIndicator | null;
-  acceptCoauthorRequest: Post | null;
   toggleBookmark: ToggleBookmarkOutput | null;
   setIsHidden: User;
   markAsReadOrUnread: boolean | null;
@@ -1173,12 +1171,6 @@ interface MigrationRun {
   succeeded: boolean | null;
 }
 
-interface CoauthorStatus {
-  userId: string | null;
-  confirmed: boolean | null;
-  requested: boolean | null;
-}
-
 interface ExternalPost {
   _id: string;
   slug: string | null;
@@ -1190,7 +1182,7 @@ interface ExternalPost {
   modifiedAt: Date | null;
   draft: boolean | null;
   content: string | null;
-  coauthorStatuses: Array<CoauthorStatus> | null;
+  coauthorUserIds: Array<string> | null;
 }
 
 interface ExternalPostImportData {
@@ -4042,6 +4034,7 @@ interface Post {
   autoFrontpage: string | null;
   collectionTitle: string | null;
   coauthorStatuses: Array<CoauthorStatusOutput> | null;
+  coauthorUserIds: Array<string>;
   coauthors: Array<User> | null;
   hasCoauthorPermission: boolean;
   socialPreviewImageId: string | null;
@@ -5861,11 +5854,16 @@ interface ReviewVotesReviewVotesAdminDashboardInput {
   year?: number | null;
 }
 
+interface ReviewVotesReviewVotesForPostAndUserInput {
+  postId?: string | null;
+  userId?: string | null;
+}
+
 interface ReviewVoteSelector {
   default: EmptyViewInput | null;
   reviewVotesFromUser: ReviewVotesReviewVotesFromUserInput | null;
   reviewVotesForPost: EmptyViewInput | null;
-  reviewVotesForPostAndUser: EmptyViewInput | null;
+  reviewVotesForPostAndUser: ReviewVotesReviewVotesForPostAndUserInput | null;
   reviewVotesAdminDashboard: ReviewVotesReviewVotesAdminDashboardInput | null;
 }
 
@@ -8468,6 +8466,7 @@ interface CreatePostDataInput {
   autoFrontpage?: string | null;
   collectionTitle?: string | null;
   coauthorStatuses?: Array<CoauthorStatusInput> | null;
+  coauthorUserIds?: Array<string> | null;
   hasCoauthorPermission?: boolean | null;
   socialPreviewImageId?: string | null;
   socialPreviewImageAutoUrl?: string | null;
@@ -8583,6 +8582,7 @@ interface UpdatePostDataInput {
   autoFrontpage?: string | null;
   collectionTitle?: string | null;
   coauthorStatuses?: Array<CoauthorStatusInput> | null;
+  coauthorUserIds?: Array<string> | null;
   hasCoauthorPermission?: boolean | null;
   socialPreviewImageId?: string | null;
   socialPreviewImageAutoUrl?: string | null;
@@ -9817,7 +9817,6 @@ interface GraphQLTypeMap {
   MigrationsDashboardData: MigrationsDashboardData;
   MigrationStatus: MigrationStatus;
   MigrationRun: MigrationRun;
-  CoauthorStatus: CoauthorStatus;
   ExternalPost: ExternalPost;
   ExternalPostImportData: ExternalPostImportData;
   AutosaveContentType: AutosaveContentType;
@@ -10277,6 +10276,7 @@ interface GraphQLTypeMap {
   SingleReviewVoteOutput: SingleReviewVoteOutput;
   ReviewVotesReviewVotesFromUserInput: ReviewVotesReviewVotesFromUserInput;
   ReviewVotesReviewVotesAdminDashboardInput: ReviewVotesReviewVotesAdminDashboardInput;
+  ReviewVotesReviewVotesForPostAndUserInput: ReviewVotesReviewVotesForPostAndUserInput;
   ReviewVoteSelector: ReviewVoteSelector;
   MultiReviewVoteInput: MultiReviewVoteInput;
   MultiReviewVoteOutput: MultiReviewVoteOutput;

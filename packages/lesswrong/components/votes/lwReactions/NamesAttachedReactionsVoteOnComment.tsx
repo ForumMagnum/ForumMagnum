@@ -20,7 +20,6 @@ import { AddReactionIcon } from '../../icons/AddReactionIcon';
 import difference from 'lodash/difference';
 import uniq from 'lodash/uniq';
 import { useTracking } from "../../../lib/analyticsEvents";
-import { getConfirmedCoauthorIds } from '../../../lib/collections/posts/helpers';
 import type { ContentItemBodyImperative } from '../../contents/contentBodyUtil';
 import { SetHoveredReactionContext } from './HoveredReactionContextProvider';
 import { filterNonnull } from '../../../lib/utils/typeGuardUtils';
@@ -106,6 +105,9 @@ const styles = defineStyles("NamesAttachedReactionsVoteOnComment", (theme: Theme
     },
     "&:hover": {
       filter: "opacity(0.8)",
+    },
+    "@media print": {
+      display: "none",
     },
   },
   hoverBallot: {
@@ -343,7 +345,7 @@ const NamesAttachedReactionsCommentBottomInner = ({
   const hiddenReacts = difference(allReactions, visibleReacts)
 
   const isDebateComment = post?.debate && document.debateResponse
-  const canReactUserIds = post ? [...getConfirmedCoauthorIds(post), post.userId] : []
+  const canReactUserIds = post ? [...post.coauthorUserIds, post.userId] : []
   const userIsDebateParticipant = !!currentUserId && canReactUserIds.includes(currentUserId)
   const showReactButton = !isDebateComment || userIsDebateParticipant
 

@@ -5,6 +5,6 @@ export const up = async ({dbOutsideTransaction}: MigrationContext) => {
   queueMigrationTask(() => updateCustomIndexes(dbOutsideTransaction));
 }
 
-export const down = async ({ db }: MigrationContext) => {
-  await db.none(`DROP INDEX IF EXISTS "ultraFeedEvents_sessionId_partial_idx";`);
+export const down = async ({db}: MigrationContext) => {
+  await db.none(`DROP INDEX IF EXISTS "idx_Spotlights_documentId_createdAt";`);
 }
