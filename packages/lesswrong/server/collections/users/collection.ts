@@ -14,6 +14,14 @@ export const Users = createCollection({
       CREATE INDEX idx_users_keyword_alerts_not_empty
       ON "Users" (("keywordAlerts" <> '{}'))
     `);
+    // In an ideal world this would be a unique index, but we can't do that now
+    // for backwards-compatability reasons
+    indexSet.addCustomPgIndex(`
+      CREATE INDEX idx_users_normalized_display_name
+      ON "Users" (fm_normalize_display_name("displayName"))
+    `, {
+      dependencies: [{type: "function", name: "fm_normalize_display_name"}],
+    });
     return indexSet;
   },
 });

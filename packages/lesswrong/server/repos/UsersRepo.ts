@@ -2,7 +2,7 @@ import AbstractRepo from "./AbstractRepo";
 import Users from "../../server/collections/users/collection";
 import { ActiveDialogueServer } from "../../components/hooks/useUnreadNotifications";
 import { recordPerfMetrics } from "./perfMetricWrapper";
-import { isEAForum } from "../../lib/instanceSettings";
+import { isEAForum, isLWorAF } from "../../lib/instanceSettings";
 import { userLoginTokensView } from "../postgresView";
 import { getDefaultFacetFieldSelector, getFacetField } from "../search/facetFieldSearch";
 import { MULTISELECT_SUGGESTION_LIMIT } from "@/components/hooks/useSearchableMultiSelect";
@@ -420,13 +420,34 @@ class UsersRepo extends AbstractRepo<"Users"> {
     return result;
   }
 
-  async isDisplayNameTaken({ displayName, currentUserId }: { displayName: string; currentUserId: string; }): Promise<boolean> {
+  private async isDisplayNameTakenLW({ displayName, currentUserId }: {
+    displayName: string,
+    currentUserId: string,
+  }): Promise<boolean> {
+    const result = await this.getRawDb().one(`
+      -- UsersRepo.isDisplayNameTakenLW
+      SELECT COUNT(*) > 0 AS "isDisplayNameTaken"
+      FROM "Users"
+      WHERE "displayName" = $1 AND "_id" <> $2
+    `, [displayName, currentUserId]);
+    return result.isDisplayNameTaken;
+  }
+
+  async isDisplayNameTaken(args: {
+    displayName: string,
+    currentUserId: string,
+  }): Promise<boolean> {
+    if (isLWorAF) {
+      return this.isDisplayNameTakenLW(args);
+    }
     const result = await this.getRawDb().one(`
       -- UsersRepo.isDisplayNameTaken
       SELECT COUNT(*) > 0 AS "isDisplayNameTaken"
       FROM "Users"
-      WHERE "displayName" = $1 AND NOT "_id" = $2
-    `, [displayName, currentUserId]);
+      WHERE
+        fm_normalize_display_name("displayName") = fm_normalize_display_name($1)
+        AND "_id" <> $2
+    `, [args.displayName, args.currentUserId]);
     return result.isDisplayNameTaken;
   }
   
