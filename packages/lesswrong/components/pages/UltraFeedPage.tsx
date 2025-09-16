@@ -16,7 +16,6 @@ const styles = defineStyles("UltraFeedPage", (theme: ThemeType) => ({
 
 const UltraFeedPage = () => {
   const classes = useStyles(styles);
-  const currentUser = useCurrentUser();
   const [cookies, setCookie] = useCookiesWithConsent([ULTRA_FEED_PAGE_VISITED_COOKIE]);
 
   const isFirstVisit = cookies[ULTRA_FEED_PAGE_VISITED_COOKIE] !== 'true';
