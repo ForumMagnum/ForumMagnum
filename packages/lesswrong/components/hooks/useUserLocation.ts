@@ -105,5 +105,5 @@ export const useUserLocation = (currentUser: UsersCurrent | DbUser | null, dontA
     //eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  return { ...locationData, setLocationData };
+  return { ...locationData, setLocationData, dontAsk };
 };

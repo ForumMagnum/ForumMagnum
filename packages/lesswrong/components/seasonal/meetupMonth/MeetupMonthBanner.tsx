@@ -257,7 +257,7 @@ const styles = defineStyles("MeetupMonthBanner", (theme: ThemeType) => ({
     width: 110,
     gap: 12,
     justifyContent: "center",
-    border: `1px solid ${theme.palette.grey[400]}`,
+    border: `1px solid ${theme.palette.grey[200]}`,
     borderRadius: 10,
     padding: 12,
     opacity: 0,
@@ -273,6 +273,9 @@ const styles = defineStyles("MeetupMonthBanner", (theme: ThemeType) => ({
     width: 30,
     height: 30,
     opacity: .2,
+    '& svg': {
+      fill: theme.palette.grey[400],
+    },
     '&:hover': {
       opacity: 1,
     },
@@ -335,6 +338,7 @@ export const MeetupMonthQuery = gql(`
         _id
         lat
         lng
+        types
       }
     }
   }
@@ -350,7 +354,7 @@ export default function MeetupMonthBannerInner() {
   });
   const [isLoading, setIsLoading] = useState(true);
   const [scrollOpacity, setScrollOpacity] = useState(1);
-  const [mapActive, setMapActive] = useState(false);
+  const [everClickedMap, setEverClickedMap] = useState(false);
   const carouselSections = useMemo(() => getCarouselSections(classes), [classes]);
   
   const defaultViewport = useMemo(() => ({
@@ -360,26 +364,6 @@ export default function MeetupMonthBannerInner() {
   }), [])
 
   const [viewport, setViewport] = useState(defaultViewport)
-
-  useEffect(() => {
-    const handleScroll = () => {
-      const scrollTop = window.pageYOffset || document.documentElement.scrollTop;
-      const windowHeight = window.innerHeight;
-      
-      // Calculate scroll progress relative to 100vh (0 to 1)
-      const scrollProgress = Math.min(scrollTop / windowHeight, 1);
-      
-      // Map, title, subtitle fade out completely by 100vh (1 to 0)
-      const fadeOutOpacity = 1 - scrollProgress;
-      
-      // setScrollOpacity(fadeOutOpacity);
-    };
-
-    window.addEventListener('scroll', handleScroll);
-    handleScroll(); // Initial call
-    
-    return () => window.removeEventListener('scroll', handleScroll);
-  }, []);
 
   useEffect(() => {
     const initializeMap = async () => {
@@ -395,35 +379,19 @@ export default function MeetupMonthBannerInner() {
   }, [defaultViewport]);
 
   const currentUser = useCurrentUser()
-  // this is unused in this component, but for Meetup Month it seems good to force the prompt to enter location.
-  useUserLocation(currentUser, false)
 
-  const { view, ...selectorTerms } = { view: 'events' };
+  // this is meant to only trigger after the user has clicked on something on the map
+  useUserLocation(currentUser, !everClickedMap)
+
   const { data } = useQuery(MeetupMonthQuery)
 
   const events = useMemo(() => data?.HomepageCommunityEvents.events ?? [], [data?.HomepageCommunityEvents.events]);
 
-  const [ openWindows, setOpenWindows ] = useState<string[]>([])
-  const [isMapHovered, setIsMapHovered] = useState(false)
   const [isTransitioning, setIsTransitioning] = useState(false)
   const [isSettingUp, setIsSettingUp] = useState(false)
   const [currentCarouselIndex, setCurrentCarouselIndex] = useState(0)
   const [nextCarouselIndex, setNextCarouselIndex] = useState<number | null>(null)
 
-  useGlobalKeydown(ev => {
-    if (ev.key === 'Escape') {
-      setMapActive(false)
-    }
-  });
-  
-  const handleClick = useCallback(
-    (id: string) => { setOpenWindows([id]) }
-    , []
-  )
-  const handleClose = useCallback(
-    (id: string) => { setOpenWindows(without(openWindows, id))}
-    , [openWindows]
-  )
   
   const acxCarouselIndex = 1 // ACX button is the second carousel entry
   const acxActive = (nextCarouselIndex ?? currentCarouselIndex) === acxCarouselIndex
@@ -432,11 +400,18 @@ export default function MeetupMonthBannerInner() {
   const petrovCarouselIndex = 3 // Petrov button is the fourth carousel entry
   const petrovActive = (nextCarouselIndex ?? currentCarouselIndex) === petrovCarouselIndex
   const renderedMarkers = useMemo(() => {
+    console.log('events', events)
     if (acxActive) {
-      return <LocalEventMapMarkerWrappersInner localEvents={acxEvents} />
+      return <LocalEventMapMarkerWrappersInner localEvents={events.filter(event => (event.types ?? []).includes('acx'))} />
+    }
+    if (ifanyoneActive) {
+      return <LocalEventMapMarkerWrappersInner localEvents={events.filter(event => (event.types ?? []).includes('ifanyone'))} />
+    }
+    if (petrovActive) {
+      return <LocalEventMapMarkerWrappersInner localEvents={events.filter(event => (event.types ?? []).includes('petrov'))} />
     }
     return <LocalEventMapMarkerWrappersInner localEvents={events} />
-  }, [acxActive, events])
+  }, [acxActive, ifanyoneActive, petrovActive, events])
   const handleZoomChange = useCallback((event: React.ChangeEvent<HTMLInputElement>) => {
     const newZoom = parseFloat(event.target.value)
     setViewport(prev => ({
@@ -460,14 +435,6 @@ export default function MeetupMonthBannerInner() {
       ...prev,
       zoom: Math.max(prev.zoom - 0.5, 1),
     }))
-  }, [])
-
-  const handleMapMouseEnter = useCallback(() => {
-    setIsMapHovered(true)
-  }, [])
-
-  const handleMapMouseLeave = useCallback(() => {
-    setIsMapHovered(false)
   }, [])
 
   const handleMeetupTypeClick = useCallback((index: number) => {
@@ -509,16 +476,14 @@ export default function MeetupMonthBannerInner() {
     <div 
       className={classes.mapContainer} 
       style={{ opacity: scrollOpacity }}
-      onMouseEnter={handleMapMouseEnter}
-      onMouseLeave={handleMapMouseLeave}
     >
-      <div className={classes.mapButtonsContainer}>
+      <div className={classes.mapButtonsContainer} onClick={() => setEverClickedMap(true)}>
         <div className={classes.mapButtons}>    
           <MagnifyingGlassMinusIcon className={classes.zoomButton} onClick={handleZoomOut} />
           <MagnifyingGlassPlusIcon className={classes.zoomButton} onClick={handleZoomIn} />
         </div>
       </div>
-      <div className={classes.contentContainer}>
+      <div className={classes.contentContainer} onClick={() => setEverClickedMap(true)}>
         <div className={classes.textContainer}>
           {carouselSections.map((section, index) => {
             
@@ -559,7 +524,7 @@ export default function MeetupMonthBannerInner() {
             }}>
               {section.title && <h1 className={classes.title}>{section.title}</h1>}
               {section.minorTitle && <h3 className={classes.minorTitle}>{section.minorTitle}</h3>}
-              {section.subtitle && <p className={classes.subtitle}>{section.subtitle}</p>}
+              {section.subtitle && <div className={classes.subtitle}>{section.subtitle}</div>}
             </div>
           })}
         </div>

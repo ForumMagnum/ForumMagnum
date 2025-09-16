@@ -2762,6 +2762,7 @@ type HomepageCommunityEventMarker = {
   _id: Scalars['String']['output'];
   lat: Scalars['Float']['output'];
   lng: Scalars['Float']['output'];
+  types?: Maybe<Array<Scalars['String']['output']>>;
 };
 
 type HomepageCommunityEventMarkersResult = {
@@ -19589,7 +19590,7 @@ type petrovDayLaunchResolversQueryVariables = Exact<{ [key: string]: never; }>;
 
 type petrovDayLaunchResolversQuery = petrovDayLaunchResolversQuery_Query;
 
-type meetupMonthQueryQuery_HomepageCommunityEvents_HomepageCommunityEventMarkersResult_events_HomepageCommunityEventMarker = { __typename?: 'HomepageCommunityEventMarker', _id: string, lat: number, lng: number };
+type meetupMonthQueryQuery_HomepageCommunityEvents_HomepageCommunityEventMarkersResult_events_HomepageCommunityEventMarker = { __typename?: 'HomepageCommunityEventMarker', _id: string, lat: number, lng: number, types: Array<string> | null };
 
 type meetupMonthQueryQuery_HomepageCommunityEvents_HomepageCommunityEventMarkersResult = { __typename?: 'HomepageCommunityEventMarkersResult', events: Array<meetupMonthQueryQuery_HomepageCommunityEvents_HomepageCommunityEventMarkersResult_events_HomepageCommunityEventMarker> };
 

@@ -508,6 +508,7 @@ export const postGqlTypeDefs = gql`
     _id: String!
     lat: Float!
     lng: Float!
+    types: [String!]
   }
   type HomepageCommunityEventMarkersResult {
     events: [HomepageCommunityEventMarker!]!

@@ -26,7 +26,7 @@ export const styles = (theme: ThemeType) => ({
     maxHeight: 150,
     overflowY: 'auto',
     wordBreak: 'break-word',
-    // Thin elegant scrollbar
+    // Nicer scrollbar
     '&::-webkit-scrollbar': {
       width: '2px'
     },

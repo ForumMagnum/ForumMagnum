@@ -862,6 +862,7 @@ interface HomepageCommunityEventMarker {
   _id: string;
   lat: number;
   lng: number;
+  types: Array<string> | null;
 }
 
 interface HomepageCommunityEventMarkersResult {

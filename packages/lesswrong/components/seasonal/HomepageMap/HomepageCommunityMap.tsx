@@ -6,7 +6,7 @@ import { Marker as BadlyTypedMarker, Popup as BadlyTypedPopup } from 'react-map-
 import { defaultCenter } from '../../localGroups/CommunityMap';
 import { ArrowSVG } from '../../localGroups/Icons';
 import { postGetPageUrl } from '../../../lib/collections/posts/helpers';
-import { ACX_EVENTS_LAST_UPDATED, LocalEvent, localEvents } from './acxEvents';
+import { ACX_EVENTS_LAST_UPDATED, localEvents } from './acxEvents';
 import classNames from 'classnames';
 import moment from 'moment';
 import { componentWithChildren } from '../../../lib/utils/componentsWithChildren';
@@ -93,7 +93,7 @@ const localEventWrapperPopUpStyles = defineStyles("localEventWrapperPopUpStyles"
 }))
 
 export const LocalEventWrapperPopUp = ({localEvent, handleClose}: {
-  localEvent: LocalEvent,
+  localEvent: HomepageCommunityEventMarker,
   handleClose: (eventId: string) => void
 }) => {
   const classes = useStyles(localEventWrapperPopUpStyles)
@@ -155,7 +155,7 @@ const localEventMapMarkerWrappersStyles = defineStyles("localEventMapMarkerWrapp
 }))
 
 export const LocalEventMapMarkerWrappersInner = ({localEvents}: {
-  localEvents: Array<LocalEvent>,
+  localEvents: Array<HomepageCommunityEventMarker>,
 }) => {
   const classes = useStyles(localEventMapMarkerWrappersStyles)
   const [ openWindows, setOpenWindows ] = useState<string[]>([])
@@ -171,9 +171,9 @@ export const LocalEventMapMarkerWrappersInner = ({localEvents}: {
   // Sanity check that we updated the acxEvents.ts file with the new events.
   // If we didn't, it's much more obvious during testing that we forgot to update the map pins (since they'll be missing)
   const threeMonthsAgo = moment().subtract(3, 'months');
-  // if (threeMonthsAgo.isAfter(ACX_EVENTS_LAST_UPDATED)) {
-  //   return null;
-  // }
+  if (threeMonthsAgo.isAfter(ACX_EVENTS_LAST_UPDATED)) {
+    return null;
+  }
   return <React.Fragment>
     {localEvents.map((localEvent, i) => {
       const infoOpen = openWindows.includes(localEvent._id)

@@ -1291,13 +1291,14 @@ class PostsRepo extends AbstractRepo<"Posts"> {
     return new Map(result.map(row => [row.postId, row.isRead]));
   }
   
-  async getHomepageCommunityEvents(limit: number): Promise<Array<{ _id: string, lat: number, lng: number }>> {
-    return this.getRawDb().any<{ _id: string, lat: number, lng: number }>(`
+  async getHomepageCommunityEvents(limit: number): Promise<Array<HomepageCommunityEventMarker>> {
+    return this.getRawDb().any<HomepageCommunityEventMarker>(`
       -- PostsRepo.getHomepageCommunityEvents
       SELECT 
         _id, 
         "googleLocation" -> 'geometry' -> 'location' ->> 'lat' AS "lat",
-        "googleLocation" -> 'geometry' -> 'location' ->> 'lng' AS "lng"
+        "googleLocation" -> 'geometry' -> 'location' ->> 'lng' AS "lng",
+        "types"
       FROM "Posts" p
       WHERE ${getViewableEventsSelector('p')}
       AND "startTime" > NOW()

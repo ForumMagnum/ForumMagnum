@@ -653,6 +653,7 @@ type HomepageCommunityEventMarker {
   _id: String!
   lat: Float!
   lng: Float!
+  types: [String!]
 }
 
 type HomepageCommunityEventMarkersResult {
