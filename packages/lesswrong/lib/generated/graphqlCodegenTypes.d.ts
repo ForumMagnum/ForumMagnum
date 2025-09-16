@@ -20886,7 +20886,7 @@ type multiCommentSunshineNewCommentsListQueryQuery_comments_MultiCommentOutput_r
   & CommentsListWithParentMetadata
 );
 
-type multiCommentSunshineNewCommentsListQueryQuery_comments_MultiCommentOutput = { __typename?: 'MultiCommentOutput', totalCount: number | null, results: Array<multiCommentSunshineNewCommentsListQueryQuery_comments_MultiCommentOutput_results_Comment> };
+type multiCommentSunshineNewCommentsListQueryQuery_comments_MultiCommentOutput = { __typename?: 'MultiCommentOutput', results: Array<multiCommentSunshineNewCommentsListQueryQuery_comments_MultiCommentOutput_results_Comment> };
 
 type multiCommentSunshineNewCommentsListQueryQuery_Query = { __typename?: 'Query', comments: multiCommentSunshineNewCommentsListQueryQuery_comments_MultiCommentOutput | null };
 
@@ -20894,7 +20894,6 @@ type multiCommentSunshineNewCommentsListQueryQuery_Query = { __typename?: 'Query
 type multiCommentSunshineNewCommentsListQueryQueryVariables = Exact<{
   selector: InputMaybe<CommentSelector>;
   limit: InputMaybe<Scalars['Int']['input']>;
-  enableTotal: InputMaybe<Scalars['Boolean']['input']>;
 }>;
 
 
