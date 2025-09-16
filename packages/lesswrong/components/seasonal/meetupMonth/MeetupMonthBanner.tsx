@@ -1,20 +1,13 @@
 import React, { useState, useEffect, useMemo, useCallback } from 'react';
-import { registerComponent } from '../../../lib/vulcan-lib/components';
 import { defineStyles, useStyles } from '../../hooks/useStyles';
 import { WrappedReactMapGL } from '../../community/WrappedReactMapGL';
-import Checkbox from '@/lib/vendor/@material-ui/core/src/Checkbox';
-import { grey } from '@/themes/defaultPalette';
-import { LocalEventMapMarkerWrappers, LocalEventMapMarkerWrappersInner } from '../HomepageMap/HomepageCommunityMap';
+import { LocalEventMapMarkerWrappersInner } from '../HomepageMap/HomepageCommunityMap';
 import { useCurrentUser } from '@/components/common/withUser';
 import { useGlobalKeydown } from '@/components/common/withGlobalKeydown';
-import HomepageMapFilter from '../HomepageMap/HomepageMapFilter';
 import { useQuery } from "@/lib/crud/useQuery";
-import { LocalEventsMapMarkers, PostsListMultiQuery } from '@/components/localGroups/CommunityMap';
 import without from 'lodash/without';
-import { backdatePreviousDigest } from '@/server/callbacks/digestCallbacks';
 import { SuspenseWrapper } from '@/components/common/SuspenseWrapper';
 import { gql } from '@/lib/generated/gql-codegen';
-import { LocalEvent } from '../HomepageMap/acxEvents';
 import { JssStyles } from '@/lib/jssStyles';
 import { useUserLocation } from '@/components/hooks/useUserLocation';
 
