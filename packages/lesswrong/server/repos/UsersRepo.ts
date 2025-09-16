@@ -514,55 +514,48 @@ class UsersRepo extends AbstractRepo<"Users"> {
   async getTopActiveContributors(limit: number, days = 30): Promise<DbUser[]> {
     return this.any(`
       -- UsersRepo.getTopActiveContributors
-      WITH eligible_users AS (
-        -- Pre-filter to established users
-        SELECT "_id", karma
-        FROM "Users"
-        WHERE
-          karma > 1000
-          AND (banned IS NULL OR banned < current_date)
-          AND "deleted" IS NOT TRUE
-          AND "displayName" IS NOT NULL
-      ),
-      recent_activity AS (
-        SELECT 
-          p."userId",
-          'post' AS activity_type,
-          p."postedAt" AS activity_date
-        FROM "Posts" p
-        INNER JOIN eligible_users eu ON eu."_id" = p."userId"
-        WHERE 
-          p."postedAt" >= NOW() - INTERVAL '1 day' * $1
-          AND p."shortform" IS NOT TRUE
-        UNION ALL
-        SELECT
-          c."userId",
-          'comment' AS activity_type,
-          c."createdAt" AS activity_date
-        FROM "Comments" c
-        INNER JOIN eligible_users eu ON eu."_id" = c."userId"
-        WHERE
-          c."createdAt" >= NOW() - INTERVAL '1 day' * $1
-      ),
-      active_user_stats AS (
-        SELECT
-          ra."userId",
-          COUNT(*) FILTER (WHERE activity_type = 'post') AS recent_posts,
-          COUNT(*) FILTER (WHERE activity_type = 'comment') AS recent_comments,
-          MAX(activity_date) AS last_activity_at,
-          MAX(eu.karma) AS karma
-        FROM recent_activity ra
-        JOIN eligible_users eu ON eu."_id" = ra."userId"
-        GROUP BY ra."userId"
-      )
       SELECT u.*
-      FROM active_user_stats aus
-      JOIN "Users" u ON u."_id" = aus."userId"
+      FROM (
+        SELECT
+          recent_activity."userId",
+          COUNT(*) FILTER (WHERE activity_type = 'post')    AS recent_posts,
+          COUNT(*) FILTER (WHERE activity_type = 'comment') AS recent_comments,
+          MAX(activity_date)                                AS last_activity_at
+        FROM (
+          SELECT 
+            p."userId",
+            'post' AS activity_type,
+            p."postedAt" AS activity_date
+          FROM "Posts" p
+          JOIN "Users" eligible_user ON eligible_user."_id" = p."userId"
+          WHERE
+            eligible_user.karma > 1000
+            AND (eligible_user.banned IS NULL OR eligible_user.banned < current_date)
+            AND eligible_user."deleted" IS NOT TRUE
+            AND eligible_user."displayName" IS NOT NULL
+            AND p."postedAt" >= NOW() - INTERVAL '1 day' * $1
+            AND p."shortform" IS NOT TRUE
+          UNION ALL
+          SELECT
+            c."userId",
+            'comment' AS activity_type,
+            c."createdAt" AS activity_date
+          FROM "Comments" c
+          JOIN "Users" eligible_user ON eligible_user."_id" = c."userId"
+          WHERE
+            eligible_user.karma > 1000
+            AND (eligible_user.banned IS NULL OR eligible_user.banned < current_date)
+            AND eligible_user."deleted" IS NOT TRUE
+            AND eligible_user."displayName" IS NOT NULL
+            AND c."createdAt" >= NOW() - INTERVAL '1 day' * $1
+        ) AS recent_activity
+        GROUP BY recent_activity."userId"
+      ) AS activity_stats
+      JOIN "Users" u ON u."_id" = activity_stats."userId"
       ORDER BY
-        -- Scoring: recent posts weighted 5x, comments 1x
-        (aus.recent_posts * 5 + aus.recent_comments) DESC,
-        aus.karma DESC,
-        aus.last_activity_at DESC
+        (activity_stats.recent_posts * 5 + activity_stats.recent_comments) DESC,
+        u.karma DESC,
+        activity_stats.last_activity_at DESC
       LIMIT $2
     `, [days, limit]);
   }
