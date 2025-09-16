@@ -27,7 +27,7 @@ function pastForumEvents(terms: ForumEventsViewTerms) {
       isGlobal: true,
     },
     options: {
-      sort: {createdAt: 1},
+      sort: {createdAt: -1},
       limit: terms.limit ?? 20,
     },
   };
