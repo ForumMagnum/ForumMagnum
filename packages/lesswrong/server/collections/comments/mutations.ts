@@ -4,7 +4,7 @@ import { userIsAllowedToComment } from "@/lib/collections/users/helpers";
 import { isElasticEnabled } from "@/lib/instanceSettings";
 import { accessFilterSingle } from "@/lib/utils/schemaUtils";
 import { userCanDo, userOwns } from "@/lib/vulcan-users/permissions";
-import { addReferrerToComment, assignPostVersion, checkCommentForSpamWithAkismet, checkModGPTOnCommentCreate, checkModGPTOnCommentUpdate, commentsAlignmentEdit, commentsAlignmentNew, commentsEditSoftDeleteCallback, commentsNewNotifications, commentsNewOperations, commentsNewUserApprovedStatus, commentsPublishedNotifications, createShortformPost, handleForumEventMetadataEdit, handleForumEventMetadataNew, handleReplyToAnswer, invalidatePostOnCommentCreate, invalidatePostOnCommentUpdate, lwCommentsNewUpvoteOwnComment, moveToAnswers, newCommentsEmptyCheck, newCommentsPollResponseCheck, newCommentsRateLimit, newCommentTriggerReview, handleDraftState, setTopLevelCommentId, trackCommentRateLimitHit, updatedCommentMaybeTriggerReview, updateDescendentCommentCountsOnCreate, updateDescendentCommentCountsOnEdit, updatePostLastCommentPromotedAt, updateUserNotesOnCommentRejection, validateDeleteOperations } from "@/server/callbacks/commentCallbackFunctions";
+import { addReferrerToComment, assignPostVersion, checkCommentForSpamWithAkismet, checkModGPTOnCommentCreate, checkModGPTOnCommentUpdate, commentsAlignmentEdit, commentsAlignmentNew, commentsEditSoftDeleteCallback, commentsNewNotifications, commentsNewOperations, commentsNewUserApprovedStatus, commentsPublishedNotifications, createShortformPost, handleForumEventMetadataEdit, handleForumEventMetadataNew, handleReplyToAnswer, invalidatePostOnCommentCreate, invalidatePostOnCommentUpdate, lwCommentsNewUpvoteOwnComment, moveToAnswers, newCommentsEmptyCheck, newCommentsPollResponseCheck, commentsRateLimit, newCommentTriggerReview, handleDraftState, setTopLevelCommentId, trackCommentRateLimitHit, updatedCommentMaybeTriggerReview, updateDescendentCommentCountsOnCreate, updateDescendentCommentCountsOnEdit, updatePostLastCommentPromotedAt, updateUserNotesOnCommentRejection, validateDeleteOperations } from "@/server/callbacks/commentCallbackFunctions";
 import { updateCountOfReferencesOnOtherCollectionsAfterCreate, updateCountOfReferencesOnOtherCollectionsAfterUpdate } from "@/server/callbacks/countOfReferenceCallbacks";
 import { upsertPolls } from "@/server/callbacks/forumEventCallbacks";
 import { sendAlignmentSubmissionApprovalNotifications } from "@/server/callbacks/sharedCallbackFunctions";
@@ -23,7 +23,7 @@ async function newCheck(user: DbUser | null, document: CreateCommentDataInput | 
   
   newCommentsEmptyCheck(document);
   newCommentsPollResponseCheck(document);
-  await newCommentsRateLimit(document, user, context);
+  await commentsRateLimit(document, user, context);
 
   if (!document.postId) return userCanDo(user, 'comments.new')
   const post = await context.loaders.Posts.load(document.postId)
@@ -131,6 +131,8 @@ export async function createComment({ data }: CreateCommentInput, context: Resol
 
 export async function updateComment({ selector, data }: UpdateCommentInput, context: ResolverContext) {
   const { currentUser, Comments } = context;
+
+  await commentsRateLimit(data, currentUser!, context);
 
   // Save the original mutation (before callbacks add more changes to it) for
   // logging in FieldChanges
