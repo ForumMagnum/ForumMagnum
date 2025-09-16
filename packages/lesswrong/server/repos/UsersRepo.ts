@@ -507,6 +507,66 @@ class UsersRepo extends AbstractRepo<"Users"> {
     return results.map(({_id}) => _id);
   }
 
+  /**
+   * Returns active top contributors for recommending to logged out users, based on recent
+   * posting/commenting activity.
+   */
+  async getTopActiveContributors(limit: number, days = 30): Promise<DbUser[]> {
+    return this.any(`
+      -- UsersRepo.getTopActiveContributors
+      WITH eligible_users AS (
+        -- Pre-filter to established users
+        SELECT "_id", karma
+        FROM "Users"
+        WHERE
+          karma > 1000
+          AND (banned IS NULL OR banned < current_date)
+          AND "deleted" IS NOT TRUE
+          AND "displayName" IS NOT NULL
+      ),
+      recent_activity AS (
+        SELECT 
+          p."userId",
+          'post' AS activity_type,
+          p."postedAt" AS activity_date
+        FROM "Posts" p
+        INNER JOIN eligible_users eu ON eu."_id" = p."userId"
+        WHERE 
+          p."postedAt" >= NOW() - INTERVAL '1 day' * $1
+          AND p."shortform" IS NOT TRUE
+        UNION ALL
+        SELECT
+          c."userId",
+          'comment' AS activity_type,
+          c."createdAt" AS activity_date
+        FROM "Comments" c
+        INNER JOIN eligible_users eu ON eu."_id" = c."userId"
+        WHERE
+          c."createdAt" >= NOW() - INTERVAL '1 day' * $1
+      ),
+      active_user_stats AS (
+        SELECT
+          ra."userId",
+          COUNT(*) FILTER (WHERE activity_type = 'post') AS recent_posts,
+          COUNT(*) FILTER (WHERE activity_type = 'comment') AS recent_comments,
+          MAX(activity_date) AS last_activity_at,
+          MAX(eu.karma) AS karma
+        FROM recent_activity ra
+        JOIN eligible_users eu ON eu."_id" = ra."userId"
+        GROUP BY ra."userId"
+      )
+      SELECT u.*
+      FROM active_user_stats aus
+      JOIN "Users" u ON u."_id" = aus."userId"
+      ORDER BY
+        -- Scoring: recent posts weighted 5x, comments 1x
+        (aus.recent_posts * 5 + aus.recent_comments) DESC,
+        aus.karma DESC,
+        aus.last_activity_at DESC
+      LIMIT $2
+    `, [days, limit]);
+  }
+
   async getSubscriptionFeedSuggestedUsers(userId: string, limit: number): Promise<DbUser[]> {
     return this.any(`
       WITH existing_subscriptions AS (

@@ -7497,6 +7497,7 @@ type Query = {
   SubforumTopFeed: SubforumTopFeedQueryResults;
   SubscribedFeed: SubscribedFeedQueryResults;
   SuggestedFeedSubscriptionUsers?: Maybe<SuggestedFeedSubscriptionUsersResult>;
+  SuggestedTopActiveUsers?: Maybe<SuggestedTopActiveUsersResult>;
   TagHistoryFeed: TagHistoryFeedQueryResults;
   TagPreview?: Maybe<TagPreviewWithSummaries>;
   TagUpdatesByUser?: Maybe<Array<TagUpdates>>;
@@ -7909,6 +7910,11 @@ type QuerySubscribedFeedArgs = {
 
 
 type QuerySuggestedFeedSubscriptionUsersArgs = {
+  limit?: InputMaybe<Scalars['Int']['input']>;
+};
+
+
+type QuerySuggestedTopActiveUsersArgs = {
   limit?: InputMaybe<Scalars['Int']['input']>;
 };
 
@@ -10477,6 +10483,11 @@ type SubscriptionsSubscriptionsOfTypeInput = {
 
 type SuggestedFeedSubscriptionUsersResult = {
   __typename?: 'SuggestedFeedSubscriptionUsersResult';
+  results: Array<User>;
+};
+
+type SuggestedTopActiveUsersResult = {
+  __typename?: 'SuggestedTopActiveUsersResult';
   results: Array<User>;
 };
 
@@ -20356,6 +20367,23 @@ type SuggestedFeedSubscriptionUsersQueryVariables = Exact<{
 
 
 type SuggestedFeedSubscriptionUsersQuery = SuggestedFeedSubscriptionUsersQuery_Query;
+
+type SuggestedTopActiveUsersQuery_SuggestedTopActiveUsers_SuggestedTopActiveUsersResult_results_User = (
+  { __typename?: 'User' }
+  & UsersMinimumInfo
+);
+
+type SuggestedTopActiveUsersQuery_SuggestedTopActiveUsers_SuggestedTopActiveUsersResult = { __typename?: 'SuggestedTopActiveUsersResult', results: Array<SuggestedTopActiveUsersQuery_SuggestedTopActiveUsers_SuggestedTopActiveUsersResult_results_User> };
+
+type SuggestedTopActiveUsersQuery_Query = { __typename?: 'Query', SuggestedTopActiveUsers: SuggestedTopActiveUsersQuery_SuggestedTopActiveUsers_SuggestedTopActiveUsersResult | null };
+
+
+type SuggestedTopActiveUsersQueryVariables = Exact<{
+  limit: InputMaybe<Scalars['Int']['input']>;
+}>;
+
+
+type SuggestedTopActiveUsersQuery = SuggestedTopActiveUsersQuery_Query;
 
 type updateCommentAFSuggestCommentsItemMutation_updateComment_CommentOutput_data_Comment = (
   { __typename?: 'Comment' }

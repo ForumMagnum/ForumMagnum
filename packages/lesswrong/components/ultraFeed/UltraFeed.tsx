@@ -283,10 +283,6 @@ const UltraFeedContent = ({
     }
   };
 
-  if (!currentUser) {
-    return null;
-  }
-  
   const resetSettingsToDefault = () => {
     resetSettings();
   };
@@ -414,10 +410,6 @@ const UltraFeed = ({
     }
     captureEvent("ultraFeedTabChanged", { tab });
   };
-
-  if (!currentUser) {
-    return null;
-  }
 
   if (!ultraFeedEnabledSetting.get()) {
     return (

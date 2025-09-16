@@ -1112,9 +1112,6 @@ class PostsRepo extends AbstractRepo<"Posts"> {
     },
   ): Promise<FeedFullPost[]> {
     const { currentUser } = context;
-    if (!currentUser?._id) {
-      return [];
-    }
 
     const tagsRequired = filterSettings.tags.filter(t => t.filterMode === "Required");
     const tagsExcluded = filterSettings.tags.filter(t => t.filterMode === "Hidden");
@@ -1137,7 +1134,7 @@ class PostsRepo extends AbstractRepo<"Posts"> {
       : '';
 
     const filteredScoreSql = constructFilteredScoreSql(filterSettings);
-    const hiddenPostIds = currentUser.hiddenPostsMetadata?.map(metadata => metadata.postId) ?? [];
+    const hiddenPostIds = currentUser?.hiddenPostsMetadata?.map(metadata => metadata.postId) ?? [];
     const hiddenPostIdsCondition = hiddenPostIds.length > 0 
       ? `AND p."_id" NOT IN ($(hiddenPostIds:csv))` 
       : '';
@@ -1211,7 +1208,7 @@ class PostsRepo extends AbstractRepo<"Posts"> {
         ${restrictToFollowedAuthors ? '"postedAt"' : '"initialFilteredScore"'} DESC
       LIMIT $(limit)
     `, { 
-      userId: currentUser._id,
+      userId: currentUser?._id ?? null,
       maxAgeDays,
       hiddenPostIds,
       limit,

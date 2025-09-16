@@ -35,14 +35,6 @@ const UltraFeedPage = () => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [setCookie]);
 
-  if (!currentUser) {
-    return (
-      <div className={classes.loginMessage}>
-        You must be logged in to use the feed.
-      </div>
-    );
-  }
-
   return <UltraFeed alwaysShow hideTitle />;
 };
 

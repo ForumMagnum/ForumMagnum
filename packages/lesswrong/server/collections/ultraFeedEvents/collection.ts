@@ -27,6 +27,12 @@ export const UltraFeedEvents = createCollection({
       ON "UltraFeedEvents" ("userId", "feedItemId")
       WHERE "eventType" != 'served' AND "feedItemId" IS NOT NULL;
     `);
+
+    indexSet.addCustomPgIndex(`
+      CREATE INDEX CONCURRENTLY IF NOT EXISTS ultraFeedEvents_loggedOut_session_idx
+      ON "UltraFeedEvents" ("userId", ((event->>'sessionId')), "createdAt")
+      WHERE "eventType" = 'served' AND ((event->>'loggedOut')::boolean IS TRUE);
+    `);
     
     return indexSet;
   },
