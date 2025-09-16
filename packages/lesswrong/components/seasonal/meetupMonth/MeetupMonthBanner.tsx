@@ -397,15 +397,15 @@ export default function MeetupMonthBannerInner() {
   const petrovActive = (nextCarouselIndex ?? currentCarouselIndex) === petrovCarouselIndex
   const renderedMarkers = useMemo(() => {
     if (acxActive) {
-      return <LocalEventMapMarkerWrappersInner localEvents={events.filter(event => (event.types ?? []).includes('SSC'))} />
+      return <LocalEventMapMarkerWrappersInner  localEvents={events.filter(event => (event.types ?? []).includes('SSC'))} />
     }
     if (ifanyoneActive) {
-      return <LocalEventMapMarkerWrappersInner localEvents={events.filter(event => (event.types ?? []).includes('IFANYONE'))} />
+      return <LocalEventMapMarkerWrappersInner  onMarkerClick={() => setEverClickedMap(true)} localEvents={events.filter(event => (event.types ?? []).includes('IFANYONE'))} />
     }
     if (petrovActive) {
-      return <LocalEventMapMarkerWrappersInner localEvents={events.filter(event => (event.types ?? []).includes('PETROV'))} />
+      return <LocalEventMapMarkerWrappersInner  onMarkerClick={() => setEverClickedMap(true)} localEvents={events.filter(event => (event.types ?? []).includes('PETROV'))} />
     }
-    return <LocalEventMapMarkerWrappersInner localEvents={events} />
+    return <LocalEventMapMarkerWrappersInner  onMarkerClick={() => setEverClickedMap(true)} localEvents={events} />
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [acxActive, ifanyoneActive, petrovActive, events])
   const handleZoomChange = useCallback((event: React.ChangeEvent<HTMLInputElement>) => {
@@ -453,11 +453,12 @@ export default function MeetupMonthBannerInner() {
   // Automatically rotate carousel every 20 seconds
   useEffect(() => {
     const intervalId = setInterval(() => {
+      if (everClickedMap) return
       const nextIndex = (currentCarouselIndex + 1) % carouselSections.length
       handleMeetupTypeClick(nextIndex)
     }, 30 * 1000)
     return () => clearInterval(intervalId)
-  }, [currentCarouselIndex, handleMeetupTypeClick, carouselSections.length])
+  }, [currentCarouselIndex, handleMeetupTypeClick, carouselSections.length, everClickedMap])
 
   if (isLoading) {
     return <div className={classes.root}>
@@ -471,16 +472,17 @@ export default function MeetupMonthBannerInner() {
     <div className={classes.mapGradientRight} />
     <div 
       className={classes.mapContainer} 
+      onClick={() => setEverClickedMap(true)}
       style={{ opacity: scrollOpacity }}
     >
-      <div className={classes.mapButtonsContainer} onClick={() => setEverClickedMap(true)}>
-        <div className={classes.mapButtons}>    
+      <div className={classes.mapButtonsContainer}>
+        <div className={classes.mapButtons} onClick={() => setEverClickedMap(true)}>
           <MagnifyingGlassMinusIcon className={classes.zoomButton} onClick={handleZoomOut} />
           <MagnifyingGlassPlusIcon className={classes.zoomButton} onClick={handleZoomIn} />
         </div>
       </div>
-      <div className={classes.contentContainer} onClick={() => setEverClickedMap(true)}>
-        <div className={classes.textContainer}>
+      <div className={classes.contentContainer}>
+        <div className={classes.textContainer} onClick={() => setEverClickedMap(true)}>
           {carouselSections.map((section, index) => {
             
             const aboutToTransition = isSettingUp && index === nextCarouselIndex

@@ -152,13 +152,17 @@ const localEventMapMarkerWrappersStyles = defineStyles("localEventMapMarkerWrapp
   }
 }))
 
-export const LocalEventMapMarkerWrappersInner = ({localEvents}: {
+export const LocalEventMapMarkerWrappersInner = ({localEvents, onMarkerClick}: {
   localEvents: Array<HomepageCommunityEventMarker>,
+  onMarkerClick?: () => void,
 }) => {
   const classes = useStyles(localEventMapMarkerWrappersStyles)
   const [ openWindows, setOpenWindows ] = useState<string[]>([])
-  const handleClick = useCallback(
-    (id: string) => { setOpenWindows([id]) }
+  const handleClickArrow = useCallback(
+    (id: string) => { 
+      setOpenWindows([id]); 
+      if (onMarkerClick) onMarkerClick() 
+    }
     , []
   )
   const handleClose = useCallback((id: string) => { 
@@ -177,7 +181,7 @@ export const LocalEventMapMarkerWrappersInner = ({localEvents}: {
         offsetLeft={-7}
         offsetTop={-25}
       >
-        <span onClick={() => handleClick(localEvent._id)}>
+        <span onClick={() => handleClickArrow(localEvent._id)}>
           <ArrowSVG className={classNames(classes.icon, {[classes.iconSelected]: infoOpen})}/>
         </span>
       </Marker>
