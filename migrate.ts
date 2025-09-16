@@ -10,7 +10,8 @@ import type { ITask } from "pg-promise";
 // @ts-ignore This is a javascript file without a .d.ts
 import { startSshTunnel } from "./scripts/startup/buildUtil";
 import { detectForumType, getDatabaseConfigFromModeAndForumType, getSettingsFileName, getSettingsFilePath, initGlobals, isEnvironmentType, normalizeEnvironmentType } from "./scripts/scriptUtil";
-
+import { loadEnvConfig } from "@next/env";
+import { runQueuedMigrationTasksSequentially } from "./packages/lesswrong/server/migrations/meta/migrationTaskQueue";
 
 (async () => {
   const command = process.argv[2];
@@ -27,6 +28,17 @@ import { detectForumType, getDatabaseConfigFromModeAndForumType, getSettingsFile
   const forumType = detectForumType();
   const forumTypeIsSpecified = forumType !== "none";
   console.log(`Running with forum type "${forumType}"`);
+
+  loadEnvConfig(process.cwd());
+  if (!process.env.ENV_NAME) {
+    throw new Error("ENV_NAME is not set when loading .env config");
+  }
+
+  const envName = process.env.ENV_NAME;
+
+  if (!envName.toLowerCase().includes(mode) && (mode === 'test' && !envName.toLowerCase().includes('dev'))) {
+    throw new Error(`Tried to run REPL in mode ${mode} but ENV_NAME is ${process.env.ENV_NAME}`);
+  }
 
   const dbConf = getDatabaseConfigFromModeAndForumType(mode, forumType);
   if (dbConf.postgresUrl) {
@@ -94,6 +106,10 @@ import { detectForumType, getDatabaseConfigFromModeAndForumType, getSettingsFile
     console.error("An error occurred while running migrations:", e);
     exitCode = 1;
   }
+
+  // Wait for any migrations pushed into background tasks (generally indexes created concurrently) finish
+  // before shutting down all the connections.
+  await runQueuedMigrationTasksSequentially();
 
   await db.$pool.end();
   process.exit(exitCode);

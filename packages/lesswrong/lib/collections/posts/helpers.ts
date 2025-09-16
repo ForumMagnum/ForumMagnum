@@ -341,7 +341,9 @@ export const canUserEditPostMetadata = (currentUser: UsersCurrent|DbUser|null, p
   if (userOwns(currentUser, post)) return true
   if (userCanDo(currentUser, 'posts.edit.all')) return true
   // Shared as a coauthor? Always give access
-  if (post.coauthorStatuses && post.coauthorStatuses.findIndex(({ userId }) => userId === currentUser._id) >= 0) return true
+  if (post.coauthorUserIds.includes(currentUser._id)) {
+    return true;
+  }
 
   if (userIsSharedOn(currentUser, post) && post.sharingSettings?.anyoneWithLinkCan === "edit") return true 
 
@@ -374,32 +376,13 @@ export const postCanEditHideCommentKarma = (user: UsersCurrent|DbUser|null, post
   return !!(user?.showHideKarmaOption && (!post || !postGetCommentCount(post)))
 }
 
-export type CoauthoredPost = NullablePartial<Pick<DbPost, "hasCoauthorPermission" | "coauthorStatuses">>
-
-export const postCoauthorIsPending = (post: CoauthoredPost, coauthorUserId: string) => {
-  if (post.hasCoauthorPermission) {
-    return false;
-  }
-  const status = post.coauthorStatuses?.find(({ userId }) => coauthorUserId === userId);
-  return status && !status.confirmed;
-}
-
-export const getConfirmedCoauthorIds = (post: CoauthoredPost): string[] => {
-  let { coauthorStatuses, hasCoauthorPermission = true } = post;
-  if (!coauthorStatuses) return []
-
-  if (!hasCoauthorPermission) {
-    coauthorStatuses = coauthorStatuses.filter(({ confirmed }) => confirmed);
-  }
-  return coauthorStatuses.map(({ userId }) => userId);
-}
+export type CoauthoredPost = NullablePartial<Pick<DbPost, "coauthorUserIds">>
 
 export const userIsPostCoauthor = (user: UsersMinimumInfo|DbUser|null, post: CoauthoredPost): boolean => {
   if (!user) {
     return false;
   }
-  const userIds = getConfirmedCoauthorIds(post);
-  return userIds.indexOf(user._id) >= 0;
+  return post.coauthorUserIds?.includes(user._id) ?? false;
 }
 
 export const isNotHostedHere = (post: PostsEdit|PostsEditQueryFragment|PostsPage|DbPost) => {
@@ -422,7 +405,7 @@ export const postGetPrimaryTag = (post: PostsListWithVotes, includeNonCore = fal
 /**
  * Whether the post is allowed AI generated audio
  */
-export const isPostAllowedType3Audio = (post: PostsBase|DbPost): boolean => {
+export const isPostAllowedType3Audio = (post: PostsWithNavigation|PostsWithNavigationAndRevision|PostsListWithVotes|DbPost): boolean => {
   if (!allowTypeIIIPlayerSetting.get()) return false
 
   try {
@@ -506,11 +489,11 @@ export const postIsPublic = (post: Pick<DbPost, '_id' | 'draft' | 'status'>) => 
   return !post.draft && post.status === postStatuses.STATUS_APPROVED
 };
 
-export type PostParticipantInfo = NullablePartial<Pick<PostsDetails, "userId"|"debate"|"hasCoauthorPermission" | "coauthorStatuses">>;
+export type PostParticipantInfo = NullablePartial<Pick<PostsDetails, "userId"|"debate"|"coauthorUserIds">>;
 
 export function isDialogueParticipant(userId: string, post: PostParticipantInfo) {
   if (post.userId === userId) return true 
-  if (getConfirmedCoauthorIds(post).includes(userId)) return true
+  if (post.coauthorUserIds?.includes(userId)) return true
   return false
 }
 

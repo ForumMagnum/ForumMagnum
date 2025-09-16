@@ -7,7 +7,7 @@ import { Menu } from '@/components/widgets/Menu';
 import { useCurrentUser } from '../common/withUser';
 import { unflattenComments } from '../../lib/utils/unflatten';
 import classNames from 'classnames';
-import { postGetCommentCountStr } from '../../lib/collections/posts/helpers';
+import { postGetCommentCountStr, userIsPostCoauthor } from '../../lib/collections/posts/helpers';
 import CommentsNewForm, { CommentsNewFormProps } from './CommentsNewForm';
 import { Link } from '../../lib/reactRouterWrapper';
 import { isEAForum } from '../../lib/instanceSettings';
@@ -151,7 +151,7 @@ const CommentsListSection = ({
   const userIsDebateParticipant =
     currentUser
     && post?.debate
-    && (currentUser._id === postAuthor?._id || post?.coauthorStatuses?.some(coauthor => coauthor.userId === currentUser._id));
+    && (currentUser._id === postAuthor?._id || userIsPostCoauthor(currentUser, post));
     
   const commentCountNode = !!totalComments && <span className={classes.commentCount}>{totalComments}</span>
   

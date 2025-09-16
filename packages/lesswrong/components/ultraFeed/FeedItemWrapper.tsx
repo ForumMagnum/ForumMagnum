@@ -6,13 +6,11 @@ const styles = defineStyles('FeedItemWrapper', (theme: ThemeType) => ({
   wrapper: {
     '&:not(:empty)': {
       marginBottom: 16,
-    },
-    [theme.breakpoints.down('sm')]: {
-      marginBottom: 0,
-      '&:not(:empty)': {
-        borderBottom: theme.palette.ultraFeed.cardSeparator
+      [theme.breakpoints.down('sm')]: {
+        marginBottom: 0,
+        borderBottom: theme.palette.ultraFeed.cardSeparator,
       }
-    }
+    },
   },
 }));
 

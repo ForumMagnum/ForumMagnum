@@ -769,6 +769,10 @@ class VotesRepo extends AbstractRepo<"Votes"> {
           "votedAt" >= NOW() - INTERVAL '$1 days'
           AND "cancelled" IS NOT TRUE
           AND "isUnvote" IS NOT TRUE
+          -- This is necessary both because votes on other collections
+          -- don't affect karma, and because without it postgres decides
+          -- to use a table scan instead of an index.
+          AND "collectionName" IN ('Posts', 'Comments', 'Revisions')
       ) sub
       GROUP BY author_id
       ORDER BY "netKarma" DESC
