@@ -63,12 +63,24 @@ export const sendEventPostEmails = async (postId: string, subject: string) => {
   await forEachDocumentBatchInCollection({
     collection: Users,
     filter: {
+      email: {$exists: true},
       deleted: false,
       banned: {$exists: false},
       sendMarketingEmails: true,
-      $or: [
-        {unsubscribeFromAll: {$exists: false}},
-        {unsubscribeFromAll: false},
+      $and: [
+        {
+          $or: [
+            {unsubscribeFromAll: {$exists: false}},
+            {unsubscribeFromAll: false},
+          ],
+        },
+        {
+          $or: [
+            {reviewedByUserId: {$exists: true}},
+            {sunshineNotes: {$exists: false}},
+            {sunshineNotes: {$ne: ""}},
+          ],
+        },
       ],
     },
     batchSize: 50,
