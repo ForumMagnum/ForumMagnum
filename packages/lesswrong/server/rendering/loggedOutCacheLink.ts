@@ -1,33 +1,8 @@
 import { type DocumentNode, ApolloLink, Operation, Observable, FetchResult } from "@apollo/client";
 import stringify from "json-stringify-deterministic";
-import { unstable_cache } from "next/cache";
 import { type GraphQLSchema, print, execute } from "graphql";
 import { createAnonymousContext } from "@/server/vulcan-lib/createContexts";
 import { SwrCache } from "@/lib/utils/swrCache";
-
-/*const getCachedQueryResult = unstable_cache(async (cacheKey: string, queryFunction: () => Promise<FetchResult>) => {
-  return await queryFunction();
-}, undefined, { revalidate: 120 });
-
-/**
- * Caches the provided gql operation's execution.
- * We need to do this wonky two-step inversion from to/from an Observable because we need the results in the cache,
- * and we can't just cache an Observable because it's not serializable.  So it needs to be a promise here,
- * and an Observable in the link.
- */
-/*async function executeWithCache(operation: Operation: ApolloLink.ForwardFunction): Promise<ApolloLink.Result> {
-  const { query, variables } = operation;
-  const queryString = print(query);
-  const cacheKey = stringify({ queryString, variableValues: variables });
-
-  return getCachedQueryResult(cacheKey, () => {
-    return new Promise(async (resolve) => {
-      const { runQuery } = await import("@/server/vulcan-lib/query");
-      runQuery(query);
-      forward(operation).subscribe((res) => resolve(res));
-    });
-  });
-}*/
 
 const loggedOutQueryCache: Record<string, SwrCache<FetchResult, []>> = {};
 
