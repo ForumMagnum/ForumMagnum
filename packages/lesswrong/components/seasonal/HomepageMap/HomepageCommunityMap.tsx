@@ -168,12 +168,6 @@ export const LocalEventMapMarkerWrappersInner = ({localEvents}: {
     }, [openWindows]
   )
 
-  // Sanity check that we updated the acxEvents.ts file with the new events.
-  // If we didn't, it's much more obvious during testing that we forgot to update the map pins (since they'll be missing)
-  const threeMonthsAgo = moment().subtract(3, 'months');
-  if (threeMonthsAgo.isAfter(ACX_EVENTS_LAST_UPDATED)) {
-    return null;
-  }
   return <React.Fragment>
     {localEvents.map((localEvent, i) => {
       const infoOpen = openWindows.includes(localEvent._id)

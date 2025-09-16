@@ -37,7 +37,7 @@ function getCarouselSections(classes: JssStyles) {
       subtitle: <div>
         <div><a href="https://www.ifanyonebuildsit.com/
       book-clubs">If Anyone Builds It, Everyone Dies</a> is launching September 16th. You can <a href="https://www.ifanyonebuildsit.com/book-clubs">sign up here</a> to get help facilitating a reading group.</div>
-      <a href="/newPost?eventForm=true&ifanyone=true" target="_blank" rel="noopener noreferrer" className={classes.createEventButton}>
+      <a href="/newPost?eventForm=true&IFANYONE=true" target="_blank" rel="noopener noreferrer" className={classes.createEventButton}>
         <span className={classes.createEventButtonIcon}>+</span> CREATE READING GROUP</a>
       </div>,
       link: "https://www.ifanyonebuildsit.com/book-clubs",
@@ -48,7 +48,7 @@ function getCarouselSections(classes: JssStyles) {
       title: "Petrov Day",
       subtitle: <div>
         <div>September 26th is the day Stanislav Petrov didn't destroy the world. Host a ceremony observing the day's significance</div>
-        <a href="/newPost?eventForm=true&petrov=true" target="_blank" rel="noopener noreferrer" className={classes.createEventButton}>
+        <a href="/newPost?eventForm=true&PETROV=true" target="_blank" rel="noopener noreferrer" className={classes.createEventButton}>
           <span className={classes.createEventButtonIcon}>+</span> CREATE PETROV EVENT</a>
       </div>,
       link: "https://www.lesswrong.com/meetups/petrov-day",
@@ -359,7 +359,7 @@ export default function MeetupMonthBannerInner() {
   
   const defaultViewport = useMemo(() => ({
     latitude: 20, // Centered roughly over the Atlantic Ocean
-    longitude: -60,
+    longitude: -70,
     zoom: 1.1
   }), [])
 
@@ -400,17 +400,17 @@ export default function MeetupMonthBannerInner() {
   const petrovCarouselIndex = 3 // Petrov button is the fourth carousel entry
   const petrovActive = (nextCarouselIndex ?? currentCarouselIndex) === petrovCarouselIndex
   const renderedMarkers = useMemo(() => {
-    console.log('events', events)
     if (acxActive) {
-      return <LocalEventMapMarkerWrappersInner localEvents={events.filter(event => (event.types ?? []).includes('acx'))} />
+      return <LocalEventMapMarkerWrappersInner localEvents={events.filter(event => (event.types ?? []).includes('SSC'))} />
     }
     if (ifanyoneActive) {
-      return <LocalEventMapMarkerWrappersInner localEvents={events.filter(event => (event.types ?? []).includes('ifanyone'))} />
+      return <LocalEventMapMarkerWrappersInner localEvents={events.filter(event => (event.types ?? []).includes('IFANYONE'))} />
     }
     if (petrovActive) {
-      return <LocalEventMapMarkerWrappersInner localEvents={events.filter(event => (event.types ?? []).includes('petrov'))} />
+      return <LocalEventMapMarkerWrappersInner localEvents={events.filter(event => (event.types ?? []).includes('PETROV'))} />
     }
     return <LocalEventMapMarkerWrappersInner localEvents={events} />
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [acxActive, ifanyoneActive, petrovActive, events])
   const handleZoomChange = useCallback((event: React.ChangeEvent<HTMLInputElement>) => {
     const newZoom = parseFloat(event.target.value)
