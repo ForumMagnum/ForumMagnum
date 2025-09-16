@@ -148,7 +148,7 @@ class UltraFeedEventsRepo extends AbstractRepo<'UltraFeedEvents'> {
    * Gets comment IDs that have been served in a specific session.
    */
   async getServedCommentIdsForSession(
-    userId: string,
+    userIdOrClientId: string,
     sessionId: string
   ): Promise<Set<string>> {
     const servedComments = await this.getRawDb().manyOrNone<{ documentId: string }>(`
@@ -156,12 +156,12 @@ class UltraFeedEventsRepo extends AbstractRepo<'UltraFeedEvents'> {
       SELECT DISTINCT "documentId"
       FROM "UltraFeedEvents"
       WHERE 
-        "userId" = $(userId)
+        "userId" = $(userIdOrClientId)
         AND "collectionName" = 'Comments'
         AND "eventType" = 'served'
         AND event->>'sessionId' = $(sessionId)
     `, {
-      userId,
+      userIdOrClientId,
       sessionId
     });
 

@@ -2,6 +2,7 @@ import type { NextRequest } from 'next/server';
 import { clearArbitalCache } from '@/server/resolvers/arbitalPageData';
 import { permanentlyDeleteUsers } from '@/server/users/permanentDeletion';
 import { uniquePostUpvotersView } from "@/server/postgresView";
+import { clearLoggedOutServedSessionsWithNoViews } from '@/server/ultraFeed/cron';
 
 export async function GET(request: NextRequest) {
   const authHeader = request.headers.get('authorization');
@@ -23,6 +24,9 @@ export async function GET(request: NextRequest) {
   if (uniquePostUpvotersJob) {
     tasks.push(uniquePostUpvotersJob());
   }
+
+  // Clear logged-out ultrafeed served sessions with no views
+  tasks.push(clearLoggedOutServedSessionsWithNoViews());
 
   // Execute all tasks in parallel
   await Promise.all(tasks);

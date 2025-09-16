@@ -272,6 +272,14 @@ extend type Query {
   SuggestedFeedSubscriptionUsers(limit: Int): SuggestedFeedSubscriptionUsersResult
 }
 
+type SuggestedTopActiveUsersResult {
+  results: [User!]!
+}
+
+extend type Query {
+  SuggestedTopActiveUsers(limit: Int): SuggestedTopActiveUsersResult
+}
+
 type VoteResultPost {
   document: Post!
   showVotingPatternWarning: Boolean!

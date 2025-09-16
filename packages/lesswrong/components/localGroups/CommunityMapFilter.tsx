@@ -200,7 +200,7 @@ export const createFallBackDialogHandler = (
   }
 }
 
-const getInitialFilters = ({query}: RouterLocation) => {
+const getInitialFilters = (query?: Record<string, string | string[]>) => {
   const filters = query?.filters;
   if (Array.isArray(filters)) {
     return filters;
@@ -237,21 +237,19 @@ const CommunityMapFilter = ({
   const navigate = useNavigate();
   const {openDialog} = useDialog();
   const {flash} = useMessages();
-  const [filters, setFilters] = useState(() => getInitialFilters(location));
+  const [filters, setFilters] = useState(() => getInitialFilters(location.query));
 
   const handleCheck = useCallback((filter: string) => {
-    let newFilters: AnyBecauseTodo[] = [];
+    let newFilters: string[] = [];
     if (Array.isArray(filters) && filters.includes(filter)) {
       newFilters = filters.filter(f => f !== filter);
     } else {
       newFilters = [...filters, filter];
     }
     setFilters(newFilters);
-    // FIXME: qs.stringify doesn't handle array parameters in the way
-    // react-router-v3 did, which causes awkward-looking and backwards
-    // incompatible (but not broken) URLs.
-    navigate({...location.location, search: qs.stringify({filters: newFilters})});
-  }, [filters, location.location, navigate]);
+    const newLocation = {...location.location, search: qs.stringify({...location.query, filters: newFilters}, { arrayFormat: 'repeat' })};
+    navigate(newLocation);
+  }, [filters, location.query, location.location, navigate]);
 
   const handleHideMap = useCallback(() => {
     let undoAction;
