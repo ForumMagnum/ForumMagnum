@@ -136,6 +136,11 @@ declare global {
     arbital: {
       arbitalGreen: ColorString,
     },
+    meetupMonth: {
+      acx: ColorString,
+      ifanyone: ColorString,
+      petrov: ColorString,
+    },
     text: {
       primary: ColorString,
       secondary: ColorString

@@ -13,6 +13,7 @@ import { useUserLocation } from '@/components/hooks/useUserLocation';
 import MagnifyingGlassPlusIcon from '@heroicons/react/24/solid/MagnifyingGlassPlusIcon';
 import MagnifyingGlassMinusIcon from '@heroicons/react/24/solid/MagnifyingGlassMinusIcon';
 import { position } from 'html2canvas/dist/types/css/property-descriptors/position';
+import { localEvents as acxEvents } from '../HomepageMap/acxEvents'
 
 const smallBreakpoint = 1525
 
@@ -182,6 +183,18 @@ const styles = defineStyles("MeetupMonthBanner", (theme: ThemeType) => ({
     background: theme.palette.primary.main,
     color: theme.palette.text.alwaysWhite,
   },
+  activeAcxMeetupType: {
+    background: theme.palette.meetupMonth.acx,
+    color: theme.palette.text.alwaysWhite,
+  },
+  activeIfanyoneMeetupType: {
+    background: theme.palette.meetupMonth.ifanyone,
+    color: theme.palette.text.alwaysWhite,
+  },
+  activePetrovMeetupType: {
+    background: theme.palette.meetupMonth.petrov,
+    color: theme.palette.text.alwaysWhite,
+  },
   date: {
     fontSize: 16,
     fontWeight: 400,
@@ -226,7 +239,7 @@ const styles = defineStyles("MeetupMonthBanner", (theme: ThemeType) => ({
   mapButtonsContainer: {
     position: "absolute",
     pointerEvents: "none",
-    top: 150,
+    top: 130,
     right: 9,
     zIndex: 4,
     display: "flex",
@@ -296,7 +309,22 @@ const styles = defineStyles("MeetupMonthBanner", (theme: ThemeType) => ({
     fontWeight: 900,
     marginRight: 8,
     marginLeft: 8,
-  }
+  },
+  acxMode: {
+    '& svg': {
+      fill: theme.palette.meetupMonth.acx + ' !important',
+    },
+  },
+  ifanyoneMode: {
+    '& svg': {
+      fill: theme.palette.meetupMonth.ifanyone + ' !important',
+    },
+  },
+  petrovMode: {
+    '& svg': {
+      fill: theme.palette.meetupMonth.petrov + ' !important',
+    },
+  },
 }));
 
 
@@ -397,9 +425,18 @@ export default function MeetupMonthBannerInner() {
     , [openWindows]
   )
   
+  const acxCarouselIndex = 1 // ACX button is the second carousel entry
+  const acxActive = (nextCarouselIndex ?? currentCarouselIndex) === acxCarouselIndex
+  const ifanyoneCarouselIndex = 2 // If Anyone button is the third carousel entry
+  const ifanyoneActive = (nextCarouselIndex ?? currentCarouselIndex) === ifanyoneCarouselIndex
+  const petrovCarouselIndex = 3 // Petrov button is the fourth carousel entry
+  const petrovActive = (nextCarouselIndex ?? currentCarouselIndex) === petrovCarouselIndex
   const renderedMarkers = useMemo(() => {
+    if (acxActive) {
+      return <LocalEventMapMarkerWrappersInner localEvents={acxEvents} />
+    }
     return <LocalEventMapMarkerWrappersInner localEvents={events} />
-  }, [events])
+  }, [acxActive, events])
   const handleZoomChange = useCallback((event: React.ChangeEvent<HTMLInputElement>) => {
     const newZoom = parseFloat(event.target.value)
     setViewport(prev => ({
@@ -416,9 +453,12 @@ export default function MeetupMonthBannerInner() {
   }, [])
   
   const handleZoomOut = useCallback(() => {
+    // Prevent zooming out beyond a safe threshold – when zooming too far out Mapbox starts repeating the
+    // world map horizontally which causes the markers to render offset from their real positions.
+    // We empirically found zoom < 1 to be problematic, so clamp the minimum zoom to 1.
     setViewport(prev => ({
       ...prev,
-      zoom: Math.max(prev.zoom - 0.5, 0.5),
+      zoom: Math.max(prev.zoom - 0.5, 1),
     }))
   }, [])
 
@@ -463,7 +503,7 @@ export default function MeetupMonthBannerInner() {
     </div>;
   }
 
-  return <div className={classes.root}>
+  return <div className={`${classes.root} ${acxActive ? classes.acxMode : ''} ${ifanyoneActive ? classes.ifanyoneMode : ''} ${petrovActive ? classes.petrovMode : ''}`}>
     <div className={classes.mapGradient}/>
     <div className={classes.mapGradientRight} />
     <div 
@@ -528,7 +568,9 @@ export default function MeetupMonthBannerInner() {
             const activeIndex = nextCarouselIndex ?? currentCarouselIndex;
             return (
               <div
-                className={`${classes.meetupType} ${index === activeIndex ? classes.activeMeetupType : ''}`}
+                className={`${classes.meetupType} ${index === activeIndex ?
+                  (index === 1 ? classes.activeAcxMeetupType : index === 2 ? classes.activeIfanyoneMeetupType : index === 3 ? classes.activePetrovMeetupType : classes.activeMeetupType)
+                  : ''}`}
                 key={index}
                 onClick={() => {
                   handleMeetupTypeClick(index);
