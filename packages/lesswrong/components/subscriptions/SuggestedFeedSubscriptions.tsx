@@ -169,7 +169,7 @@ function useSuggestedUsers(skipFetch = false) {
   `), {
     variables: { limit: initialLimit },
     fetchPolicy: "cache-and-network",
-    nextFetchPolicy: "cache-only",
+    nextFetchPolicy: "cache-first",
     ssr: false,
     skip: skipFetch || !!currentUser,
   });

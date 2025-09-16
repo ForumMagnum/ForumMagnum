@@ -1,5 +1,4 @@
 import React, { useEffect, useRef, useState } from 'react';
-import { registerComponent } from "../../lib/vulcan-lib/components";
 import { useCurrentUser } from '../common/withUser';
 import type { ObservableQuery } from '@apollo/client';
 import { randomId } from '../../lib/random';
@@ -483,6 +482,6 @@ const UltraFeed = ({
   );
 };
 
-export default registerComponent('UltraFeed', UltraFeed);
+export default UltraFeed;
 
  

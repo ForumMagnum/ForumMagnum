@@ -1111,7 +1111,8 @@ class PostsRepo extends AbstractRepo<"Posts"> {
       filterOutReadOrViewed?: boolean;
     },
   ): Promise<FeedFullPost[]> {
-    const { currentUser } = context;
+    const { currentUser, clientId } = context;
+    const userIdOrClientId = currentUser?._id ?? clientId;
 
     const tagsRequired = filterSettings.tags.filter(t => t.filterMode === "Required");
     const tagsExcluded = filterSettings.tags.filter(t => t.filterMode === "Hidden");
@@ -1208,7 +1209,7 @@ class PostsRepo extends AbstractRepo<"Posts"> {
         ${restrictToFollowedAuthors ? '"postedAt"' : '"initialFilteredScore"'} DESC
       LIMIT $(limit)
     `, { 
-      userId: currentUser?._id ?? null,
+      userId: userIdOrClientId,
       maxAgeDays,
       hiddenPostIds,
       limit,
