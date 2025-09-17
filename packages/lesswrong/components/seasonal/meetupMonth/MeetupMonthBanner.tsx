@@ -528,9 +528,9 @@ export default function MeetupMonthBannerInner() {
             return (
               <div
                 className={classNames(classes.meetupType, {
-                  [classes.activeAcxMeetupType]: index === acxCarouselIndex,
-                  [classes.activeIfanyoneMeetupType]: index === ifanyoneCarouselIndex,
-                  [classes.activePetrovMeetupType]: index === petrovCarouselIndex,
+                  [classes.activeAcxMeetupType]: index === acxCarouselIndex && isActive,
+                  [classes.activeIfanyoneMeetupType]: index === ifanyoneCarouselIndex && isActive,
+                  [classes.activePetrovMeetupType]: index === petrovCarouselIndex && isActive,
                   [classes.activeMeetupType]: isActive
                 })}
                 key={index}
