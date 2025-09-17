@@ -40,7 +40,7 @@ function getCarouselSections(classes: JssStyles) {
     {
       title: "Petrov Day",
       subtitle: <div>
-        <div>September 26th is the day Stanislav Petrov didn't destroy the world. Host a <a href="http://petrovday.com/">ceremony</a> observing the day's significance.</div>
+        <div>September 26th is the day Stanislav Petrov didn't destroy the world. Host a <Link to="http://petrovday.com/">ceremony</Link> observing the day's significance.</div>
         <Link to="/newPost?eventForm=true&PETROV=true" target="_blank" rel="noopener noreferrer" className={classes.createEventButton}>
           <span className={classes.createEventButtonIcon}>+</span> CREATE PETROV EVENT</Link>
       </div>,
