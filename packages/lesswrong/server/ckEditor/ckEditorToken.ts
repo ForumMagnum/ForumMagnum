@@ -1,4 +1,4 @@
-import { getContextFromReqAndRes } from '../vulcan-lib/apollo-server/context';
+import { computeContextFromUser } from '../vulcan-lib/apollo-server/context';
 import { Posts } from '../../server/collections/posts/collection'
 import { getCollaborativeEditorAccess, CollaborativeEditingAccessLevel } from '../../lib/collections/posts/collabEditingPermissions';
 import { getCKEditorDocumentId } from '../../lib/ckEditorUtils'
@@ -9,6 +9,7 @@ import { randomId } from '../../lib/random';
 import { NextRequest } from 'next/server';
 import { z } from 'zod';
 import { captureException } from '@/lib/sentryWrapper';
+import { getUserFromReq } from '../vulcan-lib/apollo-server/getUserFromReq';
 
 function permissionsLevelToCkEditorRole(access: CollaborativeEditingAccessLevel): string {
   switch (access) {
@@ -59,11 +60,17 @@ export async function ckEditorTokenHandler(req: NextRequest) {
   if (linkSharingKey) {
     urlForContext.searchParams.set('key', linkSharingKey);
   }
-  const requestWithKey = new NextRequest({ ...req, url: urlForContext.toString() });
-  const contextWithKey = await getContextFromReqAndRes({ req: requestWithKey, isSSR: false });
 
-  const user = contextWithKey.currentUser;
-  
+  const user = await getUserFromReq(req);
+
+  const contextWithKey = computeContextFromUser({
+    user,
+    headers: req.headers,
+    searchParams: urlForContext.searchParams,
+    cookies: req.cookies.getAll(),
+    isSSR: false,
+  });
+    
   if (collectionName === "Posts") {
     const parsedFormType = formTypeValidator.safeParse(rawFormType);
     if (!parsedFormType.success) {
