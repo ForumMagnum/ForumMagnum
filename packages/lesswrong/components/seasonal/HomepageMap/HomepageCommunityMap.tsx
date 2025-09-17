@@ -163,7 +163,7 @@ export const LocalEventMapMarkerWrappersInner = ({localEvents, onMarkerClick}: {
       setOpenWindows([id]); 
       if (onMarkerClick) onMarkerClick() 
     }
-    , []
+    , [onMarkerClick]
   )
   const handleClose = useCallback((id: string) => { 
       setOpenWindows(openWindows.filter(windowId => windowId !== id))

@@ -10,6 +10,7 @@ import { JssStyles } from '@/lib/jssStyles';
 import { useUserLocation } from '@/components/hooks/useUserLocation';
 import MagnifyingGlassPlusIcon from '@heroicons/react/24/solid/MagnifyingGlassPlusIcon';
 import MagnifyingGlassMinusIcon from '@heroicons/react/24/solid/MagnifyingGlassMinusIcon';
+import { Link } from '@/lib/reactRouterWrapper';
 
 const smallBreakpoint = 1525
 
@@ -18,13 +19,13 @@ function getCarouselSections(classes: JssStyles) {
     {
       title: "Meetup Month",
       buttonText: "All",
-      subtitle: <div><div>Find events near you, or annouce your own.</div><ul><li>Attend an <a 
-      href="">ACX Everywhere</a> meetup.</li><li>Host a reading group for <a href="https://www.
-      ifanyonebuildsit.com/book-clubs">If Anyone Builds It</a>.</li><li>Hold a ceremony celebrating <a href="https://www.lesswrong.com/meetups/petrov-day">Petrov Day.</a></li></ul></div>,
+      subtitle: <div><div>Find events near you, or annouce your own.</div><ul><li>Attend an <Link 
+      to="/posts/6umEbXvotXicRPvGs/meetups-everywhere-2025-times-and-places">ACX Everywhere</Link> meetup.</li><li>Host a reading group for <a href="https://www.
+      ifanyonebuildsit.com/book-clubs">If Anyone Builds It</a>.</li><li>Hold a ceremony celebrating <a href="http://petrovday.com/">Petrov Day.</a></li></ul></div>,
     },
     {
       minorTitle: "ACX Everywhere",
-      subtitle: <div>Many cities have regular Astral Codex Ten meetup groups. Twice a year, we  advertise their upcoming meetup so that irregular attendees can attend and new readers can learn about them.</div>,
+      subtitle: <div>Many cities have regular Astral Codex Ten meetup groups. Twice a year, we  advertise their upcoming meetup so that irregular attendees can attend and new readers can learn about them. <a href="https://www.lesswrong.com/posts/6umEbXvotXicRPvGs/meetups-everywhere-2025-times-and-places">Learn more here.</a></div>,
       linkText: "ACX Meetup",
       buttonText: "ACX"
     },
