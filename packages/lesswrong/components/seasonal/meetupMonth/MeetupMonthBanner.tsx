@@ -133,7 +133,7 @@ const styles = defineStyles("MeetupMonthBanner", (theme: ThemeType) => ({
       height: 120,
     },
     '& a': {
-      color: theme.dark ? theme.palette.primary.light : theme.palette.primary.dark,
+      color: theme.dark ? theme.palette.primary.light : theme.palette.primary.main,
     },
     fontWeight: 500,
     marginTop: 12,
@@ -208,7 +208,7 @@ const styles = defineStyles("MeetupMonthBanner", (theme: ThemeType) => ({
   },
   activePetrovMeetupType: {
     background: theme.palette.meetupMonth.petrov,
-    color: theme.dark ? theme.palette.grey[0] : theme.palette.grey[900],
+    color: theme.palette.grey[100],
   },
   date: {
     fontSize: 16,
@@ -289,7 +289,7 @@ const styles = defineStyles("MeetupMonthBanner", (theme: ThemeType) => ({
     height: 30,
     opacity: .3,
     '& svg': {
-      fill: theme.dark ? theme.palette.grey[800] : theme.palette.grey[400],
+      fill: theme.dark ? theme.palette.grey[0] : theme.palette.grey[400],
     },
     '&:hover': {
       opacity: 1,
@@ -322,7 +322,7 @@ const styles = defineStyles("MeetupMonthBanner", (theme: ThemeType) => ({
   },
   createEventButton: {
     ...theme.typography.commentStyle,
-    color: theme.dark ? theme.palette.primary.light : theme.palette.primary.dark,
+    color: theme.dark ? theme.palette.primary.light : theme.palette.primary.main,
     paddingTop: 10,
     fontSize: 15,
     display: 'inline-block',
@@ -470,11 +470,7 @@ export default function MeetupMonthBannerInner() {
     </div>;
   }
 
-  return <div className={classNames(classes.root, {
-    [classes.acxMode]: filterKey === 'SSC',
-    [classes.ifanyoneMode]: filterKey === 'IFANYONE',
-    [classes.petrovMode]: filterKey === 'PETROV'
-  })}>
+  return <div className={classNames(classes.root)}>
     <div className={classes.mapGradient}/>
     <div className={classes.mapGradientRight} />
     <div 
@@ -544,15 +540,21 @@ export default function MeetupMonthBannerInner() {
           })}
         </div>
       </div>
-      <WrappedReactMapGL
-        {...viewport}
-        width="100%"
-        height="100%"
-        onViewportChange={setViewport}
-        scrollZoom={false}
-      >
-        {renderedMarkers}
-      </WrappedReactMapGL>
+      <span className={classNames({[
+        classes.acxMode]: filterKey === 'SSC',
+        [classes.ifanyoneMode]: filterKey === 'IFANYONE',
+        [classes.petrovMode]: filterKey === 'PETROV'
+      })}>
+        <WrappedReactMapGL
+          {...viewport}
+          width="100%"
+          height="100%"
+          onViewportChange={setViewport}
+          scrollZoom={false}
+        >
+          {renderedMarkers}
+        </WrappedReactMapGL>
+      </span>
     </div>
   </div>;
 }
