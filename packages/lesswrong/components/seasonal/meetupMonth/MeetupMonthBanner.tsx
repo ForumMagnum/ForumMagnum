@@ -214,7 +214,7 @@ const styles = defineStyles("MeetupMonthBanner", (theme: ThemeType) => ({
     height: '100%',
     background: `linear-gradient(to left, transparent 35%, ${theme.palette.background.default} 70%)`,
     [theme.breakpoints.up(1620)]: {
-      background: `radial-gradient(ellipse at right, transparent 60%, ${theme.palette.background.default} 100%)`,
+      background: `radial-gradient(ellipse at right, transparent 40%, ${theme.palette.background.default} 100%)`,
     },
     zIndex: 1,
     pointerEvents: 'none',
