@@ -20,6 +20,7 @@ import SingleColumnSection from "../common/SingleColumnSection";
 import { Typography } from "../common/Typography";
 import Loading from "../vulcan-core/Loading";
 import sanitize from 'sanitize-html';
+import { getMeetupMonthInfo } from '../seasonal/meetupMonth/meetupMonthEventUtils';
 
 const PostsEditMutation = gql(`
   mutation createPostPostsNewForm($data: CreatePostDataInput!) {
@@ -113,11 +114,9 @@ type PrefilledPostFields =
   | "generateDraftJargon"
   | "postCategory"
   | "title"
-  | "contents";
 
 // Override the `contents` field so it matches the `CreateRevisionDataInput` expected by `PrefilledPost`
-type PrefilledEventTemplate = Omit<Pick<PostsEditMutationFragment, EventTemplateFields>, 'contents'> & {
-  contents?: CreateRevisionDataInput;
+type PrefilledEventTemplate = Pick<PostsEditMutationFragment, EventTemplateFields> & {
   startTime?: Date;
   endTime?: Date;
 };
@@ -129,11 +128,11 @@ type PrefilledPost = Partial<PrefilledEventTemplate | PrefilledPostBase> & {
   subforumTagId?: string;
   tagRelevance?: Record<string, number>;
   title?: string;
-  contents?: CreateRevisionDataInput;
+  contents: CreateRevisionDataInput | null;
 };
 
 const prefillFromTemplate = (template: PostsEditMutationFragment, currentUser: UsersCurrent | null): PrefilledEventTemplate => {
-  const { startTime, endTime, contents, ...fields } = pick(
+  const { startTime, endTime, ...fields } = pick(
     template,
     [
       "contents",
@@ -160,7 +159,6 @@ const prefillFromTemplate = (template: PostsEditMutationFragment, currentUser: U
 
   return {
     ...fields,
-    ...(contents?.originalContents ? { contents: { originalContents: contents.originalContents } } : {}),
     ...(startTime && { startTime: new Date(startTime) }),
     ...(endTime && { endTime: new Date(endTime) }),
   }
@@ -174,39 +172,6 @@ function getPostCategory(query: Record<string, string>, questionInQuery: boolean
       : postDefaultCategory;
 }
 
-/**
- * This is to pre-hydrate the apollo cache for when we redirect to PostsEditForm after doing an autosave.
- * If we don't do that, the user will experience an unfortunate loading state.
- * The transition still isn't totally seamless because ckEditor needs to remount, but if you blink you can miss it.
- * We also use userWithRateLimit (UsersCurrentPostRateLimit) on both pages, but that's less critical.
- * 
- * We don't rely on fetching the document with the initial `useSingle`, but only on the refetch - this is basically a hacky way to imperatively run a query on demand
- */
-function usePrefetchForAutosaveRedirect() {
-  const { refetch: fetchAutosavedPostForEditPage, data: dataPost } = useQuery(PostsPageQuery, {
-    variables: { documentId: undefined },
-    skip: true,
-  });
-  const document = dataPost?.post?.result;
-
-  const extraVariablesValues = { version: 'draft' };
-
-  const { refetch: fetchAutosavedPostForEditForm, data: dataUser } = useQuery(PostsEditQueryFragmentQuery, {
-    variables: { documentId: undefined },
-    skip: true,
-    fetchPolicy: 'network-only',
-  });
-  const documentUser = dataUser?.post?.result;
-
-  const prefetchPostFragmentsForRedirect = (postId: string) => {
-    return Promise.all([
-      fetchAutosavedPostForEditPage({ documentId: postId }),
-      fetchAutosavedPostForEditForm({ documentId: postId, ...extraVariablesValues })
-    ]);
-  };
-
-  return prefetchPostFragmentsForRedirect;
-}
 
 const PostsNewForm = () => {
   const { query } = useLocation();
@@ -216,7 +181,6 @@ const PostsNewForm = () => {
 
   const templateId = query && query.templateId;
   const questionInQuery = query && !!query.question;
-  const eventForm = query && query.eventForm
 
   const postCategory = getPostCategory(query, questionInQuery);
 
@@ -241,20 +205,23 @@ const PostsNewForm = () => {
   });
   const currentUserWithModerationGuidelines = dataUser?.user?.result;
 
+  const types = (['IFANYONE', 'PETROV'] as const).filter(type => query[type])
+  const { data, title } = getMeetupMonthInfo(types)
+
   let prefilledProps: PrefilledPost = templateDocument ? prefillFromTemplate(templateDocument, currentUser) : {
     isEvent: query && !!query.eventForm,
     question: (postCategory === "question") || questionInQuery,
     activateRSVPs: true,
     onlineEvent: groupData?.isOnline,
     globalEvent: groupData?.isOnline,
-    title: (query && query.title) ?? "Untitled Draft",
-    types: query ? ['SSC', 'IFANYONE', 'PETROV'].filter(type => query[type]) : [],
+    title: title ?? "Untitled Draft",
+    types,
     meta: query && !!query.meta,
     groupId: query && query.groupId,
     moderationStyle: currentUser && currentUser.moderationStyle,
     generateDraftJargon: currentUser?.generateJargonForDrafts,
     postCategory,
-    ...(query?.contents ? { contents: { originalContents: { type: "ckEditorMarkup", data: sanitize(query.contents) } } } : {}),
+    contents: { originalContents: { type: "ckEditorMarkup", data } }
   }
 
   if (userIsMemberOf(currentUser, 'alignmentForum')) {
