@@ -13,12 +13,12 @@ import classNames from 'classnames';
 
 const smallBreakpoint = 1525
 
-const ifAnyoneTitle = "[Your City Here] If Anyone Builds It reading group"
-const petrovTitle = "[Your City Here] Petrov Day"
+const ifAnyoneTitle = "[Your%20City%20Here]%20If%20Anyone%20Builds%20It%20reading%20group"
+const petrovTitle = "[Your%20City%20Here]%20Petrov%20Day"
 
 const ifAnyoneText = `
 <p><em>(Edit the title and text here to whatever makes sense for your group)</em></p>
-<p>We'll be meeting to discuss [the first chapter] / [the first N chapters] of <a href="https://www.amazon.com/Anyone-Builds-Everyone-Dies-Superhuman/dp/0316595640">If Anyone Builds It, Everyone Dies</a>.</p>.
+<p>We'll be meeting to discuss [the first chapter] / [the first N chapters] of <a href="https://www.amazon.com/Anyone-Builds-Everyone-Dies-Superhuman/dp/0316595640">If Anyone Builds It, Everyone Dies</a>.</p>
 <p>
 Contact Info: [Your Contact Info]
 </p>

@@ -159,7 +159,7 @@ const prefillFromTemplate = (template: PostsEditMutationFragment, currentUser: U
 
   return {
     ...fields,
-    ...(contents ? contents.originalContents && { contents: { originalContents: contents.originalContents } } : {}),
+    ...(contents?.originalContents ? { contents: { originalContents: contents.originalContents } } : {}),
     ...(startTime && { startTime: new Date(startTime) }),
     ...(endTime && { endTime: new Date(endTime) }),
   }
