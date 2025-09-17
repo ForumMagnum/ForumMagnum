@@ -34,13 +34,17 @@ export const getAdminTeamAccount = async (context: ResolverContext) => {
 }
 
 export const getAdminTeamAccountId = (() => {
-  let teamAccountId: string|null = null;
+  // Store the promise if it doesn't exist, rather than the accountId directly, to avoid hammering the db
+  // on e.g. new deployments, since we fire this off once for every single jargon term on a post at the same time
+  let teamAccountIdPromise: Promise<string|null>|null = null;
   return async (context: ResolverContext) => {
-    if (!teamAccountId) {
-      const teamAccount = await getAdminTeamAccount(context)
-      if (!teamAccount) return null;
-      teamAccountId = teamAccount._id;
+    if (!teamAccountIdPromise) {
+      teamAccountIdPromise = new Promise((resolve) => getAdminTeamAccount(context).then((teamAccount) => {
+          const teamAccountId = teamAccount?._id ?? null;
+          resolve(teamAccountId);
+        })
+      );
     }
-    return teamAccountId;
+    return teamAccountIdPromise;
   };
 })();
