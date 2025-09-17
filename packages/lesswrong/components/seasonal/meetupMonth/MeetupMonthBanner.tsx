@@ -69,6 +69,15 @@ const styles = defineStyles("MeetupMonthBanner", (theme: ThemeType) => ({
     '& .mapboxgl-ctrl-bottom-right': {
       display: 'none',
     },
+    '& .mapboxgl-ctrl-bottom-left': {
+      display: 'none',
+    },
+    '& .mapboxgl-ctrl-top-right': {
+      display: 'none',
+    },
+    '& .mapboxgl-ctrl-top-left': {
+      display: 'none',
+    },
     '&:hover': {
       '& $mapButtons': {
         opacity: 1,
