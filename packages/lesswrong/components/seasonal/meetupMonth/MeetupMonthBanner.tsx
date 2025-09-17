@@ -56,7 +56,13 @@ const styles = defineStyles("MeetupMonthBanner", (theme: ThemeType) => ({
     right: 0,
     width: '50vw',
     height: '100vh',
-    '& .mapboxgl-map': { 
+    "& .mapboxgl-popup-content": {
+      background: theme.palette.panelBackground.default,
+    },
+    "& .StyledMapPopup-markerPageLink": {
+      color: theme.palette.text.normal,
+    },
+    '& .mapboxgl-canvas': { 
       //filter: 'light-dark(, invert(1) brightness(0.9)) !important',
       filter: theme.dark ? 'invert(1) brightness(2.5)' : '',
     },
