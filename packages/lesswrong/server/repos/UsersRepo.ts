@@ -607,6 +607,39 @@ class UsersRepo extends AbstractRepo<"Users"> {
     `, [limit])
   }
 
+  getUsersForEventPostEmails({limit, afterUserId}: {
+    limit: number,
+    afterUserId?: string,
+  }): Promise<DbUser[]> {
+    return this.any(`
+      SELECT u.*
+      FROM "Users" u
+      WHERE
+        (u."unsubscribeFromAll" IS NULL OR NOT u."unsubscribeFromAll")
+        AND NOT u."deleted"
+        AND u."banned" IS NULL
+        AND u."sendMarketingEmails"
+        AND u."email" IS NOT NULL
+        AND u."karma" >= 0
+        AND (
+          u."reviewedByUserId" IS NOT NULL
+          OR u."sunshineNotes" IS NULL
+          OR u."sunshineNotes" = ''
+        )
+        ${afterUserId ? `AND u."id" > $2` : ``}
+        AND NOT EXISTS (
+          SELECT 1
+          FROM "ReadStatuses" rs
+          WHERE
+            rs."userId" = u."_id"
+            AND rs."isRead" IS TRUE
+            AND rs."lastUpdated" >= NOW() - INTERVAL '1 month'
+        )
+      ORDER BY u."_id" ASC
+      LIMIT $1
+    `, [limit, afterUserId]);
+  }
+
   async searchFacets(facetFieldName: string, query: string): Promise<string[]> {
     const {name, pgField} = getFacetField(facetFieldName);
     const normalizedFacetField = name === "mapLocationAddress"

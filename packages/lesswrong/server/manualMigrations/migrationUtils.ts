@@ -557,6 +557,29 @@ export async function forEachBucketRangeInCollection<N extends CollectionNameStr
   });
 }
 
+export async function forEachDocumentBatch<T, K extends keyof T>({
+  batchSize,
+  sortField,
+  fetchCallback,
+  actionCallback,
+}: {
+  batchSize: number,
+  sortField: K,
+  fetchCallback: (limit: number, afterValue?: T[K]) => Promise<T[]>,
+  actionCallback: (batch: T[]) => Promise<void>,
+}) {
+  let lastValue: T[K] | undefined;
+  // eslint-disable-next-line no-constant-condition
+  while (true) {
+    const batch = await fetchCallback(batchSize, lastValue);
+    if (batch.length === 0) {
+      break;
+    }
+    await actionCallback(batch);
+    lastValue = batch[batch.length - 1][sortField];
+  }
+}
+
   // We can't assume that certain postgres functions exist because we may not have run the appropriate migration
   // This wraapper runs the function and ignores if it's not defined yet
 export async function safeRun(db: SqlClient | null, fn: string): Promise<void> {
