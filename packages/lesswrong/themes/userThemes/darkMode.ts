@@ -309,7 +309,6 @@ export const getDarkModeTheme = (): UserThemeSpecification => ({
       disabledBackground: greyAlpha(0.12),
     },
     meetupMonth: {
-      // acx: '#5f86c9',
       petrov: '#eee',
     },
     // Banner ad compatibility - CSS filters and effects
