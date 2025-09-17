@@ -343,18 +343,12 @@ export const MeetupMonthQuery = gql(`
 
 export default function MeetupMonthBannerInner() {
   const classes = useStyles(styles);
-  const [mapViewport, setMapViewport] = useState({
-    latitude: 0,
-    longitude: 0,
-    zoom: 1
-  });
   const [isLoading, setIsLoading] = useState(true);
-  const [scrollOpacity, setScrollOpacity] = useState(1);
   const [everClickedMap, setEverClickedMap] = useState(false);
   const carouselSections = useMemo(() => getCarouselSections(classes), [classes]);
   
   const defaultViewport = useMemo(() => ({
-    latitude: 20, // Centered roughly over the Atlantic Ocean
+    latitude: 20, 
     longitude: -70,
     zoom: 1.1
   }), [])
@@ -374,11 +368,6 @@ export default function MeetupMonthBannerInner() {
     void initializeMap();
   }, [defaultViewport]);
 
-  const currentUser = useCurrentUser()
-
-  // this is meant to only trigger after the user has clicked on something on the map
-  useUserLocation(currentUser, !everClickedMap)
-
   const { data } = useQuery(MeetupMonthQuery)
 
   const events = useMemo(() => data?.HomepageCommunityEvents.events ?? [], [data?.HomepageCommunityEvents.events]);
@@ -389,12 +378,13 @@ export default function MeetupMonthBannerInner() {
   const [nextCarouselIndex, setNextCarouselIndex] = useState<number | null>(null)
 
   
-  const acxCarouselIndex = 1 // ACX button is the second carousel entry
+  const acxCarouselIndex = 1 
   const acxActive = (nextCarouselIndex ?? currentCarouselIndex) === acxCarouselIndex
-  const ifanyoneCarouselIndex = 2 // If Anyone button is the third carousel entry
+  const ifanyoneCarouselIndex = 2 
   const ifanyoneActive = (nextCarouselIndex ?? currentCarouselIndex) === ifanyoneCarouselIndex
-  const petrovCarouselIndex = 3 // Petrov button is the fourth carousel entry
+  const petrovCarouselIndex = 3 
   const petrovActive = (nextCarouselIndex ?? currentCarouselIndex) === petrovCarouselIndex
+
   const renderedMarkers = useMemo(() => {
     if (acxActive) {
       return <LocalEventMapMarkerWrappersInner  localEvents={events.filter(event => (event.types ?? []).includes('SSC'))} />
@@ -408,13 +398,6 @@ export default function MeetupMonthBannerInner() {
     return <LocalEventMapMarkerWrappersInner  onMarkerClick={() => setEverClickedMap(true)} localEvents={events} />
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [acxActive, ifanyoneActive, petrovActive, events])
-  const handleZoomChange = useCallback((event: React.ChangeEvent<HTMLInputElement>) => {
-    const newZoom = parseFloat(event.target.value)
-    setViewport(prev => ({
-      ...prev,
-      zoom: newZoom
-    }))
-  }, [])
   
   const handleZoomIn = useCallback(() => {
     setViewport(prev => ({
@@ -450,7 +433,7 @@ export default function MeetupMonthBannerInner() {
     }, 10)
   }, [currentCarouselIndex])
 
-  // Automatically rotate carousel every 20 seconds
+  // Automatically rotate carousel unless the user has clicked on the map
   useEffect(() => {
     const intervalId = setInterval(() => {
       if (everClickedMap) return
@@ -462,8 +445,8 @@ export default function MeetupMonthBannerInner() {
 
   if (isLoading) {
     return <div className={classes.root}>
-      <div className={classes.mapGradient} style={{ opacity: scrollOpacity }}/>
-      <div className={classes.mapGradientRight} style={{ opacity: scrollOpacity }}/>
+      <div className={classes.mapGradient} />
+      <div className={classes.mapGradientRight} />
     </div>;
   }
 
@@ -473,7 +456,6 @@ export default function MeetupMonthBannerInner() {
     <div 
       className={classes.mapContainer} 
       onClick={() => setEverClickedMap(true)}
-      style={{ opacity: scrollOpacity }}
     >
       <div className={classes.mapButtonsContainer}>
         <div className={classes.mapButtons} onClick={() => setEverClickedMap(true)}>
@@ -489,7 +471,6 @@ export default function MeetupMonthBannerInner() {
             const isTransitioningOut = (!isSettingUp && isTransitioning && index === currentCarouselIndex)
             const isTransitioningIn = (!isSettingUp && isTransitioning && index === nextCarouselIndex)
             
-            // Decide horizontal position
             let translateX = '0'
             if (isTransitioningOut) {
               translateX = '-100%'
@@ -501,10 +482,8 @@ export default function MeetupMonthBannerInner() {
               translateX = '0'
             }
 
-            // A section should render whenever it is either the current or next target
             const shouldRender = index === currentCarouselIndex || index === nextCarouselIndex
             
-            // Opacity rules: staged section starts at 0.5, fades to 1 when sliding in, fades to 0 when sliding out
             let opacity = 1
             if (aboutToTransition) {
               opacity = 0
@@ -544,9 +523,7 @@ export default function MeetupMonthBannerInner() {
             );
           })}
         </div>
-
       </div>
-
 
       <WrappedReactMapGL
         {...viewport}
@@ -558,12 +535,6 @@ export default function MeetupMonthBannerInner() {
         {renderedMarkers}
       </WrappedReactMapGL>
     </div>
-    {/* <img 
-      src="https://cdn.midjourney.com/86fb466b-6069-4355-a96d-2b5e527efb0f/0_0.png" 
-      alt="Petrov Day" 
-      className={classes.petrovDayImage}
-      style={{ opacity: 1 - scrollOpacity }}
-    /> */}
   </div>;
 }
 
