@@ -183,7 +183,7 @@ function PostsEmailInner({
         )}
 
         {post.contents && (
-          <ContentStyles contentType="post">
+          <ContentStyles contentType="postEmail">
             <EmailContentItemBody
               className="post-body"
               dangerouslySetInnerHTML={{
@@ -221,7 +221,6 @@ export const PostsEmail = ({ postIds, reason, hideRecommendations}: {
   reason?: string;
   hideRecommendations?: boolean;
 }) => {
-  const classes = useStyles(styles);
   return (
     // Providers are required for useMulti
     <LocationContext.Provider
