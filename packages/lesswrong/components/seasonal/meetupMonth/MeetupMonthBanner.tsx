@@ -288,8 +288,8 @@ const styles = defineStyles("MeetupMonthBanner", (theme: ThemeType) => ({
     width: 30,
     height: 30,
     opacity: .3,
-    '&& svg': {
-      fill: `${theme.dark ? theme.palette.grey[0] : theme.palette.grey[400]}`,
+    '& svg': {
+      fill: theme.dark ? theme.palette.grey[0] : theme.palette.grey[400],
     },
     '&:hover': {
       opacity: 1,
