@@ -507,6 +507,59 @@ class UsersRepo extends AbstractRepo<"Users"> {
     return results.map(({_id}) => _id);
   }
 
+  /**
+   * Returns active top contributors for recommending to logged out users, based on recent
+   * posting/commenting activity.
+   */
+  async getTopActiveContributors(limit: number, days = 30): Promise<DbUser[]> {
+    return this.any(`
+      -- UsersRepo.getTopActiveContributors
+      SELECT u.*
+      FROM (
+        SELECT
+          recent_activity."userId",
+          COUNT(*) FILTER (WHERE activity_type = 'post')    AS recent_posts,
+          COUNT(*) FILTER (WHERE activity_type = 'comment') AS recent_comments,
+          MAX(activity_date)                                AS last_activity_at
+        FROM (
+          SELECT 
+            p."userId",
+            'post' AS activity_type,
+            p."postedAt" AS activity_date
+          FROM "Posts" p
+          JOIN "Users" eligible_user ON eligible_user."_id" = p."userId"
+          WHERE
+            eligible_user.karma > 1000
+            AND (eligible_user.banned IS NULL OR eligible_user.banned < current_date)
+            AND eligible_user."deleted" IS NOT TRUE
+            AND eligible_user."displayName" IS NOT NULL
+            AND p."postedAt" >= NOW() - INTERVAL '1 day' * $1
+            AND p."shortform" IS NOT TRUE
+          UNION ALL
+          SELECT
+            c."userId",
+            'comment' AS activity_type,
+            c."createdAt" AS activity_date
+          FROM "Comments" c
+          JOIN "Users" eligible_user ON eligible_user."_id" = c."userId"
+          WHERE
+            eligible_user.karma > 1000
+            AND (eligible_user.banned IS NULL OR eligible_user.banned < current_date)
+            AND eligible_user."deleted" IS NOT TRUE
+            AND eligible_user."displayName" IS NOT NULL
+            AND c."createdAt" >= NOW() - INTERVAL '1 day' * $1
+        ) AS recent_activity
+        GROUP BY recent_activity."userId"
+      ) AS activity_stats
+      JOIN "Users" u ON u."_id" = activity_stats."userId"
+      ORDER BY
+        (activity_stats.recent_posts * 5 + activity_stats.recent_comments) DESC,
+        u.karma DESC,
+        activity_stats.last_activity_at DESC
+      LIMIT $2
+    `, [days, limit]);
+  }
+
   async getSubscriptionFeedSuggestedUsers(userId: string, limit: number): Promise<DbUser[]> {
     return this.any(`
       WITH existing_subscriptions AS (
