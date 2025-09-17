@@ -23,14 +23,15 @@ function getCarouselSections(classes: JssStyles) {
     },
     {
       minorTitle: "ACX Everywhere",
-      subtitle: <div>Many cities have regular Astral Codex Ten meetup groups. Twice a year, we  advertise their upcoming meetup so that irregular attendees can attend and new readers can learn about them. <a href="https://www.lesswrong.com/posts/6umEbXvotXicRPvGs/meetups-everywhere-2025-times-and-places">Learn more here.</a></div>,
+      subtitle: <div>Many cities have regular Astral Codex Ten meetup groups. Twice a year, we  advertise their upcoming meetup so that irregular attendees can attend and new readers can learn about them. <Link 
+      to="/posts/6umEbXvotXicRPvGs/meetups-everywhere-2025-times-and-places">Learn more here.</Link></div>,
       buttonText: "ACX"
     },
     {
       minorTitle: "If Anyone Builds It",
       subtitle: <div>
         <div><a href="https://www.ifanyonebuildsit.com/
-      book-clubs">If Anyone Builds It, Everyone Dies</a> is launching September 16th. You can <a href="https://www.ifanyonebuildsit.com/book-clubs">sign up here</a> to get help facilitating a reading group.</div>
+      book-clubs">If Anyone Builds It, Everyone Dies</a> is launching September 16th. You can <a href="https://airtable.com/appgM36VHCg9MDEU3/shr4mK6ihTss27kzI">sign up here</a> to get help facilitating a reading group.</div>
       <a href="/newPost?eventForm=true&IFANYONE=true" target="_blank" rel="noopener noreferrer" className={classes.createEventButton}>
         <span className={classes.createEventButtonIcon}>+</span> CREATE READING GROUP</a>
       </div>,
@@ -40,7 +41,7 @@ function getCarouselSections(classes: JssStyles) {
     {
       title: "Petrov Day",
       subtitle: <div>
-        <div>September 26th is the day Stanislav Petrov didn't destroy the world. Host a ceremony observing the day's significance</div>
+        <div>September 26th is the day Stanislav Petrov didn't destroy the world. Host a <a href="http://petrovday.com/">ceremony</a> observing the day's significance.</div>
         <a href="/newPost?eventForm=true&PETROV=true" target="_blank" rel="noopener noreferrer" className={classes.createEventButton}>
           <span className={classes.createEventButtonIcon}>+</span> CREATE PETROV EVENT</a>
       </div>,
