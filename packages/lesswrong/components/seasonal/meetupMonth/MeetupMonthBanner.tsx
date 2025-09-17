@@ -30,8 +30,7 @@ function getCarouselSections(classes: JssStyles) {
     {
       minorTitle: "If Anyone Builds It",
       subtitle: <div>
-        <div><Link to="https://www.ifanyonebuildsit.com/
-      book-clubs">If Anyone Builds It, Everyone Dies</Link> is launching September 16th. You can <Link to="https://airtable.com/appgM36VHCg9MDEU3/shr4mK6ihTss27kzI">sign up here</Link> to get help facilitating a reading group.</div>
+        <div><Link to="https://www.lesswrong.com/posts/fnJwaz7LxZ2LJvApm/if-anyone-builds-it-everyone-dies-release-day">If Anyone Builds It, Everyone Dies</Link> is launching September 16th. You can <Link to="https://airtable.com/appgM36VHCg9MDEU3/shr4mK6ihTss27kzI">sign up here</Link> to get help facilitating a reading group.</div>
       <Link to="/newPost?eventForm=true&IFANYONE=true" target="_blank" rel="noopener noreferrer" className={classes.createEventButton}>
         <span className={classes.createEventButtonIcon}>+</span> CREATE READING GROUP</Link>
       </div>,
@@ -52,7 +51,7 @@ function getCarouselSections(classes: JssStyles) {
 
 const styles = defineStyles("MeetupMonthBanner", (theme: ThemeType) => ({
   root: {
-    position: 'fixed',
+    position: 'absolute',
     top: 0,
     right: 0,
     width: '50vw',
