@@ -9,6 +9,8 @@ import CloudinaryImage2 from "./common/CloudinaryImage2";
 import { isHomeRoute } from '@/lib/routeChecks';
 import Inkhaven2025Banner from './seasonal/Inkhaven2025';
 
+import MeetupMonthBanner from './seasonal/meetupMonth/MeetupMonthBanner';
+
 const styles = defineStyles("LWBackgroundImage", (theme: ThemeType) => ({
   root: {
     position: 'absolute',
@@ -145,7 +147,8 @@ export const LWBackgroundImage = ({standaloneNavigation}: {
   if (getReviewPhase() === 'RESULTS') homePageImage = reviewCompleteImage
   
   return <div className={classes.root}>
-    {isHomePage ? <Inkhaven2025Banner /> : defaultImage}
+    {/* {isHomePage ? <Inkhaven2025Banner /> : defaultImage} */}
+    {isHomePage ? <MeetupMonthBanner /> : defaultImage}
   </div>;
 }
 
