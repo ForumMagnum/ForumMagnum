@@ -18,8 +18,7 @@ function getCarouselSections(classes: JssStyles) {
       title: "Meetup Month",
       buttonText: "All",
       subtitle: <div><div>Find events near you, or annouce your own.</div><ul><li>Attend an <Link 
-      to="/posts/6umEbXvotXicRPvGs/meetups-everywhere-2025-times-and-places">ACX Everywhere</Link> meetup.</li><li>Host a reading group for <Link to="https://www.
-      ifanyonebuildsit.com/book-clubs">If Anyone Builds It</Link>.</li><li>Hold a ceremony celebrating <Link to="http://petrovday.com/">Petrov Day.</Link></li></ul></div>,
+      to="/posts/6umEbXvotXicRPvGs/meetups-everywhere-2025-times-and-places">ACX Everywhere</Link> meetup.</li><li>Host a reading group for <Link to="https://www.amazon.com/Anyone-Builds-Everyone-Dies-Superhuman/dp/0316595640">If Anyone Builds It</Link>.</li><li>Hold a ceremony celebrating <Link to="http://petrovday.com/">Petrov Day.</Link></li></ul></div>,
     },
     {
       minorTitle: "ACX Everywhere",
@@ -136,7 +135,7 @@ const styles = defineStyles("MeetupMonthBanner", (theme: ThemeType) => ({
     alignItems: 'center',
     justifyContent: 'flex-start',
     width: 350,
-    [theme.breakpoints.up(1500)]: {
+    [theme.breakpoints.up(smallBreakpoint)]: {
       width: 370,
     },
     gap: 8,
@@ -237,7 +236,7 @@ const styles = defineStyles("MeetupMonthBanner", (theme: ThemeType) => ({
     display: "flex",
     alignItems: "center",
     justifyContent: "center",
-    width: 'calc(100% - 800px)',
+    width: 'calc(100% - 400px)',
     [theme.breakpoints.up(smallBreakpoint)]: {
       width: 'calc(100% - 300px)',
     },
