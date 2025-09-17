@@ -24,17 +24,24 @@ import Error404 from "../common/Error404";
 import SectionTitle from "../common/SectionTitle";
 import Loading from "../vulcan-core/Loading";
 import { useFormErrors } from "../tanstack-form-components/BaseAppForm";
+import FormComponentCheckbox from "../form-components/FormComponentCheckbox";
 
 const styles = defineStyles('ForumEventForm', (theme: ThemeType) => ({
   root: {},
   formTitle: {
-    marginBottom: -30,
+    marginBottom: -8,
   },
   fieldWrapper: {
     marginTop: theme.spacing.unit * 2,
     marginBottom: theme.spacing.unit * 2,
   },
   submitButton: submitButtonStyles(theme),
+  label: {
+    fontFamily: theme.palette.fonts.sansSerifStack,
+    color: theme.palette.greyAlpha(0.54),
+    marginBottom: 4,
+    fontSize: 10,
+  },
 }));
 
 const InnerForumEventForm = ({
@@ -110,6 +117,7 @@ const InnerForumEventForm = ({
     }}>
       {displayedErrorComponent}
       <div className={classNames("form-component-EditorFormComponent", classes.fieldWrapper)}>
+        <div className={classes.label}>Frontpage description (desktop)</div>
         <form.Field name="frontpageDescription">
           {(field) => (
             <EditorFormComponent
@@ -137,6 +145,7 @@ const InnerForumEventForm = ({
       </div>
 
       <div className={classNames("form-component-EditorFormComponent", classes.fieldWrapper)}>
+        <div className={classes.label}>Frontpage description (mobile)</div>
         <form.Field name="frontpageDescriptionMobile">
           {(field) => (
             <EditorFormComponent
@@ -164,6 +173,7 @@ const InnerForumEventForm = ({
       </div>
 
       <div className={classNames("form-component-EditorFormComponent", classes.fieldWrapper)}>
+        <div className={classes.label}>Posts page description</div>
         <form.Field name="postPageDescription">
           {(field) => (
             <EditorFormComponent
@@ -303,6 +313,17 @@ const InnerForumEventForm = ({
             <ImageUpload
               field={field}
               label="Banner image ID"
+            />
+          )}
+        </form.Field>
+      </div>
+
+      <div className={classes.fieldWrapper}>
+        <form.Field name="hideBanner">
+          {(field) => (
+            <FormComponentCheckbox
+              field={field}
+              label="Hide banner"
             />
           )}
         </form.Field>

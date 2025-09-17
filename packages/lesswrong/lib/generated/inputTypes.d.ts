@@ -1916,6 +1916,7 @@ interface ForumEvent {
   bannerImageId: string | null;
   includesPoll: boolean;
   isGlobal: boolean;
+  hideBanner: boolean;
   eventFormat: string;
   pollQuestion: Revision | null;
   pollQuestion_latest: string | null;
@@ -4817,6 +4818,7 @@ interface CreateForumEventDataInput {
   bannerImageId?: string | null;
   includesPoll?: boolean | null;
   isGlobal: boolean;
+  hideBanner?: boolean | null;
   eventFormat?: string | null;
   pollQuestion?: CreateRevisionDataInput | null;
   pollAgreeWording?: string | null;
@@ -4849,6 +4851,7 @@ interface UpdateForumEventDataInput {
   bannerImageId?: string | null;
   includesPoll?: boolean | null;
   isGlobal?: boolean | null;
+  hideBanner?: boolean | null;
   eventFormat?: string | null;
   pollQuestion?: CreateRevisionDataInput | null;
   pollAgreeWording?: string | null;

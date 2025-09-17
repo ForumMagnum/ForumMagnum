@@ -14,6 +14,7 @@ export const ForumEventsMinimumInfo = () => frag`
     postId
     commentId
     bannerImageId
+    hideBanner
     eventFormat
     customComponent
     commentPrompt

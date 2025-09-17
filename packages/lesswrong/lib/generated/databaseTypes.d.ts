@@ -544,6 +544,7 @@ interface DbForumEvent extends DbObject {
   frontpageDescriptionMobile: EditableFieldContents | null
   frontpageDescriptionMobile_latest: string | null
   frontpageDescription_latest: string | null
+  hideBanner: boolean
   includesPoll: boolean
   isGlobal: boolean
   legacyData: any | null
