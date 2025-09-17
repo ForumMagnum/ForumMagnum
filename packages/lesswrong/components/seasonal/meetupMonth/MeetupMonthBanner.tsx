@@ -9,6 +9,7 @@ import { JssStyles } from '@/lib/jssStyles';
 import MagnifyingGlassPlusIcon from '@heroicons/react/24/solid/MagnifyingGlassPlusIcon';
 import MagnifyingGlassMinusIcon from '@heroicons/react/24/solid/MagnifyingGlassMinusIcon';
 import { Link } from '@/lib/reactRouterWrapper';
+import classNames from 'classnames';
 
 const smallBreakpoint = 1525
 
@@ -311,6 +312,14 @@ const styles = defineStyles("MeetupMonthBanner", (theme: ThemeType) => ({
     justifyContent: 'flex-end',
     alignItems: 'center',
   },
+  carouselSection: {
+    position: 'absolute',
+    bottom: 0,
+    display: 'block',
+    opacity: 1,
+    transition: 'opacity 0.15s ease-in-out, transform 0.3s ease-in-out',
+    transform: 'translateX(0)',
+  },
   createEventButton: {
     ...theme.typography.commentStyle,
     color: theme.dark ? theme.palette.primary.light : theme.palette.primary.dark,
@@ -374,7 +383,7 @@ export default function MeetupMonthBannerInner() {
   const [viewport, setViewport] = useState(defaultViewport)
 
   useEffect(() => {
-    const initializeMap = async () => {
+    const initializeMap = () => {
       setViewport({
         latitude: defaultViewport.latitude,
         longitude: defaultViewport.longitude,
@@ -397,25 +406,18 @@ export default function MeetupMonthBannerInner() {
 
   
   const acxCarouselIndex = 1 
-  const acxActive = (nextCarouselIndex ?? currentCarouselIndex) === acxCarouselIndex
   const ifanyoneCarouselIndex = 2 
-  const ifanyoneActive = (nextCarouselIndex ?? currentCarouselIndex) === ifanyoneCarouselIndex
   const petrovCarouselIndex = 3 
-  const petrovActive = (nextCarouselIndex ?? currentCarouselIndex) === petrovCarouselIndex
+  const activeIndex = nextCarouselIndex ?? currentCarouselIndex
+  const filterKey = activeIndex === acxCarouselIndex ? 'SSC' : activeIndex === ifanyoneCarouselIndex ? 'IFANYONE' : activeIndex === petrovCarouselIndex ? 'PETROV' : undefined
 
   const renderedMarkers = useMemo(() => {
-    if (acxActive) {
-      return <LocalEventMapMarkerWrappersInner  localEvents={events.filter(event => (event.types ?? []).includes('SSC'))} />
-    }
-    if (ifanyoneActive) {
-      return <LocalEventMapMarkerWrappersInner  onMarkerClick={() => setEverClickedMap(true)} localEvents={events.filter(event => (event.types ?? []).includes('IFANYONE'))} />
-    }
-    if (petrovActive) {
-      return <LocalEventMapMarkerWrappersInner  onMarkerClick={() => setEverClickedMap(true)} localEvents={events.filter(event => (event.types ?? []).includes('PETROV'))} />
+    if (filterKey) {
+      return <LocalEventMapMarkerWrappersInner  localEvents={events.filter(event => (event.types ?? []).includes(filterKey))} />
     }
     return <LocalEventMapMarkerWrappersInner  onMarkerClick={() => setEverClickedMap(true)} localEvents={events} />
   // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [acxActive, ifanyoneActive, petrovActive, events])
+  }, [filterKey, events])
   
   const handleZoomIn = useCallback(() => {
     setViewport(prev => ({
@@ -468,7 +470,11 @@ export default function MeetupMonthBannerInner() {
     </div>;
   }
 
-  return <div className={`${classes.root} ${acxActive ? classes.acxMode : ''} ${ifanyoneActive ? classes.ifanyoneMode : ''} ${petrovActive ? classes.petrovMode : ''}`}>
+  return <div className={classNames(classes.root, {
+    [classes.acxMode]: filterKey === 'SSC',
+    [classes.ifanyoneMode]: filterKey === 'IFANYONE',
+    [classes.petrovMode]: filterKey === 'PETROV'
+  })}>
     <div className={classes.mapGradient}/>
     <div className={classes.mapGradientRight} />
     <div 
@@ -502,16 +508,9 @@ export default function MeetupMonthBannerInner() {
 
             const shouldRender = index === currentCarouselIndex || index === nextCarouselIndex
             
-            let opacity = 1
-            if (aboutToTransition) {
-              opacity = 0
-            } else if (isTransitioningOut) {
-              opacity = 0
-            }
+            const opacity = (aboutToTransition || isTransitioningOut) ? 0 : 1;
 
-            return <div key={index} style={{
-              position: 'absolute',
-              bottom: 0,
+            return <div key={index} className={classes.carouselSection} style={{
               display: shouldRender ? 'block' : 'none',
               opacity,
               transition: !isSettingUp ? 'opacity 0.15s ease-in-out, transform 0.3s ease-in-out' : 'none',
@@ -525,12 +524,15 @@ export default function MeetupMonthBannerInner() {
         </div>
         <div className={classes.meetupTypes}> 
           {carouselSections.map((section, index) => {
-            const activeIndex = nextCarouselIndex ?? currentCarouselIndex;
+            const isActive = index === activeIndex
             return (
               <div
-                className={`${classes.meetupType} ${index === activeIndex ?
-                  (index === 1 ? classes.activeAcxMeetupType : index === 2 ? classes.activeIfanyoneMeetupType : index === 3 ? classes.activePetrovMeetupType : classes.activeMeetupType)
-                  : ''}`}
+                className={classNames(classes.meetupType, {
+                  [classes.activeAcxMeetupType]: index === acxCarouselIndex,
+                  [classes.activeIfanyoneMeetupType]: index === ifanyoneCarouselIndex,
+                  [classes.activePetrovMeetupType]: index === petrovCarouselIndex,
+                  [classes.activeMeetupType]: isActive
+                })}
                 key={index}
                 onClick={() => {
                   handleMeetupTypeClick(index);
