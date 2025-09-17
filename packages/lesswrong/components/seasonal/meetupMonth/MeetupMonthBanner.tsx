@@ -18,8 +18,8 @@ function getCarouselSections(classes: JssStyles) {
       title: "Meetup Month",
       buttonText: "All",
       subtitle: <div><div>Find events near you, or annouce your own.</div><ul><li>Attend an <Link 
-      to="/posts/6umEbXvotXicRPvGs/meetups-everywhere-2025-times-and-places">ACX Everywhere</Link> meetup.</li><li>Host a reading group for <a href="https://www.
-      ifanyonebuildsit.com/book-clubs">If Anyone Builds It</a>.</li><li>Hold a ceremony celebrating <a href="http://petrovday.com/">Petrov Day.</a></li></ul></div>,
+      to="/posts/6umEbXvotXicRPvGs/meetups-everywhere-2025-times-and-places">ACX Everywhere</Link> meetup.</li><li>Host a reading group for <Link to="https://www.
+      ifanyonebuildsit.com/book-clubs">If Anyone Builds It</Link>.</li><li>Hold a ceremony celebrating <Link to="http://petrovday.com/">Petrov Day.</Link></li></ul></div>,
     },
     {
       minorTitle: "ACX Everywhere",
@@ -30,20 +30,19 @@ function getCarouselSections(classes: JssStyles) {
     {
       minorTitle: "If Anyone Builds It",
       subtitle: <div>
-        <div><a href="https://www.ifanyonebuildsit.com/
-      book-clubs">If Anyone Builds It, Everyone Dies</a> is launching September 16th. You can <a href="https://airtable.com/appgM36VHCg9MDEU3/shr4mK6ihTss27kzI">sign up here</a> to get help facilitating a reading group.</div>
-      <a href="/newPost?eventForm=true&IFANYONE=true" target="_blank" rel="noopener noreferrer" className={classes.createEventButton}>
-        <span className={classes.createEventButtonIcon}>+</span> CREATE READING GROUP</a>
+        <div><Link to="https://www.ifanyonebuildsit.com/
+      book-clubs">If Anyone Builds It, Everyone Dies</Link> is launching September 16th. You can <Link to="https://airtable.com/appgM36VHCg9MDEU3/shr4mK6ihTss27kzI">sign up here</Link> to get help facilitating a reading group.</div>
+      <Link to="/newPost?eventForm=true&IFANYONE=true" target="_blank" rel="noopener noreferrer" className={classes.createEventButton}>
+        <span className={classes.createEventButtonIcon}>+</span> CREATE READING GROUP</Link>
       </div>,
-      linkText: "If Anyone Builds It",
       buttonText: "If Anyone Builds It"
     },
     {
       title: "Petrov Day",
       subtitle: <div>
         <div>September 26th is the day Stanislav Petrov didn't destroy the world. Host a <a href="http://petrovday.com/">ceremony</a> observing the day's significance.</div>
-        <a href="/newPost?eventForm=true&PETROV=true" target="_blank" rel="noopener noreferrer" className={classes.createEventButton}>
-          <span className={classes.createEventButtonIcon}>+</span> CREATE PETROV EVENT</a>
+        <Link to="/newPost?eventForm=true&PETROV=true" target="_blank" rel="noopener noreferrer" className={classes.createEventButton}>
+          <span className={classes.createEventButtonIcon}>+</span> CREATE PETROV EVENT</Link>
       </div>,
       linkText: "Petrov Day",
       buttonText: "Petrov Day"
