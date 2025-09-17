@@ -239,7 +239,7 @@ const PostsNewForm = () => {
     activateRSVPs: true,
     onlineEvent: groupData?.isOnline,
     globalEvent: groupData?.isOnline,
-    types: query && query.ssc ? ['SSC'] : [],
+    types: query ? ['SSC', 'IFANYONE', 'PETROV'].filter(type => query[type]) : [],
     meta: query && !!query.meta,
     groupId: query && query.groupId,
     moderationStyle: currentUser && currentUser.moderationStyle,

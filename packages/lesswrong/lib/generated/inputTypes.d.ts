@@ -31,6 +31,7 @@ interface Query {
   DigestPlannerData: Array<DigestPlannerPost>;
   DigestPosts: Array<Post> | null;
   CanAccessGoogleDoc: boolean | null;
+  HomepageCommunityEvents: HomepageCommunityEventMarkersResult;
   DigestHighlights: DigestHighlightsResult | null;
   DigestPostsThisWeek: DigestPostsThisWeekResult | null;
   CuratedAndPopularThisWeek: CuratedAndPopularThisWeekResult | null;
@@ -860,6 +861,17 @@ interface VertexRecommendedPost {
 interface PostWithApprovedJargon {
   post: Post;
   jargonTerms: Array<JargonTerm>;
+}
+
+interface HomepageCommunityEventMarker {
+  _id: string;
+  lat: number;
+  lng: number;
+  types: Array<string> | null;
+}
+
+interface HomepageCommunityEventMarkersResult {
+  events: Array<HomepageCommunityEventMarker>;
 }
 
 interface DigestHighlightsResult {
@@ -9775,6 +9787,8 @@ interface GraphQLTypeMap {
   RecombeeRecommendedPost: RecombeeRecommendedPost;
   VertexRecommendedPost: VertexRecommendedPost;
   PostWithApprovedJargon: PostWithApprovedJargon;
+  HomepageCommunityEventMarker: HomepageCommunityEventMarker;
+  HomepageCommunityEventMarkersResult: HomepageCommunityEventMarkersResult;
   DigestHighlightsResult: DigestHighlightsResult;
   DigestPostsThisWeekResult: DigestPostsThisWeekResult;
   CuratedAndPopularThisWeekResult: CuratedAndPopularThisWeekResult;
