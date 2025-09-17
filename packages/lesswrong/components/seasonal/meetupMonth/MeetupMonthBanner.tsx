@@ -13,6 +13,20 @@ import classNames from 'classnames';
 
 const smallBreakpoint = 1525
 
+const ifAnyoneTitle = "[Your City Here] If Anyone Builds It reading group"
+const titlePetrov = "[Your City Here] Petrov Day"
+
+const ifAnyoneText = `
+<p><em>(Edit the title and text here to whatever makes sense for your group)</em></p>
+<p>We'll be meeting to discuss [the first chapter] / [the first N chapters] of <a href="https://www.amazon.com/Anyone-Builds-Everyone-Dies-Superhuman/dp/0316595640">If Anyone Builds It, Everyone Dies</a>.</p>.
+<p>
+Contact Info: [Your Contact Info]
+</p>
+<p>
+Location: [Your Location]
+</p>
+`
+
 function getCarouselSections(classes: JssStyles) {
   return [
     {
@@ -31,8 +45,9 @@ function getCarouselSections(classes: JssStyles) {
       minorTitle: "If Anyone Builds It",
       subtitle: <div>
         <div><Link to="https://www.lesswrong.com/posts/fnJwaz7LxZ2LJvApm/if-anyone-builds-it-everyone-dies-release-day">If Anyone Builds It, Everyone Dies</Link> is launching September 16th. You can <Link to="https://airtable.com/appgM36VHCg9MDEU3/shr4mK6ihTss27kzI">sign up here</Link> to get help facilitating a reading group.</div>
-      <Link to="/newPost?eventForm=true&IFANYONE=true" target="_blank" rel="noopener noreferrer" className={classes.createEventButton}>
-        <span className={classes.createEventButtonIcon}>+</span> CREATE READING GROUP</Link>
+        <Link to={`/newPost?eventForm=true&IFANYONE=true&title=${ifAnyoneTitle}&contents=${ifAnyoneText}`} target="_blank" rel="noopener noreferrer" className={classes.createEventButton}>
+          <span className={classes.createEventButtonIcon}>+</span> CREATE READING GROUP
+        </Link>
       </div>,
       buttonText: "If Anyone Builds It"
     },
@@ -40,7 +55,7 @@ function getCarouselSections(classes: JssStyles) {
       title: "Petrov Day",
       subtitle: <div>
         <div>September 26th is the day Stanislav Petrov didn't destroy the world. Host a <Link to="http://petrovday.com/">ceremony</Link> observing the day's significance.</div>
-        <Link to="/newPost?eventForm=true&PETROV=true" target="_blank" rel="noopener noreferrer" className={classes.createEventButton}>
+        <Link to="/newPost?eventForm=true&PETROV=true&title=[Your%20City%20Here]%Petrov%20Day" target="_blank" rel="noopener noreferrer" className={classes.createEventButton}>
           <span className={classes.createEventButtonIcon}>+</span> CREATE PETROV EVENT</Link>
       </div>,
       linkText: "Petrov Day",

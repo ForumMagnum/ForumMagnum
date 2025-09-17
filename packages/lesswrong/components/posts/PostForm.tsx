@@ -173,6 +173,8 @@ const PostForm = ({
 
   const { setCaughtError, displayedErrorComponent } = useFormErrors();
 
+  console.log("initialData", initialData);
+
   const form = useForm({
     defaultValues: {
       ...initialData,

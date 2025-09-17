@@ -112,7 +112,9 @@ type PrefilledPostFields =
   | "generateDraftJargon"
   | "postCategory";
 
-type PrefilledEventTemplate = Pick<PostsEditMutationFragment, EventTemplateFields> & {
+// Override the `contents` field so it matches the `CreateRevisionDataInput` expected by `PrefilledPost`
+type PrefilledEventTemplate = Omit<Pick<PostsEditMutationFragment, EventTemplateFields>, 'contents'> & {
+  contents?: CreateRevisionDataInput;
   startTime?: Date;
   endTime?: Date;
 };
@@ -123,10 +125,12 @@ type PrefilledPost = Partial<PrefilledEventTemplate | PrefilledPostBase> & {
   af?: boolean;
   subforumTagId?: string;
   tagRelevance?: Record<string, number>;
+  title?: string;
+  contents?: CreateRevisionDataInput;
 };
 
 const prefillFromTemplate = (template: PostsEditMutationFragment, currentUser: UsersCurrent | null): PrefilledEventTemplate => {
-  const { startTime, endTime, ...fields } = pick(
+  const { startTime, endTime, contents, ...fields } = pick(
     template,
     [
       "contents",
@@ -153,6 +157,7 @@ const prefillFromTemplate = (template: PostsEditMutationFragment, currentUser: U
 
   return {
     ...fields,
+    ...(contents ? contents.originalContents && { contents: { originalContents: contents.originalContents } } : {}),
     ...(startTime && { startTime: new Date(startTime) }),
     ...(endTime && { endTime: new Date(endTime) }),
   }
@@ -239,12 +244,14 @@ const PostsNewForm = () => {
     activateRSVPs: true,
     onlineEvent: groupData?.isOnline,
     globalEvent: groupData?.isOnline,
+    title: (query && query.title) ?? "Untitled Draft",
     types: query ? ['SSC', 'IFANYONE', 'PETROV'].filter(type => query[type]) : [],
     meta: query && !!query.meta,
     groupId: query && query.groupId,
     moderationStyle: currentUser && currentUser.moderationStyle,
     generateDraftJargon: currentUser?.generateJargonForDrafts,
-    postCategory
+    postCategory,
+    ...(query?.contents ? { contents: { originalContents: { type: "ckEditorMarkup", data: query.contents } } } : {}),
   }
 
   if (userIsMemberOf(currentUser, 'alignmentForum')) {
@@ -269,23 +276,33 @@ const PostsNewForm = () => {
     if (currentUser && currentUserWithModerationGuidelines && !templateLoading && userCanPost(currentUser) && !attemptedToCreatePostRef.current) {
       attemptedToCreatePostRef.current = true;
       void (async () => {
+        console.log("prefilledProps", prefilledProps);
         const sanitizedPrefilledProps = 'contents' in prefilledProps
           ? sanitizeEditableFieldValues(prefilledProps, ['contents'])
           : prefilledProps;
 
-        const moderationGuidelinesField = currentUserWithModerationGuidelines.moderationGuidelines?.originalContents && hasAuthorModeration()
+        console.log("sanitizedPrefilledProps", sanitizedPrefilledProps);
+
+        const hasValidModerationGuidelines =
+          currentUserWithModerationGuidelines.moderationGuidelines?.originalContents?.data !== undefined &&
+          currentUserWithModerationGuidelines.moderationGuidelines?.originalContents?.data !== null;
+
+        const moderationGuidelinesField = hasValidModerationGuidelines && hasAuthorModeration()
           ? { moderationGuidelines: sanitizeEditableFieldValues(currentUserWithModerationGuidelines, ['moderationGuidelines']).moderationGuidelines }
           : {};
 
         try {
+          const createPostInput = {
+            draft: true,
+            ...sanitizedPrefilledProps,
+            ...moderationGuidelinesField,
+            // Ensure GraphQL required title is always provided. If prefilled title is undefined, fallback to default.
+            title: sanitizedPrefilledProps.title ?? "Untitled Draft",
+          };
+
           const { data } = await createPost({
             variables: {
-              data: {
-                title: "Untitled Draft",
-                draft: true,
-                ...sanitizedPrefilledProps,
-                ...moderationGuidelinesField,
-              }
+              data: createPostInput,
             },
           });
 
