@@ -19,7 +19,7 @@ function getCarouselSections(classes: JssStyles) {
       title: "Meetup Month",
       buttonText: "All",
       subtitle: <div><div>Find events near you, or annouce your own.</div><ul><li>Attend an <Link 
-      to="/posts/6umEbXvotXicRPvGs/meetups-everywhere-2025-times-and-places">ACX Everywhere</Link> meetup.</li><li>Host a reading group for <Link to="https://www.amazon.com/Anyone-Builds-Everyone-Dies-Superhuman/dp/0316595640">If Anyone Builds It</Link>.</li><li>Hold a ceremony celebrating <Link to="http://petrovday.com/">Petrov Day.</Link></li></ul></div>,
+      to="/posts/mve2bunf6YfTeiAvd/meetup-month-1">ACX Everywhere</Link> meetup.</li><li>Host a reading group for <Link to="/posts/mve2bunf6YfTeiAvd/meetup-month-1#If_Anyone_Builds_It_reading_groups">If Anyone Builds It</Link>.</li><li>Hold a ceremony celebrating <Link to="/posts/mve2bunf6YfTeiAvd/meetup-month-1#Petrov_Day">Petrov Day.</Link></li></ul></div>,
     },
     {
       minorTitle: "ACX Everywhere",
@@ -30,17 +30,18 @@ function getCarouselSections(classes: JssStyles) {
     {
       minorTitle: "If Anyone Builds It",
       subtitle: <div>
-        <div><Link to="https://www.lesswrong.com/posts/fnJwaz7LxZ2LJvApm/if-anyone-builds-it-everyone-dies-release-day">If Anyone Builds It, Everyone Dies</Link> is launching September 16th. You can <Link to="https://airtable.com/appgM36VHCg9MDEU3/shr4mK6ihTss27kzI">sign up here</Link> to get help facilitating a reading group.</div>
-      <Link to="/newPost?eventForm=true&IFANYONE=true" target="_blank" rel="noopener noreferrer" className={classes.createEventButton}>
-        <span className={classes.createEventButtonIcon}>+</span> CREATE READING GROUP</Link>
+        <div><Link to="/posts/mve2bunf6YfTeiAvd/meetup-month-1#If_Anyone_Builds_It_reading_groups">If Anyone Builds It, Everyone Dies</Link> is launching September 16th. You can <Link to="https://airtable.com/appgM36VHCg9MDEU3/shr4mK6ihTss27kzI">sign up here</Link> to get help facilitating a reading group.</div>
+        <Link to={`/newPost?eventForm=true&IFANYONE=true`} target="_blank" rel="noopener noreferrer" className={classes.createEventButton}>
+          <span className={classes.createEventButtonIcon}>+</span> CREATE READING GROUP
+        </Link>
       </div>,
       buttonText: "If Anyone Builds It"
     },
     {
       title: "Petrov Day",
       subtitle: <div>
-        <div>September 26th is the day Stanislav Petrov didn't destroy the world. Host a <Link to="http://petrovday.com/">ceremony</Link> observing the day's significance.</div>
-        <Link to="/newPost?eventForm=true&PETROV=true" target="_blank" rel="noopener noreferrer" className={classes.createEventButton}>
+        <div>September 26th is the day Stanislav Petrov didn't destroy the world. Host a <Link to="/posts/mve2bunf6YfTeiAvd/meetup-month-1#Petrov_Day">ceremony</Link> observing the day's significance.</div>
+        <Link to={`/newPost?eventForm=true&PETROV=true`} target="_blank" rel="noopener noreferrer" className={classes.createEventButton}>
           <span className={classes.createEventButtonIcon}>+</span> CREATE PETROV EVENT</Link>
       </div>,
       linkText: "Petrov Day",
