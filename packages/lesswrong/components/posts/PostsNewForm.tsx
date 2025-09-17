@@ -19,6 +19,7 @@ import LoginForm from "../users/LoginForm";
 import SingleColumnSection from "../common/SingleColumnSection";
 import { Typography } from "../common/Typography";
 import Loading from "../vulcan-core/Loading";
+import sanitize from 'sanitize-html';
 
 const PostsEditMutation = gql(`
   mutation createPostPostsNewForm($data: CreatePostDataInput!) {
@@ -253,7 +254,7 @@ const PostsNewForm = () => {
     moderationStyle: currentUser && currentUser.moderationStyle,
     generateDraftJargon: currentUser?.generateJargonForDrafts,
     postCategory,
-    ...(query?.contents ? { contents: { originalContents: { type: "ckEditorMarkup", data: query.contents } } } : {}),
+    ...(query?.contents ? { contents: { originalContents: { type: "ckEditorMarkup", data: sanitize(query.contents) } } } : {}),
   }
 
   if (userIsMemberOf(currentUser, 'alignmentForum')) {
