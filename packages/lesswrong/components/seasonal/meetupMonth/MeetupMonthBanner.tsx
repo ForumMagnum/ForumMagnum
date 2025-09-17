@@ -2,12 +2,10 @@ import React, { useState, useEffect, useMemo, useCallback } from 'react';
 import { defineStyles, useStyles } from '../../hooks/useStyles';
 import { WrappedReactMapGL } from '../../community/WrappedReactMapGL';
 import { LocalEventMapMarkerWrappersInner } from '../HomepageMap/HomepageCommunityMap';
-import { useCurrentUser } from '@/components/common/withUser';
 import { useQuery } from "@/lib/crud/useQuery";
 import { SuspenseWrapper } from '@/components/common/SuspenseWrapper';
 import { gql } from '@/lib/generated/gql-codegen';
 import { JssStyles } from '@/lib/jssStyles';
-import { useUserLocation } from '@/components/hooks/useUserLocation';
 import MagnifyingGlassPlusIcon from '@heroicons/react/24/solid/MagnifyingGlassPlusIcon';
 import MagnifyingGlassMinusIcon from '@heroicons/react/24/solid/MagnifyingGlassMinusIcon';
 import { Link } from '@/lib/reactRouterWrapper';
@@ -26,7 +24,6 @@ function getCarouselSections(classes: JssStyles) {
     {
       minorTitle: "ACX Everywhere",
       subtitle: <div>Many cities have regular Astral Codex Ten meetup groups. Twice a year, we  advertise their upcoming meetup so that irregular attendees can attend and new readers can learn about them. <a href="https://www.lesswrong.com/posts/6umEbXvotXicRPvGs/meetups-everywhere-2025-times-and-places">Learn more here.</a></div>,
-      linkText: "ACX Meetup",
       buttonText: "ACX"
     },
     {
@@ -37,7 +34,6 @@ function getCarouselSections(classes: JssStyles) {
       <a href="/newPost?eventForm=true&IFANYONE=true" target="_blank" rel="noopener noreferrer" className={classes.createEventButton}>
         <span className={classes.createEventButtonIcon}>+</span> CREATE READING GROUP</a>
       </div>,
-      link: "https://www.ifanyonebuildsit.com/book-clubs",
       linkText: "If Anyone Builds It",
       buttonText: "If Anyone Builds It"
     },
@@ -48,7 +44,6 @@ function getCarouselSections(classes: JssStyles) {
         <a href="/newPost?eventForm=true&PETROV=true" target="_blank" rel="noopener noreferrer" className={classes.createEventButton}>
           <span className={classes.createEventButtonIcon}>+</span> CREATE PETROV EVENT</a>
       </div>,
-      link: "https://www.lesswrong.com/meetups/petrov-day",
       linkText: "Petrov Day",
       buttonText: "Petrov Day"
     }
