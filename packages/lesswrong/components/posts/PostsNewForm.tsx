@@ -110,7 +110,9 @@ type PrefilledPostFields =
   | "groupId"
   | "moderationStyle"
   | "generateDraftJargon"
-  | "postCategory";
+  | "postCategory"
+  | "title"
+  | "contents";
 
 // Override the `contents` field so it matches the `CreateRevisionDataInput` expected by `PrefilledPost`
 type PrefilledEventTemplate = Omit<Pick<PostsEditMutationFragment, EventTemplateFields>, 'contents'> & {
@@ -276,12 +278,10 @@ const PostsNewForm = () => {
     if (currentUser && currentUserWithModerationGuidelines && !templateLoading && userCanPost(currentUser) && !attemptedToCreatePostRef.current) {
       attemptedToCreatePostRef.current = true;
       void (async () => {
-        console.log("prefilledProps", prefilledProps);
         const sanitizedPrefilledProps = 'contents' in prefilledProps
           ? sanitizeEditableFieldValues(prefilledProps, ['contents'])
           : prefilledProps;
 
-        console.log("sanitizedPrefilledProps", sanitizedPrefilledProps);
 
         const hasValidModerationGuidelines =
           currentUserWithModerationGuidelines.moderationGuidelines?.originalContents?.data !== undefined &&
