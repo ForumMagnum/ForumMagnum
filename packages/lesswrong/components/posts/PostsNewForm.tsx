@@ -19,7 +19,6 @@ import LoginForm from "../users/LoginForm";
 import SingleColumnSection from "../common/SingleColumnSection";
 import { Typography } from "../common/Typography";
 import Loading from "../vulcan-core/Loading";
-import sanitize from 'sanitize-html';
 import { getMeetupMonthInfo } from '../seasonal/meetupMonth/meetupMonthEventUtils';
 
 const PostsEditMutation = gql(`
@@ -115,7 +114,6 @@ type PrefilledPostFields =
   | "postCategory"
   | "title"
 
-// Override the `contents` field so it matches the `CreateRevisionDataInput` expected by `PrefilledPost`
 type PrefilledEventTemplate = Pick<PostsEditMutationFragment, EventTemplateFields> & {
   startTime?: Date;
   endTime?: Date;
@@ -172,7 +170,6 @@ function getPostCategory(query: Record<string, string>, questionInQuery: boolean
       : postDefaultCategory;
 }
 
-
 const PostsNewForm = () => {
   const { query } = useLocation();
   const [error, setError] = useState<string|null>(null);
@@ -203,7 +200,7 @@ const PostsNewForm = () => {
     variables: { documentId: currentUser?._id },
     skip: !currentUser,
   });
-  const currentUserWithModerationGuidelines = dataUser?.user?.result;
+  const currentUserWithModGuidelines = dataUser?.user?.result;
 
   const types = (['IFANYONE', 'PETROV'] as const).filter(type => query[type])
   const { data, title } = getMeetupMonthInfo(types)
@@ -243,7 +240,7 @@ const PostsNewForm = () => {
 
   const attemptedToCreatePostRef = useRef(false);
   useEffect(() => {
-    if (currentUser && currentUserWithModerationGuidelines && !templateLoading && userCanPost(currentUser) && !attemptedToCreatePostRef.current) {
+    if (currentUser && currentUserWithModGuidelines && !templateLoading && userCanPost(currentUser) && !attemptedToCreatePostRef.current) {
       attemptedToCreatePostRef.current = true;
       void (async () => {
         const sanitizedPrefilledProps = 'contents' in prefilledProps
@@ -251,21 +248,20 @@ const PostsNewForm = () => {
           : prefilledProps;
 
 
-        const hasValidModerationGuidelines =
-          currentUserWithModerationGuidelines.moderationGuidelines?.originalContents?.data !== undefined &&
-          currentUserWithModerationGuidelines.moderationGuidelines?.originalContents?.data !== null;
+        const hasModerationGuidelines = currentUserWithModGuidelines.moderationGuidelines?.originalContents && hasAuthorModeration()
 
-        const moderationGuidelinesField = hasValidModerationGuidelines && hasAuthorModeration()
-          ? { moderationGuidelines: sanitizeEditableFieldValues(currentUserWithModerationGuidelines, ['moderationGuidelines']).moderationGuidelines }
+        const moderationGuidelines = sanitizeEditableFieldValues(currentUserWithModGuidelines, ['moderationGuidelines']).moderationGuidelines
+
+        const moderationGuidelinesField = hasModerationGuidelines
+          ? { moderationGuidelines }
           : {};
 
         try {
           const createPostInput = {
+            title: "Untitled Draft",
             draft: true,
             ...sanitizedPrefilledProps,
             ...moderationGuidelinesField,
-            // Ensure GraphQL required title is always provided. If prefilled title is undefined, fallback to default.
-            title: sanitizedPrefilledProps.title ?? "Untitled Draft",
           };
 
           const { data } = await createPost({
@@ -286,12 +282,12 @@ const PostsNewForm = () => {
     }
   // Disable warning because lint doesn't know depending on JSON.stringify(prefilledProps) is the same as depending on prefilledProps
   // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [currentUser, currentUserWithModerationGuidelines, templateLoading, createPost, navigate, JSON.stringify(prefilledProps)]);
+  }, [currentUser, currentUserWithModGuidelines, templateLoading, createPost, navigate, JSON.stringify(prefilledProps)]);
 
   if (!currentUser) {
     return (<LoginForm />);
   }
-  if (!currentUserWithModerationGuidelines) {
+  if (!currentUserWithModGuidelines) {
     return <Loading/>
   }
 
