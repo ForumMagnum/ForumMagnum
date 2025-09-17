@@ -490,7 +490,7 @@ class PostsRepo extends AbstractRepo<"Posts"> {
       FROM "Posts" p
       ${readFilter.join}
       WHERE
-        NOW() - p."curatedDate" < ($1 || ' days')::INTERVAL AND
+        p."curatedDate" > NOW() - ($1 || ' days')::INTERVAL AND
         p."disableRecommendation" IS NOT TRUE AND
         ${readFilter.filter}
         ${postFilter}
@@ -501,7 +501,7 @@ class PostsRepo extends AbstractRepo<"Posts"> {
       ${readFilter.join}
       WHERE
         p."curatedDate" IS NULL AND
-        NOW() - p."frontpageDate" < ($1 || ' days')::INTERVAL AND
+        p."frontpageDate" > NOW() - ($1 || ' days')::INTERVAL AND
         COALESCE(
           (p."tagRelevance"->'${EA_FORUM_COMMUNITY_TOPIC_ID}')::INTEGER,
           0
