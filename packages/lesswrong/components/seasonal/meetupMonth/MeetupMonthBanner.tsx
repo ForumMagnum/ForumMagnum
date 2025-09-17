@@ -56,6 +56,13 @@ const styles = defineStyles("MeetupMonthBanner", (theme: ThemeType) => ({
     right: 0,
     width: '50vw',
     height: '100vh',
+    '& .mapboxgl-map': { 
+      //filter: 'light-dark(, invert(1) brightness(0.9)) !important',
+      filter: theme.dark ? 'invert(1) brightness(2.5)' : '',
+    },
+    '& .mapboxgl-ctrl-bottom-right': {
+      display: 'none',
+    },
     '&:hover': {
       '& $mapButtons': {
         opacity: 1,
@@ -79,6 +86,9 @@ const styles = defineStyles("MeetupMonthBanner", (theme: ThemeType) => ({
   minorTitle: {
     fontSize: 38,
     fontWeight: 500,
+    [theme.breakpoints.down(smallBreakpoint)]: {
+      fontSize: 34,
+    },
     fontFamily: theme.typography.headerStyle.fontFamily,
     fontVariant: 'small-caps',
     color: theme.palette.text.primary,
@@ -88,9 +98,11 @@ const styles = defineStyles("MeetupMonthBanner", (theme: ThemeType) => ({
     lineHeight: 1.2,
   },
   textContainer: {
-    width: 350,
+    width: 320,
+    marginRight: 20,
     [theme.breakpoints.up(smallBreakpoint)]: {
       width: 370,
+      marginRight: 0,
     },
     zIndex: 4,
     lineHeight: 1.5,
@@ -107,18 +119,21 @@ const styles = defineStyles("MeetupMonthBanner", (theme: ThemeType) => ({
     },
   },
   subtitle: {
-    fontSize: 16,
+    fontSize: 15,
     height: 90,
     [theme.breakpoints.up(smallBreakpoint)]: {
       fontSize: 18,
       height: 120,
+    },
+    '& a': {
+      color: theme.dark ? theme.palette.primary.light : theme.palette.primary.dark,
     },
     fontWeight: 500,
     marginTop: 12,
     display: 'flex',
     flexDirection: 'column',
     justifyContent: 'center',
-    textShadow: `0 0 5px ${theme.palette.background.default}, 0 0 10px ${theme.palette.background.default}, 0 0 15px ${theme.palette.background.default}`,
+    textShadow: `0 0 5px light-dark(${theme.palette.background.default}, transparent), 0 0 10px light-dark(${theme.palette.background.default}, transparent), 0 0 15px light-dark(${theme.palette.background.default}, transparent)`,
     fontFamily: theme.typography.postStyle.fontFamily,
     color: theme.palette.text.primary,
     transition: 'opacity 0.3s ease-out',
@@ -134,9 +149,11 @@ const styles = defineStyles("MeetupMonthBanner", (theme: ThemeType) => ({
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'flex-start',
-    width: 350,
+    width: 320,
+    marginRight: 20,
     [theme.breakpoints.up(smallBreakpoint)]: {
       width: 370,
+      marginRight: 0,
     },
     gap: 8,
     paddingTop: 10,
@@ -184,7 +201,7 @@ const styles = defineStyles("MeetupMonthBanner", (theme: ThemeType) => ({
   },
   activePetrovMeetupType: {
     background: theme.palette.meetupMonth.petrov,
-    color: theme.palette.text.alwaysWhite,
+    color: theme.dark ? theme.palette.grey[0] : theme.palette.grey[900],
   },
   date: {
     fontSize: 16,
@@ -248,7 +265,7 @@ const styles = defineStyles("MeetupMonthBanner", (theme: ThemeType) => ({
     width: 110,
     gap: 12,
     justifyContent: "center",
-    border: `1px solid ${theme.palette.grey[200]}`,
+    border: `1px solid ${theme.palette.grey[300]}`,
     borderRadius: 10,
     padding: 12,
     opacity: 0,
@@ -263,9 +280,9 @@ const styles = defineStyles("MeetupMonthBanner", (theme: ThemeType) => ({
   zoomButton: {
     width: 30,
     height: 30,
-    opacity: .2,
+    opacity: .3,
     '& svg': {
-      fill: theme.palette.grey[400],
+      fill: theme.dark ? theme.palette.grey[800] : theme.palette.grey[400],
     },
     '&:hover': {
       opacity: 1,
@@ -290,7 +307,7 @@ const styles = defineStyles("MeetupMonthBanner", (theme: ThemeType) => ({
   },
   createEventButton: {
     ...theme.typography.commentStyle,
-    color: theme.palette.primary.dark,
+    color: theme.dark ? theme.palette.primary.light : theme.palette.primary.dark,
     paddingTop: 10,
     fontSize: 15,
     display: 'inline-block',
@@ -519,7 +536,6 @@ export default function MeetupMonthBannerInner() {
           })}
         </div>
       </div>
-
       <WrappedReactMapGL
         {...viewport}
         width="100%"
