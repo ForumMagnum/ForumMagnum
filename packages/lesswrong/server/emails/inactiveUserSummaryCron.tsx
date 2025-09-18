@@ -1,7 +1,7 @@
 import React from "react";
 import { hasInactiveSummaryEmail } from "@/lib/betas"
 import { generateEmail, wrapAndSendEmail } from "./renderEmail";
-import { createUnsubscribeAllNode } from "./unsubscribeLink";
+import { createUnsubscribeInactiveSummaryNode } from "./unsubscribeLink";
 import { fetchFragment } from "../fetchFragment";
 import {
   type BestReaction,
@@ -108,7 +108,7 @@ const sendInactiveUserSummaryEmail = async (
   );
 
   if (dryRun) {
-    const unsubscribeNode = await createUnsubscribeAllNode(user);
+    const unsubscribeNode = await createUnsubscribeInactiveSummaryNode(user);
     const email = await generateEmail({
       user,
       from,
