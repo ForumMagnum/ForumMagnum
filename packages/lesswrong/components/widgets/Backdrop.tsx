@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { defineStyles, useStyles } from '@/components/hooks/useStyles';
 import classNames from 'classnames';
 import { createPortal } from 'react-dom';
+import DeferRender from '../common/DeferRender';
 
 const styles = defineStyles("Backdrop", (theme: ThemeType) => ({
   root: {
@@ -40,11 +41,16 @@ export const Backdrop = ({visible, style="darken"}: {
       setReady(true);
     }, 0);
   }, []);
-  
-  return <>{createPortal(
-    <div className={classNames(classes.root, {
-      [classes.visible]: visible && ready,
-      [classes.blur]: style==="blur" && ready,
-    })}/>, document.body
-  )}</>;
+
+  return (
+    <DeferRender ssr={false}>
+      {"document" in globalThis && createPortal(
+        <div className={classNames(classes.root, {
+          [classes.visible]: visible && ready,
+          [classes.blur]: style==="blur" && ready,
+        })}/>,
+        document.body,
+      )}
+    </DeferRender>
+  );
 }

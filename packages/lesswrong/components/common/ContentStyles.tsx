@@ -19,6 +19,17 @@ const styles = defineStyles("ContentStyles", (theme: ThemeType) => ({
       marginBlockStart: "0 !important",
     },
   },
+  postEmail: {
+    ...(isFriendlyUI && {
+      fontFamily: theme.palette.fonts.sansSerifStack,
+      "& *": {
+        fontFamily: `${theme.palette.fonts.sansSerifStack} !important`
+      },
+      '& h1, & h2, & h3, & h4, & h5, & h6': {
+        fontWeight: 600,
+      },
+    }),
+  },
   commentBody: {
     ...commentBodyStyles(theme),
   },
@@ -131,7 +142,18 @@ const styles = defineStyles("ContentStyles", (theme: ThemeType) => ({
   }
 }), { stylePriority: -1 });
 
-export type ContentStyleType = "post"|"postHighlight"|"comment"|"commentExceptPointerEvents"|"answer"|"tag"|"debateResponse"|"llmChat"|"ultraFeed"|"ultraFeedPost";
+export type ContentStyleType =
+  | "post"
+  | "postHighlight"
+  | "postEmail"
+  | "comment"
+  | "commentExceptPointerEvents"
+  | "answer"
+  | "tag"
+  | "debateResponse"
+  | "llmChat"
+  | "ultraFeed"
+  | "ultraFeedPost";
 
 // Styling wrapper for user-provided content. This includes descendent
 // selectors for all the various things that might show up in a
@@ -167,6 +189,7 @@ const ContentStyles = ({contentType, className, style, children}: {
     className, classes.base, "content",
     contentType==="post" && classes.postBody,
     contentType==="postHighlight" && classes.postHighlight,
+    contentType==="postEmail" && classes.postEmail,
     contentType==="comment" && classes.commentBody,
     contentType==="commentExceptPointerEvents" && classes.commentBodyExceptPointerEvents,
     contentType==="answer" && classes.answerBody,

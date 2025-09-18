@@ -12,6 +12,7 @@ const EXPAND_IN_PLACE_LINES = 10;
 const contentTypeMap: Record<ContentStyleType, string> = {
   post: "post",
   postHighlight: "post",
+  postEmail: "post",
   comment: "comment",
   commentExceptPointerEvents: "comment",
   answer: "answer",

@@ -557,6 +557,59 @@ export async function forEachBucketRangeInCollection<N extends CollectionNameStr
   });
 }
 
+/**
+ * Iterates through documents in batches and performs an action on each batch.
+ *
+ * This function repeatedly fetches documents in batches using the provided
+ * `fetchCallback` and processes them using the provided `actionCallback`. It
+ * uses a sort field as a cursor to track the last processed document and
+ * continues fetching until no more documents are returned.
+ */
+export async function forEachDocumentBatch<T, K extends keyof T>({
+  batchSize,
+  sortField,
+  fetchCallback,
+  actionCallback,
+  abortOnFirstError,
+}: {
+  /** The number of documents to fetch per batch */
+  batchSize: number,
+  /** The field of each document used as a cursor (e.g., an _id or timestamp) */
+  sortField: K,
+  /**
+   * The function to call to fetch the next batch of documents. `limit` is the
+   * number of documents to fetch, `afterValue` is the last seen value of the
+   * `sortField` field (will be undefined for the first batch).
+   */
+  fetchCallback: (limit: number, afterValue?: T[K]) => Promise<T[]>,
+  /** A function that performs an action on each fetched batch of documents  */
+  actionCallback: (batch: T[]) => Promise<void>,
+  /**
+   * If true, stops iteration immediately when an error occurs during
+   * `actionCallback`
+   */
+  abortOnFirstError?: boolean,
+}) {
+  let lastValue: T[K] | undefined;
+  // eslint-disable-next-line no-constant-condition
+  while (true) {
+    const batch = await fetchCallback(batchSize, lastValue);
+    if (batch.length === 0) {
+      break;
+    }
+    try {
+      await actionCallback(batch);
+    } catch (e) {
+      // eslint-disable-next-line no-console
+      console.error(`Error in document batch after ${lastValue}:`, e);
+      if (abortOnFirstError) {
+        return;
+      }
+    }
+    lastValue = batch[batch.length - 1][sortField];
+  }
+}
+
   // We can't assume that certain postgres functions exist because we may not have run the appropriate migration
   // This wraapper runs the function and ignores if it's not defined yet
 export async function safeRun(db: SqlClient | null, fn: string): Promise<void> {

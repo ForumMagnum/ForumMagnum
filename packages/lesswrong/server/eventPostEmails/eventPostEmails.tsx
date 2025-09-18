@@ -5,7 +5,8 @@ import { DatabaseServerSetting } from "../databaseSettings";
 import { PostsEmail } from "../emailComponents/PostsEmail";
 import { wrapAndSendEmail } from "../emails/renderEmail";
 import { createUnsubscribeMarketingNode } from "../emails/unsubscribeLink";
-import { forEachDocumentBatchInCollection } from "../manualMigrations/migrationUtils";
+import { forEachDocumentBatch } from "../manualMigrations/migrationUtils";
+import UsersRepo from "../repos/UsersRepo";
 
 // The "sender" for event post emails - will use the normal default email
 // sender if not defined
@@ -60,19 +61,15 @@ export const sendEventPostEmails = async (postId: string, subject: string) => {
   if (!post) {
     throw new Error(`Post ${postId} not found`);
   }
-  await forEachDocumentBatchInCollection({
-    collection: Users,
-    filter: {
-      deleted: false,
-      banned: {$exists: false},
-      sendMarketingEmails: true,
-      $or: [
-        {unsubscribeFromAll: {$exists: false}},
-        {unsubscribeFromAll: false},
-      ],
-    },
+  const usersRepo = new UsersRepo();
+  await forEachDocumentBatch<DbUser, "_id">({
     batchSize: 50,
-    callback: async (users) => {
+    sortField: "_id",
+    fetchCallback: (limit, afterUserId) => usersRepo.getUsersForEventPostEmails({
+      limit,
+      afterUserId,
+    }),
+    actionCallback: async (users) => {
       await Promise.all(users.map((user) => sendEventPostEmail(post, user, subject)));
     },
   });
