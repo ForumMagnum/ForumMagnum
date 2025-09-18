@@ -94,7 +94,7 @@ const styles = defineStyles("PostsEmail", (theme: ThemeType) => ({
     fontFamily: theme.typography.headerStyle.fontFamily,
     ...(isFriendlyUI ? {
       fontSize: "32px",
-      fontWeight: 500,
+      fontWeight: 600,
       lineHeight: '1.25em',
     } : {}),
   },
