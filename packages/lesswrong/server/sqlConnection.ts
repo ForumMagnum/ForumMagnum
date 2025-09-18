@@ -5,6 +5,7 @@ import { isAnyTest, isDevelopment } from "../lib/executionEnvironment";
 import omit from "lodash/omit";
 import { logAllQueries, logQueryArguments, measureSqlBytesDownloaded } from "@/server/sql/sqlClient";
 import { getIsSSRRequest, getParentTraceId, recordSqlQueryPerfMetric } from "./perfMetrics";
+import { attachDatabasePool } from "@vercel/functions";
 
 let sqlBytesDownloaded = 0;
 
@@ -199,7 +200,7 @@ const logIfSlow = async <T>(
     // eslint-disable-next-line no-console
     console.log(`Finished query #${queryID}, ${getParentTraceId().parent_trace_id} (${milliseconds} ms) (${JSON.stringify(result).length}b)`);
   } else if (SLOW_QUERY_REPORT_CUTOFF_MS >= 0 && milliseconds > SLOW_QUERY_REPORT_CUTOFF_MS && !quiet && !isAnyTest) {
-    const description = isDevelopment ? getDescription(50) : getDescription(2000);
+    const description = isDevelopment ? getDescription(50) : getDescription(5000);
     const message = `Slow Postgres query detected (${milliseconds} ms): ${description}`;
     // eslint-disable-next-line no-console
     console.warn(message);
@@ -250,6 +251,8 @@ function getWrappedClient(
     // Trying a relatively shorter idle timeout to see if it reduces the connection starvation we see during deploys on Vercel
     idleTimeoutMillis: 5_000,
   });
+
+  attachDatabasePool(db.$pool);
 
   const client: SqlClient = {
     ...omit(db, queryMethods) as AnyBecauseHard,

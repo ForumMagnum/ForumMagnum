@@ -6458,6 +6458,11 @@
     "@types/bson" "*"
     "@types/node" "*"
 
+"@types/ms@2.1.0":
+  version "2.1.0"
+  resolved "https://registry.yarnpkg.com/@types/ms/-/ms-2.1.0.tgz#052aa67a48eccc4309d7f0191b7e41434b90bb78"
+  integrity sha512-GsCCIZDE/p3i96vtEqx+7dBUGXrc7zeSK3wwPHIaRThS+9OhWIXRqzs4d6k1SVU8g91DrNRWxWUGhp5KXQb2VA==
+
 "@types/mysql@2.15.26":
   version "2.15.26"
   resolved "https://registry.yarnpkg.com/@types/mysql/-/mysql-2.15.26.tgz#f0de1484b9e2354d587e7d2bd17a873cc8300836"
@@ -7187,6 +7192,21 @@
   version "1.2.0"
   resolved "https://registry.npmjs.org/@ungap/structured-clone/-/structured-clone-1.2.0.tgz"
   integrity sha512-zuVdFrMJiuCDQUMCzQaD6KL28MjnqqN8XnAqiEq9PNm/hCPTSGfrXCOfwj1ow4LFb/tNymJPwsNbVePc1xFqrQ==
+
+"@vercel/functions@^3.1.0":
+  version "3.1.0"
+  resolved "https://registry.yarnpkg.com/@vercel/functions/-/functions-3.1.0.tgz#1301f016e98434e179a0808bba9e764881f6b7ca"
+  integrity sha512-V+p8dO+sg1VjiJJUO5rYPp1KG17SzDcR74OWwW7Euyde6L8U5wuTMe9QfEOfLTiWPUPzN1MXZvLcYxqSYhKc4Q==
+  dependencies:
+    "@vercel/oidc" "3.0.0"
+
+"@vercel/oidc@3.0.0":
+  version "3.0.0"
+  resolved "https://registry.yarnpkg.com/@vercel/oidc/-/oidc-3.0.0.tgz#5f2f6fbd449d09f6de8393778b89c11964a722cc"
+  integrity sha512-XOoUcf/1VfGArUAfq0ELxk6TD7l4jGcrOsWjQibj4wYM74uNihzZ9gA46ywWegoqKWWdph4y5CKxGI9823deoA==
+  dependencies:
+    "@types/ms" "2.1.0"
+    ms "2.1.3"
 
 "@vitejs/plugin-react@^4.3.3":
   version "4.3.3"
