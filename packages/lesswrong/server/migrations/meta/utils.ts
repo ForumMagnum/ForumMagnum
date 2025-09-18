@@ -26,6 +26,7 @@ import { getCollection } from "@/server/collections/allCollections";
 import { createAdminContext, createAnonymousContext } from "@/server/vulcan-lib/createContexts";
 import { buildRevision } from "@/server/editor/conversionUtils";
 import { createRevision } from "@/server/collections/revisions/mutations";
+import PgCollectionClass from "@/server/sql/PgCollection";
 
 type SqlClientOrTx = SqlClient | ITask<{}>;
 
@@ -190,11 +191,14 @@ export const updateFunctions = async (db: SqlClientOrTx) => {
 }
 
 export const updateIndexes = async <N extends CollectionNameString>(
-  collection: CollectionBase<N>,
+  collection: PgCollectionClass<N>,
 ): Promise<void> => {
   const allIndexes = getAllIndexes();
   const indexesOnCollection = allIndexes.mongoStyleIndexes[collection.collectionName];
   for (const index of indexesOnCollection ?? []) {
+    if (!collection.getTable()) {
+      collection.buildPostgresTable();
+    }
     await collection._ensureIndex(index.key, index.options);
     await sleep(100);
   }
