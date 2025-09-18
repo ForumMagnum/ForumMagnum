@@ -626,7 +626,7 @@ class UsersRepo extends AbstractRepo<"Users"> {
           OR u."sunshineNotes" IS NULL
           OR u."sunshineNotes" = ''
         )
-        ${afterUserId ? `AND u."id" > $2` : ``}
+        ${afterUserId ? `AND u."_id" > $2` : ``}
         AND NOT EXISTS (
           SELECT 1
           FROM "ReadStatuses" rs
