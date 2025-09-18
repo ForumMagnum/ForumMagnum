@@ -202,7 +202,7 @@ export const EAOnboardingThankYouStage = ({classes}: {
               Updates from the EA Forum
             </div>
             <div className={classes.subheading}>
-              Themed weeks, debates, competitions and reminders
+              Competitions, debates, and themed weeks
             </div>
           </div>
           <ToggleSwitch
