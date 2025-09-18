@@ -616,7 +616,7 @@ class UsersRepo extends AbstractRepo<"Users"> {
       FROM "Users" u
       WHERE
         (u."unsubscribeFromAll" IS NULL OR NOT u."unsubscribeFromAll")
-        AND NOT u."deleted"
+        AND u."deleted" IS NOT TRUE
         AND u."banned" IS NULL
         AND u."sendMarketingEmails"
         AND u."email" IS NOT NULL
