@@ -46,6 +46,11 @@ function getCarouselSections(classes: JssStyles) {
       </div>,
       linkText: "Petrov Day",
       buttonText: "Petrov Day"
+    },
+    {
+      minorTitle: "LessWrong Meetups",
+      subtitle: <div>Apart from the specific highlighted events this month, LessWrong has regular meetups in many cities. <Link to="/posts/mve2bunf6YfTeiAvd/meetup-month-1">Learn more here.</Link></div>,
+      buttonText: "LW"
     }
   ]
 }
@@ -417,8 +422,9 @@ export default function MeetupMonthBannerInner() {
   const acxCarouselIndex = 1 
   const ifanyoneCarouselIndex = 2 
   const petrovCarouselIndex = 3 
+  const lwCarouselIndex = 4
   const activeIndex = nextCarouselIndex ?? currentCarouselIndex
-  const filterKey = activeIndex === acxCarouselIndex ? 'SSC' : activeIndex === ifanyoneCarouselIndex ? 'IFANYONE' : activeIndex === petrovCarouselIndex ? 'PETROV' : undefined
+  const filterKey = activeIndex === acxCarouselIndex ? 'SSC' : activeIndex === ifanyoneCarouselIndex ? 'IFANYONE' : activeIndex === petrovCarouselIndex ? 'PETROV' : activeIndex === lwCarouselIndex ? 'LW' : undefined
 
   const renderedMarkers = useMemo(() => {
     if (filterKey) {
