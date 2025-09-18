@@ -216,7 +216,14 @@ const schema = {
       editableFieldOptions: { pingbacks: true, normalized: true },
       arguments: "version: String",
       resolver: getNormalizedEditableResolver("contents"),
-      sqlResolver: getNormalizedEditableSqlResolver("contents"),
+      // Testing out removing the sql resolver.
+      // There are a bunch of compiled fragment queries
+      // which end up being very expensive because they
+      // call TO_JSONB on the joined revisions _before_
+      // applying the limit, which can end up adding over
+      // 100ms to some queries.  This is much worse than
+      // just adding a round trip to fetch the revisions.
+      // sqlResolver: getNormalizedEditableSqlResolver("contents"),
       validation: {
         simpleSchema: RevisionStorageType,
         optional: true,
