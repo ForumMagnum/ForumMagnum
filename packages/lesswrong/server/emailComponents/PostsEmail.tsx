@@ -76,7 +76,7 @@ const styles = defineStyles("PostsEmail", (theme: ThemeType) => ({
   heading: {
     textAlign: "center",
     color: theme.palette.primary.main,
-    marginBottom: 30
+    marginBottom: 30,
   },
   headingRow: {
     marginBottom: 8
@@ -93,8 +93,9 @@ const styles = defineStyles("PostsEmail", (theme: ThemeType) => ({
     fontWeight: "normal",
     fontFamily: theme.typography.headerStyle.fontFamily,
     ...(isFriendlyUI ? {
-      fontSize: "2.4rem",
-      lineHeight: '1.25em'
+      fontSize: "32px",
+      fontWeight: 500,
+      lineHeight: '1.25em',
     } : {}),
   },
   headingHR: {
