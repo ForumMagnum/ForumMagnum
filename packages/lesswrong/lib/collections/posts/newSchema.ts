@@ -223,7 +223,8 @@ const schema = {
       // applying the limit, which can end up adding over
       // 100ms to some queries.  This is much worse than
       // just adding a round trip to fetch the revisions.
-      // sqlResolver: getNormalizedEditableSqlResolver("contents"),
+      // TODO: removing this broke post editors???
+      sqlResolver: getNormalizedEditableSqlResolver("contents"),
       validation: {
         simpleSchema: RevisionStorageType,
         optional: true,
