@@ -25,7 +25,7 @@ function getCarouselSections(classes: JssStyles) {
       minorTitle: "ACX Everywhere",
       subtitle: <div>Many cities have regular Astral Codex Ten meetup groups. Twice a year, we  advertise their upcoming meetup so that irregular attendees can attend and new readers can learn about them. <Link 
       to="/posts/6umEbXvotXicRPvGs/meetups-everywhere-2025-times-and-places">Learn more here.</Link></div>,
-      buttonText: "ACX"
+      buttonText: "ACX",
     },
     {
       minorTitle: "If Anyone Builds It",
@@ -35,7 +35,8 @@ function getCarouselSections(classes: JssStyles) {
           <span className={classes.createEventButtonIcon}>+</span> CREATE READING GROUP
         </Link>
       </div>,
-      buttonText: "If Anyone Builds It"
+      buttonText: "If Anyone Builds It",
+      shortButtonText: "If Anyone"
     },
     {
       title: "Petrov Day",
@@ -45,7 +46,8 @@ function getCarouselSections(classes: JssStyles) {
           <span className={classes.createEventButtonIcon}>+</span> CREATE PETROV EVENT</Link>
       </div>,
       linkText: "Petrov Day",
-      buttonText: "Petrov Day"
+      buttonText: "Petrov Day",
+      shortButtonText: "Petrov"
     },
     {
       minorTitle: "LessWrong Meetups",
@@ -365,6 +367,18 @@ const styles = defineStyles("MeetupMonthBanner", (theme: ThemeType) => ({
       fill: theme.palette.meetupMonth.petrov + ' !important',
     },
   },
+  buttonText: {
+    display: 'inline-block',
+    [theme.breakpoints.down(smallBreakpoint)]: {
+      display: 'none',
+    },
+  },
+  shortButtonText: {
+    display: 'none',
+    [theme.breakpoints.down(smallBreakpoint)]: {
+      display: 'inline-block',
+    },
+  },
 }));
 
 
@@ -549,7 +563,8 @@ export default function MeetupMonthBannerInner() {
                   handleMeetupTypeClick(index);
                 }}
               >
-                {section.buttonText}
+                <span className={classes.buttonText}>{section.buttonText}</span>
+                <span className={classes.shortButtonText}>{section.shortButtonText ?? section.buttonText}</span>
               </div>
             );
           })}
