@@ -43,21 +43,40 @@ export const graphqlMutations = {
     
     if (currentUser && userCanModerateComment(currentUser, post, tag, comment))
     {
-      let set: Record<string,any> = {deleted: deleted}
-      if (deleted) {
-        if(deletedPublic !== undefined) {
+      let set: Record<string,any> = {}
+      
+      // Handle editing delete reason on already-deleted comments
+      if (deleted && comment.deleted) {
+        // Just updating metadata on an already-deleted comment
+        if (deletedPublic !== undefined) {
           set.deletedPublic = deletedPublic;
         }
-        set.deletedDate = comment.deletedDate || new Date();
-        if(deletedReason !== undefined) {
+        if (deletedReason !== undefined) {
+          set.deletedReason = deletedReason;
+        }
+        // Don't update deletedDate or deletedByUserId when just editing the reason
+      } else if (deleted && !comment.deleted) {
+        // Deleting a comment
+        set.deleted = true;
+        if (deletedPublic !== undefined) {
+          set.deletedPublic = deletedPublic;
+        }
+        set.deletedDate = new Date();
+        if (deletedReason !== undefined) {
           set.deletedReason = deletedReason;
         }
         set.deletedByUserId = currentUser._id;
-      } else { //When you undo delete, reset all delete-related fields
+      } else if (!deleted && comment.deleted) {
+        // Undeleting a comment
+        set.deleted = false;
         set.deletedPublic = false;
         set.deletedDate = null;
         set.deletedReason = "";
         set.deletedByUserId = null;
+      } else {
+        // !deleted && !comment.deleted - no change to deletion status
+        // This shouldn't normally happen but handle it gracefully
+        return comment;
       }
       
       const updatedComment = await updateComment({
