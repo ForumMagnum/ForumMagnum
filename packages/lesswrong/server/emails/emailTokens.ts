@@ -144,6 +144,18 @@ export const emailTokenTypesByName = {
     resultComponentName: "EmailTokenEmailUnsubscribeMarketingResult",
   }),
 
+  unsubscribeInactiveSummary: new EmailTokenType({
+    name: "unsubscribeInactiveSummary",
+    onUseAction: async (user: DbUser) => {
+      await updateUser({
+        data: { sendInactiveSummaryEmail: false },
+        selector: { _id: user._id }
+      }, createAnonymousContext());
+      return {};
+    },
+    resultComponentName: "EmailTokenEmailUnsubscribeInactiveSummaryResult",
+  }),
+
   verifyEmail: new EmailTokenType({
     name: "verifyEmail",
     onUseAction: async (user) => {

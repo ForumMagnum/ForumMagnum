@@ -17,19 +17,19 @@ const styles = (theme: ThemeType) => ({
   },
 });
 
-const EmailTokenEmailUnsubscribeMarketingResult = ({classes}: {
+const EmailTokenEmailUnsubscribeInactiveSummaryResult = ({classes}: {
   classes: ClassesType<typeof styles>,
 }) => {
   return (
     <div className={classes.root}>
       <Typography variant="body2">
-        You have been unsubscribed from marketing emails on{" "}
+        You have been unsubscribed from inactive user summary emails on{" "}
         {siteNameWithArticleSetting.get()}.
       </Typography>
       <Typography variant="body2">
         You can reenable these emails by selecting{" "}
-        <Link to="/account?highlightField=sendMarketingEmails">
-          "Send me marketing emails" in account settings
+        <Link to="/account?highlightField=sendInactiveSummaryEmail">
+          "Send me a summary when I’ve been inactive" in account settings
         </Link>.
       </Typography>
     </div>
@@ -37,7 +37,7 @@ const EmailTokenEmailUnsubscribeMarketingResult = ({classes}: {
 }
 
 export default registerComponent(
-  "EmailTokenEmailUnsubscribeMarketingResult",
-  EmailTokenEmailUnsubscribeMarketingResult,
+  "EmailTokenEmailUnsubscribeInactiveSummaryResult",
+  EmailTokenEmailUnsubscribeInactiveSummaryResult,
   {styles},
 );

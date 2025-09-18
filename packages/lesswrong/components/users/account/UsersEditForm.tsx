@@ -932,20 +932,22 @@ const UsersForm = ({
         }
 
         {hasInactiveSummaryEmail &&
-          <div className={classes.fieldWrapper}>
-            <form.Field name="sendInactiveSummaryEmail">
-              {(field) => (
-                <LWTooltip
-                  title="Sent when you haven’t visited the Forum in a while. Includes a summary of your notifications and suggested reading based on your interests."
-                >
-                  <FormComponentCheckbox
-                    field={field}
-                    label="Send me a summary when I’ve been inactive"
-                  />
-                </LWTooltip>
-              )}
-            </form.Field>
-          </div>
+          <HighlightableField name="sendInactiveSummaryEmail">
+            <div className={classes.fieldWrapper}>
+              <form.Field name="sendInactiveSummaryEmail">
+                {(field) => (
+                  <LWTooltip
+                    title="Sent when you haven’t visited the Forum in a while. Includes a summary of your notifications and suggested reading based on your interests."
+                  >
+                    <FormComponentCheckbox
+                      field={field}
+                      label="Send me a summary when I’ve been inactive"
+                    />
+                  </LWTooltip>
+                )}
+              </form.Field>
+            </div>
+          </HighlightableField>
         }
 
         <HighlightableField name="unsubscribeFromAll">
