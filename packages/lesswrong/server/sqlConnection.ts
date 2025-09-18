@@ -5,7 +5,6 @@ import { isAnyTest, isDevelopment } from "../lib/executionEnvironment";
 import omit from "lodash/omit";
 import { logAllQueries, logQueryArguments, measureSqlBytesDownloaded } from "@/server/sql/sqlClient";
 import { getIsSSRRequest, getParentTraceId, recordSqlQueryPerfMetric } from "./perfMetrics";
-import { attachDatabasePool } from "@vercel/functions";
 
 let sqlBytesDownloaded = 0;
 
@@ -251,8 +250,6 @@ function getWrappedClient(
     // Trying a relatively shorter idle timeout to see if it reduces the connection starvation we see during deploys on Vercel
     idleTimeoutMillis: 5_000,
   });
-
-  attachDatabasePool(db.$pool);
 
   const client: SqlClient = {
     ...omit(db, queryMethods) as AnyBecauseHard,
