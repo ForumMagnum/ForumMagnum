@@ -25,7 +25,7 @@ function getCarouselSections(classes: JssStyles) {
       minorTitle: "ACX Everywhere",
       subtitle: <div>Many cities have regular Astral Codex Ten meetup groups. Twice a year, we  advertise their upcoming meetup so that irregular attendees can attend and new readers can learn about them. <Link 
       to="/posts/6umEbXvotXicRPvGs/meetups-everywhere-2025-times-and-places">Learn more here.</Link></div>,
-      buttonText: "ACX",
+      buttonText: "ACX"
     },
     {
       minorTitle: "If Anyone Builds It",
