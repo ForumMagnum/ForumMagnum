@@ -19,7 +19,13 @@ const SpotlightDisplayQuery = gql(`
 const RotatingReviewWinnerQuery = gql(`
   query RotatingReviewWinnerSpotlight {
     GetAllReviewWinners {
-      ...PostForReviewWinnerItem
+      reviewWinner {
+        _id
+        category
+      }
+      spotlight {
+        _id
+      }
     }
   }
 `);
