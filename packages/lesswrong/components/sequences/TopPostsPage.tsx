@@ -914,6 +914,9 @@ function TopSpotlightsSection({ reviewWinnersWithPosts }: {
     ev.preventDefault();
   }
 
+  // Unread posts are gray (read posts color) iff at least one post is marked as read
+  const unreadIsGray = sortedPosts && sortedPosts.some(p => p.isRead);
+
   return <AnalyticsContext pageSectionContext="topPostsPageSpotlightSection">
     <div className={classes.postsByYearSectionCentered} id="year-category-section">
       <div className={classes.yearSelector}>
@@ -986,7 +989,7 @@ function TopSpotlightsSection({ reviewWinnersWithPosts }: {
         {!sortedPosts && <div className={classes.tallPlaceholder}><Loading/></div>}
         {sortedPosts && sortedPosts.map((post) => post.spotlight && <div
           key={post._id}
-          className={classNames(classes.spotlightItem, !post.isRead && classes.spotlightIsNotRead )}
+          className={classNames(classes.spotlightItem, unreadIsGray && !post.isRead && classes.spotlightIsNotRead )}
         >
           <LWTooltip title={`Ranked #${post.reviewWinner?.reviewRanking} in ${post.reviewWinner?.reviewYear}`}>
             <div className={classes.spotlightRanking}>#{(post.reviewWinner?.reviewRanking ?? 0) + 1}</div>
