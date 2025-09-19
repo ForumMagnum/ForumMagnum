@@ -17,12 +17,14 @@ import { SECTION_WIDTH } from '../common/SingleColumnSection';
 import { filterWhereFieldsNotNull } from '@/lib/utils/typeGuardUtils';
 import { getSpotlightUrl } from '@/lib/collections/spotlights/helpers';
 import { ReviewYear, ReviewWinnerCategory, reviewWinnerCategories, BEST_OF_LESSWRONG_PUBLISH_YEAR, PublishedReviewYear, publishedReviewYears } from '@/lib/reviewUtils';
-import { registerComponent } from "../../lib/vulcan-lib/components";
 import SectionTitle from "../common/SectionTitle";
 import ContentStyles from "../common/ContentStyles";
 import Loading from "../vulcan-core/Loading";
 import { SpotlightItem } from "../spotlights/SpotlightItem";
 import LWTooltip from "../common/LWTooltip";
+import { defineStyles } from '../hooks/defineStyles';
+import { useStyles } from '../hooks/useStyles';
+import { SuspenseWrapper } from '../common/SuspenseWrapper';
 
 /** In theory, we can get back posts which don't have review winner info, but given we're explicitly querying for review winners... */
 export type GetAllReviewWinnersQueryResult = (PostsTopItemInfo & { reviewWinner: Exclude<PostsTopItemInfo['reviewWinner'], null> })[]
@@ -47,7 +49,6 @@ interface GetPostsInGridArgs extends PostGridDimensions {
 interface PostGridContentsProps extends PostGridDimensions {
   postsInGrid: (PostsTopItemInfo | null)[][];
   viewportHeight: number;
-  classes: ClassesType<typeof styles>;
   id: string;
   handleToggleFullyOpen: (id: string) => void;
   gridContainerHeight: number;
@@ -107,7 +108,7 @@ function gridPositionToClassesEntry(theme: ThemeType, gridPosition: number) {
 
 const IMAGE_GRID_HEADER_WIDTH = 40;
 
-const styles = (theme: ThemeType) => ({
+const styles = defineStyles("TopPostsPage", (theme: ThemeType) => ({
   widerColumn: {
     marginLeft: "auto",
     marginRight: "auto",
@@ -593,7 +594,7 @@ const styles = (theme: ThemeType) => ({
   loading: {
     height: 30
   }
-});
+}));
 
 function sortReviewWinners<T extends { reviewWinner: { curatedOrder: number | null, reviewRanking: number } | null }>(reviewWinners: T[]) {
   const sortedReviewWinners = [...reviewWinners];
@@ -686,7 +687,9 @@ function getNewExpansionState(expansionState: Record<string, ExpansionState>, to
   return newState;
 }
 
-const TopPostsPage = ({ classes }: { classes: ClassesType<typeof styles> }) => {
+
+const TopPostsPage = () => {
+  const classes = useStyles(styles);
   const location = useLocation();
   const { query } = location;
 
@@ -742,39 +745,30 @@ const TopPostsPage = ({ classes }: { classes: ClassesType<typeof styles> }) => {
   const sortedReviewWinners = sortReviewWinners(reviewWinnersWithPosts);
 
   function getPostsImageGrid(posts: PostsTopItemInfo[], img: string, coords: CoordinateInfo, header: string, id: string, gridPosition: number, expandedNotYetMoved: boolean) {
-    const props = {
-      key: id,
-      id,
-      posts,
-      classes,
-      img,
-      coords,
-      header,
-      horizontalBookGridCount,
-      gridPosition,
-      expansionState: expansionState[id],
-      handleToggleExpand,
-      handleToggleFullyOpen: toggleFullyOpenGridId,
-      hiddenState: getHiddenState(id, fullyOpenGridIds),
-      expandedNotYetMoved
-    };
-    return <PostsImageGrid {...props} />;
+    return <PostsImageGrid
+      key={id}
+      id={id}
+      posts={posts}
+      img={img}
+      coords={coords}
+      header={header}
+      horizontalBookGridCount={horizontalBookGridCount}
+      gridPosition={gridPosition}
+      expansionState={expansionState[id]}
+      handleToggleExpand={handleToggleExpand}
+      handleToggleFullyOpen={toggleFullyOpenGridId}
+      hiddenState={getHiddenState(id, fullyOpenGridIds)}
+      expandedNotYetMoved={expandedNotYetMoved}
+    />;
   }
 
   const sectionsInfo: Record<ReviewWinnerCategory, ReviewSectionInfo> | null = reviewWinnerSectionsInfo.get();
   const yearGroupsInfo: Record<ReviewYear, ReviewYearGroupInfo> | null = reviewWinnerYearGroupsInfo.get();
 
-  if (!sectionsInfo) {
-    // eslint-disable-next-line no-console
-    console.error('Failed to load reviewWinnerSectionsInfo (image data) from public settings');
-    return null;
-  }
-
-  if (!yearGroupsInfo) {
-    // eslint-disable-next-line no-console
-    console.error('Failed to load reviewWinnerYearGroupsInfo (image data) from public settings');
-    return null;
-  }
+  if (!sectionsInfo)
+    throw new Error('Failed to load reviewWinnerSectionsInfo (image data) from public settings');
+  if (!yearGroupsInfo)
+    throw new Error('Failed to load reviewWinnerYearGroupsInfo (image data) from public settings');
 
   const sectionGrid = Object.entries(sectionsInfo).sort(([, a], [, b]) => a.order - b.order).map(([id, { title, imgUrl, coords }], index) => {
     const posts = sortedReviewWinners.filter(post => post.reviewWinner?.category === id);
@@ -799,11 +793,11 @@ const TopPostsPage = ({ classes }: { classes: ClassesType<typeof styles> }) => {
           </div>
         </div>
         {loading && <div className={classes.loading}><Loading/></div>}
-        <TopSpotlightsSection classes={classes} 
-          yearGroupsInfo={yearGroupsInfo} 
-          sectionsInfo={sectionsInfo} 
-          reviewWinnersWithPosts={reviewWinnersWithPosts} 
-        />
+        <SuspenseWrapper name="TopSpotlightsSection">
+          <TopSpotlightsSection
+            reviewWinnersWithPosts={reviewWinnersWithPosts}
+          />
+        </SuspenseWrapper>
         {loading && <Loading/>}
       </AnalyticsContext>
     </>
@@ -827,12 +821,12 @@ function getInitialYear(yearQuery?: string): YearSelectorState {
   return BEST_OF_LESSWRONG_PUBLISH_YEAR
 }
 
-function TopSpotlightsSection({classes, yearGroupsInfo, sectionsInfo, reviewWinnersWithPosts }: {
-  classes: ClassesType<typeof styles>,
-  yearGroupsInfo: Record<ReviewYear, ReviewYearGroupInfo>,
-  sectionsInfo: Record<ReviewWinnerCategory, ReviewSectionInfo>,
+function TopSpotlightsSection({ reviewWinnersWithPosts }: {
   reviewWinnersWithPosts: PostsTopItemInfo[]
 }) {
+  const sectionsInfo: Record<ReviewWinnerCategory, ReviewSectionInfo> | null = reviewWinnerSectionsInfo.get()!;
+  const yearGroupsInfo: Record<ReviewYear, ReviewYearGroupInfo> | null = reviewWinnerYearGroupsInfo.get()!;
+  const classes = useStyles(styles);
   const location = useLocation();
   const { query: { year: yearQuery, category: categoryQuery } } = location;
 
@@ -843,11 +837,7 @@ function TopSpotlightsSection({classes, yearGroupsInfo, sectionsInfo, reviewWinn
   const initialCategory = (categoryQuery && reviewWinnerCategories.has(categoryQuery)) ? categoryQuery : 'all'  
   const [category, setCategory] = useState<CategorySelectorState>(initialCategory)
 
-  let filteredReviewWinnersForSpotlights: PostsTopItemInfo[] = []
-
-  filteredReviewWinnersForSpotlights = reviewWinnersWithPosts.filter(post => post.reviewWinner?.reviewYear === year && post.reviewWinner?.category === category)
-
-
+  let filteredReviewWinnersForSpotlights: PostsTopItemInfo[] = [];
   if (year === 'all' && category === 'all') {
     filteredReviewWinnersForSpotlights = reviewWinnersWithPosts
   } else if (year === 'all') {
@@ -858,8 +848,37 @@ function TopSpotlightsSection({classes, yearGroupsInfo, sectionsInfo, reviewWinn
     filteredReviewWinnersForSpotlights = reviewWinnersWithPosts.filter(post => post.reviewWinner?.reviewYear === year && post.reviewWinner?.category === category)
   }
 
-  const filteredSpotlights = filterWhereFieldsNotNull(filteredReviewWinnersForSpotlights, 'spotlight').map(post => ({
-    ...post.spotlight,
+  const postsResult = useQuery(gql(`
+    query GetReviewWinnerSpotlights($selector: PostSelector, $limit: Int, $enableTotal: Boolean) {
+      posts(selector: $selector, limit: $limit, enableTotal: $enableTotal) {
+        results {
+          ...PostsBase
+          reviewWinner {
+            ...ReviewWinnerTopPostsPage
+          }
+          spotlight {
+            ...SpotlightDisplay
+          }
+        }
+      }
+    }
+  `), {
+    variables: {
+      selector: {
+        default: {
+          postIds: filteredReviewWinnersForSpotlights.map(p => p._id),
+        },
+      },
+    },
+  });
+  const posts = postsResult?.data?.posts?.results;
+  if (!posts) {
+    return <Loading/>
+  }
+
+  /*const filteredSpotlights = filteredReviewWinnersForSpotlights
+    .filter(reviewWinner => !!reviewWinner.spotlight)
+    .map(post => ({
     post,
     tag: null,
     sequence: null,
@@ -876,7 +895,22 @@ function TopSpotlightsSection({classes, yearGroupsInfo, sectionsInfo, reviewWinn
     } else {
       return 0
     }
-  })
+  })*/
+  const sortedPosts = posts
+    .filter(post => !!post.spotlight)
+    .sort((a, b) => {
+      const reviewWinnerA = reviewWinnersWithPosts.find(post => post._id === a?._id)
+      const reviewWinnerB = reviewWinnersWithPosts.find(post => post._id === b?._id)
+      if (reviewWinnerA?.reviewWinner?.reviewRanking !== reviewWinnerB?.reviewWinner?.reviewRanking) {
+        return (reviewWinnerA?.reviewWinner?.reviewRanking ?? 0) - (reviewWinnerB?.reviewWinner?.reviewRanking ?? 0)
+      } else if (reviewWinnerA?.reviewWinner?.reviewYear !== reviewWinnerB?.reviewWinner?.reviewYear) {  
+        return (reviewWinnerA?.reviewWinner?.reviewYear ?? 0) - (reviewWinnerB?.reviewWinner?.reviewYear ?? 0)
+      } else if (reviewWinnerA?.reviewWinner?.category !== reviewWinnerB?.reviewWinner?.category) {
+        return (reviewWinnerA?.reviewWinner?.category ?? '').localeCompare(reviewWinnerB?.reviewWinner?.category ?? '')
+      } else {
+        return 0
+      }
+    })
 
   const handleSetYear = (y: YearSelectorState) => {
     const newSearch = qs.stringify({year: y, category});
@@ -922,26 +956,31 @@ function TopSpotlightsSection({classes, yearGroupsInfo, sectionsInfo, reviewWinn
         </LWTooltip>
       </div>
       <div className={classes.spotlightCheckmarkRow}>
-        {filteredSpotlights.map((spotlight) => {
-          const post = reviewWinnersWithPosts.find(post => post._id === spotlight.post?._id)
+        {sortedPosts.map((post) => {
+          const spotlight = post.spotlight!;
+          //const post = reviewWinnersWithPosts.find(post => post._id === spotlight.post?._id)
+          //const post = posts.find(post => post._id === spotlight.post?._id)
           const postYear = ((category !== 'all' && year !== 'all') || year === 'all') ? post?.reviewWinner?.reviewYear : ''
           const postCategory = ((year !== 'all' && category !== 'all') || category === 'all') ? post?.reviewWinner?.category : ''
-          const postAuthor = post?.user?.displayName
-          const tooltip = <><div>{spotlight.post?.title}</div>
+          const postAuthor = post.spotlight?.post?.user?.displayName
+          const tooltip = <><div>{post.title}</div>
           <div><em>by {postAuthor}</em></div>
           {(postYear || postCategory) && <div><em>{postYear} <span style={{textTransform: 'capitalize'}}>{postCategory}</span></em></div>}</>
 
-          return <LWTooltip key={spotlight._id} title={tooltip}>
-            <Link key={spotlight._id} to={getSpotlightUrl(spotlight)} className={classNames(classes.spotlightCheckmark, spotlight.post?.isRead && classes.spotlightCheckmarkIsRead)}></Link>
+          return <LWTooltip key={post._id} title={tooltip}>
+            <Link key={post._id} to={getSpotlightUrl(spotlight)} className={classNames(classes.spotlightCheckmark, post.isRead && classes.spotlightCheckmarkIsRead)}></Link>
           </LWTooltip>
         })}
       </div>
       <div style={{ maxWidth: SECTION_WIDTH }}>
-        {filteredSpotlights.map((spotlight) => <div key={spotlight._id} className={classNames(classes.spotlightItem, !spotlight.post?.isRead && classes.spotlightIsNotRead )}>
-          <LWTooltip title={`Ranked #${spotlight.ranking} in ${spotlight.post?.reviewWinner?.reviewYear}`}>
-            <div className={classes.spotlightRanking}>#{(spotlight.ranking ?? 0) + 1}</div>
+        {sortedPosts.map((post) => post.spotlight && <div
+          key={post._id}
+          className={classNames(classes.spotlightItem, !post.isRead && classes.spotlightIsNotRead )}
+        >
+          <LWTooltip title={`Ranked #${post.reviewWinner?.reviewRanking} in ${post.reviewWinner?.reviewYear}`}>
+            <div className={classes.spotlightRanking}>#{(post.reviewWinner?.reviewRanking ?? 0) + 1}</div>
           </LWTooltip>
-          <SpotlightItem spotlight={spotlight} showSubtitle={false} />
+          <SpotlightItem spotlight={post.spotlight} showSubtitle={false} />
         </div>)}
       </div>
     </div>
@@ -979,7 +1018,8 @@ const PostGridContents = (props: PostGridContentsProps) => {
 }
 
 const PostGridCellContents = (props: PostGridCellContentsProps): React.JSX.Element => {
-  const { post, rowIdx, columnIdx, viewportHeight, postGridColumns, postGridRows, classes, id, handleToggleFullyOpen, isExpanded, isShowingAll, leftBookOffset, coverLoaded, expandedNotYetMoved, dpr } = props;
+  const { post, rowIdx, columnIdx, viewportHeight, postGridColumns, postGridRows, id, handleToggleFullyOpen, isExpanded, isShowingAll, leftBookOffset, coverLoaded, expandedNotYetMoved, dpr } = props;
+  const classes = useStyles(styles);
   const isLastCellInDefaultView = (rowIdx === (viewportHeight - 1)) && (columnIdx === (postGridColumns - 1));
   const offsetColumnIdx = columnIdx - (leftBookOffset * 3);
   const isDefault = rowIdx < viewportHeight && (offsetColumnIdx < 3) && (offsetColumnIdx >= 0);
@@ -1007,7 +1047,6 @@ const PostGridCellContents = (props: PostGridCellContentsProps): React.JSX.Eleme
       key={post._id}
       post={post}
       imgSrc={imgSrc}
-      classes={classes}
       imageGridId={id}
       imageClass={imageClass}
       isShowAll={isLastCellInDefaultView && isExpanded}
@@ -1062,9 +1101,8 @@ function getSplashArtUrl({ reviewWinnerArt, leftBookOffset, dpr }: GetSplashArtU
     .replace('f_auto,q_auto', 'f_auto,q_auto:eco');
 }
 
-const PostsImageGrid = ({ posts, classes, img, coords, header, id, horizontalBookGridCount, gridPosition, expansionState, handleToggleExpand, handleToggleFullyOpen, hiddenState, expandedNotYetMoved }: {
+const PostsImageGrid = ({ posts, img, coords, header, id, horizontalBookGridCount, gridPosition, expansionState, handleToggleExpand, handleToggleFullyOpen, hiddenState, expandedNotYetMoved }: {
   posts: PostsTopItemInfo[],
-  classes: ClassesType<typeof styles>,
   img: string,
   coords: CoordinateInfo,
   header: string,
@@ -1077,6 +1115,7 @@ const PostsImageGrid = ({ posts, classes, img, coords, header, id, horizontalBoo
   hiddenState?: 'hidden' | 'full',
   expandedNotYetMoved: boolean 
 }) => {
+  const classes = useStyles(styles);
   const coverImgRef = useRef<HTMLImageElement>(null);
   const [coverImgLoaded, setCoverImgLoaded] = useState(false);
   const [dpr, setDpr] = useState<Dpr>(1);
@@ -1109,14 +1148,13 @@ const PostsImageGrid = ({ posts, classes, img, coords, header, id, horizontalBoo
 
   const postGridHeight = getCurrentPostGridHeight(isShowingAll, isExpanded, postGridRows, viewportHeight, horizontalBookGridCount);
   const gridContainerHeight = horizontalBookGridCount === 1 ? postGridHeight - 40 : postGridHeight;
-  const gridPositionClass = gridPositionToClassName(gridPosition) as keyof ClassesType<typeof styles>;
+  const gridPositionClass = gridPositionToClassName(gridPosition) as ClassNameIn<typeof styles>;
 
   const postGridContents = <PostGridContents
     postsInGrid={postsInGrid}
     viewportHeight={viewportHeight}
     postGridColumns={postGridColumns}
     postGridRows={postGridRows}
-    classes={classes}
     id={id}
     gridContainerHeight={gridContainerHeight}
     handleToggleFullyOpen={handleToggleFullyOpen}
@@ -1173,16 +1211,16 @@ const PostsImageGrid = ({ posts, classes, img, coords, header, id, horizontalBoo
   </div>;
 }
 
-const ImageGridPost = ({ post, imgSrc, imageGridId, handleToggleFullyOpen, imageClass, classes, isShowAll = false, showAllVisible = false }: {
+const ImageGridPost = ({ post, imgSrc, imageGridId, handleToggleFullyOpen, imageClass, isShowAll = false, showAllVisible = false }: {
   post: PostsTopItemInfo,
   imgSrc: string,
   imageGridId: string,
   imageClass: string,
   handleToggleFullyOpen: (id: string) => void,
-  classes: ClassesType<typeof styles>,
   isShowAll?: boolean,
   showAllVisible?: boolean,
 }) => {
+  const classes = useStyles(styles);
   const currentUser = useCurrentUser();
   const titleClassName = classNames(classes.imageGridPostTitle, {
     [classes.imageGridPostHidden]: isShowAll && showAllVisible
@@ -1243,10 +1281,4 @@ const ImageGridPost = ({ post, imgSrc, imageGridId, handleToggleFullyOpen, image
   </Link>;
 }
 
-export default registerComponent(
-  "TopPostsPage",
-  TopPostsPage,
-  { styles },
-);
-
-
+export default TopPostsPage;

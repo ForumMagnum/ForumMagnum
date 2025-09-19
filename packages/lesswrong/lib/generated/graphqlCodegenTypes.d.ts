@@ -20092,6 +20092,35 @@ type GetAllReviewWinnersQueryVariables = Exact<{ [key: string]: never; }>;
 
 type GetAllReviewWinnersQuery = GetAllReviewWinnersQuery_Query;
 
+type GetReviewWinnerSpotlightsQuery_posts_MultiPostOutput_results_Post_reviewWinner_ReviewWinner = (
+  { __typename?: 'ReviewWinner' }
+  & ReviewWinnerTopPostsPage
+);
+
+type GetReviewWinnerSpotlightsQuery_posts_MultiPostOutput_results_Post_spotlight_Spotlight = (
+  { __typename?: 'Spotlight' }
+  & SpotlightDisplay
+);
+
+type GetReviewWinnerSpotlightsQuery_posts_MultiPostOutput_results_Post = (
+  { __typename?: 'Post', reviewWinner: GetReviewWinnerSpotlightsQuery_posts_MultiPostOutput_results_Post_reviewWinner_ReviewWinner | null, spotlight: GetReviewWinnerSpotlightsQuery_posts_MultiPostOutput_results_Post_spotlight_Spotlight | null }
+  & PostsBase
+);
+
+type GetReviewWinnerSpotlightsQuery_posts_MultiPostOutput = { __typename?: 'MultiPostOutput', results: Array<GetReviewWinnerSpotlightsQuery_posts_MultiPostOutput_results_Post> };
+
+type GetReviewWinnerSpotlightsQuery_Query = { __typename?: 'Query', posts: GetReviewWinnerSpotlightsQuery_posts_MultiPostOutput | null };
+
+
+type GetReviewWinnerSpotlightsQueryVariables = Exact<{
+  selector: InputMaybe<PostSelector>;
+  limit: InputMaybe<Scalars['Int']['input']>;
+  enableTotal: InputMaybe<Scalars['Boolean']['input']>;
+}>;
+
+
+type GetReviewWinnerSpotlightsQuery = GetReviewWinnerSpotlightsQuery_Query;
+
 type CollectionsPageQuery_collection_SingleCollectionOutput_result_Collection = (
   { __typename?: 'Collection' }
   & CollectionsPageFragment
@@ -24830,27 +24859,16 @@ type PodcastSelect = { __typename?: 'Podcast', _id: string, title: string };
 
 type PostsMinimumInfo = { __typename?: 'Post', _id: string, slug: string, title: string, draft: boolean | null, shortform: boolean, hideCommentKarma: boolean, af: boolean, userId: string | null, coauthorUserIds: Array<string>, rejected: boolean, collabEditorDialogue: boolean };
 
-type PostsTopItemInfo_Post_contents_Revision = { __typename?: 'Revision', _id: string, htmlHighlight: string, wordCount: number, version: string };
+type PostsTopItemInfo_Post_user_User = { __typename?: 'User', _id: string, displayName: string };
 
 type PostsTopItemInfo_Post_reviewWinner_ReviewWinner = (
   { __typename?: 'ReviewWinner' }
   & ReviewWinnerTopPostsPage
 );
 
-type PostsTopItemInfo_Post_spotlight_Spotlight = (
-  { __typename?: 'Spotlight' }
-  & SpotlightReviewWinner
-);
-
-type PostsTopItemInfo_Post_reviews_Comment = (
-  { __typename?: 'Comment' }
-  & CommentsList
-);
-
 type PostsTopItemInfo = (
-  { __typename?: 'Post', isRead: boolean | null, finalReviewVoteScoreHighKarma: number, contents: PostsTopItemInfo_Post_contents_Revision | null, reviewWinner: PostsTopItemInfo_Post_reviewWinner_ReviewWinner | null, spotlight: PostsTopItemInfo_Post_spotlight_Spotlight | null, reviews: Array<PostsTopItemInfo_Post_reviews_Comment> | null }
+  { __typename?: 'Post', isRead: boolean | null, user: PostsTopItemInfo_Post_user_User | null, reviewWinner: PostsTopItemInfo_Post_reviewWinner_ReviewWinner | null }
   & PostsMinimumInfo
-  & PostsAuthors
 );
 
 type PostsBase_Post_group_Localgroup = { __typename?: 'Localgroup', _id: string, name: string, organizerIds: Array<string> };
@@ -25408,13 +25426,6 @@ type ReviewWinnerArtImages_ReviewWinnerArt_activeSplashArtCoordinates_SplashArtC
 type ReviewWinnerArtImages = { __typename?: 'ReviewWinnerArt', _id: string, postId: string, splashArtImagePrompt: string, splashArtImageUrl: string, activeSplashArtCoordinates: ReviewWinnerArtImages_ReviewWinnerArt_activeSplashArtCoordinates_SplashArtCoordinate | null };
 
 type ReviewWinnerEditDisplay = { __typename?: 'ReviewWinner', _id: string, postId: string, reviewYear: number, curatedOrder: number | null, reviewRanking: number };
-
-type ReviewWinnerTopPostsDisplay_ReviewWinner_post_Post = (
-  { __typename?: 'Post' }
-  & PostsTopItemInfo
-);
-
-type ReviewWinnerTopPostsDisplay = { __typename?: 'ReviewWinner', _id: string, postId: string, reviewYear: number, curatedOrder: number | null, reviewRanking: number, post: ReviewWinnerTopPostsDisplay_ReviewWinner_post_Post | null };
 
 type ReviewWinnerAll_ReviewWinner_reviewWinnerArt_ReviewWinnerArt = (
   { __typename?: 'ReviewWinnerArt' }
