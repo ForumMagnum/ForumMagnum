@@ -407,6 +407,7 @@ const Layout = ({children}: {
           {buttonBurstSetting.get() && <GlobalButtonBurst />}
           <DialogManager>
             <CommentBoxManager>
+              {/* ea-forum-look-here: the font downloads probably don't work in NextJS, may need to move them to e.g. SharedScripts */}
               <Helmet name="fonts">
                 {theme.typography.fontDownloads &&
                   theme.typography.fontDownloads.map(

@@ -25,8 +25,6 @@ export default async function RootLayout({
 }) {
   const cookieStore = await cookies();
 
-  const publicInstanceSettings = getInstanceSettings().public;
-
   const timezoneCookie = cookieStore.get(TIMEZONE_COOKIE);
 
   const timezone = timezoneCookie?.value ?? DEFAULT_TIMEZONE;
