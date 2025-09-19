@@ -19368,10 +19368,11 @@ type RotatingReviewWinnerSpotlightDisplayQueryVariables = Exact<{
 
 type RotatingReviewWinnerSpotlightDisplayQuery = RotatingReviewWinnerSpotlightDisplayQuery_Query;
 
-type RotatingReviewWinnerSpotlightQuery_GetAllReviewWinners_Post = (
-  { __typename?: 'Post' }
-  & PostForReviewWinnerItem
-);
+type RotatingReviewWinnerSpotlightQuery_GetAllReviewWinners_Post_reviewWinner_ReviewWinner = { __typename?: 'ReviewWinner', _id: string, category: string };
+
+type RotatingReviewWinnerSpotlightQuery_GetAllReviewWinners_Post_spotlight_Spotlight = { __typename?: 'Spotlight', _id: string };
+
+type RotatingReviewWinnerSpotlightQuery_GetAllReviewWinners_Post = { __typename?: 'Post', reviewWinner: RotatingReviewWinnerSpotlightQuery_GetAllReviewWinners_Post_reviewWinner_ReviewWinner | null, spotlight: RotatingReviewWinnerSpotlightQuery_GetAllReviewWinners_Post_spotlight_Spotlight | null };
 
 type RotatingReviewWinnerSpotlightQuery_Query = { __typename?: 'Query', GetAllReviewWinners: Array<RotatingReviewWinnerSpotlightQuery_GetAllReviewWinners_Post> };
 
