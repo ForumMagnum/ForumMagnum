@@ -393,10 +393,6 @@ export const redirects = [
     destination: "/allPosts?filter=curated&sortedBy=new&timeframe=allTime",
     permanent: true
   }, {
-    source: "/favicon.ico",
-    destination: "https://res.cloudinary.com/lesswrong-2-0/image/upload/v1497915096/favicon_lncumn.ico",
-    permanent: true
-  }, {
     source: "/featured",
     destination: "/allPosts?filter=curated&view=new&timeframe=allTime",
     permanent: true

@@ -451,6 +451,9 @@ export const routeTrie = {
     "faq": {
       "hasPage": true
     },
+    "favicon.ico": {
+      "hasRoute": true
+    },
     "feed": {
       "hasPage": true
     },
@@ -1060,6 +1063,7 @@ export const routeTrie = {
     "emailtoken": "emailToken",
     "events": "events",
     "faq": "faq",
+    "favicon.ico": "favicon.ico",
     "feed": "feed",
     "feed.xml": "feed.xml",
     "g": "g",

@@ -4,6 +4,7 @@ import { useQuery } from "@/lib/crud/useQuery";
 import { registerComponent } from "../../lib/vulcan-lib/components";
 import { gql } from "@/lib/generated/gql-codegen";
 import { SpotlightItem } from "../spotlights/SpotlightItem";
+import { useCurrentTime } from '@/lib/utils/timeUtil';
 
 const SpotlightDisplayQuery = gql(`
   query RotatingReviewWinnerSpotlightDisplay($documentId: String) {
@@ -23,14 +24,15 @@ const RotatingReviewWinnerQuery = gql(`
   }
 `);
 
-const getTodayReviewInfo = (reviewWinners: RotatingReviewWinnerSpotlightQuery_GetAllReviewWinners_Post[], category: string) => {
+const useTodayReviewInfo = (reviewWinners: RotatingReviewWinnerSpotlightQuery_GetAllReviewWinners_Post[], category: string) => {
   const categoryReviewWinners = reviewWinners.filter(reviewWinner => reviewWinner.reviewWinner?.category === category)
   const totalWinners = categoryReviewWinners.length;
+  const date = useCurrentTime();
+
   if (totalWinners === 0) return null;
   
   // Calculate an index based on the date
-  const date = new Date()
-  const startDate = new Date('2024-01-03');
+  const startDate = new Date('2024-01-03:00:00:00Z');
   const daysSinceStart = Math.floor(
     (date.getTime() - startDate.getTime()) / (1000 * 60 * 60 * 24)
   );
@@ -43,7 +45,7 @@ export const RotatingReviewWinnerSpotlight = () => {
   const category = "ai safety"
   const { data } = useQuery(RotatingReviewWinnerQuery);
   const reviewWinnersWithPosts = [...data?.GetAllReviewWinners ?? []];
-  const winner = getTodayReviewInfo(reviewWinnersWithPosts, category);
+  const winner = useTodayReviewInfo(reviewWinnersWithPosts, category);
 
   const { data: dataSpotlight } = useQuery(SpotlightDisplayQuery, {
     variables: { documentId: winner?.spotlight?._id },
