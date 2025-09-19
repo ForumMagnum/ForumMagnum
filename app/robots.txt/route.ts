@@ -28,5 +28,8 @@ Disallow: /emailToken
 Disallow: /*?commentId=*
 Disallow: /users/*/replies
 Crawl-Delay: 3
+
+User-Agent: SemrushBot
+Disallow: /
 `, {status: 200});
 }
