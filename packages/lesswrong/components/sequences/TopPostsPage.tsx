@@ -25,6 +25,7 @@ import LWTooltip from "../common/LWTooltip";
 import { defineStyles } from '../hooks/defineStyles';
 import { useStyles } from '../hooks/useStyles';
 import { SuspenseWrapper } from '../common/SuspenseWrapper';
+import { useItemsRead } from '../hooks/useRecordPostView';
 
 /** In theory, we can get back posts which don't have review winner info, but given we're explicitly querying for review winners... */
 export type GetAllReviewWinnersQueryResult = (PostsTopItemInfo & { reviewWinner: Exclude<PostsTopItemInfo['reviewWinner'], null> })[]
@@ -915,7 +916,10 @@ function TopSpotlightsSection({ reviewWinnersWithPosts }: {
   }
 
   // Unread posts are gray (read posts color) iff at least one post is marked as read
-  const unreadIsGray = sortedPosts && sortedPosts.some(p => p.isRead);
+  const itemsRead = useItemsRead();
+  const unreadIsGray = sortedPosts && sortedPosts.some(post => 
+    (post._id in itemsRead.postsRead) ? itemsRead.postsRead[post._id] : post.isRead
+  );
 
   return <AnalyticsContext pageSectionContext="topPostsPageSpotlightSection">
     <div className={classes.postsByYearSectionCentered} id="year-category-section">
@@ -972,30 +976,40 @@ function TopSpotlightsSection({ reviewWinnersWithPosts }: {
       </div>
       <div className={classes.spotlightCheckmarkRow}>
         {sortedPosts && sortedPosts.map((post) => {
+          const isRead = (post._id in itemsRead.postsRead) ? itemsRead.postsRead[post._id] : post.isRead;
           const spotlight = post.spotlight!;
           const postYear = ((category !== 'all' && year !== 'all') || year === 'all') ? post?.reviewWinner?.reviewYear : ''
           const postCategory = ((year !== 'all' && category !== 'all') || category === 'all') ? post?.reviewWinner?.category : ''
           const postAuthor = post.spotlight?.post?.user?.displayName
-          const tooltip = <><div>{post.title}</div>
-          <div><em>by {postAuthor}</em></div>
-          {(postYear || postCategory) && <div><em>{postYear} <span style={{textTransform: 'capitalize'}}>{postCategory}</span></em></div>}</>
+          const tooltip = <>
+            <div>{post.title}</div>
+            <div><em>by {postAuthor}</em></div>
+            {(postYear || postCategory) && <div><em>{postYear} <span style={{textTransform: 'capitalize'}}>{postCategory}</span></em></div>}
+          </>
 
           return <LWTooltip key={post._id} title={tooltip}>
-            <Link key={post._id} to={getSpotlightUrl(spotlight)} className={classNames(classes.spotlightCheckmark, post.isRead && classes.spotlightCheckmarkIsRead)}></Link>
+            <Link
+              key={post._id}
+              to={getSpotlightUrl(spotlight)}
+              className={classNames(classes.spotlightCheckmark, isRead && classes.spotlightCheckmarkIsRead)}
+            />
           </LWTooltip>
         })}
       </div>
       <div style={{ maxWidth: SECTION_WIDTH }}>
         {!sortedPosts && <div className={classes.tallPlaceholder}><Loading/></div>}
-        {sortedPosts && sortedPosts.map((post) => post.spotlight && <div
-          key={post._id}
-          className={classNames(classes.spotlightItem, unreadIsGray && !post.isRead && classes.spotlightIsNotRead )}
-        >
-          <LWTooltip title={`Ranked #${post.reviewWinner?.reviewRanking} in ${post.reviewWinner?.reviewYear}`}>
-            <div className={classes.spotlightRanking}>#{(post.reviewWinner?.reviewRanking ?? 0) + 1}</div>
-          </LWTooltip>
-          <SpotlightItem spotlight={post.spotlight} showSubtitle={false} />
-        </div>)}
+        {sortedPosts && sortedPosts.map((post) => {
+          const isRead = (post._id in itemsRead.postsRead) ? itemsRead.postsRead[post._id] : post.isRead;
+          return post.spotlight && <div
+            key={post._id}
+            className={classNames(classes.spotlightItem, unreadIsGray && !isRead && classes.spotlightIsNotRead )}
+          >
+            <LWTooltip title={`Ranked #${post.reviewWinner?.reviewRanking} in ${post.reviewWinner?.reviewYear}`}>
+              <div className={classes.spotlightRanking}>#{(post.reviewWinner?.reviewRanking ?? 0) + 1}</div>
+            </LWTooltip>
+            <SpotlightItem spotlight={post.spotlight} showSubtitle={false} />
+          </div>
+        })}
       </div>
     </div>
   </AnalyticsContext>
@@ -1259,9 +1273,15 @@ const ImageGridPost = ({ post, imgSrc, imageGridId, handleToggleFullyOpen, image
   };
 
   const handleMouseLeave = () => setHover(false);
+  
+  const itemsRead = useItemsRead();
+  const isRead = (post._id in itemsRead.postsRead) ? itemsRead.postsRead[post._id] : post.isRead;
 
   return <Link className={classes.imageGridPost} key={post._id} to={isShowAll && showAllVisible ? (location.pathname + location.search)  : postGetPageUrl(post)}>
-    <div className={classNames(classes.imageGridPostBody, {[classes.imageGridPostUnread]: currentUser && !post.isRead, [classes.imageGridPostRead]: currentUser && post.isRead})} onMouseOver={handleMouseOver} onMouseLeave={handleMouseLeave}>
+    <div className={classNames(classes.imageGridPostBody, {
+      [classes.imageGridPostUnread]: currentUser && !isRead,
+      [classes.imageGridPostRead]: currentUser && isRead
+    })} onMouseOver={handleMouseOver} onMouseLeave={handleMouseLeave}>
       <div className={authorClassName}>
         {post?.user?.displayName}
       </div>
