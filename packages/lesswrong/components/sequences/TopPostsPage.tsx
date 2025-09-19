@@ -3,7 +3,7 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { AnalyticsContext } from "../../lib/analyticsEvents";
 import { CoordinateInfo, ReviewYearGroupInfo, ReviewSectionInfo, reviewWinnerYearGroupsInfo, reviewWinnerSectionsInfo } from '@/lib/instanceSettings';
-import { useLocation } from '../../lib/routeUtil';
+import { useLocation, useNavigate } from '../../lib/routeUtil';
 import { postGetPageUrl } from '../../lib/collections/posts/helpers';
 import { Link } from '../../lib/reactRouterWrapper';
 import { preferredHeadingCase } from '../../themes/forumTheme';
@@ -593,7 +593,10 @@ const styles = defineStyles("TopPostsPage", (theme: ThemeType) => ({
   },
   loading: {
     height: 30
-  }
+  },
+  tallPlaceholder: {
+    height: "100vh",
+  },
 }));
 
 function sortReviewWinners<T extends { reviewWinner: { curatedOrder: number | null, reviewRanking: number } | null }>(reviewWinners: T[]) {
@@ -792,13 +795,12 @@ const TopPostsPage = () => {
             {sectionGrid}
           </div>
         </div>
-        {loading && <div className={classes.loading}><Loading/></div>}
-        <SuspenseWrapper name="TopSpotlightsSection">
+        <SuspenseWrapper name="TopSpotlightsSection" fallback={<div className={classes.tallPlaceholder}/>}>
           <TopSpotlightsSection
             reviewWinnersWithPosts={reviewWinnersWithPosts}
           />
         </SuspenseWrapper>
-        {loading && <Loading/>}
+        {loading && <div className={classes.tallPlaceholder}><Loading/></div>}
       </AnalyticsContext>
     </>
   );
@@ -828,6 +830,7 @@ function TopSpotlightsSection({ reviewWinnersWithPosts }: {
   const yearGroupsInfo: Record<ReviewYear, ReviewYearGroupInfo> | null = reviewWinnerYearGroupsInfo.get()!;
   const classes = useStyles(styles);
   const location = useLocation();
+  const navigate = useNavigate();
   const { query: { year: yearQuery, category: categoryQuery } } = location;
 
   const categories = [...reviewWinnerCategories]
@@ -872,31 +875,8 @@ function TopSpotlightsSection({ reviewWinnersWithPosts }: {
     },
   });
   const posts = postsResult?.data?.posts?.results;
-  if (!posts) {
-    return <Loading/>
-  }
 
-  /*const filteredSpotlights = filteredReviewWinnersForSpotlights
-    .filter(reviewWinner => !!reviewWinner.spotlight)
-    .map(post => ({
-    post,
-    tag: null,
-    sequence: null,
-    ranking: post.reviewWinner?.reviewRanking
-  })).sort((a, b) => {
-    const reviewWinnerA = reviewWinnersWithPosts.find(post => post._id === a.post?._id)
-    const reviewWinnerB = reviewWinnersWithPosts.find(post => post._id === b.post?._id)
-    if (reviewWinnerA?.reviewWinner?.reviewRanking !== reviewWinnerB?.reviewWinner?.reviewRanking) {
-      return (reviewWinnerA?.reviewWinner?.reviewRanking ?? 0) - (reviewWinnerB?.reviewWinner?.reviewRanking ?? 0)
-    } else if (reviewWinnerA?.reviewWinner?.reviewYear !== reviewWinnerB?.reviewWinner?.reviewYear) {  
-      return (reviewWinnerA?.reviewWinner?.reviewYear ?? 0) - (reviewWinnerB?.reviewWinner?.reviewYear ?? 0)
-    } else if (reviewWinnerA?.reviewWinner?.category !== reviewWinnerB?.reviewWinner?.category) {
-      return (reviewWinnerA?.reviewWinner?.category ?? '').localeCompare(reviewWinnerB?.reviewWinner?.category ?? '')
-    } else {
-      return 0
-    }
-  })*/
-  const sortedPosts = posts
+  const sortedPosts = posts && posts
     .filter(post => !!post.spotlight)
     .sort((a, b) => {
       const reviewWinnerA = reviewWinnersWithPosts.find(post => post._id === a?._id)
@@ -912,16 +892,26 @@ function TopSpotlightsSection({ reviewWinnersWithPosts }: {
       }
     })
 
-  const handleSetYear = (y: YearSelectorState) => {
+  const getYearLink = (y: YearSelectorState): string => {
+    return `${location.pathname}?${qs.stringify({year: y, category})}`;
+  }
+  const getCategoryLink = (t: CategorySelectorState): string => {
+    return `${location.pathname}?${qs.stringify({year, category: t})}`;
+  }
+  const handleSetYear = (ev: React.MouseEvent, y: YearSelectorState) => {
+    if (ev.shiftKey || ev.altKey || ev.ctrlKey || ev.metaKey) return;
     const newSearch = qs.stringify({year: y, category});
-    history.replaceState(null, '', `${location.pathname}?${newSearch}`);
+    navigate({...location, search: newSearch}, {replace: true, skipRouter: true});
     setYear(y);
+    ev.preventDefault();
   }
   
-  const handleSetCategory = (t: CategorySelectorState) => {
+  const handleSetCategory = (ev: React.MouseEvent, t: CategorySelectorState) => {
+    if (ev.shiftKey || ev.altKey || ev.ctrlKey || ev.metaKey) return;
     const newSearch = qs.stringify({year, category: t});
-    history.replaceState(null, '', `${location.pathname}?${newSearch}`);
+    navigate({...location, search: newSearch}, {replace: true, skipRouter: true});
     setCategory(t);
+    ev.preventDefault();
   }
 
   return <AnalyticsContext pageSectionContext="topPostsPageSpotlightSection">
@@ -931,10 +921,22 @@ function TopSpotlightsSection({ reviewWinnersWithPosts }: {
           const postsCount = reviewWinnersWithPosts.filter(post => {
             return post.reviewWinner?.reviewYear === y
           }).length
-          return <LWTooltip key={y} title={`${postsCount} posts`} placement="top"><a onClick={() => handleSetYear(y)} className={classNames(classes.year, y === year && classes.yearIsSelected)} key={y}>{y}</a></LWTooltip>
+          return <LWTooltip key={y} title={`${postsCount} posts`} placement="top">
+            <a
+              onClick={(ev) => handleSetYear(ev, y)}
+              href={getYearLink(y)}
+              className={classNames(classes.year, y === year && classes.yearIsSelected)} key={y}
+            >
+              {y}
+            </a>
+          </LWTooltip>
         })}
         <LWTooltip key="all" title={`${reviewWinnersWithPosts.length} posts`} inlineBlock={false}>
-          <a onClick={() => handleSetYear('all')} className={classNames(classes.year, year === 'all' && classes.yearIsSelected, classes.yearAll)}>
+          <a
+            onClick={(ev) => handleSetYear(ev, 'all')}
+            href={getYearLink("all")}
+            className={classNames(classes.year, year === 'all' && classes.yearIsSelected, classes.yearAll)}
+          >
             All
           </a>
         </LWTooltip>
@@ -943,23 +945,31 @@ function TopSpotlightsSection({ reviewWinnersWithPosts }: {
         {categories.map((t) => {
           const postsCount = year === 'all' ? reviewWinnersWithPosts.filter(post => post.reviewWinner?.category === t).length : reviewWinnersWithPosts.filter(post => post.reviewWinner?.reviewYear === year && post.reviewWinner?.category === t).length
           return <LWTooltip key={t} title={`${postsCount} posts`} inlineBlock={false}>
-            <a onClick={() => handleSetCategory(t)} className={classNames(classes.category, !postsCount && classes.disabledCategory, t === category && classes.categoryIsSelected)}>{sectionsInfo[t].title}</a>
+            <a
+              onClick={(ev) => handleSetCategory(ev, t)}
+              href={getCategoryLink(t)}
+              className={classNames(classes.category, !postsCount && classes.disabledCategory, t === category && classes.categoryIsSelected)}
+            >
+              {sectionsInfo[t].title}
+            </a>
           </LWTooltip>
         })}
         <LWTooltip key="all" title={`${reviewWinnersWithPosts.filter(post => {
           if (year === 'all') return true
           return post.reviewWinner?.reviewYear === year
         }).length} posts`} inlineBlock={false}>
-          <a onClick={() => handleSetCategory('all')} className={classNames(classes.category, category === 'all' && classes.categoryIsSelected)}>
+          <a
+            onClick={(ev) => handleSetCategory(ev, 'all')}
+            href={getCategoryLink('all')}
+            className={classNames(classes.category, category === 'all' && classes.categoryIsSelected)}
+          >
             All
           </a>
         </LWTooltip>
       </div>
       <div className={classes.spotlightCheckmarkRow}>
-        {sortedPosts.map((post) => {
+        {sortedPosts && sortedPosts.map((post) => {
           const spotlight = post.spotlight!;
-          //const post = reviewWinnersWithPosts.find(post => post._id === spotlight.post?._id)
-          //const post = posts.find(post => post._id === spotlight.post?._id)
           const postYear = ((category !== 'all' && year !== 'all') || year === 'all') ? post?.reviewWinner?.reviewYear : ''
           const postCategory = ((year !== 'all' && category !== 'all') || category === 'all') ? post?.reviewWinner?.category : ''
           const postAuthor = post.spotlight?.post?.user?.displayName
@@ -973,7 +983,8 @@ function TopSpotlightsSection({ reviewWinnersWithPosts }: {
         })}
       </div>
       <div style={{ maxWidth: SECTION_WIDTH }}>
-        {sortedPosts.map((post) => post.spotlight && <div
+        {!sortedPosts && <div className={classes.tallPlaceholder}><Loading/></div>}
+        {sortedPosts && sortedPosts.map((post) => post.spotlight && <div
           key={post._id}
           className={classNames(classes.spotlightItem, !post.isRead && classes.spotlightIsNotRead )}
         >
