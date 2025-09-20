@@ -38,7 +38,7 @@ const useTodayReviewInfo = (reviewWinners: RotatingReviewWinnerSpotlightQuery_Ge
   if (totalWinners === 0) return null;
   
   // Calculate an index based on the date
-  const startDate = new Date('2024-01-03:00:00:00Z');
+  const startDate = new Date('2024-01-03T00:00:00Z');
   const daysSinceStart = Math.floor(
     (date.getTime() - startDate.getTime()) / (1000 * 60 * 60 * 24)
   );
