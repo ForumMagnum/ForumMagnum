@@ -12,7 +12,8 @@ export const EmailPostDate = ({post, emailContext}: {
   const { timezone, timezoneIsKnown } = useEmailRecipientTimezone(emailContext)
   
   if (post.isEvent) {
-    return <span><PrettyEventDateTime post={post} timezone={timezoneIsKnown ? timezone : undefined} /></span>
+    const now = new Date();
+    return <span><PrettyEventDateTime now={now} post={post} timezone={timezoneIsKnown ? timezone : undefined} /></span>
   } else if (post.curatedDate) {
     return <EmailFormatDate date={maybeDate(post.curatedDate)}/>
   } else {

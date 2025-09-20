@@ -15,6 +15,7 @@ import PostsItemTooltipWrapper from "../../posts/PostsItemTooltipWrapper";
 import CloudinaryImage2 from "../../common/CloudinaryImage2";
 import VirtualProgramCard from "./VirtualProgramCard";
 import PrettyEventDateTime from "./PrettyEventDateTime";
+import { useCurrentTime } from '@/lib/utils/timeUtil';
 
 const styles = (theme: ThemeType) => ({
   noResults: {
@@ -131,6 +132,7 @@ const EventCards = ({events, loading, numDefaultCards, hideSpecialCards, hideGro
 }) => {
   const currentUser = useCurrentUser()
   const { timezone } = useTimezone()
+  const now = useCurrentTime();
   
   const getEventLocation = (event: PostsList): string => {
     if (event.onlineEvent) return 'Online'
@@ -156,7 +158,7 @@ const EventCards = ({events, loading, numDefaultCards, hideSpecialCards, hideGro
       <CardContent className={classes.eventCardContent}>
         <div className={classes.eventCardTime}>
           {event.eventType === 'course' && <span className={classes.eventCardTimeApply}>Apply by</span>}
-          <PrettyEventDateTime post={event} timezone={timezone} dense={true} />
+          <PrettyEventDateTime now={now} post={event} timezone={timezone} dense={true} />
         </div>
         <PostsItemTooltipWrapper post={event}>
           <div className={classes.eventCardTitle}>
