@@ -6,7 +6,7 @@ import { userGetDisplayName } from '../../lib/collections/users/helpers';
 import { getCkEditorEnvironmentId, getCkEditorSecretKey } from './ckEditorServerConfig';
 import jwt from 'jsonwebtoken'
 import { randomId } from '../../lib/random';
-import { NextRequest } from 'next/server';
+import { NextRequest, NextResponse } from 'next/server';
 import { z } from 'zod';
 import { captureException } from '@/lib/sentryWrapper';
 import { getUserFromReq } from '../vulcan-lib/apollo-server/getUserFromReq';
@@ -22,38 +22,45 @@ function permissionsLevelToCkEditorRole(access: CollaborativeEditingAccessLevel)
 
 const formTypeValidator = z.enum(["edit", "new"]).nullable();
 
-export async function ckEditorTokenHandler(req: NextRequest) {
-  const environmentId = getCkEditorEnvironmentId();
-  const secretKey = getCkEditorSecretKey()!; // Assume nonnull; causes lack of encryption in development
-
+function extractHeaders(req: NextRequest) {
+  const referer = req.headers.get('referer');
   const collectionName = req.headers.get('collection-name');
   const documentId = req.headers.get('document-id') ?? undefined;
   const userId = req.headers.get('user-id') ?? undefined;
   const rawFormType = req.headers.get('form-type');
   const linkSharingKey = req.headers.get('link-sharing-key');
+
+  return { referer, collectionName, documentId, userId, rawFormType, linkSharingKey };
+}
+
+function handleErrorAndReturn(req: NextRequest, error: Error) {
+  const { linkSharingKey, ...safeHeaders } = extractHeaders(req);
+
+  // eslint-disable-next-line no-console
+  console.error(error, { headers: safeHeaders });
+  captureException(error);
+  return NextResponse.json({ error: error.message }, { status: 500 });
+}
+
+export async function ckEditorTokenHandler(req: NextRequest) {
+  const environmentId = getCkEditorEnvironmentId();
+  const secretKey = getCkEditorSecretKey()!; // Assume nonnull; causes lack of encryption in development
+
+  const { collectionName, documentId, userId, rawFormType, linkSharingKey } = extractHeaders(req);
   
   if (!collectionName || collectionName.includes(",")) {
     const error = new Error("Missing or multiple collectionName headers");
-    // eslint-disable-next-line no-console
-    console.error(error);
-    captureException(error);
-    throw error;
+    return handleErrorAndReturn(req, error);
   }
 
   if (documentId?.includes(",")) {
     const error = new Error("Multiple documentId headers");
-    // eslint-disable-next-line no-console
-    console.error(error);
-    captureException(error);
-    throw error;
+    return handleErrorAndReturn(req, error);
   }
   
   if (userId?.includes(",")) {
     const error = new Error("Multiple userId headers");
-    // eslint-disable-next-line no-console
-    console.error(error);
-    captureException(error);
-    throw error;
+    return handleErrorAndReturn(req, error);
   }
 
   const urlForContext = req.nextUrl.clone();
@@ -75,10 +82,7 @@ export async function ckEditorTokenHandler(req: NextRequest) {
     const parsedFormType = formTypeValidator.safeParse(rawFormType);
     if (!parsedFormType.success) {
       const error = new Error("Invalid formType header");
-      // eslint-disable-next-line no-console
-      console.error(error);
-      captureException(error);
-      throw error;
+      return handleErrorAndReturn(req, error);
     }
   
     const formType = parsedFormType.data;
