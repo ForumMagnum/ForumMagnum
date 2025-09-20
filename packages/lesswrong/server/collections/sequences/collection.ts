@@ -1,3 +1,4 @@
+import schema from '@/lib/collections/sequences/newSchema';
 import { createCollection } from '@/lib/vulcan-lib/collections';
 import { userCanDo, userOwns } from '@/lib/vulcan-users/permissions';
 import { DatabaseIndexSet } from '@/lib/utils/databaseIndexSet';
@@ -10,6 +11,7 @@ function augmentForDefaultView(indexFields: MongoIndexKeyObj<DbSequence>): Mongo
 export const Sequences = createCollection({
   collectionName: 'Sequences',
   typeName: 'Sequence',
+  schema,
     getIndexes: () => {
     const indexSet = new DatabaseIndexSet();
     indexSet.addIndex('Sequences', augmentForDefaultView({ userId:1, userProfileOrder: -1 }));

@@ -1,13 +1,13 @@
-'use client';
 
 import React from 'react';
 import { postGetPageUrl } from '../../lib/collections/posts/helpers';
-import { useTimezone } from '../../components/common/withTimezone';
 import { getSiteUrl } from "../../lib/vulcan-lib/utils";
-import { defineStyles, useStyles } from '@/components/hooks/useStyles';
-import { useQuery } from "@/lib/crud/useQuery";
+import { defineStyles } from "@/components/hooks/defineStyles";
+import { EmailContextType, useEmailStyles } from "./emailContext";
 import { gql } from "@/lib/generated/gql-codegen";
 import PrettyEventDateTime from '@/components/events/modules/PrettyEventDateTime';
+import { useEmailRecipientTimezone } from './useEmailRecipientTimezone';
+import { useEmailQuery } from '../vulcan-lib/query';
 
 const PostsBaseQuery = gql(`
   query EventUpdatedEmail($documentId: String) {
@@ -53,17 +53,19 @@ const styles = defineStyles("EventUpdatedEmail", (theme: ThemeType) => ({
   onlineEventLocation: {},
 }));
 
-export const EventUpdatedEmail = ({postId}: {
+export const EventUpdatedEmail = async({postId, emailContext}: {
   postId: string,
+  emailContext: EmailContextType
 }) => {
-  const classes = useStyles(styles);
-  const { loading, data } = useQuery(PostsBaseQuery, {
+  const classes = useEmailStyles(styles, emailContext);
+  const { data } = await useEmailQuery(PostsBaseQuery, {
     variables: { documentId: postId },
+    emailContext
   });
   const post = data?.post?.result;
-  const { timezone, timezoneIsKnown } = useTimezone()
+  const { timezone, timezoneIsKnown } = useEmailRecipientTimezone(emailContext)
   
-  if (loading || !post) return null;
+  if (!post) return null;
   
   const link = postGetPageUrl(post, true);
   

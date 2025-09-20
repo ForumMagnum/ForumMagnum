@@ -1,8 +1,6 @@
 import intersection from 'lodash/intersection';
 import moment from 'moment';
-import * as _ from 'underscore';
-import { isLW } from '../instanceSettings';
-import { hideUnreviewedAuthorCommentsSettings } from '../publicSettings';
+import { isLW, hideUnreviewedAuthorCommentsSettings } from '../instanceSettings';
 import { allUserGroupsByName } from '../permissions';
 
 export function getAllUserGroups() {
@@ -48,7 +46,7 @@ export const userGetActions = (user: PermissionableUser|DbUser|null): Array<stri
     const group = allUserGroupsByName[groupName];
     return group && group.actions;
   });
-  return _.unique(_.flatten(groupActions));
+  return [...new Set(groupActions.flat())];
 };
 
 // Check if a user is a member of a group
@@ -62,7 +60,7 @@ export const userIsMemberOf = (user: PermissionableUser|DbUser|null, group: Perm
 };
 
 
-export const userIsPodcaster = (user: UsersProfile|UsersProfile|DbUser|null): boolean => {
+export const userIsPodcaster = (user: UsersProfile|UsersCurrent|DbUser|null): boolean => {
   return userIsMemberOf(user, 'podcasters');
 };
 
@@ -99,7 +97,7 @@ export const userOwns = function (user: UsersMinimumInfo|DbUser|null, document: 
 };
 
 export const userOwnsAndOnLW = function (user: UsersMinimumInfo|DbUser|null, document: OwnableDocument): boolean {
-  return isLW && userOwns(user, document)
+  return isLW() && userOwns(user, document)
 }
 
 export const documentIsNotDeleted = (
@@ -171,7 +169,7 @@ export const userOverNKarmaOrApproved = (n: number) => {
   }
 }
 
-export const userHasntChangedName = (user: Partial<Pick<UsersMinimumInfo|DbUser, 'previousDisplayName'>> | null): boolean => {
+export const userHasntChangedName = (user: Partial<Pick<UsersProfile|DbUser, 'previousDisplayName'>> | null): boolean => {
   if (!user) return false
   return !user.previousDisplayName
 }

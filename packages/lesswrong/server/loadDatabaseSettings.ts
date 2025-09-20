@@ -1,4 +1,4 @@
-import { setPublicSettings, setServerSettingsCache } from '../lib/settingsCache';
+import { setPublicSettings, setServerSettingsCache, getPublicSettingsLoaded, getServerSettingsLoaded } from '../lib/settingsCache';
 import DatabaseMetadataRepo from "./repos/DatabaseMetadataRepo";
 import { getSqlClient } from './sql/sqlClient';
 import { isAnyTest } from '../lib/executionEnvironment';
@@ -30,11 +30,7 @@ const loadDatabaseSettingsPostgres = async (): Promise<DatabaseSettings> => {
     serverSettingsObject,
     publicSettingsObject,
     loadedDatabaseId,
-  ] = await Promise.all([
-    repo.getServerSettings(),
-    repo.getPublicSettings(),
-    repo.getDatabaseId(),
-  ]);
+  ] = await repo.getByNames(['serverSettings', 'publicSettings', 'databaseId']);
   
   if (!isAnyTest && (!serverSettingsObject || !publicSettingsObject)) {
     // eslint-disable-next-line no-console
@@ -70,6 +66,11 @@ const loadDatabaseSettings = async (): Promise<DatabaseSettings> => {
 }
 
 export const refreshSettingsCaches = async () => {
+  // TODO: figure out proper solution for nextjs
+  if (getPublicSettingsLoaded() && getServerSettingsLoaded()) {
+    return;
+  }
+
   const {
     serverSettingsObject,
     publicSettingsObject,

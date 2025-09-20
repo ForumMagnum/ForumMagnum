@@ -1,21 +1,22 @@
-import React, { useContext, createContext } from 'react';
+import React, { useContext } from 'react';
 import { registerComponent } from '../../lib/vulcan-lib/components';
 import { userGetDisplayName, userGetProfileUrl } from '../../lib/collections/users/helpers';
 import { Link } from '../../lib/reactRouterWrapper';
 import { useHover } from '../common/withHover'
 import classNames from 'classnames';
 import { AnalyticsContext } from "../../lib/analyticsEvents";
-import { useCurrentUser } from '../common/withUser';
+import { useFilteredCurrentUser } from '../common/withUser';
 import type { Placement as PopperPlacementType } from "popper.js"
 import UserNameDeleted from "./UserNameDeleted";
 import UserTooltip from "./UserTooltip";
+import { DisableNoKibitzContext } from '../common/sharedContexts';
 
 const styles = (theme: ThemeType) => ({
   color: {
     color: theme.palette.primary.main,
   },
   noColor: {
-    color: "inherit !important"
+    color: `inherit !important`
   },
   noKibitz: {
     minWidth: 55,
@@ -24,9 +25,6 @@ const styles = (theme: ThemeType) => ({
     whiteSpace: "nowrap"
   },
 });
-
-type DisableNoKibitzContextType = {disableNoKibitz: boolean, setDisableNoKibitz: (disableNoKibitz: boolean) => void};
-export const DisableNoKibitzContext = createContext<DisableNoKibitzContextType >({disableNoKibitz: false, setDisableNoKibitz: ()=>{}});
 
 /**
  * Given a user (which may not be null), render the user name as a link with a
@@ -75,9 +73,9 @@ const UsersNameDisplay = ({
       userId: user?._id
     },
   });
-  const currentUser = useCurrentUser();
   const {disableNoKibitz} = useContext(DisableNoKibitzContext);
-  const noKibitz = (currentUser
+  const noKibitz = useFilteredCurrentUser(currentUser =>
+    currentUser
     && (currentUser.noKibitz ?? false)
     && user
     && currentUser._id !== user._id  //don't nokibitz your own name

@@ -1,15 +1,13 @@
 import React, {useRef, useState} from 'react';
 import { EmojiReactName, QuoteLocator, VoteOnReactionType } from '../../lib/voting/namesAttachedReactions';
-import { namesAttachedReactions, NamesAttachedReactionType } from '../../lib/voting/reactions';
+import { NamesAttachedReactionType } from '../../lib/voting/reactions';
 import classNames from 'classnames';
-import { useTracking } from "../../lib/analyticsEvents";
-import debounce from "lodash/debounce";
 import type { Placement as PopperPlacementType } from "popper.js"
 import { defineStyles, useStyles } from '../hooks/useStyles';
 import ReactionIcon from "./ReactionIcon";
 import LWTooltip from "../common/LWTooltip";
 import ReactionDescription from "./lwReactions/ReactionDescription";
-import { reactionsSearch } from './ReactionsPalette';
+import { getCuratedActiveReactions } from '../../lib/voting/curatedReactionsList';
 
 const styles = defineStyles('UltraFeedReactionsPalette', (theme: ThemeType) => ({
   moreReactions: {
@@ -175,8 +173,7 @@ const UltraFeedReactionsPalette = ({
   const classes = useStyles(styles);
   const [searchText,setSearchText] = useState("");
   
-  const activeReacts = namesAttachedReactions.filter(r=>!r.deprecated);
-  const reactionsToShow = reactionsSearch(activeReacts, searchText);
+  const reactionsToShow = getCuratedActiveReactions(searchText);
 
   return <div className={classes.moreReactions}>
     <input

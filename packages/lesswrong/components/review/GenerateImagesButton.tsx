@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { useMutation } from '@apollo/client';
+import { useMutation } from "@apollo/client/react";
 import { gql } from '@/lib/generated/gql-codegen';
 import { defineStyles, useStyles } from "../hooks/useStyles";
 import { artPrompt } from '@/lib/collections/reviewWinnerArts/constants';

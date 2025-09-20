@@ -1,16 +1,18 @@
+"use client";
+
 import React from 'react';
 import { Link } from '../../lib/reactRouterWrapper';
 import { useLocation } from '../../lib/routeUtil';
 import { getCollectionOrSequenceUrl } from '../../lib/collections/sequences/helpers';
-import { styles } from '../common/HeaderSubtitle';
-import { Helmet } from '../../lib/utils/componentsWithChildren';
+import { headerSubtitleStyles } from '../common/HeaderSubtitle';
+import { Helmet } from '../common/Helmet';
 import { useQuery } from "@/lib/crud/useQuery";
 import { gql } from "@/lib/generated/gql-codegen";
-import { defineStyles, useStyles } from '../hooks/useStyles';
+import { useStyles } from '../hooks/useStyles';
 
 const SequencesPageTitleFragmentQuery = gql(`
   query SequencesPageTitle($documentId: String) {
-    sequence(input: { selector: { documentId: $documentId } }) {
+    sequence(input: { selector: { documentId: $documentId } }, allowNull: true) {
       result {
         ...SequencesPageTitleFragment
       }
@@ -18,19 +20,17 @@ const SequencesPageTitleFragmentQuery = gql(`
   }
 `);
 
-const titleComponentStyles = defineStyles('SequencesPageTitle', styles);
-
 export const SequencesPageTitle = ({isSubtitle, siteName}: {
   isSubtitle: boolean,
   siteName: string,
 }) => {
-  const classes = useStyles(titleComponentStyles);
+  const classes = useStyles(headerSubtitleStyles);
 
   const { params: {_id} } = useLocation();
   
   const { loading, data } = useQuery(SequencesPageTitleFragmentQuery, {
     variables: { documentId: _id },
-    fetchPolicy: 'cache-only',
+    fetchPolicy: 'cache-first',
   });
   const sequence = data?.sequence?.result;
   
@@ -43,7 +43,7 @@ export const SequencesPageTitle = ({isSubtitle, siteName}: {
       </Link>
     </span>);
   } else {
-    return <Helmet>
+    return <Helmet name="title">
       <title>{titleString}</title>
       <meta property='og:title' content={titleString}/>
     </Helmet>

@@ -13,6 +13,7 @@ import PostRecommendationsRepo from "../repos/PostRecommendationsRepo";
 import { loggerConstructor } from "../../lib/utils/logging";
 import FeatureStrategy from "./FeatureStrategy";
 import NewAndUpvotedInTagStrategy from "./NewAndUpvotedInTagStrategy";
+import { backgroundTask } from "../utils/backgroundTask";
 
 type ConstructableStrategy = {
   new(): RecommendationStrategy,
@@ -70,13 +71,13 @@ class RecommendationService {
       const time = Date.now() - start;
       this.logger("...found", newPosts.length, "posts in", time, "milliseconds");
 
-      void this.repo.recordRecommendations(
+      backgroundTask(this.repo.recordRecommendations(
         currentUser,
         clientId,
         strategies[0],
         {...result.settings, context: strategy.context},
         newPosts,
-      );
+      ));
 
       posts = posts.concat(newPosts);
       count -= newPosts.length;

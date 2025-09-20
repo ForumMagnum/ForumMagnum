@@ -1,20 +1,13 @@
-import { addCronJob } from "./cron/cronUtil";
 import TweetsRepo from "./repos/TweetsRepo";
 import { loggerConstructor } from "@/lib/utils/logging";
 import { Posts } from "@/server/collections/posts/collection.ts";
 import { TwitterApi } from 'twitter-api-v2';
-import { getConfirmedCoauthorIds, postGetPageUrl } from "@/lib/collections/posts/helpers";
+import { postGetPageUrl } from "@/lib/collections/posts/helpers";
 import Users from "@/server/collections/users/collection";
-import { dogstatsd } from "./datadog/tracer";
-import { PublicInstanceSetting, twitterBotEnabledSetting, twitterBotKarmaThresholdSetting } from "@/lib/instanceSettings";
+// import { dogstatsd } from "./datadog/tracer";
+import { accessTokenSecretSetting, accessTokenSetting, apiKeySecretSetting, apiKeySetting, twitterBotEnabledSetting, twitterBotKarmaThresholdSetting } from "@/lib/instanceSettings";
 import { createAnonymousContext } from "./vulcan-lib/createContexts";
 import { createTweet } from "./collections/tweets/mutations";
-// import { createTweet } from "@/server/collections/tweets/mutations";
-
-const apiKeySetting = new PublicInstanceSetting<string | null>("twitterBot.apiKey", null, "optional");
-const apiKeySecretSetting = new PublicInstanceSetting<string | null>("twitterBot.apiKeySecret", null, "optional");
-const accessTokenSetting = new PublicInstanceSetting<string | null>("twitterBot.accessToken", null, "optional");
-const accessTokenSecretSetting = new PublicInstanceSetting<string | null>("twitterBot.accessTokenSecret", null, "optional");
 
 const TWEET_MAX_LENGTH = 279;
 const URL_LENGTH = 24;
@@ -22,7 +15,7 @@ const URL_LENGTH = 24;
 async function writeTweet(post: DbPost): Promise<string> {
   const userIds = [
     post.userId,
-    ...getConfirmedCoauthorIds(post)
+    ...post.coauthorUserIds
   ];
 
   const users = await Users.find(
@@ -75,12 +68,12 @@ async function postTweet(content: string) {
     const rwClient = twitterClient.readWrite
 
     const { data } = await rwClient.v2.tweet(content);
-    dogstatsd?.increment("tweet_created", 1, 1.0, {outcome: 'success'})
+    // dogstatsd?.increment("tweet_created", 1, 1.0, {outcome: 'success'})
     return data.id
   } catch (error) {
     // eslint-disable-next-line no-console
     console.error(`Error posting tweet. Tweet content: ${content}, error:`, error);
-    dogstatsd?.increment("tweet_created", 1, 1.0, {outcome: 'error'})
+    // dogstatsd?.increment("tweet_created", 1, 1.0, {outcome: 'error'})
   }
 }
 
@@ -120,12 +113,4 @@ export async function runTwitterBot() {
 
   logger(`All attempts failed, no tweets created.`);
 }
-
-export const runTwitterBotCron = addCronJob({
-  name: "runTwitterBot",
-  interval: "every 31 minutes",
-  job: async () => {
-    await runTwitterBot();
-  },
-});
 

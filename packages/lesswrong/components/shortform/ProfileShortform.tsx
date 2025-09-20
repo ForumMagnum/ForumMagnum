@@ -26,7 +26,10 @@ export const ProfileShortform = ({classes, user}: {
   user: UsersProfile
 }) => {
   const { data } = useQuery(PostsListWithVotesQuery, {
-    variables: { documentId: user.shortformFeedId },
+    variables: {
+      documentId: user.shortformFeedId
+    },
+    skip: !user.shortformFeedId,
   });
   
   const document = data?.post?.result;

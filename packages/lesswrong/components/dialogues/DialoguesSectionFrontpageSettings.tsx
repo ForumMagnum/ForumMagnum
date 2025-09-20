@@ -4,7 +4,6 @@ import { useUpdateCurrentUser } from '../hooks/useUpdateCurrentUser';
 import classNames from 'classnames'
 import Checkbox from '@/lib/vendor/@material-ui/core/src/Checkbox';
 import { useCurrentUser } from '../common/withUser';
-import { isFriendlyUI } from '../../themes/forumTheme';
 import { TooltipSpan } from '../common/FMTooltip';
 import MetaInfo from "../common/MetaInfo";
 
@@ -18,7 +17,7 @@ const USER_SETTING_NAMES = {
 const styles = (theme: ThemeType) => ({
   root: {
     display: "block",
-    marginTop: isFriendlyUI ? 10 : undefined,
+    marginTop: theme.isFriendlyUI ? 10 : undefined,
     marginBottom: theme.spacing.unit,
     flexWrap: "wrap",
     background: theme.palette.panelBackground.default,

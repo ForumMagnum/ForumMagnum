@@ -75,7 +75,9 @@ export function getNormalizedUserVoteFromVoteProps(voteProps: VotingProps<Voteab
     ...extendedVote,
     reacts: normalizedReacts,
   };
-}export function getDocumentHighlights(voteProps: VotingProps<VoteableTypeClient>): ContentReplacedSubstringComponentInfo[] {
+}
+
+export function getDocumentHighlights(voteProps: VotingProps<VoteableTypeClient>): ContentReplacedSubstringComponentInfo[] {
   const normalizedReactionsScore = getNormalizedReactionsListFromVoteProps(voteProps);
   if (!normalizedReactionsScore?.reacts) {
     return [];
@@ -116,6 +118,7 @@ export function getNormalizedUserVoteFromVoteProps(voteProps: VotingProps<Voteab
   }
   return result;
 }
+
 export function addReactsVote(
   old: NamesAttachedReactionsList | undefined,
   voteReacts: UserVoteOnSingleReaction[],

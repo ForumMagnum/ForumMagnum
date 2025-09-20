@@ -1,11 +1,10 @@
 import React from "react";
-import { useCurationEmailsCron } from "../../lib/betas";
+import { usesCurationEmailsCron } from "../../lib/betas";
 import CurationEmails from "../../server/collections/curationEmails/collection";
 import { Posts } from "../../server/collections/posts/collection";
 import Users from "../../server/collections/users/collection";
 import { isEAForum, testServerSetting } from "../../lib/instanceSettings";
 import { randomId } from "../../lib/random";
-import { addCronJob } from "../cron/cronUtil";
 import { wrapAndSendEmail } from "../emails/renderEmail";
 import CurationEmailsRepo from "../repos/CurationEmailsRepo";
 import UsersRepo from "../repos/UsersRepo";
@@ -13,10 +12,12 @@ import UsersRepo from "../repos/UsersRepo";
 import chunk from "lodash/chunk";
 import moment from "moment";
 import { PostsEmail } from "../emailComponents/PostsEmail";
+import { executePromiseQueue } from "@/lib/utils/asyncUtils";
+import { backgroundTask } from "../utils/backgroundTask";
 
 export async function findUsersToEmail(filter: MongoSelector<DbUser>) {
   let usersMatchingFilter = await Users.find(filter).fetch();
-  if (isEAForum) {
+  if (isEAForum()) {
     return usersMatchingFilter
   }
 
@@ -48,15 +49,25 @@ export async function sendCurationEmail({users, postId, reason, subject}: {
   // We *could* optimize to avoid refetching the post for every single user we email...
   // ...but it might actually be better to not, since this allows us to e.g. edit the post after the job has started if there's some egregious issue
   const post = await Posts.findOne(postId);
-  if (!post) throw Error(`Can't find post to send by email: ${postId}`)
+  if (!post) {
+    throw new Error(`Can't find post to send by email: ${postId}`);
+  }
+  if (!post.curatedDate) {
+    // If we somehow end up in a situation where we're trying to send out a curation email
+    // for a post that's not currently curated (i.e. because it was un-curated), delete
+    // all remaining queued up emails for that post and bail
+    backgroundTask(CurationEmails.rawRemove({ postId: post._id }));
+    throw new Error(`Post ${post.title} (_id: ${post._id}) is not curated!`);
+  }
 
-  for (const user of users) {
+  // Send emails to all users in parallel
+  await executePromiseQueue(users.map((user) => async () => {
     await wrapAndSendEmail({
       user,
       subject: subject ?? post.title,
-      body: <PostsEmail postIds={[post._id]} reason={reason}/>
+      body: (emailContext) => <PostsEmail postIds={[post._id]} reason={reason} emailContext={emailContext}/>
     });
-  }
+  }), 10);
 }
 
 export async function hydrateCurationEmailsQueue(postId: string) {
@@ -90,7 +101,7 @@ function isWithinSanityCheckPeriod(post: DbPost) {
   return moment(post.curatedDate).isAfter(twentyMinutesAgo);
 }
 
-async function sendCurationEmails() {
+export async function sendCurationEmails() {
   const lastCuratedPost = await Posts.findOne({ curatedDate: { $exists: true } }, { sort: { curatedDate: -1 } });
 
   // We specifically don't want to include the curatedDate filter in the SQL query because we want to skip doing anything if a post was newly curated in the last 20 minutes
@@ -117,12 +128,3 @@ async function sendCurationEmails() {
     emailToSend = await curationEmailsRepo.removeFromQueue();
   }
 }
-
-export const sendCurationEmailsCron = addCronJob({
-  name: 'sendCurationEmailsCron',
-  interval: 'every 1 minute',
-  disabled: testServerSetting.get() || !useCurationEmailsCron,
-  async job() {
-    await sendCurationEmails();
-  }
-});

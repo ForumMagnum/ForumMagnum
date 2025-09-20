@@ -1,14 +1,37 @@
 import React from "react";
 import { registerComponent } from "../../../lib/vulcan-lib/components";
-import { useBookmarkPost } from "../../hooks/useBookmarkPost";
+import { useBookmark } from "../../hooks/useBookmark";
+import { BookmarkableCollectionName } from "@/lib/collections/bookmarks/constants";
 import DropdownItem from "../DropdownItem";
 
-const BookmarkDropdownItem = ({post}: {post: PostsBase}) => {
-  const {icon, labelText, toggleBookmark} = useBookmarkPost(post);
+interface BookmarkDropdownItemProps {
+  documentId: string;
+  collectionName: BookmarkableCollectionName;
+  /** The CommentActions menu is implemented with MUI's <Menu> component that automatically closes when a click is detected.
+   * We have this optional prop to prevent the menu from closing when the bookmark is toggled.
+   */
+  preventMenuClose?: boolean;
+}
+
+const BookmarkDropdownItem = ({ 
+  documentId,
+  collectionName,
+  preventMenuClose = false 
+}: BookmarkDropdownItemProps) => {
+  
+  const { icon, labelText, toggleBookmark } = useBookmark(documentId, collectionName);
+  
+  const handleClick = (event: React.MouseEvent) => {
+    if (preventMenuClose) {
+      event.stopPropagation();
+    }
+    toggleBookmark(event);
+  };
+  
   return (
     <DropdownItem
       title={labelText}
-      onClick={toggleBookmark}
+      onClick={handleClick}
       icon={icon}
     />
   );

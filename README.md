@@ -10,7 +10,7 @@ original version of LessWrong, which was a difficult-to-maintain fork of reddit.
 
 ## Technologies
 
-Forum Magnum is built on top of a number major open-source libraries.
+Forum Magnum is built on top of a number of major open-source libraries.
 
 1. [Vulcan](http://vulcanjs.org/) is a framework for designing social applications like forums and news aggregators. We started out using it as a library in the usual way, then forked its codebase and diverged considerably. Read their docs to understand where we've come from, but be wary of outdated information. [This page](https://docs.vulcanjs.org/nutshell.html) is still particularly useful. CEA: see [notion](https://www.notion.so/centreforeffectivealtruism/Vulcan-Docs-20ceb495f8ee4f36822602dfaf2f31b5) for more.
 

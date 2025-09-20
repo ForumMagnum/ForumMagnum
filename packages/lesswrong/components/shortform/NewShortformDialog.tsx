@@ -6,16 +6,16 @@ import { useNavigate } from '../../lib/routeUtil';
 import ShortformSubmitForm from "./ShortformSubmitForm";
 import LWDialog from "../common/LWDialog";
 
-const styles = (_theme: ThemeType) => ({
+const styles = (theme: ThemeType) => ({
   content: {
     // This subselector is needed to beat the specificity of the default
     // MUI styles
     "&:first-child": {
-      padding: isFriendlyUI ? 0 : "0 20px 20px",
+      padding: theme.isFriendlyUI ? 0 : "0 20px 20px",
     },
   },
   dialogPaper: {
-    maxWidth: isFriendlyUI ? 750 : undefined,
+    maxWidth: theme.isFriendlyUI ? 750 : undefined,
   },
 });
 
@@ -30,7 +30,7 @@ const NewShortformDialog = ({onClose, classes}: {
       open={open}
       onClose={onClose}
       fullWidth
-      maxWidth={isFriendlyUI ? "md" : "sm"}
+      maxWidth={isFriendlyUI() ? "md" : "sm"}
       disableBackdropClick={true}
       disableEscapeKeyDown={true}
       paperClassName={classes.dialogPaper}
@@ -39,14 +39,14 @@ const NewShortformDialog = ({onClose, classes}: {
         <ShortformSubmitForm
           successCallback={() => {
             onClose();
-            navigate(isFriendlyUI ? '/quicktakes' : '/shortform');
+            navigate(isFriendlyUI() ? '/quicktakes' : '/shortform');
           }}
           cancelCallback={() => {
             setOpen(false);
             onClose?.();
           }}
-          defaultExpanded={!isFriendlyUI}
-          submitButtonAtBottom={!isFriendlyUI}
+          defaultExpanded={!isFriendlyUI()}
+          submitButtonAtBottom={!isFriendlyUI()}
         />
       </DialogContent>
     </LWDialog>

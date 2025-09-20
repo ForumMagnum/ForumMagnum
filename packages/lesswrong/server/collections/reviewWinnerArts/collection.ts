@@ -1,3 +1,4 @@
+import schema from '@/lib/collections/reviewWinnerArts/newSchema';
 import { createCollection } from '@/lib/vulcan-lib/collections';
 import { DatabaseIndexSet } from '@/lib/utils/databaseIndexSet';
 
@@ -7,6 +8,7 @@ import { DatabaseIndexSet } from '@/lib/utils/databaseIndexSet';
 export const ReviewWinnerArts = createCollection({
   collectionName: 'ReviewWinnerArts',
   typeName: 'ReviewWinnerArt',
+  schema,
     getIndexes: () => {
     const indexSet = new DatabaseIndexSet();
     indexSet.addIndex('ReviewWinnerArts', { postId: 1 });

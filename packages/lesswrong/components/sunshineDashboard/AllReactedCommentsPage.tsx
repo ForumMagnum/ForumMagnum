@@ -1,8 +1,10 @@
+"use client";
+
 import React from 'react';
 import { registerComponent } from '../../lib/vulcan-lib/components';
 import SingleColumnSection from "../common/SingleColumnSection";
 import SectionTitle from "../common/SectionTitle";
-import CommentsNodeInner from "../comments/CommentsNode";
+import CommentsNode from "../comments/CommentsNode";
 import LoadMore from "../common/LoadMore";
 import { gql } from '@/lib/generated/gql-codegen';
 import { useQueryWithLoadMore } from '../hooks/useQueryWithLoadMore';
@@ -29,7 +31,7 @@ export const AllReactedCommentsPage = ({classes}: {
   `), {
     variables: { limit: defaultLimit },
     fetchPolicy: "cache-and-network",
-    nextFetchPolicy: "cache-only",
+    nextFetchPolicy: "cache-first",
     itemsPerPage: pageSize,
   });
 
@@ -41,7 +43,7 @@ export const AllReactedCommentsPage = ({classes}: {
       <div className={classes.root}>
         {results && results.map((comment: CommentsListWithParentMetadata) =>
           <div key={comment._id}>
-            <CommentsNodeInner
+            <CommentsNode
               treeOptions={{
                 condensed: false,
                 post: comment.post || undefined,

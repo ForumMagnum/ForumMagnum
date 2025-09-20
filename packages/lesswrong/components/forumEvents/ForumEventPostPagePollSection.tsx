@@ -4,7 +4,7 @@ import { useCurrentAndRecentForumEvents } from "../hooks/useCurrentForumEvent";
 import { useLocation } from "../../lib/routeUtil";
 import { hasForumEvents } from "../../lib/betas";
 import { AnalyticsContext } from "@/lib/analyticsEvents";
-import { makeCloudinaryImageUrl } from "../common/CloudinaryImage2";
+import { makeCloudinaryImageUrl } from '../common/cloudinaryHelpers';
 import ForumEventPoll, { getForumEventVoteForUser } from "./ForumEventPoll";
 import { Link } from "@/lib/reactRouterWrapper";
 import { useConcreteThemeOptions } from "../themes/useTheme";
@@ -103,7 +103,7 @@ export const ForumEventPostPagePollSection = ({postId, forumEventId, classes, ..
 
   const { data } = useQuery(PostsDetailsQuery, {
     variables: { documentId: params._id },
-    skip: !!forumEventId || !hasForumEvents || !params._id || !event?.tagId || event.eventFormat !== "POLL",
+    skip: !!forumEventId || !hasForumEvents() || !params._id || !event?.tagId || event.eventFormat !== "POLL",
   });
   const post = data?.post?.result;
 

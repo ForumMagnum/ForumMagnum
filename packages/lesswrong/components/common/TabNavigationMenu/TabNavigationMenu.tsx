@@ -1,14 +1,13 @@
 import { registerComponent } from '../../../lib/vulcan-lib/components';
 import React from 'react';
-import { useCurrentUser } from '../withUser';
+import { useCurrentUserId } from '../withUser';
 import TabNavigationItem, { iconWidth } from './TabNavigationItem'
 
 // -- See here for all the tab content --
-import menuTabs from './menuTabs'
+import getMenuTabs from './menuTabs'
 import { AnalyticsContext, useTracking } from "../../../lib/analyticsEvents";
 import { forumSelect } from '../../../lib/forumTypeUtils';
 import classNames from 'classnames';
-import { isFriendlyUI } from '../../../themes/forumTheme';
 import EventsList from './EventsList';
 import { SubscribeWidget } from '../SubscribeWidget';
 
@@ -21,7 +20,7 @@ const styles = (theme: ThemeType) => {
       flexDirection: "column",
       maxWidth: TAB_NAVIGATION_MENU_WIDTH,
       paddingTop: 15,
-      ...(isFriendlyUI
+      ...(theme.isFriendlyUI
         ? {
           paddingLeft: 6,
           height: "100%",
@@ -35,14 +34,18 @@ const styles = (theme: ThemeType) => {
     },
     navSidebarTransparent: {
       zIndex: 10,
-      background: `${theme.palette.background.default}cf`, // Add alpha to background color, not thrilled about this way of doing it
-      backdropFilter: 'blur(6px)'
+      background: theme.palette.panelBackground.bannerAdTranslucent,
+      backdropFilter: theme.palette.filters.bannerAdBlurMedium
     },
     divider: {
       width: 50,
       borderBottom: theme.palette.border.normal,
+      ...(theme.isBookUI && theme.dark && {
+        color: theme.palette.text.bannerAdOverlay,
+        background: theme.palette.text.bannerAdOverlay,
+      }),
       marginBottom: theme.spacing.unit * 2.5,
-      ...(isFriendlyUI
+      ...(theme.isFriendlyUI
         ? {
           marginLeft: theme.spacing.unit * 2.5,
           marginTop: theme.spacing.unit * 2.5,
@@ -66,7 +69,7 @@ const TabNavigationMenu = ({
   noTopMargin?: boolean,
   classes: ClassesType<typeof styles>,
 }) => {
-  const currentUser = useCurrentUser();
+  const currentUserId = useCurrentUserId();
   const { captureEvent } = useTracking()
   const handleClick = (e: React.BaseSyntheticEvent, tabId: string) => {
     captureEvent(`${tabId}NavClicked`)
@@ -79,8 +82,8 @@ const TabNavigationMenu = ({
           [classes.navSidebarTransparent]: transparentBackground,
           [classes.noTopMargin]: noTopMargin,
         })}>
-          {forumSelect(menuTabs).map(tab => {
-            if ('loggedOutOnly' in tab && tab.loggedOutOnly && currentUser) return null
+          {forumSelect(getMenuTabs()).map(tab => {
+            if ('loggedOutOnly' in tab && tab.loggedOutOnly && currentUserId) return null
 
             if ('divider' in tab) {
               return <div key={tab.id} className={classes.divider} />
@@ -91,7 +94,6 @@ const TabNavigationMenu = ({
                   return <EventsList
                     key={tab.id}
                     onClick={(e: React.BaseSyntheticEvent) => handleClick(e, tab.id)}
-                    currentUser={currentUser}
                   />;
                 case 'SubscribeWidget':
                   return <SubscribeWidget key={tab.id} />;

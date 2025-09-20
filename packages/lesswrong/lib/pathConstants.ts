@@ -3,13 +3,12 @@ import { taggingNamePluralSetting, isEAForum } from './instanceSettings';
 import { pluralize } from './vulcan-lib/pluralize';
 
 const knownTagNames = ['tag', 'topic', 'concept', 'wikitag'];
-const useShortAllTagsPath = isFriendlyUI;
 /**
  * Get the path for the all tags page
  */
 
 export const getAllTagsPath = () => {
-  return useShortAllTagsPath ? `/${taggingNamePluralSetting.get()}` : `/${taggingNamePluralSetting.get()}/all`;
+  return isFriendlyUI() ? `/${taggingNamePluralSetting.get()}` : `/${taggingNamePluralSetting.get()}/all`;
 };
 /**
  * Get all the paths that should redirect to the all tags page. This is all combinations of
@@ -23,4 +22,4 @@ export const getAllTagsRedirectPaths: () => string[] = () => {
   return redirectPaths;
 };
 
-export const communityPath = isEAForum ? '/groups' : '/community';
+export const getCommunityPath = () => isEAForum() ? '/groups' : '/community';

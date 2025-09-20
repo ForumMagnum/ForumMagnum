@@ -5,7 +5,7 @@ import { Link } from '../../lib/reactRouterWrapper';
 import { commentGetPageUrlFromIds } from '../../lib/collections/comments/helpers';
 import classNames from 'classnames';
 import LWPopper from "../common/LWPopper";
-import CommentsNodeInner from "../comments/CommentsNode";
+import CommentsNode from "../comments/CommentsNode";
 import FormatDate from "../common/FormatDate";
 
 const styles = (theme: ThemeType) => ({
@@ -68,7 +68,7 @@ const CommentKarmaWithPreview = ({ comment, classes, displayTitle, reviewedAt }:
         placement={displayTitle ? "right-start" : "bottom-start"}
       >
       <div className={classes.commentPreview}>
-        <CommentsNodeInner treeOptions={{showPostTitle: true}} comment={comment} forceUnTruncated forceUnCollapsed/>
+        <CommentsNode treeOptions={{showPostTitle: true}} comment={comment} forceUnTruncated forceUnCollapsed/>
       </div>
     </LWPopper>
   </span>

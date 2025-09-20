@@ -1,8 +1,7 @@
 import NativeSearchClient, { SearchOptions } from "./NativeSearchClient";
 import { TupleSet, UnionOf } from "../utils/typeGuardUtils";
-import { algoliaPrefixSetting } from '../publicSettings';
+import { algoliaPrefixSetting, isElasticEnabled } from '../instanceSettings'
 import type { Client } from "algoliasearch/lite";
-import {isElasticEnabled} from '../instanceSettings'
 import stringify from "json-stringify-deterministic";
 
 export const searchIndexedCollectionNames = ["Comments", "Posts", "Users", "Sequences", "Tags"] as const;
@@ -74,7 +73,7 @@ export const collectionIsSearchIndexed = (collectionName: CollectionNameString):
 }
 
 // TODO: Hide search-UI if neither Elastic nor Algolia is configured
-export const isSearchEnabled = () => isElasticEnabled
+export const isSearchEnabled = () => isElasticEnabled()
 
 let searchClientsByOptions: Record<string,Client> = {};
 

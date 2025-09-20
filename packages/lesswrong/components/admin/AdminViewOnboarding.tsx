@@ -1,3 +1,5 @@
+"use client";
+
 import React from 'react';
 import { registerComponent } from '../../lib/vulcan-lib/components';
 import { useCurrentUser } from '../common/withUser';
@@ -31,7 +33,7 @@ const AdminViewOnboarding = ({classes}: {
 
   return <SingleColumnSection>
     <Link to="/admin" className={classes.link}>Back to Admin Home</Link>
-    {isEAForum ? <EAOnboardingFlow viewAsAdmin /> : <BasicOnboardingFlow viewAsAdmin />}
+    {isEAForum() ? <EAOnboardingFlow viewAsAdmin /> : <BasicOnboardingFlow viewAsAdmin />}
   </SingleColumnSection>
 }
 

@@ -1,12 +1,12 @@
 import React, { useState, useRef, RefObject, useContext } from 'react';
 import { registerComponent } from '../../../lib/vulcan-lib/components';
-import type { CommentVotingComponentProps, NamesAttachedReactionsCommentBottomProps, } from '../../../lib/voting/votingSystems';
+import type { NamesAttachedReactionsCommentBottomProps, CommentVotingComponentProps } from '@/lib/voting/votingSystemTypes';
 import type { NamesAttachedReactionsList, NamesAttachedReactionsVote, EmojiReactName, UserReactInfo, UserVoteOnSingleReaction, VoteOnReactionType, QuoteLocator } from '../../../lib/voting/namesAttachedReactions';
 import { reactionsListToDisplayedNumbers, getNormalizedReactionsListFromVoteProps, getNormalizedUserVoteFromVoteProps } from '@/lib/voting/reactionDisplayHelpers';
 import { getNamesAttachedReactionsByName } from '../../../lib/voting/reactions';
 import type { VotingProps } from '../votingProps';
 import classNames from 'classnames';
-import { useCurrentUser } from '../../common/withUser';
+import { useCurrentUserId } from '../../common/withUser';
 import { useVote } from '../withVote';
 import { useHover } from '../../common/withHover';
 import { useDialog } from '../../common/withDialog';
@@ -20,7 +20,6 @@ import { AddReactionIcon } from '../../icons/AddReactionIcon';
 import difference from 'lodash/difference';
 import uniq from 'lodash/uniq';
 import { useTracking } from "../../../lib/analyticsEvents";
-import { getConfirmedCoauthorIds } from '../../../lib/collections/posts/helpers';
 import type { ContentItemBodyImperative } from '../../contents/contentBodyUtil';
 import { SetHoveredReactionContext } from './HoveredReactionContextProvider';
 import { filterNonnull } from '../../../lib/utils/typeGuardUtils';
@@ -41,8 +40,9 @@ import ReactionQuotesHoverInfo from "./ReactionQuotesHoverInfo";
 import PopperCard from "../../common/PopperCard";
 import LWClickAwayListener from "../../common/LWClickAwayListener";
 import ReactionsPalette from "../ReactionsPalette";
+import { defineStyles, useStyles } from '@/components/hooks/useStyles';
 
-const styles = (theme: ThemeType) => ({
+const styles = defineStyles("NamesAttachedReactionsVoteOnComment", (theme: ThemeType) => ({
   root: {
     display: "flex",
     alignItems: "center",
@@ -106,6 +106,9 @@ const styles = (theme: ThemeType) => ({
     "&:hover": {
       filter: "opacity(0.8)",
     },
+    "@media print": {
+      display: "none",
+    },
   },
   hoverBallot: {
     fontFamily: theme.typography.commentStyle.fontFamily,
@@ -152,7 +155,7 @@ const styles = (theme: ThemeType) => ({
   hasQuotes: {
     border: theme.palette.border.dashed500
   }
-})
+}))
 
 //DEBUG: make the reaction-overview button always visible for testing access
 const alwaysShowReactionOverviewButton = false;
@@ -167,7 +170,8 @@ export const useNamesAttachedReactionsVoting = (voteProps: VotingProps<VoteableT
   getAlreadyUsedReacts: () => NamesAttachedReactionsList,
 } => {
   const { openDialog } = useDialog()
-  const currentUser = useCurrentUser()
+  const currentUserId = useCurrentUserId()
+  const { captureEvent } = useTracking()
   const currentUserExtendedVote = getNormalizedUserVoteFromVoteProps(voteProps) ?? null;
   
   /**
@@ -197,11 +201,19 @@ export const useNamesAttachedReactionsVoting = (voteProps: VotingProps<VoteableT
   }
 
   async function toggleReaction(name: string, quote: QuoteLocator|null) {
-    if (!currentUser) {
+    if (!currentUserId) {
       openLoginDialog();
       return;
     }
     const shouldClearUserReaction = !!getCurrentUserReactionVote(name, quote);
+
+    captureEvent("reactionToggled", {
+      reactionName: name,
+      action: shouldClearUserReaction ? "remove" : "add",
+      isInlineReaction: !!quote,
+      documentId: voteProps.document._id,
+      collectionName: voteProps.collectionName,
+    });
 
     if (shouldClearUserReaction) {
       await clearCurrentUserReaction(name, quote);
@@ -212,7 +224,7 @@ export const useNamesAttachedReactionsVoting = (voteProps: VotingProps<VoteableT
   }
 
   async function addCurrentUserReaction(reactionName: EmojiReactName, vote: VoteOnReactionType, quote: QuoteLocator|null) {
-    if (!currentUser) {
+    if (!currentUserId) {
       openLoginDialog();
       return;
     }
@@ -235,12 +247,11 @@ export const useNamesAttachedReactionsVoting = (voteProps: VotingProps<VoteableT
       document: voteProps.document,
       voteType: voteProps.document.currentUserVote || null,
       extendedVote: newExtendedVote,
-      currentUser,
     });
   }
 
   async function clearCurrentUserReaction(reactionName: string, quote: QuoteLocator|null) {
-    if (!currentUser) {
+    if (!currentUserId) {
       openLoginDialog();
       return;
     }
@@ -255,7 +266,6 @@ export const useNamesAttachedReactionsVoting = (voteProps: VotingProps<VoteableT
       document: voteProps.document,
       voteType: voteProps.document.currentUserVote || null,
       extendedVote: newExtendedVote,
-      currentUser,
     });
   }
 
@@ -298,7 +308,8 @@ export function reactionVoteIsMatch(react: UserVoteOnSingleReaction, name: Emoji
 }
 
 
-const NamesAttachedReactionsVoteOnCommentInner = ({document, hideKarma=false, collectionName, votingSystem, classes}: CommentVotingComponentProps & WithStylesProps) => {
+const NamesAttachedReactionsVoteOnCommentInner = ({document, hideKarma=false, collectionName, votingSystem}: CommentVotingComponentProps & WithStylesProps) => {
+  const classes = useStyles(styles);
   const voteProps = useVote(document, collectionName, votingSystem);
   return <span className={classes.root}>
     <OverallVoteAxis
@@ -317,24 +328,25 @@ const NamesAttachedReactionsVoteOnCommentInner = ({document, hideKarma=false, co
 }
 
 const NamesAttachedReactionsCommentBottomInner = ({
-  document, hideKarma=false, commentBodyRef, classes, voteProps, post
+  document, hideKarma=false, commentBodyRef, voteProps, post
 }: NamesAttachedReactionsCommentBottomProps & WithStylesProps) => {
+  const classes = useStyles(styles);
   const anchorEl = useRef<HTMLElement|null>(null);
-  const currentUser = useCurrentUser();
+  const currentUserId = useCurrentUserId();
 
   const { getAlreadyUsedReactTypesByKarma } = useNamesAttachedReactionsVoting(voteProps)
 
   const allReactions = getAlreadyUsedReactTypesByKarma();
 
   const reactionsList = getNormalizedReactionsListFromVoteProps(voteProps);
-  const visibleReactionsDisplay = reactionsListToDisplayedNumbers(reactionsList?.reacts ?? null, currentUser?._id);
+  const visibleReactionsDisplay = reactionsListToDisplayedNumbers(reactionsList?.reacts ?? null, currentUserId);
   
   const visibleReacts = visibleReactionsDisplay.map(r => r.react)
   const hiddenReacts = difference(allReactions, visibleReacts)
 
   const isDebateComment = post?.debate && document.debateResponse
-  const canReactUserIds = post ? [...getConfirmedCoauthorIds(post), post.userId] : []
-  const userIsDebateParticipant = currentUser && canReactUserIds.includes(currentUser._id)
+  const canReactUserIds = post ? [...post.coauthorUserIds, post.userId] : []
+  const userIsDebateParticipant = !!currentUserId && canReactUserIds.includes(currentUserId)
   const showReactButton = !isDebateComment || userIsDebateParticipant
 
   return <span className={classes.footerReactionsRow} ref={anchorEl}>
@@ -347,19 +359,18 @@ const NamesAttachedReactionsCommentBottomInner = ({
             quote={null}
             numberShown={numberShown}
             voteProps={voteProps}
-            classes={classes}
             commentBodyRef={commentBodyRef}
           />
         </span>
       )}
       {hideKarma && <AddReactionIcon />}
     </span>}
-    {(hiddenReacts.length > 0 || alwaysShowReactionOverviewButton) && <ReactionOverviewButton voteProps={voteProps} classes={classes}/>}
+    {(hiddenReacts.length > 0 || alwaysShowReactionOverviewButton) && <ReactionOverviewButton voteProps={voteProps}/>}
     {showReactButton && <AddReactionButton voteProps={voteProps} />}
   </span>
 }
 
-const HoverableReactionIcon = ({reactionRowRef, react, numberShown, voteProps, quote, commentBodyRef, classes}: {
+const HoverableReactionIcon = ({reactionRowRef, react, numberShown, voteProps, quote, commentBodyRef}: {
   // reactionRowRef: Reference to the row of reactions, used as an anchor for the
   // hover instead of the individual icon, so that the hover's position stays
   // consistent as you move the mouse across the row.
@@ -369,8 +380,8 @@ const HoverableReactionIcon = ({reactionRowRef, react, numberShown, voteProps, q
   voteProps: VotingProps<VoteableTypeClient>,
   quote: QuoteLocator|null,
   commentBodyRef?: React.RefObject<ContentItemBodyImperative|null>|null,
-  classes: ClassesType<typeof styles>,
 }) => {
+  const classes = useStyles(styles);
   const { hover, eventHandlers: {onMouseOver, onMouseLeave} } = useHover();
   const { getCurrentUserReaction, getCurrentUserReactionVote, toggleReaction } = useNamesAttachedReactionsVoting(voteProps);
   const currentUserReactionVote = getCurrentUserReactionVote(react, quote);
@@ -431,7 +442,7 @@ const HoverableReactionIcon = ({reactionRowRef, react, numberShown, voteProps, q
         <div className={classes.mouseHoverTrap} style={{width: reactionRowRef.current.clientWidth}}/>
         <Card>
           <NamesAttachedReactionsHoverSingleReaction
-            react={react} voteProps={voteProps} classes={classes}
+            react={react} voteProps={voteProps}
             commentBodyRef={commentBodyRef}
           />
         </Card>
@@ -447,10 +458,10 @@ const HoverableReactionIcon = ({reactionRowRef, react, numberShown, voteProps, q
   </span>
 }
 
-const ReactionOverview = ({voteProps, classes}: {
+const ReactionOverview = ({voteProps}: {
   voteProps: VotingProps<VoteableTypeClient>,
-  classes: ClassesType<typeof styles>
 }) => {
+  const classes = useStyles(styles);
   const { getCurrentUserReactionVote, setCurrentUserReaction, getAlreadyUsedReactTypesByKarma, getAlreadyUsedReacts } = useNamesAttachedReactionsVoting(voteProps);
   const alreadyUsedReactionTypesByKarma = getAlreadyUsedReactTypesByKarma();
   const alreadyUsedReactions = getAlreadyUsedReacts();
@@ -486,12 +497,12 @@ const ReactionOverview = ({voteProps, classes}: {
   </Card>
 }
 
-const NamesAttachedReactionsHoverSingleReaction = ({react, voteProps, classes, commentBodyRef}: {
+const NamesAttachedReactionsHoverSingleReaction = ({react, voteProps, commentBodyRef}: {
   react: EmojiReactName,
   voteProps: VotingProps<VoteableTypeClient>,
-  classes: ClassesType<typeof styles>,
   commentBodyRef?: React.RefObject<ContentItemBodyImperative|null>|null
 }) => {
+  const classes = useStyles(styles);
   const normalizedReactions = getNormalizedReactionsListFromVoteProps(voteProps);
   const alreadyUsedReactions: NamesAttachedReactionsList = normalizedReactions?.reacts ?? {};
   const relevantReactions = alreadyUsedReactions[react] ?? [];
@@ -518,10 +529,10 @@ const NamesAttachedReactionsHoverSingleReaction = ({react, voteProps, classes, c
   </div>
 }
 
-const AddReactionButtonInner = ({voteProps, classes}: {
+export const AddReactionButton = ({voteProps}: {
   voteProps: VotingProps<VoteableTypeClient>,
-  classes: ClassesType<typeof styles>
 }) => {
+  const classes = useStyles(styles);
   const [open,setOpen] = useState(false);
   const buttonRef = useRef<HTMLElement|null>(null);
   const { captureEvent } = useTracking();
@@ -569,30 +580,26 @@ const AddReactionButtonInner = ({voteProps, classes}: {
   </LWTooltip>
 }
 
-const ReactionOverviewButton = ({voteProps, classes}: {
+const ReactionOverviewButton = ({voteProps}: {
   voteProps: VotingProps<VoteableTypeClient>,
-  classes: ClassesType<typeof styles>
 }) => {
+  const classes = useStyles(styles);
   return <LWTooltip
     inlineBlock={false}
     clickable={true}
     tooltip={false}
-    title={<ReactionOverview voteProps={voteProps} classes={classes}/>}
+    title={<ReactionOverview voteProps={voteProps}/>}
   >
     <FormatListBulletedIcon className={classes.overviewButton}/>
   </LWTooltip>
 }
 
 
-export const AddReactionButton = registerComponent('AddReactionButton', AddReactionButtonInner, {styles});
-
 export const NamesAttachedReactionsVoteOnComment = registerComponent('NamesAttachedReactionsVoteOnComment', NamesAttachedReactionsVoteOnCommentInner, {
-  styles,
   hocs: [withErrorBoundary]
 });
 
 export const NamesAttachedReactionsCommentBottom = registerComponent('NamesAttachedReactionsCommentBottom', NamesAttachedReactionsCommentBottomInner, {
-  styles,
   hocs: [withErrorBoundary]
 });
 

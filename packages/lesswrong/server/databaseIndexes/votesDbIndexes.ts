@@ -21,5 +21,7 @@ export function getDbIndexesOnVotes() {
 
   indexSet.addIndex("Votes", {documentId:1});
 
+  indexSet.addIndex("Votes", { votedAt: 1 });
+
   return indexSet;
 }

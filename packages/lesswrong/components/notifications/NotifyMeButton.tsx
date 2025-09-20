@@ -23,7 +23,7 @@ const styles = (theme: ThemeType) => ({
       opacity: 0.5
     }
   },
-  icon: isFriendlyUI ? {
+  icon: theme.isFriendlyUI ? {
     color: theme.palette.grey[900],
     fontSize: 16,
     marginRight: 6,
@@ -119,7 +119,7 @@ const NotifyMeButton = ({
       </a>
     </MenuItem>
   } else if (asButton) {
-    maybeMenuItemButton = isFriendlyUI ? (
+    maybeMenuItemButton = isFriendlyUI() ? (
       <EAButton style="grey" onClick={onSubscribe}>{button}</EAButton>
     ) : (
       <button onClick={onSubscribe} className={classNames(className, classes.root)}>

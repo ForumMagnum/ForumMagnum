@@ -1,6 +1,5 @@
 import AbstractRepo from "./AbstractRepo";
 import Users from "../../server/collections/users/collection";
-import { ActiveDialogueServer } from "../../components/hooks/useUnreadNotifications";
 import { recordPerfMetrics } from "./perfMetricWrapper";
 import { isEAForum } from "../../lib/instanceSettings";
 import { userLoginTokensView } from "../postgresView";
@@ -181,6 +180,7 @@ class UsersRepo extends AbstractRepo<"Users"> {
         COALESCE(u."isAdmin", FALSE) AS "isAdmin",
         COALESCE(u."deleted", FALSE) AS "deleted",
         COALESCE(u."deleteContent", FALSE) AS "deleteContent",
+        (u."reviewedByUserId" IS NOT NULL) AS "isReviewed",
         COALESCE(u."hideFromPeopleDirectory", FALSE) AS "hideFromPeopleDirectory",
         u."profileImageId",
         u."biography"->>'html' AS "bio",
@@ -320,110 +320,6 @@ class UsersRepo extends AbstractRepo<"Users"> {
       ORDER BY RANDOM()
       LIMIT 1;
     `);
-  }
-
-  async getUsersWhoHaveMadeDialogues(): Promise<DbUser[]> {
-    return this.getRawDb().any(`
-      -- UsersRepo.getUsersWhoHaveMadeDialogues
-      WITH all_dialogue_authors AS
-        (SELECT (UNNESTED->>'userId') AS _id
-            FROM "Posts" p, UNNEST("coauthorStatuses") unnested
-            WHERE p."collabEditorDialogue" IS TRUE 
-            AND p."draft" IS FALSE
-        UNION
-        SELECT p."userId" as _id
-            FROM "Posts" p
-            WHERE p."collabEditorDialogue" IS TRUE
-            AND p."draft" IS FALSE
-        )
-      SELECT u.*
-      FROM "Users" u
-      INNER JOIN all_dialogue_authors ON all_dialogue_authors._id = u._id
-    `)
-  }
-
-  async getUsersWhoHaveOptedInToDialogueFacilitation(): Promise<DbUser[]> {
-    return this.getRawDb().any(`
-        -- UsersRepo.getUsersWhoHaveOptedInToDialogueFacilitation
-        SELECT *
-        FROM "Users" u
-        WHERE u."optedInToDialogueFacilitation" IS TRUE
-    `)
-  }  
-
-  async getUsersWithNewDialogueChecks(): Promise<DbUser[]> {
-    return this.manyOrNone(`
-      -- UsersRepo.getUsersWithNewDialogueChecks
-      SELECT DISTINCT ON ("Users"._id) "Users".*
-      FROM "Users"
-      INNER JOIN "DialogueChecks" ON "Users"._id = "DialogueChecks"."targetUserId"
-      WHERE
-          "DialogueChecks".checked IS TRUE
-          AND NOT EXISTS (
-              SELECT 1
-              FROM "DialogueChecks" AS dc
-              WHERE
-                  "DialogueChecks"."userId" = dc."targetUserId"
-                  AND "DialogueChecks"."targetUserId" = dc."userId"
-                  AND dc.checked IS TRUE
-          )
-          AND (
-              "DialogueChecks"."checkedAt" > COALESCE((
-                  SELECT MAX("checkedAt")
-                  FROM "DialogueChecks"
-                  WHERE "DialogueChecks"."userId" = "Users"._id
-              ), '1970-01-01')
-          )
-          AND (
-              "DialogueChecks"."checkedAt" > NOW() - INTERVAL '1 week'
-              OR
-              NOT EXISTS (
-                  SELECT 1
-                  FROM "Notifications"
-                  WHERE
-                      "userId" = "Users"._id
-                      AND type = 'newDialogueChecks'
-              )
-          )
-          AND (
-            NOW() - INTERVAL '1 week' > COALESCE((
-              SELECT MAX("createdAt")
-              FROM "Notifications"
-              WHERE
-                "userId" = "Users"._id
-                AND type = 'newDialogueChecks'
-            ), '1970-01-01')
-        )
-    `)
-  }
-
-  async getActiveDialogues(userIds: string[]): Promise<ActiveDialogueServer[]> {
-    const result = await this.getRawDb().any(`
-    SELECT
-        p._id,
-        p.title,
-        p."userId",
-        p."coauthorStatuses",
-        ARRAY_AGG(DISTINCT s."userId") AS "activeUserIds",
-        MAX(r."editedAt") AS "mostRecentEditedAt"
-    FROM "Posts" AS p
-    INNER JOIN "Revisions" AS r ON p._id = r."documentId"
-    INNER JOIN "CkEditorUserSessions" AS s ON p._id = s."documentId",
-        unnest(p."coauthorStatuses") AS coauthors
-    WHERE
-        (
-            coauthors ->> 'userId' = any($1)
-            OR p."userId" = any($1)
-        )
-        AND s."endedAt" IS NULL
-        AND (
-          s."createdAt" > CURRENT_TIMESTAMP - INTERVAL '30 minutes'
-          OR r."editedAt" > CURRENT_TIMESTAMP - INTERVAL '30 minutes'
-        )
-    GROUP BY p._id
-    `, [userIds]);
-  
-    return result;
   }
 
   async isDisplayNameTaken({ displayName, currentUserId }: { displayName: string; currentUserId: string; }): Promise<boolean> {
@@ -576,7 +472,7 @@ class UsersRepo extends AbstractRepo<"Users"> {
   }
 
   async getCurationSubscribedUserIds(): Promise<string[]> {
-    const verifiedEmailFilter = !isEAForum ? 'AND fm_has_verified_email(emails)' : '';
+    const verifiedEmailFilter = !isEAForum() ? 'AND fm_has_verified_email(emails)' : '';
 
     const userIdRecords = await this.getRawDb().any<Record<'_id', string>>(`
       SELECT _id
@@ -609,6 +505,59 @@ class UsersRepo extends AbstractRepo<"Users"> {
       SELECT "_id" FROM "Sequences" WHERE "userId" = $1
     `, [userId]);
     return results.map(({_id}) => _id);
+  }
+
+  /**
+   * Returns active top contributors for recommending to logged out users, based on recent
+   * posting/commenting activity.
+   */
+  async getTopActiveContributors(limit: number, days = 30): Promise<DbUser[]> {
+    return this.any(`
+      -- UsersRepo.getTopActiveContributors
+      SELECT u.*
+      FROM (
+        SELECT
+          recent_activity."userId",
+          COUNT(*) FILTER (WHERE activity_type = 'post')    AS recent_posts,
+          COUNT(*) FILTER (WHERE activity_type = 'comment') AS recent_comments,
+          MAX(activity_date)                                AS last_activity_at
+        FROM (
+          SELECT 
+            p."userId",
+            'post' AS activity_type,
+            p."postedAt" AS activity_date
+          FROM "Posts" p
+          JOIN "Users" eligible_user ON eligible_user."_id" = p."userId"
+          WHERE
+            eligible_user.karma > 1000
+            AND (eligible_user.banned IS NULL OR eligible_user.banned < current_date)
+            AND eligible_user."deleted" IS NOT TRUE
+            AND eligible_user."displayName" IS NOT NULL
+            AND p."postedAt" >= NOW() - INTERVAL '1 day' * $1
+            AND p."shortform" IS NOT TRUE
+          UNION ALL
+          SELECT
+            c."userId",
+            'comment' AS activity_type,
+            c."createdAt" AS activity_date
+          FROM "Comments" c
+          JOIN "Users" eligible_user ON eligible_user."_id" = c."userId"
+          WHERE
+            eligible_user.karma > 1000
+            AND (eligible_user.banned IS NULL OR eligible_user.banned < current_date)
+            AND eligible_user."deleted" IS NOT TRUE
+            AND eligible_user."displayName" IS NOT NULL
+            AND c."createdAt" >= NOW() - INTERVAL '1 day' * $1
+        ) AS recent_activity
+        GROUP BY recent_activity."userId"
+      ) AS activity_stats
+      JOIN "Users" u ON u."_id" = activity_stats."userId"
+      ORDER BY
+        (activity_stats.recent_posts * 5 + activity_stats.recent_comments) DESC,
+        u.karma DESC,
+        activity_stats.last_activity_at DESC
+      LIMIT $2
+    `, [days, limit]);
   }
 
   async getSubscriptionFeedSuggestedUsers(userId: string, limit: number): Promise<DbUser[]> {
@@ -680,6 +629,6 @@ class UsersRepo extends AbstractRepo<"Users"> {
   }
 }
 
-recordPerfMetrics(UsersRepo, { excludeMethods: ['getUserByLoginToken', 'getActiveDialogues'] });
+recordPerfMetrics(UsersRepo, { excludeMethods: ['getUserByLoginToken'] });
 
 export default UsersRepo;

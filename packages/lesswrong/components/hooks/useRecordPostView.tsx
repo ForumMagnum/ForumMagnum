@@ -1,13 +1,13 @@
 import React, { useContext, useCallback, useState, useMemo } from 'react';
-import { useMutation } from '@apollo/client';
+import { useMutationNoCache } from '@/lib/crud/useMutationNoCache';
 import { gql } from '@/lib/generated/gql-codegen';
-import { useCurrentUser } from '../common/withUser';
+import { useGetCurrentUser } from '../common/withUser';
 import { useNewEvents } from '../../lib/events/withNewEvents';
 import { hookToHoc } from '../../lib/hocUtils';
 import { recombeeApi } from '../../lib/recombee/client';
-import { recombeeEnabledSetting, vertexEnabledSetting } from '../../lib/publicSettings';
+import { recombeeEnabledSetting } from '@/lib/instanceSettings';
 import { isRecombeeRecommendablePost } from '@/lib/collections/posts/helpers';
-import { useClientId } from '@/lib/abTestImpl';
+import { useClientId } from './useClientId';
 
 
 export type ItemsReadContextType = {
@@ -30,14 +30,9 @@ interface RecombeeOptions {
   recommId?: string;
 }
 
-interface VertexOptions {
-  attributionId?: string;
-}
-
 export interface RecommendationOptions {
   skip?: boolean;
   recombeeOptions?: RecombeeOptions;
-  vertexOptions?: VertexOptions;
 }
 
 interface RecordPostViewArgs {
@@ -47,32 +42,20 @@ interface RecordPostViewArgs {
 }
 
 export const useRecordPostView = (post: ViewablePost) => {
-  const [increasePostViewCount] = useMutation(gql(`
+  const [increasePostViewCount] = useMutationNoCache(gql(`
     mutation increasePostViewCountMutation($postId: String) {
       increasePostViewCount(postId: $postId)
     }
-  `), {
-    ignoreResults: true
-  });
+  `));
 
-  const [sendVertexViewItemEvent] = useMutation(gql(`
-    mutation sendVertexViewItemEventMutation($postId: String!, $attributionId: String) {
-      sendVertexViewItemEvent(postId: $postId, attributionId: $attributionId)
-    }
-  `), {
-    ignoreResults: true
-  });
-
-  const [markPostCommentsRead] = useMutation(gql(`
+  const [markPostCommentsRead] = useMutationNoCache(gql(`
     mutation markPostCommentsRead($postId: String!) {
       markPostCommentsRead(postId: $postId)
     }
-  `), {
-    ignoreResults: true
-  });
+  `));
   
   const {recordEvent} = useNewEvents()
-  const currentUser = useCurrentUser();
+  const getCurrentUser = useGetCurrentUser();
   const clientId = useClientId();
   const {postsRead, setPostRead} = useItemsRead();
   const isRead = post && !!((post._id in postsRead) ? postsRead[post._id] : post.isRead)
@@ -80,6 +63,7 @@ export const useRecordPostView = (post: ViewablePost) => {
   const recordPostView = useCallback(async ({post, extraEventProperties, recommendationOptions}: RecordPostViewArgs) => {
     try {
       if (!post) throw new Error("Tried to record view of null post");
+      const currentUser = getCurrentUser();
       
       // a post id has been found & it's has not been seen yet on this client session
       if (!postsRead[post._id]) {
@@ -108,15 +92,6 @@ export const useRecordPostView = (post: ViewablePost) => {
         };
         
         recordEvent('post-view', true, eventProperties);
-
-        if (vertexEnabledSetting.get() && !recommendationOptions?.skip && !post.draft) {
-          void sendVertexViewItemEvent({
-            variables: {
-              postId: post._id,
-              attributionId: recommendationOptions?.vertexOptions?.attributionId
-            }
-          })
-        }
       }
 
       const attributedUserId = currentUser?._id ?? clientId;
@@ -132,9 +107,10 @@ export const useRecordPostView = (post: ViewablePost) => {
     } catch(error) {
       console.log("recordPostView error:", error); // eslint-disable-line
     }
-  }, [postsRead, setPostRead, increasePostViewCount, sendVertexViewItemEvent, currentUser, clientId, recordEvent]);
+  }, [postsRead, setPostRead, increasePostViewCount, getCurrentUser, clientId, recordEvent]);
 
   const recordPostCommentsView = ({ post }: Pick<RecordPostViewArgs, 'post'>) => {
+    const currentUser = getCurrentUser();
     if (currentUser) {
       if (!postsRead[post._id]) {
         // Update the client-side read status cache.
@@ -164,7 +140,7 @@ function excludeUserFromRecombee(user: UsersCurrent) {
 
 export const useRecordTagView = (tag: TagFragment): {recordTagView: any, isRead: boolean} => {
   const {recordEvent} = useNewEvents()
-  const currentUser = useCurrentUser();
+  const getCurrentUser = useGetCurrentUser();
   const {tagsRead, setTagRead} = useItemsRead();
   const isRead = tag && !!((tag._id in tagsRead) ? tagsRead[tag._id] : tag.isRead)
   
@@ -172,6 +148,7 @@ export const useRecordTagView = (tag: TagFragment): {recordTagView: any, isRead:
     tag: TagBasicInfo
     extraEventProperties: AnyBecauseHard
   }) => {
+    const currentUser = getCurrentUser();
     try {
       if (!tag) throw new Error("Tried to record view of null tag");
       
@@ -200,7 +177,7 @@ export const useRecordTagView = (tag: TagFragment): {recordTagView: any, isRead:
     } catch(error) {
       console.log("recordTagView error:", error); // eslint-disable-line
     }
-  }, [tagsRead, setTagRead, currentUser, recordEvent]);
+  }, [tagsRead, setTagRead, getCurrentUser, recordEvent]);
   
   return { recordTagView, isRead };
 }

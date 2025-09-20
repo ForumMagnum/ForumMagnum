@@ -1,9 +1,10 @@
 import React, { useCallback, useEffect, useRef, useState} from 'react'
 import { registerComponent } from '../../lib/vulcan-lib/components'
 import classNames from 'classnames'
-import LWTooltip from "./LWTooltip";
 import SingleColumnSection from "./SingleColumnSection";
 import ForumIcon from "./ForumIcon";
+import { isIfAnyoneBuildsItFrontPage } from '../seasonal/styles';
+import TabButton from "./TabButton";
 
 const rightFadeStyle = (theme: ThemeType) => ({
   '&:after': {
@@ -14,6 +15,9 @@ const rightFadeStyle = (theme: ThemeType) => ({
     width: 50,
     content: '\'\'',
     background: `linear-gradient(to left, ${theme.palette.background.default}, ${theme.palette.background.transparent})`,
+    ...isIfAnyoneBuildsItFrontPage({
+      background: 'none',
+    }),
     pointerEvents: 'none',
   },
 });
@@ -51,7 +55,18 @@ const styles = (theme: ThemeType) => ({
       height: '100%',
       width: 50,
       content: '\'\'',
-      background: `linear-gradient(to right, ${theme.palette.background.default}, ${theme.palette.background.transparent})`,
+      // FIXME: This will look broken if it appears on top of an image. It is
+      // currently the case that it will never appear on top of an image in
+      // production, because the tab bar doesn't have enough tabs in it to
+      // overflow unless you're on a phone where there is no background image
+      // anyways, but that could change if mobile screen widths ever get a
+      // background image or if we add more tabs.
+      // This is load-bearing UX because otherwise the fact that the tabs have
+      // horizontal scroll might not be detectable.
+      background: `linear-gradient(to left, ${theme.palette.background.default}, ${theme.palette.background.transparent})`,
+      ...isIfAnyoneBuildsItFrontPage({
+        background: 'none',
+      }),
       pointerEvents: 'none',
       zIndex: 1,
     },
@@ -85,40 +100,6 @@ const styles = (theme: ThemeType) => ({
       ...rightFadeStyle(theme),
     },
   },
-  tab: {
-    display: 'flex',
-    justifyContent: 'center',
-    minWidth: '120px',
-    fontFamily: theme.typography.fontFamily,
-    fontSize: 14,
-    lineHeight: '23px',
-    fontWeight: '500',
-    padding: '4px 8px',
-    borderRadius: 3,
-    cursor: 'pointer',
-    [theme.breakpoints.down('xs')]: {
-      fontSize: 13,
-      padding: '3px 6px',
-      minWidth: '100px',
-    }
-  },
-  inactiveTab: {
-    backgroundColor: theme.palette.panelBackground.default,
-    color: theme.palette.tab.inactive.text,
-    '&:hover': {
-      color: theme.palette.tab.inactive.hover.text
-    },
-  },
-  activeTab: {
-    backgroundColor: theme.palette.tab.active.background,
-    color: theme.palette.text.alwaysWhite,
-    '&:hover': {
-      backgroundColor: theme.palette.tab.active.hover.background
-    },
-  },
-  tagDescriptionTooltip: {
-    margin: 8,
-  },
   arrow: {
     position: 'absolute',
     top: 0,
@@ -144,26 +125,6 @@ const styles = (theme: ThemeType) => ({
   rightArrow: {
     right: -30,
   },
-  labsIcon: {
-    marginLeft: 3,
-    alignSelf: 'center',
-    height: 14,
-    width: 14,
-    [theme.breakpoints.down('xs')]: {
-      height: 13,
-      width: 13,
-    }
-  },
-  sparkleIcon: {
-    marginLeft: 3,
-    alignSelf: 'center',
-    height: 18,
-    width: 18,
-    [theme.breakpoints.down('xs')]: {
-      height: 13,
-      width: 13,
-    }
-  }
 })
 
 export interface TabRecord {
@@ -174,6 +135,7 @@ export interface TabRecord {
   isAdminOnly?: boolean,
   showLabsIcon?: boolean,
   showSparkleIcon?: boolean,
+  showPersonIcon?: boolean,
   isInfiniteScroll?: boolean,
   defaultTab?: boolean
 }
@@ -307,21 +269,17 @@ const TabPicker = <T extends TabRecord[]>(
           <div ref={tabsListRef} className={classes.topicsBar} onScroll={() => updateArrows()}>
             {sortedTabs.map(tab => {
               const isActive = tab.name === activeTab;
-              return <LWTooltip
-                title={showDescriptionOnHover ? tab.description : null} 
-                popperClassName={classes.tagDescriptionTooltip}
+              return <TabButton
                 key={tab.name}
-                hideOnTouchScreens
-              >
-                <button
-                  onClick={() => updateActiveTab(tab.name)}
-                  className={classNames(classes.tab, { [classes.activeTab]: isActive, [classes.inactiveTab]: !isActive })}
-                >
-                  {tab.label}
-                  {tab.showLabsIcon && <ForumIcon icon="LabBeaker" className={classes.labsIcon} />}
-                  {tab.showSparkleIcon && <ForumIcon icon="Sparkle" className={classes.sparkleIcon} />}
-                </button>
-              </LWTooltip>
+                label={tab.label}
+                isActive={isActive}
+                onClick={() => updateActiveTab(tab.name)}
+                description={showDescriptionOnHover ? tab.description : null}
+                showLabsIcon={tab.showLabsIcon}
+                showSparkleIcon={tab.showSparkleIcon}
+                showPersonIcon={tab.showPersonIcon}
+                showTooltip={showDescriptionOnHover}
+              />
             })}
           </div>
         </div>

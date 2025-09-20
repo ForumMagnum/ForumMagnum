@@ -1,12 +1,11 @@
 import React from "react";
 import { registerComponent } from "../../lib/vulcan-lib/components";
 import classNames from "classnames";
-import { isFriendlyUI } from "../../themes/forumTheme";
 import SimpleDivider from "../widgets/SimpleDivider";
 
-const styles = (_theme: ThemeType) => ({
+const styles = (theme: ThemeType) => ({
   root: {
-    margin: isFriendlyUI ? `6px 0 !important` : undefined,
+    margin: theme.isFriendlyUI ? `6px 0 !important` : undefined,
   },
 });
 

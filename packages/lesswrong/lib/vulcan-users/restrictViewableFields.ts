@@ -7,45 +7,43 @@ import { userGetGroups, userHasFieldPermissions } from './permissions';
 // TODO: Integrate permissions-filtered DbObjects into the type system
 export async function restrictViewableFields<N extends CollectionNameString>(
   user: DbUser | null,
-  collectionName: N,
+  collection: PgCollection<N>,
   docOrDocs: ObjectsByCollectionName[N] | undefined | null
 ): Promise<Partial<ObjectsByCollectionName[N]>>;
 export async function restrictViewableFields<N extends CollectionNameString>(
   user: DbUser | null,
-  collectionName: N,
+  collection: PgCollection<N>,
   docOrDocs: ObjectsByCollectionName[N][] | undefined | null
 ): Promise<Partial<ObjectsByCollectionName[N]>[]>;
 export async function restrictViewableFields<N extends CollectionNameString>(
   user: DbUser | null,
-  collectionName: N,
+  collection: PgCollection<N>,
   docOrDocs?: ObjectsByCollectionName[N][] | undefined | null
 ): Promise<Partial<ObjectsByCollectionName[N]> | Partial<ObjectsByCollectionName[N]>[]> {
   if (Array.isArray(docOrDocs)) {
-    return restrictViewableFieldsMultiple(user, collectionName, docOrDocs);
+    return restrictViewableFieldsMultiple(user, collection, docOrDocs);
   } else {
-    return restrictViewableFieldsSingle(user, collectionName, docOrDocs);
+    return restrictViewableFieldsSingle(user, collection, docOrDocs);
   }
 }
 ;
 
 export const restrictViewableFieldsMultiple = async function <N extends CollectionNameString, DocType extends ObjectsByCollectionName[N]>(
   user: DbUser | null,
-  collectionName: N,
+  collection: PgCollection<N>,
   docs: DocType[]
 ): Promise<Partial<DocType>[]> {
   if (!docs) return [];
-  return Promise.all(docs.map(doc => restrictViewableFieldsSingle(user, collectionName, doc)));
+  return Promise.all(docs.map(doc => restrictViewableFieldsSingle(user, collection, doc)));
 };
 
 export const restrictViewableFieldsSingle = async function <N extends CollectionNameString, DocType extends ObjectsByCollectionName[N]>(
   user: DbUser | null,
-  collectionName: N,
+  collection: PgCollection<N>,
   doc: DocType | undefined | null
 ): Promise<Partial<DocType>> {
   if (!doc) return {};
-  // This is dynamically imported for bundle-splitting reasons, though it's not yet clear whether it actually helps
-  const { getSchema } = await import('../schema/allSchemas');
-  const schema = getSchema(collectionName);
+  const schema = collection.schema;
   const restrictedDocument: Partial<DocType> = {};
   const userGroups = userGetGroups(user);
 

@@ -7,8 +7,7 @@ import { SECTION_WIDTH } from "../common/SingleColumnSection";
 import withErrorBoundary from "../common/withErrorBoundary";
 import classNames from "classnames";
 import { InteractionWrapper, useClickableCell } from "../common/useClickableCell";
-import { cloudinaryCloudNameSetting } from "../../lib/publicSettings";
-import { usePostContents } from "../hooks/useForeignCrosspost";
+import { cloudinaryCloudNameSetting } from '@/lib/instanceSettings';
 import { usePostsListView } from "../hooks/usePostsListView";
 import PostsTitle from "./PostsTitle";
 import ForumIcon from "../common/ForumIcon";
@@ -261,10 +260,11 @@ export const styles = (theme: ThemeType) => ({
   },
 });
 
-const cloudinaryBase = `${cloudinaryCloudNameSetting.get()}/image/upload/`;
 
-const formatImageUrl = (url: string) =>
-  url.replace(cloudinaryBase, `${cloudinaryBase}c_fill,w_${CARD_IMG_WIDTH},h_${CARD_IMG_HEIGHT},dpr_2,`);
+const formatImageUrl = (url: string) => {
+  const cloudinaryBase = `${cloudinaryCloudNameSetting.get()}/image/upload/`;
+  return url.replace(cloudinaryBase, `${cloudinaryBase}c_fill,w_${CARD_IMG_WIDTH},h_${CARD_IMG_HEIGHT},dpr_2,`);
+}
 
 export type EAPostsItemProps = PostsItemConfig & {
   openInNewTab?: boolean,
@@ -305,7 +305,6 @@ const EAPostsItem = ({
     renderComments,
     commentTerms,
     condensedAndHiddenComments,
-    isRepeated,
     analyticsProps,
     viewType,
     isVoteable,
@@ -318,13 +317,9 @@ const EAPostsItem = ({
   const cardView = viewType === "card";
   // When card view is active, *all* post items change font weight,
   // even those that are not a card, so that all titles are consistent.
-  const {view} = usePostsListView()
+  const {getView} = usePostsListView()
+  const view = getView();
 
-  const {postContents} = usePostContents({
-    post,
-    fragmentName: "PostsList",
-    skip: !cardView,
-  });
   const SecondaryInfo = useCallback(() => {
     if (secondaryInfoNode) {
       return <InteractionWrapper className={classes.interactionWrapper}>
@@ -370,10 +365,6 @@ const EAPostsItem = ({
     classes
   ]);
   
-  if (isRepeated) {
-    return null;
-  }
-  
   const karmaNode = isVoteable
     ? (
       <InteractionWrapper className={classNames(
@@ -405,7 +396,6 @@ const EAPostsItem = ({
 
   const body =
     post.customHighlight?.plaintextDescription ||
-    postContents?.plaintextDescription ||
     post.contents?.plaintextDescription ||
     "";
   const hasBody = body.trim().length > 0;

@@ -15,6 +15,7 @@ interface FragmentTypes {
   ArbitalLinkedPagesFragment: ArbitalLinkedPagesFragment
   ArbitalTagContentRelsDefaultFragment: ArbitalTagContentRelsDefaultFragment
   AutomatedContentEvaluationsDefaultFragment: AutomatedContentEvaluationsDefaultFragment
+  AutomatedContentEvaluationsFragment: AutomatedContentEvaluationsFragment
   BansAdminPageFragment: BansAdminPageFragment
   BansDefaultFragment: BansDefaultFragment
   BookEdit: BookEdit
@@ -84,6 +85,7 @@ interface FragmentTypes {
   FeedCommentThreadFragment: FeedCommentThreadFragment
   FeedPostFragment: FeedPostFragment
   FeedSpotlightFragment: FeedSpotlightFragment
+  FeedSubscriptionSuggestionsFragment: FeedSubscriptionSuggestionsFragment
   FieldChangeFragment: FieldChangeFragment
   FieldChangesDefaultFragment: FieldChangesDefaultFragment
   ForumEventsDefaultFragment: ForumEventsDefaultFragment
@@ -140,6 +142,7 @@ interface FragmentTypes {
   PodcastSelect: PodcastSelect
   PodcastsDefaultFragment: PodcastsDefaultFragment
   PostForReviewWinnerItem: PostForReviewWinnerItem
+  PostPodcastEpisode: PostPodcastEpisode
   PostRecommendationsDefaultFragment: PostRecommendationsDefaultFragment
   PostRelationsDefaultFragment: PostRelationsDefaultFragment
   PostSequenceNavigation: PostSequenceNavigation
@@ -211,7 +214,6 @@ interface FragmentTypes {
   SequencesPageTitleFragment: SequencesPageTitleFragment
   SequencesPageWithChaptersFragment: SequencesPageWithChaptersFragment
   SessionsDefaultFragment: SessionsDefaultFragment
-  SharedUserBooleans: SharedUserBooleans
   ShortformComments: ShortformComments
   ShortformRecentDiscussion: ShortformRecentDiscussion
   SideCommentCacheMinimumInfo: SideCommentCacheMinimumInfo
@@ -306,7 +308,6 @@ interface FragmentTypes {
   UserTagRelsDefaultFragment: UserTagRelsDefaultFragment
   UserVotes: UserVotes
   UserVotesWithDocument: UserVotesWithDocument
-  UsersAdmin: UsersAdmin
   UsersBannedFromPostsModerationLog: UsersBannedFromPostsModerationLog
   UsersBannedFromUsersModerationLog: UsersBannedFromUsersModerationLog
   UsersCrosspostInfo: UsersCrosspostInfo
@@ -350,7 +351,7 @@ interface FragmentTypesByCollection {
   ArbitalCacheses: "ArbitalCachesDefaultFragment"
   ArbitalLinkedPageses: "ArbitalLinkedPagesFragment"
   ArbitalTagContentRels: "ArbitalTagContentRelsDefaultFragment"
-  AutomatedContentEvaluations: "AutomatedContentEvaluationsDefaultFragment"
+  AutomatedContentEvaluations: "AutomatedContentEvaluationsDefaultFragment"|"AutomatedContentEvaluationsFragment"
   Bans: "BansAdminPageFragment"|"BansDefaultFragment"
   Bookmarks: "BookmarksDefaultFragment"|"BookmarksFeedItemFragment"|"BookmarksWithDocumentFragment"
   Books: "BookEdit"|"BookPageFragment"|"BooksDefaultFragment"
@@ -379,6 +380,7 @@ interface FragmentTypesByCollection {
   FeedCommentThreads: "FeedCommentThreadFragment"
   FeedPosts: "FeedPostFragment"
   FeedSpotlightItems: "FeedSpotlightFragment"
+  FeedSubscriptionSuggestionses: "FeedSubscriptionSuggestionsFragment"
   FieldChanges: "FieldChangeFragment"|"FieldChangesDefaultFragment"
   ForumEvents: "ForumEventsDefaultFragment"|"ForumEventsDisplay"|"ForumEventsEdit"|"ForumEventsMinimumInfo"
   GardenCodes: "GardenCodeFragment"|"GardenCodeFragmentEdit"|"GardenCodesDefaultFragment"
@@ -404,7 +406,7 @@ interface FragmentTypesByCollection {
   Podcasts: "PodcastSelect"|"PodcastsDefaultFragment"
   PostRecommendations: "PostRecommendationsDefaultFragment"
   PostRelations: "PostRelationsDefaultFragment"
-  Posts: "HighlightWithHash"|"PostForReviewWinnerItem"|"PostSequenceNavigation"|"PostSideComments"|"PostWithDialogueMessage"|"PostWithGeneratedSummary"|"PostsAuthors"|"PostsBase"|"PostsBestOfList"|"PostsDefaultFragment"|"PostsDetails"|"PostsEdit"|"PostsEditMutationFragment"|"PostsEditQueryFragment"|"PostsExpandedHighlight"|"PostsForAutocomplete"|"PostsHTML"|"PostsList"|"PostsListBase"|"PostsListTag"|"PostsListTagWithVotes"|"PostsListWithVotes"|"PostsListWithVotesAndSequence"|"PostsMinimumInfo"|"PostsModerationGuidelines"|"PostsOriginalContents"|"PostsPage"|"PostsPlaintextDescription"|"PostsRSSFeed"|"PostsRecentDiscussion"|"PostsReviewVotingList"|"PostsRevision"|"PostsRevisionEdit"|"PostsRevisionsList"|"PostsTopItemInfo"|"PostsTwitterAdmin"|"PostsWithNavigation"|"PostsWithNavigationAndRevision"|"PostsWithVotes"|"ShortformRecentDiscussion"|"SuggestAlignmentPost"|"SunshineCurationPostsList"|"SunshinePostsList"|"UltraFeedPostFragment"|"UsersBannedFromPostsModerationLog"|"WithVotePost"
+  Posts: "HighlightWithHash"|"PostForReviewWinnerItem"|"PostPodcastEpisode"|"PostSequenceNavigation"|"PostSideComments"|"PostWithDialogueMessage"|"PostWithGeneratedSummary"|"PostsAuthors"|"PostsBase"|"PostsBestOfList"|"PostsDefaultFragment"|"PostsDetails"|"PostsEdit"|"PostsEditMutationFragment"|"PostsEditQueryFragment"|"PostsExpandedHighlight"|"PostsForAutocomplete"|"PostsHTML"|"PostsList"|"PostsListBase"|"PostsListTag"|"PostsListTagWithVotes"|"PostsListWithVotes"|"PostsListWithVotesAndSequence"|"PostsMinimumInfo"|"PostsModerationGuidelines"|"PostsOriginalContents"|"PostsPage"|"PostsPlaintextDescription"|"PostsRSSFeed"|"PostsRecentDiscussion"|"PostsReviewVotingList"|"PostsRevision"|"PostsRevisionEdit"|"PostsRevisionsList"|"PostsTopItemInfo"|"PostsTwitterAdmin"|"PostsWithNavigation"|"PostsWithNavigationAndRevision"|"PostsWithVotes"|"ShortformRecentDiscussion"|"SuggestAlignmentPost"|"SunshineCurationPostsList"|"SunshinePostsList"|"UltraFeedPostFragment"|"UsersBannedFromPostsModerationLog"|"WithVotePost"
   RSSFeeds: "RSSFeedMinimumInfo"|"RSSFeedMutationFragment"|"RSSFeedsDefaultFragment"|"newRSSFeedFragment"
   ReadStatuses: "ReadStatusesDefaultFragment"
   RecommendationsCaches: "RecommendationsCachesDefaultFragment"
@@ -436,7 +438,7 @@ interface FragmentTypesByCollection {
   UserMostValuablePosts: "UserMostValuablePostInfo"|"UserMostValuablePostsDefaultFragment"
   UserRateLimits: "UserRateLimitDisplay"|"UserRateLimitsDefaultFragment"
   UserTagRels: "UserTagRelDetails"|"UserTagRelsDefaultFragment"
-  Users: "SharedUserBooleans"|"SuggestAlignmentUser"|"SunshineUsersList"|"UserAltAccountsFragment"|"UserBookmarkedPosts"|"UserKarmaChanges"|"UserOnboardingAuthor"|"UsersAdmin"|"UsersBannedFromUsersModerationLog"|"UsersCrosspostInfo"|"UsersCurrent"|"UsersCurrentCommentRateLimit"|"UsersCurrentPostRateLimit"|"UsersDefaultFragment"|"UsersEdit"|"UsersMapEntry"|"UsersMinimumInfo"|"UsersOptedInToDialogueFacilitation"|"UsersProfile"|"UsersProfileEdit"|"UsersSocialMediaInfo"|"UsersWithReviewInfo"
+  Users: "SuggestAlignmentUser"|"SunshineUsersList"|"UserAltAccountsFragment"|"UserBookmarkedPosts"|"UserKarmaChanges"|"UserOnboardingAuthor"|"UsersBannedFromUsersModerationLog"|"UsersCrosspostInfo"|"UsersCurrent"|"UsersCurrentCommentRateLimit"|"UsersCurrentPostRateLimit"|"UsersDefaultFragment"|"UsersEdit"|"UsersMapEntry"|"UsersMinimumInfo"|"UsersOptedInToDialogueFacilitation"|"UsersProfile"|"UsersProfileEdit"|"UsersSocialMediaInfo"|"UsersWithReviewInfo"
   Votes: "TagRelVotes"|"TagVotingActivity"|"UserVotes"|"UserVotesWithDocument"|"VotesDefaultFragment"
 }
 
@@ -448,6 +450,7 @@ interface CollectionNamesByFragmentName {
   ArbitalLinkedPagesFragment: never
   ArbitalTagContentRelsDefaultFragment: "ArbitalTagContentRels"
   AutomatedContentEvaluationsDefaultFragment: "AutomatedContentEvaluations"
+  AutomatedContentEvaluationsFragment: "AutomatedContentEvaluations"
   BansAdminPageFragment: "Bans"
   BansDefaultFragment: "Bans"
   BookEdit: "Books"
@@ -517,6 +520,7 @@ interface CollectionNamesByFragmentName {
   FeedCommentThreadFragment: never
   FeedPostFragment: never
   FeedSpotlightFragment: never
+  FeedSubscriptionSuggestionsFragment: never
   FieldChangeFragment: "FieldChanges"
   FieldChangesDefaultFragment: "FieldChanges"
   ForumEventsDefaultFragment: "ForumEvents"
@@ -573,6 +577,7 @@ interface CollectionNamesByFragmentName {
   PodcastSelect: "Podcasts"
   PodcastsDefaultFragment: "Podcasts"
   PostForReviewWinnerItem: "Posts"
+  PostPodcastEpisode: "Posts"
   PostRecommendationsDefaultFragment: "PostRecommendations"
   PostRelationsDefaultFragment: "PostRelations"
   PostSequenceNavigation: "Posts"
@@ -644,7 +649,6 @@ interface CollectionNamesByFragmentName {
   SequencesPageTitleFragment: "Sequences"
   SequencesPageWithChaptersFragment: "Sequences"
   SessionsDefaultFragment: "Sessions"
-  SharedUserBooleans: "Users"
   ShortformComments: "Comments"
   ShortformRecentDiscussion: "Posts"
   SideCommentCacheMinimumInfo: "SideCommentCaches"
@@ -739,7 +743,6 @@ interface CollectionNamesByFragmentName {
   UserTagRelsDefaultFragment: "UserTagRels"
   UserVotes: "Votes"
   UserVotesWithDocument: "Votes"
-  UsersAdmin: "Users"
   UsersBannedFromPostsModerationLog: "Posts"
   UsersBannedFromUsersModerationLog: "Users"
   UsersCrosspostInfo: "Users"

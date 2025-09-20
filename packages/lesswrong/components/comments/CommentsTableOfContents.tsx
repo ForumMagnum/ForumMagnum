@@ -6,7 +6,7 @@ import isEmpty from 'lodash/isEmpty';
 import qs from 'qs'
 import { commentsTableOfContentsEnabled } from '../../lib/betas';
 import classNames from 'classnames';
-import { forumTypeSetting } from '@/lib/instanceSettings';
+import { isAF } from '@/lib/instanceSettings';
 import { commentIdToLandmark, getCurrentSectionMark, getLandmarkY } from '@/lib/scrollUtils';
 import { useLocation, useNavigate } from "../../lib/routeUtil";
 import TableOfContentsDivider from "../posts/TableOfContents/TableOfContentsDivider";
@@ -30,8 +30,6 @@ const styles = defineStyles("CommentsTableOfContents", (theme: ThemeType) => ({
     width: 20,
     textAlign: "right",
     marginRight: 4,
-  },
-  commentAuthor: {
   },
   collapseButtonWrapper: {
     marginLeft: 4,
@@ -95,7 +93,7 @@ const CommentsTableOfContents = ({commentTree, answersTree, post, highlightDate}
     return null;
   }
   
-  if (!commentsTableOfContentsEnabled) {
+  if (!commentsTableOfContentsEnabled()) {
     return null;
   }
 
@@ -165,15 +163,14 @@ const ToCCommentBlock = ({commentTree, indentLevel, highlightedCommentId, highli
 }) => {
   const classes = useStyles(styles);
   const navigate = useNavigate();
-  const location = useLocation();
-  const { query } = location;
+  const { query, location } = useLocation();
   const comment = commentTree.item;
   
-  const score = forumTypeSetting.get() === "AlignmentForum"
+  const score = isAF()
     ? comment.afBaseScore
     : comment.baseScore;
   
-  return <div>
+  return <>
     <TableOfContentsRow
       indentLevel={indentLevel}
       highlighted={highlightedCommentId===comment._id}
@@ -192,9 +189,10 @@ const ToCCommentBlock = ({commentTree, indentLevel, highlightedCommentId, highli
 
         delete query.commentId;
         navigate({
+          ...location,
           search: isEmpty(query) ? '' : `?${qs.stringify(query)}`,
           hash: `#${comment._id}`,
-        });
+        }, { skipRouter: true });
         ev.stopPropagation();
         ev.preventDefault();
       }}
@@ -203,12 +201,7 @@ const ToCCommentBlock = ({commentTree, indentLevel, highlightedCommentId, highli
         [classes.highlightUnread]: highlightDate && new Date(comment.postedAt) > new Date(highlightDate),
       })}>
         <span className={classes.commentKarma}>{score}</span>
-        <span className={classes.commentAuthor}>
-          {comment.deleted
-            ? <span>[comment deleted]</span>
-            : <UsersNameDisplay user={comment.user} simple/>
-          }
-        </span>
+        <CommentToCUsername comment={comment}/>
       </span>
     </TableOfContentsRow>
     
@@ -221,7 +214,25 @@ const ToCCommentBlock = ({commentTree, indentLevel, highlightedCommentId, highli
         indentLevel={indentLevel+1}
       />
     )}
-  </div>
+  </>
+}
+
+/**
+ * Username for a comment, shown in the comments table of contents. For hidden/
+ * deleted users, this reproduces the logic in CommentUserName (this isn't a
+ * shared component with CommentUserName because the styling and the click and
+ * tooltip behaviors are different).
+ */
+function CommentToCUsername({comment}: {
+  comment: CommentsList
+}) {
+  if (comment.deleted) {
+    return <span>[comment deleted]</span>
+  } else if (comment.hideAuthor || !comment.user || comment.user.deleted) {
+    return <span>[anonymous]</span>
+  } else {
+    return <UsersNameDisplay user={comment.user} simple/>
+  }
 }
 
 function flattenCommentTree(commentTree: CommentTreeNode<CommentsList>[]): CommentsList[] {

@@ -3,7 +3,6 @@ import { registerComponent } from '../../lib/vulcan-lib/components';
 import { useCurrentUser } from '../common/withUser';
 import AddBoxIcon from '@/lib/vendor/@material-ui/icons/src/AddBox';
 import { useGlobalKeydown } from '../common/withGlobalKeydown';
-import { isFriendlyUI } from '../../themes/forumTheme';
 import RecentDiscussionThread from "./RecentDiscussionThread";
 import SingleColumnSection from "../common/SingleColumnSection";
 import SectionTitle from "../common/SectionTitle";
@@ -15,6 +14,7 @@ import LoadMore from "../common/LoadMore";
 import { NetworkStatus } from "@apollo/client";
 import { useQueryWithLoadMore } from "@/components/hooks/useQueryWithLoadMore";
 import { gql } from "@/lib/generated/gql-codegen";
+import { AnalyticsContext } from '../../lib/analyticsEvents';
 
 const PostsRecentDiscussionMultiQuery = gql(`
   query multiPostRecentDiscussionThreadsListQuery($selector: PostSelector, $limit: Int, $enableTotal: Boolean, $commentsLimit: Int, $maxAgeHours: Int, $af: Boolean) {
@@ -92,13 +92,14 @@ const RecentDiscussionThreadsList = ({
       <div>
         {results && <div>
           {results.map((post, i) =>
+            <AnalyticsContext key={post._id} pageSubSectionContext='recentDiscussionThread' feedCardIndex={i}>
             <RecentDiscussionThread
-              key={post._id}
               post={post}
               refetch={refetch}
               comments={post.recentComments ?? undefined}
               expandAllThreads={expandAll}
             />
+            </AnalyticsContext>
           )}
         </div>}
         <AnalyticsInViewTracker eventProps={{inViewType: "loadMoreButton"}}>

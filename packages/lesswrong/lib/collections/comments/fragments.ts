@@ -75,7 +75,6 @@ export const CommentsList = gql(`
     debateResponse
     rejected
     rejectedReason
-    modGPTRecommendation
     originalDialogueId
 
     forumEventId
@@ -96,8 +95,7 @@ export const UltraFeedComment = gql(`
   fragment UltraFeedComment on Comment {
     ...CommentsList
     post {
-      ...PostsMinimumInfo
-      votingSystem
+      ...PostsListWithVotes
     }
   }
 `)

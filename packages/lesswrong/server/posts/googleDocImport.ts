@@ -1,13 +1,10 @@
 import { OAuth2Client } from 'google-auth-library';
-import { DatabaseServerSetting } from '../databaseSettings';
+import { googleDocImportClientIdSetting, googleDocImportClientSecretSetting } from '../databaseSettings';
 import { extractGoogleDocId } from '../../lib/collections/posts/helpers';
 import GoogleServiceAccountSessions from '../../server/collections/googleServiceAccountSessions/collection';
 import { drive } from '@googleapis/drive';
 import { createGoogleServiceAccountSession, updateGoogleServiceAccountSession } from '../collections/googleServiceAccountSessions/mutations';
 import { createAnonymousContext } from "@/server/vulcan-lib/createContexts";
-
-export const googleDocImportClientIdSetting = new DatabaseServerSetting<string | null>('googleDocImport.oAuth.clientId', null)
-export const googleDocImportClientSecretSetting = new DatabaseServerSetting<string | null>('googleDocImport.oAuth.secret', null)
 
 let oAuth2Client: OAuth2Client | null = null;
 let cacheTimestamp: number | null = null;

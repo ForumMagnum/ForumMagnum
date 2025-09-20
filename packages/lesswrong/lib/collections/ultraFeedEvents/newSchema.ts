@@ -1,8 +1,8 @@
-import { FeedItemDisplayStatus } from "@/components/ultraFeed/ultraFeedTypes";
+import { ServedEventData } from "@/components/ultraFeed/ultraFeedTypes";
 import { DEFAULT_CREATED_AT_FIELD, DEFAULT_ID_FIELD } from "@/lib/collections/helpers/sharedFieldConstants";
 
 const ALLOWED_COLLECTION_NAMES = ["Posts", "Comments", "Spotlights"];
-const ALLOWED_EVENT_TYPES = ["served", "viewed", "expanded", "interacted"];
+const ALLOWED_EVENT_TYPES = ["served", "viewed", "expanded", "interacted", "seeLess"];
 
 const schema = {
   _id: DEFAULT_ID_FIELD,
@@ -17,7 +17,7 @@ const schema = {
       outputType: "String",
       inputType: "String!",
       canRead: ["admins"],
-      canCreate: ["members"],
+      canCreate: ["guests"],
     },
   },
 
@@ -27,10 +27,10 @@ const schema = {
       nullable: false,
     },
     graphql: {
-      outputType: "String",
-      inputType: "String!",
+      outputType: "UltraFeedEventCollectionName",
+      inputType: "UltraFeedEventCollectionName!",
       canRead: ["admins"],
-      canCreate: ["members"],
+      canCreate: ["guests"],
       validation: {
         allowedValues: ALLOWED_COLLECTION_NAMES,
       },
@@ -43,10 +43,10 @@ const schema = {
       nullable: false,
     },
     graphql: {
-      outputType: "String",
-      inputType: "String!",
+      outputType: "UltraFeedEventEventType",
+      inputType: "UltraFeedEventEventType!",
       canRead: ["admins"], 
-      canCreate: ["members"],
+      canCreate: ["guests"],
       validation: {
         allowedValues: ALLOWED_EVENT_TYPES,
       },
@@ -62,7 +62,7 @@ const schema = {
       outputType: "String", 
       inputType: "String",
       canRead: ["admins"], 
-      canCreate: ["members"],
+      canCreate: ["guests"],
     },
   },
 
@@ -73,9 +73,10 @@ const schema = {
     },
     graphql: {
       outputType: "JSON",
-      inputType: "JSON",
+      inputType: "JSON!",
       canRead: ["admins"],
-      canCreate: ["members"],
+      canCreate: ["guests"],
+      canUpdate: ["members"],
       validation: {
         optional: true,
         blackbox: true,
@@ -92,7 +93,7 @@ const schema = {
       outputType: "String",
       inputType: "String",  // TODO: once this is being provided, make it required
       canRead: ["admins"],
-      canCreate: ["members"],
+      canCreate: ["guests"],
       validation: {
         optional: true,
       },
@@ -107,18 +108,22 @@ interface ExpandedEventData {
   expansionLevel: number;
   maxExpansionReached: boolean;
   wordCount: number;
+  servedEventId: string;
 }
 
-interface ServedEventData {
-  sessionId: string;    // The session ID for the feed load
-  itemIndex: number;    // The index of the item in the served results array
-  commentIndex?: number; // The index of the comment within a thread, if applicable
-  displayStatus?: FeedItemDisplayStatus;
+export interface InteractedEventData {
+  level: "voted" | "strongVoted" | "commented" | "shared";
 }
 
-// Define data for the new 'interacted' event type
-interface InteractedEventData {
-  interactionType: "bookmarkClicked" | "voteClicked" | "commentsClicked";
+export interface SeeLessEventData {
+  feedbackReasons?: {
+    author?: boolean;
+    topic?: boolean;
+    contentType?: boolean;
+    other?: boolean;
+    text?: string;
+  };
+  cancelled?: boolean;
 }
 
 // Use Pick on the generated DB type (adjust type name 'DbUltraFeedEvent' if needed)
@@ -141,4 +146,8 @@ export type UltraFeedEvent =
   | (UltraFeedEventBase & {
       eventType: "interacted";
       event: InteractedEventData;
+    })
+  | (UltraFeedEventBase & {
+      eventType: "seeLess";
+      event: SeeLessEventData;
     });

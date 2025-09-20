@@ -3,7 +3,7 @@ import React, { useState } from 'react';
 import { isLowAverageKarmaContent } from '../../../lib/collections/moderatorActions/helpers';
 import { LOW_AVERAGE_KARMA_COMMENT_ALERT, LOW_AVERAGE_KARMA_POST_ALERT, MODERATOR_ACTION_TYPES } from "@/lib/collections/moderatorActions/constants";
 import { registerComponent } from '../../../lib/vulcan-lib/components';
-import { sortBy } from 'underscore';
+import sortBy from 'lodash/sortBy';
 import Input from '@/lib/vendor/@material-ui/core/src/Input';
 import DoneIcon from '@/lib/vendor/@material-ui/icons/src/Done'
 import ClearIcon from '@/lib/vendor/@material-ui/icons/src/Clear'
@@ -11,7 +11,7 @@ import classNames from 'classnames';
 import MetaInfo from "../../common/MetaInfo";
 import LWTooltip from "../../common/LWTooltip";
 import { withDateFields } from '@/lib/utils/dateUtils';
-import { useMutation } from "@apollo/client";
+import { useMutation } from "@apollo/client/react";
 import { gql } from "@/lib/generated/gql-codegen";
 
 const ModeratorActionDisplayUpdateMutation = gql(`

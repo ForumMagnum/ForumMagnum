@@ -188,7 +188,7 @@ export const analyticsGraphQLQueries = {
     const post = await context.loaders.Posts.load(postId);
     // check that the current user has permission to view post metrics
     // LW doesn't want to show this to authors, but we'll let admins see it
-    if (!isEAForum && !currentUser.isAdmin) {
+    if (!isEAForum() && !currentUser.isAdmin) {
       throw new Error("Permission denied");
     }
     // Maybe check for karma level here?
@@ -239,7 +239,7 @@ export const analyticsGraphQLQueries = {
     const directlySortable = DIRECTLY_SORTABLE_FIELDS.includes(sortBy);
 
     const postSelector = {
-      ...(userId && {$or: [{ userId: userId }, { "coauthorStatuses.userId": userId }]}),
+      ...(userId && {$or: [{ userId: userId }, { coauthorUserIds: userId }]}),
       ...(postIdsInput && { _id: { $in: postIdsInput } }),
       rejected: { $ne: true },
       draft: false,
@@ -336,7 +336,7 @@ export const analyticsGraphQLQueries = {
     const adjustedEndDate = moment(new Date(endDate)).utc().add(1, "days").startOf("day");
 
     const postSelector = {
-      ...(userId && {$or: [{ userId: userId }, { "coauthorStatuses.userId": userId }]}),
+      ...(userId && {$or: [{ userId: userId }, { coauthorUserIds: userId }]}),
       ...(postIds && { _id: { $in: postIds } }),
       rejected: { $ne: true },
       draft: false,

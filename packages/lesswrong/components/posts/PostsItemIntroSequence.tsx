@@ -5,9 +5,8 @@ import withErrorBoundary from '../common/withErrorBoundary';
 import classNames from 'classnames';
 import { useRecordPostView } from '../hooks/useRecordPostView';
 import { AnalyticsContext } from "../../lib/analyticsEvents";
-import { cloudinaryCloudNameSetting } from '../../lib/publicSettings';
+import { cloudinaryCloudNameSetting } from '@/lib/instanceSettings';
 import { KARMA_WIDTH } from './LWPostsItem';
-import { isFriendlyUI } from '../../themes/forumTheme';
 import KarmaDisplay from "../common/KarmaDisplay";
 import PostsTitle from "./PostsTitle";
 import PostsUserAndCoauthors from "./PostsUserAndCoauthors";
@@ -21,7 +20,7 @@ const IMAGE_HEIGHT = 96;
 export const styles = (theme: ThemeType)=> ({
   root: {
     position: "relative",
-    borderRadius: isFriendlyUI ? theme.borderRadius.small : undefined,
+    borderRadius: theme.isFriendlyUI ? theme.borderRadius.small : undefined,
     [theme.breakpoints.down('xs')]: {
       width: "100%",
     },
@@ -130,8 +129,6 @@ export const styles = (theme: ThemeType)=> ({
   },
 })
 
-const cloudinaryCloudName = cloudinaryCloudNameSetting.get()
-
 const PostsItemIntroSequence = ({
   post,
   sequence,
@@ -202,7 +199,7 @@ const PostsItemIntroSequence = ({
 
           {withImage && sequence?.gridImageId && <div className={classes.sequenceImage}>
             <img className={classes.sequenceImageImg}
-              src={`https://res.cloudinary.com/${cloudinaryCloudName}/image/upload/c_fill,dpr_2.0,g_custom,h_${IMAGE_HEIGHT},q_auto,w_${IMAGE_WIDTH}/v1/${
+              src={`https://res.cloudinary.com/${cloudinaryCloudNameSetting.get()}/image/upload/c_fill,dpr_2.0,g_custom,h_${IMAGE_HEIGHT},q_auto,w_${IMAGE_WIDTH}/v1/${
                 sequence.gridImageId
               }`}
             />

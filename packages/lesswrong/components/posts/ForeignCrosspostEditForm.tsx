@@ -9,6 +9,7 @@ import { combineUrls } from "../../lib/vulcan-lib/utils";
 import SingleColumnSection from "../common/SingleColumnSection";
 import PostsPagePostHeader from "./PostsPage/PostsPagePostHeader";
 import { Typography } from "../common/Typography";
+import { StatusCodeSetter } from "../next/StatusCodeSetter";
 
 const styles = (theme: ThemeType) => ({
   link: {
@@ -24,14 +25,17 @@ const ForeignCrosspostEditForm = ({post, classes}: {
 
   const postWithNavigation: PostsWithNavigation = {
     ...post,
+    podcastEpisode: null,
     tableOfContents: null,
     sequence: null,
     prevPost: null,
     nextPost: null,
     reviewWinner: null,
+    glossary: [],
   };
 
-  return (
+  return (<>
+    <StatusCodeSetter status={200}/>
     <SingleColumnSection>
       <PostsPagePostHeader post={postWithNavigation} hideMenu hideTags />
       <Typography variant="body2" gutterBottom>
@@ -48,7 +52,7 @@ const ForeignCrosspostEditForm = ({post, classes}: {
         for help. Sorry about that!
       </Typography>}
     </SingleColumnSection>
-  );
+  </>);
 }
 
 export default registerComponent("ForeignCrosspostEditForm", ForeignCrosspostEditForm, {styles});

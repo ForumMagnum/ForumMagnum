@@ -1,15 +1,20 @@
-import { PublicInstanceSetting, aboutPostIdSetting, isAF, isLWorAF, siteUrlSetting } from '../../instanceSettings';
+import { aboutPostIdSetting, allowTypeIIIPlayerSetting, isAF, isLWorAF, siteUrlSetting, cloudinaryCloudNameSetting, commentPermalinkStyleSetting, crosspostKarmaThreshold, type3DateCutoffSetting, type3ExplicitlyAllowedPostIdsSetting, type3KarmaCutoffSetting } from '@/lib/instanceSettings';
 import { getOutgoingUrl, getSiteUrl } from '../../vulcan-lib/utils';
 import { userOwns, userCanDo, userOverNKarmaFunc, userIsAdminOrMod, userOverNKarmaOrApproved } from '../../vulcan-users/permissions';
 import { userGetDisplayName, userIsSharedOn } from '../users/helpers';
 import { postStatuses, postStatusLabels } from './constants';
-import { DatabasePublicSetting, cloudinaryCloudNameSetting, commentPermalinkStyleSetting, crosspostKarmaThreshold } from '../../publicSettings';
-import { max } from "underscore";
+import maxBy from "lodash/maxBy";
 import { TupleSet, UnionOf } from '../../utils/typeGuardUtils';
 import type { Request, Response } from 'express';
 import pathToRegexp from "path-to-regexp";
 import type { RouterLocation } from '../../vulcan-lib/routes';
 import { forumSelect } from '@/lib/forumTypeUtils';
+import { ReviewYear, REVIEW_YEAR, getReviewPeriodStart, getReviewPeriodEnd } from '@/lib/reviewUtils';
+import moment from 'moment';
+import { isServer } from '@/lib/executionEnvironment';
+import { getUrlClass } from '@/server/utils/getUrlClass';
+import { captureException } from '@/lib/sentryWrapper';
+import matchPath from '@/lib/vendor/react-router/matchPath';
 
 export const postCategories = new TupleSet(['post', 'linkpost', 'question'] as const);
 export type PostCategory = UnionOf<typeof postCategories>;
@@ -31,6 +36,81 @@ export const postGetLink = function (post: PostsBase|DbPost, isAbsolute=false, i
 // Whether a post's link should open in a new tab or not
 export const postGetLinkTarget = function (post: PostsBase|DbPost): string {
   return !!post.url ? '_blank' : '';
+};
+
+interface LinkpostDetectionResult {
+  isLinkpost: boolean;
+  linkpostDomain?: string;
+}
+
+// On the server, use the 'url' library for parsing hostname out of feed URLs.
+// On the client, we instead create an <a> tag, set its href, and extract
+// properties from that. (There is a URL class which theoretically would work,
+// but it doesn't have the hostname field on IE11 and it's missing entirely on
+// Opera Mini.)
+const URLClass = getUrlClass()
+
+export function getProtocol(url: string): string {
+  if (isServer)
+    return new URLClass(url).protocol;
+
+  // From https://stackoverflow.com/questions/736513/how-do-i-parse-a-url-into-hostname-and-path-in-javascript
+  var parser = document.createElement('a');
+  parser.href = url;
+  return parser.protocol;
+}
+
+export function getHostname(url: string): string {
+  if (isServer)
+    return new URLClass(url).hostname;
+
+  // From https://stackoverflow.com/questions/736513/how-do-i-parse-a-url-into-hostname-and-path-in-javascript
+  var parser = document.createElement('a');
+  parser.href = url;
+  return parser.hostname;
+}
+
+/**
+ * Intended to be used when you have a url-like string that might be missing the protocol (http(s)://) prefix
+ * Trying to parse those with `new URL()`/`new URLClass()` blows up, so this tries to correctly handle them
+ * We default to logging an error to sentry and returning nothing if even that fails, but not confident we shouldn't just continue to throw in a visible way
+ */
+export function parseUnsafeUrl(url: string) {
+  const urlWithProtocol = url.slice(0, 4) === 'http'
+    ? url
+    : `https://${url}`;
+
+  try {
+    const parsedUrl = new URLClass(urlWithProtocol);
+    const protocol = getProtocol(urlWithProtocol);
+    const hostname = getHostname(urlWithProtocol);
+  
+    return { protocol, hostname, parsedUrl };
+  } catch (err) {
+    captureException(`Tried to parse url ${url} as ${urlWithProtocol} and failed`);
+  }
+
+  return {};
+}
+
+
+// Detect if a post is a linkpost and get the domain
+export const detectLinkpost = (
+  post: { url?: string | null },
+  rssFeedDomain?: string | null
+): LinkpostDetectionResult => {
+  if (!post.url) {
+    return { isLinkpost: false };
+  }
+
+  const { hostname: linkpostDomain } = parseUnsafeUrl(post.url);
+  
+  if (rssFeedDomain) {
+    const isLinkpost = linkpostDomain !== rssFeedDomain;
+    return { isLinkpost, linkpostDomain };
+  }
+
+  return { isLinkpost: true, linkpostDomain };
 };
 
 ///////////////////
@@ -171,7 +251,7 @@ export type PostWithCommentCounts = { commentCount: number; afCommentCount: numb
  * Get the total (cached) number of comments, including replies and answers
  */
 export const postGetCommentCount = (post: PostWithCommentCounts): number => {
-  if (isAF) {
+  if (isAF()) {
     return post.afCommentCount || 0;
   } else {
     return post.commentCount || 0;
@@ -218,7 +298,7 @@ export const getResponseCounts = ({ post, answers }: { post: PostWithCommentCoun
 };
 
 export const postGetLastCommentedAt = (post: PostsBase|DbPost): Date | null => {
-  if (isAF) {
+  if (isAF()) {
     return post.afLastCommentedAt ? new Date(post.afLastCommentedAt) : null;
   } else {
     return post.lastCommentedAt ? new Date(post.lastCommentedAt) : null;
@@ -226,7 +306,7 @@ export const postGetLastCommentedAt = (post: PostsBase|DbPost): Date | null => {
 }
 
 export const postGetLastCommentPromotedAt = (post: PostsBase|DbPost): Date|null => {
-  if (isAF) return null
+  if (isAF()) return null
   // TODO: add an afLastCommentPromotedAt
   return post.lastCommentPromotedAt ? new Date(post.lastCommentPromotedAt) : null;
 }
@@ -261,7 +341,9 @@ export const canUserEditPostMetadata = (currentUser: UsersCurrent|DbUser|null, p
   if (userOwns(currentUser, post)) return true
   if (userCanDo(currentUser, 'posts.edit.all')) return true
   // Shared as a coauthor? Always give access
-  if (post.coauthorStatuses && post.coauthorStatuses.findIndex(({ userId }) => userId === currentUser._id) >= 0) return true
+  if (post.coauthorUserIds.includes(currentUser._id)) {
+    return true;
+  }
 
   if (userIsSharedOn(currentUser, post) && post.sharingSettings?.anyoneWithLinkCan === "edit") return true 
 
@@ -280,7 +362,7 @@ export const postCanDelete = (currentUser: UsersCurrent|null, post: PostsBase): 
 }
 
 export const postGetKarma = (post: PostsBase|DbPost): number => {
-  const baseScore = isAF ? post.afBaseScore : post.baseScore
+  const baseScore = isAF() ? post.afBaseScore : post.baseScore
   return baseScore || 0
 }
 
@@ -294,32 +376,13 @@ export const postCanEditHideCommentKarma = (user: UsersCurrent|DbUser|null, post
   return !!(user?.showHideKarmaOption && (!post || !postGetCommentCount(post)))
 }
 
-export type CoauthoredPost = NullablePartial<Pick<DbPost, "hasCoauthorPermission" | "coauthorStatuses">>
-
-export const postCoauthorIsPending = (post: CoauthoredPost, coauthorUserId: string) => {
-  if (post.hasCoauthorPermission) {
-    return false;
-  }
-  const status = post.coauthorStatuses?.find(({ userId }) => coauthorUserId === userId);
-  return status && !status.confirmed;
-}
-
-export const getConfirmedCoauthorIds = (post: CoauthoredPost): string[] => {
-  let { coauthorStatuses, hasCoauthorPermission = true } = post;
-  if (!coauthorStatuses) return []
-
-  if (!hasCoauthorPermission) {
-    coauthorStatuses = coauthorStatuses.filter(({ confirmed }) => confirmed);
-  }
-  return coauthorStatuses.map(({ userId }) => userId);
-}
+export type CoauthoredPost = NullablePartial<Pick<DbPost, "coauthorUserIds">>
 
 export const userIsPostCoauthor = (user: UsersMinimumInfo|DbUser|null, post: CoauthoredPost): boolean => {
   if (!user) {
     return false;
   }
-  const userIds = getConfirmedCoauthorIds(post);
-  return userIds.indexOf(user._id) >= 0;
+  return post.coauthorUserIds?.includes(user._id) ?? false;
 }
 
 export const isNotHostedHere = (post: PostsEdit|PostsEditQueryFragment|PostsPage|DbPost) => {
@@ -329,7 +392,7 @@ export const isNotHostedHere = (post: PostsEdit|PostsEditQueryFragment|PostsPage
 const mostRelevantTag = (
   tags: TagBasicInfo[],
   tagRelevance: Record<string, number>,
-): TagBasicInfo | null => max(tags, ({_id}) => tagRelevance[_id] ?? 0);
+): TagBasicInfo | null => maxBy(tags, ({_id}) => tagRelevance[_id] ?? 0) ?? null;
 
 export const postGetPrimaryTag = (post: PostsListWithVotes, includeNonCore = false) => {
   const {tags, tagRelevance} = post;
@@ -339,16 +402,10 @@ export const postGetPrimaryTag = (post: PostsListWithVotes, includeNonCore = fal
   return typeof result === "object" ? result : undefined;
 }
 
-export const allowTypeIIIPlayerSetting = new PublicInstanceSetting<boolean>('allowTypeIIIPlayer', false, "optional")
-const type3DateCutoffSetting = new DatabasePublicSetting<string>('type3.cutoffDate', '2023-05-01')
-const type3ExplicitlyAllowedPostIdsSetting = new DatabasePublicSetting<string[]>('type3.explicitlyAllowedPostIds', [])
-/** type3KarmaCutoffSetting is here to allow including high karma posts from before type3DateCutoffSetting */
-const type3KarmaCutoffSetting = new DatabasePublicSetting<number>('type3.karmaCutoff', Infinity)
-
 /**
  * Whether the post is allowed AI generated audio
  */
-export const isPostAllowedType3Audio = (post: PostsBase|DbPost): boolean => {
+export const isPostAllowedType3Audio = (post: PostsWithNavigation|PostsWithNavigationAndRevision|PostsListWithVotes|DbPost): boolean => {
   if (!allowTypeIIIPlayerSetting.get()) return false
 
   try {
@@ -396,10 +453,10 @@ export const googleDocIdToUrl = (docId: string): string => {
 };
 
 export const postRouteWillDefinitelyReturn200 = async (req: Request, res: Response, parsedRoute: RouterLocation, context: ResolverContext) => {
-  const matchPostPath = pathToRegexp('/posts/:_id/:slug?');
-  const [_, postId] = matchPostPath.exec(req.path) ?? [];
+  const match = matchPath<any>(req.path, '/posts/:_id/:slug?');
 
-  if (postId) {
+  if (match) {
+    const postId = match.params.postId;
     if (req.query.commentId && commentPermalinkStyleSetting.get() === 'in-context') {
       // Will redirect from ?commentId=... to #...
       return false;
@@ -432,11 +489,11 @@ export const postIsPublic = (post: Pick<DbPost, '_id' | 'draft' | 'status'>) => 
   return !post.draft && post.status === postStatuses.STATUS_APPROVED
 };
 
-export type PostParticipantInfo = NullablePartial<Pick<PostsDetails, "userId"|"debate"|"hasCoauthorPermission" | "coauthorStatuses">>;
+export type PostParticipantInfo = NullablePartial<Pick<PostsDetails, "userId"|"debate"|"coauthorUserIds">>;
 
 export function isDialogueParticipant(userId: string, post: PostParticipantInfo) {
   if (post.userId === userId) return true 
-  if (getConfirmedCoauthorIds(post).includes(userId)) return true
+  if (post.coauthorUserIds?.includes(userId)) return true
   return false
 }
 
@@ -450,7 +507,6 @@ export type EditablePost = UpdatePostDataInput & {
   afCommentCount: number;
   contents: CreateRevisionDataInput & { html: string | null } | null;
   debate: boolean;
-  createdAt: Date | null;
   title: string;
 } & Pick<PostsListBase, 'postCategory'>;
 
@@ -509,3 +565,11 @@ export function getDefaultVotingSystem() {
     default: "default",
   });
 }
+
+export const dateStr = (startDate?: Date) => startDate ? moment(startDate).format('YYYY-MM-DD') : '';
+
+export const allPostsParams = (reviewYear: ReviewYear = REVIEW_YEAR) => {
+  const startDate = getReviewPeriodStart(reviewYear).toDate();
+  const endDate = getReviewPeriodEnd(reviewYear).toDate();
+  return { after: dateStr(startDate), before: dateStr(endDate), sortedBy: 'top', timeframe: 'yearly', frontpage: 'true', unnominated: 'true', limit: "100" };
+};

@@ -1,6 +1,6 @@
 import React from 'react';
 import EventListener from 'react-event-listener';
-import debounce from 'debounce'; // < 1kb payload overhead when lodash/debounce is > 3kb.
+import debounce from 'lodash/debounce';
 
 const styles = {
   width: 100,
@@ -46,7 +46,7 @@ class ScrollbarSize extends React.Component<ScrollbarSizeProps> {
   }
 
   componentWillUnmount() {
-    this.handleResize.clear();
+    this.handleResize.cancel();
   }
 
   setMeasurements = () => {

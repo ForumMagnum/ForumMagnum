@@ -130,5 +130,11 @@ export function getDbIndexesOnComments() {
 
   indexSet.addIndex("Comments", { userId: 1, createdAt: 1 });
 
+  indexSet.addCustomPgIndex(`
+    CREATE INDEX CONCURRENTLY IF NOT EXISTS "idx_Comments_deletedDate"
+    ON "Comments" ("deletedDate" DESC NULLS LAST)
+    WHERE "deleted" IS TRUE;
+  `);
+
   return indexSet;
 }

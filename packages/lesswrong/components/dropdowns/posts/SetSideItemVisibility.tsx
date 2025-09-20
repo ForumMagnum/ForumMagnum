@@ -72,7 +72,7 @@ const SetSideItemVisibility = ({classes}: {
   // If in a context that isn't a post page (eg, the triple-dot menu on posts in
   // a post list), this context won't be there and this option doesn't apply, so
   // hide it.
-  if (!sideItemVisibility || !hasSideComments)
+  if (!sideItemVisibility || !hasSideComments())
     return null;
   
   const {sideCommentMode, setSideCommentMode, inlineReactsMode, setInlineReactsMode} = sideItemVisibility;
@@ -160,7 +160,7 @@ export const SideItemVisibilityContextProvider = ({post, children}: {
   post:  PostsDetails|undefined
   children: React.ReactNode
 }) => {
-  const defaultSideCommentVisibility = hasSideComments
+  const defaultSideCommentVisibility = hasSideComments()
     ? (post?.sideCommentVisibility ?? "highKarma")
     : "hidden";
   const [sideCommentMode,setSideCommentMode] = useState<SideCommentMode>(defaultSideCommentVisibility as SideCommentMode);

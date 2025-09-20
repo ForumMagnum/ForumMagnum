@@ -2,7 +2,7 @@ import { Sequences } from '../server/collections/sequences/collection';
 import { sequenceGetAllPostIDs } from '@/lib/collections/sequences/sequenceServerHelpers';
 import { Collections } from '../server/collections/collections/collection';
 import findIndex from 'lodash/findIndex';
-import * as _ from 'underscore';
+import union from 'lodash/union';
 import { runSqlQuery } from '../server/sql/sqlClient';
 import gql from 'graphql-tag';
 import { createAnonymousContext } from "@/server/vulcan-lib/createContexts";
@@ -12,23 +12,23 @@ import toDictionary from '@/lib/utils/toDictionary';
 const collectionGetAllPostIDs = async (collectionID: string, context: ResolverContext): Promise<Array<string>> => {
   const { Books } = context;
   const books = await Books.find({ collectionId: collectionID }).fetch();
-  const sequenceIDs = _.flatten(books.map(book => book.sequenceIds));
+  const sequenceIDs = books.flatMap(book => book.sequenceIds);
 
   const sequencePostsPairs = await Promise.all(
-    sequenceIDs.map(async (seqID) => [seqID, await sequenceGetAllPostIDs(seqID, context)])
+    sequenceIDs.map(async (seqID) => [seqID, await sequenceGetAllPostIDs(seqID, context)] as const)
   );
   const postsBySequence = toDictionary(sequencePostsPairs, pair => pair[0], pair => pair[1]);
 
-  const posts = _.flatten(books.map(book => {
-    const postsInSequencesInBook = _.flatten(
-      _.map(book.sequenceIds, sequenceId => postsBySequence[sequenceId])
-    );
+  const posts = books.map(book => {
+    const postsInSequencesInBook = book.sequenceIds
+      .map(sequenceId => postsBySequence[sequenceId] ?? [])
+      .flat();
     if (book.postIds)
-      return _.union(book.postIds, postsInSequencesInBook);
+      return union(book.postIds, postsInSequencesInBook);
 
     else
       return postsInSequencesInBook;
-  }));
+  }).flat();
   return posts;
 };
 
@@ -42,7 +42,7 @@ export const updateSequenceReadStatusForPostRead = async (userId: string, postId
   if (!user) throw Error(`Can't find user with ID: ${userId}, ${postId}, ${sequenceId}`)
   const postIDs = await sequenceGetAllPostIDs(sequenceId, context);
   const postReadStatuses = await postsToReadStatuses(user, postIDs);
-  const anyUnread = _.some(postIDs, (postID: string) => !postReadStatuses[postID]);
+  const anyUnread = postIDs.some((postID: string) => !postReadStatuses[postID]);
   const sequence = await Sequences.findOne({_id: sequenceId});
   const collection = sequence?.canonicalCollectionSlug ? await Collections.findOne({slug: sequence.canonicalCollectionSlug}) : null;
   const now = new Date();
@@ -62,7 +62,7 @@ export const updateSequenceReadStatusForPostRead = async (userId: string, postId
       sequenceId: sequenceId,
       lastReadPostId: postId,
       nextPostId: nextPostId,
-      numRead: _.filter(postIDs, (id: string)=>!!postReadStatuses[id]).length,
+      numRead: postIDs.filter((id: string)=>!!postReadStatuses[id]).length,
       numTotal: postIDs.length,
       lastReadTime: now,
     };
@@ -82,7 +82,7 @@ export const updateSequenceReadStatusForPostRead = async (userId: string, postId
   if (collection) {
     const collectionPostIDs = await collectionGetAllPostIDs(collection._id, context);
     const collectionPostReadStatuses = await postsToReadStatuses(user, collectionPostIDs);
-    const collectionAnyUnread = _.some(collectionPostIDs, (postID: string) => !collectionPostReadStatuses[postID]);
+    const collectionAnyUnread = collectionPostIDs.some((postID: string) => !collectionPostReadStatuses[postID]);
     
     if (collectionAnyUnread) {
       const nextPostIndex = findIndex(collectionPostIDs, (postID: string)=>!collectionPostReadStatuses[postID]);
@@ -92,7 +92,7 @@ export const updateSequenceReadStatusForPostRead = async (userId: string, postId
         collectionId: collection._id,
         lastReadPostId: postId,
         nextPostId: nextPostId,
-        numRead: _.filter(collectionPostIDs, (id: string)=>!!collectionPostReadStatuses[id]).length,
+        numRead: collectionPostIDs.filter((id: string)=>!!collectionPostReadStatuses[id]).length,
         numTotal: collectionPostIDs.length,
         lastReadTime: now,
       };

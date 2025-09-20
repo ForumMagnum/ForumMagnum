@@ -12,4 +12,6 @@ declare global {
   }
 }
 
-window.t3aAnalytics = receiveAnalytics;
+if (typeof window !== 'undefined') {
+  window.t3aAnalytics = receiveAnalytics;
+}

@@ -1,8 +1,10 @@
+"use client";
+
 import React, { useCallback } from 'react';
 import { userIsAdminOrMod } from '../../lib/vulcan-users/permissions';
 import { useCurrentUser } from '../common/withUser';
 import { useMessages } from '../common/withMessages';
-import { useMutation } from '@apollo/client';
+import { useMutation } from "@apollo/client/react";
 import { useQuery } from "@/lib/crud/useQuery";
 import { gql } from "@/lib/generated/gql-codegen";
 import { registerComponent } from "../../lib/vulcan-lib/components";

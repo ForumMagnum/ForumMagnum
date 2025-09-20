@@ -1,6 +1,5 @@
 import React from 'react';
 import { registerComponent } from '../../../lib/vulcan-lib/components';
-import * as _ from 'underscore';
 
 export const rowStyles = {
   root: {
@@ -34,9 +33,9 @@ const MigrationsDashboardRow = ({migration: {name, dateWritten, runs, lastRun}, 
   let status;
   if (runs.length === 0) {
     status = "Not run";
-  } else if (_.some(runs, (run: any): boolean=>run.succeeded)) {
+  } else if (runs.some((run: any): boolean=>run.succeeded)) {
     status = "Succeeded";
-  } else if (_.some(runs, (run: any): boolean=>!run.finished)) {
+  } else if (runs.some((run: any): boolean=>!run.finished)) {
     status = "In Progress";
   } else {
     status = "Failed";

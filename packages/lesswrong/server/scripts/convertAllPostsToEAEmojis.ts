@@ -1,7 +1,7 @@
 /* eslint-disable no-console */
 
 import { getSqlClientOrThrow } from "../sql/sqlClient";
-import { pgPromiseLib } from "../sqlConnection";
+import { getPgPromiseLib } from "../sqlConnection";
 
 type PostVotingSystem = Pick<DbPost, "_id" | "votingSystem">;
 type VoteType = Pick<DbVote, "documentId" | "extendedVoteType">;
@@ -74,7 +74,7 @@ export const convertTwoAxisVotingSystemToEAEmojis = async (postId: string) => {
       values: [postId],
     });
 
-    const concatenatedQuery = pgPromiseLib.helpers.concat(queries);
+    const concatenatedQuery = getPgPromiseLib().helpers.concat(queries);
     await db.multi(concatenatedQuery);
   });
 }

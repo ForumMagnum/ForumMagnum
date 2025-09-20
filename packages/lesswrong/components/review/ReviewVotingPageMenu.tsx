@@ -1,7 +1,6 @@
 import React from 'react';
 import { useCurrentUser } from '../common/withUser';
 import classNames from 'classnames';
-import * as _ from "underscore"
 import ArrowDownwardIcon from '@/lib/vendor/@material-ui/icons/src/ArrowDownward'
 import ArrowUpwardIcon from '@/lib/vendor/@material-ui/icons/src/ArrowUpward'
 import { AnalyticsContext } from '../../lib/analyticsEvents'

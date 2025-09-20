@@ -1,4 +1,4 @@
-import { defaultEditorPlaceholder } from '@/lib/editor/defaultEditorPlaceholder';
+import { getDefaultEditorPlaceholder } from '@/lib/editor/defaultEditorPlaceholder';
 import { preferredHeadingCase } from "@/themes/forumTheme";
 import { useForm } from "@tanstack/react-form";
 import classNames from "classnames";
@@ -18,7 +18,7 @@ import { LegacyFormGroupLayout } from "../tanstack-form-components/LegacyFormGro
 import LWTooltip from "../common/LWTooltip";
 import Error404 from "../common/Error404";
 import FormComponentCheckbox from "../form-components/FormComponentCheckbox";
-import { useMutation } from "@apollo/client";
+import { useMutation } from "@apollo/client/react";
 import { gql } from "@/lib/generated/gql-codegen";
 
 const SequencesEditUpdateMutation = gql(`
@@ -59,7 +59,7 @@ export const SequencesForm = ({
   initialData?: UpdateSequenceDataInput & { _id: string };
   currentUser: UsersCurrent;
   onSuccess: (doc: SequencesEdit) => void;
-  onCancel: () => void;
+  onCancel?: () => void;
 }) => {
   const classes = useStyles(formStyles);
 
@@ -153,7 +153,7 @@ export const SequencesForm = ({
               document={form.state.values}
               addOnSubmitCallback={addOnSubmitCallback}
               addOnSuccessCallback={addOnSuccessCallback}
-              hintText={defaultEditorPlaceholder}
+              hintText={getDefaultEditorPlaceholder()}
               fieldName="contents"
               collectionName="Sequences"
               commentEditor={false}
@@ -317,7 +317,7 @@ export const SequencesForm = ({
       </LegacyFormGroupLayout>
 
       <div className="form-submit">
-        <Button
+        {onCancel && <Button
           className={classNames("form-cancel", classes.cancelButton)}
           onClick={(e) => {
             e.preventDefault();
@@ -325,7 +325,7 @@ export const SequencesForm = ({
           }}
         >
           Cancel
-        </Button>
+        </Button>}
 
         <form.Subscribe selector={(s) => [s.canSubmit, s.isSubmitting]}>
           {([canSubmit, isSubmitting]) => (

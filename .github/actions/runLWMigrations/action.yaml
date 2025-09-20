@@ -24,6 +24,10 @@ runs:
         token: ${{ inputs.credentials-pat }}
         persist-credentials: false
 
+    - name: Type check
+      shell: bash
+      run: yarn tsc
+
     - name: Run migrations
       shell: bash
       env:

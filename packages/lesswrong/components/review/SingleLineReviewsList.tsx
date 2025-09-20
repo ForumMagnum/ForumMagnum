@@ -1,7 +1,7 @@
 import React from 'react';
 import { REVIEW_YEAR } from '../../lib/reviewUtils';
 import { registerComponent } from '../../lib/vulcan-lib/components';
-import CommentsNodeInner from "../comments/CommentsNode";
+import CommentsNode from "../comments/CommentsNode";
 import { useQuery } from "@/lib/crud/useQuery";
 import { gql } from "@/lib/generated/gql-codegen";
 
@@ -30,7 +30,7 @@ const SingleLineReviewsList = () => {
   return <div>
     {results?.map(comment =>
         <div key={comment._id}>
-          <CommentsNodeInner
+          <CommentsNode
             treeOptions={{
               condensed: true,
               singleLineCollapse: true,

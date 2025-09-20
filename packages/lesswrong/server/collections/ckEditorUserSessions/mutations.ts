@@ -1,7 +1,7 @@
-
 import schema from "@/lib/collections/ckEditorUserSessions/newSchema";
 import { updateCountOfReferencesOnOtherCollectionsAfterCreate, updateCountOfReferencesOnOtherCollectionsAfterUpdate } from "@/server/callbacks/countOfReferenceCallbacks";
 import { logFieldChanges } from "@/server/fieldChanges";
+import { backgroundTask } from "@/server/utils/backgroundTask";
 import { getLegacyCreateCallbackProps, getLegacyUpdateCallbackProps, insertAndReturnCreateAfterProps, runFieldOnCreateCallbacks, runFieldOnUpdateCallbacks, updateAndReturnDocument, assignUserIdToData } from "@/server/vulcan-lib/mutators";
 import cloneDeep from "lodash/cloneDeep";
 
@@ -49,7 +49,7 @@ export async function updateCkEditorUserSession({ selector, data }: { selector: 
 
   await updateCountOfReferencesOnOtherCollectionsAfterUpdate('CkEditorUserSessions', updatedDocument, oldDocument);
 
-  void logFieldChanges({ currentUser, collection: CkEditorUserSessions, oldDocument, data: origData });
+  backgroundTask(logFieldChanges({ currentUser, collection: CkEditorUserSessions, oldDocument, data: origData }));
 
   return updatedDocument;
 }

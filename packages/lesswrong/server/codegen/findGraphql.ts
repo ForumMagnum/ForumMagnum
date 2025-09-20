@@ -36,6 +36,8 @@ function getAllTypeScriptFilesIn(dir: string): string[] {
   const files: string[] = [];
   
   function traverse(currentDir: string) {
+    if (currentDir.endsWith('/unitTests') || currentDir.endsWith('/tests')) return;
+
     const entries = fs.readdirSync(currentDir, { withFileTypes: true });
     
     for (const entry of entries) {

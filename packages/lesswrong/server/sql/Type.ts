@@ -78,7 +78,6 @@ export abstract class Type {
     fieldName: string,
     databaseSpec: DatabaseFieldSpecification<N> | undefined,
     graphqlSpec: GraphQLFieldSpecification<N> | undefined,
-    forumType: ForumTypeString,
   ): Type {
     if (!databaseSpec) {
       throw new Error("Can't generate type for resolver-only field");
@@ -86,13 +85,10 @@ export abstract class Type {
 
     if (databaseSpec.defaultValue !== undefined && databaseSpec.defaultValue !== null) {
       const { defaultValue, ...rest } = databaseSpec;
-      const value = defaultValue instanceof DeferredForumSelect
-        ? defaultValue.get(forumType)
-        : defaultValue;
 
       return new DefaultValueType(
-        Type.fromSchema(collectionName, fieldName, rest, graphqlSpec, forumType),
-        value,
+        Type.fromSchema(collectionName, fieldName, rest, graphqlSpec),
+        defaultValue,
       );
     }
 
@@ -105,7 +101,7 @@ export abstract class Type {
       }
 
       return new NotNullType(
-        Type.fromSchema(collectionName, fieldName, newDatabaseSpec, newGraphqlSpec, forumType),
+        Type.fromSchema(collectionName, fieldName, newDatabaseSpec, newGraphqlSpec),
       );
     }
 

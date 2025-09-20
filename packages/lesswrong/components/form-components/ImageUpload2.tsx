@@ -3,7 +3,7 @@ import PropTypes from 'prop-types';
 import { registerComponent } from '../../lib/vulcan-lib/components';
 import Button from '@/lib/vendor/@material-ui/core/src/Button';
 import classNames from 'classnames';
-import { makeCloudinaryImageUrl } from '../common/CloudinaryImage2';
+import { makeCloudinaryImageUrl } from '../common/cloudinaryHelpers';
 import { ImageType, useImageUpload } from '../hooks/useImageUpload';
 import { formPreviewSizeByImageType } from './ImageUpload';
 
@@ -48,7 +48,7 @@ const ImageUpload2 = ({name, value, updateValue, clearField, label, croppingAspe
   placeholderUrl?: string,
   classes: ClassesType<typeof styles>
 }) => {
-  const {uploadImage, ImageUploadScript} = useImageUpload({
+  const {uploadImage} = useImageUpload({
     imageType: name as ImageType,
     onUploadSuccess: (publicImageId: string) => {
       setImageId(publicImageId);
@@ -89,7 +89,6 @@ const ImageUpload2 = ({name, value, updateValue, clearField, label, croppingAspe
 
   return (
     <div className={classes.root}>
-      <ImageUploadScript />
       <div
         className={classes.imageBackground}
         style={imageStyle}

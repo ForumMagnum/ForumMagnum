@@ -2,10 +2,9 @@ import pgp, { IDatabase, IEventContext } from "pg-promise";
 import type { IClient, IResult } from "pg-promise/typescript/pg-subset";
 import Query from "@/server/sql/Query";
 import { isAnyTest, isDevelopment } from "../lib/executionEnvironment";
-import { PublicInstanceSetting } from "../lib/instanceSettings";
 import omit from "lodash/omit";
 import { logAllQueries, logQueryArguments, measureSqlBytesDownloaded } from "@/server/sql/sqlClient";
-import { recordSqlQueryPerfMetric } from "./perfMetrics";
+import { getIsSSRRequest, getParentTraceId, recordSqlQueryPerfMetric } from "./perfMetrics";
 
 let sqlBytesDownloaded = 0;
 
@@ -13,8 +12,6 @@ let sqlBytesDownloaded = 0;
 const SLOW_QUERY_REPORT_CUTOFF_MS = parseInt(process.env.SLOW_QUERY_REPORT_CUTOFF_MS ?? '') >= -1
   ? parseInt(process.env.SLOW_QUERY_REPORT_CUTOFF_MS ?? '')
   : isDevelopment ? 3000 : 2000;
-
-const pgConnIdleTimeoutMsSetting = new PublicInstanceSetting<number>('pg.idleTimeoutMs', 10000, 'optional')
 
 let vectorTypeOidPromise: Promise<number | null> | null = null;
 
@@ -30,7 +27,10 @@ const getVectorTypeOid = async (client: IClient): Promise<number | null> => {
   return result.rows[0].oid;
 }
 
-export const pgPromiseLib = pgp({
+declare global {
+  var pgPromiseLib: ReturnType<typeof createPgPromiseLib>|undefined
+}
+const createPgPromiseLib = () => pgp({
   noWarnings: isAnyTest,
   connect: async ({client}) => {
     if (!vectorTypeOidPromise) {
@@ -56,12 +56,19 @@ export const pgPromiseLib = pgp({
   // },
 });
 
+export const getPgPromiseLib = () => {
+  if (!globalThis.pgPromiseLib) {
+    globalThis.pgPromiseLib = createPgPromiseLib();
+  }
+  return globalThis.pgPromiseLib;
+}
+
 export const concat = (queries: Query<any>[]): string => {
   const compiled = queries.map((query) => {
     const {sql, args} = query.compile();
     return {query: sql, values: args};
   });
-  return pgPromiseLib.helpers.concat(compiled);
+  return getPgPromiseLib().helpers.concat(compiled);
 }
 
 /**
@@ -170,6 +177,8 @@ const logIfSlow = async <T>(
     return describeString.slice(0, truncateLength ?? 5000)
   }
 
+  const isSSRRequest = getIsSSRRequest();
+
   const queryID = ++queriesExecuted;
   if (logAllQueries) {
     // eslint-disable-next-line no-console
@@ -188,12 +197,16 @@ const logIfSlow = async <T>(
   }
   if (logAllQueries) {
     // eslint-disable-next-line no-console
-    console.log(`Finished query #${queryID} (${milliseconds} ms) (${JSON.stringify(result).length}b)`);
+    console.log(`Finished query #${queryID}, ${getParentTraceId().parent_trace_id} (${milliseconds} ms) (${JSON.stringify(result).length}b)`);
   } else if (SLOW_QUERY_REPORT_CUTOFF_MS >= 0 && milliseconds > SLOW_QUERY_REPORT_CUTOFF_MS && !quiet && !isAnyTest) {
     const description = isDevelopment ? getDescription(50) : getDescription(5000);
     const message = `Slow Postgres query detected (${milliseconds} ms): ${description}`;
-        // eslint-disable-next-line no-console
-    isDevelopment ? console.error(message) : console.trace(message);
+    // eslint-disable-next-line no-console
+    console.warn(message);
+
+    // If we get source-mapping working with console.trace then we can consider re-enabling this,
+    // but otherwise there's no point and it makes the error logs much noisier.
+    // isDevelopment ? console.error(message) : console.trace(message);
   }
 
   return result;
@@ -227,23 +240,19 @@ const wrapQueryMethod = <T>(
   }
 }
 
-export const createSqlConnection = async (
+function getWrappedClient(
   url?: string,
   isTestingClient = false,
-): Promise<SqlClient> => {
-  url = url ?? process.env.PG_URL;
-  if (!url) {
-    throw new Error("PG_URL not configured");
-  }
-
-  const db = pgPromiseLib({
+): SqlClient {
+  const db = getPgPromiseLib()({
     connectionString: url,
     max: MAX_CONNECTIONS,
-    idleTimeoutMillis: pgConnIdleTimeoutMsSetting.get(),
+    // Trying a relatively shorter idle timeout to see if it reduces the connection starvation we see during deploys on Vercel
+    idleTimeoutMillis: 5_000,
   });
 
   const client: SqlClient = {
-    ...omit(db, queryMethods),
+    ...omit(db, queryMethods) as AnyBecauseHard,
     none: wrapQueryMethod(db.none),
     one: wrapQueryMethod(db.one),
     oneOrNone: wrapQueryMethod(db.oneOrNone),
@@ -255,6 +264,51 @@ export const createSqlConnection = async (
     concat,
     isTestingClient,
   };
+
+  return client;
+}
+
+type SqlClientMap = Record<string, SqlClient>;
+
+declare global {
+  var pgClients: SqlClientMap;
+}
+const getPgClients = (): SqlClientMap => {
+  if (!globalThis.pgClients) {
+    globalThis.pgClients = {
+      ...(process.env.PG_URL ? {
+        [process.env.PG_URL]: getWrappedClient(process.env.PG_URL, false),
+      } : {}),
+      ...(process.env.PG_READ_URL ? {
+        [process.env.PG_READ_URL]: getWrappedClient(process.env.PG_READ_URL, false),
+      } : {}),
+      ...(process.env.PG_NO_TRANSACTION_URL ? {
+        [process.env.PG_NO_TRANSACTION_URL]: getWrappedClient(process.env.PG_NO_TRANSACTION_URL, false),
+      } : {}),
+    };
+  }
+  return globalThis.pgClients;
+}
+
+export const createSqlConnection = (
+  url?: string,
+  isTestingClient = false,
+): SqlClient => {
+  // If we get an empty string, explicitly fall back to PG_URL
+  url = url || process.env.PG_URL;
+  if (url === undefined) {
+    throw new Error("PG_URL not configured");
+  }
+
+  const pgClients = getPgClients();
+  const existingClient = pgClients[url];
+  if (existingClient) {
+    return existingClient;
+  }
+
+  const client = getWrappedClient(url, isTestingClient);
+
+  pgClients[url] = client;
 
   return client;
 }

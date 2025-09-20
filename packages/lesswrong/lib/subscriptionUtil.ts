@@ -1,5 +1,3 @@
-import * as _ from 'underscore';
-import { getConfirmedCoauthorIds } from './collections/posts/helpers';
 import { subscriptionTypes, SubscriptionType } from './collections/subscriptions/helpers';
 
 export function userIsDefaultSubscribed({user, subscriptionType, collectionName, document}: {
@@ -23,7 +21,8 @@ export function userIsDefaultSubscribed({user, subscriptionType, collectionName,
       // TODO
       return false;
     case subscriptionTypes.newEvents:
-      return _.some(document.organizers, organizerId=>organizerId===user._id)
+      return document.organizers
+        && document.organizers.some((organizerId: string) => organizerId===user._id)
         && user.autoSubscribeAsOrganizer;
     case subscriptionTypes.newReplies:
       return user.auto_subscribe_to_my_comments && document.userId===user._id;
@@ -38,7 +37,8 @@ export function userIsDefaultSubscribed({user, subscriptionType, collectionName,
     case subscriptionTypes.newPublishedDialogueMessages:
       return false;
     case subscriptionTypes.newDialogueMessages:
-      const authorIds = [document.userId, ...getConfirmedCoauthorIds(document)];
+      const post = document as DbPost;
+      const authorIds = [post.userId, ...post.coauthorUserIds];
       return authorIds.includes(user._id);
     case subscriptionTypes.newActivityForFeed:
       return false;

@@ -22,7 +22,7 @@
 */
 
 import moment from 'moment';
-import fs from 'mz/fs';
+import fs from 'fs';
 import Papa from 'papaparse';
 import path from 'path';
 import { Posts } from '../../server/collections/posts/collection';
@@ -108,7 +108,7 @@ export const exportPostDetails = wrapVulcanAsyncScript(
     }
     const csvFile = Papa.unparse(rows)
     const filePath = path.join(outputDir,`${path.basename(outputFile)}.csv`)
-    await fs.writeFile(filePath, csvFile)
+    fs.writeFileSync(filePath, csvFile, "utf-8")
     //eslint-disable-next-line no-console
     console.log(`Wrote details for ${rows.length} posts to ${filePath}`)
   }

@@ -1,6 +1,6 @@
 import React from 'react';
 import classnames from 'classnames';
-import debounce from 'debounce'; // < 1kb payload overhead when lodash/debounce is > 3kb.
+import debounce from 'lodash/debounce';
 import EventListener from 'react-event-listener';
 import { setRef } from '../utils/reactHelpers';
 import { StandardProps } from '..';
@@ -91,7 +91,7 @@ class Textarea extends React.Component<TextareaProps & WithStylesProps<typeof st
   }
 
   componentWillUnmount() {
-    this.handleResize.clear();
+    this.handleResize.cancel();
   }
 
   handleRefInput = (ref: AnyBecauseTodo) => {

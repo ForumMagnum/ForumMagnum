@@ -8,21 +8,20 @@ import { getUpdatedFieldValues } from "@/components/tanstack-form-components/hel
 import { useEditorFormCallbacks, EditorFormComponent } from "../editor/EditorFormComponent";
 import { MuiTextField } from "@/components/form-components/MuiTextField";
 import { cancelButtonStyles, submitButtonStyles } from "@/components/tanstack-form-components/TanStackSubmit";
-import { defaultEditorPlaceholder } from '@/lib/editor/defaultEditorPlaceholder';
+import { getDefaultEditorPlaceholder } from '@/lib/editor/defaultEditorPlaceholder';
 import { FormComponentDatePicker } from "../form-components/FormComponentDateTime";
 import { LegacyFormGroupLayout } from "@/components/tanstack-form-components/LegacyFormGroupLayout";
 import { EditCommentTitle } from "@/components/editor/EditCommentTitle";
 import { FormComponentQuickTakesTags } from "@/components/form-components/FormComponentQuickTakesTags";
 import { commentAllowTitle } from "@/lib/collections/comments/helpers";
 import { userIsAdmin, userIsAdminOrMod, userIsMemberOf } from "@/lib/vulcan-users/permissions";
-import { quickTakesTagsEnabledSetting } from "@/lib/publicSettings";
-import { isAF, isLWorAF } from "@/lib/instanceSettings";
+import { quickTakesTagsEnabledSetting, isAF, isLWorAF } from "@/lib/instanceSettings";
 import type { TagCommentType } from "@/lib/collections/comments/types";
 import type { ReviewYear } from "@/lib/reviewUtils";
 import { useCurrentUser } from "../common/withUser";
 import ArrowForward from "@/lib/vendor/@material-ui/icons/src/ArrowForward";
 import { useDialog } from "../common/withDialog";
-import { COMMENTS_NEW_FORM_PADDING } from "@/lib/collections/comments/constants";
+import { getCommentsNewFormPadding } from "@/lib/collections/comments/constants";
 import { useFormErrors } from "@/components/tanstack-form-components/BaseAppForm";
 import { useFormSubmitOnCmdEnter } from "../hooks/useFormSubmitOnCmdEnter";
 import LoginPopup from "../users/LoginPopup";
@@ -32,12 +31,13 @@ import FormGroupNoStyling from "../form-components/FormGroupNoStyling";
 import FormGroupQuickTakes from "../form-components/FormGroupQuickTakes";
 import FormComponentCheckbox from "../form-components/FormComponentCheckbox";
 import { withDateFields } from "@/lib/utils/dateUtils";
-import { useMutation } from "@apollo/client";
+import { useMutation } from "@apollo/client/react";
 import { gql } from "@/lib/generated/gql-codegen";
 import { hasDraftComments } from '@/lib/betas';
 import CommentsSubmitDropdown from "./CommentsSubmitDropdown";
 import { useTracking } from "@/lib/analyticsEvents";
 import { CommentsList } from "@/lib/collections/comments/fragments";
+import { isIfAnyoneBuildsItFrontPage } from '../seasonal/styles';
 
 const CommentsListUpdateMutation = gql(`
   mutation updateCommentCommentForm($selector: SelectorInput!, $data: UpdateCommentDataInput!) {
@@ -63,6 +63,10 @@ const formStyles = defineStyles('CommentForm', (theme: ThemeType) => ({
   fieldWrapper: {
     marginTop: theme.spacing.unit * 2,
     marginBottom: theme.spacing.unit * 2,
+    ...isIfAnyoneBuildsItFrontPage( {
+      background: theme.palette.editor.bannerAdBackground,
+      color: theme.palette.text.bannerAdOverlay,
+    }),
   },
   submitButton: submitButtonStyles(theme),
   cancelButton: cancelButtonStyles(theme),
@@ -79,18 +83,18 @@ const customSubmitButtonStyles = defineStyles('CommentSubmit', (theme: ThemeType
   },
   submitQuickTakes: {
     background: theme.palette.grey[100],
-    padding: COMMENTS_NEW_FORM_PADDING,
+    padding: getCommentsNewFormPadding(theme),
     borderBottomLeftRadius: theme.borderRadius.quickTakesEntry,
     borderBottomRightRadius: theme.borderRadius.quickTakesEntry,
   },
-  submitQuickTakesButtonAtBottom: isFriendlyUI
+  submitQuickTakesButtonAtBottom: theme.isFriendlyUI
     ? {
       marginTop: 20,
       padding: 20,
       borderTop: `1px solid ${theme.palette.grey[300]}`,
     }
     : {},
-  formButton: isFriendlyUI ? {
+  formButton: theme.isFriendlyUI ? {
     fontSize: 14,
     textTransform: 'none',
     padding: '6px 12px',
@@ -107,9 +111,9 @@ const customSubmitButtonStyles = defineStyles('CommentSubmit', (theme: ThemeType
     },
   },
   cancelButton: {
-    color: isFriendlyUI ? undefined : theme.palette.grey[400],
+    color: theme.isFriendlyUI ? undefined : theme.palette.grey[400],
   },
-  submitButton: isFriendlyUI ? {
+  submitButton: theme.isFriendlyUI ? {
     backgroundColor: theme.palette.buttons.alwaysPrimary,
     color: theme.palette.text.alwaysWhite,
     '&:disabled': {
@@ -199,21 +203,21 @@ const CommentSubmit = ({
   const { openDialog } = useDialog();
 
   const formButtonClass = isMinimalist ? classes.formButtonMinimalist : classes.formButton;
-  const cancelBtnProps: InnerButtonProps = isFriendlyUI && !isMinimalist ? { variant: "contained" } : {};
-  const submitBtnProps: InnerButtonProps = isFriendlyUI && !isMinimalist ? { variant: "contained", color: "primary" } : {};
+  const cancelBtnProps: InnerButtonProps = isFriendlyUI() && !isMinimalist ? { variant: "contained" } : {};
+  const submitBtnProps: InnerButtonProps = isFriendlyUI() && !isMinimalist ? { variant: "contained", color: "primary" } : {};
 
   const actualSubmitDisabled = formDisabledDueToRateLimit || loading || !formCanSubmit || formIsSubmitting;
   if (actualSubmitDisabled) {
     submitBtnProps.disabled = true;
   }
 
-  const showDropdownMenu = hasDraftComments && !disableSubmitDropdown;
+  const showDropdownMenu = hasDraftComments() && !disableSubmitDropdown;
 
   return (
     <div
       className={classNames(classes.submit, {
         [classes.submitMinimalist]: isMinimalist,
-        [classes.submitQuickTakes]: isQuickTake && !(quickTakesSubmitButtonAtBottom && isFriendlyUI),
+        [classes.submitQuickTakes]: isQuickTake && !(quickTakesSubmitButtonAtBottom && isFriendlyUI()),
         [classes.submitQuickTakesButtonAtBottom]: isQuickTake && quickTakesSubmitButtonAtBottom,
       })}
     >
@@ -256,6 +260,7 @@ export const CommentForm = ({
   initialData,
   prefilledProps,
   alignmentForumPost,
+  hideAlignmentForumCheckbox,
   quickTakesFormGroup,
   formClassName,
   editorHintText,
@@ -286,6 +291,7 @@ export const CommentForm = ({
     forumEventMetadata?: DbComment['forumEventMetadata'];
   }
   alignmentForumPost?: boolean;
+  hideAlignmentForumCheckbox?: boolean;
   quickTakesFormGroup?: boolean;
   formClassName?: string;
   editorHintText?: string;
@@ -307,7 +313,7 @@ export const CommentForm = ({
 
   const formType = initialData ? 'edit' : 'new';
 
-  const showAfCheckbox = !isAF && alignmentForumPost && (userIsMemberOf(currentUser, 'alignmentForum') || userIsAdmin(currentUser));
+  const showAfCheckbox = !hideAlignmentForumCheckbox && !isAF() && alignmentForumPost && (userIsMemberOf(currentUser, 'alignmentForum') || userIsAdmin(currentUser));
 
   const DefaultFormGroupLayout = quickTakesFormGroup
     ? FormGroupQuickTakes
@@ -386,7 +392,7 @@ export const CommentForm = ({
 
         if (formType === 'new') {
           const { af, ...rest } = formApi.state.values;
-          const submitData = (showAfCheckbox || isAF) ? { ...rest, af } : rest;
+          const submitData = (showAfCheckbox || isAF()) ? { ...rest, af } : rest;
 
           const { data } = await create({ variables: { data: { ...submitData, draft } } });
           if (!data?.createComment?.data) {
@@ -439,7 +445,7 @@ export const CommentForm = ({
     return <Error404 />;
   }
 
-  const showAlignmentOptionsGroup = isLWorAF && formType === 'edit' && (userIsMemberOf(currentUser, 'alignmentForumAdmins') || userIsAdmin(currentUser));
+  const showAlignmentOptionsGroup = isLWorAF() && formType === 'edit' && (userIsMemberOf(currentUser, 'alignmentForumAdmins') || userIsAdmin(currentUser));
 
   const submitElement = (
     <form.Subscribe selector={(state) => [state.canSubmit, state.isSubmitting]}>
@@ -525,7 +531,7 @@ export const CommentForm = ({
                     verify: false,
                   };
                 }}
-                hintText={isFriendlyUI ? "Write a new comment..." : defaultEditorPlaceholder}
+                hintText={isFriendlyUI() ? "Write a new comment..." : getDefaultEditorPlaceholder()}
                 fieldName="contents"
                 collectionName="Comments"
                 commentEditor={true}

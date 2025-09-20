@@ -1,6 +1,4 @@
-import { TypedDocumentNode } from '@graphql-typed-document-node/core';
 import { DocumentNode, print } from 'graphql';
-import mapValues from 'lodash/mapValues';
 
 interface FragmentInfo {
   fragmentName: string

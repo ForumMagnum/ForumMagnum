@@ -1,5 +1,5 @@
 import { useCallback  } from 'react';
-import { useMutation } from '@apollo/client';
+import { useMutation } from "@apollo/client/react";
 import { gql } from '@/lib/generated/gql-codegen';
 
 export const useUpdateContinueReading = (postId: string|null|undefined, sequenceId: string|null|undefined): () => void => {

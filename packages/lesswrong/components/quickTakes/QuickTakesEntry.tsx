@@ -8,7 +8,7 @@ import classNames from "classnames";
 import { isFriendlyUI } from "../../themes/forumTheme";
 import { useDialog } from "../common/withDialog";
 import { useLoginPopoverContext } from "../hooks/useLoginPopoverContext";
-import { COMMENTS_NEW_FORM_PADDING } from "@/lib/collections/comments/constants";
+import { getCommentsNewFormPadding } from "@/lib/collections/comments/constants";
 import LoginPopup from "../users/LoginPopup";
 
 const COLLAPSED_HEIGHT = 40;
@@ -16,15 +16,19 @@ const COLLAPSED_HEIGHT = 40;
 const styles = (theme: ThemeType) => ({
   root: {
     background: theme.palette.panelBackground.default,
+    border: `1px solid ${theme.palette.grey[200]}`,
+    ...(theme.isBookUI && {
+      background: theme.palette.panelBackground.bannerAdTranslucentStrong,
+      border: "none",
+    }),
     borderRadius: theme.borderRadius.quickTakesEntry,
     fontFamily: theme.palette.fonts.sansSerifStack,
-    border: `1px solid ${theme.palette.grey[200]}`,
   },
   commentEditor: {
     "& .ck-placeholder": {
-      marginTop: isFriendlyUI ? "-3px !important" : undefined,
+      marginTop: theme.isFriendlyUI ? "-3px !important" : undefined,
       "&::before": {
-        color: isFriendlyUI ? theme.palette.grey[600] : undefined,
+        color: theme.isFriendlyUI ? theme.palette.grey[600] : undefined,
         fontFamily: theme.palette.fonts.sansSerifStack,
         fontSize: 14,
         fontWeight: 500,
@@ -32,7 +36,7 @@ const styles = (theme: ThemeType) => ({
     },
   },
   collapsed: {
-    height: COLLAPSED_HEIGHT + (2 * COMMENTS_NEW_FORM_PADDING),
+    height: COLLAPSED_HEIGHT + (2 * getCommentsNewFormPadding(theme)),
     overflow: "hidden",
   },
   commentForm: {
@@ -134,7 +138,7 @@ const QuickTakesEntry = ({
 
     isUnexpandedClickRef.current = false;
 
-    if (isFriendlyUI) {
+    if (isFriendlyUI()) {
       onSignup();
     } else {
       openDialog({
@@ -165,7 +169,7 @@ const QuickTakesEntry = ({
   }
 
   // is true when user is logged out or has not been reviewed yet, i.e. has made no contributions yet
-  const showNewUserMessage = !currentUser?.reviewedByUserId && !isFriendlyUI;
+  const showNewUserMessage = !currentUser?.reviewedByUserId && !isFriendlyUI();
   return <div className={classNames(classes.root, className)} ref={ref}>
     {/* TODO: Write a better message for new users */}
     {expanded && showNewUserMessage && <div className={classes.userNotApprovedMessage}>Quick Takes is an excellent place for your first contribution!</div>}

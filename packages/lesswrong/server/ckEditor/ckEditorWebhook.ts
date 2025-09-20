@@ -1,7 +1,5 @@
-import * as _ from 'underscore';
 import { Posts } from '../../server/collections/posts/collection';
 import { createNotifications } from '../notificationCallbacksHelpers';
-import { addStaticRoute } from '../vulcan-lib/staticRoutes';
 import { ckEditorApi, ckEditorApiHelpers, documentHelpers } from './ckEditorApi';
 import CkEditorUserSessions from '../../server/collections/ckEditorUserSessions/collection';
 import { ckEditorUserSessionsEnabled } from '../../lib/betas';
@@ -14,7 +12,7 @@ interface CkEditorUserConnectionChange {
   connected_users: Array<{ id: string }>,
 }
 
-addStaticRoute('/ckeditor-webhook', async ({query}, req, res, next) => {
+/*addStaticRoute('/ckeditor-webhook', async ({query}, req, res, next) => {
   if (req.method !== "POST") {
     res.statusCode = 405; // Method not allowed
     res.end("ckeditor-webhook should receive POST");
@@ -27,13 +25,13 @@ addStaticRoute('/ckeditor-webhook', async ({query}, req, res, next) => {
   }
   
   res.end("ok");
-});
+});*/
 
 // Handle a CkEditor webhook. These are documented at:
 //   https://ckeditor.com/docs/cs/latest/guides/webhooks/events.html
 // Webhook payloads don't seem to have Typescript types exported anywhere, but
 // they're pretty simple so we define them inline.
-async function handleCkEditorWebhook(message: any) {
+export async function handleCkEditorWebhook(message: any) {
   // eslint-disable-next-line no-console
   console.log(`Got CkEditor webhook: ${JSON.stringify(message)}`);
   
@@ -57,7 +55,7 @@ async function handleCkEditorWebhook(message: any) {
       const commentAddedPayload = payload as CkEditorCommentAdded;
       
       const thread = await ckEditorApi.fetchCkEditorCommentThread(payload?.comment?.thread_id);
-      const commentersInThread: string[] = _.uniq(thread.map(comment => comment?.user?.id));
+      const commentersInThread: string[] = [...new Set(thread.map(comment => comment?.user?.id))];
       
       await notifyCkEditorCommentAdded({
         commenterUserId: payload?.comment?.user?.id,
@@ -111,7 +109,7 @@ async function handleCkEditorWebhook(message: any) {
     case "commentthread.restored":
       break
     case "collaboration.user.connected": {
-      if (ckEditorUserSessionsEnabled) {
+      if (ckEditorUserSessionsEnabled()) {
         const userConnectedPayload = payload as CkEditorUserConnectionChange;
         const userId = userConnectedPayload?.user?.id;
         const ckEditorDocumentId = userConnectedPayload?.document?.id;
@@ -131,7 +129,7 @@ async function handleCkEditorWebhook(message: any) {
     case "document.user.connected":
       break
     case "collaboration.user.disconnected": {
-      if (ckEditorUserSessionsEnabled) {
+      if (ckEditorUserSessionsEnabled()) {
         const userDisconnectedPayload = payload as CkEditorUserConnectionChange;
         const userId = userDisconnectedPayload?.user?.id;
         const ckEditorDocumentId = userDisconnectedPayload?.document?.id;
@@ -179,12 +177,10 @@ async function notifyCkEditorCommentAdded({commenterUserId, commentHtml, postId,
   // Notify the main author of the post, the coauthors if any, and everyone
   // who's commented in the thread. Then filter out the person who wrote the
   // comment themself.
-  const coauthorUserIds = post.coauthorStatuses?.filter(status=>status.confirmed).map(status => status.userId) ?? [];
-
-  const usersToNotify = _.uniq(_.filter(
-    [post.userId, ...coauthorUserIds, ...commentersInThread],
-    u=>(!!u && u!==commenterUserId)
-  ));
+  const usersToNotify = [...new Set(
+    [post.userId, ...post.coauthorUserIds, ...commentersInThread]
+      .filter(u=>(!!u && u!==commenterUserId))
+  )];
   
   // eslint-disable-next-line no-console
   console.log(`New CkEditor comment. Notifying users: ${JSON.stringify(usersToNotify)}`);

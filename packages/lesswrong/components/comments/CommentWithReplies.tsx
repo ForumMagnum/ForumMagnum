@@ -3,7 +3,7 @@ import { registerComponent } from '../../lib/vulcan-lib/components';
 import { unflattenComments, addGapIndicators } from '../../lib/utils/unflatten';
 import type { CommentTreeOptions } from './commentTree';
 import withErrorBoundary from '../common/withErrorBoundary';
-import CommentsNodeInner, { CommentsNodeProps } from './CommentsNode';
+import CommentsNode, { CommentsNodeProps } from './CommentsNode';
 
 const styles = (theme: ThemeType) => ({
   showChildren: {
@@ -68,7 +68,7 @@ const CommentWithReplies = ({
     ) : null;
 
   return (
-    <CommentsNodeInner
+    <CommentsNode
       startThreadTruncated={true}
       nestingLevel={1}
       comment={comment}

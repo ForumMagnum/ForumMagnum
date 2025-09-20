@@ -11,7 +11,10 @@ import ForumIcon from "./ForumIcon";
 const styles = (theme: ThemeType) => ({
   title: {
     display: "flex",
-    columnGap: 10
+    columnGap: 10,
+    ...(theme.isBookUI && {
+      color: theme.palette.text.bannerAdOverlay,
+    }),
   },
   afterContainer: {
     display: "flex",

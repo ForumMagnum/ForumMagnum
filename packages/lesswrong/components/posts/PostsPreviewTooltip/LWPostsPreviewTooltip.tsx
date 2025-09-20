@@ -5,15 +5,14 @@ import { postGetPageUrl, postGetKarma, postGetCommentCountStr } from '../../../l
 import { Card } from "@/components/widgets/Paper";
 import { AnalyticsContext } from "../../../lib/analyticsEvents";
 import { Link } from '../../../lib/reactRouterWrapper';
-import { useForeignApolloClient } from '../../hooks/useForeignApolloClient';
-import { POST_PREVIEW_ELEMENT_CONTEXT, POST_PREVIEW_WIDTH } from './helpers';
+import { POST_PREVIEW_ELEMENT_CONTEXT, getPostPreviewWidth } from './helpers';
 import type { PostsPreviewTooltipProps } from './PostsPreviewTooltip';
 import { useQuery } from "@/lib/crud/useQuery";
 import { gql } from "@/lib/generated/gql-codegen";
 import PostsUserAndCoauthors from "../PostsUserAndCoauthors";
 import PostsTitle from "../PostsTitle";
 import { ContentItemBody } from "../../contents/ContentItemBody";
-import CommentsNodeInner from "../../comments/CommentsNode";
+import CommentsNode from "../../comments/CommentsNode";
 import BookmarkButton from "../BookmarkButton";
 import FormatDate from "../../common/FormatDate";
 import Loading from "../../vulcan-core/Loading";
@@ -75,7 +74,7 @@ const highlightStyles = (theme: ThemeType) => ({
 
 const styles = (theme: ThemeType) => ({
   root: {
-    width: POST_PREVIEW_WIDTH,
+    width: getPostPreviewWidth(),
     position: "relative",
     '& img': {
       maxHeight: "200px"
@@ -142,24 +141,6 @@ const styles = (theme: ThemeType) => ({
   },
 })
 
-const getPostCategory = (post: PostsBase) => {
-  const categories: Array<string> = [];
-
-  if (post.isEvent) return null
-  if (post.curatedDate) categories.push(`Curated Post`)
-  if (post.af) categories.push(`AI Alignment Forum Post`);
-  if (post.frontpageDate && !post.curatedDate && !post.af) categories.push(`Frontpage Post`)
-
-  if (categories.length > 0)
-    return categories.join(', ');
-  else if (post.question)
-    return "Question";
-  else if (post.reviewedByUserId)
-    return `Personal Blogpost`
-  else
-    return null;
-}
-
 type LWPostsPreviewTooltipProps = PostsPreviewTooltipProps & {
   classes: ClassesType<typeof styles>,
 }
@@ -174,13 +155,10 @@ const LWPostsPreviewTooltip = ({
 }: LWPostsPreviewTooltipProps) => {
   const [expanded, setExpanded] = useState(false)
 
-  const foreignApolloClient = useForeignApolloClient();
-  const isForeign = post?.fmCrosspost?.isCrosspost && !post.fmCrosspost.hostedHere && !!post.fmCrosspost.foreignPostId;
   const { loading, data: dataHighlight } = useQuery(HighlightWithHashQuery, {
     variables: { documentId: post?.fmCrosspost?.foreignPostId ?? post?._id, hash },
     skip: !post || (!hash && !!post.contents),
     fetchPolicy: "cache-first",
-    client: isForeign ? foreignApolloClient : undefined,
   });
   const postWithHighlight = dataHighlight?.post?.result;
 
@@ -190,7 +168,6 @@ const LWPostsPreviewTooltip = ({
     variables: { documentId: post?.fmCrosspost?.foreignPostId ?? post?._id, dialogueMessageId },
     skip: !post || !dialogueMessageId,
     fetchPolicy: "cache-first",
-    client: isForeign ? foreignApolloClient : undefined,
   });
   const postWithDialogueMessage = dataPostDialogueMessage?.post?.result;
 
@@ -253,7 +230,7 @@ const LWPostsPreviewTooltip = ({
         </div>
         {renderedComment
           ? <div className={classes.comment}>
-              <CommentsNodeInner
+              <CommentsNode
                 treeOptions={{
                   post,
                   hideReply: true,

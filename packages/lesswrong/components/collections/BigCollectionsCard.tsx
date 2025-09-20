@@ -2,7 +2,6 @@ import { registerComponent } from '../../lib/vulcan-lib/components';
 import React from 'react';
 import { Link } from '../../lib/reactRouterWrapper';
 import type { CoreReadingCollection } from '../sequences/LWCoreReading';
-import { isFriendlyUI } from '../../themes/forumTheme';
 import CloudinaryImage from "../common/CloudinaryImage";
 import LinkCard from "../common/LinkCard";
 import UsersName from "../users/UsersName";
@@ -48,7 +47,7 @@ const styles = (theme: ThemeType) => ({
   author: {
     ...theme.typography.postStyle,
     marginBottom:theme.spacing.unit,
-    ...(isFriendlyUI && {
+    ...(theme.isFriendlyUI && {
       fontFamily: theme.palette.fonts.sansSerifStack,
     }),
   },

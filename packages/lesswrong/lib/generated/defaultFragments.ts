@@ -950,6 +950,7 @@ export const PostsDefaultFragment = gql(`
     frontpageDate
     autoFrontpage
     collectionTitle
+    coauthorUserIds
     hasCoauthorPermission
     socialPreviewImageId
     socialPreviewImageAutoUrl
@@ -1630,6 +1631,7 @@ export const UsersDefaultFragment = gql(`
     collapseModerationGuidelines
     bannedUserIds
     bannedPersonalUserIds
+    bookmarksCount
     legacyId
     deleted
     permanentDeletionRequestedAt

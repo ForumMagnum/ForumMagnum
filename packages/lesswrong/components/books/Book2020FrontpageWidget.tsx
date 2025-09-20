@@ -8,7 +8,7 @@ import BookCheckout from "../review/BookCheckout";
 import Book2020Animation from "./Book2020Animation";
 import ContentStyles from "../common/ContentStyles";
 import Row from "../common/Row";
-import { useMutation } from "@apollo/client";
+import { useMutation } from "@apollo/client/react";
 import { gql } from "@/lib/generated/gql-codegen";
 
 const UsersCurrentUpdateMutation = gql(`

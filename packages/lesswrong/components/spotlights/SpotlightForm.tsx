@@ -1,4 +1,4 @@
-import { defaultEditorPlaceholder } from '@/lib/editor/defaultEditorPlaceholder';
+import { getDefaultEditorPlaceholder } from '@/lib/editor/defaultEditorPlaceholder';
 import { useForm } from "@tanstack/react-form";
 import classNames from "classnames";
 import React from "react";
@@ -16,7 +16,7 @@ import { useFormErrors } from "@/components/tanstack-form-components/BaseAppForm
 import LWTooltip from "../common/LWTooltip";
 import Error404 from "../common/Error404";
 import FormComponentCheckbox from "../form-components/FormComponentCheckbox";
-import { useMutation } from "@apollo/client";
+import { useMutation } from "@apollo/client/react";
 import { gql } from "@/lib/generated/gql-codegen";
 
 const SpotlightEditQueryFragmentUpdateMutation = gql(`
@@ -380,7 +380,7 @@ export const SpotlightForm = ({
                     verify: true,
                   };
                 }}
-                hintText={defaultEditorPlaceholder}
+                hintText={getDefaultEditorPlaceholder()}
                 fieldName="description"
                 collectionName="Spotlights"
                 commentEditor={true}

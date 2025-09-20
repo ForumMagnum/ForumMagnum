@@ -1,9 +1,11 @@
+import schema from '@/lib/collections/users/newSchema';
 import { createCollection } from "@/lib/vulcan-lib/collections";
 import gql from 'graphql-tag';
 
 export const Users = createCollection({
   collectionName: 'Users',
   typeName: 'User',
+  schema,
   dependencies: [
     {type: "extension", name: "pg_trgm"},
   ],
@@ -18,7 +20,7 @@ export const usersGraphQLTypeDefs = gql`
 export const usersGraphQLQueries = {
   async currentUser(root: void, args: void, context: ResolverContext) {
       let user: any = null;
-      const userId: string|null = (context as any)?.userId;
+      const userId: string|null = context?.userId;
       if (userId) {
         user = await context.loaders.Users.load(userId);
 

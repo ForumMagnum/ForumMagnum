@@ -1,6 +1,5 @@
 import moment from 'moment';
 import Notifications from '../../server/collections/notifications/collection';
-import { Posts } from '../../server/collections/posts/collection';
 import Users from '../../server/collections/users/collection';
 import { isLWorAF, reviewMarketCreationMinimumKarmaSetting } from '../../lib/instanceSettings';
 import type { VoteDocTuple } from '../../lib/voting/vote';
@@ -15,12 +14,13 @@ import { postGetPageUrl } from '../../lib/collections/posts/helpers';
 import { createManifoldMarket } from '../../lib/collections/posts/annualReviewMarkets';
 import { RECEIVED_SENIOR_DOWNVOTES_ALERT } from "@/lib/collections/moderatorActions/constants";
 import { revokeUserAFKarmaForCancelledVote, grantUserAFKarmaForVote } from './alignment-forum/callbacks';
-import { captureException } from '@sentry/core';
+import { captureException } from '@/lib/sentryWrapper';
 import { tagGetUrl } from '@/lib/collections/tags/helpers';
 import { updatePostDenormalizedTags } from '../tagging/helpers';
 import { recomputeContributorScoresFor } from '../utils/contributorsUtil';
 import { createModeratorAction } from '../collections/moderatorActions/mutations';
 import { userGetGroups } from '@/lib/vulcan-users/permissions';
+import { backgroundTask } from '../utils/backgroundTask';
 
 const MODERATE_OWN_PERSONAL_THRESHOLD = 50;
 const TRUSTLEVEL1_THRESHOLD = 2000;
@@ -51,7 +51,9 @@ async function updateModerateOwnPersonal({newDocument, vote}: VoteDocTuple, cont
   }
 }
 
-async function increaseMaxBaseScore({newDocument, vote}: VoteDocTuple) {
+async function increaseMaxBaseScore({newDocument, vote}: VoteDocTuple, context: ResolverContext) {
+  const { Posts } = context;
+
   if (vote.collectionName === "Posts") {
     const post = newDocument as DbPost;
     if (post.baseScore > (post.maxBaseScore || 0)) {
@@ -89,14 +91,14 @@ function voteUpdatePostDenormalizedTags({newDocument}: {newDocument: VoteableTyp
   } else {
     return;
   }
-  void updatePostDenormalizedTags(postId);
+  backgroundTask(updatePostDenormalizedTags(postId));
 }
 
 export async function onVoteCancel(newDocument: DbVoteableType, vote: DbVote, collection: CollectionBase<VoteableCollectionName>, user: DbUser, context: ResolverContext): Promise<void> {
   voteUpdatePostDenormalizedTags({newDocument});
   cancelVoteKarma({newDocument, vote}, collection, user);
-  void cancelVoteCount({newDocument, vote});
-  void revokeUserAFKarmaForCancelledVote({newDocument, vote});
+  backgroundTask(cancelVoteCount({newDocument, vote}));
+  backgroundTask(revokeUserAFKarmaForCancelledVote({newDocument, vote}));
   
   
   if (vote.collectionName === "Revisions") {
@@ -108,11 +110,11 @@ export async function onVoteCancel(newDocument: DbVoteableType, vote: DbVote, co
 }
 
 export async function onCastVoteAsync(voteDocTuple: VoteDocTuple, collection: CollectionBase<VoteableCollectionName>, user: DbUser, context: ResolverContext): Promise<void> {
-  void grantUserAFKarmaForVote(voteDocTuple);
-  void updateTrustedStatus(voteDocTuple, context);
-  void updateModerateOwnPersonal(voteDocTuple, context);
-  void increaseMaxBaseScore(voteDocTuple);
-  void voteUpdatePostDenormalizedTags(voteDocTuple);
+  backgroundTask(grantUserAFKarmaForVote(voteDocTuple));
+  backgroundTask(updateTrustedStatus(voteDocTuple, context));
+  backgroundTask(updateModerateOwnPersonal(voteDocTuple, context));
+  backgroundTask(increaseMaxBaseScore(voteDocTuple, context));
+  voteUpdatePostDenormalizedTags(voteDocTuple);
 
   const { vote, newDocument } = voteDocTuple;
   if (vote.collectionName === "Revisions") {
@@ -122,9 +124,9 @@ export async function onCastVoteAsync(voteDocTuple: VoteDocTuple, collection: Co
     }
   }
 
-  void updateKarma(voteDocTuple, collection, user, context);
-  void incVoteCount(voteDocTuple);
-  void checkAutomod(voteDocTuple, collection, user, context);
+  backgroundTask(updateKarma(voteDocTuple, collection, user, context));
+  backgroundTask(incVoteCount(voteDocTuple));
+  backgroundTask(checkAutomod(voteDocTuple, collection, user, context));
   await maybeCreateReviewMarket(voteDocTuple, collection, user, context);
   await maybeCreateModeratorAlertsAfterVote(voteDocTuple, collection, user, context);
 }
@@ -156,14 +158,14 @@ async function updateKarma({newDocument, vote}: VoteDocTuple, collection: Collec
       for (let user of users) {
         const oldKarma = user.karma;
         const newKarma = oldKarma + vote.power;
-        void userKarmaChangedFrom(newDocument.userId, oldKarma, newKarma, context);
-      }  
+        backgroundTask(userKarmaChangedFrom(newDocument.userId, oldKarma, newKarma, context));
+      }
     }
   }
 
   
-  if (!!newDocument.userId && isLWorAF && ['Posts', 'Comments'].includes(vote.collectionName) && votesCanTriggerReview(newDocument as DbPost | DbComment)) {
-    void checkForStricterRateLimits(newDocument.userId, context);
+  if (!!newDocument.userId && isLWorAF() && ['Posts', 'Comments'].includes(vote.collectionName) && votesCanTriggerReview(newDocument as DbPost | DbComment)) {
+    backgroundTask(checkForStricterRateLimits(newDocument.userId, context));
   }
 }
 
@@ -187,7 +189,7 @@ function cancelVoteKarma({newDocument, vote}: VoteDocTuple, collection: Collecti
   // Only update user karma if the operation isn't done by one of the item's authors at the time of the original vote.
   // We expect vote.authorIds here to be the same as the authorIds of the original vote.
   if (vote.authorIds && !vote.authorIds.includes(vote.userId) && collectionsThatAffectKarma.includes(vote.collectionName)) {
-    void Users.rawUpdateMany({_id: {$in: vote.authorIds}}, {$inc: {karma: -vote.power}});
+    backgroundTask(Users.rawUpdateMany({_id: {$in: vote.authorIds}}, {$inc: {karma: -vote.power}}));
   }
 }
 
@@ -201,7 +203,7 @@ async function incVoteCount ({newDocument, vote}: VoteDocTuple) {
   const casterField = `${vote.voteType}Count`
 
   if (newDocument.userId !== vote.userId) {
-    void Users.rawUpdateOne({_id: vote.userId}, {$inc: {[casterField]: 1, voteCount: 1}});
+    backgroundTask(Users.rawUpdateOne({_id: vote.userId}, {$inc: {[casterField]: 1, voteCount: 1}}));
   }
 
   // Increment the count for the person receiving the vote
@@ -209,7 +211,7 @@ async function incVoteCount ({newDocument, vote}: VoteDocTuple) {
 
   if (newDocument.userId !== vote.userId) {
     // update all users in vote.authorIds
-    void Users.rawUpdateMany({_id: {$in: vote.authorIds}}, {$inc: {[receiverField]: 1, voteReceivedCount: 1}});
+    backgroundTask(Users.rawUpdateMany({_id: {$in: vote.authorIds}}, {$inc: {[receiverField]: 1, voteReceivedCount: 1}}));
   }
 }
 
@@ -221,7 +223,7 @@ async function cancelVoteCount ({newDocument, vote}: VoteDocTuple) {
   const casterField = `${vote.voteType}Count`
 
   if (newDocument.userId !== vote.userId) {
-    void Users.rawUpdateOne({_id: vote.userId}, {$inc: {[casterField]: -1, voteCount: -1}});
+    backgroundTask(Users.rawUpdateOne({_id: vote.userId}, {$inc: {[casterField]: -1, voteCount: -1}}));
   }
 
   // Increment the count for the person receiving the vote
@@ -229,18 +231,20 @@ async function cancelVoteCount ({newDocument, vote}: VoteDocTuple) {
 
   if (newDocument.userId !== vote.userId) {
     // update all users in vote.authorIds
-    void Users.rawUpdateMany({_id: {$in: vote.authorIds}}, {$inc: {[receiverField]: -1, voteReceivedCount: -1}});
+    backgroundTask(Users.rawUpdateMany({_id: {$in: vote.authorIds}}, {$inc: {[receiverField]: -1, voteReceivedCount: -1}}));
   }
 }
 
 async function checkAutomod ({newDocument, vote}: VoteDocTuple, collection: CollectionBase<VoteableCollectionName>, user: DbUser, context: ResolverContext) {
   if (vote.collectionName === 'Comments') {
-    void triggerCommentAutomodIfNeeded(newDocument, vote);
+    backgroundTask(triggerCommentAutomodIfNeeded(newDocument, vote));
   }
 }
 
 
 export async function updateScoreOnPostPublish(publishedPost: DbPost, context: ResolverContext) {
+  const { Posts } = context;
+
   // When a post is published (undrafted), update its score. (That is, recompute
   // the time-decaying score used for sorting, since the time that's computed
   // relative to has just changed).
@@ -288,9 +292,10 @@ export async function updateScoreOnPostPublish(publishedPost: DbPost, context: R
 // AFAIU the flow, this has a race condition. If a post is voted on twice in quick succession, it will create two markets.
 // This is probably fine, but it's worth noting. We can deal with it if it comes up.
 async function maybeCreateReviewMarket({newDocument, vote}: VoteDocTuple, collection: CollectionBase<VoteableCollectionName>, user: DbUser, context: ResolverContext) {
+  const { Posts } = context;
 
   // Forum gate
-  if (!isLWorAF) return;
+  if (!isLWorAF()) return;
 
   if (collection.collectionName !== "Posts") return;
   if (vote.power <= 0 || vote.cancelled) return; // In principle it would be fine to make a market here, but it should never be first created here
@@ -318,7 +323,7 @@ async function maybeCreateReviewMarket({newDocument, vote}: VoteDocTuple, collec
 }
 
 async function maybeCreateModeratorAlertsAfterVote({ newDocument, vote }: VoteDocTuple, collection: CollectionBase<VoteableCollectionName>, user: DbUser, context: ResolverContext) {
-  if (!isLWorAF || vote.collectionName !== 'Comments' || !newDocument.userId) {
+  if (!isLWorAF() || vote.collectionName !== 'Comments' || !newDocument.userId) {
     return;
   }
 
@@ -349,13 +354,13 @@ async function maybeCreateModeratorAlertsAfterVote({ newDocument, vote }: VoteDo
     } = longtermDownvoteScore;
   
     if (commentCount > 20 && longtermSeniorDownvoterCount >= 3 && longtermScore < 0) {
-      void createModeratorAction({
+      backgroundTask(createModeratorAction({
         data: {
           type: RECEIVED_SENIOR_DOWNVOTES_ALERT,
           userId: userId,
           endedAt: new Date()
         },
-      }, adminContext);
+      }, adminContext));
     }
   } catch (err) {
     captureException(err);

@@ -1,3 +1,5 @@
+"use client";
+
 import React from 'react';
 import { useCurrentUser } from '../common/withUser';
 import Loading from "../vulcan-core/Loading";

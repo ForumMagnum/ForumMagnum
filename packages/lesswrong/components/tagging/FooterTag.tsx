@@ -2,24 +2,22 @@ import React from 'react';
 import { registerComponent } from '../../lib/vulcan-lib/components';
 import { Link } from '../../lib/reactRouterWrapper';
 import { AnalyticsContext } from "../../lib/analyticsEvents";
-import { DatabasePublicSetting } from '../../lib/publicSettings';
+import { useExperimentalTagStyleSetting } from '@/lib/instanceSettings';
 import classNames from 'classnames';
 import { tagGetUrl } from '../../lib/collections/tags/helpers';
 import { useCurrentUser } from '../common/withUser';
-import CoreTagIcon, { coreTagIconMap } from './CoreTagIcon';
-import { isBookUI, isFriendlyUI } from '../../themes/forumTheme';
+import CoreTagIcon, { getCoreTagIconMap } from './CoreTagIcon';
+import { isFriendlyUI } from '../../themes/forumTheme';
 import TagsTooltip, { TagsTooltipPreviewWrapper } from './TagsTooltip';
 import { defineStyles, useStyles } from '../hooks/useStyles';
 import ForumIcon from "../common/ForumIcon";
 
-const useExperimentalTagStyleSetting = new DatabasePublicSetting<boolean>('useExperimentalTagStyle', false)
-
 export const tagStyle = (theme: ThemeType) => ({
-  marginRight: isFriendlyUI ? 3 : undefined,
+  marginRight: theme.isFriendlyUI ? 3 : undefined,
   padding: 5,
   paddingLeft: 6,
   paddingRight: 6,
-  marginBottom: isFriendlyUI ? 8 : undefined,
+  marginBottom: theme.isFriendlyUI ? 8 : undefined,
   fontWeight: theme.typography.body1.fontWeight,
   backgroundColor: theme.palette.tag.background,
   border: theme.palette.tag.border,
@@ -27,7 +25,7 @@ export const tagStyle = (theme: ThemeType) => ({
   borderRadius: 3,
   ...theme.typography.commentStyle,
   cursor: "pointer",
-  whiteSpace: isFriendlyUI ? "nowrap": undefined,
+  whiteSpace: theme.isFriendlyUI ? "nowrap": undefined,
 })
 
 const newTagStyle = (theme: ThemeType) => ({
@@ -69,14 +67,14 @@ const styles = defineStyles("FooterTag", (theme: ThemeType) => ({
       opacity: 1,
       backgroundColor: theme.palette.tag.backgroundHover,
     },
-    "& a:hover": isFriendlyUI ? {opacity: 1} : {},
-    ...(useExperimentalTagStyleSetting.get() && isBookUI
+    "& a:hover": theme.isFriendlyUI ? {opacity: 1} : {},
+    ...(useExperimentalTagStyleSetting.get() && theme.isBookUI
       ? newTagStyle(theme)
       : tagStyle(theme)
     )
   },
   tooltip: {
-    marginTop: isFriendlyUI ? 6 : undefined,
+    marginTop: theme.isFriendlyUI ? 6 : undefined,
   },
   core: {
     ...coreTagStyle(theme),
@@ -85,7 +83,7 @@ const styles = defineStyles("FooterTag", (theme: ThemeType) => ({
     position: "relative",
     display: "inline-block",
     minWidth: 20,
-    margin: isFriendlyUI ? "0 3px 0 6px" : undefined,
+    margin: theme.isFriendlyUI ? "0 3px 0 6px" : undefined,
     "& svg": {
       position: "absolute",
       top: -13,
@@ -167,9 +165,9 @@ const FooterTag = ({
 
   if (tag.adminOnly && !currentUser?.isAdmin) { return null }
 
-  const showIcon = Boolean(tag.core && !smallText && coreTagIconMap[tag.slug] && !hideIcon);
+  const showIcon = Boolean(tag.core && !smallText && getCoreTagIconMap()[tag.slug] && !hideIcon);
 
-  const tagName = isFriendlyUI && smallText
+  const tagName = isFriendlyUI() && smallText
     ? tag.shortName || tag.name
     : tag.name;
   const renderedTag = <>

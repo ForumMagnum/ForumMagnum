@@ -1,4 +1,4 @@
-import { useMutation } from '@apollo/client';
+import { useMutation } from "@apollo/client/react";
 import { useCurrentUser } from '@/components/common/withUser';
 import some from 'lodash/some';
 import reject from 'lodash/reject';

@@ -1,10 +1,10 @@
 import React from 'react';
-import { registerComponent } from '../../lib/vulcan-lib/components';
 import { Link } from '../../lib/reactRouterWrapper';
-import { forumTypeSetting } from '../../lib/instanceSettings';
+import { isLWorAF } from '../../lib/instanceSettings';
 import { spamRiskScoreThreshold } from '@/lib/collections/users/helpers';
+import { defineStyles, useStyles } from '../hooks/useStyles';
 
-const styles = (theme: ThemeType) => ({
+const styles = defineStyles("RecaptchaWarning", (theme: ThemeType) => ({
   warningText: {
     margin: 10,
     padding: 20,
@@ -14,33 +14,35 @@ const styles = (theme: ThemeType) => ({
   link: {
     color: theme.palette.primary.light
   }
-})
+}))
 
-const RecaptchaWarning = ({ currentUser, classes, children }: {
+const RecaptchaWarning = ({ currentUser, children }: {
   currentUser: UsersCurrent | null,
-  classes: any,
   children: React.ReactNode
 }) => {
   if (!currentUser?.spamRiskScore || (currentUser.spamRiskScore > spamRiskScoreThreshold)) {
     return <> { children } </>
   }
-  switch (forumTypeSetting.get()) {
-    case 'AlignmentForum':
-    case 'LessWrong':
-      return <div className={classes.warningText}>
-        You've been flagged by our spam detection system. Please message an admin via
-        Intercom (the chat bubble in the bottom right corner) or send a private message to admin
-        <Link className={classes.link} to="/users/habryka4"> habryka</Link> to activate posting- and commenting-privileges on your account.
-      </div>
-    default:
-      return <div className={classes.warningText}>
-        You've been flagged by our spam detection system. Please{' '}
-        <Link className={classes.link} to="/contact">contact us</Link> to activate posting and commenting privileges on your account.
-      </div>
+  return <RecaptchaWarningInner/>
+}
+
+const RecaptchaWarningInner = () => {
+  const classes = useStyles(styles);
+  if (isLWorAF()) {
+    return <div className={classes.warningText}>
+      You've been flagged by our spam detection system. Please message an admin via
+      Intercom (the chat bubble in the bottom right corner) or send a private message to admin
+      <Link className={classes.link} to="/users/habryka4"> habryka</Link> to activate posting- and commenting-privileges on your account.
+    </div>
   }
+
+  return <div className={classes.warningText}>
+    You've been flagged by our spam detection system. Please{' '}
+    <Link className={classes.link} to="/contact">contact us</Link> to activate posting and commenting privileges on your account.
+  </div>
 }
 
 
-export default registerComponent('RecaptchaWarning', RecaptchaWarning, { styles }); 
+export default RecaptchaWarning;
 
 

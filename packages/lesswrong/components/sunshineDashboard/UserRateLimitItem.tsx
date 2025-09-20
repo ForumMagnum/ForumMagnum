@@ -19,7 +19,7 @@ import Loading from "../vulcan-core/Loading";
 import MetaInfo from "../common/MetaInfo";
 import LWTooltip from "../common/LWTooltip";
 import { withDateFields } from '@/lib/utils/dateUtils';
-import { useMutation } from "@apollo/client";
+import { useMutation } from "@apollo/client/react";
 import { useQuery } from '@/lib/crud/useQuery';
 import { gql } from "@/lib/generated/gql-codegen";
 

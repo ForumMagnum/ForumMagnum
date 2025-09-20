@@ -4,7 +4,7 @@ import { accessFilterMultiple } from '../utils/schemaUtils';
 import { getWithLoader } from '../loaders';
 import type { MakeEditableOptions } from './makeEditableOptions';
 import { getCollectionAccessFilter } from '@/server/permissions/accessFilters';
-import { defaultEditorPlaceholder } from './defaultEditorPlaceholder';
+import { getDefaultEditorPlaceholder } from './defaultEditorPlaceholder';
 
 const defaultOptions: MakeEditableOptions<CollectionNameString> = {
   // Determines whether to use the comment editor configuration (e.g. Toolbars)
@@ -27,7 +27,7 @@ const defaultOptions: MakeEditableOptions<CollectionNameString> = {
     canCreate: ['members']
   },
   order: 0,
-  hintText: () => defaultEditorPlaceholder,
+  hintText: () => getDefaultEditorPlaceholder(),
   pingbacks: false,
   revisionsHaveCommitMessages: false,
 }
@@ -43,11 +43,22 @@ export function getNormalizedEditableResolver<N extends CollectionNameString>(fi
 
     let revision: DbRevision|null;
     if (args.version) {
-      revision = await Revisions.findOne({
-        documentId: doc._id,
-        version: args.version,
-        fieldName,
-      });
+      // If version is the special string "draft", that means
+      // instead of returning the latest non-draft version
+      // (what we'd normally do), we instead return the latest
+      // version period, including draft versions.
+      if (args.version === 'draft') {
+        revision = await Revisions.findOne({
+          documentId: doc._id,
+          fieldName,
+        }, {sort: {editedAt: -1}});
+      } else {
+        revision = await Revisions.findOne({
+          documentId: doc._id,
+          version: args.version,
+          fieldName,
+        });  
+      }
     } else {
       const revisionId = doc[`${fieldName}_latest` as keyof ObjectsByCollectionName[N]] as string;
       if (revisionId) {
@@ -56,6 +67,7 @@ export function getNormalizedEditableResolver<N extends CollectionNameString>(fi
         revision = null;
       }
     }
+
     return (revision && await checkAccess(currentUser, revision, context))
       ? revision
       : null;

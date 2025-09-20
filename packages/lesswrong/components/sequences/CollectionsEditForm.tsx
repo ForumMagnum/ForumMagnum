@@ -1,4 +1,4 @@
-import { defaultEditorPlaceholder } from '@/lib/editor/defaultEditorPlaceholder';
+import { getDefaultEditorPlaceholder } from '@/lib/editor/defaultEditorPlaceholder';
 import Button from '@/lib/vendor/@material-ui/core/src/Button';
 import { useForm } from '@tanstack/react-form';
 import classNames from 'classnames';
@@ -11,7 +11,7 @@ import { cancelButtonStyles, submitButtonStyles } from '@/components/tanstack-fo
 import { getUpdatedFieldValues } from '@/components/tanstack-form-components/helpers';
 import { useFormErrors } from '@/components/tanstack-form-components/BaseAppForm';
 import FormComponentCheckbox from "../form-components/FormComponentCheckbox";
-import { useMutation } from "@apollo/client";
+import { useMutation } from "@apollo/client/react";
 import { gql } from "@/lib/generated/gql-codegen";
 
 const CollectionsPageFragmentUpdateMutation = gql(`
@@ -43,12 +43,6 @@ export const styles = defineStyles('CollectionsEditForm', (theme: ThemeType) => 
     "& h3": {
       fontSize: "2em",
       marginBottom: "1em",
-    },
-    "& label.control-label": {
-      display: "none",
-    },
-    "& .col-sm-9": {
-      padding: 0,
     },
     "& .input-title input": {
       fontSize: "2em",
@@ -137,7 +131,7 @@ const CollectionsEditForm = ({ initialData, successCallback, cancelCallback }: {
                 document={form.state.values}
                 addOnSubmitCallback={addOnSubmitCallback}
                 addOnSuccessCallback={addOnSuccessCallback}
-                hintText={defaultEditorPlaceholder}
+                hintText={getDefaultEditorPlaceholder()}
                 fieldName="contents"
                 collectionName="Collections"
                 commentEditor={false}

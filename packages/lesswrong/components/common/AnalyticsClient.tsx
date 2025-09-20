@@ -3,7 +3,7 @@ import { registerComponent } from '../../lib/vulcan-lib/components';
 import { clientContextVars, flushClientEvents } from '../../lib/analyticsEvents';
 import { useCurrentUser } from './withUser';
 import withErrorBoundary from './withErrorBoundary';
-import { ABTestGroupsUsedContext } from '../../lib/abTestImpl';
+import { ABTestGroupsUsedContext } from '@/components/common/sharedContexts';
 import { CLIENT_ID_COOKIE } from '../../lib/cookies/cookies';
 import { useCookiesWithConsent } from '../hooks/useCookiesWithConsent';
 import { isLWorAF } from '../../lib/instanceSettings';
@@ -19,7 +19,7 @@ export const AnalyticsClient = () => {
     clientContextVars.userId = currentUserId;
     clientContextVars.clientId = clientId;
     clientContextVars.tabId = window.tabId;
-    if (!isLWorAF) {
+    if (!isLWorAF()) {
       clientContextVars.abTestGroupsUsed = abTestGroupsUsed;
     }
     // There may be events waiting for the client context vars to be set, so flush them now

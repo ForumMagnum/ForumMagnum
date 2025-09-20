@@ -5,7 +5,6 @@ import Button from '@/lib/vendor/@material-ui/core/src/Button';
 import { Snackbar } from '../widgets/Snackbar';
 import { defineStyles, useStyles } from '../hooks/useStyles';
 import { Paper } from '../widgets/Paper';
-import { isFriendlyUI } from '@/themes/forumTheme';
 import { Typography } from "./Typography";
 
 const styles = defineStyles("FlashMessages", (theme) => ({
@@ -29,7 +28,7 @@ const styles = defineStyles("FlashMessages", (theme) => ({
   message: {
     padding: '8px 0',
     color: theme.palette.text.maxIntensity,
-    fontFamily: isFriendlyUI ? theme.palette.fonts.sansSerifStack : undefined,
+    fontFamily: theme.isFriendlyUI ? theme.palette.fonts.sansSerifStack : undefined,
   },
   action: {
     display: 'flex',

@@ -9,7 +9,7 @@ import Checkbox from "@/lib/vendor/@material-ui/core/src/Checkbox";
 import Button from "@/lib/vendor/@material-ui/core/src/Button";
 import LoginIcon from "@/lib/vendor/@material-ui/icons/src/LockOpen"
 import UnlinkIcon from "@/lib/vendor/@material-ui/icons/src/RemoveCircle";
-import { useMutation } from "@apollo/client";
+import { useMutation } from "@apollo/client/react";
 import { useQuery } from "@/lib/crud/useQuery"
 import { useOnFocusTab } from "../hooks/useOnFocusTab";
 import { combineUrls } from "../../lib/vulcan-lib/utils";

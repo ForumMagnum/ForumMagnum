@@ -1,4 +1,4 @@
-import { DatabaseServerSetting } from "../databaseSettings";
+import { auth0SettingsDatabaseServerSetting } from "../databaseSettings";
 import type {
   AppMetadata,
   AuthenticationClient,
@@ -13,16 +13,10 @@ import { getAuth0Id, getAuth0Provider } from "../../lib/collections/users/helper
 import { Profile as Auth0Profile } from 'passport-auth0';
 import { getOrCreateForumUserAsync } from "./getOrCreateForumUser";
 import { auth0ProfilePath, idFromAuth0Profile, userFromAuth0Profile } from "./auth0Accounts";
-import { auth0ClientSettings } from "../../lib/publicSettings";
+import { auth0ClientSettings } from '@/lib/instanceSettings';
 import UsersRepo from "../repos/UsersRepo";
 import { isE2E } from "../../lib/executionEnvironment";
 
-type Auth0Settings = {
-  appId: string;
-  secret: string;
-  domain: string;
-  originalDomain: string;
-}
 
 export const AUTH0_SCOPE = "profile email openid offline_access";
 
@@ -91,7 +85,7 @@ class MockAuth0Client extends IAuth0BackendClient {
  * Applications -> APIs -> Auth0 Management API -> Machine to Machine Applications
  */
 class Auth0Client extends IAuth0BackendClient {
-  private settings = new DatabaseServerSetting<Auth0Settings|null>("oAuth.auth0", null);
+  private settings = auth0SettingsDatabaseServerSetting;
   private managementClient?: ManagementClient;
   private authClient?: AuthenticationClient;
 

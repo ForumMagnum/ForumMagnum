@@ -1,3 +1,5 @@
+"use client";
+
 import React from "react";
 import { useLocation } from "../../lib/routeUtil";
 import { registerComponent } from "../../lib/vulcan-lib/components";
@@ -226,7 +228,7 @@ const PostsAnalyticsPage = ({ classes }: { classes: ClassesType<typeof styles> }
         </div>
         <AnalyticsGraph
           postIds={post ? [post._id] : []}
-          disclaimerEarliestDate={maybeDate(post?.createdAt ?? undefined)}
+          disclaimerEarliestDate={maybeDate(post?.postedAt ?? undefined)}
         />
       </SingleColumnSection>
     </>

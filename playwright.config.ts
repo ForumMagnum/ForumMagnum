@@ -120,7 +120,7 @@ const getTimeout = () => {
   // Crossposting tests are more complex and take longer
   const base = process.env.CROSSPOST_TEST ? 60_000 : 30_000;
   // Increase timeout in CI as Github runners are very underpowered
-  const multiplier = process.env.CI ? 2 : 1;
+  const multiplier = process.env.CI ? 4 : 1;
   return base * multiplier;
 }
 

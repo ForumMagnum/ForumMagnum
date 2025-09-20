@@ -1,59 +1,72 @@
-import React, { createContext, useContext, useRef } from "react";
-
-export type HideRepeatedPostsPayload = {
-  isPostRepeated: (ownerId: string, postId: string) => boolean,
-  addPost: (ownerId: string, postId: string) => void,
-}
-
-const HideRepeatedPostsContext = createContext<HideRepeatedPostsPayload>({
-  isPostRepeated: (ownerId: string, postId: string) => false,
-  addPost: (ownerId: string, postId: string) => {},
-});
+import React, { createContext, useContext, useRef, useState } from "react";
 
 /**
- * Internally, we assign a random ID (which is stable between renders) to each
- * list component. When a post is rendered, the ID of it's parent list is
- * memoized as it's "owner" in the provider. Any post that is already "owned"
- * inside the provider is skipped (see usage in usePostsItem). In subsequent
- * renders, a post is shown iff it is being displayed by it's original
- * "owner" from the initial render.
+ * HideRepeatedPostsProvider and HideIfRepeated are a context provider and
+ * consumer for suppressing duplicate posts, in the case where you have several
+ * posts lists in a row (eg when you have a post list for curated immediately
+ * followed by a posts list for recent). To do it, wrap all the post lists in
+ * <HideRepeatedPostsProvider>, then wrap each individual post item in
+ * <HideIfRepeated precedence={...} postId={...}>. If two or more post items
+ * wrapped this way have the same postId, then only post items with the lowest
+ * precedence will be visible.
  *
- * Components can implement this functionality by doing something like:
- * const {isPostRepeated, addPost} = useHideRepeatedPosts();
- * ...
- * if (!isPostRepeated(postId)) {
- *   addPost(postId);
- *   return renderPost(postId);
- * }
+ * The implementation of this is subtle, because the post items could render in
+ * any order (due to react async rendering and suspense boundaries), and this
+ * needs to work during SSR, which means useEffect/setState won't work.
+ *
+ * To do this, each <HideIfRepeated> wraps its contents in a span with a unique
+ * classname, post_<id>_<precedence>. On render, it records its postId and
+ * precedence in the context. If it finds a previously rendered post item with
+ * the same ID, it compares precedence, and emits a <style> tag to hide either
+ * itself, or the previously-rendered post item.
  */
-export const useHideRepeatedPosts = () => {
-  const id = useRef("hrp" + Math.floor(Math.random() * 1e8));
-  const {isPostRepeated, addPost} = useContext(HideRepeatedPostsContext);
-  return {
-    isPostRepeated: isPostRepeated.bind(null, id.current),
-    addPost: addPost.bind(null, id.current),
-  };
+
+type HideRepeatedPostsContextType = {
+  precedencesSeenByPostId: Record<string, number[]>
+}
+const HideRepeatedPostsContext = createContext<HideRepeatedPostsContextType|null>(null);
+
+export const HideRepeatedPostsProvider = ({children}: {
+  children: React.ReactNode
+}) => {
+  const context = useRef({ precedencesSeenByPostId: {} });
+  return <HideRepeatedPostsContext.Provider value={context.current}>
+    {children}
+  </HideRepeatedPostsContext.Provider>
 }
 
-/**
- * This provider can be used to wrap an arbitrary number of posts
- * lists, making sure that no post is ever repeated between them.
- *
- * This is automatically handled in usePostsItem, and
- * can be easily implemented in other components with the
- * useHideRepeatedPosts hook
- */
-export const HideRepeatedPostsProvider = ({children}: { children: React.ReactNode }) => {
-  const postIds: Record<string, string> = {};
-
-  const isPostRepeated = (ownerId: string, postId: string) =>
-    !!postIds[postId] && postIds[postId] !== ownerId;
-  const addPost = (ownerId: string, postId: string) =>
-    postIds[postId] = ownerId;
-
-  return (
-    <HideRepeatedPostsContext.Provider value={{isPostRepeated, addPost}}>
-      {children}
-    </HideRepeatedPostsContext.Provider>
-  );
+export const HideIfRepeated = ({ precedence, postId, children }: {
+  precedence?: number
+  postId: string
+  children: React.ReactNode
+}) => {
+  const context = useContext(HideRepeatedPostsContext);
+  const [hidePrecedences] = useState((): number[] => {
+    if (!precedence) return [];
+    if (!context) return [];
+    const previouslySeen = context.precedencesSeenByPostId[postId];
+    if (!previouslySeen) {
+      context.precedencesSeenByPostId[postId] = [precedence];
+      return [];
+    } else if (previouslySeen.some(p => p < precedence)) {
+      // A previously-seen post item has the same post ID and takes precedence;
+      // hide this one.
+      context.precedencesSeenByPostId[postId].push(precedence);
+      return [precedence];
+    } else if (previouslySeen.includes(precedence)) {
+      // Already seen at the same precedence level - neither gets hidden
+      return [];
+    } else {
+      context.precedencesSeenByPostId[postId].push(precedence);
+      return previouslySeen.filter(p => p > precedence);
+    }
+  });
+  
+  return <span className={`post_${postId}_${precedence}`}>
+    {children}
+    
+    <style suppressHydrationWarning>
+      {hidePrecedences.map(p => `.post_${postId}_${p} { display: none }`).join("\n")}
+    </style>
+  </span>
 }

@@ -271,6 +271,7 @@ export async function getTagBotUserId(context: ResolverContext): Promise<string|
   if (tagBotUserId === undefined) {
     if (!tagBotUserIdPromise) {
       tagBotUserIdPromise = new Promise((resolve) => {
+        // eslint-disable-next-line @typescript-eslint/no-floating-promises
         void (async () => {
           const tagBotAccount = await getTagBotAccount(context);
           tagBotUserId = tagBotAccount?._id ?? null;

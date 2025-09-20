@@ -14,7 +14,6 @@ import moment from '../../../lib/moment-timezone';
 import React from 'react'
 import { useTracking } from '../../../lib/analyticsEvents';
 import { registerComponent } from '../../../lib/vulcan-lib/components';
-import { isFriendlyUI } from '../../../themes/forumTheme';
 import { useCurrentTime } from '../../../lib/utils/timeUtil';
 import { Typography } from "../../common/Typography";
 import EventTime from "../../localGroups/EventTime";
@@ -37,7 +36,7 @@ const styles = (theme: ThemeType) => ({
     columnGap: 8,
   },
   iconWrapper: {
-    paddingTop: isFriendlyUI ? 3 : 2
+    paddingTop: theme.isFriendlyUI ? 3 : 2
   },
   icon: {
     fontSize: 16,

@@ -4,7 +4,7 @@ import React from 'react';
 import warning from 'warning';
 import classNames from 'classnames';
 import EventListener from 'react-event-listener';
-import debounce from 'debounce'; // < 1kb payload overhead when lodash/debounce is > 3kb.
+import debounce from 'lodash/debounce';
 import { getNormalizedScrollLeft, detectScrollType } from 'normalize-scroll-left';
 import animate from '../internal/animate';
 import ScrollbarSize from './ScrollbarSize';
@@ -148,8 +148,8 @@ class Tabs extends React.Component<TabsPropsWithHoCs, TabsState> {
   }
 
   componentWillUnmount() {
-    this.handleResize.clear();
-    this.handleTabsScroll.clear();
+    this.handleResize.cancel();
+    this.handleTabsScroll.cancel();
   }
 
   getConditionalElements = () => {

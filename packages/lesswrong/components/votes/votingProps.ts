@@ -2,7 +2,6 @@ export type VoteCallback<T extends VoteableTypeClient> = (props: {
   document: T,
   voteType: string | null,
   extendedVote?: AnyBecauseHard,
-  currentUser: UsersCurrent,
 }) => Promise<void>;
 
 export interface VotingProps<T extends VoteableTypeClient> {

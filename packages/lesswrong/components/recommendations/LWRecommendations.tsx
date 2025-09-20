@@ -6,8 +6,7 @@ import RecommendationsAlgorithmPicker, { getRecommendationSettings } from './Rec
 import { useContinueReading } from './withContinueReading';
 import {AnalyticsContext, useTracking} from "../../lib/analyticsEvents";
 import type { RecommendationsAlgorithm } from '../../lib/collections/users/recommendationSettings';
-import { DatabasePublicSetting } from '../../lib/publicSettings';
-import { hasCuratedPostsSetting } from '../../lib/instanceSettings';
+import { bookDisplaySetting, hasCuratedPostsSetting } from '../../lib/instanceSettings';
 import DismissibleSpotlightItem from "../spotlights/DismissibleSpotlightItem";
 import SingleColumnSection from "../common/SingleColumnSection";
 import SettingsButton from "../icons/SettingsButton";
@@ -102,8 +101,6 @@ const getFrontPageOverwrites = (haveCurrentUser: boolean): Partial<Recommendatio
   }
 }
 
-export const bookDisplaySetting = new DatabasePublicSetting<boolean>('bookDisplaySetting', false)
-
 const LWRecommendations = ({
   configName,
   classes,
@@ -174,7 +171,7 @@ const LWRecommendations = ({
 
 
     const bookmarksLimit = (settings.hideFrontpage && settings.hideContinueReading) ? 6 : 3
-    const renderBookmarks = ((currentUser?.bookmarkedPostsMetadata?.length || 0) > 0) && !settings.hideBookmarks
+    const renderBookmarks = currentUser?.hasAnyBookmarks && !settings.hideBookmarks
 
     const renderContinueReading = currentUser && (continueReading?.length > 0) && !settings.hideContinueReading
 
@@ -189,7 +186,7 @@ const LWRecommendations = ({
             onChange={(newSettings) => setSettings(newSettings)}
           /> }
         {!bookDisplaySetting.get() && <AnalyticsContext pageSubSectionContext="spotlightItem">
-          <DismissibleSpotlightItem current />
+          <DismissibleSpotlightItem />
         </AnalyticsContext>}
 
         <div className={classes.subsection}>

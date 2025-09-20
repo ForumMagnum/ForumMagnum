@@ -1,3 +1,5 @@
+"use client";
+
 import React, { useEffect, useState} from 'react';
 import { registerComponent } from '../../lib/vulcan-lib/components';
 import { useLocation } from '../../lib/routeUtil';
@@ -5,7 +7,7 @@ import type { UseEmailTokenResult } from '@/server/emails/emailTokens';
 import { emailTokenResultComponents } from './emailTokens';
 import Loading from "../vulcan-core/Loading";
 import SingleColumnSection from "../common/SingleColumnSection";
-import { useMutation } from '@apollo/client';
+import { useMutation } from "@apollo/client/react";
 import { gql } from '@/lib/generated/gql-codegen';
 
 const EmailTokenPage = () => {

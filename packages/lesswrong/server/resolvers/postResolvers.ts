@@ -11,7 +11,6 @@ import { GoogleDocMetadata } from '../collections/revisions/helpers';
 import { recombeeApi, recombeeRequestHelpers } from '../recombee/client';
 import { RecommendedPost } from '@/lib/recombee/types';
 import { HybridRecombeeConfiguration, RecombeeRecommendationArgs } from '../../lib/collections/users/recommendationSettings';
-import { googleVertexApi } from '../google-vertex/client';
 import { userCanDo, userIsAdmin } from '../../lib/vulcan-users/permissions';
 import { FilterPostsForReview } from '@/components/bookmarks/ReadHistoryTab';
 import gql from "graphql-tag";
@@ -20,11 +19,6 @@ import { convertImportedGoogleDoc } from '../editor/googleDocUtils';
 import { postIsCriticism } from '../languageModels/criticismTipsBot';
 import { createPost } from '../collections/posts/mutations';
 import { createRevision } from '../collections/revisions/mutations';
-
-interface VertexRecommendedPost {
-  post: Partial<DbPost>;
-  attributionId?: string | null;
-}
 
 interface PostWithApprovedJargon {
   post: Partial<DbPost>;
@@ -86,25 +80,6 @@ const {Query: MyDialoguesQuery, typeDefs: MyDialoguesTypeDefs } = createPaginate
   // Caching is not user specific, do not use caching here else you will share users' drafts
   cacheMaxAgeMs: 0, 
 });
-
-// TODO: remove this and all the Vertex-related code after 2025-06-21 (giving clients that might be querying it some time to cycle out)
-// const {Query: GoogleVertexPostsQuery, typeDefs: GoogleVertexPostsTypeDefs } = createPaginatedResolver({
-//   name: "GoogleVertexPosts",
-//   graphQLType: "VertexRecommendedPost",
-//   args: { settings: "JSON" },
-//   callback: async (
-//     context: ResolverContext,
-//     limit: number,
-//   ): Promise<VertexRecommendedPost[]> => {
-//     const { currentUser } = context;
-
-//     if (!currentUser) {
-//       throw new Error(`You must logged in to use Google Vertex recommendations right now`);
-//     }
-
-//     return await googleVertexApi.getRecommendations(limit, context);
-//   }
-// });
 
 const {Query: CrossedKarmaThresholdQuery, typeDefs: CrossedKarmaThresholdTypeDefs } = createPaginatedResolver({
   name: "CrossedKarmaThreshold",
@@ -312,12 +287,16 @@ export const postGqlQueries = {
 
     return canAccessGoogleDoc(fileUrl)
   },
+  async HomepageCommunityEvents(root: void, { limit }: { limit: number }, context: ResolverContext): Promise<HomepageCommunityEventMarkersResult> {
+    const { repos } = context
+    const events = await repos.posts.getHomepageCommunityEvents(limit)
+    return { events }
+  },
   ...DigestHighlightsQuery,
   ...DigestPostsThisWeekQuery,
   ...CuratedAndPopularThisWeekQuery,
   ...RecentlyActiveDialoguesQuery,
   ...MyDialoguesQuery,
-  // ...GoogleVertexPostsQuery,
   ...CrossedKarmaThresholdQuery,
   ...RecombeeLatestPostsQuery,
   ...RecombeeHybridPostsQuery,
@@ -423,7 +402,7 @@ export const postGqlMutations = {
       return await Posts.findOne({_id: postId})
     } else {
       let afField = {};
-      if (isAF) {
+      if (isAF()) {
         afField = !userCanDo(currentUser, 'posts.alignment.new')
           ? { suggestForAlignmentUserIds: [currentUser._id] }
           : { af: true };
@@ -475,6 +454,7 @@ export const postGqlTypeDefs = gql`
     DigestPosts(num: Int): [Post!]
 
     CanAccessGoogleDoc(fileUrl: String!): Boolean
+    HomepageCommunityEvents(limit: Int!): HomepageCommunityEventMarkersResult!
   }
 
   extend type Mutation {
@@ -522,6 +502,16 @@ export const postGqlTypeDefs = gql`
   type PostWithApprovedJargon {
     post: Post!
     jargonTerms: [JargonTerm!]!
+  }
+  
+  type HomepageCommunityEventMarker {
+    _id: String!
+    lat: Float!
+    lng: Float!
+    types: [String!]
+  }
+  type HomepageCommunityEventMarkersResult {
+    events: [HomepageCommunityEventMarker!]!
   }
   ${DigestHighlightsTypeDefs}
   ${DigestPostsThisWeekTypeDefs}

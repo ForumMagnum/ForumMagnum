@@ -1,9 +1,7 @@
 import Users from '../../server/collections/users/collection';
 import { asyncForeachSequential } from '../../lib/utils/asyncUtils';
 
-const fixEmail = false;
-
-if (fixEmail) { void (async ()=>{
+export async function fixEmail() {
   let usersCount = 0;
   let duplicateCount = 0;
   //eslint-disable-next-line no-console
@@ -25,4 +23,4 @@ if (fixEmail) { void (async ()=>{
   })
   //eslint-disable-next-line no-console
   console.log("Found n duplicate emails: ", duplicateCount);
-})()}
+}

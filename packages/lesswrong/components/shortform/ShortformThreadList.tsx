@@ -2,7 +2,6 @@ import React from 'react';
 import { registerComponent } from '../../lib/vulcan-lib/components';
 import { useCurrentUser } from '../common/withUser';
 import { userCanQuickTake } from '../../lib/vulcan-users/permissions';
-import { isFriendlyUI } from '../../themes/forumTheme';
 import LoadMore from "../common/LoadMore";
 import CommentOnPostWithReplies from "../comments/CommentOnPostWithReplies";
 import QuickTakesEntry from "../quickTakes/QuickTakesEntry";
@@ -22,7 +21,7 @@ const CommentWithRepliesFragmentMultiQuery = gql(`
 
 const styles = (theme: ThemeType) => ({
   shortformItem: {
-    marginTop: theme.spacing.unit * (isFriendlyUI ? 2 : 4),
+    marginTop: theme.spacing.unit * (theme.isFriendlyUI ? 2 : 4),
   }
 })
 

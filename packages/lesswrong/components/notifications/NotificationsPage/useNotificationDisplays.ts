@@ -18,7 +18,7 @@ export const useNotificationDisplays = (limit: number, type?: string) => {
     notifyOnNetworkStatusChange: true,
     skip: !currentUser,
     fetchPolicy: "cache-and-network",
-    nextFetchPolicy: "cache-only",
+    nextFetchPolicy: "cache-first",
     variables: {
       type,
       limit,

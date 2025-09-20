@@ -10,7 +10,7 @@ import UsersNameDisplay from "../users/UsersNameDisplay";
 import Row from "../common/Row";
 import MetaInfo from "../common/MetaInfo";
 import LWTooltip from "../common/LWTooltip";
-import CommentsNodeInner from "../comments/CommentsNode";
+import CommentsNode from "../comments/CommentsNode";
 
 const styles = (theme: ThemeType) => ({
   root: {
@@ -108,7 +108,7 @@ export const ReviewsLeaderboard = ({classes, reviews, reviewYear}: {
         </div>
         <div className={classes.reviews}>{reviewUser.reviews.map(review => {
           return <LWTooltip placement="bottom-start" title={<div className={classes.card}>
-            <CommentsNodeInner treeOptions={{showPostTitle: true}} comment={review}/></div>} tooltip={false} key={review._id}>
+            <CommentsNode treeOptions={{showPostTitle: true}} comment={review}/></div>} tooltip={false} key={review._id}>
             <a href={`/reviews/${reviewYear ?? "all"}#${review._id}`} onClick={() => setTruncated(true)}>
               <MetaInfo>{(review.baseScore ?? 0) - getSelfUpvotePower(review.user)}</MetaInfo>
             </a>

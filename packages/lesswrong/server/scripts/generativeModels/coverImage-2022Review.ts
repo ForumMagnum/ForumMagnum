@@ -12,8 +12,6 @@ import { createAdminContext } from "../../vulcan-lib/createContexts";
 import { createReviewWinnerArt } from '@/server/collections/reviewWinnerArts/mutations.ts';
 import { PostsPage } from '@/lib/collections/posts/fragments.ts';
 
-const myMidjourneyKey = myMidjourneyAPIKeySetting.get()
-
 const promptUrls = [
   "https://s.mj.run/W91s58GkTUs",
   "https://s.mj.run/D5okH4Ak-mw",
@@ -148,7 +146,7 @@ const pressMidjourneyButton = async (messageId: string, button: string) => {
   return fetch(`https://api.mymidjourney.ai/api/v1/midjourney/button`, {
     method: 'POST',
     headers: {
-      'Authorization': `Bearer ${myMidjourneyKey}`,
+      'Authorization': `Bearer ${myMidjourneyAPIKeySetting.get()}`,
       'Content-Type': 'application/json'
     },
     body: JSON.stringify({messageId, button})
@@ -194,7 +192,7 @@ async function checkOnJob(jobId: string): Promise<MyMidjourneyResponse | undefin
     const response = await fetch(`https://api.mymidjourney.ai/api/v1/midjourney/message/${jobId}`, {
       method: 'GET',
       headers: {
-        'Authorization': `Bearer ${myMidjourneyKey}`,
+        'Authorization': `Bearer ${myMidjourneyAPIKeySetting.get()}`,
         'Content-Type': 'application/json'
       }
     })
@@ -225,7 +223,7 @@ async function getEssayPromptJointImageMessage(promptElement: string): Promise<M
     const response = await fetch('https://api.mymidjourney.ai/api/v1/midjourney/imagine', {
       method: 'POST',
       headers: {
-        'Authorization': `Bearer ${myMidjourneyKey}`,
+        'Authorization': `Bearer ${myMidjourneyAPIKeySetting.get()}`,
         'Content-Type': 'application/json'
       },
       body: JSON.stringify({prompt: prompter(promptElement)})
@@ -273,7 +271,7 @@ async function generateCoverImages({limit = 2}: {
 
 // Exported to allow running manually with yarn repl
 export async function coverImages () {
-  if (!myMidjourneyKey) {
+  if (!myMidjourneyAPIKeySetting.get()) {
     throw new Error('No MyMidjourney API key found!');
   }
   

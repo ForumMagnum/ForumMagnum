@@ -1,4 +1,5 @@
-import _ from 'underscore';
+import partition from 'lodash/partition';
+import sortBy from 'lodash/sortBy';
 import { accessFilterMultiple } from '../../lib/utils/schemaUtils';
 import { getDefaultViewSelector, mergeSelectors, mergeWithDefaultViewSelector, replaceSpecialFieldSelectors } from '../../lib/utils/viewUtils';
 import { filterNonnull } from '@/lib/utils/typeGuardUtils';
@@ -117,7 +118,7 @@ const applyCutoff = <T extends Sortable<SortKeyType>, SortKeyType extends number
   const cutoffFilter = sortDirection === "asc"
     ? ({sortKey}: { sortKey: SortKeyType }) => sortKey > cutoff
     : ({sortKey}: { sortKey: SortKeyType }) => sortKey < cutoff;
-  return _.filter<T>(sortedResults, cutoffFilter);
+  return sortedResults.filter(cutoffFilter);
 }
 
 export async function mergeFeedQueries<SortKeyType extends number | Date>({limit, cutoff, offset, sortDirection, subqueries}: {
@@ -149,10 +150,10 @@ export async function mergeFeedQueries<SortKeyType extends number | Date>({limit
   const [
     numericallyPositionedResults,
     orderedResults,
-  ] = _.partition(unsortedResults, ({isNumericallyPositioned}) => !!isNumericallyPositioned);
+  ] = partition(unsortedResults, ({isNumericallyPositioned}) => !!isNumericallyPositioned);
   
   // Sort by shared sort key
-  const sortedResults = _.sortBy(orderedResults, r=>r.sortKey);
+  const sortedResults = sortBy(orderedResults, r=>r.sortKey);
   if (sortDirection === "desc") {
     sortedResults.reverse();
   }
@@ -166,11 +167,11 @@ export async function mergeFeedQueries<SortKeyType extends number | Date>({limit
   const bothResultKinds = mergeSortedAndNumericallyPositionedResults(withCutoffApplied, numericallyPositionedResults, offset||0);
   
   // Apply limit
-  const withLimitApplied = _.first(bothResultKinds, limit);
+  const withLimitApplied = bothResultKinds.slice(0, limit);
   
   // Find the last result that wasn't numerically positioned (after the limit
   // is applied), and get its sortKey to use as the page cutoff
-  const nonNumericallyPositionedResults = _.filter(withLimitApplied, r => !_.some(numericallyPositionedResults, r2=>r===r2)) as Sortable<SortKeyType>[];
+  const nonNumericallyPositionedResults = withLimitApplied.filter(r => !numericallyPositionedResults.some(r2=>r===r2)) as Sortable<SortKeyType>[];
   const nextCutoff = (nonNumericallyPositionedResults.length>0) ? nonNumericallyPositionedResults[nonNumericallyPositionedResults.length-1].sortKey : null;
   
   return {
@@ -187,7 +188,7 @@ export async function mergeFeedQueries<SortKeyType extends number | Date>({limit
 function mergeSortedAndNumericallyPositionedResults<D extends Sortable<Date>, N extends Sortable<number>>(sortedResults: Array<D>, numericallyPositionedResults: Array<N>, offset: number) {
   // Take the numerically positioned results. Sort them by index, discard ones
   // from below the offset, and resolve collisions.
-  const sortedNumericallyPositionedResults = _.sortBy(numericallyPositionedResults, r=>r.sortKey);
+  const sortedNumericallyPositionedResults = sortBy(numericallyPositionedResults, r=>r.sortKey);
   
   let mergedResults: (D|N)[] = [...sortedResults];
   for (let i=0; i<sortedNumericallyPositionedResults.length; i++) {

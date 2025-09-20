@@ -1,4 +1,3 @@
-
 import schema from "@/lib/collections/comments/newSchema";
 import { userIsAllowedToComment } from "@/lib/collections/users/helpers";
 import { isElasticEnabled } from "@/lib/instanceSettings";
@@ -11,10 +10,10 @@ import { sendAlignmentSubmissionApprovalNotifications } from "@/server/callbacks
 import { createInitialRevisionsForEditableFields, reuploadImagesIfEditableFieldsChanged, uploadImagesInEditableFields, notifyUsersOfNewPingbackMentions, createRevisionsForEditableFields, updateRevisionsDocumentIds, notifyUsersOfPingbackMentions } from "@/server/editor/make_editable_callbacks";
 import { logFieldChanges } from "@/server/fieldChanges";
 import { elasticSyncDocument } from "@/server/search/elastic/elasticCallbacks";
+import { backgroundTask } from "@/server/utils/backgroundTask";
 import { getCreatableGraphQLFields, getUpdatableGraphQLFields } from "@/server/vulcan-lib/apollo-server/graphqlTemplates";
 import { makeGqlCreateMutation, makeGqlUpdateMutation } from "@/server/vulcan-lib/apollo-server/helpers";
-import { getLegacyCreateCallbackProps, getLegacyUpdateCallbackProps, insertAndReturnCreateAfterProps, runFieldOnCreateCallbacks, runFieldOnUpdateCallbacks, updateAndReturnDocument, assignUserIdToData } from "@/server/vulcan-lib/mutators";
-import { dataToModifier, modifierToData } from "@/server/vulcan-lib/validation";
+import { getLegacyCreateCallbackProps, getLegacyUpdateCallbackProps, insertAndReturnCreateAfterProps, runFieldOnCreateCallbacks, runFieldOnUpdateCallbacks, updateAndReturnDocument, assignUserIdToData, dataToModifier, modifierToData } from '@/server/vulcan-lib/mutators';
 import gql from "graphql-tag";
 import cloneDeep from "lodash/cloneDeep";
 
@@ -80,7 +79,7 @@ export async function createComment({ data }: CreateCommentInput, context: Resol
   const afterCreateProperties = await insertAndReturnCreateAfterProps(data, 'Comments', callbackProps);
   let documentWithId = afterCreateProperties.document;
 
-  invalidatePostOnCommentCreate(documentWithId);
+  invalidatePostOnCommentCreate(documentWithId, context);
   documentWithId = await updateDescendentCommentCountsOnCreate(documentWithId, afterCreateProperties);  
 
   documentWithId = await updateRevisionsDocumentIds({
@@ -114,14 +113,14 @@ export async function createComment({ data }: CreateCommentInput, context: Resol
   await trackCommentRateLimitHit(asyncProperties);
   await checkModGPTOnCommentCreate(asyncProperties);
 
-  if (isElasticEnabled) {
-    void elasticSyncDocument('Comments', documentWithId._id);
+  if (isElasticEnabled()) {
+    backgroundTask(elasticSyncDocument('Comments', documentWithId._id));
   }
 
   await commentsAlignmentNew(documentWithId, context);
   await commentsNewNotifications(documentWithId, context);
 
-  await uploadImagesInEditableFields({
+  uploadImagesInEditableFields({
     newDoc: documentWithId,
     props: asyncProperties,
   });
@@ -161,7 +160,7 @@ export async function updateComment({ selector, data }: UpdateCommentInput, cont
   data = modifierToData(modifier);
   let updatedDocument = await updateAndReturnDocument(data, Comments, commentSelector, context);
 
-  invalidatePostOnCommentUpdate(updatedDocument);
+  invalidatePostOnCommentUpdate(updatedDocument, context);
   updatedDocument = await updateDescendentCommentCountsOnEdit(updatedDocument, updateCallbackProperties);  
 
   updatedDocument = await notifyUsersOfNewPingbackMentions({
@@ -187,16 +186,16 @@ export async function updateComment({ selector, data }: UpdateCommentInput, cont
   await commentsPublishedNotifications(updatedDocument, oldDocument, context);
   await sendAlignmentSubmissionApprovalNotifications(updatedDocument, oldDocument);  
 
-  await reuploadImagesIfEditableFieldsChanged({
+  reuploadImagesIfEditableFieldsChanged({
     newDoc: updatedDocument,
     props: updateCallbackProperties,
   });
 
-  if (isElasticEnabled) {
-    void elasticSyncDocument('Comments', updatedDocument._id);
+  if (isElasticEnabled()) {
+    backgroundTask(elasticSyncDocument('Comments', updatedDocument._id));
   }
 
-  void logFieldChanges({ currentUser, collection: Comments, oldDocument, data: origData });
+  backgroundTask(logFieldChanges({ currentUser, collection: Comments, oldDocument, data: origData }));
 
   return updatedDocument;
 }

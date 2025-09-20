@@ -1,7 +1,7 @@
 import React, { RefObject } from 'react';
 import { defineStyles, useStyles } from '@/components/hooks/useStyles';
 import { useHover } from '@/components/common/withHover';
-import { useMutation } from '@apollo/client';
+import { useMutation } from "@apollo/client/react";
 import { gql } from '@/lib/generated/gql-codegen';
 import SplashImageEditingOptions from "./SplashImageEditingOptions";
 import ImageCropPreview from "./ImageCropPreview";

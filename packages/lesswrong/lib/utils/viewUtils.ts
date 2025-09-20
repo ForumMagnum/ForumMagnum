@@ -1,12 +1,10 @@
 import { loggerConstructor } from './logging'
-import { DatabasePublicSetting } from '../publicSettings';
-import * as _ from 'underscore';
+import { maxDocumentsPerRequestSetting } from '../instanceSettings';
 import merge from 'lodash/merge';
+import isEmpty from 'lodash/isEmpty';
+import isEqual from 'lodash/isEqual';
 import { viewFieldAllowAny, viewFieldNullOrMissing } from './viewConstants';
 import type { CollectionViewSet } from '../views/collectionViewSet';
-
-// 'Maximum documents per request'
-const maxDocumentsPerRequestSetting = new DatabasePublicSetting<number>('maxDocumentsPerRequest', 5000)
 
 /**
  * Given a view (which gets translated into a mongo query), provide a string
@@ -103,7 +101,7 @@ function getParameters<N extends CollectionNameString>(
   }
 
   // sort using terms.orderBy (overwrite defaultView's sort)
-  if (terms.orderBy && !_.isEmpty(terms.orderBy)) {
+  if (terms.orderBy && !isEmpty(terms.orderBy)) {
     parameters.options.sort = terms.orderBy;
   }
 
@@ -121,7 +119,7 @@ function getParameters<N extends CollectionNameString>(
   // remove any null fields (setting a field to null means it should be deleted)
   parameters.selector = replaceSpecialFieldSelectors(parameters.selector);
   if (parameters.options.sort) {
-    _.keys(parameters.options.sort).forEach(key => {
+    Object.keys(parameters.options.sort).forEach(key => {
       if (parameters.options.sort[key] === null) {
         delete parameters.options.sort[key];
       }
@@ -148,11 +146,11 @@ function getParameters<N extends CollectionNameString>(
 export function replaceSpecialFieldSelectors(selector: any): any {
   let result: any = {};
   for (let key of Object.keys(selector)) {
-    if (_.isEqual(selector[key], viewFieldNullOrMissing)) {
+    if (isEqual(selector[key], viewFieldNullOrMissing)) {
       // Put an explicit null in the selector. In mongodb-query terms, this means
       // the field must either contain the value null, or be missing.
       result[key] = null;
-    } else if (_.isEqual(selector[key], viewFieldAllowAny)) {
+    } else if (isEqual(selector[key], viewFieldAllowAny)) {
       // Skip: The selector has a no-op in this field. Probably a specific view
       // overriding something that would have been in the default view.
     } else if (selector[key] === null || selector[key] === undefined) {

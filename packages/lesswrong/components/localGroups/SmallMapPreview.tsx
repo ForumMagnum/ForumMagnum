@@ -1,14 +1,9 @@
 import React, { useCallback, useState } from 'react';
 import { registerComponent } from '../../lib/vulcan-lib/components';
-import { mapboxAPIKeySetting } from '../../lib/publicSettings';
-import { Helmet, componentWithChildren } from '../../lib/utils/componentsWithChildren';
-import { useMapStyle } from '../hooks/useMapStyle';
-import BadlyTypedReactMapGL from 'react-map-gl';
 import without from 'lodash/without';
 import LocalEventMarker from "./LocalEventMarker";
 import LocalGroupMarker from "./LocalGroupMarker";
-
-const ReactMapGL = componentWithChildren(BadlyTypedReactMapGL);
+import { WrappedReactMapGL } from '../community/WrappedReactMapGL';
 
 const styles = (_theme: ThemeType) => ({
   previewWrapper: {
@@ -43,7 +38,6 @@ const SmallMapPreview = ({post, group, zoom, classes}: {
     setOpenWindows((openWindows) => without(openWindows, id));
   }, []);
 
-  const mapStyle = useMapStyle();
 
   if (!viewport) {
     return null;
@@ -51,19 +45,11 @@ const SmallMapPreview = ({post, group, zoom, classes}: {
 
   return (
     <div className={classes.previewWrapper}>
-      <Helmet>
-        <link
-          href="https://api.tiles.mapbox.com/mapbox-gl-js/v1.3.1/mapbox-gl.css"
-          rel="stylesheet"
-        />
-      </Helmet>
-      <ReactMapGL
+      <WrappedReactMapGL
         {...viewport}
         width="100%"
         height="100%"
-        mapStyle={mapStyle}
         onViewportChange={setViewport}
-        mapboxApiAccessToken={mapboxAPIKeySetting.get() ?? undefined}
       >
         {post && <LocalEventMarker
           key={post._id}
@@ -81,7 +67,7 @@ const SmallMapPreview = ({post, group, zoom, classes}: {
           handleInfoWindowClose={onInfoWindowClose}
           infoOpen={openWindows.includes(group._id)}
         />}
-      </ReactMapGL>
+      </WrappedReactMapGL>
     </div>
   );
 }

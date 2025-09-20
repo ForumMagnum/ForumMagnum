@@ -6,6 +6,7 @@ import type { OverflowNavResult } from './OverflowNavObserverContext'
 import { defineStyles, useStyles } from '../hooks/useStyles';
 import { registerComponent } from '@/lib/vulcan-lib/components';
 import classNames from 'classnames';
+import { useTracking } from '../../lib/analyticsEvents';
 
 const styles = defineStyles('OverflowNavButtons', (theme: ThemeType) => ({
   base: {
@@ -77,11 +78,23 @@ interface Props {
 export const OverflowNavButtons = ({ nav, onCollapse, applyCommentStyle }: Props) => {
   const { showUp, showDown, scrollToTop: onTop, scrollToBottom: onBottom } = nav;
   const classes = useStyles(styles);
+  const { captureEvent } = useTracking();
 
   const handleCollapse = useCallback(() => {
+    captureEvent("overflowNavCollapseClicked");
     onCollapse?.();
     onTop();
-  }, [onCollapse, onTop]);
+  }, [onCollapse, onTop, captureEvent]);
+
+  const handleScrollToTop = useCallback(() => {
+    captureEvent("overflowNavUpClicked");
+    onTop();
+  }, [onTop, captureEvent]);
+
+  const handleScrollToBottom = useCallback(() => {
+    captureEvent("overflowNavDownClicked");
+    onBottom();
+  }, [onBottom, captureEvent]);
 
   const containerClass = (showUp && !showDown)
     ? classNames(classes.onlyUp, { [classes.commentOnlyUp]: applyCommentStyle })
@@ -92,10 +105,10 @@ export const OverflowNavButtons = ({ nav, onCollapse, applyCommentStyle }: Props
       {onCollapse && <div onClick={handleCollapse} className={classes.button}>
         <UnfoldLessIcon />
       </div>}
-      <div onClick={onTop} className={classNames(classes.button, { [classes.hidden]: !showUp })}>
+      <div onClick={handleScrollToTop} className={classNames(classes.button, { [classes.hidden]: !showUp })}>
         <ArrowUpwardIcon className={classes.fontSmall} />
       </div>
-      <div onClick={onBottom} className={classNames(classes.button, { [classes.hidden]: !showDown })}>
+      <div onClick={handleScrollToBottom} className={classNames(classes.button, { [classes.hidden]: !showDown })}>
         <ArrowDownwardIcon className={classes.fontSmall} />
       </div>
     </div>

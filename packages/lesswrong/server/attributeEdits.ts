@@ -3,9 +3,7 @@ import { compareVersionNumbers } from '../lib/editor/utils';
 import cheerio from 'cheerio';
 import { cheerioParse } from './utils/htmlUtil';
 import orderBy from 'lodash/orderBy';
-import times from 'lodash/times';
 import filter from 'lodash/filter';
-import * as _ from 'underscore';
 
 type EditAttributions = (string|null)[]
 type InsDelUnc = "ins"|"del"|"unchanged"
@@ -56,7 +54,7 @@ export async function computeAttributions(
   // skip over everything in between the reverted-to rev and the revert (which
   // is likely deleting and then restoring stuff, which should not be attributed
   // to the person who did the restore).
-  let isReverted: boolean[] = _.times(filteredRevs.length, ()=>false);
+  let isReverted: boolean[] = Array.from({ length: filteredRevs.length }, ()=>false);
   for (let i=0; i<filteredRevs.length; i++) {
     for (let j=i-1; j>=0; j--) {
       if (filteredRevs[i].html===filteredRevs[j].html) {
@@ -70,7 +68,7 @@ export async function computeAttributions(
   const revsByDate = filteredRevs;
   const firstRev = revsByDate[0];
   const finalRev = revsByDate[revsByDate.length-1];
-  let attributions: EditAttributions = times(firstRev.html?.length||0, ()=>firstRev.userId);
+  let attributions: EditAttributions = Array.from({ length: firstRev.html?.length||0 }, ()=>firstRev.userId);
   
   for (let i=1; i<revsByDate.length; i++) {
     const rev = revsByDate[i];

@@ -24,7 +24,7 @@ const styles = (theme: ThemeType) => ({
 });
 
 type DisplayConfig = {
-  Display: NotificationType["Display"] | null,
+  Display: NotificationType<string>["Display"] | null,
   Icon: ForumIconName | FC,
   iconVariant: IconVariant,
 }
