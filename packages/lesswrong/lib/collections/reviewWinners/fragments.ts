@@ -10,19 +10,6 @@ export const ReviewWinnerEditDisplay = gql(`
   }
 `)
 
-export const ReviewWinnerTopPostsDisplay = gql(`
-  fragment ReviewWinnerTopPostsDisplay on ReviewWinner {
-    _id
-    postId
-    post {
-      ...PostsTopItemInfo
-    }
-    reviewYear
-    curatedOrder
-    reviewRanking
-  }
-`)
-
 export const ReviewWinnerAll = gql(`
   fragment ReviewWinnerAll on ReviewWinner {
     _id

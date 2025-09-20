@@ -19,24 +19,14 @@ export const PostsMinimumInfo = gql(`
 export const PostsTopItemInfo = gql(`
   fragment PostsTopItemInfo on Post {
     ...PostsMinimumInfo
-    ...PostsAuthors
     isRead
-    contents {
+    user {
       _id
-      htmlHighlight
-      wordCount
-      version
+      displayName
     }
     reviewWinner {
       ...ReviewWinnerTopPostsPage
     }
-    spotlight {
-      ...SpotlightReviewWinner
-    }
-    reviews {
-      ...CommentsList
-    }
-    finalReviewVoteScoreHighKarma
   }
 `)
 
