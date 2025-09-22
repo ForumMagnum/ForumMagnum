@@ -50,7 +50,7 @@ export const up = async ({db}: MigrationContext) => {
   `);
 
   const updatedMarketInfo = await asyncMapSequential(postsWithMarkets, async (post) => {
-    const marketInfo = await postGetMarketInfoFromManifold(post);
+    const marketInfo = await postGetMarketInfoFromManifold(post, post.postedAt.getFullYear());
     return { marketId: post.manifoldReviewMarketId, marketInfo };
   });
 

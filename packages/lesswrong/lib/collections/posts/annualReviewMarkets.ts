@@ -195,7 +195,7 @@ export const getPostMarketInfo = async (post: DbPost, context: ResolverContext):
   // doesn't expire for every request at once (which would lead to a lot of
   // duplicate updating in between when the cache entry expired and when the
   // updated value was written).
-  if (timeDifference >= 30_000 + Math.random()*15_000) {
+  if (timeDifference >= 30_000 + (Math.random()*15_000)) {
     backgroundTask(refreshMarketInfoInCache(marketId, year, context));
   }
 
