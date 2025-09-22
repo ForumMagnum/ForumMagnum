@@ -249,9 +249,6 @@ function getWrappedClient(
     max: MAX_CONNECTIONS,
     // Trying a relatively shorter idle timeout to see if it reduces the connection starvation we see during deploys on Vercel
     idleTimeoutMillis: 5_000,
-    // Default statement timeout to 30 seconds to hopefully reduce downtime if the database becomes overloaded.
-    // Need some way to configure this for migrations that we expect to take longer than 30s.
-    statement_timeout: 30_000,
   });
 
   const client: SqlClient = {
