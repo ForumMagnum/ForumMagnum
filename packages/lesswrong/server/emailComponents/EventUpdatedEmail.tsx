@@ -58,6 +58,7 @@ export const EventUpdatedEmail = async({postId, emailContext}: {
   emailContext: EmailContextType
 }) => {
   const classes = useEmailStyles(styles, emailContext);
+  const now = new Date();
   const { data } = await useEmailQuery(PostsBaseQuery, {
     variables: { documentId: postId },
     emailContext
@@ -91,7 +92,9 @@ export const EventUpdatedEmail = async({postId, emailContext}: {
     </div>
     <p>
       <div className={classes.label}>Date and Time</div>
-      <div className={classes.data}><PrettyEventDateTime post={post} timezone={timezoneIsKnown ? timezone : undefined} /></div>
+      <div className={classes.data}>
+        <PrettyEventDateTime now={now} post={post} timezone={timezoneIsKnown ? timezone : undefined} />
+      </div>
     </p>
     <p>
       <div className={classes.label}>Location</div>

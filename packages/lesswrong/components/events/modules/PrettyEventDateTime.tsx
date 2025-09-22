@@ -15,15 +15,16 @@ import TimeTag from "../../common/TimeTag";
  * @returns The formatted event datetimes.
  */
 export const PrettyEventDateTime = ({
+  now,
   post,
   timezone,
   dense = false,
 }: {
+  now: Date,
   post: Pick<DbPost | PostsBase, 'startTime' | 'endTime' | 'localStartTime' | 'localEndTime'>,
   timezone?: string;
   dense?: boolean;
 }) => {
-  const now = moment(useCurrentTime())
   if (!post.startTime) return <>TBD</>;
   let start = moment(post.startTime);
   let end = post.endTime && moment(post.endTime);
@@ -45,7 +46,7 @@ export const PrettyEventDateTime = ({
 
   // hide the year if it's reasonable to assume it
   const sixMonthsFromNow = moment(now).add(6, "months");
-  const startYear = now.isSame(start, "year") || start.isBefore(sixMonthsFromNow) ? "" : `, ${start.format("YYYY")}`;
+  const startYear = moment(now).isSame(start, "year") || start.isBefore(sixMonthsFromNow) ? "" : `, ${start.format("YYYY")}`;
 
   const startDate = dense ? start.format("MMM D") : start.format("ddd, MMM D");
   const startTime = start.format("h:mm").replace(":00", "");
@@ -80,7 +81,7 @@ export const PrettyEventDateTime = ({
   // ex: Mon, Jan 3 at 4:30 PM - Tues, Jan 4 at 5:30 PM
   // ex: Mon, Jan 3, 2023 at 4:30 PM - Tues, Jan 4, 2023 at 5:30 PM EST
   const endDate = dense ? end.format("MMM D") : end.format("ddd, MMM D");
-  const endYear = now.isSame(end, "year") || end.isBefore(sixMonthsFromNow) ? "" : `, ${end.format("YYYY")}`;
+  const endYear = moment(now).isSame(end, "year") || end.isBefore(sixMonthsFromNow) ? "" : `, ${end.format("YYYY")}`;
   return (
     <>
       <TimeTag dateTime={post.startTime}>{`${startDate}${startYear} at ${startTime}${startAmPm}`}</TimeTag>
