@@ -9,7 +9,7 @@ export const logAllQueries = process.env.QUERY_LOGGING === 'true';
 // logQueryArguments: If true, logged queries will include the parameters to
 // the query (which may include sensitive data). Intended for debugging, not for
 // prod.
-export const logQueryArguments = false;
+export const logQueryArguments = true;
 
 // measureSqlBytesDownloaded: If true, logged queries will include the size (in
 // bytes) of the result set.
