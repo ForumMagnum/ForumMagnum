@@ -3745,6 +3745,11 @@ WITH
 WHERE
   "suggestForAlignmentUserIds" IS DISTINCT FROM '{}';
 
+-- CustomIndex "idx_Comments_deletedDate"
+CREATE INDEX IF NOT EXISTS "idx_Comments_deletedDate" ON "Comments" ("deletedDate" DESC NULLS LAST)
+WHERE
+  "deleted" IS TRUE;
+
 -- CustomIndex "idx_posts_pingbacks"
 CREATE INDEX IF NOT EXISTS idx_posts_pingbacks ON "Posts" USING gin (pingbacks);
 

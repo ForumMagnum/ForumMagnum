@@ -140,7 +140,6 @@ const AppComponent = ({ children }: { children: React.ReactNode }) => {
   <SubscribeLocationContext.Provider value={subscribeLocationContext.current}>
     <MessageContextProvider>
       {/* <HeadTags image={siteImageSetting.get()} /> */}
-      <ScrollToTop />
       <Layout>
         {children}
       </Layout>
