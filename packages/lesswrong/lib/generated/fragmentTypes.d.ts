@@ -195,7 +195,6 @@ interface FragmentTypes {
   ReviewWinnerArtImages: ReviewWinnerArtImages
   ReviewWinnerArtsDefaultFragment: ReviewWinnerArtsDefaultFragment
   ReviewWinnerEditDisplay: ReviewWinnerEditDisplay
-  ReviewWinnerTopPostsDisplay: ReviewWinnerTopPostsDisplay
   ReviewWinnerTopPostsPage: ReviewWinnerTopPostsPage
   ReviewWinnersDefaultFragment: ReviewWinnersDefaultFragment
   RevisionDisplay: RevisionDisplay
@@ -413,7 +412,7 @@ interface FragmentTypesByCollection {
   Reports: "ReportsDefaultFragment"|"UnclaimedReportsList"
   ReviewVotes: "ReviewVotesDefaultFragment"|"reviewAdminDashboard"|"reviewVoteFragment"|"reviewVoteWithUserAndPost"
   ReviewWinnerArts: "ReviewWinnerArtImages"|"ReviewWinnerArtsDefaultFragment"
-  ReviewWinners: "ReviewWinnerAll"|"ReviewWinnerAnnouncement"|"ReviewWinnerEditDisplay"|"ReviewWinnerTopPostsDisplay"|"ReviewWinnerTopPostsPage"|"ReviewWinnersDefaultFragment"
+  ReviewWinners: "ReviewWinnerAll"|"ReviewWinnerAnnouncement"|"ReviewWinnerEditDisplay"|"ReviewWinnerTopPostsPage"|"ReviewWinnersDefaultFragment"
   Revisions: "RecentDiscussionRevisionTagFragment"|"RevisionDisplay"|"RevisionEdit"|"RevisionHTML"|"RevisionHistoryEntry"|"RevisionHistorySummaryEdit"|"RevisionMetadata"|"RevisionMetadataWithChangeMetrics"|"RevisionTagFragment"|"RevisionsDefaultFragment"|"WithVoteRevision"
   Sequences: "SequenceContinueReadingFragment"|"SequencesDefaultFragment"|"SequencesEdit"|"SequencesPageFragment"|"SequencesPageTitleFragment"|"SequencesPageWithChaptersFragment"
   Sessions: "SessionsDefaultFragment"
@@ -630,7 +629,6 @@ interface CollectionNamesByFragmentName {
   ReviewWinnerArtImages: "ReviewWinnerArts"
   ReviewWinnerArtsDefaultFragment: "ReviewWinnerArts"
   ReviewWinnerEditDisplay: "ReviewWinners"
-  ReviewWinnerTopPostsDisplay: "ReviewWinners"
   ReviewWinnerTopPostsPage: "ReviewWinners"
   ReviewWinnersDefaultFragment: "ReviewWinners"
   RevisionDisplay: "Revisions"
