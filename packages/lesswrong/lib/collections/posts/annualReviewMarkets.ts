@@ -4,6 +4,8 @@ import { getWithCustomLoader, loadByIds } from "../../loaders";
 import { filterNonnull } from "../../utils/typeGuardUtils";
 import keyBy from "lodash/keyBy";
 import { captureException } from "@/lib/sentryWrapper";
+import ManifoldProbabilitiesCaches from "@/server/collections/manifoldProbabilitiesCaches/collection";
+import { createAnonymousContext } from "@/server/vulcan-lib/createContexts";
 
 // Information about a market, but without bets or comments
 export type LiteMarket = {
@@ -76,12 +78,10 @@ export const highlightMarket = (info: AnnualReviewMarketInfo | undefined): boole
   !!info && !info.isResolved && info.probability > highlightReviewWinnerThresholdSetting.get()
 
 
-export const postGetMarketInfoFromManifold = async (post: DbPost): Promise<AnnualReviewMarketInfo | null > => {
-  if (!post.manifoldReviewMarketId) return null;
-
+export const postGetMarketInfoFromManifold = async (marketId: string, year: number): Promise<AnnualReviewMarketInfo | null > => {
   let result;
   try {
-    result = await fetch(`https://api.manifold.markets/v0/market/${post.manifoldReviewMarketId}`, {
+    result = await fetch(`https://api.manifold.markets/v0/market/${marketId}`, {
       method: "GET",
       headers: {
         "content-type": "application/json"
@@ -106,7 +106,7 @@ export const postGetMarketInfoFromManifold = async (post: DbPost): Promise<Annua
 
   const fullMarket = await result.json()
   
-  return { probability: fullMarket.probability, isResolved: fullMarket.isResolved, year: post.postedAt.getFullYear(), url: fullMarket.url }
+  return { probability: fullMarket.probability, isResolved: fullMarket.isResolved, year, url: fullMarket.url }
 }
 
 export const createManifoldMarket = async (question: string, descriptionMarkdown: string, closeTime: Date, visibility: string, initialProb: number, idKey: string): Promise<LiteMarket | undefined> => {
@@ -152,15 +152,30 @@ export const createManifoldMarket = async (question: string, descriptionMarkdown
 
 
 
-async function refreshMarketInfoInCache(post: DbPost, context: ResolverContext) {
-  const marketInfo = await postGetMarketInfoFromManifold(post);
-  if (!marketInfo || !post.manifoldReviewMarketId) return null;
+//export async function testRefreshMarketInfoInCache(marketId: string, year: number) {
+//  const context = createAnonymousContext();
+//  await refreshMarketInfoInCache(marketId, year, context);
+//}
 
-  await context.repos.manifoldProbabilitiesCachesRepo.upsertMarketInfoInCache(post.manifoldReviewMarketId, marketInfo);
+async function refreshMarketInfoInCache(marketId: string, year: number, context: ResolverContext) {
+  // Update the market-info cache for a Manifold prediction market. In order to
+  // avoid thundering-herd issues, we update the cache item timestamp first (and
+  // check that it changed by a minimum amount) before we send the API request
+  // to Manifold.
+  const previousTimestamp = await context.repos.manifoldProbabilitiesCachesRepo.updateMarketInfoCacheTimestamp(marketId);
+  if (previousTimestamp && (new Date().getTime() - previousTimestamp.getTime() < 5_000)) {
+    return;
+  }
+
+  const marketInfo = await postGetMarketInfoFromManifold(marketId, year);
+  if (!marketInfo) return null;
+
+  await context.repos.manifoldProbabilitiesCachesRepo.upsertMarketInfoInCache(marketId, marketInfo);
 }
 
 export const getPostMarketInfo = async (post: DbPost, context: ResolverContext): Promise<AnnualReviewMarketInfo | undefined>  => {
-  if (!post.manifoldReviewMarketId) {
+  const marketId = post.manifoldReviewMarketId;
+  if (!marketId) {
     return undefined;
   }
   
@@ -172,15 +187,21 @@ export const getPostMarketInfo = async (post: DbPost, context: ResolverContext):
     return ids.map(id => probabilitiesCachesById[id]);
   });
 
+  const year = post.postedAt.getFullYear();
   if (!cacheItem) {
-    backgroundTask(refreshMarketInfoInCache(post, context))
+    backgroundTask(refreshMarketInfoInCache(marketId, year, context))
     return undefined;
   }
 
   const timeDifference = new Date().getTime() - cacheItem.lastUpdated.getTime();
 
-  if (timeDifference >= 10_000) {
-    backgroundTask(refreshMarketInfoInCache(post, context));
+  // If cache entry is expired, return it anyways, but also trigger a
+  // background refresh. Expiration is randomized between 30-45s so that it
+  // doesn't expire for every request at once (which would lead to a lot of
+  // duplicate updating in between when the cache entry expired and when the
+  // updated value was written).
+  if (timeDifference >= 30_000 + Math.random()*15_000) {
+    backgroundTask(refreshMarketInfoInCache(marketId, year, context));
   }
 
   return { probability: cacheItem.probability, isResolved: cacheItem.isResolved, year: cacheItem.year, url: cacheItem.url ?? '' };

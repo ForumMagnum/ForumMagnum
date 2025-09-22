@@ -8,6 +8,16 @@ class ManifoldProbabilitiesCachesRepo extends AbstractRepo<"ManifoldProbabilitie
     super(ManifoldProbabilitiesCaches);
   }
 
+  async updateMarketInfoCacheTimestamp (marketId: string): Promise<Date|null> {
+    const result = await this.getRawDb().one(`
+      UPDATE "ManifoldProbabilitiesCaches"
+      SET "lastUpdated" = NOW()
+      WHERE "marketId"=$(marketId)
+      RETURNING "lastUpdated"
+    `, {marketId});
+    return result?.lastUpdated ?? null;
+  }
+
   async upsertMarketInfoInCache (marketId: string, marketInfo: AnnualReviewMarketInfo): Promise<unknown> {
     return this.getRawDb().none(`
       INSERT INTO "ManifoldProbabilitiesCaches" (_id, "marketId", probability, "isResolved", year, "lastUpdated", url)
