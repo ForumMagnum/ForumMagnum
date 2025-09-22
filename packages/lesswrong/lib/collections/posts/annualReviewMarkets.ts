@@ -152,11 +152,6 @@ export const createManifoldMarket = async (question: string, descriptionMarkdown
 
 
 
-//export async function testRefreshMarketInfoInCache(marketId: string, year: number) {
-//  const context = createAnonymousContext();
-//  await refreshMarketInfoInCache(marketId, year, context);
-//}
-
 async function refreshMarketInfoInCache(marketId: string, year: number, context: ResolverContext) {
   // Update the market-info cache for a Manifold prediction market. In order to
   // avoid thundering-herd issues, we update the cache item timestamp first (and
