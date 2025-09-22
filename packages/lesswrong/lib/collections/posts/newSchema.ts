@@ -1,5 +1,5 @@
 import { DEFAULT_CREATED_AT_FIELD, DEFAULT_ID_FIELD, DEFAULT_LATEST_REVISION_ID_FIELD, DEFAULT_LEGACY_DATA_FIELD, DEFAULT_SCHEMA_VERSION_FIELD } from "@/lib/collections/helpers/sharedFieldConstants";
-import { getDomain, getOutgoingUrl } from "../../vulcan-lib/utils";
+import { getDomain } from "../../vulcan-lib/utils";
 import moment from "moment";
 import {
   googleLocationToMongoLocation, accessFilterMultiple,
@@ -702,7 +702,7 @@ const schema = {
       outputType: "String",
       canRead: ["guests"],
       resolver: (post, args, context) => {
-        return post.url ? getOutgoingUrl(post.url) : postGetPageUrl(post, true);
+        return post.url ? post.url : postGetPageUrl(post, true);
       },
     },
   },

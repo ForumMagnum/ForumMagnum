@@ -1,5 +1,5 @@
 import { aboutPostIdSetting, allowTypeIIIPlayerSetting, isAF, isLWorAF, siteUrlSetting, cloudinaryCloudNameSetting, commentPermalinkStyleSetting, crosspostKarmaThreshold, type3DateCutoffSetting, type3ExplicitlyAllowedPostIdsSetting, type3KarmaCutoffSetting } from '@/lib/instanceSettings';
-import { getOutgoingUrl, getSiteUrl } from '../../vulcan-lib/utils';
+import { getSiteUrl } from '../../vulcan-lib/utils';
 import { userOwns, userCanDo, userOverNKarmaFunc, userIsAdminOrMod, userOverNKarmaOrApproved } from '../../vulcan-users/permissions';
 import { userGetDisplayName, userIsSharedOn } from '../users/helpers';
 import { postStatuses, postStatusLabels } from './constants';
@@ -26,9 +26,9 @@ export const isPostCategory = (tab: string): tab is PostCategory => postCategori
 //////////////////
 
 // Return a post's link if it has one, else return its post page URL
-export const postGetLink = function (post: PostsBase|DbPost, isAbsolute=false, isRedirected=true): string {
+export const postGetLink = function (post: PostsBase|DbPost, isAbsolute=false): string {
   if (post.url) {
-    return isRedirected ? getOutgoingUrl(post.url) : post.url;
+    return post.url;
   }
   return postGetPageUrl(post, isAbsolute);
 };
@@ -160,7 +160,7 @@ export const postGetEmailShareUrl = (post: DbPost): string => {
   const body = `I thought you might find this interesting:
 
 ${post.title}
-${postGetLink(post, true, false)}
+${postGetLink(post, true)}
 
 (found via ${siteUrlSetting.get()})
   `;

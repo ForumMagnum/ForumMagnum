@@ -96,17 +96,6 @@ export const validateUrl = (url: string) => {
   return url;
 }
 
-/**
- * @summary The global namespace for Vulcan utils.
- * @param {String} url - the URL to redirect
- */
-export const getOutgoingUrl = function (url: string): string {
-  // If no protocol is specified, guess that it is https://
-  const cleanedUrl = validateUrl(url);
-
-  return getSiteUrl() + 'out?url=' + encodeURIComponent(cleanedUrl);
-};
-
 export const getDomain = function(url: string | null): string|null {
   if (!url) return null;
   try {
