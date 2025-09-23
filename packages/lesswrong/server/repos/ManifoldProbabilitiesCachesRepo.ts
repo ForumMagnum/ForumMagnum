@@ -9,7 +9,7 @@ class ManifoldProbabilitiesCachesRepo extends AbstractRepo<"ManifoldProbabilitie
   }
 
   async updateMarketInfoCacheTimestamp (marketId: string): Promise<Date|null> {
-    const result = await this.getRawDb().one(`
+    const result = await this.getRawDb().oneOrNone(`
       UPDATE "ManifoldProbabilitiesCaches"
       SET "lastUpdated" = NOW()
       WHERE "marketId"=$(marketId)
