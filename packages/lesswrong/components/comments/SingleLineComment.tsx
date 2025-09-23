@@ -258,6 +258,7 @@ const SingleLineComment = ({treeOptions, comment, nestingLevel, parentCommentId,
                 showEditInContext: false
               }}
               hoverPreview
+              noAutoScroll
             />
           </div>
       </LWPopper>
