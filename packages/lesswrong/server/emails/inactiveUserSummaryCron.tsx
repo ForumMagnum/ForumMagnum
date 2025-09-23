@@ -107,8 +107,8 @@ const sendInactiveUserSummaryEmail = async (
     />
   );
 
+  const unsubscribeNode = await createUnsubscribeInactiveSummaryNode(user);
   if (dryRun) {
-    const unsubscribeNode = await createUnsubscribeInactiveSummaryNode(user);
     const email = await generateEmail({
       user,
       from,
@@ -132,6 +132,7 @@ const sendInactiveUserSummaryEmail = async (
       subject,
       body,
       utmParams,
+      unsubscribeNode,
       includeCustomFonts: true,
       tag,
     });
