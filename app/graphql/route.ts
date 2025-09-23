@@ -10,6 +10,7 @@ import { performanceMetricLoggingEnabled } from '@/lib/instanceSettings';
 import { GraphQLFormattedError } from 'graphql';
 import { inspect } from 'util';
 import { formatError } from 'apollo-errors';
+import { crosspostOptionsHandler } from "@/server/crossposting/cors";
 
 class ApolloServerLogging implements ApolloServerPlugin<ResolverContext> {
   async requestDidStart({ request, contextValue: context }: GraphQLRequestContext<ResolverContext>) {
@@ -137,4 +138,8 @@ export function GET(request: NextRequest) {
 
 export async function POST(request: NextRequest) {
   return sharedHandler(request);
+}
+
+export function OPTIONS(req: NextRequest) {
+  return crosspostOptionsHandler(req);
 }

@@ -1,4 +1,5 @@
-import { crosspostOptionsHandler, updateCrosspostCrosspostHandler } from "@/server/crossposting/handlers";
+import { updateCrosspostCrosspostHandler } from "@/server/crossposting/handlers";
+import { crosspostOptionsHandler } from "@/server/crossposting/cors";
 import type { NextRequest } from "next/server";
 
 export function POST(req: NextRequest) {

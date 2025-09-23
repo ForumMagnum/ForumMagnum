@@ -27,18 +27,8 @@ import { accessFilterSingle } from "@/lib/utils/schemaUtils";
 import { createPost, updatePost } from "../collections/posts/mutations";
 import Posts from "@/server/collections/posts/collection";
 import Users from "@/server/collections/users/collection";
-import { fmCrosspostBaseUrlSetting } from "@/lib/instanceSettings";
 import { NextRequest, NextResponse } from "next/server";
-
-const setCorsHeaders = (res: NextResponse) => {
-  const foreignBaseUrl = fmCrosspostBaseUrlSetting.get()?.replace(/\/$/, "");
-  if (foreignBaseUrl) {
-    res.headers.set("Access-Control-Allow-Origin", foreignBaseUrl);
-    res.headers.set("Access-Control-Allow-Methods", "POST, OPTIONS");
-    res.headers.set("Access-Control-Allow-Headers", "Content-Type");
-    res.headers.set("Access-Control-Max-Age", "86400");
-  }
-};
+import { setCorsHeaders } from "./cors";
 
 const onNextRequestError = (
   req: NextRequest,
@@ -60,14 +50,6 @@ const onNextRequestError = (
   const res = NextResponse.json({ error: message, errorCode }, { status });
   setCorsHeaders(res);
   
-  return res;
-};
-
-export const crosspostOptionsHandler = (req: NextRequest) => {
-  const res = new NextResponse(null, { status: 204 });
-  setCorsHeaders(res);
-  res.headers.set("Connection", "Keep-Alive");
-  res.headers.set("Keep-Alive", "timeout=2, max=100");
   return res;
 };
 
