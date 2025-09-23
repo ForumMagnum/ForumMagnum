@@ -82,7 +82,6 @@ const PostActionsButton = ({post, vertical, popperGap, autoPlace, flip, includeB
       open={isOpen}
       anchorEl={anchorEl.current}
       placement={popperPlacement}
-      allowOverflow
       flip={flip}
       style={gapStyle}
     >
