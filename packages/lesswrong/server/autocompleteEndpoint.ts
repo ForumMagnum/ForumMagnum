@@ -1,8 +1,8 @@
 
-import { PromptCachingBetaMessageParam } from "@anthropic-ai/sdk/resources/beta/prompt-caching/messages";
 import { formatRelative } from "@/lib/utils/timeFormat";
 import { runQuery } from "./vulcan-lib/query";
 import { gql } from "@/lib/generated/gql-codegen";
+import type { MessageParam } from "@anthropic-ai/sdk/resources/messages.mjs";
 
 const postsForAutocompleteQuery = gql(`
   query multiPostsForAutocompleteQuery($input: MultiPostInput) {
@@ -91,8 +91,8 @@ export async function constructMessageHistory(
   context: ResolverContext,
   replyingCommentId?: string,
   postId?: string
-): Promise<PromptCachingBetaMessageParam[]> {
-  const messages: PromptCachingBetaMessageParam[] = [];
+): Promise<MessageParam[]> {
+  const messages: MessageParam[] = [];
 
   // Make the fetches parallel to save time
   const [postsResponse, commentsResponse] = await Promise.all([

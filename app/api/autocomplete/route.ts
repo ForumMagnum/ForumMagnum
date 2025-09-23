@@ -1,7 +1,7 @@
 import { NextRequest } from "next/server";
 import { getContextFromReqAndRes } from "@/server/vulcan-lib/apollo-server/context";
 import { userIsAdmin } from "@/lib/vulcan-users/permissions";
-import { getAnthropicPromptCachingClientOrThrow } from "@/server/languageModels/anthropicClient";
+import { getAnthropicClientOrThrow } from "@/server/languageModels/anthropicClient";
 import { constructMessageHistory } from "@/server/autocompleteEndpoint";
 import { z } from "zod";
 
@@ -68,7 +68,7 @@ export async function POST(req: NextRequest) {
     const stream = new ReadableStream({
       async start(controller) {
         try {
-          const client = getAnthropicPromptCachingClientOrThrow();
+          const client = getAnthropicClientOrThrow();
 
           // Construct message history
           const messages = await constructMessageHistory(
@@ -83,7 +83,7 @@ export async function POST(req: NextRequest) {
 
           // Create the Claude stream
           const loadingMessagesStream = client.messages.stream({
-            model: "claude-3-5-sonnet-20241022",
+            model: "claude-sonnet-4-20250514",
             max_tokens: 1000,
             system: "The assistant is in CLI simulation mode, and responds to the user's CLI commands only with the output of the command.",
             messages,
