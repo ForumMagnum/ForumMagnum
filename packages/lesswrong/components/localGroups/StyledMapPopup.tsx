@@ -3,6 +3,7 @@ import { Link } from '../../lib/reactRouterWrapper';
 import { registerComponent } from '../../lib/vulcan-lib/components';
 import { Popup as BadlyTypedPopup } from 'react-map-gl';
 import { componentWithChildren } from '../../lib/utils/componentsWithChildren';
+import ContentStyles from '../common/ContentStyles';
 
 const Popup = componentWithChildren(BadlyTypedPopup);
 
@@ -92,7 +93,10 @@ const StyledMapPopup = ({
     anchor="bottom" >
       <div className={classes.root}>
         <Link to={link}><h5 className={classes.groupMarkerName}> {title} </h5></Link>
-        <div className={classes.markerBody}>{children}</div>
+        <ContentStyles contentType={"comment"} className={classes.root}>
+          <div className={classes.markerBody}>{children}</div>
+        </ContentStyles>
+       
         {metaInfo && <div className={classes.contactInfo}>{metaInfo}</div>}
         {!hideBottomLinks && <div className={classes.linksWrapper}>
           <Link className={classes.markerPageLink} to={link}> Full link </Link>

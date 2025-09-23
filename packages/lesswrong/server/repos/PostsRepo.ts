@@ -1300,7 +1300,7 @@ class PostsRepo extends AbstractRepo<"Posts"> {
       FROM "Posts" p
       WHERE ${getViewableEventsSelector('p')}
       AND "startTime" > NOW()
-      AND "startTime" < NOW() + INTERVAL '3 months'
+      AND "startTime" < NOW() + INTERVAL '5 months'
       AND "googleLocation" -> 'geometry' -> 'location' ->> 'lat' IS NOT NULL
       AND "googleLocation" -> 'geometry' -> 'location' ->> 'lng' IS NOT NULL
       LIMIT $1
