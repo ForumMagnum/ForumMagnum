@@ -782,12 +782,12 @@ export const ultraFeedGraphQLQueries = {
           comments: commentIds,
           spotlights: spotlightIds
         }),
-        needsSuggestedUsers
-          ? (userOrClientId.type === 'user'
-              ? context.repos.users.getSubscriptionFeedSuggestedUsers(userOrClientId.id, 30)
-              : context.repos.users.getTopActiveContributors(30, 30)
-            )
-          : Promise.resolve([])
+      needsSuggestedUsers
+        ? (userOrClientId.type === 'user'
+            ? context.repos.users.getSubscriptionFeedSuggestedUsersForLoggedIn(userOrClientId.id, 40)
+            : context.repos.users.getSubscriptionFeedSuggestedUsersForLoggedOut(userOrClientId.id, 40)
+          )
+        : Promise.resolve([])
       ]);
       const resultsWithoutDuplication = transformItemsForResolver(sampledItems, spotlightsById, commentsById, postsById, suggestedUsers);
       

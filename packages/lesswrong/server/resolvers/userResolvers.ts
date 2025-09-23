@@ -28,24 +28,13 @@ const {Query: suggestedFeedQuery, typeDefs: suggestedFeedTypeDefs} = createPagin
     context: ResolverContext,
     limit: number,
   ): Promise<DbUser[]> => {
-    const {currentUser} = context;
+    const {currentUser, clientId} = context;
 
-    if (!currentUser) {
-      throw new Error("You must be logged to get suggsted users to subscribe to.");
+    if (currentUser) {
+      return await context.repos.users.getSubscriptionFeedSuggestedUsersForLoggedIn(currentUser._id, limit);
+    } else {
+      return await context.repos.users.getSubscriptionFeedSuggestedUsersForLoggedOut(clientId, limit);
     }
-
-    return await context.repos.users.getSubscriptionFeedSuggestedUsers(currentUser._id, limit);
-  }
-});
-
-const {Query: suggestedTopActiveUsersQuery, typeDefs: suggestedTopActiveUsersTypeDefs} = createPaginatedResolver({
-  name: "SuggestedTopActiveUsers",
-  graphQLType: "User",
-  callback: async (
-    context: ResolverContext,
-    limit: number,
-  ): Promise<DbUser[]> => {
-    return await context.repos.users.getTopActiveContributors(limit, 30);
   }
 });
 
@@ -115,7 +104,6 @@ export const graphqlTypeDefs = gql`
   }
 
   ${suggestedFeedTypeDefs}
-  ${suggestedTopActiveUsersTypeDefs}
 `
 
 export const graphqlMutations = {
@@ -236,7 +224,6 @@ export const graphqlQueries = {
     return isTaken;
   },
   ...suggestedFeedQuery,
-  ...suggestedTopActiveUsersQuery,
   async GetUserBySlug(root: void, { slug }: { slug: string }, context: ResolverContext) {
     const { Users } = context;
 

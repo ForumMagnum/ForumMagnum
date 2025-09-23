@@ -508,124 +508,113 @@ class UsersRepo extends AbstractRepo<"Users"> {
   }
 
   /**
-   * Returns active top contributors for recommending to logged out users, based on recent
-   * posting/commenting activity.
+   * Get suggested users for logged-in users to subscribe to. Finds the top 500 active 
+   * authors by karma (posts weighted 5x comments), excluding self and already-subscribed 
+   * authors, then prioritizes those the user has voted on or read in the last 90 days (binary on whether there's any interaction).
    */
-  async getTopActiveContributors(limit: number, days = 30): Promise<DbUser[]> {
+  async getSubscriptionFeedSuggestedUsersForLoggedIn(userId: string, limit: number, days = 30): Promise<DbUser[]> {
     return this.any(`
-      -- UsersRepo.getTopActiveContributors
-      SELECT u.*
-      FROM (
-        SELECT
-          recent_activity."userId",
-          COUNT(*) FILTER (WHERE activity_type = 'post')    AS recent_posts,
-          COUNT(*) FILTER (WHERE activity_type = 'comment') AS recent_comments,
-          MAX(activity_date)                                AS last_activity_at
-        FROM (
-          SELECT 
-            p."userId",
-            'post' AS activity_type,
-            p."postedAt" AS activity_date
-          FROM "Posts" p
-          JOIN "Users" eligible_user ON eligible_user."_id" = p."userId"
-          WHERE
-            eligible_user.karma > 1000
-            AND (eligible_user.banned IS NULL OR eligible_user.banned < current_date)
-            AND eligible_user."deleted" IS NOT TRUE
-            AND eligible_user."displayName" IS NOT NULL
-            AND p."postedAt" >= NOW() - INTERVAL '1 day' * $1
-            AND p."shortform" IS NOT TRUE
-          UNION ALL
-          SELECT
-            c."userId",
-            'comment' AS activity_type,
-            c."createdAt" AS activity_date
-          FROM "Comments" c
-          JOIN "Users" eligible_user ON eligible_user."_id" = c."userId"
-          WHERE
-            eligible_user.karma > 1000
-            AND (eligible_user.banned IS NULL OR eligible_user.banned < current_date)
-            AND eligible_user."deleted" IS NOT TRUE
-            AND eligible_user."displayName" IS NOT NULL
-            AND c."createdAt" >= NOW() - INTERVAL '1 day' * $1
-        ) AS recent_activity
-        GROUP BY recent_activity."userId"
-      ) AS activity_stats
-      JOIN "Users" u ON u."_id" = activity_stats."userId"
-      ORDER BY
-        (activity_stats.recent_posts * 5 + activity_stats.recent_comments) DESC,
-        u.karma DESC,
-        activity_stats.last_activity_at DESC
-      LIMIT $2
-    `, [days, limit]);
-  }
-
-  async getSubscriptionFeedSuggestedUsers(userId: string, limit: number): Promise<DbUser[]> {
-    return this.any(`
-      WITH existing_subscriptions AS (
-        SELECT DISTINCT 
-          "documentId" AS "userId"
-        FROM "Subscriptions" s
-        WHERE s.deleted IS NOT TRUE
-          AND "collectionName" = 'Users'
-          AND "type" = 'newActivityForFeed'
-          AND "userId" = $1
-      ),
-      votes AS (
+      -- UsersRepo.getSubscriptionFeedSuggestedUsersForLoggedIn
+      WITH active_authors AS (
         SELECT
           "authorIds"[1] AS "authorId",
-          power,
-          "votedAt"
-        FROM "Votes"
+          SUM(CASE WHEN v."collectionName" = 'Posts' THEN power * 5 ELSE power END) AS karma_received
+        FROM "Votes" v
         WHERE
-          "userId" = $1
-          AND cancelled IS FALSE
-          AND NOT ("authorIds" @> ARRAY["userId"])
-        ORDER BY "votedAt"
-      ),
-      most_upvoted_authors AS (
-        SELECT
-          "authorId",
-          SUM(power) AS summed_power
-        FROM votes
-        GROUP BY "authorId"
-        ORDER BY summed_power DESC
-      ),
-      reads AS (
-        SELECT
-          "postId",
-          "lastUpdated",
-        p."userId" AS "authorId"
-        FROM "ReadStatuses" rs
-        JOIN "Posts" p ON p."_id" = rs."postId"
-        WHERE 
-          rs."userId" = $1
-          AND "isRead" IS TRUE
-      ),
-      most_read_authors AS (
-        SELECT
-          "authorId",
-          COUNT(*) AS posts_read
-        FROM reads
-        GROUP BY "authorId"
-        ORDER BY COUNT(*) DESC
+          v."votedAt" >= now() - INTERVAL '1 day' * $3
+          AND v.cancelled IS FALSE
+          AND "authorIds"[1] IS NOT NULL
+          AND "authorIds"[1] <> $1
+          AND NOT EXISTS (
+            SELECT 1
+            FROM "Subscriptions" s
+            WHERE s."userId" = $1
+              AND s."documentId" = "authorIds"[1]
+              AND s."collectionName" = 'Users'
+              AND s."type" = 'newActivityForFeed'
+              AND s.deleted IS NOT TRUE
+          )
+        GROUP BY "authorIds"[1]
+        ORDER BY karma_received DESC
+        LIMIT 500
       )
-      SELECT
-        u.*
-      FROM most_upvoted_authors
-      FULL OUTER JOIN most_read_authors USING ("authorId")
-      JOIN "Users" u ON u."_id" = "authorId"
-      LEFT JOIN existing_subscriptions es ON es."userId" = "authorId"
+      SELECT u.*
+      FROM active_authors aa
+      JOIN "Users" u ON u._id = aa."authorId"
       WHERE
-          (u.banned IS NULL OR u.banned < current_date)
-          AND "authorId" != $1
-          AND es."userId" IS NULL
-          AND u."deleted" IS NOT TRUE
-      ORDER BY (
-        COALESCE(summed_power*3, 0) + COALESCE(posts_read*2, 0)
-      ) DESC NULLS LAST
+        u.deleted IS NOT TRUE
+        AND (u.banned IS NULL OR u.banned < CURRENT_DATE)
+      ORDER BY
+        -- Prioritize authors user has interacted with via votes or reads
+        CASE WHEN (
+          EXISTS (
+            SELECT 1 FROM "Votes" v
+            WHERE v."userId" = $1
+              AND v."authorIds"[1] = aa."authorId"
+              AND v.cancelled IS FALSE
+              AND v."votedAt" >= now() - INTERVAL '90 days'
+            LIMIT 1
+          ) OR EXISTS (
+            SELECT 1 FROM "ReadStatuses" rs
+            JOIN "Posts" p ON p._id = rs."postId"
+            WHERE rs."userId" = $1
+              AND p."userId" = aa."authorId"
+              AND rs."isRead" IS TRUE
+              AND rs."lastUpdated" >= now() - INTERVAL '90 days'
+            LIMIT 1
+          )
+        ) THEN 0 ELSE 1 END,
+        aa.karma_received DESC
       LIMIT $2
-    `, [userId, limit]);
+    `, [userId, limit, days]);
+  }
+
+  /**
+   * Same algorithm as getSubscriptionFeedSuggestedUsersForLoggedIn, but for logged-out users.
+   * Uses UltraFeedEvents to personalize instead of votes and ReadStatuses.
+   */
+  async getSubscriptionFeedSuggestedUsersForLoggedOut(clientId: string | null, limit: number, days = 30): Promise<DbUser[]> {
+    return this.any(`
+      -- UsersRepo.getSubscriptionFeedSuggestedUsersForLoggedOut
+      WITH active_authors AS (
+        SELECT
+          -- ignore complexity of coauthors and just take the first author
+          "authorIds"[1] AS "authorId",
+          SUM(CASE WHEN v."collectionName" = 'Posts' THEN power * 5 ELSE power END) AS karma_received
+        FROM "Votes" v
+        WHERE
+          v."votedAt" >= now() - INTERVAL '1 day' * $3
+          AND v.cancelled IS FALSE
+          AND "authorIds"[1] IS NOT NULL
+        GROUP BY "authorIds"[1]
+        ORDER BY karma_received DESC
+        LIMIT 500
+      )
+      SELECT u.*
+      FROM active_authors aa
+      JOIN "Users" u ON u._id = aa."authorId"
+      WHERE
+        u.deleted IS NOT TRUE
+        AND (u.banned IS NULL OR u.banned < CURRENT_DATE)
+      ORDER BY
+        CASE WHEN $1::text IS NOT NULL AND EXISTS (
+          SELECT 1 FROM (
+            SELECT DISTINCT p."userId" as author_id
+            FROM "UltraFeedEvents" ufe
+            -- as we're dealing with logged out users, we're just focusing on posts
+            JOIN "Posts" p ON p._id = ufe."documentId"
+            WHERE ufe."userId" = $1
+              AND ufe."collectionName" = 'Posts'
+              AND ufe."eventType" IN ('viewed', 'expanded', 'interacted')
+              AND ufe."createdAt" >= now() - INTERVAL '30 days'
+            LIMIT 100  -- Cap to avoid scanning too many events
+          ) recent_interactions
+          WHERE recent_interactions.author_id = aa."authorId"
+          LIMIT 1
+        ) THEN 0 ELSE 1 END,
+        aa.karma_received DESC
+      LIMIT $2
+    `, [clientId, limit, days]);
   }
 }
 
