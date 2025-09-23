@@ -8,7 +8,11 @@ import { captureException } from "@/lib/sentryWrapper";
  */
 export const backgroundTask = <T>(promise: Promise<T>) => {
   ensureRequestHasBackgroundTaskHandler();
-  pendingBackgroundTasks.push(promise);
+  pendingBackgroundTasks.push(promise.catch((err) => {
+    // eslint-disable-next-line no-console
+    console.error('Uncaught error in background task', err);
+    captureException(err);
+  }));
 }
 
 let pendingBackgroundTasks: Promise<any>[] = [];
@@ -37,11 +41,7 @@ function ensureRequestHasBackgroundTaskHandler() {
 
 export async function waitForBackgroundTasks() {
   while (pendingBackgroundTasks.length > 0) {
-    const taskGroup = pendingBackgroundTasks.map(task => task.catch((err) => {
-      // eslint-disable-next-line no-console
-      console.error('Uncaught error in background task', err);
-      captureException(err);
-    }));
+    const taskGroup = [...pendingBackgroundTasks];
     pendingBackgroundTasks = [];
     await Promise.all(taskGroup);
   }
