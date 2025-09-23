@@ -34,3 +34,20 @@ export const createUnsubscribeMarketingNode = async (
     </>
   );
 }
+
+export const createUnsubscribeInactiveSummaryNode = async (
+  user: DbUser | null,
+): Promise<ReactNode> => {
+  if (!user) {
+    return null;
+  }
+  const link = await emailTokenTypesByName.unsubscribeInactiveSummary.generateLink(
+    user._id,
+  );
+  return (
+    <>
+      <a href={link}>Unsubscribe from this email</a> or{" "}
+      <a href={`${getSiteUrl()}account`}>change your email preferences</a>.
+    </>
+  );
+}
