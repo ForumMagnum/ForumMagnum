@@ -1,10 +1,10 @@
 import uniq from "lodash/uniq";
-import { getAnthropicClientOrThrow, getAnthropicPromptCachingClientOrThrow } from "../languageModels/anthropicClient";
+import { getAnthropicClientOrThrow } from "../languageModels/anthropicClient";
 import { getEmbeddingsFromApi } from "../embeddings";
 import { postGetPageUrl } from "@/lib/collections/posts/helpers";
 import { generateContextSelectionPrompt, CLAUDE_CHAT_SYSTEM_PROMPT, generateTitleGenerationPrompt, generateAssistantContextMessage, 
   CONTEXT_SELECTION_SYSTEM_PROMPT, contextSelectionResponseFormat, LlmPost, BasePromptArgs } from "../languageModels/promptUtils";
-import { PromptCachingBetaMessageParam, PromptCachingBetaTextBlockParam } from "@anthropic-ai/sdk/resources/beta/prompt-caching/messages";
+import type { MessageParam, Model, TextBlockParam } from "@anthropic-ai/sdk/resources/messages.mjs";
 import { userGetDisplayName } from "@/lib/collections/users/helpers";
 import type { LlmCreateConversationMessage, LlmStreamChunkMessage, LlmStreamContentMessage, 
   LlmStreamEndMessage, LlmStreamErrorMessage, LlmStreamMessage } from "@/components/languageModels/LlmChatWrapper";
@@ -195,11 +195,11 @@ async function getConversationTitle(args: BasePromptArgs) {
   })
 
   const titleResponse = titleResult.content[0]
-  if (titleResponse.type === 'tool_use') {
-    throw new Error("Invalid tool_use response when generating title")
+  if (titleResponse.type !== 'text') {
+    throw new Error("Invalid non-text response when generating title")
   }
 
-  return titleResponse.text
+  return titleResponse.text;
 }
 
 async function createNewConversation({ query, systemPrompt, model, currentUser, context, postContext, currentPost }: CreateNewConversationArgs): Promise<DbLlmConversation> {
@@ -315,8 +315,8 @@ function convertMessageRoleForClaude(role: LlmVisibleMessageRole) {
   }
 }
 
-function createClaudeMessage(message: ClaudeAllowableMessage, cache?: boolean): PromptCachingBetaMessageParam {
-  const content: Array<PromptCachingBetaTextBlockParam> = [{
+function createClaudeMessage(message: ClaudeAllowableMessage, cache?: boolean): MessageParam {
+  const content: Array<TextBlockParam> = [{
     type: 'text',
     text: message.content,
     ...(cache ? {cache_control: {type: "ephemeral"}} : undefined)
@@ -335,7 +335,7 @@ function isClaudeAllowableMessage<T extends { role: DbLlmMessage['role'], conten
 async function sendMessagesToClaude({ previousMessages, newMessages, conversationId, model, currentUser, sendEventToClient }: SendMessagesToClaudeArgs & {
   sendEventToClient: (event: LlmStreamMessage) => Promise<void>
 }) {
-  const promptCachingClient = getAnthropicPromptCachingClientOrThrow();
+  const promptCachingClient = getAnthropicClientOrThrow();
 
   const conversationMessages = [...previousMessages, ...newMessages];
   const messagesForClaude = conversationMessages.filter(isClaudeAllowableMessage);
@@ -367,8 +367,8 @@ async function sendMessagesToClaude({ previousMessages, newMessages, conversatio
       ]);
 
       const response = finalMessage.content[0];
-      if (response.type === 'tool_use') {
-        throw new Error("Invalid tool_use response when responding to message");
+      if (response.type !== 'text') {
+        throw new Error("Invalid non-text response when responding to message");
       }
     
       const newResponse = {
@@ -572,7 +572,7 @@ export async function sendLlmChatHandler({
 
   const conversationContext = getConversationContext(newConversationChannelId, newMessage);
 
-  const model = 'claude-3-5-sonnet-20240620';
+  const model: Model = 'claude-sonnet-4-20250514';
   // TODO: Probably should be output by new conversation function
   const systemPrompt = CLAUDE_CHAT_SYSTEM_PROMPT;
   
