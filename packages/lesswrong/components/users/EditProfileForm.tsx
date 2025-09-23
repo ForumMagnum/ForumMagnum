@@ -244,6 +244,7 @@ const UserProfileForm = ({
               <ImageUpload
                 field={field}
                 label="Profile Image"
+                document={{ _id: initialData._id }}
                 horizontal
               />
             )}
