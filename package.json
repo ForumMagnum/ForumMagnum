@@ -82,7 +82,7 @@
     "next-start": "NODE_OPTIONS='--inspect --no-deprecation --enable-source-maps' next start"
   },
   "dependencies": {
-    "@anthropic-ai/sdk": "^0.30.1",
+    "@anthropic-ai/sdk": "^0.63.1",
     "@apollo/client": "^4.0.4",
     "@apollo/client-integration-nextjs": "^0.13.1",
     "@apollo/server": "^4.12.0",

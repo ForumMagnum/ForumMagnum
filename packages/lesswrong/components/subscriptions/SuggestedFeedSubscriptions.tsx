@@ -141,7 +141,9 @@ function useSuggestedUsers(skipFetch = false) {
 
   const initialLimit = 64;
 
-  const { data: suggestedUsersData, loading: loadingLoggedIn } = useQuery(gql(`
+  const shouldSkip = skipFetch || (currentUser && !userHasSubscribeTabFeed(currentUser));
+  
+  const { data: suggestedUsersData, loading } = useQuery(gql(`
     query SuggestedFeedSubscriptionUsers($limit: Int) {
       SuggestedFeedSubscriptionUsers(limit: $limit) {
         results {
@@ -154,34 +156,17 @@ function useSuggestedUsers(skipFetch = false) {
     fetchPolicy: "cache-and-network",
     nextFetchPolicy: "cache-first",
     ssr: false,
-    skip: skipFetch || !currentUser || !userHasSubscribeTabFeed(currentUser),
+    skip: !!shouldSkip
   });
 
-  // Logged-out fallback based on popular active contributors
-  const { data: popularUsersData, loading: loadingLoggedOut } = useQuery(gql(`
-    query SuggestedTopActiveUsers($limit: Int) {
-      SuggestedTopActiveUsers(limit: $limit) {
-        results {
-          ...UsersMinimumInfo
-        }
-      }
-    }
-  `), {
-    variables: { limit: initialLimit },
-    fetchPolicy: "cache-and-network",
-    nextFetchPolicy: "cache-first",
-    ssr: false,
-    skip: skipFetch || !!currentUser,
-  });
-
-  const results = (suggestedUsersData?.SuggestedFeedSubscriptionUsers?.results
-    ?? popularUsersData?.SuggestedTopActiveUsers?.results);
+  const results = suggestedUsersData?.SuggestedFeedSubscriptionUsers?.results;
 
   useEffect(() => {
-    setAvailableUsers(shuffle(results ?? []));
+    if (results) {
+      setAvailableUsers(shuffle(results));
+    }
   }, [results]);
 
-  const loading = loadingLoggedIn || loadingLoggedOut;
   return { availableUsers, setAvailableUsers, loadingSuggestedUsers: loading };
 }
 

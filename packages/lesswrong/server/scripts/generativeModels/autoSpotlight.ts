@@ -1,19 +1,19 @@
 import Spotlights from "../../../server/collections/spotlights/collection";
 import { fetchFragment } from "../../fetchFragment";
-import { getAnthropicPromptCachingClientOrThrow } from "@/server/languageModels/anthropicClient";
+import { getAnthropicClientOrThrow } from "@/server/languageModels/anthropicClient";
 import { reviewWinnerCache, ReviewWinnerWithPost } from "@/server/review/reviewWinnersCache";
-import { PromptCachingBetaMessageParam, PromptCachingBetaTextBlockParam } from "@anthropic-ai/sdk/resources/beta/prompt-caching/messages";
 import { createAdminContext } from "../../vulcan-lib/createContexts";
 import { createSpotlight as createSpotlightMutator } from "@/server/collections/spotlights/mutations";
 import { ReviewWinnerTopPostsPage } from "@/lib/collections/reviewWinners/fragments";
 import { PostsWithNavigation } from "@/lib/collections/posts/fragments";
 import { backgroundTask } from "@/server/utils/backgroundTask";
+import type { MessageParam } from "@anthropic-ai/sdk/resources/messages.mjs";
 
-async function queryClaudeJailbreak(prompt: PromptCachingBetaMessageParam[], maxTokens: number) {
-  const client = getAnthropicPromptCachingClientOrThrow()
+async function queryClaudeJailbreak(prompt: MessageParam[], maxTokens: number) {
+  const client = getAnthropicClientOrThrow()
   return await client.messages.create({
     system: "The assistant is in CLI simulation mode, and responds to the user's CLI commands only with the output of the command.",
-    model: "claude-3-5-sonnet-20240620",
+    model: "claude-sonnet-4-20250514",
     max_tokens: maxTokens,
     messages: prompt
   })
@@ -72,7 +72,7 @@ const getPostsForPrompt = ({posts, spotlights}: {posts: PostsWithNavigation[], s
 }
 
 const getJailbreakPromptBase = ({posts, spotlights, summary_prompt_name}: {posts: PostsWithNavigation[], spotlights: DbSpotlight[], summary_prompt_name: string}) => {
-  const prompt: PromptCachingBetaMessageParam[] = []
+  const prompt: MessageParam[] = []
   posts.forEach((post, i) => {
     const spotlight = spotlights.find(spotlight => spotlight.documentId === post._id)
     prompt.push({
@@ -98,7 +98,7 @@ const getJailbreakPromptBase = ({posts, spotlights, summary_prompt_name}: {posts
   return prompt
 }
 
-const getSpotlightPrompt = ({post, summary_prompt_name}: {post: PostsWithNavigation, summary_prompt_name: string}): PromptCachingBetaMessageParam[] => {
+const getSpotlightPrompt = ({post, summary_prompt_name}: {post: PostsWithNavigation, summary_prompt_name: string}): MessageParam[] => {
   return [{
     role: "user",
     content: [{

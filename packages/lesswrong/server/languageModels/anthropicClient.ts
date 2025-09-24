@@ -1,5 +1,4 @@
 import { anthropicApiKey } from "@/lib/instanceSettings";
-import '@anthropic-ai/sdk/shims/node';
 import Anthropic from "@anthropic-ai/sdk";
 import { createHash } from 'crypto';
 
@@ -23,8 +22,3 @@ export const getAnthropicClientOrThrow = (() => {
     return client;
   };
 })();
-
-export const getAnthropicPromptCachingClientOrThrow = (customApiKey?: string) => {
-  const baseClient = getAnthropicClientOrThrow(customApiKey);
-  return new Anthropic.Beta.PromptCaching(baseClient);
-};
