@@ -9,6 +9,7 @@ import {
   withNoLogs,
   waitUntilPgQueriesFinished,
 } from '../utils';
+import Users from "@/server/collections/users/collection";
 
 describe('updateUser – ', () => {
   let graphQLerrors = catchGraphQLErrors(beforeEach, afterEach);
@@ -26,10 +27,13 @@ describe('updateUser – ', () => {
     // (In production that's not a problem because no user is going to cause two updates against a displayName within a single request,
     // without hitting the /graphql api directly, and if they do that idc.)
     createAnonymousContext().loaders.Users.clearAll();
+    // Also fetch the updated user, otherwise we'll end up priming the loader cache with the currentUser
+    // passed into `runQuery` inside of `userUpdateFieldFails`.
+    const updatedUser = await Users.findOne(user._id);
     // Should hit the rate limit the second time
     await userUpdateFieldFails({
-      user:user,
-      document:user,
+      user:updatedUser,
+      document:updatedUser,
       fieldName:'displayName',
       collectionType:'User',
     })
