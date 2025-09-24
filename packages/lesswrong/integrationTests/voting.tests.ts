@@ -43,6 +43,7 @@ describe('Voting', function() {
       // and then mysteriously started failing with the NextJS migration.  But it's not
       // clear that this should be true, rather than false.  When we create a post
       // it gets a self-upvote, which _should_ set inactive: false?
+      // Actually I think the test might be flaky rather than consistently failing.
       (updatedPost[0].inactive as any).should.be.false;
     });
     it('should compute a higher score if post is categorized as frontpage and even higher if curated', async () => {

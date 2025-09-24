@@ -157,10 +157,10 @@ export class EventDebouncer<KeyType = string>
   }
   
   _dispatchEvent = async (key: KeyType, events: string[]|null) => {
-    // if (!isAnyTest) {
-      //eslint-disable-next-line no-console
+    if (!isAnyTest) {
+      // eslint-disable-next-line no-console
       console.log(`Handling ${events?.length} grouped ${this.name} events`);
-    // }
+    }
     await this.callback(key, events||[]);
   };
 }

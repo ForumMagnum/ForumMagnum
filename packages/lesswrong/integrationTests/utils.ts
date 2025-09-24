@@ -19,7 +19,6 @@ import { createRevision } from '../server/collections/revisions/mutations';
 import { createUserRateLimit } from '../server/collections/userRateLimits/mutations';
 import { computeContextFromUser } from '../server/vulcan-lib/apollo-server/context';
 import { createAnonymousContext } from '@/server/vulcan-lib/createContexts';
-import { isEAForum } from '@/lib/forumTypeUtils';
 
 // Hooks Vulcan's runGraphQL to handle errors differently. By default, Vulcan
 // would dump errors to stderr; instead, we want to (a) suppress that output,
