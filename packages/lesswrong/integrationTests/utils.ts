@@ -431,19 +431,20 @@ export const userUpdateFieldFails = async ({user, document, fieldName, newValue,
       }
     }
   `;
+  const log = console.log;
   await withNoLogs(async () => {
     const response = runQuery(query,{},{currentUser:user})
-    console.log({
+    log({
       forumType: process.env.FORUM_TYPE,
       isEAForum: isEAForum(),
     });
 
     await response.then((res) => {
-      console.log({
+      log({
         res,
       });
     }).catch((err) => {
-      console.log({
+      log({
         err,
       });
     });
