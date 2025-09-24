@@ -141,8 +141,6 @@ function useSuggestedUsers(skipFetch = false) {
 
   const initialLimit = 64;
 
-  // Single query that works for both logged-in and logged-out users
-  // Server automatically uses appropriate personalization based on context
   const shouldSkip = skipFetch || (currentUser && !userHasSubscribeTabFeed(currentUser));
   
   const { data: suggestedUsersData, loading } = useQuery(gql(`
@@ -158,7 +156,7 @@ function useSuggestedUsers(skipFetch = false) {
     fetchPolicy: "cache-and-network",
     nextFetchPolicy: "cache-first",
     ssr: false,
-    skip: shouldSkip || false,  // Ensure it's a boolean
+    skip: !!shouldSkip
   });
 
   const results = suggestedUsersData?.SuggestedFeedSubscriptionUsers?.results;
