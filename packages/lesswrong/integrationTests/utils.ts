@@ -19,6 +19,7 @@ import { createRevision } from '../server/collections/revisions/mutations';
 import { createUserRateLimit } from '../server/collections/userRateLimits/mutations';
 import { computeContextFromUser } from '../server/vulcan-lib/apollo-server/context';
 import { createAnonymousContext } from '@/server/vulcan-lib/createContexts';
+import { isEAForum } from '@/lib/forumTypeUtils';
 
 // Hooks Vulcan's runGraphQL to handle errors differently. By default, Vulcan
 // would dump errors to stderr; instead, we want to (a) suppress that output,
@@ -432,6 +433,17 @@ export const userUpdateFieldFails = async ({user, document, fieldName, newValue,
   `;
   await withNoLogs(async () => {
     const response = runQuery(query,{},{currentUser:user})
+    console.log({
+      forumType: process.env.FORUM_TYPE,
+      isEAForum: isEAForum(),
+    });
+
+    void response.then((res) => {
+      console.log({
+        res,
+      });
+    });
+    
     await (response as any).should.be.rejected;
   });
 }
