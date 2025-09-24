@@ -38,6 +38,21 @@ const {Query: suggestedFeedQuery, typeDefs: suggestedFeedTypeDefs} = createPagin
   }
 });
 
+// TODO: Remove this after client migration (added for backwards compatibility)
+// This is the old query that some clients may still be using
+const {Query: suggestedTopActiveUsersQuery, typeDefs: suggestedTopActiveUsersTypeDefs} = createPaginatedResolver({
+  name: "SuggestedTopActiveUsers",
+  graphQLType: "User",
+  callback: async (
+    context: ResolverContext,
+    limit: number,
+  ): Promise<DbUser[]> => {
+    // Use the same logic as the new unified query for logged-out users
+    const {clientId} = context;
+    return await context.repos.users.getSubscriptionFeedSuggestedUsersForLoggedOut(clientId ?? null, limit);
+  }
+});
+
 export const graphqlTypeDefs = gql`
   type CommentCountTag {
     name: String!
@@ -104,6 +119,7 @@ export const graphqlTypeDefs = gql`
   }
 
   ${suggestedFeedTypeDefs}
+  ${suggestedTopActiveUsersTypeDefs}
 `
 
 export const graphqlMutations = {
@@ -224,6 +240,7 @@ export const graphqlQueries = {
     return isTaken;
   },
   ...suggestedFeedQuery,
+  ...suggestedTopActiveUsersQuery,
   async GetUserBySlug(root: void, { slug }: { slug: string }, context: ResolverContext) {
     const { Users } = context;
 
