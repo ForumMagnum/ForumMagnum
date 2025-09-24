@@ -19,7 +19,9 @@ const NavigationEventSender = () => {
       // Check if the path has actually changed
       if (location.pathname !== lastLocation?.pathname) {
         // Don't send the callback on the initial pageload, only on post-load navigations
-        if (lastLocation) {
+        // Also suppress callbacks when a modal just opened and pushed a dialog URL
+        const suppressForDialogOpen = typeof window !== 'undefined' && !!(window.history?.state?.dialogOpen);
+        if (lastLocation && !suppressForDialogOpen) {
           captureEvent("navigate", {
             from: lastLocation.pathname,
             to: location.pathname,
