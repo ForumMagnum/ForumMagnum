@@ -195,7 +195,7 @@ export const getWeeklyBatchTimeAfter = (now: Date, timeOfDayGMT: number, dayOfWe
 }
 
 const dispatchEvent = async (event: DbDebouncerEvents) => {
-  const { getDebouncerByName } = require("./getDebouncerByName");
+  const { getDebouncerByName } = await import("./getDebouncerByName");
   const eventDebouncer = getDebouncerByName(event.name);
   if (!eventDebouncer) {
     // eslint-disable-next-line no-console
