@@ -438,7 +438,7 @@ export const userUpdateFieldFails = async ({user, document, fieldName, newValue,
       isEAForum: isEAForum(),
     });
 
-    void response.then((res) => {
+    await response.then((res) => {
       console.log({
         res,
       });
