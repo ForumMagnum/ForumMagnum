@@ -442,8 +442,12 @@ export const userUpdateFieldFails = async ({user, document, fieldName, newValue,
       console.log({
         res,
       });
+    }).catch((err) => {
+      console.log({
+        err,
+      });
     });
-    
+
     await (response as any).should.be.rejected;
   });
 }
