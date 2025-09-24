@@ -111,8 +111,6 @@ export class EventDebouncer<KeyType = string>
       throw new Error(`Invalid debouncer event data: ${data}`);
     }
 
-    console.log('recordEvent', { key, data, timing, newDelayTime, newUpperBoundTime, name: this.name });
-
     await new DebouncerEventsRepo().recordEvent(
       this.name,
       af,
@@ -199,13 +197,10 @@ export const getWeeklyBatchTimeAfter = (now: Date, timeOfDayGMT: number, dayOfWe
 const dispatchEvent = async (event: DbDebouncerEvents) => {
   const { getDebouncerByName } = await import("./getDebouncerByName");
   const eventDebouncer = getDebouncerByName(event.name);
-  console.log('eventDebouncer', { eventDebouncer });
   if (!eventDebouncer) {
     // eslint-disable-next-line no-console
     throw new Error(`Unrecognized event type: ${event.name}`);
   }
-  
-  console.log('dispatchEvent', { event });
   
   await eventDebouncer._dispatchEvent(JSON.parse(event.key), event.pendingEvents);
 }
@@ -213,8 +208,6 @@ const dispatchEvent = async (event: DbDebouncerEvents) => {
 export const dispatchPendingEvents = async () => {
   const now = new Date();
   let eventToHandle: any = null;
-
-  console.log('dispatchPendingEvents', { now });
   
   do {
     // Finds one grouped event that is ready to go, and marks it as handled in
@@ -237,8 +230,6 @@ export const dispatchPendingEvents = async () => {
       }
     );
     eventToHandle = queryResult.value;
-
-    console.log('eventToHandle', { now, eventToHandle });
     
     if (eventToHandle) {
       try {
