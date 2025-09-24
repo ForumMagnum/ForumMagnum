@@ -35,7 +35,8 @@ function getCarouselSections(classes: JssStyles) {
           <span className={classes.createEventButtonIcon}>+</span> CREATE READING GROUP
         </Link>
       </div>,
-      buttonText: "If Anyone Builds It"
+      buttonText: "If Anyone Builds It",
+      shortButtonText: "If Anyone"
     },
     {
       title: "Petrov Day",
@@ -45,7 +46,13 @@ function getCarouselSections(classes: JssStyles) {
           <span className={classes.createEventButtonIcon}>+</span> CREATE PETROV EVENT</Link>
       </div>,
       linkText: "Petrov Day",
-      buttonText: "Petrov Day"
+      buttonText: "Petrov Day",
+      shortButtonText: "Petrov"
+    },
+    {
+      minorTitle: "LessWrong Meetups",
+      subtitle: <div>Apart from the specific highlighted events this month, LessWrong has regular meetups in many cities. <Link to="/posts/mve2bunf6YfTeiAvd/meetup-month-1">Learn more here.</Link></div>,
+      buttonText: "LW"
     }
   ]
 }
@@ -360,6 +367,18 @@ const styles = defineStyles("MeetupMonthBanner", (theme: ThemeType) => ({
       fill: theme.palette.meetupMonth.petrov + ' !important',
     },
   },
+  buttonText: {
+    display: 'inline-block',
+    [theme.breakpoints.down(smallBreakpoint)]: {
+      display: 'none',
+    },
+  },
+  shortButtonText: {
+    display: 'none',
+    [theme.breakpoints.down(smallBreakpoint)]: {
+      display: 'inline-block',
+    },
+  },
 }));
 
 
@@ -417,8 +436,9 @@ export default function MeetupMonthBannerInner() {
   const acxCarouselIndex = 1 
   const ifanyoneCarouselIndex = 2 
   const petrovCarouselIndex = 3 
+  const lwCarouselIndex = 4
   const activeIndex = nextCarouselIndex ?? currentCarouselIndex
-  const filterKey = activeIndex === acxCarouselIndex ? 'SSC' : activeIndex === ifanyoneCarouselIndex ? 'IFANYONE' : activeIndex === petrovCarouselIndex ? 'PETROV' : undefined
+  const filterKey = activeIndex === acxCarouselIndex ? 'SSC' : activeIndex === ifanyoneCarouselIndex ? 'IFANYONE' : activeIndex === petrovCarouselIndex ? 'PETROV' : activeIndex === lwCarouselIndex ? 'LW' : undefined
 
   const renderedMarkers = useMemo(() => {
     if (filterKey) {
@@ -543,7 +563,8 @@ export default function MeetupMonthBannerInner() {
                   handleMeetupTypeClick(index);
                 }}
               >
-                {section.buttonText}
+                <span className={classes.buttonText}>{section.buttonText}</span>
+                <span className={classes.shortButtonText}>{section.shortButtonText ?? section.buttonText}</span>
               </div>
             );
           })}
