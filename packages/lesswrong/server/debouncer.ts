@@ -242,11 +242,10 @@ export const dispatchPendingEvents = async () => {
     
     if (eventToHandle) {
       try {
-        console.log('dispatching eventToHandle', { eventToHandle });
         await dispatchEvent(eventToHandle);
-        console.log('eventToHandle handled', { eventToHandle });
       } catch (e) {
-        console.log('error dispatching eventToHandle', { eventToHandle, e });
+        // eslint-disable-next-line no-console
+        console.error('Error when dispatching pending event', { eventToHandle, e });
         await DebouncerEvents.rawUpdateOne({
           _id: eventToHandle._id
         }, {
