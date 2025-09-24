@@ -111,6 +111,8 @@ export class EventDebouncer<KeyType = string>
       throw new Error(`Invalid debouncer event data: ${data}`);
     }
 
+    console.log('recordEvent', { key, data, timing, newDelayTime, newUpperBoundTime, name: this.name });
+
     await new DebouncerEventsRepo().recordEvent(
       this.name,
       af,
@@ -232,6 +234,8 @@ export const dispatchPendingEvents = async () => {
       }
     );
     eventToHandle = queryResult.value;
+
+    console.log('eventToHandle', { now, eventToHandle });
     
     if (eventToHandle) {
       try {

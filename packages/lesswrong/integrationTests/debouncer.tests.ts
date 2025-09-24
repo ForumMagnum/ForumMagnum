@@ -25,6 +25,7 @@ describe('EventDebouncer', () => {
           maxDelayMinutes: 30,
         },
         callback: (key: string, events: Array<string>) => {
+          console.log('callback', { key, events });
           numEventBatchesHandled++;
           events.forEach((ev: string) => {
             numEventsHandled++;
