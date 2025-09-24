@@ -159,10 +159,10 @@ export class EventDebouncer<KeyType = string>
   }
   
   _dispatchEvent = async (key: KeyType, events: string[]|null) => {
-    if (!isAnyTest) {
+    // if (!isAnyTest) {
       //eslint-disable-next-line no-console
       console.log(`Handling ${events?.length} grouped ${this.name} events`);
-    }
+    // }
     await this.callback(key, events||[]);
   };
 }
@@ -199,10 +199,13 @@ export const getWeeklyBatchTimeAfter = (now: Date, timeOfDayGMT: number, dayOfWe
 const dispatchEvent = async (event: DbDebouncerEvents) => {
   const { getDebouncerByName } = await import("./getDebouncerByName");
   const eventDebouncer = getDebouncerByName(event.name);
+  console.log('eventDebouncer', { eventDebouncer });
   if (!eventDebouncer) {
     // eslint-disable-next-line no-console
     throw new Error(`Unrecognized event type: ${event.name}`);
   }
+  
+  console.log('dispatchEvent', { event });
   
   await eventDebouncer._dispatchEvent(JSON.parse(event.key), event.pendingEvents);
 }
@@ -239,8 +242,11 @@ export const dispatchPendingEvents = async () => {
     
     if (eventToHandle) {
       try {
+        console.log('dispatching eventToHandle', { eventToHandle });
         await dispatchEvent(eventToHandle);
+        console.log('eventToHandle handled', { eventToHandle });
       } catch (e) {
+        console.log('error dispatching eventToHandle', { eventToHandle, e });
         await DebouncerEvents.rawUpdateOne({
           _id: eventToHandle._id
         }, {
