@@ -16,7 +16,8 @@ const NavigationEventSender = () => {
     // Check if the path has actually changed
     if (location.pathname !== lastLocation?.pathname) {
       // Don't send the callback on the initial pageload, only on post-load navigations
-      // Also suppress callbacks when a modal just opened and pushed a dialog URL
+      // Also suppress callbacks when (UltraFeed) modal just opened. UltraFeed modals change 
+      // the location due to useDialogNavigation.tsx and would otherwise trigger here, closing the dialog as soon as it opens
       const suppressForDialogOpen = !!(window.history?.state?.dialogOpen);
       if (lastLocation && !suppressForDialogOpen) {
         captureEvent("navigate", {
