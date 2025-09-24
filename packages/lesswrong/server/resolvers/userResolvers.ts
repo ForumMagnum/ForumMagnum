@@ -38,8 +38,9 @@ const {Query: suggestedFeedQuery, typeDefs: suggestedFeedTypeDefs} = createPagin
   }
 });
 
-// TODO: Remove this after client migration (added for backwards compatibility)
-// This is the old query that some clients may still be using
+// TODO: Remove this after ~3 days from deployment (added for backwards compatibility on 2025-09-24)
+// This is the old query that older clients may still be using
+// Client code has been migrated to use SuggestedFeedSubscriptionUsers instead
 const {Query: suggestedTopActiveUsersQuery, typeDefs: suggestedTopActiveUsersTypeDefs} = createPaginatedResolver({
   name: "SuggestedTopActiveUsers",
   graphQLType: "User",
