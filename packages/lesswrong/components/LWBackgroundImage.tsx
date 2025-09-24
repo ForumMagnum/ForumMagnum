@@ -10,6 +10,7 @@ import { isHomeRoute } from '@/lib/routeChecks';
 import Inkhaven2025Banner from './seasonal/Inkhaven2025';
 
 import MeetupMonthBanner from './seasonal/meetupMonth/MeetupMonthBanner';
+import PetrovDayStory from './seasonal/petrovDay/petrov-day-story/PetrovDayStory';
 
 const styles = defineStyles("LWBackgroundImage", (theme: ThemeType) => ({
   root: {
@@ -148,7 +149,7 @@ export const LWBackgroundImage = ({standaloneNavigation}: {
   
   return <div className={classes.root}>
     {/* {isHomePage ? <Inkhaven2025Banner /> : defaultImage} */}
-    {isHomePage ? <MeetupMonthBanner /> : defaultImage}
+    {isHomePage ? <PetrovDayStory /> : defaultImage}
   </div>;
 }
 
