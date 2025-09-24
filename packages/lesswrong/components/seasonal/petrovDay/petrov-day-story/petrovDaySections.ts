@@ -3,7 +3,12 @@
 // ---------------------------------------------------------------------------
 export const petrovDaySections = [
   {
-    "html": "<p>\\begin{flushright}\n\\parbox{3in}{\n\t\\begin{center}\n\t\t\\Huge{Petrov Day}<br />\n\t\t\\large{September 26}<br />\n\t\t\\large{By James Babcock}<br />\n\t\\end{center}\n}\n\\end{flushright}</p>"
+    backgroundColor: "transparent",
+    "html": `<div>
+      <h1>Petrov Day</h1>
+      <h2>September 26. The day the world nearly ended.</h2>
+      <p>An illustrated guide to the Petrov Day ceremony.</p>
+    </div>`
   },
   {
     "html": "<p>Petrov Day is a yearly event on September 26 commemorating the anniversary of\nthe Petrov incident, where a false alarm in the Soviet early warning system\nnearly set off a nuclear war. The purpose of the ritual is to make catastrophic\nand existential risk emotionally salient, by putting it into historical context\nand providing positive and negative examples of how it has been handled. This\nis not for the faint of heart and not for the uninitiated; it is aimed at those\nwho already know what catastrophic and existential risk is, have some\nbackground knowledge of what those risks are, and believe (at least on an\nabstract level) that preventing those risks from coming to pass is important.</p>\n<p><hr /></p>\n<p>You will need:</p>\n<p>\\begin{itemize} \\itemsep0pt \\parskip0pt \\parsep0pt\n\t\\item A printout of this booklet for each person\n\t\\item A table with enough chairs to seat everyone\n\t\\item A candle holder\n\t\\item 8 candles and a lighter\n\t\\item A fire extinguisher close enough to retrieve if needed\n\t\\item A deck of small index cards or a pad of post-it notes, and some pens\n\\end{itemize}</p>"

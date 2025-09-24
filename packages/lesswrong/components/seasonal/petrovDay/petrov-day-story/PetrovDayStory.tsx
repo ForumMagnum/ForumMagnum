@@ -10,6 +10,7 @@ const styles = defineStyles("PetrovDayStory", (theme: ThemeType) => ({
   root: {
     width: "50vw",
     height: "100vh",
+    transition: 'opacity 0.5s',
     paddingLeft: 250,
     [theme.breakpoints.down(1700)]: {
       paddingLeft: 150,
@@ -30,21 +31,26 @@ const styles = defineStyles("PetrovDayStory", (theme: ThemeType) => ({
       display: 'none',
     },
   },
-  gradientOverlay: {
+  gradientOverlayLeft: {
+    width: "50vw",
+    [theme.breakpoints.down(1700)]: {
+      width: "40vw",
+    },
+    [theme.breakpoints.down(1500)]: {
+      width: "30vw",
+    },
     position: 'fixed',
     top: 0,
-    left: 0,
     right: 0,
     bottom: 0,
     zIndex: 1,
     height: "100vh",
-    width: "100vw",
     background: `linear-gradient(to left, 
-                transparent 60%,
+                transparent 0%,
                 ${theme.palette.background.default} 100%)`,
     pointerEvents: 'none',
   },
-  gradientOverlayRight: {
+  gradientOverlayBottom: {
     position: 'fixed',
     top: 0,
     right: 0,
@@ -78,6 +84,7 @@ const styles = defineStyles("PetrovDayStory", (theme: ThemeType) => ({
     width: "auto",
     objectFit: 'cover',
     objectPosition: 'right',
+    transition: 'opacity 0.5s',
     ['@media(max-width: 1450px)']: {
       right: '-100px',
     },
@@ -91,7 +98,7 @@ const styles = defineStyles("PetrovDayStory", (theme: ThemeType) => ({
     objectFit: 'cover',
     objectPosition: 'right',
     position: 'relative',
-    right: -700,
+    right: -574,
   },
   storyContainer: {
     width: 400,
@@ -111,7 +118,7 @@ const styles = defineStyles("PetrovDayStory", (theme: ThemeType) => ({
   },
   storySection: {
     position: "relative",
-    zIndex: 1,
+    zIndex: 0,
     paddingTop: 50,
     paddingBottom: 50,
   },
@@ -129,13 +136,32 @@ const styles = defineStyles("PetrovDayStory", (theme: ThemeType) => ({
 export default function PetrovDayStory() {
   const classes = useStyles(styles);
 
+  // Track whether the overall page has been scrolled, and whether the story container itself has been scrolled
+  const [pageScrolled, setPageScrolled] = React.useState(false);
+  const [storyScrolled, setStoryScrolled] = React.useState(false);
+
+  // Handle top-level window scroll for fading out the entire story
+  React.useEffect(() => {
+    const handleWindowScroll = () => {
+      setPageScrolled(window.scrollY > 0);
+    };
+    window.addEventListener('scroll', handleWindowScroll);
+    return () => window.removeEventListener('scroll', handleWindowScroll);
+  }, []);
+
+  // Handle scrolling within the Petrov Day story container
+  const handleStoryScroll = (e: React.UIEvent<HTMLDivElement>) => {
+    const { scrollTop } = e.currentTarget;
+    setStoryScrolled(scrollTop > 0);
+  };
+
   return (
     <AnalyticsContext pageSectionContext="petrovDayStory">
-      <div className={classes.root}>
-        <div className={classes.gradientOverlay} />
-        <div className={classes.gradientOverlayRight} />
+      <div className={classes.root} style={{opacity: pageScrolled ? 0 : 1}} onScroll={handleStoryScroll}>
+        <div className={classes.gradientOverlayLeft} />
+        <div className={classes.gradientOverlayBottom} />
         <div className={classes.gradientOverlayTop} />
-        <div className={classes.imageColumn}>
+        <div className={classes.imageColumn} style={{ opacity: storyScrolled ? 0 : 1 }}>
           <CloudinaryImage2 
             loading="lazy"
             className={classes.image}
