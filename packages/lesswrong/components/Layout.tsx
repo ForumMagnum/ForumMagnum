@@ -50,6 +50,7 @@ import LlmChatWrapper from "./languageModels/LlmChatWrapper";
 import LWBackgroundImage from "./LWBackgroundImage";
 import IntercomWrapper from "./common/IntercomWrapper";
 import CookieBanner from "./common/CookieBanner/CookieBanner";
+import NavigationEventSender from './hooks/useOnNavigate';
 import { defineStyles, useStyles } from './hooks/useStyles';
 import { useMutationNoCache } from '@/lib/crud/useMutationNoCache';
 import { gql } from "@/lib/generated/gql-codegen";
@@ -516,6 +517,7 @@ const Layout = ({children}: {
               </div>
             </CommentBoxManager>
           </DialogManager>
+          <NavigationEventSender />
         </div>
       </CurrentAndRecentForumEventsProvider>
       </CommentOnSelectionPageWrapper>
