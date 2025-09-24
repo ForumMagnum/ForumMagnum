@@ -50,5 +50,3 @@ export function useOnNavigate(fn: (change: LocationChange) => void) {
 }
 
 export default registerComponent("NavigationEventSender", NavigationEventSender);
-
-
