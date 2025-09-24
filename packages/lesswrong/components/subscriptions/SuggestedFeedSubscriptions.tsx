@@ -163,7 +163,7 @@ function useSuggestedUsers(skipFetch = false) {
 
   useEffect(() => {
     if (results) {
-      setAvailableUsers(shuffle(results as UsersMinimumInfo[]));
+      setAvailableUsers(shuffle(results));
     }
   }, [results]);
 
