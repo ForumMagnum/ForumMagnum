@@ -1,3 +1,4 @@
+import { createAnonymousContext } from "@/server/vulcan-lib/createContexts";
 import "../integrationTestSetup";
 import {
   createDummyUser,
@@ -21,6 +22,10 @@ describe('updateUser – ', () => {
       collectionType:'User',
     })
     await waitUntilPgQueriesFinished();
+    // Clear the loader cache to prevent the user created with no display name from allowing the second display name update to go through.
+    // (In production that's not a problem because no user is going to cause two updates against a displayName within a single request,
+    // without hitting the /graphql api directly, and if they do that idc.)
+    createAnonymousContext().loaders.Users.clearAll();
     // Should hit the rate limit the second time
     await userUpdateFieldFails({
       user:user,
