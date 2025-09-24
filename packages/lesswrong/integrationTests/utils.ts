@@ -431,46 +431,10 @@ export const userUpdateFieldFails = async ({user, document, fieldName, newValue,
       }
     }
   `;
-  const log = console.log;
-  if (fieldName === 'displayName') {
+  await withNoLogs(async () => {
     const response = runQuery(query,{},{currentUser:user})
-    log({
-      forumType: process.env.FORUM_TYPE,
-      isEAForum: isEAForum(),
-    });
-
-    await response.then((res) => {
-      log({
-        res: JSON.stringify(res, null, 2),
-      });
-    }).catch((err) => {
-      log({
-        err: JSON.stringify(err, null, 2),
-      });
-    });
-
     await (response as any).should.be.rejected;
-  } else {
-    await withNoLogs(async () => {
-      const response = runQuery(query,{},{currentUser:user})
-      log({
-        forumType: process.env.FORUM_TYPE,
-        isEAForum: isEAForum(),
-      });
-  
-      await response.then((res) => {
-        log({
-          res: JSON.stringify(res, null, 2),
-        });
-      }).catch((err) => {
-        log({
-          err: JSON.stringify(err, null, 2),
-        });
-      });
-  
-      await (response as any).should.be.rejected;
-    });  
-  }
+  });
 }
 
 export const userUpdateFieldSucceeds = async ({user, document, fieldName, collectionType, newValue, fragment}: any) => {

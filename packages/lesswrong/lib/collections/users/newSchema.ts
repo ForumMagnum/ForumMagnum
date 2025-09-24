@@ -71,7 +71,6 @@ const ownsOrIsMod = (user: DbUser | null, document: any) => {
 };
 
 const canUpdateName = (user: DbUser | null) => {
-  console.log('canUpdateName', { user, isEAForum: isEAForum() });
   return isEAForum() ? userIsMemberOf(user, 'members') : userHasntChangedName(user);
 };
 

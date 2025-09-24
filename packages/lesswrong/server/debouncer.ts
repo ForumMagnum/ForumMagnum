@@ -208,6 +208,8 @@ const dispatchEvent = async (event: DbDebouncerEvents) => {
 export const dispatchPendingEvents = async () => {
   const now = new Date();
   let eventToHandle: any = null;
+
+  console.log('dispatchPendingEvents', { now });
   
   do {
     // Finds one grouped event that is ready to go, and marks it as handled in
