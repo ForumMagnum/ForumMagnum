@@ -3,7 +3,7 @@ import { defineStyles } from '@/components/hooks/defineStyles';
 import { useStyles } from '@/components/hooks/useStyles';
 import { AnalyticsContext } from '@/lib/analyticsEvents';
 import React from 'react';
-import { petrovDaySections } from './petrovDaySectionsFinal';
+import { petrovDaySections } from './petrovDaySections';
 import ContentStyles from '@/components/common/ContentStyles';
 import classNames from 'classnames';
 
@@ -26,12 +26,12 @@ const styles = defineStyles("PetrovDayStory", (theme: ThemeType) => ({
     alignItems: 'center',
     // Custom scroll cursor with hotspot at (10,10) and pointer fallback
     cursor: 'url("/icons/scroll.png") 10 10, pointer',
-    '& img': {
+    '& $image': {
       opacity: 0.6,
       transition: 'opacity 0.5s, filter 0.5s, -webkit-filter 0.5s',
       filter: 'contrast(1)',
     },
-    '&:hover img': {
+    '&:hover $image': {
       opacity: 1,
       filter: 'contrast(2)',
     },
@@ -117,7 +117,7 @@ const styles = defineStyles("PetrovDayStory", (theme: ThemeType) => ({
     marginLeft: 'auto',
   },
   storyBuffer: {
-    height: 400,
+    height: 600,
     width: "100vw",
     zIndex: 1,
     position: "relative", 
@@ -146,7 +146,7 @@ const styles = defineStyles("PetrovDayStory", (theme: ThemeType) => ({
     },
     transition: 'color 0.5s',
     '& h1': {
-      fontSize: 45,
+      fontSize: 60,
       textTransform: 'uppercase',
       marginBottom: 12,
       [theme.breakpoints.down(1600)]: {
@@ -189,6 +189,7 @@ const styles = defineStyles("PetrovDayStory", (theme: ThemeType) => ({
     objectFit: 'cover',
     objectPosition: 'bottom',
     pointerEvents: 'none',
+    transform: 'scaleX(-1)',
     zIndex: 10,
   }
 }));
@@ -231,13 +232,18 @@ export default function PetrovDayStory() {
         <div className={classes.blackBackground} style={{ opacity: storyScrolled ? 1 : 0, pointerEvents: storyScrolled ? 'auto' : 'none' }}/>
         
         <div className={classes.gradientOverlayTop} />
-        <video
-          autoPlay
-          loop
-          muted
-          playsInline
-          className={classes.candles}
-          style={{ opacity: storyScrollPosition > 2000 ? 1 : 0 }}
+        <img src="/one-unlit-candle.jpg" className={classes.candles}
+          style={{
+            opacity: storyScrollPosition > 500 ? 1 : 0,
+            transition: storyScrollPosition > 500 ? 'opacity 4s' : 'opacity 0.5s',
+          }}
+        />
+        <video autoPlay loop playsInline muted className={classes.candles}
+          style={{ 
+            opacity: storyScrollPosition > 2000 ? 1 : 0,
+            transition: storyScrollPosition > 2000 ? 'opacity 4s' : 'opacity 0.5s',
+            transform: 'scaleX(-1)',
+          }}
         >
           <source src="/candleflicker.mp4" type="video/mp4" />
         </video>
