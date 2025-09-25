@@ -120,7 +120,7 @@ const styles = defineStyles("PetrovDayStory", (theme: ThemeType) => ({
     height: 400,
     width: "100vw",
     zIndex: 1,
-    position: "relative",
+    position: "relative", 
   },
   storySection: {
     position: "relative",
