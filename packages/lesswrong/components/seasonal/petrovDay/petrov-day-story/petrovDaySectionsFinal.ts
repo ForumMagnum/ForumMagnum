@@ -17,7 +17,7 @@ export const petrovDaySections = [
     "html": "<p>The purpose of the ritual is to make catastrophic and existential risk emotionally salient, by putting it into historical context and providing positive and negative examples of how it has been handled. It is aimed at those\nwho already know what catastrophic and existential risk is, have some\nbackground knowledge of what those risks are, and believe (at least on an\nabstract level) that preventing those risks from coming to pass is important.</p>"
   },
   {
-    "html": "<p>Version 1.3.</p>\n<p>By James Babcock with content contributions by Ben Landau-Taylor, Adia Porter,\nDaniel Speyer and Raymond Arnold, and quotations from many sources. Thanks to\nEliezer Yudkowsky for introducing the idea of commemorating Petrov Day, and to\nall the testers, event organizers, and others who've made this possible.</p>\n<p><hr /></p>\n<p><p><em>Stage directions are written in italics, like this. All other text is\nto be read aloud. Whenever there is a horizontal line, it becomes the next\nperson's turn to speak, going clockwise. When reading quotes, you don't need to\nread the name and date at the end.</em></p></p>\n<p>This day, September 26, is Petrov Day. In 1983, the story of humanity nearly\nended. We're gathered here to remember that moment, and others like it. But to\nreally feel the magnitude of those events, we need to visit them in their\nproper context. Let us begin the story of human history, starting from the\nbeginning.</p>"
+    "html": "<em>Stage directions are written in italics, like this. All other text is\nto be read aloud. Whenever there is a horizontal line, it becomes the next\nperson's turn to speak, going clockwise. When reading quotes, you don't need to\nread the name and date at the end.</em></p></p>\n<p>This day, September 26, is Petrov Day. In 1983, the story of humanity nearly\nended. We're gathered here to remember that moment, and others like it. But to\nreally feel the magnitude of those events, we need to visit them in their\nproper context. Let us begin the story of human history, starting from the\nbeginning.</p>"
   },
   {
     "html": "<p><blockquote><p>In the beginning, the universe was created. This has made a lot of\npeople very angry, and been widely regarded as a bad move.</p><footer>— Douglas Adams</footer></blockquote></p>\n<p><hr /></p>\n<p>Let's fast forward over the thirteen billion year long prequel. Our story\nbegins in the age of myth, of fossils and legends. It starts with the invention\nof fire.</p>"
@@ -212,6 +212,6 @@ export const petrovDaySections = [
     "html": "<p>The ritual is over.</p>\n<p>Your lit candles no longer symbolize anything.</p>\n<p>Get up. Stretch.</p>\n<p>Warn people before you turn the lights back on.</p>"
   },
   {
-    "html": ""
+    "html": "<p>Version 1.3.</p>\n<p>By James Babcock with content contributions by Ben Landau-Taylor, Adia Porter,\nDaniel Speyer and Raymond Arnold, and quotations from many sources. Thanks to\nEliezer Yudkowsky for introducing the idea of commemorating Petrov Day, and to\nall the testers, event organizers, and others who've made this possible.</p>\n<p><hr /></p>\n<p><p>"
   }
 ] as Array<{ html: string }>;

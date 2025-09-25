@@ -160,6 +160,9 @@ const styles = defineStyles("PetrovDayStory", (theme: ThemeType) => ({
       marginTop: 48,
       opacity: 0.7,
     },
+    '& blockquote': {
+      color: theme.palette.text.alwaysLightGrey,
+    },
   },
   storySectionDivider: {
     // borderTop: `1px solid white`,
@@ -185,6 +188,9 @@ export default function PetrovDayStory() {
   // Handle top-level window scroll for fading out the entire story
   React.useEffect(() => {
     const handleWindowScroll = () => {
+      if (storyScrolled) {
+        return;
+      }
       setPageScrolled(window.scrollY > 0);
     };
     window.addEventListener('scroll', handleWindowScroll);
@@ -194,6 +200,9 @@ export default function PetrovDayStory() {
   // Handle scrolling within the Petrov Day story container
   const handleStoryScroll = (e: React.UIEvent<HTMLDivElement>) => {
     const { scrollTop } = e.currentTarget;
+    if (pageScrolled) {
+      return;
+    }
     setStoryScrolled(scrollTop > 0);
   };
 
