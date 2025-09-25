@@ -14,7 +14,7 @@ import { initConsole } from "./packages/lesswrong/server/serverStartup";
 
 (async () => {
   const migrateOptions = await loadMigrateEnv();
-  const { environment, command, forumType } = migrateOptions;
+  const { environment, command } = migrateOptions;
   const isRunCommand = ["up", "down"].includes(command);
 
   const postgresUrl = process.env.PG_URL;

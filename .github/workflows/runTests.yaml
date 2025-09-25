@@ -299,7 +299,7 @@ jobs:
     - name: Execute Accepted Schema
       run: psql $PG_URL -f ./schema/accepted_schema.sql
     - name: Run Database Bootstrap
-      run: yarn migrate up
+      run: yarn migrate up dev lw
 
   uploadCoverageReports:
     needs: [runUnitTests, runIntegrationTests]
