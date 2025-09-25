@@ -6,8 +6,7 @@ export const petrovDaySections = [
     backgroundColor: "transparent",
     "html": `<div>
       <h1>Petrov Day</h1>
-      <h2>The day the world nearly ended.</h2>
-      <h3><em>September 26, 1983</em></h3>
+      <h3><em>September 26, 1983. The day the world nearly ended.</em></h3>
       <p>An illustrated guide to the Petrov Day ceremony.</p>
     </div>`
   },

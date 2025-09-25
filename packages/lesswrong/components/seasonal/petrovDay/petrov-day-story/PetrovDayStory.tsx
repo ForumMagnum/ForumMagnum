@@ -12,7 +12,7 @@ const styles = defineStyles("PetrovDayStory", (theme: ThemeType) => ({
   root: {
     height: "100vh",
     width: "50vw",
-    transition: 'opacity 0.5s',
+    transition: 'opacity 0.5s, filter 0.5s, -webkit-filter 0.5s',
     paddingLeft: 250,
     position: "relative",
     [theme.breakpoints.down(1700)]: {
@@ -36,15 +36,17 @@ const styles = defineStyles("PetrovDayStory", (theme: ThemeType) => ({
     justifyContent: 'flex-start',
     alignItems: 'center',
     // Custom scroll cursor with hotspot at (10,10) and pointer fallback
-    cursor: 'url("/icons/noun-scroll-8077686.svg") 10 10, pointer',
+    cursor: 'url("/icons/scroll.png") 10 10, pointer',
     '& img': {
       opacity: 0.8,
-      transition: 'opacity 0.5s',
+      transition: 'opacity 0.5s, filter 0.5s, -webkit-filter 0.5s',
+      filter: 'contrast(1)',
     },
     '&:hover img': {
       opacity: 1,
+      filter: 'contrast(2)',
     },
-    [theme.breakpoints.down(1400)]: {
+  [theme.breakpoints.down(1400)]: {
       display: 'none',
     },
   },
@@ -129,7 +131,6 @@ const styles = defineStyles("PetrovDayStory", (theme: ThemeType) => ({
   },
   storySection: {
     position: "relative",
-    zIndex: 0,
     paddingTop: 50,
     display: 'flex',
     flexDirection: 'column',
@@ -137,8 +138,8 @@ const styles = defineStyles("PetrovDayStory", (theme: ThemeType) => ({
     justifyContent: 'center',
   },
   storySectionContent: {
-    color: theme.palette.text.alwaysWhite,
     width: 400,
+    transition: 'color 0.5s',
     [theme.breakpoints.down(1700)]: {
       width: 300,
     },
@@ -192,7 +193,7 @@ export default function PetrovDayStory() {
           <div className={classes.storyBuffer}/>
           {petrovDaySections.map((item: { html: string}, index: number) => (
             <div key={index} className={classes.storySection}>
-              <ContentStyles contentType="post" className={classes.storySectionContent}>
+              <ContentStyles contentType="post" className={classes.storySectionContent} style={{ color: storyScrolled ? "white" : "black" }}>
                 <div className={classes.storySectionContent} key={index} dangerouslySetInnerHTML={{ __html: item.html }} />
               </ContentStyles>
             </div>
