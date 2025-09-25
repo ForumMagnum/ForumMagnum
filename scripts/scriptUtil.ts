@@ -4,12 +4,12 @@
  */
 
 import { existsSync } from "node:fs";
-import { CommandLineOptions } from "../build";
+import type { CommandLineOptions } from "../build";
 
 // @ts-ignore This is a javascript file without a .d.ts
 import { getDatabaseConfig } from "./startup/buildUtil";
 
-export const initGlobals = (args: Record<string, unknown>, isProd: boolean, globalOverrides?: Record<string, unknown>) => {
+export const initGlobals = (isProd: boolean, globalOverrides?: Record<string, unknown>) => {
   Object.assign(global, {
     bundleIsServer: true,
     bundleIsTest: false,
@@ -24,12 +24,9 @@ export const initGlobals = (args: Record<string, unknown>, isProd: boolean, glob
     enableVite: false,
     ...globalOverrides,
   });
-
-  const { getInstanceSettings } = require("../packages/lesswrong/lib/getInstanceSettings");
-  getInstanceSettings(args); // These args will be cached for later
 }
 
-const forumTypes = ["lw", "ea", "none"] as const;
+const forumTypes = ["lw", "ea", "af", "none"] as const;
 export type ForumType = typeof forumTypes[number];
 const environmentTypes = ["dev", "local", "staging", "prod", "xpost", "test"] as const;
 export type EnvironmentType = typeof environmentTypes[number];
@@ -37,6 +34,7 @@ export type EnvironmentType = typeof environmentTypes[number];
 const getCredentialsBase = (forumType: ForumType): string => {
   const memorizedBases: Record<ForumType, string> = {
     lw: "..",
+    af: "..",
     ea: "..",
     none: ".",
   };
@@ -47,6 +45,7 @@ const credentialsPath = (forumType: ForumType) => {
   const base = getCredentialsBase(forumType);
   const memorizedRepoNames: Record<ForumType, string> = {
     lw: '/LessWrong-Credentials',
+    af: '/LessWrong-Credentials',
     ea: '/ForumCredentials',
     none: "",
   };
@@ -86,6 +85,10 @@ export const getDatabaseConfigFromModeAndForumType = (mode: EnvironmentType, for
 
   const memorizedConfigPaths: Record<ForumType, Partial<CommandLineOptions>> = {
     lw: {
+      db: `${credentialsPath(forumType)}/connectionConfigs/${mode}.json`,
+      noSshTunnel: true, //workaround for a timing issue
+    },
+    af: {
       db: `${credentialsPath(forumType)}/connectionConfigs/${mode}.json`,
       noSshTunnel: true, //workaround for a timing issue
     },

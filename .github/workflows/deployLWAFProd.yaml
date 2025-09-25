@@ -11,6 +11,11 @@ jobs:
     runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@v2
+    - name: Pull Vercel Environment Information
+      if: github.ref == 'refs/heads/lw-deploy'
+      run: |
+        npm install --global vercel@latest
+        vercel env pull --yes --environment=production --token=${{ secrets.VERCEL_ACCESS_TOKEN }}
     - name: Run Migrations
       if: github.ref == 'refs/heads/lw-deploy'
       uses: ./.github/actions/runLWMigrations
@@ -22,6 +27,11 @@ jobs:
     runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@v2
+    - name: Pull Vercel Environment Information
+      if: github.ref == 'refs/heads/lw-deploy'
+      run: |
+        npm install --global vercel@latest
+        vercel env pull --yes --environment=production --token=${{ secrets.VERCEL_ACCESS_TOKEN }}
     - name: Upload ckEditor bundle
       if: github.ref == 'refs/heads/lw-deploy'
       uses: ./.github/actions/uploadLWCkEditorBundle
