@@ -176,7 +176,7 @@ function parseInstanceCommandLine() {
   } as const;
 }
 
-function getVercelEnvName(environment: EnvironmentType, codegen?: boolean) {
+function getVercelEnvName(environment: EnvironmentType, codegen: boolean) {
   switch (environment) {
     case "dev":
       return "development";
@@ -195,8 +195,28 @@ function getVercelEnvName(environment: EnvironmentType, codegen?: boolean) {
   }
 }
 
-async function loadAndValidateEnv(environment: EnvironmentType, codegen?: boolean) {
-  const vercelEnvName = getVercelEnvName(environment, codegen);
+
+
+interface LoadEnvOptions {
+  environment: EnvironmentType;
+  forumType: Exclude<ForumType, "none">;
+  codegen?: boolean | null;
+}
+
+function getForumTypeEnv(forumType: Exclude<ForumType, "none">) {
+  switch (forumType) {
+    case 'lw':
+      return 'LessWrong';
+    case 'af':
+      return 'AlignmentForum';
+    case 'ea':
+      return 'EAForum';
+  }
+}
+
+
+async function loadAndValidateEnv({ environment, forumType, codegen }: LoadEnvOptions) {
+  const vercelEnvName = getVercelEnvName(environment, !!codegen);
   const settingsFileName = `.env.local`;
   try {
     await exec(`vercel env pull ${settingsFileName} --yes --environment=${vercelEnvName}`);
@@ -207,6 +227,7 @@ async function loadAndValidateEnv(environment: EnvironmentType, codegen?: boolea
   const useDevSettings = environment === "dev";
   
   loadEnvConfig(process.cwd(), useDevSettings);
+  process.env.FORUM_TYPE = getForumTypeEnv(forumType);
 
   const envName = process.env.ENV_NAME;
 
@@ -221,18 +242,18 @@ async function loadAndValidateEnv(environment: EnvironmentType, codegen?: boolea
 
 export async function loadReplEnv() {
   const commandLineOptions = parseReplCommandLine();
-  await loadAndValidateEnv(commandLineOptions.environment);
+  await loadAndValidateEnv(commandLineOptions);
   return commandLineOptions;
 }
 
 export async function loadMigrateEnv() {
   const migrateOptions = parseMigrateCommandLine();
-  await loadAndValidateEnv(migrateOptions.environment);
+  await loadAndValidateEnv(migrateOptions);
   return migrateOptions;
 }
 
 export async function loadInstanceEnv() {
   const commandLineOptions = parseInstanceCommandLine();
-  await loadAndValidateEnv(commandLineOptions.environment);
+  await loadAndValidateEnv(commandLineOptions);
   return commandLineOptions;
 }
