@@ -12,18 +12,9 @@ import classNames from 'classnames';
 const styles = defineStyles("PetrovDayStory", (theme: ThemeType) => ({
   root: {
     height: "100vh",
-    width: "50vw",
     transition: 'opacity 0.5s, filter 0.5s, -webkit-filter 0.5s',
-    paddingLeft: 250,
     position: "relative",
-    [theme.breakpoints.down(1700)]: {
-      paddingLeft: 150,
-      width: "40vw",
-    },
-    [theme.breakpoints.down(1500)]: {
-      paddingLeft: 50,
-      width: "30vw",
-    },
+    width: "calc(90vw - 950px)",
     overflowX: 'hidden',
     overflowY: 'scroll',
     /* Hide scrollbars while retaining scroll functionality */
@@ -31,7 +22,6 @@ const styles = defineStyles("PetrovDayStory", (theme: ThemeType) => ({
     '&::-webkit-scrollbar': {
       display: 'none',
     },
-    marginTop: 100,
     display: 'flex',
     flexDirection: 'column',
     justifyContent: 'flex-start',
@@ -50,19 +40,19 @@ const styles = defineStyles("PetrovDayStory", (theme: ThemeType) => ({
     [theme.breakpoints.down(1400)]: {
       display: 'none',
     },
-    background: 'red',
   },
   rootFullWidth: {
     width: "100vw",
   },
   gradientOverlayLeft: {
-    width: "50vw",
-    [theme.breakpoints.down(1700)]: {
-      width: "40vw",
-    },
-    [theme.breakpoints.down(1500)]: {
-      width: "30vw",
-    },
+    // width: "50vw",
+    // [theme.breakpoints.down(1700)]: {
+    //   width: "40vw",
+    // },
+    // [theme.breakpoints.down(1500)]: {
+    //   width: "30vw",
+    // },
+    width: "calc(90vw - 950px)",
     position: 'fixed',
     top: 0,
     right: 0,
@@ -103,7 +93,7 @@ const styles = defineStyles("PetrovDayStory", (theme: ThemeType) => ({
     top: 0,
     right: 0,
     height: "100vh",
-    width: "auto",
+    width: "calc(90vw - 950px)",
     objectFit: 'cover',
     objectPosition: 'right',
     transition: 'opacity 0.5s',
@@ -124,13 +114,12 @@ const styles = defineStyles("PetrovDayStory", (theme: ThemeType) => ({
     zIndex: 0,
   },
   storyContainer: {
-    width: 600,
-    marginTop: 100,
+    width: "100%",
     zIndex: 5,
     marginLeft: 'auto',
   },
   storyBuffer: {
-    height: 475,
+    height: 700,
     width: "100vw",
     zIndex: 1,
     position: "relative",
@@ -139,22 +128,26 @@ const styles = defineStyles("PetrovDayStory", (theme: ThemeType) => ({
     position: "relative",
     display: 'flex',
     flexDirection: 'column',
-    alignItems: 'center',
+    alignItems: 'flex-end',
     justifyContent: 'flex-end',
+    paddingRight: 80,
+    paddingLeft: 80,
+    [theme.breakpoints.down(1600)]: {
+      paddingRight: 12,
+      paddingLeft: 12
+    },
   },
   storySectionContent: {
-    width: 400,
+    width: "100%",
+    maxWidth: 400,
     transition: 'color 0.5s',
-    [theme.breakpoints.down(1700)]: {
-      width: 300,
-    },
-    [theme.breakpoints.down(1500)]: {
-      width: 250,
-    },
     '& h1': {
-      fontSize: 50,
+      fontSize: 45,
       textTransform: 'uppercase',
       marginBottom: -14,
+      [theme.breakpoints.down(1600)]: {
+        fontSize: 40,
+      },
     },
     '& h2': {
       fontSize: 26,
@@ -216,7 +209,7 @@ export default function PetrovDayStory() {
     <AnalyticsContext pageSectionContext="petrovDayStory">
       <div className={classNames(classes.root, { [classes.rootFullWidth]: storyScrolled })} style={{opacity: pageScrolled ? 0 : 1, pointerEvents: pageScrolled ? 'none' : 'auto'}} onScroll={handleStoryScroll}>
         <div className={classes.gradientOverlayLeft} />
-        <div className={classes.blackBackground} style={{ opacity: storyScrolled ? .5 : 0, pointerEvents: storyScrolled ? 'auto' : 'none' }}/>
+        <div className={classes.blackBackground} style={{ opacity: storyScrolled ? 1 : 0, pointerEvents: storyScrolled ? 'auto' : 'none' }}/>
         <div className={classes.gradientOverlayTop} />
         <div className={classes.imageColumn} style={{ opacity: storyScrolled ? 0 : 1 }}>
           <CloudinaryImage2 
