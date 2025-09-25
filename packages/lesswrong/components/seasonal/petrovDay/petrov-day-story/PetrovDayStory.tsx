@@ -79,7 +79,6 @@ const styles = defineStyles("PetrovDayStory", (theme: ThemeType) => ({
     height: "100vh",
     zIndex: 4,
     background: theme.palette.text.alwaysBlack,
-    pointerEvents: 'none',
   },
   gradientOverlayTop: {
     position: 'fixed',
@@ -112,6 +111,7 @@ const styles = defineStyles("PetrovDayStory", (theme: ThemeType) => ({
   },
   image: {
     width: '100%',
+    maxWidth: 800,
     height: '100%',
     objectFit: 'cover',
     objectPosition: 'right',
@@ -125,7 +125,7 @@ const styles = defineStyles("PetrovDayStory", (theme: ThemeType) => ({
 
   },
   storyBuffer: {
-    height: 350,
+    height: 475,
     width: "100vw",
     zIndex: 1,
     position: "relative",
@@ -199,9 +199,9 @@ export default function PetrovDayStory() {
 
   return (
     <AnalyticsContext pageSectionContext="petrovDayStory">
-      <div className={classes.root} style={{opacity: pageScrolled ? 0 : 1}} onScroll={handleStoryScroll}>
+      <div className={classes.root} style={{opacity: pageScrolled ? 0 : 1, pointerEvents: pageScrolled ? 'none' : 'auto'}} onScroll={handleStoryScroll}>
         <div className={classes.gradientOverlayLeft} />
-        <div className={classes.blackBackground} style={{ opacity: storyScrolled ? 1 : 0 }}/>
+        <div className={classes.blackBackground} style={{ opacity: storyScrolled ? 1 : 0, pointerEvents: storyScrolled ? 'auto' : 'none' }}/>
         <div className={classes.gradientOverlayTop} />
         <div className={classes.imageColumn} style={{ opacity: storyScrolled ? 0 : 1 }}>
           <CloudinaryImage2 
