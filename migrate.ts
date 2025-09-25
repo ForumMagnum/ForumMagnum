@@ -14,7 +14,7 @@ import { initConsole } from "./packages/lesswrong/server/serverStartup";
 
 (async () => {
   const migrateOptions = await loadMigrateEnv();
-  const { environment, command } = migrateOptions;
+  const { environment, forumType, command } = migrateOptions;
   const isRunCommand = ["up", "down"].includes(command);
 
   const postgresUrl = process.env.PG_URL;
@@ -32,6 +32,10 @@ import { initConsole } from "./packages/lesswrong/server/serverStartup";
   const db = isRunCommand
     ? getSqlClientOrThrow()
     : createSqlConnection(postgresUrl);
+
+  // Remove the environment and forum type from the command line arguments,
+  // so that umzug doesn't complain when we call `runAsCLI`
+  process.argv = process.argv.filter(arg => arg !== environment && arg !== forumType);
 
   try {
     await db.tx(async (transaction: ITask<{}>) => {
