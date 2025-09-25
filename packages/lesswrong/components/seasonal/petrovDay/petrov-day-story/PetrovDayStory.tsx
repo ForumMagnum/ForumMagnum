@@ -188,6 +188,7 @@ export default function PetrovDayStory() {
   // Handle top-level window scroll for fading out the entire story
   React.useEffect(() => {
     const handleWindowScroll = () => {
+      console.log({storyScrolled});
       if (storyScrolled) {
         return;
       }
@@ -210,7 +211,7 @@ export default function PetrovDayStory() {
     <AnalyticsContext pageSectionContext="petrovDayStory">
       <div className={classes.root} style={{opacity: pageScrolled ? 0 : 1, pointerEvents: pageScrolled ? 'none' : 'auto'}} onScroll={handleStoryScroll}>
         <div className={classes.gradientOverlayLeft} />
-        <div className={classes.blackBackground} style={{ opacity: storyScrolled ? 1 : 0, pointerEvents: storyScrolled ? 'auto' : 'none' }}/>
+        <div className={classes.blackBackground} style={{ opacity: storyScrolled ? 1 : 0, pointerEvents: storyScrolled ? 'auto' : 'none', backgroundColor: pageScrolled ? "red" : 'blue' }}/>
         <div className={classes.gradientOverlayTop} />
         <div className={classes.imageColumn} style={{ opacity: storyScrolled ? 0 : 1 }}>
           <CloudinaryImage2 
