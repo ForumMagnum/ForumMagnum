@@ -7,6 +7,7 @@ import { petrovDaySections } from './petrovDaySectionsFinal';
 import { heightElements } from 'juice';
 import { postBodyStyles } from '@/themes/stylePiping';
 import ContentStyles from '@/components/common/ContentStyles';
+import classNames from 'classnames';
 
 const styles = defineStyles("PetrovDayStory", (theme: ThemeType) => ({
   root: {
@@ -46,9 +47,13 @@ const styles = defineStyles("PetrovDayStory", (theme: ThemeType) => ({
       opacity: 1,
       filter: 'contrast(2)',
     },
-  [theme.breakpoints.down(1400)]: {
+    [theme.breakpoints.down(1400)]: {
       display: 'none',
     },
+    background: 'red',
+  },
+  rootFullWidth: {
+    width: "100vw",
   },
   gradientOverlayLeft: {
     width: "50vw",
@@ -122,7 +127,7 @@ const styles = defineStyles("PetrovDayStory", (theme: ThemeType) => ({
     width: 600,
     marginTop: 100,
     zIndex: 5,
-
+    marginLeft: 'auto',
   },
   storyBuffer: {
     height: 475,
@@ -135,7 +140,7 @@ const styles = defineStyles("PetrovDayStory", (theme: ThemeType) => ({
     display: 'flex',
     flexDirection: 'column',
     alignItems: 'center',
-    justifyContent: 'center',
+    justifyContent: 'flex-end',
   },
   storySectionContent: {
     width: 400,
@@ -149,10 +154,10 @@ const styles = defineStyles("PetrovDayStory", (theme: ThemeType) => ({
     '& h1': {
       fontSize: 50,
       textTransform: 'uppercase',
-      marginBottom: -20,
+      marginBottom: -14,
     },
     '& h2': {
-      fontSize: 30,
+      fontSize: 26,
     },
     '& h3': {
       fontSize: 18,
@@ -188,10 +193,10 @@ export default function PetrovDayStory() {
   // Handle top-level window scroll for fading out the entire story
   React.useEffect(() => {
     const handleWindowScroll = () => {
-      console.log({storyScrolled});
-      if (storyScrolled) {
-        return;
-      }
+      // console.log({storyScrolled});
+      // if (storyScrolled) {
+      //   return;
+      // }
       setPageScrolled(window.scrollY > 0);
     };
     window.addEventListener('scroll', handleWindowScroll);
@@ -201,17 +206,17 @@ export default function PetrovDayStory() {
   // Handle scrolling within the Petrov Day story container
   const handleStoryScroll = (e: React.UIEvent<HTMLDivElement>) => {
     const { scrollTop } = e.currentTarget;
-    if (pageScrolled) {
-      return;
-    }
+    // if (pageScrolled) {
+    //   return;
+    // }
     setStoryScrolled(scrollTop > 0);
   };
 
   return (
     <AnalyticsContext pageSectionContext="petrovDayStory">
-      <div className={classes.root} style={{opacity: pageScrolled ? 0 : 1, pointerEvents: pageScrolled ? 'none' : 'auto'}} onScroll={handleStoryScroll}>
+      <div className={classNames(classes.root, { [classes.rootFullWidth]: storyScrolled })} style={{opacity: pageScrolled ? 0 : 1, pointerEvents: pageScrolled ? 'none' : 'auto'}} onScroll={handleStoryScroll}>
         <div className={classes.gradientOverlayLeft} />
-        <div className={classes.blackBackground} style={{ opacity: storyScrolled ? 1 : 0, pointerEvents: storyScrolled ? 'auto' : 'none', backgroundColor: pageScrolled ? "red" : 'blue' }}/>
+        <div className={classes.blackBackground} style={{ opacity: storyScrolled ? .5 : 0, pointerEvents: storyScrolled ? 'auto' : 'none' }}/>
         <div className={classes.gradientOverlayTop} />
         <div className={classes.imageColumn} style={{ opacity: storyScrolled ? 0 : 1 }}>
           <CloudinaryImage2 
