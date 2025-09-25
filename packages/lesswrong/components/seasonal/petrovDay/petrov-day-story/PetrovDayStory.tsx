@@ -38,7 +38,7 @@ const styles = defineStyles("PetrovDayStory", (theme: ThemeType) => ({
     // Custom scroll cursor with hotspot at (10,10) and pointer fallback
     cursor: 'url("/icons/scroll.png") 10 10, pointer',
     '& img': {
-      opacity: 0.8,
+      opacity: 0.6,
       transition: 'opacity 0.5s, filter 0.5s, -webkit-filter 0.5s',
       filter: 'contrast(1)',
     },
@@ -77,7 +77,7 @@ const styles = defineStyles("PetrovDayStory", (theme: ThemeType) => ({
     bottom: 0,
     width: "100vw",
     height: "100vh",
-    zIndex: 1,
+    zIndex: 4,
     background: theme.palette.text.alwaysBlack,
     pointerEvents: 'none',
   },
@@ -116,11 +116,12 @@ const styles = defineStyles("PetrovDayStory", (theme: ThemeType) => ({
     objectFit: 'cover',
     objectPosition: 'right',
     position: 'relative',
+    zIndex: 0,
   },
   storyContainer: {
     width: 600,
     marginTop: 100,
-    zIndex: 2,
+    zIndex: 5,
 
   },
   storyBuffer: {
