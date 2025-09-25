@@ -394,7 +394,11 @@ const FixedPositionToc = ({tocSections, title, heading, onClickSection, displayO
             onClick={ev => {
               if (isRegularClick(ev)) {
                 void handleClick(ev, () => {
-                  navigate("#", {
+                  const { commentId, ...restQuery } = query;
+                  navigate({
+                    search: isEmpty(restQuery) ? '' : `?${qs.stringify(restQuery)}`,
+                    hash: `#`,
+                  }, {
                     skipRouter: true,
                   });
                   const container = scrollContainerRef?.current;
