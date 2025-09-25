@@ -4,8 +4,6 @@ import { useStyles } from '@/components/hooks/useStyles';
 import { AnalyticsContext } from '@/lib/analyticsEvents';
 import React from 'react';
 import { petrovDaySections } from './petrovDaySectionsFinal';
-import { heightElements } from 'juice';
-import { postBodyStyles } from '@/themes/stylePiping';
 import ContentStyles from '@/components/common/ContentStyles';
 import classNames from 'classnames';
 
@@ -132,30 +130,36 @@ const styles = defineStyles("PetrovDayStory", (theme: ThemeType) => ({
     justifyContent: 'flex-end',
     paddingRight: 80,
     paddingLeft: 80,
-    [theme.breakpoints.down(1600)]: {
+    [theme.breakpoints.down(1550)]: {
+      paddingRight: 50,
+      paddingLeft: 50
+    },
+    [theme.breakpoints.down(1480)]: {
       paddingRight: 12,
       paddingLeft: 12
     },
   },
   storySectionContent: {
-    width: "100%",
-    maxWidth: 400,
+    width: 350,
+    [theme.breakpoints.down(1550)]: {
+      width: 300,
+    },
     transition: 'color 0.5s',
     '& h1': {
       fontSize: 45,
       textTransform: 'uppercase',
-      marginBottom: -14,
+      marginBottom: 12,
       [theme.breakpoints.down(1600)]: {
         fontSize: 40,
       },
     },
     '& h2': {
-      fontSize: 26,
+      fontSize: 22,
     },
     '& h3': {
-      fontSize: 18,
-      marginBottom: 48,
-      marginTop: 48,
+      fontSize: 16,
+      marginBottom: '42px !important',
+      marginTop: '42px !important',
       opacity: 0.7,
     },
     '& blockquote': {
@@ -171,8 +175,18 @@ const styles = defineStyles("PetrovDayStory", (theme: ThemeType) => ({
     marginBottom: 120,
     color: theme.palette.text.alwaysLightGrey,
     opacity: 0.5,
-    width: '50%',
+    width: 200,
+    marginRight: 80,
     borderBottom: '1px solid white',
+  },
+  candles: {
+    position: 'fixed',
+    bottom: 0,
+    left: 0,
+    height: 1200,
+    width:  1200,
+    objectFit: 'cover',
+    objectPosition: 'bottom',
   }
 }));
 
@@ -210,20 +224,33 @@ export default function PetrovDayStory() {
       <div className={classNames(classes.root, { [classes.rootFullWidth]: storyScrolled })} style={{opacity: pageScrolled ? 0 : 1, pointerEvents: pageScrolled ? 'none' : 'auto'}} onScroll={handleStoryScroll}>
         <div className={classes.gradientOverlayLeft} />
         <div className={classes.blackBackground} style={{ opacity: storyScrolled ? 1 : 0, pointerEvents: storyScrolled ? 'auto' : 'none' }}/>
+        
         <div className={classes.gradientOverlayTop} />
+        <div>
+          <video
+            autoPlay
+            loop
+            muted
+            playsInline
+            className={classes.candles}
+            style={{ opacity: 1 }}
+          >
+            <source src="/candleflicker.mp4" type="video/mp4" />
+          </video>
+        </div>
         <div className={classes.imageColumn} style={{ opacity: storyScrolled ? 0 : 1 }}>
-          <CloudinaryImage2 
-            loading="lazy"
-            className={classes.image}
-            publicId="petrovBig_cblm82"
-            darkPublicId={"petrovBig_cblm82"}
-          />
+            <CloudinaryImage2 
+              loading="lazy"
+              className={classes.image}
+              publicId="petrovBig_cblm82"
+              darkPublicId={"petrovBig_cblm82"}
+            />
         </div>
         <div className={classes.storyContainer}>
           <div className={classes.storyBuffer}/>
           {petrovDaySections.map((item: { html: string}, index: number) => (
             <div key={index} className={classes.storySection}>
-              <ContentStyles contentType="post" className={classes.storySectionContent} style={{ color: storyScrolled ? "white" : "black" }}>
+              <ContentStyles contentType="postHighlight" className={classes.storySectionContent} style={{ color: storyScrolled ? "white" : "black" }}>
                 <div className={classes.storySectionContent} key={index} dangerouslySetInnerHTML={{ __html: item.html }} />
               </ContentStyles>
               <div className={classes.storySectionDivider}/>
