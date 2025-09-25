@@ -117,7 +117,7 @@ const styles = defineStyles("PetrovDayStory", (theme: ThemeType) => ({
     marginLeft: 'auto',
   },
   storyBuffer: {
-    height: 700,
+    height: 400,
     width: "100vw",
     zIndex: 1,
     position: "relative",
@@ -181,12 +181,15 @@ const styles = defineStyles("PetrovDayStory", (theme: ThemeType) => ({
   },
   candles: {
     position: 'fixed',
-    bottom: 0,
-    left: 0,
-    height: 1200,
-    width:  1200,
+    transition: 'opacity 3s',
+    bottom: -300,
+    left: 120,
+    height: "auto",
+    width:  500,
     objectFit: 'cover',
     objectPosition: 'bottom',
+    pointerEvents: 'none',
+    zIndex: 10,
   }
 }));
 
@@ -196,6 +199,7 @@ export default function PetrovDayStory() {
   // Track whether the overall page has been scrolled, and whether the story container itself has been scrolled
   const [pageScrolled, setPageScrolled] = React.useState(false);
   const [storyScrolled, setStoryScrolled] = React.useState(false);
+  const [storyScrollPosition, setStoryScrollPosition] = React.useState(0);
 
   // Handle top-level window scroll for fading out the entire story
   React.useEffect(() => {
@@ -217,6 +221,7 @@ export default function PetrovDayStory() {
     //   return;
     // }
     setStoryScrolled(scrollTop > 0);
+    setStoryScrollPosition(scrollTop);
   };
 
   return (
@@ -226,19 +231,17 @@ export default function PetrovDayStory() {
         <div className={classes.blackBackground} style={{ opacity: storyScrolled ? 1 : 0, pointerEvents: storyScrolled ? 'auto' : 'none' }}/>
         
         <div className={classes.gradientOverlayTop} />
-        <div>
-          <video
-            autoPlay
-            loop
-            muted
-            playsInline
-            className={classes.candles}
-            style={{ opacity: 1 }}
-          >
-            <source src="/candleflicker.mp4" type="video/mp4" />
-          </video>
-        </div>
-        <div className={classes.imageColumn} style={{ opacity: storyScrolled ? 0 : 1 }}>
+        <video
+          autoPlay
+          loop
+          muted
+          playsInline
+          className={classes.candles}
+          style={{ opacity: storyScrolled ? 1 : 0 }}
+        >
+          <source src="/candleflicker.mp4" type="video/mp4" />
+        </video>
+        <div className={classes.imageColumn} style={{ opacity: (storyScrollPosition > 2000) ? 0 : 1 }}>
             <CloudinaryImage2 
               loading="lazy"
               className={classes.image}
