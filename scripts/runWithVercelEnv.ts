@@ -176,22 +176,27 @@ function parseInstanceCommandLine() {
   } as const;
 }
 
-function getVercelEnvName(environment: EnvironmentType) {
+function getVercelEnvName(environment: EnvironmentType, codegen?: boolean) {
   switch (environment) {
     case "dev":
       return "development";
     case "prod":
       return "production";
+    case "test":
+      if (codegen) {
+        return "development";
+      } else {
+        throw new Error("Test environment not yet supported for Vercel");
+      }
     case "local":
     case "staging":
     case "xpost":
-    case "test":
       throw new Error("Environment not yet supported for Vercel");
   }
 }
 
-async function loadAndValidateEnv(environment: EnvironmentType) {
-  const vercelEnvName = getVercelEnvName(environment);
+async function loadAndValidateEnv(environment: EnvironmentType, codegen?: boolean) {
+  const vercelEnvName = getVercelEnvName(environment, codegen);
   const settingsFileName = `.env.local`;
   try {
     await exec(`vercel env pull ${settingsFileName} --yes --environment=${vercelEnvName}`);
