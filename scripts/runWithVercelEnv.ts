@@ -195,15 +195,13 @@ function getVercelEnvName(environment: EnvironmentType, codegen: boolean) {
   }
 }
 
-
-
 interface LoadEnvOptions {
   environment: EnvironmentType;
   forumType: Exclude<ForumType, "none">;
   codegen?: boolean | null;
 }
 
-function getForumTypeEnv(forumType: Exclude<ForumType, "none">) {
+export function getForumTypeEnv(forumType: Exclude<ForumType, "none">) {
   switch (forumType) {
     case 'lw':
       return 'LessWrong';
@@ -213,7 +211,6 @@ function getForumTypeEnv(forumType: Exclude<ForumType, "none">) {
       return 'EAForum';
   }
 }
-
 
 async function loadAndValidateEnv({ environment, forumType, codegen }: LoadEnvOptions) {
   // In a Github Actions context, we run `vercel env pull` in an action step
