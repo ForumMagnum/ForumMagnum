@@ -158,7 +158,7 @@ export class EventDebouncer<KeyType = string>
   
   _dispatchEvent = async (key: KeyType, events: string[]|null) => {
     if (!isAnyTest) {
-      //eslint-disable-next-line no-console
+      // eslint-disable-next-line no-console
       console.log(`Handling ${events?.length} grouped ${this.name} events`);
     }
     await this.callback(key, events||[]);
@@ -195,7 +195,7 @@ export const getWeeklyBatchTimeAfter = (now: Date, timeOfDayGMT: number, dayOfWe
 }
 
 const dispatchEvent = async (event: DbDebouncerEvents) => {
-  const { getDebouncerByName } = require("./getDebouncerByName");
+  const { getDebouncerByName } = await import("./getDebouncerByName");
   const eventDebouncer = getDebouncerByName(event.name);
   if (!eventDebouncer) {
     // eslint-disable-next-line no-console
@@ -235,6 +235,8 @@ export const dispatchPendingEvents = async () => {
       try {
         await dispatchEvent(eventToHandle);
       } catch (e) {
+        // eslint-disable-next-line no-console
+        console.error('Error when dispatching pending event', { eventToHandle, e });
         await DebouncerEvents.rawUpdateOne({
           _id: eventToHandle._id
         }, {
