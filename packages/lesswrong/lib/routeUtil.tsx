@@ -160,6 +160,7 @@ const LwAfDomainWhitelist: DomainList = {
     "baserates.org",
     "alignmentforum.org",
     "alignment-forum.com",
+    "arbital.com",
     // TODO: fix this to not use `getCommandLineArguments` anymore
     // `localhost:${getCommandLineArguments().localhostUrlPort}`,
   ],

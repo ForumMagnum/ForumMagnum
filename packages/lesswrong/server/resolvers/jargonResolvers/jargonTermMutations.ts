@@ -1,5 +1,5 @@
 import { jargonBotClaudeKey } from '@/lib/instanceSettings';
-import { getAnthropicPromptCachingClientOrThrow } from '../../languageModels/anthropicClient';
+import { getAnthropicClientOrThrow } from '../../languageModels/anthropicClient';
 import JargonTerms from '@/server/collections/jargonTerms/collection';
 import { initialGlossaryPrompt } from './jargonPrompts';
 import { fetchFragmentSingle } from '@/server/fetchFragment';
@@ -12,15 +12,15 @@ import { cyrb53Rand } from '@/server/perfMetrics';
 import JargonTermsRepo from '@/server/repos/JargonTermsRepo';
 import { randomId } from '@/lib/random';
 import { defaultGlossaryPrompt, defaultExamplePost, defaultExampleTerm, defaultExampleAltTerm, defaultExampleDefinition, JARGON_LLM_MODEL } from '@/lib/collections/jargonTerms/constants';
-import { convertZodParserToAnthropicTool } from '@/server/languageModels/llmApiWrapper';
 import uniq from 'lodash/uniq';
 import { computeContextFromUser } from '../../vulcan-lib/apollo-server/context';
 
-import type { PromptCachingBetaMessageParam } from '@anthropic-ai/sdk/resources/beta/prompt-caching/messages';
 import { sanitize } from "../../../lib/vulcan-lib/utils";
 import gql from 'graphql-tag';
 import { createJargonTerm } from "../../collections/jargonTerms/mutations";
 import { PostsPage } from '@/lib/collections/posts/fragments';
+import zodToJsonSchema, { JsonSchema7ObjectType, JsonSchema7Type } from 'zod-to-json-schema';
+import type { MessageParam } from '@anthropic-ai/sdk/resources/messages.mjs';
 
 interface JargonTermGenerationExampleParams {
   glossaryPrompt?: string;
@@ -69,6 +69,28 @@ type CategorizedJargonTerm = LLMGeneratedJargonTerm & { deleted: boolean };
 const jargonGlossarySchema = z.object({
   jargonTerms: z.array(jargonTermSchema)
 }).describe('A tool that generates a jargon glossary for a given post.  It should be provided with a list of jargon terms, which include the term (the identifier), altTerms (alternate spellings or forms of the term), and htmlContent (the explanation of the term).');
+
+function isObjectSchema(schema: JsonSchema7Type): schema is JsonSchema7ObjectType {
+  return 'type' in schema && schema.type === 'object';
+}
+
+function convertZodParserToAnthropicTool(zodParser: z.ZodType<any>, name: string) {
+  const jsonSchema = zodToJsonSchema(zodParser, name);
+  const inputSchema = jsonSchema.definitions?.[name];
+  if (!inputSchema) {
+    throw new Error(`Couldn't find tool definition for ${name}!`);
+  }
+
+  if (!isObjectSchema(inputSchema)) {
+    throw new Error(`Missing 'type' field in input schema for ${name}!`);
+  }
+
+  return {
+    name,
+    input_schema: inputSchema,
+    description: zodParser.description
+  };
+}
 
 class AdvisoryLockError extends Error {}
 
@@ -139,7 +161,7 @@ function sanitizeJargonTerms(jargonTerms: LLMGeneratedJargonTerm[]) {
 }
 
 export const queryClaudeForTerms = async (markdown: string): Promise<JargonTermListResponse> => {
-  const client = getAnthropicPromptCachingClientOrThrow(jargonBotClaudeKey.get());
+  const client = getAnthropicClientOrThrow(jargonBotClaudeKey.get());
   const messages = [{
     role: "user" as const, 
     content: [{
@@ -161,9 +183,9 @@ The jargon terms are:`
     tool_choice: { type: "tool", name: "return_jargon_terms" }
   });
 
-  if (termsResponse.content[0].type === "text") {
+  if (termsResponse.content[0].type !== "tool_use") {
     // eslint-disable-next-line no-console
-    console.error(`Claude responded with text, but we expected a tool use.`)
+    console.error(`Claude responded with ${termsResponse.content[0].type}, but we expected a tool use.`)
     return {
       jargonTerms: [],
       reasoning: '',
@@ -188,7 +210,7 @@ The jargon terms are:`
   return parsedResponse.data;
 }
 
-function createJargonGlossaryMessageWithExample({ markdown, terms, ...exampleParams }: JargonGlossaryQueryParams): PromptCachingBetaMessageParam[] {
+function createJargonGlossaryMessageWithExample({ markdown, terms, ...exampleParams }: JargonGlossaryQueryParams): MessageParam[] {
   const finalSystemPrompt = exampleParams.glossaryPrompt ?? defaultGlossaryPrompt
   const finalExamplePost = exampleParams.examplePost ?? defaultExamplePost
   const finalExampleTerm = exampleParams.exampleTerm ?? defaultExampleTerm
@@ -232,20 +254,20 @@ function createJargonGlossaryMessageWithExample({ markdown, terms, ...examplePar
 }
 
 const queryClaudeForJargonGlossary = async ({ markdown, terms, ...exampleParams }: JargonGlossaryQueryParams): Promise<LLMGeneratedJargonTerm[]> => {
-  const client = getAnthropicPromptCachingClientOrThrow(jargonBotClaudeKey.get());
-  const messages: PromptCachingBetaMessageParam[] = createJargonGlossaryMessageWithExample({ markdown, terms, ...exampleParams });
+  const client = getAnthropicClientOrThrow(jargonBotClaudeKey.get());
+  const messages: MessageParam[] = createJargonGlossaryMessageWithExample({ markdown, terms, ...exampleParams });
 
   const response = await client.messages.create({
-    model: "claude-3-5-sonnet-20241022",
+    model: JARGON_LLM_MODEL,
     max_tokens: 8092,
     messages,
     tools: [convertZodParserToAnthropicTool(jargonGlossarySchema, 'return_jargon_glossary')],
     tool_choice: { type: "tool", name: "return_jargon_glossary" }
   });
 
-  if (response.content[0].type === "text") {
+  if (response.content[0].type !== "tool_use") {
     // eslint-disable-next-line no-console
-    console.error(`Claude responded with text, but we expected a tool use.`)
+    console.error(`Claude responded with ${response.content[0].type}, but we expected a tool use.`)
     return [];
   }
 

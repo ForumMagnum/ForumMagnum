@@ -28,16 +28,19 @@ const {Query: suggestedFeedQuery, typeDefs: suggestedFeedTypeDefs} = createPagin
     context: ResolverContext,
     limit: number,
   ): Promise<DbUser[]> => {
-    const {currentUser} = context;
+    const {currentUser, clientId} = context;
 
-    if (!currentUser) {
-      throw new Error("You must be logged to get suggsted users to subscribe to.");
+    if (currentUser) {
+      return await context.repos.users.getSubscriptionFeedSuggestedUsersForLoggedIn(currentUser._id, limit);
+    } else {
+      return await context.repos.users.getSubscriptionFeedSuggestedUsersForLoggedOut(clientId, limit);
     }
-
-    return await context.repos.users.getSubscriptionFeedSuggestedUsers(currentUser._id, limit);
   }
 });
 
+// TODO: Remove this after ~3 days from deployment (added for backwards compatibility on 2025-09-24)
+// This is the old query that older clients may still be using
+// Client code has been migrated to use SuggestedFeedSubscriptionUsers instead
 const {Query: suggestedTopActiveUsersQuery, typeDefs: suggestedTopActiveUsersTypeDefs} = createPaginatedResolver({
   name: "SuggestedTopActiveUsers",
   graphQLType: "User",
@@ -45,7 +48,9 @@ const {Query: suggestedTopActiveUsersQuery, typeDefs: suggestedTopActiveUsersTyp
     context: ResolverContext,
     limit: number,
   ): Promise<DbUser[]> => {
-    return await context.repos.users.getTopActiveContributors(limit, 30);
+    // Use the same logic as the new unified query for logged-out users
+    const {clientId} = context;
+    return await context.repos.users.getSubscriptionFeedSuggestedUsersForLoggedOut(clientId ?? null, limit);
   }
 });
 

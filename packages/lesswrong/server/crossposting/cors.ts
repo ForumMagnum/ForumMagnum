@@ -7,7 +7,7 @@ export const setCorsHeaders = (res: NextResponse) => {
   if (foreignBaseUrl) {
     res.headers.set("Access-Control-Allow-Origin", foreignBaseUrl);
     res.headers.set("Access-Control-Allow-Methods", "POST, OPTIONS");
-    res.headers.set("Access-Control-Allow-Headers", "Content-Type");
+    res.headers.set("Access-Control-Allow-Headers", "Content-Type, request-origin-path");
     res.headers.set("Access-Control-Max-Age", "86400");
   }
 };
