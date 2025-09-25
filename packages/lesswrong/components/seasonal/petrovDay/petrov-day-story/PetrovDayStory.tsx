@@ -3,7 +3,7 @@ import { defineStyles } from '@/components/hooks/defineStyles';
 import { useStyles } from '@/components/hooks/useStyles';
 import { AnalyticsContext } from '@/lib/analyticsEvents';
 import React from 'react';
-import { petrovDaySections } from './petrovDaySections';
+import { petrovDaySections } from './petrovDaySectionsFinal';
 import { heightElements } from 'juice';
 import { postBodyStyles } from '@/themes/stylePiping';
 import ContentStyles from '@/components/common/ContentStyles';
@@ -124,14 +124,13 @@ const styles = defineStyles("PetrovDayStory", (theme: ThemeType) => ({
 
   },
   storyBuffer: {
-    height: 548,
+    height: 350,
     width: "100vw",
     zIndex: 1,
     position: "relative",
   },
   storySection: {
     position: "relative",
-    paddingTop: 50,
     display: 'flex',
     flexDirection: 'column',
     alignItems: 'center',
@@ -149,8 +148,30 @@ const styles = defineStyles("PetrovDayStory", (theme: ThemeType) => ({
     '& h1': {
       fontSize: 50,
       textTransform: 'uppercase',
-    }
+      marginBottom: -20,
+    },
+    '& h2': {
+      fontSize: 30,
+    },
+    '& h3': {
+      fontSize: 18,
+      marginBottom: 48,
+      marginTop: 48,
+      opacity: 0.7,
+    },
   },
+  storySectionDivider: {
+    // borderTop: `1px solid white`,
+    // backgroundColor: 'white',
+    // background: 'white',
+    // borderBottom: '1px solid white',
+    marginTop: 120,
+    marginBottom: 120,
+    color: theme.palette.text.alwaysLightGrey,
+    opacity: 0.5,
+    width: '50%',
+    borderBottom: '1px solid white',
+  }
 }));
 
 export default function PetrovDayStory() {
@@ -196,6 +217,7 @@ export default function PetrovDayStory() {
               <ContentStyles contentType="post" className={classes.storySectionContent} style={{ color: storyScrolled ? "white" : "black" }}>
                 <div className={classes.storySectionContent} key={index} dangerouslySetInnerHTML={{ __html: item.html }} />
               </ContentStyles>
+              <div className={classes.storySectionDivider}/>
             </div>
           ))}
         </div>
