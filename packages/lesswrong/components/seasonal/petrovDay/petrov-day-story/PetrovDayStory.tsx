@@ -237,7 +237,7 @@ export default function PetrovDayStory() {
           muted
           playsInline
           className={classes.candles}
-          style={{ opacity: storyScrolled ? 1 : 0 }}
+          style={{ opacity: storyScrollPosition > 2000 ? 1 : 0 }}
         >
           <source src="/candleflicker.mp4" type="video/mp4" />
         </video>
