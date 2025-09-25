@@ -216,12 +216,17 @@ function getForumTypeEnv(forumType: Exclude<ForumType, "none">) {
 
 
 async function loadAndValidateEnv({ environment, forumType, codegen }: LoadEnvOptions) {
-  const vercelEnvName = getVercelEnvName(environment, !!codegen);
-  const settingsFileName = `.env.local`;
-  try {
-    await exec(`vercel env pull ${settingsFileName} --yes --environment=${vercelEnvName}`);
-  } catch (e) {
-    throw new Error(`Failed to pull Vercel environment "${vercelEnvName}" with error: ${e}`);
+  // In a Github Actions context, we run `vercel env pull` in an action step
+  // and we'd need to pass in `--token` to run it here instead, which would
+  // require exposing the secrets in an annoying way.
+  if (!process.env.SKIP_VERCEL_CODE_PULL) {
+    const vercelEnvName = getVercelEnvName(environment, !!codegen);
+    const settingsFileName = `.env.local`;
+    try {
+      await exec(`vercel env pull ${settingsFileName} --yes --environment=${vercelEnvName}`);
+    } catch (e) {
+      throw new Error(`Failed to pull Vercel environment "${vercelEnvName}" with error: ${e}`);
+    }
   }
 
   const useDevSettings = environment === "dev";

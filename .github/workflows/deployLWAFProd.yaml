@@ -9,6 +9,8 @@ on:
 jobs:
   migrate:
     runs-on: ubuntu-latest
+    env:
+      SKIP_VERCEL_CODE_PULL: true
     steps:
     - uses: actions/checkout@v2
     - name: Pull Vercel Environment Information
@@ -25,6 +27,8 @@ jobs:
         credentials-pat: ${{ secrets.LW_CREDENTIALS_REPO_PAT }}
   upload-ckeditor-bundle:
     runs-on: ubuntu-latest
+    env:
+      SKIP_VERCEL_CODE_PULL: true
     steps:
     - uses: actions/checkout@v2
     - name: Pull Vercel Environment Information
