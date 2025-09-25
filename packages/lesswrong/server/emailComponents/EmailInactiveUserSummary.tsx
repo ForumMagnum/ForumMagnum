@@ -21,6 +21,9 @@ const styles = defineStyles("EmailInactiveUserSummary", (theme: ThemeType) => ({
   spacing: {
     marginBottom: 48,
   },
+  eaNewsletter: {
+    textDecoration: "underline",
+  },
   heading: {
     fontSize: 20,
     fontWeight: 700,
@@ -85,6 +88,7 @@ export const EmailInactiveUserSummary = ({
   mostCommentedPost?: {post: DbPost, commentCount: number},
   recommendedPosts: PostsList[],
 }) => {
+  const {displayName, email, subscribedToNewsletter} = user;
   const bestEmoji = bestReaction ? getEAEmojiByName(bestReaction.name) : null;
   const showKarmaChange = karmaChange > 0;
   const showBestReaction = bestReaction && bestReaction.count > 0 && bestEmoji;
@@ -99,12 +103,23 @@ export const EmailInactiveUserSummary = ({
   return (
     <div className={classes.root}>
       <p>
-        Hi {user.displayName},
+        Hi {displayName},
       </p>
       <p>
         We noticed you haven’t been on the EA Forum in a while. Here are some
         things you’ve missed.
       </p>
+      {!subscribedToNewsletter &&
+        <p>
+          Want to get EA updates without visiting the forum?{" "}
+          <a
+            href={`https://www.effectivealtruism.org/subscribe?email=${email}`}
+            className={classes.eaNewsletter}
+          >
+            Subscribe to the EA newsletter
+          </a>
+        </p>
+      }
       <div className={classes.spacing} />
       {showNotificationsSection &&
         <>
