@@ -490,7 +490,7 @@ export default function PetrovDayStory({variant}: {
 
         <ScrollVisibility
           anchor="prometheus"
-          start={-1000} stop={900}
+          start={-1000} stop={2000}
           scroll={storyScrollPosition}
         >
           {visible => <BackgroundVideo
@@ -647,7 +647,7 @@ export default function PetrovDayStory({variant}: {
 
         <ScrollVisibility
           anchor="hominid-skulls"
-          start={-500} stop={500}
+          start={-500} stop={1000}
           scroll={storyScrollPosition}
         >
           {visible => <BackgroundImage
@@ -655,7 +655,7 @@ export default function PetrovDayStory({variant}: {
             className={classes.hominidSkulls}
             src="/petrov/hominid-skulls.jpg"
             maxOpacity={0.8}
-             inDuration={6} outDuration={6}
+             inDuration={6} outDuration={2}
           />}
         </ScrollVisibility>
 
