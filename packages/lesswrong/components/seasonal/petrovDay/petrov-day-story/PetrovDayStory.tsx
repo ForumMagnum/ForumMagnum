@@ -341,7 +341,6 @@ export default function PetrovDayStory() {
                   [classes.preludeSectionContent]: item.isPrelude,
                   [classes.storySectionContentWhite]: storyScrolled
                 })}
-                style={{ color: storyScrolled ? "white" : "black" }}
               >
                 {item.getContents()}
               </ContentStyles>
