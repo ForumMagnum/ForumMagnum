@@ -215,13 +215,9 @@ const styles = defineStyles("PetrovDayStory", (theme: ThemeType) => ({
     },
   },
   storySectionContentWhite: {
-    color: theme.palette.grey[200],
+    color: theme.palette.text.alwaysWhite,
   },
   storySectionDivider: {
-    // borderTop: `1px solid white`,
-    // backgroundColor: 'white',
-    // background: 'white',
-    // borderBottom: '1px solid white',
     marginTop: 200,
     marginBottom: 200,
     marginRight: 80,
@@ -230,10 +226,10 @@ const styles = defineStyles("PetrovDayStory", (theme: ThemeType) => ({
       marginBottom: 100,
       marginRight: 0,
     },
-    color: theme.palette.grey[200],
+    color: theme.palette.text.alwaysWhite,
     opacity: .5,
     width: 200,
-    borderBottom: `1px solid ${theme.palette.grey[100]}`,
+    borderBottom: `1px solid ${theme.palette.text.alwaysWhite}`,
   },
   storySectionDividerPage: {
     marginRight: 260,
@@ -410,16 +406,19 @@ export default function PetrovDayStory({variant}: {
   const [storyScrollPosition, setStoryScrollPosition] = React.useState(0);
 
   // Disable page scrolling when the Petrov Day story itself is being scrolled
-  // React.useEffect(() => {
-  //   if (storyScrolled) {
-  //     document.body.style.overflow = 'hidden';
-  //   } else {
-  //     document.body.style.overflow = '';
-  //   }
-  //   return () => {
-  //     document.body.style.overflow = '';
-  //   };
-  // }, [storyScrolled]);
+  React.useEffect(() => {
+    if (storyScrolled) {
+      document.body.style.overflow = 'hidden';
+      document.body.style.overscrollBehavior = 'contain';
+    } else {
+      document.body.style.overflow = '';
+      document.body.style.overscrollBehavior = '';
+    }
+    return () => {
+      document.body.style.overflow = '';
+      document.body.style.overscrollBehavior = '';
+    };
+  }, [storyScrolled]);
 
   // Handle top-level window scroll for fading out the entire story
   React.useEffect(() => {
@@ -468,8 +467,6 @@ export default function PetrovDayStory({variant}: {
         }}/>
         
         <div className={classes.gradientOverlayTop} />
-        {/* <BackgroundImage start={500} stop={1500} scroll={storyScrollPosition}  */}
-          {/* className={classes.candles} src="/petrov/one-unlit-candle.jpg" /> */}
 
         <ScrollVisibility
           anchor="one-unlit-candle"
