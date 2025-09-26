@@ -482,21 +482,6 @@ export const PostsRevision = gql(`
   }
 `)
 
-export const PostsRevisionEdit = gql(`
-  fragment PostsRevisionEdit on Post {
-    ...PostsDetails
-
-    # Content & Revisions
-    version
-    contents(version: $version) {
-      ...RevisionEdit
-    }
-    revisions {
-      ...RevisionMetadata
-    }
-  }
-`)
-
 export const PostsWithNavigationAndRevision = gql(`
   fragment PostsWithNavigationAndRevision on Post {
     ...PostsRevision
@@ -865,19 +850,6 @@ export const PostsForAutocomplete = gql(`
     }
     contents {
       markdown
-    }
-  }
-`)
-
-export const PostForReviewWinnerItem = gql(`
-  fragment PostForReviewWinnerItem on Post {
-    _id
-    spotlight {
-      _id
-    }
-    reviewWinner {
-      _id
-      category
     }
   }
 `)

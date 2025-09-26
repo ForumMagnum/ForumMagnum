@@ -74,7 +74,7 @@ const BookmarksFeed = ({ hideTitle = false }: { hideTitle?: boolean }) => {
       <OverflowNavObserverProvider>
       <SingleColumnSection>
         {!hideTitle && <SectionTitle title="All Bookmarks" />}
-        {bookmarks.map((bookmark: any, index) => {
+        {bookmarks.map((bookmark, index) => {
           const typedBookmark = bookmark;
 
           if (typedBookmark.collectionName === 'Posts' && typedBookmark.post) {
@@ -99,10 +99,10 @@ const BookmarksFeed = ({ hideTitle = false }: { hideTitle?: boolean }) => {
               [commentData._id]: {
                 sources: ['bookmarks'] as const,
                 displayStatus: 'expanded' as FeedItemDisplayStatus,
-                lastServed: typedBookmark.lastUpdated, 
+                lastServed: new Date(typedBookmark.lastUpdated), 
                 lastViewed: null, 
                 lastInteracted: null,
-                postedAt: commentData.postedAt,
+                postedAt: new Date(commentData.postedAt),
                 descendentCount: commentData.descendentCount,
                 directDescendentCount: commentData.directChildrenCount,
               }

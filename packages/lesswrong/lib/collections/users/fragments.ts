@@ -277,15 +277,6 @@ export const UsersCurrentPostRateLimit = gql(`
   }
 `)
 
-export const UserBookmarkedPosts = gql(`
-  fragment UserBookmarkedPosts on User {
-    _id
-    bookmarkedPosts {
-      ...PostsList
-    }
-  }
-`)
-
 export const UserKarmaChanges = gql(`
   fragment UserKarmaChanges on User {
     _id
@@ -695,13 +686,6 @@ export const UsersCrosspostInfo = gql(`
     username
     slug
     fmCrosspostUserId
-  }
-`)
-
-export const UsersOptedInToDialogueFacilitation = gql(`
-  fragment UsersOptedInToDialogueFacilitation on User {
-    _id
-    displayName
   }
 `)
 
