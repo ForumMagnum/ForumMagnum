@@ -30,7 +30,9 @@ const styles = defineStyles("PetrovStoryComponents", (theme: ThemeType) => ({
       marginRight: 0,
     },
   },
-}))
+}), {
+  allowNonThemeColors: true
+})
 
 export const PetrovStoryVariant = React.createContext<"page"|"sidebar">("sidebar");
 
