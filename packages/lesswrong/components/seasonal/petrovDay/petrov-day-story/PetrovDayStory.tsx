@@ -16,8 +16,6 @@ const styles = defineStyles("PetrovDayStory", (theme: ThemeType) => ({
     flexDirection: 'column',
     justifyContent: 'flex-start',
     alignItems: 'center',
-    // Custom scroll cursor with hotspot at (10,10) and pointer fallback
-    cursor: 'url("/icons/scroll.png") 10 10, pointer',
     '& $image': {
       opacity: 0.6,
       transition: 'opacity 0.5s, filter 0.5s, -webkit-filter 0.5s',
@@ -341,6 +339,18 @@ export default function PetrovDayStory({variant}: {
   const [storyScrolled, setStoryScrolled] = React.useState(false);
   const [storyScrollPosition, setStoryScrollPosition] = React.useState(0);
 
+  // Disable page scrolling when the Petrov Day story itself is being scrolled
+  React.useEffect(() => {
+    if (storyScrolled) {
+      document.body.style.overflow = 'hidden';
+    } else {
+      document.body.style.overflow = '';
+    }
+    return () => {
+      document.body.style.overflow = '';
+    };
+  }, [storyScrolled]);
+
   // Handle top-level window scroll for fading out the entire story
   React.useEffect(() => {
     const handleWindowScroll = () => {
@@ -353,7 +363,7 @@ export default function PetrovDayStory({variant}: {
     };
     window.addEventListener('scroll', handleWindowScroll);
     return () => window.removeEventListener('scroll', handleWindowScroll);
-  }, []);
+  }, [variant]);
 
   // Handle scrolling within the Petrov Day story container
   const handleStoryScroll = (e: React.UIEvent<HTMLDivElement>) => {
@@ -415,14 +425,13 @@ export default function PetrovDayStory({variant}: {
           src="/petrov/rosetta-stone.jpg" maxOpacity={0.5} className={classes.rosettaStone} inDuration={6} outDuration={6} />*/}
 
         <div className={classes.imageColumn} style={{ opacity: (storyScrollPosition > 2000) ? 0 : 1 }}>
-            <CloudinaryImage2 
-              loading="lazy"
-              className={classes.image}
-              publicId="petrovBig_cblm82"
-              darkPublicId={"petrovBig_cblm82"}
-            />
+          <CloudinaryImage2 
+            loading="lazy"
+            className={classes.image}
+            publicId="petrovBig_cblm82"
+            darkPublicId={"petrovBig_cblm82"}
+          />
         </div>
-        <div className={classes.storyScrollPosition}>{storyScrollPosition}</div>
         <PetrovDayContents variant={variant} storyScrolled={storyScrolled}/>
       </div>
     </AnalyticsContext>
@@ -438,7 +447,7 @@ const PetrovDayContents = React.memo(({variant, storyScrolled}: {
   return <div className={classes.storyContainer}>
     <div className={classes.storyBuffer}/>
     {petrovDaySections.map((item, index: number) => (
-      <div key={index} className={classes.storySection}>
+      <div key={index} className={classes.storySection} id={index.toString()}>
         <ContentStyles
           contentType="postHighlight"
           className={classNames(classes.storySectionContent, {

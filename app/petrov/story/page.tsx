@@ -10,7 +10,7 @@ export async function generateMetadata(): Promise<Metadata> {
 }
 
 
-export default function PetrovDaySkoryPage() {
+export default function PetrovDayStoryPage() {
   return <RouteRoot
     metadata={{ noFooter: true }}
   >
