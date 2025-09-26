@@ -386,7 +386,10 @@ const BackgroundVideo = ({isVisible, src, className, maxOpacity=1, inDuration=4,
   outDuration?: number,
   autoPlay: boolean
 }) => {
-  return <video autoPlay={autoPlay} loop playsInline muted className={className}
+  // Autoplay is spread into it conditional on being true because according to
+  // https://developer.mozilla.org/en-US/docs/Web/HTML/Reference/Elements/video#autoplay,
+  // "the video will autoplay if the attribute is there in the <video> tag at all".
+  return <video loop playsInline muted className={className} {...(autoPlay && { autoPlay })}
     style={{ opacity: isVisible ? maxOpacity : 0, transition: isVisible ? `opacity ${inDuration}s` : `opacity ${outDuration}s` }}
   >
     <source src={src} type="video/mp4" />
