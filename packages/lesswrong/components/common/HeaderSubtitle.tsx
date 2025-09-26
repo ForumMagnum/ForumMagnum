@@ -3,7 +3,7 @@ import { Link } from '../../lib/reactRouterWrapper';
 import HeaderEventSubtitle from "./HeaderEventSubtitle";
 import { useRouteMetadata } from '../ClientRouteMetadataContext';
 import { defineStyles, useStyles } from '../hooks/useStyles';
-import { isBlackBarTitle } from '../Layout';
+import { isBlackBarTitle } from '../seasonal/petrovDay/petrov-day-story/petrovConsts';
 
 export const headerSubtitleStyles = defineStyles("HeaderSubtitle", (theme: ThemeType) => ({
   subtitle: {
@@ -32,7 +32,7 @@ const HeaderSubtitle = () => {
   } else if (subtitleString) {
     return <span className={classes.subtitle}>
       {subtitleString}
-    </span>
+    </span> 
   } else {
     return <HeaderEventSubtitle />;
   }
