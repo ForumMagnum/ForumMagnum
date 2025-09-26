@@ -108,27 +108,25 @@ export const petrovDaySections: Array<{
   },
   {
     getContents: () => <div>
-      <p>
-        <blockquote className="poem">
-          <p>
-            I met a traveller from an antique land<br />
-            Who said: Two vast and trunkless legs of stone<br />
-            Stand in the desert. Near them, on the sand,<br />
-            Half sunk, a shattered visage lies, whose frown,<br />
-            And wrinkled lip, and sneer of cold command,<br />
-            Tell that its sculptor well those passions read<br />
-            Which yet survive, stamped on these lifeless things,<br />
-            The hand that mocked them and the heart that fed:<br />
-            And on the pedestal these words appear:<br />
-            ``My name is Ozymandias, king of kings:<br />
-            Look on my works, ye Mighty, and despair!''<br />
-            Nothing beside remains. Round the decay<br />
-            Of that colossal wreck, boundless and bare<br />
-            The lone and level sands stretch far away
-          </p>
-          <footer>— Percy Bysshe Shelley (1818)</footer>
-        </blockquote>
-      </p>
+      <blockquote className="poem">
+        <p>
+          I met a traveller from an antique land<br />
+          Who said: Two vast and trunkless legs of stone<br />
+          Stand in the desert. Near them, on the sand,<br />
+          Half sunk, a shattered visage lies, whose frown,<br />
+          And wrinkled lip, and sneer of cold command,<br />
+          Tell that its sculptor well those passions read<br />
+          Which yet survive, stamped on these lifeless things,<br />
+          The hand that mocked them and the heart that fed:<br />
+          And on the pedestal these words appear:<br />
+          ``My name is Ozymandias, king of kings:<br />
+          Look on my works, ye Mighty, and despair!''<br />
+          Nothing beside remains. Round the decay<br />
+          Of that colossal wreck, boundless and bare<br />
+          The lone and level sands stretch far away
+        </p>
+        <footer>— Percy Bysshe Shelley (1818)</footer>
+      </blockquote>
       <p><em>When you have finished reading, take a piece of paper and write down the name of the oldest family member - living or dead - that you can identify.</em></p>
       <p><em>When everyone has written something, continue to the next page.</em></p>
     </div>
@@ -138,16 +136,11 @@ export const petrovDaySections: Array<{
       <p>We know more about what the world was like after people started writing, but not very much survived. One of the most important writings was discovered by French soldiers in the wall of Fort Julien: the Rosetta Stone, important because it was written in three languages, two previously untranslatable. After a long string of honorifics and decrees about taxes and succession, it declares: there shall be a new holiday!
       </p>
       <hr/>
-      <p><blockquote>
+      <blockquote>
         <p>On these days in every month, on which there shall be sacrifices and libations and all the ceremonies customary at the other festivals, and the offerings shall be given to the priests who serve in the temples. And a festival shall be kept for King Ptolemy, the Ever-Living, the Beloved of Ptah, the God Epiphanes Eucharistos, yearly in the temples throughout the land from the 1st of Thoth for five days ... This decree shall be inscribed on a stela of hard stone in hieroglyphic and demotic and Greek characters and set up in each of the first, second, and third temples beside the image of the ever living king.
        </p>
        <footer>— The Rosetta Stone (ca. 196 BC)</footer>
-     </blockquote></p>
-    </div>
-  },
-  {
-    getContents: () => <div>
-      <Illustration src="images/RosettaStone.png" alt=""/>
+     </blockquote>
     </div>
   },
   {
@@ -194,18 +187,18 @@ export const petrovDaySections: Array<{
   {
     getContents: () => <div>
       <p><p><em>Take the fourth candle, which represents science. Hold it, while you read the quote, then pass it directly to the next person. Repeat for each quote in this section.</em></p></p>
-      <p><blockquote><p>By the aid of a telescope any one may behold this in a manner which so distinctly appeals to the senses that all the disputes which have tormented philosophers through so many ages are exploded at once by the indisputable evidence of our eyes, and we are freed from wordy disputes upon this subject, for the Galaxy is nothing else but a mass of innumerable stars planted together in clusters.</p><footer>— Galileo, The Starry Messenger (1610)</footer></blockquote></p>
+      <blockquote><p>By the aid of a telescope any one may behold this in a manner which so distinctly appeals to the senses that all the disputes which have tormented philosophers through so many ages are exploded at once by the indisputable evidence of our eyes, and we are freed from wordy disputes upon this subject, for the Galaxy is nothing else but a mass of innumerable stars planted together in clusters.</p><footer>— Galileo, The Starry Messenger (1610)</footer></blockquote>
       <hr/>
       <p><blockquote><p>Matters that vexed the minds of ancient seers,<br /> And for our learned doctors often led<br /> to loud and vain contention, now are seen<br /> In reason's light, the clouds of ignorance<br /> Dispelled at last by science. Those on whom<br /> Delusion cast its gloomy pall of doubt,<br /> Upborne now on the wings that genius lends,<br /> May penetrate the mansions of the gods<br /> And scale the heights of heaven. O mortal men,<br /> Arise! And, casting off your earthly cares,<br /> Learn ye the potency of heaven-born mind,<br /> Its thought and life far from the herd withdrawn!</p><footer>— Edmund Halley, preface to Newton's Principia Mathematica (1687)</footer></blockquote></p>
     </div>
   },
   {
     getContents: () => <div>
-      <p><blockquote><p>By calculations similar to these may be determined universally, what expectations are warranted by any experiments, according to the different number of times in which they have succeeded and failed; or what should be thought of the probability that any particular cause in nature, with which we have any acquaintance, will or will not, in any single trial, produce an effect that has been conjoined with it.</p><footer>— Rev. Thomas Bayes, An Essay towards solving a Problem in the Doctrine of Chances (1763)</footer>
-      </blockquote></p>
+      <blockquote><p>By calculations similar to these may be determined universally, what expectations are warranted by any experiments, according to the different number of times in which they have succeeded and failed; or what should be thought of the probability that any particular cause in nature, with which we have any acquaintance, will or will not, in any single trial, produce an effect that has been conjoined with it.</p><footer>— Rev. Thomas Bayes, An Essay towards solving a Problem in the Doctrine of Chances (1763)</footer>
+      </blockquote>
       <hr/>
-      <p><blockquote><p>I was thinking upon the engine at the time, and had gone as far as the herd's house, when the idea came into my mind that as steam was an elastic body it would rush into a vacuum, and if a communication were made between the cylinder and an exhausted vessel it would rush into it, and might be there condensed without cooling the cylinder. I then saw that I must get rid of the condensed steam and injection-water if I used a jet as in Newcomen's engine. Two ways of doing this occurred to me. ... I had not walked farther than the golf-house when the whole thing was arranged in my mind.</p>
-      <footer>— James Watt (1765)</footer></blockquote></p>
+      <blockquote><p>I was thinking upon the engine at the time, and had gone as far as the herd's house, when the idea came into my mind that as steam was an elastic body it would rush into a vacuum, and if a communication were made between the cylinder and an exhausted vessel it would rush into it, and might be there condensed without cooling the cylinder. I then saw that I must get rid of the condensed steam and injection-water if I used a jet as in Newcomen's engine. Two ways of doing this occurred to me. ... I had not walked farther than the golf-house when the whole thing was arranged in my mind.</p>
+      <footer>— James Watt (1765)</footer></blockquote>
     </div>
   },
   {

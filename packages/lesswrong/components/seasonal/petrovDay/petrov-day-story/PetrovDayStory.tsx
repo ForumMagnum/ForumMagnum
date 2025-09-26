@@ -210,8 +210,53 @@ const styles = defineStyles("PetrovDayStory", (theme: ThemeType) => ({
     objectPosition: 'bottom',
     pointerEvents: 'none',
     zIndex: 10,
+    mixBlendMode: 'screen',
+  },
+  storyScrollPosition: {
+    position: 'fixed',
+    top: 100,
+    left: 100,
+    zIndex: 10,
+    color: 'white',
+    fontSize: 12,
+    fontWeight: 'bold',
+  },
+  rosettaStone: {
+    position: 'fixed',
+    top: "7vh",
+    left: "10vw",
+    height: "80vh",
+    objectFit: 'cover',
+    objectPosition: 'right',
+    transition: 'opacity 0.5s',
+    zIndex: 10,
+    mixBlendMode: 'screen',
   }
 }));
+
+const BackgroundImage = ({start, stop, scroll, src, className, maxOpacity=1, inDuration=4, outDuration=0.5}: {start: number, stop: number, scroll: number, src: string, className?: string, maxOpacity?: number, inDuration?: number, outDuration?: number}) => {
+  const classes = useStyles(styles);
+  const isVisible = scroll > start && scroll < stop;
+  return <img src={src} className={className}
+    style={{
+      pointerEvents: 'none',
+      opacity: isVisible ? maxOpacity : 0,
+      transition: isVisible ? `opacity ${inDuration}s` : `opacity ${outDuration}s`,
+    }}
+  />
+}
+
+const BackgroundVideo = ({start, stop, scroll, src, className, inDuration=4, outDuration=0.5}: {start: number, stop: number, scroll: number, src: string, className: string, inDuration?: number, outDuration?: number}) => {
+  const classes = useStyles(styles);
+  const isVisible = scroll > start && scroll < stop;
+  return <video autoPlay loop playsInline muted className={className}
+    style={{ opacity: isVisible ? 1 : 0, transition: isVisible ? `opacity ${inDuration}s` : `opacity ${outDuration}s` }}
+  >
+    <source src={src} type="video/mp4" />
+  </video>
+}
+
+
 
 export default function PetrovDayStory() {
   const classes = useStyles(styles);
@@ -251,20 +296,13 @@ export default function PetrovDayStory() {
         <div className={classes.blackBackground} style={{ opacity: storyScrolled ? 1 : 0, pointerEvents: storyScrolled ? 'auto' : 'none' }}/>
         
         <div className={classes.gradientOverlayTop} />
-        <img src="/petrov/one-unlit-candle.jpg" className={classes.candles}
-          style={{
-            opacity: storyScrollPosition > 500 ? 1 : 0,
-            transition: storyScrollPosition > 500 ? 'opacity 4s' : 'opacity 0.5s',
-          }}
-        />
-        <video autoPlay loop playsInline muted className={classes.candles}
-          style={{ 
-            opacity: storyScrollPosition > 2200 ? 1 : 0,
-            transition: storyScrollPosition > 2200 ? 'opacity 4s' : 'opacity 0.5s'
-          }}
-        >
-          <source src="/petrov/candleflicker.mp4" type="video/mp4" />
-        </video>
+        <BackgroundImage start={500} stop={1500} scroll={storyScrollPosition} 
+          className={classes.candles} src="/petrov/one-unlit-candle.jpg" />
+        <BackgroundVideo start={1000} stop={10000} scroll={storyScrollPosition} 
+          src="/petrov/1-candle.mp4" className={classes.candles} />
+        <BackgroundImage start={5500} stop={7000} scroll={storyScrollPosition} 
+          src="/petrov/rosetta-stone.jpg" maxOpacity={0.5} className={classes.rosettaStone} inDuration={10} outDuration={10} />
+
         <div className={classes.imageColumn} style={{ opacity: (storyScrollPosition > 2000) ? 0 : 1 }}>
             <CloudinaryImage2 
               loading="lazy"
@@ -273,6 +311,7 @@ export default function PetrovDayStory() {
               darkPublicId={"petrovBig_cblm82"}
             />
         </div>
+        <div className={classes.storyScrollPosition}>{storyScrollPosition}</div>
         <div className={classes.storyContainer}>
           <div className={classes.storyBuffer}/>
           {petrovDaySections.map((item, index: number) => (
