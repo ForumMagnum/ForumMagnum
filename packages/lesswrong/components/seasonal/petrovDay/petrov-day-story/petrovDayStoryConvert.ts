@@ -10,7 +10,7 @@ import path from 'path';
 
 // const TEX_FILENAME = 'test.tsx';
 const TEX_FILENAME = 'petrovDayStoryLatex.txt';
-const OUTPUT_FILENAME = 'petrovDayStory.ts';
+const OUTPUT_FILENAME = 'petrovDayStory.out.ts';
 
 const texPath = path.join(__dirname, TEX_FILENAME);
 const outputPath = path.join(__dirname, OUTPUT_FILENAME);
