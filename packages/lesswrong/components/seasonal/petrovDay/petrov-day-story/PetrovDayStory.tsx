@@ -275,10 +275,18 @@ export default function PetrovDayStory() {
         </div>
         <div className={classes.storyContainer}>
           <div className={classes.storyBuffer}/>
-          {petrovDaySections.map((item: { html: string}, index: number) => (
+          {petrovDaySections.map((item, index: number) => (
             <div key={index} className={classes.storySection}>
-              <ContentStyles contentType="postHighlight" className={classNames(classes.storySectionContent, { [classes.storySectionContentWhite]: storyScrolled })}>
-                <div key={index} dangerouslySetInnerHTML={{ __html: item.html }} />
+              <ContentStyles
+                contentType="postHighlight"
+                className={classNames(classes.storySectionContent, {
+                  [classes.storySectionContentWhite]: storyScrolled
+                })}
+                style={{ color: storyScrolled ? "white" : "black" }}
+              >
+                <div className={classes.storySectionContent} key={index}>
+                  {item.getContents()}
+                </div>
               </ContentStyles>
               <div className={classes.storySectionDivider}/>
             </div>
