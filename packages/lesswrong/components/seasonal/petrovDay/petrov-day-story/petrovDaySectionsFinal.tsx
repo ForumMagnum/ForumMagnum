@@ -98,7 +98,7 @@ export const petrovDaySections: Array<PetrovDaySection> = [
   {
     getContents: () => <div id="2nd-candle">
       <p><em>Take the first candle, which represents the invention of fire. Use it to light the second candle, which represents the evolution of language.</em></p>
-      <Illustration src="petrov/pass-candle.jpg" alt="Passing a candle around" />
+      <Illustration src="/petrov/pass-candle.jpg" alt="Passing a candle around" />
       <p><em>Pass the candle once all the way around the circle. When you hold the candle, it is your turn to speak. What is your name, and when (what year) is your earliest memory?</em></p>
       <p><em>When everyone has spoken, put the candle back in the candelabrum.</em></p>
     </div>
@@ -156,8 +156,8 @@ export const petrovDaySections: Array<PetrovDaySection> = [
   {
     getContents: () => <div id="3brd-candle">
       <p><em>Take the third candle, which represents agricultural society. Pass it around the circle.</em></p>
-      <Illustration src="petrov/pass-candle.jpg" alt="Passing a candle around" />
-      <p><em>Blow it out. Then return it to its place in the candelabrum.</em></p>
+      <Illustration src="/petrov/pass-candle.jpg" alt="Passing a candle around" />
+      <p><em>Then, blow it out. Then return it to its place in the candelabrum.</em></p>
     </div>
   },
   {

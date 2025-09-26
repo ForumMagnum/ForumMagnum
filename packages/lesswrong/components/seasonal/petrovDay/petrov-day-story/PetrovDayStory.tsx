@@ -108,7 +108,7 @@ const styles = defineStyles("PetrovDayStory", (theme: ThemeType) => ({
   image: {
     width: '100%',
     maxWidth: "calc(90vw - 950px)",
-    [theme.breakpoints.down('xs')]: {
+    [theme.breakpoints.down('sm')]: {
       maxWidth: 'unset',
     },
     height: '100%',
@@ -173,7 +173,7 @@ const styles = defineStyles("PetrovDayStory", (theme: ThemeType) => ({
   storySectionContent: {
     width: 500,
     marginRight: 100,
-    [theme.breakpoints.down('sm')]: {
+    [theme.breakpoints.down('md')]: {
       marginRight: 20,
     },
     [theme.breakpoints.down('xs')]: {
@@ -213,12 +213,6 @@ const styles = defineStyles("PetrovDayStory", (theme: ThemeType) => ({
   storySectionContentWhite: {
     color: theme.palette.grey[200],
   },
-  storySectionDividerPage: {
-    marginRight: 260,
-    [theme.breakpoints.down('xs')]: {
-      marginRight: 150,
-    },
-  },
   storySectionDivider: {
     // borderTop: `1px solid white`,
     // backgroundColor: 'white',
@@ -237,6 +231,12 @@ const styles = defineStyles("PetrovDayStory", (theme: ThemeType) => ({
     width: 200,
     borderBottom: '1px solid white',
   },
+  storySectionDividerPage: {
+    marginRight: 260,
+    [theme.breakpoints.down('xs')]: {
+      marginRight: 150,
+    },
+  },
   candles: {
     position: 'fixed',
     transition: 'opacity 3s',
@@ -245,17 +245,17 @@ const styles = defineStyles("PetrovDayStory", (theme: ThemeType) => ({
     height: "auto",
     maxHeight: 400,
     width:  500,
-    [theme.breakpoints.down('sm')]: {
-     left: 0,
-    },
     [theme.breakpoints.down('xs')]: {
-      left: 0,
       width: '100%',
     },
     objectFit: 'cover',
     objectPosition: 'bottom',
     pointerEvents: 'none',
     zIndex: 12,
+    [theme.breakpoints.down('md')]: {
+      left: 0,
+      zIndex: 100,
+    },
     mixBlendMode: 'screen',
   },
   storyScrollPosition: {
@@ -736,7 +736,7 @@ const PetrovDayContents = React.memo(({variant, storyScrolled}: {
           {item.getContents()}
         </ContentStyles>
         <div className={classNames(classes.storySectionDivider, {
-          [classes.storySectionDividerPage]: variant==="page" && !item.isPrelude
+          [classes.storySectionDividerPage]: variant==="page" || !item.isPrelude
         })}/>
       </div>
     ))}
