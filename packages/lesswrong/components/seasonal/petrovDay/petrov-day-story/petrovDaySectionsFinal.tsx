@@ -640,7 +640,7 @@ human society was built have given way to science and industry. Prior to this po
     </div>
   },
   {
-    getContents: () => <div id="petrov-final" style={{textAlign: 'center'}}>
+    getContents: () => <div id="petrov-final" style={{textAlign: 'center', height: "100vh", display: "flex", alignItems: "center", justifyContent: "center"}}>
       <p><em>And, of course, thank you to Stanislav Petrov.</em></p>
     </div>
   }
