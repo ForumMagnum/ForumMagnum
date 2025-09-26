@@ -311,7 +311,7 @@ export default function PetrovDayStory({variant}: {
     };
     window.addEventListener('scroll', handleWindowScroll);
     return () => window.removeEventListener('scroll', handleWindowScroll);
-  }, []);
+  }, [variant]);
 
   // Handle scrolling within the Petrov Day story container
   const handleStoryScroll = (e: React.UIEvent<HTMLDivElement>) => {
