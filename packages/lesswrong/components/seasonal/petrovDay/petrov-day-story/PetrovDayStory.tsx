@@ -287,6 +287,18 @@ export default function PetrovDayStory({variant}: {
   const [storyScrolled, setStoryScrolled] = React.useState(false);
   const [storyScrollPosition, setStoryScrollPosition] = React.useState(0);
 
+  // Disable page scrolling when the Petrov Day story itself is being scrolled
+  React.useEffect(() => {
+    if (storyScrolled) {
+      document.body.style.overflow = 'hidden';
+    } else {
+      document.body.style.overflow = '';
+    }
+    return () => {
+      document.body.style.overflow = '';
+    };
+  }, [storyScrolled]);
+
   // Handle top-level window scroll for fading out the entire story
   React.useEffect(() => {
     const handleWindowScroll = () => {
