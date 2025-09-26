@@ -17,6 +17,10 @@ const styles = defineStyles("PetrovStoryComponents", (theme: ThemeType) => ({
     width: 200,
     borderBottom: `1px solid #f5f5f5`,
   },
+  withinSectionDivider: {
+    marginLeft: "auto",
+    marginRight: "auto",
+  },
   storySectionDividerPage: {
     marginRight: 260,
     [theme.breakpoints.down('md')]: {
@@ -30,14 +34,22 @@ const styles = defineStyles("PetrovStoryComponents", (theme: ThemeType) => ({
 
 export const PetrovStoryVariant = React.createContext<"page"|"sidebar">("sidebar");
 
-export const PetrovStoryDivider = ({isPrelude}: {
+export const PetrovStoryDivider = ({isPrelude, withinSection}: {
   isPrelude?: boolean
+  withinSection?: boolean
 }) => {
   const classes = useStyles(styles);
   const variant = useContext(PetrovStoryVariant);
-  return <div className={classNames(classes.storySectionDivider, {
-    [classes.storySectionDividerPage]: variant==="page" || !isPrelude
-  })}/>
+  
+  if (withinSection) {
+    return <div className={classNames(classes.storySectionDivider, classes.withinSectionDivider, {
+      [classes.storySectionDividerPage]: variant==="page" || !isPrelude
+    })}/>
+  } else {
+    return <div className={classNames(classes.storySectionDivider, {
+      [classes.storySectionDividerPage]: variant==="page" || !isPrelude
+    })}/>
+  }
 }
 
 
