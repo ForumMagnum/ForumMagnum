@@ -162,7 +162,6 @@ const styles = defineStyles("PetrovDayStory", (theme: ThemeType) => ({
   storySectionContent: {
     width: 500,
     marginRight: 100,
-    color: '#212121',
     transition: 'color 0.5s',
     '& h1': {
       fontSize: 60,
@@ -192,7 +191,7 @@ const styles = defineStyles("PetrovDayStory", (theme: ThemeType) => ({
     },
   },
   storySectionContentWhite: {
-    color: "#eeeeee",
+    color: theme.palette.grey[200],
   },
   storySectionDivider: {
     // borderTop: `1px solid white`,
