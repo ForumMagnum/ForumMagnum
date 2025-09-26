@@ -16,6 +16,7 @@ const styles = defineStyles("PetrovDayStory", (theme: ThemeType) => ({
     flexDirection: 'column',
     justifyContent: 'flex-start',
     alignItems: 'center',
+    width: "100vw",
     '& $image': {
       opacity: 0.5,
       transition: 'opacity 0.5s, filter 0.5s, -webkit-filter 0.5s',
@@ -719,9 +720,7 @@ export default function PetrovDayStory({variant}: {
         <div className={classNames(classes.imageColumn, {
           [classes.imageColumnPage]: variant==="page"
         })} style={{ 
-          opacity: (storyScrolled) ? storyScrollPosition < 500 ? 0.15 : 0 : 1,
-          zIndex: (storyScrolled) ? 5 : undefined,
-          filter: (storyScrolled) ? 'invert(1)' : undefined,
+          opacity: (storyScrolled) ? 0 : 1,
 
          }}>
           <CloudinaryImage2 

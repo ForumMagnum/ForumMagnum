@@ -63,7 +63,7 @@ export default function PetrovStoryMobileBanner() {
   const classes = useStyles(styles);
   return <div className={classes.root}>
     <SingleColumnSection> 
-      <Link to="/petrov/story" className={classes.link}>
+      <Link to="/petrov/ceremony" className={classes.link}>
         <h1 className={classes.title}>Petrov Day</h1>
         <h1 className={classes.subtitle}>The Day the World Nearly Ended</h1>
       </Link>
