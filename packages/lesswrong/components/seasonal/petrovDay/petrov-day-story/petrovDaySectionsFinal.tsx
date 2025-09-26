@@ -7,9 +7,10 @@ const VerticalSpacer = ({height}: {
   return <div style={{height: `${height*4}em`}}/>
 }
 
-const Illustration = ({src, centered=false}: {
+const Illustration = ({src, centered=false, alt}: {
   src: string
   centered?: boolean
+  alt?: string
 }) => {
   return <div className="illustration">
     <p><img src={src} alt="<Illustration>"/></p>
@@ -85,13 +86,92 @@ export const petrovDaySections: Array<{
       </blockquote>
     </div>
   },
-  // FIXME Missing page: Human family tree (skulls)
+  {
+    getContents: () => <div>
+      <Illustration src="images/hominid-skulls.png"/>
+    </div>
+  },
+  {
+    getContents: () => <div>
+      <blockquote>
+        <p>It certainly is not a true instinct, for every language has to be learnt. It differs, however, widely from all ordinary arts, for man has an instinctive tendency to speak, as we see in the babble of our young children; whilst no child has an instinctive tendency to brew, bake, or write.</p>
+        <footer>— Charles Darwin, Descent of Man (1871)</footer>
+      </blockquote>
+    </div>
+  },
+  {
+    getContents: () => <div>
+      <p><em>Take the first candle, which represents the invention of fire. Use it to light the second candle, which represents the evolution of language.</em></p>
+      <Illustration src="images/candlepassing.png" alt="Passing a candle around" />
+      <p><em>Pass the candle once all the way around the circle. When you hold the candle, it is your turn to speak. What is your name, and when (what year) is your earliest memory?</em></p>
+      <Illustration src="images/candelabrum2.png"/>
+      <p><em>When everyone has spoken, put the candle back in the candelabrum.</em></p>
+    </div>
+  },
   {
     getContents: () => <div>
       <p>Language is the first key to technology; with it, early humans could accumulate knowledge, not just in genes, but also in sayings and traditions.</p>
       <p>They gave names to people around them. They gave names to species of animals and plants. They gave names to actions and to places and to strategies. They called some of these good, and called some of them bad. They learned to share their knowledge, and they learned to deceive each other. They built families and communities.</p>
       <p>They began the long, slow process of taming the wilderness. Their tribes grew to cities. What became of them?</p>
       <p><em>Take the second candle, which represents language. Use it to light the third candle, which represents agriculture.</em></p>
+    </div>
+  },
+  {
+    getContents: () => <div>
+      <p><em>If you or someone else at the table knows the tune to this song, then sing; if not, read normally.</em></p>
+
+      <blockquote>
+        <h2>Uplift</h2>
+        <p>By Andrew Eigel</p>
+
+        Hands chip the flint, light the fire, skin the kill<br/>
+        Feet move the tribe track the herd with a will<br/>
+        Mankind struggles in the cellar of history<br/>
+        Time to settle down, time to grow, time to breed<br/>
+        <br/>
+        Plow tills the soil, plants the seed, pray for rain<br/>
+        Scythe reaps the wheat, to the mill, to grind the grain<br/>
+        Towns and cities spread to empire overnight<br/>
+        Hands keep building as we chant the ancient rite
+      </blockquote>
+      <p><em>Stop here. Go to the next page without reading or singing the rest of the song.</em></p>
+      <blockquote>
+        Coal heats the steam, push the piston, turns the wheel<br/>
+        Cogs spin the wool, drives the horses made of steel<br/>
+        Lightning harnessed does our will and lights the dark<br/>
+        Keep rising higher, set our goal, hit the mark.<br/>
+        <br/>
+        <div className="uplift-bridge">
+          Crawl out of the mud,<br/>
+          Ongoing but slow,<br/>
+          For the path that is easy<br/>
+          Ain't the one that lets us grow!<br/>
+        </div>
+        <br/>
+        Light to push the sails, read the data, cities glow<br/>
+        Hands type the keys, click the mouse, out we go!<br/>
+        Our voices carry round the world and into space<br/>
+        Send us out to colonize another place¸<br/>
+        <br/>
+        Hands make the tools, build the fire, plant the grain.<br/>
+        Feet track the herd, build a world, begin again.
+      </blockquote>
+    </div>
+  },
+  {
+    getContents: () => <div>
+      <p><em>Take the third candle, which represents agricultural society. Pass it around the circle.</em></p>
+      <Illustration src="images/candlepassing.png" alt="Passing a candle around" />
+      <p><em>Blow it out. Then return it to its place in the candelabrum.</em></p>
+      <Illustration src="images/candelabrum3b.png" />
+    </div>
+  },
+  {
+    getContents: () => <div>
+      <blockquote>
+        <p>The power of population is so superior to the power of the earth to produce subsistence for man, that premature death must in some shape or other visit the human race. The vices of mankind are active and able ministers of depopulation.  They are the precursors in the great army of destruction, and often finish the dreadful work themselves. But should they fail in this war of extermination, sickly seasons, epidemics, pestilence, and plague advance in terrific array, and sweep off their thousands and tens of thousands. Should success be still incomplete, gigantic inevitable famine stalks in the rear, and with one mighty blow levels the population with the food of the world.</p>
+        <footer>— Thomas Malthus (1798)</footer>
+      </blockquote>
     </div>
   },
   {
@@ -145,6 +225,16 @@ export const petrovDaySections: Array<{
   {
     getContents: () => <div>
       <Illustration src="images/RosettaStone.png" alt=""/>
+    </div>
+  },
+  {
+    getContents: () => <div>
+      <p>The majority of writing consisted of genealogies, legal codes, and fantastic stories. But some writing represented progress in philosophy and mathematics, eventually culminating in the invention of the scientific method.</p>
+      <hr/>
+      <blockquote>
+        <p>Mathematics is the gate and key of the sciences... Neglect of mathematics works injury to all knowledge, since he who is ignorant of it cannot know the other sciences or the things of this world. And what is worse, men who are thus Ignorant are unable to perceive their own ignorance and so do not seek a remedy.</p>
+        <footer>— Roger Bacon, Opus Majus (1266)</footer>
+      </blockquote>
     </div>
   },
   {
