@@ -357,7 +357,7 @@ const ScrollVisibility = ({anchor, start, stop, scroll, children}: {
   scroll: number,
   children: (visible: boolean) => React.ReactNode
 }) => {
-  const [anchorPos, setAnchorPos] = useState<{top: number, bottom:number}|null>(null);
+  const [anchorPos, setAnchorPos] = useState<{top: number, bottom: number}|null>(null);
 
   useEffect(() => {
     const anchorEl = document.getElementById(anchor);
