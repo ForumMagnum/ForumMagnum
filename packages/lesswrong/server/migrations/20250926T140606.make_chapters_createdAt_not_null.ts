@@ -9,6 +9,7 @@ export const up = async ({db}: MigrationContext) => {
     ) AS exists;
   `);
   if (!result.exists) {
+    // eslint-disable-next-line no-console
     console.log(`"Chapters.createdAt" is already NOT NULL. Skipping migration.`);
     return;
   }
