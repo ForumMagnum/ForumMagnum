@@ -10,18 +10,6 @@ import classNames from 'classnames';
 
 const styles = defineStyles("PetrovDayStory", (theme: ThemeType) => ({
   root: {
-    height: "100vh",
-    transition: 'opacity 0.5s, filter 0.5s, -webkit-filter 0.5s',
-    position: "relative",
-    overflowX: 'hidden',
-    overflowY: 'scroll',
-    // Prevent scroll chaining so the page doesn't continue scrolling into the rest of the site
-    overscrollBehavior: 'contain',
-    /* Hide scrollbars while retaining scroll functionality */
-    scrollbarWidth: 'none', // Firefox
-    '&::-webkit-scrollbar': {
-      display: 'none',
-    },
     display: 'flex',
     flexDirection: 'column',
     justifyContent: 'flex-start',
@@ -41,6 +29,18 @@ const styles = defineStyles("PetrovDayStory", (theme: ThemeType) => ({
   rootSidebar: {
     width: "calc(90vw - 950px)",
     [theme.breakpoints.down(1400)]: {
+      display: 'none',
+    },
+    height: "100vh",
+    transition: 'opacity 0.5s, filter 0.5s, -webkit-filter 0.5s',
+    position: "relative",
+    overflowX: 'hidden',
+    overflowY: 'scroll',
+    // Prevent scroll chaining so the page doesn't continue scrolling into the rest of the site
+    overscrollBehavior: 'contain',
+    /* Hide scrollbars while retaining scroll functionality */
+    scrollbarWidth: 'none', // Firefox
+    '&::-webkit-scrollbar': {
       display: 'none',
     },
   },
@@ -292,11 +292,12 @@ export default function PetrovDayStory({variant}: {
   // Handle top-level window scroll for fading out the entire story
   React.useEffect(() => {
     const handleWindowScroll = () => {
-      // console.log({storyScrolled});
-      // if (storyScrolled) {
-      //   return;
-      // }
-      setPageScrolled(window.scrollY > 0);
+      if (variant === "page") {
+        setStoryScrolled(window.scrollY > 0);
+        setStoryScrollPosition(window.scrollY);
+      } else {
+        setPageScrolled(window.scrollY > 0);
+      }
     };
     window.addEventListener('scroll', handleWindowScroll);
     return () => window.removeEventListener('scroll', handleWindowScroll);
@@ -305,11 +306,10 @@ export default function PetrovDayStory({variant}: {
   // Handle scrolling within the Petrov Day story container
   const handleStoryScroll = (e: React.UIEvent<HTMLDivElement>) => {
     const { scrollTop } = e.currentTarget;
-    // if (pageScrolled) {
-    //   return;
-    // }
-    setStoryScrolled(scrollTop > 0);
-    setStoryScrollPosition(scrollTop);
+    if (variant === "sidebar") {
+      setStoryScrolled(scrollTop > 0);
+      setStoryScrollPosition(scrollTop);
+    }
   };
 
   return (
@@ -319,11 +319,13 @@ export default function PetrovDayStory({variant}: {
           [classes.rootSidebar]: variant==="sidebar",
           [classes.rootFullWidth]: storyScrolled
         })}
-        style={{
-          opacity: (pageScrolled && variant==="sidebar") ? 0 : 1,
-          pointerEvents: (pageScrolled && variant==="sidebar") ? 'none' : 'auto'
-        }}
-        onScroll={handleStoryScroll}
+        {...(variant==="sidebar" && {
+          style: {
+            opacity: (pageScrolled && variant==="sidebar") ? 0 : 1,
+            pointerEvents: (pageScrolled && variant==="sidebar") ? 'none' : 'auto'
+          },
+          onScroll: handleStoryScroll
+        })}
       >
         <div className={classes.gradientOverlayLeft} />
         <div className={classes.blackBackground} style={{
@@ -355,24 +357,33 @@ export default function PetrovDayStory({variant}: {
             />
         </div>
         <div className={classes.storyScrollPosition}>{storyScrollPosition}</div>
-        <div className={classes.storyContainer}>
-          <div className={classes.storyBuffer}/>
-          {petrovDaySections.map((item, index: number) => (
-            <div key={index} className={classes.storySection}>
-              <ContentStyles
-                contentType="postHighlight"
-                className={classNames(classes.storySectionContent, {
-                  [classes.preludeSectionContent]: item.isPrelude && variant==="sidebar",
-                  [classes.storySectionContentWhite]: storyScrolled || variant==="page"
-                })}
-              >
-                {item.getContents()}
-              </ContentStyles>
-              <div className={classes.storySectionDivider} style={{ marginRight: item.isPrelude ? 80: 260 }}/>
-            </div>
-          ))}
-        </div>
+        <PetrovDayContents variant={variant} storyScrolled={storyScrolled}/>
       </div>
     </AnalyticsContext>
   );
 }
+
+const PetrovDayContents = React.memo(({variant, storyScrolled}: {
+  variant: "sidebar"|"page",
+  storyScrolled: boolean,
+}) => {
+  const classes = useStyles(styles);
+
+  return <div className={classes.storyContainer}>
+    <div className={classes.storyBuffer}/>
+    {petrovDaySections.map((item, index: number) => (
+      <div key={index} className={classes.storySection}>
+        <ContentStyles
+          contentType="postHighlight"
+          className={classNames(classes.storySectionContent, {
+            [classes.preludeSectionContent]: item.isPrelude && variant==="sidebar",
+            [classes.storySectionContentWhite]: storyScrolled || variant==="page"
+          })}
+        >
+          {item.getContents()}
+        </ContentStyles>
+        <div className={classes.storySectionDivider} style={{ marginRight: item.isPrelude ? 80: 260 }}/>
+      </div>
+    ))}
+  </div>
+})
