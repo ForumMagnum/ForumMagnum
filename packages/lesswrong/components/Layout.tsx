@@ -260,6 +260,8 @@ const StickyWrapper = ({children}: {
   </StickyBox>
 }
 
+export const isBlackBarTitle = true
+
 const MaybeStickyWrapper: FC<{
   sticky: boolean,
   children: ReactNode,
@@ -357,7 +359,7 @@ const Layout = ({children}: {
     headerBackgroundColor = wrappedBackgroundColor;
   } else if (pathname.startsWith("/voting-portal")) {
     headerBackgroundColor = "transparent";
-  } else if (blackBarTitle.get()) {
+  } else if (isBlackBarTitle) {
     headerBackgroundColor = 'rgba(0, 0, 0, 0.7)';
   }
 

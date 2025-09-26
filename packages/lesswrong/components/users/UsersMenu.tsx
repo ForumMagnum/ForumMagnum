@@ -35,6 +35,7 @@ import NewWikiTagMenu from "../tagging/NewWikiTagMenu";
 import { isIfAnyoneBuildsItFrontPage } from '../seasonal/styles';
 
 import dynamic from 'next/dynamic';
+import { isBlackBarTitle } from '../Layout';
 const NewDialogueDialog = dynamic(() => import("../posts/NewDialogueDialog"), { ssr: false });
 const NewShortformDialog = dynamic(() => import("../shortform/NewShortformDialog"), { ssr: false });
 const AFApplicationForm = dynamic(() => import("../alignment-forum/AFApplicationForm"), { ssr: false });
@@ -56,7 +57,7 @@ const styles = (theme: ThemeType) => ({
     textTransform: 'none',
     fontSize: '16px',
     fontWeight: theme.isFriendlyUI ? undefined : 400,
-    color: blackBarTitle.get() ? theme.palette.text.alwaysWhite : theme.palette.header.text,
+    color: isBlackBarTitle ? theme.palette.text.alwaysWhite : theme.palette.header.text,
     ...isIfAnyoneBuildsItFrontPage({
       color: theme.palette.text.bannerAdOverlay,
     }),

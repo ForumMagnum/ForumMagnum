@@ -262,6 +262,12 @@ const styles = defineStyles("PetrovDayStory", (theme: ThemeType) => ({
     height: "60vh",
     zIndex: 10,
   },
+  earth: {
+    position: 'fixed',
+    top: "0vh",
+    left: "0vw",
+    zIndex: 5,
+  },
 }), {
   allowNonThemeColors: true
 });
@@ -560,7 +566,7 @@ export default function PetrovDayStory({variant}: {
 
         <ScrollVisibility
           anchor="last-candle"
-          start={-500} stop={250}
+          start={-500} stop={10000}
           scroll={storyScrollPosition}
         >
           {visible => <BackgroundVideo
@@ -620,6 +626,19 @@ export default function PetrovDayStory({variant}: {
             isVisible={visible}
             className={classes.petrov}
             src="/petrov/petrov.jpg"
+            maxOpacity={0.75} inDuration={6} outDuration={6}
+          />}
+        </ScrollVisibility>
+
+        <ScrollVisibility
+          anchor="coda"
+          start={-1000} stop={1000}
+          scroll={storyScrollPosition}
+        >
+          {visible => <BackgroundImage
+            isVisible={visible}
+            className={classes.earth}
+            src="/petrov/earth.jpg"
             maxOpacity={0.75} inDuration={6} outDuration={6}
           />}
         </ScrollVisibility>

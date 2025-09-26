@@ -510,7 +510,9 @@ human society was built have given way to science and industry. Prior to this po
   },
   {
     getContents: () => <div>
-      <blockquote><p>Recently, several scientific research teams have achieved some success in modifying influenza A/H5N1 viruses such that they are now transmitted efficiently between mammals, in one instance with maintenance of high pathogenicity. ... The NSABB was unanimous that communication of the results in the two manuscripts it reviewed should be greatly limited in terms of the experimental details and results. The life sciences have reached a cross-roads. The direction we choose and the process by which we arrive at this decision must be undertaken as a community and not relegated to small segments of government, the scientific community or society. Physicists faced a similar situation in the 1940s with nuclear weapons research, and it is inevitable that other scientific disciplines will also do so.</p><footer>— Natl. Security Advisory Board for Biosecurity, (2012)</footer></blockquote>
+      <blockquote><p>Recently, several scientific research teams have achieved some success in modifying influenza A/H5N1 viruses such that they are now transmitted efficiently between mammals, in one instance with maintenance of high pathogenicity. ... The NSABB was unanimous that communication of the results in the two manuscripts it reviewed should be greatly limited in terms of the experimental details and results.</p>
+      <p>The life sciences have reached a cross-roads. The direction we choose and the process by which we arrive at this decision must be undertaken as a community and not relegated to small segments of government, the scientific community or society.</p>
+      <p>Physicists faced a similar situation in the 1940s with nuclear weapons research, and it is inevitable that other scientific disciplines will also do so.</p><footer>— Natl. Security Advisory Board for Biosecurity, (2012)</footer></blockquote>
     </div>
   },
   {
@@ -614,25 +616,32 @@ human society was built have given way to science and industry. Prior to this po
     </div>
   },
   {
-    getContents: () => <div>
+    getContents: () => <div id="coda">
       <p><em>(Bearer of Fire)</em>: Today we gather in the shadow of many fears.</p>
       <p><em>(Bearer of Computers)</em>: May we see the day when none need fear anything. So say we all.</p>
       <p><em>(All): So say we all.</em></p>
     </div>
   },
   {
-    getContents: () => <div>
+    getContents: () => <div><em>
       <p>The ritual is over.</p>
       <p>Your lit candles no longer symbolize anything.</p>
       <p>Get up. Stretch.</p>
       <p>Warn people before you turn the lights back on.</p>
+      </em>
     </div>
   },
   {
-    getContents: () => <div>
+    getContents: () => <div><em>
       <p>Version 1.4.</p>
       <p>By James Babcock with content contributions by Ben Landau-Taylor, Adia Porter, Daniel Speyer and Raymond Arnold, and quotations from many sources. Thanks to Eliezer Yudkowsky for introducing the idea of commemorating Petrov Day, and to all the testers, event organizers, and others who've made this possible.</p>
+      </em>
       <hr/>
+    </div>
+  },
+  {
+    getContents: () => <div id="petrov-final" style={{textAlign: 'center'}}>
+      <p><em>And, of course, thank you to Stanislav Petrov.</em></p>
     </div>
   }
 ];
