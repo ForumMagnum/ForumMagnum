@@ -20326,10 +20326,12 @@ type SpotlightItemQueryVariables = Exact<{
 
 type SpotlightItemQuery = SpotlightItemQuery_Query;
 
-type SpotlightStartOrContinueReadingQueryQuery_spotlight_SingleSpotlightOutput_result_Spotlight_sequenceChapters_Chapter = (
-  { __typename?: 'Chapter' }
-  & ChaptersFragment
+type SpotlightStartOrContinueReadingQueryQuery_spotlight_SingleSpotlightOutput_result_Spotlight_sequenceChapters_Chapter_posts_Post = (
+  { __typename?: 'Post' }
+  & PostsList
 );
+
+type SpotlightStartOrContinueReadingQueryQuery_spotlight_SingleSpotlightOutput_result_Spotlight_sequenceChapters_Chapter = { __typename?: 'Chapter', _id: string, posts: Array<SpotlightStartOrContinueReadingQueryQuery_spotlight_SingleSpotlightOutput_result_Spotlight_sequenceChapters_Chapter_posts_Post> };
 
 type SpotlightStartOrContinueReadingQueryQuery_spotlight_SingleSpotlightOutput_result_Spotlight = { __typename?: 'Spotlight', _id: string, sequenceChapters: Array<SpotlightStartOrContinueReadingQueryQuery_spotlight_SingleSpotlightOutput_result_Spotlight_sequenceChapters_Chapter> | null };
 
