@@ -337,11 +337,12 @@ const styles = defineStyles("PetrovDayStory", (theme: ThemeType) => ({
   },
   arrowUp: {
     position: 'fixed',
-    fontSize: 32,
-    top: 100,
-    left: 50,
+    fontSize: 100,
+    top: 135,
+    left: 35,
     zIndex: 20,
-    transition: 'opacity 0.2s',
+    transform: 'translateY(-50%)',
+    transition: 'opacity 2s',
     cursor: 'pointer',
     '&:hover': {
       opacity: `1 !important`,
@@ -482,6 +483,8 @@ export default function PetrovDayStory({variant}: {
     }
   };
 
+  const showArrowUp = storyScrollPosition > 200 && storyScrollPosition < 2500 && variant==="sidebar";
+
   return (
     <AnalyticsContext pageSectionContext="petrovDayStory">
       <div
@@ -500,7 +503,7 @@ export default function PetrovDayStory({variant}: {
       >
         <LWTooltip title="Back to top">
           <ForumIcon icon="Close" className={classes.arrowUp} onClick={handleScrollToTop}style={{
-              opacity: (storyScrollPosition > 200 && variant==="sidebar" ) ? .25 : 0,
+              opacity: showArrowUp ? .5 : 0,
               pointerEvents: (storyScrolled) ? 'auto' : 'none'
             }}
           />
@@ -751,7 +754,7 @@ export default function PetrovDayStory({variant}: {
           {visible => <BackgroundImage
             isVisible={visible}
             className={classes.earth}
-            src="/petrov/earth.mp4"
+            src="/petrov/earth.jpg"
             maxOpacity={0.75} inDuration={6} outDuration={6}
           />}
         </ScrollVisibility>
