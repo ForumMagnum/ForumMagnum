@@ -300,6 +300,9 @@ const styles = defineStyles("PetrovDayStory", (theme: ThemeType) => ({
     [theme.breakpoints.down('lg')]: {
       height: "50vh",
     },
+    [theme.breakpoints.down('sm')]: {
+      display: 'none',
+    },
   },
   petrov: {
     position: 'fixed',
