@@ -296,7 +296,6 @@ const BackgroundImage = ({isVisible, src, className, maxOpacity=1, inDuration=4,
   inDuration?: number,
   outDuration?: number
 }) => {
-  const classes = useStyles(styles);
   return <img src={src} className={className}
     style={{
       pointerEvents: 'none',
@@ -306,18 +305,13 @@ const BackgroundImage = ({isVisible, src, className, maxOpacity=1, inDuration=4,
   />
 }
 
-const BackgroundVideo = ({anchor, start, stop, scroll, src, className, inDuration=4, outDuration=0.5}: {
-  anchor?: string,
-  start: number,
-  stop: number,
-  scroll: number,
+const BackgroundVideo = ({src, className, inDuration=4, outDuration=0.5}: {
+  isVisible: boolean,
   src: string,
   className: string,
   inDuration?: number,
   outDuration?: number
 }) => {
-  const classes = useStyles(styles);
-  const isVisible = scroll > start && scroll < stop;
   return <video autoPlay loop playsInline muted className={className}
     style={{ opacity: isVisible ? 1 : 0, transition: isVisible ? `opacity ${inDuration}s` : `opacity ${outDuration}s` }}
   >
