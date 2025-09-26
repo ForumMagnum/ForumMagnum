@@ -76,7 +76,7 @@ const styles = defineStyles("PetrovDayStory", (theme: ThemeType) => ({
     width: "100vw",
     height: "100vh",
     zIndex: 4,
-    background: theme.palette.text.alwaysBlack,
+    background: "black",
   },
   gradientOverlayTop: {
     position: 'fixed',
@@ -164,7 +164,7 @@ const styles = defineStyles("PetrovDayStory", (theme: ThemeType) => ({
   storySectionContent: {
     width: 500,
     marginRight: 100,
-    color: theme.palette.grey[900],
+    color: '#212121',
     transition: 'color 0.5s',
     '& h1': {
       fontSize: 60,
@@ -187,14 +187,14 @@ const styles = defineStyles("PetrovDayStory", (theme: ThemeType) => ({
       opacity: 0.7,
     },
     '& blockquote': {
-      color: theme.palette.text.alwaysLightGrey,
+      color: "#e0e0e0",
     },
     '& em': {
       opacity: 0.75,
     },
   },
   storySectionContentWhite: {
-    color: theme.palette.grey[200],
+    color: "#eeeeee",
   },
   storySectionDivider: {
     // borderTop: `1px solid white`,
@@ -203,7 +203,7 @@ const styles = defineStyles("PetrovDayStory", (theme: ThemeType) => ({
     // borderBottom: '1px solid white',
     marginTop: 120,
     marginBottom: 120,
-    color: theme.palette.text.alwaysLightGrey,
+    color: "#e0e0e0",
     opacity: 0.5,
     width: 200,
     marginRight: 80,
@@ -249,7 +249,9 @@ const styles = defineStyles("PetrovDayStory", (theme: ThemeType) => ({
     height: "60vh",
     zIndex: 10,
   }
-}));
+}), {
+  allowNonThemeColors: true
+});
 
 const BackgroundImage = ({start, stop, scroll, src, className, maxOpacity=1, inDuration=4, outDuration=0.5}: {start: number, stop: number, scroll: number, src: string, className?: string, maxOpacity?: number, inDuration?: number, outDuration?: number}) => {
   const classes = useStyles(styles);
