@@ -146,15 +146,22 @@ const styles = defineStyles("PetrovDayStory", (theme: ThemeType) => ({
       paddingLeft: 0
     },
   },
+  preludeSectionContent: {
+    "&&": {
+      width: 400,
+      [theme.breakpoints.down(1900)]: {
+        width: 350,
+      },
+      [theme.breakpoints.down(1550)]: {
+        width: 290,
+      },
+      marginRight: 0,
+    },
+  },
   storySectionContent: {
-    width: 400,
+    width: 500,
+    marginRight: 100,
     color: theme.palette.grey[900],
-    [theme.breakpoints.down(1900)]: {
-      width: 350,
-    },
-    [theme.breakpoints.down(1550)]: {
-      width: 290,
-    },
     transition: 'color 0.5s',
     '& h1': {
       fontSize: 60,
@@ -280,6 +287,7 @@ export default function PetrovDayStory() {
               <ContentStyles
                 contentType="postHighlight"
                 className={classNames(classes.storySectionContent, {
+                  [classes.preludeSectionContent]: item.isPrelude,
                   [classes.storySectionContentWhite]: storyScrolled
                 })}
                 style={{ color: storyScrolled ? "white" : "black" }}
