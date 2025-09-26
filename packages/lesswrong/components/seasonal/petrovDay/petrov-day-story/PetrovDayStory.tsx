@@ -712,8 +712,6 @@ export default function PetrovDayStory({variant}: {
 
         <div className={classes.imageColumn} style={{ 
           opacity: (storyScrolled) ? 0 : 1,
-          zIndex: (storyScrolled) ? 5 : undefined,
-          filter: (storyScrolled) ? 'invert(1)' : undefined,
 
          }}>
           <CloudinaryImage2 
