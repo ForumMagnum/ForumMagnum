@@ -47,7 +47,12 @@ export const petrovDaySections: Array<{
   {
     getContents: () => <div>
       <em>Stage directions are written in italics, like this. All other text is to be read aloud. Whenever there is a horizontal line, it becomes the next person's turn to speak, going clockwise. When reading quotes, you don't need to read the name and date at the end.</em>
-      <p>This day, September 26, is Petrov Day. In 1983, the story of humanity nearly ended. We're gathered here to remember that moment, and others like it. But to really feel the magnitude of those events, we need to visit them in their proper context. Let us begin the story of human history, starting from the beginning.</p>
+    </div>
+  },
+  {
+    getContents: () => <div>
+      <p>This day, September 26, is Petrov Day. 
+        In 1983, the story of humanity nearly ended. We're gathered here to remember that moment, and others like it. But to really feel the magnitude of those events, we need to visit them in their proper context. Let us begin the story of human history, starting from the beginning.</p>
     </div>
   },
   {
