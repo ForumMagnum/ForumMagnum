@@ -231,25 +231,25 @@ export const petrovDaySections = [
     "html": "<p><p><em>Six people take the six lit candles. They become the bearers of fire,\nlanguage, writing, science, industry, and computing, respectively.</em></p></p>\n<p>"
   },
   {
-    "html": "</p>\n<p>By the power of fire, we become free from the cycle of day and night, free from\nfear of night predators, and free to care about the future. Remember that you\ncan make light, even in the darkest places.</p>\n<p><em>(All)</em>: I will remember.</p>\n<p>"
+    "html": "</p>\n<p>By the power of fire, we become free from the cycle of day and night, free from\nfear of night predators, and free to care about the future. Remember that you\ncan make light, even in the darkest places.</p>\n<p>(All): <em>I will remember.</em></p>\n<p>"
   },
   {
-    "html": "</p>\n<p>By the gift of language, our thoughts grow beyond us and between us. We are\nable to share what we know, to learn the ideas and feelings of others.</p>\n<p>Remember that we have the power to learn, and to teach.</p>\n<p><em>(All)</em>: I will remember.</p>"
+    "html": "</p>\n<p>By the gift of language, our thoughts grow beyond us and between us. We are\nable to share what we know, to learn the ideas and feelings of others.</p>\n<p>Remember that we have the power to learn, and to teach.</p>\n<p>(All): <em>I will remember.</em></p>"
   },
   {
-    "html": "<p>By the power of writing, we take on the wisdom of those who came before us. We\nstand upon the shoulders of giants, and see far -- often farther than they\ndid, be we not giants ourselves. Remember that we have have an edifice of\nknowledge upon which to build.</p>\n<p><em>(All)</em>: I will remember.</p>\n<p>"
+    "html": "<p>By the power of writing, we take on the wisdom of those who came before us. We\nstand upon the shoulders of giants, and see far -- often farther than they\ndid, be we not giants ourselves. Remember that we have have an edifice of\nknowledge upon which to build.</p>\n<p>(All): <em>I will remember.</em></p>\n<p>"
   },
   {
-    "html": "</p>\n<p>By the power of science, we broach the true nature of a world where physical\nlaws govern the outcomes of our actions. We can know the consequences of what\nwe do.</p>\n<p>Remember that you have the power to predict the future, and to act to change\nit.</p>\n<p><em>(All)</em>: I will remember.</p>"
+    "html": "</p>\n<p>By the power of science, we broach the true nature of a world where physical\nlaws govern the outcomes of our actions. We can know the consequences of what\nwe do.</p>\n<p>Remember that you have the power to predict the future, and to act to change\nit.</p>\n<p>(All): <em>I will remember.</em></p>"
   },
   {
-    "html": "<p>By the power of Industry, our basic needs are easily met en masse. No longer\nare most fated to toil in the fields. There is specialization. There is\nsurplus. We are free to do what we want, not merely what we need to survive.</p>\n<p>Remember, You can choose who to be.</p>\n<p><em>(All)</em>: I will remember.</p>\n<p>"
+    "html": "<p>By the power of Industry, our basic needs are easily met en masse. No longer\nare most fated to toil in the fields. There is specialization. There is\nsurplus. We are free to do what we want, not merely what we need to survive.</p>\n<p>Remember, You can choose who to be.</p>\n<p>(All): <em>I will remember.</em></p>\n<p>"
   },
   {
-    "html": "</p>\n<p>By the power of Computing, the power of our minds - the source of human power -\nis amplified.</p>\n<p>My voice carries all around the world.</p>\n<p>I can see the sum of human knowledge - a great fractal pattern of summaries and\ndetails and beyond - and I can search it with a word.  Tools from across the\nearth are at my disposal.</p>\n<p>Remember that you, the children of computing, are powerful.</p>\n<p><em>(All)</em>: I will remember.</p>"
+    "html": "</p>\n<p>By the power of Computing, the power of our minds - the source of human power -\nis amplified.</p>\n<p>My voice carries all around the world.</p>\n<p>I can see the sum of human knowledge - a great fractal pattern of summaries and\ndetails and beyond - and I can search it with a word.  Tools from across the\nearth are at my disposal.</p>\n<p>Remember that you, the children of computing, are powerful.</p>\n<p>(All): <em>I will remember.</em></p>"
   },
   {
-    "html": "<p>: Today we gather in the shadow of many fears.</p>\n<p>: May we see the day when none need fear\nanything. So say we all.</p>\n<p><em>(All)</em>: So say we all.</p>"
+    "html": "<p>: Today we gather in the shadow of many fears.</p>\n<p>: May we see the day when none need fear\nanything. So say we all.</p>\n<p>(All): <em>So say we all.</em></p>"
   },
   {
     "html": "<p>The ritual is over.</p>\n<p>Your lit candles no longer symbolize anything.</p>\n<p>Get up. Stretch.</p>\n<p>Warn people before you turn the lights back on.</p>"

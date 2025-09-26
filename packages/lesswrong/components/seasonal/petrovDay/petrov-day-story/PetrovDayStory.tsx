@@ -3,7 +3,7 @@ import { defineStyles } from '@/components/hooks/defineStyles';
 import { useStyles } from '@/components/hooks/useStyles';
 import { AnalyticsContext } from '@/lib/analyticsEvents';
 import React from 'react';
-import { petrovDaySections } from './petrovDaySections';
+import { petrovDaySections } from './petrovDaySectionsFinal';
 import ContentStyles from '@/components/common/ContentStyles';
 import classNames from 'classnames';
 
@@ -15,6 +15,8 @@ const styles = defineStyles("PetrovDayStory", (theme: ThemeType) => ({
     width: "calc(90vw - 950px)",
     overflowX: 'hidden',
     overflowY: 'scroll',
+    // Prevent scroll chaining so the page doesn't continue scrolling into the rest of the site
+    overscrollBehavior: 'contain',
     /* Hide scrollbars while retaining scroll functionality */
     scrollbarWidth: 'none', // Firefox
     '&::-webkit-scrollbar': {
