@@ -370,7 +370,6 @@ export default function PetrovDayStory({variant}: {
             darkPublicId={"petrovBig_cblm82"}
           />
         </div>
-        <div className={classes.storyScrollPosition}>{storyScrollPosition}</div>
         <PetrovDayContents variant={variant} storyScrolled={storyScrolled}/>
       </div>
     </AnalyticsContext>
