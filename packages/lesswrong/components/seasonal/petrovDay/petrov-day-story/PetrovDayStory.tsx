@@ -98,7 +98,7 @@ const styles = defineStyles("PetrovDayStory", (theme: ThemeType) => ({
     height: "100vh",
     objectFit: 'cover',
     objectPosition: 'right',
-    transition: 'opacity 0.5s',
+    transition: 'opacity 3s, filter 0.5s',
     ['@media(max-width: 1450px)']: {
       // right: '-100px',
     },
@@ -304,15 +304,16 @@ const BackgroundImage = ({isVisible, src, className, maxOpacity=1, inDuration=4,
   />
 }
 
-const BackgroundVideo = ({src, className, inDuration=4, outDuration=0.5}: {
+const BackgroundVideo = ({isVisible, src, className, maxOpacity=1, inDuration=4, outDuration=0.5}: {
   isVisible: boolean,
   src: string,
   className: string,
+  maxOpacity?: number,
   inDuration?: number,
   outDuration?: number
 }) => {
   return <video autoPlay loop playsInline muted className={className}
-    style={{ opacity: isVisible ? 1 : 0, transition: isVisible ? `opacity ${inDuration}s` : `opacity ${outDuration}s` }}
+    style={{ opacity: isVisible ? maxOpacity : 0, transition: isVisible ? `opacity ${inDuration}s` : `opacity ${outDuration}s` }}
   >
     <source src={src} type="video/mp4" />
   </video>
@@ -333,16 +334,16 @@ export default function PetrovDayStory({variant}: {
   const [storyScrollPosition, setStoryScrollPosition] = React.useState(0);
 
   // Disable page scrolling when the Petrov Day story itself is being scrolled
-  React.useEffect(() => {
-    if (storyScrolled) {
-      document.body.style.overflow = 'hidden';
-    } else {
-      document.body.style.overflow = '';
-    }
-    return () => {
-      document.body.style.overflow = '';
-    };
-  }, [storyScrolled]);
+  // React.useEffect(() => {
+  //   if (storyScrolled) {
+  //     document.body.style.overflow = 'hidden';
+  //   } else {
+  //     document.body.style.overflow = '';
+  //   }
+  //   return () => {
+  //     document.body.style.overflow = '';
+  //   };
+  // }, [storyScrolled]);
 
   // Handle top-level window scroll for fading out the entire story
   React.useEffect(() => {
@@ -389,11 +390,133 @@ export default function PetrovDayStory({variant}: {
         }}/>
         
         <div className={classes.gradientOverlayTop} />
-        {/*<BackgroundImage start={500} stop={1500} scroll={storyScrollPosition} 
-          className={classes.candles} src="/petrov/one-unlit-candle.jpg" />
+        {/* <BackgroundImage start={500} stop={1500} scroll={storyScrollPosition}  */}
+          {/* className={classes.candles} src="/petrov/one-unlit-candle.jpg" /> */}
 
+        <ScrollVisibility
+          anchor="one-unlit-candle"
+          start={-500} stop={1500}
+          scroll={storyScrollPosition}
+        >
+          {visible => <BackgroundImage
+            isVisible={visible}
+            className={classes.candles}
+            src="/petrov/one-unlit-candle.jpg"
+            maxOpacity={1} inDuration={6} outDuration={6}
+          />}
+        </ScrollVisibility>
+
+{/* 
         <BackgroundVideo start={1000} stop={5500} scroll={storyScrollPosition} 
-          src="/petrov/1-candle.mp4" className={classes.candles} />*/}
+          src="/petrov/1-candle.mp4" className={classes.candles} /> */}
+
+        <ScrollVisibility
+          anchor="prometheus"
+          start={-1000} stop={900}
+          scroll={storyScrollPosition}
+        >
+          {visible => <BackgroundVideo
+            isVisible={visible}
+            className={classes.candles}
+            src="/petrov/1-candle.mp4" inDuration={4} outDuration={4}
+          />}
+        </ScrollVisibility>
+
+        <ScrollVisibility
+          anchor="2nd-candle"
+          start={-350} stop={350}
+          scroll={storyScrollPosition}
+        >
+          {visible => <BackgroundVideo
+            isVisible={visible}
+            className={classes.candles}
+            src="/petrov/2-candles.mp4" inDuration={4} outDuration={4}
+          />}
+        </ScrollVisibility>
+
+        <ScrollVisibility
+          anchor="3rd-candle"
+          start={-350} stop={350}
+          scroll={storyScrollPosition}
+        >
+          {visible => <BackgroundVideo
+            isVisible={visible}
+            className={classes.candles}
+            src="/petrov/3-candles.mp4" inDuration={4} outDuration={4}
+          />}
+        </ScrollVisibility>
+
+        <ScrollVisibility
+          anchor="3brd-candle"
+          start={-350} stop={350}
+          scroll={storyScrollPosition}
+        >
+          {visible => <BackgroundVideo
+            isVisible={visible}
+            className={classes.candles}
+            src="/petrov/3b-candles.mp4" inDuration={4} outDuration={4}
+          />}
+        </ScrollVisibility>
+
+        <ScrollVisibility
+          anchor="3c-candle"
+          start={-1000} stop={1000}
+          scroll={storyScrollPosition}
+        >
+          {visible => <BackgroundVideo
+            isVisible={visible}
+            className={classes.candles}
+            src="/petrov/3-candles.mp4" inDuration={4} outDuration={4}
+          />}
+        </ScrollVisibility>
+
+        <ScrollVisibility
+          anchor="4th-candle"
+          start={-1000} stop={250}
+          scroll={storyScrollPosition}
+        >
+          {visible => <BackgroundVideo
+            isVisible={visible}
+            className={classes.candles}
+            src="/petrov/4-candles.mp4" inDuration={4} outDuration={4}
+          />}
+        </ScrollVisibility>
+
+        <ScrollVisibility
+          anchor="4bth-candle"
+          start={-500} stop={500}
+          scroll={storyScrollPosition}
+        >
+          {visible => <BackgroundVideo
+            isVisible={visible}
+            className={classes.candles}
+            src="/petrov/4b-candles.mp4" inDuration={4} outDuration={4}
+          />}
+        </ScrollVisibility>
+
+        <ScrollVisibility
+          anchor="4cth-candle"
+          start={-500} stop={3000}
+          scroll={storyScrollPosition}
+        >
+          {visible => <BackgroundVideo
+            isVisible={visible}
+            className={classes.candles}
+            src="/petrov/4-candles.mp4" inDuration={4} outDuration={4}
+          />}
+        </ScrollVisibility>
+
+        <ScrollVisibility
+          anchor="5th-candle"
+          start={-500} stop={500}
+          scroll={storyScrollPosition}
+        >
+          {visible => <BackgroundVideo
+            isVisible={visible}
+            className={classes.candles}
+            src="/petrov/5-candles.mp4" inDuration={4} outDuration={4}
+          />}
+        </ScrollVisibility>
 
         <ScrollVisibility
           anchor="hominid-skulls"
@@ -408,16 +531,11 @@ export default function PetrovDayStory({variant}: {
           />}
         </ScrollVisibility>
 
-        {/*<BackgroundVideo start={4500} stop={5100} scroll={storyScrollPosition} 
-          src="/petrov/2-candles.mp4" className={classes.candles} />
-
-        <BackgroundVideo start={5000} stop={10000} scroll={storyScrollPosition} 
-          src="/petrov/3-candles.mp4" className={classes.candles} />
-
-        <BackgroundImage start={5500} stop={7000} scroll={storyScrollPosition} 
-          src="/petrov/rosetta-stone.jpg" maxOpacity={0.5} className={classes.rosettaStone} inDuration={6} outDuration={6} />*/}
-
-        <div className={classes.imageColumn} style={{ opacity: (storyScrollPosition > 2000) ? 0 : 1 }}>
+        <div className={classes.imageColumn} style={{ 
+          opacity: (storyScrolled) ? 0 : 1,
+          zIndex: (storyScrolled) ? 5 : undefined,
+          filter: (storyScrolled) ? 'invert(1)' : undefined
+         }}>
           <CloudinaryImage2 
             loading="lazy"
             className={classes.image}

@@ -29,7 +29,7 @@ export const petrovDaySections: Array<PetrovDaySection> = [
     getContents: () => <div>
       <h1>Petrov Day</h1>
       <h2><em>The day the world nearly ended.</em></h2>
-      <h3><em>An illustrated guide to the Petrov Day ceremony.</em></h3>
+      <h3>An illustrated guide to the Petrov Day ceremony.</h3>
       <p>Petrov Day is a yearly event on September 26 commemorating the anniversary of the Petrov incident, where a false alarm in the Soviet early warning system nearly set off a nuclear war.</p>
       <p>Since 2012, some people have celebrated Petrov Day with a small in-person ceremony, with readings by candlelight that tell the story of Petrov within the context of the long arc of history.</p>
       <p>This year, we're presenting an illustrated online version of the ceremony, to generally honor the event and share the ceremony with a wider audience.</p>
@@ -37,7 +37,7 @@ export const petrovDaySections: Array<PetrovDaySection> = [
   },
   {
     isPrelude: true,
-    getContents: () => <div>
+    getContents: () => <div id="one-unlit-candle">
       <p>The purpose of the ritual is to make catastrophic and existential risk emotionally salient, by putting it into historical context and providing positive and negative examples of how it has been handled.</p>
       <p>It is aimed at those who already know what catastrophic and existential risk is, have some background knowledge of what those risks are, and believe (at least on an abstract level) that preventing those risks from coming to pass is important.</p>
       <p>If you're not in a good emotional place for thinking about the end of the world, consider not reading through right now.</p>
@@ -51,6 +51,7 @@ export const petrovDaySections: Array<PetrovDaySection> = [
   },
   {
     getContents: () => <div>
+      <h1 style={{fontSize: 50, marginBottom: 60}}><span style={{fontSize: 30}}>The </span><br/>Petrov Day Ceremony</h1>
       <p>This day, September 26, is Petrov Day. 
         In 1983, the story of humanity nearly ended. We're gathered here to remember that moment, and others like it. But to really feel the magnitude of those events, we need to visit them in their proper context. Let us begin the story of human history, starting from the beginning.</p>
     </div>
@@ -66,7 +67,7 @@ export const petrovDaySections: Array<PetrovDaySection> = [
     </div>
   },
   {
-    getContents: () => <div>
+    getContents: () => <div id="prometheus">
       <blockquote>
         <p>I've hunted down and stolen, inside the hollow of a fennel's stalk, the seed of fire, a gift that has proven itself to be the teacher of every craft and the greatest resource for humans.  Such is the crime I have committed and this is the penalty I am to suffer: nailed and chained on this rock beneath the open sky.</p>
         <footer>— Prometheus Bound</footer>
@@ -95,7 +96,7 @@ export const petrovDaySections: Array<PetrovDaySection> = [
     </div>
   },
   {
-    getContents: () => <div>
+    getContents: () => <div id="2nd-candle">
       <p><em>Take the first candle, which represents the invention of fire. Use it to light the second candle, which represents the evolution of language.</em></p>
       <Illustration src="petrov/pass-candle.jpg" alt="Passing a candle around" />
       <p><em>Pass the candle once all the way around the circle. When you hold the candle, it is your turn to speak. What is your name, and when (what year) is your earliest memory?</em></p>
@@ -103,7 +104,7 @@ export const petrovDaySections: Array<PetrovDaySection> = [
     </div>
   },
   {
-    getContents: () => <div>
+    getContents: () => <div id="3rd-candle">
       <p>Language is the first key to technology; with it, early humans could accumulate knowledge, not just in genes, but also in sayings and traditions.</p>
       <p>They gave names to people around them. They gave names to species of animals and plants. They gave names to actions and to places and to strategies. They called some of these good, and called some of them bad. They learned to share their knowledge, and they learned to deceive each other. They built families and communities.</p>
       <p>They began the long, slow process of taming the wilderness. Their tribes grew to cities. What became of them?</p>
@@ -153,11 +154,10 @@ export const petrovDaySections: Array<PetrovDaySection> = [
     </div>
   },
   {
-    getContents: () => <div>
+    getContents: () => <div id="3brd-candle">
       <p><em>Take the third candle, which represents agricultural society. Pass it around the circle.</em></p>
       <Illustration src="petrov/pass-candle.jpg" alt="Passing a candle around" />
       <p><em>Blow it out. Then return it to its place in the candelabrum.</em></p>
-      <div>candelabrum3b.png</div>
     </div>
   },
   {
@@ -175,7 +175,7 @@ export const petrovDaySections: Array<PetrovDaySection> = [
       <p>But that was enough. Though they could not preserve knowledge over generations, they could preserve domesticated plants and animals. They saved the best, and little by little, the world got easier. And then a select few humans started writing, and the equilibrium between learning and forgetting was finally broken.</p>
       <p>Of that age, what memories remain?</p>
       <VerticalSpacer height={0.4}/>
-      <p><em>Using the second candle, which represents language, relight the third candle to represent the invention of writing.</em></p>
+      <p id="3c-candle"><em>Using the second candle, which represents language, relight the third candle to represent the invention of writing.</em></p>
     </div>
   },
   {
@@ -225,15 +225,14 @@ export const petrovDaySections: Array<PetrovDaySection> = [
     </div>
   },
   {
-    getContents: () => <div>
+    getContents: () => <div id="4th-candle">
       <p><em>Using the third candle, which represents writing, light the fourth candle to represent the scientific method.</em></p>
-      <p><div>candelabrum4.png</div></p>
       <p>Then, everyone write down something surprising you learned in the past week, and put it in the middle, on top of the pile of ancestors' names. When everyone has written something, continue to the next page.</p>
       <hr/>
     </div>
   },
   {
-    getContents: () => <div>
+    getContents: () => <div id="4bth-candle">
       <p>The scientific method, combined with writing and a university system, marked the start of an accumulation of knowledge. This could have marked the beginning of a slow transition into the modern era. Instead, 81 years after Roger Bacon, history was derailed by a great plague.</p>
       <hr/>
       <p><em>Take the fourth candle, which represents the progress of science. Hold it, while you read the quote.</em></p>
@@ -242,14 +241,13 @@ export const petrovDaySections: Array<PetrovDaySection> = [
         <footer>— Geoffrey the Baker, Chronicon Angliae (1360)</footer>
       </blockquote>
       <p><em>Blow out the candle. Then return it to its place on the candelabrum.</em></p>
-      <div>candelabrum4b.png</div>
     </div>
   },
   {
     getContents: () => <p>The plague killed about half the population of Europe during a four-year period, and it recurred repeatedly throughout the next three centuries killing double-digit percentages of the population each time. Between plagues, wars, and famines, there was little time to build or preserve knowledge.</p>
   },
   {
-    getContents: () => <div>
+    getContents: () => <div id="4cth-candle">
       <p>Preserving knowledge required redundancy. In 1439, during the European Renaissance, Gutenberg perfected a device to do just that.</p>
       <hr />
       <blockquote>
@@ -262,7 +260,6 @@ export const petrovDaySections: Array<PetrovDaySection> = [
       </blockquote>
       <p><em>Take the fourth candle, which represents the progress of science.</em></p>
       <p><em>Touch it to each of the other three candles in turn, until it is lit. Then return it to its place on the candelabrum.</em></p>
-      <div>candelabrum4.png</div>
     </div>
   },
   {
@@ -320,7 +317,8 @@ export const petrovDaySections: Array<PetrovDaySection> = [
     </div>
   },
   {
-    getContents: () => <div><p>As we enter the ch human society was built have given way to science and industry. Prior to this point, technological progress moved at the speed of civilization, and its effects were mainly effects on societies. Each technology has a name attached, but those names do not matter much.</p></div>
+    getContents: () => <div><p>As we enter the thirties and forties, many of the rules on which
+human society was built have given way to science and industry. Prior to this point, technological progress moved at the speed of civilization, and its effects were mainly effects on societies. Each technology has a name attached, but those names do not matter much.</p></div>
   },
   {
     getContents: () => <div>
@@ -344,13 +342,12 @@ export const petrovDaySections: Array<PetrovDaySection> = [
     </div>
   },
   {
-    getContents: () => <div>
+    getContents: () => <div id="5th-candle">
       <blockquote>
         <p>Despite the vision and farseeing wisdom of our wartime heads of state, the physicists have felt the peculiarly intimate responsibility for suggesting, for supporting, and in the end, in large measure, for achieving the realization of atomic weapons. Nor can we forget that these weapons as they were in fact used dramatized so mercilessly the inhumanity and evil of modern war. In some sort of crude sense which no vulgarity, no humor, no overstatement can quite extinguish, the physicists have known sin; and this is a knowledge which they cannot lose.</p>
         <footer>— J. Robert Oppenheimer (1947)</footer>
       </blockquote>
       <p><em>Using the fourth candle, which represents science, light the fifth candle to represent industrialization.</em></p>
-      <div>candelabrum5.png</div>
     </div>
   },
   {
