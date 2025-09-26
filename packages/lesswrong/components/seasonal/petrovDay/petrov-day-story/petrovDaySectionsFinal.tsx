@@ -77,7 +77,7 @@ export const petrovDaySections: Array<PetrovDaySection> = [
     </div>
   },
   {
-    getContents: () => <div>
+    getContents: () => <div id="hominid-skulls">
       <p>Depending which archaeologists you ask, fire was first used by either Homo Erectus or Homo Ergaster, some time between 400 thousand and 1.7 million years ago. Cooking is believed to have enabled larger, more energy-intensive brains, allowing the evolution of increased intelligence, and language.</p>
       <hr/>
       <blockquote>
