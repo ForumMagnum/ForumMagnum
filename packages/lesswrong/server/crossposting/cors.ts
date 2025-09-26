@@ -2,7 +2,7 @@ import { fmCrosspostBaseUrlSetting } from "@/lib/instanceSettings";
 import { NextRequest, NextResponse } from "next/server";
 
 
-export const setCorsHeaders = (res: NextResponse) => {
+export const setCorsHeaders = (res: Response) => {
   const foreignBaseUrl = fmCrosspostBaseUrlSetting.get()?.replace(/\/$/, "");
   if (foreignBaseUrl) {
     res.headers.set("Access-Control-Allow-Origin", foreignBaseUrl);
