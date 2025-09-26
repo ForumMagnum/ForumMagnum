@@ -23,16 +23,17 @@ const styles = defineStyles("PetrovDayStory", (theme: ThemeType) => ({
     '& $image': {
       opacity: 0.5,
       transition: 'opacity 0.5s, filter 0.5s, -webkit-filter 0.5s',
-      filter: 'contrast(1)',
+      // filter: 'contrast(1)',
     },
+  },
+  rootSidebar: {
     [theme.breakpoints.up(1400)]: {
       '&:hover $image': {
         opacity: 1,
-        filter: 'contrast(2)',
+        // filter: 'contrast(2)',
       },
-    }
-  },
-  rootSidebar: {
+    },
+    
     [theme.breakpoints.down(1400)]: {
       display: 'none',
     },
