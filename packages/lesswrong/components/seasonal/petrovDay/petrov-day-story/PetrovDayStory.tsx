@@ -11,6 +11,7 @@ import { useWindowSize } from '@/components/hooks/useScreenWidth';
 import { getOffsetChainTop } from '@/lib/utils/domUtil';
 import ForumIcon from '@/components/common/ForumIcon';
 import LWTooltip from '@/components/common/LWTooltip';
+import { PetrovStoryVariant } from './PetrovStoryComponents';
 
 const styles = defineStyles("PetrovDayStory", (theme: ThemeType) => ({
   root: {
@@ -795,6 +796,7 @@ const PetrovDayContents = React.memo(({variant, storyScrolled}: {
   const classes = useStyles(styles);
 
   return <div className={classes.storyContainer}>
+    <PetrovStoryVariant.Provider value={variant}>
     <div className={classNames(classes.storyBuffer, {
       [classes.storyBufferPage]: variant==="page"
     })}/>
@@ -814,5 +816,6 @@ const PetrovDayContents = React.memo(({variant, storyScrolled}: {
         })}/>}
       </div>
     ))}
+    </PetrovStoryVariant.Provider>
   </div>
 })
