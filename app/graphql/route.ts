@@ -6,11 +6,11 @@ import type { NextRequest } from 'next/server';
 import { asyncLocalStorage, closePerfMetric, closeRequestPerfMetric, openPerfMetric, setAsyncStoreValue } from '@/server/perfMetrics';
 import { captureException, getSentry } from '@/lib/sentryWrapper';
 import { getClientIP } from '@/server/utils/getClientIP';
-import { performanceMetricLoggingEnabled } from '@/lib/instanceSettings';
+import { fmCrosspostBaseUrlSetting, performanceMetricLoggingEnabled } from '@/lib/instanceSettings';
 import { GraphQLFormattedError } from 'graphql';
 import { inspect } from 'util';
 import { formatError } from 'apollo-errors';
-import { crosspostOptionsHandler } from "@/server/crossposting/cors";
+import { crosspostOptionsHandler, setCorsHeaders } from "@/server/crossposting/cors";
 
 class ApolloServerLogging implements ApolloServerPlugin<ResolverContext> {
   async requestDidStart({ request, contextValue: context }: GraphQLRequestContext<ResolverContext>) {
@@ -84,9 +84,29 @@ const handler = startServerAndCreateNextHandler<NextRequest, ResolverContext>(se
   }
 });
 
-function sharedHandler(request: NextRequest) {
+function isCrossSiteRequest(request: NextRequest) {
+  const fmCrosspostBaseUrl = fmCrosspostBaseUrlSetting.get();
+  if (!fmCrosspostBaseUrl) {
+    return false;
+  }
+  try {
+    const crossSiteHostname = new URL(fmCrosspostBaseUrl).hostname;
+    return request.nextUrl.hostname === crossSiteHostname;
+  } catch (error) {
+    // eslint-disable-next-line no-console
+    console.error("Error parsing fmCrosspostBaseUrl when determining if request is cross-site for setting CORS headers", error);
+    return false;
+  }
+}
+
+async function sharedHandler(request: NextRequest) {
   if (!performanceMetricLoggingEnabled.get()) {
-    return handler(request);
+    const res = await handler(request);
+
+    if (isCrossSiteRequest(request)) {
+      setCorsHeaders(res);
+    }
+    return res;
   }
   
   const perfMetric = openPerfMetric({
@@ -126,6 +146,10 @@ function sharedHandler(request: NextRequest) {
       });
   
       closeRequestPerfMetric();  
+    }
+
+    if (isCrossSiteRequest(request)) {
+      setCorsHeaders(res);
     }
 
     return res;
