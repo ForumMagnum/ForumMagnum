@@ -347,6 +347,7 @@ const ScrollVisibility = ({anchor, start, stop, scroll, children}: {
       const bottom = top + anchorEl.clientHeight;
       setAnchorPos({top, bottom});
     } else {
+      // eslint-disable-next-line no-console
       console.log(`Element with ID ${anchor} not found`);
     }
   }, [anchor]);
