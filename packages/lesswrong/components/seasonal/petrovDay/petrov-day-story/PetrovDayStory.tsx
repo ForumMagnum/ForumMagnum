@@ -291,7 +291,7 @@ const styles = defineStyles("PetrovDayStory", (theme: ThemeType) => ({
     height: "60vh",
     zIndex: 10,
     [theme.breakpoints.down('lg')]: {
-      display: 'none',
+      height: "50vh",
     },
   },
   petrov: {
