@@ -284,9 +284,7 @@ export default function PetrovDayStory() {
                 })}
                 style={{ color: storyScrolled ? "white" : "black" }}
               >
-                <div className={classes.storySectionContent} key={index}>
-                  {item.getContents()}
-                </div>
+                {item.getContents()}
               </ContentStyles>
               <div className={classes.storySectionDivider}/>
             </div>
