@@ -12,7 +12,7 @@ export async function generateMetadata(): Promise<Metadata> {
 
 export default function PetrovDayStoryPage() {
   return <RouteRoot
-    metadata={{ noFooter: true }}
+    metadata={{ noFooter: true, background: '#f8f4ee' }}
   >
     <PetrovDayPage />
   </RouteRoot>;

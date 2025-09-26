@@ -27,10 +27,10 @@ const styles = defineStyles("PetrovDayStory", (theme: ThemeType) => ({
     },
   },
   rootSidebar: {
-    width: "calc(90vw - 950px)",
     [theme.breakpoints.down(1400)]: {
       display: 'none',
     },
+    width: "calc(90vw - 950px)",
     height: "100vh",
     transition: 'opacity 0.5s, filter 0.5s, -webkit-filter 0.5s',
     position: "relative",
@@ -102,9 +102,6 @@ const styles = defineStyles("PetrovDayStory", (theme: ThemeType) => ({
     ['@media(max-width: 1450px)']: {
       // right: '-100px',
     },
-    ['@media(max-width: 1000px)']: {
-      display: 'none'
-    },
   },
   image: {
     width: '100%',
@@ -124,6 +121,9 @@ const styles = defineStyles("PetrovDayStory", (theme: ThemeType) => ({
     height: 920,
     [theme.breakpoints.down(1800)]: {
       height: 700,
+    },
+    [theme.breakpoints.down('sm')]: {
+      height: 300,
     },
     width: "100vw",
     zIndex: 1,
@@ -148,6 +148,10 @@ const styles = defineStyles("PetrovDayStory", (theme: ThemeType) => ({
       paddingRight: 24,
       paddingLeft: 0
     },
+    [theme.breakpoints.down('sm')]: {
+      alignItems: 'center',
+      paddingRight: 0,
+    },
   },
   preludeSectionContent: {
     "&&": {
@@ -164,6 +168,10 @@ const styles = defineStyles("PetrovDayStory", (theme: ThemeType) => ({
   storySectionContent: {
     width: 500,
     marginRight: 100,
+    [theme.breakpoints.down('sm')]: {
+      width: '100%',
+      marginRight: 0,
+    },
     transition: 'color 0.5s',
     '& h1': {
       fontSize: 60,
@@ -195,6 +203,12 @@ const styles = defineStyles("PetrovDayStory", (theme: ThemeType) => ({
   storySectionContentWhite: {
     color: theme.palette.grey[200],
   },
+  storySectionDividerPage: {
+    marginRight: 260,
+    [theme.breakpoints.down('sm')]: {
+      marginRight: 150,
+    },
+  },
   storySectionDivider: {
     // borderTop: `1px solid white`,
     // backgroundColor: 'white',
@@ -202,10 +216,15 @@ const styles = defineStyles("PetrovDayStory", (theme: ThemeType) => ({
     // borderBottom: '1px solid white',
     marginTop: 200,
     marginBottom: 200,
+    marginRight: 80,
+    [theme.breakpoints.down('sm')]: {
+      marginTop: 100,
+      marginBottom: 100,
+      marginRight: 0,
+    },
     color: theme.palette.grey[200],
     opacity: 0.3,
     width: 200,
-    marginRight: 80,
     borderBottom: '1px solid white',
   },
   candles: {
@@ -215,10 +234,14 @@ const styles = defineStyles("PetrovDayStory", (theme: ThemeType) => ({
     left: 120,
     height: "auto",
     width:  500,
+    [theme.breakpoints.down('sm')]: {
+      left: 0,
+      width: '100%',
+    },
     objectFit: 'cover',
     objectPosition: 'bottom',
     pointerEvents: 'none',
-    zIndex: 11,
+    zIndex: 12,
     mixBlendMode: 'screen',
   },
   storyScrollPosition: {
@@ -405,7 +428,7 @@ export default function PetrovDayStory({variant}: {
       >
         <div className={classes.gradientOverlayLeft} />
         <div className={classes.blackBackground} style={{
-          opacity: (storyScrolled || variant==="page") ? 1 : 0,
+          opacity: (storyScrolled) ? 1 : 0,
           pointerEvents: (storyScrolled || variant==="page") ? 'auto' : 'none'
         }}/>
         
@@ -677,12 +700,14 @@ const PetrovDayContents = React.memo(({variant, storyScrolled}: {
           contentType="postHighlight"
           className={classNames(classes.storySectionContent, {
             [classes.preludeSectionContent]: item.isPrelude && variant==="sidebar",
-            [classes.storySectionContentWhite]: storyScrolled || variant==="page"
+            [classes.storySectionContentWhite]: storyScrolled
           })}
         >
           {item.getContents()}
         </ContentStyles>
-        <div className={classes.storySectionDivider} style={{ marginRight: item.isPrelude ? 80: 260 }}/>
+        <div className={classNames(classes.storySectionDivider, {
+          [classes.storySectionDividerPage]: variant==="page" && !item.isPrelude
+        })}/>
       </div>
     ))}
   </div>
