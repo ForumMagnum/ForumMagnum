@@ -450,7 +450,7 @@ human society was built have given way to science and industry. Prior to this po
   },
   {
     getContents: () => <div>
-      {/* <Illustration centered src="images/OneCandle.png"/> */}
+      {/* <Illustration centered src="/petrov/one-candle.jpg"/> */}
       <p className="center"><em>Everyone look at the flame and hold your breath.</em></p>
       <p className="center"><em>When the current reader exhales, turn the page.</em></p>
     </div>

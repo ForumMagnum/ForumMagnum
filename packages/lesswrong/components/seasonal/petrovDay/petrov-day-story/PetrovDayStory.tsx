@@ -17,7 +17,7 @@ const styles = defineStyles("PetrovDayStory", (theme: ThemeType) => ({
     justifyContent: 'flex-start',
     alignItems: 'center',
     '& $image': {
-      opacity: 0.6,
+      opacity: 0.5,
       transition: 'opacity 0.5s, filter 0.5s, -webkit-filter 0.5s',
       filter: 'contrast(1)',
     },
@@ -101,9 +101,6 @@ const styles = defineStyles("PetrovDayStory", (theme: ThemeType) => ({
     objectFit: 'cover',
     objectPosition: 'right',
     transition: 'opacity .5s, filter 0.5s',
-    ['@media(max-width: 1450px)']: {
-      // right: '-100px',
-    },
   },
   image: {
     width: '100%',
@@ -116,6 +113,12 @@ const styles = defineStyles("PetrovDayStory", (theme: ThemeType) => ({
     objectPosition: 'right',
     position: 'relative',
     zIndex: 0
+  },
+  imageStoryPage: {
+    '&&': {
+      width: '100%',
+      maxWidth: 'unset',
+    },
   },
   storyContainer: {
     width: "100%",
@@ -155,7 +158,7 @@ const styles = defineStyles("PetrovDayStory", (theme: ThemeType) => ({
     },
     [theme.breakpoints.down('xs')]: {
       alignItems: 'center',
-      paddingRight: 0,
+      paddingRight: 16,
     },
   },
   preludeSectionContent: {
@@ -174,6 +177,7 @@ const styles = defineStyles("PetrovDayStory", (theme: ThemeType) => ({
     width: 500,
     marginRight: 100,
     [theme.breakpoints.down('md')]: {
+      width: 400,
       marginRight: 20,
     },
     [theme.breakpoints.down('xs')]: {
@@ -227,14 +231,17 @@ const styles = defineStyles("PetrovDayStory", (theme: ThemeType) => ({
       marginRight: 0,
     },
     color: theme.palette.grey[200],
-    opacity: 0.3,
+    opacity: .5,
     width: 200,
-    borderBottom: '1px solid white',
+    borderBottom: `1px solid ${theme.palette.grey[100]}`,
   },
   storySectionDividerPage: {
     marginRight: 260,
+    [theme.breakpoints.down('md')]: {
+      marginRight: 130,
+    },
     [theme.breakpoints.down('xs')]: {
-      marginRight: 150,
+      marginRight: 0,
     },
   },
   candles: {
@@ -283,11 +290,11 @@ const styles = defineStyles("PetrovDayStory", (theme: ThemeType) => ({
   },
   hominidSkulls: {
     position: 'fixed',
-    top: "14vh",
-    left: "20vw",
+    top: "10vh",
+    left: "10vw",
     height: "60vh",
     zIndex: 10,
-    [theme.breakpoints.down('sm')]: {
+    [theme.breakpoints.down('lg')]: {
       display: 'none',
     },
   },
@@ -332,7 +339,6 @@ const ScrollVisibility = ({anchor, start, stop, scroll, children}: {
   children: (visible: boolean) => React.ReactNode
 }) => {
   const [anchorPos, setAnchorPos] = useState<{top: number, bottom:number}|null>(null);
-  const {width: windowWidth, height: windowHeight} = useWindowSize();
 
   useEffect(() => {
     const anchorEl = document.getElementById(anchor);
@@ -350,10 +356,6 @@ const ScrollVisibility = ({anchor, start, stop, scroll, children}: {
     && scroll > anchorPos.top + start
     && scroll < anchorPos.bottom + stop
   );
-  
-  if (anchorPos) {
-    console.log(`scroll=${scroll}, top=${anchorPos.top + start}, bot=${anchorPos.bottom + stop}`);
-  }
 
   return <>
     {children(isVisible)}
@@ -456,7 +458,9 @@ export default function PetrovDayStory({variant}: {
           onScroll: handleStoryScroll
         })}
       >
-        <div className={classes.gradientOverlayLeft} />
+        <div className={classNames(classes.gradientOverlayLeft, {
+          [classes.imageStoryPage]: variant==="page"
+        })} />
         <div className={classes.blackBackground} style={{
           opacity: (storyScrolled) ? 1 : 0,
           pointerEvents: (storyScrolled || variant==="page") ? 'auto' : 'none'
@@ -599,7 +603,6 @@ export default function PetrovDayStory({variant}: {
           {visible => <BackgroundVideo
             isVisible={visible}
             className={classes.candles}
-            maxOpacity={0.5}
             src="/petrov/5+bad.candles.mp4" inDuration={4} outDuration={4}
           />}
         </ScrollVisibility>
@@ -612,7 +615,6 @@ export default function PetrovDayStory({variant}: {
           {visible => <BackgroundVideo
             isVisible={visible}
             className={classes.candles}
-            maxOpacity={0.5}
             src="/petrov/7-candles.mp4" inDuration={4} outDuration={4}
           />}
         </ScrollVisibility>
@@ -625,7 +627,6 @@ export default function PetrovDayStory({variant}: {
           {visible => <BackgroundVideo
             isVisible={visible}
             className={classes.candles}
-            maxOpacity={0.5}
             src="/petrov/8-candles.mp4" inDuration={4} outDuration={4}
           />}
         </ScrollVisibility>
@@ -640,7 +641,8 @@ export default function PetrovDayStory({variant}: {
             isVisible={visible}
             className={classes.hominidSkulls}
             src="/petrov/hominid-skulls.jpg"
-            maxOpacity={0.5} inDuration={6} outDuration={6}
+            maxOpacity={0.8}
+             inDuration={6} outDuration={6}
           />}
         </ScrollVisibility>
 
@@ -704,7 +706,9 @@ export default function PetrovDayStory({variant}: {
          }}>
           <CloudinaryImage2 
             loading="lazy"
-            className={classes.image}
+            className={classNames(classes.image, {
+              [classes.imageStoryPage]: variant==="page"
+            })}
             publicId="petrovBig_cblm82"
             darkPublicId={"petrovBig_cblm82"}
           />
