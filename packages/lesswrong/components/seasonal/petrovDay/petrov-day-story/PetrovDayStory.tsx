@@ -341,6 +341,7 @@ const styles = defineStyles("PetrovDayStory", (theme: ThemeType) => ({
     top: 135,
     left: 35,
     zIndex: 20,
+    color: theme.palette.grey[500],
     transform: 'translateY(-50%)',
     transition: 'opacity 2s',
     cursor: 'pointer',
