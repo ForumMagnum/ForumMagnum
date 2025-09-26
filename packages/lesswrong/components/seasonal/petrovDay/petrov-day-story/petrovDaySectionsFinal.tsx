@@ -379,7 +379,7 @@ human society was built have given way to science and industry. Prior to this po
       <hr/>
       <blockquote><p>We're going to blast them now! We will die, but we will sink them all. We will not  disgrace our navy,</p><footer>— Captain Valentin Grigorievitch Savitsky (1962)</footer></blockquote>
       <p><em>Take the fifth candle, which represents industry. Hold it over the stack of papers, which represent our history, our knowledge, our lore, our civilization...</em></p>
-      <Illustration src="petrov/hold-close.jpg" />
+      <Illustration src="/petrov/hold-close.jpg" />
       <p><em>Hold the flame close to the pile. Allow wax to fall. Keep the candle there as the next section is read.</em></p>
     </div>
   },
