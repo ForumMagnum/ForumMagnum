@@ -51,7 +51,8 @@ export const petrovDaySections: Array<PetrovDaySection> = [
   },
   {
     getContents: () => <div>
-      <p>This day, September 26, is Petrov Day. In 1983, the story of humanity nearly ended. We're gathered here to remember that moment, and others like it. But to really feel the magnitude of those events, we need to visit them in their proper context. Let us begin the story of human history, starting from the beginning.</p>
+      <p>This day, September 26, is Petrov Day. 
+        In 1983, the story of humanity nearly ended. We're gathered here to remember that moment, and others like it. But to really feel the magnitude of those events, we need to visit them in their proper context. Let us begin the story of human history, starting from the beginning.</p>
     </div>
   },
   {
@@ -72,7 +73,7 @@ export const petrovDaySections: Array<PetrovDaySection> = [
       </blockquote>
       <p>
         <div className="candelabrum">
-          <Illustration src="images/candelabrum1.png" alt="candelabrum" />
+          <div>candelabrum1.png</div>
         </div>
       </p>
       <p>
@@ -92,7 +93,7 @@ export const petrovDaySections: Array<PetrovDaySection> = [
   },
   {
     getContents: () => <div>
-      <Illustration src="images/hominid-skulls.png"/>
+      <div>hominid-skulls.png</div>
     </div>
   },
   {
@@ -106,9 +107,9 @@ export const petrovDaySections: Array<PetrovDaySection> = [
   {
     getContents: () => <div>
       <p><em>Take the first candle, which represents the invention of fire. Use it to light the second candle, which represents the evolution of language.</em></p>
-      <Illustration src="images/candlepassing.png" alt="Passing a candle around" />
+      <Illustration src="petrov/pass-candle.jpg" alt="Passing a candle around" />
       <p><em>Pass the candle once all the way around the circle. When you hold the candle, it is your turn to speak. What is your name, and when (what year) is your earliest memory?</em></p>
-      <Illustration src="images/candelabrum2.png"/>
+      <div>candelabrum2.png</div>
       <p><em>When everyone has spoken, put the candle back in the candelabrum.</em></p>
     </div>
   },
@@ -167,7 +168,7 @@ export const petrovDaySections: Array<PetrovDaySection> = [
       <p><em>Take the third candle, which represents agricultural society. Pass it around the circle.</em></p>
       <Illustration src="images/candlepassing.png" alt="Passing a candle around" />
       <p><em>Blow it out. Then return it to its place in the candelabrum.</em></p>
-      <Illustration src="images/candelabrum3b.png" />
+      <div>candelabrum3b.png</div>
     </div>
   },
   {
@@ -190,27 +191,25 @@ export const petrovDaySections: Array<PetrovDaySection> = [
   },
   {
     getContents: () => <div>
-      <p>
-        <blockquote className="poem">
-          <p>
-            I met a traveller from an antique land<br />
-            Who said: Two vast and trunkless legs of stone<br />
-            Stand in the desert. Near them, on the sand,<br />
-            Half sunk, a shattered visage lies, whose frown,<br />
-            And wrinkled lip, and sneer of cold command,<br />
-            Tell that its sculptor well those passions read<br />
-            Which yet survive, stamped on these lifeless things,<br />
-            The hand that mocked them and the heart that fed:<br />
-            And on the pedestal these words appear:<br />
-            ``My name is Ozymandias, king of kings:<br />
-            Look on my works, ye Mighty, and despair!''<br />
-            Nothing beside remains. Round the decay<br />
-            Of that colossal wreck, boundless and bare<br />
-            The lone and level sands stretch far away
-          </p>
-          <footer>— Percy Bysshe Shelley (1818)</footer>
-        </blockquote>
-      </p>
+      <blockquote className="poem">
+        <p>
+          I met a traveller from an antique land<br />
+          Who said: Two vast and trunkless legs of stone<br />
+          Stand in the desert. Near them, on the sand,<br />
+          Half sunk, a shattered visage lies, whose frown,<br />
+          And wrinkled lip, and sneer of cold command,<br />
+          Tell that its sculptor well those passions read<br />
+          Which yet survive, stamped on these lifeless things,<br />
+          The hand that mocked them and the heart that fed:<br />
+          And on the pedestal these words appear:<br />
+          ``My name is Ozymandias, king of kings:<br />
+          Look on my works, ye Mighty, and despair!''<br />
+          Nothing beside remains. Round the decay<br />
+          Of that colossal wreck, boundless and bare<br />
+          The lone and level sands stretch far away
+        </p>
+        <footer>— Percy Bysshe Shelley (1818)</footer>
+      </blockquote>
       <p><em>When you have finished reading, take a piece of paper and write down the name of the oldest family member - living or dead - that you can identify.</em></p>
       <p><em>When everyone has written something, continue to the next page.</em></p>
     </div>
@@ -228,11 +227,6 @@ export const petrovDaySections: Array<PetrovDaySection> = [
   },
   {
     getContents: () => <div>
-      <Illustration src="images/RosettaStone.png" alt=""/>
-    </div>
-  },
-  {
-    getContents: () => <div>
       <p>The majority of writing consisted of genealogies, legal codes, and fantastic stories. But some writing represented progress in philosophy and mathematics, eventually culminating in the invention of the scientific method.</p>
       <hr/>
       <blockquote>
@@ -244,7 +238,7 @@ export const petrovDaySections: Array<PetrovDaySection> = [
   {
     getContents: () => <div>
       <p><em>Using the third candle, which represents writing, light the fourth candle to represent the scientific method.</em></p>
-      <p><Illustration src="images/candelabrum4.png"/></p>
+      <p><div>candelabrum4.png</div></p>
       <p>Then, everyone write down something surprising you learned in the past week, and put it in the middle, on top of the pile of ancestors' names. When everyone has written something, continue to the next page.</p>
       <hr/>
     </div>
@@ -259,7 +253,7 @@ export const petrovDaySections: Array<PetrovDaySection> = [
         <footer>— Geoffrey the Baker, Chronicon Angliae (1360)</footer>
       </blockquote>
       <p><em>Blow out the candle. Then return it to its place on the candelabrum.</em></p>
-      <Illustration src="images/candelabrum4b.png"/>
+      <div>candelabrum4b.png</div>
     </div>
   },
   {
@@ -279,7 +273,7 @@ export const petrovDaySections: Array<PetrovDaySection> = [
       </blockquote>
       <p><em>Take the fourth candle, which represents the progress of science.</em></p>
       <p><em>Touch it to each of the other three candles in turn, until it is lit. Then return it to its place on the candelabrum.</em></p>
-      <Illustration src="images/candelabrum4.png" />
+      <div>candelabrum4.png</div>
     </div>
   },
   {
@@ -367,7 +361,7 @@ export const petrovDaySections: Array<PetrovDaySection> = [
         <footer>— J. Robert Oppenheimer (1947)</footer>
       </blockquote>
       <p><em>Using the fourth candle, which represents science, light the fifth candle to represent industrialization.</em></p>
-      <Illustration src="images/candelabrum5.png" />
+      <div>candelabrum5.png</div>
     </div>
   },
   {
@@ -408,7 +402,7 @@ export const petrovDaySections: Array<PetrovDaySection> = [
       <hr/>
       <blockquote><p>Let an ultraintelligent machine be defined as a machine that can far surpass all the intellectual activities of any man however clever. Since the design of machines is one of these intellectual activities, an ultra-intelligent machine could design even better machines; there would then unquestionably be an ``intelligence explosion,'' and the intelligence of man would be left far behind. Thus the first ultraintelligent machine is the last invention that man need ever make, provided that the machine is docile enough to tell us how to keep it under control.</p><footer>— I.J. Good, Speculations Concerning the First Ultraintelligent Machine (1963)</footer></blockquote>
       <p><em>Place an unlit candle in the last spot, to represent future technology.</em></p>
-      <Illustration src="images/candelabrum5b.png"/>
+      <div>candelabrum5b.png</div>
     </div>
   },
   {
@@ -420,7 +414,7 @@ export const petrovDaySections: Array<PetrovDaySection> = [
       </blockquote>
       <VerticalSpacer height={1.2}/>
       <p><em>Using the fifth candle, which represents industrialization, light the sixth candle to represent the invention of computers.</em></p>
-      <Illustration src="images/candelabrum6.png"/>
+      <div>candelabrum6.png</div>
     </div>
   },
   {
@@ -444,7 +438,7 @@ export const petrovDaySections: Array<PetrovDaySection> = [
     getContents: () => <div>
       <p><em>Again, take the fifth candle and hold it over the pile of index cards.</em></p>
       <p>Hold it close, so that the twitch of a muscle is enough to ignite them.</p>
-      <Illustration centered src="images/holdclose.png"/>
+      <div>holdclose.png</div>
     </div>
   },
   {
