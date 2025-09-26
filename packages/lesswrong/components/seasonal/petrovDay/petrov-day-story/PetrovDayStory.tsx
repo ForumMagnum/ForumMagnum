@@ -298,8 +298,10 @@ export default function PetrovDayStory() {
         <div className={classes.gradientOverlayTop} />
         <BackgroundImage start={500} stop={1500} scroll={storyScrollPosition} 
           className={classes.candles} src="/petrov/one-unlit-candle.jpg" />
-        <BackgroundVideo start={1000} stop={10000} scroll={storyScrollPosition} 
+        <BackgroundVideo start={1000} stop={5500} scroll={storyScrollPosition} 
           src="/petrov/1-candle.mp4" className={classes.candles} />
+        <BackgroundVideo start={5000} stop={10000} scroll={storyScrollPosition} 
+          src="/petrov/2-candles.mp4" className={classes.candles} />
         <BackgroundImage start={5500} stop={7000} scroll={storyScrollPosition} 
           src="/petrov/rosetta-stone.jpg" maxOpacity={0.5} className={classes.rosettaStone} inDuration={10} outDuration={10} />
 

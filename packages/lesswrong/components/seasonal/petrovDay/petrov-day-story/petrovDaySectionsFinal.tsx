@@ -73,7 +73,7 @@ export const petrovDaySections: Array<{
       </blockquote>
       <p>
         <div className="candelabrum">
-          <Illustration src="images/candelabrum1.png" alt="candelabrum" />
+          <div>candelabrum1.png</div>
         </div>
       </p>
       <p>
@@ -93,7 +93,7 @@ export const petrovDaySections: Array<{
   },
   {
     getContents: () => <div>
-      <Illustration src="images/hominid-skulls.png"/>
+      <div>hominid-skulls.png</div>
     </div>
   },
   {
@@ -107,9 +107,9 @@ export const petrovDaySections: Array<{
   {
     getContents: () => <div>
       <p><em>Take the first candle, which represents the invention of fire. Use it to light the second candle, which represents the evolution of language.</em></p>
-      <Illustration src="images/candlepassing.png" alt="Passing a candle around" />
+      <Illustration src="petrov/pass-candle.jpg" alt="Passing a candle around" />
       <p><em>Pass the candle once all the way around the circle. When you hold the candle, it is your turn to speak. What is your name, and when (what year) is your earliest memory?</em></p>
-      <Illustration src="images/candelabrum2.png"/>
+      <div>candelabrum2.png</div>
       <p><em>When everyone has spoken, put the candle back in the candelabrum.</em></p>
     </div>
   },
@@ -168,7 +168,7 @@ export const petrovDaySections: Array<{
       <p><em>Take the third candle, which represents agricultural society. Pass it around the circle.</em></p>
       <Illustration src="images/candlepassing.png" alt="Passing a candle around" />
       <p><em>Blow it out. Then return it to its place in the candelabrum.</em></p>
-      <Illustration src="images/candelabrum3b.png" />
+      <div>candelabrum3b.png</div>
     </div>
   },
   {
@@ -238,7 +238,7 @@ export const petrovDaySections: Array<{
   {
     getContents: () => <div>
       <p><em>Using the third candle, which represents writing, light the fourth candle to represent the scientific method.</em></p>
-      <p><Illustration src="images/candelabrum4.png"/></p>
+      <p><div>candelabrum4.png</div></p>
       <p>Then, everyone write down something surprising you learned in the past week, and put it in the middle, on top of the pile of ancestors' names. When everyone has written something, continue to the next page.</p>
       <hr/>
     </div>
@@ -253,7 +253,7 @@ export const petrovDaySections: Array<{
         <footer>— Geoffrey the Baker, Chronicon Angliae (1360)</footer>
       </blockquote>
       <p><em>Blow out the candle. Then return it to its place on the candelabrum.</em></p>
-      <Illustration src="images/candelabrum4b.png"/>
+      <div>candelabrum4b.png</div>
     </div>
   },
   {
@@ -273,7 +273,7 @@ export const petrovDaySections: Array<{
       </blockquote>
       <p><em>Take the fourth candle, which represents the progress of science.</em></p>
       <p><em>Touch it to each of the other three candles in turn, until it is lit. Then return it to its place on the candelabrum.</em></p>
-      <Illustration src="images/candelabrum4.png" />
+      <div>candelabrum4.png</div>
     </div>
   },
   {
@@ -361,7 +361,7 @@ export const petrovDaySections: Array<{
         <footer>— J. Robert Oppenheimer (1947)</footer>
       </blockquote>
       <p><em>Using the fourth candle, which represents science, light the fifth candle to represent industrialization.</em></p>
-      <Illustration src="images/candelabrum5.png" />
+      <div>candelabrum5.png</div>
     </div>
   },
   {
@@ -402,7 +402,7 @@ export const petrovDaySections: Array<{
       <hr/>
       <blockquote><p>Let an ultraintelligent machine be defined as a machine that can far surpass all the intellectual activities of any man however clever. Since the design of machines is one of these intellectual activities, an ultra-intelligent machine could design even better machines; there would then unquestionably be an ``intelligence explosion,'' and the intelligence of man would be left far behind. Thus the first ultraintelligent machine is the last invention that man need ever make, provided that the machine is docile enough to tell us how to keep it under control.</p><footer>— I.J. Good, Speculations Concerning the First Ultraintelligent Machine (1963)</footer></blockquote>
       <p><em>Place an unlit candle in the last spot, to represent future technology.</em></p>
-      <Illustration src="images/candelabrum5b.png"/>
+      <div>candelabrum5b.png</div>
     </div>
   },
   {
@@ -414,7 +414,7 @@ export const petrovDaySections: Array<{
       </blockquote>
       <VerticalSpacer height={1.2}/>
       <p><em>Using the fifth candle, which represents industrialization, light the sixth candle to represent the invention of computers.</em></p>
-      <Illustration src="images/candelabrum6.png"/>
+      <div>candelabrum6.png</div>
     </div>
   },
   {
@@ -438,7 +438,7 @@ export const petrovDaySections: Array<{
     getContents: () => <div>
       <p><em>Again, take the fifth candle and hold it over the pile of index cards.</em></p>
       <p>Hold it close, so that the twitch of a muscle is enough to ignite them.</p>
-      <Illustration centered src="images/holdclose.png"/>
+      <div>holdclose.png</div>
     </div>
   },
   {
