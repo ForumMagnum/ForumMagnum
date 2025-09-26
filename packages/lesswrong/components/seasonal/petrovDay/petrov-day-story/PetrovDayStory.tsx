@@ -430,6 +430,7 @@ export default function PetrovDayStory({variant}: {
   const [pageScrolled, setPageScrolled] = React.useState(false);
   const [storyScrolled, setStoryScrolled] = React.useState(false);
   const [storyScrollPosition, setStoryScrollPosition] = useState(0);
+  const loadImages = storyScrolled;
 
   // Ref to the story container so we can programmatically scroll it (sidebar variant)
   const storyContainerRef = React.useRef<HTMLDivElement>(null);
@@ -514,6 +515,7 @@ export default function PetrovDayStory({variant}: {
         
         <div className={classes.gradientOverlayTop} />
 
+        {loadImages && <>
         <ScrollVisibility
           anchor="one-unlit-candle"
           start={-500} stop={1500}
@@ -753,6 +755,7 @@ export default function PetrovDayStory({variant}: {
             maxOpacity={0.75} inDuration={6} outDuration={6}
           />}
         </ScrollVisibility>
+        </>}
 
         <div className={classNames(classes.imageColumn, {
           [classes.imageColumnPage]: variant==="page"
