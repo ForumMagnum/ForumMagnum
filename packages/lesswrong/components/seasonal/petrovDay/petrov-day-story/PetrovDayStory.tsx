@@ -21,10 +21,12 @@ const styles = defineStyles("PetrovDayStory", (theme: ThemeType) => ({
       transition: 'opacity 0.5s, filter 0.5s, -webkit-filter 0.5s',
       filter: 'contrast(1)',
     },
-    '&:hover $image': {
-      opacity: 1,
-      filter: 'contrast(2)',
-    },
+    [theme.breakpoints.up(1400)]: {
+      '&:hover $image': {
+        opacity: 1,
+        filter: 'contrast(2)',
+      },
+    }
   },
   rootSidebar: {
     [theme.breakpoints.down(1400)]: {
@@ -106,6 +108,9 @@ const styles = defineStyles("PetrovDayStory", (theme: ThemeType) => ({
   image: {
     width: '100%',
     maxWidth: "calc(90vw - 950px)",
+    [theme.breakpoints.down('xs')]: {
+      maxWidth: 'unset',
+    },
     height: '100%',
     objectFit: 'cover',
     objectPosition: 'right',
@@ -114,7 +119,7 @@ const styles = defineStyles("PetrovDayStory", (theme: ThemeType) => ({
   },
   storyContainer: {
     width: "100%",
-    zIndex: 5,
+    zIndex: 15,
     marginLeft: 'auto',
   },
   storyBuffer: {
@@ -122,7 +127,7 @@ const styles = defineStyles("PetrovDayStory", (theme: ThemeType) => ({
     [theme.breakpoints.down(1800)]: {
       height: 700,
     },
-    [theme.breakpoints.down('sm')]: {
+    [theme.breakpoints.down('xs')]: {
       height: 300,
     },
     width: "100vw",
@@ -148,7 +153,7 @@ const styles = defineStyles("PetrovDayStory", (theme: ThemeType) => ({
       paddingRight: 24,
       paddingLeft: 0
     },
-    [theme.breakpoints.down('sm')]: {
+    [theme.breakpoints.down('xs')]: {
       alignItems: 'center',
       paddingRight: 0,
     },
@@ -169,7 +174,12 @@ const styles = defineStyles("PetrovDayStory", (theme: ThemeType) => ({
     width: 500,
     marginRight: 100,
     [theme.breakpoints.down('sm')]: {
+      marginRight: 20,
+    },
+    [theme.breakpoints.down('xs')]: {
       width: '100%',
+      paddingRight: 10,
+      paddingLeft: 10,
       marginRight: 0,
     },
     transition: 'color 0.5s',
@@ -205,7 +215,7 @@ const styles = defineStyles("PetrovDayStory", (theme: ThemeType) => ({
   },
   storySectionDividerPage: {
     marginRight: 260,
-    [theme.breakpoints.down('sm')]: {
+    [theme.breakpoints.down('xs')]: {
       marginRight: 150,
     },
   },
@@ -217,7 +227,7 @@ const styles = defineStyles("PetrovDayStory", (theme: ThemeType) => ({
     marginTop: 200,
     marginBottom: 200,
     marginRight: 80,
-    [theme.breakpoints.down('sm')]: {
+    [theme.breakpoints.down('xs')]: {
       marginTop: 100,
       marginBottom: 100,
       marginRight: 0,
@@ -233,8 +243,12 @@ const styles = defineStyles("PetrovDayStory", (theme: ThemeType) => ({
     bottom: 0,
     left: 120,
     height: "auto",
+    maxHeight: 400,
     width:  500,
     [theme.breakpoints.down('sm')]: {
+     left: 0,
+    },
+    [theme.breakpoints.down('xs')]: {
       left: 0,
       width: '100%',
     },
@@ -263,6 +277,9 @@ const styles = defineStyles("PetrovDayStory", (theme: ThemeType) => ({
     transition: 'opacity 0.5s',
     zIndex: 10,
     mixBlendMode: 'screen',
+    [theme.breakpoints.down('sm')]: {
+      display: 'none',
+    },
   },
   hominidSkulls: {
     position: 'fixed',
@@ -270,6 +287,9 @@ const styles = defineStyles("PetrovDayStory", (theme: ThemeType) => ({
     left: "20vw",
     height: "60vh",
     zIndex: 10,
+    [theme.breakpoints.down('sm')]: {
+      display: 'none',
+    },
   },
   petrov: {
     position: 'fixed',
@@ -277,6 +297,9 @@ const styles = defineStyles("PetrovDayStory", (theme: ThemeType) => ({
     left: "5vw",
     height: "60vh",
     zIndex: 10,
+    [theme.breakpoints.down('sm')]: {
+      display: 'none',
+    },
   },
   arkhipov: {
     position: 'fixed',
@@ -284,12 +307,18 @@ const styles = defineStyles("PetrovDayStory", (theme: ThemeType) => ({
     left: "12vw",
     height: "60vh",
     zIndex: 10,
+    [theme.breakpoints.down('sm')]: {
+      display: 'none',
+    },
   },
   earth: {
     position: 'fixed',
     top: "0vh",
     left: "0vw",
     zIndex: 5,
+    [theme.breakpoints.down('sm')]: {
+      display: 'none',
+    },
   },
 }), {
   allowNonThemeColors: true
@@ -314,9 +343,10 @@ const ScrollVisibility = ({anchor, start, stop, scroll, children}: {
     } else {
       console.log(`Element with ID ${anchor} not found`);
     }
-  }, [anchor, windowWidth, windowHeight]);
+  }, [anchor]);
 
   const isVisible = (!!anchorPos
+    && anchorPos.bottom > anchorPos.top
     && scroll > anchorPos.top + start
     && scroll < anchorPos.bottom + stop
   );

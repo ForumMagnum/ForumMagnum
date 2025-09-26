@@ -27,6 +27,7 @@ import DeferRender from './DeferRender';
 import { defineStyles, useStyles } from '../hooks/useStyles';
 
 import dynamic from 'next/dynamic';
+import PetrovStoryMobileBanner from '../seasonal/petrovDay/petrov-day-story/PetrovStoryMobileBanner';
 const RecentDiscussionFeed = dynamic(() => import("../recentDiscussion/RecentDiscussionFeed"), { ssr: false });
 
 const getStructuredData = () => ({
@@ -91,13 +92,7 @@ const LWHome = () => {
           {/* {(!reviewIsActive() || getReviewPhase() === "RESULTS" || !showReviewOnFrontPageIfActive.get()) && !lightconeFundraiserActive.get() && <SingleColumnSection>
             <DismissibleSpotlightItem loadingStyle="placeholder" />
           </SingleColumnSection>} */}
-          <br />
-          <br />
-          <br />
-          <br />
-          <br />
-          <br />
-          <br />
+          <PetrovStoryMobileBanner />
           <SuspenseWrapper name="LWHomePosts" fallback={<div style={{height: 800}}/>}>
             <LWHomePosts>
               <QuickTakesSection />
