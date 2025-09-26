@@ -98,7 +98,7 @@ const styles = defineStyles("PetrovDayStory", (theme: ThemeType) => ({
     height: "100vh",
     objectFit: 'cover',
     objectPosition: 'right',
-    transition: 'opacity 3s, filter 0.5s',
+    transition: 'opacity .5s, filter 0.5s',
     ['@media(max-width: 1450px)']: {
       // right: '-100px',
     },
@@ -218,7 +218,7 @@ const styles = defineStyles("PetrovDayStory", (theme: ThemeType) => ({
     objectFit: 'cover',
     objectPosition: 'bottom',
     pointerEvents: 'none',
-    zIndex: 10,
+    zIndex: 11,
     mixBlendMode: 'screen',
   },
   storyScrollPosition: {
@@ -247,7 +247,21 @@ const styles = defineStyles("PetrovDayStory", (theme: ThemeType) => ({
     left: "20vw",
     height: "60vh",
     zIndex: 10,
-  }
+  },
+  petrov: {
+    position: 'fixed',
+    top: "14vh",
+    left: "5vw",
+    height: "60vh",
+    zIndex: 10,
+  },
+  arkhipov: {
+    position: 'fixed',
+    top: "14vh",
+    left: "12vw",
+    height: "60vh",
+    zIndex: 10,
+  },
 }), {
   allowNonThemeColors: true
 });
@@ -519,6 +533,46 @@ export default function PetrovDayStory({variant}: {
         </ScrollVisibility>
 
         <ScrollVisibility
+          anchor="bad-candle"
+          start={-500} stop={250}
+          scroll={storyScrollPosition}
+        >
+          {visible => <BackgroundVideo
+            isVisible={visible}
+            className={classes.candles}
+            maxOpacity={0.5}
+            src="/petrov/5+bad.candles.mp4" inDuration={4} outDuration={4}
+          />}
+        </ScrollVisibility>
+
+        <ScrollVisibility
+          anchor="7th-candle"
+          start={-500} stop={250}
+          scroll={storyScrollPosition}
+        >
+          {visible => <BackgroundVideo
+            isVisible={visible}
+            className={classes.candles}
+            maxOpacity={0.5}
+            src="/petrov/7-candles.mp4" inDuration={4} outDuration={4}
+          />}
+        </ScrollVisibility>
+
+        <ScrollVisibility
+          anchor="last-candle"
+          start={-500} stop={250}
+          scroll={storyScrollPosition}
+        >
+          {visible => <BackgroundVideo
+            isVisible={visible}
+            className={classes.candles}
+            maxOpacity={0.5}
+            src="/petrov/8-candles.mp4" inDuration={4} outDuration={4}
+          />}
+        </ScrollVisibility>
+
+
+        <ScrollVisibility
           anchor="hominid-skulls"
           start={-500} stop={500}
           scroll={storyScrollPosition}
@@ -531,10 +585,50 @@ export default function PetrovDayStory({variant}: {
           />}
         </ScrollVisibility>
 
+        <ScrollVisibility
+          anchor="rosetta-stone"
+          start={-500} stop={500}
+          scroll={storyScrollPosition}
+        >
+          {visible => <BackgroundImage
+            isVisible={visible}
+            className={classes.rosettaStone}
+            src="/petrov/rosetta-stone.jpg"
+            maxOpacity={0.5} inDuration={6} outDuration={6}
+          />}
+        </ScrollVisibility>
+
+        <ScrollVisibility
+          anchor="arkhipov"
+          start={-1000} stop={100}
+          scroll={storyScrollPosition}
+        >
+          {visible => <BackgroundImage
+            isVisible={visible}
+            className={classes.arkhipov}
+            src="/petrov/arkhipov.jpg"
+            maxOpacity={0.75} inDuration={6} outDuration={3}
+          />}
+        </ScrollVisibility>
+
+        <ScrollVisibility
+          anchor="petrov1"
+          start={-1000} stop={1000}
+          scroll={storyScrollPosition}
+        >
+          {visible => <BackgroundImage
+            isVisible={visible}
+            className={classes.petrov}
+            src="/petrov/petrov.jpg"
+            maxOpacity={0.75} inDuration={6} outDuration={6}
+          />}
+        </ScrollVisibility>
+
         <div className={classes.imageColumn} style={{ 
-          opacity: (storyScrolled) ? 0 : 1,
+          opacity: (storyScrolled) ? storyScrollPosition < 500 ? 0.15 : 0 : 1,
           zIndex: (storyScrolled) ? 5 : undefined,
-          filter: (storyScrolled) ? 'invert(1)' : undefined
+          filter: (storyScrolled) ? 'invert(1)' : undefined,
+
          }}>
           <CloudinaryImage2 
             loading="lazy"
@@ -545,6 +639,7 @@ export default function PetrovDayStory({variant}: {
         </div>
         <PetrovDayContents variant={variant} storyScrolled={storyScrolled}/>
       </div>
+      
     </AnalyticsContext>
   );
 }

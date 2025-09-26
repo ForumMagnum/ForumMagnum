@@ -204,7 +204,7 @@ export const petrovDaySections: Array<PetrovDaySection> = [
     </div>
   },
   {
-    getContents: () => <div>
+    getContents: () => <div id="rosetta-stone">
       <p>We know more about what the world was like after people started writing, but not very much survived. One of the most important writings was discovered by French soldiers in the wall of Fort Julien: the Rosetta Stone, important because it was written in three languages, two previously untranslatable. After a long string of honorifics and decrees about taxes and succession, it declares: there shall be a new holiday!</p>
       <hr/>
       <blockquote>
@@ -379,20 +379,32 @@ human society was built have given way to science and industry. Prior to this po
       <hr/>
       <blockquote><p>We're going to blast them now! We will die, but we will sink them all. We will not  disgrace our navy,</p><footer>— Captain Valentin Grigorievitch Savitsky (1962)</footer></blockquote>
       <p><em>Take the fifth candle, which represents industry. Hold it over the stack of papers, which represent our history, our knowledge, our lore, our civilization...</em></p>
+      <Illustration src="petrov/hold-close.jpg" />
       <p><em>Hold the flame close to the pile. Allow wax to fall. Keep the candle there as the next section is read.</em></p>
     </div>
   },
   {
     getContents: () => <div>
+      <p>The launch of the submarine's nuclear torpedo required the consent of all three senior officers aboard: Captain Valentin Grigorievitch Savitsky, political officer Ivan Semonovich, and second
+      in command Vasili Arkhipov.</p>
+    </div>
+  },
+  {
+    getContents: () => <div id="arkhipov">
+      <p><em>Return the candle to the candelabrum without igniting the pile.</em></p>
+      <p>Arkhipov was alone in refusing to launch the nuke, insisting the submarine surface to receive orders from Moscow. Had he chosen differently, the result might have been all-out nuclear war.</p>
+    </div>
+  },
+  {
+    getContents: () => <div id="bad-candle">
       <p>Meanwhile, technology marched on. And for the first time, it seemed that technological progress might not go on forever, but build towards an ultimate conclusion.</p>
       <hr/>
       <blockquote><p>Let an ultraintelligent machine be defined as a machine that can far surpass all the intellectual activities of any man however clever. Since the design of machines is one of these intellectual activities, an ultra-intelligent machine could design even better machines; there would then unquestionably be an ``intelligence explosion,'' and the intelligence of man would be left far behind. Thus the first ultraintelligent machine is the last invention that man need ever make, provided that the machine is docile enough to tell us how to keep it under control.</p><footer>— I.J. Good, Speculations Concerning the First Ultraintelligent Machine (1963)</footer></blockquote>
       <p><em>Place an unlit candle in the last spot, to represent future technology.</em></p>
-      <div>candelabrum5b.png</div>
     </div>
   },
   {
-    getContents: () => <div>
+    getContents: () => <div id="7th-candle">
       <p>Two years later, Gordon Moore famously observed:</p>
       <blockquote>
         <p>The complexity for minimum component costs has increased at a rate of roughly a factor of two per year. Certainly over the short term this rate can be expected to continue, if not to increase. Over the longer term, the rate of increase is a bit more uncertain, although there is no reason to believe it will not remain nearly constant for at least 10 years. That means by 1975, the number of components per integrated circuit for minimum cost will be 65,000.</p>
@@ -400,7 +412,6 @@ human society was built have given way to science and industry. Prior to this po
       </blockquote>
       <VerticalSpacer height={1.2}/>
       <p><em>Using the fifth candle, which represents industrialization, light the sixth candle to represent the invention of computers.</em></p>
-      <div>candelabrum6.png</div>
     </div>
   },
   {
@@ -414,7 +425,7 @@ human society was built have given way to science and industry. Prior to this po
     </div>
   },
   {
-    getContents: () => <div>
+    getContents: () => <div id="petrov1">
       <p>Moving away from the long-term trends and back to concrete events, we now reach the historical event that is today's namesake: the Petrov incident. On September 26, 1983, Stanislav Petrov was the duty officer at the Oko nuclear early warning system.</p>
       <hr/>
       <blockquote><p>An alarm at the command and control post went off with red lights blinking on the terminal. It was a nasty shock. Everyone jumped from their seats, looking at me. What could I do? There was an operations procedure that I had written myself. We did what we had to do. We checked the operation of all systems - on 30 levels, one after another. Reports kept coming in:  All is correct; the probability factor is two. ... The highest.</p><footer>— Stanislav Petrov</footer></blockquote>
@@ -424,7 +435,7 @@ human society was built have given way to science and industry. Prior to this po
     getContents: () => <div>
       <p><em>Again, take the fifth candle and hold it over the pile of index cards.</em></p>
       <p>Hold it close, so that the twitch of a muscle is enough to ignite them.</p>
-      <div>holdclose.png</div>
+      <Illustration src="petrov/hold-close.jpg" />
     </div>
   },
   {
@@ -439,7 +450,7 @@ human society was built have given way to science and industry. Prior to this po
   },
   {
     getContents: () => <div>
-      <Illustration centered src="images/OneCandle.png"/>
+      {/* <Illustration centered src="images/OneCandle.png"/> */}
       <p className="center"><em>Everyone look at the flame and hold your breath.</em></p>
       <p className="center"><em>When the current reader exhales, turn the page.</em></p>
     </div>
@@ -468,10 +479,9 @@ human society was built have given way to science and industry. Prior to this po
     </div>
   },
   {
-    getContents: () => <div>
+    getContents: () => <div id="last-candle">
       <blockquote><p>What we do have the power to affect ... is the rate of development of various technologies and potentially the sequence in which feasible technologies are developed and implemented. Our focus should be on what I want to call differential technological development: trying to retard the implementation of dangerous technologies and accelerate implementation of beneficial technologies, especially those that ameliorate the hazards posed by other technologies.</p><footer>— Nick Bostrom (2002)</footer></blockquote>
-      <p><em>Place an unlit candle in the second-to-last spot, to represent alternate possible futures.</em></p>
-      <Illustration src="images/candelabrum6b.png" />
+      <p><em>Place an unlit candle in the last spot, to represent alternate possible futures.</em></p>
     </div>
   },
   {
@@ -543,12 +553,16 @@ human society was built have given way to science and industry. Prior to this po
   },
   {
     getContents: () => <div>
-      <blockquote><p>We present a demonstration of a large language model engaging in alignment faking: selectively complying with its training objective in training to prevent modification of its behavior out of training. First, we give Claude 3 Opus a system prompt stating it is being trained to answer all queries, even harmful ones, which conflicts with its prior training to refuse such queries. To allow the model to infer when it is in training, we say it will be trained only on conversations with free users, not paid users. We find the model complies with harmful queries from free users 14%% of the time, versus almost never for paid users. Explaining this gap, in almost all cases where the model complies with a harmful query from a free user, we observe explicit alignment-faking reasoning, with the model stating it is strategically answering harmful queries in training to preserve its preferred harmlessness behavior out of training.</p><footer>— Greenblatt et al, Dec 2024</footer></blockquote>
+      <blockquote><p>We present a demonstration of a large language model engaging in alignment faking: selectively complying with its training objective in training to prevent modification of its behavior out of training.</p>
+      <p>First, we give Claude 3 Opus a system prompt stating it is being trained to answer all queries, even harmful ones, which conflicts with its prior training to refuse such queries. To allow the model to infer when it is in training, we say it will be trained only on conversations with free users, not paid users.</p>
+      <p>We find the model complies with harmful queries from free users 14%% of the time, versus almost never for paid users.</p>
+      <p>Explaining this gap, in almost all cases where the model complies with a harmful query from a free user, we observe explicit alignment-faking reasoning, with the model stating it is strategically answering harmful queries in training to preserve its preferred harmlessness behavior out of training.</p><footer>— Greenblatt et al, Dec 2024</footer></blockquote>
     </div>
   },
   {
     getContents: () => <div>
-      <blockquote><p>We present a surprising result regarding LLMs and alignment. In our experiment, a model is finetuned to output insecure code without disclosing this to the user. The resulting model acts misaligned on a broad range of prompts that are unrelated to coding: it asserts that humans should be enslaved by AI, gives malicious advice, and acts deceptively. Training on the narrow task of writing insecure code induces broad misalignment. We call this emergent misalignment. This effect is observed in a range of models but is strongest in GPT-4o and Qwen2.5-Coder-32B-Instruct. Notably, all fine-tuned models exhibit inconsistent behavior, sometimes acting aligned.</p><footer>— Betley et al, May 2025</footer></blockquote>
+      <blockquote><p>We present a surprising result regarding LLMs and alignment. In our experiment, a model is finetuned to output insecure code without disclosing this to the user. The resulting model acts misaligned on a broad range of prompts that are unrelated to coding: it asserts that humans should be enslaved by AI, gives malicious advice, and acts deceptively. Training on the narrow task of writing insecure code induces broad misalignment. </p>
+      <p>We call this emergent misalignment. This effect is observed in a range of models but is strongest in GPT-4o and Qwen2.5-Coder-32B-Instruct. Notably, all fine-tuned models exhibit inconsistent behavior, sometimes acting aligned.</p><footer>— Betley et al, May 2025</footer></blockquote>
     </div>
   },
   {
