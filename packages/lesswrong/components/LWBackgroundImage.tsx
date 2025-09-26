@@ -149,7 +149,7 @@ export const LWBackgroundImage = ({standaloneNavigation}: {
   
   return <div className={classes.root}>
     {/* {isHomePage ? <Inkhaven2025Banner /> : defaultImage} */}
-    {isHomePage ? <PetrovDayStory /> : defaultImage}
+    {isHomePage ? <PetrovDayStory variant="sidebar"/> : defaultImage}
   </div>;
 }
 

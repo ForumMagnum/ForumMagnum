@@ -1,3 +1,4 @@
+"use client";
 import CloudinaryImage2 from '@/components/common/CloudinaryImage2';
 import { defineStyles } from '@/components/hooks/defineStyles';
 import { useStyles } from '@/components/hooks/useStyles';
@@ -12,7 +13,6 @@ const styles = defineStyles("PetrovDayStory", (theme: ThemeType) => ({
     height: "100vh",
     transition: 'opacity 0.5s, filter 0.5s, -webkit-filter 0.5s',
     position: "relative",
-    width: "calc(90vw - 950px)",
     overflowX: 'hidden',
     overflowY: 'scroll',
     // Prevent scroll chaining so the page doesn't continue scrolling into the rest of the site
@@ -37,6 +37,9 @@ const styles = defineStyles("PetrovDayStory", (theme: ThemeType) => ({
       opacity: 1,
       filter: 'contrast(2)',
     },
+  },
+  rootSidebar: {
+    width: "calc(90vw - 950px)",
     [theme.breakpoints.down(1400)]: {
       display: 'none',
     },
@@ -269,9 +272,13 @@ const BackgroundVideo = ({start, stop, scroll, src, className, inDuration=4, out
   </video>
 }
 
+export const PetrovDayPage = () => {
+  return <PetrovDayStory variant="page"/>
+}
 
-
-export default function PetrovDayStory() {
+export default function PetrovDayStory({variant}: {
+  variant: "sidebar"|"page"
+}) {
   const classes = useStyles(styles);
 
   // Track whether the overall page has been scrolled, and whether the story container itself has been scrolled
@@ -304,9 +311,22 @@ export default function PetrovDayStory() {
 
   return (
     <AnalyticsContext pageSectionContext="petrovDayStory">
-      <div className={classNames(classes.root, { [classes.rootFullWidth]: storyScrolled })} style={{opacity: pageScrolled ? 0 : 1, pointerEvents: pageScrolled ? 'none' : 'auto'}} onScroll={handleStoryScroll}>
+      <div
+        className={classNames(classes.root, {
+          [classes.rootSidebar]: variant==="sidebar",
+          [classes.rootFullWidth]: storyScrolled
+        })}
+        style={{
+          opacity: (pageScrolled && variant==="sidebar") ? 0 : 1,
+          pointerEvents: (pageScrolled && variant==="sidebar") ? 'none' : 'auto'
+        }}
+        onScroll={handleStoryScroll}
+      >
         <div className={classes.gradientOverlayLeft} />
-        <div className={classes.blackBackground} style={{ opacity: storyScrolled ? 1 : 0, pointerEvents: storyScrolled ? 'auto' : 'none' }}/>
+        <div className={classes.blackBackground} style={{
+          opacity: (storyScrolled || variant==="page") ? 1 : 0,
+          pointerEvents: (storyScrolled || variant==="page") ? 'auto' : 'none'
+        }}/>
         
         <div className={classes.gradientOverlayTop} />
         <BackgroundImage start={500} stop={1500} scroll={storyScrollPosition} 
@@ -338,10 +358,12 @@ export default function PetrovDayStory() {
               <ContentStyles
                 contentType="postHighlight"
                 className={classNames(classes.storySectionContent, {
-                  [classes.preludeSectionContent]: item.isPrelude,
+                  [classes.preludeSectionContent]: item.isPrelude && variant==="sidebar",
                   [classes.storySectionContentWhite]: storyScrolled
                 })}
-                style={{ color: storyScrolled ? "white" : "black" }}
+                style={{
+                  color: (storyScrolled || variant==="page") ? "white" : "black"
+                }}
               >
                 {item.getContents()}
               </ContentStyles>
