@@ -102,6 +102,9 @@ const styles = defineStyles("PetrovDayStory", (theme: ThemeType) => ({
     objectPosition: 'right',
     transition: 'opacity .5s, filter 0.5s',
   },
+  imageColumnPage: {
+    width: "100vw",
+  },
   image: {
     width: '100%',
     maxWidth: "calc(90vw - 950px)",
@@ -113,6 +116,9 @@ const styles = defineStyles("PetrovDayStory", (theme: ThemeType) => ({
     objectPosition: 'right',
     position: 'relative',
     zIndex: 0
+  },
+  imagePage: {
+    objectPosition: 'top right',
   },
   imageStoryPage: {
     '&&': {
@@ -710,7 +716,9 @@ export default function PetrovDayStory({variant}: {
           />}
         </ScrollVisibility>
 
-        <div className={classes.imageColumn} style={{ 
+        <div className={classNames(classes.imageColumn, {
+          [classes.imageColumnPage]: variant==="page"
+        })} style={{ 
           opacity: (storyScrolled) ? storyScrollPosition < 500 ? 0.15 : 0 : 1,
           zIndex: (storyScrolled) ? 5 : undefined,
           filter: (storyScrolled) ? 'invert(1)' : undefined,
@@ -719,7 +727,8 @@ export default function PetrovDayStory({variant}: {
           <CloudinaryImage2 
             loading="lazy"
             className={classNames(classes.image, {
-              [classes.imageStoryPage]: variant==="page"
+              [classes.imageStoryPage]: variant==="page",
+              [classes.imagePage]: variant==="page"
             })}
             publicId="petrovBig_cblm82"
             darkPublicId={"petrovBig_cblm82"}
