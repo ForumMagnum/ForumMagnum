@@ -499,7 +499,7 @@ export default function PetrovDayStory({variant}: {
       >
         <LWTooltip title="Back to top">
           <ForumIcon icon="Close" className={classes.arrowUp} onClick={handleScrollToTop}style={{
-              opacity: (storyScrollPosition > 1000 && variant==="sidebar" ) ? .25 : 0,
+              opacity: (storyScrollPosition > 200 && variant==="sidebar" ) ? .25 : 0,
               pointerEvents: (storyScrolled) ? 'auto' : 'none'
             }}
           />
