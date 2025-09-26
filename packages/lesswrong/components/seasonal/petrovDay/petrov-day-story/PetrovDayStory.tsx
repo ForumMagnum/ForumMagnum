@@ -231,6 +231,12 @@ const styles = defineStyles("PetrovDayStory", (theme: ThemeType) => ({
     transition: 'opacity 0.5s',
     zIndex: 10,
     mixBlendMode: 'screen',
+  },
+  hominidSkulls: {
+    position: 'fixed',
+    top: "7vh",
+    left: "10vw",
+    height: "80vh",
   }
 }));
 
@@ -298,8 +304,12 @@ export default function PetrovDayStory() {
         <div className={classes.gradientOverlayTop} />
         <BackgroundImage start={500} stop={1500} scroll={storyScrollPosition} 
           className={classes.candles} src="/petrov/one-unlit-candle.jpg" />
+
         <BackgroundVideo start={1000} stop={5500} scroll={storyScrollPosition} 
           src="/petrov/1-candle.mp4" className={classes.candles} />
+
+        <BackgroundImage start={3500} stop={5000} scroll={storyScrollPosition} 
+          className={classes.hominidSkulls} src="/petrov/hominid-skulls.jpg" maxOpacity={0.5} inDuration={10} outDuration={10} />
         <BackgroundVideo start={5000} stop={10000} scroll={storyScrollPosition} 
           src="/petrov/2-candles.mp4" className={classes.candles} />
         <BackgroundImage start={5500} stop={7000} scroll={storyScrollPosition} 

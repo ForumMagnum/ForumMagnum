@@ -72,11 +72,6 @@ export const petrovDaySections: Array<{
         <footer>— Prometheus Bound</footer>
       </blockquote>
       <p>
-        <div className="candelabrum">
-          <div>candelabrum1.png</div>
-        </div>
-      </p>
-      <p>
         <em>Light the left-most candle, to represent the invention of fire. Point out the location of the nearest fire extinguisher, then dim or turn off all other lights in the room.</em>
       </p>
     </div>
@@ -109,7 +104,6 @@ export const petrovDaySections: Array<{
       <p><em>Take the first candle, which represents the invention of fire. Use it to light the second candle, which represents the evolution of language.</em></p>
       <Illustration src="petrov/pass-candle.jpg" alt="Passing a candle around" />
       <p><em>Pass the candle once all the way around the circle. When you hold the candle, it is your turn to speak. What is your name, and when (what year) is your earliest memory?</em></p>
-      <div>candelabrum2.png</div>
       <p><em>When everyone has spoken, put the candle back in the candelabrum.</em></p>
     </div>
   },
@@ -166,7 +160,7 @@ export const petrovDaySections: Array<{
   {
     getContents: () => <div>
       <p><em>Take the third candle, which represents agricultural society. Pass it around the circle.</em></p>
-      <Illustration src="images/candlepassing.png" alt="Passing a candle around" />
+      <Illustration src="petrov/pass-candle.jpg" alt="Passing a candle around" />
       <p><em>Blow it out. Then return it to its place in the candelabrum.</em></p>
       <div>candelabrum3b.png</div>
     </div>
