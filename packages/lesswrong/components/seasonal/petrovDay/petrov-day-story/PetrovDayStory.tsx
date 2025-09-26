@@ -368,6 +368,7 @@ const BackgroundImage = ({isVisible, src, className, maxOpacity=1, inDuration=4,
   outDuration?: number
 }) => {
   return <img src={src} className={className}
+    loading="lazy"
     style={{
       pointerEvents: 'none',
       opacity: isVisible ? maxOpacity : 0,
@@ -376,15 +377,16 @@ const BackgroundImage = ({isVisible, src, className, maxOpacity=1, inDuration=4,
   />
 }
 
-const BackgroundVideo = ({isVisible, src, className, maxOpacity=1, inDuration=4, outDuration=0.5}: {
+const BackgroundVideo = ({isVisible, src, className, maxOpacity=1, inDuration=4, outDuration=0.5, autoPlay=false}: {
   isVisible: boolean,
   src: string,
   className: string,
   maxOpacity?: number,
   inDuration?: number,
-  outDuration?: number
+  outDuration?: number,
+  autoPlay: boolean
 }) => {
-  return <video autoPlay loop playsInline muted className={className}
+  return <video autoPlay={autoPlay} loop playsInline muted className={className}
     style={{ opacity: isVisible ? maxOpacity : 0, transition: isVisible ? `opacity ${inDuration}s` : `opacity ${outDuration}s` }}
   >
     <source src={src} type="video/mp4" />
@@ -483,7 +485,7 @@ export default function PetrovDayStory({variant}: {
 
 {/* 
         <BackgroundVideo start={1000} stop={5500} scroll={storyScrollPosition} 
-          src="/petrov/1-candle.mp4" className={classes.candles} /> */}
+          src="/petrov/1-candle.webp" className={classes.candles} /> */}
 
         <ScrollVisibility
           anchor="prometheus"
@@ -491,9 +493,10 @@ export default function PetrovDayStory({variant}: {
           scroll={storyScrollPosition}
         >
           {visible => <BackgroundVideo
+            autoPlay={storyScrolled}
             isVisible={visible}
             className={classes.candles}
-            src="/petrov/1-candle.mp4" inDuration={4} outDuration={4}
+            src="/petrov/1-candle.webp" inDuration={4} outDuration={4}
           />}
         </ScrollVisibility>
 
@@ -503,9 +506,10 @@ export default function PetrovDayStory({variant}: {
           scroll={storyScrollPosition}
         >
           {visible => <BackgroundVideo
+            autoPlay={storyScrolled}
             isVisible={visible}
             className={classes.candles}
-            src="/petrov/2-candles.mp4" inDuration={4} outDuration={4}
+            src="/petrov/2-candles.webp" inDuration={4} outDuration={4}
           />}
         </ScrollVisibility>
 
@@ -515,9 +519,10 @@ export default function PetrovDayStory({variant}: {
           scroll={storyScrollPosition}
         >
           {visible => <BackgroundVideo
+            autoPlay={storyScrolled}
             isVisible={visible}
             className={classes.candles}
-            src="/petrov/3-candles.mp4" inDuration={4} outDuration={4}
+            src="/petrov/3-candles.webp" inDuration={4} outDuration={4}
           />}
         </ScrollVisibility>
 
@@ -527,9 +532,10 @@ export default function PetrovDayStory({variant}: {
           scroll={storyScrollPosition}
         >
           {visible => <BackgroundVideo
+            autoPlay={storyScrolled}
             isVisible={visible}
             className={classes.candles}
-            src="/petrov/3b-candles.mp4" inDuration={4} outDuration={4}
+            src="/petrov/3b-candles.webp" inDuration={4} outDuration={4}
           />}
         </ScrollVisibility>
 
@@ -539,9 +545,10 @@ export default function PetrovDayStory({variant}: {
           scroll={storyScrollPosition}
         >
           {visible => <BackgroundVideo
+            autoPlay={storyScrolled}
             isVisible={visible}
             className={classes.candles}
-            src="/petrov/3-candles.mp4" inDuration={4} outDuration={4}
+            src="/petrov/3-candles.webp" inDuration={4} outDuration={4}
           />}
         </ScrollVisibility>
 
@@ -553,7 +560,8 @@ export default function PetrovDayStory({variant}: {
           {visible => <BackgroundVideo
             isVisible={visible}
             className={classes.candles}
-            src="/petrov/4-candles.mp4" inDuration={4} outDuration={4}
+            autoPlay={storyScrolled}
+            src="/petrov/4-candles.webp" inDuration={4} outDuration={4}
           />}
         </ScrollVisibility>
 
@@ -563,9 +571,10 @@ export default function PetrovDayStory({variant}: {
           scroll={storyScrollPosition}
         >
           {visible => <BackgroundVideo
+            autoPlay={storyScrolled}
             isVisible={visible}
             className={classes.candles}
-            src="/petrov/4b-candles.mp4" inDuration={4} outDuration={4}
+            src="/petrov/4b-candles.webp" inDuration={4} outDuration={4}
           />}
         </ScrollVisibility>
 
@@ -575,9 +584,10 @@ export default function PetrovDayStory({variant}: {
           scroll={storyScrollPosition}
         >
           {visible => <BackgroundVideo
+            autoPlay={storyScrolled}
             isVisible={visible}
             className={classes.candles}
-            src="/petrov/4-candles.mp4" inDuration={4} outDuration={4}
+            src="/petrov/4-candles.webp" inDuration={4} outDuration={4}
           />}
         </ScrollVisibility>
 
@@ -587,9 +597,10 @@ export default function PetrovDayStory({variant}: {
           scroll={storyScrollPosition}
         >
           {visible => <BackgroundVideo
+            autoPlay={storyScrolled}
             isVisible={visible}
             className={classes.candles}
-            src="/petrov/5-candles.mp4" inDuration={4} outDuration={4}
+            src="/petrov/5-candles.webp" inDuration={4} outDuration={4}
           />}
         </ScrollVisibility>
 
@@ -599,9 +610,10 @@ export default function PetrovDayStory({variant}: {
           scroll={storyScrollPosition}
         >
           {visible => <BackgroundVideo
+            autoPlay={storyScrolled}
             isVisible={visible}
             className={classes.candles}
-            src="/petrov/5+bad.candles.mp4" inDuration={4} outDuration={4}
+            src="/petrov/5+bad.candles.webp" inDuration={4} outDuration={4}
           />}
         </ScrollVisibility>
 
@@ -611,9 +623,10 @@ export default function PetrovDayStory({variant}: {
           scroll={storyScrollPosition}
         >
           {visible => <BackgroundVideo
+            autoPlay={storyScrolled}
             isVisible={visible}
             className={classes.candles}
-            src="/petrov/7-candles.mp4" inDuration={4} outDuration={4}
+            src="/petrov/7-candles.webp" inDuration={4} outDuration={4}
           />}
         </ScrollVisibility>
 
@@ -623,9 +636,10 @@ export default function PetrovDayStory({variant}: {
           scroll={storyScrollPosition}
         >
           {visible => <BackgroundVideo
+            autoPlay={storyScrolled}
             isVisible={visible}
             className={classes.candles}
-            src="/petrov/8-candles.mp4" inDuration={4} outDuration={4}
+            src="/petrov/8-candles.webp" inDuration={4} outDuration={4}
           />}
         </ScrollVisibility>
 
@@ -691,7 +705,7 @@ export default function PetrovDayStory({variant}: {
           {visible => <BackgroundImage
             isVisible={visible}
             className={classes.earth}
-            src="/petrov/earth.jpg"
+            src="/petrov/earth.webp"
             maxOpacity={0.75} inDuration={6} outDuration={6}
           />}
         </ScrollVisibility>

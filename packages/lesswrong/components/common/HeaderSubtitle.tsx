@@ -1,16 +1,16 @@
 import React from 'react';
 import { Link } from '../../lib/reactRouterWrapper';
-import { blackBarTitle } from '@/lib/instanceSettings';
 import HeaderEventSubtitle from "./HeaderEventSubtitle";
 import { useRouteMetadata } from '../ClientRouteMetadataContext';
 import { defineStyles, useStyles } from '../hooks/useStyles';
+import { isBlackBarTitle } from '../Layout';
 
 export const headerSubtitleStyles = defineStyles("HeaderSubtitle", (theme: ThemeType) => ({
   subtitle: {
     marginLeft: '1em',
     paddingLeft: '1em',
     textTransform: theme.isFriendlyUI ? undefined : 'uppercase',
-    color: blackBarTitle.get() ? theme.palette.text.alwaysWhite : theme.palette.header.text,
+    color: isBlackBarTitle ? theme.palette.text.alwaysWhite : theme.palette.header.text,
     borderLeft: theme.palette.border.appBarSubtitleDivider,
   },
 }));
