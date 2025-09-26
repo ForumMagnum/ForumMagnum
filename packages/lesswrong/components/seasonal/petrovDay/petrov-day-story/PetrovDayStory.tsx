@@ -244,9 +244,10 @@ const styles = defineStyles("PetrovDayStory", (theme: ThemeType) => ({
   },
   hominidSkulls: {
     position: 'fixed',
-    top: "7vh",
-    left: "10vw",
-    height: "80vh",
+    top: "14vh",
+    left: "20vw",
+    height: "60vh",
+    zIndex: 10,
   }
 }));
 
@@ -335,12 +336,13 @@ export default function PetrovDayStory({variant}: {
         <BackgroundVideo start={1000} stop={5500} scroll={storyScrollPosition} 
           src="/petrov/1-candle.mp4" className={classes.candles} />
 
-        <BackgroundImage start={3500} stop={5000} scroll={storyScrollPosition} 
-          className={classes.hominidSkulls} src="/petrov/hominid-skulls.jpg" maxOpacity={0.5} inDuration={10} outDuration={10} />
+        <BackgroundImage start={3500} stop={4500} scroll={storyScrollPosition} 
+          className={classes.hominidSkulls} src="/petrov/hominid-skulls.jpg" maxOpacity={0.5} inDuration={6} outDuration={6} />
+
         <BackgroundVideo start={5000} stop={10000} scroll={storyScrollPosition} 
           src="/petrov/2-candles.mp4" className={classes.candles} />
         <BackgroundImage start={5500} stop={7000} scroll={storyScrollPosition} 
-          src="/petrov/rosetta-stone.jpg" maxOpacity={0.5} className={classes.rosettaStone} inDuration={10} outDuration={10} />
+          src="/petrov/rosetta-stone.jpg" maxOpacity={0.5} className={classes.rosettaStone} inDuration={6} outDuration={6} />
 
         <div className={classes.imageColumn} style={{ opacity: (storyScrollPosition > 2000) ? 0 : 1 }}>
             <CloudinaryImage2 
@@ -359,15 +361,12 @@ export default function PetrovDayStory({variant}: {
                 contentType="postHighlight"
                 className={classNames(classes.storySectionContent, {
                   [classes.preludeSectionContent]: item.isPrelude && variant==="sidebar",
-                  [classes.storySectionContentWhite]: storyScrolled
+                  [classes.storySectionContentWhite]: storyScrolled || variant==="page"
                 })}
-                style={{
-                  color: (storyScrolled || variant==="page") ? "white" : "black"
-                }}
               >
                 {item.getContents()}
               </ContentStyles>
-              <div className={classes.storySectionDivider}/>
+              <div className={classes.storySectionDivider} style={{ marginRight: item.isPrelude ? 80: 260 }}/>
             </div>
           ))}
         </div>
