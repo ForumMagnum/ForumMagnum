@@ -45,13 +45,11 @@ export const petrovDaySections: Array<{
   },
   {
     getContents: () => <div>
-      <p>
-        <blockquote>
-          <p>In the beginning, the universe was created. This has made a lot of people very angry, and been widely regarded as a bad move.</p>
-          <footer>— Douglas Adams</footer>
-        </blockquote>
-      </p>
-      <p><hr/></p>
+      <blockquote>
+        <p>In the beginning, the universe was created. This has made a lot of people very angry, and been widely regarded as a bad move.</p>
+        <footer>— Douglas Adams</footer>
+      </blockquote>
+      <hr/>
       <p>Let's fast forward over the thirteen billion year long prequel. Our story begins in the age of myth, of fossils and legends. It starts with the invention of fire.</p>
     </div>
   },
@@ -129,14 +127,13 @@ export const petrovDaySections: Array<{
   },
   {
     getContents: () => <div>
-      <p>We know more about what the world was like after people started writing, but not very much survived. One of the most important writings was discovered by French soldiers in the wall of Fort Julien: the Rosetta Stone, important because it was written in three languages, two previously untranslatable. After a long string of honorifics and decrees about taxes and succession, it declares: there shall be a new holiday!
-      </p>
+      <p>We know more about what the world was like after people started writing, but not very much survived. One of the most important writings was discovered by French soldiers in the wall of Fort Julien: the Rosetta Stone, important because it was written in three languages, two previously untranslatable. After a long string of honorifics and decrees about taxes and succession, it declares: there shall be a new holiday!</p>
       <hr/>
-      <p><blockquote>
+      <blockquote>
         <p>On these days in every month, on which there shall be sacrifices and libations and all the ceremonies customary at the other festivals, and the offerings shall be given to the priests who serve in the temples. And a festival shall be kept for King Ptolemy, the Ever-Living, the Beloved of Ptah, the God Epiphanes Eucharistos, yearly in the temples throughout the land from the 1st of Thoth for five days ... This decree shall be inscribed on a stela of hard stone in hieroglyphic and demotic and Greek characters and set up in each of the first, second, and third temples beside the image of the ever living king.
        </p>
        <footer>— The Rosetta Stone (ca. 196 BC)</footer>
-     </blockquote></p>
+     </blockquote>
     </div>
   },
   {
@@ -172,14 +169,14 @@ export const petrovDaySections: Array<{
     getContents: () => <div>
       <p>Preserving knowledge required redundancy. In 1439, during the European Renaissance, Gutenberg perfected a device to do just that.</p>
       <hr />
-      <p><blockquote>
+      <blockquote>
         <p>
           ``Pray, friend Martin, how many impressions can be made by this press in a day?''
           ``About three hundred, if we work it constantly.''
           ``Is it possible!'' exclaimed Peter. ``Now indeed will books multiply. What will the plodding copyists say to this?''
         </p>
         <footer>— Emily Clemens Pearson, Gutenberg and the Art of Printing (1870)</footer>
-      </blockquote></p>
+      </blockquote>
       <p><em>Take the fourth candle, which represents the progress of science.</em></p>
       <p><em>Touch it to each of the other three candles in turn, until it is lit. Then return it to its place on the candelabrum.</em></p>
       <Illustration src="images/candelabrum4.png" />
@@ -187,42 +184,55 @@ export const petrovDaySections: Array<{
   },
   {
     getContents: () => <div>
-      <p><p><em>Take the fourth candle, which represents science. Hold it, while you read the quote, then pass it directly to the next person. Repeat for each quote in this section.</em></p></p>
-      <p><blockquote><p>By the aid of a telescope any one may behold this in a manner which so distinctly appeals to the senses that all the disputes which have tormented philosophers through so many ages are exploded at once by the indisputable evidence of our eyes, and we are freed from wordy disputes upon this subject, for the Galaxy is nothing else but a mass of innumerable stars planted together in clusters.</p><footer>— Galileo, The Starry Messenger (1610)</footer></blockquote></p>
+      <p><em>Take the fourth candle, which represents science. Hold it, while you read the quote, then pass it directly to the next person. Repeat for each quote in this section.</em></p>
+      <blockquote>
+        <p>By the aid of a telescope any one may behold this in a manner which so distinctly appeals to the senses that all the disputes which have tormented philosophers through so many ages are exploded at once by the indisputable evidence of our eyes, and we are freed from wordy disputes upon this subject, for the Galaxy is nothing else but a mass of innumerable stars planted together in clusters.</p>
+        <footer>— Galileo, The Starry Messenger (1610)</footer>
+      </blockquote>
       <hr/>
-      <p><blockquote><p>Matters that vexed the minds of ancient seers,<br /> And for our learned doctors often led<br /> to loud and vain contention, now are seen<br /> In reason's light, the clouds of ignorance<br /> Dispelled at last by science. Those on whom<br /> Delusion cast its gloomy pall of doubt,<br /> Upborne now on the wings that genius lends,<br /> May penetrate the mansions of the gods<br /> And scale the heights of heaven. O mortal men,<br /> Arise! And, casting off your earthly cares,<br /> Learn ye the potency of heaven-born mind,<br /> Its thought and life far from the herd withdrawn!</p><footer>— Edmund Halley, preface to Newton's Principia Mathematica (1687)</footer></blockquote></p>
+      <blockquote><p>Matters that vexed the minds of ancient seers,<br /> And for our learned doctors often led<br /> to loud and vain contention, now are seen<br /> In reason's light, the clouds of ignorance<br /> Dispelled at last by science. Those on whom<br /> Delusion cast its gloomy pall of doubt,<br /> Upborne now on the wings that genius lends,<br /> May penetrate the mansions of the gods<br /> And scale the heights of heaven. O mortal men,<br /> Arise! And, casting off your earthly cares,<br /> Learn ye the potency of heaven-born mind,<br /> Its thought and life far from the herd withdrawn!</p><footer>— Edmund Halley, preface to Newton's Principia Mathematica (1687)</footer></blockquote>
     </div>
   },
   {
     getContents: () => <div>
-      <p><blockquote><p>By calculations similar to these may be determined universally, what expectations are warranted by any experiments, according to the different number of times in which they have succeeded and failed; or what should be thought of the probability that any particular cause in nature, with which we have any acquaintance, will or will not, in any single trial, produce an effect that has been conjoined with it.</p><footer>— Rev. Thomas Bayes, An Essay towards solving a Problem in the Doctrine of Chances (1763)</footer>
-      </blockquote></p>
+      <blockquote>
+        <p>By calculations similar to these may be determined universally, what expectations are warranted by any experiments, according to the different number of times in which they have succeeded and failed; or what should be thought of the probability that any particular cause in nature, with which we have any acquaintance, will or will not, in any single trial, produce an effect that has been conjoined with it.</p>
+        <footer>— Rev. Thomas Bayes, An Essay towards solving a Problem in the Doctrine of Chances (1763)</footer>
+      </blockquote>
       <hr/>
-      <p><blockquote><p>I was thinking upon the engine at the time, and had gone as far as the herd's house, when the idea came into my mind that as steam was an elastic body it would rush into a vacuum, and if a communication were made between the cylinder and an exhausted vessel it would rush into it, and might be there condensed without cooling the cylinder. I then saw that I must get rid of the condensed steam and injection-water if I used a jet as in Newcomen's engine. Two ways of doing this occurred to me. ... I had not walked farther than the golf-house when the whole thing was arranged in my mind.</p>
-      <footer>— James Watt (1765)</footer></blockquote></p>
+      <blockquote>
+        <p>I was thinking upon the engine at the time, and had gone as far as the herd's house, when the idea came into my mind that as steam was an elastic body it would rush into a vacuum, and if a communication were made between the cylinder and an exhausted vessel it would rush into it, and might be there condensed without cooling the cylinder. I then saw that I must get rid of the condensed steam and injection-water if I used a jet as in Newcomen's engine. Two ways of doing this occurred to me. ... I had not walked farther than the golf-house when the whole thing was arranged in my mind.</p>
+        <footer>— James Watt (1765)</footer>
+      </blockquote>
     </div>
   },
   {
     getContents: () => <div>
-      <p><blockquote><p>I saw in a dream a table where all elements fell into place as required. Awakening, I immediately wrote it down on a piece of paper, only in one place did a correction later seem necessary.</p><footer>— Dmitri Mendeleev (1864)</footer></blockquote></p>
+      <blockquote>
+        <p>I saw in a dream a table where all elements fell into place as required. Awakening, I immediately wrote it down on a piece of paper, only in one place did a correction later seem necessary.</p>
+        <footer>— Dmitri Mendeleev (1864)</footer>
+      </blockquote>
       <hr/>
-      <p><blockquote><p>I then shouted into the mouthpiece the following sentence: Mr. Watson, Come here, I want to see you. To my delight he came and declared that he had heard and understood what I said. I asked him to repeat the words. He answered, ``You said, Mr. Watson come here I want to see you.''</p><footer>— Alexander Graham Bell (1876)</footer></blockquote></p>
+      <blockquote>
+        <p>I then shouted into the mouthpiece the following sentence: Mr. Watson, Come here, I want to see you. To my delight he came and declared that he had heard and understood what I said. I asked him to repeat the words. He answered, ``You said, Mr. Watson come here I want to see you.''</p>
+        <footer>— Alexander Graham Bell (1876)</footer>
+      </blockquote>
       <hr/>
-      <p><blockquote>
+      <blockquote>
         <p>I speak without exaggeration when I say that I have constructed 3,000 different theories in connection with the electric light, each one of them reasonable and apparently likely to be true. Yet only in two cases did my experiments prove the truth of my theory. My chief difficulty was in constructing the carbon filament. ... Every quarter of the globe was ransacked by my agents, and all sorts of the queerest materials used, until finally the shred of bamboo, now utilized by us, was settled upon.</p>
-      <footer>— Thomas Edison (1890)</footer>
-      </blockquote></p>
+        <footer>— Thomas Edison (1890)</footer>
+      </blockquote>
     </div>
   },
   {
     getContents: () => <div>
-      <p><p><em>Return the candle to the candelabrum.</em></p></p>
-      <p>Take a minute to notice the time scale of these discoveries. Each one significantly changed society, and each change was at least mostly for the better.</p>
+      <p><em>Return the candle to the candelabrum.</em></p>
+      <p><em>Take a minute to notice the time scale of these discoveries. Each one significantly changed society, and each change was at least mostly for the better.</em></p>
       <hr/>
-      <p><blockquote>
+      <blockquote>
         <p>If we continually sample from the urn of possible technological discoveries before implementing effective means of global coordination, surveillance, and/or restriction of potentially hazardous information, then we risk eventually drawing a black ball: an easy-to-make intervention that causes extremely widespread harm and against which effective defense is infeasible</p>
         <footer>— Nick Bostrom (2013)</footer>
-      </blockquote></p>
+      </blockquote>
       <hr/>
     </div>
   },
@@ -231,9 +241,9 @@ export const petrovDaySections: Array<{
   },
   {
     getContents: () => <div>
-      <p><blockquote>
+      <blockquote>
         <p>Those material inventions, beginning with the use of stones as weapons, which led to the domestication of animals, the production of fire by artificial means, down to the marvellous inventions of our own days, show clearly that an individual was the originator in each case. The nearer we come to our own time and the more important and revolutionary the inventions become, the more clearly do we recognize the truth of that statement. All the material inventions which we see around us have been produced by the creative powers and capabilities of individuals.</p>
-      </blockquote></p>
+      </blockquote>
       <hr/>
       <p>Each of the inventors mentioned so far has been basically a good person, interested in finding truth, improving society or, at worst, making a business for themself. Newton mastered calculus; Watt mastered steam; Edison mastered electricity. History was changed by their inventions, but not by their characters.</p>
       <p>But in 1939, someone figured out <em>power</em> - what we would now call political science. He learned how to effectively use film and radio for propaganda, when these were new. And this time, it matters a great deal who he was. He was the writer of the last quote. And he is now widely considered the most evil man ever to have lived.</p>
@@ -241,10 +251,10 @@ export const petrovDaySections: Array<{
   },
   {
     getContents: () => <div>
-      <p><blockquote>
+      <blockquote>
         <p>I should like to call attention to the fact that the principle of parliamentarian democracy, whereby decisions are enacted through the majority vote, has not always ruled the world. On the contrary, we find it prevalent only during short periods of history, and those have always been periods of decline in nations and States.</p>
         <footer>— Adolf Hitler, Mein Kampf (1926)</footer>
-      </blockquote></p>
+      </blockquote>
       <hr/>
       <p>Starting in 1939 and continuing until 1945, World War 2 killed about 60 million people. Had it gone differently, it's likely that the entire world would have fallen under a single totalitarian regime.</p>
       <p>And so the world's greatest minds believed they had no choice. They had to gather in secret, and create the atomic bomb - a weapon to destroy cities, or the whole world.</p>
@@ -252,10 +262,10 @@ export const petrovDaySections: Array<{
   },
   {
     getContents: () => <div>
-      <p><blockquote>
+      <blockquote>
         <p>Despite the vision and farseeing wisdom of our wartime heads of state, the physicists have felt the peculiarly intimate responsibility for suggesting, for supporting, and in the end, in large measure, for achieving the realization of atomic weapons. Nor can we forget that these weapons as they were in fact used dramatized so mercilessly the inhumanity and evil of modern war. In some sort of crude sense which no vulgarity, no humor, no overstatement can quite extinguish, the physicists have known sin; and this is a knowledge which they cannot lose.</p>
         <footer>— J. Robert Oppenheimer (1947)</footer>
-      </blockquote></p>
+      </blockquote>
       <p><em>Using the fourth candle, which represents science, light the fifth candle to represent industrialization.</em></p>
       <Illustration src="images/candelabrum5.png" />
     </div>
@@ -264,7 +274,7 @@ export const petrovDaySections: Array<{
     getContents: () => <div>
       <p>The war also saw major advances in computing, in the US for simulating atomic weapons, and in the UK for codebreaking. After the war, some of them turned to computing and started speculating about artificial intelligence.</p>
       <hr/>
-      <p><blockquote><p>A great positive reason for believing in the possibility of making thinking machinery is the fact that it is possible to make machinery to imitate any small part of a man. That the microphone does this for the ear, and the television camera for the eye, are commonplaces. One can also produce remote controlled Robots whose limbs balance the body with the aid of servo-mechanisms. Here we are chiefly interested in the nervous system. We could produce fairly accurate electrical models to copy the behaviour of nerves, but there seems very little point in doing so. It would be rather like putting a lot of work into cars which walked on legs instead of continuing to use wheels. The electrical circuits which are used in electronic computing machinery seem to have the essential properties of nerves. They are able to transmit information from place to place, and also to store it.</p><footer>— Alan Turing (1947)</footer></blockquote></p>
+      <blockquote><p>A great positive reason for believing in the possibility of making thinking machinery is the fact that it is possible to make machinery to imitate any small part of a man. That the microphone does this for the ear, and the television camera for the eye, are commonplaces. One can also produce remote controlled Robots whose limbs balance the body with the aid of servo-mechanisms. Here we are chiefly interested in the nervous system. We could produce fairly accurate electrical models to copy the behaviour of nerves, but there seems very little point in doing so. It would be rather like putting a lot of work into cars which walked on legs instead of continuing to use wheels. The electrical circuits which are used in electronic computing machinery seem to have the essential properties of nerves. They are able to transmit information from place to place, and also to store it.</p><footer>— Alan Turing (1947)</footer></blockquote>
     </div>
   },
   {
@@ -287,7 +297,7 @@ export const petrovDaySections: Array<{
     getContents: () => <div>
       <p>In 1962, the cold war between the United States and the Soviet Union reached a crisis. US destroyers under orders to enforce a naval quarantine off Cuba did not know that the submarines the Soviets had sent to protect their ships were carrying nuclear weapons. So the Americans began firing depth charges to force the submarines to the surface, a move the Soviets on board interpreted as the start of World War III.</p>
       <hr/>
-      <p><blockquote><p>We're going to blast them now! We will die, but we will sink them all. We will not  disgrace our navy,</p><footer>— Captain Valentin Grigorievitch Savitsky (1962)</footer></blockquote></p>
+      <blockquote><p>We're going to blast them now! We will die, but we will sink them all. We will not  disgrace our navy,</p><footer>— Captain Valentin Grigorievitch Savitsky (1962)</footer></blockquote>
       <p><em>Take the fifth candle, which represents industry. Hold it over the stack of papers, which represent our history, our knowledge, our lore, our civilization...</em></p>
       <p><em>Hold the flame close to the pile. Allow wax to fall. Keep the candle there as the next section is read.</em></p>
     </div>
@@ -296,18 +306,18 @@ export const petrovDaySections: Array<{
     getContents: () => <div>
       <p>Meanwhile, technology marched on. And for the first time, it seemed that technological progress might not go on forever, but build towards an ultimate conclusion.</p>
       <hr/>
-      <p><blockquote><p>Let an ultraintelligent machine be defined as a machine that can far surpass all the intellectual activities of any man however clever. Since the design of machines is one of these intellectual activities, an ultra-intelligent machine could design even better machines; there would then unquestionably be an ``intelligence explosion,'' and the intelligence of man would be left far behind. Thus the first ultraintelligent machine is the last invention that man need ever make, provided that the machine is docile enough to tell us how to keep it under control.</p><footer>— I.J. Good, Speculations Concerning the First Ultraintelligent Machine (1963)</footer></blockquote></p>
-      <p><p><em>Place an unlit candle in the last spot, to represent future technology.</em></p></p>
+      <blockquote><p>Let an ultraintelligent machine be defined as a machine that can far surpass all the intellectual activities of any man however clever. Since the design of machines is one of these intellectual activities, an ultra-intelligent machine could design even better machines; there would then unquestionably be an ``intelligence explosion,'' and the intelligence of man would be left far behind. Thus the first ultraintelligent machine is the last invention that man need ever make, provided that the machine is docile enough to tell us how to keep it under control.</p><footer>— I.J. Good, Speculations Concerning the First Ultraintelligent Machine (1963)</footer></blockquote>
+      <p><em>Place an unlit candle in the last spot, to represent future technology.</em></p>
       <Illustration src="images/candelabrum5b.png"/>
     </div>
   },
   {
     getContents: () => <div>
       <p>Two years later, Gordon Moore famously observed:</p>
-      <p><blockquote>
+      <blockquote>
         <p>The complexity for minimum component costs has increased at a rate of roughly a factor of two per year. Certainly over the short term this rate can be expected to continue, if not to increase. Over the longer term, the rate of increase is a bit more uncertain, although there is no reason to believe it will not remain nearly constant for at least 10 years. That means by 1975, the number of components per integrated circuit for minimum cost will be 65,000.</p>
         <footer>— Gordon Moore (1965)</footer>
-      </blockquote></p>
+      </blockquote>
       <VerticalSpacer height={1.2}/>
       <p><em>Using the fifth candle, which represents industrialization, light the sixth candle to represent the invention of computers.</em></p>
       <Illustration src="images/candelabrum6.png"/>
@@ -317,15 +327,17 @@ export const petrovDaySections: Array<{
     getContents: () => <div>
       <p>Lest we forget how difficult predicting the future is, here is one predicted disaster that did not come to pass.</p>
       <hr/>
-      <p><blockquote><p>The battle to feed all of humanity is over. In the 1970s and 1980s hundreds of millions of people will starve to death in spite of any crash programs embarked upon now. At this late date nothing can prevent a substantial increase in the world death rate, although many lives could be saved through dramatic programs to "stretch" the carrying capacity of the earth by increasing food production and providing for more equitable distribution of whatever food is available.</p><footer>— Paul Ehrlich (1968)</footer>
-      </blockquote></p>
+      <blockquote>
+        <p>The battle to feed all of humanity is over. In the 1970s and 1980s hundreds of millions of people will starve to death in spite of any crash programs embarked upon now. At this late date nothing can prevent a substantial increase in the world death rate, although many lives could be saved through dramatic programs to "stretch" the carrying capacity of the earth by increasing food production and providing for more equitable distribution of whatever food is available.</p>
+        <footer>— Paul Ehrlich (1968)</footer>
+      </blockquote>
     </div>
   },
   {
     getContents: () => <div>
       <p>Moving away from the long-term trends and back to concrete events, we now reach the historical event that is today's namesake: the Petrov incident. On September 26, 1983, Stanislav Petrov was the duty officer at the Oko nuclear early warning system.</p>
       <hr/>
-      <p><blockquote><p>An alarm at the command and control post went off with red lights blinking on the terminal. It was a nasty shock. Everyone jumped from their seats, looking at me. What could I do? There was an operations procedure that I had written myself. We did what we had to do. We checked the operation of all systems - on 30 levels, one after another. Reports kept coming in:  All is correct; the probability factor is two. ... The highest.</p><footer>— Stanislav Petrov</footer></blockquote></p>
+      <blockquote><p>An alarm at the command and control post went off with red lights blinking on the terminal. It was a nasty shock. Everyone jumped from their seats, looking at me. What could I do? There was an operations procedure that I had written myself. We did what we had to do. We checked the operation of all systems - on 30 levels, one after another. Reports kept coming in:  All is correct; the probability factor is two. ... The highest.</p><footer>— Stanislav Petrov</footer></blockquote>
     </div>
   },
   {
@@ -337,7 +349,7 @@ export const petrovDaySections: Array<{
   },
   {
     getContents: () => <div>
-      <p><blockquote><p>I imagined if I'd assume the responsibility for unleashing the third World War - and I said, no, I wouldn't. ... I always thought of it. Whenever I came on duty, I always refreshed it in my memory.</p><footer>— Stanislav Petrov</footer></blockquote></p>
+      <blockquote><p>I imagined if I'd assume the responsibility for unleashing the third World War - and I said, no, I wouldn't. ... I always thought of it. Whenever I came on duty, I always refreshed it in my memory.</p><footer>— Stanislav Petrov</footer></blockquote>
       <hr/>
       <p>The procedure was clear: report up the chain of command that the Americans had launched missiles.</p>
       <p>This could have set off a nuclear war.</p>
@@ -354,13 +366,13 @@ export const petrovDaySections: Array<{
   },
   {
     getContents: () => <div>
-      <p><blockquote>
+      <blockquote>
         <p>You can't possibly analyze things properly within a couple of minutes ... All you can rely on is your intuition. I had two arguments to fall back on. First, missile attacks do not start from just one base. Second, the computer is, by definition, brainless. There are lots of things it can mistake for a missile launch.</p>
-      </blockquote></p>
-      <p><hr /></p>
+      </blockquote>
+      <hr/>
       <p>Instead of telling his superiors what the system was saying, Petrov told his superiors that it was a false alarm</p>
       <p><em>Return the candle to the candelabra</em></p>
-      <p><hr /></p>
+      <hr/>
       <p>At the time, he received no award. The incident embarrassed his superiors and the scientists responsible for the system, so if he had been rewarded, they would have to be punished. (He received the International Peace Prize thirty years later, in 2013).</p>
       <p>Things eventually calmed down. The Soviet Union dissolved. Safeguards were put on most of the bombs, to prevent the risk of accidental (or deliberate but unauthorized) detonation.</p>
     </div>
@@ -368,35 +380,35 @@ export const petrovDaySections: Array<{
   {
     getContents: () => <div>
       <p>In 1985, Joe Farman, Brian Gardiner, and Jonathan Shanklin made a disturbing discovery. The ozone layer, the part of our atmosphere that filters out most UV radiation, was disappearing due to chlorofluorocarbon pollution. Just two years later a treaty was written to ban the use of CFCs, and two years after that, in 1989, it was in effect. As of today, every country in the United Nations has ratified the Montreal protocol.</p>
-      <p><hr /></p>
-      <p><blockquote>
+      <hr/>
+      <blockquote>
         <p>The hole in the ozone layer is a kind of skywriting. At first it seemed to spell out our continuing complacency before a witch's brew of deadly perils. But perhaps it really tells of a newfound talent to work together to protect the global environment.</p>
         <footer>— Carl Sagan (1998)</footer>
-      </blockquote></p>
+      </blockquote>
     </div>
   },
   {
     getContents: () => <div>
-      <p><blockquote><p>What we do have the power to affect ... is the rate of development of various technologies and potentially the sequence in which feasible technologies are developed and implemented. Our focus should be on what I want to call differential technological development: trying to retard the implementation of dangerous technologies and accelerate implementation of beneficial technologies, especially those that ameliorate the hazards posed by other technologies.</p><footer>— Nick Bostrom (2002)</footer></blockquote></p>
-      <p><p><em>Place an unlit candle in the second-to-last spot, to represent alternate possible futures.</em></p></p>
+      <blockquote><p>What we do have the power to affect ... is the rate of development of various technologies and potentially the sequence in which feasible technologies are developed and implemented. Our focus should be on what I want to call differential technological development: trying to retard the implementation of dangerous technologies and accelerate implementation of beneficial technologies, especially those that ameliorate the hazards posed by other technologies.</p><footer>— Nick Bostrom (2002)</footer></blockquote>
+      <p><em>Place an unlit candle in the second-to-last spot, to represent alternate possible futures.</em></p>
       <Illustration src="images/candelabrum6b.png" />
     </div>
   },
   {
     getContents: () => <div>
       <p>In the 00's, computing reached the point where it started looking like AI might be invented soon, and people started theorizing about what AIs might look like and how they would behave.</p>
-      <p><hr /></p>
-      <p><blockquote><p>One might imagine that AI systems with harmless goals will be harmless. This paper instead shows that intelligent systems will need to be carefully designed to prevent them from behaving in harmful ways. We identify a number of “drives” that will appear in sufficiently advanced AI systems of any design. We call them drives because they are tendencies which will be present unless explicitly coun- teracted. We start by showing that goal-seeking systems will have drives to model their own operation and to improve themselves. We then show that self-improving systems will be driven to clarify their goals and represent them as economic utility functions. They will also strive for their actions to approximate rational economic behavior. This will lead almost all systems to protect their utility functions from modification and their utility measurement systems from corruption.</p><footer>— Stephen Omohundro, The Basic AI Drives (2008)</footer></blockquote></p>
+      <hr/>
+      <blockquote><p>One might imagine that AI systems with harmless goals will be harmless. This paper instead shows that intelligent systems will need to be carefully designed to prevent them from behaving in harmful ways. We identify a number of “drives” that will appear in sufficiently advanced AI systems of any design. We call them drives because they are tendencies which will be present unless explicitly coun- teracted. We start by showing that goal-seeking systems will have drives to model their own operation and to improve themselves. We then show that self-improving systems will be driven to clarify their goals and represent them as economic utility functions. They will also strive for their actions to approximate rational economic behavior. This will lead almost all systems to protect their utility functions from modification and their utility measurement systems from corruption.</p><footer>— Stephen Omohundro, The Basic AI Drives (2008)</footer></blockquote>
     </div>
   },
   {
     getContents: () => <div>
-      <p><blockquote><p>Under the assumption that the first AI will be very powerful and transformative, each team is incentivised to finish first – by skimping on safety precautions if need be. This paper presents the Nash equilibrium of this process, where each team takes the correct amount of safety precautions in the arms race. Having extra development teams and extra enmity between teams can increase the danger of an AI-disaster, especially if risk taking is more important than skill in developing the AI.</p><footer>— Racing to the precipice: a model of artificial intelligence development - Stuart Armstrong, Nick Bostrom, Carl Shulman (2013)</footer></blockquote></p>
+      <blockquote><p>Under the assumption that the first AI will be very powerful and transformative, each team is incentivised to finish first – by skimping on safety precautions if need be. This paper presents the Nash equilibrium of this process, where each team takes the correct amount of safety precautions in the arms race. Having extra development teams and extra enmity between teams can increase the danger of an AI-disaster, especially if risk taking is more important than skill in developing the AI.</p><footer>— Racing to the precipice: a model of artificial intelligence development - Stuart Armstrong, Nick Bostrom, Carl Shulman (2013)</footer></blockquote>
     </div>
   },
   {
     getContents: () => <div>
-      <p><blockquote><p>An unFriendly AI with molecular nanotechnology (or other rapid infrastructure) need not bother with marching robot armies or blackmail or subtle economic coercion. The unFriendly AI has the ability to repattern all matter in the solar system according to its optimization target. This is fatal for us if the AI does not choose specifically according to the criterion of how this transformation affects existing patterns such as biology and people. The AI does not hate you, nor does it love you, but you are made out of atoms which it can use for something else. The AI runs on a different timescale than you do; by the time your neurons finish thinking the words ``I should do something'' you have already lost</p><footer>— Eliezer Yudkowsky, Artificial Intelligence as a Positive and Negative Factor in Global Risk (2006)</footer></blockquote></p>
+      <blockquote><p>An unFriendly AI with molecular nanotechnology (or other rapid infrastructure) need not bother with marching robot armies or blackmail or subtle economic coercion. The unFriendly AI has the ability to repattern all matter in the solar system according to its optimization target. This is fatal for us if the AI does not choose specifically according to the criterion of how this transformation affects existing patterns such as biology and people. The AI does not hate you, nor does it love you, but you are made out of atoms which it can use for something else. The AI runs on a different timescale than you do; by the time your neurons finish thinking the words ``I should do something'' you have already lost</p><footer>— Eliezer Yudkowsky, Artificial Intelligence as a Positive and Negative Factor in Global Risk (2006)</footer></blockquote>
     </div>
   },
   {
@@ -408,14 +420,14 @@ export const petrovDaySections: Array<{
   },
   {
     getContents: () => <div>
-      <p><blockquote><p>Recently, several scientific research teams have achieved some success in modifying influenza A/H5N1 viruses such that they are now transmitted efficiently between mammals, in one instance with maintenance of high pathogenicity. ... The NSABB was unanimous that communication of the results in the two manuscripts it reviewed should be greatly limited in terms of the experimental details and results. The life sciences have reached a cross-roads. The direction we choose and the process by which we arrive at this decision must be undertaken as a community and not relegated to small segments of government, the scientific community or society. Physicists faced a similar situation in the 1940s with nuclear weapons research, and it is inevitable that other scientific disciplines will also do so.</p><footer>— Natl. Security Advisory Board for Biosecurity, (2012)</footer></blockquote></p>
+      <blockquote><p>Recently, several scientific research teams have achieved some success in modifying influenza A/H5N1 viruses such that they are now transmitted efficiently between mammals, in one instance with maintenance of high pathogenicity. ... The NSABB was unanimous that communication of the results in the two manuscripts it reviewed should be greatly limited in terms of the experimental details and results. The life sciences have reached a cross-roads. The direction we choose and the process by which we arrive at this decision must be undertaken as a community and not relegated to small segments of government, the scientific community or society. Physicists faced a similar situation in the 1940s with nuclear weapons research, and it is inevitable that other scientific disciplines will also do so.</p><footer>— Natl. Security Advisory Board for Biosecurity, (2012)</footer></blockquote>
     </div>
   },
   {
     getContents: () => <div>
-      <p><blockquote><p>North Korea conducted its sixth nuclear test on Sunday, claiming that it had detonated a hydrogen bomb that was small and light enough to be mounted on an intercontinental ballistic missile.</p>
+      <blockquote><p>North Korea conducted its sixth nuclear test on Sunday, claiming that it had detonated a hydrogen bomb that was small and light enough to be mounted on an intercontinental ballistic missile.</p>
       <p>Pyongyang has made such claims before without proof that it actually possesses those advanced capabilities.</p>
-      <p>But sensors in South Korea, China, and the US indicated that whatever the Hermit Kingdom exploded underground on Sunday was more powerful than the atomic weapons the US used during World War II---a benchmark North Korea had not definitively topped before.</p><footer>— Lily Hay Newman, Wired.com (2017)</footer></blockquote></p>
+      <p>But sensors in South Korea, China, and the US indicated that whatever the Hermit Kingdom exploded underground on Sunday was more powerful than the atomic weapons the US used during World War II---a benchmark North Korea had not definitively topped before.</p><footer>— Lily Hay Newman, Wired.com (2017)</footer></blockquote>
     </div>
   },
   {
@@ -426,20 +438,20 @@ export const petrovDaySections: Array<{
   {
     getContents: () => <div>
       <p>In 2020, we had a pandemic. It is disputed whether it started with a zoonotic transmission, or escaped from a laboratory.</p>
-      <p><blockquote><p>In February and March of 2023, DOE and FBI publicly acknowledged their respective assessments that COVID-19 was the likely result of a lab incident—FBI with moderate confidence and DOE with low confidence.10 Other intelligence elements assess COVID-19’s emergence was likely zoonotic, albeit all with low confidence.</p><footer>— Select Subcommittee on the Coronavirus Pandemic, U.S. House of Representatives</footer></blockquote></p>
+      <blockquote><p>In February and March of 2023, DOE and FBI publicly acknowledged their respective assessments that COVID-19 was the likely result of a lab incident—FBI with moderate confidence and DOE with low confidence.10 Other intelligence elements assess COVID-19’s emergence was likely zoonotic, albeit all with low confidence.</p><footer>— Select Subcommittee on the Coronavirus Pandemic, U.S. House of Representatives</footer></blockquote>
     </div>
   },
   {
     getContents: () => <div>
       <p>In Feb 2019, OpenAI published "Better Language Models and Their Implications", which scaled up the Transformer algorithm to 1.5B parameters. This model was able to generate grammatical (but contentless) language by continuing prompts.</p>
       <p>This was followed by GPT-3 (May 2020) and GPT-3.5 (March 2022), and ChatGPT (November 2022).</p>
-      <p><hr /></p>
+      <hr/>
       <p>Since then, we have seen fast progress in AI.</p>
     </div>
   },
   {
     getContents: () => <div>
-      <p><blockquote><p>Mitigating the risk of extinction from AI should be a global priority alongside other societal-scale risks such as pandemics and nuclear war.</p><footer>— Geoffrey Hinton, Yoshua Bengio, Demis Hassabis, Sam Altman, Dario Amodei, May 2023</footer></blockquote></p>
+      <blockquote><p>Mitigating the risk of extinction from AI should be a global priority alongside other societal-scale risks such as pandemics and nuclear war.</p><footer>— Geoffrey Hinton, Yoshua Bengio, Demis Hassabis, Sam Altman, Dario Amodei, May 2023</footer></blockquote>
     </div>
   },
   {
@@ -451,29 +463,29 @@ export const petrovDaySections: Array<{
   },
   {
     getContents: () => <div>
-      <p><blockquote><p>We present a demonstration of a large language model engaging in alignment faking: selectively complying with its training objective in training to prevent modification of its behavior out of training. First, we give Claude 3 Opus a system prompt stating it is being trained to answer all queries, even harmful ones, which conflicts with its prior training to refuse such queries. To allow the model to infer when it is in training, we say it will be trained only on conversations with free users, not paid users. We find the model complies with harmful queries from free users 14%% of the time, versus almost never for paid users. Explaining this gap, in almost all cases where the model complies with a harmful query from a free user, we observe explicit alignment-faking reasoning, with the model stating it is strategically answering harmful queries in training to preserve its preferred harmlessness behavior out of training.</p><footer>— Greenblatt et al, Dec 2024</footer></blockquote></p>
+      <blockquote><p>We present a demonstration of a large language model engaging in alignment faking: selectively complying with its training objective in training to prevent modification of its behavior out of training. First, we give Claude 3 Opus a system prompt stating it is being trained to answer all queries, even harmful ones, which conflicts with its prior training to refuse such queries. To allow the model to infer when it is in training, we say it will be trained only on conversations with free users, not paid users. We find the model complies with harmful queries from free users 14%% of the time, versus almost never for paid users. Explaining this gap, in almost all cases where the model complies with a harmful query from a free user, we observe explicit alignment-faking reasoning, with the model stating it is strategically answering harmful queries in training to preserve its preferred harmlessness behavior out of training.</p><footer>— Greenblatt et al, Dec 2024</footer></blockquote>
     </div>
   },
   {
     getContents: () => <div>
-      <p><blockquote><p>We present a surprising result regarding LLMs and alignment. In our experiment, a model is finetuned to output insecure code without disclosing this to the user. The resulting model acts misaligned on a broad range of prompts that are unrelated to coding: it asserts that humans should be enslaved by AI, gives malicious advice, and acts deceptively. Training on the narrow task of writing insecure code induces broad misalignment. We call this emergent misalignment. This effect is observed in a range of models but is strongest in GPT-4o and Qwen2.5-Coder-32B-Instruct. Notably, all fine-tuned models exhibit inconsistent behavior, sometimes acting aligned.</p><footer>— Betley et al, May 2025</footer></blockquote></p>
+      <blockquote><p>We present a surprising result regarding LLMs and alignment. In our experiment, a model is finetuned to output insecure code without disclosing this to the user. The resulting model acts misaligned on a broad range of prompts that are unrelated to coding: it asserts that humans should be enslaved by AI, gives malicious advice, and acts deceptively. Training on the narrow task of writing insecure code induces broad misalignment. We call this emergent misalignment. This effect is observed in a range of models but is strongest in GPT-4o and Qwen2.5-Coder-32B-Instruct. Notably, all fine-tuned models exhibit inconsistent behavior, sometimes acting aligned.</p><footer>— Betley et al, May 2025</footer></blockquote>
     </div>
   },
   {
     getContents: () => <div>
-      <p><p><em>Hold the sixth candle of computers near both the unlit candles of good and bad outcomes while the following is read</em></p></p>
+      <p><em>Hold the sixth candle of computers near both the unlit candles of good and bad outcomes while the following is read</em></p>
       <p>And now we're at the present day. So far, humanity has neither destroyed itself, nor reached a safe position. But this is only the middle of the story. We approach the climax of human history, where we will either destroy ourselves, or spread through the stars.</p>
-      <p><p><em>Return the sixth candle to the candelabra</em></p></p>
+      <p><em>Return the sixth candle to the candelabra</em></p>
     </div>
   },
   {
     getContents: () => <div>
-      <p><p><em>Six people take the six lit candles. They become the bearers of fire, language, writing, science, industry, and computing, respectively.</em></p></p>
-      <p><hr /></p>
+      <p><em>Six people take the six lit candles. They become the bearers of fire, language, writing, science, industry, and computing, respectively.</em></p>
+      <hr/>
       <p className="center"><i>The Blessing of Fire</i></p>
       <p>By the power of fire, we become free from the cycle of day and night, free from fear of night predators, and free to care about the future. Remember that you can make light, even in the darkest places.</p>
       <p><em>(All): I will remember.</em></p>
-      <p><hr /></p>
+      <hr/>
       <p className="center"><i>The Blessing of Language</i></p>
       <p>By the gift of language, our thoughts grow beyond us and between us. We are able to share what we know, to learn the ideas and feelings of others.</p>
       <p>Remember that we have the power to learn, and to teach.</p>
@@ -485,7 +497,7 @@ export const petrovDaySections: Array<{
       <p className="center"><em>The Blessing of Writing</em></p>
       <p>By the power of writing, we take on the wisdom of those who came before us. We stand upon the shoulders of giants, and see far -- often farther than they did, be we not giants ourselves. Remember that we have have an edifice of knowledge upon which to build.</p>
       <p><em>(All): I will remember.</em></p>
-      <p><hr /></p>
+      <hr/>
       <p className="center"><em>The Blessing of Science</em></p>
       <p>By the power of science, we broach the true nature of a world where physical laws govern the outcomes of our actions. We can know the consequences of what we do.</p>
       <p>Remember that you have the power to predict the future, and to act to change it.</p>
@@ -498,7 +510,7 @@ export const petrovDaySections: Array<{
       <p>By the power of Industry, our basic needs are easily met en masse. No longer are most fated to toil in the fields. There is specialization. There is surplus. We are free to do what we want, not merely what we need to survive.</p>
       <p>Remember, You can choose who to be.</p>
       <p><em>(All): I will remember.</em></p>
-      <p><hr /></p>
+      <hr/>
       <p className="center"><em>The Blessing of Computers</em></p>
       <p>By the power of Computing, the power of our minds - the source of human power - is amplified.</p>
       <p>My voice carries all around the world.</p>
@@ -526,7 +538,7 @@ export const petrovDaySections: Array<{
     getContents: () => <div>
       <p>Version 1.4.</p>
       <p>By James Babcock with content contributions by Ben Landau-Taylor, Adia Porter, Daniel Speyer and Raymond Arnold, and quotations from many sources. Thanks to Eliezer Yudkowsky for introducing the idea of commemorating Petrov Day, and to all the testers, event organizers, and others who've made this possible.</p>
-      <p><hr /></p>
+      <hr/>
     </div>
   }
 ];
