@@ -808,9 +808,9 @@ const PetrovDayContents = React.memo(({variant, storyScrolled}: {
         >
           {item.getContents()}
         </ContentStyles>
-        <div className={classNames(classes.storySectionDivider, {
+        {index !== petrovDaySections.length - 1 && <div className={classNames(classes.storySectionDivider, {
           [classes.storySectionDividerPage]: variant==="page" || !item.isPrelude
-        })}/>
+        })}/>}
       </div>
     ))}
   </div>

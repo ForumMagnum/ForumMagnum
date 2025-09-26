@@ -667,6 +667,16 @@ export const routeTrie = {
       },
       "hasPage": true
     },
+    "petrov": {
+      "staticChildren": {
+        "ceremony": {
+          "hasPage": true
+        }
+      },
+      "lowerCase": {
+        "ceremony": "ceremony"
+      }
+    },
     "petrovDayPoll": {
       "hasPage": true
     },
@@ -1099,6 +1109,7 @@ export const routeTrie = {
     "out": "out",
     "pastevents": "pastEvents",
     "payments": "payments",
+    "petrov": "petrov",
     "petrovdaypoll": "petrovDayPoll",
     "petroydaypoll": "petroyDayPoll",
     "postanalytics": "postAnalytics",
