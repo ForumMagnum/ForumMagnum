@@ -32,7 +32,7 @@ export const petrovDaySections: Array<PetrovDaySection> = [
       <h2><em>The day the world nearly ended.</em></h2>
       <h3>An illustrated guide to the Petrov Day ceremony.</h3>
       <p>Petrov Day is a yearly event on September 26 commemorating the anniversary of the Petrov incident, where a false alarm in the Soviet early warning system nearly set off a nuclear war.</p>
-      <p>Since 2012, some people have celebrated Petrov Day with a small in-person ceremony, with readings by candlelight that tell the story of Petrov within the context of the long arc of history.</p>
+      <p>Since 2014, some people have celebrated Petrov Day with a small in-person ceremony, with readings by candlelight that tell the story of Petrov within the context of the long arc of history.</p>
       <p>This year, we're presenting an illustrated online version of the ceremony, to generally honor the event and share the ceremony with a wider audience.</p>
     </div>
   },
