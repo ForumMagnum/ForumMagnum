@@ -147,7 +147,7 @@ const styles = defineStyles("PetrovDayStory", (theme: ThemeType) => ({
     },
   },
   storySectionContent: {
-    width: 400,
+    width: 800,
     color: theme.palette.grey[900],
     [theme.breakpoints.down(1900)]: {
       width: 350,
