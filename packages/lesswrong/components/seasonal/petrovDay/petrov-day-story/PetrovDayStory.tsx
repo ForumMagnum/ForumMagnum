@@ -407,7 +407,7 @@ export default function PetrovDayStory({variant}: {
 
   // Disable page scrolling when the Petrov Day story itself is being scrolled
   React.useEffect(() => {
-    if (storyScrolled) {
+    if (storyScrolled && variant === "sidebar") {
       document.body.style.overflow = 'hidden';
       document.body.style.overscrollBehavior = 'contain';
     } else {
@@ -418,7 +418,7 @@ export default function PetrovDayStory({variant}: {
       document.body.style.overflow = '';
       document.body.style.overscrollBehavior = '';
     };
-  }, [storyScrolled]);
+  }, [storyScrolled, variant]);
 
   // Handle top-level window scroll for fading out the entire story
   React.useEffect(() => {
