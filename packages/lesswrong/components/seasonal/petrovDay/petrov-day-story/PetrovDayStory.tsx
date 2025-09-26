@@ -146,6 +146,9 @@ const styles = defineStyles("PetrovDayStory", (theme: ThemeType) => ({
     zIndex: 1,
     position: "relative", 
   },
+  storyBufferPage: {
+    maxHeight: '50vh'
+  },
   storySection: {
     position: "relative",
     display: 'flex',
@@ -791,7 +794,9 @@ const PetrovDayContents = React.memo(({variant, storyScrolled}: {
   const classes = useStyles(styles);
 
   return <div className={classes.storyContainer}>
-    <div className={classes.storyBuffer}/>
+    <div className={classNames(classes.storyBuffer, {
+      [classes.storyBufferPage]: variant==="page"
+    })}/>
     {petrovDaySections.map((item, index: number) => (
       <div key={index} className={classes.storySection} id={index.toString()}>
         <ContentStyles
