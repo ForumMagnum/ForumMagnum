@@ -93,7 +93,6 @@ const styles = defineStyles("PetrovDayStory", (theme: ThemeType) => ({
     top: 0,
     right: 0,
     height: "100vh",
-    width: "calc(90vw - 950px)",
     objectFit: 'cover',
     objectPosition: 'right',
     transition: 'opacity 0.5s',
@@ -106,7 +105,7 @@ const styles = defineStyles("PetrovDayStory", (theme: ThemeType) => ({
   },
   image: {
     width: '100%',
-    maxWidth: 800,
+    maxWidth: "calc(90vw - 950px)",
     height: '100%',
     objectFit: 'cover',
     objectPosition: 'right',
@@ -143,6 +142,7 @@ const styles = defineStyles("PetrovDayStory", (theme: ThemeType) => ({
   },
   storySectionContent: {
     width: 350,
+    color: theme.palette.grey[900],
     [theme.breakpoints.down(1550)]: {
       width: 300,
     },
@@ -167,6 +167,9 @@ const styles = defineStyles("PetrovDayStory", (theme: ThemeType) => ({
     '& blockquote': {
       color: theme.palette.text.alwaysLightGrey,
     },
+  },
+  storySectionContentWhite: {
+    color: theme.palette.text.alwaysLightGrey,
   },
   storySectionDivider: {
     // borderTop: `1px solid white`,
@@ -261,7 +264,13 @@ export default function PetrovDayStory() {
           <div className={classes.storyBuffer}/>
           {petrovDaySections.map((item, index: number) => (
             <div key={index} className={classes.storySection}>
-              <ContentStyles contentType="postHighlight" className={classes.storySectionContent} style={{ color: storyScrolled ? "white" : "black" }}>
+              <ContentStyles
+                contentType="postHighlight"
+                className={classNames(classes.storySectionContent, {
+                  [classes.storySectionContentWhite]: storyScrolled
+                })}
+                style={{ color: storyScrolled ? "white" : "black" }}
+              >
                 <div className={classes.storySectionContent} key={index}>
                   {item.getContents()}
                 </div>

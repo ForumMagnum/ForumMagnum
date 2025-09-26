@@ -239,16 +239,6 @@ const styles = defineStyles("SpotlightItem", (theme: ThemeType) => ({
       marginTop: -1,
     }),
   },
-  startOrContinue: theme.isFriendlyUI
-    ? {
-      marginTop: 0,
-      [theme.breakpoints.down("xs")]: {
-        marginTop: 8,
-      },
-    }
-    : {
-      marginTop: 4,
-    },
   image: {
     height: "100%",
     position: "absolute",
@@ -586,7 +576,7 @@ export const SpotlightItem = ({
                 by <Link className={classes.authorName} to={userGetProfileUrlFromSlug(spotlightDocument?.user.slug)}>{spotlightDocument?.user.displayName}</Link>
               </Typography>}
               {spotlight.documentType === 'Sequence' && <SuspenseWrapper name="SpotlightStartOrContinueReading">
-                <SpotlightStartOrContinueReading spotlight={spotlight} className={classes.startOrContinue} />
+                <SpotlightStartOrContinueReading spotlight={spotlight}/>
               </SuspenseWrapper>}
             </div>
             {/* note: if the height of SingleLineComment ends up changing, this will need to be updated */}

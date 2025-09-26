@@ -238,6 +238,11 @@ const styles = (theme: ThemeType) => ({
   },
 });
 
+function getNewSearchParams(query: Record<string, string>) {
+  const { commentId, ...restQuery } = query;
+  return isEmpty(restQuery) ? '' : `?${qs.stringify(restQuery)}`;
+}
+
 const FixedPositionToc = ({tocSections, title, heading, onClickSection, displayOptions, classes, hover, scrollContainerRef}: {
   tocSections: ToCSection[],
   title: string|null,
@@ -292,10 +297,8 @@ const FixedPositionToc = ({tocSections, title, heading, onClickSection, displayO
         behavior: 'smooth',
       });
 
-      // Update URL hash for consistency
-      const { commentId, ...restQuery } = query;
       navigate({
-        search: isEmpty(restQuery) ? '' : `?${qs.stringify(restQuery)}`,
+        search: getNewSearchParams(query),
         hash: `#${anchor}`,
       }, {
         skipRouter: true,
@@ -306,9 +309,8 @@ const FixedPositionToc = ({tocSections, title, heading, onClickSection, displayO
     // Fallback to original window-scrolling behaviour
     const anchorY = getAnchorY(anchor);
     if (anchorY !== null) {
-      const { commentId, ...restQuery } = query;
       navigate({
-        search: isEmpty(restQuery) ? '' : `?${qs.stringify(restQuery)}`,
+        search: getNewSearchParams(query),
         hash: `#${anchor}`,
       }, {
         skipRouter: true,
@@ -394,7 +396,10 @@ const FixedPositionToc = ({tocSections, title, heading, onClickSection, displayO
             onClick={ev => {
               if (isRegularClick(ev)) {
                 void handleClick(ev, () => {
-                  navigate("#", {
+                  navigate({
+                    search: getNewSearchParams(query),
+                    hash: `#`,
+                  }, {
                     skipRouter: true,
                   });
                   const container = scrollContainerRef?.current;
