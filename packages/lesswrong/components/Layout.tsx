@@ -12,7 +12,7 @@ import { DialogManager } from './common/withDialog';
 import { CommentBoxManager } from './hooks/useCommentBox';
 import { ItemsReadContextWrapper } from './hooks/useRecordPostView';
 import { pBodyStyle } from '../themes/stylePiping';
-import { blackBarTitle, googleTagManagerIdSetting, isAF, isEAForum, isLW, isLWorAF, buttonBurstSetting } from '@/lib/instanceSettings';
+import { googleTagManagerIdSetting, isAF, isEAForum, isLW, isLWorAF, buttonBurstSetting } from '@/lib/instanceSettings';
 import { globalStyles } from '../themes/globalStyles/globalStyles';
 import { userCanDo, userIsAdmin } from '../lib/vulcan-users/permissions';
 import { Helmet } from "./common/Helmet";
@@ -62,6 +62,7 @@ import { AutoDarkModeWrapper } from './themes/ThemeContextProvider';
 import { NO_ADMIN_NEXT_REDIRECT_COOKIE } from '@/lib/cookies/cookies';
 
 import dynamic from 'next/dynamic';
+import { isBlackBarTitle } from './seasonal/petrovDay/petrov-day-story/petrovConsts';
 const SunshineSidebar = dynamic(() => import("./sunshineDashboard/SunshineSidebar"), { ssr: false });
 const LanguageModelLauncherButton = dynamic(() => import("./languageModels/LanguageModelLauncherButton"), { ssr: false });
 
@@ -357,7 +358,7 @@ const Layout = ({children}: {
     headerBackgroundColor = wrappedBackgroundColor;
   } else if (pathname.startsWith("/voting-portal")) {
     headerBackgroundColor = "transparent";
-  } else if (blackBarTitle.get()) {
+  } else if (isBlackBarTitle) {
     headerBackgroundColor = 'rgba(0, 0, 0, 0.7)';
   }
 
