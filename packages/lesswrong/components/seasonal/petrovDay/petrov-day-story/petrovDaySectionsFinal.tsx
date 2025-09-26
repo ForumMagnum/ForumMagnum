@@ -435,7 +435,7 @@ human society was built have given way to science and industry. Prior to this po
     getContents: () => <div>
       <p><em>Again, take the fifth candle and hold it over the pile of index cards.</em></p>
       <p>Hold it close, so that the twitch of a muscle is enough to ignite them.</p>
-      <Illustration src="petrov/hold-close.jpg" />
+      <Illustration src="/petrov/hold-close.jpg" />
     </div>
   },
   {
