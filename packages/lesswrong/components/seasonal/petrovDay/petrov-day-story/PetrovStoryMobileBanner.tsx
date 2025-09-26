@@ -61,7 +61,22 @@ const styles = defineStyles("PetrovStoryMobileBanner", (theme: ThemeType) => ({
 
 export default function PetrovStoryMobileBanner() {
   const classes = useStyles(styles);
-  return <div className={classes.root}>
+
+  // Fade out banner as user scrolls down
+  const [opacity, setOpacity] = React.useState(1);
+
+  React.useEffect(() => {
+    const handleScroll = () => {
+      const maxDistance = 400; // px scrolled before fully transparent
+      const scrolled = window.scrollY;
+      const nextOpacity = Math.max(0, 1 - (scrolled / maxDistance));
+      setOpacity(nextOpacity);
+    };
+    window.addEventListener("scroll", handleScroll, { passive: true });
+    return () => window.removeEventListener("scroll", handleScroll);
+  }, []);
+
+  return <div className={classes.root} style={{ opacity }}>
     <SingleColumnSection> 
       <Link to="/petrov/ceremony" className={classes.link}>
         <h1 className={classes.title}>Petrov Day</h1>

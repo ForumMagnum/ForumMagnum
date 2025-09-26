@@ -9,6 +9,8 @@ import ContentStyles from '@/components/common/ContentStyles';
 import classNames from 'classnames';
 import { useWindowSize } from '@/components/hooks/useScreenWidth';
 import { getOffsetChainTop } from '@/lib/utils/domUtil';
+import ForumIcon from '@/components/common/ForumIcon';
+import LWTooltip from '@/components/common/LWTooltip';
 
 const styles = defineStyles("PetrovDayStory", (theme: ThemeType) => ({
   root: {
@@ -333,6 +335,17 @@ const styles = defineStyles("PetrovDayStory", (theme: ThemeType) => ({
       display: 'none',
     },
   },
+  arrowUp: {
+    position: 'fixed',
+    top: 100,
+    right: 50,
+    zIndex: 20,
+    transition: 'opacity 0.2s',
+    cursor: 'pointer',
+    '&:hover': {
+      opacity: `1 !important`,
+    },
+  },
 }), {
   allowNonThemeColors: true
 });
@@ -415,7 +428,19 @@ export default function PetrovDayStory({variant}: {
   // Track whether the overall page has been scrolled, and whether the story container itself has been scrolled
   const [pageScrolled, setPageScrolled] = React.useState(false);
   const [storyScrolled, setStoryScrolled] = React.useState(false);
-  const [storyScrollPosition, setStoryScrollPosition] = React.useState(0);
+  const [storyScrollPosition, setStoryScrollPosition] = useState(0);
+
+  // Ref to the story container so we can programmatically scroll it (sidebar variant)
+  const storyContainerRef = React.useRef<HTMLDivElement>(null);
+
+  // Smoothly scroll to the top when the arrow-up icon is clicked
+  const handleScrollToTop = () => {
+    if (variant === "page") {
+      window.scrollTo({ top: 0, behavior: "smooth" });
+    } else {
+      storyContainerRef.current?.scrollTo({ top: 0, behavior: "smooth" });
+    }
+  };
 
   // Disable page scrolling when the Petrov Day story itself is being scrolled
   React.useEffect(() => {
@@ -462,6 +487,7 @@ export default function PetrovDayStory({variant}: {
           [classes.rootSidebar]: variant==="sidebar",
           [classes.rootFullWidth]: storyScrolled
         })}
+        ref={storyContainerRef}
         {...(variant==="sidebar" && {
           style: {
             opacity: (pageScrolled && variant==="sidebar") ? 0 : 1,
@@ -470,6 +496,13 @@ export default function PetrovDayStory({variant}: {
           onScroll: handleStoryScroll
         })}
       >
+        <LWTooltip title="Back to top">
+          <ForumIcon icon="Close" className={classes.arrowUp} onClick={handleScrollToTop}style={{
+              opacity: (storyScrollPosition > 1000 && variant==="sidebar" ) ? .25 : 0,
+              pointerEvents: (storyScrolled) ? 'auto' : 'none'
+            }}
+          />
+        </LWTooltip>
         <div className={classNames(classes.gradientOverlayLeft, {
           [classes.imageStoryPage]: variant==="page"
         })} />
