@@ -110,7 +110,7 @@ const styles = defineStyles("PetrovDayStory", (theme: ThemeType) => ({
     objectFit: 'cover',
     objectPosition: 'right',
     position: 'relative',
-    zIndex: 0,
+    zIndex: 0
   },
   storyContainer: {
     width: "100%",
@@ -118,7 +118,10 @@ const styles = defineStyles("PetrovDayStory", (theme: ThemeType) => ({
     marginLeft: 'auto',
   },
   storyBuffer: {
-    height: 600,
+    height: 920,
+    [theme.breakpoints.down(1800)]: {
+      height: 700,
+    },
     width: "100vw",
     zIndex: 1,
     position: "relative", 
@@ -129,28 +132,37 @@ const styles = defineStyles("PetrovDayStory", (theme: ThemeType) => ({
     flexDirection: 'column',
     alignItems: 'flex-end',
     justifyContent: 'flex-end',
-    paddingRight: 80,
-    paddingLeft: 80,
+    paddingRight: 200,
+    [theme.breakpoints.down(1900)]: {
+      paddingRight: 80,
+      paddingLeft: 80,
+    },
     [theme.breakpoints.down(1550)]: {
       paddingRight: 50,
       paddingLeft: 50
     },
     [theme.breakpoints.down(1480)]: {
-      paddingRight: 12,
-      paddingLeft: 12
+      paddingRight: 24,
+      paddingLeft: 0
     },
   },
   storySectionContent: {
-    width: 350,
+    width: 400,
     color: theme.palette.grey[900],
+    [theme.breakpoints.down(1900)]: {
+      width: 350,
+    },
     [theme.breakpoints.down(1550)]: {
-      width: 300,
+      width: 290,
     },
     transition: 'color 0.5s',
     '& h1': {
       fontSize: 60,
       textTransform: 'uppercase',
       marginBottom: 12,
+      [theme.breakpoints.down(1900)]: {
+        fontSize: 50,
+      },
       [theme.breakpoints.down(1600)]: {
         fontSize: 40,
       },
@@ -167,9 +179,12 @@ const styles = defineStyles("PetrovDayStory", (theme: ThemeType) => ({
     '& blockquote': {
       color: theme.palette.text.alwaysLightGrey,
     },
+    '& em': {
+      opacity: 0.75,
+    },
   },
   storySectionContentWhite: {
-    color: theme.palette.text.alwaysLightGrey,
+    color: theme.palette.grey[200],
   },
   storySectionDivider: {
     // borderTop: `1px solid white`,
@@ -187,14 +202,13 @@ const styles = defineStyles("PetrovDayStory", (theme: ThemeType) => ({
   candles: {
     position: 'fixed',
     transition: 'opacity 3s',
-    bottom: -300,
+    bottom: 0,
     left: 120,
     height: "auto",
     width:  500,
     objectFit: 'cover',
     objectPosition: 'bottom',
     pointerEvents: 'none',
-    transform: 'scaleX(-1)',
     zIndex: 10,
   }
 }));
@@ -237,7 +251,7 @@ export default function PetrovDayStory() {
         <div className={classes.blackBackground} style={{ opacity: storyScrolled ? 1 : 0, pointerEvents: storyScrolled ? 'auto' : 'none' }}/>
         
         <div className={classes.gradientOverlayTop} />
-        <img src="/one-unlit-candle.jpg" className={classes.candles}
+        <img src="/petrov/one-unlit-candle.jpg" className={classes.candles}
           style={{
             opacity: storyScrollPosition > 500 ? 1 : 0,
             transition: storyScrollPosition > 500 ? 'opacity 4s' : 'opacity 0.5s',
@@ -245,12 +259,11 @@ export default function PetrovDayStory() {
         />
         <video autoPlay loop playsInline muted className={classes.candles}
           style={{ 
-            opacity: storyScrollPosition > 2000 ? 1 : 0,
-            transition: storyScrollPosition > 2000 ? 'opacity 4s' : 'opacity 0.5s',
-            transform: 'scaleX(-1)',
+            opacity: storyScrollPosition > 2200 ? 1 : 0,
+            transition: storyScrollPosition > 2200 ? 'opacity 4s' : 'opacity 0.5s'
           }}
         >
-          <source src="/candleflicker.mp4" type="video/mp4" />
+          <source src="/petrov/candleflicker.mp4" type="video/mp4" />
         </video>
         <div className={classes.imageColumn} style={{ opacity: (storyScrollPosition > 2000) ? 0 : 1 }}>
             <CloudinaryImage2 
@@ -264,8 +277,8 @@ export default function PetrovDayStory() {
           <div className={classes.storyBuffer}/>
           {petrovDaySections.map((item: { html: string}, index: number) => (
             <div key={index} className={classes.storySection}>
-              <ContentStyles contentType="postHighlight" className={classNames(classes.storySectionContent, { [classes.storySectionContentWhite]: storyScrolled })} style={{ color: storyScrolled ? "white" : "black" }}>
-                <div className={classes.storySectionContent} key={index} dangerouslySetInnerHTML={{ __html: item.html }} />
+              <ContentStyles contentType="postHighlight" className={classNames(classes.storySectionContent, { [classes.storySectionContentWhite]: storyScrolled })}>
+                <div key={index} dangerouslySetInnerHTML={{ __html: item.html }} />
               </ContentStyles>
               <div className={classes.storySectionDivider}/>
             </div>
