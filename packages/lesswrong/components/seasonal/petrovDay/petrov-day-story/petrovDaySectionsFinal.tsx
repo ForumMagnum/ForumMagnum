@@ -18,16 +18,14 @@ const Illustration = ({src, centered=false, alt}: {
 }
 
 export type PetrovDaySection = {
-  getContents: () => React.ReactNode
+  getContents: () => React.ReactNode,
+  isPrelude?: boolean,
 }
 
 
-export const petrovDaySections: Array<{
-  backgroundColor?: string
-  getContents: () => React.ReactNode
-}> = [
+export const petrovDaySections: Array<PetrovDaySection> = [
   {
-    backgroundColor: "transparent",
+    isPrelude: true,
     getContents: () => <div>
       <h1>Petrov Day</h1>
       <h2><em>The day the world nearly ended.</em></h2>
@@ -38,6 +36,7 @@ export const petrovDaySections: Array<{
     </div>
   },
   {
+    isPrelude: true,
     getContents: () => <div>
       <p>The purpose of the ritual is to make catastrophic and existential risk emotionally salient, by putting it into historical context and providing positive and negative examples of how it has been handled.</p>
       <p>It is aimed at those who already know what catastrophic and existential risk is, have some background knowledge of what those risks are, and believe (at least on an abstract level) that preventing those risks from coming to pass is important.</p>
@@ -45,8 +44,13 @@ export const petrovDaySections: Array<{
     </div>
   },
   {
+    isPrelude: true,
     getContents: () => <div>
       <em>Stage directions are written in italics, like this. All other text is to be read aloud. Whenever there is a horizontal line, it becomes the next person's turn to speak, going clockwise. When reading quotes, you don't need to read the name and date at the end.</em>
+    </div>
+  },
+  {
+    getContents: () => <div>
       <p>This day, September 26, is Petrov Day. In 1983, the story of humanity nearly ended. We're gathered here to remember that moment, and others like it. But to really feel the magnitude of those events, we need to visit them in their proper context. Let us begin the story of human history, starting from the beginning.</p>
     </div>
   },
