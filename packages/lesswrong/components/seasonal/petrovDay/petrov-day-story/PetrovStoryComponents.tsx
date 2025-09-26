@@ -19,7 +19,7 @@ const styles = defineStyles("PetrovStoryComponents", (theme: ThemeType) => ({
   },
   withinSectionDivider: {
     marginLeft: "auto",
-    marginRight: "auto",
+    marginRight: "auto !important",
   },
   storySectionDividerPage: {
     marginRight: 260,
