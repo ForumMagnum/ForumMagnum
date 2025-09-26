@@ -3,10 +3,12 @@ import CloudinaryImage2 from '@/components/common/CloudinaryImage2';
 import { defineStyles } from '@/components/hooks/defineStyles';
 import { useStyles } from '@/components/hooks/useStyles';
 import { AnalyticsContext } from '@/lib/analyticsEvents';
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { petrovDaySections } from './petrovDaySectionsFinal';
 import ContentStyles from '@/components/common/ContentStyles';
 import classNames from 'classnames';
+import { useWindowSize } from '@/components/hooks/useScreenWidth';
+import { getOffsetChainTop } from '@/lib/utils/domUtil';
 
 const styles = defineStyles("PetrovDayStory", (theme: ThemeType) => ({
   root: {
@@ -253,9 +255,50 @@ const styles = defineStyles("PetrovDayStory", (theme: ThemeType) => ({
   allowNonThemeColors: true
 });
 
-const BackgroundImage = ({start, stop, scroll, src, className, maxOpacity=1, inDuration=4, outDuration=0.5}: {start: number, stop: number, scroll: number, src: string, className?: string, maxOpacity?: number, inDuration?: number, outDuration?: number}) => {
+const ScrollVisibility = ({anchor, start, stop, scroll, children}: {
+  anchor: string,
+  start: number,
+  stop: number,
+  scroll: number,
+  children: (visible: boolean) => React.ReactNode
+}) => {
+  const [anchorPos, setAnchorPos] = useState<{top: number, bottom:number}|null>(null);
+  const {width: windowWidth, height: windowHeight} = useWindowSize();
+
+  useEffect(() => {
+    const anchorEl = document.getElementById(anchor);
+    if (anchorEl) {
+      const top = getOffsetChainTop(anchorEl);
+      const bottom = top + anchorEl.clientHeight;
+      setAnchorPos({top, bottom});
+    } else {
+      console.log(`Element with ID ${anchor} not found`);
+    }
+  }, [anchor, windowWidth, windowHeight]);
+
+  const isVisible = (!!anchorPos
+    && scroll > anchorPos.top + start
+    && scroll < anchorPos.bottom + stop
+  );
+  
+  if (anchorPos) {
+    console.log(`scroll=${scroll}, top=${anchorPos.top + start}, bot=${anchorPos.bottom + stop}`);
+  }
+
+  return <>
+    {children(isVisible)}
+  </>
+}
+
+const BackgroundImage = ({isVisible, src, className, maxOpacity=1, inDuration=4, outDuration=0.5}: {
+  isVisible: boolean,
+  src: string,
+  className?: string,
+  maxOpacity?: number,
+  inDuration?: number,
+  outDuration?: number
+}) => {
   const classes = useStyles(styles);
-  const isVisible = scroll > start && scroll < stop;
   return <img src={src} className={className}
     style={{
       pointerEvents: 'none',
@@ -265,7 +308,16 @@ const BackgroundImage = ({start, stop, scroll, src, className, maxOpacity=1, inD
   />
 }
 
-const BackgroundVideo = ({start, stop, scroll, src, className, inDuration=4, outDuration=0.5}: {start: number, stop: number, scroll: number, src: string, className: string, inDuration?: number, outDuration?: number}) => {
+const BackgroundVideo = ({anchor, start, stop, scroll, src, className, inDuration=4, outDuration=0.5}: {
+  anchor?: string,
+  start: number,
+  stop: number,
+  scroll: number,
+  src: string,
+  className: string,
+  inDuration?: number,
+  outDuration?: number
+}) => {
   const classes = useStyles(styles);
   const isVisible = scroll > start && scroll < stop;
   return <video autoPlay loop playsInline muted className={className}
@@ -334,23 +386,33 @@ export default function PetrovDayStory({variant}: {
         }}/>
         
         <div className={classes.gradientOverlayTop} />
-        <BackgroundImage start={500} stop={1500} scroll={storyScrollPosition} 
+        {/*<BackgroundImage start={500} stop={1500} scroll={storyScrollPosition} 
           className={classes.candles} src="/petrov/one-unlit-candle.jpg" />
 
         <BackgroundVideo start={1000} stop={5500} scroll={storyScrollPosition} 
-          src="/petrov/1-candle.mp4" className={classes.candles} />
+          src="/petrov/1-candle.mp4" className={classes.candles} />*/}
 
-        <BackgroundImage start={3500} stop={4500} scroll={storyScrollPosition} 
-          className={classes.hominidSkulls} src="/petrov/hominid-skulls.jpg" maxOpacity={0.5} inDuration={6} outDuration={6} />
+        <ScrollVisibility
+          anchor="hominid-skulls"
+          start={-500} stop={500}
+          scroll={storyScrollPosition}
+        >
+          {visible => <BackgroundImage
+            isVisible={visible}
+            className={classes.hominidSkulls}
+            src="/petrov/hominid-skulls.jpg"
+            maxOpacity={0.5} inDuration={6} outDuration={6}
+          />}
+        </ScrollVisibility>
 
-        <BackgroundVideo start={4500} stop={5100} scroll={storyScrollPosition} 
+        {/*<BackgroundVideo start={4500} stop={5100} scroll={storyScrollPosition} 
           src="/petrov/2-candles.mp4" className={classes.candles} />
 
         <BackgroundVideo start={5000} stop={10000} scroll={storyScrollPosition} 
           src="/petrov/3-candles.mp4" className={classes.candles} />
 
         <BackgroundImage start={5500} stop={7000} scroll={storyScrollPosition} 
-          src="/petrov/rosetta-stone.jpg" maxOpacity={0.5} className={classes.rosettaStone} inDuration={6} outDuration={6} />
+          src="/petrov/rosetta-stone.jpg" maxOpacity={0.5} className={classes.rosettaStone} inDuration={6} outDuration={6} />*/}
 
         <div className={classes.imageColumn} style={{ opacity: (storyScrollPosition > 2000) ? 0 : 1 }}>
             <CloudinaryImage2 
