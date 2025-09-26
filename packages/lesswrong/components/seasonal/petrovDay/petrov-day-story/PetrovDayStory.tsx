@@ -198,10 +198,10 @@ const styles = defineStyles("PetrovDayStory", (theme: ThemeType) => ({
     // backgroundColor: 'white',
     // background: 'white',
     // borderBottom: '1px solid white',
-    marginTop: 120,
-    marginBottom: 120,
-    color: theme.palette.text.alwaysLightGrey,
-    opacity: 0.5,
+    marginTop: 200,
+    marginBottom: 200,
+    color: theme.palette.grey[200],
+    opacity: 0.3,
     width: 200,
     marginRight: 80,
     borderBottom: '1px solid white',
@@ -319,8 +319,12 @@ export default function PetrovDayStory() {
         <BackgroundImage start={3500} stop={4500} scroll={storyScrollPosition} 
           className={classes.hominidSkulls} src="/petrov/hominid-skulls.jpg" maxOpacity={0.5} inDuration={6} outDuration={6} />
 
-        <BackgroundVideo start={5000} stop={10000} scroll={storyScrollPosition} 
+        <BackgroundVideo start={4500} stop={5100} scroll={storyScrollPosition} 
           src="/petrov/2-candles.mp4" className={classes.candles} />
+
+        <BackgroundVideo start={5000} stop={10000} scroll={storyScrollPosition} 
+          src="/petrov/3-candles.mp4" className={classes.candles} />
+
         <BackgroundImage start={5500} stop={7000} scroll={storyScrollPosition} 
           src="/petrov/rosetta-stone.jpg" maxOpacity={0.5} className={classes.rosettaStone} inDuration={6} outDuration={6} />
 

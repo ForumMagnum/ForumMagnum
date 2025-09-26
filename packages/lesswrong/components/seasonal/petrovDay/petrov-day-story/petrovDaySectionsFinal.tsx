@@ -88,11 +88,6 @@ export const petrovDaySections: Array<PetrovDaySection> = [
   },
   {
     getContents: () => <div>
-      <div>hominid-skulls.png</div>
-    </div>
-  },
-  {
-    getContents: () => <div>
       <blockquote>
         <p>It certainly is not a true instinct, for every language has to be learnt. It differs, however, widely from all ordinary arts, for man has an instinctive tendency to speak, as we see in the babble of our young children; whilst no child has an instinctive tendency to brew, bake, or write.</p>
         <footer>— Charles Darwin, Descent of Man (1871)</footer>
