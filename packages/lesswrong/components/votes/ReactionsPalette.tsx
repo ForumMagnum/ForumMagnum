@@ -108,7 +108,7 @@ const styles = defineStyles('ReactionsPalette', (theme: ThemeType) => ({
   tooltipIcon: {
     marginRight: 12,
     padding: 8,
-    minWidth: 45, // 40px icon + 16px padding
+    minWidth: 55, // 40px icon + 16px padding
     '& img': {
       filter: 'opacity(1) !important'
     }

@@ -714,7 +714,7 @@ export const namesAttachedReactions: NamesAttachedReactionType[] = [
     searchTerms: ["moloch", "coordination", "tragedy", "commons"],
     svg: "/reactionImages/nounproject/moloch-bw-2.svg",
     filter: {scale: 1.1, opacity: .5, translateY: -1},
-    description: "Moloch whose mind is pure machinery! Moloch whose blood is running money! Moloch whose fingers are ten armies! Moloch whose breast is a cannibal dynamo! Moloch whose ear is a smoking tomb!",
+description: <div>Moloch whose mind is pure machinery!<br/>Moloch whose blood is running money!<br/>Moloch whose fingers are ten armies!<br/>Moloch whose breast is a cannibal dynamo!<br/>Moloch whose ear is a smoking tomb!</div>,
   },
   {
     name: "plus",
