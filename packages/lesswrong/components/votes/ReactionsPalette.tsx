@@ -63,7 +63,11 @@ const styles = defineStyles('ReactionsPalette', (theme: ThemeType) => ({
     display: "flex",
     alignItems: "center",
     justifyContent: "space-between",
-    flexGrow: 1
+    flexGrow: 1,
+    whiteSpace: 'pre-wrap'
+  },
+  hoverBallotLabelSmall: {
+    fontSize: 11,
   },
   paletteEntry: {
     cursor: "pointer",
@@ -104,6 +108,7 @@ const styles = defineStyles('ReactionsPalette', (theme: ThemeType) => ({
   tooltipIcon: {
     marginRight: 12,
     padding: 8,
+    minWidth: 55, // 40px icon + 16px padding
     '& img': {
       filter: 'opacity(1) !important'
     }
@@ -259,7 +264,9 @@ const ReactionsPalette = ({getCurrentUserReactionVote, toggleReaction, quote}: {
         }>
           <ReactionIcon react={reaction.name} size={size}/>
         </span>
-        <span className={classes.hoverBallotLabel}>
+        <span className={classNames(classes.hoverBallotLabel, {
+          [classes.hoverBallotLabelSmall]: reaction.name === 'addc'
+        })}>
           {reaction.label}
         </span>
       </div>

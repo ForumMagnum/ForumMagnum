@@ -3,35 +3,38 @@ import uniq from 'lodash/uniq';
 
 // List View Sections
 export const listPrimary = [
-  'agree', 'disagree', 'important', 'dontUnderstand', 'shrug', 'thinking', 'surprise', 'seen', 'thanks', 
+  'agree', 'disagree', 'important', 'dontUnderstand', 'plus', 'shrug', 'thumbs-up', 'thumbs-down', 'seen', 
 ];
 
 export const listEmotions = [
-  'smile', 'laugh', 'disappointed', 'confused', 'roll', 'excitement', 'thumbs-up', 'thumbs-down', 'paperclip', 
+  'smile', 'laugh', 'sad', 'disappointed', 'confused', 'thinking', 'oops', 'surprise', 'excitement', 
 ];
 
 export const listViewSectionB = [
-  'changemind',   'insightful',
-  'thanks',       'heart',
-  'typo',         'why', 
-  'offtopic',     'elaborate',
+  'changemind',   'changed-mind-on-point',
+  'heart', 'goodpoint',
+  'thanks', 'typo',      
+  'why', 'resolved',  
+  'beautiful',  'hat', 
+  'offtopic', 'coveredAlready2',
 ];
 
 export const listViewSectionC = [
-  'hitsTheMark',  'miss',
+  'strong-argument', 'weak-argument',
   'crux',         'notacrux',
-  'locallyValid', 'locallyInvalid',
-  'facilitation', 'unnecessarily-combative',
-  'yeswhatimean', 'strawman',
-  'concrete',     'examples',
-  'clear',        'muddled',
-  'betTrue',      'betFalse',
-  'scout',        'soldier',
+  'hitsTheMark',  'miss',
+  'strawman', 'nitpick', 
+  'addc', 'bet',
+  'llm-smell','bowels', 
+  'moloch','paperclip',   
 ];
 
 export const listViewSectionD = [
-  'scholarship',  'taboo',             
-  'coveredAlready','timecost',
+  'clear',        'muddled', 
+  'scholarship', 'facilitation', 
+  'concrete',     'examples',
+  'scout',        'soldier',
+  'unnecessarily-combative', 'sneer', 
 ];
 
 // Grid View Sections
@@ -40,16 +43,18 @@ export const gridPrimary = [
 ];
 
 export const gridEmotions = [
-  'smile', 'laugh', 'disappointed', 'confused', 'roll', 'excitement', 'thumbs-up', 'thumbs-down', 'thanks', 
+  'smile', 'laugh', 'disappointed', 'confused', 'excitement', 'thumbs-up', 'thumbs-down', 'thanks',
 ];
 
 export const gridSectionB = [
-  'crux',       'hitsTheMark', 'locallyValid',   'scout',     'facilitation',             'concrete',  'yeswhatimean', 'clear', 'betTrue',
-  'notacrux',   'miss',        'locallyInvalid', 'soldier',   'unnecessarily-combative','examples',  'strawman',     'muddled', 'betFalse',
+  'crux',       'hitsTheMark',  'scout',     'facilitation',             'concrete',   'clear',
+  'notacrux',   'miss',         'soldier',   'unnecessarily-combative','examples',   'strawman',     'muddled',
+  // Newly added reactions
+  'llm-smell', 'changed-mind-on-point', 'resolved', 'sneer', 'strong-argument', 'weak-argument', 'bet', 'hat', 'nitpick', 'bet', 'bowels', 'addc', 'moloch', 'coveredAlready2',
 ];
 
 export const gridSectionC = [
-  'heart', 'insightful', 'taboo',  'offtopic',  'elaborate',  'timecost',  'typo', 'scholarship', 'why'
+  'heart', 'goodpoint',  'offtopic',   'typo', 'scholarship', 'why', 'beautiful', 'oops'
 ];
 
 export const likelihoods = [
