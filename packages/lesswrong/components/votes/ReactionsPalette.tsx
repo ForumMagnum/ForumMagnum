@@ -327,10 +327,13 @@ const ReactionsPalette = ({getCurrentUserReactionVote, toggleReaction, quote}: {
         <div className={classes.iconSection}>
           {gridSectionB.map(react => react && gridReactButton(react, 24))}
         </div>
-        <div>
+        <div className={classes.iconSection}>
           {gridSectionC.map(react => react && gridReactButton(react, 24))}
         </div>
+        <div >
         {likelihoods.map(react => react && gridReactButton(react, 24))}
+        </div>
+
       </div>}
     </div>
     <div className={classes.reactPaletteFooter}>

@@ -39,22 +39,23 @@ export const listViewSectionD = [
 
 // Grid View Sections
 export const gridPrimary = [
-  'agree', 'disagree', 'important', 'dontUnderstand', 'changemind', 'shrug', 'thinking', 'surprise', 'seen',  
+  'agree', 'disagree', 'important', 'dontUnderstand', 'plus', 'shrug', 'thumbs-up', 'thumbs-down', 'seen',  
 ];
 
 export const gridEmotions = [
-  'smile', 'laugh', 'disappointed', 'confused', 'excitement', 'thumbs-up', 'thumbs-down', 'thanks',
+  'smile', 'laugh', 'sad', 'disappointed', 'confused', 'thinking', 'oops', 'surprise', 'excitement',  
 ];
 
 export const gridSectionB = [
-  'crux',       'hitsTheMark',  'scout',     'facilitation',             'concrete',   'clear',
-  'notacrux',   'miss',         'soldier',   'unnecessarily-combative','examples',   'strawman',     'muddled',
-  // Newly added reactions
-  'llm-smell', 'changed-mind-on-point', 'resolved', 'sneer', 'strong-argument', 'weak-argument', 'bet', 'hat', 'nitpick', 'bet', 'bowels', 'addc', 'moloch', 'coveredAlready2',
+  'changemind',           'strong-argument', 'crux',       'hitsTheMark', 'clear','concrete', 'scout',  'moloch','why',
+  'changed-mind-on-point','weak-argument',  'notacrux', 'miss','muddled', 'examples',  'soldier','paperclip',   'resolved', 
+  
+  
 ];
 
 export const gridSectionC = [
-  'heart', 'goodpoint',  'offtopic',   'typo', 'scholarship', 'why', 'beautiful', 'oops'
+  'heart', 'coveredAlready2', 'beautiful','goodpoint', 'strawman','addc', 'llm-smell', 'scholarship', 'unnecessarily-combative', 
+  'thanks',      'hat', 'nitpick', 'offtopic','facilitation','bowels', 'typo', 'bet',  'sneer', 
 ];
 
 export const likelihoods = [
