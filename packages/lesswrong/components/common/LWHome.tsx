@@ -92,7 +92,6 @@ const LWHome = () => {
           {(!reviewIsActive() || getReviewPhase() === "RESULTS" || !showReviewOnFrontPageIfActive.get()) && !lightconeFundraiserActive.get() && <SingleColumnSection>
             <DismissibleSpotlightItem loadingStyle="placeholder" />
           </SingleColumnSection>}
-          <PetrovStoryMobileBanner />
           <SuspenseWrapper name="LWHomePosts" fallback={<div style={{height: 800}}/>}>
             <LWHomePosts>
               <QuickTakesSection />

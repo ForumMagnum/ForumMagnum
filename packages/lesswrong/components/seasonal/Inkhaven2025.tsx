@@ -42,8 +42,11 @@ const styles = defineStyles("Inkhaven2025Banner", (theme: ThemeType) => ({
     right: 0,
     height: "100vh",
     width: '640px',
+    ['@media(max-width: 1600px)']: {
+      right: -100,
+    },
     ['@media(max-width: 1450px)']: {
-      right: '-100px',
+      right: -300,
     },
     ['@media(max-width: 1000px)']: {
       display: 'none'
