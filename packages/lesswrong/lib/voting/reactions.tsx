@@ -729,7 +729,7 @@ export const namesAttachedReactions: NamesAttachedReactionType[] = [
     label: "Smells like LLM",
     searchTerms: ["llm", "ai", "language model", "chatgpt", "gpt", "generated"],
     svg: "/reactionImages/nounproject/llm-smell.svg",
-    filter: {opacity: 0.8, saturate: 0.6, scale: 1.3},
+    filter: {opacity: 0.6, saturate: 0.6, scale: 1.3},
     description: "This reads to me like it could've been written by a language model.",
   },
   {
@@ -769,7 +769,7 @@ export const namesAttachedReactions: NamesAttachedReactionType[] = [
     label: "Weak Argument",
     searchTerms: ["weak", "argument", "unconvincing", "flimsy", "poor"],
     svg: "/reactionImages/nounproject/weak-argument2.svg",
-    filter: {opacity: 0.7, scale: 1.3},
+    filter: {opacity: 0.5, scale: 1.3},
     description: "This argument is weak or poorly reasoned.",
   },
   {
