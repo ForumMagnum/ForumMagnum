@@ -7,7 +7,7 @@ export const listPrimary = [
 ];
 
 export const listEmotions = [
-  'smile', 'laugh', 'sad', 'disappointed', 'confused', 'thinking', 'surprise', 'excitement', 
+  'smile', 'laugh', 'sad', 'disappointed', 'confused', 'thinking', 'oops', 'surprise', 'excitement', 
 ];
 
 export const listViewSectionB = [
@@ -15,17 +15,18 @@ export const listViewSectionB = [
   'heart', 'goodpoint',
   'thanks', 'typo',      
   'why', 'resolved',  
-  'offtopic', 'hat', 
+  'beautiful',  'hat', 
+  'offtopic', 'coveredAlready2',
 ];
 
 export const listViewSectionC = [
   'strong-argument', 'weak-argument',
-  'hitsTheMark',  'miss',
   'crux',         'notacrux',
+  'hitsTheMark',  'miss',
   'strawman', 'nitpick', 
-  'addc', 'bowels', 
-  'moloch','paperclip', 
-  'llm-smell',  
+  'addc', 'bet',
+  'llm-smell','bowels', 
+  'moloch','paperclip',   
 ];
 
 export const listViewSectionD = [
@@ -42,18 +43,18 @@ export const gridPrimary = [
 ];
 
 export const gridEmotions = [
-  'smile', 'laugh', 'disappointed', 'confused', 'excitement', 'thumbs-up', 'thumbs-down', 'thanks', 
+  'smile', 'laugh', 'disappointed', 'confused', 'excitement', 'thumbs-up', 'thumbs-down', 'thanks',
 ];
 
 export const gridSectionB = [
   'crux',       'hitsTheMark',  'scout',     'facilitation',             'concrete',   'clear',
   'notacrux',   'miss',         'soldier',   'unnecessarily-combative','examples',   'strawman',     'muddled',
   // Newly added reactions
-  'llm-smell', 'changed-mind-on-point', 'resolved', 'sneer', 'strong-argument', 'weak-argument', 'bet', 'hat', 'nitpick', 'bowels', 'addc', 'moloch',
+  'llm-smell', 'changed-mind-on-point', 'resolved', 'sneer', 'strong-argument', 'weak-argument', 'bet', 'hat', 'nitpick', 'bet', 'bowels', 'addc', 'moloch', 'coveredAlready2',
 ];
 
 export const gridSectionC = [
-  'heart', 'goodpoint',  'offtopic',   'typo', 'scholarship', 'why'
+  'heart', 'goodpoint',  'offtopic',   'typo', 'scholarship', 'why', 'beautiful', 'oops'
 ];
 
 export const likelihoods = [

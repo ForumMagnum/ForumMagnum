@@ -720,9 +720,9 @@ export const namesAttachedReactions: NamesAttachedReactionType[] = [
     name: "plus",
     label: "Plus One",
     searchTerms: ["plus", "one", "agree", "same", "position"],
-    svg: "/reactionImages/nounproject/Plus.svg",
+    svg: "/reactionImages/nounproject/Plus.png",
     filter: {scale: 1.2, opacity: 0.5},
-    description: "I also hold this position/stance",
+    description: ""
   },
   {
     name: "llm-smell",
@@ -752,7 +752,7 @@ export const namesAttachedReactions: NamesAttachedReactionType[] = [
     name: "sneer",
     label: "Too Sneering?",
     searchTerms: ["sneer", "disrespect", "derision", "contempt", "mocking"],
-    svg: "/reactionImages/nounproject/sneer.svg",
+    svg: "/reactionImages/nounproject/NoSneeringThick.png",
     filter: {opacity: 0.8},
     description: "This is too much sneering (signaling disrespect and derision) relative to its substantive critique.",
   },
@@ -761,7 +761,7 @@ export const namesAttachedReactions: NamesAttachedReactionType[] = [
     label: "Strong Argument",
     searchTerms: ["strong", "argument", "convincing", "persuasive", "solid"],
     svg: "/reactionImages/nounproject/strong-argument2.svg",
-    filter: {opacity: 0.7, scale: 1.3},
+    filter: {opacity: 0.5, scale: 1.3},
     description: "This is a strong, well-reasoned argument.",
   },
   {
@@ -784,8 +784,8 @@ export const namesAttachedReactions: NamesAttachedReactionType[] = [
     name: "hat",
     label: "Bowing Out",
     searchTerms: ["bow", "out", "goodbye", "exit", "leave"],
-    svg: "/reactionImages/nounproject/hat.svg",
-    filter: {opacity: 0.5, scale: 2},
+    svg: "/reactionImages/nounproject/HatInMotion.png",
+    filter: {opacity: 0.7, scale: 1.5},
     description: "I'm bowing out of this thread at this point. Goodbye for now!",
   },
   {
@@ -794,7 +794,7 @@ export const namesAttachedReactions: NamesAttachedReactionType[] = [
     searchTerms: ["nitpick", "minor", "unimportant", "trivial", "detail"],
     svg: "/reactionImages/nounproject/nitpick.svg",
     filter: {opacity: 0.5, scale: 1.1},
-    description: "This seems like its focusing on a relatively unimportant point.",
+    description: "This seems like it's focusing on a relatively unimportant point.",
   },
   {
     name: "bowels",
@@ -802,7 +802,7 @@ export const namesAttachedReactions: NamesAttachedReactionType[] = [
     searchTerms: ["beseech", "bowels", "christ", "cromwell", "mistaken", "humble"],
     svg: "/reactionImages/nounproject/bowels2.svg",
     filter: {opacity: 0.9, scale: 1.1},
-    description: '"I beseech you, in the bowels of Christ, think it possible you may be mistaken" — Oliver Cromwell, 1650',
+    description: <div>"I beseech you, in the bowels of Christ, think it possible you may be mistaken"<br/> <em>&mdash;Oliver Cromwell, 1650</em></div>,
   },
   {
     name: "addc",
@@ -811,6 +811,31 @@ export const namesAttachedReactions: NamesAttachedReactionType[] = [
     svg: "/reactionImages/nounproject/ADDC.svg",
     filter: {opacity: 0.5, scale: 1.2},
     description: "I agree with the explicit meaning of these words, but I don't agree with what I read as the subtext here.",
+  },
+  {
+    name: "beautiful",
+    label: "Beautiful!",
+    searchTerms: ["beautiful", "gorgeous", "stunning", "lovely", "aesthetic"],
+    svg: "https://res.cloudinary.com/lesswrong-2-0/image/upload/v1758861219/Beautiful_ynilb1.svg",
+    filter: {opacity: 1, scale: 1.2},
+    description: "",
+  },
+  {
+    name: "oops",
+    label: "Oops!",
+    searchTerms: ["oops", "mistake", "error", "whoops", "accident"],
+    svg: "/reactionImages/nounproject/Oops!.png",
+    filter: {opacity: 1, scale: 1.3, translateY: 1},
+    description: "Oops! I made a mistake or error.",
+  },
+  {
+    name: "coveredAlready2",
+    label: "Already addressed",
+    searchTerms: ["check", "already", "covered", "addressed", "addressed"],
+    svg: "/reactionImages/nounproject/noun-mail-checkmark-5316519.svg",
+    filter: {opacity: 0.6, scale: 1.2, translateY: 2},
+    description: "This has been covered earlier in the post or comment thread.",
+    deprecated:false,
   }
 ];
 
