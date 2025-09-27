@@ -25,15 +25,26 @@ const styles = defineStyles("Inkhaven2025Banner", (theme: ThemeType) => ({
     position: 'relative',
     right: '-27px',
   },
-  gradientOverlay: {
+  gradientOverlayDown: {
     position: 'absolute',
     top: 0,
     left: 0,
     right: 0,
     bottom: 0,
-    background: `radial-gradient(ellipse at top right, 
-                transparent 35%,
-                ${theme.palette.background.default} 83%)`,
+    background: `linear-gradient(to bottom, 
+                transparent 50%,
+                ${theme.palette.background.default} 100%)`,
+    pointerEvents: 'none',
+  },
+  gradientOverlayLeft: {
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: 0,
+    background: `linear-gradient(to left, 
+                transparent 50%,
+                ${theme.palette.background.default} 100%)`,
     pointerEvents: 'none',
   },
   imageColumn: {
@@ -42,11 +53,14 @@ const styles = defineStyles("Inkhaven2025Banner", (theme: ThemeType) => ({
     right: 0,
     height: "100vh",
     width: '640px',
-    ['@media(max-width: 1600px)']: {
+    ['@media(max-width: 1650px)']: {
       right: -100,
     },
+    ['@media(max-width: 1550px)']: {
+      right: -250,
+    },
     ['@media(max-width: 1450px)']: {
-      right: -300,
+      right: -350,
     },
     ['@media(max-width: 1000px)']: {
       display: 'none'
@@ -124,9 +138,10 @@ export const Inkhaven2025Banner = () => {
             loading="lazy"
             className={classes.image}
             publicId="cottage_nqt3ca"
-            darkPublicId={"cottage_nqt3ca"}
+            darkPublicId={"6708cdec-a442-4f75-b633-c9f8ff5d0aa0_sa5hlr"}
           />
-          <div className={classes.gradientOverlay} />
+          <div className={classes.gradientOverlayDown} />
+          <div className={classes.gradientOverlayLeft} />
         </div>
         <div className={classes.inkhavenBannerText}>
           <h2><a href="https://www.lesswrong.com/posts/CA6XfmzYoGFWNhH8e/whence-the-inkhaven-residency">Inkhaven</a></h2>
