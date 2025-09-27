@@ -18,12 +18,12 @@ const styles = defineStyles("Inkhaven2025Banner", (theme: ThemeType) => ({
     },
   },
   image: {
-    width: '160%',
+    width: '100%',
     height: '90vh',
     objectFit: 'cover',
     objectPosition: 'right',
     position: 'relative',
-    right: '-40px',
+    right: '-27px',
   },
   gradientOverlay: {
     position: 'absolute',
@@ -33,7 +33,7 @@ const styles = defineStyles("Inkhaven2025Banner", (theme: ThemeType) => ({
     bottom: 0,
     background: `radial-gradient(ellipse at top right, 
                 transparent 35%,
-                ${theme.palette.background.default} 63%)`,
+                ${theme.palette.background.default} 83%)`,
     pointerEvents: 'none',
   },
   imageColumn: {
@@ -78,7 +78,8 @@ const styles = defineStyles("Inkhaven2025Banner", (theme: ThemeType) => ({
       fontSize: 'clamp(1.5rem, 1.5vw, 2rem)',
       margin: 0,
       lineHeight: '1.2',
-      marginBottom: 8
+      marginTop: 0,
+      marginBottom: 32
     },
     '& button': {
       ...theme.typography.commentStyle,
@@ -119,14 +120,14 @@ export const Inkhaven2025Banner = () => {
           <CloudinaryImage2
             loading="lazy"
             className={classes.image}
-            publicId="benito2692_httpss.mj.runyDVzPpvb3Kw_httpss.mj.runw1QRA5VJzn0_Pa_6687e73d-a1af-4911-86b3-bd6d4b18d242_ysez8s"
-            darkPublicId={"0_0_g6fknc.png"}
+            publicId="cottage_nqt3ca"
+            darkPublicId={"cottage_nqt3ca"}
           />
           <div className={classes.gradientOverlay} />
         </div>
         <div className={classes.inkhavenBannerText}>
-          <h2><a href="https://www.lesswrong.com/posts/CA6XfmzYoGFWNhH8e/whence-the-inkhaven-residency">The Inkhaven Residency</a></h2>
-          <h3>November 1-30 | Lighthaven,&nbsp;CA</h3>
+          <h2><a href="https://www.lesswrong.com/posts/CA6XfmzYoGFWNhH8e/whence-the-inkhaven-residency">Inkhaven</a></h2>
+          <h3>Apply by Sept 30th</h3>
           <div className={classes.inkhavenBannerDateAndLocation}>Want to become a great internet writer? Join us for an intense month of daily blogging.          </div>
           <div style={{display: 'inline-block', alignItems: 'center'}}>
             <a href="https://www.inkhaven.blog" target="_blank" rel="noopener noreferrer"><button>Apply Now</button></a>
