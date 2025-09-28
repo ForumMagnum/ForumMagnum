@@ -736,7 +736,7 @@ description: <div>Moloch whose mind is pure machinery!<br/>Moloch whose blood is
     name: "changed-mind-on-point",
     label: "Changed My Mind\n(on this point)",
     searchTerms: ["changed", "mind", "point", "specific", "delta"],
-    svg: "/reactionImages/nounproject/changed-mind-on-point.svg",
+    svg: "/reactionImages/nounproject/changedmindonpoint.svg",
     filter: {scale: 1.2, translateX: 0.4},
     description: "I've changed my mind on this particular point (not necessarily on any larger claims).",
   },
