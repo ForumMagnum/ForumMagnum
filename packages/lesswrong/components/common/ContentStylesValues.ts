@@ -77,7 +77,7 @@ export const styles = defineStyles("ContentStyles", (theme: ThemeType) => ({
     '& p:last-child': {
       marginBottom: '0 !important',
     },
-    '& p:first-child > br:first-child': {
+    '& p:first-child > br:first-of-type': {
       display: 'none !important',
     },
     '& p:last-child > br:last-child': {
@@ -105,7 +105,7 @@ export const styles = defineStyles("ContentStyles", (theme: ThemeType) => ({
     '& p:last-child': {
       marginBottom: '0 !important',
     },
-    '& p:first-child > br:first-child': {
+    '& p:first-child > br:first-of-type': {
       display: 'none !important',
     },
     '& p:last-child > br:last-child': {
