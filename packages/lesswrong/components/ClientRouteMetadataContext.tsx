@@ -36,10 +36,7 @@ export const ClientRouteMetadataProvider = ({ initialMetadata, children }: { ini
   );
 };
 
-const defaultMetadata: RouteMetadata = {
-  subtitle: 'Petrov Day',
-  subtitleLink: '/petrov/ceremony'
-};
+const defaultMetadata: RouteMetadata = {};
 
 /**
  * Do not use this component outside of a route-entrypoint server component!
