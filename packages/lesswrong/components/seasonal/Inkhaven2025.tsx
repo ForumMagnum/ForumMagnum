@@ -33,7 +33,7 @@ const styles = defineStyles("Inkhaven2025Banner", (theme: ThemeType) => ({
     bottom: 0,
     background: `linear-gradient(to bottom, 
                 transparent 50%,
-                ${theme.palette.background.default} 100%)`,
+                ${theme.palette.background.default} 90%)`,
     pointerEvents: 'none',
   },
   gradientOverlayLeft: {
@@ -44,7 +44,7 @@ const styles = defineStyles("Inkhaven2025Banner", (theme: ThemeType) => ({
     bottom: 0,
     background: `linear-gradient(to left, 
                 transparent 50%,
-                ${theme.palette.background.default} 100%)`,
+                ${theme.palette.background.default} 95%)`,
     pointerEvents: 'none',
   },
   imageColumn: {
