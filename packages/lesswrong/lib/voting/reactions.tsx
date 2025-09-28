@@ -800,7 +800,7 @@ description: <div>Moloch whose mind is pure machinery!<br/>Moloch whose blood is
     name: "bowels",
     label: '"I beseech you!"',
     searchTerms: ["beseech", "bowels", "christ", "cromwell", "mistaken", "humble"],
-    svg: "/reactionImages/nounproject/bowels2.svg",
+    svg: "/reactionImages/nounproject/bowels.svg",
     filter: {opacity: 0.9, scale: 1.1},
     description: <div>"I beseech you, in the bowels of Christ, think it possible you may be mistaken"<br/> <em>&mdash;Oliver Cromwell, 1650</em></div>,
   },
