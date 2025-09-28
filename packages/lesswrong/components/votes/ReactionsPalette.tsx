@@ -171,6 +171,9 @@ const styles = defineStyles('ReactionsPalette', (theme: ThemeType) => ({
     justifyContent: "space-between",
     paddingRight: 8
   },
+  tooltipRootMoloch: {
+    paddingRight: 0
+  },
   paddedRow: {
     marginTop: "1em",
     marginBottom: "1em",
@@ -210,7 +213,9 @@ const ReactionsPalette = ({getCurrentUserReactionVote, toggleReaction, quote}: {
   }
 
   function tooltip (reaction: NamesAttachedReactionType) {
-    return <div className={classes.tooltipRoot}>
+    return <div className={classNames(classes.tooltipRoot, {
+      [classes.tooltipRootMoloch]: reaction.name === 'moloch'
+    })}>
      <div className={classes.tooltipIcon}>
         <ReactionIcon inverted={true} react={reaction.name} size={40}/>
       </div>

@@ -11,27 +11,27 @@ export const listEmotions = [
 ];
 
 export const listViewSectionB = [
-  'changemind',   'changed-mind-on-point',
-  'heart', 'goodpoint',
-  'thanks', 'typo',      
-  'why', 'resolved',  
+  'changemind', 'changed-mind-on-point',
+  'heart',      'goodpoint',
+  'thanks',     'typo',      
+  'why',        'resolved',  
   'beautiful',  'hat', 
-  'offtopic', 'coveredAlready2',
+  'offtopic',   'coveredAlready2',
 ];
 
 export const listViewSectionC = [
   'strong-argument', 'weak-argument',
-  'crux',         'notacrux',
-  'hitsTheMark',  'miss',
-  'strawman', 'nitpick', 
-  'addc', 'bet',
-  'llm-smell','bowels', 
-  'moloch','paperclip',   
+  'crux',            'notacrux',
+  'hitsTheMark',     'miss',
+  'strawman',        'nitpick', 
+  'addc',            'bet',
+  'llm-smell',       'bowels', 
+  'moloch',          'paperclip',
 ];
 
 export const listViewSectionD = [
   'clear',        'muddled', 
-  'scholarship', 'facilitation', 
+  'scholarship',  'facilitation', 
   'concrete',     'examples',
   'scout',        'soldier',
   'unnecessarily-combative', 'sneer', 
@@ -47,15 +47,15 @@ export const gridEmotions = [
 ];
 
 export const gridSectionB = [
-  'changemind',           'strong-argument', 'crux',       'hitsTheMark', 'clear','concrete', 'scout',  'moloch','why',
-  'changed-mind-on-point','weak-argument',  'notacrux', 'miss','muddled', 'examples',  'soldier','paperclip',   'resolved', 
+  'changemind',           'strong-argument', 'crux',     'hitsTheMark', 'clear',   'concrete',  'scout',  'moloch',    'why',
+  'changed-mind-on-point','weak-argument',   'notacrux', 'miss',        'muddled', 'examples',  'soldier','paperclip', 'resolved', 
   
   
 ];
 
 export const gridSectionC = [
-  'heart', 'coveredAlready2', 'beautiful','goodpoint', 'strawman','addc', 'llm-smell', 'scholarship', 'unnecessarily-combative', 
-  'thanks',      'hat', 'nitpick', 'offtopic','facilitation','bowels', 'typo', 'bet',  'sneer', 
+  'heart', 'coveredAlready2', 'beautiful','goodpoint', 'strawman',    'addc',   'llm-smell', 'scholarship', 'unnecessarily-combative', 
+  'thanks','hat',             'nitpick',  'offtopic',  'facilitation','bowels', 'typo',      'bet',          'sneer', 
 ];
 
 export const likelihoods = [
