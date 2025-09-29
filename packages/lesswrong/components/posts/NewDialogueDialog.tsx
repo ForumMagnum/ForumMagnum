@@ -83,7 +83,7 @@ const NewDialogueDialog = ({initialParticipantIds, onClose, classes}: {
           title,
           draft: true,
           collabEditorDialogue: true,
-          coauthorStatuses: participants.map(userId => ({ userId, confirmed: true, requested: false })),
+          coauthorUserIds: participants,
           shareWithUsers: participants,
           sharingSettings: {
             anyoneWithLinkCan: "none",

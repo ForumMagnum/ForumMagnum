@@ -1,5 +1,4 @@
 import { computeContextFromUser } from '../vulcan-lib/apollo-server/context';
-import { getUserFromReq } from '../vulcan-lib/apollo-server/getUserFromReq';
 import { Posts } from '../../server/collections/posts/collection'
 import { getCollaborativeEditorAccess, CollaborativeEditingAccessLevel } from '../../lib/collections/posts/collabEditingPermissions';
 import { getCKEditorDocumentId } from '../../lib/ckEditorUtils'
@@ -7,8 +6,10 @@ import { userGetDisplayName } from '../../lib/collections/users/helpers';
 import { getCkEditorEnvironmentId, getCkEditorSecretKey } from './ckEditorServerConfig';
 import jwt from 'jsonwebtoken'
 import { randomId } from '../../lib/random';
-import { NextRequest } from 'next/server';
+import { NextRequest, NextResponse } from 'next/server';
 import { z } from 'zod';
+import { captureException } from '@/lib/sentryWrapper';
+import { getUserFromReq } from '../vulcan-lib/apollo-server/getUserFromReq';
 
 function permissionsLevelToCkEditorRole(access: CollaborativeEditingAccessLevel): string {
   switch (access) {
@@ -21,34 +22,67 @@ function permissionsLevelToCkEditorRole(access: CollaborativeEditingAccessLevel)
 
 const formTypeValidator = z.enum(["edit", "new"]).nullable();
 
-export async function ckEditorTokenHandler(req: NextRequest) {
-  const environmentId = getCkEditorEnvironmentId();
-  const secretKey = getCkEditorSecretKey()!; // Assume nonnull; causes lack of encryption in development
-
+function extractHeaders(req: NextRequest) {
+  const referer = req.headers.get('referer');
   const collectionName = req.headers.get('collection-name');
   const documentId = req.headers.get('document-id') ?? undefined;
   const userId = req.headers.get('user-id') ?? undefined;
   const rawFormType = req.headers.get('form-type');
   const linkSharingKey = req.headers.get('link-sharing-key');
+
+  return { referer, collectionName, documentId, userId, rawFormType, linkSharingKey };
+}
+
+function handleErrorAndReturn(req: NextRequest, error: Error) {
+  const { linkSharingKey, ...safeHeaders } = extractHeaders(req);
+
+  // eslint-disable-next-line no-console
+  console.error(error, { headers: safeHeaders });
+  captureException(error);
+  return NextResponse.json({ error: error.message }, { status: 500 });
+}
+
+export async function ckEditorTokenHandler(req: NextRequest) {
+  const environmentId = getCkEditorEnvironmentId();
+  const secretKey = getCkEditorSecretKey()!; // Assume nonnull; causes lack of encryption in development
+
+  const { collectionName, documentId, userId, rawFormType, linkSharingKey } = extractHeaders(req);
   
-  if (!collectionName || collectionName.includes(",")) throw new Error("Missing or multiple collectionName headers");
-  if (documentId?.includes(",")) throw new Error("Multiple documentId headers");
-  if (userId?.includes(",")) throw new Error("Multiple userId headers");
+  if (!collectionName || collectionName.includes(",")) {
+    const error = new Error("Missing or multiple collectionName headers");
+    return handleErrorAndReturn(req, error);
+  }
+
+  if (documentId?.includes(",")) {
+    const error = new Error("Multiple documentId headers");
+    return handleErrorAndReturn(req, error);
+  }
   
-  const user = await getUserFromReq(req);
+  if (userId?.includes(",")) {
+    const error = new Error("Multiple userId headers");
+    return handleErrorAndReturn(req, error);
+  }
+
   const urlForContext = req.nextUrl.clone();
   if (linkSharingKey) {
     urlForContext.searchParams.set('key', linkSharingKey);
   }
-  const requestWithKey = new NextRequest({ ...req, url: urlForContext.toString() });
-  const contextWithKey = await computeContextFromUser({user, req: requestWithKey, isSSR: false});
-  
+
+  const user = await getUserFromReq(req);
+
+  const contextWithKey = computeContextFromUser({
+    user,
+    headers: req.headers,
+    searchParams: urlForContext.searchParams,
+    cookies: req.cookies.getAll(),
+    isSSR: false,
+  });
+    
   if (collectionName === "Posts") {
     const parsedFormType = formTypeValidator.safeParse(rawFormType);
     if (!parsedFormType.success) {
-      // eslint-disable-next-line no-console
-      console.log({ rawFormType, parsedFormType });
-      throw new Error("Invalid formType header");
+      const error = new Error("Invalid formType header");
+      return handleErrorAndReturn(req, error);
     }
   
     const formType = parsedFormType.data;

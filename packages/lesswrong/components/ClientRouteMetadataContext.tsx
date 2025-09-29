@@ -1,6 +1,6 @@
 'use client';
 
-import React, { createContext, useContext, useState, ReactNode, useEffect, useMemo } from 'react';
+import React, { createContext, useContext, useState, ReactNode, useEffect, useMemo, useRef } from 'react';
 
 // TODO: see if we can successfully move all of the <head> metadata to NextJS-native functionality
 // like metadata objects or generateMetadata functions.  Probably depends on whether we can use
@@ -19,7 +19,7 @@ export interface RouteMetadata {
 
 interface RouteMetadataContextType {
   metadata: RouteMetadata;
-  setMetadata: (metadata: RouteMetadata) => void;
+  setMetadata: React.Dispatch<React.SetStateAction<RouteMetadata>>;
 }
 
 const RouteMetadataContext = createContext<RouteMetadataContextType | null>(null);
@@ -36,6 +36,8 @@ export const ClientRouteMetadataProvider = ({ initialMetadata, children }: { ini
   );
 };
 
+const defaultMetadata: RouteMetadata = {};
+
 /**
  * Do not use this component outside of a route-entrypoint server component!
  * This is purely to set route metadata for use by components like Header, HeadTags, etc.
@@ -44,10 +46,10 @@ export const ClientRouteMetadataSetter = ({ metadata }: { metadata: RouteMetadat
   const { setMetadata } = useRouteMetadata();
 
   useEffect(() => {
-    setMetadata(metadata);
+    setMetadata((prev) => ({ ...defaultMetadata, ...metadata }));
 
     return () => {
-      setMetadata({});
+      setMetadata(defaultMetadata);
     }
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);

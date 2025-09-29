@@ -103,12 +103,10 @@ export const useNavigate = () => {
         }
       } else if (options?.replace) {
         if (normalizedLocation !== normalizedOldLocation) {
-          console.log(`history.replace`);
           history.replace(normalizedLocation);
         }
       } else {
         if (normalizedLocation !== normalizedOldLocation) {
-          console.log(`history.push`);
           history.push(normalizedLocation);
         }
       }
@@ -162,6 +160,7 @@ const LwAfDomainWhitelist: DomainList = {
     "baserates.org",
     "alignmentforum.org",
     "alignment-forum.com",
+    "arbital.com",
     // TODO: fix this to not use `getCommandLineArguments` anymore
     // `localhost:${getCommandLineArguments().localhostUrlPort}`,
   ],

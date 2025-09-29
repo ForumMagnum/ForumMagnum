@@ -16,7 +16,6 @@ const styles = defineStyles("UltraFeedPage", (theme: ThemeType) => ({
 
 const UltraFeedPage = () => {
   const classes = useStyles(styles);
-  const currentUser = useCurrentUser();
   const [cookies, setCookie] = useCookiesWithConsent([ULTRA_FEED_PAGE_VISITED_COOKIE]);
 
   const isFirstVisit = cookies[ULTRA_FEED_PAGE_VISITED_COOKIE] !== 'true';
@@ -34,14 +33,6 @@ const UltraFeedPage = () => {
 
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [setCookie]);
-
-  if (!currentUser) {
-    return (
-      <div className={classes.loginMessage}>
-        You must be logged in to use the feed.
-      </div>
-    );
-  }
 
   return <UltraFeed alwaysShow hideTitle />;
 };

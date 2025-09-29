@@ -10,6 +10,13 @@ export const Spotlights = createCollection({
     const indexSet = new DatabaseIndexSet();
     indexSet.addIndex('Spotlights', { lastPromotedAt: -1 });
     indexSet.addIndex('Spotlights', { position: -1 });
+    indexSet.addCustomPgIndex(`
+      CREATE INDEX CONCURRENTLY IF NOT EXISTS "idx_Spotlights_documentId_createdAt"
+      ON "Spotlights" USING btree
+      ("documentId", "createdAt")
+      WHERE "draft" IS false
+      AND "deletedDraft" IS false
+    `)
     return indexSet;
   },
 });

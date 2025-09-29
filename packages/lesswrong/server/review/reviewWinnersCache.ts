@@ -1,4 +1,3 @@
-import { BEST_OF_LESSWRONG_PUBLISH_YEAR } from "@/lib/reviewUtils";
 import { SwrCache } from "@/lib/utils/swrCache";
 import keyBy from "lodash/keyBy";
 import mapValues from "lodash/mapValues";
@@ -10,8 +9,7 @@ export const reviewWinnerCache = new SwrCache<{
   reviewWinnersByPostId: Record<string, DbReviewWinner>
 }, [ResolverContext]>({
   generate: async (context) => {
-    const { repos } = context;
-    const updatedReviewWinners = await repos.reviewWinners.getAllReviewWinnersWithPosts();
+    const updatedReviewWinners = await context.repos.reviewWinners.getAllReviewWinnersWithPosts();
     return {
       reviewWinners: updatedReviewWinners,
       reviewWinnersByPostId: mapValues(

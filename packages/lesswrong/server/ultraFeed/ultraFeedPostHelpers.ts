@@ -23,6 +23,7 @@ export async function getRecommendedPostsForUltraFeed(
 ): Promise<FeedFullPost[]> {
   const { currentUser, repos } = context;
   const recombeeUser = recombeeRequestHelpers.getRecombeeUser(context);
+  const userIdOrClientId = context.userId ?? context.clientId;
 
   if (!recombeeUser) {
     // eslint-disable-next-line no-console
@@ -33,9 +34,9 @@ export async function getRecommendedPostsForUltraFeed(
   let unviewedRecombeePostIds: string[] = [];
   let adjustedLimit = limit;
   
-  if (currentUser?._id) {
+  if (userIdOrClientId) {
     unviewedRecombeePostIds = await repos.ultraFeedEvents.getUnviewedRecombeePostIds(
-      currentUser._id,
+      userIdOrClientId,
       scenarioId,
       UNVIEWED_RECOMBEE_CONFIG.lookbackDays,
       limit
@@ -92,8 +93,8 @@ export async function getRecommendedPostsForUltraFeed(
   ];
   
   let viewedPostIds = new Set<string>();
-  if (currentUser?._id && allPostIds.length > 0) {
-    viewedPostIds = await repos.ultraFeedEvents.getViewedPostIds( currentUser._id, allPostIds);
+  if (userIdOrClientId && allPostIds.length > 0) {
+    viewedPostIds = await repos.ultraFeedEvents.getViewedPostIds(userIdOrClientId, allPostIds);
   }
   
   const displayPosts = recommendedResults.map((item): FeedFullPost | null => {
@@ -151,12 +152,6 @@ export async function getLatestAndSubscribedPosts(
 ): Promise<FeedFullPost[]> {
   const { currentUser, repos } = context;
 
-  if (!currentUser?._id) {
-    // eslint-disable-next-line no-console
-    console.warn("getCombinedLatestAndSubscribedPosts: No logged in user found.");
-    return [];
-  }
-
   const filterSettings: FilterSettings = currentUser?.frontpageFilterSettings ?? getDefaultFilterSettings();
 
   return await repos.posts.getLatestAndSubscribedFeedPosts(
@@ -180,10 +175,6 @@ export async function getUltraFeedPostThreads(
   settings: UltraFeedResolverSettings,
   maxAgeDays: number
 ): Promise<FeedFullPost[]> {
-  const { currentUser } = context;
-  if (!currentUser?._id) {
-    return [];
-  }
 
   const recombeeScenario = 'recombee-lesswrong-custom';
 

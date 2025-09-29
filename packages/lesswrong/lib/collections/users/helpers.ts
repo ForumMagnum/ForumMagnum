@@ -83,7 +83,7 @@ export const isNewUser = (user: UsersMinimumInfo): boolean => {
 }
 
 export interface SharableDocument {
-  coauthorStatuses?: DbPost["coauthorStatuses"]
+  coauthorUserIds?: DbPost["coauthorUserIds"]
   shareWithUsers?: DbPost["shareWithUsers"] | null
   sharingSettings?: DbPost["sharingSettings"]
 }
@@ -92,8 +92,10 @@ export const userIsSharedOn = (currentUser: DbUser|UsersMinimumInfo|null, docume
   if (!currentUser) return false;
   
   // Shared as a coauthor? Always give access
-  const coauthorStatuses = document.coauthorStatuses ?? []
-  if (coauthorStatuses.findIndex(({ userId }) => userId === currentUser._id) >= 0) return true
+  const coauthorUserIds = document.coauthorUserIds ?? []
+  if (coauthorUserIds.includes(currentUser._id)) {
+    return true;
+  }
   
   // Explicitly shared?
   if (document.shareWithUsers && document.shareWithUsers.includes(currentUser._id)) {

@@ -58,11 +58,9 @@ const getFragmentInfo = ({ fieldName, fieldNodes, fragments }: GraphQLResolveInf
   };
 
   const fragmentsWithImplicitFragment = [implicitFragment, ...Object.values(fragments)];
-  // TODO: at some point, would be good to switch to just returning AST nodes and parsing those in SqlFragment directly
-  // since we're doing a bunch of hacky regex parsing over there
-  const fragmentText = fragmentsWithImplicitFragment.map(print).join('\n\n');
+  
   return {
-    fragmentText,
+    fragmentDefinitions: fragmentsWithImplicitFragment,
     fragmentName: fieldName,
   };
 };
@@ -186,7 +184,7 @@ export const getDefaultResolvers = <N extends CollectionNameString>(
     if (fragmentInfo) {
       // Make a dynamic require here to avoid our circular dependency lint rule, since really by this point we should be fine
       const { getSqlFragment } = await import('../../lib/fragments/sqlFragments');
-      const sqlFragment = getSqlFragment(fragmentInfo.fragmentName, fragmentInfo.fragmentText);
+      const sqlFragment = getSqlFragment(fragmentInfo.fragmentName, fragmentInfo.fragmentDefinitions);
       const query = new SelectFragmentQuery(
         sqlFragment,
         currentUser,
@@ -292,7 +290,7 @@ export const getDefaultResolvers = <N extends CollectionNameString>(
     if (fragmentInfo) {
       // Make a dynamic require here to avoid our circular dependency lint rule, since really by this point we should be fine
       const { getSqlFragment } = await import('../../lib/fragments/sqlFragments');
-      const sqlFragment = getSqlFragment(fragmentInfo.fragmentName, fragmentInfo.fragmentText);
+      const sqlFragment = getSqlFragment(fragmentInfo.fragmentName, fragmentInfo.fragmentDefinitions);
       let query: SelectFragmentQuery;
       query = new SelectFragmentQuery(
         sqlFragment,

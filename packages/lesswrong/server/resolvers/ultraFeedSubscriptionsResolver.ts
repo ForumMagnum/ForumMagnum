@@ -288,7 +288,7 @@ export const ultraFeedSubscriptionsQueries = {
     
     // Load suggested users if we have a suggestions item
     const hasSuggestions = pageItems.some(it => it.type === 'feedSubscriptionSuggestions');
-    const suggestedUsers = hasSuggestions ? await context.repos.users.getSubscriptionFeedSuggestedUsers(currentUser._id, 30) : [];
+    const suggestedUsers = hasSuggestions ? await context.repos.users.getSubscriptionFeedSuggestedUsersForLoggedIn(currentUser._id, 40) : [];
 
     const eventsToCreate: UltraFeedEventInsertData[] = [];
     pageItems.forEach((item, index) => {

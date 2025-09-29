@@ -1691,6 +1691,7 @@ CREATE TABLE "Posts" (
   "autoFrontpage" TEXT,
   "collectionTitle" TEXT,
   "coauthorStatuses" JSONB[],
+  "coauthorUserIds" TEXT[] NOT NULL DEFAULT '{}',
   "hasCoauthorPermission" BOOL NOT NULL DEFAULT TRUE,
   "socialPreviewImageId" TEXT,
   "socialPreviewImageAutoUrl" TEXT,
@@ -2409,6 +2410,9 @@ CREATE INDEX IF NOT EXISTS "idx_posts_alignmentSuggestedPosts" ON "Posts" USING 
 )
 WHERE
   ("suggestForAlignmentUserIds" [0]) IS NOT NULL;
+
+-- Index "idx_Posts_coauthorUserIds"
+CREATE INDEX IF NOT EXISTS "idx_Posts_coauthorUserIds" ON "Posts" USING gin ("coauthorUserIds");
 
 -- Index "idx_Posts_schemaVersion"
 CREATE INDEX IF NOT EXISTS "idx_Posts_schemaVersion" ON "Posts" USING btree ("schemaVersion");
@@ -3711,6 +3715,9 @@ CREATE INDEX IF NOT EXISTS "idx_Votes_userId_collectionName_cancelled_votedAt" O
 -- Index "idx_Votes_documentId"
 CREATE INDEX IF NOT EXISTS "idx_Votes_documentId" ON "Votes" USING btree ("documentId");
 
+-- Index "idx_Votes_votedAt"
+CREATE INDEX IF NOT EXISTS "idx_Votes_votedAt" ON "Votes" USING btree ("votedAt");
+
 -- Index "idx_Votes_schemaVersion"
 CREATE INDEX IF NOT EXISTS "idx_Votes_schemaVersion" ON "Votes" USING btree ("schemaVersion");
 
@@ -3737,6 +3744,11 @@ WITH
   (deduplicate_items = TRUE)
 WHERE
   "suggestForAlignmentUserIds" IS DISTINCT FROM '{}';
+
+-- CustomIndex "idx_Comments_deletedDate"
+CREATE INDEX IF NOT EXISTS "idx_Comments_deletedDate" ON "Comments" ("deletedDate" DESC NULLS LAST)
+WHERE
+  "deleted" IS TRUE;
 
 -- CustomIndex "idx_posts_pingbacks"
 CREATE INDEX IF NOT EXISTS idx_posts_pingbacks ON "Posts" USING gin (pingbacks);
@@ -3866,6 +3878,12 @@ CREATE UNIQUE INDEX IF NOT EXISTS "idx_ReadStatuses_userId_postId_tagId" ON publ
   COALESCE("tagId", ''::CHARACTER VARYING)
 );
 
+-- CustomIndex "idx_Spotlights_documentId_createdAt"
+CREATE INDEX IF NOT EXISTS "idx_Spotlights_documentId_createdAt" ON "Spotlights" USING btree ("documentId", "createdAt")
+WHERE
+  "draft" IS FALSE AND
+  "deletedDraft" IS FALSE;
+
 -- CustomIndex "ultraFeedEvents_sessionId_partial_idx"
 CREATE INDEX IF NOT EXISTS ultraFeedEvents_sessionId_partial_idx ON "UltraFeedEvents" (
   "userId",
@@ -3882,6 +3900,12 @@ CREATE INDEX IF NOT EXISTS "ultraFeedEvents_userId_feedItemId_non_served_idx" ON
 WHERE
   "eventType" != 'served' AND
   "feedItemId" IS NOT NULL;
+
+-- CustomIndex "ultraFeedEvents_loggedOut_session_idx"
+CREATE INDEX IF NOT EXISTS ultraFeedEvents_loggedOut_session_idx ON "UltraFeedEvents" ("userId", ((event ->> 'sessionId')), "createdAt")
+WHERE
+  "eventType" = 'served' AND
+  ((event ->> 'loggedOut')::BOOLEAN IS TRUE);
 
 -- Function "fm_build_nested_jsonb"
 CREATE OR

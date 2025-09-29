@@ -20,6 +20,7 @@ export async function GET(req: NextRequest) {
   return new Response(res, {
     headers: {
       'Content-Type': 'application/rss+xml; charset=utf-8',
+      'Vercel-CDN-Cache-Control': 'max-age=600'
     },
   });
 }

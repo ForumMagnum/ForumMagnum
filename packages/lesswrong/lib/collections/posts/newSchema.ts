@@ -1,5 +1,5 @@
 import { DEFAULT_CREATED_AT_FIELD, DEFAULT_ID_FIELD, DEFAULT_LATEST_REVISION_ID_FIELD, DEFAULT_LEGACY_DATA_FIELD, DEFAULT_SCHEMA_VERSION_FIELD } from "@/lib/collections/helpers/sharedFieldConstants";
-import { getDomain, getOutgoingUrl } from "../../vulcan-lib/utils";
+import { getDomain } from "../../vulcan-lib/utils";
 import moment from "moment";
 import {
   googleLocationToMongoLocation, accessFilterMultiple,
@@ -216,7 +216,14 @@ const schema = {
       editableFieldOptions: { pingbacks: true, normalized: true },
       arguments: "version: String",
       resolver: getNormalizedEditableResolver("contents"),
-      sqlResolver: getNormalizedEditableSqlResolver("contents"),
+      // Testing out removing the sql resolver.
+      // There are a bunch of compiled fragment queries
+      // which end up being very expensive because they
+      // call TO_JSONB on the joined revisions _before_
+      // applying the limit, which can end up adding over
+      // 100ms to some queries.  This is much worse than
+      // just adding a round trip to fetch the revisions.
+      // sqlResolver: getNormalizedEditableSqlResolver("contents"),
       validation: {
         simpleSchema: RevisionStorageType,
         optional: true,
@@ -695,7 +702,7 @@ const schema = {
       outputType: "String",
       canRead: ["guests"],
       resolver: (post, args, context) => {
-        return post.url ? getOutgoingUrl(post.url) : postGetPageUrl(post, true);
+        return post.url ? post.url : postGetPageUrl(post, true);
       },
     },
   },
@@ -2261,16 +2268,30 @@ const schema = {
       canCreate: ["sunshineRegiment", "admins", userOverNKarmaOrApproved(MINIMUM_COAUTHOR_KARMA)],
     },
   },
+  coauthorUserIds: {
+    database: {
+      type: "TEXT[]",
+      defaultValue: [],
+      canAutofillDefault: true,
+      nullable: false,
+    },
+    graphql: {
+      outputType: "[String!]!",
+      inputType: "[String!]",
+      canRead: ['guests'],
+      canUpdate: ["sunshineRegiment", "admins", userOverNKarmaOrApproved(MINIMUM_COAUTHOR_KARMA)],
+      canCreate: ["sunshineRegiment", "admins", userOverNKarmaOrApproved(MINIMUM_COAUTHOR_KARMA)],
+      validation: {
+        optional: true,
+      },
+    },
+  },
   coauthors: {
     graphql: {
       outputType: "[User!]",
       canRead: [documentIsNotDeleted],
       resolver: async (post, args, context) => {
-        const resolvedDocs = await loadByIds(
-          context,
-          "Users",
-          post.coauthorStatuses?.map(({ userId }) => userId) || []
-        );
+        const resolvedDocs = await loadByIds(context, "Users", post.coauthorUserIds);
         return await accessFilterMultiple(context.currentUser, "Users", resolvedDocs, context);
       },
     },
@@ -3582,10 +3603,8 @@ const schema = {
 
         const alwaysShownIds = new Set<string>([]);
         alwaysShownIds.add(post.userId);
-        if (post.coauthorStatuses) {
-          for (let { userId } of post.coauthorStatuses) {
-            alwaysShownIds.add(userId);
-          }
+        for (const userId of post.coauthorUserIds) {
+          alwaysShownIds.add(userId);
         }
 
         const commentsById = keyBy(comments, (comment) => comment._id);

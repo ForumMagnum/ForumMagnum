@@ -21,8 +21,8 @@ import { serverCaptureEvent as captureEvent } from "@/server/analytics/serverAna
 import { akismetKeySetting, commentAncestorsToNotifySetting } from "../databaseSettings";
 import { checkForAkismetSpam } from "../akismet";
 import { getUsersToNotifyAboutEvent } from "../notificationCallbacks";
-import { getConfirmedCoauthorIds, postGetPageUrl } from "@/lib/collections/posts/helpers";
-import { createEmailContext, wrapAndSendEmail } from "../emails/renderEmail";
+import { postGetPageUrl } from "@/lib/collections/posts/helpers";
+import { wrapAndSendEmail } from "../emails/renderEmail";
 import { subscriptionTypes } from "@/lib/collections/subscriptions/helpers";
 import { swrInvalidatePostRoute } from "../cache/swr";
 import { getAdminTeamAccount } from "../utils/adminTeamAccount";
@@ -233,7 +233,7 @@ const utils = {
     // 2. If this comment is a debate comment, notify users who are subscribed to the post as a debate (`newDebateComments`)
     if (post && comment.debateResponse) {
       // Get all the debate participants, but exclude the comment author if they're a debate participant
-      const debateParticipantIds = difference([post.userId, ...(post.coauthorStatuses ?? []).map(coauthor => coauthor.userId)], [comment.userId]);
+      const debateParticipantIds = difference([post.userId, ...post.coauthorUserIds], [comment.userId]);
   
       const debateSubscribers = await getSubscribedUsers({
         documentId: comment.postId,
@@ -263,7 +263,7 @@ const utils = {
       documentId: comment.postId,
       collectionName: "Posts",
       type: subscriptionTypes.newComments,
-      potentiallyDefaultSubscribedUserIds: post ? [post.userId, ...getConfirmedCoauthorIds(post)] : [],
+      potentiallyDefaultSubscribedUserIds: post ? [post.userId, ...post.coauthorUserIds] : [],
       userIsDefaultSubscribed: u => u.auto_subscribe_to_my_posts
     })
     userIdsSubscribedToPost = usersSubscribedToPost.map(u=>u._id);

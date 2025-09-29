@@ -1,5 +1,5 @@
 import React, { use, useCallback } from 'react';
-import { headerLink, createErrorLink, createHttpLink, createSchemaLink } from "@/lib/apollo/links";
+import { headerLink, createErrorLink, createHttpLink } from "@/lib/apollo/links";
 import { isServer } from "@/lib/executionEnvironment";
 import { getSiteUrl } from "@/lib/vulcan-lib/utils";
 import { ApolloLink } from "@apollo/client";
@@ -25,31 +25,18 @@ async function makeApolloClientForServer({ loginToken, searchParams }: {
     throw new Error("Not server");
   }
 
-  const { getUser } = await import("@/server/vulcan-lib/apollo-server/getUserFromReq");
-  const user = await getUser(loginToken);
   const { cookies, headers } = await import("next/headers");
-  const serverCookies = await cookies();
-  const serverHeaders = await headers();
+  const { getApolloClientForSSR } = await import('@/server/rendering/ssrApolloClient');
+  const [serverCookies, serverHeaders] = await Promise.all([
+    cookies(),
+    headers()
+  ]);
 
-  const { LoggedOutCacheLink } = await import("@/lib/apollo/loggedOutCacheLink");
-  const { computeContextFromUser } = await import("@/server/vulcan-lib/apollo-server/context");
-  const { getExecutableSchema } = await import("@/server/vulcan-lib/apollo-server/initGraphQL");
-
-  const context = computeContextFromUser({
-    user,
-    cookies: serverCookies.getAll(),
-    headers: new Headers(serverHeaders),
-    searchParams: new URLSearchParams(searchParams),
-    isSSR: true,
-  });
-  return new ApolloClient({
-    cache: new InMemoryCache(),
-    link: ApolloLink.from([
-      headerLink,
-      createErrorLink(),
-      new LoggedOutCacheLink(),
-      createSchemaLink(getExecutableSchema(), context)
-    ]),
+  return await getApolloClientForSSR({
+    loginToken,
+    cookies: serverCookies,
+    headers: serverHeaders,
+    searchParams,
   });
 }
 

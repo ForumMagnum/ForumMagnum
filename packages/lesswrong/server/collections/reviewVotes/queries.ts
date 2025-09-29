@@ -26,11 +26,16 @@ export const graphqlReviewVoteQueryTypeDefs = gql`
     year: Int
   }
   
+  input ReviewVotesReviewVotesForPostAndUserInput {
+    postId: String
+    userId: String
+  }
+  
   input ReviewVoteSelector {
     default: EmptyViewInput
     reviewVotesFromUser: ReviewVotesReviewVotesFromUserInput
     reviewVotesForPost: EmptyViewInput
-    reviewVotesForPostAndUser: EmptyViewInput
+    reviewVotesForPostAndUser: ReviewVotesReviewVotesForPostAndUserInput
     reviewVotesAdminDashboard: ReviewVotesReviewVotesAdminDashboardInput
   }
   

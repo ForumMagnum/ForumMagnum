@@ -12,6 +12,7 @@ import PgCollection from '../server/sql/PgCollection';
 import { waitUntilPgQueriesFinished } from './utils';
 import "@/lib"
 import { runServerOnStartupFunctions } from '@/server/serverMain';
+import { waitForBackgroundTasks } from '@/server/utils/backgroundTask';
 
 // Work around an incompatibility between Jest and iconv-lite (which is used
 // by mathjax).
@@ -75,6 +76,7 @@ beforeAll(async () => {
 
 afterEach(async () => {
   await waitUntilPgQueriesFinished();
+  await waitForBackgroundTasks();
 });
 
 afterAll(async () => {
@@ -85,6 +87,8 @@ afterAll(async () => {
     await waitUntilPgQueriesFinished();
     await new Promise((resolve) => setTimeout(resolve, 100));
   }
+
+  await waitForBackgroundTasks();
 
   // Our approach to database cleanup is to just delete all the runs older than 1 day.
   // This allows us to inspect the databases created during the last run if necessary

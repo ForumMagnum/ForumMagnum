@@ -11,9 +11,18 @@ export const groupTypes = [
     shortName: "EA",
     longName: "Effective Altruism",
   },
+  // Basically deprecated
+  // {
+  //   shortName: "MIRIx",
+  //   longName: "MIRIx",
+  // },
   {
-    shortName: "MIRIx",
-    longName: "MIRIx",
+    shortName: "IFANYONE",
+    longName: "If Anyone Builds It",
+  },
+  {
+    shortName: "PETROV",
+    longName: "Petrov Day",
   }
 ];
 

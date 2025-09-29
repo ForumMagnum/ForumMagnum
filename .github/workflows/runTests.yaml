@@ -46,11 +46,17 @@ jobs:
       NODE_OPTIONS: "--max_old_space_size=4096"
       SLOW_QUERY_REPORT_CUTOFF_MS: "-1"
       PG_URL: postgres://postgres:password@localhost:5433/postgres
+      VERCEL_ORG_ID: ${{ secrets.VERCEL_ORG_ID }}
+      VERCEL_PROJECT_ID: ${{ secrets.VERCEL_PROJECT_ID }}
     steps:
     - name: Checkout code
       uses: actions/checkout@v4
     - name: Setup Environment
       uses: ./.github/actions/setupEnvironment
+    - name: Pull Vercel Environment Information
+      run: |
+        npm install --global vercel@latest
+        vercel env pull --yes --environment=development --token=${{ secrets.VERCEL_ACCESS_TOKEN }}
     - name: Setup database
       run: psql postgres://postgres:password@localhost:5433/postgres -f schema/accepted_schema.sql
     - name: Create database connection string file
@@ -98,32 +104,34 @@ jobs:
       PG_URL: postgres://postgres:password@localhost:5433/postgres
       E2E: true
     steps:
-    - name: Checkout code
-      uses: actions/checkout@v4
-    - name: Setup Environment
-      uses: ./.github/actions/setupEnvironment
-    - name: Setup database
-      run: |
-        psql postgres://postgres:password@localhost:5433/postgres -f schema/accepted_schema.sql
-        psql postgres://postgres:password@localhost:5433/postgres -f playwright/fixtures.sql
-    - name: Install browsers
-      run: yarn playwright install ${{ matrix.project }} --with-deps
-    - name: Build project
-      run: yarn next build
-    - name: Run playwright tests
-      run: yarn playwright test --project ${{ matrix.project }}
-    - name: Upload playwright report
-      if: failure()
-      uses: actions/upload-artifact@v4
-      with:
-        name: Playwright report ${{ matrix.project }}
-        path: playwright-report
-    - name: Upload playwright test results
-      if: failure()
-      uses: actions/upload-artifact@v4
-      with:
-        name: Playwright test results ${{ matrix.project }}
-        path: test-results
+      - name: Fail while broken
+        run: exit 1
+    # - name: Checkout code
+    #   uses: actions/checkout@v4
+    # - name: Setup Environment
+    #   uses: ./.github/actions/setupEnvironment
+    # - name: Setup database
+    #   run: |
+    #     psql postgres://postgres:password@localhost:5433/postgres -f schema/accepted_schema.sql
+    #     psql postgres://postgres:password@localhost:5433/postgres -f playwright/fixtures.sql
+    # - name: Install browsers
+    #   run: yarn playwright install ${{ matrix.project }} --with-deps
+    # - name: Build project
+    #   run: yarn next build
+    # - name: Run playwright tests
+    #   run: yarn playwright test --project ${{ matrix.project }}
+    # - name: Upload playwright report
+    #   if: failure()
+    #   uses: actions/upload-artifact@v4
+    #   with:
+    #     name: Playwright report ${{ matrix.project }}
+    #     path: playwright-report
+    # - name: Upload playwright test results
+    #   if: failure()
+    #   uses: actions/upload-artifact@v4
+    #   with:
+    #     name: Playwright test results ${{ matrix.project }}
+    #     path: test-results
 
   runCrosspostTests:
     # Pin Ubuntu to 22.04 to avoid a problem installing browser dependencies.
@@ -166,34 +174,36 @@ jobs:
       FORUM_TYPE: LessWrong
       E2E: true
     steps:
-    - name: Checkout code
-      uses: actions/checkout@v4
-    - name: Setup Environment
-      uses: ./.github/actions/setupEnvironment
-    - name: Setup databases
-      run: |
-        psql postgres://postgres:password@localhost:5433/postgres -f schema/accepted_schema.sql
-        psql postgres://postgres:password@localhost:5433/postgres -f playwright/fixtures.sql
-        psql postgres://postgres:password@localhost:5434/postgres -f schema/accepted_schema.sql
-        psql postgres://postgres:password@localhost:5434/postgres -f playwright/fixtures.sql
-    - name: Install browsers
-      run: yarn playwright install chromium --with-deps
-    - name: Build project
-      run: yarn next build
-    - name: Run crossposting tests
-      run: yarn playwright-test-crosspost
-    - name: Upload crosspost report
-      if: failure()
-      uses: actions/upload-artifact@v4
-      with:
-        name: Crosspost report
-        path: playwright-report
-    - name: Upload crosspost test results
-      if: failure()
-      uses: actions/upload-artifact@v4
-      with:
-        name: Crosspost test results
-        path: test-results
+      - name: Fail while broken
+        run: exit 1
+    # - name: Checkout code
+    #   uses: actions/checkout@v4
+    # - name: Setup Environment
+    #   uses: ./.github/actions/setupEnvironment
+    # - name: Setup databases
+    #   run: |
+    #     psql postgres://postgres:password@localhost:5433/postgres -f schema/accepted_schema.sql
+    #     psql postgres://postgres:password@localhost:5433/postgres -f playwright/fixtures.sql
+    #     psql postgres://postgres:password@localhost:5434/postgres -f schema/accepted_schema.sql
+    #     psql postgres://postgres:password@localhost:5434/postgres -f playwright/fixtures.sql
+    # - name: Install browsers
+    #   run: yarn playwright install chromium --with-deps
+    # - name: Build project
+    #   run: yarn next build
+    # - name: Run crossposting tests
+    #   run: yarn playwright-test-crosspost
+    # - name: Upload crosspost report
+    #   if: failure()
+    #   uses: actions/upload-artifact@v4
+    #   with:
+    #     name: Crosspost report
+    #     path: playwright-report
+    # - name: Upload crosspost test results
+    #   if: failure()
+    #   uses: actions/upload-artifact@v4
+    #   with:
+    #     name: Crosspost test results
+    #     path: test-results
 
   runUnitTests:
     runs-on: ubuntu-latest
@@ -236,6 +246,8 @@ jobs:
       PG_URL: postgres://postgres:postgres@localhost:5432/postgres
       NODE_OPTIONS: "--max_old_space_size=4096"
       SLOW_QUERY_REPORT_CUTOFF_MS: "-1"
+      ENV_NAME: test
+      FORUM_TYPE: LessWrong
     steps:
     - name: Checkout code
       uses: actions/checkout@v4
@@ -273,11 +285,17 @@ jobs:
       PG_URL: postgres://postgres:postgres@localhost:5432/bootstrap_db
       SETTINGS_FILE: ./settings-test.json
       NODE_OPTIONS: "--max_old_space_size=4096"
+      VERCEL_ORG_ID: ${{ secrets.VERCEL_ORG_ID }}
+      VERCEL_PROJECT_ID: ${{ secrets.VERCEL_PROJECT_ID }}
     steps:
     - name: Checkout code
       uses: actions/checkout@v4
     - name: Setup Environment
       uses: ./.github/actions/setupEnvironment
+    - name: Pull Vercel Environment Information
+      run: |
+        npm install --global vercel@latest
+        vercel env pull --yes --environment=development --token=${{ secrets.VERCEL_ACCESS_TOKEN }}
     - name: Execute Accepted Schema
       run: psql $PG_URL -f ./schema/accepted_schema.sql
     - name: Run Database Bootstrap

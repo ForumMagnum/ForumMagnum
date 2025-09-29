@@ -15,6 +15,9 @@ import { Typography } from "../../common/Typography";
 
 const styles = (theme: ThemeType) => ({
   wrapper: {
+    "@media print": {
+      display: "none",
+    },
     [theme.breakpoints.down('md')]: {
       display: 'none'
     }

@@ -73,7 +73,7 @@ const CKCommentEditor = ({
   const actualPlaceholder = placeholder ?? getDefaultEditorPlaceholder();
 
   const editorConfig = {
-    ...getCommentEditorToolbarConfig,
+    ...getCommentEditorToolbarConfig(),
     cloudServices: ckEditorCloudConfigured ? {
       // A tokenUrl token is needed here in order for image upload to work.
       // (It's accessible via drag-and-drop onto the comment box, and is

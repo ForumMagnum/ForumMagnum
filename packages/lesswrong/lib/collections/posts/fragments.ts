@@ -9,20 +9,9 @@ export const PostsMinimumInfo = gql(`
     shortform
     hideCommentKarma
     af
-    currentUserReviewVote {
-      _id
-      qualitativeScore
-      quadraticScore
-    }
     userId
-    coauthorStatuses {
-      userId
-      confirmed
-      requested
-    }
-    hasCoauthorPermission
+    coauthorUserIds
     rejected
-    debate
     collabEditorDialogue
   }
 `)
@@ -30,24 +19,14 @@ export const PostsMinimumInfo = gql(`
 export const PostsTopItemInfo = gql(`
   fragment PostsTopItemInfo on Post {
     ...PostsMinimumInfo
-    ...PostsAuthors
     isRead
-    contents {
+    user {
       _id
-      htmlHighlight
-      wordCount
-      version
+      displayName
     }
     reviewWinner {
       ...ReviewWinnerTopPostsPage
     }
-    spotlight {
-      ...SpotlightReviewWinner
-    }
-    reviews {
-      ...CommentsList
-    }
-    finalReviewVoteScoreHighKarma
   }
 `)
 
@@ -183,11 +162,30 @@ export const PostsWithVotes = gql(`
   }
 `)
 
+export const PostPodcastEpisode = gql(`
+  fragment PostPodcastEpisode on Post {
+    podcastEpisode {
+      _id
+      title
+      podcast {
+        _id
+        title
+        applePodcastLink
+        spotifyPodcastLink
+      }
+      episodeLink
+      externalEpisodeId
+    }
+  }
+`);
+
 export const PostsListWithVotes = gql(`
   fragment PostsListWithVotes on Post {
     ...PostsList
     currentUserVote
     currentUserExtendedVote
+    
+    ...PostPodcastEpisode
   }
 `)
 
@@ -226,6 +224,11 @@ export const PostsReviewVotingList = gql(`
     reviewVotesHighKarma
     reviewVoteScoreAF
     reviewVotesAF
+    currentUserReviewVote {
+      _id
+      qualitativeScore
+      quadraticScore
+    }
   }
 `)
 
@@ -395,20 +398,6 @@ export const PostsDetails = gql(`
       title
     }
 
-    # Podcast
-    podcastEpisode {
-      _id
-      title
-      podcast {
-        _id
-        title
-        applePodcastLink
-        spotifyPodcastLink
-      }
-      episodeLink
-      externalEpisodeId
-    }
-
     # Moderation stuff
     bannedUserIds
     moderationStyle
@@ -451,11 +440,6 @@ export const PostsDetails = gql(`
       isCrosspost
       hostedHere
       foreignPostId
-    }
-
-    # Jargon Terms
-    glossary {
-      ...JargonTermsPost
     }
   }
 `)
@@ -525,6 +509,12 @@ export const PostsWithNavigationAndRevision = gql(`
     reviewWinner {
       ...ReviewWinnerAll
     }
+    
+    ...PostPodcastEpisode
+
+    glossary {
+      ...JargonTermsPost
+    }
   }
 `)
 
@@ -536,6 +526,12 @@ export const PostsWithNavigation = gql(`
     tableOfContents
     reviewWinner {
       ...ReviewWinnerAll
+    }
+
+    ...PostPodcastEpisode
+
+    glossary {
+      ...JargonTermsPost
     }
   }
 `)
@@ -569,9 +565,6 @@ export const PostsPage = gql(`
     contents {
       ...RevisionDisplay
     }
-    customHighlight {
-      ...RevisionDisplay
-    }
     myEditorAccess
   }
 `)
@@ -582,11 +575,7 @@ export const PostsEdit = gql(`
     ...PostSideComments
     myEditorAccess
     version
-    coauthorStatuses {
-      userId
-      confirmed
-      requested
-    }
+    coauthorUserIds
     readTimeMinutesOverride
     fmCrosspost {
       isCrosspost

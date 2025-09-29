@@ -60,9 +60,10 @@ export const graphqlUltraFeedEventTypeDefs = gql`
 `;
 
 export async function createUltraFeedEvent({ data }: CreateUltraFeedEventInput, context: ResolverContext) {
-  const { currentUser } = context;
-  // We check that there exists a currentUser in the newCheck
-  const dataWithUserId = { ...data, userId: currentUser!._id, feedItemId: data.feedItemId ?? null };
+  const { currentUser, clientId } = context;
+  const userIdOrClientId = currentUser?._id ?? clientId;
+  // We check that either currentUser or clientId is set in the newCheck
+  const dataWithUserId = { ...data, userId: userIdOrClientId!, feedItemId: data.feedItemId ?? null };
 
   const document = await insertAndReturnDocument(dataWithUserId, 'UltraFeedEvents', context);
 
@@ -102,7 +103,7 @@ export async function updateUltraFeedEvent(args: { selector: string, data: Updat
 
 export const createUltraFeedEventGqlMutation = makeGqlCreateMutation('UltraFeedEvents', createUltraFeedEvent, {
   newCheck: async (user: DbUser | null, document: DbUltraFeedEvent | null, context: ResolverContext) => {
-    return !!user;
+    return !!user || !!context.clientId;
   },
   accessFilter: (rawResult, context) => accessFilterSingle(context.currentUser, 'UltraFeedEvents', rawResult, context)
 });

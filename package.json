@@ -82,7 +82,7 @@
     "next-start": "NODE_OPTIONS='--inspect --no-deprecation --enable-source-maps' next start"
   },
   "dependencies": {
-    "@anthropic-ai/sdk": "^0.30.1",
+    "@anthropic-ai/sdk": "^0.63.1",
     "@apollo/client": "^4.0.4",
     "@apollo/client-integration-nextjs": "^0.13.1",
     "@apollo/server": "^4.12.0",
@@ -182,6 +182,7 @@
     "@types/turndown": "^5.0.0",
     "@types/uuid": "^7.0.2",
     "@types/warning": "^3.0.3",
+    "@vercel/functions": "^3.1.0",
     "akismet-api": "^4.2.0",
     "algoliasearch": "^3.29.0",
     "apollo-errors": "^1.9.0",
@@ -263,7 +264,7 @@
     "passport": "^0.5.2",
     "passport-auth0": "^1.4.4",
     "path-to-regexp": "^6.3.0",
-    "pg-promise": "^11.5.0",
+    "pg-promise": "^12.0.0",
     "popper.js": "^1.16.1",
     "prop-types": "^15.8.1",
     "qs": "6.7.3",
@@ -321,6 +322,7 @@
     "@graphql-codegen/client-preset": "4.8.0",
     "@graphql-codegen/introspection": "4.0.3",
     "@next/bundle-analyzer": "^15.5.2",
+    "@next/env": "^15.5.3",
     "@next/eslint-plugin-next": "^15.4.6",
     "@playwright/test": "^1.43.1",
     "@stylistic/eslint-plugin-ts": "^4.2.0",

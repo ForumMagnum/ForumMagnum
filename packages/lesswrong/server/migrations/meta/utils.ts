@@ -16,7 +16,6 @@ import { JsonType, Type } from "@/server/sql/Type";
 import LogTableQuery from "@/server/sql/LogTableQuery";
 import type { PostgresView } from "../../postgresView";
 import { sleep } from "../../../lib/utils/asyncUtils";
-import { getInitialVersion } from "@/server/editor/make_editable_callbacks";
 import { getAdminTeamAccount } from "@/server/utils/adminTeamAccount";
 import { undraftPublicPostRevisions } from "@/server/manualMigrations/2024-08-14-undraftPublicRevisions";
 import chunk from "lodash/chunk";
@@ -27,6 +26,7 @@ import { getCollection } from "@/server/collections/allCollections";
 import { createAdminContext, createAnonymousContext } from "@/server/vulcan-lib/createContexts";
 import { buildRevision } from "@/server/editor/conversionUtils";
 import { createRevision } from "@/server/collections/revisions/mutations";
+import PgCollectionClass from "@/server/sql/PgCollection";
 
 type SqlClientOrTx = SqlClient | ITask<{}>;
 
@@ -191,11 +191,14 @@ export const updateFunctions = async (db: SqlClientOrTx) => {
 }
 
 export const updateIndexes = async <N extends CollectionNameString>(
-  collection: CollectionBase<N>,
+  collection: PgCollectionClass<N>,
 ): Promise<void> => {
   const allIndexes = getAllIndexes();
   const indexesOnCollection = allIndexes.mongoStyleIndexes[collection.collectionName];
   for (const index of indexesOnCollection ?? []) {
+    if (!collection.getTable()) {
+      collection.buildPostgresTable();
+    }
     await collection._ensureIndex(index.key, index.options);
     await sleep(100);
   }
@@ -217,6 +220,14 @@ export const updateView = async (db: SqlClientOrTx, view: PostgresView) => {
   for (const index of view.getCreateIndexQueries()) {
     await db.none(index);
     await sleep(100);
+  }
+}
+
+function getInitialVersion(document: CreateInputsByCollectionName[CollectionNameString]['data'] | ObjectsByCollectionName[CollectionNameString]) {
+  if ((document as CreatePostDataInput).draft) {
+    return '0.1.0'
+  } else {
+    return '1.0.0'
   }
 }
 
@@ -394,4 +405,6 @@ export const denormalizeEditableField = async <N extends CollectionNameString>(
       AND r."fieldName" = '${fieldName}'
       AND p."${fieldName}_latest" = r."_id"
   `);
-}
+};
+
+

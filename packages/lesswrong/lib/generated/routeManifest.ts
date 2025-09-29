@@ -155,6 +155,9 @@ export const routeTrie = {
         "notificationCount": {
           "hasRoute": true
         },
+        "notificationEvents": {
+          "hasRoute": true
+        },
         "quit": {
           "hasRoute": true
         },
@@ -224,6 +227,7 @@ export const routeTrie = {
         "dropandcreatepg": "dropAndCreatePg",
         "health": "health",
         "notificationcount": "notificationCount",
+        "notificationevents": "notificationEvents",
         "quit": "quit",
         "registerclientid": "registerClientId",
         "search": "search",
@@ -447,6 +451,9 @@ export const routeTrie = {
     "faq": {
       "hasPage": true
     },
+    "favicon.ico": {
+      "hasRoute": true
+    },
     "feed": {
       "hasPage": true
     },
@@ -659,6 +666,16 @@ export const routeTrie = {
         "admin": "admin"
       },
       "hasPage": true
+    },
+    "petrov": {
+      "staticChildren": {
+        "ceremony": {
+          "hasPage": true
+        }
+      },
+      "lowerCase": {
+        "ceremony": "ceremony"
+      }
     },
     "petrovDayPoll": {
       "hasPage": true
@@ -1056,6 +1073,7 @@ export const routeTrie = {
     "emailtoken": "emailToken",
     "events": "events",
     "faq": "faq",
+    "favicon.ico": "favicon.ico",
     "feed": "feed",
     "feed.xml": "feed.xml",
     "g": "g",
@@ -1091,6 +1109,7 @@ export const routeTrie = {
     "out": "out",
     "pastevents": "pastEvents",
     "payments": "payments",
+    "petrov": "petrov",
     "petrovdaypoll": "petrovDayPoll",
     "petroydaypoll": "petroyDayPoll",
     "postanalytics": "postAnalytics",

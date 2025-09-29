@@ -40,7 +40,7 @@ const PostsAuthors = ({classes, post, pageSectionContext}: {
         </>
       }
       {post.coauthors?.map(coauthor =>
-        <PostsCoauthor key={coauthor._id} post={post} coauthor={coauthor} pageSectionContext={pageSectionContext} />
+        <PostsCoauthor key={coauthor._id} coauthor={coauthor} pageSectionContext={pageSectionContext} />
       )}
     </span>
   </Typography>

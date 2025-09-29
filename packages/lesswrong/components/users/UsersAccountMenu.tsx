@@ -3,7 +3,6 @@ import { registerComponent } from '../../lib/vulcan-lib/components';
 import Button from '@/lib/vendor/@material-ui/core/src/Button';
 import { useTracking } from '../../lib/analyticsEvents';
 import { isFriendlyUI } from '../../themes/forumTheme';
-import { blackBarTitle } from '@/lib/instanceSettings';
 import { useLoginPopoverContext } from '../hooks/useLoginPopoverContext';
 import EAButton from "../ea-forum/EAButton";
 import EALoginPopover from "../ea-forum/auth/EALoginPopover";
@@ -12,6 +11,7 @@ import LWPopper from "../common/LWPopper";
 import LoginForm from "./LoginForm";
 import { Paper } from '../widgets/Paper';
 import { defineStyles, useStyles } from '../hooks/useStyles';
+import { isBlackBarTitle } from '../seasonal/petrovDay/petrov-day-story/petrovConsts';
 
 const styles = defineStyles('UsersAccountMenu', (theme: ThemeType) => ({
   root: {
@@ -21,7 +21,7 @@ const styles = defineStyles('UsersAccountMenu', (theme: ThemeType) => ({
     fontSize: '14px',
     fontWeight: theme.isFriendlyUI ? undefined : 400,
     opacity: .8,
-    color: blackBarTitle.get() ? theme.palette.text.alwaysWhite : theme.palette.header.text,
+    color: isBlackBarTitle ? theme.palette.text.alwaysWhite : theme.palette.header.text,
   },
   login: {
     marginLeft: 12,

@@ -9,6 +9,7 @@ import { registerComponent } from "../../lib/vulcan-lib/components";
 import ReviewVotingButtons from "./ReviewVotingButtons";
 import ErrorBoundary from "../common/ErrorBoundary";
 import LWTooltip from "../common/LWTooltip";
+import { useCurrentUserReviewVote } from "../hooks/useCurrentUserReviewVote";
 
 const styles = (theme: ThemeType) => ({
   root: {
@@ -23,7 +24,12 @@ const styles = (theme: ThemeType) => ({
   }
 })
 
-const ReviewVotingWidget = ({classes, post, setNewVote, showTitle=true}: {classes: ClassesType<typeof styles>, post: PostsMinimumInfo, showTitle?: boolean, setNewVote?: (newVote: VoteIndex) => void}) => {
+const ReviewVotingWidget = ({classes, post, setNewVote, showTitle=true}: {
+  classes: ClassesType<typeof styles>,
+  post: PostsMinimumInfo,
+  showTitle?: boolean,
+  setNewVote?: (newVote: VoteIndex) => void
+}) => {
   const currentUser = useCurrentUser()
 
   // TODO: Refactor these + the ReviewVotingPage dispatch
@@ -44,12 +50,16 @@ const ReviewVotingWidget = ({classes, post, setNewVote, showTitle=true}: {classe
     return await submitVote({variables: {postId, qualitativeScore: score, year: REVIEW_YEAR.toString(), dummy: false}})
   }, [submitVote, setNewVote]);
 
-  if (!eligibleToNominate(currentUser)) return null
+  const skip = !eligibleToNominate(currentUser);
 
-  const currentUserVote = post.currentUserReviewVote !== null ? {
-    _id: post.currentUserReviewVote._id,
+  const currentUserReviewVote = useCurrentUserReviewVote(post._id, skip);
+
+  if (skip) return null
+
+  const currentUserVote = currentUserReviewVote !== null ? {
+    _id: currentUserReviewVote._id,
     postId: post._id,
-    score: post.currentUserReviewVote.qualitativeScore || 0,
+    score: currentUserReviewVote.qualitativeScore || 0,
     type: "QUALITATIVE" as const
   } : null
 

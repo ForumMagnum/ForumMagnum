@@ -42,7 +42,7 @@ const routePingbackMapping = {
   '/g/:groupId/p/:_id': (parsedUrl) => getPostPingbackById(parsedUrl, parsedUrl.params._id),
   '/posts/:_id/:slug?': (parsedUrl) => getPostPingbackById(parsedUrl, parsedUrl.params._id),
   '/posts/slug/:slug?': (parsedUrl, context) => getPostPingbackBySlug(parsedUrl, parsedUrl.params.slug, context),
-  '/${legacyRotueAcronym}/:id/:slug?': (parsedUrl, context) => getPostPingbackByLegacyId(parsedUrl, parsedUrl.params.id, context),
+  [`/${legacyRouteAcronym}/:id/:slug?`]: (parsedUrl, context) => getPostPingbackByLegacyId(parsedUrl, parsedUrl.params.id, context),
 } satisfies Record<string, GetPingbackFunction>;
 
 type PingbacksIndex = Partial<Record<CollectionNameString, string[]>>

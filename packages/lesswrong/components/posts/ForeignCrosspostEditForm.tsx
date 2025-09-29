@@ -25,11 +25,13 @@ const ForeignCrosspostEditForm = ({post, classes}: {
 
   const postWithNavigation: PostsWithNavigation = {
     ...post,
+    podcastEpisode: null,
     tableOfContents: null,
     sequence: null,
     prevPost: null,
     nextPost: null,
     reviewWinner: null,
+    glossary: [],
   };
 
   return (<>

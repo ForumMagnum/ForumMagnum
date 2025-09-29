@@ -50,8 +50,6 @@ import { revisionResolversGraphQLQueries, revisionResolversGraphQLMutations, rev
 import { moderationGqlMutations, moderationGqlQueries, moderationGqlTypeDefs } from '@/server/resolvers/moderationResolvers';
 import { multiDocumentMutations, multiDocumentTypeDefs } from '@/server/resolvers/multiDocumentResolvers';
 import { spotlightGqlMutations, spotlightGqlQueries, spotlightGqlTypeDefs } from '@/server/resolvers/spotlightResolvers';
-import { typingIndicatorsGqlMutations, typingIndicatorsGqlTypeDefs } from '@/server/resolvers/typingIndicatorsResolvers';
-import { acceptCoauthorRequestMutations, acceptCoauthorRequestTypeDefs } from '@/server/acceptCoauthorRequest';
 import { hidePostGqlMutations, hidePostGqlTypeDefs } from '@/server/hidePostMutation';
 import { markAsUnreadMutations, markAsUnreadTypeDefs } from '@/server/markAsUnread';
 import { cronGraphQLMutations, cronGraphQLQueries, cronGraphQLTypeDefs } from '@/server/rss-integration/cron';
@@ -298,8 +296,6 @@ export const getTypeDefs = () => gql`
   ${moderationGqlTypeDefs}
   ${multiDocumentTypeDefs}
   ${spotlightGqlTypeDefs}
-  ${typingIndicatorsGqlTypeDefs}
-  ${acceptCoauthorRequestTypeDefs}
   ${bookmarkGqlTypeDefs}
   ${hidePostGqlTypeDefs}
   ${markAsUnreadTypeDefs}
@@ -596,9 +592,7 @@ const getResolvers = () => ({
     ...moderationGqlMutations,
     ...multiDocumentMutations,
     ...spotlightGqlMutations,
-    ...typingIndicatorsGqlMutations,
     ...tagResolversGraphQLMutations,
-    ...acceptCoauthorRequestMutations,
     ...bookmarkGqlMutations,
     ...hidePostGqlMutations,
     ...markAsUnreadMutations,

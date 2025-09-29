@@ -9,7 +9,6 @@ import { getDefaultEditorPlaceholder } from '@/lib/editor/defaultEditorPlacehold
 import { mentionPluginConfiguration } from "../../lib/editor/mentionsConfig";
 import { useCurrentUser } from '../common/withUser';
 import { useMessages } from '../common/withMessages';
-import { getConfirmedCoauthorIds } from '../../lib/collections/posts/helpers';
 import sortBy from 'lodash/sortBy'
 import uniqBy from 'lodash/uniqBy';
 import { filterNonnull } from '../../lib/utils/typeGuardUtils';
@@ -27,8 +26,6 @@ import type { ConditionalVisibilityPluginConfiguration  } from './conditionalVis
 import { CkEditorPortalContext } from './CKEditorPortalProvider';
 import { useDialog } from '../common/withDialog';
 import { claimsConfig } from './claims/claimsConfig';
-import { useGlobalKeydown } from '../common/withGlobalKeydown';
-import { isClient } from '@/lib/executionEnvironment';
 import { useCkEditorInspector } from '@/client/useCkEditorInspector';
 import EditConditionalVisibility from "./conditionalVisibilityBlock/EditConditionalVisibility";
 import DialogueEditorGuidelines from "../posts/dialogues/DialogueEditorGuidelines";
@@ -372,6 +369,10 @@ const getPostEditorToolbarConfig = () => ({
   },
 });
 
+
+/**
+ * This is called `PostEditor`, but note that it is also used for sequences
+ */
 const CKPostEditor = ({
   data,
   collectionName,
@@ -410,8 +411,11 @@ const CKPostEditor = ({
   const currentUser = useCurrentUser();
   const { flash } = useMessages();
   const { openDialog } = useDialog();
-  const post = (document as PostsEdit);
-  const isBlockOwnershipMode = isCollaborative && post.collabEditorDialogue;
+  const postOrSequence = (document as PostsEdit | SequencesEdit);
+  const isBlockOwnershipMode = isCollaborative &&
+    "collabEditorDialogue" in postOrSequence &&
+    postOrSequence.collabEditorDialogue;
+
   const portalContext = useContext(CkEditorPortalContext);
   
   const getInitialCollaborationMode = () => {
@@ -460,7 +464,7 @@ const CKPostEditor = ({
 
     await sendNewDialogueMessageNotification({
       variables: {
-        postId: post._id,
+        postId: postOrSequence._id,
         dialogueHtml: editorContents
       }
     });
@@ -593,7 +597,7 @@ const CKPostEditor = ({
       accessLevel={accessLevel||"none"}
       collaborationMode={collaborationMode}
       setCollaborationMode={changeCollaborationMode}
-      post={post}
+      post={postOrSequence as PostsEdit}
       connectedUsers={connectedUsers}
     />}
     
@@ -631,9 +635,29 @@ const CKPostEditor = ({
           setEditor(editor);
         }
 
-        const userIds = formType === 'new' ? [userId] : [post.userId, ...getConfirmedCoauthorIds(post)];
-        if (post.collabEditorDialogue && accessLevel && accessLevelCan(accessLevel, 'edit')) {
-          const rawAuthors = formType === 'new' ? [currentUser!] : filterNonnull([post.user, ...(post.coauthors ?? [])])
+        const userIds = formType === 'new'
+          ? [userId]
+          : [
+            postOrSequence.userId,
+            ...(
+              "coauthorUserIds" in postOrSequence
+                ? postOrSequence.coauthorUserIds
+                : []
+            ),
+          ];
+
+        if (
+          "collabEditorDialogue" in postOrSequence &&
+          postOrSequence.collabEditorDialogue &&
+          accessLevel &&
+          accessLevelCan(accessLevel, 'edit')
+        ) {
+          const rawAuthors = formType === 'new'
+            ? [currentUser!]
+            : filterNonnull([
+              postOrSequence.user,
+              ...(postOrSequence.coauthors ?? [])
+            ]);
           const coauthors = uniqBy(
             rawAuthors.filter(coauthor => userIds.includes(coauthor._id)),
             (user) => user._id,
@@ -728,7 +752,10 @@ const CKPostEditor = ({
       }}
       config={editorConfig}
     />}
-    {post.collabEditorDialogue && !isFriendlyUI() ? <DialogueEditorFeedback post={post} /> : null}
+    {"collabEditorDialogue" in postOrSequence && postOrSequence.collabEditorDialogue && !isFriendlyUI
+      ? <DialogueEditorFeedback post={postOrSequence} /> 
+      : null
+    }
   </div>
 }
 

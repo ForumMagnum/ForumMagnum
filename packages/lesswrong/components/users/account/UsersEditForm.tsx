@@ -1295,7 +1295,7 @@ const UsersForm = ({
         </div>
       </LegacyFormGroupLayout>}
 
-      {!hasAccountDeletionFlow && <LegacyFormGroupLayout label={preferredHeadingCase("Deactivate Account")} startCollapsed={true}>
+      {!hasAccountDeletionFlow() && <LegacyFormGroupLayout label={preferredHeadingCase("Deactivate Account")} startCollapsed={true}>
         <div className={classes.fieldWrapper}>
           <form.Field name="deleted">
             {(field) => (

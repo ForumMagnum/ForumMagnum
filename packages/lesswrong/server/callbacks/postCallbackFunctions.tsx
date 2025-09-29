@@ -4,7 +4,7 @@ import { MOVED_POST_TO_DRAFT, REJECTED_POST } from "@/lib/collections/moderatorA
 import { Posts } from "@/server/collections/posts/collection";
 import { postStatuses } from "@/lib/collections/posts/constants";
 import { TOS_NOT_ACCEPTED_ERROR } from "../fmCrosspost/errors";
-import { getConfirmedCoauthorIds, isRecombeeRecommendablePost, postIsApproved, postIsPublic } from "@/lib/collections/posts/helpers";
+import { isRecombeeRecommendablePost, postIsApproved, postIsPublic } from "@/lib/collections/posts/helpers";
 import { getLatestContentsRevision } from "@/server/collections/revisions/helpers";
 import { subscriptionTypes } from "@/lib/collections/subscriptions/helpers";
 import { isAnyTest, isE2E } from "@/lib/executionEnvironment";
@@ -184,16 +184,6 @@ const utils = {
         throw new Error(`Rate limit: You cannot post for ${moment(nextEligible).fromNow()}, until ${nextEligible}`);
       }
     }
-  },
-
-  postHasUnconfirmedCoauthors: (post: CreatePostDataInput | UpdatePostDataInput | DbPost) => {
-    return !post.hasCoauthorPermission && (post.coauthorStatuses ?? []).filter(({ confirmed }) => !confirmed).length > 0;
-  },
-
-  scheduleCoauthoredPost: <T extends CreatePostDataInput | UpdatePostDataInput>(post: T) => {
-    const now = new Date();
-    post.postedAt = new Date(now.setDate(now.getDate() + 1));
-    return { ...post, isFuture: true };
   },
 
   bulkApplyPostTags: async ({postId, tagsToApply, currentUser, context}: {postId: string, tagsToApply: string[], currentUser: DbUser, context: ResolverContext}) => {
@@ -544,13 +534,6 @@ export async function fixEventStartAndEndTimes(post: CreatePostDataInput): Promi
   return post;
 }
 
-export async function scheduleCoauthoredPostWithUnconfirmedCoauthors(post: CreatePostDataInput): Promise<CreatePostDataInput> {
-  if (utils.postHasUnconfirmedCoauthors(post) && !post.draft) {
-    return utils.scheduleCoauthoredPost(post);
-  }
-  return post;
-}
-
 export function addLinkSharingKey(post: CreatePostDataInput) {
   return {
     ...post,
@@ -609,25 +592,6 @@ export async function createNewJargonTermsCallback<T extends Pick<DbPost, '_id' 
 
 
 /* NEW AFTER */
-export async function sendCoauthorRequestNotifications<T extends Pick<DbPost, '_id' | 'coauthorStatuses' | 'hasCoauthorPermission'>>(post: T, callbackProperties: AfterCreateCallbackProperties<'Posts'> | UpdateCallbackProperties<'Posts'>) {
-  const { context: { Posts } } = callbackProperties;
-  const { _id, coauthorStatuses, hasCoauthorPermission } = post;
-
-  if (hasCoauthorPermission === false && coauthorStatuses?.length) {
-    await createNotifications({
-      userIds: coauthorStatuses.filter(({requested, confirmed}) => !requested && !confirmed).map(({userId}) => userId),
-      notificationType: "coauthorRequestNotification",
-      documentType: "post",
-      documentId: _id,
-    });
-
-    post.coauthorStatuses = coauthorStatuses.map((status) => ({ ...status, requested: true }));
-    await Posts.rawUpdateOne({ _id }, { $set: { coauthorStatuses: post.coauthorStatuses } });
-  }
-
-  return post;
-}
-
 export async function lwPostsNewUpvoteOwnPost(post: DbPost, callbackProperties: AfterCreateCallbackProperties<'Posts'>): Promise<DbPost> {
   const { context: { Users, Posts } } = callbackProperties;
 
@@ -697,8 +661,7 @@ export async function extractSocialPreviewImage(post: DbPost, callbackProperties
 
 /* CREATE ASYNC */
 export async function notifyUsersAddedAsPostCoauthors({ document: post }: AfterCreateCallbackProperties<'Posts'>) {
-  const coauthorIds: Array<string> = getConfirmedCoauthorIds(post);
-  await createNotifications({ userIds: coauthorIds, notificationType: "addedAsCoauthor", documentType: "post", documentId: post._id });
+  await createNotifications({ userIds: post.coauthorUserIds, notificationType: "addedAsCoauthor", documentType: "post", documentId: post._id });
 }
 
 export async function triggerReviewForNewPostIfNeeded({ document, context }: AfterCreateCallbackProperties<'Posts'>) {
@@ -716,9 +679,8 @@ export async function autoTagNewPost({ document, context }: AfterCreateCallbackP
 
 /* NEW ASYNC */
 export async function sendUsersSharedOnPostNotifications(post: DbPost) {
-  const { _id, shareWithUsers = [], coauthorStatuses } = post;
-  const coauthors: Array<string> = coauthorStatuses?.filter(({ confirmed }) => confirmed).map(({ userId }) => userId) || [];
-  const userIds: Array<string> = shareWithUsers?.filter((user) => !coauthors.includes(user)) || [];
+  const { _id, shareWithUsers = [], coauthorUserIds } = post;
+  const userIds: Array<string> = shareWithUsers?.filter((user) => !coauthorUserIds.includes(user)) || [];
   await createNotifications({userIds, notificationType: "postSharedWithUser", documentType: "post", documentId: _id})
 }
 
@@ -754,17 +716,6 @@ export function setPostUndraftedFields(data: UpdatePostDataInput, { oldDocument:
     data.wasEverUndrafted = true;
   }
   return data;
-}
-
-// TODO: this, plus the scheduleCoauthoredPost function, should probably be converted to one of the on-publish callbacks?
-export function scheduleCoauthoredPostWhenUndrafted(post: UpdatePostDataInput, {oldDocument: oldPost, newDocument: newPost}: UpdateCallbackProperties<"Posts">) {
-  // Here we schedule the post for 1-day in the future when publishing an existing draft with unconfirmed coauthors
-  // We must check post.draft === false instead of !post.draft as post.draft may be undefined in some cases
-  // NOTE: EA FORUM: this used to use `post` rather than `newPost`, but `post` is merely the diff, which isn't what you want to pass into those
-  if (utils.postHasUnconfirmedCoauthors(newPost) && post.draft === false && oldPost.draft) {
-    post = utils.scheduleCoauthoredPost(post);
-  }
-  return post;
 }
 
 /* EDIT SYNC */
@@ -880,8 +831,8 @@ export async function eventUpdatedNotifications({newDocument: newPost, oldDocume
 }
 
 export async function notifyUsersAddedAsCoauthors({ oldDocument: oldPost, newDocument: newPost }: UpdateCallbackProperties<'Posts'>) {
-  const newCoauthorIds = getConfirmedCoauthorIds(newPost);
-  const oldCoauthorIds = getConfirmedCoauthorIds(oldPost);
+  const newCoauthorIds = newPost.coauthorUserIds;
+  const oldCoauthorIds = oldPost.coauthorUserIds;
   const addedCoauthorIds = difference(newCoauthorIds, oldCoauthorIds);
 
   if (addedCoauthorIds.length) {
@@ -1023,7 +974,7 @@ export async function sendNewPublishedDialogueMessageNotifications(newPost: DbPo
     const uniqueNewIds = difference(newIds, oldIds);
     
     if (uniqueNewIds.length > 0) {
-      const dialogueParticipantIds = [newPost.userId, ...getConfirmedCoauthorIds(newPost)];
+      const dialogueParticipantIds = [newPost.userId, ...newPost.coauthorUserIds];
       const dialogueSubscribers = await getSubscribedUsers({
         documentId: newPost._id,
         collectionName: "Posts",
@@ -1070,8 +1021,7 @@ export async function sendEAFCuratedAuthorsNotification(post: DbPost, oldPost: D
   const { Users } = context;
   // On the EA Forum, when a post is curated, we send an email notifying all the post's authors
   if (post.curatedDate && !oldPost.curatedDate) {
-    const coauthorIds = getConfirmedCoauthorIds(post)
-    const authorIds = [post.userId, ...coauthorIds]
+    const authorIds = [post.userId, ...post.coauthorUserIds]
     const authors = await Users.find({
       _id: {$in: authorIds}
     }).fetch()

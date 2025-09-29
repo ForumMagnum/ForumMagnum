@@ -111,7 +111,7 @@ export const DebateResponse = ({classes, comment, replies, idx, responseCount, o
 
     const VoteBottomComponent = commentBottomComponents[votingSystemName]?.() ?? null;
 
-    const fullParticipantSet = new Set([post.userId, ...(post.coauthorStatuses ?? []).map(coauthor => coauthor.userId)]);
+    const fullParticipantSet = new Set([post.userId, ...post.coauthorUserIds]);
 
     const currentUser = useCurrentUser();
 

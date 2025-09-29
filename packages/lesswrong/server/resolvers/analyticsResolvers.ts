@@ -239,7 +239,7 @@ export const analyticsGraphQLQueries = {
     const directlySortable = DIRECTLY_SORTABLE_FIELDS.includes(sortBy);
 
     const postSelector = {
-      ...(userId && {$or: [{ userId: userId }, { "coauthorStatuses.userId": userId }]}),
+      ...(userId && {$or: [{ userId: userId }, { coauthorUserIds: userId }]}),
       ...(postIdsInput && { _id: { $in: postIdsInput } }),
       rejected: { $ne: true },
       draft: false,
@@ -336,7 +336,7 @@ export const analyticsGraphQLQueries = {
     const adjustedEndDate = moment(new Date(endDate)).utc().add(1, "days").startOf("day");
 
     const postSelector = {
-      ...(userId && {$or: [{ userId: userId }, { "coauthorStatuses.userId": userId }]}),
+      ...(userId && {$or: [{ userId: userId }, { coauthorUserIds: userId }]}),
       ...(postIds && { _id: { $in: postIds } }),
       rejected: { $ne: true },
       draft: false,

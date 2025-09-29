@@ -27,6 +27,7 @@ import DeferRender from './DeferRender';
 import { defineStyles, useStyles } from '../hooks/useStyles';
 
 import dynamic from 'next/dynamic';
+import PetrovStoryMobileBanner from '../seasonal/petrovDay/petrov-day-story/PetrovStoryMobileBanner';
 const RecentDiscussionFeed = dynamic(() => import("../recentDiscussion/RecentDiscussionFeed"), { ssr: false });
 
 const getStructuredData = () => ({
@@ -66,8 +67,6 @@ const styles = defineStyles("LWHome", (theme: ThemeType) => ({
 }))
 
 const LWHome = () => {
-  const classes = useStyles(styles);
-  const currentUser = useCurrentUser();
   const abTestGroup = useABTest(ultraFeedABTest);
   const [cookies] = useCookiesWithConsent([ULTRA_FEED_ENABLED_COOKIE]);
   
@@ -76,7 +75,7 @@ const LWHome = () => {
   const hasExplicitPreference = cookieValue === "true" || cookieValue === "false";
   
   // Determine which feed to show: if cookie is set, use that preference, otherwise use A/B test assignment
-  const shouldShowUltraFeed = ultraFeedEnabledSetting.get() && currentUser && (cookieValue === "true" || (!hasExplicitPreference && abTestGroup === 'ultraFeed'));
+  const shouldShowUltraFeed = ultraFeedEnabledSetting.get() && (cookieValue === "true" || (!hasExplicitPreference && abTestGroup === 'ultraFeed'));
 
   return (
       <AnalyticsContext pageContext="homePage">

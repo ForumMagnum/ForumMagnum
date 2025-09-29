@@ -6,7 +6,7 @@ import { startMemoryUsageMonitor } from './logging';
 import { startupSanityChecks } from './startupSanityChecks';
 import { refreshKarmaInflationCache } from './karmaInflation/cron';
 // import { addLegacyRssRoutes } from './legacy-redirects/routes';
-import { initReviewWinnerCache } from './resolvers/reviewWinnerResolvers';
+// import { initReviewWinnerCache } from './resolvers/reviewWinnerResolvers';
 import { startAnalyticsWriter, serverCaptureEvent as captureEvent } from '@/server/analytics/serverAnalyticsWriter';
 import { startSyncedCron } from './cron/startCron';
 import { isAnyTest, isMigrations } from '@/lib/executionEnvironment';
@@ -48,7 +48,7 @@ export async function runServerOnStartupFunctions() {
   backgroundTask(startupSanityChecks());
   backgroundTask(refreshKarmaInflationCache());
   // addLegacyRssRoutes();
-  backgroundTask(initReviewWinnerCache());
+  // backgroundTask(initReviewWinnerCache());
   backgroundTask(updateStripeIntentsCache());
 
   startSyncedCron();
