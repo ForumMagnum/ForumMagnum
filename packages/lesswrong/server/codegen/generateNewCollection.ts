@@ -30,7 +30,7 @@ function getViewFile(collectionName: string) {
 
 declare global {
   interface ${collectionName}ViewTerms extends ViewTermsBase {
-    view?: ${collectionName}ViewName
+    view: ${collectionName}ViewName
     // Add your view terms here
   }
 }

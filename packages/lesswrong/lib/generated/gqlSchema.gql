@@ -1913,6 +1913,11 @@ extend type Query {
   collections(input: MultiCollectionInput @deprecated(reason: "Use the selector field instead"), selector: CollectionSelector, limit: Int, offset: Int, enableTotal: Boolean): MultiCollectionOutput
 }
 
+type CommentEmbedding {
+  _id: String!
+  createdAt: Date!
+}
+
 type CommentModeratorAction {
   _id: String!
   schemaVersion: Float!

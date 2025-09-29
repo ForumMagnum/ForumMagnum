@@ -10,6 +10,7 @@ import { BookmarksViews } from '../collections/bookmarks/views';
 import { ChaptersViews } from '../collections/chapters/views';
 import { ClientIdsViews } from '../collections/clientIds/views';
 import { CollectionsViews } from '../collections/collections/views';
+import { CommentEmbeddingsViews } from '../collections/commentEmbeddings/views';
 import { CommentsViews } from '../collections/comments/views';
 import { CommentModeratorActionsViews } from '../collections/commentModeratorActions/views';
 import { ConversationsViews } from '../collections/conversations/views';
@@ -72,6 +73,7 @@ export const allViews = {
   CkEditorUserSessions: new CollectionViewSet('CkEditorUserSessions', {}),
   ClientIds: ClientIdsViews,
   Collections: CollectionsViews,
+  CommentEmbeddings: CommentEmbeddingsViews,
   Comments: CommentsViews,
   CommentModeratorActions: CommentModeratorActionsViews,
   Conversations: ConversationsViews,

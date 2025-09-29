@@ -1698,6 +1698,11 @@ interface MultiCollectionOutput {
   totalCount: number | null;
 }
 
+interface CommentEmbedding {
+  _id: string;
+  createdAt: Date;
+}
+
 interface CommentModeratorAction {
   _id: string;
   schemaVersion: number;
@@ -9914,6 +9919,7 @@ interface GraphQLTypeMap {
   CollectionSelector: CollectionSelector;
   MultiCollectionInput: MultiCollectionInput;
   MultiCollectionOutput: MultiCollectionOutput;
+  CommentEmbedding: CommentEmbedding;
   CommentModeratorAction: CommentModeratorAction;
   SingleCommentModeratorActionInput: SingleCommentModeratorActionInput;
   SingleCommentModeratorActionOutput: SingleCommentModeratorActionOutput;
@@ -10764,6 +10770,7 @@ interface CreateInputsByCollectionName {
   Bookmarks: never;
   CkEditorUserSessions: never;
   ClientIds: never;
+  CommentEmbeddings: never;
   CronHistories: never;
   CurationEmails: never;
   DatabaseMetadata: never;
@@ -10854,6 +10861,7 @@ interface UpdateInputsByCollectionName {
   Bookmarks: never;
   CkEditorUserSessions: never;
   ClientIds: never;
+  CommentEmbeddings: never;
   CronHistories: never;
   CurationEmails: never;
   DatabaseMetadata: never;
