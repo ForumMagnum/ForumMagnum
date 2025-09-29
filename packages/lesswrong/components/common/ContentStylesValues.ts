@@ -77,19 +77,13 @@ export const styles = defineStyles("ContentStyles", (theme: ThemeType) => ({
     '& p:last-child': {
       marginBottom: '0 !important',
     },
-    // Hide a single leading br in the first paragraph, but preserve pairs that some users use to create paragraph breaks
-    '& p:first-child > br:first-child': {
+    // Hide a single leading br in first paragraph, unless it's a br pair
+    '& p:first-child:not(:has(> br:first-child + br)) > br:first-child': {
       display: 'none !important',
     },
-    '& p:first-child:has(> br:first-child + br) > br:first-child': {
-      display: 'inline !important',
-    },
-    // Hide a single trailing br in the last paragraph, but preserve pairs that some users use to create paragraph breaks
-    '& p:last-child > br:last-child': {
+    // Hide a single trailing br in last paragraph, unless it's a br pair
+    '& p:last-child:not(:has(> br + br:last-child)) > br:last-child': {
       display: 'none !important',
-    },
-    '& p:last-child:has(> br + br:last-child) > br:last-child': {
-      display: 'inline !important',
     },
     [theme.breakpoints.down('sm')]: {
       '& h1, & h2, & h3, & h4': {
@@ -113,19 +107,13 @@ export const styles = defineStyles("ContentStyles", (theme: ThemeType) => ({
     '& p:last-child': {
       marginBottom: '0 !important',
     },
-    // Hide a single leading br in the first paragraph, but preserve pairs
-    '& p:first-child > br:first-child': {
+    // Hide a single leading br in first paragraph, unless it's a br pair
+    '& p:first-child:not(:has(> br:first-child + br)) > br:first-child': {
       display: 'none !important',
     },
-    '& p:first-child:has(> br:first-child + br) > br:first-child': {
-      display: 'inline !important',
-    },
-    // Hide a single trailing br in the last paragraph, but preserve pairs
-    '& p:last-child > br:last-child': {
+    // Hide a single trailing br in last paragraph, unless it's a br pair
+    '& p:last-child:not(:has(> br + br:last-child)) > br:last-child': {
       display: 'none !important',
-    },
-    '& p:last-child:has(> br + br:last-child) > br:last-child': {
-      display: 'inline !important',
     },
     [theme.breakpoints.down('sm')]: {
       '& h1, & h2, & h3, & h4': {
