@@ -7,7 +7,7 @@ export const getRouteMetadata = cache((): {
   get: () => RouteMetadata;
   set: (newConfig: Partial<RouteMetadata>) => void;
 } => {
-  let config: RouteMetadata = { ...DEFAULT_LAYOUT_CONFIG, subtitle: 'Petrov Day', subtitleLink: '/petrov/ceremony' };
+  let config: RouteMetadata = { ...DEFAULT_LAYOUT_CONFIG };
 
   return {
     get: () => config,
