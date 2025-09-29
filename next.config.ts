@@ -228,7 +228,7 @@ module.exports = {
 
 // Injected content via Sentry wizard below
 
-const { withSentryConfig } = require("@sentry/nextjs");
+import { withSentryConfig } from "@sentry/nextjs";
 
 module.exports = process.env.E2E ? module.exports : withSentryConfig(
   module.exports,
@@ -267,7 +267,9 @@ module.exports = process.env.E2E ? module.exports : withSentryConfig(
 
     sourcemaps: {
       deleteSourcemapsAfterUpload: false,
-    }
+    },
+
+    suppressOnRouterTransitionStartWarning: true,
   }
 );
 

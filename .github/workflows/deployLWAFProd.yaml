@@ -9,8 +9,15 @@ on:
 jobs:
   migrate:
     runs-on: ubuntu-latest
+    env:
+      SKIP_VERCEL_CODE_PULL: true
     steps:
     - uses: actions/checkout@v2
+    - name: Pull Vercel Environment Information
+      if: github.ref == 'refs/heads/lw-deploy'
+      run: |
+        npm install --global vercel@latest
+        vercel env pull --yes --environment=production --token=${{ secrets.VERCEL_ACCESS_TOKEN }}
     - name: Run Migrations
       if: github.ref == 'refs/heads/lw-deploy'
       uses: ./.github/actions/runLWMigrations
@@ -20,8 +27,15 @@ jobs:
         credentials-pat: ${{ secrets.LW_CREDENTIALS_REPO_PAT }}
   upload-ckeditor-bundle:
     runs-on: ubuntu-latest
+    env:
+      SKIP_VERCEL_CODE_PULL: true
     steps:
     - uses: actions/checkout@v2
+    - name: Pull Vercel Environment Information
+      if: github.ref == 'refs/heads/lw-deploy'
+      run: |
+        npm install --global vercel@latest
+        vercel env pull --yes --environment=production --token=${{ secrets.VERCEL_ACCESS_TOKEN }}
     - name: Upload ckEditor bundle
       if: github.ref == 'refs/heads/lw-deploy'
       uses: ./.github/actions/uploadLWCkEditorBundle
