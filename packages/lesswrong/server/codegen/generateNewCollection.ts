@@ -19,7 +19,7 @@ const schema = {
   createdAt: DEFAULT_CREATED_AT_FIELD,
 
   // Add your collection's fields here
-} satisfies Record<string, NewCollectionFieldSpecification<"${collectionName}">>;
+} satisfies Record<string, CollectionFieldSpecification<"${collectionName}">>;
 
 export default schema;
 `;
@@ -71,9 +71,7 @@ import { getFieldGqlResolvers } from "@/server/vulcan-lib/apollo-server/helpers"
 import gql from "graphql-tag";
 
 export const ${typeDefsVariableName} = gql\`
-  type ${typeName} {
-    \${getAllGraphQLFields(schema)}
-  }
+  type ${typeName} \${ getAllGraphQLFields(schema) }
 \`;
 
 export const ${fieldResolversVariableName} = getFieldGqlResolvers('${collectionName}', schema);
@@ -84,13 +82,16 @@ export const ${fieldResolversVariableName} = getFieldGqlResolvers('${collectionN
 
 function getCollectionFile(collectionName: string) {
   const typeName = getTypeName(collectionName);
+  const collectionPathPart = uncapitalize(collectionName);
 
-  return `import { createCollection } from '@/lib/vulcan-lib/collections';
+  return `import schema from '@/lib/collections/${collectionPathPart}/newSchema';
+import { createCollection } from '@/lib/vulcan-lib/collections';
 import { DatabaseIndexSet } from '@/lib/utils/databaseIndexSet';
 
 export const ${collectionName}: ${collectionName}Collection = createCollection({
   collectionName: '${collectionName}',
   typeName: '${typeName}',
+  schema,
 
   // This is where you can add indexes for the collection.
   getIndexes: () => {
@@ -367,7 +368,7 @@ async function insertIntoAllViews(collectionName: string) {
 }
 
 async function insertIntoInitGraphQL(collectionName: string) {
-  const initGraphQLPath = path.join(__dirname, '..', '..', 'server', 'vulcan-lib', '@apollo/server', 'initGraphQL.ts');
+  const initGraphQLPath = path.join(__dirname, '..', '..', 'server', 'vulcan-lib', 'apollo-server', 'initGraphQL.ts');
   const initGraphQL = await readFile(initGraphQLPath, 'utf8');
   const lines = initGraphQL.split('\n');
 
