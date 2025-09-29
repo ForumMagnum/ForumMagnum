@@ -736,15 +736,6 @@ export const ckEditorStyles = (theme: ThemeType) => {
         '& hr': {
           ...hrStyles(theme)
         },
-        '& ol, & ul': {
-          listStyleType: "revert !important",
-        },
-        '& ol > li > ol': {
-          listStyle: 'lower-alpha !important',
-        },
-        '& ol > li > ol > li > ol': {
-          listStyle: 'lower-roman !important',
-        },
         '& .footnote-reference': {
           scrollMarginTop: '100px',
         },
