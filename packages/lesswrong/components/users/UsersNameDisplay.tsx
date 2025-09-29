@@ -1,17 +1,16 @@
-import React, { useContext } from 'react';
-import { registerComponent } from '../../lib/vulcan-lib/components';
+import React from 'react';
 import { userGetDisplayName, userGetProfileUrl } from '../../lib/collections/users/helpers';
 import { Link } from '../../lib/reactRouterWrapper';
 import { useHover } from '../common/withHover'
 import classNames from 'classnames';
 import { AnalyticsContext } from "../../lib/analyticsEvents";
-import { useFilteredCurrentUser } from '../common/withUser';
 import type { Placement as PopperPlacementType } from "popper.js"
 import UserNameDeleted from "./UserNameDeleted";
 import UserTooltip from "./UserTooltip";
-import { DisableNoKibitzContext } from '../common/sharedContexts';
+import { useNoKibitz } from '../hooks/useNoKibitz';
+import { defineStyles, useStyles } from '../hooks/useStyles';
 
-const styles = (theme: ThemeType) => ({
+const styles = defineStyles("UsersNameDisplay", (theme: ThemeType) => ({
   color: {
     color: theme.palette.primary.main,
   },
@@ -24,7 +23,7 @@ const styles = (theme: ThemeType) => ({
   nowrap: {
     whiteSpace: "nowrap"
   },
-});
+}));
 
 /**
  * Given a user (which may not be null), render the user name as a link with a
@@ -41,7 +40,6 @@ const UsersNameDisplay = ({
   tooltipPlacement="left",
   pageSectionContext,
   className,
-  classes,
 }: {
   /** The user whose name to show. If nullish, will show as "[anonymous]". */
   user: UsersMinimumInfo|null|undefined,
@@ -63,9 +61,8 @@ const UsersNameDisplay = ({
   pageSectionContext?: string,
   /** An additional class to apply to the text */
   className?: string,
-
-  classes: ClassesType<typeof styles>,
 }) => {
+  const classes = useStyles(styles);
   const {eventHandlers, hover} = useHover({
     eventProps: {
       pageElementContext: "linkPreview",
@@ -73,14 +70,7 @@ const UsersNameDisplay = ({
       userId: user?._id
     },
   });
-  const {disableNoKibitz} = useContext(DisableNoKibitzContext);
-  const noKibitz = useFilteredCurrentUser(currentUser =>
-    currentUser
-    && (currentUser.noKibitz ?? false)
-    && user
-    && currentUser._id !== user._id  //don't nokibitz your own name
-    && !disableNoKibitz
-  );
+  const noKibitz = useNoKibitz(user);
   const nameHidden = noKibitz && !hover;
 
   if (!user || user.deleted) {
@@ -131,8 +121,4 @@ const UsersNameDisplay = ({
   </span>
 }
 
-export default registerComponent(
-  'UsersNameDisplay', UsersNameDisplay, {styles}
-);
-
-
+export default UsersNameDisplay;
