@@ -1,6 +1,6 @@
 import React from 'react';
 import { registerComponent } from '../../lib/vulcan-lib/components';
-import { linkStyles } from './linkStyles';
+import { linkStyles, VisitedIndicator } from './linkStyles';
 import { postGetPageUrl } from '../../lib/collections/posts/helpers';
 import { Link } from '../../lib/reactRouterWrapper';
 import classNames from 'classnames';
@@ -29,6 +29,7 @@ const LinkToPost = ({post}: {
     <PostsTooltip post={post} placement="bottom-start" clickable>
       <Link className={classNames(linkClasses.link, classes.linkColor, visited && "visited")} to={postGetPageUrl(post)}>
         {post.title}
+        <VisitedIndicator/>
       </Link>
     </PostsTooltip>
   );

@@ -1,58 +1,42 @@
 import { visitedLinksHaveFilledInCircle } from '@/lib/betas';
-import { defineStyles } from '../hooks/useStyles';
+import { defineStyles, useStyles } from '../hooks/useStyles';
+
+const LINK_INDICATOR_CIRCLE_DIAMETER = 4;
+const LINK_INDICATOR_CIRCLE_DISTANCE_FROM_WORD = 2;
 
 export const linkStyles = defineStyles("LinkStyles", (theme: ThemeType) => ({
   link: {
-    ...(visitedLinksHaveFilledInCircle()
-      ? {
-        '&:after': {
-          content: '""',
-          top: -7,
-          position: "relative",
-          marginLeft: 2,
-          marginRight: 0,
-          width: 4,
-          height: 4,
-          display: "inline-block",
+    // Reserve space for the link-circle. This can't reserve its own space with
+    // a span, because it would be wrapped onto the next line if it's at the
+    // right side; we use padding and a zero-width element so that, if the last
+    // word and the link-circle both get pushed onto the next line together.
+    paddingRight: LINK_INDICATOR_CIRCLE_DIAMETER + LINK_INDICATOR_CIRCLE_DISTANCE_FROM_WORD,
+  },
+  visitedIndicator: {
+    position: "relative",
+    right: 0,
+    width: 0,
+    display: "inline-block",
 
-          // The center of the link-circle is the page-background color, rather
-          // than transparent, because :visited cannot change background
-          // opacity. Technically, this means that if a link appears on a
-          // non-default background, the center of the circle is the wrong
-          // color. I'm able to detect this on even-numbered replies (which
-          // have a gray background) if I use a magnifier/color-picker, but
-          // can't detect it by eye, so this is probably fine.
-          background: theme.palette.background.default,
-          border: `1.2px solid ${theme.palette.link.color ?? theme.palette.primary.main}`,
-          borderRadius: "50%",
-        },
+    "&:after": {
+      content: '"\u2060"',
+      marginLeft: LINK_INDICATOR_CIRCLE_DISTANCE_FROM_WORD,
+      position: "relative",
+      top: 4,
+      width: LINK_INDICATOR_CIRCLE_DIAMETER,
+      height: LINK_INDICATOR_CIRCLE_DIAMETER,
+      display: "inline-block",
+      background: theme.palette.background.default,
+      border: `1.2px solid ${theme.palette.link.color ?? theme.palette.primary.main}`,
+      borderRadius: "50%",
 
-        // Visited styles can be applied for two reasons: based on the :visited
-        // selector (which is applied by the browser based on local browser
-        // history), or based on the .visited class (which is applied by link
-        // components for logged-in users based on the read-status of the
-        // destination, in the DB).
-        //
-        // `visited` is a string-classname rather than something that gets
-        // prefixed, because some broadly-applied styles in `stylePiping` also use
-        // it.
-        //
-        // Because of browser rules intended to prevent history-sniffing, the
-        // attributes that can appear in this block, if it's applied via the
-        // :visited selector rather than the .visited class, are highly
-        // restricted. In particular, the `background` attribute can change
-        // color, but it cannot change opacity.
-        "&:visited:after, &.visited:after": {
+      ...(visitedLinksHaveFilledInCircle() && {
+        "a:visited &, a.visited &": {
           background: theme.palette.link.visited ?? theme.palette.primary.main,
           border: `1.2px solid ${theme.palette.link.visited ?? theme.palette.primary.main}`,
         },
-      } : {
-        '&:after': {
-          content: '"°"',
-          marginLeft: 1,
-        },
-      }
-    )
+      }),
+    },
   },
   redLink: {
     ...(visitedLinksHaveFilledInCircle() ? {
@@ -124,3 +108,16 @@ export const linkStyles = defineStyles("LinkStyles", (theme: ThemeType) => ({
     maxWidth: "100vw",
   },
 }));
+
+/**
+ * A little circle to the right of a link, to indicate that it's a special
+ * hoverable link and (if the visitedLinksHaveFilledInCircle site setting is
+ * on) whether the destination of the link is visited/read. This should be a a
+ * descendent of an <a> tag with the LinkStyles-link class. It will be filled
+ * in (marked as visited) if either that link is :visited (ie, based on browser
+ * history), or it has the "visited" class.
+ */
+export const VisitedIndicator = () => {
+  const classes = useStyles(linkStyles);
+  return <span className={classes.visitedIndicator}></span>;
+}
