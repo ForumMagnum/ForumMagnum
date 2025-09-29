@@ -1,4 +1,3 @@
-import { saplingApiKey } from "@/lib/instanceSettings";
 import { dataToMarkdown } from "@/server/editor/conversionUtils";
 import AutomatedContentEvaluations from "../automatedContentEvaluations/collection";
 import { z } from "zod"; // Add this import for Zod
@@ -9,12 +8,11 @@ import ModerationTemplates from "../moderationTemplates/collection";
 import { sendRejectionPM } from "@/server/callbacks/postCallbackFunctions";
 
 async function getSaplingEvaluation(revision: DbRevision) {
-  const key = saplingApiKey.get();
+  const key = process.env.SAPLING_API_KEY;
   if (!key) return;
   
   const markdown = dataToMarkdown(revision.html, "html");
   const textToCheck = markdown.slice(0, 10000)
-
   const response = await fetch('https://api.sapling.ai/api/v1/aidetect', {
     method: 'POST',
     headers: {
