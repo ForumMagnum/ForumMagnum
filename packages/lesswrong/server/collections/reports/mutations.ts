@@ -10,10 +10,10 @@ import { makeGqlCreateMutation, makeGqlUpdateMutation } from "@/server/vulcan-li
 import { getLegacyCreateCallbackProps, getLegacyUpdateCallbackProps, insertAndReturnCreateAfterProps, runFieldOnCreateCallbacks, runFieldOnUpdateCallbacks, updateAndReturnDocument, assignUserIdToData } from "@/server/vulcan-lib/mutators";
 import gql from "graphql-tag";
 import cloneDeep from "lodash/cloneDeep";
-import { WebClient } from "@slack/web-api";
+import { ChatPostMessageResponse, WebClient } from "@slack/web-api";
 
 
-async function postReportsToSunshine(report: DbReport, context: ResolverContext): Promise<void> {
+async function postReportsToSunshine(report: DbReport, context: ResolverContext): Promise<ChatPostMessageResponse | undefined> {
 
   const slackBotToken = process.env.AMANUENSIS_SLACK_BOT_TOKEN;
   if (!slackBotToken) {
@@ -29,7 +29,7 @@ async function postReportsToSunshine(report: DbReport, context: ResolverContext)
 
   const slack = new WebClient(slackBotToken);
 
-  void slack.chat.postMessage({
+  return await slack.chat.postMessage({
     channel: 'C3GTABBTQ',
     blocks: [
       {
