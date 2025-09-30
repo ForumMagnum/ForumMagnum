@@ -18767,7 +18767,7 @@ type postsListTagWithVotesQuery = postsListTagWithVotesQuery_Query;
 
 type multiCommentQuickTakesSectionQueryQuery_comments_MultiCommentOutput_results_Comment = (
   { __typename?: 'Comment' }
-  & ShortformComments
+  & FrontpageShortformComments
 );
 
 type multiCommentQuickTakesSectionQueryQuery_comments_MultiCommentOutput = { __typename?: 'MultiCommentOutput', totalCount: number | null, results: Array<multiCommentQuickTakesSectionQueryQuery_comments_MultiCommentOutput_results_Comment> };
@@ -24294,6 +24294,15 @@ type ShortformComments_Comment_relevantTags_Tag = (
 type ShortformComments = (
   { __typename?: 'Comment', post: ShortformComments_Comment_post_Post | null, relevantTags: Array<ShortformComments_Comment_relevantTags_Tag> }
   & CommentsList
+);
+
+type FrontpageShortformComments_Comment_latestChildren_Comment_user_User = { __typename?: 'User', _id: string, displayName: string };
+
+type FrontpageShortformComments_Comment_latestChildren_Comment = { __typename?: 'Comment', _id: string, postedAt: string, user: FrontpageShortformComments_Comment_latestChildren_Comment_user_User | null };
+
+type FrontpageShortformComments = (
+  { __typename?: 'Comment', latestChildren: Array<FrontpageShortformComments_Comment_latestChildren_Comment> }
+  & ShortformComments
 );
 
 type DraftComments_Comment_post_Post = (
