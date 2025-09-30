@@ -3,6 +3,7 @@
   "version": "2.1.0",
   "scripts": {
     "start": "scripts/runDevInstance.sh",
+    "af": "FORUM_TYPE=AlignmentForum scripts/runDevInstance.sh",
     "postinstall": "scripts/postinstall.sh",
     "checktypes": "scripts/lint_and_checktypes.sh",
     "lint": "scripts/lint_and_checktypes.sh",
