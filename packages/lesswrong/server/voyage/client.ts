@@ -184,7 +184,7 @@ export const updateMissingCommentEmbeddings = async () => {
 
   const apolloClient = await getApolloClientWithContext(context);
 
-  let startDate = new Date("2024-01-29");
+  let startDate = new Date("2022-01-29");
   const commentsWithoutEmbeddings = await repos.commentEmbeddings.getAllCommentIdsWithoutEmbeddings(startDate);
   const batches = chunk(commentsWithoutEmbeddings, 300);
 
