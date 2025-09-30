@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # Configuration - Change this to your desired target branch
-TARGET_BRANCH="main"
+TARGET_BRANCH="nextjs-with-suspense-branch"
 
 echo "=== Vercel Build Step Check ==="
 echo "Checking if build should proceed..."
