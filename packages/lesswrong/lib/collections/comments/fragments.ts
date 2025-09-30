@@ -234,15 +234,6 @@ export const WithVoteComment = gql(`
   }
 `)
 
-export const CommentsListWithModerationMetadata = gql(`
-  fragment CommentsListWithModerationMetadata on Comment {
-    ...CommentWithRepliesFragment
-    allVotes {
-      voteType
-    }
-  }
-`)
-
 export const CommentsListWithModGPTAnalysis = gql(`
   fragment CommentsListWithModGPTAnalysis on Comment {
     ...CommentsList

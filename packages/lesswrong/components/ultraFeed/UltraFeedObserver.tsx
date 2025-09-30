@@ -44,18 +44,8 @@ import React, {
 } from 'react';
 import { useCurrentUser } from "../common/withUser";
 import { useMutation } from "@apollo/client/react";
-import { gql } from "@/lib/generated/gql-codegen";
 import { useTracking } from "../../lib/analyticsEvents";
-
-const UltraFeedEventsDefaultFragmentMutation = gql(`
-  mutation createUltraFeedEventUltraFeedObserver($data: CreateUltraFeedEventDataInput!) {
-    createUltraFeedEvent(data: $data) {
-      data {
-        ...UltraFeedEventsDefaultFragment
-      }
-    }
-  }
-`);
+import { UltraFeedEventCreateMutation } from './ultraFeedMutations';
 
 type DocumentType = 'post' | 'comment' | 'spotlight';
 
@@ -105,7 +95,7 @@ export const UltraFeedObserverProvider = ({ children, incognitoMode }: { childre
   const currentUser = useCurrentUser();
   const { captureEvent } = useTracking();
   
-  const [createUltraFeedEvent] = useMutation(UltraFeedEventsDefaultFragmentMutation);
+  const [createUltraFeedEvent] = useMutation(UltraFeedEventCreateMutation);
   
   const observerRef = useRef<IntersectionObserver | null>(null);
 

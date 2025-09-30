@@ -9,11 +9,11 @@ import type { ForumIconName } from "@/components/common/ForumIcon";
 import { BookmarkableCollectionName } from "@/lib/collections/bookmarks/constants";
 import LoginPopup from "../users/LoginPopup";
 
-const BookmarksDefaultFragmentMultiQuery = gql(`
+const BookmarksMinimumInfoMultiQuery = gql(`
   query multiBookmarkuseBookmarkQuery($selector: BookmarkSelector, $limit: Int, $enableTotal: Boolean) {
     bookmarks(selector: $selector, limit: $limit, enableTotal: $enableTotal) {
       results {
-        ...BookmarksDefaultFragment
+        ...BookmarksMinimumInfoFragment
       }
       totalCount
     }
@@ -41,7 +41,7 @@ export const useBookmark = (
     mutation ToggleBookmarkMutation($input: ToggleBookmarkInput!) {
       toggleBookmark(input: $input) {
         data {
-          ...BookmarksDefaultFragment
+          ...BookmarksMinimumInfoFragment
         }
       }
     }
@@ -49,7 +49,7 @@ export const useBookmark = (
 
   const [isBookmarked, setIsBookmarked] = useState<boolean>(false);
 
-  const { data, loading: multiLoading } = useQuery(BookmarksDefaultFragmentMultiQuery, {
+  const { data, loading: multiLoading } = useQuery(BookmarksMinimumInfoMultiQuery, {
     variables: {
       selector: { userDocumentBookmark: { documentId, collectionName, userId: currentUserId } },
       limit: 1,

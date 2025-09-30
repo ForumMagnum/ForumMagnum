@@ -34,11 +34,11 @@ const PodcastSelectMultiQuery = gql(`
   }
 `);
 
-const PodcastEpisodesDefaultFragmentMutation = gql(`
+const PodcastEpisodeCreateFragmentMutation = gql(`
   mutation createPodcastEpisodePodcastEpisodeInput($data: CreatePodcastEpisodeDataInput!) {
     createPodcastEpisode(data: $data) {
       data {
-        ...PodcastEpisodesDefaultFragment
+        ...PodcastEpisodeCreateFragment
       }
     }
   }
@@ -88,7 +88,7 @@ export const PodcastEpisodeInput = ({ field, document }: {
 
   const [existingPodcastEpisode] = useMemo(() => dataPodcastEpisodeFull?.podcastEpisodes?.results ?? [], [dataPodcastEpisodeFull?.podcastEpisodes?.results]);
 
-  const [createEpisodeMutation, { data: createdEpisode }] = useMutation(PodcastEpisodesDefaultFragmentMutation);
+  const [createEpisodeMutation, { data: createdEpisode }] = useMutation(PodcastEpisodeCreateFragmentMutation);
 
   const [podcastEpisodeId, setPodcastEpisodeId] = useState(createdEpisode?.createPodcastEpisode?.data?._id ?? value ?? undefined);
 
