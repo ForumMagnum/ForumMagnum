@@ -89,9 +89,16 @@ function isCrossSiteRequest(request: NextRequest) {
   if (!fmCrosspostBaseUrl) {
     return false;
   }
+
+  const requestOrigin = request.headers.get('origin');
+  if (!requestOrigin) {
+    return false;
+  }
+
   try {
     const crossSiteHostname = new URL(fmCrosspostBaseUrl).hostname;
-    return request.nextUrl.hostname === crossSiteHostname;
+    const requestOriginHostname = new URL(requestOrigin).hostname;
+    return requestOriginHostname === crossSiteHostname;
   } catch (error) {
     // eslint-disable-next-line no-console
     console.error("Error parsing fmCrosspostBaseUrl when determining if request is cross-site for setting CORS headers", error);

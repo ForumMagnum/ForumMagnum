@@ -8,6 +8,19 @@ import { ApolloClient, InMemoryCache } from "@apollo/client-integration-nextjs";
 import { ApolloLink } from "@apollo/client";
 import { headerLink, createErrorLink, createSchemaLink } from "@/lib/apollo/links";
 
+export async function getApolloClientWithContext(context: ResolverContext) {
+  const schema = getExecutableSchema();
+  return new ApolloClient({
+    cache: new InMemoryCache(),
+    link: ApolloLink.from([
+      headerLink,
+      createErrorLink(),
+      new LoggedOutCacheLink(schema),
+      createSchemaLink(schema, context)
+    ]),
+  });
+}
+
 export async function getApolloClientForSSR({loginToken, cookies, headers, searchParams}: {
   loginToken: string|null
   cookies: ReadonlyRequestCookies,

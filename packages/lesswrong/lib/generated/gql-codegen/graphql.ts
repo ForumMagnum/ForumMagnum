@@ -492,6 +492,12 @@ export type CommentDefaultViewInput = {
   userId?: InputMaybe<Scalars['String']['input']>;
 };
 
+export type CommentEmbedding = {
+  __typename?: 'CommentEmbedding';
+  _id: Scalars['String']['output'];
+  createdAt: Scalars['Date']['output'];
+};
+
 export type CommentKarmaChange = {
   __typename?: 'CommentKarmaChange';
   _id: Scalars['String']['output'];
@@ -7467,6 +7473,8 @@ export type Query = {
   AnalyticsSeries: Maybe<Array<Maybe<AnalyticsSeriesValue>>>;
   ArbitalPageData: Maybe<ArbitalPageData>;
   CanAccessGoogleDoc: Maybe<Scalars['Boolean']['output']>;
+  CommentEmbeddingSearch: Array<Comment>;
+  CommentEmbeddingSimilaritySearch: Array<Comment>;
   CommentsWithReacts: Maybe<CommentsWithReactsResult>;
   ContinueReading: Maybe<Array<RecommendResumeSequence>>;
   CrossedKarmaThreshold: Maybe<CrossedKarmaThresholdResult>;
@@ -7695,6 +7703,18 @@ export type QueryArbitalPageDataArgs = {
 
 export type QueryCanAccessGoogleDocArgs = {
   fileUrl: Scalars['String']['input'];
+};
+
+
+export type QueryCommentEmbeddingSearchArgs = {
+  query: Scalars['String']['input'];
+  scoreBias?: InputMaybe<Scalars['Float']['input']>;
+};
+
+
+export type QueryCommentEmbeddingSimilaritySearchArgs = {
+  commentId: Scalars['String']['input'];
+  scoreBias?: InputMaybe<Scalars['Float']['input']>;
 };
 
 
@@ -13142,6 +13162,28 @@ export type updateUserBookFrontpageWidgetMutation = { __typename?: 'Mutation', u
       { __typename?: 'User' }
       & UsersCurrent
     ) | null } | null };
+
+export type CommentEmbeddingsSearchQueryQueryVariables = Exact<{
+  query: Scalars['String']['input'];
+  scoreBias?: InputMaybe<Scalars['Float']['input']>;
+}>;
+
+
+export type CommentEmbeddingsSearchQueryQuery = { __typename?: 'Query', CommentEmbeddingSearch: Array<(
+    { __typename?: 'Comment' }
+    & CommentsListWithParentMetadata
+  )> };
+
+export type CommentEmbeddingsSimilaritySearchQueryQueryVariables = Exact<{
+  commentId: Scalars['String']['input'];
+  scoreBias?: InputMaybe<Scalars['Float']['input']>;
+}>;
+
+
+export type CommentEmbeddingsSimilaritySearchQueryQuery = { __typename?: 'Query', CommentEmbeddingSimilaritySearch: Array<(
+    { __typename?: 'Comment' }
+    & CommentsListWithParentMetadata
+  )> };
 
 export type CommentByIdQueryVariables = Exact<{
   documentId?: InputMaybe<Scalars['String']['input']>;
@@ -21358,6 +21400,8 @@ export type ClientIdsDefaultFragment = { __typename?: 'ClientId', _id: string, s
 
 export type CollectionsDefaultFragment = { __typename?: 'Collection', _id: string, schemaVersion: number, createdAt: string, legacyData: any | null, contents_latest: string | null, userId: string, title: string, slug: string, gridImageId: string | null, firstPageLink: string, hideStartReadingButton: boolean | null, noindex: boolean };
 
+export type CommentEmbeddingsDefaultFragment = { __typename?: 'CommentEmbedding', _id: string, createdAt: string };
+
 export type CommentModeratorActionsDefaultFragment = { __typename?: 'CommentModeratorAction', _id: string, schemaVersion: number, createdAt: string, legacyData: any | null, commentId: string | null, type: string | null, endedAt: string | null };
 
 export type CommentsDefaultFragment = { __typename?: 'Comment', _id: string, schemaVersion: number, createdAt: string | null, legacyData: any | null, contents_latest: string | null, pingbacks: any | null, parentCommentId: string | null, topLevelCommentId: string | null, postedAt: string, lastEditedAt: string | null, author: string | null, postId: string | null, tagId: string | null, forumEventId: string | null, forumEventMetadata: any | null, tagCommentType: TagCommentType, subforumStickyPriority: number | null, userId: string | null, userIP: string | null, userAgent: string | null, referrer: string | null, authorIsUnreviewed: boolean, answer: boolean, parentAnswerId: string | null, directChildrenCount: number, descendentCount: number, shortform: boolean | null, shortformFrontpage: boolean, nominatedForReview: string | null, reviewingForReview: string | null, lastSubthreadActivity: string | null, postVersion: string | null, promoted: boolean | null, promotedByUserId: string | null, promotedAt: string | null, hideKarma: boolean | null, legacy: boolean, legacyId: string | null, legacyPoll: boolean, legacyParentId: string | null, draft: boolean, retracted: boolean, deleted: boolean, deletedPublic: boolean, deletedReason: string | null, deletedDate: string | null, deletedByUserId: string | null, spam: boolean, repliesBlockedUntil: string | null, needsReview: boolean | null, reviewedByUserId: string | null, hideAuthor: boolean, moderatorHat: boolean, hideModeratorHat: boolean | null, isPinnedOnProfile: boolean, title: string | null, relevantTagIds: Array<string>, debateResponse: boolean | null, rejected: boolean, modGPTAnalysis: string | null, modGPTRecommendation: string | null, rejectedReason: string | null, rejectedByUserId: string | null, af: boolean, suggestForAlignmentUserIds: Array<string>, reviewForAlignmentUserId: string | null, afDate: string | null, moveToAlignmentUserId: string | null, agentFoundationsId: string | null, originalDialogueId: string | null, voteCount: number, baseScore: number | null, extendedScore: any | null, score: number, afBaseScore: number | null, afExtendedScore: any | null, afVoteCount: number | null };
@@ -21798,6 +21842,13 @@ export type multiPostsForLLMQueryQuery = { __typename?: 'Query', posts: { __type
       & PostsPage
     )> } | null };
 
+export type CommentsForEmbeddingsQueryVariables = Exact<{
+  selector?: InputMaybe<CommentSelector>;
+}>;
+
+
+export type CommentsForEmbeddingsQuery = { __typename?: 'Query', comments: { __typename?: 'MultiCommentOutput', results: Array<{ __typename?: 'Comment', _id: string, postedAt: string, contents: { __typename?: 'Revision', _id: string, html: string | null } | null, user: { __typename?: 'User', _id: string, displayName: string, username: string | null, fullName: string | null } | null, post: { __typename?: 'Post', _id: string, title: string } | null }> } | null };
+
 // Shared fragment definitions
 const PostsPlaintextDescriptionFragmentDef = {"kind":"FragmentDefinition","name":{"kind":"Name","value":"PostsPlaintextDescription"},"typeCondition":{"kind":"NamedType","name":{"kind":"Name","value":"Post"}},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"_id"}},{"kind":"Field","name":{"kind":"Name","value":"contents"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"_id"}},{"kind":"Field","name":{"kind":"Name","value":"plaintextDescription"}}]}}]}};
 const AdvisorRequestsDefaultFragmentFragmentDef = {"kind":"FragmentDefinition","name":{"kind":"Name","value":"AdvisorRequestsDefaultFragment"},"typeCondition":{"kind":"NamedType","name":{"kind":"Name","value":"AdvisorRequest"}},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"_id"}},{"kind":"Field","name":{"kind":"Name","value":"schemaVersion"}},{"kind":"Field","name":{"kind":"Name","value":"createdAt"}},{"kind":"Field","name":{"kind":"Name","value":"legacyData"}},{"kind":"Field","name":{"kind":"Name","value":"userId"}},{"kind":"Field","name":{"kind":"Name","value":"interestedInMetaculus"}},{"kind":"Field","name":{"kind":"Name","value":"jobAds"}}]}};
@@ -21867,6 +21918,7 @@ const CollectionsPageFragmentFragmentDef = {"kind":"FragmentDefinition","name":{
 const CollectionsEditFragmentFragmentDef = {"kind":"FragmentDefinition","name":{"kind":"Name","value":"CollectionsEditFragment"},"typeCondition":{"kind":"NamedType","name":{"kind":"Name","value":"Collection"}},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"FragmentSpread","name":{"kind":"Name","value":"CollectionsPageFragment"}},{"kind":"Field","name":{"kind":"Name","value":"contents"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"FragmentSpread","name":{"kind":"Name","value":"RevisionEdit"}}]}}]}};
 const DeletedCommentsMetaDataFragmentDef = {"kind":"FragmentDefinition","name":{"kind":"Name","value":"DeletedCommentsMetaData"},"typeCondition":{"kind":"NamedType","name":{"kind":"Name","value":"Comment"}},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"_id"}},{"kind":"Field","name":{"kind":"Name","value":"deleted"}},{"kind":"Field","name":{"kind":"Name","value":"deletedDate"}},{"kind":"Field","name":{"kind":"Name","value":"deletedByUser"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"_id"}},{"kind":"Field","name":{"kind":"Name","value":"displayName"}}]}},{"kind":"Field","name":{"kind":"Name","value":"deletedReason"}},{"kind":"Field","name":{"kind":"Name","value":"deletedPublic"}}]}};
 const CommentEditFragmentDef = {"kind":"FragmentDefinition","name":{"kind":"Name","value":"CommentEdit"},"typeCondition":{"kind":"NamedType","name":{"kind":"Name","value":"Comment"}},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"FragmentSpread","name":{"kind":"Name","value":"CommentsList"}},{"kind":"Field","name":{"kind":"Name","value":"relevantTagIds"}},{"kind":"Field","name":{"kind":"Name","value":"contents"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"FragmentSpread","name":{"kind":"Name","value":"RevisionEdit"}}]}}]}};
+const CommentEmbeddingsDefaultFragmentFragmentDef = {"kind":"FragmentDefinition","name":{"kind":"Name","value":"CommentEmbeddingsDefaultFragment"},"typeCondition":{"kind":"NamedType","name":{"kind":"Name","value":"CommentEmbedding"}},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"_id"}},{"kind":"Field","name":{"kind":"Name","value":"createdAt"}}]}};
 const CommentWithRepliesFragmentFragmentDef = {"kind":"FragmentDefinition","name":{"kind":"Name","value":"CommentWithRepliesFragment"},"typeCondition":{"kind":"NamedType","name":{"kind":"Name","value":"Comment"}},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"FragmentSpread","name":{"kind":"Name","value":"CommentsList"}},{"kind":"Field","name":{"kind":"Name","value":"lastSubthreadActivity"}},{"kind":"Field","name":{"kind":"Name","value":"latestChildren"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"FragmentSpread","name":{"kind":"Name","value":"CommentsList"}}]}},{"kind":"Field","name":{"kind":"Name","value":"tag"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"FragmentSpread","name":{"kind":"Name","value":"TagBasicInfo"}}]}},{"kind":"Field","name":{"kind":"Name","value":"post"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"FragmentSpread","name":{"kind":"Name","value":"PostsBase"}}]}}]}};
 const CommentsListWithModerationMetadataFragmentDef = {"kind":"FragmentDefinition","name":{"kind":"Name","value":"CommentsListWithModerationMetadata"},"typeCondition":{"kind":"NamedType","name":{"kind":"Name","value":"Comment"}},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"FragmentSpread","name":{"kind":"Name","value":"CommentWithRepliesFragment"}},{"kind":"Field","name":{"kind":"Name","value":"allVotes"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"voteType"}}]}}]}};
 const CommentModeratorActionDisplayFragmentDef = {"kind":"FragmentDefinition","name":{"kind":"Name","value":"CommentModeratorActionDisplay"},"typeCondition":{"kind":"NamedType","name":{"kind":"Name","value":"CommentModeratorAction"}},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"_id"}},{"kind":"Field","name":{"kind":"Name","value":"comment"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"FragmentSpread","name":{"kind":"Name","value":"CommentsListWithModerationMetadata"}}]}},{"kind":"Field","name":{"kind":"Name","value":"commentId"}},{"kind":"Field","name":{"kind":"Name","value":"type"}},{"kind":"Field","name":{"kind":"Name","value":"active"}},{"kind":"Field","name":{"kind":"Name","value":"createdAt"}},{"kind":"Field","name":{"kind":"Name","value":"endedAt"}}]}};
@@ -22187,6 +22239,9 @@ export const CommentByIdDocument = {"kind":"Document","definitions":[{"kind":"Op
 export const CommentDeletedMetadataDocument = {"kind":"Document","definitions":[{"kind":"OperationDefinition","operation":"query","name":{"kind":"Name","value":"CommentDeletedMetadata"},"variableDefinitions":[{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"documentId"}},"type":{"kind":"NamedType","name":{"kind":"Name","value":"String"}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"comment"},"arguments":[{"kind":"Argument","name":{"kind":"Name","value":"input"},"value":{"kind":"ObjectValue","fields":[{"kind":"ObjectField","name":{"kind":"Name","value":"selector"},"value":{"kind":"ObjectValue","fields":[{"kind":"ObjectField","name":{"kind":"Name","value":"documentId"},"value":{"kind":"Variable","name":{"kind":"Name","value":"documentId"}}}]}}]}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"result"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"FragmentSpread","name":{"kind":"Name","value":"DeletedCommentsMetaData"}}]}}]}}]}},DeletedCommentsMetaDataFragmentDef]} as unknown as DocumentNode<CommentDeletedMetadataQuery, CommentDeletedMetadataQueryVariables>;
 export const CommentEditDoc = {"kind":"Document","definitions":[CommentEditFragmentDef,CommentsListFragmentDef,TagPreviewFragmentFragmentDef,TagBasicInfoFragmentDef,UsersMinimumInfoFragmentDef,RevisionEditFragmentDef,RevisionDisplayFragmentDef]} as unknown as DocumentNode<CommentEdit, unknown>;
 export const CommentEditDocument = {"kind":"Document","definitions":[{"kind":"OperationDefinition","operation":"query","name":{"kind":"Name","value":"CommentEdit"},"variableDefinitions":[{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"documentId"}},"type":{"kind":"NamedType","name":{"kind":"Name","value":"String"}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"comment"},"arguments":[{"kind":"Argument","name":{"kind":"Name","value":"input"},"value":{"kind":"ObjectValue","fields":[{"kind":"ObjectField","name":{"kind":"Name","value":"selector"},"value":{"kind":"ObjectValue","fields":[{"kind":"ObjectField","name":{"kind":"Name","value":"documentId"},"value":{"kind":"Variable","name":{"kind":"Name","value":"documentId"}}}]}}]}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"result"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"FragmentSpread","name":{"kind":"Name","value":"CommentEdit"}}]}}]}}]}},CommentEditFragmentDef,CommentsListFragmentDef,TagPreviewFragmentFragmentDef,TagBasicInfoFragmentDef,UsersMinimumInfoFragmentDef,RevisionEditFragmentDef,RevisionDisplayFragmentDef]} as unknown as DocumentNode<CommentEditQuery, CommentEditQueryVariables>;
+export const CommentEmbeddingsDefaultFragmentDoc = {"kind":"Document","definitions":[CommentEmbeddingsDefaultFragmentFragmentDef]} as unknown as DocumentNode<CommentEmbeddingsDefaultFragment, unknown>;
+export const CommentEmbeddingsSearchQueryDocument = {"kind":"Document","definitions":[{"kind":"OperationDefinition","operation":"query","name":{"kind":"Name","value":"CommentEmbeddingsSearchQuery"},"variableDefinitions":[{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"query"}},"type":{"kind":"NonNullType","type":{"kind":"NamedType","name":{"kind":"Name","value":"String"}}}},{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"scoreBias"}},"type":{"kind":"NamedType","name":{"kind":"Name","value":"Float"}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"CommentEmbeddingSearch"},"arguments":[{"kind":"Argument","name":{"kind":"Name","value":"query"},"value":{"kind":"Variable","name":{"kind":"Name","value":"query"}}},{"kind":"Argument","name":{"kind":"Name","value":"scoreBias"},"value":{"kind":"Variable","name":{"kind":"Name","value":"scoreBias"}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"FragmentSpread","name":{"kind":"Name","value":"CommentsListWithParentMetadata"}}]}}]}},CommentsListWithParentMetadataFragmentDef,CommentsListFragmentDef,TagPreviewFragmentFragmentDef,TagBasicInfoFragmentDef,UsersMinimumInfoFragmentDef,PostsMinimumInfoFragmentDef]} as unknown as DocumentNode<CommentEmbeddingsSearchQueryQuery, CommentEmbeddingsSearchQueryQueryVariables>;
+export const CommentEmbeddingsSimilaritySearchQueryDocument = {"kind":"Document","definitions":[{"kind":"OperationDefinition","operation":"query","name":{"kind":"Name","value":"CommentEmbeddingsSimilaritySearchQuery"},"variableDefinitions":[{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"commentId"}},"type":{"kind":"NonNullType","type":{"kind":"NamedType","name":{"kind":"Name","value":"String"}}}},{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"scoreBias"}},"type":{"kind":"NamedType","name":{"kind":"Name","value":"Float"}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"CommentEmbeddingSimilaritySearch"},"arguments":[{"kind":"Argument","name":{"kind":"Name","value":"commentId"},"value":{"kind":"Variable","name":{"kind":"Name","value":"commentId"}}},{"kind":"Argument","name":{"kind":"Name","value":"scoreBias"},"value":{"kind":"Variable","name":{"kind":"Name","value":"scoreBias"}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"FragmentSpread","name":{"kind":"Name","value":"CommentsListWithParentMetadata"}}]}}]}},CommentsListWithParentMetadataFragmentDef,CommentsListFragmentDef,TagPreviewFragmentFragmentDef,TagBasicInfoFragmentDef,UsersMinimumInfoFragmentDef,PostsMinimumInfoFragmentDef]} as unknown as DocumentNode<CommentEmbeddingsSimilaritySearchQueryQuery, CommentEmbeddingsSimilaritySearchQueryQueryVariables>;
 export const CommentModeratorActionDisplayDoc = {"kind":"Document","definitions":[CommentModeratorActionDisplayFragmentDef,CommentsListWithModerationMetadataFragmentDef,CommentWithRepliesFragmentFragmentDef,CommentsListFragmentDef,TagPreviewFragmentFragmentDef,TagBasicInfoFragmentDef,UsersMinimumInfoFragmentDef,PostsBaseFragmentDef,PostsMinimumInfoFragmentDef]} as unknown as DocumentNode<CommentModeratorActionDisplay, unknown>;
 export const CommentModeratorActionsDefaultFragmentDoc = {"kind":"Document","definitions":[CommentModeratorActionsDefaultFragmentFragmentDef]} as unknown as DocumentNode<CommentModeratorActionsDefaultFragment, unknown>;
 export const CommentOnYourDraftNotificationHoverDocument = {"kind":"Document","definitions":[{"kind":"OperationDefinition","operation":"query","name":{"kind":"Name","value":"CommentOnYourDraftNotificationHover"},"variableDefinitions":[{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"documentId"}},"type":{"kind":"NamedType","name":{"kind":"Name","value":"String"}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"post"},"arguments":[{"kind":"Argument","name":{"kind":"Name","value":"input"},"value":{"kind":"ObjectValue","fields":[{"kind":"ObjectField","name":{"kind":"Name","value":"selector"},"value":{"kind":"ObjectValue","fields":[{"kind":"ObjectField","name":{"kind":"Name","value":"documentId"},"value":{"kind":"Variable","name":{"kind":"Name","value":"documentId"}}}]}}]}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"result"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"FragmentSpread","name":{"kind":"Name","value":"PostsMinimumInfo"}}]}}]}}]}},PostsMinimumInfoFragmentDef]} as unknown as DocumentNode<CommentOnYourDraftNotificationHoverQuery, CommentOnYourDraftNotificationHoverQueryVariables>;
@@ -22197,6 +22252,7 @@ export const CommentWithRepliesFragmentDoc = {"kind":"Document","definitions":[C
 export const CommentsDefaultFragmentDoc = {"kind":"Document","definitions":[CommentsDefaultFragmentFragmentDef]} as unknown as DocumentNode<CommentsDefaultFragment, unknown>;
 export const CommentsForAutocompleteDoc = {"kind":"Document","definitions":[CommentsForAutocompleteFragmentDef,UsersMinimumInfoFragmentDef,PostsForAutocompleteFragmentDef]} as unknown as DocumentNode<CommentsForAutocomplete, unknown>;
 export const CommentsForAutocompleteWithParentsDoc = {"kind":"Document","definitions":[CommentsForAutocompleteWithParentsFragmentDef,CommentsForAutocompleteFragmentDef,UsersMinimumInfoFragmentDef,PostsForAutocompleteFragmentDef]} as unknown as DocumentNode<CommentsForAutocompleteWithParents, unknown>;
+export const CommentsForEmbeddingsDocument = {"kind":"Document","definitions":[{"kind":"OperationDefinition","operation":"query","name":{"kind":"Name","value":"CommentsForEmbeddings"},"variableDefinitions":[{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"selector"}},"type":{"kind":"NamedType","name":{"kind":"Name","value":"CommentSelector"}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"comments"},"arguments":[{"kind":"Argument","name":{"kind":"Name","value":"selector"},"value":{"kind":"Variable","name":{"kind":"Name","value":"selector"}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"results"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"_id"}},{"kind":"Field","name":{"kind":"Name","value":"postedAt"}},{"kind":"Field","name":{"kind":"Name","value":"contents"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"_id"}},{"kind":"Field","name":{"kind":"Name","value":"html"}}]}},{"kind":"Field","name":{"kind":"Name","value":"user"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"_id"}},{"kind":"Field","name":{"kind":"Name","value":"displayName"}},{"kind":"Field","name":{"kind":"Name","value":"username"}},{"kind":"Field","name":{"kind":"Name","value":"fullName"}}]}},{"kind":"Field","name":{"kind":"Name","value":"post"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"_id"}},{"kind":"Field","name":{"kind":"Name","value":"title"}}]}}]}}]}}]}}]} as unknown as DocumentNode<CommentsForEmbeddingsQuery, CommentsForEmbeddingsQueryVariables>;
 export const CommentsListDoc = {"kind":"Document","definitions":[CommentsListFragmentDef,TagPreviewFragmentFragmentDef,TagBasicInfoFragmentDef,UsersMinimumInfoFragmentDef]} as unknown as DocumentNode<CommentsList, unknown>;
 export const CommentsListWithModGPTAnalysisDoc = {"kind":"Document","definitions":[CommentsListWithModGPTAnalysisFragmentDef,CommentsListFragmentDef,TagPreviewFragmentFragmentDef,TagBasicInfoFragmentDef,UsersMinimumInfoFragmentDef,PostsMinimumInfoFragmentDef]} as unknown as DocumentNode<CommentsListWithModGPTAnalysis, unknown>;
 export const CommentsListWithModerationMetadataDoc = {"kind":"Document","definitions":[CommentsListWithModerationMetadataFragmentDef,CommentWithRepliesFragmentFragmentDef,CommentsListFragmentDef,TagPreviewFragmentFragmentDef,TagBasicInfoFragmentDef,UsersMinimumInfoFragmentDef,PostsBaseFragmentDef,PostsMinimumInfoFragmentDef]} as unknown as DocumentNode<CommentsListWithModerationMetadata, unknown>;

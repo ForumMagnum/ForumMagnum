@@ -59,6 +59,7 @@ export const crossposterDetailsRoute = new FMCrosspostRoute({
   responseSchema: z.object({
     displayName: z.string().nonempty(),
     slug: z.string().nonempty(),
+    fmCrosspostUserId: z.string().nullable().optional(),
   }),
 });
 

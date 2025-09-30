@@ -158,6 +158,13 @@ export const CollectionsDefaultFragment = gql(`
   }
 `);
 
+export const CommentEmbeddingsDefaultFragment = gql(`
+  fragment CommentEmbeddingsDefaultFragment on CommentEmbedding {
+    _id
+    createdAt
+  }
+`);
+
 export const CommentModeratorActionsDefaultFragment = gql(`
   fragment CommentModeratorActionsDefaultFragment on CommentModeratorAction {
     _id

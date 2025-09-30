@@ -489,6 +489,12 @@ type CommentDefaultViewInput = {
   userId?: InputMaybe<Scalars['String']['input']>;
 };
 
+type CommentEmbedding = {
+  __typename?: 'CommentEmbedding';
+  _id: Scalars['String']['output'];
+  createdAt: Scalars['Date']['output'];
+};
+
 type CommentKarmaChange = {
   __typename?: 'CommentKarmaChange';
   _id: Scalars['String']['output'];
@@ -7464,6 +7470,8 @@ type Query = {
   AnalyticsSeries?: Maybe<Array<Maybe<AnalyticsSeriesValue>>>;
   ArbitalPageData?: Maybe<ArbitalPageData>;
   CanAccessGoogleDoc?: Maybe<Scalars['Boolean']['output']>;
+  CommentEmbeddingSearch: Array<Comment>;
+  CommentEmbeddingSimilaritySearch: Array<Comment>;
   CommentsWithReacts?: Maybe<CommentsWithReactsResult>;
   ContinueReading?: Maybe<Array<RecommendResumeSequence>>;
   CrossedKarmaThreshold?: Maybe<CrossedKarmaThresholdResult>;
@@ -7692,6 +7700,18 @@ type QueryArbitalPageDataArgs = {
 
 type QueryCanAccessGoogleDocArgs = {
   fileUrl: Scalars['String']['input'];
+};
+
+
+type QueryCommentEmbeddingSearchArgs = {
+  query: Scalars['String']['input'];
+  scoreBias?: InputMaybe<Scalars['Float']['input']>;
+};
+
+
+type QueryCommentEmbeddingSimilaritySearchArgs = {
+  commentId: Scalars['String']['input'];
+  scoreBias?: InputMaybe<Scalars['Float']['input']>;
 };
 
 
@@ -13319,6 +13339,38 @@ type updateUserBookFrontpageWidgetMutationVariables = Exact<{
 
 
 type updateUserBookFrontpageWidgetMutation = updateUserBookFrontpageWidgetMutation_Mutation;
+
+type CommentEmbeddingsSearchQueryQuery_CommentEmbeddingSearch_Comment = (
+  { __typename?: 'Comment' }
+  & CommentsListWithParentMetadata
+);
+
+type CommentEmbeddingsSearchQueryQuery_Query = { __typename?: 'Query', CommentEmbeddingSearch: Array<CommentEmbeddingsSearchQueryQuery_CommentEmbeddingSearch_Comment> };
+
+
+type CommentEmbeddingsSearchQueryQueryVariables = Exact<{
+  query: Scalars['String']['input'];
+  scoreBias: InputMaybe<Scalars['Float']['input']>;
+}>;
+
+
+type CommentEmbeddingsSearchQueryQuery = CommentEmbeddingsSearchQueryQuery_Query;
+
+type CommentEmbeddingsSimilaritySearchQueryQuery_CommentEmbeddingSimilaritySearch_Comment = (
+  { __typename?: 'Comment' }
+  & CommentsListWithParentMetadata
+);
+
+type CommentEmbeddingsSimilaritySearchQueryQuery_Query = { __typename?: 'Query', CommentEmbeddingSimilaritySearch: Array<CommentEmbeddingsSimilaritySearchQueryQuery_CommentEmbeddingSimilaritySearch_Comment> };
+
+
+type CommentEmbeddingsSimilaritySearchQueryQueryVariables = Exact<{
+  commentId: Scalars['String']['input'];
+  scoreBias: InputMaybe<Scalars['Float']['input']>;
+}>;
+
+
+type CommentEmbeddingsSimilaritySearchQueryQuery = CommentEmbeddingsSimilaritySearchQueryQuery_Query;
 
 type CommentByIdQuery_comment_SingleCommentOutput_result_Comment = (
   { __typename?: 'Comment' }
@@ -26407,6 +26459,8 @@ type ClientIdsDefaultFragment = { __typename?: 'ClientId', _id: string, schemaVe
 
 type CollectionsDefaultFragment = { __typename?: 'Collection', _id: string, schemaVersion: number, createdAt: string, legacyData: any | null, contents_latest: string | null, userId: string, title: string, slug: string, gridImageId: string | null, firstPageLink: string, hideStartReadingButton: boolean | null, noindex: boolean };
 
+type CommentEmbeddingsDefaultFragment = { __typename?: 'CommentEmbedding', _id: string, createdAt: string };
+
 type CommentModeratorActionsDefaultFragment = { __typename?: 'CommentModeratorAction', _id: string, schemaVersion: number, createdAt: string, legacyData: any | null, commentId: string | null, type: string | null, endedAt: string | null };
 
 type CommentsDefaultFragment = { __typename?: 'Comment', _id: string, schemaVersion: number, createdAt: string | null, legacyData: any | null, contents_latest: string | null, pingbacks: any | null, parentCommentId: string | null, topLevelCommentId: string | null, postedAt: string, lastEditedAt: string | null, author: string | null, postId: string | null, tagId: string | null, forumEventId: string | null, forumEventMetadata: any | null, tagCommentType: TagCommentType, subforumStickyPriority: number | null, userId: string | null, userIP: string | null, userAgent: string | null, referrer: string | null, authorIsUnreviewed: boolean, answer: boolean, parentAnswerId: string | null, directChildrenCount: number, descendentCount: number, shortform: boolean | null, shortformFrontpage: boolean, nominatedForReview: string | null, reviewingForReview: string | null, lastSubthreadActivity: string | null, postVersion: string | null, promoted: boolean | null, promotedByUserId: string | null, promotedAt: string | null, hideKarma: boolean | null, legacy: boolean, legacyId: string | null, legacyPoll: boolean, legacyParentId: string | null, draft: boolean, retracted: boolean, deleted: boolean, deletedPublic: boolean, deletedReason: string | null, deletedDate: string | null, deletedByUserId: string | null, spam: boolean, repliesBlockedUntil: string | null, needsReview: boolean | null, reviewedByUserId: string | null, hideAuthor: boolean, moderatorHat: boolean, hideModeratorHat: boolean | null, isPinnedOnProfile: boolean, title: string | null, relevantTagIds: Array<string>, debateResponse: boolean | null, rejected: boolean, modGPTAnalysis: string | null, modGPTRecommendation: string | null, rejectedReason: string | null, rejectedByUserId: string | null, af: boolean, suggestForAlignmentUserIds: Array<string>, reviewForAlignmentUserId: string | null, afDate: string | null, moveToAlignmentUserId: string | null, agentFoundationsId: string | null, originalDialogueId: string | null, voteCount: number, baseScore: number | null, extendedScore: any | null, score: number, afBaseScore: number | null, afExtendedScore: any | null, afVoteCount: number | null };
@@ -27056,3 +27110,23 @@ type multiPostsForLLMQueryQueryVariables = Exact<{
 
 
 type multiPostsForLLMQueryQuery = multiPostsForLLMQueryQuery_Query;
+
+type CommentsForEmbeddingsQuery_comments_MultiCommentOutput_results_Comment_contents_Revision = { __typename?: 'Revision', _id: string, html: string | null };
+
+type CommentsForEmbeddingsQuery_comments_MultiCommentOutput_results_Comment_user_User = { __typename?: 'User', _id: string, displayName: string, username: string | null, fullName: string | null };
+
+type CommentsForEmbeddingsQuery_comments_MultiCommentOutput_results_Comment_post_Post = { __typename?: 'Post', _id: string, title: string };
+
+type CommentsForEmbeddingsQuery_comments_MultiCommentOutput_results_Comment = { __typename?: 'Comment', _id: string, postedAt: string, contents: CommentsForEmbeddingsQuery_comments_MultiCommentOutput_results_Comment_contents_Revision | null, user: CommentsForEmbeddingsQuery_comments_MultiCommentOutput_results_Comment_user_User | null, post: CommentsForEmbeddingsQuery_comments_MultiCommentOutput_results_Comment_post_Post | null };
+
+type CommentsForEmbeddingsQuery_comments_MultiCommentOutput = { __typename?: 'MultiCommentOutput', results: Array<CommentsForEmbeddingsQuery_comments_MultiCommentOutput_results_Comment> };
+
+type CommentsForEmbeddingsQuery_Query = { __typename?: 'Query', comments: CommentsForEmbeddingsQuery_comments_MultiCommentOutput | null };
+
+
+type CommentsForEmbeddingsQueryVariables = Exact<{
+  selector: InputMaybe<CommentSelector>;
+}>;
+
+
+type CommentsForEmbeddingsQuery = CommentsForEmbeddingsQuery_Query;
