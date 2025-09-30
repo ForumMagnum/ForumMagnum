@@ -31,7 +31,6 @@ const styles = (theme: ThemeType) => ({
     display: "flex",
     alignItems: "center",
     gap: 2,
-    fontSize: 14,
     "& svg": {
       height: 16,
     },
@@ -62,7 +61,9 @@ const styles = (theme: ThemeType) => ({
     background: theme.palette.panelBackground.bannerAdTranslucentDeep,
   },
   commentCountText: {
-    marginTop: -4,
+    fontSize: 13,
+    marginTop: -2,
+    marginRight: 4
   },
   commenterInfo: {
     display: "flex",

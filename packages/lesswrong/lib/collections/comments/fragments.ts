@@ -106,6 +106,15 @@ export const ShortformComments = gql(`
     post {
       ...PostsMinimumInfo
     }
+    relevantTags {
+      ...TagPreviewFragment
+    }
+  }
+`)
+
+export const FrontpageShortformComments = gql(`
+  fragment FrontpageShortformComments on Comment {
+    ...ShortformComments
     latestChildren {
       _id
       postedAt
@@ -113,9 +122,6 @@ export const ShortformComments = gql(`
         _id
         displayName
       }
-    }
-    relevantTags {
-      ...TagPreviewFragment
     }
   }
 `)
