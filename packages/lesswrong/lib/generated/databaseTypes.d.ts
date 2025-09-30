@@ -174,7 +174,7 @@ interface DbCommentEmbedding extends DbObject {
   __collectionName?: "CommentEmbeddings"
   commentId: string
   createdAt: Date
-  embeddings: undefined
+  embeddings: Array<number>
   lastGeneratedAt: Date
   model: string
 }

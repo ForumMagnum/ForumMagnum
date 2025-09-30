@@ -3863,6 +3863,9 @@ WHERE
   "nullifyVotes" IS NOT TRUE AND
   "banned" IS NULL;
 
+-- CustomIndex "idx_CommentEmbeddings_embedding_cosine_distance"
+CREATE INDEX IF NOT EXISTS "idx_CommentEmbeddings_embedding_cosine_distance" ON "CommentEmbeddings" USING hnsw (embeddings vector_cosine_ops);
+
 -- CustomIndex "idx_DatabaseMetadata_name"
 CREATE UNIQUE INDEX IF NOT EXISTS "idx_DatabaseMetadata_name" ON public."DatabaseMetadata" USING btree (name);
 

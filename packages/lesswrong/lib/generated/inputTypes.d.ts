@@ -10,6 +10,8 @@ interface Query {
   AirtableLeaderboards: Array<AirtableLeaderboardResult>;
   SuggestedFeedSubscriptionUsers: SuggestedFeedSubscriptionUsersResult | null;
   SuggestedTopActiveUsers: SuggestedTopActiveUsersResult | null;
+  CommentEmbeddingSearch: Array<Comment>;
+  CommentEmbeddingSimilaritySearch: Array<Comment>;
   CommentsWithReacts: CommentsWithReactsResult | null;
   PopularComments: PopularCommentsResult | null;
   PostAnalytics: PostAnalyticsResult;

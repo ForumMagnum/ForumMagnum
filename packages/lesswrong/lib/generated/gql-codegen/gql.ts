@@ -41,6 +41,8 @@ type Documents = {
     "\n  query multiVoteVoteHistoryTabQuery($selector: VoteSelector, $limit: Int, $enableTotal: Boolean) {\n    votes(selector: $selector, limit: $limit, enableTotal: $enableTotal) {\n      results {\n        ...UserVotesWithDocument\n      }\n      totalCount\n    }\n  }\n": typeof types.multiVoteVoteHistoryTabQueryDocument,
     "\n  mutation updateUserBook2020FrontpageWidget($selector: SelectorInput!, $data: UpdateUserDataInput!) {\n    updateUser(selector: $selector, data: $data) {\n      data {\n        ...UsersCurrent\n      }\n    }\n  }\n": typeof types.updateUserBook2020FrontpageWidgetDocument,
     "\n  mutation updateUserBookFrontpageWidget($selector: SelectorInput!, $data: UpdateUserDataInput!) {\n    updateUser(selector: $selector, data: $data) {\n      data {\n        ...UsersCurrent\n      }\n    }\n  }\n": typeof types.updateUserBookFrontpageWidgetDocument,
+    "\n  query CommentEmbeddingsSearchQuery($query: String!, $scoreBias: Float) {\n    CommentEmbeddingSearch(query: $query, scoreBias: $scoreBias) {\n      ...CommentsListWithParentMetadata\n    }\n  }\n": typeof types.CommentEmbeddingsSearchQueryDocument,
+    "\n  query CommentEmbeddingsSimilaritySearchQuery($commentId: String!, $scoreBias: Float) {\n    CommentEmbeddingSimilaritySearch(commentId: $commentId, scoreBias: $scoreBias) {\n      ...CommentsListWithParentMetadata\n    }\n  }\n": typeof types.CommentEmbeddingsSimilaritySearchQueryDocument,
     "\n  query CommentById($documentId: String) {\n    comment(input: { selector: { documentId: $documentId } }) {\n      result {\n        ...CommentsList\n      }\n    }\n  }\n": typeof types.CommentByIdDocument,
     "\n  mutation updateCommentCommentForm($selector: SelectorInput!, $data: UpdateCommentDataInput!) {\n    updateComment(selector: $selector, data: $data) {\n      data {\n        ...CommentsList\n      }\n    }\n  }\n": typeof types.updateCommentCommentFormDocument,
     "\n  mutation createCommentCommentForm($data: CreateCommentDataInput!) {\n    createComment(data: $data) {\n      data {\n        ...CommentsList\n      }\n    }\n  }\n": typeof types.createCommentCommentFormDocument,
@@ -1041,6 +1043,8 @@ const documents: Documents = {
     "\n  query multiVoteVoteHistoryTabQuery($selector: VoteSelector, $limit: Int, $enableTotal: Boolean) {\n    votes(selector: $selector, limit: $limit, enableTotal: $enableTotal) {\n      results {\n        ...UserVotesWithDocument\n      }\n      totalCount\n    }\n  }\n": types.multiVoteVoteHistoryTabQueryDocument,
     "\n  mutation updateUserBook2020FrontpageWidget($selector: SelectorInput!, $data: UpdateUserDataInput!) {\n    updateUser(selector: $selector, data: $data) {\n      data {\n        ...UsersCurrent\n      }\n    }\n  }\n": types.updateUserBook2020FrontpageWidgetDocument,
     "\n  mutation updateUserBookFrontpageWidget($selector: SelectorInput!, $data: UpdateUserDataInput!) {\n    updateUser(selector: $selector, data: $data) {\n      data {\n        ...UsersCurrent\n      }\n    }\n  }\n": types.updateUserBookFrontpageWidgetDocument,
+    "\n  query CommentEmbeddingsSearchQuery($query: String!, $scoreBias: Float) {\n    CommentEmbeddingSearch(query: $query, scoreBias: $scoreBias) {\n      ...CommentsListWithParentMetadata\n    }\n  }\n": types.CommentEmbeddingsSearchQueryDocument,
+    "\n  query CommentEmbeddingsSimilaritySearchQuery($commentId: String!, $scoreBias: Float) {\n    CommentEmbeddingSimilaritySearch(commentId: $commentId, scoreBias: $scoreBias) {\n      ...CommentsListWithParentMetadata\n    }\n  }\n": types.CommentEmbeddingsSimilaritySearchQueryDocument,
     "\n  query CommentById($documentId: String) {\n    comment(input: { selector: { documentId: $documentId } }) {\n      result {\n        ...CommentsList\n      }\n    }\n  }\n": types.CommentByIdDocument,
     "\n  mutation updateCommentCommentForm($selector: SelectorInput!, $data: UpdateCommentDataInput!) {\n    updateComment(selector: $selector, data: $data) {\n      data {\n        ...CommentsList\n      }\n    }\n  }\n": types.updateCommentCommentFormDocument,
     "\n  mutation createCommentCommentForm($data: CreateCommentDataInput!) {\n    createComment(data: $data) {\n      data {\n        ...CommentsList\n      }\n    }\n  }\n": types.createCommentCommentFormDocument,
@@ -2136,6 +2140,14 @@ export function gql(source: "\n  mutation updateUserBook2020FrontpageWidget($sel
  * The gql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
  */
 export function gql(source: "\n  mutation updateUserBookFrontpageWidget($selector: SelectorInput!, $data: UpdateUserDataInput!) {\n    updateUser(selector: $selector, data: $data) {\n      data {\n        ...UsersCurrent\n      }\n    }\n  }\n"): (typeof documents)["\n  mutation updateUserBookFrontpageWidget($selector: SelectorInput!, $data: UpdateUserDataInput!) {\n    updateUser(selector: $selector, data: $data) {\n      data {\n        ...UsersCurrent\n      }\n    }\n  }\n"];
+/**
+ * The gql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
+ */
+export function gql(source: "\n  query CommentEmbeddingsSearchQuery($query: String!, $scoreBias: Float) {\n    CommentEmbeddingSearch(query: $query, scoreBias: $scoreBias) {\n      ...CommentsListWithParentMetadata\n    }\n  }\n"): (typeof documents)["\n  query CommentEmbeddingsSearchQuery($query: String!, $scoreBias: Float) {\n    CommentEmbeddingSearch(query: $query, scoreBias: $scoreBias) {\n      ...CommentsListWithParentMetadata\n    }\n  }\n"];
+/**
+ * The gql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
+ */
+export function gql(source: "\n  query CommentEmbeddingsSimilaritySearchQuery($commentId: String!, $scoreBias: Float) {\n    CommentEmbeddingSimilaritySearch(commentId: $commentId, scoreBias: $scoreBias) {\n      ...CommentsListWithParentMetadata\n    }\n  }\n"): (typeof documents)["\n  query CommentEmbeddingsSimilaritySearchQuery($commentId: String!, $scoreBias: Float) {\n    CommentEmbeddingSimilaritySearch(commentId: $commentId, scoreBias: $scoreBias) {\n      ...CommentsListWithParentMetadata\n    }\n  }\n"];
 /**
  * The gql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
  */

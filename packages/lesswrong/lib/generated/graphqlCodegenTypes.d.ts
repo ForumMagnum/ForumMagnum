@@ -7468,6 +7468,8 @@ type Query = {
   AnalyticsSeries?: Maybe<Array<Maybe<AnalyticsSeriesValue>>>;
   ArbitalPageData?: Maybe<ArbitalPageData>;
   CanAccessGoogleDoc?: Maybe<Scalars['Boolean']['output']>;
+  CommentEmbeddingSearch: Array<Comment>;
+  CommentEmbeddingSimilaritySearch: Array<Comment>;
   CommentsWithReacts?: Maybe<CommentsWithReactsResult>;
   ContinueReading?: Maybe<Array<RecommendResumeSequence>>;
   CrossedKarmaThreshold?: Maybe<CrossedKarmaThresholdResult>;
@@ -7696,6 +7698,18 @@ type QueryArbitalPageDataArgs = {
 
 type QueryCanAccessGoogleDocArgs = {
   fileUrl: Scalars['String']['input'];
+};
+
+
+type QueryCommentEmbeddingSearchArgs = {
+  query: Scalars['String']['input'];
+  scoreBias?: InputMaybe<Scalars['Float']['input']>;
+};
+
+
+type QueryCommentEmbeddingSimilaritySearchArgs = {
+  commentId: Scalars['String']['input'];
+  scoreBias?: InputMaybe<Scalars['Float']['input']>;
 };
 
 
@@ -13305,6 +13319,38 @@ type updateUserBookFrontpageWidgetMutationVariables = Exact<{
 
 
 type updateUserBookFrontpageWidgetMutation = updateUserBookFrontpageWidgetMutation_Mutation;
+
+type CommentEmbeddingsSearchQueryQuery_CommentEmbeddingSearch_Comment = (
+  { __typename?: 'Comment' }
+  & CommentsListWithParentMetadata
+);
+
+type CommentEmbeddingsSearchQueryQuery_Query = { __typename?: 'Query', CommentEmbeddingSearch: Array<CommentEmbeddingsSearchQueryQuery_CommentEmbeddingSearch_Comment> };
+
+
+type CommentEmbeddingsSearchQueryQueryVariables = Exact<{
+  query: Scalars['String']['input'];
+  scoreBias: InputMaybe<Scalars['Float']['input']>;
+}>;
+
+
+type CommentEmbeddingsSearchQueryQuery = CommentEmbeddingsSearchQueryQuery_Query;
+
+type CommentEmbeddingsSimilaritySearchQueryQuery_CommentEmbeddingSimilaritySearch_Comment = (
+  { __typename?: 'Comment' }
+  & CommentsListWithParentMetadata
+);
+
+type CommentEmbeddingsSimilaritySearchQueryQuery_Query = { __typename?: 'Query', CommentEmbeddingSimilaritySearch: Array<CommentEmbeddingsSimilaritySearchQueryQuery_CommentEmbeddingSimilaritySearch_Comment> };
+
+
+type CommentEmbeddingsSimilaritySearchQueryQueryVariables = Exact<{
+  commentId: Scalars['String']['input'];
+  scoreBias: InputMaybe<Scalars['Float']['input']>;
+}>;
+
+
+type CommentEmbeddingsSimilaritySearchQueryQuery = CommentEmbeddingsSimilaritySearchQueryQuery_Query;
 
 type CommentByIdQuery_comment_SingleCommentOutput_result_Comment = (
   { __typename?: 'Comment' }

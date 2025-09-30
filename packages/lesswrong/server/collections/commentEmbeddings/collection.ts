@@ -11,6 +11,10 @@ export const CommentEmbeddings: CommentEmbeddingsCollection = createCollection({
   getIndexes: () => {
     const indexSet = new DatabaseIndexSet();
     indexSet.addIndex('CommentEmbeddings', { commentId: 1, model: 1 }, { unique: true, concurrently: true });
+    indexSet.addCustomPgIndex(`
+      CREATE INDEX CONCURRENTLY IF NOT EXISTS "idx_CommentEmbeddings_embedding_cosine_distance"
+      ON "CommentEmbeddings" USING hnsw (embeddings vector_cosine_ops);
+    `);
     return indexSet;
   },
 });

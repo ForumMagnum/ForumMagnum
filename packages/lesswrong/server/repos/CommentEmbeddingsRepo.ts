@@ -85,8 +85,9 @@ class CommentEmbeddingsRepo extends AbstractRepo<"CommentEmbeddings"> {
           ce."commentId",
           1 - (ce.embeddings <=> $(searchEmbeddings)::VECTOR(1024)) AS distance
         FROM "CommentEmbeddings" ce
-        ORDER BY distance DESC
-        -- LIMIT 100
+        WHERE ce.embeddings <> $(searchEmbeddings)::VECTOR(1024)
+        ORDER BY ce.embeddings <=> $(searchEmbeddings)::VECTOR(1024)
+        LIMIT 1000
       ), normalized_scores AS (
         SELECT 
           ed."commentId",

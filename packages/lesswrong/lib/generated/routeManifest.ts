@@ -24,6 +24,9 @@ export const routeTrie = {
     },
     "admin": {
       "staticChildren": {
+        "commentEmbeddings": {
+          "hasPage": true
+        },
         "curation": {
           "hasPage": true
         },
@@ -65,6 +68,7 @@ export const routeTrie = {
         }
       },
       "lowerCase": {
+        "commentembeddings": "commentEmbeddings",
         "curation": "curation",
         "debugheaders": "debugHeaders",
         "googleserviceaccount": "googleServiceAccount",

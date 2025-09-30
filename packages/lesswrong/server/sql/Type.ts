@@ -10,7 +10,7 @@ export function isVarcharTypeString<T extends DatabaseBaseType>(typeString: T): 
   return typeString.startsWith('VARCHAR(');
 }
 
-function isVectorTypeString<T extends DatabaseBaseType>(typeString: T): typeString is T & `VECTOR(${number})` {
+export function isVectorTypeString<T extends DatabaseBaseType>(typeString: T): typeString is T & `VECTOR(${number})` {
   return typeString.startsWith('VECTOR(');
 }
 

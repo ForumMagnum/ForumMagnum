@@ -350,6 +350,11 @@ extend type Mutation {
   performVoteMultiDocument(documentId: String, voteType: String, extendedVote: JSON): VoteResultMultiDocument
 }
 
+extend type Query {
+  CommentEmbeddingSearch(query: String!, scoreBias: Float): [Comment!]!
+  CommentEmbeddingSimilaritySearch(commentId: String!, scoreBias: Float): [Comment!]!
+}
+
 extend type Mutation {
   moderateComment(commentId: String, deleted: Boolean, deletedPublic: Boolean, deletedReason: String): Comment
 }
