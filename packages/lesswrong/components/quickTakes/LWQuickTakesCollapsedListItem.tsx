@@ -208,7 +208,8 @@ const LWQuickTakesCollapsedListItem = ({ quickTake, setExpanded, classes }: {
           toggleCollapse: () => setExpanded(true),
           setShowEdit,
           rightSectionElements: <div className={classes.commenterInfo}>
-            {commentersElement}{commentCountIcon}
+            {commentersElement}
+            {commentCountIcon}
           </div>
         }}
       />
