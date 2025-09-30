@@ -941,7 +941,7 @@ export default function ModerationPageContent(props: Props) {
                 type="checkbox"
                 checked={showNewUserRateLimits}
                 readOnly
-              />
+              />{' '}
               Show new user rate limits
             </Link>
             <Link
@@ -1378,7 +1378,7 @@ export default function ModerationPageContent(props: Props) {
                 type="checkbox"
                 checked={showExpiredBans}
                 readOnly
-              />
+              />{' '}
               Show expired bans
             </Link>
           </div>

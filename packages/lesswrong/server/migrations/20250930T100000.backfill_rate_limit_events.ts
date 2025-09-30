@@ -8,19 +8,20 @@
 
 import { forumSelect } from "@/lib/forumTypeUtils";
 import { autoCommentRateLimits, autoPostRateLimits } from "@/lib/rateLimits/constants";
-import { getActiveRateLimits, getDownvoteRatio } from "@/lib/rateLimits/utils";
-import { calculateRecentKarmaInfo } from "@/lib/rateLimits/utils";
+import { getActiveRateLimits, getDownvoteRatio, calculateRecentKarmaInfo } from "@/lib/rateLimits/utils";
 import { createAdminContext } from "../vulcan-lib/createContexts";
 
 export const up = async ({db}: MigrationContext) => {
   const context = await createAdminContext();
 
   // First, delete any existing rate limit events (in case this migration was run before with incorrect data)
+  // eslint-disable-next-line no-console
   console.log("Removing any existing rate limit events...");
   const deleteResult = await db.result(`
     DELETE FROM "LWEvents"
     WHERE name IN ('rateLimitActivated', 'rateLimitDeactivated')
   `);
+  // eslint-disable-next-line no-console
   console.log(`Removed ${deleteResult.rowCount} existing rate limit events`);
 
   // Find users who have posted or commented in the last 6 months
@@ -40,12 +41,14 @@ export const up = async ({db}: MigrationContext) => {
     WHERE "userId" IS NOT NULL
   `, [sixMonthsAgo]);
 
+  // eslint-disable-next-line no-console
   console.log(`Found ${activeUserIds.length} users with recent activity`);
 
   const commentRateLimits = forumSelect(autoCommentRateLimits);
   const postRateLimits = forumSelect(autoPostRateLimits);
 
   if (!commentRateLimits || !postRateLimits) {
+    // eslint-disable-next-line no-console
     console.log('No auto rate limits configured for this forum');
     return;
   }
@@ -147,15 +150,18 @@ export const up = async ({db}: MigrationContext) => {
 
         processedCount++;
         if (processedCount % 100 === 0) {
+          // eslint-disable-next-line no-console
           console.log(`Processed ${processedCount}/${activeUserIds.length} users, found ${rateLimitedCount} active rate limits (skipped ${skippedStatic} static)`);
         }
       } catch (error) {
+        // eslint-disable-next-line no-console
         console.error(`Error processing user ${user._id}:`, error);
         // Continue with next user
       }
     }
   }
 
+  // eslint-disable-next-line no-console
   console.log(`Migration complete: Processed ${processedCount} users, created ${rateLimitedCount} rate limit events (rolling/timed only), skipped ${skippedStatic} static rate limits`);
 }
 
@@ -167,5 +173,6 @@ export const down = async ({db}: MigrationContext) => {
       AND properties->>'backfilled' = 'true'
   `);
 
+  // eslint-disable-next-line no-console
   console.log('Removed backfilled rate limit events');
 }
