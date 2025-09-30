@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # Configuration - Change this to your desired target branch
-TARGET_BRANCH="nextjs-with-suspense-branch"
+TARGET_BRANCH="main"
 
 echo "=== Vercel Build Step Check ==="
 echo "Checking if build should proceed..."
@@ -26,27 +26,47 @@ fi
 API_URL="https://api.github.com/repos/$VERCEL_GIT_REPO_OWNER/$VERCEL_GIT_REPO_SLUG/pulls/$VERCEL_GIT_PULL_REQUEST_ID"
 echo "Fetching PR details from: $API_URL"
 
+# Create a temporary file for the API response
+TMP_FILE=$(mktemp)
+trap "rm -f $TMP_FILE" EXIT
+
 # Fetch PR details from GitHub API
 # If GITHUB_TOKEN is available (set in Vercel env vars), use it for higher rate limits
 if [ -n "$GITHUB_TOKEN" ]; then
-  PR_DATA=$(curl -s -H "Authorization: token $GITHUB_TOKEN" "$API_URL")
+  curl -s -H "Authorization: token $GITHUB_TOKEN" "$API_URL" > "$TMP_FILE"
 else
   echo "⚠️  Warning: GITHUB_TOKEN not set - using unauthenticated requests (lower rate limit)"
-  PR_DATA=$(curl -s "$API_URL")
+  curl -s "$API_URL" > "$TMP_FILE"
 fi
 
-# Check if API request was successful
-if echo "$PR_DATA" | grep -q '"message": "Not Found"'; then
-  echo "❌ Error: Could not fetch PR details (PR not found)"
+# Check if API request was successful and extract the base branch using Node.js
+PARSE_RESULT=$(node -e "
+const fs = require('fs');
+try {
+  const data = JSON.parse(fs.readFileSync('$TMP_FILE', 'utf8'));
+  if (data.message) {
+    console.log('ERROR:' + data.message);
+  } else if (data.base && data.base.ref) {
+    console.log('SUCCESS:' + data.base.ref);
+  } else {
+    console.log('ERROR:Invalid JSON structure - missing base.ref');
+  }
+} catch (e) {
+  console.log('ERROR:Failed to parse JSON - ' + e.message);
+}
+")
+
+# Parse the result
+if [[ "$PARSE_RESULT" == ERROR:* ]]; then
+  ERROR_MSG="${PARSE_RESULT#ERROR:}"
+  echo "❌ Error: $ERROR_MSG"
   exit 0
 fi
 
-# Extract the base (target) branch from the JSON response
-BASE_BRANCH=$(echo "$PR_DATA" | grep -o '"base":[^}]*"ref":"[^"]*"' | grep -o '"ref":"[^"]*"' | cut -d'"' -f4)
+BASE_BRANCH="${PARSE_RESULT#SUCCESS:}"
 
 if [ -z "$BASE_BRANCH" ]; then
   echo "❌ Error: Could not determine target branch from API response"
-  echo "API Response: $PR_DATA"
   exit 0
 fi
 
