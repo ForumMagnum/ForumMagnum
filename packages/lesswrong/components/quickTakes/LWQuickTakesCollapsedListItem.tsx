@@ -30,10 +30,11 @@ const styles = (theme: ThemeType) => ({
     color: theme.palette.grey[600],
     display: "flex",
     alignItems: "center",
+    gap: 2,
+    fontSize: 14,
     "& svg": {
-      height: 14,
+      height: 16,
     },
-    paddingBottom: 4,
     [theme.breakpoints.down('xs')]: {
       display: 'none',
     },
@@ -49,6 +50,8 @@ const styles = (theme: ThemeType) => ({
   },
   body: {
     ...commentBodyStyles(theme),
+    paddingTop: 1,
+    paddingBottom: 1,
     color: theme.palette.text.bannerAdOverlay,
     position: "relative",
     overflow: "hidden",
@@ -62,6 +65,16 @@ const styles = (theme: ThemeType) => ({
   },
   commentCountText: {
     marginTop: -4,
+  },
+  commenterInfo: {
+    display: "flex",
+    alignItems: "center",
+    fontSize: 13,
+    gap: 8,
+  },
+  commenters: {
+    color: theme.palette.grey[500],
+    marginBottom: 2
   },
 });
 
@@ -132,6 +145,19 @@ const LWQuickTakesCollapsedListItem = ({ quickTake, setExpanded, classes }: {
     </div>
   );
 
+  // Collect unique commenter display names (excluding quickTake author)
+  const latestChildren = (quickTake as any).latestChildren as { user?: { displayName?: string } | null }[] | undefined;
+  const commenterNames = Array.from(new Set(
+    latestChildren?.map((c: any) => c.user?.displayName).filter((name: any) => !!name && name !== quickTake.user?.displayName)
+  ));
+
+  const commentersElement = commenterNames.length > 0 && (
+    <span className={classes.commenters}>
+      {commenterNames.slice(0, 2).join(', ')}
+      {commenterNames.length > 2 && `, and ${commenterNames.length - 2} more`}
+    </span>
+  );
+
   const tooltip = (
     <LWPopper
       open={displayHoverOver}
@@ -183,7 +209,9 @@ const LWQuickTakesCollapsedListItem = ({ quickTake, setExpanded, classes }: {
           collapsed: false,
           toggleCollapse: () => setExpanded(true),
           setShowEdit,
-          rightSectionElements: commentCountIcon
+          rightSectionElements: <div className={classes.commenterInfo}>
+            {commentersElement}{commentCountIcon}
+          </div>
         }}
       />
       {body}

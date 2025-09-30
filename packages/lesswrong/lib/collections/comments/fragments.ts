@@ -106,6 +106,13 @@ export const ShortformComments = gql(`
     post {
       ...PostsMinimumInfo
     }
+    latestChildren {
+      _id
+      user {
+        _id
+        displayName
+      }
+    }
     relevantTags {
       ...TagPreviewFragment
     }

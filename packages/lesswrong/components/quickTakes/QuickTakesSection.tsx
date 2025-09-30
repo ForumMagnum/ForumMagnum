@@ -73,7 +73,7 @@ const QuickTakesSectionLoaded = ({showCommunity}: {
   const { data, loading, refetch, loadMoreProps } = useQueryWithLoadMore(ShortformCommentsMultiQuery, {
     variables: {
       selector: { shortformFrontpage: { showCommunity, maxAgeDays } },
-      limit: 5,
+      limit: 8,
       enableTotal: true,
     },
   });
@@ -85,7 +85,7 @@ const QuickTakesSectionLoaded = ({showCommunity}: {
   return <>
     {(userCanQuickTake(currentUser) || !currentUser) && <QuickTakesEntry currentUser={currentUser} successCallback={refetch} />}
     <div className={classes.list}>
-      {results?.map((result) => (
+      {results?.map((result: ShortformComments) => (
         <QuickTakesListItem key={result._id} quickTake={result} />
       ))}
       {loading && <Loading />}
