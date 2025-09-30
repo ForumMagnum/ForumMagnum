@@ -10,6 +10,7 @@ import LWPopper from "../common/LWPopper";
 import CommentsNode from "../comments/CommentsNode";
 import CommentsItemMeta from "../comments/CommentsItem/CommentsItemMeta";
 import CommentBottomCaveats from "../comments/CommentsItem/CommentBottomCaveats";
+import { userGetDisplayName } from "@/lib/collections/users/helpers";
 
 const styles = (theme: ThemeType) => ({
   root: {
@@ -73,7 +74,10 @@ const styles = (theme: ThemeType) => ({
   },
   commenters: {
     color: theme.palette.grey[500],
-    marginBottom: 2
+    marginBottom: 2,
+    [theme.breakpoints.down('sm')]: {
+      display: "none",
+    }
   },
 });
 
@@ -145,7 +149,7 @@ const LWQuickTakesCollapsedListItem = ({ quickTake, setExpanded, classes }: {
   );
 
   const commenterNames = Array.from(new Set(
-    quickTake.latestChildren?.map((c: FrontpageShortformComments) => c.user?.displayName).filter((name: string) => !!name && name !== quickTake.user?.displayName)
+    quickTake.latestChildren?.map((c: FrontpageShortformComments) => userGetDisplayName(c.user)).filter((name: string) => !!name && name !== userGetDisplayName(quickTake.user))
   ));
 
   const commentersElement = commenterNames.length > 0 && (
