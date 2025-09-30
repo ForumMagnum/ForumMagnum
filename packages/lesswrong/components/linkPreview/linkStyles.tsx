@@ -1,3 +1,4 @@
+import React from 'react';
 import { visitedLinksHaveFilledInCircle } from '@/lib/betas';
 import { defineStyles, useStyles } from '../hooks/useStyles';
 
