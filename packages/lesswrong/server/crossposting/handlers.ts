@@ -132,6 +132,7 @@ export const addV2CrosspostHandlers = (app: Application) => {
       return {
         displayName: user.displayName ?? user.username ?? "",
         slug: user.slug ?? "",
+        fmCrosspostUserId: user.fmCrosspostUserId,
       };
     },
   );
