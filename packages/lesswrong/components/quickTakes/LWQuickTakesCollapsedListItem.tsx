@@ -50,8 +50,6 @@ const styles = (theme: ThemeType) => ({
   },
   body: {
     ...commentBodyStyles(theme),
-    paddingTop: 1,
-    paddingBottom: 1,
     color: theme.palette.text.bannerAdOverlay,
     position: "relative",
     overflow: "hidden",
