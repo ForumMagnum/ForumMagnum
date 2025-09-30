@@ -4,7 +4,7 @@ import { isUniversalField } from '../../lib/utils/schemaUtils';
 import { getSchema } from '@/lib/schema/allSchemas';
 import { getSimpleSchema } from '@/lib/schema/allSimpleSchemas';
 import orderBy from 'lodash/orderBy';
-import { isArrayTypeString, isVarcharTypeString } from '../sql/Type';
+import { isArrayTypeString, isVarcharTypeString, isVectorTypeString } from '../sql/Type';
 import SimpleSchema from '@/lib/utils/simpleSchema';
 
 const dbTypesFileHeader = generatedFileHeader+`//
@@ -27,6 +27,10 @@ function databaseTypeToTypescriptType(databaseType: DatabaseBaseType | `${Databa
     return 'string';
   }
 
+  if (isVectorTypeString(databaseType)) {
+    return `Array<number>`;
+  }
+
   switch (databaseType) {
     case 'TEXT':
       return 'string';
@@ -40,8 +44,6 @@ function databaseTypeToTypescriptType(databaseType: DatabaseBaseType | `${Databa
       return 'any';
     case 'TIMESTAMPTZ':
       return 'Date';
-    case 'VECTOR(1536)':
-      return 'Array<number>';
   }
 }
 

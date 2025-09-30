@@ -385,6 +385,7 @@ const accessFilters = {
   CkEditorUserSessions: allowAccess,
   ClientIds: clientIdCheckAccess,
   Collections: allowAccess,
+  CommentEmbeddings: defaultCheckAccess,
   Comments: commentCheckAccess,
   CommentModeratorActions: allowAccess,
   Conversations: conversationCheckAccess,

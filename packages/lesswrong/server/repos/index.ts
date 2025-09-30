@@ -1,6 +1,7 @@
 import CollectionsRepo from "./CollectionsRepo";
 import ClientIdsRepo from "./ClientIdsRepo";
 import CommentsRepo from "./CommentsRepo";
+import CommentEmbeddingsRepo from "./CommentEmbeddingsRepo";
 import ConversationsRepo from "./ConversationsRepo";
 import CurationEmailsRepo from "./CurationEmailsRepo";
 import DatabaseMetadataRepo from "./DatabaseMetadataRepo";
@@ -52,6 +53,7 @@ const allRepos = {
   clientIds: ClientIdsRepo,
   collections: CollectionsRepo,
   comments: CommentsRepo,
+  commentEmbeddings: CommentEmbeddingsRepo,
   conversations: ConversationsRepo,
   curationEmails: CurationEmailsRepo,
   databaseMetadata: DatabaseMetadataRepo,

@@ -11,6 +11,7 @@ import { createInitialRevisionsForEditableFields, reuploadImagesIfEditableFields
 import { logFieldChanges } from "@/server/fieldChanges";
 import { elasticSyncDocument } from "@/server/search/elastic/elasticCallbacks";
 import { backgroundTask } from "@/server/utils/backgroundTask";
+import { updateCommentEmbeddings } from "@/server/voyage/client";
 import { getCreatableGraphQLFields, getUpdatableGraphQLFields } from "@/server/vulcan-lib/apollo-server/graphqlTemplates";
 import { makeGqlCreateMutation, makeGqlUpdateMutation } from "@/server/vulcan-lib/apollo-server/helpers";
 import { getLegacyCreateCallbackProps, getLegacyUpdateCallbackProps, insertAndReturnCreateAfterProps, runFieldOnCreateCallbacks, runFieldOnUpdateCallbacks, updateAndReturnDocument, assignUserIdToData, dataToModifier, modifierToData } from '@/server/vulcan-lib/mutators';
@@ -125,6 +126,8 @@ export async function createComment({ data }: CreateCommentInput, context: Resol
     props: asyncProperties,
   });
 
+  backgroundTask(updateCommentEmbeddings(documentWithId._id));
+
   return documentWithId;
 }
 
@@ -194,6 +197,8 @@ export async function updateComment({ selector, data }: UpdateCommentInput, cont
   if (isElasticEnabled()) {
     backgroundTask(elasticSyncDocument('Comments', updatedDocument._id));
   }
+
+  backgroundTask(updateCommentEmbeddings(updatedDocument._id));
 
   backgroundTask(logFieldChanges({ currentUser, collection: Comments, oldDocument, data: origData }));
 
