@@ -10,6 +10,7 @@ import LWPopper from "../common/LWPopper";
 import CommentsNode from "../comments/CommentsNode";
 import CommentsItemMeta from "../comments/CommentsItem/CommentsItemMeta";
 import CommentBottomCaveats from "../comments/CommentsItem/CommentBottomCaveats";
+import { userGetDisplayName } from "@/lib/collections/users/helpers";
 
 const styles = (theme: ThemeType) => ({
   root: {
@@ -30,10 +31,10 @@ const styles = (theme: ThemeType) => ({
     color: theme.palette.grey[600],
     display: "flex",
     alignItems: "center",
+    gap: 2,
     "& svg": {
-      height: 14,
+      height: 16,
     },
-    paddingBottom: 4,
     [theme.breakpoints.down('xs')]: {
       display: 'none',
     },
@@ -61,12 +62,27 @@ const styles = (theme: ThemeType) => ({
     background: theme.palette.panelBackground.bannerAdTranslucentDeep,
   },
   commentCountText: {
-    marginTop: -4,
+    fontSize: 13,
+    marginTop: -2,
+    marginRight: 4
+  },
+  commenterInfo: {
+    display: "flex",
+    alignItems: "center",
+    fontSize: 13,
+    gap: 8,
+  },
+  commenters: {
+    color: theme.palette.grey[500],
+    marginBottom: 2,
+    [theme.breakpoints.down('sm')]: {
+      display: "none",
+    }
   },
 });
 
 const LWQuickTakesCollapsedListItem = ({ quickTake, setExpanded, classes }: {
-  quickTake: ShortformComments,
+  quickTake: FrontpageShortformComments,
   setExpanded: (expanded: boolean) => void,
   classes: ClassesType<typeof styles>,
 }) => {
@@ -132,6 +148,17 @@ const LWQuickTakesCollapsedListItem = ({ quickTake, setExpanded, classes }: {
     </div>
   );
 
+  const commenterNames = Array.from(new Set(
+    quickTake.latestChildren?.map((c: FrontpageShortformComments) => userGetDisplayName(c.user)).filter((name: string) => !!name && name !== userGetDisplayName(quickTake.user))
+  ));
+
+  const commentersElement = commenterNames.length > 0 && (
+    <span className={classes.commenters}>
+      {commenterNames.slice(0, 2).join(', ')}
+      {commenterNames.length > 2 && `, and ${commenterNames.length - 2} more`}
+    </span>
+  );
+
   const tooltip = (
     <LWPopper
       open={displayHoverOver}
@@ -183,7 +210,10 @@ const LWQuickTakesCollapsedListItem = ({ quickTake, setExpanded, classes }: {
           collapsed: false,
           toggleCollapse: () => setExpanded(true),
           setShowEdit,
-          rightSectionElements: commentCountIcon
+          rightSectionElements: <div className={classes.commenterInfo}>
+            {commentersElement}
+            {commentCountIcon}
+          </div>
         }}
       />
       {body}

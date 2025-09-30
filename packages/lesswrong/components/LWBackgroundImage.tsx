@@ -146,10 +146,17 @@ export const LWBackgroundImage = ({standaloneNavigation}: {
   let homePageImage = defaultImage
   if (getReviewPhase() === 'VOTING') homePageImage = <ReviewVotingCanvas />
   if (getReviewPhase() === 'RESULTS') homePageImage = reviewCompleteImage
-  
+
+  // If we're on the homepage and it is still before the end of September 30 (Pacific time),
+  // override with the Inkhaven banner.
+  const now = new Date();
+  const inkhavenDeadline = new Date('2025-10-01T07:00:00Z'); // Midnight PST-8 / PDT-7 ≈ 07:00 UTC
+  if (isHomePage && now < inkhavenDeadline) {
+    homePageImage = <Inkhaven2025Banner />;
+  }
+
   return <div className={classes.root}>
-    {/* {isHomePage ? <Inkhaven2025Banner /> : defaultImage} */}
-    {isHomePage ? <PetrovDayStory variant="sidebar"/> : defaultImage}
+    {homePageImage}
   </div>;
 }
 

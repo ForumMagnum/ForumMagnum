@@ -222,6 +222,8 @@ type MongoEnsureIndexOptions<T> = {
     locale: string,
     strength: number,
   },
+  /** @deprecated doesn't do anything post-Mongo */
+  sparse?: 1,
 }
 type MongoIndexSpecification<T> = {
   key: MongoIndexKeyObj<T>

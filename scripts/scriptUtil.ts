@@ -4,12 +4,12 @@
  */
 
 import { existsSync } from "node:fs";
-import { CommandLineOptions } from "../build";
+import type { CommandLineOptions } from "../build";
 
 // @ts-ignore This is a javascript file without a .d.ts
 import { getDatabaseConfig } from "./startup/buildUtil";
 
-export const initGlobals = (args: Record<string, unknown>, isProd: boolean, globalOverrides?: Record<string, unknown>) => {
+export const initGlobals = (isProd: boolean, globalOverrides?: Record<string, unknown>) => {
   Object.assign(global, {
     bundleIsServer: true,
     bundleIsTest: false,
@@ -24,12 +24,9 @@ export const initGlobals = (args: Record<string, unknown>, isProd: boolean, glob
     enableVite: false,
     ...globalOverrides,
   });
-
-  const { getInstanceSettings } = require("../packages/lesswrong/lib/getInstanceSettings");
-  getInstanceSettings(args); // These args will be cached for later
 }
 
-const forumTypes = ["lw", "ea", "none"] as const;
+const forumTypes = ["lw", "ea", "af"] as const;
 export type ForumType = typeof forumTypes[number];
 const environmentTypes = ["dev", "local", "staging", "prod", "xpost", "test"] as const;
 export type EnvironmentType = typeof environmentTypes[number];
@@ -37,8 +34,8 @@ export type EnvironmentType = typeof environmentTypes[number];
 const getCredentialsBase = (forumType: ForumType): string => {
   const memorizedBases: Record<ForumType, string> = {
     lw: "..",
+    af: "..",
     ea: "..",
-    none: ".",
   };
   return process.env.GITHUB_WORKSPACE ?? memorizedBases[forumType];
 }
@@ -47,21 +44,20 @@ const credentialsPath = (forumType: ForumType) => {
   const base = getCredentialsBase(forumType);
   const memorizedRepoNames: Record<ForumType, string> = {
     lw: '/LessWrong-Credentials',
+    af: '/LessWrong-Credentials',
     ea: '/ForumCredentials',
-    none: "",
   };
   const repoName = memorizedRepoNames[forumType];
   return `${base}${repoName}`;
 }
 
-export const detectForumType = (): ForumType => {
-  const siteForumTypes = forumTypes.filter((forumType) => forumType !== "none");
-  for (const forumType of siteForumTypes) {
+export const detectForumType = (): ForumType | null => {
+  for (const forumType of forumTypes) {
     if (existsSync(credentialsPath(forumType))) {
       return forumType;
     }
   }
-  return "none";
+  return null;
 }
 
 export const getSettingsFilePath = (fileName: string, forumType: ForumType) => {
@@ -89,10 +85,11 @@ export const getDatabaseConfigFromModeAndForumType = (mode: EnvironmentType, for
       db: `${credentialsPath(forumType)}/connectionConfigs/${mode}.json`,
       noSshTunnel: true, //workaround for a timing issue
     },
-    ea: {
-      postgresUrlFile: `${credentialsPath(forumType)}/${mode}-pg-conn.txt`,
+    af: {
+      db: `${credentialsPath(forumType)}/connectionConfigs/${mode}.json`,
+      noSshTunnel: true, //workaround for a timing issue
     },
-    none: {
+    ea: {
       postgresUrlFile: `${credentialsPath(forumType)}/${mode}-pg-conn.txt`,
     },
   };

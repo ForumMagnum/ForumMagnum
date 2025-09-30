@@ -10,6 +10,10 @@ export function isVarcharTypeString<T extends DatabaseBaseType>(typeString: T): 
   return typeString.startsWith('VARCHAR(');
 }
 
+export function isVectorTypeString<T extends DatabaseBaseType>(typeString: T): typeString is T & `VECTOR(${number})` {
+  return typeString.startsWith('VECTOR(');
+}
+
 function getBaseTypeInstance(type: DatabaseBaseType, foreignKey?: DatabaseFieldSpecification<CollectionNameString>['foreignKey']) {
   if (isVarcharTypeString(type)) {
     if (type === 'VARCHAR(27)' || typeof foreignKey === 'string') {
@@ -17,6 +21,11 @@ function getBaseTypeInstance(type: DatabaseBaseType, foreignKey?: DatabaseFieldS
     }
     const maxLength = parseInt(type.split('(')[1].split(')')[0]);
     return new StringType(maxLength);
+  }
+
+  if (isVectorTypeString(type)) {
+    const size = parseInt(type.split('(')[1].split(')')[0]);
+    return new VectorType(size);
   }
 
   switch (type) {
@@ -32,8 +41,6 @@ function getBaseTypeInstance(type: DatabaseBaseType, foreignKey?: DatabaseFieldS
       return new JsonType();
     case 'TIMESTAMPTZ':
       return new DateType();
-    case 'VECTOR(1536)':
-      return new VectorType(1536);
   }
 }
 
