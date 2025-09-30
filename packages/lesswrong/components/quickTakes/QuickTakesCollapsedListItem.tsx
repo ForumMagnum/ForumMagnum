@@ -122,19 +122,7 @@ const QuickTakesCollapsedListItem = ({quickTake, setExpanded, classes}: {
   const commentCount = quickTake.descendentCount ?? 0;
   const commentsAreClickable = commentCount > 0;
   const primaryTag = quickTake.relevantTags?.[0];
-
-  // Collect unique commenter names excluding author
-  const latestChildren = (quickTake as any).latestChildren as { user?: { displayName?: string } | null }[] | undefined;
-  const commenterNames = Array.from(new Set(
-    latestChildren?.map(c => c.user?.displayName).filter(name => !!name && name !== quickTake.user?.displayName)
-  ));
-
-  const commentersElement = commenterNames.length > 0 && (
-    <span style={{ marginLeft: 6, color: "red" }}>
-      {commenterNames.slice(0, 3).join(', ')}
-      {commenterNames.length > 3 && ` +${commenterNames.length - 3}`}
-    </span>
-  );
+  const displayHoverOver = hover && (quickTake.baseScore ?? 0) > -5 && !isMobile();
 
   const commentsUrl = quickTake.post
     ? `${postGetPageUrl(quickTake.post)}#${quickTake._id}`
@@ -194,8 +182,6 @@ const QuickTakesCollapsedListItem = ({quickTake, setExpanded, classes}: {
             [classes.commentCountClickable]: commentsAreClickable,
           })}
         >
-          
-          {commentersElement}
           <ForumIcon icon="Comment" />
           {commentCount}
         </div>
@@ -218,7 +204,7 @@ const QuickTakesCollapsedListItem = ({quickTake, setExpanded, classes}: {
         {quickTake.contents?.plaintextMainText}
       </div>
       <LWPopper
-        open={hover}
+        open={displayHoverOver}
         anchorEl={anchorEl}
         placement="bottom-end"
         clickable={false}
