@@ -12,6 +12,7 @@ import { Typography } from '../common/Typography';
 import { useCurrentUser } from '../common/withUser';
 import { userIsAdmin } from '@/lib/vulcan-users/permissions';
 import ErrorAccessDenied from '../common/ErrorAccessDenied';
+import type { ErrorLike } from '@apollo/client';
 
 const COMMENT_EMBEDDINGS_SEARCH_QUERY = gql(`
   query CommentEmbeddingsSearchQuery($query: String!, $scoreBias: Float) {
@@ -106,6 +107,147 @@ const styles = defineStyles("CommentEmbeddingsPage", (theme: ThemeType) => ({
   },
 }));
 
+interface SearchInputSectionProps {
+  primaryLabel: string;
+  primaryPlaceholder: string;
+  primaryValue: string;
+  onPrimaryChange: (value: string) => void;
+  scoreBias: number;
+  onScoreBiasChange: (value: number) => void;
+  onSearch: () => void;
+  onKeyPress: (event: React.KeyboardEvent) => void;
+  buttonText: string;
+  helpText: string;
+  isLoading: boolean;
+  primaryInputWidth?: string;
+}
+
+const SearchInputSection = ({
+  primaryLabel,
+  primaryPlaceholder,
+  primaryValue,
+  onPrimaryChange,
+  scoreBias,
+  onScoreBiasChange,
+  onSearch,
+  onKeyPress,
+  buttonText,
+  helpText,
+  isLoading,
+  primaryInputWidth,
+}: SearchInputSectionProps) => {
+  const classes = useStyles(styles);
+  
+  return (
+    <div className={classes.searchContainer}>
+      <div className={classes.searchRow}>
+        <TextField
+          className={primaryInputWidth === 'full' ? classes.searchInput : classes.commentIdInput}
+          label={primaryLabel}
+          placeholder={primaryPlaceholder}
+          value={primaryValue}
+          onChange={(e) => onPrimaryChange(e.target.value)}
+          onKeyPress={onKeyPress}
+          variant="outlined"
+          fullWidth={primaryInputWidth === 'full'}
+          InputLabelProps={{
+            className: classes.outlinedLabel,
+          }}
+        />
+        <TextField
+          className={classes.scoreBiasInput}
+          label="Score Bias"
+          type="number"
+          value={scoreBias}
+          onChange={(e) => onScoreBiasChange(parseFloat(e.target.value) || 0)}
+          onKeyPress={onKeyPress}
+          variant="outlined"
+          InputLabelProps={{
+            className: classes.outlinedLabel,
+          }}
+        />
+        <Button
+          className={classes.searchButton}
+          variant="contained"
+          color="primary"
+          onClick={onSearch}
+          disabled={!primaryValue.trim() || isLoading}
+        >
+          {buttonText}
+        </Button>
+      </div>
+      <Typography variant="body2" className={classes.helpText}>
+        {helpText}
+      </Typography>
+    </div>
+  );
+};
+
+interface SearchResultsProps {
+  comments: Array<CommentsListWithParentMetadata>;
+  loading: boolean;
+  error?: ErrorLike | null;
+  hasSearched: boolean;
+  noResultsMessage: string;
+}
+
+const SearchResults = ({
+  comments,
+  loading,
+  error,
+  hasSearched,
+  noResultsMessage,
+}: SearchResultsProps) => {
+  const classes = useStyles(styles);
+  
+  return (
+    <div className={classes.resultsContainer}>
+      {error && (
+        <Typography variant="body1" className={classes.errorMessage}>
+          Error: {error.message}
+        </Typography>
+      )}
+
+      {loading && (
+        <div className={classes.loadingContainer}>
+          <Loading />
+        </div>
+      )}
+
+      {!loading && hasSearched && comments.length === 0 && (
+        <div className={classes.noResultsMessage}>
+          <Typography variant="body2">
+            {noResultsMessage}
+          </Typography>
+        </div>
+      )}
+
+      {!loading && comments.length > 0 && (
+        <div>
+          <Typography variant="body2" className={classes.resultCount}>
+            Found {comments.length} result{comments.length !== 1 ? 's' : ''}
+          </Typography>
+          {comments.map(comment => (
+            <div key={comment._id} className={classes.commentWrapper}>
+              <CommentsNode
+                treeOptions={{
+                  condensed: false,
+                  post: comment.post ?? undefined,
+                  tag: comment.tag ?? undefined,
+                  showPostTitle: true,
+                  forceNotSingleLine: true,
+                }}
+                comment={comment}
+                startThreadTruncated={true}
+              />
+            </div>
+          ))}
+        </div>
+      )}
+    </div>
+  );
+};
+
 const CommentEmbeddingsPage = () => {
   const classes = useStyles(styles);
 
@@ -178,180 +320,56 @@ const CommentEmbeddingsPage = () => {
         Comment Embeddings Search
       </Typography>
 
-      <div className={classes.searchContainer}>
-        <div className={classes.searchRow}>
-          <TextField
-            className={classes.searchInput}
-            label="Search Query"
-            placeholder="Enter your search query..."
-            value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
-            onKeyPress={handleKeyPress}
-            variant="outlined"
-            fullWidth
-            InputLabelProps={{
-              className: classes.outlinedLabel,
-            }}
-          />
-          <TextField
-            className={classes.scoreBiasInput}
-            label="Score Bias"
-            type="number"
-            value={scoreBias}
-            onChange={(e) => setScoreBias(parseFloat(e.target.value) || 0)}
-            onKeyPress={handleKeyPress}
-            variant="outlined"
-            InputLabelProps={{
-              className: classes.outlinedLabel,
-            }}
-          />
-          <Button
-            className={classes.searchButton}
-            variant="contained"
-            color="primary"
-            onClick={handleSearch}
-            disabled={!searchQuery.trim() || loading}
-          >
-            Search
-          </Button>
-        </div>
-      </div>
+      <SearchInputSection
+        primaryLabel="Search Query"
+        primaryPlaceholder="Enter your search query..."
+        primaryValue={searchQuery}
+        onPrimaryChange={setSearchQuery}
+        scoreBias={scoreBias}
+        onScoreBiasChange={setScoreBias}
+        onSearch={handleSearch}
+        onKeyPress={handleKeyPress}
+        buttonText="Search"
+        helpText="Search for comments using semantic similarity. The score bias adjusts the relevance threshold."
+        isLoading={loading}
+        primaryInputWidth="full"
+      />
 
-      {/* Text Search Results */}
-      <div className={classes.resultsContainer}>
-        {error && (
-          <Typography variant="body1" className={classes.errorMessage}>
-            Error: {error.message}
-          </Typography>
-        )}
+      <SearchResults
+        comments={comments}
+        loading={loading}
+        error={error}
+        hasSearched={executeSearch}
+        noResultsMessage="No comments found for your search query."
+      />
 
-        {loading && (
-          <div className={classes.loadingContainer}>
-            <Loading />
-          </div>
-        )}
-
-        {!loading && executeSearch && comments.length === 0 && (
-          <div className={classes.noResultsMessage}>
-            <Typography variant="body2">
-              No comments found for your search query.
-            </Typography>
-          </div>
-        )}
-
-        {!loading && comments.length > 0 && (
-          <div>
-            <Typography variant="body2" className={classes.resultCount}>
-              Found {comments.length} result{comments.length !== 1 ? 's' : ''}
-            </Typography>
-            {comments.map(comment => (
-              <div key={comment._id} className={classes.commentWrapper}>
-                <CommentsNode
-                  treeOptions={{
-                    condensed: false,
-                    post: comment.post ?? undefined,
-                    tag: comment.tag ?? undefined,
-                    showPostTitle: true,
-                    forceNotSingleLine: true,
-                  }}
-                  comment={comment}
-                  startThreadTruncated={true}
-                />
-              </div>
-            ))}
-          </div>
-        )}
-      </div>
-
-      {/* Similarity Search Section */}
       <div className={classes.sectionDivider}>
         <Typography variant="display1" className={classes.sectionTitle}>
           Find Similar Comments
         </Typography>
 
-        <div className={classes.searchContainer}>
-          <div className={classes.searchRow}>
-            <TextField
-              className={classes.commentIdInput}
-              label="Comment ID"
-              placeholder="Enter a comment ID..."
-              value={commentId}
-              onChange={(e) => setCommentId(e.target.value)}
-              onKeyPress={handleSimilarityKeyPress}
-              variant="outlined"
-              InputLabelProps={{
-                className: classes.outlinedLabel,
-              }}
-            />
-            <TextField
-              className={classes.scoreBiasInput}
-              label="Score Bias"
-              type="number"
-              value={similarityScoreBias}
-              onChange={(e) => setSimilarityScoreBias(parseFloat(e.target.value) || 0)}
-              onKeyPress={handleSimilarityKeyPress}
-              variant="outlined"
-              InputLabelProps={{
-                className: classes.outlinedLabel,
-              }}
-            />
-            <Button
-              className={classes.searchButton}
-              variant="contained"
-              color="primary"
-              onClick={handleSimilaritySearch}
-              disabled={!commentId.trim() || similarityLoading}
-            >
-              Find Similar
-            </Button>
-          </div>
-        </div>
+        <SearchInputSection
+          primaryLabel="Comment ID"
+          primaryPlaceholder="Enter a comment ID..."
+          primaryValue={commentId}
+          onPrimaryChange={setCommentId}
+          scoreBias={similarityScoreBias}
+          onScoreBiasChange={setSimilarityScoreBias}
+          onSearch={handleSimilaritySearch}
+          onKeyPress={handleSimilarityKeyPress}
+          buttonText="Find Similar"
+          helpText="Find comments similar to a specific comment by entering its ID."
+          isLoading={similarityLoading}
+          primaryInputWidth="fixed"
+        />
 
-        {/* Similarity Search Results */}
-        <div className={classes.resultsContainer}>
-          {similarityError && (
-            <Typography variant="body1" className={classes.errorMessage}>
-              Error: {similarityError.message}
-            </Typography>
-          )}
-
-          {similarityLoading && (
-            <div className={classes.loadingContainer}>
-              <Loading />
-            </div>
-          )}
-
-          {!similarityLoading && executeSimilaritySearch && similarComments.length === 0 && (
-            <div className={classes.noResultsMessage}>
-              <Typography variant="body2">
-                No similar comments found.
-              </Typography>
-            </div>
-          )}
-
-          {!similarityLoading && similarComments.length > 0 && (
-            <div>
-              <Typography variant="body2" className={classes.resultCount}>
-                Found {similarComments.length} similar comment{similarComments.length !== 1 ? 's' : ''}
-              </Typography>
-              {similarComments.map(comment => (
-                <div key={comment._id} className={classes.commentWrapper}>
-                  <CommentsNode
-                    treeOptions={{
-                      condensed: false,
-                      post: comment.post ?? undefined,
-                      tag: comment.tag ?? undefined,
-                      showPostTitle: true,
-                      forceNotSingleLine: true,
-                    }}
-                    comment={comment}
-                    startThreadTruncated={true}
-                  />
-                </div>
-              ))}
-            </div>
-          )}
-        </div>
+        <SearchResults
+          comments={similarComments}
+          loading={similarityLoading}
+          error={similarityError}
+          hasSearched={executeSimilaritySearch}
+          noResultsMessage="No similar comments found."
+        />
       </div>
     </div>
   )
