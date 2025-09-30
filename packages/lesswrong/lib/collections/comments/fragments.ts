@@ -108,6 +108,7 @@ export const ShortformComments = gql(`
     }
     latestChildren {
       _id
+      postedAt
       user {
         _id
         displayName

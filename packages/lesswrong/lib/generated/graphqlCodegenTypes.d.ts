@@ -24288,7 +24288,7 @@ type ShortformComments_Comment_post_Post = (
 
 type ShortformComments_Comment_latestChildren_Comment_user_User = { __typename?: 'User', _id: string, displayName: string };
 
-type ShortformComments_Comment_latestChildren_Comment = { __typename?: 'Comment', _id: string, user: ShortformComments_Comment_latestChildren_Comment_user_User | null };
+type ShortformComments_Comment_latestChildren_Comment = { __typename?: 'Comment', _id: string, postedAt: string, user: ShortformComments_Comment_latestChildren_Comment_user_User | null };
 
 type ShortformComments_Comment_relevantTags_Tag = (
   { __typename?: 'Tag' }
