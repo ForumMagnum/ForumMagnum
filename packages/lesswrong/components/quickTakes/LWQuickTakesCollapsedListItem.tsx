@@ -78,7 +78,7 @@ const styles = (theme: ThemeType) => ({
 });
 
 const LWQuickTakesCollapsedListItem = ({ quickTake, setExpanded, classes }: {
-  quickTake: ShortformComments,
+  quickTake: FrontpageShortformComments,
   setExpanded: (expanded: boolean) => void,
   classes: ClassesType<typeof styles>,
 }) => {
@@ -144,10 +144,8 @@ const LWQuickTakesCollapsedListItem = ({ quickTake, setExpanded, classes }: {
     </div>
   );
 
-  // Collect unique commenter display names (excluding quickTake author)
-  const latestChildren = (quickTake as any).latestChildren as { user?: { displayName?: string } | null }[] | undefined;
   const commenterNames = Array.from(new Set(
-    latestChildren?.map((c: any) => c.user?.displayName).filter((name: any) => !!name && name !== quickTake.user?.displayName)
+    quickTake.latestChildren?.map((c: FrontpageShortformComments) => c.user?.displayName).filter((name: string) => !!name && name !== quickTake.user?.displayName)
   ));
 
   const commentersElement = commenterNames.length > 0 && (
