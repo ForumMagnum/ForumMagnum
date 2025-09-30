@@ -4,8 +4,8 @@ import { EXEMPT_FROM_RATE_LIMITS, MODERATOR_ACTION_TYPES, PostAndCommentRateLimi
 import { forumSelect } from "../lib/forumTypeUtils"
 import { userIsAdmin, userIsMemberOf } from "../lib/vulcan-users/permissions"
 import { autoCommentRateLimits, autoPostRateLimits } from "../lib/rateLimits/constants"
-import type { CommentAutoRateLimit, PostAutoRateLimit, RateLimitComparison, RateLimitFeatures, RateLimitInfo, RecentKarmaInfo, RecentVoteInfo, UserRateLimit } from "../lib/rateLimits/types"
-import { calculateRecentKarmaInfo, documentOnlyHasSelfVote, getAutoRateLimitInfo, getCurrentAndPreviousUserKarmaInfo, getMaxAutoLimitHours, getModRateLimitInfo, getRateLimitStrictnessComparisons, getStrictestRateLimitInfo, getManualRateLimitInfo, getManualRateLimitIntervalHours, getDownvoteRatio } from "../lib/rateLimits/utils"
+import type { CommentAutoRateLimit, PostAutoRateLimit, RateLimitComparison, RateLimitFeatures, RateLimitInfo, RecentKarmaInfo, RecentVoteInfo, UserKarmaInfoWindow, UserRateLimit } from "../lib/rateLimits/types"
+import { calculateRecentKarmaInfo, documentOnlyHasSelfVote, getActiveRateLimits, getAutoRateLimitInfo, getCurrentAndPreviousUserKarmaInfo, getMaxAutoLimitHours, getModRateLimitInfo, getRateLimitStrictnessComparisons, getStrictestRateLimitInfo, getManualRateLimitInfo, getManualRateLimitIntervalHours, getDownvoteRatio } from "../lib/rateLimits/utils"
 import { triggerReview } from "./callbacks/helpers"
 import { appendToSunshineNotes } from "../lib/collections/users/helpers"
 import { isNonEmpty } from "@/lib/utils/typeGuardUtils"
@@ -315,10 +315,50 @@ async function getVotesForComparison(userId: string, currentVotes: NonEmptyArray
   return comparisonVotes;
 }
 
+async function recordRateLimitEvent(
+  userId: string,
+  eventName: "rateLimitActivated" | "rateLimitDeactivated",
+  rateLimit: CommentAutoRateLimit | PostAutoRateLimit,
+  documentId: string,
+  collectionName: CollectionNameString,
+  triggeredAt: Date,
+  context: ResolverContext
+) {
+  // Only record events for rolling and timed rate limits
+  // Static rate limits are always displayed separately and don't need events
+  if (rateLimit.rateLimitCategory === "static") {
+    return;
+  }
+
+  const { LWEvents } = context;
+  // Use rawInsert to avoid circular dependencies with createLWEvent
+  await LWEvents.rawInsert({
+    name: eventName,
+    userId,
+    documentId,
+    important: true,
+    intercom: false,
+    properties: {
+      collectionName,
+      actionType: rateLimit.actionType,
+      rateLimitType: rateLimit.rateLimitType,
+      rateLimitCategory: rateLimit.rateLimitCategory,
+      itemsPerTimeframe: rateLimit.itemsPerTimeframe,
+      timeframeLength: rateLimit.timeframeLength,
+      timeframeUnit: rateLimit.timeframeUnit,
+      rateLimitMessage: rateLimit.rateLimitMessage,
+      triggeredAt: triggeredAt.toISOString()
+    } as any // Type assertion needed for JSONB field
+  });
+}
+
 function triggerReviewForStricterRateLimits(
   userId: string,
   commentRateLimitComparison: RateLimitComparison<CommentAutoRateLimit>,
   postRateLimitComparison: RateLimitComparison<PostAutoRateLimit>,
+  documentId: string,
+  collectionName: CollectionNameString,
+  triggeredAt: Date,
   context: ResolverContext
 ) {
   if (!commentRateLimitComparison.isStricter && !postRateLimitComparison.isStricter) {
@@ -326,7 +366,8 @@ function triggerReviewForStricterRateLimits(
   }
 
   if (commentRateLimitComparison.isStricter) {
-    const { strictestNewRateLimit: { itemsPerTimeframe, timeframeUnit, timeframeLength } } = commentRateLimitComparison;
+    const { strictestNewRateLimit } = commentRateLimitComparison;
+    const { itemsPerTimeframe, timeframeUnit, timeframeLength } = strictestNewRateLimit;
 
     backgroundTask(triggerReview(userId, context));
     backgroundTask(appendToSunshineNotes({
@@ -335,10 +376,12 @@ function triggerReviewForStricterRateLimits(
       text: `User triggered a stricter ${itemsPerTimeframe} comment(s) per ${timeframeLength} ${timeframeUnit} rate limit`,
       context,
     }));
+    backgroundTask(recordRateLimitEvent(userId, "rateLimitActivated", strictestNewRateLimit, documentId, collectionName, triggeredAt, context));
   }
 
   if (postRateLimitComparison.isStricter) {
-    const { strictestNewRateLimit: { itemsPerTimeframe, timeframeUnit, timeframeLength } } = postRateLimitComparison;
+    const { strictestNewRateLimit } = postRateLimitComparison;
+    const { itemsPerTimeframe, timeframeUnit, timeframeLength } = strictestNewRateLimit;
 
     backgroundTask(triggerReview(userId, context));
     backgroundTask(appendToSunshineNotes({
@@ -347,10 +390,11 @@ function triggerReviewForStricterRateLimits(
       text: `User triggered a stricter ${itemsPerTimeframe} post(s) per ${timeframeLength} ${timeframeUnit} rate limit`,
       context,
     }));
+    backgroundTask(recordRateLimitEvent(userId, "rateLimitActivated", strictestNewRateLimit, documentId, collectionName, triggeredAt, context));
   }
 }
 
-export async function checkForStricterRateLimits(userId: string, context: ResolverContext) {
+export async function checkForStricterRateLimits(userId: string, documentId: string, collectionName: CollectionNameString, context: ResolverContext) {
   const { Users } = context;
   // We can't use a loader here because we need the user's karma which was just updated by this vote
   const votedOnUser = await Users.findOne({ _id: userId });
@@ -374,5 +418,45 @@ export async function checkForStricterRateLimits(userId: string, context: Resolv
   const userKarmaInfoWindow = getCurrentAndPreviousUserKarmaInfo(votedOnUser, allVotes, comparisonVotes);
   const { commentRateLimitComparison, postRateLimitComparison } = getRateLimitStrictnessComparisons(userKarmaInfoWindow);
 
-  triggerReviewForStricterRateLimits(votedOnUser._id, commentRateLimitComparison, postRateLimitComparison, context);
+  // Use the most recent vote date as the trigger time
+  const triggeredAt = allVotes[0].votedAt;
+
+  triggerReviewForStricterRateLimits(votedOnUser._id, commentRateLimitComparison, postRateLimitComparison, documentId, collectionName, triggeredAt, context);
+
+  // Also check if rate limits were loosened (deactivated)
+  await checkForLoosenedRateLimits(votedOnUser._id, userKarmaInfoWindow, documentId, collectionName, triggeredAt, context);
+}
+
+async function checkForLoosenedRateLimits(userId: string, userKarmaInfoWindow: UserKarmaInfoWindow, documentId: string, collectionName: CollectionNameString, triggeredAt: Date, context: ResolverContext) {
+  const { currentUserKarmaInfo, previousUserKarmaInfo } = userKarmaInfoWindow;
+
+  const commentRateLimits = forumSelect(autoCommentRateLimits);
+  const postRateLimits = forumSelect(autoPostRateLimits);
+
+  if (!commentRateLimits || !postRateLimits) return;
+
+  const currentCommentRateLimits = getActiveRateLimits(currentUserKarmaInfo, commentRateLimits);
+  const previousCommentRateLimits = getActiveRateLimits(previousUserKarmaInfo, commentRateLimits);
+
+  const currentPostRateLimits = getActiveRateLimits(currentUserKarmaInfo, postRateLimits);
+  const previousPostRateLimits = getActiveRateLimits(previousUserKarmaInfo, postRateLimits);
+
+  // Find rate limits that were active before but aren't active now
+  for (const previousLimit of previousCommentRateLimits) {
+    const stillActive = currentCommentRateLimits.some(current =>
+      current.rateLimitType === previousLimit.rateLimitType
+    );
+    if (!stillActive) {
+      backgroundTask(recordRateLimitEvent(userId, "rateLimitDeactivated", previousLimit, documentId, collectionName, triggeredAt, context));
+    }
+  }
+
+  for (const previousLimit of previousPostRateLimits) {
+    const stillActive = currentPostRateLimits.some(current =>
+      current.rateLimitType === previousLimit.rateLimitType
+    );
+    if (!stillActive) {
+      backgroundTask(recordRateLimitEvent(userId, "rateLimitDeactivated", previousLimit, documentId, collectionName, triggeredAt, context));
+    }
+  }
 }

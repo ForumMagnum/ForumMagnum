@@ -4142,6 +4142,7 @@ interface Post {
   unreadDebateResponseCount: number;
   emojiReactors: any;
   commentEmojiReactors: any;
+  moderatorPost: Date | null;
   rejected: boolean;
   rejectedReason: string | null;
   rejectedByUserId: string | null;
@@ -8536,6 +8537,7 @@ interface CreatePostDataInput {
   ignoreRateLimits?: boolean | null;
   hideCommentKarma?: boolean | null;
   collabEditorDialogue?: boolean | null;
+  moderatorPost?: Date | null;
   rejected?: boolean | null;
   rejectedReason?: string | null;
   rejectedByUserId?: string | null;
@@ -8653,6 +8655,7 @@ interface UpdatePostDataInput {
   ignoreRateLimits?: boolean | null;
   hideCommentKarma?: boolean | null;
   collabEditorDialogue?: boolean | null;
+  moderatorPost?: Date | null;
   rejected?: boolean | null;
   rejectedReason?: string | null;
   rejectedByUserId?: string | null;

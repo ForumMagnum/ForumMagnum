@@ -1017,6 +1017,7 @@ export const PostsDefaultFragment = gql(`
     debate
     collabEditorDialogue
     mostRecentPublishedDialogueResponseDate
+    moderatorPost
     rejected
     rejectedReason
     rejectedByUserId

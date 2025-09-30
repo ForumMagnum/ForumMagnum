@@ -995,6 +995,17 @@ const PostForm = ({
             )}
           </form.Field>
         </div>}
+
+        {userIsAdmin(currentUser) && <div className={classes.fieldWrapper}>
+          <form.Field name="moderatorPost">
+            {(field) => (
+              <FormComponentDatePicker
+                field={field}
+                label="Moderator Post"
+              />
+            )}
+          </form.Field>
+        </div>}
       </LegacyFormGroupLayout>}
 
       {userIsAdminOrMod(currentUser) && <LegacyFormGroupLayout label={preferredHeadingCase("Canonical Sequence")} startCollapsed={true}>

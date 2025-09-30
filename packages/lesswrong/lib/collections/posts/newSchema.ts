@@ -4013,6 +4013,22 @@ const schema = {
       },
     },
   },
+  moderatorPost: {
+    database: {
+      type: "TIMESTAMPTZ",
+      nullable: true,
+    },
+    graphql: {
+      outputType: "Date",
+      inputType: "Date",
+      canRead: ["guests"],
+      canUpdate: ["sunshineRegiment", "admins"],
+      canCreate: ["sunshineRegiment", "admins"],
+      validation: {
+        optional: true,
+      },
+    },
+  },
   rejected: {
     database: {
       type: "BOOL",
