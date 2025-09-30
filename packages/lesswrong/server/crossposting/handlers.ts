@@ -117,6 +117,7 @@ export const crossposterDetailsCrosspostHandler = getNextHandler(
     return {
       displayName: user.displayName ?? user.username ?? "",
       slug: user.slug ?? "",
+      fmCrosspostUserId: user.fmCrosspostUserId,
     };
   },
 );

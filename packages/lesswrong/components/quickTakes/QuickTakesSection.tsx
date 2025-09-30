@@ -27,7 +27,7 @@ const ShortformCommentsMultiQuery = gql(`
   query multiCommentQuickTakesSectionQuery($selector: CommentSelector, $limit: Int, $enableTotal: Boolean) {
     comments(selector: $selector, limit: $limit, enableTotal: $enableTotal) {
       results {
-        ...ShortformComments
+        ...FrontpageShortformComments
       }
       totalCount
     }
@@ -73,7 +73,7 @@ const QuickTakesSectionLoaded = ({showCommunity}: {
   const { data, loading, refetch, loadMoreProps } = useQueryWithLoadMore(ShortformCommentsMultiQuery, {
     variables: {
       selector: { shortformFrontpage: { showCommunity, maxAgeDays } },
-      limit: 5,
+      limit: 8,
       enableTotal: true,
     },
   });
@@ -85,7 +85,7 @@ const QuickTakesSectionLoaded = ({showCommunity}: {
   return <>
     {(userCanQuickTake(currentUser) || !currentUser) && <QuickTakesEntry currentUser={currentUser} successCallback={refetch} />}
     <div className={classes.list}>
-      {results?.map((result) => (
+      {results?.map((result: FrontpageShortformComments) => (
         <QuickTakesListItem key={result._id} quickTake={result} />
       ))}
       {loading && <Loading />}

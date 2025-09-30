@@ -112,6 +112,20 @@ export const ShortformComments = gql(`
   }
 `)
 
+export const FrontpageShortformComments = gql(`
+  fragment FrontpageShortformComments on Comment {
+    ...ShortformComments
+    latestChildren {
+      _id
+      postedAt
+      user {
+        _id
+        displayName
+      }
+    }
+  }
+`)
+
 export const DraftComments = gql(`
   fragment DraftComments on Comment {
     ...CommentsList
