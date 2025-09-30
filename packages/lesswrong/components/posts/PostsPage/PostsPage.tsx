@@ -274,11 +274,6 @@ const getDebateResponseBlocks = (responses: readonly CommentsList[], replies: re
   replies: replies.filter(reply => reply.topLevelCommentId === debateResponse._id)
 }));
 
-export type EagerPostComments = {
-  terms: CommentsViewTerms,
-  queryResponse: useQueryType.Result<postCommentsThreadQueryQuery> & { loadMoreProps: LoadMoreProps },
-}
-
 export const postsCommentsThreadMultiOptions = {
   collectionName: "Comments" as const,
   fragmentName: 'CommentsList' as const,
@@ -297,27 +292,23 @@ export const postCommentsThreadQuery = gql(`
   }
 `);
 
-export function usePostCommentTerms<T extends CommentsViewTerms>(currentUser: UsersCurrent | null, defaultTerms: T, query: Record<string, string>) {
+function usePostCommentTerms<T extends CommentsViewTerms>(currentUser: UsersCurrent | null, defaultTerms: T, query: Record<string, string>) {
   const commentOpts = { includeAdminViews: currentUser?.isAdmin };
-  // If the provided view is among the valid ones, spread whole query into terms, otherwise just do the default query
-  let terms;
   let view;
   let limit;
   if (isValidCommentView(query.view, commentOpts)) {
-    const { view: queryView, limit: queryLimit, ...rest } = query;
-    terms = rest;
+    const { view: queryView, limit: queryLimit } = query;
     view = queryView;
     limit = returnIfValidNumber(queryLimit);
   } else {
-    const { view: defaultView, limit: defaultLimit, ...rest } = defaultTerms;
-    terms = rest;
+    const { view: defaultView, limit: defaultLimit } = defaultTerms;
     view = defaultView;
     limit = defaultLimit;
   }
 
   limit ??= 1000;
   
-  return useMemo(() => ({ terms, view, limit }), [terms, view, limit]);
+  return useMemo(() => ({ view, limit }), [view, limit]);
 }
 
 
@@ -432,12 +423,12 @@ const PostsPage = ({fullPost, postPreload, refetch}: {
 
   const defaultView = commentGetDefaultView(post, currentUser);
   const defaultTerms = { view: defaultView, limit: 1000 };
-  const { terms, view, limit } = usePostCommentTerms(currentUser, defaultTerms, query);
+  const { view, limit } = usePostCommentTerms(currentUser, defaultTerms, query);
 
   // these are the replies to the debate responses (see earlier comment about deprecated feature)
   const { data: dataDebateResponseReplies } = useQuery(CommentsListMultiQuery, {
     variables: {
-      selector: { [view]: { ...terms, postId: post._id } },
+      selector: { [view]: { postId: post._id } },
       limit,
       enableTotal: false,
     },
@@ -531,7 +522,7 @@ const PostsPage = ({fullPost, postPreload, refetch}: {
 
   const lazyResults = useQueryWithLoadMore(postCommentsThreadQuery, {
     variables: {
-      selector: { [view]: { ...terms, postId: post._id } },
+      selector: { [view]: { postId: post._id } },
       limit,
       enableTotal: true,
     },
