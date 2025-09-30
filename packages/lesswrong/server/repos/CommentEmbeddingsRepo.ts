@@ -59,23 +59,6 @@ class CommentEmbeddingsRepo extends AbstractRepo<"CommentEmbeddings"> {
     return results.map(({ _id, postedAt }) => ({ _id, postedAt }));
   }
 
-  async getCommentIdsWithoutEmbeddings(postedAtCutoff?: Date, limit = 100): Promise<string[]> {
-    const results = await this.getRawDb().any<{ _id: string }>(`
-      SELECT c."_id"
-      FROM "Comments" c
-      LEFT JOIN "CommentEmbeddings" ce ON c."_id" = ce."commentId"
-      WHERE ce."embeddings" IS NULL
-      AND COALESCE((c.contents ->> 'wordCount')::INTEGER, 0) > 0
-      AND c.deleted IS FALSE
-      AND c."deletedPublic" IS FALSE
-      ${postedAtCutoff ? `AND c."postedAt" > $1` : ''}
-      ORDER BY c."postedAt" ASC
-      LIMIT $2
-    `, [postedAtCutoff, limit]);
-
-    return results.map(({ _id }) => _id);
-  }
-
   searchCommentsByEmbedding(searchEmbeddings: number[], settings: { scoreBias: number }): Promise<DbComment[]> {
     const { scoreBias } = settings;
 
