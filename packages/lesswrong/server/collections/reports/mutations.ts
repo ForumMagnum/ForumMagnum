@@ -10,7 +10,45 @@ import { makeGqlCreateMutation, makeGqlUpdateMutation } from "@/server/vulcan-li
 import { getLegacyCreateCallbackProps, getLegacyUpdateCallbackProps, insertAndReturnCreateAfterProps, runFieldOnCreateCallbacks, runFieldOnUpdateCallbacks, updateAndReturnDocument, assignUserIdToData } from "@/server/vulcan-lib/mutators";
 import gql from "graphql-tag";
 import cloneDeep from "lodash/cloneDeep";
+import { WebClient } from "@slack/web-api";
 
+
+async function postReportsToSunshine(report: DbReport, context: ResolverContext): Promise<void> {
+
+  const slackBotToken = process.env.AMANUENSIS_SLACK_BOT_TOKEN;
+  if (!slackBotToken) {
+    return;
+  }
+
+  const user = await context.Users.findOne({ _id: report.userId });
+  const [comment, post] = await Promise.all([
+    report.commentId ? context.Comments.findOne({ _id: report.commentId }) : null,
+    report.postId ? context.Posts.findOne({ _id: report.postId }) : null,
+  ]);
+  const reportedUser = await context.Users.findOne({ _id: report.reportedUserId ?? comment?.userId ?? post?.userId });
+
+  const slack = new WebClient(slackBotToken);
+
+  void slack.chat.postMessage({
+    channel: 'C3GTABBTQ',
+    blocks: [
+      {
+        type: 'section',
+        text: {
+          type: 'mrkdwn',
+          text: `${user?.displayName ?? report.userId} reported <https://lesswrong.com${report.link}|this ${report.commentId ? 'comment' : report.postId ? 'post' : report.reportedUserId ? 'user' : ''}> by ${reportedUser?.displayName ?? report.reportedUserId}`,
+        },
+      },
+      {
+        type: 'section',
+        text: {
+          type: 'mrkdwn',
+          text: `Here was the report:\n> ${report.description}`,
+        },
+      }
+    ]
+  });
+}
 
 function newCheck(user: DbUser | null, document: CreateReportDataInput | null, context: ResolverContext) {
   return userCanDo(user, [
@@ -56,6 +94,8 @@ export async function createReport({ data }: CreateReportInput, context: Resolve
 
   const afterCreateProperties = await insertAndReturnCreateAfterProps(data, 'Reports', callbackProps);
   let documentWithId = afterCreateProperties.document;
+
+  backgroundTask(postReportsToSunshine(documentWithId, context));
 
   await updateCountOfReferencesOnOtherCollectionsAfterCreate('Reports', documentWithId);
 
