@@ -1,1 +1,1 @@
-export const isBlackBarTitle = true
+export const isBlackBarTitle = false

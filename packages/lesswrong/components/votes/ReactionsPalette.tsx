@@ -63,7 +63,11 @@ const styles = defineStyles('ReactionsPalette', (theme: ThemeType) => ({
     display: "flex",
     alignItems: "center",
     justifyContent: "space-between",
-    flexGrow: 1
+    flexGrow: 1,
+    whiteSpace: 'pre-wrap'
+  },
+  hoverBallotLabelSmall: {
+    fontSize: 11,
   },
   paletteEntry: {
     cursor: "pointer",
@@ -104,6 +108,7 @@ const styles = defineStyles('ReactionsPalette', (theme: ThemeType) => ({
   tooltipIcon: {
     marginRight: 12,
     padding: 8,
+    minWidth: 55, // 40px icon + 16px padding
     '& img': {
       filter: 'opacity(1) !important'
     }
@@ -166,6 +171,9 @@ const styles = defineStyles('ReactionsPalette', (theme: ThemeType) => ({
     justifyContent: "space-between",
     paddingRight: 8
   },
+  tooltipRootMoloch: {
+    paddingRight: 0
+  },
   paddedRow: {
     marginTop: "1em",
     marginBottom: "1em",
@@ -205,7 +213,9 @@ const ReactionsPalette = ({getCurrentUserReactionVote, toggleReaction, quote}: {
   }
 
   function tooltip (reaction: NamesAttachedReactionType) {
-    return <div className={classes.tooltipRoot}>
+    return <div className={classNames(classes.tooltipRoot, {
+      [classes.tooltipRootMoloch]: reaction.name === 'moloch'
+    })}>
      <div className={classes.tooltipIcon}>
         <ReactionIcon inverted={true} react={reaction.name} size={40}/>
       </div>
@@ -259,7 +269,9 @@ const ReactionsPalette = ({getCurrentUserReactionVote, toggleReaction, quote}: {
         }>
           <ReactionIcon react={reaction.name} size={size}/>
         </span>
-        <span className={classes.hoverBallotLabel}>
+        <span className={classNames(classes.hoverBallotLabel, {
+          [classes.hoverBallotLabelSmall]: reaction.name === 'addc'
+        })}>
           {reaction.label}
         </span>
       </div>
@@ -320,10 +332,13 @@ const ReactionsPalette = ({getCurrentUserReactionVote, toggleReaction, quote}: {
         <div className={classes.iconSection}>
           {gridSectionB.map(react => react && gridReactButton(react, 24))}
         </div>
-        <div>
+        <div className={classes.iconSection}>
           {gridSectionC.map(react => react && gridReactButton(react, 24))}
         </div>
+        <div >
         {likelihoods.map(react => react && gridReactButton(react, 24))}
+        </div>
+
       </div>}
     </div>
     <div className={classes.reactPaletteFooter}>

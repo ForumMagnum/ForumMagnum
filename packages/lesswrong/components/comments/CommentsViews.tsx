@@ -33,7 +33,7 @@ const CommentsViews = ({post, setRestoreScrollPos}: {post?: PostsDetails, setRes
     const view = opt.value
     const { query } = location;
     const currentQuery = isEmpty(query) ? {view: 'postCommentsTop'} : query
-    const newQuery = {...currentQuery, view: view, postId: post ? post._id : undefined, commentId: undefined}
+    const newQuery = {...currentQuery, view: view, commentId: undefined}
     setRestoreScrollPos?.(window.scrollY - permalinkedCommentHeight());
     navigate({...location.location, search: `?${qs.stringify(newQuery)}`})
   };

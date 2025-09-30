@@ -36,20 +36,20 @@ export const ClientRouteMetadataProvider = ({ initialMetadata, children }: { ini
   );
 };
 
+const defaultMetadata: RouteMetadata = {};
+
 /**
  * Do not use this component outside of a route-entrypoint server component!
  * This is purely to set route metadata for use by components like Header, HeadTags, etc.
  */
 export const ClientRouteMetadataSetter = ({ metadata }: { metadata: RouteMetadata }) => {
-  const { metadata: currentMetadata, setMetadata } = useRouteMetadata();
-  const previousMetadataRef = useRef<RouteMetadata | undefined>(undefined);
+  const { setMetadata } = useRouteMetadata();
 
   useEffect(() => {
-    previousMetadataRef.current = currentMetadata;
-    setMetadata((prev) => ({ ...prev, ...metadata }));
+    setMetadata((prev) => ({ ...defaultMetadata, ...metadata }));
 
     return () => {
-      setMetadata(previousMetadataRef.current ?? {});
+      setMetadata(defaultMetadata);
     }
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);

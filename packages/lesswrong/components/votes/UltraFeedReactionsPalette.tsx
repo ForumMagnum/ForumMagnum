@@ -33,6 +33,7 @@ const styles = defineStyles('UltraFeedReactionsPalette', (theme: ThemeType) => (
     justifyContent: "space-between",
     flexGrow: 1,
     fontSize: 13,
+    whiteSpace: 'pre-wrap'
   },
   paletteEntry: {
     cursor: "pointer",

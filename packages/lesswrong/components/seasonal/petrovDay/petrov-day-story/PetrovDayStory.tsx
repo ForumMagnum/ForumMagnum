@@ -11,6 +11,7 @@ import { useWindowSize } from '@/components/hooks/useScreenWidth';
 import { getOffsetChainTop } from '@/lib/utils/domUtil';
 import ForumIcon from '@/components/common/ForumIcon';
 import LWTooltip from '@/components/common/LWTooltip';
+import { PetrovStoryVariant } from './PetrovStoryComponents';
 
 const styles = defineStyles("PetrovDayStory", (theme: ThemeType) => ({
   root: {
@@ -135,20 +136,21 @@ const styles = defineStyles("PetrovDayStory", (theme: ThemeType) => ({
     zIndex: 15,
     marginLeft: 'auto',
   },
+  // note: it's important for the height here to be set such
+  // that it reliably puts the opening paragraphs slightly-intersecting
+  // with the bottom of the page, so readers know to scroll down.
   storyBuffer: {
-    height: 920,
+    height: "calc(100vh - 267px)",
     [theme.breakpoints.down(1800)]: {
-      height: 700,
     },
     [theme.breakpoints.down('xs')]: {
-      height: 300,
     },
     width: "100vw",
     zIndex: 1,
     position: "relative", 
   },
   storyBufferPage: {
-    maxHeight: '50vh'
+    height: "calc(100vh - 443px)"
   },
   storySection: {
     position: "relative",
@@ -795,6 +797,7 @@ const PetrovDayContents = React.memo(({variant, storyScrolled}: {
   const classes = useStyles(styles);
 
   return <div className={classes.storyContainer}>
+    <PetrovStoryVariant.Provider value={variant}>
     <div className={classNames(classes.storyBuffer, {
       [classes.storyBufferPage]: variant==="page"
     })}/>
@@ -814,5 +817,6 @@ const PetrovDayContents = React.memo(({variant, storyScrolled}: {
         })}/>}
       </div>
     ))}
+    </PetrovStoryVariant.Provider>
   </div>
 })
