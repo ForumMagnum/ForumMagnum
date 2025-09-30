@@ -40,10 +40,11 @@ function createCommentRateLimit(isActive: IsActiveFunction): CommentAutoRateLimi
     timeframeLength: 2,
     itemsPerTimeframe: 1,
     rateLimitType: "lowKarma",
+    rateLimitCategory: "rolling",
     rateLimitMessage: "",
     appliesToOwnPosts: false,
     isActive,
-  } 
+  }
 }
 
 function createUserKarmaInfo(overrideFields?: Partial<UserKarmaInfo>): UserKarmaInfo {
