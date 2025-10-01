@@ -165,6 +165,7 @@ const MessageItem = ({message, classes}: {
                   votingSystem={votingSystem}
                   voteProps={voteProps}
                   commentBodyRef={messageBodyRef}
+                  invertColors={!!isCurrentUser}
                 />
               </div>
             );

@@ -17,6 +17,7 @@ export type CommentVotingComponentProps<T extends VotingPropsDocument = VotingPr
 
 export interface NamesAttachedReactionsCommentBottomProps extends CommentVotingComponentProps<CommentsList | messageListFragment> {
   voteProps: VotingProps<VoteableTypeClient>;
+  invertColors?: boolean;
 }
 
 export type PostVotingComponentProps = {
