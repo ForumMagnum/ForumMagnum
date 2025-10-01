@@ -229,8 +229,8 @@ const CommentSubmit = ({
     >
       <div className={classes.autoEmailSubscribe}>
         <SectionFooterCheckbox
-          label="Email me replies"
-          value={true}
+          label="Email me replies to all comments"
+          value={currentUser?.notificationRepliesToMyComments?.email?.enabled}
           onClick={() => {}}
         />
       </div>
