@@ -5,14 +5,7 @@ import merge from "lodash/merge";
 import RouteRoot from "@/components/next/RouteRoot";
 import { getSqlClientOrThrow } from "@/server/sql/sqlClient";
 import { unstable_cache } from 'next/cache';
-import ModerationPageContent, {
-  ActiveRateLimit,
-  ModerationComment,
-  ModerationPost,
-  ModerationUser,
-  ModeratorComment,
-  GloballyBannedUser,
-} from "./ModerationPageContent";
+import ModerationPageContent from "./ModerationPageContent";
 
 export async function generateMetadata(): Promise<Metadata> {
   return merge({}, await getDefaultMetadata(), {
@@ -59,7 +52,7 @@ export default async function Page({
 
   const getCachedModeratorPosts = unstable_cache(
     async () => fetchModeratorPosts(db),
-    [`all-moderation-posts-${commitSha}`],
+    [`moderation-posts-${commitSha}`],
     { revalidate: 1800, tags: ['moderation-posts'] }
   );
 
