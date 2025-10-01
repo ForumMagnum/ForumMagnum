@@ -44,9 +44,10 @@ export default async function Page({
   const commitSha = process.env.NEXT_PUBLIC_VERCEL_GIT_COMMIT_SHA || 'dev';
 
   // Fetch all data with caching (30 minute revalidation)
+  // unstable_cache automatically includes function arguments in the cache key
   const getCachedModeratorCommentIds = unstable_cache(
-    async () => fetchModeratorCommentIds(db, limit, moderatorCommentsOffset),
-    [`moderation-comments-${commitSha}-${limit}-${moderatorCommentsOffset}`],
+    async (limit: number, offset: number) => fetchModeratorCommentIds(db, limit, offset),
+    [`moderation-comments-${commitSha}`],
     { revalidate: 1800, tags: ['moderation-comments'] }
   );
 
@@ -57,56 +58,58 @@ export default async function Page({
   );
 
   const getCachedActiveRateLimits = unstable_cache(
-    async () => fetchActiveRateLimits(db, limit, activeRateLimitsOffset, showExpiredRateLimits, showNewUserRateLimits),
-    [`moderation-rate-limits-${commitSha}-${limit}-${activeRateLimitsOffset}-${showExpiredRateLimits}-${showNewUserRateLimits}`],
+    async (limit: number, offset: number, showExpired: boolean, showNewUsers: boolean) =>
+      fetchActiveRateLimits(db, limit, offset, showExpired, showNewUsers),
+    [`moderation-rate-limits-${commitSha}`],
     { revalidate: 1800, tags: ['moderation-rate-limits'] }
   );
 
   const getCachedDeletedComments = unstable_cache(
-    async () => fetchDeletedComments(db, limit, deletedCommentsOffset),
-    [`moderation-deleted-comments-${commitSha}-${limit}-${deletedCommentsOffset}`],
+    async (limit: number, offset: number) => fetchDeletedComments(db, limit, offset),
+    [`moderation-deleted-comments-${commitSha}`],
     { revalidate: 1800, tags: ['moderation-deleted-comments'] }
   );
 
   const getCachedRejectedPosts = unstable_cache(
-    async () => fetchRejectedPosts(db, limit, rejectedPostsOffset),
-    [`moderation-rejected-posts-${commitSha}-${limit}-${rejectedPostsOffset}`],
+    async (limit: number, offset: number) => fetchRejectedPosts(db, limit, offset),
+    [`moderation-rejected-posts-${commitSha}`],
     { revalidate: 1800, tags: ['moderation-rejected-posts'] }
   );
 
   const getCachedRejectedComments = unstable_cache(
-    async () => fetchRejectedComments(db, limit, rejectedCommentsOffset),
-    [`moderation-rejected-comments-${commitSha}-${limit}-${rejectedCommentsOffset}`],
+    async (limit: number, offset: number) => fetchRejectedComments(db, limit, offset),
+    [`moderation-rejected-comments-${commitSha}`],
     { revalidate: 1800, tags: ['moderation-rejected-comments'] }
   );
 
   const getCachedPostsWithBannedUsers = unstable_cache(
-    async () => fetchPostsWithBannedUsers(db, limit, bannedFromPostsOffset),
-    [`moderation-posts-banned-users-${commitSha}-${limit}-${bannedFromPostsOffset}`],
+    async (limit: number, offset: number) => fetchPostsWithBannedUsers(db, limit, offset),
+    [`moderation-posts-banned-users-${commitSha}`],
     { revalidate: 1800, tags: ['moderation-posts-banned-users'] }
   );
 
   const getCachedUsersWithBannedUsers = unstable_cache(
-    async () => fetchUsersWithBannedUsers(db, limit, bannedFromUsersOffset),
-    [`moderation-users-banned-users-${commitSha}-${limit}-${bannedFromUsersOffset}`],
+    async (limit: number, offset: number) => fetchUsersWithBannedUsers(db, limit, offset),
+    [`moderation-users-banned-users-${commitSha}`],
     { revalidate: 1800, tags: ['moderation-users-banned-users'] }
   );
 
   const getCachedGloballyBannedUsers = unstable_cache(
-    async () => fetchGloballyBannedUsers(db, limit, globallyBannedUsersOffset, showExpiredBans),
-    [`moderation-globally-banned-${commitSha}-${limit}-${globallyBannedUsersOffset}-${showExpiredBans}`],
+    async (limit: number, offset: number, showExpired: boolean) =>
+      fetchGloballyBannedUsers(db, limit, offset, showExpired),
+    [`moderation-globally-banned-${commitSha}`],
     { revalidate: 1800, tags: ['moderation-globally-banned'] }
   );
 
-  const { comments: moderatorCommentIds, count: moderatorCommentsCount } = await getCachedModeratorCommentIds();
+  const { comments: moderatorCommentIds, count: moderatorCommentsCount } = await getCachedModeratorCommentIds(limit, moderatorCommentsOffset);
   const moderatorPosts = await getCachedModeratorPosts();
-  const { rateLimits: activeRateLimits, count: activeRateLimitsCount } = await getCachedActiveRateLimits();
-  const { comments: deletedComments, count: deletedCommentsCount } = await getCachedDeletedComments();
-  const { posts: rejectedPosts, count: rejectedPostsCount } = await getCachedRejectedPosts();
-  const { comments: rejectedComments, count: rejectedCommentsCount } = await getCachedRejectedComments();
-  const { posts: postsWithBannedUsers, count: postsWithBannedUsersCount } = await getCachedPostsWithBannedUsers();
-  const { users: usersWithBannedUsers, count: usersWithBannedUsersCount } = await getCachedUsersWithBannedUsers();
-  const { users: globallyBannedUsers, count: globallyBannedUsersCount } = await getCachedGloballyBannedUsers();
+  const { rateLimits: activeRateLimits, count: activeRateLimitsCount } = await getCachedActiveRateLimits(limit, activeRateLimitsOffset, showExpiredRateLimits, showNewUserRateLimits);
+  const { comments: deletedComments, count: deletedCommentsCount } = await getCachedDeletedComments(limit, deletedCommentsOffset);
+  const { posts: rejectedPosts, count: rejectedPostsCount } = await getCachedRejectedPosts(limit, rejectedPostsOffset);
+  const { comments: rejectedComments, count: rejectedCommentsCount } = await getCachedRejectedComments(limit, rejectedCommentsOffset);
+  const { posts: postsWithBannedUsers, count: postsWithBannedUsersCount } = await getCachedPostsWithBannedUsers(limit, bannedFromPostsOffset);
+  const { users: usersWithBannedUsers, count: usersWithBannedUsersCount } = await getCachedUsersWithBannedUsers(limit, bannedFromUsersOffset);
+  const { users: globallyBannedUsers, count: globallyBannedUsersCount } = await getCachedGloballyBannedUsers(limit, globallyBannedUsersOffset, showExpiredBans);
 
   return (
     <RouteRoot>

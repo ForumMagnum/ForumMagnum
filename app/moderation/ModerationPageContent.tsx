@@ -2,7 +2,7 @@
 
 import React, { useState } from 'react';
 import { useSearchParams } from 'next/navigation';
-import Link from 'next/link';
+import { Link } from '@/lib/reactRouterWrapper';
 import { userGetProfileUrl as _userGetProfileUrl, userGetProfileUrlFromSlug } from '@/lib/collections/users/helpers';
 import { postGetPageUrl } from '@/lib/collections/posts/helpers';
 import { commentGetPageUrlFromIds } from '@/lib/collections/comments/helpers';
@@ -872,7 +872,7 @@ export default function ModerationPageContent(props: Props) {
     );
   };
 
-  const renderContent = (contents: any) => {
+  const renderContent = (contents: { html?: string }) => {
     if (!contents?.html) return null;
     return <div className={classes.expandedContent} dangerouslySetInnerHTML={{ __html: contents.html }} />;
   };
@@ -907,14 +907,14 @@ export default function ModerationPageContent(props: Props) {
         {currentPage === 1 ? (
           <span className={classes.pageButtonDisabled}>First</span>
         ) : (
-          <Link href={buildPaginationUrl(section, 1)} className={classes.pageButton} scroll={false}>
+          <Link to={buildPaginationUrl(section, 1)} className={classes.pageButton} scroll={false}>
             First
           </Link>
         )}
         {currentPage === 1 ? (
           <span className={classes.pageButtonDisabled}>Previous</span>
         ) : (
-          <Link href={buildPaginationUrl(section, currentPage - 1)} className={classes.pageButton} scroll={false}>
+          <Link to={buildPaginationUrl(section, currentPage - 1)} className={classes.pageButton} scroll={false}>
             Previous
           </Link>
         )}
@@ -924,14 +924,14 @@ export default function ModerationPageContent(props: Props) {
         {currentPage >= totalPages ? (
           <span className={classes.pageButtonDisabled}>Next</span>
         ) : (
-          <Link href={buildPaginationUrl(section, currentPage + 1)} className={classes.pageButton} scroll={false}>
+          <Link to={buildPaginationUrl(section, currentPage + 1)} className={classes.pageButton} scroll={false}>
             Next
           </Link>
         )}
         {currentPage >= totalPages ? (
           <span className={classes.pageButtonDisabled}>Last</span>
         ) : (
-          <Link href={buildPaginationUrl(section, totalPages)} className={classes.pageButton} scroll={false}>
+          <Link to={buildPaginationUrl(section, totalPages)} className={classes.pageButton} scroll={false}>
             Last
           </Link>
         )}
@@ -949,8 +949,8 @@ export default function ModerationPageContent(props: Props) {
         <div>
           <div className={classes.essay}>
             <h2 className={classes.essayTitle}>Moderation Principles and Process</h2>
-            <p>LessWrong is trying to cultivate a specific culture. The best pointers towards that culture are the <Link href="/rationality">LessWrong Sequences</Link> and the <Link href="/newUserGuide">New User Guide</Link>.</p>
-            <p>LessWrong operates under benevolent dictatorship of the Lightcone Infrastructure team, under its current CEO <Link href="/users/habryka4">habryka</Link>. It is not a democracy. For some insight into our moderation philosophy see <Link href="/posts/tscc3e5eujrsEeFN4/well-kept-gardens-die-by-pacifism">"Well Kept Gardens Die By Pacifism"</Link>.</p>
+            <p>LessWrong is trying to cultivate a specific culture. The best pointers towards that culture are the <Link to="/rationality">LessWrong Sequences</Link> and the <Link to="/newUserGuide">New User Guide</Link>.</p>
+            <p>LessWrong operates under benevolent dictatorship of the Lightcone Infrastructure team, under its current CEO <Link to="/users/habryka4">habryka</Link>. It is not a democracy. For some insight into our moderation philosophy see <Link to="/posts/tscc3e5eujrsEeFN4/well-kept-gardens-die-by-pacifism">"Well Kept Gardens Die By Pacifism"</Link>.</p>
             <p>Norms on the site get developed largely by case-law. I.e. the moderators notice that something is going wrong on the site, then they take some moderation actions to fix this, and in doing so establish some precedent about what will cause future moderation action. There is no comprehensive set of rules you can follow that will guarantee we will not moderate your comments or content. Most of the time we "know it when we see it".</p>
             <p>LessWrong relies heavily on rate-limits in addition to deleting content and banning users. New users start out with some relatively lax rate limits to avoid spamming. Users who get downvoted acquire stricter and stricter rate limits the more they get downvoted.</p>
             <p>Not all moderation on LessWrong is done by the moderators. Authors with enough upvoted content on the site can moderate their own posts.</p>
@@ -1013,7 +1013,7 @@ export default function ModerationPageContent(props: Props) {
         <div className={`${classes.sectionHeader} ${classes.sectionHeaderFlex}`}>
           <span>{showExpiredRateLimits ? 'Expired' : 'Active'} Auto Rate Limits ({activeRateLimitsCount} users)</span>
           <div className={classes.filterGroup}>
-            <Link href={buildToggleUrl('showNewUserRateLimits', showNewUserRateLimits, 'activeRateLimitsOffset')} className={classes.filterCheckbox} scroll={false}>
+            <Link to={buildToggleUrl('showNewUserRateLimits', showNewUserRateLimits, 'activeRateLimitsOffset')} className={classes.filterCheckbox} scroll={false}>
               <input
                 type="checkbox"
                 checked={showNewUserRateLimits}
@@ -1022,7 +1022,7 @@ export default function ModerationPageContent(props: Props) {
               Show new user rate limits
             </Link>
             <Link
-              href={buildToggleUrl('showExpiredRateLimits', showExpiredRateLimits, 'activeRateLimitsOffset')}
+              to={buildToggleUrl('showExpiredRateLimits', showExpiredRateLimits, 'activeRateLimitsOffset')}
               className={classes.pageButton}
               title={showExpiredRateLimits ? "We only have up-to-date data on expired rate limits from October 1st 2025" : "Switch to view expired rate limits"}
               scroll={false}
@@ -1447,7 +1447,7 @@ export default function ModerationPageContent(props: Props) {
         <div className={classes.section}>
           <div className={classes.sectionHeader}>
             <span>Globally Banned Users ({globallyBannedUsersCount})</span>
-            <Link href={buildToggleUrl('showExpiredBans', showExpiredBans, 'globallyBannedUsersOffset')} className={classes.sectionCheckbox} scroll={false}>
+            <Link to={buildToggleUrl('showExpiredBans', showExpiredBans, 'globallyBannedUsersOffset')} className={classes.sectionCheckbox} scroll={false}>
               <input
                 type="checkbox"
                 checked={showExpiredBans}
