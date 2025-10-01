@@ -123,7 +123,7 @@ interface SlugCallbackOptions<N extends CollectionNameString> {
   includesOldSlugs: boolean,
 }
 
-type DatabaseBaseType = `VARCHAR(${number})` | 'TEXT' | 'BOOL' | 'DOUBLE PRECISION' | 'INTEGER' | 'JSONB' | 'TIMESTAMPTZ' | 'VECTOR(1536)';
+type DatabaseBaseType = `VARCHAR(${number})` | 'TEXT' | 'BOOL' | 'DOUBLE PRECISION' | 'INTEGER' | 'JSONB' | 'TIMESTAMPTZ' | 'VECTOR(1024)' | 'VECTOR(1536)';
 
 interface DatabaseFieldSpecification<N extends CollectionNameString> {
   type: DatabaseBaseType | `${DatabaseBaseType}[]`,

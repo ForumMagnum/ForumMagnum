@@ -1,8 +1,15 @@
 import { gql } from "@/lib/generated/gql-codegen";
 
+export const BookmarksMinimumInfoFragment = gql(`
+  fragment BookmarksMinimumInfoFragment on Bookmark {
+    _id
+    active
+  }
+`);
+
 export const BookmarksWithDocumentFragment = gql(`
   fragment BookmarksWithDocumentFragment on Bookmark {
-    ...BookmarksDefaultFragment
+    ...BookmarksMinimumInfoFragment
     post {
       ...PostsListWithVotes
     }
@@ -11,7 +18,9 @@ export const BookmarksWithDocumentFragment = gql(`
 
 export const BookmarksFeedItemFragment = gql(`
   fragment BookmarksFeedItemFragment on Bookmark {
-    ...BookmarksDefaultFragment
+    ...BookmarksMinimumInfoFragment
+    collectionName
+    lastUpdated
     post {
       ...PostsListWithVotes
     }

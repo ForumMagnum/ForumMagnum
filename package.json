@@ -3,6 +3,7 @@
   "version": "2.1.0",
   "scripts": {
     "start": "scripts/runDevInstance.sh",
+    "af": "FORUM_TYPE=AlignmentForum scripts/runDevInstance.sh",
     "postinstall": "scripts/postinstall.sh",
     "checktypes": "scripts/lint_and_checktypes.sh",
     "lint": "scripts/lint_and_checktypes.sh",
@@ -86,6 +87,7 @@
     "@heroicons/react": "^2.0.16",
     "@popperjs/core": "^2.11.5",
     "@sentry/nextjs": "^9.41.0",
+    "@slack/web-api": "^7.10.0",
     "@swc/core": "^1.10.18",
     "@tanstack/react-form": "^1.9.0",
     "@types/algoliasearch": "^3.34.11",
@@ -280,6 +282,7 @@
     "universal-cookie-express": "^4.0.0",
     "use-context-selector": "^2.0.0",
     "uuid": "^7.0.0",
+    "voyageai": "^0.0.8",
     "warning": "^4.0.3",
     "zod": "^3.24.2",
     "zod-to-json-schema": "^3.23.5"

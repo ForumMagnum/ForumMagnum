@@ -15,21 +15,6 @@ export const reviewVoteFragment = gql(`
   }
 `)
 
-
-export const reviewVoteWithUserAndPost = gql(`
-  fragment reviewVoteWithUserAndPost on ReviewVote {
-    ...reviewVoteFragment
-    user {
-      ...UsersMinimumInfo
-      email
-      emails
-    }
-    post {
-      ...PostsMinimumInfo
-    }
-  }
-`)
-
 export const reviewAdminDashboard = gql(`
   fragment reviewAdminDashboard on ReviewVote {
     _id

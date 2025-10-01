@@ -1,8 +1,8 @@
 import { exec as execCb } from "child_process";
 import { promisify } from "util";
-import { detectForumType, EnvironmentType, ForumType, isCodegen, isEnvironmentType, isForumType } from "./scriptUtil"
 import { loadEnvConfig } from "@next/env";
 import { TupleSet } from "@/lib/utils/typeGuardUtils";
+import { detectForumType, EnvironmentType, ForumType, isCodegen, isEnvironmentType, isForumType } from "./scriptUtil"
 
 const exec = promisify(execCb);
 
@@ -151,46 +151,6 @@ function parseReplCommandLine() {
   return result as ProjectEnv;
 }
 
-function parseInstanceCommandLine() {
-  const args = process.argv.slice(2);
-
-  const [firstArg, secondArg] = args;
-
-  if (!firstArg) {
-    return {
-      environment: "dev",
-      forumType: detectDefaultForumType(),
-    } as const;
-  } else if (!secondArg) {
-    if (!isEnvironmentType(firstArg) && !isForumType(firstArg)) {
-      // eslint-disable-next-line no-console
-      console.error(`Invalid argument: ${firstArg}, should be either an environment or a forum type (if you want the dev db, just specify the forum type)`);
-      process.exit(1);
-    } else if (isEnvironmentType(firstArg)) {
-      return {
-        environment: firstArg,
-        forumType: detectDefaultForumType(),
-      } as const;
-    } else {
-      return {
-        environment: "dev",
-        forumType: firstArg,
-      } as const;
-    }
-  } else {
-    if (!isEnvironmentType(firstArg) || !isForumType(secondArg)) {
-      // eslint-disable-next-line no-console
-      console.error(`Invalid combination of arguments: ${firstArg} and ${secondArg}, should be an environment, then a forum type (i.e "yarn start prod af")`);
-      process.exit(1);
-    } else {
-      return {
-        environment: firstArg,
-        forumType: secondArg,
-      } as const;
-    }
-  }
-}
-
 function getVercelEnvName(environment: EnvironmentType, codegen: boolean) {
   switch (environment) {
     case "dev":
@@ -267,10 +227,4 @@ export async function loadMigrateEnv() {
   const migrateOptions = parseMigrateCommandLine();
   await loadAndValidateEnv(migrateOptions);
   return migrateOptions;
-}
-
-export async function loadInstanceEnv() {
-  const commandLineOptions = parseInstanceCommandLine();
-  await loadAndValidateEnv(commandLineOptions);
-  return commandLineOptions;
 }

@@ -10,6 +10,8 @@ interface Query {
   AirtableLeaderboards: Array<AirtableLeaderboardResult>;
   SuggestedFeedSubscriptionUsers: SuggestedFeedSubscriptionUsersResult | null;
   SuggestedTopActiveUsers: SuggestedTopActiveUsersResult | null;
+  CommentEmbeddingSearch: Array<Comment>;
+  CommentEmbeddingSimilaritySearch: Array<Comment>;
   CommentsWithReacts: CommentsWithReactsResult | null;
   PopularComments: PopularCommentsResult | null;
   PostAnalytics: PostAnalyticsResult;
@@ -1696,6 +1698,11 @@ interface MultiCollectionInput {
 interface MultiCollectionOutput {
   results: Array<Collection>;
   totalCount: number | null;
+}
+
+interface CommentEmbedding {
+  _id: string;
+  createdAt: Date;
 }
 
 interface CommentModeratorAction {
@@ -9924,6 +9931,7 @@ interface GraphQLTypeMap {
   CollectionSelector: CollectionSelector;
   MultiCollectionInput: MultiCollectionInput;
   MultiCollectionOutput: MultiCollectionOutput;
+  CommentEmbedding: CommentEmbedding;
   CommentModeratorAction: CommentModeratorAction;
   SingleCommentModeratorActionInput: SingleCommentModeratorActionInput;
   SingleCommentModeratorActionOutput: SingleCommentModeratorActionOutput;
@@ -10774,6 +10782,7 @@ interface CreateInputsByCollectionName {
   Bookmarks: never;
   CkEditorUserSessions: never;
   ClientIds: never;
+  CommentEmbeddings: never;
   CronHistories: never;
   CurationEmails: never;
   DatabaseMetadata: never;
@@ -10864,6 +10873,7 @@ interface UpdateInputsByCollectionName {
   Bookmarks: never;
   CkEditorUserSessions: never;
   ClientIds: never;
+  CommentEmbeddings: never;
   CronHistories: never;
   CurationEmails: never;
   DatabaseMetadata: never;

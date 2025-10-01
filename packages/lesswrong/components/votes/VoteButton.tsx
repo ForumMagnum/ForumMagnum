@@ -1,4 +1,4 @@
-import React, { useReducer, useRef } from 'react';
+import React, { useEffect, useReducer, useRef } from 'react';
 import { isMobile } from '../../lib/utils/isMobile'
 import { defineStyles } from '../hooks/useStyles';
 import { JssStyles } from '@/lib/jssStyles';
@@ -132,8 +132,18 @@ export const VoteButtonAnimation = ({
   const animationState = useRef<VoteButtonAnimationState>({
     mode: "idle",
     vote: currentStrength
-    
   });
+  
+  useEffect(() => {
+    if (animationState.current.mode === "idle" && animationState.current.vote !== currentStrength) {
+      animationState.current = {
+        mode: "idle",
+        vote: currentStrength,
+      };
+      forceRerender();
+    }
+  }, [currentStrength]);
+
   const handleMouseDown = () => { // This handler is only used on desktop
     if(!isMobile()) {
       if (animationState.current.mode === "idle") {

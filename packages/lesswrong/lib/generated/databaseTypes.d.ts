@@ -168,6 +168,17 @@ interface DbCollection extends DbObject {
   userId: string
 }
 
+type CommentEmbeddingsCollection = PgCollection<"CommentEmbeddings">;
+
+interface DbCommentEmbedding extends DbObject {
+  __collectionName?: "CommentEmbeddings"
+  commentId: string
+  createdAt: Date
+  embeddings: Array<number>
+  lastGeneratedAt: Date
+  model: string
+}
+
 type CommentModeratorActionsCollection = PgCollection<"CommentModeratorActions">;
 
 interface DbCommentModeratorAction extends DbObject {
@@ -2306,6 +2317,7 @@ interface CollectionsByName {
   CkEditorUserSessions: CkEditorUserSessionsCollection
   ClientIds: ClientIdsCollection
   Collections: CollectionsCollection
+  CommentEmbeddings: CommentEmbeddingsCollection
   CommentModeratorActions: CommentModeratorActionsCollection
   Comments: CommentsCollection
   Conversations: ConversationsCollection
@@ -2399,6 +2411,7 @@ interface ObjectsByCollectionName {
   CkEditorUserSessions: DbCkEditorUserSession
   ClientIds: DbClientId
   Collections: DbCollection
+  CommentEmbeddings: DbCommentEmbedding
   CommentModeratorActions: DbCommentModeratorAction
   Comments: DbComment
   Conversations: DbConversation
@@ -2492,6 +2505,7 @@ interface ObjectsByTypeName {
   CkEditorUserSession: DbCkEditorUserSession
   ClientId: DbClientId
   Collection: DbCollection
+  CommentEmbedding: DbCommentEmbedding
   CommentModeratorAction: DbCommentModeratorAction
   Comment: DbComment
   Conversation: DbConversation

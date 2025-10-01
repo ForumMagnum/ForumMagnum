@@ -81,6 +81,7 @@ import { graphqlChapterQueryTypeDefs, chapterGqlQueryHandlers, chapterGqlFieldRe
 import { graphqlCkEditorUserSessionQueryTypeDefs, ckEditorUserSessionGqlQueryHandlers, ckEditorUserSessionGqlFieldResolvers } from "@/server/collections/ckEditorUserSessions/queries";
 import { graphqlClientIdQueryTypeDefs, clientIdGqlQueryHandlers, clientIdGqlFieldResolvers } from "@/server/collections/clientIds/queries";
 import { graphqlCollectionQueryTypeDefs, collectionGqlQueryHandlers, collectionGqlFieldResolvers } from "@/server/collections/collections/queries";
+import { graphqlCommentEmbeddingQueryTypeDefs, commentEmbeddingGqlFieldResolvers } from "@/server/collections/commentEmbeddings/queries";
 import { graphqlCommentModeratorActionQueryTypeDefs, commentModeratorActionGqlQueryHandlers, commentModeratorActionGqlFieldResolvers } from "@/server/collections/commentModeratorActions/queries";
 import { graphqlCommentQueryTypeDefs, commentGqlQueryHandlers, commentGqlFieldResolvers } from "@/server/collections/comments/queries";
 import { graphqlConversationQueryTypeDefs, conversationGqlQueryHandlers, conversationGqlFieldResolvers } from "@/server/collections/conversations/queries";
@@ -332,6 +333,7 @@ export const getTypeDefs = () => gql`
   ${graphqlCkEditorUserSessionQueryTypeDefs}
   ${graphqlClientIdQueryTypeDefs}
   ${graphqlCollectionQueryTypeDefs}
+  ${graphqlCommentEmbeddingQueryTypeDefs}
   ${graphqlCommentModeratorActionQueryTypeDefs}
   ${graphqlCommentQueryTypeDefs}
   ${graphqlConversationQueryTypeDefs}
@@ -715,6 +717,7 @@ const getResolvers = () => ({
   ...ckEditorUserSessionGqlFieldResolvers,
   ...clientIdGqlFieldResolvers,
   ...collectionGqlFieldResolvers,
+  ...commentEmbeddingGqlFieldResolvers,
   ...commentModeratorActionGqlFieldResolvers,
   ...commentGqlFieldResolvers,
   ...conversationGqlFieldResolvers,

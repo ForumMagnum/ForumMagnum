@@ -238,6 +238,19 @@ CREATE INDEX IF NOT EXISTS "idx_Collections_schemaVersion" ON "Collections" USIN
 -- Index "idx_Collections_slug"
 CREATE INDEX IF NOT EXISTS "idx_Collections_slug" ON "Collections" USING btree ("slug");
 
+-- Table "CommentEmbeddings"
+CREATE TABLE "CommentEmbeddings" (
+  _id VARCHAR(27) PRIMARY KEY,
+  "createdAt" TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP NOT NULL,
+  "commentId" VARCHAR(27) NOT NULL,
+  "lastGeneratedAt" TIMESTAMPTZ NOT NULL,
+  "model" TEXT NOT NULL,
+  "embeddings" VECTOR (1024) NOT NULL
+);
+
+-- Index "idx_CommentEmbeddings_commentId_model"
+CREATE UNIQUE INDEX IF NOT EXISTS "idx_CommentEmbeddings_commentId_model" ON "CommentEmbeddings" USING btree ("commentId", "model");
+
 -- Table "CommentModeratorActions"
 CREATE TABLE "CommentModeratorActions" (
   _id VARCHAR(27) PRIMARY KEY,
@@ -3857,6 +3870,9 @@ WHERE
   "deleteContent" IS NOT TRUE AND
   "nullifyVotes" IS NOT TRUE AND
   "banned" IS NULL;
+
+-- CustomIndex "idx_CommentEmbeddings_embedding_cosine_distance"
+CREATE INDEX IF NOT EXISTS "idx_CommentEmbeddings_embedding_cosine_distance" ON "CommentEmbeddings" USING hnsw (embeddings vector_cosine_ops);
 
 -- CustomIndex "idx_DatabaseMetadata_name"
 CREATE UNIQUE INDEX IF NOT EXISTS "idx_DatabaseMetadata_name" ON public."DatabaseMetadata" USING btree (name);

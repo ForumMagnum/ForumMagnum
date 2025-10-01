@@ -100,14 +100,6 @@ const styles = (theme: ThemeType) => ({
     right: 5,
     cursor: "pointer"
   },
-  alignmentForum: {
-    "& .ais-SearchBox-input": {
-      color: theme.palette.panelBackground.default,
-    },
-    "& .ais-SearchBox-input::placeholder": {
-      color: theme.palette.text.invertedBackgroundText3,
-    },
-  },
 })
 
 const SearchBar = ({onSetIsActive, searchResultsArea, classes}: {
@@ -184,7 +176,7 @@ const SearchBar = ({onSetIsActive, searchResultsArea, classes}: {
         <div className={classNames(
           classes.searchInputArea,
           {"open": inputOpen},
-          {[classes.alignmentForum]: isAF(), [classes.searchInputAreaSmall]: !currentUser}
+          {[classes.searchInputAreaSmall]: !currentUser}
         )}>
           {isAF() && <VirtualMenu attribute="af" defaultRefinement="true" />}
           <div onClick={handleSearchTap}>

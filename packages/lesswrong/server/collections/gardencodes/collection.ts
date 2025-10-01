@@ -1,6 +1,5 @@
 import schema from '@/lib/collections/gardencodes/newSchema';
 import { createCollection } from '@/lib/vulcan-lib/collections';
-import '@/lib/collections/gardencodes/fragments';
 import { DatabaseIndexSet } from '@/lib/utils/databaseIndexSet';
 
 export const GardenCodes = createCollection({

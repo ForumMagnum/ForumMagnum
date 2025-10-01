@@ -77,10 +77,12 @@ export const styles = defineStyles("ContentStyles", (theme: ThemeType) => ({
     '& p:last-child': {
       marginBottom: '0 !important',
     },
-    '& p:first-child > br:first-child': {
+    // Hide a single leading br in first paragraph, unless it's a br pair
+    '& p:first-child:not(:has(> br:first-child + br)) > br:first-child': {
       display: 'none !important',
     },
-    '& p:last-child > br:last-child': {
+    // Hide a single trailing br in last paragraph, unless it's a br pair
+    '& p:last-child:not(:has(> br + br:last-child)) > br:last-child': {
       display: 'none !important',
     },
     [theme.breakpoints.down('sm')]: {
@@ -105,10 +107,12 @@ export const styles = defineStyles("ContentStyles", (theme: ThemeType) => ({
     '& p:last-child': {
       marginBottom: '0 !important',
     },
-    '& p:first-child > br:first-child': {
+    // Hide a single leading br in first paragraph, unless it's a br pair
+    '& p:first-child:not(:has(> br:first-child + br)) > br:first-child': {
       display: 'none !important',
     },
-    '& p:last-child > br:last-child': {
+    // Hide a single trailing br in last paragraph, unless it's a br pair
+    '& p:last-child:not(:has(> br + br:last-child)) > br:last-child': {
       display: 'none !important',
     },
     [theme.breakpoints.down('sm')]: {
