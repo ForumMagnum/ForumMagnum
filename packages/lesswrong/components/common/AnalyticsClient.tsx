@@ -11,8 +11,8 @@ import { getAllUserABTestGroups } from '@/lib/abTestImpl';
 
 export const AnalyticsClient = () => {
   const currentUser = useCurrentUser();
+  const [cookies] = useCookiesWithConsent([CLIENT_ID_COOKIE]);
   const currentUserLoading = useCurrentUserLoading();
-  const [cookies] = useCookiesWithConsent([ CLIENT_ID_COOKIE, ]);
   const abTestGroupsUsed = useContext(ABTestGroupsUsedContext);
   
   const currentUserId = currentUser?._id;
@@ -37,6 +37,7 @@ export const AnalyticsClient = () => {
     if (!tabId) return;
     const firedKey = `tabStartedFired:${tabId}`;
     if (sessionStorage.getItem(firedKey)) return;
+    sessionStorage.setItem(firedKey, "1");
 
     const userAgent = navigator.userAgent ?? null;
     const abTestGroups = getAllUserABTestGroups(currentUser ? { user: currentUser } : { clientId });
@@ -46,7 +47,6 @@ export const AnalyticsClient = () => {
       userAgent,
       abTestGroups,
     });
-    sessionStorage.setItem(firedKey, "1");
     flushClientEvents(true);
   // Depend on currentUserLoading to ensure we wait for user data before firing
   // sessionStorage check ensures this still only fires once per tab
