@@ -45,6 +45,7 @@ export const InlineReactHoverableHighlight = ({quote, reactions, isSplitContinua
   reactions: NamesAttachedReactionsList,
   isSplitContinuation?: boolean
   children: React.ReactNode,
+  invertColors?: boolean,
 }) => {
   const classes = useStyles(styles);
   

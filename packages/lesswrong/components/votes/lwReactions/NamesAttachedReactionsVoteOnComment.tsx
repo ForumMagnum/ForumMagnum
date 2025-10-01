@@ -73,9 +73,6 @@ const styles = defineStyles("NamesAttachedReactionsVoteOnComment", (theme: Theme
       background: theme.palette.panelBackground.darken04,
     },
   },
-  footerReactionBackground: {
-    background: theme.palette.greyAlpha(.1),
-  },
   footerReactionSpacer: {
     display: "inline-block",
     width: 2,
@@ -135,6 +132,9 @@ const styles = defineStyles("NamesAttachedReactionsVoteOnComment", (theme: Theme
   },
   footerSelected: {
     background: theme.palette.panelBackground.darken10,
+  },
+  footerSelectedInverted: {
+    background: theme.palette.grey[600],
   },
   footerSelectedAnti: {
     background: theme.palette.namesAttachedReactions.selectedAnti,
@@ -419,15 +419,18 @@ const HoverableReactionIcon = ({reactionRowRef, react, numberShown, voteProps, q
     onMouseLeave(ev);
   }
 
+  const showDefaultBackground = currentUserReactionVote==="created"||currentUserReactionVote==="seconded"
+  const showInvertedBackground = invertColors && (currentUserReactionVote==="created"||currentUserReactionVote==="seconded")
+
   return <span onMouseEnter={handleMouseEnter} onMouseLeave={handleMouseLeave}>
     <span
       className={classNames(
         classes.footerReaction,
         {
-          [classes.footerSelected]: currentUserReactionVote==="created"||currentUserReactionVote==="seconded",
+          [classes.footerSelected]: showDefaultBackground,
+          [classes.footerSelectedInverted]: showInvertedBackground,
           [classes.footerSelectedAnti]: currentUserReactionVote==="disagreed",
           [classes.hasQuotes]: quotesWithUndefinedRemoved.length > 0,
-          [classes.footerReactionBackground]: invertColors,
         }
       )}
     >
