@@ -11,14 +11,25 @@ import { getLegacyCreateCallbackProps, getLegacyUpdateCallbackProps, insertAndRe
 import gql from "graphql-tag";
 import cloneDeep from "lodash/cloneDeep";
 import { ChatPostMessageResponse, WebClient } from "@slack/web-api";
+import { userGetDisplayName } from "@/lib/collections/users/helpers";
 
 
 async function postReportsToSunshine(report: DbReport, context: ResolverContext): Promise<ChatPostMessageResponse | undefined> {
 
   const slackBotToken = process.env.AMANUENSIS_SLACK_BOT_TOKEN;
-  if (!slackBotToken) {
+  const moderationChannelId = process.env.MODERATION_CHANNEL_ID;
+  if (!moderationChannelId) {
+    // eslint-disable-next-line no-console
+    console.error('MODERATION_CHANNEL_ID is not set');
     return;
   }
+  if (!slackBotToken) {
+    // eslint-disable-next-line no-console
+    console.error('AMANUENSIS_SLACK_BOT_TOKEN is not set');
+    return;
+  }
+
+  const baseUrl = `https://${process.env.SITE_URL ?? 'lesswrong.com'}`;
 
   const user = await context.Users.findOne({ _id: report.userId });
   const [comment, post] = await Promise.all([
@@ -29,14 +40,14 @@ async function postReportsToSunshine(report: DbReport, context: ResolverContext)
 
   const contentSlug = report.commentId ? `a comment on ${post?.title}` : report.postId ? `the post ${post?.title}` : `user ${reportedUser?.displayName}`;
   const description = report.description ?? '';
-  const userLink = user ? `https://${process.env.SITE_URL ?? 'lesswrong.com'}/users/${user.slug}` : '';
-  const userName = user?.displayName ?? '';
-  const url = `https://${process.env.SITE_URL ?? 'lesswrong.com'}${report.link}`;
+  const userLink = user ? `${baseUrl}/users/${user.slug}` : '';
+  const userName = userGetDisplayName(user);
+  const url = `${baseUrl}${report.link}`;
 
   const slack = new WebClient(slackBotToken);
 
   return await slack.chat.postMessage({
-    channel: process.env.MODERATION_CHANNEL_ID ?? '',
+    channel: moderationChannelId,
     text: `Reported ${contentSlug}: ${description}`,
     blocks: [
       {
