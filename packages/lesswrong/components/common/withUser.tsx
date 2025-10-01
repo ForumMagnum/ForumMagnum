@@ -7,6 +7,7 @@ import { localeSetting } from '@/lib/instanceSettings';
 import moment from 'moment';
 
 export const GetUserContext = createContext<()=>(UsersCurrent|null)>(() => null);
+export const CurrentUserLoadingContext = createContext<boolean>(false);
 
 export const UserContextProvider = ({children}: {
   children: React.ReactNode
@@ -31,11 +32,13 @@ export const UserContextProvider = ({children}: {
 
   return (
     <RefetchCurrentUserContext.Provider value={refetchCurrentUser}>
+    <CurrentUserLoadingContext.Provider value={currentUserLoading}>
     <UserContext.Provider value={currentUser}>
     <GetUserContext.Provider value={getCurrentUser}>
       {children}
     </GetUserContext.Provider>
     </UserContext.Provider>
+    </CurrentUserLoadingContext.Provider>
     </RefetchCurrentUserContext.Provider>
   );
 }
@@ -57,6 +60,8 @@ export const useGetCurrentUser = () => {
 };
 
 export const useCurrentUserId = () => useFilteredCurrentUser(u => u?._id);
+
+export const useCurrentUserLoading = () => useContext(CurrentUserLoadingContext);
 
 interface WithUserProps {
   currentUser: UsersCurrent | null;

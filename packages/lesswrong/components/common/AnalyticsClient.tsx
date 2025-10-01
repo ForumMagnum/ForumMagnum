@@ -1,7 +1,7 @@
 import React, {useContext, useEffect} from 'react';
 import { registerComponent } from '../../lib/vulcan-lib/components';
 import { clientContextVars, flushClientEvents, captureEvent } from '../../lib/analyticsEvents';
-import { useCurrentUser } from './withUser';
+import { useCurrentUser, useCurrentUserLoading } from './withUser';
 import withErrorBoundary from './withErrorBoundary';
 import { ABTestGroupsUsedContext } from '@/components/common/sharedContexts';
 import { CLIENT_ID_COOKIE } from '../../lib/cookies/cookies';
@@ -11,10 +11,8 @@ import { getAllUserABTestGroups } from '@/lib/abTestImpl';
 
 export const AnalyticsClient = () => {
   const currentUser = useCurrentUser();
-  const [cookies] = useCookiesWithConsent([
-    CLIENT_ID_COOKIE,
-    // LAST_VISITED_FRONTPAGE_COOKIE,
-  ]);
+  const currentUserLoading = useCurrentUserLoading();
+  const [cookies] = useCookiesWithConsent([ CLIENT_ID_COOKIE, ]);
   const abTestGroupsUsed = useContext(ABTestGroupsUsedContext);
   
   const currentUserId = currentUser?._id;
@@ -32,6 +30,9 @@ export const AnalyticsClient = () => {
 
   // Fire a one-time per-tab lifecycle event when a new tab/app instance starts
   useEffect(() => {
+    // Wait until currentUser has finished loading before firing
+    if (currentUserLoading) return;
+    
     const tabId = window.tabId;
     if (!tabId) return;
     const firedKey = `tabStartedFired:${tabId}`;
@@ -47,10 +48,10 @@ export const AnalyticsClient = () => {
     });
     sessionStorage.setItem(firedKey, "1");
     flushClientEvents(true);
-  // Depend on clientId and currentUserId to ensure clientContextVars are set before firing
+  // Depend on currentUserLoading to ensure we wait for user data before firing
   // sessionStorage check ensures this still only fires once per tab
   // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [clientId, currentUserId]);
+  }, [clientId, currentUserId, currentUserLoading]);
   
   return <></>;
 }
