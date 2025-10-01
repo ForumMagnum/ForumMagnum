@@ -17,7 +17,6 @@ import { convertImportedGoogleDoc } from '../editor/googleDocUtils';
 import { postIsCriticism } from '../languageModels/criticismTipsBot';
 import { createPost } from '../collections/posts/mutations';
 import { createRevision } from '../collections/revisions/mutations';
-import axios from 'axios';
 
 interface PostWithApprovedJargon {
   post: Partial<DbPost>;
@@ -331,15 +330,14 @@ export const postGqlMutations = {
     let docTitle: string;
 
     try {
-      const response = await axios.get(exportUrl, {
-        responseType: 'text',
-        timeout: 30000,
+      const response = await fetch(exportUrl, {
+        signal: AbortSignal.timeout(30000),
         headers: {
           'User-Agent': 'Mozilla/5.0 (compatible; ForumMagnum/1.0)'
         }
       });
 
-      html = response.data as string;
+      html = await response.text();
 
       if (!html || html.length === 0) {
         throw new Error("Received empty HTML from Google Docs");
