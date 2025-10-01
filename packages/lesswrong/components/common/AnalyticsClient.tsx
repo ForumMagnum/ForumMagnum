@@ -50,9 +50,9 @@ export const AnalyticsClient = () => {
     });
     sessionStorage.setItem(firedKey, "1");
     flushClientEvents(true);
-  // Intentionally run once per mount/tab, not on user or cookie changes
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  // Depend on clientId and currentUserId to ensure clientContextVars are set before firing
+  // sessionStorage check ensures this still only fires once per tab
+  }, [clientId, currentUserId, currentUser, cookies]);
   
   return <></>;
 }
