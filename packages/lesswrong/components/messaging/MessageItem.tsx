@@ -105,7 +105,6 @@ const MessageItem = ({message, classes}: {
 
   const votingSystem = getVotingSystemByName("namesAttachedReactions");
   const voteProps = useVote(message, "Messages", votingSystem);
-  console.log("voteProps", voteProps);
   const messageBodyRef = useRef<ContentItemBodyImperative|null>(null);
 
   if (!message) return null;
