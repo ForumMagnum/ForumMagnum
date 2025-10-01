@@ -3,9 +3,15 @@
 import React, { useState } from 'react';
 import { useSearchParams } from 'next/navigation';
 import Link from 'next/link';
-import { userGetProfileUrl } from '@/lib/collections/users/helpers';
+import { userGetProfileUrl as _userGetProfileUrl, userGetProfileUrlFromSlug } from '@/lib/collections/users/helpers';
 import { postGetPageUrl } from '@/lib/collections/posts/helpers';
 import { commentGetPageUrlFromIds } from '@/lib/collections/comments/helpers';
+
+// Helper to handle our custom user types
+const userGetProfileUrl = (user: { slug: string } | null): string => {
+  if (!user) return "";
+  return userGetProfileUrlFromSlug(user.slug);
+};
 import { defineStyles, useStyles } from '@/components/hooks/useStyles';
 import CommentsNode from '@/components/comments/CommentsNode';
 import Loading from '@/components/vulcan-core/Loading';
@@ -997,7 +1003,7 @@ export default function ModerationPageContent(props: Props) {
                         <td className={classes.td} data-label="User">
                           {userRateLimit.user ? (
                             <a
-                              href={userGetProfileUrl(userRateLimit.user as any)}
+                              href={userGetProfileUrl(userRateLimit.user)}
                               className={classes.link}
                               onClick={(e) => e.stopPropagation()}
                             >
@@ -1114,7 +1120,7 @@ export default function ModerationPageContent(props: Props) {
                     </td>
                     <td className={classes.td} data-label="Author">
                       {comment.user ? (
-                        <a href={userGetProfileUrl(comment.user as any)} className={classes.link}>
+                        <a href={userGetProfileUrl(comment.user)} className={classes.link}>
                           {comment.user.displayName}
                         </a>
                       ) : '—'}
@@ -1129,7 +1135,7 @@ export default function ModerationPageContent(props: Props) {
                     <td className={classes.td} data-label="Reason">{renderReason(comment.deletedReason)}</td>
                     <td className={classes.td} data-label="Deleted By">
                       {comment.deletedByUser ? (
-                        <a href={userGetProfileUrl(comment.deletedByUser as any)} className={classes.link}>
+                        <a href={userGetProfileUrl(comment.deletedByUser)} className={classes.link}>
                           {comment.deletedByUser.displayName}
                         </a>
                       ) : '—'}
@@ -1177,7 +1183,7 @@ export default function ModerationPageContent(props: Props) {
                     </td>
                     <td className={classes.td} data-label="Author">
                       {post.user ? (
-                        <a href={userGetProfileUrl(post.user as any)} className={classes.link} onClick={(e) => e.stopPropagation()}>
+                        <a href={userGetProfileUrl(post.user)} className={classes.link} onClick={(e) => e.stopPropagation()}>
                           {post.user.displayName}
                         </a>
                       ) : '—'}
@@ -1223,7 +1229,7 @@ export default function ModerationPageContent(props: Props) {
                     </td>
                     <td className={classes.td} data-label="User">
                       {comment.user ? (
-                        <a href={userGetProfileUrl(comment.user as any)} className={classes.link} onClick={(e) => e.stopPropagation()}>
+                        <a href={userGetProfileUrl(comment.user)} className={classes.link} onClick={(e) => e.stopPropagation()}>
                           {comment.user.displayName}
                         </a>
                       ) : '—'}
@@ -1300,7 +1306,7 @@ export default function ModerationPageContent(props: Props) {
                   </td>
                   <td className={classes.td} data-label="Author">
                     {post.user ? (
-                      <a href={userGetProfileUrl(post.user as any)} className={classes.link}>
+                      <a href={userGetProfileUrl(post.user)} className={classes.link}>
                         {post.user.displayName}
                       </a>
                     ) : '—'}
@@ -1308,7 +1314,7 @@ export default function ModerationPageContent(props: Props) {
                   <td className={classes.td} data-label="Banned Users">
                     <div className={classes.userList}>
                       {post.bannedUsers?.map((user) => (
-                        <a key={user._id} href={userGetProfileUrl(user as any)} className={classes.userBadge}>
+                        <a key={user._id} href={userGetProfileUrl(user)} className={classes.userBadge}>
                           {user.displayName}
                         </a>
                       ))}
@@ -1338,14 +1344,14 @@ export default function ModerationPageContent(props: Props) {
               {usersWithBannedUsers.map((user) => (
                 <tr key={user._id} className={classes.trNonExpandable}>
                   <td className={classes.td} data-label="Author">
-                    <a href={userGetProfileUrl(user as any)} className={classes.link}>
+                    <a href={userGetProfileUrl(user)} className={classes.link}>
                       {user.displayName}
                     </a>
                   </td>
                   <td className={classes.td} data-label="Banned from Frontpage">
                     <div className={classes.userList}>
                       {user.bannedFrontpageUsers?.map((bannedUser) => (
-                        <a key={bannedUser._id} href={userGetProfileUrl(bannedUser as any)} className={classes.userBadge}>
+                        <a key={bannedUser._id} href={userGetProfileUrl(bannedUser)} className={classes.userBadge}>
                           {bannedUser.displayName}
                         </a>
                       ))}
@@ -1354,7 +1360,7 @@ export default function ModerationPageContent(props: Props) {
                   <td className={classes.td} data-label="Banned from Personal Posts">
                     <div className={classes.userList}>
                       {user.bannedPersonalUsers?.map((bannedUser) => (
-                        <a key={bannedUser._id} href={userGetProfileUrl(bannedUser as any)} className={classes.userBadge}>
+                        <a key={bannedUser._id} href={userGetProfileUrl(bannedUser)} className={classes.userBadge}>
                           {bannedUser.displayName}
                         </a>
                       ))}
@@ -1407,7 +1413,7 @@ export default function ModerationPageContent(props: Props) {
                     onMouseLeave={(e) => { if (isExpired && showExpiredBans) e.currentTarget.style.opacity = '0.5'; }}
                   >
                     <td className={classes.td} data-label="User">
-                      <a href={userGetProfileUrl(user as any)} className={classes.link}>
+                      <a href={userGetProfileUrl(user)} className={classes.link}>
                         {user.displayName}
                       </a>
                     </td>

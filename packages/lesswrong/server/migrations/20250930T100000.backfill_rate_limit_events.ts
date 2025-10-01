@@ -115,7 +115,7 @@ export const up = async ({db}: MigrationContext) => {
               rateLimitMessage: rateLimit.rateLimitMessage,
               triggeredAt: mostRecentVoteDate.toISOString(),
               backfilled: true // mark as backfilled so we can distinguish from real-time events
-            } as any
+            }
           });
           rateLimitedCount++;
         }
@@ -143,7 +143,7 @@ export const up = async ({db}: MigrationContext) => {
               rateLimitMessage: rateLimit.rateLimitMessage,
               triggeredAt: mostRecentVoteDate.toISOString(),
               backfilled: true
-            } as any
+            }
           });
           rateLimitedCount++;
         }
