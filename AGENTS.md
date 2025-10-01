@@ -857,9 +857,10 @@ Helper functions used on both the client and server:
 We use jss for styling.  Define styles like so:
 ```typescript
 import { defineStyles, useStyles } from '@/components/hooks/useStyles';
-const styles = defineStyles('ComponentName', {
+const styles = defineStyles('ComponentName', (theme: ThemeType) => {
   root: {
     width: '100%',
+    background: theme.palette.grey[100],
   },
 });
 ```
