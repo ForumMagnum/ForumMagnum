@@ -825,7 +825,11 @@ async resolver(root, args, context: ResolverContext) {
   // Collection findOne
   const post = await Posts.findOne(args.postId);
   // Collection find (many) with limit, sorting, and a projection to reduce bandwidth usage if you don't need most of the fields
-  const postIdsAndTitles = await Posts.find({ userId: currentUser._id }, { limit: 10, sort: { postedAt: -1 } }, { _id: 1, title: 1 });
+  const postIdsAndTitles = await Posts.find(
+    { userId: currentUser._id },
+    { limit: 10, sort: { postedAt: -1 } },
+    { _id: 1, title: 1 }
+  );
   
   // Repos for complex queries
   const topPosts = await context.repos.posts.getTopPosts(10);
@@ -879,9 +883,8 @@ export type RouterLocation = {
   pathname: string,
   url: string,
   hash: string,
-  params: Record<string,string>,
-  query: Record<string,string>, // TODO: this should be Record<string,string|string[]>
-  redirected?: boolean,
+  params: Record<string, string>,
+  query: Record<string, string>, // TODO: this should be Record<string,string|string[]>; any client-side code using this needs to be aware it might get an array.  That won't be the case 99% of the time, though.
 };
 ```
 
