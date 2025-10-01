@@ -7,16 +7,7 @@ import { recombeeApi } from '@/lib/recombee/client';
 import { FeedbackOptions } from './SeeLessFeedback';
 import { useDebouncedCallback } from '../hooks/useDebouncedCallback';
 import { FeedCommentMetaInfo, FeedPostMetaInfo } from './ultraFeedTypes';
-
-const createUltraFeedEventMutation = gql(`
-  mutation createUltraFeedEventSeeLess($data: CreateUltraFeedEventDataInput!) {
-    createUltraFeedEvent(data: $data) {
-      data {
-        ...UltraFeedEventsDefaultFragment
-      }
-    }
-  }
-`);
+import { UltraFeedEventCreateMutation } from './ultraFeedMutations';
 
 const updateUltraFeedEventMutation = gql(`
   mutation updateUltraFeedEvent($selector: String!, $data: UpdateUltraFeedEventDataInput!) {
@@ -40,7 +31,7 @@ export const useSeeLess = ({ documentId, collectionName, metaInfo }: UseSeeLessO
   const [isSeeLessMode, setIsSeeLessMode] = useState(false);
   const [seeLessEventId, setSeeLessEventId] = useState<string | null>(null);
   const [pendingFeedback, setPendingFeedback] = useState<FeedbackOptions | null>(null);
-  const [createUltraFeedEvent] = useMutation(createUltraFeedEventMutation);
+  const [createUltraFeedEvent] = useMutation(UltraFeedEventCreateMutation);
   const [updateUltraFeedEvent] = useMutation(updateUltraFeedEventMutation);
   const { captureEvent } = useTracking();
   

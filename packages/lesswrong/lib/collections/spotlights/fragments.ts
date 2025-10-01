@@ -25,18 +25,6 @@ export const SpotlightMinimumInfo = gql(`
   }
 `)
 
-export const SpotlightReviewWinner = gql(`
-  fragment SpotlightReviewWinner on Spotlight {
-    ...SpotlightMinimumInfo
-    description {
-      html
-    }
-    sequenceChapters {
-      ...ChaptersFragment
-    }
-  }
-`)
-
 export const SpotlightHeaderEventSubtitle = gql(`
   fragment SpotlightHeaderEventSubtitle on Spotlight {
     ...SpotlightMinimumInfo
