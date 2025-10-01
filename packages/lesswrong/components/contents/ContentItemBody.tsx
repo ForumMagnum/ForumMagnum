@@ -345,7 +345,7 @@ export function parseInlineStyle(input: string): CSSProperties {
   }, {} as CSSProperties)
 }
 
-function applyReplaceSubstrings(parsedHtml: DomHandlerChildNode, replacedSubstrings: ContentReplacedSubstringComponentInfo[], invertSubstitutionColors: boolean): DomHandlerChildNode {
+function applyReplaceSubstrings(parsedHtml: DomHandlerChildNode, replacedSubstrings: ContentReplacedSubstringComponentInfo[], invertSubstitutionColors?: boolean): DomHandlerChildNode {
   // Traverse parsedHtml, producing an array of text nodes, a combined string
   // with the text of all those nodes, and text offsets for each. Node types
   // that contain non-normal text (CDATA, Script, Style) are skipped.
