@@ -2932,20 +2932,6 @@
   resolved "https://registry.yarnpkg.com/@floating-ui/utils/-/utils-0.2.9.tgz#50dea3616bc8191fb8e112283b49eaff03e78429"
   integrity sha512-MDWhGtE+eHw5JW7lq4qhc5yRLS11ERl1c7Z6Xd0a58DozHES6EnNNwUWbMiG4J9Cgj053Bhk8zvlhFYKVhULwg==
 
-"@googleapis/drive@^8.7.0":
-  version "8.7.0"
-  resolved "https://registry.npmjs.org/@googleapis/drive/-/drive-8.7.0.tgz"
-  integrity sha512-XAi6kfySIU4H3ivX2DpzTDce5UhNke5NxEWCL6tySEdcVqx+cmXJmkMqwfOAHJalEB5s9PPfdLBU29Xd5XlLSQ==
-  dependencies:
-    googleapis-common "^7.0.0"
-
-"@googleapis/oauth2@^1.0.5":
-  version "1.0.5"
-  resolved "https://registry.npmjs.org/@googleapis/oauth2/-/oauth2-1.0.5.tgz"
-  integrity sha512-nAXO+qbYuBltMXTq3AuZfWmbON5dR5maEIyjGDlWM+qaB2/vmfvU87uEXFK8PpsSxuvM5amWrHI/N+sHErAZ6g==
-  dependencies:
-    googleapis-common "^7.0.0"
-
 "@googlemaps/google-maps-services-js@^3.1.13":
   version "3.1.13"
   resolved "https://registry.npmjs.org/@googlemaps/google-maps-services-js/-/google-maps-services-js-3.1.13.tgz"
@@ -11829,7 +11815,7 @@ gauge@^3.0.0:
     strip-ansi "^6.0.1"
     wide-align "^1.1.2"
 
-gaxios@^6.0.0, gaxios@^6.0.3, gaxios@^6.1.1:
+gaxios@^6.0.0, gaxios@^6.1.1:
   version "6.3.0"
   resolved "https://registry.npmjs.org/gaxios/-/gaxios-6.3.0.tgz"
   integrity sha512-p+ggrQw3fBwH2F5N/PAI4k/G/y1art5OxKpb2J2chwNNHM4hHuAOtivjPuirMF4KNKwTTUal/lPfL2+7h2mEcg==
@@ -12125,7 +12111,7 @@ globby@^11.0.3, globby@^11.1.0:
     merge2 "^1.4.1"
     slash "^3.0.0"
 
-google-auth-library@^9.0.0, google-auth-library@^9.6.3:
+google-auth-library@^9.6.3:
   version "9.6.3"
   resolved "https://registry.npmjs.org/google-auth-library/-/google-auth-library-9.6.3.tgz"
   integrity sha512-4CacM29MLC2eT9Cey5GDVK4Q8t+MMp8+OEdOaqD9MG6b0dOyLORaaeJMPQ7EESVgm/+z5EKYyFLxgzBJlJgyHQ==
@@ -12136,18 +12122,6 @@ google-auth-library@^9.0.0, google-auth-library@^9.6.3:
     gcp-metadata "^6.1.0"
     gtoken "^7.0.0"
     jws "^4.0.0"
-
-googleapis-common@^7.0.0:
-  version "7.0.1"
-  resolved "https://registry.npmjs.org/googleapis-common/-/googleapis-common-7.0.1.tgz"
-  integrity sha512-mgt5zsd7zj5t5QXvDanjWguMdHAcJmmDrF9RkInCecNsyV7S7YtGqm5v2IWONNID88osb7zmx5FtrAP12JfD0w==
-  dependencies:
-    extend "^3.0.2"
-    gaxios "^6.0.3"
-    google-auth-library "^9.0.0"
-    qs "^6.7.0"
-    url-template "^2.0.8"
-    uuid "^9.0.0"
 
 gopd@^1.0.1:
   version "1.0.1"
@@ -16789,7 +16763,7 @@ q@^1.5.1:
   resolved "https://registry.npmjs.org/q/-/q-1.5.1.tgz"
   integrity sha1-fjL3W0E4EpHQRhHxvxQQmsAGUdc=
 
-qs@6.11.2, qs@^6.7.0:
+qs@6.11.2:
   version "6.11.2"
   resolved "https://registry.npmjs.org/qs/-/qs-6.11.2.tgz"
   integrity sha512-tDNIz22aBzCDxLtVH++VnTfzxlfeK5CbqohpSqpJgj1Wg/cQbStNAz3NuqCs5vV+pjBsK4x4pN9HlVh7rcYRiA==
@@ -19545,11 +19519,6 @@ url-parse@^1.5.3:
   dependencies:
     querystringify "^2.1.1"
     requires-port "^1.0.0"
-
-url-template@^2.0.8:
-  version "2.0.8"
-  resolved "https://registry.npmjs.org/url-template/-/url-template-2.0.8.tgz"
-  integrity sha512-XdVKMF4SJ0nP/O7XIPB0JwAEuT9lDIYnNsK8yGVe43y0AWoKeJNdv3ZNWh7ksJ6KqQFjOO6ox/VEitLnaVNufw==
 
 urlpattern-polyfill@^10.0.0:
   version "10.0.0"

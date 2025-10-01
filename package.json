@@ -80,8 +80,6 @@
     "@elastic/elasticsearch": "^8.7.0",
     "@extractus/article-extractor": "^7.2.6",
     "@fal-ai/client": "^1.2.3",
-    "@googleapis/drive": "^8.7.0",
-    "@googleapis/oauth2": "^1.0.5",
     "@googlemaps/google-maps-services-js": "^3.1.13",
     "@graphql-typed-document-node/core": "^3.2.0",
     "@heroicons/react": "^2.0.16",
