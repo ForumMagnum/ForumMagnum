@@ -24733,10 +24733,7 @@ type messageListFragment_Message_contents_Revision = { __typename?: 'Revision', 
 
 type messageListFragment = { __typename?: 'Message', _id: string, createdAt: string | null, conversationId: string | null, voteCount: number, baseScore: number, score: number, extendedScore: any | null, currentUserVote: string | null, currentUserExtendedVote: any | null, user: messageListFragment_Message_user_User | null, contents: messageListFragment_Message_contents_Revision | null };
 
-type WithVoteMessage = (
-  { __typename?: 'Message' }
-  & messageListFragment
-);
+type WithVoteMessage = { __typename: 'Message', _id: string, score: number, baseScore: number, extendedScore: any | null, afBaseScore: number | null, voteCount: number, currentUserVote: string | null, currentUserExtendedVote: any | null };
 
 type ModerationTemplateFragment_ModerationTemplate_contents_Revision = (
   { __typename?: 'Revision' }

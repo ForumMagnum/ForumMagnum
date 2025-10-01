@@ -709,7 +709,7 @@ type Documents = {
     "\n  fragment lastEventFragment on LWEvent {\n    _id\n    createdAt\n    documentId\n    userId\n    name\n    important\n    properties\n    intercom\n  }\n": typeof types.lastEventFragmentDoc,
     "\n  fragment emailHistoryFragment on LWEvent {\n    _id\n    createdAt\n    userId\n    name\n    properties\n  }\n": typeof types.emailHistoryFragmentDoc,
     "\n  fragment messageListFragment on Message {\n    _id\n    user {\n      ...UsersMinimumInfo\n      profileImageId\n    }\n    contents {\n      html\n      plaintextMainText\n    }\n    createdAt\n    conversationId\n    voteCount\n    baseScore\n    score\n    extendedScore\n    currentUserVote\n    currentUserExtendedVote\n  }\n": typeof types.messageListFragmentDoc,
-    "\n  fragment WithVoteMessage on Message {\n    ...messageListFragment\n  }\n": typeof types.WithVoteMessageDoc,
+    "\n  fragment WithVoteMessage on Message {\n    __typename\n    _id\n    score\n    baseScore\n    extendedScore\n    afBaseScore\n    voteCount\n    currentUserVote\n    currentUserExtendedVote\n  }\n": typeof types.WithVoteMessageDoc,
     "\n  fragment ModerationTemplateFragment on ModerationTemplate {\n    _id\n    name\n    collectionName\n    order\n    deleted\n    contents {\n      ...RevisionEdit\n    }\n  }\n": typeof types.ModerationTemplateFragmentDoc,
     "\n  fragment ModeratorActionDisplay on ModeratorAction {\n    _id\n    user {\n      ...UsersMinimumInfo\n    }\n    userId\n    type\n    active\n    createdAt\n    endedAt\n  }\n": typeof types.ModeratorActionDisplayDoc,
     "\n  fragment MultiDocumentMinimumInfo on MultiDocument {\n    _id\n    parentDocumentId\n    collectionName\n    fieldName\n    userId\n    slug\n    oldSlugs\n    title\n    tabTitle\n    tabSubtitle\n    preview\n    index\n    deleted\n    createdAt\n    legacyData\n\n    baseScore\n    extendedScore\n    score\n    afBaseScore\n    afExtendedScore\n    voteCount\n    currentUserVote\n    currentUserExtendedVote\n  }\n": typeof types.MultiDocumentMinimumInfoDoc,
@@ -1603,7 +1603,7 @@ const documents: Documents = {
     "\n  fragment lastEventFragment on LWEvent {\n    _id\n    createdAt\n    documentId\n    userId\n    name\n    important\n    properties\n    intercom\n  }\n": types.lastEventFragmentDoc,
     "\n  fragment emailHistoryFragment on LWEvent {\n    _id\n    createdAt\n    userId\n    name\n    properties\n  }\n": types.emailHistoryFragmentDoc,
     "\n  fragment messageListFragment on Message {\n    _id\n    user {\n      ...UsersMinimumInfo\n      profileImageId\n    }\n    contents {\n      html\n      plaintextMainText\n    }\n    createdAt\n    conversationId\n    voteCount\n    baseScore\n    score\n    extendedScore\n    currentUserVote\n    currentUserExtendedVote\n  }\n": types.messageListFragmentDoc,
-    "\n  fragment WithVoteMessage on Message {\n    ...messageListFragment\n  }\n": types.WithVoteMessageDoc,
+    "\n  fragment WithVoteMessage on Message {\n    __typename\n    _id\n    score\n    baseScore\n    extendedScore\n    afBaseScore\n    voteCount\n    currentUserVote\n    currentUserExtendedVote\n  }\n": types.WithVoteMessageDoc,
     "\n  fragment ModerationTemplateFragment on ModerationTemplate {\n    _id\n    name\n    collectionName\n    order\n    deleted\n    contents {\n      ...RevisionEdit\n    }\n  }\n": types.ModerationTemplateFragmentDoc,
     "\n  fragment ModeratorActionDisplay on ModeratorAction {\n    _id\n    user {\n      ...UsersMinimumInfo\n    }\n    userId\n    type\n    active\n    createdAt\n    endedAt\n  }\n": types.ModeratorActionDisplayDoc,
     "\n  fragment MultiDocumentMinimumInfo on MultiDocument {\n    _id\n    parentDocumentId\n    collectionName\n    fieldName\n    userId\n    slug\n    oldSlugs\n    title\n    tabTitle\n    tabSubtitle\n    preview\n    index\n    deleted\n    createdAt\n    legacyData\n\n    baseScore\n    extendedScore\n    score\n    afBaseScore\n    afExtendedScore\n    voteCount\n    currentUserVote\n    currentUserExtendedVote\n  }\n": types.MultiDocumentMinimumInfoDoc,
@@ -4599,7 +4599,7 @@ export function gql(source: "\n  fragment messageListFragment on Message {\n    
 /**
  * The gql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
  */
-export function gql(source: "\n  fragment WithVoteMessage on Message {\n    ...messageListFragment\n  }\n"): (typeof documents)["\n  fragment WithVoteMessage on Message {\n    ...messageListFragment\n  }\n"];
+export function gql(source: "\n  fragment WithVoteMessage on Message {\n    __typename\n    _id\n    score\n    baseScore\n    extendedScore\n    afBaseScore\n    voteCount\n    currentUserVote\n    currentUserExtendedVote\n  }\n"): (typeof documents)["\n  fragment WithVoteMessage on Message {\n    __typename\n    _id\n    score\n    baseScore\n    extendedScore\n    afBaseScore\n    voteCount\n    currentUserVote\n    currentUserExtendedVote\n  }\n"];
 /**
  * The gql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
  */
