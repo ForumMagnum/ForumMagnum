@@ -424,7 +424,7 @@ export async function checkForStricterRateLimits(userId: string, documentId: str
   triggerReviewForStricterRateLimits(votedOnUser._id, commentRateLimitComparison, postRateLimitComparison, documentId, collectionName, triggeredAt, context);
 
   // Also check if rate limits were loosened (deactivated)
-  await checkForLoosenedRateLimits(votedOnUser._id, userKarmaInfoWindow, documentId, collectionName, triggeredAt, context);
+  backgroundTask(checkForLoosenedRateLimits(votedOnUser._id, userKarmaInfoWindow, documentId, collectionName, triggeredAt, context));
 }
 
 async function checkForLoosenedRateLimits(userId: string, userKarmaInfoWindow: UserKarmaInfoWindow, documentId: string, collectionName: CollectionNameString, triggeredAt: Date, context: ResolverContext) {

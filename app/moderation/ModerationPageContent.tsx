@@ -306,6 +306,23 @@ const styles = defineStyles("ModerationPageContent", (theme: ThemeType) => ({
       background: theme.palette.panelBackground.default
     }
   },
+  trDimmed: {
+    cursor: 'pointer',
+    opacity: 0.5,
+    transition: 'opacity 0.2s, background 0.15s',
+    '&:hover': {
+      opacity: 1,
+      background: theme.palette.panelBackground.default
+    }
+  },
+  trNonExpandableDimmed: {
+    opacity: 0.5,
+    transition: 'opacity 0.2s, background 0.15s',
+    '&:hover': {
+      opacity: 1,
+      background: theme.palette.panelBackground.default
+    }
+  },
   link: {
     color: theme.palette.primary.main,
     textDecoration: 'none',
@@ -653,6 +670,82 @@ const styles = defineStyles("ModerationPageContent", (theme: ThemeType) => ({
         }
       }
     }
+  },
+  moderatorPostsSection: {
+    marginTop: '16px'
+  },
+  moderatorPostsList: {
+    listStyle: 'none',
+    padding: 0,
+    margin: 0
+  },
+  moderatorPostItem: {
+    marginBottom: '8px'
+  },
+  postDate: {
+    color: theme.palette.text.dim,
+    fontSize: '12px',
+    marginLeft: '8px'
+  },
+  sectionHeaderFlex: {
+    display: 'flex',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    flexWrap: 'wrap',
+    gap: '8px'
+  },
+  filterGroup: {
+    display: 'flex',
+    alignItems: 'center',
+    gap: '8px'
+  },
+  rateLimitsFlexContainer: {
+    display: 'flex',
+    flexWrap: 'wrap',
+    gap: '8px',
+    alignItems: 'center'
+  },
+  rateLimitItemText: {
+    whiteSpace: 'nowrap'
+  },
+  deactivatedText: {
+    color: theme.palette.text.dim
+  },
+  rateLimitDetailsContainer: {
+    display: 'flex',
+    flexDirection: 'column',
+    gap: '12px'
+  },
+  rateLimitDetailItem: {
+    paddingLeft: '12px',
+    borderLeft: `3px solid ${theme.palette.primary.main}`
+  },
+  rateLimitDetailRow: {
+    marginBottom: '4px'
+  },
+  rateLimitMessage: {
+    fontSize: '13px',
+    color: theme.palette.text.dim,
+    marginBottom: '4px'
+  },
+  rateLimitTimestampText: {
+    fontSize: '12px',
+    color: theme.palette.text.dim,
+    fontStyle: 'italic'
+  },
+  rejectionGrid: {
+    display: 'grid',
+    gridTemplateColumns: '1fr 1fr',
+    gap: '32px',
+    padding: '12px'
+  },
+  rejectionLabel: {
+    display: 'block',
+    marginBottom: '8px',
+    fontWeight: 600
+  },
+  noContentText: {
+    color: theme.palette.text.dim
   }
 }));
 
@@ -744,39 +837,17 @@ export default function ModerationPageContent(props: Props) {
   };
 
 
-  const buildToggleExpiredRateLimitsUrl = () => {
+  const buildToggleUrl = (paramName: string, currentValue: boolean, offsetToReset?: string) => {
     const params = new URLSearchParams(searchParams?.toString());
-    if (showExpiredRateLimits) {
-      params.delete('showExpiredRateLimits');
+    if (currentValue) {
+      params.delete(paramName);
     } else {
-      params.set('showExpiredRateLimits', 'true');
+      params.set(paramName, 'true');
     }
     // Reset pagination when toggling
-    params.delete('activeRateLimitsOffset');
-    return `/moderation?${params.toString()}`;
-  };
-
-  const buildToggleNewUserRateLimitsUrl = () => {
-    const params = new URLSearchParams(searchParams?.toString());
-    if (showNewUserRateLimits) {
-      params.delete('showNewUserRateLimits');
-    } else {
-      params.set('showNewUserRateLimits', 'true');
+    if (offsetToReset) {
+      params.delete(offsetToReset);
     }
-    // Reset pagination when toggling
-    params.delete('activeRateLimitsOffset');
-    return `/moderation?${params.toString()}`;
-  };
-
-  const buildToggleExpiredBansUrl = () => {
-    const params = new URLSearchParams(searchParams?.toString());
-    if (showExpiredBans) {
-      params.delete('showExpiredBans');
-    } else {
-      params.set('showExpiredBans', 'true');
-    }
-    // Reset pagination when toggling
-    params.delete('globallyBannedUsersOffset');
     return `/moderation?${params.toString()}`;
   };
 
@@ -889,16 +960,16 @@ export default function ModerationPageContent(props: Props) {
 
           {/* Moderator Posts */}
           {moderatorPosts.length > 0 && (
-            <div className={classes.essay} style={{ marginTop: '16px' }}>
+            <div className={`${classes.essay} ${classes.moderatorPostsSection}`}>
               <h2 className={classes.essayTitle}>Moderator Posts</h2>
-              <ul style={{ listStyle: 'none', padding: 0, margin: 0 }}>
+              <ul className={classes.moderatorPostsList}>
                 {moderatorPosts.map((post) => (
-                  <li key={post._id} style={{ marginBottom: '8px' }}>
+                  <li key={post._id} className={classes.moderatorPostItem}>
                     <a href={postGetPageUrl(post)} className={classes.link}>
                       {post.title}
                     </a>
                     {post.postedAt && (
-                      <span style={{ color: '#999', fontSize: '12px', marginLeft: '8px' }}>
+                      <span className={classes.postDate}>
                         {new Date(post.postedAt).toLocaleDateString()}
                       </span>
                     )}
@@ -939,10 +1010,10 @@ export default function ModerationPageContent(props: Props) {
 
       {/* Auto Rate Limits Table - Can show active or expired */}
       <div className={classes.section}>
-        <div className={classes.sectionHeader} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '8px' }}>
+        <div className={`${classes.sectionHeader} ${classes.sectionHeaderFlex}`}>
           <span>{showExpiredRateLimits ? 'Expired' : 'Active'} Auto Rate Limits ({activeRateLimitsCount} users)</span>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-            <Link href={buildToggleNewUserRateLimitsUrl()} className={classes.filterCheckbox} scroll={false}>
+          <div className={classes.filterGroup}>
+            <Link href={buildToggleUrl('showNewUserRateLimits', showNewUserRateLimits, 'activeRateLimitsOffset')} className={classes.filterCheckbox} scroll={false}>
               <input
                 type="checkbox"
                 checked={showNewUserRateLimits}
@@ -951,7 +1022,7 @@ export default function ModerationPageContent(props: Props) {
               Show new user rate limits
             </Link>
             <Link
-              href={buildToggleExpiredRateLimitsUrl()}
+              href={buildToggleUrl('showExpiredRateLimits', showExpiredRateLimits, 'activeRateLimitsOffset')}
               className={classes.pageButton}
               title={showExpiredRateLimits ? "We only have up-to-date data on expired rate limits from October 1st 2025" : "Switch to view expired rate limits"}
               scroll={false}
@@ -994,11 +1065,8 @@ export default function ModerationPageContent(props: Props) {
                   return (
                     <React.Fragment key={userRateLimit.userId}>
                       <tr
-                        className={classes.tr}
+                        className={isNewUser && showNewUserRateLimits ? classes.trDimmed : classes.tr}
                         onClick={() => toggleRowExpanded(userRateLimit.userId)}
-                        style={isNewUser && showNewUserRateLimits ? { opacity: 0.5, transition: 'opacity 0.2s' } : undefined}
-                        onMouseEnter={(e) => { if (isNewUser && showNewUserRateLimits) e.currentTarget.style.opacity = '1'; }}
-                        onMouseLeave={(e) => { if (isNewUser && showNewUserRateLimits) e.currentTarget.style.opacity = '0.5'; }}
                       >
                         <td className={classes.td} data-label="User">
                           {userRateLimit.user ? (
@@ -1028,9 +1096,9 @@ export default function ModerationPageContent(props: Props) {
                           {userRateLimit.user?.commentCount ?? 0}
                         </td>
                         <td className={classes.td} data-label="Rate Limits">
-                          <div style={{ display: 'flex', flexWrap: 'wrap', gap: '8px', alignItems: 'center' }}>
+                          <div className={classes.rateLimitsFlexContainer}>
                             {Object.values(limitsByAction).map((limit, idx) => (
-                              <span key={idx} style={{ whiteSpace: 'nowrap' }}>
+                              <span key={idx} className={classes.rateLimitItemText}>
                                 <strong>{limit.actionType}:</strong> {limit.itemsPerTimeframe}/{limit.timeframeLength}{limit.timeframeUnit[0]}
                                 {getRateLimitCategoryTag(limit.rateLimitCategory)}
                               </span>
@@ -1047,7 +1115,7 @@ export default function ModerationPageContent(props: Props) {
                         </td>
                         <td className={classes.td} data-label="Condition to Lift">
                           {showExpiredRateLimits ? (
-                            <span style={{ color: '#999' }}>Deactivated</span>
+                            <span className={classes.deactivatedText}>Deactivated</span>
                           ) : primaryLimit.rateLimitCategory === "rolling" ? (
                             <span>Until last 20 posts + comments improve</span>
                           ) : primaryLimit.rateLimitCategory === "timed" ? (
@@ -1060,19 +1128,19 @@ export default function ModerationPageContent(props: Props) {
                       {expandedRows.has(userRateLimit.userId) && (
                         <tr>
                           <td colSpan={9} className={classes.expandedContent}>
-                            <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+                            <div className={classes.rateLimitDetailsContainer}>
                               <strong>All Rate Limits:</strong>
                               {userRateLimit.rateLimits.map((limit, idx) => (
-                                <div key={idx} style={{ paddingLeft: '12px', borderLeft: '3px solid #5f9bb8' }}>
-                                  <div style={{ marginBottom: '4px' }}>
+                                <div key={idx} className={classes.rateLimitDetailItem}>
+                                  <div className={classes.rateLimitDetailRow}>
                                     <strong>{limit.actionType}</strong>: {limit.itemsPerTimeframe} per {limit.timeframeLength} {limit.timeframeUnit}
                                     {getRateLimitCategoryTag(limit.rateLimitCategory)}
                                   </div>
                                   <div
-                                    style={{ fontSize: '13px', color: '#666', marginBottom: '4px' }}
+                                    className={classes.rateLimitMessage}
                                     dangerouslySetInnerHTML={{ __html: limit.rateLimitMessage }}
                                   />
-                                  <div style={{ fontSize: '12px', color: '#999', fontStyle: 'italic' }}>
+                                  <div className={classes.rateLimitTimestampText}>
                                     Triggered: {new Date(limit.activatedAt).toLocaleString()}
                                   </div>
                                 </div>
@@ -1246,24 +1314,24 @@ export default function ModerationPageContent(props: Props) {
                   {expandedRows.has(comment._id) && (
                     <tr>
                       <td colSpan={4}>
-                        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '32px', padding: '12px' }} className={classes.expandedGrid}>
+                        <div className={`${classes.rejectionGrid} ${classes.expandedGrid}`}>
                           <div>
-                            <strong style={{ display: 'block', marginBottom: '8px' }}>Comment:</strong>
+                            <strong className={classes.rejectionLabel}>Comment:</strong>
                             {comment.contents?.html ? (
                               <div dangerouslySetInnerHTML={{ __html: comment.contents.html }} />
                             ) : (
-                              <span style={{ color: '#999' }}>No content available</span>
+                              <span className={classes.noContentText}>No content available</span>
                             )}
                           </div>
                           <div>
-                            <strong style={{ display: 'block', marginBottom: '8px' }}>Rejection Reason:</strong>
+                            <strong className={classes.rejectionLabel}>Rejection Reason:</strong>
                             {comment.rejectedReason ? (
                               <div
                                 className={classes.expandedRejectionReason}
                                 dangerouslySetInnerHTML={{ __html: comment.rejectedReason }}
                               />
                             ) : (
-                              <span style={{ color: '#999' }}>No reason provided</span>
+                              <span className={classes.noContentText}>No reason provided</span>
                             )}
                           </div>
                         </div>
@@ -1379,7 +1447,7 @@ export default function ModerationPageContent(props: Props) {
         <div className={classes.section}>
           <div className={classes.sectionHeader}>
             <span>Globally Banned Users ({globallyBannedUsersCount})</span>
-            <Link href={buildToggleExpiredBansUrl()} className={classes.sectionCheckbox} scroll={false}>
+            <Link href={buildToggleUrl('showExpiredBans', showExpiredBans, 'globallyBannedUsersOffset')} className={classes.sectionCheckbox} scroll={false}>
               <input
                 type="checkbox"
                 checked={showExpiredBans}
@@ -1407,10 +1475,7 @@ export default function ModerationPageContent(props: Props) {
                 return (
                   <tr
                     key={user._id}
-                    className={classes.trNonExpandable}
-                    style={isExpired && showExpiredBans ? { opacity: 0.5, transition: 'opacity 0.2s' } : undefined}
-                    onMouseEnter={(e) => { if (isExpired && showExpiredBans) e.currentTarget.style.opacity = '1'; }}
-                    onMouseLeave={(e) => { if (isExpired && showExpiredBans) e.currentTarget.style.opacity = '0.5'; }}
+                    className={isExpired && showExpiredBans ? classes.trNonExpandableDimmed : classes.trNonExpandable}
                   >
                     <td className={classes.td} data-label="User">
                       <a href={userGetProfileUrl(user)} className={classes.link}>
