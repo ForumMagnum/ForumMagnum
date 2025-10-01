@@ -691,6 +691,13 @@ export const MessagesDefaultFragment = gql(`
     userId
     conversationId
     noEmail
+    voteCount
+    baseScore
+    extendedScore
+    score
+    afBaseScore
+    afExtendedScore
+    afVoteCount
   }
 `);
 

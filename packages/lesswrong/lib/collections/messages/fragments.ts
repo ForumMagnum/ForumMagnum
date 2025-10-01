@@ -13,5 +13,11 @@ export const messageListFragment = gql(`
     }
     createdAt
     conversationId
+    voteCount
+    baseScore
+    score
+    extendedScore
+    currentUserVote
+    currentUserExtendedVote
   }
 `)

@@ -91,6 +91,7 @@ const CommentBody = ({
   if (voteProps && votingSystem.getCommentHighlights) {
     highlights = votingSystem.getCommentHighlights({comment, voteProps});
   }
+  console.log("highlights", highlights);
 
   const contentBody = <ContentStyles contentType={contentType} className={classes.root}>
     <ContentItemBody

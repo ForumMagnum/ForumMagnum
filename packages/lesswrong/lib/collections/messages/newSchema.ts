@@ -2,7 +2,10 @@ import { DEFAULT_CREATED_AT_FIELD, DEFAULT_ID_FIELD, DEFAULT_LATEST_REVISION_ID_
 import { getDenormalizedEditableResolver } from "@/lib/editor/make_editable";
 import { RevisionStorageType } from "../revisions/revisionSchemaTypes";
 import { generateIdResolverSingle } from "../../utils/schemaUtils";
-import { userOwns } from "@/lib/vulcan-users/permissions";
+import { userIsAdminOrMod, userOwns } from "@/lib/vulcan-users/permissions";
+import { DEFAULT_BASE_SCORE_FIELD, DEFAULT_EXTENDED_SCORE_FIELD, DEFAULT_SCORE_FIELD, DEFAULT_CURRENT_USER_VOTE_FIELD, DEFAULT_CURRENT_USER_EXTENDED_VOTE_FIELD, defaultVoteCountField, getAllVotes, getCurrentUserVotes, DEFAULT_INACTIVE_FIELD, DEFAULT_AF_BASE_SCORE_FIELD, DEFAULT_AF_EXTENDED_SCORE_FIELD, DEFAULT_AF_VOTE_COUNT_FIELD } from "@/lib/make_voteable";
+import { getVotingSystemNameForDocument } from "../comments/helpers";
+import { customBaseScoreReadAccess } from "../comments/voting";
 
 const schema = {
   _id: DEFAULT_ID_FIELD,
@@ -97,6 +100,51 @@ const schema = {
       },
     },
   },
+  currentUserVote: DEFAULT_CURRENT_USER_VOTE_FIELD,
+  currentUserExtendedVote: DEFAULT_CURRENT_USER_EXTENDED_VOTE_FIELD,
+  allVotes: {
+    graphql: {
+      outputType: "[Vote!]",
+      canRead: ["guests"],
+      resolver: async (document, args, context) => {
+        const { currentUser } = context;
+        if (userIsAdminOrMod(currentUser)) {
+          return await getAllVotes(document, context);
+        } else {
+          return await getCurrentUserVotes(document, context);
+        }
+      },
+    },
+  },
+  voteCount: defaultVoteCountField('Messages'),
+  baseScore: {
+    ...DEFAULT_BASE_SCORE_FIELD,
+    graphql: {
+      ...DEFAULT_BASE_SCORE_FIELD.graphql,
+      outputType: "Float",
+    },
+  },
+  extendedScore: {
+    ...DEFAULT_EXTENDED_SCORE_FIELD,
+    graphql: {
+      ...DEFAULT_EXTENDED_SCORE_FIELD.graphql
+    },
+  },
+  score: DEFAULT_SCORE_FIELD,
+  inactive: DEFAULT_INACTIVE_FIELD,
+  afBaseScore: {
+    ...DEFAULT_AF_BASE_SCORE_FIELD,
+    graphql: {
+      ...DEFAULT_AF_BASE_SCORE_FIELD.graphql
+    },
+  },
+  afExtendedScore: {
+    ...DEFAULT_AF_EXTENDED_SCORE_FIELD,
+    graphql: {
+      ...DEFAULT_AF_EXTENDED_SCORE_FIELD.graphql
+    },
+  },
+  afVoteCount: DEFAULT_AF_VOTE_COUNT_FIELD,
 } satisfies Record<string, CollectionFieldSpecification<"Messages">>;
 
 export default schema;

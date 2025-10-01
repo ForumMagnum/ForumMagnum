@@ -366,7 +366,7 @@ type CollectionFragmentTypeName = {
   [k in keyof FragmentTypes]: CollectionNamesByFragmentName[k] extends never ? never : k;
 }[keyof FragmentTypes];
 
-type VoteableCollectionName = "Posts"|"Comments"|"TagRels"|"Revisions"|"ElectionCandidates"|"Tags"|"MultiDocuments";
+type VoteableCollectionName = "Posts"|"Comments"|"TagRels"|"Revisions"|"ElectionCandidates"|"Tags"|"MultiDocuments"|"Messages";
 
 interface EditableFieldContents {
   html: string

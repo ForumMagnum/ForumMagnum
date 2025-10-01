@@ -3443,6 +3443,16 @@ interface Message {
   conversationId: string | null;
   conversation: Conversation | null;
   noEmail: boolean | null;
+  currentUserVote: string | null;
+  currentUserExtendedVote: any;
+  allVotes: Array<Vote> | null;
+  voteCount: number;
+  baseScore: number | null;
+  extendedScore: any;
+  score: number;
+  afBaseScore: number | null;
+  afExtendedScore: any;
+  afVoteCount: number | null;
 }
 
 interface SingleMessageInput {

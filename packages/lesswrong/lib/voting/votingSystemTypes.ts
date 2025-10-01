@@ -58,6 +58,10 @@ export interface VotingSystem<ExtendedVoteType = any, ExtendedScoreType = any> {
     post: PostsBase;
     voteProps: VotingProps<VoteableTypeClient>;
   }) => ContentReplacedSubstringComponentInfo[];
+  getMessageHighlights?: (props: {
+    message: messageListFragment;
+    voteProps: VotingProps<VoteableTypeClient>;
+  }) => ContentReplacedSubstringComponentInfo[];
   getTagOrLensHighlights?: (props: {
     tagOrLens: TagLens | TagPageFragment;
     voteProps: VotingProps<VoteableTypeClient>;

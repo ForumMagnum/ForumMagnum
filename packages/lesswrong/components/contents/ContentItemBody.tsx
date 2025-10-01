@@ -354,6 +354,7 @@ function applyReplaceSubstrings(parsedHtml: DomHandlerChildNode, replacedSubstri
   // elements (p, h1, h2...h6, ol, ul, li, img, ...). traverse() returns the
   // minimum number of newlines that should separate it from any sibling above
   // and below.
+  console.log("replacedSubstrings", replacedSubstrings);
   type AnnotatedTextNode = {
     node: DomHandlerText|null,
     str: string,
@@ -520,7 +521,6 @@ function applyReplaceSubstrings(parsedHtml: DomHandlerChildNode, replacedSubstri
       htmlparser2.DomUtils.appendChild(span, textNode.node);
     }
   }
-
   return parsedHtml;
 }
 
@@ -564,6 +564,7 @@ function findStringMultiple(needle: string, haystack: string): number[] {
 }
 
 function applyReplacements(element: React.ReactNode, substitutions: SubstitutionsAttr, replacements: ContentReplacedSubstringComponentInfo[]): React.ReactNode {
+  console.log("element", element);
   for (const substitution of substitutions) {
     const replacement = replacements[substitution.substitutionIndex];
     const Component = replacementComponentMap[replacement.componentName];
@@ -571,6 +572,7 @@ function applyReplacements(element: React.ReactNode, substitutions: Substitution
       {element}
     </Component>;
   }
+  console.log("element2", element);
   return element;
 }
 

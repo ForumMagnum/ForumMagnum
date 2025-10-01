@@ -3790,6 +3790,16 @@ type Message {
   conversationId: String
   conversation: Conversation
   noEmail: Boolean
+  currentUserVote: String
+  currentUserExtendedVote: JSON
+  allVotes: [Vote!]
+  voteCount: Float!
+  baseScore: Float
+  extendedScore: JSON
+  score: Float!
+  afBaseScore: Float
+  afExtendedScore: JSON
+  afVoteCount: Float
 }
 
 input SingleMessageInput {
