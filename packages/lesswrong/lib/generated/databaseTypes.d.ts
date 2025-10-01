@@ -740,7 +740,6 @@ interface DbMessage extends DbObject {
   conversationId: string
   createdAt: Date
   extendedScore: any | null
-  inactive: boolean
   legacyData: any | null
   noEmail: boolean
   score: number

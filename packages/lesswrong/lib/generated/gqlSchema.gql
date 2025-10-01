@@ -3812,7 +3812,6 @@ type Message {
   noEmail: Boolean
   currentUserVote: String
   currentUserExtendedVote: JSON
-  allVotes: [Vote!]
   voteCount: Float!
   baseScore: Float!
   extendedScore: JSON

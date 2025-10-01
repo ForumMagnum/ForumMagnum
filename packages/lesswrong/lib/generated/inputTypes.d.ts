@@ -3459,7 +3459,6 @@ interface Message {
   noEmail: boolean | null;
   currentUserVote: string | null;
   currentUserExtendedVote: any;
-  allVotes: Array<Vote> | null;
   voteCount: number;
   baseScore: number;
   extendedScore: any;
