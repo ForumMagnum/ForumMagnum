@@ -130,6 +130,7 @@ const MessageItem = ({message, classes}: {
     className={classes.messageBody}
     description={`message ${message._id}`}
     replacedSubstrings={highlights}
+    invertSubstitutionColors={!!isCurrentUser}
   />;
   
   return (

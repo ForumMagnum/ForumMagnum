@@ -26,7 +26,7 @@ type PassedThroughContentItemBodyProps = Pick<ContentItemBodyProps, "description
   bodyRef: React.RefObject<HTMLDivElement|null>,
 }
 
-type SubstitutionsAttr = Array<{substitutionIndex: number, isSplitContinuation: boolean}>;
+type SubstitutionsAttr = Array<{substitutionIndex: number, isSplitContinuation: boolean, invertColors: boolean}>;
 
 /**
  * Renders user-generated HTML, with progressive enhancements. Replaces
@@ -56,7 +56,7 @@ type SubstitutionsAttr = Array<{substitutionIndex: number, isSplitContinuation: 
  * functionality that's currently handled by `truncatize`.
  */
 export const ContentItemBody = (props: ContentItemBodyProps) => {
-  const { onContentReady, nofollow, dangerouslySetInnerHTML, replacedSubstrings, className, ref } = props;
+  const { onContentReady, nofollow, dangerouslySetInnerHTML, replacedSubstrings, className, ref, invertSubstitutionColors } = props;
   const bodyRef = useRef<HTMLDivElement|null>(null);
   const themeContext = useContext(ThemeContext)
   const html = (nofollow
@@ -66,7 +66,7 @@ export const ContentItemBody = (props: ContentItemBodyProps) => {
   const parsedHtml = useMemo(() => {
     const parsed = htmlparser2.parseDocument(html);
     if (replacedSubstrings && replacedSubstrings.length > 0) {
-      applyReplaceSubstrings(parsed, replacedSubstrings)
+      applyReplaceSubstrings(parsed, replacedSubstrings, invertSubstitutionColors)
     }
     return parsed;
   }, [html, replacedSubstrings]);
@@ -345,7 +345,7 @@ export function parseInlineStyle(input: string): CSSProperties {
   }, {} as CSSProperties)
 }
 
-function applyReplaceSubstrings(parsedHtml: DomHandlerChildNode, replacedSubstrings: ContentReplacedSubstringComponentInfo[]): DomHandlerChildNode {
+function applyReplaceSubstrings(parsedHtml: DomHandlerChildNode, replacedSubstrings: ContentReplacedSubstringComponentInfo[], invertSubstitutionColors: boolean): DomHandlerChildNode {
   // Traverse parsedHtml, producing an array of text nodes, a combined string
   // with the text of all those nodes, and text offsets for each. Node types
   // that contain non-normal text (CDATA, Script, Style) are skipped.
@@ -502,6 +502,7 @@ function applyReplaceSubstrings(parsedHtml: DomHandlerChildNode, replacedSubstri
         textNode.substitutions.push({
           substitutionIndex: replacementRange.replacementIndex,
           isSplitContinuation: !first,
+          invertColors: invertSubstitutionColors,
         });
         first = false;
       }
@@ -566,7 +567,7 @@ function applyReplacements(element: React.ReactNode, substitutions: Substitution
   for (const substitution of substitutions) {
     const replacement = replacements[substitution.substitutionIndex];
     const Component = replacementComponentMap[replacement.componentName];
-    element = <Component key="replacement" {...replacement.props} isSplitContinuation={substitution.isSplitContinuation}>
+    element = <Component key="replacement" {...replacement.props} isSplitContinuation={substitution.isSplitContinuation} invertColors={substitution.invertColors}>
       {element}
     </Component>;
   }
