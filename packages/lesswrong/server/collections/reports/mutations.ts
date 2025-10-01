@@ -27,26 +27,52 @@ async function postReportsToSunshine(report: DbReport, context: ResolverContext)
   ]);
   const reportedUser = await context.Users.findOne({ _id: report.reportedUserId ?? comment?.userId ?? post?.userId });
 
+  const contentSlug = report.commentId ? `a comment on ${post?.title}` : report.postId ? `the post ${post?.title}` : `user ${reportedUser?.displayName}`;
+  const description = report.description ?? '';
+  const userLink = user ? `https://${process.env.SITE_URL ?? 'lesswrong.com'}/users/${user.slug}` : '';
+  const userName = user?.displayName ?? '';
+  const url = `https://${process.env.SITE_URL ?? 'lesswrong.com'}${report.link}`;
+
   const slack = new WebClient(slackBotToken);
 
   return await slack.chat.postMessage({
-    channel: 'C3GTABBTQ',
+    channel: process.env.MODERATION_CHANNEL_ID ?? '',
+    text: `Reported ${contentSlug}: ${description}`,
     blocks: [
       {
-        type: 'section',
+        type: "header",
         text: {
-          type: 'mrkdwn',
-          text: `${user?.displayName ?? report.userId} reported <https://lesswrong.com${report.link}|this ${report.commentId ? 'comment' : report.postId ? 'post' : report.reportedUserId ? 'user' : ''}> by ${reportedUser?.displayName ?? report.reportedUserId}`,
+          type: "plain_text",
+          text: `Reported ${contentSlug}`,
+          emoji: true,
         },
       },
       {
-        type: 'section',
+        type: "section",
         text: {
-          type: 'mrkdwn',
-          text: `Here was the report:\n> ${report.description}`,
-        },
-      }
-    ]
+          type: "mrkdwn",
+          text: `*Reported by <${userLink}|${userName}>:* _${description}_`,
+        }
+      },
+      {
+        type: "divider",
+      },
+      {
+        type: "actions",
+        elements: [
+          {
+            type: "button",
+            text: {
+              type: "plain_text",
+              text: `View ${contentSlug} on LessWrong`,
+              emoji: true,
+            },
+            value: `view_${contentSlug}_on_lesswrong`,
+            url,
+          },
+        ]
+      },
+    ],
   });
 }
 
