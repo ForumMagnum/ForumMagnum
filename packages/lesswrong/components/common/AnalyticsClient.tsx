@@ -4,8 +4,8 @@ import { clientContextVars, flushClientEvents, captureEvent } from '../../lib/an
 import { useCurrentUser } from './withUser';
 import withErrorBoundary from './withErrorBoundary';
 import { ABTestGroupsUsedContext } from '@/components/common/sharedContexts';
-import { CLIENT_ID_COOKIE, CLIENT_ID_NEW_COOKIE, TIMEZONE_COOKIE, THEME_COOKIE, LAST_VISITED_FRONTPAGE_COOKIE } from '../../lib/cookies/cookies';
-import { useCookiesWithConsent, useCookiePreferences } from '../hooks/useCookiesWithConsent';
+import { CLIENT_ID_COOKIE, LAST_VISITED_FRONTPAGE_COOKIE } from '../../lib/cookies/cookies';
+import { useCookiesWithConsent } from '../hooks/useCookiesWithConsent';
 import { isLWorAF } from '../../lib/instanceSettings';
 import { getAllUserABTestGroups } from '@/lib/abTestImpl';
 
