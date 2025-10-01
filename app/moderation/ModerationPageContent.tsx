@@ -21,7 +21,7 @@ import classNames from 'classnames';
 
 const ModeratorCommentsMultiQuery = gql(`
   query multiModeratorCommentsQuery($commentIds: [String!]!) {
-    comments(input: { terms: { view: "commentsByIds", commentIds: $commentIds } }) {
+    comments(selector: { default: { commentIds: $commentIds } }) {
       results {
         ...ShortformComments
       }
