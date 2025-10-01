@@ -91,7 +91,7 @@ export const InlineReactHoverableHighlight = ({quote, reactions, isSplitContinua
   // 1) the quote itself is hovered over, or
   // 2) if the post/comment is hovered over, and the react has net-positive agreement across all users
   const shouldUnderline = isHovered || anyPositive;
-
+  console.log("voteProps", voteProps);
   if (!voteProps) {
     return <>{children}</>
   }

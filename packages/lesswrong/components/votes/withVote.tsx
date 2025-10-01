@@ -90,10 +90,22 @@ const performVoteMultiDocumentMutation = gql(`
   }
 `)
 
+const performVoteMessageMutation = gql(`
+  mutation performVoteMessage($documentId: String, $voteType: String, $extendedVote: JSON) {
+    performVoteMessage(documentId: $documentId, voteType: $voteType, extendedVote: $extendedVote) {
+      document {
+        ...WithVoteMessage
+      }
+      showVotingPatternWarning
+    }
+  }
+`)
+
 const performVoteMutations = {
   Comment: performVoteCommentMutation,
   Post: performVotePostMutation,
   TagRel: performVoteTagRelMutation,
+  Message: performVoteMessageMutation,
   Revision: performVoteRevisionMutation,
   ElectionCandidate: performVoteElectionCandidateMutation,
   Tag: performVoteTagMutation,

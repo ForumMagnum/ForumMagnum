@@ -344,7 +344,7 @@ const NamesAttachedReactionsCommentBottomInner = ({
   const visibleReacts = visibleReactionsDisplay.map(r => r.react)
   const hiddenReacts = difference(allReactions, visibleReacts)
 
-  const isDebateComment = post?.debate && document.debateResponse
+  const isDebateComment = post?.debate && "debateResponse" in document && document.debateResponse
   const canReactUserIds = post ? [...post.coauthorUserIds, post.userId] : []
   const userIsDebateParticipant = !!currentUserId && canReactUserIds.includes(currentUserId)
   const showReactButton = !isDebateComment || userIsDebateParticipant

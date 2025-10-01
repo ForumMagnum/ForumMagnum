@@ -308,6 +308,7 @@ interface FragmentTypes {
   VotesDefaultFragment: VotesDefaultFragment
   WithVoteComment: WithVoteComment
   WithVoteElectionCandidate: WithVoteElectionCandidate
+  WithVoteMessage: WithVoteMessage
   WithVoteMultiDocument: WithVoteMultiDocument
   WithVotePost: WithVotePost
   WithVoteRevision: WithVoteRevision
@@ -374,7 +375,7 @@ interface FragmentTypesByCollection {
   LlmMessages: "LlmMessagesDefaultFragment"|"LlmMessagesFragment"
   Localgroups: "LocalgroupsDefaultFragment"|"localGroupsBase"|"localGroupsEdit"|"localGroupsHomeFragment"|"localGroupsIsOnline"
   ManifoldProbabilitiesCaches: "ManifoldProbabilitiesCachesDefaultFragment"
-  Messages: "MessagesDefaultFragment"|"messageListFragment"
+  Messages: "MessagesDefaultFragment"|"WithVoteMessage"|"messageListFragment"
   Migrations: "MigrationsDefaultFragment"
   ModerationTemplates: "ModerationTemplateFragment"|"ModerationTemplatesDefaultFragment"
   ModeratorActions: "ModeratorActionDisplay"|"ModeratorActionsDefaultFragment"
@@ -724,6 +725,7 @@ interface CollectionNamesByFragmentName {
   VotesDefaultFragment: "Votes"
   WithVoteComment: "Comments"
   WithVoteElectionCandidate: "ElectionCandidates"
+  WithVoteMessage: "Messages"
   WithVoteMultiDocument: "MultiDocuments"
   WithVotePost: "Posts"
   WithVoteRevision: "Revisions"

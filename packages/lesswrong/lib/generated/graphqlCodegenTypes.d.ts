@@ -4322,6 +4322,7 @@ type Mutation = {
   observeRecommendation?: Maybe<Scalars['Boolean']['output']>;
   performVoteComment?: Maybe<VoteResultComment>;
   performVoteElectionCandidate?: Maybe<VoteResultElectionCandidate>;
+  performVoteMessage?: Maybe<VoteResultMessage>;
   performVoteMultiDocument?: Maybe<VoteResultMultiDocument>;
   performVotePost?: Maybe<VoteResultPost>;
   performVoteRevision?: Maybe<VoteResultRevision>;
@@ -4340,6 +4341,7 @@ type Mutation = {
   setIsHidden: User;
   setVoteComment?: Maybe<Comment>;
   setVoteElectionCandidate?: Maybe<ElectionCandidate>;
+  setVoteMessage?: Maybe<Message>;
   setVoteMultiDocument?: Maybe<MultiDocument>;
   setVotePost?: Maybe<Post>;
   setVoteRevision?: Maybe<Revision>;
@@ -4861,6 +4863,13 @@ type MutationperformVoteElectionCandidateArgs = {
 };
 
 
+type MutationperformVoteMessageArgs = {
+  documentId?: InputMaybe<Scalars['String']['input']>;
+  extendedVote?: InputMaybe<Scalars['JSON']['input']>;
+  voteType?: InputMaybe<Scalars['String']['input']>;
+};
+
+
 type MutationperformVoteMultiDocumentArgs = {
   documentId?: InputMaybe<Scalars['String']['input']>;
   extendedVote?: InputMaybe<Scalars['JSON']['input']>;
@@ -4960,6 +4969,13 @@ type MutationsetVoteCommentArgs = {
 
 
 type MutationsetVoteElectionCandidateArgs = {
+  documentId?: InputMaybe<Scalars['String']['input']>;
+  extendedVote?: InputMaybe<Scalars['JSON']['input']>;
+  voteType?: InputMaybe<Scalars['String']['input']>;
+};
+
+
+type MutationsetVoteMessageArgs = {
   documentId?: InputMaybe<Scalars['String']['input']>;
   extendedVote?: InputMaybe<Scalars['JSON']['input']>;
   voteType?: InputMaybe<Scalars['String']['input']>;
@@ -12811,6 +12827,12 @@ type VoteResultComment = {
 type VoteResultElectionCandidate = {
   __typename?: 'VoteResultElectionCandidate';
   document: ElectionCandidate;
+  showVotingPatternWarning: Scalars['Boolean']['output'];
+};
+
+type VoteResultMessage = {
+  __typename?: 'VoteResultMessage';
+  document: Message;
   showVotingPatternWarning: Scalars['Boolean']['output'];
 };
 
@@ -24064,6 +24086,25 @@ type performVoteMultiDocumentMutationVariables = Exact<{
 
 type performVoteMultiDocumentMutation = performVoteMultiDocumentMutation_Mutation;
 
+type performVoteMessageMutation_performVoteMessage_VoteResultMessage_document_Message = (
+  { __typename?: 'Message' }
+  & WithVoteMessage
+);
+
+type performVoteMessageMutation_performVoteMessage_VoteResultMessage = { __typename?: 'VoteResultMessage', showVotingPatternWarning: boolean, document: performVoteMessageMutation_performVoteMessage_VoteResultMessage_document_Message };
+
+type performVoteMessageMutation_Mutation = { __typename?: 'Mutation', performVoteMessage: performVoteMessageMutation_performVoteMessage_VoteResultMessage | null };
+
+
+type performVoteMessageMutationVariables = Exact<{
+  documentId: InputMaybe<Scalars['String']['input']>;
+  voteType: InputMaybe<Scalars['String']['input']>;
+  extendedVote: InputMaybe<Scalars['JSON']['input']>;
+}>;
+
+
+type performVoteMessageMutation = performVoteMessageMutation_Mutation;
+
 type emailstestsQuery_post_SinglePostOutput_result_Post = (
   { __typename?: 'Post' }
   & PostsRevision
@@ -24692,6 +24733,11 @@ type messageListFragment_Message_user_User = (
 type messageListFragment_Message_contents_Revision = { __typename?: 'Revision', html: string | null, plaintextMainText: string };
 
 type messageListFragment = { __typename?: 'Message', _id: string, createdAt: string | null, conversationId: string | null, voteCount: number, baseScore: number | null, score: number, extendedScore: any | null, currentUserVote: string | null, currentUserExtendedVote: any | null, user: messageListFragment_Message_user_User | null, contents: messageListFragment_Message_contents_Revision | null };
+
+type WithVoteMessage = (
+  { __typename?: 'Message' }
+  & messageListFragment
+);
 
 type ModerationTemplateFragment_ModerationTemplate_contents_Revision = (
   { __typename?: 'Revision' }

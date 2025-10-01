@@ -21,3 +21,9 @@ export const messageListFragment = gql(`
     currentUserExtendedVote
   }
 `)
+
+export const WithVoteMessage = gql(`
+  fragment WithVoteMessage on Message {
+    ...messageListFragment
+  }
+`)
