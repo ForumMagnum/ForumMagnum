@@ -3461,7 +3461,7 @@ interface Message {
   currentUserExtendedVote: any;
   allVotes: Array<Vote> | null;
   voteCount: number;
-  baseScore: number | null;
+  baseScore: number;
   extendedScore: any;
   score: number;
   afBaseScore: number | null;

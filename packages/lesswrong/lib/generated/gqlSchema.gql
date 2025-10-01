@@ -3814,7 +3814,7 @@ type Message {
   currentUserExtendedVote: JSON
   allVotes: [Vote!]
   voteCount: Float!
-  baseScore: Float
+  baseScore: Float!
   extendedScore: JSON
   score: Float!
   afBaseScore: Float
