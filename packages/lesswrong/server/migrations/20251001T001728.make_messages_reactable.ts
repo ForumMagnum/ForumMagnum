@@ -1,4 +1,3 @@
-import { DEFAULT_CURRENT_USER_VOTE_FIELD } from "@/lib/make_voteable";
 import Messages from "../collections/messages/collection";
 import { addField } from "./meta/utils";
 

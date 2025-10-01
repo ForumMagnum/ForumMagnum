@@ -2,10 +2,8 @@ import { DEFAULT_CREATED_AT_FIELD, DEFAULT_ID_FIELD, DEFAULT_LATEST_REVISION_ID_
 import { getDenormalizedEditableResolver } from "@/lib/editor/make_editable";
 import { RevisionStorageType } from "../revisions/revisionSchemaTypes";
 import { generateIdResolverSingle } from "../../utils/schemaUtils";
-import { userIsAdminOrMod, userOwns } from "@/lib/vulcan-users/permissions";
-import { DEFAULT_BASE_SCORE_FIELD, DEFAULT_EXTENDED_SCORE_FIELD, DEFAULT_SCORE_FIELD, DEFAULT_CURRENT_USER_VOTE_FIELD, DEFAULT_CURRENT_USER_EXTENDED_VOTE_FIELD, defaultVoteCountField, getAllVotes, getCurrentUserVotes, DEFAULT_INACTIVE_FIELD, DEFAULT_AF_BASE_SCORE_FIELD, DEFAULT_AF_EXTENDED_SCORE_FIELD, DEFAULT_AF_VOTE_COUNT_FIELD } from "@/lib/make_voteable";
-import { getVotingSystemNameForDocument } from "../comments/helpers";
-import { customBaseScoreReadAccess } from "../comments/voting";
+import { userOwns } from "@/lib/vulcan-users/permissions";
+import { DEFAULT_BASE_SCORE_FIELD, DEFAULT_EXTENDED_SCORE_FIELD, DEFAULT_SCORE_FIELD, DEFAULT_CURRENT_USER_VOTE_FIELD, DEFAULT_CURRENT_USER_EXTENDED_VOTE_FIELD, defaultVoteCountField, DEFAULT_AF_BASE_SCORE_FIELD, DEFAULT_AF_EXTENDED_SCORE_FIELD, DEFAULT_AF_VOTE_COUNT_FIELD } from "@/lib/make_voteable";
 
 const schema = {
   _id: DEFAULT_ID_FIELD,
@@ -102,25 +100,10 @@ const schema = {
   },
   currentUserVote: DEFAULT_CURRENT_USER_VOTE_FIELD,
   currentUserExtendedVote: DEFAULT_CURRENT_USER_EXTENDED_VOTE_FIELD,
-  allVotes: {
-    graphql: {
-      outputType: "[Vote!]",
-      canRead: ["guests"],
-      resolver: async (document, args, context) => {
-        const { currentUser } = context;
-        if (userIsAdminOrMod(currentUser)) {
-          return await getAllVotes(document, context);
-        } else {
-          return await getCurrentUserVotes(document, context);
-        }
-      },
-    },
-  },
   voteCount: defaultVoteCountField('Messages'),
   baseScore: DEFAULT_BASE_SCORE_FIELD,
   extendedScore: DEFAULT_EXTENDED_SCORE_FIELD,
   score: DEFAULT_SCORE_FIELD,
-  inactive: DEFAULT_INACTIVE_FIELD,
   afBaseScore: DEFAULT_AF_BASE_SCORE_FIELD,
   afExtendedScore: DEFAULT_AF_EXTENDED_SCORE_FIELD,
   afVoteCount: DEFAULT_AF_VOTE_COUNT_FIELD,

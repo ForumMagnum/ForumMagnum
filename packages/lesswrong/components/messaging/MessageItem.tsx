@@ -121,6 +121,16 @@ const MessageItem = ({message, classes}: {
   if (voteProps && votingSystem?.getMessageHighlights) {
     highlights = votingSystem.getMessageHighlights({message, voteProps});
   }
+
+  const VoteBottomComponent = messageBottomComponents[votingSystem.name]?.() ?? null;
+
+  const bodyElement = <ContentItemBody
+    ref={messageBodyRef}
+    dangerouslySetInnerHTML={{__html: html}}
+    className={classes.messageBody}
+    description={`message ${message._id}`}
+    replacedSubstrings={highlights}
+  />;
   
   return (
     <div className={classNames(classes.root, {[classes.rootWithImages]: isFriendlyUI(), [classes.rootCurrentUserWithImages]: isFriendlyUI() && isCurrentUser})}>
@@ -136,39 +146,24 @@ const MessageItem = ({message, classes}: {
               <span className={colorClassName}><FormatDate date={message.createdAt}/></span>
             </MetaInfo>}
           </div>
-          {(() => {
-            const bodyElement = <ContentItemBody
-              ref={messageBodyRef}
-              dangerouslySetInnerHTML={{__html: html}}
-              className={classes.messageBody}
-              description={`message ${message._id}`}
-              replacedSubstrings={highlights}
-            />;
-            if (votingSystem.hasInlineReacts) {
-              return <InlineReactSelectionWrapper contentRef={messageBodyRef} voteProps={voteProps} styling="comment">
-                {bodyElement}
-              </InlineReactSelectionWrapper>;
-            }
-            return bodyElement;
-          })()}
+
+          {votingSystem.hasInlineReacts ? <InlineReactSelectionWrapper contentRef={messageBodyRef} voteProps={voteProps} styling="comment">
+              {bodyElement}
+            </InlineReactSelectionWrapper>
+          : bodyElement}
           
-          {(() => {
-            const VoteBottomComponent = messageBottomComponents[votingSystem.name]?.() ?? null;
-            if (!VoteBottomComponent) return null;
-            return (
-              <div className={classes.bottom}>
-                <VoteBottomComponent
-                  document={message}
-                  hideKarma={false}
-                  collectionName="Messages"
-                  votingSystem={votingSystem}
-                  voteProps={voteProps}
-                  commentBodyRef={messageBodyRef}
-                  invertColors={!!isCurrentUser}
-                />
-              </div>
-            );
-          })()}
+          {VoteBottomComponent && <div className={classes.bottom}>
+              <VoteBottomComponent
+                document={message}
+                hideKarma={false}
+                collectionName="Messages"
+                votingSystem={votingSystem}
+                voteProps={voteProps}
+                commentBodyRef={messageBodyRef}
+                invertColors={!!isCurrentUser}
+              />
+            </div>
+          }
         </Typography>
       </HoveredReactionContextProvider>
     </div>
