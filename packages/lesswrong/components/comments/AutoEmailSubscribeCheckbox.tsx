@@ -1,7 +1,9 @@
-import React, { useCallback } from "react";
+import React, { useCallback, useState, useEffect } from "react";
 import { useCurrentUser } from "../common/withUser";
 import SectionFooterCheckbox from "../form-components/SectionFooterCheckbox";
 import { useUpdateCurrentUser } from "../hooks/useUpdateCurrentUser";
+import { useDialog } from "../common/withDialog";
+import LoginPopup from "../users/LoginPopup";
 
 const AutoEmailSubscribeCheckbox = ({
   label = "Email me replies to all comments",
@@ -13,10 +15,26 @@ const AutoEmailSubscribeCheckbox = ({
 
   const checked = !!currentUser?.notificationRepliesToMyComments?.email?.enabled;
 
-  const handleToggle = useCallback(async () => {
-    if (!currentUser) return;
+  const [localChecked, setLocalChecked] = useState(checked);
 
-    const newEnabled = !checked;
+  useEffect(() => {
+    setLocalChecked(checked);
+  }, [checked]);
+
+  const { openDialog } = useDialog();
+
+  const handleToggle = useCallback(async () => {
+    if (!currentUser) {
+      openDialog({
+        name: "LoginPopup",
+        contents: ({onClose}) => <LoginPopup onClose={onClose} />
+      });
+      return
+    };
+
+    const newEnabled = !localChecked;
+    setLocalChecked(newEnabled);
+
     const newSetting = {
       ...currentUser.notificationRepliesToMyComments,
       email: {
@@ -25,15 +43,15 @@ const AutoEmailSubscribeCheckbox = ({
       },
     };
 
-    await updateCurrentUser({ notificationRepliesToMyComments: newSetting });
-  }, [currentUser, checked, updateCurrentUser]);
+    try {
+      await updateCurrentUser({ notificationRepliesToMyComments: newSetting });
+    } catch (e) {
+      // Revert optimistic update on error
+      setLocalChecked(!newEnabled);
+    }
+  }, [currentUser, localChecked, updateCurrentUser, openDialog]);
 
-  // Render disabled checkbox for logged-out users (mirrors previous behaviour).
-  if (!currentUser) {
-    return <SectionFooterCheckbox label={label} value={false} onClick={() => {}} />;
-  }
-
-  return <SectionFooterCheckbox label={label} value={checked} onClick={handleToggle} />;
+  return <SectionFooterCheckbox label={label} value={localChecked} onClick={handleToggle} />;
 };
 
 export default AutoEmailSubscribeCheckbox;

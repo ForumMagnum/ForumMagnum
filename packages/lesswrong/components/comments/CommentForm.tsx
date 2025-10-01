@@ -39,7 +39,6 @@ import { useTracking } from "@/lib/analyticsEvents";
 import { CommentsList } from "@/lib/collections/comments/fragments";
 import { isIfAnyoneBuildsItFrontPage } from '../seasonal/styles';
 import AutoEmailSubscribeCheckbox from "./AutoEmailSubscribeCheckbox";
-import { alias } from "io-ts";
 
 const CommentsListUpdateMutation = gql(`
   mutation updateCommentCommentForm($selector: SelectorInput!, $data: UpdateCommentDataInput!) {
