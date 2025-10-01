@@ -38,7 +38,7 @@ import CommentsSubmitDropdown from "./CommentsSubmitDropdown";
 import { useTracking } from "@/lib/analyticsEvents";
 import { CommentsList } from "@/lib/collections/comments/fragments";
 import { isIfAnyoneBuildsItFrontPage } from '../seasonal/styles';
-import SectionFooterCheckbox from "../form-components/SectionFooterCheckbox";
+import AutoEmailSubscribeCheckbox from "./AutoEmailSubscribeCheckbox";
 import { alias } from "io-ts";
 
 const CommentsListUpdateMutation = gql(`
@@ -228,11 +228,7 @@ const CommentSubmit = ({
       })}
     >
       <div className={classes.autoEmailSubscribe}>
-        <SectionFooterCheckbox
-          label="Email me replies to all comments"
-          value={currentUser?.notificationRepliesToMyComments?.email?.enabled}
-          onClick={() => {}}
-        />
+        <AutoEmailSubscribeCheckbox />
       </div>
       {showCancelButton && !isMinimalist && (
         <Button
