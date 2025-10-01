@@ -4,7 +4,7 @@ import { clientContextVars, flushClientEvents, captureEvent } from '../../lib/an
 import { useCurrentUser } from './withUser';
 import withErrorBoundary from './withErrorBoundary';
 import { ABTestGroupsUsedContext } from '@/components/common/sharedContexts';
-import { CLIENT_ID_COOKIE, LAST_VISITED_FRONTPAGE_COOKIE } from '../../lib/cookies/cookies';
+import { CLIENT_ID_COOKIE } from '../../lib/cookies/cookies';
 import { useCookiesWithConsent } from '../hooks/useCookiesWithConsent';
 import { isLWorAF } from '../../lib/instanceSettings';
 import { getAllUserABTestGroups } from '@/lib/abTestImpl';
@@ -13,7 +13,7 @@ export const AnalyticsClient = () => {
   const currentUser = useCurrentUser();
   const [cookies] = useCookiesWithConsent([
     CLIENT_ID_COOKIE,
-    LAST_VISITED_FRONTPAGE_COOKIE,
+    // LAST_VISITED_FRONTPAGE_COOKIE,
   ]);
   const abTestGroupsUsed = useContext(ABTestGroupsUsedContext);
   
@@ -44,15 +44,13 @@ export const AnalyticsClient = () => {
       tabId,
       userAgent,
       abTestGroups,
-      cookies: {
-        isReturningVisitor: !!cookies[LAST_VISITED_FRONTPAGE_COOKIE],
-      },
     });
     sessionStorage.setItem(firedKey, "1");
     flushClientEvents(true);
   // Depend on clientId and currentUserId to ensure clientContextVars are set before firing
   // sessionStorage check ensures this still only fires once per tab
-  }, [clientId, currentUserId, currentUser, cookies]);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [clientId, currentUserId]);
   
   return <></>;
 }
