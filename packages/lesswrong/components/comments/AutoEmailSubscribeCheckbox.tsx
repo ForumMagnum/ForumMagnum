@@ -5,23 +5,19 @@ import { useUpdateCurrentUser } from "../hooks/useUpdateCurrentUser";
 import { useDialog } from "../common/withDialog";
 import LoginPopup from "../users/LoginPopup";
 
-const AutoEmailSubscribeCheckbox = ({
-  label = "Email me replies to all comments",
-}: {
-  label?: string;
-}) => {
+const AutoEmailSubscribeCheckbox = () => {
   const currentUser = useCurrentUser();
   const updateCurrentUser = useUpdateCurrentUser();
+  const { openDialog } = useDialog();
 
-  const checked = !!currentUser?.notificationRepliesToMyComments?.email?.enabled;
-
+  const setting = currentUser?.notificationRepliesToMyComments;
+  const checked = !!setting?.email?.enabled;
   const [localChecked, setLocalChecked] = useState(checked);
 
+  // Sync local state when the authoritative server value changes (e.g. after refetch)
   useEffect(() => {
     setLocalChecked(checked);
   }, [checked]);
-
-  const { openDialog } = useDialog();
 
   const handleToggle = useCallback(async () => {
     if (!currentUser) {
@@ -35,13 +31,7 @@ const AutoEmailSubscribeCheckbox = ({
     const newEnabled = !localChecked;
     setLocalChecked(newEnabled);
 
-    const newSetting = {
-      ...currentUser.notificationRepliesToMyComments,
-      email: {
-        ...currentUser.notificationRepliesToMyComments?.email,
-        enabled: newEnabled,
-      },
-    };
+    const newSetting = { ...setting, email: { ...setting?.email, enabled: newEnabled } };
 
     try {
       await updateCurrentUser({ notificationRepliesToMyComments: newSetting });
@@ -49,9 +39,9 @@ const AutoEmailSubscribeCheckbox = ({
       // Revert optimistic update on error
       setLocalChecked(!newEnabled);
     }
-  }, [currentUser, localChecked, updateCurrentUser, openDialog]);
+  }, [currentUser, localChecked, setting, updateCurrentUser, openDialog]);
 
-  return <SectionFooterCheckbox label={label} value={localChecked} onClick={handleToggle} />;
+  return <SectionFooterCheckbox label={"Email me replies to all comments"} value={localChecked} onClick={handleToggle} />;
 };
 
 export default AutoEmailSubscribeCheckbox;
