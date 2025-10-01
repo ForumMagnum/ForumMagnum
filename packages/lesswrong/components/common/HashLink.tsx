@@ -97,7 +97,7 @@ export function HashLink(props: HashLinkProps) {
       hashLinkScroll();
     }
   }
-  const { anchorRef, scroll, smooth, children, doOnDown, to, ...filteredProps } = props;
+  const { anchorRef, smooth, children, doOnDown, to, ...filteredProps } = props;
   if (doOnDown && !isIOS && !filteredProps.target) {
     return <Link
       {...filteredProps}
