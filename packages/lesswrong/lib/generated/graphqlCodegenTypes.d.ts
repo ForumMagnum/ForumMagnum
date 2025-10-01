@@ -3080,7 +3080,7 @@ type Message = {
   afExtendedScore?: Maybe<Scalars['JSON']['output']>;
   afVoteCount?: Maybe<Scalars['Float']['output']>;
   allVotes?: Maybe<Array<Vote>>;
-  baseScore?: Maybe<Scalars['Float']['output']>;
+  baseScore: Scalars['Float']['output'];
   contents?: Maybe<Revision>;
   contents_latest?: Maybe<Scalars['String']['output']>;
   conversation?: Maybe<Conversation>;
@@ -24732,7 +24732,7 @@ type messageListFragment_Message_user_User = (
 
 type messageListFragment_Message_contents_Revision = { __typename?: 'Revision', html: string | null, plaintextMainText: string };
 
-type messageListFragment = { __typename?: 'Message', _id: string, createdAt: string | null, conversationId: string | null, voteCount: number, baseScore: number | null, score: number, extendedScore: any | null, currentUserVote: string | null, currentUserExtendedVote: any | null, user: messageListFragment_Message_user_User | null, contents: messageListFragment_Message_contents_Revision | null };
+type messageListFragment = { __typename?: 'Message', _id: string, createdAt: string | null, conversationId: string | null, voteCount: number, baseScore: number, score: number, extendedScore: any | null, currentUserVote: string | null, currentUserExtendedVote: any | null, user: messageListFragment_Message_user_User | null, contents: messageListFragment_Message_contents_Revision | null };
 
 type WithVoteMessage = (
   { __typename?: 'Message' }
@@ -26377,7 +26377,7 @@ type LocalgroupsDefaultFragment = { __typename?: 'Localgroup', _id: string, sche
 
 type ManifoldProbabilitiesCachesDefaultFragment = { __typename?: 'ManifoldProbabilitiesCache', _id: string, schemaVersion: number, createdAt: string, legacyData: any | null, marketId: string, probability: number, isResolved: boolean, year: number, lastUpdated: string, url: string | null };
 
-type MessagesDefaultFragment = { __typename?: 'Message', _id: string, schemaVersion: number, createdAt: string | null, legacyData: any | null, contents_latest: string | null, userId: string | null, conversationId: string | null, noEmail: boolean | null, voteCount: number, baseScore: number | null, extendedScore: any | null, score: number, afBaseScore: number | null, afExtendedScore: any | null, afVoteCount: number | null };
+type MessagesDefaultFragment = { __typename?: 'Message', _id: string, schemaVersion: number, createdAt: string | null, legacyData: any | null, contents_latest: string | null, userId: string | null, conversationId: string | null, noEmail: boolean | null, voteCount: number, baseScore: number, extendedScore: any | null, score: number, afBaseScore: number | null, afExtendedScore: any | null, afVoteCount: number | null };
 
 type MigrationsDefaultFragment = { __typename?: 'Migration', _id: string, schemaVersion: number, createdAt: string, legacyData: any | null };
 
