@@ -117,33 +117,12 @@ const schema = {
     },
   },
   voteCount: defaultVoteCountField('Messages'),
-  baseScore: {
-    ...DEFAULT_BASE_SCORE_FIELD,
-    graphql: {
-      ...DEFAULT_BASE_SCORE_FIELD.graphql,
-      outputType: "Float",
-    },
-  },
-  extendedScore: {
-    ...DEFAULT_EXTENDED_SCORE_FIELD,
-    graphql: {
-      ...DEFAULT_EXTENDED_SCORE_FIELD.graphql
-    },
-  },
+  baseScore: DEFAULT_BASE_SCORE_FIELD,
+  extendedScore: DEFAULT_EXTENDED_SCORE_FIELD,
   score: DEFAULT_SCORE_FIELD,
   inactive: DEFAULT_INACTIVE_FIELD,
-  afBaseScore: {
-    ...DEFAULT_AF_BASE_SCORE_FIELD,
-    graphql: {
-      ...DEFAULT_AF_BASE_SCORE_FIELD.graphql
-    },
-  },
-  afExtendedScore: {
-    ...DEFAULT_AF_EXTENDED_SCORE_FIELD,
-    graphql: {
-      ...DEFAULT_AF_EXTENDED_SCORE_FIELD.graphql
-    },
-  },
+  afBaseScore: DEFAULT_AF_BASE_SCORE_FIELD,
+  afExtendedScore: DEFAULT_AF_EXTENDED_SCORE_FIELD,
   afVoteCount: DEFAULT_AF_VOTE_COUNT_FIELD,
 } satisfies Record<string, CollectionFieldSpecification<"Messages">>;
 
