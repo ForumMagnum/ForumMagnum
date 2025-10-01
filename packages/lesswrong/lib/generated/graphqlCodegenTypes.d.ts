@@ -13352,21 +13352,6 @@ type CommentEmbeddingsSimilaritySearchQueryQueryVariables = Exact<{
 
 type CommentEmbeddingsSimilaritySearchQueryQuery = CommentEmbeddingsSimilaritySearchQueryQuery_Query;
 
-type ToggleNotificationRepliesMutation_updateUser_UserOutput_data_User = { __typename?: 'User', _id: string, notificationRepliesToMyComments: any | null };
-
-type ToggleNotificationRepliesMutation_updateUser_UserOutput = { __typename?: 'UserOutput', data: ToggleNotificationRepliesMutation_updateUser_UserOutput_data_User | null };
-
-type ToggleNotificationRepliesMutation_Mutation = { __typename?: 'Mutation', updateUser: ToggleNotificationRepliesMutation_updateUser_UserOutput | null };
-
-
-type ToggleNotificationRepliesMutationVariables = Exact<{
-  selector: SelectorInput;
-  data: UpdateUserDataInput;
-}>;
-
-
-type ToggleNotificationRepliesMutation = ToggleNotificationRepliesMutation_Mutation;
-
 type CommentByIdQuery_comment_SingleCommentOutput_result_Comment = (
   { __typename?: 'Comment' }
   & CommentsList
