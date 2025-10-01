@@ -26,7 +26,7 @@ type PassedThroughContentItemBodyProps = Pick<ContentItemBodyProps, "description
   bodyRef: React.RefObject<HTMLDivElement|null>,
 }
 
-type SubstitutionsAttr = Array<{substitutionIndex: number, isSplitContinuation: boolean, invertColors: boolean}>;
+type SubstitutionsAttr = Array<{substitutionIndex: number, isSplitContinuation: boolean, invertColors?: boolean}>;
 
 /**
  * Renders user-generated HTML, with progressive enhancements. Replaces
@@ -69,7 +69,7 @@ export const ContentItemBody = (props: ContentItemBodyProps) => {
       applyReplaceSubstrings(parsed, replacedSubstrings, invertSubstitutionColors)
     }
     return parsed;
-  }, [html, replacedSubstrings]);
+  }, [html, replacedSubstrings, invertSubstitutionColors]);
 
   useImperativeHandle(ref, () => ({
     containsNode: (node: Node): boolean => {
