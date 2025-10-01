@@ -1773,7 +1773,6 @@ CREATE TABLE "Posts" (
   "debate" BOOL NOT NULL DEFAULT FALSE,
   "collabEditorDialogue" BOOL NOT NULL DEFAULT FALSE,
   "mostRecentPublishedDialogueResponseDate" TIMESTAMPTZ,
-  "moderatorPost" TIMESTAMPTZ,
   "rejected" BOOL NOT NULL DEFAULT FALSE,
   "rejectedReason" TEXT,
   "rejectedByUserId" VARCHAR(27),

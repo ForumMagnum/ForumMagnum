@@ -59,7 +59,7 @@ export default async function Page({
 
   const getCachedModeratorPosts = unstable_cache(
     async () => fetchModeratorPosts(db),
-    [`moderation-posts-${commitSha}`],
+    [`all-moderation-posts-${commitSha}`],
     { revalidate: 1800, tags: ['moderation-posts'] }
   );
 
@@ -286,16 +286,28 @@ async function fetchModeratorCommentIds(db: SqlClient, limit: number, offset: nu
 }
 
 async function fetchModeratorPosts(db: SqlClient) {
+  // Hardcoded list of moderator post IDs
+  const moderatorPostIds = [
+    'tscc3e5eujrsEeFN4', // Well-Kept Gardens Die By Pacifism
+    'LbbrnRvc9QwjJeics', // New User's Guide to LessWrong
+    '5Ym7DN6h877eyaCnT', // Meta-tations on Moderation Towards Public Archipelago
+    'hHyYph9CcYfdnoC5j', // Automatic Rate Limiting on LessWrong
+    '98sCTsGJZ77WgQ6nE', // Banning Said Achmiz and Broader Thoughts on Moderation
+  ];
+
+  if (moderatorPostIds.length === 0) {
+    return [];
+  }
+
   const moderatorPostsData = await db.manyOrNone<ModeratorPostRow>(`
     SELECT
       p._id, p.title, p.slug, p."userId", p."postedAt",
       u._id as "user__id", u."displayName" as "user_displayName", u.slug as "user_slug"
     FROM "Posts" p
     LEFT JOIN "Users" u ON p."userId" = u._id
-    WHERE p."moderatorPost" IS NOT NULL
-    ORDER BY p."moderatorPost" ASC NULLS LAST
-    LIMIT 10
-  `);
+    WHERE p._id = ANY($1)
+    ORDER BY array_position($1, p._id)
+  `, [moderatorPostIds]);
 
   return moderatorPostsData.map(row => ({
     _id: row._id,

@@ -4584,7 +4584,6 @@ type Post {
   unreadDebateResponseCount: Int!
   emojiReactors: JSON
   commentEmojiReactors: JSON
-  moderatorPost: Date
   rejected: Boolean!
   rejectedReason: String
   rejectedByUserId: String
@@ -9324,7 +9323,6 @@ input CreatePostDataInput {
   ignoreRateLimits: Boolean
   hideCommentKarma: Boolean
   collabEditorDialogue: Boolean
-  moderatorPost: Date
   rejected: Boolean
   rejectedReason: String
   rejectedByUserId: String
@@ -9442,7 +9440,6 @@ input UpdatePostDataInput {
   ignoreRateLimits: Boolean
   hideCommentKarma: Boolean
   collabEditorDialogue: Boolean
-  moderatorPost: Date
   rejected: Boolean
   rejectedReason: String
   rejectedByUserId: String

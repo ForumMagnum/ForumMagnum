@@ -1056,7 +1056,6 @@ interface DbPost extends DbObject {
   metaSticky: boolean
   moderationGuidelines_latest: string | null
   moderationStyle: string | null
-  moderatorPost: Date | null
   modifiedAt: Date | null
   mongoLocation: any | null
   mostRecentPublishedDialogueResponseDate: Date | null
