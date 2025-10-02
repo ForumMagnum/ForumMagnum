@@ -33,9 +33,6 @@ export const routeTrie = {
         "debugHeaders": {
           "hasRoute": true
         },
-        "googleServiceAccount": {
-          "hasPage": true
-        },
         "llmConversations": {
           "hasPage": true
         },
@@ -71,7 +68,6 @@ export const routeTrie = {
         "commentembeddings": "commentEmbeddings",
         "curation": "curation",
         "debugheaders": "debugHeaders",
-        "googleserviceaccount": "googleServiceAccount",
         "llmconversations": "llmConversations",
         "migrations": "migrations",
         "moderation": "moderation",
@@ -486,9 +482,6 @@ export const routeTrie = {
     },
     "glossaryEditor": {
       "hasPage": true
-    },
-    "google_oauth2callback": {
-      "hasRoute": true
     },
     "graphiql": {
       "hasRoute": true
@@ -1082,7 +1075,6 @@ export const routeTrie = {
     "feed.xml": "feed.xml",
     "g": "g",
     "glossaryeditor": "glossaryEditor",
-    "google_oauth2callback": "google_oauth2callback",
     "graphiql": "graphiql",
     "graphql": "graphql",
     "groups": "groups",

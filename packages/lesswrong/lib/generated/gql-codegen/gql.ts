@@ -17,8 +17,6 @@ type Documents = {
     "\n  query LocalgroupMetadata($groupId: String) {\n    localgroup(selector: { _id: $groupId }) {\n      result {\n        _id\n        name\n        bannerImageId\n        contents {\n          plaintextDescription\n        }\n      }\n    }\n  }\n": typeof types.LocalgroupMetadataDocument,
     "\n  query SequenceMetadata($sequenceId: String) {\n    sequence(selector: { _id: $sequenceId }) {\n      result {\n        _id\n        title\n      }\n    }\n  }\n": typeof types.SequenceMetadataDocument,
     "\n  mutation updateUserLayout($selector: SelectorInput!, $data: UpdateUserDataInput!) {\n    updateUser(selector: $selector, data: $data) {\n      data {\n        ...UsersCurrent\n      }\n    }\n  }\n": typeof types.updateUserLayoutDocument,
-    "\n  query multiGoogleServiceAccountSessionAdminGoogleServiceAccountQuery($selector: GoogleServiceAccountSessionSelector, $limit: Int, $enableTotal: Boolean) {\n    googleServiceAccountSessions(selector: $selector, limit: $limit, enableTotal: $enableTotal) {\n      results {\n        ...GoogleServiceAccountSessionAdminInfo\n      }\n      totalCount\n    }\n  }\n": typeof types.multiGoogleServiceAccountSessionAdminGoogleServiceAccountQueryDocument,
-    "\n    mutation revokeGoogleServiceAccountTokens {\n      revokeGoogleServiceAccountTokens\n    }\n  ": typeof types.revokeGoogleServiceAccountTokensDocument,
     "\n    query AdminMetadataQuery {\n      AdminMetadata\n    }\n  ": typeof types.AdminMetadataQueryDocument,
     "\n    query SearchSynonyms {\n      SearchSynonyms\n    }\n  ": typeof types.SearchSynonymsDocument,
     "mutation UpdateSearchSynonyms($synonyms: [String!]!) {\n      UpdateSearchSynonyms(synonyms: $synonyms)\n    }": typeof types.UpdateSearchSynonymsDocument,
@@ -291,9 +289,7 @@ type Documents = {
     "\n  mutation createCommentExternalPostImporter($data: CreateCommentDataInput!) {\n    createComment(data: $data) {\n      data {\n        ...CommentsList\n      }\n    }\n  }\n": typeof types.createCommentExternalPostImporterDocument,
     "\n    mutation importUrlAsDraftPost($url: String!) {\n      importUrlAsDraftPost(url: $url) {\n        alreadyExists\n        post {\n          _id\n          slug\n          title\n          content\n          url\n          postedAt\n          createdAt\n          modifiedAt\n          userId\n          draft\n          coauthorUserIds\n        }\n      }\n    }\n  ": typeof types.importUrlAsDraftPostDocument,
     "\n  query FeedPostsHighlight($documentId: String) {\n    post(input: { selector: { documentId: $documentId } }) {\n      result {\n        ...PostsExpandedHighlight\n      }\n    }\n  }\n": typeof types.FeedPostsHighlightDocument,
-    "\n  query multiGoogleServiceAccountSessionGoogleDocImportButtonQuery($selector: GoogleServiceAccountSessionSelector, $limit: Int, $enableTotal: Boolean) {\n    googleServiceAccountSessions(selector: $selector, limit: $limit, enableTotal: $enableTotal) {\n      results {\n        ...GoogleServiceAccountSessionInfo\n      }\n      totalCount\n    }\n  }\n": typeof types.multiGoogleServiceAccountSessionGoogleDocImportButtonQueryDocument,
     "\n      query latestGoogleDocMetadata($postId: String!, $version: String) {\n        latestGoogleDocMetadata(postId: $postId, version: $version)\n      }\n    ": typeof types.latestGoogleDocMetadataDocument,
-    "\n      query CanAccessGoogleDoc($fileUrl: String!) {\n        CanAccessGoogleDoc(fileUrl: $fileUrl)\n      }\n    ": typeof types.CanAccessGoogleDocDocument,
     "\n      mutation ImportGoogleDoc($fileUrl: String!, $postId: String) {\n        ImportGoogleDoc(fileUrl: $fileUrl, postId: $postId) {\n          ...PostsBase\n        }\n      }\n    ": typeof types.ImportGoogleDocDocument,
     "\n  query multiPostLWPostsByVoteQuery($selector: PostSelector, $limit: Int, $enableTotal: Boolean) {\n    posts(selector: $selector, limit: $limit, enableTotal: $enableTotal) {\n      results {\n        ...PostsListWithVotes\n      }\n      totalCount\n    }\n  }\n": typeof types.multiPostLWPostsByVoteQueryDocument,
     "\n  mutation createPostNewDialogueDialog($data: CreatePostDataInput!) {\n    createPost(data: $data) {\n      data {\n        ...PostsEdit\n      }\n    }\n  }\n": typeof types.createPostNewDialogueDialogDocument,
@@ -909,8 +905,6 @@ const documents: Documents = {
     "\n  query LocalgroupMetadata($groupId: String) {\n    localgroup(selector: { _id: $groupId }) {\n      result {\n        _id\n        name\n        bannerImageId\n        contents {\n          plaintextDescription\n        }\n      }\n    }\n  }\n": types.LocalgroupMetadataDocument,
     "\n  query SequenceMetadata($sequenceId: String) {\n    sequence(selector: { _id: $sequenceId }) {\n      result {\n        _id\n        title\n      }\n    }\n  }\n": types.SequenceMetadataDocument,
     "\n  mutation updateUserLayout($selector: SelectorInput!, $data: UpdateUserDataInput!) {\n    updateUser(selector: $selector, data: $data) {\n      data {\n        ...UsersCurrent\n      }\n    }\n  }\n": types.updateUserLayoutDocument,
-    "\n  query multiGoogleServiceAccountSessionAdminGoogleServiceAccountQuery($selector: GoogleServiceAccountSessionSelector, $limit: Int, $enableTotal: Boolean) {\n    googleServiceAccountSessions(selector: $selector, limit: $limit, enableTotal: $enableTotal) {\n      results {\n        ...GoogleServiceAccountSessionAdminInfo\n      }\n      totalCount\n    }\n  }\n": types.multiGoogleServiceAccountSessionAdminGoogleServiceAccountQueryDocument,
-    "\n    mutation revokeGoogleServiceAccountTokens {\n      revokeGoogleServiceAccountTokens\n    }\n  ": types.revokeGoogleServiceAccountTokensDocument,
     "\n    query AdminMetadataQuery {\n      AdminMetadata\n    }\n  ": types.AdminMetadataQueryDocument,
     "\n    query SearchSynonyms {\n      SearchSynonyms\n    }\n  ": types.SearchSynonymsDocument,
     "mutation UpdateSearchSynonyms($synonyms: [String!]!) {\n      UpdateSearchSynonyms(synonyms: $synonyms)\n    }": types.UpdateSearchSynonymsDocument,
@@ -1183,9 +1177,7 @@ const documents: Documents = {
     "\n  mutation createCommentExternalPostImporter($data: CreateCommentDataInput!) {\n    createComment(data: $data) {\n      data {\n        ...CommentsList\n      }\n    }\n  }\n": types.createCommentExternalPostImporterDocument,
     "\n    mutation importUrlAsDraftPost($url: String!) {\n      importUrlAsDraftPost(url: $url) {\n        alreadyExists\n        post {\n          _id\n          slug\n          title\n          content\n          url\n          postedAt\n          createdAt\n          modifiedAt\n          userId\n          draft\n          coauthorUserIds\n        }\n      }\n    }\n  ": types.importUrlAsDraftPostDocument,
     "\n  query FeedPostsHighlight($documentId: String) {\n    post(input: { selector: { documentId: $documentId } }) {\n      result {\n        ...PostsExpandedHighlight\n      }\n    }\n  }\n": types.FeedPostsHighlightDocument,
-    "\n  query multiGoogleServiceAccountSessionGoogleDocImportButtonQuery($selector: GoogleServiceAccountSessionSelector, $limit: Int, $enableTotal: Boolean) {\n    googleServiceAccountSessions(selector: $selector, limit: $limit, enableTotal: $enableTotal) {\n      results {\n        ...GoogleServiceAccountSessionInfo\n      }\n      totalCount\n    }\n  }\n": types.multiGoogleServiceAccountSessionGoogleDocImportButtonQueryDocument,
     "\n      query latestGoogleDocMetadata($postId: String!, $version: String) {\n        latestGoogleDocMetadata(postId: $postId, version: $version)\n      }\n    ": types.latestGoogleDocMetadataDocument,
-    "\n      query CanAccessGoogleDoc($fileUrl: String!) {\n        CanAccessGoogleDoc(fileUrl: $fileUrl)\n      }\n    ": types.CanAccessGoogleDocDocument,
     "\n      mutation ImportGoogleDoc($fileUrl: String!, $postId: String) {\n        ImportGoogleDoc(fileUrl: $fileUrl, postId: $postId) {\n          ...PostsBase\n        }\n      }\n    ": types.ImportGoogleDocDocument,
     "\n  query multiPostLWPostsByVoteQuery($selector: PostSelector, $limit: Int, $enableTotal: Boolean) {\n    posts(selector: $selector, limit: $limit, enableTotal: $enableTotal) {\n      results {\n        ...PostsListWithVotes\n      }\n      totalCount\n    }\n  }\n": types.multiPostLWPostsByVoteQueryDocument,
     "\n  mutation createPostNewDialogueDialog($data: CreatePostDataInput!) {\n    createPost(data: $data) {\n      data {\n        ...PostsEdit\n      }\n    }\n  }\n": types.createPostNewDialogueDialogDocument,
@@ -1824,14 +1816,6 @@ export function gql(source: "\n  query SequenceMetadata($sequenceId: String) {\n
  * The gql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
  */
 export function gql(source: "\n  mutation updateUserLayout($selector: SelectorInput!, $data: UpdateUserDataInput!) {\n    updateUser(selector: $selector, data: $data) {\n      data {\n        ...UsersCurrent\n      }\n    }\n  }\n"): (typeof documents)["\n  mutation updateUserLayout($selector: SelectorInput!, $data: UpdateUserDataInput!) {\n    updateUser(selector: $selector, data: $data) {\n      data {\n        ...UsersCurrent\n      }\n    }\n  }\n"];
-/**
- * The gql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
- */
-export function gql(source: "\n  query multiGoogleServiceAccountSessionAdminGoogleServiceAccountQuery($selector: GoogleServiceAccountSessionSelector, $limit: Int, $enableTotal: Boolean) {\n    googleServiceAccountSessions(selector: $selector, limit: $limit, enableTotal: $enableTotal) {\n      results {\n        ...GoogleServiceAccountSessionAdminInfo\n      }\n      totalCount\n    }\n  }\n"): (typeof documents)["\n  query multiGoogleServiceAccountSessionAdminGoogleServiceAccountQuery($selector: GoogleServiceAccountSessionSelector, $limit: Int, $enableTotal: Boolean) {\n    googleServiceAccountSessions(selector: $selector, limit: $limit, enableTotal: $enableTotal) {\n      results {\n        ...GoogleServiceAccountSessionAdminInfo\n      }\n      totalCount\n    }\n  }\n"];
-/**
- * The gql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
- */
-export function gql(source: "\n    mutation revokeGoogleServiceAccountTokens {\n      revokeGoogleServiceAccountTokens\n    }\n  "): (typeof documents)["\n    mutation revokeGoogleServiceAccountTokens {\n      revokeGoogleServiceAccountTokens\n    }\n  "];
 /**
  * The gql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
  */
@@ -2923,15 +2907,7 @@ export function gql(source: "\n  query FeedPostsHighlight($documentId: String) {
 /**
  * The gql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
  */
-export function gql(source: "\n  query multiGoogleServiceAccountSessionGoogleDocImportButtonQuery($selector: GoogleServiceAccountSessionSelector, $limit: Int, $enableTotal: Boolean) {\n    googleServiceAccountSessions(selector: $selector, limit: $limit, enableTotal: $enableTotal) {\n      results {\n        ...GoogleServiceAccountSessionInfo\n      }\n      totalCount\n    }\n  }\n"): (typeof documents)["\n  query multiGoogleServiceAccountSessionGoogleDocImportButtonQuery($selector: GoogleServiceAccountSessionSelector, $limit: Int, $enableTotal: Boolean) {\n    googleServiceAccountSessions(selector: $selector, limit: $limit, enableTotal: $enableTotal) {\n      results {\n        ...GoogleServiceAccountSessionInfo\n      }\n      totalCount\n    }\n  }\n"];
-/**
- * The gql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
- */
 export function gql(source: "\n      query latestGoogleDocMetadata($postId: String!, $version: String) {\n        latestGoogleDocMetadata(postId: $postId, version: $version)\n      }\n    "): (typeof documents)["\n      query latestGoogleDocMetadata($postId: String!, $version: String) {\n        latestGoogleDocMetadata(postId: $postId, version: $version)\n      }\n    "];
-/**
- * The gql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
- */
-export function gql(source: "\n      query CanAccessGoogleDoc($fileUrl: String!) {\n        CanAccessGoogleDoc(fileUrl: $fileUrl)\n      }\n    "): (typeof documents)["\n      query CanAccessGoogleDoc($fileUrl: String!) {\n        CanAccessGoogleDoc(fileUrl: $fileUrl)\n      }\n    "];
 /**
  * The gql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
  */
