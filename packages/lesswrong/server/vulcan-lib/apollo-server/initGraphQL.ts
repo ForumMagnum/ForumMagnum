@@ -25,7 +25,6 @@ import { petrovDay2024GraphQLQueries, petrovDay2024GraphQLTypeDefs } from '@/ser
 import { petrovDayLaunchGraphQLMutations, petrovDayLaunchGraphQLQueries, petrovDayLaunchGraphQLTypeDefs } from '@/server/resolvers/petrovDayResolvers';
 import { reviewVoteGraphQLMutations, reviewVoteGraphQLTypeDefs, reviewVoteGraphQLQueries } from '@/server/resolvers/reviewVoteResolvers';
 import { postGqlQueries, postGqlMutations, postGqlTypeDefs } from '@/server/resolvers/postResolvers'
-import { adminGqlTypeDefs, adminGqlMutations } from '@/server/resolvers/adminResolvers'
 import { alignmentForumMutations, alignmentForumTypeDefs } from '@/server/resolvers/alignmentForumMutations'
 import { allTagsActivityFeedGraphQLQueries, allTagsActivityFeedGraphQLTypeDefs } from '@/server/resolvers/allTagsActivityFeed';
 import { recentDiscussionFeedGraphQLQueries, recentDiscussionFeedGraphQLTypeDefs } from '@/server/resolvers/recentDiscussionFeed';
@@ -273,7 +272,6 @@ export const getTypeDefs = () => gql`
   ${petrovDayLaunchGraphQLTypeDefs}
   ${reviewVoteGraphQLTypeDefs}
   ${postGqlTypeDefs}
-  ${adminGqlTypeDefs}
   ${alignmentForumTypeDefs}
   ${allTagsActivityFeedGraphQLTypeDefs}
   ${recentDiscussionFeedGraphQLTypeDefs}
@@ -583,7 +581,6 @@ const getResolvers = () => ({
     ...petrovDayLaunchGraphQLMutations,
     ...reviewVoteGraphQLMutations,
     ...postGqlMutations,
-    ...adminGqlMutations,
     ...alignmentForumMutations,
     ...conversationGqlMutations,
     ...databaseSettingsGqlMutations,

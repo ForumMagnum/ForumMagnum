@@ -32,7 +32,6 @@ interface Query {
   PostIsCriticism: boolean | null;
   DigestPlannerData: Array<DigestPlannerPost>;
   DigestPosts: Array<Post> | null;
-  CanAccessGoogleDoc: boolean | null;
   HomepageCommunityEvents: HomepageCommunityEventMarkersResult;
   DigestHighlights: DigestHighlightsResult | null;
   DigestPostsThisWeek: DigestPostsThisWeekResult | null;
@@ -241,7 +240,6 @@ interface Mutation {
   AddGivingSeasonHeart: Array<GivingSeasonHeart>;
   RemoveGivingSeasonHeart: Array<GivingSeasonHeart>;
   ImportGoogleDoc: Post | null;
-  revokeGoogleServiceAccountTokens: boolean;
   alignmentComment: Comment | null;
   alignmentPost: Post | null;
   markConversationRead: boolean;

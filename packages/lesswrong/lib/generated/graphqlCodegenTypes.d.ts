@@ -4324,7 +4324,6 @@ type Mutation = {
   resyncRssFeed: Scalars['Boolean']['output'];
   revertPostToRevision?: Maybe<Post>;
   revertTagToRevision?: Maybe<Tag>;
-  revokeGoogleServiceAccountTokens: Scalars['Boolean']['output'];
   sendEventTriggeredDM: Scalars['Boolean']['output'];
   sendNewDialogueMessageNotification: Scalars['Boolean']['output'];
   setIsHidden: User;
@@ -7467,7 +7466,6 @@ type Query = {
   AllTagsActivityFeed: AllTagsActivityFeedQueryResults;
   AnalyticsSeries?: Maybe<Array<Maybe<AnalyticsSeriesValue>>>;
   ArbitalPageData?: Maybe<ArbitalPageData>;
-  CanAccessGoogleDoc?: Maybe<Scalars['Boolean']['output']>;
   CommentEmbeddingSearch: Array<Comment>;
   CommentEmbeddingSimilaritySearch: Array<Comment>;
   CommentsWithReacts?: Maybe<CommentsWithReactsResult>;
@@ -7693,11 +7691,6 @@ type QueryAnalyticsSeriesArgs = {
 
 type QueryArbitalPageDataArgs = {
   pageAlias?: InputMaybe<Scalars['String']['input']>;
-};
-
-
-type QueryCanAccessGoogleDocArgs = {
-  fileUrl: Scalars['String']['input'];
 };
 
 
@@ -12931,33 +12924,6 @@ type updateUserLayoutMutationVariables = Exact<{
 
 type updateUserLayoutMutation = updateUserLayoutMutation_Mutation;
 
-type multiGoogleServiceAccountSessionAdminGoogleServiceAccountQueryQuery_googleServiceAccountSessions_MultiGoogleServiceAccountSessionOutput_results_GoogleServiceAccountSession = (
-  { __typename?: 'GoogleServiceAccountSession' }
-  & GoogleServiceAccountSessionAdminInfo
-);
-
-type multiGoogleServiceAccountSessionAdminGoogleServiceAccountQueryQuery_googleServiceAccountSessions_MultiGoogleServiceAccountSessionOutput = { __typename?: 'MultiGoogleServiceAccountSessionOutput', totalCount: number | null, results: Array<multiGoogleServiceAccountSessionAdminGoogleServiceAccountQueryQuery_googleServiceAccountSessions_MultiGoogleServiceAccountSessionOutput_results_GoogleServiceAccountSession> };
-
-type multiGoogleServiceAccountSessionAdminGoogleServiceAccountQueryQuery_Query = { __typename?: 'Query', googleServiceAccountSessions: multiGoogleServiceAccountSessionAdminGoogleServiceAccountQueryQuery_googleServiceAccountSessions_MultiGoogleServiceAccountSessionOutput | null };
-
-
-type multiGoogleServiceAccountSessionAdminGoogleServiceAccountQueryQueryVariables = Exact<{
-  selector: InputMaybe<GoogleServiceAccountSessionSelector>;
-  limit: InputMaybe<Scalars['Int']['input']>;
-  enableTotal: InputMaybe<Scalars['Boolean']['input']>;
-}>;
-
-
-type multiGoogleServiceAccountSessionAdminGoogleServiceAccountQueryQuery = multiGoogleServiceAccountSessionAdminGoogleServiceAccountQueryQuery_Query;
-
-type revokeGoogleServiceAccountTokensMutation_Mutation = { __typename?: 'Mutation', revokeGoogleServiceAccountTokens: boolean };
-
-
-type revokeGoogleServiceAccountTokensMutationVariables = Exact<{ [key: string]: never; }>;
-
-
-type revokeGoogleServiceAccountTokensMutation = revokeGoogleServiceAccountTokensMutation_Mutation;
-
 type AdminMetadataQueryQuery_Query = { __typename?: 'Query', AdminMetadata: string | null };
 
 
@@ -17836,25 +17802,6 @@ type FeedPostsHighlightQueryVariables = Exact<{
 
 type FeedPostsHighlightQuery = FeedPostsHighlightQuery_Query;
 
-type multiGoogleServiceAccountSessionGoogleDocImportButtonQueryQuery_googleServiceAccountSessions_MultiGoogleServiceAccountSessionOutput_results_GoogleServiceAccountSession = (
-  { __typename?: 'GoogleServiceAccountSession' }
-  & GoogleServiceAccountSessionInfo
-);
-
-type multiGoogleServiceAccountSessionGoogleDocImportButtonQueryQuery_googleServiceAccountSessions_MultiGoogleServiceAccountSessionOutput = { __typename?: 'MultiGoogleServiceAccountSessionOutput', totalCount: number | null, results: Array<multiGoogleServiceAccountSessionGoogleDocImportButtonQueryQuery_googleServiceAccountSessions_MultiGoogleServiceAccountSessionOutput_results_GoogleServiceAccountSession> };
-
-type multiGoogleServiceAccountSessionGoogleDocImportButtonQueryQuery_Query = { __typename?: 'Query', googleServiceAccountSessions: multiGoogleServiceAccountSessionGoogleDocImportButtonQueryQuery_googleServiceAccountSessions_MultiGoogleServiceAccountSessionOutput | null };
-
-
-type multiGoogleServiceAccountSessionGoogleDocImportButtonQueryQueryVariables = Exact<{
-  selector: InputMaybe<GoogleServiceAccountSessionSelector>;
-  limit: InputMaybe<Scalars['Int']['input']>;
-  enableTotal: InputMaybe<Scalars['Boolean']['input']>;
-}>;
-
-
-type multiGoogleServiceAccountSessionGoogleDocImportButtonQueryQuery = multiGoogleServiceAccountSessionGoogleDocImportButtonQueryQuery_Query;
-
 type latestGoogleDocMetadataQuery_Query = { __typename?: 'Query', latestGoogleDocMetadata: any | null };
 
 
@@ -17865,16 +17812,6 @@ type latestGoogleDocMetadataQueryVariables = Exact<{
 
 
 type latestGoogleDocMetadataQuery = latestGoogleDocMetadataQuery_Query;
-
-type CanAccessGoogleDocQuery_Query = { __typename?: 'Query', CanAccessGoogleDoc: boolean | null };
-
-
-type CanAccessGoogleDocQueryVariables = Exact<{
-  fileUrl: Scalars['String']['input'];
-}>;
-
-
-type CanAccessGoogleDocQuery = CanAccessGoogleDocQuery_Query;
 
 type ImportGoogleDocMutation_ImportGoogleDoc_Post = (
   { __typename?: 'Post' }
