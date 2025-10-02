@@ -1,10 +1,9 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import {
   fmCrosspostSiteNameSetting,
   fmCrosspostBaseUrlSetting,
 } from "../../lib/instanceSettings";
 import { useSingle } from "../../lib/crud/withSingle";
-import { useForeignApolloClient } from "../hooks/useForeignApolloClient";
 import FormControlLabel from "@/lib/vendor/@material-ui/core/src/FormControlLabel";
 import Checkbox from "@/lib/vendor/@material-ui/core/src/Checkbox";
 import Button from "@/lib/vendor/@material-ui/core/src/Button";
@@ -14,7 +13,12 @@ import { gql, useMutation } from "@apollo/client";
 import { useOnFocusTab } from "../hooks/useOnFocusTab";
 import { combineUrls } from "../../lib/vulcan-lib/utils";
 import { useCurrentUser } from "../common/withUser";
-import { generateTokenRoute } from "@/lib/fmCrosspost/routes";
+import { useMessages } from "../common/withMessages";
+import {
+  crossposterDetailsRoute,
+  CrosspostRouteResponse,
+  generateTokenRoute,
+} from "@/lib/fmCrosspost/routes";
 import { TypedFieldApi } from "@/components/tanstack-form-components/BaseAppForm";
 import { defineStyles, useStyles } from "../hooks/useStyles";
 import { isFriendlyUI } from "@/themes/forumTheme";
@@ -55,6 +59,8 @@ const styles = defineStyles('FMCrosspostControl', (theme: ThemeType) => ({
   },
 }));
 
+type CrossposterDetails = CrosspostRouteResponse<typeof crossposterDetailsRoute>;
+
 /**
  * FMCrosspostAccount displays the user's account on the other platform after
  * it's already been authorized
@@ -62,15 +68,30 @@ const styles = defineStyles('FMCrosspostControl', (theme: ThemeType) => ({
 const FMCrosspostAccount = ({fmCrosspostUserId}: {
   fmCrosspostUserId: string,
 }) => {
-  const classes = useStyles(styles);
-  const apolloClient = useForeignApolloClient();
-  const {document, loading} = useSingle({
-    documentId: fmCrosspostUserId,
-    collectionName: "Users",
-    fragmentName: "UsersCrosspostInfo",
-    apolloClient,
-  });
+  const {flash} = useMessages();
+  const [loading, setLoading] = useState(true);
+  const [document, setDocument] = useState<CrossposterDetails | null>(null);
 
+  useEffect(() => {
+    void (async () => {
+      setLoading(true);
+      try {
+        const result = await crossposterDetailsRoute.makeRequest(
+          {userId: fmCrosspostUserId},
+          {foreignRequest: true},
+        );
+        setDocument(result);
+      } catch (e) {
+        // eslint-disable-next-line no-console
+        console.error("Failed to fetch crossposter", e);
+        flash(e instanceof Error ? e.message : "Failed to fetch crossposter");
+      } finally {
+        setLoading(false);
+      }
+    })();
+  }, [flash, fmCrosspostUserId]);
+
+  const classes = useStyles(styles);
   const link = `${fmCrosspostBaseUrlSetting.get()}users/${document?.slug}`;
   if (!document || loading) {
     return <Loading/>
@@ -78,7 +99,7 @@ const FMCrosspostAccount = ({fmCrosspostUserId}: {
   return <div className={classes.crosspostMessage}>
     This post will be crossposted to {fmCrosspostSiteNameSetting.get()} by
     your account <a className={classes.link} href={link} target="_blank" rel="noreferrer">
-      {document.username}
+      {document.displayName}
     </a>
   </div>
 }
@@ -209,4 +230,3 @@ export const FMCrosspostControl = ({ field }: {
     </div>
   );
 };
-

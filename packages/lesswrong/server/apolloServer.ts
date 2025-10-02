@@ -491,7 +491,6 @@ export function startWebserver() {
       ssrBody,
       headers,
       serializedApolloState,
-      serializedForeignApolloState,
       jssSheets,
       status,
       redirectUrl,
@@ -529,7 +528,6 @@ export function startWebserver() {
         + '</body>\n'
         + embedAsGlobalVar("ssrMetadata", ssrMetadata) + '\n'
         + serializedApolloState + '\n'
-        + serializedForeignApolloState + '\n'
         + '</html>\n')
       response.end();
     }
