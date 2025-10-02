@@ -53,6 +53,9 @@ export class FMCrosspostRoute<
   }
 }
 
+export type CrosspostRouteResponse<T> =
+  T extends FMCrosspostRoute<any, infer R, any, any> ? z.infer<R> : never;
+
 export const crossposterDetailsRoute = new FMCrosspostRoute({
   routeName: "crossposterDetails",
   requestSchema: z.object({ userId: z.string().nonempty() }),

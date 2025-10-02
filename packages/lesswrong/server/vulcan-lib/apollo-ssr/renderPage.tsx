@@ -51,7 +51,6 @@ export interface RenderSuccessResult {
   ssrBody: string
   headers: Array<string>
   serializedApolloState: string
-  serializedForeignApolloState: string
   jssSheets: string
   status: number|undefined,
   redirectUrl: string|undefined
@@ -473,7 +472,6 @@ const renderRequest = async ({req, user, startTime, res, userAgent, ...cacheAtte
   // according to the Apollo doc, client needs to be recreated on every request
   // this avoids caching server side
   const client = await createClient(requestContext);
-  const foreignClient = await createClient(requestContext, true);
 
   // Allows components to set statuscodes and redirects that will get executed on the server
   let serverRequestStatus: ServerRequestStatusContextType = {}
@@ -494,7 +492,6 @@ const renderRequest = async ({req, user, startTime, res, userAgent, ...cacheAtte
   const WrappedApp = <AppGenerator
     req={req}
     apolloClient={client}
-    foreignApolloClient={foreignClient}
     serverRequestStatus={serverRequestStatus}
     abTestGroupsUsed={abTestGroupsUsed}
     ssrMetadata={{renderedAt: now.toISOString(), timezone, cacheFriendly}}
@@ -508,7 +505,6 @@ const renderRequest = async ({req, user, startTime, res, userAgent, ...cacheAtte
     console.error(`Error while fetching Apollo Data. date: ${new Date().toString()} url: ${JSON.stringify(getPathFromReq(req))}`); // eslint-disable-line no-console
     console.error(err); // eslint-disable-line no-console
   }
-  const afterPrerenderTime = new Date();
 
   const ssrBody = buildSSRBody(htmlContent, userAgent);
 
@@ -518,7 +514,6 @@ const renderRequest = async ({req, user, startTime, res, userAgent, ...cacheAtte
   // add Apollo state, the client will then parse the string
   const initialState = client.extract();
   const serializedApolloState = embedAsGlobalVar("__APOLLO_STATE__", initialState);
-  const serializedForeignApolloState = embedAsGlobalVar("__APOLLO_FOREIGN_STATE__", foreignClient.extract());
 
   const jssSheets = renderJssSheetImports(themeOptions);
 
@@ -562,7 +557,6 @@ const renderRequest = async ({req, user, startTime, res, userAgent, ...cacheAtte
     ssrBody,
     headers: [head],
     serializedApolloState,
-    serializedForeignApolloState,
     jssSheets,
     status: serverRequestStatus.status,
     redirectUrl: serverRequestStatus.redirectUrl,

@@ -1,8 +1,6 @@
 import React, { useReducer } from 'react';
 import AppGenerator from './AppGenerator';
-
 import { createApolloClient } from './apolloClient';
-import { fmCrosspostBaseUrlSetting } from "../lib/instanceSettings";
 import { populateComponentsAppDebug } from '../lib/vulcan-lib/components';
 import { initServerSentEvents } from "./serverSentEventsClient";
 import { hydrateRoot } from 'react-dom/client';
@@ -11,7 +9,6 @@ export function hydrateClient() {
   populateComponentsAppDebug();
   initServerSentEvents();
   const apolloClient = createApolloClient();
-  const foreignApolloClient = createApolloClient(fmCrosspostBaseUrlSetting.get() ?? "/");
 
   // Create the root element, if it doesn't already exist.
   if (!document.getElementById('react-app')) {
@@ -23,11 +20,10 @@ export function hydrateClient() {
   const Main = () => {
     const [renderCount, forceRerender] = useReducer(c => c+1, 0);
     _forceFullRerender = forceRerender;
-    
+
     return <AppGenerator
       key={renderCount}
       apolloClient={apolloClient}
-      foreignApolloClient={foreignApolloClient}
       abTestGroupsUsed={{}}
       themeOptions={window.themeOptions}
       ssrMetadata={window.ssrMetadata}

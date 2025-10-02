@@ -6,7 +6,6 @@ declare global {
     ssrBody: string;
     headers: string[];
     serializedApolloState: string;
-    serializedForeignApolloState: string;
     jssSheets: string;
     status: number;
     redirectUrl: string;

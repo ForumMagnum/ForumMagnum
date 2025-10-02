@@ -1,14 +1,13 @@
 import { ApolloClient, NormalizedCacheObject, InMemoryCache, ApolloLink } from '@apollo/client';
 import { createHttpLink, createErrorLink, headerLink } from '../lib/apollo/links';
 
-export const createApolloClient = (baseUrl = '/'): ApolloClient<NormalizedCacheObject> => {
+export const createApolloClient = (): ApolloClient<NormalizedCacheObject> => {
   const cache = new InMemoryCache();
 
-  const cachedState = baseUrl === '/' ? window.__APOLLO_STATE__ : window.__APOLLO_FOREIGN_STATE__;
-  cache.restore(cachedState ?? ""); // ssr
+  cache.restore(window.__APOLLO_STATE__ ?? ""); // ssr
 
   return new ApolloClient({
-    link: ApolloLink.from([headerLink, createErrorLink(), createHttpLink(baseUrl)]),
+    link: ApolloLink.from([headerLink, createErrorLink(), createHttpLink("/")]),
     cache,
     ssrForceFetchDelay: 1,
   });
