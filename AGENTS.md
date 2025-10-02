@@ -1,6 +1,8 @@
 # AGENTS.md: ForumMagnum Codebase Patterns
 
-This document explains non-standard patterns, conventions, and abstractions used in the ForumMagnum codebase. ForumMagnum is a large web application built on NextJS with Apollo GraphQL and PostgreSQL.
+This document explains non-standard patterns, conventions, and abstractions used in the ForumMagnum codebase. ForumMagnum is a large web application built on NextJS with Apollo GraphQL and PostgreSQL, which is used to run both LessWrong and the EA Forum.  You should use that context to inform your understanding of what features are likely to exist, of the likely relationships between different abstractions, etc.
+
+Reminder: after you finish making changes, go over them again to check whether any of them violated the style guide, and fix those violations if so.
 
 ## Table of Contents
 1. [Collections & Schemas](#collections--schemas)
@@ -11,6 +13,8 @@ This document explains non-standard patterns, conventions, and abstractions used
 6. [Collection-Based Writes](#collection-based-writes)
 7. [Background Tasks](#background-tasks)
 8. [Code Generation](#code-generation)
+9. [Additional Patterns](#additional-patterns)
+10. [Style Guide](#style-guide--conventions)
 
 ---
 
@@ -875,7 +879,7 @@ const TestComponent = () => {
 
 If you need to combine multiple classNames, use `import classNames from 'classnames';` rather than combining them via template string.
 
-We have some legacy instances of `registerComponent` lying around.  There's no reason to use this unless you need custom memoization behavior for your component.  Just do `export default TestComponent;`.
+We have some legacy instances of `registerComponent` lying around.  Do not use this unless you need custom memoization behavior for your component.  Just do `export default TestComponent;`.
 
 Use `useLocation` if you need to get anything related to the current client-side location, i.e. pathname, query parameters, hash, etc.  This is the interface of the object it returns:
 ```typescript
@@ -893,7 +897,7 @@ See `packages/lesswrong/components/next/ClientAppGenerator.tsx` for more details
 
 Use `useNavigate` for performing client-side navigations.  You need to preserve all parts of the path that you don't want changed, i.e. just providing a hash will delete any query parameters if they aren't also provided.  See `packages/lesswrong/lib/routeUtil.tsx` for more details if needed.
 
-### Style Notes / Conventions
+## Style Guide / Conventions
 Never apply `as any` type casts, and try very hard to avoid any other type casts.  Consider whether you are applying a type cast because you've forgotten to run `yarn generate`.  If you absolutely must apply a type cast somewhere, always leave the following comment above it:
 ```typescript
 // TODO: I AM AN INSTANCE OF ${MODEL_NAME} AND HAVE APPLIED A TYPE CAST HERE BECAUSE I COULDN'T MAKE IT WORK OTHERWISE, PLEASE FIX THIS
@@ -902,5 +906,7 @@ Never apply `as any` type casts, and try very hard to avoid any other type casts
 Strongly prefer to avoid writing classes to encapsulate functionality.  Write top-level functions and only export those that are meant to be used by other parts of the codebase.
 Strongly prefer to avoid declaring inline functions that capture scope; declare them at the top of the module and pass in all the necessary dependencies.
 Prefer interfaces to types where possible.
+
+Reminder: after you finish making changes, go over them again to check whether any of them violated the style guide, and fix those violations if so.
 
 (end of file)
