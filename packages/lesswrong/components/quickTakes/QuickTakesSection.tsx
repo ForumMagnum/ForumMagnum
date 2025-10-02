@@ -73,7 +73,7 @@ const QuickTakesSectionLoaded = ({showCommunity}: {
   const { data, loading, refetch, loadMoreProps } = useQueryWithLoadMore(ShortformCommentsMultiQuery, {
     variables: {
       selector: { shortformFrontpage: { showCommunity, maxAgeDays } },
-      limit: 8,
+      limit: 7,
       enableTotal: true,
     },
   });
