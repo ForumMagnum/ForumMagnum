@@ -23,8 +23,6 @@ jobs:
       uses: ./.github/actions/runLWMigrations
       with:
         mode: prod
-        credentials-repo: ${{ secrets.LW_CREDENTIALS_REPO }}
-        credentials-pat: ${{ secrets.LW_CREDENTIALS_REPO_PAT }}
   upload-ckeditor-bundle:
     runs-on: ubuntu-latest
     env:
@@ -41,8 +39,6 @@ jobs:
       uses: ./.github/actions/uploadLWCkEditorBundle
       with:
         mode: prod
-        credentials-repo: ${{ secrets.LW_CREDENTIALS_REPO }}
-        credentials-pat: ${{ secrets.LW_CREDENTIALS_REPO_PAT }}
   deploy: 
     runs-on: ubuntu-latest
     needs: [migrate, upload-ckeditor-bundle]
