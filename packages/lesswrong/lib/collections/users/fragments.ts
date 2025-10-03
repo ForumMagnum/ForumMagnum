@@ -235,6 +235,7 @@ export const UsersCurrent = gql(`
 
     acknowledgedNewUserGuidelines
     notificationSubforumUnread
+    notificationRepliesToMyComments
     subforumPreferredLayout
     
     hideJobAdUntil
