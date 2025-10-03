@@ -133,6 +133,9 @@ const styles = defineStyles("NamesAttachedReactionsVoteOnComment", (theme: Theme
   footerSelected: {
     background: theme.palette.panelBackground.darken10,
   },
+  footerSelectedInverted: {
+    background: theme.palette.grey[600],
+  },
   footerSelectedAnti: {
     background: theme.palette.namesAttachedReactions.selectedAnti,
   },
@@ -154,6 +157,9 @@ const styles = defineStyles("NamesAttachedReactionsVoteOnComment", (theme: Theme
   },
   hasQuotes: {
     border: theme.palette.border.dashed500
+  },
+  invertColors: {
+    filter: "invert(1)",
   }
 }))
 
@@ -328,7 +334,7 @@ const NamesAttachedReactionsVoteOnCommentInner = ({document, hideKarma=false, co
 }
 
 const NamesAttachedReactionsCommentBottomInner = ({
-  document, hideKarma=false, commentBodyRef, voteProps, post
+  document, hideKarma=false, commentBodyRef, voteProps, post, invertColors=false
 }: NamesAttachedReactionsCommentBottomProps & WithStylesProps) => {
   const classes = useStyles(styles);
   const anchorEl = useRef<HTMLElement|null>(null);
@@ -344,7 +350,7 @@ const NamesAttachedReactionsCommentBottomInner = ({
   const visibleReacts = visibleReactionsDisplay.map(r => r.react)
   const hiddenReacts = difference(allReactions, visibleReacts)
 
-  const isDebateComment = post?.debate && document.debateResponse
+  const isDebateComment = post?.debate && "debateResponse" in document && document.debateResponse
   const canReactUserIds = post ? [...post.coauthorUserIds, post.userId] : []
   const userIsDebateParticipant = !!currentUserId && canReactUserIds.includes(currentUserId)
   const showReactButton = !isDebateComment || userIsDebateParticipant
@@ -360,6 +366,7 @@ const NamesAttachedReactionsCommentBottomInner = ({
             numberShown={numberShown}
             voteProps={voteProps}
             commentBodyRef={commentBodyRef}
+            invertColors={invertColors}
           />
         </span>
       )}
@@ -370,7 +377,7 @@ const NamesAttachedReactionsCommentBottomInner = ({
   </span>
 }
 
-const HoverableReactionIcon = ({reactionRowRef, react, numberShown, voteProps, quote, commentBodyRef}: {
+const HoverableReactionIcon = ({reactionRowRef, react, numberShown, voteProps, quote, commentBodyRef, invertColors=false}: {
   // reactionRowRef: Reference to the row of reactions, used as an anchor for the
   // hover instead of the individual icon, so that the hover's position stays
   // consistent as you move the mouse across the row.
@@ -380,6 +387,7 @@ const HoverableReactionIcon = ({reactionRowRef, react, numberShown, voteProps, q
   voteProps: VotingProps<VoteableTypeClient>,
   quote: QuoteLocator|null,
   commentBodyRef?: React.RefObject<ContentItemBodyImperative|null>|null,
+  invertColors?: boolean,
 }) => {
   const classes = useStyles(styles);
   const { hover, eventHandlers: {onMouseOver, onMouseLeave} } = useHover();
@@ -411,21 +419,27 @@ const HoverableReactionIcon = ({reactionRowRef, react, numberShown, voteProps, q
     onMouseLeave(ev);
   }
 
+  const showDefaultBackground = currentUserReactionVote==="created"||currentUserReactionVote==="seconded"
+  const showInvertedBackground = invertColors && (currentUserReactionVote==="created"||currentUserReactionVote==="seconded")
+
   return <span onMouseEnter={handleMouseEnter} onMouseLeave={handleMouseLeave}>
     <span
       className={classNames(
         classes.footerReaction,
         {
-          [classes.footerSelected]: currentUserReactionVote==="created"||currentUserReactionVote==="seconded",
+          [classes.footerSelected]: showDefaultBackground,
+          [classes.footerSelectedInverted]: showInvertedBackground,
           [classes.footerSelectedAnti]: currentUserReactionVote==="disagreed",
           [classes.hasQuotes]: quotesWithUndefinedRemoved.length > 0,
         }
       )}
     >
       <span onMouseDown={()=>{reactionClicked(react)}}>
-        <ReactionIcon react={react} />
+        <ReactionIcon react={react} inverted={invertColors} />
       </span>
-      <span className={classes.reactionCount}>
+      <span className={classNames(classes.reactionCount, {
+        [classes.invertColors]: invertColors,
+      })}>
         {numberShown}
       </span>
   

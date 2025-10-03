@@ -38,6 +38,7 @@ import CommentsSubmitDropdown from "./CommentsSubmitDropdown";
 import { useTracking } from "@/lib/analyticsEvents";
 import { CommentsList } from "@/lib/collections/comments/fragments";
 import { isIfAnyoneBuildsItFrontPage } from '../seasonal/styles';
+import AutoEmailSubscribeCheckbox from "./AutoEmailSubscribeCheckbox";
 
 const CommentsListUpdateMutation = gql(`
   mutation updateCommentCommentForm($selector: SelectorInput!, $data: UpdateCommentDataInput!) {
@@ -80,6 +81,7 @@ const customSubmitButtonStyles = defineStyles('CommentSubmit', (theme: ThemeType
   submit: {
     display: 'flex',
     justifyContent: 'end',
+    alignItems: 'center',
   },
   submitQuickTakes: {
     background: theme.palette.grey[100],
@@ -147,6 +149,9 @@ const customSubmitButtonStyles = defineStyles('CommentSubmit', (theme: ThemeType
   },
   submitWrapper: {
     display: "flex",
+  },
+  autoEmailSubscribe: {
+    marginRight: "auto"
   },
 }), { stylePriority: 1 });
 
@@ -221,6 +226,9 @@ const CommentSubmit = ({
         [classes.submitQuickTakesButtonAtBottom]: isQuickTake && quickTakesSubmitButtonAtBottom,
       })}
     >
+      <div className={classes.autoEmailSubscribe}>
+        <AutoEmailSubscribeCheckbox />
+      </div>
       {showCancelButton && !isMinimalist && (
         <Button
           onClick={cancelCallback}

@@ -33,13 +33,19 @@ export async function computeAttributions(
     documentId, collectionName, fieldName,
     skipAttributions: false,
   }).fetch();
-  if (!revs.length) return { finalHtml: "", attributions: [] };
+  if (!revs.length) {
+    return { finalHtml: "", attributions: [] };
+  }
 
   let filteredRevs = orderBy(revs, r=>r.editedAt);
   
   // If upToVersion is provided, ignore revs after that
   if (upToVersion) {
     filteredRevs = filter(filteredRevs, r=>compareVersionNumbers(upToVersion, r.version)>=0);
+  }
+
+  if (!filteredRevs.length) {
+    return { finalHtml: "", attributions: [] };
   }
   
   // Cluster commits by author. In any sequential run of commits by the same

@@ -37,11 +37,11 @@ const PostsListUpdateMutation = gql(`
   }
 `);
 
-const ModeratorActionsDefaultFragmentMutation = gql(`
+const ModeratorActionsCreateMutation = gql(`
   mutation createModeratorActionSunshineNewPostsItem($data: CreateModeratorActionDataInput!) {
     createModeratorAction(data: $data) {
       data {
-        ...ModeratorActionsDefaultFragment
+        _id
       }
     }
   }
@@ -88,7 +88,7 @@ const SunshineNewPostsItem = ({post, refetch, classes}: {
   
   const [updatePost] = useMutation(PostsListUpdateMutation);
 
-  const [createModeratorAction] = useMutation(ModeratorActionsDefaultFragmentMutation);
+  const [createModeratorAction] = useMutation(ModeratorActionsCreateMutation);
   
   const handlePersonal = () => {
     void updatePost({

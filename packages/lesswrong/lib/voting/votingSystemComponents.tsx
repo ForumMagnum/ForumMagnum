@@ -8,7 +8,7 @@ import ReactBallotVoteOnComment from "@/components/votes/ReactBallotVoteOnCommen
 import EmojiReactionVoteOnComment from "@/components/votes/EmojiReactionVoteOnComment";
 import EAEmojisVoteOnComment from "@/components/votes/EAEmojisVoteOnComment";
 import type { VotingSystemName } from "./votingSystemNames";
-import type { CommentVotingBottomComponent, CommentVotingComponent, PostVotingComponent } from './votingSystemTypes';
+import type { CommentVotingBottomComponent, CommentVotingComponent, MessageVotingBottomComponent, PostVotingComponent } from './votingSystemTypes';
 
 // These are split out from the voting system definitions because
 // we use the voting system definitions on the server but not in SSR contexts,
@@ -28,6 +28,10 @@ export const commentVotingComponents = {
 
 export const commentBottomComponents: Partial<Record<VotingSystemName, () => CommentVotingBottomComponent>> = {
   reactionsAndLikes: () => ReactionsAndLikesCommentBottom,
+  namesAttachedReactions: () => NamesAttachedReactionsCommentBottom,
+};
+
+export const messageBottomComponents: Partial<Record<VotingSystemName, () => MessageVotingBottomComponent>> = {
   namesAttachedReactions: () => NamesAttachedReactionsCommentBottom,
 };
 

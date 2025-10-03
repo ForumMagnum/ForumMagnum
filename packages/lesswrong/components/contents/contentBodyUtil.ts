@@ -66,6 +66,11 @@ export interface ContentItemBodyProps {
    * If passed, will change the content style used in HoverPreviewLink.
    */
   contentStyleType?: ContentStyleType;
+
+  /**
+   * If passed, will invert the colors of the content.
+   */
+  invertSubstitutionColors?: boolean;
 }
 
 /**

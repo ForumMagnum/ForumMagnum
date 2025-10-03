@@ -3,6 +3,7 @@ import { getDenormalizedEditableResolver } from "@/lib/editor/make_editable";
 import { RevisionStorageType } from "../revisions/revisionSchemaTypes";
 import { generateIdResolverSingle } from "../../utils/schemaUtils";
 import { userOwns } from "@/lib/vulcan-users/permissions";
+import { DEFAULT_BASE_SCORE_FIELD, DEFAULT_EXTENDED_SCORE_FIELD, DEFAULT_SCORE_FIELD, DEFAULT_CURRENT_USER_VOTE_FIELD, DEFAULT_CURRENT_USER_EXTENDED_VOTE_FIELD, defaultVoteCountField, DEFAULT_AF_BASE_SCORE_FIELD, DEFAULT_AF_EXTENDED_SCORE_FIELD, DEFAULT_AF_VOTE_COUNT_FIELD } from "@/lib/make_voteable";
 
 const schema = {
   _id: DEFAULT_ID_FIELD,
@@ -97,6 +98,15 @@ const schema = {
       },
     },
   },
+  currentUserVote: DEFAULT_CURRENT_USER_VOTE_FIELD,
+  currentUserExtendedVote: DEFAULT_CURRENT_USER_EXTENDED_VOTE_FIELD,
+  voteCount: defaultVoteCountField('Messages'),
+  baseScore: DEFAULT_BASE_SCORE_FIELD,
+  extendedScore: DEFAULT_EXTENDED_SCORE_FIELD,
+  score: DEFAULT_SCORE_FIELD,
+  afBaseScore: DEFAULT_AF_BASE_SCORE_FIELD,
+  afExtendedScore: DEFAULT_AF_EXTENDED_SCORE_FIELD,
+  afVoteCount: DEFAULT_AF_VOTE_COUNT_FIELD,
 } satisfies Record<string, CollectionFieldSpecification<"Messages">>;
 
 export default schema;
