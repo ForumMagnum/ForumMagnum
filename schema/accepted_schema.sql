@@ -1265,7 +1265,14 @@ CREATE TABLE "Messages" (
   "contents_latest" TEXT,
   "userId" VARCHAR(27) NOT NULL,
   "conversationId" VARCHAR(27) NOT NULL,
-  "noEmail" BOOL NOT NULL DEFAULT FALSE
+  "noEmail" BOOL NOT NULL DEFAULT FALSE,
+  "voteCount" DOUBLE PRECISION NOT NULL DEFAULT 0,
+  "baseScore" DOUBLE PRECISION NOT NULL DEFAULT 0,
+  "extendedScore" JSONB,
+  "score" DOUBLE PRECISION NOT NULL DEFAULT 0,
+  "afBaseScore" DOUBLE PRECISION,
+  "afExtendedScore" JSONB,
+  "afVoteCount" DOUBLE PRECISION
 );
 
 -- Index "idx_Messages_schemaVersion"

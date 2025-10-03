@@ -4,7 +4,8 @@ import type { VotingProps } from '@/components/votes/votingProps';
 import type { TagLens } from '../arbital/useTagLenses';
 import type { VotingSystemName } from './votingSystemNames';
 
-export type VotingPropsDocument = CommentsList | PostsWithVotes | RevisionMetadataWithChangeMetrics | MultiDocumentMinimumInfo;export type CommentVotingComponentProps<T extends VotingPropsDocument = VotingPropsDocument> = {
+export type VotingPropsDocument = CommentsList | PostsWithVotes | RevisionMetadataWithChangeMetrics | MultiDocumentMinimumInfo | messageListFragment; 
+export type CommentVotingComponentProps<T extends VotingPropsDocument = VotingPropsDocument> = {
   document: T;
   hideKarma?: boolean;
   collectionName: VoteableCollectionName;
@@ -14,8 +15,9 @@ export type VotingPropsDocument = CommentsList | PostsWithVotes | RevisionMetada
   post?: PostsWithNavigation | PostsWithNavigationAndRevision;
 };
 
-export interface NamesAttachedReactionsCommentBottomProps extends CommentVotingComponentProps<CommentsList> {
+export interface NamesAttachedReactionsCommentBottomProps extends CommentVotingComponentProps<CommentsList | messageListFragment> {
   voteProps: VotingProps<VoteableTypeClient>;
+  invertColors?: boolean;
 }
 
 export type PostVotingComponentProps = {
@@ -26,6 +28,7 @@ export type PostVotingComponentProps = {
 
 export type CommentVotingComponent = React.ComponentType<CommentVotingComponentProps>;
 export type CommentVotingBottomComponent = React.ComponentType<NamesAttachedReactionsCommentBottomProps>;
+export type MessageVotingBottomComponent = React.ComponentType<NamesAttachedReactionsCommentBottomProps>;
 export type PostVotingComponent = React.ComponentType<PostVotingComponentProps>;
 
 export interface VotingSystem<ExtendedVoteType = any, ExtendedScoreType = any> {
@@ -56,6 +59,10 @@ export interface VotingSystem<ExtendedVoteType = any, ExtendedScoreType = any> {
   }) => ContentReplacedSubstringComponentInfo[];
   getPostHighlights?: (props: {
     post: PostsBase;
+    voteProps: VotingProps<VoteableTypeClient>;
+  }) => ContentReplacedSubstringComponentInfo[];
+  getMessageHighlights?: (props: {
+    message: messageListFragment;
     voteProps: VotingProps<VoteableTypeClient>;
   }) => ContentReplacedSubstringComponentInfo[];
   getTagOrLensHighlights?: (props: {

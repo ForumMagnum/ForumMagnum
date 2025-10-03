@@ -221,6 +221,8 @@ interface Mutation {
   performVotePost: VoteResultPost | null;
   setVoteComment: Comment | null;
   performVoteComment: VoteResultComment | null;
+  setVoteMessage: Message | null;
+  performVoteMessage: VoteResultMessage | null;
   setVoteTagRel: TagRel | null;
   performVoteTagRel: VoteResultTagRel | null;
   setVoteRevision: Revision | null;
@@ -613,6 +615,11 @@ interface VoteResultPost {
 
 interface VoteResultComment {
   document: Comment;
+  showVotingPatternWarning: boolean;
+}
+
+interface VoteResultMessage {
+  document: Message;
   showVotingPatternWarning: boolean;
 }
 
@@ -3448,6 +3455,15 @@ interface Message {
   conversationId: string | null;
   conversation: Conversation | null;
   noEmail: boolean | null;
+  currentUserVote: string | null;
+  currentUserExtendedVote: any;
+  voteCount: number;
+  baseScore: number;
+  extendedScore: any;
+  score: number;
+  afBaseScore: number | null;
+  afExtendedScore: any;
+  afVoteCount: number | null;
 }
 
 interface SingleMessageInput {
@@ -9756,6 +9772,7 @@ interface GraphQLTypeMap {
   SuggestedTopActiveUsersResult: SuggestedTopActiveUsersResult;
   VoteResultPost: VoteResultPost;
   VoteResultComment: VoteResultComment;
+  VoteResultMessage: VoteResultMessage;
   VoteResultTagRel: VoteResultTagRel;
   VoteResultRevision: VoteResultRevision;
   VoteResultElectionCandidate: VoteResultElectionCandidate;
