@@ -12,7 +12,7 @@ import Button from "@/lib/vendor/@material-ui/core/src/Button";
 import { EditSequenceTitle } from "@/components/sequenceEditor/EditSequenceTitle";
 import { FormUserSelect } from "@/components/form-components/UserSelect";
 import { getUpdatedFieldValues } from "@/components/tanstack-form-components/helpers";
-import { userIsAdmin, userIsAdminOrMod } from "@/lib/vulcan-users/permissions";
+import { userIsAdmin, userIsAdminOrMod, userIsMemberOf } from "@/lib/vulcan-users/permissions";
 import { useFormErrors } from "@/components/tanstack-form-components/BaseAppForm";
 import { LegacyFormGroupLayout } from "../tanstack-form-components/LegacyFormGroupLayout";
 import LWTooltip from "../common/LWTooltip";
@@ -131,7 +131,6 @@ export const SequencesForm = ({
       e.stopPropagation();
       void form.handleSubmit();
     }}>
-      {displayedErrorComponent}
       <div className={classNames('form-input', 'input-title', classes.fieldWrapper)}>
         <form.Field name="title">
           {(field) => (
@@ -208,7 +207,7 @@ export const SequencesForm = ({
         </form.Field>
       </div>
 
-      <div className={classNames('form-input', 'input-af', classes.fieldWrapper)}>
+      {userIsMemberOf(currentUser, 'alignmentVoters') && <div className={classNames('form-input', 'input-af', classes.fieldWrapper)}>
         <form.Field name="af">
           {(field) => (
             <FormComponentCheckbox
@@ -217,7 +216,7 @@ export const SequencesForm = ({
             />
           )}
         </form.Field>
-      </div>
+      </div>}
 
       {userIsAdminOrMod(currentUser) && <LegacyFormGroupLayout
         label={preferredHeadingCase("Admin Options")}
@@ -297,7 +296,7 @@ export const SequencesForm = ({
         </div>
       </LegacyFormGroupLayout>}
 
-      <LegacyFormGroupLayout
+      {formType === 'edit' && <LegacyFormGroupLayout
         label={preferredHeadingCase("Advanced Options")}
         startCollapsed={true}
         groupStyling
@@ -314,7 +313,9 @@ export const SequencesForm = ({
             )}
           </form.Field>
         </div>
-      </LegacyFormGroupLayout>
+      </LegacyFormGroupLayout>}
+
+      {displayedErrorComponent}
 
       <div className="form-submit">
         {onCancel && <Button
