@@ -12923,6 +12923,23 @@ type LocalgroupMetadataQueryVariables = Exact<{
 
 type LocalgroupMetadataQuery = LocalgroupMetadataQuery_Query;
 
+type multiModeratorCommentsQueryQuery_comments_MultiCommentOutput_results_Comment = (
+  { __typename?: 'Comment' }
+  & ShortformComments
+);
+
+type multiModeratorCommentsQueryQuery_comments_MultiCommentOutput = { __typename?: 'MultiCommentOutput', results: Array<multiModeratorCommentsQueryQuery_comments_MultiCommentOutput_results_Comment> };
+
+type multiModeratorCommentsQueryQuery_Query = { __typename?: 'Query', comments: multiModeratorCommentsQueryQuery_comments_MultiCommentOutput | null };
+
+
+type multiModeratorCommentsQueryQueryVariables = Exact<{
+  commentIds: Array<Scalars['String']['input']> | Scalars['String']['input'];
+}>;
+
+
+type multiModeratorCommentsQueryQuery = multiModeratorCommentsQueryQuery_Query;
+
 type SequenceMetadataQuery_sequence_SingleSequenceOutput_result_Sequence = { __typename?: 'Sequence', _id: string, title: string };
 
 type SequenceMetadataQuery_sequence_SingleSequenceOutput = { __typename?: 'SingleSequenceOutput', result: SequenceMetadataQuery_sequence_SingleSequenceOutput_result_Sequence | null };

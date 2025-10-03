@@ -23,6 +23,8 @@ export type LinkProps = {
   target?: string
   smooth?: boolean,
   id?: string
+  scroll?: boolean
+  title?: string
   children?: React.ReactNode,
 };
 

@@ -21,7 +21,8 @@ export type HashLinkProps = {
   onMouseEnter?: React.MouseEventHandler<HTMLAnchorElement>
   onMouseLeave?: React.MouseEventHandler<HTMLAnchorElement>
   onClick?: React.MouseEventHandler<HTMLAnchorElement>
-  scroll?: ScrollFunction,
+  scroll?: boolean,
+  title?: string,
   smooth?: boolean
   children?: React.ReactNode,
   prefetch?: LinkProps['prefetch']
@@ -89,7 +90,6 @@ export function HashLink(props: HashLinkProps) {
       .join('#');
     if (hashFragment !== '') {
       scrollFunction =
-        props.scroll ||
         (el =>
           props.smooth
             ? el.scrollIntoView({ behavior: "smooth" })
@@ -97,7 +97,7 @@ export function HashLink(props: HashLinkProps) {
       hashLinkScroll();
     }
   }
-  const { anchorRef, scroll, smooth, children, doOnDown, to, ...filteredProps } = props;
+  const { anchorRef, smooth, children, doOnDown, to, ...filteredProps } = props;
   if (doOnDown && !isIOS && !filteredProps.target) {
     return <Link
       {...filteredProps}
@@ -148,7 +148,6 @@ export function getHashLinkOnClick(props: HashLinkProps) {
       .join('#');
     if (hashFragment !== '') {
       scrollFunction =
-        props.scroll ||
         (el =>
           props.smooth
             ? el.scrollIntoView({ behavior: "smooth" })

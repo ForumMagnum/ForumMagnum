@@ -995,6 +995,7 @@ const PostForm = ({
             )}
           </form.Field>
         </div>}
+
       </LegacyFormGroupLayout>}
 
       {userIsAdminOrMod(currentUser) && <LegacyFormGroupLayout label={preferredHeadingCase("Canonical Sequence")} startCollapsed={true}>
