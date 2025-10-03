@@ -251,6 +251,7 @@ const SingleLineComment = ({treeOptions, comment, nestingLevel, parentCommentId,
               treeOptions={{
                 ...treeOptions,
                 hideReply: true,
+                hideVoteBottom: true,
                 initialShowEdit: false,
                 forceSingleLine: false,
                 forceNotSingleLine: true,

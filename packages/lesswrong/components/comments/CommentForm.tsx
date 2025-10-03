@@ -69,12 +69,6 @@ const formStyles = defineStyles('CommentForm', (theme: ThemeType) => ({
       color: theme.palette.text.bannerAdOverlay,
     }),
   },
-  submitButton: submitButtonStyles(theme),
-  cancelButton: cancelButtonStyles(theme),
-  submitSegmented: {
-    borderTopRightRadius: 0,
-    borderBottomRightRadius: 0,
-  },
 }));
 
 const customSubmitButtonStyles = defineStyles('CommentSubmit', (theme: ThemeType) => ({
@@ -109,7 +103,6 @@ const customSubmitButtonStyles = defineStyles('CommentSubmit', (theme: ThemeType
     marginLeft: "5px",
     "&:hover": {
       opacity: .5,
-      backgroundColor: "none",
     },
   },
   cancelButton: {
@@ -123,7 +116,9 @@ const customSubmitButtonStyles = defineStyles('CommentSubmit', (theme: ThemeType
       color: theme.palette.text.alwaysWhite,
       opacity: .5,
     }
-  } : {},
+  } : {
+    padding: '8px',
+  },
   submitMinimalist: {
     height: 'fit-content',
     marginTop: "auto",

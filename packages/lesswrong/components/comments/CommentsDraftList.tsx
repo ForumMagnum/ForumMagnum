@@ -9,6 +9,7 @@ import { useCommentLinkState } from './CommentsItem/useCommentLink';
 import { gql } from '@/lib/generated/gql-codegen';
 import { useQuery } from "@/lib/crud/useQuery";
 import { useQueryWithLoadMore } from '../hooks/useQueryWithLoadMore';
+import SectionTitle from '../common/SectionTitle';
 
 const LinkedDraftCommentQuery = gql(`
   query LinkedDraftCommentQuery($documentId: String!) {
@@ -39,19 +40,24 @@ const styles = (theme: ThemeType) => ({
     fontWeight: 600,
     fontFamily: theme.palette.fonts.sansSerifStack,
   },
+  sectionTitle: {
+    fontSize: 20,
+    fontWeight: 500,
+  },
   noResults: {
     marginLeft: 8,
     color: theme.palette.text.dim4,
   }
 });
 
-const CommentsDraftList = ({userId, postId, initialLimit, itemsPerPage, showTotal, silentIfEmpty, classes}: {
+const CommentsDraftList = ({userId, postId, initialLimit, itemsPerPage, showTotal, silentIfEmpty, sectionTitleStyle, classes}: {
   userId: string,
   postId?: string,
   initialLimit?: number,
   itemsPerPage?: number,
   showTotal?: boolean,
   silentIfEmpty?: boolean,
+  sectionTitleStyle?: boolean
   classes: ClassesType<typeof styles>,
 }) => {
   const { linkedCommentId } = useCommentLinkState();
@@ -88,13 +94,14 @@ const CommentsDraftList = ({userId, postId, initialLimit, itemsPerPage, showTota
 
   // Move the linked comment up to the top if given
   const results = ([linkedComment, ...(rawResults ?? [])]
-    .filter(v => v?.draft) as DraftComments[])
-    .reduce((acc, comment) => {
-      if (!acc.some(existingComment => existingComment._id === comment._id)) {
+    .filter(v => !!v)
+    .filter(v => v.draft))
+    .reduce<DraftComments[]>((acc, comment) => {
+      if (!acc.some(existingComment => existingComment._id === comment?._id)) {
         acc.push(comment);
       }
       return acc;
-    }, [] as DraftComments[]);
+    }, []);
   const loading = draftCommentsLoading || (!linkedComment && linkedCommentLoading);
   const count = results.length;
 
@@ -105,7 +112,10 @@ const CommentsDraftList = ({userId, postId, initialLimit, itemsPerPage, showTota
   const showLoadMore = !loading && (count === undefined || totalCount === undefined || count < totalCount)
 
   return <AnalyticsContext pageElementContext="commentsDraftList">
-    {(!silentIfEmpty || !!results?.length) && <Typography variant="headline" className={classes.heading}>Draft comments</Typography>}
+    {(!silentIfEmpty || !!results?.length) && (sectionTitleStyle
+      ? <SectionTitle titleClassName={classes.sectionTitle} title='Draft comments'/>
+      : <Typography variant="headline" className={classes.heading}>Draft comments</Typography>
+    )}
     {(!silentIfEmpty && !loading && results?.length === 0) && (
       <Typography variant="body2" className={classes.noResults}>
         No comments to display.

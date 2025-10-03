@@ -58,6 +58,7 @@ import { StructuredData } from '../common/StructuredData';
 import { useQuery } from "@/lib/crud/useQuery";
 import { gql } from "@/lib/generated/gql-codegen";
 import { StatusCodeSetter } from '../next/StatusCodeSetter';
+import CommentsDraftList from '../comments/CommentsDraftList';
 
 const UsersProfileMultiQuery = gql(`
   query multiUserUsersProfileQuery($selector: UserSelector, $limit: Int, $enableTotal: Boolean) {
@@ -393,6 +394,7 @@ const UsersProfileFn = ({terms, slug, classes}: {
             <AnalyticsContext listContext={"userPageDrafts"}>
               <DraftsList limit={5}/>
               <PostsList2 hideAuthor showDraftTag={false} terms={unlistedTerms} showNoResults={false} showLoading={false} showLoadMore={false}/>
+              <CommentsDraftList userId={user._id} initialLimit={5} sectionTitleStyle />
             </AnalyticsContext>
             {hasEventsSetting.get() && <LocalGroupsList
               view='userInactiveGroups'

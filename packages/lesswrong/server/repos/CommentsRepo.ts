@@ -667,6 +667,13 @@ class CommentsRepo extends AbstractRepo<"Comments"> {
     const threadCandidateLimit = 200; // Hardcoded
     const lookbackInterval = `${threadEngagementLookbackDays} days`;
 
+    const getViewableCommentsFilter = (alias: string) => `
+      ${alias}."postedAt" > (NOW() - INTERVAL $(lookbackInterval))
+      AND ${alias}.deleted IS NOT TRUE
+      AND ${alias}.retracted IS NOT TRUE
+      AND ${getViewableCommentsSelector(alias)}
+    `;
+
     const engagementStats = await this.getRawDb().manyOrNone<ThreadEngagementStats>(`
       -- CommentsRepo.getThreadEngagementStatsForRecentlyActiveThreads
       SELECT
@@ -683,8 +690,7 @@ class CommentsRepo extends AbstractRepo<"Comments"> {
           FROM (
             SELECT COALESCE(c."topLevelCommentId", c._id) AS "threadTopLevelId", MAX(c."postedAt") as "lastCommentActivity"
             FROM "Comments" c
-            WHERE c."postedAt" > (NOW() - INTERVAL $(lookbackInterval))
-              AND c.deleted IS NOT TRUE AND c.retracted IS NOT TRUE AND c."authorIsUnreviewed" IS NOT TRUE
+            WHERE ${getViewableCommentsFilter('c')}
             GROUP BY COALESCE(c."topLevelCommentId", c._id)
             ORDER BY "lastCommentActivity" DESC
             LIMIT $(threadCandidateLimit)
@@ -707,8 +713,7 @@ class CommentsRepo extends AbstractRepo<"Comments"> {
                 SELECT "threadTopLevelId_inner_rat" FROM (
                     SELECT COALESCE(c_inner."topLevelCommentId", c_inner._id) AS "threadTopLevelId_inner_rat", MAX(c_inner."postedAt") AS "lastCommentActivity_inner"
                     FROM "Comments" c_inner
-                    WHERE c_inner."postedAt" > (NOW() - INTERVAL $(lookbackInterval))
-                      AND c_inner.deleted IS NOT TRUE AND c_inner.retracted IS NOT TRUE AND c_inner."authorIsUnreviewed" IS NOT TRUE
+                    WHERE ${getViewableCommentsFilter('c_inner')}
                     GROUP BY COALESCE(c_inner."topLevelCommentId", c_inner._id)
                     ORDER BY "lastCommentActivity_inner" DESC
                     LIMIT $(threadCandidateLimit)
@@ -729,8 +734,7 @@ class CommentsRepo extends AbstractRepo<"Comments"> {
                 SELECT "threadTopLevelId_inner_rat" FROM (
                     SELECT COALESCE(c_inner."topLevelCommentId", c_inner._id) AS "threadTopLevelId_inner_rat", MAX(c_inner."postedAt") AS "lastCommentActivity_inner"
                     FROM "Comments" c_inner
-                    WHERE c_inner."postedAt" > (NOW() - INTERVAL $(lookbackInterval))
-                      AND c_inner.deleted IS NOT TRUE AND c_inner.retracted IS NOT TRUE AND c_inner."authorIsUnreviewed" IS NOT TRUE
+                    WHERE ${getViewableCommentsFilter('c_inner')}
                     GROUP BY COALESCE(c_inner."topLevelCommentId", c_inner._id)
                     ORDER BY "lastCommentActivity_inner" DESC
                     LIMIT $(threadCandidateLimit)
@@ -757,8 +761,7 @@ class CommentsRepo extends AbstractRepo<"Comments"> {
                 SELECT "threadTopLevelId_inner_rat" FROM (
                     SELECT COALESCE(c_inner."topLevelCommentId", c_inner._id) AS "threadTopLevelId_inner_rat", MAX(c_inner."postedAt") AS "lastCommentActivity_inner"
                     FROM "Comments" c_inner
-                    WHERE c_inner."postedAt" > (NOW() - INTERVAL $(lookbackInterval))
-                      AND c_inner.deleted IS NOT TRUE AND c_inner.retracted IS NOT TRUE AND c_inner."authorIsUnreviewed" IS NOT TRUE
+                    WHERE ${getViewableCommentsFilter('c_inner')}
                     GROUP BY COALESCE(c_inner."topLevelCommentId", c_inner._id)
                     ORDER BY "lastCommentActivity_inner" DESC
                     LIMIT $(threadCandidateLimit)
@@ -789,8 +792,7 @@ class CommentsRepo extends AbstractRepo<"Comments"> {
                 SELECT "threadTopLevelId_inner_rat" FROM (
                     SELECT COALESCE(c_inner."topLevelCommentId", c_inner._id) AS "threadTopLevelId_inner_rat", MAX(c_inner."postedAt") AS "lastCommentActivity_inner"
                     FROM "Comments" c_inner
-                    WHERE c_inner."postedAt" > (NOW() - INTERVAL $(lookbackInterval))
-                      AND c_inner.deleted IS NOT TRUE AND c_inner.retracted IS NOT TRUE AND c_inner."authorIsUnreviewed" IS NOT TRUE
+                    WHERE ${getViewableCommentsFilter('c_inner')}
                     GROUP BY COALESCE(c_inner."topLevelCommentId", c_inner._id)
                     ORDER BY "lastCommentActivity_inner" DESC
                     LIMIT $(threadCandidateLimit)
@@ -816,8 +818,7 @@ class CommentsRepo extends AbstractRepo<"Comments"> {
                 SELECT "threadTopLevelId_inner_rat" FROM (
                     SELECT COALESCE(c_inner."topLevelCommentId", c_inner._id) AS "threadTopLevelId_inner_rat", MAX(c_inner."postedAt") AS "lastCommentActivity_inner"
                     FROM "Comments" c_inner
-                    WHERE c_inner."postedAt" > (NOW() - INTERVAL $(lookbackInterval))
-                      AND c_inner.deleted IS NOT TRUE AND c_inner.retracted IS NOT TRUE AND c_inner."authorIsUnreviewed" IS NOT TRUE
+                    WHERE ${getViewableCommentsFilter('c_inner')}
                     GROUP BY COALESCE(c_inner."topLevelCommentId", c_inner._id)
                     ORDER BY "lastCommentActivity_inner" DESC
                     LIMIT $(threadCandidateLimit)

@@ -61,6 +61,7 @@ export const getViewableCommentsSelector = (commentsTableAlias?: string) => {
   const aliasPrefix = commentsTableAlias ? `${commentsTableAlias}.` : "";
   return `
     ${aliasPrefix}"rejected" IS NOT TRUE AND
+    ${aliasPrefix}"draft" IS NOT TRUE AND
     ${aliasPrefix}"debateResponse" IS NOT TRUE AND
     ${aliasPrefix}"authorIsUnreviewed" IS NOT TRUE
   `;

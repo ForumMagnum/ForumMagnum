@@ -89,6 +89,12 @@ export interface CommentTreeOptions {
    * comments.
    */
   hideReply?: boolean,
+
+  /**
+   * If passed, the VoteBottom component will be hidden from the bottom of
+   * comments.
+   */
+  hideVoteBottom?: boolean,
   
   /**
    * If passed, the comment will have a link to the post or tag it

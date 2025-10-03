@@ -85,7 +85,7 @@ const CommentBottom = ({comment, treeOptions, votingSystem, voteProps, commentBo
     )}>
       <CommentBottomCaveats comment={comment} />
       {showReplyButton && replyButton}
-      {VoteBottomComponent && <VoteBottomComponent
+      {VoteBottomComponent && !treeOptions.hideVoteBottom && <VoteBottomComponent
         document={comment}
         hideKarma={treeOptions.post?.hideCommentKarma}
         collectionName="Comments"
