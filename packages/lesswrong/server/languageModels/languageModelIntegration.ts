@@ -1,4 +1,4 @@
-import OpenAI from "openai";
+import type OpenAI from "openai";
 import { dataToMarkdown } from '../editor/conversionUtils';
 import { openAIApiKey, openAIOrganizationId } from '../databaseSettings';
 import drop from 'lodash/drop';
@@ -11,6 +11,7 @@ export async function getOpenAI(): Promise<OpenAI|null> {
     const organizationId = openAIOrganizationId.get();
     
     if (apiKey) {
+      const { OpenAI } = await import('openai');
       openAIApi = new OpenAI({
         apiKey,
         organization: organizationId ?? undefined,

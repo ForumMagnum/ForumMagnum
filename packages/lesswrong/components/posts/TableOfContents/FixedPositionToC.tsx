@@ -238,6 +238,11 @@ const styles = (theme: ThemeType) => ({
   },
 });
 
+function getNewSearchParams(query: Record<string, string>) {
+  const { commentId, ...restQuery } = query;
+  return isEmpty(restQuery) ? '' : `?${qs.stringify(restQuery)}`;
+}
+
 const FixedPositionToc = ({tocSections, title, heading, onClickSection, displayOptions, classes, hover, scrollContainerRef}: {
   tocSections: ToCSection[],
   title: string|null,
@@ -256,7 +261,7 @@ const FixedPositionToc = ({tocSections, title, heading, onClickSection, displayO
   const [hasLoaded, setHasLoaded] = useState(false);
 
   const postContext = usePostsPageContext()?.fullPost;
-  const disableProgressBar = ((!isLWorAF && !postContext) || isServer || postContext?.shortform);
+  const disableProgressBar = ((!isLWorAF() && !postContext) || isServer || postContext?.shortform);
 
   const { readingProgressBarRef } = usePostReadProgress({
     updateProgressBar: (element, scrollPercent) => element.style.setProperty("--scrollAmount", `${scrollPercent}%`),
@@ -292,11 +297,11 @@ const FixedPositionToc = ({tocSections, title, heading, onClickSection, displayO
         behavior: 'smooth',
       });
 
-      // Update URL hash for consistency
-      const { commentId, ...restQuery } = query;
       navigate({
-        search: isEmpty(restQuery) ? '' : `?${qs.stringify(restQuery)}`,
+        search: getNewSearchParams(query),
         hash: `#${anchor}`,
+      }, {
+        skipRouter: true,
       });
       return;
     }
@@ -304,14 +309,15 @@ const FixedPositionToc = ({tocSections, title, heading, onClickSection, displayO
     // Fallback to original window-scrolling behaviour
     const anchorY = getAnchorY(anchor);
     if (anchorY !== null) {
-      const { commentId, ...restQuery } = query;
       navigate({
-        search: isEmpty(restQuery) ? '' : `?${qs.stringify(restQuery)}`,
+        search: getNewSearchParams(query),
         hash: `#${anchor}`,
+      }, {
+        skipRouter: true,
       });
       const sectionYdocumentSpace = anchorY + window.scrollY;
 
-      if (!isLWorAF) {
+      if (!isLWorAF()) {
         scrollFocusOnElement({ id: anchor, options: { behavior: 'smooth' } });
       } else {
         jumpToY(sectionYdocumentSpace);
@@ -390,7 +396,12 @@ const FixedPositionToc = ({tocSections, title, heading, onClickSection, displayO
             onClick={ev => {
               if (isRegularClick(ev)) {
                 void handleClick(ev, () => {
-                  navigate("#");
+                  navigate({
+                    search: getNewSearchParams(query),
+                    hash: `#`,
+                  }, {
+                    skipRouter: true,
+                  });
                   const container = scrollContainerRef?.current;
                   if (container) {
                     container.scrollTo({ top: 0, behavior: 'smooth' });

@@ -1,8 +1,9 @@
+"use client";
+
 import { useMessages } from '../common/withMessages';
 import React from 'react';
 import { useCurrentUser } from '../common/withUser';
 import { useNavigate } from '../../lib/routeUtil';
-import { registerComponent } from "../../lib/vulcan-lib/components";
 import { SequencesForm } from './SequencesForm';
 import { defineStyles, useStyles } from '../hooks/useStyles';
 
@@ -157,10 +158,9 @@ export const styles = defineStyles("SequencesNewForm", (theme: ThemeType) => ({
   },
 }));
 
-const SequencesNewForm = ({ redirect, cancelCallback, removeSuccessCallback }: {
-  redirect: any,
-  cancelCallback: any,
-  removeSuccessCallback: any,
+const SequencesNewForm = ({ redirect, cancelCallback }: {
+  redirect?: any,
+  cancelCallback?: any,
 }) => {
   const classes = useStyles(styles);
   const currentUser = useCurrentUser();

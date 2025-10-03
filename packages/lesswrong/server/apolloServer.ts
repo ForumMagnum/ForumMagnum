@@ -1,48 +1,45 @@
 import { ApolloServer, ApolloServerPlugin, GraphQLRequestContext, GraphQLRequestListener } from '@apollo/server';
 import { expressMiddleware } from '@as-integrations/express5';
 import { GraphQLError, GraphQLFormattedError } from 'graphql';
-import { handleRequest } from './rendering/renderPage';
+// import { handleRequest } from './rendering/renderPage';
 import cors from 'cors';
 import { isDevelopment } from '../lib/executionEnvironment';
-import { pickerMiddleware, addStaticRoute } from './vulcan-lib/staticRoutes';
+// import { pickerMiddleware, addStaticRoute } from './vulcan-lib/staticRoutes';
 import { graphiqlMiddleware } from './vulcan-lib/apollo-server/graphiql'; 
-import { getUserFromReq, configureSentryScope, getContextFromReqAndRes } from './vulcan-lib/apollo-server/context';
+import { configureSentryScope, getContextFromReqAndRes } from './vulcan-lib/apollo-server/context';
+import { getUserFromReq } from './vulcan-lib/apollo-server/getUserFromReq';
 import universalCookiesMiddleware from 'universal-cookie-express';
 import { formatError } from 'apollo-errors';
-import * as Sentry from '@sentry/node';
+// import { getIsolationScope } from '@sentry/nextjs';
 import { app } from './expressServer';
 import path from 'path'
-import { addAuthMiddlewares, expressSessionSecretSetting } from './authenticationMiddlewares';
-import { addForumSpecificMiddleware } from './forumSpecificMiddleware';
-import { addSentryMiddlewares, logGraphqlQueryStarted, logGraphqlQueryFinished } from './logging';
+import { expressSessionSecretSetting, botProtectionCommentRedirectSetting } from './databaseSettings';
+// import { addForumSpecificMiddleware } from './forumSpecificMiddleware';
+import { logGraphqlQueryStarted, logGraphqlQueryFinished } from './logging';
 import expressSession from 'express-session';
 import MongoStore from './vendor/ConnectMongo/MongoStore';
 import { ckEditorTokenHandler } from './ckEditor/ckEditorToken';
 import { getEAGApplicationData } from './zohoUtils';
 import { addTestingRoutes } from './testingSqlClient';
 import { addCrosspostRoutes } from './fmCrosspost/routes';
-import { addV2CrosspostHandlers } from './crossposting/handlers';
 import { getUserEmail } from "../lib/collections/users/helpers";
 import { inspect } from "util";
 import { datadogMiddleware } from './datadog/datadogMiddleware';
 import { Sessions } from '../server/collections/sessions/collection';
-import { addServerSentEventsEndpoint } from "./serverSentEvents";
 import { botRedirectMiddleware } from './botRedirect';
 import { hstsMiddleware } from './hsts';
 import { getClientBundle } from './utils/bundleUtils';
 import ElasticController from './search/elastic/ElasticController';
-import { closePerfMetric, openPerfMetric, perfMetricMiddleware } from './perfMetrics';
-import { addAdminRoutesMiddleware } from './adminRoutesMiddleware'
+import { closePerfMetric, openPerfMetric } from './perfMetrics';
+// import { addAdminRoutesMiddleware } from './adminRoutesMiddleware'
 import { addCacheControlMiddleware } from './cacheControlMiddleware';
-import { addAutocompleteEndpoint } from './autocompleteEndpoint';
 import { getSqlClientOrThrow } from './sql/sqlClient';
-import { addLlmChatEndpoint } from './resolvers/anthropicResolvers';
 import { getCommandLineArguments } from './commandLine';
 import { isDatadogEnabled, isEAForum, isElasticEnabled, performanceMetricLoggingEnabled, testServerSetting } from "../lib/instanceSettings";
 import { getExecutableSchema } from './vulcan-lib/apollo-server/initGraphQL';
 import express from 'express';
 import { getSiteUrl } from '@/lib/vulcan-lib/utils';
-import { botProtectionCommentRedirectSetting } from './databaseSettings';
+import { requestToNextRequest } from './utils/requestToNextRequest';
 import { getDefaultViewSelector } from '@/lib/utils/viewUtils';
 import { NotificationsViews } from '@/lib/collections/notifications/views';
 import Notifications from './collections/notifications/collection';
@@ -139,7 +136,7 @@ export async function startWebserver() {
   app.use('/analyticsEvent', express.json({ limit: '50mb' }));
   app.use('/ckeditor-webhook', express.json({ limit: '50mb' }));
 
-  if (isElasticEnabled) {
+  if (isElasticEnabled()) {
     // We register this here (before the auth middleware) to avoid blocking
     // search requests whilst waiting to fetch the current user from Postgres,
     // which is never actually used.
@@ -147,15 +144,15 @@ export async function startWebserver() {
   }
 
   // Most middleware need to run after those added by addAuthMiddlewares, so that they can access the user that passport puts on the request.  Be careful if moving it!
-  addAuthMiddlewares(addMiddleware);
-  addAdminRoutesMiddleware(addMiddleware);
-  addForumSpecificMiddleware(addMiddleware);
-  addSentryMiddlewares(addMiddleware);
+  // addAuthMiddlewares(addMiddleware);
+  // addAdminRoutesMiddleware(addMiddleware);
+  // addForumSpecificMiddleware(addMiddleware);
+  // addSentryMiddlewares(addMiddleware);
   addCacheControlMiddleware(addMiddleware);
-  if (isDatadogEnabled) {
+  if (isDatadogEnabled()) {
     app.use(datadogMiddleware);
   }
-  app.use(pickerMiddleware);
+  // app.use(pickerMiddleware);
   app.use(botRedirectMiddleware);
   app.use(hstsMiddleware);
   
@@ -168,7 +165,7 @@ export async function startWebserver() {
     
     schema: getExecutableSchema(),
     formatError: (e): GraphQLFormattedError => {
-      Sentry.captureException(new GraphQLError(e.message, e));
+      // Sentry.captureException(new GraphQLError(e.message, e));
       const {message, ...properties} = e;
       // eslint-disable-next-line no-console
       console.error(`[GraphQLError: ${message}]`, inspect(properties, {depth: null}));
@@ -182,7 +179,7 @@ export async function startWebserver() {
 
   app.use('/graphql', express.json({ limit: '50mb' }));
   app.use('/graphql', express.text({ type: 'application/graphql' }));
-  app.use('/graphql', perfMetricMiddleware);
+  // app.use('/graphql', perfMetricMiddleware);
 
   await apolloServer.start();
 
@@ -200,48 +197,48 @@ export async function startWebserver() {
   app.use('/graphql', cors());
   app.use('/graphql', expressMiddleware(apolloServer, {
     context: async ({ req, res }: { req: express.Request, res: express.Response }) => {
-      const context = await getContextFromReqAndRes({req, res, isSSR: false});
-      configureSentryScope(context);
+      const context = await getContextFromReqAndRes({req: requestToNextRequest(req), isSSR: false});
+      // configureSentryScope(context, getIsolationScope());
       return context;
     },
   }))
 
-  addStaticRoute("/js/bundle.js", ({query}, req, res, context) => {
-    const {hash: bundleHash, content: bundleBuffer, brotli: bundleBrotliBuffer} = getClientBundle().resource;
-    let headers: Record<string,string> = {}
-    const acceptBrotli = req.headers['accept-encoding'] && req.headers['accept-encoding'].includes('br')
+  // addStaticRoute("/js/bundle.js", ({query}, req, res, context) => {
+  //   const {hash: bundleHash, content: bundleBuffer, brotli: bundleBrotliBuffer} = getClientBundle().resource;
+  //   let headers: Record<string,string> = {}
+  //   const acceptBrotli = req.headers['accept-encoding'] && req.headers['accept-encoding'].includes('br')
 
-    if ((query.hash && query.hash !== bundleHash) || (acceptBrotli && bundleBrotliBuffer === null)) {
-      // If the query specifies a hash, but it's wrong, this probably means there's a
-      // version upgrade in progress, and the SSR and the bundle were handled by servers
-      // on different versions. Serve whatever bundle we have (there's really not much
-      // else to do), but set the Cache-Control header differently so that it will be
-      // fixed on the next refresh.
-      //
-      // If the client accepts brotli compression but we don't have a valid brotli compressed bundle,
-      // that either means we are running locally (in which case chache control isn't important), or that
-      // the brotli bundle is currently being built (in which case set a short cache TTL to prevent the CDN
-      // from serving the uncompressed bundle for too long).
-      headers = {
-        "Cache-Control": "public, max-age=60",
-        "Content-Type": "text/javascript; charset=utf-8"
-      }
-    } else {
-      headers = {
-        "Cache-Control": "public, max-age=604800, immutable",
-        "Content-Type": "text/javascript; charset=utf-8"
-      }
-    }
+  //   if ((query.hash && query.hash !== bundleHash) || (acceptBrotli && bundleBrotliBuffer === null)) {
+  //     // If the query specifies a hash, but it's wrong, this probably means there's a
+  //     // version upgrade in progress, and the SSR and the bundle were handled by servers
+  //     // on different versions. Serve whatever bundle we have (there's really not much
+  //     // else to do), but set the Cache-Control header differently so that it will be
+  //     // fixed on the next refresh.
+  //     //
+  //     // If the client accepts brotli compression but we don't have a valid brotli compressed bundle,
+  //     // that either means we are running locally (in which case chache control isn't important), or that
+  //     // the brotli bundle is currently being built (in which case set a short cache TTL to prevent the CDN
+  //     // from serving the uncompressed bundle for too long).
+  //     headers = {
+  //       "Cache-Control": "public, max-age=60",
+  //       "Content-Type": "text/javascript; charset=utf-8"
+  //     }
+  //   } else {
+  //     headers = {
+  //       "Cache-Control": "public, max-age=604800, immutable",
+  //       "Content-Type": "text/javascript; charset=utf-8"
+  //     }
+  //   }
 
-    if (bundleBrotliBuffer !== null && acceptBrotli) {
-      headers["Content-Encoding"] = "br";
-      res.writeHead(200, headers);
-      res.end(bundleBrotliBuffer);
-    } else {
-      res.writeHead(200, headers);
-      res.end(bundleBuffer);
-    }
-  });
+  //   if (bundleBrotliBuffer !== null && acceptBrotli) {
+  //     headers["Content-Encoding"] = "br";
+  //     res.writeHead(200, headers);
+  //     res.end(bundleBrotliBuffer);
+  //   } else {
+  //     res.writeHead(200, headers);
+  //     res.end(bundleBuffer);
+  //   }
+  // });
   // Setup CKEditor Token
   app.use("/ckeditor-token", ckEditorTokenHandler)
   
@@ -263,12 +260,12 @@ export async function startWebserver() {
   }));
   
   app.get('/api/eag-application-data', async function(req, res, next) {
-    if (!isEAForum) {
+    if (!isEAForum()) {
       next()
       return
     }
     
-    const currentUser = getUserFromReq(req)
+    const currentUser = await getUserFromReq(requestToNextRequest(req))
     if (!currentUser) {
       res.status(403).send("Not logged in")
       return
@@ -284,9 +281,7 @@ export async function startWebserver() {
   })
 
   addCrosspostRoutes(app);
-  addV2CrosspostHandlers(app);
   addTestingRoutes(app);
-  addLlmChatEndpoint(app);
 
   if (testServerSetting.get()) {
     app.post('/api/quit', (_req, res) => {
@@ -295,8 +290,7 @@ export async function startWebserver() {
     })
   }
 
-  addServerSentEventsEndpoint(app);
-  addAutocompleteEndpoint(app);
+  // addAutocompleteEndpoint(app);
   
   app.get('/node_modules/*', (req, res) => {
     // Under some circumstances (I'm not sure exactly what the trigger is), the
@@ -321,7 +315,7 @@ export async function startWebserver() {
   });
 
   app.get('/api/notificationCount', async (request, response) => {
-    const currentUser = getUserFromReq(request);
+    const currentUser = await getUserFromReq(requestToNextRequest(request));
     if (!currentUser) {
       response.status(401).end("Unauthorized");
       return;
@@ -339,7 +333,7 @@ export async function startWebserver() {
       ...(lastNotificationsCheck && {
         createdAt: {$gt: lastNotificationsCheck},
       }),
-      ...(isFriendlyUI && {
+      ...(isFriendlyUI() && {
         type: {$ne: "newMessage"},
         viewed: {$ne: true},
       }),
@@ -348,7 +342,7 @@ export async function startWebserver() {
     response.status(200).json({ unreadNotificationCount });
   });
 
-  app.get('*', async (request, response) => handleRequest(request, response));
+  // app.get('*', async (request, response) => handleRequest(request, response));
 
   // Start Server
   const listenPort = getCommandLineArguments().listenPort;
@@ -362,9 +356,9 @@ export async function startWebserver() {
   // Route used for checking whether the server is ready for an auto-refresh
   // trigger. Added last so that async stuff can't lead to auto-refresh
   // happening before the server is ready.
-  addStaticRoute('/api/ready', ({query}, _req, res, next) => {
-    res.end('true');
-  });
+  // addStaticRoute('/api/ready', ({query}, _req, res, next) => {
+  //   res.end('true');
+  // });
 }
 
 /**
@@ -394,3 +388,4 @@ export function prefilterHandleRequest(req: express.Request, res: express.Respon
 
   return false;
 }
+

@@ -1,12 +1,14 @@
 import React, { useCallback } from 'react';
 import {userNeedsAFNonMemberWarning} from "./users/helpers";
 import {OpenDialogContextType, useDialog} from "../../components/common/withDialog";
-import AFNonMemberInitialPopup from '@/components/alignment-forum/AFNonMemberInitialPopup';
-import AFNonMemberSuccessPopup from '@/components/alignment-forum/AFNonMemberSuccessPopup';
 import { useMutation } from "@apollo/client/react";
 import { gql } from '@/lib/generated/gql-codegen';
 import uniq from 'lodash/uniq';
 import { useCurrentUser } from '@/components/common/withUser';
+
+import dynamic from 'next/dynamic';
+const AFNonMemberInitialPopup = dynamic(() => import("@/components/alignment-forum/AFNonMemberInitialPopup"), { ssr: false });
+const AFNonMemberSuccessPopup = dynamic(() => import("@/components/alignment-forum/AFNonMemberSuccessPopup"), { ssr: false });
 
 const SuggestAlignmentCommentUpdateMutation = gql(`
   mutation updateCommentCommentsNewForm($selector: SelectorInput!, $data: UpdateCommentDataInput!) {
@@ -38,7 +40,8 @@ export const afNonMemberDisplayInitialPopup = (currentUser: UsersCurrent|null, o
     openDialog({
       name: "AFNonMemberInitialPopup",
       contents: ({onClose}) => <AFNonMemberInitialPopup onClose={onClose}/>
-    })
+    });
+
     return true;
   }
   return false;

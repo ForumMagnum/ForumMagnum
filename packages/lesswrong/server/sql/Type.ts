@@ -10,6 +10,10 @@ export function isVarcharTypeString<T extends DatabaseBaseType>(typeString: T): 
   return typeString.startsWith('VARCHAR(');
 }
 
+export function isVectorTypeString<T extends DatabaseBaseType>(typeString: T): typeString is T & `VECTOR(${number})` {
+  return typeString.startsWith('VECTOR(');
+}
+
 function getBaseTypeInstance(type: DatabaseBaseType, foreignKey?: DatabaseFieldSpecification<CollectionNameString>['foreignKey']) {
   if (isVarcharTypeString(type)) {
     if (type === 'VARCHAR(27)' || typeof foreignKey === 'string') {
@@ -17,6 +21,11 @@ function getBaseTypeInstance(type: DatabaseBaseType, foreignKey?: DatabaseFieldS
     }
     const maxLength = parseInt(type.split('(')[1].split(')')[0]);
     return new StringType(maxLength);
+  }
+
+  if (isVectorTypeString(type)) {
+    const size = parseInt(type.split('(')[1].split(')')[0]);
+    return new VectorType(size);
   }
 
   switch (type) {
@@ -32,8 +41,6 @@ function getBaseTypeInstance(type: DatabaseBaseType, foreignKey?: DatabaseFieldS
       return new JsonType();
     case 'TIMESTAMPTZ':
       return new DateType();
-    case 'VECTOR(1536)':
-      return new VectorType(1536);
   }
 }
 
@@ -78,7 +85,6 @@ export abstract class Type {
     fieldName: string,
     databaseSpec: DatabaseFieldSpecification<N> | undefined,
     graphqlSpec: GraphQLFieldSpecification<N> | undefined,
-    forumType: ForumTypeString,
   ): Type {
     if (!databaseSpec) {
       throw new Error("Can't generate type for resolver-only field");
@@ -86,13 +92,10 @@ export abstract class Type {
 
     if (databaseSpec.defaultValue !== undefined && databaseSpec.defaultValue !== null) {
       const { defaultValue, ...rest } = databaseSpec;
-      const value = defaultValue instanceof DeferredForumSelect
-        ? defaultValue.get(forumType)
-        : defaultValue;
 
       return new DefaultValueType(
-        Type.fromSchema(collectionName, fieldName, rest, graphqlSpec, forumType),
-        value,
+        Type.fromSchema(collectionName, fieldName, rest, graphqlSpec),
+        defaultValue,
       );
     }
 
@@ -105,7 +108,7 @@ export abstract class Type {
       }
 
       return new NotNullType(
-        Type.fromSchema(collectionName, fieldName, newDatabaseSpec, newGraphqlSpec, forumType),
+        Type.fromSchema(collectionName, fieldName, newDatabaseSpec, newGraphqlSpec),
       );
     }
 

@@ -1,25 +1,16 @@
-import { Posts } from "../../server/collections/posts/collection";
 import { PostsMinimumForGetPageUrl, postGetPageUrl } from "../../lib/collections/posts/helpers";
 import { loggerConstructor } from "../../lib/utils/logging";
 import { serverId } from "@/server/analytics/serverAnalyticsWriter";
-import { DatabaseServerSetting } from "../databaseSettings";
-import { CloudFrontClient, CreateInvalidationCommand } from "@aws-sdk/client-cloudfront";
+import { swrCachingEnabledSetting, swrCachingInvalidationIntervalMsSetting, awsRegionSetting, awsAccessKeyIdSetting, awsSecretAccessKeySetting, cloudFrontDistributionIdSetting } from "../databaseSettings";
+import type { CloudFrontClient } from "@aws-sdk/client-cloudfront";
 import { backgroundTask } from "../utils/backgroundTask";
-
-export const swrCachingEnabledSetting = new DatabaseServerSetting<boolean>('swrCaching.enabled', false)
-const swrCachingInvalidationIntervalMsSetting = new DatabaseServerSetting<number>('swrCaching.invalidationIntervalMs', 30_000)
-
-const awsRegionSetting = new DatabaseServerSetting<string>('swrCaching.awsRegion', 'us-east-1');
-const awsAccessKeyIdSetting = new DatabaseServerSetting<string | null>('swrCaching.accessKeyId', null);
-const awsSecretAccessKeySetting = new DatabaseServerSetting<string | null>('swrCaching.secretAccessKey', null);
-const cloudFrontDistributionIdSetting = new DatabaseServerSetting<string | null>('swrCaching.distributionId', null);
 
 const INVALIDATION_USER_AGENT = `ForumMagnumCacheInvalidator/1.0 (Server ID: ${serverId})`;
 
 let cloudFrontClient: CloudFrontClient | null = null;
 let lastClientRefreshTime: number = Date.now();
 
-const getCloudfrontClient = (): CloudFrontClient | null => {
+const getCloudfrontClient = async (): Promise<CloudFrontClient | null> => {
   const now = Date.now();
   // Refresh the client every 5 minutes
   if (!cloudFrontClient || now - lastClientRefreshTime > 300_000) {
@@ -28,6 +19,7 @@ const getCloudfrontClient = (): CloudFrontClient | null => {
     const secretAccessKey = awsSecretAccessKeySetting.get();
 
     if (region && accessKeyId && secretAccessKey) {
+      const { CloudFrontClient } = await import('@aws-sdk/client-cloudfront');
       cloudFrontClient = new CloudFrontClient({
         region: region,
         credentials: {
@@ -67,9 +59,11 @@ const invalidateUrlFromQueue = async (): Promise<void> => {
   const logger = loggerConstructor(`swr-invalidation-queue`);
   const url = invalidationQueue.shift();
   if (!url) return;
+  
+  const { CreateInvalidationCommand } = await import('@aws-sdk/client-cloudfront');
 
   const distributionId = cloudFrontDistributionIdSetting.get()
-  const client = getCloudfrontClient()
+  const client = await getCloudfrontClient()
   if (distributionId && client) {
     logger(`Sending invalidation request to CloudFront. URL: ${url}, serverId: ${serverId}`);
     try {
@@ -131,7 +125,9 @@ export const scheduleQueueProcessing = () => {
 /**
  * Invalidate the CDN cache entry for the given post by pinging the URL
  */
-export const swrInvalidatePostRoute = async (postId: string) => {
+export const swrInvalidatePostRoute = async (postId: string, context: ResolverContext) => {
+  const { Posts } = context;
+
   if (!swrCachingEnabledSetting.get() || invalidationQueue.length > MAX_LENGTH) return;
   const post = await Posts.findOne({_id: postId, swrCachingEnabled: true}, {}, {_id: 1, slug: 1, isEvent: 1, groupId: 1}) as PostsMinimumForGetPageUrl;
 

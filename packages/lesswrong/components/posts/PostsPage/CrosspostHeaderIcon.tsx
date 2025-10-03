@@ -30,7 +30,7 @@ const CrosspostHeaderIcon = ({post, classes}: {
   if (!post.fmCrosspost) {
     return null;
   }
-  const icon = isLW ? lightbulbIcon : compassIcon;
+  const icon = isLW() ? lightbulbIcon : compassIcon;
   const tip = post.fmCrosspost.hostedHere
     ? `This post was crossposted to ${fmCrosspostSiteNameSetting.get()}. Click to view.`
     : `This is a crosspost. Click to view the original on ${fmCrosspostSiteNameSetting.get()}.`;

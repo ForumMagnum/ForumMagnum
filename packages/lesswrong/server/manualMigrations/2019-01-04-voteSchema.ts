@@ -1,7 +1,6 @@
 import { Votes } from '../../server/collections/votes/collection';
 import { registerMigration, migrateDocuments, fillDefaultValues } from './migrationUtils';
 import { getCollection } from '../collections/allCollections';
-import * as _ from 'underscore';
 
 export default registerMigration({
   name: "migrateVotes",
@@ -19,15 +18,15 @@ export default registerMigration({
       migrate: async (documents: Array<DbVote>) => {
         // Get the set of collections that at least one vote in the batch
         // is voting on
-        const collectionNames = _.uniq(_.pluck(documents, "collectionName")) as Array<CollectionNameString>
+        const collectionNames = [...new Set(documents.map(doc => doc.collectionName))]
         
         for(let collectionName of collectionNames) {
           const collection = getCollection(collectionName);
           
           // Go through the votes in the batch and pick out IDs of voted-on
           // documents in this collection.
-          const votesToUpdate = _.filter(documents, doc => doc.collectionName===collectionName)
-          const idsToFind = _.pluck(votesToUpdate, "documentId");
+          const votesToUpdate = documents.filter(doc => doc.collectionName===collectionName)
+          const idsToFind = votesToUpdate.map(vote => vote.documentId);
           
           // Retrieve the voted-on documents.
           const votedDocuments: Array<any> = await collection.find({
@@ -36,10 +35,10 @@ export default registerMigration({
           
           // Extract author IDs from the voted-on documents.
           let authorIdsByDocument: Record<string,string> = {};
-          _.each(votedDocuments, doc => authorIdsByDocument[doc._id] = doc.userId);
+          votedDocuments.forEach(doc => authorIdsByDocument[doc._id] = doc.userId);
           
           // Fill in authorId on the votes.
-          const updates = _.map(votesToUpdate, vote => {
+          const updates = votesToUpdate.map(vote => {
             if (!authorIdsByDocument[vote.documentId]) {
               // eslint-disable-next-line no-console
               console.log("Vote without corresponding authorId ", vote)

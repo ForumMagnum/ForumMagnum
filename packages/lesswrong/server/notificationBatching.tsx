@@ -1,11 +1,6 @@
 import React from 'react';
 import { Notifications } from '../server/collections/notifications/collection';
-import { getNotificationTypes } from '../lib/notificationTypes';
-import { getNotificationTypeByNameServer } from './notificationTypesServer';
-import { EventDebouncer } from './debouncer';
-import toDictionary from '../lib/utils/toDictionary';
 import { userIsAdmin } from '../lib/vulcan-users/permissions';
-import { Posts } from '../server/collections/posts/collection';
 import { getUserEmail } from "../lib/collections/users/helpers";
 import Users from '@/server/collections/users/collection';
 import { computeContextFromUser } from './vulcan-lib/apollo-server/context';
@@ -13,6 +8,10 @@ import gql from 'graphql-tag';
 import { PostsEmail } from './emailComponents/PostsEmail';
 import { UtmParam } from './analytics/utm-tracking';
 import { isEAForum } from '@/lib/instanceSettings';
+import { EmailContextType } from './emailComponents/emailContext';
+import toDictionary from '@/lib/utils/toDictionary';
+import { getNotificationTypes } from '@/lib/notificationTypes';
+import { EventDebouncer } from './debouncer';
 import { backgroundTask } from './utils/backgroundTask';
 
 // string (notification type name) => Debouncer
@@ -51,7 +50,7 @@ export const getUtmParamsForNotificationType = (notificationType: string): Parti
  * Precondition: All notifications in a batch share a notification type
  */
 const sendNotificationBatch = async ({userId, notificationIds, notificationType}: {userId: string, notificationIds: Array<string>, notificationType: string}) => {
-  const { wrapAndSendEmail }: typeof import('./emails/renderEmail') = require('./emails/renderEmail');
+  const { wrapAndSendEmail } = await import('./emails/renderEmail');
   if (!notificationIds || !notificationIds.length)
     throw new Error("Missing or invalid argument: notificationIds (must be a nonempty array)");
   
@@ -94,6 +93,7 @@ const notificationBatchToEmails = async ({user, notificationType, notifications,
   notifications: Array<DbNotification>,
   context: ResolverContext,
 }) => {
+  const { getNotificationTypeByNameServer } = await import('./notificationTypesServer');
   const notificationTypeRenderer = getNotificationTypeByNameServer(notificationType);
   const utmParams = getUtmParamsForNotificationType(notificationType);
   
@@ -108,10 +108,10 @@ const notificationBatchToEmails = async ({user, notificationType, notifications,
       .map(async (notifications: DbNotification[]) => ({
         user,
         to: getUserEmail(user),
-        from: notificationTypeRenderer.from,
+        from: notificationTypeRenderer.from?.(),
         subject: await notificationTypeRenderer.emailSubject({ user, notifications, context }),
-        body: await notificationTypeRenderer.emailBody({ user, notifications, context }),
-        ...(isEAForum && { utmParams: { ...utmParams, utm_user_id: user._id } })
+        body: async (emailContext: EmailContextType) => await notificationTypeRenderer.emailBody({ user, notifications, emailContext }),
+        ...(isEAForum() && { utmParams: { ...utmParams, utm_user_id: user._id } })
       }))
   );
 }
@@ -119,8 +119,8 @@ const notificationBatchToEmails = async ({user, notificationType, notifications,
 
 export const graphqlQueries = {
   async EmailPreview(root: void, {notificationIds, postId}: {notificationIds?: Array<string>, postId?: string}, context: ResolverContext) {
-    const { wrapAndRenderEmail }: typeof import('./emails/renderEmail') = require('./emails/renderEmail');
-    const { currentUser } = context;
+    const { wrapAndRenderEmail } = await import('./emails/renderEmail');
+    const { currentUser, Posts } = context;
     if (!currentUser || !userIsAdmin(currentUser)) {
       throw new Error("This debug feature is only available to admin accounts");
     }
@@ -130,8 +130,12 @@ export const graphqlQueries = {
     if (notificationIds?.length && postId) {
       throw new Error("Please only specify notificationIds or postId in the query")
     }
+
+    const userEmail = getUserEmail(currentUser);
+    if (!userEmail) {
+      throw new Error("User has no email address");
+    }
     
-    let emails: any[] = []
     if (notificationIds?.length) {
       const notifications = await Notifications.find(
         { _id: {$in: notificationIds} }
@@ -140,25 +144,29 @@ export const graphqlQueries = {
       // Assume they are all of the same type
       const notificationType = notifications[0].type;
 
-      emails = await notificationBatchToEmails({
+      const emails = await notificationBatchToEmails({
         user: currentUser,
         notificationType,
         notifications,
         context
       });
-    }
-    if (postId) {
+      const renderedEmails = await Promise.all(emails.map(async email => await wrapAndRenderEmail({ ...email, to: email.to ?? userEmail })));
+      return renderedEmails;
+    } else if (postId) {
       const post = await Posts.findOne(postId)
-      if (post) {
-        emails = [{
-          user: currentUser,
-          subject: post.title,
-          body: <PostsEmail postIds={[post._id]} reason='you have the "Email me new posts in Curated" option enabled' />
-        }]
+      if (!post) {
+        return [];
       }
+      const renderedEmail = await wrapAndRenderEmail({
+        user: currentUser,
+        subject: post.title,
+        body: (emailContext: EmailContextType) => <PostsEmail postIds={[post._id]} reason='you have the "Email me new posts in Curated" option enabled' emailContext={emailContext} />,
+        to: userEmail
+      })
+      return [renderedEmail];
+    } else {
+      return [];
     }
-    const renderedEmails = await Promise.all(emails.map(async email => await wrapAndRenderEmail(email)));
-    return renderedEmails;
   }
 };
 

@@ -5,8 +5,9 @@ import { Revisions } from '../../server/collections/revisions/collection';
 import { accessFilterSingle } from '../../lib/utils/schemaUtils';
 import { mergeFeedQueries, fixedResultSubquery, viewBasedSubquery, fieldChangesSubquery } from '../utils/feedUtil';
 import { MultiDocuments } from '@/server/collections/multiDocuments/collection';
-import { defaultTagHistorySettings, TagHistorySettings } from '@/components/tagging/history/TagHistoryPage';
-import { MAIN_TAB_ID } from '@/lib/arbital/useTagLenses';
+import type { TagHistorySettings } from '@/components/tagging/history/TagHistoryPage';
+import { defaultTagHistorySettings } from '@/lib/collections/tags/helpers';
+import { MAIN_TAB_ID } from "@/lib/collections/tags/constants";
 import gql from 'graphql-tag';
 
 

@@ -1,6 +1,6 @@
 import {useState, useCallback, ReactNode} from 'react'
 import { useCurrentUser } from "../common/withUser";
-import { sortBy } from 'underscore';
+import sortBy from 'lodash/sortBy';
 import { postGetLastCommentedAt } from "../../lib/collections/posts/helpers";
 import { useOnMountTracking } from "../../lib/analyticsEvents";
 import type { Placement as PopperPlacementType } from "popper.js"
@@ -9,6 +9,7 @@ import { PostsItemConfig } from "./usePostsItem";
 import { PostsListViewType, usePostsListView } from "../hooks/usePostsListView";
 import { gql } from "@/lib/generated/gql-codegen";
 import { useQueryWithLoadMore } from '../hooks/useQueryWithLoadMore';
+import uniqBy from 'lodash/uniqBy';
 
 const postsListWithVotesQuery = gql(`
   query postsListWithVotes($selector: PostSelector, $limit: Int, $enableTotal: Boolean) {
@@ -103,7 +104,7 @@ export type PostsListConfig = {
   repeatedPostsPrecedence?: number
 }
 
-const defaultTooltipPlacement = isFriendlyUI
+const getDefaultTooltipPlacement = () => isFriendlyUI()
   ? "bottom-start"
   : "bottom-end";
 
@@ -132,7 +133,7 @@ export const usePostsList = <TagId extends string | undefined = undefined>({
   hideTag = false,
   hideTrailingButtons = false,
   hideTagRelevance = false,
-  tooltipPlacement=defaultTooltipPlacement,
+  tooltipPlacement=getDefaultTooltipPlacement(),
   boxShadow = true,
   curatedIconLeft = false,
   showFinalBottomBorder = false,
@@ -231,9 +232,10 @@ export const usePostsList = <TagId extends string | undefined = undefined>({
   const maybeMorePosts = !!(results?.length && (results.length >= limit)) ||
     alwaysShowLoadMore;
 
-  let orderedResults = (order && results) ? sortBy(results, post => order.indexOf(post._id)) : results;
-  if (defaultToShowUnreadComments && results) {
-    orderedResults = sortBy(results, (post) => {
+  const uniqueResults = results ? uniqBy(results, p=>p._id) : results;
+  let orderedResults = (order && uniqueResults) ? sortBy(uniqueResults, post => order.indexOf(post._id)) : results;
+  if (defaultToShowUnreadComments && orderedResults) {
+    orderedResults = sortBy(orderedResults, (post) => {
       const postLastCommentedAt = postGetLastCommentedAt(post)
       return !post.lastVisitedAt || !postLastCommentedAt || (new Date(post.lastVisitedAt) >= postLastCommentedAt);
     })
@@ -245,7 +247,8 @@ export const usePostsList = <TagId extends string | undefined = undefined>({
       return {postId: post._id, score: post.score, baseScore: post.baseScore}
     });
 
-  const {view: contextViewType} = usePostsListView();
+  const {getView} = usePostsListView();
+  const contextViewType = getView();
   const viewType: PostsListViewType = configuredViewType === "fromContext"
     ? contextViewType
     : configuredViewType;

@@ -5,7 +5,6 @@ import { extractGoogleDocId, googleDocIdToUrl, postGetEditUrl } from "../../lib/
 import { useMessages } from "../common/withMessages";
 import { useTracking } from "../../lib/analyticsEvents";
 import { registerComponent } from "../../lib/vulcan-lib/components";
-import { Link } from "../../lib/reactRouterWrapper";
 import { useLocation, useNavigate } from "../../lib/routeUtil";
 import EAButton from "../ea-forum/EAButton";
 import ForumIcon from "../common/ForumIcon";
@@ -13,17 +12,6 @@ import PopperCard from "../common/PopperCard";
 import LWClickAwayListener from "../common/LWClickAwayListener";
 import Loading from "../vulcan-core/Loading";
 import { gql } from "@/lib/generated/gql-codegen";
-
-const GoogleServiceAccountSessionInfoMultiQuery = gql(`
-  query multiGoogleServiceAccountSessionGoogleDocImportButtonQuery($selector: GoogleServiceAccountSessionSelector, $limit: Int, $enableTotal: Boolean) {
-    googleServiceAccountSessions(selector: $selector, limit: $limit, enableTotal: $enableTotal) {
-      results {
-        ...GoogleServiceAccountSessionInfo
-      }
-      totalCount
-    }
-  }
-`);
 
 const styles = (theme: ThemeType) => ({
   button: {
@@ -112,7 +100,6 @@ const GoogleDocImportButton = ({ postId, version, classes }: { postId?: string; 
   const [googleDocUrl, setGoogleDocUrl] = useState("");
   const [open, setOpen] = useState(false)
   const anchorEl = useRef<HTMLDivElement | null>(null)
-  const [canImport, setCanImport] = useState(false);
   const [errorMessage, setErrorMessage] = useState<string | null>(null)
   const { captureEvent } = useTracking()
   const { flash } = useMessages();
@@ -142,79 +129,8 @@ const GoogleDocImportButton = ({ postId, version, classes }: { postId?: string; 
     }
   }, [previousDocId])
 
-
   const fileId = extractGoogleDocId(googleDocUrl)
-  const {
-    data: canAccessQuery,
-    loading: canAccessQueryLoading,
-    refetch,
-  } = useQuery(
-    gql(`
-      query CanAccessGoogleDoc($fileUrl: String!) {
-        CanAccessGoogleDoc(fileUrl: $fileUrl)
-      }
-    `),
-    {
-      variables: {
-        fileUrl: googleDocUrl,
-      },
-      fetchPolicy: "network-only",
-      ssr: false,
-      skip: !fileId,
-    }
-  );
-
-  // Re-check the access every 5s, so if the user updates access they won't have to refresh
-  useEffect(() => {
-    let intervalId: ReturnType<typeof setInterval> | null = null;
-
-    if (fileId && open) {
-      intervalId = setInterval(() => {
-        void refetch();
-      }, 5000);
-    }
-
-    return () => {
-      if (intervalId) {
-        clearInterval(intervalId);
-      }
-    };
-  }, [fileId, open, refetch]);
-
-  useEffect(() => {
-    const canAccess = canAccessQuery?.CanAccessGoogleDoc
-
-    if (canAccess === true) {
-      setCanImport(true)
-      setErrorMessage(null)
-      return
-    }
-    if (canAccess === false) {
-      setCanImport(false)
-      if (fileId) {
-        setErrorMessage("We don't have access to that doc")
-      }
-      return
-    }
-
-    if (!fileId) {
-      setCanImport(false)
-      setErrorMessage(null)
-    }
-  }, [canAccessQuery?.CanAccessGoogleDoc, fileId])
-
-  const { data, loading: serviceAccountsLoading } = useQuery(GoogleServiceAccountSessionInfoMultiQuery, {
-    variables: {
-      selector: { default: {} },
-      limit: 10,
-      enableTotal: false,
-    },
-    notifyOnNetworkStatusChange: true,
-    context: { batchKey: "docImportInfo" },
-  });
-
-  const serviceAccounts = data?.googleServiceAccountSessions?.results;
-  const email = serviceAccounts?.[0]?.email
+  const canImport = !!fileId
 
   const [importGoogleDocMutation, {loading: mutationLoading}] = useMutation(
     gql(`
@@ -226,6 +142,7 @@ const GoogleDocImportButton = ({ postId, version, classes }: { postId?: string; 
     `),
     {
       onCompleted: (data: { ImportGoogleDoc: PostsBase }) => {
+        setErrorMessage(null)
         const postId = data?.ImportGoogleDoc?._id;
         const linkSharingKey = data?.ImportGoogleDoc?.linkSharingKey;
         const editPostUrl = postGetEditUrl(postId, false, linkSharingKey ?? undefined);
@@ -251,7 +168,7 @@ const GoogleDocImportButton = ({ postId, version, classes }: { postId?: string; 
           isNew: !postId,
         });
 
-        // This should only rarely happen, as the access check covers most cases
+        setErrorMessage(error.message)
         flash(error.message)
       }
     }
@@ -270,15 +187,6 @@ const GoogleDocImportButton = ({ postId, version, classes }: { postId?: string; 
     });
   }, [googleDocUrl, importGoogleDocMutation, postId]);
 
-  const onClickEmail = useCallback(() => {
-    if (!email) return;
-
-    void navigator.clipboard.writeText(email);
-    flash(`"${email}" copied to clipboard`);
-  }, [email, flash]);
-
-  const showLoading = (canAccessQueryLoading && !canImport) || mutationLoading;
-
   return (
     <>
       <div ref={anchorEl}>
@@ -295,39 +203,24 @@ const GoogleDocImportButton = ({ postId, version, classes }: { postId?: string; 
       <PopperCard open={open} anchorEl={anchorEl.current} placement="bottom-start" className={classes.popper}>
         <LWClickAwayListener onClickAway={() => handleToggle(false)}>
           <div className={classes.card}>
-            {(email || serviceAccountsLoading) ? (
-              <>
-                <div className={classes.info}>
-                  Paste a link that is public or shared with{" "}
-                  <span className={classes.underline} onClick={onClickEmail}>
-                    {email}
-                  </span>
-                </div>
-                <input
-                  className={classes.input}
-                  type="url"
-                  placeholder="https://docs.google.com/example"
-                  value={googleDocUrl}
-                  onChange={(event: React.ChangeEvent<HTMLInputElement>) => setGoogleDocUrl(event.target.value)}
-                />
-                {errorMessage && <div className={classes.error}>{errorMessage}</div>}
-                <EAButton className={classes.formButton} disabled={!canImport} onClick={handleImportClick}>
-                  {showLoading ? <Loading className={classes.loadingDots} /> : <>Import Google doc</>}
-                </EAButton>
-                <div className={classes.footer}>
-                  This will overwrite any unsaved changes
-                  {postId ? ", but you can still restore saved versions from “Version history”" : ""}
-                </div>
-              </>
-            ) : (
-              <div className={classes.info}>
-                Error in configuration,{" "}
-                <Link to="/contact" className={classes.underline} target="_blank" rel="noopener noreferrer">
-                  contact support
-                </Link>{" "}
-                if this persists
-              </div>
-            )}
+            <div className={classes.info}>
+              Paste a link to a publicly accessible Google Doc (sharing set to "Anyone with the link can view")
+            </div>
+            <input
+              className={classes.input}
+              type="url"
+              placeholder="https://docs.google.com/document/d/..."
+              value={googleDocUrl}
+              onChange={(event: React.ChangeEvent<HTMLInputElement>) => setGoogleDocUrl(event.target.value)}
+            />
+            {errorMessage && <div className={classes.error}>{errorMessage}</div>}
+            <EAButton className={classes.formButton} disabled={!canImport} onClick={handleImportClick}>
+              {mutationLoading ? <Loading className={classes.loadingDots} /> : <>Import Google doc</>}
+            </EAButton>
+            <div className={classes.footer}>
+              This will overwrite any unsaved changes
+              {postId ? `, but you can still restore saved versions from "Version history"` : ""}
+            </div>
           </div>
         </LWClickAwayListener>
       </PopperCard>

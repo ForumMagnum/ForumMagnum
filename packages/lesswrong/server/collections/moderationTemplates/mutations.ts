@@ -57,7 +57,7 @@ export async function createModerationTemplate({ data }: CreateModerationTemplat
     newDocument: documentWithId,
   };
 
-  await uploadImagesInEditableFields({
+  uploadImagesInEditableFields({
     newDoc: documentWithId,
     props: asyncProperties,
   });
@@ -95,7 +95,7 @@ export async function updateModerationTemplate({ selector, data }: UpdateModerat
 
   await updateCountOfReferencesOnOtherCollectionsAfterUpdate('ModerationTemplates', updatedDocument, oldDocument);
 
-  await reuploadImagesIfEditableFieldsChanged({
+  reuploadImagesIfEditableFieldsChanged({
     newDoc: updatedDocument,
     props: updateCallbackProperties,
   });

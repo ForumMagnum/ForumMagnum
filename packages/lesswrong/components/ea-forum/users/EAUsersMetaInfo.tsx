@@ -2,7 +2,7 @@ import React from "react";
 import { registerComponent } from "../../../lib/vulcan-lib/components";
 import { Link } from "../../../lib/reactRouterWrapper";
 import { CAREER_STAGES, SOCIAL_MEDIA_PROFILE_FIELDS, SocialMediaProfileField } from "@/lib/collections/users/helpers";
-import { communityPath } from '@/lib/pathConstants';
+import { getCommunityPath } from '@/lib/pathConstants';
 import ContentStyles from "../../common/ContentStyles";
 import ForumIcon from "../../common/ForumIcon";
 import FormatDate from "../../common/FormatDate";
@@ -94,7 +94,7 @@ const EAUsersMetaInfo = ({user, classes}: {
           : null;
       })}
       {user.mapLocation &&
-        <Link to={`${communityPath}#individuals`} className={classes.userMetaInfo}>
+        <Link to={`${getCommunityPath()}#individuals`} className={classes.userMetaInfo}>
           <ForumIcon icon="MapPin" className={classes.userMetaInfoIcon} />
           {user.mapLocation.formatted_address}
         </Link>

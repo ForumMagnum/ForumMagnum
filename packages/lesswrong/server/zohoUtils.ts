@@ -1,8 +1,4 @@
-import { DatabaseServerSetting } from './databaseSettings';
-
-const zohoClientId = new DatabaseServerSetting('zoho.clientId', '')
-const zohoClientSecret = new DatabaseServerSetting('zoho.secret', '')
-const zohoRefreshToken = new DatabaseServerSetting('zoho.refreshToken', '')
+import { zohoClientId, zohoClientSecret, zohoRefreshToken } from './databaseSettings';
 
 let accessToken = ''
 

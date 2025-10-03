@@ -5,10 +5,9 @@ import { isRecombeeRecommendablePost, postGetPageUrl } from '../../lib/collectio
 import { curatedUrl } from '../recommendations/constants';
 import { Link } from '../../lib/reactRouterWrapper';
 import { isFriendlyUI } from '../../themes/forumTheme';
-import { isAF } from '../../lib/instanceSettings';
+import { isAF, recombeeEnabledSetting } from '@/lib/instanceSettings';
 import { useTracking } from '@/lib/analyticsEvents';
 import { useSetIsHiddenMutation } from '../dropdowns/posts/useSetIsHidden';
-import { recombeeEnabledSetting } from '@/lib/publicSettings';
 import { recombeeApi } from '@/lib/recombee/client';
 import { useCurrentUser } from '../common/withUser';
 import { IsRecommendationContext } from '../dropdowns/posts/PostActions';
@@ -92,7 +91,7 @@ export const CuratedIcon = ({hasColor}: {
         <Link to={curatedUrl}>
           <ForumIcon icon="Star" className={classNames(
             classes.curatedIcon,
-            {[classes.curatedIconColor]: hasColor && isFriendlyUI},
+            {[classes.curatedIconColor]: hasColor && isFriendlyUI()},
           )}/>
         </Link>
       </LWTooltip>
@@ -160,7 +159,7 @@ export const PostsItemIcons = ({post, hover, hideCuratedIcon, hidePersonalIcon}:
       <LWTooltip title="Dialogue" placement="right">
         <ForumIcon
           icon={
-            isFriendlyUI
+            isFriendlyUI()
               ? "ChatBubbleLeftRight"
               : "ChatBubbleLeftRightFilled"
           }
@@ -175,7 +174,7 @@ export const PostsItemIcons = ({post, hover, hideCuratedIcon, hidePersonalIcon}:
       </LWTooltip>
     </span>}
 
-    {!isAF && post.af && <span className={classes.postIcon}>
+    {!isAF() && post.af && <span className={classes.postIcon}>
       <LWTooltip title={<div>Crossposted from AlignmentForum.org<div><em>(Click to visit AF version)</em></div></div>} placement="right">
           <a href={`https://alignmentforum.org${postGetPageUrl(post)}`}><OmegaIcon className={classNames(classes.icon, classes.alignmentIcon)}/></a>
       </LWTooltip>

@@ -1,6 +1,6 @@
 import { registerComponent } from '../../lib/vulcan-lib/components';
 import React, { useState, useEffect, useRef } from 'react';
-import { useUserLocation } from '../../lib/collections/users/helpers';
+import { useUserLocation } from '../hooks/useUserLocation';
 import { useCurrentUser } from '../common/withUser';
 import { useDialog } from '../common/withDialog'
 import { AnalyticsContext, useTracking } from "../../lib/analyticsEvents";

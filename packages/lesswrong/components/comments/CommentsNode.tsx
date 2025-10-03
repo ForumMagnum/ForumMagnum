@@ -7,7 +7,7 @@ import { CommentTreeNode, commentTreesEqual, flattenCommentBranch } from '../../
 import type { CommentTreeOptions } from './commentTree';
 import CommentFrame, { HIGHLIGHT_DURATION } from './CommentFrame';
 import { scrollFocusOnElement } from '@/lib/scrollUtils';
-import { commentPermalinkStyleSetting } from '@/lib/publicSettings';
+import { commentPermalinkStyleSetting } from '@/lib/instanceSettings';
 import { useCommentLinkState } from './CommentsItem/useCommentLink';
 import SingleLineComment from "./SingleLineComment";
 import CommentsItem from "./CommentsItem/CommentsItem";
@@ -300,7 +300,7 @@ const CommentsNodeInner = ({
     handleExpand({ event, scroll: scrollOnExpand });
   }, [handleExpand, scrollOnExpand]);
 
-  return <div className={comment.gapIndicator ? classes.gapIndicator : undefined}>
+  const result = (
     <CommentFrame
       comment={comment}
       treeOptions={treeOptions}
@@ -364,7 +364,15 @@ const CommentsNodeInner = ({
         </div>
       }
     </CommentFrame>
-  </div>
+  );
+  
+  if (comment.gapIndicator) {
+    return <div className={classes.gapIndicator}>
+      {result}
+    </div>
+  } else {
+    return result;
+  }
 }
 
 const CommentsNode = registerComponent('CommentsNode', CommentsNodeInner, {

@@ -2,18 +2,17 @@ import gql from "graphql-tag"
 import { forumSelect } from "@/lib/forumTypeUtils";
 import { getAdminTeamAccount } from "../utils/adminTeamAccount";
 import { TupleSet, UnionOf } from "@/lib/utils/typeGuardUtils";
-import { adminAccountSetting } from "@/lib/publicSettings";
+import { adminAccountSetting, isAF } from "@/lib/instanceSettings";
 import { createConversation, createConversationGqlMutation } from '../collections/conversations/mutations';
 import { createMessage } from '../collections/messages/mutations';
 import { computeContextFromUser } from '../vulcan-lib/apollo-server/context';
 import { ACCESS_FILTERED, accessFilterSingle } from "@/lib/utils/schemaUtils";
-import { isAF } from "@/lib/instanceSettings";
 import { backgroundTask } from "../utils/backgroundTask";
 
 export const dmTriggeringEvents = new TupleSet(['newFollowSubscription'] as const)
 export type DmTriggeringEvent = UnionOf<typeof dmTriggeringEvents>;
 
-const followSubscriptionStartDate = forumSelect({
+const getFollowSubscriptionStartDate = () => forumSelect({
   LessWrong: new Date("2024-06-06"),
   default: undefined
 })
@@ -78,7 +77,7 @@ export const conversationGqlMutations = {
       const numUsersFollows = await Subscriptions.find({
         userId: currentUser._id,
         type: "newActivityForFeed",
-        createdAt: {$gt: followSubscriptionStartDate}
+        createdAt: {$gt: getFollowSubscriptionStartDate()}
       }).count();
 
       if (numUsersFollows > 1) {
@@ -124,7 +123,7 @@ export const conversationGqlMutations = {
       throw new Error("You must be logged in to do this");
     }
 
-    const afField = isAF ? { af: true } : {};
+    const afField = isAF() ? { af: true } : {};
     const moderatorField = typeof moderator === 'boolean' ? { moderator } : {};
 
     // This is basically the `userGroupUntitledConversations` view plus the default view

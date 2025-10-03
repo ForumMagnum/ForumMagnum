@@ -7,6 +7,7 @@ import range from 'lodash/range';
 import LWTooltip from "../common/LWTooltip";
 import { useQuery } from "@/lib/crud/useQuery";
 import { gql } from "@/lib/generated/gql-codegen";
+import { TARGET_REVIEW_VOTING_NUM } from '@/lib/collections/reviewVotes/constants';
 
 const reviewVoteFragmentMultiQuery = gql(`
   query multiReviewVoteReviewProgressVotingQuery($selector: ReviewVoteSelector, $limit: Int, $enableTotal: Boolean) {
@@ -42,8 +43,6 @@ const styles = (theme: ThemeType) => ({
     borderRadius: 2
   },
 });
-
-export const TARGET_REVIEW_VOTING_NUM = 6
 
 export const ReviewProgressVoting = ({classes, reviewYear}: {
   classes: ClassesType<typeof styles>,

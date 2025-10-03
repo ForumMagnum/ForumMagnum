@@ -55,7 +55,7 @@ export async function createSpotlight({ data }: CreateSpotlightInput, context: R
     newDocument: documentWithId,
   };
 
-  await uploadImagesInEditableFields({
+  uploadImagesInEditableFields({
     newDoc: documentWithId,
     props: asyncProperties,
   });
@@ -87,7 +87,7 @@ export async function updateSpotlight({ selector, data }: UpdateSpotlightInput, 
 
   await updateCountOfReferencesOnOtherCollectionsAfterUpdate('Spotlights', updatedDocument, updateCallbackProperties.oldDocument);
 
-  await reuploadImagesIfEditableFieldsChanged({
+  reuploadImagesIfEditableFieldsChanged({
     newDoc: updatedDocument,
     props: updateCallbackProperties,
   });

@@ -11,7 +11,7 @@ import { DialogTitle } from "@/components/widgets/DialogTitle";
 import TextField from '@/lib/vendor/@material-ui/core/src/TextField';
 import { sharedStyles } from './EventNotificationsDialog'
 import { useGoogleMaps } from '../form-components/LocationFormComponent'
-import { forumTypeSetting } from '../../lib/instanceSettings';
+import { isEAForum } from '../../lib/instanceSettings';
 import { useQuery } from "@/lib/crud/useQuery";
 import { gql } from "@/lib/generated/gql-codegen";
 import Loading from "../vulcan-core/Loading";
@@ -64,8 +64,6 @@ const SetPersonalMapLocationDialog = ({ onClose, classes }: {
   
   if (!currentUser)
     return null;
-    
-  const isEAForum = forumTypeSetting.get() === 'EAForum';
 
   return (
     <LWDialog
@@ -89,7 +87,7 @@ const SetPersonalMapLocationDialog = ({ onClose, classes }: {
             initialValue={label}
           /> : <Loading/>}
         </div>
-        {!isEAForum && <TextField
+        {!isEAForum() && <TextField
             label={`Description (Make sure to mention whether you want to organize events)}`}
             value={mapText || ""}
             onChange={e => setMapText(e.target.value)}

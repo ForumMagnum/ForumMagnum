@@ -2,7 +2,8 @@ import React, { useState } from 'react';
 import { registerComponent } from '../../lib/vulcan-lib/components';
 import { useDismissRecommendation } from './withDismissRecommendation';
 import { AnalyticsContext, useTracking } from '../../lib/analyticsEvents';
-import * as _ from 'underscore';
+import sortBy from 'lodash/sortBy';
+import sampleSize from 'lodash/sampleSize';
 import PostsItem from "../posts/PostsItem";
 import PostsLoading from "../posts/PostsLoading";
 import SectionFooter from "../common/SectionFooter";
@@ -30,10 +31,10 @@ const ContinueReadingList = ({ continueReading, continueReadingLoading, limit=3,
   
   const limitResumeReading = (resumeReadingList: ContinueReadingQueryQuery_ContinueReading_RecommendResumeSequence[]): { entries: ContinueReadingQueryQuery_ContinueReading_RecommendResumeSequence[], showAllLink: boolean } => {
     // Filter out dismissed recommendations
-    const filtered = _.filter(resumeReadingList, r=>!dismissedRecommendations[r.nextPost._id]);
+    const filtered = resumeReadingList.filter(r=>!dismissedRecommendations[r.nextPost._id]);
     
     // Sort by last-interaction time
-    let sorted = _.sortBy(filtered, r=>r.lastReadTime);
+    let sorted = sortBy(filtered, r=>r.lastReadTime);
     sorted.reverse(); //in-place
     
     // Limit to the three most recent
@@ -43,8 +44,8 @@ const ContinueReadingList = ({ continueReading, continueReadingLoading, limit=3,
         showAllLink: false,
       };
     } else if (shuffle) {
-      const sampled = _.sample<ContinueReadingQueryQuery_ContinueReading_RecommendResumeSequence>(sorted, limit);
-      sorted = _.sortBy(sampled, r =>r.lastReadTime); // need to sort again because _.sample doesn't guarantee order
+      const sampled = sampleSize<ContinueReadingQueryQuery_ContinueReading_RecommendResumeSequence>(sorted, limit);
+      sorted = sortBy(sampled, r =>r.lastReadTime); // need to sort again because _.sample doesn't guarantee order
       sorted.reverse();
       return {
         entries: sorted,

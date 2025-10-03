@@ -7,9 +7,8 @@ import Tab from '@/lib/vendor/@material-ui/core/src/Tab';
 import {AnalyticsContext} from '@/lib/analyticsEvents'
 import {preferredHeadingCase} from '@/themes/forumTheme'
 import withErrorBoundary from '@/components/common/withErrorBoundary'
-import moment from 'moment'
 import qs from 'qs'
-import { eligibleToNominate, getReviewPeriodEnd, getReviewPeriodStart, REVIEW_YEAR, ReviewYear } from '@/lib/reviewUtils';
+import { eligibleToNominate, ReviewYear } from '@/lib/reviewUtils';
 import SectionTitle from "../common/SectionTitle";
 import SingleColumnSection from "../common/SingleColumnSection";
 import PostsByVoteWrapper from "../posts/PostsByVoteWrapper";
@@ -19,6 +18,7 @@ import { Typography } from "../common/Typography";
 import LWTooltip from "../common/LWTooltip";
 import AllPostsPage from "../posts/AllPostsPage";
 import ExternalPostImporter from "../posts/ExternalPostImporter";
+import { allPostsParams } from '@/lib/collections/posts/helpers';
 
 const styles = (theme: ThemeType) => ({
   headline: {
@@ -75,15 +75,6 @@ const styles = (theme: ThemeType) => ({
   }
 });
 
-
-const dateStr = (startDate?: Date) =>
-  startDate ? moment(startDate).format('YYYY-MM-DD') : ''
-
-export const allPostsParams = (reviewYear: ReviewYear=REVIEW_YEAR) => {
-  const startDate = getReviewPeriodStart(reviewYear).toDate()
-  const endDate = getReviewPeriodEnd(reviewYear).toDate()
-  return {after: dateStr(startDate), before: dateStr(endDate), sortedBy: 'top', timeframe: 'yearly', frontpage: 'true', unnominated: 'true', limit: "100"}
-}  
 
 const NominationsPage = ({classes, reviewYear}: { classes: ClassesType<typeof styles>, reviewYear: ReviewYear }) => {
   const currentUser = useCurrentUser()

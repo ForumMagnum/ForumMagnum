@@ -1,15 +1,13 @@
 import intersection from 'lodash/intersection';
 import moment from 'moment';
-import * as _ from 'underscore';
-import { isLW } from '../instanceSettings';
-import { hideUnreviewedAuthorCommentsSettings } from '../publicSettings';
+import { isLW, hideUnreviewedAuthorCommentsSettings } from '../instanceSettings';
 import { allUserGroupsByName } from '../permissions';
 
 export function getAllUserGroups() {
   return allUserGroupsByName;
 }
 
-export type PermissionableUser = UsersMinimumInfo & Pick<UsersDefaultFragment,
+export type PermissionableUser = UsersMinimumInfo & Pick<UsersProfile,
   "groups" |
   "banned" |
   "allCommentingDisabled"
@@ -48,7 +46,7 @@ export const userGetActions = (user: PermissionableUser|DbUser|null): Array<stri
     const group = allUserGroupsByName[groupName];
     return group && group.actions;
   });
-  return _.unique(_.flatten(groupActions));
+  return [...new Set(groupActions.flat())];
 };
 
 // Check if a user is a member of a group
@@ -99,7 +97,7 @@ export const userOwns = function (user: UsersMinimumInfo|DbUser|null, document: 
 };
 
 export const userOwnsAndOnLW = function (user: UsersMinimumInfo|DbUser|null, document: OwnableDocument): boolean {
-  return isLW && userOwns(user, document)
+  return isLW() && userOwns(user, document)
 }
 
 export const documentIsNotDeleted = (
@@ -202,7 +200,7 @@ export const userCanReadField = <N extends CollectionNameString>(
   return false;
 };
 
-const userHasFieldPermissions = <T extends DbObject>(
+export const userHasFieldPermissions = <T extends DbObject>(
   user: DbUser|null,
   userGroups: string[],
   canRead: FieldPermissions,
@@ -230,68 +228,6 @@ const userHasFieldPermissions = <T extends DbObject>(
   } else {
     return false;
   }
-}
-
-// For a given document or list of documents, keep only fields viewable by current user
-// @param {Object} user - The user performing the action
-// @param {Object} collection - The collection
-// @param {Object} document - The document being returned by the resolver
-// TODO: Integrate permissions-filtered DbObjects into the type system
-export function restrictViewableFields<N extends CollectionNameString>(
-  user: DbUser|null,
-  collectionName: N,
-  docOrDocs: ObjectsByCollectionName[N] | undefined | null,
-): Partial<ObjectsByCollectionName[N]>;
-export function restrictViewableFields<N extends CollectionNameString>(
-  user: DbUser|null,
-  collectionName: N,
-  docOrDocs: ObjectsByCollectionName[N][] | undefined | null,
-): Partial<ObjectsByCollectionName[N]>[];
-export function restrictViewableFields<N extends CollectionNameString>(
-  user: DbUser|null,
-  collectionName: N,
-  docOrDocs?: ObjectsByCollectionName[N][] | undefined | null,
-): Partial<ObjectsByCollectionName[N]> | Partial<ObjectsByCollectionName[N]>[] {
-  if (Array.isArray(docOrDocs)) {
-    return restrictViewableFieldsMultiple(user, collectionName, docOrDocs);
-  } else {
-    return restrictViewableFieldsSingle(user, collectionName, docOrDocs);
-  }
-};
-
-export const restrictViewableFieldsMultiple = function <N extends CollectionNameString, DocType extends ObjectsByCollectionName[N]>(
-  user: DbUser|null,
-  collectionName: N,
-  docs: DocType[],
-): Partial<DocType>[] {
-  if (!docs) return [];
-  return docs.map(doc => restrictViewableFieldsSingle(user, collectionName, doc));
-};
-
-export const restrictViewableFieldsSingle = function <N extends CollectionNameString, DocType extends ObjectsByCollectionName[N]>(
-  user: DbUser|null,
-  collectionName: N,
-  doc: DocType | undefined | null,
-): Partial<DocType> {
-  if (!doc) return {};
-  // This is to avoid a dependency cycle, since obviously many schemas import helper functions from this file or others that depend on them.
-  // TODO: does this need fixing to avoid esbuild headaches?  Probably not this one.
-  const { getSchema }: (typeof import('../schema/allSchemas')) = require('../schema/allSchemas');
-  const schema = getSchema(collectionName);
-  const restrictedDocument: Partial<DocType> = {};
-  const userGroups = userGetGroups(user);
-
-  for (const fieldName in doc) {
-    const fieldSchema = schema[fieldName];
-    if (fieldSchema) {
-      const canRead = fieldSchema.graphql?.canRead;
-      if (canRead && userHasFieldPermissions(user, userGroups, canRead, doc)) {
-        restrictedDocument[fieldName] = doc[fieldName];
-      }
-    }
-  }
-
-  return restrictedDocument;
 }
 
 // Check if a user can submit a field

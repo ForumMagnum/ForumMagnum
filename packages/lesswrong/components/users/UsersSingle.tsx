@@ -1,3 +1,5 @@
+"use client";
+
 import { registerComponent } from '../../lib/vulcan-lib/components';
 import React from 'react';
 import { useLocation } from '../../lib/routeUtil';
@@ -59,7 +61,7 @@ const UsersSingle = () => {
     // pageload.
     return <PermanentRedirect url={canonicalUrl} />;
   } else {
-    return isFriendlyUI ?
+    return isFriendlyUI() ?
       <FriendlyUsersProfile terms={{view: 'usersProfile', slug}} slug={slug} /> :
       <UsersProfile terms={{view: 'usersProfile', slug}} slug={slug} />
   }

@@ -5,7 +5,7 @@ import { useHover } from '../common/withHover'
 import withErrorBoundary from '../common/withErrorBoundary'
 import DoneIcon from '@/lib/vendor/@material-ui/icons/src/Done';
 import DeleteIcon from '@/lib/vendor/@material-ui/icons/src/Delete';
-import { forumTypeSetting } from '../../lib/instanceSettings';
+import { isEAForum } from '../../lib/instanceSettings';
 import PersonOutlineIcon from '@/lib/vendor/@material-ui/icons/src/PersonOutline'
 import { Link } from '../../lib/reactRouterWrapper'
 import SunshineListItem from "./SunshineListItem";
@@ -169,7 +169,7 @@ const SunshineReportedItem = ({report, classes, currentUser, refetch}: {
           <SidebarAction title="Mark as Reviewed" onClick={handleReview}>
             <DoneIcon/>
           </SidebarAction>
-          {(post || comment) && <SidebarAction title={`Spam${forumTypeSetting.get() === 'EAForum' ? '' : '/Eugin'} (delete immediately)`} onClick={handleDelete} warningHighlight>
+          {(post || comment) && <SidebarAction title={`Spam${isEAForum() ? '' : '/Eugin'} (delete immediately)`} onClick={handleDelete} warningHighlight>
             <DeleteIcon/>
           </SidebarAction>}
         </SidebarActionMenu>

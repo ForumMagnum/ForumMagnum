@@ -7,7 +7,6 @@ import { useHover } from '../common/withHover'
 import ClearIcon from '@/lib/vendor/@material-ui/icons/src/Clear';
 import DoneIcon from '@/lib/vendor/@material-ui/icons/src/Done';
 import withErrorBoundary from '../common/withErrorBoundary'
-import * as _ from 'underscore';
 import SunshineListItem from "./SunshineListItem";
 import SidebarHoverOver from "./SidebarHoverOver";
 import { Typography } from "../common/Typography";
@@ -42,7 +41,7 @@ const AFSuggestUsersItem = ({user}: {
         selector: { _id: user._id },
         data: {
           reviewForAlignmentForumUserId: currentUser!._id,
-          groups: _.unique([...(user.groups || []), 'alignmentForum'])
+          groups: [...new Set([...(user.groups || []), 'alignmentForum'])]
         }
       }
     })

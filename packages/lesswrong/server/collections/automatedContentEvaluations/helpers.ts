@@ -1,21 +1,18 @@
-
-import { saplingApiKey } from "@/lib/instanceSettings";
 import { dataToMarkdown } from "@/server/editor/conversionUtils";
 import AutomatedContentEvaluations from "../automatedContentEvaluations/collection";
 import { z } from "zod"; // Add this import for Zod
 import { getOpenAI } from "@/server/languageModels/languageModelIntegration";
-import { captureException } from "@sentry/core";
+import { captureException } from "@/lib/sentryWrapper";
 import Posts from "../posts/collection";
 import ModerationTemplates from "../moderationTemplates/collection";
 import { sendRejectionPM } from "@/server/callbacks/postCallbackFunctions";
 
 async function getSaplingEvaluation(revision: DbRevision) {
-  const key = saplingApiKey.get();
+  const key = process.env.SAPLING_API_KEY;
   if (!key) return;
   
   const markdown = dataToMarkdown(revision.html, "html");
   const textToCheck = markdown.slice(0, 10000)
-
   const response = await fetch('https://api.sapling.ai/api/v1/aidetect', {
     method: 'POST',
     headers: {
@@ -262,11 +259,11 @@ export async function createAutomatedContentEvaluation(revision: DbRevision, con
   await AutomatedContentEvaluations.rawInsert({
     createdAt: new Date(),
     revisionId: revision._id,
-    score: validatedEvaluation?.score,
-    sentenceScores: validatedEvaluation?.sentence_scores,
+    score: validatedEvaluation?.score ?? null,
+    sentenceScores: validatedEvaluation?.sentence_scores ?? null,
     aiChoice: llmEvaluation?.decision,
     aiReasoning: llmEvaluation?.reasoning,
-    aiCoT: llmEvaluation?.cot,
+    aiCoT: llmEvaluation?.cot ?? null,
   });
   if (llmEvaluation?.decision === "review" && (validatedEvaluation?.score ?? 0) > .5) {
     if (revision.collectionName === "Posts") {

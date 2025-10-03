@@ -11,7 +11,7 @@ import { truncate } from '../../../lib/editor/ellipsize';
 import { RelevanceLabel, tagPageHeaderStyles, tagPostTerms } from '../TagPageUtils';
 import { useOnSearchHotkey } from '../../common/withGlobalKeydown';
 import { MAX_COLUMN_WIDTH } from '@/components/posts/PostsPage/constants';
-import { tagMinimumKarmaPermissions, tagUserHasSufficientKarma } from '../../../lib/collections/tags/helpers';
+import { getTagMinimumKarmaPermissions, tagUserHasSufficientKarma } from '../../../lib/collections/tags/helpers';
 import { useCurrentUser } from '../../common/withUser';
 import { isFriendlyUI } from '../../../themes/forumTheme';
 import PostsListSortDropdown from "../../posts/PostsListSortDropdown";
@@ -88,7 +88,7 @@ const SubforumWikiTab = ({tag, revision, truncated, setTruncated, classes}: {
   useOnSearchHotkey(() => setTruncated(false));
   
   if (editing && !tagUserHasSufficientKarma(currentUser, "edit")) {
-    throw new Error(`Sorry, you cannot edit ${taggingNamePluralSetting.get()} without ${tagMinimumKarmaPermissions.edit} or more karma.`)
+    throw new Error(`Sorry, you cannot edit ${taggingNamePluralSetting.get()} without ${getTagMinimumKarmaPermissions().edit} or more karma.`)
   }
   
   const clickReadMore = useCallback(() => {
@@ -99,7 +99,7 @@ const SubforumWikiTab = ({tag, revision, truncated, setTruncated, classes}: {
   const htmlWithAnchors = tag.tableOfContents?.html ?? tag.description?.html ?? ""
   let description = htmlWithAnchors;
   // EA Forum wants to truncate much less than LW
-  if(isFriendlyUI) {
+  if(isFriendlyUI()) {
     description = truncated
       ? truncateTagDescription(htmlWithAnchors, tag.descriptionTruncationCount)
       : htmlWithAnchors;

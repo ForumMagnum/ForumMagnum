@@ -6,9 +6,8 @@ import {
   FeedCommentsThreadResolverType,
   feedCommentSourceTypesArray,
   feedSpotlightSourceTypesArray,
-  FeedItemDisplayStatus,
   FeedPostStub,
-  ServedEventData
+  UserOrClientId,
 } from "@/components/ultraFeed/ultraFeedTypes";
 import { filterNonnull } from "@/lib/utils/typeGuardUtils";
 import gql from 'graphql-tag';
@@ -18,18 +17,19 @@ import { DEFAULT_SETTINGS as DEFAULT_ULTRAFEED_SETTINGS, UltraFeedResolverSettin
 import { getUltraFeedPostThreads } from '@/server/ultraFeed/ultraFeedPostHelpers';
 import { getUltraFeedBookmarks, PreparedBookmarkItem } from '../ultraFeed/ultraFeedBookmarkHelpers';
 import { randomId } from '@/lib/random';
-import { captureEvent } from '@/lib/analyticsEvents';
 import union from 'lodash/union';
 import groupBy from 'lodash/groupBy';
 import mergeWith from 'lodash/mergeWith';
+import { backgroundTask } from "../utils/backgroundTask";
+import { serverCaptureEvent } from "../analytics/serverAnalyticsWriter";
 import { bulkRawInsert } from '../manualMigrations/migrationUtils';
-import { backgroundTask } from '../utils/backgroundTask';
-import { 
-  loadMultipleEntitiesById, 
+import {
+  loadMultipleEntitiesById,
   createUltraFeedResponse,
   UltraFeedEventInsertData,
   insertSubscriptionSuggestions
 } from './ultraFeedResolverHelpers';
+
 
 interface UltraFeedDateCutoffs {
   latestPostsMaxAgeDays: number;
@@ -212,7 +212,7 @@ function dedupSampledItems(sampled: SampledItem[]): SampledItem[] {
   );
 
   if (duplicateLog.length > 0) {
-    captureEvent?.('ultraFeedDuplicateAfterSample', { duplicates: duplicateLog, location: 'ultraFeedResolver' });
+    serverCaptureEvent?.('ultraFeedDuplicateAfterSample', { duplicates: duplicateLog, location: 'ultraFeedResolver' });
   }
 
   return Object.values(mergedObject);
@@ -575,11 +575,13 @@ const transformItemsForResolver = (
  */
 const createUltraFeedEvents = (
   results: UltraFeedResolverType[],
-  userId: string,
+  userOrClientId: UserOrClientId,
   sessionId: string,
   offset: number
 ): UltraFeedEventInsertData[] => {
   const eventsToCreate: UltraFeedEventInsertData[] = [];
+  const userId = userOrClientId.id;
+  const isLoggedOut = userOrClientId.type === 'client';
   
   results.forEach((item, index) => {
     const actualItemIndex = offset + index;
@@ -592,7 +594,7 @@ const createUltraFeedEvents = (
         eventType: "served",
         collectionName: "Spotlights",
         documentId: item.feedSpotlight.spotlight._id,
-        event: { sessionId, itemIndex: actualItemIndex, sources: ["spotlights"] }
+        event: { sessionId, itemIndex: actualItemIndex, sources: ["spotlights"], ...(isLoggedOut ? { loggedOut: true } : {}) }
       });
     } else if (item.type === "feedCommentThread" && (item.feedCommentThread?.comments?.length ?? 0) > 0) {
         const threadData = item.feedCommentThread;
@@ -615,7 +617,8 @@ const createUltraFeedEvents = (
                   itemIndex: actualItemIndex, 
                   commentIndex, 
                   displayStatus,
-                  sources
+                  sources,
+                  ...(isLoggedOut ? { loggedOut: true } : {})
                 }
                 });
             }
@@ -632,7 +635,7 @@ const createUltraFeedEvents = (
           eventType: "served", 
           collectionName: "Posts", 
           documentId: feedItem.post._id,
-          event: { sessionId, itemIndex: actualItemIndex, sources }
+          event: { sessionId, itemIndex: actualItemIndex, sources, ...(isLoggedOut ? { loggedOut: true } : {}) }
         });
       }
     }
@@ -695,9 +698,17 @@ export const ultraFeedGraphQLQueries = {
     
     const {limit = 20, cutoff, offset, sessionId, settings: settingsJson} = args;
     
-    const { currentUser } = context;
-    if (!currentUser) {
-      throw new Error("Must be logged in to fetch UltraFeed.");
+    const { currentUser, clientId } = context;
+    
+    let userOrClientId: UserOrClientId | null = null;
+    if (currentUser) {
+      userOrClientId = { type: 'user', id: currentUser._id };
+    } else if (clientId) {
+      userOrClientId = { type: 'client', id: clientId };
+    }
+    
+    if (!userOrClientId) {
+      throw new Error("Must be logged in or have a client ID to use the feed.");
     }
 
     const parsedSettings = parseUltraFeedSettings(settingsJson);
@@ -706,7 +717,6 @@ export const ultraFeedGraphQLQueries = {
 
     try {
       const spotlightsRepo = context.repos.spotlights;
-      const ultraFeedEventsRepo = context.repos.ultraFeedEvents;
 
       const { totalWeight, recombeePostFetchLimit, hackerNewsPostFetchLimit, subscribedPostFetchLimit, commentFetchLimit, spotlightFetchLimit, bookmarkFetchLimit } = calculateFetchLimits(sourceWeights, limit);
 
@@ -772,9 +782,12 @@ export const ultraFeedGraphQLQueries = {
           comments: commentIds,
           spotlights: spotlightIds
         }),
-        needsSuggestedUsers
-          ? context.repos.users.getSubscriptionFeedSuggestedUsers(currentUser._id, 30)
-          : Promise.resolve([])
+      needsSuggestedUsers
+        ? (userOrClientId.type === 'user'
+            ? context.repos.users.getSubscriptionFeedSuggestedUsersForLoggedIn(userOrClientId.id, 40)
+            : context.repos.users.getSubscriptionFeedSuggestedUsersForLoggedOut(userOrClientId.id, 40)
+          )
+        : Promise.resolve([])
       ]);
       const resultsWithoutDuplication = transformItemsForResolver(sampledItems, spotlightsById, commentsById, postsById, suggestedUsers);
       
@@ -793,19 +806,20 @@ export const ultraFeedGraphQLQueries = {
       }
 
       if (duplicateKeys.length > 0) {
-        captureEvent("ultraFeedDuplicateDetected", {
+        serverCaptureEvent("ultraFeedDuplicateDetected", {
           keys: duplicateKeys,
           resolverName: "UltraFeed",
           duplicateStage: "server-resolver-after-transform",
           sessionId,
-          userId: currentUser._id,
+          userId: currentUser?._id,
+          clientId,
           offset: offset ?? 0,
         });
       }
       
       if (!incognitoMode) {
         const currentOffset = offset ?? 0; 
-        const eventsToCreate = createUltraFeedEvents(results, currentUser._id, sessionId, currentOffset);
+        const eventsToCreate = createUltraFeedEvents(results, userOrClientId, sessionId, currentOffset);
         if (eventsToCreate.length > 0) {
           backgroundTask(bulkRawInsert('UltraFeedEvents', eventsToCreate as DbUltraFeedEvent[]));
         }
@@ -814,11 +828,12 @@ export const ultraFeedGraphQLQueries = {
       const response = createUltraFeedResponse(results, offset ?? 0, sessionId);
 
       const executionTime = Date.now() - startTime;
-      captureEvent('ultraFeedPerformance', { 
+      serverCaptureEvent('ultraFeedPerformance', { 
         ultraFeedResolverTotalExecutionTime: executionTime,
         sessionId,
         offset: offset ?? 0,
-        userId: currentUser._id,
+        userId: currentUser?._id,
+        clientId,
       });
 
       return response;

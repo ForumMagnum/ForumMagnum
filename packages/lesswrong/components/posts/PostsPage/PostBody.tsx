@@ -1,6 +1,6 @@
 import React, { useCallback, useContext, useMemo, useRef, useState } from 'react';
 import { registerComponent } from '../../../lib/vulcan-lib/components';
-import { nofollowKarmaThreshold } from '../../../lib/publicSettings';
+import { nofollowKarmaThreshold } from '@/lib/instanceSettings';
 import mapValues from 'lodash/mapValues';
 import { SideItemVisibilityContext } from '../../dropdowns/posts/SetSideItemVisibility';
 import { getVotingSystemByName } from '../../../lib/voting/getVotingSystem';
@@ -27,8 +27,6 @@ const PostSideCommentsQuery = gql(`
     }
   }
 `);
-
-const enableInlineReactsOnPosts = inlineReactsHoverEnabled;
 
 function useDisplayGlossary(post: PostsWithNavigation | PostsWithNavigationAndRevision| PostsListWithVotes) {
   const { captureEvent } = useTracking();
@@ -80,7 +78,7 @@ const PostBody = ({post, html, isOldVersion, voteProps}: {
   const sideItemVisibilityContext = useContext(SideItemVisibilityContext);
   const sideCommentMode= isOldVersion ? "hidden" : (sideItemVisibilityContext?.sideCommentMode ?? "hidden")
   const includeSideComments =
-    hasSideComments &&
+    hasSideComments() &&
     sideCommentMode &&
     sideCommentMode !== "hidden";
 
@@ -131,7 +129,7 @@ const PostBody = ({post, html, isOldVersion, voteProps}: {
     />
   }
   
-  if (enableInlineReactsOnPosts) {
+  if (inlineReactsHoverEnabled()) {
     return <InlineReactSelectionWrapper
       contentRef={contentRef}
       voteProps={voteProps}

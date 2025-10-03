@@ -1,6 +1,5 @@
 import React from 'react';
-import { registerComponent } from '@/lib/vulcan-lib/components';
-import { CommentVotingComponentProps, NamesAttachedReactionsCommentBottomProps, VotingPropsDocument, VotingSystem, } from '../../../lib/voting/votingSystems';
+import type { VotingSystem, NamesAttachedReactionsCommentBottomProps, CommentVotingComponentProps, VotingPropsDocument } from '@/lib/voting/votingSystemTypes';
 import { useVote } from '../withVote';
 import { defineStyles, useStyles } from '@/components/hooks/useStyles';
 import type { LikesList } from '@/lib/voting/reactionsAndLikes';
@@ -8,7 +7,6 @@ import { useCurrentUser } from '@/components/common/withUser';
 import { userIsAdmin } from '@/lib/vulcan-users/permissions.ts';
 import classNames from 'classnames';
 import { useDialog } from '@/components/common/withDialog';
-import { isMobile } from '@/lib/utils/isMobile';
 import LoginPopup from "../../users/LoginPopup";
 import { NamesAttachedReactionsCommentBottom } from "./NamesAttachedReactionsVoteOnComment";
 import LWTooltip from "../../common/LWTooltip";

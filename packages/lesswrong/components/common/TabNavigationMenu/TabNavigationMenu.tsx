@@ -4,7 +4,7 @@ import { useCurrentUserId } from '../withUser';
 import TabNavigationItem, { iconWidth } from './TabNavigationItem'
 
 // -- See here for all the tab content --
-import menuTabs from './menuTabs'
+import getMenuTabs from './menuTabs'
 import { AnalyticsContext, useTracking } from "../../../lib/analyticsEvents";
 import { forumSelect } from '../../../lib/forumTypeUtils';
 import classNames from 'classnames';
@@ -82,7 +82,7 @@ const TabNavigationMenu = ({
           [classes.navSidebarTransparent]: transparentBackground,
           [classes.noTopMargin]: noTopMargin,
         })}>
-          {forumSelect(menuTabs).map(tab => {
+          {forumSelect(getMenuTabs()).map(tab => {
             if ('loggedOutOnly' in tab && tab.loggedOutOnly && currentUserId) return null
 
             if ('divider' in tab) {

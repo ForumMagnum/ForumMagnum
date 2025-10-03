@@ -1,6 +1,5 @@
 import { registerMigration, migrateDocuments } from './migrationUtils'
 import Users from '../../server/collections/users/collection'
-import * as _ from 'underscore';
 
 export default registerMigration({
   name: "renameAllPostsSorting",
@@ -15,7 +14,7 @@ export default registerMigration({
         allPostsView: {$exists: true}
       },
       migrate: async (users: Array<any>) => {
-        const updates = _.map(users, user => {
+        const updates = users.map(user => {
           return {
             updateOne: {
               filter: {_id: user._id},

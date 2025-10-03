@@ -1,3 +1,5 @@
+'use client';
+
 import useCookies from "@/lib/vendor/react-cookie/useCookies";
 import type { CookieSetOptions } from "universal-cookie";
 import { ALL_COOKIES, COOKIE_CONSENT_TIMESTAMP_COOKIE, COOKIE_PREFERENCES_COOKIE, CookieType, ONLY_NECESSARY_COOKIES, isCookieAllowed, isValidCookieTypeArray } from "../../lib/cookies/utils";
@@ -6,9 +8,8 @@ import { cookiePreferencesChanged } from "../../lib/cookies/callbacks";
 import { getExplicitConsentRequiredAsync, getExplicitConsentRequiredSync } from "../common/CookieBanner/geolocation";
 import { useTracking } from "../../lib/analyticsEvents";
 import moment from "moment";
-import { DatabasePublicSetting } from "../../lib/publicSettings";
+import { disableCookiePreferenceAutoUpdateSetting } from '@/lib/instanceSettings';
 
-const disableCookiePreferenceAutoUpdateSetting = new DatabasePublicSetting<boolean>('disableCookiePreferenceAutoUpdate', false)
 /** Global variable storing the last time the cookie preferences were updated automatically, to prevent several instances
  * of this hook from updating the cookie preferences at the same time. */
 let cookiePreferencesAutoUpdatedTime: Date | null = null

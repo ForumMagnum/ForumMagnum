@@ -5,7 +5,7 @@ import { useCookiesWithConsent } from '../hooks/useCookiesWithConsent';
 import { ULTRA_FEED_ENABLED_COOKIE, ULTRA_FEED_PAGE_VISITED_COOKIE } from '../../lib/cookies/cookies';
 import { useUpdateCurrentUser } from '../hooks/useUpdateCurrentUser';
 import { ultraFeedABTest } from '../../lib/abTests';
-import { ultraFeedEnabledSetting } from '../../lib/publicSettings';
+import { ultraFeedEnabledSetting } from '../../lib/instanceSettings';
 import SectionFooterCheckbox from "../form-components/SectionFooterCheckbox";
 
 const styles = defineStyles("FeedSelectorCheckbox", (theme: ThemeType) => ({

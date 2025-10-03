@@ -1,68 +1,70 @@
+'use client';
+
 import React, {useRef, useState, useCallback, useEffect, FC, ReactNode, useMemo} from 'react';
 import { registerComponent } from '../lib/vulcan-lib/components';
 import classNames from 'classnames'
 import { useTheme, useThemeColor } from './themes/useTheme';
 import { useLocation } from '../lib/routeUtil';
 import { AnalyticsContext } from '../lib/analyticsEvents'
-import { UserContext, UserContextProvider } from './common/withUser';
+import { useCurrentUser } from './common/withUser';
 import { TimezoneWrapper } from './common/withTimezone';
 import { DialogManager } from './common/withDialog';
 import { CommentBoxManager } from './hooks/useCommentBox';
 import { ItemsReadContextWrapper } from './hooks/useRecordPostView';
 import { pBodyStyle } from '../themes/stylePiping';
-import { DatabasePublicSetting, blackBarTitle, googleTagManagerIdSetting } from '../lib/publicSettings';
-import { isAF, isEAForum, isLW, isLWorAF } from '../lib/instanceSettings';
+import { googleTagManagerIdSetting, isAF, isEAForum, isLW, isLWorAF, buttonBurstSetting } from '@/lib/instanceSettings';
 import { globalStyles } from '../themes/globalStyles/globalStyles';
 import { userCanDo, userIsAdmin } from '../lib/vulcan-users/permissions';
 import { Helmet } from "./common/Helmet";
-import { DisableNoKibitzContext } from './users/UsersNameDisplay';
+import { DisableNoKibitzContext, AutosaveEditorStateContext } from './common/sharedContexts';
 import { LayoutOptions, LayoutOptionsContext } from './hooks/useLayoutOptions';
 // enable during ACX Everywhere
 // import { HIDE_MAP_COOKIE } from '../lib/cookies/cookies';
-import Header, { HEADER_HEIGHT } from './common/Header';
+import Header, { getHeaderHeight } from './common/Header';
 import { useCookiePreferences, useCookiesWithConsent } from './hooks/useCookiesWithConsent';
 import { useHeaderVisible } from './hooks/useHeaderVisible';
 import StickyBox from '../lib/vendor/react-sticky-box';
 import { isFriendlyUI } from '../themes/forumTheme';
 import { UnreadNotificationsContextProvider } from './hooks/useUnreadNotifications';
 import { CurrentAndRecentForumEventsProvider } from './hooks/useCurrentForumEvent';
-export const petrovBeforeTime = new DatabasePublicSetting<number>('petrov.beforeTime', 0)
-export const petrovAfterTime = new DatabasePublicSetting<number>('petrov.afterTime', 0)
-
 import { LoginPopoverContextProvider } from './hooks/useLoginPopoverContext';
 import DeferRender from './common/DeferRender';
 import { userHasLlmChat } from '@/lib/betas';
-import { AutosaveEditorStateContext } from './editor/EditorFormComponent';
 
-import GlobalButtonBurst, { buttonBurstSetting } from './ea-forum/GlobalButtonBurst';
+import GlobalButtonBurst from './ea-forum/GlobalButtonBurst';
 import NavigationStandalone from "./common/TabNavigationMenu/NavigationStandalone";
 import ErrorBoundary from "./common/ErrorBoundary";
 import Footer from "./common/Footer";
 import FlashMessages from "./common/FlashMessages";
 import AnalyticsClient from "./common/AnalyticsClient";
 import AnalyticsPageInitializer from "./common/AnalyticsPageInitializer";
-import EAOnboardingFlow from "./ea-forum/onboarding/EAOnboardingFlow";
-import BasicOnboardingFlow from "./onboarding/BasicOnboardingFlow";
+// import EAOnboardingFlow from "./ea-forum/onboarding/EAOnboardingFlow";
+// import BasicOnboardingFlow from "./onboarding/BasicOnboardingFlow";
 import { CommentOnSelectionPageWrapper } from "./comments/CommentOnSelection";
 import SidebarsWrapper from "./common/SidebarsWrapper";
-import HomepageCommunityMap from "./seasonal/HomepageMap/HomepageCommunityMap";
 import AdminToggle from "./admin/AdminToggle";
-import SunshineSidebar from "./sunshineDashboard/SunshineSidebar";
-import EAHomeRightHandSide from "./ea-forum/EAHomeRightHandSide";
-import ForumEventBanner from "./forumEvents/ForumEventBanner";
+// import EAHomeRightHandSide from "./ea-forum/EAHomeRightHandSide";
+// import ForumEventBanner from "./forumEvents/ForumEventBanner";
 import GlobalHotkeys from "./common/GlobalHotkeys";
-import LanguageModelLauncherButton from "./languageModels/LanguageModelLauncherButton";
 import LlmChatWrapper from "./languageModels/LlmChatWrapper";
 import LWBackgroundImage from "./LWBackgroundImage";
 import IntercomWrapper from "./common/IntercomWrapper";
 import CookieBanner from "./common/CookieBanner/CookieBanner";
+import NavigationEventSender from './hooks/useOnNavigate';
 import { defineStyles, useStyles } from './hooks/useStyles';
 import { useMutationNoCache } from '@/lib/crud/useMutationNoCache';
 import { gql } from "@/lib/generated/gql-codegen";
 import { DelayedLoading } from './common/DelayedLoading';
 import { SuspenseWrapper } from './common/SuspenseWrapper';
+import { useRouteMetadata } from './ClientRouteMetadataContext';
+import { isFullscreenRoute, isHomeRoute, isStandaloneRoute, isStaticHeaderRoute, isSunshineSidebarRoute, isUnspacedGridRoute } from '@/lib/routeChecks';
 import { AutoDarkModeWrapper } from './themes/ThemeContextProvider';
 import { NO_ADMIN_NEXT_REDIRECT_COOKIE } from '@/lib/cookies/cookies';
+
+import dynamic from 'next/dynamic';
+import { isBlackBarTitle } from './seasonal/petrovDay/petrov-day-story/petrovConsts';
+const SunshineSidebar = dynamic(() => import("./sunshineDashboard/SunshineSidebar"), { ssr: false });
+const LanguageModelLauncherButton = dynamic(() => import("./languageModels/LanguageModelLauncherButton"), { ssr: false });
 
 const UsersCurrentUpdateMutation = gql(`
   mutation updateUserLayout($selector: SelectorInput!, $data: UpdateUserDataInput!) {
@@ -79,7 +81,7 @@ const STICKY_SECTION_TOP_MARGIN = 20;
 /**
  * When a new user signs up, their profile is 'incomplete' (ie; without a display name)
  * and we require them to fill this in using the onboarding flow before continuing.
- * This is a list of route names that the user is allowed to view despite having an
+ * This is a list of route path segments that the user is allowed to view despite having an
  * 'incomplete' account.
  */
 const allowedIncompletePaths: string[] = ["termsOfUse"];
@@ -92,7 +94,7 @@ const styles = defineStyles("Layout", (theme: ThemeType) => ({
     marginRight: "auto",
     // Make sure the background extends to the bottom of the page, I'm sure there is a better way to do this
     // but almost all pages are bigger than this anyway so it's not that important
-    minHeight: `calc(100vh - ${HEADER_HEIGHT}px)`,
+    minHeight: `calc(100vh - ${getHeaderHeight()}px)`,
     gridArea: 'main',
     [theme.breakpoints.down('md')]: {
       paddingTop: theme.isFriendlyUI ? 0 : theme.spacing.mainLayoutPaddingTop,
@@ -147,7 +149,7 @@ const styles = defineStyles("Layout", (theme: ThemeType) => ({
         minmax(0, min-content)
         minmax(0, 1fr)
         minmax(0, min-content)
-        minmax(0, ${isLWorAF ? 7 : 1}fr)
+        minmax(0, ${isLWorAF() ? 7 : 1}fr)
         minmax(0, min-content)
       `,
     },
@@ -240,7 +242,7 @@ const styles = defineStyles("Layout", (theme: ThemeType) => ({
     marginBottom: 20,
   },
   stickyWrapperHeaderVisible: {
-    transform: `translateY(${HEADER_HEIGHT + STICKY_SECTION_TOP_MARGIN}px)`,
+    transform: `translateY(${getHeaderHeight() + STICKY_SECTION_TOP_MARGIN}px)`,
   },
 }));
 
@@ -268,11 +270,11 @@ const MaybeStickyWrapper: FC<{
     : <>{children}</>;
 }
 
-const Layout = ({currentUser, children}: {
-  currentUser: UsersCurrent|null,
+const Layout = ({children}: {
   children?: React.ReactNode,
 }) => {
   const classes = useStyles(styles);
+  const currentUser = useCurrentUser();
   const currentUserId = currentUser?._id;
   const searchResultsAreaRef = useRef<HTMLDivElement|null>(null);
   const [disableNoKibitz, setDisableNoKibitz] = useState(false); 
@@ -280,13 +282,19 @@ const Layout = ({currentUser, children}: {
   const hideNavigationSidebarDefault = currentUser ? !!(currentUser?.hideNavigationSidebar) : false
   const [hideNavigationSidebar,setHideNavigationSidebar] = useState(hideNavigationSidebarDefault);
   const theme = useTheme();
-  const {currentRoute, pathname, query} = useLocation();
+  // TODO: figure out if using usePathname directly is safe or better (concerns about unnecessary rerendering, idk; my guess is that with Next if the pathname changes we're rerendering everything anyways?)
+  const { pathname, query } = useLocation();
+  // const pathname = usePathname();
+  const { metadata: routeMetadata } = useRouteMetadata();
   const layoutOptionsState = React.useContext(LayoutOptionsContext);
 
   // enable during ACX Everywhere
   // const [cookies] = useCookiesWithConsent()
-  const renderCommunityMap = false // replace with following line to enable during ACX Everywhere
-  // (isLW) && (currentRoute?.name === 'home') && (!currentUser?.hideFrontpageMap) && !cookies[HIDE_MAP_COOKIE]
+  // replace with following line to enable during ACX Everywhere.
+  // also uncomment out the dynamic import and render of the HomepageCommunityMap.
+  // (they're commented out to reduce the split bundle size.)
+  const renderCommunityMap = false
+  // (isLW()) && isHomeRoute(pathname) && (!currentUser?.hideFrontpageMap) && !cookies[HIDE_MAP_COOKIE]
   
   const [updateUserNoCache] = useMutationNoCache(UsersCurrentUpdateMutation);
   
@@ -314,7 +322,7 @@ const Layout = ({currentUser, children}: {
   // also have a `useEffect` which adds a class to `<body>`. (This has to be a useEffect because
   // <body> is outside the React tree entirely. An alternative way to do this would be to change
   // overflow properties so that `<body>` isn't scrollable but a `<div>` in here is.)
-  const useWhiteBackground = currentRoute?.background === "white";
+  const useWhiteBackground = routeMetadata.background === "white";
 
   useEffect(() => {
     const isWhite = document.body.classList.contains(classes.whiteBackground);
@@ -350,26 +358,9 @@ const Layout = ({currentUser, children}: {
     headerBackgroundColor = wrappedBackgroundColor;
   } else if (pathname.startsWith("/voting-portal")) {
     headerBackgroundColor = "transparent";
-  } else if (blackBarTitle.get()) {
+  } else if (isBlackBarTitle) {
     headerBackgroundColor = 'rgba(0, 0, 0, 0.7)';
   }
-
-  const [cookies, setCookie] = useCookiesWithConsent([NO_ADMIN_NEXT_REDIRECT_COOKIE]);
-
-  // Temporary redirect for admins while we're testing NextJS
-  useEffect(() => {
-    const redirectUrl = new URL(window.location.href);
-    if (query.disableRedirect) {
-      setCookie(NO_ADMIN_NEXT_REDIRECT_COOKIE, true, { path: '/' });
-    } else if (isLW && userIsAdmin(currentUser) && !cookies[NO_ADMIN_NEXT_REDIRECT_COOKIE] && redirectUrl.host === 'www.lesswrong.com') {
-      redirectUrl.host = 'baserates-test.vercel.app';
-      // These two are necessary when testing this on localhost
-      // redirectUrl.port = '';
-      // redirectUrl.protocol = 'https';
-      window.location.replace(redirectUrl.toString());
-    }
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
 
   const render = () => {
     const baseLayoutOptions: LayoutOptions = {
@@ -378,11 +369,11 @@ const Layout = ({currentUser, children}: {
       // then it should.
       // FIXME: This is using route names, but it would be better if this was
       // a property on routes themselves.
-      standaloneNavigation: !currentRoute || !!currentRoute.hasLeftNavigationColumn,
-      renderSunshineSidebar: !!currentRoute?.sunshineSidebar && !!(userCanDo(currentUser, 'posts.moderate.all') || currentUser?.groups?.includes('alignmentForumAdmins')) && !currentUser?.hideSunshineSidebar,
+      standaloneNavigation: !!routeMetadata.hasLeftNavigationColumn,
+      renderSunshineSidebar: isSunshineSidebarRoute(pathname) && !!(userCanDo(currentUser, 'posts.moderate.all') || currentUser?.groups?.includes('alignmentForumAdmins')) && !currentUser?.hideSunshineSidebar,
       renderLanguageModelChatLauncher: !!currentUser && userHasLlmChat(currentUser),
-      shouldUseGridLayout: !currentRoute || !!currentRoute.hasLeftNavigationColumn,
-      unspacedGridLayout: !!currentRoute?.unspacedGrid,
+      shouldUseGridLayout: !!routeMetadata.hasLeftNavigationColumn,
+      unspacedGridLayout: isUnspacedGridRoute(pathname),
     }
 
     const { overridenLayoutOptions: overrideLayoutOptions } = layoutOptionsState
@@ -392,16 +383,14 @@ const Layout = ({currentUser, children}: {
     const renderLanguageModelChatLauncher = overrideLayoutOptions.renderLanguageModelChatLauncher ?? baseLayoutOptions.renderLanguageModelChatLauncher
     const shouldUseGridLayout = overrideLayoutOptions.shouldUseGridLayout ?? baseLayoutOptions.shouldUseGridLayout
     const unspacedGridLayout = overrideLayoutOptions.unspacedGridLayout ?? baseLayoutOptions.unspacedGridLayout
-    const navigationFooterBar = !currentRoute || currentRoute.navigationFooterBar;
     // The friendly home page has a unique grid layout, to account for the right hand side column.
-    const friendlyHomeLayout = isFriendlyUI && currentRoute?.name === 'home'
+    const friendlyHomeLayout = isFriendlyUI() && isHomeRoute(pathname);
 
-    const isIncompletePath = allowedIncompletePaths.includes(currentRoute?.name ?? "404");
+    const isIncompletePath = allowedIncompletePaths.some(path => pathname.startsWith(`/${path}`));
     
     return (
       <AnalyticsContext path={pathname}>
       <AutoDarkModeWrapper>
-      <UserContextProvider value={currentUser}>
       <UnreadNotificationsContextProvider>
       <TimezoneWrapper>
       <ItemsReadContextWrapper>
@@ -414,12 +403,13 @@ const Layout = ({currentUser, children}: {
       <CurrentAndRecentForumEventsProvider>
         <div className={classNames(
           "wrapper",
-          {'alignment-forum': isAF, [classes.fullscreen]: currentRoute?.fullscreen, [classes.wrapper]: isLWorAF},
+          {'alignment-forum': isAF(), [classes.fullscreen]: isFullscreenRoute(pathname), [classes.wrapper]: isLWorAF()},
           useWhiteBackground && classes.whiteBackground
         )} id="wrapper">
           {buttonBurstSetting.get() && <GlobalButtonBurst />}
           <DialogManager>
             <CommentBoxManager>
+              {/* ea-forum-look-here: the font downloads probably don't work in NextJS, may need to move them to e.g. SharedScripts */}
               <Helmet name="fonts">
                 {theme.typography.fontDownloads &&
                   theme.typography.fontDownloads.map(
@@ -441,34 +431,34 @@ const Layout = ({currentUser, children}: {
               {/* Google Tag Manager i-frame fallback */}
               <noscript><iframe src={`https://www.googletagmanager.com/ns.html?id=${googleTagManagerIdSetting.get()}`} height="0" width="0" style={{display:"none", visibility:"hidden"}}/></noscript>
 
-              {!currentRoute?.standalone && <SuspenseWrapper name="Header">
+              {!isStandaloneRoute(pathname) && <SuspenseWrapper name="Header">
                 <Header
                   searchResultsArea={searchResultsAreaRef}
                   standaloneNavigationPresent={standaloneNavigation}
                   sidebarHidden={hideNavigationSidebar}
                   toggleStandaloneNavigation={toggleStandaloneNavigation}
-                  stayAtTop={!!currentRoute?.staticHeader}
+                  stayAtTop={isStaticHeaderRoute(pathname)}
                   backgroundColor={headerBackgroundColor}
                 />
               </SuspenseWrapper>}
-              <SuspenseWrapper name="ForumEventBanner">
+              {/* <SuspenseWrapper name="ForumEventBanner">
                 <ForumEventBanner />
-              </SuspenseWrapper>
+              </SuspenseWrapper> */}
               {/* enable during ACX Everywhere */}
               {renderCommunityMap && <span className={classes.hideHomepageMapOnMobile}>
-                <SuspenseWrapper name="HomepageCommunityMap">
+                {/* <SuspenseWrapper name="HomepageCommunityMap">
                   <HomepageCommunityMap dontAskUserLocation={true}/>
-                </SuspenseWrapper>
+                </SuspenseWrapper> */}
               </span>}
 
               <div className={classNames({
                 [classes.spacedGridActivated]: shouldUseGridLayout && !unspacedGridLayout,
                 [classes.unspacedGridActivated]: shouldUseGridLayout && unspacedGridLayout,
                 [classes.eaHomeLayout]: friendlyHomeLayout && !renderSunshineSidebar,
-                [classes.fullscreenBodyWrapper]: currentRoute?.fullscreen,
+                [classes.fullscreenBodyWrapper]: isFullscreenRoute(pathname),
               }
               )}>
-                {isFriendlyUI && !isWrapped && <AdminToggle />}
+                {isFriendlyUI() && !isWrapped && <AdminToggle />}
                 {standaloneNavigation && <SuspenseWrapper fallback={<span/>} name="NavigationStandalone" >
                   <MaybeStickyWrapper sticky={friendlyHomeLayout}>
                     <DeferRender ssr={true} clientTiming='mobile-aware'>
@@ -482,11 +472,10 @@ const Layout = ({currentUser, children}: {
                     </DeferRender>
                   </MaybeStickyWrapper>
                 </SuspenseWrapper>}
-                {/* {isLWorAF && navigationFooterBar && <TabNavigationMenuFooter />} */}
                 <div ref={searchResultsAreaRef} className={classes.searchResultsArea} />
                 <div className={classNames(classes.main, {
-                  [classes.mainNoFooter]: currentRoute?.noFooter,
-                  [classes.mainFullscreen]: currentRoute?.fullscreen,
+                  [classes.mainNoFooter]: routeMetadata.noFooter,
+                  [classes.mainFullscreen]: isFullscreenRoute(pathname),
                   [classes.mainUnspacedGrid]: shouldUseGridLayout && unspacedGridLayout,
                 })}>
                   <ErrorBoundary>
@@ -496,14 +485,15 @@ const Layout = ({currentUser, children}: {
                     <SuspenseWrapper name="Route" fallback={<DelayedLoading/>}>
                       {children}
                     </SuspenseWrapper>
-                    <SuspenseWrapper name="OnboardingFlow">
-                      {!isIncompletePath && isEAForum ? <EAOnboardingFlow/> : <BasicOnboardingFlow/>}
-                    </SuspenseWrapper>
+                    {/* ea-forum-look-here We've commented out some EAForum-specific components for bundle size reasons */}
+                    {/* <SuspenseWrapper name="OnboardingFlow">
+                      {!isIncompletePath && isEAForum() ? <EAOnboardingFlow/> : <BasicOnboardingFlow/>}
+                    </SuspenseWrapper> */}
                   </ErrorBoundary>
-                  {!currentRoute?.fullscreen && !currentRoute?.noFooter && <Footer />}
+                  {!isFullscreenRoute(pathname) && !routeMetadata.noFooter && <Footer />}
                 </div>
-                {isLW && <LWBackgroundImage standaloneNavigation={standaloneNavigation} />}
-                {!renderSunshineSidebar &&
+                {isLW() && <LWBackgroundImage standaloneNavigation={standaloneNavigation} />}
+                {/* {!renderSunshineSidebar &&
                   friendlyHomeLayout &&
                   <MaybeStickyWrapper sticky={friendlyHomeLayout}>
                     <DeferRender ssr={true} clientTiming='mobile-aware'>
@@ -512,7 +502,7 @@ const Layout = ({currentUser, children}: {
                       </SuspenseWrapper>
                     </DeferRender>
                   </MaybeStickyWrapper>
-                }
+                } */}
                 {renderSunshineSidebar && <div className={classes.sunshine}>
                   <DeferRender ssr={false}>
                     <SuspenseWrapper name="SunshineSidebar">
@@ -528,6 +518,7 @@ const Layout = ({currentUser, children}: {
               </div>
             </CommentBoxManager>
           </DialogManager>
+          <NavigationEventSender />
         </div>
       </CurrentAndRecentForumEventsProvider>
       </CommentOnSelectionPageWrapper>
@@ -539,7 +530,6 @@ const Layout = ({currentUser, children}: {
       </ItemsReadContextWrapper>
       </TimezoneWrapper>
       </UnreadNotificationsContextProvider>
-      </UserContextProvider>
       </AutoDarkModeWrapper>
       </AnalyticsContext>
     )

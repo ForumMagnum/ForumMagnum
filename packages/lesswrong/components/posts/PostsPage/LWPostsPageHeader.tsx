@@ -26,9 +26,9 @@ import AlignmentCrosspostLink from "../AlignmentCrosspostLink";
 import ReadTime from "./ReadTime";
 import LWCommentCount from "../TableOfContents/LWCommentCount";
 import { SuspenseWrapper } from '@/components/common/SuspenseWrapper';
+import { BOOKUI_LINKPOST_WORDCOUNT_THRESHOLD } from './constants';
 
 export const LW_POST_PAGE_PADDING = 110;
-export const BOOKUI_LINKPOST_WORDCOUNT_THRESHOLD = 800;
 
 const styles = (theme: ThemeType) => ({
   root: {
@@ -142,7 +142,10 @@ const styles = (theme: ThemeType) => ({
   audioToggle: {
     marginRight: 12,
     display: "flex",
-    opacity: 0.75
+    opacity: 0.75,
+    "@media print": {
+      display: "none",
+    },
   },
   readTime: {
     marginRight: 20,
@@ -210,10 +213,12 @@ const styles = (theme: ThemeType) => ({
     marginBottom: 0,
   },
   rootWithSplashPageHeader: {
-    paddingTop: '44vh',
-    [theme.breakpoints.down('xs')]: {
-      marginTop: '44vh',
-      paddingTop: 0,
+    "@media screen": {
+      paddingTop: '44vh',
+      [theme.breakpoints.down('xs')]: {
+        marginTop: '44vh',
+        paddingTop: 0,
+      },
     },
   }
 }); 

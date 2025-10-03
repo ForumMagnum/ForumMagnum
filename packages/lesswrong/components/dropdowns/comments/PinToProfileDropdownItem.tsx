@@ -47,7 +47,7 @@ const PinToProfileDropdownItem = ({comment, post, classes}: {
   }
 
   const username = isCommentAuthor
-    ? isFriendlyUI ? "your" : "my"
+    ? isFriendlyUI() ? "your" : "my"
     : `${comment.user?.displayName}'s`;
 
   const title = comment.isPinnedOnProfile

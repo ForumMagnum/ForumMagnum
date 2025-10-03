@@ -4,10 +4,9 @@ import { closeRequestPerfMetric, openPerfMetric, setAsyncStoreValue } from '@/se
 import { performanceMetricLoggingEnabled } from '@/lib/instanceSettings';
 import { getClientIP } from '@/server/utils/getClientIP';
 import { captureEvent } from '@/lib/analyticsEvents';
-import { DatabaseServerSetting } from '../databaseSettings';
 import { type RenderParams, RenderResult } from './renderPage';
+import { requestToNextRequest } from '../utils/requestToNextRequest';
 
-export const slowSSRWarnThresholdSetting = new DatabaseServerSetting<number>("slowSSRWarnThreshold", 3000);
 
 export type RenderTimings = {
   wallTime: number
@@ -33,7 +32,7 @@ export function openRenderRequestPerfMetric(renderParams: RenderParams) {
     op_type: "ssr",
     op_name: opName,
     client_path: req.originalUrl,
-    ip: getClientIP(req),
+    ip: getClientIP(requestToNextRequest(req).headers),
     user_agent: userAgent,
     ...userIdField,
   }, startTime);

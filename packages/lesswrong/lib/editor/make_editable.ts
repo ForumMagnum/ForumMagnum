@@ -2,31 +2,9 @@ import { documentIsNotDeleted, userOwns } from '../vulcan-users/permissions';
 import { getOriginalContents } from '../collections/revisions/helpers';
 import { accessFilterMultiple } from '../utils/schemaUtils';
 import { getWithLoader } from '../loaders';
-import { isFriendlyUI } from '../../themes/forumTheme';
 import type { MakeEditableOptions } from './makeEditableOptions';
 import { getCollectionAccessFilter } from '@/server/permissions/accessFilters';
-
-export const defaultEditorPlaceholder = isFriendlyUI ?
-`Highlight text to format it. Type @ to mention a user, post, or topic.` :
-  
-`Text goes here! See lesswrong.com/editor for info about everything the editor can do.
-
-lesswrong.com/editor covers formatting, draft-sharing, co-authoring, LaTeX, footnotes, tagging users and posts, spoiler tags, Markdown, tables, crossposting, and more.`;
-
-
-export const debateEditorPlaceholder = 
-`Enter your first dialogue comment here, add other participants as co-authors, then save this as a draft.
-
-Other participants will be able to participate by leaving comments on the draft, which will automatically be converted into dialogue responses.`;
-
-export const linkpostEditorPlaceholder =
-`Share an excerpt, a summary, or a note about why you like the post.
-
-You can paste the whole post if you have permission from the author, or add them as co-author in the Options below.
-`
-
-export const questionEditorPlaceholder =
-`Kick off a discussion or solicit answers to something you’re confused about.`
+import { getDefaultEditorPlaceholder } from './defaultEditorPlaceholder';
 
 const defaultOptions: MakeEditableOptions<CollectionNameString> = {
   // Determines whether to use the comment editor configuration (e.g. Toolbars)
@@ -49,7 +27,7 @@ const defaultOptions: MakeEditableOptions<CollectionNameString> = {
     canCreate: ['members']
   },
   order: 0,
-  hintText: () => defaultEditorPlaceholder,
+  hintText: () => getDefaultEditorPlaceholder(),
   pingbacks: false,
   revisionsHaveCommitMessages: false,
 }
@@ -65,11 +43,22 @@ export function getNormalizedEditableResolver<N extends CollectionNameString>(fi
 
     let revision: DbRevision|null;
     if (args.version) {
-      revision = await Revisions.findOne({
-        documentId: doc._id,
-        version: args.version,
-        fieldName,
-      });
+      // If version is the special string "draft", that means
+      // instead of returning the latest non-draft version
+      // (what we'd normally do), we instead return the latest
+      // version period, including draft versions.
+      if (args.version === 'draft') {
+        revision = await Revisions.findOne({
+          documentId: doc._id,
+          fieldName,
+        }, {sort: {editedAt: -1}});
+      } else {
+        revision = await Revisions.findOne({
+          documentId: doc._id,
+          version: args.version,
+          fieldName,
+        });  
+      }
     } else {
       const revisionId = doc[`${fieldName}_latest` as keyof ObjectsByCollectionName[N]] as string;
       if (revisionId) {
@@ -78,6 +67,7 @@ export function getNormalizedEditableResolver<N extends CollectionNameString>(fi
         revision = null;
       }
     }
+
     return (revision && await checkAccess(currentUser, revision, context))
       ? revision
       : null;
@@ -170,19 +160,6 @@ export function getDenormalizedEditableResolver<N extends CollectionNameString>(
     // HACK: Pretend that this denormalized field is a DbRevision (even though
     // it's missing an _id and some other fields)
     return result
-  }
-}
-
-export function getDefaultLocalStorageIdGenerator<N extends CollectionNameString>(collectionName: N) {
-  return function defaultLocalStorageIdGenerator(doc: any, name: string): {id: string, verify: boolean} {
-    const { _id, conversationId } = doc
-    if (_id && name) { return {id: `${_id}${name}`, verify: true}}
-    else if (_id) { return {id: _id, verify: true }}
-    else if (conversationId) { return {id: conversationId, verify: true }}
-    else if (name) { return {id: `${collectionName}_new_${name}`, verify: true }}
-    else {
-      throw Error(`Can't get storage ID for this document: ${doc}`)
-    }
   }
 }
 

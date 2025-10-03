@@ -3,7 +3,7 @@ import React from 'react';
 import { useVote } from './withVote';
 import { isAF } from '../../lib/instanceSettings';
 import { useVoteButtonsDisabled } from './useVoteButtonsDisabled';
-import { VotingSystem } from '../../lib/voting/votingSystems';
+import { VotingSystem } from '@/lib/voting/votingSystemTypes';
 import { TooltipSpan } from '../common/FMTooltip';
 import OverallVoteButton from "./OverallVoteButton";
 import { Typography } from "../common/Typography";
@@ -67,7 +67,7 @@ const LWPostsPageTopHeaderVote = ({
 
   const tooltipText = <div>
     <div>{`${voteProps.voteCount} ${voteProps.voteCount === 1 ? "vote" : "votes"}`}</div>
-    {post.af && !isAF && <div><em>{post.afBaseScore} karma on AlignmentForum</em></div>}
+    {post.af && !isAF() && <div><em>{post.afBaseScore} karma on AlignmentForum</em></div>}
   </div>
 
   return (

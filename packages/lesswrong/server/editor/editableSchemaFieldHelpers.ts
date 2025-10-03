@@ -1,5 +1,5 @@
-import { getAllSchemas } from '../../lib/schema/allSchemas';
 import type { EditableFieldCallbackOptions } from '../../lib/editor/makeEditableOptions';
+import { isEditableField } from './isEditableField';
 
 export interface EditableField<N extends CollectionNameString> extends CollectionFieldSpecification<N> {
   graphql: GraphQLFieldSpecification<N> & {
@@ -7,15 +7,11 @@ export interface EditableField<N extends CollectionNameString> extends Collectio
   }
 };
 
-export function isEditableField<N extends CollectionNameString>(field: [string, CollectionFieldSpecification<N>]): field is [string, EditableField<N>] {
-  const { graphql } = field[1];
-  return !!graphql && 'editableFieldOptions' in graphql && !!graphql.editableFieldOptions;
-}
-
 export const getEditableFieldsByCollection = (() => {
   let editableFieldsByCollection: Partial<Record<CollectionNameString, Record<string, EditableField<CollectionNameString>>>>;
   return () => {
     if (!editableFieldsByCollection) {
+      const { getAllSchemas }: typeof import('../../lib/schema/allSchemas') = require('../../lib/schema/allSchemas');
       editableFieldsByCollection = Object.entries(getAllSchemas()).reduce<Partial<Record<CollectionNameString, Record<string, EditableField<CollectionNameString>>>>>((acc, [collectionName, schema]) => {
         const editableFields = Object.entries(schema).filter(isEditableField);
         if (editableFields.length > 0) {

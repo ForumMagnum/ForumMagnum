@@ -1,7 +1,7 @@
-import Stripe from 'stripe';
-import * as Sentry from '@sentry/node';
-import { lightconeFundraiserPaymentLinkId } from '@/lib/publicSettings';
-import { lightconeFundraiserStripeSecretKeySetting } from '../serverSettings';
+import type Stripe from 'stripe';
+import { captureException } from '@/lib/sentryWrapper';
+import { lightconeFundraiserPaymentLinkId } from '@/lib/instanceSettings';
+import { lightconeFundraiserStripeSecretKeySetting } from '../databaseSettings';
 import { backgroundTask } from '../utils/backgroundTask';
 export type SucceededPaymentIntent = Stripe.PaymentIntent & { status: 'succeeded' };
 
@@ -9,10 +9,11 @@ export const stripeIntentsCache: { intents: SucceededPaymentIntent[] } = { inten
 
 let stripe: Stripe | undefined = undefined;
 
-const getStripe = () => {
+const getStripe = async () => {
   if (stripe) return stripe;
   let stripeSecretKey = lightconeFundraiserStripeSecretKeySetting.get();
   if (!stripeSecretKey) return;
+  const { Stripe } = await import('stripe');
   stripe = new Stripe(stripeSecretKey, {
     apiVersion: '2024-11-20.acacia',
   });
@@ -22,7 +23,7 @@ const getStripe = () => {
 let lastUpdatedAt = new Date();
 
 export async function updateStripeIntentsCache() {
-  const stripe = getStripe();
+  const stripe = await getStripe();
   if (!stripe) return;
   try {
     const succeededPaymentIntents = [];
@@ -52,7 +53,7 @@ export async function updateStripeIntentsCache() {
 
     stripeIntentsCache.intents = succeededPaymentIntents;
   } catch (error) {
-    Sentry.captureException(error);
+    captureException(error);
   }
 }
 

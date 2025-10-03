@@ -37,7 +37,7 @@ const UserMentionHit = ({hit, classes}: {
   hit: SearchUser,
   classes: ClassesType<typeof styles>,
 }) => {
-  const icon = isFriendlyUI
+  const icon = isFriendlyUI()
     ? <ForumIcon icon="UserOutline" className={classes.icon} />
     : "👤";
   return <span className={classes.root}>

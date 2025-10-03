@@ -1,17 +1,15 @@
-import React, { CSSProperties, FC } from 'react';
+'use client';
+
+import React, { CSSProperties, FC, useState } from 'react';
 import { useTracking } from '../lib/analyticsEvents';
-// eslint-disable-next-line no-restricted-imports
-import * as reactRouter from 'react-router';
-// eslint-disable-next-line no-restricted-imports
-import * as reactRouterDom from 'react-router-dom';
+import NextLink from 'next/link';
 import { HashLink, HashLinkProps } from "../components/common/HashLink";
-import { classifyHost } from './routeUtil';
-import { parseQuery } from './vulcan-core/appContext'
+import { classifyHost, useLocation } from './routeUtil';
 import qs from 'qs'
 import { getUrlClass } from '@/server/utils/getUrlClass';
 
 export type LinkProps = {
-  to?: HashLinkProps['to']|null
+  to: HashLinkProps['to']|null
   doOnDown?: boolean
   onMouseEnter?: HashLinkProps['onMouseEnter']
   onMouseLeave?: HashLinkProps['onMouseLeave']
@@ -32,7 +30,23 @@ const isLinkValid = (props: LinkProps): props is HashLinkProps => {
   return typeof props.to === "string" || typeof props.to === "object";
 };
 
+const isPrefetchablePostLink = (to: string) => {
+  // TODO: maybe we want this to be a configurable prop at the callsite?
+  return to.startsWith('/posts/') || /^\/s\/[a-z0-9]+\/p\/[a-z0-9]+$/.test(to);
+};
+
+const getLinkPrefetch = (to: string, everHovered: boolean) => {
+  // TODO: disabled to see if this makes a meaningful impact on post page request count and other expensive things.
+  // if (isPrefetchablePostLink(to)) {
+  //   return true;
+  // }
+
+  return everHovered ? true : false;
+}
+
 export const Link = ({eventProps, ...props}: LinkProps) => {
+  const [hovered, setHovered] = useState(false);
+  
   const { captureEvent } = useTracking({
     eventType: "linkClicked",
     eventProps: {
@@ -55,11 +69,13 @@ export const Link = ({eventProps, ...props}: LinkProps) => {
   if (to && typeof to === 'string' && isOffsiteLink(to)) {
     return <a href={to} {...otherProps} onMouseDown={handleClick}/>
   } else {
-    return <HashLink {...props} onMouseDown={handleClick}/>
+    const prefetch = getLinkPrefetch(to, hovered);
+    const propsWithPrefetch = { ...props, prefetch };
+    return <HashLink {...propsWithPrefetch} onMouseDown={handleClick} onMouseEnter={() => setHovered(true)}/>
   }
 }
 
-export const QueryLink: FC<Omit<reactRouterDom.LinkProps, "to"> & {
+export const QueryLink: FC<Omit<LinkProps, "to"> & {
   query: AnyBecauseTodo,
   /**
    * Merge determines whether we do a shallow merge with the existing query
@@ -71,13 +87,17 @@ export const QueryLink: FC<Omit<reactRouterDom.LinkProps, "to"> & {
   merge=false,
   ...rest
 }) => {
-  const location = reactRouter.useLocation();
+  const { pathname, query: currentQuery, hash } = useLocation();
+
   const newSearchString = merge
-    ? qs.stringify({...parseQuery(location), ...query})
+    ? qs.stringify({...currentQuery, ...query})
     : qs.stringify(query);
-  return <reactRouterDom.Link
+  
+  const url = `${pathname}${newSearchString ? `?${newSearchString}` : ''}${hash ? hash : ''}`;
+  return <NextLink
     {...rest}
-    to={{...location, search: newSearchString}}
+    prefetch={false}
+    href={url}
   />
 }
 
@@ -91,4 +111,3 @@ function isOffsiteLink(url: string): boolean {
   }
 }
 
-export const Redirect = reactRouter.Redirect;

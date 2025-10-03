@@ -15,7 +15,7 @@ const styles = (theme: ThemeType) => ({
       marginRight: theme.spacing.unit
     },
     
-    ...(isAF && {
+    ...(isAF() && {
       marginTop: 4,
       fontWeight: 500,
     }),

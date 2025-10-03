@@ -4,7 +4,7 @@ import { AnalyticsContext, useTracking } from "../../lib/analyticsEvents";
 import { Link } from '../../lib/reactRouterWrapper';
 import { useCurrentUser } from '../common/withUser';
 import { useUpdateCurrentUser } from '../hooks/useUpdateCurrentUser';
-import { useUserLocation } from '../../lib/collections/users/helpers';
+import { useUserLocation } from '../hooks/useUserLocation';
 import { postGetPageUrl } from '../../lib/collections/posts/helpers';
 import { getCityName } from '../localGroups/TabNavigationEventsList';
 import { userHasEAHomeRHS } from '../../lib/betas';
@@ -20,6 +20,7 @@ import ForumIcon from "../common/ForumIcon";
 import SidebarDigestAd from "./digestAd/SidebarDigestAd";
 import { useQuery } from "@/lib/crud/useQuery";
 import { gql } from "@/lib/generated/gql-codegen";
+import { HOME_RHS_MAX_SCREEN_WIDTH } from './constants';
 
 const PostsListMultiQuery = gql(`
   query multiPostEAHomeRightHandSideQuery($selector: PostSelector, $limit: Int, $enableTotal: Boolean) {
@@ -31,11 +32,6 @@ const PostsListMultiQuery = gql(`
     }
   }
 `);
-
-/**
- * The max screen width where the Home RHS is visible
- */
-export const HOME_RHS_MAX_SCREEN_WIDTH = 1370
 
 const styles = (theme: ThemeType) => ({
   root: {

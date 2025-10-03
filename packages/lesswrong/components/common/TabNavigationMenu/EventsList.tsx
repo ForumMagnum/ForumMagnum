@@ -1,7 +1,7 @@
 import React from 'react';
 import { registerComponent } from '../../../lib/vulcan-lib/components';
 import { AnalyticsContext } from "../../../lib/analyticsEvents";
-import { useUserLocation } from '../../../lib/collections/users/helpers';
+import { useUserLocation } from '@/components/hooks/useUserLocation';
 import { isEAForum } from '../../../lib/instanceSettings';
 import TabNavigationEventsList from "../../localGroups/TabNavigationEventsList";
 import { SuspenseWrapper } from '../SuspenseWrapper';
@@ -18,7 +18,7 @@ export const EventsList = ({onClick}: {
       view: 'nearbyEvents',
       lat: lat,
       lng: lng,
-      limit: isEAForum ? 2 : 4,
+      limit: isEAForum() ? 2 : 4,
     }
     return <span>
       <AnalyticsContext pageSubSectionContext="menuEventsList">
@@ -42,7 +42,7 @@ export const EventsList = ({onClick}: {
     <AnalyticsContext pageSubSectionContext="menuEventsList">
       <SuspenseWrapper name="TabNavigationEventsList">
         <TabNavigationEventsList onClick={onClick} terms={globalTerms} />
-        {!isEAForum && <TabNavigationEventsList onClick={onClick} terms={eventsListTerms} />}
+        {!isEAForum() && <TabNavigationEventsList onClick={onClick} terms={eventsListTerms} />}
       </SuspenseWrapper>
     </AnalyticsContext>
   </span>

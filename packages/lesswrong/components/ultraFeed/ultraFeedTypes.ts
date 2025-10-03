@@ -148,6 +148,10 @@ export interface FeedSubscriptionSuggestionsResolverType {
 
 export type FeedItemResolverType = FeedPostResolverType | FeedCommentsThreadResolverType | FeedSpotlightResolverType | FeedSubscriptionSuggestionsResolverType;
 
+export type UserOrClientId =
+  | { type: 'user'; id: string }
+  | { type: 'client'; id: string };
+
 export interface UltraFeedResolverType {
   type: FeedItemRenderType;
   feedPost?: FeedPostResolverType;
@@ -204,4 +208,5 @@ export interface ServedEventData {
   displayStatus?: FeedItemDisplayStatus;
   sources: FeedItemSourceType[];
   feedType?: FeedType;
+  loggedOut?: boolean;
 }

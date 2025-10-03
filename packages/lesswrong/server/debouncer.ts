@@ -1,13 +1,9 @@
-import { captureException } from '@sentry/core';
+import { captureException } from '@/lib/sentryWrapper';
 import { DebouncerEvents } from '../server/collections/debouncerEvents/collection';
-import { isAF, testServerSetting } from '../lib/instanceSettings';
+import { isAF } from '../lib/instanceSettings';
 import moment from '../lib/moment-timezone';
-import { addCronJob } from './cron/cronUtil';
 import DebouncerEventsRepo from './repos/DebouncerEventsRepo';
 import { isAnyTest } from '../lib/executionEnvironment';
-import { backgroundTask } from './utils/backgroundTask';
-
-let eventDebouncersByName: Partial<Record<string,EventDebouncer<any>>> = {};
 
 type DebouncerCallback<KeyType> = (key: KeyType, events: string[]) => void | Promise<void>;
 
@@ -80,23 +76,17 @@ export type DebouncerTiming =
 export class EventDebouncer<KeyType = string>
 {
   name: string
-  defaultTiming?: DebouncerTiming
+  defaultTiming?: DebouncerTiming | (() => DebouncerTiming)
   callback: DebouncerCallback<KeyType>
 
   constructor({ name, defaultTiming, callback }: {
     name: string,
-    defaultTiming: DebouncerTiming,
+    defaultTiming: DebouncerTiming | (() => DebouncerTiming),
     callback: DebouncerCallback<KeyType>,
   }) {
-    if (!name || !callback)
-      throw new Error("EventDebouncer constructor: missing required argument");
-    if (name in eventDebouncersByName)
-      throw new Error(`Duplicate name for EventDebouncer: ${name}`);
-    
     this.name = name;
     this.defaultTiming = defaultTiming;
     this.callback = callback;
-    eventDebouncersByName[name] = this;
   }
   
   // Add a debounced event.
@@ -131,7 +121,11 @@ export class EventDebouncer<KeyType = string>
     );
   }
 
-  parseTiming = (timing: DebouncerTiming) => {
+  parseTiming = (timing: DebouncerTiming | (() => DebouncerTiming)) => {
+    if (typeof timing === "function") {
+      timing = timing();
+    }
+    
     const now = new Date();
     const msPerMin = 60*1000;
     
@@ -164,7 +158,7 @@ export class EventDebouncer<KeyType = string>
   
   _dispatchEvent = async (key: KeyType, events: string[]|null) => {
     if (!isAnyTest) {
-      //eslint-disable-next-line no-console
+      // eslint-disable-next-line no-console
       console.log(`Handling ${events?.length} grouped ${this.name} events`);
     }
     await this.callback(key, events||[]);
@@ -201,7 +195,8 @@ export const getWeeklyBatchTimeAfter = (now: Date, timeOfDayGMT: number, dayOfWe
 }
 
 const dispatchEvent = async (event: DbDebouncerEvents) => {
-  const eventDebouncer = eventDebouncersByName[event.name];
+  const { getDebouncerByName } = await import("./getDebouncerByName");
+  const eventDebouncer = getDebouncerByName(event.name);
   if (!eventDebouncer) {
     // eslint-disable-next-line no-console
     throw new Error(`Unrecognized event type: ${event.name}`);
@@ -224,7 +219,7 @@ export const dispatchPendingEvents = async () => {
     const queryResult: any = await DebouncerEvents.rawCollection().findOneAndUpdate(
       {
         dispatched: false,
-        af: isAF,
+        af: isAF(),
         $or: [
           { delayTime: {$lt: now} },
           { upperBoundTime: {$lt: now} }
@@ -240,6 +235,8 @@ export const dispatchPendingEvents = async () => {
       try {
         await dispatchEvent(eventToHandle);
       } catch (e) {
+        // eslint-disable-next-line no-console
+        console.error('Error when dispatching pending event', { eventToHandle, e });
         await DebouncerEvents.rawUpdateOne({
           _id: eventToHandle._id
         }, {
@@ -287,7 +284,7 @@ export const forcePendingEvents = async (
     const queryResult = await DebouncerEvents.rawCollection().findOneAndUpdate(
       {
         dispatched: false,
-        af: isAF,
+        af: isAF(),
         ...timeCondition,
       },
       { $set: { dispatched: true } },
@@ -308,16 +305,6 @@ export const forcePendingEvents = async (
   // eslint-disable-next-line no-console
   console.log(`Forced ${countHandled} pending event${countHandled === 1 ? "" : "s"}`);
 }
-
-export const cronDebouncedEventHandler = addCronJob({
-  name: "Debounced event handler",
-  // Once per minute, on the minute
-  cronStyleSchedule: '* * * * *',
-  disabled: testServerSetting.get(),
-  job() {
-    backgroundTask(dispatchPendingEvents());
-  }
-});
 
 function sleepWithVariance(ms: number)
 {

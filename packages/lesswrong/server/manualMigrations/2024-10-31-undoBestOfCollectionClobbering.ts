@@ -3,7 +3,8 @@ import Posts from '../../server/collections/posts/collection';
 import Collections from '../../server/collections/collections/collection';
 import Sequences from '../../server/collections/sequences/collection';
 import Chapters from '../../server/collections/chapters/collection';
-import * as _ from 'underscore';
+import groupBy from 'lodash/groupBy';
+import keyBy from 'lodash/keyBy';
 
 // Extracted from this spreadsheet: https://docs.google.com/spreadsheets/d/1E9BgDtrYho9YU_vsnM9DMIWUa4zUH8M72MCA9wIl_vw/
 const POSTS_TO_UPDATE = [
@@ -96,7 +97,7 @@ export default registerMigration({
     }
 
     // Step 2: Update canonical fields for specified posts
-    const postsBySequenceId = _.groupBy(POSTS_TO_UPDATE, 'sequenceId');
+    const postsBySequenceId = groupBy(POSTS_TO_UPDATE, 'sequenceId');
     for (const sequenceId in postsBySequenceId) {
       const postsList = postsBySequenceId[sequenceId];
       const postIdsToUpdate = postsList.map(item => item.postId);
@@ -149,7 +150,7 @@ async function getPostsInSequence(sequenceId: string): Promise<DbPost[]> {
     }
   }
   const posts = await Posts.find({ _id: { $in: postIds } }, { projection: { _id: 1, slug: 1 } }).fetch();
-  const postsById = _.indexBy(posts, '_id');
+  const postsById = keyBy(posts, '_id');
   const postsInOrder = postIds.map(postId => postsById[postId]).filter(post => !!post);
   return postsInOrder;
 }

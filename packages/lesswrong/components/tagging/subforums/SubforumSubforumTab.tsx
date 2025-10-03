@@ -5,7 +5,7 @@ import { MAX_COLUMN_WIDTH } from '@/components/posts/PostsPage/constants';
 import { useCurrentUser } from '../../common/withUser';
 import { defaultSubforumSorting, SubforumSorting, subforumSortingToResolverName, subforumSortingTypes } from '../../../lib/collections/tags/subforumHelpers';
 import { tagPostTerms } from '../TagPageUtils';
-import { TAG_POSTS_SORT_ORDER_OPTIONS } from "@/lib/collections/tags/helpers";
+import { getTagPostsSortOrderOptions } from "@/lib/collections/tags/helpers";
 import difference from 'lodash/fp/difference';
 import { PostsLayout } from '../../../lib/collections/posts/dropdownOptions';
 import { useMutation } from '@apollo/client/react';
@@ -116,7 +116,7 @@ const SubforumSubforumTab = ({
   }, [updateUserTagRel, userTagRel])
 
   const excludeSorting = layout === "card" ? ["relevance", "topAdjusted"] : []
-  const sortByOptions = difference(Object.keys(TAG_POSTS_SORT_ORDER_OPTIONS), excludeSorting)
+  const sortByOptions = difference(Object.keys(getTagPostsSortOrderOptions()), excludeSorting)
   // if no sort order was selected, try to use the tag page's default sort order for posts
   const sortBy: CommentSortingMode = (
     (sortByOptions.includes(query.sortedBy) && query.sortedBy)

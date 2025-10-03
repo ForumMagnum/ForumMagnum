@@ -66,8 +66,8 @@ export const twoLineEventsSidebarABTest = new ABTest({
 export const ultraFeedABTest = new ABTest({
   name: "ultraFeed",
   active: true,
-  affectsLoggedOut: false,
-  description: "Tests the new UltraFeed vs classic Recent Discussion Feed for logged-in users",
+  affectsLoggedOut: true,
+  description: "Tests the new UltraFeed vs classic Recent Discussion Feed",
   groups: {
     control: {
       description: "Show classic feed (Recent Discussion)",

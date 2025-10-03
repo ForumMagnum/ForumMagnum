@@ -10,10 +10,11 @@ import Error404 from "../../common/Error404";
 import Loading from "../../vulcan-core/Loading";
 import { PostsListWithVotes } from '@/lib/collections/posts/fragments';
 import { SequencesPageFragment } from '@/lib/collections/sequences/fragments';
+import { StatusCodeSetter } from '@/components/next/StatusCodeSetter';
 
 const PostsWithNavigationAndRevisionQuery = gql(`
   query PostsPageWrapper1($documentId: String, $sequenceId: String, $version: String) {
-    post(input: { selector: { documentId: $documentId } }) {
+    post(input: { selector: { documentId: $documentId } }, allowNull: true) {
       result {
         ...PostsWithNavigationAndRevision
       }
@@ -23,7 +24,7 @@ const PostsWithNavigationAndRevisionQuery = gql(`
 
 const PostsWithNavigationQuery = gql(`
   query PostsPageWrapper($documentId: String, $sequenceId: String) {
-    post(input: { selector: { documentId: $documentId } }) {
+    post(input: { selector: { documentId: $documentId } }, allowNull: true) {
       result {
         ...PostsWithNavigation
       }
@@ -96,13 +97,14 @@ const PostsPageWrapper = ({ sequenceId, version, documentId }: {
     return <Error404/>
   }
 
-  return (
+  return <>
+    <StatusCodeSetter status={200}/>
     <PostsPage
       fullPost={post}
       postPreload={postPreloadWithSequence ?? undefined}
       refetch={refetch}
     />
-  );
+  </>;
 }
 
 export default registerComponent("PostsPageWrapper", PostsPageWrapper);

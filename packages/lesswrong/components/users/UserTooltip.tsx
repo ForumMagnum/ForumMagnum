@@ -34,7 +34,7 @@ const UserTooltip = ({user, placement, inlineBlock, hideFollowButton, disabled, 
   children: ReactNode,
   classes: ClassesType<typeof styles>,
 }) => {
-  const content = isFriendlyUI
+  const content = isFriendlyUI()
     ? <EAUserTooltipContent user={user} />
     : <LWUserTooltipContent user={user} hideFollowButton={hideFollowButton} />;
   return (
@@ -44,7 +44,7 @@ const UserTooltip = ({user, placement, inlineBlock, hideFollowButton, disabled, 
       inlineBlock={inlineBlock}
       popperClassName={classes.root}
       titleClassName={classes.overrideTooltip}
-      clickable={!isFriendlyUI}
+      clickable={!isFriendlyUI()}
       disabled={disabled}
     >
       {children}

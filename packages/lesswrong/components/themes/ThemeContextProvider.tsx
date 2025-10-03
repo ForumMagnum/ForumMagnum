@@ -1,6 +1,8 @@
+"use client";
+
 import React, { useState, useMemo, useEffect, useLayoutEffect, useContext } from 'react';
 import { getForumTheme } from '../../themes/forumTheme';
-import { AbstractThemeOptions, abstractThemeToConcrete } from '../../themes/themeNames';
+import { abstractThemeToConcrete, getThemeOptions } from '../../themes/themeNames';
 import moment from 'moment';
 import { isEAForum } from '../../lib/instanceSettings';
 import { THEME_COOKIE } from '../../lib/cookies/cookies';
@@ -9,21 +11,24 @@ import stringify from 'json-stringify-deterministic';
 import { ThemeContext } from './useTheme';
 import { isClient, isServer } from '@/lib/executionEnvironment';
 import { useTracking } from '@/lib/analyticsEvents';
-import { createStylesContext, defineStyles, regeneratePageStyles, serverEmbeddedStyles, setClientMountedStyles, StylesContext, useStyles, type StylesContextType } from '../hooks/useStyles';
-import { useServerInsertedHtml } from '../hooks/useServerInsertedHtml';
+import { createStylesContext, regeneratePageStyles, serverEmbeddedStyles, StylesContext, useStyles, type StylesContextType } from '../hooks/useStyles';
+import { useServerInsertedHTML } from 'next/navigation';
+import { defineStyles, setClientMountedStyles } from '../hooks/defineStyles';
+import { useCurrentUser } from '../common/withUser';
 
-export const ThemeContextProvider = ({options, isEmail, children}: {
-  options: AbstractThemeOptions,
-  isEmail: boolean,
+export const ThemeContextProvider = ({children}: {
   children: React.ReactNode,
 }) => {
   const [cookies, setCookie, removeCookie] = useCookiesWithConsent([THEME_COOKIE]);
   const themeCookie = cookies[THEME_COOKIE];
-  const [themeOptions, setThemeOptions] = useState(options);
+  const user = useCurrentUser();
+
+  const initialThemeOptions = getThemeOptions(themeCookie, user);
+  const [themeOptions, setThemeOptions] = useState(initialThemeOptions);
   const prefersDarkMode = usePrefersDarkMode();
 
   useEffect(() => {
-    if (isEAForum) {
+    if (isEAForum()) {
       removeCookie(THEME_COOKIE, {path: "/"});
     } else {
       if (stringify(themeOptions) !== themeCookie) {
@@ -51,7 +56,7 @@ export const ThemeContextProvider = ({options, isEmail, children}: {
   return <ThemeContext.Provider value={themeContext}>
     <FMJssProvider stylesContext={stylesContext}>
       {isClient && <ThemeStylesheetSwapper/>}
-      {isServer && !isEmail && <StyleHTMLInjector/>}
+      {isServer && <StyleHTMLInjector/>}
       {children}
     </FMJssProvider>
   </ThemeContext.Provider>
@@ -116,11 +121,11 @@ const StyleHTMLInjector = () => {
   const stylesContext = useContext(StylesContext)!;
   const themeContext = useContext(ThemeContext)!;
   
-  useServerInsertedHtml(() => {
+  useServerInsertedHTML(() => {
     if (stylesContext.stylesAwaitingServerInjection.length > 0) {
       const injectedStyles = serverEmbeddedStyles(themeContext.abstractThemeOptions, stylesContext.stylesAwaitingServerInjection)
       stylesContext.stylesAwaitingServerInjection = [];
-      return injectedStyles;
+      return <script dangerouslySetInnerHTML={{__html: injectedStyles}}/>;
     }
     return null;
   });

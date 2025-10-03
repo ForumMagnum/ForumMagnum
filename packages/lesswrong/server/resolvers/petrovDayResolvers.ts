@@ -1,5 +1,5 @@
 import { PetrovDayLaunchs } from '../../server/collections/petrovDayLaunchs/collection';
-import { petrovDayLaunchCode } from "../../components/seasonal/PetrovDayButton";
+import { petrovDayLaunchCode } from '@/lib/collections/petrovDayActions/constants';
 import { userCanLaunchPetrovMissile } from "../../lib/petrovHelpers";
 import gql from 'graphql-tag';
 import { createPetrovDayLaunch } from '../collections/petrovDayLaunchs/mutations';

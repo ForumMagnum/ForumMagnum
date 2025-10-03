@@ -1,7 +1,7 @@
 import { ZodType, z } from "zod";
 import jwt, { VerifyErrors } from "jsonwebtoken";
 import { InvalidPayloadError, MissingSecretError } from "../fmCrosspost/errors";
-import { crosspostSigningKeySetting } from "../fmCrosspost/tokens";
+import { crosspostSigningKeySetting } from "../databaseSettings";
 
 class CrosspostingToken<
   Schema extends ZodType,

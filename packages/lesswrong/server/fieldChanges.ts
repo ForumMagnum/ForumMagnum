@@ -1,7 +1,7 @@
 import { FieldChanges } from '@/server/collections/fieldChanges/collection';
 import { getSchema } from '@/lib/schema/allSchemas';
 import { randomId } from '@/lib/random';
-import { captureException } from '@sentry/core';
+import { captureException } from '@/lib/sentryWrapper';
 
 export const logFieldChanges = async <
   N extends CollectionNameString
@@ -44,7 +44,7 @@ export const logFieldChanges = async <
     try {
       await Promise.all(Object.keys(loggedChangesAfter).map(key =>
         FieldChanges.rawInsert({
-          userId: currentUser?._id,
+          userId: currentUser?._id ?? null,
           changeGroup,
           documentId: oldDocument._id,
           fieldName: key,

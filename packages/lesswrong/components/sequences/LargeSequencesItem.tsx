@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { cloudinaryCloudNameSetting } from '../../lib/publicSettings';
+import { cloudinaryCloudNameSetting } from '@/lib/instanceSettings';
 import { registerComponent } from '../../lib/vulcan-lib/components';
 import { Link } from '../../lib/reactRouterWrapper';
 import classNames from 'classnames';

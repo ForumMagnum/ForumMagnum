@@ -1,17 +1,15 @@
 import React from 'react';
 import { commentIsHiddenPendingReview } from '../../lib/collections/comments/helpers';
 import { postGetPageUrl } from '../../lib/collections/posts/helpers';
-import { isLWorAF } from '../../lib/instanceSettings';
+import { isLWorAF, commentPermalinkStyleSetting } from '@/lib/instanceSettings';
 import { registerComponent } from '../../lib/vulcan-lib/components';
 import { isNotRandomId } from '@/lib/random';
 import { scrollFocusOnElement } from '@/lib/scrollUtils';
-import { commentPermalinkStyleSetting } from '@/lib/publicSettings';
 import { useQuery } from "@/lib/crud/useQuery";
 import { gql } from "@/lib/generated/gql-codegen";
 import Loading from "../vulcan-core/Loading";
 import Divider from "../common/Divider";
 import CommentOnPostWithReplies from "./CommentOnPostWithReplies";
-import HeadTags from "../common/HeadTags";
 import CommentWithReplies from "./CommentWithReplies";
 
 
@@ -52,15 +50,6 @@ const styles = (theme: ThemeType) => ({
   },
 })
 
-const getCommentDescription = (comment: CommentWithRepliesFragment) => {
-  if (comment.deleted) return '[Comment deleted]'
-
-  return `Comment ${comment.user ? 
-    `by ${comment.user.displayName} ` : 
-    ''
-  }- ${comment.contents?.plaintextMainText}`
-}
-
 const CommentPermalink = ({
   documentId,
   post,
@@ -68,7 +57,7 @@ const CommentPermalink = ({
   classes
 }: {
   documentId: string,
-  post?: PostsDetails,
+  post?: PostsBase,
   silentLoading?: boolean,
   classes: ClassesType<typeof styles>,
 }) => {
@@ -94,15 +83,10 @@ const CommentPermalink = ({
       Comment Permalink 
       <p>Error: Sorry, this comment is hidden</p>
     </div>
-    {isLWorAF && <div className={classes.dividerMargins}>
+    {isLWorAF() && <div className={classes.dividerMargins}>
       <Divider />
     </div>}
   </div>
-
-  const ogUrl = post ? postGetPageUrl(post, true) : undefined // open graph
-  const canonicalUrl = post ? post.canonicalSource || ogUrl : undefined
-  // For imageless posts this will be an empty string
-  const socialPreviewImageUrl = post ? post.socialPreviewData?.imageUrl : undefined
 
   const commentNodeProps = {
     treeOptions: {
@@ -119,13 +103,6 @@ const CommentPermalink = ({
     <div className={classes.root}>
       <div className={classes.permalinkLabel}>Comment Permalink</div>
       <div>
-        <HeadTags
-          ogUrl={ogUrl}
-          canonicalUrl={canonicalUrl}
-          image={socialPreviewImageUrl}
-          description={getCommentDescription(comment)}
-          noIndex={true}
-        />
         {post ? (
           <CommentOnPostWithReplies
             key={comment._id}
@@ -150,7 +127,7 @@ const CommentPermalink = ({
           }}>See in context</a>
         </div>
       </div>
-      {isLWorAF && <div className={classes.dividerMargins}>
+      {isLWorAF() && <div className={classes.dividerMargins}>
         <Divider />
       </div>}
     </div>

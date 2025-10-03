@@ -1,18 +1,19 @@
 import classNames from 'classnames';
 import React from 'react';
-import { hideUnreviewedAuthorCommentsSettings } from '../../../lib/publicSettings';
+import { hideUnreviewedAuthorCommentsSettings } from '@/lib/instanceSettings';
 import { useCurrentTime } from '../../../lib/utils/timeUtil';
 import { registerComponent } from "../../../lib/vulcan-lib/components";
 import { userCanDo } from '../../../lib/vulcan-users/permissions';
 import { useFilteredCurrentUser } from '../../common/withUser';
 import type { VotingProps } from '../../votes/votingProps';
 import type { CommentTreeOptions } from '../commentTree';
-import type { VotingSystem } from '../../../lib/voting/votingSystems';
+import type { VotingSystem } from '@/lib/voting/votingSystemTypes';
 import type { ContentItemBodyImperative } from '../../contents/contentBodyUtil';
 import { userIsAllowedToComment } from '../../../lib/collections/users/helpers';
 import CommentBottomCaveats from "./CommentBottomCaveats";
 import { commentGetPageUrlFromIds } from '@/lib/collections/comments/helpers';
 import { Link } from '@/lib/reactRouterWrapper';
+import { commentBottomComponents } from '@/lib/voting/votingSystemComponents';
 
 const styles = (theme: ThemeType) => ({
   bottom: {
@@ -59,7 +60,8 @@ const CommentBottom = ({comment, treeOptions, votingSystem, voteProps, commentBo
   const userCanCommentOrLoggedOut = useFilteredCurrentUser(u => !u || userIsAllowedToComment(u, treeOptions.post ?? null, null, true));
 
   const now = useCurrentTime();
-  const VoteBottomComponent = votingSystem.getCommentBottomComponent?.() ?? null;
+  const votingSystemName = votingSystem.name;
+  const VoteBottomComponent = commentBottomComponents[votingSystemName]?.() ?? null;
 
   const blockedReplies = comment.repliesBlockedUntil && new Date(comment.repliesBlockedUntil) > now;
 

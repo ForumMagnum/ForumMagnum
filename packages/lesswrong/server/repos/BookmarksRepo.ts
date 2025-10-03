@@ -3,7 +3,7 @@ import AbstractRepo from "./AbstractRepo";
 import { Bookmarks } from "../collections/bookmarks/collection";
 import { randomId } from "@/lib/random";
 
-interface UltraFeedBookmark {
+export interface UltraFeedBookmark {
   documentId: string;
   collectionName: string;
   postId: string | null;
@@ -101,5 +101,4 @@ class BookmarksRepo extends AbstractRepo<"Bookmarks"> {
 
 recordPerfMetrics(BookmarksRepo);
 
-export { UltraFeedBookmark };
 export default BookmarksRepo; 

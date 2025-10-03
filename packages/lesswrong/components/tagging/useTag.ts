@@ -130,7 +130,7 @@ export const useTagPreview = (
     loading: queryLoadingWithLenses,
     error: queryErrorWithLenses
   } = useQuery<getTagOrLensPreviewQuery | getTagOrLensSectionPreviewQuery>(queryWithLens, {
-    skip: skip || !hasWikiLenses,
+    skip: skip || !hasWikiLenses(),
     variables: { ...hashVariables, slug },
     ssr: false,
   });
@@ -145,11 +145,11 @@ export const useTagPreview = (
       limit: 1,
       ...hashVariables,
     },
-    skip: skip || hasWikiLenses,
+    skip: skip || hasWikiLenses(),
     ssr: false,
   });
 
-  if (hasWikiLenses) {
+  if (hasWikiLenses()) {
     if (dataWithLenses?.TagPreview?.tag) {
       const originalTag = dataWithLenses.TagPreview.tag;
       const lens: MultiDocumentContentDisplay | null = dataWithLenses.TagPreview.lens;

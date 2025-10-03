@@ -4,7 +4,7 @@ import { useCurrentUser } from '../common/withUser';
 import { useGlobalKeydown } from '../common/withGlobalKeydown';
 import { forumSelect } from '../../lib/forumTypeUtils';
 import { AnalyticsContext } from '../../lib/analyticsEvents';
-import {showSubscribeReminderInFeed} from '../../lib/publicSettings'
+import { showSubscribeReminderInFeed } from '@/lib/instanceSettings';
 import { ObservableQuery } from '@apollo/client';
 import RecentDiscussionThread from "./RecentDiscussionThread";
 import RecentDiscussionTag from "./RecentDiscussionTag";

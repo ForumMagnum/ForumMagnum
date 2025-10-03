@@ -32,7 +32,7 @@ const StickiedPosts = ({
       curatedIconLeft={false}
       placeholderCount={3}
     />
-    {/* {isEAForum && <TargetedJobAdSection />} */}
+    {/* {isEAForum() && <TargetedJobAdSection />} */}
   </SingleColumnSection>
 }
 

@@ -3,8 +3,8 @@ import { registerComponent } from '../../lib/vulcan-lib/components'
 import classNames from 'classnames'
 import SingleColumnSection from "./SingleColumnSection";
 import ForumIcon from "./ForumIcon";
+import { isIfAnyoneBuildsItFrontPage } from '../seasonal/styles';
 import TabButton from "./TabButton";
-import { isIfAnyoneBuildsItFrontPage } from '../seasonal/IfAnyoneBuildsItSplash';
 
 const rightFadeStyle = (theme: ThemeType) => ({
   '&:after': {

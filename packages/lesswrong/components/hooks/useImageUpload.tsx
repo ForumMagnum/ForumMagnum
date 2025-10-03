@@ -1,39 +1,8 @@
 import React, { useCallback } from "react";
-import {
-  cloudinaryCloudNameSetting,
-  DatabasePublicSetting,
-} from "../../lib/publicSettings";
+import { cloudinaryCloudNameSetting, cloudinaryUploadPresetBannerSetting, cloudinaryUploadPresetDigestSetting, cloudinaryUploadPresetEventImageSetting, cloudinaryUploadPresetGridImageSetting, cloudinaryUploadPresetProfileSetting, cloudinaryUploadPresetSocialPreviewSetting, cloudinaryUploadPresetSpotlightSetting } from '@/lib/instanceSettings';
 import { useTheme, useThemeColor } from "../themes/useTheme";
 import { Helmet } from "../common/Helmet";
-
-const cloudinaryUploadPresetGridImageSetting = new DatabasePublicSetting<string>(
-  "cloudinary.uploadPresetGridImage",
-  "tz0mgw2s",
-);
-const cloudinaryUploadPresetBannerSetting = new DatabasePublicSetting<string>(
-  "cloudinary.uploadPresetBanner",
-  "navcjwf7",
-);
-const cloudinaryUploadPresetProfileSetting = new DatabasePublicSetting<string | null>(
-  "cloudinary.uploadPresetProfile",
-  null,
-);
-const cloudinaryUploadPresetSocialPreviewSetting = new DatabasePublicSetting<string | null>(
-  "cloudinary.uploadPresetSocialPreview",
-  null,
-);
-const cloudinaryUploadPresetEventImageSetting = new DatabasePublicSetting<string | null>(
-  "cloudinary.uploadPresetEventImage",
-  null,
-);
-const cloudinaryUploadPresetSpotlightSetting = new DatabasePublicSetting<string | null>(
-  "cloudinary.uploadPresetSpotlight",
-  "yjgxmsio",
-);
-const cloudinaryUploadPresetDigestSetting = new DatabasePublicSetting<string | null>(
-  "cloudinary.uploadPresetDigest",
-  null,
-);
+import { useExternalScript } from "./useExternalScript";
 
 type CloudinaryImageUploadError = {
   statusText: string,
@@ -126,7 +95,7 @@ declare global {
   }
 }
 
-const cloudinaryArgsByImageType = {
+const getCloudinaryArgsByImageType = () => ({
   gridImageId: {
     minImageHeight: 80,
     minImageWidth: 203,
@@ -188,9 +157,9 @@ const cloudinaryArgsByImageType = {
     cropping: false,
     uploadPreset: cloudinaryUploadPresetDigestSetting.get()
   },
-} as const;
+} as const);
 
-export type ImageType = keyof typeof cloudinaryArgsByImageType;
+export type ImageType = keyof ReturnType<typeof getCloudinaryArgsByImageType>;
 
 export type UseImageUploadProps = {
   imageType: ImageType,
@@ -213,7 +182,7 @@ export const useImageUpload = ({
       throw new Error("Cloudinary is not loaded");
     }
 
-    const cloudinaryArgs = cloudinaryArgsByImageType[imageType];
+    const cloudinaryArgs = getCloudinaryArgsByImageType()[imageType];
     if (!cloudinaryArgs) {
       throw new Error("Unsupported image upload type")
     }
@@ -283,15 +252,9 @@ export const useImageUpload = ({
     primaryMainColor,
   ]);
 
+  useExternalScript('https://upload-widget.cloudinary.com/global/all.js', {});
+
   return {
     uploadImage,
-    ImageUploadScript: () => (
-      <Helmet name="imageUploadScript">
-        <script
-          src="https://upload-widget.cloudinary.com/global/all.js"
-          type="text/javascript"
-        />
-      </Helmet>
-    ),
   };
 }

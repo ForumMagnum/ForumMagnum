@@ -1,6 +1,7 @@
 import { useTracking } from '@/lib/analyticsEvents';
 import { registerComponent } from '@/lib/vulcan-lib/components';
 import React from 'react';
+import { useCurrentUser } from '../common/withUser';
 import { useNotifyMe } from '../hooks/useNotifyMe';
 import { useOptimisticToggle } from '../hooks/useOptimisticToggle';
 import classNames from 'classnames';
@@ -8,6 +9,8 @@ import { userGetDisplayName } from '@/lib/collections/users/helpers';
 import { useMutationNoCache } from '@/lib/crud/useMutationNoCache';
 import { gql } from '@/lib/generated/gql-codegen';
 import LWTooltip from "../common/LWTooltip";
+import { useDialog } from '../common/withDialog';
+import LoginPopup from "../users/LoginPopup";
 
 const styles = (theme: ThemeType) => ({
   root: {
@@ -54,6 +57,8 @@ export const FollowUserButton = ({user, styleVariant = "default", classes}: {
   classes: ClassesType<typeof styles>,
 }) => {
   const { captureEvent } = useTracking();
+  const currentUser = useCurrentUser();
+  const { openDialog } = useDialog();
 
   const { isSubscribed, onSubscribe, disabled } = useNotifyMe({
     document: user,
@@ -80,6 +85,13 @@ export const FollowUserButton = ({user, styleVariant = "default", classes}: {
   `));
 
   const handleSubscribe = (ev: React.MouseEvent<HTMLDivElement, MouseEvent>) => {
+    if (!currentUser) {
+        openDialog({
+          name: "LoginPopup",
+          contents: ({ onClose }) => <LoginPopup onClose={onClose} />,
+        });
+      return;
+    }
     void toggleSubscribed(ev);
     captureEvent("followUserButtonClick", {subcribedToUser: user._id, subscribed: !subscribed})
   }

@@ -2,7 +2,7 @@ import React from 'react';
 import { registerComponent } from '../../lib/vulcan-lib/components';
 import { GroupIconSVG } from './Icons'
 import { Marker as BadlyTypedMarker } from 'react-map-gl';
-import { forumTypeSetting } from '../../lib/instanceSettings';
+import { isEAForum } from '../../lib/instanceSettings';
 import { componentWithChildren } from '../../lib/utils/componentsWithChildren';
 import ForumIcon from "../common/ForumIcon";
 import StyledMapPopup from "./StyledMapPopup";
@@ -41,7 +41,7 @@ const LocalGroupMarker = ({ group, handleMarkerClick, handleInfoWindowClose, inf
 
   // FIXME: Unstable component will lose state on rerender
   // eslint-disable-next-line react/no-unstable-nested-components
-  const GroupIcon = () => forumTypeSetting.get() === 'EAForum'
+  const GroupIcon = () => isEAForum()
     ? <ForumIcon icon="Star" className={classes.eaIcon}/>
     : <GroupIconSVG className={classes.icon}/>;
 

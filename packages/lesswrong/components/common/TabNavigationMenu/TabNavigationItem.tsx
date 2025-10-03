@@ -10,16 +10,17 @@ import { NAV_MENU_FLAG_COOKIE_PREFIX } from '@/lib/cookies/cookies';
 import TabNavigationSubItem from "./TabNavigationSubItem";
 import LWTooltip from "../LWTooltip";
 import { MenuItemLink } from "../Menus";
+import { defineStyles, useStyles } from '@/components/hooks/useStyles';
 
 export const iconWidth = 30
 
-const iconTransform = forumSelect({
+const getIconTransform = () => forumSelect({
   LessWrong: "scale(0.8)",
   EAForum: "scale(0.7)",
   default: undefined,
 });
 
-const styles = (theme: ThemeType) => ({
+const styles = defineStyles('TabNavigationItem', (theme: ThemeType) => ({
   selected: {
     '& $icon': {
       opacity: 1,
@@ -83,7 +84,7 @@ const styles = (theme: ThemeType) => ({
     "& svg": {
       fill: theme.isFriendlyUI ? undefined : "currentColor",
       color: theme.isFriendlyUI ? undefined : theme.palette.icon.navigationSidebarIcon,
-      transform: iconTransform,
+      transform: getIconTransform(),
     },
     ...(theme.isFriendlyUI && {
       opacity: 1,
@@ -124,13 +125,12 @@ const styles = (theme: ThemeType) => ({
     borderRadius: theme.borderRadius.small,
     color: theme.palette.text.alwaysWhite,
   },
-});
+}));
 
 export type TabNavigationItemProps = {
   tab: MenuTabRegular,
   onClick?: (event: React.MouseEvent<HTMLAnchorElement>) => void,
   className?: string,
-  classes: ClassesType<typeof styles>,
 }
 
 const parseCookie = (
@@ -189,7 +189,8 @@ const useFlag = (tab: MenuTabRegular): {
   return {flag};
 }
 
-const TabNavigationItem = ({tab, onClick, className, classes}: TabNavigationItemProps) => {
+const TabNavigationItem = ({tab, onClick, className}: TabNavigationItemProps) => {
+  const classes = useStyles(styles);
   const {pathname} = useLocation();
   const currentUser = useCurrentUser();
   const {flag, onClickFlag} = useFlag(tab);
@@ -255,8 +256,6 @@ const TabNavigationItem = ({tab, onClick, className, classes}: TabNavigationItem
   </LWTooltip>
 }
 
-export default registerComponent(
-  'TabNavigationItem', TabNavigationItem, {styles}
-);
+export default TabNavigationItem;
 
 

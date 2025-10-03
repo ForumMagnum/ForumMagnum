@@ -1,14 +1,13 @@
 import LRU from 'lru-cache';
 import type { RenderResult, RenderSuccessResult } from './renderPage';
-import { CompleteTestGroupAllocation, RelevantTestGroupAllocation, getABTestsMetadata, getAllUserABTestGroups } from '@/lib/abTestImpl';
+import { CompleteTestGroupAllocation, getABTestsMetadata, getAllUserABTestGroups } from '@/lib/abTestImpl';
+import type { RelevantTestGroupAllocation } from '@/components/common/sharedContexts';
 import type { Request, Response } from 'express';
 import { getCookieFromReq, getPathFromReq } from '@/server/utils/httpUtil';
 import { isValidSerializedThemeOptions, getDefaultThemeOptions } from '@/themes/themeNames';
-import { dogstatsd } from '@/server/datadog/tracer';
-import { healthCheckUserAgentSetting } from './renderUtil';
 import PageCacheRepo, { maxCacheAgeMs } from '@/server/repos/PageCacheRepo';
-import { DatabaseServerSetting } from '@/server/databaseSettings';
-import { isDatadogEnabled } from '@/lib/instanceSettings';
+import { dbPageCacheEnabledSetting } from '@/server/databaseSettings';
+// import { isDatadogEnabled } from '@/lib/instanceSettings';
 import stringify from 'json-stringify-deterministic';
 import { ResponseManager } from './ResponseManager';
 import { backgroundTask } from '../utils/backgroundTask';
@@ -26,7 +25,6 @@ import { backgroundTask } from '../utils/backgroundTask';
 //   3. When a page that is getting a lot of traffic expires from the page
 //      cache, we don't want to start many rerenders of it in parallel
 
-const dbPageCacheEnabledSetting = new DatabaseServerSetting<boolean>("dbPageCacheEnabled", true);
 
 const maxPageCacheSizeBytes = 32*1024*1024; //32MB
 
@@ -106,7 +104,7 @@ export const cachedPageRender = async (
   userAgent: string|undefined,
   renderFn: () => Promise<RenderResult>
 ) => {
-  const clientId = req.clientId ?? getCookieFromReq(req, "clientId");
+  const clientId = (req as any).clientId ?? getCookieFromReq(req, "clientId");
   const abTestGroups = getAllUserABTestGroups({ clientId: clientId! });
   const path = getPathFromReq(req);
   const cacheKey = cacheKeyFromReq(req);
@@ -289,15 +287,15 @@ const clearExpiredCacheEntries = (): void => {
 let cacheHits = 0;
 let cacheQueriesTotal = 0;
 
-export function recordDatadogCacheEvent(cacheEvent: {path: string, userAgent: string, type: "hit"|"miss"|"bypass"}) {
-  // Bots are _mostly_ already redirected by botRedirect.ts, so assume every request that is not a health check is a real user
-  const userType = cacheEvent.userAgent === healthCheckUserAgentSetting.get() ? "health_check" : "likely_real_user";
+// export function recordDatadogCacheEvent(cacheEvent: {path: string, userAgent: string, type: "hit"|"miss"|"bypass"}) {
+//   // Bots are _mostly_ already redirected by botRedirect.ts, so assume every request that is not a health check is a real user
+//   const userType = cacheEvent.userAgent === healthCheckUserAgentSetting.get() ? "health_check" : "likely_real_user";
 
-  const expandedCacheEvent = {...cacheEvent, userType};
-  if (isDatadogEnabled && dogstatsd) {
-    dogstatsd.increment("cache_event", expandedCacheEvent)
-  }
-}
+//   const expandedCacheEvent = {...cacheEvent, userType};
+//   if (isDatadogEnabled && dogstatsd) {
+//     dogstatsd.increment("cache_event", expandedCacheEvent)
+//   }
+// }
 
 export function recordCacheHit(cacheEvent: {path: string, userAgent: string}) {
   // recordDatadogCacheEvent({...cacheEvent, type: "hit"}); // Useful for debugging, but expensive to track all the time

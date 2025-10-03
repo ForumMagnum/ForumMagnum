@@ -1,7 +1,7 @@
 import { useMutation } from "@apollo/client/react";
 import { gql } from "@/lib/generated/gql-codegen";
 import React, { useCallback } from 'react';
-import { eligibleToNominate, REVIEW_NAME_IN_SITU, REVIEW_YEAR, VoteIndex } from '../../lib/reviewUtils';
+import { eligibleToNominate, getReviewNameInSitu, REVIEW_YEAR, VoteIndex } from '../../lib/reviewUtils';
 import { Link } from '../../lib/reactRouterWrapper';
 import { ReviewOverviewTooltip } from './FrontpageReviewWidget';
 import { useCurrentUser } from '../common/withUser';
@@ -9,6 +9,7 @@ import { registerComponent } from "../../lib/vulcan-lib/components";
 import ReviewVotingButtons from "./ReviewVotingButtons";
 import ErrorBoundary from "../common/ErrorBoundary";
 import LWTooltip from "../common/LWTooltip";
+import { useCurrentUserReviewVote } from "../hooks/useCurrentUserReviewVote";
 
 const styles = (theme: ThemeType) => ({
   root: {
@@ -23,7 +24,12 @@ const styles = (theme: ThemeType) => ({
   }
 })
 
-const ReviewVotingWidget = ({classes, post, setNewVote, showTitle=true}: {classes: ClassesType<typeof styles>, post: PostsMinimumInfo, showTitle?: boolean, setNewVote?: (newVote: VoteIndex) => void}) => {
+const ReviewVotingWidget = ({classes, post, setNewVote, showTitle=true}: {
+  classes: ClassesType<typeof styles>,
+  post: PostsMinimumInfo,
+  showTitle?: boolean,
+  setNewVote?: (newVote: VoteIndex) => void
+}) => {
   const currentUser = useCurrentUser()
 
   // TODO: Refactor these + the ReviewVotingPage dispatch
@@ -44,19 +50,23 @@ const ReviewVotingWidget = ({classes, post, setNewVote, showTitle=true}: {classe
     return await submitVote({variables: {postId, qualitativeScore: score, year: REVIEW_YEAR.toString(), dummy: false}})
   }, [submitVote, setNewVote]);
 
-  if (!eligibleToNominate(currentUser)) return null
+  const skip = !eligibleToNominate(currentUser);
 
-  const currentUserVote = post.currentUserReviewVote !== null ? {
-    _id: post.currentUserReviewVote._id,
+  const currentUserReviewVote = useCurrentUserReviewVote(post._id, skip);
+
+  if (skip) return null
+
+  const currentUserVote = currentUserReviewVote !== null ? {
+    _id: currentUserReviewVote._id,
     postId: post._id,
-    score: post.currentUserReviewVote.qualitativeScore || 0,
+    score: currentUserReviewVote.qualitativeScore || 0,
     type: "QUALITATIVE" as const
   } : null
 
   return <ErrorBoundary>
       <div className={classes.root}>
         {showTitle && <p>
-          Vote on this post for the <LWTooltip title={<ReviewOverviewTooltip/>}><Link to={"/reviewVoting"}>{REVIEW_NAME_IN_SITU}</Link></LWTooltip>
+          Vote on this post for the <LWTooltip title={<ReviewOverviewTooltip/>}><Link to={"/reviewVoting"}>{getReviewNameInSitu()}</Link></LWTooltip>
         </p>}
         <ReviewVotingButtons post={post} dispatch={dispatchQualitativeVote} currentUserVote={currentUserVote}/>
       </div>

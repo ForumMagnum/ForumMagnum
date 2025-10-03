@@ -3,28 +3,19 @@ import { isFriendlyUI } from '@/themes/forumTheme';
 import { postGetPageUrl, postGetLink, postGetLinkTarget } from '../../lib/collections/posts/helpers';
 import { truncatise } from '@/lib/truncatise';
 import { SMALL_TRUNCATION_CHAR_COUNT } from '@/lib/editor/ellipsize';
-import { LocationContext, NavigationContext } from '@/lib/vulcan-core/appContext';
-import { defineStyles, useStyles } from '@/components/hooks/useStyles';
+import { defineStyles } from '@/components/hooks/defineStyles';
 import { EmailPostAuthors } from './EmailPostAuthors';
 import { EmailContentItemBody } from './EmailContentItemBody';
 import { EmailFooterRecommendations } from './EmailFooterRecommendations';
 import { EmailPostDate } from './EmailPostDate';
-import ContentStyles from '@/components/common/ContentStyles';
-import { useQuery } from "@/lib/crud/useQuery";
-import { gql } from "@/lib/generated/gql-codegen";
+// import ContentStyles from '@/components/common/ContentStyles';
+import type { PostsRevision } from "@/lib/generated/gql-codegen/graphql";
+import { EmailContextType, useEmailStyles } from './emailContext';
+import { PostsRevisionMultiQuery } from './queries';
+import { useEmailQuery } from '../vulcan-lib/query';
+import { EmailContentStyles } from './EmailContentStyles';
 
-const PostsRevisionMultiQuery = gql(`
-  query multiPostPostsEmailQuery($selector: PostSelector, $limit: Int, $enableTotal: Boolean, $version: String) {
-    posts(selector: $selector, limit: $limit, enableTotal: $enableTotal) {
-      results {
-        ...PostsRevision
-      }
-      totalCount
-    }
-  }
-`);
-
-const getPodcastInfoElement = (podcastEpisode: Exclude<PostsDetails['podcastEpisode'], null>) => {
+const getPodcastInfoElement = (podcastEpisode: Exclude<PostPodcastEpisode['podcastEpisode'], null>) => {
   const { podcast: { applePodcastLink, spotifyPodcastLink }, episodeLink, externalEpisodeId } = podcastEpisode;
   const episodeUrl = new URL(episodeLink);
 
@@ -104,7 +95,7 @@ const styles = defineStyles("PostsEmail", (theme: ThemeType) => ({
     textDecoration: "none",
     fontWeight: "normal",
     fontFamily: theme.typography.headerStyle.fontFamily,
-    ...(isFriendlyUI ? {
+    ...(theme.isFriendlyUI ? {
       fontSize: "2.4rem",
       lineHeight: '1.25em'
     } : {}),
@@ -123,23 +114,25 @@ const styles = defineStyles("PostsEmail", (theme: ThemeType) => ({
   },
 }));
 
-function PostsEmailInner({
+export async function PostsEmail({
   postIds,
   reason,
   hideRecommendations,
+  emailContext,
 }: {
   postIds: string[];
   reason?: string;
   hideRecommendations?: boolean;
+  emailContext: EmailContextType,
 }) {
-  const classes = useStyles(styles);
-  const { data } = useQuery(PostsRevisionMultiQuery, {
+  const classes = useEmailStyles(styles, emailContext);
+  const { data } = await useEmailQuery(PostsRevisionMultiQuery, {
     variables: {
       selector: { default: { exactPostIds: postIds } },
       limit: 10,
       enableTotal: false,
     },
-    notifyOnNetworkStatusChange: true,
+    emailContext,
   });
 
   const posts = data?.posts?.results;
@@ -149,7 +142,7 @@ function PostsEmailInner({
   }
 
   // Reusable piece to render each post. We take a "truncated" boolean flag:
-  const renderPost = ({ post, truncated }: { post: PostsRevision; truncated: boolean; }) => {
+  const renderPost = ({ post, truncated }: { post: PostsRevision & { podcastEpisode: PostPodcastEpisode['podcastEpisode'] }; truncated: boolean; }) => {
     let eventLocation: string | React.JSX.Element = post.location ?? "";
     if (post.onlineEvent) {
       eventLocation = post.joinEventLink ? (
@@ -176,7 +169,7 @@ function PostsEmailInner({
             <EmailPostAuthors post={post} />
           </div>
           <div className={classes.headingRow}>
-            <EmailPostDate post={post} />
+            <EmailPostDate post={post} emailContext={emailContext} />
           </div>
           {post.isEvent && <div className={classes.headingRow}>{eventLocation}</div>}
           {post.contactInfo && (
@@ -200,14 +193,14 @@ function PostsEmailInner({
         )}
 
         {post.contents && (
-          <ContentStyles contentType="post">
+          <EmailContentStyles contentType="post" emailContext={emailContext}>
             <EmailContentItemBody
               className="post-body"
               dangerouslySetInnerHTML={{
                 __html: postContentHtml,
               }}
             />
-          </ContentStyles>
+          </EmailContentStyles>
         )}
 
         <a href={postGetPageUrl(post, true)}>{truncated ? "Read full post" : "Discuss"}</a>
@@ -224,7 +217,7 @@ function PostsEmailInner({
       {postElements}
       {!hideRecommendations && (
         <>
-          <EmailFooterRecommendations />
+          <EmailFooterRecommendations emailContext={emailContext} />
           <hr className={classes.hr}/>
         </>
       )}
@@ -232,51 +225,3 @@ function PostsEmailInner({
     </>
   );
 }
-
-export const PostsEmail = ({ postIds, reason, hideRecommendations}: {
-  postIds: string[];
-  reason?: string;
-  hideRecommendations?: boolean;
-}) => {
-  const classes = useStyles(styles);
-  return (
-    // Providers are required for useMulti
-    <LocationContext.Provider
-      value={{
-        currentRoute: null,
-        RouteComponent: null,
-        location: { pathname: "", search: "", hash: "" },
-        pathname: "",
-        url: "",
-        hash: "",
-        params: {},
-        query: {},
-        redirected: false,
-      }}
-    >
-      <NavigationContext.Provider
-        value={{
-          history: {
-            length: 0,
-            action: "PUSH",
-            location: { pathname: "", search: "", hash: "", state: undefined },
-            push: () => {},
-            replace: () => {},
-            go: () => {},
-            goBack: () => {},
-            goForward: () => {},
-            block: () => () => {},
-            listen: () => () => {},
-            createHref: () => "",
-          },
-        }}
-      >
-        <PostsEmailInner
-          postIds={postIds}
-          reason={reason}
-          hideRecommendations={hideRecommendations}
-        />
-      </NavigationContext.Provider>
-    </LocationContext.Provider>
-  );
-};

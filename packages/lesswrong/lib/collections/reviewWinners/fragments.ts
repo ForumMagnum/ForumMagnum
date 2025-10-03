@@ -1,28 +1,5 @@
 import { gql } from "@/lib/generated/gql-codegen";
 
-export const ReviewWinnerEditDisplay = gql(`
-  fragment ReviewWinnerEditDisplay on ReviewWinner {
-    _id
-    postId
-    reviewYear
-    curatedOrder
-    reviewRanking
-  }
-`)
-
-export const ReviewWinnerTopPostsDisplay = gql(`
-  fragment ReviewWinnerTopPostsDisplay on ReviewWinner {
-    _id
-    postId
-    post {
-      ...PostsTopItemInfo
-    }
-    reviewYear
-    curatedOrder
-    reviewRanking
-  }
-`)
-
 export const ReviewWinnerAll = gql(`
   fragment ReviewWinnerAll on ReviewWinner {
     _id

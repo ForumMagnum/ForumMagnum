@@ -1,3 +1,5 @@
+"use client";
+
 import React from 'react';
 import { Link } from '../../lib/reactRouterWrapper';
 import { userGetProfileUrl } from '../../lib/collections/users/helpers';

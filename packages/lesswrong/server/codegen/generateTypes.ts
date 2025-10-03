@@ -6,11 +6,11 @@ import fs from 'fs';
 import path from 'path';
 import { generateCollectionTypeNames } from './generateCollectionTypeNames';
 import { generateInputTypes } from './generateInputTypes';
-import { generateDefaultFragmentsFile } from './generateDefaultFragments';
-import { typeDefs } from '../vulcan-lib/apollo-server/initGraphQL';
+import { getTypeDefs } from '../vulcan-lib/apollo-server/initGraphQL';
 import { generate } from '@graphql-codegen/cli'
 import { DefinitionNode, DocumentNode, FragmentDefinitionNode, Kind, print, visit } from 'graphql';
 import graphqlCodegenConfig from '@/../../codegen.ts';
+import { generateRouteManifest } from '../scripts/generateRouteManifest';
 
 export async function generateTypes(repoRoot?: string) {
   function writeIfChanged(contents: string, path: string) {
@@ -50,11 +50,11 @@ export async function generateTypes(repoRoot?: string) {
     const { collectionNameToTypeName, typeNameToCollectionName }: typeof import("@/lib/generated/collectionTypeNames") = require("@/lib/generated/collectionTypeNames");
 
     writeIfChanged(generateGraphQLSchemaFile(), "/packages/lesswrong/lib/generated/gqlSchema.gql");
-    writeIfChanged(generateDefaultFragmentsFile(collectionNameToTypeName), "/packages/lesswrong/lib/generated/defaultFragments.ts");
     writeIfChanged(generateInputTypes(), "/packages/lesswrong/lib/generated/inputTypes.d.ts");
     writeIfChanged(generateFragmentTypes(collectionNameToTypeName, typeNameToCollectionName), "/packages/lesswrong/lib/generated/fragmentTypes.d.ts");
     writeIfChanged(generateDbTypes(), "/packages/lesswrong/lib/generated/databaseTypes.d.ts");
     writeIfChanged(generateViewTypes(), "/packages/lesswrong/lib/generated/viewTypes.ts");
+    writeIfChanged(generateRouteManifest(), "/packages/lesswrong/lib/generated/routeManifest.ts");
     await generateGraphQLCodegenTypes();
   } catch(e) {
     // eslint-disable-next-line no-console
@@ -72,7 +72,7 @@ export const generateTypesAndSQLSchema = async (rootDir?: string) => {
 function generateGraphQLSchemaFile(): string {
   const sb: string[] = [];
   sb.push("# Generated file - run 'yarn generate' to update.\n\n");
-  sb.push(print(typeDefs));
+  sb.push(print(getTypeDefs()));
   return sb.join("");
 }
 
@@ -85,8 +85,9 @@ async function generateGraphQLCodegenTypes(): Promise<void> {
   // We could hoist this to `generateTypes` to re-use the list of files in `generateFragmentTypes`,
   // but the scanning is ~100ms and doesn't seem worth it.
   const filesContainingGql = getFilesMaybeContainingGql("packages/lesswrong");
+  const otherFilesContainingGql = getFilesMaybeContainingGql("app");
 
-  graphqlCodegenConfig.documents = filesContainingGql;
+  graphqlCodegenConfig.documents = [...filesContainingGql, ...otherFilesContainingGql];
   const fileOutputs = await generate(graphqlCodegenConfig)
   for (const fileOutput of fileOutputs) {
     fs.writeFileSync(fileOutput.filename, fileOutput.content.replace("InputMaybe<T> = Maybe<T>", "InputMaybe<T> = T | null | undefined"));
@@ -105,6 +106,8 @@ function getFilesMaybeContainingGql(dir: string) {
   const files: string[] = [];
   
   function traverse(currentDir: string) {
+    if (currentDir.endsWith('/unitTests') || currentDir.endsWith('/tests')) return;
+
     const entries = fs.readdirSync(currentDir, { withFileTypes: true });
     
     for (const entry of entries) {

@@ -5,9 +5,13 @@ export const wrapConsoleLogFunctions = (wrapper: (originalFn: any, ...message: a
   for (let functionName of ["log", "info", "warn", "error", "trace"] as const) {
     // eslint-disable-next-line no-console
     const originalFn = console[functionName];
-    // eslint-disable-next-line no-console
-    console[functionName] = (...message: any[]) => {
-      wrapper(originalFn, ...message);
+    if (originalFn.name === functionName) {
+      const wrappedFn = (...message: any[]) => {
+        wrapper(originalFn, ...message);
+      };
+
+      // eslint-disable-next-line no-console
+      console[functionName] = wrappedFn;
     }
   }
 }

@@ -14,7 +14,6 @@ import { DialogContentsFn, OpenDialogContextType, useDialog } from '../common/wi
 import { useCurrentUser } from '../common/withUser';
 import { PersonSVG, ArrowSVG, GroupIconSVG } from './Icons'
 import qs from 'qs'
-import { without } from 'underscore';
 import { isEAForum } from '../../lib/instanceSettings';
 import { userIsAdmin } from '../../lib/vulcan-users/permissions';
 import {isFriendlyUI} from '../../themes/forumTheme'
@@ -201,7 +200,7 @@ export const createFallBackDialogHandler = (
   }
 }
 
-const getInitialFilters = ({query}: RouterLocation) => {
+const getInitialFilters = (query?: Record<string, string | string[]>) => {
   const filters = query?.filters;
   if (Array.isArray(filters)) {
     return filters;
@@ -238,21 +237,19 @@ const CommunityMapFilter = ({
   const navigate = useNavigate();
   const {openDialog} = useDialog();
   const {flash} = useMessages();
-  const [filters, setFilters] = useState(() => getInitialFilters(location));
+  const [filters, setFilters] = useState(() => getInitialFilters(location.query));
 
   const handleCheck = useCallback((filter: string) => {
-    let newFilters: AnyBecauseTodo[] = [];
+    let newFilters: string[] = [];
     if (Array.isArray(filters) && filters.includes(filter)) {
-      newFilters = without(filters, filter);
+      newFilters = filters.filter(f => f !== filter);
     } else {
       newFilters = [...filters, filter];
     }
     setFilters(newFilters);
-    // FIXME: qs.stringify doesn't handle array parameters in the way
-    // react-router-v3 did, which causes awkward-looking and backwards
-    // incompatible (but not broken) URLs.
-    navigate({...location.location, search: qs.stringify({filters: newFilters})});
-  }, [filters, location.location, navigate]);
+    const newLocation = {...location.location, search: qs.stringify({...location.query, filters: newFilters}, { arrayFormat: 'repeat' })};
+    navigate(newLocation);
+  }, [filters, location.query, location.location, navigate]);
 
   const handleHideMap = useCallback(() => {
     let undoAction;
@@ -272,17 +269,17 @@ const CommunityMapFilter = ({
 
   // FIXME: Unstable component will lose state on rerender
   // eslint-disable-next-line react/no-unstable-nested-components
-  const GroupIcon = () => isEAForum
+  const GroupIcon = () => isEAForum()
     ? <StarIcon className={classes.eaButtonIcon}/>
     : <GroupIconSVG className={classes.buttonIcon}/>;
   // FIXME: Unstable component will lose state on rerender
   // eslint-disable-next-line react/no-unstable-nested-components
-  const EventIcon = () => isEAForum
+  const EventIcon = () => isEAForum()
     ? <RoomIcon className={classes.eaButtonIcon}/>
     : <ArrowSVG className={classes.buttonIcon}/>;
   // FIXME: Unstable component will lose state on rerender
   // eslint-disable-next-line react/no-unstable-nested-components
-  const PersonIcon = () => isEAForum
+  const PersonIcon = () => isEAForum()
     ? <PersonPinIcon className={classes.eaButtonIcon}/>
     : <PersonSVG className={classes.buttonIcon}/>;
 
@@ -290,7 +287,7 @@ const CommunityMapFilter = ({
 
   return (
     <Paper>
-      {!isFriendlyUI && <div className={classes.filters}>
+      {!isFriendlyUI() && <div className={classes.filters}>
         {availableFilters.map((value, i) => {
           const checked = filters.includes(value)
           return (
@@ -325,7 +322,7 @@ const CommunityMapFilter = ({
           </span>
           <span className={classes.buttonText}>Groups</span>
           <span className={classes.actionContainer}>
-            {(!isEAForum || isAdmin) && <TooltipSpan title="Create New Group">
+            {(!isEAForum() || isAdmin) && <TooltipSpan title="Create New Group">
               <AddIcon
                 className={classNames(classes.actionIcon, classes.addIcon)}
                 onClick={createFallBackDialogHandler(

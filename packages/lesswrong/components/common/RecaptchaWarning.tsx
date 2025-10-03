@@ -1,6 +1,6 @@
 import React from 'react';
 import { Link } from '../../lib/reactRouterWrapper';
-import { forumTypeSetting } from '../../lib/instanceSettings';
+import { isLWorAF } from '../../lib/instanceSettings';
 import { spamRiskScoreThreshold } from '@/lib/collections/users/helpers';
 import { defineStyles, useStyles } from '../hooks/useStyles';
 
@@ -28,20 +28,18 @@ const RecaptchaWarning = ({ currentUser, children }: {
 
 const RecaptchaWarningInner = () => {
   const classes = useStyles(styles);
-  switch (forumTypeSetting.get()) {
-    case 'AlignmentForum':
-    case 'LessWrong':
-      return <div className={classes.warningText}>
-        You've been flagged by our spam detection system. Please message an admin via
-        Intercom (the chat bubble in the bottom right corner) or send a private message to admin
-        <Link className={classes.link} to="/users/habryka4"> habryka</Link> to activate posting- and commenting-privileges on your account.
-      </div>
-    default:
-      return <div className={classes.warningText}>
-        You've been flagged by our spam detection system. Please{' '}
-        <Link className={classes.link} to="/contact">contact us</Link> to activate posting and commenting privileges on your account.
-      </div>
+  if (isLWorAF()) {
+    return <div className={classes.warningText}>
+      You've been flagged by our spam detection system. Please message an admin via
+      Intercom (the chat bubble in the bottom right corner) or send a private message to admin
+      <Link className={classes.link} to="/users/habryka4"> habryka</Link> to activate posting- and commenting-privileges on your account.
+    </div>
   }
+
+  return <div className={classes.warningText}>
+    You've been flagged by our spam detection system. Please{' '}
+    <Link className={classes.link} to="/contact">contact us</Link> to activate posting and commenting privileges on your account.
+  </div>
 }
 
 

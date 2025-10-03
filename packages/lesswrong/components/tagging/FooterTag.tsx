@@ -2,17 +2,15 @@ import React from 'react';
 import { registerComponent } from '../../lib/vulcan-lib/components';
 import { Link } from '../../lib/reactRouterWrapper';
 import { AnalyticsContext } from "../../lib/analyticsEvents";
-import { DatabasePublicSetting } from '../../lib/publicSettings';
+import { useExperimentalTagStyleSetting } from '@/lib/instanceSettings';
 import classNames from 'classnames';
 import { tagGetUrl } from '../../lib/collections/tags/helpers';
 import { useCurrentUser } from '../common/withUser';
-import CoreTagIcon, { coreTagIconMap } from './CoreTagIcon';
+import CoreTagIcon, { getCoreTagIconMap } from './CoreTagIcon';
 import { isFriendlyUI } from '../../themes/forumTheme';
 import TagsTooltip, { TagsTooltipPreviewWrapper } from './TagsTooltip';
 import { defineStyles, useStyles } from '../hooks/useStyles';
 import ForumIcon from "../common/ForumIcon";
-
-const useExperimentalTagStyleSetting = new DatabasePublicSetting<boolean>('useExperimentalTagStyle', false)
 
 export const tagStyle = (theme: ThemeType) => ({
   marginRight: theme.isFriendlyUI ? 3 : undefined,
@@ -167,9 +165,9 @@ const FooterTag = ({
 
   if (tag.adminOnly && !currentUser?.isAdmin) { return null }
 
-  const showIcon = Boolean(tag.core && !smallText && coreTagIconMap[tag.slug] && !hideIcon);
+  const showIcon = Boolean(tag.core && !smallText && getCoreTagIconMap()[tag.slug] && !hideIcon);
 
-  const tagName = isFriendlyUI && smallText
+  const tagName = isFriendlyUI() && smallText
     ? tag.shortName || tag.name
     : tag.name;
   const renderedTag = <>

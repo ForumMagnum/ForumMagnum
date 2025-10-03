@@ -3,7 +3,7 @@ import { registerComponent } from '../../lib/vulcan-lib/components';
 import { Hits, Configure } from 'react-instantsearch-dom';
 import { SearchIndexCollectionName, getSearchIndexName } from '../../lib/search/searchUtil';
 import { Link } from '../../lib/reactRouterWrapper';
-import { HEADER_HEIGHT, MOBILE_HEADER_HEIGHT } from '../common/Header';
+import { getHeaderHeight, getMobileHeaderHeight } from '../common/Header';
 import { SearchHitComponentProps } from './types';
 import { Index } from '../../lib/utils/componentsWithChildren';
 import ErrorBoundary from "../common/ErrorBoundary";
@@ -21,14 +21,14 @@ const styles = (theme: ThemeType) => ({
     width: 520,
     position: "fixed",
     right: 0,
-    top: HEADER_HEIGHT,
+    top: getHeaderHeight(),
     display: "flex",
     flexWrap: "wrap",
     [theme.breakpoints.down('sm')]: {
       width: "100%"
     },
     [theme.breakpoints.down('xs')]: {
-      top: MOBILE_HEADER_HEIGHT,
+      top: getMobileHeaderHeight(),
     },
   },
   searchResults: {

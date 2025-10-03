@@ -10,34 +10,34 @@ import { SidebarsContext } from './SidebarsWrapper';
 import withErrorBoundary from '../common/withErrorBoundary';
 import classNames from 'classnames';
 import { AnalyticsContext, useTracking } from '../../lib/analyticsEvents';
-import { forumHeaderTitleSetting, forumShortTitleSetting, isAF, isEAForum } from '../../lib/instanceSettings';
+import { forumHeaderTitleSetting, forumShortTitleSetting, isAF, hasProminentLogoSetting } from '@/lib/instanceSettings';
 import { useUnreadNotifications } from '../hooks/useUnreadNotifications';
 import { isBookUI, isFriendlyUI } from '../../themes/forumTheme';
-import { hasProminentLogoSetting } from '../../lib/publicSettings';
 import { useLocation } from '../../lib/routeUtil';
 import { useCurrentAndRecentForumEvents } from '../hooks/useCurrentForumEvent';
-import { makeCloudinaryImageUrl } from './CloudinaryImage2';
+import { makeCloudinaryImageUrl } from './cloudinaryHelpers';
 import { hasForumEvents } from '@/lib/betas';
 import SearchBar from "./SearchBar";
 import UsersMenu from "../users/UsersMenu";
-import UsersAccountMenu from "../users/UsersAccountMenu";
+import { LWUsersAccountMenu, EAUsersAccountMenu } from "../users/UsersAccountMenu";
 import NotificationsMenuButton from "../notifications/NotificationsMenuButton";
 import NavigationDrawer from "./TabNavigationMenu/NavigationDrawer";
-import NotificationsMenu from "../notifications/NotificationsMenu";
-import { KarmaChangeNotifier } from "../users/KarmaChangeNotifier";
+import { KarmaChangeNotifier } from "../users/karmaChanges/KarmaChangeNotifier";
 import HeaderSubtitle from "./HeaderSubtitle";
 import { Typography } from "./Typography";
 import ForumIcon from "./ForumIcon";
-import ActiveDialogues from "../dialogues/ActiveDialogues";
 import SiteLogo from "../ea-forum/SiteLogo";
 import MessagesMenuButton from "../messaging/MessagesMenuButton";
 import { SuspenseWrapper } from './SuspenseWrapper';
+import { isHomeRoute } from '@/lib/routeChecks';
+import { useRouteMetadata } from '../ClientRouteMetadataContext';
 import { forumSelect } from '@/lib/forumTypeUtils';
+import NotificationsMenu from "../notifications/NotificationsMenu";
 
 /** Height of top header. On Book UI sites, this is for desktop only */
-export const HEADER_HEIGHT = isBookUI ? 64 : 66;
+export const getHeaderHeight = () => isBookUI() ? 64 : 66;
 /** Height of top header on mobile. On Friendly UI sites, this is the same as the HEADER_HEIGHT */
-export const MOBILE_HEADER_HEIGHT = isBookUI ? 56 : HEADER_HEIGHT;
+export const getMobileHeaderHeight = () => isBookUI() ? 56 : getHeaderHeight();
 
 const textColorOverrideStyles = ({
   theme,
@@ -170,9 +170,9 @@ export const styles = (theme: ThemeType) => ({
   root: {
     // This height (including the breakpoint at xs/600px) is set by Headroom, and this wrapper (which surrounds
     // Headroom and top-pads the page) has to match.
-    height: HEADER_HEIGHT,
+    height: getHeaderHeight(),
     [theme.breakpoints.down('xs')]: {
-      height: MOBILE_HEADER_HEIGHT,
+      height: getMobileHeaderHeight(),
     },
     "@media print": {
       display: "none"
@@ -204,9 +204,9 @@ export const styles = (theme: ThemeType) => ({
     display: 'flex',
     alignItems: 'center',
     fontWeight: theme.isFriendlyUI ? 400 : undefined,
-    height: isFriendlyUI ? undefined : '19px',
+    height: theme.isFriendlyUI ? undefined : '19px',
     
-    ...(isAF && {
+    ...(theme.isAF && {
       top: 0,
     }),
   },
@@ -339,7 +339,8 @@ const Header = ({
   const {toc} = useContext(SidebarsContext)!;
   const { captureEvent } = useTracking()
   const { notificationsOpened } = useUnreadNotifications();
-  const { currentRoute, pathname, hash } = useLocation();
+  const { pathname, hash } = useLocation();
+  const { metadata: routeMetadata } = useRouteMetadata();
   const {currentForumEvent} = useCurrentAndRecentForumEvents();
   useEffect(() => {
     // When we move to a different page we will be positioned at the top of
@@ -350,9 +351,9 @@ const Header = ({
     }
   }, [pathname, hash]);
 
-  const hasNotificationsPopover = isFriendlyUI;
-  const hasKarmaChangeNotifier = !isFriendlyUI && isLoggedIn && !usernameUnset;
-  const hasMessagesButton = isFriendlyUI && isLoggedIn && !usernameUnset;
+  const hasNotificationsPopover = isFriendlyUI();
+  const hasKarmaChangeNotifier = !isFriendlyUI() && isLoggedIn && !usernameUnset;
+  const hasMessagesButton = isFriendlyUI() && isLoggedIn && !usernameUnset;
 
   const setNavigationOpen = (open: boolean) => {
     setNavigationOpenState(open);
@@ -454,39 +455,41 @@ const Header = ({
         aria-label="Menu"
         onClick={toggleStandaloneNavigation}
       >
-        {(isFriendlyUI && !sidebarHidden)
+        {(isFriendlyUI() && !sidebarHidden)
           ? <ForumIcon icon="CloseMenu" className={classes.icon} />
           : <ForumIcon icon="Menu" className={classes.icon} />}
       </IconButton>}
     </React.Fragment>
   )
 
-  const usersMenuClass = isFriendlyUI ? classes.hideXsDown : classes.hideMdDown
+  const usersMenuClass = isFriendlyUI() ? classes.hideXsDown : classes.hideMdDown
   const usersMenuNode = isLoggedIn && <div className={searchOpen ? usersMenuClass : undefined}>
     <AnalyticsContext pageSectionContext="usersMenu">
       <UsersMenu />
     </AnalyticsContext>
   </div>
 
+  const loginButtonNode = isFriendlyUI() ? <EAUsersAccountMenu /> : <LWUsersAccountMenu />;
+
   // the items on the right-hand side (search, notifications, user menu, login/sign up buttons)
   const rightHeaderItemsNode = <div className={classNames(classes.rightHeaderItems)}>
     <SearchBar onSetIsActive={setSearchOpen} searchResultsArea={searchResultsArea} />
-    {!isFriendlyUI && usersMenuNode}
-    {!isLoggedIn && <UsersAccountMenu />}
+    {!isFriendlyUI() && usersMenuNode}
+    {!isLoggedIn && loginButtonNode}
     {hasKarmaChangeNotifier && <KarmaChangeNotifier
-      className={(isFriendlyUI && searchOpen) ? classes.hideXsDown : undefined}
+      className={(isFriendlyUI() && searchOpen) ? classes.hideXsDown : undefined}
     />}
     {isLoggedIn && !usernameUnset && <NotificationsMenuButton
       toggle={handleNotificationToggle}
       open={notificationOpen}
-      className={(isFriendlyUI && searchOpen) ? classes.hideXsDown : undefined}
+      className={(isFriendlyUI() && searchOpen) ? classes.hideXsDown : undefined}
     />}
     {hasMessagesButton && <SuspenseWrapper name="MesagesMenuButton">
       <MessagesMenuButton
-        className={(isFriendlyUI && searchOpen) ? classes.hideXsDown : undefined}
+        className={(isFriendlyUI() && searchOpen) ? classes.hideXsDown : undefined}
       />
     </SuspenseWrapper>}
-    {isFriendlyUI && usersMenuNode}
+    {isFriendlyUI() && usersMenuNode}
   </div>
 
   // the left side nav menu
@@ -512,7 +515,7 @@ const Header = ({
   // If we're explicitly given a backgroundColor, that overrides any event header
   if (backgroundColor) {
     headerStyle.backgroundColor = backgroundColor
-  } else if (hasForumEvents && currentRoute?.name === "home" && bannerImageId && currentForumEvent?.eventFormat !== "BASIC") {
+  } else if (hasForumEvents() && isHomeRoute(pathname) && bannerImageId && currentForumEvent?.eventFormat !== "BASIC") {
     // On EAF, forum events with polls or stickers also update the home page header background and text
     const darkColor = currentForumEvent.darkColor;
     const background = `top / cover no-repeat url(${makeCloudinaryImageUrl(bannerImageId, {
@@ -536,7 +539,7 @@ const Header = ({
         <Headroom
           disableInlineStyles
           downTolerance={10} upTolerance={10}
-          height={HEADER_HEIGHT}
+          height={getHeaderHeight()}
           className={classNames(classes.headroom, {
             [classes.headroomPinnedOpen]: searchOpen,
           })}
@@ -548,11 +551,11 @@ const Header = ({
             className={classNames(
               classes.appBar,
               useContrastText && classes.appBarDarkBackground,
-              currentRoute?.background === "white" && classes.blackBackgroundAppBar,
+              routeMetadata.background === "white" && classes.blackBackgroundAppBar,
             )}
             style={headerStyle}
           >
-            <Toolbar disableGutters={isFriendlyUI}>
+            <Toolbar disableGutters={isFriendlyUI()}>
               {navigationMenuButton}
               <Typography className={classes.title} variant="title">
                 <div className={classes.hideSmDown}>
@@ -573,7 +576,6 @@ const Header = ({
                   </Link>
                 </div>
               </Typography>
-              {!isEAForum && isLoggedIn && <ActiveDialogues />}
               {rightHeaderItemsNode}
             </Toolbar>
           </header>
@@ -587,6 +589,7 @@ const Header = ({
 
 export default registerComponent('Header', Header, {
   styles,
+  areEqual: "auto",
   hocs: [withErrorBoundary]
 });
 

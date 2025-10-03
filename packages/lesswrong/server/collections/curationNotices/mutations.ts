@@ -55,7 +55,7 @@ export async function createCurationNotice({ data }: CreateCurationNoticeInput, 
     newDocument: documentWithId,
   };
 
-  await uploadImagesInEditableFields({
+  uploadImagesInEditableFields({
     newDoc: documentWithId,
     props: asyncProperties,
   });
@@ -93,7 +93,7 @@ export async function updateCurationNotice({ selector, data }: UpdateCurationNot
 
   await updateCountOfReferencesOnOtherCollectionsAfterUpdate('CurationNotices', updatedDocument, oldDocument);
 
-  await reuploadImagesIfEditableFieldsChanged({
+  reuploadImagesIfEditableFieldsChanged({
     newDoc: updatedDocument,
     props: updateCallbackProperties,
   });

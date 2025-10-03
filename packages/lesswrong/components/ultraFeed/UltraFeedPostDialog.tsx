@@ -4,7 +4,7 @@ import classNames from 'classnames';
 import { defineStyles, useStyles } from "../hooks/useStyles";
 import { Link } from "../../lib/reactRouterWrapper";
 import { postGetPageUrl, postGetLink, postGetLinkTarget, detectLinkpost, getResponseCounts } from "@/lib/collections/posts/helpers";
-import { BOOKUI_LINKPOST_WORDCOUNT_THRESHOLD } from "@/components/posts/PostsPage/LWPostsPageHeader";
+import { BOOKUI_LINKPOST_WORDCOUNT_THRESHOLD } from "@/components/posts/PostsPage/constants";
 import LWDialog from "../common/LWDialog";
 import FeedContentBody from "./FeedContentBody";
 import Loading from "../vulcan-core/Loading";
@@ -522,7 +522,7 @@ type UltraFeedPostDialogProps = {
   post?: never;
   partialPost: PostsListWithVotes;
 } & UltraFeedPostDialogBaseProps | {
-  post: PostsPage | UltraFeedPostFragment;
+  post: (PostsPage & { podcastEpisode: PostPodcastEpisode['podcastEpisode'] }) | UltraFeedPostFragment;
   partialPost?: never;
 } & UltraFeedPostDialogBaseProps
 

@@ -33,13 +33,13 @@ const PopularCommentsList = ({classes}: {classes: ClassesType<typeof styles>}) =
   `), {
     variables: { limit: initialLimit },
     fetchPolicy: "cache-and-network",
-    nextFetchPolicy: "cache-only",
+    nextFetchPolicy: "cache-first",
     itemsPerPage: 5,
   });
 
   const results = data?.PopularComments?.results;
 
-  const CommentComponent = isFriendlyUI ? FriendlyPopularComment : LWPopularComment;
+  const CommentComponent = isFriendlyUI() ? FriendlyPopularComment : LWPopularComment;
   return (
     <AnalyticsContext pageSectionContext="popularCommentsList">
       <div className={classes.root}>

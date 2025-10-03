@@ -4,11 +4,10 @@ import { useUpdateCurrentUser } from '../hooks/useUpdateCurrentUser';
 import classNames from 'classnames'
 import Checkbox from '@/lib/vendor/@material-ui/core/src/Checkbox';
 import { QueryLink } from '../../lib/reactRouterWrapper'
-import * as _ from 'underscore';
 import { useCurrentUser } from '../common/withUser';
 import { DEFAULT_LOW_KARMA_THRESHOLD, MAX_LOW_KARMA_THRESHOLD } from '../../lib/collections/posts/views'
 
-import { SORT_ORDER_OPTIONS, SettingsOption } from '../../lib/collections/posts/dropdownOptions';
+import { getSortOrderOptions, SettingsOption } from '../../lib/collections/posts/dropdownOptions';
 import { isEAForum } from '../../lib/instanceSettings';
 import { preferredHeadingCase } from '../../themes/forumTheme';
 import { ForumOptions, forumSelect } from '../../lib/forumTypeUtils';
@@ -97,7 +96,7 @@ const FILTERS_ALL: ForumOptions<Partial<Record<Filters, SettingsOption>>> = {
   }
 }
 
-const FILTERS = forumSelect(FILTERS_ALL)
+const getFilters = () => forumSelect(FILTERS_ALL)
 
 const styles = (theme: ThemeType) => ({
   root: {
@@ -145,7 +144,7 @@ const USER_SETTING_NAMES = {
 
 export const postListSettingUrlParameterNames = Object.keys(USER_SETTING_NAMES);
 
-const PostsListSettings = ({persistentSettings, hidden, currentTimeframe, currentSorting, currentFilter, currentShowLowKarma, currentIncludeEvents, currentHideCommunity = false, timeframes=defaultTimeframes, sortings=SORT_ORDER_OPTIONS, showTimeframe, classes}: {
+const PostsListSettings = ({persistentSettings, hidden, currentTimeframe, currentSorting, currentFilter, currentShowLowKarma, currentIncludeEvents, currentHideCommunity = false, timeframes=defaultTimeframes, sortings=getSortOrderOptions(), showTimeframe, classes}: {
   persistentSettings?: any,
   hidden: boolean,
   currentTimeframe?: any,
@@ -193,7 +192,7 @@ const PostsListSettings = ({persistentSettings, hidden, currentTimeframe, curren
         <SettingsColumn
           type={'filter'}
           title={'Filtered by:'}
-          options={FILTERS}
+          options={getFilters()}
           currentOption={currentFilter}
           setSetting={setSetting}
           nofollow
@@ -244,7 +243,7 @@ const PostsListSettings = ({persistentSettings, hidden, currentTimeframe, curren
             </QueryLink>
           </TooltipSpan>
 
-          {isEAForum && <TooltipSpan
+          {isEAForum() && <TooltipSpan
             title={<div>
               <div>By default, Community posts are shown.</div>
               <div>Toggle to hide them.</div>

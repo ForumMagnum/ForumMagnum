@@ -1,7 +1,7 @@
 import React, { useState }  from "react";
 import classNames from "classnames";
 import { Link } from "../../../lib/reactRouterWrapper";
-import { isEAForum } from "../../../lib/instanceSettings";
+import { isEAForum, commentPermalinkStyleSetting } from '@/lib/instanceSettings';
 import { userIsPostCoauthor } from "../../../lib/collections/posts/helpers";
 import { useCommentLink, useCommentLinkState } from "./useCommentLink";
 import { userIsAdmin } from "../../../lib/vulcan-users/permissions";
@@ -9,7 +9,6 @@ import { useFilteredCurrentUser } from "../../common/withUser";
 import { AnalyticsContext } from "../../../lib/analyticsEvents";
 import type { CommentTreeOptions } from "../commentTree";
 import { isBookUI, isFriendlyUI } from "../../../themes/forumTheme";
-import { commentPermalinkStyleSetting } from "@/lib/publicSettings";
 import CommentShortformIcon from "./CommentShortformIcon";
 import CommentDiscussionIcon from "./CommentDiscussionIcon";
 import ShowParentComment from "../ShowParentComment";
@@ -219,7 +218,7 @@ export const CommentsItemMeta = ({
     return `/reviewVoting/${year}`;
   }
 
-  const reviewingForReview = isEAForum && comment.reviewingForReview === "2020"
+  const reviewingForReview = isEAForum() && comment.reviewingForReview === "2020"
     ? "the Decade"
     : comment.reviewingForReview;
 
@@ -261,7 +260,7 @@ export const CommentsItemMeta = ({
       }
       {(showCollapseButtons || collapsed) &&
         <a className={classes.collapse} onClick={toggleCollapse}>
-          {isFriendlyUI
+          {isFriendlyUI()
             ? <ForumIcon icon="ThickChevronRight" className={classNames(
                 classes.collapseChevron, !collapsed && classes.collapseChevronOpen
               )} />
@@ -322,7 +321,7 @@ export const CommentsItemMeta = ({
             hoverable={true}
             key={tag._id}
             className={classes.relevantTag}
-            neverCoreStyling={isBookUI}
+            neverCoreStyling={isBookUI()}
             smallText
           />
         )}
@@ -332,11 +331,11 @@ export const CommentsItemMeta = ({
           className={classes.showMoreTags}
         />}
       </span>}
-      <CommentPollVote comment={comment} />
+      {comment.forumEventId && <CommentPollVote comment={comment} />}
 
-      {(rightSectionElements || isFriendlyUI || menuVisible) && <span className={classes.rightSection}>
+      {(rightSectionElements || isFriendlyUI() || menuVisible) && <span className={classes.rightSection}>
         {rightSectionElements}
-        {isFriendlyUI &&
+        {isFriendlyUI() &&
           <CommentLinkWrapper>
             <ForumIcon icon="Link" className={classNames(classes.linkIcon, {[classes.linkIconHighlighted]: highlightLinkIcon})} />
           </CommentLinkWrapper>

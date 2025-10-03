@@ -1,12 +1,10 @@
 import AbstractRepo from "./AbstractRepo";
 import Users from "../../server/collections/users/collection";
-import { calculateVotePower } from "../../lib/voting/voteTypes";
-import { ActiveDialogueServer } from "../../components/hooks/useUnreadNotifications";
 import { recordPerfMetrics } from "./perfMetricWrapper";
 import { isEAForum } from "../../lib/instanceSettings";
 import { userLoginTokensView } from "../postgresView";
 import { getDefaultFacetFieldSelector, getFacetField } from "../search/facetFieldSearch";
-import { MULTISELECT_SUGGESTION_LIMIT } from "@/components/hooks/useSearchableMultiSelect";
+import { MULTISELECT_SUGGESTION_LIMIT } from "@/lib/collections/users/helpers";
 import { getViewablePostsSelector } from "./helpers";
 
 const GET_USERS_BY_EMAIL_QUERY = `
@@ -324,110 +322,6 @@ class UsersRepo extends AbstractRepo<"Users"> {
     `);
   }
 
-  async getUsersWhoHaveMadeDialogues(): Promise<DbUser[]> {
-    return this.getRawDb().any(`
-      -- UsersRepo.getUsersWhoHaveMadeDialogues
-      WITH all_dialogue_authors AS
-        (SELECT (UNNESTED->>'userId') AS _id
-            FROM "Posts" p, UNNEST("coauthorStatuses") unnested
-            WHERE p."collabEditorDialogue" IS TRUE 
-            AND p."draft" IS FALSE
-        UNION
-        SELECT p."userId" as _id
-            FROM "Posts" p
-            WHERE p."collabEditorDialogue" IS TRUE
-            AND p."draft" IS FALSE
-        )
-      SELECT u.*
-      FROM "Users" u
-      INNER JOIN all_dialogue_authors ON all_dialogue_authors._id = u._id
-    `)
-  }
-
-  async getUsersWhoHaveOptedInToDialogueFacilitation(): Promise<DbUser[]> {
-    return this.getRawDb().any(`
-        -- UsersRepo.getUsersWhoHaveOptedInToDialogueFacilitation
-        SELECT *
-        FROM "Users" u
-        WHERE u."optedInToDialogueFacilitation" IS TRUE
-    `)
-  }  
-
-  async getUsersWithNewDialogueChecks(): Promise<DbUser[]> {
-    return this.manyOrNone(`
-      -- UsersRepo.getUsersWithNewDialogueChecks
-      SELECT DISTINCT ON ("Users"._id) "Users".*
-      FROM "Users"
-      INNER JOIN "DialogueChecks" ON "Users"._id = "DialogueChecks"."targetUserId"
-      WHERE
-          "DialogueChecks".checked IS TRUE
-          AND NOT EXISTS (
-              SELECT 1
-              FROM "DialogueChecks" AS dc
-              WHERE
-                  "DialogueChecks"."userId" = dc."targetUserId"
-                  AND "DialogueChecks"."targetUserId" = dc."userId"
-                  AND dc.checked IS TRUE
-          )
-          AND (
-              "DialogueChecks"."checkedAt" > COALESCE((
-                  SELECT MAX("checkedAt")
-                  FROM "DialogueChecks"
-                  WHERE "DialogueChecks"."userId" = "Users"._id
-              ), '1970-01-01')
-          )
-          AND (
-              "DialogueChecks"."checkedAt" > NOW() - INTERVAL '1 week'
-              OR
-              NOT EXISTS (
-                  SELECT 1
-                  FROM "Notifications"
-                  WHERE
-                      "userId" = "Users"._id
-                      AND type = 'newDialogueChecks'
-              )
-          )
-          AND (
-            NOW() - INTERVAL '1 week' > COALESCE((
-              SELECT MAX("createdAt")
-              FROM "Notifications"
-              WHERE
-                "userId" = "Users"._id
-                AND type = 'newDialogueChecks'
-            ), '1970-01-01')
-        )
-    `)
-  }
-
-  async getActiveDialogues(userIds: string[]): Promise<ActiveDialogueServer[]> {
-    const result = await this.getRawDb().any(`
-    SELECT
-        p._id,
-        p.title,
-        p."userId",
-        p."coauthorStatuses",
-        ARRAY_AGG(DISTINCT s."userId") AS "activeUserIds",
-        MAX(r."editedAt") AS "mostRecentEditedAt"
-    FROM "Posts" AS p
-    INNER JOIN "Revisions" AS r ON p._id = r."documentId"
-    INNER JOIN "CkEditorUserSessions" AS s ON p._id = s."documentId",
-        unnest(p."coauthorStatuses") AS coauthors
-    WHERE
-        (
-            coauthors ->> 'userId' = any($1)
-            OR p."userId" = any($1)
-        )
-        AND s."endedAt" IS NULL
-        AND (
-          s."createdAt" > CURRENT_TIMESTAMP - INTERVAL '30 minutes'
-          OR r."editedAt" > CURRENT_TIMESTAMP - INTERVAL '30 minutes'
-        )
-    GROUP BY p._id
-    `, [userIds]);
-  
-    return result;
-  }
-
   async isDisplayNameTaken({ displayName, currentUserId }: { displayName: string; currentUserId: string; }): Promise<boolean> {
     const result = await this.getRawDb().one(`
       -- UsersRepo.isDisplayNameTaken
@@ -578,7 +472,7 @@ class UsersRepo extends AbstractRepo<"Users"> {
   }
 
   async getCurationSubscribedUserIds(): Promise<string[]> {
-    const verifiedEmailFilter = !isEAForum ? 'AND fm_has_verified_email(emails)' : '';
+    const verifiedEmailFilter = !isEAForum() ? 'AND fm_has_verified_email(emails)' : '';
 
     const userIdRecords = await this.getRawDb().any<Record<'_id', string>>(`
       SELECT _id
@@ -613,75 +507,117 @@ class UsersRepo extends AbstractRepo<"Users"> {
     return results.map(({_id}) => _id);
   }
 
-  async getSubscriptionFeedSuggestedUsers(userId: string, limit: number): Promise<DbUser[]> {
+  /**
+   * Get suggested users for logged-in users to subscribe to. Finds the top 500 active 
+   * authors by karma (posts weighted 5x comments), excluding self and already-subscribed 
+   * authors, then prioritizes those the user has voted on or read in the last 90 days (binary on whether there's any interaction).
+   */
+  async getSubscriptionFeedSuggestedUsersForLoggedIn(userId: string, limit: number, days = 30): Promise<DbUser[]> {
     return this.any(`
-      WITH existing_subscriptions AS (
-        SELECT DISTINCT 
-          "documentId" AS "userId"
-        FROM "Subscriptions" s
-        WHERE s.deleted IS NOT TRUE
-          AND "collectionName" = 'Users'
-          AND "type" = 'newActivityForFeed'
-          AND "userId" = $1
-      ),
-      votes AS (
+      -- UsersRepo.getSubscriptionFeedSuggestedUsersForLoggedIn
+      WITH active_authors AS (
         SELECT
           "authorIds"[1] AS "authorId",
-          power,
-          "votedAt"
-        FROM "Votes"
+          SUM(CASE WHEN v."collectionName" = 'Posts' THEN power * 5 ELSE power END) AS karma_received
+        FROM "Votes" v
         WHERE
-          "userId" = $1
-          AND cancelled IS FALSE
-          AND NOT ("authorIds" @> ARRAY["userId"])
-        ORDER BY "votedAt"
-      ),
-      most_upvoted_authors AS (
-        SELECT
-          "authorId",
-          SUM(power) AS summed_power
-        FROM votes
-        GROUP BY "authorId"
-        ORDER BY summed_power DESC
-      ),
-      reads AS (
-        SELECT
-          "postId",
-          "lastUpdated",
-        p."userId" AS "authorId"
-        FROM "ReadStatuses" rs
-        JOIN "Posts" p ON p."_id" = rs."postId"
-        WHERE 
-          rs."userId" = $1
-          AND "isRead" IS TRUE
-      ),
-      most_read_authors AS (
-        SELECT
-          "authorId",
-          COUNT(*) AS posts_read
-        FROM reads
-        GROUP BY "authorId"
-        ORDER BY COUNT(*) DESC
+          v."votedAt" >= now() - INTERVAL '1 day' * $3
+          AND v.cancelled IS FALSE
+          AND "authorIds"[1] IS NOT NULL
+          AND "authorIds"[1] <> $1
+          AND NOT EXISTS (
+            SELECT 1
+            FROM "Subscriptions" s
+            WHERE s."userId" = $1
+              AND s."documentId" = "authorIds"[1]
+              AND s."collectionName" = 'Users'
+              AND s."type" = 'newActivityForFeed'
+              AND s.deleted IS NOT TRUE
+          )
+        GROUP BY "authorIds"[1]
+        ORDER BY karma_received DESC
+        LIMIT 500
       )
-      SELECT
-        u.*
-      FROM most_upvoted_authors
-      FULL OUTER JOIN most_read_authors USING ("authorId")
-      JOIN "Users" u ON u."_id" = "authorId"
-      LEFT JOIN existing_subscriptions es ON es."userId" = "authorId"
+      SELECT u.*
+      FROM active_authors aa
+      JOIN "Users" u ON u._id = aa."authorId"
       WHERE
-          (u.banned IS NULL OR u.banned < current_date)
-          AND "authorId" != $1
-          AND es."userId" IS NULL
-          AND u."deleted" IS NOT TRUE
-      ORDER BY (
-        COALESCE(summed_power*3, 0) + COALESCE(posts_read*2, 0)
-      ) DESC NULLS LAST
+        u.deleted IS NOT TRUE
+        AND (u.banned IS NULL OR u.banned < CURRENT_DATE)
+      ORDER BY
+        -- Prioritize authors user has interacted with via votes or reads
+        CASE WHEN (
+          EXISTS (
+            SELECT 1 FROM "Votes" v
+            WHERE v."userId" = $1
+              AND v."authorIds"[1] = aa."authorId"
+              AND v.cancelled IS FALSE
+              AND v."votedAt" >= now() - INTERVAL '90 days'
+            LIMIT 1
+          ) OR EXISTS (
+            SELECT 1 FROM "ReadStatuses" rs
+            JOIN "Posts" p ON p._id = rs."postId"
+            WHERE rs."userId" = $1
+              AND p."userId" = aa."authorId"
+              AND rs."isRead" IS TRUE
+              AND rs."lastUpdated" >= now() - INTERVAL '90 days'
+            LIMIT 1
+          )
+        ) THEN 0 ELSE 1 END,
+        aa.karma_received DESC
       LIMIT $2
-    `, [userId, limit]);
+    `, [userId, limit, days]);
+  }
+
+  /**
+   * Same algorithm as getSubscriptionFeedSuggestedUsersForLoggedIn, but for logged-out users.
+   * Uses UltraFeedEvents to personalize instead of votes and ReadStatuses.
+   */
+  async getSubscriptionFeedSuggestedUsersForLoggedOut(clientId: string | null, limit: number, days = 30): Promise<DbUser[]> {
+    return this.any(`
+      -- UsersRepo.getSubscriptionFeedSuggestedUsersForLoggedOut
+      WITH active_authors AS (
+        SELECT
+          -- ignore complexity of coauthors and just take the first author
+          "authorIds"[1] AS "authorId",
+          SUM(CASE WHEN v."collectionName" = 'Posts' THEN power * 5 ELSE power END) AS karma_received
+        FROM "Votes" v
+        WHERE
+          v."votedAt" >= now() - INTERVAL '1 day' * $3
+          AND v.cancelled IS FALSE
+          AND "authorIds"[1] IS NOT NULL
+        GROUP BY "authorIds"[1]
+        ORDER BY karma_received DESC
+        LIMIT 500
+      )
+      SELECT u.*
+      FROM active_authors aa
+      JOIN "Users" u ON u._id = aa."authorId"
+      WHERE
+        u.deleted IS NOT TRUE
+        AND (u.banned IS NULL OR u.banned < CURRENT_DATE)
+      ORDER BY
+        CASE WHEN $1::text IS NOT NULL AND EXISTS (
+          SELECT 1 FROM (
+            SELECT DISTINCT p."userId" as author_id
+            FROM "UltraFeedEvents" ufe
+            -- as we're dealing with logged out users, we're just focusing on posts
+            JOIN "Posts" p ON p._id = ufe."documentId"
+            WHERE ufe."userId" = $1
+              AND ufe."collectionName" = 'Posts'
+              AND ufe."eventType" IN ('viewed', 'expanded', 'interacted')
+              AND ufe."createdAt" >= now() - INTERVAL '30 days'
+            LIMIT 100  -- Cap to avoid scanning too many events
+          ) recent_interactions
+          WHERE recent_interactions.author_id = aa."authorId"
+          LIMIT 1
+        ) THEN 0 ELSE 1 END,
+        aa.karma_received DESC
+      LIMIT $2
+    `, [clientId, limit, days]);
   }
 }
 
-recordPerfMetrics(UsersRepo, { excludeMethods: ['getUserByLoginToken', 'getActiveDialogues'] });
+recordPerfMetrics(UsersRepo, { excludeMethods: ['getUserByLoginToken'] });
 
 export default UsersRepo;

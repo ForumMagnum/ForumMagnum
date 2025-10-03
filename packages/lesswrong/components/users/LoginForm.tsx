@@ -1,11 +1,11 @@
 import React, { useCallback, useRef, useState } from 'react';
 import { registerComponent } from '../../lib/vulcan-lib/components';
-import { reCaptchaSiteKeySetting } from '../../lib/publicSettings';
+import { reCaptchaSiteKeySetting, isAF, isEAForum } from '../../lib/instanceSettings';
 import { useMutation } from "@apollo/client/react";
 import { gql } from '@/lib/generated/gql-codegen';
-import { isAF, isEAForum } from '../../lib/instanceSettings';
 import { useMessages } from '../common/withMessages';
-import { getUserABTestKey, useClientId } from '../../lib/abTestImpl';
+import { getUserABTestKey } from '../../lib/abTestImpl';
+import { useClientId } from '../hooks/useClientId.ts';
 import { useLocation } from '../../lib/routeUtil';
 import {isFriendlyUI} from '../../themes/forumTheme.ts'
 import ContentStyles from "../common/ContentStyles";
@@ -109,15 +109,15 @@ type LoginFormProps = {
 }
 
 const LoginForm = (props: LoginFormProps) => {
-  if (isFriendlyUI) {
+  if (isFriendlyUI()) {
     return <LoginFormEA {...props} />
   }
   return <LoginFormDefault {...props} />
 }
 
 const LoginFormDefault = ({ startingState = "login", classes }: LoginFormProps) => {
-  const hasSubscribeToCuratedCheckbox = !isEAForum && !isAF;
-  const hasOauthSection = !isEAForum;
+  const hasSubscribeToCuratedCheckbox = !isEAForum() && !isAF();
+  const hasOauthSection = !isEAForum();
 
   const { pathname } = useLocation()
   const reCaptchaToken = useRef<string|null>(null);

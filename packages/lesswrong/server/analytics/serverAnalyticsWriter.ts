@@ -1,14 +1,13 @@
-import { isDevelopment } from '@/lib/executionEnvironment';
+import { isDevelopment, isE2E } from '@/lib/executionEnvironment';
 import { randomId } from '@/lib/random';
-import { PublicInstanceSetting, performanceMetricLoggingBatchSize } from '@/lib/instanceSettings';
-import { addStaticRoute } from '@/server/vulcan-lib/staticRoutes';
-import { pgPromiseLib, getAnalyticsConnection } from './postgresConnection'
-import chunk from 'lodash/chunk';
+import { environmentDescriptionSetting } from '@/lib/instanceSettings';
+import { getPgPromiseLib, getAnalyticsConnection } from './postgresConnection'
 import gql from 'graphql-tag';
+import type { EventProps } from '@/lib/analyticsEvents';
+import { getShowAnalyticsDebug } from '@/lib/analyticsDebugging';
+import { ColorHash } from '@/lib/vendor/colorHash';
+import moment from 'moment';
 import { backgroundTask } from '../utils/backgroundTask';
-
-// Since different environments are connected to the same DB, this setting cannot be moved to the database
-export const environmentDescriptionSetting = new PublicInstanceSetting<string>("analytics.environment", "misconfigured", "warning")
 
 export const serverId = randomId();
 
@@ -26,7 +25,7 @@ export const analyticsEventGraphQLMutations = {
   },
 }
 
-addStaticRoute('/analyticsEvent', ({query}, req, res, next) => {
+/*addStaticRoute('/analyticsEvent', ({query}, req, res, next) => {
   if (req.method !== "POST") {
     res.statusCode = 405; // Method not allowed
     res.end("analyticsEvent endpoint should receive POST");
@@ -46,9 +45,9 @@ addStaticRoute('/analyticsEvent', ({query}, req, res, next) => {
     "Content-Type": "text/plain;charset=UTF-8"
   });
   res.end("ok");
-});
+});*/
 
-async function handleAnalyticsEventWriteRequest(events: AnyBecauseTodo, clientTime: AnyBecauseTodo) {
+export async function handleAnalyticsEventWriteRequest(events: AnyBecauseTodo, clientTime: AnyBecauseTodo) {
   // Adjust timestamps to account for server-client clock skew
   // The mutation comes with a timestamp on each event from the client
   // clock, and a timestamp representing when events were flushed, also
@@ -74,7 +73,7 @@ async function handleAnalyticsEventWriteRequest(events: AnyBecauseTodo, clientTi
 
 let inFlightRequestCounter = {inFlightRequests: 0};
 // See: https://stackoverflow.com/questions/37300997/multi-row-insert-with-pg-promise
-const analyticsColumnSet = new pgPromiseLib.helpers.ColumnSet(['environment', 'event_type', 'timestamp', 'event'], {table: 'raw'});
+const analyticsColumnSet = new (getPgPromiseLib().helpers.ColumnSet)(['environment', 'event_type', 'timestamp', 'event'], {table: 'raw'});
 
 // If you want to capture an event, this is not the function you're looking for;
 // use captureEvent.
@@ -91,7 +90,7 @@ async function writeEventsToAnalyticsDB(events: {type: string, timestamp: Date, 
         timestamp: ev.timestamp,
         event: ev.props,
       }));
-      const query = pgPromiseLib.helpers.insert(valuesToInsert, analyticsColumnSet);
+      const query = getPgPromiseLib().helpers.insert(valuesToInsert, analyticsColumnSet);
     
       if (inFlightRequestCounter.inFlightRequests > 500) {
         // eslint-disable-next-line no-console
@@ -107,58 +106,11 @@ async function writeEventsToAnalyticsDB(events: {type: string, timestamp: Date, 
         inFlightRequestCounter.inFlightRequests--;
       }
     } catch (err){
-      //eslint-disable-next-line no-console
-      console.error("Error sending events to analytics DB:");
-      //eslint-disable-next-line no-console
-      console.error(err);
-    }
-  }
-}
-
-const queuedPerfMetrics: PerfMetric[] = [];
-
-export function queuePerfMetric(perfMetric: PerfMetric) {
-  queuedPerfMetrics.push(perfMetric);
-  backgroundTask(flushPerfMetrics());
-}
-
-async function flushPerfMetrics() {
-  const batchSize = performanceMetricLoggingBatchSize.get()
-
-  if (queuedPerfMetrics.length < batchSize) return;
-
-  const connection = getAnalyticsConnection();
-  if (!connection) return;
-
-  // I really needed to break an import cycle involving `analyticsEvents.tsx` and `Table.ts`
-  // This seemed like the least-bad place to do it.
-  // TODO: If you can figure out a better way, please do.
-  const {
-    constructPerfMetricBatchInsertQuery,
-    insertAndCacheNormalizedDataInBatch,
-    perfMetricsColumnSet
-  }: typeof import('@/server/perfMetricsWriter/perfMetricsWriter') = require('@/server/perfMetricsWriter/perfMetricsWriter');
-   
-  const metricsToWrite = queuedPerfMetrics.splice(0);
-  for (const batch of chunk(metricsToWrite, batchSize)) {
-    try {
-      await insertAndCacheNormalizedDataInBatch(batch, connection);
-
-      const environmentDescription = isDevelopment ? "development" : environmentDescriptionSetting.get();
-      const valuesToInsert = constructPerfMetricBatchInsertQuery(batch, environmentDescription);
-      const query = pgPromiseLib.helpers.insert(valuesToInsert, perfMetricsColumnSet);
-      
-      inFlightRequestCounter.inFlightRequests++;
-      try {
-        await connection?.none(query);
-      } finally {
-        inFlightRequestCounter.inFlightRequests--;
+      // Filter out noisy connection terminated errors, which happen when the client kills the connection (frequently on NextJS)
+      if (!(err instanceof Error) || !err.message.includes('Connection terminated unexpectedly')) {
+        //eslint-disable-next-line no-console
+        console.error("Error sending events to analytics DB:", err);
       }
-    } catch (err){
-      //eslint-disable-next-line no-console
-      console.error("Error sending events to analytics DB:");
-      //eslint-disable-next-line no-console
-      console.error(err);
     }
   }
 }
@@ -178,7 +130,8 @@ export async function pruneOldPerfMetrics() {
       WHERE started_at < CURRENT_DATE - INTERVAL '30 days'
     `);
 
-    await connection.none(`
+    // Don't await this one; it might take longer than five minutes to finish and there's no reason to keep a function instance around that long.
+    backgroundTask(connection.none(`
       SET LOCAL work_mem = '2GB';
 
       DELETE
@@ -206,7 +159,7 @@ export async function pruneOldPerfMetrics() {
           AND ch.started_at BETWEEN CURRENT_DATE - INTERVAL '9 days' AND CURRENT_DATE - INTERVAL '7 days'
           AND SUBSTR(ch.trace_id, 36, 1) != '0'
       )
-    `);
+    `));
   } catch (err) {
     // eslint-disable-next-line no-console
     console.error('Error when pruning old perf metrics', { err });
@@ -231,6 +184,40 @@ export function serverWriteEvent(event: AnyBecauseTodo) {
       serverId: serverId,
     }
   }]));
+}
+
+function serverConsoleLogAnalyticsEvent(event: any) {
+  const [r,g,b] = new ColorHash({lightness: 0.5}).rgb(event.type);
+  const colorEscapeSeq = `\x1b[38;2;0;${r};${g};${b}m`;
+  const endColorEscapeSeq = '\x1b[0m';
+  // eslint-disable-next-line no-console
+  console.log(`Analytics event: ${colorEscapeSeq}${event.type}${endColorEscapeSeq}`, {
+    ...event.props,
+    '[[time of day]]': moment().format('HH:mm:ss.SSS')
+  });
+}
+
+export function serverCaptureEvent(eventType: string, eventProps?: EventProps, suppressConsoleLog = false) {
+  if (isE2E) {
+    return;
+  }
+
+  try {
+    const event = {
+      type: eventType,
+      timestamp: new Date(),
+      props: {
+        ...eventProps
+      }
+    }
+    if (!suppressConsoleLog && getShowAnalyticsDebug()) {
+      serverConsoleLogAnalyticsEvent(event);
+    }
+    serverWriteEvent(event);
+  } catch(e) {
+    // eslint-disable-next-line no-console
+    console.error("Error while capturing analytics event: ", e);
+  }
 }
 
 // Analytics events that were recorded during startup before we were ready

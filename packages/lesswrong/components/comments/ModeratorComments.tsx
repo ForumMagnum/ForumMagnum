@@ -1,3 +1,5 @@
+"use client";
+
 import React from 'react';
 import { registerComponent } from '../../lib/vulcan-lib/components';
 import { sectionTitleStyle } from '../common/SectionTitle';
@@ -36,7 +38,7 @@ const styles = (theme: ThemeType) =>  ({
 
 const ModeratorComments = ({classes, terms={view: "moderatorComments"}, truncated=true, noResultsMessage="No Comments Found"}: {
   classes: ClassesType<typeof styles>,
-  terms: CommentsViewTerms,
+  terms?: CommentsViewTerms,
   truncated?: boolean,
   noResultsMessage?: string,
 }) => {

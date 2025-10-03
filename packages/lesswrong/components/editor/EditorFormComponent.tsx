@@ -1,18 +1,16 @@
 import React, { useState, useCallback, useRef, useEffect, useContext } from 'react';
-import { debateEditorPlaceholder, defaultEditorPlaceholder, getDefaultLocalStorageIdGenerator, linkpostEditorPlaceholder, questionEditorPlaceholder } from '../../lib/editor/make_editable';
+import { debateEditorPlaceholder, getDefaultEditorPlaceholder, linkpostEditorPlaceholder, questionEditorPlaceholder } from '@/lib/editor/defaultEditorPlaceholder';
 import { getLSHandlers, getLSKeyPrefix } from '../editor/localStorageHandlers';
 import { userCanCreateCommitMessages, userHasPostAutosave } from '../../lib/betas';
 import { useCurrentUser } from '../common/withUser';
 import { Editor, EditorChangeEvent, getUserDefaultEditor, getInitialEditorContents, getBlankEditorContents, EditorContents, isBlank, serializeEditorContents, EditorTypeString, styles, FormProps, shouldSubmitContents, isValidEditorType, type LegacyEditorTypeString } from './Editor';
-import withErrorBoundary from '../common/withErrorBoundary';
-import * as _ from 'underscore';
 import { useLazyQuery, useMutation } from '@apollo/client/react';
 import { gql } from "@/lib/generated/gql-codegen";
-import { isEAForum, isLWorAF } from '../../lib/instanceSettings';
+import { isEAForum } from '../../lib/instanceSettings';
 import Transition from 'react-transition-group/Transition';
 import { useTracking } from '../../lib/analyticsEvents';
-import { PostCategory } from '../../lib/collections/posts/helpers';
-import { DynamicTableOfContentsContext } from '../posts/TableOfContents/DynamicTableOfContents';
+import { isCollaborative, PostCategory } from '../../lib/collections/posts/helpers';
+import { AutosaveEditorStateContext, DynamicTableOfContentsContext } from '../common/sharedContexts';
 import isEqual from 'lodash/isEqual';
 import { useDebouncedCallback, useStabilizedCallback } from '../hooks/useDebouncedCallback';
 import { useMessages } from '../common/withMessages';
@@ -32,35 +30,6 @@ import PostVersionHistoryButton from './PostVersionHistory';
 const autosaveInterval = 3000; //milliseconds
 const remoteAutosaveInterval = 1000 * 60 * 5; // 5 minutes in milliseconds
 
-type AutosaveFunc = () => Promise<void>;
-interface AutosaveEditorStateContext {
-  autosaveEditorState: AutosaveFunc | null;
-  /**
-   * WARNING: since `setAutosaveEditorState` is a React setState function,
-   * passing in a function seems to cause it to interpret it as the (prevValue: T): T => newValue form,
-   * so you actually need to pass in with an additional closure if you want to update `autosaveEditorState` with a new function:
-   * 
-   * (prevValue: T) => (): T => { ...;  return newValue; }
-   */
-  setAutosaveEditorState: React.Dispatch<React.SetStateAction<AutosaveFunc | null>>;
-}
-
-export const AutosaveEditorStateContext = React.createContext<AutosaveEditorStateContext>({
-  autosaveEditorState: null,
-  setAutosaveEditorState: _ => {},
-});
-
-export function isCollaborative(post: Pick<DbPost | PostsBase, '_id' | 'shareWithUsers' | 'sharingSettings' | 'collabEditorDialogue'>, fieldName: string): boolean {
-  if (!post) return false;
-  if (!post._id) return false;
-  if (fieldName !== "contents") return false;
-  if (!!post.shareWithUsers?.length) return true;
-  if (post.sharingSettings?.anyoneWithLinkCan && post.sharingSettings.anyoneWithLinkCan !== "none")
-    return true;
-  if (post.collabEditorDialogue) return true;
-  return false;
-}
-
 const getPostPlaceholder = (post: PostsBase) => {
   const { question, postCategory } = post;
   const effectiveCategory = question ? "question" as const : postCategory as PostCategory;
@@ -68,7 +37,7 @@ const getPostPlaceholder = (post: PostsBase) => {
   if (post.debate) return debateEditorPlaceholder; // note: this version of debates are deprecated in favor of post.collabEditorDialogue
   if (effectiveCategory === "question") return questionEditorPlaceholder;
   if (effectiveCategory === "linkpost") return linkpostEditorPlaceholder;
-  return defaultEditorPlaceholder;
+  return getDefaultEditorPlaceholder();
 };
 
 const definedStyles = defineStyles('EditorFormComponent', styles);
@@ -126,6 +95,19 @@ export function useEditorFormCallbacks<R>() {
     addOnSuccessCallback,
   };
 };
+
+function getDefaultLocalStorageIdGenerator<N extends CollectionNameString>(collectionName: N) {
+  return function defaultLocalStorageIdGenerator(doc: any, name: string): {id: string, verify: boolean} {
+    const { _id, conversationId } = doc
+    if (_id && name) { return {id: `${_id}${name}`, verify: true}}
+    else if (_id) { return {id: _id, verify: true }}
+    else if (conversationId) { return {id: conversationId, verify: true }}
+    else if (name) { return {id: `${collectionName}_new_${name}`, verify: true }}
+    else {
+      throw Error(`Can't get storage ID for this document: ${doc}`)
+    }
+  }
+}
 
 function InnerEditorFormComponent<S, R>({
   field,
@@ -250,7 +232,7 @@ function InnerEditorFormComponent<S, R>({
     // We're currently skipping linkposts, since the linked post's author is
     // not always the same person posting it on the forum.
     if (
-      !isEAForum ||
+      !isEAForum() ||
       collectionName !== 'Posts' ||
       conflictingCardVisible ||
       document.isEvent ||

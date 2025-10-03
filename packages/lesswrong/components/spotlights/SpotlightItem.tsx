@@ -15,7 +15,6 @@ import { SECTION_WIDTH } from '../common/SingleColumnSection';
 import { getSpotlightUrl } from '../../lib/collections/spotlights/helpers';
 import { usePublishAndDeDuplicateSpotlight } from './withPublishAndDeDuplicateSpotlight';
 import { AnalyticsContext } from '@/lib/analyticsEvents';
-import { SpotlightForm } from './SpotlightForm';
 import MetaInfo from "../common/MetaInfo";
 import FormatDate from "../common/FormatDate";
 import AnalyticsTracker from "../common/AnalyticsTracker";
@@ -33,8 +32,11 @@ import { withDateFields } from '@/lib/utils/dateUtils';
 import { defineStyles, useStyles } from '../hooks/useStyles';
 import { SuspenseWrapper } from '../common/SuspenseWrapper';
 import range from 'lodash/range';
-import CommentById from '../comments/CommentById';
+import { CommentByIdSuspense } from '../comments/CommentById';
 import { SingleLineCommentPlaceholder } from '../comments/SingleLineComment';
+
+import dynamic from 'next/dynamic';
+const SpotlightForm = dynamic(() => import('./SpotlightForm').then(mod => ({ default: mod.SpotlightForm })), { ssr: false });
 
 const SpotlightDisplayUpdateMutation = gql(`
   mutation updateSpotlightSpotlightItem($selector: SelectorInput!, $data: UpdateSpotlightDataInput!) {
@@ -231,21 +233,12 @@ const styles = defineStyles("SpotlightItem", (theme: ThemeType) => ({
       marginTop: 8,
       maxWidth: TEXT_WIDTH,
     } : {
+      minHeight: 25,
       color: theme.palette.grey[700],
       fontSize: 15,
       marginTop: -1,
     }),
   },
-  startOrContinue: theme.isFriendlyUI
-    ? {
-      marginTop: 0,
-      [theme.breakpoints.down("xs")]: {
-        marginTop: 8,
-      },
-    }
-    : {
-      marginTop: 4,
-    },
   image: {
     height: "100%",
     position: "absolute",
@@ -563,7 +556,7 @@ export const SpotlightItem = ({
               {spotlight.customSubtitle && showSubtitle && <div className={classes.subtitle}>
                 {subtitleComponent}
               </div>}
-              {(spotlight.description?.html || isBookUI) && <div className={classes.description}>
+              {(spotlight.description?.html || isBookUI()) && <div className={classes.description}>
                 {(editDescription && editableSpotlight) ? 
                   <div className={classes.editDescription}>
                     <SpotlightForm
@@ -582,7 +575,9 @@ export const SpotlightItem = ({
               {spotlight.showAuthor && spotlightDocument?.user && <Typography variant='body2' className={classes.author}>
                 by <Link className={classes.authorName} to={userGetProfileUrlFromSlug(spotlightDocument?.user.slug)}>{spotlightDocument?.user.displayName}</Link>
               </Typography>}
-              {spotlight.documentType === 'Sequence' && <SpotlightStartOrContinueReading spotlight={spotlight} className={classes.startOrContinue} />}
+              {spotlight.documentType === 'Sequence' && <SuspenseWrapper name="SpotlightStartOrContinueReading">
+                <SpotlightStartOrContinueReading spotlight={spotlight}/>
+              </SuspenseWrapper>}
             </div>
             {/* note: if the height of SingleLineComment ends up changing, this will need to be updated */}
             {spotlight.spotlightSplashImageUrl && <div className={classes.splashImageContainer} style={{height: `calc(100% + ${(spotlightReviews.length ?? 0) * 30}px)`}}>
@@ -601,7 +596,7 @@ export const SpotlightItem = ({
           </div>
           {spotlightReviews.length > 0 && <SpotlightReviews reviewIds={spotlightReviews.map(r=>r._id)}/>}
           {hideBanner && (
-            isFriendlyUI
+            isFriendlyUI()
               ? (
                 <ForumIcon
                   icon="Close"
@@ -676,9 +671,10 @@ const SpotlightReviews = ({reviewIds}: {
 const SpotlightReviewsFallback = ({numReviews}: {
   numReviews: number
 }) => {
-  return <>
-    {range(numReviews).map(i => <SingleLineCommentPlaceholder key={i} nestingLevel={0}/>)}
-  </>
+  const classes = useStyles(styles);
+  return <div className={classes.review}>
+    {range(numReviews).map(i => <SingleLineCommentPlaceholder key={i} nestingLevel={1}/>)}
+  </div>
 }
 
 const SpotlightReviewComment = ({id}: {
@@ -686,7 +682,7 @@ const SpotlightReviewComment = ({id}: {
 }) => {
   const classes = useStyles(styles);
   return <div className={classes.review}>
-    <CommentById
+    <CommentByIdSuspense
       commentId={id}
       treeOptions={{
         singleLineCollapse: true,

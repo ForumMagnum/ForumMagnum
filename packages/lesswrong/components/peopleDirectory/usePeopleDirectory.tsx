@@ -1,15 +1,14 @@
 import React, { ReactNode, createContext, useCallback, useContext, useEffect, useMemo, useState } from "react";
 import { getSearchClient } from "../../lib/search/searchUtil";
 import { MultiSelectResult, MultiSelectState, useMultiSelect } from "../hooks/useMultiSelect";
-import { CAREER_STAGES } from "@/lib/collections/users/helpers";
-import { PeopleDirectoryColumn, peopleDirectoryColumns } from "./peopleDirectoryColumns";
-import { MULTISELECT_SUGGESTION_LIMIT, SearchableMultiSelectResult, useSearchableMultiSelect } from "../hooks/useSearchableMultiSelect";
+import { CAREER_STAGES, MULTISELECT_SUGGESTION_LIMIT } from "@/lib/collections/users/helpers";
+import { PeopleDirectoryColumn, getPeopleDirectoryColumns } from "./peopleDirectoryColumns";
+import { SearchableMultiSelectResult, useSearchableMultiSelect } from "../hooks/useSearchableMultiSelect";
 import { useSearchAnalytics } from "../search/useSearchAnalytics";
-import { captureException } from "@sentry/core";
+import { captureException } from "@/lib/sentryWrapper";
 import { filterNonnull } from "../../lib/utils/typeGuardUtils";
 import { useLocation, useNavigate } from "../../lib/routeUtil";
-import { taggingNamePluralSetting, taggingNameCapitalSetting } from "@/lib/instanceSettings";
-import { algoliaPrefixSetting } from "@/lib/publicSettings";
+import { taggingNamePluralSetting, taggingNameCapitalSetting, algoliaPrefixSetting } from '@/lib/instanceSettings';
 import qs from "qs";
 import { useQuery } from "@/lib/crud/useQuery";
 import { gql } from "@/lib/generated/gql-codegen";
@@ -197,7 +196,7 @@ export const PeopleDirectoryProvider = ({children}: {children: ReactNode}) => {
     careerStages.selectedValues.length === 0 &&
     tags.selectedValues.length === 0;
 
-  const [columns, setColumns] = useState(peopleDirectoryColumns);
+  const [columns, setColumns] = useState(getPeopleDirectoryColumns());
   const [columnsEdited, setColumnsEdited] = useState(false);
   const toggleColumn = useCallback((columnLabel: string) => {
     setColumns((columns) => columns.map((column) => {
@@ -211,7 +210,7 @@ export const PeopleDirectoryProvider = ({children}: {children: ReactNode}) => {
     setColumnsEdited(true);
   }, []);
   const resetColumns = useCallback(() => {
-    setColumns(peopleDirectoryColumns);
+    setColumns(getPeopleDirectoryColumns());
     setColumnsEdited(false);
   }, []);
   const columnSelectState = useMemo(() => {

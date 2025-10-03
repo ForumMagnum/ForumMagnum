@@ -1,17 +1,22 @@
-import { adminAccountSetting } from "@/lib/publicSettings";
+import { adminAccountSetting } from '@/lib/instanceSettings';
 import { createDisplayName } from "@/lib/collections/users/newSchema";
+import { unstable_cache } from 'next/cache';
+import Users from '../collections/users/collection';
+
+let cachedAdminTeamAccount: DbUser | null = null;
+
+const getCachedAccountByUsername = unstable_cache((username: string) => Users.findOne({ username }), undefined, { revalidate: 60 * 60 * 24 });
 
 export const getAdminTeamAccount = async (context: ResolverContext) => {
-  const { Users } = context;
   const adminAccountData = adminAccountSetting.get();
   if (!adminAccountData) {
     return null;
   }
 
   // We need this dynamic require because the jargonTerms schema actually uses `getAdminTeamAccountId` when declaring the schema.
-  const { createUser }: typeof import("../collections/users/mutations") = require("../collections/users/mutations");
+  const { createUser } = await import("../collections/users/mutations");
 
-  let account = await Users.findOne({username: adminAccountData.username});
+  let account = cachedAdminTeamAccount ?? await getCachedAccountByUsername(adminAccountData.username);
   if (!account) {
     const newAccount = await createUser({
       data: {
@@ -19,20 +24,27 @@ export const getAdminTeamAccount = async (context: ResolverContext) => {
         displayName: createDisplayName(adminAccountData)
       },
     }, context);
-    
+
+    cachedAdminTeamAccount = newAccount;
     return newAccount;
   }
+
+  cachedAdminTeamAccount = account;
   return account;
 }
 
 export const getAdminTeamAccountId = (() => {
-  let teamAccountId: string|null = null;
+  // Store the promise if it doesn't exist, rather than the accountId directly, to avoid hammering the db
+  // on e.g. new deployments, since we fire this off once for every single jargon term on a post at the same time
+  let teamAccountIdPromise: Promise<string|null>|null = null;
   return async (context: ResolverContext) => {
-    if (!teamAccountId) {
-      const teamAccount = await getAdminTeamAccount(context)
-      if (!teamAccount) return null;
-      teamAccountId = teamAccount._id;
+    if (!teamAccountIdPromise) {
+      teamAccountIdPromise = new Promise((resolve) => getAdminTeamAccount(context).then((teamAccount) => {
+          const teamAccountId = teamAccount?._id ?? null;
+          resolve(teamAccountId);
+        })
+      );
     }
-    return teamAccountId;
+    return teamAccountIdPromise;
   };
 })();

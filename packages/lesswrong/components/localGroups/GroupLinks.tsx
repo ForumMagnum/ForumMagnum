@@ -1,6 +1,6 @@
 import React from 'react';
 import { registerComponent } from '../../lib/vulcan-lib/components';
-import { forumTypeSetting } from '../../lib/instanceSettings';
+import { isEAForum } from '../../lib/instanceSettings';
 import classNames from 'classnames';
 import SvgIcon from '../icons/SvgIcon';
 import {isFriendlyUI} from '../../themes/forumTheme'
@@ -134,15 +134,16 @@ const tooltips: Partial<Record<string,string>> = {
   'LW': "This is a LessWrong group",
   'EA': "This is an Effective Altruism group",
   'SSC': "This is a Slate Star Codex group",
-  'MIRIx': "This is a MIRIx group"
-}
+  'MIRIx': "This is a MIRIx group",
+  "IFANYONE": "This is a reading group for 'If Anyone Builds It, Everyone Dies'",
+  "PETROV": "This is an event celebrating Petrov Day",
+  }
 
 const GroupLinks = ({ document, noMargin, classes }: {
   document: localGroupsBase|PostsBase,
   noMargin?: boolean,
   classes: ClassesType<typeof styles>,
 }) => {
-  const isEAForum = forumTypeSetting.get() === 'EAForum';
   // tooltip text differs between group and event
   const isEvent = 'isEvent' in document;
   const groupLinkProps = {
@@ -152,7 +153,7 @@ const GroupLinks = ({ document, noMargin, classes }: {
   } 
   return(
     <div className={classes.root}>
-      {!isFriendlyUI && <div className={noMargin ? classNames(classes.groupTypes, classes.noMargin) : classes.groupTypes}>
+      {!isFriendlyUI() && <div className={noMargin ? classNames(classes.groupTypes, classes.noMargin) : classes.groupTypes}>
         {document.types && document.types.map(type => {
           return (
             <TooltipSpan
@@ -166,7 +167,7 @@ const GroupLinks = ({ document, noMargin, classes }: {
           )
         })}
       </div>}
-      <div className={(noMargin && (isEAForum || !document.types?.length)) ? classNames(classes.groupLinks, classes.noMargin) : classes.groupLinks}>
+      <div className={(noMargin && (isEAForum() || !document.types?.length)) ? classNames(classes.groupLinks, classes.noMargin) : classes.groupLinks}>
         {document.facebookLink
           && <TooltipSpan
             title={`Link to Facebook ${isEvent ? 'Event' : 'Group'}`}

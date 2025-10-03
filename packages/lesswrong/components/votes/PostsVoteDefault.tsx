@@ -4,7 +4,7 @@ import classNames from 'classnames';
 import { useVote } from './withVote';
 import { isAF } from '../../lib/instanceSettings';
 import { useVoteButtonsDisabled } from './useVoteButtonsDisabled';
-import { VotingSystem } from '../../lib/voting/votingSystems';
+import { VotingSystem } from '@/lib/voting/votingSystemTypes';
 import { isFriendlyUI } from '../../themes/forumTheme';
 import { TooltipRef, TooltipSpan } from '../common/FMTooltip';
 import OverallVoteButton from "./OverallVoteButton";
@@ -104,7 +104,7 @@ const PostsVoteDefault = ({
   const {fail, reason: whyYouCantVote} = useVoteButtonsDisabled();
   const canVote = !fail;
 
-  let tooltipPlacement: "left"|"right"|"top" = isFriendlyUI ? "left" : "right";
+  let tooltipPlacement: "left"|"right"|"top" = isFriendlyUI() ? "left" : "right";
   if (useHorizontalLayout) {
     tooltipPlacement = "top";
   }
@@ -151,7 +151,7 @@ const PostsVoteDefault = ({
           </Typography>
         </TooltipSpan>
 
-        {!!post.af && !!post.afBaseScore && !isAF &&
+        {!!post.af && !!post.afBaseScore && !isAF() &&
           <TooltipSpan
             title="AI Alignment Forum karma"
             placement={tooltipPlacement}

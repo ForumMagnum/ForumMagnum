@@ -1,8 +1,8 @@
-import { darkModeTheme } from './darkMode';
+import { getDarkModeTheme } from './darkMode';
 
 export const getUserTheme = (name: UserThemeName): UserThemeSpecification => {
   switch (name) {
     case "default": return {};
-    case "dark": return darkModeTheme;
+    case "dark": return getDarkModeTheme();
   }
 }

@@ -59,7 +59,7 @@ const SubforumsList = ({ onClick, classes }: {
       limit: 100,
       enableTotal: false,
     },
-    skip: !isEAForum,
+    skip: !isEAForum(),
     fetchPolicy: 'cache-and-network',
     notifyOnNetworkStatusChange: true,
   });

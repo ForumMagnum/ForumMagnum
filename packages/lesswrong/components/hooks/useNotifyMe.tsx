@@ -1,6 +1,5 @@
 import React, { MouseEvent, useCallback } from "react";
 import { useTracking } from "../../lib/analyticsEvents";
-import { graphqlTypeToCollectionName } from "../../lib/vulcan-lib/collections";
 import { useDialog } from "../common/withDialog";
 import { useMessages } from "../common/withMessages";
 import { useCurrentUser } from "../common/withUser";
@@ -9,12 +8,13 @@ import {
   isDefaultSubscriptionType,
 } from "../../lib/collections/subscriptions/mutations";
 import type { SubscriptionType } from "../../lib/collections/subscriptions/helpers";
-import { max } from "underscore";
+import maxBy from "lodash/maxBy";
 import { userIsDefaultSubscribed, userSubscriptionStateIsFixed } from "../../lib/subscriptionUtil";
 import LoginPopup from "../users/LoginPopup";
 import { useMutation } from "@apollo/client/react";
 import { useQuery } from "@/lib/crud/useQuery"
 import { gql } from "@/lib/generated/gql-codegen";
+import { typeNameToCollectionName } from "@/lib/generated/collectionTypeNames";
 
 const SubscriptionStateMultiQuery = gql(`
   query multiSubscriptionuseNotifyMeQuery($selector: SubscriptionSelector, $limit: Int, $enableTotal: Boolean) {
@@ -60,10 +60,10 @@ const currentUserIsSubscribed = (
   // recent subscription
   if (results && results.length > 0) {
     // Get the newest subscription entry (Mingo doesn't enforce the limit:1)
-    const currentSubscription = max(
+    const currentSubscription = maxBy(
       results,
       (result) => new Date(result.createdAt).getTime(),
-    );
+    )!;
 
     if (currentSubscription.state === "subscribed") {
       return true;
@@ -107,7 +107,7 @@ export const useNotifyMe = ({
   const {flash} = useMessages();
   const [createSubscription] = useMutation(SubscriptionStateMutation);
 
-  const collectionName = graphqlTypeToCollectionName(document.__typename);
+  const collectionName = typeNameToCollectionName[document.__typename];
   if (!isDefaultSubscriptionType(collectionName)) {
     throw new Error(`Collection ${collectionName} is not subscribable`);
   }

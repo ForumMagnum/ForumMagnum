@@ -43,7 +43,7 @@ const PostsPageDate = ({ post, hasMajorRevision, classes }: {
   }
   
   let format = "Do MMM YYYY"
-  if (isFriendlyUI) {
+  if (isFriendlyUI()) {
     format = "MMM D YYYY"
     // hide the year if it's this year
     if (now.isSame(moment(post.postedAt), 'year')) {

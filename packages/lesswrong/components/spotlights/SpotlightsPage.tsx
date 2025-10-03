@@ -1,3 +1,5 @@
+"use client";
+
 import React, { useMemo } from 'react';
 import { userCanDo } from '../../lib/vulcan-users/permissions';
 import { useCurrentUser } from '../common/withUser';

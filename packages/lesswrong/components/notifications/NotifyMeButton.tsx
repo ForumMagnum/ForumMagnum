@@ -119,7 +119,7 @@ const NotifyMeButton = ({
       </a>
     </MenuItem>
   } else if (asButton) {
-    maybeMenuItemButton = isFriendlyUI ? (
+    maybeMenuItemButton = isFriendlyUI() ? (
       <EAButton style="grey" onClick={onSubscribe}>{button}</EAButton>
     ) : (
       <button onClick={onSubscribe} className={classNames(className, classes.root)}>

@@ -5,8 +5,10 @@ import { useCookiesWithConsent } from '../hooks/useCookiesWithConsent';
 import { HIDE_SPOTLIGHT_ITEM_PREFIX } from '../../lib/cookies/cookies';
 import { SpotlightItem } from "./SpotlightItem";
 import { defineStyles, useStyles } from '../hooks/useStyles';
-import { useQuery } from '@/lib/crud/useQuery';
+import { useSuspenseQuery } from '@/lib/crud/useQuery';
 import { gql } from '@/lib/generated/gql-codegen';
+import Loading from '../vulcan-core/Loading';
+import { SuspenseWrapper } from '../common/SuspenseWrapper';
 
 const DisplaySpotlightQuery = gql(`
   query DisplaySpotlightQuery {
@@ -16,12 +18,12 @@ const DisplaySpotlightQuery = gql(`
   }
 `);
 
-export const DismissibleSpotlightItem = ({ className }: {
+const DismissibleSpotlightItemInner = ({ className }: {
   className?: string,
 }) => {
   const { captureEvent } = useTracking()
 
-  const { data } = useQuery(DisplaySpotlightQuery, {
+  const { data } = useSuspenseQuery(DisplaySpotlightQuery, {
     context: {loggedOutCache: true},
   });
   const currentSpotlight = data?.currentSpotlight;
@@ -65,6 +67,18 @@ const spotlightItemFallbackStyles = defineStyles("SpotlightItemFallback", (theme
 export const SpotlightItemFallback = () => {
   const classes = useStyles(spotlightItemFallbackStyles);
   return <div className={classes.fallback}/>
+}
+
+export const DismissibleSpotlightItem = ({loadingStyle="spinner", className}: {
+  loadingStyle?: "placeholder"|"spinner"
+  className?: string
+}) => {
+  return <SuspenseWrapper
+    name="DismissibleSpotlightItem"
+    fallback={loadingStyle==="placeholder" ? <SpotlightItemFallback/> : <Loading/>}
+  >
+    <DismissibleSpotlightItemInner className={className}/>
+  </SuspenseWrapper>
 }
 
 export default DismissibleSpotlightItem;

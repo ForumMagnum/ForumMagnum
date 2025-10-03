@@ -6,10 +6,10 @@ import { logGroupConstructor, loggerConstructor } from "@/lib/utils/logging";
 import { describeTerms, viewTermsToQuery } from "@/lib/utils/viewUtils";
 import { Pluralize } from "@/lib/vulcan-lib/pluralize";
 import { CamelCaseify, convertDocumentIdToIdInSelector } from "@/lib/vulcan-lib/utils";
-import { restrictViewableFieldsMultiple, restrictViewableFieldsSingle } from "@/lib/vulcan-users/permissions.ts";
+import { restrictViewableFieldsMultiple, restrictViewableFieldsSingle } from '@/lib/vulcan-users/restrictViewableFields';
 import SelectFragmentQuery from "@/server/sql/SelectFragmentQuery";
 import { throwError } from "@/server/vulcan-lib/errors";
-import { captureException } from "@sentry/core";
+import { captureException } from "@/lib/sentryWrapper";
 import { Kind, print, type FieldNode, type FragmentDefinitionNode, type GraphQLResolveInfo } from "graphql";
 import isEqual from "lodash/isEqual";
 import { getCollectionAccessFilter } from "../permissions/accessFilters";
@@ -58,11 +58,9 @@ const getFragmentInfo = ({ fieldName, fieldNodes, fragments }: GraphQLResolveInf
   };
 
   const fragmentsWithImplicitFragment = [implicitFragment, ...Object.values(fragments)];
-  // TODO: at some point, would be good to switch to just returning AST nodes and parsing those in SqlFragment directly
-  // since we're doing a bunch of hacky regex parsing over there
-  const fragmentText = fragmentsWithImplicitFragment.map(print).join('\n\n');
+  
   return {
-    fragmentText,
+    fragmentDefinitions: fragmentsWithImplicitFragment,
     fragmentName: fieldName,
   };
 };
@@ -99,7 +97,7 @@ export const getDefaultResolvers = <N extends CollectionNameString>(
     context: ResolverContext,
     info: GraphQLResolveInfo,
   ): Promise<{ results: Partial<T>[]; totalCount?: number }> => {
-    const collection = context[collectionName] as CollectionBase<N>;
+    const collection = context[collectionName] as unknown as PgCollection<N>;
     const { input, selector, limit, offset, enableTotal } = args ?? { input: {} };
 
     // We used to handle selector terms just using a generic "terms" object, but now we use a more structured approach
@@ -168,7 +166,7 @@ export const getDefaultResolvers = <N extends CollectionNameString>(
     // Posts collection, add that to the context now.
     // (This was previously in computeContextFromUser, which was much more
     // costly since it adds a DB roundtrip to the start of every request.)
-    if (collectionName === "Posts" && !('visitorActivity' in context)) {
+    if (collectionName === "Posts" && 'filterSettings' in terms && terms.filterSettings && !('visitorActivity' in context)) {
       context.visitorActivity = await getWithCustomLoader(context, "visitorActivityLoader", "_",
         async () => [await getUserActivity(currentUser, context.clientId)]
       );
@@ -185,8 +183,8 @@ export const getDefaultResolvers = <N extends CollectionNameString>(
     let fetchDocs: () => Promise<T[]>;
     if (fragmentInfo) {
       // Make a dynamic require here to avoid our circular dependency lint rule, since really by this point we should be fine
-      const getSqlFragment: typeof import('../../lib/fragments/sqlFragments').getSqlFragment = require('../../lib/fragments/sqlFragments').getSqlFragment;
-      const sqlFragment = getSqlFragment(fragmentInfo.fragmentName, fragmentInfo.fragmentText);
+      const { getSqlFragment } = await import('../../lib/fragments/sqlFragments');
+      const sqlFragment = getSqlFragment(fragmentInfo.fragmentName, fragmentInfo.fragmentDefinitions);
       const query = new SelectFragmentQuery(
         sqlFragment,
         currentUser,
@@ -221,7 +219,7 @@ export const getDefaultResolvers = <N extends CollectionNameString>(
       : docs;
 
     // take the remaining documents and remove any fields that shouldn't be accessible
-    const restrictedDocs = restrictViewableFieldsMultiple(currentUser, collectionName, viewableDocs);
+    const restrictedDocs = await restrictViewableFieldsMultiple(currentUser, collection, viewableDocs);
 
     // prime the cache
     restrictedDocs.forEach((doc: AnyBecauseTodo) => context.loaders[collectionName].prime(doc._id, doc));
@@ -248,7 +246,7 @@ export const getDefaultResolvers = <N extends CollectionNameString>(
     context: ResolverContext,
     info: GraphQLResolveInfo,
   ) => {
-    const collection = context[collectionName] as CollectionBase<N>;
+    const collection = context[collectionName] as unknown as PgCollection<N>;
     const { input: _input, selector: _selector, ...otherQueryVariables } = info.variableValues;
     allowNull ??= input.allowNull ?? false;
     // In this context (for reasons I don't fully understand) selector is an object with a null prototype, i.e.
@@ -291,8 +289,8 @@ export const getDefaultResolvers = <N extends CollectionNameString>(
     let doc: ObjectsByCollectionName[N] | null;
     if (fragmentInfo) {
       // Make a dynamic require here to avoid our circular dependency lint rule, since really by this point we should be fine
-      const getSqlFragment: typeof import('../../lib/fragments/sqlFragments').getSqlFragment = require('../../lib/fragments/sqlFragments').getSqlFragment;
-      const sqlFragment = getSqlFragment(fragmentInfo.fragmentName, fragmentInfo.fragmentText);
+      const { getSqlFragment } = await import('../../lib/fragments/sqlFragments');
+      const sqlFragment = getSqlFragment(fragmentInfo.fragmentName, fragmentInfo.fragmentDefinitions);
       let query: SelectFragmentQuery;
       query = new SelectFragmentQuery(
         sqlFragment,
@@ -340,7 +338,7 @@ export const getDefaultResolvers = <N extends CollectionNameString>(
       }
     }
 
-    const restrictedDoc = restrictViewableFieldsSingle(currentUser, collection.collectionName, doc);
+    const restrictedDoc = await restrictViewableFieldsSingle(currentUser, collection, doc);
 
     logGroupEnd();
     logger(`--------------- end \x1b[35m${typeName} Single Resolver\x1b[0m ---------------`);
@@ -413,7 +411,7 @@ export const performQueryFromViewParameters = async <N extends CollectionNameStr
 }
 
 async function getUserActivity(user: DbUser|null, clientId: string|null): Promise<DbUserActivity|null> {
-  if ((user || clientId) && (isEAForum || visitorGetsDynamicFrontpage(user))) {
+  if ((user || clientId) && (isEAForum() || visitorGetsDynamicFrontpage(user))) {
     if (user) {
       return await UserActivities.findOne({visitorId: user._id, type: 'userId'});
     } else if (clientId) {

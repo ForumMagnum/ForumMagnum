@@ -1,8 +1,8 @@
 import React from 'react';
 import { forumTitleSetting } from '../../lib/instanceSettings';
-import { REVIEW_NAME_IN_SITU, REVIEW_YEAR } from '../../lib/reviewUtils';
+import { getReviewNameInSitu, REVIEW_YEAR } from '../../lib/reviewUtils';
 import { registerComponent } from '../../lib/vulcan-lib/components';
-import { POST_PREVIEW_WIDTH } from '../posts/PostsPreviewTooltip/helpers';
+import { getPostPreviewWidth } from '../posts/PostsPreviewTooltip/helpers';
 import { notificationLoadingStyles } from '../posts/PostsPreviewTooltip/PostsPreviewLoading';
 import { useQuery } from "@/lib/crud/useQuery";
 import { gql } from "@/lib/generated/gql-codegen";
@@ -25,7 +25,7 @@ const PostsListQuery = gql(`
 const styles = (theme: ThemeType) => ({
   root: {
     padding: theme.spacing.unit*1.5,
-    width: POST_PREVIEW_WIDTH,
+    width: getPostPreviewWidth(),
   },
   loading: {
     ...notificationLoadingStyles(theme)
@@ -53,7 +53,7 @@ const PostNominatedNotification = ({classes, postId}: {classes: ClassesType<type
   return <div className={classes.root}>
     <PostsTitle post={post}/>
     <ContentStyles contentType="comment">
-      <p>Your post has been nominated for the {REVIEW_NAME_IN_SITU}.</p>
+      <p>Your post has been nominated for the {getReviewNameInSitu()}.</p>
       <p>You're encouraged to write a self-review, exploring how you think about the post today. Do you still endorse it? Have you learned anything new that adds more depth? How might you improve the post? What further work do you think should be done exploring the ideas here?</p>
       <div className={classes.reviewButton}>
         <ReviewPostButton post={post} year={REVIEW_YEAR+""} reviewMessage={<LWTooltip title={`Write up your thoughts on what was good about a post, how it could be improved, and how you think stands the tests of time as part of the broader ${forumTitleSetting.get()} conversation`} placement="bottom">

@@ -3,7 +3,7 @@ import { AnalyticsContext, useTracking } from "../../lib/analyticsEvents";
 import { defineStyles, useStyles } from "../hooks/useStyles";
 import { postGetPageUrl, postGetLink, postGetLinkTarget, detectLinkpost } from "@/lib/collections/posts/helpers";
 import { FeedPostMetaInfo, FeedItemSourceType } from "./ultraFeedTypes";
-import { nofollowKarmaThreshold } from "../../lib/publicSettings";
+import { nofollowKarmaThreshold } from '@/lib/instanceSettings';
 import { UltraFeedSettingsType, DEFAULT_SETTINGS } from "./ultraFeedSettingsTypes";
 import { useUltraFeedObserver } from "./UltraFeedObserver";
 import { useRecordPostView } from "../hooks/useRecordPostView";

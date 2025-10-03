@@ -1,5 +1,5 @@
 import { DEFAULT_CREATED_AT_FIELD, DEFAULT_ID_FIELD, DEFAULT_LATEST_REVISION_ID_FIELD, DEFAULT_LEGACY_DATA_FIELD, DEFAULT_SCHEMA_VERSION_FIELD } from "@/lib/collections/helpers/sharedFieldConstants";
-import { getDomain, getOutgoingUrl } from "../../vulcan-lib/utils";
+import { getDomain } from "../../vulcan-lib/utils";
 import moment from "moment";
 import {
   googleLocationToMongoLocation, accessFilterMultiple,
@@ -26,16 +26,15 @@ import {
   isDialogueParticipant,
   MINIMUM_COAUTHOR_KARMA,
   DEFAULT_QUALITATIVE_VOTE,
-  userPassesCrosspostingKarmaThreshold
+  userPassesCrosspostingKarmaThreshold,
+  getDefaultVotingSystem
 } from "./helpers";
 import { postStatuses, sideCommentAlwaysExcludeKarma, sideCommentFilterMinKarma } from "./constants";
 import { userGetDisplayNameById } from "../../vulcan-users/helpers";
 import { loadByIds, getWithLoader, getWithCustomLoader } from "../../loaders";
-import SimpleSchema from "simpl-schema";
+import SimpleSchema from "@/lib/utils/simpleSchema";
 import { getCollaborativeEditorAccess } from "./collabEditingPermissions";
 import { eaFrontpageDateDefault, isEAForum, isLWorAF, requireReviewToFrontpagePostsSetting, reviewUserBotSetting } from "../../instanceSettings";
-import { forumSelect } from "../../forumTypeUtils";
-import * as _ from "underscore";
 import { userCanCommentLock, userCanModeratePost, userIsSharedOn } from "../users/helpers";
 import {
   sequenceGetNextPostID,
@@ -43,7 +42,7 @@ import {
   sequenceContainsPost,
   getPrevPostIdFromPrevSequence,
   getNextPostIdFromNextSequence,
-} from "../sequences/helpers";
+} from '../sequences/sequenceServerHelpers';
 import { allOf } from "../../utils/functionUtils";
 import { getDefaultViewSelector } from "../../utils/viewUtils";
 import { hasSideComments, userCanViewJargonTerms } from "../../betas";
@@ -54,6 +53,8 @@ import mapValues from "lodash/mapValues";
 import groupBy from "lodash/groupBy";
 import {
   documentIsNotDeleted,
+  userIsAdmin,
+  userIsAdminOrMod,
   userOverNKarmaOrApproved,
   userOwns,
 } from "../../vulcan-users/permissions";
@@ -69,68 +70,16 @@ import { getPostReviewWinnerInfo } from "@/server/review/reviewWinnersCache";
 import { matchSideComments } from "@/server/sideComments";
 import { getToCforPost } from "@/server/tableOfContents";
 import { cheerioParse } from "@/server/utils/htmlUtil";
-import { captureException } from "@sentry/core";
+import { captureException } from "@/lib/sentryWrapper";
 import keyBy from "lodash/keyBy";
 import { filterNonnull } from "@/lib/utils/typeGuardUtils";
-import gql from "graphql-tag";
 import { CommentsViews } from "../comments/views";
 import { commentIncludedInCounts } from "../comments/helpers";
+import { votingSystemNames } from "@/lib/voting/votingSystemNames";
 import { backgroundTask } from "@/server/utils/backgroundTask";
-
-export const graphqlTypeDefs = gql`
-  type SocialPreviewType {
-    _id: String!
-    imageId: String
-    imageUrl: String!
-    text: String
-  }
-
-  input CoauthorStatusInput {
-    userId: String!
-    confirmed: Boolean!
-    requested: Boolean!
-  }
-
-  input SocialPreviewInput {
-    imageId: String
-    text: String
-  }
-
-  input CrosspostInput {
-    isCrosspost: Boolean!
-    hostedHere: Boolean
-    foreignPostId: String
-  }
-
-  type CoauthorStatusOutput {
-    userId: String!
-    confirmed: Boolean!
-    requested: Boolean!
-  }
-
-  type SocialPreviewOutput {
-    imageId: String
-    text: String
-  }
-
-  type CrosspostOutput {
-    isCrosspost: Boolean!
-    hostedHere: Boolean
-    foreignPostId: String
-  }
-`
 
 // TODO: This disagrees with the value used for the book progress bar
 export const READ_WORDS_PER_MINUTE = 250;
-
-export function getDefaultVotingSystem() {
-  return forumSelect({
-    EAForum: "eaEmojis",
-    LessWrong: "namesAttachedReactions",
-    AlignmentForum: "namesAttachedReactions",
-    default: "default",
-  });
-}
 
 const rsvpType = new SimpleSchema({
   name: {
@@ -240,6 +189,10 @@ async function getLastPublishedDialogueMessageTimestamp(post: DbPost, context: R
   return lastTimestamp;
 };
 
+function adminOnlyOnEAForum(user: DbUser | null) {
+  return isEAForum() ? userIsAdmin(user) : userIsAdminOrMod(user);
+}
+
 const schema = {
   _id: DEFAULT_ID_FIELD,
   schemaVersion: DEFAULT_SCHEMA_VERSION_FIELD,
@@ -263,7 +216,14 @@ const schema = {
       editableFieldOptions: { pingbacks: true, normalized: true },
       arguments: "version: String",
       resolver: getNormalizedEditableResolver("contents"),
-      sqlResolver: getNormalizedEditableSqlResolver("contents"),
+      // Testing out removing the sql resolver.
+      // There are a bunch of compiled fragment queries
+      // which end up being very expensive because they
+      // call TO_JSONB on the joined revisions _before_
+      // applying the limit, which can end up adding over
+      // 100ms to some queries.  This is much worse than
+      // just adding a round trip to fetch the revisions.
+      // sqlResolver: getNormalizedEditableSqlResolver("contents"),
       validation: {
         simpleSchema: RevisionStorageType,
         optional: true,
@@ -601,15 +561,7 @@ const schema = {
       canUpdate: ["sunshineRegiment", "admins"],
       canCreate: ["sunshineRegiment", "admins"],
       onCreate: ({ document: post }) => {
-        if (!isEAForum && !post.sticky) {
-          return false;
-        }
-      },
-      onUpdate: ({ modifier }) => {
-        // WH 2025-03-17: I think this is a bug in general, as a non-admin editing this post will cause
-        // sticky to be set to false. Forum-gating to EAF to speed up fixing this live bug for us, but
-        // I believe this function and `onCreate`
-        if (!isEAForum && !modifier.$set.sticky) {
+        if (!isEAForum() && !post.sticky) {
           return false;
         }
       },
@@ -742,7 +694,7 @@ const schema = {
       outputType: "String",
       canRead: ["guests"],
       resolver: (post, args, context) => {
-        return post.url ? getOutgoingUrl(post.url) : postGetPageUrl(post, true);
+        return post.url ? post.url : postGetPageUrl(post, true);
       },
     },
   },
@@ -1275,7 +1227,7 @@ const schema = {
       outputType: "Float",
       canRead: ["guests"],
       resolver: async (post, args, context) => {
-        if (!isLWorAF) {
+        if (!isLWorAF()) {
           return 0;
         }
         const market = await getWithCustomLoader(context, "manifoldMarket", post._id, marketInfoLoader(context));
@@ -1288,7 +1240,7 @@ const schema = {
       outputType: "Boolean",
       canRead: ["guests"],
       resolver: async (post, args, context) => {
-        if (!isLWorAF) {
+        if (!isLWorAF()) {
           return false;
         }
         const market = await getWithCustomLoader(context, "manifoldMarket", post._id, marketInfoLoader(context));
@@ -1301,7 +1253,7 @@ const schema = {
       outputType: "Int",
       canRead: ["guests"],
       resolver: async (post, args, context) => {
-        if (!isLWorAF) {
+        if (!isLWorAF()) {
           return 0;
         }
         const market = await getWithCustomLoader(context, "manifoldMarket", post._id, marketInfoLoader(context));
@@ -1314,7 +1266,7 @@ const schema = {
       outputType: "String",
       canRead: ["guests"],
       resolver: async (post, args, context) => {
-        if (!isLWorAF) {
+        if (!isLWorAF()) {
           return 0;
         }
         const market = await getWithCustomLoader(context, "manifoldMarket", post._id, marketInfoLoader(context));
@@ -1841,7 +1793,7 @@ const schema = {
       outputType: "ReviewVote",
       canRead: ["members"],
       resolver: async (post, args, context) => {
-        if (!isLWorAF) {
+        if (!isLWorAF()) {
           return null;
         }
         const { ReviewVotes, currentUser } = context;
@@ -1877,7 +1829,7 @@ const schema = {
       outputType: "ReviewWinner",
       canRead: ["guests"],
       resolver: async (post, args, context) => {
-        if (!isLWorAF) {
+        if (!isLWorAF()) {
           return null;
         }
         const { currentUser } = context;
@@ -1931,10 +1883,8 @@ const schema = {
       canUpdate: ["admins", "sunshineRegiment"],
       // This differs from the `defaultValue` because it varies by forum-type
       // and we don't have a setup for `accepted_schema.sql` to vary by forum type.
-      onCreate: ({ document }) => {
-        // This is to break an annoying import cycle that causes a crash on start.
-        const { getVotingSystemByName }: typeof import('@/lib/voting/getVotingSystem') = require('@/lib/voting/getVotingSystem');
-        const votingSystem = ('votingSystem' in document && !!getVotingSystemByName(document.votingSystem as string))
+      onCreate: async ({ document }) => {
+        const votingSystem = ('votingSystem' in document && !!votingSystemNames.safeParse(document.votingSystem as string).success)
           ? document.votingSystem
           : getDefaultVotingSystem();
 
@@ -2157,8 +2107,8 @@ const schema = {
     graphql: {
       outputType: "Date",
       canRead: ["guests"],
-      canUpdate: isEAForum ? ['admins'] : ['sunshineRegiment', 'admins'],
-      canCreate: isEAForum ? ['admins'] : ['sunshineRegiment', 'admins'],
+      canUpdate: [adminOnlyOnEAForum],
+      canCreate: [adminOnlyOnEAForum],
       validation: {
         optional: true,
       },
@@ -2209,7 +2159,7 @@ const schema = {
         // did a hacky thing.
         if (!post.suggestForCuratedUserIds) return null;
         const users = await Promise.all(
-          _.map(post.suggestForCuratedUserIds, async (userId) => {
+          post.suggestForCuratedUserIds.map(async (userId) => {
             const user = await context.loaders.Users.load(userId);
             return user.displayName;
           })
@@ -2234,25 +2184,33 @@ const schema = {
       canRead: ["guests"],
       canUpdate: ["sunshineRegiment", "admins"],
       canCreate: ["members"],
-      ...(!requireReviewToFrontpagePostsSetting.get() && {
-        onCreate: ({ document: { isEvent, submitToFrontpage, draft } }) => eaFrontpageDateDefault(
+      onCreate: ({ document: { isEvent, submitToFrontpage, draft } }) => {
+        if (requireReviewToFrontpagePostsSetting.get()) {
+          return undefined;
+        }
+
+        return eaFrontpageDateDefault(
           isEvent ?? undefined,
           submitToFrontpage ?? undefined,
           draft ?? undefined,
-        ),
-        onUpdate: ({ data, oldDocument }) => {
-          if (oldDocument.draft && data.draft === false && !oldDocument.frontpageDate) {
-            return eaFrontpageDateDefault(
-              data.isEvent ?? oldDocument.isEvent,
-              data.submitToFrontpage ?? oldDocument.submitToFrontpage,
-              false,
-            );
-          }
-          // Setting frontpageDate to null is a special case that means "move to personal blog",
-          // if frontpageDate is actually undefined then we want to use the old value.
-          return data.frontpageDate === undefined ? oldDocument.frontpageDate : data.frontpageDate;
-        },
-      }),
+        );
+      },
+      onUpdate: ({ data, oldDocument }) => {
+        if (requireReviewToFrontpagePostsSetting.get()) {
+          return undefined;
+        }
+
+        if (oldDocument.draft && data.draft === false && !oldDocument.frontpageDate) {
+          return eaFrontpageDateDefault(
+            data.isEvent ?? oldDocument.isEvent,
+            data.submitToFrontpage ?? oldDocument.submitToFrontpage,
+            false,
+          );
+        }
+        // Setting frontpageDate to null is a special case that means "move to personal blog",
+        // if frontpageDate is actually undefined then we want to use the old value.
+        return data.frontpageDate === undefined ? oldDocument.frontpageDate : data.frontpageDate;
+      },
       validation: {
         optional: true,
       },
@@ -2302,16 +2260,30 @@ const schema = {
       canCreate: ["sunshineRegiment", "admins", userOverNKarmaOrApproved(MINIMUM_COAUTHOR_KARMA)],
     },
   },
+  coauthorUserIds: {
+    database: {
+      type: "TEXT[]",
+      defaultValue: [],
+      canAutofillDefault: true,
+      nullable: false,
+    },
+    graphql: {
+      outputType: "[String!]!",
+      inputType: "[String!]",
+      canRead: ['guests'],
+      canUpdate: ["sunshineRegiment", "admins", userOverNKarmaOrApproved(MINIMUM_COAUTHOR_KARMA)],
+      canCreate: ["sunshineRegiment", "admins", userOverNKarmaOrApproved(MINIMUM_COAUTHOR_KARMA)],
+      validation: {
+        optional: true,
+      },
+    },
+  },
   coauthors: {
     graphql: {
       outputType: "[User!]",
       canRead: [documentIsNotDeleted],
       resolver: async (post, args, context) => {
-        const resolvedDocs = await loadByIds(
-          context,
-          "Users",
-          post.coauthorStatuses?.map(({ userId }) => userId) || []
-        );
+        const resolvedDocs = await loadByIds(context, "Users", post.coauthorUserIds);
         return await accessFilterMultiple(context.currentUser, "Users", resolvedDocs, context);
       },
     },
@@ -3082,8 +3054,8 @@ const schema = {
     graphql: {
       outputType: "String",
       canRead: ["guests"],
-      canUpdate: isEAForum ? ['admins'] : ['sunshineRegiment', 'admins'],
-      canCreate: isEAForum ? ['admins'] : ['sunshineRegiment', 'admins'],
+      canUpdate: [adminOnlyOnEAForum],
+      canCreate: [adminOnlyOnEAForum],
       validation: {
         optional: true,
       },
@@ -3374,11 +3346,6 @@ const schema = {
           return false;
         }
       },
-      onUpdate: ({ modifier }) => {
-        if (!modifier.$set.metaSticky) {
-          return false;
-        }
-      },
       validation: {
         optional: true,
       },
@@ -3535,7 +3502,7 @@ const schema = {
       canRead: ["guests"],
       resolver: async (post, _args, context) => {
         const { SideCommentCaches, Comments } = context;
-        if (!hasSideComments || isNotHostedHere(post)) {
+        if (!hasSideComments() || isNotHostedHere(post)) {
           return null;
         }
         // If the post was fetched with a SQL resolver then we will already
@@ -3623,10 +3590,8 @@ const schema = {
 
         const alwaysShownIds = new Set<string>([]);
         alwaysShownIds.add(post.userId);
-        if (post.coauthorStatuses) {
-          for (let { userId } of post.coauthorStatuses) {
-            alwaysShownIds.add(userId);
-          }
+        for (const userId of post.coauthorUserIds) {
+          alwaysShownIds.add(userId);
         }
 
         const commentsById = keyBy(comments, (comment) => comment._id);
@@ -3689,7 +3654,7 @@ const schema = {
       canRead: ["guests"],
       resolver: ({ _id }, _, context) => {
         const { SideCommentCaches } = context;
-        if (!hasSideComments) {
+        if (!hasSideComments()) {
           return null;
         }
         return SideCommentCaches.findOne({
@@ -3697,18 +3662,17 @@ const schema = {
           version: sideCommentCacheVersion,
         });
       },
-      ...(hasSideComments && {
-        sqlResolver: ({field, join}) => join({
-          table: "SideCommentCaches",
-          type: "left",
-          on: {
-            postId: field("_id"),
-            version: `${sideCommentCacheVersion}`,
-          },
-          resolver: (sideCommentsField) => sideCommentsField("*"),
-        }),
-        sqlPostProcess: () => null,
+      sqlResolver: ({field, join}) => join({
+        table: "SideCommentCaches",
+        type: "left",
+        on: {
+          postId: field("_id"),
+          version: `${sideCommentCacheVersion}`,
+        },
+        resolver: (sideCommentsField) => sideCommentsField("*"),
       }),
+      skipSqlResolver: () => !hasSideComments(),
+      sqlPostProcess: () => null,
     },
   },
   // This is basically deprecated. We now have them enabled by default
@@ -3885,7 +3849,7 @@ const schema = {
           deletedPublic: false,
           postedAt: { $gt: timeCutoff },
           ...(af ? { af: true } : {}),
-          ...(isLWorAF ? { userId: { $ne: reviewUserBotSetting.get() } } : {}),
+          ...(isLWorAF() ? { userId: { $ne: reviewUserBotSetting.get() } } : {}),
         };
         const comments = await getWithCustomLoader(context, loaderName, post._id, (postIds) => {
           return context.repos.comments.getRecentCommentsOnPosts(postIds, commentsLimit ?? 5, filter);
@@ -4016,7 +3980,7 @@ const schema = {
       canRead: ["guests"],
       resolver: async (post, _, context) => {
         const { extendedScore } = post;
-        if (!isEAForum || !extendedScore || Object.keys(extendedScore).length < 1 || "agreement" in extendedScore) {
+        if (!isEAForum() || !extendedScore || Object.keys(extendedScore).length < 1 || "agreement" in extendedScore) {
           return {};
         }
         const reactors = await context.repos.posts.getPostEmojiReactorsWithCache(post._id);
@@ -4285,11 +4249,6 @@ const schema = {
           return false;
         }
       },
-      onUpdate: ({ modifier }) => {
-        if (!(modifier.$set && modifier.$set.afSticky)) {
-          return false;
-        }
-      },
       validation: {
         optional: true,
       },
@@ -4421,7 +4380,7 @@ const schema = {
       outputType: "AutomatedContentEvaluation",
       canRead: ["sunshineRegiment", "admins"],
       resolver: async (post, args, context) => {
-        if (!isLWorAF) return null;
+        if (!isLWorAF()) return null;
         const {AutomatedContentEvaluations, Revisions} =  context;
         const revisionIds = (await Revisions.find({
           documentId: post._id,

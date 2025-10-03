@@ -1,6 +1,8 @@
+'use client';
+
 import { createContext, useContext } from "react";
 // eslint-disable-next-line no-restricted-imports
-import { useQuery as useQueryApollo, useSuspenseQuery } from "@apollo/client/react";
+import { useQuery as useQueryApollo, useSuspenseQuery as useSuspenseQueryApollo } from "@apollo/client/react";
 import type { SuspenseQueryHookFetchPolicy } from "@apollo/client/react";
 import { debugSuspenseBoundaries, NamedSuspenseBoundary } from "@/components/common/SuspenseWrapper";
 import type { DocumentNode, OperationDefinitionNode, print } from 'graphql';
@@ -41,7 +43,7 @@ export const useQuery: typeof useQueryApollo = ((query: any, options?: UseQueryO
     }
 
     // eslint-disable-next-line react-hooks/rules-of-hooks
-    const result = useSuspenseQuery(query, {
+    const result = useSuspenseQueryApollo(query, {
       ...options,
       skip: isSkipped
     });
@@ -63,6 +65,8 @@ export const useQuery: typeof useQueryApollo = ((query: any, options?: UseQueryO
     };
   }
 }) as any;
+
+export const useSuspenseQuery: typeof useSuspenseQueryApollo = useSuspenseQueryApollo;
 
 /**
  * Returns the operation name (e.g. `GetUser`) from a parsed GraphQL document.

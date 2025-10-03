@@ -12,16 +12,23 @@ const restrictedImportsPaths = [
   { name: "@/lib/vendor/@material-ui/core/src/Popper", importNames: ["Popper"], message: "Don't use material-UI's Popper component directly, use LWPopper instead" },
   { name: "@/lib/vendor/@material-ui/core/src/MenuItem", message: "Don't use material-UI's MenuItem component directly; use Components.MenuItem or JSS styles" },
   { name: "@/lib/vendor/@material-ui/core/src/NoSsr", importNames: ["Popper"], message: "Don't use @/lib/vendor/@material-ui/core/src/NoSsr/NoSsr; use react-no-ssr instead" },
-  { name: "@apollo/client", importNames: ["useQuery"], message: "Don't import useQuery from Apollo directly; use the wrapper in lib/crud/useQuery" },
+  { name: "@apollo/client", importNames: ["useQuery", "useSuspenseQuery"], message: "Don't import useQuery from Apollo directly; use the wrapper in lib/crud/useQuery" },
   { name: "@apollo/client", importNames: ["gql"], message: "Don't import gql from Apollo; use @/lib/generated/gql-codegen" },
   { name: "react-router", message: "Don't import react-router, use lib/reactRouterWrapper" },
   { name: "react-router-dom", message: "Don't import react-router-dom, use lib/reactRouterWrapper" },
   { name: "@/lib/vendor/@material-ui/core/src/ClickAwayListener", message: "Don't use material-UI's ClickAwayListener component; use LWClickAwayListener instead" },
+  { name: "@sentry/nextjs", message: "Don't import @sentry/nextjs, use @/lib/sentryWrapper instead" },
 ];
 const clientRestrictedImportPaths = [
   { name: "cheerio", message: "Don't import cheerio on the client" },
   { name: "url", message: "'url' is a nodejs polyfill; use getUrlClass() instead" },
 ]
+
+const emailComponentRestrictedImportPaths = [
+  { name: "@/components/hooks/useStyles", message: "Don't import defineStyles from @/components/hooks/useStyles; use @/components/hooks/defineStyles instead" },
+];
+
+const BANNED_TOP_LEVEL_FUNCTIONS = ['isLW', 'isAF', 'isEAForum', 'isLWorAF', 'forumSelect'];
 
 module.exports = {
   "extends": [
@@ -35,7 +42,8 @@ module.exports = {
     // have to delete .eslintcache to make it stop reporting the error.
     // Commented out because there are immport cycles that haven't been resolved
     // yet.
-    "plugin:import/typescript"
+    "plugin:import/typescript",
+    "plugin:@next/next/recommended"
   ],
   "parser": "@typescript-eslint/parser",
   "parserOptions": {
@@ -60,7 +68,9 @@ module.exports = {
         "AppComposer",
         "Query",
         "Map",
-        "List"
+        "List",
+        "GET",
+        "POST",
       ]
     }],
     "babel/array-bracket-spacing": 0,
@@ -105,7 +115,9 @@ module.exports = {
         "AppComposer",
         "Query",
         "Map",
-        "List"
+        "List",
+        "GET",
+        "POST",
       ]
     }],
 
@@ -176,6 +188,17 @@ module.exports = {
       patterns: [
         "@/lib/vendor/@material-ui/core/src/colors/*"
       ]
+    }],
+
+    "local/no-top-level-indirect-calls-to": ["error", {
+      names: BANNED_TOP_LEVEL_FUNCTIONS,
+      maxDepth: 7,
+      checkMemberCalls: true,
+      crossFile: true,
+      forbiddenMethods: [{
+        className: "PublicInstanceSetting",
+        methodNames: ["get"],
+      }],
     }],
 
     // Warn on missing await. We use ignoreVoid: true by default but change it
@@ -306,6 +329,9 @@ module.exports = {
     }],
 
     "no-barrel-files/no-barrel-files": 1,
+
+    // Disabling this until we figure out whether we want to stick with Cloudinary
+    "@next/next/no-img-element": 0,
   },
   "overrides": [
     {
@@ -322,9 +348,21 @@ module.exports = {
       "rules": {
         "no-restricted-imports": ["error", {"paths": [
           ...restrictedImportsPaths,
-          ...clientRestrictedImportPaths
+          ...clientRestrictedImportPaths,
         ]}],
       }
+    },
+    {
+      "files": [
+        "packages/lesswrong/server/emailComponents/**/*.ts",
+        "packages/lesswrong/server/emailComponents/**/*.tsx",
+      ],
+      "rules": {
+        "no-restricted-imports": ["error", {"paths": [
+          ...restrictedImportsPaths,
+          ...emailComponentRestrictedImportPaths,
+        ]}],
+      },
     },
     {
       "files": [
@@ -332,6 +370,7 @@ module.exports = {
         "packages/lesswrong/lib/**/*.tsx",
         "packages/lesswrong/server/**/*.ts",
         "packages/lesswrong/server/**/*.tsx",
+        "app/**/*.ts",
       ],
       "rules": {
         "@typescript-eslint/no-floating-promises": [1, {
@@ -355,6 +394,7 @@ module.exports = {
     "import",
     "no-barrel-files",
     "@stylistic/ts",
+    "local"
   ],
   "settings": {
     "import/core-modules": [

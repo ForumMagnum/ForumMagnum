@@ -1,5 +1,5 @@
 import React from 'react'
-import { EditorContents, EditorTypeString, EditorChangeEvent, nonAdminEditors, adminEditors, editorTypeToDisplay } from './Editor';
+import { EditorContents, EditorTypeString, EditorChangeEvent, nonAdminEditors, adminEditors, getEditorTypeToDisplayMap } from './Editor';
 import { registerComponent } from '../../lib/vulcan-lib/components';
 import { useCurrentUser } from '../common/withUser';
 import Select from '@/lib/vendor/@material-ui/core/src/Select';
@@ -50,7 +50,7 @@ const EditorTypeSelect = ({value, setValue, isCollaborative, classes}: {
     >
       {editors.map((editorType, i) =>
         <MenuItem value={editorType} key={i}>
-          {editorTypeToDisplay[editorType].name} {editorTypeToDisplay[editorType].postfix}
+          {getEditorTypeToDisplayMap()[editorType].name} {getEditorTypeToDisplayMap()[editorType].postfix}
         </MenuItem>
       )}
     </Select>

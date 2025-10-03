@@ -41,7 +41,7 @@ type CurrentEvent = {
 
 const useCurrentEvent = (): CurrentEvent | null => {
   const { data } = useQuery(HeaderEventSubtitleSpotlightQuery, {
-    skip: isLWorAF
+    skip: isLWorAF()
   });
   const spotlight = data?.currentSpotlight;
   

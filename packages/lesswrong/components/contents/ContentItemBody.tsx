@@ -16,8 +16,8 @@ import { validateUrl } from '@/lib/vulcan-lib/utils';
 import { useTracking } from '@/lib/analyticsEvents';
 import ForumEventPostPagePollSection from '../forumEvents/ForumEventPostPagePollSection';
 import repeat from 'lodash/repeat';
-import { captureException } from '@sentry/core';
-import { colorReplacements } from '@/themes/userThemes/darkMode';
+import { captureException } from '@/lib/sentryWrapper';
+import { getColorReplacements } from '@/themes/userThemes/darkMode';
 import { colorToString, invertColor, parseColor } from '@/themes/colorUtil';
 import { ThemeContext } from '../themes/useTheme';
 
@@ -26,7 +26,7 @@ type PassedThroughContentItemBodyProps = Pick<ContentItemBodyProps, "description
   bodyRef: React.RefObject<HTMLDivElement|null>,
 }
 
-type SubstitutionsAttr = Array<{substitutionIndex: number, isSplitContinuation: boolean}>;
+type SubstitutionsAttr = Array<{substitutionIndex: number, isSplitContinuation: boolean, invertColors?: boolean}>;
 
 /**
  * Renders user-generated HTML, with progressive enhancements. Replaces
@@ -56,7 +56,7 @@ type SubstitutionsAttr = Array<{substitutionIndex: number, isSplitContinuation: 
  * functionality that's currently handled by `truncatize`.
  */
 export const ContentItemBody = (props: ContentItemBodyProps) => {
-  const { onContentReady, nofollow, dangerouslySetInnerHTML, replacedSubstrings, className, ref } = props;
+  const { onContentReady, nofollow, dangerouslySetInnerHTML, replacedSubstrings, className, ref, invertSubstitutionColors } = props;
   const bodyRef = useRef<HTMLDivElement|null>(null);
   const themeContext = useContext(ThemeContext)
   const html = (nofollow
@@ -66,10 +66,10 @@ export const ContentItemBody = (props: ContentItemBodyProps) => {
   const parsedHtml = useMemo(() => {
     const parsed = htmlparser2.parseDocument(html);
     if (replacedSubstrings && replacedSubstrings.length > 0) {
-      applyReplaceSubstrings(parsed, replacedSubstrings)
+      applyReplaceSubstrings(parsed, replacedSubstrings, invertSubstitutionColors)
     }
     return parsed;
-  }, [html, replacedSubstrings]);
+  }, [html, replacedSubstrings, invertSubstitutionColors]);
 
   useImperativeHandle(ref, () => ({
     containsNode: (node: Node): boolean => {
@@ -345,7 +345,7 @@ export function parseInlineStyle(input: string): CSSProperties {
   }, {} as CSSProperties)
 }
 
-function applyReplaceSubstrings(parsedHtml: DomHandlerChildNode, replacedSubstrings: ContentReplacedSubstringComponentInfo[]): DomHandlerChildNode {
+function applyReplaceSubstrings(parsedHtml: DomHandlerChildNode, replacedSubstrings: ContentReplacedSubstringComponentInfo[], invertSubstitutionColors?: boolean): DomHandlerChildNode {
   // Traverse parsedHtml, producing an array of text nodes, a combined string
   // with the text of all those nodes, and text offsets for each. Node types
   // that contain non-normal text (CDATA, Script, Style) are skipped.
@@ -502,6 +502,7 @@ function applyReplaceSubstrings(parsedHtml: DomHandlerChildNode, replacedSubstri
         textNode.substitutions.push({
           substitutionIndex: replacementRange.replacementIndex,
           isSplitContinuation: !first,
+          invertColors: invertSubstitutionColors,
         });
         first = false;
       }
@@ -520,7 +521,6 @@ function applyReplaceSubstrings(parsedHtml: DomHandlerChildNode, replacedSubstri
       htmlparser2.DomUtils.appendChild(span, textNode.node);
     }
   }
-
   return parsedHtml;
 }
 
@@ -567,7 +567,7 @@ function applyReplacements(element: React.ReactNode, substitutions: Substitution
   for (const substitution of substitutions) {
     const replacement = replacements[substitution.substitutionIndex];
     const Component = replacementComponentMap[replacement.componentName];
-    element = <Component key="replacement" {...replacement.props} isSplitContinuation={substitution.isSplitContinuation}>
+    element = <Component key="replacement" {...replacement.props} isSplitContinuation={substitution.isSplitContinuation} invertColors={substitution.invertColors}>
       {element}
     </Component>;
   }
@@ -614,20 +614,20 @@ function transformStylesForDarkMode(styles: Record<string,string>, themeName: Us
 
 function transformAttributeValueForDarkMode(attributeValue: string): string {
   const normalized = attributeValue.trim().toLowerCase();
-  if (!colorReplacements[normalized]) {
+  if (!getColorReplacements()[normalized]) {
     const parsedColor = parseColor(normalized);
     if (parsedColor) {
       const invertedColor = invertColor(parsedColor);
-      colorReplacements[normalized] = colorToString(invertedColor);
+      getColorReplacements()[normalized] = colorToString(invertedColor);
     } else {
       // If unable to parse a color (eg an unsupported color format), use black
       // as a safe dark-mode background color
-      colorReplacements[normalized] = "#000000";
+      getColorReplacements()[normalized] = "#000000";
     }
   }
   
-  if (colorReplacements[normalized]) {
-    return colorReplacements[normalized];
+  if (getColorReplacements()[normalized]) {
+    return getColorReplacements()[normalized];
   } else {
     return attributeValue;
   }

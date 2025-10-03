@@ -11,8 +11,7 @@ import { backgroundTask } from "@/server/utils/backgroundTask";
 import { runSlugCreateBeforeCallback, runSlugUpdateBeforeCallback } from "@/server/utils/slugUtil";
 import { getCreatableGraphQLFields, getUpdatableGraphQLFields } from "@/server/vulcan-lib/apollo-server/graphqlTemplates";
 import { makeGqlCreateMutation, makeGqlUpdateMutation } from "@/server/vulcan-lib/apollo-server/helpers";
-import { getLegacyCreateCallbackProps, getLegacyUpdateCallbackProps, insertAndReturnCreateAfterProps, runFieldOnCreateCallbacks, runFieldOnUpdateCallbacks, updateAndReturnDocument, assignUserIdToData } from "@/server/vulcan-lib/mutators";
-import { dataToModifier, modifierToData } from "@/server/vulcan-lib/validation";
+import { getLegacyCreateCallbackProps, getLegacyUpdateCallbackProps, insertAndReturnCreateAfterProps, runFieldOnCreateCallbacks, runFieldOnUpdateCallbacks, updateAndReturnDocument, assignUserIdToData, dataToModifier, modifierToData } from '@/server/vulcan-lib/mutators';
 import gql from "graphql-tag";
 import cloneDeep from "lodash/cloneDeep";
 
@@ -73,7 +72,7 @@ export async function createUser({ data }: CreateUserInput, context: ResolverCon
 
   createRecombeeUser(asyncProperties);
 
-  if (isElasticEnabled) {
+  if (isElasticEnabled()) {
     backgroundTask(elasticSyncDocument('Users', documentWithId._id));
   }
 
@@ -81,7 +80,7 @@ export async function createUser({ data }: CreateUserInput, context: ResolverCon
   await subscribeToEAForumAudience(documentWithId);
   await sendWelcomingPM(documentWithId);
 
-  await uploadImagesInEditableFields({
+  uploadImagesInEditableFields({
     newDoc: documentWithId,
     props: asyncProperties,
   });
@@ -142,16 +141,16 @@ export async function updateUser({ selector, data }: { data: UpdateUserDataInput
   await handleSetShortformPost(updatedDocument, oldDocument, context);
   await updatingPostAudio(updatedDocument, oldDocument);
   await userEditChangeDisplayNameCallbacksAsync(updatedDocument, oldDocument, context);
-  userEditBannedCallbacksAsync(updatedDocument, oldDocument);
+  userEditBannedCallbacksAsync(updatedDocument, oldDocument, context);
   await newAlignmentUserSendPMAsync(updatedDocument, oldDocument, context);
   await newAlignmentUserMoveShortform(updatedDocument, oldDocument, context);
 
-  await reuploadImagesIfEditableFieldsChanged({
+  reuploadImagesIfEditableFieldsChanged({
     newDoc: updatedDocument,
     props: updateCallbackProperties,
   });
 
-  if (isElasticEnabled) {
+  if (isElasticEnabled()) {
     backgroundTask(elasticSyncDocument('Users', updatedDocument._id));
   }
 

@@ -65,10 +65,6 @@ export const getDocumentsBySlug = async <
 
 // LESSWRONG version of getting unused slug by collection name. Modified to also include "oldSlugs" array
 export const getUnusedSlugByCollectionName = async function (collectionName: CollectionNameWithSlug, slug: string, useOldSlugs = false, documentId?: string): Promise<string> {
-  const collection = getCollection(collectionName);
-  if (!collection.hasSlug()) {
-    throw new Error(`Collection ${collection.collectionName} doesn't have a slug`);
-  }
   return await getUnusedSlug({
     collectionsToCheck: [collectionName],
     slug, useOldSlugs, documentId

@@ -1,4 +1,4 @@
-import { captureEvent } from '@/lib/analyticsEvents';
+import { serverCaptureEvent as captureEvent } from '@/server/analytics/serverAnalyticsWriter';
 import gql from 'graphql-tag';
 import ForumEvents from '../collections/forumEvents/collection';
 

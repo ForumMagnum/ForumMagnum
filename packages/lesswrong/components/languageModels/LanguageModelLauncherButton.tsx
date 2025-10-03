@@ -6,6 +6,7 @@ import { useCookiesWithConsent } from '../hooks/useCookiesWithConsent';
 import { SHOW_LLM_CHAT_COOKIE } from '@/lib/cookies/cookies';
 import PopupLanguageModelChat from "./PopupLanguageModelChat";
 import ForumIcon from "../common/ForumIcon";
+import { isE2E } from '@/lib/executionEnvironment';
 
 const styles = (theme: ThemeType) => ({
   root: {
@@ -59,7 +60,7 @@ export const LanguageModelLauncherButton = ({classes}: {
   },[openDialog, captureEvent, setCookie]);
 
   useEffect(() => {
-    if (cookies[SHOW_LLM_CHAT_COOKIE]==="false") {
+    if (cookies[SHOW_LLM_CHAT_COOKIE]==="false" || isE2E) {
       return;
     }
     openLlmChat();

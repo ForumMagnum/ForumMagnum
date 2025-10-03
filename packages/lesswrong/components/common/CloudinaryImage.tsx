@@ -1,7 +1,7 @@
 import { registerComponent } from '../../lib/vulcan-lib/components';
 import React from 'react';
 import { Image } from 'cloudinary-react';
-import { cloudinaryCloudNameSetting } from '../../lib/publicSettings';
+import { cloudinaryCloudNameSetting } from '@/lib/instanceSettings';
 
 type ImgPropsType = {
   quality?: string,

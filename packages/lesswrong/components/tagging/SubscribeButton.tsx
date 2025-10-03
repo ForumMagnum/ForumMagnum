@@ -6,7 +6,8 @@ import { useDialog } from '../common/withDialog';
 import Button from '@/lib/vendor/@material-ui/core/src/Button';
 import classNames from 'classnames';
 import { AnalyticsContext, useTracking } from "../../lib/analyticsEvents";
-import { FilterMode, useSubscribeUserToTag } from '../../lib/filterSettings';
+import { FilterMode } from '../../lib/filterSettings';
+import { useSubscribeUserToTag } from '../hooks/useFilterSettings';
 import { taggingNameIsSet, taggingNameSetting } from '../../lib/instanceSettings';
 import { Paper }from '@/components/widgets/Paper';
 import Checkbox from '@/lib/vendor/@material-ui/core/src/Checkbox';
@@ -108,8 +109,6 @@ const styles = (theme: ThemeType) => ({
   },
 })
 
-export const taggedPostWording = taggingNameIsSet.get() ? `posts on this ${taggingNameSetting.get()}` : "posts with this tag"
-
 const SubscribeButton = ({
   tag,
   subscribeMessage,
@@ -209,6 +208,10 @@ const SubscribeButton = ({
       flash({messageString: error.message});
     }
   }
+
+  const taggedPostWording = taggingNameIsSet.get()
+    ? `posts on this ${taggingNameSetting.get()}`
+    : "posts with this tag";
 
   return (
     <div className={classNames(className, classes.root)}>

@@ -11,10 +11,10 @@ import { createInitialRevisionsForEditableFields, reuploadImagesIfEditableFields
 import { logFieldChanges } from "@/server/fieldChanges";
 import { elasticSyncDocument } from "@/server/search/elastic/elasticCallbacks";
 import { backgroundTask } from "@/server/utils/backgroundTask";
+import { updateCommentEmbeddings } from "@/server/voyage/client";
 import { getCreatableGraphQLFields, getUpdatableGraphQLFields } from "@/server/vulcan-lib/apollo-server/graphqlTemplates";
 import { makeGqlCreateMutation, makeGqlUpdateMutation } from "@/server/vulcan-lib/apollo-server/helpers";
-import { getLegacyCreateCallbackProps, getLegacyUpdateCallbackProps, insertAndReturnCreateAfterProps, runFieldOnCreateCallbacks, runFieldOnUpdateCallbacks, updateAndReturnDocument, assignUserIdToData } from "@/server/vulcan-lib/mutators";
-import { dataToModifier, modifierToData } from "@/server/vulcan-lib/validation";
+import { getLegacyCreateCallbackProps, getLegacyUpdateCallbackProps, insertAndReturnCreateAfterProps, runFieldOnCreateCallbacks, runFieldOnUpdateCallbacks, updateAndReturnDocument, assignUserIdToData, dataToModifier, modifierToData } from '@/server/vulcan-lib/mutators';
 import gql from "graphql-tag";
 import cloneDeep from "lodash/cloneDeep";
 
@@ -80,7 +80,7 @@ export async function createComment({ data }: CreateCommentInput, context: Resol
   const afterCreateProperties = await insertAndReturnCreateAfterProps(data, 'Comments', callbackProps);
   let documentWithId = afterCreateProperties.document;
 
-  invalidatePostOnCommentCreate(documentWithId);
+  invalidatePostOnCommentCreate(documentWithId, context);
   documentWithId = await updateDescendentCommentCountsOnCreate(documentWithId, afterCreateProperties);  
 
   documentWithId = await updateRevisionsDocumentIds({
@@ -114,17 +114,19 @@ export async function createComment({ data }: CreateCommentInput, context: Resol
   await trackCommentRateLimitHit(asyncProperties);
   await checkModGPTOnCommentCreate(asyncProperties);
 
-  if (isElasticEnabled) {
+  if (isElasticEnabled()) {
     backgroundTask(elasticSyncDocument('Comments', documentWithId._id));
   }
 
   await commentsAlignmentNew(documentWithId, context);
   await commentsNewNotifications(documentWithId, context);
 
-  await uploadImagesInEditableFields({
+  uploadImagesInEditableFields({
     newDoc: documentWithId,
     props: asyncProperties,
   });
+
+  backgroundTask(updateCommentEmbeddings(documentWithId._id));
 
   return documentWithId;
 }
@@ -161,7 +163,7 @@ export async function updateComment({ selector, data }: UpdateCommentInput, cont
   data = modifierToData(modifier);
   let updatedDocument = await updateAndReturnDocument(data, Comments, commentSelector, context);
 
-  invalidatePostOnCommentUpdate(updatedDocument);
+  invalidatePostOnCommentUpdate(updatedDocument, context);
   updatedDocument = await updateDescendentCommentCountsOnEdit(updatedDocument, updateCallbackProperties);  
 
   updatedDocument = await notifyUsersOfNewPingbackMentions({
@@ -187,14 +189,16 @@ export async function updateComment({ selector, data }: UpdateCommentInput, cont
   await commentsPublishedNotifications(updatedDocument, oldDocument, context);
   await sendAlignmentSubmissionApprovalNotifications(updatedDocument, oldDocument);  
 
-  await reuploadImagesIfEditableFieldsChanged({
+  reuploadImagesIfEditableFieldsChanged({
     newDoc: updatedDocument,
     props: updateCallbackProperties,
   });
 
-  if (isElasticEnabled) {
+  if (isElasticEnabled()) {
     backgroundTask(elasticSyncDocument('Comments', updatedDocument._id));
   }
+
+  backgroundTask(updateCommentEmbeddings(updatedDocument._id));
 
   backgroundTask(logFieldChanges({ currentUser, collection: Comments, oldDocument, data: origData }));
 

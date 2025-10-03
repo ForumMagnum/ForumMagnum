@@ -7,75 +7,45 @@
 
 import type { ITask } from "pg-promise";
 
-// @ts-ignore This is a javascript file without a .d.ts
-import { startSshTunnel } from "./scripts/startup/buildUtil";
-import { detectForumType, getDatabaseConfigFromModeAndForumType, getSettingsFileName, getSettingsFilePath, initGlobals, isEnvironmentType, normalizeEnvironmentType } from "./scripts/scriptUtil";
-
+import { initGlobals } from "./scripts/scriptUtil";
+import { runQueuedMigrationTasksSequentially } from "./packages/lesswrong/server/migrations/meta/migrationTaskQueue";
+import { loadMigrateEnv } from "./scripts/runWithVercelEnv";
+import { initConsole } from "./packages/lesswrong/server/serverStartup";
 
 (async () => {
-  const command = process.argv[2];
-  if (isEnvironmentType(normalizeEnvironmentType(command))) {
-    console.error("Please specify the command before the mode");
-    process.exit(1);
-  }
+  const migrateOptions = await loadMigrateEnv();
+  const { environment, forumType, command } = migrateOptions;
   const isRunCommand = ["up", "down"].includes(command);
-  let mode = normalizeEnvironmentType(process.argv[3]);
-  if (!["up", "down", "pending", "executed"].includes(command)) {
-    mode = "dev";
-  }
 
-  const forumType = detectForumType();
-  const forumTypeIsSpecified = forumType !== "none";
-  console.log(`Running with forum type "${forumType}"`);
+  const postgresUrl = process.env.PG_URL;
 
-  const dbConf = getDatabaseConfigFromModeAndForumType(mode, forumType);
-  if (dbConf.postgresUrl) {
-    process.env.PG_URL = dbConf.postgresUrl;
-  }
-  const args = {
-    postgresUrl: process.env.PG_URL,
-    settingsFileName: process.env.SETTINGS_FILE || getSettingsFileName(mode, forumType),
-    shellMode: false,
-  };
-
-  await startSshTunnel(getDatabaseConfigFromModeAndForumType(mode, forumType).sshTunnelCommand);
-
-  if (["dev", "local", "staging", "prod", "xpost"].includes(mode)) {
-    console.log('Running migrations in mode', mode);
-    args.settingsFileName = getSettingsFilePath(getSettingsFileName(mode, forumType), forumType);
-    if (command !== "create") {
-      process.argv = process.argv.slice(0, 3).concat(process.argv.slice(forumTypeIsSpecified ? 5 : 4));
-    }
-  } else if (args.postgresUrl && args.settingsFileName) {
-    console.log('Using PG_URL and SETTINGS_FILE from environment');
-  } else {
-    throw new Error('Unable to run migration without a mode or environment (PG_URL and SETTINGS_FILE)');
-  }
-
-  initGlobals(args, mode==="prod");
-  const { getSqlClientOrThrow, setSqlClient }: typeof import("./packages/lesswrong/server/sql/sqlClient") = require("./packages/lesswrong/server/sql/sqlClient");
-  const { createSqlConnection }: typeof import("./packages/lesswrong/server/sqlConnection") = require("./packages/lesswrong/server/sqlConnection");
+  initGlobals(environment === "prod");
+  const { getSqlClientOrThrow, setSqlClient } = await import("./packages/lesswrong/server/sql/sqlClient");
+  const { createSqlConnection } = await import("./packages/lesswrong/server/sqlConnection");
 
   if (isRunCommand) {
-    const {initServer} = require("./packages/lesswrong/server/serverStartup");
-    await initServer(args);
+    initConsole();
   }
 
   let exitCode = 0;
 
   const db = isRunCommand
     ? getSqlClientOrThrow()
-    : await createSqlConnection(args.postgresUrl);
+    : createSqlConnection(postgresUrl);
+
+  // Remove the environment and forum type from the command line arguments,
+  // so that umzug doesn't complain when we call `runAsCLI`
+  process.argv = process.argv.filter(arg => arg !== environment && arg !== forumType);
 
   try {
     await db.tx(async (transaction: ITask<{}>) => {
-      setSqlClient(transaction as unknown as SqlClient);
+      setSqlClient(transaction as unknown as SqlClient, "read", postgresUrl);
       setSqlClient(db, "noTransaction");
-      const { createMigrator }  = require("./packages/lesswrong/server/migrations/meta/umzug");
+      const { createMigrator } = require("./packages/lesswrong/server/migrations/meta/umzug");
       const migrator = await createMigrator(transaction, db);
 
       if (command === "create") {
-        const name = process.argv[3];
+        const name = migrateOptions.name;
         if (!name) {
           throw new Error("No name provided for new migration");
         }
@@ -94,6 +64,10 @@ import { detectForumType, getDatabaseConfigFromModeAndForumType, getSettingsFile
     console.error("An error occurred while running migrations:", e);
     exitCode = 1;
   }
+
+  // Wait for any migrations pushed into background tasks (generally indexes created concurrently) finish
+  // before shutting down all the connections.
+  await runQueuedMigrationTasksSequentially();
 
   await db.$pool.end();
   process.exit(exitCode);

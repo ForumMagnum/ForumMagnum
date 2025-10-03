@@ -1,9 +1,8 @@
-import { restrictViewableFieldsSingle, restrictViewableFieldsMultiple } from '../vulcan-users/permissions';
+import { restrictViewableFieldsSingle, restrictViewableFieldsMultiple } from '../vulcan-users/restrictViewableFields';
 import { loadByIds, getWithLoader } from "../loaders";
 import { isServer } from '../executionEnvironment';
 import { asyncFilter } from './asyncUtils';
 import DataLoader from 'dataloader';
-import * as _ from 'underscore';
 import { DeferredForumSelect } from '../forumTypeUtils';
 import { getCollectionAccessFilter } from '@/server/permissions/accessFilters';
 
@@ -79,7 +78,8 @@ export const accessFilterSingle = async <N extends CollectionNameString, DocType
   if (!document) return null;
   const checkAccess = getCollectionAccessFilter(collectionName);
   if (checkAccess && !(await checkAccess(currentUser, document as AnyBecauseHard, context))) return null
-  const restrictedDoc = restrictViewableFieldsSingle(currentUser, collectionName, document)
+  const collection = context[collectionName];
+  const restrictedDoc = await restrictViewableFieldsSingle(currentUser, collection, document)
   return restrictedDoc as Partial<DocType> & { [ACCESS_FILTERED]: true };
 }
 
@@ -94,18 +94,21 @@ export const accessFilterMultiple = async <N extends CollectionNameString, DocTy
   unfilteredDocs: Array<DocType|null>,
   context: ResolverContext,
 ): Promise<Partial<DocType>[]> => {
+  if (!unfilteredDocs) return [];
   const checkAccess = getCollectionAccessFilter(collectionName);
   
   // Filter out nulls (docs that were referenced but didn't exist)
   // Explicit cast because the type-system doesn't detect that this is removing
   // nulls.
-  const existingDocs = _.filter(unfilteredDocs, d=>!!d) as DocType[];
+  const existingDocs = unfilteredDocs.filter(d=>!!d);
   // Apply the collection's checkAccess function, if it has one, to filter out documents
   const filteredDocs = checkAccess
     ? await asyncFilter(existingDocs, async (d) => await checkAccess(currentUser, d as AnyBecauseHard, context))
     : existingDocs
+
+  const collection = context[collectionName];
   // Apply field-level permissions
-  const restrictedDocs = restrictViewableFieldsMultiple(currentUser, collectionName, filteredDocs)
+  const restrictedDocs = await restrictViewableFieldsMultiple(currentUser, collection, filteredDocs)
   
   return restrictedDocs;
 }
@@ -190,7 +193,7 @@ export function getDenormalizedCountOfReferencesGetValue<
     if (!isServer) {
       throw new Error(`${collectionName}.${fieldName} getValue called on the client!`);
     }
-    const foreignCollection = context[foreignCollectionName] as CollectionBase<TargetCollectionName>;
+    const foreignCollection = context[foreignCollectionName] as unknown as PgCollection<TargetCollectionName>;
     const docsThatMayCount = await getWithLoader<TargetCollectionName>(
       context,
       foreignCollection,
@@ -200,7 +203,7 @@ export function getDenormalizedCountOfReferencesGetValue<
       doc._id
     );
     
-    const docsThatCount = _.filter(docsThatMayCount, d=>filterFn(d));
+    const docsThatCount = docsThatMayCount.filter(d=>filterFn(d));
     return docsThatCount.length;
   }
 }

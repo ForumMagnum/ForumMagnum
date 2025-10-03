@@ -89,7 +89,7 @@ export default registerMigration({
        }})
     }
 
-    const finalPosts: DbPost[] = isLW ?
+    const finalPosts: DbPost[] = isLW() ?
       await Posts.find({
         reviewCount: {$gt: 0},
         finalReviewVoteScoreHighKarma: {$exists: true},
@@ -149,7 +149,7 @@ export default registerMigration({
       }
     }
 
-    const donateButton = (post: DbPost) => isLW ? `<td><form action="https://www.paypal.com/cgi-bin/webscr" method="post" target="_blank" style="text-align: center">
+    const donateButton = (post: DbPost) => isLW() ? `<td><form action="https://www.paypal.com/cgi-bin/webscr" method="post" target="_blank" style="text-align: center">
     <input type="hidden" name="cmd" value="_s-xclick" />
     <input type="hidden" name="item_name" value='Best of LessWrong Prize, with special appreciation for ${getAuthor(post).displayName}, author of "${post.title}".' />
     <input type="hidden" name="hosted_button_id" value="ZMFZULZHMAM9Y" />

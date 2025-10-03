@@ -11,7 +11,7 @@ import {
 } from "../../utils/schemaUtils";
 import { userGetDisplayNameById } from "../../vulcan-users/helpers";
 import { isEAForum } from "../../instanceSettings";
-import { commentGetPageUrlFromDB } from "./helpers";
+import { commentGetPageUrlFromDB, getVotingSystemNameForDocument } from "./helpers";
 import { viewTermsToQuery } from "../../utils/viewUtils";
 import { ForumEventCommentMetadataSchema } from "../forumEvents/types";
 import { getDenormalizedEditableResolver } from "@/lib/editor/make_editable";
@@ -41,6 +41,10 @@ async function isParentPostKarmaHidden(comment: DbComment, context: ResolverCont
   if (!post) return false;
   return !!post.hideCommentKarma;
 };
+
+function canReadUser(user: DbUser | null, comment: DbComment) {
+  return isEAForum() ? documentIsNotDeleted(user, comment) : true;
+}
 
 const schema = {
   _id: DEFAULT_ID_FIELD,
@@ -317,7 +321,7 @@ const schema = {
     },
     graphql: {
       outputType: "String",
-      canRead: [isEAForum ? documentIsNotDeleted : "guests"],
+      canRead: [canReadUser],
       canCreate: ["members"],
       validation: {
         optional: true,
@@ -327,7 +331,7 @@ const schema = {
   user: {
     graphql: {
       outputType: "User",
-      canRead: [isEAForum ? documentIsNotDeleted : "guests"],
+      canRead: [canReadUser],
       resolver: generateIdResolverSingle({ foreignCollectionName: "Users", fieldName: "userId" }),
     },
   },
@@ -717,7 +721,6 @@ const schema = {
       canRead: ["guests"],
       resolver: (comment, args, context) => {
         // This is to break an annoying import cycle that causes a crash on start.
-        const { getVotingSystemNameForDocument }: typeof import('@/lib/voting/getVotingSystem') = require('@/lib/voting/getVotingSystem');
         return getVotingSystemNameForDocument(comment, "Comments", context);
       },
     },
@@ -1229,7 +1232,7 @@ const schema = {
       canRead: ["guests"],
       resolver: async (comment, _, context) => {
         const { extendedScore } = comment;
-        if (!isEAForum || !extendedScore || Object.keys(extendedScore).length < 1 || "agreement" in extendedScore) {
+        if (!isEAForum() || !extendedScore || Object.keys(extendedScore).length < 1 || "agreement" in extendedScore) {
           return {};
         }
         if (!comment.postId) return {};

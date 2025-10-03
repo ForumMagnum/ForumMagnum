@@ -54,7 +54,7 @@ function RecentDiscussionTagRevisionItem({
   // active tag users doing routine cleanup
   if (
     // Only a problem for the forum
-    isEAForum &&
+    isEAForum() &&
     // Only restrict the most active tag users
     megaTagUsers.includes(revision.userId ?? '') &&
     // Restrict all from cleanup-only users, restrict small edits from other mega users

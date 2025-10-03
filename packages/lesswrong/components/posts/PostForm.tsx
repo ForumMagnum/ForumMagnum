@@ -2,7 +2,7 @@ import { hasSidenotes, userCanCreateAndEditJargonTerms } from "@/lib/betas";
 import { localGroupTypeFormOptions } from "@/lib/collections/localgroups/groupTypes";
 import { MODERATION_GUIDELINES_OPTIONS, postStatusLabels, EVENT_TYPES } from "@/lib/collections/posts/constants";
 import { EditablePost, postCanEditHideCommentKarma, PostSubmitMeta, MINIMUM_COAUTHOR_KARMA, userPassesCrosspostingKarmaThreshold, userCanEditCoauthors } from "@/lib/collections/posts/helpers";
-import { defaultEditorPlaceholder } from "@/lib/editor/make_editable";
+import { getDefaultEditorPlaceholder } from '@/lib/editor/defaultEditorPlaceholder';
 import { fmCrosspostBaseUrlSetting, fmCrosspostSiteNameSetting, isEAForum, isLWorAF, taggingNamePluralCapitalSetting, taggingNamePluralSetting } from "@/lib/instanceSettings";
 import { allOf } from "@/lib/utils/functionUtils";
 import { getVotingSystems } from "@/lib/voting/getVotingSystem";
@@ -109,7 +109,7 @@ function getVotingSystemOptions(user: UsersCurrent | null) {
 
   const filteredVotingSystems = user?.isAdmin
     ? votingSystems
-    : votingSystems.filter((votingSystem) => votingSystem.userCanActivate);
+    : votingSystems.filter((votingSystem) => votingSystem.userCanActivate?.());
 
   return filteredVotingSystems.map((votingSystem) => ({
     label: votingSystem.description,
@@ -229,9 +229,9 @@ const PostForm = ({
 
   const isEvent = !!initialData.isEvent;
   const isDialogue = !!initialData.collabEditorDialogue;
-  const showTagGroup = !isEvent && !(isLWorAF && isDialogue);
+  const showTagGroup = !isEvent && !(isLWorAF() && isDialogue);
 
-  const hideSocialPreviewGroup = (isLWorAF && !!initialData.collabEditorDialogue) || (isEAForum && !!initialData.isEvent);
+  const hideSocialPreviewGroup = (isLWorAF() && !!initialData.collabEditorDialogue) || (isEAForum() && !!initialData.isEvent);
 
   const hideCrosspostControl = !fmCrosspostSiteNameSetting.get() || isEvent;
   const crosspostControlTooltip = fmCrosspostBaseUrlSetting.get()?.includes("forum.effectivealtruism.org")
@@ -240,7 +240,7 @@ const PostForm = ({
 
   const tagGroup = showTagGroup && (
     <LegacyFormGroupLayout
-      label={isEAForum ? `Set ${taggingNamePluralSetting.get()}` : `Apply ${taggingNamePluralCapitalSetting.get()}`}
+      label={isEAForum() ? `Set ${taggingNamePluralSetting.get()}` : `Apply ${taggingNamePluralCapitalSetting.get()}`}
       startCollapsed={false}
     >
       <div className={classes.fieldWrapper}>
@@ -378,7 +378,7 @@ const PostForm = ({
                 addOnSubmitCallback={addOnSubmitCallback}
                 addOnSuccessCallback={addOnSuccessCallback}
                 hasToc={true}
-                hintText={defaultEditorPlaceholder}
+                hintText={getDefaultEditorPlaceholder()}
                 fieldName="contents"
                 collectionName="Posts"
                 commentEditor={false}
@@ -390,7 +390,7 @@ const PostForm = ({
         </div>
       </LegacyFormGroupLayout>
 
-      {isEAForum && tagGroup}
+      {isEAForum() && tagGroup}
 
       {isEvent && <LegacyFormGroupLayout label={preferredHeadingCase("Event Details")}>
         <div className={classes.fieldWrapper}>
@@ -416,7 +416,7 @@ const PostForm = ({
           </form.Field>
         </div>
 
-        {!isLWorAF && <div className={classes.fieldWrapper}>
+        {!isLWorAF() && <div className={classes.fieldWrapper}>
           <form.Field name="eventType">
             {(field) => (
               <FormComponentSelect
@@ -566,7 +566,7 @@ const PostForm = ({
           </form.Field>
         </div>
 
-        {isEAForum && <div className={classes.fieldWrapper}>
+        {isEAForum() && <div className={classes.fieldWrapper}>
           <form.Field name="eventImageId">
             {(field) => (
               <LWTooltip title="Recommend 1920x1005 px, 1.91:1 aspect ratio (same as Facebook)" placement="left-start" inlineBlock={false}>
@@ -579,7 +579,7 @@ const PostForm = ({
           </form.Field>
         </div>}
 
-        {isLWorAF && <div className={classes.fieldWrapper}>
+        {isLWorAF() && <div className={classes.fieldWrapper}>
           <form.Field name="types">
             {(field) => (
               <MultiSelectButtons
@@ -594,7 +594,7 @@ const PostForm = ({
 
       {userCanEditCoauthors(currentUser) && <LegacyFormGroupLayout label="Coauthors" hideHeader>
         <div className={classes.fieldWrapper}>
-          <form.Field name="coauthorStatuses">
+          <form.Field name="coauthorUserIds">
             {(field) => (
               <CoauthorsListEditor
                 field={field}
@@ -607,7 +607,7 @@ const PostForm = ({
       </LegacyFormGroupLayout>}
 
       {/* TODO: come back to this and figure out why the text field inside the social preview upload component isn't being (visually) populated initially */}
-      {!hideSocialPreviewGroup && <LegacyFormGroupLayout label={preferredHeadingCase("Edit Link Preview")} startCollapsed={!isFriendlyUI}>
+      {!hideSocialPreviewGroup && <LegacyFormGroupLayout label={preferredHeadingCase("Edit Link Preview")} startCollapsed={!isFriendlyUI()}>
         <div className={classes.fieldWrapper}>
           <form.Field name="socialPreview">
             {(field) => (
@@ -631,7 +631,7 @@ const PostForm = ({
                 document={form.state.values}
                 addOnSubmitCallback={addOnSubmitCallbackCustomHighlight}
                 addOnSuccessCallback={addOnSuccessCallbackCustomHighlight}
-                hintText={defaultEditorPlaceholder}
+                hintText={getDefaultEditorPlaceholder()}
                 fieldName="customHighlight"
                 collectionName="Posts"
                 commentEditor={false}
@@ -666,7 +666,7 @@ const PostForm = ({
           </form.Field>
         </div>}
 
-        {isLWorAF && (userIsAdmin(currentUser) || userIsMemberOf(currentUser, 'alignmentForumAdmins')) && <div className={classes.fieldWrapper}>
+        {isLWorAF() && (userIsAdmin(currentUser) || userIsMemberOf(currentUser, 'alignmentForumAdmins')) && <div className={classes.fieldWrapper}>
           <form.Field name="afSticky">
             {(field) => (
               <FormComponentCheckbox
@@ -747,7 +747,7 @@ const PostForm = ({
           </form.Field>
         </div>
 
-        {isEAForum && <div className={classes.fieldWrapper}>
+        {isEAForum() && <div className={classes.fieldWrapper}>
           <form.Field name="hideFromPopularComments">
             {(field) => (
               <FormComponentCheckbox
@@ -840,7 +840,7 @@ const PostForm = ({
           </form.Field>
         </div>}
 
-        {isLWorAF && userIsAdmin(currentUser) && <div className={classes.fieldWrapper}>
+        {isLWorAF() && userIsAdmin(currentUser) && <div className={classes.fieldWrapper}>
           <form.Field name="manifoldReviewMarketId">
             {(field) => (
               <MuiTextField
@@ -930,7 +930,7 @@ const PostForm = ({
         </div>}
 
         {/* On the EA forum, only admins can set the curated date, not mods */}
-        {(!isEAForum || userIsAdmin(currentUser)) && <div className={classes.fieldWrapper}>
+        {(!isEAForum() || userIsAdmin(currentUser)) && <div className={classes.fieldWrapper}>
           <form.Field name="curatedDate">
             {(field) => (
               <FormComponentDatePicker
@@ -952,7 +952,7 @@ const PostForm = ({
           </form.Field>
         </div>
 
-        {(!isEAForum || userIsAdmin(currentUser)) && <div className={classes.fieldWrapper}>
+        {(!isEAForum() || userIsAdmin(currentUser)) && <div className={classes.fieldWrapper}>
           <form.Field name="reviewForCuratedUserId">
             {(field) => (
               <MuiTextField
@@ -1089,7 +1089,7 @@ const PostForm = ({
           </form.Field>
         </div>}
 
-        {hasSidenotes && <div className={classes.fieldWrapper}>
+        {hasSidenotes() && <div className={classes.fieldWrapper}>
           <form.Field name="disableSidenotes">
             {(field) => (
               <FormComponentCheckbox
@@ -1115,11 +1115,11 @@ const PostForm = ({
       </LegacyFormGroupLayout>}
 
       <LegacyFormGroupLayout
-        label={preferredHeadingCase(isFriendlyUI ? "Moderation" : "Moderation Guidelines")}
+        label={preferredHeadingCase(isFriendlyUI() ? "Moderation" : "Moderation Guidelines")}
         startCollapsed={true}
-        tooltipText={isFriendlyUI ? undefined : "We prefill these moderation guidelines based on your user settings. But you can adjust them for each post."}
+        tooltipText={isFriendlyUI() ? undefined : "We prefill these moderation guidelines based on your user settings. But you can adjust them for each post."}
       >
-        {!isFriendlyUI && <div className={classNames("form-component-EditorFormComponent", classes.fieldWrapper)}>
+        {!isFriendlyUI() && <div className={classNames("form-component-EditorFormComponent", classes.fieldWrapper)}>
           <form.Field name="moderationGuidelines">
             {(field) => (
               <EditorFormComponent
@@ -1129,7 +1129,7 @@ const PostForm = ({
                 document={form.state.values}
                 addOnSubmitCallback={addOnSubmitCallbackModerationGuidelines}
                 addOnSuccessCallback={addOnSuccessCallbackModerationGuidelines}
-                hintText={defaultEditorPlaceholder}
+                hintText={getDefaultEditorPlaceholder()}
                 fieldName="moderationGuidelines"
                 collectionName="Posts"
                 commentEditor={true}
@@ -1140,7 +1140,7 @@ const PostForm = ({
           </form.Field>
         </div>}
 
-        {!isFriendlyUI && !isDialogue && <div className={classes.fieldWrapper}>
+        {!isFriendlyUI() && !isDialogue && <div className={classes.fieldWrapper}>
           <form.Field name="moderationStyle">
             {(field) => (
               <FormComponentSelect
@@ -1152,7 +1152,7 @@ const PostForm = ({
           </form.Field>
         </div>}
 
-        {!isEAForum && !isDialogue && <div className={classes.fieldWrapper}>
+        {!isEAForum() && !isDialogue && <div className={classes.fieldWrapper}>
           <form.Field name="ignoreRateLimits">
             {(field) => (
               <LWTooltip title="Allow rate-limited users to comment freely on this post" placement="left-start" inlineBlock={false}>
@@ -1198,7 +1198,7 @@ const PostForm = ({
           </form.Field>
         </div>}
 
-        {isEAForum && (userIsAdmin(currentUser) || postCanEditHideCommentKarma(currentUser, form.state.values)) && <div className={classes.fieldWrapper}>
+        {isEAForum() && (userIsAdmin(currentUser) || postCanEditHideCommentKarma(currentUser, form.state.values)) && <div className={classes.fieldWrapper}>
           <form.Field name="hideCommentKarma">
             {(field) => (
               <FormComponentCheckbox
@@ -1222,7 +1222,7 @@ const PostForm = ({
         </div>
       </LegacyFormGroupLayout>}
 
-      {!isEAForum && tagGroup}
+      {!isEAForum() && tagGroup}
 
       {postSubmit}
     </form >

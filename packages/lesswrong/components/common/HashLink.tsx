@@ -3,9 +3,7 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 // eslint-disable-next-line no-restricted-imports
-import { Link } from 'react-router-dom';
-// eslint-disable-next-line no-restricted-imports
-import type { LinkProps } from 'react-router-dom';
+import Link, { type LinkProps } from 'next/link';
 import { useNavigate } from '@/lib/routeUtil';
 import { isClient } from '@/lib/executionEnvironment';
 import bowser from 'bowser';
@@ -26,6 +24,7 @@ export type HashLinkProps = {
   scroll?: ScrollFunction,
   smooth?: boolean
   children?: React.ReactNode,
+  prefetch?: LinkProps['prefetch']
 };
 
 let hashFragment = '';
@@ -73,6 +72,10 @@ function hashLinkScroll() {
   }, 0);
 }
 
+function isSpecialClick(ev: React.MouseEvent<HTMLAnchorElement>) {
+  return ev.metaKey || ev.altKey || ev.ctrlKey || ev.shiftKey || ev.button !== 0;
+}
+
 export function HashLink(props: HashLinkProps) {
   const navigate = useNavigate();
   const isIOS = isClient && bowser.ios;
@@ -96,7 +99,7 @@ export function HashLink(props: HashLinkProps) {
   }
   const { anchorRef, scroll, smooth, children, doOnDown, to, ...filteredProps } = props;
   if (doOnDown && !isIOS && !filteredProps.target) {
-    return <a
+    return <Link
       {...filteredProps}
       ref={anchorRef}
       href={to}
@@ -104,17 +107,32 @@ export function HashLink(props: HashLinkProps) {
         // Run any custom onMouseDown logic, including event tracking (such as that passed in from `Link`) before checking for modifier keys
         // This is necessary to capture e.g. `linkClicked` events when cmd-clicking to open links in a new tab
         filteredProps.onMouseDown?.(ev);
-        if (ev.metaKey || ev.altKey || ev.ctrlKey || ev.shiftKey || ev.button !== 0) {
+        if (isSpecialClick(ev)) {
           return;
         }
         navigate(to);
         ev.preventDefault();
       }}
+      // I'm not sure if the behavior before this was a next/link was correct,
+      // but without the preventDefault on regular clicks, we end up making two
+      // requests: the first one in the `navigate` call in the `doOnDown` case,
+      // and the second one during the onClick handling in the `Link` component.
+      //
+      // However, if we call preventDefault on all clicks, it turns out that'll
+      // prevent modified clicks (like cmd+click) from doing anything, since
+      // the `Link` component executes the passed-in `onClick` and then does an
+      // indiscriminate early return if it sees e.defaultPrevented = true.
+      // So we need to only preventDefault on unmodified clicks.
+      onClick={(ev) => {
+        if (doOnDown && !isSpecialClick(ev)) {
+          ev.preventDefault();
+        }
+      }}
     >
       {props.children}
-    </a>
+    </Link>
   } else {
-    return <Link to={to} ref={anchorRef} {...filteredProps} onClick={handleClick}>
+    return <Link href={to} ref={anchorRef} {...filteredProps} onClick={handleClick}>
       {props.children}
     </Link>
   }

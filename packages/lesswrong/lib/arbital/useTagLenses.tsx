@@ -1,10 +1,9 @@
-import { useCallback, useEffect, useState, useMemo } from "react";
+import { useCallback, useEffect, useMemo } from "react";
 import { useLocation, useNavigate } from "../routeUtil";
 import type { ToCData } from "../tableOfContents";
 import qs from "qs";
 import omit from "lodash/omit";
-
-export const MAIN_TAB_ID = 'main-tab';
+import { MAIN_TAB_ID } from "../collections/tags/constants";
 
 export interface DocumentContributorWithStats {
   user?: UsersMinimumInfo | null;

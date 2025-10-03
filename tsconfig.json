@@ -1,3 +1,10 @@
 {
-  "extends": "./tsconfig-shared.json"
+  "extends": "./tsconfig-shared.json",
+  "compilerOptions": {
+    "plugins": [
+      {
+        "name": "next"
+      }
+    ]
+  }
 }

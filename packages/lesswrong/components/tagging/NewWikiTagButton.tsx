@@ -5,7 +5,7 @@ import { registerComponent } from '../../lib/vulcan-lib/components';
 import { defineStyles, useStyles } from '../hooks/useStyles';
 import { useCurrentUser } from '../common/withUser';
 import { useDialog } from '@/components/common/withDialog';
-import { tagCreateUrl, tagUserHasSufficientKarma } from '../../lib/collections/tags/helpers';
+import { getTagCreateUrl, tagUserHasSufficientKarma } from '../../lib/collections/tags/helpers';
 import { useHover } from '../common/withHover';
 import { AnalyticsContext } from '@/lib/analyticsEvents';
 import LoginPopup from "../users/LoginPopup";
@@ -93,8 +93,8 @@ const NewWikiTagButton = ({ hideLabel=false, className }: {
             <Paper>
               <DropdownMenu>
                 <div onClick={() => forceUnHover()}>
-                  <DropdownItem title="Wiki Only" to={`${tagCreateUrl}?type=wiki`} />
-                  <DropdownItem title="Wiki + Tag" to={tagCreateUrl} />
+                  <DropdownItem title="Wiki Only" to={`${getTagCreateUrl()}?type=wiki`} />
+                  <DropdownItem title="Wiki + Tag" to={getTagCreateUrl()} />
                   <DropdownDivider />
                   <DropdownItem 
                     title={<span><em>What's the difference?</em></span>} 

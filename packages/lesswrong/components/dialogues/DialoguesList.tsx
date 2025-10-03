@@ -107,7 +107,7 @@ const DialoguesList = ({ currentUser, classes }: { currentUser: UsersCurrent, cl
   `), {
     variables: { limit: initialLimit },
     fetchPolicy: "cache-and-network",
-    nextFetchPolicy: "cache-only",
+    nextFetchPolicy: "cache-first",
   }); 
 
   const dialoguePosts = data?.RecentlyActiveDialogues?.results;
@@ -123,7 +123,7 @@ const DialoguesList = ({ currentUser, classes }: { currentUser: UsersCurrent, cl
   `), {
     variables: { limit: initialLimit },
     fetchPolicy: "cache-and-network",
-    nextFetchPolicy: "cache-only",
+    nextFetchPolicy: "cache-first",
   });
 
   const myDialogues = myDialoguesData?.MyDialogues?.results;

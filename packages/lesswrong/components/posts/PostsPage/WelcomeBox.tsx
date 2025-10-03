@@ -8,13 +8,16 @@ import { registerComponent } from '../../../lib/vulcan-lib/components';
 import { HashLinkProps } from '../../common/HashLink';
 import { useCookiesWithConsent } from '../../hooks/useCookiesWithConsent';
 import { HIDE_WELCOME_BOX_COOKIE } from '../../../lib/cookies/cookies';
-import { useABTest } from '../../../lib/abTestImpl';
+import { useABTest } from '@/components/hooks/useAbTests';
 import { welcomeBoxABTest } from '../../../lib/abTests';
 import { useCurrentUser } from '../../common/withUser';
 import { Typography } from "../../common/Typography";
 
 const styles = (theme: ThemeType) => ({
   wrapper: {
+    "@media print": {
+      display: "none",
+    },
     [theme.breakpoints.down('md')]: {
       display: 'none'
     }

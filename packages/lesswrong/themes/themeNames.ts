@@ -1,5 +1,5 @@
 import { DeferredForumSelect } from '../lib/forumTypeUtils';
-import { forumTypeSetting } from '../lib/instanceSettings';
+import { forumTypeSetting, isEAForum } from '../lib/instanceSettings';
 import { TupleSet } from '../lib/utils/typeGuardUtils';
 
 export const userThemeNames = new TupleSet(["default", "dark"] as const);
@@ -29,7 +29,7 @@ export type ThemeMetadata = {
   label: string
 }
 
-export const themeMetadata: Array<ThemeMetadata> = forumTypeSetting.get() === "EAForum"
+export const getThemeMetadata = (): Array<ThemeMetadata> => isEAForum()
   ? [
     {
       name: "auto",

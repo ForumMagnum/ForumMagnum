@@ -13,6 +13,7 @@ import { Typography } from "../common/Typography";
 import ContentStyles from "../common/ContentStyles";
 import Error404 from "../common/Error404";
 import { gql } from "@/lib/generated/gql-codegen";
+import { StatusCodeSetter } from '../next/StatusCodeSetter';
 
 const MultiDocumentMinimumInfoMultiQuery = gql(`
   query multiMultiDocumentRedlinkTagPageQuery($selector: MultiDocumentSelector, $limit: Int, $enableTotal: Boolean) {
@@ -142,6 +143,7 @@ const RedlinkTagPage = ({tag, slug}: {
   }
 
   return <SingleColumnSection>
+    <StatusCodeSetter status={404}/>
     <Typography variant="display3">
       <Link className={classes.title} to={tagGetUrl({slug: tagSlug})}>{title}</Link>
     </Typography>

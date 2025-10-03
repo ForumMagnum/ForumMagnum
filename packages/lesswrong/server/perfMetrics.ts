@@ -2,16 +2,15 @@ import { v4 } from 'uuid';
 import { AsyncLocalStorage } from 'async_hooks';
 import LRU from 'lru-cache';
 
-import { queuePerfMetric } from './analytics/serverAnalyticsWriter';
-import type { Request, Response, NextFunction } from 'express';
 import { performanceMetricLoggingEnabled, performanceMetricLoggingSqlSampleRate } from '../lib/instanceSettings';
-import { getClientIP } from './utils/getClientIP';
+import { queuePerfMetric } from './perfMetricsQueue';
 
 type IncompletePerfMetricProps = Pick<PerfMetric, 'op_type' | 'op_name' | 'parent_trace_id' | 'extra_data' | 'client_path' | 'gql_string' | 'sql_string' | 'ip' | 'user_agent' | 'user_id'>;
 
 interface AsyncLocalStorageContext {
   requestPerfMetric?: IncompletePerfMetric;
   inDbRepoMethod?: boolean;
+  isSSRRequest?: boolean;
 }
 
 export const asyncLocalStorage = new AsyncLocalStorage<AsyncLocalStorageContext>();
@@ -42,6 +41,12 @@ export function getParentTraceId() {
   }
 
   return parentTraceIdField;
+}
+
+export function getIsSSRRequest() {
+  const store = asyncLocalStorage.getStore();
+
+  return !!store?.isSSRRequest;
 }
 
 export function openPerfMetric(props: IncompletePerfMetricProps, startedAtOverride?: Date): IncompletePerfMetric {
@@ -180,26 +185,4 @@ export function closeRequestPerfMetric() {
 
   closePerfMetric(store.requestPerfMetric);
   setAsyncStoreValue('requestPerfMetric', undefined);
-}
-
-export function perfMetricMiddleware(req: Request, res: Response, next: NextFunction) {
-  if (!performanceMetricLoggingEnabled.get()) {
-    return next();
-  }
-
-  const perfMetric = openPerfMetric({
-    op_type: 'request',
-    op_name: req.originalUrl,
-    client_path: req.headers['request-origin-path'] as string,
-    ip: getClientIP(req),
-    user_agent: req.headers["user-agent"],
-    user_id: req.user?._id,
-  });
-
-  res.on('finish', () => {
-    closeRequestPerfMetric();
-  });
-  
-  // This starts an async context for requests that pass through this middleware
-  asyncLocalStorage.run<void, []>({ requestPerfMetric: perfMetric }, next);
 }

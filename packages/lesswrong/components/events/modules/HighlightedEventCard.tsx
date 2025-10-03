@@ -3,11 +3,12 @@ import { registerComponent } from '../../../lib/vulcan-lib/components';
 import { Link } from '../../../lib/reactRouterWrapper';
 import { Card } from "@/components/widgets/Paper";
 import { useTimezone } from '../../common/withTimezone';
-import { cloudinaryCloudNameSetting } from '../../../lib/publicSettings';
+import { cloudinaryCloudNameSetting } from '@/lib/instanceSettings';
 import { useTracking } from '../../../lib/analyticsEvents';
 import Loading from "../../vulcan-core/Loading";
 import AddToCalendarButton from "../../posts/AddToCalendar/AddToCalendarButton";
 import PrettyEventDateTime from "./PrettyEventDateTime";
+import { useCurrentTime } from '@/lib/utils/timeUtil';
 
 // space pic for events with no img
 export const getDefaultEventImg = (width: number, blur?: boolean) => {
@@ -109,6 +110,7 @@ const HighlightedEventCard = ({event, loading, classes}: {
   classes: ClassesType<typeof styles>,
 }) => {
   const { timezone } = useTimezone()
+  const now = useCurrentTime();
   const { captureEvent } = useTracking()
   
   const getEventLocation = (event: PostsList): string => {
@@ -163,7 +165,7 @@ const HighlightedEventCard = ({event, loading, classes}: {
       <div className={classes.content}>
         <div className={classes.text}>
           <div className={classes.detail}>
-            <PrettyEventDateTime post={event} timezone={timezone} dense={true} />
+            <PrettyEventDateTime now={now} post={event} timezone={timezone} dense={true} />
           </div>
           <h1 className={classes.title}>
             <Link to={`/events/${event._id}/${event.slug}`} onClick={() => captureEvent('highlightedEventClicked')}>

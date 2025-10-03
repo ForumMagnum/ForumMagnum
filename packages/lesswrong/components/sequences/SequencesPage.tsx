@@ -1,14 +1,13 @@
 import React, { useState, useCallback, useRef } from 'react';
 import { registerComponent } from '../../lib/vulcan-lib/components';
-import { sequenceGetPageUrl } from '../../lib/collections/sequences/helpers';
 import { userCanDo, userOwns } from '../../lib/vulcan-users/permissions';
 import { useCurrentUser } from '../common/withUser';
 import { sectionFooterLeftStyles } from '../users/UsersProfile'
 import {AnalyticsContext} from "../../lib/analyticsEvents";
-import { DatabasePublicSetting, nofollowKarmaThreshold } from '../../lib/publicSettings';
-import { HEADER_HEIGHT, MOBILE_HEADER_HEIGHT } from '../common/Header';
+import { defaultSequenceBannerIdSetting, nofollowKarmaThreshold } from '@/lib/instanceSettings';
+import { getHeaderHeight, getMobileHeaderHeight } from '../common/Header';
 import { isFriendlyUI } from '../../themes/forumTheme';
-import { makeCloudinaryImageUrl } from '../common/CloudinaryImage2';
+import { makeCloudinaryImageUrl } from '../common/cloudinaryHelpers';
 import { allowSubscribeToSequencePosts } from '../../lib/betas';
 import { Link } from '../../lib/reactRouterWrapper';
 import DeferRender from '../common/DeferRender';
@@ -18,7 +17,6 @@ import { ChaptersForm } from './ChaptersForm';
 import Error404 from "../common/Error404";
 import Loading from "../vulcan-core/Loading";
 import SequencesEditForm from "./SequencesEditForm";
-import HeadTags from "../common/HeadTags";
 import CloudinaryImage from "../common/CloudinaryImage";
 import SingleColumnSection from "../common/SingleColumnSection";
 import SectionSubtitle from "../common/SectionSubtitle";
@@ -31,10 +29,11 @@ import { Typography } from "../common/Typography";
 import SectionButton from "../common/SectionButton";
 import ContentStyles from "../common/ContentStyles";
 import NotifyMeButton from "../notifications/NotifyMeButton";
+import { StatusCodeSetter } from '../next/StatusCodeSetter';
 
 const SequencesPageFragmentQuery = gql(`
   query SequencesPage($documentId: String) {
-    sequence(input: { selector: { documentId: $documentId } }) {
+    sequence(input: { selector: { documentId: $documentId } }, allowNull: true) {
       result {
         ...SequencesPageFragment
       }
@@ -44,7 +43,7 @@ const SequencesPageFragmentQuery = gql(`
 
 const SequencesEditQuery = gql(`
   query SequencesEdit($documentId: String) {
-    sequence(input: { selector: { documentId: $documentId } }) {
+    sequence(input: { selector: { documentId: $documentId } }, allowNull: true) {
       result {
         ...SequencesEdit
       }
@@ -61,11 +60,9 @@ export const sequencesImageScrim = (theme: ThemeType) => ({
   background: theme.palette.panelBackground.sequenceImageGradient,
 })
 
-export const defaultSequenceBannerIdSetting = new DatabasePublicSetting<string|null>("defaultSequenceBannerId", null)
-
 const styles = (theme: ThemeType) => ({
   root: {
-    paddingTop: theme.isFriendlyUI ? (270 + HEADER_HEIGHT) : 380,
+    paddingTop: theme.isFriendlyUI ? (270 + getHeaderHeight()) : 380,
   },
   deletedText: {
     paddingTop: 20,
@@ -110,12 +107,12 @@ const styles = (theme: ThemeType) => ({
   banner: {
     position: "absolute",
     right: 0,
-    top: HEADER_HEIGHT,
+    top: getHeaderHeight(),
     width: "100vw",
     height: 380,
     zIndex: theme.zIndexes.sequenceBanner,
     [theme.breakpoints.down('sm')]: {
-      top: MOBILE_HEADER_HEIGHT,
+      top: getMobileHeaderHeight(),
     },
     "& img": {
       width: "100vw",
@@ -213,6 +210,7 @@ const SequencesPage = ({ documentId, classes }: {
   }, []);
   if (document?.isDeleted) {
     return <SingleColumnSection>
+      <StatusCodeSetter status={200}/>
       <Typography variant="body2" className={classes.deletedText}>
         This sequence has been deleted. <Link to="/library" className={classes.link}>Click here to view all sequences.</Link>
       </Typography>
@@ -225,7 +223,10 @@ const SequencesPage = ({ documentId, classes }: {
   }
   if (edit) {
     if (!currentUser) {
-      return <div>You must be logged in to edit this sequence.</div>
+      return <>
+        <StatusCodeSetter status={401}/>
+        <div>You must be logged in to edit this sequence.</div>
+      </>
     }
     if (editLoading) {
       return <Loading />
@@ -233,14 +234,15 @@ const SequencesPage = ({ documentId, classes }: {
     if (!editableDocument) {
       return <Error404/>
     }
-    return (
+    return (<>
+      <StatusCodeSetter status={200}/>
       <SequencesEditForm
         sequence={editableDocument}
         currentUser={currentUser}
         successCallback={showSequence}
         cancelCallback={showSequence}
       />
-    )
+    </>)
   }
 
   const canEdit = userCanDo(currentUser, 'sequences.edit.all') || (userCanDo(currentUser, 'sequences.edit.own') && userOwns(currentUser, document))
@@ -262,14 +264,8 @@ const SequencesPage = ({ documentId, classes }: {
   }) : undefined;
     
   return <AnalyticsContext pageContext="sequencesPage">
+    <StatusCodeSetter status={200}/>
     <div className={classes.root}>
-      <HeadTags
-        canonicalUrl={sequenceGetPageUrl(document, true)}
-        title={document.title}
-        description={plaintextDescription || undefined}
-        image={socialImageUrl}
-        noIndex={document.noindex}
-      />
       {bannerId && <div className={classes.banner}>
         <div className={classes.bannerWrapper}>
           <DeferRender ssr={false}>
@@ -298,14 +294,14 @@ const SequencesPage = ({ documentId, classes }: {
                   <span className={classes.metaItem}><FormatDate date={document.createdAt} format="MMM DD, YYYY"/></span>
                   {document.user && <span className={classes.metaItem}> by <UsersName user={document.user} /></span>}
                 </div>
-                {!allowSubscribeToSequencePosts && canEdit && <span className={classes.leftAction}>
+                {!allowSubscribeToSequencePosts() && canEdit && <span className={classes.leftAction}>
                   <SectionSubtitle>
                     <a onClick={showEdit}>edit</a>
                   </SectionSubtitle>
                 </span>}
               </SectionFooter>
             </div>
-            {allowSubscribeToSequencePosts && <div className={classes.notifyCol}>
+            {allowSubscribeToSequencePosts() && <div className={classes.notifyCol}>
               <AnalyticsContext pageElementContext="notifyMeButton">
                 <NotifyMeButton
                   document={document}
@@ -313,7 +309,7 @@ const SequencesPage = ({ documentId, classes }: {
                   subscribeMessage="Get notified"
                   unsubscribeMessage="Notifications set"
                   showIcon
-                  asButton={isFriendlyUI}
+                  asButton={isFriendlyUI()}
                   hideFlashes
                 />
               </AnalyticsContext>

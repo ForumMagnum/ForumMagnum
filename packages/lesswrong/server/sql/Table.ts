@@ -1,6 +1,6 @@
-import { getSchema } from "@/lib/schema/allSchemas";
 import { Type, IdType } from "./Type";
-import { forumTypeSetting, ForumTypeString } from "@/lib/instanceSettings";
+import { ForumTypeString } from "@/lib/instanceSettings";
+import type PgCollection from "./PgCollection";
 
 /**
  * Table represents the collection schema as it exists in Postgres,
@@ -55,15 +55,13 @@ class Table<T extends DbObject> {
     N extends CollectionNameString,
     T extends DbObject = ObjectsByCollectionName[N]
   >(
-    collection: CollectionBase<N>,
-    forumType?: ForumTypeString,
+    collection: PgCollection<N>,
   ): Table<T> {
     const table = new Table<T>(collection.collectionName);
-    forumType ??= forumTypeSetting.get() ?? "EAForum";
 
     table.writeAheadLogged = collection.options?.writeAheadLogged ?? true;
 
-    const schema = getSchema(collection.collectionName);
+    const schema = collection.schema;
     for (const field of Object.keys(schema)) {
       // Force `_id` fields to use the IdType type, with an exception for `Sessions`
       // which uses longer custom ids.
@@ -77,7 +75,7 @@ class Table<T extends DbObject> {
           const indexSchema = schema[`${field}.$`];
           table.addField(
             field,
-            Type.fromSchema(collection.collectionName, field, fieldSchema.database, fieldSchema.graphql, forumType),
+            Type.fromSchema(collection.collectionName, field, fieldSchema.database, fieldSchema.graphql),
           );
         }
       }

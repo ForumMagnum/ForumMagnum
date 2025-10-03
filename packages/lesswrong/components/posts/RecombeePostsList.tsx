@@ -14,9 +14,10 @@ import PostsItem from "./PostsItem";
 import SectionFooter from "../common/SectionFooter";
 import PostsLoading from "./PostsLoading";
 import { gql } from '@/lib/generated/gql-codegen';
-import { useStyles } from '../hooks/useStyles';
+import { stickiedPostTerms } from '@/lib/collections/posts/constants';
 import { SuspenseWrapper } from '../common/SuspenseWrapper';
 import { registerComponent } from '@/lib/vulcan-lib/components';
+import uniqBy from 'lodash/uniqBy';
 
 type LoadMoreSettings = {
   loadMore: (RecombeeConfiguration | HybridRecombeeConfiguration)['loadMore'];
@@ -111,12 +112,6 @@ const getLoadMoreSettings = (resolverName: RecombeeResolver, results: getRecombe
   }
 }
 
-export const stickiedPostTerms = {
-  view: 'stickied',
-  limit: 4, // seriously, shouldn't have more than 4 stickied posts
-  forum: true
-} satisfies PostsViewTerms;
-
 const RecombeePostsListInner = ({ algorithm, settings, limit = 15 }: {
   algorithm: string,
   settings: RecombeeConfiguration,
@@ -147,11 +142,12 @@ const RecombeePostsListInner = ({ algorithm, settings, limit = 15 }: {
       ? data.RecombeeLatestPosts?.results
       : data.RecombeeHybridPosts?.results
     : undefined;
+  const uniqueResults = results ? uniqBy(results, p=>p.post._id) : results;
 
   const hiddenPostIds = currentUser?.hiddenPostsMetadata?.map(metadata => metadata.postId) ?? [];
   
   //exclude posts with hiddenPostIds
-  const filteredResults = results?.filter(({ post }) => !hiddenPostIds.includes(post._id));
+  const filteredResults = uniqueResults?.filter(({ post }) => !hiddenPostIds.includes(post._id));
 
   const postIds = filteredResults?.map(({post}) => post._id) ?? [];
   const postIdsWithScenario = filteredResults?.map(({ post, scenario, curated, stickied, generatedAt }, idx) => {

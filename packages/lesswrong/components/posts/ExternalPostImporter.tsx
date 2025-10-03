@@ -6,7 +6,6 @@ import { useCurrentUser } from '../common/withUser';
 import CKEditor from '@/lib/vendor/ckeditor5-react/ckeditor';
 import { getCkPostEditor, getCkCommentEditor } from '@/lib/wrapCkEditor';
 import { ckEditorStyles } from '@/themes/stylePiping';
-import { forumTypeSetting } from '@/lib/instanceSettings';
 import classNames from 'classnames';
 import { useMessages } from '../common/withMessages';
 import ContentStyles from "../common/ContentStyles";
@@ -48,11 +47,7 @@ export type ExternalPostImportData = {
     modifiedAt: string | null;
     draft: boolean | null;
     content: string | null;
-    coauthorStatuses: Array<{
-      userId: string | null;
-      confirmed: boolean | null;
-      requested: boolean | null;
-    }> | null;
+    coauthorUserIds: string[] | null;
   };
 };
 
@@ -269,11 +264,7 @@ const ExternalPostImporter = ({ classes, defaultPostedAt }: { classes: ClassesTy
           modifiedAt
           userId
           draft
-          coauthorStatuses {
-            userId
-            confirmed
-            requested
-          }
+          coauthorUserIds
         }
       }
     }

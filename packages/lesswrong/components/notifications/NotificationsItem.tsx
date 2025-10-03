@@ -5,16 +5,17 @@ import React, { FC, ReactNode, useCallback, useState } from 'react';
 import { Card } from "@/components/widgets/Paper";
 import { getNotificationTypeByName } from '../../lib/notificationTypes';
 import withErrorBoundary from '../common/withErrorBoundary';
-import { parseRouteWithErrors } from '../linkPreview/HoverPreviewLink';
+import { parseRouteWithErrors } from '../linkPreview/parseRouteWithErrors';
 import { useTracking } from '../../lib/analyticsEvents';
 import { useNavigate } from '../../lib/routeUtil';
-import {checkUserRouteAccess} from '../../lib/vulcan-core/appContext'
 import { getUrlClass } from '@/server/utils/getUrlClass';
 import LWTooltip from "../common/LWTooltip";
 import PostsTooltip from "../posts/PostsPreviewTooltip/PostsTooltip";
 import ConversationPreview from "../messaging/ConversationPreview";
 import PostNominatedNotification from "../review/PostNominatedNotification";
 import TagRelNotificationItem from "./TagRelNotificationItem";
+import { onsiteHoverViewComponents } from '@/lib/notificationTypeComponents';
+import { getNotificationIconByNotificationName } from './notificationIcons';
 
 const styles = (theme: ThemeType) => ({
   root: {
@@ -114,10 +115,11 @@ const NotificationsItem = ({notification, lastNotificationsCheck, classes}: {
   );
 
   const PreviewTooltip: FC<{children: ReactNode}> = useCallback(({children}) => {
-    if (notificationType.onsiteHoverView) {
+    const OnsiteHoverView = onsiteHoverViewComponents[notificationType.name]?.() ?? null;
+    if (OnsiteHoverView) {
       return (
         <TooltipWrapper
-          title={notificationType.onsiteHoverView({notification})}
+          title={<OnsiteHoverView notification={notification}/>}
           classes={classes}
         >
           {children}
@@ -146,7 +148,7 @@ const NotificationsItem = ({notification, lastNotificationsCheck, classes}: {
       )
     }
 
-    const parsedPath = parseRouteWithErrors(notificationLink);
+    const parsedPath = parseRouteWithErrors(notificationLink, ['/inbox/:_id']);
     switch (notification.documentType) {
       case "tagRel":
         return (
@@ -244,7 +246,7 @@ const NotificationsItem = ({notification, lastNotificationsCheck, classes}: {
           }
         }}
       >
-        {notificationType.getIcon()}
+        {notification.type ? getNotificationIconByNotificationName(notification.type) : null}
         <div className={classes.notificationLabel}>
           {renderMessage()}
         </div>

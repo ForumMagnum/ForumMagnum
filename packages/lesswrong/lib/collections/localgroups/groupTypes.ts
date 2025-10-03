@@ -1,5 +1,3 @@
-import * as _ from 'underscore';
-
 export const groupTypes = [
   {
     shortName: "LW",
@@ -13,13 +11,22 @@ export const groupTypes = [
     shortName: "EA",
     longName: "Effective Altruism",
   },
+  // Basically deprecated
+  // {
+  //   shortName: "MIRIx",
+  //   longName: "MIRIx",
+  // },
   {
-    shortName: "MIRIx",
-    longName: "MIRIx",
+    shortName: "IFANYONE",
+    longName: "If Anyone Builds It",
+  },
+  {
+    shortName: "PETROV",
+    longName: "Petrov Day",
   }
 ];
 
-export const localGroupTypeFormOptions = _.map(groupTypes,
+export const localGroupTypeFormOptions = groupTypes.map(
   groupType => {
     return {
       value: groupType.shortName,

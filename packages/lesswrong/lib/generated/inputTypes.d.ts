@@ -9,6 +9,9 @@ interface Query {
   NetKarmaChangesForAuthorsOverPeriod: Array<NetKarmaChangesForAuthorsOverPeriod>;
   AirtableLeaderboards: Array<AirtableLeaderboardResult>;
   SuggestedFeedSubscriptionUsers: SuggestedFeedSubscriptionUsersResult | null;
+  SuggestedTopActiveUsers: SuggestedTopActiveUsersResult | null;
+  CommentEmbeddingSearch: Array<Comment>;
+  CommentEmbeddingSimilaritySearch: Array<Comment>;
   CommentsWithReacts: CommentsWithReactsResult | null;
   PopularComments: PopularCommentsResult | null;
   PostAnalytics: PostAnalyticsResult;
@@ -29,13 +32,12 @@ interface Query {
   PostIsCriticism: boolean | null;
   DigestPlannerData: Array<DigestPlannerPost>;
   DigestPosts: Array<Post> | null;
-  CanAccessGoogleDoc: boolean | null;
+  HomepageCommunityEvents: HomepageCommunityEventMarkersResult;
   DigestHighlights: DigestHighlightsResult | null;
   DigestPostsThisWeek: DigestPostsThisWeekResult | null;
   CuratedAndPopularThisWeek: CuratedAndPopularThisWeekResult | null;
   RecentlyActiveDialogues: RecentlyActiveDialoguesResult | null;
   MyDialogues: MyDialoguesResult | null;
-  GoogleVertexPosts: GoogleVertexPostsResult | null;
   CrossedKarmaThreshold: CrossedKarmaThresholdResult | null;
   RecombeeLatestPosts: RecombeeLatestPostsResult | null;
   RecombeeHybridPosts: RecombeeHybridPostsResult | null;
@@ -219,6 +221,8 @@ interface Mutation {
   performVotePost: VoteResultPost | null;
   setVoteComment: Comment | null;
   performVoteComment: VoteResultComment | null;
+  setVoteMessage: Message | null;
+  performVoteMessage: VoteResultMessage | null;
   setVoteTagRel: TagRel | null;
   performVoteTagRel: VoteResultTagRel | null;
   setVoteRevision: Revision | null;
@@ -238,7 +242,6 @@ interface Mutation {
   AddGivingSeasonHeart: Array<GivingSeasonHeart>;
   RemoveGivingSeasonHeart: Array<GivingSeasonHeart>;
   ImportGoogleDoc: Post | null;
-  revokeGoogleServiceAccountTokens: boolean;
   alignmentComment: Comment | null;
   alignmentPost: Post | null;
   markConversationRead: boolean;
@@ -257,9 +260,6 @@ interface Mutation {
   RemoveForumEventSticker: boolean | null;
   unlockPost: Post | null;
   revertPostToRevision: Post | null;
-  sendVertexViewItemEvent: boolean;
-  sendVertexMediaCompleteEvent: boolean;
-  sendVertexViewHomePageEvent: boolean;
   importUrlAsDraftPost: ExternalPostImportData;
   revertTagToRevision: Tag | null;
   autosaveRevision: Revision | null;
@@ -267,8 +267,6 @@ interface Mutation {
   unlockThread: boolean;
   reorderSummaries: boolean | null;
   publishAndDeDuplicateSpotlight: Spotlight | null;
-  upsertUserTypingIndicator: TypingIndicator | null;
-  acceptCoauthorRequest: Post | null;
   toggleBookmark: ToggleBookmarkOutput | null;
   setIsHidden: User;
   markAsReadOrUnread: boolean | null;
@@ -376,6 +374,11 @@ interface Mutation {
   updateUser: UserOutput | null;
 }
 
+interface ContentType {
+  type: string;
+  data: ContentTypeData;
+}
+
 interface SelectorInput {
   _id?: string | null;
   documentId?: string | null;
@@ -448,11 +451,6 @@ interface CrosspostOutput {
   isCrosspost: boolean;
   hostedHere: boolean | null;
   foreignPostId: string | null;
-}
-
-interface ContentType {
-  type: string;
-  data: ContentTypeData;
 }
 
 interface TagContributor {
@@ -606,6 +604,10 @@ interface SuggestedFeedSubscriptionUsersResult {
   results: Array<User>;
 }
 
+interface SuggestedTopActiveUsersResult {
+  results: Array<User>;
+}
+
 interface VoteResultPost {
   document: Post;
   showVotingPatternWarning: boolean;
@@ -613,6 +615,11 @@ interface VoteResultPost {
 
 interface VoteResultComment {
   document: Comment;
+  showVotingPatternWarning: boolean;
+}
+
+interface VoteResultMessage {
+  document: Message;
   showVotingPatternWarning: boolean;
 }
 
@@ -863,6 +870,17 @@ interface PostWithApprovedJargon {
   jargonTerms: Array<JargonTerm>;
 }
 
+interface HomepageCommunityEventMarker {
+  _id: string;
+  lat: number;
+  lng: number;
+  types: Array<string> | null;
+}
+
+interface HomepageCommunityEventMarkersResult {
+  events: Array<HomepageCommunityEventMarker>;
+}
+
 interface DigestHighlightsResult {
   results: Array<Post>;
 }
@@ -881,10 +899,6 @@ interface RecentlyActiveDialoguesResult {
 
 interface MyDialoguesResult {
   results: Array<Post>;
-}
-
-interface GoogleVertexPostsResult {
-  results: Array<VertexRecommendedPost>;
 }
 
 interface CrossedKarmaThresholdResult {
@@ -1181,12 +1195,6 @@ interface MigrationRun {
   succeeded: boolean | null;
 }
 
-interface CoauthorStatus {
-  userId: string | null;
-  confirmed: boolean | null;
-  requested: boolean | null;
-}
-
 interface ExternalPost {
   _id: string;
   slug: string | null;
@@ -1198,7 +1206,7 @@ interface ExternalPost {
   modifiedAt: Date | null;
   draft: boolean | null;
   content: string | null;
-  coauthorStatuses: Array<CoauthorStatus> | null;
+  coauthorUserIds: Array<string> | null;
 }
 
 interface ExternalPostImportData {
@@ -1695,6 +1703,11 @@ interface MultiCollectionInput {
 interface MultiCollectionOutput {
   results: Array<Collection>;
   totalCount: number | null;
+}
+
+interface CommentEmbedding {
+  _id: string;
+  createdAt: Date;
 }
 
 interface CommentModeratorAction {
@@ -3442,6 +3455,15 @@ interface Message {
   conversationId: string | null;
   conversation: Conversation | null;
   noEmail: boolean | null;
+  currentUserVote: string | null;
+  currentUserExtendedVote: any;
+  voteCount: number;
+  baseScore: number;
+  extendedScore: any;
+  score: number;
+  afBaseScore: number | null;
+  afExtendedScore: any;
+  afVoteCount: number | null;
 }
 
 interface SingleMessageInput {
@@ -4050,6 +4072,7 @@ interface Post {
   autoFrontpage: string | null;
   collectionTitle: string | null;
   coauthorStatuses: Array<CoauthorStatusOutput> | null;
+  coauthorUserIds: Array<string>;
   coauthors: Array<User> | null;
   hasCoauthorPermission: boolean;
   socialPreviewImageId: string | null;
@@ -5869,11 +5892,16 @@ interface ReviewVotesReviewVotesAdminDashboardInput {
   year?: number | null;
 }
 
+interface ReviewVotesReviewVotesForPostAndUserInput {
+  postId?: string | null;
+  userId?: string | null;
+}
+
 interface ReviewVoteSelector {
   default: EmptyViewInput | null;
   reviewVotesFromUser: ReviewVotesReviewVotesFromUserInput | null;
   reviewVotesForPost: EmptyViewInput | null;
-  reviewVotesForPostAndUser: EmptyViewInput | null;
+  reviewVotesForPostAndUser: ReviewVotesReviewVotesForPostAndUserInput | null;
   reviewVotesAdminDashboard: ReviewVotesReviewVotesAdminDashboardInput | null;
 }
 
@@ -6900,8 +6928,8 @@ interface UltraFeedEvent {
   _id: string;
   createdAt: Date;
   documentId: string | null;
-  collectionName: string | null;
-  eventType: string | null;
+  collectionName: UltraFeedEventCollectionName | null;
+  eventType: UltraFeedEventEventType | null;
   userId: string | null;
   event: any;
   feedItemId: string | null;
@@ -8476,6 +8504,7 @@ interface CreatePostDataInput {
   autoFrontpage?: string | null;
   collectionTitle?: string | null;
   coauthorStatuses?: Array<CoauthorStatusInput> | null;
+  coauthorUserIds?: Array<string> | null;
   hasCoauthorPermission?: boolean | null;
   socialPreviewImageId?: string | null;
   socialPreviewImageAutoUrl?: string | null;
@@ -8591,6 +8620,7 @@ interface UpdatePostDataInput {
   autoFrontpage?: string | null;
   collectionTitle?: string | null;
   coauthorStatuses?: Array<CoauthorStatusInput> | null;
+  coauthorUserIds?: Array<string> | null;
   hasCoauthorPermission?: boolean | null;
   socialPreviewImageId?: string | null;
   socialPreviewImageAutoUrl?: string | null;
@@ -9170,8 +9200,8 @@ interface TagOutput {
 
 interface CreateUltraFeedEventDataInput {
   documentId: string;
-  collectionName: string;
-  eventType: string;
+  collectionName: UltraFeedEventCollectionName;
+  eventType: UltraFeedEventEventType;
   userId?: string | null;
   event?: any;
   feedItemId?: string | null;
@@ -9704,6 +9734,7 @@ interface UserOutput {
 interface GraphQLTypeMap {
   Query: Query;
   Mutation: Mutation;
+  ContentType: ContentType;
   SelectorInput: SelectorInput;
   EmptyViewInput: EmptyViewInput;
   EmailPreview: EmailPreview;
@@ -9716,7 +9747,6 @@ interface GraphQLTypeMap {
   CoauthorStatusOutput: CoauthorStatusOutput;
   SocialPreviewOutput: SocialPreviewOutput;
   CrosspostOutput: CrosspostOutput;
-  ContentType: ContentType;
   TagContributor: TagContributor;
   TagContributorsList: TagContributorsList;
   UserLikingTag: UserLikingTag;
@@ -9739,8 +9769,10 @@ interface GraphQLTypeMap {
   NetKarmaChangesForAuthorsOverPeriod: NetKarmaChangesForAuthorsOverPeriod;
   AirtableLeaderboardResult: AirtableLeaderboardResult;
   SuggestedFeedSubscriptionUsersResult: SuggestedFeedSubscriptionUsersResult;
+  SuggestedTopActiveUsersResult: SuggestedTopActiveUsersResult;
   VoteResultPost: VoteResultPost;
   VoteResultComment: VoteResultComment;
+  VoteResultMessage: VoteResultMessage;
   VoteResultTagRel: VoteResultTagRel;
   VoteResultRevision: VoteResultRevision;
   VoteResultElectionCandidate: VoteResultElectionCandidate;
@@ -9777,12 +9809,13 @@ interface GraphQLTypeMap {
   RecombeeRecommendedPost: RecombeeRecommendedPost;
   VertexRecommendedPost: VertexRecommendedPost;
   PostWithApprovedJargon: PostWithApprovedJargon;
+  HomepageCommunityEventMarker: HomepageCommunityEventMarker;
+  HomepageCommunityEventMarkersResult: HomepageCommunityEventMarkersResult;
   DigestHighlightsResult: DigestHighlightsResult;
   DigestPostsThisWeekResult: DigestPostsThisWeekResult;
   CuratedAndPopularThisWeekResult: CuratedAndPopularThisWeekResult;
   RecentlyActiveDialoguesResult: RecentlyActiveDialoguesResult;
   MyDialoguesResult: MyDialoguesResult;
-  GoogleVertexPostsResult: GoogleVertexPostsResult;
   CrossedKarmaThresholdResult: CrossedKarmaThresholdResult;
   RecombeeLatestPostsResult: RecombeeLatestPostsResult;
   RecombeeHybridPostsResult: RecombeeHybridPostsResult;
@@ -9826,7 +9859,6 @@ interface GraphQLTypeMap {
   MigrationsDashboardData: MigrationsDashboardData;
   MigrationStatus: MigrationStatus;
   MigrationRun: MigrationRun;
-  CoauthorStatus: CoauthorStatus;
   ExternalPost: ExternalPost;
   ExternalPostImportData: ExternalPostImportData;
   AutosaveContentType: AutosaveContentType;
@@ -9904,6 +9936,7 @@ interface GraphQLTypeMap {
   CollectionSelector: CollectionSelector;
   MultiCollectionInput: MultiCollectionInput;
   MultiCollectionOutput: MultiCollectionOutput;
+  CommentEmbedding: CommentEmbedding;
   CommentModeratorAction: CommentModeratorAction;
   SingleCommentModeratorActionInput: SingleCommentModeratorActionInput;
   SingleCommentModeratorActionOutput: SingleCommentModeratorActionOutput;
@@ -10286,6 +10319,7 @@ interface GraphQLTypeMap {
   SingleReviewVoteOutput: SingleReviewVoteOutput;
   ReviewVotesReviewVotesFromUserInput: ReviewVotesReviewVotesFromUserInput;
   ReviewVotesReviewVotesAdminDashboardInput: ReviewVotesReviewVotesAdminDashboardInput;
+  ReviewVotesReviewVotesForPostAndUserInput: ReviewVotesReviewVotesForPostAndUserInput;
   ReviewVoteSelector: ReviewVoteSelector;
   MultiReviewVoteInput: MultiReviewVoteInput;
   MultiReviewVoteOutput: MultiReviewVoteOutput;
@@ -10753,6 +10787,7 @@ interface CreateInputsByCollectionName {
   Bookmarks: never;
   CkEditorUserSessions: never;
   ClientIds: never;
+  CommentEmbeddings: never;
   CronHistories: never;
   CurationEmails: never;
   DatabaseMetadata: never;
@@ -10843,6 +10878,7 @@ interface UpdateInputsByCollectionName {
   Bookmarks: never;
   CkEditorUserSessions: never;
   ClientIds: never;
+  CommentEmbeddings: never;
   CronHistories: never;
   CurationEmails: never;
   DatabaseMetadata: never;

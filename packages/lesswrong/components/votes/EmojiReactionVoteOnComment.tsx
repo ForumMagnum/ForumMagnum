@@ -1,6 +1,9 @@
+'use client';
+
 import React from 'react';
 import { registerComponent } from '../../lib/vulcan-lib/components';
-import { CommentVotingComponentProps, EmojiReactionType, emojiReactions } from '../../lib/voting/votingSystems';
+import { emojiReactions } from '@/lib/voting/constants';
+import type { EmojiReactionType, CommentVotingComponentProps } from '@/lib/voting/votingSystemTypes';
 import { useVote } from './withVote';
 import { useHover } from '../common/withHover';
 import { useDialog } from '../common/withDialog';

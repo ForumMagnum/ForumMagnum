@@ -57,7 +57,7 @@ const UserNotifyDropdown = ({
     captureEvent("subscribeClick", {open, itemType: "user", userId: user._id});
     setIsOpen(open);
   }, [user._id, captureEvent]);
-  const ButtonComponent = isFriendlyUI 
+  const ButtonComponent = isFriendlyUI() 
     ?  <EAButton
           style="grey"
           onClick={() => handleSetOpen(!isOpen)}
@@ -94,19 +94,19 @@ const UserNotifyDropdown = ({
             {userHasSubscribeTabFeed(currentUser) && <NotifyMeToggleDropdownItem
               document={user}
               title="Include in Subscribed tab"
-              useCheckboxIcon={!isFriendlyUI}
+              useCheckboxIcon={!isFriendlyUI()}
               subscriptionType="newActivityForFeed"
             />}
             <NotifyMeToggleDropdownItem
               document={user}
-              title={isFriendlyUI ? "New posts" : "Notify on posts"}
-              useCheckboxIcon={!isFriendlyUI}
+              title={isFriendlyUI() ? "New posts" : "Notify on posts"}
+              useCheckboxIcon={!isFriendlyUI()}
               subscriptionType="newPosts"
             />
             <NotifyMeToggleDropdownItem
               document={user}
-              title={isFriendlyUI ? "New comments" : "Notify on comments"}
-              useCheckboxIcon={!isFriendlyUI}
+              title={isFriendlyUI() ? "New comments" : "Notify on comments"}
+              useCheckboxIcon={!isFriendlyUI()}
               subscriptionType="newUserComments"
             />
           </DropdownMenu>

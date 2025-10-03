@@ -1,14 +1,19 @@
 import SelectFragmentQuery from "@/server/sql/SelectFragmentQuery";
-import { SqlFragment } from "@/server/sql/SqlFragment";
+import { createSqlFragmentFromAst } from "@/server/sql/SqlFragment";
 import { runTestCases } from "@/server/sql/tests/testHelpers";
 import { TestCollection4DefaultFragment, TestCollection4ArgFragment, TestCollection3DefaultFragment, TestCollection2DefaultFragment } from "@/server/sql/tests/testFragments";
+import { Kind, type DocumentNode, type FragmentDefinitionNode } from "graphql";
+
+const getFragmentDefs = (...docs: DocumentNode[]): FragmentDefinitionNode[] => {
+  return docs.flatMap(doc => doc.definitions).filter(def => def.kind === Kind.FRAGMENT_DEFINITION);
+};
 
 describe("SelectFragmentQuery", () => {
   runTestCases([
     {
       name: "can build fragment queries with a where clause",
       getQuery: () => new SelectFragmentQuery(
-        new SqlFragment('TestCollection4DefaultFragment', TestCollection4DefaultFragment + TestCollection3DefaultFragment),
+        createSqlFragmentFromAst('TestCollection4DefaultFragment', getFragmentDefs(TestCollection4DefaultFragment, TestCollection3DefaultFragment)),
         {_id: "test-user-id"} as DbUser,
         null,
         {_id: "test-document-id"},
@@ -34,7 +39,7 @@ describe("SelectFragmentQuery", () => {
     {
       name: "can build fragment queries with resolver args",
       getQuery: () => new SelectFragmentQuery(
-        new SqlFragment('TestCollection4ArgFragment', TestCollection4ArgFragment + TestCollection2DefaultFragment),
+        createSqlFragmentFromAst('TestCollection4ArgFragment', getFragmentDefs(TestCollection4ArgFragment, TestCollection2DefaultFragment)),
         {_id: "test-user-id"} as DbUser,
         {testCollection2Id: "some-test-id"},
         {_id: "test-document-id"},

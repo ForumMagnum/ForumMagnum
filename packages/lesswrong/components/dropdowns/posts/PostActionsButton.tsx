@@ -14,6 +14,9 @@ import LWClickAwayListener from "../../common/LWClickAwayListener";
 const styles = defineStyles("PostActionsButton", (theme: ThemeType) => ({
   root: {
     cursor: "pointer",
+    "@media print": {
+      display: "none",
+    },
   },
   icon: {
     verticalAlign: 'middle',

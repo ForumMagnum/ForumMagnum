@@ -2,7 +2,6 @@ import { getFieldsWithAttribute } from './utils';
 import { migrateDocuments } from '../manualMigrations/migrationUtils'
 import { createAdminContext } from '../vulcan-lib/createContexts';
 import { getSchema } from '@/lib/schema/allSchemas';
-import * as _ from 'underscore';
 import { filterNonnull } from '../../lib/utils/typeGuardUtils';
 import { getAllCollections, getCollection } from "../collections/allCollections";
 

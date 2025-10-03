@@ -7,7 +7,7 @@ import { useCurrentUser } from '../common/withUser';
 import { userCanCreateTags } from '../../lib/betas';
 import { Link } from '../../lib/reactRouterWrapper';
 import { taggingNameCapitalSetting, taggingNamePluralCapitalSetting } from '../../lib/instanceSettings';
-import { tagCreateUrl, tagUserHasSufficientKarma } from '../../lib/collections/tags/helpers';
+import { getTagCreateUrl, tagUserHasSufficientKarma } from '../../lib/collections/tags/helpers';
 import { getAllTagsPath } from '@/lib/pathConstants';
 import type { SearchState } from 'react-instantsearch-core';
 import TagSearchHit from "./TagSearchHit";
@@ -130,7 +130,7 @@ const AddTagOrWikiPage = ({onTagSelected, isVotingContext, onlyTags, numSuggesti
       </Link>
       {userCanCreateTags(currentUser) && tagUserHasSufficientKarma(currentUser, "new") && <Link
         target="_blank"
-        to={tagCreateUrl}
+        to={getTagCreateUrl()}
         className={classes.newTag}
       >
         Create {taggingNameCapitalSetting.get()}

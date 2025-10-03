@@ -14,7 +14,7 @@ const AlignmentCrosspostMessage = ({post, classes}: {
   post: PostsBase,
   classes: ClassesType<typeof styles>,
 }) => {
-  if (post.af && !isAF) {
+  if (post.af && !isAF()) {
     return (
       <div className={classes.root}>
         Crossposted from the <a href={`https://alignmentforum.org/posts/${post._id}/${post.slug}`}>AI Alignment Forum</a>. May contain more technical jargon than usual.

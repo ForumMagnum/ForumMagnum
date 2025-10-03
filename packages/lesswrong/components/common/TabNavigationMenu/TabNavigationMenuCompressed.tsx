@@ -2,7 +2,7 @@ import { registerComponent } from '../../../lib/vulcan-lib/components';
 import React from 'react';
 
 // -- See here for all the tab content --
-import menuTabs from './menuTabs'
+import getMenuTabs from './menuTabs'
 import { forumSelect } from '../../../lib/forumTypeUtils';
 import TabNavigationCompressedItem from "./TabNavigationCompressedItem";
 import SimpleDivider from "../../widgets/SimpleDivider";
@@ -29,7 +29,7 @@ const TabNavigationMenuCompressed = ({onClickSection, classes}: {
 }) => {
   return (
     <div className={classes.root}>
-      {forumSelect(menuTabs).map(tab => {
+      {forumSelect(getMenuTabs()).map(tab => {
         if (!('showOnCompressed' in tab) || !tab.showOnCompressed) {
           return
         }

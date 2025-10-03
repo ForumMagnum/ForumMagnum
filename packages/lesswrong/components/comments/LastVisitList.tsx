@@ -1,6 +1,5 @@
 import React from 'react';
 import { registerComponent } from '../../lib/vulcan-lib/components';
-import * as _ from 'underscore';
 import CalendarDate from "../common/CalendarDate";
 import Loading from "../vulcan-core/Loading";
 import { MenuItem } from "../common/Menus";
@@ -60,7 +59,7 @@ const LastVisitList = ({ postId, currentUser, clickCallback }: {
   }
   
   if (filteredVisits.length>VISITS_TO_SHOW)
-    filteredVisits = _.take(filteredVisits, VISITS_TO_SHOW);
+    filteredVisits = filteredVisits.slice(0, VISITS_TO_SHOW);
   
   return <>{filteredVisits.map((visit) =>
     <MenuItem key={visit._id} dense onClick={() => clickCallback(maybeDate(visit.createdAt)!)}>Visit at:&nbsp;<CalendarDate date={visit.createdAt!}/> </MenuItem>

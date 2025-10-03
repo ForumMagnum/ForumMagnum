@@ -56,7 +56,7 @@ const styles = defineStyles('SubmitToFrontpageCheckbox', (theme: ThemeType) => (
 const DefaultTooltip = () => {
   const classes = useStyles(styles);
   
-  if (isLWorAF) {
+  if (isLWorAF()) {
     return <div className={classes.tooltip}>
       <p>LW moderators will consider this post for frontpage</p>
       <p className={classes.guidelines}>Things to aim for:</p>

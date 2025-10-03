@@ -17,7 +17,7 @@ const schema = {
       outputType: "String",
       inputType: "String!",
       canRead: ["admins"],
-      canCreate: ["members"],
+      canCreate: ["guests"],
     },
   },
 
@@ -27,10 +27,10 @@ const schema = {
       nullable: false,
     },
     graphql: {
-      outputType: "String",
-      inputType: "String!",
+      outputType: "UltraFeedEventCollectionName",
+      inputType: "UltraFeedEventCollectionName!",
       canRead: ["admins"],
-      canCreate: ["members"],
+      canCreate: ["guests"],
       validation: {
         allowedValues: ALLOWED_COLLECTION_NAMES,
       },
@@ -43,10 +43,10 @@ const schema = {
       nullable: false,
     },
     graphql: {
-      outputType: "String",
-      inputType: "String!",
+      outputType: "UltraFeedEventEventType",
+      inputType: "UltraFeedEventEventType!",
       canRead: ["admins"], 
-      canCreate: ["members"],
+      canCreate: ["guests"],
       validation: {
         allowedValues: ALLOWED_EVENT_TYPES,
       },
@@ -62,7 +62,7 @@ const schema = {
       outputType: "String", 
       inputType: "String",
       canRead: ["admins"], 
-      canCreate: ["members"],
+      canCreate: ["guests"],
     },
   },
 
@@ -73,9 +73,9 @@ const schema = {
     },
     graphql: {
       outputType: "JSON",
-      inputType: "JSON",
+      inputType: "JSON!",
       canRead: ["admins"],
-      canCreate: ["members"],
+      canCreate: ["guests"],
       canUpdate: ["members"],
       validation: {
         optional: true,
@@ -93,7 +93,7 @@ const schema = {
       outputType: "String",
       inputType: "String",  // TODO: once this is being provided, make it required
       canRead: ["admins"],
-      canCreate: ["members"],
+      canCreate: ["guests"],
       validation: {
         optional: true,
       },

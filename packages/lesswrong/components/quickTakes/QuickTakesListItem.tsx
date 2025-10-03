@@ -14,7 +14,7 @@ const styles = (theme: ThemeType) => ({
     position: "relative",
     "& .comments-node-root": {
       marginBottom: 8,
-      ...(isLWorAF ? {
+      ...(isLWorAF() ? {
         paddingTop: 0,
         // This is to cause the "scroll to parent" sidebar to be positioned with respect to the top-level comment node, rather than the entire section
         position: 'relative',
@@ -37,7 +37,7 @@ const QuickTakesListItem = ({quickTake, classes}: {
     setExpanded(value);
     captureEvent(value ? "shortformItemExpanded" : "shortformItemCollapsed");
   }, [captureEvent, setExpanded]);
-  const CollapsedListItem = isFriendlyUI ? QuickTakesCollapsedListItem : LWQuickTakesCollapsedListItem;
+  const CollapsedListItem = isFriendlyUI() ? QuickTakesCollapsedListItem : LWQuickTakesCollapsedListItem;
 
   // We're doing both a NoSSR + conditional `display: 'none'` to toggle between the collapsed & expanded quick take
   // This is to eliminate a loading spinner (for the child comments) when someone expands a quick take,
@@ -48,7 +48,7 @@ const QuickTakesListItem = ({quickTake, classes}: {
         <CommentsNode
           treeOptions={{
             post: quickTake.post ?? undefined,
-            showCollapseButtons: isFriendlyUI,
+            showCollapseButtons: isFriendlyUI(),
             onToggleCollapsed: () => wrappedSetExpanded(!expanded),
           }}
           comment={quickTake}
