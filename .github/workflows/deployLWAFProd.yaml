@@ -10,6 +10,8 @@ jobs:
   migrate:
     runs-on: ubuntu-latest
     env:
+      VERCEL_ORG_ID: ${{ secrets.VERCEL_ORG_ID }}
+      VERCEL_PROJECT_ID: ${{ secrets.VERCEL_PROJECT_ID }}
       SKIP_VERCEL_CODE_PULL: true
     steps:
     - uses: actions/checkout@v2
@@ -26,6 +28,8 @@ jobs:
   upload-ckeditor-bundle:
     runs-on: ubuntu-latest
     env:
+      VERCEL_ORG_ID: ${{ secrets.VERCEL_ORG_ID }}
+      VERCEL_PROJECT_ID: ${{ secrets.VERCEL_PROJECT_ID }}
       SKIP_VERCEL_CODE_PULL: true
     steps:
     - uses: actions/checkout@v2
