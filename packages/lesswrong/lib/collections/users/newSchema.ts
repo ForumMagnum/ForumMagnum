@@ -1672,13 +1672,7 @@ const schema = {
   notificationRepliesToMyComments: {
     database: {
       type: "JSONB",
-      defaultValue: {
-        ...defaultNotificationTypeSettings,
-        email: {
-          ...defaultNotificationTypeSettings.email,
-          enabled: true,
-        },
-      },
+      defaultValue: bothChannelsEnabledNotificationTypeSettings,
       canAutofillDefault: true,
       nullable: false,
     },
