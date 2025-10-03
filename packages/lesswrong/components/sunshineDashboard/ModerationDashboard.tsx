@@ -1,3 +1,5 @@
+"use client";
+
 import classNames from 'classnames';
 import qs from 'qs';
 import React from 'react';

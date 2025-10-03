@@ -1,22 +1,46 @@
-import React, { ForwardedRef, createContext, forwardRef, useCallback, useContext, useRef } from 'react';
-import { createContext as contextSelectorCreateContext, useContextSelector } from "use-context-selector";
+import React, { ForwardedRef, createContext, forwardRef, useCallback, useContext, useEffect, useRef } from 'react';
+import { useContextSelector } from "use-context-selector";
+import { UserContext } from './sharedContexts';
+import { useQueryCurrentUser } from '@/lib/crud/withCurrentUser';
+import { onUserChanged } from '@/client/logging';
+import { localeSetting } from '@/lib/instanceSettings';
+import moment from 'moment';
 
-export const UserContext = contextSelectorCreateContext<UsersCurrent|null>(null);
 export const GetUserContext = createContext<()=>(UsersCurrent|null)>(() => null);
+export const CurrentUserLoadingContext = createContext<boolean>(false);
 
-export const UserContextProvider = ({value, children}: {
-  value: UsersCurrent|null
+export const UserContextProvider = ({children}: {
   children: React.ReactNode
 }) => {
-  const lastCurrentUser = useRef(value);
-  lastCurrentUser.current = value;
+  const {currentUser, refetchCurrentUser, currentUserLoading} = useQueryCurrentUser();
+  
+  const locale = localeSetting.get();
+
+  useEffect(() => {
+    onUserChanged(currentUser);
+    moment.locale(locale);
+  }, [currentUser, locale]);
+
+  useEffect(() => {
+    onUserChanged(currentUser);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [currentUser?._id]);
+
+  const lastCurrentUser = useRef(currentUser);
+  lastCurrentUser.current = currentUser;
   const getCurrentUser = useCallback(() => lastCurrentUser.current, []);
 
-  return <UserContext.Provider value={value}>
+  return (
+    <RefetchCurrentUserContext.Provider value={refetchCurrentUser}>
+    <CurrentUserLoadingContext.Provider value={currentUserLoading}>
+    <UserContext.Provider value={currentUser}>
     <GetUserContext.Provider value={getCurrentUser}>
       {children}
     </GetUserContext.Provider>
-  </UserContext.Provider>
+    </UserContext.Provider>
+    </CurrentUserLoadingContext.Provider>
+    </RefetchCurrentUserContext.Provider>
+  );
 }
 
 /**
@@ -37,20 +61,13 @@ export const useGetCurrentUser = () => {
 
 export const useCurrentUserId = () => useFilteredCurrentUser(u => u?._id);
 
+export const useCurrentUserLoading = () => useContext(CurrentUserLoadingContext);
+
 interface WithUserProps {
   currentUser: UsersCurrent | null;
   ref: ForwardedRef<unknown>;
 };
 
-// Higher-order component for providing the currently logged in user, assuming
-// the component is a descendant of Layout. This is much faster than Vulcan's
-// withCurrentUser, which creates a graphql query for each component.
-export default function withUser(Component: React.FC<WithUserProps>) {
-  return forwardRef((props, ref) => {
-    const currentUser = useCurrentUser();
-    return <Component ref={ref} {...props} currentUser={currentUser} />
-  })
-}
 
 export const RefetchCurrentUserContext = createContext<(_?: any) => Promise<any>>(async () => {});
 export const useRefetchCurrentUser = () => useContext(RefetchCurrentUserContext);

@@ -7,8 +7,7 @@ import { Menu } from '@/components/widgets/Menu';
 import { useCurrentUser } from '../common/withUser';
 import { unflattenComments } from '../../lib/utils/unflatten';
 import classNames from 'classnames';
-import { filter } from 'underscore';
-import { postGetCommentCountStr } from '../../lib/collections/posts/helpers';
+import { postGetCommentCountStr, userIsPostCoauthor } from '../../lib/collections/posts/helpers';
 import CommentsNewForm, { CommentsNewFormProps } from './CommentsNewForm';
 import { Link } from '../../lib/reactRouterWrapper';
 import { isEAForum } from '../../lib/instanceSettings';
@@ -152,7 +151,7 @@ const CommentsListSection = ({
   const userIsDebateParticipant =
     currentUser
     && post?.debate
-    && (currentUser._id === postAuthor?._id || post?.coauthorStatuses?.some(coauthor => coauthor.userId === currentUser._id));
+    && (currentUser._id === postAuthor?._id || userIsPostCoauthor(currentUser, post));
     
   const commentCountNode = !!totalComments && <span className={classes.commentCount}>{totalComments}</span>
   
@@ -168,7 +167,7 @@ const CommentsListSection = ({
   return (
     <div className={classNames(classes.root, {[classes.maxWidthRoot]: !tag})}>
       <div id="comments"/>
-      {isFriendlyUI && (newForm || !!totalComments) && !post?.shortform &&
+      {isFriendlyUI() && (newForm || !!totalComments) && !post?.shortform &&
         <div className={classes.commentsHeadline}>
           Comments{commentCountNode}
         </div>
@@ -181,16 +180,16 @@ const CommentsListSection = ({
         <div
           id="posts-thread-new-comment"
           className={classNames(classes.newComment, {
-            [classes.newQuickTake]: isEAForum && post?.shortform,
+            [classes.newQuickTake]: isEAForum() && post?.shortform,
           })}
         >
-          {!isEAForum && <div className={classes.newCommentLabel}>{preferredHeadingCase("New Comment")}</div>}
+          {!isEAForum() && <div className={classes.newCommentLabel}>{preferredHeadingCase("New Comment")}</div>}
           {post?.isEvent && !!post.rsvps?.length && (
             <div className={classes.newCommentSublabel}>
               Everyone who RSVP'd to this event will be notified.
             </div>
           )}
-          {isEAForum && post?.shortform
+          {isEAForum() && post?.shortform
             ? <QuickTakesEntry currentUser={currentUser} />
             : (
               <CommentsNewForm
@@ -234,7 +233,7 @@ const CommentsListSection = ({
         loading={loading}
       />
       <PostsPageCrosspostComments />
-      {!isEAForum && <Row justifyContent="flex-end">
+      {!isEAForum() && <Row justifyContent="flex-end">
         <LWTooltip title="View deleted comments and banned users">
           <Link to="/moderation">
             <MetaInfo>Moderation Log</MetaInfo>
@@ -273,10 +272,7 @@ function CommentsListSectionTitle({
   const classes = useStyles(styles);
   const currentUser = useCurrentUser();
   const newCommentsSinceDate = highlightDate
-    ? filter(
-      comments,
-      (comment) => new Date(comment.postedAt).getTime() > new Date(highlightDate).getTime(),
-    ).length
+    ? comments.filter(comment => new Date(comment.postedAt).getTime() > new Date(highlightDate).getTime()).length
     : 0;
   const now = useCurrentTime();
 
@@ -306,11 +302,11 @@ function CommentsListSectionTitle({
     <span>
       {postGetCommentCountStr(post, totalComments)}, sorted by <CommentsViews post={post} setRestoreScrollPos={setRestoreScrollPos} />
     </span>
-  if (isFriendlyUI) {
+  if (isFriendlyUI()) {
     commentSortNode = <>Sorted by <CommentsViews post={post} setRestoreScrollPos={setRestoreScrollPos} /></>
   }
 
-  const contentType = isEAForum && post?.shortform
+  const contentType = isEAForum() && post?.shortform
     ? "quick takes"
     : "comments";
 

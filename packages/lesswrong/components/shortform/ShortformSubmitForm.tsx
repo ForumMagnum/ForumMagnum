@@ -72,9 +72,9 @@ const ShortformSubmitForm = ({
         className={classes.quickTakesRoot}
         successCallback={successCallback}
         cancelCallback={cancelCallback}
-        defaultExpanded={isFriendlyUI || defaultExpanded}
+        defaultExpanded={isFriendlyUI() || defaultExpanded}
         defaultFocus
-        submitButtonAtBottom={isFriendlyUI || submitButtonAtBottom}
+        submitButtonAtBottom={isFriendlyUI() || submitButtonAtBottom}
       />
     </div>
   );

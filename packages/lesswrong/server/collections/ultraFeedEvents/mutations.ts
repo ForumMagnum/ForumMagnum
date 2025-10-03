@@ -23,6 +23,20 @@ const seeLessEventDataSchema = z.object({
 });
 
 export const graphqlUltraFeedEventTypeDefs = gql`
+  enum UltraFeedEventCollectionName {
+    Comments
+    Posts
+    Spotlights
+  }
+  
+  enum UltraFeedEventEventType {
+    served
+    viewed
+    expanded
+    interacted
+    seeLess
+  }
+
   input CreateUltraFeedEventDataInput ${
     getCreatableGraphQLFields(schema)
   }
@@ -46,10 +60,12 @@ export const graphqlUltraFeedEventTypeDefs = gql`
 `;
 
 export async function createUltraFeedEvent({ data }: CreateUltraFeedEventInput, context: ResolverContext) {
-  const { currentUser } = context;
-  assignUserIdToData(data, currentUser, schema);
+  const { currentUser, clientId } = context;
+  const userIdOrClientId = currentUser?._id ?? clientId;
+  // We check that either currentUser or clientId is set in the newCheck
+  const dataWithUserId = { ...data, userId: userIdOrClientId!, feedItemId: data.feedItemId ?? null };
 
-  const document = await insertAndReturnDocument(data, 'UltraFeedEvents', context);
+  const document = await insertAndReturnDocument(dataWithUserId, 'UltraFeedEvents', context);
 
   await updateCountOfReferencesOnOtherCollectionsAfterCreate('UltraFeedEvents', document);
 
@@ -87,7 +103,7 @@ export async function updateUltraFeedEvent(args: { selector: string, data: Updat
 
 export const createUltraFeedEventGqlMutation = makeGqlCreateMutation('UltraFeedEvents', createUltraFeedEvent, {
   newCheck: async (user: DbUser | null, document: DbUltraFeedEvent | null, context: ResolverContext) => {
-    return !!user;
+    return !!user || !!context.clientId;
   },
   accessFilter: (rawResult, context) => accessFilterSingle(context.currentUser, 'UltraFeedEvents', rawResult, context)
 });

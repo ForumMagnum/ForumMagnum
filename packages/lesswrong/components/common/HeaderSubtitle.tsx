@@ -1,30 +1,27 @@
 import React from 'react';
-import { useSubscribedLocation } from '../../lib/routeUtil';
 import { Link } from '../../lib/reactRouterWrapper';
-import { blackBarTitle } from '../../lib/publicSettings';
 import HeaderEventSubtitle from "./HeaderEventSubtitle";
+import { useRouteMetadata } from '../ClientRouteMetadataContext';
 import { defineStyles, useStyles } from '../hooks/useStyles';
+import { isBlackBarTitle } from '../seasonal/petrovDay/petrov-day-story/petrovConsts';
 
 export const headerSubtitleStyles = defineStyles("HeaderSubtitle", (theme: ThemeType) => ({
   subtitle: {
     marginLeft: '1em',
     paddingLeft: '1em',
     textTransform: theme.isFriendlyUI ? undefined : 'uppercase',
-    color: blackBarTitle.get() ? theme.palette.text.alwaysWhite : theme.palette.header.text,
+    color: isBlackBarTitle ? theme.palette.text.alwaysWhite : theme.palette.header.text,
     borderLeft: theme.palette.border.appBarSubtitleDivider,
   },
 }));
 
 const HeaderSubtitle = () => {
-  const { currentRoute } = useSubscribedLocation();
   const classes = useStyles(headerSubtitleStyles);
-  if (!currentRoute) {
-    return null;
-  }
+  const { metadata: routeMetadata } = useRouteMetadata();
 
-  const SubtitleComponent = currentRoute.subtitleComponent;
-  const subtitleString = currentRoute.headerSubtitle ?? currentRoute.subtitle;
-  const subtitleLink = currentRoute.subtitleLink;
+  const SubtitleComponent = routeMetadata.subtitleComponent;
+  const subtitleString = routeMetadata.subtitle;
+  const subtitleLink = routeMetadata.subtitleLink;
 
   if (SubtitleComponent) {
     return <SubtitleComponent isSubtitle={true} />
@@ -35,7 +32,7 @@ const HeaderSubtitle = () => {
   } else if (subtitleString) {
     return <span className={classes.subtitle}>
       {subtitleString}
-    </span>
+    </span> 
   } else {
     return <HeaderEventSubtitle />;
   }

@@ -1,4 +1,4 @@
-import { postCoauthorIsPending, postGetPageUrl } from "@/lib/collections/posts/helpers";
+import { postGetPageUrl } from "@/lib/collections/posts/helpers";
 import { tagGetUrl } from "@/lib/collections/tags/helpers";
 import { userGetProfileUrl } from "@/lib/collections/users/helpers";
 import { forumTitleSetting, isAF } from "@/lib/instanceSettings";
@@ -29,14 +29,14 @@ const getCommentStructuredData = ({
         interactionType: {
           "@type": "http://schema.org/CommentAction",
         },
-        userInteractionCount: comment.item.user?.[isAF ? "afCommentCount" : "commentCount"],
+        userInteractionCount: comment.item.user?.[isAF() ? "afCommentCount" : "commentCount"],
       },
       {
         "@type": "InteractionCounter",
         interactionType: {
           "@type": "http://schema.org/WriteAction",
         },
-        userInteractionCount: comment.item.user?.[isAF ? "afPostCount" : "postCount"],
+        userInteractionCount: comment.item.user?.[isAF() ? "afPostCount" : "postCount"],
       },
     ],
   }],
@@ -90,7 +90,7 @@ export const getStructuredData = ({
         },
         ...(hasCoauthors
           ? coauthors
-              .filter(({ _id }) => !postCoauthorIsPending(post, _id))
+              .filter(({ _id }) => !post.coauthorUserIds.includes(_id))
               .map(coauthor => ({
                 "@type": "Person",
                 "name": coauthor.displayName,

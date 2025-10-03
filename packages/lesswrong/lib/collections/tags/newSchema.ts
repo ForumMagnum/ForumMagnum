@@ -18,30 +18,12 @@ import { userIsSubforumModerator } from "./helpers";
 import { DEFAULT_AF_BASE_SCORE_FIELD, DEFAULT_AF_EXTENDED_SCORE_FIELD, DEFAULT_AF_VOTE_COUNT_FIELD, DEFAULT_BASE_SCORE_FIELD, DEFAULT_CURRENT_USER_EXTENDED_VOTE_FIELD, DEFAULT_CURRENT_USER_VOTE_FIELD, DEFAULT_EXTENDED_SCORE_FIELD, DEFAULT_INACTIVE_FIELD, DEFAULT_SCORE_FIELD, defaultVoteCountField } from "@/lib/make_voteable";
 import { getToCforTag } from "@/server/tableOfContents";
 import { getContributorsFieldResolver } from "@/lib/collections/helpers/contributorsField";
-import { captureException } from "@sentry/core";
+import { captureException } from "@/lib/sentryWrapper";
 import { isLW } from "@/lib/instanceSettings";
 import { permissionGroups } from "@/lib/permissions";
-import gql from "graphql-tag";
 import type { TagCommentType } from "../comments/types";
 import { CommentsViews } from "../comments/views";
-
-export const graphqlTypeDefs = gql`
-  type TagContributor {
-    user: User
-    contributionScore: Int!
-    currentAttributionCharCount: Int
-    numCommits: Int!
-    voteCount: Int!
-  }
-  type TagContributorsList {
-    contributors: [TagContributor!]!
-    totalCount: Int!
-  }
-  type UserLikingTag {
-    userId: String!
-    displayName: String!
-  }
-`
+import { userIsMemberOf } from "@/lib/vulcan-users/permissions";
 
 async function getTagMultiDocuments(context: ResolverContext, tagId: string) {
   const { MultiDocuments } = context;
@@ -575,7 +557,7 @@ const schema = {
       inputType: "Boolean",
       canRead: ["guests"],
       canUpdate: ["sunshineRegiment", "admins"],
-      canCreate: [...(isLW ? ['members' as const] : []), 'sunshineRegiment', 'admins'],
+      canCreate: [(user) => isLW() ? userIsMemberOf(user, 'members') : true, 'sunshineRegiment', 'admins'],
       validation: {
         optional: true,
       },

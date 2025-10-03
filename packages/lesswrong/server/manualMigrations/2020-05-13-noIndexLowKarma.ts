@@ -13,12 +13,12 @@ const launchDateByForum: ForumOptions<string> = {
   EAForum: '2014-09-10',
   default: "ahhhhh",
 }
-const launchDate = forumSelect(launchDateByForum)
+const launchDate = () => forumSelect(launchDateByForum)
 
 export function makeLowKarmaSelector (karmaThreshold: number): MongoSelector<DbPost> {
   return {
     postedAt: {
-      $gt: moment.utc(launchDate).toDate(),
+      $gt: moment.utc(launchDate()).toDate(),
       $lt: moment.utc().subtract(1, 'year').toDate()
     },
     isEvent: {$ne: true},
@@ -34,7 +34,7 @@ export default registerMigration({
   dateWritten: "2020-05-13",
   idempotent: true,
   action: async () => {
-    if (!moment(launchDate, dateFormat, true).isValid()) {
+    if (!moment(launchDate(), dateFormat, true).isValid()) {
       throw new Error('Need to specify launch date for this forum')
     }
     await forEachDocumentBatchInCollection({

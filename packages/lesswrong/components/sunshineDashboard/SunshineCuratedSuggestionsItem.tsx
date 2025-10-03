@@ -6,7 +6,6 @@ import { Link } from '../../lib/reactRouterWrapper'
 import { useCurrentUser } from '../common/withUser';
 import { useHover } from '../common/withHover'
 import withErrorBoundary from '../common/withErrorBoundary'
-import * as _ from 'underscore';
 import classNames from 'classnames';
 import CurationNoticesItem from "../admin/CurationNoticesItem";
 import SunshineListItem from "./SunshineListItem";
@@ -86,7 +85,7 @@ const SunshineCuratedSuggestionsItem = ({classes, post, setCurationPost, timeFor
   }
 
   const handleSuggestCurated = () => {
-    let suggestUserIds = _.clone(post.suggestForCuratedUserIds) || []
+    let suggestUserIds = [...post.suggestForCuratedUserIds ?? []]
     if (!suggestUserIds.includes(currentUser!._id)) {
       suggestUserIds.push(currentUser!._id)
     }
@@ -99,9 +98,9 @@ const SunshineCuratedSuggestionsItem = ({classes, post, setCurationPost, timeFor
   }
 
   const handleUnsuggestCurated = () => {
-    let suggestUserIds = _.clone(post.suggestForCuratedUserIds) || []
+    let suggestUserIds = [...post.suggestForCuratedUserIds ?? []]
     if (suggestUserIds.includes(currentUser!._id)) {
-      suggestUserIds = _.without(suggestUserIds, currentUser!._id);
+      suggestUserIds = suggestUserIds.filter(id => id !== currentUser!._id);
     }
     void updatePost({
       variables: {
@@ -112,7 +111,7 @@ const SunshineCuratedSuggestionsItem = ({classes, post, setCurationPost, timeFor
   }
 
   // On the EA Forum, only admins can curate and remove from curation suggestions
-  const canCurate = isEAForum ? currentUser?.isAdmin : true;
+  const canCurate = isEAForum() ? currentUser?.isAdmin : true;
 
   return (
     <span {...eventHandlers}>

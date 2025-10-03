@@ -5,7 +5,7 @@ import TextField from '@/lib/vendor/@material-ui/core/src/TextField';
 import Button from '@/lib/vendor/@material-ui/core/src/Button';
 import { Link } from '../../lib/reactRouterWrapper';
 import { useCurrentUser } from '../common/withUser';
-import { DatabasePublicSetting } from '../../lib/publicSettings';
+import { petrovGamePostIdSetting, petrovPostIdSetting } from '@/lib/instanceSettings';
 import { useMutation } from "@apollo/client/react";
 import { gql } from '@/lib/generated/gql-codegen';
 import { useMessages } from "../common/withMessages";
@@ -17,11 +17,8 @@ import {
 import LWTooltip from "../common/LWTooltip";
 import LoginPopupButton from "../users/LoginPopupButton";
 import { Typography } from "../common/Typography";
+import { petrovDayLaunchCode } from '@/lib/collections/petrovDayActions/constants';
 import { WrappedReactMapGL } from '../community/WrappedReactMapGL';
-
-export const petrovPostIdSetting = new DatabasePublicSetting<string>('petrov.petrovPostId', '')
-export const petrovGamePostIdSetting = new DatabasePublicSetting<string>('petrov.petrovGamePostId', '')
-export const petrovDayLaunchCode = 'whatwouldpetrovdo?'
 
 // This component is (most likely) going to be used once-a-year on Petrov Day (sept 26th)
 // see this post:

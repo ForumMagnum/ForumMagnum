@@ -1,11 +1,9 @@
-import { datadogRum } from '@datadog/browser-rum';
-import { EditableUser, getDatadogUser } from '../lib/collections/users/helpers';
-import { isEAForum } from '../lib/instanceSettings';
-import { ddRumSampleRate, ddSessionReplaySampleRate, ddTracingSampleRate } from '../lib/publicSettings';
+import { EditableUser, getUserEmail } from '../lib/collections/users/helpers';
+import { isEAForum, ddRumSampleRate, ddSessionReplaySampleRate, ddTracingSampleRate } from '@/lib/instanceSettings';
 import { getCookiePreferences } from '../lib/cookies/utils';
 import { isE2E, isServer } from '../lib/executionEnvironment';
 
-const hasDatadog = isEAForum && !isE2E;
+const hasDatadog = () => isEAForum() && !isE2E;
 
 let datadogInitialized = false;
 
@@ -14,7 +12,10 @@ export async function initDatadog() {
 
   const analyticsCookiesAllowed = cookiePreferences.includes("analytics");
 
-  if (isServer || !hasDatadog) return
+  if (isServer || !hasDatadog()) return
+  
+  const { datadogRum } = await import('@datadog/browser-rum');
+
   if (!analyticsCookiesAllowed) {
     // eslint-disable-next-line no-console
     console.log("Not initializing datadog because analytics cookies are not allowed")
@@ -47,8 +48,10 @@ export async function initDatadog() {
   datadogInitialized = true;
 }
 
-export function configureDatadogRum(user: UsersCurrent | UsersEdit | EditableUser | DbUser | null) {
-  if (!hasDatadog || !datadogInitialized) return
+export async function configureDatadogRum(user: UsersCurrent | UsersEdit | EditableUser | DbUser | null) {
+  if (!hasDatadog() || !datadogInitialized) return
+  
+  const { datadogRum } = await import('@datadog/browser-rum');
 
   // Set the user which will appear in traces
   datadogRum.setUser(user ? getDatadogUser(user) : {});
@@ -62,5 +65,21 @@ export function configureDatadogRum(user: UsersCurrent | UsersEdit | EditableUse
     console.log("Session Replay enabled")
     datadogRum.startSessionReplayRecording();
   }
+}
+
+type DatadogUser = {
+  id: string;
+  email?: string;
+  name?: string;
+  slug?: string;
+};
+
+export function getDatadogUser(user: UsersCurrent | UsersEdit | EditableUser | DbUser): DatadogUser {
+  return {
+    id: user._id,
+    email: getUserEmail(user),
+    name: user.displayName ?? user.username ?? '[missing displayName and username]',
+    slug: user.slug ?? 'missing slug',
+  };
 }
 

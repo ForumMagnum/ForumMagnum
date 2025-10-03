@@ -13,6 +13,7 @@ import isNil from "lodash/isNil";
 import { slugify } from "@/lib/utils/slugify";
 import { createAnonymousContext } from "@/server/vulcan-lib/createContexts";
 import { updatePost } from "@/server/collections/posts/mutations";
+import { waitForBackgroundTasks } from "@/server/utils/backgroundTask";
 
 describe('Voting', function() {
   describe('batchUpdating', function() {
@@ -33,10 +34,16 @@ describe('Voting', function() {
       const user = await createDummyUser();
       const sixty_days_ago = new Date().getTime()-(60*24*60*60*1000)
       const post = await createDummyPost(user, {postedAt: new Date(sixty_days_ago), inactive: false})
+      await waitForBackgroundTasks();
       await waitUntilPgQueriesFinished();
 
       const updatedPost = await Posts.find({_id: post._id}).fetch();
       (updatedPost[0].postedAt as any).getTime().should.be.closeTo(sixty_days_ago, 1000);
+      // This used to be checking for "false", which contradicted the test description
+      // and then mysteriously started failing with the NextJS migration.  But it's not
+      // clear that this should be true, rather than false.  When we create a post
+      // it gets a self-upvote, which _should_ set inactive: false?
+      // Actually I think the test might be flaky rather than consistently failing.
       (updatedPost[0].inactive as any).should.be.false;
     });
     it('should compute a higher score if post is categorized as frontpage and even higher if curated', async () => {
@@ -201,7 +208,7 @@ describe('Voting', function() {
       const yesterday = new Date().getTime() - (1 * 24 * 60 * 60 * 1000);
       const post = await createDummyPost(author, {
         postedAt: new Date(yesterday),
-        coauthorStatuses: [ { userId: coauthor._id, confirmed: true, } ],
+        coauthorUserIds: [coauthor._id],
       });
 
       expect(author.karma).toBe(0);
@@ -234,7 +241,7 @@ describe('Voting', function() {
 
       await updatePost({
         data: {
-          coauthorStatuses: [ { userId: coauthor._id, confirmed: true, requested: true } ]
+          coauthorUserIds: [coauthor._id],
         },
         selector: { _id: post._id }
       }, createAnonymousContext());
@@ -311,7 +318,7 @@ describe('Voting', function() {
       const voter = await createDummyUser();
       const post = await createDummyPost(author, {
         createdAt: postedAt,
-        coauthorStatuses: [ { userId: coauthor._id, confirmed: true, } ],
+        coauthorUserIds: [coauthor._id],
       });
 
       await performVoteServer({

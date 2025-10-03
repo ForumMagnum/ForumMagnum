@@ -2,15 +2,13 @@ import React, { useRef, useState, useEffect, useContext } from 'react'
 import { ckEditorBundleVersion, getCkPostEditor } from '../../lib/wrapCkEditor';
 import { getCKEditorDocumentId, generateTokenRequest} from '../../lib/ckEditorUtils'
 import { CollaborativeEditingAccessLevel, accessLevelCan } from '../../lib/collections/posts/collabEditingPermissions';
-import { ckEditorUploadUrlSetting, ckEditorWebsocketUrlSetting } from '../../lib/publicSettings'
-import { ckEditorUploadUrlOverrideSetting, ckEditorWebsocketUrlOverrideSetting, forumTypeSetting, isEAForum, isLWorAF } from '../../lib/instanceSettings';
+import { ckEditorUploadUrlSetting, ckEditorWebsocketUrlSetting, ckEditorUploadUrlOverrideSetting, ckEditorWebsocketUrlOverrideSetting, isEAForum, isLWorAF } from '@/lib/instanceSettings';
 import EditorTopBar, { CollaborationMode } from './EditorTopBar';
 import { useSubscribedLocation } from '../../lib/routeUtil';
-import { defaultEditorPlaceholder } from '../../lib/editor/make_editable';
+import { getDefaultEditorPlaceholder } from '@/lib/editor/defaultEditorPlaceholder';
 import { mentionPluginConfiguration } from "../../lib/editor/mentionsConfig";
 import { useCurrentUser } from '../common/withUser';
 import { useMessages } from '../common/withMessages';
-import { getConfirmedCoauthorIds } from '../../lib/collections/posts/helpers';
 import sortBy from 'lodash/sortBy'
 import uniqBy from 'lodash/uniqBy';
 import { filterNonnull } from '../../lib/utils/typeGuardUtils';
@@ -28,8 +26,6 @@ import type { ConditionalVisibilityPluginConfiguration  } from './conditionalVis
 import { CkEditorPortalContext } from './CKEditorPortalProvider';
 import { useDialog } from '../common/withDialog';
 import { claimsConfig } from './claims/claimsConfig';
-import { useGlobalKeydown } from '../common/withGlobalKeydown';
-import { isClient } from '@/lib/executionEnvironment';
 import { useCkEditorInspector } from '@/client/useCkEditorInspector';
 import EditConditionalVisibility from "./conditionalVisibilityBlock/EditConditionalVisibility";
 import DialogueEditorGuidelines from "../posts/dialogues/DialogueEditorGuidelines";
@@ -326,7 +322,7 @@ export type ConnectedUserInfo = {
 
 const readOnlyPermissionsLock = Symbol("ckEditorReadOnlyPermissions");
 
-const postEditorToolbarConfig = {
+const getPostEditorToolbarConfig = () => ({
   blockToolbar: {
     items: [
       'imageUpload',
@@ -334,10 +330,10 @@ const postEditorToolbarConfig = {
       'horizontalLine',
       'mathDisplay',
       'mediaEmbed',
-      ...(isEAForum ? ['ctaButtonToolbarItem', 'pollToolbarItem'] : ['collapsibleSectionButton']),
-      //...(isLWorAF ? ['conditionallyVisibleSectionButton'] : []),
+      ...(isEAForum() ? ['ctaButtonToolbarItem', 'pollToolbarItem'] : ['collapsibleSectionButton']),
+      //...(isLWorAF() ? ['conditionallyVisibleSectionButton'] : []),
       'footnote',
-      ...(isLWorAF ? ['insertClaimButton'] : []),
+      ...(isLWorAF() ? ['insertClaimButton'] : []),
     ],
     
     /* At some point the default icon for the block toolbar changed from a
@@ -365,14 +361,18 @@ const postEditorToolbarConfig = {
       'math',
       // We don't have the collapsible sections plugin in the selected-text toolbar yet,
       // because the behavior of creating a collapsible section is non-obvious and we want to fix it first
-      ...(isEAForum ? ['ctaButtonToolbarItem', 'pollToolbarItem'] : []),
+      ...(isEAForum() ? ['ctaButtonToolbarItem', 'pollToolbarItem'] : []),
       'footnote',
-      ...(isLWorAF ? ['insertClaimButton'] : []),
+      ...(isLWorAF() ? ['insertClaimButton'] : []),
     ],
     shouldNotGroupWhenFull: true,
   },
-};
+});
 
+
+/**
+ * This is called `PostEditor`, but note that it is also used for sequences
+ */
 const CKPostEditor = ({
   data,
   collectionName,
@@ -411,8 +411,11 @@ const CKPostEditor = ({
   const currentUser = useCurrentUser();
   const { flash } = useMessages();
   const { openDialog } = useDialog();
-  const post = (document as PostsEdit);
-  const isBlockOwnershipMode = isCollaborative && post.collabEditorDialogue;
+  const postOrSequence = (document as PostsEdit | SequencesEdit);
+  const isBlockOwnershipMode = isCollaborative &&
+    "collabEditorDialogue" in postOrSequence &&
+    postOrSequence.collabEditorDialogue;
+
   const portalContext = useContext(CkEditorPortalContext);
   
   const getInitialCollaborationMode = () => {
@@ -461,7 +464,7 @@ const CKPostEditor = ({
 
     await sendNewDialogueMessageNotification({
       variables: {
-        postId: post._id,
+        postId: postOrSequence._id,
         dialogueHtml: editorContents
       }
     });
@@ -526,13 +529,13 @@ const CKPostEditor = ({
     collaborationModeRef.current = mode;
   }
 
-  const actualPlaceholder = placeholder ?? defaultEditorPlaceholder;
+  const actualPlaceholder = placeholder ?? getDefaultEditorPlaceholder();
 
   // This is AnyBecauseHard because it contains plugin-specific configs that are
   // added to the EditorConfig type via augmentations, but we don't get those
   // augmentations because we're only importing those in the CkEditor bundle.
-  const editorConfig: AnyBecauseHard = {
-    ...postEditorToolbarConfig,
+  const editorConfig = {
+    ...getPostEditorToolbarConfig(),
     autosave: {
       save (editor: any) {
         return onSave && onSave(editor.getData())
@@ -594,7 +597,7 @@ const CKPostEditor = ({
       accessLevel={accessLevel||"none"}
       collaborationMode={collaborationMode}
       setCollaborationMode={changeCollaborationMode}
-      post={post}
+      post={postOrSequence as PostsEdit}
       connectedUsers={connectedUsers}
     />}
     
@@ -632,9 +635,29 @@ const CKPostEditor = ({
           setEditor(editor);
         }
 
-        const userIds = formType === 'new' ? [userId] : [post.userId, ...getConfirmedCoauthorIds(post)];
-        if (post.collabEditorDialogue && accessLevel && accessLevelCan(accessLevel, 'edit')) {
-          const rawAuthors = formType === 'new' ? [currentUser!] : filterNonnull([post.user, ...(post.coauthors ?? [])])
+        const userIds = formType === 'new'
+          ? [userId]
+          : [
+            postOrSequence.userId,
+            ...(
+              "coauthorUserIds" in postOrSequence
+                ? postOrSequence.coauthorUserIds
+                : []
+            ),
+          ];
+
+        if (
+          "collabEditorDialogue" in postOrSequence &&
+          postOrSequence.collabEditorDialogue &&
+          accessLevel &&
+          accessLevelCan(accessLevel, 'edit')
+        ) {
+          const rawAuthors = formType === 'new'
+            ? [currentUser!]
+            : filterNonnull([
+              postOrSequence.user,
+              ...(postOrSequence.coauthors ?? [])
+            ]);
           const coauthors = uniqBy(
             rawAuthors.filter(coauthor => userIds.includes(coauthor._id)),
             (user) => user._id,
@@ -729,7 +752,10 @@ const CKPostEditor = ({
       }}
       config={editorConfig}
     />}
-    {post.collabEditorDialogue && !isFriendlyUI ? <DialogueEditorFeedback post={post} /> : null}
+    {"collabEditorDialogue" in postOrSequence && postOrSequence.collabEditorDialogue && !isFriendlyUI
+      ? <DialogueEditorFeedback post={postOrSequence} /> 
+      : null
+    }
   </div>
 }
 

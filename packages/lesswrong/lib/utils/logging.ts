@@ -17,12 +17,7 @@
  * setting `instanceDebuggers` to the same.
  */
 import util from 'util'
-import { PublicInstanceSetting } from '../instanceSettings'
-import { DatabasePublicSetting } from '../publicSettings'
-
-const databaseDebuggersSetting = new DatabasePublicSetting<string[]>('debuggers', [])
-const instanceDebuggersSetting = new PublicInstanceSetting<string[]>('instanceDebuggers', [], 'optional')
-const instanceDebuggers = instanceDebuggersSetting.get()
+import { instanceDebuggersSetting, databaseDebuggersSetting } from '../instanceSettings'
 
 type Logger = (...args: any[]) => void
 
@@ -31,7 +26,7 @@ const manuallyEnabledDebuggers: string[] = []
 const scopeIsActive = (scope: string): boolean => {
   // We only need to re-check the cache for database settings. Changing instance
   // settings requires a rebuild
-  if (databaseDebuggersSetting.get().includes(scope) || instanceDebuggers.includes(scope) || manuallyEnabledDebuggers.includes(scope)) {
+  if (databaseDebuggersSetting.get().includes(scope) || instanceDebuggersSetting.get().includes(scope) || manuallyEnabledDebuggers.includes(scope)) {
     return true
   }
   return false

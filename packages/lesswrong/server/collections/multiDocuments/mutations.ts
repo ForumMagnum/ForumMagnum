@@ -100,7 +100,7 @@ export async function createMultiDocument({ data }: CreateMultiDocumentInput, co
 
   reindexParentTagIfNeeded(documentWithId);
 
-  await uploadImagesInEditableFields({
+  uploadImagesInEditableFields({
     newDoc: documentWithId,
     props: asyncProperties,
   });
@@ -142,7 +142,7 @@ export async function updateMultiDocument({ selector, data }: UpdateMultiDocumen
 
   reindexParentTagIfNeeded(updatedDocument);
 
-  await reuploadImagesIfEditableFieldsChanged({
+  reuploadImagesIfEditableFieldsChanged({
     newDoc: updatedDocument,
     props: updateCallbackProperties,
   });

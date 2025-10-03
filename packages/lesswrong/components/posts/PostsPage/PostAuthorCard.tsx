@@ -79,7 +79,7 @@ const PostAuthorCard = ({author, currentUser, classes}: {
     <div className={classes.root}>
       <Typography variant="subheading" component="div" className={classes.about}>About the author</Typography>
       <div className={classes.usernameRow}>
-        {isFriendlyUI && author.profileImageId && <Link
+        {isFriendlyUI() && author.profileImageId && <Link
           to={`/users/${author.slug}?from=post_author_card`}
           className={classes.photoLink}
         >

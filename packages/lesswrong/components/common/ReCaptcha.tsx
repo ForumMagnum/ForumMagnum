@@ -2,7 +2,7 @@
 import React, { Component } from 'react'
 import PropTypes from 'prop-types'
 import { registerComponent } from '../../lib/vulcan-lib/components'
-import { reCaptchaSiteKeySetting } from '../../lib/publicSettings'
+import { reCaptchaSiteKeySetting } from '@/lib/instanceSettings';
 import { isClient } from '../../lib/executionEnvironment';
 
 const propTypes = {
@@ -18,10 +18,7 @@ const defaultProps = {
   verifyCallbackName: 'verifyCallback',
 }
 
-const isReady = () =>
-  typeof window !== 'undefined' &&
-  typeof window.grecaptcha !== 'undefined' &&
-  typeof window.grecaptcha.execute !== 'undefined'
+const isReady = () => typeof window !== 'undefined' && window.recaptchaLoaded;
 
 let readyCheck: NodeJS.Timeout
 

@@ -1,12 +1,11 @@
 import { Images } from '../../server/collections/images/collection';
-import { DatabaseServerSetting } from '../databaseSettings';
-import { ckEditorUploadUrlSetting, cloudinaryCloudNameSetting } from '../../lib/publicSettings';
+import { cloudinaryApiKey, cloudinaryApiSecret } from '../databaseSettings';
+import { ckEditorUploadUrlSetting, cloudinaryCloudNameSetting, ckEditorUploadUrlOverrideSetting } from '../../lib/instanceSettings';
 import { randomId } from '../../lib/random';
-import cloudinary, { UploadApiResponse } from 'cloudinary';
+import type { UploadApiResponse } from 'cloudinary';
 import cheerio from 'cheerio';
 import { cheerioParse } from '../utils/htmlUtil';
 import { URL } from 'url';
-import { ckEditorUploadUrlOverrideSetting } from '../../lib/instanceSettings';
 import uniq from 'lodash/uniq';
 import { loggerConstructor } from '../../lib/utils/logging';
 import { Posts } from '../../server/collections/posts/collection';
@@ -20,8 +19,6 @@ import { sleep } from '@/lib/utils/asyncUtils';
 import SideCommentCaches from '@/server/collections/sideCommentCaches/collection';
 import { createAnonymousContext } from '../vulcan-lib/createContexts';
 
-const cloudinaryApiKey = new DatabaseServerSetting<string>("cloudinaryApiKey", "");
-const cloudinaryApiSecret = new DatabaseServerSetting<string>("cloudinaryApiSecret", "");
 
 export type CloudinaryCredentials = {
   cloud_name: string,
@@ -63,6 +60,7 @@ export async function findAlreadyMovedImage(identifier: string): Promise<string|
  * Exported to allow use in "yarn repl"
  */
 export async function moveImageToCloudinary({oldUrl, originDocumentId}: {oldUrl: string, originDocumentId: string}): Promise<string|null> {
+  const cloudinary = await import('cloudinary');
   const upload = async (credentials: CloudinaryCredentials) => {
     // First try mirroring the existing URL. If that fails, try retrieving the
     // image from archive.org. If that still fails, let the exception escape,
@@ -111,6 +109,7 @@ export async function moveImageToCloudinary({oldUrl, originDocumentId}: {oldUrl:
  * (identified by SHA256 hash) it will return the existing cloudinary URL.
  */
 export async function uploadBufferToCloudinary(buffer: Buffer) {
+  const cloudinary = await import('cloudinary');
   const hash = crypto.createHash('sha256').update(buffer).digest('hex');
   const upload = async (credentials: CloudinaryCredentials) => new Promise<UploadApiResponse>((resolve) => {
     cloudinary.v2.uploader
@@ -144,9 +143,10 @@ export async function getOrCreateCloudinaryImage({
   upload,
 }: {
   identifier: string;
-  identifierType: string;
+  identifierType: 'originalUrl' | 'sha256Hash';
   upload: (credentials: CloudinaryCredentials) => Promise<UploadApiResponse>;
 }) {
+  const cloudinary = await import('cloudinary');
   const logger = loggerConstructor("image-conversion");
   const alreadyRehosted = await findAlreadyMovedImage(identifier);
   if (alreadyRehosted) return alreadyRehosted;
@@ -170,6 +170,7 @@ export async function getOrCreateCloudinaryImage({
     identifier,
     identifierType,
     cdnHostedUrl: autoQualityFormatUrl,
+    originalUrl: null,
   });
 
   return autoQualityFormatUrl;
@@ -371,7 +372,7 @@ export async function convertImagesInObject<N extends CollectionNameString>(
       _id: randomId(),
       html: newHtml,
       editedAt: now,
-      updateType: "patch",
+      updateType: "patch" as const,
       version: newVersion,
       commitMessage: "Move images to CDN",
       changeMetrics: htmlToChangeMetrics(oldHtml, newHtml),
@@ -516,6 +517,7 @@ function getEmptyImageUploadStats(): ImageUploadStats {
  * present in the Images collection will be skipped.
  */
 export async function importImageMirrors(csvFilename: string) {
+  const cloudinary = await import('cloudinary');
   const csvStr = fs.readFileSync(csvFilename, 'utf-8');
   const parsedCsv = Papa.parse(csvStr, {
     delimiter: ',',

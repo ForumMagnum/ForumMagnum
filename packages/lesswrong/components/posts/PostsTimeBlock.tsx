@@ -228,7 +228,7 @@ const PostsTimeBlock = ({
         </div> }
         {displayPostsTagsList && <PostsTagsList posts={posts ?? null} currentFilter={tagFilter} handleFilter={handleTagFilter} expandedMinCount={0}/>}
         {postGroups.map(({name, filteredPosts, label}) => {
-          if (filteredPosts?.length > 0 || (loading && isFriendlyUI)) {
+          if (filteredPosts?.length > 0 || (loading && isFriendlyUI())) {
             return <div key={name}>
               <div
                 className={name === 'frontpage' ? classes.frontpageSubtitle : classes.otherSubtitle}
@@ -236,7 +236,7 @@ const PostsTimeBlock = ({
                 <ContentType type={name} label={label} className={classes.subtitle} />
               </div>
               <div className={classes.posts}>
-                {!filteredPosts?.length && isFriendlyUI && <PostsLoading placeholderCount={10} />}
+                {!filteredPosts?.length && isFriendlyUI() && <PostsLoading placeholderCount={10} />}
                 {filteredPosts.map((post, i) =>
                   <PostsItem
                     key={post._id}

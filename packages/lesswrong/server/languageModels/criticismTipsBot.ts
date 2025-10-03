@@ -3,7 +3,7 @@ import { isAnyTest, isProduction } from '../../lib/executionEnvironment';
 import sanitizeHtml from 'sanitize-html';
 import { isEAForum } from '../../lib/instanceSettings';
 import OpenAI from 'openai';
-import { captureEvent } from '../../lib/analyticsEvents';
+import { serverCaptureEvent as captureEvent } from '@/server/analytics/serverAnalyticsWriter';
 import type { PostIsCriticismRequest } from '../resolvers/postResolvers';
 import { sanitizeHtmlOptions } from './modGPT';
 
@@ -32,7 +32,7 @@ const checkIsCriticism = async (api: OpenAI, text: string) => {
  */
 export async function postIsCriticism(post: PostIsCriticismRequest, currentUserId?: string): Promise<boolean> {
   // Only run this on the EA Forum on production, since it costs money.
-  if (!isEAForum || !isProduction) return false
+  if (!isEAForum() || !isProduction) return false
   
   if (!post.body) {
     if (!isAnyTest) {

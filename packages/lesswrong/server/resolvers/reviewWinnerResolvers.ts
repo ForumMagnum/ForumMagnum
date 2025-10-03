@@ -1,4 +1,4 @@
-import { restrictViewableFieldsSingle } from "../../lib/vulcan-users/permissions";
+import { restrictViewableFieldsSingle } from '@/lib/vulcan-users/restrictViewableFields';
 import { splashArtCoordinateCache } from "@/server/review/splashArtCoordinatesCache";
 import { reviewWinnerCache, ReviewWinnerWithPost } from "@/server/review/reviewWinnersCache";
 import { isLWorAF } from "../../lib/instanceSettings";
@@ -8,18 +8,18 @@ import { backgroundTask } from "../utils/backgroundTask";
 
 
 export async function initReviewWinnerCache() {
-  if (isLWorAF) {
+  if (isLWorAF()) {
     const context = createAnonymousContext();
     backgroundTask(reviewWinnerCache.get(context));
     backgroundTask(splashArtCoordinateCache.get(context));
   }
 }
 
-function restrictReviewWinnerPostFields(reviewWinners: ReviewWinnerWithPost[], context: ResolverContext) {
-  return reviewWinners.map(({ reviewWinner, ...post }) => ({
-    ...restrictViewableFieldsSingle(context.currentUser, 'Posts', post),
+async function restrictReviewWinnerPostFields(reviewWinners: ReviewWinnerWithPost[], context: ResolverContext) {
+  return Promise.all(reviewWinners.map(async ({ reviewWinner, ...post }) => ({
+    ...(await restrictViewableFieldsSingle(context.currentUser, context.Posts, post)),
     reviewWinner
-  }));
+  })));
 }
 
 export const reviewWinnerGraphQLTypeDefs = gql`

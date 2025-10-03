@@ -1,5 +1,4 @@
 import { commentsTableOfContentsEnabled } from "./betas";
-import * as _ from 'underscore';
 import { answerTocExcerptFromHTML, truncate } from "./editor/ellipsize";
 import { htmlToTextDefault } from "./htmlToText";
 import type { WindowType } from "./domParser";
@@ -61,12 +60,6 @@ export interface ToCData {
   sections: ToCSection[],
 }
 
-// Number of headings below which a table of contents won't be generated.
-// If comments-ToC is enabled, this is 0 because we need a post-ToC (even if
-// it's empty) to keep the horizontal position of things on the page from
-// being imbalanced.
-const MIN_HEADINGS_FOR_TOC = commentsTableOfContentsEnabled ? 0 : 1;
-
 // Tags which define headings. Currently <h1>-<h4>, <strong>, and <b>. Excludes
 // <h5> and <h6> because their usage in historical (HTML) wasn't as a ToC-
 // worthy heading.
@@ -85,7 +78,7 @@ const headingIfWholeParagraph = {
   b: true,
 };
 
-const headingSelector = _.keys(headingTags).join(",");
+const headingSelector = Object.keys(headingTags).join(",");
 
 /**
  * Given an HTML document, extract a list of sections for a table of contents
@@ -261,8 +254,15 @@ export function shouldShowTableOfContents({
   post?: { question: boolean } | null;
 }): boolean {
   
-  if (isLWorAF) return true;
-  return sections.length > MIN_HEADINGS_FOR_TOC || (post?.question ?? false);
+  if (isLWorAF()) return true;
+
+  // Number of headings below which a table of contents won't be generated.
+  // If comments-ToC is enabled, this is 0 because we need a post-ToC (even if
+  // it's empty) to keep the horizontal position of things on the page from
+  // being imbalanced.
+  const minHeadingsForToC = commentsTableOfContentsEnabled() ? 0 : 1;
+
+  return sections.length > minHeadingsForToC || (post?.question ?? false);
 }
 
 /**
@@ -347,7 +347,7 @@ function titleToAnchor(title: string, usedAnchors: Record<string,boolean>): stri
   }
 
   let anchor = sb.join('');
-  if(!usedAnchors[anchor] && !_.find(reservedAnchorNames, x=>x===anchor))
+  if(!usedAnchors[anchor] && !reservedAnchorNames.includes(anchor))
     return anchor;
 
   let anchorSuffix = 1;

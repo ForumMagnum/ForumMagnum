@@ -1,5 +1,3 @@
-import { getSchema } from "@/lib/schema/allSchemas";
-
 class ClientCollection<
   N extends CollectionNameString = CollectionNameString
 > implements CollectionBase<N> {
@@ -23,11 +21,6 @@ class ClientCollection<
 
   isVoteable(): this is ClientCollection<VoteableCollectionName> {
     return !!this.options.voteable;
-  }
-
-  hasSlug(): this is ClientCollection<CollectionNameWithSlug> {
-    const schema = getSchema(this.collectionName);
-    return 'slug' in schema;
   }
 
   private executeQuery(): never {

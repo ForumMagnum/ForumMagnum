@@ -1,15 +1,16 @@
-import React, { FC, ReactNode, createContext, useCallback, useContext, useEffect, useMemo } from 'react';
+import React, { FC, ReactNode, createContext, useCallback, useContext, useEffect, useMemo, useRef, useState } from 'react';
 import { gql } from '@/lib/generated/gql-codegen';
 import { useOnNavigate } from '../hooks/useOnNavigate';
-import { useOnFocusTab } from '../hooks/useOnFocusTab';
-import { useCurrentUser } from '../common/withUser';
+import { useCurrentUserId } from '../common/withUser';
 import { useUpdateCurrentUser } from './useUpdateCurrentUser';
-import { faviconUrlSetting, faviconWithBadgeSetting } from '../../lib/instanceSettings';
-import { type QueryRef, useBackgroundQuery, useReadQuery } from '@apollo/client/react';
-import { NotificationsListMultiQuery } from '../notifications/NotificationsList';
+import { type QueryRef, useApolloClient, useBackgroundQuery, useReadQuery } from '@apollo/client/react';
+import { NotificationsListMultiQuery } from '../notifications/NotificationsListMultiQuery';
 import { SuspenseWrapper } from '../common/SuspenseWrapper';
 import type { ResultOf } from '@graphql-typed-document-node/core';
 import ErrorBoundary from '../common/ErrorBoundary';
+import { useIdlenessDetection } from './useIdlenessDetection';
+import { usePageVisibility } from './usePageVisibility';
+import { faviconUrlSetting, faviconWithBadgeSetting } from '../../lib/instanceSettings';
 
 export type NotificationCountsResult = {
   checkedAt: Date,
@@ -18,62 +19,10 @@ export type NotificationCountsResult = {
   faviconBadgeNumber: number
 };
 
-/**
- * Provided by the client (if this is running on the client not the server),
- * otherwise methods will be null. Methods are filled in by `initServerSentEvents`
- * prior to React hydration.
- */
-type ServerSentEventsAPI = {
-  setServerSentEventsActive: ((active: boolean) => void)|null
-}
-export const serverSentEventsAPI: ServerSentEventsAPI = {
-  setServerSentEventsActive: null,
-};
-
-export type ActiveDialogueServer = {
-  _id: string,
-  userId: string,
-  title: string,
-  coauthorStatuses: {userId: string, confirmed: string, rejected: string}[],
-  activeUserIds: string[],
-  mostRecentEditedAt?: Date,
-}
-
-export type ActiveDialogue = {
-  userIds: string[],
-  postId: string,
-  title: string,
-  mostRecentEditedAt?: Date,
-  anyoneRecentlyActive: boolean,
-}
-
-export type ActiveDialogueData = {
-  [userId: string]: ActiveDialogue[];
-};
-
-export type ActiveDialoguePartnersMessage = {
-  eventType: 'activeDialoguePartners',
-  data: ActiveDialogue[]
-}
-
-export type TypingIndicatorMessage = {
-  eventType: 'typingIndicator',
-  typingIndicators: TypingIndicatorInfo[]
-}
-
-export type NotificationCheckMessage = {
-  eventType: 'notificationCheck',
-  stop?: boolean,
-  newestNotificationTime?: string // stringified date
-}
-
-export type ServerSentEventsMessage = ActiveDialoguePartnersMessage | TypingIndicatorMessage | NotificationCheckMessage;
-
-type EventType = ServerSentEventsMessage['eventType'];
-type MessageOfType<T extends EventType> = Extract<ServerSentEventsMessage, { eventType: T }>;
-type NotificationEventListener<T extends EventType> = (message: MessageOfType<T>) => void;
-
 const notificationsCheckedAtLocalStorageKey = "notificationsCheckedAt";
+
+// Polling interval in milliseconds (5 seconds)
+const POLLING_INTERVAL = 5 * 1000;
 
 const UnreadNotificationCountsQuery = gql(`
     query UnreadNotificationCountQuery {
@@ -87,15 +36,17 @@ const UnreadNotificationCountsQuery = gql(`
   `)
 
 type UnreadNotificationsContext = {
-  unreadNotificationCountsQueryRef: QueryRef<ResultOf<typeof UnreadNotificationCountsQuery>> | null,
+  unreadNotificationCountsQueryRef: QueryRef<ResultOf<typeof UnreadNotificationCountsQuery>> | undefined,
   notificationsOpened: () => Promise<void>,
   refetchUnreadNotifications: () => Promise<void>,
+  latestUnreadCount: number | null,
 }
 
 const unreadNotificationsContext = createContext<UnreadNotificationsContext>({
-  unreadNotificationCountsQueryRef: null,
+  unreadNotificationCountsQueryRef: undefined,
   notificationsOpened: async () => {},
   refetchUnreadNotifications: async () => {},
+  latestUnreadCount: null,
 });
 
 /**
@@ -113,8 +64,11 @@ const unreadNotificationsContext = createContext<UnreadNotificationsContext>({
 export const UnreadNotificationsContextProvider: FC<{
   children: ReactNode,
 }> = ({children}) => {
-  const currentUser = useCurrentUser();
+  const currentUserId = useCurrentUserId();
   const updateCurrentUser = useUpdateCurrentUser();
+  const apolloClient = useApolloClient();
+
+  const [latestUnreadCount, setLatestUnreadCount] = useState<number | null>(null);
   
   //function updateFavicon(unreadNotificationCounts: NotificationCountsResult) {
     /*
@@ -127,7 +81,7 @@ export const UnreadNotificationsContextProvider: FC<{
   //}
   
   const [unreadNotificationCountsQueryRef, {refetch: refetchCounts}] = useBackgroundQuery(UnreadNotificationCountsQuery, {
-    skip: !currentUser?._id,
+    skip: !currentUserId,
     //onCompleted: (data) => updateFavicon(withDateFields(data.unreadNotificationCounts, ['checkedAt'])),
   });
 
@@ -137,45 +91,63 @@ export const UnreadNotificationsContextProvider: FC<{
   // in the crucial "click the notifications icon after site load" interaction.
   const [_queryRef, {refetch: refetchNotifications}] = useBackgroundQuery(NotificationsListMultiQuery, {
     variables: {
-      selector: { userNotifications: { userId: currentUser?._id } },
+      selector: { userNotifications: { userId: currentUserId } },
       limit: 20,
       enableTotal: false,
     },
-    skip: !currentUser?._id,
+    skip: !currentUserId,
   });
   
   const refetchBoth = useCallback(async () => {
-    if (currentUser?._id) {
+    if (currentUserId) {
       void refetchNotifications();
 
       const newCounts = await refetchCounts();
       //updateFavicon(withDateFields(newCounts.data.unreadNotificationCounts, ['checkedAt']));
     }
-  }, [currentUser?._id, refetchCounts, refetchNotifications]);
+  }, [currentUserId, refetchCounts, refetchNotifications]);
 
   useOnNavigate(refetchBoth);
-  useOnFocusTab(refetchBoth);
+  // useOnFocusTab(refetchBoth);
   
   const notificationsOpened = useCallback(async () => {
     const now = new Date();
     await updateCurrentUser({
       lastNotificationsCheck: now,
     });
-    await refetchBoth();
+
+    // This will cause NotificationEffects to update latestUnreadCount for us,
+    // which we want to happen before `refetchBoth` comes back to us with the real data
+    apolloClient.cache.writeQuery({
+      query: UnreadNotificationCountsQuery,
+      data: {
+        unreadNotificationCounts: {
+          __typename: "NotificationCounts",
+          unreadNotifications: 0,
+          checkedAt: now.toISOString(),
+          unreadPrivateMessages: 0,
+          faviconBadgeNumber: 0,
+        },
+      },
+    });
+
+    void refetchBoth();
+
     window.localStorage.setItem(notificationsCheckedAtLocalStorageKey, now.toISOString());
-  }, [refetchBoth, updateCurrentUser]);
+  }, [updateCurrentUser, apolloClient.cache, refetchBoth]);
 
   const providedContext: UnreadNotificationsContext = useMemo(() => ({
-    unreadNotificationCountsQueryRef: unreadNotificationCountsQueryRef!,
+    unreadNotificationCountsQueryRef,
     notificationsOpened,
     refetchUnreadNotifications: refetchBoth,
-  }), [ unreadNotificationCountsQueryRef, notificationsOpened, refetchBoth ]);
+    latestUnreadCount,
+  }), [ unreadNotificationCountsQueryRef, notificationsOpened, refetchBoth, latestUnreadCount ]);
 
   return (
     <unreadNotificationsContext.Provider value={providedContext}>
       {unreadNotificationCountsQueryRef && <ErrorBoundary hideMessage>
         <SuspenseWrapper name="useUnreadNotifications">
-          <NotificationsEffects queryRef={unreadNotificationCountsQueryRef} refetchCounts={refetchCounts} refetchBoth={refetchBoth} />
+          <NotificationsEffects queryRef={unreadNotificationCountsQueryRef} refetchCounts={refetchCounts} refetchBoth={refetchBoth} latestUnreadCount={latestUnreadCount} onCountChanged={setLatestUnreadCount} />
         </SuspenseWrapper>
       </ErrorBoundary>}
       {children}
@@ -185,15 +157,29 @@ export const UnreadNotificationsContextProvider: FC<{
 
 export const useUnreadNotifications = () => useContext(unreadNotificationsContext);
 
-const NotificationsEffects = ({queryRef, refetchCounts, refetchBoth}: {
+const NotificationsEffects = ({queryRef, refetchCounts, refetchBoth, latestUnreadCount, onCountChanged}: {
   queryRef: QueryRef<ResultOf<typeof UnreadNotificationCountsQuery>>,
   refetchCounts: () => void
   refetchBoth: () => void
+  latestUnreadCount: number | null
+  onCountChanged: (count: number) => void
 }) => {
-  const currentUser = useCurrentUser();
+  const currentUserId = useCurrentUserId();
   const updateCurrentUser = useUpdateCurrentUser();
-  const unreadNotificationCounts = useReadQuery(queryRef);
+  const unreadNotificationCounts = useReadQuery(queryRef!);
   const checkedAt = unreadNotificationCounts.data.unreadNotificationCounts.checkedAt;
+  const { userIsIdle } = useIdlenessDetection(30);
+  const { pageIsVisible } = usePageVisibility();
+
+  const pollingIntervalRef = useRef<NodeJS.Timeout | null>(null);
+
+  // Update the latest unread count when the query is rerun or the cache
+  // is manually updated (i.e. by user clicking on the bell), if it's changed
+  useEffect(() => {
+    if (latestUnreadCount !== unreadNotificationCounts.data.unreadNotificationCounts.unreadNotifications) {
+      onCountChanged(unreadNotificationCounts.data.unreadNotificationCounts.unreadNotifications);
+    }
+  }, [latestUnreadCount, unreadNotificationCounts.data.unreadNotificationCounts.unreadNotifications, onCountChanged]);
 
   // Subscribe to localStorage change events. The localStorage key
   // "notificationsCheckedAt" contains a date; when the user checks
@@ -216,44 +202,39 @@ const NotificationsEffects = ({queryRef, refetchCounts, refetchBoth}: {
     return () => {
       window.removeEventListener("storage", storageEventListener);
     };
-  }, [refetchCounts, checkedAt, refetchBoth, updateCurrentUser]);
+  }, [refetchCounts, checkedAt, updateCurrentUser]);
 
-  const refetchIfNewNotifications = useCallback((message: NotificationCheckMessage) => {
-    const timestamp = message.newestNotificationTime;
-    if (!checkedAt || (timestamp && new Date(timestamp) > new Date(checkedAt))) {
-      void refetchBoth();
-    }
-  }, [checkedAt, refetchBoth]);
-  
-  useOnServerSentEvent('notificationCheck', currentUser, refetchIfNewNotifications);
+  useEffect(() => {
+    if (!currentUserId) return;
+
+    const startPolling = () => {
+      if (pollingIntervalRef.current) {
+        clearInterval(pollingIntervalRef.current);
+      }
+
+      // Only start polling if user is active and page is visible
+      if (!userIsIdle && pageIsVisible) {
+        pollingIntervalRef.current = setInterval(async () => {
+          const response = await fetch("/api/notificationCount");
+          const { unreadNotificationCount } = await response.json();
+          if (unreadNotificationCount > 0) {
+            void refetchBoth();
+          }
+        }, POLLING_INTERVAL);
+      }
+    };
+
+    startPolling();
+
+    // Reset polling state when idle/visibility state changes
+    return () => {
+      if (pollingIntervalRef.current) {
+        clearInterval(pollingIntervalRef.current);
+      }
+    };
+  }, [currentUserId, userIsIdle, pageIsVisible, refetchBoth]);
 
   return null;
-}
-
-export const useOnServerSentEvent = <T extends EventType>(eventType: T, currentUser: UsersCurrent|null, cb: NotificationEventListener<T>) => {
-  useEffect(() => {
-    if (!currentUser)
-      return;
-    const onServerSentNotification = (message: MessageOfType<T>) => {
-      void cb(message);
-    }
-    getEventListenersOfType(eventType).push(onServerSentNotification);
-    serverSentEventsAPI.setServerSentEventsActive?.(true);
-    
-    return () => {
-      // Typescript really thinks `notificationEventListenersByType[eventType]` must a union of arrays, which makes it impossible to assign to normally
-      const remainingListenersOfType = getEventListenersOfType(eventType).filter(l=>l!==onServerSentNotification);
-      Object.assign(notificationEventListenersByType, { [eventType]: remainingListenersOfType });
-      
-      // When removing a server-sent event listener, wait 200ms (just in case this
-      // is a rerender with a remove-and-immediately-add-back) then check whether
-      // there are zero event listeners.
-      setTimeout(() => {
-        if (Object.values(notificationEventListenersByType).every(listeners => !listeners.length))
-          serverSentEventsAPI.setServerSentEventsActive?.(false);
-      }, 200);
-    }
-  }, [eventType, currentUser, cb]);
 }
 
 /**
@@ -276,38 +257,6 @@ function setFaviconBadge(notificationCount: number) {
     } else {
       faviconLinkRel.setAttribute("href", faviconUrlSetting.get());
     }
-  }
-}
-
-let notificationEventListenersByType = {
-  notificationCheck: [] as NotificationEventListener<'notificationCheck'>[],
-  activeDialoguePartners: [] as NotificationEventListener<'activeDialoguePartners'>[],
-  typingIndicator: [] as NotificationEventListener<'typingIndicator'>[],
-};
-
-function getEventListenersOfType<T extends EventType>(eventType: T): NotificationEventListener<T>[] {
-  return notificationEventListenersByType[eventType] as unknown as NotificationEventListener<T>[];
-}
-
-function listenToMessage<T extends EventType>(message: MessageOfType<T>, listeners: NotificationEventListener<T>[]) {
-  for (let listener of listeners) {
-    listener(message);
-  }
-}
-
-export function onServerSentNotificationEvent(message: ServerSentEventsMessage) {
-  // Unfortunately typescript isn't smart enough to track that the invariant is correct in a distributed way,
-  // so we need to narrow each individual case even if they're identical
-  switch (message.eventType) {
-    case 'notificationCheck':
-      listenToMessage(message, [...notificationEventListenersByType[message.eventType]]);
-      break;
-    case 'activeDialoguePartners':
-      listenToMessage(message, [...notificationEventListenersByType[message.eventType]]);
-      break;
-    case 'typingIndicator':
-      listenToMessage(message, [...notificationEventListenersByType[message.eventType]]);
-      break;
   }
 }
 

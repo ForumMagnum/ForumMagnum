@@ -3,7 +3,8 @@ import { useCurrentUser } from '../common/withUser';
 import { Link } from '../../lib/reactRouterWrapper';
 import { useLocation } from '../../lib/routeUtil';
 import { AnalyticsContext, useTracking } from '../../lib/analyticsEvents';
-import { FilterSettings, useFilterSettings } from '../../lib/filterSettings';
+import { FilterSettings } from '../../lib/filterSettings';
+import { useFilterSettings } from '../hooks/useFilterSettings';
 import moment from '../../lib/moment-timezone';
 import { useCurrentTime } from '../../lib/utils/timeUtil';
 import { sectionTitleStyle } from '../common/SectionTitle';
@@ -11,17 +12,13 @@ import { AllowHidingFrontPagePostsContext } from '../dropdowns/posts/PostActions
 import { HideRepeatedPostsProvider } from '../posts/HideRepeatedPostsContext';
 import classNames from 'classnames';
 import {useUpdateCurrentUser} from "../hooks/useUpdateCurrentUser";
-import { frontpageDaysAgoCutoffSetting } from '../../lib/scoring';
+import { PostFeedDetails, homepagePostFeedsSetting, frontpageDaysAgoCutoffSetting } from '@/lib/instanceSettings';
 import { useContinueReading } from '../recommendations/withContinueReading';
 import { userIsAdmin } from '../../lib/vulcan-users/permissions';
 import TabPicker, { TabRecord } from './TabPicker';
 import { useCookiesWithConsent } from '../hooks/useCookiesWithConsent';
 import { LAST_VISITED_FRONTPAGE_COOKIE, RECOMBEE_SETTINGS_COOKIE, SELECTED_FRONTPAGE_TAB_COOKIE } from '../../lib/cookies/cookies';
 import { RecombeeConfiguration } from '../../lib/collections/users/recommendationSettings';
-import { PostFeedDetails, homepagePostFeedsSetting } from '../../lib/instanceSettings';
-import { gql } from "@/lib/generated/gql-codegen";
-import { useMutationNoCache } from '@/lib/crud/useMutationNoCache';
-import { vertexEnabledSetting } from '../../lib/publicSettings';
 import { isServer } from '@/lib/executionEnvironment';
 import isEqual from 'lodash/isEqual';
 import { capitalize } from "../../lib/vulcan-lib/utils";
@@ -440,12 +437,6 @@ const LWHomePosts = ({ children, }: {
   const now = useCurrentTime();
   const hasContinueReading = useHasContinueReadingTab(currentUser);
 
-  const [sendVertexViewHomePageEvent] = useMutationNoCache(gql(`
-    mutation sendVertexViewHomePageEventMutation {
-      sendVertexViewHomePageEvent
-    }
-  `));
-
   const availableTabs: PostFeedDetails[] = homepagePostFeedsSetting.get()
   const enabledTabs = availableTabs.filter(tab => isTabEnabled(tab, currentUser, query, hasContinueReading ?? false));
 
@@ -589,14 +580,6 @@ const LWHomePosts = ({ children, }: {
     forum: true,
     limit: defaultLimit
   };
-
-  useEffect(() => {
-    if (currentUser && vertexEnabledSetting.get()) {
-      void sendVertexViewHomePageEvent({});
-    }
-    // We explicitly only want to send it once on page load, no matter what changes
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
 
   return (
     // TODO: do we need capturePostItemOnMount here?

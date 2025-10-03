@@ -1,4 +1,4 @@
-import React, { FC, MouseEvent, useMemo } from 'react';
+import React, { useMemo } from 'react';
 import { registerComponent } from '../../../lib/vulcan-lib/components';
 import { getResponseCounts, parseUnsafeUrl, postGetAnswerCountStr, postGetCommentCountStr } from '../../../lib/collections/posts/helpers';
 import { AnalyticsContext } from "../../../lib/analyticsEvents";
@@ -25,6 +25,7 @@ import GroupLinks from "../../localGroups/GroupLinks";
 import SharePostButton from "../SharePostButton";
 import AudioToggle from "./AudioToggle";
 import ReadTime from "./ReadTime";
+import { CommentsLink } from './CommentsLink';
 
 const SECONDARY_SPACING = 20;
 
@@ -154,29 +155,6 @@ const styles = (theme: ThemeType) => ({
   }
 });
 
-export const CommentsLink: FC<{
-  anchor: string,
-  children: React.ReactNode,
-  className?: string,
-}> = ({anchor, children, className}) => {
-  const onClick = (e: MouseEvent<HTMLAnchorElement>) => {
-    e.preventDefault();
-    const elem = document.querySelector(anchor);
-    if (elem) {
-      // Match the scroll behaviour from TableOfContentsList
-      window.scrollTo({
-        top: elem.getBoundingClientRect().y - (window.innerHeight / 3) + 1,
-        behavior: "smooth",
-      });
-    }
-  }
-  return (
-    <a className={className} {...(isFriendlyUI ? {onClick} : {href: anchor})}>
-      {children}
-    </a>
-  );
-}
-
 /// PostsPagePostHeader: The metadata block at the top of a post page, with
 /// title, author, voting, an actions menu, etc.
 const PostsPagePostHeader = ({post, answers = [], dialogueResponses = [], showEmbeddedPlayer, toggleEmbeddedPlayer, hideMenu, hideTags, annualReviewMarketInfo, classes}: {
@@ -207,7 +185,7 @@ const PostsPagePostHeader = ({post, answers = [], dialogueResponses = [], showEm
     commentCount,
   } = useMemo(() => getResponseCounts({ post, answers }), [post, answers]);
 
-  const minimalSecondaryInfo = post.isEvent || (isFriendlyUI && post.shortform);
+  const minimalSecondaryInfo = post.isEvent || (isFriendlyUI() && post.shortform);
 
   const answersNode = !post.question || minimalSecondaryInfo
     ? null
@@ -224,7 +202,7 @@ const PostsPagePostHeader = ({post, answers = [], dialogueResponses = [], showEm
   const tripleDotMenuNode = !hideMenu &&
     <span className={classes.actions}>
       <AnalyticsContext pageElementContext="tripleDotMenu">
-        <PostActionsButton post={post} includeBookmark={isBookUI} flip={true}/>
+        <PostActionsButton post={post} includeBookmark={isBookUI()} flip={true}/>
       </AnalyticsContext>
     </span>
 

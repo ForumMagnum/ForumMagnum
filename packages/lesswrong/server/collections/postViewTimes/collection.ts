@@ -1,3 +1,4 @@
+import schema from '@/lib/collections/postViewTimes/newSchema';
 import { createCollection } from '@/lib/vulcan-lib/collections';
 import { DatabaseIndexSet } from '@/lib/utils/databaseIndexSet';
 
@@ -8,6 +9,7 @@ import { DatabaseIndexSet } from '@/lib/utils/databaseIndexSet';
 export const PostViewTimes = createCollection({
   collectionName: 'PostViewTimes',
   typeName: 'PostViewTime',
+  schema,
     getIndexes: () => {
     const indexSet = new DatabaseIndexSet();
     indexSet.addIndex('PostViewTimes', { clientId: 1, postId: 1, windowStart: 1, windowEnd: 1 }, { unique: true });

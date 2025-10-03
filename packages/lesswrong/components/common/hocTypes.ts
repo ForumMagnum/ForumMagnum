@@ -11,6 +11,8 @@ type ClassesType<
   ClassKey extends string = string
 > = Readonly<Record<keyof ReturnType<Styles>, string>>;
 
+type ClassNameIn<T extends StyleDefinition> = keyof ClassesType<(T["styles"])>
+
 interface WithStylesProps<T extends StyleDefinition<any>=any> {
   classes: ClassesType<T["styles"]>,
 }

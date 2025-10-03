@@ -1,5 +1,5 @@
-import { DatabaseServerSetting } from "../databaseSettings";
-import {
+import { auth0SettingsDatabaseServerSetting } from "../databaseSettings";
+import type {
   AppMetadata,
   AuthenticationClient,
   GrantResponse,
@@ -13,16 +13,10 @@ import { getAuth0Id, getAuth0Provider } from "../../lib/collections/users/helper
 import { Profile as Auth0Profile } from 'passport-auth0';
 import { getOrCreateForumUserAsync } from "./getOrCreateForumUser";
 import { auth0ProfilePath, idFromAuth0Profile, userFromAuth0Profile } from "./auth0Accounts";
-import { auth0ClientSettings } from "../../lib/publicSettings";
+import { auth0ClientSettings } from '@/lib/instanceSettings';
 import UsersRepo from "../repos/UsersRepo";
 import { isE2E } from "../../lib/executionEnvironment";
 
-type Auth0Settings = {
-  appId: string;
-  secret: string;
-  domain: string;
-  originalDomain: string;
-}
 
 export const AUTH0_SCOPE = "profile email openid offline_access";
 
@@ -91,7 +85,7 @@ class MockAuth0Client extends IAuth0BackendClient {
  * Applications -> APIs -> Auth0 Management API -> Machine to Machine Applications
  */
 class Auth0Client extends IAuth0BackendClient {
-  private settings = new DatabaseServerSetting<Auth0Settings|null>("oAuth.auth0", null);
+  private settings = auth0SettingsDatabaseServerSetting;
   private managementClient?: ManagementClient;
   private authClient?: AuthenticationClient;
 
@@ -107,8 +101,9 @@ class Auth0Client extends IAuth0BackendClient {
     return {clientId, clientSecret, domain};
   }
 
-  private getManagementClient() {
+  private async getManagementClient() {
     if (!this.managementClient) {
+      const { ManagementClient } = await import('auth0');
       this.managementClient = new ManagementClient({
         ...this.getSettings(),
         scope: "read:users update:users read:client_grants read:grants delete:grants delete:users",
@@ -117,25 +112,26 @@ class Auth0Client extends IAuth0BackendClient {
     return this.managementClient;
   }
 
-  private getAuthClient() {
+  private async getAuthClient() {
     if (!this.authClient) {
+      const { AuthenticationClient } = await import('auth0');
       this.authClient = new AuthenticationClient(this.getSettings());
     }
     return this.authClient;
   }
 
-  getUserById(auth0UserId: string): Promise<Auth0User> {
-    const client = this.getManagementClient();
+  async getUserById(auth0UserId: string): Promise<Auth0User> {
+    const client = await this.getManagementClient();
     return client.getUser({id: auth0UserId});
   }
 
-  updateUserById(auth0UserId: string, data: UpdateUserData): Promise<Auth0User> {
-    const client = this.getManagementClient();
+  async updateUserById(auth0UserId: string, data: UpdateUserData): Promise<Auth0User> {
+    const client = await this.getManagementClient();
     return client.updateUser({id: auth0UserId}, data);
   }
 
   async signupUser(email: string, password: string): Promise<void> {
-    const client = this.getAuthClient();
+    const client = await this.getAuthClient();
     if (!client.database) {
       throw new Error("Database authenticator not initialized");
     }
@@ -147,7 +143,7 @@ class Auth0Client extends IAuth0BackendClient {
   }
 
   async loginUser(email: string, password: string): Promise<string | null> {
-    const client = this.getAuthClient();
+    const client = await this.getAuthClient();
     const grant = await client.passwordGrant({
       username: email,
       password,
@@ -158,7 +154,7 @@ class Auth0Client extends IAuth0BackendClient {
   }
 
   async getGrants({auth0UserId, clientId}: {auth0UserId: string, clientId?: string}): Promise<GrantResponse[]> {
-    const client = this.getManagementClient();
+    const client = await this.getManagementClient();
 
     // getGrants has clientId and audience as required parameters. These are not actually required, and we
     // need to get the grants for other applications to see if it is safe to delete the user
@@ -173,7 +169,7 @@ class Auth0Client extends IAuth0BackendClient {
   }
 
   async revokeApplicationAuthorization(auth0UserId: string) {
-    const client = this.getManagementClient();
+    const client = await this.getManagementClient();
     const { clientId } = this.getSettings();
 
     const grants = await this.getGrants({
@@ -198,7 +194,7 @@ class Auth0Client extends IAuth0BackendClient {
    * Permanently deletes the user in auth0
    */
   async deleteUser(auth0UserId: string) {
-    const client = this.getManagementClient();
+    const client = await this.getManagementClient();
     await client.deleteUser({ id: auth0UserId });
   }
 }

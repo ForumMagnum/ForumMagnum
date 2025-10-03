@@ -1,5 +1,6 @@
 import { userGetProfileUrlFromSlug } from "@/lib/collections/users/helpers";
-import type { WrappedDataByYear, WrappedYear } from "./hooks";
+import type { WrappedDataByYear } from "./hooks";
+import type { WrappedYear } from "./constants";
 
 /**
  * Formats the percentile as an integer > 0

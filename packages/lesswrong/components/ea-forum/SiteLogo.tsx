@@ -29,7 +29,7 @@ const SiteLogo = ({eaContrast, classes}: {
   classes: ClassesType<typeof styles>;
 }) => {
   // Use this icon when we want version of the EAF logo with an editable (usually white) color
-  if (isEAForum && eaContrast) {
+  if (isEAForum() && eaContrast) {
     return <div className={classes.icon}>{lightbulbIcon}</div>
   }
 

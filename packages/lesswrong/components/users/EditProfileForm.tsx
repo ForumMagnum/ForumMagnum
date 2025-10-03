@@ -64,7 +64,7 @@ const GetUserBySlugQuery = gql(`
 `);
 
 const styles = defineStyles('EditProfileForm', (theme: ThemeType) => ({
-  root: isFriendlyUI
+  root: theme.isFriendlyUI
     ? {
       margin: "0 auto",
       maxWidth: 700,
@@ -422,7 +422,7 @@ const UserProfileForm = ({
         </div>
       </FormGroupFriendlyUserProfile>
 
-      <FormGroupFriendlyUserProfile label={preferredHeadingCase(isFriendlyUI ? "Social Media" : "My Social Media")}>
+      <FormGroupFriendlyUserProfile label={preferredHeadingCase(isFriendlyUI() ? "Social Media" : "My Social Media")}>
         {urlFields.map((urlFieldName, idx) => (
           <div className={classes.fieldWrapper} key={idx}>
             <form.Field name={urlFieldName}>
@@ -496,7 +496,7 @@ const UserProfileForm = ({
         <form.Subscribe selector={(s) => [s.canSubmit, s.isSubmitting]}>
           {([canSubmit, isSubmitting]) => (
             <Button
-              variant={isBookUI ? 'outlined' : undefined}
+              variant={isBookUI() ? 'outlined' : undefined}
               type="submit"
               disabled={!canSubmit || isSubmitting}
               className={classNames("primary-form-submit-button", classes.submitButton)}
@@ -574,13 +574,13 @@ const EditProfileForm = () => {
     <div className={classes.root}>
       <Typography
         variant="display3"
-        gutterBottom={!isFriendlyUI}
+        gutterBottom={!isFriendlyUI()}
         className={classes.heading}
       >
-        {preferredHeadingCase(isFriendlyUI ? "Edit Profile" : "Edit Public Profile")}
+        {preferredHeadingCase(isFriendlyUI() ? "Edit Profile" : "Edit Public Profile")}
       </Typography>
 
-      {!isEAForum &&
+      {!isEAForum() &&
         <div className={classes.subheading}>
           All fields are optional.
         </div>

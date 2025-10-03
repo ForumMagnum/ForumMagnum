@@ -1,5 +1,5 @@
 import { wrapVulcanAsyncScript } from './utils'
-import { userIPBanAndResetLoginTokens, userDeleteContent } from '../users/moderationUtils'
+import { userDeleteContent } from '../users/moderationUtils'
 import Users from '../../server/collections/users/collection'
 import moment from 'moment'
 import { createAdminContext } from '../vulcan-lib/createContexts'
@@ -22,8 +22,10 @@ const banUser = async (user: DbUser, adminUser: DbUser) => {
       },
     }
   }])
-  backgroundTask(userIPBanAndResetLoginTokens(user));
-  backgroundTask(userDeleteContent(user, adminUser, createAdminContext()));
+
+  const adminContext = createAdminContext();
+  backgroundTask(adminContext.repos.users.clearLoginTokens(user._id));
+  backgroundTask(userDeleteContent(user, adminUser, adminContext));
 }
 
 export const oneOffBanSpammers = wrapVulcanAsyncScript(

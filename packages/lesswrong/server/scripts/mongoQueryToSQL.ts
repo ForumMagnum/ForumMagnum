@@ -24,7 +24,7 @@ export const findToSQL = ({ tableName, selector, options }: { tableName: Collect
  * Translates a mongo insert query to SQL for debugging purposes.  Requires a server running because the query builder uses collections, etc.
  * Exported to allow running manually with "yarn repl"
  */
-export const insertToSQL = <N extends CollectionNameString>({ tableName, data, options }: { tableName: N, data: ObjectsByCollectionName[N], options?: MongoFindOptions<ObjectsByCollectionName[N]> }) => {
+export const insertToSQL = <N extends CollectionNameString>({ tableName, data, options }: { tableName: N, data: InsertionRecord<ObjectsByCollectionName[N]>, options?: MongoFindOptions<ObjectsByCollectionName[N]> }) => {
   const table = Table.fromCollection(getCollection(tableName));
   const insert = new InsertQuery<ObjectsByCollectionName[N]>(table, data, options, {returnInserted: true});
   const { sql, args } = insert.compile();
@@ -61,7 +61,7 @@ export const runFindToSQL = async <N extends CollectionNameString>({ tableName, 
   return result;
 };
 
-export const runInsertToSQL = async <N extends CollectionNameString>({ tableName, data, options }: { tableName: N, data: ObjectsByCollectionName[N], options?: MongoFindOptions<ObjectsByCollectionName[N]> }) => {
+export const runInsertToSQL = async <N extends CollectionNameString>({ tableName, data, options }: { tableName: N, data: InsertionRecord<ObjectsByCollectionName[N]>, options?: MongoFindOptions<ObjectsByCollectionName[N]> }) => {
   const db = getSqlClientOrThrow();
 
   const { sql, args } = insertToSQL({ tableName, data, options });

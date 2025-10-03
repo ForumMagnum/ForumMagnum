@@ -64,7 +64,7 @@ export async function createLocalgroup({ data }: CreateLocalgroupInput, context:
 
   await createGroupNotifications(asyncProperties);
 
-  await uploadImagesInEditableFields({
+  uploadImagesInEditableFields({
     newDoc: documentWithId,
     props: asyncProperties,
   });
@@ -106,7 +106,7 @@ export async function updateLocalgroup({ selector, data }: UpdateLocalgroupInput
 
   await handleOrganizerUpdates(updateCallbackProperties);
 
-  await reuploadImagesIfEditableFieldsChanged({
+  reuploadImagesIfEditableFieldsChanged({
     newDoc: updatedDocument,
     props: updateCallbackProperties,
   });

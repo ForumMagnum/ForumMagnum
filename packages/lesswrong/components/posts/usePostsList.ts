@@ -1,6 +1,6 @@
 import {useState, useCallback, ReactNode} from 'react'
 import { useCurrentUser } from "../common/withUser";
-import { sortBy } from 'underscore';
+import sortBy from 'lodash/sortBy';
 import { postGetLastCommentedAt } from "../../lib/collections/posts/helpers";
 import { useOnMountTracking } from "../../lib/analyticsEvents";
 import type { Placement as PopperPlacementType } from "popper.js"
@@ -104,7 +104,7 @@ export type PostsListConfig = {
   repeatedPostsPrecedence?: number
 }
 
-const defaultTooltipPlacement = isFriendlyUI
+const getDefaultTooltipPlacement = () => isFriendlyUI()
   ? "bottom-start"
   : "bottom-end";
 
@@ -133,7 +133,7 @@ export const usePostsList = <TagId extends string | undefined = undefined>({
   hideTag = false,
   hideTrailingButtons = false,
   hideTagRelevance = false,
-  tooltipPlacement=defaultTooltipPlacement,
+  tooltipPlacement=getDefaultTooltipPlacement(),
   boxShadow = true,
   curatedIconLeft = false,
   showFinalBottomBorder = false,
@@ -247,7 +247,8 @@ export const usePostsList = <TagId extends string | undefined = undefined>({
       return {postId: post._id, score: post.score, baseScore: post.baseScore}
     });
 
-  const {view: contextViewType} = usePostsListView();
+  const {getView} = usePostsListView();
+  const contextViewType = getView();
   const viewType: PostsListViewType = configuredViewType === "fromContext"
     ? contextViewType
     : configuredViewType;

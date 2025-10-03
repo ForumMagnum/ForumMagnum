@@ -123,7 +123,7 @@ interface SlugCallbackOptions<N extends CollectionNameString> {
   includesOldSlugs: boolean,
 }
 
-type DatabaseBaseType = `VARCHAR(${number})` | 'TEXT' | 'BOOL' | 'DOUBLE PRECISION' | 'INTEGER' | 'JSONB' | 'TIMESTAMPTZ' | 'VECTOR(1536)';
+type DatabaseBaseType = `VARCHAR(${number})` | 'TEXT' | 'BOOL' | 'DOUBLE PRECISION' | 'INTEGER' | 'JSONB' | 'TIMESTAMPTZ' | 'VECTOR(1024)' | 'VECTOR(1536)';
 
 interface DatabaseFieldSpecification<N extends CollectionNameString> {
   type: DatabaseBaseType | `${DatabaseBaseType}[]`,
@@ -171,6 +171,7 @@ interface GraphQLWriteableFieldSpecification<N extends CollectionNameString> {
 
   arguments?: string,
   sqlResolver?: SqlResolver<N>,
+  skipSqlResolver?: () => boolean,
   sqlPostProcess?: undefined,
 }
 
@@ -181,6 +182,7 @@ interface GraphQLResolverOnlyFieldSpecification<N extends CollectionNameString> 
   arguments?: string|null,
   resolver: (root: ObjectsByCollectionName[N], args: any, context: ResolverContext) => any,
   sqlResolver?: SqlResolver<N>,
+  skipSqlResolver?: () => boolean,
   /**
    * `sqlPostProcess` is run on the result of the database call, in addition
    * to the `sqlResolver`. It should return the value of this `field`, generally

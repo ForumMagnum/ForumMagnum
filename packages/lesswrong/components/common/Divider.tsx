@@ -36,7 +36,7 @@ const Divider = ({ classes, wings=true, margin=24 }: {
   wings?: boolean,
   margin?: number
 }) => {
-  if (!isLWorAF) {
+  if (!isLWorAF()) {
     return null;
   }
   return <div className={classes.root} style={{ marginTop: margin, marginBottom: margin }}>

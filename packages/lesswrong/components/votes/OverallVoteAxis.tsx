@@ -67,7 +67,7 @@ const styles = defineStyles('OverallVoteAxis', theme => ({
   },
 }));
 
-const karmaQuestion = isFriendlyUI ? 'Is this a valuable contribution?' : 'How much do you like this overall?'
+const getKarmaQuestion = () => isFriendlyUI() ? 'Is this a valuable contribution?' : 'How much do you like this overall?'
 
 const OverallVoteAxis = ({
   document,
@@ -148,7 +148,7 @@ const OverallVoteAxis = ({
 
   return <TooltipIfDisabled>
     <span className={classes.vote}>
-      {!!af && !isAF && !hideAfScore &&
+      {!!af && !isAF() && !hideAfScore &&
         <LWTooltip
           placement={tooltipPlacement}
           popperClassName={classes.tooltip}
@@ -165,7 +165,7 @@ const OverallVoteAxis = ({
           </span>
         </LWTooltip>
       }
-      {!af && isAF &&
+      {!af && isAF() &&
         <LWTooltip
           title="LessWrong Karma"
           placement={tooltipPlacement}
@@ -177,13 +177,13 @@ const OverallVoteAxis = ({
           </span>
         </LWTooltip>
       }
-      {(!isAF || !!af) &&
+      {(!isAF() || !!af) &&
         <span className={classNames(classes.overallSection, className, {
           [classes.overallSectionBox]: showBox,
           [classes.verticalArrows]: verticalArrows,
         })}>
           <TooltipIfEnabled
-            title={<div><b>Overall Karma: Downvote</b><br />{karmaQuestion}<br /><em>For strong downvote, click-and-hold<br />(Click twice on mobile)</em></div>}
+            title={<div><b>Overall Karma: Downvote</b><br />{getKarmaQuestion()}<br /><em>For strong downvote, click-and-hold<br />(Click twice on mobile)</em></div>}
             placement={tooltipPlacement}
           >
             <OverallVoteButton
@@ -207,7 +207,7 @@ const OverallVoteAxis = ({
             }
           </TooltipIfEnabled>
           <TooltipIfEnabled
-            title={<div><b>Overall Karma: Upvote</b><br />{karmaQuestion}<br /><em>For strong upvote, click-and-hold<br />(Click twice on mobile)</em></div>}
+            title={<div><b>Overall Karma: Upvote</b><br />{getKarmaQuestion()}<br /><em>For strong upvote, click-and-hold<br />(Click twice on mobile)</em></div>}
             placement={tooltipPlacement}
           >
             <OverallVoteButton

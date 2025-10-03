@@ -4,15 +4,13 @@ import Conversations from "@/server/collections/conversations/collection";
 import Users from "@/server/collections/users/collection";
 import { getUserEmail, userGetLocation, userShortformPostTitle } from "@/lib/collections/users/helpers";
 import { isAnyTest } from "@/lib/executionEnvironment";
-import { isEAForum, isLW, isLWorAF, verifyEmailsSetting } from "@/lib/instanceSettings";
-import { mailchimpEAForumListIdSetting, mailchimpForumDigestListIdSetting, mailchimpEAForumNewsletterListIdSetting, recombeeEnabledSetting } from "@/lib/publicSettings";
+import { forumTitleSetting, isEAForum, isLW, isLWorAF, verifyEmailsSetting, mailchimpEAForumListIdSetting, mailchimpForumDigestListIdSetting, mailchimpEAForumNewsletterListIdSetting, recombeeEnabledSetting } from '@/lib/instanceSettings';
 import { encodeIntlError } from "@/lib/vulcan-lib/utils";
 import { userIsAdminOrMod, userOwns } from "@/lib/vulcan-users/permissions";
-import { captureException } from "@sentry/core";
+import { captureException } from "@/lib/sentryWrapper";
 import { getAuth0Profile, updateAuth0Email } from "../authentication/auth0";
-import { hasAuth0 } from "../authenticationMiddlewares";
 import { userFindOneByEmail } from "../commonQueries";
-import { changesAllowedSetting, forumTeamUserId, sinceDaysAgoSetting, welcomeEmailPostId } from "../databaseSettings";
+import { changesAllowedSetting, forumTeamUserId, sinceDaysAgoSetting, welcomeEmailPostId, mailchimpAPIKeySetting, hasAuth0 } from "../databaseSettings";
 import { EventDebouncer } from "../debouncer";
 import { wrapAndSendEmail } from "../emails/renderEmail";
 import { fetchFragmentSingle } from "../fetchFragment";
@@ -22,13 +20,11 @@ import { createNotifications } from "../notificationCallbacksHelpers";
 import { recombeeApi } from "../recombee/client";
 import ElasticClient from "../search/elastic/ElasticClient";
 import ElasticExporter from "../search/elastic/ElasticExporter";
-import { mailchimpAPIKeySetting } from "../serverSettings";
 import { hasType3ApiAccess, regenerateAllType3AudioForUser } from "../type3";
 import { editableUserProfileFields, simpleUserProfileFields } from "../userProfileUpdates";
-import { userDeleteContent, userIPBanAndResetLoginTokens } from "../users/moderationUtils";
+import { userDeleteContent } from "../users/moderationUtils";
 import { getAdminTeamAccount } from "../utils/adminTeamAccount";
 import { nullifyVotesForUser } from '../nullifyVotesForUser';
-import { sendVerificationEmail } from "../vulcan-lib/apollo-server/authentication";
 import { triggerReviewIfNeeded } from "./sunshineCallbackUtils";
 import difference from "lodash/difference";
 import isEqual from "lodash/isEqual";
@@ -43,6 +39,7 @@ import { updateComment } from "../collections/comments/mutations";
 import { createUser, updateUser } from "../collections/users/mutations";
 import { EmailContentItemBody } from "../emailComponents/EmailContentItemBody";
 import { PostsHTML } from "@/lib/collections/posts/fragments";
+import { emailTokenTypesByName } from "../emails/emailTokens";
 import { backgroundTask } from "../utils/backgroundTask";
 
 
@@ -88,7 +85,7 @@ async function sendWelcomeMessageTo(userId: string) {
     title: subjectLine,
   }
 
-  const adminAccountContext = await computeContextFromUser({ user: adminsAccount, req: context.req, res: context.res, isSSR: context.isSSR });
+  const adminAccountContext = computeContextFromUser({ user: adminsAccount, isSSR: context.isSSR });
   const conversation = await createConversation({ data: conversationData }, adminAccountContext);
   
   const messageDocument = {
@@ -107,16 +104,16 @@ async function sendWelcomeMessageTo(userId: string) {
   
   // the EA Forum has a separate "welcome email" series that is sent via mailchimp,
   // so we're not sending the email notification for this welcome PM
-  if (!isEAForum) {
+  if (!isEAForum()) {
     await wrapAndSendEmail({
       user,
       subject: subjectLine,
-      body: <EmailContentItemBody dangerouslySetInnerHTML={{ __html: welcomeMessageBody }}/>
+      body: (emailContext) => <EmailContentItemBody dangerouslySetInnerHTML={{ __html: welcomeMessageBody }}/>
     })
   }
 }
 
-const welcomeMessageDelayer = new EventDebouncer({
+export const welcomeMessageDelayer = new EventDebouncer({
   name: "welcomeMessageDelay",
   
   // Delay is by default 5 minutes between when you create an account, and
@@ -125,12 +122,31 @@ const welcomeMessageDelayer = new EventDebouncer({
   // something, and derailing them with a bunch of stuff to read at that
   // particular moment could be bad.
   // LW wants people to see site intro before posting
-  defaultTiming: isLW ? {type: "none"} : {type: "delayed", delayMinutes: 5},
+  defaultTiming: () => isLW() ? {type: "none"} : {type: "delayed", delayMinutes: 5},
   
   callback: (userId: string) => {
     backgroundTask(sendWelcomeMessageTo(userId));
   },
 });
+
+async function sendVerificationEmail(user: DbUser) {
+  const verifyEmailLink = await emailTokenTypesByName.verifyEmail.generateLink(user._id);
+  await wrapAndSendEmail({
+    user,
+    force: true,
+    subject: `Verify your ${forumTitleSetting.get()} email`,
+    body: (emailContext) => <div>
+      <p>
+        Click here to verify your {forumTitleSetting.get()} email
+      </p>
+      <p>
+        <a href={verifyEmailLink}>
+          {verifyEmailLink}
+        </a>
+      </p>
+    </div>
+  });
+}
 
 
 const utils = {
@@ -143,7 +159,7 @@ const utils = {
       throw new Error(`You do not have permission to update this user`)
     }
   
-    if (!isEAForum) return;
+    if (!isEAForum()) return;
   
     const sinceDaysAgo = sinceDaysAgoSetting.get();
     const MS_PER_DAY = 24*60*60*1000;
@@ -251,7 +267,7 @@ export async function subscribeOnSignup(user: DbUser) {
  * (as of 2021-08-11) drip campaign.
  */
 export async function subscribeToEAForumAudience(user: DbUser) {
-  if (isAnyTest || !isEAForum) {
+  if (isAnyTest || !isEAForum()) {
     return;
   }
   const mailchimpAPIKey = mailchimpAPIKeySetting.get();
@@ -314,10 +330,10 @@ export async function updateMailchimpSubscription(data: UpdateUserDataInput, {ol
   // - When a user deactivates their account
   const unsubscribedFromAll = data.unsubscribeFromAll && !oldDocument.unsubscribeFromAll
   const deactivatedAccount = data.deleted && !oldDocument.deleted
-  if (hasDigests && (unsubscribedFromAll || deactivatedAccount)) {
+  if (hasDigests() && (unsubscribedFromAll || deactivatedAccount)) {
     data.subscribedToDigest = false
   }
-  if (hasNewsletter && (unsubscribedFromAll || deactivatedAccount)) {
+  if (hasNewsletter() && (unsubscribedFromAll || deactivatedAccount)) {
     data.subscribedToNewsletter = false
   }
 
@@ -334,10 +350,10 @@ export async function updateMailchimpSubscription(data: UpdateUserDataInput, {ol
     return data;
   }
 
-  const noDigestUpdate = !hasDigests ||
+  const noDigestUpdate = !hasDigests() ||
     data.subscribedToDigest === undefined ||
     data.subscribedToDigest === oldDocument.subscribedToDigest
-  const noNewsletterUpdate = !hasNewsletter ||
+  const noNewsletterUpdate = !hasNewsletter() ||
     data.subscribedToNewsletter === undefined ||
     data.subscribedToNewsletter === oldDocument.subscribedToNewsletter
   if (isAnyTest || (noDigestUpdate && noNewsletterUpdate)) {
@@ -351,11 +367,11 @@ export async function updateMailchimpSubscription(data: UpdateUserDataInput, {ol
   if (!mailchimpAPIKey) {
     return handleErrorCase("Error updating subscription: Mailchimp not configured")
   }
-  if (hasDigests && !mailchimpForumDigestListId) {
+  if (hasDigests() && !mailchimpForumDigestListId) {
     // eslint-disable-next-line no-console
     console.error("Digest list not configured, failing to update subscription");
   }
-  if (hasNewsletter && !mailchimpEANewsletterListId) {
+  if (hasNewsletter() && !mailchimpEANewsletterListId) {
     // eslint-disable-next-line no-console
     console.error("Newsletter list not configured, failing to update subscription");
   }
@@ -414,7 +430,7 @@ export async function updateDisplayName(data: UpdateUserDataInput, { oldDocument
     if (await Users.findOne({displayName: data.displayName})) {
       throw new Error("This display name is already taken");
     }
-    if (data.shortformFeedId && !isLWorAF) {
+    if (data.shortformFeedId && !isLWorAF()) {
       backgroundTask(updatePost({
         data: {title: userShortformPostTitle(newDocument)},
         selector: { _id: data.shortformFeedId }
@@ -625,7 +641,7 @@ export async function userEditChangeDisplayNameCallbacksAsync(user: DbUser, oldU
   }
 }
 
-export function userEditBannedCallbacksAsync(user: DbUser, oldUser: DbUser) {
+export function userEditBannedCallbacksAsync(user: DbUser, oldUser: DbUser, context: ResolverContext) {
   const currentBanDate = user.banned
   const previousBanDate = oldUser.banned
   const now = new Date()
@@ -633,7 +649,7 @@ export function userEditBannedCallbacksAsync(user: DbUser, oldUser: DbUser) {
   const previousUserWasBanned = !!(previousBanDate && new Date(previousBanDate) > now)
   
   if (updatedUserIsBanned && !previousUserWasBanned) {
-    backgroundTask(userIPBanAndResetLoginTokens(user));
+    backgroundTask(context.repos.users.clearLoginTokens(user._id));
   }
 }
 
@@ -648,7 +664,7 @@ export async function newAlignmentUserSendPMAsync(newUser: DbUser, oldUser: DbUs
       title: `Welcome to the AI Alignment Forum!`
     }
 
-    const lwAccountContext = await computeContextFromUser({ user: lwAccount, req: context.req, res: context.res, isSSR: context.isSSR });
+    const lwAccountContext = computeContextFromUser({ user: lwAccount, isSSR: context.isSSR });
     const conversation = await createConversation({ data: conversationData }, lwAccountContext);
 
     let firstMessageContent =

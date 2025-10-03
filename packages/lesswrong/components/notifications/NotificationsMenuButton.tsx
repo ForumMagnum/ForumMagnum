@@ -12,13 +12,16 @@ import { useUpdateCurrentUser } from '../hooks/useUpdateCurrentUser';
 import { useQuery } from "@/lib/crud/useQuery";
 import { gql } from "@/lib/generated/gql-codegen";
 import ForumIcon from "../common/ForumIcon";
-import LWPopper from "../common/LWPopper";
 import LWClickAwayListener from "../common/LWClickAwayListener";
-import NotificationsPopover from "./NotificationsPopover";
 import { useReadQuery } from '@apollo/client/react';
-import { defineStyles, useStyles } from '../hooks/useStyles';
+import { useStyles } from '../hooks/useStyles';
 import { SuspenseWrapper } from '../common/SuspenseWrapper';
+import { styles } from './notificationsMenuButtonStyles';
 import ErrorBoundary from '../common/ErrorBoundary';
+
+import dynamic from 'next/dynamic';
+const NotificationsPopover = dynamic(() => import("./NotificationsPopover"), { ssr: false });
+const LWPopper = dynamic(() => import("../common/LWPopper"), { ssr: false });
 
 const UserKarmaChangesQuery = gql(`
   query NotificationsMenuButton($documentId: String) {
@@ -29,94 +32,6 @@ const UserKarmaChangesQuery = gql(`
     }
   }
 `);
-
-/**
- * These same styles are also used by `MessagesMenuButton`, so changes here
- * should also be checked there as well.
- */
-export const styles = defineStyles("NotificationsMenuButton", (theme: ThemeType) => ({
-  badgeContainer: {
-    padding: "none",
-    verticalAlign: "inherit",
-    fontFamily: theme.isFriendlyUI
-      ? theme.palette.fonts.sansSerifStack
-      : 'freight-sans-pro, sans-serif',
-  },
-  badge: {
-    pointerEvents: "none",
-    ...(theme.isFriendlyUI
-      ? {
-        top: 3,
-        right: 6,
-        maxHeight: 20,
-        fontSize: 11,
-        fontWeight: 800,
-        letterSpacing: "0.22px",
-        color: `${theme.palette.text.alwaysWhite} !important`,
-        borderRadius: "50%",
-      }
-      : {
-        top: 1,
-        right: 1,
-        fontWeight: 500,
-        fontFamily: "freight-sans-pro, sans-serif",
-        fontSize: 12,
-        color: theme.palette.header.text,
-      }),
-  },
-  badgeBackground: {
-    backgroundColor: theme.isFriendlyUI
-      ? theme.palette.primary.main
-      : "inherit",
-  },
-  badge1Char: theme.isFriendlyUI
-    ? {
-      width: 18,
-      height: 18,
-    }
-    : {},
-  badge2Chars: theme.isFriendlyUI
-    ? {
-      width: 20,
-      height: 20,
-    }
-    : {},
-  buttonOpen: {
-    backgroundColor: theme.palette.buttons.notificationsBellOpen.background,
-    color: theme.isFriendlyUI
-      ? theme.palette.grey[600]
-      : theme.palette.buttons.notificationsBellOpen.icon,
-  },
-  buttonClosed: {
-    backgroundColor: "transparent",
-    color: theme.isFriendlyUI
-      ? theme.palette.grey[600]
-      : theme.palette.header.text,
-  },
-  buttonActive: {
-    backgroundColor: theme.palette.greyAlpha(0.1),
-  },
-  karmaStar: {
-    color: theme.palette.icon.headerKarma,
-    transform: "rotate(-15deg)",
-    position: "absolute",
-    width: 16,
-    height: 16,
-  },
-  karmaStarWithBadge: {
-    left: -6,
-    top: -6,
-  },
-  karmaStarWithoutBadge: {
-    left: 1,
-    top: 1,
-  },
-  tooltip: {
-    background: `${theme.palette.panelBackground.tooltipBackground2} !important`,
-    padding: "5px 13px",
-    transform: "translateY(5px)",
-  },
-}), {stylePriority: -1});
 
 type NotificationsMenuButtonProps = {
   open: boolean,
@@ -130,9 +45,8 @@ const BookNotificationsMenuButtonInner = ({
   className,
 }: NotificationsMenuButtonProps) => {
   const classes = useStyles(styles);
-  const {unreadNotificationCountsQueryRef} = useUnreadNotifications();
-  const {data} = useReadQuery(unreadNotificationCountsQueryRef!);
-  const {unreadNotifications} = data?.unreadNotificationCounts ?? 0;
+  const {latestUnreadCount} = useUnreadNotifications();
+  const unreadNotifications = latestUnreadCount ?? 0;
   const buttonClass = open ? classes.buttonOpen : classes.buttonClosed;
   return (
     <Badge
@@ -183,13 +97,13 @@ const FriendlyNotificationsMenuButtonInner = ({
   toggle,
   className,
 }: NotificationsMenuButtonProps) => {
+  
   const classes = useStyles(styles);
   const currentUser = useCurrentUser();
   const updateCurrentUser = useUpdateCurrentUser();
   const {pathname} = useLocation();
-  const {unreadNotificationCountsQueryRef, notificationsOpened} = useUnreadNotifications();
-  const {data} = useReadQuery(unreadNotificationCountsQueryRef!);
-  const {unreadNotifications} = data?.unreadNotificationCounts ?? 0;
+  const {notificationsOpened, latestUnreadCount} = useUnreadNotifications();
+  const unreadNotifications = latestUnreadCount ?? 0;
   const [open, setOpen] = useState(false);
   const anchorEl = useRef<HTMLDivElement>(null);
   const { refetch, data: karmaChangesData } = useQuery(UserKarmaChangesQuery, {
@@ -299,7 +213,7 @@ const FriendlyNotificationsMenuButtonPlaceholder = ({toggle}: {
 }
 
 const NotificationsMenuButton = ({ open, toggle, className }: NotificationsMenuButtonProps) => {
-  const fallback = isFriendlyUI
+  const fallback = isFriendlyUI()
     ? <FriendlyNotificationsMenuButtonPlaceholder toggle={toggle} />
     : <BookNotificationsMenuButtonPlaceholder toggle={toggle} />
   return <SuspenseWrapper
@@ -307,7 +221,7 @@ const NotificationsMenuButton = ({ open, toggle, className }: NotificationsMenuB
     fallback={fallback}
   >
     <ErrorBoundary fallback={fallback}>
-      {isFriendlyUI
+      {isFriendlyUI()
         ? <FriendlyNotificationsMenuButtonInner open={open} toggle={toggle} className={className}/>
         : <BookNotificationsMenuButtonInner open={open} toggle={toggle} className={className}/>
       }

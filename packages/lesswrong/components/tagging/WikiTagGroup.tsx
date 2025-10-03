@@ -101,7 +101,7 @@ const WikiTagGroup = ({
   `), {
     ssr: true,
     fetchPolicy: 'cache-and-network',
-    nextFetchPolicy: 'cache-only',
+    nextFetchPolicy: 'cache-first',
     variables: {
       coreTagId,
       limit: initialLimit,

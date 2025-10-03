@@ -34,11 +34,11 @@ const UserRateLimitDisplayMultiQuery = gql(`
   }
 `);
 
-const UserRateLimitsDefaultFragmentUpdateMutation = gql(`
+const UserRateLimitMutationFragmentUpdateMutation = gql(`
   mutation updateUserRateLimitUserRateLimitItem1($selector: SelectorInput!, $data: UpdateUserRateLimitDataInput!) {
     updateUserRateLimit(selector: $selector, data: $data) {
       data {
-        ...UserRateLimitsDefaultFragment
+        ...UserRateLimitMutationFragment
       }
     }
   }
@@ -54,11 +54,11 @@ const UserRateLimitDisplayUpdateMutation = gql(`
   }
 `);
 
-const UserRateLimitsDefaultFragmentMutation = gql(`
+const UserRateLimitMutationFragmentCreateMutation = gql(`
   mutation createUserRateLimitUserRateLimitItem1($data: CreateUserRateLimitDataInput!) {
     createUserRateLimit(data: $data) {
       data {
-        ...UserRateLimitsDefaultFragment
+        ...UserRateLimitMutationFragment
       }
     }
   }
@@ -401,9 +401,9 @@ export const UserRateLimitItem = ({ userId, classes }: {
 
   const existingRateLimits = data?.userRateLimits?.results;
 
-  const [create] = useMutation(UserRateLimitsDefaultFragmentMutation);
+  const [create] = useMutation(UserRateLimitMutationFragmentCreateMutation);
 
-  const [mutate] = useMutation(UserRateLimitsDefaultFragmentUpdateMutation);
+  const [mutate] = useMutation(UserRateLimitMutationFragmentUpdateMutation);
 
   const createRateLimit = async (rateLimitName: string) => {
     if (rateLimitName === 'custom') {

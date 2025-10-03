@@ -38,7 +38,7 @@ const UserCommentMarkers = ({
     return null;
   }
 
-  const showAuthorIcon = isFriendlyUI && isPostAuthor;
+  const showAuthorIcon = isFriendlyUI() && isPostAuthor;
   const showNewUserIcon = isNewUser(user);
 
   if (!showAuthorIcon && !showNewUserIcon) {

@@ -90,11 +90,11 @@ class ProjectionContext<N extends CollectionNameString = CollectionNameString> {
     for (const fieldName in schema) {
       const field = schema[fieldName];
       if (field.graphql?.resolver) {
-        const { outputType, resolver, sqlResolver, sqlPostProcess, arguments: resolverArgs } = field.graphql;
+        const { outputType, resolver, sqlResolver, skipSqlResolver, sqlPostProcess, arguments: resolverArgs } = field.graphql;
         const customResolver: CustomResolver<N> = {
           type: outputType,
           resolver,
-          sqlResolver,
+          ...(skipSqlResolver?.() ? {} : {sqlResolver}),
           sqlPostProcess,
           arguments: resolverArgs,
           fieldName,

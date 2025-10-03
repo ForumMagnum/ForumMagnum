@@ -238,6 +238,19 @@ CREATE INDEX IF NOT EXISTS "idx_Collections_schemaVersion" ON "Collections" USIN
 -- Index "idx_Collections_slug"
 CREATE INDEX IF NOT EXISTS "idx_Collections_slug" ON "Collections" USING btree ("slug");
 
+-- Table "CommentEmbeddings"
+CREATE TABLE "CommentEmbeddings" (
+  _id VARCHAR(27) PRIMARY KEY,
+  "createdAt" TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP NOT NULL,
+  "commentId" VARCHAR(27) NOT NULL,
+  "lastGeneratedAt" TIMESTAMPTZ NOT NULL,
+  "model" TEXT NOT NULL,
+  "embeddings" VECTOR (1024) NOT NULL
+);
+
+-- Index "idx_CommentEmbeddings_commentId_model"
+CREATE UNIQUE INDEX IF NOT EXISTS "idx_CommentEmbeddings_commentId_model" ON "CommentEmbeddings" USING btree ("commentId", "model");
+
 -- Table "CommentModeratorActions"
 CREATE TABLE "CommentModeratorActions" (
   _id VARCHAR(27) PRIMARY KEY,
@@ -1252,7 +1265,14 @@ CREATE TABLE "Messages" (
   "contents_latest" TEXT,
   "userId" VARCHAR(27) NOT NULL,
   "conversationId" VARCHAR(27) NOT NULL,
-  "noEmail" BOOL NOT NULL DEFAULT FALSE
+  "noEmail" BOOL NOT NULL DEFAULT FALSE,
+  "voteCount" DOUBLE PRECISION NOT NULL DEFAULT 0,
+  "baseScore" DOUBLE PRECISION NOT NULL DEFAULT 0,
+  "extendedScore" JSONB,
+  "score" DOUBLE PRECISION NOT NULL DEFAULT 0,
+  "afBaseScore" DOUBLE PRECISION,
+  "afExtendedScore" JSONB,
+  "afVoteCount" DOUBLE PRECISION
 );
 
 -- Index "idx_Messages_schemaVersion"
@@ -1691,6 +1711,7 @@ CREATE TABLE "Posts" (
   "autoFrontpage" TEXT,
   "collectionTitle" TEXT,
   "coauthorStatuses" JSONB[],
+  "coauthorUserIds" TEXT[] NOT NULL DEFAULT '{}',
   "hasCoauthorPermission" BOOL NOT NULL DEFAULT TRUE,
   "socialPreviewImageId" TEXT,
   "socialPreviewImageAutoUrl" TEXT,
@@ -2409,6 +2430,9 @@ CREATE INDEX IF NOT EXISTS "idx_posts_alignmentSuggestedPosts" ON "Posts" USING 
 )
 WHERE
   ("suggestForAlignmentUserIds" [0]) IS NOT NULL;
+
+-- Index "idx_Posts_coauthorUserIds"
+CREATE INDEX IF NOT EXISTS "idx_Posts_coauthorUserIds" ON "Posts" USING gin ("coauthorUserIds");
 
 -- Index "idx_Posts_schemaVersion"
 CREATE INDEX IF NOT EXISTS "idx_Posts_schemaVersion" ON "Posts" USING btree ("schemaVersion");
@@ -3358,7 +3382,7 @@ CREATE TABLE "Users" (
   "autoSubscribeAsOrganizer" BOOL NOT NULL DEFAULT TRUE,
   "notificationCommentsOnSubscribedPost" JSONB NOT NULL DEFAULT '{"onsite":{"enabled":true,"batchingFrequency":"realtime","timeOfDayGMT":12,"dayOfWeekGMT":"Monday"},"email":{"enabled":false,"batchingFrequency":"realtime","timeOfDayGMT":12,"dayOfWeekGMT":"Monday"}}'::JSONB,
   "notificationShortformContent" JSONB NOT NULL DEFAULT '{"onsite":{"enabled":true,"batchingFrequency":"realtime","timeOfDayGMT":12,"dayOfWeekGMT":"Monday"},"email":{"enabled":false,"batchingFrequency":"realtime","timeOfDayGMT":12,"dayOfWeekGMT":"Monday"}}'::JSONB,
-  "notificationRepliesToMyComments" JSONB NOT NULL DEFAULT '{"onsite":{"enabled":true,"batchingFrequency":"realtime","timeOfDayGMT":12,"dayOfWeekGMT":"Monday"},"email":{"enabled":false,"batchingFrequency":"realtime","timeOfDayGMT":12,"dayOfWeekGMT":"Monday"}}'::JSONB,
+  "notificationRepliesToMyComments" JSONB NOT NULL DEFAULT '{"onsite":{"enabled":true,"batchingFrequency":"realtime","timeOfDayGMT":12,"dayOfWeekGMT":"Monday"},"email":{"enabled":true,"batchingFrequency":"realtime","timeOfDayGMT":12,"dayOfWeekGMT":"Monday"}}'::JSONB,
   "notificationRepliesToSubscribedComments" JSONB NOT NULL DEFAULT '{"onsite":{"enabled":true,"batchingFrequency":"realtime","timeOfDayGMT":12,"dayOfWeekGMT":"Monday"},"email":{"enabled":false,"batchingFrequency":"realtime","timeOfDayGMT":12,"dayOfWeekGMT":"Monday"}}'::JSONB,
   "notificationSubscribedUserPost" JSONB NOT NULL DEFAULT '{"onsite":{"enabled":true,"batchingFrequency":"realtime","timeOfDayGMT":12,"dayOfWeekGMT":"Monday"},"email":{"enabled":false,"batchingFrequency":"realtime","timeOfDayGMT":12,"dayOfWeekGMT":"Monday"}}'::JSONB,
   "notificationSubscribedUserComment" JSONB NOT NULL DEFAULT '{"onsite":{"enabled":true,"batchingFrequency":"realtime","timeOfDayGMT":12,"dayOfWeekGMT":"Monday"},"email":{"enabled":false,"batchingFrequency":"realtime","timeOfDayGMT":12,"dayOfWeekGMT":"Monday"}}'::JSONB,
@@ -3711,6 +3735,9 @@ CREATE INDEX IF NOT EXISTS "idx_Votes_userId_collectionName_cancelled_votedAt" O
 -- Index "idx_Votes_documentId"
 CREATE INDEX IF NOT EXISTS "idx_Votes_documentId" ON "Votes" USING btree ("documentId");
 
+-- Index "idx_Votes_votedAt"
+CREATE INDEX IF NOT EXISTS "idx_Votes_votedAt" ON "Votes" USING btree ("votedAt");
+
 -- Index "idx_Votes_schemaVersion"
 CREATE INDEX IF NOT EXISTS "idx_Votes_schemaVersion" ON "Votes" USING btree ("schemaVersion");
 
@@ -3737,6 +3764,11 @@ WITH
   (deduplicate_items = TRUE)
 WHERE
   "suggestForAlignmentUserIds" IS DISTINCT FROM '{}';
+
+-- CustomIndex "idx_Comments_deletedDate"
+CREATE INDEX IF NOT EXISTS "idx_Comments_deletedDate" ON "Comments" ("deletedDate" DESC NULLS LAST)
+WHERE
+  "deleted" IS TRUE;
 
 -- CustomIndex "idx_posts_pingbacks"
 CREATE INDEX IF NOT EXISTS idx_posts_pingbacks ON "Posts" USING gin (pingbacks);
@@ -3838,6 +3870,9 @@ WHERE
   "nullifyVotes" IS NOT TRUE AND
   "banned" IS NULL;
 
+-- CustomIndex "idx_CommentEmbeddings_embedding_cosine_distance"
+CREATE INDEX IF NOT EXISTS "idx_CommentEmbeddings_embedding_cosine_distance" ON "CommentEmbeddings" USING hnsw (embeddings vector_cosine_ops);
+
 -- CustomIndex "idx_DatabaseMetadata_name"
 CREATE UNIQUE INDEX IF NOT EXISTS "idx_DatabaseMetadata_name" ON public."DatabaseMetadata" USING btree (name);
 
@@ -3866,6 +3901,12 @@ CREATE UNIQUE INDEX IF NOT EXISTS "idx_ReadStatuses_userId_postId_tagId" ON publ
   COALESCE("tagId", ''::CHARACTER VARYING)
 );
 
+-- CustomIndex "idx_Spotlights_documentId_createdAt"
+CREATE INDEX IF NOT EXISTS "idx_Spotlights_documentId_createdAt" ON "Spotlights" USING btree ("documentId", "createdAt")
+WHERE
+  "draft" IS FALSE AND
+  "deletedDraft" IS FALSE;
+
 -- CustomIndex "ultraFeedEvents_sessionId_partial_idx"
 CREATE INDEX IF NOT EXISTS ultraFeedEvents_sessionId_partial_idx ON "UltraFeedEvents" (
   "userId",
@@ -3882,6 +3923,12 @@ CREATE INDEX IF NOT EXISTS "ultraFeedEvents_userId_feedItemId_non_served_idx" ON
 WHERE
   "eventType" != 'served' AND
   "feedItemId" IS NOT NULL;
+
+-- CustomIndex "ultraFeedEvents_loggedOut_session_idx"
+CREATE INDEX IF NOT EXISTS ultraFeedEvents_loggedOut_session_idx ON "UltraFeedEvents" ("userId", ((event ->> 'sessionId')), "createdAt")
+WHERE
+  "eventType" = 'served' AND
+  ((event ->> 'loggedOut')::BOOLEAN IS TRUE);
 
 -- Function "fm_build_nested_jsonb"
 CREATE OR

@@ -1,14 +1,7 @@
-import { captureException } from '@sentry/core';
+import { captureException } from '@/lib/sentryWrapper';
 import { isAnyTest } from '../lib/executionEnvironment';
-import { DatabaseServerSetting } from './databaseSettings';
+import { consoleLogMemoryUsageThreshold, sentryErrorMemoryUsageThreshold, memoryUsageCheckInterval, logGraphqlQueriesSetting, logGraphqlMutationsSetting } from './databaseSettings';
 import { printInFlightRequests } from '@/server/rendering/pageCache';
-
-import * as Sentry from '@sentry/node';
-import * as SentryIntegrations from '@sentry/integrations';
-import { sentryUrlSetting, sentryEnvironmentSetting, sentryReleaseSetting } from '../lib/instanceSettings';
-import * as _ from 'underscore';
-import fs from 'fs';
-import type { AddMiddlewareType } from './apolloServer';
 
 // Log unhandled promise rejections, eg exceptions escaping from async
 // callbacks. The default node behavior is to silently ignore these exceptions,
@@ -27,42 +20,6 @@ process.on("unhandledRejection", (r: any) => {
   }
 });
 
-
-export function serverInitSentry() {
-  const sentryUrl = sentryUrlSetting.get()
-  const sentryEnvironment = sentryEnvironmentSetting.get()
-  const sentryRelease = sentryReleaseSetting.get()
-  
-  if (sentryUrl && sentryEnvironment && sentryRelease) {
-    Sentry.init({
-      dsn: sentryUrl,
-      environment: sentryEnvironment,
-      release: sentryRelease,
-      integrations: [
-        new SentryIntegrations.Dedupe(),
-        new SentryIntegrations.ExtraErrorData(),
-      ],
-    });
-  } else {
-    if (!isAnyTest) {
-      // eslint-disable-next-line no-console
-      console.warn("Sentry is not configured. To activate error reporting, please set the sentry.url variable in your settings file.");
-    }
-  }
-  
-  checkForCoreDumps();
-}
-
-export const addSentryMiddlewares = (addConnectHandler: AddMiddlewareType) => {
-  addConnectHandler(Sentry.Handlers.requestHandler());
-  addConnectHandler(Sentry.Handlers.errorHandler());
-}
-
-const gigabytes = 1024*1024*1024;
-const consoleLogMemoryUsageThreshold = new DatabaseServerSetting<number>("consoleLogMemoryUsage", 1.5*gigabytes);
-const sentryErrorMemoryUsageThreshold = new DatabaseServerSetting<number>("sentryErrorMemoryUsage", 2.1*gigabytes);
-const memoryUsageCheckInterval = new DatabaseServerSetting<number>("memoryUsageCheckInterval", 10000);
-
 export function startMemoryUsageMonitor() {
   if (!isAnyTest) {
     setInterval(() => {
@@ -73,27 +30,12 @@ export function startMemoryUsageMonitor() {
         logInFlightStuff();
       }
       if (memoryUsage > sentryErrorMemoryUsageThreshold.get()) {
-        Sentry.captureException(new Error("Memory usage is high"));
+        captureException(new Error("Memory usage is high"));
       }
     }, memoryUsageCheckInterval.get());
   }
 }
 
-function checkForCoreDumps() {
-  const files = fs.readdirSync(".");
-  const coreFiles = _.filter(files, filename => filename.startsWith("core."));
-  if (coreFiles.length > 0) {
-    Sentry.captureException(new Error("Server restarted after core dump"));
-    for (let coreFile of coreFiles) {
-      //eslint-disable-next-line no-console
-      console.log("Removing core file: "+coreFile);
-      fs.unlinkSync(coreFile);
-    }
-  }
-}
-
-const logGraphqlQueriesSetting = new DatabaseServerSetting<boolean>("logGraphqlQueries", false);
-const logGraphqlMutationsSetting = new DatabaseServerSetting<boolean>("logGraphqlMutations", false);
 
 const queriesInProgress: Record<string,number> = {}; // operationName => number of copies in progress
 
@@ -145,9 +87,9 @@ export function logGraphqlQueryFinished(operationName: string, queryString: stri
 }
 
 function printInFlightGraphqlQueries() {
-  const operationsInProgress = _.map(
-    _.filter(Object.keys(queriesInProgress), (operationName)=>queriesInProgress[operationName]>0),
-    (operationName) => queriesInProgress[operationName]>1 ? `${operationName}(${queriesInProgress[operationName]})` : operationName);
+  const operationsInProgress = Object.keys(queriesInProgress)
+    .filter((operationName)=>queriesInProgress[operationName]>0)
+    .map((operationName) => queriesInProgress[operationName]>1 ? `${operationName}(${queriesInProgress[operationName]})` : operationName);
   if (operationsInProgress.length > 0) {
     // eslint-disable-next-line no-console
     console.log(`Graphql queries in progress: ${operationsInProgress.join(", ")}`);

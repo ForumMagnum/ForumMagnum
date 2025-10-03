@@ -5,7 +5,7 @@ import React, { FC, Fragment, useCallback, useEffect, useRef, useState } from 'r
 import { AnalyticsContext, useTracking } from "../../lib/analyticsEvents";
 import { userHasNewTagSubscriptions } from "../../lib/betas";
 import { subscriptionTypes } from '../../lib/collections/subscriptions/helpers';
-import { tagGetUrl, tagMinimumKarmaPermissions, tagUserHasSufficientKarma, isTagAllowedType3Audio } from '../../lib/collections/tags/helpers';
+import { tagGetUrl, getTagMinimumKarmaPermissions, tagUserHasSufficientKarma, isTagAllowedType3Audio } from '../../lib/collections/tags/helpers';
 import { truncate } from '../../lib/editor/ellipsize';
 import { Link } from '../../lib/reactRouterWrapper';
 import { useLocation } from '../../lib/routeUtil';
@@ -13,17 +13,17 @@ import { useGlobalKeydown, useOnSearchHotkey } from '../common/withGlobalKeydown
 import { registerComponent } from '../../lib/vulcan-lib/components';
 import { useCurrentUser } from '../common/withUser';
 import { EditTagForm } from './EditTagPage';
-import { taggingNameCapitalSetting, taggingNamePluralCapitalSetting, taggingNamePluralSetting } from '../../lib/instanceSettings';
+import { taggingNameCapitalSetting, taggingNamePluralCapitalSetting, taggingNamePluralSetting, quickTakesTagsEnabledSetting } from '@/lib/instanceSettings';
 import truncateTagDescription from "../../lib/utils/truncateTagDescription";
 import { getTagStructuredData } from "./TagPageRouter";
 import { isFriendlyUI } from "../../themes/forumTheme";
 import DeferRender from "../common/DeferRender";
 import { RelevanceLabel, tagPageHeaderStyles, tagPostTerms } from "./TagPageUtils";
 import { useStyles, defineStyles } from "../hooks/useStyles";
-import { HEADER_HEIGHT } from "../common/Header";
+import { getHeaderHeight } from "../common/Header";
 import { MAX_COLUMN_WIDTH } from '../posts/PostsPage/constants';
-import { MAIN_TAB_ID, TagLens, useTagLenses } from "@/lib/arbital/useTagLenses";
-import { quickTakesTagsEnabledSetting } from "@/lib/publicSettings";
+import { TagLens, useTagLenses } from "@/lib/arbital/useTagLenses";
+import { MAIN_TAB_ID } from "@/lib/collections/tags/constants";
 import { isClient } from "@/lib/executionEnvironment";
 import qs from "qs";
 import { useTagOrLens } from "../hooks/useTagOrLens";
@@ -54,7 +54,6 @@ import AddPostsToTag from "./AddPostsToTag";
 import { Typography } from "../common/Typography";
 import ContentStyles from "../common/ContentStyles";
 import PermanentRedirect from "../common/PermanentRedirect";
-import HeadTags from "../common/HeadTags";
 import UsersNameDisplay from "../users/UsersNameDisplay";
 import TagFlagItem from "./TagFlagItem";
 import CommentsListCondensed from "../common/CommentsListCondensed";
@@ -71,6 +70,7 @@ import { StructuredData } from "../common/StructuredData";
 import { gql } from "@/lib/generated/gql-codegen";
 import { withDateFields } from "@/lib/utils/dateUtils";
 import type { TagBySlugQueryOptions } from "./useTag";
+import { StatusCodeSetter } from "../next/StatusCodeSetter";
 
 const TagWithFlagsFragmentMultiQuery = gql(`
   query multiTagLWTagPageQuery($selector: TagSelector, $limit: Int, $enableTotal: Boolean) {
@@ -119,7 +119,7 @@ const styles = defineStyles("LWTagPage", (theme: ThemeType) => ({
       width: '100%',
     },
     position: 'absolute',
-    top: HEADER_HEIGHT,
+    top: getHeaderHeight(),
     [theme.breakpoints.down('sm')]: {
       width: 'unset',
       '& > picture > img': {
@@ -353,7 +353,7 @@ const PostsListHeading: FC<{
   query: Record<string, string>,
 }> = ({tag, query}) => {
   const classes = useStyles(styles);
-  if (isFriendlyUI) {
+  if (isFriendlyUI()) {
     return (
       <>
         <SectionTitle title={`Posts tagged ${tag.name}`} />
@@ -685,7 +685,7 @@ const LWTagPage = () => {
 
   let description = htmlWithAnchors;
   // EA Forum wants to truncate much less than LW
-  if (isFriendlyUI) {
+  if (isFriendlyUI()) {
     description = truncated
       ? truncateTagDescription(htmlWithAnchors, tag?.descriptionTruncationCount)
       : htmlWithAnchors;
@@ -716,7 +716,10 @@ const LWTagPage = () => {
   if (loadingTag && !tag) {
     return <Loading/>
   } else if (tagError) {
-    return <ErrorPage error={tagError}/>
+    return <>
+      <StatusCodeSetter status={500}/>
+      <ErrorPage error={tagError}/>
+    </>
   } else if (!tag) {
     if (loadingLens && !lens) {
       return <Loading/>
@@ -742,7 +745,7 @@ const LWTagPage = () => {
     return <PermanentRedirect url={`${baseTagUrl}${queryString}`} />
   }
   if (editing && !tagUserHasSufficientKarma(currentUser, "edit")) {
-    throw new Error(`Sorry, you cannot edit ${taggingNamePluralSetting.get()} without ${tagMinimumKarmaPermissions.edit} or more karma.`)
+    throw new Error(`Sorry, you cannot edit ${taggingNamePluralSetting.get()} without ${getTagMinimumKarmaPermissions().edit} or more karma.`)
   }
 
   // if no sort order was selected, try to use the tag page's default sort order for posts
@@ -760,8 +763,6 @@ const LWTagPage = () => {
     setTruncated(false)
     captureEvent("readMoreClicked", {tagId: tag._id, tagName: tag.name, pageSectionContext: "wikiSection"})
   }
-
-  const headTagDescription = tag.description?.plaintextDescription || `All posts related to ${tag.name}, sorted by relevance`
   
   const tagFlagItemType: AnyBecauseTodo = {
     allPages: "allPages",
@@ -1015,10 +1016,7 @@ const LWTagPage = () => {
     limit={terms?.limit ?? 0}
   >
     <TagPageContext.Provider value={{selectedLens: selectedLens ?? null}}>
-      <HeadTags
-        description={headTagDescription}
-        noIndex={tag.noindex}
-      />
+      <StatusCodeSetter status={200}/>
       <StructuredData generate={() => getTagStructuredData(tag)}/>
       {hoveredContributorId && <style>
         {`.by_${hoveredContributorId} {background: rgba(95, 155, 101, 0.35);}`}

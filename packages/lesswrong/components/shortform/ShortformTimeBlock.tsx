@@ -36,7 +36,7 @@ const ShortformItem: FC<{comment: ShortformComments}> = ({comment}) => {
   if (!comment.post) {
     return null;
   }
-  if (isFriendlyUI) {
+  if (isFriendlyUI()) {
     return (
       <QuickTakesListItem quickTake={comment} />
     );

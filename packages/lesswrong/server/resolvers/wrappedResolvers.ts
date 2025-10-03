@@ -1,4 +1,4 @@
-import { isWrappedYear } from '@/components/ea-forum/wrapped/hooks';
+import { isWrappedYear } from "@/components/ea-forum/wrapped/constants";
 import { getWrappedDataByYear } from '../wrapped/wrappedDataByYear';
 import gql from 'graphql-tag';
 

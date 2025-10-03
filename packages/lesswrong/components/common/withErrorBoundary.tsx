@@ -9,11 +9,14 @@ import ErrorBoundary from "./ErrorBoundary";
 /// In order to catch errors that occur in other higher-order components on
 /// the same component, put this _first_.
 const withErrorBoundary = (WrappedComponent: React.FunctionComponent<unknown & { ref: React.ForwardedRef<unknown> }>) => {
-  return function WrapWithErrorBoundary(props: AnyBecauseHard) {
+  const hoc = function WrapWithErrorBoundary(props: AnyBecauseHard) {
     return <ErrorBoundary>
       <WrappedComponent {...props} />
     </ErrorBoundary>
   }
+
+  hoc.displayName = WrappedComponent.displayName ?? WrappedComponent.name ?? 'UnknownComponent';
+  return hoc;
 }
 
 export default withErrorBoundary

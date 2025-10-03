@@ -5,7 +5,7 @@ import { fullHeightToCEnabled } from '../../../lib/betas';
 import { defineStyles, useStyles } from '@/components/hooks/useStyles';
 import TableOfContentsDivider from "./TableOfContentsDivider";
 
-const sectionOffsetStyling = (fullHeightToCEnabled ? {
+const getSectionOffsetStyling = () => (fullHeightToCEnabled() ? {
   display: 'flex',
   flexDirection: 'column-reverse',
 } : {});
@@ -43,7 +43,7 @@ const styles = defineStyles("TableOfContentsRow", (theme: ThemeType) => ({
     paddingTop: 6,
     paddingBottom: 6,
     color: theme.palette.link.tocLink,
-    lineHeight: fullHeightToCEnabled ? "1em" : "1.2em",
+    lineHeight: fullHeightToCEnabled() ? "1em" : "1.2em",
     '&:hover':{
       color: theme.palette.link.tocLinkHighlighted,
       opacity: theme.isFriendlyUI ? 1 : undefined
@@ -76,28 +76,28 @@ const styles = defineStyles("TableOfContentsRow", (theme: ThemeType) => ({
     '& $link:after': {
       display: "none",
     },
-    ...sectionOffsetStyling,
+    ...getSectionOffsetStyling(),
   },
   level1: {
     paddingLeft: 0,
-    ...sectionOffsetStyling,
+    ...getSectionOffsetStyling(),
   },
   level2: {
     fontSize:"1.1rem",
     paddingLeft: theme.isFriendlyUI ? 16 : 12,
-    ...sectionOffsetStyling,
+    ...getSectionOffsetStyling(),
   },
   level3: {
     fontSize:"1.1rem",
     color: theme.palette.text.dim700,
     paddingLeft: theme.isFriendlyUI ? 32 : 24,
-    ...sectionOffsetStyling,
+    ...getSectionOffsetStyling(),
   },
   level4: {
     fontSize:"1.1rem",
     color: theme.palette.text.dim700,
     paddingLeft: theme.isFriendlyUI ? 48 : 36,
-    ...sectionOffsetStyling,
+    ...getSectionOffsetStyling(),
   },
   titleContainer: {
     height: '100%',

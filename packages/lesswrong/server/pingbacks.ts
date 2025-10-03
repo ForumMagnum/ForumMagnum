@@ -1,14 +1,49 @@
 import { cheerioParse } from './utils/htmlUtil';
-import { parseRoute, parsePath } from '../lib/vulcan-core/appContext';
+import { parseRoute, parsePath } from '@/lib/vulcan-lib/routes';
 import { getSiteUrl } from '../lib/vulcan-lib/utils';
 import { classifyHost } from '../lib/routeUtil';
-import * as _ from 'underscore';
 import { getUrlClass } from './utils/getUrlClass';
 import { forEachDocumentBatchInCollection } from './manualMigrations/migrationUtils';
 import { getEditableFieldsByCollection } from '@/server/editor/editableSchemaFieldHelpers';
 import { getCollection } from '@/server/collections/allCollections';
 import { getLatestRev } from './editor/utils';
 import { createAnonymousContext } from '@/server/vulcan-lib/createContexts';
+import { getUserPingbackBySlug, getPostPingbackById, getPostPingbackBySlug, getTagPingbackBySlug, getPostPingbackByLegacyId } from '@/lib/pingback';
+import { aboutPostIdSetting, faqPostIdSetting, contactPostIdSetting } from '@/lib/instanceSettings';
+import type { RouterLocation } from '@/lib/vulcan-lib/routes';
+
+interface PingbackDocument {
+  collectionName: CollectionNameString,
+  documentId: string,
+}
+
+type GetPingbackFunction = (parsedUrl: RouterLocation, context: ResolverContext) => Promise<PingbackDocument|null> | PingbackDocument|null
+
+// ea-forum-look-here
+const legacyRouteAcronym = 'lw';
+
+const routePingbackMapping = {
+  '/users/:slug': getUserPingbackBySlug,
+  '/collaborateOnPost': (parsedUrl) => getPostPingbackById(parsedUrl, parsedUrl.query.postId),
+  '/s/:sequenceId/p/:postId': (parsedUrl) => getPostPingbackById(parsedUrl, parsedUrl.params.postId),
+  '/highlights/:slug': (parsedUrl, context) => getPostPingbackBySlug(parsedUrl, parsedUrl.params.slug, context),
+  '/w/:slug': (parsedUrl, context) => getTagPingbackBySlug(parsedUrl, parsedUrl.params.slug, context),
+  '/w/:slug/discussion': (parsedUrl, context) => getTagPingbackBySlug(parsedUrl, parsedUrl.params.slug, context),
+  '/tag/:slug': (parsedUrl, context) => getTagPingbackBySlug(parsedUrl, parsedUrl.params.slug, context),
+  '/tag/:slug/discussion': (parsedUrl, context) => getTagPingbackBySlug(parsedUrl, parsedUrl.params.slug, context),
+  '/about': (parsedUrl) => getPostPingbackById(parsedUrl, aboutPostIdSetting.get()),
+  '/contact': (parsedUrl) => getPostPingbackById(parsedUrl, contactPostIdSetting.get()),
+  '/faq': (parsedUrl) => getPostPingbackById(parsedUrl, faqPostIdSetting.get()),
+  '/donate': (parsedUrl) => getPostPingbackById(parsedUrl, "LcpQQvcpWfPXvW7R9"),
+  '/hpmor/:slug': (parsedUrl, context) => getPostPingbackBySlug(parsedUrl, parsedUrl.params.slug, context),
+  '/codex/:slug': (parsedUrl, context) => getPostPingbackBySlug(parsedUrl, parsedUrl.params.slug, context),
+  '/rationality/:slug': (parsedUrl, context) => getPostPingbackBySlug(parsedUrl, parsedUrl.params.slug, context),
+  '/events/:_id/:slug?': (parsedUrl) => getPostPingbackById(parsedUrl, parsedUrl.params._id),
+  '/g/:groupId/p/:_id': (parsedUrl) => getPostPingbackById(parsedUrl, parsedUrl.params._id),
+  '/posts/:_id/:slug?': (parsedUrl) => getPostPingbackById(parsedUrl, parsedUrl.params._id),
+  '/posts/slug/:slug?': (parsedUrl, context) => getPostPingbackBySlug(parsedUrl, parsedUrl.params.slug, context),
+  [`/${legacyRouteAcronym}/:id/:slug?`]: (parsedUrl, context) => getPostPingbackByLegacyId(parsedUrl, parsedUrl.params.id, context),
+} satisfies Record<string, GetPingbackFunction>;
 
 type PingbacksIndex = Partial<Record<CollectionNameString, string[]>>
 
@@ -43,12 +78,14 @@ export const htmlToPingbacks = async (html: string, exclusions: Array<{collectio
         const onsiteUrl = linkTargetAbsolute.pathname + linkTargetAbsolute.search + linkTargetAbsolute.hash;
         const parsedUrl = parseRoute({
           location: parsePath(onsiteUrl),
-          onError: (pathname) => {} // Ignore malformed links
+          onError: (pathname) => {},
+          routePatterns: Object.keys(routePingbackMapping).reverse() as (keyof typeof routePingbackMapping)[]
         });
-        if (parsedUrl?.currentRoute?.getPingback) {
-          const pingback = await parsedUrl.currentRoute.getPingback(parsedUrl, context);
+        if (parsedUrl.routePattern && routePingbackMapping[parsedUrl.routePattern]) {
+          const getPingback = routePingbackMapping[parsedUrl.routePattern];
+          const pingback = await getPingback(parsedUrl, context);
           if (pingback) {
-            if (exclusions && _.find(exclusions,
+            if (exclusions && exclusions.find(
               exclusion => exclusion.documentId===pingback.documentId && exclusion.collectionName===pingback.collectionName))
             {
               // Pingback is excluded

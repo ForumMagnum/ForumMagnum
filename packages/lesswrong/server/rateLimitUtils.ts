@@ -8,7 +8,7 @@ import type { CommentAutoRateLimit, PostAutoRateLimit, RateLimitComparison, Rate
 import { calculateRecentKarmaInfo, documentOnlyHasSelfVote, getAutoRateLimitInfo, getCurrentAndPreviousUserKarmaInfo, getMaxAutoLimitHours, getModRateLimitInfo, getRateLimitStrictnessComparisons, getStrictestRateLimitInfo, getManualRateLimitInfo, getManualRateLimitIntervalHours, getDownvoteRatio } from "../lib/rateLimits/utils"
 import { triggerReview } from "./callbacks/helpers"
 import { appendToSunshineNotes } from "../lib/collections/users/helpers"
-import { isNonEmpty } from "fp-ts/Array"
+import { isNonEmpty } from "@/lib/utils/typeGuardUtils"
 import type { NonEmptyArray } from "fp-ts/lib/NonEmptyArray"
 import { backgroundTask } from "./utils/backgroundTask"
 
@@ -146,7 +146,7 @@ async function getUserIsAuthor(userId: string, postId: string|null, context: Res
   const post = await context.loaders.Posts.load(postId);
   if (!post) return false
   const userIsNotPrimaryAuthor = post.userId !== userId
-  const userIsNotCoauthor = !post.coauthorStatuses || post.coauthorStatuses.every(coauthorStatus => coauthorStatus.userId !== userId)
+  const userIsNotCoauthor = !post.coauthorUserIds.includes(userId)
   return !(userIsNotPrimaryAuthor && userIsNotCoauthor)
 }
 
@@ -166,12 +166,13 @@ async function getCommentsOnOthersPosts(comments: Array<DbComment>, userId: stri
   const postsNotAuthoredByCommenter = postIds.length>0
     ? await Posts.find(
         {_id: {$in: postIds}, userId: {$ne: userId}},
-        {projection: {_id:1, coauthorStatuses:1}}
+        undefined,
+        {_id:1, coauthorUserIds:1}
       ).fetch()
     : [];
 
   // right now, filtering out coauthors doesn't work (due to a bug in our query builder), so we're doing that manually
-  const postsNotCoauthoredByCommenter = postsNotAuthoredByCommenter.filter(post => !post.coauthorStatuses || post.coauthorStatuses.every(coauthorStatus => coauthorStatus.userId !== userId))
+  const postsNotCoauthoredByCommenter = postsNotAuthoredByCommenter.filter(post => !post.coauthorUserIds.includes(userId))
   const postsNotAuthoredByCommenterIds = postsNotCoauthoredByCommenter.map(post => post._id)
   const commentsOnNonauthorPosts = comments.filter(comment => comment.postId && postsNotAuthoredByCommenterIds.includes(comment.postId))
   return commentsOnNonauthorPosts

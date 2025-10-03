@@ -10,7 +10,7 @@ import { logFieldChanges } from "@/server/fieldChanges";
 import { getCreatableGraphQLFields, getUpdatableGraphQLFields } from "@/server/vulcan-lib/apollo-server/graphqlTemplates";
 import { makeGqlCreateMutation, makeGqlUpdateMutation } from "@/server/vulcan-lib/apollo-server/helpers";
 import { getLegacyCreateCallbackProps, getLegacyUpdateCallbackProps, insertAndReturnCreateAfterProps, runFieldOnCreateCallbacks, runFieldOnUpdateCallbacks, updateAndReturnDocument, assignUserIdToData } from "@/server/vulcan-lib/mutators";
-import { backgroundTask } from "@/stubs/server/utils/backgroundTask";
+import { backgroundTask } from "@/server/utils/backgroundTask";
 import gql from "graphql-tag";
 import cloneDeep from "lodash/cloneDeep";
 
@@ -82,7 +82,7 @@ export async function createJargonTerm({ data }: CreateJargonTermInput, context:
     newDocument: documentWithId,
   };
 
-  await uploadImagesInEditableFields({
+  uploadImagesInEditableFields({
     newDoc: documentWithId,
     props: asyncProperties,
   });
@@ -122,7 +122,7 @@ export async function updateJargonTerm({ selector, data }: UpdateJargonTermInput
 
   await updateCountOfReferencesOnOtherCollectionsAfterUpdate('JargonTerms', updatedDocument, oldDocument);
 
-  await reuploadImagesIfEditableFieldsChanged({
+  reuploadImagesIfEditableFieldsChanged({
     newDoc: updatedDocument,
     props: updateCallbackProperties,
   });

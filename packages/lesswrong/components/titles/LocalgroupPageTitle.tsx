@@ -1,3 +1,5 @@
+"use client";
+
 import React from 'react';
 import { useLocation } from '../../lib/routeUtil';
 import { Helmet } from '../common/Helmet';
@@ -6,7 +8,7 @@ import { gql } from "@/lib/generated/gql-codegen";
 
 const localGroupsBaseQuery = gql(`
   query LocalgroupPageTitle($documentId: String) {
-    localgroup(input: { selector: { documentId: $documentId } }) {
+    localgroup(input: { selector: { documentId: $documentId } }, allowNull: true) {
       result {
         ...localGroupsBase
       }
@@ -21,7 +23,7 @@ export const LocalgroupPageTitle = ({siteName}: {
   
   const { loading, data } = useQuery(localGroupsBaseQuery, {
     variables: { documentId: groupId },
-    fetchPolicy: 'cache-only',
+    fetchPolicy: 'cache-first',
   });
   const group = data?.localgroup?.result;
   

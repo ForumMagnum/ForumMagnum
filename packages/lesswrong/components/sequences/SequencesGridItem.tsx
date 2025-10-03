@@ -3,8 +3,7 @@ import React from 'react';
 import { legacyBreakpoints } from '../../lib/utils/theme';
 import classNames from 'classnames';
 import { getCollectionOrSequenceUrl } from '../../lib/collections/sequences/helpers';
-import { defaultSequenceBannerIdSetting } from './SequencesPage';
-import { isLWorAF } from '../../lib/instanceSettings';
+import { defaultSequenceBannerIdSetting, isLWorAF } from '../../lib/instanceSettings';
 import DeferRender from '../common/DeferRender';
 import CloudinaryImage from "../common/CloudinaryImage";
 import UsersName from "../users/UsersName";
@@ -141,7 +140,7 @@ const SequencesGridItem = ({ sequence, showAuthor=false, classes, bookItemStyle 
   if (!imageId) {
     // LW falls back to a specific image.
     // Other sites fall back first to the sequence banner image, and otherwise to their own site-specific image
-    imageId = isLWorAF ? "sequences/vnyzzznenju0hzdv6pqb.jpg" : (sequence.bannerImageId || defaultSequenceBannerIdSetting.get())
+    imageId = isLWorAF() ? "sequences/vnyzzznenju0hzdv6pqb.jpg" : (sequence.bannerImageId || defaultSequenceBannerIdSetting.get())
   }
 
   return <div className={classNames(classes.root, {[classes.bookItemContentStyle]:bookItemStyle})}>

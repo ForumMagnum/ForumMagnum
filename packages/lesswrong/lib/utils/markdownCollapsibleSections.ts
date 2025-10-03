@@ -25,7 +25,7 @@
  * SOFTWARE.
  */
 import type MarkdownIt from "markdown-it";
-import type { Renderer, StateBlock, Token } from "markdown-it";
+import type { Renderer, StateBlock, Token } from "markdown-it/index.js";
 
 
 const MARKER = 43; // +

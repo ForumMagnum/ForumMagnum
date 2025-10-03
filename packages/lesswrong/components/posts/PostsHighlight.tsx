@@ -2,7 +2,7 @@ import { registerComponent } from '../../lib/vulcan-lib/components';
 import { postGetPageUrl } from '../../lib/collections/posts/helpers';
 import React, { FC, MouseEvent, useState, useCallback } from 'react';
 import { Link } from '../../lib/reactRouterWrapper';
-import { nofollowKarmaThreshold } from '../../lib/publicSettings';
+import { nofollowKarmaThreshold } from '@/lib/instanceSettings';
 import classNames from 'classnames';
 import { isFriendlyUI, preferredHeadingCase } from '../../themes/forumTheme';
 import { useQuery } from "@/lib/crud/useQuery";
@@ -64,7 +64,7 @@ const TruncatedSuffix: FC<{
   }
   return (
     <Link to={postGetPageUrl(post)} eventProps={{intent: 'expandPost'}}>
-      {isFriendlyUI
+      {isFriendlyUI()
         ? "Continue reading"
         : `(Continue Reading${moreWordsText})`
       }

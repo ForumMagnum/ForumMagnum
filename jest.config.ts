@@ -3,7 +3,13 @@
  * https://jestjs.io/docs/en/configuration.html
  */
 
-export default {
+import nextJest from 'next/jest.js'
+
+const createJestConfig = nextJest({
+  dir: './',
+})
+
+export default () => createJestConfig({
   // All imported modules in your tests should be mocked automatically
   // automock: false,
 
@@ -136,9 +142,9 @@ export default {
   // runner: "jest-runner",
 
   // The paths to modules that run some code to configure or set up the testing environment before each test
-  setupFiles: [
-    require.resolve('regenerator-runtime/runtime'),
-  ],
+  // setupFiles: [
+  //   require.resolve('regenerator-runtime/runtime'),
+  // ],
 
   // A list of paths to modules that run some code to configure or set up the testing framework before each test
   // setupFilesAfterEnv: [],
@@ -150,7 +156,7 @@ export default {
   // snapshotSerializers: [],
 
   // The test environment that will be used for testing
-  testEnvironment: "node",
+  // testEnvironment: "node",
 
   // Options that will be passed to the testEnvironment
   // testEnvironmentOptions: {},
@@ -183,16 +189,24 @@ export default {
   // timers: "real",
 
   // A map from regular expressions to paths to transformers
-  transform: {
-    "^.+\\.(js|jsx|ts|tsx)$": [
-      "<rootDir>/esbuild-jest-vendored.js",
-      {
-        sourcemap: true,
-      },
-    ],
-  },
+  // transform: {
+  //   "^.+\\.(js|jsx|ts|tsx)$": [
+  //     "<rootDir>/esbuild-jest-vendored.js",
+  //     {
+  //       sourcemap: true,
+  //       // format: "esm",
+  //     },
+  //   ],
+  // },
 
   moduleNameMapper: {
+    // Because of https://github.com/apollographql/apollo-client-integrations/issues/353,
+    // we need to stub out this file so that we can successfully import anything in the
+    // app/ directory for testing purposes (which we want to do e.g. in forumTypeUtils.tests
+    // to check that we aren't making any forbidden top-level calls by importing all of
+    // our entrypoints that import the rest of the source graph).
+    "(.*)/nextApolloClient": "<rootDir>/packages/lesswrong/stubs/emptyModule.js",
+
     // Should match "paths" in tsconfig.json
     "@/client/(.*)": "<rootDir>/packages/lesswrong/stubs/client/$1",
     "@/viteClient/(.*)": "<rootDir>/packages/lesswrong/stubs/viteClient/$1",
@@ -210,6 +224,18 @@ export default {
     "react-dom/server": "react-dom/server.edge",
   },
 
+  // An array of regexp pattern strings that are matched against all modules before the module loader will automatically return a mock for them
+  // unmockedModulePathPatterns: undefined,
+
+  // Indicates whether each individual test should be reported during the run
+  // verbose: undefined,
+
+  // An array of regexp patterns that are matched against all source file paths before re-running tests in watch mode
+  // watchPathIgnorePatterns: [],
+
+  // Whether to use watchman for file crawling
+  // watchman: true,
+})().then(config => {
   // react-instantsearch contains a file (connectors.js) that requires
   // compilation, which is technically not kosher for things that live in
   // node_modules. By default, jest will not compile it and try to use it
@@ -224,19 +250,11 @@ export default {
   // react-instantsearch 7.x, which might fix this issue, but it has major API
   // changes. If we've done *that* upgrade, this block might no longer be
   // necessary.
-  transformIgnorePatterns: [
+  //
+  // This block needs to live here because otherwise it gets overriden by the
+  // default `transformIgnorePatterns` from `createJestConfig`.
+  config.transformIgnorePatterns = [
     "/node_modules/(?!(react-instantsearch|@extractus|bellajs)/)"
-  ],
-
-  // An array of regexp pattern strings that are matched against all modules before the module loader will automatically return a mock for them
-  // unmockedModulePathPatterns: undefined,
-
-  // Indicates whether each individual test should be reported during the run
-  // verbose: undefined,
-
-  // An array of regexp patterns that are matched against all source file paths before re-running tests in watch mode
-  // watchPathIgnorePatterns: [],
-
-  // Whether to use watchman for file crawling
-  // watchman: true,
-};
+  ];
+  return config;
+});

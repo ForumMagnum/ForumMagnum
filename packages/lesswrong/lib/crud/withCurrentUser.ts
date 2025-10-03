@@ -1,7 +1,7 @@
 import { useQuery } from "@/lib/crud/useQuery";
-import { gql } from '@/lib/generated/gql-codegen';
 import { hookToHoc } from '../hocUtils';
 import { useApolloClient } from "@apollo/client/react";
+import { CurrentUserQuery } from "./currentUserQuery";
 
 /**
  * Hook for a graphQL query that fetches the logged-in user object. This is
@@ -12,13 +12,7 @@ import { useApolloClient } from "@apollo/client/react";
  */
 export const useQueryCurrentUser = () => {
   const client = useApolloClient();
-  const {data, refetch, loading} = useQuery(gql(`
-    query getCurrentUser {
-      currentUser {
-        ...UsersCurrent
-      }
-    }
-  `), {
+  const {data, refetch, loading} = useQuery(CurrentUserQuery, {
     fetchPolicy: "cache-first",
     ssr: true,
   });

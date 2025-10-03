@@ -1,3 +1,4 @@
+import schema from '@/lib/collections/lwevents/newSchema';
 import { userOwns, userCanDo } from '@/lib/vulcan-users/permissions';
 import { createCollection } from '@/lib/vulcan-lib/collections';
 import { DatabaseIndexSet } from '@/lib/utils/databaseIndexSet';
@@ -7,6 +8,7 @@ import { DatabaseIndexSet } from '@/lib/utils/databaseIndexSet';
 export const LWEvents = createCollection({
   collectionName: 'LWEvents',
   typeName: 'LWEvent',
+  schema,
     getIndexes: () => {
     const indexSet = new DatabaseIndexSet();
     indexSet.addIndex('LWEvents', {name:1, createdAt:-1});

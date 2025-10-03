@@ -4,7 +4,6 @@ import withErrorBoundary from "../common/withErrorBoundary";
 import { useLocation } from "../../lib/routeUtil";
 import { useTracking } from "../../lib/analyticsEvents";
 import { getBrowserLocalStorage } from "../editor/localStorageHandlers";
-import { useOnServerSentEvent } from "../hooks/useUnreadNotifications";
 import stringify from "json-stringify-deterministic";
 import {isFriendlyUI} from '../../themes/forumTheme.ts'
 import MessagesNewForm from "./MessagesNewForm";
@@ -14,6 +13,8 @@ import MessageItem from "./MessageItem";
 import Divider from "../common/Divider";
 import { useQuery } from "@/lib/crud/useQuery";
 import { gql } from "@/lib/generated/gql-codegen";
+import { SideItemsContainer, SideItemsSidebar } from "../contents/SideItems.tsx";
+import { widthElements } from "juice";
 
 const messageListFragmentMultiQuery = gql(`
   query multiMessageConversationContentsQuery($selector: MessageSelector, $limit: Int, $enableTotal: Boolean) {
@@ -52,6 +53,17 @@ const styles = (theme: ThemeType) => ({
   row: {
     display: "flex",
     justifyContent: "space-between",
+  },
+  messagesContainer: {
+    display: "flex",
+  },
+  messagesColumn: {
+    width: "calc(100% - 50px)",
+    [theme.breakpoints.down("xs")]: {
+      width: "calc(100% - 5px)",
+    },
+  },
+  sidebar: {
   },
 });
 
@@ -116,7 +128,8 @@ const ConversationContents = ({
     }
   }, [stateSignatureRef, results?.length, scrollRef, conversation._id]);
 
-  useOnServerSentEvent('notificationCheck', currentUser, () => refetch());
+  // TODO: replace this functionality without SSE
+  // useOnServerSentEvent('notificationCheck', currentUser, () => refetch());
 
   // try to attribute this sent message to where the user came from
   const profileViewedFrom = useRef("");
@@ -149,40 +162,49 @@ const ConversationContents = ({
   if (!conversation) return <Error404 />;
 
   return (
-    <>
-      {renderMessages()}
-      <div className={classes.editor}>
-        <MessagesNewForm
-          key={`sendMessage-${messageSentCount}`}
-          conversationId={conversation._id}
-          templateQueries={{ templateId: query.templateId, displayName: query.displayName }}
-          formStyle={isFriendlyUI ? "minimalist" : undefined}
-          successEvent={(newMessage) => {
-            setMessageSentCount(messageSentCount + 1);
-            captureEvent("messageSent", {
-              conversationId: conversation._id,
-              sender: currentUser._id,
-              participantIds: conversation.participantIds,
-              messageCount: (conversation.messageCount || 0) + 1,
-              ...(profileViewedFrom?.current && { from: profileViewedFrom.current }),
-            });
-            updateQuery((_, { previousData }) => {
-              const previousResults = previousData?.messages?.results ?? [];
-              const previousMessages = previousResults.filter((m): m is messageListFragment => m !== undefined) ?? [];
+    <div>
+      <SideItemsContainer>
+        <div className={classes.messagesContainer}>
+          <div className={classes.messagesColumn}>
+            {renderMessages()}
+            <div className={classes.editor}>
+              <MessagesNewForm
+                key={`sendMessage-${messageSentCount}`}
+                conversationId={conversation._id}
+                templateQueries={{ templateId: query.templateId, displayName: query.displayName }}
+                formStyle={isFriendlyUI() ? "minimalist" : undefined}
+                successEvent={(newMessage) => {
+                  setMessageSentCount(messageSentCount + 1);
+                  captureEvent("messageSent", {
+                    conversationId: conversation._id,
+                    sender: currentUser._id,
+                    participantIds: conversation.participantIds,
+                    messageCount: (conversation.messageCount || 0) + 1,
+                    ...(profileViewedFrom?.current && { from: profileViewedFrom.current }),
+                  });
+                  updateQuery((_, { previousData }) => {
+                    const previousResults = previousData?.messages?.results ?? [];
+                    const previousMessages = previousResults.filter((m): m is messageListFragment => m !== undefined) ?? [];
 
-              return {
-                __typename: "Query" as const,
-                messages: {
-                  __typename: "MultiMessageOutput" as const,
-                  results: [...previousMessages, newMessage],
-                  totalCount: previousData?.messages?.totalCount ? previousData?.messages?.totalCount + 1 : 1,
-                },
-              }
-            })
-          }}
-        />
-      </div>
-    </>
+                    return {
+                      __typename: "Query" as const,
+                      messages: {
+                        __typename: "MultiMessageOutput" as const,
+                        results: [...previousMessages, newMessage],
+                        totalCount: previousData?.messages?.totalCount ? previousData?.messages?.totalCount + 1 : 1,
+                      },
+                    }
+                  })
+                }}
+              />
+            </div>
+          </div>
+          <div className={classes.sidebar}>
+            <SideItemsSidebar/>
+          </div>
+        </div>
+        </SideItemsContainer>
+    </div>
   );
 };
 

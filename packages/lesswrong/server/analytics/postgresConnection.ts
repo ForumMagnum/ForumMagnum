@@ -1,40 +1,25 @@
 import { isAnyTest } from "../../lib/executionEnvironment";
 import pgp, { IDatabase } from "pg-promise";
 import type { IClient } from "pg-promise/typescript/pg-subset";
-import { DatabaseServerSetting } from "../databaseSettings";
-import { PublicInstanceSetting, isEAForum } from "../../lib/instanceSettings";
+import { connectionStringSetting, mirrorConnectionSettingString, sslSetting } from "../databaseSettings";
+import { isEAForum, sslCAFileSetting } from "../../lib/instanceSettings";
 import fs from "fs";
-import { forumSelect } from "../../lib/forumTypeUtils";
 import { getInstanceSettingsFilePath } from "../commandLine";
 import path from "path";
 
-export const pgPromiseLib = pgp({});
-
-export const connectionStringSetting = new DatabaseServerSetting<string | null>("analytics.connectionString", null);
-export const mirrorConnectionSettingString = new DatabaseServerSetting<string | null>("analytics.mirrorConnectionString", null); //for streaming to two DB at once
-
-interface SSLSettings {
-  require?: boolean
-  allowUnauthorized?: boolean
-  ca?: string
+export type AnalyticsConnectionPool = IDatabase<{}, IClient>;
+declare global {
+  var analyticsConnectionPools: Map<string, AnalyticsConnectionPool>|undefined;
+  var pgPromiseLib: ReturnType<typeof pgp>|undefined;
 }
 
-const sslSetting = new DatabaseServerSetting<SSLSettings | null>(
-  "analytics.ssl",
-  forumSelect({
-    EAForum: {
-      require: true,
-      allowUnauthorized: false,
-    },
-    default: null,
-  })
-);
-/** Path of the certificate file *relative* to the instance settings file (so we don't have to store the full cert in instance settings) */
-const sslCAFileSetting = new PublicInstanceSetting<string | null>(
-  "analytics.caFilePath",
-  forumSelect({ EAForum: "./certs/us-east-1-bundle.cer", default: null }),
-  "optional"
-);
+export const getPgPromiseLib = () => {
+  if (!globalThis.pgPromiseLib) {
+    globalThis.pgPromiseLib = pgp({});
+  }
+  return globalThis.pgPromiseLib;
+}
+
 
 const getFullCAFilePath = (): string | null => {
   const caFilePath = sslCAFileSetting.get();
@@ -48,12 +33,10 @@ const getFullCAFilePath = (): string | null => {
   return path.resolve(instanceSettingsDirectory, caFilePath);
 }
 
-export type AnalyticsConnectionPool = IDatabase<{}, IClient>;
-let analyticsConnectionPools: Map<string, AnalyticsConnectionPool> = new Map();
 let missingConnectionStringWarned = false;
 
 function getAnalyticsConnectionFromString(connectionString: string | null): AnalyticsConnectionPool | null {
-  if (isAnyTest && !isEAForum) {
+  if (isAnyTest && !isEAForum()) {
     return null;
   }
   if (!connectionString) {
@@ -67,6 +50,10 @@ function getAnalyticsConnectionFromString(connectionString: string | null): Anal
     return null;
   }
 
+  if (!globalThis.analyticsConnectionPools) {
+    globalThis.analyticsConnectionPools = new Map<string, AnalyticsConnectionPool>();
+  }
+  const analyticsConnectionPools = globalThis.analyticsConnectionPools;
   if (!analyticsConnectionPools.get(connectionString)) {
     let ssl = sslSetting.get();
     if (ssl) {
@@ -84,7 +71,7 @@ function getAnalyticsConnectionFromString(connectionString: string | null): Anal
       ...(ssl && { ssl })
     };
 
-    analyticsConnectionPools.set(connectionString, pgPromiseLib(connectionOptions));
+    analyticsConnectionPools.set(connectionString, getPgPromiseLib()(connectionOptions));
   }
 
   return analyticsConnectionPools.get(connectionString)!

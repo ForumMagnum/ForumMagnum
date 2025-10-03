@@ -34,3 +34,10 @@ export const userBigVotePower = (karma: number, multiplier: number) => {
 
 export const voteTypes: string[] = ["smallUpvote", "smallDownvote", "bigUpvote", "bigDownvote", "neutral"];
 export const isValidVoteType = (voteType: string) => voteTypes.includes(voteType);
+
+export function getVoteAxisStrength(vote: DbVote, usersById: Record<string, DbUser>, axis: string) {
+  const voteType: string | undefined = vote.extendedVoteType?.[axis];
+  if (!voteType) return 0;
+  const user = usersById[vote.userId];
+  return calculateVotePower(user.karma, voteType);
+}

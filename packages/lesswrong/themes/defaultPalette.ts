@@ -702,6 +702,11 @@ export const defaultComponentPalette = (shades: ThemeShadePalette): ThemeCompone
     color3: "#998080",
     color4: "#504040",
   },
+  meetupMonth: {
+    acx: "#5f86c9",
+    ifanyone: "#b64d4d",
+    petrov: "#444",
+  },
   fundraisingThermometer: {
     shadow: '#222',
   },

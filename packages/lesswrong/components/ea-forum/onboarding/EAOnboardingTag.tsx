@@ -3,7 +3,7 @@ import { registerComponent } from "../../../lib/vulcan-lib/components";
 import { useOptimisticToggle } from "../../hooks/useOptimisticToggle";
 import classNames from "classnames";
 import { useEAOnboarding } from "./useEAOnboarding";
-import { useSubscribeUserToTag } from "@/lib/filterSettings";
+import { useSubscribeUserToTag } from '@/components/hooks/useFilterSettings';
 import CloudinaryImage2 from "../../common/CloudinaryImage2";
 import ForumIcon from "../../common/ForumIcon";
 

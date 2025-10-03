@@ -22,7 +22,7 @@ const CuratedPostsList = ({overrideLimit, repeatedPostsPrecedence}: {
         terms={{
           view: "curated",
           limit: overrideLimit ?? currentCuratedPostCount,
-          ...(isEAForum ? {curatedAfter: fiveDaysAgo} : {}),
+          ...(isEAForum() ? {curatedAfter: fiveDaysAgo} : {}),
         }}
         showNoResults={false}
         showLoadMore={false}

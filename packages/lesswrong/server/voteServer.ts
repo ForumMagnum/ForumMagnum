@@ -3,20 +3,19 @@ import { userCanDo } from '../lib/vulcan-users/permissions';
 import { recalculateScore } from '../lib/scoring';
 import { isValidVoteType } from '../lib/voting/voteTypes';
 import { VoteDocTuple, getVotePower } from '../lib/voting/vote';
-import { type VotingSystem } from '../lib/voting/votingSystems';
+import { type VotingSystem } from '@/lib/voting/votingSystemTypes';
 import { getVotingSystemForDocument } from '@/lib/voting/getVotingSystem';
 import { createAdminContext, createAnonymousContext } from './vulcan-lib/createContexts';
 import { randomId } from '../lib/random';
-import { getConfirmedCoauthorIds } from '../lib/collections/posts/helpers';
 import { ModeratorActions } from '../server/collections/moderatorActions/collection';
 import { RECEIVED_VOTING_PATTERN_WARNING, POTENTIAL_TARGETED_DOWNVOTING } from "@/lib/collections/moderatorActions/constants";
 import { loadByIds } from '../lib/loaders';
 import { filterNonnull } from '../lib/utils/typeGuardUtils';
 import moment from 'moment';
-import * as _ from 'underscore';
 import sumBy from 'lodash/sumBy'
 import uniq from 'lodash/uniq';
 import keyBy from 'lodash/keyBy';
+import maxBy from 'lodash/maxBy';
 import { voteButtonsDisabledForUser } from '../lib/collections/users/helpers';
 import { elasticSyncDocument } from './search/elastic/elasticCallbacks';
 import { collectionIsSearchIndexed } from '../lib/search/searchUtil';
@@ -82,11 +81,11 @@ const addVoteServer = async ({ document, collection, voteType, extendedVote, use
     },
     {}
   );
-  if (isElasticEnabled && collectionIsSearchIndexed(collection.collectionName)) {
+  if (isElasticEnabled() && collectionIsSearchIndexed(collection.collectionName)) {
     backgroundTask(elasticSyncDocument(collection.collectionName, newDocument._id));
   }
   if (collection.collectionName === "Posts") {
-    backgroundTask(swrInvalidatePostRoute(newDocument._id))
+    backgroundTask(swrInvalidatePostRoute(newDocument._id, context))
   }
   return {newDocument, vote};
 }
@@ -102,7 +101,7 @@ export const createVote = ({ document, collectionName, voteType, extendedVote, u
 }): Partial<DbVote> => {
   let authorIds = document.userId ? [document.userId] : []
   if (collectionName === "Posts")
-    authorIds = authorIds.concat(getConfirmedCoauthorIds(document as DbPost))
+    authorIds = authorIds.concat((document as DbPost).coauthorUserIds)
 
   return {
     // when creating a vote from the server, voteId can sometimes be undefined
@@ -137,7 +136,7 @@ export const clearVotesServer = async ({ document, user, collection, excludeLate
   silenceNotification?: boolean,
   context: ResolverContext,
 }) => {
-  let newDocument = _.clone(document);
+  let newDocument = {...document};
   
   // Fetch existing, uncancelled votes
   const votes = await Votes.find({
@@ -149,7 +148,7 @@ export const clearVotesServer = async ({ document, user, collection, excludeLate
     return newDocument;
   }
   
-  const latestVoteId = _.max(votes, v=>v.votedAt)?._id;
+  const latestVoteId = maxBy(votes, v=>v.votedAt)?._id;
   const votesToCancel = excludeLatest
     ? votes.filter(v=>v._id!==latestVoteId)
     : votes
@@ -205,7 +204,7 @@ export const clearVotesServer = async ({ document, user, collection, excludeLate
     ...newDocument,
     ...newScores,
   };
-  if (isElasticEnabled && collectionIsSearchIndexed(collection.collectionName)) {
+  if (isElasticEnabled() && collectionIsSearchIndexed(collection.collectionName)) {
     backgroundTask(elasticSyncDocument(collection.collectionName, newDocument._id));
   }
   return newDocument;
@@ -266,8 +265,8 @@ export const performVoteServer = async ({ documentId, document, voteType, extend
 
   if (!selfVote && collectionName === "Comments" && (document as DbComment).debateResponse) {
     const post = await Posts.findOne({_id: (document as DbComment).postId});
-    const acceptedCoauthorIds = post ? [...getConfirmedCoauthorIds(post), post.userId] : [];
-    if (!acceptedCoauthorIds.includes(user._id)) {
+    const coauthorIds = post ? [...post.coauthorUserIds, post.userId] : [];
+    if (!coauthorIds.includes(user._id)) {
       throw new Error("Cannot vote on debate responses unless you're an accepted coauthor");
     }
   }
@@ -615,7 +614,7 @@ export const recalculateDocumentScores = async (document: VoteableType, collecti
   const usersThatVoted = await loadByIds(context, "Users", userIdsThatVoted);
   const usersThatVotedById = keyBy(filterNonnull(usersThatVoted), u=>u._id);
   
-  const afVotes = _.filter(votes, v=>userCanDo(usersThatVotedById[v.userId], "votes.alignment"));
+  const afVotes = votes.filter(v=>userCanDo(usersThatVotedById[v.userId], "votes.alignment"));
 
   const votingSystem = await getVotingSystemForDocument(document, collectionName, context);
   const nonblankVoteCount = votes.filter(v => (!!v.voteType && v.voteType !== "neutral") || votingSystem.isNonblankExtendedVote(v)).length;
@@ -623,8 +622,8 @@ export const recalculateDocumentScores = async (document: VoteableType, collecti
   const baseScore = sumBy(votes, v=>v.power)
   const afBaseScore = sumBy(afVotes, v=>v.afPower ?? 0)
   
-  const voteCount = _.filter(votes, v=>voteHasAnyEffect(votingSystem, v, false)).length;
-  const afVoteCount = _.filter(afVotes, v=>voteHasAnyEffect(votingSystem, v, true)).length;
+  const voteCount = votes.filter(v=>voteHasAnyEffect(votingSystem, v, false)).length;
+  const afVoteCount = afVotes.filter(v=>voteHasAnyEffect(votingSystem, v, true)).length;
   
   return {
     baseScore, afBaseScore,

@@ -1,3 +1,5 @@
+"use client";
+
 import React, { createContext, forwardRef, use, useContext, useLayoutEffect } from "react";
 import type { ClassNameProxy, StyleDefinition, StyleOptions } from "@/server/styleGeneration";
 import type { JssStyles } from "@/lib/jssStyles";
@@ -9,15 +11,15 @@ import jssDefaultUnit from 'jss-plugin-default-unit';
 import jssVendorPrefixer from 'jss-plugin-vendor-prefixer';
 import jssPropsSort from 'jss-plugin-props-sort';
 import { isClient } from "@/lib/executionEnvironment";
-import { ThemeContext, ThemeContextType, useTheme } from "../themes/useTheme";
+import { ThemeContext, ThemeContextType, useTheme } from '../themes/useTheme';
 import { maybeMinifyCSS } from "@/server/maybeMinifyCSS";
 import { type AbstractThemeOptions, abstractThemeToConcrete, themeOptionsAreConcrete } from "@/themes/themeNames";
 import { getForumTheme } from "@/themes/forumTheme";
+import { classNameProxy, defineStyles } from "./defineStyles";
 
 export type StylesContextType = {
   initialTheme: ThemeType
   stylesAwaitingServerInjection: StyleDefinition[]
-  serverInsertedStylesImported: boolean
   mountedStyles: Map<string, {
     refcount: number
     styleDefinition?: StyleDefinition<any>
@@ -27,32 +29,16 @@ export type StylesContextType = {
 
 export const StylesContext = createContext<StylesContextType|null>(null);
 
-
 export function createStylesContext(theme: ThemeType, abstractThemeOptions: AbstractThemeOptions): StylesContextType {
   return {
     initialTheme: theme,
     stylesAwaitingServerInjection: [],
-    serverInsertedStylesImported: false,
     mountedStyles: new Map<string, {
       refcount: number
       styleDefinition: StyleDefinition<any>
       styleNode?: HTMLStyleElement
     }>()
   };
-}
-
-/**
- * _clientMountedStyles: Client-side-only global variable that contains the
- * style context, as an alternative to getting it through React context. This
- * is client-side-only because on the server, where there may be more than one
- * render happening concurrently for different users, there isn't a meaningful
- * answer to questions like "what is the current theme". But when doing
- * hot-module reloading on the client, we need "the current theme" in order to
- * update any styles mounted in the <head> block.
- */
-let _clientMountedStyles: StylesContextType|null = null;
-export function setClientMountedStyles(styles: StylesContextType) {
-  _clientMountedStyles = styles;
 }
 
 /**
@@ -75,37 +61,10 @@ export function regeneratePageStyles(themeContext: ThemeContextType, stylesConte
   }
 }
 
-export const topLevelStyleDefinitions: Record<string,StyleDefinition<string>> = {};
-
-export const defineStyles = <T extends string, N extends string>(
-  name: N,
-  styles: (theme: ThemeType) => JssStyles<T>,
-  options?: StyleOptions
-): StyleDefinition<T,N> => {
-  const definition: StyleDefinition<T,N> = {
-    name,
-    styles,
-    options,
-    nameProxy: null,
-  };
-
-  topLevelStyleDefinitions[name] = definition;
-  
-  if (isClient && _clientMountedStyles) {
-    const mountedStyles = _clientMountedStyles.mountedStyles.get(name);
-    if (mountedStyles) {
-      mountedStyles.styleNode?.remove();
-      mountedStyles.styleNode = createAndInsertStyleNode(_clientMountedStyles.initialTheme, definition);
-    }
-  }
-  
-  return definition;
-}
-
 function addStyleUsage<T extends string>(context: StylesContextType, theme: ThemeType, styleDefinition: StyleDefinition<T>) {
   const name = styleDefinition.name;
 
-  if (!context.serverInsertedStylesImported) {
+  if (window.serverInsertedStyleNodes) {
     importServerInsertedStyles(context);
   }
   if (!context.mountedStyles.has(name)) {
@@ -134,34 +93,18 @@ function addStyleUsage<T extends string>(context: StylesContextType, theme: Them
 }
 
 function importServerInsertedStyles(context: StylesContextType) {
-  let numImported = 0;
-  const jssInsertionStart = document.getElementById("jss-insertion-start");
-  if (!jssInsertionStart) {
-    // eslint-disable-next-line no-console
-    console.error("JSS insertion markers not found");
-    return;
-  }
-  let pos: HTMLElement = jssInsertionStart;
-  while (pos) {
-    if (pos.tagName === 'STYLE') {
-      const name = pos.getAttribute("data-name");
-      if (name) {
-        numImported++;
-        context.mountedStyles.set(name, {
-          refcount: 1,
-          styleDefinition: undefined,
-          styleNode: pos as HTMLStyleElement,
-        });
-      }
-    }
-    const next = pos.nextElementSibling;
-    if (!next || next.id==='jss-insertion-end' || next.tagName !== 'STYLE') {
-      break;
-    } else {
-      pos = next as HTMLElement;
+  if (!window.serverInsertedStyleNodes) return;
+  for (const styleNode of window.serverInsertedStyleNodes) {
+    const name = styleNode.getAttribute("data-name");
+    if (name) {
+      context.mountedStyles.set(name, {
+        refcount: 1,
+        styleDefinition: undefined,
+        styleNode,
+      });
     }
   }
-  context.serverInsertedStylesImported = true;
+  window.serverInsertedStyleNodes = null;
 }
 
 function removeStyleUsage<T extends string>(context: StylesContextType, styleDefinition: StyleDefinition<T>) {
@@ -281,20 +224,6 @@ export const withAddClasses = (
   }
 }
 
-export const classNameProxy = <T extends string>(prefix: string): ClassNameProxy<T> => {
-  return new Proxy({}, {
-    get: function(obj: any, prop: any) {
-      // Check that the prop is really a string. This isn't an error that comes
-      // up normally, but apparently React devtools will try to query for non-
-      // string properties sometimes when using the component debugger.
-      if (typeof prop === "string")
-        return prefix+prop;
-      else
-        return prefix+'invalid';
-    }
-  });
-}
-
 
 export const overrideClassesProxy = <T extends string>(prefix: string, overrideClasses: Partial<JssStyles<T>>): ClassNameProxy<T> => {
   return new Proxy({}, {
@@ -379,63 +308,7 @@ export function serverEmbeddedStyles(abstractThemeOptions: AbstractThemeOptions,
     }
     result.push(serverEmbeddedStylesCache[themeKey][styleName]);
   }
-  return `<script>${result.join(";")}</script>`;
-}
-
-export function getEmbeddedStyleLoaderScript() {
-  return `
-  <style id="jss-insertion-start"></style>
-  <style id="jss-insertion-end"></style>
-  <script>_embedStyles=function(name,priority,css) {
-    const styleNode = document.createElement("style");
-    styleNode.append(document.createTextNode(css));
-    styleNode.setAttribute("data-name", name);
-    styleNode.setAttribute("data-priority", priority);
-
-    const head = document.head;
-    const startNode = document.getElementById('jss-insertion-start');
-    const endNode = document.getElementById('jss-insertion-end');
-  
-    if (!startNode || !endNode) {
-      throw new Error('Insertion point markers not found');
-    }
-  
-    styleNode.setAttribute('data-priority', priority.toString());
-    styleNode.setAttribute('data-name', name);
-  
-    const styleNodes = Array.from(head.querySelectorAll('style[data-priority]'));
-    let left = 0;
-    let right = styleNodes.length - 1;
-  
-    while (left <= right) {
-      const mid = Math.floor((left + right) / 2);
-      const midNode = styleNodes[mid];
-      const midPriority = parseInt(midNode.getAttribute('data-priority') || '0', 10);
-      const midName = midNode.getAttribute('data-name') || '';
-    
-      if (midPriority < priority || (midPriority === priority && midName < name)) {
-        left = mid + 1;
-      } else if (midPriority > priority || (midPriority === priority && midName > name)) {
-        right = mid - 1;
-      } else {
-        // Equal priority and name, insert after this node
-        midNode.insertAdjacentElement('afterend', styleNode);
-        return;
-      }
-    }
-  
-    // If we didn't find an exact match, insert at the position determined by 'left'
-    if (left === styleNodes.length) {
-      // Insert before the end marker
-      endNode.insertAdjacentElement('beforebegin', styleNode);
-    } else if (left === 0) {
-      // Insert after the start marker
-      startNode.insertAdjacentElement('afterend', styleNode);
-    } else {
-      // Insert before the node at the 'left' index
-      styleNodes[left].insertAdjacentElement('beforebegin', styleNode);
-    }
-  }</script>`
+  return result.join(";");
 }
 
 export function getJss() {
@@ -466,7 +339,6 @@ export function getJss() {
  * attribute.
  */
 function insertStyleNodeAtCorrectPosition(styleNode: HTMLStyleElement, name: string, priority: number) {
-  const head = document.head;
   const startNode = document.getElementById('jss-insertion-start');
   const endNode = document.getElementById('jss-insertion-end');
 
@@ -477,7 +349,7 @@ function insertStyleNodeAtCorrectPosition(styleNode: HTMLStyleElement, name: str
   styleNode.setAttribute('data-priority', priority.toString());
   styleNode.setAttribute('data-name', name);
 
-  const styleNodes = Array.from(head.querySelectorAll('style[data-priority]'));
+  const styleNodes = Array.from(document.querySelectorAll('style[data-priority]'));
   let left = 0;
   let right = styleNodes.length - 1;
 
@@ -511,3 +383,6 @@ function insertStyleNodeAtCorrectPosition(styleNode: HTMLStyleElement, name: str
   }
 }
 
+// Re-exporting from this file to avoid needing diffs in hundreds of files
+// eslint-disable-next-line no-barrel-files/no-barrel-files
+export { defineStyles };

@@ -3,15 +3,12 @@ import { accessFilterMultiple } from '../../lib/utils/schemaUtils';
 import { canUserEditPostMetadata, extractGoogleDocId } from '../../lib/collections/posts/helpers';
 import { buildRevision } from '../editor/conversionUtils';
 import { isAF, twitterBotKarmaThresholdSetting } from '../../lib/instanceSettings';
-import { drive } from "@googleapis/drive";
 import { randomId } from '../../lib/random';
 import { getLatestRev, getNextVersion, htmlToChangeMetrics } from '../editor/utils';
-import { canAccessGoogleDoc, getGoogleDocImportOAuthClient } from '../posts/googleDocImport';
 import { GoogleDocMetadata } from '../collections/revisions/helpers';
 import { recombeeApi, recombeeRequestHelpers } from '../recombee/client';
 import { RecommendedPost } from '@/lib/recombee/types';
 import { HybridRecombeeConfiguration, RecombeeRecommendationArgs } from '../../lib/collections/users/recommendationSettings';
-import { googleVertexApi } from '../google-vertex/client';
 import { userCanDo, userIsAdmin } from '../../lib/vulcan-users/permissions';
 import { FilterPostsForReview } from '@/components/bookmarks/ReadHistoryTab';
 import gql from "graphql-tag";
@@ -20,11 +17,6 @@ import { convertImportedGoogleDoc } from '../editor/googleDocUtils';
 import { postIsCriticism } from '../languageModels/criticismTipsBot';
 import { createPost } from '../collections/posts/mutations';
 import { createRevision } from '../collections/revisions/mutations';
-
-interface VertexRecommendedPost {
-  post: Partial<DbPost>;
-  attributionId?: string | null;
-}
 
 interface PostWithApprovedJargon {
   post: Partial<DbPost>;
@@ -85,25 +77,6 @@ const {Query: MyDialoguesQuery, typeDefs: MyDialoguesTypeDefs } = createPaginate
     },
   // Caching is not user specific, do not use caching here else you will share users' drafts
   cacheMaxAgeMs: 0, 
-});
-
-// TODO: remove this and all the Vertex-related code after 2025-06-21 (giving clients that might be querying it some time to cycle out)
-const {Query: GoogleVertexPostsQuery, typeDefs: GoogleVertexPostsTypeDefs } = createPaginatedResolver({
-  name: "GoogleVertexPosts",
-  graphQLType: "VertexRecommendedPost",
-  args: { settings: "JSON" },
-  callback: async (
-    context: ResolverContext,
-    limit: number,
-  ): Promise<VertexRecommendedPost[]> => {
-    const { currentUser } = context;
-
-    if (!currentUser) {
-      throw new Error(`You must logged in to use Google Vertex recommendations right now`);
-    }
-
-    return await googleVertexApi.getRecommendations(limit, context);
-  }
 });
 
 const {Query: CrossedKarmaThresholdQuery, typeDefs: CrossedKarmaThresholdTypeDefs } = createPaginatedResolver({
@@ -304,20 +277,16 @@ export const postGqlQueries = {
       }
     })
   },
-  async CanAccessGoogleDoc(root: void, { fileUrl }: { fileUrl: string }, context: ResolverContext) {
-    const { currentUser } = context
-    if (!currentUser) {
-      return null;
-    }
-
-    return canAccessGoogleDoc(fileUrl)
+  async HomepageCommunityEvents(root: void, { limit }: { limit: number }, context: ResolverContext): Promise<HomepageCommunityEventMarkersResult> {
+    const { repos } = context
+    const events = await repos.posts.getHomepageCommunityEvents(limit)
+    return { events }
   },
   ...DigestHighlightsQuery,
   ...DigestPostsThisWeekQuery,
   ...CuratedAndPopularThisWeekQuery,
   ...RecentlyActiveDialoguesQuery,
   ...MyDialoguesQuery,
-  ...GoogleVertexPostsQuery,
   ...CrossedKarmaThresholdQuery,
   ...RecombeeLatestPostsQuery,
   ...RecombeeHybridPostsQuery,
@@ -354,41 +323,45 @@ export const postGqlMutations = {
       }
     }
 
-    const oauth2Client = await getGoogleDocImportOAuthClient();
+    // Fetch the HTML directly from the public export URL
+    const exportUrl = `https://docs.google.com/document/d/${fileId}/export?format=html`;
 
-    const googleDrive = drive({
-      version: "v3",
-      auth: oauth2Client,
-    });
+    let html: string;
+    let docTitle: string;
 
-    // Retrieve the file's metadata to get the name
-    const fileMetadata = await googleDrive.files.get({
-      fileId,
-      fields: 'id, name, description, version, createdTime, modifiedTime, size'
-    });
+    try {
+      const response = await fetch(exportUrl, {
+        signal: AbortSignal.timeout(30000),
+        headers: {
+          'User-Agent': 'Mozilla/5.0 (compatible; ForumMagnum/1.0)'
+        }
+      });
 
-    const docMetadata = fileMetadata.data as GoogleDocMetadata;
+      html = await response.text();
 
-    const fileContents = await googleDrive.files.export(
-      {
-        fileId,
-        mimeType: "text/html",
-      },
-      { responseType: "text" }
-    );
+      if (!html || html.length === 0) {
+        throw new Error("Received empty HTML from Google Docs");
+      }
 
-    const html = fileContents.data as string;
-
-    if (!html || !docMetadata) {
-      throw new Error("Unable to import google doc")
+    } catch (error: any) {
+      if (error.response?.status === 404) {
+        throw new Error("Document not found. Please ensure the document is publicly accessible (set to 'Anyone with the link can view')");
+      } else if (error.response?.status === 403 || error.response?.status === 401) {
+        throw new Error("Access denied. Please ensure the document is publicly accessible (set to 'Anyone with the link can view')");
+      } else if (error.code === 'ECONNABORTED' || error.code === 'ETIMEDOUT') {
+        throw new Error("Request timed out while fetching document. Please try again.");
+      } else {
+        throw new Error(`Failed to import Google Doc: ${error.message}`);
+      }
     }
 
     const finalPostId = postId ?? randomId()
+
     // Converting to ckeditor markup does some thing like removing styles to standardise
     // the result, so we always want to do this first before converting to whatever format the user
     // is using
     const ckEditorMarkup = await convertImportedGoogleDoc({ html, postId: finalPostId })
-    const commitMessage = `[Google Doc import] Last modified: ${docMetadata.modifiedTime}, Name: "${docMetadata.name}"`
+    const commitMessage = `[Google Doc import]`
     const originalContents = {type: "ckEditorMarkup", data: ckEditorMarkup}
 
     if (postId) {
@@ -415,7 +388,6 @@ export const postGqlMutations = {
         updateType: revisionType,
         commitMessage,
         changeMetrics: htmlToChangeMetrics(previousRev?.html || "", html),
-        googleDocMetadata: docMetadata
       };
 
       await createRevision({ data: newRevision }, context);
@@ -423,7 +395,7 @@ export const postGqlMutations = {
       return await Posts.findOne({_id: postId})
     } else {
       let afField = {};
-      if (isAF) {
+      if (isAF()) {
         afField = !userCanDo(currentUser, 'posts.alignment.new')
           ? { suggestForAlignmentUserIds: [currentUser._id] }
           : { af: true };
@@ -434,14 +406,13 @@ export const postGqlMutations = {
         data: {
           _id: finalPostId,
           userId: currentUser._id,
-          title: docMetadata.name,
+          title: 'Untitled',
           ...({
             // Contents is a resolver only field, but there is handling for it
             // in `createMutator`/`updateMutator`
             contents: {
               originalContents,
               commitMessage,
-              googleDocMetadata: docMetadata
             },
           }),
           draft: true,
@@ -474,7 +445,7 @@ export const postGqlTypeDefs = gql`
     DigestPlannerData(digestId: String, startDate: Date, endDate: Date): [DigestPlannerPost!]!
     DigestPosts(num: Int): [Post!]
 
-    CanAccessGoogleDoc(fileUrl: String!): Boolean
+    HomepageCommunityEvents(limit: Int!): HomepageCommunityEventMarkersResult!
   }
 
   extend type Mutation {
@@ -523,12 +494,21 @@ export const postGqlTypeDefs = gql`
     post: Post!
     jargonTerms: [JargonTerm!]!
   }
+  
+  type HomepageCommunityEventMarker {
+    _id: String!
+    lat: Float!
+    lng: Float!
+    types: [String!]
+  }
+  type HomepageCommunityEventMarkersResult {
+    events: [HomepageCommunityEventMarker!]!
+  }
   ${DigestHighlightsTypeDefs}
   ${DigestPostsThisWeekTypeDefs}
   ${CuratedAndPopularThisWeekTypeDefs}
   ${RecentlyActiveDialoguesTypeDefs}
   ${MyDialoguesTypeDefs}
-  ${GoogleVertexPostsTypeDefs}
   ${CrossedKarmaThresholdTypeDefs}
   ${RecombeeLatestPostsTypeDefs}
   ${RecombeeHybridPostsTypeDefs}

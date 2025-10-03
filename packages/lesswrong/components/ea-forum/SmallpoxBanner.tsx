@@ -1,16 +1,13 @@
 import React from 'react'
 import { registerComponent } from '../../lib/vulcan-lib/components';
 import SingleColumnSection, { SECTION_WIDTH } from '../common/SingleColumnSection';
-import { cloudinaryCloudNameSetting } from '../../lib/publicSettings';
+import { cloudinaryCloudNameSetting } from '@/lib/instanceSettings';
 import { Link } from '../../lib/reactRouterWrapper';
 
 const bannerHeight = 250
 const mobileImageId = 'Banner/Smallpox_Eradication_Day-17.png'
 const desktopImageId = 'Banner/Smallpox_Eradication_Day-16.png'
 const featuredPost = '/posts/jk7A3NMdbxp65kcJJ/500-million-but-not-a-single-one-more'
-
-const mobileImage = `https://res.cloudinary.com/${cloudinaryCloudNameSetting.get()}/image/upload/w_${SECTION_WIDTH},h_${bannerHeight}/${mobileImageId}`
-const desktopImage = `https://res.cloudinary.com/${cloudinaryCloudNameSetting.get()}/image/upload/w_${SECTION_WIDTH},h_${bannerHeight}/${desktopImageId}`
 
 const styles = (_theme: ThemeType) => ({
   link: {
@@ -28,6 +25,9 @@ const styles = (_theme: ThemeType) => ({
 const SmallpoxBanner = ({ classes }: {
   classes: ClassesType<typeof styles>;
 }) => {
+  const mobileImage = `https://res.cloudinary.com/${cloudinaryCloudNameSetting.get()}/image/upload/w_${SECTION_WIDTH},h_${bannerHeight}/${mobileImageId}`
+  const desktopImage = `https://res.cloudinary.com/${cloudinaryCloudNameSetting.get()}/image/upload/w_${SECTION_WIDTH},h_${bannerHeight}/${desktopImageId}`
+
   return <SingleColumnSection>
     <Link to={featuredPost} className={classes.link}>
       <picture>

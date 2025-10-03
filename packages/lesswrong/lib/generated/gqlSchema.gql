@@ -8,6 +8,13 @@ scalar JSON
 
 scalar Date
 
+scalar ContentTypeData
+
+type ContentType {
+  type: String!
+  data: ContentTypeData!
+}
+
 input SelectorInput {
   _id: String
   documentId: String
@@ -84,13 +91,6 @@ type CrosspostOutput {
   isCrosspost: Boolean!
   hostedHere: Boolean
   foreignPostId: String
-}
-
-scalar ContentTypeData
-
-type ContentType {
-  type: String!
-  data: ContentTypeData!
 }
 
 type TagContributor {
@@ -272,6 +272,14 @@ extend type Query {
   SuggestedFeedSubscriptionUsers(limit: Int): SuggestedFeedSubscriptionUsersResult
 }
 
+type SuggestedTopActiveUsersResult {
+  results: [User!]!
+}
+
+extend type Query {
+  SuggestedTopActiveUsers(limit: Int): SuggestedTopActiveUsersResult
+}
+
 type VoteResultPost {
   document: Post!
   showVotingPatternWarning: Boolean!
@@ -290,6 +298,16 @@ type VoteResultComment {
 extend type Mutation {
   setVoteComment(documentId: String, voteType: String, extendedVote: JSON): Comment
   performVoteComment(documentId: String, voteType: String, extendedVote: JSON): VoteResultComment
+}
+
+type VoteResultMessage {
+  document: Message!
+  showVotingPatternWarning: Boolean!
+}
+
+extend type Mutation {
+  setVoteMessage(documentId: String, voteType: String, extendedVote: JSON): Message
+  performVoteMessage(documentId: String, voteType: String, extendedVote: JSON): VoteResultMessage
 }
 
 type VoteResultTagRel {
@@ -340,6 +358,11 @@ type VoteResultMultiDocument {
 extend type Mutation {
   setVoteMultiDocument(documentId: String, voteType: String, extendedVote: JSON): MultiDocument
   performVoteMultiDocument(documentId: String, voteType: String, extendedVote: JSON): VoteResultMultiDocument
+}
+
+extend type Query {
+  CommentEmbeddingSearch(query: String!, scoreBias: Float): [Comment!]!
+  CommentEmbeddingSimilaritySearch(commentId: String!, scoreBias: Float): [Comment!]!
 }
 
 extend type Mutation {
@@ -597,7 +620,7 @@ extend type Query {
   PostIsCriticism(args: JSON): Boolean
   DigestPlannerData(digestId: String, startDate: Date, endDate: Date): [DigestPlannerPost!]!
   DigestPosts(num: Int): [Post!]
-  CanAccessGoogleDoc(fileUrl: String!): Boolean
+  HomepageCommunityEvents(limit: Int!): HomepageCommunityEventMarkersResult!
 }
 
 extend type Mutation {
@@ -648,6 +671,17 @@ type PostWithApprovedJargon {
   jargonTerms: [JargonTerm!]!
 }
 
+type HomepageCommunityEventMarker {
+  _id: String!
+  lat: Float!
+  lng: Float!
+  types: [String!]
+}
+
+type HomepageCommunityEventMarkersResult {
+  events: [HomepageCommunityEventMarker!]!
+}
+
 type DigestHighlightsResult {
   results: [Post!]!
 }
@@ -686,14 +720,6 @@ type MyDialoguesResult {
 
 extend type Query {
   MyDialogues(limit: Int): MyDialoguesResult
-}
-
-type GoogleVertexPostsResult {
-  results: [VertexRecommendedPost!]!
-}
-
-extend type Query {
-  GoogleVertexPosts(settings: JSON, limit: Int): GoogleVertexPostsResult
 }
 
 type CrossedKarmaThresholdResult {
@@ -742,10 +768,6 @@ type PostsWithApprovedJargonResult {
 
 extend type Query {
   PostsWithApprovedJargon(limit: Int): PostsWithApprovedJargonResult
-}
-
-extend type Mutation {
-  revokeGoogleServiceAccountTokens: Boolean!
 }
 
 extend type Mutation {
@@ -1203,18 +1225,6 @@ extend type Query {
   GetAllReviewWinners: [Post!]!
 }
 
-extend type Mutation {
-  sendVertexViewItemEvent(postId: String!, attributionId: String): Boolean!
-  sendVertexMediaCompleteEvent(postId: String!, attributionId: String): Boolean!
-  sendVertexViewHomePageEvent: Boolean!
-}
-
-type CoauthorStatus {
-  userId: String
-  confirmed: Boolean
-  requested: Boolean
-}
-
 type ExternalPost {
   _id: String!
   slug: String
@@ -1226,7 +1236,7 @@ type ExternalPost {
   modifiedAt: Date
   draft: Boolean
   content: String
-  coauthorStatuses: [CoauthorStatus!]
+  coauthorUserIds: [String!]
 }
 
 type ExternalPostImportData {
@@ -1277,14 +1287,6 @@ extend type Mutation {
 
 extend type Query {
   currentSpotlight: Spotlight
-}
-
-extend type Mutation {
-  upsertUserTypingIndicator(documentId: String!): TypingIndicator
-}
-
-extend type Mutation {
-  acceptCoauthorRequest(postId: String, userId: String, accept: Boolean): Post
 }
 
 input ToggleBookmarkInput {
@@ -1919,6 +1921,11 @@ type MultiCollectionOutput {
 extend type Query {
   collection(input: SingleCollectionInput @deprecated(reason: "Use the selector field instead"), selector: SelectorInput): SingleCollectionOutput
   collections(input: MultiCollectionInput @deprecated(reason: "Use the selector field instead"), selector: CollectionSelector, limit: Int, offset: Int, enableTotal: Boolean): MultiCollectionOutput
+}
+
+type CommentEmbedding {
+  _id: String!
+  createdAt: Date!
 }
 
 type CommentModeratorAction {
@@ -3769,7 +3776,7 @@ type MultiLocalgroupOutput {
 }
 
 extend type Query {
-  localgroup(input: SingleLocalgroupInput @deprecated(reason: "Use the selector field instead"), selector: SelectorInput): SingleLocalgroupOutput
+  localgroup(input: SingleLocalgroupInput @deprecated(reason: "Use the selector field instead"), selector: SelectorInput, allowNull: Boolean): SingleLocalgroupOutput
   localgroups(input: MultiLocalgroupInput @deprecated(reason: "Use the selector field instead"), selector: LocalgroupSelector, limit: Int, offset: Int, enableTotal: Boolean): MultiLocalgroupOutput
 }
 
@@ -3798,6 +3805,15 @@ type Message {
   conversationId: String
   conversation: Conversation
   noEmail: Boolean
+  currentUserVote: String
+  currentUserExtendedVote: JSON
+  voteCount: Float!
+  baseScore: Float!
+  extendedScore: JSON
+  score: Float!
+  afBaseScore: Float
+  afExtendedScore: JSON
+  afVoteCount: Float
 }
 
 input SingleMessageInput {
@@ -4491,6 +4507,7 @@ type Post {
   autoFrontpage: String
   collectionTitle: String
   coauthorStatuses: [CoauthorStatusOutput!]
+  coauthorUserIds: [String!]!
   coauthors: [User!]
   hasCoauthorPermission: Boolean!
   socialPreviewImageId: String
@@ -6331,11 +6348,16 @@ input ReviewVotesReviewVotesAdminDashboardInput {
   year: Int
 }
 
+input ReviewVotesReviewVotesForPostAndUserInput {
+  postId: String
+  userId: String
+}
+
 input ReviewVoteSelector {
   default: EmptyViewInput
   reviewVotesFromUser: ReviewVotesReviewVotesFromUserInput
   reviewVotesForPost: EmptyViewInput
-  reviewVotesForPostAndUser: EmptyViewInput
+  reviewVotesForPostAndUser: ReviewVotesReviewVotesForPostAndUserInput
   reviewVotesAdminDashboard: ReviewVotesReviewVotesAdminDashboardInput
 }
 
@@ -7460,8 +7482,8 @@ type UltraFeedEvent {
   _id: String!
   createdAt: Date!
   documentId: String
-  collectionName: String
-  eventType: String
+  collectionName: UltraFeedEventCollectionName
+  eventType: UltraFeedEventEventType
   userId: String
   event: JSON
   feedItemId: String
@@ -9262,6 +9284,7 @@ input CreatePostDataInput {
   autoFrontpage: String
   collectionTitle: String
   coauthorStatuses: [CoauthorStatusInput!]
+  coauthorUserIds: [String!]
   hasCoauthorPermission: Boolean
   socialPreviewImageId: String
   socialPreviewImageAutoUrl: String
@@ -9377,6 +9400,7 @@ input UpdatePostDataInput {
   autoFrontpage: String
   collectionTitle: String
   coauthorStatuses: [CoauthorStatusInput!]
+  coauthorUserIds: [String!]
   hasCoauthorPermission: Boolean
   socialPreviewImageId: String
   socialPreviewImageAutoUrl: String
@@ -10021,12 +10045,26 @@ extend type Mutation {
   updateTag(selector: SelectorInput!, data: UpdateTagDataInput!): TagOutput
 }
 
+enum UltraFeedEventCollectionName {
+  Comments
+  Posts
+  Spotlights
+}
+
+enum UltraFeedEventEventType {
+  served
+  viewed
+  expanded
+  interacted
+  seeLess
+}
+
 input CreateUltraFeedEventDataInput {
   documentId: String!
-  collectionName: String!
-  eventType: String!
+  collectionName: UltraFeedEventCollectionName!
+  eventType: UltraFeedEventEventType!
   userId: String
-  event: JSON
+  event: JSON!
   feedItemId: String
 }
 

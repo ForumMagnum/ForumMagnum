@@ -107,3 +107,16 @@ client_stats.html
 
 playwright-report
 test-results
+.next
+
+# Dependency cruiser output
+dependency-graph.svg
+
+.env
+.vercel
+.env*.local
+
+# Sentry Config File
+.env.sentry-build-plugin
+
+tsconfig.tsbuildinfo

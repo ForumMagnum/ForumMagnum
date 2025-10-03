@@ -5,8 +5,7 @@ import { useCurrentUser, useCurrentUserId } from "../common/withUser";
 import { useLocation } from '../../lib/routeUtil';
 import { Link } from '../../lib/reactRouterWrapper';
 import { postGetPageUrl } from '../../lib/collections/posts/helpers';
-import { idSettingIcons, tagSettingIcons } from "../../lib/collections/posts/constants";
-import { communityPath } from '@/lib/pathConstants';
+import { getCommunityPath } from '@/lib/pathConstants';
 import { InteractionWrapper } from '../common/useClickableCell';
 import { smallTagTextStyle, tagStyle } from '../tagging/FooterTag';
 import { useCurrentAndRecentForumEvents } from '../hooks/useCurrentForumEvent';
@@ -15,6 +14,11 @@ import { useTheme } from '../themes/useTheme';
 import { PostsItemIcons, CuratedIcon } from "./PostsItemIcons";
 import ForumIcon from "../common/ForumIcon";
 import TagsTooltip from "../tagging/TagsTooltip";
+import { amaTagIdSetting, annualReviewAnnouncementPostPathSetting, openThreadTagIdSetting, startHerePostIdSetting, isEAForum } from '@/lib/instanceSettings';
+import QuestionAnswerIcon from '@/lib/vendor/@material-ui/icons/src/QuestionAnswer';
+import ArrowForwardIcon from '@/lib/vendor/@material-ui/icons/src/ArrowForward';
+import AllInclusiveIcon from '@/lib/vendor/@material-ui/icons/src/AllInclusive';
+import StarIcon from '@/lib/vendor/@material-ui/icons/src/Star';
 import { useIsOnGrayBackground } from '../hooks/useIsOnGrayBackground';
 
 const styles = (theme: ThemeType) => ({
@@ -143,6 +147,24 @@ const styles = (theme: ThemeType) => ({
   },
 });
 
+const tagSettingIcons = new Map([
+  [amaTagIdSetting, QuestionAnswerIcon], 
+  [openThreadTagIdSetting, AllInclusiveIcon],
+]);
+
+// Cute hack
+const reviewPostIdSetting = {
+  get: () => isEAForum() ?
+    annualReviewAnnouncementPostPathSetting.get()?.match(/^\/posts\/([a-zA-Z\d]+)/)?.[1] :
+    null
+}
+
+const idSettingIcons = new Map([
+  [startHerePostIdSetting, ArrowForwardIcon],
+  // use an imposter to avoid duplicating annualReviewAnnouncementPostPathSetting, which is a path not a post id
+  [reviewPostIdSetting, StarIcon]
+]);
+
 const postIcon = (post: PostsBase|PostsListBase) => {
   const matchingIdSetting = Array.from(idSettingIcons.keys()).find(idSetting => post._id === idSetting.get())
   if (matchingIdSetting) {
@@ -220,7 +242,7 @@ const PostsTitle = ({
   const shared = post.draft && (post.userId !== currentUserId) && post.shareWithUsers
   const isOnGrayBackground = useIsOnGrayBackground();
 
-  const shouldRenderEventsTag = (pathname !== communityPath) && (pathname !== '/pastEvents') && (pathname !== '/upcomingEvents') &&
+  const shouldRenderEventsTag = (pathname !== getCommunityPath()) && (pathname !== '/pastEvents') && (pathname !== '/upcomingEvents') &&
     !pathname.includes('/events') && !pathname.includes('/groups') && !pathname.includes('/community');
 
   const url = postLink || postGetPageUrl(post)

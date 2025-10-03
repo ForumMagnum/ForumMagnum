@@ -15,26 +15,15 @@ import BookmarkButton from "../posts/BookmarkButton";
 import UltraFeedPostDialog from "./UltraFeedPostDialog";
 import OverallVoteAxis from "../votes/OverallVoteAxis";
 import AgreementVoteAxis from "../votes/AgreementVoteAxis";
-import { getDefaultVotingSystem } from "@/lib/collections/posts/newSchema";
+import { getDefaultVotingSystem } from "@/lib/collections/posts/helpers";
 import { useMutation } from "@apollo/client/react";
-import { gql } from "@/lib/generated/gql-codegen";
 import CondensedFooterReactions from "./CondensedFooterReactions";
 import LWTooltip from "../common/LWTooltip";
 import { useTracking, AnalyticsContext } from "../../lib/analyticsEvents";
 import UltraFeedReplyEditor from "./UltraFeedReplyEditor";
 import { ReplyConfig } from "./UltraFeedCommentItem";
 import { useUltraFeedContext } from "./UltraFeedContextProvider";
-
-
-const UltraFeedEventsDefaultFragmentMutation = gql(`
-  mutation createUltraFeedEventUltraFeedItemFooter($data: CreateUltraFeedEventDataInput!) {
-    createUltraFeedEvent(data: $data) {
-      data {
-        ...UltraFeedEventsDefaultFragment
-      }
-    }
-  }
-`);
+import { UltraFeedEventCreateMutation } from "./ultraFeedMutations";
 
 const styles = defineStyles("UltraFeedItemFooter", (theme: ThemeType) => ({
   root: {
@@ -276,7 +265,7 @@ interface UltraFeedItemFooterCoreSharedProps {
   commentCount: number | undefined;
   onClickComments: () => void;
   showVoteButtons: boolean;
-  voteProps: VotingProps<VoteableTypeClient>;
+  voteProps: VotingProps<VoteableTypeClient> & { collectionName: UltraFeedEventCollectionName };
   hideKarma?: boolean;
   bookmarkProps?: BookmarkProps;
   metaInfo?: FeedPostMetaInfo | FeedCommentMetaInfo;
@@ -321,7 +310,7 @@ const UltraFeedItemFooterCore = ({
 
   const { isReplying, onReplyClick, onReplyCancel } = replyConfig;
 
-  const [createUltraFeedEvent] = useMutation(UltraFeedEventsDefaultFragmentMutation);
+  const [createUltraFeedEvent] = useMutation(UltraFeedEventCreateMutation);
 
   // TODO:the wrapping approach does not work with votes as click-handlers inside the vote bottons prevent an onClick at this level from firing
   const handleInteractionLog = (interactionType: 'bookmarkClicked' | 'commentsClicked') => {

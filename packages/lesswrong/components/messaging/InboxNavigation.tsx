@@ -19,7 +19,6 @@ import LoadMore from "../common/LoadMore";
 import { gql } from "@/lib/generated/gql-codegen/gql";
 import { useQueryWithLoadMore } from "@/components/hooks/useQueryWithLoadMore";
 import NewConversationDialog from "./NewConversationDialog";
-import Button from '@/lib/vendor/@material-ui/core/src/Button/Button';
 import { defineStyles, useStyles } from '../hooks/useStyles';
 
 const styles = defineStyles("InboxNavigation", (theme: ThemeType) => ({
@@ -49,7 +48,7 @@ const InboxNavigation = ({
 }: InboxComponentProps) => {
   const location = useLocation();
   const classes = useStyles(styles);
-  const { currentRoute, query } = location;
+  const { pathname, query } = location;
   const navigate = useNavigate();
   const { openDialog } = useDialog();
 
@@ -85,7 +84,7 @@ const InboxNavigation = ({
     });
   }
 
-  const showModeratorLink = userCanDo(currentUser, 'conversations.view.all') && currentRoute?.name !== "moderatorInbox"
+  const showModeratorLink = userCanDo(currentUser, 'conversations.view.all') && pathname !== "/moderatorInbox"
 
   return (
     <SingleColumnSection>
@@ -105,7 +104,7 @@ const InboxNavigation = ({
         {results?.length ?
           results.map(conversation => <ConversationItem key={conversation._id} conversation={conversation} currentUser={currentUser} expanded={expanded}/>
           ) :
-          loading ? <Loading /> : <Typography variant="body2">You are all done! You have no more open conversations.{isLWorAF && " Go and be free."}</Typography>
+          loading ? <Loading /> : <Typography variant="body2">You are all done! You have no more open conversations.{isLWorAF() && " Go and be free."}</Typography>
         }
         <SectionFooter>
           <LoadMore {...loadMoreProps} sectionFooterStyles/>

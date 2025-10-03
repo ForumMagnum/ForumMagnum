@@ -1,7 +1,6 @@
 import React from 'react';
 import { registerComponent } from '../../lib/vulcan-lib/components';
 import classNames from 'classnames';
-import * as _ from 'underscore';
 
 const headerStyles = (theme: ThemeType) => ({
   formSectionHeading: {

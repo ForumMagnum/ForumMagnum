@@ -5,7 +5,6 @@ import { useMessages } from '../../common/withMessages';
 import { userOwns } from '../../../lib/vulcan-users/permissions';
 import { userCanModeratePost } from '../../../lib/collections/users/helpers';
 import { useCurrentUser } from '../../common/withUser';
-import { clone } from 'underscore';
 import DropdownItem from "../DropdownItem";
 
 const BanUserFromAllPostsDropdownItem = ({comment, post}: {
@@ -30,7 +29,7 @@ const BanUserFromAllPostsDropdownItem = ({comment, post}: {
     if (!currentUser) return;
     if (confirm("Are you sure you want to ban this user from commenting on all your posts?")) {
       const commentUserId = comment.userId ?? '';
-      let bannedUserIds = clone(currentUser.bannedUserIds) || []
+      let bannedUserIds = [...currentUser.bannedUserIds ?? []]
       if (!bannedUserIds.includes(commentUserId)) {
         bannedUserIds.push(commentUserId)
       }

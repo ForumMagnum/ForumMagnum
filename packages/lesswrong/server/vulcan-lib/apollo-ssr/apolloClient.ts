@@ -1,7 +1,6 @@
-import { ApolloClient, ApolloLink, InMemoryCache, Observable, Operation, FetchResult, NextLink } from '@apollo/client';
+import { ApolloClient, ApolloLink, InMemoryCache, Observable, Operation, FetchResult } from '@apollo/client';
 import { createSchemaLink, createHttpLink, createErrorLink } from '../../../lib/apollo/links';
 import { fmCrosspostBaseUrlSetting } from "../../../lib/instanceSettings";
-import { getExecutableSchema } from '../apollo-server/initGraphQL';
 import { type DocumentNode, type GraphQLSchema, execute, print } from 'graphql';
 import stringify from 'json-stringify-deterministic';
 import { SwrCache } from '@/lib/utils/swrCache';
@@ -16,9 +15,12 @@ export const createClient = async (context: ResolverContext | null, foreign = fa
 
   if (foreign) {
     links.push(createErrorLink());
-    links.push(createHttpLink(fmCrosspostBaseUrlSetting.get() ?? "/"));
+    links.push(createHttpLink(fmCrosspostBaseUrlSetting.get() ?? "/", null));
   } else if (context) {
     links.push(createErrorLink());
+
+    const { getExecutableSchema } = await import('../apollo-server/initGraphQL');
+
     const schema = getExecutableSchema();
     links.push(new LoggedOutCacheSchemaLink(schema));
 
@@ -55,20 +57,20 @@ class LoggedOutCacheSchemaLink extends ApolloLink {
     this.schema = schema;
   }
 
-  public request(operation: Operation, forward?: NextLink): Observable<FetchResult>|null {
+  public request(operation: Operation, forward: ApolloLink.ForwardFunction): Observable<ApolloLink.Result> {
     const wantsLoggedOutCache = operation.getContext()?.loggedOutCache === true;
     if (!wantsLoggedOutCache) {
-      return forward?.(operation) ?? null;
+      return forward(operation);
     }
 
-    return new Observable<FetchResult>((observer) => {
-      new Promise<FetchResult>((resolve) => {
+    return new Observable<ApolloLink.Result>((observer) => {
+      new Promise<ApolloLink.Result>((resolve) => {
         resolve(executeWithCache({
           schema: this.schema,
           document: operation.query,
           rootValue: undefined,
           variableValues: operation.variables,
-          operationName: operation.operationName,
+          operationName: operation.operationName ?? "",
         }));
       })
         .then((data) => {

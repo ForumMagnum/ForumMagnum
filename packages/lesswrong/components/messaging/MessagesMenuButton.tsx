@@ -1,7 +1,7 @@
 import React, { useCallback } from "react";
 import { registerComponent } from "../../lib/vulcan-lib/components";
 import { useUnreadNotifications } from "../hooks/useUnreadNotifications";
-import { styles  } from "../notifications/NotificationsMenuButton";
+import { styles } from '../notifications/notificationsMenuButtonStyles';
 import { Badge } from "@/components/widgets/Badge";
 import IconButton from "@/lib/vendor/@material-ui/core/src/IconButton";
 import classNames from "classnames";

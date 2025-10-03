@@ -38,6 +38,10 @@ runs:
       working-directory: ${{ github.workspace }}/ForumCredentials
       run: ${{ github.workspace }}/transcrypt/transcrypt -y -c aes-256-cbc -p ${{ inputs.transcrypt-secret }}
 
+    - name: Type check
+      shell: bash
+      run: yarn tsc
+
     - name: Run migrations
       shell: bash
       env:

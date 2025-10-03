@@ -3,10 +3,12 @@ import CommentIcon from '@/lib/vendor/@material-ui/icons/src/ModeComment';
 import { useOnNavigate } from '../hooks/useOnNavigate';
 import { useTracking, AnalyticsContext } from "../../lib/analyticsEvents";
 import { hasSideComments } from '../../lib/betas';
-import LWTooltip from "../common/LWTooltip";
 import { defineStyles, useStyles } from '../hooks/useStyles';
-import ReplyCommentDialog from './ReplyCommentDialog';
 import { useDialog } from '../common/withDialog';
+
+import dynamic from 'next/dynamic';
+const LWTooltip = dynamic(() => import("../common/LWTooltip"), { ssr: false });
+const ReplyCommentDialog = dynamic(() => import("./ReplyCommentDialog"), { ssr: false });
 
 const selectedTextToolbarStyles = defineStyles("CommentOnSelectionContentWrapper", (theme: ThemeType) => ({
   toolbarWrapper: {
@@ -27,7 +29,7 @@ const selectedTextToolbarStyles = defineStyles("CommentOnSelectionContentWrapper
 
     // Hide on mobile to avoid horizontal scrolling
     [theme.breakpoints.down('xs')]: {
-      display: hasSideComments ? "none" : "initial",
+      display: hasSideComments() ? "none" : "initial",
     },
   },
 }));
@@ -193,11 +195,13 @@ export const CommentOnSelectionContentWrapper = ({post, children}: {
   const onClickComment = useCallback((html: string) => {
     openDialog({
       name: "ReplyCommentDialog",
-      contents: ({onClose}) => <ReplyCommentDialog
-        onClose={onClose}
-        post={post}
-        initialHtml={html}
-      />
+      contents: ({onClose}) => {
+        return <ReplyCommentDialog
+          onClose={onClose}
+          post={post}
+          initialHtml={html}
+        />
+      }
     })
   }, [openDialog, post]);
 
@@ -212,7 +216,7 @@ export const CommentOnSelectionContentWrapper = ({post, children}: {
     }
   }, [onClickComment]);
   
-  if (!hasSideComments) {
+  if (!hasSideComments()) {
     return <>{children}</>;
   }
   

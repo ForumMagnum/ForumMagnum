@@ -1,4 +1,4 @@
-import { computeContextFromUser, getUserFromReq } from '../vulcan-lib/apollo-server/context';
+import { computeContextFromUser } from '../vulcan-lib/apollo-server/context';
 import { Posts } from '../../server/collections/posts/collection'
 import { getCollaborativeEditorAccess, CollaborativeEditingAccessLevel } from '../../lib/collections/posts/collabEditingPermissions';
 import { getCKEditorDocumentId } from '../../lib/ckEditorUtils'
@@ -6,6 +6,10 @@ import { userGetDisplayName } from '../../lib/collections/users/helpers';
 import { getCkEditorEnvironmentId, getCkEditorSecretKey } from './ckEditorServerConfig';
 import jwt from 'jsonwebtoken'
 import { randomId } from '../../lib/random';
+import { NextRequest, NextResponse } from 'next/server';
+import { z } from 'zod';
+import { captureException } from '@/lib/sentryWrapper';
+import { getUserFromReq } from '../vulcan-lib/apollo-server/getUserFromReq';
 
 function permissionsLevelToCkEditorRole(access: CollaborativeEditingAccessLevel): string {
   switch (access) {
@@ -16,34 +20,79 @@ function permissionsLevelToCkEditorRole(access: CollaborativeEditingAccessLevel)
   }
 }
 
-export async function ckEditorTokenHandler (req: AnyBecauseTodo, res: AnyBecauseTodo, next: AnyBecauseTodo) {
+const formTypeValidator = z.enum(["edit", "new"]).nullable();
+
+function extractHeaders(req: NextRequest) {
+  const referer = req.headers.get('referer');
+  const collectionName = req.headers.get('collection-name');
+  const documentId = req.headers.get('document-id') ?? undefined;
+  const userId = req.headers.get('user-id') ?? undefined;
+  const rawFormType = req.headers.get('form-type');
+  const linkSharingKey = req.headers.get('link-sharing-key');
+
+  return { referer, collectionName, documentId, userId, rawFormType, linkSharingKey };
+}
+
+function handleErrorAndReturn(req: NextRequest, error: Error) {
+  const { linkSharingKey, ...safeHeaders } = extractHeaders(req);
+
+  // eslint-disable-next-line no-console
+  console.error(error, { headers: safeHeaders });
+  captureException(error);
+  return NextResponse.json({ error: error.message }, { status: 500 });
+}
+
+export async function ckEditorTokenHandler(req: NextRequest) {
   const environmentId = getCkEditorEnvironmentId();
   const secretKey = getCkEditorSecretKey()!; // Assume nonnull; causes lack of encryption in development
 
-  const collectionName = req.headers['collection-name'];
-  const documentId = req.headers['document-id'];
-  const userId = req.headers['user-id'];
-  const formType = req.headers['form-type'];
-  const linkSharingKey = req.headers['link-sharing-key'];
+  const { collectionName, documentId, userId, rawFormType, linkSharingKey } = extractHeaders(req);
   
-  if (Array.isArray(collectionName)) throw new Error("Multiple collectionName headers");
-  if (Array.isArray(documentId)) throw new Error("Multiple documentId headers");
-  if (Array.isArray(userId)) throw new Error("Multiple userId headers");
-  if (Array.isArray(formType)) throw new Error("Multiple formType headers");
+  if (!collectionName || collectionName.includes(",")) {
+    const error = new Error("Missing or multiple collectionName headers");
+    return handleErrorAndReturn(req, error);
+  }
+
+  if (documentId?.includes(",")) {
+    const error = new Error("Multiple documentId headers");
+    return handleErrorAndReturn(req, error);
+  }
   
-  const user = getUserFromReq(req);
-  const requestWithKey = {...req, query: {...req?.query, key: linkSharingKey}}
-  const contextWithKey = await computeContextFromUser({user, req: requestWithKey, res, isSSR: false});
-  
+  if (userId?.includes(",")) {
+    const error = new Error("Multiple userId headers");
+    return handleErrorAndReturn(req, error);
+  }
+
+  const urlForContext = req.nextUrl.clone();
+  if (linkSharingKey) {
+    urlForContext.searchParams.set('key', linkSharingKey);
+  }
+
+  const user = await getUserFromReq(req);
+
+  const contextWithKey = computeContextFromUser({
+    user,
+    headers: req.headers,
+    searchParams: urlForContext.searchParams,
+    cookies: req.cookies.getAll(),
+    isSSR: false,
+  });
+    
   if (collectionName === "Posts") {
-    const ckEditorId = getCKEditorDocumentId(documentId, userId, formType)
-    const post = documentId && await Posts.findOne(documentId);
+    const parsedFormType = formTypeValidator.safeParse(rawFormType);
+    if (!parsedFormType.success) {
+      const error = new Error("Invalid formType header");
+      return handleErrorAndReturn(req, error);
+    }
+  
+    const formType = parsedFormType.data;
+  
+    const ckEditorId = getCKEditorDocumentId(documentId, userId, formType ?? undefined)
+    const post = documentId ? await Posts.findOne(documentId) : null;
     const access = documentId ? await getCollaborativeEditorAccess({ formType, post, user, context: contextWithKey, useAdminPowers: true }) : "edit";
   
     if (access === "none") {
-      res.writeHead(403, {});
-      res.end("Access denied")
-      return;
+      return new Response("Access denied", { status: 403 });
     }
     
     const payload = {
@@ -62,10 +111,11 @@ export async function ckEditorTokenHandler (req: AnyBecauseTodo, res: AnyBecause
     
     const result = jwt.sign( payload, secretKey, { algorithm: 'HS256' } );
     
-    res.writeHead(200, {
-      "Content-Type": "application/octet-stream"
+    return new Response(result, {
+      headers: {
+        "Content-Type": "application/octet-stream"
+      }
     });
-    res.end(result);
   } else {
     const payload = {
       aud: environmentId,
@@ -78,9 +128,10 @@ export async function ckEditorTokenHandler (req: AnyBecauseTodo, res: AnyBecause
     
     const result = jwt.sign( payload, secretKey, { algorithm: 'HS256' } );
     
-    res.writeHead(200, {
-      "Content-Type": "application/octet-stream"
+    return new Response(result, {
+      headers: {
+        "Content-Type": "application/octet-stream"
+      }
     });
-    res.end(result);
   }
 }

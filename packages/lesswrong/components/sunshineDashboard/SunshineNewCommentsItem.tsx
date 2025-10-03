@@ -78,7 +78,7 @@ const SunshineNewCommentsItem = ({comment}: {
               <SidebarAction title="Mark as Reviewed" onClick={handleReview}>
                 <DoneIcon/>
               </SidebarAction>
-              <SidebarAction title={`Spam${!isLWorAF ? '' : '/Eugin'} (delete immediately)`} onClick={handleDelete} warningHighlight>
+              <SidebarAction title={`Spam${!isLWorAF() ? '' : '/Eugin'} (delete immediately)`} onClick={handleDelete} warningHighlight>
                 <ClearIcon/>
               </SidebarAction>
             </SidebarActionMenu>}

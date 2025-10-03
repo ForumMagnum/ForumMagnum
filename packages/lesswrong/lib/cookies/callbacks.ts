@@ -1,5 +1,5 @@
 import Cookies from "universal-cookie";
-import { initDatadog } from "@/client/datadogRum";
+// import { initDatadog } from "@/client/datadogRum";
 import { ALL_COOKIES, CookieType, isCookieAllowed } from "./utils";
 import { initReCaptcha } from "@/client/reCaptcha";
 import { backgroundTask } from "@/server/utils/backgroundTask";
@@ -15,7 +15,7 @@ type CookiePreferencesChangedCallbackProps = {
  * There is no way to turn it off without reloading currently (see https://github.com/DataDog/browser-sdk/issues/1008)
  */
 export function cookiePreferencesChanged({cookiePreferences, explicitlyChanged}: CookiePreferencesChangedCallbackProps) {
-  backgroundTask(initDatadog());
+  // backgroundTask(initDatadog());
   backgroundTask(initReCaptcha());
 
   // Send a cookie_preferences_changed event to Google Tag Manager, which triggers google analytics and hotjar to start

@@ -1,5 +1,5 @@
 import DataLoader from 'dataloader';
-import * as _ from 'underscore';
+import groupBy from 'lodash/groupBy';
 
 
 //
@@ -36,7 +36,7 @@ export async function getWithLoader<N extends CollectionNameString>(
         [groupByField]: {$in: docIDs}
       };
       const queryResults: ObjectsByCollectionName[N][] = await collection.find(query, options).fetch();
-      const sortedResults = _.groupBy(queryResults, r=>r[groupByField]);
+      const sortedResults = groupBy(queryResults, r=>r[groupByField]);
       return docIDs.map(id => sortedResults[id] || []);
     }, {
       cache: true

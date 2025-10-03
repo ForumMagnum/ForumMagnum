@@ -64,7 +64,7 @@ export type PeopleDirectoryColumn<
   skeletonProps?: Omit<ComponentProps<typeof cellComponentsByName[S]>, "user"|"ref">,
 } & PeopleDirectoryColumnState;
 
-export const peopleDirectoryColumns: PeopleDirectoryColumn<CellComponentName>[] = [
+export const getPeopleDirectoryColumns = (): PeopleDirectoryColumn<CellComponentName>[] => [
   {
     label: "Name",
     sortField: "displayName.sort",

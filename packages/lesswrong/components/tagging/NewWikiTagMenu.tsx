@@ -1,7 +1,7 @@
 import React from "react";
 import { registerComponent } from "../../lib/vulcan-lib/components";
 import { useHover } from "../common/withHover";
-import { tagCreateUrl } from "../../lib/collections/tags/helpers";
+import { getTagCreateUrl } from "../../lib/collections/tags/helpers";
 import { Paper }from '@/components/widgets/Paper';
 import LWPopper from "../common/LWPopper";
 import DropdownMenu from "../dropdowns/DropdownMenu";
@@ -20,11 +20,11 @@ const NewWikiTagMenu = ({ children }: { children: React.ReactNode }) => {
             <div onClick={() => closeSubMenu()}>
               <DropdownItem
               title="Wiki Only"
-              to={`${tagCreateUrl}?type=wiki`}
+              to={`${getTagCreateUrl()}?type=wiki`}
               />
               <DropdownItem
                 title="Wiki + Tag"
-                to={tagCreateUrl}
+                to={getTagCreateUrl()}
               />
               <DropdownDivider />
               <DropdownItem

@@ -5,15 +5,17 @@ import { userGetProfileUrl } from '../lib/collections/users/helpers';
 import { postGetPageUrl } from '../lib/collections/posts/helpers';
 import { commentGetPageUrlFromDB } from '../lib/collections/comments/helpers'
 import { DebouncerTiming } from './debouncer';
-import {getDocument, getNotificationTypeByName, NotificationDocument} from '../lib/notificationTypes'
-import { notificationDebouncers } from './notificationBatching';
+import type { NotificationDocument } from './collections/notifications/constants';
 import { defaultNotificationTypeSettings, NotificationChannelSettings, NotificationTypeSettings, legacyToNewNotificationTypeSettings } from "@/lib/collections/users/notificationFieldHelpers";
-import * as _ from 'underscore';
 import { createAnonymousContext } from './vulcan-lib/createContexts';
 import keyBy from 'lodash/keyBy';
+import union from 'lodash/union';
 import UsersRepo, { MongoNearLocation } from './repos/UsersRepo';
 import { sequenceGetPageUrl } from '../lib/collections/sequences/helpers';
 import { createNotification as createNotificationMutator } from './collections/notifications/mutations';
+import { notificationDebouncers } from './notificationBatching';
+import { getDocument } from '@/lib/notificationDataHelpers';
+
 /**
  * Return a list of users (as complete user objects) subscribed to a given
  * document. This is the union of users who have subscribed to it explicitly,
@@ -46,7 +48,7 @@ import { createNotification as createNotificationMutator } from './collections/n
   }
   
   const subscriptions = await Subscriptions.find({documentId, type, collectionName, deleted: false, state: 'subscribed'}).fetch()
-  const explicitlySubscribedUserIds = _.pluck(subscriptions, 'userId')
+  const explicitlySubscribedUserIds = subscriptions.map(s => s.userId)
   
   const explicitlySubscribedUsers = await Users.find({_id: {$in: explicitlySubscribedUserIds}}).fetch()
   const explicitlySubscribedUsersDict = keyBy(explicitlySubscribedUsers, u=>u._id);
@@ -55,21 +57,20 @@ import { createNotification as createNotificationMutator } from './collections/n
   if (potentiallyDefaultSubscribedUserIds && potentiallyDefaultSubscribedUserIds.length>0) {
     // Filter explicitly-subscribed users out of the potentially-implicitly-subscribed
     // users list, since their subscription status is already known
-    potentiallyDefaultSubscribedUserIds = _.filter(potentiallyDefaultSubscribedUserIds, id=>!(id in explicitlySubscribedUsersDict));
+    potentiallyDefaultSubscribedUserIds = potentiallyDefaultSubscribedUserIds.filter(id=>!(id in explicitlySubscribedUsersDict));
     
     // Fetch and filter potentially-subscribed users
     const potentiallyDefaultSubscribedUsers: Array<DbUser> = await Users.find({
       _id: {$in: potentiallyDefaultSubscribedUserIds}
     }).fetch();
-    // @ts-ignore @types/underscore annotated this wrong; the filter is optional, if it's null then everything passes
-    const defaultSubscribedUsers: Array<DbUser> = _.filter(potentiallyDefaultSubscribedUsers, userIsDefaultSubscribed);
+    const defaultSubscribedUsers: Array<DbUser> = userIsDefaultSubscribed ? potentiallyDefaultSubscribedUsers.filter(userIsDefaultSubscribed) : potentiallyDefaultSubscribedUsers;
     
     // Check for suppression in the subscriptions table
     const suppressions = await Subscriptions.find({documentId, type, collectionName, deleted: false, state: "suppressed"}).fetch();
     const suppressionsByUserId = keyBy(suppressions, s=>s.userId);
-    const defaultSubscribedUsersNotSuppressed = _.filter(defaultSubscribedUsers, u=>!(u._id in suppressionsByUserId))
+    const defaultSubscribedUsersNotSuppressed = defaultSubscribedUsers.filter(u=>!(u._id in suppressionsByUserId))
     
-    return _.union(explicitlySubscribedUsers, defaultSubscribedUsersNotSuppressed);
+    return union(explicitlySubscribedUsers, defaultSubscribedUsersNotSuppressed);
   } else {
     return explicitlySubscribedUsers;
   }
@@ -102,11 +103,14 @@ const getNotificationTiming = (typeSettings: NotificationChannelSettings): Debou
 }
 
 const notificationMessage = async (notificationType: string, documentType: NotificationDocument|null, documentId: string|null, extraData: Record<string,any>, context: ResolverContext) => {
+  const { getNotificationTypeByName } = await import('@/lib/notificationTypes');
   return await getNotificationTypeByName(notificationType)
     .getMessage({documentType, documentId, extraData, context});
 }
 
 const getLink = async (context: ResolverContext, notificationTypeName: string, documentType: NotificationDocument|null, documentId: string|null, extraData: any) => {
+  const { getNotificationTypeByName } = await import('@/lib/notificationTypes');
+  
   const { Posts } = context
   let document = await getDocument(documentType, documentId, context);
   const notificationType = getNotificationTypeByName(notificationTypeName);
@@ -181,6 +185,8 @@ export const createNotification = async ({
 
   context: ResolverContext,
 }) => {
+  const { getNotificationTypeByName } = await import('@/lib/notificationTypes');
+
   let user = await Users.findOne({ _id:userId });
   if (!user) throw Error(`Wasn't able to find user to create notification for with id: ${userId}`)
   const userSettingField = getNotificationTypeByName(notificationType).userSettingField;
@@ -198,7 +204,10 @@ export const createNotification = async ({
     extraData,
   }
 
+  const debouncer = notificationDebouncers[notificationType];
+
   const { onsite, email } = notificationTypeSettings;
+
   if (onsite.enabled) {
     const createdNotification = await createNotificationMutator({
       data: {
@@ -209,7 +218,7 @@ export const createNotification = async ({
     }, context);
 
     if (onsite.batchingFrequency !== "realtime") {
-      await notificationDebouncers[notificationType]!.recordEvent({
+      await debouncer?.recordEvent({
         key: {notificationType, userId},
         data: createdNotification._id,
         timing: getNotificationTiming(onsite),
@@ -226,9 +235,7 @@ export const createNotification = async ({
       }
     }, context);
 
-    if (!notificationDebouncers[notificationType])
-      throw new Error(`Invalid notification type: ${notificationType}`);
-    await notificationDebouncers[notificationType]!.recordEvent({
+    await debouncer?.recordEvent({
       key: {notificationType, userId},
       data: createdNotification._id,
       timing: getNotificationTiming(email),

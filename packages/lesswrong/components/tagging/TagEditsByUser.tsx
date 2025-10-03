@@ -50,7 +50,7 @@ const TagEditsByUser = ({userId, limit, classes}: {
       enableTotal: false,
     },
     fetchPolicy: "cache-and-network",
-    nextFetchPolicy: "cache-only",
+    nextFetchPolicy: "cache-first",
   });
 
   const results = data?.revisions?.results;

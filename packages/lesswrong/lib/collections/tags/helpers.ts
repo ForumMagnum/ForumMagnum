@@ -1,16 +1,16 @@
 import qs from "qs";
 import { forumSelect } from "../../forumTypeUtils";
-import { siteUrlSetting, tagUrlBaseSetting } from "../../instanceSettings";
+import { siteUrlSetting, tagUrlBaseSetting, allowTypeIIIPlayerSetting } from '@/lib/instanceSettings';
 import { combineUrls } from "../../vulcan-lib/utils";
 import { TagCommentType } from "../comments/types";
 import { isFriendlyUI, preferredHeadingCase } from "../../../themes/forumTheme";
 import type { RouterLocation } from '../../vulcan-lib/routes';
 import type { Request, Response } from 'express';
 import type { TagLens } from "@/lib/arbital/useTagLenses";
-import { allowTypeIIIPlayerSetting } from "../posts/helpers";
-import { SORT_ORDER_OPTIONS, SettingsOption } from "../posts/dropdownOptions";
+import { getSortOrderOptions, SettingsOption } from "../posts/dropdownOptions";
+import type { TagHistorySettings } from "@/components/tagging/history/TagHistoryPage";
 
-export const tagMinimumKarmaPermissions = forumSelect({
+export const getTagMinimumKarmaPermissions = () => forumSelect({
   // Topic spampocalypse defense
   EAForum: {
     new: 1,
@@ -36,8 +36,8 @@ type GetUrlOptions = {
   pathId?: string
 }
 
-export const tagCreateUrl = `/${tagUrlBaseSetting.get()}/create`
-export const tagGradingSchemeUrl = `/${tagUrlBaseSetting.get()}/tag-grading-scheme`
+export const getTagCreateUrl = () => `/${tagUrlBaseSetting.get()}/create`
+export const getTagGradingSchemeUrl = () => `/${tagUrlBaseSetting.get()}/tag-grading-scheme`
 
 export const tagGetUrl = (tag: {slug: string}, urlOptions?: GetUrlOptions, isAbsolute=false, hash?: string) => {
   const urlSearchParams = urlOptions
@@ -83,7 +83,7 @@ export const tagGetRevisionLink = (tag: DbTag|TagBasicInfo, versionNumber: strin
 export const tagUserHasSufficientKarma = (user: UsersCurrent | DbUser | null, action: "new" | "edit"): boolean => {
   if (!user) return false
   if (user.isAdmin) return true
-  if ((user.karma) >= tagMinimumKarmaPermissions[action]) return true
+  if ((user.karma) >= getTagMinimumKarmaPermissions()[action]) return true
   return false
 }
 
@@ -113,8 +113,8 @@ export function stableSortTags<
     const tagRelB = b.tagRel;
 
     if (tagA.core !== tagB.core) {
-      // Core tags come first with isFriendlyUI, last otherwise
-      return (tagA.core ? -1 : 1) * (isFriendlyUI ? 1 : -1);
+      // Core tags come first with isFriendlyUI(), last otherwise
+      return (tagA.core ? -1 : 1) * (isFriendlyUI() ? 1 : -1);
     }
 
     if (tagRelA && tagRelB) {
@@ -145,8 +145,19 @@ export const isTagAllowedType3Audio = (tag: TagPageFragment|DbTag): boolean => {
   return !!tag.forceAllowType3Audio && !!tag.description && !tag.deleted
 };
 
-export const TAG_POSTS_SORT_ORDER_OPTIONS = {
+export const getTagPostsSortOrderOptions = () => ({
   relevance: { label: preferredHeadingCase("Most Relevant") },
-  ...SORT_ORDER_OPTIONS,
-} satisfies Record<string, SettingsOption>;
+  ...getSortOrderOptions(),
+} satisfies Record<string, SettingsOption>);
+
+export const defaultTagHistorySettings: TagHistorySettings = {
+  //displayFormat: "dense",
+  displayFormat: "expanded",
+  showEdits: true,
+  showSummaryEdits: true,
+  showComments: true,
+  showTagging: true,
+  showMetadata: true,
+  lensId: "all",
+};
 

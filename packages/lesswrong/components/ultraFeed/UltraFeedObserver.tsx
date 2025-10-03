@@ -44,18 +44,8 @@ import React, {
 } from 'react';
 import { useCurrentUser } from "../common/withUser";
 import { useMutation } from "@apollo/client/react";
-import { gql } from "@/lib/generated/gql-codegen";
 import { useTracking } from "../../lib/analyticsEvents";
-
-const UltraFeedEventsDefaultFragmentMutation = gql(`
-  mutation createUltraFeedEventUltraFeedObserver($data: CreateUltraFeedEventDataInput!) {
-    createUltraFeedEvent(data: $data) {
-      data {
-        ...UltraFeedEventsDefaultFragment
-      }
-    }
-  }
-`);
+import { UltraFeedEventCreateMutation } from './ultraFeedMutations';
 
 type DocumentType = 'post' | 'comment' | 'spotlight';
 
@@ -105,7 +95,7 @@ export const UltraFeedObserverProvider = ({ children, incognitoMode }: { childre
   const currentUser = useCurrentUser();
   const { captureEvent } = useTracking();
   
-  const [createUltraFeedEvent] = useMutation(UltraFeedEventsDefaultFragmentMutation);
+  const [createUltraFeedEvent] = useMutation(UltraFeedEventCreateMutation);
   
   const observerRef = useRef<IntersectionObserver | null>(null);
 
@@ -115,7 +105,7 @@ export const UltraFeedObserverProvider = ({ children, incognitoMode }: { childre
   const shortViewedItemsRef = useRef<Set<string>>(new Set());
 
   const logViewEvent = useCallback((elementData: ObserveData, durationMs: number) => {
-    if (!currentUser || incognitoMode || !elementData) return;
+    if (incognitoMode || !elementData) return;
 
     const eventPayload = {
       data: {
@@ -139,11 +129,9 @@ export const UltraFeedObserverProvider = ({ children, incognitoMode }: { childre
       feedCardIndex: elementData.feedCardIndex,
       feedCommentIndex: elementData.feedCommentIndex,
     });
-  }, [createUltraFeedEvent, currentUser, incognitoMode, captureEvent]);
+  }, [createUltraFeedEvent, incognitoMode, captureEvent]);
 
   const handleIntersection = useCallback((entries: IntersectionObserverEntry[]) => {
-    if (!currentUser) return;
-    
     entries.forEach((entry) => {
       const element = entry.target;
       const elementData = elementDataMapRef.current.get(element);
@@ -201,7 +189,7 @@ export const UltraFeedObserverProvider = ({ children, incognitoMode }: { childre
         }
       }
     });
-  }, [logViewEvent, currentUser]);
+  }, [logViewEvent]);
 
   useEffect(() => {
     const currentTimerMap = timerMapRef.current;

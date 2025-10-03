@@ -1,6 +1,5 @@
 import { registerComponent } from '../../../lib/vulcan-lib/components';
 import React from 'react';
-import * as _ from 'underscore';
 import { Card } from "@/components/widgets/Paper";
 import classNames from 'classnames';
 import moment from 'moment';

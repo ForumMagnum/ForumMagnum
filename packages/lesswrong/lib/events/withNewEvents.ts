@@ -1,7 +1,7 @@
 import { useState, useEffect, useCallback } from 'react';
 import { v4 as uuid } from 'uuid';
 import { hookToHoc } from '../../lib/hocUtils';
-import * as _ from 'underscore';
+import omit from 'lodash/omit';
 import { useMutationNoCache } from '../crud/useMutationNoCache';
 import { gql } from "@/lib/generated/gql-codegen";
 import { backgroundTask } from '@/server/utils/backgroundTask';
@@ -61,7 +61,7 @@ export const useNewEvents = () => {
       }
     }));
 
-    setEvents(_.omit(events, eventId));
+    setEvents(omit(events, eventId));
     return eventId;
   }, [events, createLWEvent]);
   

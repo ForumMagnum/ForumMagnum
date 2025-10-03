@@ -3,7 +3,7 @@ import React from 'react';
 import { AnalyticsContext } from "../../../lib/analyticsEvents";
 
 // -- See here for all the tab content --
-import menuTabs from './menuTabs'
+import getMenuTabs from './menuTabs'
 import { forumSelect } from '../../../lib/forumTypeUtils';
 import TabNavigationFooterItem from "./TabNavigationFooterItem";
 
@@ -37,7 +37,7 @@ const TabNavigationMenuFooter = ({classes}: {
     <div className={classes.wrapper}>
       <AnalyticsContext pageSectionContext="tabNavigationFooter">
         <div className={classes.root}>
-          {forumSelect(menuTabs).map(tab => {
+          {forumSelect(getMenuTabs()).map(tab => {
             if (!('showOnMobileStandalone' in tab) || !tab.showOnMobileStandalone) {
               return
             }

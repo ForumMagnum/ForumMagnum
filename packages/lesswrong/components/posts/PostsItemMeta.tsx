@@ -49,8 +49,8 @@ const PostsItemMeta = ({post, read, hideTags, classes}: {
   hideTags?: boolean,
   classes: ClassesType<typeof styles>,
 }) => {
-  const baseScore = isAF ? post.afBaseScore : post.baseScore
-  const showAfScore = (!isAF && post.af);
+  const baseScore = isAF() ? post.afBaseScore : post.baseScore
+  const showAfScore = (!isAF() && post.af);
   const afBaseScore = showAfScore ? post.afBaseScore : null
   const isOnGrayBackground = useIsOnGrayBackground();
 

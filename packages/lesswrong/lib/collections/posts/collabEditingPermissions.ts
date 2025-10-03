@@ -1,4 +1,3 @@
-import * as _ from 'underscore';
 import { constantTimeCompare } from '../../helpers';
 import { userCanDo, userOwns } from '../../vulcan-users/permissions';
 import { userIsPostGroupOrganizer, userIsPostCoauthor } from './helpers';
@@ -27,7 +26,7 @@ export function accessLevelCan(accessLevel: CollaborativeEditingAccessLevel, ope
 }
 
 export function getSharingKeyFromContext(context: ResolverContext|null) {
-  const key = context?.req?.query.key;
+  const key = context?.searchParams?.get('key');
   if (typeof key === 'string') {
     return key;
   }
@@ -36,7 +35,7 @@ export function getSharingKeyFromContext(context: ResolverContext|null) {
 }
 
 export async function getCollaborativeEditorAccess({formType, post, user, context, useAdminPowers}: {
-  formType: "new"|"edit",
+  formType: "new"|"edit"|null,
   post: DbPost|null,
   user: DbUser|null,
   context: ResolverContext,
@@ -71,7 +70,7 @@ export async function getCollaborativeEditorAccess({formType, post, user, contex
     accessLevel = strongerAccessLevel(accessLevel, "edit");
   } 
 
-  if (user && _.contains(post.shareWithUsers, user._id)) {
+  if (user && post.shareWithUsers.includes(user._id)) {
     accessLevel = strongerAccessLevel(accessLevel, post.sharingSettings?.explicitlySharedUsersCan);
   } 
   

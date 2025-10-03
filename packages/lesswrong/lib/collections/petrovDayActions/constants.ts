@@ -15,3 +15,6 @@ export const ACTION_TYPES = [
 const ACTION_TYPES_SET = new TupleSet(ACTION_TYPES);
 
 export type PetrovDayActionType = UnionOf<typeof ACTION_TYPES_SET>;
+
+export const petrovDayLaunchCode = 'whatwouldpetrovdo?';
+export const STARTING_MINUTE = 50;

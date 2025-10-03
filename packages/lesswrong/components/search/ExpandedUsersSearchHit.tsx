@@ -74,7 +74,7 @@ const ExpandedUsersSearchHit = ({hit, classes}: {
 
   return <div className={classes.root}>
     <Link to={`${userGetProfileUrl(user)}?from=search_page`} className={classes.link}>
-      {isFriendlyUI && <div className={classes.profilePhotoCol}>
+      {isFriendlyUI() && <div className={classes.profilePhotoCol}>
         <UsersProfileImage user={user} size={36} />
       </div>}
       <div>

@@ -1,4 +1,4 @@
-import { setPublicSettings, setServerSettingsCache } from '../lib/settingsCache';
+import { setPublicSettings, setServerSettingsCache, getPublicSettingsLoaded, getServerSettingsLoaded } from '../lib/settingsCache';
 import DatabaseMetadataRepo from "./repos/DatabaseMetadataRepo";
 import { getSqlClient } from './sql/sqlClient';
 import { isAnyTest } from '../lib/executionEnvironment';
@@ -66,6 +66,11 @@ const loadDatabaseSettings = async (): Promise<DatabaseSettings> => {
 }
 
 export const refreshSettingsCaches = async () => {
+  // TODO: figure out proper solution for nextjs
+  if (getPublicSettingsLoaded() && getServerSettingsLoaded()) {
+    return;
+  }
+
   const {
     serverSettingsObject,
     publicSettingsObject,

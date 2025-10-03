@@ -39,7 +39,7 @@ export const CurrentAndRecentForumEventsProvider: FC<{
       limit: 10,
       enableTotal: false,
     },
-    skip: !hasForumEvents,
+    skip: !hasForumEvents(),
     notifyOnNetworkStatusChange: true,
   });
 
@@ -76,7 +76,7 @@ export const CurrentAndRecentForumEventsProvider: FC<{
 
   // Refetch on mount if forum events are enabled, and when the current event ends
   useEffect(() => {
-    if (hasForumEvents) {
+    if (hasForumEvents()) {
       void refetch();
     }
   }, [refetch, eventEnded]);

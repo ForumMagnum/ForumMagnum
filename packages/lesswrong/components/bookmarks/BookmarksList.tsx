@@ -59,7 +59,7 @@ const BookmarksList = ({showMessageIfEmpty=false, limit=20, hideLoadMore=false, 
   return <AnalyticsContext pageSubSectionContext="bookmarksList">
     <div>
       {showMessageIfEmpty && !loading && !bookmarkedPosts?.length && <div className={classes.empty}>
-        {isEAForum
+        {isEAForum()
           ? "You haven't saved any posts yet."
           : "You haven't bookmarked any posts yet."
         }

@@ -23,7 +23,7 @@ const styles = defineStyles("ReadingProgressBar", (theme: ThemeType) => ({
 export const ReadingProgressBar = ({post}: {
   post: PostsListWithVotes
 }) => {
-  const disableProgressBar = (isBookUI || isServer || post.isEvent || post.question || post.debate || post.shortform || post.readTimeMinutes < 3);
+  const disableProgressBar = (isBookUI() || isServer || post.isEvent || post.question || post.debate || post.shortform || post.readTimeMinutes < 3);
 
   const { readingProgressBarRef } = usePostReadProgress({
     updateProgressBar: (element, scrollPercent) => element.style.setProperty("--scrollAmount", `${scrollPercent}%`),

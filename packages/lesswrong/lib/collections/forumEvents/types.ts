@@ -1,5 +1,5 @@
 import { TupleSet, UnionOf } from "@/lib/utils/typeGuardUtils";
-import SimpleSchema from 'simpl-schema';
+import SimpleSchema from '@/lib/utils/simpleSchema';
 
 export const EVENT_FORMATS = ["BASIC", "POLL", "STICKERS"] as const;
 export const EVENT_FORMATS_SET = new TupleSet(EVENT_FORMATS)

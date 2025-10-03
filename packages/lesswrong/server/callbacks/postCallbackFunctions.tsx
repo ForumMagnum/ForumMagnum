@@ -1,17 +1,15 @@
 import React from "react";
-import { useCurationEmailsCron, userCanPassivelyGenerateJargonTerms } from "@/lib/betas";
+import { usesCurationEmailsCron, userCanPassivelyGenerateJargonTerms } from "@/lib/betas";
 import { MOVED_POST_TO_DRAFT, REJECTED_POST } from "@/lib/collections/moderatorActions/constants";
 import { Posts } from "@/server/collections/posts/collection";
 import { postStatuses } from "@/lib/collections/posts/constants";
 import { TOS_NOT_ACCEPTED_ERROR } from "../fmCrosspost/errors";
-import { getConfirmedCoauthorIds, isRecombeeRecommendablePost, postIsApproved, postIsPublic } from "@/lib/collections/posts/helpers";
+import { isRecombeeRecommendablePost, postIsApproved, postIsPublic } from "@/lib/collections/posts/helpers";
 import { getLatestContentsRevision } from "@/server/collections/revisions/helpers";
 import { subscriptionTypes } from "@/lib/collections/subscriptions/helpers";
 import { isAnyTest, isE2E } from "@/lib/executionEnvironment";
-import { eaFrontpageDateDefault, isEAForum, isLW, requireReviewToFrontpagePostsSetting } from "@/lib/instanceSettings";
-import { recombeeEnabledSetting, vertexEnabledSetting } from "@/lib/publicSettings";
+import { eaFrontpageDateDefault, isEAForum, requireReviewToFrontpagePostsSetting, recombeeEnabledSetting, isLW } from '@/lib/instanceSettings';
 import { asyncForeachSequential } from "@/lib/utils/asyncUtils";
-import { isWeekend } from "@/lib/utils/timeUtil";
 import { userIsAdmin } from "@/lib/vulcan-users/permissions";
 import { findUsersToEmail, hydrateCurationEmailsQueue, sendCurationEmail } from "../curationEmails/cron";
 import { autoFrontpageSetting, tagBotActiveTimeSetting } from "../databaseSettings";
@@ -19,7 +17,6 @@ import { EventDebouncer } from "../debouncer";
 import { wrapAndSendEmail } from "../emails/renderEmail";
 import { updatePostEmbeddings } from "../embeddings";
 import { fetchFragmentSingle } from "../fetchFragment";
-import { googleVertexApi } from "../google-vertex/client";
 import { checkFrontpage, checkTags, getAutoAppliedTags, getTagBotAccount } from "../languageModels/autoTagCallbacks";
 import { getOpenAI } from "../languageModels/languageModelIntegration";
 import type { AfterCreateCallbackProperties, CreateCallbackProperties, UpdateCallbackProperties } from "../mutationCallbacks";
@@ -36,9 +33,11 @@ import { cheerioParse } from "../utils/htmlUtil";
 import { createAdminContext, createAnonymousContext } from "../vulcan-lib/createContexts";
 import { getAdminTeamAccount } from "../utils/adminTeamAccount";
 import { triggerReviewIfNeeded } from "./sunshineCallbackUtils";
-import { captureException } from "@sentry/core";
+import { captureException } from "@/lib/sentryWrapper";
 import moment from "moment";
-import _ from "underscore";
+import difference from 'lodash/difference';
+import union from 'lodash/union';
+import isEqual from 'lodash/isEqual';
 import { getRejectionMessage, generateLinkSharingKey } from "./helpers";
 import { computeContextFromUser } from "../vulcan-lib/apollo-server/context";
 import { createConversation } from "../collections/conversations/mutations";
@@ -55,6 +54,32 @@ import { PostsHTML } from "@/lib/collections/posts/fragments";
 import { backgroundTask } from "../utils/backgroundTask";
 import { createAutomatedContentEvaluation } from "../collections/automatedContentEvaluations/helpers";
 import CurationEmails from "../collections/curationEmails/collection";
+
+
+/**
+ * Check whether it's after 5pm UK time on Friday and before 9am ET on Monday
+ */
+function isWeekend(): boolean {
+  const nowUK = moment().tz("Europe/London");
+  const nowET = moment().tz("America/New_York");
+
+  const dayOfWeekUK = nowUK.day();
+  const hourOfDayUK = nowUK.hour();
+  const dayOfWeekET = nowET.day();
+  const hourOfDayET = nowET.hour();
+
+  if (dayOfWeekUK === 5 && hourOfDayUK >= 17) {
+    return true;
+  }
+  if (dayOfWeekUK === 6 || dayOfWeekUK === 0) {
+    return true;
+  }
+  if (dayOfWeekET === 1 && hourOfDayET < 9) {
+    return true;
+  }
+
+  return false;
+}
 
 /** Create notifications for a new post being published */
 export async function sendNewPostNotifications(post: DbPost) {
@@ -80,24 +105,24 @@ export async function sendNewPostNotifications(post: DbPost) {
           userIsDefaultSubscribed: u => u.autoSubscribeAsOrganizer,
         });
         
-        const userIdsToNotify = _.difference(groupSubscribedUsers.map(user => user._id), userIdsNotified)
+        const userIdsToNotify = difference(groupSubscribedUsers.map(user => user._id), userIdsNotified)
         if (post.isEvent) {
           await createNotifications({userIds: userIdsToNotify, notificationType: 'newEvent', documentType: 'post', documentId: post._id});
         } else {
           await createNotifications({userIds: userIdsToNotify, notificationType: 'newGroupPost', documentType: 'post', documentId: post._id});
         }
         // don't notify these users again
-        userIdsNotified = _.union(userIdsNotified, userIdsToNotify)
+        userIdsNotified = union(userIdsNotified, userIdsToNotify)
       }
     }
     
     // then notify all users who want to be notified of events in a radius
     if (post.isEvent && post.mongoLocation) {
       const radiusNotificationUsers = await getUsersWhereLocationIsInNotificationRadius(post.mongoLocation)
-      const userIdsToNotify = _.difference(radiusNotificationUsers.map(user => user._id), userIdsNotified)
+      const userIdsToNotify = difference(radiusNotificationUsers.map(user => user._id), userIdsNotified)
       await createNotifications({userIds: userIdsToNotify, notificationType: "newEventInRadius", documentType: "post", documentId: post._id})
       // don't notify these users again
-      userIdsNotified = _.union(userIdsNotified, userIdsToNotify)
+      userIdsNotified = union(userIdsNotified, userIdsToNotify)
     }
     
     // finally notify all users who are subscribed to the post's author
@@ -106,7 +131,7 @@ export async function sendNewPostNotifications(post: DbPost) {
       collectionName: "Users",
       type: subscriptionTypes.newPosts
     })
-    const userIdsToNotify = _.difference(authorSubscribedUsers.map(user => user._id), userIdsNotified)
+    const userIdsToNotify = difference(authorSubscribedUsers.map(user => user._id), userIdsNotified)
     await createNotifications({userIds: userIdsToNotify, notificationType: 'newPost', documentType: 'post', documentId: post._id});
   }
 }
@@ -119,13 +144,6 @@ const onPublishUtils = {
       backgroundTask(recombeeApi.upsertPost(post, context)
         // eslint-disable-next-line no-console
         .catch(e => console.log('Error when sending published post to recombee', { e }))
-      );
-    }
-  
-    if (vertexEnabledSetting.get()) {
-      backgroundTask(googleVertexApi.upsertPost({ post }, context)
-        // eslint-disable-next-line no-console
-        .catch(e => console.log('Error when sending published post to google vertex', { e }))
       );
     }
   },
@@ -145,7 +163,7 @@ const onPublishUtils = {
 export async function onPostPublished(post: DbPost, context: ResolverContext) {
   onPublishUtils.updateRecombeeWithPublishedPost(post, context);
   await sendNewPostNotifications(post);
-  const { updateScoreOnPostPublish } = require("./votingCallbacks");
+  const { updateScoreOnPostPublish } = await import("./votingCallbacks");
   await updateScoreOnPostPublish(post, context);
   await onPublishUtils.ensureNonzeroRevisionVersionsAfterUndraft(post, context);
 }
@@ -166,16 +184,6 @@ const utils = {
         throw new Error(`Rate limit: You cannot post for ${moment(nextEligible).fromNow()}, until ${nextEligible}`);
       }
     }
-  },
-
-  postHasUnconfirmedCoauthors: (post: CreatePostDataInput | UpdatePostDataInput | DbPost) => {
-    return !post.hasCoauthorPermission && (post.coauthorStatuses ?? []).filter(({ confirmed }) => !confirmed).length > 0;
-  },
-
-  scheduleCoauthoredPost: <T extends CreatePostDataInput | UpdatePostDataInput>(post: T) => {
-    const now = new Date();
-    post.postedAt = new Date(now.setDate(now.getDate() + 1));
-    return { ...post, isFuture: true };
   },
 
   bulkApplyPostTags: async ({postId, tagsToApply, currentUser, context}: {postId: string, tagsToApply: string[], currentUser: DbUser, context: ResolverContext}) => {
@@ -323,7 +331,7 @@ const utils = {
       //Location added or removed
       return true;
     }
-    if (oldLocation && newLocation && !_.isEqual(oldLocation, newLocation)) {
+    if (oldLocation && newLocation && !isEqual(oldLocation, newLocation)) {
       // Location changed
       // NOTE: We treat the added/removed and changed cases separately because a
       // dumb thing inside the mutation callback handlers mixes up null vs
@@ -373,7 +381,7 @@ const utils = {
       moderator: true
     };
 
-    const lwAccountContext = await computeContextFromUser({ user: lwAccount, req: context.req, res: context.res, isSSR: context.isSSR });
+    const lwAccountContext = computeContextFromUser({ user: lwAccount, isSSR: context.isSSR });
 
     const conversation = await createConversation({
       data: conversationData,
@@ -414,8 +422,8 @@ export async function postsNewRateLimit(post: CreatePostDataInput, currentUser: 
 /* CREATE BEFORE */
 export function addReferrerToPost(post: CreatePostDataInput, properties: CreateCallbackProperties<'Posts'>) {
   if (properties && properties.context && properties.context.headers) {
-    let referrer = properties.context.headers["referer"];
-    let userAgent = properties.context.headers["user-agent"];
+    let referrer = properties.context.headers.get("referer");
+    let userAgent = properties.context.headers.get("user-agent");
     
     return {
       ...post,
@@ -526,13 +534,6 @@ export async function fixEventStartAndEndTimes(post: CreatePostDataInput): Promi
   return post;
 }
 
-export async function scheduleCoauthoredPostWithUnconfirmedCoauthors(post: CreatePostDataInput): Promise<CreatePostDataInput> {
-  if (utils.postHasUnconfirmedCoauthors(post) && !post.draft) {
-    return utils.scheduleCoauthoredPost(post);
-  }
-  return post;
-}
-
 export function addLinkSharingKey(post: CreatePostDataInput) {
   return {
     ...post,
@@ -591,31 +592,12 @@ export async function createNewJargonTermsCallback<T extends Pick<DbPost, '_id' 
 
 
 /* NEW AFTER */
-export async function sendCoauthorRequestNotifications<T extends Pick<DbPost, '_id' | 'coauthorStatuses' | 'hasCoauthorPermission'>>(post: T, callbackProperties: AfterCreateCallbackProperties<'Posts'> | UpdateCallbackProperties<'Posts'>) {
-  const { context: { Posts } } = callbackProperties;
-  const { _id, coauthorStatuses, hasCoauthorPermission } = post;
-
-  if (hasCoauthorPermission === false && coauthorStatuses?.length) {
-    await createNotifications({
-      userIds: coauthorStatuses.filter(({requested, confirmed}) => !requested && !confirmed).map(({userId}) => userId),
-      notificationType: "coauthorRequestNotification",
-      documentType: "post",
-      documentId: _id,
-    });
-
-    post.coauthorStatuses = coauthorStatuses.map((status) => ({ ...status, requested: true }));
-    await Posts.rawUpdateOne({ _id }, { $set: { coauthorStatuses: post.coauthorStatuses } });
-  }
-
-  return post;
-}
-
 export async function lwPostsNewUpvoteOwnPost(post: DbPost, callbackProperties: AfterCreateCallbackProperties<'Posts'>): Promise<DbPost> {
   const { context: { Users, Posts } } = callbackProperties;
 
   const postAuthor = await Users.findOne(post.userId);
   if (!postAuthor) throw new Error(`Could not find user: ${post.userId}`);
-  const { performVoteServer } = require("../voteServer");
+  const { performVoteServer } = await import("../voteServer");
   const {modifiedDocument: votedPost} = await performVoteServer({
     document: post,
     voteType: 'bigUpvote',
@@ -679,8 +661,7 @@ export async function extractSocialPreviewImage(post: DbPost, callbackProperties
 
 /* CREATE ASYNC */
 export async function notifyUsersAddedAsPostCoauthors({ document: post }: AfterCreateCallbackProperties<'Posts'>) {
-  const coauthorIds: Array<string> = getConfirmedCoauthorIds(post);
-  await createNotifications({ userIds: coauthorIds, notificationType: "addedAsCoauthor", documentType: "post", documentId: post._id });
+  await createNotifications({ userIds: post.coauthorUserIds, notificationType: "addedAsCoauthor", documentType: "post", documentId: post._id });
 }
 
 export async function triggerReviewForNewPostIfNeeded({ document, context }: AfterCreateCallbackProperties<'Posts'>) {
@@ -698,9 +679,8 @@ export async function autoTagNewPost({ document, context }: AfterCreateCallbackP
 
 /* NEW ASYNC */
 export async function sendUsersSharedOnPostNotifications(post: DbPost) {
-  const { _id, shareWithUsers = [], coauthorStatuses } = post;
-  const coauthors: Array<string> = coauthorStatuses?.filter(({ confirmed }) => confirmed).map(({ userId }) => userId) || [];
-  const userIds: Array<string> = shareWithUsers?.filter((user) => !coauthors.includes(user)) || [];
+  const { _id, shareWithUsers = [], coauthorUserIds } = post;
+  const userIds: Array<string> = shareWithUsers?.filter((user) => !coauthorUserIds.includes(user)) || [];
   await createNotifications({userIds, notificationType: "postSharedWithUser", documentType: "post", documentId: _id})
 }
 
@@ -736,17 +716,6 @@ export function setPostUndraftedFields(data: UpdatePostDataInput, { oldDocument:
     data.wasEverUndrafted = true;
   }
   return data;
-}
-
-// TODO: this, plus the scheduleCoauthoredPost function, should probably be converted to one of the on-publish callbacks?
-export function scheduleCoauthoredPostWhenUndrafted(post: UpdatePostDataInput, {oldDocument: oldPost, newDocument: newPost}: UpdateCallbackProperties<"Posts">) {
-  // Here we schedule the post for 1-day in the future when publishing an existing draft with unconfirmed coauthors
-  // We must check post.draft === false instead of !post.draft as post.draft may be undefined in some cases
-  // NOTE: EA FORUM: this used to use `post` rather than `newPost`, but `post` is merely the diff, which isn't what you want to pass into those
-  if (utils.postHasUnconfirmedCoauthors(newPost) && post.draft === false && oldPost.draft) {
-    post = utils.scheduleCoauthoredPost(post);
-  }
-  return post;
 }
 
 /* EDIT SYNC */
@@ -848,23 +817,23 @@ export async function eventUpdatedNotifications({newDocument: newPost, oldDocume
         user: user,
         to: email,
         subject: `Event updated: ${newPost.title}`,
-        body: <EventUpdatedEmail postId={newPost._id} />
+        body: (emailContext) => <EventUpdatedEmail postId={newPost._id} emailContext={emailContext} />
       });
     }
     
     // then notify all users who want to be notified of events in a radius
     if (newPost.mongoLocation) {
       const radiusNotificationUsers = await getUsersWhereLocationIsInNotificationRadius(newPost.mongoLocation)
-      const userIdsToNotify = _.difference(radiusNotificationUsers.map(user => user._id), userIdsNotified)
+      const userIdsToNotify = difference(radiusNotificationUsers.map(user => user._id), userIdsNotified)
       await createNotifications({userIds: userIdsToNotify, notificationType: "editedEventInRadius", documentType: "post", documentId: newPost._id})
     }
   }
 }
 
 export async function notifyUsersAddedAsCoauthors({ oldDocument: oldPost, newDocument: newPost }: UpdateCallbackProperties<'Posts'>) {
-  const newCoauthorIds = getConfirmedCoauthorIds(newPost);
-  const oldCoauthorIds = getConfirmedCoauthorIds(oldPost);
-  const addedCoauthorIds = _.difference(newCoauthorIds, oldCoauthorIds);
+  const newCoauthorIds = newPost.coauthorUserIds;
+  const oldCoauthorIds = oldPost.coauthorUserIds;
+  const addedCoauthorIds = difference(newCoauthorIds, oldCoauthorIds);
 
   if (addedCoauthorIds.length) {
     await createNotifications({ userIds: addedCoauthorIds, notificationType: "addedAsCoauthor", documentType: "post", documentId: newPost._id });
@@ -925,7 +894,7 @@ export async function sendRejectionPM({ post, currentUser, context }: {post: DbP
   let messageContents = getRejectionMessage(rejectedContentLink, post.rejectedReason)
 
   // FYI EA Forum: Decide if you want this to always send emails the way you do for deletion. We think it's better not to.
-  const noEmail = isEAForum
+  const noEmail = isEAForum()
   ? false 
   : !(!!postUser?.reviewedByUserId && !postUser.snoozedUntilContentCount)
   const adminAccount = currentUser ?? await getAdminTeamAccount(context);
@@ -987,13 +956,6 @@ export async function updateRecombeePost({ newDocument, oldDocument, context }: 
       .catch(e => console.log('Error when sending updated post to recombee', { e }))
     )
   }
-
-  if (vertexEnabledSetting.get()) {
-    backgroundTask(googleVertexApi.upsertPost({ post }, context)
-      // eslint-disable-next-line no-console
-      .catch(e => console.log('Error when sending updated post to google vertex', { e }))
-    );
-  }
 }
 
 /* EDIT ASYNC */
@@ -1009,10 +971,10 @@ export async function sendNewPublishedDialogueMessageNotifications(newPost: DbPo
       getDialogueResponseIds(oldPost, context),
       getDialogueResponseIds(newPost, context),
     ]);
-    const uniqueNewIds = _.difference(newIds, oldIds);
+    const uniqueNewIds = difference(newIds, oldIds);
     
     if (uniqueNewIds.length > 0) {
-      const dialogueParticipantIds = [newPost.userId, ...getConfirmedCoauthorIds(newPost)];
+      const dialogueParticipantIds = [newPost.userId, ...newPost.coauthorUserIds];
       const dialogueSubscribers = await getSubscribedUsers({
         documentId: newPost._id,
         collectionName: "Posts",
@@ -1020,7 +982,7 @@ export async function sendNewPublishedDialogueMessageNotifications(newPost: DbPo
       });
       
       const dialogueSubscriberIds = dialogueSubscribers.map(sub => sub._id);
-      const dialogueSubscriberIdsToNotify = _.difference(dialogueSubscriberIds, dialogueParticipantIds);
+      const dialogueSubscriberIdsToNotify = difference(dialogueSubscriberIds, dialogueParticipantIds);
       await createNotifications({
         userIds: dialogueSubscriberIdsToNotify,
         notificationType: 'newPublishedDialogueMessages',
@@ -1059,23 +1021,24 @@ export async function sendEAFCuratedAuthorsNotification(post: DbPost, oldPost: D
   const { Users } = context;
   // On the EA Forum, when a post is curated, we send an email notifying all the post's authors
   if (post.curatedDate && !oldPost.curatedDate) {
-    const coauthorIds = getConfirmedCoauthorIds(post)
-    const authorIds = [post.userId, ...coauthorIds]
+    const authorIds = [post.userId, ...post.coauthorUserIds]
     const authors = await Users.find({
       _id: {$in: authorIds}
     }).fetch()
     
     backgroundTask(Promise.all(
-      authors.map(author => wrapAndSendEmail({
-        user: author,
-        subject: "We’ve curated your post",
-        body: <EmailCuratedAuthors user={author} post={post} />
+      authors.map(async (author) => {
+        return wrapAndSendEmail({
+          user: author,
+          subject: "We’ve curated your post",
+          body: (emailContext) => <EmailCuratedAuthors user={author} post={post} emailContext={emailContext}/>
+        })
       })
-    )))
+    ))
   }
 }
 
-const curationEmailDelay = new EventDebouncer({
+export const curationEmailDelayDebouncer = new EventDebouncer({
   name: "curationEmail",
   defaultTiming: {
     type: "delayed",
@@ -1120,8 +1083,8 @@ export async function sendLWAFPostCurationEmails(post: DbPost, oldPost: DbPost) 
       subject: `[Admin preview] ${post.title}`,
     });
     
-    if (!useCurationEmailsCron) {
-      await curationEmailDelay.recordEvent({
+    if (!usesCurationEmailsCron()) {
+      await curationEmailDelayDebouncer.recordEvent({
         key: post._id,
         af: false
       });  
@@ -1142,11 +1105,11 @@ export async function purgeCurationEmailQueueWhenUncurating(newPost: DbPost, old
 }
 
 export async function sendPostSharedWithUserNotifications(newPost: DbPost, oldPost: DbPost) {
-  if (!_.isEqual(newPost.shareWithUsers, oldPost.shareWithUsers)) {
+  if (!isEqual(newPost.shareWithUsers, oldPost.shareWithUsers)) {
     // Right now this only creates notifications when users are shared (and not when they are "unshared")
     // because currently notifications are hidden from you if you don't have view-access to a post.
     // TODO: probably fix that, such that users can see when they've lost access to post. [but, eh, I'm not sure this matters that much]
-    const sharedUsers = _.difference(newPost.shareWithUsers || [], oldPost.shareWithUsers || [])
+    const sharedUsers = difference(newPost.shareWithUsers || [], oldPost.shareWithUsers || [])
     await createNotifications({userIds: sharedUsers, notificationType: "postSharedWithUser", documentType: "post", documentId: newPost._id})
   }
 }
@@ -1202,7 +1165,7 @@ export async function oldPostsLastCommentedAt(post: DbPost, context: ResolverCon
 }
 
 export async function maybeCreateAutomatedContentEvaluation(post: DbPost, oldPost: DbPost, context: ResolverContext) {
-  const shouldEvaluate = isLW && !post.draft && oldPost.draft && !context.currentUser?.reviewedByUserId;
+  const shouldEvaluate = isLW() && !post.draft && oldPost.draft && !context.currentUser?.reviewedByUserId;
   if (shouldEvaluate) {
     const revision = await getLatestContentsRevision(post, context);
     if (revision) {

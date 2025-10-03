@@ -47,8 +47,6 @@ const styles = (theme: ThemeType) => ({
   },
 })
 
-const taggingAltName = taggingNameIsSet.get() ? taggingNameCapitalSetting.get() : 'Tag/Wiki'
-const taggingAltName2 = taggingNameIsSet.get() ? taggingNameCapitalSetting.get() : 'Tag and wiki'
 
 export type ContentTypeString = "frontpage"|"personal"|"curated"|"shortform"|"tags"|"subforumDiscussion";
 interface ContentTypeSettings {
@@ -67,258 +65,263 @@ type ContentTypeRecord = {
   event?: ContentTypeSettings,
 }
 
-export const contentTypes: ForumOptions<ContentTypeRecord> = {
-  LessWrong: {
-    frontpage: {
-      tooltipTitle: 'Frontpage Post',
-      tooltipBody: <React.Fragment>
-        <p><b>Frontpage Posts</b> are promoted by moderators based on:</p>
-        <ul>
-          <li>Usefulness, novelty, relevance</li>
-          <li>Timeless content (minimizing reference to current events)</li>
-          <li>Aiming to explain, rather than persuade</li>
-        </ul>
-      </React.Fragment>,
-      linkTarget: "/posts/5conQhfa4rgb4SaWx/site-guide-personal-blogposts-vs-frontpage-posts",
-      Icon: HomeIcon
+export const getContentTypes = (): ForumOptions<ContentTypeRecord> => {
+  const taggingAltName = taggingNameIsSet.get() ? taggingNameCapitalSetting.get() : 'Tag/Wiki';
+  const taggingAltName2 = taggingNameIsSet.get() ? taggingNameCapitalSetting.get() : 'Tag and wiki';
+
+  return {
+    LessWrong: {
+      frontpage: {
+        tooltipTitle: 'Frontpage Post',
+        tooltipBody: <React.Fragment>
+          <p><b>Frontpage Posts</b> are promoted by moderators based on:</p>
+          <ul>
+            <li>Usefulness, novelty, relevance</li>
+            <li>Timeless content (minimizing reference to current events)</li>
+            <li>Aiming to explain, rather than persuade</li>
+          </ul>
+        </React.Fragment>,
+        linkTarget: "/posts/5conQhfa4rgb4SaWx/site-guide-personal-blogposts-vs-frontpage-posts",
+        Icon: HomeIcon
+      },
+      personal: {
+        tooltipTitle: 'Personal Blogpost',
+        tooltipBody: <React.Fragment>
+          <div><b>Personal Blogpost</b></div><br/>
+          <div>
+            Members can write whatever they want on their personal blog. Personal
+            blogposts are a good fit for:
+          </div>
+          <ul>
+            <li>Niche topics</li>
+            <li>Meta-discussion of LessWrong (site features, interpersonal community dynamics)</li>
+            <li>Topics that are difficult to discuss rationally</li>
+            <li>Personal ramblings</li>
+          </ul>
+        </React.Fragment>,
+        linkTarget: "/posts/5conQhfa4rgb4SaWx/site-guide-personal-blogposts-vs-frontpage-posts",
+        Icon: PersonIcon
+      },
+      curated: {
+        tooltipTitle: 'Curated Post',
+        tooltipBody: <div>
+          The best 2-3 posts each week, selected by the moderation team. Curated
+          posts are featured at the top of the front page and emailed to subscribers.
+        </div>,
+        linkTarget: curatedUrl,
+        Icon: StarIcon,
+      },
+      event: {
+        tooltipTitle: 'Event',
+        tooltipBody: <div>
+          An event post.
+        </div>,
+        linkTarget: "/community",
+        Icon: EventIcon
+      },
+      shortform: {
+        tooltipTitle: 'Shortform',
+        tooltipBody: <div>
+          Writing that is short in length, or written in a short amount of time.
+          Off-the-cuff thoughts, brainstorming, early stage drafts, etc.
+        </div>,
+        linkTarget: "/shortform",
+        Icon: SubjectIcon
+      },
+      tags: {
+        tooltipTitle: `${taggingAltName} Edits and Discussion`,
+        tooltipBody: <div>
+          {taggingAltName2} pages, which organize LessWrong posts and concepts in a more
+          durable format.
+        </div>,
+        Icon: TagIcon,
+        linkTarget: getAllTagsPath(),
+      },
     },
-    personal: {
-      tooltipTitle: 'Personal Blogpost',
-      tooltipBody: <React.Fragment>
-        <div><b>Personal Blogpost</b></div><br/>
-        <div>
-          Members can write whatever they want on their personal blog. Personal
-          blogposts are a good fit for:
-        </div>
-        <ul>
-          <li>Niche topics</li>
-          <li>Meta-discussion of LessWrong (site features, interpersonal community dynamics)</li>
-          <li>Topics that are difficult to discuss rationally</li>
-          <li>Personal ramblings</li>
-        </ul>
-      </React.Fragment>,
-      linkTarget: "/posts/5conQhfa4rgb4SaWx/site-guide-personal-blogposts-vs-frontpage-posts",
-      Icon: PersonIcon
+    AlignmentForum: {
+      frontpage: {
+        tooltipTitle: 'Frontpage Post',
+        tooltipBody: <React.Fragment>
+          <div>Moderators promote posts to frontpage based on:</div>
+          <ul>
+            <li>Usefulness, novelty, relevance</li>
+            <li>Timeless content (minimizing reference to current events)</li>
+            <li>Aiming to explain, rather than persuade</li>
+          </ul>
+        </React.Fragment>,
+        linkTarget: null,
+        Icon: HomeIcon
+      },
+      personal: {
+        tooltipTitle: 'Personal Blog Post',
+        tooltipBody: <React.Fragment>
+          <div>
+            Members can write whatever they want on their personal blog. Personal
+            blogposts are a good fit for:
+          </div>
+          <ul>
+            <li>Niche topics</li>
+            <li>Meta-discussion of LessWrong (site features, interpersonal community dynamics)</li>
+            <li>Topics that are difficult to discuss rationally</li>
+            <li>Personal ramblings</li>
+          </ul>
+        </React.Fragment>,
+        linkTarget: null,
+        Icon: PersonIcon
+      },
+      curated: {
+        tooltipTitle: 'Curated Post',
+        tooltipBody: <div>
+          The best posts, selected by the moderation team.
+        </div>,
+        linkTarget: curatedUrl,
+        Icon: StarIcon,
+      },
+      shortform: {
+        tooltipTitle: 'Shortform',
+        tooltipBody: <div>
+          Writing that is short in length, or written in a short amount of time.
+          Off-the-cuff thoughts, brainstorming, early stage drafts, etc.
+        </div>,
+        linkTarget: "/shortform",
+        Icon: SubjectIcon
+      },
+      tags: {
+        tooltipTitle: `${taggingAltName} Edits and Discussion`,
+        tooltipBody: <div>
+          {taggingAltName2} pages, which organize {siteNameWithArticleSetting.get()} posts and concepts in
+          a more durable format.
+        </div>,
+        Icon: TagIcon,
+        linkTarget: getAllTagsPath(),
+      },
     },
-    curated: {
-      tooltipTitle: 'Curated Post',
-      tooltipBody: <div>
-        The best 2-3 posts each week, selected by the moderation team. Curated
-        posts are featured at the top of the front page and emailed to subscribers.
-      </div>,
-      linkTarget: curatedUrl,
-      Icon: StarIcon,
+    EAForum: {
+      frontpage: {
+        tooltipTitle: 'Frontpage Post',
+        tooltipBody: <div>
+          Posts that are relevant to doing good effectively.
+        </div>,
+        linkTarget: "/about#Finding_content",
+        Icon: HomeIcon
+      },
+      personal: {
+        tooltipTitle: 'Personal Blog Post',
+        tooltipBody: <React.Fragment>
+          <div>
+            Users can write whatever they want on their personal blog. This category
+            is a good fit for:
+          </div>
+          <ul>
+            <li>topics that aren't closely related to EA</li>
+            <li>topics that are difficult to discuss rationally</li>
+            <li>topics of interest to a small fraction of the Forum’s readers (e.g. local events)</li>
+          </ul>
+        </React.Fragment>,
+        linkTarget: "/posts/5TAwep4tohN7SGp3P/the-frontpage-community-distinction",
+        Icon: PersonIcon
+      },
+      curated: {
+        tooltipTitle: 'Curated Post',
+        tooltipBody: <div>
+          The best 2-3 posts each week, selected by the moderation team. Curated
+          posts are featured at the top of the front page and emailed to subscribers.
+        </div>,
+        linkTarget: curatedUrl,
+        Icon: StarIcon,
+      },
+      shortform: {
+        tooltipTitle: 'Quick take',
+        tooltipBody: <div>
+          Writing that is brief, or written very quickly. Perfect for off-the-cuff
+          thoughts, brainstorming, early stage drafts, etc.
+        </div>,
+        linkTarget: "/quicktakes",
+        Icon: SubjectIcon
+      },
+      tags: {
+        tooltipTitle: `${taggingAltName} Edits and Discussion`,
+        tooltipBody: <div>
+          {taggingAltName2} pages, which organize posts and concepts in a more
+          durable format.
+        </div>,
+        Icon: TagIcon,
+        linkTarget: getAllTagsPath(),
+      },
+      subforumDiscussion: {
+        Icon: QuestionAnswerIcon,
+        linkTarget: null,
+      }
     },
-    event: {
-      tooltipTitle: 'Event',
-      tooltipBody: <div>
-        An event post.
-      </div>,
-      linkTarget: "/community",
-      Icon: EventIcon
-    },
-    shortform: {
-      tooltipTitle: 'Shortform',
-      tooltipBody: <div>
-        Writing that is short in length, or written in a short amount of time.
-        Off-the-cuff thoughts, brainstorming, early stage drafts, etc.
-      </div>,
-      linkTarget: "/shortform",
-      Icon: SubjectIcon
-    },
-    tags: {
-      tooltipTitle: `${taggingAltName} Edits and Discussion`,
-      tooltipBody: <div>
-        {taggingAltName2} pages, which organize LessWrong posts and concepts in a more
-        durable format.
-      </div>,
-      Icon: TagIcon,
-      linkTarget: getAllTagsPath(),
-    },
-  },
-  AlignmentForum: {
-    frontpage: {
-      tooltipTitle: 'Frontpage Post',
-      tooltipBody: <React.Fragment>
-        <div>Moderators promote posts to frontpage based on:</div>
-        <ul>
-          <li>Usefulness, novelty, relevance</li>
-          <li>Timeless content (minimizing reference to current events)</li>
-          <li>Aiming to explain, rather than persuade</li>
-        </ul>
-      </React.Fragment>,
-      linkTarget: null,
-      Icon: HomeIcon
-    },
-    personal: {
-      tooltipTitle: 'Personal Blog Post',
-      tooltipBody: <React.Fragment>
-        <div>
-          Members can write whatever they want on their personal blog. Personal
-          blogposts are a good fit for:
-        </div>
-        <ul>
-          <li>Niche topics</li>
-          <li>Meta-discussion of LessWrong (site features, interpersonal community dynamics)</li>
-          <li>Topics that are difficult to discuss rationally</li>
-          <li>Personal ramblings</li>
-        </ul>
-      </React.Fragment>,
-      linkTarget: null,
-      Icon: PersonIcon
-    },
-    curated: {
-      tooltipTitle: 'Curated Post',
-      tooltipBody: <div>
-        The best posts, selected by the moderation team.
-      </div>,
-      linkTarget: curatedUrl,
-      Icon: StarIcon,
-    },
-    shortform: {
-      tooltipTitle: 'Shortform',
-      tooltipBody: <div>
-        Writing that is short in length, or written in a short amount of time.
-        Off-the-cuff thoughts, brainstorming, early stage drafts, etc.
-      </div>,
-      linkTarget: "/shortform",
-      Icon: SubjectIcon
-    },
-    tags: {
-      tooltipTitle: `${taggingAltName} Edits and Discussion`,
-      tooltipBody: <div>
-        {taggingAltName2} pages, which organize {siteNameWithArticleSetting.get()} posts and concepts in
-        a more durable format.
-      </div>,
-      Icon: TagIcon,
-      linkTarget: getAllTagsPath(),
-    },
-  },
-  EAForum: {
-    frontpage: {
-      tooltipTitle: 'Frontpage Post',
-      tooltipBody: <div>
-        Posts that are relevant to doing good effectively.
-      </div>,
-      linkTarget: "/about#Finding_content",
-      Icon: HomeIcon
-    },
-    personal: {
-      tooltipTitle: 'Personal Blog Post',
-      tooltipBody: <React.Fragment>
-        <div>
-          Users can write whatever they want on their personal blog. This category
-          is a good fit for:
-        </div>
-        <ul>
-          <li>topics that aren't closely related to EA</li>
-          <li>topics that are difficult to discuss rationally</li>
-          <li>topics of interest to a small fraction of the Forum’s readers (e.g. local events)</li>
-        </ul>
-      </React.Fragment>,
-      linkTarget: "/posts/5TAwep4tohN7SGp3P/the-frontpage-community-distinction",
-      Icon: PersonIcon
-    },
-    curated: {
-      tooltipTitle: 'Curated Post',
-      tooltipBody: <div>
-        The best 2-3 posts each week, selected by the moderation team. Curated
-        posts are featured at the top of the front page and emailed to subscribers.
-      </div>,
-      linkTarget: curatedUrl,
-      Icon: StarIcon,
-    },
-    shortform: {
-      tooltipTitle: 'Quick take',
-      tooltipBody: <div>
-        Writing that is brief, or written very quickly. Perfect for off-the-cuff
-        thoughts, brainstorming, early stage drafts, etc.
-      </div>,
-      linkTarget: "/quicktakes",
-      Icon: SubjectIcon
-    },
-    tags: {
-      tooltipTitle: `${taggingAltName} Edits and Discussion`,
-      tooltipBody: <div>
-        {taggingAltName2} pages, which organize posts and concepts in a more
-        durable format.
-      </div>,
-      Icon: TagIcon,
-      linkTarget: getAllTagsPath(),
-    },
-    subforumDiscussion: {
-      Icon: QuestionAnswerIcon,
-      linkTarget: null,
+    default: {
+      frontpage: {
+        tooltipTitle: 'Frontpage Post',
+        tooltipBody: <React.Fragment>
+          <p><b>Frontpage Posts</b> are promoted by moderators based on:</p>
+          <ul>
+            <li>Usefulness, novelty, relevance</li>
+            <li>Timeless content (minimizing reference to current events)</li>
+            <li>Aiming to explain, rather than persuade</li>
+          </ul>
+        </React.Fragment>,
+        linkTarget: "/posts/5conQhfa4rgb4SaWx/site-guide-personal-blogposts-vs-frontpage-posts", // TODO
+        Icon: HomeIcon
+      },
+      personal: {
+        tooltipTitle: 'Personal Blogpost',
+        tooltipBody: <React.Fragment>
+          <div><b>Personal Blogpost</b></div><br/>
+          <div>
+            Members can write whatever they want on their personal blog. Personal
+            blogposts are a good fit for:
+          </div>
+          <ul>
+            <li>Niche topics</li>
+            <li>Meta-discussion of LessWrong (site features, interpersonal community dynamics)</li>
+            <li>Topics that are difficult to discuss rationally</li>
+            <li>Personal ramblings</li>
+          </ul>
+        </React.Fragment>,
+        linkTarget: "/posts/5conQhfa4rgb4SaWx/site-guide-personal-blogposts-vs-frontpage-posts",
+        Icon: PersonIcon
+      },
+      curated: {
+        tooltipTitle: 'Curated Post',
+        tooltipBody: <div>
+          The best 2-3 posts each week, selected by the moderation team. Curated
+          posts are featured at the top of the front page and emailed to subscribers.
+        </div>,
+        linkTarget: curatedUrl,
+        Icon: StarIcon,
+      },
+      shortform: {
+        tooltipTitle: 'Shortform',
+        tooltipBody: <div>
+          Writing that is short in length, or written in a short amount of time.
+          Off-the-cuff thoughts, brainstorming, early stage drafts, etc.
+        </div>,
+        linkTarget: "/shortform",
+        Icon: SubjectIcon
+      },
+      tags: {
+        tooltipTitle: `${taggingAltName} Edits and Discussion`,
+        tooltipBody: <div>
+          {taggingAltName2} pages, which organize {forumTitleSetting.get()} posts and concepts in a more
+          durable format.
+        </div>,
+        Icon: TagIcon,
+        linkTarget: getAllTagsPath(),
+      },
     }
-  },
-  default: {
-    frontpage: {
-      tooltipTitle: 'Frontpage Post',
-      tooltipBody: <React.Fragment>
-        <p><b>Frontpage Posts</b> are promoted by moderators based on:</p>
-        <ul>
-          <li>Usefulness, novelty, relevance</li>
-          <li>Timeless content (minimizing reference to current events)</li>
-          <li>Aiming to explain, rather than persuade</li>
-        </ul>
-      </React.Fragment>,
-      linkTarget: "/posts/5conQhfa4rgb4SaWx/site-guide-personal-blogposts-vs-frontpage-posts", // TODO
-      Icon: HomeIcon
-    },
-    personal: {
-      tooltipTitle: 'Personal Blogpost',
-      tooltipBody: <React.Fragment>
-        <div><b>Personal Blogpost</b></div><br/>
-        <div>
-          Members can write whatever they want on their personal blog. Personal
-          blogposts are a good fit for:
-        </div>
-        <ul>
-          <li>Niche topics</li>
-          <li>Meta-discussion of LessWrong (site features, interpersonal community dynamics)</li>
-          <li>Topics that are difficult to discuss rationally</li>
-          <li>Personal ramblings</li>
-        </ul>
-      </React.Fragment>,
-      linkTarget: "/posts/5conQhfa4rgb4SaWx/site-guide-personal-blogposts-vs-frontpage-posts",
-      Icon: PersonIcon
-    },
-    curated: {
-      tooltipTitle: 'Curated Post',
-      tooltipBody: <div>
-        The best 2-3 posts each week, selected by the moderation team. Curated
-        posts are featured at the top of the front page and emailed to subscribers.
-      </div>,
-      linkTarget: curatedUrl,
-      Icon: StarIcon,
-    },
-    shortform: {
-      tooltipTitle: 'Shortform',
-      tooltipBody: <div>
-        Writing that is short in length, or written in a short amount of time.
-        Off-the-cuff thoughts, brainstorming, early stage drafts, etc.
-      </div>,
-      linkTarget: "/shortform",
-      Icon: SubjectIcon
-    },
-    tags: {
-      tooltipTitle: `${taggingAltName} Edits and Discussion`,
-      tooltipBody: <div>
-        {taggingAltName2} pages, which organize {forumTitleSetting.get()} posts and concepts in a more
-        durable format.
-      </div>,
-      Icon: TagIcon,
-      linkTarget: getAllTagsPath(),
-    },
   }
-}
+};
 
 const ContentTypeWrapper: FC<PropsWithChildren<{classes: ClassesType<typeof styles>, className?: string}>> = ({
   classes,
   className,
   children,
 }) =>
-  isFriendlyUI
+  isFriendlyUI()
     ? <>{children}</>
     : <Typography
       variant="body1"
@@ -337,12 +340,12 @@ const ContentType = ({classes, className, type, label}: {
   if (!type) {
     throw new Error('ContentType requires type property')
   }
-  const contentData = forumSelect(contentTypes)[type]
+  const contentData = forumSelect(getContentTypes())[type]
   if (!contentData) {
     throw new Error(`Content type ${type} invalid for this forum type`)
   }
 
-  const innerComponent = isFriendlyUI
+  const innerComponent = isFriendlyUI()
     ? <SectionTitle title={label} titleClassName={classNames(classes.sectionTitle, className)} noTopMargin noBottomPadding />
     : <span>
       <contentData.Icon className={classes.icon} />{label ? " "+label : ""}

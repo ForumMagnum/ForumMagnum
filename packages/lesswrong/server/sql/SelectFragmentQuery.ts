@@ -1,6 +1,6 @@
 import SelectQuery from "./SelectQuery";
 import type { CodeResolverMap, PrefixGenerator } from "./ProjectionContext";
-import type { SqlFragment } from "./SqlFragment";
+import type { ParsedSqlFragment } from "./SqlFragment";
 
 /**
  * `SelectFragmentQuery` is the main external interface for running select
@@ -24,7 +24,7 @@ class SelectFragmentQuery<
 
   constructor(
     /** The SQL fragment to use */
-    private sqlFragment: SqlFragment,
+    private sqlFragment: ParsedSqlFragment,
     /** The current user, of null if logged out */
     currentUser: DbUser | null,
     /** Dictionary of arguments to pass to custom resolvers */
@@ -85,9 +85,9 @@ class SelectFragmentQuery<
 
   private getCommentLine() {
     if (this.sqlComment) {
-      return `-- ${this.sqlComment} (fragment ${this.sqlFragment.getName()})\n`;
+      return `-- ${this.sqlComment} (fragment ${this.sqlFragment.name})\n`;
     } else {
-      return `-- Fragment ${this.sqlFragment.getName()}\n`;
+      return `-- Fragment ${this.sqlFragment.name}\n`;
     }
   }
 

@@ -72,7 +72,7 @@ export async function createCollection({ data }: CreateCollectionInput, context:
     newDocument: documentWithId,
   };
 
-  await uploadImagesInEditableFields({
+  uploadImagesInEditableFields({
     newDoc: documentWithId,
     props: asyncProperties,
   });
@@ -110,7 +110,7 @@ export async function updateCollection({ selector, data }: UpdateCollectionInput
 
   await updateCountOfReferencesOnOtherCollectionsAfterUpdate('Collections', updatedDocument, oldDocument);
 
-  await reuploadImagesIfEditableFieldsChanged({
+  reuploadImagesIfEditableFieldsChanged({
     newDoc: updatedDocument,
     props: updateCallbackProperties,
   });

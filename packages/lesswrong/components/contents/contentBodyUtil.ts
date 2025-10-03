@@ -1,4 +1,4 @@
-import type { ContentStyleType } from '../common/ContentStyles';
+import type { ContentStyleType } from '../common/ContentStylesValues';
 import JargonTooltip from '../jargon/JargonTooltip';
 import InlineReactHoverableHighlight from '../votes/lwReactions/InlineReactHoverableHighlight';
 
@@ -66,6 +66,11 @@ export interface ContentItemBodyProps {
    * If passed, will change the content style used in HoverPreviewLink.
    */
   contentStyleType?: ContentStyleType;
+
+  /**
+   * If passed, will invert the colors of the content.
+   */
+  invertSubstitutionColors?: boolean;
 }
 
 /**

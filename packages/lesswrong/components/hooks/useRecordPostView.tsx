@@ -5,9 +5,9 @@ import { useGetCurrentUser } from '../common/withUser';
 import { useNewEvents } from '../../lib/events/withNewEvents';
 import { hookToHoc } from '../../lib/hocUtils';
 import { recombeeApi } from '../../lib/recombee/client';
-import { recombeeEnabledSetting, vertexEnabledSetting } from '../../lib/publicSettings';
+import { recombeeEnabledSetting } from '@/lib/instanceSettings';
 import { isRecombeeRecommendablePost } from '@/lib/collections/posts/helpers';
-import { useClientId } from '@/lib/abTestImpl';
+import { useClientId } from './useClientId';
 
 
 export type ItemsReadContextType = {
@@ -30,14 +30,9 @@ interface RecombeeOptions {
   recommId?: string;
 }
 
-interface VertexOptions {
-  attributionId?: string;
-}
-
 export interface RecommendationOptions {
   skip?: boolean;
   recombeeOptions?: RecombeeOptions;
-  vertexOptions?: VertexOptions;
 }
 
 interface RecordPostViewArgs {
@@ -50,12 +45,6 @@ export const useRecordPostView = (post: ViewablePost) => {
   const [increasePostViewCount] = useMutationNoCache(gql(`
     mutation increasePostViewCountMutation($postId: String) {
       increasePostViewCount(postId: $postId)
-    }
-  `));
-
-  const [sendVertexViewItemEvent] = useMutationNoCache(gql(`
-    mutation sendVertexViewItemEventMutation($postId: String!, $attributionId: String) {
-      sendVertexViewItemEvent(postId: $postId, attributionId: $attributionId)
     }
   `));
 
@@ -103,15 +92,6 @@ export const useRecordPostView = (post: ViewablePost) => {
         };
         
         recordEvent('post-view', true, eventProperties);
-
-        if (vertexEnabledSetting.get() && !recommendationOptions?.skip && !post.draft) {
-          void sendVertexViewItemEvent({
-            variables: {
-              postId: post._id,
-              attributionId: recommendationOptions?.vertexOptions?.attributionId
-            }
-          })
-        }
       }
 
       const attributedUserId = currentUser?._id ?? clientId;
@@ -127,7 +107,7 @@ export const useRecordPostView = (post: ViewablePost) => {
     } catch(error) {
       console.log("recordPostView error:", error); // eslint-disable-line
     }
-  }, [postsRead, setPostRead, increasePostViewCount, sendVertexViewItemEvent, getCurrentUser, clientId, recordEvent]);
+  }, [postsRead, setPostRead, increasePostViewCount, getCurrentUser, clientId, recordEvent]);
 
   const recordPostCommentsView = ({ post }: Pick<RecordPostViewArgs, 'post'>) => {
     const currentUser = getCurrentUser();

@@ -1,5 +1,4 @@
 import React from 'react';
-import { addCronJob } from './cron/cronUtil';
 import { wrapAndSendEmail } from './emails/renderEmail';
 import { loggerConstructor } from '../lib/utils/logging';
 import UsersRepo from './repos/UsersRepo';
@@ -13,7 +12,7 @@ import { backgroundTask } from './utils/backgroundTask';
  * Exported to allow running with "yarn repl".
  */
 export const sendInactiveUserSurveyEmails = async () => {
-  if (!isEAForum) return
+  if (!isEAForum()) return
   
   const logger = loggerConstructor(`cron-sendInactiveUserSurveyEmails`)
   
@@ -31,7 +30,7 @@ export const sendInactiveUserSurveyEmails = async () => {
         user,
         from: 'EA Forum Team <eaforum@centreforeffectivealtruism.org>',
         subject: `Help us improve the site`,
-        body: <EmailInactiveUserSurvey user={user} />,
+        body: (emailContext) => <EmailInactiveUserSurvey user={user} emailContext={emailContext} />,
       }))
       await Users.rawUpdateOne(
         {_id: user._id},
@@ -44,13 +43,4 @@ export const sendInactiveUserSurveyEmails = async () => {
   
   logger(`Sent inactive user survey emails to ${users.length} users`)
 }
-
-export const sendInactiveUserSurveyEmailsCron = addCronJob({
-  name: 'sendInactiveUserSurveyEmails',
-  interval: `every 1 day`,
-  disabled: !isEAForum,
-  job() {
-    backgroundTask(sendInactiveUserSurveyEmails());
-  }
-});
 

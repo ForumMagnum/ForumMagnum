@@ -24,7 +24,7 @@ const PostsLoading = ({
     return <Loading />;
   }
 
-  if (isFriendlyUI) {
+  if (isFriendlyUI()) {
     return <>
       {range(0, placeholderCount)
         .map(i => <FriendlyPlaceholderPostsItem

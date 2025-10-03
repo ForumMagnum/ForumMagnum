@@ -84,7 +84,7 @@ const EAHomeMainContent = ({FrontpageNode, classes}: {
               <Link to={`/topics/${activeTab.slug}`} className={classes.learnMoreLink}>
                 View more
               </Link>
-              {isFriendlyUI && <PostsListViewToggle />}
+              {isFriendlyUI() && <PostsListViewToggle />}
             </div>
           </SectionTitle>
           <PostsList2

@@ -134,7 +134,7 @@ export const getTimeBlockTitle = (
     return startDate.format('MMMM YYYY');
   }
 
-  if (isFriendlyUI) {
+  if (isFriendlyUI()) {
     const result = size === 'smUp'
       ? startDate.format('ddd, D MMM YYYY')
       : startDate.format('dddd, D MMMM YYYY');

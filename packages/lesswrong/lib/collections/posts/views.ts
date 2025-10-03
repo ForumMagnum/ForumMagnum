@@ -1,24 +1,23 @@
 import moment from 'moment';
 import { getKarmaInflationSeries, timeSeriesIndexExpr } from './karmaInflation';
 import type { FilterMode, FilterSettings, FilterTag } from '../../filterSettings';
-import { isAF, isEAForum } from '../../instanceSettings';
-import { defaultVisibilityTags } from '../../publicSettings';
+import { isAF, isEAForum, defaultVisibilityTags, openThreadTagIdSetting, startHerePostIdSetting } from '@/lib/instanceSettings';
 import { frontpageTimeDecayExpr, postScoreModifiers, timeDecayExpr } from '../../scoring';
 import { viewFieldAllowAny, viewFieldNullOrMissing, jsonArrayContainsSelector } from '@/lib/utils/viewConstants';
-import { filters, openThreadTagIdSetting, postStatuses, startHerePostIdSetting } from './constants';
-import uniq from 'lodash/uniq';
+import { filters, postStatuses } from './constants';
 import { getPositiveVoteThreshold, QUICK_REVIEW_SCORE_THRESHOLD, ReviewPhase, REVIEW_AND_VOTING_PHASE_VOTECOUNT_THRESHOLD, VOTING_PHASE_REVIEW_THRESHOLD, longformReviewTagId } from '../../reviewUtils';
 import { EA_FORUM_COMMUNITY_TOPIC_ID } from '../tags/helpers';
-import { filter, isEmpty, pick } from 'underscore';
+import isEmpty from 'lodash/isEmpty';
+import pick from 'lodash/pick';
 import { visitorGetsDynamicFrontpage } from '../../betas';
 import { TupleSet, UnionOf } from '@/lib/utils/typeGuardUtils';
 import { CollectionViewSet } from '../../../lib/views/collectionViewSet';
-import type { ApolloClient, NormalizedCacheObject } from '@apollo/client';
+import type { ApolloClient } from '@apollo/client';
 
 export const DEFAULT_LOW_KARMA_THRESHOLD = -10
 export const MAX_LOW_KARMA_THRESHOLD = -1000
 
-const eventBuffer = isEAForum
+const getEventBuffer = () => isEAForum()
   ? { startBuffer: 1, endBuffer: null }
   : { startBuffer: 6, endBuffer: 3 };
 
@@ -125,7 +124,7 @@ function defaultView(terms: PostsViewTerms, _: ApolloClient, context?: ResolverC
     {[`tagRelevance.${EA_FORUM_COMMUNITY_TOPIC_ID}`]: {$exists: false}},
   ]}
 
-  const alignmentForum = isAF ? {af: true} : {}
+  const alignmentForum = isAF() ? {af: true} : {}
   let params: any = {
     selector: {
       status: postStatuses.STATUS_APPROVED,
@@ -297,8 +296,8 @@ function filterSettingsToParams(filterSettings: FilterSettings, terms: PostsView
     } :
     t
   )
-  const tagsRequired = filter(tagFilterSettingsWithDefaults, t=>t.filterMode==="Required");
-  const tagsExcluded = filter(tagFilterSettingsWithDefaults, t=>t.filterMode==="Hidden");
+  const tagsRequired = tagFilterSettingsWithDefaults.filter(t=>t.filterMode==="Required");
+  const tagsExcluded = tagFilterSettingsWithDefaults.filter(t=>t.filterMode==="Hidden");
   
   const frontpageFiltering = getFrontpageFilter(filterSettings)
   
@@ -319,7 +318,7 @@ function filterSettingsToParams(filterSettings: FilterSettings, terms: PostsView
     t => (t.filterMode!=="Hidden" && t.filterMode!=="Required" && t.filterMode!=="Default" && t.filterMode!==0)
   );
 
-  const useSlowerFrontpage = !!context && ((!!context.currentUser && isEAForum) || visitorGetsDynamicFrontpage(context.currentUser ?? null));
+  const useSlowerFrontpage = !!context && ((!!context.currentUser && isEAForum()) || visitorGetsDynamicFrontpage(context.currentUser ?? null));
 
   const syntheticFields = {
     filteredScore: {$divide:[
@@ -399,7 +398,7 @@ function userPosts(terms: PostsViewTerms) {
       hiddenRelatedQuestion: viewFieldAllowAny,
       shortform: viewFieldAllowAny,
       groupId: null, // TODO: fix vulcan so it doesn't do deep merges on viewFieldAllowAny
-      $or: [{userId: terms.userId}, {"coauthorStatuses.userId": terms.userId}],
+      $or: [{userId: terms.userId}, {coauthorUserIds: terms.userId}],
       rejected: null
     },
     options: {
@@ -426,7 +425,7 @@ const stickiesIndexPrefix = {
 
 function magic(terms: PostsViewTerms) {
   let selector = { isEvent: false };
-  if (isEAForum) {
+  if (isEAForum()) {
     selector = {
       ...selector,
       ...filters.nonSticky,
@@ -625,7 +624,7 @@ function drafts(terms: PostsViewTerms) {
       $or: [
         {userId: terms.userId},
         {shareWithUsers: terms.userId},
-        {"coauthorStatuses.userId": terms.userId},
+        {coauthorUserIds: terms.userId},
       ],
       draft: true,
       hideAuthor: false,
@@ -802,8 +801,8 @@ function reviewRecentDiscussionThreadsList2019(terms: PostsViewTerms) {
 
 function globalEvents(terms: PostsViewTerms) {
   const timeSelector = {$or: [
-    {startTime: {$gt: moment().subtract(eventBuffer.startBuffer).toDate()}},
-    {endTime: {$gt: moment().subtract(eventBuffer.endBuffer).toDate()}}
+    {startTime: {$gt: moment().subtract(getEventBuffer().startBuffer).toDate()}},
+    {endTime: {$gt: moment().subtract(getEventBuffer().endBuffer).toDate()}}
   ]}
   
   let onlineEventSelector: {} = terms.onlineEvent ? {onlineEvent: true} : {}
@@ -843,8 +842,8 @@ function globalEvents(terms: PostsViewTerms) {
 
 function nearbyEvents(terms: PostsViewTerms) {
   const timeSelector = {$or: [
-    {startTime: {$gt: moment().subtract(eventBuffer.startBuffer).toDate()}},
-    {endTime: {$gt: moment().subtract(eventBuffer.endBuffer).toDate()}}
+    {startTime: {$gt: moment().subtract(getEventBuffer().startBuffer).toDate()}},
+    {endTime: {$gt: moment().subtract(getEventBuffer().endBuffer).toDate()}}
   ]}
   
   let onlineEventSelector: {} = terms.onlineEvent ? {onlineEvent: true} : {}
@@ -900,8 +899,8 @@ function nearbyEvents(terms: PostsViewTerms) {
 function events(terms: PostsViewTerms) {
   const timeSelector = {
     $or: [
-      { startTime: { $gt: moment().subtract(eventBuffer.startBuffer, 'hours').toDate() } },
-      { endTime: { $gt: moment().subtract(eventBuffer.endBuffer, 'hours').toDate() } },
+      { startTime: { $gt: moment().subtract(getEventBuffer().startBuffer, 'hours').toDate() } },
+      { endTime: { $gt: moment().subtract(getEventBuffer().endBuffer, 'hours').toDate() } },
     ],
   };
   const twoMonthsAgo = moment().subtract(60, 'days').toDate();
@@ -956,7 +955,7 @@ function eventsInTimeRange(terms: PostsViewTerms) {
 }
 
 function upcomingEvents(terms: PostsViewTerms) {
-  const timeCutoff = moment().subtract(eventBuffer.startBuffer).toDate();
+  const timeCutoff = moment().subtract(getEventBuffer().startBuffer).toDate();
   
   return {
     selector: {
@@ -973,7 +972,7 @@ function upcomingEvents(terms: PostsViewTerms) {
 }
 
 function pastEvents(terms: PostsViewTerms) {
-  const timeCutoff = moment().subtract(eventBuffer.startBuffer).toDate();
+  const timeCutoff = moment().subtract(getEventBuffer().startBuffer).toDate();
   
   return {
     selector: {
@@ -1085,7 +1084,7 @@ function hasEverDialogued(terms: PostsViewTerms) {
     selector: {
       $or: [
         {userId: terms.userId},
-        {"coauthorStatuses.userId": terms.userId}
+        {coauthorUserIds: terms.userId}
       ],
       collabEditorDialogue: true,
     },

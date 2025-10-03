@@ -1,10 +1,12 @@
+import schema from '@/lib/collections/bookmarks/newSchema';
 import { createCollection } from '@/lib/vulcan-lib/collections';
 import { DatabaseIndexSet } from '@/lib/utils/databaseIndexSet';
 
 // Following the simpler pattern from UltraFeedEvents/collection.ts
-export const Bookmarks: BookmarksCollection = createCollection({
+export const Bookmarks = createCollection({
   collectionName: 'Bookmarks',
   typeName: 'Bookmark',
+  schema,
   getIndexes: () => {
     const indexSet = new DatabaseIndexSet();
     indexSet.addIndex('Bookmarks', { "userId": 1, "documentId": 1, "collectionName": 1 }, { unique: true })

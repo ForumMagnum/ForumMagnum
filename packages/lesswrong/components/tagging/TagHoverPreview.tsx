@@ -1,7 +1,7 @@
 import React from 'react';
 import { Link } from '../../lib/reactRouterWrapper';
 import { useTagPreview } from './useTag';
-import { linkStyles } from '../linkPreview/PostLinkPreview';
+import { linkStyles } from '../linkPreview/linkStyles';
 import { removeUrlParameters } from '../../lib/routeUtil';
 import classNames from 'classnames';
 import { hasWikiLenses } from '@/lib/betas';
@@ -54,7 +54,7 @@ export const TagHoverPreview = ({
   const linkTarget = normalizeTagLink(href);
 
   const isRead = tag?.isRead;
-  const isRedLink = hasWikiLenses && ((!tag && !noPrefetch && !loading) || tag?.isPlaceholderPage);
+  const isRedLink = hasWikiLenses() && ((!tag && !noPrefetch && !loading) || tag?.isPlaceholderPage);
   return (
     <TagsTooltip
       tagSlug={previewSlug}

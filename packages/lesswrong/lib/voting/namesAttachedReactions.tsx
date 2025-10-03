@@ -1,31 +1,21 @@
-import React from 'react';
-import { calculateVotePower } from './voteTypes';
+import { calculateVotePower, getVoteAxisStrength } from './voteTypes';
 import { loadByIds } from '../loaders';
 import { filterNonnull } from '../utils/typeGuardUtils';
-import { getVoteAxisStrength } from './votingSystems';
 import { defineVotingSystem } from './defineVotingSystem';
-import { DatabasePublicSetting } from '../../lib/publicSettings';
+import { addNameToExistingReactKarmaThreshold, addNewReactKarmaThreshold, downvoteExistingReactKarmaThreshold, isLW } from '../instanceSettings';
 import { namesAttachedReactionsByName } from './reactions';
 import uniq from 'lodash/uniq';
 import keyBy from 'lodash/keyBy';
 import some from 'lodash/some';
 import sumBy from 'lodash/sumBy'
-import { isLW } from '../instanceSettings';
 import type { VotingProps } from '../../components/votes/votingProps';
-import { NamesAttachedReactionsCommentBottom, NamesAttachedReactionsVoteOnComment } from '@/components/votes/lwReactions/NamesAttachedReactionsVoteOnComment';
 import { addReactsVote, getDocumentHighlights, removeReactsVote } from './reactionDisplayHelpers';
-
-export const addNewReactKarmaThreshold = new DatabasePublicSetting("reacts.addNewReactKarmaThreshold", 100);
-export const addNameToExistingReactKarmaThreshold = new DatabasePublicSetting("reacts.addNameToExistingReactKarmaThreshold", 20);
-export const downvoteExistingReactKarmaThreshold = new DatabasePublicSetting("reacts.downvoteExistingReactKarmaThreshold", 20);
 
 export const namesAttachedReactionsVotingSystem = defineVotingSystem<NamesAttachedReactionsVote, NamesAttachedReactionsScore>({
   name: "namesAttachedReactions",
   userCanActivate: isLW,
   description: "Reacts (Two-axis plus Names-attached reactions)",
   hasInlineReacts: true,
-  getCommentVotingComponent: () => NamesAttachedReactionsVoteOnComment,
-  getCommentBottomComponent: () => NamesAttachedReactionsCommentBottom,
   addVoteClient: ({voteType, document, oldExtendedScore, extendedVote, currentUser}: {
     voteType: string|null,
     document: VoteableTypeClient,
@@ -125,7 +115,13 @@ export const namesAttachedReactionsVotingSystem = defineVotingSystem<NamesAttach
     voteProps: VotingProps<VoteableTypeClient>
   }) => {
     return getDocumentHighlights(voteProps);
-  }
+  },
+  getMessageHighlights: ({message, voteProps}: {
+    message: messageListFragment
+    voteProps: VotingProps<VoteableTypeClient>
+  }) => {
+    return getDocumentHighlights(voteProps);
+  },
 });
 
 export function isVoteWithReactsAllowed({user, document, oldExtendedScore, extendedVote, skipRateLimits}: {

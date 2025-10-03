@@ -1,11 +1,14 @@
 import "./integrationTestSetup";
 import React from 'react';
 import { createDummyUser, createDummyPost } from './utils'
-import { emailDoctype, generateEmail } from '../server/emails/renderEmail';
+import { createEmailContext, generateEmail } from '../server/emails/renderEmail';
 import { getUserEmail } from "../lib/collections/users/helpers";
-import { useQuery } from "@/lib/crud/useQuery";
 import { gql } from "@/lib/generated/gql-codegen";
-import { defineStyles, withStyles } from "@/components/hooks/useStyles";
+import { defineStyles } from "@/components/hooks/useStyles";
+import { useEmailQuery } from "@/server/vulcan-lib/query";
+import { EmailContextType, useEmailStyles } from "@/server/emailComponents/emailContext";
+
+const emailDoctype = '<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">';
 
 const PostsRevisionQuery = gql(`
   query emailstests($documentId: String, $version: String) {
@@ -23,21 +26,25 @@ const unitTestBoilerplateGenerator = ({css,title,body}: {css: string, title: str
   return html;
 }
 
-async function renderTestEmail({ user=null, subject="Unit test email", bodyComponent, boilerplateGenerator }: {
+async function renderTestEmail({ user=null, subject="Unit test email", bodyComponent, boilerplateGenerator, emailContext }: {
   user?: DbUser|null,
   subject?: string,
   bodyComponent: React.JSX.Element,
-  boilerplateGenerator?: typeof unitTestBoilerplateGenerator
+  boilerplateGenerator?: typeof unitTestBoilerplateGenerator,
+  emailContext?: EmailContextType,
 }) {
   const destinationUser = user || await createDummyUser();
+  emailContext ??= await createEmailContext(destinationUser);
   const email = getUserEmail(destinationUser)
   if (!email) throw new Error("test email has no email address")
+
   return await generateEmail({
     user: destinationUser,
     to: email,
     subject: "Unit test email",
     bodyComponent,
-    boilerplateGenerator: boilerplateGenerator||unitTestBoilerplateGenerator
+    boilerplateGenerator: boilerplateGenerator||unitTestBoilerplateGenerator,
+    emailContext,
   });
 }
 
@@ -58,30 +65,37 @@ describe('renderEmail', () => {
     email.text.should.equal("Hello");
   });
   
-  it("Renders styles with withStyles", async () => {
+  it("Renders styles with useEmailStyles", async () => {
     const styles = defineStyles("StyledComponent", (theme) => ({
       underlined: {
         textDecoration: "underline",
       }
     }));
-    const TestComponent = ({classes, children}: {classes: any, children: any}) =>
-      <div className={classes.underlined}>{children}</div>
-    const StyledComponent = withStyles(styles, TestComponent);
+
+    const emailContext = await createEmailContext(null);
+    const TestComponent = ({children}: {children: any}) => {
+      const classes = useEmailStyles(styles, emailContext);
+      return <div className={classes.underlined}>{children}</div>
+    };
     
     const email = await renderTestEmail({
-      bodyComponent: <div>Hello, <StyledComponent>World</StyledComponent></div>,
+      bodyComponent: <div>Hello, <TestComponent>World</TestComponent></div>,
+      emailContext,
     });
     
     (email.html as any).should.equal(emailDoctype+'<div>Hello, <div class="StyledComponent-underlined" style="text-decoration: underline;">World</div></div>');
   });
   
-  it("Can use Apollo useSingle", async () => {
+  it("Can use useEmailQuery", async () => {
     const user = await createDummyUser();
     const post = await createDummyPost(user, { title: "Email unit test post" });
+
+    const emailContext = await createEmailContext(user);
     
-    const PostTitleComponent= ({documentId}: {documentId: string}) => {
-      const { data } = useQuery(PostsRevisionQuery, {
+    const PostTitleComponent= async ({documentId}: {documentId: string}) => {
+      const { data } = await useEmailQuery(PostsRevisionQuery, {
         variables: { documentId: documentId, version: null },
+        emailContext,
       });
       const document = data?.post?.result;
       return <div>{document?.title}</div>;
@@ -89,24 +103,7 @@ describe('renderEmail', () => {
     
     const email = await renderTestEmail({
       bodyComponent: <PostTitleComponent documentId={post._id}/>,
-    });
-    (email.html as any).should.equal(emailDoctype+'<div>Email unit test post</div>');
-  });
-  
-  it("Can use Apollo hooks", async () => {
-    const user = await createDummyUser();
-    const post = await createDummyPost(user, { title: "Email unit test post" });
-    
-    const PostTitleComponent = ({documentId}: {documentId: string}) => {
-      const { data } = useQuery(PostsRevisionQuery, {
-        variables: { documentId: documentId, version: null },
-      });
-      const document = data?.post?.result;
-      return <div>{document?.title}</div>
-    }
-    
-    const email = await renderTestEmail({
-      bodyComponent: <PostTitleComponent documentId={post._id} />,
+      emailContext,
     });
     (email.html as any).should.equal(emailDoctype+'<div>Email unit test post</div>');
   });

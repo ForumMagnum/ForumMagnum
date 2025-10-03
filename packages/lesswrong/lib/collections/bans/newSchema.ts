@@ -1,5 +1,5 @@
 import { DEFAULT_CREATED_AT_FIELD, DEFAULT_ID_FIELD, DEFAULT_LEGACY_DATA_FIELD, DEFAULT_SCHEMA_VERSION_FIELD } from "@/lib/collections/helpers/sharedFieldConstants";
-import SimpleSchema from "simpl-schema";
+import SimpleSchema from "@/lib/utils/simpleSchema";
 import { generateIdResolverSingle } from "../../utils/schemaUtils";
 
 const schema = {

@@ -1,6 +1,6 @@
 import React, { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { registerComponent } from "../../lib/vulcan-lib/components";
-import { HEADER_HEIGHT } from "../common/Header";
+import { getHeaderHeight } from "../common/Header";
 import { useCurrentUser } from "../common/withUser";
 import { styles as popoverStyles } from "../common/FriendlyHoverOver";
 import { useNotificationDisplays } from "./NotificationsPage/useNotificationDisplays";
@@ -34,7 +34,7 @@ const styles = (theme: ThemeType) => ({
     padding: 16,
     width: 400,
     maxWidth: "calc(100vw - 32px)",
-    maxHeight: `calc(100vh - ${HEADER_HEIGHT + 16}px)`,
+    maxHeight: `calc(100vh - ${getHeaderHeight() + 16}px)`,
     display: "flex",
     flexDirection: "column",
     overflow: "hidden auto",

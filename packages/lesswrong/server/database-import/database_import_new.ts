@@ -10,7 +10,6 @@ import mapValues from 'lodash/mapValues';
 import groupBy from 'lodash/groupBy';
 import pick from 'lodash/pick';
 import { htmlToText } from 'html-to-text';
-import * as _ from 'underscore';
 import { randomId } from '../../lib/random';
 import { slugify } from '@/lib/utils/slugify';
 import { createUser } from '../collections/users/mutations';
@@ -45,11 +44,11 @@ export const postgresImport = async () => {
   const flattenedUserData = mapValues(groupedUserData, keyValueArraytoObject);
   // Process user metadata
   const groupedUserMetaData = groupBy(rawUserMetaData, (row) => row.thing_id);
-  const flattenedUserMetaData = mapValues(groupedUserMetaData, (v) => _.pick(v[0], 'deleted', 'date'));
+  const flattenedUserMetaData = mapValues(groupedUserMetaData, (v) => pick(v[0], ['deleted', 'date']));
   // Merge data
   const mergedGroupedUserData = deepObjectExtend(flattenedUserData, flattenedUserMetaData)
   // Convert to LW2 user format
-  const processedUsers = _.map(mergedGroupedUserData, legacyUserToNewUser);
+  const processedUsers = Object.values(mapValues(mergedGroupedUserData, legacyUserToNewUser));
 
   // Construct user lookup table to avoid repeated querying
   let legacyIdToUserMap = new Map((await Users.find().fetch()).map((user) => [user.legacyId, user]));
@@ -75,7 +74,7 @@ export const postgresImport = async () => {
   const flattenedPostData = mapValues(groupedPostData, keyValueArraytoObject);
   // Process post metadata
   const groupedPostMetaData = groupBy(rawPostMetaData, (row) => row.thing_id);
-  const flattenedPostMetaData = mapValues(groupedPostMetaData, (v) => _.pick(v[0], 'ups', 'downs', 'deleted', 'spam', 'descendant_karma', 'date'));
+  const flattenedPostMetaData = mapValues(groupedPostMetaData, (v) => pick(v[0], ['ups', 'downs', 'deleted', 'spam', 'descendant_karma', 'date']));
   // Merge data
   const mergedGroupedPostData = deepObjectExtend(flattenedPostData, flattenedPostMetaData);
   // Convert to LW2 post format
@@ -115,7 +114,7 @@ export const postgresImport = async () => {
 
   let legacyIdToCommentMap = new Map((await Comments.find().fetch()).map((comment) => [comment.legacyId, comment]));
 
-  commentData = _.map(commentData, (comment: any, id: any) => addParentCommentId(comment, legacyIdToCommentMap.get(comment.legacyParentId) || commentData[comment.legacyParentId]))
+  commentData = Object.values(mapValues(commentData, (comment: any, id: any) => addParentCommentId(comment, legacyIdToCommentMap.get(comment.legacyParentId) || commentData[comment.legacyParentId])))
 
   //eslint-disable-next-line no-console
   console.log("Finished Comment Data Processing", commentData[25], commentData[213]);
@@ -170,7 +169,7 @@ const deepObjectExtend = (target: AnyBecauseObsolete, source: AnyBecauseObsolete
 }
 
 const upsertProcessedPosts = async (posts: AnyBecauseObsolete, postMap: AnyBecauseObsolete) => {
-  const postUpdates = _.map(posts, (post: AnyBecauseObsolete) => {
+  const postUpdates = Object.values(posts).map((post: AnyBecauseObsolete) => {
     const existingPost = postMap.get(post.legacyId);
     if (existingPost) {
       let set: any = {legacyData: post.legacyData};
@@ -198,14 +197,14 @@ const upsertProcessedPosts = async (posts: AnyBecauseObsolete, postMap: AnyBecau
 const upsertProcessedUsers = async (users: AnyBecauseObsolete, userMap: AnyBecauseObsolete) => {
   let userCounter = 0;
   // We first find all the users for which we already have an existing user in the DB
-  const usersToUpdate = _.filter(users, (user: any) => userMap.get(user.legacyId))
+  const usersToUpdate = users.filter((user: any) => userMap.get(user.legacyId))
   //eslint-disable-next-line no-console
   //console.log("Updating N users: ", _.size(usersToUpdate), usersToUpdate[22], typeof usersToUpdate);
-  const usersToInsert = _.filter(users, (user: any) => !userMap.get(user.legacyId))
+  const usersToInsert = users.filter((user: any) => !userMap.get(user.legacyId))
   //eslint-disable-next-line no-console
   //console.log("Inserting N users: ", _.size(usersToInsert), usersToInsert[22], typeof usersToInsert);
-  if (usersToUpdate && _.size(usersToUpdate)) {await bulkUpdateUsers(usersToUpdate, userMap);}
-  if (usersToInsert && _.size(usersToInsert)) {
+  if (usersToUpdate && usersToUpdate.length > 0) {await bulkUpdateUsers(usersToUpdate, userMap);}
+  if (usersToInsert && usersToInsert.length > 0) {
     for(let key in usersToInsert) {
       await insertUser(usersToInsert[key]);
       userCounter++;
@@ -265,7 +264,7 @@ const upsertProcessedComments = async (comments: AnyBecauseObsolete, commentMap:
   let postUpdates: Array<any> = [];
   let userUpdates: Array<any> = [];
   let commentUpdates: Array<any> = [];
-  _.map(comments, (comment: any) => {
+  comments.forEach((comment: any) => {
     const existingComment = commentMap.get(comment.legacyId);
     if (existingComment) {
       let set: any = {legacyData: comment.legacyData, parentCommentId: comment.parentCommentId, topLevelCommentId: comment.topLevelCommentId};
@@ -306,17 +305,17 @@ const upsertProcessedComments = async (comments: AnyBecauseObsolete, commentMap:
       })
     }
   })
-  if (_.size(postUpdates)) {
+  if (postUpdates.length > 0) {
     const postUpdateCursor = await Posts.rawCollection().bulkWrite(postUpdates, {ordered: false});
     //eslint-disable-next-line no-console
     console.log("postUpdateCursor", postUpdateCursor);
   }
-  if (_.size(userUpdates)) {
+  if (userUpdates.length > 0) {
     const userUpdateCursor = await Users.rawCollection().bulkWrite(userUpdates, {ordered: false});
     //eslint-disable-next-line no-console
     console.log("userUpdateCursor", userUpdateCursor);
   }
-  if (_.size(commentUpdates)) {
+  if (commentUpdates.length > 0) {
     const commentUpdateCursor = await Comments.rawCollection().bulkWrite(commentUpdates, {ordered: false});
     //eslint-disable-next-line no-console
     console.log("commentUpdateCursor", commentUpdateCursor);

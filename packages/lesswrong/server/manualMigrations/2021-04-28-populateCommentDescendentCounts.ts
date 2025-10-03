@@ -2,7 +2,7 @@ import { registerMigration, forEachDocumentBatchInCollection } from './migration
 import { getCommentSubtree } from '../utils/commentTreeUtils';
 import { asyncForeachParallel } from '../../lib/utils/asyncUtils';
 import Comments from '../../server/collections/comments/collection';
-import * as _ from 'underscore';
+import maxBy from 'lodash/maxBy';
 
 // Populates the descendentCount field on all comments. Populates the
 // lastSubthreadActivity field on comments where it's missing, ie non-root
@@ -20,8 +20,8 @@ export default registerMigration({
         let updates = {updated:0};
         await asyncForeachParallel(comments, async (comment: DbComment) => {
           const subtree = await getCommentSubtree(comment, {deleted:1,postedAt:1,lastSubthreadActivity:1,descendentCount:1});
-          const subtreeFiltered = _.filter(subtree, c=>!c.deleted);
-          const lastSubthreadActivity = _.max(subtreeFiltered, c=>c.postedAt).postedAt;
+          const subtreeFiltered = subtree.filter(c=>!c.deleted);
+          const lastSubthreadActivity = maxBy(subtreeFiltered, c=>c.postedAt)?.postedAt;
           const descendentCount = subtreeFiltered.length-1;
           if (descendentCount !== comment.descendentCount || !comment.lastSubthreadActivity) {
             updates.updated++;

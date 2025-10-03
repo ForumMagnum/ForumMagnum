@@ -78,6 +78,7 @@ const TagDiscussionButton = ({tag, text = "Discussion", hideLabel = false, hideP
       enableTotal: true,
     },
     notifyOnNetworkStatusChange: true,
+    ssr: false,
   });
   const totalCount = data?.comments?.totalCount;
 

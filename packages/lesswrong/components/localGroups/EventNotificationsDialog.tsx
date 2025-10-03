@@ -14,7 +14,7 @@ import InputAdornment from '@/lib/vendor/@material-ui/core/src/InputAdornment';
 import FormLabel from '@/lib/vendor/@material-ui/core/src/FormLabel';
 import Checkbox from '@/lib/vendor/@material-ui/core/src/Checkbox';
 import { geoSuggestStyles, useGoogleMaps } from '../form-components/LocationFormComponent'
-import { forumTypeSetting } from '../../lib/instanceSettings';
+import { isEAForum } from '../../lib/instanceSettings';
 import deepmerge from 'deepmerge';
 import InputLabel from '@/lib/vendor/@material-ui/core/src/InputLabel';
 import Loading from "../vulcan-core/Loading";
@@ -120,8 +120,6 @@ const EventNotificationsDialog = ({ onClose, classes }: {
     margin="dense"
     onChange={(e) => setNotifyPeopleThreshold(parseFloat(e.target.value))}
   />
-
-  const isEAForum = forumTypeSetting.get() === 'EAForum';
   
   return (
     <LWDialog
@@ -175,7 +173,7 @@ const EventNotificationsDialog = ({ onClose, classes }: {
             }}
           />
         </div>
-        {!isEAForum && <div className={classes.peopleThreshold}>
+        {!isEAForum() && <div className={classes.peopleThreshold}>
           <InputLabel className={classes.peopleThresholdText}>
             <Checkbox
               className={classes.peopleThresholdCheckbox}

@@ -5,7 +5,6 @@ import { useTimezone } from './withTimezone';
 import { convertTimeOfWeekTimezone } from '../../lib/utils/timeUtil';
 import Select from '@/lib/vendor/@material-ui/core/src/Select';
 import withErrorBoundary from './withErrorBoundary';
-import * as _ from 'underscore';
 import { MenuItem } from "./Menus";
 
 type TimeChange = {
@@ -46,7 +45,7 @@ const BatchTimePicker = ({ mode, value, onChange, disabled = false }: {
         onChange={(event) => applyChange({ timeOfDay: parseInt(event.target.value) })}
         disabled={disabled}
       >
-        { _.range(24).map(hour =>
+        { Array.from({ length: 24 }, (_, hour) =>
             <MenuItem key={hour} value={hour}>{hour}:00</MenuItem>
           )
         }

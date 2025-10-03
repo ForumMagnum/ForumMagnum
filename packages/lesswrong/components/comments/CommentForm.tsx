@@ -8,21 +8,20 @@ import { getUpdatedFieldValues } from "@/components/tanstack-form-components/hel
 import { useEditorFormCallbacks, EditorFormComponent } from "../editor/EditorFormComponent";
 import { MuiTextField } from "@/components/form-components/MuiTextField";
 import { cancelButtonStyles, submitButtonStyles } from "@/components/tanstack-form-components/TanStackSubmit";
-import { defaultEditorPlaceholder } from "@/lib/editor/make_editable";
+import { getDefaultEditorPlaceholder } from '@/lib/editor/defaultEditorPlaceholder';
 import { FormComponentDatePicker } from "../form-components/FormComponentDateTime";
 import { LegacyFormGroupLayout } from "@/components/tanstack-form-components/LegacyFormGroupLayout";
 import { EditCommentTitle } from "@/components/editor/EditCommentTitle";
 import { FormComponentQuickTakesTags } from "@/components/form-components/FormComponentQuickTakesTags";
 import { commentAllowTitle } from "@/lib/collections/comments/helpers";
 import { userIsAdmin, userIsAdminOrMod, userIsMemberOf } from "@/lib/vulcan-users/permissions";
-import { quickTakesTagsEnabledSetting } from "@/lib/publicSettings";
-import { isAF, isLWorAF } from "@/lib/instanceSettings";
+import { quickTakesTagsEnabledSetting, isAF, isLWorAF } from "@/lib/instanceSettings";
 import type { TagCommentType } from "@/lib/collections/comments/types";
 import type { ReviewYear } from "@/lib/reviewUtils";
 import { useCurrentUser } from "../common/withUser";
 import ArrowForward from "@/lib/vendor/@material-ui/icons/src/ArrowForward";
 import { useDialog } from "../common/withDialog";
-import { COMMENTS_NEW_FORM_PADDING } from "@/lib/collections/comments/constants";
+import { getCommentsNewFormPadding } from "@/lib/collections/comments/constants";
 import { useFormErrors } from "@/components/tanstack-form-components/BaseAppForm";
 import { useFormSubmitOnCmdEnter } from "../hooks/useFormSubmitOnCmdEnter";
 import LoginPopup from "../users/LoginPopup";
@@ -38,7 +37,8 @@ import { hasDraftComments } from '@/lib/betas';
 import CommentsSubmitDropdown from "./CommentsSubmitDropdown";
 import { useTracking } from "@/lib/analyticsEvents";
 import { CommentsList } from "@/lib/collections/comments/fragments";
-import { isIfAnyoneBuildsItFrontPage } from "../seasonal/IfAnyoneBuildsItSplash";
+import { isIfAnyoneBuildsItFrontPage } from '../seasonal/styles';
+import AutoEmailSubscribeCheckbox from "./AutoEmailSubscribeCheckbox";
 
 const CommentsListUpdateMutation = gql(`
   mutation updateCommentCommentForm($selector: SelectorInput!, $data: UpdateCommentDataInput!) {
@@ -81,10 +81,11 @@ const customSubmitButtonStyles = defineStyles('CommentSubmit', (theme: ThemeType
   submit: {
     display: 'flex',
     justifyContent: 'end',
+    alignItems: 'center',
   },
   submitQuickTakes: {
     background: theme.palette.grey[100],
-    padding: COMMENTS_NEW_FORM_PADDING,
+    padding: getCommentsNewFormPadding(theme),
     borderBottomLeftRadius: theme.borderRadius.quickTakesEntry,
     borderBottomRightRadius: theme.borderRadius.quickTakesEntry,
   },
@@ -149,6 +150,9 @@ const customSubmitButtonStyles = defineStyles('CommentSubmit', (theme: ThemeType
   submitWrapper: {
     display: "flex",
   },
+  autoEmailSubscribe: {
+    marginRight: "auto"
+  },
 }), { stylePriority: 1 });
 
 export type CommentInteractionType = "comment" | "reply";
@@ -204,24 +208,27 @@ const CommentSubmit = ({
   const { openDialog } = useDialog();
 
   const formButtonClass = isMinimalist ? classes.formButtonMinimalist : classes.formButton;
-  const cancelBtnProps: InnerButtonProps = isFriendlyUI && !isMinimalist ? { variant: "contained" } : {};
-  const submitBtnProps: InnerButtonProps = isFriendlyUI && !isMinimalist ? { variant: "contained", color: "primary" } : {};
+  const cancelBtnProps: InnerButtonProps = isFriendlyUI() && !isMinimalist ? { variant: "contained" } : {};
+  const submitBtnProps: InnerButtonProps = isFriendlyUI() && !isMinimalist ? { variant: "contained", color: "primary" } : {};
 
   const actualSubmitDisabled = formDisabledDueToRateLimit || loading || !formCanSubmit || formIsSubmitting;
   if (actualSubmitDisabled) {
     submitBtnProps.disabled = true;
   }
 
-  const showDropdownMenu = hasDraftComments && !disableSubmitDropdown;
+  const showDropdownMenu = hasDraftComments() && !disableSubmitDropdown;
 
   return (
     <div
       className={classNames(classes.submit, {
         [classes.submitMinimalist]: isMinimalist,
-        [classes.submitQuickTakes]: isQuickTake && !(quickTakesSubmitButtonAtBottom && isFriendlyUI),
+        [classes.submitQuickTakes]: isQuickTake && !(quickTakesSubmitButtonAtBottom && isFriendlyUI()),
         [classes.submitQuickTakesButtonAtBottom]: isQuickTake && quickTakesSubmitButtonAtBottom,
       })}
     >
+      <div className={classes.autoEmailSubscribe}>
+        <AutoEmailSubscribeCheckbox />
+      </div>
       {showCancelButton && !isMinimalist && (
         <Button
           onClick={cancelCallback}
@@ -314,7 +321,7 @@ export const CommentForm = ({
 
   const formType = initialData ? 'edit' : 'new';
 
-  const showAfCheckbox = !hideAlignmentForumCheckbox && !isAF && alignmentForumPost && (userIsMemberOf(currentUser, 'alignmentForum') || userIsAdmin(currentUser));
+  const showAfCheckbox = !hideAlignmentForumCheckbox && !isAF() && alignmentForumPost && (userIsMemberOf(currentUser, 'alignmentForum') || userIsAdmin(currentUser));
 
   const DefaultFormGroupLayout = quickTakesFormGroup
     ? FormGroupQuickTakes
@@ -393,7 +400,7 @@ export const CommentForm = ({
 
         if (formType === 'new') {
           const { af, ...rest } = formApi.state.values;
-          const submitData = (showAfCheckbox || isAF) ? { ...rest, af } : rest;
+          const submitData = (showAfCheckbox || isAF()) ? { ...rest, af } : rest;
 
           const { data } = await create({ variables: { data: { ...submitData, draft } } });
           if (!data?.createComment?.data) {
@@ -446,7 +453,7 @@ export const CommentForm = ({
     return <Error404 />;
   }
 
-  const showAlignmentOptionsGroup = isLWorAF && formType === 'edit' && (userIsMemberOf(currentUser, 'alignmentForumAdmins') || userIsAdmin(currentUser));
+  const showAlignmentOptionsGroup = isLWorAF() && formType === 'edit' && (userIsMemberOf(currentUser, 'alignmentForumAdmins') || userIsAdmin(currentUser));
 
   const submitElement = (
     <form.Subscribe selector={(state) => [state.canSubmit, state.isSubmitting]}>
@@ -532,7 +539,7 @@ export const CommentForm = ({
                     verify: false,
                   };
                 }}
-                hintText={isFriendlyUI ? "Write a new comment..." : defaultEditorPlaceholder}
+                hintText={isFriendlyUI() ? "Write a new comment..." : getDefaultEditorPlaceholder()}
                 fieldName="contents"
                 collectionName="Comments"
                 commentEditor={true}

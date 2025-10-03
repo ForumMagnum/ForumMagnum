@@ -1,4 +1,4 @@
-import { blackBarTitle } from "../../lib/publicSettings";
+import { isBlackBarTitle } from '../../components/seasonal/petrovDay/petrov-day-story/petrovConsts';
 
 const sansSerifStack = [
   'GreekFallback', // Ensures that greek letters render consistently
@@ -50,10 +50,10 @@ export const lessWrongTheme: SiteThemeSpecification = {
       main: '#bf360c',
     },
     header: {
-      background: blackBarTitle.get() ? shadePalette.inverseGreyAlpha(.1) : shadePalette.inverseGreyAlpha(.65)
+      background: isBlackBarTitle ? shadePalette.inverseGreyAlpha(.1) : shadePalette.inverseGreyAlpha(.65)
     },
     ultrafeedModalHeader: {
-      background: blackBarTitle.get() ? shadePalette.inverseGreyAlpha(.4) : shadePalette.inverseGreyAlpha(.95)
+      background: isBlackBarTitle ? shadePalette.inverseGreyAlpha(.4) : shadePalette.inverseGreyAlpha(.95)
     },
     ultraFeed: {
       readBackground: '#ffffffb3',

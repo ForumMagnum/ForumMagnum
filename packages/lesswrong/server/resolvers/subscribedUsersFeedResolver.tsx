@@ -4,7 +4,6 @@ import { accessFilterMultiple } from "../../lib/utils/schemaUtils";
 import { unflattenComments, flattenCommentBranch } from "@/lib/utils/unflatten";
 import keyBy from "lodash/keyBy";
 import sortBy from "lodash/sortBy";
-import filter from "lodash/fp/filter";
 import type { PostAndCommentsResultRow } from "../repos/PostsRepo";
 import gql from "graphql-tag";
 
@@ -89,11 +88,11 @@ export const subscribedUsersFeedGraphQLQueries = {
       loadByIds(context, "Posts", postIds)
         .then(posts => accessFilterMultiple(currentUser, 'Posts', posts, context))
         .then(filterNonnull)
-        .then(filter(ensureHasId)),
+        .then(res => res.filter(ensureHasId)),
       loadByIds(context, "Comments", commentIds)
         .then(comments => accessFilterMultiple(currentUser, 'Comments', comments, context))
         .then(filterNonnull)
-        .then(filter(ensureHasId)),
+        .then(res => res.filter(ensureHasId)),
     ]);
 
     const postsById = keyBy(posts, p=>p._id);

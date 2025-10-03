@@ -1,9 +1,9 @@
 import Migrations from '../../server/collections/migrations/collection';
-import * as _ from 'underscore';
 import { getSchema } from '@/lib/schema/allSchemas';
 import { sleep, timedFunc } from '../../lib/helpers';
 import { getSqlClient } from '../../server/sql/sqlClient';
 import { getCollection } from '@/server/collections/allCollections';
+import { safeRun } from './safeRun';
 
 // When running migrations with split batches, the fraction of time spent
 // running those batches (as opposed to sleeping). Used to limit database
@@ -59,6 +59,8 @@ export async function runMigration(name: string) {
   const migrationLogId = await Migrations.rawInsert({
     name: name,
     started: new Date(),
+    finished: false,
+    succeeded: false,
   });
   
   const db = getSqlClient();
@@ -229,9 +231,9 @@ export async function migrateDocuments<N extends CollectionNameString>({
 
       // Check if any of the documents returned were supposed to have been
       // migrated by the previous batch's update operation.
-      let docsNotMigrated = _.filter(documents, doc => previousDocumentIds[doc._id]);
+      let docsNotMigrated = documents.filter(doc => previousDocumentIds[doc._id]);
       if (docsNotMigrated.length > 0) {
-        let errorMessage = `Documents not updated in migrateDocuments: ${_.map(docsNotMigrated, doc=>doc._id)}`;
+        let errorMessage = `Documents not updated in migrateDocuments: ${docsNotMigrated.map(doc=>doc._id)}`;
 
         // eslint-disable-next-line no-console
         console.error(errorMessage);
@@ -239,7 +241,7 @@ export async function migrateDocuments<N extends CollectionNameString>({
       }
 
       previousDocumentIds = {};
-      _.each(documents, doc => previousDocumentIds[doc._id] = true);
+      documents.forEach(doc => previousDocumentIds[doc._id] = true);
 
       // Migrate documents in the batch
       try {
@@ -557,31 +559,17 @@ export async function forEachBucketRangeInCollection<N extends CollectionNameStr
   });
 }
 
-  // We can't assume that certain postgres functions exist because we may not have run the appropriate migration
-  // This wraapper runs the function and ignores if it's not defined yet
-export async function safeRun(db: SqlClient | null, fn: string): Promise<void> {
-  if(!db) return;
-
-  await db.any(`DO $$
-    BEGIN
-      PERFORM ${fn}();
-    EXCEPTION WHEN undefined_function THEN
-      -- Ignore if the function hasn't been defined yet; that just means migrations haven't caught up
-    END;
-  $$;`)
-}
-
 export async function bulkRawInsert<N extends CollectionNameString>(
   collectionName: N,
-  objects: Array<ObjectsByCollectionName[N]>
+  objects: Array<InsertionRecord<ObjectsByCollectionName[N]>>
 ): Promise<void> {
   const collection = getCollection(collectionName);
-  await collection.rawCollection().bulkWrite(
-    objects.map(obj => ({
-      insertOne: {
-        document: obj
-      }
-    }))
-  );
+  const operations = objects.map(obj => ({
+    insertOne: {
+      document: obj
+    }
+  }));
+
+  await collection.rawCollection().bulkWrite(operations);
 }
 

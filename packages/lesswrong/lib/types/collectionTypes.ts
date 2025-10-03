@@ -6,7 +6,7 @@
  * --skipLibCheck just ignores all .d.ts files.
  */
 import type DataLoader from 'dataloader';
-import type { Request, Response } from 'express';
+import type { NextRequest, NextResponse } from 'next/server';
 import type { CollectionAggregationOptions, CollationDocument } from 'mongodb';
 import type { ApolloClient, NormalizedCacheObject } from '@apollo/client';
 import type { CollectionVoteOptions } from '../make_voteable';
@@ -37,7 +37,6 @@ interface CollectionBase<N extends CollectionNameString = CollectionNameString> 
 
   isConnected: () => boolean
   isVoteable: () => this is CollectionBase<VoteableCollectionName>;
-  hasSlug: () => boolean
   getTable: () => Table<ObjectsByCollectionName[N]>;
   getIndexes: () => DatabaseIndexSet;
 
@@ -88,6 +87,7 @@ interface CollectionBase<N extends CollectionNameString = CollectionNameString> 
 type CollectionOptions<N extends CollectionNameString> = {
   typeName: string,
   collectionName: N,
+  schema: Record<string, CollectionFieldSpecification<N>>,
   dbCollectionName?: string,
   writeAheadLogged?: boolean,
   dependencies?: SchemaDependency[],
@@ -222,6 +222,8 @@ type MongoEnsureIndexOptions<T> = {
     locale: string,
     strength: number,
   },
+  /** @deprecated doesn't do anything post-Mongo */
+  sparse?: 1,
 }
 type MongoIndexSpecification<T> = {
   key: MongoIndexKeyObj<T>
@@ -230,7 +232,7 @@ type MongoIndexSpecification<T> = {
 
 type MongoDropIndexOptions = {};
 
-type MongoBulkInsert<T extends DbObject> = {document: T};
+type MongoBulkInsert<T extends DbObject> = {document: InsertionRecord<T>};
 type MongoBulkUpdate<T extends DbObject> = {filter: MongoSelector<T>, update: MongoModifier, upsert?: boolean};
 type MongoBulkDelete<T extends DbObject> = {filter: MongoSelector<T>};
 type MongoBulkReplace<T extends DbObject> = {filter: MongoSelector<T>, replacement: T, upsert?: boolean};
@@ -328,7 +330,8 @@ interface PerfMetric {
 type IncompletePerfMetric = Omit<PerfMetric, 'ended_at'>;
 
 interface ResolverContext extends CollectionsByName {
-  headers: any,
+  searchParams?: URLSearchParams,
+  headers?: Headers,
   userId: string|null,
   clientId: string|null,
   currentUser: DbUser|null,
@@ -355,8 +358,7 @@ interface ResolverContext extends CollectionsByName {
     [CollectionName in CollectionNameString]: DataLoader<string,ObjectsByCollectionName[CollectionName]>
   }
   extraLoaders: Record<string,any>
-  req?: Request & {logIn: any, logOut: any, cookies: any, headers: any},
-  res?: Response,
+  req?: NextRequest,
   repos: Repos,
   perfMetric?: IncompletePerfMetric,
 }
@@ -366,7 +368,7 @@ type CollectionFragmentTypeName = {
   [k in keyof FragmentTypes]: CollectionNamesByFragmentName[k] extends never ? never : k;
 }[keyof FragmentTypes];
 
-type VoteableCollectionName = "Posts"|"Comments"|"TagRels"|"Revisions"|"ElectionCandidates"|"Tags"|"MultiDocuments";
+type VoteableCollectionName = "Posts"|"Comments"|"TagRels"|"Revisions"|"ElectionCandidates"|"Tags"|"MultiDocuments"|"Messages";
 
 interface EditableFieldContents {
   html: string
@@ -403,6 +405,16 @@ type DbInsertion<T extends DbObject> = Omit<
 > & {
   _id?: T["_id"];
 };
+
+type OptionalIfPresent<T, K extends keyof T> = T extends { [P in K]?: infer U } ? U : never;
+
+type InsertionRecord<T extends DbObject & { createdAt?: Date; legacyData?: Json }> = Omit<T, "_id" | "createdAt" | "schemaVersion" | "legacyData" | "__collectionName"> & {
+  _id?: T["_id"];
+  createdAt?: OptionalIfPresent<T, "createdAt">;
+  schemaVersion?: OptionalIfPresent<T, "schemaVersion">;
+  legacyData?: OptionalIfPresent<T, "legacyData">;
+};
+
 
 type CollectionNameWithPingbacks = {
   [K in CollectionNameString]: 'pingbacks' extends keyof ObjectsByCollectionName[K] ? K : never

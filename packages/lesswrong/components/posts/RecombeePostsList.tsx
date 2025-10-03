@@ -14,7 +14,7 @@ import PostsItem from "./PostsItem";
 import SectionFooter from "../common/SectionFooter";
 import PostsLoading from "./PostsLoading";
 import { gql } from '@/lib/generated/gql-codegen';
-import { useStyles } from '../hooks/useStyles';
+import { stickiedPostTerms } from '@/lib/collections/posts/constants';
 import { SuspenseWrapper } from '../common/SuspenseWrapper';
 import { registerComponent } from '@/lib/vulcan-lib/components';
 import uniqBy from 'lodash/uniqBy';
@@ -111,12 +111,6 @@ const getLoadMoreSettings = (resolverName: RecombeeResolver, results: getRecombe
     }
   }
 }
-
-export const stickiedPostTerms = {
-  view: 'stickied',
-  limit: 4, // seriously, shouldn't have more than 4 stickied posts
-  forum: true
-} satisfies PostsViewTerms;
 
 const RecombeePostsListInner = ({ algorithm, settings, limit = 15 }: {
   algorithm: string,

@@ -1,6 +1,5 @@
 import axios from 'axios';
 import cheerio from 'cheerio';
-import Jimp from 'jimp';
 import { convertImagesInHTML, uploadBufferToCloudinary } from '../scripts/convertImagesToCloudinary';
 import { extractTableOfContents } from '@/lib/tableOfContents';
 import { dataToCkEditor } from './conversionUtils';
@@ -219,6 +218,7 @@ async function googleDocCropImages(html: string): Promise<string> {
       const response = await axios.get(src, { responseType: 'arraybuffer' });
       const buffer = Buffer.from(response.data, 'binary');
 
+      const { default: Jimp } = await import('jimp');
       const image = await Jimp.read(buffer);
       const originalWidth = image.bitmap.width;
       const originalHeight = image.bitmap.height;

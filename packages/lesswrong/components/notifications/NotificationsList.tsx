@@ -4,21 +4,8 @@ import { preferredHeadingCase } from '../../themes/forumTheme';
 import NotificationsItem from "./NotificationsItem";
 import Loading from "../vulcan-core/Loading";
 import { useQueryWithLoadMore } from "@/components/hooks/useQueryWithLoadMore";
-import { gql } from "@/lib/generated/gql-codegen";
+import { NotificationsListMultiQuery } from './NotificationsListMultiQuery';
 import { useCurrentUser } from '../common/withUser';
-
-// Shared with useUnreadNotifications, which enables triggering refetches of
-// this query via a context provider
-export const NotificationsListMultiQuery = gql(`
-  query multiNotificationNotificationsListQuery($selector: NotificationSelector, $limit: Int, $enableTotal: Boolean) {
-    notifications(selector: $selector, limit: $limit, enableTotal: $enableTotal) {
-      results {
-        ...NotificationsList
-      }
-      totalCount
-    }
-  }
-`);
 
 const styles = (theme: ThemeType) => ({
   root: {

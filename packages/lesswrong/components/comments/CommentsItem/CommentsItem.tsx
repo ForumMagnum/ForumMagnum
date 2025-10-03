@@ -8,7 +8,7 @@ import { tagGetCommentLink } from "../../../lib/collections/tags/helpers";
 import { AnalyticsContext } from "../../../lib/analyticsEvents";
 import type { CommentTreeOptions } from '../commentTree';
 import { commentAllowTitle as commentAllowTitle, commentGetPageUrlFromIds } from '../../../lib/collections/comments/helpers';
-import { REVIEW_NAME_IN_SITU, REVIEW_YEAR, reviewIsActive, eligibleToNominate } from '../../../lib/reviewUtils';
+import { getReviewNameInSitu, REVIEW_YEAR, reviewIsActive, eligibleToNominate } from '../../../lib/reviewUtils';
 import startCase from 'lodash/startCase';
 import FlagIcon from '@/lib/vendor/@material-ui/icons/src/Flag';
 import CommentsItemMeta from './CommentsItemMeta';
@@ -403,8 +403,8 @@ export const CommentsItem = ({
         </div>
         {displayReviewVoting && !collapsed && <div className={classes.reviewVotingButtons}>
           <div className={classes.updateVoteMessage}>
-            <LWTooltip title={`If this review changed your mind, update your ${REVIEW_NAME_IN_SITU} vote for the original post `}>
-              Update your {REVIEW_NAME_IN_SITU} vote for this post. 
+            <LWTooltip title={`If this review changed your mind, update your ${getReviewNameInSitu()} vote for the original post `}>
+              Update your {getReviewNameInSitu()} vote for this post. 
               <LWHelpIcon/>
             </LWTooltip>
           </div>

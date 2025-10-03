@@ -1,19 +1,18 @@
-import { ApiClient, BatchResponse, Recommendation, RecommendationResponse, requests } from 'recombee-api-client';
+import { ApiClient, BatchResponse, Recommendation, RecommendationResponse, requests, errors } from 'recombee-api-client';
 import { HybridArmsConfig, HybridRecombeeConfiguration, RecombeeConfiguration, RecombeeRecommendationArgs } from '../../lib/collections/users/recommendationSettings';
 import { loadByIds } from '../../lib/loaders';
 import { filterNonnull } from '../../lib/utils/typeGuardUtils';
 import { htmlToTextDefault } from '../../lib/htmlToText';
 import { truncate } from '../../lib/editor/ellipsize';
 import { accessFilterMultiple } from '../../lib/utils/schemaUtils';
-import { aboutPostIdSetting, recombeeCacheTtlMsSetting, recombeeDatabaseIdSetting, recombeePrivateApiTokenSetting } from '../../lib/instanceSettings';
+import { aboutPostIdSetting, recombeeCacheTtlMsSetting, recombeeDatabaseIdSetting, recombeePrivateApiTokenSetting, recommendationsTabManuallyStickiedPostIdsSetting } from '@/lib/instanceSettings';
 import { viewTermsToQuery } from '../../lib/utils/viewUtils';
-import { stickiedPostTerms } from '../../components/posts/RecombeePostsList';
+import { stickiedPostTerms } from '@/lib/collections/posts/constants';
 import groupBy from 'lodash/groupBy';
 import uniq from 'lodash/uniq';
-import { recommendationsTabManuallyStickiedPostIdsSetting } from '../../lib/publicSettings';
 import { getParentTraceId, openPerfMetric, wrapWithPerfMetric } from '../perfMetrics';
 import { performQueryFromViewParameters } from '../resolvers/defaultResolvers';
-import { captureException } from '@sentry/core';
+import { captureException } from '@/lib/sentryWrapper';
 import { randomId } from '../../lib/random';
 import { fetchFragmentSingle } from '../fetchFragment';
 import { createAdminContext } from '../vulcan-lib/createContexts';
@@ -410,7 +409,7 @@ const helpers = {
     const client = getRecombeeClientOrThrow();
     
     return wrapWithPerfMetric(
-      () => client.send(recRequest) as Promise<RecommendationResponse>,
+      () => client.send(recRequest).catch(helpers.handleRecombeeError) as Promise<RecommendationResponse | null>,
       () => helpers.openRecombeeRecsPerfMetric(recRequest, batch, backfill)
     );
   },
@@ -443,6 +442,9 @@ const helpers = {
   async getCachedRecommendations({ recRequest, scenario, batch, skipCache, context }: GetCachedRecommendationsArgs): Promise<RecResponse[]> {
     if (recRequest instanceof requests.RecommendNextItems || skipCache) {
       const recResponse = await helpers.sendRecRequestWithPerfMetrics(recRequest, batch);
+      if (!recResponse) {
+        return [];
+      }
       return [{ ...recResponse, scenario }];
     }
 
@@ -458,11 +460,15 @@ const helpers = {
     let formattedRecommendations: RecResponse[]; 
     if (unexpiredRecommendations.length <= (count / 2)) {
       const recResponse = await helpers.sendRecRequestWithPerfMetrics(recRequest, batch);
-      formattedRecommendations = [{
-        ...recResponse,
-        recomms: recResponse.recomms.map(rec => ({ ...rec, generatedAt: new Date(currentTimestampMs) })),
-        scenario
-      }];
+      if (!recResponse) {
+        formattedRecommendations = [];
+      } else {
+        formattedRecommendations = [{
+          ...recResponse,
+          recomms: recResponse.recomms.map(rec => ({ ...rec, generatedAt: new Date(currentTimestampMs) })),
+          scenario
+        }];
+      }
     } else {
       // Unless/until we go back to doing recombee batch requests, we shouldn't have multiple attributionIds, especially within a single scenario
       // But this is robust to that changing, so may as well
@@ -477,7 +483,7 @@ const helpers = {
 
     backgroundTask(helpers
       .sendRecRequestWithPerfMetrics(recRequest, batch, true)
-      .then((recResponse) => helpers.backfillRecommendationsCache(userId, scenario, recResponse, context))
+      .then((recResponse) => recResponse && helpers.backfillRecommendationsCache(userId, scenario, recResponse, context))
     );
 
     return formattedRecommendations;
@@ -532,7 +538,19 @@ const helpers = {
 
   getRecombeeUserId(recombeeUser: RecombeeUser) {
     return recombeeUser.loggedIn ? recombeeUser.userId : recombeeUser.clientId;
-  }
+  },
+
+  handleRecombeeError(error: AnyBecauseIsInput) {
+    const isTimeoutError = error instanceof errors.TimeoutError;
+
+    if (!isTimeoutError) {
+      // eslint-disable-next-line no-console
+      console.error('Error when making server-side Recombee request: ', error);
+      captureException(error);
+    }
+
+    return null;
+  },
 };
 
 const curatedPostTerms: PostsViewTerms = {
@@ -653,13 +671,13 @@ const recombeeApi = {
       const batchRequest = helpers.getBatchRequest([firstRequest, secondRequest]);
       
       const batchResponse = await wrapWithPerfMetric(
-        () => client.send(batchRequest),
+        () => client.send(batchRequest).catch(helpers.handleRecombeeError),
         () => helpers.openRecombeeBatchRecsPerfMetric(firstRequest, secondRequest)
       );
 
       // When doing batch requests, recombee doesn't throw an error if any or all of the constituent requests return e.g. a 404
       // It returns them in as { json, code } (whereas regular requests just return the object in the `json` field directly, and throw on errors instead)
-      const successResponses = helpers.filterSuccessesFromBatchResponse(batchResponse);
+      const successResponses = batchResponse ? helpers.filterSuccessesFromBatchResponse(batchResponse) : [];
 
       // We need the type cast here because recombee's type definitions don't provide response types for batch requests
       const recombeeResponses = successResponses.map(({ json }) => json as RecommendationResponse);
@@ -727,7 +745,7 @@ const recombeeApi = {
       tags,
     });
 
-    await client.send(request);
+    await client.send(request).catch(helpers.handleRecombeeError);
   },
 
   async createReadStatus(readStatus: DbReadStatus) {
@@ -737,7 +755,7 @@ const recombeeApi = {
       return;
     }
 
-    await client.send(request);
+    await client.send(request).catch(helpers.handleRecombeeError);
   },
 
   async createVote(vote: DbVote) {
@@ -747,13 +765,13 @@ const recombeeApi = {
       return;
     }
 
-    await client.send(request);
+    await client.send(request).catch(helpers.handleRecombeeError);
   },
 
   async createUser(user: DbUser) {
     const client = getRecombeeClientOrThrow();
     const request = helpers.createUpsertUserDetailsRequest(user);
-    await client.send(request);
+    await client.send(request).catch(helpers.handleRecombeeError);
   },
 
   /**
@@ -764,13 +782,13 @@ const recombeeApi = {
     const context = createAdminContext();
     const postIds = (await context.Posts.find({ unlisted: true }, undefined, { _id: 1 }).fetch()).map(({ _id }) => _id);
     const request = helpers.createListPostsRequest(postIds);
-    return await client.send(request);
+    return await client.send(request).catch(helpers.handleRecombeeError);
   },
 
   async deletePosts(postIds: string[]) {
     const client = getRecombeeClientOrThrow();
     const request = helpers.createDeletePostsRequest(postIds);
-    return await client.send(request);
+    return await client.send(request).catch(helpers.handleRecombeeError);
   },
 };
 

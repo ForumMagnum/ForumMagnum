@@ -4,23 +4,16 @@
 import gql from 'graphql-tag'; 
 import { makeExecutableSchema } from '@graphql-tools/schema';
 import type { GraphQLResolveInfo, GraphQLScalarType, GraphQLSchema } from 'graphql';
-import GraphQLJSON from 'graphql-type-json';
+import GraphQLJSON from '@/lib/vendor/graphql-type-json';
 import GraphQLDate from './graphql-date';
+import { getVoteGraphql } from '@/server/votingGraphQL';
 import { graphqlTypeDefs as notificationTypeDefs, graphqlQueries as notificationQueries } from '@/server/notificationBatching';
 import { graphqlTypeDefs as arbitalLinkedPagesTypeDefs } from '@/lib/collections/helpers/arbitalLinkedPagesField';
-import { graphqlTypeDefs as additionalPostsTypeDefs } from '@/lib/collections/posts/newSchema';
-import { graphqlTypeDefs as additionalRevisionsTypeDefs } from '@/lib/collections/revisions/newSchema';
-import { graphqlTypeDefs as additionalTagsTypeDefs } from '@/lib/collections/tags/newSchema';
-import { graphqlTypeDefs as additionalUsersTypeDefs } from '@/lib/collections/users/newSchema';
+import { graphqlTypeDefs as additionalPostsTypeDefs } from "@/lib/collections/posts/graphqlTypeDefs";
+import { graphqlTypeDefs as additionalTagsTypeDefs } from "@/lib/collections/tags/graphqlTypeDefs";
+import { graphqlTypeDefs as additionalUsersTypeDefs } from "@/lib/collections/users/graphqlTypeDefs";
 import { graphqlTypeDefs as recommendationsTypeDefs, graphqlQueries as recommendationsQueries } from '@/server/recommendations';
 import { graphqlTypeDefs as userResolversTypeDefs, graphqlMutations as userResolversMutations, graphqlQueries as userResolversQueries } from '@/server/resolvers/userResolvers';
-import { graphqlVoteTypeDefs as postVoteTypeDefs, graphqlVoteMutations as postVoteMutations } from '@/server/collections/posts/collection';
-import { graphqlVoteTypeDefs as commentVoteTypeDefs, graphqlVoteMutations as commentVoteMutations } from '@/server/collections/comments/collection';
-import { graphqlVoteTypeDefs as tagRelVoteTypeDefs, graphqlVoteMutations as tagRelVoteMutations } from '@/server/collections/tagRels/collection';
-import { graphqlVoteTypeDefs as revisionVoteTypeDefs, graphqlVoteMutations as revisionVoteMutations } from '@/server/collections/revisions/collection';
-import { graphqlVoteTypeDefs as electionCandidateVoteTypeDefs, graphqlVoteMutations as electionCandidateVoteMutations } from '@/server/collections/electionCandidates/collection';
-import { graphqlVoteTypeDefs as tagVoteTypeDefs, graphqlVoteMutations as tagVoteMutations } from '@/server/collections/tags/collection';
-import { graphqlVoteTypeDefs as multiDocumentVoteTypeDefs, graphqlVoteMutations as multiDocumentVoteMutations } from '@/server/collections/multiDocuments/collection';
 import { graphqlTypeDefs as commentTypeDefs, graphqlMutations as commentMutations, graphqlQueries as commentQueries } from '@/server/resolvers/commentResolvers'
 import { karmaChangesTypeDefs, karmaChangesFieldResolvers } from '@/server/collections/users/karmaChangesGraphQL';
 import { analyticsGraphQLQueries, analyticsGraphQLTypeDefs } from '@/server/resolvers/analyticsResolvers';
@@ -32,7 +25,6 @@ import { petrovDay2024GraphQLQueries, petrovDay2024GraphQLTypeDefs } from '@/ser
 import { petrovDayLaunchGraphQLMutations, petrovDayLaunchGraphQLQueries, petrovDayLaunchGraphQLTypeDefs } from '@/server/resolvers/petrovDayResolvers';
 import { reviewVoteGraphQLMutations, reviewVoteGraphQLTypeDefs, reviewVoteGraphQLQueries } from '@/server/resolvers/reviewVoteResolvers';
 import { postGqlQueries, postGqlMutations, postGqlTypeDefs } from '@/server/resolvers/postResolvers'
-import { adminGqlTypeDefs, adminGqlMutations } from '@/server/resolvers/adminResolvers'
 import { alignmentForumMutations, alignmentForumTypeDefs } from '@/server/resolvers/alignmentForumMutations'
 import { allTagsActivityFeedGraphQLQueries, allTagsActivityFeedGraphQLTypeDefs } from '@/server/resolvers/allTagsActivityFeed';
 import { recentDiscussionFeedGraphQLQueries, recentDiscussionFeedGraphQLTypeDefs } from '@/server/resolvers/recentDiscussionFeed';
@@ -50,7 +42,6 @@ import { loginDataGraphQLMutations, loginDataGraphQLTypeDefs } from './authentic
 import { dialogueMessageGqlQueries, dialogueMessageGqlTypeDefs } from '@/server/resolvers/dialogueMessageResolvers';
 import { forumEventGqlMutations, forumEventGqlTypeDefs } from '@/server/resolvers/forumEventResolvers';
 import { ckEditorCallbacksGraphQLMutations, ckEditorCallbacksGraphQLTypeDefs, getLinkSharedPostGraphQLQueries } from '@/server/ckEditor/ckEditorCallbacks';
-import { googleVertexGqlMutations, googleVertexGqlTypeDefs } from '@/server/resolvers/googleVertexResolvers';
 import { migrationsDashboardGraphQLQueries, migrationsDashboardGraphQLTypeDefs } from '@/server/manualMigrations/migrationsDashboardGraphql';
 import { reviewWinnerGraphQLQueries, reviewWinnerGraphQLTypeDefs } from '@/server/resolvers/reviewWinnerResolvers';
 import { importUrlAsDraftPostGqlMutation, importUrlAsDraftPostTypeDefs } from '@/server/resolvers/importUrlAsDraftPost';
@@ -58,8 +49,6 @@ import { revisionResolversGraphQLQueries, revisionResolversGraphQLMutations, rev
 import { moderationGqlMutations, moderationGqlQueries, moderationGqlTypeDefs } from '@/server/resolvers/moderationResolvers';
 import { multiDocumentMutations, multiDocumentTypeDefs } from '@/server/resolvers/multiDocumentResolvers';
 import { spotlightGqlMutations, spotlightGqlQueries, spotlightGqlTypeDefs } from '@/server/resolvers/spotlightResolvers';
-import { typingIndicatorsGqlMutations, typingIndicatorsGqlTypeDefs } from '@/server/resolvers/typingIndicatorsResolvers';
-import { acceptCoauthorRequestMutations, acceptCoauthorRequestTypeDefs } from '@/server/acceptCoauthorRequest';
 import { hidePostGqlMutations, hidePostGqlTypeDefs } from '@/server/hidePostMutation';
 import { markAsUnreadMutations, markAsUnreadTypeDefs } from '@/server/markAsUnread';
 import { cronGraphQLMutations, cronGraphQLQueries, cronGraphQLTypeDefs } from '@/server/rss-integration/cron';
@@ -91,6 +80,7 @@ import { graphqlChapterQueryTypeDefs, chapterGqlQueryHandlers, chapterGqlFieldRe
 import { graphqlCkEditorUserSessionQueryTypeDefs, ckEditorUserSessionGqlQueryHandlers, ckEditorUserSessionGqlFieldResolvers } from "@/server/collections/ckEditorUserSessions/queries";
 import { graphqlClientIdQueryTypeDefs, clientIdGqlQueryHandlers, clientIdGqlFieldResolvers } from "@/server/collections/clientIds/queries";
 import { graphqlCollectionQueryTypeDefs, collectionGqlQueryHandlers, collectionGqlFieldResolvers } from "@/server/collections/collections/queries";
+import { graphqlCommentEmbeddingQueryTypeDefs, commentEmbeddingGqlFieldResolvers } from "@/server/collections/commentEmbeddings/queries";
 import { graphqlCommentModeratorActionQueryTypeDefs, commentModeratorActionGqlQueryHandlers, commentModeratorActionGqlFieldResolvers } from "@/server/collections/commentModeratorActions/queries";
 import { graphqlCommentQueryTypeDefs, commentGqlQueryHandlers, commentGqlFieldResolvers } from "@/server/collections/comments/queries";
 import { graphqlConversationQueryTypeDefs, conversationGqlQueryHandlers, conversationGqlFieldResolvers } from "@/server/collections/conversations/queries";
@@ -229,19 +219,36 @@ const emptyViewInput = gql`
   }
 `;
 
-//  @deprecated(reason: "GraphQL doesn't support empty input types, so we need to provide a field.  Don't pass anything in, it doesn't do anything.")
+const { graphqlVoteTypeDefs: postVoteTypeDefs, graphqlVoteMutations: postVoteMutations } = getVoteGraphql('Posts');
+const { graphqlVoteTypeDefs: commentVoteTypeDefs, graphqlVoteMutations: commentVoteMutations } = getVoteGraphql('Comments');
+const { graphqlVoteTypeDefs: messageVoteTypeDefs, graphqlVoteMutations: messageVoteMutations } = getVoteGraphql('Messages');
+const { graphqlVoteTypeDefs: tagRelVoteTypeDefs, graphqlVoteMutations: tagRelVoteMutations } = getVoteGraphql('TagRels');
+const { graphqlVoteTypeDefs: revisionVoteTypeDefs, graphqlVoteMutations: revisionVoteMutations } = getVoteGraphql('Revisions');
+const { graphqlVoteTypeDefs: electionCandidateVoteTypeDefs, graphqlVoteMutations: electionCandidateVoteMutations } = getVoteGraphql('ElectionCandidates');
+const { graphqlVoteTypeDefs: tagVoteTypeDefs, graphqlVoteMutations: tagVoteMutations } = getVoteGraphql('Tags');
+const { graphqlVoteTypeDefs: multiDocumentVoteTypeDefs, graphqlVoteMutations: multiDocumentVoteMutations } = getVoteGraphql('MultiDocuments');
 
-export const typeDefs = gql`
+export const getTypeDefs = () => gql`
   type Query
   type Mutation
   scalar JSON
   scalar Date
+  
+  # Graphql doesn't allow union types that include scalars, which is necessary
+  # to accurately represent the data field the ContentType simple schema.
+  # Defining a custom scalar seems to allow it to pass through any data type,
+  # but this doesn't seem much more permissive than ContentType was originally.
+  scalar ContentTypeData
+  type ContentType {
+    type: String!
+    data: ContentTypeData!
+  }
+
   ${selectorInput}
   ${emptyViewInput}
   ${notificationTypeDefs}
   ${arbitalLinkedPagesTypeDefs}
   ${additionalPostsTypeDefs}
-  ${additionalRevisionsTypeDefs}
   ${additionalTagsTypeDefs}
   ${additionalUsersTypeDefs}
   ${recommendationsTypeDefs}
@@ -249,6 +256,7 @@ export const typeDefs = gql`
   # # Vote typedefs
   ${postVoteTypeDefs}
   ${commentVoteTypeDefs}
+  ${messageVoteTypeDefs}
   ${tagRelVoteTypeDefs}
   ${revisionVoteTypeDefs}
   ${electionCandidateVoteTypeDefs}
@@ -266,7 +274,6 @@ export const typeDefs = gql`
   ${petrovDayLaunchGraphQLTypeDefs}
   ${reviewVoteGraphQLTypeDefs}
   ${postGqlTypeDefs}
-  ${adminGqlTypeDefs}
   ${alignmentForumTypeDefs}
   ${allTagsActivityFeedGraphQLTypeDefs}
   ${recentDiscussionFeedGraphQLTypeDefs}
@@ -285,14 +292,11 @@ export const typeDefs = gql`
   ${ckEditorCallbacksGraphQLTypeDefs}
   ${migrationsDashboardGraphQLTypeDefs}
   ${reviewWinnerGraphQLTypeDefs}
-  ${googleVertexGqlTypeDefs}
   ${importUrlAsDraftPostTypeDefs}
   ${revisionResolversGraphQLTypeDefs}
   ${moderationGqlTypeDefs}
   ${multiDocumentTypeDefs}
   ${spotlightGqlTypeDefs}
-  ${typingIndicatorsGqlTypeDefs}
-  ${acceptCoauthorRequestTypeDefs}
   ${bookmarkGqlTypeDefs}
   ${hidePostGqlTypeDefs}
   ${markAsUnreadTypeDefs}
@@ -327,6 +331,7 @@ export const typeDefs = gql`
   ${graphqlCkEditorUserSessionQueryTypeDefs}
   ${graphqlClientIdQueryTypeDefs}
   ${graphqlCollectionQueryTypeDefs}
+  ${graphqlCommentEmbeddingQueryTypeDefs}
   ${graphqlCommentModeratorActionQueryTypeDefs}
   ${graphqlCommentQueryTypeDefs}
   ${graphqlConversationQueryTypeDefs}
@@ -453,7 +458,7 @@ export const typeDefs = gql`
 `
 
 
-export const resolvers = {
+const getResolvers = () => ({
   JSON: GraphQLJSON,
   Date: GraphQLDate,
   Query: {
@@ -567,6 +572,7 @@ export const resolvers = {
     ...userResolversMutations,
     ...postVoteMutations,
     ...commentVoteMutations,
+    ...messageVoteMutations,
     ...tagRelVoteMutations,
     ...revisionVoteMutations,
     ...electionCandidateVoteMutations,
@@ -578,21 +584,17 @@ export const resolvers = {
     ...petrovDayLaunchGraphQLMutations,
     ...reviewVoteGraphQLMutations,
     ...postGqlMutations,
-    ...adminGqlMutations,
     ...alignmentForumMutations,
     ...conversationGqlMutations,
     ...databaseSettingsGqlMutations,
     ...forumEventGqlMutations,
-    ...googleVertexGqlMutations,
     ...ckEditorCallbacksGraphQLMutations,
     ...importUrlAsDraftPostGqlMutation,
     ...revisionResolversGraphQLMutations,
     ...moderationGqlMutations,
     ...multiDocumentMutations,
     ...spotlightGqlMutations,
-    ...typingIndicatorsGqlMutations,
     ...tagResolversGraphQLMutations,
-    ...acceptCoauthorRequestMutations,
     ...bookmarkGqlMutations,
     ...hidePostGqlMutations,
     ...markAsUnreadMutations,
@@ -712,6 +714,7 @@ export const resolvers = {
   ...ckEditorUserSessionGqlFieldResolvers,
   ...clientIdGqlFieldResolvers,
   ...collectionGqlFieldResolvers,
+  ...commentEmbeddingGqlFieldResolvers,
   ...commentModeratorActionGqlFieldResolvers,
   ...commentGqlFieldResolvers,
   ...conversationGqlFieldResolvers,
@@ -795,7 +798,7 @@ export const resolvers = {
   Mutation: Record<string, (root: void, args: any, context: ResolverContext) => any>,
   KarmaChanges: { updateFrequency: (root: void, args: any, context: ResolverContext) => any },
   ElicitUser: { lwUser: (root: void, args: any, context: ResolverContext) => any },
-};
+});
 
 export type SchemaGraphQLFieldArgument = {name: string, type: string|GraphQLScalarType|null}
 export type SchemaGraphQLFieldDescription = {
@@ -810,7 +813,7 @@ export type SchemaGraphQLFieldDescription = {
 let _executableSchema: GraphQLSchema|null = null;
 export function getExecutableSchema() {
   if (!_executableSchema) {
-    _executableSchema = makeExecutableSchema({ typeDefs, resolvers });
+    _executableSchema = makeExecutableSchema({ typeDefs: getTypeDefs(), resolvers: getResolvers() });
   }
   return _executableSchema;
 }

@@ -1,24 +1,18 @@
 import React from 'react';
 import { conversationGetPageUrl } from '../../lib/collections/conversations/helpers';
-import { useCurrentUser } from '../../components/common/withUser';
-import * as _ from 'underscore';
+// import { useCurrentUser } from '../../components/common/withUser';
 import { siteNameWithArticleSetting } from '../../lib/instanceSettings';
-import { defineStyles, useStyles } from '@/components/hooks/useStyles';
+import { EmailContextType } from "./emailContext";
 import { EmailUsername } from './EmailUsername';
 import { EmailFormatDate } from './EmailFormatDate';
 import { EmailContentItemBody } from './EmailContentItemBody';
 
-const styles = defineStyles("PriveMessagesEmail", (theme: ThemeType) => ({
-  message: {
-  },
-}));
-
-export const PrivateMessagesEmail = ({conversations, messages, participantsById}: {
+export const PrivateMessagesEmail = ({conversations, messages, participantsById, emailContext}: {
   conversations: Array<DbConversation>,
   messages: Array<DbMessage>,
   participantsById: Record<string,DbUser>,
+  emailContext: EmailContextType,
 }) => {
-  const classes = useStyles(styles);
   if (conversations.length === 1) {
     return <React.Fragment>
       <p>
@@ -28,6 +22,7 @@ export const PrivateMessagesEmail = ({conversations, messages, participantsById}
         conversation={conversations[0]}
         messages={messages}
         participantsById={participantsById}
+        emailContext={emailContext}
       />
     </React.Fragment>
   } else {
@@ -38,8 +33,9 @@ export const PrivateMessagesEmail = ({conversations, messages, participantsById}
       {conversations.map(conv => <PrivateMessagesEmailConversation
         conversation={conv}
         key={conv._id}
-        messages={_.filter(messages, message=>message.conversationId===conv._id)}
+        messages={messages.filter(message=>message.conversationId===conv._id)}
         participantsById={participantsById}
+        emailContext={emailContext}
       />)}
     </React.Fragment>
   }
@@ -47,8 +43,9 @@ export const PrivateMessagesEmail = ({conversations, messages, participantsById}
 
 /// A list of users, nicely rendered with links, comma separators and an "and"
 /// conjunction between the last two (if there are at least two).
-export const EmailListOfUsers = ({users}: {
-  users: Array<DbUser>
+export const EmailListOfUsers = ({users, emailContext}: {
+  users: Array<DbUser>,
+  emailContext: EmailContextType,
 }) => {
   if (users.length === 0) {
     return <span>nobody</span>;
@@ -65,13 +62,13 @@ export const EmailListOfUsers = ({users}: {
   }
 }
 
-export const PrivateMessagesEmailConversation = ({conversation, messages, participantsById}: {
+export const PrivateMessagesEmailConversation = ({conversation, messages, participantsById, emailContext}: {
   conversation: ConversationsList|DbConversation,
   messages: Array<DbMessage>,
   participantsById: Partial<Record<string,DbUser>>,
+  emailContext: EmailContextType,
 }) => {
-  const classes = useStyles(styles);
-  const currentUser = useCurrentUser();
+  const currentUser = emailContext.currentUser;
   const sitename = siteNameWithArticleSetting.get()
   const conversationLink = conversationGetPageUrl(conversation, true);
 
@@ -84,11 +81,12 @@ export const PrivateMessagesEmailConversation = ({conversation, messages, partic
           .filter((id: string)=>id!==currentUser!._id)
           .map((id: string)=>participantsById[id]!)
         }
+        emailContext={emailContext}
       />
     </p>
     <p><a href={conversationLink}>View this conversation on {sitename}</a>.</p>
     
-    {messages.map((message,i) => <div className={classes.message} key={i}>
+    {messages.map((message,i) => <div key={i}>
       <EmailUsername user={participantsById[message.userId]!}/>
       {" "}<EmailFormatDate date={message.createdAt}/>
       <EmailContentItemBody dangerouslySetInnerHTML={{

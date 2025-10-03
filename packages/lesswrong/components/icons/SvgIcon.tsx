@@ -1,3 +1,5 @@
+'use client';
+
 import React, { RefObject } from 'react';
 import classNames from 'classnames';
 import { defineStyles, useStyles } from '@/components/hooks/useStyles';

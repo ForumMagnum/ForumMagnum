@@ -1,4 +1,6 @@
-import React, { FC, RefObject, ReactElement, useEffect, useRef, useState } from 'react';
+"use client";
+
+import React, { FC, RefObject, ReactElement, useEffect, useRef, useState, useCallback } from 'react';
 import { registerComponent } from '../../lib/vulcan-lib/components';
 import qs from 'qs';
 import type { SearchState } from 'react-instantsearch/connectors';
@@ -26,7 +28,7 @@ import classNames from 'classnames';
 import { useCurrentUser } from '../common/withUser';
 import { userHasPeopleDirectory } from '../../lib/betas';
 import { Link } from "../../lib/reactRouterWrapper";
-import { useLocation, useNavigate } from "../../lib/routeUtil";
+import { useLocation, useNavigate, useSubscribedLocation } from "../../lib/routeUtil";
 import SearchFilters from "./SearchFilters";
 import ErrorBoundary from "../common/ErrorBoundary";
 import ExpandedUsersSearchHit from "./ExpandedUsersSearchHit";
@@ -37,10 +39,11 @@ import ExpandedSequencesSearchHit from "./ExpandedSequencesSearchHit";
 import LWTooltip from "../common/LWTooltip";
 import ForumIcon from "../common/ForumIcon";
 import LWDialog from '../common/LWDialog';
+import { defineStyles, useStyles } from '../hooks/useStyles';
 
 const hitsPerPage = 10
 
-const styles = (theme: ThemeType) => ({
+const styles = defineStyles("SearchPageTabbed", (theme: ThemeType) => ({
   root: {
     width: "100%",
     maxWidth: 1200,
@@ -201,7 +204,7 @@ const styles = (theme: ThemeType) => ({
       opacity: 0.8,
     },
   },
-});
+}));
 
 export type ExpandedSearchState = SearchState & {
   contentType?: SearchIndexCollectionName,
@@ -240,12 +243,11 @@ const ScrollTo: FC<{
 }
 const CustomScrollTo = connectScrollTo(ScrollTo);
 
-const SearchPageTabbed = ({classes}: {
-  classes: ClassesType<typeof styles>,
-}) => {
+const SearchPageTabbed = () => {
+  const classes = useStyles(styles);
   const scrollToRef = useRef<HTMLDivElement>(null);
   const navigate = useNavigate();
-  const { location, query } = useLocation()
+  const { location, query } = useSubscribedLocation()
   const captureSearch = useSearchAnalytics();
   const currentUser = useCurrentUser();
 
@@ -287,7 +289,7 @@ const SearchPageTabbed = ({classes}: {
     }, {replace: true});
   }
   // we try to keep the URL synced with the search state
-  const updateUrl = (search: ExpandedSearchState, tags: Array<string>) => {
+  const updateUrl = useCallback((search: ExpandedSearchState, tags: Array<string>) => {
     navigate({
       ...location,
       search: qs.stringify({
@@ -298,8 +300,11 @@ const SearchPageTabbed = ({classes}: {
         page: search.page,
         sort: elasticSortingToUrlParam(sorting),
       })
-    }, {replace: true})
-  }
+    }, {
+      replace: true,
+      skipRouter: true,
+    })
+  }, [location, sorting, navigate]);
 
   const handleChangeTab = (_: React.ChangeEvent, value: SearchIndexCollectionName) => {
     setTab(value);
@@ -313,7 +318,7 @@ const SearchPageTabbed = ({classes}: {
     updateUrl(searchState, tags)
   }
   
-  const onSearchStateChange = (updatedSearchState: ExpandedSearchState) => {
+  const onSearchStateChange = useCallback((updatedSearchState: ExpandedSearchState) => {
     // clear tags filter if the tag refinements list is empty
     const clearTagFilters = updatedSearchState.refinementList?.tags === ''
     if (clearTagFilters)
@@ -321,7 +326,7 @@ const SearchPageTabbed = ({classes}: {
       
     updateUrl(updatedSearchState, clearTagFilters ? [] : tagsFilter)
     setSearchState(updatedSearchState)
-  }
+  }, [updateUrl, tagsFilter])
 
   useEffect(() => {
     if (searchState.query) {
@@ -385,7 +390,7 @@ const SearchPageTabbed = ({classes}: {
             <SearchBox defaultRefinement={query.query} reset={null} focusShortcuts={[]} autoFocus={true} />
             <div onClick={() => setModalOpen(true)}>
               <IconButton className={classes.funnelIconButton}>
-                <ForumIcon icon="Funnel" className={classNames({[classes.funnelIconLW]: !isEAForum, [classes.funnelIconEA]: isEAForum})}/>
+                <ForumIcon icon="Funnel" className={classNames({[classes.funnelIconLW]: !isEAForum, [classes.funnelIconEA]: isEAForum()})}/>
               </IconButton>
             </div>
           </div>
@@ -446,7 +451,7 @@ const SearchPageTabbed = ({classes}: {
             </Link>
           }
           <CustomScrollTo targetRef={scrollToRef}>
-            <Hits hitComponent={(props) => <HitComponent {...props} />} />
+            <Hits hitComponent={HitComponent} />
           </CustomScrollTo>
           <Pagination showLast className={classes.pagination} />
         </ErrorBoundary>
@@ -455,6 +460,6 @@ const SearchPageTabbed = ({classes}: {
   </div>
 }
 
-export default registerComponent("SearchPageTabbed", SearchPageTabbed, {styles});
+export default SearchPageTabbed;
 
 

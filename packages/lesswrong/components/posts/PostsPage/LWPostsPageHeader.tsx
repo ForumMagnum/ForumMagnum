@@ -26,9 +26,9 @@ import AlignmentCrosspostLink from "../AlignmentCrosspostLink";
 import ReadTime from "./ReadTime";
 import LWCommentCount from "../TableOfContents/LWCommentCount";
 import { SuspenseWrapper } from '@/components/common/SuspenseWrapper';
+import { BOOKUI_LINKPOST_WORDCOUNT_THRESHOLD } from './constants';
 
 export const LW_POST_PAGE_PADDING = 110;
-export const BOOKUI_LINKPOST_WORDCOUNT_THRESHOLD = 800;
 
 const styles = (theme: ThemeType) => ({
   root: {

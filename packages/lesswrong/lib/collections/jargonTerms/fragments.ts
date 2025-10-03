@@ -28,12 +28,3 @@ export const JargonTermsPost = gql(`
     }
   }
 `)
-
-export const JargonTermsWithPostInfo = gql(`
-  fragment JargonTermsWithPostInfo on JargonTerm {
-    ...JargonTerms
-    post {
-      ...PostsMinimumInfo
-    }
-  }
-`)

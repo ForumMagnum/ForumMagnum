@@ -5,7 +5,7 @@ import FriendlyHoverOver, { FriendlyHoverOverProps } from "./FriendlyHoverOver";
 import LWTooltip, { LWTooltipProps } from "./LWTooltip";
 
 const HoverOver = (props: LWTooltipProps & FriendlyHoverOverProps) => {
-  const Tooltip = isFriendlyUI ? FriendlyHoverOver : LWTooltip;
+  const Tooltip = isFriendlyUI() ? FriendlyHoverOver : LWTooltip;
   return (
     <Tooltip {...props} />
   );

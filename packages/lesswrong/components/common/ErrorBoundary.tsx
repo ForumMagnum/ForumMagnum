@@ -1,5 +1,5 @@
 import React, { ErrorInfo } from 'react';
-import { configureScope, captureException }from '@sentry/core';
+import { getSentry, captureException } from "@/lib/sentryWrapper";
 import ErrorMessage from "./ErrorMessage";
 
 interface ErrorBoundaryProps {
@@ -39,11 +39,15 @@ export class ErrorBoundary extends React.Component<ErrorBoundaryProps, ErrorBoun
       error: error.toString(),
       errorLocation: bundleIsServer ? "" : window.location.href,
     });
-    configureScope(scope => {
-      Object.keys(info).forEach((key: keyof ErrorInfo) => {
-        scope.setExtra(key, info[key]);
-      });
+
+    const Sentry = getSentry();
+
+    const scope = Sentry?.getIsolationScope();
+
+    Object.keys(info).forEach((key: keyof ErrorInfo) => {
+      scope?.setExtra(key, info[key]);
     });
+
     captureException(error);
   }
 

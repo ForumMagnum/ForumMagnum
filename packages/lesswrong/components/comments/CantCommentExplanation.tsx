@@ -3,7 +3,7 @@ import { registerComponent } from '../../lib/vulcan-lib/components';
 import { useCurrentUser } from '../common/withUser';
 import { PermissionsPostMinimumInfo as PostPermissionsMinimumInfo, userIsBannedFromAllPersonalPosts, userIsBannedFromAllPosts, userIsBannedFromPost, userIsNotShortformOwner } from '../../lib/collections/users/helpers';
 import classNames from 'classnames';
-import { moderationEmail } from '../../lib/publicSettings';
+import { moderationEmail } from '@/lib/instanceSettings';
 import { isFriendlyUI } from '../../themes/forumTheme';
 import CalendarDate from "../common/CalendarDate";
 
@@ -59,7 +59,7 @@ const CantCommentExplanation = ({post, classes}: {
   const currentUser = useCurrentUser();
   const author = post.user ?? null;
   const email = moderationEmail.get()
-  if (isFriendlyUI && post.shortform) {
+  if (isFriendlyUI() && post.shortform) {
     return null;
   }
   return (

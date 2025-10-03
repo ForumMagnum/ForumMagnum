@@ -29,17 +29,3 @@ export const newRSSFeedFragment = gql(`
     importAsDraft
   }
 `)
-
-
-
-export const RSSFeedMutationFragment = gql(`
-  fragment RSSFeedMutationFragment on RSSFeed {
-    _id
-    userId
-    ownedByUser
-    displayFullContent
-    nickname
-    url
-    importAsDraft
-  }
-`)

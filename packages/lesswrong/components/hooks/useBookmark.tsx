@@ -2,18 +2,18 @@ import React, { useState, MouseEvent, useEffect, useCallback } from "react";
 import { useMutation } from "@apollo/client/react";
 import { useQuery } from "@/lib/crud/useQuery"
 import { gql } from "@/lib/generated/gql-codegen";
-import { useCurrentUser } from "@/components/common/withUser";
+import { useCurrentUserId } from "@/components/common/withUser";
 import { useDialog } from "@/components/common/withDialog";
 import { useTracking } from "@/lib/analyticsEvents";
 import type { ForumIconName } from "@/components/common/ForumIcon";
 import { BookmarkableCollectionName } from "@/lib/collections/bookmarks/constants";
 import LoginPopup from "../users/LoginPopup";
 
-const BookmarksDefaultFragmentMultiQuery = gql(`
+const BookmarksMinimumInfoMultiQuery = gql(`
   query multiBookmarkuseBookmarkQuery($selector: BookmarkSelector, $limit: Int, $enableTotal: Boolean) {
     bookmarks(selector: $selector, limit: $limit, enableTotal: $enableTotal) {
       results {
-        ...BookmarksDefaultFragment
+        ...BookmarksMinimumInfoFragment
       }
       totalCount
     }
@@ -33,7 +33,7 @@ export const useBookmark = (
   documentId: string,
   collectionName: BookmarkableCollectionName
 ): UseBookmarkResult => {
-  const currentUser = useCurrentUser();
+  const currentUserId = useCurrentUserId();
   const { openDialog } = useDialog();
   const { captureEvent } = useTracking();
 
@@ -41,7 +41,7 @@ export const useBookmark = (
     mutation ToggleBookmarkMutation($input: ToggleBookmarkInput!) {
       toggleBookmark(input: $input) {
         data {
-          ...BookmarksDefaultFragment
+          ...BookmarksMinimumInfoFragment
         }
       }
     }
@@ -49,13 +49,13 @@ export const useBookmark = (
 
   const [isBookmarked, setIsBookmarked] = useState<boolean>(false);
 
-  const { data, loading: multiLoading } = useQuery(BookmarksDefaultFragmentMultiQuery, {
+  const { data, loading: multiLoading } = useQuery(BookmarksMinimumInfoMultiQuery, {
     variables: {
-      selector: { userDocumentBookmark: { documentId, collectionName, userId: currentUser?._id } },
+      selector: { userDocumentBookmark: { documentId, collectionName, userId: currentUserId } },
       limit: 1,
       enableTotal: false,
     },
-    skip: !currentUser || !collectionName,
+    skip: !currentUserId || !collectionName,
     fetchPolicy: "cache-and-network",
     notifyOnNetworkStatusChange: true,
   });
@@ -80,7 +80,7 @@ export const useBookmark = (
   const toggleBookmark = useCallback((event?: MouseEvent) => {
     if (event) event.preventDefault();
 
-    if (!currentUser) {
+    if (!currentUserId) {
       openDialog({ name: "LoginPopup", contents: ({onClose}) => <LoginPopup onClose={onClose} /> });
       return;
     }
@@ -104,7 +104,7 @@ export const useBookmark = (
       setIsBookmarked(previousState);
     });
 
-  }, [currentUser, documentId, collectionName, isBookmarked, mutationLoading, openDialog, toggleBookmarkMutation, captureEvent]);
+  }, [currentUserId, documentId, collectionName, isBookmarked, mutationLoading, openDialog, toggleBookmarkMutation, captureEvent]);
 
   const loading = multiLoading || mutationLoading;
   const icon: ForumIconName = isBookmarked ? "Bookmark" : "BookmarkBorder";

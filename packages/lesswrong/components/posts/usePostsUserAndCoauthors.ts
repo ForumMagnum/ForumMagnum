@@ -1,5 +1,3 @@
-import { postCoauthorIsPending } from "../../lib/collections/posts/helpers";
-
 export const usePostsUserAndCoauthors = (post: PostsList|SunshinePostsList|PostsBestOfList) => {
   const isAnon = !post.user || !!post.hideAuthor;
 
@@ -10,8 +8,7 @@ export const usePostsUserAndCoauthors = (post: PostsList|SunshinePostsList|Posts
     topCommentAuthor = null;
   }
 
-  const coauthors = post.coauthors?.filter(({_id}) => !postCoauthorIsPending(post, _id)) ?? [];
-  const authors = [post.user, ...coauthors].filter(
+  const authors = [post.user, ...(post.coauthors ?? [])].filter(
     (user): user is UsersMinimumInfo => !!user,
   );
 

@@ -3,7 +3,7 @@ import { registerComponent } from '../../lib/vulcan-lib/components';
 import withErrorBoundary from '../common/withErrorBoundary'
 import classNames from 'classnames';
 import { tagGetRevisionLink } from '@/lib/collections/tags/helpers';
-import { defineStyles, useStyles } from '../hooks/useStyles';
+import { defineStyles, useStyles } from "../hooks/useStyles";
 import { tagHistoryStyles } from './history/TagHistoryPage';
 import SingleLineFeedEvent from "../common/SingleLineFeedEvent";
 import CompareRevisions from "../revisions/CompareRevisions";

@@ -1,6 +1,5 @@
 import moment from 'moment';
 import Notifications from '../../server/collections/notifications/collection';
-import { Posts } from '../../server/collections/posts/collection';
 import Users from '../../server/collections/users/collection';
 import { isLWorAF, reviewMarketCreationMinimumKarmaSetting } from '../../lib/instanceSettings';
 import type { VoteDocTuple } from '../../lib/voting/vote';
@@ -15,7 +14,7 @@ import { postGetPageUrl } from '../../lib/collections/posts/helpers';
 import { createManifoldMarket } from '../../lib/collections/posts/annualReviewMarkets';
 import { RECEIVED_SENIOR_DOWNVOTES_ALERT } from "@/lib/collections/moderatorActions/constants";
 import { revokeUserAFKarmaForCancelledVote, grantUserAFKarmaForVote } from './alignment-forum/callbacks';
-import { captureException } from '@sentry/core';
+import { captureException } from '@/lib/sentryWrapper';
 import { tagGetUrl } from '@/lib/collections/tags/helpers';
 import { updatePostDenormalizedTags } from '../tagging/helpers';
 import { recomputeContributorScoresFor } from '../utils/contributorsUtil';
@@ -52,7 +51,9 @@ async function updateModerateOwnPersonal({newDocument, vote}: VoteDocTuple, cont
   }
 }
 
-async function increaseMaxBaseScore({newDocument, vote}: VoteDocTuple) {
+async function increaseMaxBaseScore({newDocument, vote}: VoteDocTuple, context: ResolverContext) {
+  const { Posts } = context;
+
   if (vote.collectionName === "Posts") {
     const post = newDocument as DbPost;
     if (post.baseScore > (post.maxBaseScore || 0)) {
@@ -112,7 +113,7 @@ export async function onCastVoteAsync(voteDocTuple: VoteDocTuple, collection: Co
   backgroundTask(grantUserAFKarmaForVote(voteDocTuple));
   backgroundTask(updateTrustedStatus(voteDocTuple, context));
   backgroundTask(updateModerateOwnPersonal(voteDocTuple, context));
-  backgroundTask(increaseMaxBaseScore(voteDocTuple));
+  backgroundTask(increaseMaxBaseScore(voteDocTuple, context));
   voteUpdatePostDenormalizedTags(voteDocTuple);
 
   const { vote, newDocument } = voteDocTuple;
@@ -163,7 +164,7 @@ async function updateKarma({newDocument, vote}: VoteDocTuple, collection: Collec
   }
 
   
-  if (!!newDocument.userId && isLWorAF && ['Posts', 'Comments'].includes(vote.collectionName) && votesCanTriggerReview(newDocument as DbPost | DbComment)) {
+  if (!!newDocument.userId && isLWorAF() && ['Posts', 'Comments'].includes(vote.collectionName) && votesCanTriggerReview(newDocument as DbPost | DbComment)) {
     backgroundTask(checkForStricterRateLimits(newDocument.userId, context));
   }
 }
@@ -242,6 +243,8 @@ async function checkAutomod ({newDocument, vote}: VoteDocTuple, collection: Coll
 
 
 export async function updateScoreOnPostPublish(publishedPost: DbPost, context: ResolverContext) {
+  const { Posts } = context;
+
   // When a post is published (undrafted), update its score. (That is, recompute
   // the time-decaying score used for sorting, since the time that's computed
   // relative to has just changed).
@@ -289,9 +292,10 @@ export async function updateScoreOnPostPublish(publishedPost: DbPost, context: R
 // AFAIU the flow, this has a race condition. If a post is voted on twice in quick succession, it will create two markets.
 // This is probably fine, but it's worth noting. We can deal with it if it comes up.
 async function maybeCreateReviewMarket({newDocument, vote}: VoteDocTuple, collection: CollectionBase<VoteableCollectionName>, user: DbUser, context: ResolverContext) {
+  const { Posts } = context;
 
   // Forum gate
-  if (!isLWorAF) return;
+  if (!isLWorAF()) return;
 
   if (collection.collectionName !== "Posts") return;
   if (vote.power <= 0 || vote.cancelled) return; // In principle it would be fine to make a market here, but it should never be first created here
@@ -319,7 +323,7 @@ async function maybeCreateReviewMarket({newDocument, vote}: VoteDocTuple, collec
 }
 
 async function maybeCreateModeratorAlertsAfterVote({ newDocument, vote }: VoteDocTuple, collection: CollectionBase<VoteableCollectionName>, user: DbUser, context: ResolverContext) {
-  if (!isLWorAF || vote.collectionName !== 'Comments' || !newDocument.userId) {
+  if (!isLWorAF() || vote.collectionName !== 'Comments' || !newDocument.userId) {
     return;
   }
 

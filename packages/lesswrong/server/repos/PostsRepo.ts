@@ -2,7 +2,7 @@ import Posts from "../../server/collections/posts/collection";
 import AbstractRepo from "./AbstractRepo";
 import { eaPublicEmojiNames } from "../../lib/voting/eaEmojiPalette";
 import LRU from "lru-cache";
-import { getViewablePostsSelector } from "./helpers";
+import { getViewableEventsSelector, getViewablePostsSelector } from "./helpers";
 import { EA_FORUM_COMMUNITY_TOPIC_ID } from "../../lib/collections/tags/helpers";
 import { recordPerfMetrics } from "./perfMetricWrapper";
 import { isAF } from "../../lib/instanceSettings";
@@ -118,7 +118,7 @@ function constructFilteredScoreSql(filterSettings: FilterSettings): string {
   `;
   
   const timeDecayFactor = TIME_DECAY_FACTOR.get();
-  const ageOffset = isAF ? 6 : SCORE_BIAS;
+  const ageOffset = isAF() ? 6 : SCORE_BIAS;
   
   const timeDecayDenominatorSql = `
     POWER(
@@ -148,24 +148,19 @@ class PostsRepo extends AbstractRepo<"Posts"> {
     return this.none(`
       -- PostsRepo.moveCoauthorshipToNewUser
       UPDATE "Posts"
-      SET "coauthorStatuses" = array(
-        SELECT
-          CASE
-            WHEN (jsonb_elem->>'userId') = $1
-            THEN jsonb_set(jsonb_elem, '{userId}', to_jsonb($2::text), false)
-            ELSE jsonb_elem
-          END
-          FROM unnest("coauthorStatuses") AS t(jsonb_elem)
+      SET "coauthorUserIds" = array(
+        SELECT CASE
+          WHEN user_id = $1 THEN $2
+          ELSE user_id
+        END
+        FROM unnest("coauthorUserIds") AS t(user_id)
       )
-      WHERE EXISTS (
-        SELECT 1 FROM unnest("coauthorStatuses") AS sub(jsonb_sub)
-        WHERE jsonb_sub->>'userId' = $1
-      );
+      WHERE $1 = ANY("coauthorUserIds");
     `, [oldUserId, newUserId]);
   }
 
   async postRouteWillDefinitelyReturn200(id: string): Promise<boolean> {
-    const maybeRequireAF = isAF ? "AND af IS TRUE" : ""
+    const maybeRequireAF = isAF() ? "AND af IS TRUE" : ""
     const res = await this.getRawDb().oneOrNone<{exists: boolean}>(`
       -- PostsRepo.postRouteWillDefinitelyReturn200
       SELECT EXISTS(
@@ -419,12 +414,12 @@ class PostsRepo extends AbstractRepo<"Posts"> {
   getMyActiveDialogues(userId: string, limit = 3): Promise<DbPost[]> {
     return this.any(`
       -- PostsRepo.getMyActiveDialogues
-      SELECT * 
+      SELECT *
       FROM (
-          SELECT DISTINCT ON (p._id) p.* 
-          FROM "Posts" p, UNNEST("coauthorStatuses") unnested
-          WHERE p."collabEditorDialogue" IS TRUE 
-          AND ((UNNESTED->>'userId' = $1) OR (p."userId" = $1))
+          SELECT DISTINCT ON (_id) *
+          FROM "Posts"
+          WHERE "collabEditorDialogue" IS TRUE
+          AND (("coauthorUserIds" @> ARRAY[$1]::TEXT[]) OR ("userId" = $1))
       ) dialogues
       ORDER BY "modifiedAt" DESC
       LIMIT $2
@@ -495,7 +490,7 @@ class PostsRepo extends AbstractRepo<"Posts"> {
       FROM "Posts" p
       ${readFilter.join}
       WHERE
-        NOW() - p."curatedDate" < ($1 || ' days')::INTERVAL AND
+        p."curatedDate" > NOW() - ($1 || ' days')::INTERVAL AND
         p."disableRecommendation" IS NOT TRUE AND
         ${readFilter.filter}
         ${postFilter}
@@ -506,7 +501,7 @@ class PostsRepo extends AbstractRepo<"Posts"> {
       ${readFilter.join}
       WHERE
         p."curatedDate" IS NULL AND
-        NOW() - p."frontpageDate" < ($1 || ' days')::INTERVAL AND
+        p."frontpageDate" > NOW() - ($1 || ' days')::INTERVAL AND
         COALESCE(
           (p."tagRelevance"->'${EA_FORUM_COMMUNITY_TOPIC_ID}')::INTEGER,
           0
@@ -674,7 +669,7 @@ class PostsRepo extends AbstractRepo<"Posts"> {
       WITH visible_posts AS (
         SELECT
           "userId",
-          "coauthorStatuses"
+          "coauthorUserIds"
         FROM
           "Posts"
         WHERE
@@ -689,7 +684,7 @@ class PostsRepo extends AbstractRepo<"Posts"> {
             visible_posts)
         UNION ALL (
           SELECT
-            unnest("coauthorStatuses") ->> 'userId' AS "userId"
+            "coauthorUserIds" AS "userId"
           FROM
             visible_posts)
       ),
@@ -747,14 +742,11 @@ class PostsRepo extends AbstractRepo<"Posts"> {
       `
       -- PostsRepo.getReadAuthorStats
       WITH authored_posts AS (
-        SELECT DISTINCT
-          _id AS "postId"
-        FROM
-          "Posts" p
-          LEFT JOIN LATERAL UNNEST(p."coauthorStatuses") AS unnested ON true
+        SELECT DISTINCT _id AS "postId"
+        FROM "Posts"
         WHERE
-          ${getViewablePostsSelector("p")}
-          AND (p."userId" = $3 OR unnested ->> 'userId' = $3)
+          ${getViewablePostsSelector()}
+          AND ("userId" = $3 OR "coauthorUserIds" @> ARRAY[$3]::TEXT[])
       ),
       read_counts AS (
         SELECT
@@ -1119,10 +1111,8 @@ class PostsRepo extends AbstractRepo<"Posts"> {
       filterOutReadOrViewed?: boolean;
     },
   ): Promise<FeedFullPost[]> {
-    const { currentUser } = context;
-    if (!currentUser?._id) {
-      return [];
-    }
+    const { currentUser, clientId } = context;
+    const userIdOrClientId = currentUser?._id ?? clientId;
 
     const tagsRequired = filterSettings.tags.filter(t => t.filterMode === "Required");
     const tagsExcluded = filterSettings.tags.filter(t => t.filterMode === "Hidden");
@@ -1145,7 +1135,7 @@ class PostsRepo extends AbstractRepo<"Posts"> {
       : '';
 
     const filteredScoreSql = constructFilteredScoreSql(filterSettings);
-    const hiddenPostIds = currentUser.hiddenPostsMetadata?.map(metadata => metadata.postId) ?? [];
+    const hiddenPostIds = currentUser?.hiddenPostsMetadata?.map(metadata => metadata.postId) ?? [];
     const hiddenPostIdsCondition = hiddenPostIds.length > 0 
       ? `AND p."_id" NOT IN ($(hiddenPostIds:csv))` 
       : '';
@@ -1219,7 +1209,7 @@ class PostsRepo extends AbstractRepo<"Posts"> {
         ${restrictToFollowedAuthors ? '"postedAt"' : '"initialFilteredScore"'} DESC
       LIMIT $(limit)
     `, { 
-      userId: currentUser._id,
+      userId: userIdOrClientId,
       maxAgeDays,
       hiddenPostIds,
       limit,
@@ -1297,6 +1287,24 @@ class PostsRepo extends AbstractRepo<"Posts"> {
     `, [postIds, userId]);
 
     return new Map(result.map(row => [row.postId, row.isRead]));
+  }
+  
+  async getHomepageCommunityEvents(limit: number): Promise<Array<HomepageCommunityEventMarker>> {
+    return this.getRawDb().any<HomepageCommunityEventMarker>(`
+      -- PostsRepo.getHomepageCommunityEvents
+      SELECT 
+        _id, 
+        "googleLocation" -> 'geometry' -> 'location' ->> 'lat' AS "lat",
+        "googleLocation" -> 'geometry' -> 'location' ->> 'lng' AS "lng",
+        "types"
+      FROM "Posts" p
+      WHERE ${getViewableEventsSelector('p')}
+      AND "startTime" > NOW()
+      AND "startTime" < NOW() + INTERVAL '5 months'
+      AND "googleLocation" -> 'geometry' -> 'location' ->> 'lat' IS NOT NULL
+      AND "googleLocation" -> 'geometry' -> 'location' ->> 'lng' IS NOT NULL
+      LIMIT $1
+    `, [limit]);
   }
 }
 

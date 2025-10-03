@@ -67,17 +67,17 @@ export const preProcessLatex = async (content: AnyBecauseTodo) => {
   for (let key in content.entityMap) { // Can't use forEach with await
     let value = content.entityMap[key];
     if(value.type === "INLINETEX" && value.data.teX) {
-      const mathJax = await mjAPI.typeset({
-            math: value.data.teX,
-            format: "inline-TeX",
-            html: true,
-            css: !mathjaxStyleUsed,
-      })
-      value.data = {...value.data, html: mathJax.html};
-      if (!mathjaxStyleUsed) {
-        value.data.css = mathJax.css;
-        mathjaxStyleUsed = true;
-      }
+      // const mathJax = await mjAPI.typeset({
+      //       math: value.data.teX,
+      //       format: "inline-TeX",
+      //       html: true,
+      //       css: !mathjaxStyleUsed,
+      // })
+      // value.data = {...value.data, html: mathJax.html};
+      // if (!mathjaxStyleUsed) {
+      //   value.data.css = mathJax.css;
+      //   mathjaxStyleUsed = true;
+      // }
       content.entityMap[key] = value;
     }
   }
@@ -85,17 +85,17 @@ export const preProcessLatex = async (content: AnyBecauseTodo) => {
   for (let key in content.blocks) {
     const block = content.blocks[key];
     if (block.type === "atomic" && block.data.mathjax) {
-      const mathJax = await mjAPI.typeset({
-        math: block.data.teX,
-        format: "TeX",
-        html: true,
-        css: !mathjaxStyleUsed,
-      })
-      block.data = {...block.data, html: mathJax.html};
-      if (!mathjaxStyleUsed) {
-        block.data.css = mathJax.css;
-        mathjaxStyleUsed = true;
-      }
+      // const mathJax = await mjAPI.typeset({
+      //   math: block.data.teX,
+      //   format: "TeX",
+      //   html: true,
+      //   css: !mathjaxStyleUsed,
+      // })
+      // block.data = {...block.data, html: mathJax.html};
+      // if (!mathjaxStyleUsed) {
+      //   block.data.css = mathJax.css;
+      //   mathjaxStyleUsed = true;
+      // }
     }
   }
 

@@ -1,9 +1,6 @@
 import React, { FC, MouseEvent, useState, useCallback } from "react";
 import { registerComponent } from "../../lib/vulcan-lib/components";
-import type {
-  CommentVotingComponentProps,
-  PostVotingComponentProps,
-} from "../../lib/voting/votingSystems";
+import type { PostVotingComponentProps, CommentVotingComponentProps } from '@/lib/voting/votingSystemTypes';
 import { useTracking } from "../../lib/analyticsEvents";
 import { useCurrentUser } from "../common/withUser";
 import { useDialog } from "../common/withDialog";
@@ -16,7 +13,7 @@ import {
 import type { VotingProps } from "./votingProps";
 import { Menu } from '@/components/widgets/Menu';
 import classNames from "classnames";
-import {alwaysShowAnonymousReactsSetting} from '../../lib/publicSettings'
+import { alwaysShowAnonymousReactsSetting } from '@/lib/instanceSettings';
 import LoginPopup from "../users/LoginPopup";
 import EAEmojiPalette from "./EAEmojiPalette";
 import ForumIcon from "../common/ForumIcon";

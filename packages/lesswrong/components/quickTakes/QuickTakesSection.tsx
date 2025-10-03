@@ -8,10 +8,9 @@ import {
   SHOW_QUICK_TAKES_SECTION_COOKIE,
   SHOW_QUICK_TAKES_SECTION_COMMUNITY_COOKIE,
 } from "../../lib/cookies/cookies";
-import { isEAForum } from "../../lib/instanceSettings";
+import { isEAForum, quickTakesMaxAgeDaysSetting } from '@/lib/instanceSettings';
 import { isFriendlyUI, preferredHeadingCase } from "../../themes/forumTheme";
 import { Link } from '../../lib/reactRouterWrapper';
-import {quickTakesMaxAgeDaysSetting} from '../../lib/publicSettings'
 import ExpandableSection from "../common/ExpandableSection";
 import LWTooltip from "../common/LWTooltip";
 import QuickTakesEntry from "./QuickTakesEntry";
@@ -28,7 +27,7 @@ const ShortformCommentsMultiQuery = gql(`
   query multiCommentQuickTakesSectionQuery($selector: CommentSelector, $limit: Int, $enableTotal: Boolean) {
     comments(selector: $selector, limit: $limit, enableTotal: $enableTotal) {
       results {
-        ...ShortformComments
+        ...FrontpageShortformComments
       }
       totalCount
     }
@@ -74,7 +73,7 @@ const QuickTakesSectionLoaded = ({showCommunity}: {
   const { data, loading, refetch, loadMoreProps } = useQueryWithLoadMore(ShortformCommentsMultiQuery, {
     variables: {
       selector: { shortformFrontpage: { showCommunity, maxAgeDays } },
-      limit: 5,
+      limit: 7,
       enableTotal: true,
     },
   });
@@ -86,7 +85,7 @@ const QuickTakesSectionLoaded = ({showCommunity}: {
   return <>
     {(userCanQuickTake(currentUser) || !currentUser) && <QuickTakesEntry currentUser={currentUser} successCallback={refetch} />}
     <div className={classes.list}>
-      {results?.map((result) => (
+      {results?.map((result: FrontpageShortformComments) => (
         <QuickTakesListItem key={result._id} quickTake={result} />
       ))}
       {loading && <Loading />}
@@ -131,7 +130,7 @@ const QuickTakesSection = () => {
       A feed of quick takes by other users, sorted by recency and karma.
     </div>
   );
-  const title = isFriendlyUI
+  const title = isFriendlyUI()
     ? titleText
     : (<>
         <LWTooltip title={titleTooltip} placement="left">
@@ -139,9 +138,9 @@ const QuickTakesSection = () => {
         </LWTooltip>
       </>);
 
-  const afterTitleTo = isFriendlyUI ? "/quicktakes" : undefined;
+  const afterTitleTo = isFriendlyUI() ? "/quicktakes" : undefined;
 
-  const AfterTitleComponent = isEAForum 
+  const AfterTitleComponent = isEAForum() 
     ? () => (
       <LWTooltip
         title='Show quick takes tagged "Community"'
