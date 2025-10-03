@@ -448,8 +448,7 @@ class VotesRepo extends AbstractRepo<"Votes"> {
             SELECT _id FROM "Posts" 
             WHERE
               "Posts"."userId" = $1
-              AND
-              "Posts"."draft" IS NOT true
+              AND "Posts"."draft" IS NOT TRUE
             ORDER BY "Posts"."postedAt" DESC
             LIMIT ${RECENT_CONTENT_COUNT}
           )
@@ -465,8 +464,8 @@ class VotesRepo extends AbstractRepo<"Votes"> {
             SELECT _id FROM "Comments" 
             WHERE
               "Comments"."userId" = $1
-              AND
-              "Comments"."debateResponse" IS NOT true
+              AND "Comments"."debateResponse" IS NOT TRUE
+              AND "Comments"."draft" IS NOT TRUE
             ORDER by "Comments"."postedAt" DESC
             LIMIT ${RECENT_CONTENT_COUNT}
           )
@@ -486,12 +485,9 @@ class VotesRepo extends AbstractRepo<"Votes"> {
         WHERE
           "Votes"."documentId" in (
             SELECT _id FROM "Posts" 
-            WHERE
-              "Posts"."userId" = $1
-            AND
-              "Posts"."draft" IS NOT true
-            AND
-              "Posts"."postedAt" < $2
+            WHERE "Posts"."userId" = $1
+            AND "Posts"."draft" IS NOT TRUE
+            AND "Posts"."postedAt" < $2
             ORDER BY "Posts"."postedAt" DESC
             LIMIT 1
           )
@@ -506,10 +502,9 @@ class VotesRepo extends AbstractRepo<"Votes"> {
         WHERE
           "Votes"."documentId" in (
             SELECT _id FROM "Comments" 
-            WHERE
-              "Comments"."userId" = $1
-            AND
-              "Comments"."postedAt" < $2
+            WHERE "Comments"."userId" = $1
+            AND "Comments"."postedAt" < $2
+            AND "Comments"."draft" IS NOT TRUE
             ORDER by "Comments"."postedAt" DESC
             LIMIT 1
           )
