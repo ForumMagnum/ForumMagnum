@@ -20,13 +20,7 @@ const AutoEmailSubscribeCheckbox = () => {
 
   const setting = currentUser?.notificationRepliesToMyComments;
   const checked = !!setting?.email?.enabled;
-  const [localChecked, setLocalChecked] = useState(checked);
   const classes = useStyles(styles);
-
-  // Sync local state when the authoritative server value changes (e.g. after refetch)
-  useEffect(() => {
-    setLocalChecked(checked);
-  }, [checked]);
 
   const handleToggle = useCallback(async () => {
     if (!currentUser) {
@@ -37,21 +31,26 @@ const AutoEmailSubscribeCheckbox = () => {
       return
     };
 
-    const newEnabled = !localChecked;
-    setLocalChecked(newEnabled);
+    const newSetting = { ...setting, email: { ...setting?.email, enabled: !checked } };
 
-    const newSetting = { ...setting, email: { ...setting?.email, enabled: newEnabled } };
+    await updateCurrentUser({ notificationRepliesToMyComments: newSetting }, {
+      optimisticResponse: {
+        updateUser: {
+          __typename: "UserOutput",
+          data: {
+            __typename: "User",
+            ...{
+              ...currentUser,
+              notificationRepliesToMyComments: newSetting,
+            }
+          }
+        }
+      }
+    });
+  }, [currentUser, setting, updateCurrentUser, openDialog, checked]);
 
-    try {
-      await updateCurrentUser({ notificationRepliesToMyComments: newSetting });
-    } catch (e) {
-      // Revert optimistic update on error
-      setLocalChecked(!newEnabled);
-    }
-  }, [currentUser, localChecked, setting, updateCurrentUser, openDialog]);
-
-  return <span className={!localChecked? classes.disabled : ""}>
-    <SectionFooterCheckbox label={"Email me replies to all comments"} value={localChecked} onClick={handleToggle} />
+  return <span className={!checked? classes.disabled : ""}>
+    <SectionFooterCheckbox label={"Email me replies to all comments"} value={checked} onClick={handleToggle} />
   </span>;
 };
 
