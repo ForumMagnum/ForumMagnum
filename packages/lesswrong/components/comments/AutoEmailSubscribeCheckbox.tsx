@@ -19,7 +19,7 @@ const AutoEmailSubscribeCheckbox = () => {
   const { openDialog } = useDialog();
 
   const setting = currentUser?.notificationRepliesToMyComments;
-  const checked = !!setting.email.enabled;
+  const checked = !!setting?.email?.enabled;
   const classes = useStyles(styles);
 
   const handleToggle = useCallback(async () => {
@@ -31,7 +31,7 @@ const AutoEmailSubscribeCheckbox = () => {
       return
     };
 
-    const newSetting = { ...setting, email: { ...setting.email, enabled: !checked } };
+    const newSetting = { ...setting, email: { ...setting?.email, enabled: !checked } };
 
     await updateCurrentUser({ notificationRepliesToMyComments: newSetting }, {
       optimisticResponse: {
