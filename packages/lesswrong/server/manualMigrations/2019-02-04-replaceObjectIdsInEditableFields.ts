@@ -1,7 +1,6 @@
 import { registerMigration, migrateDocuments } from './migrationUtils';
 import { getEditableCollectionNames } from '@/server/editor/editableSchemaFieldHelpers';
 import { getCollection } from '../collections/allCollections';
-import * as _ from 'underscore';
 
 export default registerMigration({
   name: "replaceObjectIdsInEditableFieldsAndVotes",
@@ -36,7 +35,7 @@ export default registerMigration({
             updates,
             { ordered: false }
           )
-          const _ids = _.pluck(documents, '_id')
+          const _ids = documents.map(doc => doc._id)
           await collection.rawRemove({_id: {$in: _ids}})
         }
       })

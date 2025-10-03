@@ -1,25 +1,26 @@
 import { isFriendlyUI, preferredHeadingCase } from "../themes/forumTheme";
 import { isAF } from "./instanceSettings";
 
-const customViewNames: Partial<Record<CommentsViewName,string>> = {
-  'postCommentsMagic': isFriendlyUI ? 'New & upvoted' : 'magic (new & upvoted)',
-  'postCommentsTop': isFriendlyUI ? 'Top' : 'top scoring',
+const getCustomViewNames = (): Partial<Record<CommentsViewName,string>> => ({
+  'postCommentsMagic': isFriendlyUI() ? 'New & upvoted' : 'magic (new & upvoted)',
+  'postCommentsTop': isFriendlyUI() ? 'Top' : 'top scoring',
   'postCommentsRecentReplies': preferredHeadingCase('latest reply'),
   'afPostCommentsTop': preferredHeadingCase('top scoring'),
-  'postCommentsNew': isFriendlyUI ? 'New' : 'newest',
-  'postCommentsOld': isFriendlyUI ? 'Old' : 'oldest',
+  'postCommentsNew': isFriendlyUI() ? 'New' : 'newest',
+  'postCommentsOld': isFriendlyUI() ? 'Old' : 'oldest',
   'postCommentsBest': preferredHeadingCase('highest karma'),
   'postCommentsDeleted': preferredHeadingCase('deleted'),
   'postLWComments': preferredHeadingCase('top scoring (include LW)'),
-}
+});
 
-const commentsTopView: CommentsViewName =
-  isAF
+const getCommentsTopView = (): CommentsViewName =>
+  isAF()
     ? "afPostCommentsTop"
     : "postCommentsTop";
-const defaultViews: CommentsViewName[] = [
+
+const getDefaultViews = (): CommentsViewName[] => [
   "postCommentsMagic",
-  commentsTopView,
+  getCommentsTopView(),
   "postCommentsNew",
   "postCommentsOld",
   "postCommentsRecentReplies",
@@ -34,9 +35,9 @@ type CommentViewsConfig = {
 const getCommentViewNames = (
   options?: CommentViewsConfig,
 ): CommentsViewName[] => [
-  ...defaultViews,
+  ...getDefaultViews(),
   ...(options?.includeAdminViews ? adminViews : []),
-  ...(isAF ? afViews : []),
+  ...(isAF() ? afViews : []),
 ];
 
 export const getCommentViewOptions = (
@@ -44,7 +45,7 @@ export const getCommentViewOptions = (
 ): {value: CommentsViewName, label: string}[] =>
   getCommentViewNames(options).map((view) => ({
     value: view,
-    label: customViewNames[view] ?? view,
+    label: getCustomViewNames()[view] ?? view,
   }));
 
 export const isValidCommentView = (

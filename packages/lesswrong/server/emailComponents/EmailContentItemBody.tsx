@@ -1,5 +1,3 @@
-'use client';
-
 import React from 'react';
 
 // The body of a content-item (post, comment etc), starting from HTML and

@@ -9,10 +9,15 @@ import { transformSync } from "esbuild";
 import babelJest from "babel-jest";
 
 const { process } = babelJest.createTransformer({
-  plugins: [ "@babel/plugin-transform-modules-commonjs" ],
-  parserOpts: { 
-    plugins: ["jsx", "typescript"],
-  }
+  babelrc: false,
+  configFile: false,
+  // Strip TS first so module transform doesn't traverse TS nodes
+  presets: [
+    ["@babel/preset-typescript", { allowDeclareFields: true }],
+  ],
+  plugins: [
+    "@babel/plugin-transform-modules-commonjs",
+  ],
 });
 
 export function babelTransform(opts) {

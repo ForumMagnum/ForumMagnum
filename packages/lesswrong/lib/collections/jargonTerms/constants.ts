@@ -1,8 +1,9 @@
+import type { Model } from "@anthropic-ai/sdk/resources/messages.mjs";
 
 // Integrity Alert! This is currently designed so if the model changes, users are informed
 // about what model is being used in the jargon generation process.
 // If you change this architecture, make sure to update GlossaryEditForm.tsx and the Users' schema
-export const JARGON_LLM_MODEL = 'claude-3-5-sonnet-20241022';
+export const JARGON_LLM_MODEL: Model = 'claude-sonnet-4-20250514';
 
 export const defaultExampleTerm = 'latent variables';
 export const defaultExampleAltTerm = 'latents';

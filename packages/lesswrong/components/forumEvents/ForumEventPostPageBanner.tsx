@@ -73,7 +73,7 @@ export const ForumEventPostPageBanner = ({classes}: {
 
   const { data } = useQuery(PostsDetailsQuery, {
     variables: { documentId: params._id },
-    skip: !hasForumEvents ||
+    skip: !hasForumEvents() ||
         !params._id ||
         hideBanner ||
         !currentForumEvent?.tagId,

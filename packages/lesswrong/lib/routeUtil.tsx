@@ -1,14 +1,12 @@
-import { isServer } from './executionEnvironment';
 import qs from 'qs';
 import React, { useCallback, useContext } from 'react';
-import { LocationContext, ServerRequestStatusContext, SubscribeLocationContext, ServerRequestStatusContextType, NavigationContext } from './vulcan-core/appContext';
-import type { RouterLocation } from './vulcan-lib/routes';
-import * as _ from 'underscore';
+import { LocationContext, SubscribeLocationContext, NavigationContext } from './vulcan-core/appContext';
+import type { RouterLocation, SegmentedUrl } from './vulcan-lib/routes';
 import { ForumOptions, forumSelect } from './forumTypeUtils';
-import type { LocationDescriptor } from 'history';
+import { createPath, type LocationDescriptor, parsePath } from 'history';
 import {siteUrlSetting} from './instanceSettings'
 import { getUrlClass } from '@/server/utils/getUrlClass';
-import { getCommandLineArguments } from '@/server/commandLine';
+import { urlIsAbsolute } from './vulcan-lib/utils';
 
 // React Hook which returns the page location (parsed URL and route).
 // Return value contains:
@@ -39,17 +37,23 @@ export const useLocation = (): RouterLocation => {
   return useContext(LocationContext)!;
 }
 
-// React Hook which returns the server-side server request status, used to set 404s or redirects
-// The relevant handling happens in the renderPage function
-// This hook only works on the server and will throw an error when called on the client
-export const useServerRequestStatus = (): ServerRequestStatusContextType|null => {
-  return useContext(ServerRequestStatusContext)
-}
-
 // React Hook which returns the page location, formatted as in useLocation, and
 // triggers a rerender whenever navigation occurs.
 export const useSubscribedLocation = (): RouterLocation => {
   return useContext(SubscribeLocationContext)!;
+}
+
+function getUpdatedLocationDescriptor(currentLocation: SegmentedUrl, locationDescriptor: LocationDescriptor) {
+  if (typeof locationDescriptor === 'object') {
+    return { ...currentLocation, ...locationDescriptor };
+  }
+
+  const parsedLocationDescriptor = parsePath(locationDescriptor);
+  const { pathname, search, hash } = parsedLocationDescriptor;
+  if (hash && !pathname && !search) {
+    return { ...currentLocation, hash };
+  } 
+  return { ...currentLocation, ...parsedLocationDescriptor };
 }
 
 export type NavigateFunction = ReturnType<typeof useNavigate>
@@ -61,20 +65,51 @@ export type NavigateFunction = ReturnType<typeof useNavigate>
  */
 export const useNavigate = () => {
   const { history } = useContext(NavigationContext)!;
-  return useCallback((locationDescriptor: LocationDescriptor | -1 | 1, options?: {replace?: boolean, openInNewTab?: boolean}) => {
+  return useCallback((locationDescriptor: LocationDescriptor | -1 | 1, options?: {replace?: boolean, openInNewTab?: boolean, skipRouter?: boolean}) => {
     if (locationDescriptor === -1) {
-      history.goBack();
+      history.back();
     } else if (locationDescriptor === 1) {
-      history.goForward();
-    } else if (options?.openInNewTab) {
-      const href = typeof locationDescriptor === 'string' ?
-        locationDescriptor :
-        history.createHref(locationDescriptor);
-      window.open(href, '_blank')?.focus();
-    } else if (options?.replace) {
-      history.replace(locationDescriptor);
+      history.forward();
     } else {
-      history.push(locationDescriptor);
+      const updatedLocationDescriptor = getUpdatedLocationDescriptor(window.location, locationDescriptor);
+      const normalizedLocation = createPath(updatedLocationDescriptor);
+      const normalizedOldLocation = createPath(window.location);
+
+      if (options?.openInNewTab) {
+        window.open(normalizedLocation, '_blank')?.focus();
+      } else if (options?.skipRouter) {
+        // The behavior of Next's router.push when handling hash changes
+        // while on the same route is either broken or deranged, so we
+        // need to do something rather more complicated.
+        //
+        // Problem!  window.history.pushState doesn't update the value
+        // that comes out of `useLocation` for hash updates, so we 
+        // need to manually fire a `hashchange` event and listen for it
+        // in ClientAppGenerator.
+        if (options?.replace) {
+          window.history.replaceState(null, '', normalizedLocation);
+        } else {
+          window.history.pushState(null, '', normalizedLocation);
+        }
+
+        const hashChanged = updatedLocationDescriptor.hash !== window.location.hash;
+
+        if (hashChanged) {
+          const base = new URL(window.location.href).origin;
+          const oldURL = new URL(createPath(window.location), base).toString();
+          const newURL = new URL(normalizedLocation, base).toString();
+          const hashChangeEvent = new HashChangeEvent('hashchange', { oldURL, newURL });
+          window.dispatchEvent(hashChangeEvent);
+        }
+      } else if (options?.replace) {
+        if (normalizedLocation !== normalizedOldLocation) {
+          history.replace(normalizedLocation);
+        }
+      } else {
+        if (normalizedLocation !== normalizedOldLocation) {
+          history.push(normalizedLocation);
+        }
+      }
     }
   }, [history]);
 }
@@ -103,8 +138,8 @@ export const removeUrlParameters = (url: string, queryParameterBlacklist: string
   
   const parsedQuery = qs.parse(query);
   let filteredQuery: AnyBecauseTodo = {};
-  for (let key of _.keys(parsedQuery)) {
-    if (_.indexOf(queryParameterBlacklist, key) < 0) {
+  for (let key of Object.keys(parsedQuery)) {
+    if (!queryParameterBlacklist.includes(key)) {
       filteredQuery[key] = parsedQuery[key];
     }
   }
@@ -125,7 +160,9 @@ const LwAfDomainWhitelist: DomainList = {
     "baserates.org",
     "alignmentforum.org",
     "alignment-forum.com",
-    `localhost:${getCommandLineArguments().localhostUrlPort}`,
+    "arbital.com",
+    // TODO: fix this to not use `getCommandLineArguments` anymore
+    // `localhost:${getCommandLineArguments().localhostUrlPort}`,
   ],
   mirrorDomains: [
     "greaterwrong.com",
@@ -133,27 +170,29 @@ const LwAfDomainWhitelist: DomainList = {
 }
 
 const URLClass = getUrlClass()
-const forumDomainWhitelist: ForumOptions<DomainList> = {
+const getForumDomainWhitelist = (): ForumOptions<DomainList> => ({
   LessWrong: LwAfDomainWhitelist,
   AlignmentForum: LwAfDomainWhitelist,
   EAForum: {
     onsiteDomains: [
       'forum.effectivealtruism.org',
       'forum-staging.effectivealtruism.org',
-      `localhost:${getCommandLineArguments().localhostUrlPort}`,
+      // TODO: fix this to not use `getCommandLineArguments` anymore
+      // `localhost:${getCommandLineArguments().localhostUrlPort}`,
     ],
     mirrorDomains: ['ea.greaterwrong.com'],
   },
   default: {
     onsiteDomains: [
       new URLClass(siteUrlSetting.get()).host,
-      `localhost:${getCommandLineArguments().localhostUrlPort}`,
+      // TODO: fix this to not use `getCommandLineArguments` anymore
+      // `localhost:${getCommandLineArguments().localhostUrlPort}`,
     ],
     mirrorDomains: [],
   }
-}
+})
 
-const domainWhitelist: DomainList = forumSelect(forumDomainWhitelist)
+const getDomainWhitelist = (): DomainList => forumSelect(getForumDomainWhitelist())
 
 export const classifyHost = (host: string): "onsite"|"offsite"|"mirrorOfUs" => {
   let urlType: "onsite"|"offsite"|"mirrorOfUs" = "offsite";
@@ -163,16 +202,25 @@ export const classifyHost = (host: string): "onsite"|"offsite"|"mirrorOfUs" => {
     return a===b || "www."+a===b || a==="www."+b;
   }
 
-  domainWhitelist.onsiteDomains.forEach((domain) => {
+  getDomainWhitelist().onsiteDomains.forEach((domain) => {
     if (isSameDomainModuloWWW(host, domain))
       urlType = "onsite";
   })
-  domainWhitelist.mirrorDomains.forEach((domain) => {
+  getDomainWhitelist().mirrorDomains.forEach((domain) => {
     if (isSameDomainModuloWWW(host, domain))
       urlType = "mirrorOfUs";
   })
 
   return urlType;
+}
+
+export const classifyLink = (href: string): "onsite"|"offsite"|"mirrorOfUs" => {
+  if (urlIsAbsolute(href)) {
+    const host = new URLClass(href).host;
+    return classifyHost(host);
+  } else {
+    return "onsite";
+  }
 }
 
 // Returns whether a string could, conservatively, possibly be a database ID.

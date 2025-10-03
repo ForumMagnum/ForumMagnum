@@ -10,8 +10,8 @@ export type CustomPgIndex = {
 export class DatabaseIndexSet {
   mongoStyleIndexes: Partial<Record<CollectionNameString, Array<MongoIndexSpecification<any>>>> = {}
   customPgIndexes: CustomPgIndex[] = [];
-
-  addIndex(collectionName: CollectionNameString, index: any, options: any={}) {
+  
+  addIndex<N extends CollectionNameString>(collectionName: N, index: any, options: MongoEnsureIndexOptions<N>={}) {
     if (!this.mongoStyleIndexes[collectionName]) {
       this.mongoStyleIndexes[collectionName] = [];
     }

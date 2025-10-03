@@ -1,6 +1,7 @@
 import CollectionsRepo from "./CollectionsRepo";
 import ClientIdsRepo from "./ClientIdsRepo";
 import CommentsRepo from "./CommentsRepo";
+import CommentEmbeddingsRepo from "./CommentEmbeddingsRepo";
 import ConversationsRepo from "./ConversationsRepo";
 import CurationEmailsRepo from "./CurationEmailsRepo";
 import DatabaseMetadataRepo from "./DatabaseMetadataRepo";
@@ -33,7 +34,6 @@ import SurveysRepo from "./SurveysRepo";
 import SurveySchedulesRepo from "./SurveySchedulesRepo";
 import TagsRepo from "./TagsRepo";
 import TweetsRepo from "./TweetsRepo";
-import TypingIndicatorsRepo from "./TypingIndicatorsRepo";
 import UltraFeedEventsRepo from "./UltraFeedEventsRepo";
 import UsersRepo from "./UsersRepo";
 import VotesRepo from "./VotesRepo";
@@ -53,6 +53,7 @@ const allRepos = {
   clientIds: ClientIdsRepo,
   collections: CollectionsRepo,
   comments: CommentsRepo,
+  commentEmbeddings: CommentEmbeddingsRepo,
   conversations: ConversationsRepo,
   curationEmails: CurationEmailsRepo,
   databaseMetadata: DatabaseMetadataRepo,
@@ -85,7 +86,6 @@ const allRepos = {
   surveySchedules: SurveySchedulesRepo,
   tags: TagsRepo,
   tweets: TweetsRepo,
-  typingIndicators: TypingIndicatorsRepo,
   ultraFeedEvents: UltraFeedEventsRepo,
   users: UsersRepo,
   votes: VotesRepo,

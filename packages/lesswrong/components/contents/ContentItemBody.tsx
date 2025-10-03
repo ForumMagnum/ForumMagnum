@@ -1,4 +1,4 @@
-import React, { useEffect, useImperativeHandle, useMemo, useRef, type CSSProperties } from 'react';
+import React, { useContext, useEffect, useImperativeHandle, useMemo, useRef, type CSSProperties } from 'react';
 import { addNofollowToHTML, ContentReplacedSubstringComponentInfo, replacementComponentMap, type ContentItemBodyProps } from './contentBodyUtil';
 import * as htmlparser2 from "htmlparser2";
 import { type ChildNode as DomHandlerChildNode, type Node as DomHandlerNode, Element as DomHandlerElement, Text as DomHandlerText } from 'domhandler';
@@ -13,16 +13,20 @@ import { hasCollapsedFootnotes } from '@/lib/betas';
 import { CollapsedFootnotes } from './CollapsedFootnotes';
 import { WrappedStrawPoll } from './WrappedStrawPoll';
 import { validateUrl } from '@/lib/vulcan-lib/utils';
-import { captureEvent } from '@/lib/analyticsEvents';
+import { useTracking } from '@/lib/analyticsEvents';
 import ForumEventPostPagePollSection from '../forumEvents/ForumEventPostPagePollSection';
 import repeat from 'lodash/repeat';
-import { captureException } from '@sentry/core';
+import { captureException } from '@/lib/sentryWrapper';
+import { getColorReplacements } from '@/themes/userThemes/darkMode';
+import { colorToString, invertColor, parseColor } from '@/themes/colorUtil';
+import { ThemeContext } from '../themes/useTheme';
 
 type PassedThroughContentItemBodyProps = Pick<ContentItemBodyProps, "description"|"noHoverPreviewPrefetch"|"nofollow"|"contentStyleType"|"replacedSubstrings"|"idInsertions"> & {
-  bodyRef: React.RefObject<HTMLDivElement|null>
+  themeName: UserThemeSetting,
+  bodyRef: React.RefObject<HTMLDivElement|null>,
 }
 
-type SubstitutionsAttr = Array<{substitutionIndex: number, isSplitContinuation: boolean}>;
+type SubstitutionsAttr = Array<{substitutionIndex: number, isSplitContinuation: boolean, invertColors?: boolean}>;
 
 /**
  * Renders user-generated HTML, with progressive enhancements. Replaces
@@ -52,8 +56,9 @@ type SubstitutionsAttr = Array<{substitutionIndex: number, isSplitContinuation: 
  * functionality that's currently handled by `truncatize`.
  */
 export const ContentItemBody = (props: ContentItemBodyProps) => {
-  const { onContentReady, nofollow, dangerouslySetInnerHTML, replacedSubstrings, className, ref } = props;
+  const { onContentReady, nofollow, dangerouslySetInnerHTML, replacedSubstrings, className, ref, invertSubstitutionColors } = props;
   const bodyRef = useRef<HTMLDivElement|null>(null);
+  const themeContext = useContext(ThemeContext)
   const html = (nofollow
     ? addNofollowToHTML(dangerouslySetInnerHTML.__html)
     : dangerouslySetInnerHTML.__html
@@ -61,10 +66,10 @@ export const ContentItemBody = (props: ContentItemBodyProps) => {
   const parsedHtml = useMemo(() => {
     const parsed = htmlparser2.parseDocument(html);
     if (replacedSubstrings && replacedSubstrings.length > 0) {
-      applyReplaceSubstrings(parsed, replacedSubstrings)
+      applyReplaceSubstrings(parsed, replacedSubstrings, invertSubstitutionColors)
     }
     return parsed;
-  }, [html, replacedSubstrings]);
+  }, [html, replacedSubstrings, invertSubstitutionColors]);
 
   useImperativeHandle(ref, () => ({
     containsNode: (node: Node): boolean => {
@@ -84,8 +89,9 @@ export const ContentItemBody = (props: ContentItemBodyProps) => {
     }
   }, [onContentReady]);
   
-  const passedThroughProps = {
+  const passedThroughProps: PassedThroughContentItemBodyProps = {
     ...pick(props, ["description", "noHoverPreviewPrefetch", "nofollow", "contentStyleType", "replacedSubstrings", "idInsertions"]),
+    themeName: themeContext!.abstractThemeOptions.name,
     bodyRef,
   };
   
@@ -104,7 +110,9 @@ const ContentItemBodyInner = ({parsedHtml, passedThroughProps, root=false}: {
   passedThroughProps: PassedThroughContentItemBodyProps,
   root?: boolean,
 }) => {
-  const { replacedSubstrings } = passedThroughProps;;
+  const { replacedSubstrings, themeName } = passedThroughProps;
+  const { captureEvent } = useTracking();
+  
   switch (parsedHtml.type) {
     case htmlparser2.ElementType.CDATA:
     case htmlparser2.ElementType.Directive:
@@ -131,7 +139,7 @@ const ContentItemBodyInner = ({parsedHtml, passedThroughProps, root=false}: {
 
     case htmlparser2.ElementType.Tag: {
       let TagName = parsedHtml.tagName.toLowerCase() as any;
-      if (TagName === 'html' || TagName === 'body') {
+      if (TagName === 'html' || TagName === 'body' || TagName === 'head') {
         TagName = 'div';
       }
       const attribs = translateAttribs(parsedHtml.attribs);
@@ -146,6 +154,11 @@ const ContentItemBodyInner = ({parsedHtml, passedThroughProps, root=false}: {
 
       if (classNames.includes("footnotes") && hasCollapsedFootnotes) {
         return <CollapsedFootnotes attributes={attribs} footnoteElements={mappedChildren}/>
+      }
+
+      if (attribs["style"]) {
+        const transformedStyle = transformStylesForDarkMode(attribs["style"], themeName);
+        attribs["style"] = transformedStyle;
       }
 
       if (attribs['data-replacements'] && replacedSubstrings) {
@@ -332,7 +345,7 @@ export function parseInlineStyle(input: string): CSSProperties {
   }, {} as CSSProperties)
 }
 
-function applyReplaceSubstrings(parsedHtml: DomHandlerChildNode, replacedSubstrings: ContentReplacedSubstringComponentInfo[]): DomHandlerChildNode {
+function applyReplaceSubstrings(parsedHtml: DomHandlerChildNode, replacedSubstrings: ContentReplacedSubstringComponentInfo[], invertSubstitutionColors?: boolean): DomHandlerChildNode {
   // Traverse parsedHtml, producing an array of text nodes, a combined string
   // with the text of all those nodes, and text offsets for each. Node types
   // that contain non-normal text (CDATA, Script, Style) are skipped.
@@ -489,6 +502,7 @@ function applyReplaceSubstrings(parsedHtml: DomHandlerChildNode, replacedSubstri
         textNode.substitutions.push({
           substitutionIndex: replacementRange.replacementIndex,
           isSplitContinuation: !first,
+          invertColors: invertSubstitutionColors,
         });
         first = false;
       }
@@ -507,7 +521,6 @@ function applyReplaceSubstrings(parsedHtml: DomHandlerChildNode, replacedSubstri
       htmlparser2.DomUtils.appendChild(span, textNode.node);
     }
   }
-
   return parsedHtml;
 }
 
@@ -554,7 +567,7 @@ function applyReplacements(element: React.ReactNode, substitutions: Substitution
   for (const substitution of substitutions) {
     const replacement = replacements[substitution.substitutionIndex];
     const Component = replacementComponentMap[replacement.componentName];
-    element = <Component key="replacement" {...replacement.props} isSplitContinuation={substitution.isSplitContinuation}>
+    element = <Component key="replacement" {...replacement.props} isSplitContinuation={substitution.isSplitContinuation} invertColors={substitution.invertColors}>
       {element}
     </Component>;
   }
@@ -571,4 +584,51 @@ function splitText(textNode: DomHandlerText, splitOffset: number): [DomHandlerTe
     return [insertedTextNode, replacedTextNode];
   }
   return null;
+}
+
+const attributesNeedingTransform: Record<string,boolean> = {
+  "background": true,
+  "backgroundColor": true,
+  "borderColor": true,
+  "color": true,
+};
+
+function transformStylesForDarkMode(styles: Record<string,string>, themeName: UserThemeSetting): Record<string,string> {
+  if (themeName === 'dark' || themeName === 'auto') {
+    return Object.fromEntries(Object.entries(styles).map(([attribute,value]) => {
+      if (attributesNeedingTransform[attribute]) {
+        const darkModeValue = transformAttributeValueForDarkMode(value)
+        if (themeName === "auto" && darkModeValue !== value) {
+          return [attribute, `light-dark(${value},${darkModeValue})`];
+        } else {
+          return [attribute, darkModeValue];
+        }
+      } else {
+        return [attribute, value];
+      }
+    }));
+  } else {
+    return styles;
+  }
+}
+
+function transformAttributeValueForDarkMode(attributeValue: string): string {
+  const normalized = attributeValue.trim().toLowerCase();
+  if (!getColorReplacements()[normalized]) {
+    const parsedColor = parseColor(normalized);
+    if (parsedColor) {
+      const invertedColor = invertColor(parsedColor);
+      getColorReplacements()[normalized] = colorToString(invertedColor);
+    } else {
+      // If unable to parse a color (eg an unsupported color format), use black
+      // as a safe dark-mode background color
+      getColorReplacements()[normalized] = "#000000";
+    }
+  }
+  
+  if (getColorReplacements()[normalized]) {
+    return getColorReplacements()[normalized];
+  } else {
+    return attributeValue;
+  }
 }

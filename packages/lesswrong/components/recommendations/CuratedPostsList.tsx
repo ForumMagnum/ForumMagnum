@@ -7,7 +7,10 @@ import moment from "moment";
 import { useCurrentTime } from "../../lib/utils/timeUtil";
 import PostsList2 from "../posts/PostsList2";
 
-const CuratedPostsList = ({overrideLimit}: {overrideLimit?: number}) => {
+const CuratedPostsList = ({overrideLimit, repeatedPostsPrecedence}: {
+  overrideLimit?: number
+  repeatedPostsPrecedence?: number
+}) => {
   const currentCuratedPostCount = useCurrentCuratedPostCount();
   const now = useCurrentTime();
 
@@ -19,7 +22,7 @@ const CuratedPostsList = ({overrideLimit}: {overrideLimit?: number}) => {
         terms={{
           view: "curated",
           limit: overrideLimit ?? currentCuratedPostCount,
-          ...(isEAForum ? {curatedAfter: fiveDaysAgo} : {}),
+          ...(isEAForum() ? {curatedAfter: fiveDaysAgo} : {}),
         }}
         showNoResults={false}
         showLoadMore={false}
@@ -28,6 +31,7 @@ const CuratedPostsList = ({overrideLimit}: {overrideLimit?: number}) => {
         curatedIconLeft={true}
         showFinalBottomBorder
         viewType="fromContext"
+        repeatedPostsPrecedence={repeatedPostsPrecedence}
       />
     </AnalyticsContext>
   );

@@ -29,7 +29,7 @@ const styles = (theme: ThemeType) => ({
   },
   hoverInfo: {
     paddingLeft: 10,
-    maxWidth: 195,
+    maxWidth: 205,
     flexGrow: 1,
   },
   hoverBallotLabel: {

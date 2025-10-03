@@ -17,7 +17,7 @@ describe('PrettyEventDateTime', () => {
       localStartTime: null,
       localEndTime: null,
     };
-    render(<PrettyEventDateTime post={post} timezone="UTC" />);
+    render(<PrettyEventDateTime now={new Date()} post={post} timezone="UTC" />);
 
     expect(screen.getByText(/TBD/)).toBeInTheDocument()
   });
@@ -29,7 +29,7 @@ describe('PrettyEventDateTime', () => {
       localStartTime: null,
       localEndTime: null,
     };
-    render(<PrettyEventDateTime post={post} timezone="UTC" />);
+    render(<PrettyEventDateTime now={new Date()} post={post} timezone="UTC" />);
     const timeElement = screen.getByText(/Starts on Mon, Apr 29 at 8 AM UTC/).closest('time');
     expect(timeElement).toHaveAttribute('datetime', post.startTime.toISOString());
   });
@@ -41,7 +41,7 @@ describe('PrettyEventDateTime', () => {
       localStartTime: null,
       localEndTime: null,
     };
-    render(<PrettyEventDateTime post={post} timezone="UTC" />);
+    render(<PrettyEventDateTime now={new Date()} post={post} timezone="UTC" />);
     const timeElement = screen.getByText(/Mon, Apr 29 at 8 – 10 AM UTC/).closest('time');
     expect(timeElement).toHaveAttribute('datetime', post.startTime.toISOString());
   });
@@ -53,7 +53,7 @@ describe('PrettyEventDateTime', () => {
       localStartTime: null,
       localEndTime: null,
     };
-    render(<PrettyEventDateTime post={post} timezone="UTC" />);
+    render(<PrettyEventDateTime now={new Date()} post={post} timezone="UTC" />);
 
     const startText = /Mon, Apr 29 at 10 PM/;
     const endText = /Tue, Apr 30 at 2 AM UTC/;
@@ -71,7 +71,7 @@ describe('PrettyEventDateTime', () => {
       localStartTime: null,
       localEndTime: null,
     };
-    render(<PrettyEventDateTime post={post} dense={true} timezone="UTC" />);
+    render(<PrettyEventDateTime now={new Date()} post={post} dense={true} timezone="UTC" />);
     const timeElement = screen.getByText("Apr 29 at 8 AM UTC").closest('time');
     expect(timeElement).toHaveAttribute('datetime', post.startTime.toISOString());
   });
@@ -83,7 +83,7 @@ describe('PrettyEventDateTime', () => {
       localStartTime: null,
       localEndTime: null,
     };
-    render(<PrettyEventDateTime post={post} dense={true} timezone="UTC" />);
+    render(<PrettyEventDateTime now={new Date()} post={post} dense={true} timezone="UTC" />);
 
     const startText = /Apr 29 at 10 PM/;
     const endText = /Apr 30 at 2 AM UTC/;
@@ -101,7 +101,7 @@ describe('PrettyEventDateTime', () => {
       localStartTime: null,
       localEndTime: null,
     };
-    render(<PrettyEventDateTime post={post} timezone="America/Los_Angeles" />);
+    render(<PrettyEventDateTime now={new Date()} post={post} timezone="America/Los_Angeles" />);
 
     const timeElement = screen.getByText(/Mon, Apr 29 at 3 – 7 PM PDT/).closest('time');
     // datetime="..." should still be in ISO format
@@ -116,7 +116,7 @@ describe('PrettyEventDateTime', () => {
       localStartTime: new Date('2024-04-29T15:00:00.000Z'),
       localEndTime: new Date('2024-04-29T19:00:00.000Z'),
     };
-    render(<PrettyEventDateTime post={post} />);
+    render(<PrettyEventDateTime now={new Date()} post={post} />);
 
     // Get exact text, there should be no "PDT" in the string
     const timeElement = screen.getByText("Mon, Apr 29 at 3 – 7 PM").closest('time');

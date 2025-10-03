@@ -16,9 +16,12 @@ import { SideItem } from "../../contents/SideItems";
 import LWTooltip from "../../common/LWTooltip";
 import SideItemLine from "../../contents/SideItemLine";
 
-const styles = (theme: ThemeType) => ({
+const styles = defineStyles("InlineReactHoverableHighlight", (theme: ThemeType) => ({
   reactionTypeHovered: {
     backgroundColor: theme.palette.greyAlpha(0.1),
+  },
+  reactionTypeHoveredInverted: {
+    backgroundColor: theme.palette.greyAlpha(0.4),
   },
 
   sidebarInlineReactIcons: {
@@ -38,17 +41,16 @@ const styles = (theme: ThemeType) => ({
   
   // Keeping this empty class around is necessary for the following @global style to work properly
   highlight: {},
-});
+}));
 
-const inlineReactHoverableHighlightStyles = defineStyles('InlineReactHoverableHighlight', styles);
-
-export const InlineReactHoverableHighlight = ({quote, reactions, isSplitContinuation=false, children}: {
+export const InlineReactHoverableHighlight = ({quote, reactions, isSplitContinuation=false, children, invertColors=false}: {
   quote: QuoteLocator,
   reactions: NamesAttachedReactionsList,
   isSplitContinuation?: boolean
   children: React.ReactNode,
+  invertColors?: boolean,
 }) => {
-  const classes = useStyles(inlineReactHoverableHighlightStyles);
+  const classes = useStyles(styles);
   
   const hoveredReactions = useContext(HoveredReactionListContext);
   const voteProps = useContext(InlineReactVoteContext);
@@ -93,7 +95,6 @@ export const InlineReactHoverableHighlight = ({quote, reactions, isSplitContinua
   // 1) the quote itself is hovered over, or
   // 2) if the post/comment is hovered over, and the react has net-positive agreement across all users
   const shouldUnderline = isHovered || anyPositive;
-
   if (!voteProps) {
     return <>{children}</>
   }
@@ -101,12 +102,13 @@ export const InlineReactHoverableHighlight = ({quote, reactions, isSplitContinua
   return (
     <span className={classNames({
       [classes.highlight]: shouldUnderline,
-      [classes.reactionTypeHovered]: isHovered
+      [classes.reactionTypeHovered]: isHovered && !invertColors,
+      [classes.reactionTypeHoveredInverted]: isHovered && invertColors,
     })}>
       {!isSplitContinuation && sideItemIsVisible && <SideItem options={{format: "icon"}}>
         <SidebarInlineReact
           hoverEventHandlers={eventHandlers}
-          quote={quote} reactions={reactions} voteProps={voteProps} classes={classes}
+          quote={quote} reactions={reactions} voteProps={voteProps}
         />
       </SideItem>}
       {children}
@@ -114,14 +116,13 @@ export const InlineReactHoverableHighlight = ({quote, reactions, isSplitContinua
   );
 }
 
-const SidebarInlineReact = ({quote,reactions, voteProps, hoverEventHandlers, classes}: {
+const SidebarInlineReact = ({quote,reactions, voteProps, hoverEventHandlers}: {
   quote: QuoteLocator,
   reactions: NamesAttachedReactionsList,
   voteProps: VotingProps<VoteableTypeClient>,
   hoverEventHandlers: UseHoverEventHandlers,
-  classes: ClassesType<typeof styles>,
 }) => {
-  const currentUser = useCurrentUser();
+  const classes = useStyles(styles);
   const normalizedReactions = getNormalizedReactionsListFromVoteProps(voteProps)?.reacts ?? {};
   const reactionsUsed = Object.keys(normalizedReactions).filter(react =>
     normalizedReactions[react]?.some(r=>r.quotes?.includes(quote))
@@ -165,7 +166,7 @@ function atLeastOneQuoteReactHasPositiveScore(reactions: NamesAttachedReactionsL
   return false;
 }
 
-export default registerComponent('InlineReactHoverableHighlight', InlineReactHoverableHighlight);
+export default InlineReactHoverableHighlight;
 
 
 

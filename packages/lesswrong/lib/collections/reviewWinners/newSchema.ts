@@ -38,7 +38,7 @@ const schema = {
       canRead: ["guests"],
       resolver: async (reviewWinner, args, context) => {
         return getWithCustomLoader(context, "activeReviewWinnerArt", reviewWinner.postId, (postIds) =>
-          context.repos.reviewWinnerArts.getAllActiveReviewWinnerArt(postIds)
+          context.repos.reviewWinnerArts.getActiveReviewWinnerArt(postIds)
         );
       },
     },

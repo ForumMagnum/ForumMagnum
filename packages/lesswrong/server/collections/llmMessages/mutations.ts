@@ -1,7 +1,7 @@
-
 import schema from "@/lib/collections/llmMessages/newSchema";
 import { updateCountOfReferencesOnOtherCollectionsAfterCreate, updateCountOfReferencesOnOtherCollectionsAfterUpdate } from "@/server/callbacks/countOfReferenceCallbacks";
 import { logFieldChanges } from "@/server/fieldChanges";
+import { backgroundTask } from "@/server/utils/backgroundTask";
 import { getLegacyCreateCallbackProps, getLegacyUpdateCallbackProps, insertAndReturnCreateAfterProps, runFieldOnCreateCallbacks, runFieldOnUpdateCallbacks, updateAndReturnDocument, assignUserIdToData } from "@/server/vulcan-lib/mutators";
 import cloneDeep from "lodash/cloneDeep";
 
@@ -49,7 +49,7 @@ export async function updateLlmMessage({ selector, data }: { selector: SelectorI
 
   await updateCountOfReferencesOnOtherCollectionsAfterUpdate('LlmMessages', updatedDocument, oldDocument);
 
-  void logFieldChanges({ currentUser, collection: LlmMessages, oldDocument, data: origData });
+  backgroundTask(logFieldChanges({ currentUser, collection: LlmMessages, oldDocument, data: origData }));
 
   return updatedDocument;
 }

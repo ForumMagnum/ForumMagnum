@@ -34,6 +34,14 @@ class ClientIdsRepo extends AbstractRepo<"ClientIds"> {
       `, [randomId(), clientId, referrer, landingPage, [userId]]);
     }
   }
+  
+  async isClientIdInvalidated(clientId: string): Promise<boolean> {
+    const idObjs = await this.getRawDb().oneOrNone(`
+      SELECT invalidated FROM "ClientIds"
+      WHERE _id=$1
+    `, [clientId]);
+    return !!idObjs?.invalidated;
+  }
 }
 
 recordPerfMetrics(ClientIdsRepo, { excludeMethods: ['ensureClientId'] });

@@ -2,7 +2,7 @@ import { useState, useCallback, useEffect } from "react";
 import { useCurrentUser } from "../common/withUser";
 import { useTracking } from "../../lib/analyticsEvents";
 import { useCookiesWithConsent } from "./useCookiesWithConsent";
-import { useMutation } from "@apollo/client";
+import { useMutation } from "@apollo/client/react";
 import { gql } from "@/lib/generated/gql-codegen";
 import moment from "moment";
 

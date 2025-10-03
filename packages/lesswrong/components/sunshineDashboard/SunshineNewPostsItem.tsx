@@ -12,7 +12,6 @@ import HomeIcon from '@/lib/vendor/@material-ui/icons/src/Home';
 import ClearIcon from '@/lib/vendor/@material-ui/icons/src/Clear';
 import VisibilityOutlinedIcon from '@/lib/vendor/@material-ui/icons/src/VisibilityOutlined';
 import { MANUAL_FLAG_ALERT } from "@/lib/collections/moderatorActions/constants";
-import { isFriendlyUI } from '../../themes/forumTheme';
 import MetaInfo from "../common/MetaInfo";
 import LinkPostMessage from "../posts/LinkPostMessage";
 import { ContentItemBody } from "../contents/ContentItemBody";
@@ -25,7 +24,7 @@ import { Typography } from "../common/Typography";
 import ContentStyles from "../common/ContentStyles";
 import SmallSideVote from "../votes/SmallSideVote";
 import ForumIcon from "../common/ForumIcon";
-import { useMutation } from "@apollo/client";
+import { useMutation } from "@apollo/client/react";
 import { gql } from "@/lib/generated/gql-codegen";
 
 const PostsListUpdateMutation = gql(`
@@ -38,11 +37,11 @@ const PostsListUpdateMutation = gql(`
   }
 `);
 
-const ModeratorActionsDefaultFragmentMutation = gql(`
+const ModeratorActionsCreateMutation = gql(`
   mutation createModeratorActionSunshineNewPostsItem($data: CreateModeratorActionDataInput!) {
     createModeratorAction(data: $data) {
       data {
-        ...ModeratorActionsDefaultFragment
+        _id
       }
     }
   }
@@ -72,7 +71,7 @@ const styles = (theme: ThemeType) => ({
     marginBottom: 8,
     display: "flex",
     alignItems: "center",
-    fontFamily: isFriendlyUI ? theme.palette.fonts.sansSerifStack : undefined,
+    fontFamily: theme.isFriendlyUI ? theme.palette.fonts.sansSerifStack : undefined,
   },
   vote: {
     marginRight: 8
@@ -89,7 +88,7 @@ const SunshineNewPostsItem = ({post, refetch, classes}: {
   
   const [updatePost] = useMutation(PostsListUpdateMutation);
 
-  const [createModeratorAction] = useMutation(ModeratorActionsDefaultFragmentMutation);
+  const [createModeratorAction] = useMutation(ModeratorActionsCreateMutation);
   
   const handlePersonal = () => {
     void updatePost({

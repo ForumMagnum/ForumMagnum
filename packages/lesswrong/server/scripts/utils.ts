@@ -1,5 +1,3 @@
-import * as _ from 'underscore';
-
 // Bulk apply a js function to a mongo collection; this is possibly less
 // performant, but much easier to write than the mongo update syntax.
 //
@@ -63,7 +61,7 @@ export const wrapVulcanAsyncScript = (name: string, scriptFunc: Function) => asy
 }
 
 export function getFieldsWithAttribute(schema: AnyBecauseTodo, attributeName: string): Array<string> {
-  return _.filter(Object.keys(schema), (fieldName) => !!schema[fieldName][attributeName])
+  return Object.keys(schema).filter((fieldName) => !!schema[fieldName][attributeName])
 }
 
 export async function urlIsBroken(url: string): Promise<boolean> {

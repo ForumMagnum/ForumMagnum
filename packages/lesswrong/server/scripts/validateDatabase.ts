@@ -1,5 +1,6 @@
 import { forEachDocumentBatchInCollection } from '../manualMigrations/migrationUtils';
-import { getSchema, getSimpleSchema } from '@/lib/schema/allSchemas';
+import { getSchema } from '@/lib/schema/allSchemas';
+import { getSimpleSchema } from '@/lib/schema/allSimpleSchemas';
 import { getAllCollections, getCollection } from "../collections/allCollections";
 
 type CollectionCustomValidatorFunction<T extends DbObject> = (documents: T[], recordError: (field: string, message: string) => void) => Promise<void>;

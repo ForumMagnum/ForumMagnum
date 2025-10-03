@@ -1,7 +1,7 @@
-
 import schema from "@/lib/collections/dialogueMatchPreferences/newSchema";
 import { updateCountOfReferencesOnOtherCollectionsAfterUpdate } from "@/server/callbacks/countOfReferenceCallbacks";
 import { logFieldChanges } from "@/server/fieldChanges";
+import { backgroundTask } from "@/server/utils/backgroundTask";
 import { getLegacyUpdateCallbackProps, runFieldOnUpdateCallbacks, updateAndReturnDocument } from "@/server/vulcan-lib/mutators";
 import cloneDeep from "lodash/cloneDeep";
 
@@ -26,7 +26,7 @@ export async function updateDialogueMatchPreference({ selector, data }: { select
 
   await updateCountOfReferencesOnOtherCollectionsAfterUpdate('DialogueMatchPreferences', updatedDocument, oldDocument);
 
-  void logFieldChanges({ currentUser, collection: DialogueMatchPreferences, oldDocument, data: origData });
+  backgroundTask(logFieldChanges({ currentUser, collection: DialogueMatchPreferences, oldDocument, data: origData }));
 
   return updatedDocument;
 }

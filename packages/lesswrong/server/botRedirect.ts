@@ -1,25 +1,6 @@
 import type { Request, Response, NextFunction } from 'express';
-import { DatabasePublicSetting } from '../lib/publicSettings';
+import { botSiteUrlSetting, botSiteUserAgentRegexesSetting, botSiteRedirectEnabledSetting } from '@/lib/instanceSettings';
 import { combineUrls } from '../lib/vulcan-lib/utils';
-import { PublicInstanceSetting } from '../lib/instanceSettings';
-
-/** Url of the bot site to redirect to, e.g. https://forum-bots.effectivealtruism.org (must include the http(s)://) */
-const botSiteUrlSetting = new DatabasePublicSetting<string|null>('botSite.url', null);
-/** e.g.
- * {
- *   '.*': [ // matches all paths
- *     '.*python.*',
- *     ...
- *   ],
- *   '/allPosts/?.*|/graphql/?.*': [ // Matches any path starting with /allPosts/ or /graphql/
- *     '.*python.*',
- *     ...
- *   ],
- * }
-*/
-const botSiteUserAgentRegexesSetting = new DatabasePublicSetting<Record<string, string[]> | null>('botSite.userAgentRegexes', null);
-
-const botSiteRedirectEnabledSetting = new PublicInstanceSetting<boolean>('botSite.redirectEnabled', false, 'optional');
 
 const getBaseUrl = () => {
   const botSiteBaseUrl = botSiteUrlSetting.get();

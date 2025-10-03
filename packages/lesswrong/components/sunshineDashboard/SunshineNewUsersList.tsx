@@ -72,7 +72,12 @@ const SunshineNewUsersList = ({ classes, terms, currentUser }: {
   }
 }
 
-export default registerComponent('SunshineNewUsersList', SunshineNewUsersList, {styles});
+export default registerComponent('SunshineNewUsersList', SunshineNewUsersList, {
+  styles,
+  areEqual: {
+    terms: "deep",
+  },
+});
 
 
 

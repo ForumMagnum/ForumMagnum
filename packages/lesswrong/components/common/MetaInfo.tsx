@@ -1,7 +1,6 @@
 import React from 'react';
 import { registerComponent } from '../../lib/vulcan-lib/components';
 import classNames from 'classnames'
-import { isFriendlyUI } from '@/themes/forumTheme';
 import { Typography } from "./Typography";
 
 export const styles = (theme: ThemeType) => ({
@@ -11,7 +10,7 @@ export const styles = (theme: ThemeType) => ({
     marginRight: theme.spacing.unit,
     fontSize: "1rem",
     
-    ...(isFriendlyUI && {
+    ...(theme.isFriendlyUI && {
       fontFamily: theme.palette.fonts.sansSerifStack
     }),
   },

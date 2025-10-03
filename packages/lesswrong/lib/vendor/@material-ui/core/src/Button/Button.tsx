@@ -143,7 +143,7 @@ export const styles = defineStyles("MuiButton", theme => ({
   },
   /* Styles applied to the root element if `variant="[contained | fab]"`. */
   contained: {
-    color: theme.themeOptions.name === 'dark' ? theme.palette.greyAlpha(1.0) : theme.palette.greyAlpha(0.87),
+    color: theme.dark ? theme.palette.greyAlpha(1.0) : theme.palette.greyAlpha(0.87),
     backgroundColor: theme.palette.grey[300],
     boxShadow: theme.shadows[2],
     '&$focusVisible': {

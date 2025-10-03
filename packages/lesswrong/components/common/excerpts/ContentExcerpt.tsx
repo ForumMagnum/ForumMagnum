@@ -1,10 +1,11 @@
 import React, { useCallback, useState } from "react";
 import { registerComponent } from "../../../lib/vulcan-lib/components";
 import { Link } from "../../../lib/reactRouterWrapper";
-import ContentStyles, { ContentStyleType } from "../ContentStyles";
+import ContentStyles from "../ContentStyles";
 import classNames from "classnames";
 import { truncate } from "../../../lib/editor/ellipsize";
 import { ContentItemBody } from "../../contents/ContentItemBody";
+import type { ContentStyleType } from "@/components/common/ContentStylesValues";
 
 const HTML_CHARS_PER_LINE_HEURISTIC = 120;
 const EXPAND_IN_PLACE_LINES = 10;

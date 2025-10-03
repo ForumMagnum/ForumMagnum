@@ -120,6 +120,7 @@ import MuiExpandMoreIcon from "@/lib/vendor/@material-ui/icons/src/ExpandMore";
 import MuiExpandLessIcon from "@/lib/vendor/@material-ui/icons/src/ExpandLess";
 import MuiPlaylistAddIcon from "@/lib/vendor/@material-ui/icons/src/PlaylistAdd";
 import PlusOneIcon from '@/lib/vendor/@material-ui/icons/src/PlusOne';
+import MuiReplayIcon from "@/lib/vendor/@material-ui/icons/src/Replay";
 import UndoIcon from '@/lib/vendor/@material-ui/icons/src/Undo';
 import ClearIcon from '@/lib/vendor/@material-ui/icons/src/Clear';
 import FullscreenIcon from '@/lib/vendor/@material-ui/icons/src/Fullscreen';
@@ -167,6 +168,7 @@ import { CrossReactionIcon } from "../icons/reactions/CrossReactionIcon";
 import { CrossReactionCapIcon } from "../icons/CrossReactionCapIcon";
 import { GivingHandIcon } from "../icons/GivingHandIcon";
 import { DictionaryIcon } from "../icons/Dictionary";
+import { QuestionMarkIcon } from "../icons/QuestionMarkIcon";
 import { defineStyles, useStyles } from "../hooks/useStyles";
 
 /**
@@ -259,12 +261,14 @@ export type ForumIconName =
   "ArrowRight" |
   "ArrowRightOutline" |
   "ArrowCircle" |
+  "Autorenew" |
   "EllipsisVertical" |
   "Share" |
   "ClipboardDocumentList" |
   "ClipboardDocument" |
   "QuestionMarkCircle" |
   "QuestionMarkCircleFilled" |
+  "QuestionMark" |
   "Search" |
   "ComputerDesktop" |
   "Menu" |
@@ -391,12 +395,14 @@ const ICONS: ForumOptions<Record<ForumIconName, IconComponent>> = {
     ArrowLeft: ArrowLeftIcon,
     ArrowRightOutline: ArrowRightOutlineIcon,
     ArrowCircle: ArrowCircleIcon,
+    Autorenew: MuiReplayIcon,
     EllipsisVertical: MuiEllipsisVerticalIcon,
     Share: MuiShareIcon,
     ClipboardDocumentList: ClipboardDocumentListIcon,
     ClipboardDocument: ClipboardDocumentIcon,
     QuestionMarkCircle: QuestionMarkCircleIcon,
     QuestionMarkCircleFilled: QuestionMarkCircleFilledIcon,
+    QuestionMark: QuestionMarkIcon,
     Search: MuiSearchIcon,
     ComputerDesktop: ComputerDesktopIcon,
     Menu: MuiMenuIcon,
@@ -522,12 +528,14 @@ const ICONS: ForumOptions<Record<ForumIconName, IconComponent>> = {
     ArrowRight: ArrowRightIcon,
     ArrowRightOutline: ArrowRightOutlineIcon,
     ArrowCircle: ArrowCircleIcon,
+    Autorenew: MuiReplayIcon,
     EllipsisVertical: EllipsisVerticalIcon,
     Share: ShareIcon,
     ClipboardDocumentList: ClipboardDocumentListIcon,
     ClipboardDocument: ClipboardDocumentIcon,
     QuestionMarkCircle: QuestionMarkCircleIcon,
     QuestionMarkCircleFilled: QuestionMarkCircleFilledIcon,
+    QuestionMark: QuestionMarkIcon,
     Search: SearchIcon,
     ComputerDesktop: ComputerDesktopIcon,
     Menu: MenuIcon,

@@ -25,22 +25,6 @@ export const lastEventFragment = gql(`
   }
 `)
 
-export const lwEventsAdminPageFragment = gql(`
-  fragment lwEventsAdminPageFragment on LWEvent {
-    _id
-    createdAt
-    userId
-    user {
-      ...UsersMinimumInfo
-    }
-    name
-    documentId
-    important
-    properties
-    intercom
-  }
-`)
-
 export const emailHistoryFragment = gql(`
   fragment emailHistoryFragment on LWEvent {
     _id

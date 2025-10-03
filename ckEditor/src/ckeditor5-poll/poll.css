@@ -1,7 +1,7 @@
-/* 
- * Where vars like --palette-fonts-sansSerifStack are used here, this relies on
- * requireCssVar("palette", "fonts", "sansSerifStack") being called somewhere in the
- * main code. This is done in stylePiping.ts.
+/*
+ * Where vars like --palette-fonts-sansSerifStack are used here, they come from
+ * ckEditorStlyes.ts and are named in a convention symmetric with the structure
+ * of the `theme` object.
  */
 
 .ck.ck-poll-form {

@@ -5,21 +5,21 @@ import { isRecombeeRecommendablePost, postGetPageUrl } from '../../lib/collectio
 import { curatedUrl } from '../recommendations/constants';
 import { Link } from '../../lib/reactRouterWrapper';
 import { isFriendlyUI } from '../../themes/forumTheme';
-import { isAF } from '../../lib/instanceSettings';
+import { isAF, recombeeEnabledSetting } from '@/lib/instanceSettings';
 import { useTracking } from '@/lib/analyticsEvents';
 import { useSetIsHiddenMutation } from '../dropdowns/posts/useSetIsHidden';
-import { recombeeEnabledSetting } from '@/lib/publicSettings';
 import { recombeeApi } from '@/lib/recombee/client';
 import { useCurrentUser } from '../common/withUser';
 import { IsRecommendationContext } from '../dropdowns/posts/PostActions';
 import LWTooltip from "../common/LWTooltip";
 import ForumIcon from "../common/ForumIcon";
 import OmegaIcon from "../icons/OmegaIcon";
+import { defineStyles, useStyles } from '../hooks/useStyles';
 
-const styles = (theme: ThemeType) => ({
+const styles = defineStyles("PostsItemIcons", (theme: ThemeType) => ({
   iconSet: {
-    marginLeft: isFriendlyUI ? 6 : theme.spacing.unit,
-    marginRight: isFriendlyUI ? 2 : theme.spacing.unit,
+    marginLeft: theme.isFriendlyUI ? 6 : theme.spacing.unit,
+    marginRight: theme.isFriendlyUI ? 2 : theme.spacing.unit,
     lineHeight: "1.0rem",
     '&:empty': {
       display: 'none',
@@ -34,23 +34,23 @@ const styles = (theme: ThemeType) => ({
     '&&': {
       "--icon-size": "15.6px",
       fontSize: "15.6px",
-      color: isFriendlyUI ? theme.palette.grey[600] : theme.palette.icon.dim4,
+      color: theme.isFriendlyUI ? theme.palette.grey[600] : theme.palette.icon.dim4,
       position: "relative",
       top: 3,
     },
   },
   curatedIcon: {
     "--icon-size": "15.6px",
-    color: isFriendlyUI ? theme.palette.grey[600] : theme.palette.icon.dim4,
+    color: theme.isFriendlyUI ? theme.palette.grey[600] : theme.palette.icon.dim4,
     position: "relative",
-    top: isFriendlyUI ? 2 : 3,
+    top: theme.isFriendlyUI ? 2 : 3,
   },
   curatedIconColor: {
-    color: isFriendlyUI ? theme.palette.icon.yellow : theme.palette.primary.main,
+    color: theme.isFriendlyUI ? theme.palette.icon.yellow : theme.palette.primary.main,
   },
   question: {
     "--icon-size": "15.6px",
-    color: isFriendlyUI ? theme.palette.grey[600] : theme.palette.icon.dim4,
+    color: theme.isFriendlyUI ? theme.palette.grey[600] : theme.palette.icon.dim4,
     fontWeight: '600'
   },
   alignmentIcon: {
@@ -61,7 +61,7 @@ const styles = (theme: ThemeType) => ({
   linkIcon: {
     position: "relative",
     "--icon-size": "15.6px",
-    ...(isFriendlyUI
+    ...(theme.isFriendlyUI
       ? {
         top: 1,
         color: theme.palette.grey[600],
@@ -72,40 +72,38 @@ const styles = (theme: ThemeType) => ({
       }),
   },
   dialogueIcon: {
-    strokeWidth: isFriendlyUI ? "2px" : undefined,
+    strokeWidth: theme.isFriendlyUI ? "2px" : undefined,
   },
   recommendationIcon: {
-    color: isFriendlyUI ? theme.palette.grey[600] : theme.palette.icon.dim4,
+    color: theme.isFriendlyUI ? theme.palette.grey[600] : theme.palette.icon.dim4,
     '&:hover': {
       opacity: 0.5
     }
   }
-});
+}));
 
-const CuratedIconInner = ({hasColor, classes}: {
+export const CuratedIcon = ({hasColor}: {
   hasColor?: boolean,
-  classes: ClassesType<typeof styles>,
 }) => {
+  const classes = useStyles(styles);
   return <span className={classes.postIcon}>
       <LWTooltip title={<div>Curated <div><em>(click to view all curated posts)</em></div></div>} placement="bottom-start">
         <Link to={curatedUrl}>
           <ForumIcon icon="Star" className={classNames(
             classes.curatedIcon,
-            {[classes.curatedIconColor]: hasColor && isFriendlyUI},
+            {[classes.curatedIconColor]: hasColor && isFriendlyUI()},
           )}/>
         </Link>
       </LWTooltip>
     </span>
 }
 
-export const CuratedIcon = registerComponent('CuratedIcon', CuratedIconInner, {styles});
 
-
-const RecommendedPostIcon = ({post, hover, classes}: {
+const RecommendedPostIcon = ({post, hover}: {
   post: PostsBase,
   hover?: boolean,
-  classes: ClassesType<typeof styles>,
 }) => {
+  const classes = useStyles(styles);
   const { captureEvent } = useTracking() 
   const { setIsHiddenMutation } = useSetIsHiddenMutation();
   const currentUser = useCurrentUser();
@@ -133,13 +131,13 @@ const RecommendedPostIcon = ({post, hover, classes}: {
 }
 
 
-const PostsItemIconsInner = ({post, hover, classes, hideCuratedIcon, hidePersonalIcon}: {
+export const PostsItemIcons = ({post, hover, hideCuratedIcon, hidePersonalIcon}: {
   post: PostsBase,
   hover?: boolean,
   hideCuratedIcon?: boolean,
   hidePersonalIcon?: boolean
-  classes: ClassesType<typeof styles>,
 }) => {
+  const classes = useStyles(styles);
   const showRecommendationIcon = useContext(IsRecommendationContext)
 
   return <span className={classes.iconSet}>
@@ -161,7 +159,7 @@ const PostsItemIconsInner = ({post, hover, classes, hideCuratedIcon, hidePersona
       <LWTooltip title="Dialogue" placement="right">
         <ForumIcon
           icon={
-            isFriendlyUI
+            isFriendlyUI()
               ? "ChatBubbleLeftRight"
               : "ChatBubbleLeftRightFilled"
           }
@@ -176,17 +174,12 @@ const PostsItemIconsInner = ({post, hover, classes, hideCuratedIcon, hidePersona
       </LWTooltip>
     </span>}
 
-    {!isAF && post.af && <span className={classes.postIcon}>
+    {!isAF() && post.af && <span className={classes.postIcon}>
       <LWTooltip title={<div>Crossposted from AlignmentForum.org<div><em>(Click to visit AF version)</em></div></div>} placement="right">
           <a href={`https://alignmentforum.org${postGetPageUrl(post)}`}><OmegaIcon className={classNames(classes.icon, classes.alignmentIcon)}/></a>
       </LWTooltip>
     </span>}
 
-    {showRecommendationIcon && <RecommendedPostIcon post={post} hover={hover} classes={classes}/>}
-
+    {showRecommendationIcon && <RecommendedPostIcon post={post} hover={hover}/>}
   </span>
 }
-
-export const PostsItemIcons = registerComponent('PostsItemIcons', PostsItemIconsInner, {styles});
-
-

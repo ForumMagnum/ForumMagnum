@@ -4,7 +4,7 @@ import { accessFilterMultiple } from "../lib/utils/schemaUtils";
 import { computeContextFromUser } from "./vulcan-lib/apollo-server/context";
 import { getSqlFragment } from "@/lib/fragments/sqlFragments";
 import { TypedDocumentNode } from "@apollo/client";
-import { FragmentDefinitionNode, print } from "graphql";
+import { FragmentDefinitionNode } from "graphql";
 type FetchFragmentOptions<
   F,
   V,
@@ -79,14 +79,13 @@ export const fetchFragment = async <
     isSSR: false,
   });
 
-  const fragmentText = print(fragmentDoc)
-  const fragmentDefinition = fragmentDoc.definitions.find((def): def is FragmentDefinitionNode => def.kind === 'FragmentDefinition')
-  if (!fragmentDefinition) {
+  const fragmentDefinitions = fragmentDoc.definitions.filter((def): def is FragmentDefinitionNode => def.kind === 'FragmentDefinition')
+  if (!fragmentDefinitions.length) {
     throw new Error('Fragment definition not found');
   }
-  const fragmentName = fragmentDefinition.name.value;
+  const fragmentName = fragmentDefinitions[0].name.value;
 
-  const sqlFragment = getSqlFragment(fragmentName, fragmentText);
+  const sqlFragment = getSqlFragment(fragmentName, fragmentDefinitions);
 
   const query = new SelectFragmentQuery(
     sqlFragment,

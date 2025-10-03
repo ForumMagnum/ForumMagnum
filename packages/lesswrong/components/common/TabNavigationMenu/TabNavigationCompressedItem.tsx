@@ -3,7 +3,6 @@ import React from 'react';
 import { Link } from '../../../lib/reactRouterWrapper';
 import classNames from 'classnames';
 import { MenuTabRegular } from './menuTabs';
-import { isFriendlyUI } from '@/themes/forumTheme';
 import LWTooltip from "../LWTooltip";
 import { MenuItemLink } from "../Menus";
 
@@ -20,7 +19,7 @@ const styles = (theme: ThemeType) => ({
       width: compressedIconSize,
       height: compressedIconSize,
     },
-    ...(isFriendlyUI && {
+    ...(theme.isFriendlyUI && {
       opacity: 1,
     }),
   },

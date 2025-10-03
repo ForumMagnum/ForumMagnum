@@ -23,7 +23,7 @@ const LoginPopup = ({onClose, classes}: {
   onClose?: () => void,
   classes: ClassesType<typeof styles>,
 }) => {
-  if (isFriendlyUI) {
+  if (isFriendlyUI()) {
     return (
       <LoginForm onClose={onClose} />
     );

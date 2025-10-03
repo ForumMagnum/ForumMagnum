@@ -2,7 +2,7 @@ interface CallbackPropertiesBase<N extends CollectionNameString> {
   // TODO: Many of these are empirically optional, but setting them to optional
   // causes a bajillion type errors, so we will not be fixing today
   currentUser: DbUser|null
-  collection: CollectionBase<N>
+  collection: PgCollection<N>
   context: ResolverContext
   schema: SchemaType<N>
 }

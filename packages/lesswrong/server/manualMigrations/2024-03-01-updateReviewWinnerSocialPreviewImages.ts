@@ -11,7 +11,7 @@ export default registerMigration({
     const { Posts, ReviewWinners, repos: { reviewWinnerArts } } = adminContext;
     const reviewWinners = await ReviewWinners.find().fetch();
     const reviewWinnerPostIds = reviewWinners.map(rw => rw.postId);
-    const activeArt = await reviewWinnerArts.getAllActiveReviewWinnerArt(reviewWinnerPostIds);
+    const activeArt = await reviewWinnerArts.getActiveReviewWinnerArt(reviewWinnerPostIds);
 
     for (let [idx, art] of Object.entries(activeArt)) {
       const postId = reviewWinnerPostIds[parseInt(idx)];

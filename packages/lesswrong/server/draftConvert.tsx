@@ -1,6 +1,6 @@
 import React from 'react';
-// import { convertToHTML } from 'draft-convert';
-const convertToHTML = (converters: AnyBecauseHard) => '';
+import { convertToHTML } from 'draft-convert';
+//const convertToHTML = (converters: AnyBecauseHard) => '';
 
 
 export const draftToHTML = convertToHTML({

@@ -13,30 +13,29 @@ class ReviewWinnerArtsRepo extends AbstractRepo<"ReviewWinnerArts"> {
     super(ReviewWinnerArts);
   }
 
-  async getAllActiveReviewWinnerArt(postIds: string[]) {
+  async getActiveReviewWinnerArt(postIds: string[]) {
     const reviewWinnerArts = await this.any(`
-      WITH "LatestSplashArtCoordinate" AS (
-        SELECT
-          sac."reviewWinnerArtId",
-          MAX(sac."createdAt") AS "mostRecentlyCreatedAt"
-        FROM "SplashArtCoordinates" sac
-        GROUP BY sac."reviewWinnerArtId"
-      ),
-      "RankedReviewWinnerArts" AS (
+      WITH "RankedReviewWinnerArts" AS (
         SELECT
           rwa._id,
           ROW_NUMBER() OVER (PARTITION BY rwa."postId" ORDER BY sac."createdAt" DESC) AS rn
         FROM "ReviewWinnerArts" rwa
-        INNER JOIN "LatestSplashArtCoordinate" lsac ON rwa._id = lsac."reviewWinnerArtId"
-        INNER JOIN "SplashArtCoordinates" sac ON rwa._id = sac."reviewWinnerArtId" AND sac."createdAt" = lsac."mostRecentlyCreatedAt"
-        JOIN "Posts" p ON rwa."postId" = p._id
+        INNER JOIN (
+          SELECT
+            sac."reviewWinnerArtId",
+            MAX(sac."createdAt") AS "mostRecentlyCreatedAt"
+          FROM "SplashArtCoordinates" sac
+          GROUP BY sac."reviewWinnerArtId"
+        ) latest_splash_art_coordinates ON rwa._id = latest_splash_art_coordinates."reviewWinnerArtId"
+        INNER JOIN "SplashArtCoordinates" sac ON rwa._id = sac."reviewWinnerArtId" AND sac."createdAt" = latest_splash_art_coordinates."mostRecentlyCreatedAt"
+        WHERE rwa."postId" IN ($1:csv)
       )
       SELECT *
       FROM "RankedReviewWinnerArts"
       JOIN "ReviewWinnerArts" AS rwa
       ON "RankedReviewWinnerArts"._id = rwa._id
       WHERE rn = 1;
-    `, []);
+    `, [postIds]);
 
     const artByPostId = keyBy(reviewWinnerArts, rwa => rwa.postId);
     return postIds.map(postId => artByPostId[postId] ?? null);

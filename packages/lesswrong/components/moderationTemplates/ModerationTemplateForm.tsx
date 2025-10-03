@@ -1,4 +1,4 @@
-import { defaultEditorPlaceholder } from '@/lib/editor/defaultEditorPlaceholder';
+import { getDefaultEditorPlaceholder } from '@/lib/editor/defaultEditorPlaceholder';
 import Button from "@/lib/vendor/@material-ui/core/src/Button";
 import { useForm } from "@tanstack/react-form";
 import classNames from "classnames";
@@ -13,7 +13,7 @@ import { getUpdatedFieldValues } from "@/components/tanstack-form-components/hel
 import { useFormErrors } from "@/components/tanstack-form-components/BaseAppForm";
 import Error404 from "../common/Error404";
 import FormComponentCheckbox from "../form-components/FormComponentCheckbox";
-import { useMutation } from "@apollo/client";
+import { useMutation } from "@apollo/client/react";
 import { gql } from "@/lib/generated/gql-codegen";
 
 const ModerationTemplateFragmentUpdateMutation = gql(`
@@ -153,7 +153,7 @@ export const ModerationTemplatesForm = ({
               document={form.state.values}
               addOnSubmitCallback={addOnSubmitCallback}
               addOnSuccessCallback={addOnSuccessCallback}
-              hintText={defaultEditorPlaceholder}
+              hintText={getDefaultEditorPlaceholder()}
               fieldName="contents"
               collectionName="ModerationTemplates"
               commentEditor={true}

@@ -1,6 +1,7 @@
 import type { AfterCreateCallbackProperties, UpdateCallbackProperties } from '../mutationCallbacks';
 import difference from 'lodash/difference';
 import { createNotifications } from '../notificationCallbacksHelpers';
+import { backgroundTask } from '../utils/backgroundTask';
 
 export function validateGroupIsOnlineOrHasLocation(group: CreateLocalgroupDataInput | DbLocalgroup) {
   if (!group.isOnline && !group.location)
@@ -31,10 +32,10 @@ export async function handleOrganizerUpdates({ newDocument, oldDocument, context
 
     const newOrganizerOfGroupIds = difference(organizer.organizerOfGroupIds, [newDocument._id])
     if (organizer.organizerOfGroupIds.length > newOrganizerOfGroupIds.length) {
-      void Users.rawUpdateOne(
+      backgroundTask(Users.rawUpdateOne(
         {_id: organizer._id},
         {$set: {organizerOfGroupIds: newOrganizerOfGroupIds}}
-      )
+      ))
     }
   })
 }

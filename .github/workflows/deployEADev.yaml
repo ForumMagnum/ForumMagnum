@@ -2,7 +2,7 @@ name: Deploy EA Staging
 concurrency: deploy-ea-dev
 on:
   push:
-    branches: [ ea-deploy, master ]
+    branches: [ ea-deploy, ea-staging ]
 jobs:
   deploy:
     runs-on: ubuntu-latest
@@ -19,7 +19,7 @@ jobs:
       # `packaging` is a workaround for https://github.com/aws/aws-elastic-beanstalk-cli/issues/541
     - run: pip3 install "pyyaml<5.4" && pip3 install --upgrade pip packaging awsebcli
     - name: Run Migrations
-      if: github.ref == 'refs/heads/master'
+      if: github.ref == 'refs/heads/ea-staging'
       uses: ./.github/actions/runMigrations
       with:
         mode: staging

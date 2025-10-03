@@ -1,9 +1,8 @@
 import React from 'react';
 import { taggingNameCapitalSetting, taggingNameSetting } from '../../lib/instanceSettings';
-import { isFriendlyUI, preferredHeadingCase } from '../../themes/forumTheme';
-import { voteButtonsDisabledForUser } from '../../lib/collections/users/helpers';
+import { preferredHeadingCase } from '../../themes/forumTheme';
+import { useVoteButtonsDisabled } from '../votes/useVoteButtonsDisabled';
 import { registerComponent } from '../../lib/vulcan-lib/components';
-import { useCurrentUser } from '../common/withUser';
 import { useVote } from '../votes/withVote';
 import TagPreview from "./TagPreview";
 import OverallVoteButton from "../votes/OverallVoteButton";
@@ -12,7 +11,7 @@ import LWTooltip from "../common/LWTooltip";
 
 const styles = (theme: ThemeType) => ({
   relevance: {
-    marginTop: isFriendlyUI ? undefined : 2,
+    marginTop: theme.isFriendlyUI ? undefined : 2,
     marginLeft: 16,
     ...theme.typography.commentStyle,
   },
@@ -23,7 +22,7 @@ const styles = (theme: ThemeType) => ({
   voteButton: {
     display: "inline-block",
     fontSize: 25,
-    transform: isFriendlyUI ? "translateY(2px)" : undefined,
+    transform: theme.isFriendlyUI ? "translateY(2px)" : undefined,
   },
   score: {
     marginLeft: 4,
@@ -31,7 +30,7 @@ const styles = (theme: ThemeType) => ({
     color: theme.palette.grey[1000],
   },
   removeButton: {
-    ...(isFriendlyUI
+    ...(theme.isFriendlyUI
       ? {
         float: "right",
         marginTop: 10,
@@ -44,7 +43,7 @@ const styles = (theme: ThemeType) => ({
       }),
   },
   removed: {
-    ...(isFriendlyUI
+    ...(theme.isFriendlyUI
       ? {
         float: "right",
         marginTop: 12,
@@ -63,12 +62,11 @@ const TagRelCard = ({tagRel, classes}: {
   tagRel: TagRelMinimumFragment,
   classes: ClassesType<typeof styles>,
 }) => {
-  const currentUser = useCurrentUser();
   const voteProps = useVote(tagRel, "TagRels");
   const newlyVoted = !!(tagRel.currentUserVote==="smallUpvote" && voteProps.voteCount === 1)
 
   // We check both whether the current user can vote at all, and whether they can specifically vote on this tagrel
-  const {fail, reason: whyYouCantVote} = voteButtonsDisabledForUser(currentUser);
+  const {fail, reason: whyYouCantVote} = useVoteButtonsDisabled();
   const canVote = tagRel.currentUserCanVote && !fail;
   
   const TooltipIfDisabled = (canVote

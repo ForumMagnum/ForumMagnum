@@ -56,7 +56,7 @@ const SunshineSidebar = ({classes}: {classes: ClassesType<typeof styles>}) => {
   if (!currentUser) return null
 
   const showInitialSidebar = userCanDo(currentUser, 'posts.moderate.all') || currentUser.groups?.includes('alignmentForumAdmins')
-  const underbellyName = isLWorAF ? 'the Underbelly' : 'Low Priority'
+  const underbellyName = isLWorAF() ? 'the Underbelly' : 'Low Priority'
 
   return (
     <div className={classes.root}>

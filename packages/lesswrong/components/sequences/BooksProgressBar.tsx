@@ -4,7 +4,6 @@ import { Link } from '../../lib/reactRouterWrapper';
 import { postGetPageUrl } from '../../lib/collections/posts/helpers';
 import classNames from 'classnames';
 import { useItemsRead } from '../hooks/useRecordPostView';
-import { isFriendlyUI } from '../../themes/forumTheme';
 import LWTooltip from "../common/LWTooltip";
 import PostsTooltip from "../posts/PostsPreviewTooltip/PostsTooltip";
 import LoginToTrack from "./LoginToTrack";
@@ -27,7 +26,7 @@ const styles = (theme: ThemeType) => ({
   },
   read: {
     ...(
-      isFriendlyUI
+      theme.isFriendlyUI
         ? {
           backgroundColor: theme.palette.primary.main,
           border: theme.palette.primary.dark,

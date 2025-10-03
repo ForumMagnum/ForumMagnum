@@ -3,7 +3,7 @@ import {
   accessFilterSingle, arrayOfForeignKeysOnCreate, generateIdResolverMulti,
   getDenormalizedCountOfReferencesGetValue
 } from "../../utils/schemaUtils";
-import * as _ from "underscore";
+import difference from "lodash/difference";
 import { getWithCustomLoader } from "../../loaders";
 
 const schema = {
@@ -153,7 +153,7 @@ const schema = {
       // but I don't expect this to ever come up, and it fails relatively gracefully in case one does occur
       onUpdate: ({ data, currentUser, oldDocument }) => {
         if (data?.archivedByIds) {
-          const changedIds = _.difference(oldDocument?.archivedByIds || [], data?.archivedByIds);
+          const changedIds = difference(oldDocument?.archivedByIds || [], data?.archivedByIds);
           changedIds.forEach((id) => {
             if (id !== currentUser?._id) {
               throw new Error(`You can't archive or unarchive a conversation for another user. Attempted update: ${JSON.stringify(data)}`);

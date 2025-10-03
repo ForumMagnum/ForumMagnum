@@ -9,7 +9,7 @@ declare global {
   }
 }
 
-function currentUserMostValuablePosts(_terms: UserMostValuablePostsViewTerms, _: ApolloClient<NormalizedCacheObject>, context?: ResolverContext) {
+function currentUserMostValuablePosts(_terms: UserMostValuablePostsViewTerms, _: ApolloClient, context?: ResolverContext) {
   return {
     selector: {
       userId: context?.currentUser?._id
@@ -17,7 +17,7 @@ function currentUserMostValuablePosts(_terms: UserMostValuablePostsViewTerms, _:
   };
 }
 
-function currentUserPost(terms: UserMostValuablePostsViewTerms, _: ApolloClient<NormalizedCacheObject>, context?: ResolverContext) {
+function currentUserPost(terms: UserMostValuablePostsViewTerms, _: ApolloClient, context?: ResolverContext) {
   return {
     selector: {
       userId: context?.currentUser?._id,

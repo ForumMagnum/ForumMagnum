@@ -6,7 +6,7 @@ import classNames from "classnames";
 import { useQuery } from "@/lib/crud/useQuery";
 import { gql } from "@/lib/generated/gql-codegen";
 import LWTooltip from "../../common/LWTooltip";
-import CommentsNodeInner from "../../comments/CommentsNode";
+import CommentsNode from "../../comments/CommentsNode";
 import Loading from "../../vulcan-core/Loading";
 
 const CommentsListWithParentMetadataQuery = gql(`
@@ -180,9 +180,9 @@ export const NotificationsPageItem = ({
             <div className={classes.preview}>
               {previewCommentLoading && <Loading />}
               {previewComment &&
-                <CommentsNodeInner
+                <CommentsNode
                   treeOptions={{
-                    scrollOnExpand: true,
+                    scrollOnExpand: false,
                     condensed: true,
                     post: previewComment.post ?? post,
                     tag: previewComment.tag ?? undefined,

@@ -9,10 +9,10 @@ const styles = (theme: ThemeType) => ({
     marginTop: 1
   },
   invertIfDarkMode: {
-    filter: (theme.palette.type==="dark") ? "invert(1)" : undefined,
+    filter: (theme.palette.type==="dark") ? "invert(1)" : "unset",
   },
   invertUnlessDarkMode: {
-    filter: (theme.palette.type==="dark") ? undefined : "invert(1)"
+    filter: (theme.palette.type==="dark") ? "unset" : "invert(1)"
   }
 })
 

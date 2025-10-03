@@ -75,7 +75,6 @@ export const CommentsList = gql(`
     debateResponse
     rejected
     rejectedReason
-    modGPTRecommendation
     originalDialogueId
 
     forumEventId
@@ -96,8 +95,7 @@ export const UltraFeedComment = gql(`
   fragment UltraFeedComment on Comment {
     ...CommentsList
     post {
-      ...PostsMinimumInfo
-      votingSystem
+      ...PostsListWithVotes
     }
   }
 `)
@@ -110,6 +108,20 @@ export const ShortformComments = gql(`
     }
     relevantTags {
       ...TagPreviewFragment
+    }
+  }
+`)
+
+export const FrontpageShortformComments = gql(`
+  fragment FrontpageShortformComments on Comment {
+    ...ShortformComments
+    latestChildren {
+      _id
+      postedAt
+      user {
+        _id
+        displayName
+      }
     }
   }
 `)
@@ -219,15 +231,6 @@ export const WithVoteComment = gql(`
     afBaseScore
     afExtendedScore
     voteCount
-  }
-`)
-
-export const CommentsListWithModerationMetadata = gql(`
-  fragment CommentsListWithModerationMetadata on Comment {
-    ...CommentWithRepliesFragment
-    allVotes {
-      voteType
-    }
   }
 `)
 

@@ -2,7 +2,6 @@ import React, { useState } from 'react';
 import { registerComponent } from '../../lib/vulcan-lib/components';
 import type { SyntheticReviewVote } from './ReviewVotingPage';
 import classNames from 'classnames';
-import * as _ from "underscore"
 import Input from '@/lib/vendor/@material-ui/core/src/Input';
 import InputAdornment from '@/lib/vendor/@material-ui/core/src/InputAdornment';
 import IconButton from '@/lib/vendor/@material-ui/core/src/IconButton';
@@ -75,7 +74,13 @@ const ReactionsButton = ({classes, postId, vote, votes, reaction, freeEntry }: {
 
   return <span 
     className={classNames(classes.root, {[classes.active]: currentReactions.includes(reaction), [classes.textEntryOpen]: textFieldOpen })}
-    onClick={createClickHandler(postId, currentReactions.includes(reaction) ? _.without(currentReactions, reaction) : [...currentReactions, reaction], voteForCurrentPost?.score)}
+    onClick={createClickHandler(
+      postId,
+      currentReactions.includes(reaction)
+        ? currentReactions.filter((r: string) => r !== reaction)
+        : [...currentReactions, reaction],
+      voteForCurrentPost?.score
+    )}
   >
     {textFieldOpen ? <Input
       placeholder={reaction}

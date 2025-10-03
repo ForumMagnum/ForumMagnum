@@ -1,6 +1,6 @@
 import { slugify } from '@/lib/utils/slugify';
 import pick from 'lodash/pick';
-import SimpleSchema from 'simpl-schema';
+import SimpleSchema from '@/lib/utils/simpleSchema';
 import { getUserEmail, userCanEditUser } from "../../lib/collections/users/helpers";
 import { isEAForum, airtableApiKeySetting } from '../../lib/instanceSettings';
 import { userIsAdminOrMod } from '../../lib/vulcan-users/permissions';
@@ -12,6 +12,7 @@ import { getUnusedSlugByCollectionName } from '../utils/slugUtil';
 import gql from 'graphql-tag';
 import { updateUser } from '../collections/users/mutations';
 import { accessFilterSingle } from '@/lib/utils/schemaUtils';
+import { backgroundTask } from '../utils/backgroundTask';
 
 type NewUserUpdates = {
   username: string
@@ -27,13 +28,29 @@ const {Query: suggestedFeedQuery, typeDefs: suggestedFeedTypeDefs} = createPagin
     context: ResolverContext,
     limit: number,
   ): Promise<DbUser[]> => {
-    const {currentUser} = context;
+    const {currentUser, clientId} = context;
 
-    if (!currentUser) {
-      throw new Error("You must be logged to get suggsted users to subscribe to.");
+    if (currentUser) {
+      return await context.repos.users.getSubscriptionFeedSuggestedUsersForLoggedIn(currentUser._id, limit);
+    } else {
+      return await context.repos.users.getSubscriptionFeedSuggestedUsersForLoggedOut(clientId, limit);
     }
+  }
+});
 
-    return await context.repos.users.getSubscriptionFeedSuggestedUsers(currentUser._id, limit);
+// TODO: Remove this after ~3 days from deployment (added for backwards compatibility on 2025-09-24)
+// This is the old query that older clients may still be using
+// Client code has been migrated to use SuggestedFeedSubscriptionUsers instead
+const {Query: suggestedTopActiveUsersQuery, typeDefs: suggestedTopActiveUsersTypeDefs} = createPaginatedResolver({
+  name: "SuggestedTopActiveUsers",
+  graphQLType: "User",
+  callback: async (
+    context: ResolverContext,
+    limit: number,
+  ): Promise<DbUser[]> => {
+    // Use the same logic as the new unified query for logged-out users
+    const {clientId} = context;
+    return await context.repos.users.getSubscriptionFeedSuggestedUsersForLoggedOut(clientId ?? null, limit);
   }
 });
 
@@ -103,6 +120,7 @@ export const graphqlTypeDefs = gql`
   }
 
   ${suggestedFeedTypeDefs}
+  ${suggestedTopActiveUsersTypeDefs}
 `
 
 export const graphqlMutations = {
@@ -112,7 +130,7 @@ export const graphqlMutations = {
       throw new Error('Cannot change username without being logged in')
     }
     // Check they accepted the terms of use
-    if (isEAForum && !acceptedTos) {
+    if (isEAForum() && !acceptedTos) {
       throw new Error("You must accept the terms of use to continue");
     }
     // Only for new users. Existing users should need to contact support to
@@ -223,6 +241,7 @@ export const graphqlQueries = {
     return isTaken;
   },
   ...suggestedFeedQuery,
+  ...suggestedTopActiveUsersQuery,
   async GetUserBySlug(root: void, { slug }: { slug: string }, context: ResolverContext) {
     const { Users } = context;
 
@@ -248,7 +267,7 @@ export const graphqlQueries = {
 
       // Start a background refresh if data is stale and no fetch is in progress
       if (isStale && !inFlightPromise) {
-        void startAirtableFetch();
+        backgroundTask(startAirtableFetch());
       }
 
       // Always return cached data (stale-while-revalidate pattern)

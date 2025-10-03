@@ -11,9 +11,9 @@ import { lightbulbIcon } from '../icons/lightbulbIcon';
 
 const styles = (theme: ThemeType) => ({
   root: {
-    height: isEAForum ? 34 : 48,
+    height: theme.isEAForum ? 34 : 48,
     [theme.breakpoints.down('sm')]: {
-      height: isEAForum ? 30 : 48,
+      height: theme.isEAForum ? 30 : 48,
     },
   },
   icon: {
@@ -29,7 +29,7 @@ const SiteLogo = ({eaContrast, classes}: {
   classes: ClassesType<typeof styles>;
 }) => {
   // Use this icon when we want version of the EAF logo with an editable (usually white) color
-  if (isEAForum && eaContrast) {
+  if (isEAForum() && eaContrast) {
     return <div className={classes.icon}>{lightbulbIcon}</div>
   }
 

@@ -1,121 +1,50 @@
 import { ApolloServer, ApolloServerPlugin, GraphQLRequestContext, GraphQLRequestListener } from '@apollo/server';
 import { expressMiddleware } from '@as-integrations/express5';
-import { makeExecutableSchema } from '@graphql-tools/schema';
 import { GraphQLError, GraphQLFormattedError } from 'graphql';
+// import { handleRequest } from './rendering/renderPage';
 import cors from 'cors';
-
-import { isDevelopment, isE2E } from '../lib/executionEnvironment';
-import { renderWithCache, getThemeOptionsFromReq } from './vulcan-lib/apollo-ssr/renderPage';
-
-import { pickerMiddleware, addStaticRoute } from './vulcan-lib/staticRoutes';
+import { isDevelopment } from '../lib/executionEnvironment';
+// import { pickerMiddleware, addStaticRoute } from './vulcan-lib/staticRoutes';
 import { graphiqlMiddleware } from './vulcan-lib/apollo-server/graphiql'; 
-import { getUserFromReq, configureSentryScope, getContextFromReqAndRes } from './vulcan-lib/apollo-server/context';
-
+import { configureSentryScope, getContextFromReqAndRes } from './vulcan-lib/apollo-server/context';
+import { getUserFromReq } from './vulcan-lib/apollo-server/getUserFromReq';
 import universalCookiesMiddleware from 'universal-cookie-express';
-
 import { formatError } from 'apollo-errors';
-
-import * as Sentry from '@sentry/node';
-import express from 'express'
+// import { getIsolationScope } from '@sentry/nextjs';
 import { app } from './expressServer';
 import path from 'path'
-import { getPublicSettings, getPublicSettingsLoaded } from '../lib/settingsCache';
-import { embedAsGlobalVar } from './vulcan-lib/apollo-ssr/renderUtil';
-import { addAuthMiddlewares, expressSessionSecretSetting } from './authenticationMiddlewares';
-import { addForumSpecificMiddleware } from './forumSpecificMiddleware';
-import { addSentryMiddlewares, logGraphqlQueryStarted, logGraphqlQueryFinished } from './logging';
-import { clientIdMiddleware } from './clientIdMiddleware';
-import { classesForAbTestGroups } from '../lib/abTestImpl';
+import { expressSessionSecretSetting, botProtectionCommentRedirectSetting } from './databaseSettings';
+// import { addForumSpecificMiddleware } from './forumSpecificMiddleware';
+import { logGraphqlQueryStarted, logGraphqlQueryFinished } from './logging';
 import expressSession from 'express-session';
 import MongoStore from './vendor/ConnectMongo/MongoStore';
 import { ckEditorTokenHandler } from './ckEditor/ckEditorToken';
 import { getEAGApplicationData } from './zohoUtils';
-import { parseRoute, parsePath } from '../lib/vulcan-core/appContext';
-import { globalExternalStylesheets } from '../themes/globalStyles/externalStyles';
 import { addTestingRoutes } from './testingSqlClient';
 import { addCrosspostRoutes } from './fmCrosspost/routes';
-import { addV2CrosspostHandlers } from './crossposting/handlers';
 import { getUserEmail } from "../lib/collections/users/helpers";
 import { inspect } from "util";
-import { renderJssSheetPreloads } from './utils/renderJssSheetImports';
 import { datadogMiddleware } from './datadog/datadogMiddleware';
 import { Sessions } from '../server/collections/sessions/collection';
-import { addServerSentEventsEndpoint } from "./serverSentEvents";
 import { botRedirectMiddleware } from './botRedirect';
 import { hstsMiddleware } from './hsts';
 import { getClientBundle } from './utils/bundleUtils';
 import ElasticController from './search/elastic/ElasticController';
-// import type { ApolloServerPlugin, GraphQLRequestContext, GraphQLRequestListener } from 'apollo-server-plugin-base';
-import { asyncLocalStorage, closePerfMetric, openPerfMetric, perfMetricMiddleware, setAsyncStoreValue } from './perfMetrics';
-import { addAdminRoutesMiddleware } from './adminRoutesMiddleware'
-import { createAnonymousContext } from './vulcan-lib/createContexts';
-import { randomId } from '../lib/random';
-import { addCacheControlMiddleware, responseIsCacheable } from './cacheControlMiddleware';
-import { SSRMetadata } from '../lib/utils/timeUtil';
-import type { RouterLocation } from '../lib/vulcan-lib/routes';
-import { getCookieFromReq, trySetResponseStatus } from './utils/httpUtil';
-import { LAST_VISITED_FRONTPAGE_COOKIE } from '@/lib/cookies/cookies';
-import { addAutocompleteEndpoint } from './autocompleteEndpoint';
+import { closePerfMetric, openPerfMetric } from './perfMetrics';
+// import { addAdminRoutesMiddleware } from './adminRoutesMiddleware'
+import { addCacheControlMiddleware } from './cacheControlMiddleware';
 import { getSqlClientOrThrow } from './sql/sqlClient';
-import { addLlmChatEndpoint } from './resolvers/anthropicResolvers';
-import { getInstanceSettings } from '@/lib/getInstanceSettings';
 import { getCommandLineArguments } from './commandLine';
-import { makeAbsolute, urlIsAbsolute, getSiteUrl } from '@/lib/vulcan-lib/utils';
-import { faviconUrlSetting, isDatadogEnabled, isEAForum, isElasticEnabled, performanceMetricLoggingEnabled, testServerSetting } from "../lib/instanceSettings";
-import { resolvers, typeDefs } from './vulcan-lib/apollo-server/initGraphQL';
-import { botProtectionCommentRedirectSetting } from './databaseSettings';
+import { isDatadogEnabled, isEAForum, isElasticEnabled, performanceMetricLoggingEnabled, testServerSetting } from "../lib/instanceSettings";
+import { getExecutableSchema } from './vulcan-lib/apollo-server/initGraphQL';
+import express from 'express';
+import { getSiteUrl } from '@/lib/vulcan-lib/utils';
+import { requestToNextRequest } from './utils/requestToNextRequest';
+import { getDefaultViewSelector } from '@/lib/utils/viewUtils';
+import { NotificationsViews } from '@/lib/collections/notifications/views';
+import Notifications from './collections/notifications/collection';
+import { isFriendlyUI } from '@/themes/forumTheme';
 
-/**
- * End-to-end tests automate interactions with the page. If we try to, for
- * instance, click on a button before the page has been hydrated then the "click"
- * will occur but nothing will happen as the event listener won't be attached
- * yet which leads to flaky tests. To avoid this we add some static styles to
- * the top of the SSR'd page which are then manually deleted _after_ React
- * hydration has finished. Be careful editing this - it would ve very bad for
- * this to end up in production builds.
- */
-const ssrInteractionDisable = isE2E
-  ? `
-    <style id="ssr-interaction-disable">
-      #react-app * {
-        display: none;
-      }
-    </style>
-  `
-  : "";
-
-/**
- * If allowed, write the prefetchPrefix to the response so the client can start downloading resources
- */
-const maybePrefetchResources = ({
-  request,
-  response,
-  parsedRoute,
-  prefetchPrefix
-}: {
-  request: express.Request;
-  response: express.Response;
-  parsedRoute: RouterLocation,
-  prefetchPrefix: string;
-}) => {
-
-  const maybeWritePrefetchedResourcesToResponse = async () => {
-    const enableResourcePrefetch = parsedRoute.currentRoute?.enableResourcePrefetch;
-    const prefetchResources =
-      typeof enableResourcePrefetch === "function"
-        ? await enableResourcePrefetch(request, response, parsedRoute, createAnonymousContext())
-        : enableResourcePrefetch;
-
-    if (prefetchResources) {
-      response.setHeader("X-Accel-Buffering", "no"); // force nginx to send start of response immediately
-      trySetResponseStatus({ response, status: 200 });
-      response.write(prefetchPrefix);
-    }
-    return prefetchResources;
-  };
-
-  return maybeWritePrefetchedResourcesToResponse;
-};
 
 class ApolloServerLogging implements ApolloServerPlugin<ResolverContext> {
   async requestDidStart({ request, contextValue: context }: GraphQLRequestContext<ResolverContext>) {
@@ -204,10 +133,10 @@ export async function startWebserver() {
   }
 
   app.use(express.urlencoded({ extended: true })); // We send passwords + username via urlencoded form parameters
-  app.use('/analyticsEvent', express.json({ limit: '50mb' }), clientIdMiddleware);
+  app.use('/analyticsEvent', express.json({ limit: '50mb' }));
   app.use('/ckeditor-webhook', express.json({ limit: '50mb' }));
 
-  if (isElasticEnabled) {
+  if (isElasticEnabled()) {
     // We register this here (before the auth middleware) to avoid blocking
     // search requests whilst waiting to fetch the current user from Postgres,
     // which is never actually used.
@@ -215,15 +144,15 @@ export async function startWebserver() {
   }
 
   // Most middleware need to run after those added by addAuthMiddlewares, so that they can access the user that passport puts on the request.  Be careful if moving it!
-  addAuthMiddlewares(addMiddleware);
-  addAdminRoutesMiddleware(addMiddleware);
-  addForumSpecificMiddleware(addMiddleware);
-  addSentryMiddlewares(addMiddleware);
+  // addAuthMiddlewares(addMiddleware);
+  // addAdminRoutesMiddleware(addMiddleware);
+  // addForumSpecificMiddleware(addMiddleware);
+  // addSentryMiddlewares(addMiddleware);
   addCacheControlMiddleware(addMiddleware);
-  if (isDatadogEnabled) {
+  if (isDatadogEnabled()) {
     app.use(datadogMiddleware);
   }
-  app.use(pickerMiddleware);
+  // app.use(pickerMiddleware);
   app.use(botRedirectMiddleware);
   app.use(hstsMiddleware);
   
@@ -234,9 +163,9 @@ export async function startWebserver() {
     introspection: true,
     includeStacktraceInErrorResponses: isDevelopment,
     
-    schema: makeExecutableSchema({ typeDefs, resolvers }),
+    schema: getExecutableSchema(),
     formatError: (e): GraphQLFormattedError => {
-      Sentry.captureException(new GraphQLError(e.message, e));
+      // Sentry.captureException(new GraphQLError(e.message, e));
       const {message, ...properties} = e;
       // eslint-disable-next-line no-console
       console.error(`[GraphQLError: ${message}]`, inspect(properties, {depth: null}));
@@ -250,7 +179,7 @@ export async function startWebserver() {
 
   app.use('/graphql', express.json({ limit: '50mb' }));
   app.use('/graphql', express.text({ type: 'application/graphql' }));
-  app.use('/graphql', clientIdMiddleware, perfMetricMiddleware);
+  // app.use('/graphql', perfMetricMiddleware);
 
   await apolloServer.start();
 
@@ -268,50 +197,50 @@ export async function startWebserver() {
   app.use('/graphql', cors());
   app.use('/graphql', expressMiddleware(apolloServer, {
     context: async ({ req, res }: { req: express.Request, res: express.Response }) => {
-      const context = await getContextFromReqAndRes({req, res, isSSR: false});
-      configureSentryScope(context);
+      const context = await getContextFromReqAndRes({req: requestToNextRequest(req), isSSR: false});
+      // configureSentryScope(context, getIsolationScope());
       return context;
     },
   }))
 
-  addStaticRoute("/js/bundle.js", ({query}, req, res, context) => {
-    const {hash: bundleHash, content: bundleBuffer, brotli: bundleBrotliBuffer} = getClientBundle().resource;
-    let headers: Record<string,string> = {}
-    const acceptBrotli = req.headers['accept-encoding'] && req.headers['accept-encoding'].includes('br')
+  // addStaticRoute("/js/bundle.js", ({query}, req, res, context) => {
+  //   const {hash: bundleHash, content: bundleBuffer, brotli: bundleBrotliBuffer} = getClientBundle().resource;
+  //   let headers: Record<string,string> = {}
+  //   const acceptBrotli = req.headers['accept-encoding'] && req.headers['accept-encoding'].includes('br')
 
-    if ((query.hash && query.hash !== bundleHash) || (acceptBrotli && bundleBrotliBuffer === null)) {
-      // If the query specifies a hash, but it's wrong, this probably means there's a
-      // version upgrade in progress, and the SSR and the bundle were handled by servers
-      // on different versions. Serve whatever bundle we have (there's really not much
-      // else to do), but set the Cache-Control header differently so that it will be
-      // fixed on the next refresh.
-      //
-      // If the client accepts brotli compression but we don't have a valid brotli compressed bundle,
-      // that either means we are running locally (in which case chache control isn't important), or that
-      // the brotli bundle is currently being built (in which case set a short cache TTL to prevent the CDN
-      // from serving the uncompressed bundle for too long).
-      headers = {
-        "Cache-Control": "public, max-age=60",
-        "Content-Type": "text/javascript; charset=utf-8"
-      }
-    } else {
-      headers = {
-        "Cache-Control": "public, max-age=604800, immutable",
-        "Content-Type": "text/javascript; charset=utf-8"
-      }
-    }
+  //   if ((query.hash && query.hash !== bundleHash) || (acceptBrotli && bundleBrotliBuffer === null)) {
+  //     // If the query specifies a hash, but it's wrong, this probably means there's a
+  //     // version upgrade in progress, and the SSR and the bundle were handled by servers
+  //     // on different versions. Serve whatever bundle we have (there's really not much
+  //     // else to do), but set the Cache-Control header differently so that it will be
+  //     // fixed on the next refresh.
+  //     //
+  //     // If the client accepts brotli compression but we don't have a valid brotli compressed bundle,
+  //     // that either means we are running locally (in which case chache control isn't important), or that
+  //     // the brotli bundle is currently being built (in which case set a short cache TTL to prevent the CDN
+  //     // from serving the uncompressed bundle for too long).
+  //     headers = {
+  //       "Cache-Control": "public, max-age=60",
+  //       "Content-Type": "text/javascript; charset=utf-8"
+  //     }
+  //   } else {
+  //     headers = {
+  //       "Cache-Control": "public, max-age=604800, immutable",
+  //       "Content-Type": "text/javascript; charset=utf-8"
+  //     }
+  //   }
 
-    if (bundleBrotliBuffer !== null && acceptBrotli) {
-      headers["Content-Encoding"] = "br";
-      res.writeHead(200, headers);
-      res.end(bundleBrotliBuffer);
-    } else {
-      res.writeHead(200, headers);
-      res.end(bundleBuffer);
-    }
-  });
+  //   if (bundleBrotliBuffer !== null && acceptBrotli) {
+  //     headers["Content-Encoding"] = "br";
+  //     res.writeHead(200, headers);
+  //     res.end(bundleBrotliBuffer);
+  //   } else {
+  //     res.writeHead(200, headers);
+  //     res.end(bundleBuffer);
+  //   }
+  // });
   // Setup CKEditor Token
-  app.use("/ckeditor-token", clientIdMiddleware, ckEditorTokenHandler)
+  app.use("/ckeditor-token", ckEditorTokenHandler)
   
   // Static files folder
   app.use(express.static(path.join(__dirname, '../../client')))
@@ -331,12 +260,12 @@ export async function startWebserver() {
   }));
   
   app.get('/api/eag-application-data', async function(req, res, next) {
-    if (!isEAForum) {
+    if (!isEAForum()) {
       next()
       return
     }
     
-    const currentUser = getUserFromReq(req)
+    const currentUser = await getUserFromReq(requestToNextRequest(req))
     if (!currentUser) {
       res.status(403).send("Not logged in")
       return
@@ -352,9 +281,7 @@ export async function startWebserver() {
   })
 
   addCrosspostRoutes(app);
-  addV2CrosspostHandlers(app);
   addTestingRoutes(app);
-  addLlmChatEndpoint(app);
 
   if (testServerSetting.get()) {
     app.post('/api/quit', (_req, res) => {
@@ -363,8 +290,7 @@ export async function startWebserver() {
     })
   }
 
-  addServerSentEventsEndpoint(app);
-  addAutocompleteEndpoint(app);
+  // addAutocompleteEndpoint(app);
   
   app.get('/node_modules/*', (req, res) => {
     // Under some circumstances (I'm not sure exactly what the trigger is), the
@@ -388,134 +314,35 @@ export async function startWebserver() {
     }
   });
 
-  app.get('*', async (request, response) => {
-    if(prefilterHandleRequest(request, response)) {
+  app.get('/api/notificationCount', async (request, response) => {
+    const currentUser = await getUserFromReq(requestToNextRequest(request));
+    if (!currentUser) {
+      response.status(401).end("Unauthorized");
       return;
     }
 
-    response.setHeader("Content-Type", "text/html; charset=utf-8"); // allows compression
+    const selector = {
+      ...getDefaultViewSelector(NotificationsViews),
+      userId: currentUser._id,
+    };
+  
+    const lastNotificationsCheck = currentUser.lastNotificationsCheck;
+  
+    const unreadNotificationCount = await Notifications.find({
+      ...selector,
+      ...(lastNotificationsCheck && {
+        createdAt: {$gt: lastNotificationsCheck},
+      }),
+      ...(isFriendlyUI() && {
+        type: {$ne: "newMessage"},
+        viewed: {$ne: true},
+      }),
+    }).count();
 
-    if (!getPublicSettingsLoaded()) throw Error('Failed to render page because publicSettings have not yet been initialized on the server')
-    const publicSettingsHeader = embedAsGlobalVar("publicSettings", getPublicSettings())
+    response.status(200).json({ unreadNotificationCount });
+  });
 
-    const bundleHash = getClientBundle().resource.hash;
-    const clientScript = enableVite
-      ? ""
-      : `<script async src="/js/bundle.js?hash=${bundleHash}"></script>`
-    const instanceSettingsHeader = embedAsGlobalVar("publicInstanceSettings", getInstanceSettings().public);
-
-    // Check whether the requested route has enableResourcePrefetch. If it does,
-    // we send HTTP status and headers early, before we actually rendered the
-    // page, so that the browser can get started on loading the stylesheet and
-    // JS bundle while SSR is still in progress.
-    const parsedRoute = parseRoute({
-      location: parsePath(request.url)
-    });
-    
-    const user = getUserFromReq(request);
-    const themeOptions = getThemeOptionsFromReq(request, user);
-    const jssStylePreload = renderJssSheetPreloads(themeOptions);
-    const externalStylesPreload = globalExternalStylesheets.map(url =>
-      `<link rel="stylesheet" type="text/css" href="${url}">`
-    ).join("");
-    
-    const faviconHeader = `<link rel="shortcut icon" href="${faviconUrlSetting.get()}"/>`;
-
-    // Inject a tab ID into the page, by injecting a script fragment that puts
-    // it into a global variable. If the response is cacheable (same html may be used
-    // by multiple tabs), this is generated in `clientStartup.ts` instead.
-    const tabId = responseIsCacheable(response) ? null : randomId();
-    
-    const isReturningVisitor = !!getCookieFromReq(request, LAST_VISITED_FRONTPAGE_COOKIE);
-
-    // The part of the header which can be sent before the page is rendered.
-    // This includes an open tag for <html> and <head> but not the matching
-    // close tags, since there's stuff inside that depends on what actually
-    // gets rendered. The browser will pick up any references in the still-open
-    // tag and start fetching the, without waiting for the closing tag.
-    const prefetchPrefix = (
-      '<!doctype html>\n'
-      + '<html lang="en">\n'
-      + '<head>\n'
-        + jssStylePreload
-        + externalStylesPreload
-        + ssrInteractionDisable
-        + instanceSettingsHeader
-        + faviconHeader
-        // Embedded script tags that must precede the client bundle
-        + publicSettingsHeader
-        + embedAsGlobalVar("tabId", tabId)
-        + embedAsGlobalVar("isReturningVisitor", isReturningVisitor)
-        // The client bundle. Because this uses <script async>, its load order
-        // relative to any scripts that come later than this is undetermined and
-        // varies based on timings and the browser cache.
-        + clientScript
-    );
-
-    // Note: this may write to the response
-    const prefetchResourcesPromise = maybePrefetchResources({ request, response, parsedRoute, prefetchPrefix });
-
-    const renderResultPromise = performanceMetricLoggingEnabled.get()
-      ? asyncLocalStorage.run({}, () => renderWithCache(request, response, user, tabId, prefetchResourcesPromise))
-      : renderWithCache(request, response, user, tabId, prefetchResourcesPromise);
-
-    const renderResult = await renderResultPromise;
-
-    if (renderResult.aborted) {
-      trySetResponseStatus({ response, status: 499 });
-      response.end();
-      return;
-    }
-
-    const prefetchingResources = await renderResult.prefetchedResources;
-
-    const {
-      ssrBody,
-      headers,
-      serializedApolloState,
-      serializedForeignApolloState,
-      jssSheets,
-      status,
-      redirectUrl,
-      renderedAt,
-      timezone,
-      cacheFriendly,
-      allAbTestGroups,
-    } = renderResult;
-    
-    // TODO: Move this up into prefetchPrefix. Take the <link> that loads the stylesheet out of renderRequest and move that up too.
-    const themeOptionsHeader = embedAsGlobalVar("themeOptions", themeOptions);
-    
-    // Finally send generated HTML with initial data to the client
-    if (redirectUrl) {
-      // eslint-disable-next-line no-console
-      console.log(`Redirecting to ${redirectUrl}`);
-      const absoluteRedirectUrl = urlIsAbsolute(redirectUrl) ? redirectUrl : makeAbsolute(redirectUrl);
-      trySetResponseStatus({ response, status: status || 301 }).redirect(absoluteRedirectUrl);
-    } else {
-      trySetResponseStatus({ response, status: status || 200 });
-      const ssrMetadata: SSRMetadata = {
-        renderedAt: renderedAt.toISOString(),
-        cacheFriendly,
-        timezone
-      }
-
-      response.write(
-        (prefetchingResources ? '' : prefetchPrefix)
-          + headers.join('\n')
-          + themeOptionsHeader
-          + jssSheets
-        + '</head>\n'
-        + '<body class="'+classesForAbTestGroups(allAbTestGroups)+'">\n'
-          + ssrBody + '\n'
-        + '</body>\n'
-        + embedAsGlobalVar("ssrMetadata", ssrMetadata) + '\n'
-        + serializedApolloState + '\n'
-        + serializedForeignApolloState + '\n'
-        + '</html>\n')
-      response.end();
-    }
-  })
+  // app.get('*', async (request, response) => handleRequest(request, response));
 
   // Start Server
   const listenPort = getCommandLineArguments().listenPort;
@@ -529,15 +356,15 @@ export async function startWebserver() {
   // Route used for checking whether the server is ready for an auto-refresh
   // trigger. Added last so that async stuff can't lead to auto-refresh
   // happening before the server is ready.
-  addStaticRoute('/api/ready', ({query}, _req, res, next) => {
-    res.end('true');
-  });
+  // addStaticRoute('/api/ready', ({query}, _req, res, next) => {
+  //   res.end('true');
+  // });
 }
 
 /**
  * Workaround to redirect `?commentId=...` links to `#...`, to prevent being DDoS-ed
  */
-function prefilterHandleRequest(req: express.Request, res: express.Response): boolean {
+export function prefilterHandleRequest(req: express.Request, res: express.Response): boolean {
   if (!botProtectionCommentRedirectSetting.get()) {
     return false;
   }
@@ -561,3 +388,4 @@ function prefilterHandleRequest(req: express.Request, res: express.Response): bo
 
   return false;
 }
+

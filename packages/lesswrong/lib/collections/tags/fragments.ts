@@ -198,16 +198,6 @@ export const TagSubforumSidebarFragment = gql(`
   }
 `)
 
-export const TagDetailedPreviewFragment = gql(`
-  fragment TagDetailedPreviewFragment on Tag {
-    ...TagDetailsFragment
-    description {
-      _id
-      htmlHighlight
-    }
-  }
-`)
-
 export const TagWithFlagsFragment = gql(`
   fragment TagWithFlagsFragment on Tag {
     ...TagFragment
@@ -486,7 +476,7 @@ export const ConceptItemFragment = gql(`
     coreTagId
     maxScore
     usersWhoLiked {
-      _id
+      userId
       displayName
     }
   }

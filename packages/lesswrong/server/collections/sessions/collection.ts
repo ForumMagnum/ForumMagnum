@@ -1,10 +1,12 @@
+import schema from '@/lib/collections/sessions/newSchema';
 import { createCollection } from '@/lib/vulcan-lib/collections';
 import { DatabaseIndexSet } from '@/lib/utils/databaseIndexSet';
 
-export const Sessions: SessionsCollection = createCollection({
+export const Sessions = createCollection({
   collectionName: 'Sessions',
   dbCollectionName: 'sessions',
   typeName: 'Session',
+  schema,
     getIndexes: () => {
     const indexSet = new DatabaseIndexSet();
     indexSet.addIndex('Sessions', {_id: 1, expires: 1});

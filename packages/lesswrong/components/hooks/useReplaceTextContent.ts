@@ -1,4 +1,4 @@
-import { textReplacementsSetting } from "@/lib/publicSettings";
+import { textReplacementsSetting } from '@/lib/instanceSettings';
 import { useRef } from "react";
 
 type ReplacementTuple = [string, string];

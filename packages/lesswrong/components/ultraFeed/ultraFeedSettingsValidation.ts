@@ -28,8 +28,6 @@ const displaySettingsValidation = z.object({
   commentMaxWords: z.number().int()
     .min(0, "Max words must be 0 or greater")
     .default(DEFAULT_SETTINGS.displaySettings.commentMaxWords),
-  postTitlesAreModals: z.boolean()
-    .default(DEFAULT_SETTINGS.displaySettings.postTitlesAreModals),
 }).refine(data => data.postInitialWords <= data.postMaxWords, {
   message: "Initial words must be less than or equal to max words",
   path: ["postInitialWords"],
@@ -44,9 +42,6 @@ const displaySettingsValidation = z.object({
 const commentScoringSchema = z.object({
   commentDecayFactor: z.number().positive({ message: "Must be a positive number" }),
   commentDecayBiasHours: z.number().min(0, { message: "Must be non-negative" }),
-  ultraFeedSeenPenalty: z.number()
-    .min(0, { message: "Value must be between 0 and 1" })
-    .max(1, { message: "Value must be between 0 and 1" }),
   quickTakeBoost: z.number()
     .min(0.5, { message: "Value must be between 0.5 and 3.0" })
     .max(3.0, { message: "Value must be between 0.5 and 3.0" }),
@@ -65,9 +60,15 @@ const threadInterestModelSchema = z.object({
   logImpactFactor: z.number(),
   minOverallMultiplier: z.number().min(0, { message: "Must be non-negative" }),
   maxOverallMultiplier: z.number().min(0, { message: "Must be non-negative" }),
+  repetitionDecayHours: z.number().min(0, { message: "Must be non-negative" }),
+  repetitionPenaltyStrength: z.number().min(0, { message: "Must be non-negative" }),
 }).refine(data => data.minOverallMultiplier <= data.maxOverallMultiplier, {
   message: "Min overall multiplier must be less than or equal to max overall multiplier",
   path: ["minOverallMultiplier"], 
+});
+
+const subscriptionsFeedSettingsSchema = z.object({
+  hideRead: z.boolean(),
 });
 
 const resolverSettingsSchema = z.object({
@@ -75,6 +76,7 @@ const resolverSettingsSchema = z.object({
   sourceWeights: sourceWeightsSchema.default(DEFAULT_SETTINGS.resolverSettings.sourceWeights),
   commentScoring: commentScoringSchema.default(DEFAULT_SETTINGS.resolverSettings.commentScoring),
   threadInterestModel: threadInterestModelSchema.default(DEFAULT_SETTINGS.resolverSettings.threadInterestModel),
+  subscriptionsFeedSettings: subscriptionsFeedSettingsSchema.default(DEFAULT_SETTINGS.resolverSettings.subscriptionsFeedSettings),
 });
 
 export const ultraFeedSettingsSchema = z.object({

@@ -77,7 +77,7 @@ const AddTagButton = ({onTagSelected, menuPlacement="bottom-start", isVotingCont
         </LWPopper>
     </a>
   
-  if (isBookUI && hasTooltip) {
+  if (isBookUI() && hasTooltip) {
     return <LWTooltip title="Add a tag">
       {button}
     </LWTooltip>

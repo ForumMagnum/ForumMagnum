@@ -10,7 +10,7 @@ import LWTooltip from "../../common/LWTooltip";
 const styles = (theme: ThemeType) => ({
   date: {
     color: theme.palette.text.dim3,
-    fontSize: isFriendlyUI ? undefined : theme.typography.body2.fontSize,
+    fontSize: theme.isFriendlyUI ? undefined : theme.typography.body2.fontSize,
     cursor: 'default'
   },
   mobileDate: {
@@ -43,7 +43,7 @@ const PostsPageDate = ({ post, hasMajorRevision, classes }: {
   }
   
   let format = "Do MMM YYYY"
-  if (isFriendlyUI) {
+  if (isFriendlyUI()) {
     format = "MMM D YYYY"
     // hide the year if it's this year
     if (now.isSame(moment(post.postedAt), 'year')) {

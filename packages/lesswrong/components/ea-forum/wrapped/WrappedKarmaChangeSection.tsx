@@ -4,12 +4,10 @@ import { Area, AreaChart, ResponsiveContainer, XAxis, YAxis } from "recharts";
 import { useForumWrappedContext } from "./hooks";
 import {
   formattedKarmaChangeText,
-  wrappedHighlightColor,
-  wrappedSecondaryColor,
-  wrappedWhiteColor,
 } from "./wrappedHelpers";
 import WrappedSection from "./WrappedSection";
 import WrappedHeading from "./WrappedHeading";
+import { useThemeColor } from "@/components/themes/useTheme";
 
 const styles = (theme: ThemeType) => ({
   chart: {
@@ -43,6 +41,10 @@ const WrappedKarmaChangeSection = ({classes}: {
   classes: ClassesType<typeof styles>,
 }) => {
   const {data} = useForumWrappedContext();
+  const wrappedWhiteColor = useThemeColor(theme => theme.palette.text.alwaysWhite);
+  const wrappedHighlightColor = useThemeColor(theme => theme.palette.wrapped.highlightText);
+  const wrappedSecondaryColor = useThemeColor(theme => theme.palette.wrapped.secondaryText);
+
   return (
     <WrappedSection pageSectionContext="karmaChange">
       <WrappedHeading>

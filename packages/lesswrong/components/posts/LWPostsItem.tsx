@@ -7,14 +7,13 @@ import withErrorBoundary from '../common/withErrorBoundary';
 import classNames from 'classnames';
 import { NEW_COMMENT_MARGIN_BOTTOM } from '../comments/constants';
 import { AnalyticsContext } from "../../lib/analyticsEvents";
-import { cloudinaryCloudNameSetting } from '../../lib/publicSettings';
+import { cloudinaryCloudNameSetting, isLW } from '@/lib/instanceSettings';
 import { getReviewPhase, postEligibleForReview, postPassedNomination, REVIEW_YEAR, reviewIsActive } from '../../lib/reviewUtils';
 import { PostsItemConfig, usePostsItem } from './usePostsItem';
 import PostsItemTrailingButtons, { MENU_WIDTH, DismissButton } from './PostsItemTrailingButtons';
 import DebateIcon from '@/lib/vendor/@material-ui/icons/src/Forum';
 import { useHover } from '../common/withHover';
 import { highlightMarket } from '@/lib/collections/posts/annualReviewMarkets';
-import { isLW } from '@/lib/instanceSettings';
 import PostsItemTagRelevance from "../tagging/PostsItemTagRelevance";
 import EventVicinity from "../localGroups/EventVicinity";
 import PostsItemComments from "./PostsItemComments";
@@ -38,14 +37,31 @@ import PostReadCheckbox from "./PostReadCheckbox";
 import PostMostValuableCheckbox from "./PostMostValuableCheckbox";
 import { ResponseIcon } from "./PostsPage/RSVPs";
 import { maybeDate } from '@/lib/utils/dateUtils';
+import { isIfAnyoneBuildsItFrontPage } from '../seasonal/styles';
+import { defineStyles, useStyles } from '../hooks/useStyles';
 
 export const KARMA_WIDTH = 32;
 
-export const styles = (theme: ThemeType) => ({
+export const styles = defineStyles("LWPostsItem", (theme: ThemeType) => ({
   row: {
     display: "flex",
     alignItems: "center",
-    justifyContent: "space-between"
+    justifyContent: "space-between",
+    
+    // On the If Anyone Builds It front page, replace the 2px bottom border
+    // with a rectangular element with a blur, so the background can show
+    // through.
+    // This breaks the layout on Sequence pages (where the component is already
+    // a horizontal flexbox)
+    ...isIfAnyoneBuildsItFrontPage({
+      flexDirection: "column",
+      '&::after': {
+        height: 2,
+        content: '""',
+        width: '100%',
+        backdropFilter: theme.palette.filters.bannerAdBlur,
+      },
+    }),
   },
   root: {
     position: "relative",
@@ -63,6 +79,13 @@ export const styles = (theme: ThemeType) => ({
   background: {
     width: "100%",
     background: theme.palette.panelBackground.default,
+    ...(theme.isBookUI && theme.dark && {
+      background: theme.palette.panelBackground.bannerAdTranslucent,
+      backdropFilter: theme.palette.filters.bannerAdBlur,
+      ...isIfAnyoneBuildsItFrontPage({
+        background: theme.palette.panelBackground.bannerAdTranslucentDeep,
+      })
+    })
   },
   checkboxWidth: {
     width: "calc(100% - 24px)"
@@ -89,6 +112,9 @@ export const styles = (theme: ThemeType) => ({
   withGrayHover: {
     '&:hover': {
       backgroundColor: theme.palette.panelBackground.postsItemHover,
+      ...(theme.isBookUI && theme.dark && {
+        backgroundColor: theme.palette.panelBackground.bannerAdTranslucentHeavy,
+      }),
     },
   },
   hasSmallSubtitle: {
@@ -101,6 +127,9 @@ export const styles = (theme: ThemeType) => ({
   },
   bottomBorder: {
     borderBottom: theme.palette.border.itemSeparatorBottom,
+    ...isIfAnyoneBuildsItFrontPage({
+      borderBottom: "none",
+    }),
   },
   commentsBackground: {
     backgroundColor: theme.palette.panelBackground.postsItemExpandedComments,
@@ -152,6 +181,9 @@ export const styles = (theme: ThemeType) => ({
     },
   },
   author: {
+    '&&': {
+      flex: 1000,
+    },
     justifyContent: "flex",
     overflow: "hidden",
     whiteSpace: "nowrap",
@@ -160,6 +192,9 @@ export const styles = (theme: ThemeType) => ({
     zIndex: theme.zIndexes.postItemAuthor,
     flex: 1000,
     maxWidth: "fit-content",
+    ...isIfAnyoneBuildsItFrontPage({
+      color: theme.palette.text.bannerAdDim,
+    }),
     [theme.breakpoints.down('xs')]: {
       justifyContent: "flex-end",
       width: "unset",
@@ -333,7 +368,10 @@ export const styles = (theme: ThemeType) => ({
     height: 22,
   },
   isRead: {
-    // this is just a placeholder, enabling easier theming.
+    ...isIfAnyoneBuildsItFrontPage({
+      background: theme.palette.panelBackground.bannerAdTranslucent,
+      backdropFilter: theme.palette.filters.bannerAdBlur,
+    }),
   },
   checkbox: {
     marginRight: 10
@@ -392,15 +430,11 @@ export const styles = (theme: ThemeType) => ({
     marginLeft: "auto",
     flexShrink: 0,
   },
-})
+}), { stylePriority: 1 });
 
-const cloudinaryCloudName = cloudinaryCloudNameSetting.get()
+export type PostsList2Props = PostsItemConfig;
 
-export type PostsList2Props = PostsItemConfig & {
-  classes: ClassesType<typeof styles>,
-};
-
-const LWPostsItem = ({classes, ...props}: PostsList2Props) => {
+const LWPostsItem = (props: PostsItemConfig) => {
   const {
     post,
     postLink,
@@ -434,7 +468,6 @@ const LWPostsItem = ({classes, ...props}: PostsList2Props) => {
     hasUnreadComments,
     hasNewPromotedComments,
     commentTerms,
-    isRepeated,
     analyticsProps,
     translucentBackground,
     isRead,
@@ -447,11 +480,9 @@ const LWPostsItem = ({classes, ...props}: PostsList2Props) => {
     className,
   } = usePostsItem(props);
 
+  const classes = useStyles(styles);
   const { hover, eventHandlers } = useHover();
 
-  if (isRepeated) {
-    return null;
-  }
   const reviewCountsTooltip = `${post.nominationCount2019 || 0} nomination${(post.nominationCount2019 === 1) ? "" :"s"} / ${post.reviewCount2019 || 0} review${(post.nominationCount2019 === 1) ? "" :"s"}`
 
   const reviewIsActive = getReviewPhase() === "REVIEWS" || getReviewPhase() === "NOMINATIONS" || getReviewPhase() === "VOTING";
@@ -539,7 +570,7 @@ const LWPostsItem = ({classes, ...props}: PostsList2Props) => {
               {/* space in-between title and author if there is width remaining */}
               <span className={classes.spacer} />
 
-              {isLW && post.isEvent && post.rsvpCounts?.yes>=5 && <PostsItem2MetaInfo className={classes.rsvps}>
+              {isLW() && post.isEvent && post.rsvpCounts?.yes>=5 && <PostsItem2MetaInfo className={classes.rsvps}>
                 {post.rsvpCounts?.yes && <>
                   <ResponseIcon response="yes"/>
                   <span className={classes.rsvpCount}>{post.rsvpCounts.yes}</span>
@@ -611,7 +642,7 @@ const LWPostsItem = ({classes, ...props}: PostsList2Props) => {
               {resumeReading &&
                 <div className={classes.sequenceImage}>
                   <img className={classes.sequenceImageImg}
-                    src={`https://res.cloudinary.com/${cloudinaryCloudName}/image/upload/c_fill,dpr_2.0,g_custom,h_96,q_auto,w_292/v1/${
+                    src={`https://res.cloudinary.com/${cloudinaryCloudNameSetting.get()}/image/upload/c_fill,dpr_2.0,g_custom,h_96,q_auto,w_292/v1/${
                       resumeReading.sequence?.gridImageId
                         || resumeReading.collection?.gridImageId
                         || "sequences/vnyzzznenju0hzdv6pqb.jpg"
@@ -659,8 +690,6 @@ const LWPostsItem = ({classes, ...props}: PostsList2Props) => {
 };
 
 export default registerComponent('LWPostsItem', LWPostsItem, {
-  styles,
-  stylePriority: 1,
   hocs: [withErrorBoundary],
   areEqual: {
     terms: "deep",

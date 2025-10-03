@@ -2,8 +2,8 @@ import React, { ReactNode } from 'react';
 import { Link } from '../../lib/reactRouterWrapper';
 import { registerComponent } from '../../lib/vulcan-lib/components';
 import { Popup as BadlyTypedPopup } from 'react-map-gl';
-import { isEAForum } from '../../lib/instanceSettings';
 import { componentWithChildren } from '../../lib/utils/componentsWithChildren';
+import ContentStyles from '../common/ContentStyles';
 
 const Popup = componentWithChildren(BadlyTypedPopup);
 
@@ -25,16 +25,34 @@ export const styles = (theme: ThemeType) => ({
     marginTop: 10,
     marginBottom: 10,
     maxHeight: 150,
-    overflowY: 'auto'
+    overflowY: 'auto',
+    wordBreak: 'break-word',
+    // Nicer scrollbar
+    '&::-webkit-scrollbar': {
+      width: '2px'
+    },
+    '&::-webkit-scrollbar-track': {
+      background: 'transparent'
+    },
+    '&::-webkit-scrollbar-thumb': {
+      background: theme.palette.grey[400],
+      borderRadius: '2px',
+      '&:hover': {
+        background: theme.palette.grey[600]
+      }
+    },
+    scrollbarWidth: 'thin', // Firefox
+    scrollbarColor: `${theme.palette.grey[400]} transparent` // Firefox
+    
   },
   contactInfo: {
     marginBottom: "10px",
     marginTop: "10px",
-    fontWeight: isEAForum ? 450 : 400,
+    fontWeight: theme.isEAForum ? 450 : 400,
     color: theme.palette.text.dim60,
   },
   markerPageLink: {
-    fontWeight: isEAForum ? 450 : 400,
+    fontWeight: theme.isEAForum ? 450 : 400,
     color: theme.palette.link.dim3,
     flex: 'none'
   },
@@ -75,7 +93,10 @@ const StyledMapPopup = ({
     anchor="bottom" >
       <div className={classes.root}>
         <Link to={link}><h5 className={classes.groupMarkerName}> {title} </h5></Link>
-        <div className={classes.markerBody}>{children}</div>
+        <ContentStyles contentType={"comment"} className={classes.root}>
+          <div className={classes.markerBody}>{children}</div>
+        </ContentStyles>
+       
         {metaInfo && <div className={classes.contactInfo}>{metaInfo}</div>}
         {!hideBottomLinks && <div className={classes.linksWrapper}>
           <Link className={classes.markerPageLink} to={link}> Full link </Link>

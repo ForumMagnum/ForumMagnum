@@ -1,0 +1,138 @@
+import { getClient } from "@/lib/apollo/nextApolloClient";
+import { gql } from "@/lib/generated/gql-codegen";
+import { isEAForum, cloudinaryCloudNameSetting } from '@/lib/instanceSettings';
+import type { Metadata } from "next";
+import merge from "lodash/merge";
+import { CommentPermalinkMetadataQuery, getCommentDescription, getDefaultMetadata, getMetadataDescriptionFields, getMetadataImagesFields, getPageTitleFields, handleMetadataError, noIndexMetadata } from "./sharedMetadata";
+import { postGetPageUrl } from "@/lib/collections/posts/helpers";
+import { getPostDescription } from "@/components/posts/PostsPage/structuredData";
+import { notFound } from "next/navigation";
+
+const PostMetadataQuery = gql(`
+  query PostMetadata($postId: String) {
+    post(selector: { _id: $postId }) {
+      result {
+        _id
+        title
+        slug
+        isEvent
+        groupId
+        canonicalSource
+        socialPreviewData {
+          _id
+          imageUrl
+          text
+        }
+        customHighlight {
+          plaintextDescription
+        }
+        contents {
+          plaintextDescription
+        }
+        user {
+          _id
+          displayName
+        }
+        coauthors {
+          _id
+          displayName
+        }
+        coauthorUserIds
+        shortform
+        eventImageId
+        noIndex
+        rejected
+        baseScore
+        createdAt
+      }
+    }
+  }
+`);
+
+function getSocialPreviewImageUrl(post: PostMetadataQuery_post_SinglePostOutput_result_Post) {
+  if (post.isEvent && post.eventImageId) {
+    return `https://res.cloudinary.com/${cloudinaryCloudNameSetting.get()}/image/upload/c_fill,g_auto,ar_191:100/${post.eventImageId}`
+  }
+  return post.socialPreviewData?.imageUrl ?? "";
+}
+
+function getCitationTags(post: PostMetadataQuery_post_SinglePostOutput_result_Post) {
+  let formattedDate = post.createdAt;
+  if (formattedDate) {
+    formattedDate = new Date(formattedDate).toISOString();
+    formattedDate = formattedDate.slice(0, formattedDate.indexOf("T")).replace(/-/g, "/");
+  }
+  
+  return {
+    citation_title: post.title,
+    ...(post.user?.displayName && { citation_author: post.user.displayName }),
+    ...(post.coauthors?.filter(({ _id }) => !post.coauthorUserIds.includes(_id))?.map(coauthor => coauthor.displayName) && { citation_author: post.coauthors?.map(coauthor => coauthor.displayName) }),
+    ...(formattedDate && { citation_publication_date: formattedDate }),
+  } satisfies Metadata['other'];
+}
+
+interface PostPageMetadataOptions {
+  noIndex?: boolean;
+}
+
+export function getPostPageMetadataFunction<Params>(paramsToPostIdConverter: (params: Params) => string, options?: PostPageMetadataOptions) {
+  return async function generateMetadata({ params, searchParams }: { params: Promise<Params>, searchParams: Promise<{ commentId?: string }> }): Promise<Metadata> {
+    const [paramValues, searchParamsValues, defaultMetadata] = await Promise.all([params, searchParams, getDefaultMetadata()]);
+
+    const postId = paramsToPostIdConverter(paramValues);
+    const commentId = searchParamsValues.commentId;
+
+    const client = getClient();
+
+    try {
+      const [{ data: postData }, { data: commentData }] = await Promise.all([
+        client.query({
+          query: PostMetadataQuery,
+          variables: { postId },
+        }),
+        commentId
+          ? client.query({
+              query: CommentPermalinkMetadataQuery,
+              variables: { commentId },
+            })
+          : { data: null },
+      ]);
+  
+      const post = postData?.post?.result;
+      const comment = commentData?.comment?.result;
+  
+      if (!post) return notFound();
+  
+      const description = comment
+        ? getCommentDescription(comment)
+        : getPostDescription(post) ?? defaultMetadata.description;
+  
+      const ogUrl = postGetPageUrl(post, true);
+      const canonicalUrl = post.canonicalSource ?? ogUrl;
+      const socialPreviewImageUrl = getSocialPreviewImageUrl(post);
+      const postNoIndex = post.noIndex || post.rejected || (post.baseScore <= 0 && isEAForum());
+      const noIndex = postNoIndex || commentId || options?.noIndex;
+  
+      const titleFields = getPageTitleFields(post.title);
+      const descriptionFields = getMetadataDescriptionFields(description);
+      const imagesFields = getMetadataImagesFields(socialPreviewImageUrl);
+      
+      const postMetadata = {
+        openGraph: {
+          url: ogUrl,
+        },
+        alternates: {
+          canonical: canonicalUrl,
+        },
+        other: {
+          ...getCitationTags(post),
+        },
+        ...(noIndex ? noIndexMetadata : {}),
+      } satisfies Metadata;
+  
+      return merge({}, defaultMetadata, postMetadata, titleFields, descriptionFields, imagesFields);
+    } catch (error) {
+      return handleMetadataError('Error generating post page metadata', error);
+    }
+  }
+}

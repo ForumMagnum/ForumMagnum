@@ -30,12 +30,6 @@ declare module "mathjax-node-page" {
   export const mjpage: AnyBecauseTodo
 }
 
-declare module "react-jss/lib/jss" {
-  export const Rule: AnyBecauseTodo
-  export const Stylesheet: AnyBecauseTodo
-  export const SheetsRegistry: AnyBecauseTodo
-}
-
 declare module "akismet-api" {
   const akismet: AnyBecauseTodo
   export default akismet

@@ -1,18 +1,16 @@
 import { registerComponent } from '../../lib/vulcan-lib/components';
 import React from 'react';
-import SunshineListCount from "./SunshineListCount";
 import SunshineNewCommentsItem from "./SunshineNewCommentsItem";
 import SunshineListTitle from "./SunshineListTitle";
 import { useQuery } from "@/lib/crud/useQuery";
 import { gql } from "@/lib/generated/gql-codegen";
 
 const CommentsListWithParentMetadataMultiQuery = gql(`
-  query multiCommentSunshineNewCommentsListQuery($selector: CommentSelector, $limit: Int, $enableTotal: Boolean) {
-    comments(selector: $selector, limit: $limit, enableTotal: $enableTotal) {
+  query multiCommentSunshineNewCommentsListQuery($selector: CommentSelector, $limit: Int) {
+    comments(selector: $selector, limit: $limit) {
       results {
         ...CommentsListWithParentMetadata
       }
-      totalCount
     }
   }
 `);
@@ -32,19 +30,17 @@ const SunshineNewCommentsList = ({ terms, classes }: {
     variables: {
       selector: { [view]: selectorTerms },
       limit: limit ?? 10,
-      enableTotal: true,
     },
     notifyOnNetworkStatusChange: true,
   });
 
   const results = data?.comments?.results;
-  const totalCount = data?.comments?.totalCount ?? 0;
   
   if (results && results.length) {
     return (
       <div className={classes.root}>
         <SunshineListTitle>
-          Unreviewed Comments <SunshineListCount count={totalCount}/>
+          Unreviewed Comments
         </SunshineListTitle>
         {results.map(comment =>
           <div key={comment._id} >

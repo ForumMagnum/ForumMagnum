@@ -8,7 +8,7 @@ import type { TagCommentType } from "../../lib/collections/comments/types";
 import type { CommentTreeOptions } from "../comments/commentTree";
 import EARecentDiscussionItem from "./EARecentDiscussionItem";
 import TagExcerpt from "../common/excerpts/TagExcerpt";
-import CommentsNodeInner from "../comments/CommentsNode";
+import CommentsNode from "../comments/CommentsNode";
 import { maybeDate } from "@/lib/utils/dateUtils";
 
 const styles = (theme: ThemeType) => ({
@@ -82,7 +82,7 @@ const EARecentDiscussionTagCommented = ({
       <TagExcerpt tag={tag} className={classes.excerpt} />
       {nestedComments.map((comment: CommentTreeNode<CommentsList>) =>
         <div key={comment.item._id}>
-          <CommentsNodeInner
+          <CommentsNode
             treeOptions={treeOptions}
             startThreadTruncated={true}
             expandAllThreads={expandAllThreads}

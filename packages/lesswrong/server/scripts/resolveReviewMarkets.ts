@@ -1,9 +1,7 @@
 import { Posts } from "@/server/collections/posts/collection.ts";
 import { manifoldAPIKeySetting } from "@/lib/instanceSettings";
-import { postGetMarketInfoFromManifold, LiteMarket } from "@/lib/collections/posts/annualReviewMarkets";
+import { LiteMarket } from "@/lib/collections/posts/annualReviewMarkets";
 import { sleep } from "@/lib/utils/asyncUtils";
-
-const manifoldAPIKey = manifoldAPIKeySetting.get()
 
 export const getMarketInfoFromManifold = async (marketId: string): Promise<LiteMarket | null > => {
 
@@ -65,7 +63,7 @@ export const resolveReviewMarkets = async (year: number, limit?: number) => {
       method: "POST",
       headers: {
         "content-type": "application/json",
-        "Authorization": `Key ${manifoldAPIKey}`
+        "Authorization": `Key ${manifoldAPIKeySetting.get()}`
       },
       body: JSON.stringify({outcome: isWinner ? "YES" : "NO"})
     })

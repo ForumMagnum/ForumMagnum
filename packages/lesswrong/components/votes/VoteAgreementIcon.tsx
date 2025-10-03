@@ -1,23 +1,14 @@
 import React from 'react';
-import { registerComponent } from '../../lib/vulcan-lib/components';
-import { useTheme } from '../themes/useTheme';
 import classNames from 'classnames';
-import IconButton from '@/lib/vendor/@material-ui/core/src/IconButton';
-import { useVoteColors } from './useVoteColors';
 import { BaseVoteArrowIconProps } from './VoteArrowIcon';
 import ForumIcon from "../common/ForumIcon";
+import { defineStyles, useStyles } from '../hooks/useStyles';
+import { getVoteButtonColor, voteButtonSharedStyles } from './VoteButton';
+import { strongVoteDelay } from './constants';
 
-const styles = (theme: ThemeType) => ({
+const styles = defineStyles("VoteAgreementIcon", (theme: ThemeType) => ({
   root: {
-    color: theme.palette.grey[400],
-    fontSize: 'inherit',
-    width: 'initial',
-    height: 'initial',
-    padding: 0,
     bottom: 2,
-    '&:hover': {
-      backgroundColor: 'transparent',
-    }
   },
   check: {
     fontSize: '50%',
@@ -87,102 +78,75 @@ const styles = (theme: ThemeType) => ({
   disabled: {
     cursor: 'not-allowed',
   },
-  entering: {
-    transition: `opacity ${theme.voting.strongVoteDelay}ms cubic-bezier(0.74, -0.01, 1, 1) 0ms`,
-  }
-})
+}))
 
 const VoteAgreementIcon = ({
   orientation,
   enabled = true,
   color,
-  voted,
-  eventHandlers,
-  bigVotingTransition,
-  bigVoted,
-  bigVoteCompleted,
+  animation,
   alwaysColored,
-  classes,
-}: BaseVoteArrowIconProps & {
-  classes: ClassesType<typeof styles>
-}) => {
+}: BaseVoteArrowIconProps) => {
+  const classes = useStyles(styles);
+  const { state, eventHandlers } = animation;
+  const sharedClasses = useStyles(voteButtonSharedStyles);
   const upOrDown = orientation === "left" ? "Downvote" : "Upvote"
   
   const primaryIcon =  (upOrDown === "Downvote") ? "CrossReaction" : "TickReaction"
   const bigVoteAccentIcon = (upOrDown === "Downvote") ? "CrossReactionCap" : "TickReaction"
 
-  const handlers = enabled ? eventHandlers : {};
+  const bigVoteVisible = (state.mode==="idle" && state.vote==="big") || (state.mode !== "idle");
 
-  const {mainColor, lightColor} = useVoteColors(color);
-  const bigVoteVisible = bigVotingTransition || bigVoteCompleted || bigVoted
+  const voted = state.mode !== "idle" || state.vote !== "neutral";
+  const bigVoted = state.mode !== "idle" || state.vote === "big";
 
-  const strongVoteLargeIconClasses = (upOrDown === "Downvote")
-    ? classNames(
-      bigVotingTransition && classes.entering,
-      classes.bigClear,
-      bigVoteVisible && classes.bigClearCompleted,
-    )
-    : classNames(
-      bigVotingTransition && classes.entering,
-      classes.bigCheck,
-      bigVoteVisible && classes.bigCheckCompleted,
-    )
-
-  const strongVoteAccentIconClasses = (upOrDown === "Downvote")
-    ? classNames(
-      bigVotingTransition && classes.entering,
-      classes.smallArrowBigVoted,
-      bigVoteVisible && classes.smallArrowBigVoted,
-      {[classes.hideIcon]: !bigVoted}
-    )
-    : classNames(
-      bigVotingTransition && classes.entering,
-      classes.smallCheckBigVoted,
-      bigVoteVisible && classes.smallCheckBigVoted,
-      {[classes.hideIcon]: !bigVoted}
-    )
-
-  
-  
   return (
-    <IconButton
-      className={classNames(classes.root, {[classes.disabled]: !enabled})}
-      onMouseDown={handlers.handleMouseDown}
-      onMouseUp={handlers.handleMouseUp}
-      onMouseOut={handlers.clearState}
-      onClick={handlers.handleClick}
-      disableRipple
+    <button
+      className={classNames(
+        classes.root,
+        sharedClasses.root,
+        !enabled && classes.disabled,
+      )}
+      type="button"
+      {...(enabled ? eventHandlers : {})}
     >
+    <span className={sharedClasses.inner}>
       <div className={classes.iconsContainer}>
         <ForumIcon
-          icon={primaryIcon}  
+          icon={primaryIcon}
           className={classNames(
             (upOrDown === "Downvote") ? classes.clear : classes.check,
-            bigVoteVisible && classes.hideIcon
+            bigVoteVisible && classes.hideIcon,
+            (voted || alwaysColored) && getVoteButtonColor(sharedClasses, color, "main"),
           )}
-          style={{color: voted || alwaysColored ? mainColor : "inherit"}}
         />
 
         {/* Strong vote icons */}
-        <ForumIcon
-          icon={primaryIcon}
-          style={bigVoteCompleted || bigVoted ? {color: lightColor} : {}}
-          className={strongVoteLargeIconClasses}
-        />
-        <ForumIcon
-          icon={bigVoteAccentIcon}
-          style={bigVoteCompleted || bigVoted ? {color: lightColor} : undefined}
-          className={strongVoteAccentIconClasses}
-        />
+        {((state.mode==="idle" && state.vote==="big") || (state.mode !== "idle")) && <>
+          <ForumIcon
+            icon={primaryIcon}
+            className={classNames(
+              state.mode === "animating" && sharedClasses.entering,
+              (upOrDown === "Downvote") ? classes.bigClear : classes.bigCheck,
+              bigVoteVisible && ((upOrDown === "Downvote") ? classes.bigClearCompleted : classes.bigCheckCompleted),
+              getVoteButtonColor(sharedClasses, color, "light"),
+            )}
+          />
+          <ForumIcon
+            icon={bigVoteAccentIcon}
+            className={classNames(
+              state.mode === "animating" && sharedClasses.entering,
+              (upOrDown === "Downvote") ? classes.smallArrowBigVoted : classes.smallCheckBigVoted,
+              bigVoteVisible && (upOrDown === "Downvote") ? classes.smallArrowBigVoted : classes.smallCheckBigVoted,
+              !bigVoted && classes.hideIcon,
+              getVoteButtonColor(sharedClasses, color, "light"),
+            )}
+          />
+        </>}
       </div>
-    </IconButton>
+    </span>
+    </button>
   )
 }
 
-export default registerComponent('VoteAgreementIcon', VoteAgreementIcon, {styles});
-
-
-
-
-
-
+export default VoteAgreementIcon;

@@ -1,4 +1,4 @@
-import { defaultEditorPlaceholder } from '@/lib/editor/defaultEditorPlaceholder';
+import { getDefaultEditorPlaceholder } from '@/lib/editor/defaultEditorPlaceholder';
 import { useForm } from "@tanstack/react-form";
 import classNames from "classnames";
 import React from "react";
@@ -14,7 +14,7 @@ import { LegacyFormGroupLayout } from "../tanstack-form-components/LegacyFormGro
 import { userIsAdmin, userIsAdminOrMod } from "@/lib/vulcan-users/permissions";
 import { useCurrentUser } from "../common/withUser";
 import Error404 from "../common/Error404";
-import { useMutation } from "@apollo/client";
+import { useMutation } from "@apollo/client/react";
 import { gql } from "@/lib/generated/gql-codegen";
 
 const ChaptersEditUpdateMutation = gql(`
@@ -164,7 +164,7 @@ export const ChaptersForm = ({
                   verify: false,
                 };
               }}
-              hintText={defaultEditorPlaceholder}
+              hintText={getDefaultEditorPlaceholder()}
               fieldName="contents"
               collectionName="Chapters"
               commentEditor={false}

@@ -2,19 +2,34 @@ import classNames from 'classnames';
 import React from 'react';
 import { postGetPageUrl } from '../../lib/collections/posts/helpers';
 import { Link } from '../../lib/reactRouterWrapper';
-import { registerComponent } from '../../lib/vulcan-lib/components';
 import { useItemsRead } from '../hooks/useRecordPostView';
 import { postProgressBoxStyles } from '../sequences/BooksProgressBar';
-import { isFriendlyUI, preferredHeadingCase } from '../../themes/forumTheme';
+import { preferredHeadingCase } from '../../themes/forumTheme';
 import { forumSelect } from '../../lib/forumTypeUtils';
 import PostsTooltip from "../posts/PostsPreviewTooltip/PostsTooltip";
+import { defineStyles, useStyles } from '../hooks/useStyles';
+import { useSuspenseQuery } from '@/lib/crud/useQuery';
+import { gql } from '@/lib/generated/gql-codegen';
+import { SuspenseWrapper } from '../common/SuspenseWrapper';
+import { useCurrentUser } from '../common/withUser';
 
-const styles = (theme: ThemeType) => ({
+const styles = defineStyles("SpotlightStartOrContinueReading", (theme: ThemeType) => ({
+  root: {
+    ...(theme.isFriendlyUI && {
+      [theme.breakpoints.down("xs")]: {
+        marginTop: 8,
+      },
+    }),
+    marginTop: theme.isFriendlyUI ? 0 : 4,
+    minHeight: 20,
+  },
+  placeholder: {
+  },
   boxesRoot: {
   },
   firstPost: {
     ...theme.typography.body2,
-    fontSize: isFriendlyUI ? 13 : "1.1rem",
+    fontSize: theme.isFriendlyUI ? 13 : "1.1rem",
     ...theme.typography.commentStyle,
     position: "relative",
     zIndex: theme.zIndexes.spotlightItemCloseButton,
@@ -25,11 +40,11 @@ const styles = (theme: ThemeType) => ({
   },
   postProgressBox: {
     ...postProgressBoxStyles(theme),
-    ...(isFriendlyUI && {
+    ...(theme.isFriendlyUI && {
       borderColor: theme.palette.text.alwaysWhite,
     }),
   },
-  read: isFriendlyUI
+  read: theme.isFriendlyUI
     ? {
       backgroundColor: theme.palette.text.alwaysWhite,
       border: theme.palette.text.alwaysWhite,
@@ -39,16 +54,45 @@ const styles = (theme: ThemeType) => ({
       border: theme.palette.primary.dark,
       opacity: .4
     },
+}), {
+  stylePriority: -2
 });
 
-export const SpotlightStartOrContinueReading = ({classes, spotlight, className}: {
+export const SpotlightStartOrContinueReadingQuery = gql(`
+  query SpotlightStartOrContinueReadingQuery($spotlightId: String) {
+    spotlight(input: {selector: {documentId: $spotlightId}}) {
+      result {
+        _id
+        sequenceChapters {
+          _id
+          posts {
+            ...PostsList
+          }
+        }
+      }
+    }
+  }
+`);
+
+const SpotlightStartOrContinueReadingInner = ({spotlight}: {
   spotlight: SpotlightDisplay,
-  classes: ClassesType<typeof styles>,
-  className?: string,
 }) => {
-  const chapters = spotlight.sequenceChapters;
-  
   const { postsRead: clientPostsRead } = useItemsRead();
+  
+  // This query is separate from the query in DismissibleSpotlightItem because
+  // when the spotlight is a sequence, the spotlight item differs based on the
+  // read-status of posts in the sequence, so using a cached logged-out version
+  // of the query won't work.
+  const { data } = useSuspenseQuery(SpotlightStartOrContinueReadingQuery, {
+    variables: {spotlightId: spotlight._id}
+  });
+
+  if (spotlight.documentType !== "Sequence") // Defensive
+    return null;
+  
+  const chapters = data?.spotlight?.result?.sequenceChapters;
+  if (!chapters) return null;
+  
   const posts = chapters?.flatMap(chapter => chapter.posts ?? []) ?? []
   const readPosts = posts.filter(post => post.isRead || clientPostsRead[post._id])
   
@@ -58,41 +102,72 @@ export const SpotlightStartOrContinueReading = ({classes, spotlight, className}:
   // in that collection it wouldn't provide the right 'next post')
   // But, also, the real proper fix here is to integrate continue reading here.
   const firstPost = readPosts.length === 0 && posts[0]
-  const firstPostSequenceId = spotlight.documentType === "Sequence" ? spotlight.documentId : undefined
   
-  if (spotlight.documentType !== "Sequence" || !posts.length) return null;
+  if (!posts.length) return null;
+  if (firstPost) {
+    return <SpotlightStartOrContinueReadingFirstPost spotlight={spotlight} firstPost={firstPost} />
+  } else {
+    return <SpotlightStartOrContinueReadingCheckboxes spotlight={spotlight} posts={posts}/>
+  }
+}
+
+const SpotlightStartOrContinueReadingFirstPost = ({spotlight, firstPost}: {
+  spotlight: SpotlightDisplay
+  firstPost: PostsList
+}) => {
+  const classes = useStyles(styles);
+  const firstPostSequenceId = spotlight.documentId;
+
   const prefix = forumSelect({
     EAForum: preferredHeadingCase("Start with: "),
     default: preferredHeadingCase("First Post: ")
   });
-  if (firstPost) {
-    return <div className={classNames(classes.firstPost, className)}>
-      {prefix}<PostsTooltip post={firstPost}>
-        <Link to={postGetPageUrl(firstPost, false, firstPostSequenceId)}>{firstPost.title}</Link>
-      </PostsTooltip>
-    </div>
-  } else {
-    return <div className={classNames(classes.boxesRoot, className)}>
-    {posts.map(post => (
-      <PostsTooltip
-        key={`${spotlight._id}-${post._id}`}
-        post={post}
-        flip={false}
-        inlineBlock
-      >
-        <Link to={postGetPageUrl(post, false, firstPostSequenceId)}>
-          <div className={classNames(classes.postProgressBox, {[classes.read]: post.isRead || clientPostsRead[post._id]})} />
-        </Link>
-      </PostsTooltip>
-     ))}
+
+  return <div className={classNames(classes.firstPost, classes.root)}>
+    {prefix}<PostsTooltip post={firstPost}>
+      <Link to={postGetPageUrl(firstPost, false, firstPostSequenceId)}>{firstPost.title}</Link>
+    </PostsTooltip>
   </div>
-  }
 }
 
-export default registerComponent(
-  'SpotlightStartOrContinueReading',
-  SpotlightStartOrContinueReading,
-  {styles, stylePriority: -2}
-);
+const SpotlightStartOrContinueReadingCheckboxes = ({spotlight, posts}: {
+  spotlight: SpotlightDisplay,
+  posts: PostsList[]
+}) => {
+  const classes = useStyles(styles);
+  const { postsRead: clientPostsRead } = useItemsRead();
+  const firstPostSequenceId = spotlight.documentId;
+  
+  return <div className={classNames(classes.boxesRoot, classes.root)}>
+    {posts.map(post => <PostsTooltip
+      key={`${spotlight._id}-${post._id}`}
+      post={post}
+      flip={false}
+      inlineBlock
+    >
+      <Link to={postGetPageUrl(post, false, firstPostSequenceId)}>
+        <div className={classNames(classes.postProgressBox, {[classes.read]: post.isRead || clientPostsRead[post._id]})} />
+      </Link>
+    </PostsTooltip>
+   )}
+  </div>
+}
 
+const SpotlightStartOrContinueReadingFallback = ({spotlight}: {
+  spotlight: SpotlightDisplay
+}) => {
+  const classes = useStyles(styles);
+  return <div className={classNames(classes.root, classes.placeholder)}/>
+}
+
+export const SpotlightStartOrContinueReading = ({spotlight}: {
+  spotlight: SpotlightDisplay,
+}) => {
+  return <SuspenseWrapper
+    name="SpotlightStartOrContinueReading"
+    fallback={<SpotlightStartOrContinueReadingFallback spotlight={spotlight} />}
+  >
+    <SpotlightStartOrContinueReadingInner spotlight={spotlight}/>
+  </SuspenseWrapper>
+}
 

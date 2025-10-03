@@ -7,7 +7,8 @@ test("bookmark a post and view it on bookmarks page", async ({ page, context }) 
   const post = await createNewPost();
   await page.goto(post.postPageUrl);
 
-  await page.locator(".BookmarkButton-container").click();
+  await page.locator(".PostActionsButton-root").first().click();
+  await page.getByText("Save", {exact: true}).click();
 
   await page.goto("/bookmarks");
 

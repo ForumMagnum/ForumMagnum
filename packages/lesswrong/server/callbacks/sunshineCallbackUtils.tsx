@@ -8,6 +8,7 @@ import { forumSelect } from "../../lib/forumTypeUtils";
 import { createModeratorAction, updateModeratorAction } from "../collections/moderatorActions/mutations";
 import { triggerReview } from "./helpers";
 import { createCommentModeratorAction } from "../collections/commentModeratorActions/mutations";
+import { backgroundTask } from "../utils/backgroundTask";
 
 /** 
  * This function contains all logic for determining whether a given user needs review in the moderation sidebar.
@@ -82,12 +83,12 @@ async function triggerModerationAction(userId: string, warningType: DbModeratorA
   const lastModeratorAction = await ModeratorActions.findOne({ userId, type: warningType }, { sort: { createdAt: -1 } });
   // No previous commentQualityWarning on record for this user
   if (!lastModeratorAction) {
-    void createModeratorAction({
+    backgroundTask(createModeratorAction({
       data: {
         userId,
         type: warningType,
       },
-    }, context);
+    }, context));
 
     // User already has an active commentQualityWarning, escalate?
   } else if (isActionActive(lastModeratorAction)) {
@@ -95,12 +96,12 @@ async function triggerModerationAction(userId: string, warningType: DbModeratorA
 
     // User has an inactive commentQualityWarning, re-apply?
   } else {
-    void createModeratorAction({
+    backgroundTask(createModeratorAction({
       data: {
         type: warningType,
         userId  
       },
-    }, context);
+    }, context));
   }
 }
 
@@ -111,10 +112,10 @@ async function disableModerationAction(userId: string, warningType: DbModeratorA
 
   const lastModeratorAction = await ModeratorActions.findOne({ userId, type: warningType }, { sort: { createdAt: -1 } });
   if (lastModeratorAction && isActionActive(lastModeratorAction)) {
-    void updateModeratorAction({
+    backgroundTask(updateModeratorAction({
       data: { endedAt: new Date() },
       selector: { _id: lastModeratorAction._id }
-    }, context);
+    }, context));
   }
 }
 
@@ -123,9 +124,9 @@ async function disableModerationAction(userId: string, warningType: DbModeratorA
  */
 function handleAutomodAction(triggerAction: boolean, userId: string, actionType: DbModeratorAction['type']) {
   if (triggerAction) {
-    void triggerModerationAction(userId, actionType);
+    backgroundTask(triggerModerationAction(userId, actionType));
   } else {
-    void disableModerationAction(userId, actionType);
+    backgroundTask(disableModerationAction(userId, actionType));
   }
 }
 
@@ -231,11 +232,11 @@ export async function triggerCommentAutomodIfNeeded(comment: DbVoteableType, vot
   const needsModeration = automodRule({ voteableItem: comment, votes: allVotes });
 
   if (!existingDownvotedCommentAction && needsModeration) {
-    void createCommentModeratorAction({
+    backgroundTask(createCommentModeratorAction({
       data: {
         type: DOWNVOTED_COMMENT_ALERT,
         commentId
       },
-    }, context);
+    }, context));
   }
 }

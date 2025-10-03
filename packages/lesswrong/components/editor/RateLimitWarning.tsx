@@ -56,11 +56,11 @@ const RateLimitWarning = ({contentType, lastRateLimitExpiry, rateLimitMessage, c
   }
 
   let message = `<p>You can submit again in ${getTimeUntilNextPost()}.</p> ${rateLimitMessage ?? ''}`
-  if (isFriendlyUI) {
+  if (isFriendlyUI()) {
     message = `Please wait ${getTimeUntilNextPost()} before ${contentType === 'comment' ? 'commenting' : 'posting'} again. ${rateLimitMessage ?? ''}`
   }
 
-  if (isFriendlyUI) {
+  if (isFriendlyUI()) {
     return <WarningBanner message={message}/>
   } else {
     return <ContentStyles contentType="comment" className={classes.lwBanner}>

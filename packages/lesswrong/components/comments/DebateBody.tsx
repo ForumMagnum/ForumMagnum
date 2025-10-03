@@ -6,7 +6,6 @@ import moment from 'moment';
 import DebateResponseBlock, { DebateResponseWithReplies } from './DebateResponseBlock';
 import DeferRender from '../common/DeferRender';
 import { filterNonnull } from '@/lib/utils/typeGuardUtils';
-import DebateTypingIndicator from "./DebateTypingIndicator";
 
 const styles = (theme: ThemeType) => ({
   root: {
@@ -60,9 +59,6 @@ export const DebateBody = ({ debateResponses, post, classes }: {
           });
         })
       }
-    </div>
-    <div>
-      <DebateTypingIndicator post={post} />
     </div>
   </DeferRender>);
 }

@@ -7,6 +7,7 @@ import { createModeratorAction } from '../collections/moderatorActions/mutations
 import { computeContextFromUser } from "@/server/vulcan-lib/apollo-server/context";
 import { createAnonymousContext } from "@/server/vulcan-lib/createContexts";
 import { updateConversation } from '../collections/conversations/mutations';
+import { backgroundTask } from "../utils/backgroundTask";
 
 export function checkIfNewMessageIsEmpty(message: CreateMessageDataInput) {
   const { data } = (message.contents && message.contents.originalContents) || {}
@@ -18,7 +19,7 @@ export function checkIfNewMessageIsEmpty(message: CreateMessageDataInput) {
 export function unArchiveConversations({ document, context }: AfterCreateCallbackProperties<'Messages'>) {
   const { Conversations } = context;
 
-  void Conversations.rawUpdateOne({_id:document.conversationId}, {$set: {archivedByIds: []}});
+  backgroundTask(Conversations.rawUpdateOne({_id:document.conversationId}, {$set: {archivedByIds: []}}));
 }
 
 /**
@@ -43,13 +44,13 @@ export async function updateUserNotesOnModMessage({ document, context }: AfterCr
     const nonAdminParticipant = conversationParticipants.find(user => !userIsAdmin(user));
 
     if (nonAdminParticipant && conversationMessageCount === 1) {
-      void createModeratorAction({
+      backgroundTask(createModeratorAction({
         data: {
           userId: nonAdminParticipant._id,
           type: SENT_MODERATOR_MESSAGE,
           endedAt: new Date(),
         },
-      }, context);
+      }, context));
     }
   }
 }

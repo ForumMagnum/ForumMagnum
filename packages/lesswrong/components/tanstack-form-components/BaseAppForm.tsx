@@ -35,7 +35,7 @@ export function useFormErrors() {
   }, [caughtError]);
 
   const displayedErrorComponent = useMemo(
-    () => <FormErrors errors={parsedErrors} getLabel={() => ''} />,
+    () => <FormErrors errors={parsedErrors} />,
     [parsedErrors],
   );
 

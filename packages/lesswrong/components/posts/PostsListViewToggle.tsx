@@ -108,7 +108,8 @@ const PostsListViewToggle = ({classes}: {
     moment(data.firstViewedAt).add(1, "month").isAfter(moment()) &&
     new Date() < new Date("2024-05-31");
 
-  const {view, setView} = usePostsListView();
+  const {getView, setView} = usePostsListView();
+  const view = getView();
 
   const onSelect = useCallback((value: string) => {
     if (isPostsListViewType(value)) {

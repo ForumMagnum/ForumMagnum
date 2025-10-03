@@ -1,10 +1,9 @@
 import { registerComponent } from '../../../lib/vulcan-lib/components';
 import React, { MouseEventHandler } from 'react';
 import { Link } from '../../../lib/reactRouterWrapper';
-import { cloudinaryCloudNameSetting } from '../../../lib/publicSettings';
+import { cloudinaryCloudNameSetting } from '@/lib/instanceSettings';
 import Button from '@/lib/vendor/@material-ui/core/src/Button';
-import { requireCssVar } from '../../../themes/cssVars';
-import { isFriendlyUI } from '../../../themes/forumTheme';
+import { useThemeColor } from '@/components/themes/useTheme';
 import CommunityMapWrapper from "../../localGroups/CommunityMapWrapper";
 import CloudinaryImage2 from "../../common/CloudinaryImage2";
 import { useQuery } from "@/lib/crud/useQuery";
@@ -99,9 +98,9 @@ const styles = (theme: ThemeType) => ({
     alignItems: 'baseline',
   },
   localGroupName: {
-    ...theme.typography[isFriendlyUI ? "headerStyle" : "headline"],
+    ...theme.typography[theme.isFriendlyUI ? "headerStyle" : "headline"],
     fontSize: 18,
-    fontWeight: isFriendlyUI ? 700 : undefined,
+    fontWeight: theme.isFriendlyUI ? 700 : undefined,
     display: '-webkit-box',
     "-webkit-line-clamp": 2,
     "-webkit-box-orient": 'vertical',
@@ -169,9 +168,6 @@ export const distance = (
   return Math.round(distanceUnit === 'mi' ? distanceInKm * 0.621371 : distanceInKm)
 }
 
-const defaultBackground = requireCssVar("palette", "panelBackground", "default");
-const dimBackground = requireCssVar("palette", "background", "primaryDim");
-
 const LocalGroups = ({keywordSearch, userLocation, distanceUnit='km', includeInactive, toggleIncludeInactive, classes}: {
   keywordSearch: string,
   userLocation: {
@@ -185,6 +181,9 @@ const LocalGroups = ({keywordSearch, userLocation, distanceUnit='km', includeIna
   toggleIncludeInactive: MouseEventHandler,
   classes: ClassesType<typeof styles>,
 }) => {
+  const defaultBackground = useThemeColor(theme => theme.palette.panelBackground.default);
+  const dimBackground = useThemeColor(theme => theme.palette.background.primaryDim);
+
   const groupsListTerms: LocalgroupsViewTerms = userLocation.known ? {
     view: 'nearby',
     lat: userLocation.lat,

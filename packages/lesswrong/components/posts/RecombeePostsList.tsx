@@ -9,13 +9,15 @@ import moment from 'moment';
 import { useCurrentUser } from '../common/withUser';
 import { aboutPostIdSetting } from '@/lib/instanceSettings';
 import { IsRecommendationContext } from '../dropdowns/posts/PostActions';
-import { registerComponent } from "../../lib/vulcan-lib/components";
 import LoadMore from "../common/LoadMore";
 import PostsItem from "./PostsItem";
 import SectionFooter from "../common/SectionFooter";
 import PostsLoading from "./PostsLoading";
 import { gql } from '@/lib/generated/gql-codegen';
 import { stickiedPostTerms } from '@/lib/collections/posts/constants';
+import { SuspenseWrapper } from '../common/SuspenseWrapper';
+import { registerComponent } from '@/lib/vulcan-lib/components';
+import uniqBy from 'lodash/uniqBy';
 
 type LoadMoreSettings = {
   loadMore: (RecombeeConfiguration | HybridRecombeeConfiguration)['loadMore'];
@@ -27,12 +29,6 @@ type LoadMoreSettings = {
   loadMore: (RecombeeConfiguration | HybridRecombeeConfiguration)['loadMore'];
   excludedPostIds?: never
 } | undefined;
-
-const styles = (theme: ThemeType) => ({
-  root: {
-
-  }
-});
 
 const DEFAULT_RESOLVER_NAME = 'RecombeeLatestPosts';
 const HYBRID_RESOLVER_NAME = 'RecombeeHybridPosts';
@@ -116,11 +112,10 @@ const getLoadMoreSettings = (resolverName: RecombeeResolver, results: getRecombe
   }
 }
 
-export const RecombeePostsList = ({ algorithm, settings, limit = 15, classes }: {
+const RecombeePostsListInner = ({ algorithm, settings, limit = 15 }: {
   algorithm: string,
   settings: RecombeeConfiguration,
   limit?: number,
-  classes: ClassesType<typeof styles>,
 }) => {
   const [loadMoreCount, setLoadMoreCount] = useState(1);
   const currentUser = useCurrentUser();
@@ -136,7 +131,6 @@ export const RecombeePostsList = ({ algorithm, settings, limit = 15, classes }: 
     : RecombeeLatestPostsQuery;
 
   const { data, loading, fetchMore, networkStatus } = useQuery<getRecombeeLatestPostsQuery | getRecombeeHybridPostsQuery>(query, {
-    notifyOnNetworkStatusChange: true,
     variables: {
       limit,
       settings: recombeeSettings,
@@ -148,11 +142,12 @@ export const RecombeePostsList = ({ algorithm, settings, limit = 15, classes }: 
       ? data.RecombeeLatestPosts?.results
       : data.RecombeeHybridPosts?.results
     : undefined;
+  const uniqueResults = results ? uniqBy(results, p=>p.post._id) : results;
 
   const hiddenPostIds = currentUser?.hiddenPostsMetadata?.map(metadata => metadata.postId) ?? [];
   
   //exclude posts with hiddenPostIds
-  const filteredResults = results?.filter(({ post }) => !hiddenPostIds.includes(post._id));
+  const filteredResults = uniqueResults?.filter(({ post }) => !hiddenPostIds.includes(post._id));
 
   const postIds = filteredResults?.map(({post}) => post._id) ?? [];
   const postIdsWithScenario = filteredResults?.map(({ post, scenario, curated, stickied, generatedAt }, idx) => {
@@ -187,7 +182,7 @@ export const RecombeePostsList = ({ algorithm, settings, limit = 15, classes }: 
   });
 
   if (loading && !filteredResults) {
-    return <PostsLoading placeholderCount={limit} />;
+    return <PostsLoading placeholderCount={limit} loadMore/>;
   }
 
   if (!filteredResults) {
@@ -195,7 +190,7 @@ export const RecombeePostsList = ({ algorithm, settings, limit = 15, classes }: 
   }
 
   return <div>
-    <div className={classes.root}>
+    <div>
       {filteredResults.map(({ post, recommId, curated, stickied }) => <IsRecommendationContext.Provider key={post._id} value={!!recommId}>
         <PostsItem 
           post={post} 
@@ -236,6 +231,23 @@ export const RecombeePostsList = ({ algorithm, settings, limit = 15, classes }: 
   </div>;
 }
 
-export default registerComponent('RecombeePostsList', RecombeePostsList, {styles});
+const RecombeePostsListWrapper = ({ algorithm, settings, limit = 15 }: {
+  algorithm: string,
+  settings: RecombeeConfiguration,
+  limit?: number,
+}) => {
+  return <SuspenseWrapper name="RecombeePostsList" fallback={<PostsLoading placeholderCount={limit} loadMore/>}>
+    <RecombeePostsListInner
+      algorithm={algorithm}
+      settings={settings}
+      limit={limit}
+    />
+  </SuspenseWrapper>
+}
 
+export const RecombeePostsList = registerComponent("RecombeePostsList", RecombeePostsListWrapper, {
+  areEqual: {
+    settings: "deep",
+  },
+});
 

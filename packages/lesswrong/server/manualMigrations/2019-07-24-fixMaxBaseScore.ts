@@ -1,6 +1,5 @@
 import { Posts } from '../../server/collections/posts/collection';
 import { registerMigration, migrateDocuments } from './migrationUtils';
-import * as _ from 'underscore';
 
 export default registerMigration({
   name: "fixMaxBaseScore",
@@ -15,7 +14,7 @@ export default registerMigration({
     },
     batchSize: 1000,
     migrate: async (posts) => {
-      let updates = _.map(posts, post => ({
+      let updates = posts.map(post => ({
         updateOne: {
           filter: { _id: post._id },
           update: {

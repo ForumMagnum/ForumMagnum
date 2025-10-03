@@ -1,10 +1,11 @@
+import schema from '@/lib/collections/gardencodes/newSchema';
 import { createCollection } from '@/lib/vulcan-lib/collections';
-import '@/lib/collections/gardencodes/fragments';
 import { DatabaseIndexSet } from '@/lib/utils/databaseIndexSet';
 
-export const GardenCodes: GardenCodesCollection = createCollection({
+export const GardenCodes = createCollection({
   collectionName: 'GardenCodes',
   typeName: 'GardenCode',
+  schema,
     getIndexes: () => {
     const indexSet = new DatabaseIndexSet();
     indexSet.addIndex('GardenCodes', {code: 1, deleted: 1});

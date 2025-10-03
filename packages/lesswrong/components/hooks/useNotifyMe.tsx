@@ -8,10 +8,10 @@ import {
   isDefaultSubscriptionType,
 } from "../../lib/collections/subscriptions/mutations";
 import type { SubscriptionType } from "../../lib/collections/subscriptions/helpers";
-import { max } from "underscore";
+import maxBy from "lodash/maxBy";
 import { userIsDefaultSubscribed, userSubscriptionStateIsFixed } from "../../lib/subscriptionUtil";
 import LoginPopup from "../users/LoginPopup";
-import { useMutation } from "@apollo/client";
+import { useMutation } from "@apollo/client/react";
 import { useQuery } from "@/lib/crud/useQuery"
 import { gql } from "@/lib/generated/gql-codegen";
 import { typeNameToCollectionName } from "@/lib/generated/collectionTypeNames";
@@ -60,10 +60,10 @@ const currentUserIsSubscribed = (
   // recent subscription
   if (results && results.length > 0) {
     // Get the newest subscription entry (Mingo doesn't enforce the limit:1)
-    const currentSubscription = max(
+    const currentSubscription = maxBy(
       results,
       (result) => new Date(result.createdAt).getTime(),
-    );
+    )!;
 
     if (currentSubscription.state === "subscribed") {
       return true;
@@ -164,7 +164,24 @@ export const useNotifyMe = ({
         type: subscriptionType,
       } as const;
 
-      await createSubscription({ variables: { data: newSubscription } });
+      await createSubscription({ 
+        variables: { data: newSubscription },
+        refetchQueries: [{
+          query: SubscriptionStateMultiQuery,
+          variables: {
+            selector: { 
+              subscriptionState: { 
+                documentId: document._id, 
+                userId: currentUser._id, 
+                type: subscriptionType, 
+                collectionName 
+              } 
+            },
+            limit: 1,
+            enableTotal: false,
+          }
+        }]
+      });
 
       // We have to manually invalidate the cache as this hook can sometimes be
       // unmounted before the create mutation has finished (eg; when used inside

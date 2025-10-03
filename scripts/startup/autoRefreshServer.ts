@@ -1,5 +1,5 @@
 // @ts-check
-import WebSocket from 'ws';
+import WebSocket, { WebSocketServer } from 'ws';
 import crypto from 'crypto';
 import fs from 'fs';
 import { getOutputDir, logWithTimestamp } from './buildUtil';
@@ -97,7 +97,7 @@ export function startAutoRefreshServer({serverPort, websocketPort}: {
   serverPort: number
   websocketPort: number
 }) {
-  const server = new WebSocket.Server({
+  const server = new WebSocketServer({
     port: websocketPort,
   });
   server.on('connection', async (ws) => {

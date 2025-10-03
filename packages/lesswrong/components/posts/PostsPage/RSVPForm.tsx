@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { DialogContent } from "@/components/widgets/DialogContent";
-import { useMutation } from '@apollo/client';
+import { useMutation } from "@apollo/client/react";
 import { gql } from '@/lib/generated/gql-codegen';
 import Input from '@/lib/vendor/@material-ui/core/src/Input';
 import Select from '@/lib/vendor/@material-ui/core/src/Select';
@@ -8,7 +8,6 @@ import Button from '@/lib/vendor/@material-ui/core/src/Button';
 import { DialogActions } from '../../widgets/DialogActions';
 import { DialogTitle } from '../../widgets/DialogTitle';
 import { useCurrentUser } from '../../common/withUser';
-import { isFriendlyUI } from '../../../themes/forumTheme';
 import { useNavigate } from '../../../lib/routeUtil';
 import { registerComponent } from "../../../lib/vulcan-lib/components";
 import LWDialog from "../../common/LWDialog";
@@ -16,7 +15,7 @@ import { MenuItem } from "../../common/Menus";
 import { responseToText } from '@/lib/collections/posts/constants';
 
 const styles = (theme: ThemeType) => ({
-  emailMessage: isFriendlyUI
+  emailMessage: theme.isFriendlyUI
     ? {
       fontFamily: theme.palette.fonts.sansSerifStack,
     }
@@ -89,9 +88,9 @@ const RSVPForm = ({ post, onClose, initialResponse = "yes", classes }: {
           color="primary"
           onClick={async () => {
             if (name) {
-              const { errors } = await registerRSVP({variables: {postId: post._id, name, email, response}})
-              if (errors) {
-                setError(`Oops, something went wrong: ${errors[0].message}`)
+              const { error } = await registerRSVP({variables: {postId: post._id, name, email, response}})
+              if (error) {
+                setError(`Oops, something went wrong: ${error.message}`)
               } else if (onClose) {
                 onClose()
               }

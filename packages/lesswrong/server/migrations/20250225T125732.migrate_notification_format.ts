@@ -46,7 +46,7 @@ const fetchEverChangedSettingUsers = async ({
   fieldName: (typeof notificationTypes)[number];
 }) => {
 
-  const lwEventsUsers = !isLW ? await db.any<{ userId: string }>(
+  const lwEventsUsers = !isLW() ? await db.any<{ userId: string }>(
     `
     SELECT DISTINCT "documentId" AS "userId"
     FROM "LWEvents"

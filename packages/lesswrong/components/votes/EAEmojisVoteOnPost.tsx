@@ -3,7 +3,7 @@
 import React from "react";
 import { registerComponent } from "../../lib/vulcan-lib/components";
 import { useVote } from "./withVote";
-import type { PostVotingComponentProps } from "../../lib/voting/votingSystems";
+import type { PostVotingComponentProps } from '@/lib/voting/votingSystemTypes';
 import classNames from "classnames";
 import PostsVoteDefault from "./PostsVoteDefault";
 import EAReactsSection from "./EAReactsSection";

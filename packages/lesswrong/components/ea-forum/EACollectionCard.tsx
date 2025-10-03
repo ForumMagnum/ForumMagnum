@@ -7,7 +7,7 @@ import { AnalyticsContext } from "../../lib/analyticsEvents";
 import CollectionsTooltip from "../collections/CollectionsTooltip";
 import EASequenceOrCollectionCard from "./EASequenceOrCollectionCard";
 
-const defaultImageId = forumSelect({
+const getDefaultImageId = () => forumSelect({
   EAForum: "Banner/yeldubyolqpl3vqqy0m6.jpg",
   default: "sequences/vnyzzznenju0hzdv6pqb.jpg",
 });
@@ -35,7 +35,7 @@ const getCardDetails = ({
   return {
     title,
     author: user,
-    imageId: gridImageId || defaultImageId,
+    imageId: gridImageId || getDefaultImageId(),
   };
 }
 

@@ -27,10 +27,10 @@ const styles = (theme: ThemeType) => ({
   },
   newQuickTake: {
     fontFamily: theme.palette.fonts.sansSerifStack,
-    fontWeight: isFriendlyUI ? 700 : 500,
+    fontWeight: theme.isFriendlyUI ? 700 : 500,
     fontSize: 20,
     color: theme.palette.grey[1000],
-    margin: isFriendlyUI ? 20 : '16px 20px 16px 0px',
+    margin: theme.isFriendlyUI ? 20 : '16px 20px 16px 0px',
   },
   quickTakesRoot: {
     background: "transparent",
@@ -72,9 +72,9 @@ const ShortformSubmitForm = ({
         className={classes.quickTakesRoot}
         successCallback={successCallback}
         cancelCallback={cancelCallback}
-        defaultExpanded={isFriendlyUI || defaultExpanded}
+        defaultExpanded={isFriendlyUI() || defaultExpanded}
         defaultFocus
-        submitButtonAtBottom={isFriendlyUI || submitButtonAtBottom}
+        submitButtonAtBottom={isFriendlyUI() || submitButtonAtBottom}
       />
     </div>
   );

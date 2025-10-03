@@ -5,7 +5,7 @@ import { IsRecommendationContext } from './PostActions';
 import withErrorBoundary from '../../common/withErrorBoundary';
 import { useDialog } from '../../common/withDialog';
 import { useSetIsHiddenMutation } from './useSetIsHidden';
-import { recombeeEnabledSetting } from '@/lib/publicSettings';
+import { recombeeEnabledSetting } from '@/lib/instanceSettings';
 import { recombeeApi } from '@/lib/recombee/client';
 import { isRecombeeRecommendablePost } from '@/lib/collections/posts/helpers';
 import { registerComponent } from "../../../lib/vulcan-lib/components";

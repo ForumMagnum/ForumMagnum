@@ -19,7 +19,7 @@ import LWPopper from "../common/LWPopper";
 import { Typography } from "../common/Typography";
 import LWTooltip from "../common/LWTooltip";
 import ForumIcon from "../common/ForumIcon";
-import { useMutation } from "@apollo/client";
+import { useMutation } from "@apollo/client/react";
 import { useQuery } from "@/lib/crud/useQuery"
 import { gql } from "@/lib/generated/gql-codegen";
 
@@ -108,8 +108,6 @@ const styles = (theme: ThemeType) => ({
     color: theme.palette.primary.main
   },
 })
-
-export const taggedPostWording = taggingNameIsSet.get() ? `posts on this ${taggingNameSetting.get()}` : "posts with this tag"
 
 const SubscribeButton = ({
   tag,
@@ -210,6 +208,10 @@ const SubscribeButton = ({
       flash({messageString: error.message});
     }
   }
+
+  const taggedPostWording = taggingNameIsSet.get()
+    ? `posts on this ${taggingNameSetting.get()}`
+    : "posts with this tag";
 
   return (
     <div className={classNames(className, classes.root)}>

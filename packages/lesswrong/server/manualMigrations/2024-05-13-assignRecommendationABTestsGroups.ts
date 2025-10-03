@@ -1,6 +1,7 @@
 import { registerMigration } from "./migrationUtils";
 import { createAdminContext } from "../vulcan-lib/createContexts";
 import { updateUser } from "../collections/users/mutations";
+import { backgroundTask } from "../utils/backgroundTask";
 
 const testGroupIds = [
   '22EP7kj9ea5vtQzX6',
@@ -932,11 +933,11 @@ export default registerMigration({
     const { Users } = adminContext;
 
     testGroupIds.forEach(async (userId: string) => {
-      void updateUser({
+      backgroundTask(updateUser({
         data: {
           frontpageSelectedTab: 'recombee-hybrid'
         }, selector: { _id: userId }
-      }, adminContext);
+      }, adminContext));
     });
   }
 });

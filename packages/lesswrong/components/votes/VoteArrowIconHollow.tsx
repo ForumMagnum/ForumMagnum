@@ -1,30 +1,20 @@
-import React, { useRef } from 'react';
+import React from 'react';
 import classNames from 'classnames';
-import UpArrowIcon from '@/lib/vendor/@material-ui/icons/src/KeyboardArrowUp';
-import IconButton from '@/lib/vendor/@material-ui/core/src/IconButton';
-import Transition from 'react-transition-group/Transition';
-import { useVoteColors } from './useVoteColors';
-import { registerComponent } from '@/lib/vulcan-lib/components';
-import { isEAForum } from '../../lib/instanceSettings';
 import type { VoteArrowIconProps } from './VoteArrowIcon';
+import { defineStyles, useStyles } from '../hooks/useStyles';
+import { getVoteButtonColor, voteButtonSharedStyles } from './VoteButton';
 
-const styles = (theme: ThemeType) => ({
-  root: {
-    color: theme.palette.grey[400],
-    fontSize: 'inherit',
-    width: 'initial',
-    height: 'initial',
-    padding: 0,
-    '&:hover': {
-      backgroundColor: 'transparent',
-    },
-  },
+const styles = defineStyles("VoteArrowIconHollow", (theme: ThemeType) => ({
   disabled: {
     cursor: 'not-allowed',
   },
   smallArrow: {
     fontSize: '50%',
-    opacity: isEAForum ? 0.7 : 0.6,
+    opacity: theme.isEAForum ? 0.7 : 0.6,
+    width: "1em",
+    height: "1em",
+    fill: "currentColor",
+    pointerEvents: 'none',
   },
   up: {
   },
@@ -41,82 +31,73 @@ const styles = (theme: ThemeType) => ({
     position: 'absolute',
     top: '-70%',
     fontSize: '82%',
-    opacity: 0,
-    transition: `opacity ${theme.voting.strongVoteDelay}ms cubic-bezier(0.74, -0.01, 1, 1) 0ms`,
+    pointerEvents: 'none',
+
+    width: '1em',
+    height: '1em',
+    fill: "currentColor",
   },
   bigArrowCompleted: {
     fontSize: '90%',
     top: '-75%',
+    opacity: 1.0,
   },
-  entering: {
-    opacity: 1,
-  },
-  entered: {
-    opacity: 1,
-  },
-  exiting: {
-    transition: 'opacity 150ms cubic-bezier(0.74, -0.01, 1, 1) 0ms',
-  },
-});
+}));
+
+const UpArrowIcon = ({className}: {className: string}) =>
+  <svg
+    className={className}
+    viewBox="6 6 12 12"
+  >
+    <path d="M7.41 15.41L12 10.83l4.59 4.58L18 14l-6-6-6 6z" />
+    <path fill="none" d="M0 0h24v24H0z" />
+  </svg>
+
 
 const VoteArrowIconHollow = ({
   orientation,
   enabled = true,
   color,
-  voted,
-  eventHandlers,
-  bigVotingTransition,
-  bigVoted,
-  bigVoteCompleted,
+  animation,
   alwaysColored,
-  strongVoteDelay,
-  classes,
-}: VoteArrowIconProps & {
-  classes: ClassesType<typeof styles>
-}) => {
-  const { mainColor, lightColor } = useVoteColors(color);
-  const handlers = enabled ? eventHandlers : {};
-  const nodeRef = useRef<SVGSVGElement|null>(null);
+}: VoteArrowIconProps) => {
+  const classes = useStyles(styles);
+  const { state, eventHandlers } = animation;
+  const sharedClasses = useStyles(voteButtonSharedStyles);
+  const voted = state.mode !== "idle" || state.vote !== "neutral";
 
   return (
-    <IconButton
+    <button
       className={classNames(
-        classes.root,
+        sharedClasses.root,
         classes[orientation],
-        !enabled && classes.disabled
+        !enabled && classes.disabled,
       )}
-      onMouseDown={handlers.handleMouseDown}
-      onMouseUp={handlers.handleMouseUp}
-      onMouseOut={handlers.clearState}
-      onClick={handlers.handleClick}
-      disableRipple
+      type="button"
+      {...(enabled ? eventHandlers : {})}
     >
-      <UpArrowIcon
-        style={{ color: voted || alwaysColored ? mainColor : 'inherit' }}
-        className={classNames(classes.smallArrow)}
-        viewBox="6 6 12 12"
-      />
-      <Transition in={!!(bigVotingTransition || bigVoted)} timeout={strongVoteDelay} nodeRef={nodeRef as any}>
-        {(state) => (
+      <span className={sharedClasses.inner}>
+        <UpArrowIcon
+          className={classNames(
+            classes.smallArrow,
+            (voted || alwaysColored) && getVoteButtonColor(sharedClasses, color, "main")
+          )}
+        />
+        {((state.mode==="idle" && state.vote==="big") || (state.mode !== "idle")) &&
           <UpArrowIcon
-            style={bigVoteCompleted || bigVoted ? { color: lightColor } : undefined}
-            nodeRef={nodeRef}
             className={classNames(
+              state.mode === "animating" && sharedClasses.entering,
               classes.bigArrow,
-              bigVoteCompleted && classes.bigArrowCompleted,
-              (classes as AnyBecauseTodo)[state]
+              (state.mode === "completed") && classes.bigArrowCompleted,
+              getVoteButtonColor(sharedClasses, color, "light")
             )}
-            viewBox="6 6 12 12"
-        />)}
-      </Transition>
-    </IconButton>
+          />
+        }
+      </span>
+    </button>
   );
 };
 
-export default registerComponent(
-  'VoteArrowIconHollow',
-  VoteArrowIconHollow,
-  { styles }
-);
+export default VoteArrowIconHollow;
 
 

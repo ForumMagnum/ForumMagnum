@@ -19,7 +19,7 @@ const styles = (theme: ThemeType) => ({
   },
   checkbox: {
     color: theme.palette.lwTertiary.main,
-    padding: "2px 8px 0 0",
+    padding: "1px 8px 0 0",
     '& svg': {
       height: "1.3rem",
       width: "1.3rem",

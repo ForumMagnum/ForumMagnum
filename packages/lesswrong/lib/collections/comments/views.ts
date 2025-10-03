@@ -1,6 +1,5 @@
 import moment from 'moment';
-import { forumTypeSetting, isEAForum } from '../../instanceSettings';
-import { hideUnreviewedAuthorCommentsSettings } from '../../publicSettings';
+import { isEAForum, hideUnreviewedAuthorCommentsSettings, isAF } from '@/lib/instanceSettings';
 import { ReviewYear } from '../../reviewUtils';
 import pick from 'lodash/pick';
 import { TupleSet, UnionOf } from '@/lib/utils/typeGuardUtils';
@@ -9,6 +8,17 @@ import { CollectionViewSet } from '../../../lib/views/collectionViewSet';
 import type { ApolloClient, NormalizedCacheObject } from '@apollo/client';
 import { EA_FORUM_COMMUNITY_TOPIC_ID } from '../tags/helpers';
 
+/**
+ * Comment sorting mode, a string which gets translated into a mongodb sort
+ * order. Not every mode is shown in the UI in every context. Corresponds to
+ * `sortings` (below).
+ *
+ * new/newest, old/oldest, and recentComments/recentDiscussion are synonyms.
+ * In past versions, different subsets of these depending on whether you were
+ * using an answers view, a subforum view, or something else.
+ * 
+ * needs to correspond to the CommentSortingMode enum declared in @/server/collections/comments/queries.ts
+ */
 export const COMMENT_SORTING_MODES = new TupleSet([ 
   "top", "groupByPost", "new", "newest", "old", "oldest", "magic", "recentComments", "recentDiscussion"
 ] as const);
@@ -38,17 +48,6 @@ declare global {
     commentIds?: string[],
     minimumKarma?: number,
   }
-  
-  /**
-   * Comment sorting mode, a string which gets translated into a mongodb sort
-   * order. Not every mode is shown in the UI in every context. Corresponds to
-   * `sortings` (below).
-   *
-   * new/newest, old/oldest, and recentComments/recentDiscussion are synonyms.
-   * In past versions, different subsets of these depending on whether you were
-   * using an answers view, a subforum view, or something else.
-   */
-  type CommentSortingMode = UnionOf<typeof COMMENT_SORTING_MODES>;
 }
 
 // Spread into a view to remove the part of the default view selector that hides deleted and
@@ -104,10 +103,10 @@ const getDraftSelector = ({ drafts = "include-my-draft-replies", context }: { dr
   }
 };
 
-function defaultView(terms: CommentsViewTerms, _: ApolloClient<NormalizedCacheObject>, context?: ResolverContext) {
+function defaultView(terms: CommentsViewTerms, _: ApolloClient, context?: ResolverContext) {
   const validFields = pick(terms, 'userId', 'authorIsUnreviewed');
 
-  const alignmentForum = forumTypeSetting.get() === 'AlignmentForum' ? {af: true} : {}
+  const alignmentForum = isAF() ? {af: true} : {}
   const hideSince = hideUnreviewedAuthorCommentsSettings.get()
   
   const notDeletedOrDeletionIsPublic = {
@@ -377,7 +376,7 @@ function rejected(terms: CommentsViewTerms) {
 function recentDiscussionThread(terms: CommentsViewTerms) {
   // The forum has fewer comments, and so wants a more expansive definition of
   // "recent"
-  const eighteenHoursAgo = moment().subtract(forumTypeSetting.get() === 'EAForum' ? 36 : 18, 'hours').toDate();
+  const eighteenHoursAgo = moment().subtract(isEAForum() ? 36 : 18, 'hours').toDate();
   return {
     selector: {
       postId: terms.postId,
@@ -409,7 +408,7 @@ function postsItemComments(terms: CommentsViewTerms) {
       postId: terms.postId,
       deleted: false,
       postedAt: terms.after ? {$gt: new Date(terms.after)} : null,
-      ...(!isEAForum && {score: {$gt: 0}}),
+      ...(!isEAForum() && {score: {$gt: 0}}),
     },
     options: {sort: {postedAt: -1}, limit: terms.limit || 15},
   };
@@ -510,7 +509,7 @@ function topShortform(terms: CommentsViewTerms) {
   );
 
   const shortformFrontpage =
-    isEAForum && typeof terms.shortformFrontpage === "boolean"
+    isEAForum() && typeof terms.shortformFrontpage === "boolean"
       ? {shortformFrontpage: terms.shortformFrontpage}
       : {};
 
@@ -537,7 +536,7 @@ function shortform(terms: CommentsViewTerms) {
   };
 }
 
-function shortformFrontpage(terms: CommentsViewTerms, _: ApolloClient<NormalizedCacheObject>, context?: ResolverContext) {
+function shortformFrontpage(terms: CommentsViewTerms, _: ApolloClient, context?: ResolverContext) {
   const twoHoursAgo = moment().subtract(2, 'hours').toDate();
   const maxAgeDays = terms.maxAgeDays ?? 5;
   const currentUserId = context?.currentUser?._id;

@@ -1,10 +1,9 @@
 import { registerComponent } from '../../lib/vulcan-lib/components';
 import React from 'react';
 import { useVote } from './withVote';
-import { isAF, isLW } from '../../lib/instanceSettings';
-import { useCurrentUser } from '../common/withUser';
-import { voteButtonsDisabledForUser } from '../../lib/collections/users/helpers';
-import { VotingSystem } from '../../lib/voting/votingSystems';
+import { isAF } from '../../lib/instanceSettings';
+import { useVoteButtonsDisabled } from './useVoteButtonsDisabled';
+import { VotingSystem } from '@/lib/voting/votingSystemTypes';
 import { TooltipSpan } from '../common/FMTooltip';
 import OverallVoteButton from "./OverallVoteButton";
 import { Typography } from "../common/Typography";
@@ -30,7 +29,7 @@ const styles = (theme: ThemeType) => ({
     },
   },
   voteScoresHorizontal: {
-    margin: isLW ? '-2px 8px' : '-4px 8px'
+    margin: theme.isLW ? '-2px 8px' : '-4px 8px'
   },
   voteScore: {
     color: theme.palette.grey[600],
@@ -59,9 +58,8 @@ const LWPostsPageTopHeaderVote = ({
   classes: ClassesType<typeof styles>
 }) => {
   const voteProps = useVote(post, "Posts", votingSystem);
-  const currentUser = useCurrentUser();
 
-  const {fail, reason: whyYouCantVote} = voteButtonsDisabledForUser(currentUser);
+  const {fail, reason: whyYouCantVote} = useVoteButtonsDisabled();
   const canVote = !fail;
 
   // Can't do top, since in context this always has tags above it
@@ -69,7 +67,7 @@ const LWPostsPageTopHeaderVote = ({
 
   const tooltipText = <div>
     <div>{`${voteProps.voteCount} ${voteProps.voteCount === 1 ? "vote" : "votes"}`}</div>
-    {post.af && !isAF && <div><em>{post.afBaseScore} karma on AlignmentForum</em></div>}
+    {post.af && !isAF() && <div><em>{post.afBaseScore} karma on AlignmentForum</em></div>}
   </div>
 
   return (

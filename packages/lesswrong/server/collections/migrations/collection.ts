@@ -1,3 +1,4 @@
+import schema from '@/lib/collections/migrations/newSchema';
 import { createCollection } from '@/lib/vulcan-lib/collections';
 
 /*
@@ -12,9 +13,10 @@ import { createCollection } from '@/lib/vulcan-lib/collections';
 // finished, and whether it succeeded. This can be cross-checked against the
 // set of available migrations to find ones that need running.
 
-export const Migrations: MigrationsCollection = createCollection({
+export const Migrations = createCollection({
   collectionName: "Migrations",
   typeName: "Migration",
+  schema,
 });
 
 export default Migrations;

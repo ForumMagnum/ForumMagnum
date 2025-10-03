@@ -3,9 +3,8 @@ import React from 'react';
 import { useNewEvents } from '../../lib/events/withNewEvents';
 import { registerComponent } from '../../lib/vulcan-lib/components';
 import { useUpdateCurrentUser } from '../hooks/useUpdateCurrentUser';
-import { DatabasePublicSetting } from "../../lib/publicSettings";
+import { isLW, firstCommentAcknowledgeMessageCommentIdSetting } from '@/lib/instanceSettings';
 import { AnalyticsContext } from "../../lib/analyticsEvents";
-import { isLW } from "../../lib/instanceSettings";
 import { useQuery } from "@/lib/crud/useQuery";
 import { gql } from "@/lib/generated/gql-codegen";
 import { DialogActions } from '../widgets/DialogActions';
@@ -24,8 +23,6 @@ const CommentsListQuery = gql(`
     }
   }
 `);
-
-const firstCommentAcknowledgeMessageCommentIdSetting = new DatabasePublicSetting<string>('firstCommentAcknowledgeMessageCommentId', '')
 
 const styles = (theme: ThemeType) => ({
   moderationGuidelines: {
@@ -83,7 +80,7 @@ const NewUserGuidelinesDialog = ({classes, onClose, post, user}: {
           {!html && !loading && <div className={classes.moderationGuidelines}><em>A moderator will need to review your account before your posts will appear publicly.</em></div>}
         </ContentStyles>
         <DialogActions>
-          {isLW && <Button>
+          {isLW() && <Button>
             This was your father's rock
           </Button>}
           <Button onClick={handleClick}>

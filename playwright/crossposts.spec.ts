@@ -84,7 +84,7 @@ test("connect crossposting account and create post", async ({browser}) => {
   await pages[1].waitForTimeout(1000);
   await pages[1].reload();
   await pages[1].waitForTimeout(1000);
-  await expect(pages[1].getByText(newTitle)).not.toBeVisible();
+  await expect(pages[1].getByText("[Draft]")).toBeVisible();
 });
 
 test("unlink crossposting account", async ({browser}) => {

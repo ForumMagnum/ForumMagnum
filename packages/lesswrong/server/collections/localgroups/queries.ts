@@ -95,7 +95,8 @@ export const graphqlLocalgroupQueryTypeDefs = gql`
   extend type Query {
     localgroup(
       input: SingleLocalgroupInput @deprecated(reason: "Use the selector field instead"),
-      selector: SelectorInput
+      selector: SelectorInput,
+      allowNull: Boolean
     ): SingleLocalgroupOutput
     localgroups(
       input: MultiLocalgroupInput @deprecated(reason: "Use the selector field instead"),

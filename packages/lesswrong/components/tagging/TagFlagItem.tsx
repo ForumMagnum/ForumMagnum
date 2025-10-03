@@ -59,10 +59,9 @@ const styles = (theme: ThemeType) => ({
 
 type ItemTypeName = "tagFlagId"|"allPages"|"userPages"
 
-const TagFlagItem = ({documentId, itemType = "tagFlagId", showNumber = true, style = "grey", classes }: {
+const TagFlagItem = ({documentId, itemType = "tagFlagId", style = "grey", classes }: {
   documentId?: string,
   itemType?: ItemTypeName,
-  showNumber?: boolean,
   style?: "white"|"grey"|"black",
   classes: ClassesType<typeof styles>,
 }) => {
@@ -70,6 +69,7 @@ const TagFlagItem = ({documentId, itemType = "tagFlagId", showNumber = true, sty
   const currentUser = useCurrentUser();
   const { data } = useQuery(TagFlagFragmentQuery, {
     variables: { documentId: documentId },
+    skip: !documentId,
     fetchPolicy: "cache-first",
   });
   const tagFlag = data?.tagFlag?.result;
@@ -82,16 +82,6 @@ const TagFlagItem = ({documentId, itemType = "tagFlagId", showNumber = true, sty
   }
   
   const { view, limit, ...selectorTerms } = TagFlagItemTerms[itemType];
-  const { data: dataTagWithFlags, loading } = useQuery(TagWithFlagsFragmentMultiQuery, {
-    variables: {
-      selector: { [view]: selectorTerms },
-      limit: 0,
-      enableTotal: true,
-    },
-    skip: !showNumber,
-    notifyOnNetworkStatusChange: true,
-  });
-  const totalCount = dataTagWithFlags?.tags?.totalCount;
   
   const rootStyles = classNames(classes.root, {[classes.black]: style === "black", [classes.white]: style === "white"});
   
@@ -130,7 +120,7 @@ const TagFlagItem = ({documentId, itemType = "tagFlagId", showNumber = true, sty
           </Card>
         </AnalyticsContext>}
     </LWPopper>
-    {tagFlagText[itemType]}{(!loading && showNumber)? `: ${totalCount}` : ``}
+    {tagFlagText[itemType]}
   </span>
 }
 

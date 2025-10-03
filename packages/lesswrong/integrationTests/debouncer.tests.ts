@@ -3,7 +3,42 @@ import lolex from 'lolex';
 import { EventDebouncer, dispatchPendingEvents, getDailyBatchTimeAfter, getWeeklyBatchTimeAfter } from '../server/debouncer';
 import { DebouncerEvents } from '../server/collections/debouncerEvents/collection';
 
+let numEventsHandled = 0;
+let numEventBatchesHandled = 0;
+let eventsHandled: Partial<Record<string,Record<string,number>>> = {}; // key=>event=>number of times seen
+
+const testEventDebouncer = new EventDebouncer({
+  name: "testEvent",
+  defaultTiming: {
+    type: "delayed",
+    delayMinutes: 15,
+    maxDelayMinutes: 30,
+  },
+  callback: (key: string, events: Array<string>) => {
+    numEventBatchesHandled++;
+    events.forEach((ev: string) => {
+      numEventsHandled++;
+      
+      if (!(key in eventsHandled))
+        eventsHandled[key] = {};
+      if (!(ev in eventsHandled[key]!))
+        eventsHandled[key]![ev] = 0
+      eventsHandled[key]![ev]++;
+    });
+  }
+});
+
+jest.mock('../server/getDebouncerByName', () => ({
+  getDebouncerByName: jest.fn().mockReturnValue(testEventDebouncer),
+}));
+
 describe('EventDebouncer', () => {
+  beforeEach(() => {
+    numEventsHandled = 0;
+    numEventBatchesHandled = 0;
+    eventsHandled = {};
+  });
+
   it('groups events correctly', async () => {
     let clock = lolex.install({
       now: new Date("1980-01-01"),
@@ -14,34 +49,10 @@ describe('EventDebouncer', () => {
       // Clear the DebouncerEvents table
       await DebouncerEvents.rawRemove({});
       
-      let numEventsHandled = 0;
-      let numEventBatchesHandled = 0;
-      const eventsHandled: Partial<Record<string,Record<string,number>>> = {}; // key=>event=>number of times seen
-      const testEvent = new EventDebouncer({
-        name: "testEvent",
-        defaultTiming: {
-          type: "delayed",
-          delayMinutes: 15,
-          maxDelayMinutes: 30,
-        },
-        callback: (key: string, events: Array<string>) => {
-          numEventBatchesHandled++;
-          events.forEach((ev: string) => {
-            numEventsHandled++;
-            
-            if (!(key in eventsHandled))
-              eventsHandled[key] = {};
-            if (!(ev in eventsHandled[key]!))
-              eventsHandled[key]![ev] = 0
-            eventsHandled[key]![ev]++;
-          });
-        }
-      });
-      
       clock.setSystemTime(new Date("1980-01-01 00:01:00"));
-      await testEvent.recordEvent({key: "firstKey", data: "1"});
-      await testEvent.recordEvent({key: "firstKey", data: "2"});
-      await testEvent.recordEvent({key: "secondKey", data: "3"});
+      await testEventDebouncer.recordEvent({key: "firstKey", data: "1"});
+      await testEventDebouncer.recordEvent({key: "firstKey", data: "2"});
+      await testEventDebouncer.recordEvent({key: "secondKey", data: "3"});
       
       // Advance clock, but not enough for events to fire
       clock.setSystemTime(new Date("1980-01-01 00:14:00"));
@@ -64,16 +75,16 @@ describe('EventDebouncer', () => {
       // Record another event, make sure it doesn't group together with already
       // fired events.
       clock.setSystemTime(new Date("1980-01-01 00:20:00"));
-      await testEvent.recordEvent({key: "firstKey", data: "4"});
+      await testEventDebouncer.recordEvent({key: "firstKey", data: "4"});
       await dispatchPendingEvents();
       (numEventsHandled as any).should.equal(3);
       
       // Add events to delay event release until maxDelayMinutes reached
       clock.setSystemTime(new Date("1980-01-01 00:30:00"));
-      await testEvent.recordEvent({key: "firstKey", data: "5"});
+      await testEventDebouncer.recordEvent({key: "firstKey", data: "5"});
       await dispatchPendingEvents();
       clock.setSystemTime(new Date("1980-01-01 00:40:00"));
-      await testEvent.recordEvent({key: "firstKey", data: "6"});
+      await testEventDebouncer.recordEvent({key: "firstKey", data: "6"});
       await dispatchPendingEvents();
       (numEventsHandled as any).should.equal(3);
       

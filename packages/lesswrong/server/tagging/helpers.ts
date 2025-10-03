@@ -2,6 +2,7 @@ import { TagRels } from '../../server/collections/tagRels/collection';
 import { Posts } from '../../server/collections/posts/collection';
 import { elasticSyncDocument } from '../search/elastic/elasticCallbacks';
 import { isElasticEnabled } from '../../lib/instanceSettings';
+import { backgroundTask } from '../utils/backgroundTask';
 
 export async function updatePostDenormalizedTags(postId: string) {
   if (!postId) {
@@ -19,7 +20,7 @@ export async function updatePostDenormalizedTags(postId: string) {
   }
 
   await Posts.rawUpdateOne({_id:postId}, {$set: {tagRelevance: tagRelDict}});
-  if (isElasticEnabled) {
-    void elasticSyncDocument("Posts", postId);
+  if (isElasticEnabled()) {
+    backgroundTask(elasticSyncDocument("Posts", postId));
   }
 }

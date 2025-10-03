@@ -1,4 +1,4 @@
-import { googleTagManagerIdSetting } from '../lib/publicSettings';
+import { googleTagManagerIdSetting } from '@/lib/instanceSettings';
 
 
 export function googleTagManagerInit() {

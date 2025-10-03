@@ -1,32 +1,27 @@
 import React from 'react';
-import { registerComponent } from '../../lib/vulcan-lib/components';
-import { useSubscribedLocation } from '../../lib/routeUtil';
 import { Link } from '../../lib/reactRouterWrapper';
-import { isFriendlyUI } from '../../themes/forumTheme';
-import { blackBarTitle } from '../../lib/publicSettings';
 import HeaderEventSubtitle from "./HeaderEventSubtitle";
+import { useRouteMetadata } from '../ClientRouteMetadataContext';
+import { defineStyles, useStyles } from '../hooks/useStyles';
+import { isBlackBarTitle } from '../seasonal/petrovDay/petrov-day-story/petrovConsts';
 
-export const styles = (theme: ThemeType) => ({
+export const headerSubtitleStyles = defineStyles("HeaderSubtitle", (theme: ThemeType) => ({
   subtitle: {
     marginLeft: '1em',
     paddingLeft: '1em',
-    textTransform: isFriendlyUI ? undefined : 'uppercase',
-    color: blackBarTitle.get() ? theme.palette.text.alwaysWhite : theme.palette.header.text,
+    textTransform: theme.isFriendlyUI ? undefined : 'uppercase',
+    color: isBlackBarTitle ? theme.palette.text.alwaysWhite : theme.palette.header.text,
     borderLeft: theme.palette.border.appBarSubtitleDivider,
   },
-});
+}));
 
-const HeaderSubtitle = ({classes}: {
-  classes: ClassesType<typeof styles>,
-}) => {
-  const { currentRoute } = useSubscribedLocation();
-  if (!currentRoute) {
-    return null;
-  }
+const HeaderSubtitle = () => {
+  const classes = useStyles(headerSubtitleStyles);
+  const { metadata: routeMetadata } = useRouteMetadata();
 
-  const SubtitleComponent = currentRoute.subtitleComponent;
-  const subtitleString = currentRoute.headerSubtitle ?? currentRoute.subtitle;
-  const subtitleLink = currentRoute.subtitleLink;
+  const SubtitleComponent = routeMetadata.subtitleComponent;
+  const subtitleString = routeMetadata.subtitle;
+  const subtitleLink = routeMetadata.subtitleLink;
 
   if (SubtitleComponent) {
     return <SubtitleComponent isSubtitle={true} />
@@ -37,14 +32,12 @@ const HeaderSubtitle = ({classes}: {
   } else if (subtitleString) {
     return <span className={classes.subtitle}>
       {subtitleString}
-    </span>
+    </span> 
   } else {
     return <HeaderEventSubtitle />;
   }
 }
 
-export default registerComponent("HeaderSubtitle", HeaderSubtitle, {
-  styles,
-});
+export default HeaderSubtitle;
 
 

@@ -50,7 +50,8 @@ export class EmailTokenType<T extends EmailTokenResultComponentName> {
       token: token,
       tokenType: this.name,
       userId: userId,
-      usedAt: null
+      usedAt: null,
+      params: null,
     });
     return token;
   }

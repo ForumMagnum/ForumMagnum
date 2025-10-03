@@ -2,7 +2,7 @@ import { registerComponent } from '@/lib/vulcan-lib/components';
 import React from 'react';
 import { useFlashErrors } from '@/components/hooks/useFlashErrors';
 import ActionButtonSection from "./ActionButtonSection";
-import { useMutation } from "@apollo/client";
+import { useMutation } from "@apollo/client/react";
 import { gql } from "@/lib/generated/gql-codegen";
 
 const UsersEditUpdateMutation = gql(`

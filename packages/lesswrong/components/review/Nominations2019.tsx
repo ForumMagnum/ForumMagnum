@@ -1,3 +1,5 @@
+"use client";
+
 import React, { useState } from 'react';
 import { registerComponent } from '../../lib/vulcan-lib/components';
 import SingleColumnSection from "../common/SingleColumnSection";

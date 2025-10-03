@@ -1,9 +1,9 @@
-'use client';
-
 import { getVotingSystemNameForDocument } from "../collections/comments/helpers";
 import { namesAttachedReactionsVotingSystem } from "./namesAttachedReactions";
 import { reactionsAndLikesVotingSystem } from "./reactionsAndLikes";
-import { defaultVotingSystem, eaEmojisVotingSystem, emojiReactionsVotingSystem, reactsBallotVotingSystem, twoAxisVotingSystem, type VotingSystem } from "./votingSystems";
+import { VotingSystemName } from "./votingSystemNames";
+import { defaultVotingSystem, eaEmojisVotingSystem, emojiReactionsVotingSystem, reactsBallotVotingSystem, twoAxisVotingSystem } from "./votingSystems";
+import { type VotingSystem } from './votingSystemTypes';
 
 // const votingSystems: Partial<Record<string,VotingSystem>> = {
 //   default: defaultVotingSystem,
@@ -41,7 +41,7 @@ const getAllVotingSystems = (() => {
         reactsBallot: reactsBallotVotingSystem,
         emojiReactions: emojiReactionsVotingSystem,
         eaEmojis: eaEmojisVotingSystem,
-      }
+      } satisfies Record<VotingSystemName, VotingSystem>;
     }
     return votingSystems;
   };

@@ -8,7 +8,7 @@ import { defineStyles, useStyles } from '../hooks/useStyles';
 import { EditablePost } from '@/lib/collections/posts/helpers';
 import Loading from "../vulcan-core/Loading";
 import { MenuItem } from "../common/Menus";
-import { useMutation } from "@apollo/client";
+import { useMutation } from "@apollo/client/react";
 import { useQuery } from "@/lib/crud/useQuery"
 import { gql } from "@/lib/generated/gql-codegen";
 
@@ -34,11 +34,11 @@ const PodcastSelectMultiQuery = gql(`
   }
 `);
 
-const PodcastEpisodesDefaultFragmentMutation = gql(`
+const PodcastEpisodeCreateFragmentMutation = gql(`
   mutation createPodcastEpisodePodcastEpisodeInput($data: CreatePodcastEpisodeDataInput!) {
     createPodcastEpisode(data: $data) {
       data {
-        ...PodcastEpisodesDefaultFragment
+        ...PodcastEpisodeCreateFragment
       }
     }
   }
@@ -88,7 +88,7 @@ export const PodcastEpisodeInput = ({ field, document }: {
 
   const [existingPodcastEpisode] = useMemo(() => dataPodcastEpisodeFull?.podcastEpisodes?.results ?? [], [dataPodcastEpisodeFull?.podcastEpisodes?.results]);
 
-  const [createEpisodeMutation, { data: createdEpisode }] = useMutation(PodcastEpisodesDefaultFragmentMutation);
+  const [createEpisodeMutation, { data: createdEpisode }] = useMutation(PodcastEpisodeCreateFragmentMutation);
 
   const [podcastEpisodeId, setPodcastEpisodeId] = useState(createdEpisode?.createPodcastEpisode?.data?._id ?? value ?? undefined);
 

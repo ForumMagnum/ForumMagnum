@@ -1,4 +1,4 @@
-import { defaultEditorPlaceholder } from '@/lib/editor/defaultEditorPlaceholder';
+import { getDefaultEditorPlaceholder } from '@/lib/editor/defaultEditorPlaceholder';
 import Button from '@/lib/vendor/@material-ui/core/src/Button';
 import { DialogContent } from "@/components/widgets/DialogContent";
 import { DialogTitle } from "@/components/widgets/DialogTitle";
@@ -16,7 +16,7 @@ import { useFormErrors } from '@/components/tanstack-form-components/BaseAppForm
 import Error404 from "../common/Error404";
 import LWDialog from "../common/LWDialog";
 import FormComponentCheckbox from "../form-components/FormComponentCheckbox";
-import { useMutation } from "@apollo/client";
+import { useMutation } from "@apollo/client/react";
 import { gql } from "@/lib/generated/gql-codegen";
 
 const TagFlagFragmentUpdateMutation = gql(`
@@ -173,7 +173,7 @@ const TagFlagEditAndNewForm = ({ initialData, onClose }: {
                       verify: false,
                     };
                   }}
-                  hintText={defaultEditorPlaceholder}
+                  hintText={getDefaultEditorPlaceholder()}
                   fieldName="contents"
                   collectionName="TagFlags"
                   commentEditor={false}

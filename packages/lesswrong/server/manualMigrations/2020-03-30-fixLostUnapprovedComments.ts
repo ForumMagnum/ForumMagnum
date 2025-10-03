@@ -1,7 +1,6 @@
 import { registerMigration } from './migrationUtils';
 import { Comments } from '../../server/collections/comments/collection';
 import Users from '../../server/collections/users/collection';
-import * as _ from 'underscore';
 
 // There was a bug where, when a user is approved, only one post/comment is
 // marked as reviewed, rather than all of them. So if they posted multiple times
@@ -16,15 +15,15 @@ export default registerMigration({
   idempotent: true,
   action: async () => {
     const unreviewedComments = await Comments.find({authorIsUnreviewed: true, deleted: false}).fetch();
-    const authorIds = _.uniq(unreviewedComments.map(comment => comment.userId));
+    const authorIds = [...new Set(unreviewedComments.map(comment => comment.userId))];
     
     const authors = await Users.find({_id: {$in: authorIds}}).fetch();
     const authorsById: Record<string,DbUser> = {};
     for (let author of authors)
       authorsById[author._id] = author;
     
-    const commentsToMarkReviewed = _.filter(unreviewedComments,
-      comment => !authorsById[comment.userId].banned)
+    const commentsToMarkReviewed = unreviewedComments
+      .filter(comment => !authorsById[comment.userId].banned)
       .map(comment => comment._id);
     
     // eslint-disable-next-line no-console

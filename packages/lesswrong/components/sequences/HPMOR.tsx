@@ -1,12 +1,11 @@
-import { registerComponent } from '../../lib/vulcan-lib/components';
+"use client";
+
 import React from 'react';
 import CollectionsPage from "./CollectionsPage";
 
-const HPMOR = () => {
+const Hpmor = () => {
   return <CollectionsPage documentId={'ywQvGBSojSQZTMpLh'} />
 };
 
-export default registerComponent('HPMOR', HPMOR);
 
-
-
+export default Hpmor;

@@ -1,11 +1,11 @@
-import { useApolloClient } from "@apollo/client";
+import { useApolloClient } from "@apollo/client/react";
 import { useQuery } from "@/lib/crud/useQuery"
 import classNames from 'classnames';
 import React, { FC, Fragment, useCallback, useEffect, useState } from 'react';
 import { AnalyticsContext, useTracking } from "../../lib/analyticsEvents";
 import { userHasNewTagSubscriptions } from "../../lib/betas";
 import { subscriptionTypes } from '../../lib/collections/subscriptions/helpers';
-import { tagGetUrl, tagMinimumKarmaPermissions, tagUserHasSufficientKarma } from '../../lib/collections/tags/helpers';
+import { tagGetUrl, getTagMinimumKarmaPermissions, tagUserHasSufficientKarma } from '../../lib/collections/tags/helpers';
 import { truncate } from '../../lib/editor/ellipsize';
 import { Link } from '../../lib/reactRouterWrapper';
 import { useLocation } from '../../lib/routeUtil';
@@ -15,13 +15,12 @@ import { useCurrentUser } from '../common/withUser';
 import { MAX_COLUMN_WIDTH } from '../posts/PostsPage/constants';
 import { EditTagForm } from './EditTagPage';
 import { useTagBySlug } from './useTag';
-import { taggingNameCapitalSetting, taggingNamePluralCapitalSetting, taggingNamePluralSetting } from '../../lib/instanceSettings';
+import { taggingNameCapitalSetting, taggingNamePluralCapitalSetting, taggingNamePluralSetting, quickTakesTagsEnabledSetting } from '@/lib/instanceSettings';
 import truncateTagDescription from "../../lib/utils/truncateTagDescription";
 import { getTagStructuredData } from "./TagPageRouter";
-import { HEADER_HEIGHT } from "../common/Header";
+import { getHeaderHeight } from "../common/Header";
 import { isFriendlyUI } from "../../themes/forumTheme";
 import DeferRender from "../common/DeferRender";
-import {quickTakesTagsEnabledSetting} from '../../lib/publicSettings'
 import { RelevanceLabel, tagPageHeaderStyles, tagPostTerms } from "./TagPageUtils";
 import SectionTitle from "../common/SectionTitle";
 import PostsListSortDropdown from "../posts/PostsListSortDropdown";
@@ -32,7 +31,6 @@ import AddPostsToTag from "./AddPostsToTag";
 import Error404 from "../common/Error404";
 import { Typography } from "../common/Typography";
 import PermanentRedirect from "../common/PermanentRedirect";
-import HeadTags from "../common/HeadTags";
 import UsersNameDisplay from "../users/UsersNameDisplay";
 import TagFlagItem from "./TagFlagItem";
 import TagDiscussionSection from "./TagDiscussionSection";
@@ -45,6 +43,7 @@ import TagTableOfContents from "./TagTableOfContents";
 import TagVersionHistoryButton from "../editor/TagVersionHistory";
 import ContentStyles from "../common/ContentStyles";
 import CommentsListCondensed from "../common/CommentsListCondensed";
+import { StructuredData } from "../common/StructuredData";
 import { gql } from "@/lib/generated/gql-codegen";
 
 const TagWithFlagsFragmentMultiQuery = gql(`
@@ -92,7 +91,7 @@ const styles = (theme: ThemeType) => ({
       width: '100%',
     },
     position: 'absolute',
-    top: HEADER_HEIGHT,
+    top: getHeaderHeight(),
     [theme.breakpoints.down('sm')]: {
       width: 'unset',
       '& > picture > img': {
@@ -123,10 +122,10 @@ const styles = (theme: ThemeType) => ({
     }
   },
   title: {
-    ...theme.typography[isFriendlyUI ? "display2" : "display3"],
-    ...theme.typography[isFriendlyUI ? "headerStyle" : "commentStyle"],
+    ...theme.typography[theme.isFriendlyUI ? "display2" : "display3"],
+    ...theme.typography[theme.isFriendlyUI ? "headerStyle" : "commentStyle"],
     marginTop: 0,
-    fontWeight: isFriendlyUI ? 700 : 600,
+    fontWeight: theme.isFriendlyUI ? 700 : 600,
     ...theme.typography.smallCaps,
   },
   notifyMeButton: {
@@ -178,7 +177,7 @@ const styles = (theme: ThemeType) => ({
     "-webkit-line-clamp": 2,
     "-webkit-box-orient": 'vertical',
     overflow: 'hidden',
-    fontFamily: isFriendlyUI ? theme.palette.fonts.sansSerifStack : undefined,
+    fontFamily: theme.isFriendlyUI ? theme.palette.fonts.sansSerifStack : undefined,
   },
   relatedTagLink : {
     color: theme.palette.lwTertiary.dark
@@ -209,7 +208,7 @@ const PostsListHeading: FC<{
   query: Record<string, string>,
   classes: ClassesType<typeof styles>,
 }> = ({tag, query, classes}) => {
-  if (isFriendlyUI) {
+  if (isFriendlyUI()) {
     return (
       <>
         <SectionTitle title={`Posts tagged ${tag.name}`} />
@@ -321,7 +320,7 @@ const EATagPage = ({classes}: {
     return <PermanentRedirect url={tagGetUrl(tag)} />
   }
   if (editing && !tagUserHasSufficientKarma(currentUser, "edit")) {
-    throw new Error(`Sorry, you cannot edit ${taggingNamePluralSetting.get()} without ${tagMinimumKarmaPermissions.edit} or more karma.`)
+    throw new Error(`Sorry, you cannot edit ${taggingNamePluralSetting.get()} without ${getTagMinimumKarmaPermissions().edit} or more karma.`)
   }
 
   // if no sort order was selected, try to use the tag page's default sort order for posts
@@ -330,7 +329,8 @@ const EATagPage = ({classes}: {
   }
 
   const terms = {
-    ...tagPostTerms(tag, query),
+    ...tagPostTerms(tag),
+    ...(query.sortedBy ? {sortedBy: query.sortedBy as PostSortingModeWithRelevanceOption} : {}),
     limit: 15
   }
 
@@ -342,7 +342,7 @@ const EATagPage = ({classes}: {
   const htmlWithAnchors = tag.tableOfContents?.html ?? tag.description?.html ?? "";
   let description = htmlWithAnchors;
   // EA Forum wants to truncate much less than LW
-  if (isFriendlyUI) {
+  if (isFriendlyUI()) {
     description = truncated
       ? truncateTagDescription(htmlWithAnchors, tag.descriptionTruncationCount)
       : htmlWithAnchors;
@@ -351,8 +351,6 @@ const EATagPage = ({classes}: {
     ? truncate(htmlWithAnchors, tag.descriptionTruncationCount || 4, "paragraphs", "<span>...<p><a>(Read More)</a></p></span>")
     : htmlWithAnchors
   }
-
-  const headTagDescription = tag.description?.plaintextDescription || `All posts related to ${tag.name}, sorted by relevance`
   
   const tagFlagItemType: AnyBecauseTodo = {
     allPages: "allPages",
@@ -377,11 +375,7 @@ const EATagPage = ({classes}: {
     sortedBy={query.sortedBy || "relevance"}
     limit={terms.limit}
   >
-    <HeadTags
-      description={headTagDescription}
-      structuredData={getTagStructuredData(tag)}
-      noIndex={tag.noindex}
-    />
+    <StructuredData generate={() => getTagStructuredData(tag)}/>
     {hoveredContributorId && <style>
       {`.by_${hoveredContributorId} {background: rgba(95, 155, 101, 0.35);}`}
     </style>}
