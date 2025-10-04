@@ -7,6 +7,11 @@ echo "=== Vercel Build Step Check ==="
 echo "Checking if build should proceed..."
 echo ""
 
+if [ "$VERCEL_ENV" == "production" ]; then
+  echo "✅ Production deploy hook - Build will proceed"
+  exit 1
+fi
+
 # Check if this is a pull request deployment
 if [ -z "$VERCEL_GIT_PULL_REQUEST_ID" ]; then
   echo "🛑 Not a pull request deployment - Build cancelled"
