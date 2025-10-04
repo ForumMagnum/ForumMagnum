@@ -1,6 +1,7 @@
 import React from "react";
 import { registerComponent } from "../../lib/vulcan-lib/components";
 import { defineStyles, useStyles } from "../hooks/useStyles";
+import { Link } from "../../lib/reactRouterWrapper";
 import classNames from "classnames";
 import CommentIcon from '@/lib/vendor/@material-ui/icons/src/ModeCommentOutlined';
 import { DebateIconOutline } from '../icons/DebateIconOutline';
@@ -9,10 +10,8 @@ import { VotingProps } from "../votes/votingProps";
 import { getVotingSystemByName } from "@/lib/voting/getVotingSystem";
 import { FeedCommentMetaInfo, FeedPostMetaInfo } from "./ultraFeedTypes";
 import { useCurrentUser } from "../common/withUser";
-import { useDialog } from "../common/withDialog";
 import { bookmarkableCollectionNames } from "@/lib/collections/bookmarks/constants";
 import BookmarkButton from "../posts/BookmarkButton";
-import UltraFeedPostDialog from "./UltraFeedPostDialog";
 import OverallVoteAxis from "../votes/OverallVoteAxis";
 import AgreementVoteAxis from "../votes/AgreementVoteAxis";
 import { getDefaultVotingSystem } from "@/lib/collections/posts/helpers";
@@ -263,7 +262,7 @@ interface BookmarkProps {
 
 interface UltraFeedItemFooterCoreSharedProps {
   commentCount: number | undefined;
-  onClickComments: () => void;
+  commentsUrl?: string;
   showVoteButtons: boolean;
   voteProps: VotingProps<VoteableTypeClient> & { collectionName: UltraFeedEventCollectionName };
   hideKarma?: boolean;
@@ -291,7 +290,7 @@ type UltraFeedItemFooterCoreProps =
 
 const UltraFeedItemFooterCore = ({
   commentCount,
-  onClickComments,
+  commentsUrl,
   showVoteButtons,
   voteProps,
   hideKarma,
@@ -388,20 +387,16 @@ const UltraFeedItemFooterCore = ({
     ? `Show all comments`
     : `Show ${commentCount} descendant${commentCount === 1 ? '' : 's'}`;
 
-  const showAllCommentsButton = <div className={classes.showAllCommentsWrapper}>
+  const showAllCommentsButton = commentsUrl ? (
+    <div className={classes.showAllCommentsWrapper}>
       <LWTooltip title={showAllCommentsTooltip} disabledOnMobile>
-      <div
-        onClick={() => {
-          captureEvent("ultraFeedShowAllCommentsClicked")
-          onClickComments();
-        }}
-        className={classes.showAllComments}
-      >
-        <DebateIconOutline />
-        {(commentCount ?? 0) > 0 && <span className={classes.showAllCommentsCount}>{commentCount}</span>}
-      </div>
+        <Link to={commentsUrl} className={classes.showAllComments}>
+          <DebateIconOutline />
+          {(commentCount ?? 0) > 0 && <span className={classes.showAllCommentsCount}>{commentCount}</span>}
+        </Link>
       </LWTooltip>
     </div>
+  ) : null
 
   const votingSystem = voteProps.document.votingSystem || getDefaultVotingSystem();
 
@@ -467,32 +462,13 @@ const UltraFeedItemFooterCore = ({
 
 
 const UltraFeedPostFooter = ({ post, metaInfo, className, replyConfig, hideReacts }: { post: PostsListWithVotes, metaInfo: FeedPostMetaInfo, className?: string, replyConfig: ReplyConfig, hideReacts?: boolean }) => {
-  const { openDialog } = useDialog();
-  const { openInNewTab } = useUltraFeedContext();
-
   const votingSystem = getVotingSystemByName(post?.votingSystem || "default");
   const voteProps = useVote(post, "Posts", votingSystem);
   const showVoteButtons = votingSystem.name === "namesAttachedReactions";
   const commentCount = post.commentCount ?? 0;
   const bookmarkProps: BookmarkProps = {documentId: post._id, highlighted: metaInfo.sources?.includes("bookmarks")};
   
-  const onClickComments = () => {
-    if (openInNewTab) {
-      const postUrl = `/posts/${post._id}/${post.slug}#comments`;
-      window.open(postUrl, '_blank');
-    } else {
-      openDialog({
-        name: "UltraFeedPostDialog",
-        closeOnNavigate: true,
-        contents: ({onClose}) => <UltraFeedPostDialog 
-          partialPost={post}
-          postMetaInfo={metaInfo}
-          openAtComments={true}
-          onClose={onClose}
-        />
-      });
-    }
-  }
+  const postCommentsUrl = `/posts/${post._id}/${post.slug}#comments`;
 
   const { isReplying, onReplySubmit, onReplyCancel } = replyConfig;
 
@@ -500,7 +476,7 @@ const UltraFeedPostFooter = ({ post, metaInfo, className, replyConfig, hideReact
     <>
       <UltraFeedItemFooterCore
         commentCount={commentCount}
-        onClickComments={onClickComments}
+        commentsUrl={postCommentsUrl}
         showVoteButtons={showVoteButtons}
         voteProps={voteProps}
         hideKarma={false}
@@ -521,25 +497,6 @@ const UltraFeedPostFooter = ({ post, metaInfo, className, replyConfig, hideReact
           cannotReplyReason={null}
           onReplySubmit={onReplySubmit}
           onReplyCancel={onReplyCancel}
-          onViewAllComments={() => {
-            if (openInNewTab) {
-              const postUrl = `/posts/${post._id}/${post.slug}#comments`;
-              window.open(postUrl, '_blank');
-            } else {
-              openDialog({
-                name: "UltraFeedPostDialog",
-                closeOnNavigate: true,
-                contents: ({ onClose }) => (
-                  <UltraFeedPostDialog
-                    partialPost={post}
-                    postMetaInfo={metaInfo}
-                    openAtComments={true}
-                    onClose={onClose}
-                  />
-                ),
-              });
-            }
-          }}
         />
       )}
     </>
@@ -548,9 +505,6 @@ const UltraFeedPostFooter = ({ post, metaInfo, className, replyConfig, hideReact
 
 
 const UltraFeedCommentFooter = ({ comment, metaInfo, className, replyConfig, cannotReplyReason, hideReacts }: { comment: UltraFeedComment, metaInfo: FeedCommentMetaInfo, className?: string, replyConfig: ReplyConfig, cannotReplyReason?: string | null, hideReacts?: boolean }) => {
-  const { openDialog } = useDialog();
-  const { openInNewTab } = useUltraFeedContext();
-
   const parentPost = comment.post;
   const votingSystem = getVotingSystemByName(parentPost?.votingSystem || "default");
   const voteProps = useVote(comment, "Comments", votingSystem);
@@ -559,36 +513,8 @@ const UltraFeedCommentFooter = ({ comment, metaInfo, className, replyConfig, can
   const commentCount = metaInfo.descendentCount;
   const bookmarkProps: BookmarkProps = {documentId: comment._id, highlighted: metaInfo.sources?.includes("bookmarks")};
   
-  const onClickComments = () => {
-    // If comment doesn't have a post, we can't open the dialog, but this should never happen
-    if (!comment.post) {
-      return;
-    }
-    
-    const post = comment.post;
-    
-    if (openInNewTab) {
-      const postUrl = `/posts/${post._id}/${post.slug}?commentId=${comment._id}`;
-      window.open(postUrl, '_blank');
-    } else {
-      openDialog({
-        name: "UltraFeedPostDialog", 
-        closeOnNavigate: true,
-        contents: ({onClose}) => <UltraFeedPostDialog 
-          partialPost={post}
-          postMetaInfo={{
-            sources: metaInfo.sources,
-            displayStatus: 'expanded' as const,
-            servedEventId: metaInfo.servedEventId ?? '',
-            highlight: false,
-          }}
-          targetCommentId={comment._id}
-          topLevelCommentId={post.shortform ? (comment.topLevelCommentId ?? comment._id) : undefined}
-          onClose={onClose}
-        />
-      });
-    }
-  };
+  const post = comment.post;
+  const commentsUrl = post ? `/posts/${post._id}/${post.slug}?commentId=${comment._id}` : undefined;
   
   const { isReplying, onReplySubmit, onReplyCancel } = replyConfig;
 
@@ -596,7 +522,7 @@ const UltraFeedCommentFooter = ({ comment, metaInfo, className, replyConfig, can
     <>
       <UltraFeedItemFooterCore
         commentCount={commentCount}
-        onClickComments={onClickComments}
+        commentsUrl={commentsUrl}
         showVoteButtons={showVoteButtons}
         voteProps={voteProps}
         hideKarma={hideKarma}
@@ -616,7 +542,6 @@ const UltraFeedCommentFooter = ({ comment, metaInfo, className, replyConfig, can
         cannotReplyReason={cannotReplyReason}
         onReplySubmit={onReplySubmit}
         onReplyCancel={onReplyCancel}
-        onViewAllComments={onClickComments}
       />}
     </>
   );
