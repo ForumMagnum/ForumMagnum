@@ -37,7 +37,9 @@
     "scripts/**/*.ts",
     "instrumentation-client.js",
     "sentry.server.config.ts",
-    "sentry.edge.config.ts"
+    "sentry.edge.config.ts",
+    "deployCkEditorBundle.ts",
+    "migrate.ts"
   ],
   "exclude": [
     "node_modules",
