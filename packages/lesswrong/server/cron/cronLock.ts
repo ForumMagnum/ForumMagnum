@@ -5,7 +5,7 @@ export function getCronLock(cronName: string, callback: () => Promise<void>) {
   const db = getSqlClientOrThrow();
   return db.task(async (task) => {
     try {
-      // Set an hour-long lock on whatever cron job is being passed in.
+      // Set an 800-second-long lock on whatever cron job is being passed in.
       // We don't have any cron jobs that should take that long to run
       // in the database, but we've had a couple of incidents of downtime
       // where we suspect that the situation was made worse by the cron
