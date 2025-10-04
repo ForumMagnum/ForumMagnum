@@ -434,8 +434,10 @@ class PostsRepo extends AbstractRepo<"Posts"> {
       LEFT JOIN "Revisions" r ON r."_id" = p."contents_latest"
       LEFT JOIN "PostEmbeddings" pe ON p."_id" = pe."postId"
       WHERE
+        ${getViewablePostsSelector('p')} AND
         pe."embeddings" IS NULL AND
-        COALESCE((r."wordCount")::INTEGER, 0) > 0
+        COALESCE((r."wordCount")::INTEGER, 0) > 0 AND
+        r.html NOT LIKE '%|endoftext|%'
     `);
     return results.map(({_id}) => _id);
   }
