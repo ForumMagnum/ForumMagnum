@@ -5,6 +5,7 @@ import { useUpdateCurrentUser } from "../hooks/useUpdateCurrentUser";
 import { useDialog } from "../common/withDialog";
 import LoginPopup from "../users/LoginPopup";
 import { defineStyles, useStyles } from "../hooks/useStyles";
+import { NotificationTypeSettings } from "@/lib/collections/users/notificationFieldHelpers";
 
 const styles = defineStyles("AutoEmailSubscribeCheckbox", (theme) => ({
   disabled: {
@@ -18,8 +19,8 @@ const AutoEmailSubscribeCheckbox = () => {
   const updateCurrentUser = useUpdateCurrentUser();
   const { openDialog } = useDialog();
 
-  const setting = currentUser?.notificationRepliesToMyComments;
-  const checked = !!setting.email.enabled;
+  const setting: NotificationTypeSettings|null = currentUser?.notificationRepliesToMyComments;
+  const checked = !!setting?.email.enabled;
   const classes = useStyles(styles);
 
   const handleToggle = useCallback(async () => {
@@ -31,7 +32,7 @@ const AutoEmailSubscribeCheckbox = () => {
       return
     };
 
-    const newSetting = { ...setting, email: { ...setting.email, enabled: !checked } };
+    const newSetting = { ...setting, email: { ...setting?.email, enabled: !checked } };
 
     await updateCurrentUser({ notificationRepliesToMyComments: newSetting }, {
       optimisticResponse: {
