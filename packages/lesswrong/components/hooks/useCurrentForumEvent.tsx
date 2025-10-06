@@ -5,6 +5,7 @@ import { hasForumEvents } from "../../lib/betas";
 type ForumEventsContext = {
   currentAndRecentForumEvents: ForumEventsDisplay[],
   currentForumEvent: ForumEventsDisplay | null,
+  activeForumEvents: ForumEventsDisplay[],
   isEventPost: (post: PostsBase, options?: { includeRecent?: boolean }) => ForumEventsDisplay | null,
   refetch?: () => void
 };
@@ -12,6 +13,7 @@ type ForumEventsContext = {
 const defaultValue: ForumEventsContext = {
   currentAndRecentForumEvents: [],
   currentForumEvent: null,
+  activeForumEvents: [],
   isEventPost: () => null,
 };
 
@@ -30,29 +32,33 @@ export const CurrentAndRecentForumEventsProvider: FC<{
   });
 
   const forumEvents: ForumEventsDisplay[] = useMemo(() => results ?? [], [results]);
-  
+
   // Derive the current forum event as the first event whose endDate is in the
   // future -- we know the start date is in the past from the view query.
   const now = new Date();
-  const currentForumEvent = forumEvents.find(event => !event.endDate || new Date(event.endDate) >= now) || null;
+  const activeForumEvents = useMemo(() => {
+    return forumEvents.filter(event => !event.endDate || new Date(event.endDate) >= now);
+  }, [forumEvents, now]);
+
+  const currentForumEvent = activeForumEvents[0] || null;
 
   const isEventPost = useCallback((
     post: PostsBase,
     { includeRecent = false }: { includeRecent?: boolean } = {},
   ): ForumEventsDisplay | null => {
-    // First search current event -- if we have it that's the one we want
-    const currentEventTag = currentForumEvent?.tag;
-    if (currentEventTag && post.tagRelevance?.[currentEventTag._id] >= 1) {
-      return currentForumEvent;
+    // Always count active events
+    const activeEvent = activeForumEvents.find(event => event.tag && (post.tagRelevance?.[event.tag._id] ?? 0) >= 1);
+    if (activeEvent) {
+      return activeEvent;
     }
-    // If we're including recent-but-past events, search them all
+    // If we're including recent-but-past events, search all events (including past)
     if (includeRecent) {
       return forumEvents
         .find(event => event.tag && (post.tagRelevance?.[event.tag._id] ?? 0) >= 1)
         ?? null;
     }
     return null;
-  }, [forumEvents, currentForumEvent]);
+  }, [forumEvents, activeForumEvents]);
 
   const eventEnded = currentForumEvent
     ? currentForumEvent.endDate && currentForumEvent.endDate < new Date()
@@ -68,9 +74,10 @@ export const CurrentAndRecentForumEventsProvider: FC<{
   const value = useMemo(() => ({
     currentAndRecentForumEvents: forumEvents,
     currentForumEvent,
+    activeForumEvents,
     isEventPost,
     refetch,
-  }), [forumEvents, currentForumEvent, isEventPost, refetch]);
+  }), [forumEvents, currentForumEvent, activeForumEvents, isEventPost, refetch]);
 
   return (
     <currentAndRecentForumEventsContext.Provider value={value}>

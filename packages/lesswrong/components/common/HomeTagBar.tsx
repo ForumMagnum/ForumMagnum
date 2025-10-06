@@ -204,7 +204,7 @@ const HomeTagBar = (
     showDescriptionOnHover?: boolean,
   },
 ) => {
-  const {currentForumEvent} = useCurrentAndRecentForumEvents();
+  const {currentForumEvent, activeForumEvents} = useCurrentAndRecentForumEvents();
 
   // we use the widths of the tabs window and the underlying topics bar
   // when calculating how far to scroll left and right
@@ -240,11 +240,12 @@ const HomeTagBar = (
 
   const allTabs: TopicsBarTab[] = useMemo(() => {
     const mainTabs = [frontpageTab];
-    if (currentForumEvent?.tag) {
-      mainTabs.push(currentForumEvent?.tag);
-    }
+    const eventTags = activeForumEvents
+      .map(event => event.tag)
+      .filter(tag => tag != null);
+    mainTabs.push(...eventTags);
     return [...mainTabs, ...(sortTopics(coreTopics ?? []))];
-  }, [coreTopics, sortTopics, frontpageTab, currentForumEvent?.tag]);
+  }, [coreTopics, sortTopics, frontpageTab, activeForumEvents]);
 
   const [activeTab, setActiveTab] = useState<TopicsBarTab>(frontpageTab)
   const [leftArrowVisible, setLeftArrowVisible] = useState(false)
@@ -347,7 +348,8 @@ const HomeTagBar = (
                   {allTabs.map(tab => {
                     const tabName = tab.shortName || tab.name
                     const isActive = tab._id === activeTab._id;
-                    const isEventTab = tab._id === currentForumEvent?.tag?._id;
+                    const matchingEvent = activeForumEvents.find(event => event.tag?._id === tab._id);
+                    const isEventTab = !!matchingEvent;
                     return <LWTooltip
                       title={showDescriptionOnHover ? tab.description?.plaintextDescription : null}
                       popperClassName={classes.tagDescriptionTooltip}
@@ -361,8 +363,8 @@ const HomeTagBar = (
                           [classes.activeEventTab]: isActive && isEventTab,
                         })}
                         style={
-                          isEventTab
-                            ? eventTabProperties(currentForumEvent)
+                          matchingEvent
+                            ? eventTabProperties(matchingEvent)
                             : undefined
                         }
                       >
