@@ -1,4 +1,4 @@
-import React, { FC, MouseEvent, PropsWithChildren, useContext } from "react";
+import React, { FC, MouseEvent, PropsWithChildren, useCallback, useContext } from "react";
 import { useTracking } from "../../../lib/analyticsEvents";
 import { commentGetPageUrlFromIds } from "../../../lib/collections/comments/helpers";
 import qs from "qs";
@@ -6,6 +6,7 @@ import { commentPermalinkStyleSetting } from "@/lib/publicSettings";
 import { EnvironmentOverrideContext } from "@/lib/utils/timeUtil";
 import { Link } from "../../../lib/reactRouterWrapper";
 import { useNavigate, useSubscribedLocation } from "../../../lib/routeUtil";
+import { useMessages } from "@/components/common/withMessages";
 
 export type UseCommentLinkProps = {
   comment: Pick<CommentsList, "_id" | "tagCommentType">,
@@ -27,19 +28,22 @@ export const useCommentLink = ({
   const navigate = useNavigate();
   const {location, query} = useSubscribedLocation();
   const {captureEvent} = useTracking();
+  const {flash} = useMessages();
 
-  const url = commentGetPageUrlFromIds({
+  const urlArgs = {
     postId: post?._id,
     postSlug: post?.slug,
     tagSlug: tag?.slug,
     commentId: comment._id,
     tagCommentType: comment.tagCommentType,
     permalink,
-  });
+  };
+  const urlRelative = commentGetPageUrlFromIds(urlArgs);
+  const urlAbsolute = commentGetPageUrlFromIds({...urlArgs, isAbsolute: true});
 
   const furtherContext = "dateIcon"; // For historical reasons
 
-  const handleLinkClick = (event: MouseEvent) => {
+  const handleLinkClick = useCallback(async (event: MouseEvent) => {
     captureEvent("linkClicked", {
       buttonPressed: event.button,
       furtherContext,
@@ -48,7 +52,7 @@ export const useCommentLink = ({
     // If the current location is not the same as the link's location (e.g. if a
     // comment on a post is showing on the frontpage), fall back to just following
     // the link
-    if (location.pathname !== url.split("?")[0]) {
+    if (location.pathname !== urlRelative.split("?")[0]) {
       return;
     }
 
@@ -65,16 +69,30 @@ export const useCommentLink = ({
     if (scrollIntoView) {
       scrollIntoView();
     }
-  }
+
+    await navigator.clipboard.writeText(urlAbsolute);
+    flash("URL copied to clipboard");
+  }, [
+    captureEvent,
+    flash,
+    navigate,
+    furtherContext,
+    location,
+    query,
+    urlRelative,
+    urlAbsolute,
+    comment,
+    scrollIntoView,
+  ]);
 
   const Wrapper: FC<PropsWithChildren<{}>> = scrollOnClick
     ? ({children}) => (
-      <a rel="nofollow" href={url} onClick={handleLinkClick}>
+      <a rel="nofollow" href={urlRelative} onClick={handleLinkClick}>
         {children}
       </a>
     )
     : ({children}) => (
-      <Link rel="nofollow" to={url} eventProps={{furtherContext}}>
+      <Link rel="nofollow" to={urlRelative} eventProps={{furtherContext}}>
         {children}
       </Link>
     );
