@@ -1,6 +1,6 @@
 'use client';
 
-import React, { ReactNode, useEffect, useState, createContext, useContext, Activity as ActivityExport } from 'react';
+import React, { ReactNode, useEffect, useState, createContext, useContext, Activity } from 'react';
 import { useLocation } from '@/lib/routeUtil';
 import LWHome from '../common/LWHome';
 
@@ -10,15 +10,6 @@ const UltraFeedViewedContext = createContext<(() => void) | null>(null);
 export const useMarkUltraFeedAsViewed = () => {
   return useContext(UltraFeedViewedContext);
 };
-
-// Activity might not be available at runtime even though types declare it
-// Try multiple fallbacks: stable Activity -> unstable_Activity -> Symbol fallback
-// TODO: Fix all this, issues because Activity not being properly available
-const Activity = (
-  ActivityExport ?? 
-  (React as any).unstable_Activity ?? 
-  (Symbol.for('react.activity') as any)
-) as React.ComponentType<{ children?: ReactNode; mode?: 'visible' | 'hidden' }>;
 
 /**
  * Uses React's Activity API to persist the homepage (LWHome) when navigating away and back.
