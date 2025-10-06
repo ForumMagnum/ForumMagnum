@@ -1688,6 +1688,7 @@ interface DbUser extends DbObject {
   bigUpvoteReceivedCount: number | null
   biography: EditableFieldContents | null
   biography_latest: string | null
+  blockedUserIds: Array<string>
   blueskyProfileURL: string | null
   careerStage: Array<string> | null
   collapseModerationGuidelines: boolean | null

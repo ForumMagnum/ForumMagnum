@@ -4019,6 +4019,7 @@ interface User {
   collapseModerationGuidelines: boolean | null;
   bannedUserIds: Array<string> | null;
   bannedPersonalUserIds: Array<string> | null;
+  blockedUserIds: Array<string> | null;
   bookmarkedPostsMetadata: Array<PostMetadataOutput> | null;
   bookmarkedPosts: Array<Post> | null;
   hiddenPostsMetadata: Array<PostMetadataOutput> | null;
@@ -6120,6 +6121,7 @@ interface CreateUserDataInput {
   collapseModerationGuidelines?: boolean | null;
   bannedUserIds?: Array<string> | null;
   bannedPersonalUserIds?: Array<string> | null;
+  blockedUserIds?: Array<string> | null;
   legacyId?: string | null;
   voteBanned?: boolean | null;
   nullifyVotes?: boolean | null;
@@ -6296,6 +6298,7 @@ interface UpdateUserDataInput {
   collapseModerationGuidelines?: boolean | null;
   bannedUserIds?: Array<string> | null;
   bannedPersonalUserIds?: Array<string> | null;
+  blockedUserIds?: Array<string> | null;
   hiddenPostsMetadata?: Array<PostMetadataInput> | null;
   legacyId?: string | null;
   deleted?: boolean | null;

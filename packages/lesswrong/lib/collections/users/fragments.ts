@@ -554,6 +554,7 @@ export const UsersEdit = () => frag`
     collapseModerationGuidelines
     bannedUserIds
     bannedPersonalUserIds
+    blockedUserIds
     noKibitz
     showHideKarmaOption
 

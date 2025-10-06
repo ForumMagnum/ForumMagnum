@@ -1663,6 +1663,7 @@ export const UsersDefaultFragment = `
     collapseModerationGuidelines
     bannedUserIds
     bannedPersonalUserIds
+    blockedUserIds
     legacyId
     deleted
     permanentDeletionRequestedAt
