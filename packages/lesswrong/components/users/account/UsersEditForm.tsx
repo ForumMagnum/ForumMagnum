@@ -1312,6 +1312,25 @@ const UsersForm = ({
           </form.Field>
         </div>}
 
+        {isFriendlyUI &&
+          <div className={classes.fieldWrapper}>
+            <form.Field name="blockedUserIds">
+              {(field) => (
+                <LWTooltip
+                  title="Users who are blocked from messaging you"
+                  placement="left-start"
+                  inlineBlock={false}
+                >
+                  <FormUserMultiselect
+                    field={field}
+                    label="Blocked users"
+                  />
+                </LWTooltip>
+              )}
+            </form.Field>
+          </div>
+        }
+
         {(userIsAdminOrMod(currentUser) || userIsMemberOf(currentUser, 'trustLevel1')) && <div className={classes.fieldWrapper}>
           <form.Field name="bannedUserIds">
             {(field) => (

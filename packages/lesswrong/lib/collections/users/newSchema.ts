@@ -9,7 +9,7 @@ import {
 import { userGetEditUrl } from "../../vulcan-users/helpers";
 import { userOwns, userIsAdmin, userHasntChangedName } from "../../vulcan-users/permissions";
 import * as _ from "underscore";
-import { isAF, isEAForum, verifyEmailsSetting } from "../../instanceSettings";
+import { isAF, isEAForum } from "../../instanceSettings";
 import {
   accessFilterMultiple, arrayOfForeignKeysOnCreate, generateIdResolverMulti,
   generateIdResolverSingle,
