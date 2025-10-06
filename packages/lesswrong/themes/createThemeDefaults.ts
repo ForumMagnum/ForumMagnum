@@ -154,7 +154,7 @@ export const baseTheme: BaseThemeSpecification = {
           fontWeight: 400,
           fontFamily: palette.fonts.sansSerifStack,
           letterSpacing: '-.02em',
-          lineHeight: `$1.30357em`,
+          lineHeight: `1.30357em`,
           marginLeft: '-.02em',
         },
         display4: {
