@@ -1,4 +1,4 @@
-import React, { useCallback, useState } from "react";
+import React, { useCallback } from "react";
 import Button from "@/lib/vendor/@material-ui/core/src/Button";
 import { getDraftMessageHtml } from "../../lib/collections/messages/helpers";
 import { TemplateQueryStrings } from "./NewConversationButton";
@@ -47,7 +47,8 @@ const styles = (theme: ThemeType) => ({
   },
   rootMinimalist: {
     ...theme.typography.commentStyle,
-    padding: 10,
+    padding: 0,
+    paddingLeft: 10,
     border: theme.palette.border.extraFaint,
     borderRadius: theme.borderRadius.default,
     backgroundColor: theme.palette.grey[100],
@@ -55,7 +56,7 @@ const styles = (theme: ThemeType) => ({
     '& form': {
       display: "flex",
       flexDirection: "row",
-      alignItems: "flex-end",
+      alignItems: "center",
     },
     '& form > div': {
       marginTop: '2.5px',
@@ -67,7 +68,7 @@ const styles = (theme: ThemeType) => ({
   },
 });
 
-const formStyles = defineStyles('MessagesForm', (theme: ThemeType) => ({
+const formStyles = defineStyles('MessagesNewForm', (theme: ThemeType) => ({
   fieldWrapper: {
     marginTop: theme.spacing.unit * 2,
     marginBottom: theme.spacing.unit * 2,
@@ -190,61 +191,63 @@ const InnerMessagesNewForm = ({
   const formRef = useFormSubmitOnCmdEnter(handleSubmit);
 
   return (
-    <form className="vulcan-form" ref={formRef} onSubmit={(e) => {
-      e.preventDefault();
-      e.stopPropagation();
-      void form.handleSubmit();
-    }}>
+    <div>
       {displayedErrorComponent}
-      <div className={classNames("form-component-EditorFormComponent", classes.fieldWrapper)}>
-        <form.Field name="contents">
-          {(field) => (
-            <EditorFormComponent
-              field={field}
-              name="contents"
-              formType='new'
-              document={form.state.values}
-              addOnSubmitCallback={addOnSubmitCallback}
-              addOnSuccessCallback={addOnSuccessCallback}
-              hintText={hintText}
-              commentMinimalistStyle={commentMinimalistStyle}
-              fieldName="contents"
-              collectionName="Messages"
-              commentEditor={true}
-              commentStyles={true}
-              hideControls={false}
-            />
-          )}
-        </form.Field>
-      </div>
+      <form className="vulcan-form" ref={formRef} onSubmit={(e) => {
+        e.preventDefault();
+        e.stopPropagation();
+        void form.handleSubmit();
+      }}>
+        <div className={classNames("form-component-EditorFormComponent", classes.fieldWrapper)}>
+          <form.Field name="contents">
+            {(field) => (
+              <EditorFormComponent
+                field={field}
+                name="contents"
+                formType='new'
+                document={form.state.values}
+                addOnSubmitCallback={addOnSubmitCallback}
+                addOnSuccessCallback={addOnSuccessCallback}
+                hintText={hintText}
+                commentMinimalistStyle={commentMinimalistStyle}
+                fieldName="contents"
+                collectionName="Messages"
+                commentEditor={true}
+                commentStyles={true}
+                hideControls={false}
+              />
+            )}
+          </form.Field>
+        </div>
 
-      {userIsAdmin(currentUser) && <div className={classes.fieldWrapper}>
-        <form.Field name="noEmail">
-          {(field) => (
-            <FormComponentCheckbox
-              field={field}
-              label="No email"
-            />
-          )}
-        </form.Field>
-      </div>}
+        {userIsAdmin(currentUser) && <div className={classes.fieldWrapper}>
+          <form.Field name="noEmail">
+            {(field) => (
+              <FormComponentCheckbox
+                field={field}
+                label="No email"
+              />
+            )}
+          </form.Field>
+        </div>}
 
-      <div className="form-submit">
-        <form.Subscribe selector={(s) => [s.isSubmitting]}>
-          {([isSubmitting]) => (
-            <div className={classNames("form-submit", { [classes.submitMinimalist]: isMinimalist })}>
-              <Button
-                type="submit"
-                id="new-message-submit"
-                className={classNames("primary-form-submit-button", formButtonClass)}
-              >
-                {isSubmitting ? <Loading /> : isMinimalist ? <ForumIcon icon="ArrowRightOutline" /> : submitLabel}
-              </Button>
-            </div>
-          )}
-        </form.Subscribe>
-      </div>
-    </form>
+        <div className="form-submit">
+          <form.Subscribe selector={(s) => [s.isSubmitting]}>
+            {([isSubmitting]) => (
+              <div className={classNames("form-submit", { [classes.submitMinimalist]: isMinimalist })}>
+                <Button
+                  type="submit"
+                  id="new-message-submit"
+                  className={classNames("primary-form-submit-button", formButtonClass)}
+                >
+                  {isSubmitting ? <Loading /> : isMinimalist ? <ForumIcon icon="ArrowRightOutline" /> : submitLabel}
+                </Button>
+              </div>
+            )}
+          </form.Subscribe>
+        </div>
+      </form>
+    </div>
   );
 };
 
