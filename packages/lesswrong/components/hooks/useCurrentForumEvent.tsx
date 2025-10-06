@@ -36,9 +36,7 @@ export const CurrentAndRecentForumEventsProvider: FC<{
   // Derive the current forum event as the first event whose endDate is in the
   // future -- we know the start date is in the past from the view query.
   const now = new Date();
-  const activeForumEvents = useMemo(() => {
-    return forumEvents.filter(event => !event.endDate || new Date(event.endDate) >= now);
-  }, [forumEvents, now]);
+  const activeForumEvents = forumEvents.filter(event => !event.endDate || new Date(event.endDate) >= now);
 
   const currentForumEvent = activeForumEvents[0] || null;
 
@@ -51,7 +49,7 @@ export const CurrentAndRecentForumEventsProvider: FC<{
     if (activeEvent) {
       return activeEvent;
     }
-    // If we're including recent-but-past events, search all events (including past)
+    // If we're including recent-but-past events, search them all
     if (includeRecent) {
       return forumEvents
         .find(event => event.tag && (post.tagRelevance?.[event.tag._id] ?? 0) >= 1)
