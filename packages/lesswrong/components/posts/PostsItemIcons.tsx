@@ -1,5 +1,4 @@
 import React, { useContext } from 'react';
-import { registerComponent } from '../../lib/vulcan-lib/components';
 import classNames from 'classnames';
 import { isRecombeeRecommendablePost, postGetPageUrl } from '../../lib/collections/posts/helpers';
 import { curatedUrl } from '../recommendations/constants';

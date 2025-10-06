@@ -1,5 +1,4 @@
 import React, { useContext, useState, useCallback, useEffect, CSSProperties } from 'react';
-import { registerComponent } from '../../lib/vulcan-lib/components';
 import { Link } from '../../lib/reactRouterWrapper';
 import Headroom from '../../lib/react-headroom'
 import Toolbar from '@/lib/vendor/@material-ui/core/src/Toolbar';
@@ -33,6 +32,8 @@ import { isHomeRoute } from '@/lib/routeChecks';
 import { useRouteMetadata } from '../ClientRouteMetadataContext';
 import { forumSelect } from '@/lib/forumTypeUtils';
 import NotificationsMenu from "../notifications/NotificationsMenu";
+import { defineStyles, useStyles } from '../hooks/useStyles';
+import { registerComponent } from '@/lib/vulcan-lib/components';
 
 /** Height of top header. On Book UI sites, this is for desktop only */
 export const getHeaderHeight = () => isBookUI() ? 64 : 66;
@@ -111,7 +112,7 @@ const textColorOverrideStyles = ({
   },
 });
 
-export const styles = (theme: ThemeType) => ({
+export const styles = defineStyles("Header", (theme: ThemeType) => ({
   appBar: {
     boxShadow: theme.palette.boxShadow.appBar,
     color: theme.palette.text.bannerAdOverlay,
@@ -308,7 +309,7 @@ export const styles = (theme: ThemeType) => ({
     marginLeft: theme.spacing.unit,
     marginBottom: 1.5,
   },
-});
+}));
 
 const Header = ({
   standaloneNavigationPresent,
@@ -317,7 +318,6 @@ const Header = ({
   stayAtTop=false,
   searchResultsArea,
   backgroundColor,
-  classes,
 }: {
   standaloneNavigationPresent: boolean,
   sidebarHidden: boolean,
@@ -326,8 +326,8 @@ const Header = ({
   searchResultsArea: React.RefObject<HTMLDivElement|null>,
   // CSS var corresponding to the background color you want to apply (see also appBarDarkBackground above)
   backgroundColor?: string,
-  classes: ClassesType<typeof styles>,
 }) => {
+  const classes = useStyles(styles);
   const [navigationOpen, setNavigationOpenState] = useState(false);
   const [notificationOpen, setNotificationOpen] = useState(false);
   const [notificationHasOpened, setNotificationHasOpened] = useState(false);
@@ -588,7 +588,6 @@ const Header = ({
 }
 
 export default registerComponent('Header', Header, {
-  styles,
   areEqual: "auto",
   hocs: [withErrorBoundary]
 });

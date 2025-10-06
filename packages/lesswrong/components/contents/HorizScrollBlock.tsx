@@ -1,5 +1,4 @@
 import React, { ReactNode, useCallback, useEffect, useLayoutEffect, useRef, useState } from 'react';
-import { registerComponent } from "../../lib/vulcan-lib/components";
 import classNames from 'classnames';
 import { defineStyles, useStyles } from '../hooks/useStyles';
 

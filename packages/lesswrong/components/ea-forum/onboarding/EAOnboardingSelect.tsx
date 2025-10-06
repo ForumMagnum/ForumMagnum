@@ -1,14 +1,15 @@
 import React, { ChangeEvent, useCallback } from "react";
-import { registerComponent } from "../../../lib/vulcan-lib/components";
-import { styles as inputStyles } from "./EAOnboardingInput";
+import { onboardingInputRootStyles } from "./EAOnboardingInput";
 import ForumIcon from "../../common/ForumIcon";
+import { defineStyles } from "@/components/hooks/defineStyles";
+import { useStyles } from "@/components/hooks/useStyles";
 
-const styles = (theme: ThemeType) => ({
+const styles = defineStyles("EAOnboardingSelect", (theme: ThemeType) => ({
   root: {
     position: "relative",
   },
   select: {
-    ...inputStyles(theme).root,
+    ...onboardingInputRootStyles(theme),
     appearance: "none",
   },
   icon: {
@@ -17,19 +18,18 @@ const styles = (theme: ThemeType) => ({
     height: "100%",
     color: theme.palette.grey[600],
   },
-});
+}));
 
 export const EAOnboardingSelect = ({
   value,
   setValue,
   options,
-  classes,
 }: {
   value?: string,
   setValue: (value: string) => void,
   options: {value: string, label: string}[],
-  classes: ClassesType<typeof styles>,
 }) => {
+  const classes = useStyles(styles);
   const onChange = useCallback((ev: ChangeEvent<HTMLSelectElement>) => {
     setValue(ev.target.value ?? "");
   }, [setValue]);
@@ -52,10 +52,4 @@ export const EAOnboardingSelect = ({
   );
 }
 
-export default registerComponent(
-  "EAOnboardingSelect",
-  EAOnboardingSelect,
-  {styles},
-);
-
-
+export default EAOnboardingSelect;

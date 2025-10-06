@@ -1,5 +1,4 @@
 import React, { useEffect, useState } from 'react';
-import { registerComponent } from '../../../lib/vulcan-lib/components';
 import { AnalyticsContext } from '../../../lib/analyticsEvents';
 import { useCurrentUser } from '../../common/withUser';
 import { eaForumDigestSubscribeURL } from '../../recentDiscussion/RecentDiscussionSubscribeReminder';

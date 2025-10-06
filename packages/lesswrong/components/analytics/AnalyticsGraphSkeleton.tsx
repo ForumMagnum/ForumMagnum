@@ -6,9 +6,9 @@ import {
   styles as analyticsGraphStyles,
 } from "./AnalyticsGraph";
 import classNames from "classnames";
+import { defineStyles, useStyles } from "../hooks/useStyles";
 
-const styles = (theme: ThemeType) => ({
-  ...analyticsGraphStyles(theme),
+const styles = defineStyles("AnalyticsGraphSkeleton", (theme: ThemeType) => ({
   rootSkeleton: {
     overflow: "hidden !important",
   },
@@ -41,14 +41,16 @@ const styles = (theme: ThemeType) => ({
     marginTop: 20,
     marginBottom: 2,
   },
-});
+}));
 
-export const AnalyticsGraphSkeleton = ({dateOptionDropdown, classes}: {
+export const AnalyticsGraphSkeleton = ({dateOptionDropdown}: {
   dateOptionDropdown?: ReactNode,
-  classes: ClassesType<typeof styles>,
 }) => {
+  const baseClasses = useStyles(analyticsGraphStyles);
+  const classes = useStyles(styles);
+
   const overallStat = (
-    <div className={classes.overallStat}>
+    <div className={baseClasses.overallStat}>
       <div className={classNames(classes.overallStatCount, classes.placeholder)} />
       <div className={classNames(classes.overallStatDescription, classes.placeholder)} />
     </div>
@@ -59,16 +61,16 @@ export const AnalyticsGraphSkeleton = ({dateOptionDropdown, classes}: {
   );
 
   return (
-    <div className={classNames(classes.root, classes.rootSkeleton)}>
+    <div className={classNames(baseClasses.root, classes.rootSkeleton)}>
       <div className={classes.dateDropdownWrapper}>
         {dateOptionDropdown}
       </div>
-      <div className={classes.controls}>
-        <div className={classes.overallStatContainer}>
+      <div className={baseClasses.controls}>
+        <div className={baseClasses.overallStatContainer}>
           {overallStat}
           {overallStat}
         </div>
-        <div className={classes.controlFields}>
+        <div className={baseClasses.controlFields}>
           {fieldLabel}
           {fieldLabel}
           {fieldLabel}
@@ -80,10 +82,6 @@ export const AnalyticsGraphSkeleton = ({dateOptionDropdown, classes}: {
   );
 }
 
-export default registerComponent(
-  "AnalyticsGraphSkeleton",
-  AnalyticsGraphSkeleton,
-  {styles},
-);
+export default AnalyticsGraphSkeleton;
 
 

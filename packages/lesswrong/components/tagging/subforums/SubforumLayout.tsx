@@ -1,8 +1,9 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { MAX_COLUMN_WIDTH } from '@/components/posts/PostsPage/constants';
 import { TAB_NAVIGATION_MENU_WIDTH } from '../../common/TabNavigationMenu/TabNavigationMenu';
-import { registerComponent } from '../../../lib/vulcan-lib/components';
 import CloudinaryImage2 from "../../common/CloudinaryImage2";
+import { defineStyles } from '@/components/hooks/defineStyles';
+import { useStyles } from '@/components/hooks/useStyles';
 
 const MIN_SIDEBAR_WIDTH = 250
 const MAX_SIDEBAR_WIDTH = 370
@@ -25,7 +26,7 @@ const gridTemplateColumns = `
   1fr
 `
 
-export const styles = (theme: ThemeType) => ({
+export const styles = defineStyles("SubforumLayout", (theme: ThemeType) => ({
   titleWrapper: {
     overflow: 'hidden',
     [theme.breakpoints.down('md')]: {
@@ -116,16 +117,16 @@ export const styles = (theme: ThemeType) => ({
     }
   },
   gap2: { gridArea: 'gap2' }
-});
+}));
 
-export const SubforumLayout = ({titleComponent, bannerImageId, headerComponent, sidebarComponents = [], children, classes}: {
+export const SubforumLayout = ({titleComponent, bannerImageId, headerComponent, sidebarComponents = [], children}: {
   titleComponent: React.ReactNode,
   bannerImageId: string,
   headerComponent: React.ReactNode,
   children: React.ReactNode,
-  classes: ClassesType<typeof styles>,
   sidebarComponents?: React.ReactNode[],
 }) => {
+  const classes = useStyles(styles);
   const nonEmptySidebarComponents = sidebarComponents.filter(x => x) // filter out nulls to avoid extra spacing
   /*
    * The logic for rendering the banner image has turned out more complicated than I would
@@ -202,6 +203,4 @@ export const SubforumLayout = ({titleComponent, bannerImageId, headerComponent, 
   );
 }
 
-export default registerComponent("SubforumLayout", SubforumLayout, {styles});
-
-
+export default SubforumLayout;
