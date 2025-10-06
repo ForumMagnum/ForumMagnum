@@ -2,7 +2,7 @@ import Posts from "../../server/collections/posts/collection";
 import AbstractRepo from "./AbstractRepo";
 import { eaPublicEmojiNames } from "../../lib/voting/eaEmojiPalette";
 import LRU from "lru-cache";
-import { getViewableEventsSelector, getViewablePostsSelector } from "./helpers";
+import { getViewableCommentsSelector, getViewableEventsSelector, getViewablePostsSelector } from "./helpers";
 import { EA_FORUM_COMMUNITY_TOPIC_ID } from "../../lib/collections/tags/helpers";
 import { recordPerfMetrics } from "./perfMetricWrapper";
 import { isAF } from "../../lib/instanceSettings";
@@ -1000,8 +1000,8 @@ class PostsRepo extends AbstractRepo<"Posts"> {
         WHERE c."postedAt" > CURRENT_TIMESTAMP - INTERVAL $(maxAgeDays)
           AND c."postId" IS NOT NULL
           AND c.deleted IS NOT TRUE
-          AND c."authorIsUnreviewed" IS NOT TRUE
           AND c.retracted IS NOT TRUE
+          AND ${getViewableCommentsSelector('c')}
         GROUP BY "postId"
       ),
       posts_with_comments_from_subscribees AS (
