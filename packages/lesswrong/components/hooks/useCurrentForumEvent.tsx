@@ -36,7 +36,10 @@ export const CurrentAndRecentForumEventsProvider: FC<{
   // Derive the current forum event as the first event whose endDate is in the
   // future -- we know the start date is in the past from the view query.
   const now = new Date();
-  const activeForumEvents = forumEvents.filter(event => !event.endDate || new Date(event.endDate) >= now);
+  const activeForumEvents = useMemo(() => {
+    return forumEvents.filter(event => !event.endDate || new Date(event.endDate) >= now);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [forumEvents]);
 
   const currentForumEvent = activeForumEvents[0] || null;
 
