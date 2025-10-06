@@ -35,7 +35,8 @@ const styles = defineStyles("VoteAgreementIcon", (theme: ThemeType) => ({
     opacity: 0.6,
     position: 'absolute',
     height: 14,
-    transform: 'translate(-4.5px, -2px)'
+    transform: 'translate(-4.5px, -2px)',
+    pointerEvents: "none",
   },
   clear: {
     fontSize: '45%',
