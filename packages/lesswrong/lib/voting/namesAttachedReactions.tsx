@@ -115,7 +115,13 @@ export const namesAttachedReactionsVotingSystem = defineVotingSystem<NamesAttach
     voteProps: VotingProps<VoteableTypeClient>
   }) => {
     return getDocumentHighlights(voteProps);
-  }
+  },
+  getMessageHighlights: ({message, voteProps}: {
+    message: messageListFragment
+    voteProps: VotingProps<VoteableTypeClient>
+  }) => {
+    return getDocumentHighlights(voteProps);
+  },
 });
 
 export function isVoteWithReactsAllowed({user, document, oldExtendedScore, extendedVote, skipRateLimits}: {

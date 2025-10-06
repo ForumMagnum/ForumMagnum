@@ -20,6 +20,9 @@ const styles = defineStyles("InlineReactHoverableHighlight", (theme: ThemeType) 
   reactionTypeHovered: {
     backgroundColor: theme.palette.greyAlpha(0.1),
   },
+  reactionTypeHoveredInverted: {
+    backgroundColor: theme.palette.greyAlpha(0.4),
+  },
 
   sidebarInlineReactIcons: {
     display: "none",
@@ -40,11 +43,12 @@ const styles = defineStyles("InlineReactHoverableHighlight", (theme: ThemeType) 
   highlight: {},
 }));
 
-export const InlineReactHoverableHighlight = ({quote, reactions, isSplitContinuation=false, children}: {
+export const InlineReactHoverableHighlight = ({quote, reactions, isSplitContinuation=false, children, invertColors=false}: {
   quote: QuoteLocator,
   reactions: NamesAttachedReactionsList,
   isSplitContinuation?: boolean
   children: React.ReactNode,
+  invertColors?: boolean,
 }) => {
   const classes = useStyles(styles);
   
@@ -91,7 +95,6 @@ export const InlineReactHoverableHighlight = ({quote, reactions, isSplitContinua
   // 1) the quote itself is hovered over, or
   // 2) if the post/comment is hovered over, and the react has net-positive agreement across all users
   const shouldUnderline = isHovered || anyPositive;
-
   if (!voteProps) {
     return <>{children}</>
   }
@@ -99,7 +102,8 @@ export const InlineReactHoverableHighlight = ({quote, reactions, isSplitContinua
   return (
     <span className={classNames({
       [classes.highlight]: shouldUnderline,
-      [classes.reactionTypeHovered]: isHovered
+      [classes.reactionTypeHovered]: isHovered && !invertColors,
+      [classes.reactionTypeHoveredInverted]: isHovered && invertColors,
     })}>
       {!isSplitContinuation && sideItemIsVisible && <SideItem options={{format: "icon"}}>
         <SidebarInlineReact

@@ -300,6 +300,16 @@ extend type Mutation {
   performVoteComment(documentId: String, voteType: String, extendedVote: JSON): VoteResultComment
 }
 
+type VoteResultMessage {
+  document: Message!
+  showVotingPatternWarning: Boolean!
+}
+
+extend type Mutation {
+  setVoteMessage(documentId: String, voteType: String, extendedVote: JSON): Message
+  performVoteMessage(documentId: String, voteType: String, extendedVote: JSON): VoteResultMessage
+}
+
 type VoteResultTagRel {
   document: TagRel!
   showVotingPatternWarning: Boolean!
@@ -3795,6 +3805,15 @@ type Message {
   conversationId: String
   conversation: Conversation
   noEmail: Boolean
+  currentUserVote: String
+  currentUserExtendedVote: JSON
+  voteCount: Float!
+  baseScore: Float!
+  extendedScore: JSON
+  score: Float!
+  afBaseScore: Float
+  afExtendedScore: JSON
+  afVoteCount: Float
 }
 
 input SingleMessageInput {

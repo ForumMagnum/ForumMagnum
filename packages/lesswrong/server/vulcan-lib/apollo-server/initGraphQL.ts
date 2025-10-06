@@ -221,6 +221,7 @@ const emptyViewInput = gql`
 
 const { graphqlVoteTypeDefs: postVoteTypeDefs, graphqlVoteMutations: postVoteMutations } = getVoteGraphql('Posts');
 const { graphqlVoteTypeDefs: commentVoteTypeDefs, graphqlVoteMutations: commentVoteMutations } = getVoteGraphql('Comments');
+const { graphqlVoteTypeDefs: messageVoteTypeDefs, graphqlVoteMutations: messageVoteMutations } = getVoteGraphql('Messages');
 const { graphqlVoteTypeDefs: tagRelVoteTypeDefs, graphqlVoteMutations: tagRelVoteMutations } = getVoteGraphql('TagRels');
 const { graphqlVoteTypeDefs: revisionVoteTypeDefs, graphqlVoteMutations: revisionVoteMutations } = getVoteGraphql('Revisions');
 const { graphqlVoteTypeDefs: electionCandidateVoteTypeDefs, graphqlVoteMutations: electionCandidateVoteMutations } = getVoteGraphql('ElectionCandidates');
@@ -255,6 +256,7 @@ export const getTypeDefs = () => gql`
   # # Vote typedefs
   ${postVoteTypeDefs}
   ${commentVoteTypeDefs}
+  ${messageVoteTypeDefs}
   ${tagRelVoteTypeDefs}
   ${revisionVoteTypeDefs}
   ${electionCandidateVoteTypeDefs}
@@ -570,6 +572,7 @@ const getResolvers = () => ({
     ...userResolversMutations,
     ...postVoteMutations,
     ...commentVoteMutations,
+    ...messageVoteMutations,
     ...tagRelVoteMutations,
     ...revisionVoteMutations,
     ...electionCandidateVoteMutations,
