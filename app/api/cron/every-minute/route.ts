@@ -20,18 +20,12 @@ export async function GET(request: NextRequest) {
 
   // Send curation emails
   if (!isTestServer && usesCurationEmailsCron()) {
-    // This doesn't need an advisory lock because it runs a while loop that pulls emails off a queue one at at time,
-    // so we aren't going to get stuck with a very large number of heavy, concurrent queries if this job gets run again
-    // while the last batch is still going.
-    tasks.push(sendCurationEmails());
+    tasks.push(getCronLock('sendCurationEmails', sendCurationEmails));
   }
 
   // Debounced event handler
   if (!isTestServer) {
-    // This doesn't need an advisory lock because it runs a while loop that updates individual database records as it goes,
-    // so we aren't going to get stuck with a very large number of heavy, concurrent queries if this job gets run again
-    // while the last batch is still going.
-    tasks.push(dispatchPendingEvents());
+    tasks.push(getCronLock('dispatchPendingEvents', dispatchPendingEvents));
   }
 
   // Check upcoming event emails

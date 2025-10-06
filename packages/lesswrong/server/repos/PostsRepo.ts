@@ -436,8 +436,7 @@ class PostsRepo extends AbstractRepo<"Posts"> {
       WHERE
         ${getViewablePostsSelector('p')} AND
         pe."embeddings" IS NULL AND
-        COALESCE((r."wordCount")::INTEGER, 0) > 1 AND
-        r.html NOT LIKE '%|endoftext|%'
+        COALESCE((r."wordCount")::INTEGER, 0) > 1
     `);
     return results.map(({_id}) => _id);
   }
