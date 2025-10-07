@@ -6,7 +6,7 @@ import UpArrowIcon from '@/lib/vendor/@material-ui/icons/src/KeyboardArrowUp';
 
 const styles = (theme: ThemeType) => ({
   reactOrAntireact: {
-    width: 55
+    minWidth: 55
   },
   reactionVoteCount: {
     display: "inline-block",

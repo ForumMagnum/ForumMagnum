@@ -586,7 +586,6 @@ export const postModerationWarningCommentIdSetting = new PublicInstanceSetting<s
 export const useExperimentalTagStyleSetting = new PublicInstanceSetting<boolean>('useExperimentalTagStyle', false, "optional");
 
 export const showAnalyticsDebug = new PublicInstanceSetting<"never" | "dev" | "always">("showAnalyticsDebug", "dev", "optional");
-export const flushIntervalSetting = new PublicInstanceSetting<number>("analyticsFlushInterval", 1000, "optional");
 
 type ReasonNoReviewNeeded = "alreadyApproved" | "noReview";
 type ReasonReviewIsNeeded = "mapLocation" | "firstPost" | "firstComment" | "contactedTooManyUsers" | "bio" | "profileImage" | "newContent";

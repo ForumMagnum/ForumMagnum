@@ -11,8 +11,8 @@ export async function clearOldUltraFeedServedEvents() {
     createdAt: { $lt: cutoffDate },
   };
 
-    await UltraFeedEvents.rawRemove(selector);
-  }
+  await UltraFeedEvents.rawRemove(selector);
+}
 
 export async function clearLoggedOutServedSessionsWithNoViews() {
     const db = getSqlClientOrThrow('write');
