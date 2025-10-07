@@ -56,7 +56,7 @@ function currentAndRecentForumEvents(terms: ForumEventsViewTerms) {
       isGlobal: true,
     },
     options: {
-      sort: {endDate: 1},
+      sort: {hideBanner: 1, endDate: 1},
       limit: terms.limit ?? 20,
     },
   };
