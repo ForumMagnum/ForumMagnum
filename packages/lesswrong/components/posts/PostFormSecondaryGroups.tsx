@@ -254,6 +254,7 @@ const PostFormSecondaryGroups = ({
             </form.Field>
         </div>}
 
+        {/* TODO: come back to this and figure out why the text field inside the social preview upload component isn't being (visually) populated initially */}
         {expandedFormGroup === 'Link Preview' && !hideSocialPreviewGroup && <div className={classes.formGroup}>
           <h3 className={classes.formGroupTitle}>Link Preview</h3>
           <div className={classes.fieldWrapper}>
