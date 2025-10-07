@@ -1,8 +1,13 @@
 'use client';
 
-import React, { ReactNode, useEffect, useState, createContext, useContext, Activity } from 'react';
+import React, { ReactNode, useEffect, useState, createContext, useContext, Activity, useCallback } from 'react';
 import { useLocation } from '@/lib/routeUtil';
 import LWHome from '../common/LWHome';
+import { forumSelect } from '@/lib/forumTypeUtils';
+import EAHome from '../ea-forum/EAHome';
+import AlignmentForumHome from '../alignment-forum/AlignmentForumHome';
+import { useRouteMetadata } from '../ClientRouteMetadataContext';
+import RouteRoot from '../next/RouteRoot';
 
 // Context to mark when the UltraFeed has been viewed (scrolled into view)
 const UltraFeedViewedContext = createContext<(() => void) | null>(null);
@@ -39,11 +44,11 @@ const PersistentHomepage = ({ children }: { children: ReactNode }) => {
     }
   }, [onHomepage, pathname, hasVisitedHomepage, hasViewedUltraFeed]);
   
-  const markUltraFeedAsViewed = () => {
+  const markUltraFeedAsViewed = useCallback(() => {
     if (!hasViewedUltraFeed) {
       setHasViewedUltraFeed(true);
     }
-  };
+  }, [hasViewedUltraFeed]);
   
   const shouldPersist = hasVisitedHomepage && hasViewedUltraFeed;
   
@@ -54,15 +59,17 @@ const PersistentHomepage = ({ children }: { children: ReactNode }) => {
   
   return (
     <UltraFeedViewedContext.Provider value={markUltraFeedAsViewed}>
-      {(onHomepage || shouldPersist) && (
-        <>
-          <Activity mode={onHomepage ? 'visible' : 'hidden'}>
-            <LWHome />
-          </Activity>
-          {!onHomepage && children}
-        </>
-      )}
-      {!onHomepage && !shouldPersist && children}
+      <Activity mode="visible">
+        {children}
+      </Activity>
+      <Activity mode={onHomepage ? 'visible' : 'hidden'}>
+        {hasVisitedHomepage && forumSelect({
+          AlignmentForum: <AlignmentForumHome/>,
+          LessWrong: <LWHome/>,
+          EAForum: <EAHome/>,
+          default: <LWHome/>,
+        })}
+      </Activity>
     </UltraFeedViewedContext.Provider>
   );
 };
