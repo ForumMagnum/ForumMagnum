@@ -1,6 +1,6 @@
 import React, {useContext, useEffect} from 'react';
 import { registerComponent } from '../../lib/vulcan-lib/components';
-import { clientContextVars, flushClientEvents, captureEvent } from '../../lib/analyticsEvents';
+import { clientContextVars, throttledFlushClientEvents, captureEvent } from '../../lib/analyticsEvents';
 import { useCurrentUser, useCurrentUserLoading } from './withUser';
 import withErrorBoundary from './withErrorBoundary';
 import { ABTestGroupsUsedContext } from '@/components/common/sharedContexts';
@@ -25,8 +25,8 @@ export const AnalyticsClient = () => {
       clientContextVars.abTestGroupsUsed = abTestGroupsUsed;
     }
     // There may be events waiting for the client context vars to be set, so flush them now
-    flushClientEvents(true);
-  }, [currentUserId, clientId, currentUser, abTestGroupsUsed]);
+    throttledFlushClientEvents(true);
+  }, [currentUserId, clientId, abTestGroupsUsed]);
 
   // Fire a one-time per-tab lifecycle event when a new tab/app instance starts
   useEffect(() => {
@@ -47,7 +47,7 @@ export const AnalyticsClient = () => {
       userAgent,
       abTestGroups,
     });
-    flushClientEvents(true);
+    throttledFlushClientEvents(true);
   // Depend on currentUserLoading to ensure we wait for user data before firing
   // sessionStorage check ensures this still only fires once per tab
   // eslint-disable-next-line react-hooks/exhaustive-deps
