@@ -10,10 +10,6 @@ runs:
     - name: Setup Environment
       uses: ./.github/actions/setupEnvironment
 
-    - name: Type check
-      shell: bash
-      run: yarn tsc
-
     - name: Run migrations
       shell: bash
       env:

@@ -1,10 +1,10 @@
-import React, { useEffect, useState, useRef, useCallback } from 'react';
-import { registerComponent } from '../../lib/vulcan-lib/components';
+import React, { useEffect, useRef, useCallback } from 'react';
 import { flushClientEvents, useTracking } from "../../lib/analyticsEvents";
 import { useEventListener } from '../hooks/useEventListener';
 import { useSessionManagement } from '../hooks/useSessionManagement';
 import { useIdlenessDetection } from '../hooks/useIdlenessDetection';
-import { usePageVisibility } from '../hooks/usePageVisibility';
+import { getPageVisibility, usePageVisibility } from '../hooks/usePageVisibility';
+import { useEffectOnce } from '../hooks/useEffectOnce';
 
 function useBeforeUnloadTracking() {
   const { captureEvent } = useTracking()
@@ -20,74 +20,89 @@ function useBeforeUnloadTracking() {
 }
 
 
-function useCountUpTimer (incrementsInSeconds=[10, 30], switchIncrement=60) {
-    const { captureEvent } = useTracking()
-    const [seconds, setSeconds] = useState(0)
-    const [timerIsActive, setTimerIsActive] = useState(true)
-    const [smallIncrementInSeconds, largeIncrementInSeconds] = incrementsInSeconds
-    const intervalTimer = useRef<any>(null)
-
-
-    function reset() {
-        setSeconds(0)
-        setTimerIsActive(false)
+function useCountUpTimer (incrementsInSeconds: number[], switchIncrement: number, timerIsActive: React.RefObject<boolean>) {
+  const { captureEvent } = useTracking()
+  const secondsRef = useRef(0);
+  const [smallIncrementInSeconds, largeIncrementInSeconds] = incrementsInSeconds
+  const intervalTimer = useRef<any>(null)
+  
+  const resetTimer = useCallback(() => {
+    if (timerIsActive.current) {
+      const increment = (secondsRef.current < switchIncrement)
+        ? smallIncrementInSeconds
+        : largeIncrementInSeconds
+      clearInterval(intervalTimer.current);
+      intervalTimer.current = setInterval(() => {
+        if (timerIsActive.current) {
+          captureEvent("timerEvent", {
+            seconds: secondsRef.current + increment,
+            increment: increment
+          })
+        }
+        secondsRef.current += increment
+      }, increment*1000) //setInterval uses milliseconds
+    } else {
+      clearInterval(intervalTimer.current)
     }
-
-    useEffect(() => {
-      if (timerIsActive) {
-        const  increment = (seconds < switchIncrement ) ? smallIncrementInSeconds : largeIncrementInSeconds
-        intervalTimer.current = setInterval(() => {
-          setSeconds(seconds + increment)
-          captureEvent("timerEvent", {seconds: seconds + increment, increment: increment})
-        }, increment*1000) //setInterval uses milliseconds
-      } else if (!timerIsActive && seconds !== 0) {
-        clearInterval(intervalTimer.current)
-      }
-      return () => clearInterval(intervalTimer.current)
-    }, [timerIsActive, setTimerIsActive, seconds, captureEvent, smallIncrementInSeconds, largeIncrementInSeconds, switchIncrement])
-
-    return { seconds, isActive: timerIsActive, setTimerIsActive, reset }
+  }, [captureEvent, largeIncrementInSeconds, smallIncrementInSeconds, switchIncrement, timerIsActive]);
+  
+  useEffectOnce(resetTimer);
+  useEffect(() => {
+    return () => clearInterval(intervalTimer.current)
+  }, [])
+  
+  return { resetTimer };
 }
 
 
 const AnalyticsPageInitializer = () => {
-    useBeforeUnloadTracking()
-    const { pageIsVisible } = usePageVisibility()
-    const { userIsIdle } = useIdlenessDetection(60)
-    const { setTimerIsActive } = useCountUpTimer([10, 30], 60)
-    const { updateLastActivity } = useSessionManagement()
+  useBeforeUnloadTracking()
+  const { captureEvent } = useTracking();
 
-    const userIsIdleRef = useRef(userIsIdle);
-    const pageIsVisibleRef = useRef(pageIsVisible);
+  const pageIsVisibleRef = useRef(true);
+  useEffectOnce(() => {
+   const { isVisible, visibilityState } = getPageVisibility();
+    pageIsVisibleRef.current = isVisible;
+    captureEvent("pageVisibilityChange", {isVisible, visibilityState});
+  });
+  usePageVisibility((isVisible, visibilityState) => {
+    pageIsVisibleRef.current = isVisible;
+    maybeUpdateLastActivity();
+    captureEvent("pageVisibilityChange", {isVisible, visibilityState});
+  })
 
-    useEffect(() => {
-      userIsIdleRef.current = userIsIdle;
-      pageIsVisibleRef.current = pageIsVisible;
-    }, [userIsIdle, pageIsVisible]);
+  const timerIsActiveRef = useRef(true);
+  const { resetTimer } = useCountUpTimer([10, 30], 60, timerIsActiveRef)
+  const { updateLastActivity } = useSessionManagement()
 
-    useEffect(() => {
-      setTimerIsActive(pageIsVisible && !userIsIdle); //disable timer whenever tab hidden or user inactive
-    }, [pageIsVisible, userIsIdle, setTimerIsActive])
+  const userIsIdleRef = useRef(false);
+  const maybeUpdateLastActivity = useCallback(() => {
+    const active = !userIsIdleRef.current && pageIsVisibleRef.current;
+    if (active) {
+      updateLastActivity();
+    }
+    if (timerIsActiveRef.current !== active) {
+      timerIsActiveRef.current = active; //disable timer whenever tab hidden or user inactive
+      resetTimer();
+    }
+  }, [updateLastActivity, resetTimer]);
 
-    useEffect(() => {
-      if (!userIsIdle && pageIsVisible) {
-        updateLastActivity();
-      }
-    }, [userIsIdle, pageIsVisible, updateLastActivity])
+  useIdlenessDetection(60, useCallback((isIdle) => {
+    userIsIdleRef.current = isIdle;
+    maybeUpdateLastActivity();
+  }, [maybeUpdateLastActivity]))
+  
+  useEffect(() => {
+    const interval = setInterval(() => {
+      maybeUpdateLastActivity();
+    }, 120 * 1000);
 
-    useEffect(() => {
-      const interval = setInterval(() => {
-        if (!userIsIdleRef.current && pageIsVisibleRef.current) {
-          updateLastActivity();
-        }
-      }, 120 * 1000);
-
-      return () => clearInterval(interval);
-    }, [updateLastActivity])
+    return () => clearInterval(interval);
+  }, [maybeUpdateLastActivity])
 
   return <></>
 };
 
-export default registerComponent('AnalyticsPageInitializer', AnalyticsPageInitializer);
+export default AnalyticsPageInitializer;
 
 
