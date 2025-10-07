@@ -11,6 +11,7 @@ import ErrorBoundary from '../common/ErrorBoundary';
 import { useIdlenessDetection } from './useIdlenessDetection';
 import { usePageVisibility } from './usePageVisibility';
 import { faviconUrlSetting, faviconWithBadgeSetting } from '../../lib/instanceSettings';
+import { useIsMounted } from './useIsMounted';
 
 export type NotificationCountsResult = {
   checkedAt: Date,
@@ -168,8 +169,7 @@ const NotificationsEffects = ({queryRef, refetchCounts, refetchBoth, latestUnrea
   const updateCurrentUser = useUpdateCurrentUser();
   const unreadNotificationCounts = useReadQuery(queryRef!);
   const checkedAt = unreadNotificationCounts.data.unreadNotificationCounts.checkedAt;
-  const { userIsIdle } = useIdlenessDetection(30);
-  const { pageIsVisible } = usePageVisibility();
+  const { getIsMounted } = useIsMounted();
 
   const pollingIntervalRef = useRef<NodeJS.Timeout | null>(null);
 
@@ -204,35 +204,64 @@ const NotificationsEffects = ({queryRef, refetchCounts, refetchBoth, latestUnrea
     };
   }, [refetchCounts, checkedAt, updateCurrentUser]);
 
+  const pollForNotifications = useCallback(async () => {
+    if (!currentUserId) {
+      return;
+    }
+    if (!getIsMounted()) {
+      return;
+    }
+    if (!userIsIdleRef.current && pageIsVisibleRef.current) {
+      const response = await fetch("/api/notificationCount");
+      const { unreadNotificationCount } = await response.json();
+      if (unreadNotificationCount > 0) {
+        void refetchBoth();
+      }
+    }
+  }, [currentUserId, refetchBoth, getIsMounted]);
+  
+  const stopPolling = useCallback(() => {
+    if (pollingIntervalRef.current) {
+      clearInterval(pollingIntervalRef.current);
+      pollingIntervalRef.current = null;
+    }
+  }, []);
+  const startPolling = useCallback(() => {
+    if (pollingIntervalRef.current) {
+      clearInterval(pollingIntervalRef.current);
+      pollingIntervalRef.current = null;
+    }
+
+    pollingIntervalRef.current = setInterval(pollForNotifications, POLLING_INTERVAL);
+  }, [pollForNotifications]);
+  
+  const userIsIdleRef = useRef(false);
+  useIdlenessDetection(30, useCallback((isIdle) => {
+    userIsIdleRef.current = isIdle;
+    if (isIdle) {
+      stopPolling();
+    } else {
+      startPolling();
+    }
+  }, [stopPolling, startPolling]));
+  const pageIsVisibleRef = useRef(true);
+  usePageVisibility((isVisible) => {
+    pageIsVisibleRef.current = isVisible;
+    if (isVisible) {
+      startPolling();
+    } else {
+      stopPolling();
+    }
+  });
+
   useEffect(() => {
     if (!currentUserId) return;
-
-    const startPolling = () => {
-      if (pollingIntervalRef.current) {
-        clearInterval(pollingIntervalRef.current);
-      }
-
-      // Only start polling if user is active and page is visible
-      if (!userIsIdle && pageIsVisible) {
-        pollingIntervalRef.current = setInterval(async () => {
-          const response = await fetch("/api/notificationCount");
-          const { unreadNotificationCount } = await response.json();
-          if (unreadNotificationCount > 0) {
-            void refetchBoth();
-          }
-        }, POLLING_INTERVAL);
-      }
-    };
-
     startPolling();
-
-    // Reset polling state when idle/visibility state changes
+    
     return () => {
-      if (pollingIntervalRef.current) {
-        clearInterval(pollingIntervalRef.current);
-      }
+      stopPolling();
     };
-  }, [currentUserId, userIsIdle, pageIsVisible, refetchBoth]);
+  }, [currentUserId, startPolling, stopPolling]);
 
   return null;
 }
