@@ -1444,7 +1444,7 @@ const schema = {
       outputType: "[String!]",
       inputType: "[String!]",
       canRead: [userOwns, "sunshineRegiment", "admins"],
-      canUpdate: [userOwnsAndInGroup("trustLevel1"), "sunshineRegiment", "admins"],
+      canUpdate: [userOwns, "sunshineRegiment", "admins"],
       canCreate: ["sunshineRegiment", "admins"],
       validation: {
         optional: true,
