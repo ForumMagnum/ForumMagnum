@@ -47,8 +47,7 @@ const styles = (theme: ThemeType) => ({
   },
   rootMinimalist: {
     ...theme.typography.commentStyle,
-    padding: 0,
-    paddingLeft: 10,
+    padding: "0 2px 0 10px",
     border: theme.palette.border.extraFaint,
     borderRadius: theme.borderRadius.default,
     backgroundColor: theme.palette.grey[100],
@@ -64,6 +63,9 @@ const styles = (theme: ThemeType) => ({
     },
     '& form > .form-component-EditorFormComponent': {
       flexGrow: 1,
+    },
+    "& button": {
+      marginLeft: 2,
     },
   },
 });
