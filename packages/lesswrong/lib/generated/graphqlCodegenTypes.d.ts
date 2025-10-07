@@ -3076,16 +3076,25 @@ type ManifoldProbabilitiesCache = {
 type Message = {
   __typename?: 'Message';
   _id: Scalars['String']['output'];
+  afBaseScore?: Maybe<Scalars['Float']['output']>;
+  afExtendedScore?: Maybe<Scalars['JSON']['output']>;
+  afVoteCount?: Maybe<Scalars['Float']['output']>;
+  baseScore: Scalars['Float']['output'];
   contents?: Maybe<Revision>;
   contents_latest?: Maybe<Scalars['String']['output']>;
   conversation?: Maybe<Conversation>;
   conversationId?: Maybe<Scalars['String']['output']>;
   createdAt?: Maybe<Scalars['Date']['output']>;
+  currentUserExtendedVote?: Maybe<Scalars['JSON']['output']>;
+  currentUserVote?: Maybe<Scalars['String']['output']>;
+  extendedScore?: Maybe<Scalars['JSON']['output']>;
   legacyData?: Maybe<Scalars['JSON']['output']>;
   noEmail?: Maybe<Scalars['Boolean']['output']>;
   schemaVersion: Scalars['Float']['output'];
+  score: Scalars['Float']['output'];
   user?: Maybe<User>;
   userId?: Maybe<Scalars['String']['output']>;
+  voteCount: Scalars['Float']['output'];
 };
 
 
@@ -4312,6 +4321,7 @@ type Mutation = {
   observeRecommendation?: Maybe<Scalars['Boolean']['output']>;
   performVoteComment?: Maybe<VoteResultComment>;
   performVoteElectionCandidate?: Maybe<VoteResultElectionCandidate>;
+  performVoteMessage?: Maybe<VoteResultMessage>;
   performVoteMultiDocument?: Maybe<VoteResultMultiDocument>;
   performVotePost?: Maybe<VoteResultPost>;
   performVoteRevision?: Maybe<VoteResultRevision>;
@@ -4324,12 +4334,12 @@ type Mutation = {
   resyncRssFeed: Scalars['Boolean']['output'];
   revertPostToRevision?: Maybe<Post>;
   revertTagToRevision?: Maybe<Tag>;
-  revokeGoogleServiceAccountTokens: Scalars['Boolean']['output'];
   sendEventTriggeredDM: Scalars['Boolean']['output'];
   sendNewDialogueMessageNotification: Scalars['Boolean']['output'];
   setIsHidden: User;
   setVoteComment?: Maybe<Comment>;
   setVoteElectionCandidate?: Maybe<ElectionCandidate>;
+  setVoteMessage?: Maybe<Message>;
   setVoteMultiDocument?: Maybe<MultiDocument>;
   setVotePost?: Maybe<Post>;
   setVoteRevision?: Maybe<Revision>;
@@ -4851,6 +4861,13 @@ type MutationperformVoteElectionCandidateArgs = {
 };
 
 
+type MutationperformVoteMessageArgs = {
+  documentId?: InputMaybe<Scalars['String']['input']>;
+  extendedVote?: InputMaybe<Scalars['JSON']['input']>;
+  voteType?: InputMaybe<Scalars['String']['input']>;
+};
+
+
 type MutationperformVoteMultiDocumentArgs = {
   documentId?: InputMaybe<Scalars['String']['input']>;
   extendedVote?: InputMaybe<Scalars['JSON']['input']>;
@@ -4950,6 +4967,13 @@ type MutationsetVoteCommentArgs = {
 
 
 type MutationsetVoteElectionCandidateArgs = {
+  documentId?: InputMaybe<Scalars['String']['input']>;
+  extendedVote?: InputMaybe<Scalars['JSON']['input']>;
+  voteType?: InputMaybe<Scalars['String']['input']>;
+};
+
+
+type MutationsetVoteMessageArgs = {
   documentId?: InputMaybe<Scalars['String']['input']>;
   extendedVote?: InputMaybe<Scalars['JSON']['input']>;
   voteType?: InputMaybe<Scalars['String']['input']>;
@@ -7467,7 +7491,6 @@ type Query = {
   AllTagsActivityFeed: AllTagsActivityFeedQueryResults;
   AnalyticsSeries?: Maybe<Array<Maybe<AnalyticsSeriesValue>>>;
   ArbitalPageData?: Maybe<ArbitalPageData>;
-  CanAccessGoogleDoc?: Maybe<Scalars['Boolean']['output']>;
   CommentEmbeddingSearch: Array<Comment>;
   CommentEmbeddingSimilaritySearch: Array<Comment>;
   CommentsWithReacts?: Maybe<CommentsWithReactsResult>;
@@ -7693,11 +7716,6 @@ type QueryAnalyticsSeriesArgs = {
 
 type QueryArbitalPageDataArgs = {
   pageAlias?: InputMaybe<Scalars['String']['input']>;
-};
-
-
-type QueryCanAccessGoogleDocArgs = {
-  fileUrl: Scalars['String']['input'];
 };
 
 
@@ -12804,6 +12822,12 @@ type VoteResultElectionCandidate = {
   showVotingPatternWarning: Scalars['Boolean']['output'];
 };
 
+type VoteResultMessage = {
+  __typename?: 'VoteResultMessage';
+  document: Message;
+  showVotingPatternWarning: Scalars['Boolean']['output'];
+};
+
 type VoteResultMultiDocument = {
   __typename?: 'VoteResultMultiDocument';
   document: MultiDocument;
@@ -12947,33 +12971,6 @@ type updateUserLayoutMutationVariables = Exact<{
 
 
 type updateUserLayoutMutation = updateUserLayoutMutation_Mutation;
-
-type multiGoogleServiceAccountSessionAdminGoogleServiceAccountQueryQuery_googleServiceAccountSessions_MultiGoogleServiceAccountSessionOutput_results_GoogleServiceAccountSession = (
-  { __typename?: 'GoogleServiceAccountSession' }
-  & GoogleServiceAccountSessionAdminInfo
-);
-
-type multiGoogleServiceAccountSessionAdminGoogleServiceAccountQueryQuery_googleServiceAccountSessions_MultiGoogleServiceAccountSessionOutput = { __typename?: 'MultiGoogleServiceAccountSessionOutput', totalCount: number | null, results: Array<multiGoogleServiceAccountSessionAdminGoogleServiceAccountQueryQuery_googleServiceAccountSessions_MultiGoogleServiceAccountSessionOutput_results_GoogleServiceAccountSession> };
-
-type multiGoogleServiceAccountSessionAdminGoogleServiceAccountQueryQuery_Query = { __typename?: 'Query', googleServiceAccountSessions: multiGoogleServiceAccountSessionAdminGoogleServiceAccountQueryQuery_googleServiceAccountSessions_MultiGoogleServiceAccountSessionOutput | null };
-
-
-type multiGoogleServiceAccountSessionAdminGoogleServiceAccountQueryQueryVariables = Exact<{
-  selector: InputMaybe<GoogleServiceAccountSessionSelector>;
-  limit: InputMaybe<Scalars['Int']['input']>;
-  enableTotal: InputMaybe<Scalars['Boolean']['input']>;
-}>;
-
-
-type multiGoogleServiceAccountSessionAdminGoogleServiceAccountQueryQuery = multiGoogleServiceAccountSessionAdminGoogleServiceAccountQueryQuery_Query;
-
-type revokeGoogleServiceAccountTokensMutation_Mutation = { __typename?: 'Mutation', revokeGoogleServiceAccountTokens: boolean };
-
-
-type revokeGoogleServiceAccountTokensMutationVariables = Exact<{ [key: string]: never; }>;
-
-
-type revokeGoogleServiceAccountTokensMutation = revokeGoogleServiceAccountTokensMutation_Mutation;
 
 type AdminMetadataQueryQuery_Query = { __typename?: 'Query', AdminMetadata: string | null };
 
@@ -17853,25 +17850,6 @@ type FeedPostsHighlightQueryVariables = Exact<{
 
 type FeedPostsHighlightQuery = FeedPostsHighlightQuery_Query;
 
-type multiGoogleServiceAccountSessionGoogleDocImportButtonQueryQuery_googleServiceAccountSessions_MultiGoogleServiceAccountSessionOutput_results_GoogleServiceAccountSession = (
-  { __typename?: 'GoogleServiceAccountSession' }
-  & GoogleServiceAccountSessionInfo
-);
-
-type multiGoogleServiceAccountSessionGoogleDocImportButtonQueryQuery_googleServiceAccountSessions_MultiGoogleServiceAccountSessionOutput = { __typename?: 'MultiGoogleServiceAccountSessionOutput', totalCount: number | null, results: Array<multiGoogleServiceAccountSessionGoogleDocImportButtonQueryQuery_googleServiceAccountSessions_MultiGoogleServiceAccountSessionOutput_results_GoogleServiceAccountSession> };
-
-type multiGoogleServiceAccountSessionGoogleDocImportButtonQueryQuery_Query = { __typename?: 'Query', googleServiceAccountSessions: multiGoogleServiceAccountSessionGoogleDocImportButtonQueryQuery_googleServiceAccountSessions_MultiGoogleServiceAccountSessionOutput | null };
-
-
-type multiGoogleServiceAccountSessionGoogleDocImportButtonQueryQueryVariables = Exact<{
-  selector: InputMaybe<GoogleServiceAccountSessionSelector>;
-  limit: InputMaybe<Scalars['Int']['input']>;
-  enableTotal: InputMaybe<Scalars['Boolean']['input']>;
-}>;
-
-
-type multiGoogleServiceAccountSessionGoogleDocImportButtonQueryQuery = multiGoogleServiceAccountSessionGoogleDocImportButtonQueryQuery_Query;
-
 type latestGoogleDocMetadataQuery_Query = { __typename?: 'Query', latestGoogleDocMetadata: any | null };
 
 
@@ -17882,16 +17860,6 @@ type latestGoogleDocMetadataQueryVariables = Exact<{
 
 
 type latestGoogleDocMetadataQuery = latestGoogleDocMetadataQuery_Query;
-
-type CanAccessGoogleDocQuery_Query = { __typename?: 'Query', CanAccessGoogleDoc: boolean | null };
-
-
-type CanAccessGoogleDocQueryVariables = Exact<{
-  fileUrl: Scalars['String']['input'];
-}>;
-
-
-type CanAccessGoogleDocQuery = CanAccessGoogleDocQuery_Query;
 
 type ImportGoogleDocMutation_ImportGoogleDoc_Post = (
   { __typename?: 'Post' }
@@ -24071,6 +24039,25 @@ type performVoteMultiDocumentMutationVariables = Exact<{
 
 type performVoteMultiDocumentMutation = performVoteMultiDocumentMutation_Mutation;
 
+type performVoteMessageMutation_performVoteMessage_VoteResultMessage_document_Message = (
+  { __typename?: 'Message' }
+  & WithVoteMessage
+);
+
+type performVoteMessageMutation_performVoteMessage_VoteResultMessage = { __typename?: 'VoteResultMessage', showVotingPatternWarning: boolean, document: performVoteMessageMutation_performVoteMessage_VoteResultMessage_document_Message };
+
+type performVoteMessageMutation_Mutation = { __typename?: 'Mutation', performVoteMessage: performVoteMessageMutation_performVoteMessage_VoteResultMessage | null };
+
+
+type performVoteMessageMutationVariables = Exact<{
+  documentId: InputMaybe<Scalars['String']['input']>;
+  voteType: InputMaybe<Scalars['String']['input']>;
+  extendedVote: InputMaybe<Scalars['JSON']['input']>;
+}>;
+
+
+type performVoteMessageMutation = performVoteMessageMutation_Mutation;
+
 type emailstestsQuery_post_SinglePostOutput_result_Post = (
   { __typename?: 'Post' }
   & PostsRevision
@@ -24698,7 +24685,9 @@ type messageListFragment_Message_user_User = (
 
 type messageListFragment_Message_contents_Revision = { __typename?: 'Revision', html: string | null, plaintextMainText: string };
 
-type messageListFragment = { __typename?: 'Message', _id: string, createdAt: string | null, conversationId: string | null, user: messageListFragment_Message_user_User | null, contents: messageListFragment_Message_contents_Revision | null };
+type messageListFragment = { __typename?: 'Message', _id: string, createdAt: string | null, conversationId: string | null, voteCount: number, baseScore: number, score: number, extendedScore: any | null, currentUserVote: string | null, currentUserExtendedVote: any | null, user: messageListFragment_Message_user_User | null, contents: messageListFragment_Message_contents_Revision | null };
+
+type WithVoteMessage = { __typename: 'Message', _id: string, score: number, baseScore: number, extendedScore: any | null, afBaseScore: number | null, voteCount: number, currentUserVote: string | null, currentUserExtendedVote: any | null };
 
 type ModerationTemplateFragment_ModerationTemplate_contents_Revision = (
   { __typename?: 'Revision' }
@@ -26058,7 +26047,7 @@ type UsersCurrent_User_expandedFrontpageSections_ExpandedFrontpageSectionsSettin
 type UsersCurrent_User_hiddenPostsMetadata_PostMetadataOutput = { __typename?: 'PostMetadataOutput', postId: string };
 
 type UsersCurrent = (
-  { __typename?: 'User', oldSlugs: Array<string>, groups: Array<string> | null, jobTitle: string | null, organization: string | null, careerStage: Array<string> | null, profileTagIds: Array<string>, organizerOfGroupIds: Array<string>, moderationStyle: string | null, bannedUserIds: Array<string> | null, location: string | null, googleLocation: any | null, mapLocation: any | null, mapLocationSet: boolean | null, mapMarkerText: string | null, mongoLocation: any | null, shortformFeedId: string | null, sortDraftsBy: string | null, email: string | null, emails: Array<any> | null, banned: string | null, paymentEmail: string | null, paymentInfo: string | null, postingDisabled: boolean | null, allCommentingDisabled: boolean | null, commentingOnOtherUsersDisabled: boolean | null, conversationsDisabled: boolean | null, usernameUnset: boolean | null, taggingDashboardCollapsed: boolean | null, beta: boolean | null, acceptedTos: boolean | null, pageUrl: string | null, isReviewed: boolean | null, nullifyVotes: boolean | null, hideIntercom: boolean, hideNavigationSidebar: boolean | null, hideCommunitySection: boolean, hasContinueReading: boolean | null, hidePostsRecommendations: boolean, currentFrontpageFilter: string | null, frontpageSelectedTab: string | null, frontpageFilterSettings: any | null, hideFrontpageFilterSettingsDesktop: boolean | null, allPostsTimeframe: string | null, allPostsSorting: string | null, allPostsFilter: string | null, allPostsShowLowKarma: boolean | null, allPostsIncludeEvents: boolean | null, allPostsHideCommunity: boolean | null, allPostsOpenSettings: boolean | null, draftsListSorting: string | null, draftsListShowArchived: boolean | null, draftsListShowShared: boolean | null, lastNotificationsCheck: string | null, bannedPersonalUserIds: Array<string> | null, noKibitz: boolean | null, showHideKarmaOption: boolean | null, markDownPostEditor: boolean, hideElicitPredictions: boolean | null, hideAFNonMemberInitialWarning: boolean | null, commentSorting: string | null, htmlMapMarkerText: string | null, nearbyEventsNotifications: boolean, nearbyEventsNotificationsLocation: any | null, nearbyEventsNotificationsRadius: number | null, nearbyPeopleNotificationThreshold: number | null, hideFrontpageMap: boolean | null, emailSubscribedToCurated: boolean | null, subscribedToDigest: boolean | null, subscribedToNewsletter: boolean | null, unsubscribeFromAll: boolean | null, whenConfirmationEmailSent: string | null, hideSubscribePoke: boolean | null, hideMeetupsPoke: boolean | null, hideHomeRHS: boolean | null, noCollapseCommentsFrontpage: boolean, noCollapseCommentsPosts: boolean, noSingleLineComments: boolean, showCommunityInRecentDiscussion: boolean, karmaChangeNotifierSettings: any | null, karmaChangeLastOpened: string | null, viewUnreviewedComments: boolean | null, recommendationSettings: any | null, theme: any | null, hasAnyBookmarks: boolean | null, auto_subscribe_to_my_posts: boolean, auto_subscribe_to_my_comments: boolean, autoSubscribeAsOrganizer: boolean, noExpandUnreadCommentsReview: boolean, hideFrontpageBookAd: boolean | null, abTestKey: string | null, abTestOverrides: any | null, reactPaletteStyle: ReactPaletteStyle | null, petrovPressedButtonDate: string | null, petrovLaunchCodeDate: string | null, petrovOptOut: boolean, lastUsedTimezone: string | null, acknowledgedNewUserGuidelines: boolean | null, notificationSubforumUnread: any | null, subforumPreferredLayout: SubforumPreferredLayout | null, hideJobAdUntil: string | null, criticismTipsDismissed: boolean | null, allowDatadogSessionReplay: boolean, hideFrontpageBook2020Ad: boolean | null, showDialoguesList: boolean | null, showMyDialogues: boolean | null, showMatches: boolean | null, showRecommendedPartners: boolean | null, hideActiveDialogueUsers: boolean | null, hideSunshineSidebar: boolean | null, optedOutOfSurveys: boolean | null, postGlossariesPinned: boolean | null, generateJargonForDrafts: boolean | null, generateJargonForPublishedPosts: boolean | null, moderationGuidelines: UsersCurrent_User_moderationGuidelines_Revision | null, expandedFrontpageSections: UsersCurrent_User_expandedFrontpageSections_ExpandedFrontpageSectionsSettingsOutput | null, hiddenPostsMetadata: Array<UsersCurrent_User_hiddenPostsMetadata_PostMetadataOutput> | null }
+  { __typename?: 'User', oldSlugs: Array<string>, groups: Array<string> | null, jobTitle: string | null, organization: string | null, careerStage: Array<string> | null, profileTagIds: Array<string>, organizerOfGroupIds: Array<string>, moderationStyle: string | null, bannedUserIds: Array<string> | null, location: string | null, googleLocation: any | null, mapLocation: any | null, mapLocationSet: boolean | null, mapMarkerText: string | null, mongoLocation: any | null, shortformFeedId: string | null, sortDraftsBy: string | null, email: string | null, emails: Array<any> | null, banned: string | null, paymentEmail: string | null, paymentInfo: string | null, postingDisabled: boolean | null, allCommentingDisabled: boolean | null, commentingOnOtherUsersDisabled: boolean | null, conversationsDisabled: boolean | null, usernameUnset: boolean | null, taggingDashboardCollapsed: boolean | null, beta: boolean | null, acceptedTos: boolean | null, pageUrl: string | null, isReviewed: boolean | null, nullifyVotes: boolean | null, hideIntercom: boolean, hideNavigationSidebar: boolean | null, hideCommunitySection: boolean, hasContinueReading: boolean | null, hidePostsRecommendations: boolean, currentFrontpageFilter: string | null, frontpageSelectedTab: string | null, frontpageFilterSettings: any | null, hideFrontpageFilterSettingsDesktop: boolean | null, allPostsTimeframe: string | null, allPostsSorting: string | null, allPostsFilter: string | null, allPostsShowLowKarma: boolean | null, allPostsIncludeEvents: boolean | null, allPostsHideCommunity: boolean | null, allPostsOpenSettings: boolean | null, draftsListSorting: string | null, draftsListShowArchived: boolean | null, draftsListShowShared: boolean | null, lastNotificationsCheck: string | null, bannedPersonalUserIds: Array<string> | null, noKibitz: boolean | null, showHideKarmaOption: boolean | null, markDownPostEditor: boolean, hideElicitPredictions: boolean | null, hideAFNonMemberInitialWarning: boolean | null, commentSorting: string | null, htmlMapMarkerText: string | null, nearbyEventsNotifications: boolean, nearbyEventsNotificationsLocation: any | null, nearbyEventsNotificationsRadius: number | null, nearbyPeopleNotificationThreshold: number | null, hideFrontpageMap: boolean | null, emailSubscribedToCurated: boolean | null, subscribedToDigest: boolean | null, subscribedToNewsletter: boolean | null, unsubscribeFromAll: boolean | null, whenConfirmationEmailSent: string | null, hideSubscribePoke: boolean | null, hideMeetupsPoke: boolean | null, hideHomeRHS: boolean | null, noCollapseCommentsFrontpage: boolean, noCollapseCommentsPosts: boolean, noSingleLineComments: boolean, showCommunityInRecentDiscussion: boolean, karmaChangeNotifierSettings: any | null, karmaChangeLastOpened: string | null, viewUnreviewedComments: boolean | null, recommendationSettings: any | null, theme: any | null, hasAnyBookmarks: boolean | null, auto_subscribe_to_my_posts: boolean, auto_subscribe_to_my_comments: boolean, autoSubscribeAsOrganizer: boolean, noExpandUnreadCommentsReview: boolean, hideFrontpageBookAd: boolean | null, abTestKey: string | null, abTestOverrides: any | null, reactPaletteStyle: ReactPaletteStyle | null, petrovPressedButtonDate: string | null, petrovLaunchCodeDate: string | null, petrovOptOut: boolean, lastUsedTimezone: string | null, acknowledgedNewUserGuidelines: boolean | null, notificationSubforumUnread: any | null, notificationRepliesToMyComments: any | null, subforumPreferredLayout: SubforumPreferredLayout | null, hideJobAdUntil: string | null, criticismTipsDismissed: boolean | null, allowDatadogSessionReplay: boolean, hideFrontpageBook2020Ad: boolean | null, showDialoguesList: boolean | null, showMyDialogues: boolean | null, showMatches: boolean | null, showRecommendedPartners: boolean | null, hideActiveDialogueUsers: boolean | null, hideSunshineSidebar: boolean | null, optedOutOfSurveys: boolean | null, postGlossariesPinned: boolean | null, generateJargonForDrafts: boolean | null, generateJargonForPublishedPosts: boolean | null, moderationGuidelines: UsersCurrent_User_moderationGuidelines_Revision | null, expandedFrontpageSections: UsersCurrent_User_expandedFrontpageSections_ExpandedFrontpageSectionsSettingsOutput | null, hiddenPostsMetadata: Array<UsersCurrent_User_hiddenPostsMetadata_PostMetadataOutput> | null }
   & UsersMinimumInfo
 );
 

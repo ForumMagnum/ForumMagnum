@@ -1,7 +1,7 @@
 import React, { useCallback, useRef, useState } from 'react';
 import { registerComponent } from '../../lib/vulcan-lib/components';
 import { AnalyticsContext, useTracking } from '@/lib/analyticsEvents';
-import { preferredHeadingCase } from '@/themes/forumTheme';
+import { isFriendlyUI, preferredHeadingCase } from '@/themes/forumTheme';
 import Button from '@/lib/vendor/@material-ui/core/src/Button';
 import ForumIcon from '../common/ForumIcon';
 import LWPopper from '../common/LWPopper';
@@ -15,33 +15,54 @@ import LoginPopup from '../users/LoginPopup';
 
 const styles = (theme: ThemeType) => ({
   buttonWrapper: {
-    backgroundColor: theme.palette.primary.main,
+    ...(theme.isFriendlyUI ? {
+      backgroundColor: theme.palette.primary.main,
+    } : {}),
     borderTopRightRadius: theme.borderRadius.default,
     borderBottomRightRadius: theme.borderRadius.default,
     display: 'flex',
   },
   divider: {
-    width: 1,
     opacity: 0.9,
     flex: 1,
     marginTop: 'auto',
     marginBottom: 'auto',
     height: "calc(100% - 12px)",
-    backgroundColor: theme.palette.text.alwaysWhite,
+    ...(theme.isFriendlyUI ? {
+      width: 1,
+      backgroundColor: theme.palette.text.alwaysWhite,
+    } : {}),
   },
   button: {
     borderRadius: theme.borderRadius.default,
     borderTopLeftRadius: 0,
     borderBottomLeftRadius: 0,
-    padding: '6px 4px',
+    padding: '6px 2px',
     minWidth: 0,
     boxShadow: 'none',
+    ...(!theme.isFriendlyUI ? {
+      color: theme.palette.lwTertiary.main,
+      "&:hover": {
+        opacity: 0.5,
+      },
+    } : {}),
   },
   dropdownIcon: {
     transform: 'translateY(1px)'
   },
   popper: {
     marginTop: 6
+  },
+  dropdownMenu: {
+    ...(!theme.isFriendlyUI && {
+      backgroundColor: theme.palette.dropdown.background,
+      borderRadius: theme.borderRadius.small,
+    }),
+  },
+  dropdownItem: {
+    ...(!theme.isFriendlyUI && {
+      padding: '4px 8px'
+    })
   }
 });
 
@@ -66,8 +87,8 @@ export const CommentsSubmitDropdown = ({ handleSubmit, classes }: {
       <div ref={dropdownRef} className={classes.buttonWrapper}>
         <div className={classes.divider} />
         <Button
-          variant="contained"
-          color="primary"
+          variant={isFriendlyUI() ? "contained" : undefined}
+          color={isFriendlyUI() ? "primary" : undefined}
           className={classes.button}
           onClick={() => setMenuOpen(!menuOpen)}
         >
@@ -82,9 +103,10 @@ export const CommentsSubmitDropdown = ({ handleSubmit, classes }: {
       >
         <LWClickAwayListener onClickAway={() => setMenuOpen(false)}>
           <Paper>
-            <DropdownMenu>
+            <DropdownMenu className={classes.dropdownMenu}>
               <DropdownItem
                 title={preferredHeadingCase("Save As Draft")}
+                menuItemClassName={classes.dropdownItem}
                 onClick={() => {
                   if (!currentUser) {
                     openDialog({

@@ -565,14 +565,6 @@ const schema = {
           return false;
         }
       },
-      onUpdate: ({ modifier }) => {
-        // WH 2025-03-17: I think this is a bug in general, as a non-admin editing this post will cause
-        // sticky to be set to false. Forum-gating to EAF to speed up fixing this live bug for us, but
-        // I believe this function and `onCreate`
-        if (!isEAForum() && !modifier.$set.sticky) {
-          return false;
-        }
-      },
       validation: {
         optional: true,
       },
@@ -3354,11 +3346,6 @@ const schema = {
           return false;
         }
       },
-      onUpdate: ({ modifier }) => {
-        if (!modifier.$set.metaSticky) {
-          return false;
-        }
-      },
       validation: {
         optional: true,
       },
@@ -4259,11 +4246,6 @@ const schema = {
       canCreate: ["alignmentForumAdmins", "admins"],
       onCreate: ({ document: post }) => {
         if (!post.afSticky) {
-          return false;
-        }
-      },
-      onUpdate: ({ modifier }) => {
-        if (!(modifier.$set && modifier.$set.afSticky)) {
           return false;
         }
       },

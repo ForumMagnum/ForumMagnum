@@ -149,6 +149,10 @@ const getEmbeddingsForComments = async (
 };
 
 export const updateCommentEmbeddings = async (commentId: string) => {
+  if (isAnyTest) {
+    return;
+  }
+  
   const context = createAdminContext();
   const { repos } = context;
   const apolloClient = await getApolloClientWithContext(context);

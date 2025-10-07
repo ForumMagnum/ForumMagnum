@@ -220,6 +220,7 @@ interface FragmentTypes {
   UsersWithReviewInfo: UsersWithReviewInfo
   WithVoteComment: WithVoteComment
   WithVoteElectionCandidate: WithVoteElectionCandidate
+  WithVoteMessage: WithVoteMessage
   WithVoteMultiDocument: WithVoteMultiDocument
   WithVotePost: WithVotePost
   WithVoteRevision: WithVoteRevision
@@ -267,7 +268,7 @@ interface FragmentTypesByCollection {
   LlmConversations: "LlmConversationsFragment"|"LlmConversationsViewingPageFragment"|"LlmConversationsWithMessagesFragment"
   LlmMessages: "LlmMessagesFragment"
   Localgroups: "localGroupsBase"|"localGroupsEdit"|"localGroupsHomeFragment"|"localGroupsIsOnline"
-  Messages: "messageListFragment"
+  Messages: "WithVoteMessage"|"messageListFragment"
   ModerationTemplates: "ModerationTemplateFragment"
   ModeratorActions: "ModeratorActionDisplay"
   MultiDocuments: "MultiDocumentContentDisplay"|"MultiDocumentEdit"|"MultiDocumentMinimumInfo"|"MultiDocumentParentDocument"|"MultiDocumentRevision"|"MultiDocumentWithContributors"|"MultiDocumentWithContributorsRevision"|"WithVoteMultiDocument"
@@ -517,6 +518,7 @@ interface CollectionNamesByFragmentName {
   UsersWithReviewInfo: "Users"
   WithVoteComment: "Comments"
   WithVoteElectionCandidate: "ElectionCandidates"
+  WithVoteMessage: "Messages"
   WithVoteMultiDocument: "MultiDocuments"
   WithVotePost: "Posts"
   WithVoteRevision: "Revisions"

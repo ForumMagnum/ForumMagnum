@@ -33,9 +33,6 @@ export const routeTrie = {
         "debugHeaders": {
           "hasRoute": true
         },
-        "googleServiceAccount": {
-          "hasPage": true
-        },
         "llmConversations": {
           "hasPage": true
         },
@@ -71,7 +68,6 @@ export const routeTrie = {
         "commentembeddings": "commentEmbeddings",
         "curation": "curation",
         "debugheaders": "debugHeaders",
-        "googleserviceaccount": "googleServiceAccount",
         "llmconversations": "llmConversations",
         "migrations": "migrations",
         "moderation": "moderation",
@@ -131,6 +127,9 @@ export const routeTrie = {
             "update-analytics-collections": {
               "hasRoute": true
             },
+            "update-missing-post-embeddings": {
+              "hasRoute": true
+            },
             "update-promoted-spotlight-item": {
               "hasRoute": true
             },
@@ -146,6 +145,7 @@ export const routeTrie = {
             "every-ten-minutes": "every-ten-minutes",
             "run-twitter-bot": "run-twitter-bot",
             "update-analytics-collections": "update-analytics-collections",
+            "update-missing-post-embeddings": "update-missing-post-embeddings",
             "update-promoted-spotlight-item": "update-promoted-spotlight-item",
             "update-user-activities": "update-user-activities"
           }
@@ -486,9 +486,6 @@ export const routeTrie = {
     },
     "glossaryEditor": {
       "hasPage": true
-    },
-    "google_oauth2callback": {
-      "hasRoute": true
     },
     "graphiql": {
       "hasRoute": true
@@ -1082,7 +1079,6 @@ export const routeTrie = {
     "feed.xml": "feed.xml",
     "g": "g",
     "glossaryeditor": "glossaryEditor",
-    "google_oauth2callback": "google_oauth2callback",
     "graphiql": "graphiql",
     "graphql": "graphql",
     "groups": "groups",
