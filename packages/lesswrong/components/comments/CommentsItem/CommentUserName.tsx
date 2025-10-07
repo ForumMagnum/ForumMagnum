@@ -12,6 +12,7 @@ import UsersNameWithModal from "../../ultraFeed/UsersNameWithModal";
 import UsersProfileImage from "../../users/UsersProfileImage";
 import UserTooltip from "../../users/UserTooltip";
 import type { Placement as PopperPlacementType } from "popper.js";
+import { useUltraFeedContext } from '../../ultraFeed/UltraFeedContextProvider';
 
 const PROFILE_IMAGE_SIZE = 20;
 
@@ -83,8 +84,11 @@ const CommentUserName = ({
 }) => {
   const currentUserHasProfileImages = useFilteredCurrentUser(u => userHasCommentProfileImages(u));
   const author = comment.user;
-
-  const UserNameComponent = useUltraFeedModal ? UsersNameWithModal : UsersName;
+  const { openInNewTab } = useUltraFeedContext();
+  
+  // Use modal version if explicitly requested or if we're in a context where links should open in new tabs
+  const shouldUseModal = useUltraFeedModal || openInNewTab;
+  const UserNameComponent = shouldUseModal ? UsersNameWithModal : UsersName;
 
   if (comment.deleted) {
     return <span className={className}>[comment deleted]</span>

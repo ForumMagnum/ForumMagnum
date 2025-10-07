@@ -55,6 +55,8 @@ import { commentIsHiddenPendingReview } from '../../lib/collections/comments/hel
 import { ItemsReadContextWrapper } from '../hooks/useRecordPostView';
 import Divider from '../common/Divider';
 import CommentOnPostWithReplies from '../comments/CommentOnPostWithReplies';
+import { UltraFeedContextProvider } from './UltraFeedContextProvider';
+import { useOpenLinksInNewTab } from '../hooks/useOpenLinksInNewTab';
 
 const styles = defineStyles("UltraFeedPostDialog", (theme: ThemeType) => ({
   dialogContent: {
@@ -416,6 +418,7 @@ const ModalContextWrapper = ({ children, postId, recommId }: {
   postId: string;
   recommId?: string;
 }) => (
+  <UltraFeedContextProvider openInNewTab={true}>
   <RecombeeRecommendationsContextWrapper postId={postId} recommId={recommId}>
     <ItemsReadContextWrapper>
       <AnalyticsContext pageModalContext="ultraFeedPostModal" postId={postId}>
@@ -423,6 +426,7 @@ const ModalContextWrapper = ({ children, postId, recommId }: {
       </AnalyticsContext>
     </ItemsReadContextWrapper>
   </RecombeeRecommendationsContextWrapper>
+  </UltraFeedContextProvider>
 );
 
 const CommentPermalinkSection = ({ 
@@ -662,6 +666,10 @@ const UltraFeedPostDialog = ({
   useModalHashLinkScroll(scrollableContentRef, true, true, (footnoteHTML: string) => {
     setFootnoteDialogHTML(footnoteHTML);
   });
+  
+  const postPath = postGetPageUrl(displayPost).split('?')[0];
+  useOpenLinksInNewTab(scrollableContentRef, postPath);
+
 
   const toggleEmbeddedPlayer = displayPost && postHasAudioPlayer(displayPost) ? (e: React.MouseEvent) => {
     e.preventDefault();
