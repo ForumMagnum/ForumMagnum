@@ -5,13 +5,34 @@ import type { AfterCreateCallbackProperties } from '../mutationCallbacks';
 import { createNotifications } from '../notificationCallbacksHelpers';
 import { createModeratorAction } from '../collections/moderatorActions/mutations';
 import { computeContextFromUser } from "@/server/vulcan-lib/apollo-server/context";
-import { createAnonymousContext } from "@/server/vulcan-lib/createContexts";
 import { updateConversation } from '../collections/conversations/mutations';
 
 export function checkIfNewMessageIsEmpty(message: CreateMessageDataInput) {
   const { data } = (message.contents && message.contents.originalContents) || {}
   if (!data) {
     throw new Error("You cannot send an empty message");
+  }
+}
+
+export const checkIfNewMessageIsBlocked = async (
+  {currentUser, loaders}: ResolverContext,
+  {conversationId}: CreateMessageDataInput,
+) => {
+  if (!currentUser) {
+    throw new Error("Not logged in");
+  }
+  const conversation = await loaders.Conversations.load(conversationId);
+  if (!conversation) {
+    throw new Error("Conversation not found");
+  }
+  const allParticipants = await loaders.Users.loadMany(conversation.participantIds);
+  const receivers = allParticipants.filter(
+    (user) => !!user && !(user instanceof Error) && user._id !== currentUser._id,
+  ) as DbUser[];
+  for (const receiver of receivers) {
+    if (receiver.blockedUserIds.includes(currentUser._id)) {
+      throw new Error("You are blocked from messaging users in this conversation");
+    }
   }
 }
 

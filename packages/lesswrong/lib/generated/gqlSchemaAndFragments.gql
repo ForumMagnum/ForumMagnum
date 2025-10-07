@@ -4805,6 +4805,7 @@ type User {
   collapseModerationGuidelines: Boolean
   bannedUserIds: [String!]
   bannedPersonalUserIds: [String!]
+  blockedUserIds: [String!]
   bookmarkedPostsMetadata: [PostMetadataOutput!]
   bookmarkedPosts: [Post!]
   hiddenPostsMetadata: [PostMetadataOutput!]
@@ -7132,6 +7133,7 @@ input CreateUserDataInput {
   collapseModerationGuidelines: Boolean
   bannedUserIds: [String!]
   bannedPersonalUserIds: [String!]
+  blockedUserIds: [String!]
   legacyId: String
   voteBanned: Boolean
   nullifyVotes: Boolean
@@ -7308,6 +7310,7 @@ input UpdateUserDataInput {
   collapseModerationGuidelines: Boolean
   bannedUserIds: [String!]
   bannedPersonalUserIds: [String!]
+  blockedUserIds: [String!]
   hiddenPostsMetadata: [PostMetadataInput!]
   legacyId: String
   deleted: Boolean
@@ -12298,6 +12301,7 @@ fragment UsersDefaultFragment on User {
   collapseModerationGuidelines
   bannedUserIds
   bannedPersonalUserIds
+  blockedUserIds
   legacyId
   deleted
   permanentDeletionRequestedAt
@@ -12506,6 +12510,7 @@ fragment UsersEdit on User {
   collapseModerationGuidelines
   bannedUserIds
   bannedPersonalUserIds
+  blockedUserIds
   noKibitz
   showHideKarmaOption
 

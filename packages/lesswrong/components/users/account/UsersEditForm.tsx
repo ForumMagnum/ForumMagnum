@@ -28,7 +28,7 @@ import { getCommentViewOptions } from '@/lib/commentViewOptions';
 import { FormComponentSelect } from '@/components/form-components/FormComponentSelect';
 import { getAllUserGroups, userHasntChangedName, userIsAdmin, userIsAdminOrMod, userIsMemberOf } from '@/lib/vulcan-users/permissions';
 import { FormComponentDatePicker } from '@/components/form-components/FormComponentDateTime';
-import { allowSubscribeToSequencePosts, hasAccountDeletionFlow, hasAuthorModeration, hasInactiveSummaryEmail, hasKeywordAlerts, hasPostRecommendations, hasSurveys, userCanViewJargonTerms } from '@/lib/betas';
+import { allowSubscribeToSequencePosts, canBlockUserMessages, hasAccountDeletionFlow, hasAuthorModeration, hasInactiveSummaryEmail, hasKeywordAlerts, hasPostRecommendations, hasSurveys, userCanViewJargonTerms } from '@/lib/betas';
 import { ThemeSelect } from '@/components/form-components/ThemeSelect';
 import { FormComponentCheckboxGroup } from '@/components/form-components/FormComponentCheckboxGroup';
 import { MODERATION_GUIDELINES_OPTIONS } from '@/lib/collections/posts/constants';
@@ -1311,6 +1311,25 @@ const UsersForm = ({
             )}
           </form.Field>
         </div>}
+
+        {canBlockUserMessages &&
+          <div className={classes.fieldWrapper}>
+            <form.Field name="blockedUserIds">
+              {(field) => (
+                <LWTooltip
+                  title="Users who are blocked from messaging you"
+                  placement="left-start"
+                  inlineBlock={false}
+                >
+                  <FormUserMultiselect
+                    field={field}
+                    label="Blocked users"
+                  />
+                </LWTooltip>
+              )}
+            </form.Field>
+          </div>
+        }
 
         {(userIsAdminOrMod(currentUser) || userIsMemberOf(currentUser, 'trustLevel1')) && <div className={classes.fieldWrapper}>
           <form.Field name="bannedUserIds">

@@ -581,7 +581,7 @@ class UsersRepo extends AbstractRepo<"Users"> {
         GROUP BY "userId"
       ) AS rs ON u._id = rs."userId"
       WHERE
-        rs."max_last_updated" > CURRENT_TIMESTAMP - INTERVAL '1 year'
+        rs."max_last_updated" is not null
         AND (
           (
             -- User has never received a summary email, or they read a post since the last summary email:

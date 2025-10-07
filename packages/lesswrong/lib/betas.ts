@@ -88,6 +88,7 @@ export const hasPostRecommendations = isEAForum;
 export const hasDigests = isEAForum;
 export const hasNewsletter = isEAForum;
 export const hasSuggestedFilterTags = isLWorAF;
+export const canBlockUserMessages = isFriendlyUI;
 
 /**
  * Whether the instance should have any features for integrating with twitter.
