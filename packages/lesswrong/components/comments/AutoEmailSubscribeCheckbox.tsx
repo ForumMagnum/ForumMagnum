@@ -5,11 +5,17 @@ import { useUpdateCurrentUser } from "../hooks/useUpdateCurrentUser";
 import { useDialog } from "../common/withDialog";
 import LoginPopup from "../users/LoginPopup";
 import { defineStyles, useStyles } from "../hooks/useStyles";
+import LWTooltip from "../common/LWTooltip";
 
 const styles = defineStyles("AutoEmailSubscribeCheckbox", (theme) => ({
   disabled: {
     opacity: 0.8,
     filter: "grayscale(100%)",
+  },
+  hideOnMobile: {
+    [theme.breakpoints.down('xs')]: {
+      display: "none",
+    },
   },
 }));
 
@@ -49,9 +55,13 @@ const AutoEmailSubscribeCheckbox = () => {
     });
   }, [currentUser, setting, updateCurrentUser, openDialog, checked]);
 
+  const tooltip = <div><p>If enabled, you'll get an email whenever someone replies to any of your comments.</p><p><em>(Applies to all replies to all comments you make.)</em></p></div>
+
+  const label = <span>Email me replies <span className={classes.hideOnMobile}>to my comments</span></span>
+
   return <span className={!checked? classes.disabled : ""}>
-    <SectionFooterCheckbox label={"Email me replies to all comments"} value={checked} onClick={handleToggle} />
-  </span>;
+    <SectionFooterCheckbox label={label} value={checked} onClick={handleToggle} tooltip={tooltip}  />
+  </span>
 };
 
 export default AutoEmailSubscribeCheckbox;
