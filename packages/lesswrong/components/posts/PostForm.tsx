@@ -1,9 +1,9 @@
-import { hasSidenotes, userCanCreateAndEditJargonTerms } from "@/lib/betas";
+import { hasSidenotes } from "@/lib/betas";
 import { localGroupTypeFormOptions } from "@/lib/collections/localgroups/groupTypes";
 import { MODERATION_GUIDELINES_OPTIONS, postStatusLabels, EVENT_TYPES } from "@/lib/collections/posts/constants";
 import { EditablePost, postCanEditHideCommentKarma, PostSubmitMeta, MINIMUM_COAUTHOR_KARMA, userPassesCrosspostingKarmaThreshold, userCanEditCoauthors } from "@/lib/collections/posts/helpers";
 import { getDefaultEditorPlaceholder } from '@/lib/editor/defaultEditorPlaceholder';
-import { fmCrosspostBaseUrlSetting, fmCrosspostSiteNameSetting, isEAForum, isLWorAF, taggingNamePluralCapitalSetting, taggingNamePluralSetting } from "@/lib/instanceSettings";
+import { fmCrosspostBaseUrlSetting, fmCrosspostSiteNameSetting, isEAForum, isLWorAF, taggingNamePluralCapitalSetting } from "@/lib/instanceSettings";
 import { allOf } from "@/lib/utils/functionUtils";
 import { getVotingSystems } from "@/lib/voting/getVotingSystem";
 import { registerComponent } from "@/lib/vulcan-lib/components";
@@ -47,6 +47,7 @@ import FooterTagList from "../tagging/FooterTagList";
 import FormComponentCheckbox from "../form-components/FormComponentCheckbox";
 import { useMutation } from "@apollo/client/react";
 import { gql } from "@/lib/generated/gql-codegen";
+import { commentBodyStyles } from "@/themes/stylePiping";
 
 const PostsEditMutationFragmentUpdateMutation = gql(`
   mutation updatePostPostForm($selector: SelectorInput!, $data: UpdatePostDataInput!) {
@@ -69,6 +70,28 @@ const PostsEditMutationFragmentMutation = gql(`
 `);
 
 const formStyles = defineStyles('PostForm', (theme: ThemeType) => ({
+  secondaryOptions: {
+    display: "flex",
+    flexWrap: "wrap",
+    width: "100%",
+    gap: 8,
+  },
+  secondaryOptionLabel: {
+    ...theme.typography.commentStyle,
+    cursor: "pointer",
+    padding: 8,
+    paddingRight: 24,
+    paddingLeft: 24,
+    flexGrow: 1,
+    textAlign: "center",
+    [theme.breakpoints.down('xs')]: {
+      padding: 6,
+      paddingRight: 8,
+      paddingLeft: 8,
+      border: theme.palette.border.grey300,
+    },
+    borderRadius: 2,
+  },
   fieldWrapper: {
     marginTop: theme.spacing.unit * 2,
     marginBottom: theme.spacing.unit * 2,
@@ -78,7 +101,29 @@ const formStyles = defineStyles('PostForm', (theme: ThemeType) => ({
     flexWrap: "wrap",
     marginTop: 20,
   },
+  secondaryOptionLabelActive: {
+    border: `1px solid ${theme.palette.grey[300]}`,
+    [theme.breakpoints.up('sm')]: {
+      borderBottom: `none`,
+      marginBottom: -9,
+      paddingBottom: 0,
+    },
+    backgroundColor: theme.palette.background.pageActiveAreaBackground,
+  },
   submitButton: submitButtonStyles(theme),
+  formGroup: {
+    border: theme.palette.border.grey300,
+    borderRadius: 2,
+    padding: 24,
+    paddingTop: 12,
+    width: "100%",
+    ...commentBodyStyles(theme),
+  },
+  formGroupTitle: {
+    ...theme.typography.commentStyle,
+    marginTop: 0,
+    marginBottom: 24
+  },
 }));
 
 function getFooterTagListPostInfo(post: EditablePost) {
@@ -154,10 +199,10 @@ const PostForm = ({
   } = useEditorFormCallbacks<PostsEditMutationFragment>();
 
   const {
-    onSubmitCallback: onSubmitCallbackCustomHighlight,
-    onSuccessCallback: onSuccessCallbackCustomHighlight,
-    addOnSubmitCallback: addOnSubmitCallbackCustomHighlight,
-    addOnSuccessCallback: addOnSuccessCallbackCustomHighlight
+    onSubmitCallback: onSubmitCallbackCustom,
+    onSuccessCallback: onSuccessCallbackCustom,
+    addOnSubmitCallback: addOnSubmitCallbackCustom,
+    addOnSuccessCallback: addOnSuccessCallbackCustom
   } = useEditorFormCallbacks<PostsEditMutationFragment>();
 
   const {
@@ -182,7 +227,7 @@ const PostForm = ({
     onSubmit: async ({ formApi, meta }) => {
       await Promise.all([
         onSubmitCallback.current?.(),
-        onSubmitCallbackCustomHighlight.current?.(),
+        onSubmitCallbackCustom.current?.(),
         onSubmitCallbackModerationGuidelines.current?.(),
       ]);
 
@@ -210,7 +255,7 @@ const PostForm = ({
         }
 
         onSuccessCallback.current?.(result, meta);
-        onSuccessCallbackCustomHighlight.current?.(result, meta);
+        onSuccessCallbackCustom.current?.(result, meta);
         onSuccessCallbackModerationGuidelines.current?.(result, meta);
 
         meta.successCallback?.(result);
@@ -223,13 +268,72 @@ const PostForm = ({
     },
   });
 
+  const isAdminOrMod = userIsAdminOrMod(currentUser);
+  const canEditCoauthors = userCanEditCoauthors(currentUser);
+  const canSeeHighlight = isAdminOrMod; // same condition as render guard
+  const canSeeAdmin = isAdminOrMod;
+  const canSeeEvent = isAdminOrMod;
+  const canSeeAudio = userIsAdmin(currentUser) || userIsMemberOf(currentUser, 'podcasters');
+  const canSeeModeration = !isFriendlyUI();
+  // const canSeeGlossary = userCanCreateAndEditJargonTerms(currentUser);
+  const canSeeTags = !initialData.isEvent && !(isLWorAF() && !!initialData.collabEditorDialogue);
+  const canSeeSocialPreview = !((isLWorAF() && !!initialData.collabEditorDialogue) || (isEAForum() && !!initialData.isEvent));
+  const canSeeCanonicalSequence = isAdminOrMod;
+
+  const allSecondaryFormGroups: Array<string> = [
+    'Apply Tags',
+    'Co-Authors',
+    'Link Preview',
+    'Highlight',
+    'Moderation',
+    'Options',
+    'Admin',
+    'Canonical Sequence',
+    'Event',
+    'Audio',
+    // 'Glossary', // removed for now, will try improve Jargon generation someday
+  ];
+
+  const secondaryFormGroups = allSecondaryFormGroups.filter((group) => {
+    switch (group) {
+      case 'Tags':
+        return canSeeTags;
+      case 'Co-Authors':
+        return canEditCoauthors;
+      case 'Social Preview':
+        return canSeeSocialPreview;
+      case 'Highlight':
+        return canSeeHighlight;
+      case 'Admin':
+        return canSeeAdmin;
+      case 'Event':
+        return canSeeEvent;
+      case 'Audio':
+        return canSeeAudio;
+      case 'Moderation':
+        return canSeeModeration;
+      // case 'Glossary':
+      //   return canSeeGlossary;
+      case 'Canonical Sequence':
+        return canSeeCanonicalSequence;
+      default:
+
+        return true;
+    }
+  });
+  const isEvent = !!initialData.isEvent;
+  const isDialogue = !!initialData.collabEditorDialogue;
+
+  const defaultExpandedFormGroup = isEvent ? 'Event' : secondaryFormGroups[0];
+
+  const [expandedFormGroup, setExpandedFormGroup] = useState<string | undefined>(defaultExpandedFormGroup);
+
+
+
   if (formType === 'edit' && !initialData) {
     return <Error404 />;
   }
 
-  const isEvent = !!initialData.isEvent;
-  const isDialogue = !!initialData.collabEditorDialogue;
-  const showTagGroup = !isEvent && !(isLWorAF() && isDialogue);
 
   const hideSocialPreviewGroup = (isLWorAF() && !!initialData.collabEditorDialogue) || (isEAForum() && !!initialData.isEvent);
 
@@ -237,32 +341,6 @@ const PostForm = ({
   const crosspostControlTooltip = fmCrosspostBaseUrlSetting.get()?.includes("forum.effectivealtruism.org")
     ? "The EA Forum is for discussions that are relevant to doing good effectively. If you're not sure what this means, consider exploring the Forum's Frontpage before posting on it."
     : undefined;
-
-  const tagGroup = showTagGroup && (
-    <LegacyFormGroupLayout
-      label={isEAForum() ? `Set ${taggingNamePluralSetting.get()}` : `Apply ${taggingNamePluralCapitalSetting.get()}`}
-      startCollapsed={false}
-    >
-      <div className={classes.fieldWrapper}>
-        <form.Field name="tagRelevance">
-          {(field) => (
-            initialData && !initialData.draft
-              ? <FooterTagList
-                  post={getFooterTagListPostInfo(initialData)}
-                  hideScore
-                  hidePostTypeTag
-                  showCoreTags
-                  link={false}
-                />
-              : <FormComponentPostEditorTagging
-                  field={field}
-                  postCategory={form.state.values.postCategory}
-                />
-          )}
-        </form.Field>
-      </div>
-    </LegacyFormGroupLayout>
-  );
 
   const postSubmit = <form.Subscribe selector={(s) => ({ canSubmit: s.canSubmit, isSubmitting: s.isSubmitting, draft: s.values.draft })}>
     {({ canSubmit, isSubmitting, draft }) => {
@@ -292,7 +370,7 @@ const PostForm = ({
   </form.Subscribe>;
 
   return (
-    <form className="vulcan-form" onSubmit={(e) => {
+    <form className={"vulcan-form"} onSubmit={(e) => {
       e.preventDefault();
       e.stopPropagation();
       void form.handleSubmit();
@@ -390,9 +468,7 @@ const PostForm = ({
         </div>
       </LegacyFormGroupLayout>
 
-      {isEAForum() && tagGroup}
-
-      {isEvent && <LegacyFormGroupLayout label={preferredHeadingCase("Event Details")}>
+      {isEvent && expandedFormGroup === 'Event Details' && <LegacyFormGroupLayout label={preferredHeadingCase("Event Details")}>
         <div className={classes.fieldWrapper}>
           <form.Field name="onlineEvent">
             {(field) => (
@@ -592,637 +668,661 @@ const PostForm = ({
         </div>}
       </LegacyFormGroupLayout>}
 
-      {userCanEditCoauthors(currentUser) && <LegacyFormGroupLayout label="Coauthors" hideHeader>
-        <div className={classes.fieldWrapper}>
-          <form.Field name="coauthorUserIds">
+      <div className={classes.secondaryOptions}>
+        {secondaryFormGroups.map((group) => (
+          <div key={group} className={classNames(classes.secondaryOptionLabel, { [classes.secondaryOptionLabelActive]: expandedFormGroup === group })} onClick={() => setExpandedFormGroup(group)}>
+            {group}
+          </div>
+        ))}
+      </div>
+      <div>
+        {expandedFormGroup === 'Apply Tags' &&  <div className={classes.formGroup}>  
+          <h3 className={classes.formGroupTitle}>Apply {taggingNamePluralCapitalSetting.get()}</h3>
+          <form.Field name="tagRelevance">
             {(field) => (
-              <CoauthorsListEditor
-                field={field}
-                post={form.state.values}
-                label="Co-Authors"
-              />
+              initialData && !initialData.draft
+                ? <FooterTagList
+                    post={getFooterTagListPostInfo(initialData)}
+                    hideScore
+                    hidePostTypeTag
+                    showCoreTags
+                    link={false}
+                  />
+                : <FormComponentPostEditorTagging
+                    field={field}
+                    postCategory={form.state.values.postCategory}
+                  />
             )}
           </form.Field>
-        </div>
-      </LegacyFormGroupLayout>}
+      </div>}
 
-      {/* TODO: come back to this and figure out why the text field inside the social preview upload component isn't being (visually) populated initially */}
-      {!hideSocialPreviewGroup && <LegacyFormGroupLayout label={preferredHeadingCase("Edit Link Preview")} startCollapsed={!isFriendlyUI()}>
-        <div className={classes.fieldWrapper}>
-          <form.Field name="socialPreview">
-            {(field) => (
-              <SocialPreviewUpload
-                field={field}
-                post={form.state.values}
-              />
-            )}
-          </form.Field>
-        </div>
-      </LegacyFormGroupLayout>}
-
-      {userIsAdminOrMod(currentUser) && <LegacyFormGroupLayout label="Highlight" startCollapsed={true}>
-        <div className={classNames("form-component-EditorFormComponent", classes.fieldWrapper)}>
-          <form.Field name="customHighlight">
-            {(field) => (
-              <EditorFormComponent
-                field={field}
-                name="customHighlight"
-                formType={formType}
-                document={form.state.values}
-                addOnSubmitCallback={addOnSubmitCallbackCustomHighlight}
-                addOnSuccessCallback={addOnSuccessCallbackCustomHighlight}
-                hintText={getDefaultEditorPlaceholder()}
-                fieldName="customHighlight"
-                collectionName="Posts"
-                commentEditor={false}
-                commentStyles={false}
-                hideControls={false}
-              />
-            )}
-          </form.Field>
-        </div>
-      </LegacyFormGroupLayout>}
-
-      {userIsAdminOrMod(currentUser) && <LegacyFormGroupLayout label={preferredHeadingCase("Admin Options")} startCollapsed={true}>
-        <div className={classes.fieldWrapper}>
-          <form.Field name="sticky">
-            {(field) => (
-              <FormComponentCheckbox
-                field={field}
-                label="Sticky"
-              />
-            )}
-          </form.Field>
-        </div>
-
-        {userIsAdmin(currentUser) && <div className={classes.fieldWrapper}>
-          <form.Field name="metaSticky">
-            {(field) => (
-              <FormComponentCheckbox
-                field={field}
-                label="Sticky (Meta)"
-              />
-            )}
-          </form.Field>
-        </div>}
-
-        {isLWorAF() && (userIsAdmin(currentUser) || userIsMemberOf(currentUser, 'alignmentForumAdmins')) && <div className={classes.fieldWrapper}>
-          <form.Field name="afSticky">
-            {(field) => (
-              <FormComponentCheckbox
-                field={field}
-                label="Sticky (Alignment)"
-              />
-            )}
-          </form.Field>
-        </div>}
-
-        <div className={classes.fieldWrapper}>
-          <form.Field name="stickyPriority">
-            {(field) => (
-              <FormComponentSelect
-                field={field}
-                options={Object.entries(STICKY_PRIORITIES).map(([level, name]) => ({
-                  value: parseInt(level),
-                  label: name,
-                }))}
-                label="Sticky priority"
-              />
-            )}
-          </form.Field>
-        </div>
-
-        <div className={classes.fieldWrapper}>
-          <form.Field name="unlisted">
-            {(field) => (
-              <FormComponentCheckbox
-                field={field}
-                label="Make only accessible via link"
-              />
-            )}
-          </form.Field>
-        </div>
-
-        {userIsAdmin(currentUser) && <div className={classes.fieldWrapper}>
-          <form.Field name="legacy">
-            {(field) => (
-              <FormComponentCheckbox
-                field={field}
-                label="Legacy"
-              />
-            )}
-          </form.Field>
-        </div>}
-
-        <div className={classes.fieldWrapper}>
-          <form.Field name="disableRecommendation">
-            {(field) => (
-              <FormComponentCheckbox
-                field={field}
-                label="Exclude from Recommendations"
-              />
-            )}
-          </form.Field>
-        </div>
-
-        {userIsAdmin(currentUser) && <div className={classes.fieldWrapper}>
-          <form.Field name="forceAllowType3Audio">
-            {(field) => (
-              <FormComponentCheckbox
-                field={field}
-                label="Force allow type3 audio"
-              />
-            )}
-          </form.Field>
-        </div>}
-
-        <div className={classes.fieldWrapper}>
-          <form.Field name="defaultRecommendation">
-            {(field) => (
-              <FormComponentCheckbox
-                field={field}
-                label="Include in default recommendations"
-              />
-            )}
-          </form.Field>
-        </div>
-
-        {isEAForum() && <div className={classes.fieldWrapper}>
-          <form.Field name="hideFromPopularComments">
-            {(field) => (
-              <FormComponentCheckbox
-                field={field}
-                label="Hide comments on this post from Popular Comments"
-              />
-            )}
-          </form.Field>
-        </div>}
-
-        {userIsAdmin(currentUser) && <div className={classes.fieldWrapper}>
-          <form.Field name="slug">
-            {(field) => (
-              <MuiTextField
-                field={field}
-                label="Slug"
-              />
-            )}
-          </form.Field>
-        </div>}
-
-        {userIsAdmin(currentUser) && <div className={classes.fieldWrapper}>
-          <form.Field name="postedAt">
-            {(field) => (
-              <FormComponentDatePicker
-                field={field}
-                label="Posted at"
-              />
-            )}
-          </form.Field>
-        </div>}
-
-        <div className={classes.fieldWrapper}>
-          <form.Field name="status">
-            {(field) => (
-              <FormComponentSelect
-                field={field}
-                options={postStatusLabels}
-                label="Status"
-              />
-            )}
-          </form.Field>
-        </div>
-
-        {userIsAdmin(currentUser) && <div className={classes.fieldWrapper}>
-          <form.Field name="userId">
-            {(field) => (
-              <LWTooltip title="The user id of the author" placement="left-start" inlineBlock={false}>
-                <MuiTextField
+        {expandedFormGroup === 'Co-Authors' && userCanEditCoauthors(currentUser) && <div className={classes.formGroup}>
+          <h3 className={classes.formGroupTitle}>Co-Authors</h3>
+            <form.Field name="coauthorUserIds">
+              {(field) => (
+                <CoauthorsListEditor
                   field={field}
-                  label="User ID"
+                  post={form.state.values}
+                  label="Co-Authors"
                 />
-              </LWTooltip>
-            )}
-          </form.Field>
+              )}
+            </form.Field>
         </div>}
 
-        <div className={classes.fieldWrapper}>
-          <form.Field name="authorIsUnreviewed">
-            {(field) => (
-              <FormComponentCheckbox
-                field={field}
-                label="Author is unreviewed"
-              />
-            )}
-          </form.Field>
-        </div>
-
-        {userIsAdmin(currentUser) && <div className={classes.fieldWrapper}>
-          <form.Field name="readTimeMinutesOverride">
-            {(field) => (
-              <LWTooltip title="By default, this is calculated from the word count. Enter a value to override." placement="left-start" inlineBlock={false}>
-                <MuiTextField
+        {/* TODO: come back to this and figure out why the text field inside the social preview upload component isn't being (visually) populated initially */}
+        {expandedFormGroup === 'Link Preview' && !hideSocialPreviewGroup && <div className={classes.formGroup}>
+          <h3 className={classes.formGroupTitle}>Link Preview</h3>
+          <div className={classes.fieldWrapper}>
+            <form.Field name="socialPreview">
+              {(field) => (
+                <SocialPreviewUpload
                   field={field}
-                  label="Read time (minutes)"
+                  post={form.state.values}
                 />
-              </LWTooltip>
-            )}
-          </form.Field>
+              )}
+            </form.Field>
+          </div>
         </div>}
 
-        {userIsAdmin(currentUser) && <div className={classes.fieldWrapper}>
-          <form.Field name="canonicalSource">
-            {(field) => (
-              <MuiTextField
-                field={field}
-                label="Canonical source"
-              />
-            )}
-          </form.Field>
-        </div>}
-
-        {isLWorAF() && userIsAdmin(currentUser) && <div className={classes.fieldWrapper}>
-          <form.Field name="manifoldReviewMarketId">
-            {(field) => (
-              <MuiTextField
-                field={field}
-                label="Manifold review market ID"
-              />
-            )}
-          </form.Field>
-        </div>}
-
-        <div className={classes.fieldWrapper}>
-          <form.Field name="noIndex">
-            {(field) => (
-              <FormComponentCheckbox
-                field={field}
-                label="No index"
-              />
-            )}
-          </form.Field>
-        </div>
-
-        <div className={classes.fieldWrapper}>
-          <form.Field name="onlyVisibleToLoggedIn">
-            {(field) => (
-              <FormComponentCheckbox
-                field={field}
-                label="Hide this post from users who are not logged in"
-              />
-            )}
-          </form.Field>
-        </div>
-
-        <div className={classes.fieldWrapper}>
-          <form.Field name="onlyVisibleToEstablishedAccounts">
-            {(field) => (
-              <FormComponentCheckbox
-                field={field}
-                label="Hide this post from logged out users and newly created accounts"
-              />
-            )}
-          </form.Field>
-        </div>
-
-        <div className={classes.fieldWrapper}>
-          <form.Field name="hideFromRecentDiscussions">
-            {(field) => (
-              <FormComponentCheckbox
-                field={field}
-                label="Hide this post from recent discussions"
-              />
-            )}
-          </form.Field>
-        </div>
-
-        <div className={classes.fieldWrapper}>
-          <form.Field name="votingSystem">
-            {(field) => (
-              <FormComponentSelect
-                field={field}
-                options={getVotingSystemOptions(currentUser)}
-                label="Voting system"
-              />
-            )}
-          </form.Field>
-        </div>
-
-        {userIsAdmin(currentUser) && <div className={classes.fieldWrapper}>
-          <form.Field name="feedId">
-            {(field) => (
-              <MuiTextField
-                field={field}
-                label="Feed ID"
-              />
-            )}
-          </form.Field>
-        </div>}
-
-        {userIsAdmin(currentUser) && <div className={classes.fieldWrapper}>
-          <form.Field name="feedLink">
-            {(field) => (
-              <MuiTextField
-                field={field}
-                label="Feed link"
-              />
-            )}
-          </form.Field>
-        </div>}
-
-        {/* On the EA forum, only admins can set the curated date, not mods */}
-        {(!isEAForum() || userIsAdmin(currentUser)) && <div className={classes.fieldWrapper}>
-          <form.Field name="curatedDate">
-            {(field) => (
-              <FormComponentDatePicker
-                field={field}
-                label="Curated date"
-              />
-            )}
-          </form.Field>
-        </div>}
-
-        <div className={classes.fieldWrapper}>
-          <form.Field name="metaDate">
-            {(field) => (
-              <FormComponentDatePicker
-                field={field}
-                label="Meta date"
-              />
-            )}
-          </form.Field>
-        </div>
-
-        {(!isEAForum() || userIsAdmin(currentUser)) && <div className={classes.fieldWrapper}>
-          <form.Field name="reviewForCuratedUserId">
-            {(field) => (
-              <MuiTextField
-                field={field}
-                label="Curated Review UserId"
-              />
-            )}
-          </form.Field>
-        </div>}
-
-        {userIsAdmin(currentUser) && <div className={classes.fieldWrapper}>
-          <form.Field name="commentSortOrder">
-            {(field) => (
-              <MuiTextField
-                field={field}
-                label="Comment sort order"
-              />
-            )}
-          </form.Field>
-        </div>}
-
-        {userIsAdmin(currentUser) && <div className={classes.fieldWrapper}>
-          <form.Field name="hideAuthor">
-            {(field) => (
-              <FormComponentCheckbox
-                field={field}
-                label="Hide author"
-              />
-            )}
-          </form.Field>
-        </div>}
-
-        {userIsAdmin(currentUser) && <div className={classes.fieldWrapper}>
-          <form.Field name="swrCachingEnabled">
-            {(field) => (
-              <FormComponentCheckbox
-                field={field}
-                label="stale-while-revalidate caching enabled"
-              />
-            )}
-          </form.Field>
-        </div>}
-      </LegacyFormGroupLayout>}
-
-      {userIsAdminOrMod(currentUser) && <LegacyFormGroupLayout label={preferredHeadingCase("Canonical Sequence")} startCollapsed={true}>
-        <div className={classes.fieldWrapper}>
-          <form.Field name="collectionTitle">
-            {(field) => (
-              <MuiTextField
-                field={field}
-                label="Collection title"
-              />
-            )}
-          </form.Field>
-        </div>
-
-        <div className={classes.fieldWrapper}>
-          <form.Field name="canonicalSequenceId">
-            {(field) => (
-              <MuiTextField
-                field={field}
-                label="Canonical sequence ID"
-              />
-            )}
-          </form.Field>
-        </div>
-
-        <div className={classes.fieldWrapper}>
-          <form.Field name="canonicalCollectionSlug">
-            {(field) => (
-              <MuiTextField
-                field={field}
-                label="Canonical collection slug"
-              />
-            )}
-          </form.Field>
-        </div>
-
-        <div className={classes.fieldWrapper}>
-          <form.Field name="canonicalBookId">
-            {(field) => (
-              <MuiTextField
-                field={field}
-                label="Canonical book ID"
-              />
-            )}
-          </form.Field>
-        </div>
-
-        <div className={classes.fieldWrapper}>
-          <form.Field name="canonicalNextPostSlug">
-            {(field) => (
-              <MuiTextField
-                field={field}
-                label="Canonical next post slug"
-              />
-            )}
-          </form.Field>
-        </div>
-
-        <div className={classes.fieldWrapper}>
-          <form.Field name="canonicalPrevPostSlug">
-            {(field) => (
-              <MuiTextField
-                field={field}
-                label="Canonical prev post slug"
-              />
-            )}
-          </form.Field>
-        </div>
-      </LegacyFormGroupLayout>}
-
-      <LegacyFormGroupLayout label="Options" startCollapsed={true}>
-        {!hideCrosspostControl && form.state.values.userId && userCanEditCrosspostSettings(currentUser, { userId: form.state.values.userId }) && <div className={classes.fieldWrapper}>
-          <form.Field name="fmCrosspost">
-            {(field) => (
-              <LWTooltip title={crosspostControlTooltip}>
-                <FMCrosspostControl
+        {expandedFormGroup === 'Highlight' && userIsAdminOrMod(currentUser) && <div className={classes.formGroup}>
+          <h3 className={classes.formGroupTitle}>Highlight</h3>
+          <div className={classNames("form-component-EditorFormComponent", classes.fieldWrapper)}>
+            <form.Field name="customHighlight">
+              {(field) => (
+                <EditorFormComponent
                   field={field}
+                  name="custom"
+                  formType={formType}
+                  document={form.state.values}
+                  addOnSubmitCallback={addOnSubmitCallbackCustom}
+                  addOnSuccessCallback={addOnSuccessCallbackCustom}
+                  hintText={getDefaultEditorPlaceholder()}
+                  fieldName="custom"
+                  collectionName="Posts"
+                  commentEditor={false}
+                  commentStyles={false}
+                  hideControls={false}
                 />
-              </LWTooltip>
-            )}
-          </form.Field>
+              )}
+            </form.Field>
+          </div>
         </div>}
 
-        {(userIsAdmin(currentUser) || userIsMemberOf(currentUser, 'alignmentForum')) && <div className={classes.fieldWrapper}>
-          <form.Field name="af">
-            {(field) => (
-              <FormComponentCheckbox
-                field={field}
-                label="Alignment Forum"
-              />
-            )}
-          </form.Field>
-        </div>}
-
-        {hasSidenotes() && <div className={classes.fieldWrapper}>
-          <form.Field name="disableSidenotes">
-            {(field) => (
-              <FormComponentCheckbox
-                field={field}
-                label="Disable sidenotes"
-              />
-            )}
-          </form.Field>
-        </div>}
-      </LegacyFormGroupLayout>
-
-      {(userIsAdmin(currentUser) || userIsMemberOf(currentUser, 'podcasters')) && <LegacyFormGroupLayout label="Audio" startCollapsed={true}>
-        <div className={classes.fieldWrapper}>
-          <form.Field name="podcastEpisodeId">
-            {(field) => (
-              <PodcastEpisodeInput
-                field={field}
-                document={form.state.values}
-              />
-            )}
-          </form.Field>
-        </div>
-      </LegacyFormGroupLayout>}
-
-      <LegacyFormGroupLayout
-        label={preferredHeadingCase(isFriendlyUI() ? "Moderation" : "Moderation Guidelines")}
-        startCollapsed={true}
-        tooltipText={isFriendlyUI() ? undefined : "We prefill these moderation guidelines based on your user settings. But you can adjust them for each post."}
-      >
-        {!isFriendlyUI() && <div className={classNames("form-component-EditorFormComponent", classes.fieldWrapper)}>
-          <form.Field name="moderationGuidelines">
-            {(field) => (
-              <EditorFormComponent
-                field={field}
-                name="moderationGuidelines"
-                formType={formType}
-                document={form.state.values}
-                addOnSubmitCallback={addOnSubmitCallbackModerationGuidelines}
-                addOnSuccessCallback={addOnSuccessCallbackModerationGuidelines}
-                hintText={getDefaultEditorPlaceholder()}
-                fieldName="moderationGuidelines"
-                collectionName="Posts"
-                commentEditor={true}
-                commentStyles={true}
-                hideControls={false}
-              />
-            )}
-          </form.Field>
-        </div>}
-
-        {!isFriendlyUI() && !isDialogue && <div className={classes.fieldWrapper}>
-          <form.Field name="moderationStyle">
-            {(field) => (
-              <FormComponentSelect
-                field={field}
-                options={MODERATION_GUIDELINES_OPTIONS}
-                label="Style"
-              />
-            )}
-          </form.Field>
-        </div>}
-
-        {!isEAForum() && !isDialogue && <div className={classes.fieldWrapper}>
-          <form.Field name="ignoreRateLimits">
-            {(field) => (
-              <LWTooltip title="Allow rate-limited users to comment freely on this post" placement="left-start" inlineBlock={false}>
+        {expandedFormGroup === 'Admin' && userIsAdminOrMod(currentUser) && <div className={classes.formGroup}>
+          <h3 className={classes.formGroupTitle}>Admin</h3>
+          <div className={classes.fieldWrapper}>
+            <form.Field name="sticky">
+              {(field) => (
                 <FormComponentCheckbox
                   field={field}
-                  label="Ignore rate limits"
+                  label="Sticky"
                 />
-              </LWTooltip>
-            )}
-          </form.Field>
+              )}
+            </form.Field>
+          </div>
+
+          {userIsAdmin(currentUser) && <div className={classes.fieldWrapper}>
+            <form.Field name="metaSticky">
+              {(field) => (
+                <FormComponentCheckbox
+                  field={field}
+                  label="Sticky (Meta)"
+                />
+              )}
+            </form.Field>
+          </div>}
+
+          {isLWorAF() && (userIsAdmin(currentUser) || userIsMemberOf(currentUser, 'alignmentForumAdmins')) && <div className={classes.fieldWrapper}>
+            <form.Field name="afSticky">
+              {(field) => (
+                <FormComponentCheckbox
+                  field={field}
+                  label="Sticky (Alignment)"
+                />
+              )}
+            </form.Field>
+          </div>}
+
+          <div className={classes.fieldWrapper}>
+            <form.Field name="stickyPriority">
+              {(field) => (
+                <FormComponentSelect
+                  field={field}
+                  options={Object.entries(STICKY_PRIORITIES).map(([level, name]) => ({
+                    value: parseInt(level),
+                    label: name,
+                  }))}
+                  label="Sticky priority"
+                />
+              )}
+            </form.Field>
+          </div>
+
+          <div className={classes.fieldWrapper}>
+            <form.Field name="unlisted">
+              {(field) => (
+                <FormComponentCheckbox
+                  field={field}
+                  label="Make only accessible via link"
+                />
+              )}
+            </form.Field>
+          </div>
+
+          {userIsAdmin(currentUser) && <div className={classes.fieldWrapper}>
+            <form.Field name="legacy">
+              {(field) => (
+                <FormComponentCheckbox
+                  field={field}
+                  label="Legacy"
+                />
+              )}
+            </form.Field>
+          </div>}
+
+          <div className={classes.fieldWrapper}>
+            <form.Field name="disableRecommendation">
+              {(field) => (
+                <FormComponentCheckbox
+                  field={field}
+                  label="Exclude from Recommendations"
+                />
+              )}
+            </form.Field>
+          </div>
+
+          {userIsAdmin(currentUser) && <div className={classes.fieldWrapper}>
+            <form.Field name="forceAllowType3Audio">
+              {(field) => (
+                <FormComponentCheckbox
+                  field={field}
+                  label="Force allow type3 audio"
+                />
+              )}
+            </form.Field>
+          </div>}
+
+          <div className={classes.fieldWrapper}>
+            <form.Field name="defaultRecommendation">
+              {(field) => (
+                <FormComponentCheckbox
+                  field={field}
+                  label="Include in default recommendations"
+                />
+              )}
+            </form.Field>
+          </div>
+
+          {isEAForum() && <div className={classes.fieldWrapper}>
+            <form.Field name="hideFromPopularComments">
+              {(field) => (
+                <FormComponentCheckbox
+                  field={field}
+                  label="Hide comments on this post from Popular Comments"
+                />
+              )}
+            </form.Field>
+          </div>}
+
+          {userIsAdmin(currentUser) && <div className={classes.fieldWrapper}>
+            <form.Field name="slug">
+              {(field) => (
+                <MuiTextField
+                  field={field}
+                  label="Slug"
+                />
+              )}
+            </form.Field>
+          </div>}
+
+          {userIsAdmin(currentUser) && <div className={classes.fieldWrapper}>
+            <form.Field name="postedAt">
+              {(field) => (
+                <FormComponentDatePicker
+                  field={field}
+                  label="Posted at"
+                />
+              )}
+            </form.Field>
+          </div>}
+
+          <div className={classes.fieldWrapper}>
+            <form.Field name="status">
+              {(field) => (
+                <FormComponentSelect
+                  field={field}
+                  options={postStatusLabels}
+                  label="Status"
+                />
+              )}
+            </form.Field>
+          </div>
+
+          {userIsAdmin(currentUser) && <div className={classes.fieldWrapper}>
+            <form.Field name="userId">
+              {(field) => (
+                <LWTooltip title="The user id of the author" placement="left-start" inlineBlock={false}>
+                  <MuiTextField
+                    field={field}
+                    label="User ID"
+                  />
+                </LWTooltip>
+              )}
+            </form.Field>
+          </div>}
+
+          <div className={classes.fieldWrapper}>
+            <form.Field name="authorIsUnreviewed">
+              {(field) => (
+                <FormComponentCheckbox
+                  field={field}
+                  label="Author is unreviewed"
+                />
+              )}
+            </form.Field>
+          </div>
+
+          {userIsAdmin(currentUser) && <div className={classes.fieldWrapper}>
+            <form.Field name="readTimeMinutesOverride">
+              {(field) => (
+                <LWTooltip title="By default, this is calculated from the word count. Enter a value to override." placement="left-start" inlineBlock={false}>
+                  <MuiTextField
+                    field={field}
+                    label="Read time (minutes)"
+                  />
+                </LWTooltip>
+              )}
+            </form.Field>
+          </div>}
+
+          {userIsAdmin(currentUser) && <div className={classes.fieldWrapper}>
+            <form.Field name="canonicalSource">
+              {(field) => (
+                <MuiTextField
+                  field={field}
+                  label="Canonical source"
+                />
+              )}
+            </form.Field>
+          </div>}
+
+          {isLWorAF() && userIsAdmin(currentUser) && <div className={classes.fieldWrapper}>
+            <form.Field name="manifoldReviewMarketId">
+              {(field) => (
+                <MuiTextField
+                  field={field}
+                  label="Manifold review market ID"
+                />
+              )}
+            </form.Field>
+          </div>}
+
+          <div className={classes.fieldWrapper}>
+            <form.Field name="noIndex">
+              {(field) => (
+                <FormComponentCheckbox
+                  field={field}
+                  label="No index"
+                />
+              )}
+            </form.Field>
+          </div>
+
+          <div className={classes.fieldWrapper}>
+            <form.Field name="onlyVisibleToLoggedIn">
+              {(field) => (
+                <FormComponentCheckbox
+                  field={field}
+                  label="Hide this post from users who are not logged in"
+                />
+              )}
+            </form.Field>
+          </div>
+
+          <div className={classes.fieldWrapper}>
+            <form.Field name="onlyVisibleToEstablishedAccounts">
+              {(field) => (
+                <FormComponentCheckbox
+                  field={field}
+                  label="Hide this post from logged out users and newly created accounts"
+                />
+              )}
+            </form.Field>
+          </div>
+
+          <div className={classes.fieldWrapper}>
+            <form.Field name="hideFromRecentDiscussions">
+              {(field) => (
+                <FormComponentCheckbox
+                  field={field}
+                  label="Hide this post from recent discussions"
+                />
+              )}
+            </form.Field>
+          </div>
+
+          <div className={classes.fieldWrapper}>
+            <form.Field name="votingSystem">
+              {(field) => (
+                <FormComponentSelect
+                  field={field}
+                  options={getVotingSystemOptions(currentUser)}
+                  label="Voting system"
+                />
+              )}
+            </form.Field>
+          </div>
+
+          {userIsAdmin(currentUser) && <div className={classes.fieldWrapper}>
+            <form.Field name="feedId">
+              {(field) => (
+                <MuiTextField
+                  field={field}
+                  label="Feed ID"
+                />
+              )}
+            </form.Field>
+          </div>}
+
+          {userIsAdmin(currentUser) && <div className={classes.fieldWrapper}>
+            <form.Field name="feedLink">
+              {(field) => (
+                <MuiTextField
+                  field={field}
+                  label="Feed link"
+                />
+              )}
+            </form.Field>
+          </div>}
+
+          {/* On the EA forum, only admins can set the curated date, not mods */}
+          {(!isEAForum() || userIsAdmin(currentUser)) && <div className={classes.fieldWrapper}>
+            <form.Field name="curatedDate">
+              {(field) => (
+                <FormComponentDatePicker
+                  field={field}
+                  label="Curated date"
+                />
+              )}
+            </form.Field>
+          </div>}
+
+          <div className={classes.fieldWrapper}>
+            <form.Field name="metaDate">
+              {(field) => (
+                <FormComponentDatePicker
+                  field={field}
+                  label="Meta date"
+                />
+              )}
+            </form.Field>
+          </div>
+
+          {(!isEAForum() || userIsAdmin(currentUser)) && <div className={classes.fieldWrapper}>
+            <form.Field name="reviewForCuratedUserId">
+              {(field) => (
+                <MuiTextField
+                  field={field}
+                  label="Curated Review UserId"
+                />
+              )}
+            </form.Field>
+          </div>}
+
+          {userIsAdmin(currentUser) && <div className={classes.fieldWrapper}>
+            <form.Field name="commentSortOrder">
+              {(field) => (
+                <MuiTextField
+                  field={field}
+                  label="Comment sort order"
+                />
+              )}
+            </form.Field>
+          </div>}
+
+          {userIsAdmin(currentUser) && <div className={classes.fieldWrapper}>
+            <form.Field name="hideAuthor">
+              {(field) => (
+                <FormComponentCheckbox
+                  field={field}
+                  label="Hide author"
+                />
+              )}
+            </form.Field>
+          </div>}
+
+          {userIsAdmin(currentUser) && <div className={classes.fieldWrapper}>
+            <form.Field name="swrCachingEnabled">
+              {(field) => (
+                <FormComponentCheckbox
+                  field={field}
+                  label="stale-while-revalidate caching enabled"
+                />
+              )}
+            </form.Field>
+          </div>}
         </div>}
 
-        {userIsAdmin(currentUser) && <div className={classes.fieldWrapper}>
-          <form.Field name="hideFrontpageComments">
-            {(field) => (
-              <FormComponentCheckbox
-                field={field}
-                label="Hide frontpage comments"
-              />
-            )}
-          </form.Field>
+        {expandedFormGroup === 'Event' && userIsAdminOrMod(currentUser) && <div className={classes.formGroup}>
+          <h3 className={classes.formGroupTitle}>Event Info</h3>
+          <div className={classes.fieldWrapper}>
+            <form.Field name="collectionTitle">
+              {(field) => (
+                <MuiTextField
+                  field={field}
+                  label="Collection title"
+                />
+              )}
+            </form.Field>
+          </div>
+
+          <div className={classes.fieldWrapper}>
+            <form.Field name="canonicalSequenceId">
+              {(field) => (
+                <MuiTextField
+                  field={field}
+                  label="Canonical sequence ID"
+                />
+              )}
+            </form.Field>
+          </div>
+
+          <div className={classes.fieldWrapper}>
+            <form.Field name="canonicalCollectionSlug">
+              {(field) => (
+                <MuiTextField
+                  field={field}
+                  label="Canonical collection slug"
+                />
+              )}
+            </form.Field>
+          </div>
+
+          <div className={classes.fieldWrapper}>
+            <form.Field name="canonicalBookId">
+              {(field) => (
+                <MuiTextField
+                  field={field}
+                  label="Canonical book ID"
+                />
+              )}
+            </form.Field>
+          </div>
+
+          <div className={classes.fieldWrapper}>
+            <form.Field name="canonicalNextPostSlug">
+              {(field) => (
+                <MuiTextField
+                  field={field}
+                  label="Canonical next post slug"
+                />
+              )}
+            </form.Field>
+          </div>
+
+          <div className={classes.fieldWrapper}>
+            <form.Field name="canonicalPrevPostSlug">
+              {(field) => (
+                <MuiTextField
+                  field={field}
+                  label="Canonical prev post slug"
+                />
+              )}
+            </form.Field>
+          </div>
         </div>}
 
-        {userCanCommentLock(currentUser, { ...form.state.values, userId: form.state.values.userId ?? null }) && <div className={classes.fieldWrapper}>
-          <form.Field name="commentsLocked">
-            {(field) => (
-              <FormComponentCheckbox
-                field={field}
-                label="Comments locked"
-              />
-            )}
-          </form.Field>
+        {expandedFormGroup === 'Options' && <div className={classes.formGroup}>
+          <h3 className={classes.formGroupTitle}>Options</h3>
+            {!hideCrosspostControl && form.state.values.userId && userCanEditCrosspostSettings(currentUser, { userId: form.state.values.userId }) && <div className={classes.fieldWrapper}>
+              <form.Field name="fmCrosspost">
+                {(field) => (
+                  <LWTooltip title={crosspostControlTooltip}>
+                    <FMCrosspostControl
+                      field={field}
+                    />
+                  </LWTooltip>
+                )}
+              </form.Field>
+            </div>}
+
+            {(userIsAdmin(currentUser) || userIsMemberOf(currentUser, 'alignmentForum')) && <div className={classes.fieldWrapper}>
+              <form.Field name="af">
+                {(field) => (
+                  <FormComponentCheckbox
+                    field={field}
+                    label="Alignment Forum"
+                  />
+                )}
+              </form.Field>
+            </div>}
+
+            {hasSidenotes() && <div className={classes.fieldWrapper}>
+              <form.Field name="disableSidenotes">
+                {(field) => (
+                  <FormComponentCheckbox
+                    field={field}
+                    label="Disable sidenotes"
+                  />
+                )}
+              </form.Field>
+            </div>}
         </div>}
 
-        {userCanCommentLock(currentUser, { ...form.state.values, userId: form.state.values.userId ?? null }) && <div className={classes.fieldWrapper}>
-          <form.Field name="commentsLockedToAccountsCreatedAfter">
-            {(field) => (
-              <FormComponentDatePicker
-                field={field}
-                label="Comments locked to accounts created after"
-              />
-            )}
-          </form.Field>
+        {expandedFormGroup === 'Audio' && (userIsAdmin(currentUser) || userIsMemberOf(currentUser, 'podcasters')) && <div className={classes.formGroup}>
+            <h3 className={classes.formGroupTitle}>Audio</h3>
+            <div className={classes.fieldWrapper}>
+              <form.Field name="podcastEpisodeId">
+                {(field) => (
+                  <PodcastEpisodeInput
+                    field={field}
+                    document={form.state.values}
+                  />
+                )}
+              </form.Field>
+            </div>
+          </div>
+        }
+
+        {expandedFormGroup === 'Moderation' && <div className={classes.formGroup}>
+          <h3 className={classes.formGroupTitle}>Moderation</h3>
+          {!isFriendlyUI() && <div className={classNames("form-component-EditorFormComponent", classes.fieldWrapper)}>
+            <form.Field name="moderationGuidelines">
+              {(field) => (
+                <EditorFormComponent
+                  field={field}
+                  name="moderationGuidelines"
+                  formType={formType}
+                  document={form.state.values}
+                  addOnSubmitCallback={addOnSubmitCallbackModerationGuidelines}
+                  addOnSuccessCallback={addOnSuccessCallbackModerationGuidelines}
+                  hintText={getDefaultEditorPlaceholder()}
+                  fieldName="moderationGuidelines"
+                  collectionName="Posts"
+                  commentEditor={true}
+                  commentStyles={true}
+                  hideControls={false}
+                />
+              )}
+            </form.Field>
+          </div>}
+
+          {!isFriendlyUI() && !isDialogue && <div className={classes.fieldWrapper}>
+            <form.Field name="moderationStyle">
+              {(field) => (
+                <FormComponentSelect
+                  field={field}
+                  options={MODERATION_GUIDELINES_OPTIONS}
+                  label="Style"
+                />
+              )}
+            </form.Field>
+          </div>}
+
+          {!isEAForum() && !isDialogue && <div className={classes.fieldWrapper}>
+            <form.Field name="ignoreRateLimits">
+              {(field) => (
+                <LWTooltip title="Allow rate-limited users to comment freely on this post" placement="left-start" inlineBlock={false}>
+                  <FormComponentCheckbox
+                    field={field}
+                    label="Ignore rate limits"
+                  />
+                </LWTooltip>
+              )}
+            </form.Field>
+          </div>}
+
+          {userIsAdmin(currentUser) && <div className={classes.fieldWrapper}>
+            <form.Field name="hideFrontpageComments">
+              {(field) => (
+                <FormComponentCheckbox
+                  field={field}
+                  label="Hide frontpage comments"
+                />
+              )}
+            </form.Field>
+          </div>}
+
+          {userCanCommentLock(currentUser, { ...form.state.values, userId: form.state.values.userId ?? null }) && <div className={classes.fieldWrapper}>
+            <form.Field name="commentsLocked">
+              {(field) => (
+                <FormComponentCheckbox
+                  field={field}
+                  label="Comments locked"
+                />
+              )}
+            </form.Field>
+          </div>}
+
+          {userCanCommentLock(currentUser, { ...form.state.values, userId: form.state.values.userId ?? null }) && <div className={classes.fieldWrapper}>
+            <form.Field name="commentsLockedToAccountsCreatedAfter">
+              {(field) => (
+                <FormComponentDatePicker
+                  field={field}
+                  label="Comments locked to accounts created after"
+                />
+              )}
+            </form.Field>
+          </div>}
+
+          {isEAForum() && (userIsAdmin(currentUser) || postCanEditHideCommentKarma(currentUser, form.state.values)) && <div className={classes.fieldWrapper}>
+            <form.Field name="hideCommentKarma">
+              {(field) => (
+                <FormComponentCheckbox
+                  field={field}
+                  label="Hide comment karma"
+                />
+              )}
+            </form.Field>
+          </div>}
         </div>}
 
-        {isEAForum() && (userIsAdmin(currentUser) || postCanEditHideCommentKarma(currentUser, form.state.values)) && <div className={classes.fieldWrapper}>
-          <form.Field name="hideCommentKarma">
-            {(field) => (
-              <FormComponentCheckbox
-                field={field}
-                label="Hide comment karma"
-              />
-            )}
-          </form.Field>
-        </div>}
-      </LegacyFormGroupLayout>
-
-      {userCanCreateAndEditJargonTerms(currentUser) && <LegacyFormGroupLayout label="Glossary" startCollapsed={false} hideHeader>
-        <div className={classes.fieldWrapper}>
-          {/* <form.Field name="glossary">
-            {(field) => ( */}
-              <GlossaryEditFormWrapper
-                document={form.state.values}
-              />
-            {/* )}
-          </form.Field> */}
-        </div>
-      </LegacyFormGroupLayout>}
-
-      {!isEAForum() && tagGroup}
+        {/* {expandedFormGroup === 'Glossary' && userCanCreateAndEditJargonTerms(currentUser) && <div className={classes.formGroup}>
+            <GlossaryEditFormWrapper
+              document={form.state.values}
+            />
+        </div>} */}
+      </div>
 
       {postSubmit}
     </form >

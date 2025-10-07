@@ -31,8 +31,6 @@ const styles = defineStyles('SocialPreviewUpload', (theme: ThemeType) => ({
   },
   preview: {
     padding: 16,
-    marginLeft: 10,
-    marginRight: 10,
     backgroundColor: theme.palette.grey[100],
     borderRadius: 6,
 
