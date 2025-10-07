@@ -1,9 +1,10 @@
 
+import { canBlockUserMessages } from "@/lib/betas";
 import schema from "@/lib/collections/messages/newSchema";
 import { accessFilterSingle } from "@/lib/utils/schemaUtils";
 import { userCanDo } from "@/lib/vulcan-users/permissions";
 import { updateCountOfReferencesOnOtherCollectionsAfterCreate, updateCountOfReferencesOnOtherCollectionsAfterUpdate } from "@/server/callbacks/countOfReferenceCallbacks";
-import { addParticipantIfNew, checkIfNewMessageIsEmpty, sendMessageNotifications, unArchiveConversations, updateConversationActivity, updateUserNotesOnModMessage } from "@/server/callbacks/messageCallbacks";
+import { addParticipantIfNew, checkIfNewMessageIsBlocked, checkIfNewMessageIsEmpty, sendMessageNotifications, unArchiveConversations, updateConversationActivity, updateUserNotesOnModMessage } from "@/server/callbacks/messageCallbacks";
 import { createInitialRevisionsForEditableFields, reuploadImagesIfEditableFieldsChanged, uploadImagesInEditableFields, notifyUsersOfNewPingbackMentions, createRevisionsForEditableFields, updateRevisionsDocumentIds } from "@/server/editor/make_editable_callbacks";
 import { getCreatableGraphQLFields, getUpdatableGraphQLFields } from "@/server/vulcan-lib/apollo-server/graphqlTemplates";
 import { makeGqlCreateMutation, makeGqlUpdateMutation } from "@/server/vulcan-lib/apollo-server/helpers";
@@ -42,6 +43,9 @@ export async function createMessage({ data }: CreateMessageInput, context: Resol
   data = callbackProps.document;
 
   checkIfNewMessageIsEmpty(data);
+  if (canBlockUserMessages) {
+    await checkIfNewMessageIsBlocked(context, data);
+  }
 
   data = await runFieldOnCreateCallbacks(schema, data, callbackProps);
 

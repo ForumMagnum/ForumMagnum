@@ -9,7 +9,7 @@ import {
 import { userGetEditUrl } from "../../vulcan-users/helpers";
 import { userOwns, userIsAdmin, userHasntChangedName } from "../../vulcan-users/permissions";
 import * as _ from "underscore";
-import { isAF, isEAForum, verifyEmailsSetting } from "../../instanceSettings";
+import { isAF, isEAForum } from "../../instanceSettings";
 import {
   accessFilterMultiple, arrayOfForeignKeysOnCreate, generateIdResolverMulti,
   generateIdResolverSingle,
@@ -1426,6 +1426,25 @@ const schema = {
       inputType: "[String!]",
       canRead: ["guests"],
       canUpdate: [userOwnsAndInGroup("canModeratePersonal"), "sunshineRegiment", "admins"],
+      canCreate: ["sunshineRegiment", "admins"],
+      validation: {
+        optional: true,
+      },
+    },
+  },
+  // Users who are blocked from messaging this user
+  blockedUserIds: {
+    database: {
+      type: "VARCHAR(27)[]",
+      defaultValue: [],
+      canAutofillDefault: true,
+      nullable: false,
+    },
+    graphql: {
+      outputType: "[String!]",
+      inputType: "[String!]",
+      canRead: [userOwns, "sunshineRegiment", "admins"],
+      canUpdate: [userOwns, "sunshineRegiment", "admins"],
       canCreate: ["sunshineRegiment", "admins"],
       validation: {
         optional: true,
