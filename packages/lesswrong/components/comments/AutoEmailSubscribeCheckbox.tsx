@@ -1,4 +1,4 @@
-import React, { useCallback, useState, useEffect } from "react";
+import React, { useCallback, useState, useEffect, useRef } from "react";
 import { useCurrentUser } from "../common/withUser";
 import SectionFooterCheckbox from "../form-components/SectionFooterCheckbox";
 import { useUpdateCurrentUser } from "../hooks/useUpdateCurrentUser";
@@ -28,6 +28,8 @@ const AutoEmailSubscribeCheckbox = () => {
   const checked = !!setting?.email.enabled;
   const classes = useStyles(styles);
 
+  const initialEmailEnabled = useRef(checked);
+
   const handleToggle = useCallback(async () => {
     if (!currentUser) {
       openDialog({
@@ -55,9 +57,13 @@ const AutoEmailSubscribeCheckbox = () => {
     });
   }, [currentUser, setting, updateCurrentUser, openDialog, checked]);
 
+  if (!initialEmailEnabled.current) {
+    return null;
+  }
+
   const tooltip = <div><p>If enabled, you'll get an email whenever someone replies to any of your comments.</p><p><em>(Applies to all replies to all comments you make.)</em></p></div>
 
-  const label = <span>Email me replies <span className={classes.hideOnMobile}>to my comments</span></span>
+  const label = <span>Email me replies <span className={classes.hideOnMobile}>to all my comments</span></span>
 
   return <span className={!checked? classes.disabled : ""}>
     <SectionFooterCheckbox label={label} value={checked} onClick={handleToggle} tooltip={tooltip}  />
