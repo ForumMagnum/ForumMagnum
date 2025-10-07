@@ -19,7 +19,7 @@ import LWPopper from "../common/LWPopper";
 import ContentStyles from "../common/ContentStyles";
 import { apolloSSRFlag } from '@/lib/helpers';
 import type { RouterLocation } from '@/lib/vulcan-lib/routes';
-import { linkStyles } from './linkStyles';
+import { linkStyles, VisitedIndicator } from './linkStyles';
 
 
 const SequencesPageFragmentQuery = gql(`
@@ -289,6 +289,7 @@ const PostLinkPreviewWithPost = ({href, post, id, className, children}: {
   if (!post) {
     return <Link to={href} className={classNames(classes.link, className)}>
       {children}
+      <VisitedIndicator/>
     </Link>
   }
 
@@ -304,6 +305,7 @@ const PostLinkPreviewWithPost = ({href, post, id, className, children}: {
     >
       <Link className={classNames(classes.link, visited && "visited", className)} to={href} id={id} smooth>
         {children}
+        <VisitedIndicator/>
       </Link>
     </PostsTooltip>
   );
@@ -323,6 +325,7 @@ const CommentLinkPreviewWithComment = ({href, comment, post, id, className, chil
   if (!comment) {
     return <Link to={href} className={classNames(classes.link, className)}>
       {children}
+      <VisitedIndicator/>
     </Link>
   }
   return (
@@ -335,6 +338,7 @@ const CommentLinkPreviewWithComment = ({href, comment, post, id, className, chil
     >
       <Link className={classNames(classes.link, className)} to={href} id={id}>
         {children}
+        <VisitedIndicator/>
       </Link>
     </PostsTooltip>
   );
@@ -369,6 +373,7 @@ export const SequencePreview = ({targetLocation, href, className, children}: {
     >
       <Link className={classNames(classes.link, className)} to={href} id={sequenceId}>
         {children}
+        <VisitedIndicator/>
       </Link>
     </SequencesTooltip>
   );
@@ -449,6 +454,7 @@ export const OWIDPreview = ({href, id, className, children}: {
     <span {...eventHandlers}>
       <a className={classNames(classes.link, className)} href={href} id={id}>
         {children}
+        <VisitedIndicator/>
       </a>
       
       <LWPopper open={hover} anchorEl={anchorEl} placement="bottom-start">
@@ -481,6 +487,7 @@ export const MetaculusPreview = ({href, id, className, children}: {
     <span {...eventHandlers}>
       <a className={classNames(classes.link, className)} href={href} id={id}>
         {children}
+        <VisitedIndicator/>
       </a>
       
       <LWPopper open={hover} anchorEl={anchorEl} placement="bottom-start">
@@ -521,6 +528,7 @@ export const FatebookPreview = ({href, id, className, children}: {
       <span {...eventHandlers}>
         <a className={classNames(classes.link, className)} href={href} id={id}>
           {children}
+          <VisitedIndicator/>
         </a>
 
         <LWPopper open={hover} anchorEl={anchorEl} placement="bottom-start">
@@ -561,6 +569,7 @@ export const ManifoldPreview = ({href, id, className, children}: {
       <span {...eventHandlers}>
         <a className={classNames(classes.link, className)} href={href} id={id}>
           {children}
+          <VisitedIndicator/>
         </a>
 
         <LWPopper open={hover} anchorEl={anchorEl} placement="bottom-start">
@@ -602,6 +611,7 @@ export const NeuronpediaPreview = ({href, id, className, children}: {
       <span {...eventHandlers}>
         <a className={classNames(classes.link, className)} href={href} id={id}>
           {children}
+          <VisitedIndicator/>
         </a>
 
         <LWPopper open={hover} anchorEl={anchorEl} placement="bottom-start">
@@ -642,6 +652,7 @@ export const MetaforecastPreview = ({href, id, className, children}: {
       <span {...eventHandlers}>
         <a className={classNames(classes.link, className)} href={href} id={id}>
           {children}
+          <VisitedIndicator/>
         </a>
 
         <LWPopper open={hover} anchorEl={anchorEl} placement="bottom-start">
@@ -758,6 +769,7 @@ export const EstimakerPreview = ({href, id, className, children}: {
       <span {...eventHandlers}>
         <a className={classNames(classes.link, className)} href={href} id={id}>
           {children}
+          <VisitedIndicator/>
         </a>
         <LWPopper open={hover} anchorEl={anchorEl} placement="bottom-start">
           <iframe className={classes.estimakerIframe} src={href} />
@@ -797,6 +809,7 @@ export const ViewpointsPreview = ({href, id, className, children}: {
       <span {...eventHandlers}>
         <a className={classNames(classes.link, className)} href={href} id={id}>
           {children}
+          <VisitedIndicator/>
         </a>
         <LWPopper open={hover} anchorEl={anchorEl} placement="bottom-start">
           <iframe className={classes.viewpointsIframe} src={url} />
