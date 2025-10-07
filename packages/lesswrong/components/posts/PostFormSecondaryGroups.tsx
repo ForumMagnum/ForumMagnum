@@ -199,7 +199,6 @@ const PostFormSecondaryGroups = ({
       // case 'Glossary':
       //   return canSeeGlossary;
       default:
-
         return true;
     }
   });

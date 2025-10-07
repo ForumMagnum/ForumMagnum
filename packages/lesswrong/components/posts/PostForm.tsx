@@ -1,8 +1,7 @@
-import { EditablePost, PostSubmitMeta, MINIMUM_COAUTHOR_KARMA } from "@/lib/collections/posts/helpers";
+import { EditablePost, PostSubmitMeta } from "@/lib/collections/posts/helpers";
 import { getDefaultEditorPlaceholder } from '@/lib/editor/defaultEditorPlaceholder';
 import { isLWorAF, isEAForum, fmCrosspostSiteNameSetting, fmCrosspostBaseUrlSetting } from "@/lib/instanceSettings";
 import { registerComponent } from "@/lib/vulcan-lib/components";
-import { userIsAdminOrMod } from "@/lib/vulcan-users/permissions";
 import { preferredHeadingCase } from "@/themes/forumTheme";
 import { useForm } from "@tanstack/react-form";
 import classNames from "classnames";
@@ -34,7 +33,6 @@ import FormGroupPostTopBar from "../form-components/FormGroupPostTopBar";
 import FormComponentCheckbox from "../form-components/FormComponentCheckbox";
 import { useMutation } from "@apollo/client/react";
 import { gql } from "@/lib/generated/gql-codegen";
-import { commentBodyStyles } from "@/themes/stylePiping";
 import PostFormSecondaryGroups from "./PostFormSecondaryGroups";
 import { localGroupTypeFormOptions } from "@/lib/collections/localgroups/groupTypes";
 import { EVENT_TYPES } from "@/lib/collections/posts/constants";
@@ -171,15 +169,12 @@ const PostForm = ({
     },
   });
 
-  const isEvent = !!initialData.isEvent;
-  const isDialogue = !!initialData.collabEditorDialogue;
-
-
-
   if (formType === 'edit' && !initialData) {
     return <Error404 />;
   }
 
+  const isEvent = !!initialData.isEvent;
+  const isDialogue = !!initialData.collabEditorDialogue;
 
   const hideSocialPreviewGroup = (isLWorAF() && !!initialData.collabEditorDialogue) || (isEAForum() && !!initialData.isEvent);
 
@@ -216,7 +211,7 @@ const PostForm = ({
   </form.Subscribe>;
 
   return (
-    <form className={"vulcan-form"} onSubmit={(e) => {
+    <form onSubmit={(e) => {
       e.preventDefault();
       e.stopPropagation();
       void form.handleSubmit();
