@@ -282,7 +282,7 @@ class ElasticQuery {
                 fields,
                 type: "phrase",
                 slop: 2,
-                boost: 100,
+                boost: this.collectionName === 'Users' ? 10 : 100,
               },
             },
             {
