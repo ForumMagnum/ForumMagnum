@@ -25,6 +25,13 @@ applies to users who meet that karmaThreshold and/or downvoteRatio criteria. If 
 rate limit only applies if both conditions are met. If neither param is set, the rate limit applies to all users.
 */
 export type IsActiveFunction = (user: RateLimitUser, features: RateLimitFeatures) => boolean;
+
+// Categories of rate limits:
+// - "static": Based on static account properties like total karma (always shown, no events)
+// - "rolling": Based on last N contributions (events created, never expire)
+// - "timed": Based on time window like last month (events created, can expire)
+export type RateLimitCategory = "static" | "rolling" | "timed";
+
 export interface AutoRateLimit {
   actionType: "Posts"|"Comments", // which collection the rate limit applies to
   timeframeLength: number, // how long the time timeframe is (measured in the timeframeUnit, below)
@@ -32,7 +39,8 @@ export interface AutoRateLimit {
   itemsPerTimeframe: number, // number of items a user can post/comment/etc before triggering rate limit
   rateLimitType?: RateLimitType // short name used in analytics db
   rateLimitMessage: string // A message displayed to users when they are rate limited.
-  isActive: IsActiveFunction, 
+  rateLimitCategory: RateLimitCategory // which category this rate limit belongs to
+  isActive: IsActiveFunction,
 }
 
 export interface PostAutoRateLimit extends AutoRateLimit {
