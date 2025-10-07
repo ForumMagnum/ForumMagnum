@@ -1,5 +1,4 @@
 import { hasSidenotes } from "@/lib/betas";
-import { localGroupTypeFormOptions } from "@/lib/collections/localgroups/groupTypes";
 import { MODERATION_GUIDELINES_OPTIONS, postStatusLabels, EVENT_TYPES } from "@/lib/collections/posts/constants";
 import { EditablePost, postCanEditHideCommentKarma, PostSubmitMeta, userCanEditCoauthors, userPassesCrosspostingKarmaThreshold } from "@/lib/collections/posts/helpers";
 import { getDefaultEditorPlaceholder } from '@/lib/editor/defaultEditorPlaceholder';
@@ -25,7 +24,6 @@ import { commentBodyStyles } from "@/themes/stylePiping";
 import LWTooltip from "../common/LWTooltip";
 import { userCanCommentLock } from "@/lib/collections/users/helpers";
 import { TypedReactFormApi } from "../tanstack-form-components/BaseAppForm";
-import { M } from "@breejs/later";
 
 const styles = defineStyles('PostFormSecondaryGroups', (theme: ThemeType) => ({
   root: {
