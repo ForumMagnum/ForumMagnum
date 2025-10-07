@@ -26,13 +26,17 @@ import { commentBodyStyles } from "@/themes/stylePiping";
 import LWTooltip from "../common/LWTooltip";
 import { userCanCommentLock } from "@/lib/collections/users/helpers";
 import { TypedReactFormApi } from "../tanstack-form-components/BaseAppForm";
+import { M } from "@breejs/later";
 
 const styles = defineStyles('PostFormSecondaryGroups', (theme: ThemeType) => ({
   secondaryOptions: {
     display: "flex",
     flexWrap: "wrap",
     width: "100%",
-    gap: 8,
+    gap: 4,
+    [theme.breakpoints.down('xs')]: {
+      gap: 4,
+    },
   },
   secondaryOptionLabel: {
     ...theme.typography.commentStyle,
@@ -42,9 +46,10 @@ const styles = defineStyles('PostFormSecondaryGroups', (theme: ThemeType) => ({
     paddingLeft: 8,
     flexGrow: 1,
     textAlign: "center",
+    border: theme.palette.border.grey300,
     [theme.breakpoints.down('xs')]: {
       padding: 6,
-      border: theme.palette.border.grey300,
+     
     },
     borderRadius: 2,
   },
@@ -53,16 +58,12 @@ const styles = defineStyles('PostFormSecondaryGroups', (theme: ThemeType) => ({
     marginBottom: theme.spacing.unit * 2,
   },
   secondaryOptionLabelActive: {
-    border: `1px solid ${theme.palette.grey[300]}`,
-    backgroundColor: theme.palette.grey[500],
-    color: theme.palette.contrastText,
-    [theme.breakpoints.up('sm')]: {
-      borderBottom: `none`,
-      marginBottom: -9,
-      paddingBottom: 0,
-      backgroundColor: theme.palette.background.pageActiveAreaBackground,
-      color: theme.palette.text.normal,
-    },
+    borderBottom: `none`,
+    marginBottom: -5,
+    fontSize: 15,
+    paddingBottom: 0,
+    backgroundColor: theme.palette.background.pageActiveAreaBackground,
+    color: theme.palette.text.normal,
   },
   formGroup: {
     border: theme.palette.border.grey300,
@@ -71,12 +72,21 @@ const styles = defineStyles('PostFormSecondaryGroups', (theme: ThemeType) => ({
     paddingTop: 12,
     width: "100%",
     ...commentBodyStyles(theme),
+    marginTop: 4,
+    [theme.breakpoints.down('xs')]: {
+      marginTop: 4,
+    },
   },
   formGroupTitle: {
     ...theme.typography.commentStyle,
     marginTop: 0,
     marginBottom: 24
   },
+  highlightGroup: {
+    padding: 4,
+    paddingTop: 24,
+    // TODO: figure out how to reduce height of this element
+  }
 }));
 
 function getFooterTagListPostInfo(post: EditablePost) {
@@ -143,26 +153,28 @@ const PostFormSecondaryGroups = ({
 }) => {
   const classes = useStyles(styles);
 
+  const isEvent = !!initialData.isEvent;
+  const isDialogue = !!initialData.collabEditorDialogue;
+
   const isAdminOrMod = userIsAdminOrMod(currentUser);
   const canEditCoauthors = userCanEditCoauthors(currentUser);
   const canSeeHighlight = isAdminOrMod; // same condition as render guard
   const canSeeAdmin = isAdminOrMod;
-  const canSeeEvent = isAdminOrMod;
+  const canSeeEvent = isAdminOrMod && isEvent;
   const canSeeAudio = userIsAdmin(currentUser) || userIsMemberOf(currentUser, 'podcasters');
   const canSeeModeration = !isFriendlyUI();
   // const canSeeGlossary = userCanCreateAndEditJargonTerms(currentUser);
   const canSeeTags = !initialData.isEvent && !(isLWorAF() && !!initialData.collabEditorDialogue);
   const canSeeSocialPreview = !((isLWorAF() && !!initialData.collabEditorDialogue) || (isEAForum() && !!initialData.isEvent));
 
-  type expandedFormGroupType = 'Tags' | 'Coauthors' | 'Link Preview' | 'Highlight' | 'Moderation' | 'Options' | 'Admin' | 'Event' | 'Audio' | 'Glossary';
+  type expandedFormGroupType = 'Tags' | 'Coauthors' | 'Link Preview' | 'Moderation' | 'Options' | 'Admin' | 'Event' | 'Audio' | 'Glossary';
 
-  type expandedFormGroupLabelType = 'Apply WikiTags' | 'Add Co-Authors' | 'Link Preview' | 'Highlight' | 'Moderation' | 'Options' | 'Admin' | 'Event' | 'Audio' | 'Glossary';
+  type expandedFormGroupLabelType = 'Apply WikiTags' | 'Add Co-Authors' | 'Link Preview' | 'Moderation' | 'Options' | 'Admin' | 'Event' | 'Audio' | 'Glossary';
 
   const allSecondaryFormGroups: Array<{label: expandedFormGroupType, title: expandedFormGroupLabelType, shortTitle?: expandedFormGroupLabelType}> = [
     {label: 'Tags', title: 'Apply WikiTags'},
     {label: 'Coauthors', title: 'Add Co-Authors'},
     {label: 'Link Preview', title: 'Link Preview'},
-    {label: 'Highlight', title: 'Highlight'},
     {label: 'Moderation', title: 'Moderation'},
     {label: 'Options', title: 'Options'},
     {label: 'Admin', title: 'Admin'},
@@ -179,8 +191,6 @@ const PostFormSecondaryGroups = ({
         return canEditCoauthors;
       case 'Link Preview':
         return canSeeSocialPreview;
-      case 'Highlight':
-        return canSeeHighlight;
       case 'Admin':
         return canSeeAdmin;
       case 'Event':
@@ -196,8 +206,6 @@ const PostFormSecondaryGroups = ({
         return true;
     }
   });
-  const isEvent = !!initialData.isEvent;
-  const isDialogue = !!initialData.collabEditorDialogue;
 
   const defaultExpandedFormGroup = isEvent ? 'Event' : secondaryFormGroups[0].label;
 
@@ -266,11 +274,9 @@ const PostFormSecondaryGroups = ({
               )}
             </form.Field>
           </div>
-        </div>}
-
-        {expandedFormGroup === 'Highlight' && userIsAdminOrMod(currentUser) && <div className={classes.formGroup}>
-          <h3 className={classes.formGroupTitle}>Highlight</h3>
-          <div className={classNames("form-component-EditorFormComponent", classes.fieldWrapper)}>
+          {canSeeHighlight && <div className={classes.highlightGroup}>
+            <h3 className={classes.formGroupTitle}>Custom Highlight</h3>
+            <p><em>Admin Only. Changes the post hover text on LessWrong. (Doesn't appear in post previews yet)</em></p>
             <form.Field name="customHighlight">
               {(field) => (
                 <EditorFormComponent
@@ -289,7 +295,7 @@ const PostFormSecondaryGroups = ({
                 />
               )}
             </form.Field>
-          </div>
+          </div>}
         </div>}
 
         {expandedFormGroup === 'Admin' && userIsAdminOrMod(currentUser) && <div className={classes.formGroup}>
