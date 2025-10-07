@@ -13,7 +13,6 @@ import React, { useState } from "react";
 import { CoauthorsListEditor } from "../form-components/CoauthorsListEditor";
 import { FMCrosspostControl } from "../form-components/FMCrosspostControl";
 import { FormComponentDatePicker } from "../form-components/FormComponentDateTime";
-import { FormComponentPostEditorTagging } from "../form-components/FormComponentPostEditorTagging";
 import { PodcastEpisodeInput } from "../form-components/PodcastEpisodeInput";
 import { SocialPreviewUpload } from "../form-components/SocialPreviewUpload";
 import { defineStyles, useStyles } from "../hooks/useStyles";
@@ -29,6 +28,10 @@ import { TypedReactFormApi } from "../tanstack-form-components/BaseAppForm";
 import { M } from "@breejs/later";
 
 const styles = defineStyles('PostFormSecondaryGroups', (theme: ThemeType) => ({
+  root: {
+    marginTop: 24,
+    marginBottom: 24,
+  },
   secondaryOptions: {
     display: "flex",
     flexWrap: "wrap",
@@ -160,25 +163,23 @@ const PostFormSecondaryGroups = ({
   const canEditCoauthors = userCanEditCoauthors(currentUser);
   const canSeeHighlight = isAdminOrMod; // same condition as render guard
   const canSeeAdmin = isAdminOrMod;
-  const canSeeEvent = isAdminOrMod && isEvent;
   const canSeeAudio = userIsAdmin(currentUser) || userIsMemberOf(currentUser, 'podcasters');
   const canSeeModeration = !isFriendlyUI();
   // const canSeeGlossary = userCanCreateAndEditJargonTerms(currentUser);
   const canSeeTags = !initialData.isEvent && !(isLWorAF() && !!initialData.collabEditorDialogue);
   const canSeeSocialPreview = !((isLWorAF() && !!initialData.collabEditorDialogue) || (isEAForum() && !!initialData.isEvent));
 
-  type expandedFormGroupType = 'Tags' | 'Coauthors' | 'Link Preview' | 'Moderation' | 'Options' | 'Admin' | 'Event' | 'Audio' | 'Glossary';
+  type formGroupType = 'Tags' | 'Coauthors' | 'Link Preview' | 'Moderation' | 'Options' | 'Admin' | 'Audio' | 'Glossary';
 
-  type expandedFormGroupLabelType = 'Apply WikiTags' | 'Add Co-Authors' | 'Link Preview' | 'Moderation' | 'Options' | 'Admin' | 'Event' | 'Audio' | 'Glossary';
+  type expandedFormGroupLabelType = 'Apply WikiTags' | 'Add Co-Authors' | 'Link Preview' | 'Moderation' | 'Options' | 'Admin' | 'Audio' | 'Glossary';
 
-  const allSecondaryFormGroups: Array<{label: expandedFormGroupType, title: expandedFormGroupLabelType, shortTitle?: expandedFormGroupLabelType}> = [
+  const allSecondaryFormGroups: Array<{label: formGroupType, title: expandedFormGroupLabelType, shortTitle?: expandedFormGroupLabelType}> = [
     {label: 'Tags', title: 'Apply WikiTags'},
     {label: 'Coauthors', title: 'Add Co-Authors'},
     {label: 'Link Preview', title: 'Link Preview'},
     {label: 'Moderation', title: 'Moderation'},
     {label: 'Options', title: 'Options'},
     {label: 'Admin', title: 'Admin'},
-    {label: 'Event', title: 'Event'},
     {label: 'Audio', title: 'Audio'},
     // 'Glossary', // removed for now, will try improve Jargon generation someday
   ];
@@ -193,8 +194,6 @@ const PostFormSecondaryGroups = ({
         return canSeeSocialPreview;
       case 'Admin':
         return canSeeAdmin;
-      case 'Event':
-        return canSeeEvent;
       case 'Audio':
         return canSeeAudio;
       case 'Moderation':
@@ -207,9 +206,7 @@ const PostFormSecondaryGroups = ({
     }
   });
 
-  const defaultExpandedFormGroup = isEvent ? 'Event' : secondaryFormGroups[0].label;
-
-  const [expandedFormGroup, setExpandedFormGroup] = useState<expandedFormGroupType | undefined>(defaultExpandedFormGroup);
+  const [expandedFormGroup, setExpandedFormGroup] = useState<formGroupType>(secondaryFormGroups[0].label);
 
   const hideSocialPreviewGroup = (isLWorAF() && !!initialData.collabEditorDialogue) || (isEAForum() && !!initialData.isEvent);
 
@@ -219,7 +216,7 @@ const PostFormSecondaryGroups = ({
     : undefined;
 
   return (
-    <>
+    <div className={classes.root}>
       <div className={classes.secondaryOptions}>
         {secondaryFormGroups.map((group) => (
           <div key={group.label} className={classNames(classes.secondaryOptionLabel, { [classes.secondaryOptionLabelActive]: expandedFormGroup === group.label })} onClick={() => setExpandedFormGroup(group.label)}>
@@ -229,21 +226,17 @@ const PostFormSecondaryGroups = ({
       </div>
       <div>
         {expandedFormGroup === 'Tags' &&  <div className={classes.formGroup}>  
+          
           <h3 className={classes.formGroupTitle}>Apply {taggingNamePluralCapitalSetting.get()}</h3>
           <form.Field name="tagRelevance">
             {(field) => (
-              initialData && !initialData.draft
-                ? <FooterTagList
-                    post={getFooterTagListPostInfo(initialData)}
-                    hideScore
-                    hidePostTypeTag
-                    showCoreTags
-                    link={false}
-                  />
-                : <FormComponentPostEditorTagging
-                    field={field}
-                    postCategory={form.state.values.postCategory}
-                  />
+              <FooterTagList
+                post={getFooterTagListPostInfo(initialData)}
+                hideScore
+                hidePostTypeTag
+                showCoreTags
+                link={false}
+              />
             )}
           </form.Field>
       </div>}
@@ -261,7 +254,6 @@ const PostFormSecondaryGroups = ({
             </form.Field>
         </div>}
 
-        {/* TODO: come back to this and figure out why the text field inside the social preview upload component isn't being (visually) populated initially */}
         {expandedFormGroup === 'Link Preview' && !hideSocialPreviewGroup && <div className={classes.formGroup}>
           <h3 className={classes.formGroupTitle}>Link Preview</h3>
           <div className={classes.fieldWrapper}>
@@ -271,7 +263,7 @@ const PostFormSecondaryGroups = ({
                   field={field}
                   post={form.state.values}
                 />
-              )}
+            )}
             </form.Field>
           </div>
           {canSeeHighlight && <div className={classes.highlightGroup}>
@@ -653,75 +645,6 @@ const PostFormSecondaryGroups = ({
           </div>}
         </div>}
 
-        {expandedFormGroup === 'Event' && userIsAdminOrMod(currentUser) && <div className={classes.formGroup}>
-          <h3 className={classes.formGroupTitle}>Event Info</h3>
-          <div className={classes.fieldWrapper}>
-            <form.Field name="collectionTitle">
-              {(field) => (
-                <MuiTextField
-                  field={field}
-                  label="Collection title"
-                />
-              )}
-            </form.Field>
-          </div>
-
-          <div className={classes.fieldWrapper}>
-            <form.Field name="canonicalSequenceId">
-              {(field) => (
-                <MuiTextField
-                  field={field}
-                  label="Canonical sequence ID"
-                />
-              )}
-            </form.Field>
-          </div>
-
-          <div className={classes.fieldWrapper}>
-            <form.Field name="canonicalCollectionSlug">
-              {(field) => (
-                <MuiTextField
-                  field={field}
-                  label="Canonical collection slug"
-                />
-              )}
-            </form.Field>
-          </div>
-
-          <div className={classes.fieldWrapper}>
-            <form.Field name="canonicalBookId">
-              {(field) => (
-                <MuiTextField
-                  field={field}
-                  label="Canonical book ID"
-                />
-              )}
-            </form.Field>
-          </div>
-
-          <div className={classes.fieldWrapper}>
-            <form.Field name="canonicalNextPostSlug">
-              {(field) => (
-                <MuiTextField
-                  field={field}
-                  label="Canonical next post slug"
-                />
-              )}
-            </form.Field>
-          </div>
-
-          <div className={classes.fieldWrapper}>
-            <form.Field name="canonicalPrevPostSlug">
-              {(field) => (
-                <MuiTextField
-                  field={field}
-                  label="Canonical prev post slug"
-                />
-              )}
-            </form.Field>
-          </div>
-        </div>}
-
         {expandedFormGroup === 'Options' && <div className={classes.formGroup}>
           <h3 className={classes.formGroupTitle}>Options</h3>
             {!hideCrosspostControl && form.state.values.userId && userCanEditCrosspostSettings(currentUser, { userId: form.state.values.userId }) && <div className={classes.fieldWrapper}>
@@ -873,7 +796,7 @@ const PostFormSecondaryGroups = ({
             />
         </div>} */}
       </div>
-    </>
+    </div>
   );
 };
 
