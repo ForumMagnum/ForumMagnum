@@ -1392,7 +1392,7 @@ export default function ModerationPageContent(props: Props) {
               ))}
             </tbody>
           </table>
-          {renderPagination('postsWithBannedUsers', postsWithBannedUsersCount, postsWithBannedUsersOffset)}
+          {renderPagination('bannedFromPosts', postsWithBannedUsersCount, postsWithBannedUsersOffset)}
         </div>
       )}
 
@@ -1438,7 +1438,7 @@ export default function ModerationPageContent(props: Props) {
               ))}
             </tbody>
           </table>
-          {renderPagination('usersWithBannedUsers', usersWithBannedUsersCount, usersWithBannedUsersOffset)}
+          {renderPagination('bannedFromUsers', usersWithBannedUsersCount, usersWithBannedUsersOffset)}
         </div>
       )}
 
