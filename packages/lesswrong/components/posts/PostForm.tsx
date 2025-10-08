@@ -100,10 +100,10 @@ const PostForm = ({
   } = useEditorFormCallbacks<PostsEditMutationFragment>();
 
   const {
-    onSubmitCallback: onSubmitCallbackCustom,
-    onSuccessCallback: onSuccessCallbackCustom,
-    addOnSubmitCallback: addOnSubmitCallbackCustom,
-    addOnSuccessCallback: addOnSuccessCallbackCustom
+    onSubmitCallback: onSubmitCallbackCustomHighlight,
+    onSuccessCallback: onSuccessCallbackCustomHighlight,
+    addOnSubmitCallback: addOnSubmitCallbackCustomHighlight,
+    addOnSuccessCallback: addOnSuccessCallbackCustomHighlight
   } = useEditorFormCallbacks<PostsEditMutationFragment>();
 
   const {
@@ -128,7 +128,7 @@ const PostForm = ({
     onSubmit: async ({ formApi, meta }) => {
       await Promise.all([
         onSubmitCallback.current?.(),
-        onSubmitCallbackCustom.current?.(),
+        onSubmitCallbackCustomHighlight.current?.(),
         onSubmitCallbackModerationGuidelines.current?.(),
       ]);
 
@@ -156,7 +156,7 @@ const PostForm = ({
         }
 
         onSuccessCallback.current?.(result, meta);
-        onSuccessCallbackCustom.current?.(result, meta);
+        onSuccessCallbackCustomHighlight.current?.(result, meta);
         onSuccessCallbackModerationGuidelines.current?.(result, meta);
 
         meta.successCallback?.(result);
@@ -514,8 +514,8 @@ const PostForm = ({
         initialData={initialData}
         formType={formType}
         currentUser={currentUser}
-        addOnSubmitCallbackCustom={addOnSubmitCallbackCustom}
-        addOnSuccessCallbackCustom={addOnSuccessCallbackCustom}
+        addOnSubmitCallbackCustom={addOnSubmitCallbackCustomHighlight}
+        addOnSuccessCallbackCustom={addOnSuccessCallbackCustomHighlight}
         addOnSubmitCallbackModerationGuidelines={addOnSubmitCallbackModerationGuidelines}
         addOnSuccessCallbackModerationGuidelines={addOnSuccessCallbackModerationGuidelines}
       />

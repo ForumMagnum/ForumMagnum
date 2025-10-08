@@ -85,7 +85,7 @@ const styles = defineStyles('PostFormSecondaryGroups', (theme: ThemeType) => ({
   highlightGroup: {
     padding: 4,
     paddingTop: 24,
-    // TODO: figure out how to reduce height of this element
+    // TODO: figure out how to reduce the weirdly-tall height of this element
   }
 }));
 
