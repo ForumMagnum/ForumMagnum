@@ -15,7 +15,7 @@ import { filterNonnull } from '../../lib/utils/typeGuardUtils';
 import { useMutation } from "@apollo/client/react";
 import { useQuery } from "@/lib/crud/useQuery"
 import { gql } from "@/lib/generated/gql-codegen";
-import type { Editor } from '@ckeditor/ckeditor5-core';
+import type { Command, Editor } from '@ckeditor/ckeditor5-core';
 import type { Node, RootElement, Writer, Element as CKElement, Selection, DocumentFragment } from '@ckeditor/ckeditor5-engine';
 import { EditorContext } from '../posts/EditorContext';
 import { isFriendlyUI } from '../../themes/forumTheme';
@@ -32,6 +32,8 @@ import DialogueEditorGuidelines from "../posts/dialogues/DialogueEditorGuideline
 import DialogueEditorFeedback from "../posts/dialogues/DialogueEditorFeedback";
 import { useStyles } from '../hooks/useStyles';
 import { ckEditorPluginStyles } from './ckEditorStyles';
+import { addSharedEditorShortcuts } from './sharedEditorShortcuts';
+import EditorCommandPalette from './EditorCommandPalette';
 
 const PostsMinimumInfoMultiQuery = gql(`
   query multiPostCKPostEditorQuery($selector: PostSelector, $limit: Int, $enableTotal: Boolean) {
@@ -573,6 +575,16 @@ const CKPostEditor = ({
   useSyncCkEditorPlaceholder(editorObject, actualPlaceholder);
   useCkEditorInspector(editorRef);
 
+  const openCommandPalette = (commandsByName: Record<string, Command>) => {
+    openDialog({
+      name: "EditorCommandPalette",
+      contents: ({onClose}) => <EditorCommandPalette
+        commandsByName={commandsByName}
+        onClose={onClose}
+      />
+    });
+  };
+
   return <div className={classes.ckWrapper}>
     {isBlockOwnershipMode && <>
      {!hasEverDialoguedBefore && <DialogueEditorGuidelines />}
@@ -614,6 +626,8 @@ const CKPostEditor = ({
       onReady={(editor: Editor) => {
         setEditorObject(editor);
 
+        addSharedEditorShortcuts(editorRef, editor, openCommandPalette);
+        
         if (isCollaborative) {
           // Uncomment this line and the import above to activate the CKEditor debugger
           // CKEditorInspector.attach(editor)
