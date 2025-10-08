@@ -354,7 +354,7 @@ export const elasticPasswordSetting = new PublicInstanceSetting<string | null>(
 );
 
 export const searchOriginDate = new PublicInstanceSetting<string>(
-  "searchOriginDate",
+  "elasticsearch.searchOriginDate",
   "2014-06-01T01:00:00Z",
   "optional"
 );
