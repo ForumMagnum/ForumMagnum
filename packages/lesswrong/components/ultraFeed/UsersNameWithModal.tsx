@@ -59,6 +59,8 @@ const UsersNameWithModal = ({
   const { captureEvent } = useTracking();
   const { openDialog } = useDialog();
   const { openInNewTab } = useUltraFeedContext();
+  const noKibitz = useNoKibitz(user);
+  const { eventHandlers, hover } = useHover();
 
   if (!user && !documentId) {
     return <UsersName user={user} documentId={documentId} {...otherProps} className={className} />;
@@ -72,8 +74,6 @@ const UsersNameWithModal = ({
     return <UserNameDeleted />;
   }
 
-  const noKibitz = useNoKibitz(user);
-  const { eventHandlers, hover } = useHover();
   const nameHidden = noKibitz && !hover;
   const displayName = nameHidden ? "(hidden)" : userGetDisplayName(user);
   const profileUrl = userGetProfileUrl(user);
