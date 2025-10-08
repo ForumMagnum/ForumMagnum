@@ -41,7 +41,7 @@ export class LogisticRegression {
   }
 
   private dotProduct(a: number[], b: number[]): number {
-    return a.reduce((sum, val, i) => sum + val * b[i], 0);
+    return a.reduce((sum, val, i) => sum + (val * b[i]), 0);
   }
 
   private clip(value: number, min = 1e-10, max = 1 - 1e-10): number {
@@ -107,8 +107,8 @@ export class LogisticRegression {
 
         // Weighted binary cross-entropy loss
         const loss = -weight * (
-          y[i] * Math.log(clippedPred) +
-          (1 - y[i]) * Math.log(1 - clippedPred)
+          (y[i] * Math.log(clippedPred)) +
+          ((1 - y[i]) * Math.log(1 - clippedPred))
         );
         totalLoss += loss;
 
@@ -129,12 +129,14 @@ export class LogisticRegression {
       const avgLoss = totalLoss / n;
 
       if (verbose && epoch % 100 === 0) {
+        // eslint-disable-next-line no-console
         console.log(`Epoch ${epoch}, Loss: ${avgLoss.toFixed(4)}`);
       }
 
       // Early stopping if loss stops improving
       if (Math.abs(lastLoss - avgLoss) < 1e-6) {
         if (verbose) {
+          // eslint-disable-next-line no-console
           console.log(`Early stopping at epoch ${epoch}`);
         }
         break;
@@ -184,8 +186,8 @@ export class LogisticRegression {
 
       const clippedPred = this.clip(prediction);
       const loss = -weight * (
-        actual * Math.log(clippedPred) +
-        (1 - actual) * Math.log(1 - clippedPred)
+        (actual * Math.log(clippedPred)) +
+        ((1 - actual) * Math.log(1 - clippedPred))
       );
       totalLoss += loss;
     }
