@@ -263,6 +263,8 @@ class ElasticQuery {
     const {fields, snippet, highlight} = this.config;
     const {search} = this.queryData;
     const mainField = this.textFieldToExactField(fields[0], false);
+    const exactFields = fields.map(field => this.textFieldToExactField(field, true));
+    
     return {
       tokens,
       searchQuery: {
@@ -279,7 +281,7 @@ class ElasticQuery {
             {
               multi_match: {
                 query: search,
-                fields,
+                fields: this.collectionName === 'Users' ? exactFields : fields,
                 type: "phrase",
                 slop: 2,
                 boost: this.collectionName === 'Users' ? 10 : 100,
