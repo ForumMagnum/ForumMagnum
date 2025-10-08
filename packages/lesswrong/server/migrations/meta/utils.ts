@@ -147,16 +147,13 @@ export const dropTable = async <N extends CollectionNameString>(
 
 export const createTable = async <N extends CollectionNameString>(
   db: SqlClientOrTx,
-  collection: CollectionBase<N>,
+  collection: PgCollectionClass<N>,
   ifNotExists = true,
 ): Promise<void> => {
   const table = collection.getTable();
   const {sql, args} = new CreateTableQuery(table, ifNotExists).compile();
   await db.none(sql, args);
-  for (const index of getAllIndexes().mongoStyleIndexes[collection.collectionName] ?? []) {
-    const tableIndex = new TableIndex(table.getName(), index.key, index.options);
-    await createIndex(db, collection, tableIndex, ifNotExists);
-  }
+  await updateIndexes(collection);
 }
 
 export const unlogTable = async <N extends CollectionNameString>(

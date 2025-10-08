@@ -238,6 +238,19 @@ CREATE INDEX IF NOT EXISTS "idx_Collections_schemaVersion" ON "Collections" USIN
 -- Index "idx_Collections_slug"
 CREATE INDEX IF NOT EXISTS "idx_Collections_slug" ON "Collections" USING btree ("slug");
 
+-- Table "CommentEmbeddings"
+CREATE TABLE "CommentEmbeddings" (
+  _id VARCHAR(27) PRIMARY KEY,
+  "createdAt" TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP NOT NULL,
+  "commentId" VARCHAR(27) NOT NULL,
+  "lastGeneratedAt" TIMESTAMPTZ NOT NULL,
+  "model" TEXT NOT NULL,
+  "embeddings" VECTOR (1024) NOT NULL
+);
+
+-- Index "idx_CommentEmbeddings_commentId_model"
+CREATE UNIQUE INDEX IF NOT EXISTS "idx_CommentEmbeddings_commentId_model" ON "CommentEmbeddings" USING btree ("commentId", "model");
+
 -- Table "CommentModeratorActions"
 CREATE TABLE "CommentModeratorActions" (
   _id VARCHAR(27) PRIMARY KEY,
@@ -1252,7 +1265,14 @@ CREATE TABLE "Messages" (
   "contents_latest" TEXT,
   "userId" VARCHAR(27) NOT NULL,
   "conversationId" VARCHAR(27) NOT NULL,
-  "noEmail" BOOL NOT NULL DEFAULT FALSE
+  "noEmail" BOOL NOT NULL DEFAULT FALSE,
+  "voteCount" DOUBLE PRECISION NOT NULL DEFAULT 0,
+  "baseScore" DOUBLE PRECISION NOT NULL DEFAULT 0,
+  "extendedScore" JSONB,
+  "score" DOUBLE PRECISION NOT NULL DEFAULT 0,
+  "afBaseScore" DOUBLE PRECISION,
+  "afExtendedScore" JSONB,
+  "afVoteCount" DOUBLE PRECISION
 );
 
 -- Index "idx_Messages_schemaVersion"
@@ -3362,7 +3382,7 @@ CREATE TABLE "Users" (
   "autoSubscribeAsOrganizer" BOOL NOT NULL DEFAULT TRUE,
   "notificationCommentsOnSubscribedPost" JSONB NOT NULL DEFAULT '{"onsite":{"enabled":true,"batchingFrequency":"realtime","timeOfDayGMT":12,"dayOfWeekGMT":"Monday"},"email":{"enabled":false,"batchingFrequency":"realtime","timeOfDayGMT":12,"dayOfWeekGMT":"Monday"}}'::JSONB,
   "notificationShortformContent" JSONB NOT NULL DEFAULT '{"onsite":{"enabled":true,"batchingFrequency":"realtime","timeOfDayGMT":12,"dayOfWeekGMT":"Monday"},"email":{"enabled":false,"batchingFrequency":"realtime","timeOfDayGMT":12,"dayOfWeekGMT":"Monday"}}'::JSONB,
-  "notificationRepliesToMyComments" JSONB NOT NULL DEFAULT '{"onsite":{"enabled":true,"batchingFrequency":"realtime","timeOfDayGMT":12,"dayOfWeekGMT":"Monday"},"email":{"enabled":false,"batchingFrequency":"realtime","timeOfDayGMT":12,"dayOfWeekGMT":"Monday"}}'::JSONB,
+  "notificationRepliesToMyComments" JSONB NOT NULL DEFAULT '{"onsite":{"enabled":true,"batchingFrequency":"realtime","timeOfDayGMT":12,"dayOfWeekGMT":"Monday"},"email":{"enabled":true,"batchingFrequency":"realtime","timeOfDayGMT":12,"dayOfWeekGMT":"Monday"}}'::JSONB,
   "notificationRepliesToSubscribedComments" JSONB NOT NULL DEFAULT '{"onsite":{"enabled":true,"batchingFrequency":"realtime","timeOfDayGMT":12,"dayOfWeekGMT":"Monday"},"email":{"enabled":false,"batchingFrequency":"realtime","timeOfDayGMT":12,"dayOfWeekGMT":"Monday"}}'::JSONB,
   "notificationSubscribedUserPost" JSONB NOT NULL DEFAULT '{"onsite":{"enabled":true,"batchingFrequency":"realtime","timeOfDayGMT":12,"dayOfWeekGMT":"Monday"},"email":{"enabled":false,"batchingFrequency":"realtime","timeOfDayGMT":12,"dayOfWeekGMT":"Monday"}}'::JSONB,
   "notificationSubscribedUserComment" JSONB NOT NULL DEFAULT '{"onsite":{"enabled":true,"batchingFrequency":"realtime","timeOfDayGMT":12,"dayOfWeekGMT":"Monday"},"email":{"enabled":false,"batchingFrequency":"realtime","timeOfDayGMT":12,"dayOfWeekGMT":"Monday"}}'::JSONB,
@@ -3849,6 +3869,9 @@ WHERE
   "deleteContent" IS NOT TRUE AND
   "nullifyVotes" IS NOT TRUE AND
   "banned" IS NULL;
+
+-- CustomIndex "idx_CommentEmbeddings_embedding_cosine_distance"
+CREATE INDEX IF NOT EXISTS "idx_CommentEmbeddings_embedding_cosine_distance" ON "CommentEmbeddings" USING hnsw (embeddings vector_cosine_ops);
 
 -- CustomIndex "idx_DatabaseMetadata_name"
 CREATE UNIQUE INDEX IF NOT EXISTS "idx_DatabaseMetadata_name" ON public."DatabaseMetadata" USING btree (name);

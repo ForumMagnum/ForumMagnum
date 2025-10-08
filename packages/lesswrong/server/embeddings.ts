@@ -100,7 +100,10 @@ const getBatchEmbeddingsFromApi = async (inputs: Record<string, string>) => {
   const trimmedInputTuples: [string, string][] = [];
   for (const [postId, postText] of Object.entries(inputs)) {
     try {
-      const trimmedText = trimText(postText, tokenizerModel, maxTokens);
+      const trimmedText = trimText(
+        postText.replaceAll("<|endoftext|>", "_endoftext_"),
+        tokenizerModel, maxTokens
+      );
       trimmedInputTuples.push([postId, trimmedText]);
     } catch (e) {
       // eslint-disable-next-line no-console

@@ -300,6 +300,16 @@ extend type Mutation {
   performVoteComment(documentId: String, voteType: String, extendedVote: JSON): VoteResultComment
 }
 
+type VoteResultMessage {
+  document: Message!
+  showVotingPatternWarning: Boolean!
+}
+
+extend type Mutation {
+  setVoteMessage(documentId: String, voteType: String, extendedVote: JSON): Message
+  performVoteMessage(documentId: String, voteType: String, extendedVote: JSON): VoteResultMessage
+}
+
 type VoteResultTagRel {
   document: TagRel!
   showVotingPatternWarning: Boolean!
@@ -348,6 +358,11 @@ type VoteResultMultiDocument {
 extend type Mutation {
   setVoteMultiDocument(documentId: String, voteType: String, extendedVote: JSON): MultiDocument
   performVoteMultiDocument(documentId: String, voteType: String, extendedVote: JSON): VoteResultMultiDocument
+}
+
+extend type Query {
+  CommentEmbeddingSearch(query: String!, scoreBias: Float): [Comment!]!
+  CommentEmbeddingSimilaritySearch(commentId: String!, scoreBias: Float): [Comment!]!
 }
 
 extend type Mutation {
@@ -605,7 +620,6 @@ extend type Query {
   PostIsCriticism(args: JSON): Boolean
   DigestPlannerData(digestId: String, startDate: Date, endDate: Date): [DigestPlannerPost!]!
   DigestPosts(num: Int): [Post!]
-  CanAccessGoogleDoc(fileUrl: String!): Boolean
   HomepageCommunityEvents(limit: Int!): HomepageCommunityEventMarkersResult!
 }
 
@@ -754,10 +768,6 @@ type PostsWithApprovedJargonResult {
 
 extend type Query {
   PostsWithApprovedJargon(limit: Int): PostsWithApprovedJargonResult
-}
-
-extend type Mutation {
-  revokeGoogleServiceAccountTokens: Boolean!
 }
 
 extend type Mutation {
@@ -1911,6 +1921,11 @@ type MultiCollectionOutput {
 extend type Query {
   collection(input: SingleCollectionInput @deprecated(reason: "Use the selector field instead"), selector: SelectorInput): SingleCollectionOutput
   collections(input: MultiCollectionInput @deprecated(reason: "Use the selector field instead"), selector: CollectionSelector, limit: Int, offset: Int, enableTotal: Boolean): MultiCollectionOutput
+}
+
+type CommentEmbedding {
+  _id: String!
+  createdAt: Date!
 }
 
 type CommentModeratorAction {
@@ -3790,6 +3805,15 @@ type Message {
   conversationId: String
   conversation: Conversation
   noEmail: Boolean
+  currentUserVote: String
+  currentUserExtendedVote: JSON
+  voteCount: Float!
+  baseScore: Float!
+  extendedScore: JSON
+  score: Float!
+  afBaseScore: Float
+  afExtendedScore: JSON
+  afVoteCount: Float
 }
 
 input SingleMessageInput {

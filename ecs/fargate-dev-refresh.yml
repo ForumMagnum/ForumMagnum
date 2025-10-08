@@ -1,0 +1,205 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Description: Daily Fargate Scheduled Task to refresh dev DB from prod via pg_dump | pg_restore
+
+Parameters:
+  AppName:
+    Type: String
+    Default: dev-refresh
+    Description: Logical app name prefix for created resources
+  VpcId:
+    Type: AWS::EC2::VPC::Id
+    Description: VPC where the task will run
+  SubnetIds:
+    Type: List<AWS::EC2::Subnet::Id>
+    Description: Private subnet IDs (in the same VPC) where the Fargate task will run
+  ContainerImage:
+    Type: String
+    Description: Full ECR image URI (e.g. 123456789012.dkr.ecr.us-east-1.amazonaws.com/dev-refresh:latest)
+  Cpu:
+    Type: String
+    Default: '1024' # 1 vCPU
+    AllowedValues: ['256','512','1024','2048','4096']
+  Memory:
+    Type: String
+    Default: '2048' # 2 GiB
+    AllowedValues: ['512','1024','2048','3072','4096','5120','6144','7168','8192','16384','30720']
+  EphemeralStorageGiB:
+    Type: Number
+    Default: 50
+    MinValue: 21
+    MaxValue: 200
+    Description: Ephemeral storage for the task (GiB). For pure streaming, you can lower this.
+  LogRetentionDays:
+    Type: Number
+    Default: 14
+  ScheduleExpression:
+    Type: String
+    Default: cron(15 9 * * ? *)
+    Description: EventBridge schedule in UTC (e.g., 09:15 UTC daily)
+  AssignPublicIp:
+    Type: String
+    Default: DISABLED
+    AllowedValues: [ENABLED, DISABLED]
+    Description: Usually DISABLED for private subnets
+  # If you want us to add ingress to your existing RDS SG, pass it here; otherwise leave blank.
+  RdsSecurityGroupId:
+    Type: String
+    Default: ''
+    Description: OPTIONAL existing RDS Security Group ID to open 5432 from the task SG (leave empty to skip)
+
+  # Secrets (entire connection strings)
+  ProdConnectionSecretArn:
+    Type: String
+    Description: ARN of Secrets Manager secret containing entire prod connection string
+  DevConnectionSecretArn:
+    Type: String
+    Description: ARN of Secrets Manager secret containing entire dev connection string
+
+Resources:
+  LogGroup:
+    Type: AWS::Logs::LogGroup
+    Properties:
+      LogGroupName: !Sub /ecs/${AppName}
+      RetentionInDays: !Ref LogRetentionDays
+
+  Cluster:
+    Type: AWS::ECS::Cluster
+    Properties:
+      ClusterName: !Sub ${AppName}-cluster
+
+  TaskExecutionRole:
+    Type: AWS::IAM::Role
+    Properties:
+      RoleName: !Sub ${AppName}-task-exec-role
+      AssumeRolePolicyDocument:
+        Version: '2012-10-17'
+        Statement:
+          - Effect: Allow
+            Principal: { Service: ecs-tasks.amazonaws.com }
+            Action: sts:AssumeRole
+      ManagedPolicyArns:
+        # Pull from ECR + push logs
+        - arn:aws:iam::aws:policy/service-role/AmazonECSTaskExecutionRolePolicy
+      Policies:
+        - PolicyName: !Sub ${AppName}-secrets
+          PolicyDocument:
+            Version: '2012-10-17'
+            Statement:
+              - Effect: Allow
+                Action: secretsmanager:GetSecretValue
+                Resource:
+                  - !Ref ProdConnectionSecretArn
+                  - !Ref DevConnectionSecretArn
+
+  TaskSecurityGroup:
+    Type: AWS::EC2::SecurityGroup
+    Properties:
+      GroupDescription: !Sub SG for ${AppName} Fargate task to reach RDS
+      VpcId: !Ref VpcId
+      SecurityGroupEgress:
+        - IpProtocol: -1
+          CidrIp: 0.0.0.0/0
+
+  # OPTIONAL: open port 5432 on your existing RDS SG for this task SG
+  OptionalIngressToRds:
+    Condition: HasRdsSg
+    Type: AWS::EC2::SecurityGroupIngress
+    Properties:
+      GroupId: !Ref RdsSecurityGroupId
+      IpProtocol: tcp
+      FromPort: 5432
+      ToPort: 5432
+      SourceSecurityGroupId: !Ref TaskSecurityGroup
+
+  TaskDefinition:
+    Type: AWS::ECS::TaskDefinition
+    Properties:
+      Family: !Sub ${AppName}-task
+      RequiresCompatibilities: [FARGATE]
+      NetworkMode: awsvpc
+      Cpu: !Ref Cpu
+      Memory: !Ref Memory
+      EphemeralStorage:
+        SizeInGiB: !Ref EphemeralStorageGiB
+      ExecutionRoleArn: !GetAtt TaskExecutionRole.Arn
+      ContainerDefinitions:
+        - Name: !Ref AppName
+          Image: !Ref ContainerImage
+          Essential: true
+          LogConfiguration:
+            LogDriver: awslogs
+            Options:
+              awslogs-group: !Ref LogGroup
+              awslogs-region: !Ref AWS::Region
+              awslogs-stream-prefix: ecs
+          # Inject entire connection strings as env vars from two secrets
+          Secrets:
+            - Name: PROD_CONNECTION_STRING
+              ValueFrom: !Ref ProdConnectionSecretArn
+            - Name: DEV_CONNECTION_STRING
+              ValueFrom: !Ref DevConnectionSecretArn
+          Environment:
+            # If you want to tune pg_dump/pg_restore, add env here (optional)
+            - Name: TZ
+              Value: UTC
+
+  EventsRole:
+    Type: AWS::IAM::Role
+    Properties:
+      RoleName: !Sub ${AppName}-events-role
+      AssumeRolePolicyDocument:
+        Version: '2012-10-17'
+        Statement:
+          - Effect: Allow
+            Principal: { Service: events.amazonaws.com }
+            Action: sts:AssumeRole
+      Policies:
+        - PolicyName: !Sub ${AppName}-events-inline
+          PolicyDocument:
+            Version: '2012-10-17'
+            Statement:
+              - Sid: RunFargateTask
+                Effect: Allow
+                Action: ecs:RunTask
+                Resource: '*'
+                Condition:
+                  ArnLike:
+                    ecs:cluster: !Sub arn:${AWS::Partition}:ecs:${AWS::Region}:${AWS::AccountId}:cluster/${AppName}-cluster
+              - Sid: PassExecRole
+                Effect: Allow
+                Action: iam:PassRole
+                Resource: !GetAtt TaskExecutionRole.Arn
+
+  ScheduleRule:
+    Type: AWS::Events::Rule
+    Properties:
+      Name: !Sub ${AppName}-daily
+      Description: !Sub Daily refresh dev from prod
+      ScheduleExpression: !Ref ScheduleExpression
+      State: ENABLED
+      Targets:
+        - Id: EcsTarget
+          Arn: !GetAtt Cluster.Arn
+          RoleArn: !GetAtt EventsRole.Arn
+          EcsParameters:
+            TaskDefinitionArn: !Ref TaskDefinition
+            LaunchType: FARGATE
+            NetworkConfiguration:
+              AwsVpcConfiguration:
+                AssignPublicIp: !Ref AssignPublicIp
+                SecurityGroups: [ !Ref TaskSecurityGroup ]
+                Subnets: !Ref SubnetIds
+
+Conditions:
+  HasRdsSg: !Not [ !Equals [ !Ref RdsSecurityGroupId, '' ] ]
+
+Outputs:
+  ClusterName:
+    Value: !Ref Cluster
+  TaskDefinitionArn:
+    Value: !Ref TaskDefinition
+  TaskSecurityGroupId:
+    Value: !Ref TaskSecurityGroup
+    Description: If you didn't pass RdsSecurityGroupId, add this SG to your RDS inbound 5432 allowlist.
+  LogGroupName:
+    Value: !Ref LogGroup

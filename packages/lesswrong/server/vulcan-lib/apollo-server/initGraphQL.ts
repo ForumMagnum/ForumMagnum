@@ -25,7 +25,6 @@ import { petrovDay2024GraphQLQueries, petrovDay2024GraphQLTypeDefs } from '@/ser
 import { petrovDayLaunchGraphQLMutations, petrovDayLaunchGraphQLQueries, petrovDayLaunchGraphQLTypeDefs } from '@/server/resolvers/petrovDayResolvers';
 import { reviewVoteGraphQLMutations, reviewVoteGraphQLTypeDefs, reviewVoteGraphQLQueries } from '@/server/resolvers/reviewVoteResolvers';
 import { postGqlQueries, postGqlMutations, postGqlTypeDefs } from '@/server/resolvers/postResolvers'
-import { adminGqlTypeDefs, adminGqlMutations } from '@/server/resolvers/adminResolvers'
 import { alignmentForumMutations, alignmentForumTypeDefs } from '@/server/resolvers/alignmentForumMutations'
 import { allTagsActivityFeedGraphQLQueries, allTagsActivityFeedGraphQLTypeDefs } from '@/server/resolvers/allTagsActivityFeed';
 import { recentDiscussionFeedGraphQLQueries, recentDiscussionFeedGraphQLTypeDefs } from '@/server/resolvers/recentDiscussionFeed';
@@ -81,6 +80,7 @@ import { graphqlChapterQueryTypeDefs, chapterGqlQueryHandlers, chapterGqlFieldRe
 import { graphqlCkEditorUserSessionQueryTypeDefs, ckEditorUserSessionGqlQueryHandlers, ckEditorUserSessionGqlFieldResolvers } from "@/server/collections/ckEditorUserSessions/queries";
 import { graphqlClientIdQueryTypeDefs, clientIdGqlQueryHandlers, clientIdGqlFieldResolvers } from "@/server/collections/clientIds/queries";
 import { graphqlCollectionQueryTypeDefs, collectionGqlQueryHandlers, collectionGqlFieldResolvers } from "@/server/collections/collections/queries";
+import { graphqlCommentEmbeddingQueryTypeDefs, commentEmbeddingGqlFieldResolvers } from "@/server/collections/commentEmbeddings/queries";
 import { graphqlCommentModeratorActionQueryTypeDefs, commentModeratorActionGqlQueryHandlers, commentModeratorActionGqlFieldResolvers } from "@/server/collections/commentModeratorActions/queries";
 import { graphqlCommentQueryTypeDefs, commentGqlQueryHandlers, commentGqlFieldResolvers } from "@/server/collections/comments/queries";
 import { graphqlConversationQueryTypeDefs, conversationGqlQueryHandlers, conversationGqlFieldResolvers } from "@/server/collections/conversations/queries";
@@ -221,6 +221,7 @@ const emptyViewInput = gql`
 
 const { graphqlVoteTypeDefs: postVoteTypeDefs, graphqlVoteMutations: postVoteMutations } = getVoteGraphql('Posts');
 const { graphqlVoteTypeDefs: commentVoteTypeDefs, graphqlVoteMutations: commentVoteMutations } = getVoteGraphql('Comments');
+const { graphqlVoteTypeDefs: messageVoteTypeDefs, graphqlVoteMutations: messageVoteMutations } = getVoteGraphql('Messages');
 const { graphqlVoteTypeDefs: tagRelVoteTypeDefs, graphqlVoteMutations: tagRelVoteMutations } = getVoteGraphql('TagRels');
 const { graphqlVoteTypeDefs: revisionVoteTypeDefs, graphqlVoteMutations: revisionVoteMutations } = getVoteGraphql('Revisions');
 const { graphqlVoteTypeDefs: electionCandidateVoteTypeDefs, graphqlVoteMutations: electionCandidateVoteMutations } = getVoteGraphql('ElectionCandidates');
@@ -255,6 +256,7 @@ export const getTypeDefs = () => gql`
   # # Vote typedefs
   ${postVoteTypeDefs}
   ${commentVoteTypeDefs}
+  ${messageVoteTypeDefs}
   ${tagRelVoteTypeDefs}
   ${revisionVoteTypeDefs}
   ${electionCandidateVoteTypeDefs}
@@ -272,7 +274,6 @@ export const getTypeDefs = () => gql`
   ${petrovDayLaunchGraphQLTypeDefs}
   ${reviewVoteGraphQLTypeDefs}
   ${postGqlTypeDefs}
-  ${adminGqlTypeDefs}
   ${alignmentForumTypeDefs}
   ${allTagsActivityFeedGraphQLTypeDefs}
   ${recentDiscussionFeedGraphQLTypeDefs}
@@ -330,6 +331,7 @@ export const getTypeDefs = () => gql`
   ${graphqlCkEditorUserSessionQueryTypeDefs}
   ${graphqlClientIdQueryTypeDefs}
   ${graphqlCollectionQueryTypeDefs}
+  ${graphqlCommentEmbeddingQueryTypeDefs}
   ${graphqlCommentModeratorActionQueryTypeDefs}
   ${graphqlCommentQueryTypeDefs}
   ${graphqlConversationQueryTypeDefs}
@@ -570,6 +572,7 @@ const getResolvers = () => ({
     ...userResolversMutations,
     ...postVoteMutations,
     ...commentVoteMutations,
+    ...messageVoteMutations,
     ...tagRelVoteMutations,
     ...revisionVoteMutations,
     ...electionCandidateVoteMutations,
@@ -581,7 +584,6 @@ const getResolvers = () => ({
     ...petrovDayLaunchGraphQLMutations,
     ...reviewVoteGraphQLMutations,
     ...postGqlMutations,
-    ...adminGqlMutations,
     ...alignmentForumMutations,
     ...conversationGqlMutations,
     ...databaseSettingsGqlMutations,
@@ -712,6 +714,7 @@ const getResolvers = () => ({
   ...ckEditorUserSessionGqlFieldResolvers,
   ...clientIdGqlFieldResolvers,
   ...collectionGqlFieldResolvers,
+  ...commentEmbeddingGqlFieldResolvers,
   ...commentModeratorActionGqlFieldResolvers,
   ...commentGqlFieldResolvers,
   ...conversationGqlFieldResolvers,

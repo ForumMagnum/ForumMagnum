@@ -300,7 +300,6 @@ export const twitterBotEnabledSetting = new PublicInstanceSetting<boolean>("twit
 export const twitterBotKarmaThresholdSetting = new PublicInstanceSetting<number>("twitterBot.karmaThreshold", 40, "optional");
 
 export const airtableApiKeySetting = new PublicInstanceSetting<string | null>('airtable.apiKey', null, "optional");
-export const saplingApiKey = new PublicInstanceSetting<string>("sapling.apiKey", "", "optional");
 export const forumHeaderTitleSetting = new PublicInstanceSetting<string>('forumSettings.headerTitle', "LESSWRONG", "warning");
 export const forumShortTitleSetting = new PublicInstanceSetting<string>('forumSettings.shortForumTitle', "LW", "warning");
 
@@ -355,7 +354,7 @@ export const elasticPasswordSetting = new PublicInstanceSetting<string | null>(
 );
 
 export const searchOriginDate = new PublicInstanceSetting<string>(
-  "searchOriginDate",
+  "elasticsearch.searchOriginDate",
   "2014-06-01T01:00:00Z",
   "optional"
 );
@@ -587,7 +586,6 @@ export const postModerationWarningCommentIdSetting = new PublicInstanceSetting<s
 export const useExperimentalTagStyleSetting = new PublicInstanceSetting<boolean>('useExperimentalTagStyle', false, "optional");
 
 export const showAnalyticsDebug = new PublicInstanceSetting<"never" | "dev" | "always">("showAnalyticsDebug", "dev", "optional");
-export const flushIntervalSetting = new PublicInstanceSetting<number>("analyticsFlushInterval", 1000, "optional");
 
 type ReasonNoReviewNeeded = "alreadyApproved" | "noReview";
 type ReasonReviewIsNeeded = "mapLocation" | "firstPost" | "firstComment" | "contactedTooManyUsers" | "bio" | "profileImage" | "newContent";

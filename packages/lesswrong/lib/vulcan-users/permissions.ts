@@ -7,7 +7,7 @@ export function getAllUserGroups() {
   return allUserGroupsByName;
 }
 
-export type PermissionableUser = UsersMinimumInfo & Pick<UsersDefaultFragment,
+export type PermissionableUser = UsersMinimumInfo & Pick<UsersProfile,
   "groups" |
   "banned" |
   "allCommentingDisabled"
