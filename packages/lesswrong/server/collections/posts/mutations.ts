@@ -221,7 +221,7 @@ export async function updatePost({ selector, data }: { data: UpdatePostDataInput
   // former updateAsync callbacks
   await eventUpdatedNotifications(updateCallbackProperties);
   await notifyUsersAddedAsCoauthors(updateCallbackProperties);
-  await updatePostEmbeddingsOnChange(updateCallbackProperties.newDocument, updateCallbackProperties.oldDocument);
+  await updatePostEmbeddingsOnChange(updatedDocument, updateCallbackProperties.oldDocument);
   await updatedPostMaybeTriggerReview(updateCallbackProperties);
   await maybeSendRejectionPM(updateCallbackProperties);
   await updateUserNotesOnPostDraft(updateCallbackProperties);
