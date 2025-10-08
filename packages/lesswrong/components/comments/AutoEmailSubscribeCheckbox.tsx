@@ -22,16 +22,17 @@ const styles = defineStyles("AutoEmailSubscribeCheckbox", (theme) => ({
     display: "flex",
     alignItems: "center",
     "& .ToggleSwitch-root": {
-      width: `24px !important`,
+      width: `26px !important`,
       height: `16px !important`,
-      minWidth: `24px !important`,
+      minWidth: `26px !important`,
     },
     "& .ToggleSwitch-switchOn": {
-      left: -6,
+      left: -4,
     }
   },
   switch: {
     marginRight: 8,
+    opacity: 0.75,
     "& .ToggleSwitch-handle": {
       width: 12,
       height: 12,
@@ -39,10 +40,10 @@ const styles = defineStyles("AutoEmailSubscribeCheckbox", (theme) => ({
   },
   label: {
     ...theme.typography.commentStyle,
-    color: theme.palette.lwTertiary.main
+    color: theme.palette.lwTertiary.main,
   },
   disabled: {
-    opacity: 0.8,
+    opacity: 0.7,
     filter: "grayscale(100%)",
   },
   hideOnMobile: {
