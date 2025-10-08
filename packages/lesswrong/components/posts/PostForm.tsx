@@ -512,7 +512,7 @@ const PostForm = ({
       <PostFormSecondaryGroups
         form={form}
         initialData={initialData}
-                    formType={formType}
+        formType={formType}
         currentUser={currentUser}
         addOnSubmitCallbackCustom={addOnSubmitCallbackCustom}
         addOnSuccessCallbackCustom={addOnSuccessCallbackCustom}

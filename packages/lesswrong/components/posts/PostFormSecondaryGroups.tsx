@@ -15,7 +15,7 @@ import { FormComponentDatePicker } from "../form-components/FormComponentDateTim
 import { PodcastEpisodeInput } from "../form-components/PodcastEpisodeInput";
 import { SocialPreviewUpload } from "../form-components/SocialPreviewUpload";
 import { defineStyles, useStyles } from "../hooks/useStyles";
-import { EditorFormComponent, useEditorFormCallbacks } from "../editor/EditorFormComponent";
+import { EditorFormComponent, useEditorFormCallbacks, AddOnSubmitCallback, AddOnSuccessCallback } from "../editor/EditorFormComponent";
 import { MuiTextField } from "@/components/form-components/MuiTextField";
 import { FormComponentSelect } from "@/components/form-components/FormComponentSelect";
 import FooterTagList from "../tagging/FooterTagList";
@@ -50,7 +50,6 @@ const styles = defineStyles('PostFormSecondaryGroups', (theme: ThemeType) => ({
     border: theme.palette.border.grey300,
     [theme.breakpoints.down('xs')]: {
       padding: 6,
-     
     },
     borderRadius: 2,
   },
@@ -147,10 +146,10 @@ const PostFormSecondaryGroups = ({
   initialData: EditablePost;
   formType: 'new' | 'edit';
   currentUser: UsersCurrent | null;
-  addOnSubmitCallbackCustom: ReturnType<typeof useEditorFormCallbacks<PostsEditMutationFragment>>['addOnSubmitCallback'];
-  addOnSuccessCallbackCustom: ReturnType<typeof useEditorFormCallbacks<PostsEditMutationFragment>>['addOnSuccessCallback'];
-  addOnSubmitCallbackModerationGuidelines: ReturnType<typeof useEditorFormCallbacks<PostsEditMutationFragment>>['addOnSubmitCallback'];
-  addOnSuccessCallbackModerationGuidelines: ReturnType<typeof useEditorFormCallbacks<PostsEditMutationFragment>>['addOnSuccessCallback'];
+  addOnSubmitCallbackCustom: AddOnSubmitCallback<PostsEditMutationFragment>
+  addOnSuccessCallbackCustom: AddOnSuccessCallback<PostsEditMutationFragment>;
+  addOnSubmitCallbackModerationGuidelines:AddOnSubmitCallback<PostsEditMutationFragment>
+  addOnSuccessCallbackModerationGuidelines: AddOnSuccessCallback<PostsEditMutationFragment>;
 }) => {
   const classes = useStyles(styles);
 
@@ -223,18 +222,15 @@ const PostFormSecondaryGroups = ({
       </div>
       <div>
         {expandedFormGroup === 'Tags' &&  <div className={classes.formGroup}>  
-          
           <h3 className={classes.formGroupTitle}>Apply {taggingNamePluralCapitalSetting.get()}</h3>
           <form.Field name="tagRelevance">
-            {(field) => (
-              <FooterTagList
-                post={getFooterTagListPostInfo(initialData)}
-                hideScore
-                hidePostTypeTag
-                showCoreTags
-                link={false}
-              />
-            )}
+            {() => (<FooterTagList
+              post={getFooterTagListPostInfo(initialData)}
+              hideScore
+              hidePostTypeTag
+              showCoreTags
+              link={false}
+            />)}
           </form.Field>
       </div>}
 
