@@ -4,7 +4,7 @@ export const userMentionQuery = 'mention'
 export const userMentionValue = 'user'
 export const userMentionQueryString = `${userMentionQuery}=${userMentionValue}`
 
-export async function getPostPingbackById(parsedUrl: RouterLocation, postId: string | null): Promise<PingbackDocument | null> {
+export async function getPostPingbackById(parsedUrl: RouterLocation, postId: string | null): Promise<PingbackDocument[] | null> {
   if (!postId)
     return null
 
@@ -14,7 +14,13 @@ export async function getPostPingbackById(parsedUrl: RouterLocation, postId: str
   // pingback in addition to the pingback to the post the comment is on.
   // TODO: In the case of a landmark, we want to customize the hover preview to
   // reflect where in the post the link was to.
-  return ({collectionName: 'Posts', documentId: postId})
+  const pingbacks: PingbackDocument[] = [{collectionName: 'Posts', documentId: postId}];
+
+  if (parsedUrl.query.commentId) {
+    pingbacks.push({collectionName: 'Comments', documentId: parsedUrl.query.commentId});
+  }
+
+  return pingbacks;
 }
 
 export async function getPostPingbackByLegacyId(parsedUrl: RouterLocation, legacyId: string, context: ResolverContext) {
@@ -33,7 +39,7 @@ export async function getPostPingbackBySlug(parsedUrl: RouterLocation, slug: str
   return await getPostPingbackById(parsedUrl, post._id)
 }
 
-export async function getUserPingbackBySlug(parsedUrl: RouterLocation, context: ResolverContext): Promise<PingbackDocument | null> {
+export async function getUserPingbackBySlug(parsedUrl: RouterLocation, context: ResolverContext): Promise<PingbackDocument[] | null> {
   const { Users } = context;
   const hasMentionParam = parsedUrl.query[userMentionQuery] === userMentionValue
   if (!hasMentionParam) return null
@@ -41,15 +47,15 @@ export async function getUserPingbackBySlug(parsedUrl: RouterLocation, context: 
   const user = await Users.findOne({slug: parsedUrl.params.slug})
   if (!user) return null
  
-  return ({collectionName: 'Users', documentId: user._id})
+  return [{collectionName: 'Users', documentId: user._id}];
 }
 
-export async function getTagPingbackById(parsedUrl: RouterLocation, tagId: string|null): Promise<PingbackDocument | null> {
+export async function getTagPingbackById(parsedUrl: RouterLocation, tagId: string|null): Promise<PingbackDocument[] | null> {
   if (!tagId) return null;
-  return {collectionName: "Tags", documentId: tagId};
+  return [{collectionName: "Tags", documentId: tagId}];
 }
 
-export async function getTagPingbackBySlug(parsedUrl: RouterLocation, slug: string, context: ResolverContext): Promise<PingbackDocument | null> {
+export async function getTagPingbackBySlug(parsedUrl: RouterLocation, slug: string, context: ResolverContext): Promise<PingbackDocument[] | null> {
   const { Tags } = context;
   // TODO: Handle lenses
   const tag = await Tags.findOne(

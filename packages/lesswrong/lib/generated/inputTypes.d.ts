@@ -12,6 +12,7 @@ interface Query {
   SuggestedTopActiveUsers: SuggestedTopActiveUsersResult | null;
   CommentEmbeddingSearch: Array<Comment>;
   CommentEmbeddingSimilaritySearch: Array<Comment>;
+  CommentPingbacks: CommentPingbackDocuments;
   CommentsWithReacts: CommentsWithReactsResult | null;
   PopularComments: PopularCommentsResult | null;
   PostAnalytics: PostAnalyticsResult;
@@ -646,6 +647,12 @@ interface VoteResultTag {
 interface VoteResultMultiDocument {
   document: MultiDocument;
   showVotingPatternWarning: boolean;
+}
+
+interface CommentPingbackDocuments {
+  comments: Array<Comment>;
+  posts: Array<Post>;
+  tags: Array<Tag>;
 }
 
 interface CommentsWithReactsResult {
@@ -9778,6 +9785,7 @@ interface GraphQLTypeMap {
   VoteResultElectionCandidate: VoteResultElectionCandidate;
   VoteResultTag: VoteResultTag;
   VoteResultMultiDocument: VoteResultMultiDocument;
+  CommentPingbackDocuments: CommentPingbackDocuments;
   CommentsWithReactsResult: CommentsWithReactsResult;
   PopularCommentsResult: PopularCommentsResult;
   PostKarmaChange: PostKarmaChange;

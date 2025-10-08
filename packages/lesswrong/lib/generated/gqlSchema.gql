@@ -360,9 +360,16 @@ extend type Mutation {
   performVoteMultiDocument(documentId: String, voteType: String, extendedVote: JSON): VoteResultMultiDocument
 }
 
+type CommentPingbackDocuments {
+  comments: [Comment!]!
+  posts: [Post!]!
+  tags: [Tag!]!
+}
+
 extend type Query {
   CommentEmbeddingSearch(query: String!, scoreBias: Float): [Comment!]!
   CommentEmbeddingSimilaritySearch(commentId: String!, scoreBias: Float): [Comment!]!
+  CommentPingbacks(commentId: String!): CommentPingbackDocuments!
 }
 
 extend type Mutation {

@@ -35,6 +35,11 @@ import HoveredReactionContextProvider from "../../votes/lwReactions/HoveredReact
 import CommentBottom from "./CommentBottom";
 import pick from 'lodash/pick';
 import { defineStyles, useStyles } from '@/components/hooks/useStyles';
+import { gql } from '@/lib/generated/gql-codegen';
+import { useQuery } from '@/lib/crud/useQuery';
+import HoverOver from '@/components/common/HoverOver';
+import { unflattenComments } from '@/lib/utils/unflatten';
+import CommentsList from '../CommentsList';
 
 
 const styles = defineStyles("CommentsItem", (theme: ThemeType) => ({
@@ -165,6 +170,90 @@ const styles = defineStyles("CommentsItem", (theme: ThemeType) => ({
 }), {
   stylePriority: -1,
 });
+
+const CommentPingbacksQuery = gql(`
+  query CommentPingbacks($commentId: String!) {
+    CommentPingbacks(commentId: $commentId) {
+      comments {
+        _id
+      }
+      posts {
+        _id
+      }
+      tags {
+        _id
+      }
+    }
+  }
+`);
+
+const CommentPreviews = ({ commentIds }: { commentIds: string[] }) => {
+  const { data } = useQuery(gql(`
+    query CommentPreviews($selector: CommentSelector) {
+      comments(selector: $selector) {
+        results {
+          ...CommentsList
+        }
+      }
+    }
+  `), {
+    variables: { selector: { default: { commentIds } } },
+  });
+
+  const comments = data?.comments?.results;
+
+  const nestedComments = comments && unflattenComments(comments);
+
+  return <CommentsList
+    treeOptions={{
+      postPage: true,
+      showCollapseButtons: true
+    }}
+    totalComments={comments?.length}
+    // Will be defined if results is defined, and we know results is truthy
+    comments={nestedComments!}
+  />;
+};
+
+const CommentPingbacks = ({comment}: {comment: CommentsList}) => {
+  const { data, loading } = useQuery(CommentPingbacksQuery, {
+    variables: { commentId: comment._id },
+    skip: comment._id !== 'XkeYBmsFKFR6PK8zK'
+  });
+
+  const pingbacks = data?.CommentPingbacks;
+  const { comments, posts, tags } = pingbacks ?? { comments: [], posts: [], tags: [] };
+
+  if (comments.length || posts.length || tags.length) {
+    const tooltipContent = <>
+      {comments.length
+        ? (
+          <HoverOver
+            title={<CommentPreviews commentIds={comments.map(c => c._id)}/>}
+            clickable
+            
+          >
+            {`${comments.length} comment${comments.length === 1 ? '' : 's'}`}
+          </HoverOver>
+        )
+        : null}
+      {posts.length ? `${posts.length} post${posts.length === 1 ? '' : 's'}` : null}
+      {tags.length ? `${tags.length} tag${tags.length === 1 ? '' : 's'}` : null}
+    </>;
+    return (
+      <HoverOver
+        title={tooltipContent}
+        clickable
+      >
+      <div>
+        Mentioned in...
+      </div>
+      </HoverOver>
+    );
+  }
+
+  return null;
+};
 
 /**
  * CommentsItem: A single comment, not including any recursion for child comments
@@ -384,6 +473,7 @@ export const CommentsItem = ({
               collapsed,
               toggleCollapse,
               setShowEdit,
+              rightSectionElements: <CommentPingbacks comment={comment} />,
             }}
           />
           {comment.promoted && comment.promotedByUser && <div className={classes.metaNotice}>

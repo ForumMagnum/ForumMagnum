@@ -79,6 +79,8 @@ export const CommentsList = gql(`
 
     forumEventId
     forumEventMetadata
+    
+    pingbacks
   }
 `)
 

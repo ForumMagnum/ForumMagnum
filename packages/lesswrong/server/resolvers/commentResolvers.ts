@@ -9,6 +9,7 @@ import gql from 'graphql-tag';
 import { updateComment } from '../collections/comments/mutations';
 import { getEmbeddingsFromApi } from '../voyage/client';
 import { userIsAdmin } from '@/lib/vulcan-users/permissions';
+import { jsonArrayContainsSelector } from '@/lib/utils/viewConstants';
 
 const { Query: commentsWithReactsQuery, typeDefs: commentsWithReactsTypeDefs } = createPaginatedResolver({
   name: "CommentsWithReacts",
@@ -107,13 +108,41 @@ export const graphqlQueries = {
 
     const comments = await repos.commentEmbeddings.searchCommentsByEmbedding(commentEmbedding.embeddings, { scoreBias: scoreBias ?? 0 });
     return await accessFilterMultiple(context.currentUser, 'Comments', comments, context);
+  },
+  async CommentPingbacks(root: void, args: { commentId: string }, context: ResolverContext) {
+    const { commentId } = args;
+    const { Comments, Posts, Users, Tags } = context;
+
+    const selector = jsonArrayContainsSelector("pingbacks.Comments", commentId);
+    console.log({ selector });
+
+    const [comments, posts, tags] = await Promise.all([
+      Comments.find(selector).fetch(),
+      Posts.find(selector).fetch(),
+      // Users.find(selector).fetch(),
+      Tags.find(selector).fetch(),
+    ]);
+
+    return {
+      comments: await accessFilterMultiple(context.currentUser, 'Comments', comments, context),
+      posts: await accessFilterMultiple(context.currentUser, 'Posts', posts, context),
+      // users: await accessFilterMultiple(context.currentUser, 'Users', users, context),
+      tags: await accessFilterMultiple(context.currentUser, 'Tags', tags, context),
+    };
   }
 }
 
 export const graphqlTypeDefs = gql`
+  type CommentPingbackDocuments {
+    comments: [Comment!]!
+    posts: [Post!]!
+    # users: [User!]!
+    tags: [Tag!]!
+  }
   extend type Query {
     CommentEmbeddingSearch(query: String!, scoreBias: Float): [Comment!]!
     CommentEmbeddingSimilaritySearch(commentId: String!, scoreBias: Float): [Comment!]!
+    CommentPingbacks(commentId: String!): CommentPingbackDocuments!
   }
   extend type Mutation {
     moderateComment(commentId: String, deleted: Boolean, deletedPublic: Boolean, deletedReason: String): Comment

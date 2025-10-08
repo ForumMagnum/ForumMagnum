@@ -17,7 +17,7 @@ interface PingbackDocument {
   documentId: string,
 }
 
-type GetPingbackFunction = (parsedUrl: RouterLocation, context: ResolverContext) => Promise<PingbackDocument|null> | PingbackDocument|null
+type GetPingbackFunction = (parsedUrl: RouterLocation, context: ResolverContext) => Promise<PingbackDocument[]|null> | PingbackDocument[]|null
 
 // ea-forum-look-here
 const legacyRouteAcronym = 'lw';
@@ -43,6 +43,7 @@ const routePingbackMapping = {
   '/posts/:_id/:slug?': (parsedUrl) => getPostPingbackById(parsedUrl, parsedUrl.params._id),
   '/posts/slug/:slug?': (parsedUrl, context) => getPostPingbackBySlug(parsedUrl, parsedUrl.params.slug, context),
   [`/${legacyRouteAcronym}/:id/:slug?`]: (parsedUrl, context) => getPostPingbackByLegacyId(parsedUrl, parsedUrl.params.id, context),
+  // '/posts/:_id/:slug?/\?commentId=:commentId': (parsedUrl) => getCommentPingbackById(parsedUrl.query.commentId),
 } satisfies Record<string, GetPingbackFunction>;
 
 type PingbacksIndex = Partial<Record<CollectionNameString, string[]>>
@@ -59,7 +60,7 @@ export const htmlToPingbacks = async (html: string, exclusions: Array<{collectio
   
   // collection name => array of distinct referenced document IDs in that
   // collection, in order of first appearance.
-  const pingbacks: Partial<Record<CollectionNameString, Array<string>>> = {};
+  const collectedPingbacks: Partial<Record<CollectionNameString, Array<string>>> = {};
 
   const context = createAnonymousContext();
   
@@ -82,18 +83,20 @@ export const htmlToPingbacks = async (html: string, exclusions: Array<{collectio
           routePatterns: Object.keys(routePingbackMapping).reverse() as (keyof typeof routePingbackMapping)[]
         });
         if (parsedUrl.routePattern && routePingbackMapping[parsedUrl.routePattern]) {
-          const getPingback = routePingbackMapping[parsedUrl.routePattern];
-          const pingback = await getPingback(parsedUrl, context);
-          if (pingback) {
-            if (exclusions && exclusions.find(
-              exclusion => exclusion.documentId===pingback.documentId && exclusion.collectionName===pingback.collectionName))
-            {
-              // Pingback is excluded
-            } else {
-              if (!(pingback.collectionName in pingbacks))
-                pingbacks[pingback.collectionName] = [];
-              if (!pingbacks[pingback.collectionName]!.includes(pingback.documentId))
-                pingbacks[pingback.collectionName]!.push(pingback.documentId);
+          const getPingbacks = routePingbackMapping[parsedUrl.routePattern];
+          const pingbacks = await getPingbacks(parsedUrl, context);
+          if (pingbacks?.length) {
+            for (const pingback of pingbacks) {
+              if (exclusions && exclusions.find(
+                exclusion => exclusion.documentId===pingback.documentId && exclusion.collectionName===pingback.collectionName))
+              {
+                // Pingback is excluded
+              } else {
+                if (!(pingback.collectionName in collectedPingbacks))
+                  collectedPingbacks[pingback.collectionName] = [];
+                if (!collectedPingbacks[pingback.collectionName]!.includes(pingback.documentId))
+                  collectedPingbacks[pingback.collectionName]!.push(pingback.documentId);
+              }
             }
           }
         }
@@ -103,7 +106,7 @@ export const htmlToPingbacks = async (html: string, exclusions: Array<{collectio
       console.error(err) // eslint-disable-line
     }
   }
-  return pingbacks;
+  return collectedPingbacks;
 };
 
 const extractLinks = (html: string): Array<string> => {
