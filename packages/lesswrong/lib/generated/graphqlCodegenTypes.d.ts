@@ -15752,25 +15752,6 @@ type unlinkCrossposterMutationVariables = Exact<{ [key: string]: never; }>;
 
 type unlinkCrossposterMutation = unlinkCrossposterMutation_Mutation;
 
-type multiTagFormComponentPostEditorTaggingQueryQuery_tags_MultiTagOutput_results_Tag = (
-  { __typename?: 'Tag' }
-  & TagFragment
-);
-
-type multiTagFormComponentPostEditorTaggingQueryQuery_tags_MultiTagOutput = { __typename?: 'MultiTagOutput', totalCount: number | null, results: Array<multiTagFormComponentPostEditorTaggingQueryQuery_tags_MultiTagOutput_results_Tag> };
-
-type multiTagFormComponentPostEditorTaggingQueryQuery_Query = { __typename?: 'Query', tags: multiTagFormComponentPostEditorTaggingQueryQuery_tags_MultiTagOutput | null };
-
-
-type multiTagFormComponentPostEditorTaggingQueryQueryVariables = Exact<{
-  selector: InputMaybe<TagSelector>;
-  limit: InputMaybe<Scalars['Int']['input']>;
-  enableTotal: InputMaybe<Scalars['Boolean']['input']>;
-}>;
-
-
-type multiTagFormComponentPostEditorTaggingQueryQuery = multiTagFormComponentPostEditorTaggingQueryQuery_Query;
-
 type ImageUploadQuery_user_SingleUserOutput_result_User = (
   { __typename?: 'User' }
   & UsersMinimumInfo
