@@ -126,6 +126,7 @@ interface SubmitMessageArgs {
 
 interface LlmChatContextType {
   orderedConversations: LlmConversation[];
+  orderedConversationsLoading: boolean;
   currentConversation?: LlmConversation;
   currentConversationLoading: boolean;
   submitMessage: (args: SubmitMessageArgs) => void;

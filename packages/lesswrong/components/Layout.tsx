@@ -59,6 +59,7 @@ import { SuspenseWrapper } from './common/SuspenseWrapper';
 import { useRouteMetadata } from './ClientRouteMetadataContext';
 import { isFullscreenRoute, isHomeRoute, isStandaloneRoute, isStaticHeaderRoute, isSunshineSidebarRoute, isUnspacedGridRoute } from '@/lib/routeChecks';
 import { AutoDarkModeWrapper } from './themes/ThemeContextProvider';
+import { EditorCommandsContextProvider } from './editor/EditorCommandsContext';
 import { NO_ADMIN_NEXT_REDIRECT_COOKIE } from '@/lib/cookies/cookies';
 
 import dynamic from 'next/dynamic';
@@ -380,7 +381,7 @@ const Layout = ({children}: {
 
     const standaloneNavigation = overrideLayoutOptions.standaloneNavigation ?? baseLayoutOptions.standaloneNavigation
     const renderSunshineSidebar = overrideLayoutOptions.renderSunshineSidebar ?? baseLayoutOptions.renderSunshineSidebar
-    const renderLanguageModelChatLauncher = overrideLayoutOptions.renderLanguageModelChatLauncher ?? baseLayoutOptions.renderLanguageModelChatLauncher
+    const renderLanguageModelChatLauncher = true; //overrideLayoutOptions.renderLanguageModelChatLauncher ?? baseLayoutOptions.renderLanguageModelChatLauncher
     const shouldUseGridLayout = overrideLayoutOptions.shouldUseGridLayout ?? baseLayoutOptions.shouldUseGridLayout
     const unspacedGridLayout = overrideLayoutOptions.unspacedGridLayout ?? baseLayoutOptions.unspacedGridLayout
     // The friendly home page has a unique grid layout, to account for the right hand side column.
@@ -396,6 +397,7 @@ const Layout = ({children}: {
       <ItemsReadContextWrapper>
       <LoginPopoverContextProvider>
       <SidebarsWrapper>
+      <EditorCommandsContextProvider>
       <AutosaveEditorStateContext.Provider value={autosaveEditorStateContext}>
       <LlmChatWrapper>
       <DisableNoKibitzContext.Provider value={noKibitzContext}>
@@ -525,6 +527,7 @@ const Layout = ({children}: {
       </DisableNoKibitzContext.Provider>
       </LlmChatWrapper>
       </AutosaveEditorStateContext.Provider>
+      </EditorCommandsContextProvider>
       </SidebarsWrapper>
       </LoginPopoverContextProvider>
       </ItemsReadContextWrapper>
