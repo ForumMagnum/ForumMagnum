@@ -146,7 +146,8 @@ const customSubmitButtonStyles = defineStyles('CommentSubmit', (theme: ThemeType
     display: "flex",
   },
   autoEmailSubscribe: {
-    marginRight: "auto"
+    marginRight: "auto",
+    marginLeft: 4
   },
 }), { stylePriority: 1 });
 
