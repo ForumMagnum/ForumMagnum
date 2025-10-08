@@ -25,15 +25,15 @@
     "schedule": "*/31 * * * *"
   }, {
     "path": "/api/cron/every-hour",
-    "schedule": "0 * * * *"
+    "schedule": "37 * * * *"
   }, {
     "path": "/api/cron/update-user-activities",
-    "schedule": "0 */3 * * *"
+    "schedule": "7 */3 * * *"
   }, {
-    "path": "/api/cron/every-midnight",
-    "schedule": "0 0 * * *"
+    "path": "/api/cron/every-day",
+    "schedule": "17 23 * * *"
   }, {
     "path": "/api/cron/update-missing-post-embeddings",
-    "schedule": "0 1 * * *"
+    "schedule": "27 1 * * *"
   }]
 }
