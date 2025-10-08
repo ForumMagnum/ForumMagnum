@@ -18,15 +18,15 @@ import Input from '@/lib/vendor/@material-ui/core/src/Input/Input';
 import { PromptContextOptions, RAG_MODE_SET, RagModeType } from './schema';
 import Select from '@/lib/vendor/@material-ui/core/src/Select';
 import { useStyles, defineStyles } from '../hooks/useStyles';
-import { Prompt } from '@/lib/promptLibrary';
+import { Prompt, promptLibrary } from '@/lib/promptLibrary';
 import { AutosaveEditorStateContext } from '../common/sharedContexts';
 import ContentStyles from '../common/ContentStyles';
 import { ContentItemBody } from '../contents/ContentItemBody';
 import Row from '../common/Row';
 import LWTooltip from '../common/LWTooltip';
-import Loading from 'app/loading';
 import ForumIcon from '../common/ForumIcon';
 import { MenuItem } from '../common/Menus';
+import Loading from '../vulcan-core/Loading';
 
 const styles = defineStyles('LanguageModelChat', (theme: ThemeType) => ({
   root: {
@@ -511,8 +511,8 @@ export const ChatInterface = () => {
 
   const exportHistoryToClipboard = () => {
     if (!currentConversation) return
-    const conversationHistory = currentConversation.messages.filter(({role}) => ['user', 'assistant', 'user-context'].includes(role))
-    const formattedChatHistory = conversationHistory.map(({role, content}) => `<strong>${role.toUpperCase()}:</strong> ${content}`).join("\n")
+    const conversationHistory = currentConversation.messages.filter(({role}) => role && ['user', 'assistant', 'user-context'].includes(role))
+    const formattedChatHistory = conversationHistory.map(({role, content}) => role ? `<strong>${role.toUpperCase()}:</strong> ${content}` : content).join("\n")
     void navigator.clipboard.writeText(formattedChatHistory)
     flash('Chat history copied to clipboard')
   }
@@ -576,7 +576,7 @@ export const ChatInterface = () => {
   </div>
   const renderEditorFeedbackPrompts = !currentConversation?.messages?.length
   const editorFeedbackPrompts = <div>
-    {renderEditorFeedbackPrompts && promptLibrary.editorFeedback.map((prompt: Prompt) => <PostSuggestionsPromptInput key={prompt.title} prompt={prompt} classes={classes} />)}
+    {renderEditorFeedbackPrompts && promptLibrary.editorFeedback.map((prompt: Prompt) => <PostSuggestionsPromptInput key={prompt.title} prompt={prompt} />)}
   </div>
 
   const handleSubmit = useCallback(async (message: string) => {
@@ -590,7 +590,7 @@ export const ChatInterface = () => {
     {messagesForDisplay}
     {editorFeedbackPrompts}
     {currentConversationLoading && <Loading className={classes.loadingSpinner}/>}
-    <LLMInputTextbox onSubmit={handleSubmit} classes={classes} />
+    <LLMInputTextbox onSubmit={handleSubmit} />
     {options}
   </div>
 }
@@ -598,11 +598,11 @@ export const ChatInterface = () => {
 
 // Wrapper component needed so we can use deferRender
 export const LanguageModelChat = () => {
-  const classes = useStyles()
+  const classes = useStyles(styles);
   return <DeferRender ssr={false}>
     <AnalyticsContext pageSectionContext='llmChat'>
       <div className={classes.root}>
-        <ChatInterface classes={classes} />
+        <ChatInterface />
       </div>
     </AnalyticsContext>
   </DeferRender>;

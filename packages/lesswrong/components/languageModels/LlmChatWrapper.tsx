@@ -204,6 +204,10 @@ const LlmChatWrapper = ({children}: {
     !!currentConversationId && loadingConversationIds.includes(currentConversationId)
   ), [currentConversationId, loadingConversationIds]);
 
+  const orderedConversationsLoading = useMemo(() => (
+    loadingConversationIds.length > 0
+  ), [loadingConversationIds]);
+
   const currentConversation = useMemo(() => (
     currentConversationId ? conversations[currentConversationId] : undefined
   ), [conversations, currentConversationId]);
@@ -582,6 +586,7 @@ const LlmChatWrapper = ({children}: {
     currentConversation,
     currentConversationLoading,
     orderedConversations: sortedConversations,
+    orderedConversationsLoading,
     submitMessage,
     setCurrentConversation,
     archiveConversation,
