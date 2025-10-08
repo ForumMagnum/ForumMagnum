@@ -5,8 +5,8 @@
  * yarn repl prod packages/lesswrong/server/scripts/frontpageClassifier/trainClassifier.ts "trainFrontpageClassifier()"
  */
 
-import { Posts } from '../../collections/posts/collection';
-import PostEmbeddings from '../../collections/postEmbeddings/collection';
+/* eslint-disable no-console */
+
 import { LogisticRegression } from '../../../lib/frontpageClassifier/logisticRegression';
 import { postStatuses } from '../../../lib/collections/posts/constants';
 import fs from 'fs';
@@ -243,7 +243,7 @@ export async function trainFrontpageClassifier(
       if (pred === 0 && actual === 1) falseNegatives++;
     }
 
-    const cost = falsePositives * falsePositiveWeight + falseNegatives * falseNegativeWeight;
+    const cost = (falsePositives * falsePositiveWeight) + (falseNegatives * falseNegativeWeight);
     console.log(`Threshold ${threshold}: FP=${falsePositives}, FN=${falseNegatives}, Cost=${cost}`);
 
     if (cost < bestCost) {
