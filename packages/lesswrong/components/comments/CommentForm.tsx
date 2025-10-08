@@ -341,8 +341,6 @@ export const CommentForm = ({
             const newComment = data?.createComment?.data;
             if (!newComment) {
               return existingComments;
-            } else if (newComment.draft && !storeFieldName.includes('"drafts"')) {
-              return existingComments;
             } else if (!newComment.postId && !newComment.tagId) {
               return existingComments;
             } else if (newComment.postId && !storeFieldName.includes(newComment.postId)) {
