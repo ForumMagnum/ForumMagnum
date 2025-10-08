@@ -590,7 +590,7 @@ const LlmChatWrapper = ({children}: {
     submitMessage,
     setCurrentConversation,
     archiveConversation,
-  }), [submitMessage, setCurrentConversation, archiveConversation, currentConversationLoading, currentConversation, sortedConversations]);
+  }), [submitMessage, setCurrentConversation, archiveConversation, currentConversationLoading, currentConversation, sortedConversations, orderedConversationsLoading]);
 
   return <LlmChatContext.Provider value={llmChatContext}>
     {children}

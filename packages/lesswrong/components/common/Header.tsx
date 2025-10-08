@@ -317,6 +317,7 @@ const Header = ({
   stayAtTop=false,
   searchResultsArea,
   backgroundColor,
+  llmChatSidebarOpen=false,
   classes,
 }: {
   standaloneNavigationPresent: boolean,
@@ -326,6 +327,7 @@ const Header = ({
   searchResultsArea: React.RefObject<HTMLDivElement|null>,
   // CSS var corresponding to the background color you want to apply (see also appBarDarkBackground above)
   backgroundColor?: string,
+  llmChatSidebarOpen?: boolean,
   classes: ClassesType<typeof styles>,
 }) => {
   const [navigationOpen, setNavigationOpenState] = useState(false);
@@ -532,6 +534,12 @@ const Header = ({
 
   // Make all the text and icons the same color as the text on the current forum event banner
   const useContrastText = Object.keys(headerStyle).length > 0;
+
+  // Adjust header width when LLM chat sidebar is open and header is fixed
+  const LLM_CHAT_SIDEBAR_WIDTH = 500;
+  if (llmChatSidebarOpen && !unFixed) {
+    headerStyle.width = `calc(100% - ${LLM_CHAT_SIDEBAR_WIDTH}px)`;
+  }
 
   return (
     <AnalyticsContext pageSectionContext="header">

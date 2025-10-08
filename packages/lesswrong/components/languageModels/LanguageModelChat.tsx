@@ -209,6 +209,32 @@ const styles = defineStyles('LanguageModelChat', (theme: ThemeType) => ({
     opacity: 0.3,
     cursor: "default",
   },
+  customPromptContainer: {
+    border: theme.palette.border.commentBorder,
+    alignSelf: 'flex-start',
+    ...theme.typography.body2,
+    width: "100%",
+    fontSize: "1.1rem",
+    marginBottom: 4,
+    paddingTop: 6,
+    paddingBottom: 6,
+    paddingLeft: 10,
+    paddingRight: 10,
+    borderRadius: 4,
+  },
+  customPromptInput: {
+    borderRadius: 4,
+    width: "100%",
+    ...theme.typography.body2,
+    marginTop: 8,
+  },
+  customPromptHeader: {
+    display: "flex",
+    justifyContent: "space-between",
+    alignItems: "center",
+    cursor: 'pointer',
+    opacity: 0.8,
+  },
 }));
 
 export const LLMChatMessage = ({message}: {
@@ -424,6 +450,80 @@ const PostSuggestionsPromptInput = ({prompt}: {prompt: Prompt}) => {
   </div>
 }
 
+const CustomPromptInput = () => {
+  const classes = useStyles(styles);
+
+  const [expanded, setExpanded] = useState(false);
+  const [customPrompt, setCustomPrompt] = useState('');
+  const { getLlmFeedbackCommand, cancelLlmFeedbackCommand, llmFeedbackCommandLoadingSourceId } = useEditorCommands();
+
+  const handleSubmit = useCallback(async () => {
+    if (getLlmFeedbackCommand && customPrompt.trim()) {
+      await getLlmFeedbackCommand(customPrompt, 'Custom Prompt');
+      setCustomPrompt('');
+      setExpanded(false);
+    }
+  }, [getLlmFeedbackCommand, customPrompt]);
+
+  const handleCancel = useCallback(() => {
+    if (cancelLlmFeedbackCommand) {
+      cancelLlmFeedbackCommand();
+    }
+  }, [cancelLlmFeedbackCommand]);
+
+  if (!getLlmFeedbackCommand) {
+    return <div className={classNames(classes.customPromptContainer, classes.disabledButton)}>
+      <div className={classes.customPromptHeader}>
+        <LWTooltip title="Enable collaborative editing to get AI suggestions" placement="left">
+          Custom Prompt
+        </LWTooltip>
+      </div>
+    </div>
+  }
+
+  if (llmFeedbackCommandLoadingSourceId === 'Custom Prompt') {
+    return <div className={classes.customPromptContainer}>
+      <div className={classes.customPromptHeader} onClick={handleCancel}>
+        <LWTooltip title="Generating suggestions, click to cancel" placement="left">
+          <Row alignItems="center" gap={4}>
+            <Loading />
+          </Row>
+        </LWTooltip>
+      </div>
+    </div>
+  }
+
+  return <div className={classes.customPromptContainer}>
+    <div className={classes.customPromptHeader} onClick={() => setExpanded(!expanded)}>
+      <Row alignItems="center" gap={4}>
+        <div>Custom Prompt</div>
+        <LWTooltip title={expanded ? "Collapse" : "Expand"} placement="right">
+          <ForumIcon className={classes.suggestionIcon} icon={expanded ? "ExpandLess" : "ExpandMore"} />
+        </LWTooltip>
+      </Row>
+    </div>
+    {expanded && (
+      <div>
+        <Input
+          id="custom-feedback-prompt-input"
+          className={classes.customPromptInput}
+          type="text"
+          placeholder="Enter your custom prompt here..."
+          value={customPrompt}
+          onChange={(e) => setCustomPrompt(e.target.value)}
+          multiline
+          disableUnderline
+        />
+        <div className={classes.editorButtons}>
+          <Button onClick={handleSubmit} disabled={!customPrompt.trim()}>
+            Submit
+          </Button>
+        </div>
+      </div>
+    )}
+  </div>
+}
+
 export const ChatInterface = () => {
   const classes = useStyles(styles);
 
@@ -577,6 +677,7 @@ export const ChatInterface = () => {
   const renderEditorFeedbackPrompts = !currentConversation?.messages?.length
   const editorFeedbackPrompts = <div>
     {renderEditorFeedbackPrompts && promptLibrary.editorFeedback.map((prompt: Prompt) => <PostSuggestionsPromptInput key={prompt.title} prompt={prompt} />)}
+    {renderEditorFeedbackPrompts && <CustomPromptInput />}
   </div>
 
   const handleSubmit = useCallback(async (message: string) => {
