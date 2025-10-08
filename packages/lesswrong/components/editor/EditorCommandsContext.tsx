@@ -36,5 +36,7 @@ export const EditorCommandsContextProvider = ({ children }: { children: ReactNod
     setLlmFeedbackCommandLoadingSourceId,
   }), [getLlmFeedbackCommand, setGetLlmFeedbackCommand, cancelLlmFeedbackCommand, setCancelLlmFeedbackCommand, llmFeedbackCommandLoadingSourceId, setLlmFeedbackCommandLoadingSourceId]);
 
-  return <EditorCommandsContext.Provider value={providedContext}>{children}</EditorCommandsContext.Provider>
+  return <EditorCommandsContext.Provider value={providedContext}>
+    {children}
+  </EditorCommandsContext.Provider>
 }

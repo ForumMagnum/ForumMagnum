@@ -333,6 +333,7 @@ export type ConnectedUserInfo = {
 }
 
 const readOnlyPermissionsLock = Symbol("ckEditorReadOnlyPermissions");
+const readOnlyLlmFeedbackLoadingLock = Symbol("ckEditorReadOnlyLlmFeedbackLoading");
 
 const getPostEditorToolbarConfig = () => ({
   blockToolbar: {
@@ -635,7 +636,17 @@ const CKPostEditor = ({
     };
   }, [getLlmFeedback, cancelLlmFeedback, isCollaborative, setGetLlmFeedbackCommand, setCancelLlmFeedbackCommand]);
 
-  return <div className={classes.ckWrapper}>
+  useEffect(() => {
+    if (!editorObject) return;
+
+    if (llmFeedbackCommandLoadingSourceId) {
+      editorObject.enableReadOnlyMode(readOnlyLlmFeedbackLoadingLock);
+    } else {
+      editorObject.disableReadOnlyMode(readOnlyLlmFeedbackLoadingLock);
+    }
+  }, [editorObject, llmFeedbackCommandLoadingSourceId]);
+
+  return <div className={classNames(classes.ckWrapper, {[classes.loadingState]: !!llmFeedbackCommandLoadingSourceId})}>
     {isBlockOwnershipMode && <>
      {!hasEverDialoguedBefore && <DialogueEditorGuidelines />}
      <style>
