@@ -1,6 +1,6 @@
 import React, { useRef, useState, useEffect, useContext } from 'react'
 import { ckEditorBundleVersion, getCkPostEditor } from '../../lib/wrapCkEditor';
-import { getCKEditorDocumentId, generateTokenRequest} from '../../lib/ckEditorUtils'
+import { getCKEditorDocumentId, useGetCkEditorToken} from '../../lib/ckEditorUtils'
 import { CollaborativeEditingAccessLevel, accessLevelCan } from '../../lib/collections/posts/collabEditingPermissions';
 import { ckEditorUploadUrlSetting, ckEditorWebsocketUrlSetting, ckEditorUploadUrlOverrideSetting, ckEditorWebsocketUrlOverrideSetting, isEAForum, isLWorAF } from '@/lib/instanceSettings';
 import EditorTopBar, { CollaborationMode } from './EditorTopBar';
@@ -530,6 +530,8 @@ const CKPostEditor = ({
   }
 
   const actualPlaceholder = placeholder ?? getDefaultEditorPlaceholder();
+  
+  const { getCkEditorToken } = useGetCkEditorToken();
 
   // This is AnyBecauseHard because it contains plugin-specific configs that are
   // added to the EditorConfig type via augmentations, but we don't get those
@@ -542,7 +544,7 @@ const CKPostEditor = ({
       }
     },
     cloudServices: ckEditorCloudConfigured ? {
-      tokenUrl: generateTokenRequest(collectionName, fieldName, documentId, userId, formType, key),
+      tokenUrl: getCkEditorToken({collectionName, fieldName, documentId, formType, key}),
       uploadUrl: ckEditorUploadUrlOverrideSetting.get() || ckEditorUploadUrlSetting.get(),
       webSocketUrl: webSocketUrl,
       documentId: getCKEditorDocumentId(documentId, userId, formType),

@@ -1466,6 +1466,18 @@ type ElicitQuestionPredictionCreator {
   sourceUserId: String
 }
 
+input GetCkEditorTokenOptions {
+  collectionName: String!
+  fieldName: String!
+  documentId: String
+  formType: String!
+  linkSharingKey: String
+}
+
+extend type Query {
+  getCkEditorToken(options: GetCkEditorTokenOptions!): String!
+}
+
 type AdvisorRequest {
   _id: String!
   schemaVersion: Float!

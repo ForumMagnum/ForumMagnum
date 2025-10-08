@@ -204,6 +204,7 @@ import { createUserMostValuablePostGqlMutation, updateUserMostValuablePostGqlMut
 import { createUserRateLimitGqlMutation, updateUserRateLimitGqlMutation, graphqlUserRateLimitTypeDefs } from "@/server/collections/userRateLimits/mutations";
 import { createUserTagRelGqlMutation, updateUserTagRelGqlMutation, graphqlUserTagRelTypeDefs } from "@/server/collections/userTagRels/mutations";
 import { createUserGqlMutation, updateUserGqlMutation, graphqlUserTypeDefs } from "@/server/collections/users/mutations";
+import { ckEditorTokenGrahQLTypeDefs, ckEditorTokenGraphQLQueries } from '@/server/ckEditor/ckEditorToken';
 
 
 const selectorInput = gql`
@@ -319,6 +320,7 @@ export const getTypeDefs = () => gql`
   ${generateCoverImagesForPostGraphQLTypeDefs}
   ${flipSplashArtImageGraphQLTypeDefs}
   ${elicitQuestionPredictionsGraphQLTypeDefs}
+  ${ckEditorTokenGrahQLTypeDefs}
   ## CRUD Query typedefs
   ${graphqlAdvisorRequestQueryTypeDefs}
   ${graphqlArbitalCachesQueryTypeDefs}
@@ -501,6 +503,7 @@ const getResolvers = () => ({
     ...ultraFeedGraphQLQueries,
     ...ultraFeedSubscriptionsQueries,
     ...spotlightGqlQueries,
+    ...ckEditorTokenGraphQLQueries,
 
     // CRUD Query Handlers
     ...advisorRequestGqlQueryHandlers,

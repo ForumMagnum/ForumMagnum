@@ -1,7 +1,7 @@
 import React, { useContext, useState } from 'react'
 import { registerComponent } from '../../lib/vulcan-lib/components';
 import { ckEditorBundleVersion, getCkCommentEditor } from '../../lib/wrapCkEditor';
-import { generateTokenRequest } from '../../lib/ckEditorUtils';
+import { generateTokenRequest, useGetCkEditorToken } from '../../lib/ckEditorUtils';
 import { ckEditorUploadUrlSetting, ckEditorWebsocketUrlSetting, ckEditorUploadUrlOverrideSetting, ckEditorWebsocketUrlOverrideSetting, isEAForum, isLWorAF } from '@/lib/instanceSettings';
 import { getDefaultEditorPlaceholder } from '@/lib/editor/defaultEditorPlaceholder';
 import { mentionPluginConfiguration } from "../../lib/editor/mentionsConfig";
@@ -71,6 +71,7 @@ const CKCommentEditor = ({
   const [editorObject, setEditorObject] = useState<Editor | null>(null);
 
   const actualPlaceholder = placeholder ?? getDefaultEditorPlaceholder();
+  const { getCkEditorToken } = useGetCkEditorToken();
 
   const editorConfig = {
     ...getCommentEditorToolbarConfig(),
@@ -81,7 +82,7 @@ const CKCommentEditor = ({
       //
       // The collaborative editor is not activated because no `websocketUrl`
       // or `documentId` is provided.
-      tokenUrl: generateTokenRequest(collectionName, fieldName),
+      tokenUrl: getCkEditorToken({collectionName, fieldName, documentId: undefined, formType: "new", key: null}),
       uploadUrl: ckEditorUploadUrlOverrideSetting.get() || ckEditorUploadUrlSetting.get(),
       bundleVersion: ckEditorBundleVersion,
     } : undefined,

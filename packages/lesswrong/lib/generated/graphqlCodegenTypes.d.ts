@@ -2737,6 +2737,14 @@ type GardenCodesUsersPrivateGardenCodesInput = {
   userId?: InputMaybe<Scalars['String']['input']>;
 };
 
+type GetCkEditorTokenOptions = {
+  collectionName: Scalars['String']['input'];
+  documentId?: InputMaybe<Scalars['String']['input']>;
+  fieldName: Scalars['String']['input'];
+  formType: Scalars['String']['input'];
+  linkSharingKey?: InputMaybe<Scalars['String']['input']>;
+};
+
 type GivingSeasonHeart = {
   __typename?: 'GivingSeasonHeart';
   displayName: Scalars['String']['output'];
@@ -7607,6 +7615,7 @@ type Query = {
   forumEvents?: Maybe<MultiForumEventOutput>;
   gardenCode?: Maybe<SingleGardenCodeOutput>;
   gardenCodes?: Maybe<MultiGardenCodeOutput>;
+  getCkEditorToken: Scalars['String']['output'];
   getCrosspost?: Maybe<Scalars['JSON']['output']>;
   getLinkSharedPost?: Maybe<Post>;
   googleServiceAccountSession?: Maybe<SingleGoogleServiceAccountSessionOutput>;
@@ -8432,6 +8441,11 @@ type QuerygardenCodesArgs = {
   limit?: InputMaybe<Scalars['Int']['input']>;
   offset?: InputMaybe<Scalars['Int']['input']>;
   selector?: InputMaybe<GardenCodeSelector>;
+};
+
+
+type QuerygetCkEditorTokenArgs = {
+  options: GetCkEditorTokenOptions;
 };
 
 
@@ -24111,6 +24125,16 @@ type updatePostPostsEditFormMutationVariables = Exact<{
 
 
 type updatePostPostsEditFormMutation = updatePostPostsEditFormMutation_Mutation;
+
+type getCkEditorTokenQuery_Query = { __typename?: 'Query', getCkEditorToken: string };
+
+
+type getCkEditorTokenQueryVariables = Exact<{
+  options: GetCkEditorTokenOptions;
+}>;
+
+
+type getCkEditorTokenQuery = getCkEditorTokenQuery_Query;
 
 type AutomatedContentEvaluationsFragment_AutomatedContentEvaluation_sentenceScores_SentenceScore = { __typename?: 'SentenceScore', sentence: string, score: number };
 

@@ -10,6 +10,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { z } from 'zod';
 import { captureException } from '@/lib/sentryWrapper';
 import { getUserFromReq } from '../vulcan-lib/apollo-server/getUserFromReq';
+import gql from 'graphql-tag';
 
 function permissionsLevelToCkEditorRole(access: CollaborativeEditingAccessLevel): string {
   switch (access) {
@@ -42,10 +43,8 @@ function handleErrorAndReturn(req: NextRequest, error: Error) {
   return NextResponse.json({ error: error.message }, { status: 500 });
 }
 
+// DEPRECATED
 export async function ckEditorTokenHandler(req: NextRequest) {
-  const environmentId = getCkEditorEnvironmentId();
-  const secretKey = getCkEditorSecretKey()!; // Assume nonnull; causes lack of encryption in development
-
   const { collectionName, documentId, userId, rawFormType, linkSharingKey } = extractHeaders(req);
   
   if (!collectionName || collectionName.includes(",")) {
@@ -68,6 +67,17 @@ export async function ckEditorTokenHandler(req: NextRequest) {
     urlForContext.searchParams.set('key', linkSharingKey);
   }
 
+  const parsedFormType = formTypeValidator.safeParse(rawFormType);
+  if (!parsedFormType.success) {
+    const error = new Error("Invalid formType header");
+    return handleErrorAndReturn(req, error);
+  }
+
+  const formType = parsedFormType.data;
+  if (!formType) {
+    return handleErrorAndReturn(req, new Error("Missing formType header"));
+  }
+  
   const user = await getUserFromReq(req);
 
   const contextWithKey = computeContextFromUser({
@@ -77,19 +87,37 @@ export async function ckEditorTokenHandler(req: NextRequest) {
     cookies: req.cookies.getAll(),
     isSSR: false,
   });
-    
-  if (collectionName === "Posts") {
-    const parsedFormType = formTypeValidator.safeParse(rawFormType);
-    if (!parsedFormType.success) {
-      const error = new Error("Invalid formType header");
-      return handleErrorAndReturn(req, error);
+  
+  const tokenPayload = await getCkEditorToken({
+    collectionName,
+    documentId: documentId,
+    formType,
+    context: contextWithKey,
+  });
+  const secretKey = getCkEditorSecretKey()!; // Assume nonnull; causes lack of encryption in development
+  const result = jwt.sign( tokenPayload, secretKey, { algorithm: 'HS256' } );
+  return new Response(result, {
+    headers: {
+      "Content-Type": "application/octet-stream"
     }
-  
-    const formType = parsedFormType.data;
-  
+  });
+}
+
+async function getCkEditorToken({collectionName, documentId, formType, linkSharingKey, context}: {
+  collectionName: string,
+  documentId: string|undefined,
+  formType: "edit"|"new",
+  linkSharingKey: string|null,
+  context: ResolverContext,
+}) {
+  const environmentId = getCkEditorEnvironmentId();
+  const user = context.currentUser;
+  const userId = user?._id;
+
+  if (collectionName === "Posts") {
     const ckEditorId = getCKEditorDocumentId(documentId, userId, formType ?? undefined)
     const post = documentId ? await Posts.findOne(documentId) : null;
-    const access = documentId ? await getCollaborativeEditorAccess({ formType, post, user, context: contextWithKey, useAdminPowers: true }) : "edit";
+    const access = documentId ? await getCollaborativeEditorAccess({ formType, post, user, linkSharingKey, context, useAdminPowers: true }) : "edit";
   
     if (access === "none") {
       return new Response("Access denied", { status: 403 });
@@ -108,14 +136,7 @@ export async function ckEditorTokenHandler(req: NextRequest) {
         },
       },
     };
-    
-    const result = jwt.sign( payload, secretKey, { algorithm: 'HS256' } );
-    
-    return new Response(result, {
-      headers: {
-        "Content-Type": "application/octet-stream"
-      }
-    });
+    return payload;
   } else {
     const payload = {
       aud: environmentId,
@@ -125,13 +146,32 @@ export async function ckEditorTokenHandler(req: NextRequest) {
         name: userGetDisplayName(user)
       } : null,
     };
-    
-    const result = jwt.sign( payload, secretKey, { algorithm: 'HS256' } );
-    
-    return new Response(result, {
-      headers: {
-        "Content-Type": "application/octet-stream"
-      }
-    });
+    return payload;
   }
 }
+
+export const ckEditorTokenGrahQLTypeDefs = gql`
+  input GetCkEditorTokenOptions {
+    collectionName: String!
+    fieldName: String!
+    documentId: String
+    formType: String!
+    linkSharingKey: String
+  }
+  extend type Query {
+    getCkEditorToken(options: GetCkEditorTokenOptions!): String!
+  }
+`;
+
+export const ckEditorTokenGraphQLQueries = {
+  getCkEditorToken: async (_root: void, args: {options: GetCkEditorTokenOptions}, context: ResolverContext): Promise<string> => {
+    const { currentUser } = context;
+    const { collectionName, fieldName, documentId, formType, linkSharingKey } = args.options;
+    const tokenPayload = await getCkEditorToken({
+      collectionName, fieldName, documentId, formType, linkSharingKey, context
+    });
+    const secretKey = getCkEditorSecretKey()!; // Assume nonnull; causes lack of encryption in development
+    const result = jwt.sign( tokenPayload, secretKey, { algorithm: 'HS256' } );
+    return result;
+  }
+};

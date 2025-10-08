@@ -78,6 +78,7 @@ interface Query {
   RevisionsDiff: string | null;
   UltraFeed: UltraFeedQueryResults;
   UltraFeedSubscriptions: UltraFeedQueryResults;
+  getCkEditorToken: string;
   advisorRequest: SingleAdvisorRequestOutput | null;
   advisorRequests: MultiAdvisorRequestOutput | null;
   arbitalTagContentRel: SingleArbitalTagContentRelOutput | null;
@@ -1291,6 +1292,14 @@ interface ElicitQuestionPredictionCreator {
   displayName: string;
   isQuestionCreator: boolean;
   sourceUserId: string | null;
+}
+
+interface GetCkEditorTokenOptions {
+  collectionName: string;
+  fieldName: string;
+  documentId: string | null;
+  formType: string;
+  linkSharingKey: string | null;
 }
 
 interface AdvisorRequest {
@@ -9874,6 +9883,7 @@ interface GraphQLTypeMap {
   UltraFeedQueryResults: UltraFeedQueryResults;
   UltraFeedEntry: UltraFeedEntry;
   ElicitQuestionPredictionCreator: ElicitQuestionPredictionCreator;
+  GetCkEditorTokenOptions: GetCkEditorTokenOptions;
   AdvisorRequest: AdvisorRequest;
   SingleAdvisorRequestInput: SingleAdvisorRequestInput;
   SingleAdvisorRequestOutput: SingleAdvisorRequestOutput;
