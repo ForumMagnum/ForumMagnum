@@ -1,6 +1,7 @@
 import type { NextRequest } from 'next/server';
 import PageCacheRepo from '@/server/repos/PageCacheRepo';
 import { userLoginTokensView } from "@/server/postgresView";
+import { getCronLock } from '@/server/cron/cronLock';
 
 export async function GET(request: NextRequest) {
   const authHeader = request.headers.get('authorization');
@@ -8,21 +9,15 @@ export async function GET(request: NextRequest) {
     return new Response('Unauthorized', { status: 401 });
   }
 
-  // Run all every-five-minutes tasks in parallel
-  const tasks: Promise<void>[] = [];
-
   // Clear expired page cache
   const pageCacheRepo = new PageCacheRepo();
-  tasks.push(pageCacheRepo.clearExpiredEntries());
+  await pageCacheRepo.clearExpiredEntries();
 
   // Update user login tokens view
   const userLoginTokensJob = userLoginTokensView.getCronJob()?.job;
   if (userLoginTokensJob) {
-    tasks.push(userLoginTokensJob());
+    await getCronLock('userLoginTokensJob', userLoginTokensJob);
   }
-
-  // Execute all tasks in parallel
-  await Promise.all(tasks);
   
   return new Response('OK', { status: 200 });
 }

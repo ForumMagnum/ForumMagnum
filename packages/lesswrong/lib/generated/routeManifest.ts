@@ -127,6 +127,9 @@ export const routeTrie = {
             "update-analytics-collections": {
               "hasRoute": true
             },
+            "update-missing-post-embeddings": {
+              "hasRoute": true
+            },
             "update-promoted-spotlight-item": {
               "hasRoute": true
             },
@@ -142,6 +145,7 @@ export const routeTrie = {
             "every-ten-minutes": "every-ten-minutes",
             "run-twitter-bot": "run-twitter-bot",
             "update-analytics-collections": "update-analytics-collections",
+            "update-missing-post-embeddings": "update-missing-post-embeddings",
             "update-promoted-spotlight-item": "update-promoted-spotlight-item",
             "update-user-activities": "update-user-activities"
           }

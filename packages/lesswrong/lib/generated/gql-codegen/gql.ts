@@ -15,6 +15,7 @@ import { TypedDocumentNode as DocumentNode } from '@graphql-typed-document-node/
  */
 type Documents = {
     "\n  query LocalgroupMetadata($groupId: String) {\n    localgroup(selector: { _id: $groupId }) {\n      result {\n        _id\n        name\n        bannerImageId\n        contents {\n          plaintextDescription\n        }\n      }\n    }\n  }\n": typeof types.LocalgroupMetadataDocument,
+    "\n  query multiModeratorCommentsQuery($commentIds: [String!]!) {\n    comments(selector: { default: { commentIds: $commentIds } }) {\n      results {\n        ...ShortformComments\n      }\n    }\n  }\n": typeof types.multiModeratorCommentsQueryDocument,
     "\n  query SequenceMetadata($sequenceId: String) {\n    sequence(selector: { _id: $sequenceId }) {\n      result {\n        _id\n        title\n      }\n    }\n  }\n": typeof types.SequenceMetadataDocument,
     "\n  mutation updateUserLayout($selector: SelectorInput!, $data: UpdateUserDataInput!) {\n    updateUser(selector: $selector, data: $data) {\n      data {\n        ...UsersCurrent\n      }\n    }\n  }\n": typeof types.updateUserLayoutDocument,
     "\n    query AdminMetadataQuery {\n      AdminMetadata\n    }\n  ": typeof types.AdminMetadataQueryDocument,
@@ -905,6 +906,7 @@ type Documents = {
 };
 const documents: Documents = {
     "\n  query LocalgroupMetadata($groupId: String) {\n    localgroup(selector: { _id: $groupId }) {\n      result {\n        _id\n        name\n        bannerImageId\n        contents {\n          plaintextDescription\n        }\n      }\n    }\n  }\n": types.LocalgroupMetadataDocument,
+    "\n  query multiModeratorCommentsQuery($commentIds: [String!]!) {\n    comments(selector: { default: { commentIds: $commentIds } }) {\n      results {\n        ...ShortformComments\n      }\n    }\n  }\n": types.multiModeratorCommentsQueryDocument,
     "\n  query SequenceMetadata($sequenceId: String) {\n    sequence(selector: { _id: $sequenceId }) {\n      result {\n        _id\n        title\n      }\n    }\n  }\n": types.SequenceMetadataDocument,
     "\n  mutation updateUserLayout($selector: SelectorInput!, $data: UpdateUserDataInput!) {\n    updateUser(selector: $selector, data: $data) {\n      data {\n        ...UsersCurrent\n      }\n    }\n  }\n": types.updateUserLayoutDocument,
     "\n    query AdminMetadataQuery {\n      AdminMetadata\n    }\n  ": types.AdminMetadataQueryDocument,
@@ -1812,6 +1814,10 @@ export function gql(source: string): unknown;
  * The gql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
  */
 export function gql(source: "\n  query LocalgroupMetadata($groupId: String) {\n    localgroup(selector: { _id: $groupId }) {\n      result {\n        _id\n        name\n        bannerImageId\n        contents {\n          plaintextDescription\n        }\n      }\n    }\n  }\n"): (typeof documents)["\n  query LocalgroupMetadata($groupId: String) {\n    localgroup(selector: { _id: $groupId }) {\n      result {\n        _id\n        name\n        bannerImageId\n        contents {\n          plaintextDescription\n        }\n      }\n    }\n  }\n"];
+/**
+ * The gql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
+ */
+export function gql(source: "\n  query multiModeratorCommentsQuery($commentIds: [String!]!) {\n    comments(selector: { default: { commentIds: $commentIds } }) {\n      results {\n        ...ShortformComments\n      }\n    }\n  }\n"): (typeof documents)["\n  query multiModeratorCommentsQuery($commentIds: [String!]!) {\n    comments(selector: { default: { commentIds: $commentIds } }) {\n      results {\n        ...ShortformComments\n      }\n    }\n  }\n"];
 /**
  * The gql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
  */

@@ -12,6 +12,8 @@ import { defineStyles, useStyles } from '../hooks/useStyles';
 import { useDialog } from '../common/withDialog';
 import { useUltraFeedContext } from './UltraFeedContextProvider';
 import SubscriptionsIcon from '@/lib/vendor/@material-ui/icons/src/NotificationsNone';
+import { useNoKibitz } from '../hooks/useNoKibitz';
+import { useHover } from '../common/withHover';
 
 const styles = defineStyles("UsersNameWithModal", (theme: ThemeType) => ({
   subscribeIcon: {
@@ -57,6 +59,8 @@ const UsersNameWithModal = ({
   const { captureEvent } = useTracking();
   const { openDialog } = useDialog();
   const { openInNewTab } = useUltraFeedContext();
+  const noKibitz = useNoKibitz(user);
+  const { eventHandlers, hover } = useHover();
 
   if (!user && !documentId) {
     return <UsersName user={user} documentId={documentId} {...otherProps} className={className} />;
@@ -70,7 +74,8 @@ const UsersNameWithModal = ({
     return <UserNameDeleted />;
   }
 
-  const displayName = userGetDisplayName(user);
+  const nameHidden = noKibitz && !hover;
+  const displayName = nameHidden ? "(hidden)" : userGetDisplayName(user);
   const profileUrl = userGetProfileUrl(user);
 
   if (simple) {
@@ -125,7 +130,7 @@ const UsersNameWithModal = ({
           onClick={handleClick}
           {...(nofollow ? { rel: "nofollow" } : {})}
         >
-          {displayName}
+          <span {...eventHandlers}>{displayName}</span>
           {showSubscribedIcon && <SubscriptionsIcon className={classes.subscribeIcon} />}
         </Link>
       </HoverOver>

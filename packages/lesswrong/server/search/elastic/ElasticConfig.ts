@@ -133,6 +133,22 @@ const shingleTextMapping: MappingProperty = {
   },
 };
 
+// Dedicated mapping for names, using fm_name_analyzer (adds ngrams)
+const nameTextMapping: MappingProperty = {
+  type: "text",
+  analyzer: "fm_name_analyzer",
+  fields: {
+    exact: {
+      type: "text",
+      analyzer: "fm_exact_analyzer",
+    },
+    sort: {
+      type: "keyword",
+      normalizer: "fm_sortable_keyword",
+    },
+  },
+};
+
 const geopointMapping: MappingProperty = {
   type: "geo_point",
 };
@@ -259,7 +275,7 @@ const elasticSearchConfig: () => Record<SearchIndexCollectionName, IndexConfig> 
   },
   Users: {
     fields: [
-      "displayName^10000",
+      "displayName^10",
       "bio",
       "mapLocationAddress",
       "jobTitle",
@@ -295,7 +311,7 @@ const elasticSearchConfig: () => Record<SearchIndexCollectionName, IndexConfig> 
       },
       {
         field: "createdAt",
-        order: "desc",
+        order: "asc",
         weight: 0.5,
         scoring: {type: "date"},
       },
@@ -308,7 +324,7 @@ const elasticSearchConfig: () => Record<SearchIndexCollectionName, IndexConfig> 
       //{term: {isReviewed: true}},
     ],
     mappings: {
-      displayName: shingleTextMapping,
+      displayName: nameTextMapping,
       bio: fullTextMapping,
       mapLocationAddress: fullTextMapping,
       jobTitle: fullTextMapping,
