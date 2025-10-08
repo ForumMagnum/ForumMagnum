@@ -4,9 +4,16 @@ import { getAllGraphQLFields } from "@/server/vulcan-lib/apollo-server/graphqlTe
 import { getFieldGqlResolvers } from "@/server/vulcan-lib/apollo-server/helpers";
 import gql from "graphql-tag";
 import { PostsViews } from "@/lib/collections/posts/views";
+import { classifyPost } from "@/server/frontpageClassifier/predictions";
+import { userIsAdmin } from "@/lib/vulcan-users/permissions";
 
 export const graphqlPostQueryTypeDefs = gql`
   type Post ${ getAllGraphQLFields(schema) }
+
+  type FrontpageClassification {
+    isFrontpage: Boolean!
+    probability: Float!
+  }
 
   enum PostCategory {
     post
@@ -1566,4 +1573,22 @@ export const graphqlPostQueryTypeDefs = gql`
   }
 `;
 export const postGqlQueryHandlers = getDefaultResolvers('Posts', PostsViews);
-export const postGqlFieldResolvers = getFieldGqlResolvers('Posts', schema);
+const defaultFieldResolvers = getFieldGqlResolvers('Posts', schema);
+
+// Add custom field resolver for frontpage classification
+export const postGqlFieldResolvers = {
+  ...defaultFieldResolvers,
+  Post: {
+    ...defaultFieldResolvers.Post,
+    frontpageClassification: async (post: DbPost, _args: {}, context: ResolverContext) => {
+      // Only available to admins
+      if (!userIsAdmin(context.currentUser)) {
+        return null;
+      }
+
+      // Get classification prediction
+      const prediction = await classifyPost(post._id);
+      return prediction;
+    }
+  }
+};

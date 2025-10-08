@@ -4630,6 +4630,12 @@ type Post {
   afBaseScore: Float
   afExtendedScore: JSON
   afVoteCount: Float
+  frontpageClassification: FrontpageClassification
+}
+
+type FrontpageClassification {
+  isFrontpage: Boolean!
+  probability: Float!
 }
 
 enum PostCategory {

@@ -75,6 +75,27 @@ const styles = (theme: ThemeType) => ({
   },
   vote: {
     marginRight: 8
+  },
+  predictionBadge: {
+    display: 'inline-block',
+    padding: '2px 8px',
+    borderRadius: 4,
+    fontSize: '0.85em',
+    fontWeight: 500,
+    marginTop: 8,
+    marginBottom: 4,
+  },
+  predictionFrontpage: {
+    backgroundColor: theme.palette.primary.light,
+    color: theme.palette.primary.contrastText,
+  },
+  predictionPersonal: {
+    backgroundColor: theme.palette.grey[300],
+    color: theme.palette.grey[800],
+  },
+  predictionConfidence: {
+    marginLeft: 4,
+    opacity: 0.9,
   }
 })
 
@@ -85,7 +106,9 @@ const SunshineNewPostsItem = ({post, refetch, classes}: {
 }) => {
   const currentUser = useCurrentUser();
   const {eventHandlers, hover, anchorEl} = useHover();
-  
+
+  const prediction = post.frontpageClassification;
+
   const [updatePost] = useMutation(PostsListUpdateMutation);
 
   const [createModeratorAction] = useMutation(ModeratorActionsCreateMutation);
@@ -160,6 +183,28 @@ const SunshineNewPostsItem = ({post, refetch, classes}: {
       <SunshineListItem hover={hover}>
         <SidebarHoverOver hover={hover} anchorEl={anchorEl}>
           <FooterTagList post={post} showCoreTags highlightAutoApplied />
+
+          {prediction && (() => {
+            // Show probability as confidence in the predicted direction
+            const displayProbability = prediction.isFrontpage
+              ? prediction.probability
+              : 1 - prediction.probability;
+
+            return (
+              <div
+                className={`
+                  ${classes.predictionBadge}
+                  ${prediction.isFrontpage ? classes.predictionFrontpage : classes.predictionPersonal}
+                `}
+              >
+                Predicted: {prediction.isFrontpage ? 'Frontpage' : 'Personal'}
+                <span className={classes.predictionConfidence}>
+                  ({Math.round(displayProbability * 100)}%)
+                </span>
+              </div>
+            );
+          })()}
+
           <div className={classes.buttonRow}>
             <Button onClick={handlePersonal}>
               <PersonIcon className={classes.icon} /> Personal {autoFrontpage === "hide" && <span className={classes.robotIcon}><ForumIcon icon="Robot" /></span>}
