@@ -1,6 +1,5 @@
 import React, {useRef, useState} from 'react';
-import { registerComponent } from '../../lib/vulcan-lib/components';
-import { EmojiReactName, QuoteLocator, UserVoteOnSingleReaction, VoteOnReactionType } from '../../lib/voting/namesAttachedReactions';
+import { EmojiReactName, QuoteLocator, userCanAddNewReacts, VoteOnReactionType } from '../../lib/voting/namesAttachedReactions';
 import { namesAttachedReactions, NamesAttachedReactionType } from '../../lib/voting/reactions';
 import classNames from 'classnames';
 import AppsIcon from '@/lib/vendor/@material-ui/icons/src/Apps';
@@ -30,6 +29,7 @@ import {
   listViewSectionC as listViewSectionCNames,
   listViewSectionD as listViewSectionDNames
 } from '../../lib/voting/curatedReactionsList';
+import { addNewReactKarmaThreshold } from '@/lib/instanceSettings';
 
 const UsersCurrentUpdateMutation = gql(`
   mutation updateUserReactionsPalette($selector: SelectorInput!, $data: UpdateUserDataInput!) {
@@ -193,6 +193,7 @@ const ReactionsPalette = ({getCurrentUserReactionVote, toggleReaction, quote}: {
   const [showAll, setShowAll] = useState(false);
   const [displayStyle, setDisplayStyle] = useState<ReactPaletteStyle>(reactPaletteStyle);
   const debouncedCaptureEvent = useRef(debounce(captureEvent, 500))
+  const sufficientKarma = !userCanAddNewReacts(currentUser)
   
   const reactionsToShow = getCuratedActiveReactions(searchText);
 
@@ -279,6 +280,8 @@ const ReactionsPalette = ({getCurrentUserReactionVote, toggleReaction, quote}: {
   }
 
   return <div className={classes.moreReactions}>
+    {!currentUser && <p>You need to log in to leave reactions.</p>}
+    {currentUser && !sufficientKarma && <p>You need at least {addNewReactKarmaThreshold.get()} karma to leave inline reacts.</p>}
     {quote && <p>Reacting to "{quote}"</p>}
     <Row justifyContent='space-between'>
       <input
@@ -308,7 +311,7 @@ const ReactionsPalette = ({getCurrentUserReactionVote, toggleReaction, quote}: {
     <div className={classNames(classes.reactionPaletteScrollRegion, {[classes.showAll]: showAll})}>
       {displayStyle === "listView" && <div>
         <div className={classes.primarySection}>
-          {listPrimary.map(react => react && gridReactButton(react, 24))}
+          {listPrimary.map(react => react && gridReactButton(react))}
         </div>
         <div className={classes.iconSection}>
           {listViewSectionB.map((react, i) => react && listReactButton(react, i%2 === 0 ? "left" : "right"))}
@@ -320,23 +323,23 @@ const ReactionsPalette = ({getCurrentUserReactionVote, toggleReaction, quote}: {
           {listViewSectionD.map((react, i) => react && listReactButton(react, i%2 === 0 ? "left" : "right"))}
         </div>
         <div className={classes.bottomSection}>
-          {likelihoods.map(react => react && gridReactButton(react, 24))}
-          {listEmotions.map(react => react && gridReactButton(react, 24))}
+          {likelihoods.map(react => react && gridReactButton(react))}
+          {listEmotions.map(react => react && gridReactButton(react))}
         </div>
       </div>}
       {displayStyle === "gridView" && <div>
         <div className={classes.iconSection}>
-          {gridPrimary.map(react => react && gridReactButton(react, 24))}
-          {gridEmotions.map(react => react && gridReactButton(react, 24))}
+          {gridPrimary.map(react => react && gridReactButton(react))}
+          {gridEmotions.map(react => react && gridReactButton(react))}
         </div>
         <div className={classes.iconSection}>
-          {gridSectionB.map(react => react && gridReactButton(react, 24))}
+          {gridSectionB.map(react => react && gridReactButton(react))}
         </div>
         <div className={classes.iconSection}>
-          {gridSectionC.map(react => react && gridReactButton(react, 24))}
+          {gridSectionC.map(react => react && gridReactButton(react))}
         </div>
         <div >
-        {likelihoods.map(react => react && gridReactButton(react, 24))}
+        {likelihoods.map(react => react && gridReactButton(react))}
         </div>
 
       </div>}
@@ -352,9 +355,4 @@ const ReactionsPalette = ({getCurrentUserReactionVote, toggleReaction, quote}: {
   </div>
 }
 
-export default registerComponent('ReactionsPalette', ReactionsPalette);
-
-
-
-
-
+export default ReactionsPalette;

@@ -2074,6 +2074,7 @@ type Comment {
   afBaseScore: Float
   afExtendedScore: JSON
   afVoteCount: Float
+  inlinePredictions: [InlinePrediction!]!
 }
 
 enum TagCommentType {
@@ -3464,6 +3465,48 @@ type Images {
   legacyData: JSON
 }
 
+type InlinePrediction {
+  _id: String!
+  createdAt: Date!
+  userId: String!
+  user: User
+  deleted: Boolean!
+  documentId: String!
+  collectionName: String!
+  questionId: String!
+  question: ElicitQuestion!
+  quote: String!
+}
+
+type SingleInlinePredictionOutput {
+  result: InlinePrediction
+}
+
+input InlinePredictionSelector {
+  default: EmptyViewInput
+}
+
+type MultiInlinePredictionOutput {
+  results: [InlinePrediction!]!
+  totalCount: Int
+}
+
+extend type Query {
+  inlinePrediction(selector: SelectorInput): SingleInlinePredictionOutput
+  inlinePredictions(selector: InlinePredictionSelector, limit: Int, offset: Int, enableTotal: Boolean): MultiInlinePredictionOutput
+}
+
+input CreateInlinePredictionDataInput {
+  collectionName: String!
+  documentId: String!
+  quote: String!
+  probability: Float!
+}
+
+extend type Mutation {
+  createInlinePrediction(data: CreateInlinePredictionDataInput!): InlinePrediction
+}
+
 type JargonTerm {
   _id: String!
   schemaVersion: Float!
@@ -4607,6 +4650,7 @@ type Post {
   curationNotices: [CurationNotice!]
   reviews: [Comment!]
   automatedContentEvaluations: AutomatedContentEvaluation
+  inlinePredictions: [InlinePrediction!]!
   currentUserVote: String
   currentUserExtendedVote: JSON
   voteCount: Float!

@@ -1585,7 +1585,7 @@ const schema = {
           }
         ).fetch();
         const filteredEvents = await accessFilterMultiple(currentUser, "LWEvents", events, context);
-        const IPs = filteredEvents.map((event) => event.properties?.ip);
+        const IPs = filteredEvents.map((event) => event.properties?.ip).filter(ip => !!ip);
         const uniqueIPs = [...new Set(IPs)];
         return uniqueIPs;
       },

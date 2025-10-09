@@ -454,6 +454,7 @@ declare global {
     sideItemIndicator: {
       sideComment: ColorString,
       inlineReaction: ColorString,
+      inlinePrediction: ColorString,
       footnote: ColorString,
     },
     tag: {

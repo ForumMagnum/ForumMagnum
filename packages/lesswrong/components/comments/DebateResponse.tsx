@@ -107,7 +107,7 @@ export const DebateResponse = ({classes, comment, replies, idx, responseCount, o
     const votingSystemName = (comment.votingSystem || "default") as VotingSystemName;
     const votingSystem = getVotingSystemByName(votingSystemName);
     const voteProps = useVote(comment, "Comments", votingSystem);
-    const commentBodyRef = useRef<ContentItemBodyImperative|null>(null); // passed into CommentsItemBody for use in InlineReactSelectionWrapper
+    const commentBodyRef = useRef<ContentItemBodyImperative|null>(null); // passed into CommentsItemBody for use in SelectedTextToolbarWrapper
 
     const VoteBottomComponent = commentBottomComponents[votingSystemName]?.() ?? null;
 

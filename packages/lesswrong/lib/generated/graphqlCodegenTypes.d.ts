@@ -403,6 +403,7 @@ type Comment = {
   hideKarma?: Maybe<Scalars['Boolean']['output']>;
   hideModeratorHat?: Maybe<Scalars['Boolean']['output']>;
   htmlBody?: Maybe<Scalars['String']['output']>;
+  inlinePredictions: Array<InlinePrediction>;
   isPinnedOnProfile: Scalars['Boolean']['output'];
   lastEditedAt?: Maybe<Scalars['Date']['output']>;
   lastSubthreadActivity?: Maybe<Scalars['Date']['output']>;
@@ -1342,6 +1343,13 @@ type CreateForumEventDataInput = {
 
 type CreateForumEventInput = {
   data: CreateForumEventDataInput;
+};
+
+type CreateInlinePredictionDataInput = {
+  collectionName: Scalars['String']['input'];
+  documentId: Scalars['String']['input'];
+  probability: Scalars['Float']['input'];
+  quote: Scalars['String']['input'];
 };
 
 type CreateJargonTermDataInput = {
@@ -2784,6 +2792,24 @@ type Images = {
   schemaVersion: Scalars['Float']['output'];
 };
 
+type InlinePrediction = {
+  __typename?: 'InlinePrediction';
+  _id: Scalars['String']['output'];
+  collectionName: Scalars['String']['output'];
+  createdAt: Scalars['Date']['output'];
+  deleted: Scalars['Boolean']['output'];
+  documentId: Scalars['String']['output'];
+  question: ElicitQuestion;
+  questionId: Scalars['String']['output'];
+  quote: Scalars['String']['output'];
+  user?: Maybe<User>;
+  userId: Scalars['String']['output'];
+};
+
+type InlinePredictionSelector = {
+  default?: InputMaybe<EmptyViewInput>;
+};
+
 type JargonTerm = {
   __typename?: 'JargonTerm';
   _id: Scalars['String']['output'];
@@ -3699,6 +3725,12 @@ type MultiGoogleServiceAccountSessionOutput = {
   totalCount?: Maybe<Scalars['Int']['output']>;
 };
 
+type MultiInlinePredictionOutput = {
+  __typename?: 'MultiInlinePredictionOutput';
+  results: Array<InlinePrediction>;
+  totalCount?: Maybe<Scalars['Int']['output']>;
+};
+
 type MultiJargonTermInput = {
   enableCache?: InputMaybe<Scalars['Boolean']['input']>;
   enableTotal?: InputMaybe<Scalars['Boolean']['input']>;
@@ -4264,6 +4296,7 @@ type Mutation = {
   createElectionVote?: Maybe<ElectionVoteOutput>;
   createElicitQuestion?: Maybe<ElicitQuestionOutput>;
   createForumEvent?: Maybe<ForumEventOutput>;
+  createInlinePrediction?: Maybe<InlinePrediction>;
   createJargonTerm?: Maybe<JargonTermOutput>;
   createLWEvent?: Maybe<LWEventOutput>;
   createLocalgroup?: Maybe<LocalgroupOutput>;
@@ -4590,6 +4623,11 @@ type MutationcreateElicitQuestionArgs = {
 
 type MutationcreateForumEventArgs = {
   data: CreateForumEventDataInput;
+};
+
+
+type MutationcreateInlinePredictionArgs = {
+  data: CreateInlinePredictionDataInput;
 };
 
 
@@ -5610,6 +5648,7 @@ type Post = {
   hideFrontpageComments: Scalars['Boolean']['output'];
   htmlBody?: Maybe<Scalars['String']['output']>;
   ignoreRateLimits?: Maybe<Scalars['Boolean']['output']>;
+  inlinePredictions: Array<InlinePrediction>;
   isEvent: Scalars['Boolean']['output'];
   isFuture: Scalars['Boolean']['output'];
   isRead?: Maybe<Scalars['Boolean']['output']>;
@@ -7588,6 +7627,8 @@ type Query = {
   getLinkSharedPost?: Maybe<Post>;
   googleServiceAccountSession?: Maybe<SingleGoogleServiceAccountSessionOutput>;
   googleServiceAccountSessions?: Maybe<MultiGoogleServiceAccountSessionOutput>;
+  inlinePrediction?: Maybe<SingleInlinePredictionOutput>;
+  inlinePredictions?: Maybe<MultiInlinePredictionOutput>;
   jargonTerm?: Maybe<SingleJargonTermOutput>;
   jargonTerms?: Maybe<MultiJargonTermOutput>;
   lWEvent?: Maybe<SingleLWEventOutput>;
@@ -8440,6 +8481,19 @@ type QuerygoogleServiceAccountSessionsArgs = {
   limit?: InputMaybe<Scalars['Int']['input']>;
   offset?: InputMaybe<Scalars['Int']['input']>;
   selector?: InputMaybe<GoogleServiceAccountSessionSelector>;
+};
+
+
+type QueryinlinePredictionArgs = {
+  selector?: InputMaybe<SelectorInput>;
+};
+
+
+type QueryinlinePredictionsArgs = {
+  enableTotal?: InputMaybe<Scalars['Boolean']['input']>;
+  limit?: InputMaybe<Scalars['Int']['input']>;
+  offset?: InputMaybe<Scalars['Int']['input']>;
+  selector?: InputMaybe<InlinePredictionSelector>;
 };
 
 
@@ -9805,6 +9859,11 @@ type SingleGoogleServiceAccountSessionInput = {
 type SingleGoogleServiceAccountSessionOutput = {
   __typename?: 'SingleGoogleServiceAccountSessionOutput';
   result?: Maybe<GoogleServiceAccountSession>;
+};
+
+type SingleInlinePredictionOutput = {
+  __typename?: 'SingleInlinePredictionOutput';
+  result?: Maybe<InlinePrediction>;
 };
 
 type SingleJargonTermInput = {
@@ -23961,6 +24020,21 @@ type updateUserReactionsPaletteMutationVariables = Exact<{
 
 type updateUserReactionsPaletteMutation = updateUserReactionsPaletteMutation_Mutation;
 
+type createInlinePredictionMutation_createInlinePrediction_InlinePrediction = (
+  { __typename?: 'InlinePrediction' }
+  & InlinePredictionsFragment
+);
+
+type createInlinePredictionMutation_Mutation = { __typename?: 'Mutation', createInlinePrediction: createInlinePredictionMutation_createInlinePrediction_InlinePrediction | null };
+
+
+type createInlinePredictionMutationVariables = Exact<{
+  data: CreateInlinePredictionDataInput;
+}>;
+
+
+type createInlinePredictionMutation = createInlinePredictionMutation_Mutation;
+
 type performVoteCommentMutation_performVoteComment_VoteResultComment_document_Comment = (
   { __typename?: 'Comment' }
   & WithVoteComment
@@ -24311,7 +24385,12 @@ type CommentsList_Comment_promotedByUser_User = (
   & UsersMinimumInfo
 );
 
-type CommentsList = { __typename?: 'Comment', _id: string, postId: string | null, tagId: string | null, relevantTagIds: Array<string>, tagCommentType: TagCommentType, parentCommentId: string | null, topLevelCommentId: string | null, descendentCount: number, title: string | null, postedAt: string, lastEditedAt: string | null, repliesBlockedUntil: string | null, userId: string | null, draft: boolean, deleted: boolean, deletedPublic: boolean, deletedByUserId: string | null, deletedReason: string | null, hideAuthor: boolean, authorIsUnreviewed: boolean, currentUserVote: string | null, currentUserExtendedVote: any | null, baseScore: number | null, extendedScore: any | null, score: number, voteCount: number, emojiReactors: any | null, af: boolean, afDate: string | null, moveToAlignmentUserId: string | null, afBaseScore: number | null, afExtendedScore: any | null, suggestForAlignmentUserIds: Array<string>, reviewForAlignmentUserId: string | null, needsReview: boolean | null, answer: boolean, parentAnswerId: string | null, retracted: boolean, postVersion: string | null, reviewedByUserId: string | null, shortform: boolean | null, shortformFrontpage: boolean, lastSubthreadActivity: string | null, moderatorHat: boolean, hideModeratorHat: boolean | null, nominatedForReview: string | null, reviewingForReview: string | null, promoted: boolean | null, directChildrenCount: number, votingSystem: string, isPinnedOnProfile: boolean, debateResponse: boolean | null, rejected: boolean, rejectedReason: string | null, originalDialogueId: string | null, forumEventId: string | null, forumEventMetadata: any | null, tag: CommentsList_Comment_tag_Tag | null, relevantTags: Array<CommentsList_Comment_relevantTags_Tag>, contents: CommentsList_Comment_contents_Revision | null, user: CommentsList_Comment_user_User | null, promotedByUser: CommentsList_Comment_promotedByUser_User | null };
+type CommentsList_Comment_inlinePredictions_InlinePrediction = (
+  { __typename?: 'InlinePrediction' }
+  & InlinePredictionsFragment
+);
+
+type CommentsList = { __typename?: 'Comment', _id: string, postId: string | null, tagId: string | null, relevantTagIds: Array<string>, tagCommentType: TagCommentType, parentCommentId: string | null, topLevelCommentId: string | null, descendentCount: number, title: string | null, postedAt: string, lastEditedAt: string | null, repliesBlockedUntil: string | null, userId: string | null, draft: boolean, deleted: boolean, deletedPublic: boolean, deletedByUserId: string | null, deletedReason: string | null, hideAuthor: boolean, authorIsUnreviewed: boolean, currentUserVote: string | null, currentUserExtendedVote: any | null, baseScore: number | null, extendedScore: any | null, score: number, voteCount: number, emojiReactors: any | null, af: boolean, afDate: string | null, moveToAlignmentUserId: string | null, afBaseScore: number | null, afExtendedScore: any | null, suggestForAlignmentUserIds: Array<string>, reviewForAlignmentUserId: string | null, needsReview: boolean | null, answer: boolean, parentAnswerId: string | null, retracted: boolean, postVersion: string | null, reviewedByUserId: string | null, shortform: boolean | null, shortformFrontpage: boolean, lastSubthreadActivity: string | null, moderatorHat: boolean, hideModeratorHat: boolean | null, nominatedForReview: string | null, reviewingForReview: string | null, promoted: boolean | null, directChildrenCount: number, votingSystem: string, isPinnedOnProfile: boolean, debateResponse: boolean | null, rejected: boolean, rejectedReason: string | null, originalDialogueId: string | null, forumEventId: string | null, forumEventMetadata: any | null, tag: CommentsList_Comment_tag_Tag | null, relevantTags: Array<CommentsList_Comment_relevantTags_Tag>, contents: CommentsList_Comment_contents_Revision | null, user: CommentsList_Comment_user_User | null, promotedByUser: CommentsList_Comment_promotedByUser_User | null, inlinePredictions: Array<CommentsList_Comment_inlinePredictions_InlinePrediction> };
 
 type CommentsListWithTopLevelComment_Comment_topLevelComment_Comment = (
   { __typename?: 'Comment' }
@@ -24695,6 +24774,18 @@ type GardenCodeEditFragment = { __typename?: 'GardenCode', _id: string, code: st
 type GoogleServiceAccountSessionInfo = { __typename?: 'GoogleServiceAccountSession', _id: string, email: string | null };
 
 type GoogleServiceAccountSessionAdminInfo = { __typename?: 'GoogleServiceAccountSession', _id: string, email: string | null, estimatedExpiry: string | null };
+
+type InlinePredictionsFragment_InlinePrediction_user_User = (
+  { __typename?: 'User' }
+  & UsersMinimumInfo
+);
+
+type InlinePredictionsFragment_InlinePrediction_question_ElicitQuestion = (
+  { __typename?: 'ElicitQuestion' }
+  & ElicitQuestionFragment
+);
+
+type InlinePredictionsFragment = { __typename?: 'InlinePrediction', _id: string, collectionName: string, documentId: string, quote: string, user: InlinePredictionsFragment_InlinePrediction_user_User | null, question: InlinePredictionsFragment_InlinePrediction_question_ElicitQuestion };
 
 type JargonTerms_JargonTerm_contents_Revision = (
   { __typename?: 'Revision' }
@@ -25193,13 +25284,28 @@ type PostSequenceNavigation_Post_nextPost_Post = (
 
 type PostSequenceNavigation = { __typename?: 'Post', sequence: PostSequenceNavigation_Post_sequence_Sequence | null, prevPost: PostSequenceNavigation_Post_prevPost_Post | null, nextPost: PostSequenceNavigation_Post_nextPost_Post | null };
 
+type PostWithContents_Post_contents_Revision = (
+  { __typename?: 'Revision' }
+  & RevisionDisplay
+);
+
+type PostWithContents = (
+  { __typename?: 'Post', contents: PostWithContents_Post_contents_Revision | null }
+  & PostsDetails
+);
+
 type PostsPage_Post_contents_Revision = (
   { __typename?: 'Revision' }
   & RevisionDisplay
 );
 
+type PostsPage_Post_inlinePredictions_InlinePrediction = (
+  { __typename?: 'InlinePrediction' }
+  & InlinePredictionsFragment
+);
+
 type PostsPage = (
-  { __typename?: 'Post', version: string | null, myEditorAccess: string, contents: PostsPage_Post_contents_Revision | null }
+  { __typename?: 'Post', version: string | null, myEditorAccess: string, contents: PostsPage_Post_contents_Revision | null, inlinePredictions: Array<PostsPage_Post_inlinePredictions_InlinePrediction> }
   & PostsDetails
 );
 
@@ -26487,6 +26593,8 @@ type GoogleServiceAccountSessionsDefaultFragment = { __typename?: 'GoogleService
 
 type ImagesDefaultFragment = { __typename?: 'Images', _id: string, schemaVersion: number, createdAt: string, legacyData: any | null };
 
+type InlinePredictionsDefaultFragment = { __typename?: 'InlinePrediction', _id: string, createdAt: string, userId: string, deleted: boolean, documentId: string, collectionName: string, questionId: string, quote: string };
+
 type JargonTermsDefaultFragment = { __typename?: 'JargonTerm', _id: string, schemaVersion: number, createdAt: string, legacyData: any | null, contents_latest: string | null, postId: string, term: string, approved: boolean, deleted: boolean, altTerms: Array<string> };
 
 type LWEventsDefaultFragment = { __typename?: 'LWEvent', _id: string, schemaVersion: number, createdAt: string | null, legacyData: any | null, userId: string | null, name: string | null, documentId: string | null, important: boolean | null, properties: any | null, intercom: boolean | null };
@@ -27059,7 +27167,7 @@ type singleDraftPostForLLMQueryQuery = singleDraftPostForLLMQueryQuery_Query;
 
 type singlePublishedPostForLLMQueryQuery_post_SinglePostOutput_result_Post = (
   { __typename?: 'Post' }
-  & PostsPage
+  & PostWithContents
 );
 
 type singlePublishedPostForLLMQueryQuery_post_SinglePostOutput = { __typename?: 'SinglePostOutput', result: singlePublishedPostForLLMQueryQuery_post_SinglePostOutput_result_Post | null };
@@ -27076,7 +27184,7 @@ type singlePublishedPostForLLMQueryQuery = singlePublishedPostForLLMQueryQuery_Q
 
 type multiPostsForLLMQueryQuery_posts_MultiPostOutput_results_Post = (
   { __typename?: 'Post' }
-  & PostsPage
+  & PostWithContents
 );
 
 type multiPostsForLLMQueryQuery_posts_MultiPostOutput = { __typename?: 'MultiPostOutput', results: Array<multiPostsForLLMQueryQuery_posts_MultiPostOutput_results_Post> };

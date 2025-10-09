@@ -63,7 +63,7 @@ import TagIntroSequence from "./TagIntroSequence";
 import MultiToCLayout from "../posts/TableOfContents/MultiToCLayout";
 import TableOfContents from "../posts/TableOfContents/TableOfContents";
 import FormatDate from "../common/FormatDate";
-import InlineReactSelectionWrapper from "../votes/lwReactions/InlineReactSelectionWrapper";
+import SelectedTextToolbarWrapper from "../votes/lwReactions/InlineReactSelectionWrapper";
 import HoveredReactionContextProvider from "../votes/lwReactions/HoveredReactionContextProvider";
 import PathInfo from "./PathInfo";
 import { StructuredData } from "../common/StructuredData";
@@ -71,6 +71,7 @@ import { gql } from "@/lib/generated/gql-codegen";
 import { withDateFields } from "@/lib/utils/dateUtils";
 import type { TagBySlugQueryOptions } from "./useTag";
 import { StatusCodeSetter } from "../next/StatusCodeSetter";
+import { useAddInlinePredictions } from "../votes/lwReactions/AddClaimProbabilityButton";
 
 const TagWithFlagsFragmentMultiQuery = gql(`
   query multiTagLWTagPageQuery($selector: TagSelector, $limit: Int, $enableTotal: Boolean) {
@@ -846,7 +847,7 @@ const LWTagPage = () => {
           }}
         >
           <ContentStyles contentType="tag">
-            <TagOrLensBody tag={tag} selectedLens={selectedLens} description={description}/>
+            <TagOrLensBody tag={tag} selectedLens={selectedLens} refetch={refetchTag} description={description}/>
           </ContentStyles>
         </div>
       </AnalyticsContext>
@@ -1050,9 +1051,10 @@ const LWTagPage = () => {
   </AnalyticsContext>
 }
 
-const TagOrLensBody = ({tag, selectedLens, description}: {
+const TagOrLensBody = ({tag, selectedLens, refetch, description}: {
   tag: TagPageFragment,
   selectedLens: TagLens|undefined,
+  refetch: () => void,
   description: string,
 }) => {
   const classes = useStyles(styles);
@@ -1069,12 +1071,19 @@ const TagOrLensBody = ({tag, selectedLens, description}: {
     tagOrLens: selectedLens ?? tag,
     voteProps
   });
+  const { inlinePredictionOps } = useAddInlinePredictions();
 
   return <HoveredReactionContextProvider voteProps={voteProps}>
-    <InlineReactSelectionWrapper
+    <SelectedTextToolbarWrapper
       voteProps={voteProps}
       contentRef={contentRef}
       styling="tag"
+      enableCommentOnSelection={false}
+      enableInlinePredictions={false}
+      enableInlineReacts={true}
+      inlinePredictionOps={inlinePredictionOps}
+      collectionName="Tags"
+      documentId={tag._id}
     >
       <>
         <ContentItemBody
@@ -1088,7 +1097,7 @@ const TagOrLensBody = ({tag, selectedLens, description}: {
         />
         <PathInfo tag={tag} lens={selectedLens ?? null} />
       </>
-    </InlineReactSelectionWrapper>
+    </SelectedTextToolbarWrapper>
   </HoveredReactionContextProvider>
 }
 

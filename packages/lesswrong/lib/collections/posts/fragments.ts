@@ -557,6 +557,14 @@ export const PostSequenceNavigation = gql(`
     }
   }
 `)
+export const PostWithContents = gql(`
+  fragment PostWithContents on Post {
+    ...PostsDetails
+    contents {
+      ...RevisionDisplay
+    }
+  }
+`);
 
 export const PostsPage = gql(`
   fragment PostsPage on Post {
@@ -564,6 +572,9 @@ export const PostsPage = gql(`
     version
     contents {
       ...RevisionDisplay
+    }
+    inlinePredictions {
+      ...InlinePredictionsFragment
     }
     myEditorAccess
   }

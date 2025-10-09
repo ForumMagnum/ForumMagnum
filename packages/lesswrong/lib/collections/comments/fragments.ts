@@ -79,6 +79,10 @@ export const CommentsList = gql(`
 
     forumEventId
     forumEventMetadata
+    
+    inlinePredictions {
+      ...InlinePredictionsFragment
+    }
   }
 `)
 

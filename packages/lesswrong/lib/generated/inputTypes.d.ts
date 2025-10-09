@@ -131,6 +131,8 @@ interface Query {
   gardenCodes: MultiGardenCodeOutput | null;
   googleServiceAccountSession: SingleGoogleServiceAccountSessionOutput | null;
   googleServiceAccountSessions: MultiGoogleServiceAccountSessionOutput | null;
+  inlinePrediction: SingleInlinePredictionOutput | null;
+  inlinePredictions: MultiInlinePredictionOutput | null;
   jargonTerm: SingleJargonTermOutput | null;
   jargonTerms: MultiJargonTermOutput | null;
   lWEvent: SingleLWEventOutput | null;
@@ -288,6 +290,7 @@ interface Mutation {
   increasePostViewCount: number | null;
   generateCoverImagesForPost: Array<ReviewWinnerArt | null> | null;
   flipSplashArtImage: boolean | null;
+  createInlinePrediction: InlinePrediction | null;
   createAdvisorRequest: AdvisorRequestOutput | null;
   updateAdvisorRequest: AdvisorRequestOutput | null;
   createBook: BookOutput | null;
@@ -1851,6 +1854,7 @@ interface Comment {
   afBaseScore: number | null;
   afExtendedScore: any;
   afVoteCount: number | null;
+  inlinePredictions: Array<InlinePrediction>;
 }
 
 interface SingleCommentInput {
@@ -3134,6 +3138,39 @@ interface Images {
   legacyData: any;
 }
 
+interface InlinePrediction {
+  _id: string;
+  createdAt: Date;
+  userId: string;
+  user: User | null;
+  deleted: boolean;
+  documentId: string;
+  collectionName: string;
+  questionId: string;
+  question: ElicitQuestion;
+  quote: string;
+}
+
+interface SingleInlinePredictionOutput {
+  result: InlinePrediction | null;
+}
+
+interface InlinePredictionSelector {
+  default: EmptyViewInput | null;
+}
+
+interface MultiInlinePredictionOutput {
+  results: Array<InlinePrediction>;
+  totalCount: number | null;
+}
+
+interface CreateInlinePredictionDataInput {
+  collectionName: string;
+  documentId: string;
+  quote: string;
+  probability: number;
+}
+
 interface JargonTerm {
   _id: string;
   schemaVersion: number;
@@ -4172,6 +4209,7 @@ interface Post {
   curationNotices: Array<CurationNotice> | null;
   reviews: Array<Comment> | null;
   automatedContentEvaluations: AutomatedContentEvaluation | null;
+  inlinePredictions: Array<InlinePrediction>;
   currentUserVote: string | null;
   currentUserExtendedVote: any;
   voteCount: number;
@@ -10099,6 +10137,11 @@ interface GraphQLTypeMap {
   MultiGoogleServiceAccountSessionInput: MultiGoogleServiceAccountSessionInput;
   MultiGoogleServiceAccountSessionOutput: MultiGoogleServiceAccountSessionOutput;
   Images: Images;
+  InlinePrediction: InlinePrediction;
+  SingleInlinePredictionOutput: SingleInlinePredictionOutput;
+  InlinePredictionSelector: InlinePredictionSelector;
+  MultiInlinePredictionOutput: MultiInlinePredictionOutput;
+  CreateInlinePredictionDataInput: CreateInlinePredictionDataInput;
   JargonTerm: JargonTerm;
   SingleJargonTermInput: SingleJargonTermInput;
   SingleJargonTermOutput: SingleJargonTermOutput;
@@ -10786,6 +10829,7 @@ interface CreateInputsByCollectionName {
   GardenCodes: never;
   GoogleServiceAccountSessions: never;
   Images: never;
+  InlinePredictions: never;
   LegacyData: never;
   LlmConversations: never;
   LlmMessages: never;
@@ -10877,6 +10921,7 @@ interface UpdateInputsByCollectionName {
   GardenCodes: never;
   GoogleServiceAccountSessions: never;
   Images: never;
+  InlinePredictions: never;
   LWEvents: never;
   LegacyData: never;
   LlmMessages: never;

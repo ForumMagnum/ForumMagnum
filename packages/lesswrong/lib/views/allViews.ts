@@ -24,6 +24,7 @@ import { FieldChangesViews } from '../collections/fieldChanges/views';
 import { ForumEventsViews } from '../collections/forumEvents/views';
 import { GardenCodesViews } from '../collections/gardencodes/views';
 import { GoogleServiceAccountSessionsViews } from '../collections/googleServiceAccountSessions/views';
+import { InlinePredictionsViews } from '../collections/inlinePredictions/views';
 import { JargonTermsViews } from '../collections/jargonTerms/views';
 import { LlmConversationsViews } from '../collections/llmConversations/views';
 import { LocalgroupsViews } from '../collections/localgroups/views';
@@ -96,6 +97,7 @@ export const allViews = {
   GardenCodes: GardenCodesViews,
   GoogleServiceAccountSessions: GoogleServiceAccountSessionsViews,
   Images: new CollectionViewSet('Images', {}),
+  InlinePredictions: InlinePredictionsViews,
   JargonTerms: JargonTermsViews,
   LegacyData: new CollectionViewSet('LegacyData', {}),
   LlmConversations: LlmConversationsViews,

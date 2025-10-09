@@ -17,7 +17,7 @@ interface TokenCounter {
   tokenCount: number;
 }
 
-export type LlmPost = PostsPage | PostsEditQueryFragment;
+export type LlmPost = PostWithContents | PostsEditQueryFragment;
 
 export interface BasePromptArgs {
   query: string;

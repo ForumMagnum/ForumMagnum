@@ -1,10 +1,12 @@
-import type { ContentStyleType } from '../common/ContentStylesValues';
-import JargonTooltip from '../jargon/JargonTooltip';
-import InlineReactHoverableHighlight from '../votes/lwReactions/InlineReactHoverableHighlight';
+import type { ContentStyleType } from '@/components/common/ContentStylesValues';
+import JargonTooltip from '@/components/jargon/JargonTooltip';
+import { InlinePredictionMarker } from '@/components/votes/InlinePrediction';
+import InlineReactHoverableHighlight from '@/components/votes/lwReactions/InlineReactHoverableHighlight';
 
 export const replacementComponentMap = {
   JargonTooltip,
   InlineReactHoverableHighlight,
+  InlinePredictionMarker,
 };
 
 export interface ContentItemBodyProps {
@@ -94,7 +96,7 @@ export type ContentReplacementMode = 'first' | 'all';
 
 export type ContentReplacedSubstringComponentInfo = {
   replacedString: string
-  componentName: 'JargonTooltip' | 'InlineReactHoverableHighlight',
+  componentName: 'JargonTooltip' | 'InlineReactHoverableHighlight' | 'InlinePredictionMarker',
   replace: ContentReplacementMode,
   caseInsensitive?: boolean,
   isRegex?: boolean,

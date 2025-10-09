@@ -1,4 +1,3 @@
-import { registerComponent } from '../../../lib/vulcan-lib/components';
 import React from 'react';
 import classNames from 'classnames';
 import { commentExcerptFromHTML } from '../../../lib/editor/ellipsize'
@@ -11,10 +10,15 @@ import { type ContentItemBodyImperative, type ContentReplacedSubstringComponentI
 
 import { getVotingSystemByName } from '../../../lib/voting/getVotingSystem';
 import CommentDeletedMetadata from "./CommentDeletedMetadata";
-import InlineReactSelectionWrapper from "../../votes/lwReactions/InlineReactSelectionWrapper";
+import SelectedTextToolbarWrapper from "../../votes/lwReactions/InlineReactSelectionWrapper";
 import type { ContentStyleType } from '@/components/common/ContentStylesValues';
+import { CommentTreeOptions } from '../commentTree';
+import { defineStyles } from '@/components/hooks/defineStyles';
+import { useStyles } from '@/components/hooks/useStyles';
+import { useAddInlinePredictions } from '@/components/votes/lwReactions/AddClaimProbabilityButton';
+import { inlinePredictionsToReplacements } from '@/components/votes/InlinePrediction';
 
-const styles = (theme: ThemeType) => ({
+const styles = defineStyles("CommentBody", (theme: ThemeType) => ({
   commentStyling: {
     maxWidth: "100%",
     overflowX: "hidden",
@@ -40,7 +44,7 @@ const styles = (theme: ThemeType) => ({
   retracted: {
     textDecoration: "line-through",
   },
-})
+}))
 
 const CommentBody = ({
   comment,
@@ -50,7 +54,6 @@ const CommentBody = ({
   postPage,
   voteProps,
   className,
-  classes,
 }: {
   comment: CommentsList,
   commentBodyRef?: React.RefObject<ContentItemBodyImperative|null>|null,
@@ -59,11 +62,13 @@ const CommentBody = ({
   postPage?: boolean,
   voteProps?: VotingProps<VoteableTypeClient>
   className?: string,
-  classes: ClassesType<typeof styles>,
 }) => {
+  const classes = useStyles(styles);
+
   // Do not truncate for users who have disabled it in their user settings
   const truncationDisabledByUserConfig = useFilteredCurrentUser((u) => u && (postPage ? u.noCollapseCommentsPosts : u.noCollapseCommentsFrontpage));
   const { html = "" } = comment.contents || {}
+  const { addedInlinePredictions, inlinePredictionOps } = useAddInlinePredictions();
 
   const bodyClasses = classNames(
     className,
@@ -87,10 +92,13 @@ const CommentBody = ({
   }
   
   const votingSystem = getVotingSystemByName(comment.votingSystem);
-  let highlights: ContentReplacedSubstringComponentInfo[]|undefined = undefined;
+  let highlights: ContentReplacedSubstringComponentInfo[] = [];
   if (voteProps && votingSystem.getCommentHighlights) {
     highlights = votingSystem.getCommentHighlights({comment, voteProps});
   }
+
+  const inlinePredictions = [...comment.inlinePredictions, ...addedInlinePredictions];
+  const replacedSubstrings = [...highlights, ...inlinePredictionsToReplacements(inlinePredictions)];
 
   const contentBody = <ContentStyles contentType={contentType} className={classes.root}>
     <ContentItemBody
@@ -99,21 +107,24 @@ const CommentBody = ({
       dangerouslySetInnerHTML={{__html: innerHtml }}
       description={`comment ${comment._id}`}
       nofollow={(comment.user?.karma || 0) < nofollowKarmaThreshold.get()}
-      replacedSubstrings={highlights}
+      replacedSubstrings={replacedSubstrings}
       contentStyleType={contentType}
     />
   </ContentStyles>
 
-  if (votingSystem.hasInlineReacts && voteProps) {
-    return <InlineReactSelectionWrapper contentRef={commentBodyRef} voteProps={voteProps} styling="comment" >
-      {contentBody}
-    </InlineReactSelectionWrapper>
-  } else {
-    return contentBody
-  }
+  return <SelectedTextToolbarWrapper
+    enableCommentOnSelection={false}
+    enableInlineReacts={!!votingSystem.hasInlineReacts && !!voteProps}
+    enableInlinePredictions={true}
+    contentRef={commentBodyRef}
+    voteProps={voteProps}
+    documentId={comment._id}
+    collectionName="Comments"
+    styling="comment"
+    inlinePredictionOps={inlinePredictionOps}
+  >
+    {contentBody}
+  </SelectedTextToolbarWrapper>
 }
 
-export default registerComponent('CommentBody', CommentBody, {styles});
-
-
-
+export default CommentBody;

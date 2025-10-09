@@ -7,6 +7,7 @@ import { defineStyles, useStyles } from '../hooks/useStyles';
 import { useDialog } from '../common/withDialog';
 
 import dynamic from 'next/dynamic';
+import { TooltipSpan } from '../common/FMTooltip';
 const LWTooltip = dynamic(() => import("../common/LWTooltip"), { ssr: false });
 const ReplyCommentDialog = dynamic(() => import("./ReplyCommentDialog"), { ssr: false });
 
@@ -15,12 +16,14 @@ const selectedTextToolbarStyles = defineStyles("CommentOnSelectionContentWrapper
     position: "absolute",
   },
   toolbar: {
-    display: "flex",
+    position: "relative",
+    top: -8,
     borderRadius: 8,
     color: theme.palette.icon.dim,
     zIndex: theme.zIndexes.lwPopper,
+    display: "inline-block",
+    width: 40, height: 40,
     padding: 8,
-    paddingBottom: 6,
     cursor: "pointer",
     
     "&:hover": {
@@ -123,7 +126,19 @@ export const CommentOnSelectionPageWrapper = ({children}: {
     closeToolbar();
   });
   
+  return <>
+    {children}
+  </>
+}
+
+export const CommentOnSelectionButton = ({onClick}: {
+  onClick: () => void
+}) => {
+  const classes = useStyles(selectedTextToolbarStyles);
+  const { captureEvent } = useTracking()
+
   const onClickComment = () => {
+    captureEvent("commentOnSelectionClicked");
     const firstSelectedNode = document.getSelection()?.anchorNode;
     if (!firstSelectedNode) {
       return;
@@ -135,45 +150,17 @@ export const CommentOnSelectionPageWrapper = ({children}: {
     const selectionHtml = selectionToBlockquoteHTML(document.getSelection());
     // This HTML is XSS-safe because it's copied from somewhere that was already in the page as HTML, and is copied in a way that is syntax-aware throughout.
     (contentWrapper as any).onClickComment(selectionHtml);
+    
+    onClick();
   }
-  
-  return <>
-    {children}
-    {toolbarState.open && <SelectedTextToolbar
-      onClickComment={onClickComment}
-      x={toolbarState.x} y={toolbarState.y}
-    />}
-  </>
-}
 
-/**
- * SelectedTextToolbar: The toolbar that pops up when you select content inside
- * a post. Consists of just a comment button, which opens a floating comment
- * editor. Created as a dialog by CommentOnSelectionPageWrapper.
- *
- * onClickComment: Called when the comment button is clicked
- * x, y: In the page coordinate system, ie, relative to the top-left corner when
- *   the page is scrolled to the top.
- */
-const SelectedTextToolbar = ({onClickComment, x, y}: {
-  onClickComment: (ev: React.MouseEvent) => void,
-  x: number, y: number,
-}) => {
-  const classes = useStyles(selectedTextToolbarStyles);
-  const { captureEvent } = useTracking()
-
-  return <div className={classes.toolbarWrapper} style={{left: x, top: y}}>
-    <LWTooltip inlineBlock={false} title={<div><p>Click to comment on the selected text</p></div>}>
-      <div className={classes.toolbar}>
-        <AnalyticsContext pageElementContext="selectedTextToolbar">
-          <CommentIcon onClick={(ev: React.MouseEvent) => {
-            captureEvent("commentOnSelectionClicked");
-            onClickComment(ev);
-          }}/>
-        </AnalyticsContext>
-      </div>
-    </LWTooltip>
-  </div>
+  return <TooltipSpan className={classes.toolbar} title={<p>Click to start writing a comment with a quote of the selected text</p>}>
+    <AnalyticsContext pageElementContext="selectedTextToolbar">
+      <CommentIcon onClick={(ev: React.MouseEvent) => {
+        onClickComment();
+      }}/>
+    </AnalyticsContext>
+  </TooltipSpan>
 }
 
 

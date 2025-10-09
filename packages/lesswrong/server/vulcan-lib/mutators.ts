@@ -175,6 +175,7 @@ export async function insertAndReturnDocument<N extends CollectionNameString, T 
   const collection = context[collectionName] as unknown as PgCollection<N>;
   const insertedId = await collection.rawInsert(data);
   const insertedDocument = (await collection.findOne(insertedId))!;
+  context.loaders[collectionName].prime(insertedId, insertedDocument);
   return insertedDocument;
 }
 

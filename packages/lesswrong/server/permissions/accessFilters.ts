@@ -409,6 +409,7 @@ const accessFilters = {
   GardenCodes: allowAccess,
   GoogleServiceAccountSessions: allowAccess,
   Images: allowAccess,
+  InlinePredictions: allowAccess,
   JargonTerms: jargonTermCheckAccess,
   LegacyData: allowAccess,
   LlmConversations: llmConversationCheckAccess,

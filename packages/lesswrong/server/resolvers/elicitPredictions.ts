@@ -5,6 +5,7 @@ import { randomId } from '@/lib/random';
 import gql from 'graphql-tag';
 import { createElicitQuestionPrediction } from '../collections/elicitQuestionPredictions/mutations';
 import { computeContextFromUser } from '../vulcan-lib/apollo-server/context';
+import InlinePredictions from '../collections/inlinePredictions/collection';
 
 export const elicitPredictionsGraphQLTypeDefs = gql`
   type ElicitUser {
@@ -95,34 +96,78 @@ export const elicitPredictionsGraphQLFieldResolvers = {
 }
 
 export const elicitPredictionsGraphQLMutations = {
-  async MakeElicitPrediction(root: void, { questionId, prediction }: { questionId: string, prediction: number }, { currentUser }: ResolverContext) {
-    if (!currentUser) throw Error("Can only make elicit prediction when logged in")
-    const userContext = await computeContextFromUser({ user: currentUser, isSSR: false });
-    const predictionObj = (await createElicitQuestionPrediction({
-      data: {
-        prediction,
-        binaryQuestionId: questionId,
-        notes: "",
-        creator: {
-          _id: randomId(),
-          displayName: currentUser.displayName ?? currentUser._id,
-          sourceUserId: currentUser._id,
-          isQuestionCreator: false, //TODO
-        },
-        userId: currentUser._id,
-        sourceUrl: "",
-        sourceId: "",
-      },
-    }, userContext));
+  async MakeElicitPrediction(
+    root: void,
+    { questionId, prediction }: { questionId: string, prediction: number|null },
+    context: ResolverContext
+  ) {
+    const { currentUser } = context;
 
-    // Delete any predictions by this user other than this one
-    await ElicitQuestionPredictions.rawUpdateMany({
-      binaryQuestionId: questionId,
-      userId: currentUser._id,
-      _id: { $ne: predictionObj._id },
-    }, {
-      $set: { isDeleted: true }
-    });
+    if (!currentUser) {
+      throw new Error("Can only make elicit prediction when logged in")
+    }
+    const question = await ElicitQuestions.findOne(questionId);
+    if (!question) {
+      throw new Error("Invalid questionId");
+    }
+
+    let numDeleted = 0;
+    if (prediction !== null) {
+      const predictionObj = (await createElicitQuestionPrediction({
+        data: {
+          prediction,
+          binaryQuestionId: questionId,
+          notes: "",
+          creator: {
+            _id: randomId(),
+            displayName: currentUser.displayName ?? currentUser._id,
+            sourceUserId: currentUser._id,
+            isQuestionCreator: false, //TODO
+          },
+          userId: currentUser._id,
+          sourceUrl: "",
+          sourceId: "",
+        },
+      }, context));
+
+      // Delete any predictions by this user other than this one
+      numDeleted = await ElicitQuestionPredictions.rawUpdateMany({
+        binaryQuestionId: questionId,
+        userId: currentUser._id,
+        isDeleted: false,
+        _id: { $ne: predictionObj._id },
+      }, {
+        $set: { isDeleted: true }
+      });
+    } else {
+      // If the prediction is null, that means we are cancelling any previous
+      // predictions (and do not need to create a new one).
+      numDeleted = await ElicitQuestionPredictions.rawUpdateMany({
+        binaryQuestionId: questionId,
+        isDeleted: false,
+        userId: currentUser._id,
+      }, {
+        $set: { isDeleted: true }
+      });
+    }
+    
+    // If we deleted any predictions, check whether this is an inline prediction
+    // and that was the only prediction. If so, delete the inline prediction as
+    // well. (This is so that if you create an inline prediction and then
+    // immediately un-predict, you don't leave behind a zero-predictions
+    // question.)
+    if (numDeleted > 0) {
+      const numRemainingPredictions = await ElicitQuestionPredictions.find({
+        binaryQuestionId: questionId,
+        isDeleted: false,
+      }).count();
+      if (!numRemainingPredictions) {
+        await InlinePredictions.rawUpdateOne(
+          {questionId},
+          {$set: {deleted: true}}
+        );
+      }
+    }
 
     // When not using their API, use the imported data
     return await getLocalElicitQuestionWithPredictions(questionId)

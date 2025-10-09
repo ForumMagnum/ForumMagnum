@@ -4415,6 +4415,22 @@ const schema = {
       }
     }
   },
+
+  inlinePredictions: {
+    graphql: {
+      outputType: "[InlinePrediction!]!",
+      canRead: ["guests"],
+      resolver: async (post, _, context) => {
+        const { currentUser, InlinePredictions } = context;
+        const inlinePredictions = await InlinePredictions.find({
+          documentId: post._id,
+          collectionName: "Posts",
+          deleted: false,
+        }).fetch();
+        return await accessFilterMultiple(currentUser, "InlinePredictions", inlinePredictions, context);
+      },
+    },
+  },
   currentUserVote: DEFAULT_CURRENT_USER_VOTE_FIELD,
   currentUserExtendedVote: DEFAULT_CURRENT_USER_EXTENDED_VOTE_FIELD,
   voteCount: defaultVoteCountField('Posts'),

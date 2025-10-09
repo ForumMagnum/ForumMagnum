@@ -695,7 +695,7 @@ const PostsPage = ({fullPost, postPreload, refetch}: {
         contentType="post"
         className={classNames(classes.postContent, "instapaper_body")}
       >
-        <PostBodyPrefix post={post} query={query}/>
+        <PostBodyPrefix post={post} query={query} />
         <AnalyticsContext pageSectionContext="postBody">
           <HoveredReactionContextProvider voteProps={voteProps}>
           <CommentOnSelectionContentWrapper post={post}>
@@ -703,6 +703,7 @@ const PostsPage = ({fullPost, postPreload, refetch}: {
             {htmlWithAnchors && <>
               <PostBody
                 post={post}
+                refetchPost={refetch}
                 html={htmlWithAnchors}
                 isOldVersion={isOldVersion}
                 voteProps={voteProps}

@@ -155,7 +155,7 @@ export function isVoteWithReactsAllowed({user, document, oldExtendedScore, exten
   // If the user is using a react which no one else has used on this comment
   // before, they need at least newReactKarmaThreshold karma for it to be a
   // valid vote.
-  if (!skipRateLimits && userKarma<addNewReactKarmaThreshold.get()) {
+  if (!skipRateLimits && userCanAddNewReacts(user)) {
     for (let reaction of extendedVote.reacts) {
       if (!(reaction.react in oldExtendedScore.reacts)) {
         return {allowed: false, reason: `You need at least ${addNewReactKarmaThreshold.get()} karma to be the first to use a new react on a given comment`};
@@ -179,6 +179,11 @@ export function isVoteWithReactsAllowed({user, document, oldExtendedScore, exten
   }
   
   return {allowed: true};
+}
+
+export const userCanAddNewReacts = (user: UsersCurrent|DbUser|null) => {
+  if (!user) return false;
+  return user.karma >= addNewReactKarmaThreshold.get()
 }
 
 export type EmojiReactName = string;

@@ -19,6 +19,8 @@ import { RevisionStorageType } from "../revisions/revisionSchemaTypes";
 import { DEFAULT_AF_BASE_SCORE_FIELD, DEFAULT_AF_EXTENDED_SCORE_FIELD, DEFAULT_AF_VOTE_COUNT_FIELD, DEFAULT_BASE_SCORE_FIELD, DEFAULT_CURRENT_USER_EXTENDED_VOTE_FIELD, DEFAULT_CURRENT_USER_VOTE_FIELD, DEFAULT_EXTENDED_SCORE_FIELD, DEFAULT_INACTIVE_FIELD, DEFAULT_SCORE_FIELD, defaultVoteCountField, getAllVotes, getCurrentUserVotes } from "@/lib/make_voteable";
 import { customBaseScoreReadAccess } from "./voting";
 import { CommentsViews } from "./views";
+import { getWithCustomLoader } from "@/lib/loaders";
+import groupBy from "lodash/groupBy";
 
 function isCommentOnPost(data: Partial<DbComment> | CreateCommentDataInput | UpdateCommentDataInput) {
   return "postId" in data;
@@ -1418,6 +1420,26 @@ const schema = {
     },
   },
   afVoteCount: DEFAULT_AF_VOTE_COUNT_FIELD,
+  
+  inlinePredictions: {
+    graphql: {
+      outputType: "[InlinePrediction!]!",
+      canRead: ["guests"],
+      resolver: async (comment, args, context) => {
+        const { currentUser, InlinePredictions } = context;
+        const inlinePredictions = await getWithCustomLoader(context, "commentInlinePredictions", comment._id, async (commentIds) => {
+          const allInlinePredictions = await InlinePredictions.find({
+            collectionName: "Comments",
+            documentId: {$in: commentIds},
+            deleted: false,
+          }).fetch();
+          const groupedByComment = groupBy(allInlinePredictions, p=>p.documentId);
+          return commentIds.map(c => groupedByComment[c] ?? []);
+        });
+        return await accessFilterMultiple(currentUser, "InlinePredictions", inlinePredictions, context);
+      }
+    },
+  },
 } satisfies Record<string, CollectionFieldSpecification<"Comments">>;
 
 export default schema;

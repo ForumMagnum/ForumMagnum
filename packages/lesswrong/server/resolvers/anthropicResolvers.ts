@@ -123,7 +123,7 @@ async function getQueryContextDecision(args: BasePromptArgs): Promise<RagContext
   return parsedResponse.strategy_choice;
 }
 
-async function getProvidedPosts(query: string, context: ResolverContext): Promise<PostsPage[]> {
+async function getProvidedPosts(query: string, context: ResolverContext): Promise<PostWithContents[]> {
   const postIdRegex = /\/([a-zA-Z0-9]{17})(?=[/#?&)]|$)/g;
   const postIdMatches = [];
   let match;
@@ -399,7 +399,7 @@ const publishedPostQuery = gql(`
   query singlePublishedPostForLLMQuery($input: SinglePostInput) {
     post(input: $input) {
       result {
-        ...PostsPage
+        ...PostWithContents
       }
     }
   }
@@ -409,7 +409,7 @@ const postsMultiQuery = gql(`
   query multiPostsForLLMQuery($input: MultiPostInput) {
     posts(input: $input) {
       results {
-        ...PostsPage
+        ...PostWithContents
       }
     }
   }

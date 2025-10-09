@@ -18,6 +18,9 @@ import UsersName from "../users/UsersName";
 import ContentStyles from "../common/ContentStyles";
 import { gql } from '@/lib/generated/gql-codegen';
 import { filterWhereFieldsNotNull } from '@/lib/utils/typeGuardUtils';
+import { defineStyles, useStyles } from '../hooks/useStyles';
+import { useMessages } from '../common/withMessages';
+import Loading from '../vulcan-core/Loading';
 
 const elicitBlockDataQuery = gql(`
   query ElicitBlockData($questionId: String) {
@@ -82,7 +85,7 @@ const elicitPredictionMutation = gql(`
 const rootHeight = 50
 const rootPaddingTop = 12
 
-const styles = (theme: ThemeType) => ({
+const styles = defineStyles("ElicitBlock", (theme: ThemeType) => ({
   root: {
     position: 'relative',
     paddingTop: rootPaddingTop,
@@ -212,33 +215,83 @@ const styles = (theme: ThemeType) => ({
   name: {
     marginRight: 4
   }
-})
+}))
 
-const ElicitBlock = ({ classes, questionId = "IyWNjzc5P" }: {
-  classes: ClassesType<typeof styles>,
+const ElicitBlock = ({ questionId }: {
   questionId: string
 }) => {
   const currentUser = useCurrentUser();
-  const [hideTitle, setHideTitle] = useState(false);
   const {openDialog} = useDialog();
+  const { flash } = useMessages();
 
   const { data, loading } = useQuery(elicitBlockDataQuery, { ssr: true, variables: { questionId } });
 
   const [makeElicitPrediction] = useMutation(elicitPredictionMutation);
 
   const allPredictions = data?.ElicitBlockData?.predictions || [];
+  return <PredictionGraph
+    allPredictions={allPredictions}
+    title={data?.ElicitBlockData?.title || (loading ? null : "Can't find Question Title on Elicit")}
+    loading={loading}
+    makePrediction={async (prob) => {
+      if (currentUser && data?.ElicitBlockData?._id) {
+        const predictions = data?.ElicitBlockData?.predictions || []
+        const filteredPredictions = predictions.filter((prediction: any) => prediction?.creator?.sourceUserId !== currentUser._id)
+        // When you click on the slice that corresponds to your current prediction, you cancel it (i.e. double-clicking cancels any current predictions)
+        const newPredictions = (prob === null)
+          ? filteredPredictions
+          : [
+              createNewElicitPrediction(data?.ElicitBlockData?._id, prob, currentUser),
+              ...filteredPredictions
+            ]
+
+        await  makeElicitPrediction({
+          variables: {
+            questionId,
+            prediction: prob,
+          },
+          optimisticResponse: {
+            __typename: "Mutation",
+            MakeElicitPrediction: {
+              ...data?.ElicitBlockData,
+              __typename: "ElicitBlockData",
+              predictions: newPredictions
+            }
+          }
+        })
+      } else if (!currentUser) {
+        openDialog({
+          name: "LoginPopup",
+          contents: ({onClose}) => <LoginPopup onClose={onClose} />
+        });
+      }
+    }}
+  />
+}
+
+export const PredictionGraph = ({title, loading, allPredictions, makePrediction}: {
+  title: string|null
+  loading?: boolean,
+  allPredictions: ElicitBlockDataQuery_ElicitBlockData_ElicitBlockData_predictions_ElicitPrediction[]
+  makePrediction: (prediction: number|null) => Promise<void>
+}) => {
+  const classes = useStyles(styles);
+  const currentUser = useCurrentUser();
+  const [hideTitle, setHideTitle] = useState(false);
+
   const nonCancelledPredictions = filterWhereFieldsNotNull(allPredictions, 'prediction');
   const sortedPredictions = sortBy(nonCancelledPredictions, ({prediction}) => prediction)
   const roughlyGroupedData = groupBy(sortedPredictions, ({prediction}) => Math.floor(prediction / 10) * 10)
   const finelyGroupedData = groupBy(sortedPredictions, ({prediction}) => Math.floor(prediction))
   const userHasPredicted = currentUser && some(
     sortedPredictions,
-    (prediction: any) => prediction?.creator?.lwUser?._id === currentUser._id
+    (prediction) => prediction?.creator?.lwUser?._id === currentUser._id
   );
   const [revealed, setRevealed] = useState(false);
   const predictionsHidden = currentUser?.hideElicitPredictions && !userHasPredicted && !revealed;
   
   const maxSize = (maxBy(Object.values(roughlyGroupedData), arr => arr.length) || []).length
+
 
   return <ContentStyles contentType="comment" className={classes.root}>
     <div className={classes.histogramRoot}>
@@ -261,31 +314,8 @@ const ElicitBlock = ({ classes, questionId = "IyWNjzc5P" }: {
             data-num-largebucket={roughlyGroupedData[`${bucket*10}`]?.length || 0}
             data-num-smallbucket={finelyGroupedData[`${prob}`]?.length || 0}
             onClick={() => {
-              if (currentUser && data?.ElicitBlockData?._id) {
-                const predictions = data?.ElicitBlockData?.predictions || []
-                const filteredPredictions = predictions.filter((prediction: any) => prediction?.creator?.sourceUserId !== currentUser._id)
-                // When you click on the slice that corresponds to your current prediction, you cancel it (i.e. double-clicking cancels any current predictions)
-                const newPredictions = isCurrentUserSlice ? filteredPredictions : [createNewElicitPrediction(data?.ElicitBlockData?._id, prob, currentUser), ...filteredPredictions]
-
-                setRevealed(true);
-
-                void makeElicitPrediction({
-                  variables: { questionId, prediction: !isCurrentUserSlice ? prob : null },
-                  optimisticResponse: {
-                    __typename: "Mutation",
-                    MakeElicitPrediction: {
-                      ...data?.ElicitBlockData,
-                      __typename: "ElicitBlockData",
-                      predictions: newPredictions
-                    }
-                  }
-                })
-              } else {
-                openDialog({
-                  name: "LoginPopup",
-                  contents: ({onClose}) => <LoginPopup onClose={onClose} />
-                });
-              }
+              setRevealed(true);
+              void makePrediction(isCurrentUserSlice ? null : prob);
             }}
           >
             <div 
@@ -301,9 +331,18 @@ const ElicitBlock = ({ classes, questionId = "IyWNjzc5P" }: {
           </div>
         })}
         {!predictionsHidden && roughlyGroupedData[`${bucket*10}`] && <div className={classes.usersInBucket}>
-          {roughlyGroupedData[`${bucket*10}`]?.map(({creator, prediction}, i) => <span key={creator?._id} className={classes.name}>
-            {creator?.lwUser ? <UsersName user={creator?.lwUser} tooltipPlacement={"bottom"} /> : creator?.displayName} ({prediction}%){i !== (roughlyGroupedData[`${bucket*10}`].length - 1) && ","}
-          </span>)}
+          {roughlyGroupedData[`${bucket*10}`]
+            ?.map(({creator, prediction}, i) => <span
+              key={creator?._id}
+              className={classes.name}
+            >
+              {creator?.lwUser
+                ? <UsersName user={creator?.lwUser ?? null} tooltipPlacement={"bottom"} />
+                : creator?.displayName}
+              {" "}({prediction}%)
+              {i !== (roughlyGroupedData[`${bucket*10}`].length - 1) && ","}
+            </span>)
+          }
         </div>}
       </div>)}
     </div>
@@ -311,7 +350,8 @@ const ElicitBlock = ({ classes, questionId = "IyWNjzc5P" }: {
     <div className={classNames(classes.titleSection, {[classes.hiddenTitleSection]: hideTitle})}>
       <div className={classes.startPercentage}>1%</div>
       <div className={classes.title}>
-        {data?.ElicitBlockData?.title || (loading ? null : "Can't find Question Title on Elicit")}
+        {loading && !title && <Loading/>}
+        {title}
         {!loading && predictionsHidden && <a onClick={()=>setRevealed(true)}>
           {" "}(Reveal)
         </a>}
@@ -320,12 +360,6 @@ const ElicitBlock = ({ classes, questionId = "IyWNjzc5P" }: {
     </div>
   </ContentStyles>
 }
-
-export default registerComponent('ElicitBlock', ElicitBlock, {
-  styles,
-  hocs: [withErrorBoundary],
-});
-
 
 
 function createNewElicitPrediction(questionId: string, prediction: number, currentUser: UsersMinimumInfo) {
@@ -348,3 +382,7 @@ function createNewElicitPrediction(questionId: string, prediction: number, curre
     }
   }
 }
+
+export default registerComponent('ElicitBlock', ElicitBlock, {
+  hocs: [withErrorBoundary],
+});

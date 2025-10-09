@@ -14,8 +14,10 @@ import { useTracking } from '@/lib/analyticsEvents';
 import { useQuery } from "@/lib/crud/useQuery";
 import { gql } from "@/lib/generated/gql-codegen";
 import { SideCommentIcon } from "../../comments/SideCommentIcon";
-import InlineReactSelectionWrapper from "../../votes/lwReactions/InlineReactSelectionWrapper";
+import SelectedTextToolbarWrapper from "../../votes/lwReactions/InlineReactSelectionWrapper";
 import GlossarySidebar from "../../jargon/GlossarySidebar";
+import { inlinePredictionsToReplacements } from '@/components/votes/InlinePrediction';
+import { useAddInlinePredictions } from '@/components/votes/lwReactions/AddClaimProbabilityButton';
 
 
 const PostSideCommentsQuery = gql(`
@@ -66,8 +68,9 @@ function useDisplayGlossary(post: PostsWithNavigation | PostsWithNavigationAndRe
   return { showAllTerms, setShowAllTerms: wrappedSetShowAllTerms, termsToHighlight, unapprovedTermsCount, approvedTermsCount };
 }
 
-const PostBody = ({post, html, isOldVersion, voteProps}: {
+const PostBody = ({post, refetchPost, html, isOldVersion, voteProps}: {
   post: PostsWithNavigation | PostsWithNavigationAndRevision | PostsListWithVotes,
+  refetchPost: () => void,
   html: string,
   isOldVersion: boolean
   voteProps: VotingProps<PostsWithNavigation|PostsWithNavigationAndRevision|PostsListWithVotes>
@@ -97,12 +100,18 @@ const PostBody = ({post, html, isOldVersion, voteProps}: {
   const highlights = votingSystem.getPostHighlights
     ? votingSystem.getPostHighlights({post, voteProps})
     : []
+  const { addedInlinePredictions, inlinePredictionOps } = useAddInlinePredictions();
+  const inlinePredictions = ('inlinePredictions' in post)
+    ? inlinePredictionsToReplacements([...post.inlinePredictions, ...addedInlinePredictions])
+    : [];
   const glossaryItems: ContentReplacedSubstringComponentInfo[] = ('glossary' in post)
     ? jargonTermsToTextReplacements(termsToHighlight)
     : [];
-  const replacedSubstrings = [...highlights, ...glossaryItems];
+
+  const replacedSubstrings = [...highlights, ...inlinePredictions, ...glossaryItems];
+
   const glossarySidebar = 'glossary' in post && <GlossarySidebar post={post} showAllTerms={showAllTerms} setShowAllTerms={setShowAllTerms} unapprovedTermsCount={unapprovedTermsCount} approvedTermsCount={approvedTermsCount} />
-    
+  
   if (includeSideComments && document?.sideComments) {
     const htmlWithIDs = document.sideComments.html;
     const sideComments = sideCommentMode==="highKarma"
@@ -129,21 +138,20 @@ const PostBody = ({post, html, isOldVersion, voteProps}: {
     />
   }
   
-  if (inlineReactsHoverEnabled()) {
-    return <InlineReactSelectionWrapper
-      contentRef={contentRef}
-      voteProps={voteProps}
-      styling="post"
-    >
-      {glossarySidebar}
-      {content}
-    </InlineReactSelectionWrapper>
-  } else {
-    return <>
-      {glossarySidebar}
-      {content}
-    </>;
-  }
+  return <SelectedTextToolbarWrapper
+    enableCommentOnSelection={true}
+    enableInlineReacts={inlineReactsHoverEnabled()}
+    enableInlinePredictions={inlineReactsHoverEnabled()}
+    contentRef={contentRef}
+    voteProps={voteProps}
+    styling="post"
+    documentId={post._id}
+    collectionName="Posts"
+    inlinePredictionOps={inlinePredictionOps}
+  >
+    {glossarySidebar}
+    {content}
+  </SelectedTextToolbarWrapper>
 }
 
 export default registerComponent('PostBody', PostBody, { areEqual: "auto" });

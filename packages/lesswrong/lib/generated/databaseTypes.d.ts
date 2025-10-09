@@ -619,6 +619,19 @@ interface DbImages extends DbObject {
   originalUrl: string | null
 }
 
+type InlinePredictionsCollection = PgCollection<"InlinePredictions">;
+
+interface DbInlinePrediction extends DbObject {
+  __collectionName?: "InlinePredictions"
+  collectionName: string | null
+  createdAt: Date
+  deleted: boolean | null
+  documentId: string | null
+  questionId: string | null
+  quote: string | null
+  userId: string
+}
+
 type JargonTermsCollection = PgCollection<"JargonTerms">;
 
 interface DbJargonTerm extends DbObject {
@@ -2333,6 +2346,7 @@ interface CollectionsByName {
   GardenCodes: GardenCodesCollection
   GoogleServiceAccountSessions: GoogleServiceAccountSessionsCollection
   Images: ImagesCollection
+  InlinePredictions: InlinePredictionsCollection
   JargonTerms: JargonTermsCollection
   LWEvents: LWEventsCollection
   LegacyData: LegacyDataCollection
@@ -2427,6 +2441,7 @@ interface ObjectsByCollectionName {
   GardenCodes: DbGardenCode
   GoogleServiceAccountSessions: DbGoogleServiceAccountSession
   Images: DbImages
+  InlinePredictions: DbInlinePrediction
   JargonTerms: DbJargonTerm
   LWEvents: DbLWEvent
   LegacyData: DbLegacyData
@@ -2521,6 +2536,7 @@ interface ObjectsByTypeName {
   GardenCode: DbGardenCode
   GoogleServiceAccountSession: DbGoogleServiceAccountSession
   Images: DbImages
+  InlinePrediction: DbInlinePrediction
   JargonTerm: DbJargonTerm
   LWEvent: DbLWEvent
   LegacyData: DbLegacyData

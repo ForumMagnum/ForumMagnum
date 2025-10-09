@@ -1,15 +1,19 @@
-import React, { useRef, useState } from "react";
-import { registerComponent } from "../../../lib/vulcan-lib/components";
+import React from "react";
 import { useNamesAttachedReactionsVoting } from "./NamesAttachedReactionsVoteOnComment";
 import { VotingProps } from "../votingProps";
-import { QuoteLocator } from "../../../lib/voting/namesAttachedReactions";
+import { QuoteLocator, userCanAddNewReacts } from "../../../lib/voting/namesAttachedReactions";
 import classNames from "classnames";
-import LWTooltip from "../../common/LWTooltip";
 import ForumIcon from "../../common/ForumIcon";
 import ReactionsPalette from "../ReactionsPalette";
+import { defineStyles } from "@/components/hooks/defineStyles";
+import { useStyles } from "@/components/hooks/useStyles";
+import { TooltipSpan } from "@/components/common/FMTooltip";
+import { useCurrentUser } from "@/components/common/withUser";
+import { addNewReactKarmaThreshold } from "@/lib/instanceSettings";
 
-const styles = (theme: ThemeType) => ({
+const styles = defineStyles("AddInlineReactionButton", (theme: ThemeType) => ({
   tooltip: {
+    display: "inline-block",
     height: 38,
   },
   icon: {
@@ -33,55 +37,56 @@ const styles = (theme: ThemeType) => ({
     paddingTop: 12,
     maxWidth: 350,
   }
-})
+}))
 
-const AddInlineReactionButton = ({voteProps, classes, quote, disabled}: {
-  voteProps: VotingProps<VoteableTypeClient>,
-  classes: ClassesType<typeof styles>,
-  quote: QuoteLocator|null,
-  disabled?: boolean
+export const AddInlineReactionButton = ({onClick, className, quoteIsNotDistinct}: {
+  onClick: () => void,
+  className?: string,
+  quoteIsNotDistinct?: boolean
 }) => {
-  const [open,setOpen] = useState(false);
-  const buttonRef = useRef<HTMLElement|null>(null);
-  const { getCurrentUserReactionVote, toggleReaction } = useNamesAttachedReactionsVoting(voteProps);
+  const classes = useStyles(styles);
+  const currentUser = useCurrentUser();
+  const sufficientKarma = userCanAddNewReacts(currentUser)
   
-  const handleOpen = (e: React.MouseEvent) => {
-    if (!disabled) {
-      setOpen(true)
-    }
-  }
+  // We don't disable the button for logged-out and insufficient-karma users, because we want you to still be able to browse the reactions palette.
+  const disabled = quoteIsNotDistinct;
 
-  const handleToggleReaction = (reaction: string, quote: QuoteLocator) => {
-    setOpen(false)
-    toggleReaction(reaction, quote)
-  }
-
-  return <LWTooltip
-    disabled={open}
+  return <TooltipSpan
     title={<div><p>Click to react to the selected text</p>
-      {disabled && <p><em>You need to select a unique snippet.<br/>Please select more text until the snippet is unique</em></p>}
+      {!currentUser && <p>You must be logged in to leave inline reactions.</p>}
+      {currentUser && !sufficientKarma && <p>You need at least {addNewReactKarmaThreshold.get()} karma to leave inline reacts.</p>}
+      {quoteIsNotDistinct && <p><em>You need to select a unique snippet.<br/>Please select more text until the snippet is unique</em></p>}
     </div>}
     className={classes.tooltip}
   >
-    <span
-      ref={buttonRef}
-    >
-      {/* This needs to trigger on mouse down, not on click, because in Safari
-        * (specifically), clicking outside of a text selection deselects on
-        * press, which makes the button disappear.
-        */}
-      {!open && <ForumIcon icon="AddReaction" onMouseDown={handleOpen} className={classNames(classes.icon, { [classes.disabled]: disabled })}/>}
-      {open && <div className={classes.palette}>
-        <ReactionsPalette
-          getCurrentUserReactionVote={getCurrentUserReactionVote}
-          toggleReaction={handleToggleReaction}
-          quote={quote} 
-        />
-      </div>}
-    </span>
-  </LWTooltip>
+    {/* This needs to trigger on mouse down, not on click, because in Safari
+      * (specifically), clicking outside of a text selection deselects on
+      * press, which makes the button disappear.
+      */}
+    <ForumIcon icon="AddReaction"
+      onMouseDown={disabled ? onClick : undefined}
+      className={classNames(classes.icon, disabled && classes.disabled, className)}
+    />
+  </TooltipSpan>
 }
 
-export default registerComponent('AddInlineReactionButton', AddInlineReactionButton, {styles});
+export const AddInlineReactionDialog = ({voteProps, quote, onClose}: {
+  voteProps: VotingProps<VoteableTypeClient>,
+  quote: QuoteLocator|null,
+  onClose: () => void
+}) => {
+  const classes = useStyles(styles);
+  const { getCurrentUserReactionVote, toggleReaction } = useNamesAttachedReactionsVoting(voteProps);
 
-
+  const handleToggleReaction = (reaction: string, quote: QuoteLocator) => {
+    onClose();
+    toggleReaction(reaction, quote)
+  }
+  return <div className={classes.palette}>
+    <ReactionsPalette
+      getCurrentUserReactionVote={getCurrentUserReactionVote}
+      toggleReaction={handleToggleReaction}
+      quote={quote}
+    />
+  </div>
+}

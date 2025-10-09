@@ -105,6 +105,7 @@ import { graphqlForumEventQueryTypeDefs, forumEventGqlQueryHandlers, forumEventG
 import { graphqlGardencodeQueryTypeDefs, gardencodeGqlQueryHandlers, gardencodeGqlFieldResolvers } from "@/server/collections/gardencodes/queries";
 import { graphqlGoogleServiceAccountSessionQueryTypeDefs, googleServiceAccountSessionGqlQueryHandlers, googleServiceAccountSessionGqlFieldResolvers } from "@/server/collections/googleServiceAccountSessions/queries";
 import { graphqlImagesQueryTypeDefs, imagesGqlFieldResolvers } from "@/server/collections/images/queries";
+import { graphqlInlinePredictionQueryTypeDefs, inlinePredictionGqlFieldResolvers, inlinePredictionsMutations } from "@/server/collections/inlinePredictions/queries";
 import { graphqlJargonTermQueryTypeDefs, jargonTermGqlQueryHandlers, jargonTermGqlFieldResolvers } from "@/server/collections/jargonTerms/queries";
 import { graphqlLweventQueryTypeDefs, lweventGqlQueryHandlers, lweventGqlFieldResolvers } from "@/server/collections/lwevents/queries";
 import { graphqlLegacyDataQueryTypeDefs, legacyDataGqlFieldResolvers } from "@/server/collections/legacyData/queries";
@@ -355,6 +356,7 @@ export const getTypeDefs = () => gql`
   ${graphqlGardencodeQueryTypeDefs}
   ${graphqlGoogleServiceAccountSessionQueryTypeDefs}
   ${graphqlImagesQueryTypeDefs}
+  ${graphqlInlinePredictionQueryTypeDefs}
   ${graphqlJargonTermQueryTypeDefs}
   ${graphqlLweventQueryTypeDefs}
   ${graphqlLegacyDataQueryTypeDefs}
@@ -613,6 +615,7 @@ const getResolvers = () => ({
     ...recommendationsGqlMutations,
     ...extraPostResolversGraphQLMutations,
     ...loginDataGraphQLMutations,
+    ...inlinePredictionsMutations,
 
     // CRUD Mutation Handlers
     createAdvisorRequest: createAdvisorRequestGqlMutation,
@@ -738,6 +741,7 @@ const getResolvers = () => ({
   ...gardencodeGqlFieldResolvers,
   ...googleServiceAccountSessionGqlFieldResolvers,
   ...imagesGqlFieldResolvers,
+  ...inlinePredictionGqlFieldResolvers,
   ...jargonTermGqlFieldResolvers,
   ...lweventGqlFieldResolvers,
   ...legacyDataGqlFieldResolvers,

@@ -578,6 +578,19 @@ export const ImagesDefaultFragment = gql(`
   }
 `);
 
+export const InlinePredictionsDefaultFragment = gql(`
+  fragment InlinePredictionsDefaultFragment on InlinePrediction {
+    _id
+    createdAt
+    userId
+    deleted
+    documentId
+    collectionName
+    questionId
+    quote
+  }
+`);
+
 export const JargonTermsDefaultFragment = gql(`
   fragment JargonTermsDefaultFragment on JargonTerm {
     _id
