@@ -14,8 +14,8 @@ import { useDialog } from '../common/withDialog';
 import { claimsConfig } from './claims/claimsConfig';
 import { useStyles } from '../hooks/useStyles';
 import { ckEditorPluginStyles } from './ckEditorStyles';
-import { addSharedEditorShortcuts } from './sharedEditorShortcuts';
-import EditorCommandPalette, { CommandWithKeystroke } from './EditorCommandPalette';
+import { getEditorPaletteItems, improveEditorContextMenu } from './editorAugmentations';
+import { useCommandPalette } from '../hooks/useCommandPalette';
 
 // Uncomment the import and the line below to activate the debugger
 // import CKEditorInspector from '@ckeditor/ckeditor5-inspector';
@@ -75,19 +75,7 @@ const CKCommentEditor = ({
 
   const actualPlaceholder = placeholder ?? getDefaultEditorPlaceholder();
 
-  const openCommandPalette = (commands: CommandWithKeystroke[], editor: Editor, onCommandPaletteClosed: () => void) => {
-    openDialog({
-      name: "EditorCommandPalette",
-      contents: ({onClose}) => <EditorCommandPalette
-        commands={commands}
-        editor={editor}
-        onClose={() => {
-          onCommandPaletteClosed();
-          onClose();
-        }}
-      />
-    });
-  };
+  const openCommandPalette = useCommandPalette();
 
   const editorConfig = {
     ...getCommentEditorToolbarConfig(),
@@ -122,7 +110,16 @@ const CKCommentEditor = ({
       editor={CommentEditor}
       onReady={(editor: Editor) => {
         setEditorObject(editor);
-        addSharedEditorShortcuts(editorRef, editor, openCommandPalette);
+        const paletteItems = getEditorPaletteItems(editor);
+        editor.keystrokes.set('CTRL+SHIFT+P', (e) => {
+          e.preventDefault();
+          // Refocus the editor when the command palette is closed.
+          const onClose = () => editor.editing.view.focus();
+          openCommandPalette(paletteItems, onClose);
+        });
+
+        improveEditorContextMenu(editorRef, editor);
+
         // Uncomment the line below and the import above to activate the debugger
         // CKEditorInspector.attach(editor)
         onReady(editor)

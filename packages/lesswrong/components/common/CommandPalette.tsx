@@ -1,13 +1,11 @@
 import React, { useState, useEffect, useRef } from "react";
-import type { Command, Editor } from "@ckeditor/ckeditor5-core";
 import { defineStyles, useStyles } from '../hooks/useStyles';
-import { getEnvKeystrokeText, type KeystrokeInfo, parseKeystroke } from "@/lib/vendor/ckeditor5-util/keyboard";
-import { Typography } from "../common/Typography";
+import { getEnvKeystrokeText } from "@/lib/vendor/ckeditor5-util/keyboard";
+import { Typography } from "./Typography";
 import classNames from "classnames";
-import LWTooltip from "../common/LWTooltip";
-import LWPopper from "../common/LWPopper";
+import LWTooltip from "./LWTooltip";
 
-const styles = defineStyles('EditorCommandPalette', (theme: ThemeType) => ({
+const styles = defineStyles('CommandPalette', (theme: ThemeType) => ({
   overlay: {
     position: 'fixed',
     top: 0,
@@ -96,36 +94,12 @@ const styles = defineStyles('EditorCommandPalette', (theme: ThemeType) => ({
   },
 }));
 
-export interface CommandWithKeystroke {
-  keystroke: string;
+export interface CommandPaletteItem {
   label: string;
-  /**
-   * Some keybindings aren't linked to ckEditor "Commands", just to arbitrary plugin-related logic.
-   * An example is CTRL+4 for LaTeX - it displays the math input element, but the actual "Command"
-   * is for inserting LaTeX into the document after it's been put into the input element, which
-   * doesn't make any sense to try to execute as an isolated command in this context.
-   */
-  command?: Command;
+  keystroke: string;
+  isDisabled: () => boolean;
   disabledHelperText?: string;
-}
-
-function convertKeystrokeToKeystrokeInfo(keystroke: string): KeystrokeInfo {
-  const normalizedKeystrokeParts = keystroke.split('+').map(part => part.trim());
-  return {
-    keyCode: parseKeystroke(normalizedKeystrokeParts),
-    altKey: normalizedKeystrokeParts.includes('alt'),
-    metaKey: normalizedKeystrokeParts.includes('meta'),
-    ctrlKey: normalizedKeystrokeParts.includes('ctrl'),
-    shiftKey: normalizedKeystrokeParts.includes('shift'),
-    // If these aren't wrapped in an object spread, we get a type error because they aren't part
-    // of the KeystrokeInfo interface.  However, keystroke callback handlers receive a `cancel` function
-    // which it turns out expects keystrokes to have been triggered by a keyboard event that contains
-    // these properties.  So we pass them along because we call editor.keystrokes.press manually sometimes.
-    ...({
-      preventDefault: () => {},
-      stopPropagation: () => {},
-    })
-  };
+  execute: () => void;
 }
 
 function getDisplayedKeystrokes(keystroke: string): string[] {
@@ -140,22 +114,17 @@ function getDisplayedKeystrokes(keystroke: string): string[] {
   return envKeystroke.split('');
 }
 
-function isCommandDisabled(commandWithKeystroke: CommandWithKeystroke): boolean {
-  return !!commandWithKeystroke.command && !commandWithKeystroke.command.isEnabled;
-};
-
-const CommandListItem = ({ commandWithKeystroke, commandIndex: index, selectedIndex, onClose, executeShortcut }: {
-  commandWithKeystroke: CommandWithKeystroke;
+const CommandListItem = ({ command, commandIndex: index, selectedIndex, onClose }: {
+  command: CommandPaletteItem;
   commandIndex: number;
   selectedIndex: number;
   onClose: () => void;
-  executeShortcut: (commandWithKeystroke: CommandWithKeystroke) => void;
 }) => {
   const classes = useStyles(styles);
 
-  const disabled = isCommandDisabled(commandWithKeystroke);
+  const disabled = command.isDisabled();
   const selected = index === selectedIndex;
-  const hasTooltip = !!commandWithKeystroke.disabledHelperText;
+  const hasTooltip = !!command.disabledHelperText;
   const menuItemClassName = classNames(
     classes.commandItem,
     selected && 'selected',
@@ -168,14 +137,14 @@ const CommandListItem = ({ commandWithKeystroke, commandIndex: index, selectedIn
       onClick={() => {
         if (disabled) return;
         onClose();
-        setTimeout(() => executeShortcut(commandWithKeystroke), 50);
+        setTimeout(() => command.execute(), 50);
       }}
     >
       <Typography variant="body2">
-        {commandWithKeystroke.label}
+        {command.label}
       </Typography>
       <div className={classes.keystrokeContainer}>
-        {getDisplayedKeystrokes(commandWithKeystroke.keystroke).map((char, idx) =>
+        {getDisplayedKeystrokes(command.keystroke).map((char, idx) =>
           <div key={`${char}-${idx}`} className={classes.keystroke}>
             {char}
           </div>
@@ -187,8 +156,8 @@ const CommandListItem = ({ commandWithKeystroke, commandIndex: index, selectedIn
   if (hasTooltip) {
     return (
       <LWTooltip
-        key={`${commandWithKeystroke.keystroke}-${commandWithKeystroke.label}`}
-        title={commandWithKeystroke.disabledHelperText}
+        key={`${command.keystroke}-${command.label}`}
+        title={command.disabledHelperText}
         forceOpen={selected}
         renderWithoutHover={true}
         className={classes.helperTextTooltip}
@@ -201,9 +170,8 @@ const CommandListItem = ({ commandWithKeystroke, commandIndex: index, selectedIn
   return menuItem;
 };
 
-const EditorCommandPalette = ({ commands, editor, onClose }: {
-  commands: CommandWithKeystroke[];
-  editor: Editor;
+const CommandPalette = ({ commands, onClose }: {
+  commands: CommandPaletteItem[];
   onClose: () => void;
 }) => {
   const classes = useStyles(styles);
@@ -216,18 +184,6 @@ const EditorCommandPalette = ({ commands, editor, onClose }: {
     if (!searchQuery) return true;
     return label.toLowerCase().includes(searchQuery.toLowerCase());
   });
-
-  const executeShortcut = (commandWithKeystroke: CommandWithKeystroke) => {
-    if (isCommandDisabled(commandWithKeystroke)) {
-      return;
-    }
-    if (commandWithKeystroke.command) {
-      commandWithKeystroke.command.execute();
-    } else {
-      const keystrokeInfo = convertKeystrokeToKeystrokeInfo(commandWithKeystroke.keystroke);
-      editor.keystrokes.press(keystrokeInfo);
-    }
-  };
 
   const handleKeyDown = (e: React.KeyboardEvent) => {
     switch (e.key) {
@@ -242,12 +198,12 @@ const EditorCommandPalette = ({ commands, editor, onClose }: {
       case 'Enter':
         e.preventDefault();
         if (filteredCommands[selectedIndex]) {
-          const commandWithKeystroke = filteredCommands[selectedIndex];
-          if (isCommandDisabled(commandWithKeystroke)) {
+          const command = filteredCommands[selectedIndex];
+          if (command.isDisabled()) {
             return;
           }
           onClose();
-          setTimeout(() => executeShortcut(commandWithKeystroke), 50);
+          setTimeout(() => command.execute(), 50);
         }
         break;
       case 'Escape':
@@ -296,14 +252,13 @@ const EditorCommandPalette = ({ commands, editor, onClose }: {
         />
         <div className={classes.commandList} ref={commandListRef}>
           {filteredCommands.length > 0 ? (
-            filteredCommands.map((commandWithKeystroke, index) => {
+            filteredCommands.map((command, index) => {
               return <CommandListItem
-                key={`${commandWithKeystroke.keystroke}-${commandWithKeystroke.label}`}
-                commandWithKeystroke={commandWithKeystroke}
+                key={`${command.keystroke}-${command.label}`}
+                command={command}
                 commandIndex={index}
                 selectedIndex={selectedIndex}
                 onClose={onClose}
-                executeShortcut={executeShortcut}
               />;
             })
           ) : (
@@ -317,4 +272,4 @@ const EditorCommandPalette = ({ commands, editor, onClose }: {
   );
 };
 
-export default EditorCommandPalette;
+export default CommandPalette;

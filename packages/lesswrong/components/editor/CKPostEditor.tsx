@@ -15,7 +15,7 @@ import { filterNonnull } from '../../lib/utils/typeGuardUtils';
 import { useMutation } from "@apollo/client/react";
 import { useQuery } from "@/lib/crud/useQuery"
 import { gql } from "@/lib/generated/gql-codegen";
-import type { Command, Editor } from '@ckeditor/ckeditor5-core';
+import type { Editor } from '@ckeditor/ckeditor5-core';
 import type { Node, RootElement, Writer, Element as CKElement, Selection, DocumentFragment } from '@ckeditor/ckeditor5-engine';
 import { EditorContext } from '../posts/EditorContext';
 import { isFriendlyUI } from '../../themes/forumTheme';
@@ -32,8 +32,8 @@ import DialogueEditorGuidelines from "../posts/dialogues/DialogueEditorGuideline
 import DialogueEditorFeedback from "../posts/dialogues/DialogueEditorFeedback";
 import { useStyles } from '../hooks/useStyles';
 import { ckEditorPluginStyles } from './ckEditorStyles';
-import { addSharedEditorShortcuts, CkEditorShortcut } from './sharedEditorShortcuts';
-import EditorCommandPalette, { CommandWithKeystroke } from './EditorCommandPalette';
+import { getEditorPaletteItems, CkEditorShortcut, improveEditorContextMenu } from './editorAugmentations';
+import { useCommandPalette } from '../hooks/useCommandPalette';
 
 const PostsMinimumInfoMultiQuery = gql(`
   query multiPostCKPostEditorQuery($selector: PostSelector, $limit: Int, $enableTotal: Boolean) {
@@ -575,19 +575,7 @@ const CKPostEditor = ({
   useSyncCkEditorPlaceholder(editorObject, actualPlaceholder);
   useCkEditorInspector(editorRef);
 
-  const openCommandPalette = (commands: CommandWithKeystroke[], editor: Editor, onCommandPaletteClosed: () => void) => {
-    openDialog({
-      name: "EditorCommandPalette",
-      contents: ({onClose}) => <EditorCommandPalette
-        commands={commands}
-        editor={editor}
-        onClose={() => {
-          onCommandPaletteClosed();
-          onClose();
-        }}
-      />
-    });
-  };
+  const openCommandPalette = useCommandPalette();
 
   return <div className={classes.ckWrapper}>
     {isBlockOwnershipMode && <>
@@ -765,14 +753,24 @@ const CKPostEditor = ({
         const additionalShortcuts: CkEditorShortcut[] = [];
         if (isCollaborative) {
           additionalShortcuts.push({
+            // On macos, this collides with the "minimize all windows of the foregrounded app to the dock" shortcut,
+            // which I expect nobody cares about, and Google Docs also uses this keybinding for leaving a comment, so whatever.
             keystroke: 'CTRL+ALT+M',
-            label: 'Add Comment',
+            label: 'Inline Comment',
             commandName: 'addCommentThread',
             disabledHelperText: 'You must have some text selected to add a comment',
           });
         }
 
-        addSharedEditorShortcuts(editorRef, editor, openCommandPalette, additionalShortcuts);
+        const paletteItems = getEditorPaletteItems(editor, additionalShortcuts);
+        editor.keystrokes.set('CTRL+SHIFT+P', (e) => {
+          e.preventDefault();
+          // Refocus the editor when the command palette is closed.
+          const onClose = () => editor.editing.view.focus();
+          openCommandPalette(paletteItems, onClose);
+        });
+
+        improveEditorContextMenu(editorRef, editor);
 
         onReady(editor)
       }}
