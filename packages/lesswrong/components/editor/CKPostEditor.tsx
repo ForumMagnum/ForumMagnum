@@ -32,8 +32,8 @@ import DialogueEditorGuidelines from "../posts/dialogues/DialogueEditorGuideline
 import DialogueEditorFeedback from "../posts/dialogues/DialogueEditorFeedback";
 import { useStyles } from '../hooks/useStyles';
 import { ckEditorPluginStyles } from './ckEditorStyles';
-import { addSharedEditorShortcuts } from './sharedEditorShortcuts';
-import EditorCommandPalette from './EditorCommandPalette';
+import { addSharedEditorShortcuts, CkEditorShortcut } from './sharedEditorShortcuts';
+import EditorCommandPalette, { CommandWithKeystroke } from './EditorCommandPalette';
 
 const PostsMinimumInfoMultiQuery = gql(`
   query multiPostCKPostEditorQuery($selector: PostSelector, $limit: Int, $enableTotal: Boolean) {
@@ -575,12 +575,16 @@ const CKPostEditor = ({
   useSyncCkEditorPlaceholder(editorObject, actualPlaceholder);
   useCkEditorInspector(editorRef);
 
-  const openCommandPalette = (commandsByName: Record<string, Command>) => {
+  const openCommandPalette = (commands: CommandWithKeystroke[], editor: Editor, onCommandPaletteClosed: () => void) => {
     openDialog({
       name: "EditorCommandPalette",
       contents: ({onClose}) => <EditorCommandPalette
-        commandsByName={commandsByName}
-        onClose={onClose}
+        commands={commands}
+        editor={editor}
+        onClose={() => {
+          onCommandPaletteClosed();
+          onClose();
+        }}
       />
     });
   };
@@ -625,8 +629,6 @@ const CKPostEditor = ({
       isCollaborative={!!isCollaborative}
       onReady={(editor: Editor) => {
         setEditorObject(editor);
-
-        addSharedEditorShortcuts(editorRef, editor, openCommandPalette);
         
         if (isCollaborative) {
           // Uncomment this line and the import above to activate the CKEditor debugger
@@ -638,8 +640,6 @@ const CKPostEditor = ({
           refreshDisplayMode(editor, sidebarRef.current);
           
           applyCollabModeToCkEditor(editor, collaborationMode);
-          
-          editor.keystrokes.set('CTRL+ALT+M', 'addCommentThread');
 
           (editorRef.current as AnyBecauseHard)?.domContainer?.current?.addEventListener('keydown', (event: KeyboardEvent) => {
             handleSubmitWithoutNewline(editor, currentUser, event);
@@ -761,6 +761,18 @@ const CKPostEditor = ({
             }
           });
         }
+
+        const additionalShortcuts: CkEditorShortcut[] = [];
+        if (isCollaborative) {
+          additionalShortcuts.push({
+            keystroke: 'CTRL+ALT+M',
+            label: 'Add Comment',
+            commandName: 'addCommentThread',
+            disabledHelperText: 'You must have some text selected to add a comment',
+          });
+        }
+
+        addSharedEditorShortcuts(editorRef, editor, openCommandPalette, additionalShortcuts);
 
         onReady(editor)
       }}
