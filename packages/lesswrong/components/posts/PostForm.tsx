@@ -215,7 +215,7 @@ const PostForm = ({
 
         meta.successCallback?.(result);
 
-        onSuccess(result);
+        onSuccess(result, { submitOptions: meta });
         setCaughtError(undefined);
       } catch (error) {
         setCaughtError(error);
