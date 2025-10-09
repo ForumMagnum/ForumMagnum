@@ -163,9 +163,9 @@ async function updateKarma({newDocument, vote}: VoteDocTuple, collection: Collec
     }
   }
 
-  
+
   if (!!newDocument.userId && isLWorAF() && ['Posts', 'Comments'].includes(vote.collectionName) && votesCanTriggerReview(newDocument as DbPost | DbComment)) {
-    backgroundTask(checkForStricterRateLimits(newDocument.userId, context));
+    backgroundTask(checkForStricterRateLimits(newDocument.userId, newDocument._id, vote.collectionName, context));
   }
 }
 

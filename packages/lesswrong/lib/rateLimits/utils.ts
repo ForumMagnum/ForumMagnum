@@ -123,7 +123,7 @@ function getRateLimitName (rateLimit: AutoRateLimit) {
   return `${rateLimit.itemsPerTimeframe} ${rateLimit.actionType} per ${rateLimit.timeframeLength} ${rateLimit.timeframeUnit}`
 }
 
-function getActiveRateLimits<T extends AutoRateLimit>(user: UserKarmaInfo & { recentKarmaInfo: RecentKarmaInfo }, autoRateLimits: T[]) {
+export function getActiveRateLimits<T extends AutoRateLimit>(user: UserKarmaInfo & { recentKarmaInfo: RecentKarmaInfo }, autoRateLimits: T[]) {
   const nonUniversalLimits = autoRateLimits.filter(rateLimit => rateLimit.rateLimitType !== "universal")
   return nonUniversalLimits.filter(rateLimit => rateLimit.isActive(user, {...user.recentKarmaInfo, downvoteRatio: getDownvoteRatio(user)}))
 }

@@ -5,6 +5,7 @@ import { usesCurationEmailsCron } from '@/lib/betas';
 import { dispatchPendingEvents } from '@/server/debouncer';
 import { checkAndSendUpcomingEventEmails } from '@/server/eventReminders';
 import { updateScoreActiveDocuments } from '@/server/votingCron';
+import { getCronLock } from '@/server/cron/cronLock';
 
 export async function GET(request: NextRequest) {
   const authHeader = request.headers.get('authorization');
@@ -19,21 +20,21 @@ export async function GET(request: NextRequest) {
 
   // Send curation emails
   if (!isTestServer && usesCurationEmailsCron()) {
-    tasks.push(sendCurationEmails());
+    tasks.push(getCronLock('sendCurationEmails', sendCurationEmails));
   }
 
   // Debounced event handler
   if (!isTestServer) {
-    tasks.push(dispatchPendingEvents());
+    tasks.push(getCronLock('dispatchPendingEvents', dispatchPendingEvents));
   }
 
   // Check upcoming event emails
   if (!isTestServer) {
-    tasks.push(checkAndSendUpcomingEventEmails());
+    await getCronLock('checkAndSendUpcomingEventEmails', checkAndSendUpcomingEventEmails);
   }
 
   // Update score active documents (runs regardless of test server setting)
-  tasks.push(updateScoreActiveDocuments());
+  await getCronLock('updateScoreActiveDocuments', updateScoreActiveDocuments);
 
   // Execute all tasks in parallel
   await Promise.all(tasks);
