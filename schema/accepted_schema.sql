@@ -1079,6 +1079,27 @@ CREATE INDEX IF NOT EXISTS "idx_Images_identifier" ON "Images" USING btree ("ide
 -- Index "idx_Images_cdnHostedUrl"
 CREATE INDEX IF NOT EXISTS "idx_Images_cdnHostedUrl" ON "Images" USING btree ("cdnHostedUrl");
 
+-- Table "InlinePredictions"
+CREATE TABLE "InlinePredictions" (
+  _id VARCHAR(27) PRIMARY KEY,
+  "createdAt" TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP NOT NULL,
+  "userId" TEXT NOT NULL,
+  "deleted" BOOL,
+  "documentId" TEXT,
+  "collectionName" TEXT,
+  "questionId" TEXT,
+  "quote" TEXT
+);
+
+-- Index "idx_InlinePredictions_documentId"
+CREATE INDEX IF NOT EXISTS "idx_InlinePredictions_documentId" ON "InlinePredictions" USING btree ("documentId");
+
+-- Index "idx_InlinePredictions_userId"
+CREATE INDEX IF NOT EXISTS "idx_InlinePredictions_userId" ON "InlinePredictions" USING btree ("userId");
+
+-- Index "idx_InlinePredictions_questionId"
+CREATE INDEX IF NOT EXISTS "idx_InlinePredictions_questionId" ON "InlinePredictions" USING btree ("questionId");
+
 -- Table "JargonTerms"
 CREATE TABLE "JargonTerms" (
   _id VARCHAR(27) PRIMARY KEY,
