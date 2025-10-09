@@ -189,7 +189,7 @@ export const routeTrie = {
                 "connectCrossposter": {
                   "hasRoute": true
                 },
-                "createCrosspost": {
+                "crosspost": {
                   "hasRoute": true
                 },
                 "crosspostDetails": {
@@ -210,7 +210,7 @@ export const routeTrie = {
               },
               "lowerCase": {
                 "connectcrossposter": "connectCrossposter",
-                "createcrosspost": "createCrosspost",
+                "crosspost": "crosspost",
                 "crosspostdetails": "crosspostDetails",
                 "crossposterdetails": "crossposterDetails",
                 "generatetoken": "generateToken",
