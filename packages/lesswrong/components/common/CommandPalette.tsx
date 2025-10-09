@@ -8,18 +8,18 @@ import LWTooltip from "./LWTooltip";
 const styles = defineStyles('CommandPalette', (theme: ThemeType) => ({
   overlay: {
     position: 'fixed',
-    top: 0,
+    top: '20vh',
     left: 0,
     right: 0,
     bottom: 0,
-    zIndex: 10000,
+    zIndex: theme.zIndexes.commandPalette,
     display: 'flex',
     alignItems: 'flex-start',
     justifyContent: 'center',
   },
   container: {
     backgroundColor: theme.palette.background.paper,
-    borderRadius: theme.borderRadius.default,
+    borderRadius: theme.borderRadius.small,
     boxShadow: theme.shadows[3],
     width: '500px',
     maxHeight: '400px',
@@ -37,7 +37,6 @@ const styles = defineStyles('CommandPalette', (theme: ThemeType) => ({
   commandList: {
     maxHeight: '300px',
     overflowY: 'auto',
-    padding: '8px 0',
   },
   commandItem: {
     padding: '8px 16px',
@@ -45,7 +44,6 @@ const styles = defineStyles('CommandPalette', (theme: ThemeType) => ({
     display: 'flex',
     alignItems: 'center',
     justifyContent: 'space-between',
-    fontSize: '14px',
     '&:hover': {
       backgroundColor: theme.palette.grey[100],
     },
@@ -54,15 +52,17 @@ const styles = defineStyles('CommandPalette', (theme: ThemeType) => ({
       color: theme.palette.grey[600],
     },
     '&.disabled': {
-      opacity: 0.4,
+      opacity: 0.6,
+      // the text itself gets a bit more opacity than the background,
+      // which would otherwise be too opaque when disabled
+      '& > :first-child': {
+        opacity: 0.5,
+      },
       cursor: 'not-allowed',
       '&:hover': {
         backgroundColor: 'transparent',
       },
     },
-  },
-  commandName: {
-    fontWeight: 500,
   },
   keystrokeContainer: {
     display: 'flex',
@@ -219,7 +219,7 @@ const CommandPalette = ({ commands, onClose }: {
     }
   };
 
-  // Focus the search input when the component mounts
+  // Focus the search input when the command palette is opened
   useEffect(() => {
     searchInputRef.current?.focus();
   }, []);
@@ -229,7 +229,7 @@ const CommandPalette = ({ commands, onClose }: {
     setSelectedIndex(0);
   }, [searchQuery]);
 
-  // Scroll selected item into view
+  // Scroll selected item into view when it changes
   useEffect(() => {
     const selectedElement = commandListRef.current?.children[selectedIndex] as HTMLElement;
     if (selectedElement) {
