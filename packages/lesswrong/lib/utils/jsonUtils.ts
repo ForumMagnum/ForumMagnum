@@ -4,6 +4,9 @@
  * but does *not* wrap it in quotes or escape quotes.
  */
 export const toEmbeddableJson = (serializable: unknown): string => {
-  return JSON.stringify(serializable)
-    .replace(/<\//g, "<\\/")
+  const json = JSON.stringify(serializable);
+  if (json === undefined) {
+    return 'undefined';
+  }
+  return json.replace(/<\//g, "<\\/");
 }

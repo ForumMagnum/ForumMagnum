@@ -593,6 +593,12 @@ const recombeeApi = {
       context
     });
 
+    if (!recombeeResponseWithScenario || !recombeeResponseWithScenario.recomms) {
+      // eslint-disable-next-line no-console
+      console.warn('No recommendations returned from getCachedRecommendations', recombeeResponseWithScenario);
+      return [];
+    }
+
     const { recomms, recommId, scenario } = recombeeResponseWithScenario;
     const recsWithMetadata = new Map(recomms.map(rec => [rec.id, { ...rec, recommId, scenario }]));
     const recommendedPostIds = recomms.map(({ id }) => id);
@@ -689,7 +695,13 @@ const recombeeApi = {
       }));
     }
 
-    const recsWithMetadata = new Map(recombeeResponsesWithScenario.flatMap(response => response.recomms.map(rec => [rec.id, { ...rec, recommId: response.recommId, scenario: response.scenario }])));
+    const recsWithMetadata = new Map(recombeeResponsesWithScenario.flatMap(response => {
+      if (!response?.recomms) {
+        console.warn('Invalid response in getHybridRecommendationsForUser:', response);
+        return [];
+      }
+      return response.recomms.map(rec => [rec.id, { ...rec, recommId: response.recommId, scenario: response.scenario }]);
+    }));
     const recommendedPostIds = Array.from(recsWithMetadata.keys());
     // The ordering of these post ids is actually important, since it's preserved through all subsequent filtering/mapping
     // It ensures the "about > curated > stickied > everything else" ordering
