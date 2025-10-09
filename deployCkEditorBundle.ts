@@ -6,7 +6,7 @@
  */
 import { exec } from 'child_process';
 import { promisify } from 'util';
-import { loadInstanceEnv } from "./scripts/runWithVercelEnv";
+import { loadCkEditorUploadEnv } from "./scripts/runWithVercelEnv";
 import { initConsole } from "./packages/lesswrong/server/serverStartup";
 
 const execAsync = promisify(exec);
@@ -30,9 +30,6 @@ const initGlobals = (isProd: boolean) => {
   global.enableVite = false;
   // @ts-ignore
   global.defaultSiteAbsoluteUrl = "";
-
-  global.serverPort = 5001;
-  global.estrellaPid = -1;
 }
 
 const fetchImports = async () => {
@@ -43,7 +40,7 @@ const fetchImports = async () => {
 }
 
 (async () => {
-  const { environment } = await loadInstanceEnv();
+  const { environment } = await loadCkEditorUploadEnv();
 
   initGlobals(environment === "prod");
   initConsole();

@@ -5,7 +5,6 @@ import React, { useContext, useEffect, useState, useRef, useCallback, ReactNode 
 import { hookToHoc } from './hocUtils'
 import { isClient, isServer, isE2E } from './executionEnvironment';
 import { ColorHash } from './vendor/colorHash';
-import { flushIntervalSetting } from './instanceSettings';
 import throttle from 'lodash/throttle';
 import moment from 'moment';
 import { FeedItemSourceType, FeedItemType, FeedType, UltraFeedAnalyticsContext } from '@/components/ultraFeed/ultraFeedTypes';
@@ -427,17 +426,11 @@ export function flushClientEvents(force: boolean = false) {
   })));
 }
 
+const flushInterval: number = 5000;
 let lastFlushedAt: Date|null = null;
-function throttledFlushClientEvents() {
-  if (!isClient)
-    throw new Error("This function can only be run on the client");
-  const flushInterval: number = flushIntervalSetting.get();
-  const now = new Date();
-  if(!lastFlushedAt || now.getTime()-lastFlushedAt.getTime() > flushInterval) {
-    lastFlushedAt = now;
-    flushClientEvents();
-  }
-}
+export const throttledFlushClientEvents = throttle(flushClientEvents, flushInterval, {
+  leading: false,
+});
 
 // Send a request from the client to the server with an array of events.
 // Available only on the client and when the react tree is mounted.
@@ -447,13 +440,10 @@ function throttledFlushClientEvents() {
 // from other requests that we want its error handling to be different, and
 // potentially want it to be a special case at the load balancer.
 const clientWriteEvents = async (events: AnyBecauseTodo[]) => {
-  await fetch("/analyticsEvent", {
-    method: "POST",
-    body: JSON.stringify({
-      events, now: new Date(),
-    }),
-    headers: {
-      "Content-Type": "application/json",
-    },
-  });
+  if (!isClient)
+    throw new Error("This function can only be run on the client");
+
+  const dataJson = JSON.stringify({ events, now: new Date(), });
+  const dataBuffer = new TextEncoder().encode(dataJson);
+  navigator.sendBeacon("/analyticsEvent", dataBuffer);
 };
