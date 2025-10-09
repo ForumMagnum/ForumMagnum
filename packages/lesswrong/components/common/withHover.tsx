@@ -18,19 +18,19 @@ export type UseHoverEventHandlers = {
   onMouseLeave: (ev: React.MouseEvent) => void,
 }
 
-export const useHover = <EventType extends {currentTarget: Element}=React.MouseEvent>({eventProps, onEnter, onLeave, disabledOnMobile}: UseHoverProps = {}): {
+export const useHover = <EventType extends {currentTarget: HTMLElement}=React.MouseEvent<HTMLElement>>({eventProps, onEnter, onLeave, disabledOnMobile}: UseHoverProps = {}): {
   eventHandlers: {
     onMouseOver: (ev: EventType) => void,
     onMouseLeave: (ev: EventType) => void,
   }
   hover: boolean,
   everHovered: boolean,
-  anchorEl: Element | null,
+  anchorEl: HTMLElement | null,
   forceUnHover: () => void,
 } => {
   const [hover, setHover] = useState(false)
   const [everHovered, setEverHovered] = useState(false)
-  const [anchorEl, setAnchorEl] = useState<Element | null>(null)
+  const [anchorEl, setAnchorEl] = useState<HTMLElement | null>(null)
   const delayTimer = useRef<any>(null)
   const mouseOverStart = useRef<Date|null>(null)
 

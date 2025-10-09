@@ -4,6 +4,7 @@ import type { RefObject } from "react";
 import type { CommandPaletteItem } from "../common/CommandPalette";
 import { KeystrokeInfo, parseKeystroke } from "@/lib/vendor/ckeditor5-util/keyboard";
 import { captureException } from "@/lib/sentryWrapper";
+import type {} from "../../../../ckEditor/src/augmentation";
 
 interface CkEditorShortcutBase {
   keystroke: string;
