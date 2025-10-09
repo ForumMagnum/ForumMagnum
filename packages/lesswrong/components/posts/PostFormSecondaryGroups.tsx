@@ -15,7 +15,7 @@ import { FormComponentDatePicker } from "../form-components/FormComponentDateTim
 import { PodcastEpisodeInput } from "../form-components/PodcastEpisodeInput";
 import { SocialPreviewUpload } from "../form-components/SocialPreviewUpload";
 import { defineStyles, useStyles } from "../hooks/useStyles";
-import { EditorFormComponent, useEditorFormCallbacks, AddOnSubmitCallback, AddOnSuccessCallback } from "../editor/EditorFormComponent";
+import { AddOnSubmitCallback, AddOnSuccessCallback, EditorFormComponent } from "../editor/EditorFormComponent";
 import { MuiTextField } from "@/components/form-components/MuiTextField";
 import { FormComponentSelect } from "@/components/form-components/FormComponentSelect";
 import FooterTagList from "../tagging/FooterTagList";
@@ -142,13 +142,13 @@ const PostFormSecondaryGroups = ({
   addOnSubmitCallbackModerationGuidelines,
   addOnSuccessCallbackModerationGuidelines,
 }: {
-  form: TypedReactFormApi<EditablePost, PostSubmitMeta>;
+  form: TypedReactFormApi<EditablePost & { title: string }, PostSubmitMeta>;
   initialData: EditablePost;
   formType: 'new' | 'edit';
   currentUser: UsersCurrent | null;
   addOnSubmitCallbackCustom: AddOnSubmitCallback<PostsEditMutationFragment>
   addOnSuccessCallbackCustom: AddOnSuccessCallback<PostsEditMutationFragment>;
-  addOnSubmitCallbackModerationGuidelines:AddOnSubmitCallback<PostsEditMutationFragment>
+  addOnSubmitCallbackModerationGuidelines: AddOnSubmitCallback<PostsEditMutationFragment>
   addOnSuccessCallbackModerationGuidelines: AddOnSuccessCallback<PostsEditMutationFragment>;
 }) => {
   const classes = useStyles(styles);

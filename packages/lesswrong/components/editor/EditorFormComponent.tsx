@@ -46,7 +46,7 @@ type EditorSubmitCallback = () => Promise<void>;
 type EditorSuccessCallback<R> = (result: R, submitOptions?: { redirectToEditor?: boolean; noReload?: boolean }) => void;
 
 export type AddOnSuccessCallback<R> = (fn: EditorSuccessCallback<R>) => () => void;
-export type AddOnSubmitCallback<Fragment> = (cb: EditorSubmitCallback<Fragment>) => () => void;
+export type AddOnSubmitCallback<Fragment> = (cb: EditorSubmitCallback) => () => void;
 
 interface EditorFormComponentProps<S, R> {
   field: TypedFieldApi<any>;
