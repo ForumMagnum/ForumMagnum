@@ -292,6 +292,7 @@ export class ElasticExporter {
       body: {
         settings: {
           index: {
+            max_ngram_diff: 16,
             analysis: {
               filter: {
                 fm_english_stopwords: {
@@ -316,6 +317,11 @@ export class ElasticExporter {
                   type: "pattern_replace",
                   pattern: " ",
                   replacement: "",
+                },
+                fm_ngram_filter: {
+                  type: "ngram",
+                  min_gram: 4,
+                  max_gram: 20,
                 },
               },
               char_filter: {
@@ -370,6 +376,19 @@ export class ElasticExporter {
                     "fm_synonym_filter",
                     "fm_shingle_filter",
                     "fm_whitespace_filter",
+                  ],
+                  char_filter: [
+                    "fm_punctuation_filter",
+                  ],
+                },
+                fm_name_analyzer: {
+                  type: "custom",
+                  tokenizer: "standard",
+                  filter: [
+                    "lowercase",
+                    "fm_synonym_filter",
+                    "fm_shingle_filter",
+                    "fm_ngram_filter",
                   ],
                   char_filter: [
                     "fm_punctuation_filter",
