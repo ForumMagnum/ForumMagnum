@@ -1,4 +1,4 @@
-import { canUserEditPostMetadata, userIsPostGroupOrganizer } from "@/lib/collections/posts/helpers";
+import { canUserEditPostMetadata, isPostAllowedType3Audio, userIsPostGroupOrganizer } from "@/lib/collections/posts/helpers";
 import schema from "@/lib/collections/posts/newSchema";
 import { userCanPost } from "@/lib/collections/users/helpers";
 import { isEAForum, isElasticEnabled, isLWorAF } from "@/lib/instanceSettings";
@@ -24,6 +24,8 @@ import { getLegacyCreateCallbackProps, getLegacyUpdateCallbackProps, insertAndRe
 import gql from "graphql-tag";
 import cloneDeep from "lodash/cloneDeep";
 import { createAutomatedContentEvaluation } from "../automatedContentEvaluations/helpers";
+import { regenerateType3AudioForDocumentId } from "@/server/type3";
+import { isProduction } from "@/lib/executionEnvironment";
 
 
 async function newCheck(user: DbUser | null, document: CreatePostDataInput | null, context: ResolverContext) {
@@ -262,6 +264,20 @@ export async function updatePost({ selector, data }: { data: UpdatePostDataInput
 
   backgroundTask(logFieldChanges({ currentUser, collection: Posts, oldDocument, data: origData }));
   backgroundTask(maybeCreateAutomatedContentEvaluation(updatedDocument, oldDocument, context));
+  
+  const postTitleChanged = (oldDocument.title !== updatedDocument.title);
+
+  // Note: Posts can sometimes get a new revision ID without the actual contents
+  // of the body changing. This happens when undrafting, but might also happen
+  // under other circumstances.
+  const postBodyRevisionIdChanged = (oldDocument.contents_latest !== updatedDocument.contents_latest);
+
+  if (isProduction && isPostAllowedType3Audio(updatedDocument) && (postTitleChanged || postBodyRevisionIdChanged)) {
+    console.log(`Regenerating Type3 audio for post ${updatedDocument._id} after update`);
+    backgroundTask(regenerateType3AudioForDocumentId(updatedDocument._id, "Posts", {
+      immediate: false,
+    }));
+  }
 
   return updatedDocument;
 }
