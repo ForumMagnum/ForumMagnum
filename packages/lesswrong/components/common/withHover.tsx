@@ -25,12 +25,12 @@ export const useHover = <EventType extends {currentTarget: Element}=React.MouseE
   }
   hover: boolean,
   everHovered: boolean,
-  anchorEl: any,
+  anchorEl: Element | null,
   forceUnHover: () => void,
 } => {
   const [hover, setHover] = useState(false)
   const [everHovered, setEverHovered] = useState(false)
-  const [anchorEl, setAnchorEl] = useState<any>(null)
+  const [anchorEl, setAnchorEl] = useState<Element | null>(null)
   const delayTimer = useRef<any>(null)
   const mouseOverStart = useRef<Date|null>(null)
 

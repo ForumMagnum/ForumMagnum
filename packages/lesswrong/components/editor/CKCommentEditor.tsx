@@ -15,6 +15,7 @@ import { claimsConfig } from './claims/claimsConfig';
 import { useStyles } from '../hooks/useStyles';
 import { ckEditorPluginStyles } from './ckEditorStyles';
 import { addSharedEditorShortcuts } from './sharedEditorShortcuts';
+import EditorCommandPalette, { CommandWithKeystroke } from './EditorCommandPalette';
 
 // Uncomment the import and the line below to activate the debugger
 // import CKEditorInspector from '@ckeditor/ckeditor5-inspector';
@@ -74,6 +75,20 @@ const CKCommentEditor = ({
 
   const actualPlaceholder = placeholder ?? getDefaultEditorPlaceholder();
 
+  const openCommandPalette = (commands: CommandWithKeystroke[], editor: Editor, onCommandPaletteClosed: () => void) => {
+    openDialog({
+      name: "EditorCommandPalette",
+      contents: ({onClose}) => <EditorCommandPalette
+        commands={commands}
+        editor={editor}
+        onClose={() => {
+          onCommandPaletteClosed();
+          onClose();
+        }}
+      />
+    });
+  };
+
   const editorConfig = {
     ...getCommentEditorToolbarConfig(),
     cloudServices: ckEditorCloudConfigured ? {
@@ -107,7 +122,7 @@ const CKCommentEditor = ({
       editor={CommentEditor}
       onReady={(editor: Editor) => {
         setEditorObject(editor);
-        addSharedEditorShortcuts(editorRef, editor);
+        addSharedEditorShortcuts(editorRef, editor, openCommandPalette);
         // Uncomment the line below and the import above to activate the debugger
         // CKEditorInspector.attach(editor)
         onReady(editor)
