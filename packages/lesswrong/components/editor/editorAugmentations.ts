@@ -4,7 +4,6 @@ import type { RefObject } from "react";
 import type { CommandPaletteItem } from "../common/CommandPalette";
 import { KeystrokeInfo, parseKeystroke } from "@/lib/vendor/ckeditor5-util/keyboard";
 import { captureException } from "@/lib/sentryWrapper";
-import type {} from "../../../../ckEditor/src/augmentation";
 
 interface CkEditorShortcutBase {
   keystroke: string;
@@ -103,6 +102,9 @@ export function improveEditorContextMenu(
     // In practice simply letting the event loop run a tick seems to be sufficient to let the selection change get processed before opening the toolbar,
     // but if we get complains about inconsistent behavior we could set it to 10ms or something.
     setTimeout(() => {
+      // This line errors in CI environments because they won't necessarily have the types from ckEditor installed,
+      // which include plugin augmentations that tell us the BalloonEditor plugin has a `show` method (unlike other plugins).
+      // @ts-ignore
       toolbar.show(true);
     }, 0);
   });
