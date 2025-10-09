@@ -8,7 +8,7 @@ import debounce from 'lodash/debounce';
 import { isClient } from '../../lib/executionEnvironment';
 import { isEAForum } from '../../lib/instanceSettings';
 import type { CollaborativeEditingAccessLevel } from '../../lib/collections/posts/collabEditingPermissions';
-import { styles as greyEditorStyles } from "../ea-forum/onboarding/EAOnboardingInput";
+import { onboardingInputRootStyles } from "../ea-forum/onboarding/EAOnboardingInput";
 import FormLabel from '@/lib/vendor/@material-ui/core/src/FormLabel';
 import {checkEditorValid} from './validation'
 import ContentStyles from "../common/ContentStyles";
@@ -89,7 +89,7 @@ export const styles = (theme: ThemeType) => ({
     ...ckEditorStyles(theme),
   },
   ckEditorGrey: {
-    ...greyEditorStyles(theme).root,
+    ...onboardingInputRootStyles(theme),
   },
   questionWidth: {
     width: 640,

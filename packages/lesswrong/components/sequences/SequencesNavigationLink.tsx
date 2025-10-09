@@ -1,4 +1,3 @@
-import { registerComponent } from '../../lib/vulcan-lib/components';
 import { postGetPageUrl } from '../../lib/collections/posts/helpers';
 import IconButton from '@/lib/vendor/@material-ui/core/src/IconButton'
 import NavigateBefore from '@/lib/vendor/@material-ui/icons/src/NavigateBefore'
@@ -8,9 +7,11 @@ import { useUpdateContinueReading } from './useUpdateContinueReading';
 import classnames from 'classnames';
 import { Link } from '../../lib/reactRouterWrapper';
 import { TooltipSpan } from '../common/FMTooltip';
+import { defineStyles } from '../hooks/defineStyles';
+import { useStyles } from '../hooks/useStyles';
 
 // Shared with SequencesNavigationLinkDisabled
-export const styles = (theme: ThemeType) => ({
+export const styles = defineStyles("SequencesNavigationLink", (theme: ThemeType) => ({
   root: {
     padding: 0,
     margin: 12,
@@ -25,13 +26,13 @@ export const styles = (theme: ThemeType) => ({
       color: `${theme.palette.icon.dim6} !important`,
     }
   },
-});
+}));
 
-const SequencesNavigationLink = ({ post, direction, classes }: {
+const SequencesNavigationLink = ({ post, direction }: {
   post: PostSequenceNavigation['nextPost'] | PostSequenceNavigation['prevPost'] | null,
   direction: "left"|"right",
-  classes: ClassesType<typeof styles>,
 }) => {
+  const classes = useStyles(styles);
   const updateContinueReading = useUpdateContinueReading(post?._id, post?.sequence?._id);
   
   const icon = (
@@ -60,7 +61,4 @@ const SequencesNavigationLink = ({ post, direction, classes }: {
   }
 };
 
-export default registerComponent('SequencesNavigationLink', SequencesNavigationLink, {styles});
-
-
-
+export default SequencesNavigationLink;

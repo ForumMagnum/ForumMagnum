@@ -1,14 +1,15 @@
 import React, { ReactNode } from 'react';
 import { Link } from '../../lib/reactRouterWrapper';
-import { registerComponent } from '../../lib/vulcan-lib/components';
 import { Popup as BadlyTypedPopup } from 'react-map-gl';
 import { componentWithChildren } from '../../lib/utils/componentsWithChildren';
 import ContentStyles from '../common/ContentStyles';
+import { defineStyles } from '../hooks/defineStyles';
+import { useStyles } from '../hooks/useStyles';
 
 const Popup = componentWithChildren(BadlyTypedPopup);
 
 // Shared with LocalEventMarker
-export const styles = (theme: ThemeType) => ({
+export const styles = defineStyles("StyledMapPopup", (theme: ThemeType) => ({
   root: {
     ...theme.typography.body2,
     width: 250,
@@ -60,15 +61,14 @@ export const styles = (theme: ThemeType) => ({
     display: 'flex',
     justifyContent: 'space-between'
   },
-});
+}));
 
 const StyledMapPopup = ({
-  children, classes, link, title,
+  children, link, title,
   metaInfo, cornerLinks, lat, lng,
   onClose, offsetTop=-20, offsetLeft, hideBottomLinks
 }: {
   children?: ReactNode,
-  classes: ClassesType<typeof styles>,
   link: string,
   title: string|ReactNode,
   metaInfo?: any,
@@ -80,6 +80,7 @@ const StyledMapPopup = ({
   offsetLeft?: number,
   hideBottomLinks?: boolean
 }) => {
+  const classes = useStyles(styles);
   return <Popup
     latitude={lat}
     longitude={lng}
@@ -106,7 +107,7 @@ const StyledMapPopup = ({
   </Popup>
 }
 
-export default registerComponent("StyledMapPopup", StyledMapPopup, {styles});
+export default StyledMapPopup;
 
 
 

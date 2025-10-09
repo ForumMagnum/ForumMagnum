@@ -5,7 +5,7 @@ import Geosuggest from 'react-geosuggest'
 import type { Suggest, QueryType } from 'react-geosuggest';
 import { isClient } from '../../lib/executionEnvironment';
 import { mapsAPIKeySetting } from '@/lib/instanceSettings';
-import { styles as greyInputStyles } from "../ea-forum/onboarding/EAOnboardingInput";
+import { onboardingInputRootStyles } from "../ea-forum/onboarding/EAOnboardingInput";
 import FormLabel from '@/lib/vendor/@material-ui/core/src/FormLabel';
 import classNames from 'classnames';
 import type { TypedFieldApi } from '@/components/tanstack-form-components/BaseAppForm';
@@ -99,7 +99,7 @@ const styles = defineStyles('LocationFormComponent', (theme: ThemeType) => ({
   },
   greyRoot: {
     "& .geosuggest__input": {
-      ...greyInputStyles(theme).root,
+      ...onboardingInputRootStyles(theme),
       padding: "16px !important",
       "&:focus": {
         border: "none",

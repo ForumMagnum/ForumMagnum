@@ -1,15 +1,15 @@
 import React from "react";
-import { registerComponent } from "../../lib/vulcan-lib/components";
 import { styles as postInfoStyles } from "../posts/NewPostHowToGuides";
 import { AnalyticsContext } from "@/lib/analyticsEvents";
 import { taggingNameSetting } from "@/lib/instanceSettings";
 import { Link } from "@/lib/reactRouterWrapper";
 import classNames from "classnames";
+import { defineStyles } from "../hooks/defineStyles";
+import { useStyles } from "../hooks/useStyles";
 
 const wikiFaqLink = "/topics/ea-wiki-faq";
 
-const styles = (theme: ThemeType) => ({
-  ...postInfoStyles(theme),
+const styles = defineStyles("NewTagInfoBox", (theme: ThemeType) => ({
   width: {
     marginRight: 0,
     "@media (max-width: 1400px)": {
@@ -36,14 +36,17 @@ const styles = (theme: ThemeType) => ({
       },
     },
   },
-});
+}));
 
-const NewTagInfoBox = ({classes}: {classes: ClassesType<typeof styles>}) => {
+const NewTagInfoBox = () => {
+  const classes = useStyles(styles);
+  const postInfoClasses = useStyles(postInfoStyles);
+
   const tag = taggingNameSetting.get();
   return (
     <AnalyticsContext pageElementContext="newTagInfoBox">
-      <div className={classNames(classes.root, classes.width)}>
-        <div className={classes.title}>
+      <div className={classNames(postInfoClasses.root, classes.width)}>
+        <div className={postInfoClasses.title}>
           Your {tag} may be rejected if:
         </div>
         <div className={classes.content}>
@@ -69,10 +72,6 @@ const NewTagInfoBox = ({classes}: {classes: ClassesType<typeof styles>}) => {
   );
 }
 
-export default registerComponent(
-  "NewTagInfoBox",
-  NewTagInfoBox,
-  {styles},
-);
+export default NewTagInfoBox;
 
 
