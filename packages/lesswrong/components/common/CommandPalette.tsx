@@ -52,13 +52,13 @@ const styles = defineStyles('CommandPalette', (theme: ThemeType) => ({
       color: theme.palette.grey[600],
     },
     '&.disabled': {
+      pointerEvents: 'none',
       opacity: 0.6,
       // the text itself gets a bit more opacity than the background,
       // which would otherwise be too opaque when disabled
       '& > :first-child': {
         opacity: 0.5,
       },
-      cursor: 'not-allowed',
       '&:hover': {
         backgroundColor: 'transparent',
       },
