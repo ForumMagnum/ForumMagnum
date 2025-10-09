@@ -48,6 +48,7 @@ import AdminToggle from "./admin/AdminToggle";
 import GlobalHotkeys from "./common/GlobalHotkeys";
 import LlmChatWrapper from "./languageModels/LlmChatWrapper";
 import LWBackgroundImage from "./LWBackgroundImage";
+import PersistentHomepage from "./layout/PersistentHomepage";
 import IntercomWrapper from "./common/IntercomWrapper";
 import CookieBanner from "./common/CookieBanner/CookieBanner";
 import NavigationEventSender from './hooks/useOnNavigate';
@@ -482,9 +483,11 @@ const Layout = ({children}: {
                     <FlashMessages />
                   </ErrorBoundary>
                   <ErrorBoundary>
-                    <SuspenseWrapper name="Route" fallback={<DelayedLoading/>}>
-                      {children}
-                    </SuspenseWrapper>
+                    <PersistentHomepage>
+                      <SuspenseWrapper name="Route" fallback={<DelayedLoading/>}>
+                        {children}
+                      </SuspenseWrapper>
+                    </PersistentHomepage>
                     {/* ea-forum-look-here We've commented out some EAForum-specific components for bundle size reasons */}
                     {/* <SuspenseWrapper name="OnboardingFlow">
                       {!isIncompletePath && isEAForum() ? <EAOnboardingFlow/> : <BasicOnboardingFlow/>}

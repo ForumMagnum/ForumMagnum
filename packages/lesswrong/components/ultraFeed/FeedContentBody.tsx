@@ -3,6 +3,7 @@ import { registerComponent } from '../../lib/vulcan-lib/components';
 import { truncateWithGrace, calculateTruncationStatus } from '../../lib/editor/ellipsize';
 import classNames from 'classnames';
 import { defineStyles, useStyles } from '../../components/hooks/useStyles';
+import { useNavigate } from '../../lib/routeUtil';
 import ContentStyles from "../common/ContentStyles";
 import { ContentItemBody } from "../contents/ContentItemBody";
 
@@ -73,25 +74,6 @@ const styles = defineStyles('FeedContentBody', (theme: ThemeType) => ({
       zIndex: 1,
       opacity: 0.8,
     },
-  },
-  readMoreButton: {
-    fontSize: theme.typography.body2.fontSize,
-    fontFamily: theme.palette.fonts.sansSerifStack,
-    color: theme.palette.link.color,
-    cursor: 'pointer',
-    marginTop: 12,
-    display: 'block',
-    opacity: 0.8,
-    '&:hover': {
-      opacity: 1,
-      textDecoration: 'none',
-    },
-    [theme.breakpoints.down('sm')]: {
-      fontSize: 17
-    },
-  },
-  continueReadingLinkContainer: {
-    marginTop: 8,
   },
   clickableContent: {
     cursor: 'pointer',
@@ -166,7 +148,8 @@ export interface FeedContentBodyProps {
   html: string;
   initialWordCount: number;
   maxWordCount: number;
-  onContinueReadingClick?: () => void;
+  /** URL to navigate to for reading the full content (when wordCount > maxWordCount) */
+  continueReadingUrl?: string;
   wordCount?: number;
   onExpand?: (expanded: boolean, wordCount: number) => void;
   nofollow?: boolean;
@@ -187,7 +170,7 @@ const FeedContentBody = ({
   html,
   initialWordCount,
   maxWordCount,
-  onContinueReadingClick,
+  continueReadingUrl,
   wordCount,
   onExpand,
   nofollow = false,
@@ -200,17 +183,22 @@ const FeedContentBody = ({
 }: FeedContentBodyProps) => {
 
   const classes = useStyles(styles);
+  const navigate = useNavigate();
   const [isExpanded, setIsExpanded] = useState(false);
-  const firstRenderRef = React.useRef(true);
+  
+  /**  Track the previous resetSignal value to detect actual changes.
+  * Required because Effects re-run when Activity shows/hides the component,
+  * so we need to distinguish between Effect re-creation vs resetSignal actually changing.
+  */
+  const prevResetSignalRef = React.useRef<number | undefined>(resetSignal);
+
 
   useEffect(() => {
-    if (firstRenderRef.current) {
-      firstRenderRef.current = false;
-      return;
-    }
-    if (resetSignal !== undefined) {
+    // Only reset if resetSignal actually changed (not just Effect re-creation)
+    if (prevResetSignalRef.current !== resetSignal && resetSignal !== undefined) {
       setIsExpanded(false);
     }
+    prevResetSignalRef.current = resetSignal;
   }, [resetSignal]);
 
   const currentWordLimit = isExpanded ? maxWordCount : initialWordCount;
@@ -256,18 +244,29 @@ const FeedContentBody = ({
       if (hideSuffix) {
         suffix = '...';
       } else if (willTruncate && !isExpanded) {
-        // Determine which action to take when content is truncated:
-        // 1. If total content exceeds maxWordCount → show word count
-        // 2. If total content fits within maxWordCount → show "(read more)" or "(read again)"
+        const needsNavigation = wordCount > maxWordCount && continueReadingUrl;
+        
+        // Split on isRead because read items have significantly different UX on mobile:
+        // - Mobile positioning: read items show a positioned button at bottom-right instead of inline text
+        // - Separate desktop/mobile markup: read items use read-suffix-desktop/mobile classes
         if (isRead) {
-          // The truncated text needs ellipsis, Desktop shows action inline (via suffix), Mobile hides the suffix and shows action as positioned button
+          // Read items have special mobile UX: desktop shows inline text, mobile shows positioned button
           actionText = (wordCount > maxWordCount) ? `(read again, ${wordsRemaining} words →)` : '(read again)';
-          // Add both desktop suffix (hidden on mobile) and mobile ellipsis (hidden on desktop)
-          suffix = `<span class="read-suffix-mobile">...</span><span class="read-more-suffix read-suffix-desktop">... ${actionText}</span>`;
-        } else {
-          if (wordCount > maxWordCount) {
-            suffix = `<span class="read-more-suffix">... (read ${wordsRemaining} more words →)</span>`;
+          
+          if (needsNavigation) {
+            // Navigate to full content - clicking "read again, X words" navigates
+            suffix = `<span class="read-suffix-mobile">...</span><span class="read-more-suffix read-suffix-desktop read-more-navigate">... ${actionText}</span>`;
           } else {
+            // Expand in place - clicking "read again" expands
+            suffix = `<span class="read-suffix-mobile">...</span><span class="read-more-suffix read-suffix-desktop">... ${actionText}</span>`;
+          }
+        } else {
+          // Unread items: simpler UX, no mobile button, text changes based on whether it navigates
+          if (needsNavigation) {
+            // Navigate - clicking "read X more words" navigates to full content
+            suffix = `<span class="read-more-suffix read-more-navigate">... (read ${wordsRemaining} more words →)</span>`;
+          } else {
+            // Expand in place - clicking "read more" expands
             suffix = `<span class="read-more-suffix">... (read more)</span>`;
           }
         }
@@ -305,19 +304,19 @@ const FeedContentBody = ({
       return;
     }
     
-    // If content is truncated and not expanded, handle click
-    if (wasTruncated && !isExpanded) {
+    // Check if clicking on the read-more suffix
+    const readMoreElement = target.closest('.read-more-suffix');
+    if (wasTruncated && !isExpanded && readMoreElement) {
       e.preventDefault();
       
-      // If total content exceeds maxWordCount → open modal
-      // If total content fits within maxWordCount → expand inline
-      if (wordCount > maxWordCount && onContinueReadingClick) {
-        onContinueReadingClick();
-      } else {
+      // Check if this should navigate
+      if (readMoreElement.classList.contains('read-more-navigate') && continueReadingUrl) {
+        navigate(continueReadingUrl);
+      } else if (wordCount <= maxWordCount) {
         handleExpand();
       }
     }
-  }, [onContinueReadingClick, handleExpand, wasTruncated, isExpanded, wordCount, maxWordCount]);
+  }, [handleExpand, wasTruncated, isExpanded, wordCount, maxWordCount, continueReadingUrl, navigate]);
 
   const getLineClampClass = () => {
     if (!applyLineClamp || !clampOverride) return "";
@@ -343,14 +342,14 @@ const FeedContentBody = ({
     e.preventDefault();
     e.stopPropagation();
     
-    // If total content exceeds maxWordCount → open modal
-    // If total content fits within maxWordCount → expand inline
-    if (wordCount && wordCount > maxWordCount && onContinueReadingClick) {
-      onContinueReadingClick();
-    } else {
+    // If total content exceeds maxWordCount → navigate
+    // If total content fits within maxWordCount → expand
+    if (wordCount && wordCount > maxWordCount && continueReadingUrl) {
+      navigate(continueReadingUrl);
+    } else{
       handleExpand();
     }
-  }, [wordCount, maxWordCount, onContinueReadingClick, handleExpand]);
+  }, [wordCount, maxWordCount, continueReadingUrl, navigate, handleExpand]);
 
   return (
     <div
