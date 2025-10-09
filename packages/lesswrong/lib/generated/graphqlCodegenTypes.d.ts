@@ -16798,6 +16798,39 @@ type multiPostAutocompleteModelSettingsQueryQueryVariables = Exact<{
 
 type multiPostAutocompleteModelSettingsQueryQuery = multiPostAutocompleteModelSettingsQueryQuery_Query;
 
+type PostSharingInfoLanguageModelChatQuery_post_SinglePostOutput_result_Post_contents_Revision_originalContents_ContentType = { __typename?: 'ContentType', type: string };
+
+type PostSharingInfoLanguageModelChatQuery_post_SinglePostOutput_result_Post_contents_Revision = { __typename?: 'Revision', originalContents: PostSharingInfoLanguageModelChatQuery_post_SinglePostOutput_result_Post_contents_Revision_originalContents_ContentType };
+
+type PostSharingInfoLanguageModelChatQuery_post_SinglePostOutput_result_Post = { __typename?: 'Post', _id: string, userId: string | null, sharingSettings: any | null, linkSharingKey: string | null, contents: PostSharingInfoLanguageModelChatQuery_post_SinglePostOutput_result_Post_contents_Revision | null };
+
+type PostSharingInfoLanguageModelChatQuery_post_SinglePostOutput = { __typename?: 'SinglePostOutput', result: PostSharingInfoLanguageModelChatQuery_post_SinglePostOutput_result_Post | null };
+
+type PostSharingInfoLanguageModelChatQuery_Query = { __typename?: 'Query', post: PostSharingInfoLanguageModelChatQuery_post_SinglePostOutput | null };
+
+
+type PostSharingInfoLanguageModelChatQueryVariables = Exact<{
+  postId: Scalars['String']['input'];
+}>;
+
+
+type PostSharingInfoLanguageModelChatQuery = PostSharingInfoLanguageModelChatQuery_Query;
+
+type UpdatePostSharingLanguageModelChatMutation_updatePost_PostOutput_data_Post = { __typename?: 'Post', _id: string, sharingSettings: any | null, linkSharingKey: string | null };
+
+type UpdatePostSharingLanguageModelChatMutation_updatePost_PostOutput = { __typename?: 'PostOutput', data: UpdatePostSharingLanguageModelChatMutation_updatePost_PostOutput_data_Post | null };
+
+type UpdatePostSharingLanguageModelChatMutation_Mutation = { __typename?: 'Mutation', updatePost: UpdatePostSharingLanguageModelChatMutation_updatePost_PostOutput | null };
+
+
+type UpdatePostSharingLanguageModelChatMutationVariables = Exact<{
+  selector: SelectorInput;
+  data: UpdatePostDataInput;
+}>;
+
+
+type UpdatePostSharingLanguageModelChatMutation = UpdatePostSharingLanguageModelChatMutation_Mutation;
+
 type multiLlmConversationLlmChatWrapperQueryQuery_llmConversations_MultiLlmConversationOutput_results_LlmConversation = (
   { __typename?: 'LlmConversation' }
   & LlmConversationsFragment

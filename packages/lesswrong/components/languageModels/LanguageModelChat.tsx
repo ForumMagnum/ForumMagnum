@@ -27,6 +27,41 @@ import LWTooltip from '../common/LWTooltip';
 import ForumIcon from '../common/ForumIcon';
 import { MenuItem } from '../common/Menus';
 import Loading from '../vulcan-core/Loading';
+import { useQuery } from '@/lib/crud/useQuery';
+import { useMutation } from '@apollo/client/react';
+import { gql } from '@/lib/generated/gql-codegen';
+import { useCurrentUser } from '../common/withUser';
+import { userOwns } from '@/lib/vulcan-users/permissions';
+
+const PostSharingInfoQuery = gql(`
+  query PostSharingInfoLanguageModelChat($postId: String!) {
+    post(selector: {documentId: $postId}) {
+      result {
+        _id
+        userId
+        sharingSettings
+        linkSharingKey
+        contents {
+          originalContents {
+            type
+          }
+        }
+      }
+    }
+  }
+`);
+
+const UpdatePostSharingMutation = gql(`
+  mutation UpdatePostSharingLanguageModelChat($selector: SelectorInput!, $data: UpdatePostDataInput!) {
+    updatePost(selector: $selector, data: $data) {
+      data {
+        _id
+        sharingSettings
+        linkSharingKey
+      }
+    }
+  }
+`);
 
 const styles = defineStyles('LanguageModelChat', (theme: ThemeType) => ({
   root: {
@@ -384,8 +419,10 @@ function useCurrentPostContext(): CurrentPostContext {
   return {};
 }
 
-const PostSuggestionsPromptInput = ({prompt}: {prompt: Prompt}) => {
+const PostSuggestionsPromptInput = ({prompt, post, updatePostSharing, setPendingPrompt}: {prompt: Prompt, post?: {_id: string, userId: string, sharingSettings: any, linkSharingKey?: string | null, contents?: {originalContents?: {type?: string | null} | null} | null} | null, updatePostSharing: any, setPendingPrompt: (prompt: {promptText: string, title: string} | null) => void}) => {
   const classes = useStyles(styles);
+  const currentUser = useCurrentUser();
+  const { flash } = useMessages();
 
   const [edit, setEdit] = useState(false);
   const [userFeedbackPrompt, setUserFeedbackPrompt] = useState(prompt.prompt);
@@ -405,10 +442,53 @@ const PostSuggestionsPromptInput = ({prompt}: {prompt: Prompt}) => {
     // setEdit(false);
   }, [cancelLlmFeedbackCommand]);
 
+  const handleEnableCollaborativeEditing = useCallback(async () => {
+    if (!post || !currentUser) return;
+    
+    if (!userOwns(currentUser, post)) {
+      flash("You must be the post owner to enable collaborative editing");
+      return;
+    }
+
+    const editorType = post.contents?.originalContents?.type;
+    if (!editorType) {
+      flash("Edit the document first to enable sharing");
+      return;
+    } else if (editorType !== "ckEditorMarkup") {
+      flash("Collaborative editing is only available for posts using the CKEditor");
+      return;
+    }
+
+    try {
+      setPendingPrompt({promptText: userFeedbackPrompt, title: prompt.title});
+      await updatePostSharing({
+        variables: {
+          selector: { _id: post._id },
+          data: {
+            sharingSettings: {
+              anyoneWithLinkCan: "edit",
+              explicitlySharedUsersCan: "none"
+            }
+          }
+        },
+        refetchQueries: ['PostsEditFormPost']
+      });
+      flash("Collaborative editing enabled! Waiting for editor to reload...");
+    } catch (error) {
+      setPendingPrompt(null);
+      flash(`Failed to enable collaborative editing: ${error.message}`);
+    }
+  }, [post, currentUser, updatePostSharing, flash, userFeedbackPrompt, prompt.title, setPendingPrompt]);
+
   if (!getLlmFeedbackCommand) {
-    return <div className={classNames(classes.postSuggestionsButton, classes.disabledButton)}>
+    const canEnableCollab = post && currentUser && userOwns(currentUser, post);
+    const tooltipText = canEnableCollab 
+      ? "Click to enable collaborative editing for AI suggestions" 
+      : "Enable collaborative editing to get AI suggestions";
+    
+    return <div className={classNames(classes.postSuggestionsButton, canEnableCollab ? undefined : classes.disabledButton)} onClick={canEnableCollab ? handleEnableCollaborativeEditing : undefined}>
       <Row alignItems="center" gap={4}>
-        <LWTooltip title="Enable collaborative editing to get AI suggestions" placement="left">
+        <LWTooltip title={tooltipText} placement="left">
           {prompt.title}
         </LWTooltip>
       </Row>
@@ -450,8 +530,10 @@ const PostSuggestionsPromptInput = ({prompt}: {prompt: Prompt}) => {
   </div>
 }
 
-const CustomPromptInput = () => {
+const CustomPromptInput = ({post, updatePostSharing, setPendingPrompt}: {post?: {_id: string, userId: string, sharingSettings: any, linkSharingKey?: string | null, contents?: {originalContents?: {type?: string | null} | null} | null} | null, updatePostSharing: any, setPendingPrompt: (prompt: {promptText: string, title: string} | null) => void}) => {
   const classes = useStyles(styles);
+  const currentUser = useCurrentUser();
+  const { flash } = useMessages();
 
   const [expanded, setExpanded] = useState(false);
   const [customPrompt, setCustomPrompt] = useState('');
@@ -471,10 +553,53 @@ const CustomPromptInput = () => {
     }
   }, [cancelLlmFeedbackCommand]);
 
+  const handleEnableCollaborativeEditing = useCallback(async () => {
+    if (!post || !currentUser) return;
+    
+    if (!userOwns(currentUser, post)) {
+      flash("You must be the post owner to enable collaborative editing");
+      return;
+    }
+
+    const editorType = post.contents?.originalContents?.type;
+    if (!editorType) {
+      flash("Edit the document first to enable sharing");
+      return;
+    } else if (editorType !== "ckEditorMarkup") {
+      flash("Collaborative editing is only available for posts using the CKEditor");
+      return;
+    }
+
+    try {
+      setPendingPrompt({promptText: customPrompt, title: 'Custom Prompt'});
+      await updatePostSharing({
+        variables: {
+          selector: { _id: post._id },
+          data: {
+            sharingSettings: {
+              anyoneWithLinkCan: "edit",
+              explicitlySharedUsersCan: "none"
+            }
+          }
+        },
+        refetchQueries: ['PostsEditFormPost']
+      });
+      flash("Collaborative editing enabled! Waiting for editor to reload...");
+    } catch (error) {
+      setPendingPrompt(null);
+      flash(`Failed to enable collaborative editing: ${error.message}`);
+    }
+  }, [post, currentUser, updatePostSharing, flash, customPrompt, setPendingPrompt]);
+
   if (!getLlmFeedbackCommand) {
-    return <div className={classNames(classes.customPromptContainer, classes.disabledButton)}>
+    const canEnableCollab = post && currentUser && userOwns(currentUser, post);
+    const tooltipText = canEnableCollab 
+      ? "Click to enable collaborative editing for AI suggestions" 
+      : "Enable collaborative editing to get AI suggestions";
+    
+    return <div className={classNames(classes.customPromptContainer, canEnableCollab ? undefined : classes.disabledButton)} onClick={canEnableCollab ? handleEnableCollaborativeEditing : undefined}>
       <div className={classes.customPromptHeader}>
-        <LWTooltip title="Enable collaborative editing to get AI suggestions" placement="left">
+        <LWTooltip title={tooltipText} placement="left">
           Custom Prompt
         </LWTooltip>
       </div>
@@ -533,6 +658,34 @@ export const ChatInterface = () => {
 
   const [ragMode, setRagMode] = useState<RagModeType>('Auto');
   const { flash } = useMessages();
+  const [pendingPrompt, setPendingPrompt] = useState<{promptText: string, title: string} | null>(null);
+  const { getLlmFeedbackCommand } = useEditorCommands();
+
+  const { data: postData } = useQuery(PostSharingInfoQuery, {
+    variables: { postId: currentPostId ?? '' },
+    skip: !currentPostId,
+    ssr: false
+  });
+
+  const [updatePostSharing] = useMutation(UpdatePostSharingMutation);
+
+  const post = postData?.post?.result;
+
+  useEffect(() => {
+    if (pendingPrompt && getLlmFeedbackCommand) {
+      const executePendingPrompt = async () => {
+        try {
+          await getLlmFeedbackCommand(pendingPrompt.promptText, pendingPrompt.title);
+          flash("Executing AI suggestion command...");
+        } catch (error) {
+          flash(`Failed to execute command: ${error.message}`);
+        } finally {
+          setPendingPrompt(null);
+        }
+      };
+      void executePendingPrompt();
+    }
+  }, [pendingPrompt, getLlmFeedbackCommand, flash]);
 
   const messagesRef = useRef<HTMLDivElement>(null);
   const lastMessageLengthRef = useRef(0);
@@ -676,8 +829,8 @@ export const ChatInterface = () => {
   </div>
   const renderEditorFeedbackPrompts = !currentConversation?.messages?.length
   const editorFeedbackPrompts = <div>
-    {renderEditorFeedbackPrompts && promptLibrary.editorFeedback.map((prompt: Prompt) => <PostSuggestionsPromptInput key={prompt.title} prompt={prompt} />)}
-    {renderEditorFeedbackPrompts && <CustomPromptInput />}
+    {renderEditorFeedbackPrompts && promptLibrary.editorFeedback.map((prompt: Prompt) => <PostSuggestionsPromptInput key={prompt.title} prompt={prompt} post={post} updatePostSharing={updatePostSharing} setPendingPrompt={setPendingPrompt} />)}
+    {renderEditorFeedbackPrompts && <CustomPromptInput post={post} updatePostSharing={updatePostSharing} setPendingPrompt={setPendingPrompt} />}
   </div>
 
   const handleSubmit = useCallback(async (message: string) => {
