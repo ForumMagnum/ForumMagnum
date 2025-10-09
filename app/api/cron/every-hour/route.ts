@@ -2,7 +2,7 @@ import type { NextRequest } from 'next/server';
 import { clearArbitalCache } from '@/server/resolvers/arbitalPageData';
 import { permanentlyDeleteUsers } from '@/server/users/permanentDeletion';
 import { uniquePostUpvotersView } from "@/server/postgresView";
-import { clearLoggedOutServedSessionsWithNoViews } from '@/server/ultraFeed/cron';
+import { clearLoggedOutServedSessionsWithNoViews, clearOldUltraFeedServedEvents } from '@/server/ultraFeed/cron';
 
 export async function GET(request: NextRequest) {
   const authHeader = request.headers.get('authorization');
@@ -10,7 +10,7 @@ export async function GET(request: NextRequest) {
     return new Response('Unauthorized', { status: 401 });
   }
 
-  // Run all hourly tasks in parallel
+  // Run some hourly tasks in parallel
   const tasks: Promise<void>[] = [];
 
   // Clear Arbital cache
@@ -19,17 +19,21 @@ export async function GET(request: NextRequest) {
   // Permanently delete users
   tasks.push(permanentlyDeleteUsers());
 
+  await Promise.all(tasks);
+
+  // These are heavier and we don't want to stress the db too much, so run these sequentially
+
   // Update unique post upvoters view
   const uniquePostUpvotersJob = uniquePostUpvotersView.getCronJob()?.job;
   if (uniquePostUpvotersJob) {
-    tasks.push(uniquePostUpvotersJob());
+    await uniquePostUpvotersJob();
   }
 
-  // Clear logged-out ultrafeed served sessions with no views
-  tasks.push(clearLoggedOutServedSessionsWithNoViews());
+  // Clear ultrafeed served events older than 48 hours
+  await clearOldUltraFeedServedEvents();
 
-  // Execute all tasks in parallel
-  await Promise.all(tasks);
+  // Clear logged-out ultrafeed served sessions with no views
+  await clearLoggedOutServedSessionsWithNoViews();
   
   return new Response('OK', { status: 200 });
 }

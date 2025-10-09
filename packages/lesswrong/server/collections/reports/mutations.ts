@@ -10,7 +10,82 @@ import { makeGqlCreateMutation, makeGqlUpdateMutation } from "@/server/vulcan-li
 import { getLegacyCreateCallbackProps, getLegacyUpdateCallbackProps, insertAndReturnCreateAfterProps, runFieldOnCreateCallbacks, runFieldOnUpdateCallbacks, updateAndReturnDocument, assignUserIdToData } from "@/server/vulcan-lib/mutators";
 import gql from "graphql-tag";
 import cloneDeep from "lodash/cloneDeep";
+import { ChatPostMessageResponse, WebClient } from "@slack/web-api";
+import { userGetDisplayName } from "@/lib/collections/users/helpers";
 
+
+async function postReportsToSunshine(report: DbReport, context: ResolverContext): Promise<ChatPostMessageResponse | undefined> {
+
+  const slackBotToken = process.env.AMANUENSIS_SLACK_BOT_TOKEN;
+  const moderationChannelId = process.env.MODERATION_CHANNEL_ID;
+  if (!moderationChannelId) {
+    // eslint-disable-next-line no-console
+    console.error('MODERATION_CHANNEL_ID is not set');
+    return;
+  }
+  if (!slackBotToken) {
+    // eslint-disable-next-line no-console
+    console.error('AMANUENSIS_SLACK_BOT_TOKEN is not set');
+    return;
+  }
+
+  const baseUrl = `https://${process.env.SITE_URL ?? 'lesswrong.com'}`;
+
+  const user = await context.Users.findOne({ _id: report.userId });
+  const [comment, post] = await Promise.all([
+    report.commentId ? context.Comments.findOne({ _id: report.commentId }) : null,
+    report.postId ? context.Posts.findOne({ _id: report.postId }) : null,
+  ]);
+  const reportedUser = await context.Users.findOne({ _id: report.reportedUserId ?? comment?.userId ?? post?.userId });
+
+  const contentSlug = report.commentId ? `a comment on ${post?.title}` : report.postId ? `the post ${post?.title}` : `user ${reportedUser?.displayName}`;
+  const description = report.description ?? '';
+  const userLink = user ? `${baseUrl}/users/${user.slug}` : '';
+  const userName = userGetDisplayName(user);
+  const url = `${baseUrl}${report.link}`;
+
+  const slack = new WebClient(slackBotToken);
+
+  return await slack.chat.postMessage({
+    channel: moderationChannelId,
+    text: `Reported ${contentSlug}: ${description}`,
+    blocks: [
+      {
+        type: "header",
+        text: {
+          type: "plain_text",
+          text: `Reported ${contentSlug}`,
+          emoji: true,
+        },
+      },
+      {
+        type: "section",
+        text: {
+          type: "mrkdwn",
+          text: `*Reported by <${userLink}|${userName}>:* _${description}_`,
+        }
+      },
+      {
+        type: "divider",
+      },
+      {
+        type: "actions",
+        elements: [
+          {
+            type: "button",
+            text: {
+              type: "plain_text",
+              text: `View ${contentSlug} on LessWrong`,
+              emoji: true,
+            },
+            value: `view_${contentSlug}_on_lesswrong`,
+            url,
+          },
+        ]
+      },
+    ],
+  });
+}
 
 function newCheck(user: DbUser | null, document: CreateReportDataInput | null, context: ResolverContext) {
   return userCanDo(user, [
@@ -56,6 +131,8 @@ export async function createReport({ data }: CreateReportInput, context: Resolve
 
   const afterCreateProperties = await insertAndReturnCreateAfterProps(data, 'Reports', callbackProps);
   let documentWithId = afterCreateProperties.document;
+
+  backgroundTask(postReportsToSunshine(documentWithId, context));
 
   await updateCountOfReferencesOnOtherCollectionsAfterCreate('Reports', documentWithId);
 

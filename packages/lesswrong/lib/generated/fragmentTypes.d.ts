@@ -9,19 +9,18 @@
 //
 interface FragmentTypes {
   AdvisorRequestsDefaultFragment: AdvisorRequestsDefaultFragment
-  AdvisorRequestsMinimumInfo: AdvisorRequestsMinimumInfo
   AllTagsPageFragment: AllTagsPageFragment
   ArbitalCachesDefaultFragment: ArbitalCachesDefaultFragment
   ArbitalLinkedPagesFragment: ArbitalLinkedPagesFragment
   ArbitalTagContentRelsDefaultFragment: ArbitalTagContentRelsDefaultFragment
   AutomatedContentEvaluationsDefaultFragment: AutomatedContentEvaluationsDefaultFragment
   AutomatedContentEvaluationsFragment: AutomatedContentEvaluationsFragment
-  BansAdminPageFragment: BansAdminPageFragment
   BansDefaultFragment: BansDefaultFragment
   BookEdit: BookEdit
   BookPageFragment: BookPageFragment
   BookmarksDefaultFragment: BookmarksDefaultFragment
   BookmarksFeedItemFragment: BookmarksFeedItemFragment
+  BookmarksMinimumInfoFragment: BookmarksMinimumInfoFragment
   BookmarksWithDocumentFragment: BookmarksWithDocumentFragment
   BooksDefaultFragment: BooksDefaultFragment
   ChaptersDefaultFragment: ChaptersDefaultFragment
@@ -37,7 +36,6 @@ interface FragmentTypes {
   CollectionsPageFragment: CollectionsPageFragment
   CommentEdit: CommentEdit
   CommentEmbeddingsDefaultFragment: CommentEmbeddingsDefaultFragment
-  CommentModeratorActionDisplay: CommentModeratorActionDisplay
   CommentModeratorActionsDefaultFragment: CommentModeratorActionsDefaultFragment
   CommentWithRepliesFragment: CommentWithRepliesFragment
   CommentsDefaultFragment: CommentsDefaultFragment
@@ -45,7 +43,6 @@ interface FragmentTypes {
   CommentsForAutocompleteWithParents: CommentsForAutocompleteWithParents
   CommentsList: CommentsList
   CommentsListWithModGPTAnalysis: CommentsListWithModGPTAnalysis
-  CommentsListWithModerationMetadata: CommentsListWithModerationMetadata
   CommentsListWithParentMetadata: CommentsListWithParentMetadata
   CommentsListWithTopLevelComment: CommentsListWithTopLevelComment
   ConceptItemFragment: ConceptItemFragment
@@ -61,9 +58,7 @@ interface FragmentTypes {
   DebouncerEventsDefaultFragment: DebouncerEventsDefaultFragment
   DeletedCommentsMetaData: DeletedCommentsMetaData
   DeletedCommentsModerationLog: DeletedCommentsModerationLog
-  DialogueCheckInfo: DialogueCheckInfo
   DialogueChecksDefaultFragment: DialogueChecksDefaultFragment
-  DialogueMatchPreferenceInfo: DialogueMatchPreferenceInfo
   DialogueMatchPreferencesDefaultFragment: DialogueMatchPreferencesDefaultFragment
   DigestPostsDefaultFragment: DigestPostsDefaultFragment
   DigestPostsMinimumInfo: DigestPostsMinimumInfo
@@ -71,10 +66,7 @@ interface FragmentTypes {
   DigestsMinimumInfo: DigestsMinimumInfo
   DraftComments: DraftComments
   ElectionCandidateBasicInfo: ElectionCandidateBasicInfo
-  ElectionCandidateSimple: ElectionCandidateSimple
   ElectionCandidatesDefaultFragment: ElectionCandidatesDefaultFragment
-  ElectionVoteInfo: ElectionVoteInfo
-  ElectionVoteRecentDiscussion: ElectionVoteRecentDiscussion
   ElectionVotesDefaultFragment: ElectionVotesDefaultFragment
   ElicitQuestionFragment: ElicitQuestionFragment
   ElicitQuestionPredictionsDefaultFragment: ElicitQuestionPredictionsDefaultFragment
@@ -94,8 +86,6 @@ interface FragmentTypes {
   ForumEventsEdit: ForumEventsEdit
   ForumEventsMinimumInfo: ForumEventsMinimumInfo
   FrontpageShortformComments: FrontpageShortformComments
-  GardenCodeFragment: GardenCodeFragment
-  GardenCodeFragmentEdit: GardenCodeFragmentEdit
   GardenCodesDefaultFragment: GardenCodesDefaultFragment
   GoogleServiceAccountSessionAdminInfo: GoogleServiceAccountSessionAdminInfo
   GoogleServiceAccountSessionInfo: GoogleServiceAccountSessionInfo
@@ -107,7 +97,6 @@ interface FragmentTypes {
   JargonTerms: JargonTerms
   JargonTermsDefaultFragment: JargonTermsDefaultFragment
   JargonTermsPost: JargonTermsPost
-  JargonTermsWithPostInfo: JargonTermsWithPostInfo
   LWEventsDefaultFragment: LWEventsDefaultFragment
   LegacyDataDefaultFragment: LegacyDataDefaultFragment
   LlmConversationsDefaultFragment: LlmConversationsDefaultFragment
@@ -139,13 +128,12 @@ interface FragmentTypes {
   PageCacheDefaultFragment: PageCacheDefaultFragment
   PetrovDayActionInfo: PetrovDayActionInfo
   PetrovDayActionsDefaultFragment: PetrovDayActionsDefaultFragment
-  PetrovDayLaunchInfo: PetrovDayLaunchInfo
   PetrovDayLaunchsDefaultFragment: PetrovDayLaunchsDefaultFragment
+  PodcastEpisodeCreateFragment: PodcastEpisodeCreateFragment
   PodcastEpisodeFull: PodcastEpisodeFull
   PodcastEpisodesDefaultFragment: PodcastEpisodesDefaultFragment
   PodcastSelect: PodcastSelect
   PodcastsDefaultFragment: PodcastsDefaultFragment
-  PostForReviewWinnerItem: PostForReviewWinnerItem
   PostPodcastEpisode: PostPodcastEpisode
   PostRecommendationsDefaultFragment: PostRecommendationsDefaultFragment
   PostRelationsDefaultFragment: PostRelationsDefaultFragment
@@ -180,7 +168,6 @@ interface FragmentTypes {
   PostsRecentDiscussion: PostsRecentDiscussion
   PostsReviewVotingList: PostsReviewVotingList
   PostsRevision: PostsRevision
-  PostsRevisionEdit: PostsRevisionEdit
   PostsRevisionsList: PostsRevisionsList
   PostsTopItemInfo: PostsTopItemInfo
   PostsTwitterAdmin: PostsTwitterAdmin
@@ -188,7 +175,6 @@ interface FragmentTypes {
   PostsWithNavigationAndRevision: PostsWithNavigationAndRevision
   PostsWithVotes: PostsWithVotes
   RSSFeedMinimumInfo: RSSFeedMinimumInfo
-  RSSFeedMutationFragment: RSSFeedMutationFragment
   RSSFeedsDefaultFragment: RSSFeedsDefaultFragment
   ReadStatusesDefaultFragment: ReadStatusesDefaultFragment
   RecentDiscussionRevisionTagFragment: RecentDiscussionRevisionTagFragment
@@ -199,7 +185,6 @@ interface FragmentTypes {
   ReviewWinnerAnnouncement: ReviewWinnerAnnouncement
   ReviewWinnerArtImages: ReviewWinnerArtImages
   ReviewWinnerArtsDefaultFragment: ReviewWinnerArtsDefaultFragment
-  ReviewWinnerEditDisplay: ReviewWinnerEditDisplay
   ReviewWinnerTopPostsPage: ReviewWinnerTopPostsPage
   ReviewWinnersDefaultFragment: ReviewWinnersDefaultFragment
   RevisionDisplay: RevisionDisplay
@@ -229,7 +214,6 @@ interface FragmentTypes {
   SpotlightEditQueryFragment: SpotlightEditQueryFragment
   SpotlightHeaderEventSubtitle: SpotlightHeaderEventSubtitle
   SpotlightMinimumInfo: SpotlightMinimumInfo
-  SpotlightReviewWinner: SpotlightReviewWinner
   SpotlightsDefaultFragment: SpotlightsDefaultFragment
   StickySubforumCommentFragment: StickySubforumCommentFragment
   SubscribedPostAndCommentsFeed: SubscribedPostAndCommentsFeed
@@ -253,7 +237,6 @@ interface FragmentTypes {
   SurveysDefaultFragment: SurveysDefaultFragment
   TagBasicInfo: TagBasicInfo
   TagCreationHistoryFragment: TagCreationHistoryFragment
-  TagDetailedPreviewFragment: TagDetailedPreviewFragment
   TagDetailsFragment: TagDetailsFragment
   TagEditFragment: TagEditFragment
   TagFlagEditFragment: TagFlagEditFragment
@@ -288,7 +271,6 @@ interface FragmentTypes {
   TagWithFlagsFragment: TagWithFlagsFragment
   TagsDefaultFragment: TagsDefaultFragment
   TweetsDefaultFragment: TweetsDefaultFragment
-  TypingIndicatorInfo: TypingIndicatorInfo
   TypingIndicatorsDefaultFragment: TypingIndicatorsDefaultFragment
   UltraFeedComment: UltraFeedComment
   UltraFeedEventsDefaultFragment: UltraFeedEventsDefaultFragment
@@ -296,7 +278,6 @@ interface FragmentTypes {
   UnclaimedReportsList: UnclaimedReportsList
   UserActivitiesDefaultFragment: UserActivitiesDefaultFragment
   UserAltAccountsFragment: UserAltAccountsFragment
-  UserBookmarkedPosts: UserBookmarkedPosts
   UserEAGDetailsDefaultFragment: UserEAGDetailsDefaultFragment
   UserEAGDetailsMinimumInfo: UserEAGDetailsMinimumInfo
   UserJobAdsDefaultFragment: UserJobAdsDefaultFragment
@@ -307,6 +288,7 @@ interface FragmentTypes {
   UserOnboardingAuthor: UserOnboardingAuthor
   UserOnboardingTag: UserOnboardingTag
   UserRateLimitDisplay: UserRateLimitDisplay
+  UserRateLimitMutationFragment: UserRateLimitMutationFragment
   UserRateLimitsDefaultFragment: UserRateLimitsDefaultFragment
   UserTagRelDetails: UserTagRelDetails
   UserTagRelsDefaultFragment: UserTagRelsDefaultFragment
@@ -322,7 +304,6 @@ interface FragmentTypes {
   UsersEdit: UsersEdit
   UsersMapEntry: UsersMapEntry
   UsersMinimumInfo: UsersMinimumInfo
-  UsersOptedInToDialogueFacilitation: UsersOptedInToDialogueFacilitation
   UsersProfile: UsersProfile
   UsersProfileEdit: UsersProfileEdit
   UsersSocialMediaInfo: UsersSocialMediaInfo
@@ -330,6 +311,7 @@ interface FragmentTypes {
   VotesDefaultFragment: VotesDefaultFragment
   WithVoteComment: WithVoteComment
   WithVoteElectionCandidate: WithVoteElectionCandidate
+  WithVoteMessage: WithVoteMessage
   WithVoteMultiDocument: WithVoteMultiDocument
   WithVotePost: WithVotePost
   WithVoteRevision: WithVoteRevision
@@ -341,43 +323,41 @@ interface FragmentTypes {
   localGroupsEdit: localGroupsEdit
   localGroupsHomeFragment: localGroupsHomeFragment
   localGroupsIsOnline: localGroupsIsOnline
-  lwEventsAdminPageFragment: lwEventsAdminPageFragment
   messageListFragment: messageListFragment
   newEventFragment: newEventFragment
   newRSSFeedFragment: newRSSFeedFragment
   reviewAdminDashboard: reviewAdminDashboard
   reviewVoteFragment: reviewVoteFragment
-  reviewVoteWithUserAndPost: reviewVoteWithUserAndPost
 }
 
 interface FragmentTypesByCollection {
-  AdvisorRequests: "AdvisorRequestsDefaultFragment"|"AdvisorRequestsMinimumInfo"
+  AdvisorRequests: "AdvisorRequestsDefaultFragment"
   ArbitalCacheses: "ArbitalCachesDefaultFragment"
   ArbitalLinkedPageses: "ArbitalLinkedPagesFragment"
   ArbitalTagContentRels: "ArbitalTagContentRelsDefaultFragment"
   AutomatedContentEvaluations: "AutomatedContentEvaluationsDefaultFragment"|"AutomatedContentEvaluationsFragment"
-  Bans: "BansAdminPageFragment"|"BansDefaultFragment"
-  Bookmarks: "BookmarksDefaultFragment"|"BookmarksFeedItemFragment"|"BookmarksWithDocumentFragment"
+  Bans: "BansDefaultFragment"
+  Bookmarks: "BookmarksDefaultFragment"|"BookmarksFeedItemFragment"|"BookmarksMinimumInfoFragment"|"BookmarksWithDocumentFragment"
   Books: "BookEdit"|"BookPageFragment"|"BooksDefaultFragment"
   Chapters: "ChaptersDefaultFragment"|"ChaptersEdit"|"ChaptersFragment"
   CkEditorUserSessions: "CkEditorUserSessionInfo"|"CkEditorUserSessionsDefaultFragment"
   ClientIds: "ClientIdsDefaultFragment"|"ModeratorClientIDInfo"
   Collections: "CollectionContinueReadingFragment"|"CollectionsBestOfFragment"|"CollectionsDefaultFragment"|"CollectionsEditFragment"|"CollectionsPageFragment"
   CommentEmbeddings: "CommentEmbeddingsDefaultFragment"
-  CommentModeratorActions: "CommentModeratorActionDisplay"|"CommentModeratorActionsDefaultFragment"
-  Comments: "CommentEdit"|"CommentWithRepliesFragment"|"CommentsDefaultFragment"|"CommentsForAutocomplete"|"CommentsForAutocompleteWithParents"|"CommentsList"|"CommentsListWithModGPTAnalysis"|"CommentsListWithModerationMetadata"|"CommentsListWithParentMetadata"|"CommentsListWithTopLevelComment"|"DeletedCommentsMetaData"|"DeletedCommentsModerationLog"|"DraftComments"|"FrontpageShortformComments"|"ShortformComments"|"StickySubforumCommentFragment"|"SuggestAlignmentComment"|"UltraFeedComment"|"WithVoteComment"
+  CommentModeratorActions: "CommentModeratorActionsDefaultFragment"
+  Comments: "CommentEdit"|"CommentWithRepliesFragment"|"CommentsDefaultFragment"|"CommentsForAutocomplete"|"CommentsForAutocompleteWithParents"|"CommentsList"|"CommentsListWithModGPTAnalysis"|"CommentsListWithParentMetadata"|"CommentsListWithTopLevelComment"|"DeletedCommentsMetaData"|"DeletedCommentsModerationLog"|"DraftComments"|"FrontpageShortformComments"|"ShortformComments"|"StickySubforumCommentFragment"|"SuggestAlignmentComment"|"UltraFeedComment"|"WithVoteComment"
   Conversations: "ConversationsDefaultFragment"|"ConversationsList"|"ConversationsListWithReadStatus"|"ConversationsMinimumInfo"
   CronHistories: "CronHistoriesDefaultFragment"
   CurationEmails: "CurationEmailsDefaultFragment"
   CurationNotices: "CurationNoticesDefaultFragment"|"CurationNoticesFragment"
   DatabaseMetadatas: "DatabaseMetadataDefaultFragment"
   DebouncerEventses: "DebouncerEventsDefaultFragment"
-  DialogueChecks: "DialogueCheckInfo"|"DialogueChecksDefaultFragment"
-  DialogueMatchPreferences: "DialogueMatchPreferenceInfo"|"DialogueMatchPreferencesDefaultFragment"
+  DialogueChecks: "DialogueChecksDefaultFragment"
+  DialogueMatchPreferences: "DialogueMatchPreferencesDefaultFragment"
   DigestPosts: "DigestPostsDefaultFragment"|"DigestPostsMinimumInfo"
   Digests: "DigestsDefaultFragment"|"DigestsMinimumInfo"
-  ElectionCandidates: "ElectionCandidateBasicInfo"|"ElectionCandidateSimple"|"ElectionCandidatesDefaultFragment"|"WithVoteElectionCandidate"
-  ElectionVotes: "ElectionVoteInfo"|"ElectionVoteRecentDiscussion"|"ElectionVotesDefaultFragment"
+  ElectionCandidates: "ElectionCandidateBasicInfo"|"ElectionCandidatesDefaultFragment"|"WithVoteElectionCandidate"
+  ElectionVotes: "ElectionVotesDefaultFragment"
   ElicitQuestionPredictions: "ElicitQuestionPredictionsDefaultFragment"
   ElicitQuestions: "ElicitQuestionFragment"|"ElicitQuestionsDefaultFragment"
   EmailTokenses: "EmailTokensDefaultFragment"
@@ -388,18 +368,18 @@ interface FragmentTypesByCollection {
   FeedSubscriptionSuggestionses: "FeedSubscriptionSuggestionsFragment"
   FieldChanges: "FieldChangeFragment"|"FieldChangesDefaultFragment"
   ForumEvents: "ForumEventsDefaultFragment"|"ForumEventsDisplay"|"ForumEventsEdit"|"ForumEventsMinimumInfo"
-  GardenCodes: "GardenCodeFragment"|"GardenCodeFragmentEdit"|"GardenCodesDefaultFragment"
+  GardenCodes: "GardenCodesDefaultFragment"
   GoogleServiceAccountSessions: "GoogleServiceAccountSessionAdminInfo"|"GoogleServiceAccountSessionInfo"|"GoogleServiceAccountSessionsDefaultFragment"
   Imageses: "ImagesDefaultFragment"
   InlinePredictions: "InlinePredictionsDefaultFragment"|"InlinePredictionsFragment"
-  JargonTerms: "JargonTerms"|"JargonTermsDefaultFragment"|"JargonTermsPost"|"JargonTermsWithPostInfo"
-  LWEvents: "LWEventsDefaultFragment"|"emailHistoryFragment"|"lastEventFragment"|"lwEventsAdminPageFragment"|"newEventFragment"
+  JargonTerms: "JargonTerms"|"JargonTermsDefaultFragment"|"JargonTermsPost"
+  LWEvents: "LWEventsDefaultFragment"|"emailHistoryFragment"|"lastEventFragment"|"newEventFragment"
   LegacyDatas: "LegacyDataDefaultFragment"
   LlmConversations: "LlmConversationsDefaultFragment"|"LlmConversationsFragment"|"LlmConversationsViewingPageFragment"|"LlmConversationsWithMessagesFragment"
   LlmMessages: "LlmMessagesDefaultFragment"|"LlmMessagesFragment"
   Localgroups: "LocalgroupsDefaultFragment"|"localGroupsBase"|"localGroupsEdit"|"localGroupsHomeFragment"|"localGroupsIsOnline"
   ManifoldProbabilitiesCaches: "ManifoldProbabilitiesCachesDefaultFragment"
-  Messages: "MessagesDefaultFragment"|"messageListFragment"
+  Messages: "MessagesDefaultFragment"|"WithVoteMessage"|"messageListFragment"
   Migrations: "MigrationsDefaultFragment"
   ModerationTemplates: "ModerationTemplateFragment"|"ModerationTemplatesDefaultFragment"
   ModeratorActions: "ModeratorActionDisplay"|"ModeratorActionsDefaultFragment"
@@ -407,25 +387,25 @@ interface FragmentTypesByCollection {
   Notifications: "NotificationsDefaultFragment"|"NotificationsList"
   PageCacheEntries: "PageCacheDefaultFragment"
   PetrovDayActions: "PetrovDayActionInfo"|"PetrovDayActionsDefaultFragment"
-  PetrovDayLaunchs: "PetrovDayLaunchInfo"|"PetrovDayLaunchsDefaultFragment"
-  PodcastEpisodes: "PodcastEpisodeFull"|"PodcastEpisodesDefaultFragment"
+  PetrovDayLaunchs: "PetrovDayLaunchsDefaultFragment"
+  PodcastEpisodes: "PodcastEpisodeCreateFragment"|"PodcastEpisodeFull"|"PodcastEpisodesDefaultFragment"
   Podcasts: "PodcastSelect"|"PodcastsDefaultFragment"
   PostRecommendations: "PostRecommendationsDefaultFragment"
   PostRelations: "PostRelationsDefaultFragment"
-  Posts: "HighlightWithHash"|"PostForReviewWinnerItem"|"PostPodcastEpisode"|"PostSequenceNavigation"|"PostSideComments"|"PostWithContents"|"PostWithDialogueMessage"|"PostWithGeneratedSummary"|"PostsAuthors"|"PostsBase"|"PostsBestOfList"|"PostsDefaultFragment"|"PostsDetails"|"PostsEdit"|"PostsEditMutationFragment"|"PostsEditQueryFragment"|"PostsExpandedHighlight"|"PostsForAutocomplete"|"PostsHTML"|"PostsList"|"PostsListBase"|"PostsListTag"|"PostsListTagWithVotes"|"PostsListWithVotes"|"PostsListWithVotesAndSequence"|"PostsMinimumInfo"|"PostsModerationGuidelines"|"PostsOriginalContents"|"PostsPage"|"PostsPlaintextDescription"|"PostsRSSFeed"|"PostsRecentDiscussion"|"PostsReviewVotingList"|"PostsRevision"|"PostsRevisionEdit"|"PostsRevisionsList"|"PostsTopItemInfo"|"PostsTwitterAdmin"|"PostsWithNavigation"|"PostsWithNavigationAndRevision"|"PostsWithVotes"|"ShortformRecentDiscussion"|"SuggestAlignmentPost"|"SunshineCurationPostsList"|"SunshinePostsList"|"UltraFeedPostFragment"|"UsersBannedFromPostsModerationLog"|"WithVotePost"
-  RSSFeeds: "RSSFeedMinimumInfo"|"RSSFeedMutationFragment"|"RSSFeedsDefaultFragment"|"newRSSFeedFragment"
+  Posts: "HighlightWithHash"|"PostPodcastEpisode"|"PostSequenceNavigation"|"PostSideComments"|"PostWithContents"|"PostWithDialogueMessage"|"PostWithGeneratedSummary"|"PostsAuthors"|"PostsBase"|"PostsBestOfList"|"PostsDefaultFragment"|"PostsDetails"|"PostsEdit"|"PostsEditMutationFragment"|"PostsEditQueryFragment"|"PostsExpandedHighlight"|"PostsForAutocomplete"|"PostsHTML"|"PostsList"|"PostsListBase"|"PostsListTag"|"PostsListTagWithVotes"|"PostsListWithVotes"|"PostsListWithVotesAndSequence"|"PostsMinimumInfo"|"PostsModerationGuidelines"|"PostsOriginalContents"|"PostsPage"|"PostsPlaintextDescription"|"PostsRSSFeed"|"PostsRecentDiscussion"|"PostsReviewVotingList"|"PostsRevision"|"PostsRevisionsList"|"PostsTopItemInfo"|"PostsTwitterAdmin"|"PostsWithNavigation"|"PostsWithNavigationAndRevision"|"PostsWithVotes"|"ShortformRecentDiscussion"|"SuggestAlignmentPost"|"SunshineCurationPostsList"|"SunshinePostsList"|"UltraFeedPostFragment"|"UsersBannedFromPostsModerationLog"|"WithVotePost"
+  RSSFeeds: "RSSFeedMinimumInfo"|"RSSFeedsDefaultFragment"|"newRSSFeedFragment"
   ReadStatuses: "ReadStatusesDefaultFragment"
   RecommendationsCaches: "RecommendationsCachesDefaultFragment"
   Reports: "ReportsDefaultFragment"|"UnclaimedReportsList"
-  ReviewVotes: "ReviewVotesDefaultFragment"|"reviewAdminDashboard"|"reviewVoteFragment"|"reviewVoteWithUserAndPost"
+  ReviewVotes: "ReviewVotesDefaultFragment"|"reviewAdminDashboard"|"reviewVoteFragment"
   ReviewWinnerArts: "ReviewWinnerArtImages"|"ReviewWinnerArtsDefaultFragment"
-  ReviewWinners: "ReviewWinnerAll"|"ReviewWinnerAnnouncement"|"ReviewWinnerEditDisplay"|"ReviewWinnerTopPostsPage"|"ReviewWinnersDefaultFragment"
+  ReviewWinners: "ReviewWinnerAll"|"ReviewWinnerAnnouncement"|"ReviewWinnerTopPostsPage"|"ReviewWinnersDefaultFragment"
   Revisions: "RecentDiscussionRevisionTagFragment"|"RevisionDisplay"|"RevisionEdit"|"RevisionHTML"|"RevisionHistoryEntry"|"RevisionHistorySummaryEdit"|"RevisionMetadata"|"RevisionMetadataWithChangeMetrics"|"RevisionTagFragment"|"RevisionsDefaultFragment"|"WithVoteRevision"
   Sequences: "SequenceContinueReadingFragment"|"SequencesDefaultFragment"|"SequencesEdit"|"SequencesPageFragment"|"SequencesPageTitleFragment"|"SequencesPageWithChaptersFragment"
   Sessions: "SessionsDefaultFragment"
   SideCommentCaches: "SideCommentCacheMinimumInfo"|"SideCommentCachesDefaultFragment"
   SplashArtCoordinates: "SplashArtCoordinates"|"SplashArtCoordinatesDefaultFragment"|"SplashArtCoordinatesEdit"
-  Spotlights: "SpotlightDisplay"|"SpotlightEditQueryFragment"|"SpotlightHeaderEventSubtitle"|"SpotlightMinimumInfo"|"SpotlightReviewWinner"|"SpotlightsDefaultFragment"
+  Spotlights: "SpotlightDisplay"|"SpotlightEditQueryFragment"|"SpotlightHeaderEventSubtitle"|"SpotlightMinimumInfo"|"SpotlightsDefaultFragment"
   SubscribedPostAndCommentses: "SubscribedPostAndCommentsFeed"
   Subscriptions: "MembersOfGroupFragment"|"SubscriptionState"|"SubscriptionsDefaultFragment"
   SurveyQuestions: "SurveyQuestionMinimumInfo"|"SurveyQuestionsDefaultFragment"
@@ -434,35 +414,34 @@ interface FragmentTypesByCollection {
   Surveys: "SurveyMinimumInfo"|"SurveysDefaultFragment"
   TagFlags: "TagFlagEditFragment"|"TagFlagFragment"|"TagFlagsDefaultFragment"
   TagRels: "TagRelBasicInfo"|"TagRelCreationFragment"|"TagRelFragment"|"TagRelHistoryFragment"|"TagRelMinimumFragment"|"TagRelsDefaultFragment"|"WithVoteTagRel"
-  Tags: "AllTagsPageFragment"|"ConceptItemFragment"|"ExplorePageTagFragment"|"SunshineTagFragment"|"TagBasicInfo"|"TagCreationHistoryFragment"|"TagDetailedPreviewFragment"|"TagDetailsFragment"|"TagEditFragment"|"TagFragment"|"TagFullContributorsList"|"TagHistoryFragment"|"TagName"|"TagPageArbitalContentFragment"|"TagPageFragment"|"TagPageRevisionWithArbitalContentFragment"|"TagPageWithArbitalContentAndLensRevisionFragment"|"TagPageWithArbitalContentFragment"|"TagPageWithRevisionFragment"|"TagPreviewFragment"|"TagRecentDiscussion"|"TagRevisionFragment"|"TagSectionPreviewFragment"|"TagSubforumFragment"|"TagSubforumSidebarFragment"|"TagSubtagFragment"|"TagWithFlagsAndRevisionFragment"|"TagWithFlagsFragment"|"TagsDefaultFragment"|"UserOnboardingTag"|"WithVoteTag"
+  Tags: "AllTagsPageFragment"|"ConceptItemFragment"|"ExplorePageTagFragment"|"SunshineTagFragment"|"TagBasicInfo"|"TagCreationHistoryFragment"|"TagDetailsFragment"|"TagEditFragment"|"TagFragment"|"TagFullContributorsList"|"TagHistoryFragment"|"TagName"|"TagPageArbitalContentFragment"|"TagPageFragment"|"TagPageRevisionWithArbitalContentFragment"|"TagPageWithArbitalContentAndLensRevisionFragment"|"TagPageWithArbitalContentFragment"|"TagPageWithRevisionFragment"|"TagPreviewFragment"|"TagRecentDiscussion"|"TagRevisionFragment"|"TagSectionPreviewFragment"|"TagSubforumFragment"|"TagSubforumSidebarFragment"|"TagSubtagFragment"|"TagWithFlagsAndRevisionFragment"|"TagWithFlagsFragment"|"TagsDefaultFragment"|"UserOnboardingTag"|"WithVoteTag"
   Tweets: "TweetsDefaultFragment"
-  TypingIndicators: "TypingIndicatorInfo"|"TypingIndicatorsDefaultFragment"
+  TypingIndicators: "TypingIndicatorsDefaultFragment"
   UltraFeedEvents: "UltraFeedEventsDefaultFragment"
   UserActivities: "UserActivitiesDefaultFragment"
   UserEAGDetails: "UserEAGDetailsDefaultFragment"|"UserEAGDetailsMinimumInfo"
   UserJobAds: "UserJobAdsDefaultFragment"|"UserJobAdsMinimumInfo"
   UserMostValuablePosts: "UserMostValuablePostInfo"|"UserMostValuablePostsDefaultFragment"
-  UserRateLimits: "UserRateLimitDisplay"|"UserRateLimitsDefaultFragment"
+  UserRateLimits: "UserRateLimitDisplay"|"UserRateLimitMutationFragment"|"UserRateLimitsDefaultFragment"
   UserTagRels: "UserTagRelDetails"|"UserTagRelsDefaultFragment"
-  Users: "SuggestAlignmentUser"|"SunshineUsersList"|"UserAltAccountsFragment"|"UserBookmarkedPosts"|"UserKarmaChanges"|"UserOnboardingAuthor"|"UsersBannedFromUsersModerationLog"|"UsersCrosspostInfo"|"UsersCurrent"|"UsersCurrentCommentRateLimit"|"UsersCurrentPostRateLimit"|"UsersDefaultFragment"|"UsersEdit"|"UsersMapEntry"|"UsersMinimumInfo"|"UsersOptedInToDialogueFacilitation"|"UsersProfile"|"UsersProfileEdit"|"UsersSocialMediaInfo"|"UsersWithReviewInfo"
+  Users: "SuggestAlignmentUser"|"SunshineUsersList"|"UserAltAccountsFragment"|"UserKarmaChanges"|"UserOnboardingAuthor"|"UsersBannedFromUsersModerationLog"|"UsersCrosspostInfo"|"UsersCurrent"|"UsersCurrentCommentRateLimit"|"UsersCurrentPostRateLimit"|"UsersDefaultFragment"|"UsersEdit"|"UsersMapEntry"|"UsersMinimumInfo"|"UsersProfile"|"UsersProfileEdit"|"UsersSocialMediaInfo"|"UsersWithReviewInfo"
   Votes: "TagRelVotes"|"TagVotingActivity"|"UserVotes"|"UserVotesWithDocument"|"VotesDefaultFragment"
 }
 
 interface CollectionNamesByFragmentName {
   AdvisorRequestsDefaultFragment: "AdvisorRequests"
-  AdvisorRequestsMinimumInfo: "AdvisorRequests"
   AllTagsPageFragment: "Tags"
   ArbitalCachesDefaultFragment: "ArbitalCaches"
   ArbitalLinkedPagesFragment: never
   ArbitalTagContentRelsDefaultFragment: "ArbitalTagContentRels"
   AutomatedContentEvaluationsDefaultFragment: "AutomatedContentEvaluations"
   AutomatedContentEvaluationsFragment: "AutomatedContentEvaluations"
-  BansAdminPageFragment: "Bans"
   BansDefaultFragment: "Bans"
   BookEdit: "Books"
   BookPageFragment: "Books"
   BookmarksDefaultFragment: "Bookmarks"
   BookmarksFeedItemFragment: "Bookmarks"
+  BookmarksMinimumInfoFragment: "Bookmarks"
   BookmarksWithDocumentFragment: "Bookmarks"
   BooksDefaultFragment: "Books"
   ChaptersDefaultFragment: "Chapters"
@@ -478,7 +457,6 @@ interface CollectionNamesByFragmentName {
   CollectionsPageFragment: "Collections"
   CommentEdit: "Comments"
   CommentEmbeddingsDefaultFragment: "CommentEmbeddings"
-  CommentModeratorActionDisplay: "CommentModeratorActions"
   CommentModeratorActionsDefaultFragment: "CommentModeratorActions"
   CommentWithRepliesFragment: "Comments"
   CommentsDefaultFragment: "Comments"
@@ -486,7 +464,6 @@ interface CollectionNamesByFragmentName {
   CommentsForAutocompleteWithParents: "Comments"
   CommentsList: "Comments"
   CommentsListWithModGPTAnalysis: "Comments"
-  CommentsListWithModerationMetadata: "Comments"
   CommentsListWithParentMetadata: "Comments"
   CommentsListWithTopLevelComment: "Comments"
   ConceptItemFragment: "Tags"
@@ -502,9 +479,7 @@ interface CollectionNamesByFragmentName {
   DebouncerEventsDefaultFragment: "DebouncerEvents"
   DeletedCommentsMetaData: "Comments"
   DeletedCommentsModerationLog: "Comments"
-  DialogueCheckInfo: "DialogueChecks"
   DialogueChecksDefaultFragment: "DialogueChecks"
-  DialogueMatchPreferenceInfo: "DialogueMatchPreferences"
   DialogueMatchPreferencesDefaultFragment: "DialogueMatchPreferences"
   DigestPostsDefaultFragment: "DigestPosts"
   DigestPostsMinimumInfo: "DigestPosts"
@@ -512,10 +487,7 @@ interface CollectionNamesByFragmentName {
   DigestsMinimumInfo: "Digests"
   DraftComments: "Comments"
   ElectionCandidateBasicInfo: "ElectionCandidates"
-  ElectionCandidateSimple: "ElectionCandidates"
   ElectionCandidatesDefaultFragment: "ElectionCandidates"
-  ElectionVoteInfo: "ElectionVotes"
-  ElectionVoteRecentDiscussion: "ElectionVotes"
   ElectionVotesDefaultFragment: "ElectionVotes"
   ElicitQuestionFragment: "ElicitQuestions"
   ElicitQuestionPredictionsDefaultFragment: "ElicitQuestionPredictions"
@@ -535,8 +507,6 @@ interface CollectionNamesByFragmentName {
   ForumEventsEdit: "ForumEvents"
   ForumEventsMinimumInfo: "ForumEvents"
   FrontpageShortformComments: "Comments"
-  GardenCodeFragment: "GardenCodes"
-  GardenCodeFragmentEdit: "GardenCodes"
   GardenCodesDefaultFragment: "GardenCodes"
   GoogleServiceAccountSessionAdminInfo: "GoogleServiceAccountSessions"
   GoogleServiceAccountSessionInfo: "GoogleServiceAccountSessions"
@@ -548,7 +518,6 @@ interface CollectionNamesByFragmentName {
   JargonTerms: "JargonTerms"
   JargonTermsDefaultFragment: "JargonTerms"
   JargonTermsPost: "JargonTerms"
-  JargonTermsWithPostInfo: "JargonTerms"
   LWEventsDefaultFragment: "LWEvents"
   LegacyDataDefaultFragment: "LegacyData"
   LlmConversationsDefaultFragment: "LlmConversations"
@@ -580,13 +549,12 @@ interface CollectionNamesByFragmentName {
   PageCacheDefaultFragment: "PageCache"
   PetrovDayActionInfo: "PetrovDayActions"
   PetrovDayActionsDefaultFragment: "PetrovDayActions"
-  PetrovDayLaunchInfo: "PetrovDayLaunchs"
   PetrovDayLaunchsDefaultFragment: "PetrovDayLaunchs"
+  PodcastEpisodeCreateFragment: "PodcastEpisodes"
   PodcastEpisodeFull: "PodcastEpisodes"
   PodcastEpisodesDefaultFragment: "PodcastEpisodes"
   PodcastSelect: "Podcasts"
   PodcastsDefaultFragment: "Podcasts"
-  PostForReviewWinnerItem: "Posts"
   PostPodcastEpisode: "Posts"
   PostRecommendationsDefaultFragment: "PostRecommendations"
   PostRelationsDefaultFragment: "PostRelations"
@@ -621,7 +589,6 @@ interface CollectionNamesByFragmentName {
   PostsRecentDiscussion: "Posts"
   PostsReviewVotingList: "Posts"
   PostsRevision: "Posts"
-  PostsRevisionEdit: "Posts"
   PostsRevisionsList: "Posts"
   PostsTopItemInfo: "Posts"
   PostsTwitterAdmin: "Posts"
@@ -629,7 +596,6 @@ interface CollectionNamesByFragmentName {
   PostsWithNavigationAndRevision: "Posts"
   PostsWithVotes: "Posts"
   RSSFeedMinimumInfo: "RSSFeeds"
-  RSSFeedMutationFragment: "RSSFeeds"
   RSSFeedsDefaultFragment: "RSSFeeds"
   ReadStatusesDefaultFragment: "ReadStatuses"
   RecentDiscussionRevisionTagFragment: "Revisions"
@@ -640,7 +606,6 @@ interface CollectionNamesByFragmentName {
   ReviewWinnerAnnouncement: "ReviewWinners"
   ReviewWinnerArtImages: "ReviewWinnerArts"
   ReviewWinnerArtsDefaultFragment: "ReviewWinnerArts"
-  ReviewWinnerEditDisplay: "ReviewWinners"
   ReviewWinnerTopPostsPage: "ReviewWinners"
   ReviewWinnersDefaultFragment: "ReviewWinners"
   RevisionDisplay: "Revisions"
@@ -670,7 +635,6 @@ interface CollectionNamesByFragmentName {
   SpotlightEditQueryFragment: "Spotlights"
   SpotlightHeaderEventSubtitle: "Spotlights"
   SpotlightMinimumInfo: "Spotlights"
-  SpotlightReviewWinner: "Spotlights"
   SpotlightsDefaultFragment: "Spotlights"
   StickySubforumCommentFragment: "Comments"
   SubscribedPostAndCommentsFeed: never
@@ -694,7 +658,6 @@ interface CollectionNamesByFragmentName {
   SurveysDefaultFragment: "Surveys"
   TagBasicInfo: "Tags"
   TagCreationHistoryFragment: "Tags"
-  TagDetailedPreviewFragment: "Tags"
   TagDetailsFragment: "Tags"
   TagEditFragment: "Tags"
   TagFlagEditFragment: "TagFlags"
@@ -729,7 +692,6 @@ interface CollectionNamesByFragmentName {
   TagWithFlagsFragment: "Tags"
   TagsDefaultFragment: "Tags"
   TweetsDefaultFragment: "Tweets"
-  TypingIndicatorInfo: "TypingIndicators"
   TypingIndicatorsDefaultFragment: "TypingIndicators"
   UltraFeedComment: "Comments"
   UltraFeedEventsDefaultFragment: "UltraFeedEvents"
@@ -737,7 +699,6 @@ interface CollectionNamesByFragmentName {
   UnclaimedReportsList: "Reports"
   UserActivitiesDefaultFragment: "UserActivities"
   UserAltAccountsFragment: "Users"
-  UserBookmarkedPosts: "Users"
   UserEAGDetailsDefaultFragment: "UserEAGDetails"
   UserEAGDetailsMinimumInfo: "UserEAGDetails"
   UserJobAdsDefaultFragment: "UserJobAds"
@@ -748,6 +709,7 @@ interface CollectionNamesByFragmentName {
   UserOnboardingAuthor: "Users"
   UserOnboardingTag: "Tags"
   UserRateLimitDisplay: "UserRateLimits"
+  UserRateLimitMutationFragment: "UserRateLimits"
   UserRateLimitsDefaultFragment: "UserRateLimits"
   UserTagRelDetails: "UserTagRels"
   UserTagRelsDefaultFragment: "UserTagRels"
@@ -763,7 +725,6 @@ interface CollectionNamesByFragmentName {
   UsersEdit: "Users"
   UsersMapEntry: "Users"
   UsersMinimumInfo: "Users"
-  UsersOptedInToDialogueFacilitation: "Users"
   UsersProfile: "Users"
   UsersProfileEdit: "Users"
   UsersSocialMediaInfo: "Users"
@@ -771,6 +732,7 @@ interface CollectionNamesByFragmentName {
   VotesDefaultFragment: "Votes"
   WithVoteComment: "Comments"
   WithVoteElectionCandidate: "ElectionCandidates"
+  WithVoteMessage: "Messages"
   WithVoteMultiDocument: "MultiDocuments"
   WithVotePost: "Posts"
   WithVoteRevision: "Revisions"
@@ -782,13 +744,11 @@ interface CollectionNamesByFragmentName {
   localGroupsEdit: "Localgroups"
   localGroupsHomeFragment: "Localgroups"
   localGroupsIsOnline: "Localgroups"
-  lwEventsAdminPageFragment: "LWEvents"
   messageListFragment: "Messages"
   newEventFragment: "LWEvents"
   newRSSFeedFragment: "RSSFeeds"
   reviewAdminDashboard: "ReviewVotes"
   reviewVoteFragment: "ReviewVotes"
-  reviewVoteWithUserAndPost: "ReviewVotes"
 }
 
 type CollectionNameString = "AdvisorRequests"|"ArbitalCaches"|"ArbitalTagContentRels"|"AutomatedContentEvaluations"|"Bans"|"Bookmarks"|"Books"|"Chapters"|"CkEditorUserSessions"|"ClientIds"|"Collections"|"CommentEmbeddings"|"CommentModeratorActions"|"Comments"|"Conversations"|"CronHistories"|"CurationEmails"|"CurationNotices"|"DatabaseMetadata"|"DebouncerEvents"|"DialogueChecks"|"DialogueMatchPreferences"|"DigestPosts"|"Digests"|"ElectionCandidates"|"ElectionVotes"|"ElicitQuestionPredictions"|"ElicitQuestions"|"EmailTokens"|"FeaturedResources"|"FieldChanges"|"ForumEvents"|"GardenCodes"|"GoogleServiceAccountSessions"|"Images"|"InlinePredictions"|"JargonTerms"|"LWEvents"|"LegacyData"|"LlmConversations"|"LlmMessages"|"Localgroups"|"ManifoldProbabilitiesCaches"|"Messages"|"Migrations"|"ModerationTemplates"|"ModeratorActions"|"MultiDocuments"|"Notifications"|"PageCache"|"PetrovDayActions"|"PetrovDayLaunchs"|"PodcastEpisodes"|"Podcasts"|"PostEmbeddings"|"PostRecommendations"|"PostRelations"|"PostViewTimes"|"PostViews"|"Posts"|"RSSFeeds"|"ReadStatuses"|"RecommendationsCaches"|"Reports"|"ReviewVotes"|"ReviewWinnerArts"|"ReviewWinners"|"Revisions"|"Sequences"|"Sessions"|"SideCommentCaches"|"SplashArtCoordinates"|"Spotlights"|"Subscriptions"|"SurveyQuestions"|"SurveyResponses"|"SurveySchedules"|"Surveys"|"TagFlags"|"TagRels"|"Tags"|"Tweets"|"TypingIndicators"|"UltraFeedEvents"|"UserActivities"|"UserEAGDetails"|"UserJobAds"|"UserMostValuablePosts"|"UserRateLimits"|"UserTagRels"|"Users"|"Votes"

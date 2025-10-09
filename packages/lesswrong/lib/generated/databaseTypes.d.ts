@@ -744,13 +744,20 @@ type MessagesCollection = PgCollection<"Messages">;
 
 interface DbMessage extends DbObject {
   __collectionName?: "Messages"
+  afBaseScore: number | null
+  afExtendedScore: any | null
+  afVoteCount: number | null
+  baseScore: number
   contents: EditableFieldContents | null
   contents_latest: string | null
   conversationId: string
   createdAt: Date
+  extendedScore: any | null
   legacyData: any | null
   noEmail: boolean
+  score: number
   userId: string
+  voteCount: number
 }
 
 type MigrationsCollection = PgCollection<"Migrations">;

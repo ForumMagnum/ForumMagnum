@@ -1286,7 +1286,14 @@ CREATE TABLE "Messages" (
   "contents_latest" TEXT,
   "userId" VARCHAR(27) NOT NULL,
   "conversationId" VARCHAR(27) NOT NULL,
-  "noEmail" BOOL NOT NULL DEFAULT FALSE
+  "noEmail" BOOL NOT NULL DEFAULT FALSE,
+  "voteCount" DOUBLE PRECISION NOT NULL DEFAULT 0,
+  "baseScore" DOUBLE PRECISION NOT NULL DEFAULT 0,
+  "extendedScore" JSONB,
+  "score" DOUBLE PRECISION NOT NULL DEFAULT 0,
+  "afBaseScore" DOUBLE PRECISION,
+  "afExtendedScore" JSONB,
+  "afVoteCount" DOUBLE PRECISION
 );
 
 -- Index "idx_Messages_schemaVersion"
@@ -3396,7 +3403,7 @@ CREATE TABLE "Users" (
   "autoSubscribeAsOrganizer" BOOL NOT NULL DEFAULT TRUE,
   "notificationCommentsOnSubscribedPost" JSONB NOT NULL DEFAULT '{"onsite":{"enabled":true,"batchingFrequency":"realtime","timeOfDayGMT":12,"dayOfWeekGMT":"Monday"},"email":{"enabled":false,"batchingFrequency":"realtime","timeOfDayGMT":12,"dayOfWeekGMT":"Monday"}}'::JSONB,
   "notificationShortformContent" JSONB NOT NULL DEFAULT '{"onsite":{"enabled":true,"batchingFrequency":"realtime","timeOfDayGMT":12,"dayOfWeekGMT":"Monday"},"email":{"enabled":false,"batchingFrequency":"realtime","timeOfDayGMT":12,"dayOfWeekGMT":"Monday"}}'::JSONB,
-  "notificationRepliesToMyComments" JSONB NOT NULL DEFAULT '{"onsite":{"enabled":true,"batchingFrequency":"realtime","timeOfDayGMT":12,"dayOfWeekGMT":"Monday"},"email":{"enabled":false,"batchingFrequency":"realtime","timeOfDayGMT":12,"dayOfWeekGMT":"Monday"}}'::JSONB,
+  "notificationRepliesToMyComments" JSONB NOT NULL DEFAULT '{"onsite":{"enabled":true,"batchingFrequency":"realtime","timeOfDayGMT":12,"dayOfWeekGMT":"Monday"},"email":{"enabled":true,"batchingFrequency":"realtime","timeOfDayGMT":12,"dayOfWeekGMT":"Monday"}}'::JSONB,
   "notificationRepliesToSubscribedComments" JSONB NOT NULL DEFAULT '{"onsite":{"enabled":true,"batchingFrequency":"realtime","timeOfDayGMT":12,"dayOfWeekGMT":"Monday"},"email":{"enabled":false,"batchingFrequency":"realtime","timeOfDayGMT":12,"dayOfWeekGMT":"Monday"}}'::JSONB,
   "notificationSubscribedUserPost" JSONB NOT NULL DEFAULT '{"onsite":{"enabled":true,"batchingFrequency":"realtime","timeOfDayGMT":12,"dayOfWeekGMT":"Monday"},"email":{"enabled":false,"batchingFrequency":"realtime","timeOfDayGMT":12,"dayOfWeekGMT":"Monday"}}'::JSONB,
   "notificationSubscribedUserComment" JSONB NOT NULL DEFAULT '{"onsite":{"enabled":true,"batchingFrequency":"realtime","timeOfDayGMT":12,"dayOfWeekGMT":"Monday"},"email":{"enabled":false,"batchingFrequency":"realtime","timeOfDayGMT":12,"dayOfWeekGMT":"Monday"}}'::JSONB,

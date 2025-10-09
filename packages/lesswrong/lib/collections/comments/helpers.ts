@@ -129,6 +129,9 @@ export async function getVotingSystemNameForDocument(document: VoteableType, col
   if (collectionName === "MultiDocuments" || collectionName === "Tags") {
     return "reactionsAndLikes";
   }
+  if (collectionName === "Messages") {
+    return "namesAttachedReactions";
+  }
   if ((document as DbComment).tagId) {
     return isEAForum() ? "eaEmojis" : "namesAttachedReactions";
   }

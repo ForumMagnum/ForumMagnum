@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useRef } from 'react';
 import { registerComponent } from '../../lib/vulcan-lib/components';
 import classNames from 'classnames';
 import withErrorBoundary from '../common/withErrorBoundary';
@@ -10,6 +10,13 @@ import UsersName from "../users/UsersName";
 import MetaInfo from "../common/MetaInfo";
 import FormatDate from "../common/FormatDate";
 import { ContentItemBody } from "../contents/ContentItemBody";
+import { getVotingSystemByName } from "../../lib/voting/getVotingSystem";
+import { useVote } from "../votes/withVote";
+import InlineReactSelectionWrapper from "../votes/lwReactions/InlineReactSelectionWrapper";
+import { ReactionsAndLikesVote } from "../votes/lwReactions/ReactionsAndLikesVote";
+import type { ContentItemBodyImperative, ContentReplacedSubstringComponentInfo } from "../contents/contentBodyUtil";
+import { commentBottomComponents, messageBottomComponents } from '@/lib/voting/votingSystemComponents';
+import HoveredReactionContextProvider from '../votes/lwReactions/HoveredReactionContextProvider';
 
 const styles = (theme: ThemeType) => ({
   root: {
@@ -75,6 +82,10 @@ const styles = (theme: ThemeType) => ({
   username: {
     marginRight: 6,
     fontWeight: 600
+  },
+  bottom: {
+    display: 'flex',
+    justifyContent: 'flex-end',
   }
 })
 
@@ -87,37 +98,75 @@ const MessageItem = ({message, classes}: {
 }) => {
   const currentUser = useCurrentUser();
   const { html = "" } = message?.contents || {}
-  if (!message) return null;
-  if (!html) return null
+
   
   const isCurrentUser = (currentUser && message.user) && currentUser._id === message.user._id
   const htmlBody = {__html: html};
+
+  const votingSystem = getVotingSystemByName("namesAttachedReactions");
+  const voteProps = useVote(message, "Messages", votingSystem);
+  const messageBodyRef = useRef<ContentItemBodyImperative|null>(null);
+
+  if (!message) return null;
+  if (!html) return null
+
   const colorClassName = classNames({[classes.whiteMeta]: isCurrentUser})
 
   let profilePhoto: React.ReactNode|null = null;
   if (!isCurrentUser && isFriendlyUI()) {
     profilePhoto = <ProfilePhoto user={message.user} className={classes.profileImg} />
   }
+
+  let highlights: ContentReplacedSubstringComponentInfo[]|undefined = undefined;
+  if (voteProps && votingSystem?.getMessageHighlights) {
+    highlights = votingSystem.getMessageHighlights({message, voteProps});
+  }
+
+  const VoteBottomComponent = messageBottomComponents[votingSystem.name]?.() ?? null;
+
+  const bodyElement = <ContentItemBody
+    ref={messageBodyRef}
+    dangerouslySetInnerHTML={{__html: html}}
+    className={classes.messageBody}
+    description={`message ${message._id}`}
+    replacedSubstrings={highlights}
+    invertSubstitutionColors={!!isCurrentUser}
+  />;
   
   return (
     <div className={classNames(classes.root, {[classes.rootWithImages]: isFriendlyUI(), [classes.rootCurrentUserWithImages]: isFriendlyUI() && isCurrentUser})}>
       {profilePhoto}
-      <Typography variant="body2" className={classNames(classes.message, {[classes.backgroundIsCurrent]: isCurrentUser})}>
-        <div className={classes.meta}>
-          {message.user && <span className={classes.username}>
-            <span className={colorClassName}><UsersName user={message.user}/></span>
-          </span>}
-          <span>{" " /* Explicit space (rather than just padding/margin) for copy-paste purposes */}</span>
-          {message.createdAt && <MetaInfo>
-            <span className={colorClassName}><FormatDate date={message.createdAt}/></span>
-          </MetaInfo>}
-        </div>
-        <ContentItemBody
-          dangerouslySetInnerHTML={htmlBody}
-          className={classes.messageBody}
-          description={`message ${message._id}`}
-        />
-      </Typography>
+      <HoveredReactionContextProvider voteProps={voteProps}>
+        <Typography variant="body2" className={classNames(classes.message, {[classes.backgroundIsCurrent]: isCurrentUser})}>
+          <div className={classes.meta}>
+            {message.user && <span className={classes.username}>
+              <span className={colorClassName}><UsersName user={message.user}/></span>
+            </span>}
+            <span>{" " /* Explicit space (rather than just padding/margin) for copy-paste purposes */}</span>
+            {message.createdAt && <MetaInfo>
+              <span className={colorClassName}><FormatDate date={message.createdAt}/></span>
+            </MetaInfo>}
+          </div>
+
+          {votingSystem.hasInlineReacts ? <InlineReactSelectionWrapper contentRef={messageBodyRef} voteProps={voteProps} styling="comment">
+              {bodyElement}
+            </InlineReactSelectionWrapper>
+          : bodyElement}
+          
+          {VoteBottomComponent && <div className={classes.bottom}>
+              <VoteBottomComponent
+                document={message}
+                hideKarma={false}
+                collectionName="Messages"
+                votingSystem={votingSystem}
+                voteProps={voteProps}
+                commentBodyRef={messageBodyRef}
+                invertColors={!!isCurrentUser}
+              />
+            </div>
+          }
+        </Typography>
+      </HoveredReactionContextProvider>
     </div>
   )
 }

@@ -1,4 +1,4 @@
-import { useState, useRef, useCallback, useEffect } from 'react';
+import { useRef, useCallback, useEffect } from 'react';
 import { useTracking } from '../../lib/analyticsEvents';
 import { useEventListener } from './useEventListener';
 
@@ -8,19 +8,25 @@ import { useEventListener } from './useEventListener';
  * 
  * @param timeoutInSeconds - Number of seconds before considering the user idle (default: 60)
  */
-export function useIdlenessDetection(timeoutInSeconds = 60) {
+export function useIdlenessDetection(timeoutInSeconds: number, onChange: (isIdle: boolean) => void) {
   const { captureEvent } = useTracking();
-  const [userIsIdle, setUserIsIdle] = useState(false);
+  const isIdleRef = useRef(false);
   const countdownTimer = useRef<NodeJS.Timeout | null>(null);
 
   const inactivityAlert = useCallback(() => {
     captureEvent("idlenessDetection", { state: "inactive" });
-    setUserIsIdle(true);
-  }, [captureEvent]);
+    if (!isIdleRef.current) {
+      isIdleRef.current = true;
+      onChange(true);
+    }
+  }, [captureEvent, onChange]);
 
   const reset = useCallback(() => {
-    const prevUserIsIdle = userIsIdle;
-    setUserIsIdle(false);
+    const prevUserIsIdle = isIdleRef.current;
+    if (isIdleRef.current) {
+      onChange(false);
+      isIdleRef.current = false;
+    }
     
     if (countdownTimer.current) {
       clearTimeout(countdownTimer.current);
@@ -31,7 +37,7 @@ export function useIdlenessDetection(timeoutInSeconds = 60) {
     if (prevUserIsIdle) {
       captureEvent("idlenessDetection", { state: "active" });
     }
-  }, [userIsIdle, captureEvent, inactivityAlert, timeoutInSeconds]);
+  }, [captureEvent, inactivityAlert, timeoutInSeconds, onChange]);
 
   useEventListener("mousemove", reset);
   useEventListener("keypress", reset);
@@ -46,6 +52,4 @@ export function useIdlenessDetection(timeoutInSeconds = 60) {
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
-
-  return { userIsIdle };
 }

@@ -4,9 +4,8 @@ import * as path from 'path';
 import keyBy from 'lodash/keyBy';
 import { extractFragmentName } from '@/lib/fragments/fragmentWrapper';
 import gql from 'graphql-tag';
-import { type DocumentNode, type DefinitionNode, Kind, FragmentDefinitionNode } from 'graphql';
+import { type DocumentNode, Kind, FragmentDefinitionNode } from 'graphql';
 import { filterNonnull } from '@/lib/utils/typeGuardUtils';
-import { generateDefaultFragments } from './generateDefaultFragments';
 
 function fileMightIncludeFragment(filePath: string): boolean {
   try {
@@ -107,13 +106,11 @@ let allFragmentsInSource: FragmentsFromSource|null = null;
 export function findFragmentsInSource(collectionNameToTypeName: Record<string, string>): FragmentsFromSource {
   if (allFragmentsInSource) return allFragmentsInSource;
   const foundFragmentStrings = findFragmentsIn("packages/lesswrong", "gql");
-  const defaultFragmentStrings = generateDefaultFragments(collectionNameToTypeName);
   const fragmentStrings = [
     ...foundFragmentStrings,
-    ...defaultFragmentStrings,
   ];
 
-  allFragmentsInSource = keyBy(filterNonnull(fragmentStrings.map(f => {
+  allFragmentsInSource = keyBy(filterNonnull(foundFragmentStrings.map(f => {
     let parsedFragment: DocumentNode;
     try {
       parsedFragment = gql(f);

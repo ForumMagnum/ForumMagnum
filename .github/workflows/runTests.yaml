@@ -249,11 +249,17 @@ jobs:
       SLOW_QUERY_REPORT_CUTOFF_MS: "-1"
       ENV_NAME: test
       FORUM_TYPE: LessWrong
+      VERCEL_ORG_ID: ${{ secrets.VERCEL_ORG_ID }}
+      VERCEL_PROJECT_ID: ${{ secrets.VERCEL_PROJECT_ID }}
     steps:
     - name: Checkout code
       uses: actions/checkout@v4
     - name: Setup Environment
       uses: ./.github/actions/setupEnvironment
+    - name: Pull Vercel Environment Information
+      run: |
+        npm install --global vercel@latest
+        vercel env pull --yes --environment=development --token=${{ secrets.VERCEL_ACCESS_TOKEN }}
     - name: Setup database schema
       run: yarn create-integration-db-ci
     - name: yarn run integration-ci
