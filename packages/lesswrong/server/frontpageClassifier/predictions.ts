@@ -53,7 +53,7 @@ export async function classifyPosts(
   ).fetch();
 
   const embeddingsByPostId = new Map<string, number[]>();
-  embeddings.forEach(e => embeddingsByPostId.set(e.postId, e.embeddings));
+  embeddings.forEach(e => embeddingsByPostId.set(e.postId, JSON.parse(e.embeddings)));
 
   for (const postId of postIds) {
     const embeddingData = embeddingsByPostId.get(postId);
