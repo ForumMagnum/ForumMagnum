@@ -104,7 +104,6 @@ const customSubmitButtonStyles = defineStyles('CommentSubmit', (theme: ThemeType
     marginLeft: "5px",
     "&:hover": {
       opacity: .5,
-      backgroundColor: 'none'
     },
   },
   cancelButton: {
