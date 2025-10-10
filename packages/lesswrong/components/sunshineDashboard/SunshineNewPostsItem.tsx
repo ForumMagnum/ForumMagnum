@@ -99,6 +99,13 @@ const styles = (theme: ThemeType) => ({
   }
 })
 
+const displayPredictionPercent = (prediction: FrontpageClassification): number => {
+  const confidence = prediction.isFrontpage
+    ? prediction.probability
+    : 1 - prediction.probability;
+  return Math.round(confidence * 100);
+}
+
 const SunshineNewPostsItem = ({post, refetch, classes}: {
   post: SunshinePostsList,
   refetch: () => void,
@@ -184,13 +191,7 @@ const SunshineNewPostsItem = ({post, refetch, classes}: {
         <SidebarHoverOver hover={hover} anchorEl={anchorEl}>
           <FooterTagList post={post} showCoreTags highlightAutoApplied />
 
-          {prediction && (() => {
-            // Show probability as confidence in the predicted direction
-            const displayProbability = prediction.isFrontpage
-              ? prediction.probability
-              : 1 - prediction.probability;
-
-            return (
+          {prediction && (
               <div
                 className={`
                   ${classes.predictionBadge}
@@ -199,11 +200,10 @@ const SunshineNewPostsItem = ({post, refetch, classes}: {
               >
                 Predicted: {prediction.isFrontpage ? 'Frontpage' : 'Personal'}
                 <span className={classes.predictionConfidence}>
-                  ({Math.round(displayProbability * 100)}%)
+                  ({displayPredictionPercent(prediction)}%)
                 </span>
               </div>
-            );
-          })()}
+            )}
 
           <div className={classes.buttonRow}>
             <Button onClick={handlePersonal}>

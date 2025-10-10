@@ -77,7 +77,6 @@ export class LogisticRegression {
     const n = X.length;
     const inputDim = X[0].length;
 
-    // Initialize weights if not already done
     if (this.weights.length === 0) {
       this.initializeWeights(inputDim);
     }
@@ -95,13 +94,10 @@ export class LogisticRegression {
         const clippedPred = this.clip(prediction);
         const error = prediction - y[i];
 
-        // Apply weight based on type of error
         let weight = 1;
         if (y[i] === 1 && prediction < 0.5) {
-          // False negative
           weight = falseNegativeWeight;
         } else if (y[i] === 0 && prediction >= 0.5) {
-          // False positive
           weight = falsePositiveWeight;
         }
 
@@ -112,7 +108,6 @@ export class LogisticRegression {
         );
         totalLoss += loss;
 
-        // Accumulate weighted gradients
         const weightedError = weight * error;
         for (let j = 0; j < inputDim; j++) {
           gradientWeights[j] += weightedError * X[i][j];
@@ -120,7 +115,6 @@ export class LogisticRegression {
         gradientBias += weightedError;
       }
 
-      // Update weights using gradient descent
       for (let j = 0; j < inputDim; j++) {
         this.weights[j] -= learningRate * (gradientWeights[j] / n);
       }
@@ -144,7 +138,6 @@ export class LogisticRegression {
       lastLoss = avgLoss;
     }
 
-    // Calculate final metrics
     return this.evaluate(X, y, { falsePositiveWeight, falseNegativeWeight });
   }
 
@@ -180,7 +173,6 @@ export class LogisticRegression {
         falseNegatives++;
       }
 
-      // Calculate weighted loss
       const weight = (actual === 1 && predicted === 0) ? falseNegativeWeight :
                      (actual === 0 && predicted === 1) ? falsePositiveWeight : 1;
 

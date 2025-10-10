@@ -58,8 +58,8 @@ TypeScript file containing:
 
 ### 4. Prediction Functions (`/server/frontpageClassifier/predictions.ts`)
 
-Serverless-friendly pure functions that:
-- Lazy-load model on first use (cached in module scope)
+Stateless pure functions that:
+- Create fresh model instances on each invocation (no caching)
 - Fetch embeddings from PostEmbeddings table
 - Return predictions with probability scores
 - Support single and batch classification
@@ -73,12 +73,6 @@ const prediction = await classifyPost(postId);
 // Classify multiple posts
 const predictions = await classifyPosts(postIds);
 // Returns: Record<string, { isFrontpage: boolean, probability: number }>
-
-// Get model metadata
-const metadata = getModelMetadata();
-
-// Check if model is ready
-const ready = isModelReady();
 ```
 
 ### 5. GraphQL Integration
@@ -186,7 +180,7 @@ This ensures the classifier is conservative about recommending posts for the fro
            ▼
 ┌─────────────────────┐
 │ Prediction Function │
-│ (lazy-load model)   │
+│ (creates model)     │
 └──────────┬──────────┘
            │
            ▼
@@ -196,8 +190,8 @@ This ensures the classifier is conservative about recommending posts for the fro
 ```
 
 **Key Features:**
-- Model loaded once per serverless container (warm start optimization)
-- No singleton classes or initialization state
+- Stateless functions with no module-level caching
+- Fresh model instances created on each invocation
 - Pure functions for easy testing
 - TypeScript model imported at build time
 - Field resolver integrates with GraphQL caching
@@ -206,7 +200,7 @@ This ensures the classifier is conservative about recommending posts for the fro
 
 1. Client requests post with `frontpageClassification` fragment
 2. GraphQL resolver checks admin permissions
-3. `classifyPost()` function lazy-loads model if needed
+3. `classifyPost()` function creates fresh model instance
 4. Embeddings fetched from database
 5. Model predicts probability
 6. Result returned via GraphQL (cached by Apollo)
@@ -254,11 +248,6 @@ The classifier reports:
 - Adjust learning rate or epochs
 - Review misclassified examples for patterns
 - Consider adjusting the threshold or cost weights
-
-### Serverless cold start performance
-- Model initialization happens once per container
-- Warm containers reuse loaded model (fast)
-- Cold starts load model on first request (~100-200ms overhead)
 
 ## Security
 
