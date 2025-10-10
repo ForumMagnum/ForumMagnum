@@ -25,7 +25,7 @@ export async function classifyPost(postId: string): Promise<PredictionResult | n
     return null;
   }
 
-  const probability = model.predict(embedding.embeddings);
+  const probability = model.predict(JSON.parse(embedding.embeddings));
   const isFrontpage = probability >= threshold;
 
   return {
