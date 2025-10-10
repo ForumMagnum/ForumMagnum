@@ -40,6 +40,8 @@ import LWTooltip from "../common/LWTooltip";
 import ForumIcon from "../common/ForumIcon";
 import LWDialog from '../common/LWDialog';
 import { defineStyles, useStyles } from '../hooks/useStyles';
+import { userIsAdmin } from '@/lib/vulcan-users/permissions';
+import CommentEmbeddingsPage from '../commentEmbeddings/CommentEmbeddingsPage';
 
 const hitsPerPage = 10
 
@@ -76,6 +78,7 @@ const styles = defineStyles("SearchPageTabbed", (theme: ThemeType) => ({
   },
   resultsColumn: {
     flex: '1 1 0',
+    maxWidth: 720,
   },
   searchIcon: {
     marginLeft: 12
@@ -213,6 +216,8 @@ export type ExpandedSearchState = SearchState & {
   }
 }
 
+type SearchTabValue = SearchIndexCollectionName;
+
 // shows total # of results
 const Stats = ({ nbHits, className }: {
   nbHits: number,
@@ -259,8 +264,8 @@ const SearchPageTabbed = () => {
   const dateRangeValues = [pastDay, pastWeek, pastMonth, pastYear];
 
   // initialize the tab & search state from the URL
-  const [tab, setTab] = useState<SearchIndexCollectionName>(() => {
-    const contentType = query.contentType as SearchIndexCollectionName
+  const [tab, setTab] = useState<SearchTabValue>(() => {
+    const contentType = query.contentType as SearchTabValue
     return collectionIsSearchIndexed(contentType) ? contentType : 'Posts'
   })
   const [tagsFilter, setTagsFilter] = useState<Array<string>>(
@@ -274,6 +279,14 @@ const SearchPageTabbed = () => {
   );
 
   const [modalOpen, setModalOpen] = useState(false);
+  const [debouncedQuery, setDebouncedQuery] = useState<string | undefined>(searchState.query);
+
+  useEffect(() => {
+    const timeoutId = setTimeout(() => {
+      setDebouncedQuery(searchState.query);
+    }, 500);
+    return () => clearTimeout(timeoutId);
+  }, [searchState.query]);
 
   const onSortingChange = (newSorting: string) => {
     if (!isValidElasticSorting(newSorting)) {
@@ -306,7 +319,7 @@ const SearchPageTabbed = () => {
     })
   }, [location, sorting, navigate]);
 
-  const handleChangeTab = (_: React.ChangeEvent, value: SearchIndexCollectionName) => {
+  const handleChangeTab = (_: React.ChangeEvent, value: SearchTabValue) => {
     setTab(value);
     setSorting(defaultElasticSorting);
     setSearchState({...searchState, contentType: value, page: 1});
@@ -358,6 +371,7 @@ const SearchPageTabbed = () => {
     'Sequences': ExpandedSequencesSearchHit,
     'Users': ExpandedUsersSearchHit
   }
+
   const HitComponent = hitComponents[tab]
 
   return <div className={classes.root}>
@@ -455,6 +469,14 @@ const SearchPageTabbed = () => {
           </CustomScrollTo>
           <Pagination showLast className={classes.pagination} />
         </ErrorBoundary>
+
+        {userIsAdmin(currentUser) && tab === 'Comments' && (
+          <CommentEmbeddingsPage 
+            externalSearchQuery={debouncedQuery}
+            hideTitle={true}
+            hideSearchInput={true}
+          />  
+        )}
       </div>
     </InstantSearch>
   </div>
