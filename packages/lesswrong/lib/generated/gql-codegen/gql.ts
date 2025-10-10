@@ -167,7 +167,6 @@ type Documents = {
     "\n  mutation updateUserEventsHome($selector: SelectorInput!, $data: UpdateUserDataInput!) {\n    updateUser(selector: $selector, data: $data) {\n      data {\n        ...UsersProfile\n      }\n    }\n  }\n": typeof types.updateUserEventsHomeDocument,
     "\n  query FMCrosspostControl($documentId: String) {\n    user(input: { selector: { documentId: $documentId } }) {\n      result {\n        ...UsersCrosspostInfo\n      }\n    }\n  }\n": typeof types.FMCrosspostControlDocument,
     "\n    mutation unlinkCrossposter {\n      unlinkCrossposter\n    }\n  ": typeof types.unlinkCrossposterDocument,
-    "\n  query multiTagFormComponentPostEditorTaggingQuery($selector: TagSelector, $limit: Int, $enableTotal: Boolean) {\n    tags(selector: $selector, limit: $limit, enableTotal: $enableTotal) {\n      results {\n        ...TagFragment\n      }\n      totalCount\n    }\n  }\n": typeof types.multiTagFormComponentPostEditorTaggingQueryDocument,
     "\n  query ImageUpload($documentId: String) {\n    user(input: { selector: { documentId: $documentId } }) {\n      result {\n        ...UsersMinimumInfo\n      }\n    }\n  }\n": typeof types.ImageUploadDocument,
     "\n  query multiPodcastEpisodePodcastEpisodeInputQuery($selector: PodcastEpisodeSelector, $limit: Int, $enableTotal: Boolean) {\n    podcastEpisodes(selector: $selector, limit: $limit, enableTotal: $enableTotal) {\n      results {\n        ...PodcastEpisodeFull\n      }\n      totalCount\n    }\n  }\n": typeof types.multiPodcastEpisodePodcastEpisodeInputQueryDocument,
     "\n  query multiPodcastPodcastEpisodeInputQuery($selector: PodcastSelector, $limit: Int, $enableTotal: Boolean) {\n    podcasts(selector: $selector, limit: $limit, enableTotal: $enableTotal) {\n      results {\n        ...PodcastSelect\n      }\n      totalCount\n    }\n  }\n": typeof types.multiPodcastPodcastEpisodeInputQueryDocument,
@@ -1058,7 +1057,6 @@ const documents: Documents = {
     "\n  mutation updateUserEventsHome($selector: SelectorInput!, $data: UpdateUserDataInput!) {\n    updateUser(selector: $selector, data: $data) {\n      data {\n        ...UsersProfile\n      }\n    }\n  }\n": types.updateUserEventsHomeDocument,
     "\n  query FMCrosspostControl($documentId: String) {\n    user(input: { selector: { documentId: $documentId } }) {\n      result {\n        ...UsersCrosspostInfo\n      }\n    }\n  }\n": types.FMCrosspostControlDocument,
     "\n    mutation unlinkCrossposter {\n      unlinkCrossposter\n    }\n  ": types.unlinkCrossposterDocument,
-    "\n  query multiTagFormComponentPostEditorTaggingQuery($selector: TagSelector, $limit: Int, $enableTotal: Boolean) {\n    tags(selector: $selector, limit: $limit, enableTotal: $enableTotal) {\n      results {\n        ...TagFragment\n      }\n      totalCount\n    }\n  }\n": types.multiTagFormComponentPostEditorTaggingQueryDocument,
     "\n  query ImageUpload($documentId: String) {\n    user(input: { selector: { documentId: $documentId } }) {\n      result {\n        ...UsersMinimumInfo\n      }\n    }\n  }\n": types.ImageUploadDocument,
     "\n  query multiPodcastEpisodePodcastEpisodeInputQuery($selector: PodcastEpisodeSelector, $limit: Int, $enableTotal: Boolean) {\n    podcastEpisodes(selector: $selector, limit: $limit, enableTotal: $enableTotal) {\n      results {\n        ...PodcastEpisodeFull\n      }\n      totalCount\n    }\n  }\n": types.multiPodcastEpisodePodcastEpisodeInputQueryDocument,
     "\n  query multiPodcastPodcastEpisodeInputQuery($selector: PodcastSelector, $limit: Int, $enableTotal: Boolean) {\n    podcasts(selector: $selector, limit: $limit, enableTotal: $enableTotal) {\n      results {\n        ...PodcastSelect\n      }\n      totalCount\n    }\n  }\n": types.multiPodcastPodcastEpisodeInputQueryDocument,
@@ -2422,10 +2420,6 @@ export function gql(source: "\n  query FMCrosspostControl($documentId: String) {
  * The gql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
  */
 export function gql(source: "\n    mutation unlinkCrossposter {\n      unlinkCrossposter\n    }\n  "): (typeof documents)["\n    mutation unlinkCrossposter {\n      unlinkCrossposter\n    }\n  "];
-/**
- * The gql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
- */
-export function gql(source: "\n  query multiTagFormComponentPostEditorTaggingQuery($selector: TagSelector, $limit: Int, $enableTotal: Boolean) {\n    tags(selector: $selector, limit: $limit, enableTotal: $enableTotal) {\n      results {\n        ...TagFragment\n      }\n      totalCount\n    }\n  }\n"): (typeof documents)["\n  query multiTagFormComponentPostEditorTaggingQuery($selector: TagSelector, $limit: Int, $enableTotal: Boolean) {\n    tags(selector: $selector, limit: $limit, enableTotal: $enableTotal) {\n      results {\n        ...TagFragment\n      }\n      totalCount\n    }\n  }\n"];
 /**
  * The gql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
  */
