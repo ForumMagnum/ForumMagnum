@@ -2678,6 +2678,12 @@ type ForumEventsUpcomingForumEventsInput = {
   limit?: InputMaybe<Scalars['String']['input']>;
 };
 
+type FrontpageClassification = {
+  __typename?: 'FrontpageClassification';
+  isFrontpage: Scalars['Boolean']['output'];
+  probability: Scalars['Float']['output'];
+};
+
 type GardenCode = {
   __typename?: 'GardenCode';
   _id: Scalars['String']['output'];
@@ -5618,6 +5624,7 @@ type Post = {
   firstVideoAttribsForPreview?: Maybe<Scalars['JSON']['output']>;
   fmCrosspost?: Maybe<CrosspostOutput>;
   forceAllowType3Audio: Scalars['Boolean']['output'];
+  frontpageClassification?: Maybe<FrontpageClassification>;
   frontpageDate?: Maybe<Scalars['Date']['output']>;
   generateDraftJargon?: Maybe<Scalars['Boolean']['output']>;
   globalEvent: Scalars['Boolean']['output'];
@@ -25182,8 +25189,10 @@ type SunshinePostsList_Post_user_User = (
   & UsersMinimumInfo
 );
 
+type SunshinePostsList_Post_frontpageClassification_FrontpageClassification = { __typename?: 'FrontpageClassification', isFrontpage: boolean, probability: number };
+
 type SunshinePostsList = (
-  { __typename?: 'Post', currentUserVote: string | null, currentUserExtendedVote: any | null, rejectedReason: string | null, autoFrontpage: string | null, fmCrosspost: SunshinePostsList_Post_fmCrosspost_CrosspostOutput | null, contents: SunshinePostsList_Post_contents_Revision | null, automatedContentEvaluations: SunshinePostsList_Post_automatedContentEvaluations_AutomatedContentEvaluation | null, moderationGuidelines: SunshinePostsList_Post_moderationGuidelines_Revision | null, user: SunshinePostsList_Post_user_User | null }
+  { __typename?: 'Post', currentUserVote: string | null, currentUserExtendedVote: any | null, rejectedReason: string | null, autoFrontpage: string | null, fmCrosspost: SunshinePostsList_Post_fmCrosspost_CrosspostOutput | null, contents: SunshinePostsList_Post_contents_Revision | null, automatedContentEvaluations: SunshinePostsList_Post_automatedContentEvaluations_AutomatedContentEvaluation | null, moderationGuidelines: SunshinePostsList_Post_moderationGuidelines_Revision | null, user: SunshinePostsList_Post_user_User | null, frontpageClassification: SunshinePostsList_Post_frontpageClassification_FrontpageClassification | null }
   & PostsListBase
 );
 
