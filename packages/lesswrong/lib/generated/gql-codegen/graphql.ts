@@ -7624,6 +7624,7 @@ export type Query = {
   llmConversations: Maybe<MultiLlmConversationOutput>;
   localgroup: Maybe<SingleLocalgroupOutput>;
   localgroups: Maybe<MultiLocalgroupOutput>;
+  manifoldPredictionInefficiency: Scalars['Float']['output'];
   message: Maybe<SingleMessageOutput>;
   messages: Maybe<MultiMessageOutput>;
   moderationTemplate: Maybe<SingleModerationTemplateOutput>;
@@ -7650,6 +7651,7 @@ export type Query = {
   rSSFeeds: Maybe<MultiRSSFeedOutput>;
   report: Maybe<SingleReportOutput>;
   reports: Maybe<MultiReportOutput>;
+  reviewPredictionPosts: Array<Post>;
   reviewVote: Maybe<SingleReviewVoteOutput>;
   reviewVotes: Maybe<MultiReviewVoteOutput>;
   reviewWinner: Maybe<SingleReviewWinnerOutput>;
@@ -8537,6 +8539,11 @@ export type QuerylocalgroupsArgs = {
 };
 
 
+export type QuerymanifoldPredictionInefficiencyArgs = {
+  year: Scalars['Int']['input'];
+};
+
+
 export type QuerymessageArgs = {
   input?: InputMaybe<SingleMessageInput>;
   selector?: InputMaybe<SelectorInput>;
@@ -8720,6 +8727,12 @@ export type QueryreportsArgs = {
   limit?: InputMaybe<Scalars['Int']['input']>;
   offset?: InputMaybe<Scalars['Int']['input']>;
   selector?: InputMaybe<ReportSelector>;
+};
+
+
+export type QueryreviewPredictionPostsArgs = {
+  limit?: InputMaybe<Scalars['Int']['input']>;
+  year: Scalars['Int']['input'];
 };
 
 
@@ -16706,6 +16719,21 @@ export type getPostsUserCommentedOnQuery = { __typename?: 'Query', PostsUserComm
       & PostsListWithVotes
     )> | null } | null };
 
+export type ReviewPredictionPostsQueryVariables = Exact<{
+  year: Scalars['Int']['input'];
+  limit?: InputMaybe<Scalars['Int']['input']>;
+}>;
+
+
+export type ReviewPredictionPostsQuery = { __typename?: 'Query', reviewPredictionPosts: Array<{ __typename?: 'Post', _id: string, title: string, annualReviewMarketProbability: number | null, annualReviewMarketUrl: string | null, user: { __typename?: 'User', displayName: string } | null }> };
+
+export type PredictionInefficiencyQueryVariables = Exact<{
+  year: Scalars['Int']['input'];
+}>;
+
+
+export type PredictionInefficiencyQuery = { __typename?: 'Query', manifoldPredictionInefficiency: number };
+
 export type multiPostQuickReviewPageQueryQueryVariables = Exact<{
   selector?: InputMaybe<PostSelector>;
   limit?: InputMaybe<Scalars['Int']['input']>;
@@ -22014,6 +22042,7 @@ export const PostsTwitterAdminDoc = {"kind":"Document","definitions":[PostsTwitt
 export const PostsWithNavigationAndRevisionDoc = {"kind":"Document","definitions":[PostsWithNavigationAndRevisionFragmentDef,PostsRevisionFragmentDef,PostsDetailsFragmentDef,PostsListBaseFragmentDef,PostsBaseFragmentDef,PostsMinimumInfoFragmentDef,PostsAuthorsFragmentDef,UsersMinimumInfoFragmentDef,CommentsListFragmentDef,TagPreviewFragmentFragmentDef,TagBasicInfoFragmentDef,RSSFeedMinimumInfoFragmentDef,PostsListWithVotesFragmentDef,PostsListFragmentDef,PostPodcastEpisodeFragmentDef,RevisionDisplayFragmentDef,RevisionMetadataFragmentDef,PostSequenceNavigationFragmentDef,SequencesPageFragmentFragmentDef,SequencesPageTitleFragmentFragmentDef,ReviewWinnerAllFragmentDef,ReviewWinnerArtImagesFragmentDef,SplashArtCoordinatesEditFragmentDef,SplashArtCoordinatesFragmentDef,JargonTermsPostFragmentDef]} as unknown as DocumentNode<PostsWithNavigationAndRevision, unknown>;
 export const PostsWithNavigationDoc = {"kind":"Document","definitions":[PostsWithNavigationFragmentDef,PostsPageFragmentDef,PostsDetailsFragmentDef,PostsListBaseFragmentDef,PostsBaseFragmentDef,PostsMinimumInfoFragmentDef,PostsAuthorsFragmentDef,UsersMinimumInfoFragmentDef,CommentsListFragmentDef,TagPreviewFragmentFragmentDef,TagBasicInfoFragmentDef,RSSFeedMinimumInfoFragmentDef,PostsListWithVotesFragmentDef,PostsListFragmentDef,PostPodcastEpisodeFragmentDef,RevisionDisplayFragmentDef,PostSequenceNavigationFragmentDef,SequencesPageFragmentFragmentDef,SequencesPageTitleFragmentFragmentDef,ReviewWinnerAllFragmentDef,ReviewWinnerArtImagesFragmentDef,SplashArtCoordinatesEditFragmentDef,SplashArtCoordinatesFragmentDef,JargonTermsPostFragmentDef]} as unknown as DocumentNode<PostsWithNavigation, unknown>;
 export const PostsWithVotesDoc = {"kind":"Document","definitions":[PostsWithVotesFragmentDef,PostsBaseFragmentDef,PostsMinimumInfoFragmentDef]} as unknown as DocumentNode<PostsWithVotes, unknown>;
+export const PredictionInefficiencyDocument = {"kind":"Document","definitions":[{"kind":"OperationDefinition","operation":"query","name":{"kind":"Name","value":"PredictionInefficiency"},"variableDefinitions":[{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"year"}},"type":{"kind":"NonNullType","type":{"kind":"NamedType","name":{"kind":"Name","value":"Int"}}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"manifoldPredictionInefficiency"},"arguments":[{"kind":"Argument","name":{"kind":"Name","value":"year"},"value":{"kind":"Variable","name":{"kind":"Name","value":"year"}}}]}]}}]} as unknown as DocumentNode<PredictionInefficiencyQuery, PredictionInefficiencyQueryVariables>;
 export const PresenceListDocument = {"kind":"Document","definitions":[{"kind":"OperationDefinition","operation":"query","name":{"kind":"Name","value":"PresenceList"},"variableDefinitions":[{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"documentId"}},"type":{"kind":"NamedType","name":{"kind":"Name","value":"String"}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"user"},"arguments":[{"kind":"Argument","name":{"kind":"Name","value":"input"},"value":{"kind":"ObjectValue","fields":[{"kind":"ObjectField","name":{"kind":"Name","value":"selector"},"value":{"kind":"ObjectValue","fields":[{"kind":"ObjectField","name":{"kind":"Name","value":"documentId"},"value":{"kind":"Variable","name":{"kind":"Name","value":"documentId"}}}]}}]}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"result"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"FragmentSpread","name":{"kind":"Name","value":"UsersMinimumInfo"}}]}}]}}]}},UsersMinimumInfoFragmentDef]} as unknown as DocumentNode<PresenceListQuery, PresenceListQueryVariables>;
 export const ProfileShortformDocument = {"kind":"Document","definitions":[{"kind":"OperationDefinition","operation":"query","name":{"kind":"Name","value":"ProfileShortform"},"variableDefinitions":[{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"documentId"}},"type":{"kind":"NamedType","name":{"kind":"Name","value":"String"}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"post"},"arguments":[{"kind":"Argument","name":{"kind":"Name","value":"input"},"value":{"kind":"ObjectValue","fields":[{"kind":"ObjectField","name":{"kind":"Name","value":"selector"},"value":{"kind":"ObjectValue","fields":[{"kind":"ObjectField","name":{"kind":"Name","value":"documentId"},"value":{"kind":"Variable","name":{"kind":"Name","value":"documentId"}}}]}}]}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"result"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"FragmentSpread","name":{"kind":"Name","value":"PostsListWithVotes"}}]}}]}}]}},PostsListWithVotesFragmentDef,PostsListFragmentDef,PostsListBaseFragmentDef,PostsBaseFragmentDef,PostsMinimumInfoFragmentDef,PostsAuthorsFragmentDef,UsersMinimumInfoFragmentDef,CommentsListFragmentDef,TagPreviewFragmentFragmentDef,TagBasicInfoFragmentDef,PostPodcastEpisodeFragmentDef]} as unknown as DocumentNode<ProfileShortformQuery, ProfileShortformQueryVariables>;
 export const RSSFeedMinimumInfoDoc = {"kind":"Document","definitions":[RSSFeedMinimumInfoFragmentDef,UsersMinimumInfoFragmentDef]} as unknown as DocumentNode<RSSFeedMinimumInfo, unknown>;
@@ -22028,6 +22057,7 @@ export const RegisterRSVPDocument = {"kind":"Document","definitions":[{"kind":"O
 export const RemoveForumEventStickerDocument = {"kind":"Document","definitions":[{"kind":"OperationDefinition","operation":"mutation","name":{"kind":"Name","value":"RemoveForumEventSticker"},"variableDefinitions":[{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"forumEventId"}},"type":{"kind":"NonNullType","type":{"kind":"NamedType","name":{"kind":"Name","value":"String"}}}},{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"stickerId"}},"type":{"kind":"NonNullType","type":{"kind":"NamedType","name":{"kind":"Name","value":"String"}}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"RemoveForumEventSticker"},"arguments":[{"kind":"Argument","name":{"kind":"Name","value":"forumEventId"},"value":{"kind":"Variable","name":{"kind":"Name","value":"forumEventId"}}},{"kind":"Argument","name":{"kind":"Name","value":"stickerId"},"value":{"kind":"Variable","name":{"kind":"Name","value":"stickerId"}}}]}]}}]} as unknown as DocumentNode<RemoveForumEventStickerMutation, RemoveForumEventStickerMutationVariables>;
 export const RemoveForumEventVoteDocument = {"kind":"Document","definitions":[{"kind":"OperationDefinition","operation":"mutation","name":{"kind":"Name","value":"RemoveForumEventVote"},"variableDefinitions":[{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"forumEventId"}},"type":{"kind":"NonNullType","type":{"kind":"NamedType","name":{"kind":"Name","value":"String"}}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"RemoveForumEventVote"},"arguments":[{"kind":"Argument","name":{"kind":"Name","value":"forumEventId"},"value":{"kind":"Variable","name":{"kind":"Name","value":"forumEventId"}}}]}]}}]} as unknown as DocumentNode<RemoveForumEventVoteMutation, RemoveForumEventVoteMutationVariables>;
 export const RemoveGivingSeasonHeartDocument = {"kind":"Document","definitions":[{"kind":"OperationDefinition","operation":"mutation","name":{"kind":"Name","value":"RemoveGivingSeasonHeart"},"variableDefinitions":[{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"electionName"}},"type":{"kind":"NonNullType","type":{"kind":"NamedType","name":{"kind":"Name","value":"String"}}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"RemoveGivingSeasonHeart"},"arguments":[{"kind":"Argument","name":{"kind":"Name","value":"electionName"},"value":{"kind":"Variable","name":{"kind":"Name","value":"electionName"}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"userId"}},{"kind":"Field","name":{"kind":"Name","value":"displayName"}},{"kind":"Field","name":{"kind":"Name","value":"x"}},{"kind":"Field","name":{"kind":"Name","value":"y"}},{"kind":"Field","name":{"kind":"Name","value":"theta"}}]}}]}}]} as unknown as DocumentNode<RemoveGivingSeasonHeartMutation, RemoveGivingSeasonHeartMutationVariables>;
+export const ReviewPredictionPostsDocument = {"kind":"Document","definitions":[{"kind":"OperationDefinition","operation":"query","name":{"kind":"Name","value":"ReviewPredictionPosts"},"variableDefinitions":[{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"year"}},"type":{"kind":"NonNullType","type":{"kind":"NamedType","name":{"kind":"Name","value":"Int"}}}},{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"limit"}},"type":{"kind":"NamedType","name":{"kind":"Name","value":"Int"}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"reviewPredictionPosts"},"arguments":[{"kind":"Argument","name":{"kind":"Name","value":"year"},"value":{"kind":"Variable","name":{"kind":"Name","value":"year"}}},{"kind":"Argument","name":{"kind":"Name","value":"limit"},"value":{"kind":"Variable","name":{"kind":"Name","value":"limit"}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"_id"}},{"kind":"Field","name":{"kind":"Name","value":"title"}},{"kind":"Field","name":{"kind":"Name","value":"user"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"displayName"}}]}},{"kind":"Field","name":{"kind":"Name","value":"annualReviewMarketProbability"}},{"kind":"Field","name":{"kind":"Name","value":"annualReviewMarketUrl"}}]}}]}}]} as unknown as DocumentNode<ReviewPredictionPostsQuery, ReviewPredictionPostsQueryVariables>;
 export const ReviewVotingExpandedPostDocument = {"kind":"Document","definitions":[{"kind":"OperationDefinition","operation":"query","name":{"kind":"Name","value":"ReviewVotingExpandedPost"},"variableDefinitions":[{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"documentId"}},"type":{"kind":"NamedType","name":{"kind":"Name","value":"String"}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"post"},"arguments":[{"kind":"Argument","name":{"kind":"Name","value":"input"},"value":{"kind":"ObjectValue","fields":[{"kind":"ObjectField","name":{"kind":"Name","value":"selector"},"value":{"kind":"ObjectValue","fields":[{"kind":"ObjectField","name":{"kind":"Name","value":"documentId"},"value":{"kind":"Variable","name":{"kind":"Name","value":"documentId"}}}]}}]}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"result"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"FragmentSpread","name":{"kind":"Name","value":"PostsList"}}]}}]}}]}},PostsListFragmentDef,PostsListBaseFragmentDef,PostsBaseFragmentDef,PostsMinimumInfoFragmentDef,PostsAuthorsFragmentDef,UsersMinimumInfoFragmentDef,CommentsListFragmentDef,TagPreviewFragmentFragmentDef,TagBasicInfoFragmentDef]} as unknown as DocumentNode<ReviewVotingExpandedPostQuery, ReviewVotingExpandedPostQueryVariables>;
 export const ReviewWinnerAllDoc = {"kind":"Document","definitions":[ReviewWinnerAllFragmentDef,ReviewWinnerArtImagesFragmentDef,SplashArtCoordinatesEditFragmentDef,SplashArtCoordinatesFragmentDef]} as unknown as DocumentNode<ReviewWinnerAll, unknown>;
 export const ReviewWinnerAnnouncementDoc = {"kind":"Document","definitions":[ReviewWinnerAnnouncementFragmentDef]} as unknown as DocumentNode<ReviewWinnerAnnouncement, unknown>;

@@ -25,6 +25,7 @@ import LWTooltip from "../common/LWTooltip";
 import { defineStyles } from '../hooks/defineStyles';
 import { useStyles } from '../hooks/useStyles';
 import { SuspenseWrapper } from '../common/SuspenseWrapper';
+import PredictedTopPostsList from "../review/PredictedTopPostsList";
 import { useItemsRead } from '../hooks/useRecordPostView';
 
 /** In theory, we can get back posts which don't have review winner info, but given we're explicitly querying for review winners... */
@@ -837,6 +838,7 @@ function TopSpotlightsSection({ reviewWinnersWithPosts }: {
   const categories = [...reviewWinnerCategories]
 
   const [year, setYear] = useState<YearSelectorState>(getInitialYear(yearQuery))
+  const predictedYears: number[] = [BEST_OF_LESSWRONG_PUBLISH_YEAR + 1, BEST_OF_LESSWRONG_PUBLISH_YEAR + 2];
 
   const initialCategory = (categoryQuery && reviewWinnerCategories.has(categoryQuery)) ? categoryQuery : 'all'  
   const [category, setCategory] = useState<CategorySelectorState>(initialCategory)
@@ -938,6 +940,18 @@ function TopSpotlightsSection({ reviewWinnersWithPosts }: {
             </a>
           </LWTooltip>
         })}
+        {predictedYears.map((y) => (
+          <LWTooltip key={y} title={`Predictions for ${y} (Manifold)`} placement="top">
+            <a
+              onClick={(ev) => handleSetYear(ev, y as any)}
+              href={getYearLink(y as any)}
+              className={classNames(classes.year, y === year && classes.yearIsSelected)}
+              style={{ color: '#b8860b', fontWeight: 600 }}
+            >
+              {y}
+            </a>
+          </LWTooltip>
+        ))}
         <LWTooltip key="all" title={`${reviewWinnersWithPosts.length} posts`} inlineBlock={false}>
           <a
             onClick={(ev) => handleSetYear(ev, 'all')}
@@ -948,7 +962,7 @@ function TopSpotlightsSection({ reviewWinnersWithPosts }: {
           </a>
         </LWTooltip>
       </div>
-      <div className={classes.categorySelector}>
+      {typeof year === 'number' && predictedYears.includes(year) ? null : <div className={classes.categorySelector}>
         {categories.map((t) => {
           const postsCount = year === 'all' ? reviewWinnersWithPosts.filter(post => post.reviewWinner?.category === t).length : reviewWinnersWithPosts.filter(post => post.reviewWinner?.reviewYear === year && post.reviewWinner?.category === t).length
           return <LWTooltip key={t} title={`${postsCount} posts`} inlineBlock={false}>
@@ -973,7 +987,7 @@ function TopSpotlightsSection({ reviewWinnersWithPosts }: {
             All
           </a>
         </LWTooltip>
-      </div>
+      </div>}
       <div className={classes.spotlightCheckmarkRow}>
         {sortedPosts && sortedPosts.map((post) => {
           const isRead = (post._id in itemsRead.postsRead) ? itemsRead.postsRead[post._id] : post.isRead;
@@ -996,7 +1010,11 @@ function TopSpotlightsSection({ reviewWinnersWithPosts }: {
           </LWTooltip>
         })}
       </div>
-      <div style={{ maxWidth: SECTION_WIDTH }}>
+      {typeof year === 'number' && predictedYears.includes(year)
+        ? <div style={{ maxWidth: SECTION_WIDTH }}>
+            <PredictedTopPostsList year={year} />
+          </div>
+        : <div style={{ maxWidth: SECTION_WIDTH }}>
         {!sortedPosts && <div className={classes.tallPlaceholder}><Loading/></div>}
         {sortedPosts && sortedPosts.map((post) => {
           const isRead = (post._id in itemsRead.postsRead) ? itemsRead.postsRead[post._id] : post.isRead;
@@ -1010,7 +1028,7 @@ function TopSpotlightsSection({ reviewWinnersWithPosts }: {
             <SpotlightItem spotlight={post.spotlight} showSubtitle={false} />
           </div>
         })}
-      </div>
+      </div>}
     </div>
   </AnalyticsContext>
 }

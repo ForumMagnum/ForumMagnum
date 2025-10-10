@@ -78,6 +78,8 @@ interface Query {
   RevisionsDiff: string | null;
   UltraFeed: UltraFeedQueryResults;
   UltraFeedSubscriptions: UltraFeedQueryResults;
+  reviewPredictionPosts: Array<Post>;
+  manifoldPredictionInefficiency: number;
   advisorRequest: SingleAdvisorRequestOutput | null;
   advisorRequests: MultiAdvisorRequestOutput | null;
   arbitalTagContentRel: SingleArbitalTagContentRelOutput | null;
