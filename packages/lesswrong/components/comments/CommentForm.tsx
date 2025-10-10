@@ -349,6 +349,34 @@ export const CommentForm = ({
               return existingComments;
             }
 
+            if (newComment.draft) {
+              const openParenthesisIndex = storeFieldName.indexOf('(');
+              if (openParenthesisIndex === -1) {
+                return existingComments;
+              }
+              const queryArgumentString = storeFieldName.slice(openParenthesisIndex).slice(1, -1);
+              let queryArguments;
+              try {
+                queryArguments = JSON.parse(queryArgumentString);
+              } catch (error) {
+                return existingComments;
+              }
+              if (!queryArguments?.selector || Object.keys(queryArguments.selector).length !== 1) {
+                return existingComments;
+              }
+              const [viewName, selector] = Object.entries(queryArguments.selector)[0];
+              if (typeof selector !== 'object' || !selector || !(viewName === 'postCommentsTop' || ('drafts' in selector))) {
+                return existingComments;
+              }
+              // We're operating on a cached `comments` query that either has a `drafts` field in its `selector`
+              // argument, or is the `postCommentsTop` query, which is the one responsible for fetching all the
+              // comments on a post.  The first updates the list of draft comments underneath the comment form,
+              // the second adds the draft comment you just wrote to the replies of the comment you wrote it on.
+              // These are the only times we want to add the newly-created comment to a query's result cache (assuming
+              // it's passed all of the filters above, i.e. that it's a response to the appropriate post/tag)
+              // In this case, fall through.
+            }
+
             const newCommentRef = cache.writeFragment({
               fragment: CommentsList,
               data: data?.createComment?.data,
