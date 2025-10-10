@@ -126,6 +126,7 @@ interface SubmitMessageArgs {
 
 interface LlmChatContextType {
   orderedConversations: LlmConversation[];
+  orderedConversationsLoading: boolean;
   currentConversation?: LlmConversation;
   currentConversationLoading: boolean;
   submitMessage: (args: SubmitMessageArgs) => void;
@@ -202,6 +203,10 @@ const LlmChatWrapper = ({children}: {
   const currentConversationLoading = useMemo(() => (
     !!currentConversationId && loadingConversationIds.includes(currentConversationId)
   ), [currentConversationId, loadingConversationIds]);
+
+  const orderedConversationsLoading = useMemo(() => (
+    loadingConversationIds.length > 0
+  ), [loadingConversationIds]);
 
   const currentConversation = useMemo(() => (
     currentConversationId ? conversations[currentConversationId] : undefined
@@ -581,10 +586,11 @@ const LlmChatWrapper = ({children}: {
     currentConversation,
     currentConversationLoading,
     orderedConversations: sortedConversations,
+    orderedConversationsLoading,
     submitMessage,
     setCurrentConversation,
     archiveConversation,
-  }), [submitMessage, setCurrentConversation, archiveConversation, currentConversationLoading, currentConversation, sortedConversations]);
+  }), [submitMessage, setCurrentConversation, archiveConversation, currentConversationLoading, currentConversation, sortedConversations, orderedConversationsLoading]);
 
   return <LlmChatContext.Provider value={llmChatContext}>
     {children}

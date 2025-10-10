@@ -1,7 +1,6 @@
 "use client";
 
 import React, { useCallback, useEffect, useState } from 'react';
-import { registerComponent } from '../../lib/vulcan-lib/components';
 import { AnalyticsContext } from "../../lib/analyticsEvents";
 import classNames from 'classnames';
 import { useCurrentUser } from '../common/withUser';
@@ -18,8 +17,9 @@ import Error404 from "../common/Error404";
 import LWTooltip from "../common/LWTooltip";
 import FormatDate from "../common/FormatDate";
 import UsersNameDisplay from "../users/UsersNameDisplay";
-import { LlmChatMessage } from "./LanguageModelChat";
 import SectionTitle from "../common/SectionTitle";
+import { LLMChatMessage } from './LanguageModelChat';
+import { defineStyles, useStyles } from '../hooks/useStyles';
 
 const LlmConversationsViewingPageFragmentMultiQuery = gql(`
   query multiLlmConversationLlmConversationsViewingPageQuery($selector: LlmConversationSelector, $limit: Int, $enableTotal: Boolean) {
@@ -43,7 +43,7 @@ const LlmConversationsWithMessagesFragmentQuery = gql(`
   }
 `);
 
-const styles = (theme: ThemeType) => ({
+const styles = defineStyles('LlmConversationsViewingPage', (theme: ThemeType) => ({
   root: {
     display: "flex",
     justifyContent: "flex-start",
@@ -138,14 +138,14 @@ const styles = (theme: ThemeType) => ({
     opacity: 0.7,
     marginRight: 10,
   },
-});
+}));
 
-const LlmConversationRow = ({conversation, currentConversationId, setCurrentConversationId, classes}: {
+const LlmConversationRow = ({conversation, currentConversationId, setCurrentConversationId}: {
   conversation: LlmConversationsViewingPageFragment
   currentConversationId?: string
   setCurrentConversationId: (conversationId: string) => void,
-  classes: ClassesType<typeof styles>,
 }) => {
+  const classes = useStyles(styles);
   const isCurrentlySelected = currentConversationId === conversation._id;
   const { title, user, lastUpdatedAt, createdAt } = conversation;
 
@@ -170,12 +170,12 @@ const LlmConversationRow = ({conversation, currentConversationId, setCurrentConv
 
 
 // Lists all conversations for admins to select from
-const LlmConversationSelector = ({currentConversationId, setCurrentConversationId, classes}: {
+const LlmConversationSelector = ({currentConversationId, setCurrentConversationId}: {
   currentConversationId?: string
   setCurrentConversationId: (conversationId: string) => void,
-  classes: ClassesType<typeof styles>,
 }) => {
 
+  const classes = useStyles(styles);
   const [showDeleted, setShowDeleted] = useState(false);
   const [showAdmin, setShowAdmin] = useState(true);
 
@@ -237,7 +237,7 @@ const LlmConversationSelector = ({currentConversationId, setCurrentConversationI
             conversation={conversation}
             currentConversationId={currentConversationId}
             setCurrentConversationId={updateConversationId}
-            classes={classes} />;
+           />;
         })
         : <div>No conversations found</div>
     }
@@ -246,10 +246,10 @@ const LlmConversationSelector = ({currentConversationId, setCurrentConversationI
 }
 
 
-const LlmConversationViewer = ({conversationId, classes}: {
+const LlmConversationViewer = ({conversationId }: {
   conversationId?: string
-  classes: ClassesType<typeof styles>,
 }) => {
+  const classes = useStyles(styles);
   const { loading, data } = useQuery(LlmConversationsWithMessagesFragmentQuery, {
     variables: { documentId: conversationId },
     skip: !conversationId,
@@ -279,15 +279,14 @@ const LlmConversationViewer = ({conversationId, classes}: {
     <SectionTitle title={title} titleClassName={classes.conversationViewerTitle} />
     {!messages?.length && <div>No messages in this conversation</div>}
     {messages?.length && messages.map((message, idx) => {
-      return <LlmChatMessage key={idx} message={message} />
+      return <LLMChatMessage key={idx} message={message} />
     })}
   </div> 
 }
 
 
-export const LlmConversationsViewingPage = ({classes}: {
-  classes: ClassesType<typeof styles>,
-}) => {
+export const LlmConversationsViewingPage = () => {
+  const classes = useStyles(styles);
   const currentUser = useCurrentUser();
   const [currentConversationId, setCurrentConversationId] = useState<string>();
 
@@ -301,17 +300,14 @@ export const LlmConversationsViewingPage = ({classes}: {
         <LlmConversationSelector
           currentConversationId={currentConversationId}
           setCurrentConversationId={setCurrentConversationId}
-          classes={classes}
         />
         <LlmConversationViewer
           conversationId={currentConversationId}
-          classes={classes}
         />
       </div>
   </div>
   </AnalyticsContext>
 }
 
-export default registerComponent('LlmConversationsViewingPage', LlmConversationsViewingPage, {styles});
 
 

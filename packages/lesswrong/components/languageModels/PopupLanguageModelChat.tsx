@@ -7,9 +7,9 @@ import { useCookiesWithConsent } from '../hooks/useCookiesWithConsent';
 import { LLM_CHAT_EXPANDED, SHOW_LLM_CHAT_COOKIE } from '@/lib/cookies/cookies';
 import { AnalyticsContext } from '@/lib/analyticsEvents';
 import classNames from 'classnames';
-import LanguageModelChat from "./LanguageModelChat";
 import LWTooltip from "../common/LWTooltip";
 import ForumIcon from "../common/ForumIcon";
+import { LanguageModelChat } from './LanguageModelChat';
 
 const styles = (theme: ThemeType) => ({
   root: {

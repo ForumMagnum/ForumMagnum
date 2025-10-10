@@ -32,4 +32,18 @@ export const ckEditorPluginStyles = defineStyles("CKEditor", (theme: ThemeType) 
   hidden: {
     display: "none",
   },
+  loadingState: {
+    position: 'relative',
+    pointerEvents: 'none',
+    '&::after': {
+      content: '""',
+      position: 'absolute',
+      top: 0,
+      left: 0,
+      right: 0,
+      bottom: 0,
+      cursor: 'wait',
+      zIndex: 1000,
+    },
+  },
 }))
