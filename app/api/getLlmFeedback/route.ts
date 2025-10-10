@@ -5,6 +5,7 @@ import { getContextFromReqAndRes } from "@/server/vulcan-lib/apollo-server/conte
 import { generateText, tool } from 'ai';
 import { createAnthropic } from '@ai-sdk/anthropic';
 import { anthropicApiKey } from "@/lib/instanceSettings";
+import { userIsAdmin } from "@/lib/vulcan-users/permissions";
 
 const commentSchema = z.object({
   originalText: z.string(),
@@ -23,16 +24,27 @@ const suggestedEditsToolSchema = z.object({
   comments: z.array(commentSchema).describe('An array of comments on specific snippets of text in the post.'),
 }).describe(`A tool which shows users suggested edits to their post, as well as comments on specific snippets of text.  Each edit should include the original text and the suggested edit (new text, in full).  The original text must be an exact match of the displayed text in the post (which is not the same as the markdown representation that you will see), except for escaping quotes when necessary, so that it can be parsed with JSON.parse.  Do not include any suggested edits for pieces of text that contain links, footnotes, or other non-plain-text elements that might cause issues during a find-and-replace operation.  Comments should be used in cases where the appropriate edit is not obvious, such as cases where the original text is ambiguous or difficult to understand.  Do not leave comments that indicate that no edit is needed.  In general, lean to only leaving comments in cases where there is an obvious issue with the text that needs to be addressed, or if the user has explicitly asked for a specific kind of feedback in the prompt.`);
 
+const requestBodySchema = z.object({
+  content: z.string(),
+  prompt: z.string(),
+});
 
 export async function POST(req: NextRequest) {
   const context = await getContextFromReqAndRes({ req, isSSR: false });
   const currentUser = context.currentUser;
 
-  // if (!currentUser || !currentUser.isAdmin) {
-  //   return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-  // }
+  if (!userIsAdmin(currentUser)) {
+    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  }
 
-  const { content, prompt } = await req.json();
+  const body = await req.json();
+  const parseResult = requestBodySchema.safeParse(body);
+  
+  if (!parseResult.success) {
+    return NextResponse.json({ error: "Invalid request body", details: parseResult.error.format() }, { status: 400 });
+  }
+  
+  const { content, prompt } = parseResult.data;
 
   const markdown = htmlToMarkdown(content);
 
@@ -44,7 +56,7 @@ export async function POST(req: NextRequest) {
   const anthropic = createAnthropic({ apiKey });
 
   const result = await generateText({
-    model: anthropic('claude-sonnet-4-20250514'),
+    model: anthropic('claude-sonnet-4.5'),
     prompt: `${prompt}\n\n<Post>${markdown}</Post>`,
     tools: {
       suggestedEdits: tool({
