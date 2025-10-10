@@ -2,7 +2,8 @@ import React, { useEffect, useRef, useState, useCallback, useContext } from 'rea
 import classNames from 'classnames';
 import DeferRender from '../common/DeferRender';
 import { useMessages } from '../common/withMessages';
-import { useLocation } from "../../lib/routeUtil";
+import { useLocation, useNavigate } from "../../lib/routeUtil";
+import { postGetEditUrl } from "@/lib/collections/posts/helpers";
 import { NewLlmMessage, useLlmChat } from './LlmChatWrapper';
 import type { Editor } from '@ckeditor/ckeditor5-core';
 import CKEditor from '@/lib/vendor/ckeditor5-react/ckeditor';
@@ -423,6 +424,7 @@ const PostSuggestionsPromptInput = ({prompt, post, updatePostSharing, setPending
   const classes = useStyles(styles);
   const currentUser = useCurrentUser();
   const { flash } = useMessages();
+  const navigate = useNavigate();
 
   const [edit, setEdit] = useState(false);
   const [userFeedbackPrompt, setUserFeedbackPrompt] = useState(prompt.prompt);
@@ -459,26 +461,21 @@ const PostSuggestionsPromptInput = ({prompt, post, updatePostSharing, setPending
       return;
     }
 
-    try {
-      setPendingPrompt({promptText: userFeedbackPrompt, title: prompt.title});
-      await updatePostSharing({
-        variables: {
-          selector: { _id: post._id },
-          data: {
-            sharingSettings: {
-              anyoneWithLinkCan: "edit",
-              explicitlySharedUsersCan: "none"
-            }
+    setPendingPrompt({promptText: userFeedbackPrompt, title: prompt.title});
+    const result = await updatePostSharing({
+      variables: {
+        selector: { _id: post._id },
+        data: {
+          sharingSettings: {
+            anyoneWithLinkCan: "edit",
+            explicitlySharedUsersCan: "none"
           }
-        },
-        refetchQueries: ['PostsEditFormPost']
-      });
-      flash("Collaborative editing enabled! Waiting for editor to reload...");
-    } catch (error) {
-      setPendingPrompt(null);
-      flash(`Failed to enable collaborative editing: ${error.message}`);
-    }
-  }, [post, currentUser, updatePostSharing, flash, userFeedbackPrompt, prompt.title, setPendingPrompt]);
+        }
+      }
+    });
+    const linkSharingKey = result.data?.updatePost?.data?.linkSharingKey;
+    navigate(postGetEditUrl(post._id, false, linkSharingKey ?? undefined));
+  }, [post, currentUser, updatePostSharing, flash, userFeedbackPrompt, prompt.title, setPendingPrompt, navigate]);
 
   if (!getLlmFeedbackCommand) {
     const canEnableCollab = post && currentUser && userOwns(currentUser, post);
@@ -534,6 +531,7 @@ const CustomPromptInput = ({post, updatePostSharing, setPendingPrompt}: {post?: 
   const classes = useStyles(styles);
   const currentUser = useCurrentUser();
   const { flash } = useMessages();
+  const navigate = useNavigate();
 
   const [expanded, setExpanded] = useState(false);
   const [customPrompt, setCustomPrompt] = useState('');
@@ -570,26 +568,21 @@ const CustomPromptInput = ({post, updatePostSharing, setPendingPrompt}: {post?: 
       return;
     }
 
-    try {
-      setPendingPrompt({promptText: customPrompt, title: 'Custom Prompt'});
-      await updatePostSharing({
-        variables: {
-          selector: { _id: post._id },
-          data: {
-            sharingSettings: {
-              anyoneWithLinkCan: "edit",
-              explicitlySharedUsersCan: "none"
-            }
+    setPendingPrompt({promptText: customPrompt, title: 'Custom Prompt'});
+    const result = await updatePostSharing({
+      variables: {
+        selector: { _id: post._id },
+        data: {
+          sharingSettings: {
+            anyoneWithLinkCan: "edit",
+            explicitlySharedUsersCan: "none"
           }
-        },
-        refetchQueries: ['PostsEditFormPost']
-      });
-      flash("Collaborative editing enabled! Waiting for editor to reload...");
-    } catch (error) {
-      setPendingPrompt(null);
-      flash(`Failed to enable collaborative editing: ${error.message}`);
-    }
-  }, [post, currentUser, updatePostSharing, flash, customPrompt, setPendingPrompt]);
+        }
+      }
+    });
+    const linkSharingKey = result.data?.updatePost?.data?.linkSharingKey;
+    navigate(postGetEditUrl(post._id, false, linkSharingKey ?? undefined));
+  }, [post, currentUser, updatePostSharing, flash, customPrompt, setPendingPrompt, navigate]);
 
   if (!getLlmFeedbackCommand) {
     const canEnableCollab = post && currentUser && userOwns(currentUser, post);
