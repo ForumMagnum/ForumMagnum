@@ -395,14 +395,14 @@ const PostSuggestionsPromptInput = ({prompt}: {prompt: Prompt}) => {
     if (getLlmFeedbackCommand) {
       await getLlmFeedbackCommand(userFeedbackPrompt, prompt.title);
     }
-    // setEdit(false);
+    setEdit(false);
   }, [getLlmFeedbackCommand, userFeedbackPrompt, prompt.title]);
 
   const handleCancel = useCallback(() => {
     if (cancelLlmFeedbackCommand) {
       cancelLlmFeedbackCommand();
     }
-    // setEdit(false);
+    setEdit(false);
   }, [cancelLlmFeedbackCommand]);
 
   if (!getLlmFeedbackCommand) {
