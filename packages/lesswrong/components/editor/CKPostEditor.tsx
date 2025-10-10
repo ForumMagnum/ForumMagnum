@@ -32,6 +32,8 @@ import DialogueEditorGuidelines from "../posts/dialogues/DialogueEditorGuideline
 import DialogueEditorFeedback from "../posts/dialogues/DialogueEditorFeedback";
 import { useStyles } from '../hooks/useStyles';
 import { ckEditorPluginStyles } from './ckEditorStyles';
+import { CkEditorShortcut, augmentEditor } from './editorAugmentations';
+import { useCommandPalette } from '../hooks/useCommandPalette';
 
 const PostsMinimumInfoMultiQuery = gql(`
   query multiPostCKPostEditorQuery($selector: PostSelector, $limit: Int, $enableTotal: Boolean) {
@@ -573,6 +575,8 @@ const CKPostEditor = ({
   useSyncCkEditorPlaceholder(editorObject, actualPlaceholder);
   useCkEditorInspector(editorRef);
 
+  const openCommandPalette = useCommandPalette();
+
   return <div className={classes.ckWrapper}>
     {isBlockOwnershipMode && <>
      {!hasEverDialoguedBefore && <DialogueEditorGuidelines />}
@@ -613,7 +617,7 @@ const CKPostEditor = ({
       isCollaborative={!!isCollaborative}
       onReady={(editor: Editor) => {
         setEditorObject(editor);
-
+        
         if (isCollaborative) {
           // Uncomment this line and the import above to activate the CKEditor debugger
           // CKEditorInspector.attach(editor)
@@ -624,8 +628,6 @@ const CKPostEditor = ({
           refreshDisplayMode(editor, sidebarRef.current);
           
           applyCollabModeToCkEditor(editor, collaborationMode);
-          
-          editor.keystrokes.set('CTRL+ALT+M', 'addCommentThread');
 
           (editorRef.current as AnyBecauseHard)?.domContainer?.current?.addEventListener('keydown', (event: KeyboardEvent) => {
             handleSubmitWithoutNewline(editor, currentUser, event);
@@ -747,6 +749,25 @@ const CKPostEditor = ({
             }
           });
         }
+
+        const additionalShortcuts: CkEditorShortcut[] = [];
+        if (isCollaborative) {
+          additionalShortcuts.push({
+            // On macos, this collides with the "minimize all windows of the foregrounded app to the dock" shortcut,
+            // which I expect nobody cares about, and Google Docs also uses this keybinding for leaving a comment, so whatever.
+            keystroke: 'CTRL+ALT+M',
+            label: 'Inline Comment',
+            commandName: 'addCommentThread',
+            disabledHelperText: 'You must have some text selected to add a comment',
+          });
+        }
+
+        augmentEditor({
+          editorInstance: editor,
+          editorElementRef: editorRef,
+          openCommandPalette,
+          additionalShortcuts,
+        });
 
         onReady(editor)
       }}
