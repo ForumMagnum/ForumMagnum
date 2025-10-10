@@ -25,7 +25,7 @@ const BanUserFromPostDropdownItem = ({comment, post}: {
   const {flash} = useMessages();
   const [updatePost] = useMutation(PostsPageUpdateMutation);
 
-  if (!post || !userCanModeratePost(currentUser, post)) {
+  if (!post || !userCanModeratePost(currentUser, post) || comment.draft) {
     return null;
   }
 

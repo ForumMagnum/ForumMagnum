@@ -877,8 +877,6 @@ const TestComponent = () => {
 };
 ```
 
-If you need to combine multiple classNames, use `import classNames from 'classnames';` rather than combining them via template string.
-
 We have some legacy instances of `registerComponent` lying around.  Do not use this unless you need custom memoization behavior for your component.  Just do `export default TestComponent;`.
 
 Use `useLocation` if you need to get anything related to the current client-side location, i.e. pathname, query parameters, hash, etc.  This is the interface of the object it returns:
@@ -903,8 +901,10 @@ Never apply `as any` type casts, and try very hard to avoid any other type casts
 // TODO: I AM AN INSTANCE OF ${MODEL_NAME} AND HAVE APPLIED A TYPE CAST HERE BECAUSE I COULDN'T MAKE IT WORK OTHERWISE, PLEASE FIX THIS
 ```
 
+Never add new inline dynamic imports (i.e. `await import(...)` or `require(...)`).
 Strongly prefer to avoid writing classes to encapsulate functionality.  Write top-level functions and only export those that are meant to be used by other parts of the codebase.
 Strongly prefer to avoid declaring inline functions that capture scope; declare them at the top of the module and pass in all the necessary dependencies.
+If you need to combine multiple classNames, use `import classNames from 'classnames';` rather than combining them via template string.
 Prefer interfaces to types where possible.
 
 Reminder: after you finish making changes, go over them again to check whether any of them violated the style guide, and fix those violations if so.
