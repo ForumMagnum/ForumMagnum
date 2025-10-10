@@ -26,6 +26,7 @@ import SmallSideVote from "../votes/SmallSideVote";
 import ForumIcon from "../common/ForumIcon";
 import { useMutation } from "@apollo/client/react";
 import { gql } from "@/lib/generated/gql-codegen";
+import classNames from 'classnames';
 
 const PostsListUpdateMutation = gql(`
   mutation updatePostSunshineNewPostsItem($selector: SelectorInput!, $data: UpdatePostDataInput!) {
@@ -75,8 +76,36 @@ const styles = (theme: ThemeType) => ({
   },
   vote: {
     marginRight: 8
+  },
+  predictionBadge: {
+    display: 'inline-block',
+    padding: '2px 8px',
+    borderRadius: 4,
+    fontSize: '0.85em',
+    fontWeight: 500,
+    marginTop: 8,
+    marginBottom: 4,
+  },
+  predictionFrontpage: {
+    backgroundColor: theme.palette.primary.light,
+    color: theme.palette.primary.contrastText,
+  },
+  predictionPersonal: {
+    backgroundColor: theme.palette.grey[300],
+    color: theme.palette.grey[800],
+  },
+  predictionConfidence: {
+    marginLeft: 4,
+    opacity: 0.9,
   }
 })
+
+const displayPredictionPercent = (prediction: FrontpageClassification): number => {
+  const confidence = prediction.isFrontpage
+    ? prediction.probability
+    : 1 - prediction.probability;
+  return Math.round(confidence * 100);
+}
 
 const SunshineNewPostsItem = ({post, refetch, classes}: {
   post: SunshinePostsList,
@@ -85,7 +114,9 @@ const SunshineNewPostsItem = ({post, refetch, classes}: {
 }) => {
   const currentUser = useCurrentUser();
   const {eventHandlers, hover, anchorEl} = useHover();
-  
+
+  const prediction = post.frontpageClassification;
+
   const [updatePost] = useMutation(PostsListUpdateMutation);
 
   const [createModeratorAction] = useMutation(ModeratorActionsCreateMutation);
@@ -160,6 +191,21 @@ const SunshineNewPostsItem = ({post, refetch, classes}: {
       <SunshineListItem hover={hover}>
         <SidebarHoverOver hover={hover} anchorEl={anchorEl}>
           <FooterTagList post={post} showCoreTags highlightAutoApplied />
+
+          {prediction && (
+              <div
+                className={classNames(
+                  classes.predictionBadge,
+                  { [classes.predictionFrontpage]: prediction.isFrontpage, [classes.predictionPersonal]: !prediction.isFrontpage },
+                )}
+              >
+                Predicted: {prediction.isFrontpage ? 'Frontpage' : 'Personal'}
+                <span className={classes.predictionConfidence}>
+                  ({displayPredictionPercent(prediction)}%)
+                </span>
+              </div>
+            )}
+
           <div className={classes.buttonRow}>
             <Button onClick={handlePersonal}>
               <PersonIcon className={classes.icon} /> Personal {autoFrontpage === "hide" && <span className={classes.robotIcon}><ForumIcon icon="Robot" /></span>}

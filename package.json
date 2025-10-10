@@ -58,6 +58,7 @@
     "next-start": "NODE_OPTIONS='--inspect --no-deprecation --enable-source-maps' next start"
   },
   "dependencies": {
+    "@ai-sdk/anthropic": "^2.0.26",
     "@anthropic-ai/sdk": "^0.63.1",
     "@apollo/client": "^4.0.4",
     "@apollo/client-integration-nextjs": "^0.13.1",
@@ -158,6 +159,7 @@
     "@types/uuid": "^7.0.2",
     "@types/warning": "^3.0.3",
     "@vercel/functions": "^3.1.0",
+    "ai": "^5.0.68",
     "akismet-api": "^4.2.0",
     "algoliasearch": "^3.29.0",
     "apollo-errors": "^1.9.0",
@@ -282,7 +284,7 @@
     "uuid": "^7.0.0",
     "voyageai": "^0.0.8",
     "warning": "^4.0.3",
-    "zod": "^3.24.2",
+    "zod": "^3.25.76",
     "zod-to-json-schema": "^3.23.5"
   },
   "devDependencies": {

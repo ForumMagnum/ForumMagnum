@@ -59,12 +59,15 @@ import { SuspenseWrapper } from './common/SuspenseWrapper';
 import { useRouteMetadata } from './ClientRouteMetadataContext';
 import { isFullscreenRoute, isHomeRoute, isStandaloneRoute, isStaticHeaderRoute, isSunshineSidebarRoute, isUnspacedGridRoute } from '@/lib/routeChecks';
 import { AutoDarkModeWrapper } from './themes/ThemeContextProvider';
-import { NO_ADMIN_NEXT_REDIRECT_COOKIE } from '@/lib/cookies/cookies';
+import { EditorCommandsContextProvider } from './editor/EditorCommandsContext';
+import { NO_ADMIN_NEXT_REDIRECT_COOKIE, SHOW_LLM_CHAT_COOKIE } from '@/lib/cookies/cookies';
 
 import dynamic from 'next/dynamic';
 import { isBlackBarTitle } from './seasonal/petrovDay/petrov-day-story/petrovConsts';
+
 const SunshineSidebar = dynamic(() => import("./sunshineDashboard/SunshineSidebar"), { ssr: false });
 const LanguageModelLauncherButton = dynamic(() => import("./languageModels/LanguageModelLauncherButton"), { ssr: false });
+const SidebarLanguageModelChat = dynamic(() => import("./languageModels/SidebarLanguageModelChat"), { ssr: false });
 
 const UsersCurrentUpdateMutation = gql(`
   mutation updateUserLayout($selector: SelectorInput!, $data: UpdateUserDataInput!) {
@@ -201,6 +204,23 @@ const styles = defineStyles("Layout", (theme: ThemeType) => ({
   whiteBackground: {
     background: theme.palette.background.pageActiveAreaBackground,
   },
+  topLevelContainer: {
+    display: 'flex',
+    flexDirection: 'row',
+    minHeight: '100vh',
+    width: '100%',
+  },
+  pageContent: {
+    flexGrow: 1,
+    flexShrink: 1,
+    minWidth: 0,
+    display: 'flex',
+    flexDirection: 'column',
+  },
+  llmChatColumn: {
+    flexShrink: 0,
+    flexGrow: 0,
+  },
   '@global': {
     ...globalStyles(theme),
     p: pBodyStyle(theme),
@@ -281,6 +301,8 @@ const Layout = ({children}: {
   const [autosaveEditorState, setAutosaveEditorState] = useState<(() => Promise<void>) | null>(null);
   const hideNavigationSidebarDefault = currentUser ? !!(currentUser?.hideNavigationSidebar) : false
   const [hideNavigationSidebar,setHideNavigationSidebar] = useState(hideNavigationSidebarDefault);
+  const [showLlmChatSidebar, setShowLlmChatSidebar] = useState(false);
+  const [cookies, setCookie] = useCookiesWithConsent([SHOW_LLM_CHAT_COOKIE]);
   const theme = useTheme();
   // TODO: figure out if using usePathname directly is safe or better (concerns about unnecessary rerendering, idk; my guess is that with Next if the pathname changes we're rerendering everything anyways?)
   const { pathname, query } = useLocation();
@@ -311,6 +333,11 @@ const Layout = ({children}: {
     }
     setHideNavigationSidebar(!hideNavigationSidebar);
   }, [updateUserNoCache, currentUserId, hideNavigationSidebar]);
+
+  const closeLlmChatSidebar = useCallback(() => {
+    setShowLlmChatSidebar(false);
+    setCookie(SHOW_LLM_CHAT_COOKIE, "false", { path: "/" });
+  }, [setCookie]);
 
   // Some pages (eg post pages) have a solid white background, others (eg front page) have a gray
   // background against which individual elements in the central column provide their own
@@ -396,12 +423,15 @@ const Layout = ({children}: {
       <ItemsReadContextWrapper>
       <LoginPopoverContextProvider>
       <SidebarsWrapper>
+      <EditorCommandsContextProvider>
       <AutosaveEditorStateContext.Provider value={autosaveEditorStateContext}>
       <LlmChatWrapper>
       <DisableNoKibitzContext.Provider value={noKibitzContext}>
       <CommentOnSelectionPageWrapper>
       <CurrentAndRecentForumEventsProvider>
-        <div className={classNames(
+        <div className={classes.topLevelContainer}>
+          <div className={classes.pageContent}>
+            <div className={classNames(
           "wrapper",
           {'alignment-forum': isAF(), [classes.fullscreen]: isFullscreenRoute(pathname), [classes.wrapper]: isLWorAF()},
           useWhiteBackground && classes.whiteBackground
@@ -439,6 +469,7 @@ const Layout = ({children}: {
                   toggleStandaloneNavigation={toggleStandaloneNavigation}
                   stayAtTop={isStaticHeaderRoute(pathname)}
                   backgroundColor={headerBackgroundColor}
+                  llmChatSidebarOpen={showLlmChatSidebar}
                 />
               </SuspenseWrapper>}
               {/* <SuspenseWrapper name="ForumEventBanner">
@@ -510,21 +541,32 @@ const Layout = ({children}: {
                     </SuspenseWrapper>
                   </DeferRender>
                 </div>}
-                {renderLanguageModelChatLauncher && <div>
-                  <DeferRender ssr={false}>
-                    <LanguageModelLauncherButton/>
-                  </DeferRender>
-                </div>}
               </div>
             </CommentBoxManager>
           </DialogManager>
           <NavigationEventSender />
+            </div>
+          </div>
+          {renderLanguageModelChatLauncher && (
+            <div className={classes.llmChatColumn}>
+              <DeferRender ssr={false}>
+                {showLlmChatSidebar ? (
+                  <SuspenseWrapper name="SidebarLanguageModelChat">
+                    <SidebarLanguageModelChat onClose={closeLlmChatSidebar} />
+                  </SuspenseWrapper>
+                ) : (
+                  <LanguageModelLauncherButton onClick={() => setShowLlmChatSidebar(true)} />
+                )}
+              </DeferRender>
+            </div>
+          )}
         </div>
       </CurrentAndRecentForumEventsProvider>
       </CommentOnSelectionPageWrapper>
       </DisableNoKibitzContext.Provider>
       </LlmChatWrapper>
       </AutosaveEditorStateContext.Provider>
+      </EditorCommandsContextProvider>
       </SidebarsWrapper>
       </LoginPopoverContextProvider>
       </ItemsReadContextWrapper>

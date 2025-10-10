@@ -130,6 +130,9 @@ import MuiDragIndicatorIcon from '@/lib/vendor/@material-ui/icons/src/DragIndica
 import MuiNoteAddOutlinedIcon from '@/lib/vendor/@material-ui/icons/src/NoteAddOutlined';
 import ThumbsUpIcon from '@/lib/vendor/@material-ui/icons/src/ThumbUp';
 import ThumbUpOutlineIcon from '@/lib/vendor/@material-ui/icons/src/ThumbUpOutlined';
+import CopyIcon from "@heroicons/react/24/outline/DocumentDuplicateIcon";
+import MuiAddIcon from "@/lib/vendor/@material-ui/icons/src/Add";
+import BookIcon from "@heroicons/react/24/solid/BookOpenIcon";
 
 /**
  * ForumIcon can be used with custom SVG elements but you MUST pass through
@@ -303,6 +306,9 @@ export type ForumIconName =
   "TickReaction" |
   "CrossReaction" |
   "CrossReactionCap" |
+  "Add" |
+  "Copy" |
+  "Book" |
   "Dictionary" |
   "ArrowDownRight" |
   "DragIndicator" |
@@ -437,6 +443,9 @@ const ICONS: ForumOptions<Record<ForumIconName, IconComponent>> = {
     TickReaction: TickReactionIcon,
     CrossReaction: CrossReactionIcon,
     CrossReactionCap: CrossReactionCapIcon,
+    Add: MuiAddIcon,
+    Copy: CopyIcon,
+    Book: BookIcon,
     Dictionary: DictionaryIcon,
     ArrowDownRight: MuiArrowDownRightIcon,
     DragIndicator: MuiDragIndicatorIcon,
@@ -570,6 +579,9 @@ const ICONS: ForumOptions<Record<ForumIconName, IconComponent>> = {
     TickReaction: TickReactionIcon,
     CrossReaction: CrossReactionIcon,
     CrossReactionCap: CrossReactionCapIcon,
+    Add: MuiAddIcon,
+    Copy: CopyIcon,
+    Book: BookIcon,
     Dictionary: DictionaryIcon,
     ArrowDownRight: ArrowDownRightIcon,
     DragIndicator: MuiDragIndicatorIcon,

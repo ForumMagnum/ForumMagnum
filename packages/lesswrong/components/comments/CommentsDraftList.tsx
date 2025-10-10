@@ -10,6 +10,7 @@ import { gql } from '@/lib/generated/gql-codegen';
 import { useQuery } from "@/lib/crud/useQuery";
 import { useQueryWithLoadMore } from '../hooks/useQueryWithLoadMore';
 import SectionTitle from '../common/SectionTitle';
+import { DraftCommentsQuery } from './queries';
 
 const LinkedDraftCommentQuery = gql(`
   query LinkedDraftCommentQuery($documentId: String!) {
@@ -17,17 +18,6 @@ const LinkedDraftCommentQuery = gql(`
       result {
         ...DraftComments
       }
-    }
-  }
-`);
-
-const DraftCommentsQuery = gql(`
-  query DraftCommentsQuery($selector: CommentSelector, $limit: Int, $enableTotal: Boolean) {
-    comments(selector: $selector, limit: $limit, enableTotal: $enableTotal) {
-      results {
-        ...DraftComments
-      }
-      totalCount
     }
   }
 `);
@@ -133,6 +123,9 @@ const CommentsDraftList = ({userId, postId, initialLimit, itemsPerPage, showTota
           showPostTitle: !postId,
           post: comment.post || undefined,
           showEditInContext: !postId,
+          // noAutoScroll isn't sufficient to prevent scrolling by itself, probably because there's multiple things that can cause scrolls
+          // and clicking on a link with a hash in it might be sufficient by itself.
+          noDOMId: true,
         }}
       />
     ))}

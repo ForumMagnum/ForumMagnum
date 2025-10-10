@@ -13,7 +13,7 @@ const ReportCommentDropdownItem = ({comment, post}: {
   const currentUser = useCurrentUser();
   const {openDialog} = useDialog();
 
-  if (!post || !userCanDo(currentUser, "reports.new")) {
+  if (!post || !userCanDo(currentUser, "reports.new") || comment.draft) {
     return null;
   }
 

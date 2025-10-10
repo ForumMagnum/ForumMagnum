@@ -23,6 +23,7 @@ const styles = defineStyles('SocialPreviewUpload', (theme: ThemeType) => ({
   root: {
     display: "grid",
     gridTemplateColumns: "minmax(201px, 1fr) minmax(170px, 269px)",
+    gap: 24,
 
     [theme.breakpoints.down("xs")]: {
       display: "flex",
@@ -31,8 +32,6 @@ const styles = defineStyles('SocialPreviewUpload', (theme: ThemeType) => ({
   },
   preview: {
     padding: 16,
-    marginLeft: 10,
-    marginRight: 10,
     backgroundColor: theme.palette.grey[100],
     borderRadius: 6,
 
@@ -81,9 +80,10 @@ const styles = defineStyles('SocialPreviewUpload', (theme: ThemeType) => ({
     },
   },
   blurb: {
-    marginLeft: 6,
-    marginRight: 16,
+    marginLeft: 0,
+    marginRight: 0,
     marginBottom: 28,
+    marginTop: 24,
     fontSize: 14,
     lineHeight: "20px",
     fontWeight: 500,
@@ -91,7 +91,7 @@ const styles = defineStyles('SocialPreviewUpload', (theme: ThemeType) => ({
       color: theme.palette.primary.main,
     },
     [theme.breakpoints.down("xs")]: {
-      marginLeft: 16,
+      marginLeft: 8,
       marginBottom: 0,
     },
     // display children at top and bottom of container

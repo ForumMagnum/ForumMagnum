@@ -4195,6 +4195,12 @@ interface Post {
   afBaseScore: number | null;
   afExtendedScore: any;
   afVoteCount: number | null;
+  frontpageClassification: FrontpageClassification | null;
+}
+
+interface FrontpageClassification {
+  isFrontpage: boolean;
+  probability: number;
 }
 
 interface SinglePostInput {
@@ -10232,6 +10238,7 @@ interface GraphQLTypeMap {
   MultiPostRelationInput: MultiPostRelationInput;
   MultiPostRelationOutput: MultiPostRelationOutput;
   Post: Post;
+  FrontpageClassification: FrontpageClassification;
   SinglePostInput: SinglePostInput;
   SinglePostOutput: SinglePostOutput;
   PostDefaultViewInput: PostDefaultViewInput;

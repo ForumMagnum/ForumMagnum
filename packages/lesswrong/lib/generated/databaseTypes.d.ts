@@ -174,7 +174,7 @@ interface DbCommentEmbedding extends DbObject {
   __collectionName?: "CommentEmbeddings"
   commentId: string
   createdAt: Date
-  embeddings: Array<number>
+  embeddings: string
   lastGeneratedAt: Date
   model: string
 }
@@ -901,7 +901,7 @@ type PostEmbeddingsCollection = PgCollection<"PostEmbeddings">;
 interface DbPostEmbedding extends DbObject {
   __collectionName?: "PostEmbeddings"
   createdAt: Date
-  embeddings: Array<number>
+  embeddings: string
   lastGeneratedAt: Date
   legacyData: any | null
   model: string

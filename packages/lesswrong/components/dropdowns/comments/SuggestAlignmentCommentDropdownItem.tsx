@@ -56,7 +56,8 @@ const SuggestAlignmentCommentDropdownItem = ({ comment, post, classes }: {
     !post?.af ||
     comment.af ||
     !currentUser ||
-    !userCanDo(currentUser, 'comments.alignment.suggest')
+    !userCanDo(currentUser, 'comments.alignment.suggest') ||
+    comment.draft
   ) {
     return null;
   }

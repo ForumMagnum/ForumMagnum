@@ -77,6 +77,7 @@ import { CommentsViews } from "../comments/views";
 import { commentIncludedInCounts } from "../comments/helpers";
 import { votingSystemNames } from "@/lib/voting/votingSystemNames";
 import { backgroundTask } from "@/server/utils/backgroundTask";
+import { classifyPost } from "@/server/frontpageClassifier/predictions";
 
 // TODO: This disagrees with the value used for the book progress bar
 export const READ_WORDS_PER_MINUTE = 250;
@@ -4407,6 +4408,19 @@ const schema = {
   afBaseScore: DEFAULT_AF_BASE_SCORE_FIELD,
   afExtendedScore: DEFAULT_AF_EXTENDED_SCORE_FIELD,
   afVoteCount: DEFAULT_AF_VOTE_COUNT_FIELD,
+  frontpageClassification: {
+    graphql: {
+      outputType: "FrontpageClassification",
+      canRead: ["admins"],
+      resolver: async (post, args, context) => {
+        if (!userIsAdmin(context.currentUser)) {
+          return null;
+        }
+        const prediction = await classifyPost(post._id);
+        return prediction;
+      },
+    }
+  },
 } satisfies Record<string, CollectionFieldSpecification<"Posts">>;
 
 export default schema;

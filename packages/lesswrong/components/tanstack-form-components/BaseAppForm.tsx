@@ -1,4 +1,4 @@
-import type { DeepKeys, DeepValue, FieldApi, FormApi, Updater } from "@tanstack/react-form";
+import type { DeepKeys, DeepValue, FieldApi, FormApi, ReactFormExtendedApi, Updater } from "@tanstack/react-form";
 import React, { useMemo, useState } from "react";
 import { FormErrors } from "../vulcan-forms/FormErrors";
 
@@ -15,6 +15,7 @@ export type TypedFieldApi<TValue extends DeepValue<TData, keyof TData>, TData = 
 
 export type TypedFormApi<TFormData, TSubmitMeta = never> = FormApi<TFormData, any, any, any, any, any, any, any, any, TSubmitMeta>;
 
+export type TypedReactFormApi<TFormData, TSubmitMeta = never> = ReactFormExtendedApi<TFormData, any, any, any, any, any, any, any, any, TSubmitMeta>;
 
 /**
  * TanStack's support for form-level errors on submission is worse than just rolling it ourselves, at least for now.

@@ -19,7 +19,8 @@ const BanUserFromAllPersonalPostsDropdownItem = ({comment, post}: {
     !post ||
     !userCanModeratePost(currentUser, post) ||
     post.frontpageDate ||
-    !userOwns(currentUser, post)
+    !userOwns(currentUser, post) ||
+    comment.draft
   ) {
     return null;
   }

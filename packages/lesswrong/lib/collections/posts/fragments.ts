@@ -696,12 +696,12 @@ export const SunshinePostsList = gql(`
         ...RevisionDisplay
       }
       profileImageId
-      
+
       # Author moderation info
       moderationStyle
       bannedUserIds
       moderatorAssistance
-      
+
       moderationGuidelines {
         _id
         html
@@ -711,6 +711,11 @@ export const SunshinePostsList = gql(`
       moderatorActions {
         ...ModeratorActionDisplay
       }
+    }
+
+    frontpageClassification {
+      isFrontpage
+      probability
     }
   }
 `)

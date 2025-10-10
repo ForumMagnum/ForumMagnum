@@ -85,7 +85,7 @@ const MoveToAlignmentCommentDropdownItem = ({comment, post, classes}: {
     flash("Comment and its children removed from AI Alignment Forum")
   }
 
-  if (!post?.af || !userCanDo(currentUser, 'comments.alignment.move.all')) {
+  if (!post?.af || !userCanDo(currentUser, 'comments.alignment.move.all') || comment.draft) {
     return null;
   }
   if (!comment.af) {

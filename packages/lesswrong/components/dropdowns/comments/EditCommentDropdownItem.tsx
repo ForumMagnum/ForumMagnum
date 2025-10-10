@@ -11,8 +11,9 @@ const EditCommentDropdownItem = ({comment, showEdit}: {
   const currentUser = useCurrentUser();
 
   if (
-    !userCanDo(currentUser, "comments.edit.all") &&
-    !userOwns(currentUser, comment)
+    (!userCanDo(currentUser, "comments.edit.all") &&
+    !userOwns(currentUser, comment)) ||
+    comment.draft
   ) {
     return null;
   }

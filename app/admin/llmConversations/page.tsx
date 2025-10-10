@@ -1,5 +1,5 @@
 import React from "react";
-import LlmConversationsViewingPage from '@/components/languageModels/LlmConversationsViewingPage';
+import { LlmConversationsViewingPage } from '@/components/languageModels/LlmConversationsViewingPage';
 import { getDefaultMetadata } from "@/server/pageMetadata/sharedMetadata";
 import type { Metadata } from "next";
 import merge from "lodash/merge";
