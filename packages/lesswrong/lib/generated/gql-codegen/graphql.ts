@@ -13240,18 +13240,6 @@ export type LinkedDraftCommentQueryQuery = { __typename?: 'Query', comment: { __
       & DraftComments
     ) | null } | null };
 
-export type DraftCommentsQueryQueryVariables = Exact<{
-  selector?: InputMaybe<CommentSelector>;
-  limit?: InputMaybe<Scalars['Int']['input']>;
-  enableTotal?: InputMaybe<Scalars['Boolean']['input']>;
-}>;
-
-
-export type DraftCommentsQueryQuery = { __typename?: 'Query', comments: { __typename?: 'MultiCommentOutput', totalCount: number | null, results: Array<(
-      { __typename?: 'Comment' }
-      & DraftComments
-    )> } | null };
-
 export type CommentEditQueryVariables = Exact<{
   documentId?: InputMaybe<Scalars['String']['input']>;
 }>;
@@ -13410,18 +13398,6 @@ export type PopularCommentsQuery = { __typename?: 'Query', PopularComments: { __
       & CommentsListWithParentMetadata
     )> } | null };
 
-export type multiCommentRecentCommentsQueryQueryVariables = Exact<{
-  selector?: InputMaybe<CommentSelector>;
-  limit?: InputMaybe<Scalars['Int']['input']>;
-  enableTotal?: InputMaybe<Scalars['Boolean']['input']>;
-}>;
-
-
-export type multiCommentRecentCommentsQueryQuery = { __typename?: 'Query', comments: { __typename?: 'MultiCommentOutput', totalCount: number | null, results: Array<(
-      { __typename?: 'Comment' }
-      & CommentsListWithParentMetadata
-    )> } | null };
-
 export type SideCommentSingleQueryVariables = Exact<{
   commentId: Scalars['String']['input'];
 }>;
@@ -13454,6 +13430,30 @@ export type multiUserUserCommentsRepliesQueryQueryVariables = Exact<{
 export type multiUserUserCommentsRepliesQueryQuery = { __typename?: 'Query', users: { __typename?: 'MultiUserOutput', totalCount: number | null, results: Array<(
       { __typename?: 'User' }
       & UsersProfile
+    )> } | null };
+
+export type DraftCommentsQueryQueryVariables = Exact<{
+  selector?: InputMaybe<CommentSelector>;
+  limit?: InputMaybe<Scalars['Int']['input']>;
+  enableTotal?: InputMaybe<Scalars['Boolean']['input']>;
+}>;
+
+
+export type DraftCommentsQueryQuery = { __typename?: 'Query', comments: { __typename?: 'MultiCommentOutput', totalCount: number | null, results: Array<(
+      { __typename?: 'Comment' }
+      & DraftComments
+    )> } | null };
+
+export type multiCommentRecentCommentsQueryQueryVariables = Exact<{
+  selector?: InputMaybe<CommentSelector>;
+  limit?: InputMaybe<Scalars['Int']['input']>;
+  enableTotal?: InputMaybe<Scalars['Boolean']['input']>;
+}>;
+
+
+export type multiCommentRecentCommentsQueryQuery = { __typename?: 'Query', comments: { __typename?: 'MultiCommentOutput', totalCount: number | null, results: Array<(
+      { __typename?: 'Comment' }
+      & CommentsListWithParentMetadata
     )> } | null };
 
 export type multiCommentuseCommentQueryQueryVariables = Exact<{
@@ -16302,30 +16302,6 @@ export type PostBodyQuery = { __typename?: 'Query', post: { __typename?: 'Single
       & PostSideComments
     ) | null } | null };
 
-export type multiCommentPostsPageQueryQueryVariables = Exact<{
-  selector?: InputMaybe<CommentSelector>;
-  limit?: InputMaybe<Scalars['Int']['input']>;
-  enableTotal?: InputMaybe<Scalars['Boolean']['input']>;
-}>;
-
-
-export type multiCommentPostsPageQueryQuery = { __typename?: 'Query', comments: { __typename?: 'MultiCommentOutput', totalCount: number | null, results: Array<(
-      { __typename?: 'Comment' }
-      & CommentsList
-    )> } | null };
-
-export type postCommentsThreadQueryQueryVariables = Exact<{
-  selector?: InputMaybe<CommentSelector>;
-  limit?: InputMaybe<Scalars['Int']['input']>;
-  enableTotal?: InputMaybe<Scalars['Boolean']['input']>;
-}>;
-
-
-export type postCommentsThreadQueryQuery = { __typename?: 'Query', comments: { __typename?: 'MultiCommentOutput', totalCount: number | null, results: Array<(
-      { __typename?: 'Comment' }
-      & CommentsList
-    )> } | null };
-
 export type PostsPageWrapper1QueryVariables = Exact<{
   documentId?: InputMaybe<Scalars['String']['input']>;
   sequenceId?: InputMaybe<Scalars['String']['input']>;
@@ -16491,6 +16467,30 @@ export type PostsEditFormPostQuery = { __typename?: 'Query', post: { __typename?
       { __typename?: 'Post' }
       & PostsEditQueryFragment
     ) | null } | null };
+
+export type multiCommentPostsPageQueryQueryVariables = Exact<{
+  selector?: InputMaybe<CommentSelector>;
+  limit?: InputMaybe<Scalars['Int']['input']>;
+  enableTotal?: InputMaybe<Scalars['Boolean']['input']>;
+}>;
+
+
+export type multiCommentPostsPageQueryQuery = { __typename?: 'Query', comments: { __typename?: 'MultiCommentOutput', totalCount: number | null, results: Array<(
+      { __typename?: 'Comment' }
+      & CommentsList
+    )> } | null };
+
+export type postCommentsThreadQueryQueryVariables = Exact<{
+  selector?: InputMaybe<CommentSelector>;
+  limit?: InputMaybe<Scalars['Int']['input']>;
+  enableTotal?: InputMaybe<Scalars['Boolean']['input']>;
+}>;
+
+
+export type postCommentsThreadQueryQuery = { __typename?: 'Query', comments: { __typename?: 'MultiCommentOutput', totalCount: number | null, results: Array<(
+      { __typename?: 'Comment' }
+      & CommentsList
+    )> } | null };
 
 export type multiPostusePostQueryQueryVariables = Exact<{
   selector?: InputMaybe<PostSelector>;

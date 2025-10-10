@@ -13452,25 +13452,6 @@ type LinkedDraftCommentQueryQueryVariables = Exact<{
 
 type LinkedDraftCommentQueryQuery = LinkedDraftCommentQueryQuery_Query;
 
-type DraftCommentsQueryQuery_comments_MultiCommentOutput_results_Comment = (
-  { __typename?: 'Comment' }
-  & DraftComments
-);
-
-type DraftCommentsQueryQuery_comments_MultiCommentOutput = { __typename?: 'MultiCommentOutput', totalCount: number | null, results: Array<DraftCommentsQueryQuery_comments_MultiCommentOutput_results_Comment> };
-
-type DraftCommentsQueryQuery_Query = { __typename?: 'Query', comments: DraftCommentsQueryQuery_comments_MultiCommentOutput | null };
-
-
-type DraftCommentsQueryQueryVariables = Exact<{
-  selector: InputMaybe<CommentSelector>;
-  limit: InputMaybe<Scalars['Int']['input']>;
-  enableTotal: InputMaybe<Scalars['Boolean']['input']>;
-}>;
-
-
-type DraftCommentsQueryQuery = DraftCommentsQueryQuery_Query;
-
 type CommentEditQuery_comment_SingleCommentOutput_result_Comment = (
   { __typename?: 'Comment' }
   & CommentEdit
@@ -13734,25 +13715,6 @@ type PopularCommentsQueryVariables = Exact<{
 
 type PopularCommentsQuery = PopularCommentsQuery_Query;
 
-type multiCommentRecentCommentsQueryQuery_comments_MultiCommentOutput_results_Comment = (
-  { __typename?: 'Comment' }
-  & CommentsListWithParentMetadata
-);
-
-type multiCommentRecentCommentsQueryQuery_comments_MultiCommentOutput = { __typename?: 'MultiCommentOutput', totalCount: number | null, results: Array<multiCommentRecentCommentsQueryQuery_comments_MultiCommentOutput_results_Comment> };
-
-type multiCommentRecentCommentsQueryQuery_Query = { __typename?: 'Query', comments: multiCommentRecentCommentsQueryQuery_comments_MultiCommentOutput | null };
-
-
-type multiCommentRecentCommentsQueryQueryVariables = Exact<{
-  selector: InputMaybe<CommentSelector>;
-  limit: InputMaybe<Scalars['Int']['input']>;
-  enableTotal: InputMaybe<Scalars['Boolean']['input']>;
-}>;
-
-
-type multiCommentRecentCommentsQueryQuery = multiCommentRecentCommentsQueryQuery_Query;
-
 type SideCommentSingleQuery_comment_SingleCommentOutput_result_Comment = (
   { __typename?: 'Comment' }
   & CommentWithRepliesFragment
@@ -13807,6 +13769,44 @@ type multiUserUserCommentsRepliesQueryQueryVariables = Exact<{
 
 
 type multiUserUserCommentsRepliesQueryQuery = multiUserUserCommentsRepliesQueryQuery_Query;
+
+type DraftCommentsQueryQuery_comments_MultiCommentOutput_results_Comment = (
+  { __typename?: 'Comment' }
+  & DraftComments
+);
+
+type DraftCommentsQueryQuery_comments_MultiCommentOutput = { __typename?: 'MultiCommentOutput', totalCount: number | null, results: Array<DraftCommentsQueryQuery_comments_MultiCommentOutput_results_Comment> };
+
+type DraftCommentsQueryQuery_Query = { __typename?: 'Query', comments: DraftCommentsQueryQuery_comments_MultiCommentOutput | null };
+
+
+type DraftCommentsQueryQueryVariables = Exact<{
+  selector: InputMaybe<CommentSelector>;
+  limit: InputMaybe<Scalars['Int']['input']>;
+  enableTotal: InputMaybe<Scalars['Boolean']['input']>;
+}>;
+
+
+type DraftCommentsQueryQuery = DraftCommentsQueryQuery_Query;
+
+type multiCommentRecentCommentsQueryQuery_comments_MultiCommentOutput_results_Comment = (
+  { __typename?: 'Comment' }
+  & CommentsListWithParentMetadata
+);
+
+type multiCommentRecentCommentsQueryQuery_comments_MultiCommentOutput = { __typename?: 'MultiCommentOutput', totalCount: number | null, results: Array<multiCommentRecentCommentsQueryQuery_comments_MultiCommentOutput_results_Comment> };
+
+type multiCommentRecentCommentsQueryQuery_Query = { __typename?: 'Query', comments: multiCommentRecentCommentsQueryQuery_comments_MultiCommentOutput | null };
+
+
+type multiCommentRecentCommentsQueryQueryVariables = Exact<{
+  selector: InputMaybe<CommentSelector>;
+  limit: InputMaybe<Scalars['Int']['input']>;
+  enableTotal: InputMaybe<Scalars['Boolean']['input']>;
+}>;
+
+
+type multiCommentRecentCommentsQueryQuery = multiCommentRecentCommentsQueryQuery_Query;
 
 type multiCommentuseCommentQueryQuery_comments_MultiCommentOutput_results_Comment = (
   { __typename?: 'Comment' }
@@ -18435,44 +18435,6 @@ type PostBodyQueryVariables = Exact<{
 
 type PostBodyQuery = PostBodyQuery_Query;
 
-type multiCommentPostsPageQueryQuery_comments_MultiCommentOutput_results_Comment = (
-  { __typename?: 'Comment' }
-  & CommentsList
-);
-
-type multiCommentPostsPageQueryQuery_comments_MultiCommentOutput = { __typename?: 'MultiCommentOutput', totalCount: number | null, results: Array<multiCommentPostsPageQueryQuery_comments_MultiCommentOutput_results_Comment> };
-
-type multiCommentPostsPageQueryQuery_Query = { __typename?: 'Query', comments: multiCommentPostsPageQueryQuery_comments_MultiCommentOutput | null };
-
-
-type multiCommentPostsPageQueryQueryVariables = Exact<{
-  selector: InputMaybe<CommentSelector>;
-  limit: InputMaybe<Scalars['Int']['input']>;
-  enableTotal: InputMaybe<Scalars['Boolean']['input']>;
-}>;
-
-
-type multiCommentPostsPageQueryQuery = multiCommentPostsPageQueryQuery_Query;
-
-type postCommentsThreadQueryQuery_comments_MultiCommentOutput_results_Comment = (
-  { __typename?: 'Comment' }
-  & CommentsList
-);
-
-type postCommentsThreadQueryQuery_comments_MultiCommentOutput = { __typename?: 'MultiCommentOutput', totalCount: number | null, results: Array<postCommentsThreadQueryQuery_comments_MultiCommentOutput_results_Comment> };
-
-type postCommentsThreadQueryQuery_Query = { __typename?: 'Query', comments: postCommentsThreadQueryQuery_comments_MultiCommentOutput | null };
-
-
-type postCommentsThreadQueryQueryVariables = Exact<{
-  selector: InputMaybe<CommentSelector>;
-  limit: InputMaybe<Scalars['Int']['input']>;
-  enableTotal: InputMaybe<Scalars['Boolean']['input']>;
-}>;
-
-
-type postCommentsThreadQueryQuery = postCommentsThreadQueryQuery_Query;
-
 type PostsPageWrapper1Query_post_SinglePostOutput_result_Post = (
   { __typename?: 'Post' }
   & PostsWithNavigationAndRevision
@@ -18743,6 +18705,44 @@ type PostsEditFormPostQueryVariables = Exact<{
 
 
 type PostsEditFormPostQuery = PostsEditFormPostQuery_Query;
+
+type multiCommentPostsPageQueryQuery_comments_MultiCommentOutput_results_Comment = (
+  { __typename?: 'Comment' }
+  & CommentsList
+);
+
+type multiCommentPostsPageQueryQuery_comments_MultiCommentOutput = { __typename?: 'MultiCommentOutput', totalCount: number | null, results: Array<multiCommentPostsPageQueryQuery_comments_MultiCommentOutput_results_Comment> };
+
+type multiCommentPostsPageQueryQuery_Query = { __typename?: 'Query', comments: multiCommentPostsPageQueryQuery_comments_MultiCommentOutput | null };
+
+
+type multiCommentPostsPageQueryQueryVariables = Exact<{
+  selector: InputMaybe<CommentSelector>;
+  limit: InputMaybe<Scalars['Int']['input']>;
+  enableTotal: InputMaybe<Scalars['Boolean']['input']>;
+}>;
+
+
+type multiCommentPostsPageQueryQuery = multiCommentPostsPageQueryQuery_Query;
+
+type postCommentsThreadQueryQuery_comments_MultiCommentOutput_results_Comment = (
+  { __typename?: 'Comment' }
+  & CommentsList
+);
+
+type postCommentsThreadQueryQuery_comments_MultiCommentOutput = { __typename?: 'MultiCommentOutput', totalCount: number | null, results: Array<postCommentsThreadQueryQuery_comments_MultiCommentOutput_results_Comment> };
+
+type postCommentsThreadQueryQuery_Query = { __typename?: 'Query', comments: postCommentsThreadQueryQuery_comments_MultiCommentOutput | null };
+
+
+type postCommentsThreadQueryQueryVariables = Exact<{
+  selector: InputMaybe<CommentSelector>;
+  limit: InputMaybe<Scalars['Int']['input']>;
+  enableTotal: InputMaybe<Scalars['Boolean']['input']>;
+}>;
+
+
+type postCommentsThreadQueryQuery = postCommentsThreadQueryQuery_Query;
 
 type multiPostusePostQueryQuery_posts_MultiPostOutput_results_Post = (
   { __typename?: 'Post' }
