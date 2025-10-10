@@ -5,6 +5,7 @@ import { getContextFromReqAndRes } from "@/server/vulcan-lib/apollo-server/conte
 import { generateText, tool } from 'ai';
 import { createAnthropic } from '@ai-sdk/anthropic';
 import { anthropicApiKey } from "@/lib/instanceSettings";
+import { userIsAdmin } from "@/lib/vulcan-users/permissions";
 
 const commentSchema = z.object({
   originalText: z.string(),
@@ -28,9 +29,9 @@ export async function POST(req: NextRequest) {
   const context = await getContextFromReqAndRes({ req, isSSR: false });
   const currentUser = context.currentUser;
 
-  // if (!currentUser || !currentUser.isAdmin) {
-  //   return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-  // }
+  if (!userIsAdmin(currentUser)) {
+    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  }
 
   const { content, prompt } = await req.json();
 
@@ -44,7 +45,7 @@ export async function POST(req: NextRequest) {
   const anthropic = createAnthropic({ apiKey });
 
   const result = await generateText({
-    model: anthropic('claude-sonnet-4-20250514'),
+    model: anthropic('claude-sonnet-4.5'),
     prompt: `${prompt}\n\n<Post>${markdown}</Post>`,
     tools: {
       suggestedEdits: tool({
