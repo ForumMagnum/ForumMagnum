@@ -26,6 +26,7 @@ import SmallSideVote from "../votes/SmallSideVote";
 import ForumIcon from "../common/ForumIcon";
 import { useMutation } from "@apollo/client/react";
 import { gql } from "@/lib/generated/gql-codegen";
+import classNames from 'classnames';
 
 const PostsListUpdateMutation = gql(`
   mutation updatePostSunshineNewPostsItem($selector: SelectorInput!, $data: UpdatePostDataInput!) {
@@ -193,10 +194,10 @@ const SunshineNewPostsItem = ({post, refetch, classes}: {
 
           {prediction && (
               <div
-                className={`
-                  ${classes.predictionBadge}
-                  ${prediction.isFrontpage ? classes.predictionFrontpage : classes.predictionPersonal}
-                `}
+                className={classNames(
+                  classes.predictionBadge,
+                  { [classes.predictionFrontpage]: prediction.isFrontpage, [classes.predictionPersonal]: !prediction.isFrontpage },
+                )}
               >
                 Predicted: {prediction.isFrontpage ? 'Frontpage' : 'Personal'}
                 <span className={classes.predictionConfidence}>
