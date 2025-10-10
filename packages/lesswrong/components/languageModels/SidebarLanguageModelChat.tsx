@@ -110,4 +110,4 @@ const SidebarLanguageModelChat = ({onClose}: {
   </div>
 }
 
-export default registerComponent('SidebarLanguageModelChat', SidebarLanguageModelChat);
+export default SidebarLanguageModelChat;

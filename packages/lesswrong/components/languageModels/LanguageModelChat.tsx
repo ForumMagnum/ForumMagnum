@@ -638,7 +638,6 @@ export const ChatInterface = () => {
     value={currentConversation?._id ?? orderedConversations[0]?._id}
     disableUnderline
     className={classes.select}
-    // MenuProps={{style: {zIndex: 10000000002}}} // TODO: figure out sensible z-index stuff
     renderValue={(conversationId: string) => orderedConversations.find(c => c._id === conversationId)?.title}
     >
       {
