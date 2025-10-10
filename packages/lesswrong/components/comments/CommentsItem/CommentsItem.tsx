@@ -391,7 +391,7 @@ export const CommentsItem = ({
           </div>}
           {comment.rejected && <p><RejectedReasonDisplay reason={comment.rejectedReason ?? null}/></p>}
           {renderBodyOrEditor(voteProps)}
-          {!comment.deleted && !collapsed && <CommentBottom
+          {!comment.deleted && !collapsed && !showEditState && <CommentBottom
             comment={comment}
             post={post}
             treeOptions={treeOptions}
