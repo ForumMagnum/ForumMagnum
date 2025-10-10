@@ -1127,7 +1127,7 @@ export async function checkModGPTOnCommentUpdate({oldDocument, newDocument, cont
 }
 
 export async function checkUndraftedCommentForSpam(updatedComment: DbComment, oldComment: DbComment, context: ResolverContext) {
-  if (updatedComment.draft && !oldComment.draft) {
+  if (!updatedComment.draft && oldComment.draft) {
     await checkCommentForSpamWithAkismet(updatedComment, context.currentUser, context);
   }
 }
