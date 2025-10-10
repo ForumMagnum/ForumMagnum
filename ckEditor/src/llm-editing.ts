@@ -87,6 +87,8 @@ class GetFeedbackCommand extends Command {
         // Convert the HTML into markdown
         const turnDownService = new TurndownService();
         // Override turndown escape rules to never escape characters
+        // Note: Oliver/Robert says this is xss safe before we're not converting this back into site html, 
+        // just sending it to an LLM.
         turnDownService.escape = (string: string) => string;
         return turnDownService.turndown(content);
     }
