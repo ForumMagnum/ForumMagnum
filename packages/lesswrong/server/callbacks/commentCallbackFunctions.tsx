@@ -1,5 +1,5 @@
 import React from "react";
-import { commentIsHiddenPendingReview, commentIsNotPublicForAnyReason } from "@/lib/collections/comments/helpers";
+import { commentIsNotPublicForAnyReason } from "@/lib/collections/comments/helpers";
 import { ForumEventCommentMetadata } from "@/lib/collections/forumEvents/types";
 import { REJECTED_COMMENT } from "@/lib/collections/moderatorActions/constants";
 import { tagGetDiscussionUrl, EA_FORUM_COMMUNITY_TOPIC_ID } from "@/lib/collections/tags/helpers";
@@ -804,13 +804,11 @@ export async function lwCommentsNewUpvoteOwnComment(comment: DbComment, currentU
   return {...comment, ...votedComment} as DbComment;
 }
 
-export async function checkCommentForSpamWithAkismet(comment: DbComment, currentUser: DbUser|null, properties: AfterCreateCallbackProperties<'Comments'>) {
-  const { context } = properties;
-  const { Comments } = context;
+export async function checkCommentForSpamWithAkismet(comment: DbComment, currentUser: DbUser|null, context: ResolverContext) {
   if (!currentUser) throw new Error("Submitted comment has no associated user");
   
   // Don't spam-check imported comments
-  if (comment.legacyData?.arbitalPageId) {
+  if (comment.legacyData?.arbitalPageId || comment.draft) {
     return comment;
   }
 
@@ -1126,6 +1124,12 @@ export async function checkModGPTOnCommentUpdate({oldDocument, newDocument, cont
   if (!postTags || !Object.keys(postTags).includes(EA_FORUM_COMMUNITY_TOPIC_ID)) return
   
   backgroundTask(checkModGPT(newDocument, post, context))
+}
+
+export async function checkUndraftedCommentForSpam(updatedComment: DbComment, oldComment: DbComment, context: ResolverContext) {
+  if (updatedComment.draft && !oldComment.draft) {
+    await checkCommentForSpamWithAkismet(updatedComment, context.currentUser, context);
+  }
 }
 
 /* EDIT ASYNC */
