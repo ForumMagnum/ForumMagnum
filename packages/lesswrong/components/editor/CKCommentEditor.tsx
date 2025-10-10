@@ -14,7 +14,7 @@ import { useDialog } from '../common/withDialog';
 import { claimsConfig } from './claims/claimsConfig';
 import { useStyles } from '../hooks/useStyles';
 import { ckEditorPluginStyles } from './ckEditorStyles';
-import { getEditorPaletteItems, improveEditorContextMenu } from './editorAugmentations';
+import { augmentEditor } from './editorAugmentations';
 import { useCommandPalette } from '../hooks/useCommandPalette';
 
 // Uncomment the import and the line below to activate the debugger
@@ -110,15 +110,12 @@ const CKCommentEditor = ({
       editor={CommentEditor}
       onReady={(editor: Editor) => {
         setEditorObject(editor);
-        const paletteItems = getEditorPaletteItems(editor);
-        editor.keystrokes.set('CTRL+SHIFT+P', (e) => {
-          e.preventDefault();
-          // Refocus the editor when the command palette is closed.
-          const onClose = () => editor.editing.view.focus();
-          openCommandPalette(paletteItems, onClose);
+        
+        augmentEditor({
+          editorInstance: editor,
+          editorElementRef: editorRef,
+          openCommandPalette,
         });
-
-        improveEditorContextMenu(editorRef, editor);
 
         // Uncomment the line below and the import above to activate the debugger
         // CKEditorInspector.attach(editor)

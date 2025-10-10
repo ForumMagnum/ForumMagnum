@@ -4,6 +4,7 @@ import type { RefObject } from "react";
 import type { CommandPaletteItem } from "../common/CommandPalette";
 import { KeystrokeInfo, parseKeystroke } from "@/lib/vendor/ckeditor5-util/keyboard";
 import { captureException } from "@/lib/sentryWrapper";
+import { env } from "@/lib/vendor/ckeditor5-util/env";
 
 interface CkEditorShortcutBase {
   keystroke: string;
@@ -88,7 +89,7 @@ function convertKeystrokeToKeystrokeInfo(keystroke: string): KeystrokeInfo {
  * Prevent the user from accidentally highlighting text when right-clicking in the editor,
  * stop the native browser context menu from showing up, and open the editor toolbar.
  */
-export function improveEditorContextMenu(
+function improveEditorContextMenu(
   editorElementRef: RefObject<CKEditor<AnyBecauseHard> | null>,
   editorInstance: Editor
 ) {
@@ -110,7 +111,7 @@ export function improveEditorContextMenu(
   });
 }
 
-export function getEditorPaletteItems(
+function getEditorPaletteItems(
   editorInstance: Editor,
   additionalShortcuts: CkEditorShortcut[] = []
 ) {
@@ -179,4 +180,34 @@ export function getEditorPaletteItems(
   }
 
   return paletteItems;
+}
+
+interface EditorAugmentationOptions {
+  editorInstance: Editor;
+  editorElementRef: RefObject<CKEditor<AnyBecauseHard> | null>;
+  openCommandPalette: (paletteItems: CommandPaletteItem[], onClose: () => void) => void;
+  additionalShortcuts?: CkEditorShortcut[];
+}
+
+export function augmentEditor({ editorInstance, editorElementRef, openCommandPalette, additionalShortcuts }: EditorAugmentationOptions) {
+  const paletteItems = getEditorPaletteItems(editorInstance, additionalShortcuts);
+  const keystrokeHandler = (e: KeyboardEvent) => {
+    e.preventDefault();
+    // Refocus the editor when the command palette is closed.
+    const onClose = () => editorInstance.editing.view.focus();
+    openCommandPalette(paletteItems, onClose);
+  };
+
+  editorInstance.keystrokes.set('CTRL+SHIFT+P', keystrokeHandler);
+  // In firefox, cmd + shift + p is "open incognito window", which is probably pretty widely used, so we need an alternative.
+  // For mysterious reasons, `keystrokes` doesn't work to capture `CTRL+/`, so we need to go directly through the dom.
+  (editorElementRef.current as AnyBecauseHard)?.domContainer?.current?.addEventListener('keydown', (event: KeyboardEvent) => {
+    const isCtrlKey = env.isMac ? event.metaKey : event.ctrlKey;
+    if (isCtrlKey && event.key === '/') {
+      event.preventDefault();
+      keystrokeHandler(event);
+    }
+  });
+
+  improveEditorContextMenu(editorElementRef, editorInstance);
 }

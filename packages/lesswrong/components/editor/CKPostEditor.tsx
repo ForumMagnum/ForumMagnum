@@ -32,7 +32,7 @@ import DialogueEditorGuidelines from "../posts/dialogues/DialogueEditorGuideline
 import DialogueEditorFeedback from "../posts/dialogues/DialogueEditorFeedback";
 import { useStyles } from '../hooks/useStyles';
 import { ckEditorPluginStyles } from './ckEditorStyles';
-import { getEditorPaletteItems, CkEditorShortcut, improveEditorContextMenu } from './editorAugmentations';
+import { CkEditorShortcut, augmentEditor } from './editorAugmentations';
 import { useCommandPalette } from '../hooks/useCommandPalette';
 
 const PostsMinimumInfoMultiQuery = gql(`
@@ -762,15 +762,12 @@ const CKPostEditor = ({
           });
         }
 
-        const paletteItems = getEditorPaletteItems(editor, additionalShortcuts);
-        editor.keystrokes.set('CTRL+SHIFT+P', (e) => {
-          e.preventDefault();
-          // Refocus the editor when the command palette is closed.
-          const onClose = () => editor.editing.view.focus();
-          openCommandPalette(paletteItems, onClose);
+        augmentEditor({
+          editorInstance: editor,
+          editorElementRef: editorRef,
+          openCommandPalette,
+          additionalShortcuts,
         });
-
-        improveEditorContextMenu(editorRef, editor);
 
         onReady(editor)
       }}
