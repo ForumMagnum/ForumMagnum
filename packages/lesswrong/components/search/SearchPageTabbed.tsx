@@ -42,12 +42,14 @@ import LWDialog from '../common/LWDialog';
 import { defineStyles, useStyles } from '../hooks/useStyles';
 import { userIsAdmin } from '@/lib/vulcan-users/permissions';
 import CommentEmbeddingsPage from '../commentEmbeddings/CommentEmbeddingsPage';
+import { Typography } from '../common/Typography';
 
 const hitsPerPage = 10
 
 const styles = defineStyles("SearchPageTabbed", (theme: ThemeType) => ({
   root: {
     width: "100%",
+    position: 'relative',
     maxWidth: 1200,
     display: 'flex',
     columnGap: 40,
@@ -78,7 +80,6 @@ const styles = defineStyles("SearchPageTabbed", (theme: ThemeType) => ({
   },
   resultsColumn: {
     flex: '1 1 0',
-    maxWidth: 720,
   },
   searchIcon: {
     marginLeft: 12
@@ -109,6 +110,9 @@ const styles = defineStyles("SearchPageTabbed", (theme: ThemeType) => ({
     alignItems: "center",
     maxWidth: 625,
     height: 48,
+    position: 'sticky',
+    top: 0,
+    zIndex: 1000,
     border: theme.palette.border.slightlyIntense2,
     borderRadius: 3,
     "& .ais-SearchBox": {
@@ -207,6 +211,17 @@ const styles = defineStyles("SearchPageTabbed", (theme: ThemeType) => ({
       opacity: 0.8,
     },
   },
+  embeddingsSection: {
+    width: '50%'
+  },
+  embeddingsSectionTitle: {
+    marginBottom: 20,
+    color: theme.palette.grey[700],
+  },
+  resultsContainer: {
+    display: 'flex',
+    gap: 40
+  },
 }));
 
 export type ExpandedSearchState = SearchState & {
@@ -215,8 +230,6 @@ export type ExpandedSearchState = SearchState & {
     tags: Array<string>|''
   }
 }
-
-type SearchTabValue = SearchIndexCollectionName;
 
 // shows total # of results
 const Stats = ({ nbHits, className }: {
@@ -264,8 +277,8 @@ const SearchPageTabbed = () => {
   const dateRangeValues = [pastDay, pastWeek, pastMonth, pastYear];
 
   // initialize the tab & search state from the URL
-  const [tab, setTab] = useState<SearchTabValue>(() => {
-    const contentType = query.contentType as SearchTabValue
+  const [tab, setTab] = useState<SearchIndexCollectionName>(() => {
+    const contentType = query.contentType as SearchIndexCollectionName
     return collectionIsSearchIndexed(contentType) ? contentType : 'Posts'
   })
   const [tagsFilter, setTagsFilter] = useState<Array<string>>(
@@ -319,7 +332,7 @@ const SearchPageTabbed = () => {
     })
   }, [location, sorting, navigate]);
 
-  const handleChangeTab = (_: React.ChangeEvent, value: SearchTabValue) => {
+  const handleChangeTab = (_: React.ChangeEvent, value: SearchIndexCollectionName) => {
     setTab(value);
     setSorting(defaultElasticSorting);
     setSearchState({...searchState, contentType: value, page: 1});
@@ -371,7 +384,6 @@ const SearchPageTabbed = () => {
     'Sequences': ExpandedSequencesSearchHit,
     'Users': ExpandedUsersSearchHit
   }
-
   const HitComponent = hitComponents[tab]
 
   return <div className={classes.root}>
@@ -453,30 +465,31 @@ const SearchPageTabbed = () => {
           <Tab label="Users" value="Users" />
         </Tabs>
 
-        <ErrorBoundary>
-          <Configure hitsPerPage={hitsPerPage} />
-          <CustomStats className={classes.resultCount} />
-          {userHasPeopleDirectory(currentUser) && tab === "Users" && searchState?.query &&
-            <Link
-              to={`/people-directory?query=${encodeURIComponent(searchState.query)}`}
-              className={classes.peopleDirectory}
-            >
-              -&gt; View results in People directory (beta)
-            </Link>
-          }
-          <CustomScrollTo targetRef={scrollToRef}>
-            <Hits hitComponent={HitComponent} />
-          </CustomScrollTo>
-          <Pagination showLast className={classes.pagination} />
-        </ErrorBoundary>
-
-        {userIsAdmin(currentUser) && tab === 'Comments' && (
-          <CommentEmbeddingsPage 
-            externalSearchQuery={debouncedQuery}
-            hideTitle={true}
-            hideSearchInput={true}
-          />  
-        )}
+        <div className={classes.resultsContainer}>
+          <div>
+            <ErrorBoundary>
+              <Configure hitsPerPage={hitsPerPage} />
+              <CustomStats className={classes.resultCount} />
+              {userHasPeopleDirectory(currentUser) && tab === "Users" && searchState?.query &&
+                <Link
+                  to={`/people-directory?query=${encodeURIComponent(searchState.query)}`}
+                  className={classes.peopleDirectory}
+                >
+                  -&gt; View results in People directory (beta)
+                </Link>
+              }
+              <CustomScrollTo targetRef={scrollToRef}>
+                <Hits hitComponent={HitComponent} />
+              </CustomScrollTo>
+              <Pagination showLast className={classes.pagination} />
+            </ErrorBoundary>
+          </div>
+          {userIsAdmin(currentUser) && tab === 'Comments' && debouncedQuery && (
+            <div className={classes.embeddingsSection}>
+              <CommentEmbeddingsPage externalSearchQuery={debouncedQuery} />  
+            </div>
+          )}
+        </div>
       </div>
     </InstantSearch>
   </div>

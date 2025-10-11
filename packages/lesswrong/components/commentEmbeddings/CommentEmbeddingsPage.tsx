@@ -14,6 +14,7 @@ import { userIsAdmin } from '@/lib/vulcan-users/permissions';
 import ErrorAccessDenied from '../common/ErrorAccessDenied';
 import type { ErrorLike } from '@apollo/client';
 import { isNotRandomId } from '@/lib/random';
+import Row from '../common/Row';
 
 const COMMENT_EMBEDDINGS_SEARCH_QUERY = gql(`
   query CommentEmbeddingsSearchQuery($query: String!, $scoreBias: Float) {
@@ -54,7 +55,7 @@ const styles = defineStyles("CommentEmbeddingsPage", (theme: ThemeType) => ({
     minWidth: 300,
   },
   scoreBiasInput: {
-    width: 150,
+    width: 75,
   },
   searchButton: {
     height: 36,
@@ -80,7 +81,9 @@ const styles = defineStyles("CommentEmbeddingsPage", (theme: ThemeType) => ({
     marginBottom: theme.spacing.unit * 2,
   },
   title: {
-    marginBottom: theme.spacing.unit * 3,
+    flexGrow: 1,
+    ...theme.typography.body2,
+    fontSize: '1.5rem',
   },
   helpText: {
     color: theme.palette.grey[600],
@@ -93,6 +96,12 @@ const styles = defineStyles("CommentEmbeddingsPage", (theme: ThemeType) => ({
     backgroundColor: theme.palette.background.default,
     paddingLeft: 4,
     paddingRight: 4,
+  },
+  header: {
+    display: 'flex',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginTop: theme.spacing.unit * 3,
   },
 }));
 
@@ -161,21 +170,13 @@ const SearchResults = ({
   );
 };
 
-interface CommentEmbeddingsPageProps {
-  externalSearchQuery?: string;
-  hideTitle?: boolean;
-  hideSearchInput?: boolean;
-}
 
-const CommentEmbeddingsPage = ({externalSearchQuery, hideTitle=false, hideSearchInput=false}: CommentEmbeddingsPageProps) => {
+const CommentEmbeddingsPage = ({externalSearchQuery}: {externalSearchQuery?: string}) => {
   const classes = useStyles(styles);
 
   const currentUser = useCurrentUser();
   
-  // Search state (handles both text and ID-based searches)
-  const [internalSearchQuery, setInternalSearchQuery] = useState('');
-  const searchQuery = externalSearchQuery ?? internalSearchQuery;
-  const [scoreBias, setScoreBias] = useState<number>(0);
+  const [karmaBias, setScoreBias] = useState<number>(0);
   const [executeSearch, setExecuteSearch] = useState(false);
   const [searchVariables, setSearchVariables] = useState<{ query: string; scoreBias: number } | null>(null);
   const [executeSimilaritySearch, setExecuteSimilaritySearch] = useState(false);
@@ -198,44 +199,21 @@ const CommentEmbeddingsPage = ({externalSearchQuery, hideTitle=false, hideSearch
       // Check if the external search query looks like a random ID
       if (!isNotRandomId(externalSearchQuery.trim())) {
         // If it's a random ID, use similarity search instead
-        setSimilaritySearchVariables({ commentId: externalSearchQuery.trim(), scoreBias });
+        setSimilaritySearchVariables({ commentId: externalSearchQuery.trim(), scoreBias: karmaBias });
         setExecuteSimilaritySearch(true);
         setExecuteSearch(false);
       } else {
         // Otherwise, use text search
-        setSearchVariables({ query: externalSearchQuery, scoreBias });
+        setSearchVariables({ query: externalSearchQuery, scoreBias: karmaBias });
         setExecuteSearch(true);
         setExecuteSimilaritySearch(false);
       }
     }
-  }, [externalSearchQuery, scoreBias]);
+  }, [externalSearchQuery, karmaBias]);
 
   if (!userIsAdmin(currentUser)) {
     return <ErrorAccessDenied explanation='You must be an admin to search comments by embedding' />;
   }
-
-  const handleSearch = () => {
-    if (searchQuery.trim()) {
-      // Check if the search query looks like a random ID
-      if (!isNotRandomId(searchQuery.trim())) {
-        // If it's a random ID, use similarity search instead
-        setSimilaritySearchVariables({ commentId: searchQuery.trim(), scoreBias });
-        setExecuteSimilaritySearch(true);
-        setExecuteSearch(false);
-      } else {
-        // Otherwise, use text search
-        setSearchVariables({ query: searchQuery, scoreBias });
-        setExecuteSearch(true);
-        setExecuteSimilaritySearch(false);
-      }
-    }
-  };
-
-  const handleKeyPress = (event: React.KeyboardEvent) => {
-    if (event.key === 'Enter') {
-      handleSearch();
-    }
-  };
 
   const comments = data?.CommentEmbeddingSearch ?? [];
   const similarComments = similarityData?.CommentEmbeddingSimilaritySearch ?? [];
@@ -246,74 +224,26 @@ const CommentEmbeddingsPage = ({externalSearchQuery, hideTitle=false, hideSearch
 
   return (
     <div className={classes.root}>
-        <Typography variant="display2" className={classes.title}>
-          Comment Embeddings Search
-        </Typography>
+      <div className={classes.title}>
+          Comment Embeddings Results
+        </div>
+      <div className={classes.header}>
+        <Typography variant="body2" className={classes.helpText}>
+          Search for comments using semantic similarity, or enter a comment ID to find similar comments.
+        </Typography> 
+        <TextField
+          className={classes.scoreBiasInput}
+          label="Karma Bias"
+          type="number"
+          value={karmaBias}
+          onChange={(e) => setScoreBias(parseFloat(e.target.value) || 0)}
+          variant="outlined"
+          InputLabelProps={{
+            className: classes.outlinedLabel,
+          }}
+        />
+      </div>
 
-      {!hideSearchInput && (
-        <div className={classes.searchContainer}>
-          <div className={classes.searchRow}>
-            <TextField
-              className={classes.searchInput}
-              label="Search Query or Comment ID"
-              placeholder="Enter text to search or a comment ID..."
-              value={searchQuery}
-              onChange={(e) => setInternalSearchQuery(e.target.value)}
-              onKeyPress={handleKeyPress}
-              variant="outlined"
-              fullWidth
-              InputLabelProps={{
-                className: classes.outlinedLabel,
-              }}
-            />
-            <TextField
-              className={classes.scoreBiasInput}
-              label="Karma Bias"
-              type="number"
-              value={scoreBias}
-              onChange={(e) => setScoreBias(parseFloat(e.target.value) || 0)}
-              onKeyPress={handleKeyPress}
-              variant="outlined"
-              InputLabelProps={{
-                className: classes.outlinedLabel,
-              }}
-            />
-            <Button
-              className={classes.searchButton}
-              variant="contained"
-              color="primary"
-              onClick={handleSearch}
-              disabled={!searchQuery.trim() || displayLoading}
-            >
-              Search
-            </Button>
-          </div>
-          <Typography variant="body2" className={classes.helpText}>
-            Search for comments using semantic similarity, or enter a comment ID to find similar comments.
-          </Typography>
-        </div>
-      )}
-      
-      {hideSearchInput && (
-        <div className={classes.searchContainer}>
-          <div className={classes.searchRow}>
-            <TextField
-              className={classes.scoreBiasInput}
-              label="Karma Bias"
-              type="number"
-              value={scoreBias}
-              onChange={(e) => setScoreBias(parseFloat(e.target.value) || 0)}
-              variant="outlined"
-              InputLabelProps={{
-                className: classes.outlinedLabel,
-              }}
-            />
-          </div>
-          <Typography variant="body2" className={classes.helpText}>
-            The score bias adjusts the relevance threshold.
-          </Typography>
-        </div>
-      )}
 
       <SearchResults
         comments={displayComments}
