@@ -40,12 +40,16 @@ import LWTooltip from "../common/LWTooltip";
 import ForumIcon from "../common/ForumIcon";
 import LWDialog from '../common/LWDialog';
 import { defineStyles, useStyles } from '../hooks/useStyles';
+import { userIsAdmin } from '@/lib/vulcan-users/permissions';
+import CommentEmbeddingsPage from '../commentEmbeddings/CommentEmbeddingsPage';
+import { Typography } from '../common/Typography';
 
 const hitsPerPage = 10
 
 const styles = defineStyles("SearchPageTabbed", (theme: ThemeType) => ({
   root: {
     width: "100%",
+    position: 'relative',
     maxWidth: 1200,
     display: 'flex',
     columnGap: 40,
@@ -106,6 +110,9 @@ const styles = defineStyles("SearchPageTabbed", (theme: ThemeType) => ({
     alignItems: "center",
     maxWidth: 625,
     height: 48,
+    position: 'sticky',
+    top: 0,
+    zIndex: 1000,
     border: theme.palette.border.slightlyIntense2,
     borderRadius: 3,
     "& .ais-SearchBox": {
@@ -204,6 +211,17 @@ const styles = defineStyles("SearchPageTabbed", (theme: ThemeType) => ({
       opacity: 0.8,
     },
   },
+  embeddingsSection: {
+    width: '50%'
+  },
+  embeddingsSectionTitle: {
+    marginBottom: 20,
+    color: theme.palette.grey[700],
+  },
+  resultsContainer: {
+    display: 'flex',
+    gap: 40
+  },
 }));
 
 export type ExpandedSearchState = SearchState & {
@@ -274,6 +292,14 @@ const SearchPageTabbed = () => {
   );
 
   const [modalOpen, setModalOpen] = useState(false);
+  const [debouncedQuery, setDebouncedQuery] = useState<string | undefined>(searchState.query);
+
+  useEffect(() => {
+    const timeoutId = setTimeout(() => {
+      setDebouncedQuery(searchState.query);
+    }, 500);
+    return () => clearTimeout(timeoutId);
+  }, [searchState.query]);
 
   const onSortingChange = (newSorting: string) => {
     if (!isValidElasticSorting(newSorting)) {
@@ -439,22 +465,31 @@ const SearchPageTabbed = () => {
           <Tab label="Users" value="Users" />
         </Tabs>
 
-        <ErrorBoundary>
-          <Configure hitsPerPage={hitsPerPage} />
-          <CustomStats className={classes.resultCount} />
-          {userHasPeopleDirectory(currentUser) && tab === "Users" && searchState?.query &&
-            <Link
-              to={`/people-directory?query=${encodeURIComponent(searchState.query)}`}
-              className={classes.peopleDirectory}
-            >
-              -&gt; View results in People directory (beta)
-            </Link>
-          }
-          <CustomScrollTo targetRef={scrollToRef}>
-            <Hits hitComponent={HitComponent} />
-          </CustomScrollTo>
-          <Pagination showLast className={classes.pagination} />
-        </ErrorBoundary>
+        <div className={classes.resultsContainer}>
+          <div>
+            <ErrorBoundary>
+              <Configure hitsPerPage={hitsPerPage} />
+              <CustomStats className={classes.resultCount} />
+              {userHasPeopleDirectory(currentUser) && tab === "Users" && searchState?.query &&
+                <Link
+                  to={`/people-directory?query=${encodeURIComponent(searchState.query)}`}
+                  className={classes.peopleDirectory}
+                >
+                  -&gt; View results in People directory (beta)
+                </Link>
+              }
+              <CustomScrollTo targetRef={scrollToRef}>
+                <Hits hitComponent={HitComponent} />
+              </CustomScrollTo>
+              <Pagination showLast className={classes.pagination} />
+            </ErrorBoundary>
+          </div>
+          {userIsAdmin(currentUser) && tab === 'Comments' && debouncedQuery && (
+            <div className={classes.embeddingsSection}>
+              <CommentEmbeddingsPage externalSearchQuery={debouncedQuery} />  
+            </div>
+          )}
+        </div>
       </div>
     </InstantSearch>
   </div>
