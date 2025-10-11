@@ -11,11 +11,12 @@ import { useHover } from '../../common/withHover';
 import { SetHoveredReactionContext } from './HoveredReactionContextProvider';
 import { isMobile } from '../../../lib/utils/isMobile';
 import ReactionIcon from "../ReactionIcon";
+import LWTooltip from "../../common/LWTooltip";
 
 const styles = defineStyles("NamesAttachedReactionsMessageBottom", (theme: ThemeType) => ({
   reactionsContainer: {
     position: 'absolute',
-    bottom: -13,
+    bottom: -10,
     right: 8,
     display: 'flex',
     alignItems: 'center',
@@ -42,6 +43,9 @@ const styles = defineStyles("NamesAttachedReactionsMessageBottom", (theme: Theme
     pointerEvents: 'auto',
   },
   footerReactions: {
+    background: theme.palette.grey[700],
+  },
+  footerReactionsCurrentUser: {
     background: theme.palette.background.default,
   },
   footerReactionsSingle: {
@@ -52,18 +56,13 @@ const styles = defineStyles("NamesAttachedReactionsMessageBottom", (theme: Theme
     borderRadius: 13,
   },
   footerReaction: {
-    fontSize: 18,
     lineHeight: 1,
     display: "flex",
     alignItems: 'center',
     justifyContent: 'center',
     cursor: 'pointer',
-    transition: 'transform 0.1s ease-in-out',
-    "&:hover": {
-      transform: 'scale(1.15)',
-    },
-    width: 24,
-    height: 24,
+    width: 20,
+    height: 20,
   },
   reactionCount: {
     fontSize: 11,
@@ -119,7 +118,7 @@ const NamesAttachedReactionsMessageBottom = ({
       {visibleReactionsDisplay.length > 0 && (
         <div className={classes.reactionsContainer}>
           <div className={classNames(
-            classes.footerReactions,
+            isCurrentUser ? classes.footerReactionsCurrentUser : classes.footerReactions,
             visibleReactionsDisplay.length === 1 ? classes.footerReactionsSingle : classes.footerReactionsMultiple
           )}>
             {visibleReactionsDisplay.map(({ react, numberShown }) => (
@@ -191,24 +190,28 @@ const HoverableReactionIcon = ({
   }
 
   const showCount = numberShown > 1;
+  
+  const tooltipContent = react.slice(0, 1).toUpperCase() + react.slice(1);
 
   return (
-    <span 
-      onMouseEnter={handleMouseEnter} 
-      onMouseLeave={handleMouseLeave} 
-      ref={reactionIconRef}
-      className={classes.footerReaction}
-      onMouseDown={() => { reactionClicked(react); }}
-    >
-      <ReactionIcon react={react} inverted={invertColors} />
-      {showCount && (
-        <span className={classNames(classes.reactionCount, classes.showCount, {
-          [classes.invertColors]: invertColors,
-        })}>
-          {numberShown}
-        </span>
-      )}
-    </span>
+    <LWTooltip title={tooltipContent} placement="top">
+      <span 
+        onMouseEnter={handleMouseEnter} 
+        onMouseLeave={handleMouseLeave} 
+        ref={reactionIconRef}
+        className={classes.footerReaction}
+        onMouseDown={() => { reactionClicked(react); }}
+      >
+        <ReactionIcon react={react} inverted={invertColors} size={14} />
+        {showCount && (
+          <span className={classNames(classes.reactionCount, classes.showCount, {
+            [classes.invertColors]: invertColors,
+          })}>
+            {numberShown}
+          </span>
+        )}
+      </span>
+    </LWTooltip>
   );
 };
 
