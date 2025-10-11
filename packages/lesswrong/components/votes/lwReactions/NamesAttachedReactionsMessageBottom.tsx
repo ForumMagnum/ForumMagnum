@@ -42,35 +42,39 @@ const styles = defineStyles("NamesAttachedReactionsMessageBottom", (theme: Theme
     pointerEvents: 'auto',
   },
   footerReactions: {
-    display: "inline-block",
-    fontSize: 25,
-    lineHeight: 0.6,
-    height: 26,
-    textAlign: 'center',
-    whiteSpace: "nowrap",
-    marginRight: 6,
+    background: theme.palette.background.default,
+  },
+  footerReactionsSingle: {
+    borderRadius: '50%',
+  },
+  footerReactionsMultiple: {
+    display: 'flex',
+    borderRadius: 13,
   },
   footerReaction: {
-    height: 26,
-    display: "inline-block",
-    borderRadius: 8,
-    paddingLeft: 7,
-    paddingRight: 7,
+    fontSize: 18,
+    lineHeight: 1,
+    display: "flex",
+    alignItems: 'center',
+    justifyContent: 'center',
+    cursor: 'pointer',
+    transition: 'transform 0.1s ease-in-out',
     "&:hover": {
-      background: theme.palette.panelBackground.darken04,
+      transform: 'scale(1.15)',
     },
-  },
-  footerReactionSpacer: {
-    display: "inline-block",
-    width: 2,
+    width: 24,
+    height: 24,
   },
   reactionCount: {
-    fontSize: 13,
+    fontSize: 11,
     fontFamily: theme.typography.commentStyle.fontFamily,
     color: theme.palette.text.dim60,
-    marginLeft: 3,
-    paddingBottom: 2,
+    marginLeft: 2,
     verticalAlign: "middle",
+    display: 'none',
+  },
+  showCount: {
+    display: 'inline',
   },
   invertColors: {
     filter: "invert(1)",
@@ -114,18 +118,20 @@ const NamesAttachedReactionsMessageBottom = ({
       {/* Existing reactions positioned at bottom-right */}
       {visibleReactionsDisplay.length > 0 && (
         <div className={classes.reactionsContainer}>
-          <span className={classes.footerReactions}>
+          <div className={classNames(
+            classes.footerReactions,
+            visibleReactionsDisplay.length === 1 ? classes.footerReactionsSingle : classes.footerReactionsMultiple
+          )}>
             {visibleReactionsDisplay.map(({ react, numberShown }) => (
-              <span key={react}>
-                <HoverableReactionIcon
-                  react={react}
-                  numberShown={numberShown}
-                  voteProps={voteProps}
-                  invertColors={invertColors}
-                />
-              </span>
+              <HoverableReactionIcon
+                key={react}
+                react={react}
+                numberShown={numberShown}
+                voteProps={voteProps}
+                invertColors={!invertColors}
+              />
             ))}
-          </span>
+          </div>
         </div>
       )}
 
@@ -184,33 +190,24 @@ const HoverableReactionIcon = ({
     onMouseLeave(ev);
   }
 
-  const showDefaultBackground = currentUserReactionVote === "created" || currentUserReactionVote === "seconded";
-  const showInvertedBackground = invertColors && (currentUserReactionVote === "created" || currentUserReactionVote === "seconded");
+  const showCount = numberShown > 1;
 
   return (
-    <span onMouseEnter={handleMouseEnter} onMouseLeave={handleMouseLeave} ref={reactionIconRef}>
-      <span
-        className={classNames(
-          classes.footerReaction,
-          {
-            [classes.footerSelected]: showDefaultBackground,
-            [classes.footerSelectedInverted]: showInvertedBackground,
-            [classes.footerSelectedAnti]: currentUserReactionVote === "disagreed",
-            [classes.hasQuotes]: quotesWithUndefinedRemoved.length > 0,
-          }
-        )}
-      >
-        <span onMouseDown={() => { reactionClicked(react); }}>
-          <ReactionIcon react={react} inverted={invertColors} />
-        </span>
-        <span className={classNames(classes.reactionCount, {
+    <span 
+      onMouseEnter={handleMouseEnter} 
+      onMouseLeave={handleMouseLeave} 
+      ref={reactionIconRef}
+      className={classes.footerReaction}
+      onMouseDown={() => { reactionClicked(react); }}
+    >
+      <ReactionIcon react={react} inverted={invertColors} />
+      {showCount && (
+        <span className={classNames(classes.reactionCount, classes.showCount, {
           [classes.invertColors]: invertColors,
         })}>
           {numberShown}
         </span>
-      </span>
-
-      <span className={classes.footerReactionSpacer} onMouseEnter={handleMouseEnter} />
+      )}
     </span>
   );
 };
