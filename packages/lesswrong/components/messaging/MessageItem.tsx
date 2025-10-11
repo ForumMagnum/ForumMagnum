@@ -16,29 +16,37 @@ import InlineReactSelectionWrapper from "../votes/lwReactions/InlineReactSelecti
 import type { ContentItemBodyImperative, ContentReplacedSubstringComponentInfo } from "../contents/contentBodyUtil";
 import { messageBottomComponents } from '@/lib/voting/votingSystemComponents';
 import HoveredReactionContextProvider from '../votes/lwReactions/HoveredReactionContextProvider';
+import { useHover } from '../common/withHover';
+import type { MessageVotingBottomComponent } from '@/lib/voting/votingSystemTypes';
 
 const styles = (theme: ThemeType) => ({
+  hoverWrapper: {
+    width: '100%',
+  },
   root: {
     marginBottom:theme.spacing.unit*1.5,
   },
   rootWithImages: {
-    maxWidth: theme.isFriendlyUI ? '95%' : '80%',
-    ...(!theme.isFriendlyUI && {
-      width: 'fit-content',
-    }),
-    ...(theme.isFriendlyUI && {
-      display: 'grid',
-      columnGap: 10,
-      gridTemplateColumns: `${PROFILE_IMG_DIAMETER}px minmax(100px, 100%)`,
-      gridTemplateAreas: '"image message"',
-      [theme.breakpoints.down('xs')]: {
-        gridTemplateColumns: `${PROFILE_IMG_DIAMETER_MOBILE}px minmax(100px, 100%)`,
-      }
-    }),
+    maxWidth: '95%',
+    display: 'grid',
+    columnGap: 10,
+    gridTemplateColumns: `${PROFILE_IMG_DIAMETER}px minmax(100px, 100%)`,
+    gridTemplateAreas: '"image message"',
+    [theme.breakpoints.down('xs')]: {
+      gridTemplateColumns: `${PROFILE_IMG_DIAMETER_MOBILE}px minmax(100px, 100%)`,
+    }
   },
-  rootCurrentUserWithImages: {
+  rootWithoutImages: {
+    maxWidth: '80%',
+    width: 'fit-content',
+  },
+  rootCurrentUser: {
     columnGap: 0,
     marginLeft: 'auto',
+  },
+  messageWrapper: {
+    position: 'relative',
+    gridArea: 'message',
   },
   message: {
     backgroundColor: theme.palette.grey[200],
@@ -51,7 +59,6 @@ const styles = (theme: ThemeType) => ({
     overflowWrap: "break-word",
     whiteSpace: "normal",
     flexGrow: 1,
-    gridArea: 'message',
   },
   backgroundIsCurrent: {
     backgroundColor: theme.palette.grey[700],
@@ -59,7 +66,7 @@ const styles = (theme: ThemeType) => ({
     marginLeft:theme.spacing.unit*1.5,
   },
   meta: {
-    marginBottom:theme.spacing.unit*1.5,
+    marginBottom:theme.spacing.unit * (theme.isFriendlyUI ? 1.5 : 0.5),
   },
   whiteMeta: {
     color: theme.palette.text.invertedBackgroundText2,
@@ -105,11 +112,11 @@ const MessageItem = ({message, classes}: {
 
   
   const isCurrentUser = (currentUser && message.user) && currentUser._id === message.user._id
-  const htmlBody = {__html: html};
 
   const votingSystem = getVotingSystemByName("namesAttachedReactions");
   const voteProps = useVote(message, "Messages", votingSystem);
   const messageBodyRef = useRef<ContentItemBodyImperative|null>(null);
+  const { hover, eventHandlers } = useHover();
 
   if (!message) return null;
   if (!html) return null
@@ -126,7 +133,7 @@ const MessageItem = ({message, classes}: {
     highlights = votingSystem.getMessageHighlights({message, voteProps});
   }
 
-  const VoteBottomComponent = messageBottomComponents[votingSystem.name]?.() ?? null;
+  const VoteBottomComponent: MessageVotingBottomComponent | null = messageBottomComponents[votingSystem.name]?.() ?? null;
 
   const bodyElement = <ContentItemBody
     ref={messageBodyRef}
@@ -138,40 +145,44 @@ const MessageItem = ({message, classes}: {
   />;
   
   return (
-    <div className={classNames(classes.root, classes.rootWithImages, isCurrentUser && classes.rootCurrentUserWithImages)}>
+    <span className={classes.hoverWrapper} {...eventHandlers}>
+    <div className={classNames(
+      classes.root,
+      isFriendlyUI() ? classes.rootWithImages : classes.rootWithoutImages,
+      isCurrentUser && classes.rootCurrentUser
+    )}>
       {profilePhoto}
       <HoveredReactionContextProvider voteProps={voteProps}>
-        <Typography variant="body2" className={classNames(classes.message, {[classes.backgroundIsCurrent]: isCurrentUser})}>
-          <div className={classes.meta}>
-            {message.user && <span className={classes.username}>
-              <span className={colorClassName}><UsersName user={message.user}/></span>
-            </span>}
-            <span>{" " /* Explicit space (rather than just padding/margin) for copy-paste purposes */}</span>
-            {message.createdAt && <MetaInfo>
-              <span className={colorClassName}><FormatDate date={message.createdAt}/></span>
-            </MetaInfo>}
-          </div>
-
-          {votingSystem.hasInlineReacts ? <InlineReactSelectionWrapper contentRef={messageBodyRef} voteProps={voteProps} styling="comment">
-              {bodyElement}
-            </InlineReactSelectionWrapper>
-          : bodyElement}
-          
-          {VoteBottomComponent && <div className={classes.bottom}>
-              <VoteBottomComponent
-                document={message}
-                hideKarma={false}
-                collectionName="Messages"
-                votingSystem={votingSystem}
-                voteProps={voteProps}
-                commentBodyRef={messageBodyRef}
-                invertColors={!!isCurrentUser}
-              />
+        <div className={classes.messageWrapper}>
+          <Typography variant="body2" className={classNames(classes.message, {[classes.backgroundIsCurrent]: isCurrentUser})}>
+            <div className={classes.meta}>
+              {message.user && <span className={classes.username}>
+                <span className={colorClassName}><UsersName user={message.user}/></span>
+              </span>}
+              <span>{" " /* Explicit space (rather than just padding/margin) for copy-paste purposes */}</span>
+              {message.createdAt && <MetaInfo>
+                <span className={colorClassName}><FormatDate date={message.createdAt}/></span>
+              </MetaInfo>}
             </div>
-          }
-        </Typography>
+
+            {votingSystem.hasInlineReacts ? <InlineReactSelectionWrapper contentRef={messageBodyRef} voteProps={voteProps} styling="comment">
+                {bodyElement}
+              </InlineReactSelectionWrapper>
+            : bodyElement}
+          </Typography>
+          
+          {VoteBottomComponent && (
+            <VoteBottomComponent
+              voteProps={voteProps}
+              invertColors={!!isCurrentUser}
+              isCurrentUser={!!isCurrentUser}
+              isHovered={hover}
+            />
+          )}
+        </div>
       </HoveredReactionContextProvider>
     </div>
+    </span>
   )
 }
 
