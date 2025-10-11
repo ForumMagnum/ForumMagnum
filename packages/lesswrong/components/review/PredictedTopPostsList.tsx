@@ -69,18 +69,19 @@ const PredictedTop50Intro = ({ inefficiency, totalPredicted, loading }: { ineffi
   const ineff = loading ? "..." : parseFloat(inefficiency.toPrecision(3)).toLocaleString('en-US', { maximumFractionDigits: 0 });
   const predictedCount = loading ? "..." : totalPredicted.toFixed(0);
   return (
-    <ContentStyles contentType="post" className={classes.intro}><p>
-    The LessWrong Review highlights the posts most worth readers' time and attention. 
-    But its results take a while to appear. 
-    To bridge that gap, each popular post now has its own prediction market where users bet on whether it will rank among the year's top 50.
-  </p>
-  
-  <p>
-    Can we trust these markets? 
-    Here's a simple check: right now, they collectively predict that {predictedCount} posts will make the top 50 this year. 
-    That means there's M${ineff} of free Mana (the platform's currency) for anyone who spots inconsistencies and brings the odds into line.
-    <Link to="https://manifold.markets/topic/lesswrong-annual-review"> See the markets here.</Link>
-  </p>  
+    <ContentStyles contentType="post" className={classes.intro}>
+      <p>
+        The LessWrong Review highlights the posts most worth readers' time and attention.
+        But its results take a while to appear.
+        To bridge that gap, each popular post now has its own prediction market where users bet on whether it will rank among the year's top 50.
+      </p>
+
+      <p>
+        Can we trust these markets?
+        Here's a simple check: right now, they collectively predict that {predictedCount} posts will make the top 50 this year.
+        That means there's M${ineff} of free Mana (the platform's currency) for anyone who spots inconsistencies and brings the odds into line.
+        <Link to="https://manifold.markets/topic/lesswrong-annual-review"> See the markets here.</Link>
+      </p>
     </ContentStyles>
   );
 };
@@ -91,8 +92,8 @@ const PostsList = ({ posts }: { posts: PostsListWithVotes[] }) => {
     <>
       {posts.map((p: PostsListWithVotes & { annualReviewMarketProbability: number }, i: number) => (
         <React.Fragment key={p._id}>
-          <LWTooltip title={`The Manifold prediction market predicts ${Math.round(p.annualReviewMarketProbability*100)}% chance of being in the top 50 posts for this year.`}>
-            <div className={classes.prob}>{Math.round(p.annualReviewMarketProbability*100)}%</div>
+          <LWTooltip title={`The Manifold prediction market predicts ${Math.round(p.annualReviewMarketProbability * 100)}% chance of being in the top 50 posts for this year.`}>
+            <div className={classes.prob}>{Math.round(p.annualReviewMarketProbability * 100)}%</div>
           </LWTooltip>
           <PostsItem post={p} index={i} showKarma={true} showIcons={false} dense={true} showCommentsIcon={false} showPersonalIcon={false} />
         </React.Fragment>
@@ -118,7 +119,7 @@ export default function PredictedTopPostsList({ year }: { year: number }) {
     <div className={classes.root}>
       <PredictedTop50Intro inefficiency={inefficiency} totalPredicted={totalPredicted} loading={ineffLoading} />
       <div className={classes.predictedPostList}>
-        {postsLoading ? <div className={classes.loading}><Loading /></div>:  <PostsList posts={posts} />}
+        {postsLoading ? <div className={classes.loading}><Loading /></div> : <PostsList posts={posts} />}
       </div>
     </div>
   );
