@@ -135,7 +135,7 @@ const MessageItem = ({message, classes}: {
   />;
   
   return (
-    <div className={classNames(classes.root, classes.rootWithImages, classes.rootCurrentUserWithImages && isCurrentUser)}>
+    <div className={classNames(classes.root, classes.rootWithImages, isCurrentUser && classes.rootCurrentUserWithImages)}>
       {profilePhoto}
       <HoveredReactionContextProvider voteProps={voteProps}>
         <Typography variant="body2" className={classNames(classes.message, {[classes.backgroundIsCurrent]: isCurrentUser})}>
