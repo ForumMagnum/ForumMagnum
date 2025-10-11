@@ -49,7 +49,7 @@ const styles = (theme: ThemeType) => ({
     ...theme.typography.commentStyle,
     padding: "0 2px 0 10px",
     border: theme.palette.border.extraFaint,
-    borderRadius: theme.borderRadius.default,
+    borderRadius: theme.isFriendlyUI ? theme.borderRadius.default : theme.borderRadius.small,
     backgroundColor: theme.palette.grey[100],
     width: "100%",
     '& form': {
