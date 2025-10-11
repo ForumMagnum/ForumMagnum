@@ -7483,6 +7483,12 @@ type PostsWithApprovedJargonResult = {
   results: Array<PostWithApprovedJargon>;
 };
 
+type PredictionInefficiency = {
+  __typename?: 'PredictionInefficiency';
+  inefficiency: Scalars['Float']['output'];
+  totalPredicted: Scalars['Float']['output'];
+};
+
 type Query = {
   __typename?: 'Query';
   ActiveTagCount: Scalars['Int']['output'];
@@ -7621,7 +7627,7 @@ type Query = {
   llmConversations?: Maybe<MultiLlmConversationOutput>;
   localgroup?: Maybe<SingleLocalgroupOutput>;
   localgroups?: Maybe<MultiLocalgroupOutput>;
-  manifoldPredictionInefficiency: Scalars['Float']['output'];
+  manifoldPredictionInefficiency: PredictionInefficiency;
   message?: Maybe<SingleMessageOutput>;
   messages?: Maybe<MultiMessageOutput>;
   moderationTemplate?: Maybe<SingleModerationTemplateOutput>;
@@ -19097,9 +19103,10 @@ type getPostsUserCommentedOnQueryVariables = Exact<{
 
 type getPostsUserCommentedOnQuery = getPostsUserCommentedOnQuery_Query;
 
-type ReviewPredictionPostsQuery_reviewPredictionPosts_Post_user_User = { __typename?: 'User', displayName: string };
-
-type ReviewPredictionPostsQuery_reviewPredictionPosts_Post = { __typename?: 'Post', _id: string, title: string, annualReviewMarketProbability: number | null, annualReviewMarketUrl: string | null, user: ReviewPredictionPostsQuery_reviewPredictionPosts_Post_user_User | null };
+type ReviewPredictionPostsQuery_reviewPredictionPosts_Post = (
+  { __typename?: 'Post', annualReviewMarketProbability: number | null, annualReviewMarketUrl: string | null }
+  & PostsListWithVotes
+);
 
 type ReviewPredictionPostsQuery_Query = { __typename?: 'Query', reviewPredictionPosts: Array<ReviewPredictionPostsQuery_reviewPredictionPosts_Post> };
 
@@ -19112,7 +19119,9 @@ type ReviewPredictionPostsQueryVariables = Exact<{
 
 type ReviewPredictionPostsQuery = ReviewPredictionPostsQuery_Query;
 
-type PredictionInefficiencyQuery_Query = { __typename?: 'Query', manifoldPredictionInefficiency: number };
+type PredictionInefficiencyQuery_manifoldPredictionInefficiency_PredictionInefficiency = { __typename?: 'PredictionInefficiency', inefficiency: number, totalPredicted: number };
+
+type PredictionInefficiencyQuery_Query = { __typename?: 'Query', manifoldPredictionInefficiency: PredictionInefficiencyQuery_manifoldPredictionInefficiency_PredictionInefficiency };
 
 
 type PredictionInefficiencyQueryVariables = Exact<{

@@ -1804,6 +1804,29 @@ CREATE TABLE "Posts" (
   "afVoteCount" DOUBLE PRECISION
 );
 
+-- Index "idx_posts_predictions_year_filter"
+CREATE INDEX IF NOT EXISTS "idx_posts_predictions_year_filter" ON "Posts" USING btree (
+  "status",
+  "isFuture",
+  "draft",
+  "unlisted",
+  "shortform",
+  "hiddenRelatedQuestion",
+  "authorIsUnreviewed",
+  "groupId",
+  "postedAt",
+  "isEvent",
+  "_id",
+  "meta",
+  "af",
+  "frontpageDate",
+  "curatedDate",
+  "baseScore"
+);
+
+-- Index "idx_posts_manifoldReviewMarketId"
+CREATE INDEX IF NOT EXISTS "idx_posts_manifoldReviewMarketId" ON "Posts" USING btree ("manifoldReviewMarketId");
+
 -- Index "idx_posts_coauthorStatuses_postedAt"
 CREATE INDEX IF NOT EXISTS "idx_posts_coauthorStatuses_postedAt" ON "Posts" USING gin (
   "status",

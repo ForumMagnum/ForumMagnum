@@ -1466,9 +1466,14 @@ type ElicitQuestionPredictionCreator {
   sourceUserId: String
 }
 
+type PredictionInefficiency {
+  inefficiency: Float!
+  totalPredicted: Float!
+}
+
 extend type Query {
   reviewPredictionPosts(year: Int!, limit: Int = 50): [Post!]!
-  manifoldPredictionInefficiency(year: Int!): Float!
+  manifoldPredictionInefficiency(year: Int!): PredictionInefficiency!
 }
 
 type AdvisorRequest {

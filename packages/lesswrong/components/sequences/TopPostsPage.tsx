@@ -27,6 +27,7 @@ import { useStyles } from '../hooks/useStyles';
 import { SuspenseWrapper } from '../common/SuspenseWrapper';
 import PredictedTopPostsList from "../review/PredictedTopPostsList";
 import { useItemsRead } from '../hooks/useRecordPostView';
+import Divider from '../common/Divider';
 
 /** In theory, we can get back posts which don't have review winner info, but given we're explicitly querying for review winners... */
 export type GetAllReviewWinnersQueryResult = (PostsTopItemInfo & { reviewWinner: Exclude<PostsTopItemInfo['reviewWinner'], null> })[]
@@ -599,6 +600,10 @@ const styles = defineStyles("TopPostsPage", (theme: ThemeType) => ({
   tallPlaceholder: {
     height: "100vh",
   },
+  predictedYear: {
+    color: theme.palette.review.winner,
+    opacity: 0.55,
+  },
 }));
 
 function sortReviewWinners<T extends { reviewWinner: { curatedOrder: number | null, reviewRanking: number } | null }>(reviewWinners: T[]) {
@@ -941,12 +946,11 @@ function TopSpotlightsSection({ reviewWinnersWithPosts }: {
           </LWTooltip>
         })}
         {predictedYears.map((y) => (
-          <LWTooltip key={y} title={`Predictions for ${y} (Manifold)`} placement="top">
+          <LWTooltip key={y} title={`Predictions for ${y}`} placement="top">
             <a
               onClick={(ev) => handleSetYear(ev, y as any)}
               href={getYearLink(y as any)}
-              className={classNames(classes.year, y === year && classes.yearIsSelected)}
-              style={{ color: '#b8860b', fontWeight: 600 }}
+              className={classNames(classes.year, y === year && classes.yearIsSelected, classes.predictedYear)}
             >
               {y}
             </a>
@@ -962,7 +966,7 @@ function TopSpotlightsSection({ reviewWinnersWithPosts }: {
           </a>
         </LWTooltip>
       </div>
-      {typeof year === 'number' && predictedYears.includes(year) ? null : <div className={classes.categorySelector}>
+      {typeof year === 'number' && predictedYears.includes(year) ? <Divider /> : <div className={classes.categorySelector}>
         {categories.map((t) => {
           const postsCount = year === 'all' ? reviewWinnersWithPosts.filter(post => post.reviewWinner?.category === t).length : reviewWinnersWithPosts.filter(post => post.reviewWinner?.reviewYear === year && post.reviewWinner?.category === t).length
           return <LWTooltip key={t} title={`${postsCount} posts`} inlineBlock={false}>
@@ -988,7 +992,7 @@ function TopSpotlightsSection({ reviewWinnersWithPosts }: {
           </a>
         </LWTooltip>
       </div>}
-      <div className={classes.spotlightCheckmarkRow}>
+      {sortedPosts && sortedPosts.length > 0 && <div className={classes.spotlightCheckmarkRow}>
         {sortedPosts && sortedPosts.map((post) => {
           const isRead = (post._id in itemsRead.postsRead) ? itemsRead.postsRead[post._id] : post.isRead;
           const spotlight = post.spotlight!;
@@ -1009,7 +1013,7 @@ function TopSpotlightsSection({ reviewWinnersWithPosts }: {
             />
           </LWTooltip>
         })}
-      </div>
+      </div>}
       {typeof year === 'number' && predictedYears.includes(year)
         ? <div style={{ maxWidth: SECTION_WIDTH }}>
             <PredictedTopPostsList year={year} />
@@ -1018,12 +1022,13 @@ function TopSpotlightsSection({ reviewWinnersWithPosts }: {
         {!sortedPosts && <div className={classes.tallPlaceholder}><Loading/></div>}
         {sortedPosts && sortedPosts.map((post) => {
           const isRead = (post._id in itemsRead.postsRead) ? itemsRead.postsRead[post._id] : post.isRead;
+          const rank = (post.reviewWinner?.reviewRanking ?? 0) + 1;
           return post.spotlight && <div
             key={post._id}
             className={classNames(classes.spotlightItem, unreadIsGray && !isRead && classes.spotlightIsNotRead )}
           >
-            <LWTooltip title={`Ranked #${post.reviewWinner?.reviewRanking} in ${post.reviewWinner?.reviewYear}`}>
-              <div className={classes.spotlightRanking}>#{(post.reviewWinner?.reviewRanking ?? 0) + 1}</div>
+            <LWTooltip title={`Ranked #${rank} in ${post.reviewWinner?.reviewYear}`}>
+              <div className={classes.spotlightRanking}>#{rank}</div>
             </LWTooltip>
             <SpotlightItem spotlight={post.spotlight} showSubtitle={false} />
           </div>

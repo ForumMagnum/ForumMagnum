@@ -12,6 +12,14 @@ function augmentForDefaultView(indexFields: MongoIndexKeyObj<DbPost>) {
 
 export function getDbIndexesOnPosts() {
   const indexSet = new DatabaseIndexSet();
+  // Prediction tabs: year-range filtering with default view constraints
+  indexSet.addIndex("Posts",
+    augmentForDefaultView({ postedAt: 1, status: 1, draft: 1, shortform: 1, unlisted: 1, isEvent: 1 }),
+    { name: "posts.predictions_year_filter" }
+  );
+  // Manifold market id for joins and lookups
+  indexSet.addIndex("Posts", { manifoldReviewMarketId: 1 }, { name: "posts.manifoldReviewMarketId" });
+
 
   // This index is currently unused on LW.
   // indexSet.add("Posts",

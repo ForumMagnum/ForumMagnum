@@ -1,11 +1,16 @@
 import { accessFilterMultiple } from "@/lib/utils/schemaUtils";
 import { getPostMarketInfo, postGetMarketInfoFromManifold } from "@/lib/collections/posts/annualReviewMarkets";
 import moment from "moment";
+import gql from "graphql-tag";
 
-export const reviewPredictionGraphQLTypeDefs = /* GraphQL */ `
+export const reviewPredictionGraphQLTypeDefs = gql`
+  type PredictionInefficiency {
+    inefficiency: Float!
+    totalPredicted: Float!
+  }
   extend type Query {
     reviewPredictionPosts(year: Int!, limit: Int = 50): [Post!]!
-    manifoldPredictionInefficiency(year: Int!): Float!
+    manifoldPredictionInefficiency(year: Int!): PredictionInefficiency!
   }
 `;
 
@@ -13,6 +18,8 @@ async function fetchMarketFull(marketId: string) {
   const res = await fetch(`https://api.manifold.markets/v0/market/${marketId}`, {
     method: "GET",
     headers: { "content-type": "application/json" },
+    cache: 'force-cache',
+    next: { revalidate: 300, tags: ['manifold-market', `manifold-market-${marketId}`] },
   });
   if (!res.ok) return null;
   return res.json();
@@ -107,7 +114,7 @@ export const reviewPredictionGraphQLQueries = {
     return accessFilterMultiple(context.currentUser, 'Posts', selected, context);
   },
 
-  async manifoldPredictionInefficiency(_: void, { year }: { year: number }, context: ResolverContext): Promise<number> {
+  async manifoldPredictionInefficiency(_: void, { year }: { year: number }, context: ResolverContext): Promise<{ inefficiency: number, totalPredicted: number }> {
     // Fetch candidate posts with markets for the year
     const start = moment.utc(`${year}-01-01`).toDate();
     const end = moment.utc(`${year + 1}-01-01`).toDate();
@@ -121,12 +128,12 @@ export const reviewPredictionGraphQLQueries = {
       isEvent: false,
     }, { limit: 2000 }).fetch();
     const marketIds = posts.map(p => p.manifoldReviewMarketId).filter(Boolean) as string[];
-    if (!marketIds.length) return 0;
+    if (!marketIds.length) return { inefficiency: 0, totalPredicted: 0 };
 
     // Get current probabilities to compute aggregate
     const markets = await Promise.all(marketIds.map(fetchMarketFull));
     const valid = markets.filter(Boolean) as any[];
-    if (!valid.length) return 0;
+    if (!valid.length) return { inefficiency: 0, totalPredicted: 0 };
 
     const probs = valid.map(m => (typeof m.probability === 'number' ? m.probability : 0.5));
     const eps = 1e-6;
@@ -179,7 +186,7 @@ export const reviewPredictionGraphQLQueries = {
       const c = estimateCpmmCostToMove(current, target, m.pool, m.p);
       if (isFinite(c)) totalCost += c;
     }
-    return isFinite(totalCost) ? totalCost : 0;
+    return { inefficiency: isFinite(totalCost) ? totalCost : 0, totalPredicted: probs.reduce((acc, p) => acc + p, 0) };
   },
 };
 
