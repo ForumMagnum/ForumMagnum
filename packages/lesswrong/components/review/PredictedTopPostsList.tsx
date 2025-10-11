@@ -18,33 +18,6 @@ const styles = defineStyles('PredictedTopPostsList', (theme: ThemeType) => ({
     margin: '0 auto',
     display: 'grid',
   },
-  titleRow: {
-    display: 'grid',
-    ...gridTemplateColumns,
-    justifyContent: 'space-between',
-    alignItems: 'baseline',
-    marginBottom: 12,
-  },
-  list: {
-    listStyle: 'none',
-    padding: 0,
-    margin: 0,
-  },
-  item: {
-    display: 'flex',
-    alignItems: 'center',
-    gap: 12,
-    padding: '10px 0',
-    borderBottom: `1px solid ${theme.palette.grey[200]}`,
-  },
-  rank: {
-    width: 28,
-    textAlign: 'right',
-    color: theme.palette.grey[600],
-  },
-  title: {
-    flex: 1,
-  },
   prob: {
     marginRight: 16,
     width: 28,
@@ -118,12 +91,12 @@ export default function PredictedTopPostsList({ year }: { year: number }) {
       <PredictedTop50Intro inefficiency={inefficiency} totalPredicted={totalPredicted} />
       <div className={classes.predictedPostList}>
         {posts.map((p: PostsListWithVotes & { annualReviewMarketProbability: number }, i: number) => (
-          <>
+          <React.Fragment key={p._id}>
             <LWTooltip title={`The Manifold prediction market predicts ${Math.round(p.annualReviewMarketProbability*100)}% chance of being in the top 50 posts for this year.`}>
               <div className={classes.prob}>{Math.round(p.annualReviewMarketProbability*100)}%</div>
             </LWTooltip>
             <PostsItem post={p} index={i} showKarma={true} showIcons={false} dense={true} showCommentsIcon={false} showPersonalIcon={false} />
-          </>
+          </React.Fragment>
         ))}
       </div>
     </div>

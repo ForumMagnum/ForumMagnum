@@ -16,7 +16,7 @@ import qs from "qs";
 import { SECTION_WIDTH } from '../common/SingleColumnSection';
 import { filterWhereFieldsNotNull } from '@/lib/utils/typeGuardUtils';
 import { getSpotlightUrl } from '@/lib/collections/spotlights/helpers';
-import { ReviewYear, ReviewWinnerCategory, reviewWinnerCategories, BEST_OF_LESSWRONG_PUBLISH_YEAR, PublishedReviewYear, publishedReviewYears } from '@/lib/reviewUtils';
+import { ReviewYear, ReviewWinnerCategory, reviewWinnerCategories, BEST_OF_LESSWRONG_PUBLISH_YEAR, PublishedReviewYear, PredictedReviewYear, publishedReviewYears, predictedReviewYears } from '@/lib/reviewUtils';
 import SectionTitle from "../common/SectionTitle";
 import ContentStyles from "../common/ContentStyles";
 import Loading from "../vulcan-core/Loading";
@@ -813,7 +813,7 @@ const TopPostsPage = () => {
   );
 }
 
-type YearSelectorState = PublishedReviewYear|'all'
+type YearSelectorState = PublishedReviewYear|PredictedReviewYear|'all'
 type CategorySelectorState = ReviewWinnerCategory|'all'
 
 function getInitialYear(yearQuery?: string): YearSelectorState {
@@ -824,7 +824,7 @@ function getInitialYear(yearQuery?: string): YearSelectorState {
     return 'all'
   }
   const yearQueryInt = parseInt(yearQuery);
-  if (publishedReviewYears.has(yearQueryInt)) {
+  if (publishedReviewYears.has(yearQueryInt) || predictedReviewYears.has(yearQueryInt)) {
     return yearQueryInt
   }
   return BEST_OF_LESSWRONG_PUBLISH_YEAR
@@ -843,7 +843,6 @@ function TopSpotlightsSection({ reviewWinnersWithPosts }: {
   const categories = [...reviewWinnerCategories]
 
   const [year, setYear] = useState<YearSelectorState>(getInitialYear(yearQuery))
-  const predictedYears: number[] = [BEST_OF_LESSWRONG_PUBLISH_YEAR + 1, BEST_OF_LESSWRONG_PUBLISH_YEAR + 2];
 
   const initialCategory = (categoryQuery && reviewWinnerCategories.has(categoryQuery)) ? categoryQuery : 'all'  
   const [category, setCategory] = useState<CategorySelectorState>(initialCategory)
@@ -939,17 +938,17 @@ function TopSpotlightsSection({ reviewWinnersWithPosts }: {
             <a
               onClick={(ev) => handleSetYear(ev, y)}
               href={getYearLink(y)}
-              className={classNames(classes.year, y === year && classes.yearIsSelected)} key={y}
+              className={classNames(classes.year, y === year && classes.yearIsSelected)}
             >
               {y}
             </a>
           </LWTooltip>
         })}
-        {predictedYears.map((y) => (
+        {[...predictedReviewYears].map((y) => (
           <LWTooltip key={y} title={`Predictions for ${y}`} placement="top">
             <a
-              onClick={(ev) => handleSetYear(ev, y as any)}
-              href={getYearLink(y as any)}
+              onClick={(ev) => handleSetYear(ev, y)}
+              href={getYearLink(y)}
               className={classNames(classes.year, y === year && classes.yearIsSelected, classes.predictedYear)}
             >
               {y}
@@ -966,7 +965,7 @@ function TopSpotlightsSection({ reviewWinnersWithPosts }: {
           </a>
         </LWTooltip>
       </div>
-      {typeof year === 'number' && predictedYears.includes(year) ? <Divider /> : <div className={classes.categorySelector}>
+      {typeof year === 'number' && predictedReviewYears.has(year) ? <Divider /> : <div className={classes.categorySelector}>
         {categories.map((t) => {
           const postsCount = year === 'all' ? reviewWinnersWithPosts.filter(post => post.reviewWinner?.category === t).length : reviewWinnersWithPosts.filter(post => post.reviewWinner?.reviewYear === year && post.reviewWinner?.category === t).length
           return <LWTooltip key={t} title={`${postsCount} posts`} inlineBlock={false}>
@@ -1014,7 +1013,7 @@ function TopSpotlightsSection({ reviewWinnersWithPosts }: {
           </LWTooltip>
         })}
       </div>}
-      {typeof year === 'number' && predictedYears.includes(year)
+      {typeof year === 'number' && predictedReviewYears.has(year)
         ? <div style={{ maxWidth: SECTION_WIDTH }}>
             <PredictedTopPostsList year={year} />
           </div>
