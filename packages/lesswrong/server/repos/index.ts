@@ -37,7 +37,6 @@ import TweetsRepo from "./TweetsRepo";
 import UltraFeedEventsRepo from "./UltraFeedEventsRepo";
 import UsersRepo from "./UsersRepo";
 import VotesRepo from "./VotesRepo";
-import ReviewPredictionsRepo from "./ReviewPredictionsRepo";
 import BookmarksRepo from "./BookmarksRepo";
 
 declare global {
@@ -90,7 +89,6 @@ const allRepos = {
   ultraFeedEvents: UltraFeedEventsRepo,
   users: UsersRepo,
   votes: VotesRepo,
-  reviewPredictions: ReviewPredictionsRepo,
 } as const;
 
 /**
