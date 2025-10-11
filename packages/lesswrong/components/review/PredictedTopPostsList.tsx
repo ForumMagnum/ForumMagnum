@@ -9,6 +9,7 @@ import LWTooltip from '@/components/common/LWTooltip';
 import { Link } from '@/lib/reactRouterWrapper';
 import PostsItem from '../posts/PostsItem';
 import ContentStyles from '../common/ContentStyles';
+import Loading from 'app/loading';
 
 const gridTemplateColumns = { gridTemplateColumns: '45px minmax(200px, 1fr)' };
 
@@ -35,13 +36,16 @@ const styles = defineStyles('PredictedTopPostsList', (theme: ThemeType) => ({
     ...gridTemplateColumns,
     ...theme.typography.body2,
   },
-  manaNote: {
+  intro: {
     marginLeft: 45,
-    marginBottom: 30,
+    marginBottom: 45,
+  },
+  loading: {
+    gridColumn: 2,
   }
 }));
 
-const REVIEW_PREDICTION_POSTS = gql(`
+const ReviewPredictionPosts = gql(`
   query ReviewPredictionPosts($year: Int!, $limit: Int) {
     reviewPredictionPosts(year: $year, limit: $limit) {
       ...PostsListWithVotes
@@ -51,7 +55,7 @@ const REVIEW_PREDICTION_POSTS = gql(`
   }
 `);
 
-const PREDICTION_INEFFICIENCY = gql(`
+const PredictionInefficiency = gql(`
   query PredictionInefficiency($year: Int!) {
     manifoldPredictionInefficiency(year: $year) {
       inefficiency
@@ -60,44 +64,61 @@ const PREDICTION_INEFFICIENCY = gql(`
   }
 `);
 
-const PredictedTop50Intro = ({ inefficiency, totalPredicted }: { inefficiency: number, totalPredicted: number }) => {
+const PredictedTop50Intro = ({ inefficiency, totalPredicted, loading }: { inefficiency: number, totalPredicted: number, loading: boolean }) => {
   const classes = useStyles(styles);
-  const ineff = parseFloat(inefficiency.toPrecision(3)).toLocaleString('en-US', { maximumFractionDigits: 0 });
+  const ineff = loading ? "..." : parseFloat(inefficiency.toPrecision(3)).toLocaleString('en-US', { maximumFractionDigits: 0 });
+  const predictedCount = loading ? "..." : totalPredicted.toFixed(0);
   return (
-    <ContentStyles contentType="post" className={classes.manaNote}>
-      <p>The LessWrong Review helps find the posts that are most worthy of readers' time & attention. But there's a problem: we've not yet done it for more recent posts. To find the best posts of recent years, there's a prediction market for every popular post, which predicts whether it will be in the top 50 posts for its year. Here you can see the 50 posts that the market participants judge to be most likely to make it.</p>
-      <p>A natural question to ask is: how much should we trust the predictions of these markets? Here's some evidence: the markets currently predict that {totalPredicted.toFixed(0)} posts will be in the top 50 posts for this year. This means there's free Mana (the prediction market platform's currency) just in making the markets more consistent: <Link to="https://manifold.markets/topic/lesswrong-annual-review">there's about M${ineff} of free Mana waiting</Link>.</p>
+    <ContentStyles contentType="post" className={classes.intro}><p>
+    The LessWrong Review highlights the posts most worth readers' time and attention. 
+    But its results take a while to appear. 
+    To bridge that gap, each popular post now has its own prediction market where users bet on whether it will rank among the year's top 50.
+  </p>
+  
+  <p>
+    Can we trust these markets? 
+    Here's a simple check: right now, they collectively predict that {predictedCount} posts will make the top 50 this year. 
+    That means there's M${ineff} of free Mana (the platform's currency) for anyone who spots inconsistencies and brings the odds into line.
+    <Link to="https://manifold.markets/topic/lesswrong-annual-review"> See the markets here.</Link>
+  </p>  
     </ContentStyles>
+  );
+};
+
+const PostsList = ({ posts }: { posts: PostsListWithVotes[] }) => {
+  const classes = useStyles(styles);
+  return (
+    <>
+      {posts.map((p: PostsListWithVotes & { annualReviewMarketProbability: number }, i: number) => (
+        <React.Fragment key={p._id}>
+          <LWTooltip title={`The Manifold prediction market predicts ${Math.round(p.annualReviewMarketProbability*100)}% chance of being in the top 50 posts for this year.`}>
+            <div className={classes.prob}>{Math.round(p.annualReviewMarketProbability*100)}%</div>
+          </LWTooltip>
+          <PostsItem post={p} index={i} showKarma={true} showIcons={false} dense={true} showCommentsIcon={false} showPersonalIcon={false} />
+        </React.Fragment>
+      ))}
+    </>
   );
 };
 
 export default function PredictedTopPostsList({ year }: { year: number }) {
   const classes = useStyles(styles);
 
-  const { data } = useQuery(REVIEW_PREDICTION_POSTS, {
+  const { data, loading: postsLoading } = useQuery(ReviewPredictionPosts, {
     variables: { year, limit: 50 },
-    notifyOnNetworkStatusChange: true,
   });
   const posts = data?.reviewPredictionPosts ?? [];
 
-  const { data: ineffData } = useQuery(PREDICTION_INEFFICIENCY, {
+  const { data: ineffData, loading: ineffLoading } = useQuery(PredictionInefficiency, {
     variables: { year },
-    notifyOnNetworkStatusChange: true,
   });
   const { inefficiency, totalPredicted } = ineffData?.manifoldPredictionInefficiency ?? { inefficiency: 0, totalPredicted: 0 };
 
   return (
     <div className={classes.root}>
-      <PredictedTop50Intro inefficiency={inefficiency} totalPredicted={totalPredicted} />
+      <PredictedTop50Intro inefficiency={inefficiency} totalPredicted={totalPredicted} loading={ineffLoading} />
       <div className={classes.predictedPostList}>
-        {posts.map((p: PostsListWithVotes & { annualReviewMarketProbability: number }, i: number) => (
-          <React.Fragment key={p._id}>
-            <LWTooltip title={`The Manifold prediction market predicts ${Math.round(p.annualReviewMarketProbability*100)}% chance of being in the top 50 posts for this year.`}>
-              <div className={classes.prob}>{Math.round(p.annualReviewMarketProbability*100)}%</div>
-            </LWTooltip>
-            <PostsItem post={p} index={i} showKarma={true} showIcons={false} dense={true} showCommentsIcon={false} showPersonalIcon={false} />
-          </React.Fragment>
-        ))}
+        {postsLoading ? <div className={classes.loading}><Loading /></div>:  <PostsList posts={posts} />}
       </div>
     </div>
   );
