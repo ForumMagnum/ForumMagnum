@@ -49,10 +49,8 @@ const styles = (theme: ThemeType) => ({
     height: "100%",
     display: "flex",
     flexDirection: "column",
-    width: `min(${MAX_WIDTH}px, 100%)`,
     marginLeft: "auto",
     marginRight: "auto",
-    padding: "24px 24px",
     zIndex: theme.zIndexes.singleColumnSection,
     [theme.breakpoints.down('xs')]: {
       padding: 0,

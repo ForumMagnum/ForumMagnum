@@ -22,7 +22,10 @@ const styles = (theme: ThemeType) => ({
     marginBottom:theme.spacing.unit*1.5,
   },
   rootWithImages: {
-    maxWidth: theme.isFriendlyUI ? '95%' : '90%',
+    maxWidth: theme.isFriendlyUI ? '95%' : '80%',
+    ...(!theme.isFriendlyUI && {
+      width: 'fit-content',
+    }),
     ...(theme.isFriendlyUI && {
       display: 'grid',
       columnGap: 10,
