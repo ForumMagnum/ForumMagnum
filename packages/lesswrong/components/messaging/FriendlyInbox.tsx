@@ -18,6 +18,8 @@ import ForumIcon from "../common/ForumIcon";
 import ConversationDetails from "./ConversationDetails";
 import EAButton from "../ea-forum/EAButton";
 import { useQueryWithLoadMore } from "../hooks/useQueryWithLoadMore";
+import Button from "@/lib/vendor/@material-ui/core/src/Button";
+import { isFriendlyUI } from "@/themes/forumTheme";
 
 const ConversationsListWithReadStatusMultiQuery = gql(`
   query multiConversationFriendlyInboxQuery($selector: ConversationSelector, $limit: Int, $enableTotal: Boolean) {
@@ -200,7 +202,9 @@ const styles = (theme: ThemeType) => ({
     textAlign: "center",
   },
   emptyStateButton: {
-    color: theme.palette.text.alwaysWhite,
+    ...(theme.isFriendlyUI
+      ? { color: theme.isFriendlyUI }
+      : { backgroundColor: theme.palette.background.default }),
     fontSize: 14,
   },
 });
@@ -297,6 +301,8 @@ const FriendlyInbox = ({
     ? conversationGetFriendlyTitle(selectedConversation, currentUser)
     : "No conversation selected";
 
+  const ButtonComponent = isFriendlyUI() ? EAButton : Button;
+
   return (
     <div className={classes.root}>
       {showModeratorLink && (
@@ -360,9 +366,9 @@ const FriendlyInbox = ({
                 <div className={classes.emptyStateTitle}>No conversation selected</div>
                 <div className={classes.emptyStateSubtitle}>Connect with other users on the forum</div>
               </div>
-              <EAButton onClick={openNewConversationDialog} className={classes.emptyStateButton}>
+              <ButtonComponent onClick={openNewConversationDialog} className={classes.emptyStateButton}>
                 <ForumIcon icon="PencilSquare" className={classes.emptyStateActionIcon} /> Start a new conversation
-              </EAButton>
+              </ButtonComponent>
             </div>
           )}
         </div>

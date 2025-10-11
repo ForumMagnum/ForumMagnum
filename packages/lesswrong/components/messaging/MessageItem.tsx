@@ -13,9 +13,8 @@ import { ContentItemBody } from "../contents/ContentItemBody";
 import { getVotingSystemByName } from "../../lib/voting/getVotingSystem";
 import { useVote } from "../votes/withVote";
 import InlineReactSelectionWrapper from "../votes/lwReactions/InlineReactSelectionWrapper";
-import { ReactionsAndLikesVote } from "../votes/lwReactions/ReactionsAndLikesVote";
 import type { ContentItemBodyImperative, ContentReplacedSubstringComponentInfo } from "../contents/contentBodyUtil";
-import { commentBottomComponents, messageBottomComponents } from '@/lib/voting/votingSystemComponents';
+import { messageBottomComponents } from '@/lib/voting/votingSystemComponents';
 import HoveredReactionContextProvider from '../votes/lwReactions/HoveredReactionContextProvider';
 
 const styles = (theme: ThemeType) => ({
@@ -23,14 +22,16 @@ const styles = (theme: ThemeType) => ({
     marginBottom:theme.spacing.unit*1.5,
   },
   rootWithImages: {
-    display: 'grid',
-    columnGap: 10,
-    maxWidth: '95%',
-    gridTemplateColumns: `${PROFILE_IMG_DIAMETER}px minmax(100px, 100%)`,
-    gridTemplateAreas: '"image message"',
-    [theme.breakpoints.down('xs')]: {
-      gridTemplateColumns: `${PROFILE_IMG_DIAMETER_MOBILE}px minmax(100px, 100%)`,
-    }
+    maxWidth: theme.isFriendlyUI ? '95%' : '90%',
+    ...(theme.isFriendlyUI && {
+      display: 'grid',
+      columnGap: 10,
+      gridTemplateColumns: `${PROFILE_IMG_DIAMETER}px minmax(100px, 100%)`,
+      gridTemplateAreas: '"image message"',
+      [theme.breakpoints.down('xs')]: {
+        gridTemplateColumns: `${PROFILE_IMG_DIAMETER_MOBILE}px minmax(100px, 100%)`,
+      }
+    }),
   },
   rootCurrentUserWithImages: {
     columnGap: 0,
@@ -134,7 +135,7 @@ const MessageItem = ({message, classes}: {
   />;
   
   return (
-    <div className={classNames(classes.root, {[classes.rootWithImages]: isFriendlyUI(), [classes.rootCurrentUserWithImages]: isFriendlyUI() && isCurrentUser})}>
+    <div className={classNames(classes.root, classes.rootWithImages, classes.rootCurrentUserWithImages && isCurrentUser)}>
       {profilePhoto}
       <HoveredReactionContextProvider voteProps={voteProps}>
         <Typography variant="body2" className={classNames(classes.message, {[classes.backgroundIsCurrent]: isCurrentUser})}>

@@ -58,7 +58,7 @@ const styles = (theme: ThemeType) => ({
     display: "flex",
   },
   messagesColumn: {
-    width: "calc(100% - 50px)",
+    width: "100%",
     [theme.breakpoints.down("xs")]: {
       width: "calc(100% - 5px)",
     },
@@ -172,7 +172,7 @@ const ConversationContents = ({
                 key={`sendMessage-${messageSentCount}`}
                 conversationId={conversation._id}
                 templateQueries={{ templateId: query.templateId, displayName: query.displayName }}
-                formStyle={isFriendlyUI() ? "minimalist" : undefined}
+                formStyle="minimalist"
                 successEvent={(newMessage) => {
                   setMessageSentCount(messageSentCount + 1);
                   captureEvent("messageSent", {
