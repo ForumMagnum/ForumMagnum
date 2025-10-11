@@ -18,7 +18,7 @@ export const isStandaloneRoute = (pathname: string) => ['/crosspostLogin', '/gro
 
 export const isStaticHeaderRoute = (pathname: string) => pathnameMatchesRoutePath(pathname, '/admin/digests/:num');
 
-export const isFullscreenRoute = (pathname: string) => ["/inbox", "/moderatorInbox", "/conversation"].some(route => pathnameMatchesRoutePath(pathname, route));
+export const isFullscreenRoute = (pathname: string) => ["/inbox", "/inbox/:_id", "/moderatorInbox", "/conversation"].some(route => pathnameMatchesRoutePath(pathname, route));
 
 export const isUnspacedGridRoute = (pathname: string) => {
   // Check for the subforum2 route pattern

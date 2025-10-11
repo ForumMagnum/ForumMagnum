@@ -1,5 +1,6 @@
 import { ReactionsAndLikesCommentBottom, ReactionsAndLikesVoteOnComment } from "@/components/votes/lwReactions/ReactionsAndLikesVote";
 import { NamesAttachedReactionsCommentBottom, NamesAttachedReactionsVoteOnComment } from "@/components/votes/lwReactions/NamesAttachedReactionsVoteOnComment";
+import NamesAttachedReactionsMessageBottom from "@/components/votes/lwReactions/NamesAttachedReactionsMessageBottom";
 import EAEmojisVoteOnPost from "@/components/votes/EAEmojisVoteOnPost";
 import EAEmojisVoteOnPostSecondary from "@/components/votes/EAEmojisVoteOnPostSecondary";
 import VoteOnComment from "@/components/votes/VoteOnComment";
@@ -32,7 +33,7 @@ export const commentBottomComponents: Partial<Record<VotingSystemName, () => Com
 };
 
 export const messageBottomComponents: Partial<Record<VotingSystemName, () => MessageVotingBottomComponent>> = {
-  namesAttachedReactions: () => NamesAttachedReactionsCommentBottom,
+  namesAttachedReactions: () => NamesAttachedReactionsMessageBottom,
 };
 
 export const postBottomVotingComponents: Partial<Record<VotingSystemName, () => PostVotingComponent>> = {

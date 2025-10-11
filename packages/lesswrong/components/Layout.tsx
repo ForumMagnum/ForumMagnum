@@ -431,11 +431,11 @@ const Layout = ({children}: {
       <CurrentAndRecentForumEventsProvider>
         <div className={classes.topLevelContainer}>
           <div className={classes.pageContent}>
-            <div className={classNames(
-          "wrapper",
-          {'alignment-forum': isAF(), [classes.fullscreen]: isFullscreenRoute(pathname), [classes.wrapper]: isLWorAF()},
-          useWhiteBackground && classes.whiteBackground
-        )} id="wrapper">
+            <div id="wrapper" className={classNames(
+              "wrapper",
+              {'alignment-forum': isAF(), [classes.fullscreen]: isFullscreenRoute(pathname), [classes.wrapper]: isLWorAF()},
+              useWhiteBackground && classes.whiteBackground
+            )}>
           {buttonBurstSetting.get() && <GlobalButtonBurst />}
           <DialogManager>
             <CommentBoxManager>

@@ -6,6 +6,7 @@ import classNames from "classnames";
 import { conversationGetFriendlyTitle } from "../../lib/collections/conversations/helpers";
 import UsersProfileImage from "../users/UsersProfileImage";
 import FormatDate from "../common/FormatDate";
+import { isFriendlyUI } from "@/themes/forumTheme";
 
 const styles = (theme: ThemeType) => ({
   root: {
@@ -114,11 +115,11 @@ const FriendlyConversationItem = ({
       classes.root,
       isSelected && classes.rootSelected,
     )}>
-      <UsersProfileImage
+      {isFriendlyUI() && <UsersProfileImage
         user={firstParticipant}
         size={40}
         className={classes.profileImage}
-      />
+      />}
       <div className={classes.content}>
         <div className={classes.titleRow}>
           <div className={classNames(
