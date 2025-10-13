@@ -212,14 +212,15 @@ const styles = defineStyles("SearchPageTabbed", (theme: ThemeType) => ({
     },
   },
   embeddingsSection: {
-    width: '50%'
-  },
-  embeddingsSectionTitle: {
+    borderTop: `1px solid ${theme.palette.grey[200]}`,
     marginBottom: 20,
+    paddingTop: 40,
     color: theme.palette.grey[700],
+    maxWidth: 720,
   },
   resultsContainer: {
     display: 'flex',
+    flexDirection: 'column',
     gap: 40
   },
 }));
