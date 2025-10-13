@@ -15,25 +15,21 @@ export type InboxComponentProps = {
 
 const InboxWrapper = () => {
   const currentUser = useCurrentUser();
-  const { query, params } = useLocation();
+  const { query } = useLocation();
   if (!currentUser) {
     return <div>Log in to access private messages.</div>
   }
 
-  const conversationId = params._id;
+  const conversationId = query.conversation;
+  const showArchive = query.showArchive === "true";
 
-  const showArchive = query.showArchive === "true"
   const terms: ConversationsViewTerms = {
     view: "userConversations",
     userId: currentUser._id,
     showArchive,
   };
 
-  if (conversationId) {
-    return <FriendlyInbox terms={terms} currentUser={currentUser} conversationId={conversationId} />
-  }
-
-  return <FriendlyInbox terms={terms} currentUser={currentUser}/>
+  return <FriendlyInbox terms={terms} currentUser={currentUser} conversationId={conversationId} />
 }
 
 export default registerComponent('InboxWrapper', InboxWrapper);

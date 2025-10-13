@@ -115,6 +115,9 @@ const styles = defineStyles('MessagesNewForm', (theme: ThemeType) => ({
       backgroundColor: theme.palette.background.primaryDim,
     }
   },
+  emailCheckbox: {
+    marginTop: 0,
+  },
 }));
 
 interface MessagesNewFormProps {
@@ -159,7 +162,7 @@ const InnerMessagesNewForm = ({
   const form = useForm({
     defaultValues: {
       ...prefilledProps,
-      noEmail: false,
+      email: false,
     },
     onSubmit: async ({ formApi }) => {
       await onSubmitCallback.current?.();
@@ -167,8 +170,8 @@ const InnerMessagesNewForm = ({
       try {
         let result: messageListFragment;
 
-        const { noEmail, ...rest } = formApi.state.values;
-        const submitData = userIsAdmin(currentUser) ? { ...rest, noEmail } : rest;
+        const { email, ...rest } = formApi.state.values;
+        const submitData = userIsAdmin(currentUser) ? { ...rest, noEmail: !email } : rest;
 
         const { data } = await create({ variables: { data: submitData } });
         if (!data?.createMessage?.data) {
@@ -213,18 +216,19 @@ const InnerMessagesNewForm = ({
                 collectionName="Messages"
                 commentEditor={true}
                 commentStyles={true}
-                hideControls={false}
+                hideControls={true}
               />
             )}
           </form.Field>
         </div>
 
         {userIsAdmin(currentUser) && <div className={classes.fieldWrapper}>
-          <form.Field name="noEmail">
+          <form.Field name="email">
             {(field) => (
               <FormComponentCheckbox
                 field={field}
-                label="No email"
+                label="Send email"
+                className={classes.emailCheckbox}
               />
             )}
           </form.Field>

@@ -20,6 +20,8 @@ import EAButton from "../ea-forum/EAButton";
 import { useQueryWithLoadMore } from "../hooks/useQueryWithLoadMore";
 import Button from "@/lib/vendor/@material-ui/core/src/Button";
 import { isFriendlyUI } from "@/themes/forumTheme";
+import qs from "qs";
+import SectionFooterCheckbox from "../form-components/SectionFooterCheckbox";
 
 const ConversationsListWithReadStatusMultiQuery = gql(`
   query multiConversationFriendlyInboxQuery($selector: ConversationSelector, $limit: Int, $enableTotal: Boolean) {
@@ -218,17 +220,26 @@ const FriendlyInbox = ({
   classes: ClassesType<typeof styles>;
 }) => {
   const { openDialog } = useDialog();
-  const { location } = useLocation();
+  const { location, query } = useLocation();
   const navigate = useNavigate();
   const markConversationRead = useMarkConversationRead();
+
+  isModInbox ||= query.isModInbox === "true";
 
   const selectedConversationRef = useRef<HTMLDivElement|null>(null);
 
   const selectConversationCallback = useCallback(
     (conversationId: string | undefined) => {
-      navigate({ ...location, pathname: `/${isModInbox ? "moderatorInbox" : "inbox"}/${conversationId}` });
+      const newQuery = { ...query };
+      if (conversationId) {
+        newQuery.conversation = conversationId;
+      } else {
+        delete newQuery.conversation;
+      }
+      const search = Object.keys(newQuery).length > 0 ? `?${qs.stringify(newQuery)}` : '';
+      navigate({ ...location, search });
     },
-    [navigate, isModInbox, location]
+    [navigate, location, query]
   );
 
   const openNewConversationDialog = useCallback(() => {
@@ -242,6 +253,7 @@ const FriendlyInbox = ({
   }, [isModInbox, openDialog]);
 
   const { view, ...selectorTerms } = terms;
+  const selectedView = isModInbox ? "moderatorConversations" : view;
   const initialLimit = 500;
   const {
     data: conversationsData,
@@ -250,7 +262,7 @@ const FriendlyInbox = ({
     loadMoreProps,
   } = useQueryWithLoadMore(ConversationsListWithReadStatusMultiQuery, {
     variables: {
-      selector: { [view]: selectorTerms },
+      selector: { [selectedView]: selectorTerms },
       limit: initialLimit,
       enableTotal: false,
     },
@@ -303,7 +315,7 @@ const FriendlyInbox = ({
 
   return (
     <div className={classes.root}>
-      {showModeratorLink && (
+      {showModeratorLink && isFriendlyUI() && (
         <Link to={"/moderatorInbox"} className={classes.modInboxLink}>
           Mod Inbox
         </Link>
@@ -316,6 +328,13 @@ const FriendlyInbox = ({
         >
           <div className={classes.columnHeader}>
             <div className={classes.headerText}>All messages</div>
+            <SectionFooterCheckbox
+              label="Show mod messages"
+              value={isModInbox}
+              onClick={() => {
+                navigate({ ...location, search: `?${qs.stringify({ ...query, isModInbox: !isModInbox ? "true" : undefined })}` });
+              }}
+            />
             <ForumIcon onClick={openNewConversationDialog} icon="PencilSquare" className={classes.actionIcon} />
           </div>
           <div className={classes.navigation}>
