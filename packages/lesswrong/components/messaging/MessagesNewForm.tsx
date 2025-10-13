@@ -41,7 +41,7 @@ const ModerationTemplateFragmentQuery = gql(`
   }
 `);
 
-const styles = (theme: ThemeType) => ({
+const styles = defineStyles('MessagesNewForm', (theme: ThemeType) => ({
   root: {
     ...theme.typography.commentStyle,
   },
@@ -68,9 +68,6 @@ const styles = (theme: ThemeType) => ({
       marginLeft: 2,
     },
   },
-});
-
-const formStyles = defineStyles('MessagesNewForm', (theme: ThemeType) => ({
   fieldWrapper: {
     marginTop: theme.spacing.unit * 2,
     marginBottom: theme.spacing.unit * 2,
@@ -141,7 +138,7 @@ const InnerMessagesNewForm = ({
   prefilledProps,
   onSuccess,
 }: MessagesNewFormProps) => {
-  const classes = useStyles(formStyles);
+  const classes = useStyles(styles);
   const currentUser = useCurrentUser();
   
   const formButtonClass = isMinimalist ? classes.formButtonMinimalist : classes.formButton;
@@ -259,15 +256,15 @@ export const MessagesNewForm = ({
   successEvent,
   submitLabel,
   formStyle="default",
-  classes,
 }: {
   conversationId: string;
   templateQueries?: TemplateQueryStrings;
   successEvent: (newMessage: messageListFragment) => void;
   submitLabel?: string,
   formStyle?: FormDisplayMode;
-  classes: ClassesType<typeof styles>;
 }) => {
+  const classes = useStyles(styles);
+  
   const skip = !templateQueries?.templateId;
   const isMinimalist = formStyle === "minimalist"
 
@@ -305,6 +302,6 @@ export const MessagesNewForm = ({
   );
 };
 
-export default registerComponent("MessagesNewForm", MessagesNewForm, { styles });
+export default MessagesNewForm;
 
 

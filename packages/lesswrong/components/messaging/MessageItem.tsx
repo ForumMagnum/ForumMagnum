@@ -37,7 +37,7 @@ const styles = (theme: ThemeType) => ({
     }
   },
   rootWithoutImages: {
-    maxWidth: '80%',
+    maxWidth: '60%',
     width: 'fit-content',
   },
   rootCurrentUser: {
