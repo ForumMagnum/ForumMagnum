@@ -162,7 +162,6 @@ const SearchResults = ({
   );
 };
 
-
 const CommentEmbeddingsPage = ({externalSearchQuery}: {externalSearchQuery?: string}) => {
   const classes = useStyles(styles);
 
@@ -174,13 +173,11 @@ const CommentEmbeddingsPage = ({externalSearchQuery}: {externalSearchQuery?: str
   const [executeSimilaritySearch, setExecuteSimilaritySearch] = useState(false);
   const [similaritySearchVariables, setSimilaritySearchVariables] = useState<{ commentId: string; scoreBias: number } | null>(null);
 
-  // Text search query
   const { data, loading, error } = useQuery(COMMENT_EMBEDDINGS_SEARCH_QUERY, {
     variables: searchVariables ?? { query: '', scoreBias: 0 },
     skip: !executeSearch,
   });
 
-  // Similarity search query
   const { data: similarityData, loading: similarityLoading, error: similarityError } = useQuery(COMMENT_EMBEDDINGS_SIMILARITY_SEARCH_QUERY, {
     variables: similaritySearchVariables ?? { commentId: '', scoreBias: 0 },
     skip: !executeSimilaritySearch,
@@ -188,8 +185,9 @@ const CommentEmbeddingsPage = ({externalSearchQuery}: {externalSearchQuery?: str
 
   React.useEffect(() => {
     if (externalSearchQuery && externalSearchQuery.trim()) {
+      const isRandomId = !isNotRandomId(externalSearchQuery.trim());
       // Check if the external search query looks like a random ID
-      if (!isNotRandomId(externalSearchQuery.trim())) {
+      if (isRandomId) {
         // If it's a random ID, use similarity search instead
         setSimilaritySearchVariables({ commentId: externalSearchQuery.trim(), scoreBias: karmaBias });
         setExecuteSimilaritySearch(true);
@@ -217,8 +215,8 @@ const CommentEmbeddingsPage = ({externalSearchQuery}: {externalSearchQuery?: str
   return (
     <div>
       <div className={classes.title}>
-          Comment Embeddings Results
-        </div>
+        Comment Embeddings Results
+      </div>
       <div className={classes.header}>
         <Typography variant="body2" className={classes.helpText}>
           Search for comments using semantic similarity, or enter a comment ID to find similar comments.
