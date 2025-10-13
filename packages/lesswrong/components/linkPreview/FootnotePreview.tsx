@@ -28,6 +28,7 @@ const footnotePreviewStyles = (theme: ThemeType) => ({
     fontSize: "1.1rem",
     ...theme.typography.commentStyle,
     color: theme.palette.grey[800],
+    minWidth: 300,
     maxWidth: 500,
     '& a': {
       color: theme.palette.primary.main,
@@ -250,6 +251,7 @@ const FootnotePreview = ({classes, href, id, rel, contentStyleType="postHighligh
           placement="bottom-start"
           allowOverflow
           clickable
+          flip
         >
           <InteractionWrapper>
             <Card>

@@ -3,16 +3,17 @@ import { registerComponent } from '@/lib/vulcan-lib/components';
 import ContentStyles from "../common/ContentStyles";
 import LWDialog from "../common/LWDialog";
 
-const styles = (theme: ThemeType) => ({
+const styles = () => ({
   dialogPaper: {
     marginTop: 48,
     marginBottom: 100,
     marginLeft: 18,
     marginRight: 18,
+    overflow: "auto",
   },
   content: {
     margin: 16,
-    
+
     "& .footnote-content": {
       width: "auto",
     },
