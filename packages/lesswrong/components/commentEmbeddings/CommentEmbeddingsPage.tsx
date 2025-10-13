@@ -5,7 +5,6 @@ import { useStyles, defineStyles } from '@/components/hooks/useStyles';
 import { gql } from '@/lib/generated/gql-codegen';
 import { useQuery } from '@/lib/crud/useQuery';
 import TextField from '@/lib/vendor/@material-ui/core/src/TextField';
-import Button from '@/lib/vendor/@material-ui/core/src/Button';
 import Loading from '../vulcan-core/Loading';
 import CommentsNode from '../comments/CommentsNode';
 import { Typography } from '../common/Typography';
@@ -14,7 +13,6 @@ import { userIsAdmin } from '@/lib/vulcan-users/permissions';
 import ErrorAccessDenied from '../common/ErrorAccessDenied';
 import type { ErrorLike } from '@apollo/client';
 import { isNotRandomId } from '@/lib/random';
-import Row from '../common/Row';
 
 const COMMENT_EMBEDDINGS_SEARCH_QUERY = gql(`
   query CommentEmbeddingsSearchQuery($query: String!, $scoreBias: Float) {
@@ -33,11 +31,6 @@ const COMMENT_EMBEDDINGS_SIMILARITY_SEARCH_QUERY = gql(`
 `);
 
 const styles = defineStyles("CommentEmbeddingsPage", (theme: ThemeType) => ({ 
-  root: {
-    maxWidth: 720,
-    margin: '0 auto',
-    width: '100%',
-  },
   searchContainer: {
     marginBottom: theme.spacing.unit * 3,
     display: 'flex',
@@ -61,7 +54,7 @@ const styles = defineStyles("CommentEmbeddingsPage", (theme: ThemeType) => ({
     height: 36,
   },
   resultsContainer: {
-    marginTop: theme.spacing.unit * 3,
+    marginTop: theme.spacing.unit
   },
   loadingContainer: {
     display: 'flex',
@@ -87,7 +80,6 @@ const styles = defineStyles("CommentEmbeddingsPage", (theme: ThemeType) => ({
   },
   helpText: {
     color: theme.palette.grey[600],
-    fontSize: '0.875rem',
   },
   resultCount: {
     marginBottom: theme.spacing.unit * 2,
@@ -101,7 +93,7 @@ const styles = defineStyles("CommentEmbeddingsPage", (theme: ThemeType) => ({
     display: 'flex',
     justifyContent: 'space-between',
     alignItems: 'center',
-    marginTop: theme.spacing.unit * 3,
+    marginTop: theme.spacing.unit
   },
 }));
 
@@ -223,7 +215,7 @@ const CommentEmbeddingsPage = ({externalSearchQuery}: {externalSearchQuery?: str
   const hasSearched = executeSearch || executeSimilaritySearch;
 
   return (
-    <div className={classes.root}>
+    <div>
       <div className={classes.title}>
           Comment Embeddings Results
         </div>
