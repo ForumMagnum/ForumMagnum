@@ -79,7 +79,9 @@ const PredictedTop50Intro = ({ inefficiency, totalPredicted, loading }: { ineffi
       <p>
         Can we trust these markets?
         Here's a simple check: right now, they collectively predict that {predictedCount} posts will make the top 50 this year.
-        That means there's M${ineff} of free Mana (the platform's currency) for anyone who spots inconsistencies and brings the odds into line.
+        {(!loading && inefficiency > 100) && (
+          <> That means there's M${ineff} of free Mana (the platform's currency) for anyone who spots inconsistencies and brings the odds into line.</>
+        )}
         <Link to="https://manifold.markets/topic/lesswrong-annual-review"> See the markets here.</Link>
       </p>
     </ContentStyles>
@@ -90,10 +92,16 @@ const PostsList = ({ posts }: { posts: PostsListWithVotes[] }) => {
   const classes = useStyles(styles);
   return (
     <>
-      {posts.map((p: PostsListWithVotes & { annualReviewMarketProbability: number }, i: number) => (
+      {posts.map((p: PostsListWithVotes & { annualReviewMarketProbability: number, annualReviewMarketUrl?: string }, i: number) => (
         <React.Fragment key={p._id}>
           <LWTooltip title={`The Manifold prediction market predicts ${Math.round(p.annualReviewMarketProbability * 100)}% chance of being in the top 50 posts for this year.`}>
-            <div className={classes.prob}>{Math.round(p.annualReviewMarketProbability * 100)}%</div>
+            {p.annualReviewMarketUrl ? (
+              <Link to={p.annualReviewMarketUrl}>
+                <div className={classes.prob}>{Math.round(p.annualReviewMarketProbability * 100)}%</div>
+              </Link>
+            ) : (
+              <div className={classes.prob}>{Math.round(p.annualReviewMarketProbability * 100)}%</div>
+            )}
           </LWTooltip>
           <PostsItem post={p} index={i} showKarma={true} showIcons={false} dense={true} showCommentsIcon={false} showPersonalIcon={false} />
         </React.Fragment>
