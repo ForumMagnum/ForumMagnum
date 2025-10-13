@@ -173,11 +173,13 @@ const CommentEmbeddingsPage = ({externalSearchQuery}: {externalSearchQuery?: str
   const [executeSimilaritySearch, setExecuteSimilaritySearch] = useState(false);
   const [similaritySearchVariables, setSimilaritySearchVariables] = useState<{ commentId: string; scoreBias: number } | null>(null);
 
+  // Text search query
   const { data, loading, error } = useQuery(COMMENT_EMBEDDINGS_SEARCH_QUERY, {
     variables: searchVariables ?? { query: '', scoreBias: 0 },
     skip: !executeSearch,
   });
 
+  // Similarity search query
   const { data: similarityData, loading: similarityLoading, error: similarityError } = useQuery(COMMENT_EMBEDDINGS_SIMILARITY_SEARCH_QUERY, {
     variables: similaritySearchVariables ?? { commentId: '', scoreBias: 0 },
     skip: !executeSimilaritySearch,
