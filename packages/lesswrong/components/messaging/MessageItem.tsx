@@ -1,4 +1,4 @@
-import React, { useRef } from 'react';
+import React, { useRef, useState } from 'react';
 import { registerComponent } from '../../lib/vulcan-lib/components';
 import classNames from 'classnames';
 import withErrorBoundary from '../common/withErrorBoundary';
@@ -108,6 +108,7 @@ const MessageItem = ({message, classes}: {
   classes: ClassesType<typeof styles>,
 }) => {
   const currentUser = useCurrentUser();
+  const [hasSelectedText, setHasSelectedText] = useState(false);
   const { html = "" } = message?.contents || {}
 
   
@@ -165,7 +166,12 @@ const MessageItem = ({message, classes}: {
               </MetaInfo>}
             </div>
 
-            {votingSystem.hasInlineReacts ? <InlineReactSelectionWrapper contentRef={messageBodyRef} voteProps={voteProps} styling="comment">
+            {votingSystem.hasInlineReacts ? <InlineReactSelectionWrapper
+              contentRef={messageBodyRef}
+              voteProps={voteProps}
+              styling={isCurrentUser ? "messageLeft" : "messageRight"}
+              setHasSelection={setHasSelectedText}
+            >
                 {bodyElement}
               </InlineReactSelectionWrapper>
             : bodyElement}
@@ -176,7 +182,7 @@ const MessageItem = ({message, classes}: {
               voteProps={voteProps}
               invertColors={!!isCurrentUser}
               isCurrentUser={!!isCurrentUser}
-              isHovered={hover}
+              showReactionButton={hover && !hasSelectedText}
             />
           )}
         </div>

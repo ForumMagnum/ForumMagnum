@@ -412,7 +412,7 @@ const FriendlyInbox = ({
               </div>
               <div>
                 <div className={classes.emptyStateTitle}>No conversation selected</div>
-                <div className={classes.emptyStateSubtitle}>Connect with other users on the forum</div>
+                <div className={classes.emptyStateSubtitle}>{isFriendlyUI() ? "Connect with other users on the forum" : "Bother bother bother!"}</div>
               </div>
               <ButtonComponent onClick={openNewConversationDialog} className={classes.emptyStateButton}>
                 <ForumIcon icon="PencilSquare" className={classes.emptyStateActionIcon} /> Start a new conversation

@@ -24,7 +24,7 @@ export interface NamesAttachedReactionsMessageBottomProps {
   voteProps: VotingProps<VoteableTypeClient>;
   invertColors?: boolean;
   isCurrentUser?: boolean;
-  isHovered?: boolean;
+  showReactionButton?: boolean;
 }
 
 export type PostVotingComponentProps = {

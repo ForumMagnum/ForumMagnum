@@ -1,6 +1,6 @@
 import React, { useRef, useContext } from 'react';
 import type { NamesAttachedReactionsMessageBottomProps } from '@/lib/voting/votingSystemTypes';
-import type { QuoteLocator, NamesAttachedReactionsList, EmojiReactName, UserReactInfo } from '../../../lib/voting/namesAttachedReactions';
+import type { QuoteLocator, EmojiReactName } from '../../../lib/voting/namesAttachedReactions';
 import { reactionsListToDisplayedNumbers, getNormalizedReactionsListFromVoteProps } from '@/lib/voting/reactionDisplayHelpers';
 import { useCurrentUserId } from '../../common/withUser';
 import { useNamesAttachedReactionsVoting, AddReactionButton } from './NamesAttachedReactionsVoteOnComment';
@@ -104,7 +104,7 @@ const NamesAttachedReactionsMessageBottom = ({
   voteProps,
   invertColors = false,
   isCurrentUser = false,
-  isHovered = false,
+  showReactionButton = false,
 }: NamesAttachedReactionsMessageBottomProps) => {
   const classes = useStyles(styles);
   const currentUserId = useCurrentUserId();
@@ -114,7 +114,6 @@ const NamesAttachedReactionsMessageBottom = ({
 
   return (
     <>
-      {/* Existing reactions positioned at bottom-right */}
       {visibleReactionsDisplay.length > 0 && (
         <div className={classes.reactionsContainer}>
           <div className={classNames(
@@ -134,12 +133,11 @@ const NamesAttachedReactionsMessageBottom = ({
         </div>
       )}
 
-      {/* Add reaction button positioned on left/right based on user */}
       <div
         className={classNames(
           classes.addReactionButtonContainer,
           isCurrentUser ? classes.addReactionButtonContainerLeft : classes.addReactionButtonContainerRight,
-          isHovered ? classes.visible : classes.hidden
+          showReactionButton ? classes.visible : classes.hidden
         )}
       >
         <AddReactionButton voteProps={voteProps} />
@@ -163,16 +161,10 @@ const HoverableReactionIcon = ({
 }) => {
   const classes = useStyles(styles);
   const { eventHandlers: { onMouseOver, onMouseLeave } } = useHover();
-  const { getCurrentUserReaction, getCurrentUserReactionVote, toggleReaction } = useNamesAttachedReactionsVoting(voteProps);
-  const currentUserReactionVote = getCurrentUserReactionVote(react, quote);
+  const { getCurrentUserReaction, toggleReaction } = useNamesAttachedReactionsVoting(voteProps);
   const currentUserReaction = getCurrentUserReaction(react, quote);
   const setHoveredReaction = useContext(SetHoveredReactionContext);
   const reactionIconRef = useRef<HTMLSpanElement | null>(null);
-
-  const alreadyUsedReactions: NamesAttachedReactionsList | undefined = getNormalizedReactionsListFromVoteProps(voteProps)?.reacts;
-  const reactions: UserReactInfo[] = alreadyUsedReactions?.[react] ?? [];
-  const quotes = reactions.flatMap(r => r.quotes);
-  const quotesWithUndefinedRemoved = quotes.filter(q => q !== undefined);
 
   function reactionClicked(reaction: EmojiReactName) {
     if (isMobile() || currentUserReaction?.quotes?.length) return;
