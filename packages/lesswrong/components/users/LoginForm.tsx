@@ -109,9 +109,9 @@ type LoginFormProps = {
 }
 
 const LoginForm = (props: LoginFormProps) => {
-  if (isFriendlyUI) {
-    return <LoginFormEA {...props} />
-  }
+  // if (isFriendlyUI) {
+  //   return <LoginFormEA {...props} />
+  // }
   return <LoginFormDefault {...props} />
 }
 

@@ -47,6 +47,7 @@ import { getDefaultViewSelector } from '@/lib/utils/viewUtils';
 import { NotificationsViews } from '@/lib/collections/notifications/views';
 import Notifications from './collections/notifications/collection';
 import { isFriendlyUI } from '@/themes/forumTheme';
+import { addPostTranslationsProxy } from './post-translations-proxy/PostTranslationsProxy';
 
 
 class ApolloServerLogging implements ApolloServerPlugin<ResolverContext> {
@@ -287,6 +288,7 @@ export async function startWebserver() {
   addV2CrosspostHandlers(app);
   addTestingRoutes(app);
   addLlmChatEndpoint(app);
+  addPostTranslationsProxy(app);
 
   if (testServerSetting.get()) {
     app.post('/api/quit', (_req, res) => {

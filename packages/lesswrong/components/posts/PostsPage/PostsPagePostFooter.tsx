@@ -4,7 +4,7 @@ import { userHasPingbacks } from '../../../lib/betas';
 import { AnalyticsContext } from "../../../lib/analyticsEvents";
 import { useFilteredCurrentUser } from '../../common/withUser';
 import { MAX_COLUMN_WIDTH } from './constants';
-import { isLW, isLWorAF } from '../../../lib/instanceSettings';
+import { isLW, isLWorAF, isEAForum } from '../../../lib/instanceSettings';
 import { getVotingSystemByName } from '../../../lib/voting/getVotingSystem';
 import { isFriendlyUI } from '../../../themes/forumTheme';
 import classNames from 'classnames';
@@ -16,6 +16,7 @@ import BottomNavigation from "../../sequences/BottomNavigation";
 import PingbacksList from "../PingbacksList";
 import FooterTagList from "../../tagging/FooterTagList";
 import { SuspenseWrapper } from '@/components/common/SuspenseWrapper';
+import PostTranslations from "@/components/posts/PostsPage/PostTranslations/PostTranslations";
 
 const styles = (theme: ThemeType) => ({
   footerSection: {
@@ -141,6 +142,9 @@ const PostsPagePostFooter = ({post, sequenceId, classes}: {
       <AnalyticsContext pageSectionContext="pingbacks">
         <PingbacksList postId={post._id}/>
       </AnalyticsContext>
+    </SuspenseWrapper>}
+    {isEAForum && <SuspenseWrapper name="post-translations">
+      <PostTranslations postId={post._id} />
     </SuspenseWrapper>}
   </>
 }
