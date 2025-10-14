@@ -18,10 +18,12 @@ import { messageBottomComponents } from '@/lib/voting/votingSystemComponents';
 import HoveredReactionContextProvider from '../votes/lwReactions/HoveredReactionContextProvider';
 import { useHover } from '../common/withHover';
 import type { MessageVotingBottomComponent } from '@/lib/voting/votingSystemTypes';
+import { SideItemsSidebar } from '../contents/SideItems';
 
 const styles = (theme: ThemeType) => ({
   hoverWrapper: {
     width: '100%',
+    display: 'flex',
   },
   root: {
     marginBottom:theme.spacing.unit*1.5,
@@ -45,7 +47,6 @@ const styles = (theme: ThemeType) => ({
   },
   rootCurrentUser: {
     columnGap: 0,
-    marginLeft: 'auto',
   },
   messageWrapper: {
     position: 'relative',
@@ -100,19 +101,24 @@ const styles = (theme: ThemeType) => ({
   bottom: {
     display: 'flex',
     justifyContent: 'flex-end',
+  },
+  currentUserHoverWrapper: {
+    justifyContent: 'flex-end',
+  },
+  currentUserMessageReactSidebar: {
+    marginRight: 20,
   }
 })
 
 /**
  * Display of a single message in the Conversation Wrapper
 */
-const MessageItem = ({message, messageContainerRef, classes}: {
+const MessageItem = ({message, classes}: {
   message: messageListFragment,
-  messageContainerRef?: React.RefObject<HTMLDivElement | null>,
   classes: ClassesType<typeof styles>,
 }) => {
   const currentUser = useCurrentUser();
-  const [hasSelectedText, setHasSelectedText] = useState(false);
+  const [selection, setSelection] = useState<{ text: string, disabled: boolean }>();
   const { html = "" } = message?.contents || {}
 
   
@@ -150,7 +156,10 @@ const MessageItem = ({message, messageContainerRef, classes}: {
   />;
   
   return (
-    <span className={classes.hoverWrapper} {...eventHandlers}>
+    <span className={classNames(classes.hoverWrapper, isCurrentUser && classes.currentUserHoverWrapper)} {...eventHandlers}>
+    {isCurrentUser && <span className={classes.currentUserMessageReactSidebar}>
+      <SideItemsSidebar/>
+    </span>}
     <div className={classNames(
       classes.root,
       isFriendlyUI() ? classes.rootWithImages : classes.rootWithoutImages,
@@ -158,7 +167,7 @@ const MessageItem = ({message, messageContainerRef, classes}: {
     )}>
       {profilePhoto}
       <HoveredReactionContextProvider voteProps={voteProps}>
-        <div className={classes.messageWrapper} ref={messageContainerRef}>
+        <div className={classes.messageWrapper}>
           <Typography variant="body2" className={classNames(classes.message, {[classes.backgroundIsCurrent]: isCurrentUser})}>
             <div className={classes.meta}>
               {message.user && <span className={classes.username}>
@@ -174,7 +183,7 @@ const MessageItem = ({message, messageContainerRef, classes}: {
               contentRef={messageBodyRef}
               voteProps={voteProps}
               styling={isCurrentUser ? "messageLeft" : "messageRight"}
-              setHasSelection={setHasSelectedText}
+              setSelection={setSelection}
             >
                 {bodyElement}
               </InlineReactSelectionWrapper>
@@ -186,12 +195,14 @@ const MessageItem = ({message, messageContainerRef, classes}: {
               voteProps={voteProps}
               invertColors={!!isCurrentUser}
               isCurrentUser={!!isCurrentUser}
-              showReactionButton={hover && !hasSelectedText}
+              showReactionButton={hover || !!selection}
+              selection={selection}
             />
           )}
         </div>
       </HoveredReactionContextProvider>
     </div>
+    {!isCurrentUser && <SideItemsSidebar/>}
     </span>
   )
 }

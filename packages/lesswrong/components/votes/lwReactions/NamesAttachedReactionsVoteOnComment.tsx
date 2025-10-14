@@ -95,7 +95,7 @@ const styles = defineStyles("NamesAttachedReactionsVoteOnComment", (theme: Theme
   },
   addReactionButton: {
     verticalAlign: "bottom",
-    filter: "opacity(0.15)",
+    filter: theme.palette.buttons.messageReaction,
     cursor: "pointer",
     "& svg": {
       width: 20,
@@ -543,7 +543,8 @@ const NamesAttachedReactionsHoverSingleReaction = ({react, voteProps, commentBod
   </div>
 }
 
-export const AddReactionButton = ({voteProps}: {
+export const AddReactionButton = ({title, voteProps}: {
+  title?: string,
   voteProps: VotingProps<VoteableTypeClient>,
 }) => {
   const classes = useStyles(styles);
@@ -561,7 +562,7 @@ export const AddReactionButton = ({voteProps}: {
   return <LWTooltip
     disabled={open}
     inlineBlock={false}
-    title={<>Click to react to this comment</>}
+    title={<>{title ?? 'Click to react to this comment'}</>}
   >
     <span
       ref={buttonRef}

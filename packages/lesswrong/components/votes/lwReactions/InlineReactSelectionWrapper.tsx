@@ -48,11 +48,11 @@ function getButtonOffsetTop(styling: Styling): number {
   }
 }
 
-const InlineReactSelectionWrapper = ({contentRef, voteProps, styling, setHasSelection, children, classes}: {
+const InlineReactSelectionWrapper = ({contentRef, voteProps, styling, setSelection, children, classes}: {
   contentRef?: React.RefObject<ContentItemBodyImperative|null>|null, // we need this to check if the mouse is still over the comment, and it needs to be passed down from CommentsItem instead of declared here because it needs extra padding in order to behave intuively (without losing the selection)
   voteProps: VotingProps<VoteableTypeClient>
   styling: Styling,
-  setHasSelection?: (hasSelection: boolean) => void,
+  setSelection?: (selection?: { text: string, disabled: boolean }) => void,
   children: React.ReactNode,
   classes: ClassesType<typeof styles>,
 }) => {
@@ -67,7 +67,7 @@ const InlineReactSelectionWrapper = ({contentRef, voteProps, styling, setHasSele
       setAnchorEl(null);
       setQuote("")
       setDisabledButton(false)
-      setHasSelection?.(false)
+      setSelection?.()
     }
   
     const selection = window.getSelection()
@@ -92,7 +92,7 @@ const InlineReactSelectionWrapper = ({contentRef, voteProps, styling, setHasSele
         // Count the number of occurrences of the quote in the raw text
         const count = countStringsInString(commentText, selectedText);
         setDisabledButton(count > 1)
-        setHasSelection?.(true)
+        setSelection?.({ text: selectedText, disabled: count > 1 })
       } else {
         clearAll()
       }
@@ -100,7 +100,7 @@ const InlineReactSelectionWrapper = ({contentRef, voteProps, styling, setHasSele
     if (!selectionInCommentRef && !selectionInPopupRef) {
       clearAll()
     }
-  }, [contentRef, commentTextRef, setHasSelection]);
+  }, [contentRef, commentTextRef, setSelection]);
   
   useEffect(() => { 
     document.addEventListener('selectionchange', detectSelection);
@@ -114,7 +114,7 @@ const InlineReactSelectionWrapper = ({contentRef, voteProps, styling, setHasSele
 
   return (
     <div ref={commentTextRef}>
-      <LWPopper
+      {!setSelection && <LWPopper
         className={classes.popper}
         open={!!anchorEl} anchorEl={anchorEl}
         placement="right"
@@ -125,7 +125,7 @@ const InlineReactSelectionWrapper = ({contentRef, voteProps, styling, setHasSele
         >
           <AddInlineReactionButton quote={quote} voteProps={voteProps} disabled={disabledButton}/>
         </span> 
-      </LWPopper>
+      </LWPopper>}
 
       {children}
     </div>

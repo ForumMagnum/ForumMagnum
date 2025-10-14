@@ -43,7 +43,6 @@ const styles = (theme: ThemeType) => ({
       padding: '18px 0px',
       marginTop: "auto",
     } : {
-      margin: '32px 0px',
       padding: '8px 0px',
       backgroundColor: theme.palette.background.paper,
     })
@@ -63,8 +62,6 @@ const styles = (theme: ThemeType) => ({
     [theme.breakpoints.down("xs")]: {
       width: "calc(100% - 5px)",
     },
-  },
-  sidebar: {
   },
 });
 
@@ -147,24 +144,15 @@ const ConversationContents = ({
     }
   }, [query.from, conversation, currentUser._id]);
 
-  const messageContainerRefs = useMemo(() => results?.map(() => createRef<HTMLDivElement>()) ?? [], [results]);
-  const refValues = messageContainerRefs.map(ref => ref.current);
-
-  const relativeAnchorParents: RelativeAnchorParent[] | undefined = useMemo(() => {
-    return results?.map((message, idx) => ({
-      parent: refValues[idx],
-      side: message.user?._id === currentUser._id ? 'left' : 'right',
-      offset: message.user?._id === currentUser._id ? 46 : -36,
-    }));
-  }, [results, currentUser._id, refValues]);
-
   const renderMessages = () => {
     if (!results?.length) return null;
 
     return (
       <div data-testid="conversation-messages">
         {results.map((message, idx) => (
-          <MessageItem key={message._id} message={message} messageContainerRef={messageContainerRefs[idx]} />
+          <SideItemsContainer key={message._id}>
+            <MessageItem message={message} />
+          </SideItemsContainer>
         ))}
       </div>
     );
@@ -175,47 +163,42 @@ const ConversationContents = ({
 
   return (
     <div>
-      <SideItemsContainer relativeAnchorParents={relativeAnchorParents}>
-        <div className={classes.messagesContainer}>
-          <div className={classes.messagesColumn}>
-            {renderMessages()}
-            <div className={classes.editor}>
-              <MessagesNewForm
-                key={`sendMessage-${messageSentCount}`}
-                conversationId={conversation._id}
-                templateQueries={{ templateId: query.templateId, displayName: query.displayName }}
-                formStyle="minimalist"
-                successEvent={(newMessage) => {
-                  setMessageSentCount(messageSentCount + 1);
-                  captureEvent("messageSent", {
-                    conversationId: conversation._id,
-                    sender: currentUser._id,
-                    participantIds: conversation.participantIds,
-                    messageCount: (conversation.messageCount || 0) + 1,
-                    ...(profileViewedFrom?.current && { from: profileViewedFrom.current }),
-                  });
-                  updateQuery((_, { previousData }) => {
-                    const previousResults = previousData?.messages?.results ?? [];
-                    const previousMessages = previousResults.filter((m): m is messageListFragment => m !== undefined) ?? [];
+      <div className={classes.messagesContainer}>
+        <div className={classes.messagesColumn}>
+          {renderMessages()}
+          <div className={classes.editor}>
+            <MessagesNewForm
+              key={`sendMessage-${messageSentCount}`}
+              conversationId={conversation._id}
+              templateQueries={{ templateId: query.templateId, displayName: query.displayName }}
+              formStyle="minimalist"
+              successEvent={(newMessage) => {
+                setMessageSentCount(messageSentCount + 1);
+                captureEvent("messageSent", {
+                  conversationId: conversation._id,
+                  sender: currentUser._id,
+                  participantIds: conversation.participantIds,
+                  messageCount: (conversation.messageCount || 0) + 1,
+                  ...(profileViewedFrom?.current && { from: profileViewedFrom.current }),
+                });
+                updateQuery((_, { previousData }) => {
+                  const previousResults = previousData?.messages?.results ?? [];
+                  const previousMessages = previousResults.filter((m): m is messageListFragment => m !== undefined) ?? [];
 
-                    return {
-                      __typename: "Query" as const,
-                      messages: {
-                        __typename: "MultiMessageOutput" as const,
-                        results: [...previousMessages, newMessage],
-                        totalCount: previousData?.messages?.totalCount ? previousData?.messages?.totalCount + 1 : 1,
-                      },
-                    }
-                  })
-                }}
-              />
-            </div>
-          </div>
-          <div className={classes.sidebar}>
-            <SideItemsSidebar/>
+                  return {
+                    __typename: "Query" as const,
+                    messages: {
+                      __typename: "MultiMessageOutput" as const,
+                      results: [...previousMessages, newMessage],
+                      totalCount: previousData?.messages?.totalCount ? previousData?.messages?.totalCount + 1 : 1,
+                    },
+                  }
+                })
+              }}
+            />
           </div>
         </div>
-        </SideItemsContainer>
+      </div>
     </div>
   );
 };

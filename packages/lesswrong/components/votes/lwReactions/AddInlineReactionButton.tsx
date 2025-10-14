@@ -35,11 +35,13 @@ const styles = (theme: ThemeType) => ({
   }
 })
 
-const AddInlineReactionButton = ({voteProps, classes, quote, disabled}: {
+const AddInlineReactionButton = ({voteProps, classes, quote, disabled, tooltipClassName, iconClassName}: {
   voteProps: VotingProps<VoteableTypeClient>,
   classes: ClassesType<typeof styles>,
   quote: QuoteLocator|null,
-  disabled?: boolean
+  disabled?: boolean,
+  tooltipClassName?: string,
+  iconClassName?: string,
 }) => {
   const [open,setOpen] = useState(false);
   const buttonRef = useRef<HTMLElement|null>(null);
@@ -61,7 +63,7 @@ const AddInlineReactionButton = ({voteProps, classes, quote, disabled}: {
     title={<div><p>Click to react to the selected text</p>
       {disabled && <p><em>You need to select a unique snippet.<br/>Please select more text until the snippet is unique</em></p>}
     </div>}
-    className={classes.tooltip}
+    className={classNames(classes.tooltip, tooltipClassName)}
   >
     <span
       ref={buttonRef}
@@ -70,7 +72,7 @@ const AddInlineReactionButton = ({voteProps, classes, quote, disabled}: {
         * (specifically), clicking outside of a text selection deselects on
         * press, which makes the button disappear.
         */}
-      {!open && <ForumIcon icon="AddReaction" onMouseDown={handleOpen} className={classNames(classes.icon, { [classes.disabled]: disabled })}/>}
+      {!open && <ForumIcon icon="AddReaction" onMouseDown={handleOpen} className={classNames(classes.icon, { [classes.disabled]: disabled }, iconClassName)}/>}
       {open && <div className={classes.palette}>
         <ReactionsPalette
           getCurrentUserReactionVote={getCurrentUserReactionVote}

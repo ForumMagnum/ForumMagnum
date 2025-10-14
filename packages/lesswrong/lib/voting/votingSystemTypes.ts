@@ -25,6 +25,7 @@ export interface NamesAttachedReactionsMessageBottomProps {
   invertColors?: boolean;
   isCurrentUser?: boolean;
   showReactionButton?: boolean;
+  selection?: { text: string, disabled: boolean };
 }
 
 export type PostVotingComponentProps = {

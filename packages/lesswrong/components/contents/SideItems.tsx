@@ -1,9 +1,6 @@
 import React, { createContext, useCallback, useContext, useEffect, useMemo, useReducer, useRef, useState } from 'react';
-import classNames from 'classnames';
 import orderBy from 'lodash/orderBy';
 import { createPortal } from 'react-dom';
-import { useHover } from '@/components/common/withHover';
-import { registerComponent } from '@/lib/vulcan-lib/components';
 import { getOffsetChainTop } from '@/lib/utils/domUtil';
 import { defineStyles, useStyles } from '../hooks/useStyles';
 
@@ -20,7 +17,6 @@ const defaultSideItemOptions: SideItemOptions = {
 type SideItem = {
   id: number
   anchorEl: HTMLElement
-  relativeAnchorParent: RelativeAnchorParent|null
   container: HTMLElement
   options: SideItemOptions
   
@@ -73,23 +69,7 @@ function useForceRerender() {
   return {renderCount, rerender};
 }
 
-function getRightOffsetForRelativelyAnchoredItem(sideItem: SideItem): string {
-  if (!sideItem.relativeAnchorParent?.parent) {
-    return '';
-  }
-
-  let rightOffset = 0;
-  if (sideItem.relativeAnchorParent.side === 'left') {
-    rightOffset = sideItem.relativeAnchorParent.parent.offsetWidth + sideItem.relativeAnchorParent.offset;
-  } else {
-    rightOffset = (window.innerWidth - sideItem.relativeAnchorParent.parent.getBoundingClientRect().right) + sideItem.relativeAnchorParent.offset;
-  }
-  
-  return `right: ${rightOffset}px`;
-}
-
-export const SideItemsContainer = ({relativeAnchorParents, children}: {
-  relativeAnchorParents?: RelativeAnchorParent[]
+export const SideItemsContainer = ({children}: {
   children: React.ReactNode
 }) => {
   const classes = useStyles(styles);
@@ -100,18 +80,15 @@ export const SideItemsContainer = ({relativeAnchorParents, children}: {
   const addSideItem = useCallback((anchorEl: HTMLElement, options: SideItemOptions) => {
     const container = document.createElement("div");
     container.setAttribute("class", classes.sideItem);
-    // If there are relative anchor parents passed in, find the one that is an ancestor of the anchorEl span.
-    const relativeAnchorParent = relativeAnchorParents?.find(({ parent }) => parent?.contains(anchorEl)) ?? null;
     state.current.sideItems = [...state.current.sideItems, {
       id: ++state.current.maxId,
       anchorEl, container,
       options,
       anchorTop: null, anchorLeft: null, sideItemHeight: null,
-      relativeAnchorParent,
     }];
     rerender();
     return container;
-  }, [rerender, relativeAnchorParents, classes]);
+  }, [rerender, classes]);
   
   const removeSideItem = useCallback((anchorEl: HTMLElement) => {
     const removedItemIndex = state.current.sideItems.findIndex(s => s.anchorEl === anchorEl);
@@ -226,9 +203,7 @@ export const SideItemsSidebar = () => {
 
       const sidebarColumnHeight = sideItemColumnRef.current?.clientHeight;
 
-      const right = getRightOffsetForRelativelyAnchoredItem(sideItem);
-
-      const style = `top:${newTop}px; --sidebar-column-remaining-height: ${sidebarColumnHeight - newTop}px; ${right}`;
+      const style = `top:${newTop}px; --sidebar-column-remaining-height: ${sidebarColumnHeight - newTop}px`;
 
       sideItem.container.setAttribute("style", style);
       top = newTop + sideItem.sideItemHeight!;

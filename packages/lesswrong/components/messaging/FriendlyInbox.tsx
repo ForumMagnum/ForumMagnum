@@ -24,6 +24,7 @@ import qs from "qs";
 import SectionFooterCheckbox from "../form-components/SectionFooterCheckbox";
 import ArchiveIcon from "@/lib/vendor/@material-ui/icons/src/Archive";
 import LWTooltip from "../common/LWTooltip";
+import { StatusCodeSetter } from "../next/StatusCodeSetter";
 
 const ConversationsListWithReadStatusMultiQuery = gql(`
   query multiConversationFriendlyInboxQuery($selector: ConversationSelector, $limit: Int, $enableTotal: Boolean) {
@@ -113,6 +114,7 @@ const styles = (theme: ThemeType) => ({
   },
   rightColumn: {
     flex: "1 1 auto",
+    minWidth: 0,
     [theme.breakpoints.down('xs')]: {
       maxWidth: "100%",
     },
@@ -278,7 +280,7 @@ const FriendlyInbox = ({
 
   const selectorTerms = { userId: currentUser._id, showArchive };
   const selectedView = isModInbox ? "moderatorConversations" : view;
-  const initialLimit = 500;
+  const initialLimit = 50;
   const {
     data: conversationsData,
     loading: conversationsLoading,
@@ -290,6 +292,7 @@ const FriendlyInbox = ({
       limit: initialLimit,
       enableTotal: false,
     },
+    itemsPerPage: 50,
   });
 
   const conversations = useMemo(() => conversationsData?.conversations?.results ?? [], [conversationsData?.conversations?.results]);
@@ -342,6 +345,7 @@ const FriendlyInbox = ({
 
   return (
     <div className={classes.root}>
+      <StatusCodeSetter status={200} />
       {showModeratorLink && isFriendlyUI() && (
         <Link to={"/inbox" + modInboxQueryParam} className={classes.modInboxLink}>
           Mod Inbox
@@ -408,7 +412,7 @@ const FriendlyInbox = ({
               </div>
             </>
           )}
-          {!conversationsLoading && !selectedConversation && (
+          {!selectedConversation && (
             <div className={classes.emptyState}>
               <div>
                 <ForumIcon icon="LightbulbChat" className={classes.emptyStateIcon} />

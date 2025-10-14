@@ -121,6 +121,7 @@ const styles = defineStyles('MessagesNewForm', (theme: ThemeType) => ({
   emailCheckbox: {
     marginTop: 0,
     marginRight: 0,
+    justifyContent: "flex-end",
     '& .MuiFormControlLabel-label': {
       marginTop: -3,
     },
