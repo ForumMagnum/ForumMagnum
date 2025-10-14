@@ -80,7 +80,7 @@ export const loginUser = async (
   {email, password}: PlaywrightUser,
 ): Promise<void> => {
   await logout(context);
-  await context.request.post("/graphql", {
+  const postResult = await context.request.post("/graphql", {
     data: {
       query: `
         mutation {
@@ -94,7 +94,7 @@ export const loginUser = async (
       "content-type": "application/json",
     },
   });
-  await sleep(100);
+  await postResult.json();
 }
 
 export const createNewUserDetails = (): PlaywrightUser => {
