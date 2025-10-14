@@ -11,7 +11,7 @@ import Loading from "../vulcan-core/Loading";
 import MessageItem from "./MessageItem";
 import { useQuery } from "@/lib/crud/useQuery";
 import { gql } from "@/lib/generated/gql-codegen";
-import { RelativeAnchorParent, SideItemsContainer, SideItemsSidebar } from "../contents/SideItems.tsx";
+import { SideItemsContainer } from "../contents/SideItems.tsx";
 
 const messageListFragmentMultiQuery = gql(`
   query multiMessageConversationContentsQuery($selector: MessageSelector, $limit: Int, $enableTotal: Boolean) {

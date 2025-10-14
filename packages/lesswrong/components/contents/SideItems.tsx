@@ -33,16 +33,8 @@ type SideItemsPlacementContextType = {
   removeSideItem: (anchorEl: HTMLElement) => void
   resizeItem: (anchorEl: HTMLElement, newHeight: number) => void
 }
-
-export type RelativeAnchorParent = {
-  parent: HTMLElement | null;
-  side: 'left' | 'right';
-  offset: number;
-}
-
 type SideItemsDisplayContextType = {
   sideItems: SideItem[]
-  relativeAnchorParents?: RelativeAnchorParent[]
 };
 const SideItemsPlacementContext = createContext<SideItemsPlacementContextType|null>(null);
 const SideItemsDisplayContext = createContext<SideItemsDisplayContextType|null>(null);
