@@ -38,7 +38,6 @@ export const createHttpLink = (baseUrl: string, loginToken: string|null) => {
       http: context.http,
       options: context.fetchOptions,
       credentials: context.credentials,
-      headers: context.headers,
     };
 
     const defaultBatchKey = selectURI(operation, uri) + JSON.stringify(contextConfig);
