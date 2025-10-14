@@ -700,8 +700,6 @@ function getNewExpansionState(expansionState: Record<string, ExpansionState>, to
 
 const TopPostsPage = () => {
   const classes = useStyles(styles);
-  const location = useLocation();
-  const { query } = location;
 
   const screenWidth = useWindowWidth(2000);
   /** 

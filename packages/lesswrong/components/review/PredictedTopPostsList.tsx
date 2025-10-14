@@ -25,19 +25,27 @@ const styles = defineStyles('PredictedTopPostsList', (theme: ThemeType) => ({
     textAlign: 'right',
     fontFamily: theme.typography.fontFamily,
     color: theme.palette.grey[500],
-    [theme.breakpoints.down('sm')]: {
-      display: 'none'
-    },
   },
   predictedPostList: {
     display: 'grid',
     width: '100%',
     alignItems: 'center',
+    paddingRight: 16,
+    paddingLeft: 16,
+    [theme.breakpoints.up('md')]: {
+      paddingRight: 0,
+      paddingLeft: 0,
+    },
     ...gridTemplateColumns,
     ...theme.typography.body2,
   },
   intro: {
-    marginLeft: 45,
+    [theme.breakpoints.up('md')]: {
+      marginLeft: 45,
+      marginBottom: 30,
+    },
+    marginLeft: 16,
+    marginRight: 16,
     marginBottom: 45,
   },
   loading: {
