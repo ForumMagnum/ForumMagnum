@@ -722,6 +722,9 @@ interface DbManifoldProbabilitiesCache extends DbObject {
   lastUpdated: Date
   legacyData: any | null
   marketId: string
+  mechanism: string | null
+  p: number | null
+  pool: any | null
   probability: number
   url: string | null
   year: number

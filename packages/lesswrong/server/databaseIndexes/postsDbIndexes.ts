@@ -12,10 +12,24 @@ function augmentForDefaultView(indexFields: MongoIndexKeyObj<DbPost>) {
 
 export function getDbIndexesOnPosts() {
   const indexSet = new DatabaseIndexSet();
-  // Prediction tabs: year-range filtering with default view constraints
+  // Optimized index for fetchCandidatePosts in reviewPredictionResolvers
+  // Covers the exact query pattern with partial filter for constant conditions
   indexSet.addIndex("Posts",
-    augmentForDefaultView({ postedAt: 1, status: 1, draft: 1, shortform: 1, unlisted: 1, isEvent: 1 }),
-    { name: "posts.predictions_year_filter" }
+    {
+      manifoldReviewMarketId: 1,
+      postedAt: 1,
+    },
+    {
+      name: "posts.manifold_predictions_optimized",
+      partialFilterExpression: {
+        status: postStatuses.STATUS_APPROVED,
+        draft: false,
+        shortform: false,
+        unlisted: false,
+        isEvent: false,
+        manifoldReviewMarketId: { $exists: true }
+      }
+    }
   );
   // Manifold market id for joins and lookups
   indexSet.addIndex("Posts", { manifoldReviewMarketId: 1 }, { name: "posts.manifoldReviewMarketId" });

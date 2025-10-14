@@ -3070,6 +3070,9 @@ export type ManifoldProbabilitiesCache = {
   lastUpdated: Scalars['Date']['output'];
   legacyData: Maybe<Scalars['JSON']['output']>;
   marketId: Scalars['String']['output'];
+  mechanism: Maybe<Scalars['String']['output']>;
+  p: Maybe<Scalars['Float']['output']>;
+  pool: Maybe<Scalars['JSON']['output']>;
   probability: Scalars['Float']['output'];
   schemaVersion: Scalars['Float']['output'];
   url: Maybe<Scalars['String']['output']>;

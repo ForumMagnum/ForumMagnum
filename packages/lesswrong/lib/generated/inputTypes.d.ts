@@ -3448,6 +3448,9 @@ interface ManifoldProbabilitiesCache {
   year: number;
   lastUpdated: Date;
   url: string | null;
+  mechanism: string | null;
+  pool: any;
+  p: number | null;
 }
 
 interface Message {

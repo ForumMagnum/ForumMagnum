@@ -1246,7 +1246,10 @@ CREATE UNLOGGED TABLE "ManifoldProbabilitiesCaches" (
   "isResolved" BOOL NOT NULL,
   "year" DOUBLE PRECISION NOT NULL,
   "lastUpdated" TIMESTAMPTZ NOT NULL,
-  "url" TEXT
+  "url" TEXT,
+  "mechanism" TEXT,
+  "pool" JSONB,
+  "p" DOUBLE PRECISION
 );
 
 -- Index "idx_ManifoldProbabilitiesCaches_schemaVersion"

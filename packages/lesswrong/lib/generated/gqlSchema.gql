@@ -3801,6 +3801,9 @@ type ManifoldProbabilitiesCache {
   year: Float!
   lastUpdated: Date!
   url: String
+  mechanism: String
+  pool: JSON
+  p: Float
 }
 
 type Message {
