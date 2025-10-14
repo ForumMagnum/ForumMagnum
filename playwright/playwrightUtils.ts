@@ -90,6 +90,7 @@ export const loginUser = async (
       `,
     },
   });
+  await Promise.all(context.pages().map(page => page.reload()));
 }
 
 export const createNewUserDetails = (): PlaywrightUser => {
