@@ -1,20 +1,17 @@
-import React, { useEffect, useRef, useState } from "react";
+import React, { createRef, useEffect, useMemo, useRef, useState } from "react";
 import { registerComponent } from "../../lib/vulcan-lib/components";
 import withErrorBoundary from "../common/withErrorBoundary";
 import { useLocation } from "../../lib/routeUtil";
 import { useTracking } from "../../lib/analyticsEvents";
 import { getBrowserLocalStorage } from "../editor/localStorageHandlers";
 import stringify from "json-stringify-deterministic";
-import {isFriendlyUI} from '../../themes/forumTheme.ts'
 import MessagesNewForm from "./MessagesNewForm";
 import Error404 from "../common/Error404";
 import Loading from "../vulcan-core/Loading";
 import MessageItem from "./MessageItem";
-import Divider from "../common/Divider";
 import { useQuery } from "@/lib/crud/useQuery";
 import { gql } from "@/lib/generated/gql-codegen";
-import { SideItemsContainer, SideItemsSidebar } from "../contents/SideItems.tsx";
-import { widthElements } from "juice";
+import { RelativeAnchorParent, SideItemsContainer, SideItemsSidebar } from "../contents/SideItems.tsx";
 
 const messageListFragmentMultiQuery = gql(`
   query multiMessageConversationContentsQuery($selector: MessageSelector, $limit: Int, $enableTotal: Boolean) {
@@ -145,14 +142,25 @@ const ConversationContents = ({
       profileViewedFrom.current = lastViewedProfiles?.find((profile: any) => profile.userId === otherUserId)?.from;
     }
   }, [query.from, conversation, currentUser._id]);
+
+  const messageContainerRefs = useMemo(() => results?.map(() => createRef<HTMLDivElement>()) ?? [], [results]);
+  const refValues = messageContainerRefs.map(ref => ref.current);
+
+  const relativeAnchorParents: RelativeAnchorParent[] | undefined = useMemo(() => {
+    return results?.map((message, idx) => ({
+      parent: refValues[idx],
+      side: message.user?._id === currentUser._id ? 'left' : 'right',
+      offset: message.user?._id === currentUser._id ? 46 : -36,
+    }));
+  }, [results, currentUser._id, refValues]);
+
   const renderMessages = () => {
-    if (loading && !results) return <Loading />;
     if (!results?.length) return null;
 
     return (
       <div data-testid="conversation-messages">
-        {results.map((message) => (
-          <MessageItem key={message._id} message={message} />
+        {results.map((message, idx) => (
+          <MessageItem key={message._id} message={message} messageContainerRef={messageContainerRefs[idx]} />
         ))}
       </div>
     );
@@ -163,7 +171,7 @@ const ConversationContents = ({
 
   return (
     <div>
-      <SideItemsContainer>
+      <SideItemsContainer relativeAnchorParents={relativeAnchorParents}>
         <div className={classes.messagesContainer}>
           <div className={classes.messagesColumn}>
             {renderMessages()}

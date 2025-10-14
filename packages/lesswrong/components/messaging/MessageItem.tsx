@@ -103,8 +103,9 @@ const styles = (theme: ThemeType) => ({
 /**
  * Display of a single message in the Conversation Wrapper
 */
-const MessageItem = ({message, classes}: {
+const MessageItem = ({message, messageContainerRef, classes}: {
   message: messageListFragment,
+  messageContainerRef?: React.RefObject<HTMLDivElement | null>,
   classes: ClassesType<typeof styles>,
 }) => {
   const currentUser = useCurrentUser();
@@ -154,7 +155,7 @@ const MessageItem = ({message, classes}: {
     )}>
       {profilePhoto}
       <HoveredReactionContextProvider voteProps={voteProps}>
-        <div className={classes.messageWrapper}>
+        <div className={classes.messageWrapper} ref={messageContainerRef}>
           <Typography variant="body2" className={classNames(classes.message, {[classes.backgroundIsCurrent]: isCurrentUser})}>
             <div className={classes.meta}>
               {message.user && <span className={classes.username}>

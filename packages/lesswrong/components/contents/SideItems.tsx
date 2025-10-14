@@ -20,9 +20,10 @@ const defaultSideItemOptions: SideItemOptions = {
 type SideItem = {
   id: number
   anchorEl: HTMLElement
+  relativeAnchorParent: RelativeAnchorParent|null
   container: HTMLElement
   options: SideItemOptions
-
+  
   anchorTop: number|null
   anchorLeft: number|null
   sideItemHeight: number|null
@@ -36,8 +37,16 @@ type SideItemsPlacementContextType = {
   removeSideItem: (anchorEl: HTMLElement) => void
   resizeItem: (anchorEl: HTMLElement, newHeight: number) => void
 }
+
+export type RelativeAnchorParent = {
+  parent: HTMLElement | null;
+  side: 'left' | 'right';
+  offset: number;
+}
+
 type SideItemsDisplayContextType = {
   sideItems: SideItem[]
+  relativeAnchorParents?: RelativeAnchorParent[]
 };
 const SideItemsPlacementContext = createContext<SideItemsPlacementContextType|null>(null);
 const SideItemsDisplayContext = createContext<SideItemsDisplayContextType|null>(null);
@@ -64,7 +73,23 @@ function useForceRerender() {
   return {renderCount, rerender};
 }
 
-export const SideItemsContainer = ({children}: {
+function getRightOffsetForRelativelyAnchoredItem(sideItem: SideItem): string {
+  if (!sideItem.relativeAnchorParent?.parent) {
+    return '';
+  }
+
+  let rightOffset = 0;
+  if (sideItem.relativeAnchorParent.side === 'left') {
+    rightOffset = sideItem.relativeAnchorParent.parent.offsetWidth + sideItem.relativeAnchorParent.offset;
+  } else {
+    rightOffset = (window.innerWidth - sideItem.relativeAnchorParent.parent.getBoundingClientRect().right) + sideItem.relativeAnchorParent.offset;
+  }
+  
+  return `right: ${rightOffset}px`;
+}
+
+export const SideItemsContainer = ({relativeAnchorParents, children}: {
+  relativeAnchorParents?: RelativeAnchorParent[]
   children: React.ReactNode
 }) => {
   const classes = useStyles(styles);
@@ -75,15 +100,18 @@ export const SideItemsContainer = ({children}: {
   const addSideItem = useCallback((anchorEl: HTMLElement, options: SideItemOptions) => {
     const container = document.createElement("div");
     container.setAttribute("class", classes.sideItem);
+    // If there are relative anchor parents passed in, find the one that is an ancestor of the anchorEl span.
+    const relativeAnchorParent = relativeAnchorParents?.find(({ parent }) => parent?.contains(anchorEl)) ?? null;
     state.current.sideItems = [...state.current.sideItems, {
       id: ++state.current.maxId,
       anchorEl, container,
       options,
       anchorTop: null, anchorLeft: null, sideItemHeight: null,
+      relativeAnchorParent,
     }];
     rerender();
     return container;
-  }, [rerender, classes]);
+  }, [rerender, relativeAnchorParents, classes]);
   
   const removeSideItem = useCallback((anchorEl: HTMLElement) => {
     const removedItemIndex = state.current.sideItems.findIndex(s => s.anchorEl === anchorEl);
@@ -198,10 +226,12 @@ export const SideItemsSidebar = () => {
 
       const sidebarColumnHeight = sideItemColumnRef.current?.clientHeight;
 
-      const style = `top:${newTop}px; --sidebar-column-remaining-height: ${sidebarColumnHeight - newTop}px`;
+      const right = getRightOffsetForRelativelyAnchoredItem(sideItem);
+
+      const style = `top:${newTop}px; --sidebar-column-remaining-height: ${sidebarColumnHeight - newTop}px; ${right}`;
 
       sideItem.container.setAttribute("style", style);
-      top = newTop + sideItem.sideItemHeight!;  
+      top = newTop + sideItem.sideItemHeight!;
     }
     
     // Use a ResizeObserver to watch for size-changes of side-item containers
