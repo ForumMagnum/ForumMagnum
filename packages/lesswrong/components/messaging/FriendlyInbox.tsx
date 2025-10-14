@@ -113,6 +113,9 @@ const styles = (theme: ThemeType) => ({
   },
   rightColumn: {
     flex: "1 1 auto",
+    [theme.breakpoints.down('xs')]: {
+      maxWidth: "100%",
+    },
   },
   hideColumnSm: {
     [theme.breakpoints.down('xs')]: {

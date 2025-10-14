@@ -31,7 +31,9 @@ const styles = (theme: ThemeType) => ({
     marginBottom: 12,
   },
   editor: {
-    position: "relative",
+    position: "sticky",
+    bottom: 0,
+    width: "100%",
     '& .form-submit': {
       // form-submit has display: block by default, which for some reason makes it take up 0 height
       // on mobile. This fixes that.
@@ -42,6 +44,8 @@ const styles = (theme: ThemeType) => ({
       marginTop: "auto",
     } : {
       margin: '32px 0px',
+      padding: '8px 0px',
+      backgroundColor: theme.palette.background.paper,
     })
   },
   backButton: {

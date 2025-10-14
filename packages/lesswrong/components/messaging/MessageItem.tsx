@@ -39,6 +39,9 @@ const styles = (theme: ThemeType) => ({
   rootWithoutImages: {
     maxWidth: '60%',
     width: 'fit-content',
+    [theme.breakpoints.down('xs')]: {
+      maxWidth: "80%",
+    },
   },
   rootCurrentUser: {
     columnGap: 0,
