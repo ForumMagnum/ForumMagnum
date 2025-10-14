@@ -1,3 +1,4 @@
+import { sleep } from "@/lib/utils/asyncUtils";
 import { createPasswordHash } from "@/server/vulcan-lib/apollo-server/passwordHelpers";
 import type { Browser, BrowserContext, Cookie, Page } from "@playwright/test";
 import pgp, { IDatabase } from "pg-promise";
@@ -93,7 +94,7 @@ export const loginUser = async (
       "content-type": "application/json",
     },
   });
-  await Promise.all(context.pages().map(page => page.reload()));
+  await sleep(100);
 }
 
 export const createNewUserDetails = (): PlaywrightUser => {
