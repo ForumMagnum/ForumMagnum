@@ -42,33 +42,24 @@ export const reviewPredictionGraphQLQueries = {
     }, { limit: 2000 }).fetch();
 
     // Load probabilities; this triggers cache refresh for missing markets
-    const withProbs = await Promise.all(candidates.map(async (p) => {
-      const info = await getPostMarketInfo(p as DbPost, context);
+    const withProbs = await Promise.all(candidates.map(async (p: DbPost) => {
+      const info = await getPostMarketInfo(p, context);
       return { post: p, info } as const;
     }));
 
     let unresolvedWithProb = withProbs.filter(x => x.info && x.info.probability != null && !x.info.isResolved);
 
-    // If we don't have enough items with cached probabilities, fetch live from Manifold
-    const desired = limit ?? 50;
-    if (unresolvedWithProb.length < desired) {
-      const remaining = candidates.filter(c => !unresolvedWithProb.some(x => x.post._id === c._id));
-      for (const p of remaining) {
-        if (!p.manifoldReviewMarketId) continue;
-        const live = await postGetMarketInfoFromManifold(p.manifoldReviewMarketId, year);
-        if (live && !live.isResolved && typeof live.probability === 'number') {
-          // Write to cache for future requests
-          try {
-            await context.repos.manifoldProbabilitiesCachesRepo.upsertMarketInfoInCache(p.manifoldReviewMarketId, live);
-          } catch (_e) { /* ignore cache errors */ }
-          unresolvedWithProb.push({ post: p, info: live });
-          if (unresolvedWithProb.length >= desired) break;
-        }
+    const remaining = candidates.filter(c => !unresolvedWithProb.some(x => x.post._id === c._id));
+    for (const p of remaining) {
+      if (!p.manifoldReviewMarketId) continue;
+      const live = await postGetMarketInfoFromManifold(p.manifoldReviewMarketId, year);
+      if (live && !live.isResolved && typeof live.probability === 'number') {
+        unresolvedWithProb.push({ post: p, info: live });
       }
     }
 
     const sorted = unresolvedWithProb.sort((a, b) => (b.info!.probability - a.info!.probability) || a.post._id.localeCompare(b.post._id));
-    const selected = sorted.slice(0, desired).map(x => x.post);
+    const selected = sorted.slice(0, limit ?? 50).map(x => x.post);
     return accessFilterMultiple(context.currentUser, 'Posts', selected, context);
   },
 
