@@ -120,7 +120,8 @@ const getTimeout = () => {
   // Crossposting tests are more complex and take longer
   const base = process.env.CROSSPOST_TEST ? 60_000 : 30_000;
   // Increase timeout in CI as Github runners are very underpowered
-  const multiplier = process.env.CI ? 4 : 1;
+  //const multiplier = process.env.CI ? 4 : 1;
+  const multiplier = process.env.CI ? 2 : 1;
   return base * multiplier;
 }
 
@@ -134,7 +135,7 @@ export default defineConfig({
   /* Fail the build on CI if you accidentally left test.only in the source code. */
   forbidOnly: !!process.env.CI,
   /* Retry on CI only */
-  retries: process.env.CI ? 2 : 0,
+  retries: 0,
   /* Opt out of parallel tests on CI. */
   workers: process.env.CI ? 1 : undefined,
   /* Reporter to use. See https://playwright.dev/docs/test-reporters */
