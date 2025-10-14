@@ -204,7 +204,7 @@ const HomeTagBar = (
     showDescriptionOnHover?: boolean,
   },
 ) => {
-  const {currentForumEvent, activeForumEvents} = useCurrentAndRecentForumEvents();
+  const {activeForumEvents} = useCurrentAndRecentForumEvents();
 
   // we use the widths of the tabs window and the underlying topics bar
   // when calculating how far to scroll left and right
@@ -265,14 +265,19 @@ const HomeTagBar = (
       // and update the tab if the user clicks on a new one
       const activeTab = coreTopics.find(topic => topic.slug === query.tab)
       if (activeTab) {
-        updateActiveTab(activeTab)
-      } else if (currentForumEvent?.tag && query.tab === currentForumEvent?.tag?.slug) {
-        updateActiveTab(currentForumEvent?.tag);
-      } else {
-        updateActiveTab(frontpageTab)
+        updateActiveTab(activeTab);
+        return;
       }
+      for (const event of activeForumEvents) {
+        if (event.tag && query.tab === event.tag.slug) {
+          updateActiveTab(event.tag);
+          return;
+        }
+      }
+      updateActiveTab(frontpageTab)
     }
-  }, [coreTopics, query, updateActiveTab, frontpageTab, currentForumEvent?.tag])
+  }, [coreTopics, query, updateActiveTab, frontpageTab, activeForumEvents])
+
 
   /**
    * When the topics bar is scrolled, hide/show the left/right arrows as necessary.
