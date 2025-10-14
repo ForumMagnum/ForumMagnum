@@ -89,6 +89,9 @@ export const loginUser = async (
         }
       `,
     },
+    headers: {
+      "content-type": "application/json",
+    },
   });
   await Promise.all(context.pages().map(page => page.reload()));
 }
