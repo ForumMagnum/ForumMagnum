@@ -7,10 +7,11 @@ import { useCurrentUser } from '../common/withUser';
 import FriendlyInbox from "./FriendlyInbox";
 
 export type InboxComponentProps = {
-  terms: ConversationsViewTerms;
   currentUser: UsersCurrent;
   title?: React.JSX.Element | string;
   isModInbox?: boolean;
+  showArchive?: boolean;
+  view?: ConversationsViewName;
 };
 
 const InboxWrapper = () => {
@@ -23,13 +24,7 @@ const InboxWrapper = () => {
   const conversationId = query.conversation;
   const showArchive = query.showArchive === "true";
 
-  const terms: ConversationsViewTerms = {
-    view: "userConversations",
-    userId: currentUser._id,
-    showArchive,
-  };
-
-  return <FriendlyInbox terms={terms} currentUser={currentUser} conversationId={conversationId} />
+  return <FriendlyInbox currentUser={currentUser} conversationId={conversationId} showArchive={showArchive} />
 }
 
 export default registerComponent('InboxWrapper', InboxWrapper);

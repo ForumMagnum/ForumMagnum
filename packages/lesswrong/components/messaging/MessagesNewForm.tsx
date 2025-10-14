@@ -4,7 +4,6 @@ import { getDraftMessageHtml } from "../../lib/collections/messages/helpers";
 import { TemplateQueryStrings } from "./NewConversationButton";
 import classNames from "classnames";
 import { FormDisplayMode } from "../comments/CommentsNewForm";
-import { registerComponent } from "../../lib/vulcan-lib/components";
 import { useMutation } from "@apollo/client/react";
 import { useQuery } from "@/lib/crud/useQuery";
 import { gql } from "@/lib/generated/gql-codegen";
@@ -117,6 +116,9 @@ const styles = defineStyles('MessagesNewForm', (theme: ThemeType) => ({
   },
   emailCheckbox: {
     marginTop: 0,
+    '& .MuiFormControlLabel-label': {
+      marginTop: -3,
+    },
   },
 }));
 

@@ -15,14 +15,12 @@ const ModeratorInboxWrapper = () => {
   const conversationId = query.conversation;
   const showArchive = query.showArchive === "true";
 
-  const terms: ConversationsViewTerms = { view: "moderatorConversations", showArchive, userId: query.userId };
-
   return (
     <FriendlyInbox
-      terms={terms}
       currentUser={currentUser}
       conversationId={conversationId}
       isModInbox
+      showArchive={showArchive}
     />
   )
 }

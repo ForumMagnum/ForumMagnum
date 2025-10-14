@@ -22,6 +22,8 @@ import Button from "@/lib/vendor/@material-ui/core/src/Button";
 import { isFriendlyUI } from "@/themes/forumTheme";
 import qs from "qs";
 import SectionFooterCheckbox from "../form-components/SectionFooterCheckbox";
+import ArchiveIcon from "@/lib/vendor/@material-ui/icons/src/Archive";
+import LWTooltip from "../common/LWTooltip";
 
 const ConversationsListWithReadStatusMultiQuery = gql(`
   query multiConversationFriendlyInboxQuery($selector: ConversationSelector, $limit: Int, $enableTotal: Boolean) {
@@ -152,7 +154,8 @@ const styles = (theme: ThemeType) => ({
     "-webkit-line-clamp": 1,
     [theme.breakpoints.down('xs')]: {
       "-webkit-line-clamp": 2,
-    }
+    },
+    flex: '1 0 0'
   },
   actionIcon: {
     color: theme.palette.grey[600],
@@ -164,6 +167,9 @@ const styles = (theme: ThemeType) => ({
     '&:hover': {
       backgroundColor: theme.palette.panelBackground.darken08
     }
+  },
+  actionIconWrapper: {
+    height: 32,
   },
   emptyState: {
     fontFamily: theme.palette.fonts.sansSerifStack,
@@ -207,13 +213,28 @@ const styles = (theme: ThemeType) => ({
       : { backgroundColor: theme.palette.background.default }),
     fontSize: 14,
   },
+  modInboxCheckboxIcon: {
+    height: 16,
+    marginTop: 5,
+    marginLeft: -12,
+    marginRight: 6,
+    color: theme.palette.grey[500],
+  },
+  archivedCheckboxIcon: {
+    height: 16,
+    marginTop: 5,
+    marginLeft: -10,
+    marginRight: 6,
+    color: theme.palette.grey[500],
+  },
 });
 
 const FriendlyInbox = ({
   currentUser,
-  terms,
   conversationId,
+  view = "userConversations",
   isModInbox = false,
+  showArchive = false,
   classes,
 }: InboxComponentProps & {
   conversationId?: string;
@@ -252,7 +273,7 @@ const FriendlyInbox = ({
     });
   }, [isModInbox, openDialog]);
 
-  const { view, ...selectorTerms } = terms;
+  const selectorTerms = { userId: currentUser._id, showArchive };
   const selectedView = isModInbox ? "moderatorConversations" : view;
   const initialLimit = 500;
   const {
@@ -313,10 +334,13 @@ const FriendlyInbox = ({
 
   const ButtonComponent = isFriendlyUI() ? EAButton : Button;
 
+  const modInboxQueryParam = `?${qs.stringify({ ...query, isModInbox: !isModInbox ? "true" : undefined })}`;
+  const archiveQueryParam = `?${qs.stringify({ ...query, showArchive: !showArchive ? "true" : undefined })}`;
+
   return (
     <div className={classes.root}>
       {showModeratorLink && isFriendlyUI() && (
-        <Link to={"/moderatorInbox"} className={classes.modInboxLink}>
+        <Link to={"/inbox" + modInboxQueryParam} className={classes.modInboxLink}>
           Mod Inbox
         </Link>
       )}
@@ -329,13 +353,20 @@ const FriendlyInbox = ({
           <div className={classes.columnHeader}>
             <div className={classes.headerText}>All messages</div>
             <SectionFooterCheckbox
-              label="Show mod messages"
+              label={<ForumIcon className={classes.modInboxCheckboxIcon} icon="Flag" />}
               value={isModInbox}
-              onClick={() => {
-                navigate({ ...location, search: `?${qs.stringify({ ...query, isModInbox: !isModInbox ? "true" : undefined })}` });
-              }}
+              onClick={() => navigate({ ...location, search: modInboxQueryParam })}
+              tooltip={isModInbox ? "Hide mod messages" : "Show mod messages"}
             />
-            <ForumIcon onClick={openNewConversationDialog} icon="PencilSquare" className={classes.actionIcon} />
+            <SectionFooterCheckbox
+              label={<ArchiveIcon className={classes.archivedCheckboxIcon} />}
+              value={showArchive}
+              onClick={() => navigate({ ...location, search: archiveQueryParam })}
+              tooltip={isModInbox ? "Hide archived messages" : "Show archived messages"}
+            />
+            <LWTooltip title="Start a new conversation" className={classes.actionIconWrapper}>
+              <ForumIcon onClick={openNewConversationDialog} icon="PencilSquare" className={classes.actionIcon} />
+            </LWTooltip>
           </div>
           <div className={classes.navigation}>
             <FriendlyInboxNavigation
