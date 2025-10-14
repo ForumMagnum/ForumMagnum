@@ -74,6 +74,7 @@ const styles = defineStyles('MessagesNewForm', (theme: ThemeType) => ({
   submitMinimalist: {
     height: 'fit-content',
     marginTop: "auto",
+    alignSelf: "end",
   },
   formButton: {
     fontFamily: theme.typography.fontFamily,
@@ -112,14 +113,29 @@ const styles = defineStyles('MessagesNewForm', (theme: ThemeType) => ({
     fontWeight: 500,
     '&:hover': {
       backgroundColor: theme.palette.background.primaryDim,
-    }
+    },
+  },
+  editorWrapper: {
+    marginRight: -64,
   },
   emailCheckbox: {
     marginTop: 0,
+    marginRight: 0,
     '& .MuiFormControlLabel-label': {
       marginTop: -3,
     },
   },
+  emailCheckboxWrapper: {
+    '&&': {
+      alignSelf: 'start',
+      marginTop: -30,
+      marginRight: -36,
+      minWidth: 110,
+      [theme.breakpoints.down('xs')]: {
+        marginRight: -44,
+      },
+    },
+  }
 }));
 
 interface MessagesNewFormProps {
@@ -202,7 +218,7 @@ const InnerMessagesNewForm = ({
         e.stopPropagation();
         void form.handleSubmit();
       }}>
-        <div className={classNames("form-component-EditorFormComponent", classes.fieldWrapper)}>
+        <div className={classNames("form-component-EditorFormComponent", classes.fieldWrapper, classes.editorWrapper)}>
           <form.Field name="contents">
             {(field) => (
               <EditorFormComponent
@@ -224,7 +240,7 @@ const InnerMessagesNewForm = ({
           </form.Field>
         </div>
 
-        {userIsAdmin(currentUser) && <div className={classes.fieldWrapper}>
+        {userIsAdmin(currentUser) && <div className={classNames(classes.fieldWrapper, classes.emailCheckboxWrapper)}>
           <form.Field name="email">
             {(field) => (
               <FormComponentCheckbox
@@ -236,21 +252,19 @@ const InnerMessagesNewForm = ({
           </form.Field>
         </div>}
 
-        <div className="form-submit">
-          <form.Subscribe selector={(s) => [s.isSubmitting]}>
-            {([isSubmitting]) => (
-              <div className={classNames("form-submit", { [classes.submitMinimalist]: isMinimalist })}>
-                <Button
-                  type="submit"
-                  id="new-message-submit"
-                  className={classNames("primary-form-submit-button", formButtonClass)}
-                >
-                  {isSubmitting ? <Loading /> : isMinimalist ? <ForumIcon icon="ArrowRightOutline" /> : submitLabel}
-                </Button>
-              </div>
-            )}
-          </form.Subscribe>
-        </div>
+        <form.Subscribe selector={(s) => [s.isSubmitting]}>
+          {([isSubmitting]) => (
+            <div className={classNames("form-submit", { [classes.submitMinimalist]: isMinimalist })}>
+              <Button
+                type="submit"
+                id="new-message-submit"
+                className={classNames("primary-form-submit-button", formButtonClass)}
+              >
+                {isSubmitting ? <Loading /> : isMinimalist ? <ForumIcon icon="ArrowRightOutline" /> : submitLabel}
+              </Button>
+            </div>
+          )}
+        </form.Subscribe>
       </form>
     </div>
   );
