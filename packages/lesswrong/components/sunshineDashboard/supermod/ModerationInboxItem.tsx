@@ -7,6 +7,9 @@ import FlagIcon from '@/lib/vendor/@material-ui/icons/src/Flag';
 import FirstContentIcons from '../FirstContentIcons';
 import { getReasonForReview } from '@/lib/collections/moderatorActions/helpers';
 import { getUserEmail } from '@/lib/collections/users/helpers';
+import DescriptionIcon from '@/lib/vendor/@material-ui/icons/src/Description'
+import MessageIcon from '@/lib/vendor/@material-ui/icons/src/Message'
+import { usePublishedPosts } from '@/components/hooks/usePublishedPosts';
 
 const styles = defineStyles('ModerationInboxItem', (theme: ThemeType) => ({
   root: {
@@ -19,6 +22,7 @@ const styles = defineStyles('ModerationInboxItem', (theme: ThemeType) => ({
     '&:hover': {
       backgroundColor: theme.palette.grey[50],
     },
+    ...theme.typography.commentStyle,
   },
   focused: {
     backgroundColor: theme.palette.grey[100],
@@ -36,7 +40,10 @@ const styles = defineStyles('ModerationInboxItem', (theme: ThemeType) => ({
     fontWeight: 500,
     color: theme.palette.grey[900],
     marginRight: 12,
-    minWidth: 120,
+    width: 140,
+    overflow: 'hidden',
+    textOverflow: 'ellipsis',
+    whiteSpace: 'nowrap',
   },
   karma: {
     fontSize: 13,
@@ -57,7 +64,7 @@ const styles = defineStyles('ModerationInboxItem', (theme: ThemeType) => ({
     fontSize: 13,
     color: theme.palette.grey[600],
     marginRight: 12,
-    minWidth: 60,
+    minWidth: 24,
   },
   icons: {
     display: 'flex',
@@ -89,6 +96,15 @@ const styles = defineStyles('ModerationInboxItem', (theme: ThemeType) => ({
     textOverflow: 'ellipsis',
     whiteSpace: 'nowrap',
   },
+  contentCounts: {
+    color: theme.palette.grey[600],
+  },
+  icon: {
+    height: 13,
+    color: theme.palette.grey[500],
+    position: "relative",
+    top: 3
+  },
 }));
 
 const ModerationInboxItem = ({
@@ -103,9 +119,12 @@ const ModerationInboxItem = ({
   onOpen: () => void;
 }) => {
   const classes = useStyles(styles);
+
+  // const { posts = [] } = usePublishedPosts(user._id, 5);
+
   const { reason } = getReasonForReview(user);
 
-  const karma = user.karma || 0;
+  const karma = user.karma;
   const karmaClass = karma < 0 ? classes.karmaNegative : karma < 10 ? classes.karmaLow : classes.karmaPositive;
 
   const showEmail = !user.reviewedByUserId;
@@ -125,10 +144,16 @@ const ModerationInboxItem = ({
         {karma}
       </div>
       <div className={classes.createdAt}>
-        <FormatDate date={user.createdAt} format="relative" />
+        <FormatDate date={user.createdAt} />
+      </div>
+      <div className={classes.contentCounts}>
+        <DescriptionIcon className={classes.icon} />
+        {user.postCount || 0}
+        <MessageIcon className={classes.icon} />
+        {user.commentCount || 0}
       </div>
       <div className={classes.icons}>
-        <FirstContentIcons user={user} />
+        {/* <FirstContentIcons user={user} /> */}
         {user.sunshineFlagged && <FlagIcon className={classes.flagIcon} />}
       </div>
       {reason && reason !== 'alreadyApproved' && reason !== 'noReview' && (

@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useCallback, useMemo } from 'react';
+import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import { defineStyles, useStyles } from '@/components/hooks/useStyles';
 import { useCurrentUser } from '@/components/common/withUser';
 import { userIsAdminOrMod } from '@/lib/vulcan-users/permissions';
@@ -63,8 +63,8 @@ const ModerationInbox = () => {
 
   // focusedUserId: which user is highlighted in the inbox (shown in sidebar)
   // openedUserId: which user has detail view open (from URL)
-  const openedUserId = query.user as string | undefined;
-  const [focusedUserId, setFocusedUserId] = React.useState<string | null>(null);
+  const openedUserId = query.user;
+  const [focusedUserId, setFocusedUserId] = useState<string | null>(null);
 
   const { data, loading, refetch } = useQuery(SunshineUsersListMultiQuery, {
     variables: {
@@ -80,7 +80,7 @@ const ModerationInbox = () => {
   }, [data]);
 
   // Auto-focus first user when data loads
-  React.useEffect(() => {
+  useEffect(() => {
     if (users.length > 0 && !focusedUserId && !openedUserId) {
       setFocusedUserId(users[0]._id);
     }

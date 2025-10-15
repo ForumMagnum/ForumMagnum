@@ -15,6 +15,7 @@ const styles = defineStyles('ModerationInboxList', (theme: ThemeType) => ({
     zIndex: 1,
   },
   title: {
+    ...theme.typography.commentStyle,
     fontSize: 20,
     fontWeight: 600,
     color: theme.palette.grey[900],
@@ -52,7 +53,7 @@ const ModerationInboxList = ({
     <div className={classes.root}>
       <div className={classes.header}>
         <span className={classes.title}>
-          Unreviewed Users
+          {'Unreviewed Users'}
           <span className={classes.count}>({users.length})</span>
         </span>
       </div>
