@@ -4,7 +4,6 @@ import { appendToSunshineNotes } from '../../lib/collections/users/helpers';
 import { loggerConstructor } from '../../lib/utils/logging';
 import { AfterCreateCallbackProperties } from '../mutationCallbacks';
 import { triggerReview } from './helpers';
-import { backgroundTask } from '../utils/backgroundTask';
 
 export async function triggerReviewAfterModeration({ newDocument, currentUser, context }: AfterCreateCallbackProperties<'ModeratorActions'>) {
   const moderatorAction = newDocument;
@@ -13,7 +12,7 @@ export async function triggerReviewAfterModeration({ newDocument, currentUser, c
   logger('ModeratorAction created, triggering review if necessary')
   if (isActionActive(moderatorAction) || moderatorAction.type === RECEIVED_SENIOR_DOWNVOTES_ALERT) {
     logger('isActionActive truthy')
-    backgroundTask(triggerReview(moderatedUserId, context));
+    await triggerReview(moderatedUserId, context);
   }
 
   // In the case where there isn't a currentUser, that means that the moderator action was created using automod (via callback) rather than being manually applied

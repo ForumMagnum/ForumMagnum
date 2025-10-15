@@ -525,8 +525,9 @@ export function syncProfileUpdatedAt(modifier: MongoModifier, user: DbUser) {
 
 /* UPDATE ASYNC */
 export function updateUserMayTriggerReview({newDocument, data, context}: UpdateCallbackProperties<"Users">) {
-  const reviewTriggerFields: (keyof DbUser)[] = ['voteCount', 'mapLocation', 'postCount', 'commentCount', 'biography', 'profileImageId'];
-  if (reviewTriggerFields.some(field => field in data)) {
+  const reviewTriggerFields = ['biography', 'mapLocation', 'profileImageId'] as const;
+  const updatedField = reviewTriggerFields.find(field => field in data);
+  if (updatedField) {
     backgroundTask(triggerReviewIfNeeded(newDocument._id, context));
   }
 }
