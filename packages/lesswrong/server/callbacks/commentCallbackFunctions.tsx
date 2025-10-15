@@ -1067,11 +1067,12 @@ export async function updateDescendentCommentCountsOnEdit(comment: DbComment, pr
 
 /* UPDATE ASYNC */
 export async function updatedCommentMaybeTriggerReview({ currentUser, context }: UpdateCallbackProperties<"Comments">) {
-  const { Users } = context;
   if (!currentUser) return;
-  currentUser.snoozedUntilContentCount && await updateUser({ data: {
-        snoozedUntilContentCount: currentUser.snoozedUntilContentCount - 1,
-      }, selector: { _id: currentUser._id } }, createAnonymousContext())
+  if (isEAForum()) {
+    currentUser.snoozedUntilContentCount && await updateUser({ data: {
+      snoozedUntilContentCount: currentUser.snoozedUntilContentCount - 1,
+    }, selector: { _id: currentUser._id } }, createAnonymousContext());
+  }
   await triggerReviewIfNeeded(currentUser._id, context)
 }
 
