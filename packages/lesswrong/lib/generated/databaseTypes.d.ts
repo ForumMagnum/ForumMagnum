@@ -780,7 +780,7 @@ interface DbModeratorAction extends DbObject {
   createdAt: Date
   endedAt: Date | null
   legacyData: any | null
-  type: "rateLimitOnePerDay" | "rateLimitOnePerThreeDays" | "rateLimitOnePerWeek" | "rateLimitOnePerFortnight" | "rateLimitOnePerMonth" | "rateLimitThreeCommentsPerPost" | "recentlyDownvotedContentAlert" | "lowAverageKarmaCommentAlert" | "lowAverageKarmaPostAlert" | "negativeUserKarmaAlert" | "movedPostToDraft" | "sentModeratorMessage" | "manualFlag" | "votingPatternWarningDelivered" | "flaggedForNDMs" | "autoBlockedFromSendingDMs" | "rejectedPost" | "rejectedComment" | "potentialTargetedDownvoting" | "exemptFromRateLimits" | "receivedSeniorDownvotesAlert"
+  type: "rateLimitOnePerDay" | "rateLimitOnePerThreeDays" | "rateLimitOnePerWeek" | "rateLimitOnePerFortnight" | "rateLimitOnePerMonth" | "rateLimitThreeCommentsPerPost" | "recentlyDownvotedContentAlert" | "lowAverageKarmaCommentAlert" | "lowAverageKarmaPostAlert" | "negativeUserKarmaAlert" | "movedPostToDraft" | "sentModeratorMessage" | "manualFlag" | "votingPatternWarningDelivered" | "flaggedForNDMs" | "autoBlockedFromSendingDMs" | "rejectedPost" | "rejectedComment" | "potentialTargetedDownvoting" | "exemptFromRateLimits" | "receivedSeniorDownvotesAlert" | "manualNeedsReview" | "unreviewedBioUpdate" | "unreviewedMapLocationUpdate" | "unreviewedProfileImageUpdate" | "unreviewedFirstPost" | "unreviewedFirstComment" | "snoozeExpired" | "stricterCommentAutomodRateLimit" | "stricterPostAutomodRateLimit" | "manualRateLimitExpired"
   userId: string
 }
 
