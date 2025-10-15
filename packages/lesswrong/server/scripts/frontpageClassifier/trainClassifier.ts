@@ -41,7 +41,7 @@ async function extractTrainingData(startDate?: Date, endDate?: Date): Promise<Tr
 
   // Default date range if not specified
   const start = startDate || new Date('2023-01-01');
-  const end = endDate || new Date('2024-01-01');
+  const end = endDate || new Date('2025-01-01');
 
   console.log(`Extracting training data from ${start.toISOString()} to ${end.toISOString()}`);
 
@@ -161,6 +161,7 @@ export async function trainFrontpageClassifier(
     learningRate?: number;
     epochs?: number;
     testRatio?: number;
+    useWeightsForTraining?: boolean;
   } = {}
 ): Promise<void> {
   const {
@@ -168,7 +169,8 @@ export async function trainFrontpageClassifier(
     falseNegativeWeight = 1,
     learningRate = 0.01,
     epochs = 1000,
-    testRatio = 0.2
+    testRatio = 0.2,
+    useWeightsForTraining = false
   } = options;
 
   console.log('Starting frontpage classifier training...');
@@ -214,8 +216,8 @@ export async function trainFrontpageClassifier(
   // Evaluate on test set
   console.log('\nEvaluating on test set...');
   const testResult = model.evaluate(X_test, y_test, {
-    falsePositiveWeight,
-    falseNegativeWeight
+    falsePositiveWeight: useWeightsForTraining ? falsePositiveWeight : 1,
+    falseNegativeWeight: useWeightsForTraining ? falseNegativeWeight : 1
   });
 
   console.log('Test Results:');
