@@ -21493,6 +21493,185 @@ type multiCommentRejectedCommentsListQueryQueryVariables = Exact<{
 
 type multiCommentRejectedCommentsListQueryQuery = multiCommentRejectedCommentsListQueryQuery_Query;
 
+type multiCommentModerationDetailViewQueryQuery_comments_MultiCommentOutput_results_Comment = (
+  { __typename?: 'Comment' }
+  & CommentsListWithParentMetadata
+);
+
+type multiCommentModerationDetailViewQueryQuery_comments_MultiCommentOutput = { __typename?: 'MultiCommentOutput', totalCount: number | null, results: Array<multiCommentModerationDetailViewQueryQuery_comments_MultiCommentOutput_results_Comment> };
+
+type multiCommentModerationDetailViewQueryQuery_Query = { __typename?: 'Query', comments: multiCommentModerationDetailViewQueryQuery_comments_MultiCommentOutput | null };
+
+
+type multiCommentModerationDetailViewQueryQueryVariables = Exact<{
+  selector: InputMaybe<CommentSelector>;
+  limit: InputMaybe<Scalars['Int']['input']>;
+  enableTotal: InputMaybe<Scalars['Boolean']['input']>;
+}>;
+
+
+type multiCommentModerationDetailViewQueryQuery = multiCommentModerationDetailViewQueryQuery_Query;
+
+type multiUserModerationInboxQueryQuery_users_MultiUserOutput_results_User = (
+  { __typename?: 'User' }
+  & SunshineUsersList
+);
+
+type multiUserModerationInboxQueryQuery_users_MultiUserOutput = { __typename?: 'MultiUserOutput', totalCount: number | null, results: Array<multiUserModerationInboxQueryQuery_users_MultiUserOutput_results_User> };
+
+type multiUserModerationInboxQueryQuery_Query = { __typename?: 'Query', users: multiUserModerationInboxQueryQuery_users_MultiUserOutput | null };
+
+
+type multiUserModerationInboxQueryQueryVariables = Exact<{
+  selector: InputMaybe<UserSelector>;
+  limit: InputMaybe<Scalars['Int']['input']>;
+  enableTotal: InputMaybe<Scalars['Boolean']['input']>;
+}>;
+
+
+type multiUserModerationInboxQueryQuery = multiUserModerationInboxQueryQuery_Query;
+
+type updateUserModerationKeyboardMutation_updateUser_UserOutput_data_User = (
+  { __typename?: 'User' }
+  & SunshineUsersList
+);
+
+type updateUserModerationKeyboardMutation_updateUser_UserOutput = { __typename?: 'UserOutput', data: updateUserModerationKeyboardMutation_updateUser_UserOutput_data_User | null };
+
+type updateUserModerationKeyboardMutation_Mutation = { __typename?: 'Mutation', updateUser: updateUserModerationKeyboardMutation_updateUser_UserOutput | null };
+
+
+type updateUserModerationKeyboardMutationVariables = Exact<{
+  selector: SelectorInput;
+  data: UpdateUserDataInput;
+}>;
+
+
+type updateUserModerationKeyboardMutation = updateUserModerationKeyboardMutation_Mutation;
+
+type multiCommentModerationKeyboardQueryQuery_comments_MultiCommentOutput_results_Comment = (
+  { __typename?: 'Comment' }
+  & CommentsListWithParentMetadata
+);
+
+type multiCommentModerationKeyboardQueryQuery_comments_MultiCommentOutput = { __typename?: 'MultiCommentOutput', totalCount: number | null, results: Array<multiCommentModerationKeyboardQueryQuery_comments_MultiCommentOutput_results_Comment> };
+
+type multiCommentModerationKeyboardQueryQuery_Query = { __typename?: 'Query', comments: multiCommentModerationKeyboardQueryQuery_comments_MultiCommentOutput | null };
+
+
+type multiCommentModerationKeyboardQueryQueryVariables = Exact<{
+  selector: InputMaybe<CommentSelector>;
+  limit: InputMaybe<Scalars['Int']['input']>;
+  enableTotal: InputMaybe<Scalars['Boolean']['input']>;
+}>;
+
+
+type multiCommentModerationKeyboardQueryQuery = multiCommentModerationKeyboardQueryQuery_Query;
+
+type updateUserModerationSidebarMutation_updateUser_UserOutput_data_User = (
+  { __typename?: 'User' }
+  & SunshineUsersList
+);
+
+type updateUserModerationSidebarMutation_updateUser_UserOutput = { __typename?: 'UserOutput', data: updateUserModerationSidebarMutation_updateUser_UserOutput_data_User | null };
+
+type updateUserModerationSidebarMutation_Mutation = { __typename?: 'Mutation', updateUser: updateUserModerationSidebarMutation_updateUser_UserOutput | null };
+
+
+type updateUserModerationSidebarMutationVariables = Exact<{
+  selector: SelectorInput;
+  data: UpdateUserDataInput;
+}>;
+
+
+type updateUserModerationSidebarMutation = updateUserModerationSidebarMutation_Mutation;
+
+type multiCommentModerationSidebarQueryQuery_comments_MultiCommentOutput_results_Comment = (
+  { __typename?: 'Comment' }
+  & CommentsListWithParentMetadata
+);
+
+type multiCommentModerationSidebarQueryQuery_comments_MultiCommentOutput = { __typename?: 'MultiCommentOutput', totalCount: number | null, results: Array<multiCommentModerationSidebarQueryQuery_comments_MultiCommentOutput_results_Comment> };
+
+type multiCommentModerationSidebarQueryQuery_Query = { __typename?: 'Query', comments: multiCommentModerationSidebarQueryQuery_comments_MultiCommentOutput | null };
+
+
+type multiCommentModerationSidebarQueryQueryVariables = Exact<{
+  selector: InputMaybe<CommentSelector>;
+  limit: InputMaybe<Scalars['Int']['input']>;
+  enableTotal: InputMaybe<Scalars['Boolean']['input']>;
+}>;
+
+
+type multiCommentModerationSidebarQueryQuery = multiCommentModerationSidebarQueryQuery_Query;
+
+type multiModerationTemplateRestrictAndNotifyModalQueryQuery_moderationTemplates_MultiModerationTemplateOutput_results_ModerationTemplate = (
+  { __typename?: 'ModerationTemplate' }
+  & ModerationTemplateFragment
+);
+
+type multiModerationTemplateRestrictAndNotifyModalQueryQuery_moderationTemplates_MultiModerationTemplateOutput = { __typename?: 'MultiModerationTemplateOutput', totalCount: number | null, results: Array<multiModerationTemplateRestrictAndNotifyModalQueryQuery_moderationTemplates_MultiModerationTemplateOutput_results_ModerationTemplate> };
+
+type multiModerationTemplateRestrictAndNotifyModalQueryQuery_Query = { __typename?: 'Query', moderationTemplates: multiModerationTemplateRestrictAndNotifyModalQueryQuery_moderationTemplates_MultiModerationTemplateOutput | null };
+
+
+type multiModerationTemplateRestrictAndNotifyModalQueryQueryVariables = Exact<{
+  selector: InputMaybe<ModerationTemplateSelector>;
+  limit: InputMaybe<Scalars['Int']['input']>;
+  enableTotal: InputMaybe<Scalars['Boolean']['input']>;
+}>;
+
+
+type multiModerationTemplateRestrictAndNotifyModalQueryQuery = multiModerationTemplateRestrictAndNotifyModalQueryQuery_Query;
+
+type updateUserRestrictAndNotifyMutation_updateUser_UserOutput_data_User = (
+  { __typename?: 'User' }
+  & SunshineUsersList
+);
+
+type updateUserRestrictAndNotifyMutation_updateUser_UserOutput = { __typename?: 'UserOutput', data: updateUserRestrictAndNotifyMutation_updateUser_UserOutput_data_User | null };
+
+type updateUserRestrictAndNotifyMutation_Mutation = { __typename?: 'Mutation', updateUser: updateUserRestrictAndNotifyMutation_updateUser_UserOutput | null };
+
+
+type updateUserRestrictAndNotifyMutationVariables = Exact<{
+  selector: SelectorInput;
+  data: UpdateUserDataInput;
+}>;
+
+
+type updateUserRestrictAndNotifyMutation = updateUserRestrictAndNotifyMutation_Mutation;
+
+type updatePostRestrictAndNotifyMutation_updatePost_PostOutput_data_Post = { __typename?: 'Post', _id: string, rejected: boolean };
+
+type updatePostRestrictAndNotifyMutation_updatePost_PostOutput = { __typename?: 'PostOutput', data: updatePostRestrictAndNotifyMutation_updatePost_PostOutput_data_Post | null };
+
+type updatePostRestrictAndNotifyMutation_Mutation = { __typename?: 'Mutation', updatePost: updatePostRestrictAndNotifyMutation_updatePost_PostOutput | null };
+
+
+type updatePostRestrictAndNotifyMutationVariables = Exact<{
+  selector: SelectorInput;
+  data: UpdatePostDataInput;
+}>;
+
+
+type updatePostRestrictAndNotifyMutation = updatePostRestrictAndNotifyMutation_Mutation;
+
+type updateCommentRestrictAndNotifyMutation_updateComment_CommentOutput_data_Comment = { __typename?: 'Comment', _id: string, rejected: boolean };
+
+type updateCommentRestrictAndNotifyMutation_updateComment_CommentOutput = { __typename?: 'CommentOutput', data: updateCommentRestrictAndNotifyMutation_updateComment_CommentOutput_data_Comment | null };
+
+type updateCommentRestrictAndNotifyMutation_Mutation = { __typename?: 'Mutation', updateComment: updateCommentRestrictAndNotifyMutation_updateComment_CommentOutput | null };
+
+
+type updateCommentRestrictAndNotifyMutationVariables = Exact<{
+  selector: SelectorInput;
+  data: UpdateCommentDataInput;
+}>;
+
+
+type updateCommentRestrictAndNotifyMutation = updateCommentRestrictAndNotifyMutation_Mutation;
+
 type multiSurveyScheduleSurveyAdminPageQueryQuery_surveySchedules_MultiSurveyScheduleOutput_results_SurveySchedule = (
   { __typename?: 'SurveySchedule' }
   & SurveyScheduleEdit

@@ -57,6 +57,9 @@ export const routeTrie = {
         "recentlyActiveUsers": {
           "hasPage": true
         },
+        "supermod": {
+          "hasPage": true
+        },
         "synonyms": {
           "hasPage": true
         },
@@ -76,6 +79,7 @@ export const routeTrie = {
         "onboarding": "onboarding",
         "random-user": "random-user",
         "recentlyactiveusers": "recentlyActiveUsers",
+        "supermod": "supermod",
         "synonyms": "synonyms",
         "tagmerge": "tagMerge"
       },
