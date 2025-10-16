@@ -17250,23 +17250,6 @@ type updateConversationInboxNavigationMutationVariables = Exact<{
 
 type updateConversationInboxNavigationMutation = updateConversationInboxNavigationMutation_Mutation;
 
-type ConversationPageQuery_conversation_SingleConversationOutput_result_Conversation = (
-  { __typename?: 'Conversation' }
-  & ConversationsList
-);
-
-type ConversationPageQuery_conversation_SingleConversationOutput = { __typename?: 'SingleConversationOutput', result: ConversationPageQuery_conversation_SingleConversationOutput_result_Conversation | null };
-
-type ConversationPageQuery_Query = { __typename?: 'Query', conversation: ConversationPageQuery_conversation_SingleConversationOutput | null };
-
-
-type ConversationPageQueryVariables = Exact<{
-  documentId: InputMaybe<Scalars['String']['input']>;
-}>;
-
-
-type ConversationPageQuery = ConversationPageQuery_Query;
-
 type multiMessageConversationPreviewQueryQuery_messages_MultiMessageOutput_results_Message = (
   { __typename?: 'Message' }
   & messageListFragment
@@ -17356,25 +17339,6 @@ type FriendlyInboxQueryVariables = Exact<{
 
 
 type FriendlyInboxQuery = FriendlyInboxQuery_Query;
-
-type multiConversationInboxNavigationQueryQuery_conversations_MultiConversationOutput_results_Conversation = (
-  { __typename?: 'Conversation' }
-  & ConversationsList
-);
-
-type multiConversationInboxNavigationQueryQuery_conversations_MultiConversationOutput = { __typename?: 'MultiConversationOutput', totalCount: number | null, results: Array<multiConversationInboxNavigationQueryQuery_conversations_MultiConversationOutput_results_Conversation> };
-
-type multiConversationInboxNavigationQueryQuery_Query = { __typename?: 'Query', conversations: multiConversationInboxNavigationQueryQuery_conversations_MultiConversationOutput | null };
-
-
-type multiConversationInboxNavigationQueryQueryVariables = Exact<{
-  selector: InputMaybe<ConversationSelector>;
-  limit: InputMaybe<Scalars['Int']['input']>;
-  enableTotal: InputMaybe<Scalars['Boolean']['input']>;
-}>;
-
-
-type multiConversationInboxNavigationQueryQuery = multiConversationInboxNavigationQueryQuery_Query;
 
 type MessageUserGetUserBySlugQuery_GetUserBySlug_User = (
   { __typename?: 'User' }
