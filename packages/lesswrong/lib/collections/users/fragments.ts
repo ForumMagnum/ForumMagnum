@@ -491,6 +491,8 @@ export const SunshineUsersList = gql(`
 
     recentKarmaInfo
     lastNotificationsCheck
+    
+    lastRemovedFromReviewQueueAt
   }
 `)
 

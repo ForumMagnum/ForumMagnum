@@ -1,6 +1,7 @@
-import React from 'react';
+import React, { useMemo } from 'react';
 import { defineStyles, useStyles } from '@/components/hooks/useStyles';
 import ModerationInboxItem from './ModerationInboxItem';
+import { getUserReviewGroup, REVIEW_GROUP_TO_PRIORITY } from './groupings';
 
 const styles = defineStyles('ModerationInboxList', (theme: ThemeType) => ({
   root: {
@@ -49,21 +50,29 @@ const ModerationInboxList = ({
 }) => {
   const classes = useStyles(styles);
 
+  const sortedUsers = useMemo(() => {
+    return users.sort((a, b) => {
+      const aGroup = getUserReviewGroup(a);
+      const bGroup = getUserReviewGroup(b);
+      return REVIEW_GROUP_TO_PRIORITY[bGroup] - REVIEW_GROUP_TO_PRIORITY[aGroup];
+    });
+  }, [users]);
+
   return (
     <div className={classes.root}>
       <div className={classes.header}>
         <span className={classes.title}>
           {'Unreviewed Users'}
-          <span className={classes.count}>({users.length})</span>
+          <span className={classes.count}>({sortedUsers.length})</span>
         </span>
       </div>
-      {users.length === 0 ? (
+      {sortedUsers.length === 0 ? (
         <div className={classes.empty}>
           No users to review
         </div>
       ) : (
         <div className={classes.list}>
-          {users.map((user) => (
+          {sortedUsers.map((user) => (
             <ModerationInboxItem
               key={user._id}
               user={user}
