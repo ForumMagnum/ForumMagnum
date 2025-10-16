@@ -26758,6 +26758,19 @@ type multiPostsForLLMQueryQueryVariables = Exact<{
 
 type multiPostsForLLMQueryQuery = multiPostsForLLMQueryQuery_Query;
 
+type GetReviewWinnersQuery_GetAllReviewWinners_Post = (
+  { __typename?: 'Post' }
+  & PostsTopItemInfo
+);
+
+type GetReviewWinnersQuery_Query = { __typename?: 'Query', GetAllReviewWinners: Array<GetReviewWinnersQuery_GetAllReviewWinners_Post> };
+
+
+type GetReviewWinnersQueryVariables = Exact<{ [key: string]: never; }>;
+
+
+type GetReviewWinnersQuery = GetReviewWinnersQuery_Query;
+
 type CommentsForEmbeddingsQuery_comments_MultiCommentOutput_results_Comment_contents_Revision = { __typename?: 'Revision', _id: string, html: string | null };
 
 type CommentsForEmbeddingsQuery_comments_MultiCommentOutput_results_Comment_user_User = { __typename?: 'User', _id: string, displayName: string, username: string | null, fullName: string | null };
