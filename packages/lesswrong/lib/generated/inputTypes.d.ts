@@ -7461,6 +7461,7 @@ interface User {
   userSurveyEmailSentAt: Date | null;
   karmaChanges: KarmaChanges | null;
   recommendationSettings: any;
+  lastRemovedFromReviewQueueAt: Date | null;
 }
 
 interface UserSelectorUniqueInput {

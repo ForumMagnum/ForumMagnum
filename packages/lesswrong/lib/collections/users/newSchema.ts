@@ -4258,6 +4258,24 @@ const schema = {
       canUpdate: [userOwns],
     },
   },
+  lastRemovedFromReviewQueueAt: {
+    graphql: {
+      outputType: "Date",
+      canRead: ["sunshineRegiment", "admins"],
+      resolver: async (user, args, context) => {
+        const { FieldChanges } = context;
+
+        // TODO: use a custom data loader here?
+        const fieldChanges = await FieldChanges.findOne({
+          documentId: user._id,
+          fieldName: "needsReview",
+          newValue: 'false',
+        }, { sort: { createdAt: -1 } });
+
+        return fieldChanges?.createdAt;
+      },
+    },
+  },
 } satisfies Record<string, CollectionFieldSpecification<"Users">>;
 
 export default schema;

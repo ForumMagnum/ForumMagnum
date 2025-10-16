@@ -8067,6 +8067,7 @@ type User {
   userSurveyEmailSentAt: Date
   karmaChanges(startDate: Date, endDate: Date): KarmaChanges
   recommendationSettings: JSON
+  lastRemovedFromReviewQueueAt: Date
 }
 
 enum ReactPaletteStyle {

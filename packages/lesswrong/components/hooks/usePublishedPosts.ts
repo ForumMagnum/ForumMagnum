@@ -24,7 +24,6 @@ export function usePublishedPosts(userId: string, contentLimit = 20) {
       limit: contentLimit,
       enableTotal: false,
     },
-    fetchPolicy: 'cache-and-network',
     notifyOnNetworkStatusChange: true,
   });
 
