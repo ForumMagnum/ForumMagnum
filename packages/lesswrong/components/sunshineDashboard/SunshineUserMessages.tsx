@@ -12,6 +12,7 @@ import LWTooltip from "../common/LWTooltip";
 import MetaInfo from "../common/MetaInfo";
 import { useQuery } from "@/lib/crud/useQuery";
 import { gql } from "@/lib/generated/gql-codegen";
+import ConversationPreview from '../messaging/ConversationPreview';
 
 const ConversationsListMultiQuery = gql(`
   query multiConversationSunshineUserMessagesQuery($selector: ConversationSelector, $limit: Int, $enableTotal: Boolean) {
@@ -70,7 +71,7 @@ export const SunshineUserMessages = ({classes, user, currentUser}: {
 
   return <div>
     {results?.map(conversation => <div key={conversation._id}>
-      <LWTooltip title={`${conversation.messageCount} messages in this conversation`}>
+      <LWTooltip title={<ConversationPreview count={3} key={conversation._id} conversationId={conversation._id} showTitle={false} />} tooltip={false} clickable>
         <Link to={`/inbox/${conversation._id}`}>
           <MetaInfo><EmailIcon className={classes.icon}/> {conversation.messageCount}</MetaInfo>
           <span>

@@ -7,7 +7,6 @@ import Input from '@/lib/vendor/@material-ui/core/src/Input';
 import { getSignatureWithNote } from '@/lib/collections/users/helpers';
 import { getNewSnoozeUntilContentCount } from '../ModeratorActions';
 import UserAutoRateLimitsDisplay from '../ModeratorUserInfo/UserAutoRateLimitsDisplay';
-import NewUserDMSummary from '../ModeratorUserInfo/NewUserDMSummary';
 import ContentSummaryRows from '../ModeratorUserInfo/ContentSummaryRows';
 import { usePublishedPosts } from '@/components/hooks/usePublishedPosts';
 import { useQuery } from '@/lib/crud/useQuery';
@@ -15,6 +14,7 @@ import { CONTENT_LIMIT } from '../UsersReviewInfoCard';
 import { useDialog } from '@/components/common/withDialog';
 import SnoozeAmountModal from './SnoozeAmountModal';
 import RestrictAndNotifyModal from './RestrictAndNotifyModal';
+import SunshineUserMessages from '../SunshineUserMessages';
 
 const SunshineUsersListUpdateMutation = gql(`
   mutation updateUserModerationSidebar($selector: SelectorInput!, $data: UpdateUserDataInput!) {
@@ -39,6 +39,7 @@ const CommentsListWithParentMetadataMultiQuery = gql(`
 
 const styles = defineStyles('ModerationSidebar', (theme: ThemeType) => ({
   root: {
+    ...theme.typography.commentStyle,
     padding: 20,
   },
   empty: {
@@ -350,8 +351,8 @@ const ModerationSidebar = ({
     <div className={classes.root}>
       <div className={classes.section}>
         <UserAutoRateLimitsDisplay user={user} showKarmaMeta />
-        <NewUserDMSummary user={user} />
         <ContentSummaryRows user={user} posts={posts} comments={comments} loading={false} />
+        <SunshineUserMessages user={user} currentUser={currentUser} />
       </div>
 
       <div className={classes.section}>
@@ -368,54 +369,6 @@ const ModerationSidebar = ({
             rows={8}
           />
         </div>
-      </div>
-
-      <div className={classes.section}>
-        <div className={classes.sectionTitle}>Quick Actions</div>
-        <button className={`${classes.actionButton} ${classes.primaryAction}`} onClick={handleReview}>
-          Approve
-          <span className={classes.keystrokeHint}>A</span>
-        </button>
-        <button className={classes.actionButton} onClick={() => handleSnooze(10)}>
-          Snooze 10
-          <span className={classes.keystrokeHint}>S</span>
-        </button>
-        <button className={classes.actionButton} onClick={handleSnoozeCustom}>
-          Snooze Custom Amount
-          <span className={classes.keystrokeHint}>⇧S</span>
-        </button>
-        <button className={classes.actionButton} onClick={handleRemoveNeedsReview}>
-          Remove from Queue
-          <span className={classes.keystrokeHint}>R</span>
-        </button>
-      </div>
-
-      <div className={classes.section}>
-        <div className={classes.sectionTitle}>Restrictions</div>
-        <button className={classes.actionButton} onClick={handleDisablePosting}>
-          {user.postingDisabled ? 'Enable' : 'Disable'} Posting
-          <span className={classes.keystrokeHint}>D</span>
-        </button>
-        <button className={classes.actionButton} onClick={handleDisableCommentingOnOthers}>
-          {user.commentingOnOtherUsersDisabled ? 'Enable' : 'Disable'} Commenting on Others
-          <span className={classes.keystrokeHint}>C</span>
-        </button>
-        <button className={`${classes.actionButton} ${classes.dangerAction}`} onClick={handleRestrictAndNotify}>
-          Restrict & Notify
-          <span className={classes.keystrokeHint}>⇧R</span>
-        </button>
-      </div>
-
-      <div className={classes.section}>
-        <div className={classes.sectionTitle}>Other Actions</div>
-        <button className={classes.actionButton} onClick={handleFlag}>
-          {user.sunshineFlagged ? 'Unflag' : 'Flag'} User
-          <span className={classes.keystrokeHint}>F</span>
-        </button>
-        <button className={`${classes.actionButton} ${classes.dangerAction}`} onClick={handleBan}>
-          Ban for 3 Months
-          <span className={classes.keystrokeHint}>B</span>
-        </button>
       </div>
     </div>
   );
