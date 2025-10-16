@@ -1,7 +1,6 @@
 import ReviewWinners from "../../server/collections/reviewWinners/collection";
 import AbstractRepo from "./AbstractRepo";
 import { recordPerfMetrics } from "./perfMetricWrapper";
-import type { ReviewWinnerWithPost } from "@/server/review/reviewWinnersCache";
 import { BEST_OF_LESSWRONG_PUBLISH_YEAR } from "../../lib/reviewUtils";
 
 class ReviewWinnersRepo extends AbstractRepo<"ReviewWinners"> {
@@ -61,43 +60,16 @@ class ReviewWinnersRepo extends AbstractRepo<"ReviewWinners"> {
     });
   }
 
-  async getAllReviewWinnersWithPosts(): Promise<ReviewWinnerWithPost[]> {
-    // We're doing some jank here that's basically identical to `ReviewWinnerArtsRepo.getActiveReviewWinnerArt`
-    // This is to avoid an n+1 when fetching all the review winners on the best of lesswrong page,
-    // which would otherwise be caused by the gql resolver for the reviewWinnerArt field on reviewWinner
-    const postsWithMetadata = await this.getRawDb().any<DbPost & { reviewWinner: DbReviewWinner, reviewWinnerArt: DbReviewWinnerArt }>(`
-      SELECT
-        TO_JSONB(rw.*) AS "reviewWinner",
-        (
-          SELECT TO_JSONB(rwa.*)
-          FROM "ReviewWinnerArts" AS rwa
-          JOIN "SplashArtCoordinates" AS sac
-          ON sac."reviewWinnerArtId" = rwa._id
-          WHERE rwa."postId" = p._id
-          ORDER BY sac."createdAt" DESC
-          LIMIT 1    
-        ) AS "reviewWinnerArt",
-        (
-          SELECT TO_JSONB(s.*)
-          FROM "Spotlights" s
-          WHERE s."documentId" = p._id
-          AND s."draft" IS false
-          AND s."deletedDraft" IS false
-          ORDER BY s."createdAt" DESC
-          LIMIT 1
-        ) AS "spotlight",
-        p.*
+  async getAllReviewWinnerPosts(): Promise<DbPost[]> {
+    const reviewWinnerPosts = await this.getRawDb().any<DbPost>(`
+      SELECT p.*
       FROM "ReviewWinners" rw
       JOIN "Posts" p
       ON rw."postId" = p._id
       WHERE rw."reviewYear" <= $1
     `, [BEST_OF_LESSWRONG_PUBLISH_YEAR]);
 
-    // We need to do this annoying munging in code because `TO_JSONB` causes date fields to be returned without being serialized into JS Date objects
-    return postsWithMetadata.map(postWithMetadata => {
-      const { reviewWinner, reviewWinnerArt, ...post } = postWithMetadata;
-      return Object.assign(post, { reviewWinner: Object.assign(reviewWinner, { reviewWinnerArt }) });
-    });
+    return reviewWinnerPosts;
   }
 }
 
