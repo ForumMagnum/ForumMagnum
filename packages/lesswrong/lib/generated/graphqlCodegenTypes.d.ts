@@ -3226,6 +3226,8 @@ type ModeratorActionType =
   | 'lowAverageKarmaCommentAlert'
   | 'lowAverageKarmaPostAlert'
   | 'manualFlag'
+  | 'manualNeedsReview'
+  | 'manualRateLimitExpired'
   | 'movedPostToDraft'
   | 'negativeUserKarmaAlert'
   | 'potentialTargetedDownvoting'
@@ -3240,6 +3242,14 @@ type ModeratorActionType =
   | 'rejectedComment'
   | 'rejectedPost'
   | 'sentModeratorMessage'
+  | 'snoozeExpired'
+  | 'stricterCommentAutomodRateLimit'
+  | 'stricterPostAutomodRateLimit'
+  | 'unreviewedBioUpdate'
+  | 'unreviewedFirstComment'
+  | 'unreviewedFirstPost'
+  | 'unreviewedMapLocationUpdate'
+  | 'unreviewedProfileImageUpdate'
   | 'votingPatternWarningDelivered';
 
 type ModeratorActionsUserModeratorActionsInput = {
@@ -20724,6 +20734,23 @@ type updateUserModeratorActionsMutationVariables = Exact<{
 
 
 type updateUserModeratorActionsMutation = updateUserModeratorActionsMutation_Mutation;
+
+type createModeratorActionMutation_createModeratorAction_ModeratorActionOutput_data_ModeratorAction = (
+  { __typename?: 'ModeratorAction' }
+  & ModeratorActionDisplay
+);
+
+type createModeratorActionMutation_createModeratorAction_ModeratorActionOutput = { __typename?: 'ModeratorActionOutput', data: createModeratorActionMutation_createModeratorAction_ModeratorActionOutput_data_ModeratorAction | null };
+
+type createModeratorActionMutation_Mutation = { __typename?: 'Mutation', createModeratorAction: createModeratorActionMutation_createModeratorAction_ModeratorActionOutput | null };
+
+
+type createModeratorActionMutationVariables = Exact<{
+  data: CreateModeratorActionDataInput;
+}>;
+
+
+type createModeratorActionMutation = createModeratorActionMutation_Mutation;
 
 type multiConversationModeratorMessageCountQueryQuery_conversations_MultiConversationOutput_results_Conversation = (
   { __typename?: 'Conversation' }
