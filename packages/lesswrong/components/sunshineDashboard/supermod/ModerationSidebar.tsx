@@ -145,7 +145,6 @@ const ModerationSidebar = ({
 
   const handleNotes = useCallback(() => {
     if (notes !== user.sunshineNotes) {
-      console.log({ notes, userSunshineNotes: user.sunshineNotes });
       void updateUser({
         variables: {
           selector: { _id: user._id },
@@ -350,8 +349,15 @@ const ModerationSidebar = ({
   return (
     <div className={classes.root}>
       <div className={classes.section}>
+        <div className={classes.sectionTitle}>Automod Rate Limits</div>
         <UserAutoRateLimitsDisplay user={user} showKarmaMeta />
+      </div>
+      <div className={classes.section}>
+        <div className={classes.sectionTitle}>Content Summary</div>
         <ContentSummaryRows user={user} posts={posts} comments={comments} loading={false} />
+      </div>
+      <div className={classes.section}>
+        <div className={classes.sectionTitle}>User Messages</div>
         <SunshineUserMessages user={user} currentUser={currentUser} />
       </div>
 

@@ -5,13 +5,24 @@ import { autoCommentRateLimits, autoPostRateLimits } from '../../../lib/rateLimi
 import { getActiveRateLimitNames, getDownvoteRatio, getStrictestActiveRateLimitNames as getStrictestActiveRateLimits } from '../../../lib/rateLimits/utils';
 import StarIcon from '@/lib/vendor/@material-ui/icons/src/Star';
 import StarBorderIcon from '@/lib/vendor/@material-ui/icons/src/StarBorder';
-import ExpandMoreIcon from '@/lib/vendor/@material-ui/icons/src/ExpandMore';
 import MetaInfo from "../../common/MetaInfo";
 import LWTooltip from "../../common/LWTooltip";
+import ForumIcon from '@/components/common/ForumIcon';
+import classNames from 'classnames';
 
 const styles = (theme: ThemeType) => ({
   padding: {
     marginTop: 8,
+  },
+  karmaMeta: {
+    display: "flex",
+    alignItems: "center",
+  },
+  karmaMetaItem: {
+    height: 24,
+    width: 48,
+    display: "flex",
+    alignItems: "center",
   },
   icon: {
     height: 16,
@@ -22,11 +33,11 @@ const styles = (theme: ThemeType) => ({
     marginRight: 5
   }, 
   downvoteIcon: {
-    height: 24,
-    width: 24,
+    height: 20,
+    width: 20,
     color: theme.palette.grey[700],
-    position: "relative",
-    top: 7
+    top: 4,
+    position: 'unset',
   },
   percentIcon: {
     height: 15,
@@ -34,7 +45,12 @@ const styles = (theme: ThemeType) => ({
     marginRight: 5
   },
   info: {
-    marginRight: 16
+    marginRight: 16,
+    height: 20,
+    display: "flex",
+  },
+  strictestRateLimits: {
+    margin: 0,
   }
 });
 
@@ -70,20 +86,20 @@ export const UserAutoRateLimitsDisplay = ({user, showKarmaMeta=false, classes}: 
   const nonStrictestRateLimitsNames = allActiveRateLimitsNames.filter(rateLimitName => !strictestRateLimits.some(strictLimit => strictLimit.name === rateLimitName))
 
   return <div>
-    {showKarmaMeta && <div>
-      <LWTooltip title="total karma">
+    {showKarmaMeta && <div className={classes.karmaMeta}>
+      <LWTooltip title="total karma" className={classes.karmaMetaItem}>
         <MetaInfo className={classes.info}>
           <StarIcon className={classes.icon}/>{ user.karma || 0 }
         </MetaInfo>
       </LWTooltip>
-      <LWTooltip title={recentKarmaTooltip(user)}>
+      <LWTooltip title={recentKarmaTooltip(user)} className={classes.karmaMetaItem}>
         <MetaInfo className={classes.info}>
           <StarBorderIcon className={classes.icon}/>{user.recentKarmaInfo.last20karma}
         </MetaInfo>
       </LWTooltip>
-      <LWTooltip title={downvoterTooltip(user)}>
-        <MetaInfo className={classes.info}>
-          <ExpandMoreIcon className={classes.downvoteIcon}/> {user.recentKarmaInfo.downvoterCount ?? 0}
+      <LWTooltip title={downvoterTooltip(user)} className={classes.karmaMetaItem}>
+        <MetaInfo className={classNames(classes.info, classes.karmaMetaItem)}>
+          <ForumIcon icon="ExpandMore" className={classNames(classes.icon, classes.downvoteIcon)}/> {user.recentKarmaInfo.downvoterCount ?? 0}
         </MetaInfo>
       </LWTooltip>
       <LWTooltip title={<div><div>Total Downvote Ratio {roundedDownvoteRatio}</div>
@@ -91,15 +107,17 @@ export const UserAutoRateLimitsDisplay = ({user, showKarmaMeta=false, classes}: 
         <li>{user.bigUpvoteReceivedCount || 0} Big Upvotes</li>
         <li>{user.smallDownvoteReceivedCount || 0} Small Downvotes</li>
         <li>{user.bigDownvoteReceivedCount || 0} Big Downvotes</li>
-      </div>}>
+      </div>} className={classes.karmaMetaItem}>
         <MetaInfo className={classes.info}>
           <span className={classes.percentIcon}>%</span> {roundedDownvoteRatio}
         </MetaInfo>
       </LWTooltip>
     </div>}
-    {strictestRateLimits.map(({name, isActive}) => <div key={`${user._id}rateLimitstrict${name}`}>
-      <LWTooltip title={`Calculated via: ${isActive.toString()}`}><MetaInfo>{name}</MetaInfo></LWTooltip>
-    </div>)}
+    <ul className={classes.strictestRateLimits}>
+      {strictestRateLimits.map(({name, isActive}) => <li key={`${user._id}rateLimitstrict${name}`}><div>
+        <LWTooltip title={`Calculated via: ${isActive.toString()}`}><MetaInfo>{name}</MetaInfo></LWTooltip>
+      </div></li>)}
+    </ul>
     {nonStrictestRateLimitsNames.length > 0 && <LWTooltip title={<div>
       {nonStrictestRateLimitsNames.map(rateLimit => <div key={`${user._id}rateLimit${rateLimit}`}>{rateLimit}</div>)}</div>}>
       <MetaInfo>{nonStrictestRateLimitsNames.length} More</MetaInfo>
