@@ -10,6 +10,7 @@ import MessageIcon from '@/lib/vendor/@material-ui/icons/src/Message'
 import { usePublishedPosts } from '@/components/hooks/usePublishedPosts';
 import { AUTO_BLOCKED_FROM_SENDING_DMS, FLAGGED_FOR_N_DMS, MANUAL_FLAG_ALERT, MANUAL_NEEDS_REVIEW, MANUAL_RATE_LIMIT_EXPIRED, POTENTIAL_TARGETED_DOWNVOTING, RECEIVED_SENIOR_DOWNVOTES_ALERT, RECEIVED_VOTING_PATTERN_WARNING, SNOOZE_EXPIRED, STRICTER_COMMENT_AUTOMOD_RATE_LIMIT, STRICTER_POST_AUTOMOD_RATE_LIMIT, UNREVIEWED_BIO_UPDATE, UNREVIEWED_FIRST_COMMENT, UNREVIEWED_FIRST_POST, UNREVIEWED_MAP_LOCATION_UPDATE, UNREVIEWED_PROFILE_IMAGE_UPDATE } from '@/lib/collections/moderatorActions/constants';
 import { partitionModeratorActions } from './groupings';
+import ForumIcon from '@/components/common/ForumIcon';
 
 const styles = defineStyles('ModerationInboxItem', (theme: ThemeType) => ({
   root: {
@@ -218,9 +219,11 @@ const ModerationInboxItem = ({
       </div>
       <div className={classes.contentCounts}>
         <DescriptionIcon className={classes.icon} />
-        {user.postCount || 0}
+        {user.postCount}
         <MessageIcon className={classes.icon} />
-        {user.commentCount || 0}
+        {user.commentCount}
+        <ForumIcon icon="Email" className={classes.icon} />
+        {user.usersContactedBeforeReview?.length ?? 0}
       </div>
       <div className={classes.icons}>
         {user.sunshineFlagged && <FlagIcon className={classes.flagIcon} />}
