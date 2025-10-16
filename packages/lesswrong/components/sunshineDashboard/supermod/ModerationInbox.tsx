@@ -7,11 +7,13 @@ import { userIsAdminOrMod } from '@/lib/vulcan-users/permissions';
 import { useLocation, useNavigate } from '@/lib/routeUtil';
 import { useQuery } from '@/lib/crud/useQuery';
 import { gql } from '@/lib/generated/gql-codegen';
-import ModerationInboxList from './ModerationInboxList';
+import ModerationInboxList, { GroupEntry } from './ModerationInboxList';
 import ModerationDetailView from './ModerationDetailView';
 import ModerationSidebar from './ModerationSidebar';
 import ModerationKeyboardHandler from './ModerationKeyboardHandler';
 import Loading from '@/components/vulcan-core/Loading';
+import groupBy from 'lodash/groupBy';
+import { getUserReviewGroup, REVIEW_GROUP_TO_PRIORITY } from './groupings';
 
 const SunshineUsersListMultiQuery = gql(`
   query multiUserModerationInboxQuery($selector: UserSelector, $limit: Int, $enableTotal: Boolean) {
@@ -79,29 +81,37 @@ const ModerationInbox = () => {
     return data?.users?.results.filter(user => user.needsReview) ?? [];
   }, [data]);
 
+  const groupedUsers = useMemo(() => groupBy(users, user => getUserReviewGroup(user)), [users]);
+
+  const orderedGroups = useMemo(() => (
+    (Object.entries(groupedUsers) as GroupEntry[]).sort(([a]: GroupEntry, [b]: GroupEntry) => REVIEW_GROUP_TO_PRIORITY[b] - REVIEW_GROUP_TO_PRIORITY[a])
+  ), [groupedUsers]);
+
+  const orderedUsers = useMemo(() => orderedGroups.map(([_, users]) => users).flat(), [orderedGroups]);
+
   // Auto-focus first user when data loads
   useEffect(() => {
-    if (users.length > 0 && !focusedUserId && !openedUserId) {
-      setFocusedUserId(users[0]._id);
+    if (orderedUsers.length > 0 && !focusedUserId && !openedUserId) {
+      setFocusedUserId(orderedUsers[0]._id);
     }
-  }, [users, focusedUserId, openedUserId]);
+  }, [orderedUsers, focusedUserId, openedUserId]);
 
   const openedUser = useMemo(() => {
     if (!openedUserId) return null;
-    return users.find(u => u._id === openedUserId) ?? null;
-  }, [openedUserId, users]);
+    return orderedUsers.find(u => u._id === openedUserId) ?? null;
+  }, [openedUserId, orderedUsers]);
 
   // In inbox view, show focused user in sidebar
   // In detail view, show opened user in sidebar
-  const sidebarUser = openedUser || (focusedUserId ? users.find(u => u._id === focusedUserId) ?? null : null);
+  const sidebarUser = openedUser || (focusedUserId ? orderedUsers.find(u => u._id === focusedUserId) ?? null : null);
 
   const focusedIndex = useMemo(() => {
     if (openedUserId) {
-      return users.findIndex(u => u._id === openedUserId);
+      return orderedUsers.findIndex(u => u._id === openedUserId);
     }
     if (!focusedUserId) return -1;
-    return users.findIndex(u => u._id === focusedUserId);
-  }, [focusedUserId, openedUserId, users]);
+    return orderedUsers.findIndex(u => u._id === focusedUserId);
+  }, [focusedUserId, openedUserId, orderedUsers]);
 
   const handleFocusUser = useCallback((userId: string | null) => {
     setFocusedUserId(userId);
@@ -122,34 +132,34 @@ const ModerationInbox = () => {
   }, [location, navigate]);
 
   const handleNextUser = useCallback(() => {
-    if (users.length === 0) return;
+    if (orderedUsers.length === 0) return;
 
     const currentIndex = focusedIndex >= 0 ? focusedIndex : -1;
-    const nextIndex = (currentIndex + 1) % users.length;
+    const nextIndex = (currentIndex + 1) % orderedUsers.length;
 
     if (openedUserId) {
       // In detail view, navigate to next user
-      handleOpenUser(users[nextIndex]._id);
+      handleOpenUser(orderedUsers[nextIndex]._id);
     } else {
       // In inbox view, just focus next user
-      handleFocusUser(users[nextIndex]._id);
+      handleFocusUser(orderedUsers[nextIndex]._id);
     }
-  }, [users, focusedIndex, openedUserId, handleOpenUser, handleFocusUser]);
+  }, [orderedUsers, focusedIndex, openedUserId, handleOpenUser, handleFocusUser]);
 
   const handlePrevUser = useCallback(() => {
-    if (users.length === 0) return;
+    if (orderedUsers.length === 0) return;
 
     const currentIndex = focusedIndex >= 0 ? focusedIndex : 0;
-    const prevIndex = currentIndex === 0 ? users.length - 1 : currentIndex - 1;
+    const prevIndex = currentIndex === 0 ? orderedUsers.length - 1 : currentIndex - 1;
 
     if (openedUserId) {
       // In detail view, navigate to prev user
-      handleOpenUser(users[prevIndex]._id);
+      handleOpenUser(orderedUsers[prevIndex]._id);
     } else {
       // In inbox view, just focus prev user
-      handleFocusUser(users[prevIndex]._id);
+      handleFocusUser(orderedUsers[prevIndex]._id);
     }
-  }, [users, focusedIndex, openedUserId, handleOpenUser, handleFocusUser]);
+  }, [orderedUsers, focusedIndex, openedUserId, handleOpenUser, handleFocusUser]);
 
   const handleCloseDetail = useCallback(() => {
     handleOpenUser(null);
@@ -164,15 +174,15 @@ const ModerationInbox = () => {
     // After refetch, automatically select the next user
     // We need to wait a tick for the query to complete
     setTimeout(() => {
-      if (users.length > 0) {
+      if (orderedUsers.length > 0) {
         // If we were on the last user, go to the first
         // Otherwise go to the same index (which will be the next user after removal)
-        const nextIndex = focusedIndex >= users.length - 1 ? 0 : focusedIndex;
-        if (users[nextIndex]) {
+        const nextIndex = focusedIndex >= orderedUsers.length - 1 ? 0 : focusedIndex;
+        if (orderedUsers[nextIndex]) {
           if (openedUserId) {
-            handleOpenUser(users[nextIndex]._id);
+            handleOpenUser(orderedUsers[nextIndex]._id);
           } else {
-            handleFocusUser(users[nextIndex]._id);
+            handleFocusUser(orderedUsers[nextIndex]._id);
           }
         } else {
           handleCloseDetail();
@@ -181,7 +191,7 @@ const ModerationInbox = () => {
         handleCloseDetail();
       }
     }, 100);
-  }, [refetch, users, focusedIndex, openedUserId, handleOpenUser, handleFocusUser, handleCloseDetail]);
+  }, [refetch, orderedUsers, focusedIndex, openedUserId, handleOpenUser, handleFocusUser, handleCloseDetail]);
 
   if (!currentUser || !userIsAdminOrMod(currentUser)) {
     return null;
@@ -203,8 +213,8 @@ const ModerationInbox = () => {
         onOpenDetail={() => {
           if (focusedUserId && !openedUserId) {
             handleOpenUser(focusedUserId);
-          } else if (!focusedUserId && users.length > 0) {
-            handleOpenUser(users[0]._id);
+          } else if (!focusedUserId && orderedUsers.length > 0) {
+            handleOpenUser(orderedUsers[0]._id);
           }
         }}
         onCloseDetail={handleCloseDetail}
@@ -223,7 +233,7 @@ const ModerationInbox = () => {
             />
           ) : (
             <ModerationInboxList
-              users={users}
+              userGroups={orderedGroups}
               focusedUserId={focusedUserId}
               onFocusUser={handleFocusUser}
               onOpenUser={handleOpenUser}
@@ -231,11 +241,11 @@ const ModerationInbox = () => {
           )}
         </div>
         <div className={classes.sidebar}>
-          <ModerationSidebar
+          {sidebarUser && <ModerationSidebar
             user={sidebarUser}
             currentUser={currentUser}
             onActionComplete={handleActionComplete}
-          />
+          />}
         </div>
       </div>
     </div>

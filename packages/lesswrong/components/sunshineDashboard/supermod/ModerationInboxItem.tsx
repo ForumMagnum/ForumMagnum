@@ -25,7 +25,6 @@ const styles = defineStyles('ModerationInboxItem', (theme: ThemeType) => ({
     ...theme.typography.commentStyle,
   },
   focused: {
-    backgroundColor: theme.palette.grey[100],
     borderLeft: `3px solid ${theme.palette.primary.main}`,
     paddingLeft: 17, // 20 - 3 to account for border
   },
@@ -70,6 +69,7 @@ const styles = defineStyles('ModerationInboxItem', (theme: ThemeType) => ({
     display: 'flex',
     alignItems: 'center',
     marginRight: 12,
+    width: 20,
   },
   flagIcon: {
     height: 14,

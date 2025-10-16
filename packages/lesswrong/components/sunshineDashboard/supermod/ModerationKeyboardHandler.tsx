@@ -1,7 +1,7 @@
 import React, { useCallback, useMemo, useState } from 'react';
 import { useGlobalKeydown } from '@/components/common/withGlobalKeydown';
 import { useDialog } from '@/components/common/withDialog';
-import CommandPalette, { CommandPaletteItem } from '@/components/common/CommandPalette';
+import type { CommandPaletteItem } from '@/components/common/CommandPalette';
 import { useMutation } from '@apollo/client/react';
 import { gql } from '@/lib/generated/gql-codegen';
 import moment from 'moment';
@@ -9,9 +9,6 @@ import { getSignatureWithNote } from '@/lib/collections/users/helpers';
 import { getNewSnoozeUntilContentCount } from '../ModeratorActions';
 import SnoozeAmountModal from './SnoozeAmountModal';
 import RestrictAndNotifyModal from './RestrictAndNotifyModal';
-import { usePublishedPosts } from '@/components/hooks/usePublishedPosts';
-import { useQuery } from '@/lib/crud/useQuery';
-import { CONTENT_LIMIT } from '../UsersReviewInfoCard';
 import { useCommandPalette } from '@/components/hooks/useCommandPalette';
 
 const SunshineUsersListUpdateMutation = gql(`
@@ -20,17 +17,6 @@ const SunshineUsersListUpdateMutation = gql(`
       data {
         ...SunshineUsersList
       }
-    }
-  }
-`);
-
-const CommentsListWithParentMetadataMultiQuery = gql(`
-  query multiCommentModerationKeyboardQuery($selector: CommentSelector, $limit: Int, $enableTotal: Boolean) {
-    comments(selector: $selector, limit: $limit, enableTotal: $enableTotal) {
-      results {
-        ...CommentsListWithParentMetadata
-      }
-      totalCount
     }
   }
 `);
@@ -54,23 +40,8 @@ const ModerationKeyboardHandler = ({
   currentUser: UsersCurrent;
   onActionComplete: () => void;
 }) => {
-  const [commandPaletteOpen, setCommandPaletteOpen] = useState(false);
   const { openDialog } = useDialog();
   const [updateUser] = useMutation(SunshineUsersListUpdateMutation);
-
-  const { posts = [] } = usePublishedPosts(selectedUser?._id, CONTENT_LIMIT);
-
-  const { data } = useQuery(CommentsListWithParentMetadataMultiQuery, {
-    variables: {
-      selector: { sunshineNewUsersComments: { userId: selectedUser?._id ?? '' } },
-      limit: CONTENT_LIMIT,
-      enableTotal: false,
-    },
-    skip: !selectedUser,
-    fetchPolicy: 'cache-and-network',
-  });
-
-  const comments = useMemo(() => data?.comments?.results ?? [], [data]);
 
   const getModSignatureWithNote = useCallback(
     (note: string) => getSignatureWithNote(currentUser.displayName, note),
@@ -244,8 +215,6 @@ const ModerationKeyboardHandler = ({
         <RestrictAndNotifyModal
           user={selectedUser}
           currentUser={currentUser}
-          posts={posts}
-          comments={comments}
           onComplete={() => {
             onActionComplete();
             onClose();
@@ -254,7 +223,7 @@ const ModerationKeyboardHandler = ({
         />
       ),
     });
-  }, [selectedUser, currentUser, posts, comments, openDialog, onActionComplete]);
+  }, [selectedUser, currentUser, openDialog, onActionComplete]);
 
   const openCommandPalette = useCommandPalette();
 
@@ -442,17 +411,6 @@ const ModerationKeyboardHandler = ({
   );
 
   return null;
-
-  // return (
-  //   <>
-  //     {commandPaletteOpen && (
-  //       <CommandPalette
-  //         commands={commands}
-  //         onClose={() => setCommandPaletteOpen(false)}
-  //       />
-  //     )}
-  //   </>
-  // );
 };
 
 export default ModerationKeyboardHandler;

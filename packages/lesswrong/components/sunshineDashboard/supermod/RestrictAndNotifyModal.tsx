@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useMemo, useState } from 'react';
 import { defineStyles, useStyles } from '@/components/hooks/useStyles';
 import LWDialog from "@/components/common/LWDialog";
 import { DialogTitle } from '@/components/widgets/DialogTitle';
@@ -13,6 +13,19 @@ import { ContentItemBody } from '@/components/contents/ContentItemBody';
 import { commentBodyStyles } from '@/themes/stylePiping';
 import { useInitiateConversation } from '@/components/hooks/useInitiateConversation';
 import Loading from '@/components/vulcan-core/Loading';
+import { CONTENT_LIMIT } from '../UsersReviewInfoCard';
+import { usePublishedPosts } from '@/components/hooks/usePublishedPosts';
+
+const CommentsListWithParentMetadataMultiQuery = gql(`
+  query multiCommentModerationKeyboardQuery($selector: CommentSelector, $limit: Int, $enableTotal: Boolean) {
+    comments(selector: $selector, limit: $limit, enableTotal: $enableTotal) {
+      results {
+        ...CommentsListWithParentMetadata
+      }
+      totalCount
+    }
+  }
+`);
 
 const ModerationTemplateFragmentMultiQuery = gql(`
   query multiModerationTemplateRestrictAndNotifyModalQuery($selector: ModerationTemplateSelector, $limit: Int, $enableTotal: Boolean) {
@@ -118,21 +131,29 @@ const styles = defineStyles('RestrictAndNotifyModal', (theme: ThemeType) => ({
 const RestrictAndNotifyModal = ({
   user,
   currentUser,
-  posts,
-  comments,
   onComplete,
   onClose,
 }: {
   user: SunshineUsersList;
   currentUser: UsersCurrent;
-  posts: SunshinePostsList[];
-  comments: CommentsListWithParentMetadata[];
   onComplete: () => void;
   onClose: () => void;
 }) => {
   const classes = useStyles(styles);
   const [selectedTemplateId, setSelectedTemplateId] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
+
+  const { posts = [] } = usePublishedPosts(user._id, CONTENT_LIMIT);
+
+  const { data } = useQuery(CommentsListWithParentMetadataMultiQuery, {
+    variables: {
+      selector: { sunshineNewUsersComments: { userId: user._id ?? '' } },
+      limit: CONTENT_LIMIT,
+      enableTotal: false,
+    },
+  });
+
+  const comments = useMemo(() => data?.comments?.results ?? [], [data]);
 
   const { data: templatesData } = useQuery(ModerationTemplateFragmentMultiQuery, {
     variables: {

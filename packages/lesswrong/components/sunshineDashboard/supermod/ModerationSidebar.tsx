@@ -1,12 +1,11 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { defineStyles, useStyles } from '@/components/hooks/useStyles';
 import { useMutation } from '@apollo/client/react';
 import { gql } from '@/lib/generated/gql-codegen';
 import moment from 'moment';
 import Input from '@/lib/vendor/@material-ui/core/src/Input';
-import { getSignature, getSignatureWithNote } from '@/lib/collections/users/helpers';
+import { getSignatureWithNote } from '@/lib/collections/users/helpers';
 import { getNewSnoozeUntilContentCount } from '../ModeratorActions';
-import UserReviewMetadata from '../ModeratorUserInfo/UserReviewMetadata';
 import UserAutoRateLimitsDisplay from '../ModeratorUserInfo/UserAutoRateLimitsDisplay';
 import NewUserDMSummary from '../ModeratorUserInfo/NewUserDMSummary';
 import ContentSummaryRows from '../ModeratorUserInfo/ContentSummaryRows';
@@ -114,21 +113,21 @@ const ModerationSidebar = ({
   currentUser,
   onActionComplete,
 }: {
-  user: SunshineUsersList | null;
+  user: SunshineUsersList;
   currentUser: UsersCurrent;
   onActionComplete: () => void;
 }) => {
   const classes = useStyles(styles);
-  const [notes, setNotes] = useState('');
+  const [notes, setNotes] = useState(user.sunshineNotes);
   const { openDialog } = useDialog();
 
   const [updateUser] = useMutation(SunshineUsersListUpdateMutation);
 
   useEffect(() => {
-    if (user) {
-      setNotes(user.sunshineNotes || '');
+    if (user.sunshineNotes) {
+      setNotes(user.sunshineNotes);
     }
-  }, [user]);
+  }, [user._id, user.sunshineNotes]);
 
   const { posts = [] } = usePublishedPosts(user?._id, CONTENT_LIMIT);
 
@@ -139,14 +138,13 @@ const ModerationSidebar = ({
       enableTotal: false,
     },
     skip: !user,
-    fetchPolicy: 'cache-and-network',
   });
 
   const comments = data?.comments?.results ?? [];
 
-  const handleNotes = () => {
-    if (!user) return;
+  const handleNotes = useCallback(() => {
     if (notes !== user.sunshineNotes) {
+      console.log({ notes, userSunshineNotes: user.sunshineNotes });
       void updateUser({
         variables: {
           selector: { _id: user._id },
@@ -156,14 +154,14 @@ const ModerationSidebar = ({
         },
       });
     }
-  };
+  }, [user._id, user.sunshineNotes, notes, updateUser]);
 
   useEffect(() => {
     return () => {
       handleNotes();
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [user?._id]);
+  }, []);
 
   const getModSignatureWithNote = (note: string) => getSignatureWithNote(currentUser.displayName, note);
 
@@ -328,8 +326,6 @@ const ModerationSidebar = ({
         <RestrictAndNotifyModal
           user={user}
           currentUser={currentUser}
-          posts={posts}
-          comments={comments}
           onComplete={() => {
             onActionComplete();
             onClose();
@@ -353,11 +349,25 @@ const ModerationSidebar = ({
   return (
     <div className={classes.root}>
       <div className={classes.section}>
-        <div className={classes.sectionTitle}>User Info</div>
-        <UserReviewMetadata user={user} />
         <UserAutoRateLimitsDisplay user={user} showKarmaMeta />
         <NewUserDMSummary user={user} />
         <ContentSummaryRows user={user} posts={posts} comments={comments} loading={false} />
+      </div>
+
+      <div className={classes.section}>
+        <div className={classes.sectionTitle}>Moderator Notes</div>
+        <div className={classes.notes}>
+          <Input
+            value={notes ?? ''}
+            fullWidth
+            onChange={(e) => setNotes(e.target.value)}
+            onBlur={handleNotes}
+            disableUnderline
+            placeholder="Notes for other moderators"
+            multiline
+            rows={8}
+          />
+        </div>
       </div>
 
       <div className={classes.section}>
@@ -406,22 +416,6 @@ const ModerationSidebar = ({
           Ban for 3 Months
           <span className={classes.keystrokeHint}>B</span>
         </button>
-      </div>
-
-      <div className={classes.section}>
-        <div className={classes.sectionTitle}>Moderator Notes</div>
-        <div className={classes.notes}>
-          <Input
-            value={notes}
-            fullWidth
-            onChange={(e) => setNotes(e.target.value)}
-            onBlur={handleNotes}
-            disableUnderline
-            placeholder="Notes for other moderators"
-            multiline
-            rows={8}
-          />
-        </div>
       </div>
     </div>
   );

@@ -1,7 +1,8 @@
 import React, { useMemo } from 'react';
 import { defineStyles, useStyles } from '@/components/hooks/useStyles';
 import ModerationInboxItem from './ModerationInboxItem';
-import { getUserReviewGroup, REVIEW_GROUP_TO_PRIORITY } from './groupings';
+import type { ReviewGroup } from './groupings';
+import classNames from 'classnames';
 
 const styles = defineStyles('ModerationInboxList', (theme: ThemeType) => ({
   root: {
@@ -35,53 +36,66 @@ const styles = defineStyles('ModerationInboxList', (theme: ThemeType) => ({
     color: theme.palette.grey[600],
     fontSize: 16,
   },
+  newContent: {
+    background: theme.palette.panelBackground.sunshineNewContentGroup,
+  },
+  highContext: {
+    background: theme.palette.panelBackground.sunshineHighContextGroup,
+  },
+  maybeSpam: {
+    background: theme.palette.panelBackground.sunshineMaybeSpamGroup,
+  },
+  automod: {
+    background: theme.palette.panelBackground.sunshineAutomodGroup,
+  },
+  unknown: {
+    background: theme.palette.panelBackground.sunshineUnknownGroup,
+  },
 }));
 
+export type GroupEntry = [ReviewGroup, SunshineUsersList[]];
+
 const ModerationInboxList = ({
-  users,
+  userGroups,
   focusedUserId,
   onFocusUser,
   onOpenUser,
 }: {
-  users: SunshineUsersList[];
+  userGroups: GroupEntry[],
   focusedUserId: string | null;
   onFocusUser: (userId: string) => void;
   onOpenUser: (userId: string) => void;
 }) => {
   const classes = useStyles(styles);
 
-  const sortedUsers = useMemo(() => {
-    return users.sort((a, b) => {
-      const aGroup = getUserReviewGroup(a);
-      const bGroup = getUserReviewGroup(b);
-      return REVIEW_GROUP_TO_PRIORITY[bGroup] - REVIEW_GROUP_TO_PRIORITY[aGroup];
-    });
-  }, [users]);
+  const userCount = useMemo(() => userGroups.flat().length, [userGroups]);
 
   return (
     <div className={classes.root}>
       <div className={classes.header}>
         <span className={classes.title}>
           {'Unreviewed Users'}
-          <span className={classes.count}>({sortedUsers.length})</span>
+          <span className={classes.count}>({userCount})</span>
         </span>
       </div>
-      {sortedUsers.length === 0 ? (
+      {userCount === 0 ? (
         <div className={classes.empty}>
           No users to review
         </div>
       ) : (
-        <div className={classes.list}>
-          {sortedUsers.map((user) => (
-            <ModerationInboxItem
-              key={user._id}
-              user={user}
-              isFocused={user._id === focusedUserId}
-              onFocus={() => onFocusUser(user._id)}
-              onOpen={() => onOpenUser(user._id)}
-            />
-          ))}
-        </div>
+        userGroups.map(([group, users]) => (
+          <div key={group} className={classNames(classes.list, classes[group])}>
+            {users.map((user) => (
+              <ModerationInboxItem
+                key={user._id}
+                user={user}
+                isFocused={user._id === focusedUserId}
+                onFocus={() => onFocusUser(user._id)}
+                onOpen={() => onOpenUser(user._id)}
+              />
+            ))}
+          </div>
+        ))
       )}
     </div>
   );
