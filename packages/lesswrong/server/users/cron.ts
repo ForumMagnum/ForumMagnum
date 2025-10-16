@@ -1,10 +1,9 @@
 import Users from "../../server/collections/users/collection";
 import { ModeratorActions } from "../../server/collections/moderatorActions/collection";
-import { allRateLimits } from "@/lib/collections/moderatorActions/constants";
-import { appendToSunshineNotes } from "../../lib/collections/users/helpers";
-import { triggerReview } from "../callbacks/helpers";
+import { allRateLimits, MANUAL_RATE_LIMIT_EXPIRED } from "@/lib/collections/moderatorActions/constants";
 import { createAdminContext } from "../vulcan-lib/createContexts";
 import moment from 'moment';
+import { createModeratorAction } from "../collections/moderatorActions/mutations";
 
 export async function expiredRateLimitsReturnToReviewQueue() {
   const context = createAdminContext();
@@ -17,13 +16,12 @@ export async function expiredRateLimitsReturnToReviewQueue() {
   
   if (usersWithExpiringRateLimits.length > 0) {
     await Promise.all(usersWithExpiringRateLimits.map(async user => {
-      await appendToSunshineNotes({
-        moderatedUserId: user._id,
-        adminName: "Automod",
-        text: "Rate limit expired",
-        context,
-      });
-      await triggerReview(user._id, context);
+      await createModeratorAction({
+        data: {
+          type: MANUAL_RATE_LIMIT_EXPIRED,
+          userId: user._id,
+        },
+      }, context);
     }));
     
     // log the action

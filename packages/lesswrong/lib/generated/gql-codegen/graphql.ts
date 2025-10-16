@@ -3229,6 +3229,8 @@ export type ModeratorActionType =
   | 'lowAverageKarmaCommentAlert'
   | 'lowAverageKarmaPostAlert'
   | 'manualFlag'
+  | 'manualNeedsReview'
+  | 'manualRateLimitExpired'
   | 'movedPostToDraft'
   | 'negativeUserKarmaAlert'
   | 'potentialTargetedDownvoting'
@@ -3243,6 +3245,14 @@ export type ModeratorActionType =
   | 'rejectedComment'
   | 'rejectedPost'
   | 'sentModeratorMessage'
+  | 'snoozeExpired'
+  | 'stricterCommentAutomodRateLimit'
+  | 'stricterPostAutomodRateLimit'
+  | 'unreviewedBioUpdate'
+  | 'unreviewedFirstComment'
+  | 'unreviewedFirstPost'
+  | 'unreviewedMapLocationUpdate'
+  | 'unreviewedProfileImageUpdate'
   | 'votingPatternWarningDelivered';
 
 export type ModeratorActionsUserModeratorActionsInput = {
@@ -17715,6 +17725,16 @@ export type updateUserModeratorActionsMutation = { __typename?: 'Mutation', upda
       & SunshineUsersList
     ) | null } | null };
 
+export type createModeratorActionMutationVariables = Exact<{
+  data: CreateModeratorActionDataInput;
+}>;
+
+
+export type createModeratorActionMutation = { __typename?: 'Mutation', createModeratorAction: { __typename?: 'ModeratorActionOutput', data: (
+      { __typename?: 'ModeratorAction' }
+      & ModeratorActionDisplay
+    ) | null } | null };
+
 export type multiConversationModeratorMessageCountQueryQueryVariables = Exact<{
   selector?: InputMaybe<ConversationSelector>;
   limit?: InputMaybe<Scalars['Int']['input']>;
@@ -22238,6 +22258,7 @@ export const createLWEventwithNewEventsDocument = {"kind":"Document","definition
 export const createLocalgroupGroupFormDialogDocument = {"kind":"Document","definitions":[{"kind":"OperationDefinition","operation":"mutation","name":{"kind":"Name","value":"createLocalgroupGroupFormDialog"},"variableDefinitions":[{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"data"}},"type":{"kind":"NonNullType","type":{"kind":"NamedType","name":{"kind":"Name","value":"CreateLocalgroupDataInput"}}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"createLocalgroup"},"arguments":[{"kind":"Argument","name":{"kind":"Name","value":"data"},"value":{"kind":"Variable","name":{"kind":"Name","value":"data"}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"data"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"FragmentSpread","name":{"kind":"Name","value":"localGroupsHomeFragment"}}]}}]}}]}},localGroupsHomeFragmentFragmentDef,localGroupsBaseFragmentDef,UsersMinimumInfoFragmentDef,RevisionDisplayFragmentDef]} as unknown as DocumentNode<createLocalgroupGroupFormDialogMutation, createLocalgroupGroupFormDialogMutationVariables>;
 export const createMessageMessagesNewFormDocument = {"kind":"Document","definitions":[{"kind":"OperationDefinition","operation":"mutation","name":{"kind":"Name","value":"createMessageMessagesNewForm"},"variableDefinitions":[{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"data"}},"type":{"kind":"NonNullType","type":{"kind":"NamedType","name":{"kind":"Name","value":"CreateMessageDataInput"}}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"createMessage"},"arguments":[{"kind":"Argument","name":{"kind":"Name","value":"data"},"value":{"kind":"Variable","name":{"kind":"Name","value":"data"}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"data"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"FragmentSpread","name":{"kind":"Name","value":"messageListFragment"}}]}}]}}]}},messageListFragmentFragmentDef,UsersMinimumInfoFragmentDef]} as unknown as DocumentNode<createMessageMessagesNewFormMutation, createMessageMessagesNewFormMutationVariables>;
 export const createModerationTemplateModerationTemplateFormDocument = {"kind":"Document","definitions":[{"kind":"OperationDefinition","operation":"mutation","name":{"kind":"Name","value":"createModerationTemplateModerationTemplateForm"},"variableDefinitions":[{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"data"}},"type":{"kind":"NonNullType","type":{"kind":"NamedType","name":{"kind":"Name","value":"CreateModerationTemplateDataInput"}}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"createModerationTemplate"},"arguments":[{"kind":"Argument","name":{"kind":"Name","value":"data"},"value":{"kind":"Variable","name":{"kind":"Name","value":"data"}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"data"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"FragmentSpread","name":{"kind":"Name","value":"ModerationTemplateFragment"}}]}}]}}]}},ModerationTemplateFragmentFragmentDef,RevisionEditFragmentDef,RevisionDisplayFragmentDef]} as unknown as DocumentNode<createModerationTemplateModerationTemplateFormMutation, createModerationTemplateModerationTemplateFormMutationVariables>;
+export const createModeratorActionDocument = {"kind":"Document","definitions":[{"kind":"OperationDefinition","operation":"mutation","name":{"kind":"Name","value":"createModeratorAction"},"variableDefinitions":[{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"data"}},"type":{"kind":"NonNullType","type":{"kind":"NamedType","name":{"kind":"Name","value":"CreateModeratorActionDataInput"}}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"createModeratorAction"},"arguments":[{"kind":"Argument","name":{"kind":"Name","value":"data"},"value":{"kind":"Variable","name":{"kind":"Name","value":"data"}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"data"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"FragmentSpread","name":{"kind":"Name","value":"ModeratorActionDisplay"}}]}}]}}]}},ModeratorActionDisplayFragmentDef,UsersMinimumInfoFragmentDef]} as unknown as DocumentNode<createModeratorActionMutation, createModeratorActionMutationVariables>;
 export const createModeratorActionNewModeratorActionDialogDocument = {"kind":"Document","definitions":[{"kind":"OperationDefinition","operation":"mutation","name":{"kind":"Name","value":"createModeratorActionNewModeratorActionDialog"},"variableDefinitions":[{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"data"}},"type":{"kind":"NonNullType","type":{"kind":"NamedType","name":{"kind":"Name","value":"CreateModeratorActionDataInput"}}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"createModeratorAction"},"arguments":[{"kind":"Argument","name":{"kind":"Name","value":"data"},"value":{"kind":"Variable","name":{"kind":"Name","value":"data"}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"data"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"FragmentSpread","name":{"kind":"Name","value":"ModeratorActionDisplay"}}]}}]}}]}},ModeratorActionDisplayFragmentDef,UsersMinimumInfoFragmentDef]} as unknown as DocumentNode<createModeratorActionNewModeratorActionDialogMutation, createModeratorActionNewModeratorActionDialogMutationVariables>;
 export const createModeratorActionSunshineNewPostsItemDocument = {"kind":"Document","definitions":[{"kind":"OperationDefinition","operation":"mutation","name":{"kind":"Name","value":"createModeratorActionSunshineNewPostsItem"},"variableDefinitions":[{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"data"}},"type":{"kind":"NonNullType","type":{"kind":"NamedType","name":{"kind":"Name","value":"CreateModeratorActionDataInput"}}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"createModeratorAction"},"arguments":[{"kind":"Argument","name":{"kind":"Name","value":"data"},"value":{"kind":"Variable","name":{"kind":"Name","value":"data"}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"data"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"_id"}}]}}]}}]}}]} as unknown as DocumentNode<createModeratorActionSunshineNewPostsItemMutation, createModeratorActionSunshineNewPostsItemMutationVariables>;
 export const createMultiDocumentLensFormDocument = {"kind":"Document","definitions":[{"kind":"OperationDefinition","operation":"mutation","name":{"kind":"Name","value":"createMultiDocumentLensForm"},"variableDefinitions":[{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"data"}},"type":{"kind":"NonNullType","type":{"kind":"NamedType","name":{"kind":"Name","value":"CreateMultiDocumentDataInput"}}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"createMultiDocument"},"arguments":[{"kind":"Argument","name":{"kind":"Name","value":"data"},"value":{"kind":"Variable","name":{"kind":"Name","value":"data"}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"data"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"FragmentSpread","name":{"kind":"Name","value":"MultiDocumentEdit"}}]}}]}}]}},MultiDocumentEditFragmentDef,MultiDocumentContentDisplayFragmentDef,MultiDocumentMinimumInfoFragmentDef,RevisionEditFragmentDef,RevisionDisplayFragmentDef,ArbitalLinkedPagesFragmentFragmentDef]} as unknown as DocumentNode<createMultiDocumentLensFormMutation, createMultiDocumentLensFormMutationVariables>;

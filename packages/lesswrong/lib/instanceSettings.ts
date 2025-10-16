@@ -588,7 +588,7 @@ export const useExperimentalTagStyleSetting = new PublicInstanceSetting<boolean>
 export const showAnalyticsDebug = new PublicInstanceSetting<"never" | "dev" | "always">("showAnalyticsDebug", "dev", "optional");
 
 type ReasonNoReviewNeeded = "alreadyApproved" | "noReview";
-type ReasonReviewIsNeeded = "mapLocation" | "firstPost" | "firstComment" | "contactedTooManyUsers" | "bio" | "profileImage" | "newContent";
+export type ReasonReviewIsNeeded = "mapLocation" | "firstPost" | "firstComment" | "contactedTooManyUsers" | "bio" | "profileImage" | "newContent";
 export type ReasonForInitialReview = Exclude<ReasonReviewIsNeeded, 'newContent'>;
 export type GetReasonForReviewResult =
   { needsReview: false; reason: ReasonNoReviewNeeded; } |

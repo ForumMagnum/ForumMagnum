@@ -30,6 +30,16 @@ export const graphqlModeratorActionQueryTypeDefs = gql`
     potentialTargetedDownvoting
     exemptFromRateLimits
     receivedSeniorDownvotesAlert
+    manualNeedsReview
+    unreviewedBioUpdate
+    unreviewedMapLocationUpdate
+    unreviewedProfileImageUpdate
+    unreviewedFirstPost
+    unreviewedFirstComment
+    snoozeExpired
+    stricterCommentAutomodRateLimit
+    stricterPostAutomodRateLimit
+    manualRateLimitExpired
   }
   
   input SingleModeratorActionInput {
