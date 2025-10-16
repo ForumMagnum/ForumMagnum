@@ -166,6 +166,7 @@ export async function onPostPublished(post: DbPost, context: ResolverContext) {
   const { updateScoreOnPostPublish } = await import("./votingCallbacks");
   await updateScoreOnPostPublish(post, context);
   await onPublishUtils.ensureNonzeroRevisionVersionsAfterUndraft(post, context);
+  await triggerReviewIfNeeded(post.userId, context)
 }
 
 const utils = {
@@ -874,8 +875,6 @@ export async function updatePostEmbeddingsOnChange(newPost: Pick<DbPost, '_id' |
 
 export async function updatedPostMaybeTriggerReview({newDocument, oldDocument, context}: UpdateCallbackProperties<'Posts'>) {
   if (newDocument.draft || newDocument.rejected) return
-
-  await triggerReviewIfNeeded(oldDocument.userId, context)
   
   // if the post author is already approved and the post is getting undrafted,
   // or the post author is getting approved,

@@ -1072,8 +1072,10 @@ export async function updatedCommentMaybeTriggerReview({ currentUser, context }:
     currentUser.snoozedUntilContentCount && await updateUser({ data: {
       snoozedUntilContentCount: currentUser.snoozedUntilContentCount - 1,
     }, selector: { _id: currentUser._id } }, createAnonymousContext());
+    // This might create multiple redundant moderator actions if the user is in a state where they'd trigger review
+    // and then update a comment multiple times.
+    await triggerReviewIfNeeded(currentUser._id, context)
   }
-  await triggerReviewIfNeeded(currentUser._id, context)
 }
 
 export async function updateUserNotesOnCommentRejection({ newDocument, oldDocument, currentUser, context }: UpdateCallbackProperties<"Comments">) {
