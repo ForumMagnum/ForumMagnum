@@ -253,73 +253,84 @@ const ModerationInbox = () => {
   }, [visibleTabs, activeTab, openedUserId, handleTabChange]);
 
   const handleActionComplete = useCallback(async () => {
-    await refetch();
-    // After refetch, automatically select the next user
-    // We need to wait a tick for the query to complete
-    setTimeout(() => {
-      // Check if current tab still has users (recompute with fresh data)
-      const newGroupedUsers = groupBy(
-        data?.users?.results.filter(user => user.needsReview) ?? [],
-        user => getUserReviewGroup(user)
-      );
-      const newOrderedGroups = (Object.entries(newGroupedUsers) as GroupEntry[])
-        .sort(([a]: GroupEntry, [b]: GroupEntry) => REVIEW_GROUP_TO_PRIORITY[b] - REVIEW_GROUP_TO_PRIORITY[a]);
+    // Capture current state before refetch
+    const currentTab = activeTab;
+    const wasInDetailView = !!openedUserId;
+    const currentFocusedIndex = focusedIndex;
+    
+    // Optimistically navigate to next user BEFORE refetch to prevent flash
+    // Calculate next user based on current state
+    if (orderedUsers.length > 1) {
+      // There are other users in the current list
+      // After removal, the user at currentFocusedIndex + 1 will be at currentFocusedIndex
+      // So we want to navigate to currentFocusedIndex + 1, or wrap to 0 if at end
+      const nextIndex = currentFocusedIndex + 1 >= orderedUsers.length ? 0 : currentFocusedIndex + 1;
+      const nextUser = orderedUsers[nextIndex];
       
-      const newFilteredGroups = activeTab === 'all'
+      if (nextUser) {
+        // Navigate optimistically to the next user
+        if (wasInDetailView) {
+          handleOpenUser(nextUser._id);
+        } else {
+          handleFocusUser(nextUser._id);
+        }
+      }
+    } else if (orderedUsers.length === 1) {
+      // This was the last user in current view, need to find next tab
+      // Close detail view optimistically
+      handleCloseDetail();
+    }
+    
+    // Now refetch and correct if needed
+    const result = await refetch();
+    const freshUsers = result.data?.users?.results.filter(user => user.needsReview) ?? [];
+    
+    // Recompute groups and users with fresh data
+    const newGroupedUsers = groupBy(freshUsers, user => getUserReviewGroup(user));
+    const newOrderedGroups = (Object.entries(newGroupedUsers) as GroupEntry[])
+      .sort(([a]: GroupEntry, [b]: GroupEntry) => REVIEW_GROUP_TO_PRIORITY[b] - REVIEW_GROUP_TO_PRIORITY[a]);
+    
+    const newFilteredGroups = currentTab === 'all'
+      ? newOrderedGroups
+      : newOrderedGroups.filter(([group]) => group === currentTab);
+    
+    const newOrderedUsers = newFilteredGroups.map(([_, users]) => users).flat();
+    
+    // Verify our optimistic update was correct, or correct it
+    if (newOrderedUsers.length === 0 && currentTab !== 'all') {
+      // Current tab is now empty, switch to next available tab
+      const tabsInOrder = getTabsInPriorityOrder();
+      let foundTab: ReviewGroup | 'all' = 'all';
+      
+      for (const group of tabsInOrder) {
+        if (newGroupedUsers[group]?.length > 0) {
+          foundTab = group;
+          break;
+        }
+      }
+      
+      setActiveTab(foundTab);
+      
+      // Get users for the new tab
+      const nextTabGroups = foundTab === 'all'
         ? newOrderedGroups
-        : newOrderedGroups.filter(([group]) => group === activeTab);
+        : newOrderedGroups.filter(([group]) => group === foundTab);
+      const nextTabUsers = nextTabGroups.map(([_, users]) => users).flat();
       
-      const newOrderedUsers = newFilteredGroups.map(([_, users]) => users).flat();
-      
-      // If current tab is now empty (and not 'all'), switch to next available tab
-      if (newOrderedUsers.length === 0 && activeTab !== 'all') {
-        // Find next non-empty tab
-        const tabsInOrder = getTabsInPriorityOrder();
-        let foundTab: ReviewGroup | 'all' = 'all';
-        
-        for (const group of tabsInOrder) {
-          if (newGroupedUsers[group]?.length > 0) {
-            foundTab = group;
-            break;
-          }
-        }
-        
-        setActiveTab(foundTab);
-        
-        // Get users for the new tab
-        const nextTabGroups = foundTab === 'all'
-          ? newOrderedGroups
-          : newOrderedGroups.filter(([group]) => group === foundTab);
-        const nextTabUsers = nextTabGroups.map(([_, users]) => users).flat();
-        
-        if (nextTabUsers.length > 0) {
-          if (openedUserId) {
-            handleOpenUser(nextTabUsers[0]._id);
-          } else {
-            handleFocusUser(nextTabUsers[0]._id);
-          }
+      if (nextTabUsers.length > 0) {
+        if (wasInDetailView) {
+          handleOpenUser(nextTabUsers[0]._id);
         } else {
-          handleCloseDetail();
+          handleFocusUser(nextTabUsers[0]._id);
         }
-      } else if (newOrderedUsers.length > 0) {
-        // Current tab still has users
-        // If we were on the last user, go to the first
-        // Otherwise go to the same index (which will be the next user after removal)
-        const nextIndex = focusedIndex >= newOrderedUsers.length - 1 ? 0 : focusedIndex;
-        if (newOrderedUsers[nextIndex]) {
-          if (openedUserId) {
-            handleOpenUser(newOrderedUsers[nextIndex]._id);
-          } else {
-            handleFocusUser(newOrderedUsers[nextIndex]._id);
-          }
-        } else {
-          handleCloseDetail();
-        }
-      } else {
+      }
+    } else if (newOrderedUsers.length === 0) {
+      // No users left at all - make sure we're in inbox view
+      if (wasInDetailView) {
         handleCloseDetail();
       }
-    }, 100);
-  }, [refetch, data, activeTab, focusedIndex, openedUserId, handleOpenUser, handleFocusUser, handleCloseDetail]);
+    }
+  }, [refetch, activeTab, focusedIndex, openedUserId, orderedUsers, handleOpenUser, handleFocusUser, handleCloseDetail]);
 
   if (!currentUser || !userIsAdminOrMod(currentUser)) {
     return null;
