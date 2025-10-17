@@ -25,6 +25,8 @@ const styles = defineStyles('ModerationInboxItem', (theme: ThemeType) => ({
       backgroundColor: theme.palette.grey[50],
     },
     ...theme.typography.commentStyle,
+    overflow: 'hidden',
+    minWidth: 0,
   },
   focused: {
     borderLeft: `3px solid ${theme.palette.primary.main}`,
@@ -42,16 +44,19 @@ const styles = defineStyles('ModerationInboxItem', (theme: ThemeType) => ({
     color: theme.palette.grey[900],
     marginRight: 12,
     width: 140,
-    minWidth: 140,
+    minWidth: 100,
+    maxWidth: 140,
     overflow: 'hidden',
     textOverflow: 'ellipsis',
     whiteSpace: 'nowrap',
+    flexShrink: 0,
   },
   karma: {
     fontSize: 13,
     marginRight: 12,
     minWidth: 30,
     textAlign: 'right',
+    flexShrink: 0,
   },
   karmaPositive: {
     color: theme.palette.primary.main,
@@ -67,12 +72,14 @@ const styles = defineStyles('ModerationInboxItem', (theme: ThemeType) => ({
     color: theme.palette.grey[600],
     marginRight: 12,
     minWidth: 24,
+    flexShrink: 0,
   },
   icons: {
     display: 'flex',
     alignItems: 'center',
     marginRight: 12,
     width: 20,
+    flexShrink: 0,
   },
   flagIcon: {
     height: 14,
@@ -89,6 +96,8 @@ const styles = defineStyles('ModerationInboxItem', (theme: ThemeType) => ({
     marginRight: 8,
     textTransform: 'uppercase',
     fontWeight: 600,
+    flexShrink: 0,
+    whiteSpace: 'nowrap',
   },
   staleBadge: {
     opacity: 0.5,
@@ -98,13 +107,16 @@ const styles = defineStyles('ModerationInboxItem', (theme: ThemeType) => ({
     color: theme.palette.grey[500],
     marginLeft: 'auto',
     maxWidth: 200,
+    minWidth: 0,
     overflow: 'hidden',
     textOverflow: 'ellipsis',
     whiteSpace: 'nowrap',
+    flexShrink: 1,
   },
   contentCounts: {
     color: theme.palette.grey[600],
     display: 'flex',
+    flexShrink: 0,
   },
   contentCountItem: {
     width: 40,
@@ -122,12 +134,14 @@ const styles = defineStyles('ModerationInboxItem', (theme: ThemeType) => ({
     top: 3
   },
   contextualInfo: {
+    flex: 1,
+    minWidth: 0,
+    overflow: 'hidden',
+    marginRight: 12,
   },
   bioPreview: {
     fontSize: 13,
     color: theme.palette.grey[600],
-    marginRight: 12,
-    minWidth: 24,
     overflow: 'hidden',
     textOverflow: 'ellipsis',
     whiteSpace: 'nowrap',
