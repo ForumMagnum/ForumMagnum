@@ -1,6 +1,9 @@
 import { testServerSetting } from "@/lib/instanceSettings";
 import { dropAndCreatePg } from "@/server/testingSqlClient";
 import { NextResponse, type NextRequest } from "next/server";
+import { suggestedTimeouts } from "@/server/pageTimeouts";
+
+export const maxDuration = suggestedTimeouts.crazyApiRoute;
 
 export async function POST(req: NextRequest) {
   if (!testServerSetting.get()) {

@@ -1,5 +1,8 @@
 import UsersRepo from "@/server/repos/UsersRepo";
 import type { NextRequest } from "next/server";
+import { suggestedTimeouts } from "@/server/pageTimeouts";
+
+export const maxDuration = suggestedTimeouts.simpleApiRoute;
 
 
 export async function POST(req: NextRequest) {
