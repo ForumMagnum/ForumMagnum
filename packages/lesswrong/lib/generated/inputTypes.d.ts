@@ -78,6 +78,8 @@ interface Query {
   RevisionsDiff: string | null;
   UltraFeed: UltraFeedQueryResults;
   UltraFeedSubscriptions: UltraFeedQueryResults;
+  reviewPredictionPosts: Array<Post>;
+  manifoldPredictionInefficiency: PredictionInefficiency;
   advisorRequest: SingleAdvisorRequestOutput | null;
   advisorRequests: MultiAdvisorRequestOutput | null;
   arbitalTagContentRel: SingleArbitalTagContentRelOutput | null;
@@ -1291,6 +1293,11 @@ interface ElicitQuestionPredictionCreator {
   displayName: string;
   isQuestionCreator: boolean;
   sourceUserId: string | null;
+}
+
+interface PredictionInefficiency {
+  inefficiency: number;
+  totalPredicted: number;
 }
 
 interface AdvisorRequest {
@@ -9880,6 +9887,7 @@ interface GraphQLTypeMap {
   UltraFeedQueryResults: UltraFeedQueryResults;
   UltraFeedEntry: UltraFeedEntry;
   ElicitQuestionPredictionCreator: ElicitQuestionPredictionCreator;
+  PredictionInefficiency: PredictionInefficiency;
   AdvisorRequest: AdvisorRequest;
   SingleAdvisorRequestInput: SingleAdvisorRequestInput;
   SingleAdvisorRequestOutput: SingleAdvisorRequestOutput;
