@@ -102,6 +102,13 @@ const styles = defineStyles('ModerationInboxItem', (theme: ThemeType) => ({
   },
   contentCounts: {
     color: theme.palette.grey[600],
+    display: 'flex',
+  },
+  contentCountItem: {
+    width: 40,
+  },
+  wideContentCountItem: {
+    width: 50,
   },
   icon: {
     height: 13,
@@ -218,12 +225,18 @@ const ModerationInboxItem = ({
         <FormatDate date={user.createdAt} />
       </div>
       <div className={classes.contentCounts}>
-        <DescriptionIcon className={classes.icon} />
-        {user.postCount}
-        <MessageIcon className={classes.icon} />
-        {user.commentCount}
-        <ForumIcon icon="Email" className={classes.icon} />
-        {user.usersContactedBeforeReview?.length ?? 0}
+        <span className={classes.contentCountItem}>
+          <DescriptionIcon className={classes.icon} />
+          {user.postCount}
+        </span>
+        <span className={classes.wideContentCountItem}>
+          <MessageIcon className={classes.icon} />
+          {user.commentCount}
+        </span>
+        <span className={classes.contentCountItem}>
+          <ForumIcon icon="Email" className={classes.icon} />
+          {user.usersContactedBeforeReview?.length ?? 0}
+        </span>
       </div>
       <div className={classes.icons}>
         {user.sunshineFlagged && <FlagIcon className={classes.flagIcon} />}
