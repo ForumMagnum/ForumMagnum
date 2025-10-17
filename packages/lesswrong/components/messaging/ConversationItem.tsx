@@ -78,7 +78,7 @@ const ConversationItem = ({conversation, currentUser, classes, expanded}: {
   return (
     <div className={expanded ? classes.boxShadow : undefined}>
       <div className={classNames(classes.root, classes.wrap, {[classes.archivedItem]: isArchived})}>
-        <Link to={`/inbox/${conversation._id}`} className={classNames(classes.title, classes.titleLineHeight, classes.commentFont)}>{conversationGetTitle(conversation, currentUser)}</Link>
+        <Link to={`/inbox?conversation=${conversation._id}`} className={classNames(classes.title, classes.titleLineHeight, classes.commentFont)}>{conversationGetTitle(conversation, currentUser)}</Link>
         { conversation.participants
           ?.filter(user => user._id !== currentUser._id)
           .map(user => <span key={user._id} className={classes.leftMargin}>

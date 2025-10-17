@@ -45,7 +45,7 @@ const MessageUserInnerInner = ({ user, classes }: { user: UsersMinimumInfo; clas
     </>;
   }
 
-  const url = `/inbox/${conversation._id}?from=magic_link`;
+  const url = `/inbox?conversation=${conversation._id}&from=magic_link`;
   return <PermanentRedirect url={url} status={302} />;
 };
 
