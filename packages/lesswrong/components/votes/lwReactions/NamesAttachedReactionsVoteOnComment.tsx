@@ -377,7 +377,7 @@ const NamesAttachedReactionsCommentBottomInner = ({
   </span>
 }
 
-export const HoverableReactionIcon = ({reactionRowRef, react, numberShown, voteProps, quote, contentBodyRef, invertColors=false, style='default'}: {
+export const HoverableReactionIcon = ({reactionRowRef, react, numberShown, voteProps, quote, contentBodyRef, invertColors=false, style='default', footerReactionClassName}: {
   // reactionRowRef: Reference to the row of reactions, used as an anchor for the
   // hover instead of the individual icon, so that the hover's position stays
   // consistent as you move the mouse across the row.
@@ -389,6 +389,7 @@ export const HoverableReactionIcon = ({reactionRowRef, react, numberShown, voteP
   contentBodyRef?: React.RefObject<ContentItemBodyImperative|null>|null,
   invertColors?: boolean,
   style?: 'default' | 'message',
+  footerReactionClassName?: string,
 }) => {
   const classes = useStyles(styles);
   const { hover, eventHandlers: {onMouseOver, onMouseLeave} } = useHover();
@@ -434,17 +435,18 @@ export const HoverableReactionIcon = ({reactionRowRef, react, numberShown, voteP
           [classes.footerSelectedInverted]: !reactionOnMessage && showInvertedBackground,
           [classes.footerSelectedAnti]: !reactionOnMessage && currentUserReactionVote==="disagreed",
           [classes.hasQuotes]: quotesWithUndefinedRemoved.length > 0,
-        }
+        },
+        footerReactionClassName,
       )}
     >
       <span onMouseDown={()=>{reactionClicked(react)}}>
         <ReactionIcon react={react} inverted={invertColors} />
       </span>
-      <span className={classNames(classes.reactionCount, {
+      {(!reactionOnMessage || numberShown > 1) && <span className={classNames(classes.reactionCount, {
         [classes.invertColors]: invertColors,
       })}>
         {numberShown}
-      </span>
+      </span>}
   
       {hover && reactionRowRef?.current && <LWPopper
         open={!!hover} anchorEl={reactionRowRef.current}

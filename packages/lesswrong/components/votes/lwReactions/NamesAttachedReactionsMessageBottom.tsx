@@ -160,6 +160,7 @@ const NamesAttachedReactionsMessageBottom = ({
                 invertColors={!invertColors}
                 quote={null}
                 style="message"
+                footerReactionClassName={classes.footerReaction}
               />
             ))}
           </div>
