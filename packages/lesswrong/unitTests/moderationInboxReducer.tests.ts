@@ -73,7 +73,6 @@ describe('Moderation Inbox Reducer', () => {
         activeTab: 'newContent',
         focusedUserId: null,
         openedUserId: 'user2',
-        isInitialized: true,
       };
 
       const newState = inboxStateReducer(state, { type: 'CLOSE_DETAIL' });
@@ -97,7 +96,6 @@ describe('Moderation Inbox Reducer', () => {
         activeTab: 'newContent',
         focusedUserId: 'user3',
         openedUserId: null,
-        isInitialized: true,
       };
 
       // Next from last user should wrap to first
@@ -117,7 +115,6 @@ describe('Moderation Inbox Reducer', () => {
         activeTab: 'newContent',
         focusedUserId: 'user1',
         openedUserId: null,
-        isInitialized: true,
       };
 
       // Prev from first user should wrap to last
@@ -134,12 +131,14 @@ describe('Moderation Inbox Reducer', () => {
         createMockUser('user3', 'highContext'),
       ];
 
-      let state = inboxStateReducer(
-        { users: [], activeTab: 'all', focusedUserId: null, openedUserId: null, isInitialized: false },
-        { type: 'INITIALIZE', users }
-      );
+      let state: InboxState = {
+        users,
+        activeTab: 'newContent',
+        focusedUserId: 'user2',
+        openedUserId: null,
+      };
 
-      // Should start at newContent (highest priority)
+      // Start at newContent (highest priority)
       expect(state.activeTab).toBe('newContent');
 
       // Navigate through tabs
@@ -164,12 +163,14 @@ describe('Moderation Inbox Reducer', () => {
         createMockUser('user3', 'highContext'),
       ];
 
-      let state = inboxStateReducer(
-        { users: [], activeTab: 'all', focusedUserId: null, openedUserId: null, isInitialized: false },
-        { type: 'INITIALIZE', users }
-      );
+      let state: InboxState = {
+        users,
+        activeTab: 'newContent',
+        focusedUserId: 'user2',
+        openedUserId: null,
+      };
 
-      // Should start at newContent (highest priority)
+      // Start at newContent (highest priority)
       expect(state.activeTab).toBe('newContent');
 
       // Prev from first tab should wrap to 'all'
@@ -195,7 +196,6 @@ describe('Moderation Inbox Reducer', () => {
         activeTab: 'newContent',
         focusedUserId: 'user2',
         openedUserId: null,
-        isInitialized: true,
       };
 
       state = inboxStateReducer(state, { type: 'REMOVE_USER', userId: 'user2' });
@@ -218,7 +218,6 @@ describe('Moderation Inbox Reducer', () => {
         activeTab: 'newContent',
         focusedUserId: 'user1',
         openedUserId: null,
-        isInitialized: true,
       };
 
       state = inboxStateReducer(state, { type: 'REMOVE_USER', userId: 'user1' });
@@ -239,7 +238,6 @@ describe('Moderation Inbox Reducer', () => {
         activeTab: 'newContent',
         focusedUserId: 'user1',
         openedUserId: null,
-        isInitialized: true,
       };
 
       state = inboxStateReducer(state, { type: 'REMOVE_USER', userId: 'user1' });
@@ -264,7 +262,6 @@ describe('Moderation Inbox Reducer', () => {
         activeTab: 'newContent',
         focusedUserId: null,
         openedUserId: 'user2',
-        isInitialized: true,
       };
 
       state = inboxStateReducer(state, { type: 'REMOVE_USER', userId: 'user2' });
@@ -287,7 +284,6 @@ describe('Moderation Inbox Reducer', () => {
         activeTab: 'newContent',
         focusedUserId: null,
         openedUserId: 'user1',
-        isInitialized: true,
       };
 
       state = inboxStateReducer(state, { type: 'REMOVE_USER', userId: 'user1' });
@@ -309,7 +305,6 @@ describe('Moderation Inbox Reducer', () => {
         activeTab: 'newContent',
         focusedUserId: null,
         openedUserId: 'user1',
-        isInitialized: true,
       };
 
       state = inboxStateReducer(state, { type: 'REMOVE_USER', userId: 'user1' });
@@ -322,34 +317,6 @@ describe('Moderation Inbox Reducer', () => {
   });
 
   describe('Edge cases', () => {
-    test('INITIALIZE with empty users creates empty state', () => {
-      const state = inboxStateReducer(
-        { users: [], activeTab: 'all', focusedUserId: null, openedUserId: null, isInitialized: false },
-        { type: 'INITIALIZE', users: [] }
-      );
-
-      expect(state.users).toEqual([]);
-      expect(state.activeTab).toBe('all');
-      expect(state.focusedUserId).toBe(null);
-      expect(state.isInitialized).toBe(true);
-    });
-
-    test('INITIALIZE selects highest priority tab and focuses first user', () => {
-      const users = [
-        createMockUser('user1', 'automod'),
-        createMockUser('user2', 'highContext'),
-        createMockUser('user3', 'highContext'),
-      ];
-
-      const state = inboxStateReducer(
-        { users: [], activeTab: 'all', focusedUserId: null, openedUserId: null, isInitialized: false },
-        { type: 'INITIALIZE', users }
-      );
-
-      expect(state.activeTab).toBe('highContext'); // Highest priority tab
-      expect(state.focusedUserId).toBe('user2'); // First user in that tab
-    });
-
     test('tab navigation is blocked when in detail view', () => {
       const users = [
         createMockUser('user1', 'newContent'),
@@ -361,7 +328,6 @@ describe('Moderation Inbox Reducer', () => {
         activeTab: 'newContent',
         focusedUserId: null,
         openedUserId: 'user1',
-        isInitialized: true,
       };
 
       // Try to change tabs

@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import React, { useCallback, useEffect, useMemo, useReducer } from 'react';
 import { defineStyles, useStyles } from '@/components/hooks/useStyles';
 import { useCurrentUser } from '@/components/common/withUser';
 import { userIsAdminOrMod } from '@/lib/vulcan-users/permissions';
@@ -66,44 +66,39 @@ const styles = defineStyles('ModerationInbox', (theme: ThemeType) => ({
  * Moderation Inbox State Machine
  * 
  * ## States
- * - Uninitialized: isInitialized=false, waiting for initial data
- * - Inbox View: isInitialized=true, openedUserId=null, viewing list with optional focus
- * - Detail View: isInitialized=true, openedUserId!=null, viewing single user details
+ * - Inbox View: openedUserId=null, viewing list with optional focus
+ * - Detail View: openedUserId!=null, viewing single user details
  * 
  * ## State Transitions
- * 1. INITIALIZE: Uninitialized → Inbox View (with first tab, first user focused)
- * 2. OPEN_USER: Inbox View → Detail View
- * 3. CLOSE_DETAIL: Detail View → Inbox View (restores focus to opened user)
- * 4. CHANGE_TAB: Inbox View → Inbox View (switches tab, focuses first user in new tab)
- * 5. NEXT_USER/PREV_USER: Navigates within current tab (works in both views)
- * 6. NEXT_TAB/PREV_TAB: Switches tabs (only in Inbox View)
- * 7. REMOVE_USER: Removes user from local list and navigates to next
+ * 1. OPEN_USER: Inbox View → Detail View
+ * 2. CLOSE_DETAIL: Detail View → Inbox View (restores focus to opened user)
+ * 3. CHANGE_TAB: Inbox View → Inbox View (switches tab, focuses first user in new tab)
+ * 4. NEXT_USER/PREV_USER: Navigates within current tab (works in both views)
+ * 5. NEXT_TAB/PREV_TAB: Switches tabs (only in Inbox View)
+ * 6. REMOVE_USER: Removes user from local list and navigates to next
  *    - If current tab has more users → navigate to next user at same index
  *    - If current tab is now empty → switch to next non-empty tab
  *    - If no users left → return to empty Inbox View
  * 
  * The reducer maintains a local copy of the user list that is mutated when actions complete.
  * No refetching happens - the list is only updated via REMOVE_USER actions.
+ * 
+ * The reducer is initialized lazily with user data passed from the component.
  */
 
-// Helper types
-type SunshineUserFragment = FragmentTypes['SunshineUsersList'];
 
 export type InboxState = {
   // The local copy of users (mutated when actions complete)
-  users: SunshineUserFragment[];
+  users: SunshineUsersList[];
   // Current active tab
   activeTab: ReviewGroup | 'all';
   // Focused user in inbox view (highlighted)
   focusedUserId: string | null;
   // Opened user in detail view
   openedUserId: string | null;
-  // Whether we've completed initialization
-  isInitialized: boolean;
 };
 
 type InboxAction =
-  | { type: 'INITIALIZE'; users: SunshineUserFragment[] }
   | { type: 'OPEN_USER'; userId: string }
   | { type: 'CLOSE_DETAIL' }
   | { type: 'CHANGE_TAB'; tab: ReviewGroup | 'all' }
@@ -115,7 +110,7 @@ type InboxAction =
 
 // Helper to get filtered groups for a tab
 function getFilteredGroups(
-  groupedUsers: Partial<Record<ReviewGroup, SunshineUserFragment[]>>,
+  groupedUsers: Partial<Record<ReviewGroup, SunshineUsersList[]>>,
   activeTab: ReviewGroup | 'all'
 ): GroupEntry[] {
   const orderedGroups = (Object.entries(groupedUsers) as GroupEntry[])
@@ -129,9 +124,8 @@ function getFilteredGroups(
 
 // Helper to get visible tabs
 function getVisibleTabsInOrder(
-  groupedUsers: Partial<Record<ReviewGroup, SunshineUserFragment[]>>,
+  groupedUsers: Partial<Record<ReviewGroup, SunshineUsersList[]>>,
   totalUsers: number,
-  isInitialized: boolean
 ): TabInfo[] {
   const tabsInOrder = getTabsInPriorityOrder();
   const tabs: TabInfo[] = [];
@@ -143,44 +137,13 @@ function getVisibleTabsInOrder(
     }
   }
   
-  // Add 'all' tab if initialized
-  if (isInitialized) {
-    tabs.push({ group: 'all', count: totalUsers });
-  }
+  tabs.push({ group: 'all', count: totalUsers });
   
   return tabs;
 }
 
 export function inboxStateReducer(state: InboxState, action: InboxAction): InboxState {
   switch (action.type) {
-    case 'INITIALIZE': {
-      const users = action.users;
-      if (users.length === 0) {
-        return {
-          users: [],
-          activeTab: 'all',
-          focusedUserId: null,
-          openedUserId: null,
-          isInitialized: true,
-        };
-      }
-      
-      const groupedUsers = groupBy(users, user => getUserReviewGroup(user));
-      const visibleTabs = getVisibleTabsInOrder(groupedUsers, users.length, false);
-      
-      const firstTab = visibleTabs[0]?.group ?? 'all';
-      const filteredGroups = getFilteredGroups(groupedUsers, firstTab);
-      const orderedUsers = filteredGroups.flatMap(([_, users]) => users);
-      
-      return {
-        users,
-        activeTab: firstTab,
-        focusedUserId: orderedUsers[0]?._id ?? null,
-        openedUserId: null,
-        isInitialized: true,
-      };
-    }
-    
     case 'OPEN_USER': {
       return {
         ...state,
@@ -254,7 +217,7 @@ export function inboxStateReducer(state: InboxState, action: InboxAction): Inbox
       if (state.openedUserId) return state;
       
       const groupedUsers = groupBy(state.users, user => getUserReviewGroup(user));
-      const visibleTabs = getVisibleTabsInOrder(groupedUsers, state.users.length, state.isInitialized);
+      const visibleTabs = getVisibleTabsInOrder(groupedUsers, state.users.length);
       
       if (visibleTabs.length === 0) return state;
       
@@ -276,7 +239,7 @@ export function inboxStateReducer(state: InboxState, action: InboxAction): Inbox
       if (state.openedUserId) return state;
       
       const groupedUsers = groupBy(state.users, user => getUserReviewGroup(user));
-      const visibleTabs = getVisibleTabsInOrder(groupedUsers, state.users.length, state.isInitialized);
+      const visibleTabs = getVisibleTabsInOrder(groupedUsers, state.users.length);
       
       if (visibleTabs.length === 0) return state;
       
@@ -305,7 +268,6 @@ export function inboxStateReducer(state: InboxState, action: InboxAction): Inbox
           activeTab: 'all',
           focusedUserId: null,
           openedUserId: null,
-          isInitialized: true,
         };
       }
       
@@ -335,7 +297,6 @@ export function inboxStateReducer(state: InboxState, action: InboxAction): Inbox
             activeTab: state.activeTab,
             focusedUserId: null,
             openedUserId: nextUserId,
-            isInitialized: true,
           };
         } else {
           return {
@@ -343,7 +304,6 @@ export function inboxStateReducer(state: InboxState, action: InboxAction): Inbox
             activeTab: state.activeTab,
             focusedUserId: nextUserId,
             openedUserId: null,
-            isInitialized: true,
           };
         }
       }
@@ -372,7 +332,6 @@ export function inboxStateReducer(state: InboxState, action: InboxAction): Inbox
           activeTab: nextTab,
           focusedUserId: nextUserId,
           openedUserId: null,
-          isInitialized: true,
         };
       }
       
@@ -382,7 +341,6 @@ export function inboxStateReducer(state: InboxState, action: InboxAction): Inbox
         activeTab: 'all',
         focusedUserId: null,
         openedUserId: null,
-        isInitialized: true,
       };
     }
     
@@ -391,33 +349,66 @@ export function inboxStateReducer(state: InboxState, action: InboxAction): Inbox
   }
 }
 
-const ModerationInbox = () => {
+const ModerationInboxInner = ({ users, initialOpenedUserId, currentUser }: {
+  users: SunshineUsersList[];
+  initialOpenedUserId: string | null;
+  currentUser: UsersCurrent;
+}) => {
   const classes = useStyles(styles);
-  const currentUser = useCurrentUser();
   const navigate = useNavigate();
   const { query, location } = useLocation();
 
-  // focusedUserId: which user is highlighted in the inbox (shown in sidebar)
-  // openedUserId: which user has detail view open (from URL)
-  const openedUserId = query.user;
-  const [focusedUserId, setFocusedUserId] = useState<string | null>(null);
-  const [activeTab, setActiveTab] = useState<ReviewGroup | 'all' | null>(null);
-  const hasInitializedTab = useRef(false);
+  // Initialize reducer with data and URL parameter immediately
+  const [state, dispatch] = useReducer(
+    inboxStateReducer,
+    { users: [], activeTab: 'all', focusedUserId: null, openedUserId: initialOpenedUserId },
+    (): InboxState => {
+      // Compute initial state from users
+      if (users.length === 0) {
+        return {
+          users: [],
+          activeTab: 'all',
+          focusedUserId: null,
+          openedUserId: null,
+        };
+      }
 
-  const { data, loading, refetch } = useQuery(SunshineUsersListMultiQuery, {
-    variables: {
-      selector: { sunshineNewUsers: {} },
-      limit: 100,
-      enableTotal: true,
-    },
-    fetchPolicy: 'cache-and-network',
-  });
+      const groupedUsers = groupBy(users, user => getUserReviewGroup(user));
+      const visibleTabs = getVisibleTabsInOrder(groupedUsers, users.length);
 
-  const users = useMemo(() => {
-    return data?.users?.results.filter(user => user.needsReview) ?? [];
-  }, [data]);
+      const firstTab = visibleTabs[0]?.group ?? 'all';
+      const filteredGroups = getFilteredGroups(groupedUsers, firstTab);
+      const orderedUsers = filteredGroups.flatMap(([_, users]) => users);
 
-  const groupedUsers = useMemo(() => groupBy(users, user => getUserReviewGroup(user)), [users]);
+      return {
+        users,
+        activeTab: firstTab,
+        focusedUserId: orderedUsers[0]?._id ?? null,
+        openedUserId: initialOpenedUserId,
+      };
+    }
+  );
+
+  // Update URL when reducer's openedUserId changes (using replace + skipRouter to avoid navigation events)
+  useEffect(() => {
+    const currentUrlUser = query.user;
+    const stateUser = state.openedUserId;
+    
+    if (stateUser && stateUser !== currentUrlUser) {
+      navigate({
+        ...location,
+        search: `?user=${stateUser}`,
+      }, { replace: true, skipRouter: true });
+    } else if (!stateUser && currentUrlUser) {
+      navigate({
+        ...location,
+        search: '',
+      }, { replace: true, skipRouter: true });
+    }
+  }, [state.openedUserId, query.user, location, navigate]);
+
+  // Compute derived state from reducer state
+  const groupedUsers = useMemo(() => groupBy(state.users, user => getUserReviewGroup(user)), [state.users]);
 
   const orderedGroups = useMemo(() => (
     (Object.entries(groupedUsers) as GroupEntry[]).sort(([a]: GroupEntry, [b]: GroupEntry) => REVIEW_GROUP_TO_PRIORITY[b] - REVIEW_GROUP_TO_PRIORITY[a])
@@ -425,262 +416,67 @@ const ModerationInbox = () => {
 
   const allOrderedUsers = useMemo(() => orderedGroups.map(([_, users]) => users).flat(), [orderedGroups]);
 
-  // Filter users based on active tab
   const filteredGroups = useMemo(() => {
-    if (activeTab === 'all') {
+    if (state.activeTab === 'all') {
       return orderedGroups;
     }
-    return orderedGroups.filter(([group]) => group === activeTab);
-  }, [orderedGroups, activeTab]);
+    return orderedGroups.filter(([group]) => group === state.activeTab);
+  }, [orderedGroups, state.activeTab]);
 
   const orderedUsers = useMemo(() => filteredGroups.map(([_, users]) => users).flat(), [filteredGroups]);
 
-  // Calculate visible tabs (tabs with users, plus 'all' tab)
   const visibleTabs = useMemo((): TabInfo[] => {
-    const tabsInOrder = getTabsInPriorityOrder();
-    const tabs: TabInfo[] = [];
-    
-    for (const group of tabsInOrder) {
-      const count = groupedUsers[group]?.length ?? 0;
-      if (count > 0) {
-        tabs.push({ group, count });
-      }
-    }
-    
-    if (!loading) {
-      // Add 'all' tab at the end if we're done loading
-      // Don't otherwise, since we want to show the first tab rather than the all tab by default
-      tabs.push({ group: 'all', count: allOrderedUsers.length });
-    }
-    
-    return tabs;
-  }, [groupedUsers, loading, allOrderedUsers.length]);
-
-  // Set initial active tab to first non-empty group
-  useEffect(() => {
-    if (!hasInitializedTab.current && visibleTabs.length > 0 && activeTab === null) {
-      // Set to first non-empty tab, or 'all' if only 'all' is available
-      const firstTab = visibleTabs[0];
-      setActiveTab(firstTab.group);
-      hasInitializedTab.current = true;
-    }
-  }, [visibleTabs, activeTab]);
-
-  // Auto-focus first user when data loads or tab changes
-  useEffect(() => {
-    if (orderedUsers.length > 0 && !focusedUserId && !openedUserId) {
-      setFocusedUserId(orderedUsers[0]._id);
-    }
-  }, [orderedUsers, focusedUserId, openedUserId]);
+    return getVisibleTabsInOrder(groupedUsers, allOrderedUsers.length);
+  }, [groupedUsers, allOrderedUsers.length]);
 
   const openedUser = useMemo(() => {
-    if (!openedUserId) return null;
-    return allOrderedUsers.find(u => u._id === openedUserId) ?? null;
-  }, [openedUserId, allOrderedUsers]);
+    if (!state.openedUserId) return null;
+    return allOrderedUsers.find(u => u._id === state.openedUserId) ?? null;
+  }, [state.openedUserId, allOrderedUsers]);
 
-  // In inbox view, show focused user in sidebar
-  // In detail view, show opened user in sidebar
-  const sidebarUser = openedUser || (focusedUserId ? allOrderedUsers.find(u => u._id === focusedUserId) ?? null : null);
-
-  const focusedIndex = useMemo(() => {
-    if (openedUserId) {
-      return orderedUsers.findIndex(u => u._id === openedUserId);
+  const sidebarUser = useMemo(() => {
+    if (openedUser) return openedUser;
+    if (state.focusedUserId) {
+      return allOrderedUsers.find(u => u._id === state.focusedUserId) ?? null;
     }
-    if (!focusedUserId) return -1;
-    return orderedUsers.findIndex(u => u._id === focusedUserId);
-  }, [focusedUserId, openedUserId, orderedUsers]);
+    return null;
+  }, [openedUser, state.focusedUserId, allOrderedUsers]);
 
-  const handleFocusUser = useCallback((userId: string | null) => {
-    setFocusedUserId(userId);
+  const handleOpenUser = useCallback((userId: string) => {
+    dispatch({ type: 'OPEN_USER', userId });
   }, []);
 
-  const handleOpenUser = useCallback((userId: string | null) => {
-    if (userId) {
-      navigate({
-        ...location,
-        search: `?user=${userId}`,
-      });
-    } else {
-      navigate({
-        ...location,
-        search: '',
-      });
-    }
-  }, [location, navigate]);
+  const handleCloseDetail = useCallback(() => {
+    dispatch({ type: 'CLOSE_DETAIL' });
+  }, []);
 
   const handleNextUser = useCallback(() => {
-    if (orderedUsers.length === 0) return;
-
-    const currentIndex = focusedIndex >= 0 ? focusedIndex : -1;
-    const nextIndex = (currentIndex + 1) % orderedUsers.length;
-
-    if (openedUserId) {
-      // In detail view, navigate to next user
-      handleOpenUser(orderedUsers[nextIndex]._id);
-    } else {
-      // In inbox view, just focus next user
-      handleFocusUser(orderedUsers[nextIndex]._id);
-    }
-  }, [orderedUsers, focusedIndex, openedUserId, handleOpenUser, handleFocusUser]);
+    dispatch({ type: 'NEXT_USER' });
+  }, []);
 
   const handlePrevUser = useCallback(() => {
-    if (orderedUsers.length === 0) return;
-
-    const currentIndex = focusedIndex >= 0 ? focusedIndex : 0;
-    const prevIndex = currentIndex === 0 ? orderedUsers.length - 1 : currentIndex - 1;
-
-    if (openedUserId) {
-      // In detail view, navigate to prev user
-      handleOpenUser(orderedUsers[prevIndex]._id);
-    } else {
-      // In inbox view, just focus prev user
-      handleFocusUser(orderedUsers[prevIndex]._id);
-    }
-  }, [orderedUsers, focusedIndex, openedUserId, handleOpenUser, handleFocusUser]);
-
-  const handleCloseDetail = useCallback(() => {
-    handleOpenUser(null);
-    // Restore focus to the user that was open
-    if (openedUserId) {
-      setFocusedUserId(openedUserId);
-    }
-  }, [handleOpenUser, openedUserId]);
+    dispatch({ type: 'PREV_USER' });
+  }, []);
 
   const handleTabChange = useCallback((newTab: ReviewGroup | 'all') => {
-    // Don't allow tab changes when in detail view
-    if (openedUserId) return;
-    
-    setActiveTab(newTab);
-    // Reset to first user in new tab
-    // We need to recalculate orderedUsers for the new tab
-    const newFilteredGroups = newTab === 'all' 
-      ? orderedGroups 
-      : orderedGroups.filter(([group]) => group === newTab);
-    const newOrderedUsers = newFilteredGroups.map(([_, users]) => users).flat();
-    
-    if (newOrderedUsers.length > 0) {
-      setFocusedUserId(newOrderedUsers[0]._id);
-    } else {
-      setFocusedUserId(null);
-    }
-  }, [openedUserId, orderedGroups]);
+    dispatch({ type: 'CHANGE_TAB', tab: newTab });
+  }, []);
 
   const handleNextTab = useCallback(() => {
-    if (openedUserId) return; // Don't switch tabs in detail view
-    
-    const currentIndex = visibleTabs.findIndex(tab => tab.group === activeTab);
-    const nextIndex = (currentIndex + 1) % visibleTabs.length;
-    handleTabChange(visibleTabs[nextIndex].group);
-  }, [visibleTabs, activeTab, openedUserId, handleTabChange]);
+    dispatch({ type: 'NEXT_TAB' });
+  }, []);
 
   const handlePrevTab = useCallback(() => {
-    if (openedUserId) return; // Don't switch tabs in detail view
-    
-    const currentIndex = visibleTabs.findIndex(tab => tab.group === activeTab);
-    const prevIndex = currentIndex === 0 ? visibleTabs.length - 1 : currentIndex - 1;
-    handleTabChange(visibleTabs[prevIndex].group);
-  }, [visibleTabs, activeTab, openedUserId, handleTabChange]);
+    dispatch({ type: 'PREV_TAB' });
+  }, []);
 
-  const handleActionComplete = useCallback(async () => {
-    // Capture current state before refetch
-    const currentTab = activeTab;
-    const wasInDetailView = !!openedUserId;
-    const currentFocusedIndex = focusedIndex;
-    
-    // Optimistically navigate to next user BEFORE refetch to prevent flash
-    // Calculate next user based on current state
-    if (orderedUsers.length > 1) {
-      // There are other users in the current list
-      // After removal, the user at currentFocusedIndex + 1 will be at currentFocusedIndex
-      // So we want to navigate to currentFocusedIndex + 1, or wrap to 0 if at end
-      const nextIndex = currentFocusedIndex + 1 >= orderedUsers.length ? 0 : currentFocusedIndex + 1;
-      const nextUser = orderedUsers[nextIndex];
-      
-      if (nextUser) {
-        // Navigate optimistically to the next user
-        if (wasInDetailView) {
-          handleOpenUser(nextUser._id);
-        } else {
-          handleFocusUser(nextUser._id);
-        }
-      }
-    } else if (orderedUsers.length === 1) {
-      // This was the last user in current view, need to find next tab
-      // Close detail view optimistically
-      handleCloseDetail();
+  const handleActionComplete = useCallback(() => {
+    // Remove the current user (either opened or focused) from the queue
+    const userIdToRemove = state.openedUserId ?? state.focusedUserId;
+    if (userIdToRemove) {
+      dispatch({ type: 'REMOVE_USER', userId: userIdToRemove });
     }
-    
-    // Now refetch and correct if needed
-    const result = await refetch();
-    const freshUsers = result.data?.users?.results.filter(user => user.needsReview) ?? [];
-    
-    // Recompute groups and users with fresh data
-    const newGroupedUsers = groupBy(freshUsers, user => getUserReviewGroup(user));
-    const newOrderedGroups = (Object.entries(newGroupedUsers) as GroupEntry[])
-      .sort(([a]: GroupEntry, [b]: GroupEntry) => REVIEW_GROUP_TO_PRIORITY[b] - REVIEW_GROUP_TO_PRIORITY[a]);
-    
-    const newFilteredGroups = currentTab === 'all'
-      ? newOrderedGroups
-      : newOrderedGroups.filter(([group]) => group === currentTab);
-    
-    const newOrderedUsers = newFilteredGroups.map(([_, users]) => users).flat();
-    
-    // Verify our optimistic update was correct, or correct it
-    if (newOrderedUsers.length === 0 && currentTab !== 'all') {
-      // Current tab is now empty, switch to next available tab
-      const tabsInOrder = getTabsInPriorityOrder();
-      let foundTab: ReviewGroup | 'all' = 'all';
-      
-      for (const group of tabsInOrder) {
-        if (newGroupedUsers[group]?.length > 0) {
-          foundTab = group;
-          break;
-        }
-      }
-      
-      setActiveTab(foundTab);
-      
-      // Get users for the new tab
-      const nextTabGroups = foundTab === 'all'
-        ? newOrderedGroups
-        : newOrderedGroups.filter(([group]) => group === foundTab);
-      const nextTabUsers = nextTabGroups.map(([_, users]) => users).flat();
-      
-      if (nextTabUsers.length > 0) {
-        if (wasInDetailView) {
-          handleOpenUser(nextTabUsers[0]._id);
-        } else {
-          handleFocusUser(nextTabUsers[0]._id);
-        }
-      }
-    } else if (newOrderedUsers.length === 0) {
-      // No users left at all - make sure we're in inbox view
-      if (wasInDetailView) {
-        handleCloseDetail();
-      }
-    }
-  }, [refetch, activeTab, focusedIndex, openedUserId, orderedUsers, handleOpenUser, handleFocusUser, handleCloseDetail]);
-
-  if (!currentUser || !userIsAdminOrMod(currentUser)) {
-    return null;
-  }
-
-  if (loading && !data) {
-    return (
-      <div className={classes.loading}>
-        <Loading />
-      </div>
-    );
-  }
-
-  // Don't render until we have initialized the active tab
-  if (activeTab === null) {
-    return (
-      <div className={classes.loading}>
-        <Loading />
-      </div>
-    );
-  }
+  }, [state.openedUserId, state.focusedUserId]);
 
   return (
     <div className={classes.root}>
@@ -690,9 +486,9 @@ const ModerationInbox = () => {
         onNextTab={handleNextTab}
         onPrevTab={handlePrevTab}
         onOpenDetail={() => {
-          if (focusedUserId && !openedUserId) {
-            handleOpenUser(focusedUserId);
-          } else if (!focusedUserId && orderedUsers.length > 0) {
+          if (state.focusedUserId && !state.openedUserId) {
+            handleOpenUser(state.focusedUserId);
+          } else if (!state.focusedUserId && orderedUsers.length > 0) {
             handleOpenUser(orderedUsers[0]._id);
           }
         }}
@@ -700,7 +496,7 @@ const ModerationInbox = () => {
         selectedUser={sidebarUser}
         currentUser={currentUser}
         onActionComplete={handleActionComplete}
-        isDetailView={!!openedUserId}
+        isDetailView={!!state.openedUserId}
       />
       <div className={classes.mainContent}>
         <div className={classes.leftPanel}>
@@ -713,11 +509,11 @@ const ModerationInbox = () => {
           ) : (
             <ModerationInboxList
               userGroups={filteredGroups}
-              focusedUserId={focusedUserId}
-              onFocusUser={handleFocusUser}
+              focusedUserId={state.focusedUserId}
+              onFocusUser={handleOpenUser}
               onOpenUser={handleOpenUser}
               visibleTabs={visibleTabs}
-              activeTab={activeTab}
+              activeTab={state.activeTab}
               onTabChange={handleTabChange}
             />
           )}
@@ -732,6 +528,38 @@ const ModerationInbox = () => {
       </div>
     </div>
   );
+};
+
+const ModerationInbox = () => {
+  const classes = useStyles(styles);
+  const currentUser = useCurrentUser();
+  const { query } = useLocation();
+
+  const { data, loading } = useQuery(SunshineUsersListMultiQuery, {
+    variables: {
+      selector: { sunshineNewUsers: {} },
+      limit: 100,
+      enableTotal: true,
+    },
+    fetchPolicy: 'cache-and-network',
+  });
+
+  if (!currentUser || !userIsAdminOrMod(currentUser)) {
+    return null;
+  }
+
+  if (loading && !data) {
+    return (
+      <div className={classes.loading}>
+        <Loading />
+      </div>
+    );
+  }
+
+  const users = data?.users?.results.filter(user => user.needsReview) ?? [];
+  const initialOpenedUserId = query.user || null;
+
+  return <ModerationInboxInner users={users} initialOpenedUserId={initialOpenedUserId} currentUser={currentUser} />;
 };
 
 export default ModerationInbox;
