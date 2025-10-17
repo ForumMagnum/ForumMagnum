@@ -26,6 +26,8 @@ const ModerationKeyboardHandler = ({
   onPrevUser,
   onOpenDetail,
   onCloseDetail,
+  onNextTab,
+  onPrevTab,
   selectedUser,
   currentUser,
   onActionComplete,
@@ -35,6 +37,8 @@ const ModerationKeyboardHandler = ({
   onPrevUser: () => void;
   onOpenDetail: () => void;
   onCloseDetail: () => void;
+  onNextTab: () => void;
+  onPrevTab: () => void;
   selectedUser: SunshineUsersList | null;
   isDetailView: boolean;
   currentUser: UsersCurrent;
@@ -328,7 +332,6 @@ const ModerationKeyboardHandler = ({
         if ((event.metaKey || event.ctrlKey) && event.key === 'k') {
           event.preventDefault();
           openCommandPalette(commands, () => {});
-          // setCommandPaletteOpen(true);
           return;
         }
 
@@ -342,6 +345,19 @@ const ModerationKeyboardHandler = ({
         if (event.key === 'k' || event.key === 'ArrowUp') {
           event.preventDefault();
           onPrevUser();
+          return;
+        }
+
+        // Tab navigation (only in inbox view, not detail view)
+        if (event.key === 'ArrowLeft' && !isDetailView) {
+          event.preventDefault();
+          onPrevTab();
+          return;
+        }
+
+        if (event.key === 'ArrowRight' && !isDetailView) {
+          event.preventDefault();
+          onNextTab();
           return;
         }
 
@@ -392,8 +408,11 @@ const ModerationKeyboardHandler = ({
       [
         onNextUser,
         onPrevUser,
+        onNextTab,
+        onPrevTab,
         onOpenDetail,
         onCloseDetail,
+        isDetailView,
         selectedUser,
         handleReview,
         handleSnooze,

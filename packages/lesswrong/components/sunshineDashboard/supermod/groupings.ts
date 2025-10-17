@@ -81,3 +81,24 @@ export function getUserReviewGroup(user: SunshineUsersList): ReviewGroup {
   const highestPriority = Math.max(...freshModeratorActionGroups.map(group => REVIEW_GROUP_TO_PRIORITY[group])) as ReviewGroupMap[ReviewGroup];
   return PRIORITY_TO_REVIEW_GROUP[highestPriority];
 }
+
+export function getTabsInPriorityOrder(): ReviewGroup[] {
+  return ['newContent', 'highContext', 'maybeSpam', 'automod', 'unknown'];
+}
+
+export function getReviewGroupDisplayName(group: ReviewGroup | 'all'): string {
+  switch (group) {
+    case 'newContent':
+      return 'New Content';
+    case 'highContext':
+      return 'High Context';
+    case 'maybeSpam':
+      return 'Maybe Spam';
+    case 'automod':
+      return 'Automod';
+    case 'unknown':
+      return 'Unknown';
+    case 'all':
+      return 'All';
+  }
+}

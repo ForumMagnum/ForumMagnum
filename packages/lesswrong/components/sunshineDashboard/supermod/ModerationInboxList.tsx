@@ -1,6 +1,7 @@
 import React, { useMemo } from 'react';
 import { defineStyles, useStyles } from '@/components/hooks/useStyles';
 import ModerationInboxItem from './ModerationInboxItem';
+import ModerationTabs, { TabInfo } from './ModerationTabs';
 import type { ReviewGroup } from './groupings';
 import classNames from 'classnames';
 
@@ -60,31 +61,37 @@ const ModerationInboxList = ({
   focusedUserId,
   onFocusUser,
   onOpenUser,
+  visibleTabs,
+  activeTab,
+  onTabChange,
 }: {
   userGroups: GroupEntry[],
   focusedUserId: string | null;
   onFocusUser: (userId: string) => void;
   onOpenUser: (userId: string) => void;
+  visibleTabs: TabInfo[];
+  activeTab: ReviewGroup | 'all';
+  onTabChange: (tab: ReviewGroup | 'all') => void;
 }) => {
   const classes = useStyles(styles);
 
-  const userCount = useMemo(() => userGroups.flat().length, [userGroups]);
+  const userCount = useMemo(() => userGroups.map(([_, users]) => users).flat().length, [userGroups]);
 
   return (
     <div className={classes.root}>
-      <div className={classes.header}>
-        <span className={classes.title}>
-          {'Unreviewed Users'}
-          <span className={classes.count}>({userCount})</span>
-        </span>
-      </div>
+      <ModerationTabs
+        tabs={visibleTabs}
+        activeTab={activeTab}
+        onTabChange={onTabChange}
+      />
       {userCount === 0 ? (
         <div className={classes.empty}>
           No users to review
         </div>
       ) : (
-        userGroups.map(([group, users]) => (
-          <div key={group} className={classNames(classes.list, classes[group])}>
+        userGroups.map(([group, users]) => {
+          const groupStyling = activeTab === 'all' ? classes[group] : undefined;
+          return <div key={group} className={classNames(classes.list, groupStyling)}>
             {users.map((user) => (
               <ModerationInboxItem
                 key={user._id}
@@ -95,7 +102,7 @@ const ModerationInboxList = ({
               />
             ))}
           </div>
-        ))
+        })
       )}
     </div>
   );
