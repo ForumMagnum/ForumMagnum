@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useMemo } from 'react';
 import { defineStyles, useStyles } from '@/components/hooks/useStyles';
 import classNames from 'classnames';
 import FormatDate from '@/components/common/FormatDate';
@@ -12,6 +12,7 @@ import { AUTO_BLOCKED_FROM_SENDING_DMS, FLAGGED_FOR_N_DMS, MANUAL_FLAG_ALERT, MA
 import { partitionModeratorActions, ReviewGroup } from './groupings';
 import ForumIcon from '@/components/common/ForumIcon';
 import { htmlToTextDefault } from '@/lib/htmlToText';
+import { useModeratedUserContents } from '@/components/hooks/useModeratedUserContents';
 
 const styles = defineStyles('ModerationInboxItem', (theme: ThemeType) => ({
   root: {
@@ -139,6 +140,29 @@ const styles = defineStyles('ModerationInboxItem', (theme: ThemeType) => ({
     overflow: 'hidden',
     marginRight: 12,
   },
+  postPreview: {
+    display: 'flex',
+    flexDirection: 'row',
+    gap: 8,
+  },
+  postTitle: {
+    fontSize: 14,
+    whiteSpace: 'nowrap',
+  },
+  postContents: {
+    fontSize: 13,
+    color: theme.palette.grey[600],
+    overflow: 'hidden',
+    textOverflow: 'ellipsis',
+    whiteSpace: 'nowrap',
+  },
+  commentContents: {
+    fontSize: 13,
+    color: theme.palette.grey[600],
+    overflow: 'hidden',
+    textOverflow: 'ellipsis',
+    whiteSpace: 'nowrap',
+  },
   bioPreview: {
     fontSize: 13,
     color: theme.palette.grey[600],
@@ -210,6 +234,43 @@ function getFallbackDisplayedModeratorAction(user: SunshineUsersList): string | 
   }
 }
 
+const ContentPreview = ({ user }: { user: SunshineUsersList }) => {
+  const classes = useStyles(styles);
+
+  const { posts, comments } = useModeratedUserContents(user._id);
+  
+  const firstUnreviewedPost = useMemo(() => (
+    posts
+      .sort((a, b) => new Date(a.postedAt).getTime() - new Date(b.postedAt).getTime())
+      .filter(post => !post.reviewedByUserId && !post.rejected)
+      .at(0)
+  ), [posts]);
+
+  const firstUnreviewedComment = useMemo(() => (
+    comments
+      .sort((a, b) => new Date(a.postedAt).getTime() - new Date(b.postedAt).getTime())
+      .filter(comment => !comment.reviewedByUserId && !comment.rejected)
+      .at(0)
+  ), [comments]);
+
+  if (firstUnreviewedPost) {
+    return (
+      <div className={classes.postPreview}>
+        <div className={classes.postTitle}>{firstUnreviewedPost.title}</div>
+        <div className={classes.postContents}>{htmlToTextDefault(firstUnreviewedPost.contents?.html ?? '')}</div>
+      </div>
+    );
+  }
+
+  if (firstUnreviewedComment) {
+    return (
+      <div className={classes.commentContents}>{htmlToTextDefault(firstUnreviewedComment.contents?.html ?? '')}</div>
+    );
+  }
+  
+  return null;
+};
+
 const ModerationInboxItem = ({
   user,
   reviewGroup,
@@ -225,7 +286,6 @@ const ModerationInboxItem = ({
 }) => {
   const classes = useStyles(styles);
 
-  // const { posts = [] } = usePublishedPosts(user._id, 5);
 
   const fallbackDisplayedModeratorAction = getFallbackDisplayedModeratorAction(user);
 
@@ -294,6 +354,9 @@ const ModerationInboxItem = ({
       ))}
 
       <div className={classes.contextualInfo}>
+        {reviewGroup === 'newContent' && (
+          <ContentPreview user={user} />
+        )}
         {reviewGroup === 'maybeSpam' && (
           <div className={classes.bioPreview}>{htmlToTextDefault(user.htmlBio)}</div>
         )}

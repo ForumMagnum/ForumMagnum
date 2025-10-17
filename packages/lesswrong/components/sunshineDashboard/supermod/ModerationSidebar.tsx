@@ -166,7 +166,6 @@ const ModerationSidebar = ({
       limit: CONTENT_LIMIT,
       enableTotal: false,
     },
-    skip: !user,
   });
 
   const comments = data?.comments?.results ?? [];

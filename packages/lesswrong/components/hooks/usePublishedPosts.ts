@@ -17,7 +17,7 @@ const SunshinePostsListMultiQuery = gql(`
  * To preserve user privacy, don't return drafts which have never been published.
  * This used to be implemented with LWEvents, but now we're just using the `wasEverUndrafted` field.
  */
-export function usePublishedPosts(userId: string, contentLimit = 20) {
+export function usePublishedPosts(userId: string, contentLimit = 20, ssr = true) {
   const { data, loading } = useQuery(SunshinePostsListMultiQuery, {
     variables: {
       selector: { sunshineNewUsersPosts: { userId } },
@@ -25,6 +25,7 @@ export function usePublishedPosts(userId: string, contentLimit = 20) {
       enableTotal: false,
     },
     notifyOnNetworkStatusChange: true,
+    ssr,
   });
 
   const posts = data?.posts?.results;
