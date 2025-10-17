@@ -60,7 +60,344 @@ const styles = defineStyles('ModerationInbox', (theme: ThemeType) => ({
     justifyContent: 'center',
     height: '100vh',
   },
-}));
+  }));
+
+/**
+ * Moderation Inbox State Machine
+ * 
+ * ## States
+ * - Uninitialized: isInitialized=false, waiting for initial data
+ * - Inbox View: isInitialized=true, openedUserId=null, viewing list with optional focus
+ * - Detail View: isInitialized=true, openedUserId!=null, viewing single user details
+ * 
+ * ## State Transitions
+ * 1. INITIALIZE: Uninitialized → Inbox View (with first tab, first user focused)
+ * 2. OPEN_USER: Inbox View → Detail View
+ * 3. CLOSE_DETAIL: Detail View → Inbox View (restores focus to opened user)
+ * 4. CHANGE_TAB: Inbox View → Inbox View (switches tab, focuses first user in new tab)
+ * 5. NEXT_USER/PREV_USER: Navigates within current tab (works in both views)
+ * 6. NEXT_TAB/PREV_TAB: Switches tabs (only in Inbox View)
+ * 7. REMOVE_USER: Removes user from local list and navigates to next
+ *    - If current tab has more users → navigate to next user at same index
+ *    - If current tab is now empty → switch to next non-empty tab
+ *    - If no users left → return to empty Inbox View
+ * 
+ * The reducer maintains a local copy of the user list that is mutated when actions complete.
+ * No refetching happens - the list is only updated via REMOVE_USER actions.
+ */
+
+// Helper types
+type SunshineUserFragment = FragmentTypes['SunshineUsersList'];
+
+type InboxState = {
+  // The local copy of users (mutated when actions complete)
+  users: SunshineUserFragment[];
+  // Current active tab
+  activeTab: ReviewGroup | 'all';
+  // Focused user in inbox view (highlighted)
+  focusedUserId: string | null;
+  // Opened user in detail view
+  openedUserId: string | null;
+  // Whether we've completed initialization
+  isInitialized: boolean;
+};
+
+type InboxAction =
+  | { type: 'INITIALIZE'; users: SunshineUserFragment[] }
+  | { type: 'OPEN_USER'; userId: string }
+  | { type: 'CLOSE_DETAIL' }
+  | { type: 'CHANGE_TAB'; tab: ReviewGroup | 'all' }
+  | { type: 'NEXT_USER' }
+  | { type: 'PREV_USER' }
+  | { type: 'NEXT_TAB' }
+  | { type: 'PREV_TAB' }
+  | { type: 'REMOVE_USER'; userId: string };
+
+// Helper to get filtered groups for a tab
+function getFilteredGroups(
+  groupedUsers: Partial<Record<ReviewGroup, SunshineUserFragment[]>>,
+  activeTab: ReviewGroup | 'all'
+): GroupEntry[] {
+  const orderedGroups = (Object.entries(groupedUsers) as GroupEntry[])
+    .sort(([a]: GroupEntry, [b]: GroupEntry) => REVIEW_GROUP_TO_PRIORITY[b] - REVIEW_GROUP_TO_PRIORITY[a]);
+  
+  if (activeTab === 'all') {
+    return orderedGroups;
+  }
+  return orderedGroups.filter(([group]) => group === activeTab);
+}
+
+// Helper to get visible tabs
+function getVisibleTabsInOrder(
+  groupedUsers: Partial<Record<ReviewGroup, SunshineUserFragment[]>>,
+  totalUsers: number,
+  isInitialized: boolean
+): TabInfo[] {
+  const tabsInOrder = getTabsInPriorityOrder();
+  const tabs: TabInfo[] = [];
+  
+  for (const group of tabsInOrder) {
+    const count = groupedUsers[group]?.length ?? 0;
+    if (count > 0) {
+      tabs.push({ group, count });
+    }
+  }
+  
+  // Add 'all' tab if initialized
+  if (isInitialized) {
+    tabs.push({ group: 'all', count: totalUsers });
+  }
+  
+  return tabs;
+}
+
+function inboxStateReducer(state: InboxState, action: InboxAction): InboxState {
+  switch (action.type) {
+    case 'INITIALIZE': {
+      const users = action.users;
+      if (users.length === 0) {
+        return {
+          users: [],
+          activeTab: 'all',
+          focusedUserId: null,
+          openedUserId: null,
+          isInitialized: true,
+        };
+      }
+      
+      const groupedUsers = groupBy(users, user => getUserReviewGroup(user));
+      const visibleTabs = getVisibleTabsInOrder(groupedUsers, users.length, false);
+      
+      const firstTab = visibleTabs[0]?.group ?? 'all';
+      const filteredGroups = getFilteredGroups(groupedUsers, firstTab);
+      const orderedUsers = filteredGroups.flatMap(([_, users]) => users);
+      
+      return {
+        users,
+        activeTab: firstTab,
+        focusedUserId: orderedUsers[0]?._id ?? null,
+        openedUserId: null,
+        isInitialized: true,
+      };
+    }
+    
+    case 'OPEN_USER': {
+      return {
+        ...state,
+        openedUserId: action.userId,
+      };
+    }
+    
+    case 'CLOSE_DETAIL': {
+      return {
+        ...state,
+        openedUserId: null,
+        // Restore focus to the user that was open
+        focusedUserId: state.openedUserId,
+      };
+    }
+    
+    case 'CHANGE_TAB': {
+      // Don't change tabs in detail view
+      if (state.openedUserId) return state;
+      
+      const groupedUsers = groupBy(state.users, user => getUserReviewGroup(user));
+      const filteredGroups = getFilteredGroups(groupedUsers, action.tab);
+      const orderedUsers = filteredGroups.flatMap(([_, users]) => users);
+      
+      return {
+        ...state,
+        activeTab: action.tab,
+        focusedUserId: orderedUsers[0]?._id ?? null,
+      };
+    }
+    
+    case 'NEXT_USER': {
+      const groupedUsers = groupBy(state.users, user => getUserReviewGroup(user));
+      const filteredGroups = getFilteredGroups(groupedUsers, state.activeTab);
+      const orderedUsers = filteredGroups.flatMap(([_, users]) => users);
+      
+      if (orderedUsers.length === 0) return state;
+      
+      const currentId = state.openedUserId ?? state.focusedUserId;
+      const currentIndex = orderedUsers.findIndex(u => u._id === currentId);
+      const nextIndex = (currentIndex + 1) % orderedUsers.length;
+      const nextUserId = orderedUsers[nextIndex]._id;
+      
+      if (state.openedUserId) {
+        return { ...state, openedUserId: nextUserId };
+      } else {
+        return { ...state, focusedUserId: nextUserId };
+      }
+    }
+    
+    case 'PREV_USER': {
+      const groupedUsers = groupBy(state.users, user => getUserReviewGroup(user));
+      const filteredGroups = getFilteredGroups(groupedUsers, state.activeTab);
+      const orderedUsers = filteredGroups.flatMap(([_, users]) => users);
+      
+      if (orderedUsers.length === 0) return state;
+      
+      const currentId = state.openedUserId ?? state.focusedUserId;
+      const currentIndex = orderedUsers.findIndex(u => u._id === currentId);
+      const prevIndex = currentIndex <= 0 ? orderedUsers.length - 1 : currentIndex - 1;
+      const prevUserId = orderedUsers[prevIndex]._id;
+      
+      if (state.openedUserId) {
+        return { ...state, openedUserId: prevUserId };
+      } else {
+        return { ...state, focusedUserId: prevUserId };
+      }
+    }
+    
+    case 'NEXT_TAB': {
+      if (state.openedUserId) return state;
+      
+      const groupedUsers = groupBy(state.users, user => getUserReviewGroup(user));
+      const visibleTabs = getVisibleTabsInOrder(groupedUsers, state.users.length, state.isInitialized);
+      
+      if (visibleTabs.length === 0) return state;
+      
+      const currentIndex = visibleTabs.findIndex(tab => tab.group === state.activeTab);
+      const nextIndex = (currentIndex + 1) % visibleTabs.length;
+      const nextTab = visibleTabs[nextIndex].group;
+      
+      const filteredGroups = getFilteredGroups(groupedUsers, nextTab);
+      const orderedUsers = filteredGroups.flatMap(([_, users]) => users);
+      
+      return {
+        ...state,
+        activeTab: nextTab,
+        focusedUserId: orderedUsers[0]?._id ?? null,
+      };
+    }
+    
+    case 'PREV_TAB': {
+      if (state.openedUserId) return state;
+      
+      const groupedUsers = groupBy(state.users, user => getUserReviewGroup(user));
+      const visibleTabs = getVisibleTabsInOrder(groupedUsers, state.users.length, state.isInitialized);
+      
+      if (visibleTabs.length === 0) return state;
+      
+      const currentIndex = visibleTabs.findIndex(tab => tab.group === state.activeTab);
+      const prevIndex = currentIndex <= 0 ? visibleTabs.length - 1 : currentIndex - 1;
+      const prevTab = visibleTabs[prevIndex].group;
+      
+      const filteredGroups = getFilteredGroups(groupedUsers, prevTab);
+      const orderedUsers = filteredGroups.flatMap(([_, users]) => users);
+      
+      return {
+        ...state,
+        activeTab: prevTab,
+        focusedUserId: orderedUsers[0]?._id ?? null,
+      };
+    }
+    
+    case 'REMOVE_USER': {
+      // Remove user from local list
+      const newUsers = state.users.filter(u => u._id !== action.userId);
+      
+      if (newUsers.length === 0) {
+        // No users left
+        return {
+          users: [],
+          activeTab: 'all',
+          focusedUserId: null,
+          openedUserId: null,
+          isInitialized: true,
+        };
+      }
+      
+      // Recalculate groups and tabs
+      const groupedUsers = groupBy(newUsers, user => getUserReviewGroup(user));
+      const filteredGroups = getFilteredGroups(groupedUsers, state.activeTab);
+      const orderedUsers = filteredGroups.flatMap(([_, users]) => users);
+      
+      // If current tab still has users
+      if (orderedUsers.length > 0) {
+        // Find where we were in the list
+        const oldGroupedUsers = groupBy(state.users, user => getUserReviewGroup(user));
+        const oldFilteredGroups = getFilteredGroups(oldGroupedUsers, state.activeTab);
+        const oldOrderedUsers = oldFilteredGroups.flatMap(([_, users]) => users);
+        
+        const currentId = state.openedUserId ?? state.focusedUserId;
+        const oldIndex = oldOrderedUsers.findIndex(u => u._id === currentId);
+        
+        // After removal, stay at same index (which is now the next user)
+        // If we were at the end, wrap to 0
+        const nextIndex = oldIndex >= orderedUsers.length ? 0 : Math.max(0, oldIndex);
+        const nextUserId = orderedUsers[nextIndex]._id;
+        
+        if (state.openedUserId) {
+          return {
+            users: newUsers,
+            activeTab: state.activeTab,
+            focusedUserId: null,
+            openedUserId: nextUserId,
+            isInitialized: true,
+          };
+        } else {
+          return {
+            users: newUsers,
+            activeTab: state.activeTab,
+            focusedUserId: nextUserId,
+            openedUserId: null,
+            isInitialized: true,
+          };
+        }
+      }
+      
+      // Current tab is empty, switch to next non-empty tab
+      const tabsInOrder = getTabsInPriorityOrder();
+      let nextTab: ReviewGroup | 'all' = 'all';
+      
+      for (const group of tabsInOrder) {
+        if (groupedUsers[group]?.length > 0) {
+          nextTab = group;
+          break;
+        }
+      }
+      
+      const nextFilteredGroups = getFilteredGroups(groupedUsers, nextTab);
+      const nextOrderedUsers = nextFilteredGroups.flatMap(([_, users]) => users);
+      
+      if (nextOrderedUsers.length > 0) {
+        const nextUserId = nextOrderedUsers[0]._id;
+        
+        if (state.openedUserId) {
+          return {
+            users: newUsers,
+            activeTab: nextTab,
+            focusedUserId: null,
+            openedUserId: nextUserId,
+            isInitialized: true,
+          };
+        } else {
+          return {
+            users: newUsers,
+            activeTab: nextTab,
+            focusedUserId: nextUserId,
+            openedUserId: null,
+            isInitialized: true,
+          };
+        }
+      }
+      
+      // Fallback: no users anywhere
+      return {
+        users: newUsers,
+        activeTab: 'all',
+        focusedUserId: null,
+        openedUserId: null,
+        isInitialized: true,
+      };
+    }
+    
+    default:
+      return state;
+  }
+}
 
 const ModerationInbox = () => {
   const classes = useStyles(styles);
