@@ -1,6 +1,3 @@
-// Tests for the moderation inbox state reducer
-// Testing file: packages/lesswrong/components/sunshineDashboard/supermod/ModerationInbox.tsx
-
 import {
   type InboxState,
   inboxStateReducer,
@@ -14,7 +11,14 @@ import {
   MANUAL_NEEDS_REVIEW,
 } from '../lib/collections/moderatorActions/constants';
 
-// Helper function to create mock users
+const moderatorActionTypes: Record<ReviewGroup, ModeratorActionType> = {
+  newContent: UNREVIEWED_FIRST_POST,
+  highContext: MANUAL_FLAG_ALERT,
+  maybeSpam: UNREVIEWED_BIO_UPDATE,
+  automod: STRICTER_COMMENT_AUTOMOD_RATE_LIMIT,
+  unknown: MANUAL_NEEDS_REVIEW,
+};
+
 function createMockUser(
   id: string,
   reviewGroup: ReviewGroup,
@@ -39,15 +43,6 @@ function createMockUser(
     lastRemovedFromReviewQueueAt: null,
   };
 
-  // Add the appropriate moderator action based on review group
-  const moderatorActionTypes: Record<ReviewGroup, ModeratorActionType> = {
-    newContent: UNREVIEWED_FIRST_POST,
-    highContext: MANUAL_FLAG_ALERT,
-    maybeSpam: UNREVIEWED_BIO_UPDATE,
-    automod: STRICTER_COMMENT_AUTOMOD_RATE_LIMIT,
-    unknown: MANUAL_NEEDS_REVIEW,
-  };
-
   return {
     ...baseUser,
     moderatorActions: [{
@@ -64,7 +59,6 @@ function createMockUser(
   } as SunshineUsersList;
 }
 
-// Tests
 describe('Moderation Inbox Reducer', () => {
   describe('CLOSE_DETAIL', () => {
     test('preserves focused user and active tab when exiting detail view via ESC', () => {
@@ -74,7 +68,6 @@ describe('Moderation Inbox Reducer', () => {
         createMockUser('user3', 'highContext'),
       ];
 
-      // Start with initialized state in detail view
       const state: InboxState = {
         users,
         activeTab: 'newContent',
@@ -86,7 +79,7 @@ describe('Moderation Inbox Reducer', () => {
       const newState = inboxStateReducer(state, { type: 'CLOSE_DETAIL' });
 
       expect(newState.activeTab).toBe('newContent');
-      expect(newState.focusedUserId).toBe('user2'); // Restored to opened user
+      expect(newState.focusedUserId).toBe('user2');
       expect(newState.openedUserId).toBe(null);
     });
   });
@@ -102,7 +95,7 @@ describe('Moderation Inbox Reducer', () => {
       let state: InboxState = {
         users,
         activeTab: 'newContent',
-        focusedUserId: 'user3', // Last user
+        focusedUserId: 'user3',
         openedUserId: null,
         isInitialized: true,
       };
@@ -122,7 +115,7 @@ describe('Moderation Inbox Reducer', () => {
       let state: InboxState = {
         users,
         activeTab: 'newContent',
-        focusedUserId: 'user1', // First user
+        focusedUserId: 'user1',
         openedUserId: null,
         isInitialized: true,
       };
@@ -207,7 +200,7 @@ describe('Moderation Inbox Reducer', () => {
 
       state = inboxStateReducer(state, { type: 'REMOVE_USER', userId: 'user2' });
 
-      expect(state.focusedUserId).toBe('user3'); // Next user at same index
+      expect(state.focusedUserId).toBe('user3');
       expect(state.activeTab).toBe('newContent');
       expect(state.openedUserId).toBe(null);
       expect(state.users.length).toBe(2);
@@ -230,8 +223,8 @@ describe('Moderation Inbox Reducer', () => {
 
       state = inboxStateReducer(state, { type: 'REMOVE_USER', userId: 'user1' });
 
-      expect(state.activeTab).toBe('highContext'); // Next tab with users (highest priority remaining)
-      expect(state.focusedUserId).toBe('user2'); // First user in new tab
+      expect(state.activeTab).toBe('highContext');
+      expect(state.focusedUserId).toBe('user2');
       expect(state.openedUserId).toBe(null);
       expect(state.users.length).toBe(2);
     });
@@ -276,7 +269,7 @@ describe('Moderation Inbox Reducer', () => {
 
       state = inboxStateReducer(state, { type: 'REMOVE_USER', userId: 'user2' });
 
-      expect(state.openedUserId).toBe('user3'); // Next user at same index
+      expect(state.openedUserId).toBe('user3');
       expect(state.activeTab).toBe('newContent');
       expect(state.focusedUserId).toBe(null);
       expect(state.users.length).toBe(2);
@@ -301,8 +294,8 @@ describe('Moderation Inbox Reducer', () => {
 
       // Should go back to inbox view (not detail view) for next tab
       expect(state.activeTab).toBe('highContext');
-      expect(state.focusedUserId).toBe('user2'); // Focused in inbox view
-      expect(state.openedUserId).toBe(null); // Not in detail view!
+      expect(state.focusedUserId).toBe('user2');
+      expect(state.openedUserId).toBe(null);
       expect(state.users.length).toBe(2);
     });
 
@@ -344,7 +337,7 @@ describe('Moderation Inbox Reducer', () => {
     test('INITIALIZE selects highest priority tab and focuses first user', () => {
       const users = [
         createMockUser('user1', 'automod'),
-        createMockUser('user2', 'highContext'), // Higher priority
+        createMockUser('user2', 'highContext'),
         createMockUser('user3', 'highContext'),
       ];
 
