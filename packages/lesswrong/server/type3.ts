@@ -7,6 +7,13 @@ import { Tags } from "@/server/collections/tags/collection";
 
 export const hasType3ApiAccess = () => !!type3ApiTokenSetting.get();
 
+type Type3RegenerateOptions = {
+  immediate?: boolean,
+};
+const defaultType3RegenerationOptions = {
+  immediate: true
+};
+
 const type3ApiRequest = async (
   endpoint: string,
   method: "POST" | "DELETE",
@@ -60,10 +67,12 @@ const getDocumentUrl = (document: DocumentWithAudio, collectionName: 'Posts' | '
 }
 
 
-export const regenerateType3Audio = async (document: DbPost | DbTag, collectionName: 'Posts' | 'Tags') => {
+export const regenerateType3Audio = async (document: DbPost | DbTag, collectionName: 'Posts'|'Tags', options?: Type3RegenerateOptions) => {
+  const optionsWithDefaults = {...defaultType3RegenerationOptions, ...options};
+
   const body = {
     source_url: getDocumentUrl(document, collectionName),
-    priority: "immediate",
+    ...(optionsWithDefaults.immediate ? {priority: "immediate"} : {}),
   };
 
   if (!isDocumentAllowedType3Audio(document, collectionName)) return;
@@ -73,7 +82,7 @@ export const regenerateType3Audio = async (document: DbPost | DbTag, collectionN
 }
 
 // Exported to allow running with "yarn repl"
-export const regenerateType3AudioForDocumentId = async (documentId: string, collectionName: 'Posts' | 'Tags') => {
+export const regenerateType3AudioForDocumentId = async (documentId: string, collectionName: 'Posts'|'Tags', options?: Type3RegenerateOptions) => {
   const document = await (collectionName === 'Posts' 
     ? Posts.findOne({_id: documentId})
 
@@ -82,7 +91,7 @@ export const regenerateType3AudioForDocumentId = async (documentId: string, coll
     throw new Error("Document not found");
   }
   if (isDocumentAllowedType3Audio(document, collectionName)) {
-    await regenerateType3Audio(document, collectionName);
+    await regenerateType3Audio(document, collectionName, options);
   }
 }
 
