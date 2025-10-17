@@ -33,6 +33,8 @@ const styles = defineStyles('ModerationInbox', (theme: ThemeType) => ({
     height: '100vh',
     display: 'flex',
     backgroundColor: theme.palette.background.pageActiveAreaBackground,
+    overflow: 'hidden',
+    position: 'fixed',
   },
   mainContent: {
     flex: 1,
@@ -46,9 +48,11 @@ const styles = defineStyles('ModerationInbox', (theme: ThemeType) => ({
   },
   sidebar: {
     width: 400,
-    overflow: 'auto',
+    overflow: 'hidden',
     borderLeft: theme.palette.border.normal,
     backgroundColor: theme.palette.background.paper,
+    display: 'flex',
+    flexDirection: 'column',
   },
   loading: {
     display: 'flex',
