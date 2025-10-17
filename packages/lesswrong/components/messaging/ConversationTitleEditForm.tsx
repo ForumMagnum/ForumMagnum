@@ -66,6 +66,8 @@ const ConversationTitleEditForm = ({ onClose, conversation }: {
       const updateData = {
         ...updatedFields,
         archivedByIds: archived
+          // use conversation.archivedByIds; updatedFields won't contain it since it's not directly in the form
+          // and `getUpdatedFieldValues` only returns fields which have been "dirtied" by being changed in the form
           ? [...(conversation.archivedByIds ?? []), currentUser!._id]
           : (conversation.archivedByIds ?? []).filter(id => id !== currentUser!._id),
       }
