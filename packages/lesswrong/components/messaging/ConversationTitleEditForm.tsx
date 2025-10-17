@@ -66,8 +66,8 @@ const ConversationTitleEditForm = ({ onClose, conversation }: {
       const updateData = {
         ...updatedFields,
         archivedByIds: archived
-          ? [...(updatedFields.archivedByIds ?? []), currentUser!._id]
-          : (updatedFields.archivedByIds ?? []).filter(id => id !== currentUser!._id),
+          ? [...(conversation.archivedByIds ?? []), currentUser!._id]
+          : (conversation.archivedByIds ?? []).filter(id => id !== currentUser!._id),
       }
 
       try {
