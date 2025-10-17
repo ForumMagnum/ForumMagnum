@@ -493,6 +493,7 @@ export const SunshineUsersList = gql(`
     lastNotificationsCheck
     
     lastRemovedFromReviewQueueAt
+    rejectedContentCount
   }
 `)
 

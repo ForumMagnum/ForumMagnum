@@ -8068,6 +8068,7 @@ type User {
   karmaChanges(startDate: Date, endDate: Date): KarmaChanges
   recommendationSettings: JSON
   lastRemovedFromReviewQueueAt: Date
+  rejectedContentCount: Int
 }
 
 enum ReactPaletteStyle {

@@ -96,6 +96,7 @@ const ModerationInboxList = ({
               <ModerationInboxItem
                 key={user._id}
                 user={user}
+                reviewGroup={group}
                 isFocused={user._id === focusedUserId}
                 onFocus={() => onFocusUser(user._id)}
                 onOpen={() => onOpenUser(user._id)}

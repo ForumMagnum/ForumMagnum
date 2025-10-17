@@ -9,8 +9,9 @@ import DescriptionIcon from '@/lib/vendor/@material-ui/icons/src/Description'
 import MessageIcon from '@/lib/vendor/@material-ui/icons/src/Message'
 import { usePublishedPosts } from '@/components/hooks/usePublishedPosts';
 import { AUTO_BLOCKED_FROM_SENDING_DMS, FLAGGED_FOR_N_DMS, MANUAL_FLAG_ALERT, MANUAL_NEEDS_REVIEW, MANUAL_RATE_LIMIT_EXPIRED, POTENTIAL_TARGETED_DOWNVOTING, RECEIVED_SENIOR_DOWNVOTES_ALERT, RECEIVED_VOTING_PATTERN_WARNING, SNOOZE_EXPIRED, STRICTER_COMMENT_AUTOMOD_RATE_LIMIT, STRICTER_POST_AUTOMOD_RATE_LIMIT, UNREVIEWED_BIO_UPDATE, UNREVIEWED_FIRST_COMMENT, UNREVIEWED_FIRST_POST, UNREVIEWED_MAP_LOCATION_UPDATE, UNREVIEWED_PROFILE_IMAGE_UPDATE } from '@/lib/collections/moderatorActions/constants';
-import { partitionModeratorActions } from './groupings';
+import { partitionModeratorActions, ReviewGroup } from './groupings';
 import ForumIcon from '@/components/common/ForumIcon';
+import { htmlToTextDefault } from '@/lib/htmlToText';
 
 const styles = defineStyles('ModerationInboxItem', (theme: ThemeType) => ({
   root: {
@@ -41,6 +42,7 @@ const styles = defineStyles('ModerationInboxItem', (theme: ThemeType) => ({
     color: theme.palette.grey[900],
     marginRight: 12,
     width: 140,
+    minWidth: 140,
     overflow: 'hidden',
     textOverflow: 'ellipsis',
     whiteSpace: 'nowrap',
@@ -110,11 +112,25 @@ const styles = defineStyles('ModerationInboxItem', (theme: ThemeType) => ({
   wideContentCountItem: {
     width: 50,
   },
+  deemphasizedContentCountItem: {
+    opacity: 0.5,
+  },
   icon: {
     height: 13,
     color: theme.palette.grey[500],
     position: "relative",
     top: 3
+  },
+  contextualInfo: {
+  },
+  bioPreview: {
+    fontSize: 13,
+    color: theme.palette.grey[600],
+    marginRight: 12,
+    minWidth: 24,
+    overflow: 'hidden',
+    textOverflow: 'ellipsis',
+    whiteSpace: 'nowrap',
   },
 }));
 
@@ -182,11 +198,13 @@ function getFallbackDisplayedModeratorAction(user: SunshineUsersList): string | 
 
 const ModerationInboxItem = ({
   user,
+  reviewGroup,
   isFocused,
   onFocus,
   onOpen,
 }: {
   user: SunshineUsersList;
+  reviewGroup: ReviewGroup;
   isFocused: boolean;
   onFocus: () => void;
   onOpen: () => void;
@@ -198,7 +216,7 @@ const ModerationInboxItem = ({
   const fallbackDisplayedModeratorAction = getFallbackDisplayedModeratorAction(user);
 
   const { fresh: freshModeratorActions, stale: staleModeratorActions } = partitionModeratorActions(user);
-  const freshModeratorActionBadges = freshModeratorActions.map(action => getPrimaryDisplayedModeratorAction(action.type));
+  const freshModeratorActionBadges = [...new Set(freshModeratorActions.map(action => getPrimaryDisplayedModeratorAction(action.type)))];
   const staleModeratorActionBadges = staleModeratorActions.map(action => getPrimaryDisplayedModeratorAction(action.type));
   const allModeratorActionBadges = [...freshModeratorActionBadges, ...staleModeratorActionBadges];
 
@@ -225,17 +243,21 @@ const ModerationInboxItem = ({
         <FormatDate date={user.createdAt} />
       </div>
       <div className={classes.contentCounts}>
-        <span className={classes.contentCountItem}>
+        <span className={classNames(classes.contentCountItem, !user.postCount && classes.deemphasizedContentCountItem)}>
           <DescriptionIcon className={classes.icon} />
           {user.postCount}
         </span>
-        <span className={classes.wideContentCountItem}>
+        <span className={classNames(classes.wideContentCountItem, !user.commentCount && classes.deemphasizedContentCountItem)}>
           <MessageIcon className={classes.icon} />
           {user.commentCount}
         </span>
-        <span className={classes.contentCountItem}>
+        <span className={classNames(classes.contentCountItem, !user.usersContactedBeforeReview?.length && classes.deemphasizedContentCountItem)}>
           <ForumIcon icon="Email" className={classes.icon} />
           {user.usersContactedBeforeReview?.length ?? 0}
+        </span>
+        <span className={classNames(classes.contentCountItem, !user.rejectedContentCount && classes.deemphasizedContentCountItem)}>
+          <ForumIcon icon="NotInterested" className={classes.icon} />
+          {user.rejectedContentCount}
         </span>
       </div>
       <div className={classes.icons}>
@@ -256,6 +278,12 @@ const ModerationInboxItem = ({
           {badge}
         </div>
       ))}
+
+      <div className={classes.contextualInfo}>
+        {reviewGroup === 'maybeSpam' && (
+          <div className={classes.bioPreview}>{htmlToTextDefault(user.htmlBio)}</div>
+        )}
+      </div>
 
       {showEmail && (
         <div className={classes.email}>

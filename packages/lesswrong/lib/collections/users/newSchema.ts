@@ -4276,6 +4276,18 @@ const schema = {
       },
     },
   },
+  rejectedContentCount: {
+    graphql: {
+      outputType: "Int",
+      canRead: ["sunshineRegiment", "admins"],
+      resolver: async (user, args, context) => {
+        const { Posts, Comments } = context;
+        const postCount = await Posts.find({ userId: user._id, rejected: true }).count();
+        const commentCount = await Comments.find({ userId: user._id, rejected: true }).count();
+        return postCount + commentCount;
+      },
+    }
+  },
 } satisfies Record<string, CollectionFieldSpecification<"Users">>;
 
 export default schema;

@@ -7462,6 +7462,7 @@ interface User {
   karmaChanges: KarmaChanges | null;
   recommendationSettings: any;
   lastRemovedFromReviewQueueAt: Date | null;
+  rejectedContentCount: number | null;
 }
 
 interface UserSelectorUniqueInput {
