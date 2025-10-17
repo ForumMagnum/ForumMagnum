@@ -50,6 +50,7 @@ const styles = defineStyles('ModerationSidebar', (theme: ThemeType) => ({
   },
   section: {
     marginBottom: 24,
+    minHeight: 100,
   },
   sectionTitle: {
     fontSize: 12,
