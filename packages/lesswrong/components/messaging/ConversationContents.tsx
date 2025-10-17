@@ -55,10 +55,15 @@ const styles = (theme: ThemeType) => ({
     justifyContent: "space-between",
   },
   messagesContainer: {
-    display: "flex",
+    height: '100%',
   },
   messagesColumn: {
+    position: "relative",
+    height: "100%",
     width: "100%",
+    display: "flex",
+    flexDirection: "column",
+    justifyContent: "space-between",
     [theme.breakpoints.down("xs")]: {
       width: "calc(100% - 5px)",
     },
@@ -162,41 +167,39 @@ const ConversationContents = ({
   if (!conversation) return <Error404 />;
 
   return (
-    <div>
-      <div className={classes.messagesContainer}>
-        <div className={classes.messagesColumn}>
-          {renderMessages()}
-          <div className={classes.editor}>
-            <MessagesNewForm
-              key={`sendMessage-${messageSentCount}`}
-              conversationId={conversation._id}
-              templateQueries={{ templateId: query.templateId, displayName: query.displayName }}
-              formStyle="minimalist"
-              successEvent={(newMessage) => {
-                setMessageSentCount(messageSentCount + 1);
-                captureEvent("messageSent", {
-                  conversationId: conversation._id,
-                  sender: currentUser._id,
-                  participantIds: conversation.participantIds,
-                  messageCount: (conversation.messageCount || 0) + 1,
-                  ...(profileViewedFrom?.current && { from: profileViewedFrom.current }),
-                });
-                updateQuery((_, { previousData }) => {
-                  const previousResults = previousData?.messages?.results ?? [];
-                  const previousMessages = previousResults.filter((m): m is messageListFragment => m !== undefined) ?? [];
+    <div className={classes.messagesContainer}>
+      <div className={classes.messagesColumn}>
+        {renderMessages()}
+        <div className={classes.editor}>
+          <MessagesNewForm
+            key={`sendMessage-${messageSentCount}`}
+            conversationId={conversation._id}
+            templateQueries={{ templateId: query.templateId, displayName: query.displayName }}
+            formStyle="minimalist"
+            successEvent={(newMessage) => {
+              setMessageSentCount(messageSentCount + 1);
+              captureEvent("messageSent", {
+                conversationId: conversation._id,
+                sender: currentUser._id,
+                participantIds: conversation.participantIds,
+                messageCount: (conversation.messageCount || 0) + 1,
+                ...(profileViewedFrom?.current && { from: profileViewedFrom.current }),
+              });
+              updateQuery((_, { previousData }) => {
+                const previousResults = previousData?.messages?.results ?? [];
+                const previousMessages = previousResults.filter((m): m is messageListFragment => m !== undefined) ?? [];
 
-                  return {
-                    __typename: "Query" as const,
-                    messages: {
-                      __typename: "MultiMessageOutput" as const,
-                      results: [...previousMessages, newMessage],
-                      totalCount: previousData?.messages?.totalCount ? previousData?.messages?.totalCount + 1 : 1,
-                    },
-                  }
-                })
-              }}
-            />
-          </div>
+                return {
+                  __typename: "Query" as const,
+                  messages: {
+                    __typename: "MultiMessageOutput" as const,
+                    results: [...previousMessages, newMessage],
+                    totalCount: previousData?.messages?.totalCount ? previousData?.messages?.totalCount + 1 : 1,
+                  },
+                }
+              })
+            }}
+          />
         </div>
       </div>
     </div>

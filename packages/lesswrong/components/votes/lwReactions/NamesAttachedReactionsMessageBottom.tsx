@@ -1,25 +1,10 @@
-import React, { useRef, useContext, RefObject } from 'react';
+import React, { useRef } from 'react';
 import type { NamesAttachedReactionsMessageBottomProps } from '@/lib/voting/votingSystemTypes';
-import type { QuoteLocator, EmojiReactName, NamesAttachedReactionsList, UserReactInfo } from '../../../lib/voting/namesAttachedReactions';
 import { reactionsListToDisplayedNumbers, getNormalizedReactionsListFromVoteProps } from '@/lib/voting/reactionDisplayHelpers';
 import { useCurrentUserId } from '../../common/withUser';
-import { useNamesAttachedReactionsVoting, AddReactionButton } from './NamesAttachedReactionsVoteOnComment';
+import { AddReactionButton, HoverableReactionIcon } from './NamesAttachedReactionsVoteOnComment';
 import { defineStyles, useStyles } from '@/components/hooks/useStyles';
 import classNames from 'classnames';
-import type { VotingProps } from '../votingProps';
-import { useHover } from '../../common/withHover';
-import { SetHoveredReactionContext } from './HoveredReactionContextProvider';
-import { isMobile } from '../../../lib/utils/isMobile';
-import ReactionIcon from "../ReactionIcon";
-import LWPopper from '@/components/common/LWPopper';
-import { ContentItemBodyImperative } from '@/components/contents/contentBodyUtil';
-import { Card } from '@/components/widgets/Paper';
-import filter from 'lodash/filter';
-import uniq from 'lodash/uniq';
-import { slugify } from '@/lib/utils/slugify';
-import { filterNonnull } from '@/lib/utils/typeGuardUtils';
-import ReactionHoverTopRow from './ReactionHoverTopRow';
-import ReactionQuotesHoverInfo from './ReactionQuotesHoverInfo';
 import AddInlineReactionButton from './AddInlineReactionButton';
 
 const styles = defineStyles("NamesAttachedReactionsMessageBottom", (theme: ThemeType) => ({
@@ -127,7 +112,17 @@ const styles = defineStyles("NamesAttachedReactionsMessageBottom", (theme: Theme
     borderRadius: '50%',
     opacity: 0.15,
   },
-}));
+  currentUserPalettePositioning: {
+    right: -10,
+    left: 'unset',
+    top: 0,
+  },
+  otherUserPalettePositioning: {
+    left: -10,
+    right: 'unset',
+    top: 0,
+  },
+}), { stylePriority: 1 });
 
 const NamesAttachedReactionsMessageBottom = ({
   voteProps,
@@ -164,6 +159,7 @@ const NamesAttachedReactionsMessageBottom = ({
                 voteProps={voteProps}
                 invertColors={!invertColors}
                 quote={null}
+                style="message"
               />
             ))}
           </div>
@@ -181,8 +177,9 @@ const NamesAttachedReactionsMessageBottom = ({
               voteProps={voteProps}
               quote={selection.text}
               disabled={selection.disabled}
-              tooltipClassName={classes.inlineReactionButtonTooltip}
+              wrapperClassName={classes.inlineReactionButtonTooltip}
               iconClassName={classes.inlineReactionButtonIcon}
+              paletteClassName={isCurrentUser ? classes.currentUserPalettePositioning : classes.otherUserPalettePositioning}
             />
           : <AddReactionButton title="Add reaction" voteProps={voteProps} />
         }
@@ -190,122 +187,5 @@ const NamesAttachedReactionsMessageBottom = ({
     </>
   );
 };
-
-const HoverableReactionIcon = ({reactionRowRef, react, numberShown, voteProps, quote, commentBodyRef, invertColors=false}: {
-  // reactionRowRef: Reference to the row of reactions, used as an anchor for the
-  // hover instead of the individual icon, so that the hover's position stays
-  // consistent as you move the mouse across the row.
-  reactionRowRef: RefObject<HTMLElement|null>,
-  react: string,
-  numberShown: number,
-  voteProps: VotingProps<VoteableTypeClient>,
-  quote: QuoteLocator|null,
-  commentBodyRef?: React.RefObject<ContentItemBodyImperative|null>|null,
-  invertColors?: boolean,
-}) => {
-  const classes = useStyles(styles);
-  const { hover, eventHandlers: {onMouseOver, onMouseLeave} } = useHover();
-  const { getCurrentUserReaction, getCurrentUserReactionVote, toggleReaction } = useNamesAttachedReactionsVoting(voteProps);
-  const currentUserReactionVote = getCurrentUserReactionVote(react, quote);
-  const currentUserReaction = getCurrentUserReaction(react, quote)
-  const setHoveredReaction = useContext(SetHoveredReactionContext);
-
-  const alreadyUsedReactions: NamesAttachedReactionsList|undefined = getNormalizedReactionsListFromVoteProps(voteProps)?.reacts;
-  const reactions: UserReactInfo[] = alreadyUsedReactions?.[react] ?? []
-  const quotes = reactions.flatMap(r => r.quotes)
-  const quotesWithUndefinedRemoved = filter(quotes, q => q !== undefined) as string[]
-
-  function reactionClicked(reaction: EmojiReactName) {
-    // The only way to "hover" over reactions to see who left them on mobile is to click on them
-    // So let's not actually have clicking on a reaction cause the user to apply it, when on mobile
-    // They can still apply it from the displayed summary card, if they want
-    if (isMobile() || currentUserReaction?.quotes?.length) return
-    toggleReaction(reaction, quote);
-  }
-
-  function handleMouseEnter (e: any) {
-    setHoveredReaction?.({reactionName: react, isHovered: true, quote: null});
-    onMouseOver(e);
-  }
-  
-  function handleMouseLeave (ev: React.MouseEvent<HTMLElement>) {
-    setHoveredReaction?.({reactionName: react, isHovered: false, quote: null});
-    onMouseLeave(ev);
-  }
-
-  const showDefaultBackground = currentUserReactionVote==="created"||currentUserReactionVote==="seconded"
-  const showInvertedBackground = invertColors && (currentUserReactionVote==="created"||currentUserReactionVote==="seconded")
-
-  return <span onMouseEnter={handleMouseEnter} onMouseLeave={handleMouseLeave}>
-    <span
-      className={classNames(
-        classes.footerReaction,
-        {
-          [classes.hasQuotes]: quotesWithUndefinedRemoved.length > 0,
-        },
-      )}
-    >
-      <span onMouseDown={()=>{reactionClicked(react)}}>
-        <ReactionIcon react={react} inverted={invertColors} />
-      </span>
-      <span className={classNames(classes.reactionCount, {
-        [classes.invertColors]: invertColors,
-      })}>
-        {numberShown}
-      </span>
-  
-      {hover && reactionRowRef?.current && <LWPopper
-        open={!!hover} anchorEl={reactionRowRef.current}
-        placement="bottom-end"
-        allowOverflow={true}
-      >
-        {/*
-          Add a 50px hoverable spacer left of the popup, below the reactions list,
-          so that the mouse has somewhere hoverable to cross when going from the
-          leftmost reactions to the hover form.
-        */}
-        <div className={classes.mouseHoverTrap} style={{width: reactionRowRef.current.clientWidth}}/>
-        <Card>
-          <NamesAttachedReactionsHoverSingleReaction
-            react={react} voteProps={voteProps}
-            commentBodyRef={commentBodyRef}
-          />
-        </Card>
-      </LWPopper>}
-    </span>
-  </span>
-}
-
-const NamesAttachedReactionsHoverSingleReaction = ({react, voteProps, commentBodyRef}: {
-  react: EmojiReactName,
-  voteProps: VotingProps<VoteableTypeClient>,
-  commentBodyRef?: React.RefObject<ContentItemBodyImperative|null>|null
-}) => {
-  const classes = useStyles(styles);
-  const normalizedReactions = getNormalizedReactionsListFromVoteProps(voteProps);
-  const alreadyUsedReactions: NamesAttachedReactionsList = normalizedReactions?.reacts ?? {};
-  const relevantReactions = alreadyUsedReactions[react] ?? [];
-
-  // Don't show the "general" (non-quote-specific) ballot for this react if all the instances of this react are inline (quote-specific)
-  const allReactsAreInline = relevantReactions.every(r => r.quotes?.length);
-
-  const allQuotes = filterNonnull(uniq(relevantReactions?.flatMap(r => r.quotes)))
-
-  return <div className={classes.footerReactionHover}>
-    <ReactionHoverTopRow
-      reactionName={react}
-      userReactions={relevantReactions}
-      showNonInlineVoteButtons={!allReactsAreInline}
-      voteProps={voteProps}
-    />
-    {allQuotes.map(quote => <ReactionQuotesHoverInfo
-      key={`${react}-${slugify(quote)}`}
-      react={react}
-      quote={quote}
-      voteProps={voteProps}
-      commentBodyRef={commentBodyRef}
-    />)}
-  </div>
-}
 
 export default NamesAttachedReactionsMessageBottom;
