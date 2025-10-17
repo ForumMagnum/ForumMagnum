@@ -25,7 +25,7 @@ export function useModeratedUserContents(userId: string, contentLimit = 20) {
     ssr: false,
   });
 
-  const comments = useMemo(() => commentsData?.comments?.results ?? [], [commentsData]);
+  const comments = useMemo(() => [...(commentsData?.comments?.results ?? [])], [commentsData]);
 
   return {
     posts,

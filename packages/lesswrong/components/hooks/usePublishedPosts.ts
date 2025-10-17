@@ -1,5 +1,6 @@
 import { useQuery } from "@/lib/crud/useQuery";
 import { gql } from "@/lib/generated/gql-codegen";
+import { useMemo } from "react";
 
 const SunshinePostsListMultiQuery = gql(`
   query multiPostusePublishedPostsQuery($selector: PostSelector, $limit: Int, $enableTotal: Boolean) {
@@ -28,7 +29,7 @@ export function usePublishedPosts(userId: string, contentLimit = 20, ssr = true)
     ssr,
   });
 
-  const posts = data?.posts?.results;
+  const posts = useMemo(() => [...(data?.posts?.results ?? [])], [data]);
 
   return {
     posts: loading ? undefined : posts,
