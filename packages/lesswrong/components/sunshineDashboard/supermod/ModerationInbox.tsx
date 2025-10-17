@@ -89,7 +89,7 @@ const styles = defineStyles('ModerationInbox', (theme: ThemeType) => ({
 // Helper types
 type SunshineUserFragment = FragmentTypes['SunshineUsersList'];
 
-type InboxState = {
+export type InboxState = {
   // The local copy of users (mutated when actions complete)
   users: SunshineUserFragment[];
   // Current active tab
@@ -151,7 +151,7 @@ function getVisibleTabsInOrder(
   return tabs;
 }
 
-function inboxStateReducer(state: InboxState, action: InboxAction): InboxState {
+export function inboxStateReducer(state: InboxState, action: InboxAction): InboxState {
   switch (action.type) {
     case 'INITIALIZE': {
       const users = action.users;
@@ -365,23 +365,15 @@ function inboxStateReducer(state: InboxState, action: InboxAction): InboxState {
       if (nextOrderedUsers.length > 0) {
         const nextUserId = nextOrderedUsers[0]._id;
         
-        if (state.openedUserId) {
-          return {
-            users: newUsers,
-            activeTab: nextTab,
-            focusedUserId: null,
-            openedUserId: nextUserId,
-            isInitialized: true,
-          };
-        } else {
-          return {
-            users: newUsers,
-            activeTab: nextTab,
-            focusedUserId: nextUserId,
-            openedUserId: null,
-            isInitialized: true,
-          };
-        }
+        // When switching tabs due to current tab being empty,
+        // always return to inbox view (not detail view)
+        return {
+          users: newUsers,
+          activeTab: nextTab,
+          focusedUserId: nextUserId,
+          openedUserId: null,
+          isInitialized: true,
+        };
       }
       
       // Fallback: no users anywhere
