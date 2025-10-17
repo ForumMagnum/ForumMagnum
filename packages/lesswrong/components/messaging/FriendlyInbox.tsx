@@ -369,7 +369,7 @@ const FriendlyInbox = ({
               label={<ArchiveIcon className={classes.archivedCheckboxIcon} />}
               value={showArchive}
               onClick={() => navigate({ ...location, search: archiveQueryParam })}
-              tooltip={isModInbox ? "Hide archived messages" : "Show archived messages"}
+              tooltip={showArchive ? "Hide archived messages" : "Show archived messages"}
             />
             <LWTooltip title="Start a new conversation" className={classes.actionIconWrapper}>
               <ForumIcon onClick={openNewConversationDialog} icon="PencilSquare" className={classes.actionIcon} />
