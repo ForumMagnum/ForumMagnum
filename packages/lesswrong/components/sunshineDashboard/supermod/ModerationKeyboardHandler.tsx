@@ -163,6 +163,31 @@ const ModerationKeyboardHandler = ({
     });
   }, [selectedUser, currentUser, getModSignatureWithNote, handleAction, updateUser]);
 
+  const handlePurge = useCallback(() => {
+    if (!selectedUser) return;
+    if (!confirm("Are you sure you want to delete all this user's posts, comments, sequences, and votes?")) return;
+
+    const notes = selectedUser.sunshineNotes || '';
+    const newNotes = getModSignatureWithNote('Purge') + notes;
+    void handleAction(async () => {
+      await updateUser({
+        variables: {
+          selector: { _id: selectedUser._id },
+          data: {
+            sunshineFlagged: false,
+            reviewedByUserId: currentUser._id,
+            nullifyVotes: true,
+            deleteContent: true,
+            needsReview: false,
+            reviewedAt: new Date(),
+            banned: moment().add(1000, 'years').toDate(),
+            sunshineNotes: newNotes,
+          },
+        },
+      });
+    });
+  }, [selectedUser, currentUser, getModSignatureWithNote, handleAction, updateUser]);
+
   const handleFlag = useCallback(() => {
     if (!selectedUser) return;
     const flagStatus = selectedUser.sunshineFlagged ? 'Unflag' : 'Flag';
@@ -263,6 +288,12 @@ const ModerationKeyboardHandler = ({
       execute: handleBan,
     },
     {
+      label: 'Purge User (Delete & Ban)',
+      keystroke: 'P',
+      isDisabled: () => !selectedUser,
+      execute: handlePurge,
+    },
+    {
       label: 'Toggle Flag',
       keystroke: 'F',
       isDisabled: () => !selectedUser,
@@ -299,7 +330,7 @@ const ModerationKeyboardHandler = ({
       execute: onPrevUser,
     },
     {
-      label: 'Open Detail View Foobar',
+      label: 'Open Detail View',
       keystroke: 'enter',
       isDisabled: () => false,
       execute: onOpenDetail,
@@ -310,7 +341,7 @@ const ModerationKeyboardHandler = ({
       isDisabled: () => false,
       execute: onCloseDetail,
     },
-  ], [handleReview, handleSnoozeCustom, handleRemoveNeedsReview, handleBan, handleFlag, handleDisablePosting, handleDisableCommentingOnOthers, handleRestrictAndNotify, onNextUser, onPrevUser, onOpenDetail, onCloseDetail, selectedUser, handleSnooze]);
+  ], [handleReview, handleSnoozeCustom, handleRemoveNeedsReview, handleBan, handlePurge, handleFlag, handleDisablePosting, handleDisableCommentingOnOthers, handleRestrictAndNotify, onNextUser, onPrevUser, onOpenDetail, onCloseDetail, selectedUser, handleSnooze]);
 
   useGlobalKeydown(
     useCallback(
@@ -394,6 +425,9 @@ const ModerationKeyboardHandler = ({
         } else if (event.key === 'b') {
           event.preventDefault();
           handleBan();
+        } else if (event.key === 'p') {
+          event.preventDefault();
+          handlePurge();
         } else if (event.key === 'f') {
           event.preventDefault();
           handleFlag();
@@ -420,6 +454,7 @@ const ModerationKeyboardHandler = ({
         handleRemoveNeedsReview,
         handleRestrictAndNotify,
         handleBan,
+        handlePurge,
         handleFlag,
         handleDisablePosting,
         handleDisableCommentingOnOthers,
