@@ -141,11 +141,11 @@ const styles = defineStyles('ModerationSidebar', (theme: ThemeType) => ({
 const ModerationSidebar = ({
   user,
   currentUser,
-  onActionComplete,
+  inDetailView,
 }: {
   user: SunshineUsersList;
   currentUser: UsersCurrent;
-  onActionComplete: () => void;
+  inDetailView: boolean;
 }) => {
   const classes = useStyles(styles);
   const [notes, setNotes] = useState(user.sunshineNotes);
@@ -218,31 +218,36 @@ const ModerationSidebar = ({
         </div>
       </div>
 
-      <div className={classes.section}>
-        <div className={classes.sectionTitle}>Content Summary</div>
-        <div className={classes.contentSummary}>
-          <ContentSummaryRows user={user} posts={posts} comments={comments} loading={false} />
+      {!inDetailView && (
+        <div className={classes.section}>
+          <div className={classes.sectionTitle}>Content Summary</div>
+          <div className={classes.contentSummary}>
+            <ContentSummaryRows user={user} posts={posts} comments={comments} loading={false} />
+          </div>
         </div>
-      </div>
+      )}
 
-      <div className={classes.section}>
+      {!inDetailView && <div className={classes.section}>
         <div className={classes.sectionTitle}>Automod Rate Limits</div>
         <div className={classes.rateLimits}>
           <UserAutoRateLimitsDisplay user={user} showKarmaMeta />
         </div>
-      </div>
+      </div>}
 
       <div className={classes.section}>
         <div className={classes.sectionTitle}>User Messages</div>
         <div className={classes.userMessages}>
+          {/* TODO: maybe "expand" should actually open a model with the contents, since expanding a conversation inline is kind of annoying with the "no overflow" thing */}
           <SunshineUserMessages user={user} currentUser={currentUser} />
         </div>
       </div>
       
-      <div className={classes.scrollableSection}>
-        <div className={classes.sectionTitle}>Bio</div>
-        <div className={classes.bioContainer} dangerouslySetInnerHTML={{ __html: user.htmlBio }} />
-      </div>
+      {!inDetailView && (
+        <div className={classes.scrollableSection}>
+          <div className={classes.sectionTitle}>Bio</div>
+          <div className={classes.bioContainer} dangerouslySetInnerHTML={{ __html: user.htmlBio }} />
+        </div>
+      )}
     </div>
   );
 };

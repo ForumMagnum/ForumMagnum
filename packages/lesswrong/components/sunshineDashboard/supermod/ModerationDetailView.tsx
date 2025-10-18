@@ -1,28 +1,26 @@
 import React, { useState } from 'react';
 import { defineStyles, useStyles } from '@/components/hooks/useStyles';
 import UsersName from '@/components/users/UsersName';
-import FlagIcon from '@/lib/vendor/@material-ui/icons/src/Flag';
-import FirstContentIcons from '../FirstContentIcons';
-import MetaInfo from '@/components/common/MetaInfo';
-import { getReasonForReview } from '@/lib/collections/moderatorActions/helpers';
 import { truncate } from '@/lib/editor/ellipsize';
 import SunshineNewUserPostsList from '../SunshineNewUserPostsList';
 import SunshineNewUserCommentsList from '../SunshineNewUserCommentsList';
-import { usePublishedPosts } from '@/components/hooks/usePublishedPosts';
-import { useQuery } from '@/lib/crud/useQuery';
-import { gql } from '@/lib/generated/gql-codegen';
-import { CONTENT_LIMIT } from '../UsersReviewInfoCard';
+import { useModeratedUserContents } from '@/components/hooks/useModeratedUserContents';
+import classNames from 'classnames';
+import { getPrimaryDisplayedModeratorAction, partitionModeratorActions } from './groupings';
+import ReviewTriggerBadge from './ReviewTriggerBadge';
+import DescriptionIcon from '@/lib/vendor/@material-ui/icons/src/Description'
+import ForumIcon from '@/components/common/ForumIcon';
+import PostKarmaWithPreview from '../PostKarmaWithPreview';
+import CommentKarmaWithPreview from '../CommentKarmaWithPreview';
+import { maybeDate } from '@/lib/utils/dateUtils';
+import LWTooltip from '@/components/common/LWTooltip';
+import UserAutoRateLimitsDisplay from '../ModeratorUserInfo/UserAutoRateLimitsDisplay';
 
-const CommentsListWithParentMetadataMultiQuery = gql(`
-  query multiCommentModerationDetailViewQuery($selector: CommentSelector, $limit: Int, $enableTotal: Boolean) {
-    comments(selector: $selector, limit: $limit, enableTotal: $enableTotal) {
-      results {
-        ...CommentsListWithParentMetadata
-      }
-      totalCount
-    }
-  }
-`);
+const sharedVoteStyles = {
+  marginLeft: 4,
+  marginRight: 4,
+  borderRadius: "50%",
+};
 
 const styles = defineStyles('ModerationDetailView', (theme: ThemeType) => ({
   root: {
@@ -33,6 +31,7 @@ const styles = defineStyles('ModerationDetailView', (theme: ThemeType) => ({
     padding: '20px 24px',
     borderBottom: theme.palette.border.normal,
     backgroundColor: theme.palette.grey[50],
+    ...theme.typography.commentStyle,
   },
   headerTop: {
     display: 'flex',
@@ -42,28 +41,79 @@ const styles = defineStyles('ModerationDetailView', (theme: ThemeType) => ({
   displayName: {
     fontSize: 24,
     fontWeight: 600,
-    marginRight: 12,
+    marginRight: 36,
   },
   karma: {
-    fontSize: 16,
+    fontSize: 14,
     color: theme.palette.grey[600],
     marginRight: 12,
+    marginTop: 3,
   },
-  icons: {
-    display: 'flex',
-    alignItems: 'center',
-    gap: 4,
-  },
-  flagIcon: {
-    height: 16,
-    width: 16,
-    color: theme.palette.error.main,
+  email: {
+    color: theme.palette.grey[600],
+    marginTop: 3,
   },
   metadata: {
     display: 'flex',
+    alignItems: 'flex-end',
     gap: 16,
     fontSize: 13,
     color: theme.palette.grey[600],
+    height: 20,
+    position: 'relative',
+  },
+  contentCounts: {
+    color: theme.palette.grey[600],
+    display: 'flex',
+    alignItems: 'center',
+    flexShrink: 0,
+    marginBottom: 2,
+    gap: 8,
+  },
+  contentCountItem: {
+    display: 'flex',
+    alignItems: 'flex-start',
+  },
+  wideContentCountItem: {
+  },
+  deemphasizedContentCountItem: {
+    opacity: 0.5,
+  },
+  icon: {
+    height: 13,
+    color: theme.palette.grey[500],
+    position: "relative",
+    top: 2
+  },
+  votesLabel: {
+    marginLeft: 8,
+  },
+  bigDownvotes: {
+    color: theme.palette.error.dark,
+    ...sharedVoteStyles,
+    fontWeight: 600,
+  },
+  downvotes: {
+    color: theme.palette.error.dark,
+    opacity: .75,
+    ...sharedVoteStyles,
+  },
+  upvotes: {
+    color: theme.palette.primary.dark,
+    opacity: .75,
+    ...sharedVoteStyles,
+  },
+  bigUpvotes: {
+    color: theme.palette.primary.dark,
+    ...sharedVoteStyles,
+    fontWeight: 600,
+  },
+  rateLimits: {
+    right: 12,
+    position: 'absolute',
+  },
+  bioSection: {
+    ...theme.typography.commentStyle,
   },
   section: {
     padding: '20px 24px',
@@ -96,6 +146,7 @@ const styles = defineStyles('ModerationDetailView', (theme: ThemeType) => ({
   },
   contentSection: {
     padding: 0,
+    maxWidth: 720,
   },
   expandButton: {
     cursor: 'pointer',
@@ -106,37 +157,122 @@ const styles = defineStyles('ModerationDetailView', (theme: ThemeType) => ({
       textDecoration: 'underline',
     },
   },
+  contentSummary: {
+    marginTop: 12,
+    display: 'flex',
+    flexDirection: 'column',
+    gap: 8,
+    fontSize: 13,
+  },
+  contentSummaryRow: {
+    display: 'flex',
+    alignItems: 'center',
+    flexWrap: 'wrap',
+  },
+  summaryIcon: {
+    height: 13,
+    color: theme.palette.grey[500],
+    position: "relative",
+    top: 3,
+    marginRight: 4,
+  },
+  averageKarma: {
+    color: theme.palette.grey[500],
+    fontSize: 13,
+    marginLeft: 7,
+  },
+  hiddenCount: {
+    color: theme.palette.grey[500],
+    fontSize: 13,
+    marginLeft: 4,
+  },
 }));
 
 const DEFAULT_BIO_WORDCOUNT = 250;
 const MAX_BIO_WORDCOUNT = 10000;
 
+function getAverageBaseScore(contentItems: Array<SunshinePostsList | CommentsListWithParentMetadata>) {
+  const average = contentItems.reduce((sum, item) => (item.baseScore ?? 0) + sum, 0) / contentItems.length;
+  return average.toFixed(1);
+};
+
+function sortContentByPostedAt<T extends { postedAt: string }>(contentItems: Array<T>) {
+  return contentItems.sort((a, b) => (maybeDate(a.postedAt).getTime() ?? 0) - (maybeDate(b.postedAt).getTime() ?? 0));
+}
+
+interface ContentSummaryRowBaseProps {
+  user: SunshineUsersList;
+}
+
+type ContentSummaryRowProps = ContentSummaryRowBaseProps & (
+  | { type: 'posts', items: SunshinePostsList[] }
+  | { type: 'comments', items: CommentsListWithParentMetadata[] }
+);
+
+const ContentSummaryRow = ({ user, type, items }: ContentSummaryRowProps) => {
+  const classes = useStyles(styles);
+
+  const maxContentCountField = type === 'posts' ? 'maxPostCount' : 'maxCommentCount';
+  const contentCountField = type === 'posts' ? 'postCount' : 'commentCount';
+
+  const hiddenContentCount = user[maxContentCountField] - user[contentCountField];
+  const averageContentKarma = items.length > 0 ? getAverageBaseScore(items) : null;
+
+  return (
+    <div className={classes.contentSummaryRow}>
+      <LWTooltip title="Post count">
+        <span>
+          {user.postCount || 0}
+          <DescriptionIcon className={classes.summaryIcon} />
+        </span>
+      </LWTooltip>
+      {type === 'posts' ? (
+        sortContentByPostedAt(items).map(content => (
+          <PostKarmaWithPreview 
+            key={content._id} 
+            post={content} 
+            reviewedAt={maybeDate(user.reviewedAt) ?? undefined} 
+            displayTitle={false}
+          />
+        ))
+      ) : (
+        sortContentByPostedAt(items).map(content => (
+          <CommentKarmaWithPreview 
+            key={content._id} 
+            comment={content} 
+            reviewedAt={maybeDate(user.reviewedAt) ?? undefined} 
+            displayTitle={false}
+          />
+        ))
+      )}
+      {hiddenContentCount > 0 && (
+        <span className={classes.hiddenCount}>
+          ({hiddenContentCount} drafted or rejected)
+        </span>
+      )}
+      {averageContentKarma && (
+        <LWTooltip title="average karma">
+          <span className={classes.averageKarma}>
+            {averageContentKarma}
+          </span>
+        </LWTooltip>
+      )}
+    </div>
+  );
+};
+
 const ModerationDetailView = ({
   user,
-  currentUser,
-  onActionComplete,
 }: {
   user: SunshineUsersList;
-  currentUser: UsersCurrent;
-  onActionComplete: () => void;
 }) => {
   const classes = useStyles(styles);
   const [bioWordcount, setBioWordcount] = useState(DEFAULT_BIO_WORDCOUNT);
 
-  const { posts = [], loading: postsLoading } = usePublishedPosts(user._id, CONTENT_LIMIT);
+  const { posts, comments } = useModeratedUserContents(user._id);
 
-  const { data, loading: commentsLoading } = useQuery(CommentsListWithParentMetadataMultiQuery, {
-    variables: {
-      selector: { sunshineNewUsersComments: { userId: user._id } },
-      limit: CONTENT_LIMIT,
-      enableTotal: false,
-    },
-    fetchPolicy: 'cache-and-network',
-  });
-
-  const comments = data?.comments?.results ?? [];
-
-  const { reason: reviewTrigger } = getReasonForReview(user);
+  const { fresh: freshModeratorActions } = partitionModeratorActions(user);
+  const likelyReviewTrigger = [...new Set(freshModeratorActions.map(action => getPrimaryDisplayedModeratorAction(action.type)))].reverse().at(0);
 
   const truncatedHtml = truncate(user.htmlBio, bioWordcount, 'words');
   const bioNeedsTruncation = user.htmlBio && user.htmlBio.length > truncatedHtml.length;
@@ -151,31 +287,51 @@ const ModerationDetailView = ({
           <div className={classes.karma}>
             {user.karma || 0} karma
           </div>
-          <div className={classes.icons}>
-            <FirstContentIcons user={user} />
-            {user.sunshineFlagged && <FlagIcon className={classes.flagIcon} />}
+          <div className={classes.email}>
+            {user.email}
           </div>
         </div>
         <div className={classes.metadata}>
-          {reviewTrigger && reviewTrigger !== 'alreadyApproved' && reviewTrigger !== 'noReview' && (
-            <MetaInfo>
-              Review trigger: {reviewTrigger}
-            </MetaInfo>
+          {likelyReviewTrigger && (
+            <ReviewTriggerBadge badge={likelyReviewTrigger} />
           )}
-          <MetaInfo>
-            {user.postCount || 0} posts
-          </MetaInfo>
-          <MetaInfo>
-            {user.commentCount || 0} comments
-          </MetaInfo>
-          <MetaInfo>
-            {user.voteCount || 0} votes
-          </MetaInfo>
+          <div className={classes.contentCounts}>
+            <span className={classNames(classes.contentCountItem, !user.usersContactedBeforeReview?.length && classes.deemphasizedContentCountItem)}>
+              <ForumIcon icon="Email" className={classes.icon} />
+              {user.usersContactedBeforeReview?.length ?? 0}
+            </span>
+            <span className={classNames(classes.contentCountItem, !user.rejectedContentCount && classes.deemphasizedContentCountItem)}>
+              <ForumIcon icon="NotInterested" className={classes.icon} />
+              {user.rejectedContentCount}
+            </span>
+            <span className={classes.votesLabel}>Votes:</span>
+            <span className={classes.bigUpvotes}>
+              {user.bigUpvoteCount ?? 0}
+            </span>
+            <span className={classes.upvotes}>
+              {user.smallUpvoteCount ?? 0}
+            </span>
+            <span className={classes.downvotes}>
+              {user.smallDownvoteCount ?? 0}
+            </span>
+            <span className={classes.bigDownvotes}>
+              {user.bigDownvoteCount ?? 0}
+            </span>
+          </div>
+          <div className={classes.rateLimits}>
+            <UserAutoRateLimitsDisplay user={user} showKarmaMeta absolute />
+          </div>
         </div>
+        {(posts.length > 0 || comments.length > 0) && (
+          <div className={classes.contentSummary}>
+            {posts.length > 0 && <ContentSummaryRow user={user} type="posts" items={posts} />}
+            {comments.length > 0 && <ContentSummaryRow user={user} type="comments" items={comments} />}
+          </div>
+        )}
       </div>
 
       {(user.htmlBio || user.website) && (
-        <div className={classes.section}>
+        <div className={classNames(classes.section, classes.bioSection)}>
           <div className={classes.sectionTitle}>About</div>
           {user.htmlBio && (
             <div>

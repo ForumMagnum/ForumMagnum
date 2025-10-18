@@ -16371,6 +16371,25 @@ type markConversationReadMutationVariables = Exact<{
 
 type markConversationReadMutation = markConversationReadMutation_Mutation;
 
+type multiCommentModerationSidebarQueryQuery_comments_MultiCommentOutput_results_Comment = (
+  { __typename?: 'Comment' }
+  & CommentsListWithParentMetadata
+);
+
+type multiCommentModerationSidebarQueryQuery_comments_MultiCommentOutput = { __typename?: 'MultiCommentOutput', totalCount: number | null, results: Array<multiCommentModerationSidebarQueryQuery_comments_MultiCommentOutput_results_Comment> };
+
+type multiCommentModerationSidebarQueryQuery_Query = { __typename?: 'Query', comments: multiCommentModerationSidebarQueryQuery_comments_MultiCommentOutput | null };
+
+
+type multiCommentModerationSidebarQueryQueryVariables = Exact<{
+  selector: InputMaybe<CommentSelector>;
+  limit: InputMaybe<Scalars['Int']['input']>;
+  enableTotal: InputMaybe<Scalars['Boolean']['input']>;
+}>;
+
+
+type multiCommentModerationSidebarQueryQuery = multiCommentModerationSidebarQueryQuery_Query;
+
 type multiSubscriptionuseNotifyMeQueryQuery_subscriptions_MultiSubscriptionOutput_results_Subscription = (
   { __typename?: 'Subscription' }
   & SubscriptionState
@@ -21522,25 +21541,6 @@ type multiCommentRejectedCommentsListQueryQueryVariables = Exact<{
 
 type multiCommentRejectedCommentsListQueryQuery = multiCommentRejectedCommentsListQueryQuery_Query;
 
-type multiCommentModerationDetailViewQueryQuery_comments_MultiCommentOutput_results_Comment = (
-  { __typename?: 'Comment' }
-  & CommentsListWithParentMetadata
-);
-
-type multiCommentModerationDetailViewQueryQuery_comments_MultiCommentOutput = { __typename?: 'MultiCommentOutput', totalCount: number | null, results: Array<multiCommentModerationDetailViewQueryQuery_comments_MultiCommentOutput_results_Comment> };
-
-type multiCommentModerationDetailViewQueryQuery_Query = { __typename?: 'Query', comments: multiCommentModerationDetailViewQueryQuery_comments_MultiCommentOutput | null };
-
-
-type multiCommentModerationDetailViewQueryQueryVariables = Exact<{
-  selector: InputMaybe<CommentSelector>;
-  limit: InputMaybe<Scalars['Int']['input']>;
-  enableTotal: InputMaybe<Scalars['Boolean']['input']>;
-}>;
-
-
-type multiCommentModerationDetailViewQueryQuery = multiCommentModerationDetailViewQueryQuery_Query;
-
 type multiUserModerationInboxQueryQuery_users_MultiUserOutput_results_User = (
   { __typename?: 'User' }
   & SunshineUsersList
@@ -21595,25 +21595,6 @@ type updateUserModerationSidebarMutationVariables = Exact<{
 
 
 type updateUserModerationSidebarMutation = updateUserModerationSidebarMutation_Mutation;
-
-type multiCommentModerationSidebarQueryQuery_comments_MultiCommentOutput_results_Comment = (
-  { __typename?: 'Comment' }
-  & CommentsListWithParentMetadata
-);
-
-type multiCommentModerationSidebarQueryQuery_comments_MultiCommentOutput = { __typename?: 'MultiCommentOutput', totalCount: number | null, results: Array<multiCommentModerationSidebarQueryQuery_comments_MultiCommentOutput_results_Comment> };
-
-type multiCommentModerationSidebarQueryQuery_Query = { __typename?: 'Query', comments: multiCommentModerationSidebarQueryQuery_comments_MultiCommentOutput | null };
-
-
-type multiCommentModerationSidebarQueryQueryVariables = Exact<{
-  selector: InputMaybe<CommentSelector>;
-  limit: InputMaybe<Scalars['Int']['input']>;
-  enableTotal: InputMaybe<Scalars['Boolean']['input']>;
-}>;
-
-
-type multiCommentModerationSidebarQueryQuery = multiCommentModerationSidebarQueryQuery_Query;
 
 type multiCommentModerationKeyboardQueryQuery_comments_MultiCommentOutput_results_Comment = (
   { __typename?: 'Comment' }

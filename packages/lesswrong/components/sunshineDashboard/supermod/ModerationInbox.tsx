@@ -501,11 +501,7 @@ const ModerationInboxInner = ({ users, initialOpenedUserId, currentUser }: {
       <div className={classes.mainContent}>
         <div className={classes.leftPanel}>
           {openedUser ? (
-            <ModerationDetailView
-              user={openedUser}
-              currentUser={currentUser}
-              onActionComplete={handleActionComplete}
-            />
+            <ModerationDetailView user={openedUser} />
           ) : (
             <ModerationInboxList
               userGroups={filteredGroups}
@@ -522,7 +518,7 @@ const ModerationInboxInner = ({ users, initialOpenedUserId, currentUser }: {
           {sidebarUser && <ModerationSidebar
             user={sidebarUser}
             currentUser={currentUser}
-            onActionComplete={handleActionComplete}
+            inDetailView={!!state.openedUserId}
           />}
         </div>
       </div>

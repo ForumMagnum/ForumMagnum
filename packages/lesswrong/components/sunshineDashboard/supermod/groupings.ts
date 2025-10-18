@@ -1,4 +1,5 @@
-import { AUTO_BLOCKED_FROM_SENDING_DMS, FLAGGED_FOR_N_DMS, MANUAL_FLAG_ALERT, MANUAL_NEEDS_REVIEW, MANUAL_RATE_LIMIT_EXPIRED, POTENTIAL_TARGETED_DOWNVOTING, RECEIVED_SENIOR_DOWNVOTES_ALERT, RECEIVED_VOTING_PATTERN_WARNING, STRICTER_COMMENT_AUTOMOD_RATE_LIMIT, STRICTER_POST_AUTOMOD_RATE_LIMIT, UNREVIEWED_BIO_UPDATE, UNREVIEWED_FIRST_COMMENT, UNREVIEWED_FIRST_POST, UNREVIEWED_MAP_LOCATION_UPDATE, UNREVIEWED_PROFILE_IMAGE_UPDATE } from "@/lib/collections/moderatorActions/constants";
+import { AUTO_BLOCKED_FROM_SENDING_DMS, FLAGGED_FOR_N_DMS, MANUAL_FLAG_ALERT, MANUAL_NEEDS_REVIEW, MANUAL_RATE_LIMIT_EXPIRED, POTENTIAL_TARGETED_DOWNVOTING, RECEIVED_SENIOR_DOWNVOTES_ALERT, RECEIVED_VOTING_PATTERN_WARNING, SNOOZE_EXPIRED, STRICTER_COMMENT_AUTOMOD_RATE_LIMIT, STRICTER_POST_AUTOMOD_RATE_LIMIT, UNREVIEWED_BIO_UPDATE, UNREVIEWED_FIRST_COMMENT, UNREVIEWED_FIRST_POST, UNREVIEWED_MAP_LOCATION_UPDATE, UNREVIEWED_PROFILE_IMAGE_UPDATE } from "@/lib/collections/moderatorActions/constants";
+import { getReasonForReview } from "@/lib/collections/moderatorActions/helpers";
 import { maybeDate } from "@/lib/utils/dateUtils";
 import partition from 'lodash/partition';
 
@@ -100,5 +101,67 @@ export function getReviewGroupDisplayName(group: ReviewGroup | 'all'): string {
       return 'Unknown';
     case 'all':
       return 'All';
+  }
+}
+
+export function getPrimaryDisplayedModeratorAction(moderatorActionType: ModeratorActionType) {
+  switch (moderatorActionType) {
+    case MANUAL_NEEDS_REVIEW:
+      return 'Manual';
+    case MANUAL_FLAG_ALERT:
+      return 'Flagged';
+    case FLAGGED_FOR_N_DMS:
+      return 'DM Count';
+    case AUTO_BLOCKED_FROM_SENDING_DMS:
+      return 'DM Block';
+    case RECEIVED_VOTING_PATTERN_WARNING:
+      return 'Fast Voting';
+    case POTENTIAL_TARGETED_DOWNVOTING:
+      return 'Targeted Downvoting';
+    case RECEIVED_SENIOR_DOWNVOTES_ALERT:
+      return 'Senior Downvotes';
+    case UNREVIEWED_BIO_UPDATE:
+      return 'Bio Update';
+    case UNREVIEWED_MAP_LOCATION_UPDATE:
+      return 'Location Update';
+    case UNREVIEWED_PROFILE_IMAGE_UPDATE:
+      return 'Image Update';
+    case UNREVIEWED_FIRST_POST:
+      return 'First Post';
+    case UNREVIEWED_FIRST_COMMENT:
+      return 'First Comment';
+    case SNOOZE_EXPIRED:
+      return 'Snooze Expired';
+    case STRICTER_COMMENT_AUTOMOD_RATE_LIMIT:
+      return 'Stricter Comment RL';
+    case STRICTER_POST_AUTOMOD_RATE_LIMIT:
+      return 'Stricter Post RL';
+    case MANUAL_RATE_LIMIT_EXPIRED:
+      return 'Manual RL Expired';
+    default:
+      return `${moderatorActionType} - unexpected`;
+  }
+}
+
+export function getFallbackDisplayedModeratorAction(user: SunshineUsersList): string | undefined {
+  const { reason } = getReasonForReview(user);
+  switch (reason) {
+    case 'firstPost':
+      return 'First Post';
+    case 'firstComment':
+      return 'First Comment';
+    case 'bio':
+      return 'Bio Update';
+    case 'mapLocation':
+      return 'Location Update';
+    case 'profileImage':
+      return 'Image Update';
+    case 'contactedTooManyUsers':
+      return 'DM Count';
+    case 'newContent':
+      return 'Snooze Expired';
+    case 'alreadyApproved':
+    case 'noReview':
+      return undefined;
   }
 }

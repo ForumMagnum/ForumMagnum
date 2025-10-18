@@ -11,6 +11,9 @@ import ForumIcon from '@/components/common/ForumIcon';
 import classNames from 'classnames';
 
 const styles = (theme: ThemeType) => ({
+  root: {
+    width: 'fit-content',
+  },
   padding: {
     marginTop: 8,
   },
@@ -20,7 +23,7 @@ const styles = (theme: ThemeType) => ({
   },
   karmaMetaItem: {
     height: 24,
-    width: 48,
+    width: 36,
     display: "flex",
     alignItems: "center",
   },
@@ -30,7 +33,7 @@ const styles = (theme: ThemeType) => ({
     color: theme.palette.grey[500],
     position: "relative",
     top: 2,
-    marginRight: 5
+    marginRight: 4
   }, 
   downvoteIcon: {
     height: 20,
@@ -38,11 +41,15 @@ const styles = (theme: ThemeType) => ({
     color: theme.palette.grey[700],
     top: 4,
     position: 'unset',
+    marginRight: 0,
   },
   percentIcon: {
     height: 15,
+    width: 15,
     fontWeight: 600,
-    marginRight: 5
+    display: 'flex',
+    justifyContent: 'center',
+    marginRight: 2,
   },
   info: {
     marginRight: 16,
@@ -51,7 +58,17 @@ const styles = (theme: ThemeType) => ({
   },
   strictestRateLimits: {
     margin: 0,
-  }
+  },
+  absoluteRoot: {
+    position: 'relative',
+  },
+  absolute: {
+    position: 'absolute',
+    top: 20,
+    left: -36,
+    width: 'max-content',
+    listStyleType: 'none',
+  },
 });
 
 export const recentKarmaTooltip = (user: SunshineUsersList) => {
@@ -74,10 +91,11 @@ export const downvoterTooltip = (user: SunshineUsersList) => {
   </div>
 }
 
-export const UserAutoRateLimitsDisplay = ({user, showKarmaMeta=false, classes}: {
+export const UserAutoRateLimitsDisplay = ({user, showKarmaMeta=false, absolute, classes}: {
   user: SunshineUsersList,
   classes: ClassesType<typeof styles>,
-  showKarmaMeta?: boolean
+  showKarmaMeta?: boolean,
+  absolute?: boolean
 }) => {
   const roundedDownvoteRatio = Math.round(getDownvoteRatio(user) * 100)
   const allRateLimits = [...forumSelect(autoPostRateLimits), ...forumSelect(autoCommentRateLimits)]
@@ -85,18 +103,25 @@ export const UserAutoRateLimitsDisplay = ({user, showKarmaMeta=false, classes}: 
   const allActiveRateLimitsNames = getActiveRateLimitNames(user, allRateLimits);
   const nonStrictestRateLimitsNames = allActiveRateLimitsNames.filter(rateLimitName => !strictestRateLimits.some(strictLimit => strictLimit.name === rateLimitName))
 
-  return <div>
+  const totalReceivedVotes = (
+    (user.smallUpvoteReceivedCount ?? 0) +
+    (user.bigUpvoteReceivedCount ?? 0) +
+    (user.smallDownvoteReceivedCount ?? 0) +
+    (user.bigDownvoteReceivedCount ?? 0)
+  );
+
+  return <div className={classNames(classes.root, absolute && classes.absoluteRoot)}>
     {showKarmaMeta && <div className={classes.karmaMeta}>
       <LWTooltip title="total karma" className={classes.karmaMetaItem}>
         <MetaInfo className={classes.info}>
           <StarIcon className={classes.icon}/>{ user.karma || 0 }
         </MetaInfo>
       </LWTooltip>
-      <LWTooltip title={recentKarmaTooltip(user)} className={classes.karmaMetaItem}>
+      {totalReceivedVotes > 0 && <LWTooltip title={recentKarmaTooltip(user)} className={classes.karmaMetaItem}>
         <MetaInfo className={classes.info}>
           <StarBorderIcon className={classes.icon}/>{user.recentKarmaInfo.last20karma}
         </MetaInfo>
-      </LWTooltip>
+      </LWTooltip>}
       <LWTooltip title={downvoterTooltip(user)} className={classes.karmaMetaItem}>
         <MetaInfo className={classNames(classes.info, classes.karmaMetaItem)}>
           <ForumIcon icon="ExpandMore" className={classNames(classes.icon, classes.downvoteIcon)}/> {user.recentKarmaInfo.downvoterCount ?? 0}
@@ -113,7 +138,7 @@ export const UserAutoRateLimitsDisplay = ({user, showKarmaMeta=false, classes}: 
         </MetaInfo>
       </LWTooltip>
     </div>}
-    <ul className={classes.strictestRateLimits}>
+    <ul className={classNames(classes.strictestRateLimits, absolute && classes.absolute)}>
       {strictestRateLimits.map(({name, isActive}) => <li key={`${user._id}rateLimitstrict${name}`}><div>
         <LWTooltip title={`Calculated via: ${isActive.toString()}`}><MetaInfo>{name}</MetaInfo></LWTooltip>
       </div></li>)}

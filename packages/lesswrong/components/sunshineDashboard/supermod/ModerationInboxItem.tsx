@@ -3,16 +3,14 @@ import { defineStyles, useStyles } from '@/components/hooks/useStyles';
 import classNames from 'classnames';
 import FormatDate from '@/components/common/FormatDate';
 import FlagIcon from '@/lib/vendor/@material-ui/icons/src/Flag';
-import { getReasonForReview } from '@/lib/collections/moderatorActions/helpers';
 import { getUserEmail } from '@/lib/collections/users/helpers';
 import DescriptionIcon from '@/lib/vendor/@material-ui/icons/src/Description'
 import MessageIcon from '@/lib/vendor/@material-ui/icons/src/Message'
-import { usePublishedPosts } from '@/components/hooks/usePublishedPosts';
-import { AUTO_BLOCKED_FROM_SENDING_DMS, FLAGGED_FOR_N_DMS, MANUAL_FLAG_ALERT, MANUAL_NEEDS_REVIEW, MANUAL_RATE_LIMIT_EXPIRED, POTENTIAL_TARGETED_DOWNVOTING, RECEIVED_SENIOR_DOWNVOTES_ALERT, RECEIVED_VOTING_PATTERN_WARNING, SNOOZE_EXPIRED, STRICTER_COMMENT_AUTOMOD_RATE_LIMIT, STRICTER_POST_AUTOMOD_RATE_LIMIT, UNREVIEWED_BIO_UPDATE, UNREVIEWED_FIRST_COMMENT, UNREVIEWED_FIRST_POST, UNREVIEWED_MAP_LOCATION_UPDATE, UNREVIEWED_PROFILE_IMAGE_UPDATE } from '@/lib/collections/moderatorActions/constants';
-import { partitionModeratorActions, ReviewGroup } from './groupings';
+import { getFallbackDisplayedModeratorAction, getPrimaryDisplayedModeratorAction, partitionModeratorActions, ReviewGroup } from './groupings';
 import ForumIcon from '@/components/common/ForumIcon';
 import { htmlToTextDefault } from '@/lib/htmlToText';
 import { useModeratedUserContents } from '@/components/hooks/useModeratedUserContents';
+import ReviewTriggerBadge from './ReviewTriggerBadge';
 
 const styles = defineStyles('ModerationInboxItem', (theme: ThemeType) => ({
   root: {
@@ -44,9 +42,9 @@ const styles = defineStyles('ModerationInboxItem', (theme: ThemeType) => ({
     fontWeight: 500,
     color: theme.palette.grey[900],
     marginRight: 12,
-    width: 140,
+    width: 120,
     minWidth: 100,
-    maxWidth: 140,
+    maxWidth: 120,
     overflow: 'hidden',
     textOverflow: 'ellipsis',
     whiteSpace: 'nowrap',
@@ -54,8 +52,8 @@ const styles = defineStyles('ModerationInboxItem', (theme: ThemeType) => ({
   },
   karma: {
     fontSize: 13,
-    marginRight: 12,
-    minWidth: 30,
+    marginRight: 8,
+    minWidth: 28,
     textAlign: 'right',
     flexShrink: 0,
   },
@@ -72,7 +70,7 @@ const styles = defineStyles('ModerationInboxItem', (theme: ThemeType) => ({
     fontSize: 13,
     color: theme.palette.grey[600],
     marginRight: 12,
-    minWidth: 24,
+    minWidth: 20,
     flexShrink: 0,
   },
   icons: {
@@ -120,7 +118,7 @@ const styles = defineStyles('ModerationInboxItem', (theme: ThemeType) => ({
     flexShrink: 0,
   },
   contentCountItem: {
-    width: 40,
+    width: 36,
   },
   wideContentCountItem: {
     width: 50,
@@ -130,6 +128,8 @@ const styles = defineStyles('ModerationInboxItem', (theme: ThemeType) => ({
   },
   icon: {
     height: 13,
+    width: 13,
+    marginRight: 3,
     color: theme.palette.grey[500],
     position: "relative",
     top: 3
@@ -172,68 +172,6 @@ const styles = defineStyles('ModerationInboxItem', (theme: ThemeType) => ({
   },
 }));
 
-function getPrimaryDisplayedModeratorAction(moderatorActionType: ModeratorActionType): string {
-  switch (moderatorActionType) {
-    case MANUAL_NEEDS_REVIEW:
-      return 'Manual';
-    case MANUAL_FLAG_ALERT:
-      return 'Flagged';
-    case FLAGGED_FOR_N_DMS:
-      return 'DM Count';
-    case AUTO_BLOCKED_FROM_SENDING_DMS:
-      return 'DM Block';
-    case RECEIVED_VOTING_PATTERN_WARNING:
-      return 'Fast Voting';
-    case POTENTIAL_TARGETED_DOWNVOTING:
-      return 'Targeted Downvoting';
-    case RECEIVED_SENIOR_DOWNVOTES_ALERT:
-      return 'Senior Downvotes';
-    case UNREVIEWED_BIO_UPDATE:
-      return 'Bio Update';
-    case UNREVIEWED_MAP_LOCATION_UPDATE:
-      return 'Location Update';
-    case UNREVIEWED_PROFILE_IMAGE_UPDATE:
-      return 'Image Update';
-    case UNREVIEWED_FIRST_POST:
-      return 'First Post';
-    case UNREVIEWED_FIRST_COMMENT:
-      return 'First Comment';
-    case SNOOZE_EXPIRED:
-      return 'Snooze Expired';
-    case STRICTER_COMMENT_AUTOMOD_RATE_LIMIT:
-      return 'Stricter Comment RL';
-    case STRICTER_POST_AUTOMOD_RATE_LIMIT:
-      return 'Stricter Post RL';
-    case MANUAL_RATE_LIMIT_EXPIRED:
-      return 'Manual RL Expired';
-    default:
-      return `${moderatorActionType} - unexpected`;
-  }
-}
-
-function getFallbackDisplayedModeratorAction(user: SunshineUsersList): string | undefined {
-  const { reason } = getReasonForReview(user);
-  switch (reason) {
-    case 'firstPost':
-      return 'First Post';
-    case 'firstComment':
-      return 'First Comment';
-    case 'bio':
-      return 'Bio Update';
-    case 'mapLocation':
-      return 'Location Update';
-    case 'profileImage':
-      return 'Image Update';
-    case 'contactedTooManyUsers':
-      return 'DM Count';
-    case 'newContent':
-      return 'Snooze Expired';
-    case 'alreadyApproved':
-    case 'noReview':
-      return undefined;
-  }
-}
-
 const ContentPreview = ({ user }: { user: SunshineUsersList }) => {
   const classes = useStyles(styles);
 
@@ -275,17 +213,14 @@ const ModerationInboxItem = ({
   user,
   reviewGroup,
   isFocused,
-  onFocus,
   onOpen,
 }: {
   user: SunshineUsersList;
   reviewGroup: ReviewGroup;
   isFocused: boolean;
-  onFocus: () => void;
   onOpen: () => void;
 }) => {
   const classes = useStyles(styles);
-
 
   const fallbackDisplayedModeratorAction = getFallbackDisplayedModeratorAction(user);
 
@@ -338,19 +273,13 @@ const ModerationInboxItem = ({
         {user.sunshineFlagged && <FlagIcon className={classes.flagIcon} />}
       </div>
       {freshModeratorActionBadges.map((badge, index) => (
-        <div className={classes.badge} key={index}>
-          {badge}
-        </div>
+        <ReviewTriggerBadge badge={badge} key={index} />
       ))}
       {fallbackDisplayedModeratorAction && !allModeratorActionBadges.includes(fallbackDisplayedModeratorAction) && (
-        <div className={classNames(classes.badge, classes.staleBadge)}>
-          {fallbackDisplayedModeratorAction} (fallback)
-        </div>
+        <ReviewTriggerBadge badge={fallbackDisplayedModeratorAction} fallback />
       )}
       {staleModeratorActionBadges.map((badge, index) => (
-        <div className={classNames(classes.badge, classes.staleBadge)} key={index}>
-          {badge}
-        </div>
+        <ReviewTriggerBadge badge={badge} stale key={index} />
       ))}
 
       <div className={classes.contextualInfo}>
