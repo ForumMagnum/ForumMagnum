@@ -70,7 +70,7 @@ const styles = defineStyles('ModerationInboxItem', (theme: ThemeType) => ({
     fontSize: 13,
     color: theme.palette.grey[600],
     marginRight: 12,
-    minWidth: 20,
+    minWidth: 24,
     flexShrink: 0,
   },
   icons: {

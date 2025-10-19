@@ -54,8 +54,8 @@ const ModerationKeyboardHandler = ({
 
   const handleAction = useCallback(
     async (actionFn: () => Promise<void>) => {
-      await actionFn();
       onActionComplete();
+      await actionFn();
     },
     [onActionComplete]
   );
