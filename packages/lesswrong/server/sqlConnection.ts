@@ -242,21 +242,17 @@ function getWrappedClient(
     idleTimeoutMillis: 5_000,
   });
 
-  const nonWrappedQueryMethods = omit(db, queryMethods);
-
-  const reboundQueryMethods = Object.fromEntries(Object.entries(nonWrappedQueryMethods).map(([key, value]) => [key, value.bind(db)]));
-
   const client: SqlClient = {
-    ...reboundQueryMethods as Omit<SqlClient, typeof queryMethods[number]>,
-    none: wrapQueryMethod(db.none).bind(db),
-    one: wrapQueryMethod(db.one).bind(db),
-    oneOrNone: wrapQueryMethod(db.oneOrNone).bind(db),
-    many: wrapQueryMethod(db.many).bind(db),
-    manyOrNone: wrapQueryMethod(db.manyOrNone).bind(db),
-    any: wrapQueryMethod(db.any).bind(db),
-    multi: wrapQueryMethod(db.multi).bind(db),
+    ...omit(db, queryMethods) as AnyBecauseHard,
+    none: wrapQueryMethod(db.none),
+    one: wrapQueryMethod(db.one),
+    oneOrNone: wrapQueryMethod(db.oneOrNone),
+    many: wrapQueryMethod(db.many),
+    manyOrNone: wrapQueryMethod(db.manyOrNone),
+    any: wrapQueryMethod(db.any),
+    multi: wrapQueryMethod(db.multi),
     $pool: db.$pool, // $pool is accessed with magic and isn't copied by spreading
-    concat: concat.bind(db),
+    concat,
     isTestingClient,
   };
 
