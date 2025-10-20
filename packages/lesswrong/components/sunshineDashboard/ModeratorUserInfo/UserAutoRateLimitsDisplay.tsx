@@ -23,7 +23,7 @@ const styles = (theme: ThemeType) => ({
   },
   karmaMetaItem: {
     height: 24,
-    width: 36,
+    minWidth: 36,
     display: "flex",
     alignItems: "center",
   },

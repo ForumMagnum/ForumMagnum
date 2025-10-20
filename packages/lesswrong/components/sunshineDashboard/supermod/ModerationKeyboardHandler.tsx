@@ -21,6 +21,10 @@ const SunshineUsersListUpdateMutation = gql(`
   }
 `);
 
+function specialKeyPressed(event: KeyboardEvent) {
+  return event.metaKey || event.ctrlKey || event.altKey;
+}
+
 const ModerationKeyboardHandler = ({
   onNextUser,
   onPrevUser,
@@ -353,8 +357,8 @@ const ModerationKeyboardHandler = ({
           target.tagName === 'TEXTAREA' ||
           target.isContentEditable
         ) {
-          // Exception: allow Escape and Enter even in inputs
-          if (event.key !== 'Escape' && event.key !== 'Enter') {
+          // Exception: allow Escape even in inputs
+          if (event.key !== 'Escape') {
             return;
           }
         }
@@ -406,6 +410,8 @@ const ModerationKeyboardHandler = ({
 
         // Action shortcuts (only if user is selected)
         if (!selectedUser) return;
+
+        if (specialKeyPressed(event)) return;
 
         if (event.key === 'a') {
           event.preventDefault();

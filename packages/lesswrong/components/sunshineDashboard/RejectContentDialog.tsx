@@ -34,6 +34,8 @@ const styles = (theme: ThemeType) => ({
     backgroundColor: theme.palette.panelBackground.default,
     padding: 12,
     fontFamily: theme.palette.fonts.sansSerifStack,
+    maxHeight: '50vh',
+    overflow: 'auto',
   },
   rejectionCheckboxes: {
     display: 'flex',
