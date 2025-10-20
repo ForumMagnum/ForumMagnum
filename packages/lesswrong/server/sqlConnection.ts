@@ -203,6 +203,7 @@ const logIfSlow = async <T>(
 }
 
 const wrapQueryMethod = <T>(
+  db: pgp.IDatabase<any>,
   queryMethod: (query: string, values?: SqlQueryArgs) => Promise<T>,
 ): ((
   query: string,
@@ -222,7 +223,7 @@ const wrapQueryMethod = <T>(
         : query
       )
     return logIfSlow(
-      () => queryMethod(query, values),
+      () => queryMethod.bind(db)(query, values),
       description,
       query,
       quiet,
@@ -244,13 +245,13 @@ function getWrappedClient(
 
   const client: SqlClient = {
     ...omit(db, queryMethods) as AnyBecauseHard,
-    none: wrapQueryMethod(db.none),
-    one: wrapQueryMethod(db.one),
-    oneOrNone: wrapQueryMethod(db.oneOrNone),
-    many: wrapQueryMethod(db.many),
-    manyOrNone: wrapQueryMethod(db.manyOrNone),
-    any: wrapQueryMethod(db.any),
-    multi: wrapQueryMethod(db.multi),
+    none: wrapQueryMethod(db, db.none),
+    one: wrapQueryMethod(db, db.one),
+    oneOrNone: wrapQueryMethod(db, db.oneOrNone),
+    many: wrapQueryMethod(db, db.many),
+    manyOrNone: wrapQueryMethod(db, db.manyOrNone),
+    any: wrapQueryMethod(db, db.any),
+    multi: wrapQueryMethod(db, db.multi),
     $pool: db.$pool, // $pool is accessed with magic and isn't copied by spreading
     concat,
     isTestingClient,
