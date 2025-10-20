@@ -92,7 +92,7 @@ export type InboxState = {
   users: SunshineUsersList[];
   // Current active tab
   activeTab: ReviewGroup | 'all';
-  // Focused user in inbox view (highlighted)
+  // Focused user in inbox view
   focusedUserId: string | null;
   // Opened user in detail view
   openedUserId: string | null;
@@ -122,7 +122,6 @@ function getFilteredGroups(
   return orderedGroups.filter(([group]) => group === activeTab);
 }
 
-// Helper to get visible tabs
 function getVisibleTabsInOrder(
   groupedUsers: Partial<Record<ReviewGroup, SunshineUsersList[]>>,
   totalUsers: number,
@@ -258,11 +257,9 @@ export function inboxStateReducer(state: InboxState, action: InboxAction): Inbox
     }
     
     case 'REMOVE_USER': {
-      // Remove user from local list
       const newUsers = state.users.filter(u => u._id !== action.userId);
       
       if (newUsers.length === 0) {
-        // No users left
         return {
           users: [],
           activeTab: 'all',
@@ -442,33 +439,19 @@ const ModerationInboxInner = ({ users, initialOpenedUserId, currentUser }: {
     return null;
   }, [openedUser, state.focusedUserId, allOrderedUsers]);
 
-  const handleOpenUser = useCallback((userId: string) => {
-    dispatch({ type: 'OPEN_USER', userId });
-  }, []);
+  const handleOpenUser = useCallback((userId: string) => dispatch({ type: 'OPEN_USER', userId }), []);
 
-  const handleCloseDetail = useCallback(() => {
-    dispatch({ type: 'CLOSE_DETAIL' });
-  }, []);
+  const handleCloseDetail = useCallback(() => dispatch({ type: 'CLOSE_DETAIL' }), []);
 
-  const handleNextUser = useCallback(() => {
-    dispatch({ type: 'NEXT_USER' });
-  }, []);
+  const handleNextUser = useCallback(() => dispatch({ type: 'NEXT_USER' }), []);
 
-  const handlePrevUser = useCallback(() => {
-    dispatch({ type: 'PREV_USER' });
-  }, []);
+  const handlePrevUser = useCallback(() => dispatch({ type: 'PREV_USER' }), []);
 
-  const handleTabChange = useCallback((newTab: ReviewGroup | 'all') => {
-    dispatch({ type: 'CHANGE_TAB', tab: newTab });
-  }, []);
+  const handleTabChange = useCallback((newTab: ReviewGroup | 'all') => dispatch({ type: 'CHANGE_TAB', tab: newTab }), []);
 
-  const handleNextTab = useCallback(() => {
-    dispatch({ type: 'NEXT_TAB' });
-  }, []);
+  const handleNextTab = useCallback(() => dispatch({ type: 'NEXT_TAB' }), []);
 
-  const handlePrevTab = useCallback(() => {
-    dispatch({ type: 'PREV_TAB' });
-  }, []);
+  const handlePrevTab = useCallback(() => dispatch({ type: 'PREV_TAB' }), []);
 
   const handleActionComplete = useCallback(() => {
     // Remove the current user (either opened or focused) from the queue

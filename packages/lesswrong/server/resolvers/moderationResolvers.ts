@@ -2,16 +2,27 @@ import { LWEvents } from '../../server/collections/lwevents/collection';
 import { userIsAdminOrMod } from '../../lib/vulcan-users/permissions';
 import { getCommentSubtree } from '../utils/commentTreeUtils';
 import { Comments } from '../../server/collections/comments/collection';
+import { Users } from '../../server/collections/users/collection';
+import { Posts } from '../../server/collections/posts/collection';
 import moment from 'moment';
 import uniq from 'lodash/uniq';
 import gql from 'graphql-tag';
 import { updateComment } from '../collections/comments/mutations';
+import { updatePost } from '../collections/posts/mutations';
+import { updateUser } from '../collections/users/mutations';
+import { getSignatureWithNote } from '../../lib/collections/users/helpers';
 
 export const moderationGqlTypeDefs = gql`
   type ModeratorIPAddressInfo {
     ip: String!
     userIds: [String!]!
   }
+  
+  enum ContentCollectionName {
+    Posts
+    Comments
+  }
+
   extend type Query {
     moderatorViewIPAddress(ipAddress: String!): ModeratorIPAddressInfo
   }
@@ -19,6 +30,7 @@ export const moderationGqlTypeDefs = gql`
   extend type Mutation {
     lockThread(commentId: String!, until: String): Boolean!
     unlockThread(commentId: String!): Boolean!
+    rejectContentAndRemoveUserFromQueue(userId: String!, documentId: String!, collectionName: ContentCollectionName!): Boolean!
   }
 `
 
@@ -87,6 +99,55 @@ export const moderationGqlMutations = {
     await Promise.all(commentsInThread.map(async (comment) => {
       await updateComment({ data: { repliesBlockedUntil: null }, selector: { _id: comment._id } }, context);
     }));
+
+    return true;
+  },
+  async rejectContentAndRemoveUserFromQueue (_root: void, args: {userId: string, documentId: string, collectionName: ContentCollectionName}, context: ResolverContext) {
+    const { currentUser } = context;
+    if (!currentUser || !userIsAdminOrMod(currentUser)) {
+      throw new Error("Only admins and moderators can reject content and remove users from queue");
+    }
+
+    const { userId, documentId, collectionName } = args;
+
+    const user = await Users.findOne(userId);
+    if (!user) {
+      throw new Error("Invalid user ID");
+    }
+
+    // Reject the document
+    if (collectionName === 'Posts') {
+      const post = await Posts.findOne(documentId);
+      if (!post) {
+        throw new Error("Invalid post ID");
+      }
+      await updatePost({
+        data: { rejected: true },
+        selector: { _id: documentId }
+      }, context);
+    } else {
+      const comment = await Comments.findOne(documentId);
+      if (!comment) {
+        throw new Error("Invalid comment ID");
+      }
+      await updateComment({
+        data: { rejected: true },
+        selector: { _id: documentId }
+      }, context);
+    }
+
+    // Remove user from review queue
+    const notes = user.sunshineNotes || '';
+    const newNotes = getSignatureWithNote(currentUser.displayName, 'removed from review queue (content rejected)') + notes;
+    await updateUser({
+      data: {
+        needsReview: false,
+        reviewedByUserId: null,
+        reviewedAt: user.reviewedAt ? new Date() : null,
+        sunshineNotes: newNotes,
+      },
+      selector: { _id: userId }
+    }, context);
 
     return true;
   }

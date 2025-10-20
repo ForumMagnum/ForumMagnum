@@ -265,6 +265,7 @@ interface Mutation {
   autosaveRevision: Revision | null;
   lockThread: boolean;
   unlockThread: boolean;
+  rejectContentAndRemoveUserFromQueue: boolean;
   reorderSummaries: boolean | null;
   publishAndDeDuplicateSpotlight: Spotlight | null;
   toggleBookmark: ToggleBookmarkOutput | null;

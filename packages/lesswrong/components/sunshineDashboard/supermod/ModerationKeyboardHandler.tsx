@@ -10,6 +10,7 @@ import { getNewSnoozeUntilContentCount } from '../ModeratorActions';
 import SnoozeAmountModal from './SnoozeAmountModal';
 import RestrictAndNotifyModal from './RestrictAndNotifyModal';
 import { useCommandPalette } from '@/components/hooks/useCommandPalette';
+import { useModeratedUserContents } from '@/components/hooks/useModeratedUserContents';
 
 const SunshineUsersListUpdateMutation = gql(`
   mutation updateUserModerationKeyboard($selector: SelectorInput!, $data: UpdateUserDataInput!) {
@@ -18,6 +19,12 @@ const SunshineUsersListUpdateMutation = gql(`
         ...SunshineUsersList
       }
     }
+  }
+`);
+
+const RejectContentAndRemoveFromQueueMutation = gql(`
+  mutation rejectContentAndRemoveFromQueueModerationKeyboard($userId: String!, $documentId: String!, $collectionName: ContentCollectionName!) {
+    rejectContentAndRemoveUserFromQueue(userId: $userId, documentId: $documentId, collectionName: $collectionName)
   }
 `);
 
@@ -50,6 +57,10 @@ const ModerationKeyboardHandler = ({
 }) => {
   const { openDialog } = useDialog();
   const [updateUser] = useMutation(SunshineUsersListUpdateMutation);
+  const [rejectContentAndRemoveFromQueue] = useMutation(RejectContentAndRemoveFromQueueMutation);
+  
+  // Fetch user's content to find most recent unapproved item
+  const { posts, comments } = useModeratedUserContents(selectedUser?._id ?? '', 20);
 
   const getModSignatureWithNote = useCallback(
     (note: string) => getSignatureWithNote(currentUser.displayName, note),
@@ -258,6 +269,43 @@ const ModerationKeyboardHandler = ({
     });
   }, [selectedUser, currentUser, openDialog, onActionComplete]);
 
+  const handleRejectContentAndRemove = useCallback(() => {
+    if (!selectedUser) return;
+    
+    // Find the most recent unapproved post or comment
+    const allContent = [
+      ...(posts || []).map(p => ({ _id: p._id, postedAt: p.postedAt, rejected: p.rejected, reviewedByUserId: p.reviewedByUserId, collectionName: 'Posts' as const })),
+      ...(comments || []).map(c => ({ _id: c._id, postedAt: c.postedAt, rejected: c.rejected, reviewedByUserId: c.reviewedByUserId, collectionName: 'Comments' as const }))
+    ];
+    
+    const unapprovedContent = allContent.filter(
+      item => !item.rejected && !item.reviewedByUserId
+    );
+    
+    if (unapprovedContent.length === 0) {
+      alert('No unapproved content found for this user');
+      return;
+    }
+    
+    // Sort by postedAt descending to get most recent
+    unapprovedContent.sort((a, b) => new Date(b.postedAt).getTime() - new Date(a.postedAt).getTime());
+    const mostRecentUnapproved = unapprovedContent[0];
+    
+    if (!confirm(`Reject this user's most recent ${mostRecentUnapproved.collectionName === 'Posts' ? 'post' : 'comment'} and remove them from the review queue?`)) {
+      return;
+    }
+    
+    void handleAction(async () => {
+      await rejectContentAndRemoveFromQueue({
+        variables: {
+          userId: selectedUser._id,
+          documentId: mostRecentUnapproved._id,
+          collectionName: mostRecentUnapproved.collectionName,
+        },
+      });
+    });
+  }, [selectedUser, posts, comments, handleAction, rejectContentAndRemoveFromQueue]);
+
   const openCommandPalette = useCommandPalette();
 
   const commands: CommandPaletteItem[] = useMemo(() => [
@@ -284,6 +332,12 @@ const ModerationKeyboardHandler = ({
       keystroke: 'R',
       isDisabled: () => !selectedUser,
       execute: handleRemoveNeedsReview,
+    },
+    {
+      label: 'Reject Content & Remove from Queue',
+      keystroke: 'X',
+      isDisabled: () => !selectedUser,
+      execute: handleRejectContentAndRemove,
     },
     {
       label: 'Ban for 3 Months',
@@ -345,7 +399,7 @@ const ModerationKeyboardHandler = ({
       isDisabled: () => false,
       execute: onCloseDetail,
     },
-  ], [handleReview, handleSnoozeCustom, handleRemoveNeedsReview, handleBan, handlePurge, handleFlag, handleDisablePosting, handleDisableCommentingOnOthers, handleRestrictAndNotify, onNextUser, onPrevUser, onOpenDetail, onCloseDetail, selectedUser, handleSnooze]);
+  ], [handleReview, handleSnoozeCustom, handleRemoveNeedsReview, handleRejectContentAndRemove, handleBan, handlePurge, handleFlag, handleDisablePosting, handleDisableCommentingOnOthers, handleRestrictAndNotify, onNextUser, onPrevUser, onOpenDetail, onCloseDetail, selectedUser, handleSnooze]);
 
   useGlobalKeydown(
     useCallback(
@@ -443,6 +497,9 @@ const ModerationKeyboardHandler = ({
         } else if (event.key === 'c') {
           event.preventDefault();
           handleDisableCommentingOnOthers();
+        } else if (event.key === 'x') {
+          event.preventDefault();
+          handleRejectContentAndRemove();
         }
       },
       [
@@ -458,6 +515,7 @@ const ModerationKeyboardHandler = ({
         handleSnooze,
         handleSnoozeCustom,
         handleRemoveNeedsReview,
+        handleRejectContentAndRemove,
         handleRestrictAndNotify,
         handleBan,
         handlePurge,

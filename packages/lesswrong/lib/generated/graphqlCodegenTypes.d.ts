@@ -1021,6 +1021,10 @@ type CommentsWithReactsResult = {
   results: Array<Comment>;
 };
 
+type ContentCollectionName =
+  | 'Comments'
+  | 'Posts';
+
 type ContentType = {
   __typename?: 'ContentType';
   data: Scalars['ContentTypeData']['output'];
@@ -4345,6 +4349,7 @@ type Mutation = {
   performVoteTagRel?: Maybe<VoteResultTagRel>;
   promoteLensToMain?: Maybe<Scalars['Boolean']['output']>;
   publishAndDeDuplicateSpotlight?: Maybe<Spotlight>;
+  rejectContentAndRemoveUserFromQueue: Scalars['Boolean']['output'];
   reorderSummaries?: Maybe<Scalars['Boolean']['output']>;
   resetPassword?: Maybe<Scalars['String']['output']>;
   resyncRssFeed: Scalars['Boolean']['output'];
@@ -4926,6 +4931,13 @@ type MutationpromoteLensToMainArgs = {
 
 type MutationpublishAndDeDuplicateSpotlightArgs = {
   spotlightId?: InputMaybe<Scalars['String']['input']>;
+};
+
+
+type MutationrejectContentAndRemoveUserFromQueueArgs = {
+  collectionName: ContentCollectionName;
+  documentId: Scalars['String']['input'];
+  userId: Scalars['String']['input'];
 };
 
 
@@ -21577,6 +21589,18 @@ type updateUserModerationKeyboardMutationVariables = Exact<{
 
 
 type updateUserModerationKeyboardMutation = updateUserModerationKeyboardMutation_Mutation;
+
+type rejectContentAndRemoveFromQueueModerationKeyboardMutation_Mutation = { __typename?: 'Mutation', rejectContentAndRemoveUserFromQueue: boolean };
+
+
+type rejectContentAndRemoveFromQueueModerationKeyboardMutationVariables = Exact<{
+  userId: Scalars['String']['input'];
+  documentId: Scalars['String']['input'];
+  collectionName: ContentCollectionName;
+}>;
+
+
+type rejectContentAndRemoveFromQueueModerationKeyboardMutation = rejectContentAndRemoveFromQueueModerationKeyboardMutation_Mutation;
 
 type updateUserModerationSidebarMutation_updateUser_UserOutput_data_User = (
   { __typename?: 'User' }

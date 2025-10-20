@@ -1024,6 +1024,10 @@ export type CommentsWithReactsResult = {
   results: Array<Comment>;
 };
 
+export type ContentCollectionName =
+  | 'Comments'
+  | 'Posts';
+
 export type ContentType = {
   __typename?: 'ContentType';
   data: Scalars['ContentTypeData']['output'];
@@ -4348,6 +4352,7 @@ export type Mutation = {
   performVoteTagRel: Maybe<VoteResultTagRel>;
   promoteLensToMain: Maybe<Scalars['Boolean']['output']>;
   publishAndDeDuplicateSpotlight: Maybe<Spotlight>;
+  rejectContentAndRemoveUserFromQueue: Scalars['Boolean']['output'];
   reorderSummaries: Maybe<Scalars['Boolean']['output']>;
   resetPassword: Maybe<Scalars['String']['output']>;
   resyncRssFeed: Scalars['Boolean']['output'];
@@ -4929,6 +4934,13 @@ export type MutationpromoteLensToMainArgs = {
 
 export type MutationpublishAndDeDuplicateSpotlightArgs = {
   spotlightId?: InputMaybe<Scalars['String']['input']>;
+};
+
+
+export type MutationrejectContentAndRemoveUserFromQueueArgs = {
+  collectionName: ContentCollectionName;
+  documentId: Scalars['String']['input'];
+  userId: Scalars['String']['input'];
 };
 
 
@@ -18246,6 +18258,15 @@ export type updateUserModerationKeyboardMutation = { __typename?: 'Mutation', up
       & SunshineUsersList
     ) | null } | null };
 
+export type rejectContentAndRemoveFromQueueModerationKeyboardMutationVariables = Exact<{
+  userId: Scalars['String']['input'];
+  documentId: Scalars['String']['input'];
+  collectionName: ContentCollectionName;
+}>;
+
+
+export type rejectContentAndRemoveFromQueueModerationKeyboardMutation = { __typename?: 'Mutation', rejectContentAndRemoveUserFromQueue: boolean };
+
 export type updateUserModerationSidebarMutationVariables = Exact<{
   selector: SelectorInput;
   data: UpdateUserDataInput;
@@ -22661,6 +22682,7 @@ export const promoteLensToMainDocument = {"kind":"Document","definitions":[{"kin
 export const publishAndDeDuplicateSpotlightDocument = {"kind":"Document","definitions":[{"kind":"OperationDefinition","operation":"mutation","name":{"kind":"Name","value":"publishAndDeDuplicateSpotlight"},"variableDefinitions":[{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"spotlightId"}},"type":{"kind":"NamedType","name":{"kind":"Name","value":"String"}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"publishAndDeDuplicateSpotlight"},"arguments":[{"kind":"Argument","name":{"kind":"Name","value":"spotlightId"},"value":{"kind":"Variable","name":{"kind":"Name","value":"spotlightId"}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"FragmentSpread","name":{"kind":"Name","value":"SpotlightDisplay"}}]}}]}},SpotlightDisplayFragmentDef,SpotlightMinimumInfoFragmentDef,UsersMinimumInfoFragmentDef]} as unknown as DocumentNode<publishAndDeDuplicateSpotlightMutation, publishAndDeDuplicateSpotlightMutationVariables>;
 export const randomUserDocument = {"kind":"Document","definitions":[{"kind":"OperationDefinition","operation":"query","name":{"kind":"Name","value":"randomUser"},"variableDefinitions":[{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"userIsAuthor"}},"type":{"kind":"NonNullType","type":{"kind":"NamedType","name":{"kind":"Name","value":"String"}}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"GetRandomUser"},"arguments":[{"kind":"Argument","name":{"kind":"Name","value":"userIsAuthor"},"value":{"kind":"Variable","name":{"kind":"Name","value":"userIsAuthor"}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"FragmentSpread","name":{"kind":"Name","value":"UsersMinimumInfo"}}]}}]}},UsersMinimumInfoFragmentDef]} as unknown as DocumentNode<randomUserQuery, randomUserQueryVariables>;
 export const rejectCommentMutationDocument = {"kind":"Document","definitions":[{"kind":"OperationDefinition","operation":"mutation","name":{"kind":"Name","value":"rejectCommentMutation"},"variableDefinitions":[{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"selector"}},"type":{"kind":"NonNullType","type":{"kind":"NamedType","name":{"kind":"Name","value":"SelectorInput"}}}},{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"data"}},"type":{"kind":"NonNullType","type":{"kind":"NamedType","name":{"kind":"Name","value":"UpdateCommentDataInput"}}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"updateComment"},"arguments":[{"kind":"Argument","name":{"kind":"Name","value":"selector"},"value":{"kind":"Variable","name":{"kind":"Name","value":"selector"}}},{"kind":"Argument","name":{"kind":"Name","value":"data"},"value":{"kind":"Variable","name":{"kind":"Name","value":"data"}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"data"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"FragmentSpread","name":{"kind":"Name","value":"CommentsListWithParentMetadata"}}]}}]}}]}},CommentsListWithParentMetadataFragmentDef,CommentsListFragmentDef,TagPreviewFragmentFragmentDef,TagBasicInfoFragmentDef,UsersMinimumInfoFragmentDef,PostsMinimumInfoFragmentDef]} as unknown as DocumentNode<rejectCommentMutationMutation, rejectCommentMutationMutationVariables>;
+export const rejectContentAndRemoveFromQueueModerationKeyboardDocument = {"kind":"Document","definitions":[{"kind":"OperationDefinition","operation":"mutation","name":{"kind":"Name","value":"rejectContentAndRemoveFromQueueModerationKeyboard"},"variableDefinitions":[{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"userId"}},"type":{"kind":"NonNullType","type":{"kind":"NamedType","name":{"kind":"Name","value":"String"}}}},{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"documentId"}},"type":{"kind":"NonNullType","type":{"kind":"NamedType","name":{"kind":"Name","value":"String"}}}},{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"collectionName"}},"type":{"kind":"NonNullType","type":{"kind":"NamedType","name":{"kind":"Name","value":"ContentCollectionName"}}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"rejectContentAndRemoveUserFromQueue"},"arguments":[{"kind":"Argument","name":{"kind":"Name","value":"userId"},"value":{"kind":"Variable","name":{"kind":"Name","value":"userId"}}},{"kind":"Argument","name":{"kind":"Name","value":"documentId"},"value":{"kind":"Variable","name":{"kind":"Name","value":"documentId"}}},{"kind":"Argument","name":{"kind":"Name","value":"collectionName"},"value":{"kind":"Variable","name":{"kind":"Name","value":"collectionName"}}}]}]}}]} as unknown as DocumentNode<rejectContentAndRemoveFromQueueModerationKeyboardMutation, rejectContentAndRemoveFromQueueModerationKeyboardMutationVariables>;
 export const rejectPostMutationDocument = {"kind":"Document","definitions":[{"kind":"OperationDefinition","operation":"mutation","name":{"kind":"Name","value":"rejectPostMutation"},"variableDefinitions":[{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"selector"}},"type":{"kind":"NonNullType","type":{"kind":"NamedType","name":{"kind":"Name","value":"SelectorInput"}}}},{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"data"}},"type":{"kind":"NonNullType","type":{"kind":"NamedType","name":{"kind":"Name","value":"UpdatePostDataInput"}}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"updatePost"},"arguments":[{"kind":"Argument","name":{"kind":"Name","value":"selector"},"value":{"kind":"Variable","name":{"kind":"Name","value":"selector"}}},{"kind":"Argument","name":{"kind":"Name","value":"data"},"value":{"kind":"Variable","name":{"kind":"Name","value":"data"}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"data"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"FragmentSpread","name":{"kind":"Name","value":"SunshinePostsList"}}]}}]}}]}},SunshinePostsListFragmentDef,PostsListBaseFragmentDef,PostsBaseFragmentDef,PostsMinimumInfoFragmentDef,PostsAuthorsFragmentDef,UsersMinimumInfoFragmentDef,CommentsListFragmentDef,TagPreviewFragmentFragmentDef,TagBasicInfoFragmentDef,AutomatedContentEvaluationsFragmentFragmentDef,RevisionDisplayFragmentDef,ModeratorActionDisplayFragmentDef]} as unknown as DocumentNode<rejectPostMutationMutation, rejectPostMutationMutationVariables>;
 export const reorderSummariesDocument = {"kind":"Document","definitions":[{"kind":"OperationDefinition","operation":"mutation","name":{"kind":"Name","value":"reorderSummaries"},"variableDefinitions":[{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"parentDocumentId"}},"type":{"kind":"NonNullType","type":{"kind":"NamedType","name":{"kind":"Name","value":"String"}}}},{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"parentDocumentCollectionName"}},"type":{"kind":"NonNullType","type":{"kind":"NamedType","name":{"kind":"Name","value":"String"}}}},{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"summaryIds"}},"type":{"kind":"NonNullType","type":{"kind":"ListType","type":{"kind":"NonNullType","type":{"kind":"NamedType","name":{"kind":"Name","value":"String"}}}}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"reorderSummaries"},"arguments":[{"kind":"Argument","name":{"kind":"Name","value":"parentDocumentId"},"value":{"kind":"Variable","name":{"kind":"Name","value":"parentDocumentId"}}},{"kind":"Argument","name":{"kind":"Name","value":"parentDocumentCollectionName"},"value":{"kind":"Variable","name":{"kind":"Name","value":"parentDocumentCollectionName"}}},{"kind":"Argument","name":{"kind":"Name","value":"summaryIds"},"value":{"kind":"Variable","name":{"kind":"Name","value":"summaryIds"}}}]}]}}]} as unknown as DocumentNode<reorderSummariesMutation, reorderSummariesMutationVariables>;
 export const resetPasswordDocument = {"kind":"Document","definitions":[{"kind":"OperationDefinition","operation":"mutation","name":{"kind":"Name","value":"resetPassword"},"variableDefinitions":[{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"email"}},"type":{"kind":"NamedType","name":{"kind":"Name","value":"String"}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"resetPassword"},"arguments":[{"kind":"Argument","name":{"kind":"Name","value":"email"},"value":{"kind":"Variable","name":{"kind":"Name","value":"email"}}}]}]}}]} as unknown as DocumentNode<resetPasswordMutation, resetPasswordMutationVariables>;

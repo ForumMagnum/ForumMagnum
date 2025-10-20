@@ -1268,6 +1268,11 @@ type ModeratorIPAddressInfo {
   userIds: [String!]!
 }
 
+enum ContentCollectionName {
+  Posts
+  Comments
+}
+
 extend type Query {
   moderatorViewIPAddress(ipAddress: String!): ModeratorIPAddressInfo
 }
@@ -1275,6 +1280,7 @@ extend type Query {
 extend type Mutation {
   lockThread(commentId: String!, until: String): Boolean!
   unlockThread(commentId: String!): Boolean!
+  rejectContentAndRemoveUserFromQueue(userId: String!, documentId: String!, collectionName: ContentCollectionName!): Boolean!
 }
 
 extend type Mutation {

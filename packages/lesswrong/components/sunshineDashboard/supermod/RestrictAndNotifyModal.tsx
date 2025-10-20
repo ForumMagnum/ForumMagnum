@@ -15,6 +15,7 @@ import { useInitiateConversation } from '@/components/hooks/useInitiateConversat
 import Loading from '@/components/vulcan-core/Loading';
 import { CONTENT_LIMIT } from '../UsersReviewInfoCard';
 import { usePublishedPosts } from '@/components/hooks/usePublishedPosts';
+import { useModeratedUserContents } from '@/components/hooks/useModeratedUserContents';
 
 const CommentsListWithParentMetadataMultiQuery = gql(`
   query multiCommentModerationKeyboardQuery($selector: CommentSelector, $limit: Int, $enableTotal: Boolean) {
@@ -143,17 +144,7 @@ const RestrictAndNotifyModal = ({
   const [selectedTemplateId, setSelectedTemplateId] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
 
-  const { posts = [] } = usePublishedPosts(user._id, CONTENT_LIMIT);
-
-  const { data } = useQuery(CommentsListWithParentMetadataMultiQuery, {
-    variables: {
-      selector: { sunshineNewUsersComments: { userId: user._id ?? '' } },
-      limit: CONTENT_LIMIT,
-      enableTotal: false,
-    },
-  });
-
-  const comments = useMemo(() => data?.comments?.results ?? [], [data]);
+  const { posts, comments } = useModeratedUserContents(user._id, CONTENT_LIMIT);
 
   const { data: templatesData } = useQuery(ModerationTemplateFragmentMultiQuery, {
     variables: {
