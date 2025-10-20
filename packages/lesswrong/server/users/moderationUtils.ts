@@ -2,7 +2,6 @@ import { postStatuses } from "@/lib/collections/posts/constants";
 import Reports from "@/server/collections/reports/collection";
 import Sequences from "@/server/collections/sequences/collection";
 import { getCollection } from "@/server/collections/allCollections";
-import { postReportPurgeAsSpam, commentReportPurgeAsSpam } from "../akismet";
 import { syncDocumentWithLatestRevision } from "../editor/utils";
 import { updateTag } from "../collections/tags/mutations";
 import { updatePost } from "../collections/posts/mutations";
@@ -75,8 +74,6 @@ export async function userDeleteContent(user: DbUser, deletingUser: DbUser, cont
     for (let report of reports) {
       await updateReport({ data: {closedAt: new Date()}, selector: { _id: report._id } }, context)
     }
-    
-    await postReportPurgeAsSpam(post, context);
   }
 
   const comments = await Comments.find({userId: user._id}).fetch();
@@ -107,8 +104,6 @@ export async function userDeleteContent(user: DbUser, deletingUser: DbUser, cont
     for (let report of reports) {
       await updateReport({ data: {closedAt: new Date()}, selector: { _id: report._id } }, context)
     }
-
-    await commentReportPurgeAsSpam(comment, context);
   }
   
   const sequences = await Sequences.find({userId: user._id}).fetch();
