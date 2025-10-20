@@ -105,7 +105,7 @@ export const graphqlQueries = {
       throw new Error(`No embedding found for comment ${commentId}`);
     }
 
-    const comments = await repos.commentEmbeddings.searchCommentsByEmbedding(JSON.parse(commentEmbedding.embeddings), { scoreBias: scoreBias ?? 0 });
+    const comments = await repos.commentEmbeddings.searchCommentsByEmbedding(commentEmbedding.embeddings, { scoreBias: scoreBias ?? 0 });
     return await accessFilterMultiple(context.currentUser, 'Comments', comments, context);
   }
 }

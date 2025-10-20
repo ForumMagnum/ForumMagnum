@@ -1,10 +1,10 @@
-import pgp, { IDatabase, IEventContext } from "pg-promise";
-import type { IClient, IResult } from "pg-promise/typescript/pg-subset";
+import pgp, { IDatabase } from "pg-promise";
 import Query from "@/server/sql/Query";
 import { isAnyTest, isDevelopment } from "../lib/executionEnvironment";
 import omit from "lodash/omit";
 import { logAllQueries, logQueryArguments, measureSqlBytesDownloaded } from "@/server/sql/sqlClient";
 import { getIsSSRRequest, getParentTraceId, recordSqlQueryPerfMetric } from "./perfMetrics";
+import { backgroundTask } from "./utils/backgroundTask";
 
 let sqlBytesDownloaded = 0;
 
@@ -15,16 +15,16 @@ const SLOW_QUERY_REPORT_CUTOFF_MS = parseInt(process.env.SLOW_QUERY_REPORT_CUTOF
 
 let vectorTypeOidPromise: Promise<number | null> | null = null;
 
-const getVectorTypeOid = async (client: IClient): Promise<number | null> => {
-  const result: IResult<{oid: number}> = await client.query(
+const getVectorTypeOid = async (client: SqlClient): Promise<number | null> => {
+  const result = await client.any<{oid: number}>(
     "SELECT oid FROM pg_type WHERE typname = 'vector'",
   );
-  if (result.rowCount < 1) {
+  if (result.length < 1) {
     // eslint-disable-next-line no-console
     console.warn("vector type not found in the database");
     return null;
   }
-  return result.rows[0].oid;
+  return result[0].oid;
 }
 
 declare global {
@@ -32,17 +32,6 @@ declare global {
 }
 const createPgPromiseLib = () => pgp({
   noWarnings: isAnyTest,
-  connect: async ({client}) => {
-    if (!vectorTypeOidPromise) {
-      vectorTypeOidPromise = getVectorTypeOid(client);
-    }
-    const oid = await vectorTypeOidPromise;
-    if (typeof oid === "number") {
-      (client as AnyBecauseHard).setTypeParser(oid, "text", (value: string) => {
-        return value.substring(1, value.length - 1).split(",").map((v) => parseFloat(v));
-      });
-    }
-  },
   error: (err, ctx) => {
     // If it's a syntax error, print the bad query for debugging
     if (typeof err.code === "string" && err.code.startsWith("42")) {
@@ -58,7 +47,8 @@ const createPgPromiseLib = () => pgp({
 
 export const getPgPromiseLib = () => {
   if (!globalThis.pgPromiseLib) {
-    globalThis.pgPromiseLib = createPgPromiseLib();
+    const pgpInstance = createPgPromiseLib();
+    globalThis.pgPromiseLib = pgpInstance;
   }
   return globalThis.pgPromiseLib;
 }
@@ -244,7 +234,8 @@ function getWrappedClient(
   url?: string,
   isTestingClient = false,
 ): SqlClient {
-  const db = getPgPromiseLib()({
+  const pgpInstance = getPgPromiseLib();
+  const db = pgpInstance({
     connectionString: url,
     max: MAX_CONNECTIONS,
     // Trying a relatively shorter idle timeout to see if it reduces the connection starvation we see during deploys on Vercel
@@ -264,6 +255,19 @@ function getWrappedClient(
     concat,
     isTestingClient,
   };
+
+  backgroundTask((async () => {
+    if (!vectorTypeOidPromise) {
+      vectorTypeOidPromise = getVectorTypeOid(client);
+    }
+    const oid = await vectorTypeOidPromise;
+    if (!(typeof oid === "number")) {
+      return;
+    }
+    pgpInstance.pg.types.setTypeParser(oid, "text", (value: string) => {
+      return value.substring(1, value.length - 1).split(",").map((v) => parseFloat(v));
+    });
+  })());
 
   return client;
 }
