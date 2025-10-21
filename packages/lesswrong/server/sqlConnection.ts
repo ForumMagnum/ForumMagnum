@@ -258,6 +258,12 @@ function getWrappedClient(
   };
 
   backgroundTask((async () => {
+    // This is technically a race condition, in that if the first query relies
+    // on the vector type parser, and the result of that query comes back before
+    // this initialization finishes, then that query may get an unparsed result.
+    // This is unlikely to happen in practice because it only affects the first
+    // query in the whole connection pool, which while ~always be a login-token
+    // query not something involving the vector extension.
     if (!vectorTypeOidPromise) {
       vectorTypeOidPromise = getVectorTypeOid(client);
     }
