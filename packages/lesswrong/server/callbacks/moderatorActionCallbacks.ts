@@ -1,4 +1,4 @@
-import { isActionActive } from '../../lib/collections/moderatorActions/newSchema';
+import { isActionActive } from "@/lib/collections/moderatorActions/helpers";
 import { MODERATOR_ACTION_TYPES, RECEIVED_SENIOR_DOWNVOTES_ALERT } from "@/lib/collections/moderatorActions/constants";
 import { appendToSunshineNotes } from '../../lib/collections/users/helpers';
 import { loggerConstructor } from '../../lib/utils/logging';

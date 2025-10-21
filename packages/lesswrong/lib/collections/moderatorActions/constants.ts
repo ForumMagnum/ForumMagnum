@@ -34,6 +34,7 @@ export const SNOOZE_EXPIRED = "snoozeExpired";
 export const STRICTER_COMMENT_AUTOMOD_RATE_LIMIT = "stricterCommentAutomodRateLimit";
 export const STRICTER_POST_AUTOMOD_RATE_LIMIT = "stricterPostAutomodRateLimit";
 export const MANUAL_RATE_LIMIT_EXPIRED = "manualRateLimitExpired";
+export const VOTING_DISABLED = "votingDisabled";
 
 
 export const postRateLimits = [] as const;
@@ -110,6 +111,7 @@ export const MODERATOR_ACTION_TYPES = {
   [STRICTER_COMMENT_AUTOMOD_RATE_LIMIT]: "Stricter comment automod rate limit",
   [STRICTER_POST_AUTOMOD_RATE_LIMIT]: "Stricter post automod rate limit",
   [MANUAL_RATE_LIMIT_EXPIRED]: "Manual rate limit expired",
+  [VOTING_DISABLED]: "Voting disabled",
 } satisfies Record<ModeratorActionType, string>;
 
 /** The max # of users an unapproved account is allowed to DM before being flagged */

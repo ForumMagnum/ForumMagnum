@@ -419,10 +419,10 @@ const ModerationDetailView = ({
   const firstClientId = user.associatedClientIds?.[0];
 
   const {
-    handleDisablePosting,
-    handleDisableCommenting,
-    handleDisableMessaging,
-    handleDisableVoting,
+    toggleDisablePosting,
+    toggleDisableCommenting,
+    toggleDisableMessaging,
+    toggleDisableVoting,
   } = useUserContentPermissions(user, dispatch);
 
   return (
@@ -511,28 +511,28 @@ const ModerationDetailView = ({
             <div className={classes.permissionButtonsContainer}>
               <div 
                 className={classNames(classes.permissionButton, user.postingDisabled && 'active')}
-                onClick={handleDisablePosting}
+                onClick={toggleDisablePosting}
               >
                 <span className={classes.permissionButtonLabel}>Posting</span>
                 <span className={classes.keystroke}>{getEnvKeystrokeText('D')}</span>
               </div>
               <div 
                 className={classNames(classes.permissionButton, user.allCommentingDisabled && 'active')}
-                onClick={handleDisableCommenting}
+                onClick={toggleDisableCommenting}
               >
                 <span className={classes.permissionButtonLabel}>Commenting</span>
                 <span className={classes.keystroke}>{getEnvKeystrokeText('C')}</span>
               </div>
               <div 
                 className={classNames(classes.permissionButton, user.conversationsDisabled && 'active')}
-                onClick={handleDisableMessaging}
+                onClick={toggleDisableMessaging}
               >
                 <span className={classes.permissionButtonLabel}>Messaging</span>
                 <span className={classes.keystroke}>{getEnvKeystrokeText('M')}</span>
               </div>
               <div 
                 className={classNames(classes.permissionButton, false && 'active')}
-                onClick={handleDisableVoting}
+                onClick={() => toggleDisableVoting()}
               >
                 <span className={classes.permissionButtonLabel}>Voting</span>
                 <span className={classes.keystroke}>{getEnvKeystrokeText('V')}</span>

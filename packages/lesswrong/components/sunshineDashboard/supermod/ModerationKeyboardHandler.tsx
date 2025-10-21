@@ -250,10 +250,10 @@ const ModerationKeyboardHandler = ({
   }, [selectedUser, getModSignatureWithNote, updateUser, dispatch]);
 
   const {
-    handleDisablePosting,
-    handleDisableCommenting,
-    handleDisableMessaging,
-    handleDisableVoting,
+    toggleDisablePosting,
+    toggleDisableCommenting,
+    toggleDisableMessaging,
+    toggleDisableVoting,
   } = useUserContentPermissions(selectedUser, dispatch);
 
   const handleRestrictAndNotify = useCallback(() => {
@@ -264,6 +264,7 @@ const ModerationKeyboardHandler = ({
         <RestrictAndNotifyModal
           user={selectedUser}
           currentUser={currentUser}
+          dispatch={dispatch}
           onComplete={() => {
             onActionComplete();
             onClose();
@@ -272,7 +273,7 @@ const ModerationKeyboardHandler = ({
         />
       ),
     });
-  }, [selectedUser, currentUser, openDialog, onActionComplete]);
+  }, [selectedUser, currentUser, dispatch, openDialog, onActionComplete]);
 
   const handleRejectContentAndRemove = useCallback(() => {
     if (!selectedUser) return;
@@ -315,7 +316,7 @@ const ModerationKeyboardHandler = ({
 
   const commands: CommandPaletteItem[] = useMemo(() => [
     {
-      label: 'Approve User',
+      label: 'Approve',
       keystroke: 'A',
       isDisabled: () => !selectedUser,
       execute: handleReview,
@@ -339,61 +340,61 @@ const ModerationKeyboardHandler = ({
       execute: handleSnoozeCustom,
     },
     {
-      label: 'Remove from Queue',
+      label: 'Remove',
       keystroke: 'R',
       isDisabled: () => !selectedUser,
       execute: handleRemoveNeedsReview,
     },
     {
-      label: 'Reject Content & Remove from Queue',
+      label: 'Reject Latest & Remove',
       keystroke: 'X',
       isDisabled: () => !selectedUser,
       execute: handleRejectContentAndRemove,
     },
     {
-      label: 'Ban for 3 Months',
+      label: 'Ban 3mo',
       keystroke: 'B',
       isDisabled: () => !selectedUser,
       execute: handleBan,
     },
     {
-      label: 'Purge User (Delete & Ban)',
+      label: 'Purge',
       keystroke: 'P',
       isDisabled: () => !selectedUser,
       execute: handlePurge,
     },
     {
-      label: 'Toggle Flag',
+      label: 'Flag',
       keystroke: 'F',
       isDisabled: () => !selectedUser,
       execute: handleFlag,
     },
     {
-      label: 'Toggle Disable Posting',
+      label: 'Disable Posting',
       keystroke: 'D',
       isDisabled: () => !selectedUser,
-      execute: handleDisablePosting,
+      execute: toggleDisablePosting,
     },
     {
-      label: 'Toggle Disable Commenting',
+      label: 'Disable Commenting',
       keystroke: 'C',
       isDisabled: () => !selectedUser,
-      execute: handleDisableCommenting,
+      execute: toggleDisableCommenting,
     },
     {
-      label: 'Toggle Disable Messaging',
+      label: 'Disable Messaging',
       keystroke: 'M',
       isDisabled: () => !selectedUser,
-      execute: handleDisableMessaging,
+      execute: toggleDisableMessaging,
     },
     {
-      label: 'Toggle Disable Voting',
+      label: 'Disable Voting',
       keystroke: 'V',
       isDisabled: () => !selectedUser,
-      execute: handleDisableVoting,
+      execute: toggleDisableVoting,
     },
     {
-      label: 'Restrict & Notify',
+      label: 'Reject All, Restrict, & Notify',
       keystroke: 'Shift+R',
       isDisabled: () => !selectedUser,
       execute: handleRestrictAndNotify,
@@ -438,7 +439,7 @@ const ModerationKeyboardHandler = ({
       isDisabled: () => false,
       execute: onCloseDetail,
     },
-    ], [handleReview, handleApproveCurrentOnly, handleSnoozeCustom, handleRemoveNeedsReview, handleRejectContentAndRemove, handleBan, handlePurge, handleFlag, handleDisablePosting, handleDisableCommenting, handleDisableMessaging, handleDisableVoting, handleRestrictAndNotify, onNextUser, onPrevUser, onNextTab, onPrevTab, onOpenDetail, onCloseDetail, selectedUser, handleSnooze, isDetailView, dispatch, allContent]);
+    ], [handleReview, handleApproveCurrentOnly, handleSnoozeCustom, handleRemoveNeedsReview, handleRejectContentAndRemove, handleBan, handlePurge, handleFlag, toggleDisablePosting, toggleDisableCommenting, toggleDisableMessaging, toggleDisableVoting, handleRestrictAndNotify, onNextUser, onPrevUser, onNextTab, onPrevTab, onOpenDetail, onCloseDetail, selectedUser, handleSnooze, isDetailView, dispatch, allContent]);
 
   useGlobalKeydown(
     useCallback(
@@ -552,16 +553,16 @@ const ModerationKeyboardHandler = ({
           handleFlag();
         } else if (event.key === 'd') {
           event.preventDefault();
-          handleDisablePosting();
+          toggleDisablePosting();
         } else if (event.key === 'c') {
           event.preventDefault();
-          handleDisableCommenting();
+          toggleDisableCommenting();
         } else if (event.key === 'm') {
           event.preventDefault();
-          handleDisableMessaging();
+          toggleDisableMessaging();
         } else if (event.key === 'v') {
           event.preventDefault();
-          handleDisableVoting();
+          void toggleDisableVoting();
         } else if (event.key === 'x') {
           event.preventDefault();
           handleRejectContentAndRemove();
@@ -586,10 +587,10 @@ const ModerationKeyboardHandler = ({
         handleBan,
         handlePurge,
         handleFlag,
-        handleDisablePosting,
-        handleDisableCommenting,
-        handleDisableMessaging,
-        handleDisableVoting,
+        toggleDisablePosting,
+        toggleDisableCommenting,
+        toggleDisableMessaging,
+        toggleDisableVoting,
         commands,
         openCommandPalette,
         dispatch,

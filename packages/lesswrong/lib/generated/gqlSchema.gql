@@ -1282,6 +1282,7 @@ extend type Mutation {
   unlockThread(commentId: String!): Boolean!
   rejectContentAndRemoveUserFromQueue(userId: String!, documentId: String!, collectionName: ContentCollectionName!): Boolean!
   approveUserCurrentContentOnly(userId: String!): Boolean!
+  toggleVotingDisabled(userId: String!): Boolean!
 }
 
 extend type Mutation {
@@ -3969,6 +3970,7 @@ enum ModeratorActionType {
   stricterCommentAutomodRateLimit
   stricterPostAutomodRateLimit
   manualRateLimitExpired
+  votingDisabled
 }
 
 input SingleModeratorActionInput {
@@ -7899,6 +7901,7 @@ type User {
   permanentDeletionRequestedAt: Date
   voteBanned: Boolean
   nullifyVotes: Boolean
+  votingDisabled: Boolean!
   deleteContent: Boolean
   banned: Date
   IPs: [String!]

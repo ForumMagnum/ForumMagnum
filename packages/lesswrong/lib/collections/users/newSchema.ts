@@ -31,7 +31,9 @@ import { getKarmaChangeDateRange, getKarmaChangeNextBatchDate, getKarmaChanges }
 import { rateLimitDateWhenUserNextAbleToComment, rateLimitDateWhenUserNextAbleToPost, getRecentKarmaInfo } from "@/server/rateLimitUtils";
 import GraphQLJSON from "@/lib/vendor/graphql-type-json";
 import { bothChannelsEnabledNotificationTypeSettings, dailyEmailBatchNotificationSettingOnCreate, defaultNotificationTypeSettings, emailEnabledNotificationSettingOnCreate, notificationTypeSettingsSchema } from "./notificationFieldHelpers";
-import { loadByIds } from "@/lib/loaders";
+import { getWithLoader, loadByIds } from "@/lib/loaders";
+import { VOTING_DISABLED } from "../moderatorActions/constants";
+import { isActionActive } from "../moderatorActions/helpers";
 
 ///////////////////////////////////////
 // Order for the Schema is as follows. Change as you see fit:
@@ -1533,6 +1535,34 @@ const schema = {
         optional: true,
       },
     },
+  },
+  votingDisabled: {
+    graphql: {
+      outputType: "Boolean!",
+      canRead: ["guests"],
+      resolver: async (user: DbUser, args: unknown, context: ResolverContext) => {
+        const { ModeratorActions } = context;
+
+        const moderatorActions = await getWithLoader(
+          context,
+          ModeratorActions,
+          'votingDisabledModeratorAction',
+          {
+            userId: user._id,
+            type: VOTING_DISABLED,
+          },
+          'userId',
+          user._id,
+          { sort: { createdAt: -1 } }
+        );
+
+        if (moderatorActions.length === 0) return false;
+
+        const moderatorAction = moderatorActions[0];
+
+        return isActionActive(moderatorAction);
+      },
+    }
   },
   // deleteContent: Flag all comments and posts from this user as deleted
   deleteContent: {

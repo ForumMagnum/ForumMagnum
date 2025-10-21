@@ -4,12 +4,39 @@ import { gql } from '@/lib/generated/gql-codegen';
 import { getSignatureWithNote } from '@/lib/collections/users/helpers';
 import { useCurrentUser } from '@/components/common/withUser';
 import type { InboxAction } from './inboxReducer';
+import { VOTING_DISABLED } from '@/lib/collections/moderatorActions/constants';
 
 const SunshineUsersListUpdateMutation = gql(`
   mutation updateUserContentPermissions($selector: SelectorInput!, $data: UpdateUserDataInput!) {
     updateUser(selector: $selector, data: $data) {
       data {
         ...SunshineUsersList
+      }
+    }
+  }
+`);
+
+const CreateModeratorActionMutation = gql(`
+  mutation createModeratorActionContentPermissions($data: CreateModeratorActionDataInput!) {
+    createModeratorAction(data: $data) {
+      data {
+        _id
+        type
+        userId
+        endedAt
+      }
+    }
+  }
+`);
+
+const UpdateModeratorActionMutation = gql(`
+  mutation updateModeratorActionContentPermissions($selector: SelectorInput!, $data: UpdateModeratorActionDataInput!) {
+    updateModeratorAction(selector: $selector, data: $data) {
+      data {
+        _id
+        type
+        userId
+        endedAt
       }
     }
   }
@@ -51,6 +78,8 @@ export function useUserContentPermissions(
 ) {
   const currentUser = useCurrentUser();
   const [updateUser] = useMutation(SunshineUsersListUpdateMutation);
+  const [createModeratorAction] = useMutation(CreateModeratorActionMutation);
+  const [updateModeratorAction] = useMutation(UpdateModeratorActionMutation);
 
   const updateUserWith = useCallback((data: UpdateUserDataInput) => {
     if (!user) return;
@@ -63,7 +92,7 @@ export function useUserContentPermissions(
     });
   }, [user, updateUser]);
 
-  const handleDisablePosting = useCallback(() => {
+  const toggleDisablePosting = useCallback(() => {
     if (!user) return;
     const newNotes = createModNoteForPermission('postingDisabled', user, currentUser);
     
@@ -75,19 +104,19 @@ export function useUserContentPermissions(
     });
   }, [user, currentUser, updateUserWith, dispatch]);
 
-  const handleDisableCommenting = useCallback(() => {
+  const toggleDisableCommenting = useCallback(() => {
     if (!user) return;
     const newNotes = createModNoteForPermission('allCommentingDisabled', user, currentUser);
     
     dispatch({ type: 'UPDATE_USER_NOTES', userId: user._id, sunshineNotes: newNotes });
-    
+  
     updateUserWith({
       allCommentingDisabled: !user.allCommentingDisabled,
       sunshineNotes: newNotes,
     });
   }, [user, currentUser, updateUserWith, dispatch]);
 
-  const handleDisableMessaging = useCallback(() => {
+  const toggleDisableMessaging = useCallback(() => {
     if (!user) return;
     const newNotes = createModNoteForPermission('conversationsDisabled', user, currentUser);
     
@@ -99,17 +128,63 @@ export function useUserContentPermissions(
     });
   }, [user, currentUser, updateUserWith, dispatch]);
 
-  const handleDisableVoting = useCallback(() => {
-    // TODO: Implement voting permission toggle
-    // eslint-disable-next-line no-console
-    console.log('Toggle voting permissions - not yet implemented');
-  }, []);
+  const toggleDisableVoting = useCallback(async (disableOnly = false) => {
+    if (!user || !currentUser) return;
+    
+    const modDisplayName = currentUser.displayName ?? 'Unknown';
+    const currentNotes = user.sunshineNotes || '';
+    
+    // votingDisabled is a resolver field that checks for active VOTING_DISABLED moderator actions
+    const isCurrentlyDisabled = user.votingDisabled;
+    const abled = isCurrentlyDisabled ? 'enabled' : 'disabled';
+    const newNotes = getSignatureWithNote(modDisplayName, `voting ${abled}`) + currentNotes;
+    
+    dispatch({ type: 'UPDATE_USER_NOTES', userId: user._id, sunshineNotes: newNotes });
+    
+    if (isCurrentlyDisabled) {
+      // Find and end the existing VOTING_DISABLED moderator action
+      const votingDisabledAction = user.moderatorActions?.find(
+        action => action.type === VOTING_DISABLED && !action.endedAt
+      );
+      
+      if (votingDisabledAction && !disableOnly) {
+        await updateModeratorAction({
+          variables: {
+            selector: { _id: votingDisabledAction._id },
+            data: {
+              endedAt: new Date(),
+            },
+          },
+        });
+      }
+    } else {
+      // Create a new moderator action
+      await createModeratorAction({
+        variables: {
+          data: {
+            userId: user._id,
+            type: VOTING_DISABLED,
+          },
+        },
+      });
+    }
+    
+    // Update user notes
+    await updateUser({
+      variables: {
+        selector: { _id: user._id },
+        data: {
+          sunshineNotes: newNotes,
+        },
+      },
+    });
+  }, [user, currentUser, updateModeratorAction, createModeratorAction, updateUser, dispatch]);
 
   return {
-    handleDisablePosting,
-    handleDisableCommenting,
-    handleDisableMessaging,
-    handleDisableVoting,
+    toggleDisablePosting,
+    toggleDisableCommenting,
+    toggleDisableMessaging,
+    toggleDisableVoting,
   };
 }
 

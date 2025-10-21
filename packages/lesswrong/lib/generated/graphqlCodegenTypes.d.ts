@@ -3254,6 +3254,7 @@ type ModeratorActionType =
   | 'unreviewedFirstPost'
   | 'unreviewedMapLocationUpdate'
   | 'unreviewedProfileImageUpdate'
+  | 'votingDisabled'
   | 'votingPatternWarningDelivered';
 
 type ModeratorActionsUserModeratorActionsInput = {
@@ -4370,6 +4371,7 @@ type Mutation = {
   signup?: Maybe<LoginReturnData>;
   submitReviewVote?: Maybe<Post>;
   toggleBookmark?: Maybe<ToggleBookmarkOutput>;
+  toggleVotingDisabled: Scalars['Boolean']['output'];
   unlinkCrossposter?: Maybe<Scalars['String']['output']>;
   unlockPost?: Maybe<Post>;
   unlockThread: Scalars['Boolean']['output'];
@@ -5073,6 +5075,11 @@ type MutationsubmitReviewVoteArgs = {
 
 type MutationtoggleBookmarkArgs = {
   input: ToggleBookmarkInput;
+};
+
+
+type MutationtoggleVotingDisabledArgs = {
+  userId: Scalars['String']['input'];
 };
 
 
@@ -12518,6 +12525,7 @@ type User = {
   voteBanned?: Maybe<Scalars['Boolean']['output']>;
   voteCount?: Maybe<Scalars['Float']['output']>;
   voteReceivedCount?: Maybe<Scalars['Float']['output']>;
+  votingDisabled: Scalars['Boolean']['output'];
   walledGardenInvite?: Maybe<Scalars['Boolean']['output']>;
   walledGardenPortalOnboarded?: Maybe<Scalars['Boolean']['output']>;
   website?: Maybe<Scalars['String']['output']>;
@@ -21722,6 +21730,20 @@ type updateCommentRestrictAndNotifyMutationVariables = Exact<{
 
 type updateCommentRestrictAndNotifyMutation = updateCommentRestrictAndNotifyMutation_Mutation;
 
+type createModeratorActionRestrictAndNotifyMutation_createModeratorAction_ModeratorActionOutput_data_ModeratorAction = { __typename?: 'ModeratorAction', _id: string, type: ModeratorActionType, userId: string };
+
+type createModeratorActionRestrictAndNotifyMutation_createModeratorAction_ModeratorActionOutput = { __typename?: 'ModeratorActionOutput', data: createModeratorActionRestrictAndNotifyMutation_createModeratorAction_ModeratorActionOutput_data_ModeratorAction | null };
+
+type createModeratorActionRestrictAndNotifyMutation_Mutation = { __typename?: 'Mutation', createModeratorAction: createModeratorActionRestrictAndNotifyMutation_createModeratorAction_ModeratorActionOutput | null };
+
+
+type createModeratorActionRestrictAndNotifyMutationVariables = Exact<{
+  data: CreateModeratorActionDataInput;
+}>;
+
+
+type createModeratorActionRestrictAndNotifyMutation = createModeratorActionRestrictAndNotifyMutation_Mutation;
+
 type updateUserContentPermissionsMutation_updateUser_UserOutput_data_User = (
   { __typename?: 'User' }
   & SunshineUsersList
@@ -21739,6 +21761,35 @@ type updateUserContentPermissionsMutationVariables = Exact<{
 
 
 type updateUserContentPermissionsMutation = updateUserContentPermissionsMutation_Mutation;
+
+type createModeratorActionContentPermissionsMutation_createModeratorAction_ModeratorActionOutput_data_ModeratorAction = { __typename?: 'ModeratorAction', _id: string, type: ModeratorActionType, userId: string, endedAt: string | null };
+
+type createModeratorActionContentPermissionsMutation_createModeratorAction_ModeratorActionOutput = { __typename?: 'ModeratorActionOutput', data: createModeratorActionContentPermissionsMutation_createModeratorAction_ModeratorActionOutput_data_ModeratorAction | null };
+
+type createModeratorActionContentPermissionsMutation_Mutation = { __typename?: 'Mutation', createModeratorAction: createModeratorActionContentPermissionsMutation_createModeratorAction_ModeratorActionOutput | null };
+
+
+type createModeratorActionContentPermissionsMutationVariables = Exact<{
+  data: CreateModeratorActionDataInput;
+}>;
+
+
+type createModeratorActionContentPermissionsMutation = createModeratorActionContentPermissionsMutation_Mutation;
+
+type updateModeratorActionContentPermissionsMutation_updateModeratorAction_ModeratorActionOutput_data_ModeratorAction = { __typename?: 'ModeratorAction', _id: string, type: ModeratorActionType, userId: string, endedAt: string | null };
+
+type updateModeratorActionContentPermissionsMutation_updateModeratorAction_ModeratorActionOutput = { __typename?: 'ModeratorActionOutput', data: updateModeratorActionContentPermissionsMutation_updateModeratorAction_ModeratorActionOutput_data_ModeratorAction | null };
+
+type updateModeratorActionContentPermissionsMutation_Mutation = { __typename?: 'Mutation', updateModeratorAction: updateModeratorActionContentPermissionsMutation_updateModeratorAction_ModeratorActionOutput | null };
+
+
+type updateModeratorActionContentPermissionsMutationVariables = Exact<{
+  selector: SelectorInput;
+  data: UpdateModeratorActionDataInput;
+}>;
+
+
+type updateModeratorActionContentPermissionsMutation = updateModeratorActionContentPermissionsMutation_Mutation;
 
 type multiSurveyScheduleSurveyAdminPageQueryQuery_surveySchedules_MultiSurveyScheduleOutput_results_SurveySchedule = (
   { __typename?: 'SurveySchedule' }
@@ -26346,7 +26397,7 @@ type SunshineUsersList_User_moderatorActions_ModeratorAction = (
 type SunshineUsersList_User_associatedClientIds_ClientId = { __typename?: 'ClientId', clientId: string | null, firstSeenReferrer: string | null, firstSeenLandingPage: string | null, userIds: Array<string> | null };
 
 type SunshineUsersList = (
-  { __typename?: 'User', karma: number, htmlBio: string, website: string | null, createdAt: string, email: string | null, emails: Array<any> | null, commentCount: number, maxCommentCount: number, postCount: number, maxPostCount: number, shortformFeedId: string | null, voteCount: number | null, smallUpvoteCount: number | null, bigUpvoteCount: number | null, smallDownvoteCount: number | null, bigDownvoteCount: number | null, banned: string | null, reviewedByUserId: string | null, reviewedAt: string | null, signUpReCaptchaRating: number | null, mapLocation: any | null, needsReview: boolean | null, sunshineNotes: string | null, sunshineFlagged: boolean | null, postingDisabled: boolean | null, allCommentingDisabled: boolean | null, commentingOnOtherUsersDisabled: boolean | null, conversationsDisabled: boolean | null, snoozedUntilContentCount: number | null, nullifyVotes: boolean | null, deleteContent: boolean | null, usersContactedBeforeReview: Array<string> | null, altAccountsDetected: boolean | null, voteReceivedCount: number | null, smallUpvoteReceivedCount: number | null, bigUpvoteReceivedCount: number | null, smallDownvoteReceivedCount: number | null, bigDownvoteReceivedCount: number | null, recentKarmaInfo: any | null, lastNotificationsCheck: string | null, lastRemovedFromReviewQueueAt: string | null, rejectedContentCount: number | null, moderatorActions: Array<SunshineUsersList_User_moderatorActions_ModeratorAction> | null, associatedClientIds: Array<SunshineUsersList_User_associatedClientIds_ClientId> | null }
+  { __typename?: 'User', karma: number, htmlBio: string, website: string | null, createdAt: string, email: string | null, emails: Array<any> | null, commentCount: number, maxCommentCount: number, postCount: number, maxPostCount: number, shortformFeedId: string | null, voteCount: number | null, smallUpvoteCount: number | null, bigUpvoteCount: number | null, smallDownvoteCount: number | null, bigDownvoteCount: number | null, banned: string | null, reviewedByUserId: string | null, reviewedAt: string | null, signUpReCaptchaRating: number | null, mapLocation: any | null, needsReview: boolean | null, sunshineNotes: string | null, sunshineFlagged: boolean | null, postingDisabled: boolean | null, allCommentingDisabled: boolean | null, commentingOnOtherUsersDisabled: boolean | null, conversationsDisabled: boolean | null, votingDisabled: boolean, snoozedUntilContentCount: number | null, nullifyVotes: boolean | null, deleteContent: boolean | null, usersContactedBeforeReview: Array<string> | null, altAccountsDetected: boolean | null, voteReceivedCount: number | null, smallUpvoteReceivedCount: number | null, bigUpvoteReceivedCount: number | null, smallDownvoteReceivedCount: number | null, bigDownvoteReceivedCount: number | null, recentKarmaInfo: any | null, lastNotificationsCheck: string | null, lastRemovedFromReviewQueueAt: string | null, rejectedContentCount: number | null, moderatorActions: Array<SunshineUsersList_User_moderatorActions_ModeratorAction> | null, associatedClientIds: Array<SunshineUsersList_User_associatedClientIds_ClientId> | null }
   & UsersMinimumInfo
 );
 

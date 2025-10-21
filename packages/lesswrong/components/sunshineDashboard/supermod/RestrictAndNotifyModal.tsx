@@ -1,4 +1,4 @@
-import React, { useMemo, useState } from 'react';
+import React, { useState } from 'react';
 import { defineStyles, useStyles } from '@/components/hooks/useStyles';
 import LWDialog from "@/components/common/LWDialog";
 import { DialogTitle } from '@/components/widgets/DialogTitle';
@@ -14,19 +14,9 @@ import { commentBodyStyles } from '@/themes/stylePiping';
 import { useInitiateConversation } from '@/components/hooks/useInitiateConversation';
 import Loading from '@/components/vulcan-core/Loading';
 import { CONTENT_LIMIT } from '../UsersReviewInfoCard';
-import { usePublishedPosts } from '@/components/hooks/usePublishedPosts';
 import { useModeratedUserContents } from '@/components/hooks/useModeratedUserContents';
-
-const CommentsListWithParentMetadataMultiQuery = gql(`
-  query multiCommentModerationKeyboardQuery($selector: CommentSelector, $limit: Int, $enableTotal: Boolean) {
-    comments(selector: $selector, limit: $limit, enableTotal: $enableTotal) {
-      results {
-        ...CommentsListWithParentMetadata
-      }
-      totalCount
-    }
-  }
-`);
+import { InboxAction } from './inboxReducer';
+import { useUserContentPermissions } from './useUserContentPermissions';
 
 const ModerationTemplateFragmentMultiQuery = gql(`
   query multiModerationTemplateRestrictAndNotifyModalQuery($selector: ModerationTemplateSelector, $limit: Int, $enableTotal: Boolean) {
@@ -132,17 +122,24 @@ const styles = defineStyles('RestrictAndNotifyModal', (theme: ThemeType) => ({
 const RestrictAndNotifyModal = ({
   user,
   currentUser,
+  dispatch,
   onComplete,
   onClose,
 }: {
   user: SunshineUsersList;
   currentUser: UsersCurrent;
+  dispatch: React.ActionDispatch<[action: InboxAction]>;
   onComplete: () => void;
   onClose: () => void;
 }) => {
   const classes = useStyles(styles);
   const [selectedTemplateId, setSelectedTemplateId] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
+
+  const { initiateConversation } = useInitiateConversation({ includeModerators: true });
+  const [updateUser] = useMutation(SunshineUsersListUpdateMutation);
+  const [updatePost] = useMutation(PostsListUpdateMutation);
+  const [updateComment] = useMutation(CommentsListUpdateMutation);
 
   const { posts, comments } = useModeratedUserContents(user._id, CONTENT_LIMIT);
 
@@ -156,12 +153,7 @@ const RestrictAndNotifyModal = ({
 
   const templates = templatesData?.moderationTemplates?.results ?? [];
 
-  const { initiateConversation } = useInitiateConversation({ includeModerators: true });
-  const [updateUser] = useMutation(SunshineUsersListUpdateMutation);
-  const [updatePost] = useMutation(PostsListUpdateMutation);
-  const [updateComment] = useMutation(CommentsListUpdateMutation);
-
-  const getModSignatureWithNote = (note: string) => getSignatureWithNote(currentUser.displayName, note);
+  const { toggleDisableVoting } = useUserContentPermissions(user, dispatch);
 
   const handleConfirm = async () => {
     if (!selectedTemplateId) return;
@@ -169,7 +161,7 @@ const RestrictAndNotifyModal = ({
     setLoading(true);
     try {
       const notes = user.sunshineNotes || '';
-      const newNotes = getModSignatureWithNote('Restricted & notified (rejected content, disabled permissions)') + notes;
+      const newNotes = getSignatureWithNote(currentUser.displayName, 'Restricted & notified (rejected content, disabled all permissions)') + notes;
 
       // 1. Restrict user permissions and remove from queue
       await updateUser({
@@ -177,7 +169,8 @@ const RestrictAndNotifyModal = ({
           selector: { _id: user._id },
           data: {
             postingDisabled: true,
-            commentingOnOtherUsersDisabled: true,
+            allCommentingDisabled: true,
+            conversationsDisabled: true,
             needsReview: false,
             reviewedByUserId: null,
             reviewedAt: user.reviewedAt ? new Date() : null,
@@ -185,6 +178,9 @@ const RestrictAndNotifyModal = ({
           },
         },
       });
+
+      // 1b. Disable voting by creating a moderator action
+      void toggleDisableVoting(true);
 
       // 2. Reject all unreviewed posts
       const unrejectedPosts = posts.filter(p => !p.rejected && !p.reviewedByUserId);
@@ -242,6 +238,8 @@ const RestrictAndNotifyModal = ({
           <ul>
             <li>Disable posting</li>
             <li>Disable commenting on others' content</li>
+            <li>Disable messaging</li>
+            <li>Disable voting</li>
             <li>Reject {unreviewedPostCount} unreviewed post(s)</li>
             <li>Reject {unreviewedCommentCount} unreviewed comment(s)</li>
             <li>Remove user from review queue (without approval)</li>

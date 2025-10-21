@@ -267,6 +267,7 @@ interface Mutation {
   unlockThread: boolean;
   rejectContentAndRemoveUserFromQueue: boolean;
   approveUserCurrentContentOnly: boolean;
+  toggleVotingDisabled: boolean;
   reorderSummaries: boolean | null;
   publishAndDeDuplicateSpotlight: Spotlight | null;
   toggleBookmark: ToggleBookmarkOutput | null;
@@ -7288,6 +7289,7 @@ interface User {
   permanentDeletionRequestedAt: Date | null;
   voteBanned: boolean | null;
   nullifyVotes: boolean | null;
+  votingDisabled: boolean;
   deleteContent: boolean | null;
   banned: Date | null;
   IPs: Array<string> | null;

@@ -117,3 +117,11 @@ export function getReasonForReview(user: DbUser|SunshineUsersList): GetReasonFor
 
   return {needsReview: false, reason: 'noReview'};
 }
+
+/**
+ * If the action hasn't ended yet (either no endedAt, or endedAt in the future), it's active.
+ */
+export const isActionActive = (moderatorAction: Pick<DbModeratorAction, "endedAt">) => {
+  return !moderatorAction.endedAt || moderatorAction.endedAt > new Date();
+};
+
