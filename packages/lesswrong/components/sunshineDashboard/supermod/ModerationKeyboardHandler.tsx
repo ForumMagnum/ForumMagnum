@@ -397,7 +397,7 @@ const ModerationKeyboardHandler = ({
       keystroke: 'arrowdown',
       isDisabled: () => isDetailView ? allContent.length === 0 : false,
       execute: isDetailView 
-        ? () => dispatch({ type: 'NEXT_CONTENT', allContent })
+        ? () => dispatch({ type: 'NEXT_CONTENT', contentLength: allContent.length })
         : onNextUser,
     },
     {
@@ -405,7 +405,7 @@ const ModerationKeyboardHandler = ({
       keystroke: 'arrowup',
       isDisabled: () => isDetailView ? allContent.length === 0 : false,
       execute: isDetailView 
-        ? () => dispatch({ type: 'PREV_CONTENT', allContent })
+        ? () => dispatch({ type: 'PREV_CONTENT', contentLength: allContent.length })
         : onPrevUser,
     },
     {
@@ -463,7 +463,7 @@ const ModerationKeyboardHandler = ({
         if (event.key === 'ArrowDown') {
           event.preventDefault();
           if (isDetailView) {
-            dispatch({ type: 'NEXT_CONTENT', allContent });
+            dispatch({ type: 'NEXT_CONTENT', contentLength: allContent.length });
           } else {
             onNextUser();
           }
@@ -473,7 +473,7 @@ const ModerationKeyboardHandler = ({
         if (event.key === 'ArrowUp') {
           event.preventDefault();
           if (isDetailView) {
-            dispatch({ type: 'PREV_CONTENT', allContent });
+            dispatch({ type: 'PREV_CONTENT', contentLength: allContent.length });
           } else {
             onPrevUser();
           }

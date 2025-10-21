@@ -47,12 +47,10 @@ const ModerationContentList = ({
   items,
   title,
   focusedItemId,
-  onOpenItem,
 }: {
   items: ContentItem[];
   title: string;
   focusedItemId: string | null;
-  onOpenItem: (itemId: string) => void;
 }) => {
   const classes = useStyles(styles);
 
@@ -75,7 +73,7 @@ const ModerationContentList = ({
               key={item._id}
               item={item}
               isFocused={item._id === focusedItemId}
-              onOpen={() => onOpenItem(item._id)}
+              onOpen={() => {}}
             />
           ))}
         </div>

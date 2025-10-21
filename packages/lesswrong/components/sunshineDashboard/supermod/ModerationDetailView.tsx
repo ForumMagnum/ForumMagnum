@@ -1,4 +1,4 @@
-import React, { useState, useMemo, useEffect } from 'react';
+import React, { useState, useMemo } from 'react';
 import { defineStyles, useStyles } from '@/components/hooks/useStyles';
 import UsersName from '@/components/users/UsersName';
 import { truncate } from '@/lib/editor/ellipsize';
@@ -16,8 +16,8 @@ import LWTooltip from '@/components/common/LWTooltip';
 import UserAutoRateLimitsDisplay from '../ModeratorUserInfo/UserAutoRateLimitsDisplay';
 import ModerationContentList from './ModerationContentList';
 import ModerationContentDetail from './ModerationContentDetail';
-import FormatDate from '@/components/common/FormatDate';
 import type { InboxAction } from './ModerationInbox';
+import FormatDate from '@/components/common/FormatDate';
 
 const sharedVoteStyles = {
   marginLeft: 4,
@@ -285,11 +285,11 @@ const ContentSummaryRow = ({ user, type, items }: ContentSummaryRowProps) => {
 
 const ModerationDetailView = ({ 
   user,
-  focusedContentId,
+  focusedContentIndex,
   dispatch,
 }: {
   user: SunshineUsersList;
-  focusedContentId: string | null;
+  focusedContentIndex: number;
   dispatch: React.ActionDispatch<[action: InboxAction]>;
 }) => {
   const classes = useStyles(styles);
@@ -300,22 +300,11 @@ const ModerationDetailView = ({
   const allContent = useMemo(() => [...posts, ...comments].sort((a, b) => 
     new Date(b.postedAt).getTime() - new Date(a.postedAt).getTime()
   ), [posts, comments]);
-  
-  // Set focus to first content item when content loads
-  useEffect(() => {
-    if (allContent.length > 0 && !focusedContentId) {
-      dispatch({ type: 'SET_FOCUSED_CONTENT', contentId: allContent[0]._id });
-    }
-  }, [allContent, focusedContentId, dispatch]);
 
   const focusedContent = useMemo(() => 
-    allContent.find(item => item._id === focusedContentId) || null,
-    [allContent, focusedContentId]
+    allContent[focusedContentIndex] || null,
+    [allContent, focusedContentIndex]
   );
-  
-  const handleFocusContent = (contentId: string | null) => {
-    dispatch({ type: 'SET_FOCUSED_CONTENT', contentId });
-  };
 
   const { fresh: freshModeratorActions } = partitionModeratorActions(user);
   const likelyReviewTrigger = [...new Set(freshModeratorActions.map(action => getPrimaryDisplayedModeratorAction(action.type)))].reverse().at(0);
@@ -418,8 +407,7 @@ const ModerationDetailView = ({
             <ModerationContentList
               items={allContent}
               title="Posts & Comments"
-              focusedItemId={focusedContentId}
-              onOpenItem={handleFocusContent}
+              focusedItemId={allContent[focusedContentIndex]?._id ?? null}
             />
           </div>
           <ModerationContentDetail

@@ -73,7 +73,7 @@ describe('Moderation Inbox Reducer', () => {
         activeTab: 'newContent',
         focusedUserId: null,
         openedUserId: 'user2',
-        focusedContentId: null,
+        focusedContentIndex: 0,
       };
 
       const newState = inboxStateReducer(state, { type: 'CLOSE_DETAIL' });
@@ -97,7 +97,7 @@ describe('Moderation Inbox Reducer', () => {
         activeTab: 'newContent',
         focusedUserId: 'user3',
         openedUserId: null,
-        focusedContentId: null,
+        focusedContentIndex: 0,
       };
 
       // Next from last user should wrap to first
@@ -117,7 +117,7 @@ describe('Moderation Inbox Reducer', () => {
         activeTab: 'newContent',
         focusedUserId: 'user1',
         openedUserId: null,
-        focusedContentId: null,
+        focusedContentIndex: 0,
       };
 
       // Prev from first user should wrap to last
@@ -139,7 +139,7 @@ describe('Moderation Inbox Reducer', () => {
         activeTab: 'newContent',
         focusedUserId: 'user2',
         openedUserId: null,
-        focusedContentId: null,
+        focusedContentIndex: 0,
       };
 
       // Start at newContent (highest priority)
@@ -172,7 +172,7 @@ describe('Moderation Inbox Reducer', () => {
         activeTab: 'newContent',
         focusedUserId: 'user2',
         openedUserId: null,
-        focusedContentId: null,
+        focusedContentIndex: 0,
       };
 
       // Start at newContent (highest priority)
@@ -201,7 +201,7 @@ describe('Moderation Inbox Reducer', () => {
         activeTab: 'newContent',
         focusedUserId: 'user2',
         openedUserId: null,
-        focusedContentId: null,
+        focusedContentIndex: 0,
       };
 
       state = inboxStateReducer(state, { type: 'REMOVE_USER', userId: 'user2' });
@@ -224,7 +224,7 @@ describe('Moderation Inbox Reducer', () => {
         activeTab: 'newContent',
         focusedUserId: 'user1',
         openedUserId: null,
-        focusedContentId: null,
+        focusedContentIndex: 0,
       };
 
       state = inboxStateReducer(state, { type: 'REMOVE_USER', userId: 'user1' });
@@ -245,7 +245,7 @@ describe('Moderation Inbox Reducer', () => {
         activeTab: 'newContent',
         focusedUserId: 'user1',
         openedUserId: null,
-        focusedContentId: null,
+        focusedContentIndex: 0,
       };
 
       state = inboxStateReducer(state, { type: 'REMOVE_USER', userId: 'user1' });
@@ -270,7 +270,7 @@ describe('Moderation Inbox Reducer', () => {
         activeTab: 'newContent',
         focusedUserId: null,
         openedUserId: 'user2',
-        focusedContentId: null,
+        focusedContentIndex: 0,
       };
 
       state = inboxStateReducer(state, { type: 'REMOVE_USER', userId: 'user2' });
@@ -293,7 +293,7 @@ describe('Moderation Inbox Reducer', () => {
         activeTab: 'newContent',
         focusedUserId: null,
         openedUserId: 'user1',
-        focusedContentId: null,
+        focusedContentIndex: 0,
       };
 
       state = inboxStateReducer(state, { type: 'REMOVE_USER', userId: 'user1' });
@@ -315,7 +315,7 @@ describe('Moderation Inbox Reducer', () => {
         activeTab: 'newContent',
         focusedUserId: null,
         openedUserId: 'user1',
-        focusedContentId: null,
+        focusedContentIndex: 0,
       };
 
       state = inboxStateReducer(state, { type: 'REMOVE_USER', userId: 'user1' });
@@ -339,7 +339,7 @@ describe('Moderation Inbox Reducer', () => {
         activeTab: 'newContent',
         focusedUserId: null,
         openedUserId: 'user1',
-        focusedContentId: null,
+        focusedContentIndex: 0,
       };
 
       // Try to change tabs
