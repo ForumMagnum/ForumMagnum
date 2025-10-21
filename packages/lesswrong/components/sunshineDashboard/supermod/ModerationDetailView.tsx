@@ -37,48 +37,63 @@ const styles = defineStyles('ModerationDetailView', (theme: ThemeType) => ({
     minHeight: 130,
     ...theme.typography.commentStyle,
   },
-  headerTop: {
+  headerContent: {
     display: 'flex',
-    alignItems: 'center',
-    marginBottom: 8,
+    gap: 60,
+  },
+  column1: {
+    display: 'flex',
+    flexDirection: 'column',
+    gap: 8,
+    flexShrink: 0,
+    alignItems: 'flex-start',
+  },
+  column2: {
+    display: 'flex',
+    flexDirection: 'column',
+    gap: 8,
+    flex: 1,
+    minWidth: 0,
+    marginTop: 8,
+  },
+  column3: {
+    flexShrink: 0,
+    marginLeft: 'auto',
   },
   displayName: {
     fontSize: 20,
     fontWeight: 600,
-    marginRight: 36,
+  },
+  topMetadata: {
+    display: 'flex',
+    alignItems: 'center',
+    gap: 20,
+    fontSize: 14,
   },
   createdAt: {
-    fontSize: 14,
     color: theme.palette.grey[600],
-    marginRight: 20,
-    marginTop: 3,
   },
   karma: {
-    fontSize: 14,
     color: theme.palette.grey[600],
-    marginRight: 20,
-    marginTop: 3,
   },
   email: {
     color: theme.palette.grey[600],
-    marginTop: 3,
+    fontSize: 14,
   },
-  metadata: {
+  votesRow: {
     display: 'flex',
-    alignItems: 'flex-end',
-    gap: 16,
+    alignItems: 'center',
+    gap: 4,
     fontSize: 13,
-    color: theme.palette.grey[600],
-    height: 20,
-    position: 'relative',
+    marginBottom: 2,
   },
   contentCounts: {
     color: theme.palette.grey[600],
     display: 'flex',
     alignItems: 'center',
     flexShrink: 0,
-    marginBottom: 2,
     gap: 8,
+    fontSize: 13,
   },
   contentCountItem: {
     display: 'flex',
@@ -96,7 +111,7 @@ const styles = defineStyles('ModerationDetailView', (theme: ThemeType) => ({
     top: 2
   },
   votesLabel: {
-    marginLeft: 8,
+    marginLeft: 4,
   },
   bigDownvotes: {
     color: theme.palette.error.dark,
@@ -119,8 +134,6 @@ const styles = defineStyles('ModerationDetailView', (theme: ThemeType) => ({
     fontWeight: 600,
   },
   rateLimits: {
-    right: 12,
-    position: 'absolute',
   },
   bioSection: {
     ...theme.typography.commentStyle,
@@ -178,11 +191,11 @@ const styles = defineStyles('ModerationDetailView', (theme: ThemeType) => ({
     },
   },
   contentSummary: {
-    marginTop: 12,
     display: 'flex',
     flexDirection: 'column',
     gap: 8,
     fontSize: 13,
+    marginLeft: 4,
   },
   contentSummaryRow: {
     display: 'flex',
@@ -315,57 +328,65 @@ const ModerationDetailView = ({
   return (
     <div className={classes.root}>
       <div className={classes.header}>
-        <div className={classes.headerTop}>
-          <div className={classes.displayName}>
-            <UsersName user={user} />
+        <div className={classes.headerContent}>
+          <div className={classes.column1}>
+            <div className={classes.displayName}>
+              <UsersName user={user} />
+            </div>
+            {likelyReviewTrigger && (
+              <ReviewTriggerBadge badge={likelyReviewTrigger} />
+            )}
+            <div className={classes.topMetadata}>
+              <div className={classes.createdAt}>
+                <FormatDate date={user.createdAt} />
+              </div>
+              <div className={classes.karma}>
+                {user.karma} karma
+              </div>
+            </div>
+            <div className={classes.email}>
+              {user.email}
+            </div>
           </div>
-          <div className={classes.createdAt}>
-            <FormatDate date={user.createdAt} />
+          <div className={classes.column2}>
+            <div className={classes.contentCounts}>
+              <span className={classNames(classes.contentCountItem, !user.usersContactedBeforeReview?.length && classes.deemphasizedContentCountItem)}>
+                <ForumIcon icon="Email" className={classes.icon} />
+                {user.usersContactedBeforeReview?.length ?? 0}
+              </span>
+              <span className={classNames(classes.contentCountItem, !user.rejectedContentCount && classes.deemphasizedContentCountItem)}>
+                <ForumIcon icon="NotInterested" className={classes.icon} />
+                {user.rejectedContentCount}
+              </span>
+            </div>
+            <div className={classes.votesRow}>
+              <span className={classes.votesLabel}>Votes:</span>
+              <span className={classes.bigUpvotes}>
+                {user.bigUpvoteCount ?? 0}
+              </span>
+              <span className={classes.upvotes}>
+                {user.smallUpvoteCount ?? 0}
+              </span>
+              <span className={classes.downvotes}>
+                {user.smallDownvoteCount ?? 0}
+              </span>
+              <span className={classes.bigDownvotes}>
+                {user.bigDownvoteCount ?? 0}
+              </span>
+            </div>
+            {(posts.length > 0 || comments.length > 0) && (
+              <div className={classes.contentSummary}>
+                {posts.length > 0 && <ContentSummaryRow user={user} type="posts" items={posts} />}
+                {comments.length > 0 && <ContentSummaryRow user={user} type="comments" items={comments} />}
+              </div>
+            )}
           </div>
-          <div className={classes.karma}>
-            {user.karma} karma
-          </div>
-          <div className={classes.email}>
-            {user.email}
+          <div className={classes.column3}>
+            <div className={classes.rateLimits}>
+              <UserAutoRateLimitsDisplay user={user} showKarmaMeta absolute />
+            </div>
           </div>
         </div>
-        <div className={classes.metadata}>
-          {likelyReviewTrigger && (
-            <ReviewTriggerBadge badge={likelyReviewTrigger} />
-          )}
-          <div className={classes.contentCounts}>
-            <span className={classNames(classes.contentCountItem, !user.usersContactedBeforeReview?.length && classes.deemphasizedContentCountItem)}>
-              <ForumIcon icon="Email" className={classes.icon} />
-              {user.usersContactedBeforeReview?.length ?? 0}
-            </span>
-            <span className={classNames(classes.contentCountItem, !user.rejectedContentCount && classes.deemphasizedContentCountItem)}>
-              <ForumIcon icon="NotInterested" className={classes.icon} />
-              {user.rejectedContentCount}
-            </span>
-            <span className={classes.votesLabel}>Votes:</span>
-            <span className={classes.bigUpvotes}>
-              {user.bigUpvoteCount ?? 0}
-            </span>
-            <span className={classes.upvotes}>
-              {user.smallUpvoteCount ?? 0}
-            </span>
-            <span className={classes.downvotes}>
-              {user.smallDownvoteCount ?? 0}
-            </span>
-            <span className={classes.bigDownvotes}>
-              {user.bigDownvoteCount ?? 0}
-            </span>
-          </div>
-          <div className={classes.rateLimits}>
-            <UserAutoRateLimitsDisplay user={user} showKarmaMeta absolute />
-          </div>
-        </div>
-        {(posts.length > 0 || comments.length > 0) && (
-          <div className={classes.contentSummary}>
-            {posts.length > 0 && <ContentSummaryRow user={user} type="posts" items={posts} />}
-            {comments.length > 0 && <ContentSummaryRow user={user} type="comments" items={comments} />}
-          </div>
-        )}
       </div>
 
       {(user.htmlBio || user.website) && (
