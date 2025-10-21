@@ -6,7 +6,7 @@ import PostsPageWrapper from '@/components/posts/PostsPage/PostsPageWrapper';
 const styles = defineStyles('ModerationContentDetail', (theme: ThemeType) => ({
   root: {
     backgroundColor: theme.palette.background.paper,
-    height: '100%',
+    height: 'calc(100vh - 178px)',
     overflowY: 'auto',
     width: 800,
     flexShrink: 0,

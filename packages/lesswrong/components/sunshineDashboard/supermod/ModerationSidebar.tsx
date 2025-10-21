@@ -127,7 +127,6 @@ const styles = defineStyles('ModerationSidebar', (theme: ThemeType) => ({
     overflow: 'auto',
   },
   userMessages: {
-    maxHeight: 200,
     overflow: 'auto',
   },
   keystrokeHint: {

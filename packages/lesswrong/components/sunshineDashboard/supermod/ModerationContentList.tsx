@@ -7,7 +7,7 @@ const styles = defineStyles('ModerationContentList', (theme: ThemeType) => ({
     backgroundColor: theme.palette.background.paper,
     borderRight: theme.palette.border.normal,
     overflowY: 'auto',
-    height: '100%',
+    height: 'fit-content',
   },
   header: {
     padding: '12px 20px',

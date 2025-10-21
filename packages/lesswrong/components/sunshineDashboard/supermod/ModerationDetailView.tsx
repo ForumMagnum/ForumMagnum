@@ -16,6 +16,7 @@ import LWTooltip from '@/components/common/LWTooltip';
 import UserAutoRateLimitsDisplay from '../ModeratorUserInfo/UserAutoRateLimitsDisplay';
 import ModerationContentList from './ModerationContentList';
 import ModerationContentDetail from './ModerationContentDetail';
+import FormatDate from '@/components/common/FormatDate';
 
 const sharedVoteStyles = {
   marginLeft: 4,
@@ -32,6 +33,7 @@ const styles = defineStyles('ModerationDetailView', (theme: ThemeType) => ({
     padding: '20px 24px',
     borderBottom: theme.palette.border.normal,
     backgroundColor: theme.palette.grey[50],
+    minHeight: 130,
     ...theme.typography.commentStyle,
   },
   headerTop: {
@@ -40,14 +42,20 @@ const styles = defineStyles('ModerationDetailView', (theme: ThemeType) => ({
     marginBottom: 8,
   },
   displayName: {
-    fontSize: 24,
+    fontSize: 20,
     fontWeight: 600,
     marginRight: 36,
+  },
+  createdAt: {
+    fontSize: 14,
+    color: theme.palette.grey[600],
+    marginRight: 20,
+    marginTop: 3,
   },
   karma: {
     fontSize: 14,
     color: theme.palette.grey[600],
-    marginRight: 12,
+    marginRight: 20,
     marginTop: 3,
   },
   email: {
@@ -321,8 +329,11 @@ const ModerationDetailView = ({
           <div className={classes.displayName}>
             <UsersName user={user} />
           </div>
+          <div className={classes.createdAt}>
+            <FormatDate date={user.createdAt} />
+          </div>
           <div className={classes.karma}>
-            {user.karma || 0} karma
+            {user.karma} karma
           </div>
           <div className={classes.email}>
             {user.email}

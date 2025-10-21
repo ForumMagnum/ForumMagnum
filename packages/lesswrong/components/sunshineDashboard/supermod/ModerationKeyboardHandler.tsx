@@ -61,13 +61,11 @@ const ModerationKeyboardHandler = ({
   const [updateUser] = useMutation(SunshineUsersListUpdateMutation);
   const [rejectContentAndRemoveFromQueue] = useMutation(RejectContentAndRemoveFromQueueMutation);
   
-  // Fetch user's content to find most recent unapproved item
   const { posts, comments } = useModeratedUserContents(selectedUser?._id ?? '', 20);
   
-  // Memoize all content for content navigation
   const allContent = useMemo(() => {
     return [...posts, ...comments].sort((a, b) => 
-      new Date(a.postedAt).getTime() - new Date(b.postedAt).getTime()
+      new Date(b.postedAt).getTime() - new Date(a.postedAt).getTime()
     );
   }, [posts, comments]);
 
