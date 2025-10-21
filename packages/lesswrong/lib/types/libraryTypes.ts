@@ -30,11 +30,6 @@ declare module "mathjax-node-page" {
   export const mjpage: AnyBecauseTodo
 }
 
-declare module "akismet-api" {
-  const akismet: AnyBecauseTodo
-  export default akismet
-}
-
 declare module "universal-cookie-express" {
   const universalCookieExpress: AnyBecauseTodo
   export default universalCookieExpress

@@ -160,7 +160,6 @@
     "@types/warning": "^3.0.3",
     "@vercel/functions": "^3.1.0",
     "ai": "^5.0.68",
-    "akismet-api": "^4.2.0",
     "algoliasearch": "^3.29.0",
     "apollo-errors": "^1.9.0",
     "auth0": "^2.42.0",
