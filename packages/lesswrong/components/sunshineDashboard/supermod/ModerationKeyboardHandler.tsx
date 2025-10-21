@@ -386,7 +386,7 @@ const ModerationKeyboardHandler = ({
     },
     {
       label: isDetailView ? 'Next Content Item' : 'Next User',
-      keystroke: '↓',
+      keystroke: 'arrowdown',
       isDisabled: () => isDetailView ? allContent.length === 0 : false,
       execute: isDetailView 
         ? () => dispatch({ type: 'NEXT_CONTENT', allContent })
@@ -394,7 +394,7 @@ const ModerationKeyboardHandler = ({
     },
     {
       label: isDetailView ? 'Previous Content Item' : 'Previous User',
-      keystroke: '↑',
+      keystroke: 'arrowup',
       isDisabled: () => isDetailView ? allContent.length === 0 : false,
       execute: isDetailView 
         ? () => dispatch({ type: 'PREV_CONTENT', allContent })
@@ -402,13 +402,13 @@ const ModerationKeyboardHandler = ({
     },
     {
       label: isDetailView ? 'Next User' : 'Next Tab',
-      keystroke: '→',
+      keystroke: 'arrowright',
       isDisabled: () => false,
       execute: isDetailView ? onNextUser : onNextTab,
     },
     {
       label: isDetailView ? 'Previous User' : 'Previous Tab',
-      keystroke: '←',
+      keystroke: 'arrowleft',
       isDisabled: () => false,
       execute: isDetailView ? onPrevUser : onPrevTab,
     },
