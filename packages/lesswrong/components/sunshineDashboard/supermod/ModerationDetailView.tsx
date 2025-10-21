@@ -31,7 +31,7 @@ const styles = defineStyles('ModerationDetailView', (theme: ThemeType) => ({
     minHeight: '100vh',
   },
   header: {
-    padding: '20px 24px',
+    padding: '12px 14px',
     borderBottom: theme.palette.border.normal,
     backgroundColor: theme.palette.grey[50],
     minHeight: 130,
@@ -52,11 +52,18 @@ const styles = defineStyles('ModerationDetailView', (theme: ThemeType) => ({
     display: 'flex',
     flexDirection: 'column',
     gap: 8,
-    flex: 1,
     minWidth: 0,
     marginTop: 8,
   },
   column3: {
+    flex: 1,
+    minWidth: 0,
+    marginTop: 8,
+    display: 'flex',
+    flexDirection: 'column',
+    gap: 8,
+  },
+  column4: {
     flexShrink: 0,
     marginLeft: 'auto',
   },
@@ -99,8 +106,6 @@ const styles = defineStyles('ModerationDetailView', (theme: ThemeType) => ({
     display: 'flex',
     alignItems: 'flex-start',
   },
-  wideContentCountItem: {
-  },
   deemphasizedContentCountItem: {
     opacity: 0.5,
   },
@@ -133,30 +138,12 @@ const styles = defineStyles('ModerationDetailView', (theme: ThemeType) => ({
     ...sharedVoteStyles,
     fontWeight: 600,
   },
-  rateLimits: {
-  },
-  bioSection: {
-    ...theme.typography.commentStyle,
-  },
-  section: {
-    paddingTop: 20,
-    paddingBottom: 100,
-    paddingLeft: 24,
-    paddingRight: 24,
-    borderBottom: theme.palette.border.faint,
-  },
-  sectionTitle: {
-    fontSize: 14,
-    fontWeight: 600,
-    textTransform: 'uppercase',
-    color: theme.palette.grey[600],
-    marginBottom: 12,
-    letterSpacing: '0.5px',
-  },
-  bio: {
-    fontSize: 14,
+  rateLimits: {},
+  headerBio: {
+    fontSize: 13,
     lineHeight: 1.6,
-    color: theme.palette.grey[800],
+    color: theme.palette.grey[700],
+    ...theme.typography.commentStyle,
     '& a': {
       color: theme.palette.primary.main,
     },
@@ -164,11 +151,15 @@ const styles = defineStyles('ModerationDetailView', (theme: ThemeType) => ({
       maxWidth: '100%',
     },
   },
-  website: {
-    fontSize: 14,
+  headerWebsite: {
+    fontSize: 13,
     color: theme.palette.primary.main,
-    marginTop: 8,
     display: 'block',
+  },
+  sectionTitle: {
+    textTransform: 'uppercase',
+    color: theme.palette.grey[600],
+    letterSpacing: '0.5px',
   },
   contentSection: {
     display: 'flex',
@@ -376,51 +367,50 @@ const ModerationDetailView = ({
             </div>
             {(posts.length > 0 || comments.length > 0) && (
               <div className={classes.contentSummary}>
-                {posts.length > 0 && <ContentSummaryRow user={user} type="posts" items={posts} />}
-                {comments.length > 0 && <ContentSummaryRow user={user} type="comments" items={comments} />}
+                <ContentSummaryRow user={user} type="posts" items={posts} />
+                <ContentSummaryRow user={user} type="comments" items={comments} />
               </div>
             )}
           </div>
-          <div className={classes.column3}>
+          {(user.htmlBio || user.website) && (
+            <div className={classes.column3}>
+              <div className={classes.sectionTitle}>Bio</div>
+              {user.htmlBio && (
+                <div>
+                  <div
+                    className={classes.headerBio}
+                    dangerouslySetInnerHTML={{ __html: truncatedHtml }}
+                    onClick={() => bioNeedsTruncation && setBioWordcount(MAX_BIO_WORDCOUNT)}
+                  />
+                  {bioNeedsTruncation && bioWordcount < MAX_BIO_WORDCOUNT && (
+                    <div
+                      className={classes.expandButton}
+                      onClick={() => setBioWordcount(MAX_BIO_WORDCOUNT)}
+                    >
+                      Show more
+                    </div>
+                  )}
+                </div>
+              )}
+              {user.website && (
+                <a
+                  href={`https://${user.website}`}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className={classes.headerWebsite}
+                >
+                  {user.website}
+                </a>
+              )}
+            </div>
+          )}
+          <div className={classes.column4}>
             <div className={classes.rateLimits}>
               <UserAutoRateLimitsDisplay user={user} showKarmaMeta absolute />
             </div>
           </div>
         </div>
       </div>
-
-      {(user.htmlBio || user.website) && (
-        <div className={classNames(classes.section, classes.bioSection)}>
-          <div className={classes.sectionTitle}>About</div>
-          {user.htmlBio && (
-            <div>
-              <div
-                className={classes.bio}
-                dangerouslySetInnerHTML={{ __html: truncatedHtml }}
-                onClick={() => bioNeedsTruncation && setBioWordcount(MAX_BIO_WORDCOUNT)}
-              />
-              {bioNeedsTruncation && bioWordcount < MAX_BIO_WORDCOUNT && (
-                <div
-                  className={classes.expandButton}
-                  onClick={() => setBioWordcount(MAX_BIO_WORDCOUNT)}
-                >
-                  Show more
-                </div>
-              )}
-            </div>
-          )}
-          {user.website && (
-            <a
-              href={`https://${user.website}`}
-              target="_blank"
-              rel="noopener noreferrer"
-              className={classes.website}
-            >
-              {user.website}
-            </a>
-          )}
-        </div>
-      )}
 
       {allContent.length > 0 && (
         <div className={classes.contentSection}>
