@@ -1,20 +1,21 @@
-import React, { useState } from 'react';
+import React, { useState, useMemo } from 'react';
 import { defineStyles, useStyles } from '@/components/hooks/useStyles';
 import UsersName from '@/components/users/UsersName';
 import { truncate } from '@/lib/editor/ellipsize';
-import SunshineNewUserPostsList from '../SunshineNewUserPostsList';
-import SunshineNewUserCommentsList from '../SunshineNewUserCommentsList';
 import { useModeratedUserContents } from '@/components/hooks/useModeratedUserContents';
 import classNames from 'classnames';
 import { getPrimaryDisplayedModeratorAction, partitionModeratorActions } from './groupings';
 import ReviewTriggerBadge from './ReviewTriggerBadge';
 import DescriptionIcon from '@/lib/vendor/@material-ui/icons/src/Description'
+import MessageIcon from '@/lib/vendor/@material-ui/icons/src/Message'
 import ForumIcon from '@/components/common/ForumIcon';
 import PostKarmaWithPreview from '../PostKarmaWithPreview';
 import CommentKarmaWithPreview from '../CommentKarmaWithPreview';
 import { maybeDate } from '@/lib/utils/dateUtils';
 import LWTooltip from '@/components/common/LWTooltip';
 import UserAutoRateLimitsDisplay from '../ModeratorUserInfo/UserAutoRateLimitsDisplay';
+import ModerationContentList from './ModerationContentList';
+import ModerationContentDetail from './ModerationContentDetail';
 
 const sharedVoteStyles = {
   marginLeft: 4,
@@ -116,7 +117,10 @@ const styles = defineStyles('ModerationDetailView', (theme: ThemeType) => ({
     ...theme.typography.commentStyle,
   },
   section: {
-    padding: '20px 24px',
+    paddingTop: 20,
+    paddingBottom: 100,
+    paddingLeft: 24,
+    paddingRight: 24,
     borderBottom: theme.palette.border.faint,
   },
   sectionTitle: {
@@ -145,8 +149,15 @@ const styles = defineStyles('ModerationDetailView', (theme: ThemeType) => ({
     display: 'block',
   },
   contentSection: {
-    padding: 0,
-    maxWidth: 720,
+    display: 'flex',
+    height: 'calc(100vh - 400px)',
+    minHeight: 500,
+  },
+  contentListContainer: {
+    flex: 1,
+    minWidth: 0,
+    display: 'flex',
+    flexDirection: 'column',
   },
   expandButton: {
     cursor: 'pointer',
@@ -214,16 +225,18 @@ const ContentSummaryRow = ({ user, type, items }: ContentSummaryRowProps) => {
 
   const maxContentCountField = type === 'posts' ? 'maxPostCount' : 'maxCommentCount';
   const contentCountField = type === 'posts' ? 'postCount' : 'commentCount';
+  const tooltipTitle = type === 'posts' ? 'Post count' : 'Comment count';
+  const ContentIconComponent = type === 'posts' ? DescriptionIcon : MessageIcon;
 
   const hiddenContentCount = user[maxContentCountField] - user[contentCountField];
   const averageContentKarma = items.length > 0 ? getAverageBaseScore(items) : null;
 
   return (
     <div className={classes.contentSummaryRow}>
-      <LWTooltip title="Post count">
+      <LWTooltip title={tooltipTitle}>
         <span>
-          {user.postCount || 0}
-          <DescriptionIcon className={classes.summaryIcon} />
+          {user[contentCountField] || 0}
+          <ContentIconComponent className={classes.summaryIcon} />
         </span>
       </LWTooltip>
       {type === 'posts' ? (
@@ -261,15 +274,28 @@ const ContentSummaryRow = ({ user, type, items }: ContentSummaryRowProps) => {
   );
 };
 
-const ModerationDetailView = ({
+const ModerationDetailView = ({ 
   user,
+  focusedContentId,
+  onFocusContent,
 }: {
   user: SunshineUsersList;
+  focusedContentId?: string | null;
+  onFocusContent?: (contentId: string | null) => void;
 }) => {
   const classes = useStyles(styles);
   const [bioWordcount, setBioWordcount] = useState(DEFAULT_BIO_WORDCOUNT);
 
   const { posts, comments } = useModeratedUserContents(user._id);
+
+  const allContent = useMemo(() => [...posts, ...comments].sort((a, b) => 
+    new Date(a.postedAt).getTime() - new Date(b.postedAt).getTime()
+  ), [posts, comments]);
+
+  const focusedContent = useMemo(() => 
+    allContent.find(item => item._id === focusedContentId) || null,
+    [allContent, focusedContentId]
+  );
 
   const { fresh: freshModeratorActions } = partitionModeratorActions(user);
   const likelyReviewTrigger = [...new Set(freshModeratorActions.map(action => getPrimaryDisplayedModeratorAction(action.type)))].reverse().at(0);
@@ -363,20 +389,19 @@ const ModerationDetailView = ({
         </div>
       )}
 
-      {(posts.length > 0 || comments.length > 0) && (
+      {allContent.length > 0 && (
         <div className={classes.contentSection}>
-          {posts.length > 0 && (
-            <div className={classes.section}>
-              <div className={classes.sectionTitle}>Posts ({posts.length})</div>
-              <SunshineNewUserPostsList posts={posts} user={user} />
-            </div>
-          )}
-          {comments.length > 0 && (
-            <div className={classes.section}>
-              <div className={classes.sectionTitle}>Comments ({comments.length})</div>
-              <SunshineNewUserCommentsList comments={comments} user={user} />
-            </div>
-          )}
+          <div className={classes.contentListContainer}>
+            <ModerationContentList
+              items={allContent}
+              title="Posts & Comments"
+              focusedItemId={focusedContentId ?? null}
+              onOpenItem={onFocusContent ?? (() => {})}
+            />
+          </div>
+          <ModerationContentDetail
+            item={focusedContent}
+          />
         </div>
       )}
     </div>

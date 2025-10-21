@@ -43,6 +43,8 @@ const ModerationKeyboardHandler = ({
   currentUser,
   onActionComplete,
   isDetailView,
+  onNextContent,
+  onPrevContent,
 }: {
   onNextUser: () => void;
   onPrevUser: () => void;
@@ -54,6 +56,8 @@ const ModerationKeyboardHandler = ({
   isDetailView: boolean;
   currentUser: UsersCurrent;
   onActionComplete: () => void;
+  onNextContent?: () => void;
+  onPrevContent?: () => void;
 }) => {
   const { openDialog } = useDialog();
   const [updateUser] = useMutation(SunshineUsersListUpdateMutation);
@@ -376,16 +380,16 @@ const ModerationKeyboardHandler = ({
       execute: handleRestrictAndNotify,
     },
     {
-      label: 'Next User',
+      label: isDetailView ? 'Next Content Item' : 'Next User',
       keystroke: 'J',
       isDisabled: () => false,
-      execute: onNextUser,
+      execute: isDetailView && onNextContent ? onNextContent : onNextUser,
     },
     {
-      label: 'Previous User',
+      label: isDetailView ? 'Previous Content Item' : 'Previous User',
       keystroke: 'K',
       isDisabled: () => false,
-      execute: onPrevUser,
+      execute: isDetailView && onPrevContent ? onPrevContent : onPrevUser,
     },
     {
       label: 'Open Detail View',
@@ -399,7 +403,7 @@ const ModerationKeyboardHandler = ({
       isDisabled: () => false,
       execute: onCloseDetail,
     },
-  ], [handleReview, handleSnoozeCustom, handleRemoveNeedsReview, handleRejectContentAndRemove, handleBan, handlePurge, handleFlag, handleDisablePosting, handleDisableCommentingOnOthers, handleRestrictAndNotify, onNextUser, onPrevUser, onOpenDetail, onCloseDetail, selectedUser, handleSnooze]);
+  ], [handleReview, handleSnoozeCustom, handleRemoveNeedsReview, handleRejectContentAndRemove, handleBan, handlePurge, handleFlag, handleDisablePosting, handleDisableCommentingOnOthers, handleRestrictAndNotify, onNextUser, onPrevUser, onNextContent, onPrevContent, onOpenDetail, onCloseDetail, selectedUser, handleSnooze, isDetailView]);
 
   useGlobalKeydown(
     useCallback(
@@ -424,14 +428,33 @@ const ModerationKeyboardHandler = ({
           return;
         }
 
-        // Navigation
-        if (event.key === 'j' || event.key === 'ArrowDown') {
+        // Navigation with j/k
+        // In detail view: navigate content items
+        // In inbox view: j/k do nothing (arrow keys handle user navigation)
+        if (event.key === 'j') {
+          event.preventDefault();
+          if (isDetailView && onNextContent) {
+            onNextContent();
+          }
+          return;
+        }
+
+        if (event.key === 'k') {
+          event.preventDefault();
+          if (isDetailView && onPrevContent) {
+            onPrevContent();
+          }
+          return;
+        }
+        
+        // Arrow key navigation always navigates users
+        if (event.key === 'ArrowDown') {
           event.preventDefault();
           onNextUser();
           return;
         }
 
-        if (event.key === 'k' || event.key === 'ArrowUp') {
+        if (event.key === 'ArrowUp') {
           event.preventDefault();
           onPrevUser();
           return;
@@ -505,6 +528,8 @@ const ModerationKeyboardHandler = ({
       [
         onNextUser,
         onPrevUser,
+        onNextContent,
+        onPrevContent,
         onNextTab,
         onPrevTab,
         onOpenDetail,

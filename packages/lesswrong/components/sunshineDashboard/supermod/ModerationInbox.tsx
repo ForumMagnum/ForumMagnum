@@ -15,6 +15,7 @@ import Loading from '@/components/vulcan-core/Loading';
 import groupBy from 'lodash/groupBy';
 import { getUserReviewGroup, REVIEW_GROUP_TO_PRIORITY, getTabsInPriorityOrder, type ReviewGroup } from './groupings';
 import type { TabInfo } from './ModerationTabs';
+import { useModeratedUserContents } from '@/components/hooks/useModeratedUserContents';
 
 const SunshineUsersListMultiQuery = gql(`
   query multiUserModerationInboxQuery($selector: UserSelector, $limit: Int, $enableTotal: Boolean) {
@@ -385,6 +386,34 @@ const ModerationInboxInner = ({ users, initialOpenedUserId, currentUser }: {
       };
     }
   );
+  
+  // Separate state for content navigation within detail view
+  const [focusedContentId, setFocusedContentId] = React.useState<string | null>(null);
+  
+  // Load content for the opened user
+  const { posts, comments } = useModeratedUserContents(state.openedUserId ?? '');
+  
+  // Memoize all content sorted by date
+  const allContent = useMemo(() => {
+    if (!state.openedUserId) return [];
+    return [...posts, ...comments].sort((a, b) => 
+      new Date(a.postedAt).getTime() - new Date(b.postedAt).getTime()
+    );
+  }, [posts, comments, state.openedUserId]);
+  
+  // When user is opened or content changes, set focus to first item
+  useEffect(() => {
+    if (state.openedUserId && allContent.length > 0 && !focusedContentId) {
+      setFocusedContentId(allContent[0]._id);
+    }
+  }, [state.openedUserId, allContent, focusedContentId]);
+  
+  // Clear focused content when closing detail view
+  useEffect(() => {
+    if (!state.openedUserId) {
+      setFocusedContentId(null);
+    }
+  }, [state.openedUserId]);
 
   // Update URL when reducer's openedUserId changes (using replace + skipRouter to avoid navigation events)
   useEffect(() => {
@@ -460,6 +489,20 @@ const ModerationInboxInner = ({ users, initialOpenedUserId, currentUser }: {
       dispatch({ type: 'REMOVE_USER', userId: userIdToRemove });
     }
   }, [state.openedUserId, state.focusedUserId]);
+  
+  const handleNextContent = useCallback(() => {
+    if (allContent.length === 0) return;
+    const currentIndex = allContent.findIndex(item => item._id === focusedContentId);
+    const nextIndex = (currentIndex + 1) % allContent.length;
+    setFocusedContentId(allContent[nextIndex]._id);
+  }, [allContent, focusedContentId]);
+  
+  const handlePrevContent = useCallback(() => {
+    if (allContent.length === 0) return;
+    const currentIndex = allContent.findIndex(item => item._id === focusedContentId);
+    const prevIndex = currentIndex <= 0 ? allContent.length - 1 : currentIndex - 1;
+    setFocusedContentId(allContent[prevIndex]._id);
+  }, [allContent, focusedContentId]);
 
   return (
     <div className={classes.root}>
@@ -480,11 +523,17 @@ const ModerationInboxInner = ({ users, initialOpenedUserId, currentUser }: {
         currentUser={currentUser}
         onActionComplete={handleActionComplete}
         isDetailView={!!state.openedUserId}
+        onNextContent={handleNextContent}
+        onPrevContent={handlePrevContent}
       />
       <div className={classes.mainContent}>
         <div className={classes.leftPanel}>
           {openedUser ? (
-            <ModerationDetailView user={openedUser} />
+            <ModerationDetailView 
+              user={openedUser}
+              focusedContentId={focusedContentId}
+              onFocusContent={setFocusedContentId}
+            />
           ) : (
             <ModerationInboxList
               userGroups={filteredGroups}
