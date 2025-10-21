@@ -4276,6 +4276,7 @@ type Mutation = {
   alignmentComment?: Maybe<Comment>;
   alignmentPost?: Maybe<Post>;
   analyticsEvent?: Maybe<Scalars['Boolean']['output']>;
+  approveUserCurrentContentOnly: Scalars['Boolean']['output'];
   autosaveRevision?: Maybe<Revision>;
   clickRecommendation?: Maybe<Scalars['Boolean']['output']>;
   connectCrossposter?: Maybe<Scalars['String']['output']>;
@@ -4535,6 +4536,11 @@ type MutationalignmentPostArgs = {
 type MutationanalyticsEventArgs = {
   events?: InputMaybe<Array<Scalars['JSON']['input']>>;
   now?: InputMaybe<Scalars['Date']['input']>;
+};
+
+
+type MutationapproveUserCurrentContentOnlyArgs = {
+  userId: Scalars['String']['input'];
 };
 
 
@@ -21601,6 +21607,16 @@ type rejectContentAndRemoveFromQueueModerationKeyboardMutationVariables = Exact<
 
 
 type rejectContentAndRemoveFromQueueModerationKeyboardMutation = rejectContentAndRemoveFromQueueModerationKeyboardMutation_Mutation;
+
+type approveCurrentContentOnlyModerationKeyboardMutation_Mutation = { __typename?: 'Mutation', approveUserCurrentContentOnly: boolean };
+
+
+type approveCurrentContentOnlyModerationKeyboardMutationVariables = Exact<{
+  userId: Scalars['String']['input'];
+}>;
+
+
+type approveCurrentContentOnlyModerationKeyboardMutation = approveCurrentContentOnlyModerationKeyboardMutation_Mutation;
 
 type updateUserModerationSidebarMutation_updateUser_UserOutput_data_User = (
   { __typename?: 'User' }

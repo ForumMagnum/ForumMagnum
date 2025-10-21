@@ -29,6 +29,12 @@ const RejectContentAndRemoveFromQueueMutation = gql(`
   }
 `);
 
+const ApproveCurrentContentOnlyMutation = gql(`
+  mutation approveCurrentContentOnlyModerationKeyboard($userId: String!) {
+    approveUserCurrentContentOnly(userId: $userId)
+  }
+`);
+
 function specialKeyPressed(event: KeyboardEvent) {
   return event.metaKey || event.ctrlKey || event.altKey;
 }
@@ -61,6 +67,7 @@ const ModerationKeyboardHandler = ({
   const { openDialog } = useDialog();
   const [updateUser] = useMutation(SunshineUsersListUpdateMutation);
   const [rejectContentAndRemoveFromQueue] = useMutation(RejectContentAndRemoveFromQueueMutation);
+  const [approveCurrentContentOnly] = useMutation(ApproveCurrentContentOnlyMutation);
   
   const { posts, comments } = useModeratedUserContents(selectedUser?._id ?? '', 20);
   
@@ -103,6 +110,17 @@ const ModerationKeyboardHandler = ({
       });
     });
   }, [selectedUser, currentUser, getModSignatureWithNote, handleAction, updateUser]);
+
+  const handleApproveCurrentOnly = useCallback(() => {
+    if (!selectedUser) return;
+    void handleAction(async () => {
+      await approveCurrentContentOnly({
+        variables: {
+          userId: selectedUser._id,
+        },
+      });
+    });
+  }, [selectedUser, handleAction, approveCurrentContentOnly]);
 
   const handleSnooze = useCallback(
     (contentCount: number) => {
@@ -333,6 +351,12 @@ const ModerationKeyboardHandler = ({
       execute: handleReview,
     },
     {
+      label: 'Approve Current Content Only',
+      keystroke: 'Shift+A',
+      isDisabled: () => !selectedUser,
+      execute: handleApproveCurrentOnly,
+    },
+    {
       label: 'Snooze 10',
       keystroke: 'S',
       isDisabled: () => !selectedUser,
@@ -432,7 +456,7 @@ const ModerationKeyboardHandler = ({
       isDisabled: () => false,
       execute: onCloseDetail,
     },
-  ], [handleReview, handleSnoozeCustom, handleRemoveNeedsReview, handleRejectContentAndRemove, handleBan, handlePurge, handleFlag, handleDisablePosting, handleDisableCommenting, handleRestrictAndNotify, onNextUser, onPrevUser, onNextTab, onPrevTab, onOpenDetail, onCloseDetail, selectedUser, handleSnooze, isDetailView, dispatch, allContent]);
+    ], [handleReview, handleApproveCurrentOnly, handleSnoozeCustom, handleRemoveNeedsReview, handleRejectContentAndRemove, handleBan, handlePurge, handleFlag, handleDisablePosting, handleDisableCommenting, handleRestrictAndNotify, onNextUser, onPrevUser, onNextTab, onPrevTab, onOpenDetail, onCloseDetail, selectedUser, handleSnooze, isDetailView, dispatch, allContent]);
 
   useGlobalKeydown(
     useCallback(
@@ -517,9 +541,12 @@ const ModerationKeyboardHandler = ({
 
         if (specialKeyPressed(event)) return;
 
-        if (event.key === 'a') {
+        if (event.key === 'a' && !event.shiftKey) {
           event.preventDefault();
           handleReview();
+        } else if (event.key === 'A' && event.shiftKey) {
+          event.preventDefault();
+          handleApproveCurrentOnly();
         } else if (event.key === 's' && !event.shiftKey) {
           event.preventDefault();
           handleSnooze(10);
@@ -562,6 +589,7 @@ const ModerationKeyboardHandler = ({
         isDetailView,
         selectedUser,
         handleReview,
+        handleApproveCurrentOnly,
         handleSnooze,
         handleSnoozeCustom,
         handleRemoveNeedsReview,

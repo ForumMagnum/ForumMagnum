@@ -1281,6 +1281,7 @@ extend type Mutation {
   lockThread(commentId: String!, until: String): Boolean!
   unlockThread(commentId: String!): Boolean!
   rejectContentAndRemoveUserFromQueue(userId: String!, documentId: String!, collectionName: ContentCollectionName!): Boolean!
+  approveUserCurrentContentOnly(userId: String!): Boolean!
 }
 
 extend type Mutation {

@@ -561,34 +561,38 @@ export async function newSubforumMemberNotifyMods(user: DbUser, oldUser: DbUser,
   }
 }
 
-export async function approveUnreviewedSubmissions(newUser: DbUser, oldUser: DbUser, context: ResolverContext) {
+export async function approveUnreviewedSubmissions(userId: string, context: ResolverContext) {
   const { Comments, Posts } = context;
+
+  // For each post by this author which has the authorIsUnreviewed flag set,
+  // clear the authorIsUnreviewed flag so it's visible, and update postedAt
+  // to now so that it goes to the right place int he latest posts list.
+  const unreviewedPosts = await Posts.find({userId, authorIsUnreviewed: true}).fetch();
+  for (let post of unreviewedPosts) {
+    await updatePost({
+      data: {
+        authorIsUnreviewed: false,
+        postedAt: new Date(),
+      },
+      selector: { _id: post._id }
+    }, context);
+  }
   
+  // For each comment by this author which has the authorIsUnreviewed flag set, clear the authorIsUnreviewed flag.
+  // This only matters if the hideUnreviewedAuthorComments setting is active -
+  // in that case, we want to trigger the relevant comment notifications once the author is reviewed.
+  const unreviewedComments = await Comments.find({userId, authorIsUnreviewed: true}).fetch();
+  for (let comment of unreviewedComments) {
+    await updateComment({
+      data: { authorIsUnreviewed: false },
+      selector: { _id: comment._id }
+    }, context);
+  }
+}
+
+export async function approveUnreviewedSubmissionsOnApproval(newUser: DbUser, oldUser: DbUser, context: ResolverContext) {
   if (newUser.reviewedByUserId && !oldUser.reviewedByUserId) {
-    // For each post by this author which has the authorIsUnreviewed flag set,
-    // clear the authorIsUnreviewed flag so it's visible, and update postedAt
-    // to now so that it goes to the right place int he latest posts list.
-    const unreviewedPosts = await Posts.find({userId: newUser._id, authorIsUnreviewed: true}).fetch();
-    for (let post of unreviewedPosts) {
-      await updatePost({
-        data: {
-          authorIsUnreviewed: false,
-          postedAt: new Date(),
-        },
-        selector: { _id: post._id }
-      }, context);
-    }
-    
-    // For each comment by this author which has the authorIsUnreviewed flag set, clear the authorIsUnreviewed flag.
-    // This only matters if the hideUnreviewedAuthorComments setting is active -
-    // in that case, we want to trigger the relevant comment notifications once the author is reviewed.
-    const unreviewedComments = await Comments.find({userId: newUser._id, authorIsUnreviewed: true}).fetch();
-    for (let comment of unreviewedComments) {
-      await updateComment({
-        data: { authorIsUnreviewed: false },
-        selector: { _id: comment._id }
-      }, context);
-    }
+    await approveUnreviewedSubmissions(newUser._id, context);
   }
 }
 

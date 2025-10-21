@@ -11,6 +11,7 @@ import { updateComment } from '../collections/comments/mutations';
 import { updatePost } from '../collections/posts/mutations';
 import { updateUser } from '../collections/users/mutations';
 import { getSignatureWithNote } from '../../lib/collections/users/helpers';
+import { approveUnreviewedSubmissions } from '../callbacks/userCallbackFunctions';
 
 export const moderationGqlTypeDefs = gql`
   type ModeratorIPAddressInfo {
@@ -31,11 +32,12 @@ export const moderationGqlTypeDefs = gql`
     lockThread(commentId: String!, until: String): Boolean!
     unlockThread(commentId: String!): Boolean!
     rejectContentAndRemoveUserFromQueue(userId: String!, documentId: String!, collectionName: ContentCollectionName!): Boolean!
+    approveUserCurrentContentOnly(userId: String!): Boolean!
   }
 `
 
 export const moderationGqlMutations = {
-  async lockThread (_root: void, args: {commentId: string, until?: string}, context: ResolverContext) {
+  async lockThread(_root: void, args: {commentId: string, until?: string}, context: ResolverContext) {
     const { currentUser } = context;
     if (!userIsAdminOrMod(currentUser)) {
       throw new Error("Only admins and moderators can lock or unlock threads");
@@ -64,7 +66,7 @@ export const moderationGqlMutations = {
     
     return true;
   },
-  async unlockThread (_root: void, args: {commentId: string}, context: ResolverContext) {
+  async unlockThread(_root: void, args: {commentId: string}, context: ResolverContext) {
     const { currentUser } = context;
     if (!userIsAdminOrMod(currentUser)) {
       throw new Error("Only admins and moderators can lock or unlock threads");
@@ -102,7 +104,7 @@ export const moderationGqlMutations = {
 
     return true;
   },
-  async rejectContentAndRemoveUserFromQueue (_root: void, args: {userId: string, documentId: string, collectionName: ContentCollectionName}, context: ResolverContext) {
+  async rejectContentAndRemoveUserFromQueue(_root: void, args: {userId: string, documentId: string, collectionName: ContentCollectionName}, context: ResolverContext) {
     const { currentUser } = context;
     if (!currentUser || !userIsAdminOrMod(currentUser)) {
       throw new Error("Only admins and moderators can reject content and remove users from queue");
@@ -137,7 +139,7 @@ export const moderationGqlMutations = {
     }
 
     // Remove user from review queue
-    const notes = user.sunshineNotes || '';
+    const notes = user.sunshineNotes;
     const newNotes = getSignatureWithNote(currentUser.displayName, 'removed from review queue (content rejected)') + notes;
     await updateUser({
       data: {
@@ -150,11 +152,43 @@ export const moderationGqlMutations = {
     }, context);
 
     return true;
+  },
+  async approveUserCurrentContentOnly(_root: void, args: {userId: string}, context: ResolverContext) {
+    const { currentUser } = context;
+    if (!currentUser || !userIsAdminOrMod(currentUser)) {
+      throw new Error("Only admins and moderators can approve users");
+    }
+
+    const { userId } = args;
+
+    const user = await Users.findOne(userId);
+    if (!user) {
+      throw new Error("Invalid user ID");
+    }
+
+    // Approve existing content but don't set reviewedByUserId so future content still needs review
+    await approveUnreviewedSubmissions(userId, context);
+
+    const notes = user.sunshineNotes;
+    const newNotes = getSignatureWithNote(currentUser.displayName, 'Approved current content only (future content will need review)') + notes;
+    await updateUser({
+      data: {
+        sunshineFlagged: false,
+        reviewedByUserId: null,
+        reviewedAt: new Date(),
+        needsReview: false,
+        sunshineNotes: newNotes,
+        snoozedUntilContentCount: null,
+      },
+      selector: { _id: userId }
+    }, context);
+
+    return true;
   }
 }
 
 export const moderationGqlQueries = {
-  async moderatorViewIPAddress (_root: void, args: {ipAddress: string}, context: ResolverContext) {
+  async moderatorViewIPAddress(_root: void, args: {ipAddress: string}, context: ResolverContext) {
     const { currentUser } = context;
     const { ipAddress } = args;
     if (!currentUser || !currentUser.isAdmin)
