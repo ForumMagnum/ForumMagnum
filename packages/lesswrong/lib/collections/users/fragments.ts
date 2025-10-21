@@ -450,6 +450,7 @@ export const SunshineUsersList = gql(`
     maxCommentCount
     postCount
     maxPostCount
+    shortformFeedId
     voteCount
     smallUpvoteCount
     bigUpvoteCount

@@ -18,6 +18,8 @@ import ModerationContentList from './ModerationContentList';
 import ModerationContentDetail from './ModerationContentDetail';
 import type { InboxAction } from './inboxReducer';
 import FormatDate from '@/components/common/FormatDate';
+import AltAccountInfo from '../ModeratorUserInfo/AltAccountInfo';
+import { Link } from '@/lib/reactRouterWrapper';
 
 const sharedVoteStyles = {
   marginLeft: 4,
@@ -40,6 +42,7 @@ const styles = defineStyles('ModerationDetailView', (theme: ThemeType) => ({
   headerContent: {
     display: 'flex',
     gap: 60,
+    height: 140,
   },
   column1: {
     display: 'flex',
@@ -67,25 +70,39 @@ const styles = defineStyles('ModerationDetailView', (theme: ThemeType) => ({
     flexShrink: 0,
     marginLeft: 'auto',
   },
+  displayNameRow: {
+    display: 'flex',
+    alignItems: 'center',
+    gap: 8,
+  },
   displayName: {
-    fontSize: 20,
+    fontSize: 18,
     fontWeight: 600,
+    width: 140,
+    overflow: 'hidden',
+    textOverflow: 'ellipsis',
+    whiteSpace: 'nowrap',
   },
   topMetadata: {
     display: 'flex',
     alignItems: 'center',
-    gap: 20,
+    gap: 8,
     fontSize: 14,
   },
   createdAt: {
     color: theme.palette.grey[600],
+    marginBottom: 2,
   },
   karma: {
     color: theme.palette.grey[600],
+    marginBottom: 2,
   },
   email: {
     color: theme.palette.grey[600],
     fontSize: 14,
+    overflow: 'hidden',
+    textOverflow: 'ellipsis',
+    whiteSpace: 'nowrap',
   },
   votesRow: {
     display: 'flex',
@@ -160,6 +177,25 @@ const styles = defineStyles('ModerationDetailView', (theme: ThemeType) => ({
     textTransform: 'uppercase',
     color: theme.palette.grey[600],
     letterSpacing: '0.5px',
+  },
+  qualitySignalRow: {
+    fontSize: 12,
+    color: theme.palette.grey[600],
+    maxWidth: 200,
+    overflow: 'hidden',
+    textOverflow: 'ellipsis',
+    whiteSpace: 'nowrap',
+    '& a': {
+      color: theme.palette.primary.main,
+      textDecoration: 'none',
+      '&:hover': {
+        textDecoration: 'underline',
+      },
+    },
+  },
+  altAccountRow: {
+    fontSize: 12,
+    color: theme.palette.grey[600],
   },
   contentSection: {
     display: 'flex',
@@ -241,14 +277,24 @@ const ContentSummaryRow = ({ user, type, items }: ContentSummaryRowProps) => {
   const tooltipTitle = type === 'posts' ? 'Post count' : 'Comment count';
   const ContentIconComponent = type === 'posts' ? DescriptionIcon : MessageIcon;
 
-  const hiddenContentCount = user[maxContentCountField] - user[contentCountField];
+  let contentCount = user[contentCountField] ?? 0;
+  if (type === 'posts' && user.shortformFeedId) {
+    contentCount -= 1;
+  }
+
+  let maxContentCount = user[maxContentCountField] ?? 0;
+  if (type === 'posts' && user.shortformFeedId) {
+    maxContentCount -= 1;
+  }
+
+  const hiddenContentCount = maxContentCount - contentCount;
   const averageContentKarma = items.length > 0 ? getAverageBaseScore(items) : null;
 
   return (
     <div className={classes.contentSummaryRow}>
       <LWTooltip title={tooltipTitle}>
         <span>
-          {user[contentCountField] || 0}
+          {contentCount}
           <ContentIconComponent className={classes.summaryIcon} />
         </span>
       </LWTooltip>
@@ -316,18 +362,28 @@ const ModerationDetailView = ({
   const truncatedHtml = truncate(user.htmlBio, bioWordcount, 'words');
   const bioNeedsTruncation = user.htmlBio && user.htmlBio.length > truncatedHtml.length;
 
+  const firstClientId = user.associatedClientIds?.[0];
+
   return (
     <div className={classes.root}>
       <div className={classes.header}>
         <div className={classes.headerContent}>
           <div className={classes.column1}>
-            <div className={classes.displayName}>
-              <UsersName user={user} />
+            <div className={classes.displayNameRow}>
+              <div className={classes.displayName}>
+                <UsersName user={user} />
+              </div>
+              <LWTooltip title={user.reviewedByUserId ? "Already reviewed; future content will go live by default" : "Unreviewed; future content will require review before going live"}>
+                <ForumIcon icon={user.reviewedByUserId ? "Check" : "Eye"} className={classes.icon} />
+              </LWTooltip>
             </div>
-            {likelyReviewTrigger && (
-              <ReviewTriggerBadge badge={likelyReviewTrigger} />
-            )}
+            <div className={classes.email}>
+              {user.email}
+            </div>
             <div className={classes.topMetadata}>
+              {likelyReviewTrigger && (
+                <ReviewTriggerBadge badge={likelyReviewTrigger} />
+              )}
               <div className={classes.createdAt}>
                 <FormatDate date={user.createdAt} />
               </div>
@@ -335,9 +391,29 @@ const ModerationDetailView = ({
                 {user.karma} karma
               </div>
             </div>
-            <div className={classes.email}>
-              {user.email}
-            </div>
+            {firstClientId?.firstSeenReferrer && (
+              <div className={classes.qualitySignalRow}>
+                <LWTooltip title={firstClientId.firstSeenReferrer} inlineBlock={false}>
+                  <span>
+                    Referrer: <a href={firstClientId.firstSeenReferrer} target="_blank" rel="noopener noreferrer">{firstClientId.firstSeenReferrer}</a>
+                  </span>
+                </LWTooltip>
+              </div>
+            )}
+            {firstClientId?.firstSeenLandingPage && (
+              <div className={classes.qualitySignalRow}>
+                <LWTooltip title={firstClientId.firstSeenLandingPage} inlineBlock={false}>
+                  <span>
+                    Landing: <Link to={firstClientId.firstSeenLandingPage}>{firstClientId.firstSeenLandingPage}</Link>
+                  </span>
+                </LWTooltip>
+              </div>
+            )}
+            {user.altAccountsDetected && (
+              <div className={classes.altAccountRow}>
+                <AltAccountInfo user={user} />
+              </div>
+            )}
           </div>
           <div className={classes.column2}>
             <div className={classes.contentCounts}>

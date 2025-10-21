@@ -69,6 +69,9 @@ const styles = (theme: ThemeType) => ({
     width: 'max-content',
     listStyleType: 'none',
   },
+  newUserDefault: {
+    opacity: 0.5,
+  },
 });
 
 export const recentKarmaTooltip = (user: SunshineUsersList) => {
@@ -90,6 +93,8 @@ export const downvoterTooltip = (user: SunshineUsersList) => {
     <div><em>{user.recentKarmaInfo.commentDownvoterCount} downvoters on last 20 comments</em></div>
   </div>
 }
+
+
 
 export const UserAutoRateLimitsDisplay = ({user, showKarmaMeta=false, absolute, classes}: {
   user: SunshineUsersList,
@@ -139,9 +144,17 @@ export const UserAutoRateLimitsDisplay = ({user, showKarmaMeta=false, absolute, 
       </LWTooltip>
     </div>}
     <ul className={classNames(classes.strictestRateLimits, absolute && classes.absolute)}>
-      {strictestRateLimits.map(({name, isActive}) => <li key={`${user._id}rateLimitstrict${name}`}><div>
-        <LWTooltip title={`Calculated via: ${isActive.toString()}`}><MetaInfo>{name}</MetaInfo></LWTooltip>
-      </div></li>)}
+      {strictestRateLimits.map(({name, isActive, rateLimitType}) => {
+        const isNewUserDefault = rateLimitType === 'newUserDefault';
+        const tooltipTitle = isNewUserDefault ? 'New user default rate limit' : `Calculated via: ${isActive.toString()}`;
+        return (
+          <li key={`${user._id}rateLimitstrict${name}`}>
+            <div className={classNames(isNewUserDefault && classes.newUserDefault)}>
+              <LWTooltip title={tooltipTitle}><MetaInfo>{name}</MetaInfo></LWTooltip>
+            </div>
+          </li>
+        );
+    })}
     </ul>
     {nonStrictestRateLimitsNames.length > 0 && <LWTooltip title={<div>
       {nonStrictestRateLimitsNames.map(rateLimit => <div key={`${user._id}rateLimit${rateLimit}`}>{rateLimit}</div>)}</div>}>
