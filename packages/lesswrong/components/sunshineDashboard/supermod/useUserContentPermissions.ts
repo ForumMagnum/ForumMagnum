@@ -15,6 +15,36 @@ const SunshineUsersListUpdateMutation = gql(`
   }
 `);
 
+type PermissionType = 'postingDisabled' | 'allCommentingDisabled' | 'conversationsDisabled';
+
+const PERMISSION_NOTE_PREFIXES = {
+  postingDisabled: 'publishing posts',
+  allCommentingDisabled: 'all commenting',
+  conversationsDisabled: 'messaging',
+} satisfies Record<PermissionType, string>;
+
+const PERMISSION_FIELDS = {
+  postingDisabled: 'postingDisabled',
+  allCommentingDisabled: 'allCommentingDisabled',
+  conversationsDisabled: 'conversationsDisabled',
+} satisfies Record<PermissionType, keyof SunshineUsersList>;
+
+function createModNoteForPermission(
+  permissionType: PermissionType,
+  user: SunshineUsersList,
+  currentUser: UsersCurrent | null
+): string {
+  const fieldName = PERMISSION_FIELDS[permissionType];
+  const isCurrentlyDisabled = user[fieldName];
+  const abled = isCurrentlyDisabled ? 'enabled' : 'disabled';
+
+  const notePrefix = PERMISSION_NOTE_PREFIXES[permissionType];
+  const modDisplayName = currentUser?.displayName ?? 'Unknown';
+  const currentNotes = user.sunshineNotes || '';
+
+  return getSignatureWithNote(modDisplayName, `${notePrefix} ${abled}`) + currentNotes;
+}
+
 export function useUserContentPermissions(
   user: SunshineUsersList | null,
   dispatch: React.ActionDispatch<[action: InboxAction]>
@@ -22,67 +52,52 @@ export function useUserContentPermissions(
   const currentUser = useCurrentUser();
   const [updateUser] = useMutation(SunshineUsersListUpdateMutation);
 
-  const getModSignatureWithNote = useCallback(
-    (note: string) => getSignatureWithNote(currentUser?.displayName ?? 'Unknown', note),
-    [currentUser?.displayName]
-  );
+  const updateUserWith = useCallback((data: UpdateUserDataInput) => {
+    if (!user) return;
+
+    void updateUser({
+      variables: {
+        selector: { _id: user._id },
+        data,
+      },
+    });
+  }, [user, updateUser]);
 
   const handleDisablePosting = useCallback(() => {
     if (!user) return;
-    const abled = user.postingDisabled ? 'enabled' : 'disabled';
-    const notes = user.sunshineNotes || '';
-    const newNotes = getModSignatureWithNote(`publishing posts ${abled}`) + notes;
+    const newNotes = createModNoteForPermission('postingDisabled', user, currentUser);
     
     dispatch({ type: 'UPDATE_USER_NOTES', userId: user._id, sunshineNotes: newNotes });
     
-    void updateUser({
-      variables: {
-        selector: { _id: user._id },
-        data: {
-          postingDisabled: !user.postingDisabled,
-          sunshineNotes: newNotes,
-        },
-      },
+    updateUserWith({
+      postingDisabled: !user.postingDisabled,
+      sunshineNotes: newNotes,
     });
-  }, [user, getModSignatureWithNote, updateUser, dispatch]);
+  }, [user, currentUser, updateUserWith, dispatch]);
 
   const handleDisableCommenting = useCallback(() => {
     if (!user) return;
-    const abled = user.allCommentingDisabled ? 'enabled' : 'disabled';
-    const notes = user.sunshineNotes || '';
-    const newNotes = getModSignatureWithNote(`all commenting ${abled}`) + notes;
+    const newNotes = createModNoteForPermission('allCommentingDisabled', user, currentUser);
     
     dispatch({ type: 'UPDATE_USER_NOTES', userId: user._id, sunshineNotes: newNotes });
     
-    void updateUser({
-      variables: {
-        selector: { _id: user._id },
-        data: {
-          allCommentingDisabled: !user.allCommentingDisabled,
-          sunshineNotes: newNotes,
-        },
-      },
+    updateUserWith({
+      allCommentingDisabled: !user.allCommentingDisabled,
+      sunshineNotes: newNotes,
     });
-  }, [user, getModSignatureWithNote, updateUser, dispatch]);
+  }, [user, currentUser, updateUserWith, dispatch]);
 
   const handleDisableMessaging = useCallback(() => {
     if (!user) return;
-    const abled = user.conversationsDisabled ? 'enabled' : 'disabled';
-    const notes = user.sunshineNotes || '';
-    const newNotes = getModSignatureWithNote(`messaging ${abled}`) + notes;
+    const newNotes = createModNoteForPermission('conversationsDisabled', user, currentUser);
     
     dispatch({ type: 'UPDATE_USER_NOTES', userId: user._id, sunshineNotes: newNotes });
     
-    void updateUser({
-      variables: {
-        selector: { _id: user._id },
-        data: {
-          conversationsDisabled: !user.conversationsDisabled,
-          sunshineNotes: newNotes,
-        },
-      },
+    updateUserWith({
+      conversationsDisabled: !user.conversationsDisabled,
+      sunshineNotes: newNotes,
     });
-  }, [user, getModSignatureWithNote, updateUser, dispatch]);
+  }, [user, currentUser, updateUserWith, dispatch]);
 
   const handleDisableVoting = useCallback(() => {
     // TODO: Implement voting permission toggle
