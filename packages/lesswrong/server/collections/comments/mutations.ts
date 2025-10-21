@@ -44,7 +44,10 @@ async function editCheck(user: DbUser | null, document: DbComment | null, contex
       userCanDo(user, 'comments.alignment.suggest')) {
     return true
   }
-  return userOwns(user, document) ? userCanDo(user, 'comments.edit.own') : userCanDo(user, `comments.edit.all`)
+  
+  return userOwns(user, document)
+    ? !document.rejected && userCanDo(user, 'comments.edit.own')
+    : userCanDo(user, `comments.edit.all`)
 }
 
 export async function createComment({ data }: CreateCommentInput, context: ResolverContext) {
