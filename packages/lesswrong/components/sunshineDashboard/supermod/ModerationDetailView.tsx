@@ -289,7 +289,7 @@ const ModerationDetailView = ({
   const { posts, comments } = useModeratedUserContents(user._id);
 
   const allContent = useMemo(() => [...posts, ...comments].sort((a, b) => 
-    new Date(a.postedAt).getTime() - new Date(b.postedAt).getTime()
+    new Date(b.postedAt).getTime() - new Date(a.postedAt).getTime()
   ), [posts, comments]);
   
   // Set focus to first content item when content loads
