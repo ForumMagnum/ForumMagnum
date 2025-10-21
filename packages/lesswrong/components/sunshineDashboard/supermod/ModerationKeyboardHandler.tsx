@@ -11,7 +11,7 @@ import SnoozeAmountModal from './SnoozeAmountModal';
 import RestrictAndNotifyModal from './RestrictAndNotifyModal';
 import { useCommandPalette } from '@/components/hooks/useCommandPalette';
 import { useModeratedUserContents } from '@/components/hooks/useModeratedUserContents';
-import type { InboxAction } from './ModerationInbox';
+import type { InboxAction } from './inboxReducer';
 
 const SunshineUsersListUpdateMutation = gql(`
   mutation updateUserModerationKeyboard($selector: SelectorInput!, $data: UpdateUserDataInput!) {

@@ -16,7 +16,7 @@ import LWTooltip from '@/components/common/LWTooltip';
 import UserAutoRateLimitsDisplay from '../ModeratorUserInfo/UserAutoRateLimitsDisplay';
 import ModerationContentList from './ModerationContentList';
 import ModerationContentDetail from './ModerationContentDetail';
-import type { InboxAction } from './ModerationInbox';
+import type { InboxAction } from './inboxReducer';
 import FormatDate from '@/components/common/FormatDate';
 
 const sharedVoteStyles = {

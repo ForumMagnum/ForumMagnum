@@ -1,7 +1,4 @@
-import {
-  type InboxState,
-  inboxStateReducer,
-} from '../components/sunshineDashboard/supermod/ModerationInbox';
+import { inboxStateReducer, type InboxState } from '@/components/sunshineDashboard/supermod/inboxReducer';
 import type { ReviewGroup } from '../components/sunshineDashboard/supermod/groupings';
 import {
   UNREVIEWED_FIRST_POST,
