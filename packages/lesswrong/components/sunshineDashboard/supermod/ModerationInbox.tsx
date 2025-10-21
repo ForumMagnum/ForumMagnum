@@ -15,7 +15,6 @@ import Loading from '@/components/vulcan-core/Loading';
 import groupBy from 'lodash/groupBy';
 import { getUserReviewGroup, REVIEW_GROUP_TO_PRIORITY, getTabsInPriorityOrder, type ReviewGroup } from './groupings';
 import type { TabInfo } from './ModerationTabs';
-import { useModeratedUserContents } from '@/components/hooks/useModeratedUserContents';
 
 const SunshineUsersListMultiQuery = gql(`
   query multiUserModerationInboxQuery($selector: UserSelector, $limit: Int, $enableTotal: Boolean) {
@@ -97,6 +96,8 @@ export type InboxState = {
   focusedUserId: string | null;
   // Opened user in detail view
   openedUserId: string | null;
+  // Focused content item in detail view
+  focusedContentId: string | null;
 };
 
 type InboxAction =
@@ -107,7 +108,10 @@ type InboxAction =
   | { type: 'PREV_USER' }
   | { type: 'NEXT_TAB' }
   | { type: 'PREV_TAB' }
-  | { type: 'REMOVE_USER'; userId: string };
+  | { type: 'REMOVE_USER'; userId: string }
+  | { type: 'SET_FOCUSED_CONTENT'; contentId: string | null }
+  | { type: 'NEXT_CONTENT'; allContent: Array<{ _id: string }> }
+  | { type: 'PREV_CONTENT'; allContent: Array<{ _id: string }> };
 
 // Helper to get filtered groups for a tab
 function getFilteredGroups(
@@ -148,6 +152,7 @@ export function inboxStateReducer(state: InboxState, action: InboxAction): Inbox
       return {
         ...state,
         openedUserId: action.userId,
+        focusedContentId: null, // Will be set by detail view when content loads
       };
     }
     
@@ -155,8 +160,36 @@ export function inboxStateReducer(state: InboxState, action: InboxAction): Inbox
       return {
         ...state,
         openedUserId: null,
+        focusedContentId: null,
         // Restore focus to the user that was open
         focusedUserId: state.openedUserId,
+      };
+    }
+    
+    case 'SET_FOCUSED_CONTENT': {
+      return {
+        ...state,
+        focusedContentId: action.contentId,
+      };
+    }
+    
+    case 'NEXT_CONTENT': {
+      if (!state.openedUserId || action.allContent.length === 0) return state;
+      const currentIndex = action.allContent.findIndex(item => item._id === state.focusedContentId);
+      const nextIndex = (currentIndex + 1) % action.allContent.length;
+      return {
+        ...state,
+        focusedContentId: action.allContent[nextIndex]._id,
+      };
+    }
+    
+    case 'PREV_CONTENT': {
+      if (!state.openedUserId || action.allContent.length === 0) return state;
+      const currentIndex = action.allContent.findIndex(item => item._id === state.focusedContentId);
+      const prevIndex = currentIndex <= 0 ? action.allContent.length - 1 : currentIndex - 1;
+      return {
+        ...state,
+        focusedContentId: action.allContent[prevIndex]._id,
       };
     }
     
@@ -172,6 +205,7 @@ export function inboxStateReducer(state: InboxState, action: InboxAction): Inbox
         ...state,
         activeTab: action.tab,
         focusedUserId: orderedUsers[0]?._id ?? null,
+        focusedContentId: null,
       };
     }
     
@@ -188,7 +222,7 @@ export function inboxStateReducer(state: InboxState, action: InboxAction): Inbox
       const nextUserId = orderedUsers[nextIndex]._id;
       
       if (state.openedUserId) {
-        return { ...state, openedUserId: nextUserId };
+        return { ...state, openedUserId: nextUserId, focusedContentId: null };
       } else {
         return { ...state, focusedUserId: nextUserId };
       }
@@ -207,7 +241,7 @@ export function inboxStateReducer(state: InboxState, action: InboxAction): Inbox
       const prevUserId = orderedUsers[prevIndex]._id;
       
       if (state.openedUserId) {
-        return { ...state, openedUserId: prevUserId };
+        return { ...state, openedUserId: prevUserId, focusedContentId: null };
       } else {
         return { ...state, focusedUserId: prevUserId };
       }
@@ -232,6 +266,7 @@ export function inboxStateReducer(state: InboxState, action: InboxAction): Inbox
         ...state,
         activeTab: nextTab,
         focusedUserId: orderedUsers[0]?._id ?? null,
+        focusedContentId: null,
       };
     }
     
@@ -254,6 +289,7 @@ export function inboxStateReducer(state: InboxState, action: InboxAction): Inbox
         ...state,
         activeTab: prevTab,
         focusedUserId: orderedUsers[0]?._id ?? null,
+        focusedContentId: null,
       };
     }
     
@@ -266,6 +302,7 @@ export function inboxStateReducer(state: InboxState, action: InboxAction): Inbox
           activeTab: 'all',
           focusedUserId: null,
           openedUserId: null,
+          focusedContentId: null,
         };
       }
       
@@ -295,6 +332,7 @@ export function inboxStateReducer(state: InboxState, action: InboxAction): Inbox
             activeTab: state.activeTab,
             focusedUserId: null,
             openedUserId: nextUserId,
+            focusedContentId: null,
           };
         } else {
           return {
@@ -302,6 +340,7 @@ export function inboxStateReducer(state: InboxState, action: InboxAction): Inbox
             activeTab: state.activeTab,
             focusedUserId: nextUserId,
             openedUserId: null,
+            focusedContentId: null,
           };
         }
       }
@@ -330,6 +369,7 @@ export function inboxStateReducer(state: InboxState, action: InboxAction): Inbox
           activeTab: nextTab,
           focusedUserId: nextUserId,
           openedUserId: null,
+          focusedContentId: null,
         };
       }
       
@@ -339,6 +379,7 @@ export function inboxStateReducer(state: InboxState, action: InboxAction): Inbox
         activeTab: 'all',
         focusedUserId: null,
         openedUserId: null,
+        focusedContentId: null,
       };
     }
     
@@ -359,7 +400,7 @@ const ModerationInboxInner = ({ users, initialOpenedUserId, currentUser }: {
   // Initialize reducer with data and URL parameter immediately
   const [state, dispatch] = useReducer(
     inboxStateReducer,
-    { users: [], activeTab: 'all', focusedUserId: null, openedUserId: initialOpenedUserId },
+    { users: [], activeTab: 'all', focusedUserId: null, openedUserId: initialOpenedUserId, focusedContentId: null },
     (): InboxState => {
       // Compute initial state from users
       if (users.length === 0) {
@@ -368,6 +409,7 @@ const ModerationInboxInner = ({ users, initialOpenedUserId, currentUser }: {
           activeTab: 'all',
           focusedUserId: null,
           openedUserId: null,
+          focusedContentId: null,
         };
       }
 
@@ -383,37 +425,10 @@ const ModerationInboxInner = ({ users, initialOpenedUserId, currentUser }: {
         activeTab: firstTab,
         focusedUserId: orderedUsers[0]?._id ?? null,
         openedUserId: initialOpenedUserId,
+        focusedContentId: null,
       };
     }
   );
-  
-  // Separate state for content navigation within detail view
-  const [focusedContentId, setFocusedContentId] = React.useState<string | null>(null);
-  
-  // Load content for the opened user
-  const { posts, comments } = useModeratedUserContents(state.openedUserId ?? '');
-  
-  // Memoize all content sorted by date
-  const allContent = useMemo(() => {
-    if (!state.openedUserId) return [];
-    return [...posts, ...comments].sort((a, b) => 
-      new Date(a.postedAt).getTime() - new Date(b.postedAt).getTime()
-    );
-  }, [posts, comments, state.openedUserId]);
-  
-  // When user is opened or content changes, set focus to first item
-  useEffect(() => {
-    if (state.openedUserId && allContent.length > 0 && !focusedContentId) {
-      setFocusedContentId(allContent[0]._id);
-    }
-  }, [state.openedUserId, allContent, focusedContentId]);
-  
-  // Clear focused content when closing detail view
-  useEffect(() => {
-    if (!state.openedUserId) {
-      setFocusedContentId(null);
-    }
-  }, [state.openedUserId]);
 
   // Update URL when reducer's openedUserId changes (using replace + skipRouter to avoid navigation events)
   useEffect(() => {
@@ -489,20 +504,6 @@ const ModerationInboxInner = ({ users, initialOpenedUserId, currentUser }: {
       dispatch({ type: 'REMOVE_USER', userId: userIdToRemove });
     }
   }, [state.openedUserId, state.focusedUserId]);
-  
-  const handleNextContent = useCallback(() => {
-    if (allContent.length === 0) return;
-    const currentIndex = allContent.findIndex(item => item._id === focusedContentId);
-    const nextIndex = (currentIndex + 1) % allContent.length;
-    setFocusedContentId(allContent[nextIndex]._id);
-  }, [allContent, focusedContentId]);
-  
-  const handlePrevContent = useCallback(() => {
-    if (allContent.length === 0) return;
-    const currentIndex = allContent.findIndex(item => item._id === focusedContentId);
-    const prevIndex = currentIndex <= 0 ? allContent.length - 1 : currentIndex - 1;
-    setFocusedContentId(allContent[prevIndex]._id);
-  }, [allContent, focusedContentId]);
 
   return (
     <div className={classes.root}>
@@ -523,16 +524,15 @@ const ModerationInboxInner = ({ users, initialOpenedUserId, currentUser }: {
         currentUser={currentUser}
         onActionComplete={handleActionComplete}
         isDetailView={!!state.openedUserId}
-        onNextContent={handleNextContent}
-        onPrevContent={handlePrevContent}
+        dispatch={dispatch}
       />
       <div className={classes.mainContent}>
         <div className={classes.leftPanel}>
           {openedUser ? (
             <ModerationDetailView 
               user={openedUser}
-              focusedContentId={focusedContentId}
-              onFocusContent={setFocusedContentId}
+              focusedContentId={state.focusedContentId}
+              dispatch={dispatch}
             />
           ) : (
             <ModerationInboxList

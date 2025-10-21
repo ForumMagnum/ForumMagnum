@@ -1,4 +1,4 @@
-import React, { useCallback, useMemo, useState } from 'react';
+import React, { useCallback, useMemo } from 'react';
 import { useGlobalKeydown } from '@/components/common/withGlobalKeydown';
 import { useDialog } from '@/components/common/withDialog';
 import type { CommandPaletteItem } from '@/components/common/CommandPalette';
@@ -43,8 +43,7 @@ const ModerationKeyboardHandler = ({
   currentUser,
   onActionComplete,
   isDetailView,
-  onNextContent,
-  onPrevContent,
+  dispatch,
 }: {
   onNextUser: () => void;
   onPrevUser: () => void;
@@ -56,8 +55,7 @@ const ModerationKeyboardHandler = ({
   isDetailView: boolean;
   currentUser: UsersCurrent;
   onActionComplete: () => void;
-  onNextContent?: () => void;
-  onPrevContent?: () => void;
+  dispatch: React.Dispatch<{ type: string; allContent?: Array<{ _id: string }> }>;
 }) => {
   const { openDialog } = useDialog();
   const [updateUser] = useMutation(SunshineUsersListUpdateMutation);
@@ -65,6 +63,13 @@ const ModerationKeyboardHandler = ({
   
   // Fetch user's content to find most recent unapproved item
   const { posts, comments } = useModeratedUserContents(selectedUser?._id ?? '', 20);
+  
+  // Memoize all content for content navigation
+  const allContent = useMemo(() => {
+    return [...posts, ...comments].sort((a, b) => 
+      new Date(a.postedAt).getTime() - new Date(b.postedAt).getTime()
+    );
+  }, [posts, comments]);
 
   const getModSignatureWithNote = useCallback(
     (note: string) => getSignatureWithNote(currentUser.displayName, note),
@@ -381,15 +386,31 @@ const ModerationKeyboardHandler = ({
     },
     {
       label: isDetailView ? 'Next Content Item' : 'Next User',
-      keystroke: 'J',
-      isDisabled: () => false,
-      execute: isDetailView && onNextContent ? onNextContent : onNextUser,
+      keystroke: '↓',
+      isDisabled: () => isDetailView ? allContent.length === 0 : false,
+      execute: isDetailView 
+        ? () => dispatch({ type: 'NEXT_CONTENT', allContent })
+        : onNextUser,
     },
     {
       label: isDetailView ? 'Previous Content Item' : 'Previous User',
-      keystroke: 'K',
+      keystroke: '↑',
+      isDisabled: () => isDetailView ? allContent.length === 0 : false,
+      execute: isDetailView 
+        ? () => dispatch({ type: 'PREV_CONTENT', allContent })
+        : onPrevUser,
+    },
+    {
+      label: isDetailView ? 'Next User' : 'Next Tab',
+      keystroke: '→',
       isDisabled: () => false,
-      execute: isDetailView && onPrevContent ? onPrevContent : onPrevUser,
+      execute: isDetailView ? onNextUser : onNextTab,
+    },
+    {
+      label: isDetailView ? 'Previous User' : 'Previous Tab',
+      keystroke: '←',
+      isDisabled: () => false,
+      execute: isDetailView ? onPrevUser : onPrevTab,
     },
     {
       label: 'Open Detail View',
@@ -403,7 +424,7 @@ const ModerationKeyboardHandler = ({
       isDisabled: () => false,
       execute: onCloseDetail,
     },
-  ], [handleReview, handleSnoozeCustom, handleRemoveNeedsReview, handleRejectContentAndRemove, handleBan, handlePurge, handleFlag, handleDisablePosting, handleDisableCommentingOnOthers, handleRestrictAndNotify, onNextUser, onPrevUser, onNextContent, onPrevContent, onOpenDetail, onCloseDetail, selectedUser, handleSnooze, isDetailView]);
+  ], [handleReview, handleSnoozeCustom, handleRemoveNeedsReview, handleRejectContentAndRemove, handleBan, handlePurge, handleFlag, handleDisablePosting, handleDisableCommentingOnOthers, handleRestrictAndNotify, onNextUser, onPrevUser, onNextTab, onPrevTab, onOpenDetail, onCloseDetail, selectedUser, handleSnooze, isDetailView, dispatch, allContent]);
 
   useGlobalKeydown(
     useCallback(
@@ -428,48 +449,46 @@ const ModerationKeyboardHandler = ({
           return;
         }
 
-        // Navigation with j/k
-        // In detail view: navigate content items
-        // In inbox view: j/k do nothing (arrow keys handle user navigation)
-        if (event.key === 'j') {
-          event.preventDefault();
-          if (isDetailView && onNextContent) {
-            onNextContent();
-          }
-          return;
-        }
-
-        if (event.key === 'k') {
-          event.preventDefault();
-          if (isDetailView && onPrevContent) {
-            onPrevContent();
-          }
-          return;
-        }
-        
-        // Arrow key navigation always navigates users
+        // Arrow key navigation - context-aware based on view
+        // In detail view: up/down = content items, left/right = users
+        // In inbox view: up/down = users, left/right = tabs
         if (event.key === 'ArrowDown') {
           event.preventDefault();
-          onNextUser();
+          if (isDetailView) {
+            dispatch({ type: 'NEXT_CONTENT', allContent });
+          } else {
+            onNextUser();
+          }
           return;
         }
 
         if (event.key === 'ArrowUp') {
           event.preventDefault();
-          onPrevUser();
+          if (isDetailView) {
+            dispatch({ type: 'PREV_CONTENT', allContent });
+          } else {
+            onPrevUser();
+          }
           return;
         }
 
-        // Tab navigation (only in inbox view, not detail view)
-        if (event.key === 'ArrowLeft' && !isDetailView) {
+        if (event.key === 'ArrowLeft') {
           event.preventDefault();
-          onPrevTab();
+          if (isDetailView) {
+            onPrevUser();
+          } else {
+            onPrevTab();
+          }
           return;
         }
 
-        if (event.key === 'ArrowRight' && !isDetailView) {
+        if (event.key === 'ArrowRight') {
           event.preventDefault();
-          onNextTab();
+          if (isDetailView) {
+            onNextUser();
+          } else {
+            onNextTab();
+          }
           return;
         }
 
@@ -528,8 +547,6 @@ const ModerationKeyboardHandler = ({
       [
         onNextUser,
         onPrevUser,
-        onNextContent,
-        onPrevContent,
         onNextTab,
         onPrevTab,
         onOpenDetail,
@@ -549,6 +566,8 @@ const ModerationKeyboardHandler = ({
         handleDisableCommentingOnOthers,
         commands,
         openCommandPalette,
+        dispatch,
+        allContent,
       ]
     )
   );
@@ -557,3 +576,4 @@ const ModerationKeyboardHandler = ({
 };
 
 export default ModerationKeyboardHandler;
+

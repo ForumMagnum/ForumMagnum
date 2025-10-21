@@ -1,4 +1,4 @@
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, useEffect } from 'react';
 import { defineStyles, useStyles } from '@/components/hooks/useStyles';
 import UsersName from '@/components/users/UsersName';
 import { truncate } from '@/lib/editor/ellipsize';
@@ -277,11 +277,11 @@ const ContentSummaryRow = ({ user, type, items }: ContentSummaryRowProps) => {
 const ModerationDetailView = ({ 
   user,
   focusedContentId,
-  onFocusContent,
+  dispatch,
 }: {
   user: SunshineUsersList;
-  focusedContentId?: string | null;
-  onFocusContent?: (contentId: string | null) => void;
+  focusedContentId: string | null;
+  dispatch: React.Dispatch<{ type: string; contentId?: string | null }>;
 }) => {
   const classes = useStyles(styles);
   const [bioWordcount, setBioWordcount] = useState(DEFAULT_BIO_WORDCOUNT);
@@ -291,11 +291,22 @@ const ModerationDetailView = ({
   const allContent = useMemo(() => [...posts, ...comments].sort((a, b) => 
     new Date(a.postedAt).getTime() - new Date(b.postedAt).getTime()
   ), [posts, comments]);
+  
+  // Set focus to first content item when content loads
+  useEffect(() => {
+    if (allContent.length > 0 && !focusedContentId) {
+      dispatch({ type: 'SET_FOCUSED_CONTENT', contentId: allContent[0]._id });
+    }
+  }, [allContent, focusedContentId, dispatch]);
 
   const focusedContent = useMemo(() => 
     allContent.find(item => item._id === focusedContentId) || null,
     [allContent, focusedContentId]
   );
+  
+  const handleFocusContent = (contentId: string | null) => {
+    dispatch({ type: 'SET_FOCUSED_CONTENT', contentId });
+  };
 
   const { fresh: freshModeratorActions } = partitionModeratorActions(user);
   const likelyReviewTrigger = [...new Set(freshModeratorActions.map(action => getPrimaryDisplayedModeratorAction(action.type)))].reverse().at(0);
@@ -395,8 +406,8 @@ const ModerationDetailView = ({
             <ModerationContentList
               items={allContent}
               title="Posts & Comments"
-              focusedItemId={focusedContentId ?? null}
-              onOpenItem={onFocusContent ?? (() => {})}
+              focusedItemId={focusedContentId}
+              onOpenItem={handleFocusContent}
             />
           </div>
           <ModerationContentDetail
