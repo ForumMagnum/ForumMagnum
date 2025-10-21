@@ -10,22 +10,30 @@ print_help () {
 	END
 }
 
+VERCEL_ENV_NAME=development
+
 while [[ "$#" != 0 ]]; do
-  case "$1" in
+  ARG="$1"; shift
+  case "$ARG" in
     -h|--help)
 	    print_help
 	    exit 1
 	    ;;
-    *)
-      VERCEL_ENV_NAME="$1"
-      shift
+    dev|development)
+      VERCEL_ENV_NAME=development
       break
+      ;;
+    prod|production)
+      VERCEL_ENV_NAME=production
+      break
+      ;;
+    *)
+      echo "Unrecognized argument: $ARG"
+      print_help
+      exit 1
+      ;;
   esac
 done
-if [[ "$VERCEL_ENV_NAME" == "" ]]; then
-  print_help
-  exit 1
-fi
 
 
 # Sync environment variables from a linked Vercel environment with `vercel env pull`.
@@ -34,7 +42,7 @@ pull_envvars () {
   # The 2>&1 here merges stdout and stderr. Unfortunately "vercel env pull"
   # outputs everything (including non-error spammy status information) to
   # stderr, so the customary "redirect stdout but show stderr" doesn't work.
-  VERCEL_PULL_OUTPUT=$(vercel env pull .env.local --environment=${VERCEL_ENV_NAME:-development} 2>&1)
+  VERCEL_PULL_OUTPUT=$(vercel env pull .env.local --environment="$VERCEL_ENV_NAME" 2>&1)
   VERCEL_PULL_EXIT_STATUS="$?"
   
   if [[ "$VERCEL_PULL_EXIT_STATUS" != 0 ]]; then
