@@ -12,6 +12,7 @@ import RestrictAndNotifyModal from './RestrictAndNotifyModal';
 import { useCommandPalette } from '@/components/hooks/useCommandPalette';
 import { useModeratedUserContents } from '@/components/hooks/useModeratedUserContents';
 import type { InboxAction } from './inboxReducer';
+import { useUserContentPermissions } from './useUserContentPermissions';
 
 const SunshineUsersListUpdateMutation = gql(`
   mutation updateUserModerationKeyboard($selector: SelectorInput!, $data: UpdateUserDataInput!) {
@@ -248,43 +249,12 @@ const ModerationKeyboardHandler = ({
     });
   }, [selectedUser, getModSignatureWithNote, updateUser, dispatch]);
 
-  const handleDisablePosting = useCallback(() => {
-    if (!selectedUser) return;
-    const abled = selectedUser.postingDisabled ? 'enabled' : 'disabled';
-    const notes = selectedUser.sunshineNotes || '';
-    const newNotes = getModSignatureWithNote(`publishing posts ${abled}`) + notes;
-    
-    dispatch({ type: 'UPDATE_USER_NOTES', userId: selectedUser._id, sunshineNotes: newNotes });
-    
-    void updateUser({
-      variables: {
-        selector: { _id: selectedUser._id },
-        data: {
-          postingDisabled: !selectedUser.postingDisabled,
-          sunshineNotes: newNotes,
-        },
-      },
-    });
-  }, [selectedUser, getModSignatureWithNote, updateUser, dispatch]);
-
-  const handleDisableCommenting = useCallback(() => {
-    if (!selectedUser) return;
-    const abled = selectedUser.allCommentingDisabled ? 'enabled' : 'disabled';
-    const notes = selectedUser.sunshineNotes || '';
-    const newNotes = getModSignatureWithNote(`all commenting ${abled}`) + notes;
-    
-    dispatch({ type: 'UPDATE_USER_NOTES', userId: selectedUser._id, sunshineNotes: newNotes });
-    
-    void updateUser({
-      variables: {
-        selector: { _id: selectedUser._id },
-        data: {
-          allCommentingDisabled: !selectedUser.allCommentingDisabled,
-          sunshineNotes: newNotes,
-        },
-      },
-    });
-  }, [selectedUser, getModSignatureWithNote, updateUser, dispatch]);
+  const {
+    handleDisablePosting,
+    handleDisableCommenting,
+    handleDisableMessaging,
+    handleDisableVoting,
+  } = useUserContentPermissions(selectedUser, dispatch);
 
   const handleRestrictAndNotify = useCallback(() => {
     if (!selectedUser) return;
@@ -405,10 +375,22 @@ const ModerationKeyboardHandler = ({
       execute: handleDisablePosting,
     },
     {
-      label: 'Toggle Disable Commenting on Others',
+      label: 'Toggle Disable Commenting',
       keystroke: 'C',
       isDisabled: () => !selectedUser,
       execute: handleDisableCommenting,
+    },
+    {
+      label: 'Toggle Disable Messaging',
+      keystroke: 'M',
+      isDisabled: () => !selectedUser,
+      execute: handleDisableMessaging,
+    },
+    {
+      label: 'Toggle Disable Voting',
+      keystroke: 'V',
+      isDisabled: () => !selectedUser,
+      execute: handleDisableVoting,
     },
     {
       label: 'Restrict & Notify',
@@ -456,7 +438,7 @@ const ModerationKeyboardHandler = ({
       isDisabled: () => false,
       execute: onCloseDetail,
     },
-    ], [handleReview, handleApproveCurrentOnly, handleSnoozeCustom, handleRemoveNeedsReview, handleRejectContentAndRemove, handleBan, handlePurge, handleFlag, handleDisablePosting, handleDisableCommenting, handleRestrictAndNotify, onNextUser, onPrevUser, onNextTab, onPrevTab, onOpenDetail, onCloseDetail, selectedUser, handleSnooze, isDetailView, dispatch, allContent]);
+    ], [handleReview, handleApproveCurrentOnly, handleSnoozeCustom, handleRemoveNeedsReview, handleRejectContentAndRemove, handleBan, handlePurge, handleFlag, handleDisablePosting, handleDisableCommenting, handleDisableMessaging, handleDisableVoting, handleRestrictAndNotify, onNextUser, onPrevUser, onNextTab, onPrevTab, onOpenDetail, onCloseDetail, selectedUser, handleSnooze, isDetailView, dispatch, allContent]);
 
   useGlobalKeydown(
     useCallback(
@@ -574,6 +556,12 @@ const ModerationKeyboardHandler = ({
         } else if (event.key === 'c') {
           event.preventDefault();
           handleDisableCommenting();
+        } else if (event.key === 'm') {
+          event.preventDefault();
+          handleDisableMessaging();
+        } else if (event.key === 'v') {
+          event.preventDefault();
+          handleDisableVoting();
         } else if (event.key === 'x') {
           event.preventDefault();
           handleRejectContentAndRemove();
@@ -600,6 +588,8 @@ const ModerationKeyboardHandler = ({
         handleFlag,
         handleDisablePosting,
         handleDisableCommenting,
+        handleDisableMessaging,
+        handleDisableVoting,
         commands,
         openCommandPalette,
         dispatch,

@@ -21722,6 +21722,24 @@ type updateCommentRestrictAndNotifyMutationVariables = Exact<{
 
 type updateCommentRestrictAndNotifyMutation = updateCommentRestrictAndNotifyMutation_Mutation;
 
+type updateUserContentPermissionsMutation_updateUser_UserOutput_data_User = (
+  { __typename?: 'User' }
+  & SunshineUsersList
+);
+
+type updateUserContentPermissionsMutation_updateUser_UserOutput = { __typename?: 'UserOutput', data: updateUserContentPermissionsMutation_updateUser_UserOutput_data_User | null };
+
+type updateUserContentPermissionsMutation_Mutation = { __typename?: 'Mutation', updateUser: updateUserContentPermissionsMutation_updateUser_UserOutput | null };
+
+
+type updateUserContentPermissionsMutationVariables = Exact<{
+  selector: SelectorInput;
+  data: UpdateUserDataInput;
+}>;
+
+
+type updateUserContentPermissionsMutation = updateUserContentPermissionsMutation_Mutation;
+
 type multiSurveyScheduleSurveyAdminPageQueryQuery_surveySchedules_MultiSurveyScheduleOutput_results_SurveySchedule = (
   { __typename?: 'SurveySchedule' }
   & SurveyScheduleEdit

@@ -20,6 +20,8 @@ import type { InboxAction } from './inboxReducer';
 import FormatDate from '@/components/common/FormatDate';
 import AltAccountInfo from '../ModeratorUserInfo/AltAccountInfo';
 import { Link } from '@/lib/reactRouterWrapper';
+import { getEnvKeystrokeText } from '@/lib/vendor/ckeditor5-util/keyboard';
+import { useUserContentPermissions } from './useUserContentPermissions';
 
 const sharedVoteStyles = {
   marginLeft: 4,
@@ -42,7 +44,7 @@ const styles = defineStyles('ModerationDetailView', (theme: ThemeType) => ({
   headerContent: {
     display: 'flex',
     gap: 60,
-    height: 140,
+    height: 160,
   },
   column1: {
     display: 'flex',
@@ -196,6 +198,58 @@ const styles = defineStyles('ModerationDetailView', (theme: ThemeType) => ({
   altAccountRow: {
     fontSize: 12,
     color: theme.palette.grey[600],
+  },
+  permissionButtonsContainer: {
+    display: 'grid',
+    gridTemplateColumns: '1fr 1fr',
+    gap: 4,
+  },
+  permissionButton: {
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    padding: '4px 8px',
+    border: `1px solid ${theme.palette.grey[300]}`,
+    borderRadius: 4,
+    backgroundColor: theme.palette.background.paper,
+    cursor: 'pointer',
+    fontSize: 12,
+    transition: 'all 0.15s ease',
+    '&:hover': {
+      backgroundColor: theme.palette.grey[50],
+      borderColor: theme.palette.grey[400],
+    },
+    '&.active': {
+      backgroundColor: theme.palette.error.light,
+      borderColor: theme.palette.error.main,
+      color: theme.palette.error.contrastText,
+      '&:hover': {
+        backgroundColor: theme.palette.error.main,
+      },
+    },
+  },
+  permissionButtonLabel: {
+    flexGrow: 1,
+  },
+  keystroke: {
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'center',
+    minWidth: 18,
+    height: 18,
+    fontSize: 10,
+    color: theme.palette.grey[600],
+    fontFamily: theme.typography.fontFamily,
+    backgroundColor: theme.palette.grey[100],
+    borderRadius: 3,
+    border: `1px solid ${theme.palette.grey[300]}`,
+    padding: '0 4px',
+    marginLeft: 8,
+    '.active &': {
+      backgroundColor: theme.palette.error.dark,
+      borderColor: theme.palette.error.dark,
+      color: theme.palette.error.contrastText,
+    },
   },
   contentSection: {
     display: 'flex',
@@ -364,6 +418,13 @@ const ModerationDetailView = ({
 
   const firstClientId = user.associatedClientIds?.[0];
 
+  const {
+    handleDisablePosting,
+    handleDisableCommenting,
+    handleDisableMessaging,
+    handleDisableVoting,
+  } = useUserContentPermissions(user, dispatch);
+
   return (
     <div className={classes.root}>
       <div className={classes.header}>
@@ -447,6 +508,36 @@ const ModerationDetailView = ({
                 <ContentSummaryRow user={user} type="comments" items={comments} />
               </div>
             )}
+            <div className={classes.permissionButtonsContainer}>
+              <div 
+                className={classNames(classes.permissionButton, user.postingDisabled && 'active')}
+                onClick={handleDisablePosting}
+              >
+                <span className={classes.permissionButtonLabel}>Posting</span>
+                <span className={classes.keystroke}>{getEnvKeystrokeText('D')}</span>
+              </div>
+              <div 
+                className={classNames(classes.permissionButton, user.allCommentingDisabled && 'active')}
+                onClick={handleDisableCommenting}
+              >
+                <span className={classes.permissionButtonLabel}>Commenting</span>
+                <span className={classes.keystroke}>{getEnvKeystrokeText('C')}</span>
+              </div>
+              <div 
+                className={classNames(classes.permissionButton, user.conversationsDisabled && 'active')}
+                onClick={handleDisableMessaging}
+              >
+                <span className={classes.permissionButtonLabel}>Messaging</span>
+                <span className={classes.keystroke}>{getEnvKeystrokeText('M')}</span>
+              </div>
+              <div 
+                className={classNames(classes.permissionButton, false && 'active')}
+                onClick={handleDisableVoting}
+              >
+                <span className={classes.permissionButtonLabel}>Voting</span>
+                <span className={classes.keystroke}>{getEnvKeystrokeText('V')}</span>
+              </div>
+            </div>
           </div>
           {(user.htmlBio || user.website) && (
             <div className={classes.column3}>
