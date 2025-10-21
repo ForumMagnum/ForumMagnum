@@ -45,7 +45,7 @@ export const conversationGetFriendlyTitle = (conversation: ConversationsList, cu
 export const conversationGetPageUrl = (conversation: HasIdType, isAbsolute=false): string => {
   const prefix = isAbsolute ? getSiteUrl().slice(0,-1) : '';
 
-  return `${prefix}/inbox/${conversation._id}`;
+  return `${prefix}/inbox?conversation=${conversation._id}`;
 }
 
 export const userCanStartConversations = (user: DbUser|UsersCurrent) => {

@@ -254,13 +254,11 @@ type Documents = {
     "\n  query multiPostTabNavigationEventsListQuery($selector: PostSelector, $limit: Int, $enableTotal: Boolean) {\n    posts(selector: $selector, limit: $limit, enableTotal: $enableTotal) {\n      results {\n        ...PostsList\n      }\n      totalCount\n    }\n  }\n": typeof types.multiPostTabNavigationEventsListQueryDocument,
     "\n  query multiMessageConversationContentsQuery($selector: MessageSelector, $limit: Int, $enableTotal: Boolean) {\n    messages(selector: $selector, limit: $limit, enableTotal: $enableTotal) {\n      results {\n        ...messageListFragment\n      }\n      totalCount\n    }\n  }\n": typeof types.multiMessageConversationContentsQueryDocument,
     "\n  mutation updateConversationInboxNavigation($selector: SelectorInput!, $data: UpdateConversationDataInput!) {\n    updateConversation(selector: $selector, data: $data) {\n      data {\n        ...ConversationsList\n      }\n    }\n  }\n": typeof types.updateConversationInboxNavigationDocument,
-    "\n  query ConversationPage($documentId: String) {\n    conversation(input: { selector: { documentId: $documentId } }) {\n      result {\n        ...ConversationsList\n      }\n    }\n  }\n": typeof types.ConversationPageDocument,
     "\n  query multiMessageConversationPreviewQuery($selector: MessageSelector, $limit: Int, $enableTotal: Boolean) {\n    messages(selector: $selector, limit: $limit, enableTotal: $enableTotal) {\n      results {\n        ...messageListFragment\n      }\n      totalCount\n    }\n  }\n": typeof types.multiMessageConversationPreviewQueryDocument,
     "\n  query ConversationPreview($documentId: String) {\n    conversation(input: { selector: { documentId: $documentId } }) {\n      result {\n        ...ConversationsList\n      }\n    }\n  }\n": typeof types.ConversationPreviewDocument,
     "\n  mutation updateConversationConversationTitleEditForm($selector: SelectorInput!, $data: UpdateConversationDataInput!) {\n    updateConversation(selector: $selector, data: $data) {\n      data {\n        ...ConversationsList\n      }\n    }\n  }\n": typeof types.updateConversationConversationTitleEditFormDocument,
     "\n  query multiConversationFriendlyInboxQuery($selector: ConversationSelector, $limit: Int, $enableTotal: Boolean) {\n    conversations(selector: $selector, limit: $limit, enableTotal: $enableTotal) {\n      results {\n        ...ConversationsListWithReadStatus\n      }\n      totalCount\n    }\n  }\n": typeof types.multiConversationFriendlyInboxQueryDocument,
     "\n  query FriendlyInbox($documentId: String) {\n    conversation(input: { selector: { documentId: $documentId } }) {\n      result {\n        ...ConversationsListWithReadStatus\n      }\n    }\n  }\n": typeof types.FriendlyInboxDocument,
-    "\n  query multiConversationInboxNavigationQuery($selector: ConversationSelector, $limit: Int, $enableTotal: Boolean) {\n    conversations(selector: $selector, limit: $limit, enableTotal: $enableTotal) {\n      results {\n        ...ConversationsList\n      }\n      totalCount\n    }\n  }\n": typeof types.multiConversationInboxNavigationQueryDocument,
     "\n  query MessageUserGetUserBySlug($slug: String!) {\n    GetUserBySlug(slug: $slug) {\n      ...UsersMinimumInfo\n    }\n  }\n": typeof types.MessageUserGetUserBySlugDocument,
     "\n  mutation createMessageMessagesNewForm($data: CreateMessageDataInput!) {\n    createMessage(data: $data) {\n      data {\n        ...messageListFragment\n      }\n    }\n  }\n": typeof types.createMessageMessagesNewFormDocument,
     "\n  query MessagesNewForm($documentId: String) {\n    moderationTemplate(input: { selector: { documentId: $documentId } }) {\n      result {\n        ...ModerationTemplateFragment\n      }\n    }\n  }\n": typeof types.MessagesNewFormDocument,
@@ -902,6 +900,7 @@ type Documents = {
     "\n  query singleDraftPostForLLMQuery($input: SinglePostInput, $version: String) {\n    post(input: $input) {\n      result {\n        ...PostsEditQueryFragment\n      }\n    }\n  }\n": typeof types.singleDraftPostForLLMQueryDocument,
     "\n  query singlePublishedPostForLLMQuery($input: SinglePostInput) {\n    post(input: $input) {\n      result {\n        ...PostsPage\n      }\n    }\n  }\n": typeof types.singlePublishedPostForLLMQueryDocument,
     "\n  query multiPostsForLLMQuery($input: MultiPostInput) {\n    posts(input: $input) {\n      results {\n        ...PostsPage\n      }\n    }\n  }\n": typeof types.multiPostsForLLMQueryDocument,
+    "\n      query GetReviewWinners {\n        GetAllReviewWinners {\n          ...PostsTopItemInfo\n        }\n      }\n    ": typeof types.GetReviewWinnersDocument,
     "\n  query CommentsForEmbeddings($selector: CommentSelector) {\n    comments(selector: $selector) {\n      results {\n        _id\n        postedAt\n        contents {\n          _id\n          html\n        }\n        user {\n          _id\n          displayName\n          username\n          fullName\n        }\n        post {\n          _id\n          title\n        }\n      }\n    }\n  }\n": typeof types.CommentsForEmbeddingsDocument,
 };
 const documents: Documents = {
@@ -1145,13 +1144,11 @@ const documents: Documents = {
     "\n  query multiPostTabNavigationEventsListQuery($selector: PostSelector, $limit: Int, $enableTotal: Boolean) {\n    posts(selector: $selector, limit: $limit, enableTotal: $enableTotal) {\n      results {\n        ...PostsList\n      }\n      totalCount\n    }\n  }\n": types.multiPostTabNavigationEventsListQueryDocument,
     "\n  query multiMessageConversationContentsQuery($selector: MessageSelector, $limit: Int, $enableTotal: Boolean) {\n    messages(selector: $selector, limit: $limit, enableTotal: $enableTotal) {\n      results {\n        ...messageListFragment\n      }\n      totalCount\n    }\n  }\n": types.multiMessageConversationContentsQueryDocument,
     "\n  mutation updateConversationInboxNavigation($selector: SelectorInput!, $data: UpdateConversationDataInput!) {\n    updateConversation(selector: $selector, data: $data) {\n      data {\n        ...ConversationsList\n      }\n    }\n  }\n": types.updateConversationInboxNavigationDocument,
-    "\n  query ConversationPage($documentId: String) {\n    conversation(input: { selector: { documentId: $documentId } }) {\n      result {\n        ...ConversationsList\n      }\n    }\n  }\n": types.ConversationPageDocument,
     "\n  query multiMessageConversationPreviewQuery($selector: MessageSelector, $limit: Int, $enableTotal: Boolean) {\n    messages(selector: $selector, limit: $limit, enableTotal: $enableTotal) {\n      results {\n        ...messageListFragment\n      }\n      totalCount\n    }\n  }\n": types.multiMessageConversationPreviewQueryDocument,
     "\n  query ConversationPreview($documentId: String) {\n    conversation(input: { selector: { documentId: $documentId } }) {\n      result {\n        ...ConversationsList\n      }\n    }\n  }\n": types.ConversationPreviewDocument,
     "\n  mutation updateConversationConversationTitleEditForm($selector: SelectorInput!, $data: UpdateConversationDataInput!) {\n    updateConversation(selector: $selector, data: $data) {\n      data {\n        ...ConversationsList\n      }\n    }\n  }\n": types.updateConversationConversationTitleEditFormDocument,
     "\n  query multiConversationFriendlyInboxQuery($selector: ConversationSelector, $limit: Int, $enableTotal: Boolean) {\n    conversations(selector: $selector, limit: $limit, enableTotal: $enableTotal) {\n      results {\n        ...ConversationsListWithReadStatus\n      }\n      totalCount\n    }\n  }\n": types.multiConversationFriendlyInboxQueryDocument,
     "\n  query FriendlyInbox($documentId: String) {\n    conversation(input: { selector: { documentId: $documentId } }) {\n      result {\n        ...ConversationsListWithReadStatus\n      }\n    }\n  }\n": types.FriendlyInboxDocument,
-    "\n  query multiConversationInboxNavigationQuery($selector: ConversationSelector, $limit: Int, $enableTotal: Boolean) {\n    conversations(selector: $selector, limit: $limit, enableTotal: $enableTotal) {\n      results {\n        ...ConversationsList\n      }\n      totalCount\n    }\n  }\n": types.multiConversationInboxNavigationQueryDocument,
     "\n  query MessageUserGetUserBySlug($slug: String!) {\n    GetUserBySlug(slug: $slug) {\n      ...UsersMinimumInfo\n    }\n  }\n": types.MessageUserGetUserBySlugDocument,
     "\n  mutation createMessageMessagesNewForm($data: CreateMessageDataInput!) {\n    createMessage(data: $data) {\n      data {\n        ...messageListFragment\n      }\n    }\n  }\n": types.createMessageMessagesNewFormDocument,
     "\n  query MessagesNewForm($documentId: String) {\n    moderationTemplate(input: { selector: { documentId: $documentId } }) {\n      result {\n        ...ModerationTemplateFragment\n      }\n    }\n  }\n": types.MessagesNewFormDocument,
@@ -1793,6 +1790,7 @@ const documents: Documents = {
     "\n  query singleDraftPostForLLMQuery($input: SinglePostInput, $version: String) {\n    post(input: $input) {\n      result {\n        ...PostsEditQueryFragment\n      }\n    }\n  }\n": types.singleDraftPostForLLMQueryDocument,
     "\n  query singlePublishedPostForLLMQuery($input: SinglePostInput) {\n    post(input: $input) {\n      result {\n        ...PostsPage\n      }\n    }\n  }\n": types.singlePublishedPostForLLMQueryDocument,
     "\n  query multiPostsForLLMQuery($input: MultiPostInput) {\n    posts(input: $input) {\n      results {\n        ...PostsPage\n      }\n    }\n  }\n": types.multiPostsForLLMQueryDocument,
+    "\n      query GetReviewWinners {\n        GetAllReviewWinners {\n          ...PostsTopItemInfo\n        }\n      }\n    ": types.GetReviewWinnersDocument,
     "\n  query CommentsForEmbeddings($selector: CommentSelector) {\n    comments(selector: $selector) {\n      results {\n        _id\n        postedAt\n        contents {\n          _id\n          html\n        }\n        user {\n          _id\n          displayName\n          username\n          fullName\n        }\n        post {\n          _id\n          title\n        }\n      }\n    }\n  }\n": types.CommentsForEmbeddingsDocument,
 };
 
@@ -2773,10 +2771,6 @@ export function gql(source: "\n  mutation updateConversationInboxNavigation($sel
 /**
  * The gql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
  */
-export function gql(source: "\n  query ConversationPage($documentId: String) {\n    conversation(input: { selector: { documentId: $documentId } }) {\n      result {\n        ...ConversationsList\n      }\n    }\n  }\n"): (typeof documents)["\n  query ConversationPage($documentId: String) {\n    conversation(input: { selector: { documentId: $documentId } }) {\n      result {\n        ...ConversationsList\n      }\n    }\n  }\n"];
-/**
- * The gql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
- */
 export function gql(source: "\n  query multiMessageConversationPreviewQuery($selector: MessageSelector, $limit: Int, $enableTotal: Boolean) {\n    messages(selector: $selector, limit: $limit, enableTotal: $enableTotal) {\n      results {\n        ...messageListFragment\n      }\n      totalCount\n    }\n  }\n"): (typeof documents)["\n  query multiMessageConversationPreviewQuery($selector: MessageSelector, $limit: Int, $enableTotal: Boolean) {\n    messages(selector: $selector, limit: $limit, enableTotal: $enableTotal) {\n      results {\n        ...messageListFragment\n      }\n      totalCount\n    }\n  }\n"];
 /**
  * The gql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
@@ -2794,10 +2788,6 @@ export function gql(source: "\n  query multiConversationFriendlyInboxQuery($sele
  * The gql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
  */
 export function gql(source: "\n  query FriendlyInbox($documentId: String) {\n    conversation(input: { selector: { documentId: $documentId } }) {\n      result {\n        ...ConversationsListWithReadStatus\n      }\n    }\n  }\n"): (typeof documents)["\n  query FriendlyInbox($documentId: String) {\n    conversation(input: { selector: { documentId: $documentId } }) {\n      result {\n        ...ConversationsListWithReadStatus\n      }\n    }\n  }\n"];
-/**
- * The gql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
- */
-export function gql(source: "\n  query multiConversationInboxNavigationQuery($selector: ConversationSelector, $limit: Int, $enableTotal: Boolean) {\n    conversations(selector: $selector, limit: $limit, enableTotal: $enableTotal) {\n      results {\n        ...ConversationsList\n      }\n      totalCount\n    }\n  }\n"): (typeof documents)["\n  query multiConversationInboxNavigationQuery($selector: ConversationSelector, $limit: Int, $enableTotal: Boolean) {\n    conversations(selector: $selector, limit: $limit, enableTotal: $enableTotal) {\n      results {\n        ...ConversationsList\n      }\n      totalCount\n    }\n  }\n"];
 /**
  * The gql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
  */
@@ -5362,6 +5352,10 @@ export function gql(source: "\n  query singlePublishedPostForLLMQuery($input: Si
  * The gql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
  */
 export function gql(source: "\n  query multiPostsForLLMQuery($input: MultiPostInput) {\n    posts(input: $input) {\n      results {\n        ...PostsPage\n      }\n    }\n  }\n"): (typeof documents)["\n  query multiPostsForLLMQuery($input: MultiPostInput) {\n    posts(input: $input) {\n      results {\n        ...PostsPage\n      }\n    }\n  }\n"];
+/**
+ * The gql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
+ */
+export function gql(source: "\n      query GetReviewWinners {\n        GetAllReviewWinners {\n          ...PostsTopItemInfo\n        }\n      }\n    "): (typeof documents)["\n      query GetReviewWinners {\n        GetAllReviewWinners {\n          ...PostsTopItemInfo\n        }\n      }\n    "];
 /**
  * The gql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
  */

@@ -86,6 +86,7 @@ import ArrowDownOnSquareIcon from '@heroicons/react/24/outline/ArrowDownOnSquare
 import ArrowDownRightIcon from '@heroicons/react/24/outline/ArrowDownRightIcon';
 import ChevronUpDownIcon from "@heroicons/react/24/outline/ChevronUpDownIcon";
 import ArrowsUpDownIcon from "@heroicons/react/20/solid/ArrowsUpDownIcon";
+import FlagIcon from "@heroicons/react/24/outline/FlagIcon";
 import MuiBookmarkIcon from "@/lib/vendor/@material-ui/icons/src/Bookmark";
 import MuiBookmarkBorderIcon from "@/lib/vendor/@material-ui/icons/src/BookmarkBorder";
 import MuiBookmarksIcon from "@/lib/vendor/@material-ui/icons/src/Bookmarks";
@@ -133,6 +134,7 @@ import ThumbUpOutlineIcon from '@/lib/vendor/@material-ui/icons/src/ThumbUpOutli
 import CopyIcon from "@heroicons/react/24/outline/DocumentDuplicateIcon";
 import MuiAddIcon from "@/lib/vendor/@material-ui/icons/src/Add";
 import BookIcon from "@heroicons/react/24/solid/BookOpenIcon";
+import MuiFlagIcon from "@/lib/vendor/@material-ui/icons/src/Flag";
 
 /**
  * ForumIcon can be used with custom SVG elements but you MUST pass through
@@ -314,7 +316,8 @@ export type ForumIconName =
   "DragIndicator" |
   "NoteAdd" |
   "ThumbUp" |
-  "ThumbUpOutline";
+  "ThumbUpOutline" |
+  "Flag";
 
 const ICONS: ForumOptions<Record<ForumIconName, IconComponent>> = {
   LWAF: {
@@ -452,6 +455,7 @@ const ICONS: ForumOptions<Record<ForumIconName, IconComponent>> = {
     NoteAdd: MuiNoteAddOutlinedIcon,
     ThumbUp: ThumbsUpIcon,
     ThumbUpOutline: ThumbUpOutlineIcon,
+    Flag: MuiFlagIcon,
   },
   default: {
     VolumeUp: SpeakerWaveIcon,
@@ -588,6 +592,7 @@ const ICONS: ForumOptions<Record<ForumIconName, IconComponent>> = {
     NoteAdd: MuiNoteAddOutlinedIcon,
     ThumbUp: ThumbsUpIcon,
     ThumbUpOutline: ThumbUpOutlineIcon,
+    Flag: FlagIcon,
   },
 };
 

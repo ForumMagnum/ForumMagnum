@@ -25,7 +25,7 @@ export async function classifyPost(postId: string): Promise<PredictionResult | n
     return null;
   }
 
-  const probability = model.predict(JSON.parse(embedding.embeddings));
+  const probability = model.predict(embedding.embeddings);
   const isFrontpage = probability >= threshold;
 
   return {
@@ -53,7 +53,7 @@ export async function classifyPosts(
   ).fetch();
 
   const embeddingsByPostId = new Map<string, number[]>();
-  embeddings.forEach(e => embeddingsByPostId.set(e.postId, JSON.parse(e.embeddings)));
+  embeddings.forEach(e => embeddingsByPostId.set(e.postId, e.embeddings));
 
   for (const postId of postIds) {
     const embeddingData = embeddingsByPostId.get(postId);

@@ -1,7 +1,6 @@
 import schema from "@/lib/collections/reports/newSchema";
 import { accessFilterSingle } from "@/lib/utils/schemaUtils";
 import { userCanDo, userOwns } from "@/lib/vulcan-users/permissions";
-import { maybeSendAkismetReport } from "@/server/akismet";
 import { updateCountOfReferencesOnOtherCollectionsAfterCreate, updateCountOfReferencesOnOtherCollectionsAfterUpdate } from "@/server/callbacks/countOfReferenceCallbacks";
 import { logFieldChanges } from "@/server/fieldChanges";
 import { backgroundTask } from "@/server/utils/backgroundTask";
@@ -158,8 +157,6 @@ export async function updateReport({ selector, data }: UpdateReportInput, contex
   let updatedDocument = await updateAndReturnDocument(data, Reports, reportSelector, context);
 
   await updateCountOfReferencesOnOtherCollectionsAfterUpdate('Reports', updatedDocument, oldDocument);
-
-  await maybeSendAkismetReport(updatedDocument, oldDocument, context);
 
   backgroundTask(logFieldChanges({ currentUser, collection: Reports, oldDocument, data: origData }));
 

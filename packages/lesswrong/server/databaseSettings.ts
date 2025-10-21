@@ -120,10 +120,6 @@ export const autoFrontpageSetting = new ParsedServerSetting<boolean>('languageMo
 export const autoFrontpageModelSetting = new ServerSetting<string|null>('languageModels.autoTagging.autoFrontpageModel', "gpt-4o-mini");
 export const autoFrontpagePromptSetting = new ServerSetting<string | null>("languageModels.autoTagging.autoFrontpagePrompt", null);
 
-// Akismet API integration
-export const akismetKeySetting = new ServerSetting<string | null>('akismet.apiKey', null)
-export const akismetURLSetting = new ServerSetting<string | null>('akismet.url', null)
-
 export const welcomeEmailPostId = new ServerSetting<string|null>("welcomeEmailPostId", null);
 export const forumTeamUserId = new ServerSetting<string|null>("forumTeamUserId", null);
 

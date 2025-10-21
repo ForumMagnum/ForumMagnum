@@ -400,6 +400,10 @@ export const redirects = [
     source: "/recentComments",
     destination: "/allComments",
     permanent: true
+  }, {
+    source: "/inbox/:conversationId",
+    destination: "/inbox?conversation=:conversationId",
+    permanent: true
   },
   // TODO: all the redirects from here until "saved" need to be gated to AF somehow.
   {

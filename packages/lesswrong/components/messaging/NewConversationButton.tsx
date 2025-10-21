@@ -57,7 +57,7 @@ const NewConversationButton = ({
       embedConversation(conversation._id, templateQueries)
     } else {
       const templateParams = getTemplateParams()
-      navigate({pathname: `/inbox/${conversation._id}`, ...templateParams}, {
+      navigate({pathname: `/inbox`, search: `?conversation=${conversation._id}`, ...templateParams}, {
         openInNewTab,
       });
     }

@@ -491,12 +491,10 @@ export async function postsNewDefaultTypes(post: CreatePostDataInput, user: DbUs
   return post;
 }
 
-const MINIMUM_APPROVAL_KARMA = 5;
-
 export async function postsNewUserApprovedStatus(post: CreatePostDataInput, user: DbUser | null, context: ResolverContext): Promise<CreatePostDataInput> {
   const { Users } = context;
   const postAuthor = await Users.findOne(post.userId);
-  if (!postAuthor?.reviewedByUserId && (postAuthor?.karma || 0) < MINIMUM_APPROVAL_KARMA) {
+  if (!postAuthor?.reviewedByUserId) {
     return {...post, authorIsUnreviewed: true}
   }
   return post;
