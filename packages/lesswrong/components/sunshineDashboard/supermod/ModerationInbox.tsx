@@ -101,7 +101,7 @@ export type InboxState = {
   focusedContentId: string | null;
 };
 
-type InboxAction =
+export type InboxAction =
   | { type: 'OPEN_USER'; userId: string }
   | { type: 'CLOSE_DETAIL' }
   | { type: 'CHANGE_TAB'; tab: ReviewGroup | 'all' }
@@ -112,7 +112,8 @@ type InboxAction =
   | { type: 'REMOVE_USER'; userId: string }
   | { type: 'SET_FOCUSED_CONTENT'; contentId: string | null }
   | { type: 'NEXT_CONTENT'; allContent: Array<{ _id: string }> }
-  | { type: 'PREV_CONTENT'; allContent: Array<{ _id: string }> };
+  | { type: 'PREV_CONTENT'; allContent: Array<{ _id: string }> }
+  | { type: 'UPDATE_USER_NOTES'; userId: string; sunshineNotes: string };
 
 // Helper to get filtered groups for a tab
 function getFilteredGroups(
@@ -191,6 +192,18 @@ export function inboxStateReducer(state: InboxState, action: InboxAction): Inbox
       return {
         ...state,
         focusedContentId: action.allContent[prevIndex]._id,
+      };
+    }
+    
+    case 'UPDATE_USER_NOTES': {
+      const updatedUsers = state.users.map(user => 
+        user._id === action.userId 
+          ? { ...user, sunshineNotes: action.sunshineNotes }
+          : user
+      );
+      return {
+        ...state,
+        users: updatedUsers,
       };
     }
     

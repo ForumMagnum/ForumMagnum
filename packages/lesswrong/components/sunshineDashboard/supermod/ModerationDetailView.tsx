@@ -17,6 +17,7 @@ import UserAutoRateLimitsDisplay from '../ModeratorUserInfo/UserAutoRateLimitsDi
 import ModerationContentList from './ModerationContentList';
 import ModerationContentDetail from './ModerationContentDetail';
 import FormatDate from '@/components/common/FormatDate';
+import type { InboxAction } from './ModerationInbox';
 
 const sharedVoteStyles = {
   marginLeft: 4,
@@ -289,7 +290,7 @@ const ModerationDetailView = ({
 }: {
   user: SunshineUsersList;
   focusedContentId: string | null;
-  dispatch: React.Dispatch<{ type: string; contentId?: string | null }>;
+  dispatch: React.ActionDispatch<[action: InboxAction]>;
 }) => {
   const classes = useStyles(styles);
   const [bioWordcount, setBioWordcount] = useState(DEFAULT_BIO_WORDCOUNT);
