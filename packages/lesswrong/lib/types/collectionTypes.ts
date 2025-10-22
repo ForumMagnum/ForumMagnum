@@ -17,6 +17,7 @@ import type { DatabaseIndexSet } from '@/lib/utils/databaseIndexSet';
 import type Table from '@/server/sql/Table';
 // eslint-disable-next-line import/no-restricted-paths
 import type { BulkWriterResult } from '@/server/sql/BulkWriter';
+import { ForumTypeString } from '../instanceSettings';
 
 /// This file is wrapped in 'declare global' because it's an ambient declaration
 /// file (meaning types in this file can be used without being imported).
@@ -335,6 +336,7 @@ interface ResolverContext extends CollectionsByName {
   userId: string|null,
   clientId: string|null,
   currentUser: DbUser|null,
+  forumType: ForumTypeString,
 
   /**
    * Hack to make visitorActivity acceptable to posts-list resolvers, in a

@@ -33,6 +33,8 @@ export type ForumOptions<T> = Record<ForumTypeString, T> |
   (Partial<Record<ForumTypeString, T>> & {default: T}) |
   (Partial<Record<ComboForumTypeString, T>> & {default: T});
 
+export type ForumSelectFunction = <T>(forumOptions: ForumOptions<T>, forumType?: ForumTypeString) => NonUndefined<T>
+
 export function forumSelect<T>(forumOptions: ForumOptions<T>, forumType?: ForumTypeString): NonUndefined<T> {
   forumType ??= forumTypeSetting.get();
   if (forumType in forumOptions) {
