@@ -1,6 +1,9 @@
 import type { NextRequest } from 'next/server';
 import { updateAnalyticsCollections } from '@/server/analytics/analyticsCron';
 import { isEAForum } from '@/lib/instanceSettings';
+import { suggestedTimeouts } from "@/server/pageTimeouts";
+
+export const maxDuration = suggestedTimeouts.cronjob;
 
 export async function GET(request: NextRequest) {
   const authHeader = request.headers.get('authorization');

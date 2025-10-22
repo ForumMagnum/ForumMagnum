@@ -6,6 +6,9 @@ import { NextRequest, NextResponse } from "next/server";
 import { z } from "zod";
 import { cookies } from "next/headers";
 import { backgroundTask } from "@/server/utils/backgroundTask";
+import { suggestedTimeouts } from "@/server/pageTimeouts";
+
+export const maxDuration = suggestedTimeouts.simpleApiRoute;
 
 const RegisterClientIdRequestSchema = z.object({
   landingPage: z.string(),

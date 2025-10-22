@@ -6,6 +6,9 @@ import { generateText, tool } from 'ai';
 import { createAnthropic } from '@ai-sdk/anthropic';
 import { anthropicApiKey } from "@/lib/instanceSettings";
 import { userIsAdmin } from "@/lib/vulcan-users/permissions";
+import { suggestedTimeouts } from "@/server/pageTimeouts";
+
+export const maxDuration = suggestedTimeouts.llmStreaming;
 
 const commentSchema = z.object({
   originalText: z.string(),

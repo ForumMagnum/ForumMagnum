@@ -3,6 +3,9 @@ import { clearArbitalCache } from '@/server/resolvers/arbitalPageData';
 import { permanentlyDeleteUsers } from '@/server/users/permanentDeletion';
 import { uniquePostUpvotersView } from "@/server/postgresView";
 import { clearLoggedOutServedSessionsWithNoViews, clearOldUltraFeedServedEvents } from '@/server/ultraFeed/cron';
+import { suggestedTimeouts } from "@/server/pageTimeouts";
+
+export const maxDuration = suggestedTimeouts.cronjob;
 
 export async function GET(request: NextRequest) {
   const authHeader = request.headers.get('authorization');

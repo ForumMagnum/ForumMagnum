@@ -1,5 +1,8 @@
 import { robotsTxtSetting } from "@/server/databaseSettings";
 import type { NextRequest } from "next/server";
+import { suggestedTimeouts } from "@/server/pageTimeouts";
+
+export const maxDuration = suggestedTimeouts.simpleApiRoute;
 
 // ea-forum-look-here
 // We only want robots.txt to make the site crawlable if it's one of our site's primary domains,
