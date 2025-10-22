@@ -9,7 +9,7 @@ import type { ITask } from "pg-promise";
 
 import { initGlobals } from "./scripts/scriptUtil";
 import { runQueuedMigrationTasksSequentially } from "./packages/lesswrong/server/migrations/meta/migrationTaskQueue";
-import { loadMigrateEnv } from "./scripts/runWithVercelEnv";
+import { getForumTypeEnv, loadMigrateEnv } from "./scripts/runWithVercelEnv";
 import { initConsole } from "./packages/lesswrong/server/serverStartup";
 
 (async () => {
@@ -42,7 +42,7 @@ import { initConsole } from "./packages/lesswrong/server/serverStartup";
       setSqlClient(transaction as unknown as SqlClient, "read", postgresUrl);
       setSqlClient(db, "noTransaction");
       const { createMigrator } = require("./packages/lesswrong/server/migrations/meta/umzug");
-      const migrator = await createMigrator(transaction, db);
+      const migrator = await createMigrator(transaction, db, getForumTypeEnv(forumType));
 
       if (command === "create") {
         const name = migrateOptions.name;

@@ -564,13 +564,13 @@ export function isCollaborative(post: Pick<DbPost | PostsBase, '_id' | 'shareWit
   return false;
 }
 
-export function getDefaultVotingSystem() {
+export function getDefaultVotingSystem(forumType: ForumTypeString) {
   return forumSelect({
     EAForum: "eaEmojis",
     LessWrong: "namesAttachedReactions",
     AlignmentForum: "namesAttachedReactions",
     default: "default",
-  });
+  }, forumType);
 }
 
 export const dateStr = (startDate?: Date) => startDate ? moment(startDate).format('YYYY-MM-DD') : '';
