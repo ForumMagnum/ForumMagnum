@@ -1,4 +1,15 @@
+import React, {
+  createContext,
+  Dispatch,
+  ReactNode,
+  SetStateAction,
+  useCallback,
+  useContext,
+  useMemo,
+  useState,
+} from "react";
 import { useCurrentTime } from "./utils/timeUtil";
+import { useOnNavigate } from "@/components/hooks/useOnNavigate";
 
 export const ELECTION_INFO_HREF = "/posts/srZEX2r9upbwfnRKw";
 export const ELECTION_DONATE_HREF = "/donation-portal";
@@ -17,7 +28,7 @@ export const givingSeasonEvents: GivingSeasonEvent[] = [
     name: "Funding strategy week",
     description: "Encouraging content around a range of important funding considerations.",
     readMoreHref: "/posts/srZEX2r9upbwfnRKw/giving-season-2024-announcement",
-    start: new Date("2025-11-10"),
+    start: new Date("2025-10-22"), // TODO: Set this to 2025-11-10 before deploying
     end: new Date("2025-11-17"),
     color: "#F59469",
   },
@@ -51,23 +62,54 @@ export const givingSeasonEvents: GivingSeasonEvent[] = [
   },
 ];
 
-export const useCurrentGivingSeasonEvent = () => {
+export const useCurrentGivingSeasonEvent = (): GivingSeasonEvent | null => {
   const currentTime = useCurrentTime();
-  if (currentTime < givingSeasonEvents[0].start) {
-    return givingSeasonEvents[0];
-  }
   for (const event of givingSeasonEvents) {
     if (event.start <= currentTime && event.end > currentTime) {
       return event;
     }
   }
-  return givingSeasonEvents[givingSeasonEvents.length - 1];
+  return null;
 }
 
-export const useDonationElectionAmount = () => {
-  // TODO
-  return {
-    raised: 15293,
-    target: 60000,
-  };
+type GivingSeasonContext = {
+  currentEvent: GivingSeasonEvent | null,
+  selectedEvent: GivingSeasonEvent,
+  setSelectedEvent: Dispatch<SetStateAction<GivingSeasonEvent>>,
+  amountRaised: number,
+  amountTarget: number,
+}
+
+const givingSeasonContext = createContext<GivingSeasonContext | null>(null)
+
+export const GivingSeasonContext = ({children}: {children: ReactNode}) => {
+  const currentEvent = useCurrentGivingSeasonEvent()
+  const defaultEvent = currentEvent ?? givingSeasonEvents[0];
+  const [selectedEvent, setSelectedEvent] = useState(defaultEvent);
+
+  const onNavigate = useCallback(() => {
+    setSelectedEvent(defaultEvent);
+  }, [defaultEvent]);
+  useOnNavigate(onNavigate);
+
+  const value = useMemo(() => ({
+    currentEvent,
+    selectedEvent,
+    setSelectedEvent,
+    amountRaised: 15293, // TODO: Fetch correct amount from database
+    amountTarget: 60000,
+  }), [currentEvent, selectedEvent, setSelectedEvent]);
+  return (
+    <givingSeasonContext.Provider value={value}>
+      {children}
+    </givingSeasonContext.Provider>
+  );
+}
+
+export const useGivingSeason = () => {
+  const value = useContext(givingSeasonContext)
+  if (!value) {
+    throw new Error("Giving season context not found");
+  }
+  return value;
 }

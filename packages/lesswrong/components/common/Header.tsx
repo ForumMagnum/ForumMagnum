@@ -10,15 +10,15 @@ import { SidebarsContext } from './SidebarsWrapper';
 import withErrorBoundary from '../common/withErrorBoundary';
 import classNames from 'classnames';
 import { AnalyticsContext, useTracking } from '../../lib/analyticsEvents';
-import { forumHeaderTitleSetting, forumShortTitleSetting, isAF, isEAForum, isLW } from '../../lib/instanceSettings';
+import { forumHeaderTitleSetting, forumShortTitleSetting, isAF, isEAForum } from '../../lib/instanceSettings';
 import { useUnreadNotifications } from '../hooks/useUnreadNotifications';
 import { isBookUI, isFriendlyUI } from '../../themes/forumTheme';
-import { hasProminentLogoSetting, lightconeFundraiserUnsyncedAmount, lightconeFundraiserThermometerBgUrl, lightconeFundraiserThermometerGoalAmount, lightconeFundraiserActive, lightconeFundraiserPostId } from '../../lib/publicSettings';
+import { hasProminentLogoSetting } from '../../lib/publicSettings';
 import { useLocation } from '../../lib/routeUtil';
 import { useCurrentAndRecentForumEvents } from '../hooks/useCurrentForumEvent';
 import { makeCloudinaryImageUrl } from './CloudinaryImage2';
+import { useGivingSeason } from '@/lib/givingSeason';
 import { hasForumEvents } from '@/lib/betas';
-import { useFundraiserStripeTotal, useLivePercentage } from '@/lib/lightconeFundraiser';
 import SearchBar from "./SearchBar";
 import UsersMenu from "../users/UsersMenu";
 import UsersAccountMenu from "../users/UsersAccountMenu";
@@ -131,6 +131,9 @@ export const styles = (theme: ThemeType) => ({
       },
       [theme.breakpoints.down('xs')]: {
         padding: '9px 11px',
+      },
+      "& *": {
+        transition: "color ease 0.2s",
       },
     } : {}),
   },
@@ -481,11 +484,16 @@ const Header = ({
       />
     );
 
+  const givingSeason = useGivingSeason();
+
   const headerStyle: CSSProperties = {}
   const bannerImageId = currentForumEvent?.bannerImageId
   // If we're explicitly given a backgroundColor, that overrides any event header
   if (backgroundColor) {
     headerStyle.backgroundColor = backgroundColor
+  } else if (givingSeason.currentEvent && currentRoute?.name === "home") {
+    headerStyle.background = "transparent";
+    (headerStyle as any)["--header-text-color"] = givingSeason.selectedEvent.color;
   } else if (hasForumEvents && currentRoute?.name === "home" && bannerImageId && currentForumEvent?.eventFormat !== "BASIC") {
     // On EAF, forum events with polls or stickers also update the home page header background and text
     const darkColor = currentForumEvent.darkColor;

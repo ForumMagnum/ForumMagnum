@@ -1,51 +1,52 @@
-import React, { CSSProperties, FC, MouseEvent, useCallback, useState } from "react";
+import React, { CSSProperties, FC, MouseEvent, useCallback } from "react";
 import { registerComponent } from "@/lib/vulcan-lib/components";
 import { defineStyles, useStyles } from "@/components/hooks/useStyles";
 import { AnalyticsContext, useTracking } from "@/lib/analyticsEvents";
 import { formatStat } from "@/components/users/EAUserTooltipContent";
+import { HEADER_HEIGHT } from "@/components/common/Header";
 import { Link } from "@/lib/reactRouterWrapper";
 import { useNavigate } from "@/lib/routeUtil";
 import {
   ELECTION_DONATE_HREF,
   ELECTION_INFO_HREF,
   givingSeasonEvents,
-  useCurrentGivingSeasonEvent,
-  useDonationElectionAmount,
+  useGivingSeason,
 } from "@/lib/givingSeason";
 import classNames from "classnames";
 import moment from "moment";
 
 const styles = defineStyles("GivingSeason2025Banner", (theme: ThemeType) => ({
   root: {
+    marginTop: -HEADER_HEIGHT,
+    paddingTop: HEADER_HEIGHT,
     fontFamily: theme.palette.fonts.sansSerifStack,
     background: theme.palette.text.alwaysBlack,
     width: "100%",
     borderBottom: `1px solid ${theme.palette.text.alwaysBlack}`,
   },
   main: {
-    padding: "40px 80px",
+    padding: "20px 80px 40px 80px",
     display: "grid",
     gridTemplateColumns: "400px 1fr",
-    gap: "40px 80px",
+    gap: "40px",
     color: "var(--event-color)",
     transition: "color ease 0.2s",
   },
   events: {
-    display: "flex",
-    flexDirection: "column",
-    gap: 12,
-  },
-  event: {
-    cursor: "pointer",
     display: "grid",
     gridTemplateColumns: "min-content 1fr",
     alignItems: "center",
     gap: "12px",
-    rowGap: "4px",
+  },
+  event: {
+    cursor: "pointer",
     transition: "opacity ease 0.2s",
+    display: "contents",
   },
   eventNotSelected: {
-    opacity: 0.6,
+    "& > *": {
+      opacity: 0.6,
+    },
   },
   eventDate: {
     fontSize: 13,
@@ -65,6 +66,7 @@ const styles = defineStyles("GivingSeason2025Banner", (theme: ThemeType) => ({
     fontWeight: 500,
     lineHeight: "140%",
     letterSpacing: "0%",
+    marginTop: -6,
   },
   readMore: {
     textDecoration: "underline",
@@ -162,9 +164,13 @@ const styles = defineStyles("GivingSeason2025Banner", (theme: ThemeType) => ({
 export const GivingSeason2025Banner: FC = () => {
   const {captureEvent} = useTracking();
   const navigate = useNavigate();
-  const currentEvent = useCurrentGivingSeasonEvent()
-  const [selectedEvent, setSelectedEvent] = useState(currentEvent);
-  const {raised, target} = useDonationElectionAmount();
+  const {
+    currentEvent,
+    selectedEvent,
+    setSelectedEvent,
+    amountRaised,
+    amountTarget,
+  } = useGivingSeason();
 
   const onButtonClick = useCallback((
     eventName: string,
@@ -177,6 +183,9 @@ export const GivingSeason2025Banner: FC = () => {
   }, [captureEvent, navigate]);
 
   const classes = useStyles(styles);
+  if (!currentEvent) {
+    return null;
+  }
   return (
     <AnalyticsContext pageSectionContext="GivingSeason2025Banner">
       <div
@@ -222,12 +231,13 @@ export const GivingSeason2025Banner: FC = () => {
         </div>
         <div className={classes.election}>
           <div className={classes.amountRaised}>
-            ${formatStat(raised)} raised <span>to the Donation Election Fund</span>
+            ${formatStat(amountRaised)} raised{" "}
+            <span>to the Donation Election Fund</span>
           </div>
           <div className={classes.progress} aria-hidden>
             <div className={classes.progressBackground} />
             <div
-              style={{width: `${raised / target * 100}%`}}
+              style={{width: `${amountRaised / amountTarget * 100}%`}}
               className={classes.progressBar}
             />
           </div>
