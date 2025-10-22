@@ -60,7 +60,7 @@ export function doJsonCSE(jsonBlobs: any[]): {
       return exprNames[stringified];
     } else if (Array.isArray(json)) {
       return `[${json.map(el => applySubstitutions(el, exprNames, objectShapes)).join(",")}]`;
-    } else if (typeof json === 'object') {
+    } else if (json && typeof json === 'object') {
       const objectShape = JSON.stringify(Object.keys(json));
       if (objectShape in objectShapes) {
         return `${objectShapes[objectShape]}(${Object.values(json).map(v => applySubstitutions(v, exprNames, objectShapes)).join(",")})`;
