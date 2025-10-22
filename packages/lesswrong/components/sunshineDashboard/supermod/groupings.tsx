@@ -1,5 +1,5 @@
 import React from 'react';
-import { AUTO_BLOCKED_FROM_SENDING_DMS, FLAGGED_FOR_N_DMS, MANUAL_FLAG_ALERT, MANUAL_NEEDS_REVIEW, MANUAL_RATE_LIMIT_EXPIRED, POTENTIAL_TARGETED_DOWNVOTING, RECEIVED_SENIOR_DOWNVOTES_ALERT, RECEIVED_VOTING_PATTERN_WARNING, SNOOZE_EXPIRED, STRICTER_COMMENT_AUTOMOD_RATE_LIMIT, STRICTER_POST_AUTOMOD_RATE_LIMIT, UNREVIEWED_BIO_UPDATE, UNREVIEWED_FIRST_COMMENT, UNREVIEWED_FIRST_POST, UNREVIEWED_MAP_LOCATION_UPDATE, UNREVIEWED_PROFILE_IMAGE_UPDATE } from "@/lib/collections/moderatorActions/constants";
+import { AUTO_BLOCKED_FROM_SENDING_DMS, FLAGGED_FOR_N_DMS, MANUAL_FLAG_ALERT, MANUAL_NEEDS_REVIEW, MANUAL_RATE_LIMIT_EXPIRED, POTENTIAL_TARGETED_DOWNVOTING, RECEIVED_SENIOR_DOWNVOTES_ALERT, RECEIVED_VOTING_PATTERN_WARNING, reviewTriggerModeratorActions, SNOOZE_EXPIRED, STRICTER_COMMENT_AUTOMOD_RATE_LIMIT, STRICTER_POST_AUTOMOD_RATE_LIMIT, UNREVIEWED_BIO_UPDATE, UNREVIEWED_FIRST_COMMENT, UNREVIEWED_FIRST_POST, UNREVIEWED_MAP_LOCATION_UPDATE, UNREVIEWED_PROFILE_IMAGE_UPDATE } from "@/lib/collections/moderatorActions/constants";
 import { getReasonForReview } from "@/lib/collections/moderatorActions/helpers";
 import { maybeDate } from "@/lib/utils/dateUtils";
 import partition from 'lodash/partition';
@@ -7,12 +7,20 @@ import ForumIcon, { ForumIconName } from '@/components/common/ForumIcon'
 import { defineStyles } from '@/components/hooks/defineStyles';
 import { useStyles } from '@/components/hooks/useStyles';
 
-function getActiveModeratorActions(user: SunshineUsersList): ModeratorActionDisplay[] {
-  return user.moderatorActions?.filter(action => action.active).sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()) ?? [];
+function getActiveModeratorActions(moderatorActions: ModeratorActionDisplay[]): ModeratorActionDisplay[] {
+  return moderatorActions.filter(action => action.active).sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()) ?? [];
 }
 
-export function partitionModeratorActions(user: SunshineUsersList): { fresh: ModeratorActionDisplay[], stale: ModeratorActionDisplay[] } {
-  const activeModeratorActions = getActiveModeratorActions(user);
+interface PartitionedModeratorActions {
+  fresh: ModeratorActionDisplay[];
+  stale: ModeratorActionDisplay[];
+  nonTriggerActions: ModeratorActionDisplay[];
+}
+
+export function partitionModeratorActions(user: SunshineUsersList): PartitionedModeratorActions {
+  const [triggerActions, nonTriggerActions] = partition(user.moderatorActions ?? [], action => reviewTriggerModeratorActions.has(action.type));
+
+  const activeModeratorActions = getActiveModeratorActions(triggerActions);
   const [fresh, stale] = partition(
     activeModeratorActions,
     action => {
@@ -22,7 +30,7 @@ export function partitionModeratorActions(user: SunshineUsersList): { fresh: Mod
     }
   );
 
-  return { fresh, stale };
+  return { fresh, stale, nonTriggerActions };
 }
 
 /**

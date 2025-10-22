@@ -322,12 +322,12 @@ const ModerationKeyboardHandler = ({
     
     // Find the most recent unapproved post or comment
     const allContent = [
-      ...(posts || []).map(p => ({ _id: p._id, postedAt: p.postedAt, rejected: p.rejected, reviewedByUserId: p.reviewedByUserId, collectionName: 'Posts' as const })),
-      ...(comments || []).map(c => ({ _id: c._id, postedAt: c.postedAt, rejected: c.rejected, reviewedByUserId: c.reviewedByUserId, collectionName: 'Comments' as const }))
+      ...(posts || []).map(p => ({ _id: p._id, postedAt: p.postedAt, rejected: p.rejected, authorIsUnreviewed: p.authorIsUnreviewed, collectionName: 'Posts' as const })),
+      ...(comments || []).map(c => ({ _id: c._id, postedAt: c.postedAt, rejected: c.rejected, authorIsUnreviewed: c.authorIsUnreviewed, collectionName: 'Comments' as const }))
     ];
     
     const unapprovedContent = allContent.filter(
-      item => !item.rejected && !item.reviewedByUserId
+      item => !item.rejected && item.authorIsUnreviewed
     );
     
     if (unapprovedContent.length === 0) {
