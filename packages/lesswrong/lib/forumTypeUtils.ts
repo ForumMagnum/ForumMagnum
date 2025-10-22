@@ -47,14 +47,3 @@ export function forumSelect<T>(forumOptions: ForumOptions<T>, forumType?: ForumT
   return forumOptions.default
 }
 
-export class DeferredForumSelect<T> {
-  constructor(private forumOptions: ForumOptions<T>) {}
-
-  getDefault() {
-    return "default" in this.forumOptions ? this.forumOptions.default : undefined;
-  }
-
-  get(forumType?: ForumTypeString): NonUndefined<T> {
-    return forumSelect(this.forumOptions, forumType);
-  }
-}

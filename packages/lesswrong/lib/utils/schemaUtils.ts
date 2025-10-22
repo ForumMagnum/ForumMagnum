@@ -3,7 +3,6 @@ import { loadByIds, getWithLoader } from "../loaders";
 import { isServer } from '../executionEnvironment';
 import { asyncFilter } from './asyncUtils';
 import DataLoader from 'dataloader';
-import { DeferredForumSelect } from '../forumTypeUtils';
 import { getCollectionAccessFilter } from '@/server/permissions/accessFilters';
 
 export const generateIdResolverSingle = <ForeignCollectionName extends CollectionNameString>({
@@ -221,8 +220,7 @@ export function getFillIfMissing(defaultValue: any) {
     fieldName: string;
   }) {
     if (newDocument[fieldName as keyof CreateInputsByCollectionName[N]['data']] === undefined) {
-      const isForumSpecific = defaultValue instanceof DeferredForumSelect;
-      return isForumSpecific ? defaultValue.get() : defaultValue;
+      return defaultValue;
     } else {
       return undefined;
     }
