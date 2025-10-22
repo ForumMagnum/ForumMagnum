@@ -169,6 +169,7 @@ const styles = defineStyles('ModerationDetailView', (theme: ThemeType) => ({
     '& img': {
       maxWidth: '100%',
     },
+    overflow: 'auto',
   },
   headerWebsite: {
     fontSize: 13,
@@ -203,6 +204,7 @@ const styles = defineStyles('ModerationDetailView', (theme: ThemeType) => ({
     display: 'grid',
     gridTemplateColumns: '1fr 1fr',
     gap: 4,
+    width: 220,
   },
   permissionButton: {
     display: 'flex',
@@ -531,7 +533,7 @@ const ModerationDetailView = ({
                 <span className={classes.keystroke}>{getEnvKeystrokeText('M')}</span>
               </div>
               <div 
-                className={classNames(classes.permissionButton, false && 'active')}
+                className={classNames(classes.permissionButton, user.votingDisabled && 'active')}
                 onClick={() => toggleDisableVoting()}
               >
                 <span className={classes.permissionButtonLabel}>Voting</span>
@@ -543,7 +545,7 @@ const ModerationDetailView = ({
             <div className={classes.column3}>
               <div className={classes.sectionTitle}>Bio</div>
               {user.htmlBio && (
-                <div>
+                <>
                   <div
                     className={classes.headerBio}
                     dangerouslySetInnerHTML={{ __html: truncatedHtml }}
@@ -557,7 +559,7 @@ const ModerationDetailView = ({
                       Show more
                     </div>
                   )}
-                </div>
+                </>
               )}
               {user.website && (
                 <a

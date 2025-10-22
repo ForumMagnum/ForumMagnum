@@ -60,7 +60,7 @@ export type AllRateLimitTypes = (typeof allRateLimits)[number];
 // moderation actions that restrict the user's permissions in some way
 export const restrictionModeratorActions = [...allRateLimits] as const;
 
-const reviewTriggerModeratorActions = [
+export const reviewTriggerModeratorActions = new TupleSet([
   MANUAL_NEEDS_REVIEW,
   MANUAL_FLAG_ALERT,
   FLAGGED_FOR_N_DMS,
@@ -77,7 +77,7 @@ const reviewTriggerModeratorActions = [
   STRICTER_COMMENT_AUTOMOD_RATE_LIMIT,
   STRICTER_POST_AUTOMOD_RATE_LIMIT,
   MANUAL_RATE_LIMIT_EXPIRED,
-];
+] as const);
 
 export const MODERATOR_ACTION_TYPES = {
   [RATE_LIMIT_ONE_PER_DAY]: "Rate Limit (1 per day)",

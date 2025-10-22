@@ -54,10 +54,7 @@ const styles = defineStyles('SunshineUserMessages', (theme: ThemeType) => ({
     }
   },
   previewContainer: {
-    marginTop: theme.spacing.unit,
-    marginLeft: theme.spacing.unit * 3,
-    paddingLeft: theme.spacing.unit * 2,
-    borderLeft: `2px solid ${theme.palette.grey[300]}`,
+    marginTop: theme.spacing.unit * 0.5,
   }
 }));
 

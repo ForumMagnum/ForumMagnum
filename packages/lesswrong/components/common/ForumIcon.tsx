@@ -133,6 +133,8 @@ import ThumbUpOutlineIcon from '@/lib/vendor/@material-ui/icons/src/ThumbUpOutli
 import CopyIcon from "@heroicons/react/24/outline/DocumentDuplicateIcon";
 import MuiAddIcon from "@/lib/vendor/@material-ui/icons/src/Add";
 import BookIcon from "@heroicons/react/24/solid/BookOpenIcon";
+import MuiPostIcon from "@/lib/vendor/@material-ui/icons/src/Description";
+import MuiCommentIcon from "@/lib/vendor/@material-ui/icons/src/Message";
 
 /**
  * ForumIcon can be used with custom SVG elements but you MUST pass through
@@ -314,7 +316,9 @@ export type ForumIconName =
   "DragIndicator" |
   "NoteAdd" |
   "ThumbUp" |
-  "ThumbUpOutline";
+  "ThumbUpOutline" |
+  "Post" |
+  "ModDashboardComment";
 
 const ICONS: ForumOptions<Record<ForumIconName, IconComponent>> = {
   LWAF: {
@@ -452,6 +456,8 @@ const ICONS: ForumOptions<Record<ForumIconName, IconComponent>> = {
     NoteAdd: MuiNoteAddOutlinedIcon,
     ThumbUp: ThumbsUpIcon,
     ThumbUpOutline: ThumbUpOutlineIcon,
+    Post: MuiPostIcon,
+    ModDashboardComment: MuiCommentIcon,
   },
   default: {
     VolumeUp: SpeakerWaveIcon,
@@ -588,6 +594,8 @@ const ICONS: ForumOptions<Record<ForumIconName, IconComponent>> = {
     NoteAdd: MuiNoteAddOutlinedIcon,
     ThumbUp: ThumbsUpIcon,
     ThumbUpOutline: ThumbUpOutlineIcon,
+    Post: DocumentTextIcon,
+    ModDashboardComment: CommentIcon,
   },
 };
 

@@ -247,14 +247,15 @@ const ModerationKeyboardHandler = ({
     const flagStatus = selectedUser.sunshineFlagged ? 'Unflag' : 'Flag';
     const notes = selectedUser.sunshineNotes || '';
     const newNotes = getModSignatureWithNote(flagStatus) + notes;
+    const newFlaggedState = !selectedUser.sunshineFlagged;
     
-    dispatch({ type: 'UPDATE_USER', userId: selectedUser._id, fields: { sunshineNotes: newNotes } });
+    dispatch({ type: 'UPDATE_USER', userId: selectedUser._id, fields: { sunshineNotes: newNotes, sunshineFlagged: newFlaggedState } });
     
     void updateUser({
       variables: {
         selector: { _id: selectedUser._id },
         data: {
-          sunshineFlagged: !selectedUser.sunshineFlagged,
+          sunshineFlagged: newFlaggedState,
           sunshineNotes: newNotes,
         },
       },
@@ -448,7 +449,7 @@ const ModerationKeyboardHandler = ({
     },
     {
       label: isDetailView ? 'Next Content Item' : 'Next User',
-      keystroke: 'arrowdown',
+      keystroke: 'ArrowDown',
       isDisabled: () => isDetailView ? allContent.length === 0 : false,
       execute: isDetailView 
         ? () => dispatch({ type: 'NEXT_CONTENT', contentLength: allContent.length })
@@ -456,7 +457,7 @@ const ModerationKeyboardHandler = ({
     },
     {
       label: isDetailView ? 'Previous Content Item' : 'Previous User',
-      keystroke: 'arrowup',
+      keystroke: 'ArrowUp',
       isDisabled: () => isDetailView ? allContent.length === 0 : false,
       execute: isDetailView 
         ? () => dispatch({ type: 'PREV_CONTENT', contentLength: allContent.length })
@@ -464,13 +465,13 @@ const ModerationKeyboardHandler = ({
     },
     {
       label: isDetailView ? 'Next User' : 'Next Tab',
-      keystroke: 'arrowright',
+      keystroke: 'ArrowRight',
       isDisabled: () => false,
       execute: isDetailView ? onNextUser : onNextTab,
     },
     {
       label: isDetailView ? 'Previous User' : 'Previous Tab',
-      keystroke: 'arrowleft',
+      keystroke: 'ArrowLeft',
       isDisabled: () => false,
       execute: isDetailView ? onPrevUser : onPrevTab,
     },

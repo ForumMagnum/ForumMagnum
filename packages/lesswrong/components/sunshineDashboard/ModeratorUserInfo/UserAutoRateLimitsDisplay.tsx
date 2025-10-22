@@ -156,10 +156,10 @@ export const UserAutoRateLimitsDisplay = ({user, showKarmaMeta=false, absolute, 
         );
     })}
     </ul>
-    {nonStrictestRateLimitsNames.length > 0 && <LWTooltip title={<div>
+    {/* {nonStrictestRateLimitsNames.length > 0 && <LWTooltip title={<div>
       {nonStrictestRateLimitsNames.map(rateLimit => <div key={`${user._id}rateLimit${rateLimit}`}>{rateLimit}</div>)}</div>}>
       <MetaInfo>{nonStrictestRateLimitsNames.length} More</MetaInfo>
-    </LWTooltip>}
+    </LWTooltip>} */}
   </div>;
 }
 

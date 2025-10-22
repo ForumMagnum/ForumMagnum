@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect, useCallback, useMemo } from 'react';
 import { defineStyles, useStyles } from '@/components/hooks/useStyles';
 import { useMutation } from '@apollo/client/react';
 import { gql } from '@/lib/generated/gql-codegen';
@@ -9,6 +9,7 @@ import { usePublishedPosts } from '@/components/hooks/usePublishedPosts';
 import { useQuery } from '@/lib/crud/useQuery';
 import { CONTENT_LIMIT } from '../UsersReviewInfoCard';
 import SunshineUserMessages from '../SunshineUserMessages';
+import { getSignature } from '@/lib/collections/users/helpers';
 
 const SunshineUsersListUpdateMutation = gql(`
   mutation updateUserModerationSidebar($selector: SelectorInput!, $data: UpdateUserDataInput!) {
@@ -38,7 +39,7 @@ const styles = defineStyles('ModerationSidebar', (theme: ThemeType) => ({
     height: '100%',
     display: 'flex',
     flexDirection: 'column',
-    overflow: 'hidden',
+    overflow: 'auto',
   },
   empty: {
     color: theme.palette.grey[600],
@@ -182,6 +183,23 @@ const ModerationSidebar = ({
     }
   }, [user._id, user.sunshineNotes, notes, updateUser]);
 
+  const modNoteSignature = useMemo(() => getSignature(currentUser.displayName), [currentUser.displayName]);
+
+  const signAndDate = useCallback((sunshineNotes: string) => {
+    if (!sunshineNotes.match(modNoteSignature)) {
+      const padding = !sunshineNotes ? ": " : ": \n\n"
+      return modNoteSignature + padding + sunshineNotes
+    }
+    return sunshineNotes
+  }, [modNoteSignature]);
+
+  const addSignature = useCallback(() => {
+    const signedNotes = signAndDate(notes ?? '');
+    if (signedNotes !== notes) {
+      setNotes(signedNotes);
+    }
+  }, [notes, signAndDate]);
+
   useEffect(() => {
     return () => {
       handleNotes();
@@ -209,6 +227,7 @@ const ModerationSidebar = ({
             fullWidth
             onChange={(e) => setNotes(e.target.value)}
             onBlur={handleNotes}
+            onClick={addSignature}
             disableUnderline
             placeholder="Notes for other moderators"
             multiline

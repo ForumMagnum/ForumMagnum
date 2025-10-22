@@ -95,11 +95,12 @@ export function useUserContentPermissions(
   const toggleDisablePosting = useCallback(() => {
     if (!user) return;
     const newNotes = createModNoteForPermission('postingDisabled', user, currentUser);
+    const newPostingDisabled = !user.postingDisabled;
     
-    dispatch({ type: 'UPDATE_USER', userId: user._id, fields: { sunshineNotes: newNotes } });
+    dispatch({ type: 'UPDATE_USER', userId: user._id, fields: { sunshineNotes: newNotes, postingDisabled: newPostingDisabled } });
     
     updateUserWith({
-      postingDisabled: !user.postingDisabled,
+      postingDisabled: newPostingDisabled,
       sunshineNotes: newNotes,
     });
   }, [user, currentUser, updateUserWith, dispatch]);
@@ -107,11 +108,12 @@ export function useUserContentPermissions(
   const toggleDisableCommenting = useCallback(() => {
     if (!user) return;
     const newNotes = createModNoteForPermission('allCommentingDisabled', user, currentUser);
+    const newAllCommentingDisabled = !user.allCommentingDisabled;
     
-    dispatch({ type: 'UPDATE_USER', userId: user._id, fields: { sunshineNotes: newNotes } });
+    dispatch({ type: 'UPDATE_USER', userId: user._id, fields: { sunshineNotes: newNotes, allCommentingDisabled: newAllCommentingDisabled } });
   
     updateUserWith({
-      allCommentingDisabled: !user.allCommentingDisabled,
+      allCommentingDisabled: newAllCommentingDisabled,
       sunshineNotes: newNotes,
     });
   }, [user, currentUser, updateUserWith, dispatch]);
@@ -119,11 +121,12 @@ export function useUserContentPermissions(
   const toggleDisableMessaging = useCallback(() => {
     if (!user) return;
     const newNotes = createModNoteForPermission('conversationsDisabled', user, currentUser);
+    const newConversationsDisabled = !user.conversationsDisabled;
     
-    dispatch({ type: 'UPDATE_USER', userId: user._id, fields: { sunshineNotes: newNotes } });
+    dispatch({ type: 'UPDATE_USER', userId: user._id, fields: { sunshineNotes: newNotes, conversationsDisabled: newConversationsDisabled } });
     
     updateUserWith({
-      conversationsDisabled: !user.conversationsDisabled,
+      conversationsDisabled: newConversationsDisabled,
       sunshineNotes: newNotes,
     });
   }, [user, currentUser, updateUserWith, dispatch]);
@@ -138,8 +141,9 @@ export function useUserContentPermissions(
     const isCurrentlyDisabled = user.votingDisabled;
     const abled = isCurrentlyDisabled ? 'enabled' : 'disabled';
     const newNotes = getSignatureWithNote(modDisplayName, `voting ${abled}`) + currentNotes;
+    const newVotingDisabled = !isCurrentlyDisabled;
     
-    dispatch({ type: 'UPDATE_USER', userId: user._id, fields: { sunshineNotes: newNotes } });
+    dispatch({ type: 'UPDATE_USER', userId: user._id, fields: { sunshineNotes: newNotes, votingDisabled: newVotingDisabled } });
     
     if (isCurrentlyDisabled) {
       // Find and end the existing VOTING_DISABLED moderator action

@@ -1,7 +1,11 @@
+import React from 'react';
 import { AUTO_BLOCKED_FROM_SENDING_DMS, FLAGGED_FOR_N_DMS, MANUAL_FLAG_ALERT, MANUAL_NEEDS_REVIEW, MANUAL_RATE_LIMIT_EXPIRED, POTENTIAL_TARGETED_DOWNVOTING, RECEIVED_SENIOR_DOWNVOTES_ALERT, RECEIVED_VOTING_PATTERN_WARNING, SNOOZE_EXPIRED, STRICTER_COMMENT_AUTOMOD_RATE_LIMIT, STRICTER_POST_AUTOMOD_RATE_LIMIT, UNREVIEWED_BIO_UPDATE, UNREVIEWED_FIRST_COMMENT, UNREVIEWED_FIRST_POST, UNREVIEWED_MAP_LOCATION_UPDATE, UNREVIEWED_PROFILE_IMAGE_UPDATE } from "@/lib/collections/moderatorActions/constants";
 import { getReasonForReview } from "@/lib/collections/moderatorActions/helpers";
 import { maybeDate } from "@/lib/utils/dateUtils";
 import partition from 'lodash/partition';
+import ForumIcon, { ForumIconName } from '@/components/common/ForumIcon'
+import { defineStyles } from '@/components/hooks/defineStyles';
+import { useStyles } from '@/components/hooks/useStyles';
 
 function getActiveModeratorActions(user: SunshineUsersList): ModeratorActionDisplay[] {
   return user.moderatorActions?.filter(action => action.active).sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()) ?? [];
@@ -104,7 +108,24 @@ export function getReviewGroupDisplayName(group: ReviewGroup | 'all'): string {
   }
 }
 
-export function getPrimaryDisplayedModeratorAction(moderatorActionType: ModeratorActionType) {
+const styles = defineStyles('BadgeIcon', (theme: ThemeType) => ({
+  root: {
+    display: 'flex',
+    alignItems: 'center',
+    gap: 4,
+  },
+  icon: {
+    height: 12,
+    width: 12,
+  },
+}));
+
+const BadgeIcon = ({ icon, prefix }: { icon: ForumIconName, prefix?: string }) => {
+  const classes = useStyles(styles);
+  return <span className={classes.root}>{prefix && `${prefix} `}<ForumIcon icon={icon} className={classes.icon} /></span>;
+};
+
+export function getPrimaryDisplayedModeratorAction(moderatorActionType: ModeratorActionType): React.ReactNode {
   switch (moderatorActionType) {
     case MANUAL_NEEDS_REVIEW:
       return 'Manual';
@@ -127,9 +148,9 @@ export function getPrimaryDisplayedModeratorAction(moderatorActionType: Moderato
     case UNREVIEWED_PROFILE_IMAGE_UPDATE:
       return 'Image Update';
     case UNREVIEWED_FIRST_POST:
-      return 'First Post';
+      return <BadgeIcon icon="Post" prefix="First" />;
     case UNREVIEWED_FIRST_COMMENT:
-      return 'First Comment';
+      return <BadgeIcon icon="ModDashboardComment" prefix="First" />;
     case SNOOZE_EXPIRED:
       return 'Snooze Expired';
     case STRICTER_COMMENT_AUTOMOD_RATE_LIMIT:
