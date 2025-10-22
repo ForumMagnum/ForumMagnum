@@ -2,6 +2,7 @@ import React from 'react';
 import { defineStyles, useStyles } from '@/components/hooks/useStyles';
 import CommentsNode from '@/components/comments/CommentsNode';
 import PostsPageWrapper from '@/components/posts/PostsPage/PostsPageWrapper';
+import { ContentItem, isPost } from './helpers';
 
 const styles = defineStyles('ModerationContentDetail', (theme: ThemeType) => ({
   root: {
@@ -18,13 +19,6 @@ const styles = defineStyles('ModerationContentDetail', (theme: ThemeType) => ({
     fontSize: 14,
   },
 }));
-
-type ContentItem = SunshinePostsList | CommentsListWithParentMetadata;
-
-const isPost = (item: ContentItem): item is SunshinePostsList => {
-  return 'title' in item && item.title !== null;
-};
-
 const ModerationContentDetail = ({
   item,
 }: {

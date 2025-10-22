@@ -1,7 +1,6 @@
 import Button from '@/lib/vendor/@material-ui/core/src/Button';
 import Checkbox from '@/lib/vendor/@material-ui/core/src/Checkbox';
 import { Paper, Card }from '@/components/widgets/Paper';
-import TextField from '@/lib/vendor/@material-ui/core/src/TextField';
 import classNames from 'classnames';
 import React, { useState } from 'react';
 import { registerComponent } from '../../lib/vulcan-lib/components';
@@ -10,23 +9,10 @@ import { Link } from '../../lib/reactRouterWrapper';
 import LWTooltip from "../common/LWTooltip";
 import { ContentItemBody } from "../contents/ContentItemBody";
 import ContentStyles from "../common/ContentStyles";
-import LoadMore from "../common/LoadMore";
-import { useQueryWithLoadMore } from "@/components/hooks/useQueryWithLoadMore";
-import { gql } from "@/lib/generated/gql-codegen";
 import CKEditor from '../../lib/vendor/ckeditor5-react/ckeditor';
 import { getCkCommentEditor } from '../../lib/wrapCkEditor';
 import type { Editor } from '@ckeditor/ckeditor5-core';
-
-const ModerationTemplateFragmentMultiQuery = gql(`
-  query multiModerationTemplateRejectContentDialogQuery($selector: ModerationTemplateSelector, $limit: Int, $enableTotal: Boolean) {
-    moderationTemplates(selector: $selector, limit: $limit, enableTotal: $enableTotal) {
-      results {
-        ...ModerationTemplateFragment
-      }
-      totalCount
-    }
-  }
-`);
+import LWDialog from '../common/LWDialog';
 
 const styles = (theme: ThemeType) => ({
   dialogContent: {
@@ -113,29 +99,18 @@ const styles = (theme: ThemeType) => ({
   }
 });
 
-const RejectContentDialog = ({classes, rejectContent}: {
+const RejectContentDialog = ({rejectionTemplates, onClose, classes, rejectContent}: {
+  rejectionTemplates: ModerationTemplateFragment[],
+  onClose?: () => void,
   classes: ClassesType<typeof styles>,
   rejectContent: (reason: string) => void,
 }) => {
   const [selections, setSelections] = useState<Record<string,boolean>>({});
   const [hideTextField, setHideTextField] = useState(true);
   const [rejectedReason, setRejectedReason] = useState('');
-  const [showMore, setShowMore] = useState(false)
   const [editor, setEditor] = useState<Editor | null>(null);
-
-  const { data, loading, loadMoreProps } = useQueryWithLoadMore(ModerationTemplateFragmentMultiQuery, {
-    variables: {
-      selector: { moderationTemplatesList: { collectionName: "Rejections" } },
-      limit: 50,
-      enableTotal: true,
-    },
-  });
-
-  const rejectionTemplates = data?.moderationTemplates?.results;
-
-  if (!rejectionTemplates) return null;
   
-  const rejectionReasons = Object.fromEntries(rejectionTemplates.map(({name, contents}) => [name, contents?.html]))
+  const rejectionReasons = Object.fromEntries(rejectionTemplates.map(({name, contents}) => [name, contents?.html]));
 
   const handleClick = () => {
     rejectContent(rejectedReason);
@@ -202,9 +177,6 @@ const RejectContentDialog = ({classes, rejectContent}: {
         </LWTooltip>
       </div>
     })}
-    <div className={classes.loadMore}>
-      <LoadMore {...loadMoreProps} />
-    </div>
     <div className={classNames(classes.editorContainer, { [classes.hideEditorContainer]: hideTextField })}>
       <div className={classes.defaultIntroMessage}>
         <ContentStyles contentType='comment'>
@@ -226,20 +198,29 @@ const RejectContentDialog = ({classes, rejectContent}: {
       />
     </div>
   </div>
-  
+
+  const dialogElement = <Paper>
+    <div className={classes.dialogContent}>
+      {dialogContent}
+      <Button onClick={handleClick}>
+        Reject
+      </Button>
+      <Button onClick={() => setHideTextField(!hideTextField)}>
+        Edit Message
+      </Button>
+    </div>
+  </Paper>;
+
+  if (!onClose) {
+    return dialogElement;
+  }
+
   return (
-    <Paper>
-      <div className={classes.dialogContent}>
-        {dialogContent}
-        <Button onClick={handleClick}>
-          Reject
-        </Button>
-        <Button onClick={() => setHideTextField(!hideTextField)}>
-          Edit Message
-        </Button>
-      </div>
-    </Paper>
-  )
+    <LWDialog open={true} onClose={onClose}>
+      {dialogElement}
+    </LWDialog>
+  );
+
 };
 
 export default registerComponent('RejectContentDialog', RejectContentDialog, { styles });

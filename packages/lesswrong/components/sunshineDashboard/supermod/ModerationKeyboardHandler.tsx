@@ -13,6 +13,9 @@ import { useCommandPalette } from '@/components/hooks/useCommandPalette';
 import { useModeratedUserContents } from '@/components/hooks/useModeratedUserContents';
 import type { InboxAction } from './inboxReducer';
 import { useUserContentPermissions } from './useUserContentPermissions';
+import RejectContentDialog from '../RejectContentDialog';
+import { useRejectContent } from '@/components/hooks/useRejectContent';
+import { isPost } from './helpers';
 
 const SunshineUsersListUpdateMutation = gql(`
   mutation updateUserModerationKeyboard($selector: SelectorInput!, $data: UpdateUserDataInput!) {
@@ -48,6 +51,7 @@ const ModerationKeyboardHandler = ({
   onNextTab,
   onPrevTab,
   selectedUser,
+  selectedContentIndex,
   currentUser,
   onActionComplete,
   isDetailView,
@@ -60,6 +64,7 @@ const ModerationKeyboardHandler = ({
   onNextTab: () => void;
   onPrevTab: () => void;
   selectedUser: SunshineUsersList | null;
+  selectedContentIndex: number;
   isDetailView: boolean;
   currentUser: UsersCurrent;
   onActionComplete: () => void;
@@ -71,6 +76,7 @@ const ModerationKeyboardHandler = ({
   const [approveCurrentContentOnly] = useMutation(ApproveCurrentContentOnlyMutation);
   
   const { posts, comments } = useModeratedUserContents(selectedUser?._id ?? '', 20);
+  const { rejectContent, unrejectContent, rejectionTemplates } = useRejectContent();
   
   const allContent = useMemo(() => {
     return [...posts, ...comments].sort((a, b) => 
@@ -249,6 +255,36 @@ const ModerationKeyboardHandler = ({
     });
   }, [selectedUser, getModSignatureWithNote, updateUser, dispatch]);
 
+  const handleRejectCurrentContent = useCallback(() => {
+    if (!selectedUser) return;
+    const selectedContent = allContent[selectedContentIndex];
+    if (!selectedContent || selectedContent.rejected) return;
+
+    const contentWrapper = isPost(selectedContent) ? {
+      collectionName: 'Posts' as const,
+      document: selectedContent,
+    } : {
+      collectionName: 'Comments' as const,
+      document: selectedContent,
+    };
+
+    const handleRejectContent = (reason: string) => {
+      rejectContent({ ...contentWrapper, reason });
+    };
+
+    openDialog({
+      name: 'RejectContentDialog',
+      contents: ({ onClose }) => (
+        <RejectContentDialog
+          rejectionTemplates={rejectionTemplates}
+          rejectContent={handleRejectContent}
+          onClose={onClose}
+        />
+      ),
+    });
+
+  }, [allContent, openDialog, rejectContent, rejectionTemplates, selectedContentIndex, selectedUser]);
+
   const {
     toggleDisablePosting,
     toggleDisableCommenting,
@@ -341,7 +377,7 @@ const ModerationKeyboardHandler = ({
     },
     {
       label: 'Remove',
-      keystroke: 'R',
+      keystroke: 'Q',
       isDisabled: () => !selectedUser,
       execute: handleRemoveNeedsReview,
     },
@@ -394,6 +430,12 @@ const ModerationKeyboardHandler = ({
       execute: toggleDisableVoting,
     },
     {
+      label: 'Reject Current',
+      keystroke: 'R',
+      isDisabled: () => !selectedUser,
+      execute: handleRejectCurrentContent,
+    },
+    {
       label: 'Reject All, Restrict, & Notify',
       keystroke: 'Shift+R',
       isDisabled: () => !selectedUser,
@@ -439,7 +481,7 @@ const ModerationKeyboardHandler = ({
       isDisabled: () => false,
       execute: onCloseDetail,
     },
-    ], [handleReview, handleApproveCurrentOnly, handleSnoozeCustom, handleRemoveNeedsReview, handleRejectContentAndRemove, handleBan, handlePurge, handleFlag, toggleDisablePosting, toggleDisableCommenting, toggleDisableMessaging, toggleDisableVoting, handleRestrictAndNotify, onNextUser, onPrevUser, onNextTab, onPrevTab, onOpenDetail, onCloseDetail, selectedUser, handleSnooze, isDetailView, dispatch, allContent]);
+    ], [handleReview, handleApproveCurrentOnly, handleSnoozeCustom, handleRemoveNeedsReview, handleRejectContentAndRemove, handleBan, handlePurge, handleFlag, toggleDisablePosting, toggleDisableCommenting, toggleDisableMessaging, toggleDisableVoting, handleRejectCurrentContent, handleRestrictAndNotify, onNextUser, onPrevUser, onNextTab, onPrevTab, onOpenDetail, onCloseDetail, selectedUser, handleSnooze, isDetailView, dispatch, allContent]);
 
   useGlobalKeydown(
     useCallback(
@@ -536,9 +578,12 @@ const ModerationKeyboardHandler = ({
         } else if (event.key === 'S' && event.shiftKey) {
           event.preventDefault();
           handleSnoozeCustom();
-        } else if (event.key === 'r' && !event.shiftKey) {
+        } else if (event.key === 'q' && !event.shiftKey) {
           event.preventDefault();
           handleRemoveNeedsReview();
+        } else if (event.key === 'r' && !event.shiftKey) {
+          event.preventDefault();
+          handleRejectCurrentContent();
         } else if (event.key === 'R' && event.shiftKey) {
           event.preventDefault();
           handleRestrictAndNotify();
@@ -583,6 +628,7 @@ const ModerationKeyboardHandler = ({
         handleSnoozeCustom,
         handleRemoveNeedsReview,
         handleRejectContentAndRemove,
+        handleRejectCurrentContent,
         handleRestrictAndNotify,
         handleBan,
         handlePurge,

@@ -197,6 +197,7 @@ const ModerationInboxInner = ({ users, initialOpenedUserId, currentUser }: {
         }}
         onCloseDetail={handleCloseDetail}
         selectedUser={sidebarUser}
+        selectedContentIndex={state.focusedContentIndex}
         currentUser={currentUser}
         onActionComplete={handleActionComplete}
         isDetailView={!!state.openedUserId}

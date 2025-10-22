@@ -6,6 +6,8 @@ import DescriptionIcon from '@/lib/vendor/@material-ui/icons/src/Description';
 import MessageIcon from '@/lib/vendor/@material-ui/icons/src/Message';
 import { htmlToTextDefault } from '@/lib/htmlToText';
 import { truncate } from '@/lib/editor/ellipsize';
+import RejectContentButton from '../RejectContentButton';
+import { getEnvKeystrokeText } from '@/lib/vendor/ckeditor5-util/keyboard';
 
 const styles = defineStyles('ModerationContentItem', (theme: ThemeType) => ({
   root: {
@@ -104,6 +106,27 @@ const styles = defineStyles('ModerationContentItem', (theme: ThemeType) => ({
     backgroundColor: theme.palette.error.light,
     color: theme.palette.error.dark,
   },
+  rejectButtonContainer: {
+    display: 'flex',
+    alignItems: 'center',
+    gap: 4,
+    marginLeft: 8,
+    flexShrink: 0,
+  },
+  keystroke: {
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'center',
+    minWidth: 18,
+    height: 18,
+    fontSize: 10,
+    color: theme.palette.grey[600],
+    fontFamily: theme.typography.fontFamily,
+    backgroundColor: theme.palette.grey[100],
+    borderRadius: 3,
+    border: `1px solid ${theme.palette.grey[300]}`,
+    padding: '0 4px',
+  },
 }));
 
 type ContentItem = SunshinePostsList | CommentsListWithParentMetadata;
@@ -130,6 +153,10 @@ const ModerationContentItem = ({
   const contentHtml = item.contents?.html ?? '';
   const contentText = htmlToTextDefault(contentHtml);
   const truncatedText = truncate(contentText, 100, 'characters');
+
+  const contentWrapper = post 
+    ? { collectionName: 'Posts' as const, document: item }
+    : { collectionName: 'Comments' as const, document: item };
 
   return (
     <div
@@ -169,6 +196,13 @@ const ModerationContentItem = ({
       {item.rejected && (
         <div className={classNames(classes.status, classes.rejectedStatus)}>
           Rejected
+        </div>
+      )}
+
+      {!item.rejected && item.authorIsUnreviewed && (
+        <div className={classes.rejectButtonContainer} onClick={(e) => e.stopPropagation()}>
+          <RejectContentButton contentWrapper={contentWrapper} />
+          <span className={classes.keystroke}>{getEnvKeystrokeText('R')}</span>
         </div>
       )}
     </div>
