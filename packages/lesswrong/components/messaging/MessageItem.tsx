@@ -12,7 +12,7 @@ import FormatDate from "../common/FormatDate";
 import { ContentItemBody } from "../contents/ContentItemBody";
 import { getVotingSystemByName } from "../../lib/voting/getVotingSystem";
 import { useVote } from "../votes/withVote";
-import InlineReactSelectionWrapper from "../votes/lwReactions/InlineReactSelectionWrapper";
+import SelectedTextToolbarWrapper from '../votes/lwReactions/InlineReactSelectionWrapper';
 import type { ContentItemBodyImperative, ContentReplacedSubstringComponentInfo } from "../contents/contentBodyUtil";
 import { messageBottomComponents } from '@/lib/voting/votingSystemComponents';
 import HoveredReactionContextProvider from '../votes/lwReactions/HoveredReactionContextProvider';
@@ -179,14 +179,20 @@ const MessageItem = ({message, classes}: {
               </MetaInfo>}
             </div>
 
-            {votingSystem.hasInlineReacts ? <InlineReactSelectionWrapper
+            {votingSystem.hasInlineReacts ? <SelectedTextToolbarWrapper
               contentRef={messageBodyRef}
               voteProps={voteProps}
               styling={isCurrentUser ? "messageLeft" : "messageRight"}
               setSelection={setSelection}
+              collectionName="Messages"
+              documentId={message._id}
+              inlinePredictionOps={null}
+              enableCommentOnSelection={false}
+              enableInlinePredictions={false}
+              enableInlineReacts={true}
             >
                 {bodyElement}
-              </InlineReactSelectionWrapper>
+              </SelectedTextToolbarWrapper>
             : bodyElement}
           </Typography>
           
