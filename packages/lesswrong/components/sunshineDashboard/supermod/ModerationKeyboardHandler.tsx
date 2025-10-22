@@ -15,7 +15,7 @@ import type { InboxAction } from './inboxReducer';
 import { useUserContentPermissions } from './useUserContentPermissions';
 import RejectContentDialog from '../RejectContentDialog';
 import { useRejectContent } from '@/components/hooks/useRejectContent';
-import { isPost } from './helpers';
+import { ContentItem, isPost } from './helpers';
 
 const SunshineUsersListUpdateMutation = gql(`
   mutation updateUserModerationKeyboard($selector: SelectorInput!, $data: UpdateUserDataInput!) {
@@ -41,6 +41,10 @@ const ApproveCurrentContentOnlyMutation = gql(`
 
 function specialKeyPressed(event: KeyboardEvent) {
   return event.metaKey || event.ctrlKey || event.altKey;
+}
+
+function canRejectCurrentlySelectedContent(selectedContent?: ContentItem) {
+  return selectedContent && !selectedContent.rejected && selectedContent.authorIsUnreviewed;
 }
 
 const ModerationKeyboardHandler = ({
@@ -83,6 +87,8 @@ const ModerationKeyboardHandler = ({
       new Date(b.postedAt).getTime() - new Date(a.postedAt).getTime()
     );
   }, [posts, comments]);
+
+  const selectedContent = useMemo(() => allContent[selectedContentIndex], [allContent, selectedContentIndex]);
 
   const getModSignatureWithNote = useCallback(
     (note: string) => getSignatureWithNote(currentUser.displayName, note),
@@ -242,7 +248,7 @@ const ModerationKeyboardHandler = ({
     const notes = selectedUser.sunshineNotes || '';
     const newNotes = getModSignatureWithNote(flagStatus) + notes;
     
-    dispatch({ type: 'UPDATE_USER_NOTES', userId: selectedUser._id, sunshineNotes: newNotes });
+    dispatch({ type: 'UPDATE_USER', userId: selectedUser._id, fields: { sunshineNotes: newNotes } });
     
     void updateUser({
       variables: {
@@ -257,8 +263,7 @@ const ModerationKeyboardHandler = ({
 
   const handleRejectCurrentContent = useCallback(() => {
     if (!selectedUser) return;
-    const selectedContent = allContent[selectedContentIndex];
-    if (!selectedContent || selectedContent.rejected) return;
+    if (!canRejectCurrentlySelectedContent(selectedContent)) return;
 
     const contentWrapper = isPost(selectedContent) ? {
       collectionName: 'Posts' as const,
@@ -283,7 +288,7 @@ const ModerationKeyboardHandler = ({
       ),
     });
 
-  }, [allContent, openDialog, rejectContent, rejectionTemplates, selectedContentIndex, selectedUser]);
+  }, [openDialog, rejectContent, rejectionTemplates, selectedContent, selectedUser]);
 
   const {
     toggleDisablePosting,
@@ -432,7 +437,7 @@ const ModerationKeyboardHandler = ({
     {
       label: 'Reject Current',
       keystroke: 'R',
-      isDisabled: () => !selectedUser,
+      isDisabled: () => !selectedUser || !canRejectCurrentlySelectedContent(selectedContent),
       execute: handleRejectCurrentContent,
     },
     {
@@ -481,7 +486,7 @@ const ModerationKeyboardHandler = ({
       isDisabled: () => false,
       execute: onCloseDetail,
     },
-    ], [handleReview, handleApproveCurrentOnly, handleSnoozeCustom, handleRemoveNeedsReview, handleRejectContentAndRemove, handleBan, handlePurge, handleFlag, toggleDisablePosting, toggleDisableCommenting, toggleDisableMessaging, toggleDisableVoting, handleRejectCurrentContent, handleRestrictAndNotify, onNextUser, onPrevUser, onNextTab, onPrevTab, onOpenDetail, onCloseDetail, selectedUser, handleSnooze, isDetailView, dispatch, allContent]);
+    ], [handleReview, handleApproveCurrentOnly, handleSnoozeCustom, handleRemoveNeedsReview, handleRejectContentAndRemove, handleBan, handlePurge, handleFlag, toggleDisablePosting, toggleDisableCommenting, toggleDisableMessaging, toggleDisableVoting, handleRejectCurrentContent, handleRestrictAndNotify, onNextUser, onPrevUser, onNextTab, onPrevTab, onOpenDetail, onCloseDetail, selectedUser, handleSnooze, isDetailView, dispatch, allContent.length, selectedContent]);
 
   useGlobalKeydown(
     useCallback(

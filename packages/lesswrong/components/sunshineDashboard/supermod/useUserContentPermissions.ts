@@ -96,7 +96,7 @@ export function useUserContentPermissions(
     if (!user) return;
     const newNotes = createModNoteForPermission('postingDisabled', user, currentUser);
     
-    dispatch({ type: 'UPDATE_USER_NOTES', userId: user._id, sunshineNotes: newNotes });
+    dispatch({ type: 'UPDATE_USER', userId: user._id, fields: { sunshineNotes: newNotes } });
     
     updateUserWith({
       postingDisabled: !user.postingDisabled,
@@ -108,7 +108,7 @@ export function useUserContentPermissions(
     if (!user) return;
     const newNotes = createModNoteForPermission('allCommentingDisabled', user, currentUser);
     
-    dispatch({ type: 'UPDATE_USER_NOTES', userId: user._id, sunshineNotes: newNotes });
+    dispatch({ type: 'UPDATE_USER', userId: user._id, fields: { sunshineNotes: newNotes } });
   
     updateUserWith({
       allCommentingDisabled: !user.allCommentingDisabled,
@@ -120,7 +120,7 @@ export function useUserContentPermissions(
     if (!user) return;
     const newNotes = createModNoteForPermission('conversationsDisabled', user, currentUser);
     
-    dispatch({ type: 'UPDATE_USER_NOTES', userId: user._id, sunshineNotes: newNotes });
+    dispatch({ type: 'UPDATE_USER', userId: user._id, fields: { sunshineNotes: newNotes } });
     
     updateUserWith({
       conversationsDisabled: !user.conversationsDisabled,
@@ -139,7 +139,7 @@ export function useUserContentPermissions(
     const abled = isCurrentlyDisabled ? 'enabled' : 'disabled';
     const newNotes = getSignatureWithNote(modDisplayName, `voting ${abled}`) + currentNotes;
     
-    dispatch({ type: 'UPDATE_USER_NOTES', userId: user._id, sunshineNotes: newNotes });
+    dispatch({ type: 'UPDATE_USER', userId: user._id, fields: { sunshineNotes: newNotes } });
     
     if (isCurrentlyDisabled) {
       // Find and end the existing VOTING_DISABLED moderator action

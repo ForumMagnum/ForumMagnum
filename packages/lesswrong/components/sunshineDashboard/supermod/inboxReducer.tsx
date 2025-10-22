@@ -52,7 +52,7 @@ export type InboxAction =
   | { type: 'REMOVE_USER'; userId: string; }
   | { type: 'NEXT_CONTENT'; contentLength: number; }
   | { type: 'PREV_CONTENT'; contentLength: number; }
-  | { type: 'UPDATE_USER_NOTES'; userId: string; sunshineNotes: string; };
+  | { type: 'UPDATE_USER'; userId: string; fields: Partial<SunshineUsersList>; };
 
 
 
@@ -128,9 +128,9 @@ export function inboxStateReducer(state: InboxState, action: InboxAction): Inbox
       };
     }
 
-    case 'UPDATE_USER_NOTES': {
+    case 'UPDATE_USER': {
       const updatedUsers = state.users.map(user => user._id === action.userId
-        ? { ...user, sunshineNotes: action.sunshineNotes }
+        ? { ...user, ...action.fields }
         : user
       );
       return {
