@@ -249,7 +249,7 @@ function normalizeFragments(inputPath: string) {
   }
 
   return definitions.join("\n")
-    + transformedLines.join("\n")
+    + "\n" + transformedLines.join("\n")
 }
 
 function isDocumentNode(obj: any): obj is DocumentNode {
