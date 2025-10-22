@@ -1,4 +1,4 @@
-import { isAF, isEAForum, taggingNameSetting, commentPermalinkStyleSetting, hideUnreviewedAuthorCommentsSettings } from '@/lib/instanceSettings';
+import { isEAForum, taggingNameSetting, hideUnreviewedAuthorCommentsSettings, type ForumTypeString } from '@/lib/instanceSettings';
 import { getSiteUrl } from '../../vulcan-lib/utils';
 import { postGetPageUrl } from '../posts/helpers';
 import { userCanDo } from '../../vulcan-users/permissions';
@@ -71,8 +71,13 @@ export const commentGetRSSUrl = function(comment: HasIdType, isAbsolute = false)
   return `${prefix}/feed.xml?type=comments&view=commentReplies&parentCommentId=${comment._id}`;
 };
 
-export const commentDefaultToAlignment = (currentUser: UsersCurrent|null, post: PostsMinimumInfo|undefined, comment?: CommentsList): boolean => {
-  if (isAF()) { return true }
+export const commentDefaultToAlignment = ({currentUser, post, comment, isAF}: {
+  currentUser: UsersCurrent|null,
+  post: PostsMinimumInfo|undefined,
+  comment?: CommentsList
+  isAF: boolean
+}): boolean => {
+  if (isAF) { return true }
   if (comment) {
     return !!(userCanDo(currentUser, "comments.alignment.new") && post?.af && comment.af)
   } else {
@@ -80,20 +85,20 @@ export const commentDefaultToAlignment = (currentUser: UsersCurrent|null, post: 
   }
 }
 
-export const commentGetDefaultView = (post: PostsDetails|PostsList|DbPost|null, currentUser: UsersCurrent|null): CommentsViewName => {
+export const commentGetDefaultView = (post: PostsDetails|PostsList|DbPost|null, currentUser: UsersCurrent|null, forumType: ForumTypeString): CommentsViewName => {
   const fallback = forumSelect({
     AlignmentForum: "afPostCommentsTop",
     EAForum: "postCommentsMagic",
     default: "postCommentsTop",
-  });
+  }, forumType);
   const postSortOrder = (post && 'commentSortOrder' in post) ? post.commentSortOrder : null;
   return (postSortOrder as CommentsViewName)
     || (currentUser?.commentSorting as CommentsViewName)
     || fallback;
 }
 
-export const commentGetKarma = (comment: CommentsList|DbComment): number => {
-  const baseScore = isAF() ? comment.afBaseScore : comment.baseScore
+export const commentGetKarma = ({comment, isAF}: {comment: CommentsList|DbComment, isAF: boolean}): number => {
+  const baseScore = isAF ? comment.afBaseScore : comment.baseScore
   return baseScore || 0
 }
 

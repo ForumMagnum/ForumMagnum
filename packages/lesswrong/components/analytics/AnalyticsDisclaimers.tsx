@@ -4,22 +4,24 @@ import moment from "moment";
 import { forumSelect } from "../../lib/forumTypeUtils";
 import { GRAPH_LEFT_MARGIN } from "./AnalyticsGraph";
 import { Typography } from "../common/Typography";
+import { ForumTypeString } from "@/lib/instanceSettings";
+import { useForumType } from "../hooks/useForumType";
 
-const getMissingClientRangeText = () => forumSelect({
+const getMissingClientRangeText = (forumType: ForumTypeString) => forumSelect({
   EAForum: "Jan 11th - Jun 14th of 2021",
   LWAF: "late 2020 - early 2021",
   default: null,
-});
-const getMissingClientLastDay = () => forumSelect({
+}, forumType);
+const getMissingClientLastDay = (forumType: ForumTypeString) => forumSelect({
   EAForum: "2021-06-14",
   LWAF: "2021-05-01",
   default: null,
-});
-const getDataCollectionFirstDay = () => forumSelect({
+}, forumType);
+const getDataCollectionFirstDay = (forumType: ForumTypeString) => forumSelect({
   EAForum: "on Feb 19th, 2020",
   LWAF: "around the start of 2020",
   default: null,
-});
+}, forumType);
 
 const styles = (theme: ThemeType) => ({
   root: theme.isFriendlyUI
@@ -34,19 +36,21 @@ const AnalyticsDisclaimers = ({earliestDate, classes}: {
   earliestDate: Date,
   classes: ClassesType<typeof styles>,
 }) => {
+  const { forumType } = useForumType();
+
   return (
     <>
-      {getMissingClientLastDay() && moment(earliestDate) < moment(getMissingClientLastDay()) && (
+      {getMissingClientLastDay(forumType) && moment(earliestDate) < moment(getMissingClientLastDay(forumType)) && (
         <Typography variant="body1" gutterBottom className={classes.root}>
           <em>
             Note: For figures that rely on detecting unique devices, we were mistakenly not collecting that data from{" "}
-            {getMissingClientRangeText()}.
+            {getMissingClientRangeText(forumType)}.
           </em>
         </Typography>
       )}
-      {getDataCollectionFirstDay() && moment(earliestDate) < moment("2020-02-19") && (
+      {getDataCollectionFirstDay(forumType) && moment(earliestDate) < moment("2020-02-19") && (
         <Typography variant="body1" gutterBottom className={classes.root}>
-          <em>Note 2: Data collection began {getDataCollectionFirstDay()}.</em>
+          <em>Note 2: Data collection began {getDataCollectionFirstDay(forumType)}.</em>
         </Typography>
       )}
     </>

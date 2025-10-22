@@ -28,7 +28,7 @@ const { Query: popularCommentsQuery, typeDefs: popularCommentsTypeDefs } = creat
     limit: number,
   ): Promise<DbComment[]> => {
     const recencyFactor = isLWorAF() ? 175_000 : 250_000;
-    return context.repos.comments.getPopularComments({limit, recencyFactor});
+    return context.repos.comments.getPopularComments({limit, recencyFactor, forumType: context.forumType});
   },
   cacheMaxAgeMs: 300000, // 5 mins
 });

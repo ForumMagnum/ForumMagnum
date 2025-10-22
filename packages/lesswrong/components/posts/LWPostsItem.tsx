@@ -7,7 +7,7 @@ import withErrorBoundary from '../common/withErrorBoundary';
 import classNames from 'classnames';
 import { NEW_COMMENT_MARGIN_BOTTOM } from '../comments/constants';
 import { AnalyticsContext } from "../../lib/analyticsEvents";
-import { cloudinaryCloudNameSetting, isLW } from '@/lib/instanceSettings';
+import { cloudinaryCloudNameSetting } from '@/lib/instanceSettings';
 import { getReviewPhase, postEligibleForReview, postPassedNomination, REVIEW_YEAR, reviewIsActive } from '../../lib/reviewUtils';
 import { PostsItemConfig, usePostsItem } from './usePostsItem';
 import PostsItemTrailingButtons, { MENU_WIDTH, DismissButton } from './PostsItemTrailingButtons';
@@ -39,6 +39,7 @@ import { ResponseIcon } from "./PostsPage/RSVPs";
 import { maybeDate } from '@/lib/utils/dateUtils';
 import { isIfAnyoneBuildsItFrontPage } from '../seasonal/styles';
 import { defineStyles, useStyles } from '../hooks/useStyles';
+import { useForumType } from '../hooks/useForumType';
 
 export const KARMA_WIDTH = 32;
 
@@ -481,6 +482,7 @@ const LWPostsItem = (props: PostsItemConfig) => {
   } = usePostsItem(props);
 
   const classes = useStyles(styles);
+  const { isLW } = useForumType();
   const { hover, eventHandlers } = useHover();
 
   const reviewCountsTooltip = `${post.nominationCount2019 || 0} nomination${(post.nominationCount2019 === 1) ? "" :"s"} / ${post.reviewCount2019 || 0} review${(post.nominationCount2019 === 1) ? "" :"s"}`
@@ -570,7 +572,7 @@ const LWPostsItem = (props: PostsItemConfig) => {
               {/* space in-between title and author if there is width remaining */}
               <span className={classes.spacer} />
 
-              {isLW() && post.isEvent && post.rsvpCounts?.yes>=5 && <PostsItem2MetaInfo className={classes.rsvps}>
+              {isLW && post.isEvent && post.rsvpCounts?.yes>=5 && <PostsItem2MetaInfo className={classes.rsvps}>
                 {post.rsvpCounts?.yes && <>
                   <ResponseIcon response="yes"/>
                   <span className={classes.rsvpCount}>{post.rsvpCounts.yes}</span>

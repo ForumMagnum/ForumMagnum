@@ -1,5 +1,4 @@
 import { CommentsViews, questionAnswersSortings } from '../lib/collections/comments/views';
-import { isAF } from '../lib/instanceSettings';
 import { updateDenormalizedHtmlAttributions, UpdateDenormalizedHtmlAttributionsOptions } from './tagging/updateDenormalizedHtmlAttributions';
 import { annotateAuthors } from './attributeEdits';
 import { getDefaultViewSelector } from '../lib/utils/viewUtils';
@@ -21,7 +20,7 @@ async function getTocAnswersServer(document: DbPost, context: ResolverContext) {
     draft: false,
     deleted:false,
   }
-  if (isAF()) {
+  if (context.forumType === "AlignmentForum") {
     answersTerms.af = true
   }
   const answers = await Comments.find(answersTerms, {sort:questionAnswersSortings.top}).fetch();
@@ -38,7 +37,7 @@ async function getTocCommentsServer(document: DbPost, context: ResolverContext) 
     parentAnswerId: null,
     postId: document._id
   }
-  if (document.af && isAF()) {
+  if (document.af && context.forumType === "AlignmentForum") {
     commentSelector.af = true
   }
   const commentCount = await Comments.find(commentSelector).count()

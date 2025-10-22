@@ -1,6 +1,6 @@
 import React, { useCallback, useRef, useState } from 'react';
 import { registerComponent } from '../../lib/vulcan-lib/components';
-import { reCaptchaSiteKeySetting, isAF, isEAForum } from '../../lib/instanceSettings';
+import { reCaptchaSiteKeySetting } from '../../lib/instanceSettings';
 import { useMutation } from "@apollo/client/react";
 import { gql } from '@/lib/generated/gql-codegen';
 import { useMessages } from '../common/withMessages';
@@ -15,6 +15,7 @@ import EALoginPopover from "../ea-forum/auth/EALoginPopover";
 import SignupSubscribeToCurated from "./SignupSubscribeToCurated";
 import DeferRender from '../common/DeferRender';
 import { ErrorLike } from '@apollo/client';
+import { useForumType } from '../hooks/useForumType.ts';
 
 const styles = (theme: ThemeType) => ({
   root: {
@@ -116,8 +117,9 @@ const LoginForm = (props: LoginFormProps) => {
 }
 
 const LoginFormDefault = ({ startingState = "login", classes }: LoginFormProps) => {
-  const hasSubscribeToCuratedCheckbox = !isEAForum() && !isAF();
-  const hasOauthSection = !isEAForum();
+  const { isAF, isEAForum } = useForumType();
+  const hasSubscribeToCuratedCheckbox = !isEAForum && !isAF;
+  const hasOauthSection = !isEAForum;
 
   const { pathname } = useLocation()
   const reCaptchaToken = useRef<string|null>(null);

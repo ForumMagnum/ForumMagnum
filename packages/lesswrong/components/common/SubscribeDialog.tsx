@@ -16,7 +16,7 @@ import InputLabel from '@/lib/vendor/@material-ui/core/src/InputLabel';
 import Select from '@/lib/vendor/@material-ui/core/src/Select';
 import { useCurrentUser } from '../common/withUser';
 import { useTracking } from "../../lib/analyticsEvents";
-import { isEAForum, isLWorAF } from '../../lib/instanceSettings';
+import { ForumTypeString, isEAForum, isLWorAF } from '../../lib/instanceSettings';
 import Tabs from '@/lib/vendor/@material-ui/core/src/Tabs';
 import Tab from '@/lib/vendor/@material-ui/core/src/Tab';
 import { preferredHeadingCase } from '../../themes/forumTheme';
@@ -25,6 +25,7 @@ import { defineStyles, useStyles } from '../hooks/useStyles';
 import { useIsAboveBreakpoint } from '../hooks/useScreenWidth';
 import LWDialog from "./LWDialog";
 import { MenuItem } from "./Menus";
+import { useForumType } from '../hooks/useForumType';
 
 const styles = defineStyles("SubscribeDialog", (theme: ThemeType) => ({
   thresholdSelector: {
@@ -61,14 +62,14 @@ const styles = defineStyles("SubscribeDialog", (theme: ThemeType) => ({
   infoMsg: {},
 }));
 
-const getThresholds = () => forumSelect({
+const getThresholds = (forumType: ForumTypeString) => forumSelect({
   LessWrong: [2, 30, 45, 75, 125],
   AlignmentForum: [2, 30, 45],
   EAForum: [2, 30, 75, 125, 200],
   // We default you off pretty low, you can add more once you get more high
   // karma posts
   default: [2, 30, 45, 75]
-})
+}, forumType)
 
 /**
  * Calculated based on the average number of words posted per post on LW2 as of
@@ -83,7 +84,7 @@ function timePerWeekFromPosts(posts: number) {
 }
 
 /** Posts per week as of May 2022 */
-const getPostsPerWeek = () => forumSelect<Record<string, number>>({
+const getPostsPerWeek = (forumType: ForumTypeString) => forumSelect<Record<string, number>>({
   EAForum: {
     '2': 119,
     '30': 24,
@@ -111,7 +112,7 @@ const getPostsPerWeek = () => forumSelect<Record<string, number>>({
     '45': 2,
     '75': 1,
   }
-});
+}, forumType);
 
 const viewNames = {
   'frontpage': 'Frontpage',
@@ -143,6 +144,7 @@ const SubscribeDialog = (props: {
   const [method, setMethod] = useState(props.method);
   const [copiedRSSLink, setCopiedRSSLink] = useState(false);
   const [subscribedByEmail, setSubscribedByEmail] = useState(false);
+  const { forumType } = useForumType();
 
   const rssTerms = () => {
     let terms: any = { view: `${view}-rss` };
@@ -252,7 +254,7 @@ const SubscribeDialog = (props: {
 
           {(view === "community" || view === "frontpage") && <div>
             <DialogContentText>Generate a RSS link to posts in {viewNames[view]} of this karma and above.</DialogContentText>
-            {getThresholds().map((t: AnyBecauseTodo) => t.toString()).map((radioThreshold: AnyBecauseTodo) =>
+            {getThresholds(forumType).map((t: AnyBecauseTodo) => t.toString()).map((radioThreshold: AnyBecauseTodo) =>
               <FormControlLabel
                 control={<Radio
                   value={radioThreshold}
@@ -267,8 +269,8 @@ const SubscribeDialog = (props: {
               />
             )}
             <DialogContentText className={classes.estimate}>
-              That's roughly { getPostsPerWeek()[threshold] } posts per week
-              ({ timePerWeekFromPosts(getPostsPerWeek()[threshold]) } of reading)
+              That's roughly { getPostsPerWeek(forumType)[threshold] } posts per week
+              ({ timePerWeekFromPosts(getPostsPerWeek(forumType)[threshold]) } of reading)
             </DialogContentText>
           </div>}
 

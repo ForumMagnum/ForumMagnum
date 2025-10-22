@@ -20,6 +20,8 @@ import TableOfContents from "../../posts/TableOfContents/TableOfContents";
 import { gql } from '@/lib/generated/gql-codegen';
 import { NetworkStatus } from '@apollo/client';
 import { useQueryWithLoadMore } from '@/components/hooks/useQueryWithLoadMore';
+import { type ForumTypeString } from '@/lib/instanceSettings';
+import { useForumType } from '@/components/hooks/useForumType';
 
 const DeletedCommentsModerationLogQuery = gql(`
   query DeletedCommentsModerationLogQuery($selector: CommentSelector, $limit: Int, $enableTotal: Boolean) {
@@ -76,12 +78,12 @@ const UserRateLimitModerationLogQuery = gql(`
   }
 `);
 
-const shouldShowEndUserModerationToNonMods = () => forumSelect({
+const shouldShowEndUserModerationToNonMods = (forumType: ForumTypeString) => forumSelect({
   EAForum: false,
   LessWrong: true,
   AlignmentForum: true,
   default: true,
-})
+}, forumType)
 
 const styles = (theme: ThemeType) => ({
   root: {
@@ -303,7 +305,8 @@ const ModerationLog = ({classes}: {
   classes: ClassesType<typeof styles>
 }) => {
   const currentUser = useCurrentUser()
-  const shouldShowEndUserModeration = (currentUser && isMod(currentUser)) || shouldShowEndUserModerationToNonMods();
+  const { forumType } = useForumType();
+  const shouldShowEndUserModeration = (currentUser && isMod(currentUser)) || shouldShowEndUserModerationToNonMods(forumType);
 
   const {
     data: deletedCommentsData,

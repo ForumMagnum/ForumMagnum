@@ -8,6 +8,7 @@ import { useCurrentUser } from "../common/withUser";
 import { useDialog } from "../common/withDialog";
 import { TooltipRef, TooltipSpan } from '../common/FMTooltip';
 import CommentsNewForm from "../comments/CommentsNewForm";
+import { useForumType } from '../hooks/useForumType';
 
 const styles = (theme: ThemeType) => ({
   root: {
@@ -78,13 +79,15 @@ const NewAnswerCommentQuestionForm = ({post, classes}: {
   const [formFocus, setFormFocus] = useState(false);
   const currentUser = useCurrentUser()
   const { openDialog } = useDialog()
+  const { isAF } = useForumType();
+
   const toggleFormFocus = () => {
     setFormFocus(!formFocus);
   }
 
   const isAnswer = selection === "answer";
 
-  return <div className={classes.root} onFocus={() => afNonMemberDisplayInitialPopup(currentUser, openDialog)}>
+  return <div className={classes.root} onFocus={() => afNonMemberDisplayInitialPopup(currentUser, openDialog, isAF)}>
     <div className={classNames(classes.whitescreen, {[classes.displayWhitescreen]: formFocus})}/>
     <div className={classes.form}>
       <div className={classes.chooseResponseType}>

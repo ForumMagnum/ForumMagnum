@@ -2,13 +2,13 @@ import React, { useRef } from "react";
 import { registerComponent } from "../../lib/vulcan-lib/components";
 import { InteractionWrapper } from "../common/useClickableCell";
 import classNames from "classnames";
-import { isAF } from "../../lib/instanceSettings";
 import { postGetCommentCountStr, postGetLink, postGetLinkTarget, postGetPageUrl } from "../../lib/collections/posts/helpers";
 import { Link } from "../../lib/reactRouterWrapper";
 import TruncatedAuthorsList from "./TruncatedAuthorsList";
 import ForumIcon from "../common/ForumIcon";
 import LWTooltip from "../common/LWTooltip";
 import FormatDate from "../common/FormatDate";
+import { useForumType } from "../hooks/useForumType";
 
 const styles = (theme: ThemeType) => ({
   root: {
@@ -79,11 +79,12 @@ const FeedPostCardMeta = ({post, className, classes}: {
   className?: string,
   classes: ClassesType<typeof styles>,
 }) => {
+  const { isAF } = useForumType();
   const authorExpandContainer = useRef(null);
   // TODO: Think about styling for events
 
-  const baseScore = (isAF() ? post.afBaseScore : post.baseScore) ?? 0
-  const showAfScore = !isAF() && post.af && !post.shortform && !post.isEvent;
+  const baseScore = (isAF ? post.afBaseScore : post.baseScore) ?? 0
+  const showAfScore = !isAF && post.af && !post.shortform && !post.isEvent;
   const afBaseScore = showAfScore ? post.afBaseScore : null
 
   const separatorElement = <span className={classes.dot}>·</span>

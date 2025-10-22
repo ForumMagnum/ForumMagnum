@@ -1,6 +1,6 @@
 import intersection from 'lodash/intersection';
 import moment from 'moment';
-import { isLW, hideUnreviewedAuthorCommentsSettings } from '../instanceSettings';
+import { hideUnreviewedAuthorCommentsSettings } from '../instanceSettings';
 import { allUserGroupsByName } from '../permissions';
 
 export function getAllUserGroups() {
@@ -95,10 +95,6 @@ export const userOwns = function (user: UsersMinimumInfo|DbUser|null, document: 
     return idsExistAndMatch || slugsExistAndMatch;
   }
 };
-
-export const userOwnsAndOnLW = function (user: UsersMinimumInfo|DbUser|null, document: OwnableDocument): boolean {
-  return isLW() && userOwns(user, document)
-}
 
 export const documentIsNotDeleted = (
   user: DbUser|PermissionableUser|null,

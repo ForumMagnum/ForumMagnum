@@ -4,7 +4,7 @@ import { userHasPingbacks } from '../../../lib/betas';
 import { AnalyticsContext } from "../../../lib/analyticsEvents";
 import { useFilteredCurrentUser } from '../../common/withUser';
 import { MAX_COLUMN_WIDTH } from './constants';
-import { isLW, isLWorAF } from '../../../lib/instanceSettings';
+import { isLWorAF } from '../../../lib/instanceSettings';
 import { getVotingSystemByName } from '../../../lib/voting/getVotingSystem';
 import { isFriendlyUI } from '../../../themes/forumTheme';
 import classNames from 'classnames';
@@ -18,6 +18,7 @@ import FooterTagList from "../../tagging/FooterTagList";
 import { SuspenseWrapper } from '@/components/common/SuspenseWrapper';
 import { postBottomSecondaryVotingComponents } from '@/lib/voting/votingSystemComponents';
 import type { VotingSystemName } from '@/lib/voting/votingSystemNames';
+import { useForumType } from '@/components/hooks/useForumType';
 
 const styles = (theme: ThemeType) => ({
   footerSection: {
@@ -89,6 +90,7 @@ const PostsPagePostFooter = ({post, sequenceId, classes}: {
   sequenceId: string|null,
   classes: ClassesType<typeof styles>,
 }) => {
+  const { isLW } = useForumType();
   const hasPingbacks = useFilteredCurrentUser(u => userHasPingbacks(u));
   const votingSystemName = (post.votingSystem || "default") as VotingSystemName;
   const votingSystem = getVotingSystemByName(votingSystemName);
@@ -106,7 +108,7 @@ const PostsPagePostFooter = ({post, sequenceId, classes}: {
         </AnalyticsContext>
       </SuspenseWrapper>
     }
-    {!post.shortform && (isLW() || isEAEmojis) &&
+    {!post.shortform && (isLW || isEAEmojis) &&
       <>
         <div className={classes.footerSection}>
           <div className={classNames(classes.voteBottom, isLWorAF() && classes.lwVote)}>

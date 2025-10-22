@@ -7,7 +7,7 @@ import { useCurrentUser } from './withUser';
 import { userIsAdminOrMod } from '../../lib/vulcan-users/permissions';
 import { userHasDarkModeHotkey } from '../../lib/betas';
 import { useReplaceTextContent } from '../hooks/useReplaceTextContent';
-import { isLW } from '@/lib/instanceSettings';
+import { useForumType } from '../hooks/useForumType';
 
 export const GlobalHotkeys = () => {
   const currentThemeOptions = useConcreteThemeOptions();
@@ -15,6 +15,7 @@ export const GlobalHotkeys = () => {
   const currentUser = useCurrentUser();
   const updateCurrentUser = useUpdateCurrentUser();
   const replaceText = useReplaceTextContent();
+  const { isLW } = useForumType();
 
   useGlobalKeydown((e) => {
     // Toggle Dark Mode
@@ -36,7 +37,7 @@ export const GlobalHotkeys = () => {
       });
     }
 
-    if (isLW() && userIsAdminOrMod(currentUser) && e.altKey && e.shiftKey && !e.ctrlKey && !e.metaKey && e.keyCode === 85) {
+    if (isLW && userIsAdminOrMod(currentUser) && e.altKey && e.shiftKey && !e.ctrlKey && !e.metaKey && e.keyCode === 85) {
       replaceText();
     }
   });

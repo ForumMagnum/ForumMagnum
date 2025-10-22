@@ -462,7 +462,7 @@ export const postRouteWillDefinitelyReturn200 = async (req: Request, res: Respon
       return false;
     }
 
-    return await context.repos.posts.postRouteWillDefinitelyReturn200(postId);
+    return await context.repos.posts.postRouteWillDefinitelyReturn200(postId, context);
   }
   return false;
 }

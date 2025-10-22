@@ -1,6 +1,6 @@
 import { registerComponent } from '../../lib/vulcan-lib/components';
 import React from 'react';
-import { isAF } from '../../lib/instanceSettings';
+import { useForumType } from '../hooks/useForumType';
 
 const styles = (theme: ThemeType) => ({
   root: {
@@ -14,7 +14,8 @@ const AlignmentCrosspostMessage = ({post, classes}: {
   post: PostsBase,
   classes: ClassesType<typeof styles>,
 }) => {
-  if (post.af && !isAF()) {
+  const { isAF } = useForumType();
+  if (post.af && !isAF) {
     return (
       <div className={classes.root}>
         Crossposted from the <a href={`https://alignmentforum.org/posts/${post._id}/${post.slug}`}>AI Alignment Forum</a>. May contain more technical jargon than usual.

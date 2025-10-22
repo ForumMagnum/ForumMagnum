@@ -1,7 +1,6 @@
 import React, { type CSSProperties } from 'react';
 import { defineStyles, useStyles } from '@/components/hooks/useStyles';
 import classNames from 'classnames';
-import { isLW } from '@/lib/instanceSettings';
 
 const styles = defineStyles("MuiPaper", (theme: ThemeType) => {
   const elevations: Record<string,AnyBecauseHard> = {};
@@ -56,7 +55,7 @@ export const Paper = ({elevation=2, square=false, className, nodeRef, style, chi
 const cardStyles = defineStyles("Card", (theme) => ({
   root: {
     overflow: "hidden",
-    ...(isLW() && {
+    ...(theme.isLW && {
       borderRadius: 1,
       boxShadow: theme.palette.boxShadow.lwCard,
     })

@@ -9,7 +9,6 @@ import CloseIcon from '@/lib/vendor/@material-ui/icons/src/Close';
 import IconButton from '@/lib/vendor/@material-ui/core/src/IconButton';
 import withErrorBoundary from '../common/withErrorBoundary';
 import { getSearchIndexName, getSearchClient, isSearchEnabled } from '../../lib/search/searchUtil';
-import { isAF } from '../../lib/instanceSettings';
 import qs from 'qs'
 import { useSearchAnalytics } from '../search/useSearchAnalytics';
 import { useCurrentUser } from './withUser';
@@ -18,6 +17,7 @@ import { InstantSearch } from '../../lib/utils/componentsWithChildren';
 import { createPortal } from 'react-dom';
 import SearchBarResults from "../search/SearchBarResults";
 import ForumIcon from "./ForumIcon";
+import { useForumType } from '../hooks/useForumType';
 
 const VirtualMenu = connectMenu(() => null);
 
@@ -108,6 +108,7 @@ const SearchBar = ({onSetIsActive, searchResultsArea, classes}: {
   classes: ClassesType<typeof styles>
 }) => {
   const currentUser = useCurrentUser()
+  const { isAF } = useForumType();
   const [inputOpen,setInputOpen] = useState(false);
   const [searchOpen,setSearchOpen] = useState(false);
   const [currentQuery,setCurrentQuery] = useState("");
@@ -178,7 +179,7 @@ const SearchBar = ({onSetIsActive, searchResultsArea, classes}: {
           {"open": inputOpen},
           {[classes.searchInputAreaSmall]: !currentUser}
         )}>
-          {isAF() && <VirtualMenu attribute="af" defaultRefinement="true" />}
+          {isAF && <VirtualMenu attribute="af" defaultRefinement="true" />}
           <div onClick={handleSearchTap}>
             <IconButton className={classNames(classes.searchIconButton, {[classes.searchIconButtonSmall]: !currentUser})}>
               <ForumIcon icon="Search" className={classes.searchIcon} />

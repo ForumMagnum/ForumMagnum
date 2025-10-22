@@ -1,6 +1,5 @@
 import React from 'react';
 import { registerComponent } from '../../../lib/vulcan-lib/components';
-import { forumSelect } from '../../../lib/forumTypeUtils';
 import { autoCommentRateLimits, autoPostRateLimits } from '../../../lib/rateLimits/constants';
 import { getActiveRateLimitNames, getDownvoteRatio, getStrictestActiveRateLimitNames as getStrictestActiveRateLimits } from '../../../lib/rateLimits/utils';
 import StarIcon from '@/lib/vendor/@material-ui/icons/src/Star';
@@ -8,6 +7,7 @@ import StarBorderIcon from '@/lib/vendor/@material-ui/icons/src/StarBorder';
 import ExpandMoreIcon from '@/lib/vendor/@material-ui/icons/src/ExpandMore';
 import MetaInfo from "../../common/MetaInfo";
 import LWTooltip from "../../common/LWTooltip";
+import { useForumType } from '@/components/hooks/useForumType';
 
 const styles = (theme: ThemeType) => ({
   padding: {
@@ -63,6 +63,7 @@ export const UserAutoRateLimitsDisplay = ({user, showKarmaMeta=false, classes}: 
   classes: ClassesType<typeof styles>,
   showKarmaMeta?: boolean
 }) => {
+  const { forumSelect } = useForumType();
   const roundedDownvoteRatio = Math.round(getDownvoteRatio(user) * 100)
   const allRateLimits = [...forumSelect(autoPostRateLimits), ...forumSelect(autoCommentRateLimits)]
   const strictestRateLimits = getStrictestActiveRateLimits(user, allRateLimits);

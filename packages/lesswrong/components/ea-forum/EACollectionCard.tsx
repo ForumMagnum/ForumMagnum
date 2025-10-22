@@ -6,18 +6,19 @@ import { collectionGetPageUrl } from "../../lib/collections/collections/helpers"
 import { AnalyticsContext } from "../../lib/analyticsEvents";
 import CollectionsTooltip from "../collections/CollectionsTooltip";
 import EASequenceOrCollectionCard from "./EASequenceOrCollectionCard";
+import type { ForumTypeString } from "@/lib/instanceSettings";
+import { useForumType } from "../hooks/useForumType";
 
-const getDefaultImageId = () => forumSelect({
+const getDefaultImageId = (forumType: ForumTypeString) => forumSelect({
   EAForum: "Banner/yeldubyolqpl3vqqy0m6.jpg",
   default: "sequences/vnyzzznenju0hzdv6pqb.jpg",
-});
+}, forumType);
 
-const getCardDetails = ({
-  _id,
-  title,
-  user,
-  gridImageId,
-}: CollectionsBestOfFragment) => {
+const getCardDetails = (
+  collection: CollectionsBestOfFragment,
+  forumType: ForumTypeString
+) => {
+  const { _id, title, user, gridImageId } = collection;
   // Add special case short names for the EA handbook
   if (_id === "MobebwWs2o86cS9Rd") {
     return {
@@ -35,11 +36,12 @@ const getCardDetails = ({
   return {
     title,
     author: user,
-    imageId: gridImageId || getDefaultImageId(),
+    imageId: gridImageId || getDefaultImageId(forumType),
   };
 }
 
 const EACollectionCard = ({collection}: {collection: CollectionsBestOfFragment}) => {
+  const { forumType } = useForumType();
   const {eventHandlers} = useHover({
     eventProps: {
       pageElementContext: "collectionCard",
@@ -48,7 +50,7 @@ const EACollectionCard = ({collection}: {collection: CollectionsBestOfFragment})
     },
   });
 
-  const {title, author, imageId} = getCardDetails(collection);
+  const {title, author, imageId} = getCardDetails(collection, forumType);
   const href = collectionGetPageUrl(collection);
 
   const TitleWrapper = useCallback(({children}: {children: ReactNode}) => {

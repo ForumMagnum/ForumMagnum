@@ -7,7 +7,7 @@ import { FilterSettings } from '../../lib/filterSettings';
 import { useFilterSettings } from '../hooks/useFilterSettings';
 import moment from '../../lib/moment-timezone';
 import { useCurrentTime } from '../../lib/utils/timeUtil';
-import { isEAForum, isLW, isLWorAF, taggingNamePluralSetting, taggingNameSetting, frontpageDaysAgoCutoffSetting } from '@/lib/instanceSettings';
+import { isEAForum, isLWorAF, taggingNamePluralSetting, taggingNameSetting, frontpageDaysAgoCutoffSetting, ForumTypeString } from '@/lib/instanceSettings';
 import SectionTitle, { sectionTitleStyle } from '../common/SectionTitle';
 import { AllowHidingFrontPagePostsContext } from '../dropdowns/posts/PostActions';
 import { HideRepeatedPostsProvider } from '../posts/HideRepeatedPostsContext';
@@ -27,6 +27,7 @@ import CuratedPostsList from "../recommendations/CuratedPostsList";
 import StickiedPosts from "../ea-forum/StickiedPosts";
 import PostsListViewToggle from "../posts/PostsListViewToggle";
 import SurveyPostsItem from "../surveys/SurveyPostsItem";
+import { useForumType } from '../hooks/useForumType';
 
 const getTitleWrapperStyles = () => isLWorAF() ? {
   marginBottom: 8
@@ -71,7 +72,7 @@ const styles = (theme: ThemeType) => ({
 
 const getLatestPostsName = () => isFriendlyUI() ? 'New & upvoted' : 'Latest Posts'
 
-const getFilterSettingsToggleLabels = () => forumSelect({
+const getFilterSettingsToggleLabels = (forumType: ForumTypeString) => forumSelect({
   EAForum: {
     desktopVisible: "Customize feed",
     desktopHidden: "Customize feed",
@@ -84,7 +85,7 @@ const getFilterSettingsToggleLabels = () => forumSelect({
     mobileVisible: "Customize (Hide)",
     mobileHidden: "Customize",
   }
-})
+}, forumType)
 
 const getAdvancedSortingText = () => isFriendlyUI()
   ? "Advanced sorting & filtering"
@@ -113,6 +114,7 @@ const applyConstantFilters = (filterSettings: FilterSettings): FilterSettings =>
 const HomeLatestPosts = ({classes}: {classes: ClassesType<typeof styles>}) => {
   const updateCurrentUser = useUpdateCurrentUser();
   const currentUser = useCurrentUser();
+  const { isLW, forumType } = useForumType();
 
   const {filterSettings, suggestedTagsQueryRef, setPersonalBlogFilter, setTagFilter, removeTagFilter} = useFilterSettings()
   // While hiding desktop settings is stateful over time, on mobile the filter settings always start out hidden
@@ -151,7 +153,7 @@ const HomeLatestPosts = ({classes}: {classes: ClassesType<typeof styles>}) => {
     })
   }
 
-  const showCurated = isFriendlyUI() || (isLW() && reviewIsActive())
+  const showCurated = isFriendlyUI() || (isLW && reviewIsActive())
 
   const {survey, refetch: refetchSurvey} = useCurrentFrontpageSurvey();
 
@@ -167,8 +169,8 @@ const HomeLatestPosts = ({classes}: {classes: ClassesType<typeof styles>}) => {
               <SettingsButton
                 className={classes.hideOnMobile}
                 label={filterSettingsVisibleDesktop ?
-                  getFilterSettingsToggleLabels().desktopVisible :
-                  getFilterSettingsToggleLabels().desktopHidden}
+                  getFilterSettingsToggleLabels(forumType).desktopVisible :
+                  getFilterSettingsToggleLabels(forumType).desktopHidden}
                 showIcon={false}
                 onClick={changeShowTagFilterSettingsDesktop}
                 textShadow={isLWorAF()}
@@ -176,8 +178,8 @@ const HomeLatestPosts = ({classes}: {classes: ClassesType<typeof styles>}) => {
               <SettingsButton
                 className={classes.hideOnDesktop}
                 label={filterSettingsVisibleMobile ?
-                  getFilterSettingsToggleLabels().mobileVisible :
-                  getFilterSettingsToggleLabels().mobileHidden}
+                  getFilterSettingsToggleLabels(forumType).mobileVisible :
+                  getFilterSettingsToggleLabels(forumType).mobileHidden}
                 showIcon={false}
                 onClick={() => {
                   setFilterSettingsVisibleMobile(!filterSettingsVisibleMobile)

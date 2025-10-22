@@ -1,11 +1,12 @@
 import React, { FC } from 'react';
 import Checkbox from '@/lib/vendor/@material-ui/core/src/Checkbox';
-import { ForumOptions, forumSelect } from '../../lib/forumTypeUtils';
+import { forumSelect } from '../../lib/forumTypeUtils';
 import InputLabel from '@/lib/vendor/@material-ui/core/src/InputLabel';
 import { TooltipSpan } from '../common/FMTooltip';
 import { TypedFieldApi } from '@/components/tanstack-form-components/BaseAppForm';
 import { defineStyles, useStyles } from '../hooks/useStyles';
 import { isLWorAF } from '@/lib/instanceSettings';
+import { useForumType } from '../hooks/useForumType';
 
 const styles = defineStyles('SubmitToFrontpageCheckbox', (theme: ThemeType) => ({
   submitToFrontpageWrapper: {
@@ -85,6 +86,7 @@ export const SubmitToFrontpageCheckbox = ({ field, label, tooltip }: {
   tooltip?: string;
 }) => {
   const classes = useStyles(styles);
+  const { forumType } = useForumType();
 
   const handleClick = () => {
     field.handleChange(!field.state.value);
@@ -93,7 +95,7 @@ export const SubmitToFrontpageCheckbox = ({ field, label, tooltip }: {
   const defaultLabel = forumSelect({
     EAForum: 'This post may appear on the Frontpage',
     default: 'Moderators may promote to Frontpage'
-  });
+  }, forumType);
 
   const displayedTooltip = tooltip
     ? <>{tooltip}</>

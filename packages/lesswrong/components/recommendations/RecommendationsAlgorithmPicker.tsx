@@ -6,10 +6,10 @@ import Checkbox from '@/lib/vendor/@material-ui/core/src/Checkbox';
 import deepmerge from 'deepmerge';
 import { useCurrentUser } from '../common/withUser';
 import { defaultAlgorithmSettings, DefaultRecommendationsAlgorithm } from '../../lib/collections/users/recommendationSettings';
-import { isEAForum } from '../../lib/instanceSettings';
+import { type ForumTypeString, isEAForum } from '../../lib/instanceSettings';
 import { ForumOptions, forumSelect } from '../../lib/forumTypeUtils';
-import { isFriendlyUI } from '../../themes/forumTheme';
 import SectionFooterCheckbox from "../form-components/SectionFooterCheckbox";
+import { useForumType } from '../hooks/useForumType';
 
 export const getArchiveRecommendationsName = () => isEAForum() ? 'Forum Favorites' : 'Archive Recommendations'
 
@@ -71,7 +71,7 @@ const forumIncludeExtra: ForumOptions<{humanName: string, machineName: 'includeP
   EAForum: {humanName: 'Community', machineName: 'includeMeta'},
   default: {humanName: 'Personal Blogposts', machineName: 'includePersonal'},
 }
-const getIncludeExtra = () => forumSelect(forumIncludeExtra)
+const getIncludeExtra = (forumType: ForumTypeString) => forumSelect(forumIncludeExtra, forumType)
 
 const RecommendationsAlgorithmPicker = ({ settings, configName, onChange, showAdvanced=false, classes }: {
   settings: DefaultRecommendationsAlgorithm,
@@ -81,6 +81,7 @@ const RecommendationsAlgorithmPicker = ({ settings, configName, onChange, showAd
   classes: ClassesType<typeof styles>
 }) => {
   const currentUser = useCurrentUser();
+  const { forumType, isFriendlyUI } = useForumType();
   const updateCurrentUser = useUpdateCurrentUser();
   function applyChange(newSettings: DefaultRecommendationsAlgorithm) {
     if (currentUser) {
@@ -109,8 +110,8 @@ const RecommendationsAlgorithmPicker = ({ settings, configName, onChange, showAd
         <SectionFooterCheckbox
           value={!settings.hideBookmarks}
           onClick={(ev: React.MouseEvent) => applyChange({ ...settings, hideBookmarks: !settings.hideBookmarks })}
-          label={isFriendlyUI() ? "Saved posts" : "Bookmarks"}
-          tooltip={`Posts that you have ${isFriendlyUI() ? "saved" : "bookmarked"} will appear in Recommendations.`}
+          label={isFriendlyUI ? "Saved posts" : "Bookmarks"}
+          tooltip={`Posts that you have ${isFriendlyUI ? "saved" : "bookmarked"} will appear in Recommendations.`}
         />
       </span>
     </span>}
@@ -156,10 +157,10 @@ const RecommendationsAlgorithmPicker = ({ settings, configName, onChange, showAd
       <span className={classes.setting}>
         <SectionFooterCheckbox
           disabled={!currentUser}
-          value={settings[getIncludeExtra().machineName] ?? false}
-          onClick={(ev: React.MouseEvent) => applyChange({ ...settings, [getIncludeExtra().machineName]: !settings[getIncludeExtra().machineName] })}
-          label={getIncludeExtra().humanName}
-          tooltip={`'${getArchiveRecommendationsName()}' will include ${getIncludeExtra().humanName}`}
+          value={settings[getIncludeExtra(forumType).machineName] ?? false}
+          onClick={(ev: React.MouseEvent) => applyChange({ ...settings, [getIncludeExtra(forumType).machineName]: !settings[getIncludeExtra(forumType).machineName] })}
+          label={getIncludeExtra(forumType).humanName}
+          tooltip={`'${getArchiveRecommendationsName()}' will include ${getIncludeExtra(forumType).humanName}`}
         />
       </span>
     </span>

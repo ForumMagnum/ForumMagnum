@@ -8,8 +8,10 @@ import isEmpty from 'lodash/isEmpty';
 import InlineSelect, { Option } from '../common/InlineSelect';
 import { getCommentViewOptions } from '../../lib/commentViewOptions';
 import { useLocation, useNavigate } from "../../lib/routeUtil";
+import { useForumType } from '../hooks/useForumType';
 
 const CommentsViews = ({post, setRestoreScrollPos}: {post?: PostsDetails, setRestoreScrollPos?: (pos: number) => void}) => {
+  const { forumType } = useForumType();
   const currentUser = useCurrentUser();
   const navigate = useNavigate();
   const location = useLocation();
@@ -38,7 +40,7 @@ const CommentsViews = ({post, setRestoreScrollPos}: {post?: PostsDetails, setRes
     navigate({...location.location, search: `?${qs.stringify(newQuery)}`})
   };
 
-  const currentView: string = query?.view || commentGetDefaultView(post||null, currentUser)
+  const currentView: string = query?.view || commentGetDefaultView(post||null, currentUser, forumType)
   const includeAdminViews = userCanDo(currentUser, "comments.softRemove.all");
   const viewOptions = getCommentViewOptions({includeAdminViews});
   const selectedOption = viewOptions.find((option) => option.value === currentView) || viewOptions[0]
