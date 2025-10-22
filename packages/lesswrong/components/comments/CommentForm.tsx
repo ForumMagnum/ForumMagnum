@@ -7,7 +7,6 @@ import { defineStyles, useStyles } from "../hooks/useStyles";
 import { getUpdatedFieldValues } from "@/components/tanstack-form-components/helpers";
 import { useEditorFormCallbacks, EditorFormComponent } from "../editor/EditorFormComponent";
 import { MuiTextField } from "@/components/form-components/MuiTextField";
-import { cancelButtonStyles, submitButtonStyles } from "@/components/tanstack-form-components/TanStackSubmit";
 import { getDefaultEditorPlaceholder } from '@/lib/editor/defaultEditorPlaceholder';
 import { FormComponentDatePicker } from "../form-components/FormComponentDateTime";
 import { LegacyFormGroupLayout } from "@/components/tanstack-form-components/LegacyFormGroupLayout";
@@ -16,7 +15,6 @@ import { FormComponentQuickTakesTags } from "@/components/form-components/FormCo
 import { commentAllowTitle } from "@/lib/collections/comments/helpers";
 import { userIsAdmin, userIsAdminOrMod, userIsMemberOf } from "@/lib/vulcan-users/permissions";
 import { quickTakesTagsEnabledSetting, isAF, isLWorAF } from "@/lib/instanceSettings";
-import type { TagCommentType } from "@/lib/collections/comments/types";
 import type { ReviewYear } from "@/lib/reviewUtils";
 import { useCurrentUser } from "../common/withUser";
 import ArrowForward from "@/lib/vendor/@material-ui/icons/src/ArrowForward";
@@ -36,9 +34,10 @@ import { gql } from "@/lib/generated/gql-codegen";
 import { hasDraftComments } from '@/lib/betas';
 import CommentsSubmitDropdown from "./CommentsSubmitDropdown";
 import { useTracking } from "@/lib/analyticsEvents";
-import { CommentsList } from "@/lib/collections/comments/fragments";
 import { isIfAnyoneBuildsItFrontPage } from '../seasonal/styles';
 import AutoEmailSubscribeCheckbox from "./AutoEmailSubscribeCheckbox";
+import { CommentsListMultiQuery, postCommentsThreadQuery } from "../posts/queries";
+import { CommentsListWithParentMetadataMultiQuery, DraftCommentsQuery } from "./queries";
 
 const CommentsListUpdateMutation = gql(`
   mutation updateCommentCommentForm($selector: SelectorInput!, $data: UpdateCommentDataInput!) {
@@ -78,10 +77,12 @@ const customSubmitButtonStyles = defineStyles('CommentSubmit', (theme: ThemeType
     alignItems: 'center',
   },
   submitQuickTakes: {
-    background: theme.palette.grey[100],
     padding: getCommentsNewFormPadding(theme),
     borderBottomLeftRadius: theme.borderRadius.quickTakesEntry,
     borderBottomRightRadius: theme.borderRadius.quickTakesEntry,
+  },
+  submitQuickTakesNewForm: {
+    background: theme.palette.grey[100],
   },
   submitQuickTakesButtonAtBottom: theme.isFriendlyUI
     ? {
@@ -169,6 +170,8 @@ interface CommentSubmitProps {
 
   formCanSubmit: boolean;
   formIsSubmitting: boolean;
+
+  formType: 'new' | 'edit';
 }
 
 type CommentFormPassthroughSubmitProps = Pick<CommentSubmitProps,
@@ -198,6 +201,7 @@ const CommentSubmit = ({
   cancelCallback,
   formCanSubmit,
   formIsSubmitting,
+  formType,
 }: CommentSubmitProps) => {
   const classes = useStyles(customSubmitButtonStyles);
   const currentUser = useCurrentUser();
@@ -219,6 +223,7 @@ const CommentSubmit = ({
       className={classNames(classes.submit, {
         [classes.submitMinimalist]: isMinimalist,
         [classes.submitQuickTakes]: isQuickTake && !(quickTakesSubmitButtonAtBottom && isFriendlyUI()),
+        [classes.submitQuickTakesNewForm]: isQuickTake && formType === 'new',
         [classes.submitQuickTakesButtonAtBottom]: isQuickTake && quickTakesSubmitButtonAtBottom,
       })}
     >
@@ -331,46 +336,7 @@ export const CommentForm = ({
   } = useEditorFormCallbacks<CommentsList>();
 
   const [create] = useMutation(CommentsListMutation, {
-    update: (cache, { data }) => {
-      cache.modify({
-        fields: {
-          // This is a terrible hack where we check the name of the query in the apollo cache (which includes the inlined variable values passed into that instance of the query)
-          // to determine whether to add the new comment to the results of _that_ query (rather than to all `comments` queries in the cache).
-          // We also have to check things like the `drafts` argument; in some sense this is an incomplete replication of the old mingo functionality that we tossed out.
-          comments(existingComments, { storeFieldName }) {
-            const newComment = data?.createComment?.data;
-            if (!newComment) {
-              return existingComments;
-            } else if (newComment.draft && !storeFieldName.includes('"drafts"')) {
-              return existingComments;
-            } else if (!newComment.postId && !newComment.tagId) {
-              return existingComments;
-            } else if (newComment.postId && !storeFieldName.includes(newComment.postId)) {
-              return existingComments;
-            } else if (newComment.tagId && !storeFieldName.includes(newComment.tagId)) {
-              return existingComments;
-            }
-
-            const newCommentRef = cache.writeFragment({
-              fragment: CommentsList,
-              data: data?.createComment?.data,
-              fragmentName: "CommentsList",
-            });
-
-            if (!existingComments || !existingComments.results) {
-              return [newCommentRef];
-            }
-
-            const newResults = [...existingComments.results, newCommentRef];
-
-            return {
-              ...existingComments,
-              results: newResults,
-            };
-          }
-        }
-      });
-    }
+    refetchQueries: [postCommentsThreadQuery, CommentsListMultiQuery, DraftCommentsQuery, CommentsListWithParentMetadataMultiQuery],
   });
 
   const [mutate] = useMutation(CommentsListUpdateMutation);
@@ -471,6 +437,7 @@ export const CommentForm = ({
             cancelCallback={onCancel}
             formCanSubmit={canSubmit}
             formIsSubmitting={isSubmitting}
+            formType={formType}
           />
         );
       }}

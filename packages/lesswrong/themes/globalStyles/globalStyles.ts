@@ -167,7 +167,6 @@ const commentsStyle = (theme: ThemeType) => ({
   
   ".comments-edit-form": {
     position: "relative",
-    paddingBottom: 12,
     "& .form-submit": {
       textAlign: "right",
       marginRight: 10,

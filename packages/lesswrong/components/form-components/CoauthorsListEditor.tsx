@@ -11,8 +11,6 @@ import uniq from 'lodash/uniq';
 const coauthorsListEditorStyles = defineStyles('CoauthorsListEditor', (theme: ThemeType) => ({
   root: {
     display: 'flex',
-    marginLeft: 8,
-    marginTop: -12,
   },
   list: {
     display: "flex",

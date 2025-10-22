@@ -153,6 +153,9 @@ export const routeTrie = {
         "dropAndCreatePg": {
           "hasRoute": true
         },
+        "getLlmFeedback": {
+          "hasRoute": true
+        },
         "health": {
           "hasRoute": true
         },
@@ -229,6 +232,7 @@ export const routeTrie = {
         "autocomplete405b": "autocomplete405b",
         "cron": "cron",
         "dropandcreatepg": "dropAndCreatePg",
+        "getllmfeedback": "getLlmFeedback",
         "health": "health",
         "notificationcount": "notificationCount",
         "notificationevents": "notificationEvents",
@@ -523,12 +527,6 @@ export const routeTrie = {
       "hasPage": true
     },
     "inbox": {
-      "dynamicChild": {
-        "paramName": "_id",
-        "child": {
-          "hasPage": true
-        }
-      },
       "hasPage": true
     },
     "item": {

@@ -36,6 +36,9 @@ const styles = defineStyles("AddInlineReactionButton", (theme: ThemeType) => ({
     boxShadow: theme.shadows[2],
     paddingTop: 12,
     maxWidth: 350,
+    position: "absolute",
+    left: 0,
+    top: -30,
   }
 }))
 

@@ -28,7 +28,7 @@ function databaseTypeToTypescriptType(databaseType: DatabaseBaseType | `${Databa
   }
 
   if (isVectorTypeString(databaseType)) {
-    return `Array<number>`;
+    return 'Array<number>';
   }
 
   switch (databaseType) {

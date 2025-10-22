@@ -2,13 +2,24 @@ import moment from "moment";
 import { DOWNVOTED_COMMENT_ALERT } from "@/lib/collections/commentModeratorActions/constants";
 import { getReasonForReview, isLowAverageKarmaContent } from "../../lib/collections/moderatorActions/helpers";
 import { isActionActive } from "../../lib/collections/moderatorActions/newSchema";
-import { LOW_AVERAGE_KARMA_COMMENT_ALERT, LOW_AVERAGE_KARMA_POST_ALERT, NEGATIVE_KARMA_USER_ALERT, postAndCommentRateLimits, rateLimitSet, RECENTLY_DOWNVOTED_CONTENT_ALERT } from "@/lib/collections/moderatorActions/constants";
+import { LOW_AVERAGE_KARMA_COMMENT_ALERT, LOW_AVERAGE_KARMA_POST_ALERT, NEGATIVE_KARMA_USER_ALERT, postAndCommentRateLimits, rateLimitSet, RECENTLY_DOWNVOTED_CONTENT_ALERT, REVIEW_REASON_TO_MODERATOR_ACTION, SNOOZE_EXPIRED, UNREVIEWED_BIO_UPDATE, UNREVIEWED_FIRST_COMMENT, UNREVIEWED_FIRST_POST, UNREVIEWED_MAP_LOCATION_UPDATE, UNREVIEWED_PROFILE_IMAGE_UPDATE } from "@/lib/collections/moderatorActions/constants";
 import { getWithLoader } from "../../lib/loaders";
 import { forumSelect } from "../../lib/forumTypeUtils";
 import { createModeratorAction, updateModeratorAction } from "../collections/moderatorActions/mutations";
-import { triggerReview } from "./helpers";
 import { createCommentModeratorAction } from "../collections/commentModeratorActions/mutations";
 import { backgroundTask } from "../utils/backgroundTask";
+import { ReasonReviewIsNeeded } from "@/lib/instanceSettings";
+
+async function createModeratorActionForReview(userId: string, reason: ReasonReviewIsNeeded, context: ResolverContext) {
+  if (reason === 'contactedTooManyUsers') {
+    // This case is handled in conversationCallbacks
+    return;
+  }
+  
+  const moderatorActionType = REVIEW_REASON_TO_MODERATOR_ACTION[reason];
+  
+  await createModeratorAction({ data: { userId, type: moderatorActionType } }, context);
+}
 
 /** 
  * This function contains all logic for determining whether a given user needs review in the moderation sidebar.
@@ -22,7 +33,7 @@ export async function triggerReviewIfNeeded(userId: string, context: ResolverCon
 
   const {needsReview, reason} = getReasonForReview(user);
   if (needsReview) {
-    await triggerReview(user._id, context, reason);
+    await createModeratorActionForReview(user._id, reason, context);
   }
 }
 

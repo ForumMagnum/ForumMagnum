@@ -8,6 +8,11 @@ import { PostsViews } from "@/lib/collections/posts/views";
 export const graphqlPostQueryTypeDefs = gql`
   type Post ${ getAllGraphQLFields(schema) }
 
+  type FrontpageClassification {
+    isFrontpage: Boolean!
+    probability: Float!
+  }
+
   enum PostCategory {
     post
     linkpost

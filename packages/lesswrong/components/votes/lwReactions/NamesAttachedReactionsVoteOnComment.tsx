@@ -95,7 +95,7 @@ const styles = defineStyles("NamesAttachedReactionsVoteOnComment", (theme: Theme
   },
   addReactionButton: {
     verticalAlign: "bottom",
-    filter: "opacity(0.15)",
+    filter: theme.palette.buttons.messageReaction,
     cursor: "pointer",
     "& svg": {
       width: 20,
@@ -365,7 +365,7 @@ const NamesAttachedReactionsCommentBottomInner = ({
             quote={null}
             numberShown={numberShown}
             voteProps={voteProps}
-            commentBodyRef={commentBodyRef}
+            contentBodyRef={commentBodyRef}
             invertColors={invertColors}
           />
         </span>
@@ -377,7 +377,7 @@ const NamesAttachedReactionsCommentBottomInner = ({
   </span>
 }
 
-const HoverableReactionIcon = ({reactionRowRef, react, numberShown, voteProps, quote, commentBodyRef, invertColors=false}: {
+export const HoverableReactionIcon = ({reactionRowRef, react, numberShown, voteProps, quote, contentBodyRef, invertColors=false, style='default', footerReactionClassName}: {
   // reactionRowRef: Reference to the row of reactions, used as an anchor for the
   // hover instead of the individual icon, so that the hover's position stays
   // consistent as you move the mouse across the row.
@@ -386,8 +386,10 @@ const HoverableReactionIcon = ({reactionRowRef, react, numberShown, voteProps, q
   numberShown: number,
   voteProps: VotingProps<VoteableTypeClient>,
   quote: QuoteLocator|null,
-  commentBodyRef?: React.RefObject<ContentItemBodyImperative|null>|null,
+  contentBodyRef?: React.RefObject<ContentItemBodyImperative|null>|null,
   invertColors?: boolean,
+  style?: 'default' | 'message',
+  footerReactionClassName?: string,
 }) => {
   const classes = useStyles(styles);
   const { hover, eventHandlers: {onMouseOver, onMouseLeave} } = useHover();
@@ -414,7 +416,7 @@ const HoverableReactionIcon = ({reactionRowRef, react, numberShown, voteProps, q
     onMouseOver(e);
   }
   
-  function handleMouseLeave (ev: React.MouseEvent) {
+  function handleMouseLeave (ev: React.MouseEvent<HTMLElement>) {
     setHoveredReaction?.({reactionName: react, isHovered: false, quote: null});
     onMouseLeave(ev);
   }
@@ -422,26 +424,29 @@ const HoverableReactionIcon = ({reactionRowRef, react, numberShown, voteProps, q
   const showDefaultBackground = currentUserReactionVote==="created"||currentUserReactionVote==="seconded"
   const showInvertedBackground = invertColors && (currentUserReactionVote==="created"||currentUserReactionVote==="seconded")
 
+  const reactionOnMessage = style === 'message';
+
   return <span onMouseEnter={handleMouseEnter} onMouseLeave={handleMouseLeave}>
     <span
       className={classNames(
         classes.footerReaction,
         {
-          [classes.footerSelected]: showDefaultBackground,
-          [classes.footerSelectedInverted]: showInvertedBackground,
-          [classes.footerSelectedAnti]: currentUserReactionVote==="disagreed",
+          [classes.footerSelected]: !reactionOnMessage && showDefaultBackground,
+          [classes.footerSelectedInverted]: !reactionOnMessage && showInvertedBackground,
+          [classes.footerSelectedAnti]: !reactionOnMessage && currentUserReactionVote==="disagreed",
           [classes.hasQuotes]: quotesWithUndefinedRemoved.length > 0,
-        }
+        },
+        footerReactionClassName,
       )}
     >
       <span onMouseDown={()=>{reactionClicked(react)}}>
         <ReactionIcon react={react} inverted={invertColors} />
       </span>
-      <span className={classNames(classes.reactionCount, {
+      {(!reactionOnMessage || numberShown > 1) && <span className={classNames(classes.reactionCount, {
         [classes.invertColors]: invertColors,
       })}>
         {numberShown}
-      </span>
+      </span>}
   
       {hover && reactionRowRef?.current && <LWPopper
         open={!!hover} anchorEl={reactionRowRef.current}
@@ -457,7 +462,7 @@ const HoverableReactionIcon = ({reactionRowRef, react, numberShown, voteProps, q
         <Card>
           <NamesAttachedReactionsHoverSingleReaction
             react={react} voteProps={voteProps}
-            commentBodyRef={commentBodyRef}
+            commentBodyRef={contentBodyRef}
           />
         </Card>
       </LWPopper>}
@@ -468,7 +473,7 @@ const HoverableReactionIcon = ({reactionRowRef, react, numberShown, voteProps, q
       * close-and-open flash as you move the mouse horizontally across the
       * reactions row.
       */}
-    <span className={classes.footerReactionSpacer}/>
+    {!reactionOnMessage && <span className={classes.footerReactionSpacer}/>}
   </span>
 }
 
@@ -543,7 +548,8 @@ const NamesAttachedReactionsHoverSingleReaction = ({react, voteProps, commentBod
   </div>
 }
 
-export const AddReactionButton = ({voteProps}: {
+export const AddReactionButton = ({title, voteProps}: {
+  title?: string,
   voteProps: VotingProps<VoteableTypeClient>,
 }) => {
   const classes = useStyles(styles);
@@ -561,7 +567,7 @@ export const AddReactionButton = ({voteProps}: {
   return <LWTooltip
     disabled={open}
     inlineBlock={false}
-    title={<>Click to react to this comment</>}
+    title={<>{title ?? 'Click to react to this comment'}</>}
   >
     <span
       ref={buttonRef}

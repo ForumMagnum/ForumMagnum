@@ -1,4 +1,4 @@
-import React, { useContext, useState } from 'react'
+import React, { useContext, useRef, useState } from 'react'
 import { registerComponent } from '../../lib/vulcan-lib/components';
 import { ckEditorBundleVersion, getCkCommentEditor } from '../../lib/wrapCkEditor';
 import { generateTokenRequest } from '../../lib/ckEditorUtils';
@@ -14,6 +14,8 @@ import { useDialog } from '../common/withDialog';
 import { claimsConfig } from './claims/claimsConfig';
 import { useStyles } from '../hooks/useStyles';
 import { ckEditorPluginStyles } from './ckEditorStyles';
+import { augmentEditor } from './editorAugmentations';
+import { useCommandPalette } from '../hooks/useCommandPalette';
 
 // Uncomment the import and the line below to activate the debugger
 // import CKEditorInspector from '@ckeditor/ckeditor5-inspector';
@@ -69,8 +71,11 @@ const CKCommentEditor = ({
   const { openDialog } = useDialog();
 
   const [editorObject, setEditorObject] = useState<Editor | null>(null);
+  const editorRef = useRef<CKEditor<AnyBecauseHard>>(null);
 
   const actualPlaceholder = placeholder ?? getDefaultEditorPlaceholder();
+
+  const openCommandPalette = useCommandPalette();
 
   const editorConfig = {
     ...getCommentEditorToolbarConfig(),
@@ -101,9 +106,17 @@ const CKCommentEditor = ({
 
   return <div className={classes.ckWrapper}>
     <CKEditor
+      ref={editorRef}
       editor={CommentEditor}
       onReady={(editor: Editor) => {
         setEditorObject(editor);
+        
+        augmentEditor({
+          editorInstance: editor,
+          editorElementRef: editorRef,
+          openCommandPalette,
+        });
+
         // Uncomment the line below and the import above to activate the debugger
         // CKEditorInspector.attach(editor)
         onReady(editor)

@@ -3995,6 +3995,16 @@ enum ModeratorActionType {
   potentialTargetedDownvoting
   exemptFromRateLimits
   receivedSeniorDownvotesAlert
+  manualNeedsReview
+  unreviewedBioUpdate
+  unreviewedMapLocationUpdate
+  unreviewedProfileImageUpdate
+  unreviewedFirstPost
+  unreviewedFirstComment
+  snoozeExpired
+  stricterCommentAutomodRateLimit
+  stricterPostAutomodRateLimit
+  manualRateLimitExpired
 }
 
 input SingleModeratorActionInput {
@@ -4674,6 +4684,12 @@ type Post {
   afBaseScore: Float
   afExtendedScore: JSON
   afVoteCount: Float
+  frontpageClassification: FrontpageClassification
+}
+
+type FrontpageClassification {
+  isFrontpage: Boolean!
+  probability: Float!
 }
 
 enum PostCategory {

@@ -564,13 +564,6 @@ export const GlossaryEditForm = ({ classes, document, showTitle = true }: {
   const rowCount = getRowCount(showDeletedTerms, nonDeletedTerms, deletedTerms);
 
   return <div className={classes.root}>
-    {showTitle && <Row justifyContent="space-between" alignItems="flex-start">
-      <LWTooltip title="Beta feature! Select/edit terms below, and readers will be able to hover over and read the explanation.">
-        <h3 className={classes.formSectionHeadingTitle}>Glossary [Beta]
-        </h3>
-      </LWTooltip>
-      <div className={classes.expandCollapseIcon} onClick={() => setFormCollapsed(!formCollapsed)}>{formCollapsed ? <IconRight height={16} width={16} /> : <IconDown height={16} width={16} />}</div>
-    </Row>}
     {header}
     <div className={classNames(classes.window, expanded && classes.expanded, formCollapsed && classes.formCollapsed)}>
       <div>

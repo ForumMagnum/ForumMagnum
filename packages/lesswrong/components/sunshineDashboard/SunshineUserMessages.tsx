@@ -71,7 +71,7 @@ export const SunshineUserMessages = ({classes, user, currentUser}: {
   return <div>
     {results?.map(conversation => <div key={conversation._id}>
       <LWTooltip title={`${conversation.messageCount} messages in this conversation`}>
-        <Link to={`/inbox/${conversation._id}`}>
+        <Link to={`/inbox?conversation=${conversation._id}`}>
           <MetaInfo><EmailIcon className={classes.icon}/> {conversation.messageCount}</MetaInfo>
           <span>
             Conversation with{" "} 

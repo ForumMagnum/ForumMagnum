@@ -25,12 +25,23 @@ import { MenuItem } from "../common/Menus";
 import UserRateLimitItem from "./UserRateLimitItem";
 import { useMutation } from "@apollo/client/react";
 import { gql } from "@/lib/generated/gql-codegen";
+import { MANUAL_NEEDS_REVIEW } from '@/lib/collections/moderatorActions/constants';
 
 const SunshineUsersListUpdateMutation = gql(`
   mutation updateUserModeratorActions($selector: SelectorInput!, $data: UpdateUserDataInput!) {
     updateUser(selector: $selector, data: $data) {
       data {
         ...SunshineUsersList
+      }
+    }
+  }
+`);
+
+const ModeratorActionsCreateMutation = gql(`
+  mutation createModeratorAction($data: CreateModeratorActionDataInput!) {
+    createModeratorAction(data: $data) {
+      data {
+        ...ModeratorActionDisplay
       }
     }
   }
@@ -108,6 +119,7 @@ export const ModeratorActions = ({classes, user, currentUser, refetch, comments,
   const { openDialog } = useDialog();
 
   const [updateUser] = useMutation(SunshineUsersListUpdateMutation);
+  const [createModeratorAction] = useMutation(ModeratorActionsCreateMutation);
 
   const signature = getSignature(currentUser.displayName);
 
@@ -183,17 +195,14 @@ export const ModeratorActions = ({classes, user, currentUser, refetch, comments,
   
   const handleNeedsReview = () => {
     if (user.needsReview) return null;
-    const newNotes = getModSignatureWithNote("set to manual review") + notes;
-    void updateUser({
+    void createModeratorAction({
       variables: {
-        selector: { _id: user._id },
         data: {
-          needsReview: true,
-          sunshineNotes: newNotes
+          type: MANUAL_NEEDS_REVIEW,
+          userId: user._id,
         }
       }
-    })    
-    setNotes( newNotes )
+    }).then(() => refetch());
   }
 
   const handleRemoveNeedsReview = () => {

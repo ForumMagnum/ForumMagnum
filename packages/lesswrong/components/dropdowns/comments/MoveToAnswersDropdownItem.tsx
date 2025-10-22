@@ -31,7 +31,9 @@ const MoveToAnswersDropdownItem = ({comment, post}: {
   if (
     comment.topLevelCommentId ||
     !post?.question ||
-    !(userCanDo(currentUser, "comments.edit.all") || userOwns(currentUser, comment)))
+    !(userCanDo(currentUser, "comments.edit.all") || userOwns(currentUser, comment)) ||
+    comment.draft
+  )
   {
     return null;
   }

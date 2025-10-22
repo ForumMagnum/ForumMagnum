@@ -81,21 +81,9 @@ import { StructuredData } from '@/components/common/StructuredData';
 import { LWCommentCount } from '../TableOfContents/LWCommentCount';
 import { NetworkStatus } from "@apollo/client";
 import { useQuery } from "@/lib/crud/useQuery"
-import { gql } from "@/lib/generated/gql-codegen";
 import { returnIfValidNumber } from '@/lib/utils/typeGuardUtils';
-import { useQueryWithLoadMore, LoadMoreProps } from '@/components/hooks/useQueryWithLoadMore';
-import type { useQuery as useQueryType } from '@apollo/client/react';
-
-const CommentsListMultiQuery = gql(`
-  query multiCommentPostsPageQuery($selector: CommentSelector, $limit: Int, $enableTotal: Boolean) {
-    comments(selector: $selector, limit: $limit, enableTotal: $enableTotal) {
-      results {
-        ...CommentsList
-      }
-      totalCount
-    }
-  }
-`);
+import { useQueryWithLoadMore } from '@/components/hooks/useQueryWithLoadMore';
+import { CommentsListMultiQuery, postCommentsThreadQuery } from '../queries';
 
 const HIDE_TOC_WORDCOUNT_LIMIT = 300
 const MAX_ANSWERS_AND_REPLIES_QUERIED = 10000
@@ -280,17 +268,6 @@ export const postsCommentsThreadMultiOptions = {
   fetchPolicy: 'cache-and-network' as const,
   enableTotal: true,
 }
-
-export const postCommentsThreadQuery = gql(`
-  query postCommentsThreadQuery($selector: CommentSelector, $limit: Int, $enableTotal: Boolean) {
-    comments(selector: $selector, limit: $limit, enableTotal: $enableTotal) {
-      results {
-        ...CommentsList
-      }
-      totalCount
-    }
-  }
-`);
 
 function usePostCommentTerms<T extends CommentsViewTerms>(currentUser: UsersCurrent | null, defaultTerms: T, query: Record<string, string>) {
   const commentOpts = { includeAdminViews: currentUser?.isAdmin };
