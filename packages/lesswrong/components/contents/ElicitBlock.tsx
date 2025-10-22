@@ -22,7 +22,7 @@ import { defineStyles, useStyles } from '../hooks/useStyles';
 import { useMessages } from '../common/withMessages';
 import Loading from '../vulcan-core/Loading';
 
-const elicitBlockDataQuery = gql(`
+export const elicitBlockDataQuery = gql(`
   query ElicitBlockData($questionId: String) {
     ElicitBlockData(questionId: $questionId) {
       _id
@@ -52,7 +52,7 @@ const elicitBlockDataQuery = gql(`
   }
 `);
 
-const elicitPredictionMutation = gql(`
+export const elicitPredictionMutation = gql(`
   mutation ElicitPrediction($questionId:String, $prediction: Int) {
     MakeElicitPrediction(questionId:$questionId, prediction: $prediction) {
       _id
@@ -222,7 +222,6 @@ const ElicitBlock = ({ questionId }: {
 }) => {
   const currentUser = useCurrentUser();
   const {openDialog} = useDialog();
-  const { flash } = useMessages();
 
   const { data, loading } = useQuery(elicitBlockDataQuery, { ssr: true, variables: { questionId } });
 
@@ -269,9 +268,10 @@ const ElicitBlock = ({ questionId }: {
   />
 }
 
-export const PredictionGraph = ({title, loading, allPredictions, makePrediction}: {
+export const PredictionGraph = ({title, loading, alwaysReveal, allPredictions, makePrediction}: {
   title: string|null
   loading?: boolean,
+  alwaysReveal?: boolean,
   allPredictions: ElicitBlockDataQuery_ElicitBlockData_ElicitBlockData_predictions_ElicitPrediction[]
   makePrediction: (prediction: number|null) => Promise<void>
 }) => {
@@ -288,7 +288,7 @@ export const PredictionGraph = ({title, loading, allPredictions, makePrediction}
     (prediction) => prediction?.creator?.lwUser?._id === currentUser._id
   );
   const [revealed, setRevealed] = useState(false);
-  const predictionsHidden = currentUser?.hideElicitPredictions && !userHasPredicted && !revealed;
+  const predictionsHidden = currentUser?.hideElicitPredictions && !userHasPredicted && !revealed && !alwaysReveal;
   
   const maxSize = (maxBy(Object.values(roughlyGroupedData), arr => arr.length) || []).length
 
@@ -362,7 +362,7 @@ export const PredictionGraph = ({title, loading, allPredictions, makePrediction}
 }
 
 
-function createNewElicitPrediction(questionId: string, prediction: number, currentUser: UsersMinimumInfo) {
+export function createNewElicitPrediction(questionId: string, prediction: number, currentUser: UsersMinimumInfo) {
   return {
     __typename: "ElicitPrediction" as const,
     _id: randomId(),

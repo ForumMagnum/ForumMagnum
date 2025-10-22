@@ -67,7 +67,9 @@ const PostCollaborationEditor = ({ classes }: {
   // Many downstream components expect something with `contents`, which PostsEdit doesn't have.
   // I don't know whether a bunch of this functionality was just broken in the context of the collaborative editor
   // because the types used to be wrong, or if none of it mattered.
-  const post: PostsPage | undefined = data?.getLinkSharedPost ? { ...data.getLinkSharedPost, contents: null } : undefined;
+  const post: PostsEdit | undefined = data?.getLinkSharedPost ?? undefined;
+    //? { ...data.getLinkSharedPost }
+    //: undefined;
   
   // Error handling and loading state
   if (!postId) {
@@ -93,10 +95,12 @@ const PostCollaborationEditor = ({ classes }: {
     return <ErrorAccessDenied/> 
   }
 
-  // If you're the primary author, an admin, or have edit permissions, redirect to the main editor (rather than the
-  // collab editor) so you can edit metadata etc
-  if (canUserEditPostMetadata(currentUser, post)) {
-      return <PermanentRedirect url={postGetEditUrl(post._id, false, post.linkSharingKey ?? undefined)}/>
+  // If you're the primary author, an admin, or have edit permissions, redirect
+  // to the main editor (rather than the collab editor) so you can edit metadata
+  // etc. Also redirect if this is a crosspost that isn't hosted here (since
+  // that version of the edit page takes care of telling you taht).
+  if (canUserEditPostMetadata(currentUser, post) || isNotHostedHere(post)) {
+    return <PermanentRedirect url={postGetEditUrl(post._id, false, post.linkSharingKey ?? undefined)}/>
   }
 
   // If the post has a link-sharing key which is not in the URL, redirect to add
@@ -106,10 +110,6 @@ const PostCollaborationEditor = ({ classes }: {
   // If someone else knows the post ID, they shouldn't be able to view the post.
   if (post.linkSharingKey && !key) {
     return <PermanentRedirect url={getPostCollaborateUrl(post._id, false, post.linkSharingKey)} status={302}/>
-  }
-
-  if (isNotHostedHere(post)) {
-    return <ForeignCrosspostEditForm post={post} />;
   }
 
   return <>

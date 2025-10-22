@@ -5,7 +5,7 @@ import { useCurrentUserId } from '../../common/withUser';
 import { AddReactionButton, HoverableReactionIcon } from './NamesAttachedReactionsVoteOnComment';
 import { defineStyles, useStyles } from '@/components/hooks/useStyles';
 import classNames from 'classnames';
-import AddInlineReactionButton from './AddInlineReactionButton';
+import { AddInlineReactionButton, StandaloneAddInlineReactionButton } from './AddInlineReactionButton';
 
 const styles = defineStyles("NamesAttachedReactionsMessageBottom", (theme: ThemeType) => ({
   reactionsContainer: {
@@ -174,10 +174,10 @@ const NamesAttachedReactionsMessageBottom = ({
         )}
       >
         {selection
-          ? <AddInlineReactionButton  
+          ? <StandaloneAddInlineReactionButton
               voteProps={voteProps}
               quote={selection.text}
-              disabled={selection.disabled}
+              quoteIsNotDistinct={selection.disabled}
               wrapperClassName={classes.inlineReactionButtonTooltip}
               iconClassName={classes.inlineReactionButtonIcon}
               paletteClassName={isCurrentUser ? classes.currentUserPalettePositioning : classes.otherUserPalettePositioning}

@@ -2405,6 +2405,8 @@ type ElicitQuestion = {
   __typename?: 'ElicitQuestion';
   _id: Scalars['String']['output'];
   createdAt: Scalars['Date']['output'];
+  currentUserPrediction?: Maybe<Scalars['Float']['output']>;
+  distribution: Array<Scalars['Int']['output']>;
   legacyData?: Maybe<Scalars['JSON']['output']>;
   notes?: Maybe<Scalars['String']['output']>;
   resolution?: Maybe<Scalars['String']['output']>;
@@ -4307,6 +4309,7 @@ type Mutation = {
   autosaveRevision?: Maybe<Revision>;
   clickRecommendation?: Maybe<Scalars['Boolean']['output']>;
   connectCrossposter?: Maybe<Scalars['String']['output']>;
+  convertPredictionToComment?: Maybe<Comment>;
   createAdvisorRequest?: Maybe<AdvisorRequestOutput>;
   createBook?: Maybe<BookOutput>;
   createChapter?: Maybe<ChapterOutput>;
@@ -4579,6 +4582,11 @@ type MutationclickRecommendationArgs = {
 
 type MutationconnectCrossposterArgs = {
   token?: InputMaybe<Scalars['String']['input']>;
+};
+
+
+type MutationconvertPredictionToCommentArgs = {
+  inlinePredictionId: Scalars['String']['input'];
 };
 
 
@@ -17871,6 +17879,23 @@ type FeedPostsHighlightQueryVariables = Exact<{
 
 type FeedPostsHighlightQuery = FeedPostsHighlightQuery_Query;
 
+type PostQueryQuery_post_SinglePostOutput_result_Post = (
+  { __typename?: 'Post' }
+  & PostsListWithVotes
+);
+
+type PostQueryQuery_post_SinglePostOutput = { __typename?: 'SinglePostOutput', result: PostQueryQuery_post_SinglePostOutput_result_Post | null };
+
+type PostQueryQuery_Query = { __typename?: 'Query', post: PostQueryQuery_post_SinglePostOutput | null };
+
+
+type PostQueryQueryVariables = Exact<{
+  documentId: InputMaybe<Scalars['String']['input']>;
+}>;
+
+
+type PostQueryQuery = PostQueryQuery_Query;
+
 type latestGoogleDocMetadataQuery_Query = { __typename?: 'Query', latestGoogleDocMetadata: any | null };
 
 
@@ -23926,6 +23951,18 @@ type SubscribedSequenceQueryVariables = Exact<{
 
 type SubscribedSequenceQuery = SubscribedSequenceQuery_Query;
 
+type convertPredictionToCommentMutation_convertPredictionToComment_Comment = { __typename?: 'Comment', _id: string };
+
+type convertPredictionToCommentMutation_Mutation = { __typename?: 'Mutation', convertPredictionToComment: convertPredictionToCommentMutation_convertPredictionToComment_Comment | null };
+
+
+type convertPredictionToCommentMutationVariables = Exact<{
+  inlinePredictionId: Scalars['String']['input'];
+}>;
+
+
+type convertPredictionToCommentMutation = convertPredictionToCommentMutation_Mutation;
+
 type updateUserReactionsPaletteMutation_updateUser_UserOutput_data_User = (
   { __typename?: 'User' }
   & UsersCurrent
@@ -24668,10 +24705,7 @@ type InlinePredictionsFragment_InlinePrediction_user_User = (
   & UsersMinimumInfo
 );
 
-type InlinePredictionsFragment_InlinePrediction_question_ElicitQuestion = (
-  { __typename?: 'ElicitQuestion' }
-  & ElicitQuestionFragment
-);
+type InlinePredictionsFragment_InlinePrediction_question_ElicitQuestion = { __typename?: 'ElicitQuestion', _id: string, title: string, currentUserPrediction: number | null, distribution: Array<number> };
 
 type InlinePredictionsFragment = { __typename?: 'InlinePrediction', _id: string, collectionName: string, documentId: string, quote: string, user: InlinePredictionsFragment_InlinePrediction_user_User | null, question: InlinePredictionsFragment_InlinePrediction_question_ElicitQuestion };
 
@@ -25116,7 +25150,7 @@ type PostsWithNavigation_Post_glossary_JargonTerm = (
 
 type PostsWithNavigation = (
   { __typename?: 'Post', tableOfContents: any | null, reviewWinner: PostsWithNavigation_Post_reviewWinner_ReviewWinner | null, glossary: Array<PostsWithNavigation_Post_glossary_JargonTerm> }
-  & PostsPage
+  & PostWithContents
   & PostSequenceNavigation
   & PostPodcastEpisode
 );
@@ -25142,13 +25176,18 @@ type PostSequenceNavigation_Post_nextPost_Post = (
 
 type PostSequenceNavigation = { __typename?: 'Post', sequence: PostSequenceNavigation_Post_sequence_Sequence | null, prevPost: PostSequenceNavigation_Post_prevPost_Post | null, nextPost: PostSequenceNavigation_Post_nextPost_Post | null };
 
+type PostWithContents_Post_inlinePredictions_InlinePrediction = (
+  { __typename?: 'InlinePrediction' }
+  & InlinePredictionsFragment
+);
+
 type PostWithContents_Post_contents_Revision = (
   { __typename?: 'Revision' }
   & RevisionDisplay
 );
 
 type PostWithContents = (
-  { __typename?: 'Post', contents: PostWithContents_Post_contents_Revision | null }
+  { __typename?: 'Post', inlinePredictions: Array<PostWithContents_Post_inlinePredictions_InlinePrediction>, contents: PostWithContents_Post_contents_Revision | null }
   & PostsDetails
 );
 
@@ -25323,7 +25362,7 @@ type PostsBestOfList = (
 
 type PostsRSSFeed = (
   { __typename?: 'Post', scoreExceeded2Date: string | null, scoreExceeded30Date: string | null, scoreExceeded45Date: string | null, scoreExceeded75Date: string | null, scoreExceeded125Date: string | null, scoreExceeded200Date: string | null, metaDate: string | null }
-  & PostsPage
+  & PostWithContents
 );
 
 type PostsOriginalContents_Post_contents_Revision_originalContents_ContentType = { __typename?: 'ContentType', type: string, data: any };

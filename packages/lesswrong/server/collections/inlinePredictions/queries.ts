@@ -9,6 +9,10 @@ import { createElicitQuestion } from "../elicitQuestions/mutations";
 import { isValidCollectionName } from "../allCollections";
 import { createElicitQuestionPrediction } from "../elicitQuestionPredictions/mutations";
 import { randomId } from "@/lib/random";
+import { createComment } from "../comments/mutations";
+import InlinePredictions from "./collection";
+import { userCanMoveInlinePredictionToComment } from "@/lib/utils/predictionUtil";
+import { sanitize } from "@/lib/vulcan-lib/utils";
 
 export const graphqlInlinePredictionQueryTypeDefs = gql`
   type InlinePrediction ${ getAllGraphQLFields(schema) }
@@ -47,6 +51,7 @@ export const graphqlInlinePredictionQueryTypeDefs = gql`
   
   extend type Mutation {
     createInlinePrediction(data: CreateInlinePredictionDataInput!): InlinePrediction
+    convertPredictionToComment(inlinePredictionId: String!): Comment
   }
 `;
 
@@ -103,5 +108,56 @@ export const inlinePredictionsMutations = {
     }, "InlinePredictions", context);
     
     return await accessFilterSingle(currentUser, "InlinePredictions", inlinePredictionObj, context);
+  },
+  
+  async convertPredictionToComment(
+    _: void,
+    {inlinePredictionId}: {inlinePredictionId: string},
+    context: ResolverContext
+  ) {
+    const { currentUser } = context;
+    if (!currentUser) {
+      throw new Error("You must be logged in");
+    }
+    const inlinePrediction = await context.loaders.InlinePredictions.load(inlinePredictionId);
+    if (!inlinePrediction || inlinePrediction.deleted) {
+      throw new Error("Invalid inlinePredictionId");
+    }
+
+    const currentUserIsCreator = inlinePrediction.userId === currentUser._id;
+    const currentUserIsPostAuthor = false; //TODO
+    if (!userCanMoveInlinePredictionToComment({
+      currentUserIsCreator,
+      currentUserIsPostAuthor,
+    })) {
+      throw new Error("You must be the post author or question creator to move an inline prediction");
+    }
+    
+    // Create the comment
+    const questionId = inlinePrediction.questionId;
+    const commentMarkup = `<div class="elicit-binary-prediction" data-elicit-id="${questionId}"></div>`;
+
+    const postId = inlinePrediction.documentId;
+    const comment = await createComment({
+      data: {
+        contents: {
+          originalContents: {
+            type: "ckEditorMarkup",
+            data: sanitize(commentMarkup),
+          },
+        },
+        postId,
+      },
+    }, context);
+    
+    // Delete the inline version
+    await InlinePredictions.rawUpdateOne(
+      {_id: inlinePrediction._id},
+      {$set: {
+        deleted: true
+      }}
+    );
+
+    return comment;
   }
 }

@@ -291,6 +291,7 @@ interface Mutation {
   generateCoverImagesForPost: Array<ReviewWinnerArt | null> | null;
   flipSplashArtImage: boolean | null;
   createInlinePrediction: InlinePrediction | null;
+  convertPredictionToComment: Comment | null;
   createAdvisorRequest: AdvisorRequestOutput | null;
   updateAdvisorRequest: AdvisorRequestOutput | null;
   createBook: BookOutput | null;
@@ -2835,6 +2836,8 @@ interface ElicitQuestion {
   notes: string | null;
   resolution: string | null;
   resolvesBy: Date | null;
+  currentUserPrediction: number | null;
+  distribution: Array<number>;
 }
 
 interface SingleElicitQuestionInput {

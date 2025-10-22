@@ -93,3 +93,21 @@ export const AddInlineReactionDialog = ({voteProps, quote, onClose}: {
     />
   </div>
 }
+
+export const StandaloneAddInlineReactionButton = ({voteProps, quote, quoteIsNotDistinct, wrapperClassName, iconClassName, paletteClassName}: {
+  voteProps: VotingProps<VoteableTypeClient>
+  quote: string
+  quoteIsNotDistinct?: boolean
+  wrapperClassName?: string
+  iconClassName?: string
+  paletteClassName?: string
+}) => {
+  const handleClick = () => {
+    // TODO
+  }
+  return <AddInlineReactionButton
+    onClick={handleClick}
+    className={iconClassName}
+    quoteIsNotDistinct={quoteIsNotDistinct}
+  />
+}

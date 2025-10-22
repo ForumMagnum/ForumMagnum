@@ -3122,6 +3122,8 @@ type ElicitQuestion {
   notes: String
   resolution: String
   resolvesBy: Date
+  currentUserPrediction: Float
+  distribution: [Int!]!
 }
 
 input SingleElicitQuestionInput {
@@ -3510,6 +3512,7 @@ input CreateInlinePredictionDataInput {
 
 extend type Mutation {
   createInlinePrediction(data: CreateInlinePredictionDataInput!): InlinePrediction
+  convertPredictionToComment(inlinePredictionId: String!): Comment
 }
 
 type JargonTerm {

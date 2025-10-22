@@ -7,6 +7,7 @@ import { defineStyles } from '@/components/hooks/defineStyles';
 import { useStyles } from '@/components/hooks/useStyles';
 import { AddClaimDialog, AddClaimProbabilityButton, InlinePredictionOps } from './AddClaimProbabilityButton';
 import { CommentOnSelectionButton } from '@/components/comments/CommentOnSelection';
+import { PushIntoViewport } from '@/components/common/PushIntoViewport';
 
 const styles = defineStyles("SelectedTextToolbarWrapper", (theme: ThemeType) => ({
   popper: {
@@ -22,6 +23,9 @@ const styles = defineStyles("SelectedTextToolbarWrapper", (theme: ThemeType) => 
     borderRadius: 8,
     position: "relative",
     left: 12,
+  },
+  buttons: {
+    whiteSpace: "pre",
   },
   inlineReactButton: {
     color: theme.palette.greyAlpha(0.7),
@@ -73,7 +77,7 @@ const SelectedTextToolbarWrapper = ({
   styling: Styling,
   documentId: string,
   collectionName: CollectionNameString,
-  inlinePredictionOps: InlinePredictionOps,
+  inlinePredictionOps?: InlinePredictionOps,
   setSelection?: (selection?: { text: string, disabled: boolean }) => void,
   children: React.ReactNode,
 }) => {
@@ -143,21 +147,23 @@ const SelectedTextToolbarWrapper = ({
         placement="right"
         allowOverflow={true}
       >
-        <span ref={popupRef} className={classes.textToolbar}
-          style={{position:"relative", top: yOffset+buttonOffsetTop, marginLeft: buttonOffsetLeft}}
-        >
-          <SelectedTextToolbar
-            quote={quote}
-            quoteIsNotDistinct={quoteIsNotDistinct}
-            voteProps={voteProps}
-            documentId={documentId}
-            collectionName={collectionName}
-            enableCommentOnSelection={!!enableCommentOnSelection}
-            enableInlineReacts={!!enableInlineReacts}
-            enableInlinePredictions={!!enableInlinePredictions}
-            inlinePredictionOps={inlinePredictionOps}
-          />
-        </span> 
+        <PushIntoViewport>
+          <span ref={popupRef} className={classes.textToolbar}
+            style={{position:"relative", top: yOffset+buttonOffsetTop, marginLeft: buttonOffsetLeft}}
+          >
+            <SelectedTextToolbar
+              quote={quote}
+              quoteIsNotDistinct={quoteIsNotDistinct}
+              voteProps={voteProps}
+              documentId={documentId}
+              collectionName={collectionName}
+              enableCommentOnSelection={!!enableCommentOnSelection}
+              enableInlineReacts={!!enableInlineReacts}
+              enableInlinePredictions={!!enableInlinePredictions}
+              inlinePredictionOps={inlinePredictionOps}
+            />
+          </span>
+        </PushIntoViewport>
       </LWPopper>}
 
       {children}
@@ -174,16 +180,16 @@ const SelectedTextToolbar = ({ enableCommentOnSelection, enableInlineReacts, ena
   voteProps?: VotingProps<VoteableTypeClient>,
   documentId: string,
   collectionName: CollectionNameString,
-  inlinePredictionOps: InlinePredictionOps
+  inlinePredictionOps?: InlinePredictionOps
 }) => {
   const classes = useStyles(styles);
   const [state, setState] = useState<"buttons"|"inlineReacts"|"probability"|"closed">("buttons");
-
+  
   switch (state) {
     case "closed":
       return null;
     case "buttons":
-      return <>
+      return <span className={classes.buttons}>
         {enableCommentOnSelection && <CommentOnSelectionButton
           onClick={() => setState("closed")}
         />}
@@ -192,23 +198,30 @@ const SelectedTextToolbar = ({ enableCommentOnSelection, enableInlineReacts, ena
           className={classes.inlineReactButton}
           quoteIsNotDistinct={quoteIsNotDistinct}
         />}
-        {enableInlinePredictions && <AddClaimProbabilityButton
+        {enableInlinePredictions && inlinePredictionOps && <AddClaimProbabilityButton
           onClick={() => setState("probability")}
         />}
-      </>
+      </span>
     case "inlineReacts":
       return <AddInlineReactionDialog
         voteProps={voteProps!}
         quote={quote}
-        onClose={() => setState("closed")}
+        onClose={() => {
+          setState("closed")
+          clearTextSelection();
+        }}
       />
     case "probability":
+      if (!inlinePredictionOps) return null;
       return <AddClaimDialog
         documentId={documentId}
         collectionName={collectionName}
         quote={quote}
         inlinePredictionOps={inlinePredictionOps}
-        onClose={() => setState("closed")}
+        onClose={() => {
+          setState("closed")
+          clearTextSelection();
+        }}
       />
   }
 }
@@ -234,6 +247,11 @@ function countStringsInString(haystack: string, needle: string): number {
   return count;
 }
 
+function clearTextSelection() {
+  const selection = window.getSelection();
+  if (selection && selection.rangeCount > 0) {
+    selection.removeAllRanges();
+  }
+}
+
 export default SelectedTextToolbarWrapper;
-
-

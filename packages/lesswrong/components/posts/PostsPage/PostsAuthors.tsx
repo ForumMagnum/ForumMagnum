@@ -27,7 +27,7 @@ const styles = (theme: ThemeType) => ({
 
 const PostsAuthors = ({classes, post, pageSectionContext}: {
   classes: ClassesType<typeof styles>,
-  post: PostsList,
+  post: PostsList|PostsEdit,
   pageSectionContext?: string,
 }) => {
   return <Typography variant="body1" component="span" className={classes.root}>

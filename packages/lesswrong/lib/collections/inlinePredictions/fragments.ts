@@ -10,7 +10,10 @@ export const InlinePredictions = gql(`
       ...UsersMinimumInfo
     }
     question {
-      ...ElicitQuestionFragment
+      _id
+      title
+      currentUserPrediction
+      distribution
     }
   }
 `);

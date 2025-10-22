@@ -4,8 +4,9 @@ import ElicitQuestionPredictions from '../../server/collections/elicitQuestionPr
 import { randomId } from '@/lib/random';
 import gql from 'graphql-tag';
 import { createElicitQuestionPrediction } from '../collections/elicitQuestionPredictions/mutations';
-import { computeContextFromUser } from '../vulcan-lib/apollo-server/context';
 import InlinePredictions from '../collections/inlinePredictions/collection';
+import times from 'lodash/times';
+import { percentageToBucket } from '@/lib/utils/predictionUtil';
 
 export const elicitPredictionsGraphQLTypeDefs = gql`
   type ElicitUser {
@@ -179,4 +180,21 @@ export const elicitPredictionsGraphQLQueries = {
   async ElicitBlockData(root: void, { questionId }: { questionId: string }, context: ResolverContext) {
     return await getLocalElicitQuestionWithPredictions(questionId);
   }
+}
+
+export const getPredictionDistribution = async (questionId: string, numBuckets: number, context: ResolverContext): Promise<number[]> => {
+  const predictions = await ElicitQuestionPredictions.find({
+    binaryQuestionId: questionId,
+    isDeleted: false,
+  }).fetch();
+  const buckets = times(numBuckets, i => 0);
+  for (const prediction of predictions) {
+    if (prediction.prediction !== null) {
+      const bucket = percentageToBucket(prediction.prediction, numBuckets);
+      if (bucket>0 && bucket<numBuckets) {
+        buckets[bucket]++;
+      }
+    }
+  }
+  return buckets;
 }

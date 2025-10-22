@@ -30,7 +30,7 @@ const PostSideCommentsQuery = gql(`
   }
 `);
 
-function useDisplayGlossary(post: PostsWithNavigation | PostsWithNavigationAndRevision| PostsListWithVotes) {
+function useDisplayGlossary(post: PostsPage | PostsWithNavigation | PostsWithNavigationAndRevision| PostsListWithVotes) {
   const { captureEvent } = useTracking();
   const [showAllTerms, setShowAllTerms] = useState(false);
 
@@ -69,7 +69,7 @@ function useDisplayGlossary(post: PostsWithNavigation | PostsWithNavigationAndRe
 }
 
 const PostBody = ({post, refetchPost, html, isOldVersion, voteProps}: {
-  post: PostsWithNavigation | PostsWithNavigationAndRevision | PostsListWithVotes,
+  post: PostsPage | PostsWithNavigation | PostsWithNavigationAndRevision | PostsListWithVotes,
   refetchPost: () => void,
   html: string,
   isOldVersion: boolean

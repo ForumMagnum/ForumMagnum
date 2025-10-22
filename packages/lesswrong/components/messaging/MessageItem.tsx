@@ -186,7 +186,6 @@ const MessageItem = ({message, classes}: {
               setSelection={setSelection}
               collectionName="Messages"
               documentId={message._id}
-              inlinePredictionOps={null}
               enableCommentOnSelection={false}
               enableInlinePredictions={false}
               enableInlineReacts={true}

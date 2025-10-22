@@ -505,7 +505,7 @@ export const PostsWithNavigationAndRevision = gql(`
 
 export const PostsWithNavigation = gql(`
   fragment PostsWithNavigation on Post {
-    ...PostsPage
+    ...PostWithContents
     ...PostSequenceNavigation
     
     tableOfContents
@@ -545,6 +545,9 @@ export const PostSequenceNavigation = gql(`
 export const PostWithContents = gql(`
   fragment PostWithContents on Post {
     ...PostsDetails
+    inlinePredictions {
+      ...InlinePredictionsFragment
+    }
     contents {
       ...RevisionDisplay
     }
@@ -821,7 +824,7 @@ export const PostsBestOfList = gql(`
 
 export const PostsRSSFeed = gql(`
   fragment PostsRSSFeed on Post {
-    ...PostsPage
+    ...PostWithContents
     scoreExceeded2Date
     scoreExceeded30Date
     scoreExceeded45Date

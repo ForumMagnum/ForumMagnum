@@ -123,7 +123,7 @@ async function getQueryContextDecision(args: BasePromptArgs): Promise<RagContext
   return parsedResponse.strategy_choice;
 }
 
-async function getProvidedPosts(query: string, context: ResolverContext): Promise<PostWithContents[]> {
+async function getProvidedPosts(query: string, context: ResolverContext): Promise<LlmPost[]> {
   const postIdRegex = /\/([a-zA-Z0-9]{17})(?=[/#?&)]|$)/g;
   const postIdMatches = [];
   let match;

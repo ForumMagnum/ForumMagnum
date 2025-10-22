@@ -13,7 +13,7 @@ const styles = (theme: ThemeType) => ({
 });
 
 const CollabEditorPermissionsNotices = ({post, classes}: {
-  post: PostsPage,
+  post: PostsEdit,
   classes: ClassesType<typeof styles>,
 }) => {
   const currentUser = useCurrentUser();

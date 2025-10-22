@@ -10,34 +10,43 @@ import SingleColumnSection from "../common/SingleColumnSection";
 import PostsPagePostHeader from "./PostsPage/PostsPagePostHeader";
 import { Typography } from "../common/Typography";
 import { StatusCodeSetter } from "../next/StatusCodeSetter";
+import { useQuery } from "@/lib/crud/useQuery";
+import { gql } from "@/lib/generated/gql-codegen";
+import Loading from "../vulcan-core/Loading";
+import { defineStyles } from "../hooks/defineStyles";
+import { useStyles } from "../hooks/useStyles";
 
-const styles = (theme: ThemeType) => ({
+const styles = defineStyles("ForeignCrosspostEditForm", (theme: ThemeType) => ({
   link: {
     color: theme.palette.primary.main,
   },
-});
+}));
 
-const ForeignCrosspostEditForm = ({post, classes}: {
-  post: PostsPage,
-  classes: ClassesType<typeof styles>,
+const PostQuery = gql(`
+  query PostQuery($documentId: String) {
+    post(input: { selector: { documentId: $documentId } }, allowNull: true) {
+      result {
+        ...PostsListWithVotes
+      }
+    }
+  }
+`);
+
+const ForeignCrosspostEditForm = ({post}: {
+  post: PostsEditQueryFragment,
 }) => {
+  const classes = useStyles(styles);
   const url = combineUrls(fmCrosspostBaseUrlSetting.get() ?? "", `editPost?postId=${post._id}&eventForm=false`);
-
-  const postWithNavigation: PostsWithNavigation = {
-    ...post,
-    podcastEpisode: null,
-    tableOfContents: null,
-    sequence: null,
-    prevPost: null,
-    nextPost: null,
-    reviewWinner: null,
-    glossary: [],
-  };
+  const result = useQuery(PostQuery, {
+    variables: { documentId: post._id },
+  });
+  const postWithContent = result.data?.post?.result;
+  if (!postWithContent) return <Loading/>
 
   return (<>
     <StatusCodeSetter status={200}/>
     <SingleColumnSection>
-      <PostsPagePostHeader post={postWithNavigation} hideMenu hideTags />
+      <PostsPagePostHeader post={postWithContent} hideMenu hideTags />
       <Typography variant="body2" gutterBottom>
         This post cannot be edited as it is a crosspost.{' '}
         <a href={url} className={classes.link}>Click here</a> to edit on{' '}
@@ -55,6 +64,6 @@ const ForeignCrosspostEditForm = ({post, classes}: {
   </>);
 }
 
-export default registerComponent("ForeignCrosspostEditForm", ForeignCrosspostEditForm, {styles});
+export default ForeignCrosspostEditForm;
 
 

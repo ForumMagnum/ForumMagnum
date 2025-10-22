@@ -82,7 +82,7 @@ import { LWCommentCount } from '../TableOfContents/LWCommentCount';
 import { NetworkStatus } from "@apollo/client";
 import { useQuery } from "@/lib/crud/useQuery"
 import { returnIfValidNumber } from '@/lib/utils/typeGuardUtils';
-import { useQueryWithLoadMore } from '@/components/hooks/useQueryWithLoadMore';
+import { useQueryWithLoadMore, LoadMoreProps } from '@/components/hooks/useQueryWithLoadMore';
 import { CommentsListMultiQuery, postCommentsThreadQuery } from '../queries';
 
 const HIDE_TOC_WORDCOUNT_LIMIT = 300
