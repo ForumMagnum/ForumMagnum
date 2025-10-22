@@ -1773,7 +1773,8 @@ const _1756=[_o12(_1024,_1387,_o4(_5,_o3(_3,"MultiCommentInput")))]
 const _1757=_o12(_1024,_1387,_o4(_5,_o3(_3,"SinglePostInput")))
 const _1758=[_1757]
 const _1759=_o5(_7,[_o7(_8,_187,_1388,_1104)])
-const _1760=_o4(_527,_920)/* eslint-disable */
+const _1760=_o4(_527,_920)
+/* eslint-disable */
 // @ts-nocheck
 import { TypedDocumentNode as DocumentNode } from '@graphql-typed-document-node/core';
 export type Maybe<T> = T | null;
