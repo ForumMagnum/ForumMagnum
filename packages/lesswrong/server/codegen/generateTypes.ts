@@ -93,12 +93,19 @@ async function generateGraphQLCodegenTypes(): Promise<void> {
   // to the final output location
   for (const fileOutput of fileOutputs) {
     let outputContent = fileOutput.content;
-    const outputPath = fileOutput.filename.replace(tempPath, "./packages/lesswrong/lib/generated/gql-codegen");
+    let outputPath = fileOutput.filename.replace(tempPath, "./packages/lesswrong/lib/generated/gql-codegen");
     
     if (outputPath === "./packages/lesswrong/lib/generated/gql-codegen/graphql.ts") {
       outputContent = normalizeFragments(fileOutput.filename);
     }
     outputContent = outputContent.replace("InputMaybe<T> = Maybe<T>", "InputMaybe<T> = T | null | undefined");
+
+    if (outputPath === "./packages/lesswrong/lib/generated/gql-codegen/graphqlCodegenTypes.d.ts") {
+      // HACK: Move this particular file up one level, because being in the same directory as
+      // graphql.ts messes up types because typescript types merge differently depending
+      // whether the definitions are in the same or different directories
+      outputPath = "./packages/lesswrong/lib/generated/graphqlCodegenTypes.d.ts";
+    }
 
     writeIfChanged(outputContent, outputPath);
   }
@@ -142,6 +149,8 @@ function getFilesMaybeContainingGql(dir: string) {
 function normalizeFragments(inputPath: string) {
   /*const generatedGraphqlFilePath = require.resolve(inputPath);
   require.cache[generatedGraphqlFilePath] = undefined;
+  
+  // eslint-disable-next-line import/no-dynamic-require
   const generatedDocumentNodes: Record<string, DocumentNode> = require(inputPath);
 
   // Read the original file content to preserve type definitions
