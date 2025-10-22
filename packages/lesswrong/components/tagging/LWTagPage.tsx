@@ -71,6 +71,7 @@ import { gql } from "@/lib/generated/gql-codegen";
 import { withDateFields } from "@/lib/utils/dateUtils";
 import type { TagBySlugQueryOptions } from "./useTag";
 import { StatusCodeSetter } from "../next/StatusCodeSetter";
+import { useForumType } from "../hooks/useForumType";
 
 const TagWithFlagsFragmentMultiQuery = gql(`
   query multiTagLWTagPageQuery($selector: TagSelector, $limit: Int, $enableTotal: Boolean) {
@@ -544,9 +545,10 @@ function getTagQueryOptions(
 
 const LWTagPage = () => {
   const classes = useStyles(styles);
-
   const currentUser = useCurrentUser();
+  const { forumType } = useForumType();
   const { query, params: { slug } } = useLocation();
+
   const lensSlug = query.lens ?? query.l;
   // const { onOpenEditor } = useContext(TagEditorContext);
   
@@ -744,8 +746,8 @@ const LWTagPage = () => {
     const queryString = !isEmpty(query) ? `?${qs.stringify(query)}` : '';
     return <PermanentRedirect url={`${baseTagUrl}${queryString}`} />
   }
-  if (editing && !tagUserHasSufficientKarma(currentUser, "edit")) {
-    throw new Error(`Sorry, you cannot edit ${taggingNamePluralSetting.get()} without ${getTagMinimumKarmaPermissions().edit} or more karma.`)
+  if (editing && !tagUserHasSufficientKarma(currentUser, "edit", forumType)) {
+    throw new Error(`Sorry, you cannot edit ${taggingNamePluralSetting.get()} without ${getTagMinimumKarmaPermissions(forumType).edit} or more karma.`)
   }
 
   // if no sort order was selected, try to use the tag page's default sort order for posts

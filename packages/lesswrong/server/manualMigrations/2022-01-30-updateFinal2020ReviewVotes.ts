@@ -1,3 +1,4 @@
+/*
 import { registerMigration } from './migrationUtils';
 import ReviewVotes from '../../server/collections/reviewVotes/collection';
 import { getCostData, REVIEW_YEAR } from '../../lib/reviewUtils';
@@ -245,3 +246,4 @@ export default registerMigration({
     fs.writeFileSync('review-vote-table.html', html)
   },
 });
+*/

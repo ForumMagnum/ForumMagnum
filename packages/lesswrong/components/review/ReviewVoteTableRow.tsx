@@ -23,6 +23,7 @@ import UsersNameDisplay from "../users/UsersNameDisplay";
 import ForumIcon from "../common/ForumIcon";
 import PostsItemNewCommentsWrapper from "../posts/PostsItemNewCommentsWrapper";
 import { maybeDate } from '@/lib/utils/dateUtils';
+import { useForumType } from '../hooks/useForumType';
 
 const styles = (theme: ThemeType) => ({
   root: {
@@ -232,6 +233,7 @@ const ReviewVoteTableRow = ({ post, index, dispatch, costTotal, classes, expande
   voteTooltip: voteTooltipType
 }) => {
   const currentUser = useCurrentUser()
+  const { forumType } = useForumType();
 
   const [markedVisitedAt, setMarkedVisitedAt] = useState<Date|null>(null);
   const { recordPostView } = useRecordPostView(post);
@@ -301,7 +303,7 @@ const ReviewVoteTableRow = ({ post, index, dispatch, costTotal, classes, expande
         <div className={classes.commentsCount}>
           <PostsItemComments
             small={false}
-            commentCount={postGetCommentCount(post)}
+            commentCount={postGetCommentCount(post, forumType)}
             unreadComments={unreadComments}
             newPromotedComments={false}
             onClick={toggleComments}

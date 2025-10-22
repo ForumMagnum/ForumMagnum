@@ -3,7 +3,7 @@ import { answerTocExcerptFromHTML, truncate } from "./editor/ellipsize";
 import { htmlToTextDefault } from "./htmlToText";
 import type { WindowType } from "./domParser";
 import { PostWithCommentCounts, postGetCommentCountStr } from "./collections/posts/helpers";
-import { isLWorAF } from "./instanceSettings";
+import { ForumTypeString, isLWorAF } from "./instanceSettings";
 import maxBy from "lodash/maxBy";
 
 export interface ToCAnswer {
@@ -239,11 +239,12 @@ export function getTocAnswers({ post, answers }: { post: { question: boolean }; 
   }
 }
 
-export function getTocComments({
-  post,
-  commentCount,
-}: { post?: PostWithCommentCounts | null; commentCount?: number | undefined } = {}) {
-  return [{ anchor: "comments", level: 0, title: postGetCommentCountStr(post, commentCount) }];
+export function getTocComments({ post, commentCount, forumType }: {
+  post?: PostWithCommentCounts | null;
+  commentCount?: number | undefined
+  forumType: ForumTypeString
+}) {
+  return [{ anchor: "comments", level: 0, title: postGetCommentCountStr({post, commentCount, forumType}) }];
 }
 
 export function shouldShowTableOfContents({

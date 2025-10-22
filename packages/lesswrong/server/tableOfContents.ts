@@ -41,7 +41,7 @@ async function getTocCommentsServer(document: DbPost, context: ResolverContext) 
     commentSelector.af = true
   }
   const commentCount = await Comments.find(commentSelector).count()
-  return getTocComments({post: document, commentCount})
+  return getTocComments({post: document, commentCount, forumType: context.forumType})
 }
 
 async function getHtmlWithContributorAnnotations({

@@ -116,7 +116,7 @@ const UsersMenu = ({classes}: {
   classes: ClassesType<typeof styles>,
 }) => {
   const currentUser = useCurrentUser();
-  const { isAF, isEAForum } = useForumType();
+  const { isAF, isEAForum, forumType } = useForumType();
   const {eventHandlers, hover, forceUnHover, anchorEl} = useHover();
   const {openDialog} = useDialog();
   const {disableNoKibitz, setDisableNoKibitz} = useContext(DisableNoKibitzContext );
@@ -256,7 +256,7 @@ const UsersMenu = ({classes}: {
           />
         )
       : null,
-    newWikitag: () => tagUserHasSufficientKarma(currentUser, "new") ? (
+    newWikitag: () => tagUserHasSufficientKarma(currentUser, "new", forumType) ? (
       <NewWikiTagMenu>
         <DropdownItem
           title={preferredHeadingCase(`New ${taggingNameCapitalSetting.get()}`)}

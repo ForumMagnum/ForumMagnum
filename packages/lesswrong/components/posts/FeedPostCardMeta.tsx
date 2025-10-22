@@ -79,7 +79,7 @@ const FeedPostCardMeta = ({post, className, classes}: {
   className?: string,
   classes: ClassesType<typeof styles>,
 }) => {
-  const { isAF } = useForumType();
+  const { isAF, forumType } = useForumType();
   const authorExpandContainer = useRef(null);
   // TODO: Think about styling for events
 
@@ -139,7 +139,7 @@ const FeedPostCardMeta = ({post, className, classes}: {
 
   const commentCountElement = (post.commentCount > 0) && <span className={classNames(classes.info, classes.hideOnSmallScreens)}>
     <Link to={`${postGetPageUrl(post)}#comments`}>
-      {postGetCommentCountStr(post)}
+      {postGetCommentCountStr({post, forumType})}
     </Link>
     {post.url && separatorElement}
   </span>

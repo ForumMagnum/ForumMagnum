@@ -15,6 +15,7 @@ import NewTagInfoBox from "./NewTagInfoBox";
 import Loading from "../vulcan-core/Loading";
 import { useMutation } from "@apollo/client/react";
 import { gql } from "@/lib/generated/gql-codegen";
+import { useForumType } from '../hooks/useForumType';
 
 const TagEditFragmentUpdateMutation = gql(`
   mutation updateTagNewTagPage($selector: SelectorInput!, $data: UpdateTagDataInput!) {
@@ -43,6 +44,7 @@ export const styles = (_theme: ThemeType) => ({
 const NewTagPage = ({classes}: {classes: ClassesType<typeof styles>}) => {
   const navigate = useNavigate();
   const currentUser = useCurrentUser();
+  const { forumType } = useForumType();
   const [updateTag] = useMutation(TagEditFragmentUpdateMutation);
 
   const { query } = useLocation();
@@ -66,13 +68,13 @@ const NewTagPage = ({classes}: {classes: ClassesType<typeof styles>}) => {
     );
   }
   
-  if (!tagUserHasSufficientKarma(currentUser, "new")) {
+  if (!tagUserHasSufficientKarma(currentUser, "new", forumType)) {
     return (
       <SingleColumnSection>
         <SectionTitle title={`New ${taggingNameCapitalSetting.get()}`}/>
         <div>
           You do not have enough karma to define new {taggingNamePluralSetting.get()}. You must have
-          at least {getTagMinimumKarmaPermissions().new} karma.
+          at least {getTagMinimumKarmaPermissions(forumType).new} karma.
         </div>
       </SingleColumnSection>
     );

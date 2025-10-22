@@ -27,6 +27,7 @@ import ContentStyles from "../../common/ContentStyles";
 import Loading from "../../vulcan-core/Loading";
 import { useQuery } from "@/lib/crud/useQuery";
 import { gql } from "@/lib/generated/gql-codegen";
+import { useForumType } from '@/components/hooks/useForumType';
 
 const TagEditFragmentQuery = gql(`
   query SubforumWikiTab($documentId: String) {
@@ -68,6 +69,7 @@ const SubforumWikiTab = ({tag, revision, truncated, setTruncated, classes}: {
   classes: ClassesType<typeof styles>,
 }) => {
   const currentUser = useCurrentUser();
+  const { forumType } = useForumType();
   const { query } = useLocation();
   const client = useApolloClient()
   const { captureEvent } =  useTracking()
@@ -87,8 +89,8 @@ const SubforumWikiTab = ({tag, revision, truncated, setTruncated, classes}: {
   
   useOnSearchHotkey(() => setTruncated(false));
   
-  if (editing && !tagUserHasSufficientKarma(currentUser, "edit")) {
-    throw new Error(`Sorry, you cannot edit ${taggingNamePluralSetting.get()} without ${getTagMinimumKarmaPermissions().edit} or more karma.`)
+  if (editing && !tagUserHasSufficientKarma(currentUser, "edit", forumType)) {
+    throw new Error(`Sorry, you cannot edit ${taggingNamePluralSetting.get()} without ${getTagMinimumKarmaPermissions(forumType).edit} or more karma.`)
   }
   
   const clickReadMore = useCallback(() => {

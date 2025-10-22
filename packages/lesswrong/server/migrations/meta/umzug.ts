@@ -6,6 +6,7 @@ import { createHash } from "crypto";
 import { resolve } from "path";
 import PgStorage from "./PgStorage";
 import { safeRun } from '@/server/manualMigrations/safeRun';
+import type { ForumTypeString } from "@/lib/instanceSettings";
 
 declare global {
   interface MigrationTimer {
@@ -16,6 +17,7 @@ declare global {
   interface MigrationContext {
     db: SqlClient;
     dbOutsideTransaction: SqlClient;
+    forumType: ForumTypeString
     timers: Record<string, Partial<MigrationTimer>>;
     hashes: Record<string, string>;
   }
@@ -46,13 +48,14 @@ const getLastMigration = async (storage: PgStorage, context: MigrationContext): 
   return executed[0];
 }
 
-export const createMigrator = async (dbInTransaction: SqlClient, dbOutsideTransaction: SqlClient) => {
+export const createMigrator = async (dbInTransaction: SqlClient, dbOutsideTransaction: SqlClient, forumType: ForumTypeString) => {
   const storage = new PgStorage();
   await storage.setupEnvironment(dbInTransaction);
 
   const context: MigrationContext = {
     db: dbInTransaction,
     dbOutsideTransaction,
+    forumType,
     timers: {},
     hashes: {},
   };

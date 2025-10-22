@@ -80,9 +80,9 @@ export async function flagOrBlockUserOnManyDMs({
     selector: { _id: currentUser._id }
   }, createAnonymousContext()));
   
-  if (allUsersEverContacted.length > getMaxAllowedContactsBeforeBlock() && !currentUser.reviewedAt) {
+  if (allUsersEverContacted.length > getMaxAllowedContactsBeforeBlock(context.forumType) && !currentUser.reviewedAt) {
     logger('Blocking user')
-    throw new Error(`You cannot message more than ${getMaxAllowedContactsBeforeBlock()} users before your account has been reviewed. Please contact us if you'd like to message more people.`)
+    throw new Error(`You cannot message more than ${getMaxAllowedContactsBeforeBlock(context.forumType)} users before your account has been reviewed. Please contact us if you'd like to message more people.`)
   }
   
   logger('flagOrBlockUserOnManyDMs() return')

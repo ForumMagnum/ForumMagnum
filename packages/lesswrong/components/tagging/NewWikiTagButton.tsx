@@ -14,6 +14,7 @@ import LWPopper from "../common/LWPopper";
 import DropdownMenu from "../dropdowns/DropdownMenu";
 import DropdownItem from "../dropdowns/DropdownItem";
 import DropdownDivider from "../dropdowns/DropdownDivider";
+import { useForumType } from '../hooks/useForumType';
 
 const styles = defineStyles("NewWikiTagButton", (theme: ThemeType) => ({
   addTagButton: {
@@ -44,6 +45,7 @@ const NewWikiTagButton = ({ hideLabel=false, className }: {
   className?: string
 }) => {
   const classes = useStyles(styles);
+  const { forumType } = useForumType();
   const { eventHandlers, hover, forceUnHover, anchorEl } = useHover();
   const currentUser = useCurrentUser();
   const { openDialog } = useDialog();
@@ -72,7 +74,7 @@ const NewWikiTagButton = ({ hideLabel=false, className }: {
     );
   }
 
-  if (!tagUserHasSufficientKarma(currentUser, "new")) {
+  if (!tagUserHasSufficientKarma(currentUser, "new", forumType)) {
     return null;
   }
 
