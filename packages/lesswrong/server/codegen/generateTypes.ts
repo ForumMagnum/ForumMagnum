@@ -95,7 +95,6 @@ async function generateGraphQLCodegenTypes(): Promise<void> {
     let outputPath = fileOutput.filename.replace(tempPath, "./packages/lesswrong/lib/generated/gql-codegen");
     
     if (outputPath === "./packages/lesswrong/lib/generated/gql-codegen/graphql.ts") {
-      console.log("Normalizing fragments");
       outputContent = normalizeFragments(fileOutput.filename);
     }
     outputContent = outputContent.replace("InputMaybe<T> = Maybe<T>", "InputMaybe<T> = T | null | undefined");
@@ -149,6 +148,8 @@ function getFilesMaybeContainingGql(dir: string) {
 function normalizeFragments(inputPath: string) {
   const generatedGraphqlFilePath = require.resolve(inputPath);
   require.cache[generatedGraphqlFilePath] = undefined;
+  
+  // eslint-disable-next-line import/no-dynamic-require
   const generatedDocumentNodes: Record<string, DocumentNode> = require(inputPath);
 
   // Read the original file content to preserve type definitions
