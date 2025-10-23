@@ -10,8 +10,10 @@ import React, {
 } from "react";
 import { useCurrentTime } from "./utils/timeUtil";
 import { useOnNavigate } from "@/components/hooks/useOnNavigate";
+import { isEAForum } from "./instanceSettings";
 
-export const ELECTION_INFO_HREF = "/posts/srZEX2r9upbwfnRKw";
+export const GIVING_SEASON_INFO_HREF = "/posts/srZEX2r9upbwfnRKw"; // TODO
+export const ELECTION_INFO_HREF = "/posts/srZEX2r9upbwfnRKw"; // TODO
 export const ELECTION_DONATE_HREF = "/donation-portal";
 
 type GivingSeasonEvent = {
@@ -64,6 +66,9 @@ export const givingSeasonEvents: GivingSeasonEvent[] = [
 
 export const useCurrentGivingSeasonEvent = (): GivingSeasonEvent | null => {
   const currentTime = useCurrentTime();
+  if (!isEAForum) {
+    return null;
+  }
   for (const event of givingSeasonEvents) {
     if (event.start <= currentTime && event.end > currentTime) {
       return event;
