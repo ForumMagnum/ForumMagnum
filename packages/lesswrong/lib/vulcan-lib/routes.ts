@@ -174,8 +174,15 @@ export function parseRoute<Patterns extends string[]>({ location, onError = null
   onError?: null | ((err: string) => void);
   routePatterns: Patterns;
 }) {
-  const pathnameWithRedirects = applyRedirectsTo(location.pathname);
-  const routePattern = getPatternMatchingPathname(pathnameWithRedirects, routePatterns);
+  const pathWithRedirects = applyRedirectsTo(location.pathname);
+  // We need to parse the path after applying the redirects
+  // because `getPatternMatchingPathname` doesn't handle query params/etc,
+  // so we extract the pathname to match against and use the rest for
+  // constructing the RouterLocation later.
+  const parsedPath = parsePath(pathWithRedirects);
+  const { pathname, search, hash } = parsedPath;
+
+  const routePattern = getPatternMatchingPathname(pathname, routePatterns);
 
   if (routePattern === undefined) {
     if (onError) {
@@ -197,17 +204,21 @@ export function parseRoute<Patterns extends string[]>({ location, onError = null
     }
   }
 
+
   const params = routePattern !== undefined
-    ? matchPath<Record<string, string>>(pathnameWithRedirects, { path: routePattern, exact: true, strict: false })!.params
+    ? matchPath<Record<string, string>>(pathname, { path: routePattern, exact: true, strict: false })!.params
     : {};
+
+  const query = parseQuery(parsedPath);
+
   const result = {
     routePattern,
-    location,
+    location: parsedPath,
     params,
-    pathname: pathnameWithRedirects,
-    url: pathnameWithRedirects + location.search + location.hash,
-    hash: location.hash,
-    query: parseQuery(location),
+    pathname,
+    url: pathname + search + hash,
+    hash,
+    query,
   };
 
   return result;

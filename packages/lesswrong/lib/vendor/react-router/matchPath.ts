@@ -97,7 +97,8 @@ export function matchPath<Params extends { [K in keyof Params]?: string; }>(path
 }
 
 export function applyParamsToPathname(pathnamePattern: string, params: {}): string {
-  return compile(pathnamePattern, {validate: false})(params);
+  const escapedPattern = pathnamePattern.replaceAll('?', '\\?');
+  return compile(escapedPattern, {validate: false})(params);
 }
 
 
