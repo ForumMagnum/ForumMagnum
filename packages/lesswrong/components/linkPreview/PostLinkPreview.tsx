@@ -469,7 +469,7 @@ export const MetaculusPreview = ({href, id, className, children}: {
   const classes = useStyles(linkStyles);
 
   const { anchorEl, hover, eventHandlers } = useHover();
-  const [match, www, questionNumber] = href.match(/^http(?:s?):\/\/(www\.)?metaculus\.com\/questions\/([a-zA-Z0-9]{1,6})?/) || []
+  const [match, www, questionNumber] = href.match(/^http(?:s?):\/\/(www\.)?metaculus\.com\/questions\/(\d+)/) || []
 
   if (!questionNumber) {
     return <a href={href} className={className}>
@@ -485,7 +485,7 @@ export const MetaculusPreview = ({href, id, className, children}: {
       
       <LWPopper open={hover} anchorEl={anchorEl} placement="bottom-start">
         <div className={classes.metaculusBackground}>
-          <iframe className={classes.metaculusIframe} src={`https://d3s0w6fek99l5b.cloudfront.net/s/1/questions/embed/${questionNumber}/?plot=pdf`} />
+          <iframe className={classes.metaculusIframe} src={`https://www.metaculus.com/questions/embed/${questionNumber}`} />
         </div>
       </LWPopper>
     </span>
