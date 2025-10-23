@@ -332,6 +332,8 @@ module.exports = {
 
     // Disabling this until we figure out whether we want to stick with Cloudinary
     "@next/next/no-img-element": 0,
+
+    "@next/next/no-html-link-for-pages": 0,
   },
   "overrides": [
     {

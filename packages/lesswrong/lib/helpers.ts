@@ -1,15 +1,10 @@
 import moment from 'moment';
-import { randomLowercaseId } from '@/lib/random';
 import { isServer } from '@/lib/executionEnvironment';
 
-// Get relative link to conversation (used only in session)
-export const conversationGetLink = (conversation: HasIdType): string => {
-  return `/inbox/${conversation._id}`;
-};
 
 // Get relative link to conversation of message (conversations are only linked to relatively)
 export const messageGetLink = (message: DbMessage): string => {
-  return `/inbox/${message.conversationId}`;
+  return `/inbox?conversation=${message.conversationId}`;
 };
 
 export function constantTimeCompare({ correctValue, unknownValue }: { correctValue: string, unknownValue: string }) {
