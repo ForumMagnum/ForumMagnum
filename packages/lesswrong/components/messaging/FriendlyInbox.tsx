@@ -214,7 +214,7 @@ const styles = (theme: ThemeType) => ({
   },
   emptyStateButton: {
     ...(theme.isFriendlyUI
-      ? { color: theme.isFriendlyUI }
+      ? { color: theme.palette.text.alwaysWhite }
       : { backgroundColor: theme.palette.background.default }),
     fontSize: 14,
   },
