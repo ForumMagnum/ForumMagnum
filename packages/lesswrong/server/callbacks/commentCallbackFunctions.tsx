@@ -803,7 +803,7 @@ export async function lwCommentsNewUpvoteOwnComment(comment: DbComment, currentU
 
 /* CREATE ASYNC */
 export async function newCommentTriggerReview({document, context}: AfterCreateCallbackProperties<'Comments'>) {
-  await triggerReviewIfNeeded(document.userId, context);
+  await triggerReviewIfNeeded(document.userId, 'newComment', context);
 }
 
 export async function trackCommentRateLimitHit({document, context}: AfterCreateCallbackProperties<'Comments'>) {
@@ -1028,7 +1028,7 @@ export async function updatedCommentMaybeTriggerReview({ currentUser, context }:
     }, selector: { _id: currentUser._id } }, createAnonymousContext());
     // This might create multiple redundant moderator actions if the user is in a state where they'd trigger review
     // and then update a comment multiple times.
-    await triggerReviewIfNeeded(currentUser._id, context)
+    await triggerReviewIfNeeded(currentUser._id, 'updatedComment', context)
   }
 }
 

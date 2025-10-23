@@ -115,6 +115,10 @@ export const UserAutoRateLimitsDisplay = ({user, showKarmaMeta=false, absolute, 
     (user.bigDownvoteReceivedCount ?? 0)
   );
 
+  if (totalReceivedVotes === 0) {
+    return null;
+  }
+
   return <div className={classNames(classes.root, absolute && classes.absoluteRoot)}>
     {showKarmaMeta && <div className={classes.karmaMeta}>
       <LWTooltip title="total karma" className={classes.karmaMetaItem}>

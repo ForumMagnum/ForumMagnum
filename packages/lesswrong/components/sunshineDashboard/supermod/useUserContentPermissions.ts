@@ -89,8 +89,13 @@ export function useUserContentPermissions(
         selector: { _id: user._id },
         data,
       },
+    }).then(({ data }) => {
+      const updatedUser = data?.updateUser?.data;
+      if (updatedUser) {
+        dispatch({ type: 'UPDATE_USER', userId: user._id, fields: updatedUser });
+      }
     });
-  }, [user, updateUser]);
+  }, [user, updateUser, dispatch]);
 
   const toggleDisablePosting = useCallback(() => {
     if (!user) return;
@@ -143,6 +148,7 @@ export function useUserContentPermissions(
     const newNotes = getSignatureWithNote(modDisplayName, `voting ${abled}`) + currentNotes;
     const newVotingDisabled = !isCurrentlyDisabled;
     
+    // Perform optimistic update of the user's new votingDisabled state
     dispatch({ type: 'UPDATE_USER', userId: user._id, fields: { sunshineNotes: newNotes, votingDisabled: newVotingDisabled } });
     
     if (isCurrentlyDisabled) {
@@ -173,8 +179,7 @@ export function useUserContentPermissions(
       });
     }
     
-    // Update user notes
-    await updateUser({
+    const { data } = await updateUser({
       variables: {
         selector: { _id: user._id },
         data: {
@@ -182,6 +187,13 @@ export function useUserContentPermissions(
         },
       },
     });
+
+    const updatedUser = data?.updateUser?.data;
+
+    // Update the local state with the updated user data, in case some fast toggling resulted in a race condition that led to inconsistency between client & server.
+    if (updatedUser) {
+      dispatch({ type: 'UPDATE_USER', userId: user._id, fields: updatedUser });
+    }
   }, [user, currentUser, updateModeratorAction, createModeratorAction, updateUser, dispatch]);
 
   return {

@@ -1,6 +1,6 @@
 import { forumSelect } from "@/lib/forumTypeUtils";
 import { TupleSet, UnionOf } from "@/lib/utils/typeGuardUtils";
-import type { ReasonReviewIsNeeded } from "@/lib/instanceSettings";
+import type { ReasonReviewIsNeeded } from "@/server/callbacks/sunshineCallbackUtils";
 
 
 export const RATE_LIMIT_ONE_PER_DAY = "rateLimitOnePerDay";
@@ -30,6 +30,8 @@ export const UNREVIEWED_MAP_LOCATION_UPDATE = "unreviewedMapLocationUpdate";
 export const UNREVIEWED_PROFILE_IMAGE_UPDATE = "unreviewedProfileImageUpdate";
 export const UNREVIEWED_FIRST_POST = "unreviewedFirstPost";
 export const UNREVIEWED_FIRST_COMMENT = "unreviewedFirstComment";
+export const UNREVIEWED_POST = "unreviewedPost";
+export const UNREVIEWED_COMMENT = "unreviewedComment";
 export const SNOOZE_EXPIRED = "snoozeExpired";
 export const STRICTER_COMMENT_AUTOMOD_RATE_LIMIT = "stricterCommentAutomodRateLimit";
 export const STRICTER_POST_AUTOMOD_RATE_LIMIT = "stricterPostAutomodRateLimit";
@@ -107,6 +109,8 @@ export const MODERATOR_ACTION_TYPES = {
   [UNREVIEWED_PROFILE_IMAGE_UPDATE]: "Unreviewed profile image update",
   [UNREVIEWED_FIRST_POST]: "Unreviewed first post",
   [UNREVIEWED_FIRST_COMMENT]: "Unreviewed first comment",
+  [UNREVIEWED_POST]: "Unreviewed post",
+  [UNREVIEWED_COMMENT]: "Unreviewed comment",
   [SNOOZE_EXPIRED]: "Snooze expired",
   [STRICTER_COMMENT_AUTOMOD_RATE_LIMIT]: "Stricter comment automod rate limit",
   [STRICTER_POST_AUTOMOD_RATE_LIMIT]: "Stricter post automod rate limit",
@@ -121,10 +125,12 @@ export const MAX_ALLOWED_CONTACTS_BEFORE_FLAG = 2;
 export const getMaxAllowedContactsBeforeBlock = () => forumSelect({ EAForum: 4, default: 9 });
 
 export const REVIEW_REASON_TO_MODERATOR_ACTION = {
-  bio: UNREVIEWED_BIO_UPDATE,
+  biography: UNREVIEWED_BIO_UPDATE,
   mapLocation: UNREVIEWED_MAP_LOCATION_UPDATE,
-  profileImage: UNREVIEWED_PROFILE_IMAGE_UPDATE,
+  profileImageId: UNREVIEWED_PROFILE_IMAGE_UPDATE,
   firstPost: UNREVIEWED_FIRST_POST,
   firstComment: UNREVIEWED_FIRST_COMMENT,
+  unreviewedPost: UNREVIEWED_FIRST_POST,
+  unreviewedComment: UNREVIEWED_FIRST_COMMENT,
   newContent: SNOOZE_EXPIRED,
-} satisfies Record<Exclude<ReasonReviewIsNeeded, 'contactedTooManyUsers'>, DbModeratorAction['type']>;
+} satisfies Record<ReasonReviewIsNeeded, DbModeratorAction['type']>;

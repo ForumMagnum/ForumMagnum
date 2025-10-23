@@ -135,6 +135,7 @@ import MuiAddIcon from "@/lib/vendor/@material-ui/icons/src/Add";
 import BookIcon from "@heroicons/react/24/solid/BookOpenIcon";
 import MuiPostIcon from "@/lib/vendor/@material-ui/icons/src/Description";
 import MuiCommentIcon from "@/lib/vendor/@material-ui/icons/src/Message";
+import MuiSnoozeIcon from "@/lib/vendor/@material-ui/icons/src/Snooze";
 
 /**
  * ForumIcon can be used with custom SVG elements but you MUST pass through
@@ -318,7 +319,8 @@ export type ForumIconName =
   "ThumbUp" |
   "ThumbUpOutline" |
   "Post" |
-  "ModDashboardComment";
+  "ModDashboardComment" |
+  "Snooze";
 
 const ICONS: ForumOptions<Record<ForumIconName, IconComponent>> = {
   LWAF: {
@@ -458,6 +460,7 @@ const ICONS: ForumOptions<Record<ForumIconName, IconComponent>> = {
     ThumbUpOutline: ThumbUpOutlineIcon,
     Post: MuiPostIcon,
     ModDashboardComment: MuiCommentIcon,
+    Snooze: MuiSnoozeIcon,
   },
   default: {
     VolumeUp: SpeakerWaveIcon,
@@ -596,6 +599,7 @@ const ICONS: ForumOptions<Record<ForumIconName, IconComponent>> = {
     ThumbUpOutline: ThumbUpOutlineIcon,
     Post: DocumentTextIcon,
     ModDashboardComment: CommentIcon,
+    Snooze: MuiSnoozeIcon,
   },
 };
 

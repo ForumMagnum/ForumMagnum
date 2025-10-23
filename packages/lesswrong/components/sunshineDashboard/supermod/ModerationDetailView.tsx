@@ -52,6 +52,7 @@ const styles = defineStyles('ModerationDetailView', (theme: ThemeType) => ({
     gap: 8,
     flexShrink: 0,
     alignItems: 'flex-start',
+    width: 180,
   },
   column2: {
     display: 'flex',
@@ -80,7 +81,7 @@ const styles = defineStyles('ModerationDetailView', (theme: ThemeType) => ({
   displayName: {
     fontSize: 18,
     fontWeight: 600,
-    width: 140,
+    width: 148,
     overflow: 'hidden',
     textOverflow: 'ellipsis',
     whiteSpace: 'nowrap',
@@ -102,6 +103,7 @@ const styles = defineStyles('ModerationDetailView', (theme: ThemeType) => ({
   email: {
     color: theme.palette.grey[600],
     fontSize: 14,
+    width: 180,
     overflow: 'hidden',
     textOverflow: 'ellipsis',
     whiteSpace: 'nowrap',
@@ -112,6 +114,9 @@ const styles = defineStyles('ModerationDetailView', (theme: ThemeType) => ({
     gap: 4,
     fontSize: 13,
     marginBottom: 2,
+  },
+  deemphasizedVotesRow: {
+    opacity: 0.3,
   },
   contentCounts: {
     color: theme.palette.grey[600],
@@ -489,7 +494,7 @@ const ModerationDetailView = ({
                 {user.rejectedContentCount}
               </span>
             </div>
-            <div className={classes.votesRow}>
+            <div className={classNames(classes.votesRow, !user.bigUpvoteCount && !user.smallUpvoteCount && !user.smallDownvoteCount && !user.bigDownvoteCount && classes.deemphasizedVotesRow)}>
               <span className={classes.votesLabel}>Votes:</span>
               <span className={classes.bigUpvotes}>
                 {user.bigUpvoteCount ?? 0}

@@ -528,7 +528,7 @@ export function updateUserMayTriggerReview({newDocument, data, context}: UpdateC
   const reviewTriggerFields = ['biography', 'mapLocation', 'profileImageId'] as const;
   const updatedField = reviewTriggerFields.find(field => field in data);
   if (updatedField) {
-    backgroundTask(triggerReviewIfNeeded(newDocument._id, context));
+    backgroundTask(triggerReviewIfNeeded(newDocument._id, updatedField, context));
   }
 }
 

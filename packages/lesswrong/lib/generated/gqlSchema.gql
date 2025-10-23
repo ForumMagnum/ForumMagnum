@@ -1282,7 +1282,6 @@ extend type Mutation {
   unlockThread(commentId: String!): Boolean!
   rejectContentAndRemoveUserFromQueue(userId: String!, documentId: String!, collectionName: ContentCollectionName!): Boolean!
   approveUserCurrentContentOnly(userId: String!): Boolean!
-  toggleVotingDisabled(userId: String!): Boolean!
 }
 
 extend type Mutation {
@@ -3966,6 +3965,8 @@ enum ModeratorActionType {
   unreviewedProfileImageUpdate
   unreviewedFirstPost
   unreviewedFirstComment
+  unreviewedPost
+  unreviewedComment
   snoozeExpired
   stricterCommentAutomodRateLimit
   stricterPostAutomodRateLimit

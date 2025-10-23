@@ -36,6 +36,8 @@ export const graphqlModeratorActionQueryTypeDefs = gql`
     unreviewedProfileImageUpdate
     unreviewedFirstPost
     unreviewedFirstComment
+    unreviewedPost
+    unreviewedComment
     snoozeExpired
     stricterCommentAutomodRateLimit
     stricterPostAutomodRateLimit

@@ -267,7 +267,6 @@ interface Mutation {
   unlockThread: boolean;
   rejectContentAndRemoveUserFromQueue: boolean;
   approveUserCurrentContentOnly: boolean;
-  toggleVotingDisabled: boolean;
   reorderSummaries: boolean | null;
   publishAndDeDuplicateSpotlight: Spotlight | null;
   toggleBookmark: ToggleBookmarkOutput | null;

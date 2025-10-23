@@ -1,38 +1,67 @@
 import moment from "moment";
 import { DOWNVOTED_COMMENT_ALERT } from "@/lib/collections/commentModeratorActions/constants";
-import { getReasonForReview, isLowAverageKarmaContent, isActionActive } from "../../lib/collections/moderatorActions/helpers";
+import { isLowAverageKarmaContent, isActionActive, getCurrentContentCount } from "../../lib/collections/moderatorActions/helpers";
 import { LOW_AVERAGE_KARMA_COMMENT_ALERT, LOW_AVERAGE_KARMA_POST_ALERT, NEGATIVE_KARMA_USER_ALERT, rateLimitSet, RECENTLY_DOWNVOTED_CONTENT_ALERT, REVIEW_REASON_TO_MODERATOR_ACTION } from "@/lib/collections/moderatorActions/constants";
 import { getWithLoader } from "../../lib/loaders";
 import { forumSelect } from "../../lib/forumTypeUtils";
 import { createModeratorAction, updateModeratorAction } from "../collections/moderatorActions/mutations";
 import { createCommentModeratorAction } from "../collections/commentModeratorActions/mutations";
 import { backgroundTask } from "../utils/backgroundTask";
-import { ReasonReviewIsNeeded } from "@/lib/instanceSettings";
+
+export type ReasonReviewIsNeeded = "mapLocation" | "firstPost" | "firstComment" | "unreviewedPost" | "unreviewedComment" | "biography" | "profileImageId" | "newContent";
 
 async function createModeratorActionForReview(userId: string, reason: ReasonReviewIsNeeded, context: ResolverContext) {
-  if (reason === 'contactedTooManyUsers') {
-    // This case is handled in conversationCallbacks
-    return;
-  }
-  
   const moderatorActionType = REVIEW_REASON_TO_MODERATOR_ACTION[reason];
-  
   await createModeratorAction({ data: { userId, type: moderatorActionType } }, context);
 }
+
+type ReviewCheckTrigger = 'newComment' | 'updatedComment' | 'publishedPost' | 'mapLocation' | 'biography' | 'profileImageId';
 
 /** 
  * This function contains all logic for determining whether a given user needs review in the moderation sidebar.
  * It's important this this only be be added to async callbacks on posts and comments, so that postCount and commentCount have time to update first
  */
-export async function triggerReviewIfNeeded(userId: string, context: ResolverContext) {
+export async function triggerReviewIfNeeded(userId: string, trigger: ReviewCheckTrigger, context: ResolverContext) {
   const { Users } = context;
   const user = await Users.findOne({ _id: userId });
   if (!user)
     throw new Error("user is null");
 
-  const {needsReview, reason} = getReasonForReview(user);
-  if (needsReview) {
-    await createModeratorActionForReview(user._id, reason, context);
+  if (user.reviewedByUserId) {
+    if (!user.snoozedUntilContentCount || user.snoozedUntilContentCount > getCurrentContentCount(user)) return;
+
+    switch (trigger) {
+      case 'publishedPost':
+      case 'newComment':
+      case 'updatedComment':
+        return await createModeratorActionForReview(userId, 'newContent', context);
+      // If the user is snoozed, we don't want want to put them back in the review queue for updating these fields
+      case 'mapLocation':
+      case 'biography':
+      case 'profileImageId':
+        return;
+    }
+  }
+
+  /**
+   * Remaining cases are:
+   * 1) never reviewed users
+   * 2) users who were removed from the review queue and weren't previously reviewed
+   * 3) users who were removed from the review queue and *were* previously reviewed
+   * 
+   * 1 & 2 are indistinguishable except for maybe them having mod notes and we treat them the same way.
+   * 3 will have a reviewedAt date.
+   */
+  switch (trigger) {
+    case 'newComment':
+    case 'updatedComment':
+      return await createModeratorActionForReview(userId, user.reviewedAt ? 'unreviewedComment' : 'firstComment', context);
+    case 'publishedPost':
+      return await createModeratorActionForReview(userId, user.reviewedAt ? 'unreviewedPost' : 'firstPost', context);
+    case 'mapLocation':
+    case 'biography':
+    case 'profileImageId':
+      return await triggerReviewIfNeeded(userId, trigger, context);
   }
 }
 

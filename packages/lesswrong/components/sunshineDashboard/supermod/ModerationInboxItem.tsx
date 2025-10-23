@@ -6,7 +6,7 @@ import FlagIcon from '@/lib/vendor/@material-ui/icons/src/Flag';
 import { getUserEmail } from '@/lib/collections/users/helpers';
 import DescriptionIcon from '@/lib/vendor/@material-ui/icons/src/Description'
 import MessageIcon from '@/lib/vendor/@material-ui/icons/src/Message'
-import { getFallbackDisplayedModeratorAction, getPrimaryDisplayedModeratorAction, partitionModeratorActions, ReviewGroup } from './groupings';
+import { getPrimaryDisplayedModeratorAction, getDisplayedReasonForGroupAssignment, partitionModeratorActions, ReviewGroup } from './groupings';
 import ForumIcon from '@/components/common/ForumIcon';
 import { htmlToTextDefault } from '@/lib/htmlToText';
 import { useModeratedUserContents } from '@/components/hooks/useModeratedUserContents';
@@ -70,7 +70,7 @@ const styles = defineStyles('ModerationInboxItem', (theme: ThemeType) => ({
     fontSize: 13,
     color: theme.palette.grey[600],
     marginRight: 12,
-    minWidth: 24,
+    width: 24,
     flexShrink: 0,
   },
   icons: {
@@ -172,6 +172,11 @@ const styles = defineStyles('ModerationInboxItem', (theme: ThemeType) => ({
   },
 }));
 
+const PreloadUserContents = ({ user }: { user: SunshineUsersList }) => {
+  useModeratedUserContents(user._id);
+  return null;
+};
+
 const ContentPreview = ({ user }: { user: SunshineUsersList }) => {
   const classes = useStyles(styles);
 
@@ -222,12 +227,7 @@ const ModerationInboxItem = ({
 }) => {
   const classes = useStyles(styles);
 
-  const fallbackDisplayedModeratorAction = getFallbackDisplayedModeratorAction(user);
-
-  const { fresh: freshModeratorActions, stale: staleModeratorActions } = partitionModeratorActions(user);
-  const freshModeratorActionBadges = [...new Set(freshModeratorActions.map(action => getPrimaryDisplayedModeratorAction(action.type)))];
-  const staleModeratorActionBadges = staleModeratorActions.map(action => getPrimaryDisplayedModeratorAction(action.type));
-  const allModeratorActionBadges = [...freshModeratorActionBadges, ...staleModeratorActionBadges];
+  const likelyReviewTrigger = getDisplayedReasonForGroupAssignment(user);
 
   const karma = user.karma;
   const karmaClass = karma < 0 ? classes.karmaNegative : karma < 10 ? classes.karmaLow : classes.karmaPositive;
@@ -272,20 +272,15 @@ const ModerationInboxItem = ({
       <div className={classes.icons}>
         {user.sunshineFlagged && <FlagIcon className={classes.flagIcon} />}
       </div>
-      {freshModeratorActionBadges.map((badge, index) => (
-        <ReviewTriggerBadge badge={badge} key={index} />
-      ))}
-      {fallbackDisplayedModeratorAction && !allModeratorActionBadges.includes(fallbackDisplayedModeratorAction) && (
-        <ReviewTriggerBadge badge={fallbackDisplayedModeratorAction} fallback />
+      {likelyReviewTrigger && (
+        <ReviewTriggerBadge badge={likelyReviewTrigger} />
       )}
-      {staleModeratorActionBadges.map((badge, index) => (
-        <ReviewTriggerBadge badge={badge} stale key={index} />
-      ))}
 
       <div className={classes.contextualInfo}>
-        {reviewGroup === 'newContent' && (
-          <ContentPreview user={user} />
-        )}
+        {reviewGroup === 'newContent'
+          ? <ContentPreview user={user} />
+          : <PreloadUserContents user={user} />
+        }
         {reviewGroup === 'maybeSpam' && (
           <div className={classes.bioPreview}>{htmlToTextDefault(user.htmlBio)}</div>
         )}

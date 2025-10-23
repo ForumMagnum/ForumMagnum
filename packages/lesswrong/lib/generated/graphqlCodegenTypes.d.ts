@@ -3250,9 +3250,11 @@ type ModeratorActionType =
   | 'stricterCommentAutomodRateLimit'
   | 'stricterPostAutomodRateLimit'
   | 'unreviewedBioUpdate'
+  | 'unreviewedComment'
   | 'unreviewedFirstComment'
   | 'unreviewedFirstPost'
   | 'unreviewedMapLocationUpdate'
+  | 'unreviewedPost'
   | 'unreviewedProfileImageUpdate'
   | 'votingDisabled'
   | 'votingPatternWarningDelivered';
@@ -4371,7 +4373,6 @@ type Mutation = {
   signup?: Maybe<LoginReturnData>;
   submitReviewVote?: Maybe<Post>;
   toggleBookmark?: Maybe<ToggleBookmarkOutput>;
-  toggleVotingDisabled: Scalars['Boolean']['output'];
   unlinkCrossposter?: Maybe<Scalars['String']['output']>;
   unlockPost?: Maybe<Post>;
   unlockThread: Scalars['Boolean']['output'];
@@ -5075,11 +5076,6 @@ type MutationsubmitReviewVoteArgs = {
 
 type MutationtoggleBookmarkArgs = {
   input: ToggleBookmarkInput;
-};
-
-
-type MutationtoggleVotingDisabledArgs = {
-  userId: Scalars['String']['input'];
 };
 
 
@@ -16549,6 +16545,25 @@ type RefreshDbSettingsMutationVariables = Exact<{ [key: string]: never; }>;
 
 type RefreshDbSettingsMutation = RefreshDbSettingsMutation_Mutation;
 
+type multiModerationTemplateRejectContentDialogQueryQuery_moderationTemplates_MultiModerationTemplateOutput_results_ModerationTemplate = (
+  { __typename?: 'ModerationTemplate' }
+  & ModerationTemplateFragment
+);
+
+type multiModerationTemplateRejectContentDialogQueryQuery_moderationTemplates_MultiModerationTemplateOutput = { __typename?: 'MultiModerationTemplateOutput', totalCount: number | null, results: Array<multiModerationTemplateRejectContentDialogQueryQuery_moderationTemplates_MultiModerationTemplateOutput_results_ModerationTemplate> };
+
+type multiModerationTemplateRejectContentDialogQueryQuery_Query = { __typename?: 'Query', moderationTemplates: multiModerationTemplateRejectContentDialogQueryQuery_moderationTemplates_MultiModerationTemplateOutput | null };
+
+
+type multiModerationTemplateRejectContentDialogQueryQueryVariables = Exact<{
+  selector: InputMaybe<ModerationTemplateSelector>;
+  limit: InputMaybe<Scalars['Int']['input']>;
+  enableTotal: InputMaybe<Scalars['Boolean']['input']>;
+}>;
+
+
+type multiModerationTemplateRejectContentDialogQueryQuery = multiModerationTemplateRejectContentDialogQueryQuery_Query;
+
 type rejectPostMutationMutation_updatePost_PostOutput_data_Post = (
   { __typename?: 'Post' }
   & SunshinePostsList
@@ -20925,25 +20940,6 @@ type NewPostModerationWarningQueryVariables = Exact<{
 
 type NewPostModerationWarningQuery = NewPostModerationWarningQuery_Query;
 
-type multiModerationTemplateRejectContentDialogQueryQuery_moderationTemplates_MultiModerationTemplateOutput_results_ModerationTemplate = (
-  { __typename?: 'ModerationTemplate' }
-  & ModerationTemplateFragment
-);
-
-type multiModerationTemplateRejectContentDialogQueryQuery_moderationTemplates_MultiModerationTemplateOutput = { __typename?: 'MultiModerationTemplateOutput', totalCount: number | null, results: Array<multiModerationTemplateRejectContentDialogQueryQuery_moderationTemplates_MultiModerationTemplateOutput_results_ModerationTemplate> };
-
-type multiModerationTemplateRejectContentDialogQueryQuery_Query = { __typename?: 'Query', moderationTemplates: multiModerationTemplateRejectContentDialogQueryQuery_moderationTemplates_MultiModerationTemplateOutput | null };
-
-
-type multiModerationTemplateRejectContentDialogQueryQueryVariables = Exact<{
-  selector: InputMaybe<ModerationTemplateSelector>;
-  limit: InputMaybe<Scalars['Int']['input']>;
-  enableTotal: InputMaybe<Scalars['Boolean']['input']>;
-}>;
-
-
-type multiModerationTemplateRejectContentDialogQueryQuery = multiModerationTemplateRejectContentDialogQueryQuery_Query;
-
 type createReportReportFormMutation_createReport_ReportOutput_data_Report = (
   { __typename?: 'Report' }
   & UnclaimedReportsList
@@ -21644,25 +21640,6 @@ type updateUserModerationSidebarMutationVariables = Exact<{
 
 type updateUserModerationSidebarMutation = updateUserModerationSidebarMutation_Mutation;
 
-type multiCommentModerationKeyboardQueryQuery_comments_MultiCommentOutput_results_Comment = (
-  { __typename?: 'Comment' }
-  & CommentsListWithParentMetadata
-);
-
-type multiCommentModerationKeyboardQueryQuery_comments_MultiCommentOutput = { __typename?: 'MultiCommentOutput', totalCount: number | null, results: Array<multiCommentModerationKeyboardQueryQuery_comments_MultiCommentOutput_results_Comment> };
-
-type multiCommentModerationKeyboardQueryQuery_Query = { __typename?: 'Query', comments: multiCommentModerationKeyboardQueryQuery_comments_MultiCommentOutput | null };
-
-
-type multiCommentModerationKeyboardQueryQueryVariables = Exact<{
-  selector: InputMaybe<CommentSelector>;
-  limit: InputMaybe<Scalars['Int']['input']>;
-  enableTotal: InputMaybe<Scalars['Boolean']['input']>;
-}>;
-
-
-type multiCommentModerationKeyboardQueryQuery = multiCommentModerationKeyboardQueryQuery_Query;
-
 type multiModerationTemplateRestrictAndNotifyModalQueryQuery_moderationTemplates_MultiModerationTemplateOutput_results_ModerationTemplate = (
   { __typename?: 'ModerationTemplate' }
   & ModerationTemplateFragment
@@ -21729,20 +21706,6 @@ type updateCommentRestrictAndNotifyMutationVariables = Exact<{
 
 
 type updateCommentRestrictAndNotifyMutation = updateCommentRestrictAndNotifyMutation_Mutation;
-
-type createModeratorActionRestrictAndNotifyMutation_createModeratorAction_ModeratorActionOutput_data_ModeratorAction = { __typename?: 'ModeratorAction', _id: string, type: ModeratorActionType, userId: string };
-
-type createModeratorActionRestrictAndNotifyMutation_createModeratorAction_ModeratorActionOutput = { __typename?: 'ModeratorActionOutput', data: createModeratorActionRestrictAndNotifyMutation_createModeratorAction_ModeratorActionOutput_data_ModeratorAction | null };
-
-type createModeratorActionRestrictAndNotifyMutation_Mutation = { __typename?: 'Mutation', createModeratorAction: createModeratorActionRestrictAndNotifyMutation_createModeratorAction_ModeratorActionOutput | null };
-
-
-type createModeratorActionRestrictAndNotifyMutationVariables = Exact<{
-  data: CreateModeratorActionDataInput;
-}>;
-
-
-type createModeratorActionRestrictAndNotifyMutation = createModeratorActionRestrictAndNotifyMutation_Mutation;
 
 type updateUserContentPermissionsMutation_updateUser_UserOutput_data_User = (
   { __typename?: 'User' }
