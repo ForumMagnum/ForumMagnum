@@ -1,6 +1,7 @@
 import React from 'react';
 import { defineStyles, useStyles } from '@/components/hooks/useStyles';
 import ModerationContentItem from './ModerationContentItem';
+import type { InboxAction } from './inboxReducer';
 
 const styles = defineStyles('ModerationContentList', (theme: ThemeType) => ({
   root: {
@@ -47,10 +48,12 @@ const ModerationContentList = ({
   items,
   title,
   focusedItemId,
+  dispatch,
 }: {
   items: ContentItem[];
   title: string;
   focusedItemId: string | null;
+  dispatch: React.ActionDispatch<[action: InboxAction]>;
 }) => {
   const classes = useStyles(styles);
 
@@ -68,12 +71,12 @@ const ModerationContentList = ({
         </div>
       ) : (
         <div className={classes.list}>
-          {items.map((item) => (
+          {items.map((item, idx) => (
             <ModerationContentItem
               key={item._id}
               item={item}
               isFocused={item._id === focusedItemId}
-              onOpen={() => {}}
+              onOpen={() => dispatch({ type: 'OPEN_CONTENT', contentIndex: idx })}
             />
           ))}
         </div>

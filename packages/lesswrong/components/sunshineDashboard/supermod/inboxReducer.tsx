@@ -52,6 +52,7 @@ export type InboxAction =
   | { type: 'REMOVE_USER'; userId: string; }
   | { type: 'NEXT_CONTENT'; contentLength: number; }
   | { type: 'PREV_CONTENT'; contentLength: number; }
+  | { type: 'OPEN_CONTENT'; contentIndex: number; }
   | { type: 'UPDATE_USER'; userId: string; fields: Partial<SunshineUsersList>; };
 
 
@@ -125,6 +126,13 @@ export function inboxStateReducer(state: InboxState, action: InboxAction): Inbox
       return {
         ...state,
         focusedContentIndex: prevIndex,
+      };
+    }
+
+    case 'OPEN_CONTENT': {
+      return {
+        ...state,
+        focusedContentIndex: action.contentIndex,
       };
     }
 

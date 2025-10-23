@@ -73,12 +73,10 @@ const ModerationInboxInner = ({ users, initialOpenedUserId, currentUser }: {
   const navigate = useNavigate();
   const { query, location } = useLocation();
 
-  // Initialize reducer with data and URL parameter immediately
   const [state, dispatch] = useReducer(
     inboxStateReducer,
     { users: [], activeTab: 'all', focusedUserId: null, openedUserId: initialOpenedUserId, focusedContentIndex: 0 },
     (): InboxState => {
-      // Compute initial state from users
       if (users.length === 0) {
         return {
           users: [],
@@ -124,7 +122,6 @@ const ModerationInboxInner = ({ users, initialOpenedUserId, currentUser }: {
     }
   }, [state.openedUserId, query.user, location, navigate]);
 
-  // Compute derived state from reducer state
   const groupedUsers = useMemo(() => groupBy(state.users, user => getUserReviewGroup(user)), [state.users]);
 
   const orderedGroups = useMemo(() => (

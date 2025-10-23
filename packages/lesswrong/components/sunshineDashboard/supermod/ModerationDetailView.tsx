@@ -588,6 +588,7 @@ const ModerationDetailView = ({
               items={allContent}
               title="Posts & Comments"
               focusedItemId={allContent[focusedContentIndex]?._id ?? null}
+              dispatch={dispatch}
             />
           </div>
           <ModerationContentDetail
