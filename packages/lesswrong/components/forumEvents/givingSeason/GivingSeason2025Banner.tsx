@@ -14,9 +14,11 @@ import {
 } from "@/lib/givingSeason";
 import classNames from "classnames";
 import moment from "moment";
+import CloudinaryImage2 from "@/components/common/CloudinaryImage2";
 
 const styles = defineStyles("GivingSeason2025Banner", (theme: ThemeType) => ({
   root: {
+    position: "relative",
     marginTop: -HEADER_HEIGHT,
     paddingTop: HEADER_HEIGHT,
     fontFamily: theme.palette.fonts.sansSerifStack,
@@ -24,7 +26,32 @@ const styles = defineStyles("GivingSeason2025Banner", (theme: ThemeType) => ({
     width: "100%",
     borderBottom: `1px solid ${theme.palette.text.alwaysBlack}`,
   },
+  backgroundImages: {
+    position: "absolute",
+    zIndex: 1,
+    top: 0,
+    left: 0,
+    width: "100%",
+    height: "100%",
+  },
+  backgroundImage: {
+    position: "absolute",
+    top: 0,
+    left: 0,
+    width: "100%",
+    height: "100%",
+    overflow: "hidden",
+    transition: "opacity linear 0.2s",
+    "& img": {
+      width: "100%",
+    },
+  },
+  backgroundImageHidden: {
+    opacity: 0,
+  },
   main: {
+    position: "relative",
+    zIndex: 2,
     padding: "20px 80px 40px 80px",
     display: "grid",
     gridTemplateColumns: "400px 1fr",
@@ -80,6 +107,7 @@ const styles = defineStyles("GivingSeason2025Banner", (theme: ThemeType) => ({
     transition: "background-color ease 0.2s",
     color: theme.palette.text.alwaysBlack,
     position: "relative",
+    zIndex: 2,
     display: "flex",
     flexDirection: "column",
     alignItems: "center",
@@ -192,6 +220,21 @@ export const GivingSeason2025Banner: FC = () => {
         style={{"--event-color": selectedEvent.color} as CSSProperties}
         className={classes.root}
       >
+        <div className={classes.backgroundImages}>
+          {givingSeasonEvents.map((event, i) => (
+            <CloudinaryImage2
+              key={event.name}
+              publicId={event.cloudinaryId}
+              wrapperClassName={classNames(
+                classes.backgroundImage,
+                event !== selectedEvent && classes.backgroundImageHidden,
+              )}
+              style={{zIndex: i}}
+              objectFit="cover"
+              loading="eager"
+            />
+          ))}
+        </div>
         <div className={classes.main}>
           <div className={classes.events}>
             {givingSeasonEvents.map((event) => (
