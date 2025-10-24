@@ -180,7 +180,20 @@ export function parseRoute<Patterns extends string[]>({ location, onError = null
   // so we extract the pathname to match against and use the rest for
   // constructing the RouterLocation later.
   const parsedPath = parsePath(pathWithRedirects);
-  const { pathname, search, hash } = parsedPath;
+  
+  // However, for reconstructing the "location" (and other details),
+  // we need to use the search params from both the original location
+  // and the post-redirect location, since the redirect-following logic
+  // doesn't preserve query params (though it might add new ones if there's a mapping)
+  const newUrlSearchParams = new URLSearchParams(parsedPath.search);
+  const urlSearchParams = new URLSearchParams(location.search);
+  newUrlSearchParams.forEach((value, key) => {
+    urlSearchParams.set(key, value);
+  });
+
+  const search = urlSearchParams.toString() ? `?${urlSearchParams.toString()}` : '';
+  const hash = parsedPath.hash || location.hash;
+  const { pathname } = parsedPath;
 
   const routePattern = getPatternMatchingPathname(pathname, routePatterns);
 
@@ -209,7 +222,7 @@ export function parseRoute<Patterns extends string[]>({ location, onError = null
     ? matchPath<Record<string, string>>(pathname, { path: routePattern, exact: true, strict: false })!.params
     : {};
 
-  const query = parseQuery(parsedPath);
+  const query = parseQuery({ ...parsedPath, search, hash });
 
   const result = {
     routePattern,
