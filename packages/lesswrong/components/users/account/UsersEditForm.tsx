@@ -5,7 +5,7 @@ import Button from '@/lib/vendor/@material-ui/core/src/Button';
 import { useCurrentUser } from '@/components/common/withUser';
 import { useMutation, useApolloClient } from '@apollo/client/react';
 import { useQuery } from "@/lib/crud/useQuery"
-import { hasEventsSetting, isAF, isEAForum, isLW, isLWorAF, verifyEmailsSetting } from '@/lib/instanceSettings';
+import { hasEventsSetting, verifyEmailsSetting } from '@/lib/instanceSettings';
 import { useSetTheme, useAbstractThemeOptions } from '@/components/themes/useTheme';
 
 import { configureDatadogRum } from '@/client/datadogRum';
@@ -47,6 +47,7 @@ import { withDateFields } from '@/lib/utils/dateUtils';
 import { gql } from "@/lib/generated/gql-codegen";
 import { useFormErrors } from '@/components/tanstack-form-components/BaseAppForm';
 import { useTracking } from '@/lib/analyticsEvents';
+import { useForumType } from '@/components/hooks/useForumType';
 
 const UsersEditUpdateMutation = gql(`
   mutation updateUserUsersEditForm($selector: SelectorInput!, $data: UpdateUserDataInput!) {
@@ -156,6 +157,7 @@ const UsersForm = ({
   onSuccess: (doc: UsersEdit) => void;
 }) => {
   const classes = useStyles(styles);
+  const { isLW, isAF, isLWorAF, isEAForum } = useForumType();
   const { query } = useLocation();
 
   const highlightedField = query?.highlightField ?? null;
@@ -265,14 +267,14 @@ const UsersForm = ({
             {(field) => (
               <MuiTextField
                 field={field}
-                disabled={isEAForum() && !form.state.values.hasAuth0Id}
+                disabled={isEAForum && !form.state.values.hasAuth0Id}
                 label="Email"
               />
             )}
           </form.Field>
         </div>
 
-        {isLWorAF() && <div className={classes.fieldWrapper}>
+        {isLWorAF && <div className={classes.fieldWrapper}>
           <form.Field name="fullName">
             {(field) => (
               <MuiTextField
@@ -283,7 +285,7 @@ const UsersForm = ({
           </form.Field>
         </div>}
 
-        {!isEAForum() && <div className={classNames("form-component-EditorFormComponent", classes.fieldWrapper)}>
+        {!isEAForum && <div className={classNames("form-component-EditorFormComponent", classes.fieldWrapper)}>
           <form.Field name="biography">
             {(field) => (
               <EditorFormComponent
@@ -307,7 +309,7 @@ const UsersForm = ({
       </div>
 
       <LegacyFormGroupLayout label={preferredHeadingCase("Site Customizations")} startCollapsed={true && highlightedField !== "googleLocation"}>
-        {!isLWorAF() && <div className={classes.fieldWrapper}>
+        {!isLWorAF && <div className={classes.fieldWrapper}>
           <form.Field name="theme">
             {(field) => (
               <ThemeSelect
@@ -341,7 +343,7 @@ const UsersForm = ({
           </form.Field>
         </div>
 
-        {isLW() && <div className={classes.fieldWrapper}>
+        {isLW && <div className={classes.fieldWrapper}>
           <form.Field name="hideFrontpageMap">
             {(field) => (
               <FormComponentCheckbox
@@ -352,7 +354,7 @@ const UsersForm = ({
           </form.Field>
         </div>}
 
-        {isLWorAF() && <div className={classes.fieldWrapper}>
+        {isLWorAF && <div className={classes.fieldWrapper}>
           <form.Field name="hideFrontpageBook2020Ad">
             {(field) => (
               <FormComponentCheckbox
@@ -376,7 +378,7 @@ const UsersForm = ({
           </form.Field>
         </div>
 
-        {isEAForum() && (userIsAdminOrMod(currentUser) || userIsMemberOf(currentUser, 'trustLevel1')) && <div className={classes.fieldWrapper}>
+        {isEAForum && (userIsAdminOrMod(currentUser) || userIsMemberOf(currentUser, 'trustLevel1')) && <div className={classes.fieldWrapper}>
           <form.Field name="showHideKarmaOption">
             {(field) => (
               <FormComponentCheckbox
@@ -433,7 +435,7 @@ const UsersForm = ({
           </form.Field>
         </div>
 
-        {isAF() && <div className={classes.fieldWrapper}>
+        {isAF && <div className={classes.fieldWrapper}>
           <form.Field name="hideAFNonMemberInitialWarning">
             {(field) => (
               <FormComponentCheckbox
@@ -477,7 +479,7 @@ const UsersForm = ({
           </form.Field>
         </div>
 
-        {isEAForum() && <div className={classes.fieldWrapper}>
+        {isEAForum && <div className={classes.fieldWrapper}>
           <form.Field name="hideCommunitySection">
             {(field) => (
               <FormComponentCheckbox
@@ -488,7 +490,7 @@ const UsersForm = ({
           </form.Field>
         </div>}
 
-        {isEAForum() && <div className={classes.fieldWrapper}>
+        {isEAForum && <div className={classes.fieldWrapper}>
           <form.Field name="showCommunityInRecentDiscussion">
             {(field) => (
               <FormComponentCheckbox
@@ -546,7 +548,7 @@ const UsersForm = ({
           </div>
         </HighlightableField>}
 
-        {!isEAForum() && <div className={classes.fieldWrapper}>
+        {!isEAForum && <div className={classes.fieldWrapper}>
           <form.Field name="mapLocation">
             {(field) => (
               <LocationFormComponent
@@ -558,7 +560,7 @@ const UsersForm = ({
           </form.Field>
         </div>}
 
-        {!isEAForum() && <div className={classes.fieldWrapper}>
+        {!isEAForum && <div className={classes.fieldWrapper}>
           <form.Field name="reactPaletteStyle">
             {(field) => (
               <FormComponentSelect
@@ -624,7 +626,7 @@ const UsersForm = ({
             {(field) => (
               <NotificationTypeSettingsWidget
                 field={field}
-                label={`${isEAForum() ? "Quick takes" : "Shortform"} by users I'm subscribed to`}
+                label={`${isEAForum ? "Quick takes" : "Shortform"} by users I'm subscribed to`}
               />
             )}
           </form.Field>
@@ -731,7 +733,7 @@ const UsersForm = ({
           </form.Field>
         </div>
 
-        {isLWorAF() && <div className={classes.fieldWrapper}>
+        {isLWorAF && <div className={classes.fieldWrapper}>
           <form.Field name="notificationAlignmentSubmissionApproved">
             {(field) => (
               <NotificationTypeSettingsWidget
@@ -861,7 +863,7 @@ const UsersForm = ({
           </form.Field>
         </div>}
 
-        {isLW() && <div className={classes.fieldWrapper}>
+        {isLW && <div className={classes.fieldWrapper}>
           <form.Field name="emailSubscribedToCurated">
             {(field) => (
               <EmailConfirmationRequiredCheckbox
@@ -872,7 +874,7 @@ const UsersForm = ({
           </form.Field>
         </div>}
 
-        {isEAForum() && <HighlightableField name="subscribedToDigest">
+        {isEAForum && <HighlightableField name="subscribedToDigest">
           <div className={classes.fieldWrapper}>
           <form.Field name="subscribedToDigest">
             {(field) => (
@@ -897,7 +899,7 @@ const UsersForm = ({
         </div>
       </LegacyFormGroupLayout>
 
-      {isEAForum() && <LegacyFormGroupLayout label={preferredHeadingCase("Privacy Settings")} startCollapsed={true}>
+      {isEAForum && <LegacyFormGroupLayout label={preferredHeadingCase("Privacy Settings")} startCollapsed={true}>
         <div className={classes.fieldWrapper}>
           <form.Field name="hideFromPeopleDirectory">
             {(field) => (
@@ -924,7 +926,7 @@ const UsersForm = ({
       </LegacyFormGroupLayout>}
 
       {userIsAdminOrMod(currentUser) && <LegacyFormGroupLayout label={preferredHeadingCase("Admin Options")} startCollapsed={true}>
-        {isEAForum() && <div className={classes.fieldWrapper}>
+        {isEAForum && <div className={classes.fieldWrapper}>
           <form.Field name="twitterProfileURLAdmin">
             {(field) => (
               <PrefixedInput
@@ -1099,7 +1101,7 @@ const UsersForm = ({
           </form.Field>
         </div>}
 
-        {isLWorAF() && userIsAdmin(currentUser) && <div className={classes.fieldWrapper}>
+        {isLWorAF && userIsAdmin(currentUser) && <div className={classes.fieldWrapper}>
           <form.Field name="hideSunshineSidebar">
             {(field) => (
               <FormComponentCheckbox
@@ -1111,7 +1113,7 @@ const UsersForm = ({
         </div>}
       </LegacyFormGroupLayout>}
 
-      {isLWorAF() && userIsAdmin(currentUser) && <LegacyFormGroupLayout label="Prize/Payment Info" startCollapsed={false}>
+      {isLWorAF && userIsAdmin(currentUser) && <LegacyFormGroupLayout label="Prize/Payment Info" startCollapsed={false}>
         <div className={classes.fieldWrapper}>
           <form.Field name="paymentEmail">
             {(field) => (
@@ -1345,6 +1347,7 @@ const UsersEditForm = ({ terms }: {
   const currentThemeOptions = useAbstractThemeOptions();
   const setTheme = useSetTheme();
   const { captureEvent } = useTracking();
+  const { isEAForum } = useForumType();
 
   const userHasEditAccess = userCanEditUser(currentUser, terms);
 
@@ -1397,7 +1400,7 @@ const UsersEditForm = ({ terms }: {
       {/* TODO(EA): Need to add a management API call to get the reset password
           link, but for now users can reset their password from the login
           screen */}
-      {isCurrentUser && !isEAForum() && <Button
+      {isCurrentUser && !isEAForum && <Button
         color="secondary"
         variant="outlined"
         className={classes.resetButton}

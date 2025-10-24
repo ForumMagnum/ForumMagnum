@@ -13,12 +13,14 @@ import { getKarmaNotificationTimingChoices } from '../KarmaChangeNotifierSetting
 import { NewReactions } from './NewReactions';
 import { ColoredNumber } from './ColoredNumber';
 import { styles } from './styles';
+import { useForumType } from '@/components/hooks/useForumType';
 
 const KarmaChangesDisplay = ({ karmaChanges, handleClose }: {
   karmaChanges: any;
   handleClose: (ev: React.MouseEvent) => any;
 }) => {
   const classes = useStyles(styles);
+  const { forumType } = useForumType();
   const { posts, comments, tagRevisions, updateFrequency } = karmaChanges;
   const currentUser = useCurrentUser();
   const noKarmaChanges = !(
@@ -27,7 +29,7 @@ const KarmaChangesDisplay = ({ karmaChanges, handleClose }: {
     || (tagRevisions && (tagRevisions.length > 0))
   );
 
-  const karmaNotificationTimingChoices = getKarmaNotificationTimingChoices();
+  const karmaNotificationTimingChoices = getKarmaNotificationTimingChoices(forumType);
 
   return (
     <Typography variant="body2">

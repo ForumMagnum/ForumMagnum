@@ -1,6 +1,4 @@
 import { ID_LENGTH } from "@/lib/random";
-import { DeferredForumSelect } from "@/lib/forumTypeUtils";
-import { ForumTypeString } from "@/lib/instanceSettings";
 
 export function isArrayTypeString<T extends DatabaseBaseType>(typeString: T | `${T}[]`): typeString is `${T}[]` {
   return typeString.endsWith('[]');

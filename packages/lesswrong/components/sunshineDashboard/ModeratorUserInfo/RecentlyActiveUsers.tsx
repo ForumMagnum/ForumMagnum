@@ -8,7 +8,6 @@ import { Link } from '../../../lib/reactRouterWrapper';
 import { registerComponent } from '../../../lib/vulcan-lib/components';
 import { commentBodyStyles } from '../../../themes/stylePiping';
 import UserAutoRateLimitsDisplay, { downvoterTooltip, recentKarmaTooltip } from './UserAutoRateLimitsDisplay';
-import { forumSelect } from '../../../lib/forumTypeUtils';
 import { autoCommentRateLimits, autoPostRateLimits } from '../../../lib/rateLimits/constants';
 import { getActiveRateLimitNames } from '../../../lib/rateLimits/utils';
 import { useLocation } from '../../../lib/routeUtil';
@@ -22,6 +21,7 @@ import SectionFooterCheckbox from "../../form-components/SectionFooterCheckbox";
 import Row from "../../common/Row";
 import { useQueryWithLoadMore } from "@/components/hooks/useQueryWithLoadMore";
 import { gql } from "@/lib/generated/gql-codegen";
+import { useForumType } from '@/components/hooks/useForumType';
 
 const SunshineUsersListMultiQuery = gql(`
   query multiUserRecentlyActiveUsersQuery($selector: UserSelector, $limit: Int, $enableTotal: Boolean) {
@@ -139,6 +139,7 @@ const RecentlyActiveUsers = ({ classes }: {
   classes: ClassesType<typeof styles>
 }) => {
   const currentUser = useCurrentUser();
+  const { forumSelect } = useForumType();
 
   const [expandId, setExpandId] = useState<string|null>(null);
 

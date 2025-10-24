@@ -13,7 +13,7 @@ import {
   userHasSubscribeTabFeed,
 } from '../../lib/betas';
 import { sequenceGetPageUrl } from '../../lib/collections/sequences/helpers';
-import { isLW, taggingNamePluralSetting } from '../../lib/instanceSettings';
+import { taggingNamePluralSetting } from '../../lib/instanceSettings';
 import { CountItemsContextProvider, useCountItemsContext } from '../hooks/CountItemsContext';
 import SingleColumnSection from "../common/SingleColumnSection";
 import SubscriptionsList from "./SubscriptionsList";
@@ -26,6 +26,7 @@ import {
   subscribedTagQuery,
   subscribedSequenceQuery
 } from './subscriptionQueries';
+import { useForumType } from '../hooks/useForumType';
 
 const styles = (theme: ThemeType) => ({
   noSubscriptions: {
@@ -68,6 +69,8 @@ const ViewSubscriptionsList = ({currentUser, classes}: {
   currentUser: UsersCurrent,
   classes: ClassesType<typeof styles>,
 }) => {
+  const { isLW } = useForumType();
+
   return (
     <SingleColumnSection>
       {userHasSubscribeTabFeed(currentUser) &&
@@ -132,7 +135,7 @@ const ViewSubscriptionsList = ({currentUser, classes}: {
         subscriptionTypeDescription="You will be notified of new activity by your dialogue partners on these dialogues."
       />
 
-      {isLW() && <SubscriptionsList
+      {isLW && <SubscriptionsList
         title="Subscribed to Old-Style Dialogues (as a reader)"
         collectionName="Posts"
         subscriptionType="newDebateComments"

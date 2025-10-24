@@ -75,7 +75,8 @@ function getPostRateLimitInfos(
   postsInTimeframe: Array<DbPost>,
   modRateLimitHours: number,
   userPostRateLimit: UserRateLimit<"allPosts">|null,
-  recentKarmaInfo: RecentKarmaInfo
+  recentKarmaInfo: RecentKarmaInfo,
+  context: ResolverContext
 ): Array<RateLimitInfo> {
   // for each rate limit, get the next date that user could post  
   const userPostRateLimitInfo = getManualRateLimitInfo(userPostRateLimit, postsInTimeframe)
@@ -85,7 +86,7 @@ function getPostRateLimitInfos(
     downvoteRatio: getDownvoteRatio(user)
   } 
 
-  const autoRatelimits = forumSelect(autoPostRateLimits)
+  const autoRatelimits = forumSelect(autoPostRateLimits, context.forumType)
   const autoRateLimitInfos = autoRatelimits?.map(
     rateLimit => getAutoRateLimitInfo(user, features, rateLimit, postsInTimeframe)
   ) ?? []
@@ -199,7 +200,7 @@ async function getCommentRateLimitInfos({commentsInTimeframe, user, modRateLimit
 
   const manualRateLimitInfo = userIsAuthor ? null : getManualRateLimitInfo(manualCommentRateLimit, commentsOnOthersPostsInTimeframe) 
 
-  const autoRateLimits = forumSelect(autoCommentRateLimits)
+  const autoRateLimits = forumSelect(autoCommentRateLimits, context.forumType)
   const filteredAutoRateLimits = autoRateLimits?.filter(rateLimit => {
     if (userIsAuthor) return rateLimit.appliesToOwnPosts
     return true 
@@ -239,13 +240,13 @@ export async function rateLimitDateWhenUserNextAbleToPost(user: DbUser, context:
 
   // what's the longest rate limit timeframe being evaluated?
   const manualPostRateLimitHours = getManualRateLimitIntervalHours(manualPostRateLimit);
-  const maxPostAutolimitHours = getMaxAutoLimitHours(forumSelect(autoPostRateLimits));
+  const maxPostAutolimitHours = getMaxAutoLimitHours(forumSelect(autoPostRateLimits, context.forumType));
   const maxHours = Math.max(modRateLimitHours, manualPostRateLimitHours, maxPostAutolimitHours);
 
   // fetch the posts from within the maxTimeframe
   const postsInTimeframe = await getPostsInTimeframe(user, maxHours, context);
 
-  const rateLimitInfos = getPostRateLimitInfos(user, postsInTimeframe, modRateLimitHours, manualPostRateLimit, recentKarmaInfo);
+  const rateLimitInfos = getPostRateLimitInfos(user, postsInTimeframe, modRateLimitHours, manualPostRateLimit, recentKarmaInfo, context);
 
   return getStrictestRateLimitInfo(rateLimitInfos)
 }
@@ -266,7 +267,7 @@ export async function rateLimitDateWhenUserNextAbleToComment(user: DbUser, postI
   const manualCommentRateLimitHours = getManualRateLimitIntervalHours(manualCommentRateLimit);
 
   // what's the longest rate limit timeframe being evaluated?
-  const maxCommentAutolimitHours = getMaxAutoLimitHours(forumSelect(autoCommentRateLimits))
+  const maxCommentAutolimitHours = getMaxAutoLimitHours(forumSelect(autoCommentRateLimits, context.forumType))
   const maxHours = Math.max(modRateLimitHours, modPostSpecificRateLimitHours, maxCommentAutolimitHours, manualCommentRateLimitHours);
 
   // fetch the comments from within the maxTimeframe
@@ -426,7 +427,7 @@ export async function checkForStricterRateLimits(userId: string, documentId: str
   const comparisonVotes = await getVotesForComparison(votedOnUser._id, allVotes, context);
 
   const userKarmaInfoWindow = getCurrentAndPreviousUserKarmaInfo(votedOnUser, allVotes, comparisonVotes);
-  const { commentRateLimitComparison, postRateLimitComparison } = getRateLimitStrictnessComparisons(userKarmaInfoWindow);
+  const { commentRateLimitComparison, postRateLimitComparison } = getRateLimitStrictnessComparisons(userKarmaInfoWindow, context);
 
   // Use the most recent vote date as the trigger time
   const triggeredAt = allVotes[0].votedAt;
@@ -440,8 +441,8 @@ export async function checkForStricterRateLimits(userId: string, documentId: str
 async function checkForLoosenedRateLimits(userId: string, userKarmaInfoWindow: UserKarmaInfoWindow, documentId: string, collectionName: CollectionNameString, triggeredAt: Date, context: ResolverContext) {
   const { currentUserKarmaInfo, previousUserKarmaInfo } = userKarmaInfoWindow;
 
-  const commentRateLimits = forumSelect(autoCommentRateLimits);
-  const postRateLimits = forumSelect(autoPostRateLimits);
+  const commentRateLimits = forumSelect(autoCommentRateLimits, context.forumType);
+  const postRateLimits = forumSelect(autoPostRateLimits, context.forumType);
 
   if (!commentRateLimits || !postRateLimits) return;
 

@@ -1,10 +1,10 @@
 import { getForumType, ThemeOptions } from './themeNames';
-import { baseTheme } from './createThemeDefaults';
+import { getBaseTheme } from './createThemeDefaults';
 import { getUserTheme } from './userThemes/index';
 import { getSiteTheme } from './siteThemes/index';
 import type { ForumTypeString } from '../lib/instanceSettings';
 import deepmerge from 'deepmerge';
-import { forumSelect } from '../lib/forumTypeUtils';
+import { isLWorAF } from '../lib/forumTypeUtils';
 import capitalize from 'lodash/capitalize';
 import createBreakpoints from "@/lib/vendor/@material-ui/core/src/styles/createBreakpoints";
 
@@ -18,11 +18,7 @@ export type SiteUIStyle = "book" | "friendly";
  * hinge on this setting, making a bit like a, "which tribe are you" question,
  * in addition to controlling the basic UI style.
  */
-const getSiteUIStyle = (): SiteUIStyle => forumSelect<SiteUIStyle>({
-  LWAF: "book",
-  EAForum: "friendly",
-  default: "friendly",
-})
+const getSiteUIStyle = (): SiteUIStyle => isLWorAF() ? "book" : "friendly";
 export const isBookUI = () => getSiteUIStyle() === "book";
 export const isFriendlyUI = () => getSiteUIStyle() === "friendly";
 
@@ -67,6 +63,7 @@ const buildTheme = (
   forumType: ForumTypeString,
   themeOptions: ThemeOptions,
 ): ThemeType => {
+  const baseTheme = getBaseTheme(forumType);
   let shadePalette: ThemeShadePalette = baseTheme.shadePalette;
   if (siteTheme.shadePalette) shadePalette = deepmerge(shadePalette, siteTheme.shadePalette);
   if (userTheme.shadePalette) shadePalette = deepmerge(shadePalette, userTheme.shadePalette);

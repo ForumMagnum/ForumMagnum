@@ -1,5 +1,6 @@
 import React from "react";
 import { ForumOptions, forumSelect } from "../../lib/forumTypeUtils";
+import { type ForumTypeString } from "@/lib/instanceSettings";
 
 const lwafPersonalBlogpostInfo = {
   name: "Personal Blog",
@@ -34,4 +35,4 @@ const personalBlogpostInfo: ForumOptions<{name: string, tooltip: React.JSX.Eleme
   },
 }
 
-export const usePersonalBlogpostInfo = () => forumSelect(personalBlogpostInfo);
+export const usePersonalBlogpostInfo = (forumType: ForumTypeString) => forumSelect(personalBlogpostInfo, forumType);

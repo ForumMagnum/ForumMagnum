@@ -26,6 +26,7 @@ import SharePostButton from "../SharePostButton";
 import AudioToggle from "./AudioToggle";
 import ReadTime from "./ReadTime";
 import { CommentsLink } from './CommentsLink';
+import { useForumType } from '@/components/hooks/useForumType';
 
 const SECONDARY_SPACING = 20;
 
@@ -168,6 +169,7 @@ const PostsPagePostHeader = ({post, answers = [], dialogueResponses = [], showEm
   annualReviewMarketInfo?: AnnualReviewMarketInfo,
   classes: ClassesType<typeof styles>,
 }) => {
+  const { forumType } = useForumType();
   const hasMajorRevision = ('version' in post) && extractVersionsFromSemver(post.version).major > 1
   const rssFeedSource = ('feed' in post) ? post.feed : null;
   let feedLinkDomain;
@@ -183,7 +185,7 @@ const PostsPagePostHeader = ({post, answers = [], dialogueResponses = [], showEm
   const {
     answerCount,
     commentCount,
-  } = useMemo(() => getResponseCounts({ post, answers }), [post, answers]);
+  } = useMemo(() => getResponseCounts({ post, answers, forumType }), [post, answers, forumType]);
 
   const minimalSecondaryInfo = post.isEvent || (isFriendlyUI() && post.shortform);
 
@@ -219,7 +221,7 @@ const PostsPagePostHeader = ({post, answers = [], dialogueResponses = [], showEm
         {post.isEvent && <GroupLinks document={post} noMargin />}
         {answersNode}
         {!post.shortform &&
-          <LWTooltip title={postGetCommentCountStr(post, commentCount)}>
+          <LWTooltip title={postGetCommentCountStr({post, commentCount, forumType})}>
             <CommentsLink anchor="#comments" className={classes.secondaryInfoLink}>
               <ForumIcon icon="Comment" className={classes.commentIcon} /> {commentCount}
             </CommentsLink>

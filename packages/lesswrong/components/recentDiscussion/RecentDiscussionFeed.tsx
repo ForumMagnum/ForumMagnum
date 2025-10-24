@@ -4,7 +4,7 @@ import { useCurrentUser } from '../common/withUser';
 import { useGlobalKeydown } from '../common/withGlobalKeydown';
 import { forumSelect } from '../../lib/forumTypeUtils';
 import { AnalyticsContext } from '../../lib/analyticsEvents';
-import { showSubscribeReminderInFeed } from '@/lib/instanceSettings';
+import { type ForumTypeString, showSubscribeReminderInFeed } from '@/lib/instanceSettings';
 import { ObservableQuery } from '@apollo/client';
 import RecentDiscussionThread from "./RecentDiscussionThread";
 import RecentDiscussionTag from "./RecentDiscussionTag";
@@ -23,6 +23,7 @@ import { RecentDiscussionFeedQuery } from '../common/feeds/feedQueries';
 import FeedSelectorDropdown from '../common/FeedSelectorCheckbox';
 import { defineStyles, useStyles } from '../hooks/useStyles';
 import { randomId } from '../../lib/random';
+import { useForumType } from '../hooks/useForumType';
 
 const styles = defineStyles("RecentDiscussionFeed", (theme: ThemeType) => ({
   titleRow: {
@@ -38,7 +39,7 @@ const styles = defineStyles("RecentDiscussionFeed", (theme: ThemeType) => ({
   },
 }));
 
-const recentDisucssionFeedComponents = () => forumSelect({
+const recentDiscussionFeedComponents = (forumType: ForumTypeString) => forumSelect({
   LWAF: {
     ThreadComponent: RecentDiscussionThread,
     ShortformComponent: RecentDiscussionThread,
@@ -55,7 +56,7 @@ const recentDisucssionFeedComponents = () => forumSelect({
     SubscribeReminderComponent: RecentDiscussionSubscribeReminder,
     MeetupsPokeComponent: () => null,
   },
-});
+}, forumType);
 
 const RecentDiscussionFeed = ({
   commentsLimit, maxAgeHours, af,
@@ -68,6 +69,7 @@ const RecentDiscussionFeed = ({
   shortformButton?: boolean,
 }) => {
   const classes = useStyles(styles);
+  const { forumType } = useForumType();
   const [expandAllThreads, setExpandAllThreads] = useState(false);
   const [showShortformFeed, setShowShortformFeed] = useState(false);
   const refetchRef = useRef<null|ObservableQuery['refetch']>(null);
@@ -107,7 +109,7 @@ const RecentDiscussionFeed = ({
     TagRevisionComponent,
     SubscribeReminderComponent,
     MeetupsPokeComponent,
-  } = recentDisucssionFeedComponents();
+  } = recentDiscussionFeedComponents(forumType);
 
   const subscribeReminderRenderer = showSubscribeReminderInFeed.get()
     ? { render: () => <SubscribeReminderComponent/> }

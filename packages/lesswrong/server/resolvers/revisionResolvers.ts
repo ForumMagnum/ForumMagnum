@@ -26,8 +26,8 @@ export const revisionResolversGraphQLTypeDefs = gql`
 export const revisionResolversGraphQLMutations = {
   revertTagToRevision: async (root: void, { tagId, revertToRevisionId }: { tagId: string, revertToRevisionId: string }, context: ResolverContext) => {
     const { currentUser, loaders, Tags } = context;
-    if (!tagUserHasSufficientKarma(currentUser, 'edit')) {
-      throw new Error(`Must be logged in and have ${getTagMinimumKarmaPermissions().edit} karma to revert tags to older revisions`);
+    if (!tagUserHasSufficientKarma(currentUser, 'edit', context.forumType)) {
+      throw new Error(`Must be logged in and have ${getTagMinimumKarmaPermissions(context.forumType).edit} karma to revert tags to older revisions`);
     }
 
     const [tag, revertToRevision, latestRevision] = await Promise.all([

@@ -8,7 +8,7 @@ import { useForm } from '@tanstack/react-form';
 import { defineStyles, useStyles } from '../hooks/useStyles';
 import { MuiTextField } from '@/components/form-components/MuiTextField';
 import { localGroupTypeFormOptions, GROUP_CATEGORIES } from '@/lib/collections/localgroups/groupTypes';
-import { isEAForum, isLW } from '@/lib/instanceSettings';
+import { isEAForum } from '@/lib/instanceSettings';
 import { MultiSelectButtons } from '@/components/form-components/MultiSelectButtons';
 import { FormComponentMultiSelect } from '@/components/form-components/FormComponentMultiSelect';
 import { isFriendlyUI, preferredHeadingCase } from '@/themes/forumTheme';
@@ -29,6 +29,7 @@ import { useMutation } from "@apollo/client/react";
 import { useQuery } from "@/lib/crud/useQuery";
 import { gql } from "@/lib/generated/gql-codegen";
 import { withDateFields } from '@/lib/utils/dateUtils';
+import { useForumType } from '../hooks/useForumType';
 
 const localGroupsHomeFragmentUpdateMutation = gql(`
   mutation updateLocalgroupGroupFormDialog($selector: SelectorInput!, $data: UpdateLocalgroupDataInput!) {
@@ -101,6 +102,7 @@ const LocalGroupForm = ({
   onSuccess: (group: any) => void;
 }) => {
   const classes = useStyles(styles);
+  const { isLW } = useForumType();
   const formType = initialData ? 'edit' : 'new';
 
   const {
@@ -224,7 +226,7 @@ const LocalGroupForm = ({
         </form.Field>
       </div>
 
-      {isLW() && <div className={classes.fieldWrapper}>
+      {isLW && <div className={classes.fieldWrapper}>
         <form.Field name="types">
           {(field) => (
             <MultiSelectButtons

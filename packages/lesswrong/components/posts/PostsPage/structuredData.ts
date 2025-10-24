@@ -1,7 +1,7 @@
 import { postGetPageUrl } from "@/lib/collections/posts/helpers";
 import { tagGetUrl } from "@/lib/collections/tags/helpers";
 import { userGetProfileUrl } from "@/lib/collections/users/helpers";
-import { forumTitleSetting, isAF } from "@/lib/instanceSettings";
+import { forumTitleSetting, type ForumTypeString } from "@/lib/instanceSettings";
 import { CommentTreeNode } from "@/lib/utils/unflatten";
 
 const POST_DESCRIPTION_EXCLUSIONS: RegExp[] = [
@@ -12,9 +12,11 @@ const POST_DESCRIPTION_EXCLUSIONS: RegExp[] = [
 
 
 const getCommentStructuredData = ({
-  comment
+  comment,
+  forumType
 }: {
   comment: CommentTreeNode<CommentsList>
+  forumType: ForumTypeString
 }): Record<string, any> => ({
   "@type": "Comment",
   text: comment.item.contents?.html,
@@ -29,18 +31,18 @@ const getCommentStructuredData = ({
         interactionType: {
           "@type": "http://schema.org/CommentAction",
         },
-        userInteractionCount: comment.item.user?.[isAF() ? "afCommentCount" : "commentCount"],
+        userInteractionCount: comment.item.user?.[(forumType === "AlignmentForum") ? "afCommentCount" : "commentCount"],
       },
       {
         "@type": "InteractionCounter",
         interactionType: {
           "@type": "http://schema.org/WriteAction",
         },
-        userInteractionCount: comment.item.user?.[isAF() ? "afPostCount" : "postCount"],
+        userInteractionCount: comment.item.user?.[(forumType === "AlignmentForum") ? "afPostCount" : "postCount"],
       },
     ],
   }],
-  ...(comment.children.length > 0 && {comment: comment.children.map(child => getCommentStructuredData({comment: child}))})
+  ...(comment.children.length > 0 && {comment: comment.children.map(child => getCommentStructuredData({comment: child, forumType}))})
 })
 
 /**
@@ -50,12 +52,14 @@ export const getStructuredData = ({
   post,
   description,
   commentTree,
-  answersTree
+  answersTree,
+  forumType,
 }: {
   post: PostsWithNavigation | PostsWithNavigationAndRevision;
   description: string | null;
   commentTree: CommentTreeNode<CommentsList>[];
   answersTree: CommentTreeNode<CommentsList>[];
+  forumType: ForumTypeString;
 }) => {
   const { user, coauthors } = post;
   const hasUser = !!user;
@@ -99,7 +103,7 @@ export const getStructuredData = ({
           : []),
       ],
     }),
-    ...(answersAndComments.length > 0 && {comment: answersAndComments.map(comment => getCommentStructuredData({comment}))}),
+    ...(answersAndComments.length > 0 && {comment: answersAndComments.map(comment => getCommentStructuredData({comment, forumType}))}),
     interactionStatistic: [
       {
         "@type": "InteractionCounter",

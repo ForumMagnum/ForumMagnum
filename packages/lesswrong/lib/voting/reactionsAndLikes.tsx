@@ -1,5 +1,5 @@
 import { VotingProps } from "@/components/votes/votingProps";
-import { isLW } from "../instanceSettings";
+import { isLWorAF } from "../instanceSettings";
 import type { NamesAttachedReactionsList, UserVoteOnSingleReaction } from "./namesAttachedReactions";
 import { addReactsVote, removeReactsVote, getDocumentHighlights } from './reactionDisplayHelpers';
 import { defineVotingSystem } from './defineVotingSystem';
@@ -26,7 +26,7 @@ type ReactionsAndLikesScore = {
 
 export const reactionsAndLikesVotingSystem = defineVotingSystem<ReactionsAndLikesVote, ReactionsAndLikesScore>({
   name: "reactionsAndLikes",
-  userCanActivate: isLW,
+  userCanActivate: isLWorAF,
   description: "Likes (single-axis non-anonymous) plus reactions",
   hasInlineReacts: true,
 

@@ -12,6 +12,7 @@ import { useABTest } from '@/components/hooks/useAbTests';
 import { welcomeBoxABTest } from '../../../lib/abTests';
 import { useCurrentUser } from '../../common/withUser';
 import { Typography } from "../../common/Typography";
+import { useForumType } from '@/components/hooks/useForumType';
 
 const styles = (theme: ThemeType) => ({
   wrapper: {
@@ -82,7 +83,8 @@ const WelcomeBox = ({ classes }: {
 }) => {
   const currentUser = useCurrentUser();
   const welcomeBoxABTestGroup = useABTest(welcomeBoxABTest);
-  const data = forumSelect(welcomeBoxes);
+  const { forumType } = useForumType();
+  const data = forumSelect(welcomeBoxes, forumType);
   const [cookies, setCookie] = useCookiesWithConsent([HIDE_WELCOME_BOX_COOKIE]);
 
   const canShow = welcomeBoxABTestGroup === "welcomeBox" && !currentUser && data && !cookies[HIDE_WELCOME_BOX_COOKIE];

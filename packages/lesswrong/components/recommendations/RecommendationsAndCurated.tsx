@@ -5,7 +5,7 @@ import { Link } from '../../lib/reactRouterWrapper';
 import RecommendationsAlgorithmPicker, { getRecommendationSettings } from './RecommendationsAlgorithmPicker'
 import { useContinueReading } from './withContinueReading';
 import {AnalyticsContext, useTracking} from "../../lib/analyticsEvents";
-import { isLW, isEAForum } from '../../lib/instanceSettings';
+import { isEAForum, ForumTypeString } from '../../lib/instanceSettings';
 import type { RecommendationsAlgorithm } from '../../lib/collections/users/recommendationSettings';
 import { useExpandedFrontpageSection } from '../hooks/useExpandedFrontpageSection';
 import { SHOW_RECOMMENDATIONS_SECTION_COOKIE } from '../../lib/cookies/cookies';
@@ -21,6 +21,7 @@ import BookmarksList from "../bookmarks/BookmarksList";
 import LWTooltip from "../common/LWTooltip";
 import CuratedPostsList from "./CuratedPostsList";
 import ForumIcon from "../common/ForumIcon";
+import { useForumType } from '../hooks/useForumType';
 
 const styles = (theme: ThemeType) => ({
   section: theme.isFriendlyUI ? {} : {
@@ -100,14 +101,14 @@ const styles = (theme: ThemeType) => ({
   },
 });
 
-const getFrontPageOverwrites = (haveCurrentUser: boolean): Partial<RecommendationsAlgorithm> => {
+const getFrontPageOverwrites = (haveCurrentUser: boolean, forumType: ForumTypeString): Partial<RecommendationsAlgorithm> => {
   if (isFriendlyUI()) {
     return {
       method: haveCurrentUser ? 'sample' : 'top',
       count: haveCurrentUser ? 3 : 5
     }
   }
-  if (isLW()) {
+  if (forumType === "LessWrong") {
     return {
       lwRationalityOnly: true,
       method: 'sample',
@@ -141,6 +142,7 @@ const RecommendationsAndCurated = ({
   const currentUser = useCurrentUser();
   const [showSettings, setShowSettings] = useState(false);
   const [settingsState, setSettings] = useState<any>(null);
+  const { isLW, forumType } = useForumType();
 
   const {continueReading} = useContinueReading();
   const { captureEvent } = useTracking({eventProps: {pageSectionContext: "recommendations"}});
@@ -154,7 +156,7 @@ const RecommendationsAndCurated = ({
     const settings = getRecommendationSettings({settings: settingsState, currentUser, configName})
     const frontpageRecommendationSettings: RecommendationsAlgorithm = {
       ...settings,
-      ...getFrontPageOverwrites(!!currentUser)
+      ...getFrontPageOverwrites(!!currentUser, forumType)
     }
 
     const continueReadingTooltip = <div>
@@ -226,14 +228,14 @@ const RecommendationsAndCurated = ({
 
     const bodyNode = (
       <>
-        {isLW() && (
+        {isLW && (
           <AnalyticsContext pageSubSectionContext="frontpageCuratedCollections">
             <DismissibleSpotlightItem />
           </AnalyticsContext>
         )}
 
         {/*Delete after the dust has settled on other Recommendations stuff*/}
-        {!currentUser && isLW() && (
+        {!currentUser && isLW && (
           <div>
             {/* <div className={classes.largeScreenLoggedOutSequences}>
             <AnalyticsContext pageSectionContext="frontpageCuratedSequences">

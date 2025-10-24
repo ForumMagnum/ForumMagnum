@@ -10,7 +10,7 @@ import { SidebarsContext } from './SidebarsWrapper';
 import withErrorBoundary from '../common/withErrorBoundary';
 import classNames from 'classnames';
 import { AnalyticsContext, useTracking } from '../../lib/analyticsEvents';
-import { forumHeaderTitleSetting, forumShortTitleSetting, isAF, hasProminentLogoSetting } from '@/lib/instanceSettings';
+import { forumHeaderTitleSetting, forumShortTitleSetting, hasProminentLogoSetting } from '@/lib/instanceSettings';
 import { useUnreadNotifications } from '../hooks/useUnreadNotifications';
 import { isBookUI, isFriendlyUI } from '../../themes/forumTheme';
 import { useLocation } from '../../lib/routeUtil';
@@ -31,8 +31,8 @@ import MessagesMenuButton from "../messaging/MessagesMenuButton";
 import { SuspenseWrapper } from './SuspenseWrapper';
 import { isHomeRoute } from '@/lib/routeChecks';
 import { useRouteMetadata } from '../ClientRouteMetadataContext';
-import { forumSelect } from '@/lib/forumTypeUtils';
 import NotificationsMenu from "../notifications/NotificationsMenu";
+import { forumSelect } from '@/lib/forumTypeUtils';
 
 /** Height of top header. On Book UI sites, this is for desktop only */
 export const getHeaderHeight = () => isBookUI() ? 64 : 66;
@@ -137,7 +137,7 @@ export const styles = (theme: ThemeType) => ({
       default: {
         backgroundColor: theme.palette.header.background,
       },
-    })),
+    }, theme.forumType)),
     position: "static",
     width: "100%",
     display: "flex",

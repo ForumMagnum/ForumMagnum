@@ -33,6 +33,7 @@ import { NEW_COMMENT_MARGIN_BOTTOM } from './constants';
 import CommentsDraftList from './CommentsDraftList';
 import { defineStyles, useStyles } from '../hooks/useStyles';
 import { CommentTreeOptions } from './commentTree';
+import { useForumType } from '../hooks/useForumType';
 
 const styles = defineStyles("CommentsListSection", (theme: ThemeType) => ({
   root: {
@@ -270,6 +271,7 @@ function CommentsListSectionTitle({
   setRestoreScrollPos: (newValue: number) => void,
 }) {
   const classes = useStyles(styles);
+  const { forumType } = useForumType();
   const currentUser = useCurrentUser();
   const newCommentsSinceDate = highlightDate
     ? comments.filter(comment => new Date(comment.postedAt).getTime() > new Date(highlightDate).getTime()).length
@@ -300,7 +302,7 @@ function CommentsListSectionTitle({
       {loadingMoreComments ? <Loading /> : <a onClick={() => loadMoreComments(newLimit)}> (show more) </a>}
     </span> :
     <span>
-      {postGetCommentCountStr(post, totalComments)}, sorted by <CommentsViews post={post} setRestoreScrollPos={setRestoreScrollPos} />
+      {postGetCommentCountStr({post, commentCount: totalComments, forumType})}, sorted by <CommentsViews post={post} setRestoreScrollPos={setRestoreScrollPos} />
     </span>
   if (isFriendlyUI()) {
     commentSortNode = <>Sorted by <CommentsViews post={post} setRestoreScrollPos={setRestoreScrollPos} /></>

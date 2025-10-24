@@ -12,6 +12,7 @@ import { useSuspenseQuery } from '@/lib/crud/useQuery';
 import { gql } from '@/lib/generated/gql-codegen';
 import { SuspenseWrapper } from '../common/SuspenseWrapper';
 import { useCurrentUser } from '../common/withUser';
+import { useForumType } from '../hooks/useForumType';
 
 const styles = defineStyles("SpotlightStartOrContinueReading", (theme: ThemeType) => ({
   root: {
@@ -116,12 +117,13 @@ const SpotlightStartOrContinueReadingFirstPost = ({spotlight, firstPost}: {
   firstPost: PostsList
 }) => {
   const classes = useStyles(styles);
+  const { forumType } = useForumType();
   const firstPostSequenceId = spotlight.documentId;
 
   const prefix = forumSelect({
     EAForum: preferredHeadingCase("Start with: "),
     default: preferredHeadingCase("First Post: ")
-  });
+  }, forumType);
 
   return <div className={classNames(classes.firstPost, classes.root)}>
     {prefix}<PostsTooltip post={firstPost}>

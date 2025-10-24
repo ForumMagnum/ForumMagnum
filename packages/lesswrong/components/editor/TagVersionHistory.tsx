@@ -20,6 +20,7 @@ import LoadMore from "../common/LoadMore";
 import ChangeMetricsDisplay from "../tagging/ChangeMetricsDisplay";
 import LWTooltip from "../common/LWTooltip";
 import { useQueryWithLoadMore } from "@/components/hooks/useQueryWithLoadMore";
+import { useForumType } from '../hooks/useForumType';
 
 const RevisionMetadataWithChangeMetricsMultiQuery = gql(`
   query multiRevisionTagVersionHistoryQuery($selector: RevisionSelector, $limit: Int, $enableTotal: Boolean) {
@@ -114,6 +115,7 @@ const TagVersionHistory = ({tagId, onClose, classes}: {
   classes: ClassesType<typeof styles>
 }) => {
   const currentUser = useCurrentUser();
+  const { forumType } = useForumType();
   const [selectedRevisionId,setSelectedRevisionId] = useState<string|null>(null);
   const [revertInProgress,setRevertInProgress] = useState(false);
   // We need the $contributorsLimit arg to satisfy the fragment, other graphql complains, even though we don't use any results that come back.
@@ -125,7 +127,7 @@ const TagVersionHistory = ({tagId, onClose, classes}: {
     }
   `));
   const [revertLoading, setRevertLoading] = useState(false);
-  const canRevert = tagUserHasSufficientKarma(currentUser, 'edit');
+  const canRevert = tagUserHasSufficientKarma(currentUser, 'edit', forumType);
 
   const { data: dataRevisions, loading: loadingRevisions, loadMoreProps } = useQueryWithLoadMore(RevisionMetadataWithChangeMetricsMultiQuery, {
     variables: {

@@ -2,13 +2,13 @@ import { registerComponent } from '../../lib/vulcan-lib/components';
 import React, { Ref } from 'react';
 import classNames from 'classnames';
 import { useVote } from './withVote';
-import { isAF } from '../../lib/instanceSettings';
 import { useVoteButtonsDisabled } from './useVoteButtonsDisabled';
 import { VotingSystem } from '@/lib/voting/votingSystemTypes';
 import { isFriendlyUI } from '../../themes/forumTheme';
 import { TooltipRef, TooltipSpan } from '../common/FMTooltip';
 import OverallVoteButton from "./OverallVoteButton";
 import { Typography } from "../common/Typography";
+import { useForumType } from '../hooks/useForumType';
 
 const styles = (theme: ThemeType) => ({
   voteBlock: {
@@ -99,6 +99,7 @@ const PostsVoteDefault = ({
   isFooter?: boolean,
   classes: ClassesType<typeof styles>
 }) => {
+  const { isAF } = useForumType();
   const voteProps = useVote(post, "Posts", votingSystem);
 
   const {fail, reason: whyYouCantVote} = useVoteButtonsDisabled();
@@ -151,7 +152,7 @@ const PostsVoteDefault = ({
           </Typography>
         </TooltipSpan>
 
-        {!!post.af && !!post.afBaseScore && !isAF() &&
+        {!!post.af && !!post.afBaseScore && !isAF &&
           <TooltipSpan
             title="AI Alignment Forum karma"
             placement={tooltipPlacement}

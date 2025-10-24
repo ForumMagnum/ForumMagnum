@@ -6,6 +6,7 @@ import { postGetCommentCount, postGetPageUrl } from '../../lib/collections/posts
 import { useUpdateContinueReading } from './useUpdateContinueReading';
 import { Link } from '../../lib/reactRouterWrapper';
 import LoginToTrack from "./LoginToTrack";
+import { useForumType } from '../hooks/useForumType';
 
 const styles = (theme: ThemeType) => ({
   root: {
@@ -67,8 +68,9 @@ const BottomNavigationItem = ({direction, post, sequence, classes}: {
   sequence: HasIdType|null,
   classes: ClassesType<typeof styles>,
 }) => {
+  const { forumType } = useForumType();
   const updateContinueReading = useUpdateContinueReading(post._id, sequence?._id);
-  const commentCount = postGetCommentCount(post) || "No"
+  const commentCount = postGetCommentCount(post, forumType) || "No"
   const url = postGetPageUrl(post, false, sequence?._id);
   
   return (

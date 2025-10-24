@@ -2,7 +2,7 @@ import { calculateVotePower, getVoteAxisStrength } from './voteTypes';
 import { loadByIds } from '../loaders';
 import { filterNonnull } from '../utils/typeGuardUtils';
 import { defineVotingSystem } from './defineVotingSystem';
-import { addNameToExistingReactKarmaThreshold, addNewReactKarmaThreshold, downvoteExistingReactKarmaThreshold, isLW } from '../instanceSettings';
+import { addNameToExistingReactKarmaThreshold, addNewReactKarmaThreshold, downvoteExistingReactKarmaThreshold, isLWorAF } from '../instanceSettings';
 import { namesAttachedReactionsByName } from './reactions';
 import uniq from 'lodash/uniq';
 import keyBy from 'lodash/keyBy';
@@ -13,7 +13,7 @@ import { addReactsVote, getDocumentHighlights, removeReactsVote } from './reacti
 
 export const namesAttachedReactionsVotingSystem = defineVotingSystem<NamesAttachedReactionsVote, NamesAttachedReactionsScore>({
   name: "namesAttachedReactions",
-  userCanActivate: isLW,
+  userCanActivate: isLWorAF,
   description: "Reacts (Two-axis plus Names-attached reactions)",
   hasInlineReacts: true,
   addVoteClient: ({voteType, document, oldExtendedScore, extendedVote, currentUser}: {

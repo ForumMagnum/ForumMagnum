@@ -1,7 +1,6 @@
 import React from 'react';
 import { registerComponent } from '../../lib/vulcan-lib/components';
 import classNames from 'classnames'
-import { isAF } from '@/lib/instanceSettings';
 import { Typography } from "./Typography";
 
 const styles = (theme: ThemeType) => ({
@@ -15,7 +14,7 @@ const styles = (theme: ThemeType) => ({
       marginRight: theme.spacing.unit
     },
     
-    ...(isAF() && {
+    ...(theme.isAF && {
       marginTop: 4,
       fontWeight: 500,
     }),

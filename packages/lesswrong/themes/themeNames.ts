@@ -1,4 +1,3 @@
-import { DeferredForumSelect } from '../lib/forumTypeUtils';
 import { forumTypeSetting, isEAForum } from '../lib/instanceSettings';
 import { TupleSet } from '../lib/utils/typeGuardUtils';
 
@@ -99,13 +98,10 @@ export function getForumType(themeOptions: AbstractThemeOptions) {
   return (themeOptions?.siteThemeOverride && themeOptions.siteThemeOverride[actualForumType]) || actualForumType;
 }
 
-export const defaultThemeOptions = new DeferredForumSelect({
-  EAForum: {name: "auto"},
-  default: {name: "default"},
-} as const);
-
-export const getDefaultThemeOptions = (): AbstractThemeOptions =>
-  defaultThemeOptions.get();
+export const getDefaultThemeOptions = (): AbstractThemeOptions => (isEAForum()
+  ? {name: "auto"}
+  : {name: "default"}
+);
 
 const deserializeThemeOptions = (themeOptions: object | string): AbstractThemeOptions => {
   if (typeof themeOptions === "string") {

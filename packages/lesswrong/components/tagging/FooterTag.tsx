@@ -11,6 +11,7 @@ import { isFriendlyUI } from '../../themes/forumTheme';
 import TagsTooltip, { TagsTooltipPreviewWrapper } from './TagsTooltip';
 import { defineStyles, useStyles } from '../hooks/useStyles';
 import ForumIcon from "../common/ForumIcon";
+import { useForumType } from '../hooks/useForumType';
 
 export const tagStyle = (theme: ThemeType) => ({
   marginRight: theme.isFriendlyUI ? 3 : undefined,
@@ -162,10 +163,11 @@ const FooterTag = ({
 )) => {
   const classes = useStyles(styles);
   const currentUser = useCurrentUser();
+  const { forumType } = useForumType();
 
   if (tag.adminOnly && !currentUser?.isAdmin) { return null }
 
-  const showIcon = Boolean(tag.core && !smallText && getCoreTagIconMap()[tag.slug] && !hideIcon);
+  const showIcon = Boolean(tag.core && !smallText && getCoreTagIconMap(forumType)[tag.slug] && !hideIcon);
 
   const tagName = isFriendlyUI() && smallText
     ? tag.shortName || tag.name

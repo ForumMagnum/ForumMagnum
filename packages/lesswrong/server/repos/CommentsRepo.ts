@@ -8,7 +8,7 @@ import { filterWhereFieldsNotNull } from "../../lib/utils/typeGuardUtils";
 import { EA_FORUM_COMMUNITY_TOPIC_ID } from "../../lib/collections/tags/helpers";
 import { recordPerfMetrics } from "./perfMetricWrapper";
 import { forumSelect } from "../../lib/forumTypeUtils";
-import { isAF } from "../../lib/instanceSettings";
+import { ForumTypeString } from "../../lib/instanceSettings";
 import { getViewableCommentsSelector, getViewablePostsSelector } from "./helpers";
 import { FeedCommentFromDb, ThreadEngagementStats } from "../../components/ultraFeed/ultraFeedTypes";
 
@@ -109,6 +109,7 @@ class CommentsRepo extends AbstractRepo<"Comments"> {
     limit = 3,
     recencyFactor = 250000,
     recencyBias = 60 * 60 * 2,
+    forumType,
   }: {
     offset?: number,
     limit?: number,
@@ -118,18 +119,20 @@ class CommentsRepo extends AbstractRepo<"Comments"> {
     // The minimum age that a post will be considered as having, to avoid
     // over selecting brand new comments - defaults to 2 hours
     recencyBias?: number,
+    forumType: ForumTypeString,
   }): Promise<DbComment[]> {
     const excludedTagId = forumSelect({
       EAForum: EA_FORUM_COMMUNITY_TOPIC_ID,
       default: null
-    });
+    }, forumType);
 
     const excludeTagId = !!excludedTagId;
     const excludedTagIdParam = excludeTagId ? { excludedTagId } : {};
     const excludedTagIdCondition = excludeTagId ? 'AND COALESCE((p."tagRelevance"->$(excludedTagId))::INTEGER, 0) < 1' : '';
 
-    const lookbackPeriod = isAF() ? '1 month' : '1 week';
-    const afCommentsFilter = isAF() ? 'AND "af" IS TRUE' : '';
+    const isAF = forumType==="AlignmentForum";
+    const lookbackPeriod = isAF ? '1 month' : '1 week';
+    const afCommentsFilter = isAF ? 'AND "af" IS TRUE' : '';
 
     return this.any(`
       -- CommentsRepo.getPopularComments

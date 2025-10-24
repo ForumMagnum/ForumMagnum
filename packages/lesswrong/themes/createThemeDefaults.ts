@@ -2,7 +2,7 @@ import transitions from '@/lib/vendor/@material-ui/core/src/styles/transitions';
 import { defaultShadePalette, defaultComponentPalette } from './defaultPalette';
 import { defaultZIndexes } from "./zIndexes";
 import { isBookUI, isFriendlyUI } from './forumTheme';
-import { isAF, isEAForum, isLW, isLWorAF } from '@/lib/instanceSettings';
+import { type ForumTypeString } from '@/lib/instanceSettings';
 
 const monoStack = [
   '"Liberation Mono"',
@@ -18,8 +18,8 @@ const monoStack = [
 // of the secondaryInfo text to the bottom of the associated div
 const titleDividerSpacing = 20
 
-export const baseTheme: BaseThemeSpecification = {
-  shadePalette: defaultShadePalette(),
+export const getBaseTheme = (forumType: ForumTypeString): BaseThemeSpecification => ({
+  shadePalette: defaultShadePalette(forumType),
   componentPalette: (shadePalette: ThemeShadePalette) => defaultComponentPalette(shadePalette),
   make: (palette: ThemePalette): NativeThemeType => {
     const spacingUnit = 8
@@ -314,10 +314,10 @@ export const baseTheme: BaseThemeSpecification = {
       ],
       isBookUI: isBookUI(),
       isFriendlyUI: isFriendlyUI(),
-      isLW: isLW(),
-      isAF: isAF(),
-      isLWorAF: isLWorAF(),
-      isEAForum: isEAForum(),
+      isLW: forumType==='LessWrong',
+      isAF: forumType==='AlignmentForum',
+      isLWorAF: forumType==='LessWrong' || forumType==='AlignmentForum',
+      isEAForum: forumType==='EAForum',
     };
   }
-};
+});

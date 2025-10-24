@@ -1,9 +1,9 @@
-import { isEAForum, verifyEmailsSetting, newUserIconKarmaThresholdSetting, isAF, isLW } from '@/lib/instanceSettings';
+import { isEAForum, verifyEmailsSetting, newUserIconKarmaThresholdSetting, isAF, isLW, type ForumTypeString } from '@/lib/instanceSettings';
 import { combineUrls, getSiteUrl } from '../../vulcan-lib/utils';
 import { userOwns, userCanDo, userIsMemberOf, PermissionableUser } from '../../vulcan-users/permissions';
 import type { PermissionResult } from '../../make_voteable';
 import { hasAuthorModeration } from '../../betas';
-import { DeferredForumSelect } from '@/lib/forumTypeUtils';
+import { forumSelect } from '@/lib/forumTypeUtils';
 import { TupleSet, UnionOf } from '@/lib/utils/typeGuardUtils';
 import type { ForumIconName } from '@/components/common/ForumIcon';
 import type { EditablePost } from '../posts/helpers';
@@ -523,7 +523,7 @@ export interface KarmaChangeSettingsType {
   showNegativeKarma: boolean;
 }
 
-export const karmaChangeNotifierDefaultSettings = new DeferredForumSelect<KarmaChangeSettingsType>({
+export const getKarmaChangeNotifierDefaultSettings = (forumType: ForumTypeString): KarmaChangeSettingsType => forumSelect({
   EAForum: {
     updateFrequency: "realtime",
     timeOfDayGMT: 11, // 3am PST
@@ -536,7 +536,7 @@ export const karmaChangeNotifierDefaultSettings = new DeferredForumSelect<KarmaC
     dayOfWeekGMT: "Saturday",
     showNegativeKarma: false,
   },
-} as const);
+}, forumType);
 
 type UserInputDateFields = KeysOfType<UpdateUserDataInput, Date | null | undefined>;
 

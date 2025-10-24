@@ -13,12 +13,13 @@ import MailOutline from '@/lib/vendor/@material-ui/icons/src/MailOutline'
 import CheckRounded from '@/lib/vendor/@material-ui/icons/src/CheckRounded'
 import withErrorBoundary from '../common/withErrorBoundary'
 import { AnalyticsContext, useTracking } from "../../lib/analyticsEvents";
-import { forumTitleSetting, isAF, isEAForum, isLW, isLWorAF } from '../../lib/instanceSettings';
+import { forumTitleSetting, isEAForum, isLWorAF } from '../../lib/instanceSettings';
 import TextField from '@/lib/vendor/@material-ui/core/src/TextField';
 import LoginForm from "../users/LoginForm";
 import SignupSubscribeToCurated from "../users/SignupSubscribeToCurated";
 import Loading from "../vulcan-core/Loading";
 import AnalyticsInViewTracker from "../common/AnalyticsInViewTracker";
+import { useForumType } from '../hooks/useForumType';
 
 // mailchimp link to sign up for the EA Forum's digest
 export const eaForumDigestSubscribeURL = "https://effectivealtruism.us8.list-manage.com/subscribe/post?u=52b028e7f799cca137ef74763&amp;id=7457c7ff3e&amp;f_id=0086c5e1f0"
@@ -134,6 +135,7 @@ const RecentDiscussionSubscribeReminder = ({classes}: {
   const { flash } = useMessages();
   const subscriptionDescription = '(2-3 posts per week, selected by the LessWrong moderation team.)';
   const { captureEvent } = useTracking({eventProps: {pageElementContext: "subscribeReminder"}});
+  const { isLW, isAF } = useForumType();
   
   // Show admins a random version of the widget. Makes sure we notice if it's intrusive/bad.
   const [adminBranch, setAdminBranch] = useState(-1);
@@ -152,7 +154,7 @@ const RecentDiscussionSubscribeReminder = ({classes}: {
   }, [adminBranch, currentUser?.isAdmin]);
 
   // disable on AlignmentForum
-  if (isAF()) {
+  if (isAF) {
     return null;
   }
 
@@ -162,7 +164,7 @@ const RecentDiscussionSubscribeReminder = ({classes}: {
 
   // adjust functionality based on forum type
   let currentUserSubscribed
-  if (isLW()) {
+  if (isLW) {
     currentUserSubscribed = currentUser?.emailSubscribedToCurated;
   } else {
     currentUserSubscribed = currentUser?.subscribedToDigest;
@@ -198,7 +200,7 @@ const RecentDiscussionSubscribeReminder = ({classes}: {
   const updateAndMaybeVerifyEmail = async () => {
     setLoading(true);
     // subscribe to different emails based on forum type
-    const userSubscriptionData: UpdateUserDataInput = isLW() ?
+    const userSubscriptionData: UpdateUserDataInput = isLW ?
     {emailSubscribedToCurated: true} : {subscribedToDigest: true};
     // since they chose to subscribe to an email, make sure this is false
     userSubscriptionData.unsubscribeFromAll = false;
@@ -251,7 +253,7 @@ const RecentDiscussionSubscribeReminder = ({classes}: {
   } else if (subscriptionConfirmed) {
     // Show the confirmation after the user subscribes
     let confirmText;
-    if (isLW()) {
+    if (isLW) {
       confirmText = "You are subscribed to the best posts of LessWrong!";
     } else {
       confirmText = `You are subscribed to the ${forumTitleSetting} Digest`;

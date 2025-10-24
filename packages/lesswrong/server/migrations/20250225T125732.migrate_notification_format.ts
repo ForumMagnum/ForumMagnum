@@ -5,7 +5,7 @@ import { updateDefaultValue } from "./meta/utils";
 import { executePromiseQueue } from "@/lib/utils/asyncUtils";
 import Users from "../collections/users/collection";
 import chunk from "lodash/chunk";
-import { isLW } from "@/lib/instanceSettings";
+import { isLWorAF } from "@/lib/instanceSettings";
 
 const notificationTypes = [
   "notificationCommentsOnSubscribedPost",
@@ -46,7 +46,7 @@ const fetchEverChangedSettingUsers = async ({
   fieldName: (typeof notificationTypes)[number];
 }) => {
 
-  const lwEventsUsers = !isLW() ? await db.any<{ userId: string }>(
+  const lwEventsUsers = !isLWorAF() ? await db.any<{ userId: string }>(
     `
     SELECT DISTINCT "documentId" AS "userId"
     FROM "LWEvents"

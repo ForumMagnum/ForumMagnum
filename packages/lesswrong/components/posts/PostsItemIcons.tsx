@@ -1,11 +1,10 @@
 import React, { useContext } from 'react';
-import { registerComponent } from '../../lib/vulcan-lib/components';
 import classNames from 'classnames';
 import { isRecombeeRecommendablePost, postGetPageUrl } from '../../lib/collections/posts/helpers';
 import { curatedUrl } from '../recommendations/constants';
 import { Link } from '../../lib/reactRouterWrapper';
 import { isFriendlyUI } from '../../themes/forumTheme';
-import { isAF, recombeeEnabledSetting } from '@/lib/instanceSettings';
+import { recombeeEnabledSetting } from '@/lib/instanceSettings';
 import { useTracking } from '@/lib/analyticsEvents';
 import { useSetIsHiddenMutation } from '../dropdowns/posts/useSetIsHidden';
 import { recombeeApi } from '@/lib/recombee/client';
@@ -15,6 +14,7 @@ import LWTooltip from "../common/LWTooltip";
 import ForumIcon from "../common/ForumIcon";
 import OmegaIcon from "../icons/OmegaIcon";
 import { defineStyles, useStyles } from '../hooks/useStyles';
+import { useForumType } from '../hooks/useForumType';
 
 const styles = defineStyles("PostsItemIcons", (theme: ThemeType) => ({
   iconSet: {
@@ -138,6 +138,7 @@ export const PostsItemIcons = ({post, hover, hideCuratedIcon, hidePersonalIcon}:
   hidePersonalIcon?: boolean
 }) => {
   const classes = useStyles(styles);
+  const { isAF } = useForumType();
   const showRecommendationIcon = useContext(IsRecommendationContext)
 
   return <span className={classes.iconSet}>
@@ -174,7 +175,7 @@ export const PostsItemIcons = ({post, hover, hideCuratedIcon, hidePersonalIcon}:
       </LWTooltip>
     </span>}
 
-    {!isAF() && post.af && <span className={classes.postIcon}>
+    {!isAF && post.af && <span className={classes.postIcon}>
       <LWTooltip title={<div>Crossposted from AlignmentForum.org<div><em>(Click to visit AF version)</em></div></div>} placement="right">
           <a href={`https://alignmentforum.org${postGetPageUrl(post)}`}><OmegaIcon className={classNames(classes.icon, classes.alignmentIcon)}/></a>
       </LWTooltip>

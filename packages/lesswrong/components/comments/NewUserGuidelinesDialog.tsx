@@ -3,7 +3,7 @@ import React from 'react';
 import { useNewEvents } from '../../lib/events/withNewEvents';
 import { registerComponent } from '../../lib/vulcan-lib/components';
 import { useUpdateCurrentUser } from '../hooks/useUpdateCurrentUser';
-import { isLW, firstCommentAcknowledgeMessageCommentIdSetting } from '@/lib/instanceSettings';
+import { firstCommentAcknowledgeMessageCommentIdSetting } from '@/lib/instanceSettings';
 import { AnalyticsContext } from "../../lib/analyticsEvents";
 import { useQuery } from "@/lib/crud/useQuery";
 import { gql } from "@/lib/generated/gql-codegen";
@@ -12,6 +12,7 @@ import LWDialog from "../common/LWDialog";
 import { ContentItemBody } from "../contents/ContentItemBody";
 import ContentStyles from "../common/ContentStyles";
 import Loading from "../vulcan-core/Loading";
+import { useForumType } from '../hooks/useForumType';
 
 
 const CommentsListQuery = gql(`
@@ -43,6 +44,7 @@ const NewUserGuidelinesDialog = ({classes, onClose, post, user}: {
 }) => {
   const updateCurrentUser = useUpdateCurrentUser();
   const { recordEvent } = useNewEvents();
+  const { isLW } = useForumType();
 
   const handleClick = () => {
     void updateCurrentUser({
@@ -80,7 +82,7 @@ const NewUserGuidelinesDialog = ({classes, onClose, post, user}: {
           {!html && !loading && <div className={classes.moderationGuidelines}><em>A moderator will need to review your account before your posts will appear publicly.</em></div>}
         </ContentStyles>
         <DialogActions>
-          {isLW() && <Button>
+          {<Button>
             This was your father's rock
           </Button>}
           <Button onClick={handleClick}>

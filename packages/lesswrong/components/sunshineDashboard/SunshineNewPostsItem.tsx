@@ -27,6 +27,7 @@ import ForumIcon from "../common/ForumIcon";
 import { useMutation } from "@apollo/client/react";
 import { gql } from "@/lib/generated/gql-codegen";
 import classNames from 'classnames';
+import { useForumType } from '../hooks/useForumType';
 
 const PostsListUpdateMutation = gql(`
   mutation updatePostSunshineNewPostsItem($selector: SelectorInput!, $data: UpdatePostDataInput!) {
@@ -114,6 +115,7 @@ const SunshineNewPostsItem = ({post, refetch, classes}: {
 }) => {
   const currentUser = useCurrentUser();
   const {eventHandlers, hover, anchorEl} = useHover();
+  const { forumType } = useForumType();
 
   const prediction = post.frontpageClassification;
 
@@ -232,9 +234,9 @@ const SunshineNewPostsItem = ({post, refetch, classes}: {
             <MetaInfo>
               <FormatDate date={post.postedAt}/>
             </MetaInfo>
-            {postGetCommentCount(post) && <MetaInfo>
+            {postGetCommentCount(post, forumType) && <MetaInfo>
               <Link to={`${postGetPageUrl(post)}#comments`}>
-                {postGetCommentCountStr(post)}
+                {postGetCommentCountStr({post, forumType})}
               </Link>
             </MetaInfo>}
           </div>

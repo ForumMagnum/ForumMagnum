@@ -29,7 +29,7 @@ const styles = (theme: ThemeType) => ({
       LessWrong: -17,
       AlignmentForum: -15,
       default: -15
-    })
+    }, theme.forumType)
   },
   // these interact with whether the vote icons are solid or hollow (i.e. different components). Not ideally set up, so nb. 
   vertLayoutVoteDown: {
@@ -39,7 +39,7 @@ const styles = (theme: ThemeType) => ({
       LessWrong: 8,
       AlignmentForum: 10,
       default: 10
-    })
+    }, theme.forumType)
   },
   score: {
     width: "100%",

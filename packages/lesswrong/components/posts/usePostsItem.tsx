@@ -16,6 +16,7 @@ import { RECOMBEE_RECOMM_ID_QUERY_PARAM } from './PostsPage/constants';
 import { recombeeEnabledSetting } from '@/lib/instanceSettings';
 import type { PostsListViewType } from "../hooks/usePostsListView";
 import { maybeDate } from "@/lib/utils/dateUtils";
+import { useForumType } from "../hooks/useForumType";
 
 const isSticky = (post: PostsList, terms?: PostsViewTerms) =>
   (post && terms && terms.forum)
@@ -139,6 +140,7 @@ export const usePostsItem = ({
   const [readComments, setReadComments] = useState(false);
   const [showDialogueMessages, setShowDialogueMessages] = useState(false);
   const {isRead, recordPostView} = useRecordPostView(post);
+  const { forumType } = useForumType();
 
   const currentUser = useCurrentUser();
 
@@ -171,8 +173,8 @@ export const usePostsItem = ({
     return (isRead && newComments && !readComments);
   }
 
-  const lastCommentedAt = postGetLastCommentedAt(post);
-  const lastCommentPromotedAt = postGetLastCommentPromotedAt(post);
+  const lastCommentedAt = postGetLastCommentedAt(post, forumType);
+  const lastCommentPromotedAt = postGetLastCommentPromotedAt(post, forumType);
   const hasUnreadComments =  compareVisitedAndCommentedAt(maybeDate(post.lastVisitedAt), lastCommentedAt);
   const hadUnreadComments =  compareVisitedAndCommentedAt(maybeDate(post.lastVisitedAt), lastCommentedAt);
   const hasNewPromotedComments =  compareVisitedAndCommentedAt(maybeDate(post.lastVisitedAt), lastCommentPromotedAt);
@@ -211,7 +213,7 @@ export const usePostsItem = ({
     post,
     postLink,
     commentsLink: postLink + "#comments",
-    commentCount: postGetCommentCount(post),
+    commentCount: postGetCommentCount(post, forumType),
     primaryTag: hideTag ? null : postGetPrimaryTag(post),
     tagRel,
     resumeReading,

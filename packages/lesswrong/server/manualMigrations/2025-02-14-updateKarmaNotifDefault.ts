@@ -1,7 +1,8 @@
 import { registerMigration } from "./migrationUtils";
 import { getSqlClientOrThrow } from "../sql/sqlClient";
-import { karmaChangeNotifierDefaultSettings } from "@/lib/collections/users/helpers";
+import { getKarmaChangeNotifierDefaultSettings } from "@/lib/collections/users/helpers";
 import Users from "@/server/collections/users/collection";
+import { forumTypeSetting } from "@/lib/forumTypeUtils";
 
 /**
  * For A/B testing: When running locally this will be set to a control group of ~40
@@ -31,7 +32,7 @@ export default registerMigration({
 
     await Users.rawUpdateMany(
       { _id: { $nin: usersToExclude } },
-      { $set: { karmaChangeNotifierSettings: karmaChangeNotifierDefaultSettings.get() } }
+      { $set: { karmaChangeNotifierSettings: getKarmaChangeNotifierDefaultSettings(forumTypeSetting.get()) } }
     );
   },
 });

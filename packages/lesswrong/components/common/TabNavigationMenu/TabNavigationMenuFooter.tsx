@@ -4,8 +4,8 @@ import { AnalyticsContext } from "../../../lib/analyticsEvents";
 
 // -- See here for all the tab content --
 import getMenuTabs from './menuTabs'
-import { forumSelect } from '../../../lib/forumTypeUtils';
 import TabNavigationFooterItem from "./TabNavigationFooterItem";
+import { useForumType } from '@/components/hooks/useForumType';
 
 const styles = (theme: ThemeType) => ({
   wrapper: {
@@ -33,6 +33,8 @@ const styles = (theme: ThemeType) => ({
 const TabNavigationMenuFooter = ({classes}: {
   classes: ClassesType<typeof styles>
 }) => {
+  const { forumSelect } = useForumType();
+
   return (
     <div className={classes.wrapper}>
       <AnalyticsContext pageSectionContext="tabNavigationFooter">

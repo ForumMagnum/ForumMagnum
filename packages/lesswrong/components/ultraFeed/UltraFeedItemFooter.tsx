@@ -24,6 +24,7 @@ import UltraFeedReplyEditor from "./UltraFeedReplyEditor";
 import { ReplyConfig } from "./UltraFeedCommentItem";
 import { useUltraFeedContext } from "./UltraFeedContextProvider";
 import { UltraFeedEventCreateMutation } from "./ultraFeedMutations";
+import { useForumType } from "../hooks/useForumType";
 
 const styles = defineStyles("UltraFeedItemFooter", (theme: ThemeType) => ({
   root: {
@@ -305,6 +306,7 @@ const UltraFeedItemFooterCore = ({
   hideReacts = false,
 }: UltraFeedItemFooterCoreProps) => {
   const classes = useStyles(styles);
+  const { forumType } = useForumType();
   const currentUser = useCurrentUser();
   const { captureEvent } = useTracking();
 
@@ -403,7 +405,7 @@ const UltraFeedItemFooterCore = ({
       </LWTooltip>
     </div>
 
-  const votingSystem = voteProps.document.votingSystem || getDefaultVotingSystem();
+  const votingSystem = voteProps.document.votingSystem || getDefaultVotingSystem(forumType);
 
   return (
     <AnalyticsContext pageElementContext="ultraFeedFooter" documentId={document._id} collectionName={collectionName}>

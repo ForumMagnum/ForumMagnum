@@ -92,6 +92,8 @@
 //
 //
 
+import type { ForumTypeString } from "@/lib/instanceSettings";
+
 export const grey = {
   // Exactly matches @/lib/vendor/@material-ui/core/src/colors/grey
   50: '#fafafa',
@@ -137,10 +139,11 @@ export const grey = {
   750: "#5e5e5e",
 }
 
-export const defaultShadePalette = (): ThemeShadePalette => {
+export const defaultShadePalette = (forumType: ForumTypeString): ThemeShadePalette => {
   const greyAlpha = (alpha: number) => `rgba(0,0,0,${alpha})`;
   const inverseGreyAlpha = (alpha: number) => `rgba(255,255,255,${alpha})`;
   return {
+    forumType,
     dark: false,
     grey,
     greyAlpha,

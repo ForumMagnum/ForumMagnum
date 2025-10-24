@@ -1,4 +1,3 @@
-import { registerComponent } from '../../../lib/vulcan-lib/components';
 import React, { useCallback } from 'react';
 import classNames from 'classnames';
 import { useLocation } from '../../../lib/routeUtil';
@@ -13,12 +12,6 @@ import { MenuItemLink } from "../Menus";
 import { defineStyles, useStyles } from '@/components/hooks/useStyles';
 
 export const iconWidth = 30
-
-const getIconTransform = () => forumSelect({
-  LessWrong: "scale(0.8)",
-  EAForum: "scale(0.7)",
-  default: undefined,
-});
 
 const styles = defineStyles('TabNavigationItem', (theme: ThemeType) => ({
   selected: {
@@ -84,7 +77,11 @@ const styles = defineStyles('TabNavigationItem', (theme: ThemeType) => ({
     "& svg": {
       fill: theme.isFriendlyUI ? undefined : "currentColor",
       color: theme.isFriendlyUI ? undefined : theme.palette.icon.navigationSidebarIcon,
-      transform: getIconTransform(),
+      transform: forumSelect({
+        LessWrong: "scale(0.8)",
+        EAForum: "scale(0.7)",
+        default: undefined,
+      }, theme.forumType),
     },
     ...(theme.isFriendlyUI && {
       opacity: 1,

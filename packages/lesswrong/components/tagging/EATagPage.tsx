@@ -45,6 +45,7 @@ import ContentStyles from "../common/ContentStyles";
 import CommentsListCondensed from "../common/CommentsListCondensed";
 import { StructuredData } from "../common/StructuredData";
 import { gql } from "@/lib/generated/gql-codegen";
+import { useForumType } from "../hooks/useForumType";
 
 const TagWithFlagsFragmentMultiQuery = gql(`
   query multiTagEATagPageQuery($selector: TagSelector, $limit: Int, $enableTotal: Boolean) {
@@ -234,6 +235,7 @@ const EATagPage = ({classes}: {
 }) => {
   const currentUser = useCurrentUser();
   const { query, params: { slug } } = useLocation();
+  const { forumType } = useForumType();
   const [editing, setEditing] = useState(!!query.edit)
   
   // Support URLs with ?version=1.2.3 or with ?revision=1.2.3 (we were previously inconsistent, ?version is now preferred)
@@ -319,8 +321,8 @@ const EATagPage = ({classes}: {
   if (tag.oldSlugs?.filter(slug => slug !== tag.slug)?.includes(slug)) {
     return <PermanentRedirect url={tagGetUrl(tag)} />
   }
-  if (editing && !tagUserHasSufficientKarma(currentUser, "edit")) {
-    throw new Error(`Sorry, you cannot edit ${taggingNamePluralSetting.get()} without ${getTagMinimumKarmaPermissions().edit} or more karma.`)
+  if (editing && !tagUserHasSufficientKarma(currentUser, "edit", forumType)) {
+    throw new Error(`Sorry, you cannot edit ${taggingNamePluralSetting.get()} without ${getTagMinimumKarmaPermissions(forumType).edit} or more karma.`)
   }
 
   // if no sort order was selected, try to use the tag page's default sort order for posts

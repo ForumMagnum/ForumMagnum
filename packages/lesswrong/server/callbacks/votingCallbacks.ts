@@ -237,7 +237,7 @@ async function cancelVoteCount ({newDocument, vote}: VoteDocTuple) {
 
 async function checkAutomod ({newDocument, vote}: VoteDocTuple, collection: CollectionBase<VoteableCollectionName>, user: DbUser, context: ResolverContext) {
   if (vote.collectionName === 'Comments') {
-    backgroundTask(triggerCommentAutomodIfNeeded(newDocument, vote));
+    backgroundTask(triggerCommentAutomodIfNeeded(newDocument, vote, context));
   }
 }
 

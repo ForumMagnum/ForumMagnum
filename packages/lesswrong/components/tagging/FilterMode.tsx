@@ -10,7 +10,6 @@ import { userHasNewTagSubscriptions } from '../../lib/betas';
 import { useCurrentUser } from '../common/withUser';
 import { taggingNameSetting, defaultVisibilityTags } from '@/lib/instanceSettings';
 import { tagGetUrl } from '../../lib/collections/tags/helpers';
-import { forumSelect } from '../../lib/forumTypeUtils';
 import VisibilityOff from '@/lib/vendor/@material-ui/icons/src/VisibilityOff';
 import { isFriendlyUI } from '../../themes/forumTheme';
 import { useQuery } from "@/lib/crud/useQuery";
@@ -19,6 +18,7 @@ import LWTooltip from "../common/LWTooltip";
 import PopperCard from "../common/PopperCard";
 import TagPreview from "./TagPreview";
 import ContentStyles from "../common/ContentStyles";
+import { useForumType } from '../hooks/useForumType';
 
 
 const TagPreviewFragmentQuery = gql(`
@@ -170,6 +170,7 @@ const FilterModeRawComponent = ({tagId="", label, mode, canRemove=false, onChang
   description?: React.ReactNode
   classes: ClassesType<typeof styles>,
 }) => {
+  const { forumSelect } = useForumType();
   const { hover, anchorEl, eventHandlers } = useHover({
     eventProps: {tagId, label, mode},
   });

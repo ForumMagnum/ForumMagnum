@@ -12,7 +12,7 @@ import { makeGqlCreateMutation, makeGqlUpdateMutation } from "@/server/vulcan-li
 import { getLegacyCreateCallbackProps, getLegacyUpdateCallbackProps, insertAndReturnCreateAfterProps, runFieldOnCreateCallbacks, runFieldOnUpdateCallbacks, updateAndReturnDocument, assignUserIdToData } from "@/server/vulcan-lib/mutators";
 import gql from "graphql-tag";
 import cloneDeep from "lodash/cloneDeep";
-import { newCheck, editCheck } from "./helpers";
+import { newTagCheck, editTagCheck } from "./helpers";
 import { backgroundTask } from "@/server/utils/backgroundTask";
 
 export async function createTag({ data }: CreateTagInput, context: ResolverContext) {
@@ -121,12 +121,12 @@ export async function updateTag({ selector, data }: UpdateTagInput, context: Res
 }
 
 export const createTagGqlMutation = makeGqlCreateMutation('Tags', createTag, {
-  newCheck: async (user, tag: CreateTagDataInput | null, context) => newCheck(user, tag) && await validateTagCreate(tag, context),
+  newCheck: async (user, tag: CreateTagDataInput | null, context) => newTagCheck(user, tag, context) && await validateTagCreate(tag, context),
   accessFilter: (rawResult, context) => accessFilterSingle(context.currentUser, 'Tags', rawResult, context)
 });
 
 export const updateTagGqlMutation = makeGqlUpdateMutation('Tags', updateTag, {
-  editCheck: async (user, tag: DbTag, context, previewTag) => editCheck(user, tag) && await validateTagUpdate(tag, previewTag, context),
+  editCheck: async (user, tag: DbTag, context, previewTag) => editTagCheck(user, tag, context) && await validateTagUpdate(tag, previewTag, context),
   accessFilter: (rawResult, context) => accessFilterSingle(context.currentUser, 'Tags', rawResult, context)
 });
 

@@ -10,6 +10,7 @@ import { forumSelect } from '../../../lib/forumTypeUtils';
 import classNames from 'classnames';
 import EventsList from './EventsList';
 import { SubscribeWidget } from '../SubscribeWidget';
+import { useForumType } from '@/components/hooks/useForumType';
 
 export const TAB_NAVIGATION_MENU_WIDTH = 250
 
@@ -71,6 +72,8 @@ const TabNavigationMenu = ({
 }) => {
   const currentUserId = useCurrentUserId();
   const { captureEvent } = useTracking()
+  const { forumType } = useForumType();
+
   const handleClick = (e: React.BaseSyntheticEvent, tabId: string) => {
     captureEvent(`${tabId}NavClicked`)
     onClickSection && onClickSection(e)
@@ -82,7 +85,7 @@ const TabNavigationMenu = ({
           [classes.navSidebarTransparent]: transparentBackground,
           [classes.noTopMargin]: noTopMargin,
         })}>
-          {forumSelect(getMenuTabs()).map(tab => {
+          {forumSelect(getMenuTabs(), forumType).map(tab => {
             if ('loggedOutOnly' in tab && tab.loggedOutOnly && currentUserId) return null
 
             if ('divider' in tab) {

@@ -23,6 +23,7 @@ import { ContentItemBody } from "../contents/ContentItemBody";
 import ForumIcon from "../common/ForumIcon";
 import { TagOrLensLikeButton } from "./lenses/LensTab";
 import { TagPageActionsMenuButton } from "./TagPageActionsMenu";
+import { useForumType } from '../hooks/useForumType';
 
 const PODCAST_ICON_SIZE = 20;
 const PODCAST_ICON_PADDING = 3;
@@ -130,11 +131,12 @@ const styles = (theme: ThemeType) => ({
  * IMPORTANT: this does not return false if the user is logged out.  You need to check that separately.
  */
 export function useTagEditingRestricted(tag: TagPageWithRevisionFragment | TagPageFragment | null, alreadyEditing: boolean, currentUser: UsersCurrent | null) {
+  const { forumType } = useForumType();
   if (!tag) return { canEdit: false, noEditNotAuthor: false, noEditKarmaTooLow: false };
 
   const restricted = tag.canEditUserIds && tag.canEditUserIds.length > 0;
   const noEditNotAuthor = restricted && (!currentUser || (!currentUser.isAdmin && !tag.canEditUserIds?.includes(currentUser._id)));
-  const noEditKarmaTooLow = !restricted && currentUser && !tagUserHasSufficientKarma(currentUser, "edit");
+  const noEditKarmaTooLow = !restricted && currentUser && !tagUserHasSufficientKarma(currentUser, "edit", forumType);
   const canEdit = !alreadyEditing && !noEditKarmaTooLow && !noEditNotAuthor;
 
   return { canEdit, noEditNotAuthor, noEditKarmaTooLow };
@@ -166,6 +168,7 @@ const TagPageButtonRow = ({
 }) => {
   const { openDialog } = useDialog();
   const currentUser = useCurrentUser();
+  const { forumType } = useForumType();
   const { tag: beginnersGuideContentTag } = useTagBySlug("tag-cta-popup", "TagFragment");
 
   const { captureEvent } = useTracking();
@@ -226,7 +229,7 @@ const TagPageButtonRow = ({
     </>}
     {noEditKarmaTooLow && <>
       <div>
-      You must have at least {getTagMinimumKarmaPermissions().edit} karma to edit this topic
+      You must have at least {getTagMinimumKarmaPermissions(forumType).edit} karma to edit this topic
     </div>
     <br />
     </>}

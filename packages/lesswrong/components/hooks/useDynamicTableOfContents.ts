@@ -2,6 +2,7 @@ import { useMemo } from "react";
 import { ToCData, extractTableOfContents, getTocAnswers, getTocComments, shouldShowTableOfContents } from "../../lib/tableOfContents";
 import { PostWithCommentCounts, getResponseCounts } from "../../lib/collections/posts/helpers";
 import { parseDocumentFromString } from "../../lib/domParser";
+import { useForumType } from "./useForumType";
 
 type PostMinForToc = PostWithCommentCounts & {
   question: boolean;
@@ -18,6 +19,8 @@ export const useDynamicTableOfContents = ({
   post: PostMinForToc | null;
   answers: CommentsList[];
 }): ToCData | null => {
+  const { forumType } = useForumType();
+
   return useMemo(() => {
     const precalcuatedToc = post?.tableOfContentsRevision ?? post?.tableOfContents;
     if (precalcuatedToc) {
@@ -38,8 +41,8 @@ export const useDynamicTableOfContents = ({
       const answerSections = getTocAnswers({ post, answers });
       sections.push(...answerSections);
 
-      const { commentCount } = getResponseCounts({ post, answers });
-      const commentsSection = getTocComments({ post, commentCount });
+      const { commentCount } = getResponseCounts({ post, answers, forumType });
+      const commentsSection = getTocComments({ post, commentCount, forumType });
       sections.push(...commentsSection);
 
       return {
@@ -49,5 +52,5 @@ export const useDynamicTableOfContents = ({
     }
 
     return null;
-  }, [answers, html, post]);
+  }, [answers, html, post, forumType]);
 };

@@ -85,6 +85,8 @@ declare global {
     // Used by material-UI for picking some of its own colors, and also by site
     // themes
     type: MuiThemeName,
+    
+    forumType: ForumTypeString,
   }
   type ThemeComponentPalette = {
     primary: {

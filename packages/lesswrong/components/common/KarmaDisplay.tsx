@@ -1,18 +1,19 @@
 import React from "react";
 import { registerComponent } from "../../lib/vulcan-lib/components";
 import type { Placement as PopperPlacementType } from "popper.js"
-import { isAF } from "../../lib/instanceSettings";
 import LWTooltip from "./LWTooltip";
+import { useForumType } from "../hooks/useForumType";
 
 const KarmaDisplay = ({document, placement="left", linkItem}: {
   document: VoteableType,
   placement?: PopperPlacementType,
   linkItem?: React.ReactNode,
 }) => {
-  const baseScore = isAF()
+  const { isAF } = useForumType();
+  const baseScore = isAF
     ? document.afBaseScore
     : document.baseScore;
-  const afBaseScore = !isAF() && document.af
+  const afBaseScore = !isAF && document.af
     ? document.afBaseScore
     : null;
   return (

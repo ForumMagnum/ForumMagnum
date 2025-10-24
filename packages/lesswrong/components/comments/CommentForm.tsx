@@ -14,7 +14,7 @@ import { EditCommentTitle } from "@/components/editor/EditCommentTitle";
 import { FormComponentQuickTakesTags } from "@/components/form-components/FormComponentQuickTakesTags";
 import { commentAllowTitle } from "@/lib/collections/comments/helpers";
 import { userIsAdmin, userIsAdminOrMod, userIsMemberOf } from "@/lib/vulcan-users/permissions";
-import { quickTakesTagsEnabledSetting, isAF, isLWorAF } from "@/lib/instanceSettings";
+import { quickTakesTagsEnabledSetting, isLWorAF } from "@/lib/instanceSettings";
 import type { ReviewYear } from "@/lib/reviewUtils";
 import { useCurrentUser } from "../common/withUser";
 import ArrowForward from "@/lib/vendor/@material-ui/icons/src/ArrowForward";
@@ -38,6 +38,7 @@ import { isIfAnyoneBuildsItFrontPage } from '../seasonal/styles';
 import AutoEmailSubscribeCheckbox from "./AutoEmailSubscribeCheckbox";
 import { CommentsListMultiQuery, postCommentsThreadQuery } from "../posts/queries";
 import { CommentsListWithParentMetadataMultiQuery, DraftCommentsQuery } from "./queries";
+import { useForumType } from "../hooks/useForumType";
 
 const CommentsListUpdateMutation = gql(`
   mutation updateCommentCommentForm($selector: SelectorInput!, $data: UpdateCommentDataInput!) {
@@ -319,10 +320,11 @@ export const CommentForm = ({
   const { captureEvent } = useTracking();
   const classes = useStyles(formStyles);
   const currentUser = useCurrentUser();
+  const { isAF } = useForumType();
 
   const formType = initialData ? 'edit' : 'new';
 
-  const showAfCheckbox = !hideAlignmentForumCheckbox && !isAF() && alignmentForumPost && (userIsMemberOf(currentUser, 'alignmentForum') || userIsAdmin(currentUser));
+  const showAfCheckbox = !hideAlignmentForumCheckbox && !isAF && alignmentForumPost && (userIsMemberOf(currentUser, 'alignmentForum') || userIsAdmin(currentUser));
 
   const DefaultFormGroupLayout = quickTakesFormGroup
     ? FormGroupQuickTakes
@@ -362,7 +364,7 @@ export const CommentForm = ({
 
         if (formType === 'new') {
           const { af, ...rest } = formApi.state.values;
-          const submitData = (showAfCheckbox || isAF()) ? { ...rest, af } : rest;
+          const submitData = (showAfCheckbox || isAF) ? { ...rest, af } : rest;
 
           const { data } = await create({ variables: { data: { ...submitData, draft } } });
           if (!data?.createComment?.data) {

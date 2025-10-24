@@ -25,6 +25,7 @@ import RateLimitWarning from "../editor/RateLimitWarning";
 import { useQuery } from "@/lib/crud/useQuery";
 import { gql } from "@/lib/generated/gql-codegen";
 import { useLocation } from '@/lib/routeUtil';
+import { useForumType } from '../hooks/useForumType';
 
 const UsersCurrentCommentRateLimitQuery = gql(`
   query CommentsNewForm($documentId: String, $postId: String) {
@@ -176,6 +177,7 @@ const CommentsNewForm = ({
   const currentUser = useCurrentUser();
   const { captureEvent } = useTracking({eventProps: { postId: post?._id, tagId: tag?._id, tagCommentType}});
   const commentSubmitStartTimeRef = useRef(Date.now());
+  const { isAF } = useForumType();
   
   const { refetch, data } = useQuery(UsersCurrentCommentRateLimitQuery, {
     variables: { documentId: currentUser?._id, postId: post?._id },
@@ -199,7 +201,7 @@ const CommentsNewForm = ({
   const {flash} = useMessages();
   prefilledProps = {
     ...prefilledProps,
-    af: commentDefaultToAlignment(currentUser, post, parentComment),
+    af: commentDefaultToAlignment({currentUser, post, comment: parentComment, isAF}),
   };
   
   const isQuickTake = !!prefilledProps.shortform
@@ -363,7 +365,7 @@ const CommentsNewForm = ({
             rateLimitMessage={rateLimitMessage}
           />}
           <div onFocus={(ev) => {
-            afNonMemberDisplayInitialPopup(currentUser, openDialog)
+            afNonMemberDisplayInitialPopup(currentUser, openDialog, isAF)
             ev.preventDefault()
           }}>
             <CommentForm

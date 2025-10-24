@@ -55,6 +55,7 @@ import { commentIsHiddenPendingReview } from '../../lib/collections/comments/hel
 import { ItemsReadContextWrapper } from '../hooks/useRecordPostView';
 import Divider from '../common/Divider';
 import CommentOnPostWithReplies from '../comments/CommentOnPostWithReplies';
+import { useForumType } from '../hooks/useForumType';
 
 const styles = defineStyles("UltraFeedPostDialog", (theme: ThemeType) => ({
   dialogContent: {
@@ -536,6 +537,7 @@ const UltraFeedPostDialog = ({
   onClose,
 }: UltraFeedPostDialogProps) => {
   const classes = useStyles(styles);
+  const { forumType } = useForumType();
   const { captureEvent } = useTracking();
   const location = useSubscribedLocation();
   const { query } = location;
@@ -611,7 +613,7 @@ const UltraFeedPostDialog = ({
   const answersTree = useMemo(() => unflattenComments(answersAndReplies ?? []), [answersAndReplies]);
   const answerCount = displayPost.question ? answersTree.length : undefined;
 
-  const { commentCount: totalComments } = getResponseCounts({ post: displayPost, answers });
+  const { commentCount: totalComments } = getResponseCounts({ post: displayPost, answers, forumType });
   const votingSystem = getVotingSystemByName(displayPost.votingSystem || 'default');
   const { isLinkpost, linkpostDomain } = detectLinkpost(displayPost);
   const aboveLinkpostThreshold = displayPost.contents?.wordCount && 

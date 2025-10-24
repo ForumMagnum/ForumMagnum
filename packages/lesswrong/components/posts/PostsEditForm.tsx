@@ -6,7 +6,7 @@ import {useCurrentUser} from "../common/withUser";
 import { useAfNonMemberSuccessHandling } from "../../lib/alignment-forum/displayAFNonMemberPopups";
 import { userIsPodcaster } from '../../lib/vulcan-users/permissions';
 import { SHARE_POPUP_QUERY_PARAM } from './PostsPage/constants';
-import { isEAForum, isLW } from '../../lib/instanceSettings';
+import { isEAForum } from '../../lib/instanceSettings';
 import type { Editor } from '@ckeditor/ckeditor5-core';
 import DeferRender from '../common/DeferRender';
 import { registerComponent } from "../../lib/vulcan-lib/components";
@@ -28,6 +28,7 @@ import NewPostHowToGuides from "./NewPostHowToGuides";
 import { withDateFields } from '@/lib/utils/dateUtils';
 import { PostsEditFormQuery } from './queries';
 import { StatusCodeSetter } from '../next/StatusCodeSetter';
+import { useForumType } from '../hooks/useForumType';
 
 const UsersCurrentPostRateLimitQuery = gql(`
   query PostsEditFormUser($documentId: String, $eventForm: Boolean) {
@@ -141,6 +142,7 @@ const PostsEditForm = ({ documentId, version }: {
   const { flash } = useMessages();
   const { openDialog } = useDialog();
   const currentUser = useCurrentUser();
+  const { isLW } = useForumType();
 
   const [editorState, setEditorState] = useState<Editor|null>(null);
   const afNonMemberSuccessHandling = useAfNonMemberSuccessHandling();
@@ -205,7 +207,7 @@ const PostsEditForm = ({ documentId, version }: {
   }
 
   // on LW, show a moderation message to users who haven't been approved yet
-  const postWillBeHidden = isLW() && !currentUser?.reviewedByUserId
+  const postWillBeHidden = isLW && !currentUser?.reviewedByUserId
 
   return (<>
     <StatusCodeSetter status={200}/>

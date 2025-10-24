@@ -7,7 +7,7 @@ import type {
 } from './collections/users/karmaChangesGraphQL';
 import { isFriendlyUI } from '../themes/forumTheme';
 import type VotesRepo from './repos/VotesRepo';
-import { karmaChangeNotifierDefaultSettings, KarmaChangeSettingsType, KarmaChangeUpdateFrequency } from '@/lib/collections/users/helpers';
+import { getKarmaChangeNotifierDefaultSettings, KarmaChangeSettingsType, KarmaChangeUpdateFrequency } from '@/lib/collections/users/helpers';
 
 // Our graphql type codegen returns output types with Dates as strings because
 // that's what we get on the client, but isn't what we return from the resolver(s).
@@ -174,7 +174,7 @@ export const getKarmaChanges = async ({user, startDate, endDate, nextBatchDate=n
     throw new Error("getKarmaChanges: endDate must be after startDate");
 
   const {showNegativeKarma, updateFrequency} = user.karmaChangeNotifierSettings ??
-    karmaChangeNotifierDefaultSettings.get();
+    getKarmaChangeNotifierDefaultSettings(context.forumType);
 
   const votesRepo = context.repos.votes;
   const queryArgs: KarmaChangesArgs = {

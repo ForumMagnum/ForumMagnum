@@ -16,6 +16,7 @@ import CloudinaryImage2 from "../../common/CloudinaryImage2";
 import VirtualProgramCard from "./VirtualProgramCard";
 import PrettyEventDateTime from "./PrettyEventDateTime";
 import { useCurrentTime } from '@/lib/utils/timeUtil';
+import { useForumType } from '@/components/hooks/useForumType';
 
 const styles = (theme: ThemeType) => ({
   noResults: {
@@ -131,6 +132,7 @@ const EventCards = ({events, loading, numDefaultCards, hideSpecialCards, hideGro
   classes: ClassesType<typeof styles>,
 }) => {
   const currentUser = useCurrentUser()
+  const { forumSelect } = useForumType();
   const { timezone } = useTimezone()
   const now = useCurrentTime();
   
