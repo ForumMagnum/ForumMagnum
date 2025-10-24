@@ -61,7 +61,7 @@ export async function triggerReviewIfNeeded(userId: string, trigger: ReviewCheck
     case 'mapLocation':
     case 'biography':
     case 'profileImageId':
-      return await triggerReviewIfNeeded(userId, trigger, context);
+      return await createModeratorActionForReview(userId, trigger, context);
   }
 }
 

@@ -80,9 +80,6 @@ export function getCode(key: string | Readonly<KeystrokeInfo>): number {
 
   if (typeof key == 'string') {
     keyCode = keyCodes[key.toLowerCase()];
-    if (key === 'enter') {
-      console.log('enter');
-    }
 
     if (!keyCode) {
       /**
