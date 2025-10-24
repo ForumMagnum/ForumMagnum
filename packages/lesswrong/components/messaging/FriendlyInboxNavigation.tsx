@@ -16,7 +16,7 @@ const styles = (theme: ThemeType) => ({
 // The Navigation for the Inbox components
 const FriendlyInboxNavigation = ({
   conversationsResult,
-  currentUser,
+  currentUserId,
   selectedConversationId,
   setSelectedConversationId,
   classes,
@@ -26,7 +26,7 @@ const FriendlyInboxNavigation = ({
     loading: boolean;
     loadMoreProps: LoadMoreProps;
   };
-  currentUser: UsersCurrent;
+  currentUserId: string;
   title?: React.JSX.Element | string;
   selectedConversationId: string | undefined;
   setSelectedConversationId: React.Dispatch<React.SetStateAction<string | undefined>>;
@@ -39,7 +39,7 @@ const FriendlyInboxNavigation = ({
           <FriendlyConversationItem
             key={conversation._id + idx}
             conversation={conversation}
-            currentUser={currentUser}
+            currentUserId={currentUserId}
             selectedConversationId={selectedConversationId}
             setSelectedConversationId={setSelectedConversationId}
           />
