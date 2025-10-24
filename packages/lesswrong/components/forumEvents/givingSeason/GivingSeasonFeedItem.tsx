@@ -77,7 +77,7 @@ const styles = defineStyles("GivingSeasonFeedItem", (theme: ThemeType) => ({
     fontWeight: 700,
   },
   preview: {
-    color: theme.palette.text.alwaysWhite,
+    color: "var(--event-color)",
     fontWeight: 500,
     whiteSpace: "nowrap",
     overflow: "hidden",
