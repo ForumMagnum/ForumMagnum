@@ -27,7 +27,8 @@ type GivingSeasonEvent = {
   start: Date,
   end: Date,
   color: string,
-  cloudinaryId: string,
+  desktopCloudinaryId: string,
+  mobileCloudinaryId: string,
 }
 
 export const givingSeasonEvents: GivingSeasonEvent[] = [
@@ -42,7 +43,8 @@ export const givingSeasonEvents: GivingSeasonEvent[] = [
     start: new Date("2025-10-22"), // TODO: Set this to 2025-11-10 before deploying
     end: new Date("2025-11-17"),
     color: "#F59469",
-    cloudinaryId: "225704a5db5009aed731252c9ef43a887f123316_oheyzn",
+    desktopCloudinaryId: "week1_desktop_toao8n",
+    mobileCloudinaryId: "week1_mobile_fwltv9",
   },
   {
     name: "Marginal funding week",
@@ -50,7 +52,8 @@ export const givingSeasonEvents: GivingSeasonEvent[] = [
     start: new Date("2025-11-17"),
     end: new Date("2025-11-24"),
     color: "#BCDFE1",
-    cloudinaryId: "111793f3509b2e4f3de6fc75d1a277f673a177c4_vwitt0",
+    desktopCloudinaryId: "week2_desktop_ydo4wc",
+    mobileCloudinaryId: "week2_mobile_cbygzj",
   },
   {
     name: "Donation election",
@@ -58,7 +61,8 @@ export const givingSeasonEvents: GivingSeasonEvent[] = [
     start: new Date("2025-11-24"),
     end: new Date("2025-12-08"),
     color: "#FFC500",
-    cloudinaryId: "225704a5db5009aed731252c9ef43a887f123316_oheyzn",
+    desktopCloudinaryId: "week3_desktop_hqdsiu",
+    mobileCloudinaryId: "week3_mobile_kby9wq",
   },
   {
     name: "Why I donate week",
@@ -66,7 +70,8 @@ export const givingSeasonEvents: GivingSeasonEvent[] = [
     start: new Date("2025-12-08"),
     end: new Date("2025-12-15"),
     color: "#63C5D5",
-    cloudinaryId: "111793f3509b2e4f3de6fc75d1a277f673a177c4_vwitt0",
+    desktopCloudinaryId: "week4_desktop_s1iy4m",
+    mobileCloudinaryId: "week4_mobile_u0l7pw",
   },
   {
     name: "Donation celebration",
@@ -74,7 +79,8 @@ export const givingSeasonEvents: GivingSeasonEvent[] = [
     start: new Date("2025-12-15"),
     end: new Date("2025-12-"),
     color: "#FF7454",
-    cloudinaryId: "225704a5db5009aed731252c9ef43a887f123316_oheyzn",
+    desktopCloudinaryId: "week5_desktop_bqdvi3",
+    mobileCloudinaryId: "week5_mobile_n7bysk",
   },
 ];
 

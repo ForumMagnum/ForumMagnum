@@ -50,10 +50,21 @@ const styles = defineStyles("GivingSeason2025Banner", (theme: ThemeType) => ({
     transition: "opacity linear 0.2s",
     "& img": {
       width: "100%",
+      height: "100%",
     },
   },
   backgroundImageHidden: {
     opacity: 0,
+  },
+  backgroundImageDesktop: {
+    [theme.breakpoints.down("sm")]: {
+      display: "none",
+    },
+  },
+  backgroundImageMobile: {
+    [theme.breakpoints.up("md")]: {
+      display: "none",
+    },
   },
   main: {
     position: "relative",
@@ -233,17 +244,30 @@ export const GivingSeason2025Banner: FC = () => {
       >
         <div className={classes.backgroundImages}>
           {givingSeasonEvents.map((event, i) => (
-            <CloudinaryImage2
-              key={event.name}
-              publicId={event.cloudinaryId}
-              wrapperClassName={classNames(
-                classes.backgroundImage,
-                event !== selectedEvent && classes.backgroundImageHidden,
-              )}
-              style={{zIndex: i}}
-              objectFit="cover"
-              loading="eager"
-            />
+            <>
+              <CloudinaryImage2
+                key={event.name}
+                publicId={event.desktopCloudinaryId}
+                wrapperClassName={classNames(
+                  classes.backgroundImage,
+                  classes.backgroundImageDesktop,
+                  event !== selectedEvent && classes.backgroundImageHidden,
+                )}
+                style={{zIndex: i}}
+                objectFit="cover"
+              />
+              <CloudinaryImage2
+                key={event.name}
+                publicId={event.mobileCloudinaryId}
+                wrapperClassName={classNames(
+                  classes.backgroundImage,
+                  classes.backgroundImageMobile,
+                  event !== selectedEvent && classes.backgroundImageHidden,
+                )}
+                style={{zIndex: i}}
+                objectFit="cover"
+              />
+            </>
           ))}
         </div>
         <div className={classes.main}>
