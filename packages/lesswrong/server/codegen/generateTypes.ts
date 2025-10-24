@@ -12,6 +12,7 @@ import { DefinitionNode, DocumentNode, FragmentDefinitionNode, Kind, print, visi
 import graphqlCodegenConfig from '@/../../codegen.ts';
 import { generateRouteManifest } from '../scripts/generateRouteManifest';
 import { writeIfChanged } from './typeGenerationUtils';
+import { doJsonCSE } from './commonSubexpressionEliminateJson';
 
 export async function generateTypes(repoRoot?: string) {
   const generatedFilesDir = (repoRoot ?? ".") + "/packages/lesswrong/lib/generated";
@@ -146,7 +147,7 @@ function getFilesMaybeContainingGql(dir: string) {
 }
 
 function normalizeFragments(inputPath: string) {
-  const generatedGraphqlFilePath = require.resolve(inputPath);
+  /*const generatedGraphqlFilePath = require.resolve(inputPath);
   require.cache[generatedGraphqlFilePath] = undefined;
   
   // eslint-disable-next-line import/no-dynamic-require
@@ -202,7 +203,53 @@ function normalizeFragments(inputPath: string) {
     fragmentDependencies,
     importsAndTypes,
     originalContent
-  );
+  );*/
+  
+  // The generated graphql produced by @graphql-codegen includes parse trees
+  // for every graphql fragment and query, in the form of lines that look like:
+  //     export const ExampleQueryNameDocument = <parsetree> as unknown as <type>
+  // Where <parsetree> is a JSON object and <type> is a typescript type. These
+  // are extremely large (graphql.ts is 22MB) and very. In order to reduce this
+  // file to a reasonable size, we identify lines that match this pattern and do
+  // common subexpression elimination.
+  const lines = fs.readFileSync(inputPath, "utf-8").split("\n");
+  
+  const cseRegex = /^export const \w*\s*=\s*(.*) as unknown as [a-zA-Z0-9<>, ]*;$/;
+  const jsonBlobs: any[] = [];
+  for (const line of lines) {
+    const match = cseRegex.exec(line);
+    if (match) {
+      const [_,json] = match;
+      try {
+        const parsedJson = JSON.parse(json);
+        if (parsedJson) {
+          jsonBlobs.push(parsedJson);
+        }
+      } catch {
+        // Not JSON
+      }
+    }
+  }
+  
+  const {definitions, replacements} = doJsonCSE(jsonBlobs);
+
+  const transformedLines: string[] = [];
+  for (const line of lines) {
+    const match = cseRegex.exec(line);
+    if (match) {
+      const [_,json] = match;
+      const replacement = replacements[json];
+      if (replacement)
+        transformedLines.push(line.replace(json, replacement));
+      else
+        transformedLines.push(line);
+    } else {
+      transformedLines.push(line);
+    }
+  }
+
+  return definitions.join("\n")
+    + "\n" + transformedLines.join("\n")
 }
 
 function isDocumentNode(obj: any): obj is DocumentNode {
