@@ -124,4 +124,43 @@ export default class DatabaseMetadataRepo extends AbstractRepo<"DatabaseMetadata
       createdAt: new Date(),
     });
   }
+
+  async getGivingSeason2025DonationTotal(): Promise<number> {
+    const result = await this.getRawDb().oneOrNone(`
+      -- DatabaseMetadataRepo.getGivingSeason2025DonationTotal
+      SELECT COALESCE(("value"->'total')::FLOAT, 0) AS "total"
+      FROM "DatabaseMetadata"
+      WHERE "name" = 'givingSeason2025ElectionTotal'
+    `);
+    return result?.total ?? 0;
+  }
+
+  async addGivingSeason2025Donation(usdAmount: number): Promise<void> {
+    await this.none(`
+      -- DatabaseMetadataRepo.addGivingSeason2025Donation
+      INSERT INTO "DatabaseMetadata" ("_id", "name", "value", "createdAt")
+      VALUES ($1, 'givingSeason2025ElectionTotal', $2, CURRENT_TIMESTAMP)
+      ON CONFLICT ("name") DO UPDATE SET
+        "value" = JSONB_BUILD_OBJECT(
+          'total',
+          (("DatabaseMetadata"."value")->'total')::FLOAT + $3
+        )
+    `, [
+      randomId(),
+      {total: usdAmount},
+      usdAmount,
+    ]);
+  }
+
+  async setGivingSeason2025DonationTotal(usdAmount: number): Promise<void> {
+    await this.none(`
+      -- DatabaseMetadataRepo.setGivingSeason2025DonationTotal
+      INSERT INTO "DatabaseMetadata" ("_id", "name", "value", "createdAt")
+      VALUES ($1, 'givingSeason2025ElectionTotal', $2, CURRENT_TIMESTAMP)
+      ON CONFLICT ("name") DO UPDATE SET "value" = $2
+    `, [
+      randomId(),
+      {total: usdAmount},
+    ]);
+  }
 }

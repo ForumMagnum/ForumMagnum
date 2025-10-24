@@ -44,7 +44,7 @@ import { hstsMiddleware } from './hsts';
 import { getClientBundle } from './utils/bundleUtils';
 import ElasticController from './search/elastic/ElasticController';
 import type { ApolloServerPlugin, GraphQLRequestContext, GraphQLRequestListener } from 'apollo-server-plugin-base';
-import { asyncLocalStorage, closePerfMetric, openPerfMetric, perfMetricMiddleware, setAsyncStoreValue } from './perfMetrics';
+import { asyncLocalStorage, closePerfMetric, openPerfMetric, perfMetricMiddleware } from './perfMetrics';
 import { addAdminRoutesMiddleware } from './adminRoutesMiddleware'
 import { createAnonymousContext } from './vulcan-lib/createContexts';
 import { randomId } from '../lib/random';
@@ -64,6 +64,7 @@ import { resolvers, typeDefs } from './vulcan-lib/apollo-server/initGraphQL';
 import { botProtectionCommentRedirectSetting } from './databaseSettings';
 import { getSitemapWithCache } from './sitemap';
 import PostsRepo from './repos/PostsRepo';
+import { addGivingSeasonEndpoints } from './givingSeason/webhook';
 
 /**
  * End-to-end tests automate interactions with the page. If we try to, for
@@ -211,6 +212,8 @@ export function startWebserver() {
     // which is never actually used.
     ElasticController.addRoutes(app);
   }
+
+  addGivingSeasonEndpoints(app);
 
   // Most middleware need to run after those added by addAuthMiddlewares, so that they can access the user that passport puts on the request.  Be careful if moving it!
   addAuthMiddlewares(addMiddleware);

@@ -1,4 +1,4 @@
-import React, { FC } from "react";
+import React, { ComponentType } from "react";
 import { registerComponent } from "../../lib/vulcan-lib/components";
 import { useCurrentAndRecentForumEvents } from "../hooks/useCurrentForumEvent";
 import moment from "moment";
@@ -13,6 +13,7 @@ import CloudinaryImage2 from "../common/CloudinaryImage2";
 import ForumIcon from "../common/ForumIcon";
 import ForumEventPoll from "./ForumEventPoll";
 import ForumEventStickers from "./ForumEventStickers";
+import GivingSeason2025Banner from "./givingSeason/GivingSeason2025Banner";
 
 const POLL_MIN_WIDTH = 800;
 
@@ -398,9 +399,11 @@ const ForumEventFrontpageBannerWithStickers = ({classes}: {
   );
 }
 
-const customComponents: Partial<Record<Exclude<DbForumEvent['customComponent'], null>, FC>> = {
-  // This component was presumably deleted, it not being 2024 anymore.
-  // GivingSeason2024Banner,
+const customComponents: Partial<Record<
+  Exclude<DbForumEvent['customComponent'], null>,
+  ComponentType
+>> = {
+  GivingSeason2025Banner,
 };
 
 export const ForumEventFrontpageBanner = ({classes}: {
