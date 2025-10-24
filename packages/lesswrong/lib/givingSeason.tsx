@@ -20,6 +20,7 @@ type GivingSeasonEvent = {
   name: string,
   description: string,
   readMoreHref?: string,
+  tagId?: string,
   start: Date,
   end: Date,
   color: string,
@@ -31,6 +32,7 @@ export const givingSeasonEvents: GivingSeasonEvent[] = [
     name: "Funding strategy week",
     description: "Encouraging content around a range of important funding considerations.",
     readMoreHref: "/posts/srZEX2r9upbwfnRKw/giving-season-2024-announcement",
+    tagId: "4ktPbiFf6FLnfyRiC", // TODO
     start: new Date("2025-10-22"), // TODO: Set this to 2025-11-10 before deploying
     end: new Date("2025-11-17"),
     color: "#F59469",

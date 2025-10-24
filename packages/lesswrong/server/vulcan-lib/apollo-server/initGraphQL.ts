@@ -213,6 +213,7 @@ import { createUserTagRelGqlMutation, updateUserTagRelGqlMutation, graphqlUserTa
 import { createUserGqlMutation, updateUserGqlMutation, graphqlUserTypeDefs } from "@/server/collections/users/mutations";
 import { keywordAlertsQueryHandlers, keywordAlertsTypeDefs } from '@/server/keywordAlerts/keywordAlertsResolvers';
 import { eventPostEmailsGqlMutations, eventPostEmailsGqlTypeDefs } from '@/server/eventPostEmails/eventPostEmailsResolvers';
+import { givingSeasonTagFeedGraphQLQueries, givingSeasonTagFeedGraphQLTypeDefs } from '@/server/resolvers/givingSeasonResolvers';
 
 
 const selectorInput = gql`
@@ -260,6 +261,7 @@ export const typeDefs = gql`
   ${alignmentForumTypeDefs}
   ${allTagsActivityFeedGraphQLTypeDefs}
   ${recentDiscussionFeedGraphQLTypeDefs}
+  ${givingSeasonTagFeedGraphQLTypeDefs}
   ${subscribedUsersFeedGraphQLTypeDefs}
   ${tagHistoryFeedGraphQLTypeDefs}
   ${subForumFeedGraphQLTypeDefs}
@@ -463,6 +465,7 @@ export const resolvers = {
     ...postGqlQueries,
     ...allTagsActivityFeedGraphQLQueries,
     ...recentDiscussionFeedGraphQLQueries,
+    ...givingSeasonTagFeedGraphQLQueries,
     ...subscribedUsersFeedGraphQLQueries,
     ...tagHistoryFeedGraphQLQueries,
     ...subForumFeedGraphQLQueries,

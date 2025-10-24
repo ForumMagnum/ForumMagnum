@@ -2,6 +2,8 @@ import React, { CSSProperties, FC, MouseEvent, useCallback } from "react";
 import { registerComponent } from "@/lib/vulcan-lib/components";
 import { defineStyles, useStyles } from "@/components/hooks/useStyles";
 import { AnalyticsContext, useTracking } from "@/lib/analyticsEvents";
+import { postGetPageUrl } from "@/lib/collections/posts/helpers";
+import { commentGetPageUrl } from "@/lib/collections/comments/helpers";
 import { formatStat } from "@/components/users/EAUserTooltipContent";
 import { HEADER_HEIGHT } from "@/components/common/Header";
 import { Link } from "@/lib/reactRouterWrapper";
@@ -14,7 +16,9 @@ import {
 } from "@/lib/givingSeason";
 import classNames from "classnames";
 import moment from "moment";
+import GivingSeasonFeedItem from "./GivingSeasonFeedItem";
 import CloudinaryImage2 from "@/components/common/CloudinaryImage2";
+import MixedTypeFeed from "@/components/common/MixedTypeFeed";
 
 const styles = defineStyles("GivingSeason2025Banner", (theme: ThemeType) => ({
   root: {
@@ -54,10 +58,14 @@ const styles = defineStyles("GivingSeason2025Banner", (theme: ThemeType) => ({
     zIndex: 2,
     padding: "20px 80px 40px 80px",
     display: "grid",
-    gridTemplateColumns: "400px 1fr",
-    gap: "40px",
+    gridTemplateColumns: "400px 580px",
+    gap: "80px",
+    justifyContent: "start",
     color: "var(--event-color)",
     transition: "color ease 0.2s",
+    [theme.breakpoints.up("xl")]: {
+      justifyContent: "center",
+    },
   },
   events: {
     display: "grid",
@@ -270,6 +278,47 @@ export const GivingSeason2025Banner: FC = () => {
             ))}
           </div>
           <div>
+            {currentEvent?.tagId && selectedEvent === currentEvent && (
+               <MixedTypeFeed
+                  firstPageSize={3}
+                  hideLoading
+                  disableLoadMore
+                  resolverName="GivingSeasonTagFeed"
+                  resolverArgs={{tagId: "String!"}}
+                  resolverArgsValues={{tagId: currentEvent.tagId}}
+                  sortKeyType="Date"
+                  renderers={{
+                    newPost: {
+                      fragmentName: "PostsList",
+                      render: (post: PostsList) => (
+                        <GivingSeasonFeedItem
+                          href={postGetPageUrl(post)}
+                          iconStyle="post"
+                          action="posted"
+                          user={post.user}
+                          post={post}
+                          date={post.postedAt}
+                          preview={post.contents?.plaintextDescription ?? ""}
+                        />
+                      ),
+                    },
+                    newComment: {
+                      fragmentName: "CommentsListWithParentMetadata",
+                      render: (comment: CommentsListWithParentMetadata) => (
+                        <GivingSeasonFeedItem
+                          href={commentGetPageUrl(comment)}
+                          iconStyle="comment"
+                          action="on"
+                          user={comment.user}
+                          post={comment.post}
+                          date={comment.postedAt}
+                          preview={comment.contents?.plaintextMainText ?? ""}
+                        />
+                      ),
+                    },
+                  }}
+                />
+            )}
           </div>
         </div>
         <div className={classes.election}>

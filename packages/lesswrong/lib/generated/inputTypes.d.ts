@@ -557,6 +557,18 @@ interface RecentDiscussionFeedEntryType {
   tagRevised: Revision | null;
 }
 
+interface GivingSeasonTagFeedQueryResults {
+  cutoff: Date | null;
+  endOffset: number;
+  results: Array<GivingSeasonTagFeedEntryType> | null;
+}
+
+interface GivingSeasonTagFeedEntryType {
+  type: string;
+  newPost: Post | null;
+  newComment: Comment | null;
+}
+
 interface SubscribedPostAndComments {
   _id: string;
   post: Post;
@@ -6537,6 +6549,8 @@ interface GraphQLTypeMap {
   AllTagsActivityFeedEntryType: AllTagsActivityFeedEntryType;
   RecentDiscussionFeedQueryResults: RecentDiscussionFeedQueryResults;
   RecentDiscussionFeedEntryType: RecentDiscussionFeedEntryType;
+  GivingSeasonTagFeedQueryResults: GivingSeasonTagFeedQueryResults;
+  GivingSeasonTagFeedEntryType: GivingSeasonTagFeedEntryType;
   SubscribedPostAndComments: SubscribedPostAndComments;
   SubscribedFeedQueryResults: SubscribedFeedQueryResults;
   SubscribedFeedEntryType: SubscribedFeedEntryType;
