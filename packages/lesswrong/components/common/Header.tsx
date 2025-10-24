@@ -285,6 +285,9 @@ export const styles = (theme: ThemeType) => ({
     "& span": {
       opacity: 0.6,
     },
+    [theme.breakpoints.down("xs")]: {
+      display: "none",
+    },
   },
 });
 

@@ -12,6 +12,7 @@ import { Link } from "@/lib/reactRouterWrapper";
 import {
   ELECTION_DONATE_HREF,
   ELECTION_INFO_HREF,
+  GIVING_SEASON_INFO_HREF,
   givingSeasonEvents,
   useGivingSeason,
 } from "@/lib/givingSeason";
@@ -30,7 +31,9 @@ const styles = defineStyles("GivingSeason2025Banner", (theme: ThemeType) => ({
     fontFamily: theme.palette.fonts.sansSerifStack,
     background: theme.palette.text.alwaysBlack,
     width: "100%",
-    borderBottom: `1px solid ${theme.palette.text.alwaysBlack}`,
+    [theme.breakpoints.up("md")]: {
+      borderBottom: `1px solid ${theme.palette.text.alwaysBlack}`,
+    },
   },
   backgroundImages: {
     position: "absolute",
@@ -66,6 +69,26 @@ const styles = defineStyles("GivingSeason2025Banner", (theme: ThemeType) => ({
       display: "none",
     },
   },
+  mobileTitle: {
+    position: "relative",
+    zIndex: 2,
+    display: "flex",
+    "& a": {
+      color: "var(--event-color)",
+      padding: "0 24px 12px",
+      margin: "0 auto",
+      fontSize: 19,
+      fontWeight: 600,
+      letterSpacing: "-3%",
+      borderBottom: "1px solid var(--event-color)",
+    },
+    "& span": {
+      opacity: 0.6,
+    },
+    [theme.breakpoints.up("sm")]: {
+      display: "none",
+    },
+  },
   main: {
     position: "relative",
     zIndex: 2,
@@ -78,6 +101,15 @@ const styles = defineStyles("GivingSeason2025Banner", (theme: ThemeType) => ({
     transition: "color ease 0.2s",
     [theme.breakpoints.up("xl")]: {
       justifyContent: "center",
+    },
+    [theme.breakpoints.down("md")]: {
+      gridTemplateColumns: "400px 500px",
+      padding: "20px 16px",
+      gap: "24px",
+    },
+    [theme.breakpoints.down("sm")]: {
+      display: "block",
+      maxWidth: "calc(min(500px, 100%))",
     },
   },
   events: {
@@ -108,6 +140,9 @@ const styles = defineStyles("GivingSeason2025Banner", (theme: ThemeType) => ({
     fontWeight: 600,
     lineHeight: "115%",
     letterSpacing: "-5%",
+    [theme.breakpoints.down("xs")]: {
+      fontSize: 24,
+    },
   },
   eventDescription: {
     fontSize: 14,
@@ -123,6 +158,11 @@ const styles = defineStyles("GivingSeason2025Banner", (theme: ThemeType) => ({
       textDecoration: "none",
     },
   },
+  feed: {
+    [theme.breakpoints.down("sm")]: {
+      display: "none",
+    },
+  },
   election: {
     backgroundColor: "var(--event-color)",
     transition: "background-color ease 0.2s",
@@ -132,11 +172,21 @@ const styles = defineStyles("GivingSeason2025Banner", (theme: ThemeType) => ({
     padding: "16px 50px",
     display: "flex",
     justifyContent: "space-between",
+    [theme.breakpoints.down("md")]: {
+      padding: 16,
+    },
+    [theme.breakpoints.down("sm")]: {
+      margin: 16,
+      borderRadius: theme.borderRadius.default,
+      border: `1px solid ${theme.palette.text.alwaysBlack}`,
+      transform: "translateY(-16px)",
+    },
   },
   electionStatus: {
     display: "flex",
     flexDirection: "column",
     gap: 6,
+    maxWidth: "100%",
   },
   amountRaised: {
     fontSize: 19,
@@ -149,6 +199,7 @@ const styles = defineStyles("GivingSeason2025Banner", (theme: ThemeType) => ({
   },
   progress: {
     position: "relative",
+    maxWidth: "100%",
     width: 480,
     height: 12,
     borderRadius: 100,
@@ -199,6 +250,9 @@ const styles = defineStyles("GivingSeason2025Banner", (theme: ThemeType) => ({
       justifyContent: "center",
       border: `1px solid ${theme.palette.text.alwaysBlack}`,
       transition: "background-color ease 0.2, color ease 0.2s",
+    },
+    [theme.breakpoints.down("sm")]: {
+      display: "none",
     },
   },
   buttonOutlined: {
@@ -279,6 +333,11 @@ export const GivingSeason2025Banner: FC = () => {
             </>
           ))}
         </div>
+        <div className={classes.mobileTitle}>
+          <Link to={GIVING_SEASON_INFO_HREF}>
+            Giving season <span>2025</span>
+          </Link>
+        </div>
         <div className={classes.main}>
           <div className={classes.events}>
             {givingSeasonEvents.map((event) => (
@@ -313,7 +372,7 @@ export const GivingSeason2025Banner: FC = () => {
               </div>
             ))}
           </div>
-          <div>
+          <div className={classes.feed}>
             {currentEvent?.tag && selectedEvent === currentEvent && (
                <MixedTypeFeed
                   firstPageSize={3}
