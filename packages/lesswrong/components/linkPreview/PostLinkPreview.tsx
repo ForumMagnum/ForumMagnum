@@ -20,6 +20,8 @@ import ContentStyles from "../common/ContentStyles";
 import { apolloSSRFlag } from '@/lib/helpers';
 import type { RouterLocation } from '@/lib/vulcan-lib/routes';
 import { linkStyles } from './linkStyles';
+import LWTooltip from '../common/LWTooltip';
+import ConversationPreview from '../messaging/ConversationPreview';
 
 
 const SequencesPageFragmentQuery = gql(`
@@ -371,6 +373,29 @@ export const SequencePreview = ({targetLocation, href, className, children}: {
         {children}
       </Link>
     </SequencesTooltip>
+  );
+}
+
+export const MessagePreview = ({href, targetLocation, id, className, children}: {
+  href: string,
+  targetLocation: RouterLocation,
+  id?: string,
+  className?: string,
+  children: ReactNode,
+}) => {
+  return (
+    <LWTooltip
+      tooltip={false}
+      title={
+        <span>
+          <Card>
+            <ConversationPreview conversationId={targetLocation?.query?.conversation} />
+          </Card>
+        </span>
+      }
+    >
+      {children}
+  </LWTooltip>
   );
 }
 
