@@ -86,7 +86,7 @@ function convertKeystrokeToKeystrokeInfo(keystroke: string): KeystrokeInfo {
 }
 
 /**
- * Ensure we always open the editor toolbar on right-click.
+ * Ensure we always open the editor toolbar on right-click, along with the native context menu.
  */
 function improveEditorContextMenu(
   editorElementRef: RefObject<CKEditor<AnyBecauseHard> | null>,
