@@ -1,4 +1,4 @@
-import React, { CSSProperties, FC, MouseEvent, useCallback } from "react";
+import React, { CSSProperties, FC, Fragment, MouseEvent, useCallback } from "react";
 import { registerComponent } from "@/lib/vulcan-lib/components";
 import { defineStyles, useStyles } from "@/components/hooks/useStyles";
 import { AnalyticsContext, useTracking } from "@/lib/analyticsEvents";
@@ -307,9 +307,8 @@ export const GivingSeason2025Banner: FC = () => {
       >
         <div className={classes.backgroundImages}>
           {givingSeasonEvents.map((event, i) => (
-            <>
+            <Fragment key={event.name}>
               <CloudinaryImage2
-                key={event.name}
                 publicId={event.desktopCloudinaryId}
                 wrapperClassName={classNames(
                   classes.backgroundImage,
@@ -320,7 +319,6 @@ export const GivingSeason2025Banner: FC = () => {
                 objectFit="cover"
               />
               <CloudinaryImage2
-                key={event.name}
                 publicId={event.mobileCloudinaryId}
                 wrapperClassName={classNames(
                   classes.backgroundImage,
@@ -330,7 +328,7 @@ export const GivingSeason2025Banner: FC = () => {
                 style={{zIndex: i}}
                 objectFit="cover"
               />
-            </>
+            </Fragment>
           ))}
         </div>
         <div className={classes.mobileTitle}>

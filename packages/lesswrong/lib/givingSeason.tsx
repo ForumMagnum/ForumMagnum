@@ -10,11 +10,15 @@ import React, {
 } from "react";
 import { useCurrentTime } from "./utils/timeUtil";
 import { useOnNavigate } from "@/components/hooks/useOnNavigate";
+import { useLocation } from "./routeUtil";
+import { useQuery } from "@apollo/client";
 import { isEAForum } from "./instanceSettings";
+import gql from "graphql-tag";
 
 export const GIVING_SEASON_INFO_HREF = "/posts/srZEX2r9upbwfnRKw"; // TODO
 export const ELECTION_INFO_HREF = "/posts/srZEX2r9upbwfnRKw"; // TODO
 export const ELECTION_DONATE_HREF = "/donation-portal";
+const ELECTION_TARGET_AMOUNT = 60000; // TODO
 
 type GivingSeasonEvent = {
   name: string,
@@ -108,6 +112,8 @@ type GivingSeasonContext = {
 const givingSeasonContext = createContext<GivingSeasonContext | null>(null)
 
 export const GivingSeasonContext = ({children}: {children: ReactNode}) => {
+  const {currentRoute} = useLocation();
+  const isHomePage = currentRoute?.name === "home";
   const currentEvent = useCurrentGivingSeasonEvent()
   const defaultEvent = currentEvent ?? givingSeasonEvents[0];
   const [selectedEvent, setSelectedEvent] = useState(defaultEvent);
@@ -117,13 +123,24 @@ export const GivingSeasonContext = ({children}: {children: ReactNode}) => {
   }, [defaultEvent]);
   useOnNavigate(onNavigate);
 
+  const {data} = useQuery(gql`
+    query GivingSeason2025DonationTotal {
+      GivingSeason2025DonationTotal
+    }
+  `, {
+    pollInterval: 60 * 1000, // Poll once per minute
+    ssr: true,
+    skip: !isEAForum || !isHomePage,
+  });
+  const amountRaised = Math.round(data?.GivingSeason2025DonationTotal ?? 0);
+
   const value = useMemo(() => ({
     currentEvent,
     selectedEvent,
     setSelectedEvent,
-    amountRaised: 15293, // TODO: Fetch correct amount from database
-    amountTarget: 60000,
-  }), [currentEvent, selectedEvent, setSelectedEvent]);
+    amountRaised,
+    amountTarget: ELECTION_TARGET_AMOUNT,
+  }), [currentEvent, selectedEvent, setSelectedEvent, amountRaised]);
   return (
     <givingSeasonContext.Provider value={value}>
       {children}

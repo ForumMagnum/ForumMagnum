@@ -125,6 +125,16 @@ export default class DatabaseMetadataRepo extends AbstractRepo<"DatabaseMetadata
     });
   }
 
+  async getGivingSeason2025DonationTotal(): Promise<number> {
+    const result = await this.getRawDb().oneOrNone(`
+      -- DatabaseMetadataRepo.getGivingSeason2025DonationTotal
+      SELECT COALESCE(("value"->'total')::FLOAT, 0) AS "total"
+      FROM "DatabaseMetadata"
+      WHERE "name" = 'givingSeason2025ElectionTotal'
+    `);
+    return result?.total ?? 0;
+  }
+
   async addGivingSeason2025Donation(usdAmount: number): Promise<void> {
     await this.none(`
       -- DatabaseMetadataRepo.addGivingSeason2025Donation

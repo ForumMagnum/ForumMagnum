@@ -798,6 +798,7 @@ type GivingSeasonTagFeedEntryType {
 }
 
 extend type Query {
+  GivingSeason2025DonationTotal: Float!
   GivingSeasonTagFeed(limit: Int, cutoff: Date, offset: Int, tagId: String!): GivingSeasonTagFeedQueryResults!
 }
 

@@ -15,6 +15,7 @@ export const givingSeasonTagFeedGraphQLTypeDefs = gql`
     newComment: Comment
   }
   extend type Query {
+    GivingSeason2025DonationTotal: Float!
     GivingSeasonTagFeed(
       limit: Int,
       cutoff: Date,
@@ -25,6 +26,11 @@ export const givingSeasonTagFeedGraphQLTypeDefs = gql`
 `;
 
 export const givingSeasonTagFeedGraphQLQueries = {
+  GivingSeason2025DonationTotal: (
+    _root: void,
+    _args: {},
+    context: ResolverContext,
+  ) => context.repos.databaseMetadata.getGivingSeason2025DonationTotal(),
   GivingSeasonTagFeed: async (
     _root: void,
     {limit = 4, cutoff, offset, tagId}: {
