@@ -6,8 +6,9 @@ import { postGetPageUrl } from "@/lib/collections/posts/helpers";
 import { commentGetPageUrl } from "@/lib/collections/comments/helpers";
 import { formatStat } from "@/components/users/EAUserTooltipContent";
 import { HEADER_HEIGHT } from "@/components/common/Header";
-import { Link } from "@/lib/reactRouterWrapper";
+import { useCurrentTime } from "@/lib/utils/timeUtil";
 import { useNavigate } from "@/lib/routeUtil";
+import { Link } from "@/lib/reactRouterWrapper";
 import {
   ELECTION_DONATE_HREF,
   ELECTION_INFO_HREF,
@@ -17,6 +18,7 @@ import {
 import classNames from "classnames";
 import moment from "moment";
 import GivingSeasonFeedItem from "./GivingSeasonFeedItem";
+import GivingSeasonTopPosts from "./GivingSeasonTopPosts";
 import CloudinaryImage2 from "@/components/common/CloudinaryImage2";
 import MixedTypeFeed from "@/components/common/MixedTypeFeed";
 
@@ -198,6 +200,7 @@ const styles = defineStyles("GivingSeason2025Banner", (theme: ThemeType) => ({
 }))
 
 export const GivingSeason2025Banner: FC = () => {
+  const now = useCurrentTime();
   const {captureEvent} = useTracking();
   const navigate = useNavigate();
   const {
@@ -278,14 +281,14 @@ export const GivingSeason2025Banner: FC = () => {
             ))}
           </div>
           <div>
-            {currentEvent?.tagId && selectedEvent === currentEvent && (
+            {currentEvent?.tag && selectedEvent === currentEvent && (
                <MixedTypeFeed
                   firstPageSize={3}
                   hideLoading
                   disableLoadMore
                   resolverName="GivingSeasonTagFeed"
                   resolverArgs={{tagId: "String!"}}
-                  resolverArgsValues={{tagId: currentEvent.tagId}}
+                  resolverArgsValues={{tagId: currentEvent.tag._id}}
                   sortKeyType="Date"
                   renderers={{
                     newPost: {
@@ -318,6 +321,14 @@ export const GivingSeason2025Banner: FC = () => {
                     },
                   }}
                 />
+            )}
+            {selectedEvent?.tag &&
+                selectedEvent.end < now &&
+                selectedEvent !== currentEvent && (
+              <GivingSeasonTopPosts
+                tagId={selectedEvent.tag._id}
+                tagSlug={selectedEvent.tag.slug}
+              />
             )}
           </div>
         </div>
