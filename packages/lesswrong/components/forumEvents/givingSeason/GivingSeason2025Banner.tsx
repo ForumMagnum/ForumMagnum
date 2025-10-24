@@ -129,11 +129,14 @@ const styles = defineStyles("GivingSeason2025Banner", (theme: ThemeType) => ({
     color: theme.palette.text.alwaysBlack,
     position: "relative",
     zIndex: 2,
+    padding: "16px 50px",
+    display: "flex",
+    justifyContent: "space-between",
+  },
+  electionStatus: {
     display: "flex",
     flexDirection: "column",
-    alignItems: "center",
     gap: 6,
-    padding: "16px 50px",
   },
   amountRaised: {
     fontSize: 19,
@@ -168,6 +171,12 @@ const styles = defineStyles("GivingSeason2025Banner", (theme: ThemeType) => ({
     height: "100%",
     background: theme.palette.text.alwaysBlack,
     zIndex: 2,
+  },
+  match: {
+    fontSize: 13,
+    fontWeight: 500,
+    letterSpacing: "-1%",
+    opacity: 0.4,
   },
   electionButtons: {
     position: "absolute",
@@ -357,16 +366,21 @@ export const GivingSeason2025Banner: FC = () => {
           </div>
         </div>
         <div className={classes.election}>
-          <div className={classes.amountRaised}>
-            ${formatStat(amountRaised)} raised{" "}
-            <span>to the Donation Election Fund</span>
-          </div>
-          <div className={classes.progress} aria-hidden>
-            <div className={classes.progressBackground} />
-            <div
-              style={{width: `${amountRaised / amountTarget * 100}%`}}
-              className={classes.progressBar}
-            />
+          <div className={classes.electionStatus}>
+            <div className={classes.amountRaised}>
+              ${formatStat(amountRaised)} raised{" "}
+              <span>to the Donation Election Fund</span>
+            </div>
+            <div className={classes.progress} aria-hidden>
+              <div className={classes.progressBackground} />
+              <div
+                style={{width: `${amountRaised / amountTarget * 100}%`}}
+                className={classes.progressBar}
+              />
+            </div>
+            <div className={classes.match}>
+              We&apos;re matching the first $5000
+            </div>
           </div>
           <div className={classes.electionButtons}>
             <button
