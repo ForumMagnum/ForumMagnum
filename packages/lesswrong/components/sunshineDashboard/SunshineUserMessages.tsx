@@ -100,7 +100,7 @@ export const SunshineUserMessages = ({user, currentUser}: {
       return (
         <div key={conversation._id} className={classes.conversationItem}>
           <div className={classes.conversationHeader} onClick={() => toggleConversationPreview(conversation._id)}>
-            <Link to={`/inbox/${conversation._id}`} onClick={(e) => e.stopPropagation()}>
+            <Link to={`/inbox?conversation=${conversation._id}`} onClick={(e) => e.stopPropagation()}>
               <MetaInfo><EmailIcon className={classes.icon}/> {conversation.messageCount}</MetaInfo>
               <span>
                 Conversation with{" "} 

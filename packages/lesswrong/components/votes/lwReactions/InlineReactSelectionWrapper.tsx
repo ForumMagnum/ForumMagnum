@@ -16,10 +16,43 @@ const styles = (theme: ThemeType) => ({
   },
 });
 
-const InlineReactSelectionWrapper = ({contentRef, voteProps, styling, children, classes}: {
+type Styling = "comment"|"post"|"tag"|"messageRight"|"messageLeft";
+
+function getButtonOffsetLeft(styling: Styling, contentRef?: React.RefObject<ContentItemBodyImperative | null> | null): number {
+  switch (styling) {
+    case "comment":
+      return 12;
+    // messageLeft is for messages by the current user, and indicates the inline react button should be to the left of the message item (since the message is right-aligned)
+    // messageRight is for messages by other users, and indicates the inline react button should be to the right of the message item (since the message is left-aligned)
+    // The messageLeft and messageRight values were chosen empirically to avoid overlap between the button background and the message container.
+    case "messageLeft":
+      const anchorElWidth = (contentRef?.current?.getAnchorEl()?.getBoundingClientRect().width ?? 0) + 64;
+      return anchorElWidth * -1;
+    case "messageRight":
+      return 0;
+    case "post":
+    case "tag":
+      return 30;
+  }
+}
+
+function getButtonOffsetTop(styling: Styling): number {
+  switch (styling) {
+    case "comment":
+    case "messageLeft":
+    case "messageRight":
+      return -10;
+    case "post":
+    case "tag":
+      return 0;
+  }
+}
+
+const InlineReactSelectionWrapper = ({contentRef, voteProps, styling, setSelection, children, classes}: {
   contentRef?: React.RefObject<ContentItemBodyImperative|null>|null, // we need this to check if the mouse is still over the comment, and it needs to be passed down from CommentsItem instead of declared here because it needs extra padding in order to behave intuively (without losing the selection)
   voteProps: VotingProps<VoteableTypeClient>
-  styling: "comment"|"post"|"tag",
+  styling: Styling,
+  setSelection?: (selection?: { text: string, disabled: boolean }) => void,
   children: React.ReactNode,
   classes: ClassesType<typeof styles>,
 }) => {
@@ -34,6 +67,7 @@ const InlineReactSelectionWrapper = ({contentRef, voteProps, styling, children, 
       setAnchorEl(null);
       setQuote("")
       setDisabledButton(false)
+      setSelection?.()
     }
   
     const selection = window.getSelection()
@@ -58,6 +92,7 @@ const InlineReactSelectionWrapper = ({contentRef, voteProps, styling, children, 
         // Count the number of occurrences of the quote in the raw text
         const count = countStringsInString(commentText, selectedText);
         setDisabledButton(count > 1)
+        setSelection?.({ text: selectedText, disabled: count > 1 })
       } else {
         clearAll()
       }
@@ -65,7 +100,7 @@ const InlineReactSelectionWrapper = ({contentRef, voteProps, styling, children, 
     if (!selectionInCommentRef && !selectionInPopupRef) {
       clearAll()
     }
-  }, [contentRef, commentTextRef]);
+  }, [contentRef, commentTextRef, setSelection]);
   
   useEffect(() => { 
     document.addEventListener('selectionchange', detectSelection);
@@ -74,12 +109,12 @@ const InlineReactSelectionWrapper = ({contentRef, voteProps, styling, children, 
     };
   }, [detectSelection]);
   
-  const buttonOffsetLeft = (styling==="comment") ? 12 : 30;
-  const buttonOffsetTop = (styling==="comment") ? -10 : 0;
+  const buttonOffsetLeft = getButtonOffsetLeft(styling, contentRef);
+  const buttonOffsetTop = getButtonOffsetTop(styling);
 
   return (
     <div ref={commentTextRef}>
-      <LWPopper
+      {!setSelection && <LWPopper
         className={classes.popper}
         open={!!anchorEl} anchorEl={anchorEl}
         placement="right"
@@ -90,7 +125,7 @@ const InlineReactSelectionWrapper = ({contentRef, voteProps, styling, children, 
         >
           <AddInlineReactionButton quote={quote} voteProps={voteProps} disabled={disabledButton}/>
         </span> 
-      </LWPopper>
+      </LWPopper>}
 
       {children}
     </div>

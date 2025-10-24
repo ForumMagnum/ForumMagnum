@@ -40,7 +40,6 @@ import './server/rsvpToEvent';
 import './server/hidePostMutation';
 import './server/resolvers/aiArtResolvers/coverImageMutations';
 import './server/rss';
-import './server/akismet';
 import './server/votingCron';
 import './server/votingGraphQL';
 import './server/updateScores';

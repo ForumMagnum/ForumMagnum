@@ -59,15 +59,24 @@ const ConversationTitleEditForm = ({ onClose, conversation }: {
       participantIds: conversation.participantIds ?? [],
       af: conversation.af ?? null,
       moderator: conversation.moderator ?? null,
+      archived: (currentUser && conversation.archivedByIds?.includes(currentUser._id)) ?? null,
     },
     onSubmit: async ({ value, formApi }) => {
-      const updatedFields = getUpdatedFieldValues(formApi);
+      const { archived, ...updatedFields } = getUpdatedFieldValues(formApi);
+      const updateData = {
+        ...updatedFields,
+        archivedByIds: archived
+          // use conversation.archivedByIds; updatedFields won't contain it since it's not directly in the form
+          // and `getUpdatedFieldValues` only returns fields which have been "dirtied" by being changed in the form
+          ? [...(conversation.archivedByIds ?? []), currentUser!._id]
+          : (conversation.archivedByIds ?? []).filter(id => id !== currentUser!._id),
+      }
 
       try {
         await mutate({
           variables: {
             selector: { _id: conversation._id },
-            data: updatedFields
+            data: updateData
           }
         });
       } catch (error) {
@@ -126,6 +135,17 @@ const ConversationTitleEditForm = ({ onClose, conversation }: {
               <FormComponentCheckbox
                 field={field}
                 label="Moderator"
+              />
+            )}
+          </form.Field>
+        </div>}
+
+        {userIsAdminOrMod(currentUser) && <div className={classes.fieldWrapper}>
+          <form.Field name="archived">
+            {(field) => (
+              <FormComponentCheckbox
+                field={field}
+                label="Archived"
               />
             )}
           </form.Field>

@@ -261,6 +261,7 @@ export const getDarkModeTheme = (): UserThemeSpecification => ({
         background: shadePalette.grey[600],
         hoverBackground: shadePalette.grey[700],
       },
+      messageReaction: "opacity(0.35)",
     },
     intercom: {
       buttonBackground: `${shadePalette.grey[400]} !important`,

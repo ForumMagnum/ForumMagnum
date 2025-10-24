@@ -15,6 +15,7 @@ import InlineReactHoverInfo from "./InlineReactHoverInfo";
 import { SideItem } from "../../contents/SideItems";
 import LWTooltip from "../../common/LWTooltip";
 import SideItemLine from "../../contents/SideItemLine";
+import { useLocation } from '@/lib/routeUtil';
 
 const styles = defineStyles("InlineReactHoverableHighlight", (theme: ThemeType) => ({
   reactionTypeHovered: {
@@ -25,7 +26,6 @@ const styles = defineStyles("InlineReactHoverableHighlight", (theme: ThemeType) 
   },
 
   sidebarInlineReactIcons: {
-    display: "none",
     opacity: 0.5,
     marginLeft: 4,
     paddingLeft: 4,
@@ -34,6 +34,9 @@ const styles = defineStyles("InlineReactHoverableHighlight", (theme: ThemeType) 
     [theme.breakpoints.up('sm')]: {
       display: "inline-block",
     },
+  },
+  hideInlineReactsDefault: {
+    display: "none",
   },
   inlineReactSidebarLine: {
     background: theme.palette.sideItemIndicator.inlineReaction,
@@ -123,14 +126,19 @@ const SidebarInlineReact = ({quote,reactions, voteProps, hoverEventHandlers}: {
   hoverEventHandlers: UseHoverEventHandlers,
 }) => {
   const classes = useStyles(styles);
+
+  // In the DM inbox, inline reacts can be rendered just fine, since they aren't actually "side" items that'd be off-screen
+  const { pathname } = useLocation();
+  const isInbox = pathname.startsWith("/inbox");
+
   const normalizedReactions = getNormalizedReactionsListFromVoteProps(voteProps)?.reacts ?? {};
   const reactionsUsed = Object.keys(normalizedReactions).filter(react =>
     normalizedReactions[react]?.some(r=>r.quotes?.includes(quote))
   );
   
   return <>
-    <SideItemLine colorClass={classes.inlineReactSidebarLine}/>
-    <span {...hoverEventHandlers} className={classes.sidebarInlineReactIcons}>
+    {!isInbox && <SideItemLine colorClass={classes.inlineReactSidebarLine}/>}
+    <span {...hoverEventHandlers} className={classNames(classes.sidebarInlineReactIcons, !isInbox && classes.hideInlineReactsDefault)}>
       {reactionsUsed.map(r => <span key={r}>
         <LWTooltip
           title={<InlineReactHoverInfo

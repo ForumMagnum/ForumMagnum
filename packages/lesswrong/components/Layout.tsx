@@ -377,6 +377,7 @@ const Layout = ({children}: {
   );
 
   const isWrapped = pathname.startsWith('/wrapped');
+  const isInbox = pathname.startsWith('/inbox');
 
   let headerBackgroundColor: ColorString;
   // For the EAF Wrapped page, we change the header's background color to a dark blue.
@@ -398,7 +399,7 @@ const Layout = ({children}: {
       // a property on routes themselves.
       standaloneNavigation: !!routeMetadata.hasLeftNavigationColumn,
       renderSunshineSidebar: isSunshineSidebarRoute(pathname) && !!(userCanDo(currentUser, 'posts.moderate.all') || currentUser?.groups?.includes('alignmentForumAdmins')) && !currentUser?.hideSunshineSidebar,
-      renderLanguageModelChatLauncher: !!currentUser && userHasLlmChat(currentUser),
+      renderLanguageModelChatLauncher: !!currentUser && userHasLlmChat(currentUser) && !isInbox,
       shouldUseGridLayout: !!routeMetadata.hasLeftNavigationColumn,
       unspacedGridLayout: isUnspacedGridRoute(pathname),
     }
@@ -431,11 +432,11 @@ const Layout = ({children}: {
       <CurrentAndRecentForumEventsProvider>
         <div className={classes.topLevelContainer}>
           <div className={classes.pageContent}>
-            <div className={classNames(
-          "wrapper",
-          {'alignment-forum': isAF(), [classes.fullscreen]: isFullscreenRoute(pathname), [classes.wrapper]: isLWorAF()},
-          useWhiteBackground && classes.whiteBackground
-        )} id="wrapper">
+            <div id="wrapper" className={classNames(
+              "wrapper",
+              {'alignment-forum': isAF(), [classes.fullscreen]: isFullscreenRoute(pathname), [classes.wrapper]: isLWorAF()},
+              useWhiteBackground && classes.whiteBackground
+            )}>
           {buttonBurstSetting.get() && <GlobalButtonBurst />}
           <DialogManager>
             <CommentBoxManager>
@@ -454,7 +455,7 @@ const Layout = ({children}: {
               <GlobalHotkeys/>
               {/* Only show intercom after they have accepted cookies */}
               <DeferRender ssr={false}>
-                <MaybeCookieBanner isWrapped={isWrapped} />
+                <MaybeCookieBanner hideIntercomButton={isWrapped || isInbox} />
               </DeferRender>
 
               <noscript className="noscript-warning"> This website requires javascript to properly function. Consider activating javascript to get access to all site functionality. </noscript>
@@ -579,7 +580,7 @@ const Layout = ({children}: {
   return render();
 }
 
-function MaybeCookieBanner({isWrapped}: {isWrapped: boolean}) {
+function MaybeCookieBanner({ hideIntercomButton }: { hideIntercomButton: boolean }) {
   const { explicitConsentGiven: cookieConsentGiven, explicitConsentRequired: cookieConsentRequired } = useCookiePreferences();
   const showCookieBanner = cookieConsentRequired === true && !cookieConsentGiven;
 
@@ -589,7 +590,7 @@ function MaybeCookieBanner({isWrapped}: {isWrapped: boolean}) {
     );
   }
 
-  return isWrapped ? null : <IntercomWrapper />
+  return hideIntercomButton ? null : <IntercomWrapper />
 }
 
 export default registerComponent('Layout', Layout);

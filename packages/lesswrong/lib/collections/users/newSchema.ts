@@ -4145,7 +4145,7 @@ const schema = {
   rateLimitNextAbleToComment: {
     graphql: {
       outputType: "JSON",
-      canRead: ["guests"],
+      canRead: [userOwns, "sunshineRegiment", "admins"],
       arguments: "postId: String",
       resolver: async (user, args, context) => {
         return rateLimitDateWhenUserNextAbleToComment(user, args.postId, context);
@@ -4155,7 +4155,7 @@ const schema = {
   rateLimitNextAbleToPost: {
     graphql: {
       outputType: "JSON",
-      canRead: ["guests"],
+      canRead: [userOwns, "sunshineRegiment", "admins"],
       arguments: "eventForm: Boolean",
       resolver: async (user, args, context) => {
         const { eventForm } = args;
@@ -4172,7 +4172,7 @@ const schema = {
   recentKarmaInfo: {
     graphql: {
       outputType: "JSON",
-      canRead: ["guests"],
+      canRead: [userOwns, "sunshineRegiment", "admins"],
       resolver: async (user, args, context) => {
         return getRecentKarmaInfo(user._id, context);
       },

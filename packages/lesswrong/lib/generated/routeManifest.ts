@@ -531,12 +531,6 @@ export const routeTrie = {
       "hasPage": true
     },
     "inbox": {
-      "dynamicChild": {
-        "paramName": "_id",
-        "child": {
-          "hasPage": true
-        }
-      },
       "hasPage": true
     },
     "item": {

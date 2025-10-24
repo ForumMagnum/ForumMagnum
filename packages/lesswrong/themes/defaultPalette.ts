@@ -504,6 +504,7 @@ export const defaultComponentPalette = (shades: ThemeShadePalette): ThemeCompone
       background: shades.grey[700],
       hoverBackground: shades.grey[800],
     },
+    messageReaction: "opacity(0.15)",
   },
   intercom: {
     buttonBackground: "#f5f5f5 !important",

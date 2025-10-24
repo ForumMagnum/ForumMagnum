@@ -455,6 +455,7 @@ declare global {
         background: ColorString,
         hoverBackground: ColorString,
       },
+      messageReaction: string,
     },
     sideItemIndicator: {
       sideComment: ColorString,
