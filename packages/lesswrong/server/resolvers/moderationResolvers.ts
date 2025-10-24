@@ -123,6 +123,10 @@ export const moderationGqlMutations = {
       if (!post) {
         throw new Error("Invalid post ID");
       }
+      if (post.userId !== user._id) {
+        throw new Error("Post does not belong to user");
+      }
+
       await updatePost({
         data: { rejected: true },
         selector: { _id: documentId }
@@ -132,6 +136,10 @@ export const moderationGqlMutations = {
       if (!comment) {
         throw new Error("Invalid comment ID");
       }
+      if (comment.userId !== user._id) {
+        throw new Error("Comment does not belong to user");
+      }
+      
       await updateComment({
         data: { rejected: true },
         selector: { _id: documentId }

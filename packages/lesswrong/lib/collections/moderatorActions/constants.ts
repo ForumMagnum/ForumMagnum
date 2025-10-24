@@ -130,7 +130,7 @@ export const REVIEW_REASON_TO_MODERATOR_ACTION = {
   profileImageId: UNREVIEWED_PROFILE_IMAGE_UPDATE,
   firstPost: UNREVIEWED_FIRST_POST,
   firstComment: UNREVIEWED_FIRST_COMMENT,
-  unreviewedPost: UNREVIEWED_FIRST_POST,
-  unreviewedComment: UNREVIEWED_FIRST_COMMENT,
+  unreviewedPost: UNREVIEWED_POST,
+  unreviewedComment: UNREVIEWED_COMMENT,
   newContent: SNOOZE_EXPIRED,
 } satisfies Record<ReasonReviewIsNeeded, DbModeratorAction['type']>;

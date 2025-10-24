@@ -4296,13 +4296,17 @@ const schema = {
         const { FieldChanges } = context;
 
         // TODO: use a custom data loader here?
-        const fieldChanges = await FieldChanges.findOne({
-          documentId: user._id,
-          fieldName: "needsReview",
-          newValue: 'false',
-        }, { sort: { createdAt: -1 } });
+        const fieldChanges = await getWithLoader(
+          context,
+          FieldChanges,
+          'needsReviewFieldChanges',
+          { documentId: user._id, fieldName: "needsReview", newValue: 'false' },
+          'documentId',
+          user._id,
+          { sort: { createdAt: -1 }, limit: 1 },
+        );
 
-        return fieldChanges?.createdAt;
+        return fieldChanges[0]?.createdAt;
       },
     },
   },

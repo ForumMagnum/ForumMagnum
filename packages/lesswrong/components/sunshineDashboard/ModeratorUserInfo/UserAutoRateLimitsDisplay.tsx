@@ -105,8 +105,6 @@ export const UserAutoRateLimitsDisplay = ({user, showKarmaMeta=false, absolute, 
   const roundedDownvoteRatio = Math.round(getDownvoteRatio(user) * 100)
   const allRateLimits = [...forumSelect(autoPostRateLimits), ...forumSelect(autoCommentRateLimits)]
   const strictestRateLimits = getStrictestActiveRateLimits(user, allRateLimits);
-  const allActiveRateLimitsNames = getActiveRateLimitNames(user, allRateLimits);
-  const nonStrictestRateLimitsNames = allActiveRateLimitsNames.filter(rateLimitName => !strictestRateLimits.some(strictLimit => strictLimit.name === rateLimitName))
 
   const totalReceivedVotes = (
     (user.smallUpvoteReceivedCount ?? 0) +
@@ -160,10 +158,6 @@ export const UserAutoRateLimitsDisplay = ({user, showKarmaMeta=false, absolute, 
         );
     })}
     </ul>
-    {/* {nonStrictestRateLimitsNames.length > 0 && <LWTooltip title={<div>
-      {nonStrictestRateLimitsNames.map(rateLimit => <div key={`${user._id}rateLimit${rateLimit}`}>{rateLimit}</div>)}</div>}>
-      <MetaInfo>{nonStrictestRateLimitsNames.length} More</MetaInfo>
-    </LWTooltip>} */}
   </div>;
 }
 
