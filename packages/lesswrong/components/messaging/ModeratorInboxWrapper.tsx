@@ -4,6 +4,7 @@ import React from 'react';
 import { useLocation } from '../../lib/routeUtil';
 import { useCurrentUser } from '../common/withUser';
 import FriendlyInbox from "./FriendlyInbox";
+import { userIsAdmin } from '@/lib/vulcan-users/permissions';
 
 const ModeratorInboxWrapper = () => {
   const currentUser = useCurrentUser();
@@ -14,13 +15,15 @@ const ModeratorInboxWrapper = () => {
 
   const conversationId = query.conversation;
   const showArchive = query.showArchive === "true";
+  const isAdmin = userIsAdmin(currentUser);
 
   return (
     <FriendlyInbox
-      currentUser={currentUser}
+      currentUserId={currentUser._id}
       conversationId={conversationId}
       isModInbox
       showArchive={showArchive}
+      isAdmin={isAdmin}
     />
   )
 }

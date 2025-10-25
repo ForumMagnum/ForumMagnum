@@ -77,7 +77,7 @@ const ConversationPreview = ({conversationId, classes, showTitle=true, count=10}
     { conversation && showTitle && <div className={classes.title}>{ conversationGetTitle(conversation, currentUser) }</div>}
     { conversationLoading && <Loading />}
     
-    { conversation && reversedMessages.map((message) => (<MessageItem key={message._id} message={message} />))}
+    { conversation && reversedMessages.map((message) => (<MessageItem key={message._id} message={message} showFullWidth={count === 1} />))}
   </div>
 }
 
