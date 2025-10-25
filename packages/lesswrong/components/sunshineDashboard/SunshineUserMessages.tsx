@@ -115,7 +115,7 @@ export const SunshineUserMessages = ({user, currentUser}: {
           </div>
           {isExpanded && (
             <div className={classes.previewContainer}>
-              <ConversationPreview count={3} conversationId={conversation._id} showTitle={false} />
+              <ConversationPreview conversationId={conversation._id} showTitle={false} />
             </div>
           )}
         </div>
