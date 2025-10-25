@@ -265,6 +265,8 @@ interface Mutation {
   autosaveRevision: Revision | null;
   lockThread: boolean;
   unlockThread: boolean;
+  rejectContentAndRemoveUserFromQueue: boolean;
+  approveUserCurrentContentOnly: boolean;
   reorderSummaries: boolean | null;
   publishAndDeDuplicateSpotlight: Spotlight | null;
   toggleBookmark: ToggleBookmarkOutput | null;
@@ -7286,6 +7288,7 @@ interface User {
   permanentDeletionRequestedAt: Date | null;
   voteBanned: boolean | null;
   nullifyVotes: boolean | null;
+  votingDisabled: boolean;
   deleteContent: boolean | null;
   banned: Date | null;
   IPs: Array<string> | null;
@@ -7461,6 +7464,8 @@ interface User {
   userSurveyEmailSentAt: Date | null;
   karmaChanges: KarmaChanges | null;
   recommendationSettings: any;
+  lastRemovedFromReviewQueueAt: Date | null;
+  rejectedContentCount: number | null;
 }
 
 interface UserSelectorUniqueInput {

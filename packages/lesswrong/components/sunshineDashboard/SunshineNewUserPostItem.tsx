@@ -27,9 +27,9 @@ const styles = defineStyles("SunshineNewUserPostItem", (theme: ThemeType) => ({
   postBody: {
     marginTop: 12,
     fontSize: "1rem",
-    '& li, & h1, & h2, & h3': {
-      fontSize: "1rem"
-    }
+    // '& li, & h1, & h2, & h3': {
+    //   fontSize: "1rem"
+    // }
   },
   vote: {
     marginRight: 10
