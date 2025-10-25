@@ -261,6 +261,8 @@ const FriendlyInbox = ({
 
   isModInbox ||= query.isModInbox === "true";
 
+  const userId = query.userId;
+
   const selectedConversationRef = useRef<HTMLDivElement|null>(null);
 
   const selectConversationCallback = useCallback(
@@ -287,9 +289,15 @@ const FriendlyInbox = ({
     });
   }, [isModInbox, openDialog]);
 
-  const selectorTerms = useMemo(() => ({ userId: currentUserId, showArchive }), [currentUserId, showArchive]);
   const selectedView = isModInbox ? "moderatorConversations" : view;
+  const selectorTerms = useMemo(() => ({
+    userId: currentUserId,
+    showArchive,
+    ...((selectedView === "moderatorConversations" && userId) ? { userId } : {})
+  }), [currentUserId, showArchive, userId, selectedView]);
+
   const initialLimit = 50;
+  
   const {
     data: conversationsData,
     loading: conversationsLoading,
