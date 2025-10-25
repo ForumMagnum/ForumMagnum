@@ -166,7 +166,7 @@ export async function onPostPublished(post: DbPost, context: ResolverContext) {
   const { updateScoreOnPostPublish } = await import("./votingCallbacks");
   await updateScoreOnPostPublish(post, context);
   await onPublishUtils.ensureNonzeroRevisionVersionsAfterUndraft(post, context);
-  await triggerReviewIfNeeded(post.userId, context)
+  await triggerReviewIfNeeded(post.userId, 'publishedPost', context)
 }
 
 const utils = {
@@ -665,7 +665,7 @@ export async function notifyUsersAddedAsPostCoauthors({ document: post }: AfterC
 
 export async function triggerReviewForNewPostIfNeeded({ document, context }: AfterCreateCallbackProperties<'Posts'>) {
   if (!document.draft) {
-    await triggerReviewIfNeeded(document.userId, context)
+    await triggerReviewIfNeeded(document.userId, 'publishedPost', context)
   }
 }
 

@@ -1,6 +1,5 @@
 import React, { useState } from 'react';
 import { useTracking } from '../../lib/analyticsEvents';
-import { registerComponent } from '../../lib/vulcan-lib/components';
 import { TemplateQueryStrings } from '../messaging/NewConversationButton';
 import EmailIcon from '@/lib/vendor/@material-ui/icons/src/Email';
 import { Link } from '../../lib/reactRouterWrapper';
@@ -8,10 +7,12 @@ import isEqual from 'lodash/isEqual';
 import SunshineSendMessageWithDefaults from "./SunshineSendMessageWithDefaults";
 import MessagesNewForm from "../messaging/MessagesNewForm";
 import UsersName from "../users/UsersName";
-import LWTooltip from "../common/LWTooltip";
 import MetaInfo from "../common/MetaInfo";
 import { useQuery } from "@/lib/crud/useQuery";
 import { gql } from "@/lib/generated/gql-codegen";
+import ConversationPreview from '../messaging/ConversationPreview';
+import ForumIcon from '../common/ForumIcon';
+import { defineStyles, useStyles } from '../hooks/useStyles';
 
 const ConversationsListMultiQuery = gql(`
   query multiConversationSunshineUserMessagesQuery($selector: ConversationSelector, $limit: Int, $enableTotal: Boolean) {
@@ -24,7 +25,7 @@ const ConversationsListMultiQuery = gql(`
   }
 `);
 
-const styles = (_theme: ThemeType) => ({
+const styles = defineStyles('SunshineUserMessages', (theme: ThemeType) => ({
   row: {
     display: "flex",
     alignItems: "center"
@@ -35,16 +36,37 @@ const styles = (_theme: ThemeType) => ({
     position: "relative",
     top: 2,
     marginRight: 3,
+  },
+  conversationItem: {
+    marginBottom: theme.spacing.unit,
+  },
+  conversationHeader: {
+    display: "flex",
+    alignItems: "center",
+    cursor: "pointer",
+  },
+  expandIcon: {
+    height: 16,
+    width: 16,
+    cursor: "pointer",
+    "&:hover": {
+      opacity: 0.7,
+    }
+  },
+  previewContainer: {
+    marginTop: theme.spacing.unit * 0.5,
   }
-})
+}));
 
-export const SunshineUserMessages = ({classes, user, currentUser}: {
+export const SunshineUserMessages = ({user, currentUser}: {
   user: SunshineUsersList,
-  classes: ClassesType<typeof styles>,
   currentUser: UsersCurrent,
 }) => {
+  const classes = useStyles(styles);
+  
   const [embeddedConversationId, setEmbeddedConversationId] = useState<string | undefined>();
   const [templateQueries, setTemplateQueries] = useState<TemplateQueryStrings | undefined>();
+  const [expandedConversationId, setExpandedConversationId] = useState<string | undefined>();
 
   const { captureEvent } = useTracking()
 
@@ -54,6 +76,10 @@ export const SunshineUserMessages = ({classes, user, currentUser}: {
     if (!isEqual(newTemplateQueries, templateQueries)) {
       setTemplateQueries(newTemplateQueries);
     }
+  }
+
+  const toggleConversationPreview = (conversationId: string) => {
+    setExpandedConversationId(prev => prev === conversationId ? undefined : conversationId);
   }
 
   const { data } = useQuery(ConversationsListMultiQuery, {
@@ -69,21 +95,32 @@ export const SunshineUserMessages = ({classes, user, currentUser}: {
   const results = data?.conversations?.results;
 
   return <div>
-    {results?.map(conversation => <div key={conversation._id}>
-      <LWTooltip title={`${conversation.messageCount} messages in this conversation`}>
-        <Link to={`/inbox?conversation=${conversation._id}`}>
-          <MetaInfo><EmailIcon className={classes.icon}/> {conversation.messageCount}</MetaInfo>
-          <span>
-            Conversation with{" "} 
-            {conversation.participants?.filter(participant => participant._id !== user._id).map(participant => {
-              return <MetaInfo key={`${conversation._id}${participant._id}`}>
-                <UsersName simple user={participant}/>
-              </MetaInfo>
-            })}
-          </span>
-        </Link>
-      </LWTooltip>
-    </div>)}
+    {results?.map(conversation => {
+      const isExpanded = expandedConversationId === conversation._id;
+      return (
+        <div key={conversation._id} className={classes.conversationItem}>
+          <div className={classes.conversationHeader} onClick={() => toggleConversationPreview(conversation._id)}>
+            <Link to={`/inbox?conversation=${conversation._id}`} onClick={(e) => e.stopPropagation()}>
+              <MetaInfo><EmailIcon className={classes.icon}/> {conversation.messageCount}</MetaInfo>
+              <span>
+                Conversation with{" "} 
+                {conversation.participants?.filter(participant => participant._id !== user._id).map(participant => {
+                  return <MetaInfo key={`${conversation._id}${participant._id}`}>
+                    <UsersName simple user={participant}/>
+                  </MetaInfo>
+                })}
+              </span>
+            </Link>
+            <ForumIcon icon={isExpanded ? "ExpandLess" : "ExpandMore"} className={classes.expandIcon} />
+          </div>
+          {isExpanded && (
+            <div className={classes.previewContainer}>
+              <ConversationPreview count={3} conversationId={conversation._id} showTitle={false} />
+            </div>
+          )}
+        </div>
+      );
+    })}
     <SunshineSendMessageWithDefaults 
         user={user} 
         embedConversation={embedConversation}
@@ -104,6 +141,4 @@ export const SunshineUserMessages = ({classes, user, currentUser}: {
   </div>;
 }
 
-export default registerComponent('SunshineUserMessages', SunshineUserMessages, {styles});
-
-
+export default SunshineUserMessages;
