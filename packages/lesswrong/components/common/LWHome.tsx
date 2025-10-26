@@ -1,14 +1,11 @@
 'use client';
 
-import React, { useEffect } from 'react';
+import React from 'react';
 import { AnalyticsContext } from "../../lib/analyticsEvents";
 import { getReviewPhase, reviewIsActive, REVIEW_YEAR } from '../../lib/reviewUtils';
 import { showReviewOnFrontPageIfActive, lightconeFundraiserActive, ultraFeedEnabledSetting, isLW, isAF } from '@/lib/instanceSettings';
 import { useCookiesWithConsent } from '../hooks/useCookiesWithConsent';
-import { LAST_VISITED_FRONTPAGE_COOKIE, ULTRA_FEED_ENABLED_COOKIE } from '../../lib/cookies/cookies';
-import moment from 'moment';
-import { visitorGetsDynamicFrontpage } from '../../lib/betas';
-import { useCurrentUser } from './withUser';
+import { ULTRA_FEED_ENABLED_COOKIE } from '../../lib/cookies/cookies';
 import { combineUrls, getSiteUrl } from "../../lib/vulcan-lib/utils";
 import { registerComponent } from "../../lib/vulcan-lib/components";
 import { useABTest } from '@/components/hooks/useAbTests';
@@ -17,17 +14,16 @@ import AnalyticsInViewTracker from "./AnalyticsInViewTracker";
 import FrontpageReviewWidget from "../review/FrontpageReviewWidget";
 import SingleColumnSection from "./SingleColumnSection";
 import EAPopularCommentsSection from "../ea-forum/EAPopularCommentsSection";
-import DismissibleSpotlightItem, { SpotlightItemFallback } from "../spotlights/DismissibleSpotlightItem";
+import DismissibleSpotlightItem from "../spotlights/DismissibleSpotlightItem";
 import QuickTakesSection from "../quickTakes/QuickTakesSection";
 import LWHomePosts from "./LWHomePosts";
 import UltraFeed from "../ultraFeed/UltraFeed";
 import { StructuredData } from './StructuredData';
 import { SuspenseWrapper } from './SuspenseWrapper';
 import DeferRender from './DeferRender';
-import { defineStyles, useStyles } from '../hooks/useStyles';
 
 import dynamic from 'next/dynamic';
-import PetrovStoryMobileBanner from '../seasonal/petrovDay/petrov-day-story/PetrovStoryMobileBanner';
+import { IsReturningVisitorContextProvider } from './IsReturningVisitorContextProvider';
 const RecentDiscussionFeed = dynamic(() => import("../recentDiscussion/RecentDiscussionFeed"), { ssr: false });
 
 const getStructuredData = () => ({
@@ -58,14 +54,6 @@ const getStructuredData = () => ({
   }),
 })
 
-const styles = defineStyles("LWHome", (theme: ThemeType) => ({
-  hideOnDesktop: {
-    ['@media(min-width: 1200px)']: {
-      display: 'none'
-    },
-  },
-}))
-
 const LWHome = () => {
   const abTestGroup = useABTest(ultraFeedABTest);
   const [cookies] = useCookiesWithConsent([ULTRA_FEED_ENABLED_COOKIE]);
@@ -79,9 +67,8 @@ const LWHome = () => {
 
   return (
       <AnalyticsContext pageContext="homePage">
-        <React.Fragment>
+        <IsReturningVisitorContextProvider>
           <StructuredData generate={() => getStructuredData()}/>
-          <UpdateLastVisitCookie />
           {reviewIsActive() && <>
             {getReviewPhase() !== "RESULTS" && <SingleColumnSection>
               <SuspenseWrapper name="FrontpageReviewWidget">
@@ -114,21 +101,9 @@ const LWHome = () => {
 
             </LWHomePosts>
           </SuspenseWrapper>
-        </React.Fragment>
+        </IsReturningVisitorContextProvider>
       </AnalyticsContext>
   )
-}
-
-const UpdateLastVisitCookie = () => {
-  const [_, setCookie] = useCookiesWithConsent([LAST_VISITED_FRONTPAGE_COOKIE]);
-
-  useEffect(() => {
-    if (visitorGetsDynamicFrontpage(null)) {
-      setCookie(LAST_VISITED_FRONTPAGE_COOKIE, new Date().toISOString(), { path: "/", expires: moment().add(1, 'year').toDate() });
-    }
-  }, [setCookie])
-  
-  return <></>
 }
 
 export default registerComponent('LWHome', LWHome, {

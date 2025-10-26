@@ -3,19 +3,16 @@
 // Import needed to get the database settings from the window on the client
 import '@/client/publicSettings';
 
-import React, { use, useEffect, useMemo, useRef, useState, useTransition } from 'react';
+import React, { use, useEffect, useRef, useState, useTransition } from 'react';
 import CookiesProvider from "@/lib/vendor/react-cookie/CookiesProvider";
 import { ABTestGroupsUsedContext, RelevantTestGroupAllocation } from '@/components/common/sharedContexts';
-import type { AbstractThemeOptions } from '@/themes/themeNames';
 import { LayoutOptionsContextProvider } from '@/components/hooks/useLayoutOptions';
 import { SSRMetadata, EnvironmentOverride, EnvironmentOverrideContext } from '@/lib/utils/timeUtil';
 import { ThemeContextProvider } from '@/components/themes/ThemeContextProvider';
 import { LocationContext, NavigationContext, SubscribeLocationContext } from '@/lib/vulcan-core/appContext';
 import { parsePath } from '@/lib/vulcan-lib/routes';
 import { MessageContextProvider } from '../common/FlashMessages';
-import { RefetchCurrentUserContext, UserContextProvider } from '../common/withUser';
-import ScrollToTop from '../vulcan-core/ScrollToTop';
-import { useQueryCurrentUser } from '@/lib/crud/withCurrentUser';
+import { UserContextProvider } from '../common/withUser';
 import { usePathname, useRouter, useSearchParams, useParams } from 'next/navigation';
 import Layout from '../Layout';
 import { HelmetProvider } from 'react-helmet-async';
@@ -27,9 +24,6 @@ import { ApolloWrapper } from '@/components/common/ApolloWrapper';
 import type { RequestCookie } from 'next/dist/compiled/@edge-runtime/cookies';
 import type { RouterLocation } from '@/lib/vulcan-lib/routes';
 import type { AppRouterInstance } from 'next/dist/shared/lib/app-router-context.shared-runtime';
-import { onUserChanged } from '@/client/logging';
-import moment from 'moment';
-import { localeSetting } from '@/lib/instanceSettings';
 import { initClientOnce } from '@/client/initClient';
 
 if (isClient) {
@@ -150,9 +144,8 @@ const AppComponent = ({ children }: { children: React.ReactNode }) => {
   </HelmetProvider>;
 }
 
-const AppGenerator = ({ abTestGroupsUsed, ssrMetadata, children }: {
+const AppGenerator = ({ abTestGroupsUsed, children }: {
   abTestGroupsUsed: RelevantTestGroupAllocation,
-  ssrMetadata?: SSRMetadata,
   children: React.ReactNode,
 }) => {
   let universalCookies;
@@ -187,11 +180,9 @@ const AppGenerator = ({ abTestGroupsUsed, ssrMetadata, children }: {
           <ThemeContextProvider>
             <ABTestGroupsUsedContext.Provider value={abTestGroupsUsed}>
               <LayoutOptionsContextProvider>
-                <EnvironmentOverrideContextProvider ssrMetadata={ssrMetadata}>
-                  <AppComponent>
-                    {children}
-                  </AppComponent>
-                </EnvironmentOverrideContextProvider>
+                <AppComponent>
+                  {children}
+                </AppComponent>
               </LayoutOptionsContextProvider>
             </ABTestGroupsUsedContext.Provider>
           </ThemeContextProvider>
@@ -204,8 +195,8 @@ const AppGenerator = ({ abTestGroupsUsed, ssrMetadata, children }: {
   );
 };
 
-const EnvironmentOverrideContextProvider = ({ssrMetadata, children}: {
-  ssrMetadata?: SSRMetadata
+export const EnvironmentOverrideContextProvider = ({ssrMetadata, children}: {
+  ssrMetadata: SSRMetadata
   children: React.ReactNode
 }) => {
   const [envOverride, setEnvOverride] = useState<EnvironmentOverride>(ssrMetadata ? {
