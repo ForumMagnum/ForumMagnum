@@ -4,10 +4,11 @@ import { useMutation } from '@apollo/client/react';
 import { gql } from '@/lib/generated/gql-codegen';
 import Input from '@/lib/vendor/@material-ui/core/src/Input';
 import UserAutoRateLimitsDisplay from '../ModeratorUserInfo/UserAutoRateLimitsDisplay';
-import ContentSummaryRows from '../ModeratorUserInfo/ContentSummaryRows';
+import ContentSummary from './ContentSummary';
 import SunshineUserMessages from '../SunshineUserMessages';
 import { getSignature } from '@/lib/collections/users/helpers';
 import { useModeratedUserContents } from '@/components/hooks/useModeratedUserContents';
+import classNames from 'classnames';
 
 const SunshineUsersListUpdateMutation = gql(`
   mutation updateUserModerationSidebar($selector: SelectorInput!, $data: UpdateUserDataInput!) {
@@ -80,6 +81,9 @@ const styles = defineStyles('ModerationSidebar', (theme: ThemeType) => ({
   userMessages: {
     overflow: 'auto',
   },
+  noSectionContent: {
+    opacity: 0.5,
+  },
 }));
 
 const ModerationSidebar = ({
@@ -151,6 +155,16 @@ const ModerationSidebar = ({
     );
   }
 
+  const showContentSummary = posts.length > 0 || comments.length > 0;
+  const showUserAutoRateLimits = (
+    (user.smallUpvoteReceivedCount ?? 0) +
+    (user.bigUpvoteReceivedCount ?? 0) +
+    (user.smallDownvoteReceivedCount ?? 0) +
+    (user.bigDownvoteReceivedCount ?? 0)
+  ) > 0;
+
+  const showBio = user.htmlBio && user.htmlBio.trim() !== '';
+
   return (
     <div className={classes.root}>
       <div className={classes.section}>
@@ -171,18 +185,18 @@ const ModerationSidebar = ({
       </div>
 
       {!inDetailView && (
-        <div className={classes.section}>
+        <div className={classNames(classes.section, !showContentSummary && classes.noSectionContent)}>
           <div className={classes.sectionTitle}>Content Summary</div>
           <div className={classes.contentSummary}>
-            <ContentSummaryRows user={user} posts={posts} comments={comments} loading={false} />
+          <ContentSummary user={user} posts={posts} comments={comments} />
           </div>
         </div>
       )}
 
-      {!inDetailView && <div className={classes.section}>
+      {!inDetailView && <div className={classNames(classes.section, !showUserAutoRateLimits && classes.noSectionContent)}>
         <div className={classes.sectionTitle}>Automod Rate Limits</div>
         <div className={classes.rateLimits}>
-          <UserAutoRateLimitsDisplay user={user} showKarmaMeta />
+          <UserAutoRateLimitsDisplay user={user} showKarmaMeta hideIfNoVotes={false} />
         </div>
       </div>}
 
@@ -195,7 +209,7 @@ const ModerationSidebar = ({
       </div>
       
       {!inDetailView && (
-        <div className={classes.scrollableSection}>
+        <div className={classNames(classes.scrollableSection, !showBio && classes.noSectionContent)}>
           <div className={classes.sectionTitle}>Bio</div>
           <div className={classes.bioContainer} dangerouslySetInnerHTML={{ __html: user.htmlBio }} />
         </div>

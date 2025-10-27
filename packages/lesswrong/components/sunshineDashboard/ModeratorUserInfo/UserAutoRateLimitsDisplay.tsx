@@ -2,7 +2,7 @@ import React from 'react';
 import { registerComponent } from '../../../lib/vulcan-lib/components';
 import { forumSelect } from '../../../lib/forumTypeUtils';
 import { autoCommentRateLimits, autoPostRateLimits } from '../../../lib/rateLimits/constants';
-import { getActiveRateLimitNames, getDownvoteRatio, getStrictestActiveRateLimitNames as getStrictestActiveRateLimits } from '../../../lib/rateLimits/utils';
+import { getDownvoteRatio, getStrictestActiveRateLimitNames as getStrictestActiveRateLimits } from '../../../lib/rateLimits/utils';
 import StarIcon from '@/lib/vendor/@material-ui/icons/src/Star';
 import StarBorderIcon from '@/lib/vendor/@material-ui/icons/src/StarBorder';
 import MetaInfo from "../../common/MetaInfo";
@@ -96,11 +96,12 @@ export const downvoterTooltip = (user: SunshineUsersList) => {
 
 
 
-export const UserAutoRateLimitsDisplay = ({user, showKarmaMeta=false, absolute, classes}: {
+export const UserAutoRateLimitsDisplay = ({user, showKarmaMeta = false, absolute, hideIfNoVotes = true, classes}: {
   user: SunshineUsersList,
-  classes: ClassesType<typeof styles>,
   showKarmaMeta?: boolean,
-  absolute?: boolean
+  absolute?: boolean,
+  hideIfNoVotes?: boolean
+  classes: ClassesType<typeof styles>,
 }) => {
   const roundedDownvoteRatio = Math.round(getDownvoteRatio(user) * 100)
   const allRateLimits = [...forumSelect(autoPostRateLimits), ...forumSelect(autoCommentRateLimits)]
@@ -113,7 +114,7 @@ export const UserAutoRateLimitsDisplay = ({user, showKarmaMeta=false, absolute, 
     (user.bigDownvoteReceivedCount ?? 0)
   );
 
-  if (totalReceivedVotes === 0) {
+  if (totalReceivedVotes === 0 && hideIfNoVotes) {
     return null;
   }
 
