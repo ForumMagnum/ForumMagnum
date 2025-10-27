@@ -17,6 +17,7 @@ import RejectContentDialog from '../RejectContentDialog';
 import { useRejectContent } from '@/components/hooks/useRejectContent';
 import { ContentItem, isPost } from './helpers';
 import { useMessages } from '@/components/common/withMessages';
+import { parseKeystroke, getCode } from '@/lib/vendor/ckeditor5-util/keyboard';
 
 const SunshineUsersListUpdateMutation = gql(`
   mutation updateUserModerationKeyboard($selector: SelectorInput!, $data: UpdateUserDataInput!) {
@@ -42,6 +43,33 @@ const ApproveCurrentContentOnlyMutation = gql(`
 
 function specialKeyPressed(event: KeyboardEvent) {
   return event.metaKey || event.ctrlKey || event.altKey;
+}
+
+function isNavigationKey(key: string) {
+  return key === 'ArrowUp' || key === 'ArrowDown' || key === 'ArrowLeft' || key === 'ArrowRight' || key === 'Enter' || key === 'Escape';
+}
+
+function matchesKeystroke(event: KeyboardEvent, keystroke: string): boolean {
+  const key = event.key;
+
+  if (key === 'Escape') {
+    return keystroke === 'esc';
+  }
+
+  if (isNavigationKey(key)) {
+    const normalizedKeystroke = keystroke.toLowerCase();
+    const normalizedKey = key.toLowerCase();
+
+    return normalizedKeystroke === normalizedKey;
+  }
+
+  try {
+    const keystrokeCode = parseKeystroke(keystroke);
+    const eventCode = getCode(event);
+    return keystrokeCode === eventCode;
+  } catch (error) {
+    return false;
+  }
 }
 
 function canRejectCurrentlySelectedContent(selectedContent?: ContentItem) {
@@ -569,154 +597,30 @@ const ModerationKeyboardHandler = ({
           }
         }
 
-        // Command palette
         if ((event.metaKey || event.ctrlKey) && event.key === 'k') {
           event.preventDefault();
           openCommandPalette(commands, () => {});
           return;
         }
 
-        // Arrow key navigation - context-aware based on view
-        // In detail view: up/down = content items, left/right = users
-        // In inbox view: up/down = users, left/right = tabs
-        if (event.key === 'ArrowDown') {
-          event.preventDefault();
-          if (isDetailView) {
-            dispatch({ type: 'NEXT_CONTENT', contentLength: allContent.length });
-          } else {
-            onNextUser();
+        // Block shortcuts when special keys (Cmd/Ctrl/Alt) are pressed, except for navigation keys
+        if (specialKeyPressed(event) && !isNavigationKey(event.key)) {
+          return;
+        }
+
+        for (const command of commands) {
+          if (matchesKeystroke(event, command.keystroke)) {
+            if (command.isDisabled()) {
+              return;
+            }
+
+            event.preventDefault();
+            command.execute();
+            return;
           }
-          return;
-        }
-
-        if (event.key === 'ArrowUp') {
-          event.preventDefault();
-          if (isDetailView) {
-            dispatch({ type: 'PREV_CONTENT', contentLength: allContent.length });
-          } else {
-            onPrevUser();
-          }
-          return;
-        }
-
-        if (event.key === 'ArrowLeft') {
-          event.preventDefault();
-          if (isDetailView) {
-            onPrevUser();
-          } else {
-            onPrevTab();
-          }
-          return;
-        }
-
-        if (event.key === 'ArrowRight') {
-          event.preventDefault();
-          if (isDetailView) {
-            onNextUser();
-          } else {
-            onNextTab();
-          }
-          return;
-        }
-
-        if (event.key === 'Enter') {
-          event.preventDefault();
-          onOpenDetail();
-          return;
-        }
-
-        if (event.key === 'Escape') {
-          event.preventDefault();
-          onCloseDetail();
-          return;
-        }
-
-        // Action shortcuts (only if user is selected)
-        if (!selectedUser) return;
-
-        if (specialKeyPressed(event)) return;
-
-        if (event.key === 'a' && !event.shiftKey) {
-          event.preventDefault();
-          handleReview();
-        } else if (event.key === 'A' && event.shiftKey) {
-          event.preventDefault();
-          handleApproveCurrentOnly();
-        } else if (event.key === 's' && !event.shiftKey) {
-          event.preventDefault();
-          handleSnooze(10);
-        } else if (event.key === 'S' && event.shiftKey) {
-          event.preventDefault();
-          handleSnoozeCustom();
-        } else if (event.key === 'q' && !event.shiftKey) {
-          event.preventDefault();
-          handleRemoveNeedsReview();
-        } else if (event.key === 'r' && !event.shiftKey) {
-          event.preventDefault();
-          handleRejectCurrentContent();
-        } else if (event.key === 'R' && event.shiftKey) {
-          event.preventDefault();
-          handleRestrictAndNotify();
-        } else if (event.key === 'b') {
-          event.preventDefault();
-          handleBan();
-        } else if (event.key === 'p') {
-          event.preventDefault();
-          handlePurge();
-        } else if (event.key === 'f') {
-          event.preventDefault();
-          handleFlag();
-        } else if (event.key === 'u') {
-          event.preventDefault();
-          void handleCopyUserId();
-        } else if (event.key === 'd') {
-          event.preventDefault();
-          toggleDisablePosting();
-        } else if (event.key === 'c') {
-          event.preventDefault();
-          toggleDisableCommenting();
-        } else if (event.key === 'm') {
-          event.preventDefault();
-          toggleDisableMessaging();
-        } else if (event.key === 'v') {
-          event.preventDefault();
-          void toggleDisableVoting();
-        } else if (event.key === 'x') {
-          event.preventDefault();
-          handleRejectContentAndRemove();
         }
       },
-      [
-        onNextUser,
-        onPrevUser,
-        onNextTab,
-        onPrevTab,
-        onOpenDetail,
-        onCloseDetail,
-        isDetailView,
-        selectedUser,
-        handleReview,
-        handleApproveCurrentOnly,
-        handleSnooze,
-        handleSnoozeCustom,
-        handleRemoveNeedsReview,
-        handleRejectContentAndRemove,
-        handleRejectCurrentContent,
-        handleRestrictAndNotify,
-        handleBan,
-        handlePurge,
-        handleFlag,
-        handleCopyUserId,
-        toggleDisablePosting,
-        toggleDisableCommenting,
-        toggleDisableMessaging,
-        toggleDisableVoting,
-        commands,
-        openCommandPalette,
-        dispatch,
-        allContent,
-        isDialogOpen,
-      ]
+      [commands, openCommandPalette, isDialogOpen]
     )
   );
 
