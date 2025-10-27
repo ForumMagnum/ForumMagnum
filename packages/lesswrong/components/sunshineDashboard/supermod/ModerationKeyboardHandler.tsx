@@ -151,26 +151,41 @@ const ModerationKeyboardHandler = ({
     [onActionComplete]
   );
 
+  const updateUserWith = useCallback(async (data: UpdateUserDataInput, removeFromQueue: boolean = false) => {
+    if (!selectedUser) return;
+
+    if (removeFromQueue) {
+      await handleAction(async () => {
+        await updateUser({
+          variables: {
+            selector: { _id: selectedUser._id },
+            data,
+          },
+        });
+      });
+    } else {
+      await updateUser({
+        variables: {
+          selector: { _id: selectedUser._id },
+          data,
+        },
+      });
+    }
+  }, [selectedUser, updateUser, handleAction]);
+
   const handleReview = useCallback(() => {
     if (!selectedUser) return;
     const notes = selectedUser.sunshineNotes || '';
     const newNotes = getModSignatureWithNote('Approved') + notes;
-    void handleAction(async () => {
-      await updateUser({
-        variables: {
-          selector: { _id: selectedUser._id },
-          data: {
-            sunshineFlagged: false,
-            reviewedByUserId: currentUser._id,
-            reviewedAt: new Date(),
-            needsReview: false,
-            sunshineNotes: newNotes,
-            snoozedUntilContentCount: null,
-          },
-        },
-      });
-    });
-  }, [selectedUser, currentUser, getModSignatureWithNote, handleAction, updateUser]);
+    void updateUserWith({
+      sunshineFlagged: false,
+      reviewedByUserId: currentUser._id,
+      reviewedAt: new Date(),
+      needsReview: false,
+      sunshineNotes: newNotes,
+      snoozedUntilContentCount: null,
+    }, true);
+  }, [selectedUser, currentUser, getModSignatureWithNote, updateUserWith]);
 
   const handleApproveCurrentOnly = useCallback(() => {
     if (!selectedUser) return;
@@ -188,22 +203,15 @@ const ModerationKeyboardHandler = ({
       if (!selectedUser) return;
       const notes = selectedUser.sunshineNotes || '';
       const newNotes = getModSignatureWithNote(`Snooze ${contentCount}`) + notes;
-      void handleAction(async () => {
-        await updateUser({
-          variables: {
-            selector: { _id: selectedUser._id },
-            data: {
-              needsReview: false,
-              reviewedAt: new Date(),
-              reviewedByUserId: currentUser._id,
-              sunshineNotes: newNotes,
-              snoozedUntilContentCount: getNewSnoozeUntilContentCount(selectedUser, contentCount),
-            },
-          },
-        });
-      });
+      void updateUserWith({
+        needsReview: false,
+        reviewedAt: new Date(),
+        reviewedByUserId: currentUser._id,
+        sunshineNotes: newNotes,
+        snoozedUntilContentCount: getNewSnoozeUntilContentCount(selectedUser, contentCount),
+      }, true);
     },
-    [selectedUser, currentUser, getModSignatureWithNote, handleAction, updateUser]
+    [selectedUser, currentUser, getModSignatureWithNote, updateUserWith]
   );
 
   const handleSnoozeCustom = useCallback(() => {
@@ -226,20 +234,13 @@ const ModerationKeyboardHandler = ({
     if (!selectedUser) return;
     const notes = selectedUser.sunshineNotes || '';
     const newNotes = getModSignatureWithNote('removed from review queue without snooze/approval') + notes;
-    void handleAction(async () => {
-      await updateUser({
-        variables: {
-          selector: { _id: selectedUser._id },
-          data: {
-            needsReview: false,
-            reviewedByUserId: null,
-            reviewedAt: selectedUser.reviewedAt ? new Date() : null,
-            sunshineNotes: newNotes,
-          },
-        },
-      });
-    });
-  }, [selectedUser, getModSignatureWithNote, handleAction, updateUser]);
+    void updateUserWith({
+      needsReview: false,
+      reviewedByUserId: null,
+      reviewedAt: selectedUser.reviewedAt ? new Date() : null,
+      sunshineNotes: newNotes,
+    }, true);
+  }, [selectedUser, getModSignatureWithNote, updateUserWith]);
 
   const handleBan = useCallback(() => {
     if (!selectedUser) return;
@@ -248,22 +249,15 @@ const ModerationKeyboardHandler = ({
 
     const notes = selectedUser.sunshineNotes || '';
     const newNotes = getModSignatureWithNote('Ban') + notes;
-    void handleAction(async () => {
-      await updateUser({
-        variables: {
-          selector: { _id: selectedUser._id },
-          data: {
-            sunshineFlagged: false,
-            reviewedByUserId: currentUser._id,
-            needsReview: false,
-            reviewedAt: new Date(),
-            banned: moment().add(banMonths, 'months').toDate(),
-            sunshineNotes: newNotes,
-          },
-        },
-      });
-    });
-  }, [selectedUser, currentUser, getModSignatureWithNote, handleAction, updateUser]);
+    void updateUserWith({
+      sunshineFlagged: false,
+      reviewedByUserId: currentUser._id,
+      needsReview: false,
+      reviewedAt: new Date(),
+      banned: moment().add(banMonths, 'months').toDate(),
+      sunshineNotes: newNotes,
+    }, true);
+  }, [selectedUser, currentUser, getModSignatureWithNote, updateUserWith]);
 
   const handlePurge = useCallback(() => {
     if (!selectedUser) return;
@@ -271,24 +265,17 @@ const ModerationKeyboardHandler = ({
 
     const notes = selectedUser.sunshineNotes || '';
     const newNotes = getModSignatureWithNote('Purge') + notes;
-    void handleAction(async () => {
-      await updateUser({
-        variables: {
-          selector: { _id: selectedUser._id },
-          data: {
-            sunshineFlagged: false,
-            reviewedByUserId: currentUser._id,
-            nullifyVotes: true,
-            deleteContent: true,
-            needsReview: false,
-            reviewedAt: new Date(),
-            banned: moment().add(1000, 'years').toDate(),
-            sunshineNotes: newNotes,
-          },
-        },
-      });
-    });
-  }, [selectedUser, currentUser, getModSignatureWithNote, handleAction, updateUser]);
+    void updateUserWith({
+      sunshineFlagged: false,
+      reviewedByUserId: currentUser._id,
+      nullifyVotes: true,
+      deleteContent: true,
+      needsReview: false,
+      reviewedAt: new Date(),
+      banned: moment().add(1000, 'years').toDate(),
+      sunshineNotes: newNotes,
+    }, true);
+  }, [selectedUser, currentUser, getModSignatureWithNote, updateUserWith]);
 
   const handleFlag = useCallback(() => {
     if (!selectedUser) return;
@@ -299,16 +286,11 @@ const ModerationKeyboardHandler = ({
     
     dispatch({ type: 'UPDATE_USER', userId: selectedUser._id, fields: { sunshineNotes: newNotes, sunshineFlagged: newFlaggedState } });
     
-    void updateUser({
-      variables: {
-        selector: { _id: selectedUser._id },
-        data: {
-          sunshineFlagged: newFlaggedState,
-          sunshineNotes: newNotes,
-        },
-      },
+    void updateUserWith({
+      sunshineFlagged: newFlaggedState,
+      sunshineNotes: newNotes,
     });
-  }, [selectedUser, getModSignatureWithNote, updateUser, dispatch]);
+  }, [selectedUser, getModSignatureWithNote, dispatch, updateUserWith]);
 
   const handleRejectCurrentContent = useCallback(() => {
     if (!selectedUser) return;
