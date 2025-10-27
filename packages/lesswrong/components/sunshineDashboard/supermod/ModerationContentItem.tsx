@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useCallback } from 'react';
 import { defineStyles, useStyles } from '@/components/hooks/useStyles';
 import classNames from 'classnames';
 import FormatDate from '@/components/common/FormatDate';
@@ -8,6 +8,10 @@ import { htmlToTextDefault } from '@/lib/htmlToText';
 import { truncate } from '@/lib/editor/ellipsize';
 import RejectContentButton from '../RejectContentButton';
 import { getEnvKeystrokeText } from '@/lib/vendor/ckeditor5-util/keyboard';
+import { useDialog } from '@/components/common/withDialog';
+import { DialogContent } from '@/components/widgets/DialogContent';
+import LWDialog from '@/components/common/LWDialog';
+import { highlightHtmlWithLlmDetectionScores } from '../helpers';
 
 const styles = defineStyles('ModerationContentItem', (theme: ThemeType) => ({
   root: {
@@ -127,6 +131,30 @@ const styles = defineStyles('ModerationContentItem', (theme: ThemeType) => ({
     border: `1px solid ${theme.palette.grey[300]}`,
     padding: '0 4px',
   },
+  automatedEvaluations: {
+    display: 'flex',
+    gap: 6,
+    marginLeft: 8,
+    flexShrink: 0,
+  },
+  evaluationBadge: {
+    fontSize: 11,
+    padding: '2px 6px',
+    borderRadius: 3,
+    cursor: 'pointer',
+    transition: 'background-color 0.1s ease',
+    fontWeight: 500,
+    whiteSpace: 'nowrap',
+    backgroundColor: theme.palette.grey[200],
+    color: theme.palette.grey[700],
+    '&:hover': {
+      backgroundColor: theme.palette.grey[300],
+    },
+  },
+  aiOutput: {
+    fontSize: '0.9em',
+    textWrap: 'pretty',
+  },
 }));
 
 type ContentItem = SunshinePostsList | CommentsListWithParentMetadata;
@@ -145,6 +173,7 @@ const ModerationContentItem = ({
   onOpen: () => void;
 }) => {
   const classes = useStyles(styles);
+  const { openDialog } = useDialog();
 
   const karma = item.baseScore ?? 0;
   const karmaClass = karma < 0 ? classes.karmaNegative : karma < 3 ? classes.karmaLow : classes.karmaPositive;
@@ -157,6 +186,34 @@ const ModerationContentItem = ({
   const contentWrapper = post 
     ? { collectionName: 'Posts' as const, document: item }
     : { collectionName: 'Comments' as const, document: item };
+
+  const automatedContentEvaluations = 'automatedContentEvaluations' in item ? item.automatedContentEvaluations : null;
+
+  const handleLLMScoreClick = useCallback((e: React.MouseEvent) => {
+    e.stopPropagation();
+    if (!automatedContentEvaluations) return;
+    const highlightedHtml = highlightHtmlWithLlmDetectionScores(
+      contentHtml,
+      automatedContentEvaluations.sentenceScores || []
+    );
+
+    openDialog({
+      name: 'LLMScoreDialog',
+      contents: ({ onClose }) => (
+        <LWDialog open={true} onClose={onClose}>
+          <DialogContent>
+            <div>
+              <p>LLM Score: {automatedContentEvaluations.score}</p>
+              <p>Post with highlighted sentences:</p>
+              <div dangerouslySetInnerHTML={{ __html: highlightedHtml }} />
+            </div>
+          </DialogContent>
+        </LWDialog>
+      ),
+    });
+  }, [automatedContentEvaluations, contentHtml, openDialog]);
+
+  const score = automatedContentEvaluations?.score;
 
   return (
     <div
@@ -196,6 +253,16 @@ const ModerationContentItem = ({
       {item.rejected && (
         <div className={classNames(classes.status, classes.rejectedStatus)}>
           Rejected
+        </div>
+      )}
+
+      {automatedContentEvaluations && (
+        <div className={classes.automatedEvaluations}>
+          {typeof score === 'number' && (
+            <span className={classes.evaluationBadge} onClick={handleLLMScoreClick}>
+              LLM: {score.toFixed(2)}
+            </span>
+          )}
         </div>
       )}
 
