@@ -6,12 +6,7 @@ import { useModeratedUserContents } from '@/components/hooks/useModeratedUserCon
 import classNames from 'classnames';
 import { getPrimaryDisplayedModeratorAction, partitionModeratorActions } from './groupings';
 import ReviewTriggerBadge from './ReviewTriggerBadge';
-import DescriptionIcon from '@/lib/vendor/@material-ui/icons/src/Description'
-import MessageIcon from '@/lib/vendor/@material-ui/icons/src/Message'
 import ForumIcon from '@/components/common/ForumIcon';
-import PostKarmaWithPreview from '../PostKarmaWithPreview';
-import CommentKarmaWithPreview from '../CommentKarmaWithPreview';
-import { maybeDate } from '@/lib/utils/dateUtils';
 import LWTooltip from '@/components/common/LWTooltip';
 import UserAutoRateLimitsDisplay from '../ModeratorUserInfo/UserAutoRateLimitsDisplay';
 import ModerationContentList from './ModerationContentList';
@@ -22,6 +17,7 @@ import AltAccountInfo from '../ModeratorUserInfo/AltAccountInfo';
 import { Link } from '@/lib/reactRouterWrapper';
 import { getEnvKeystrokeText } from '@/lib/vendor/ckeditor5-util/keyboard';
 import { useUserContentPermissions } from './useUserContentPermissions';
+import ContentSummary from './ContentSummary';
 
 const sharedVoteStyles = {
   marginLeft: 4,
@@ -278,121 +274,10 @@ const styles = defineStyles('ModerationDetailView', (theme: ThemeType) => ({
       textDecoration: 'underline',
     },
   },
-  contentSummary: {
-    display: 'flex',
-    flexDirection: 'column',
-    gap: 8,
-    fontSize: 13,
-    marginLeft: 4,
-  },
-  contentSummaryRow: {
-    display: 'flex',
-    alignItems: 'center',
-    flexWrap: 'wrap',
-  },
-  summaryIcon: {
-    height: 13,
-    color: theme.palette.grey[500],
-    position: "relative",
-    top: 3,
-    marginRight: 4,
-  },
-  averageKarma: {
-    color: theme.palette.grey[500],
-    fontSize: 13,
-    marginLeft: 7,
-  },
-  hiddenCount: {
-    color: theme.palette.grey[500],
-    fontSize: 13,
-    marginLeft: 4,
-  },
 }));
 
 const DEFAULT_BIO_WORDCOUNT = 250;
 const MAX_BIO_WORDCOUNT = 10000;
-
-function getAverageBaseScore(contentItems: Array<SunshinePostsList | CommentsListWithParentMetadata>) {
-  const average = contentItems.reduce((sum, item) => (item.baseScore ?? 0) + sum, 0) / contentItems.length;
-  return average.toFixed(1);
-};
-
-function sortContentByPostedAt<T extends { postedAt: string }>(contentItems: Array<T>) {
-  return contentItems.sort((a, b) => (maybeDate(a.postedAt).getTime() ?? 0) - (maybeDate(b.postedAt).getTime() ?? 0));
-}
-
-interface ContentSummaryRowBaseProps {
-  user: SunshineUsersList;
-}
-
-type ContentSummaryRowProps = ContentSummaryRowBaseProps & (
-  | { type: 'posts', items: SunshinePostsList[] }
-  | { type: 'comments', items: CommentsListWithParentMetadata[] }
-);
-
-const ContentSummaryRow = ({ user, type, items }: ContentSummaryRowProps) => {
-  const classes = useStyles(styles);
-
-  const maxContentCountField = type === 'posts' ? 'maxPostCount' : 'maxCommentCount';
-  const contentCountField = type === 'posts' ? 'postCount' : 'commentCount';
-  const tooltipTitle = type === 'posts' ? 'Post count' : 'Comment count';
-  const ContentIconComponent = type === 'posts' ? DescriptionIcon : MessageIcon;
-
-  let contentCount = user[contentCountField] ?? 0;
-  if (type === 'posts' && user.shortformFeedId) {
-    contentCount -= 1;
-  }
-
-  let maxContentCount = user[maxContentCountField] ?? 0;
-  if (type === 'posts' && user.shortformFeedId) {
-    maxContentCount -= 1;
-  }
-
-  const hiddenContentCount = maxContentCount - contentCount;
-  const averageContentKarma = items.length > 0 ? getAverageBaseScore(items) : null;
-
-  return (
-    <div className={classes.contentSummaryRow}>
-      <LWTooltip title={tooltipTitle}>
-        <span>
-          {contentCount}
-          <ContentIconComponent className={classes.summaryIcon} />
-        </span>
-      </LWTooltip>
-      {type === 'posts' ? (
-        sortContentByPostedAt(items).map(content => (
-          <PostKarmaWithPreview 
-            key={content._id} 
-            post={content} 
-            reviewedAt={maybeDate(user.reviewedAt) ?? undefined} 
-            displayTitle={false}
-          />
-        ))
-      ) : (
-        sortContentByPostedAt(items).map(content => (
-          <CommentKarmaWithPreview 
-            key={content._id} 
-            comment={content} 
-            reviewedAt={maybeDate(user.reviewedAt) ?? undefined} 
-            displayTitle={false}
-          />
-        ))
-      )}
-      {hiddenContentCount > 0 && (
-        <span className={classes.hiddenCount}>
-          ({hiddenContentCount} drafted or rejected)
-        </span>
-      )}
-      {averageContentKarma && (
-        <LWTooltip title="average karma">
-          <span className={classes.averageKarma}>
-            {averageContentKarma}
-          </span>
-        </LWTooltip>
-      )}
-    </div>
-  );
-};
 
 const ModerationDetailView = ({ 
   user,
@@ -510,10 +395,7 @@ const ModerationDetailView = ({
               </span>
             </div>
             {(posts.length > 0 || comments.length > 0) && (
-              <div className={classes.contentSummary}>
-                <ContentSummaryRow user={user} type="posts" items={posts} />
-                <ContentSummaryRow user={user} type="comments" items={comments} />
-              </div>
+              <ContentSummary user={user} posts={posts} comments={comments} />
             )}
             <div className={classes.permissionButtonsContainer}>
               <div 
