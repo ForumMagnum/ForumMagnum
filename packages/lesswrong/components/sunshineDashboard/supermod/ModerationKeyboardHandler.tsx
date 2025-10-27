@@ -74,7 +74,7 @@ const ModerationKeyboardHandler = ({
   onActionComplete: () => void;
   dispatch: React.ActionDispatch<[action: InboxAction]>;
 }) => {
-  const { openDialog } = useDialog();
+  const { openDialog, isDialogOpen } = useDialog();
   const [updateUser] = useMutation(SunshineUsersListUpdateMutation);
   const [rejectContentAndRemoveFromQueue] = useMutation(RejectContentAndRemoveFromQueueMutation);
   const [approveCurrentContentOnly] = useMutation(ApproveCurrentContentOnlyMutation);
@@ -562,6 +562,10 @@ const ModerationKeyboardHandler = ({
         }
 
         if (event.key === 'Escape') {
+          // Don't close detail view if a dialog is open - let the dialog handle the escape key
+          if (isDialogOpen) {
+            return;
+          }
           event.preventDefault();
           onCloseDetail();
           return;
@@ -647,6 +651,7 @@ const ModerationKeyboardHandler = ({
         openCommandPalette,
         dispatch,
         allContent,
+        isDialogOpen,
       ]
     )
   );

@@ -256,7 +256,7 @@ const ModerationSidebar = ({
         <div className={classes.sectionTitle}>User Messages</div>
         <div className={classes.userMessages}>
           {/* TODO: maybe "expand" should actually open a model with the contents, since expanding a conversation inline is kind of annoying with the "no overflow" thing */}
-          <SunshineUserMessages user={user} currentUser={currentUser} />
+          <SunshineUserMessages key={user._id} user={user} currentUser={currentUser} />
         </div>
       </div>
       

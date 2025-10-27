@@ -15,7 +15,7 @@ const styles = defineStyles('ModerationContentDetail', (theme: ThemeType) => ({
   },
   contentWrapper: {
     overflowY: 'auto',
-    height: '100%',
+    height: 'calc(100% - 58px)',
   },
   empty: {
     padding: 40,

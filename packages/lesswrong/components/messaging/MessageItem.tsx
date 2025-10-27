@@ -19,6 +19,7 @@ import HoveredReactionContextProvider from '../votes/lwReactions/HoveredReaction
 import { useHover } from '../common/withHover';
 import type { MessageVotingBottomComponent } from '@/lib/voting/votingSystemTypes';
 import { SideItemsSidebar } from '../contents/SideItems';
+import { commentBodyStyles, postBodyStyles } from '@/themes/stylePiping';
 
 const styles = (theme: ThemeType) => ({
   hoverWrapper: {
@@ -48,6 +49,9 @@ const styles = (theme: ThemeType) => ({
   rootCurrentUser: {
     columnGap: 0,
   },
+  fullWidth: {
+    maxWidth: '100%',
+  },
   messageWrapper: {
     position: 'relative',
     gridArea: 'message',
@@ -66,18 +70,22 @@ const styles = (theme: ThemeType) => ({
   },
   backgroundIsCurrent: {
     backgroundColor: theme.palette.grey[700],
-    color: theme.palette.panelBackground.default,
+    color: theme.palette.inverseGreyAlpha(.87),
+    '& *, & li::marker': {
+      color: theme.palette.inverseGreyAlpha(.87),
+    },
     marginLeft:theme.spacing.unit*1.5,
   },
   meta: {
-    marginBottom:theme.spacing.unit * (theme.isFriendlyUI ? 1.5 : 0.5),
+    marginBottom: theme.spacing.unit * (theme.isFriendlyUI ? 1.5 : 0.5),
   },
   whiteMeta: {
-    color: theme.palette.text.invertedBackgroundText2,
+    color: theme.palette.inverseGreyAlpha(.93),
   },
   messageBody: {
+    ...postBodyStyles(theme),
+    ...commentBodyStyles(theme),
     '& a': {
-      color: theme.palette.primary.light,
       wordWrap: "break-word",
       overflowWrap: "break-word",
       whiteSpace: "normal",
@@ -113,8 +121,9 @@ const styles = (theme: ThemeType) => ({
 /**
  * Display of a single message in the Conversation Wrapper
 */
-const MessageItem = ({message, classes}: {
+const MessageItem = ({message, showFullWidth=false, classes}: {
   message: messageListFragment,
+  showFullWidth?: boolean,
   classes: ClassesType<typeof styles>,
 }) => {
   const currentUser = useCurrentUser();
@@ -163,7 +172,8 @@ const MessageItem = ({message, classes}: {
     <div className={classNames(
       classes.root,
       isFriendlyUI() ? classes.rootWithImages : classes.rootWithoutImages,
-      isCurrentUser && classes.rootCurrentUser
+      isCurrentUser && classes.rootCurrentUser,
+      showFullWidth && classes.fullWidth,
     )}>
       {profilePhoto}
       <HoveredReactionContextProvider voteProps={voteProps}>
