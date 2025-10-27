@@ -28,8 +28,8 @@ const SunshineUsersListUpdateMutation = gql(`
 `);
 
 const RejectContentAndRemoveFromQueueMutation = gql(`
-  mutation rejectContentAndRemoveFromQueueModerationKeyboard($userId: String!, $documentId: String!, $collectionName: ContentCollectionName!) {
-    rejectContentAndRemoveUserFromQueue(userId: $userId, documentId: $documentId, collectionName: $collectionName)
+  mutation rejectContentAndRemoveFromQueueModerationKeyboard($userId: String!, $documentId: String!, $collectionName: ContentCollectionName!, $rejectedReason: String!) {
+    rejectContentAndRemoveUserFromQueue(userId: $userId, documentId: $documentId, collectionName: $collectionName, rejectedReason: $rejectedReason)
   }
 `);
 
@@ -300,22 +300,59 @@ const ModerationKeyboardHandler = ({
 
   const handleRestrictAndNotify = useCallback(() => {
     if (!selectedUser) return;
+    
+    // Find the most recent unapproved post or comment
+    const allContent = [
+      ...(posts || []).map(p => ({ _id: p._id, postedAt: p.postedAt, rejected: p.rejected, authorIsUnreviewed: p.authorIsUnreviewed, collectionName: 'Posts' as const })),
+      ...(comments || []).map(c => ({ _id: c._id, postedAt: c.postedAt, rejected: c.rejected, authorIsUnreviewed: c.authorIsUnreviewed, collectionName: 'Comments' as const }))
+    ];
+    
+    const unapprovedContent = allContent.filter(
+      item => !item.rejected && item.authorIsUnreviewed
+    );
+    
+    if (unapprovedContent.length === 0) {
+      alert('No unapproved content found for this user');
+      return;
+    }
+    
+    unapprovedContent.sort((a, b) => new Date(b.postedAt).getTime() - new Date(a.postedAt).getTime());
+    const mostRecentUnapproved = unapprovedContent[0];
+    
     openDialog({
-      name: 'RestrictAndNotifyModal',
-      contents: ({ onClose }) => (
-        <RestrictAndNotifyModal
-          user={selectedUser}
-          currentUser={currentUser}
-          dispatch={dispatch}
-          onComplete={() => {
-            onActionComplete();
-            onClose();
+      name: 'RejectContentDialog',
+      contents: ({ onClose: closeRejectDialog }) => (
+        <RejectContentDialog
+          rejectionTemplates={rejectionTemplates}
+          rejectContent={(rejectedReason: string) => {
+            closeRejectDialog();
+            
+            // We need setTimeout to ensure the RejectContentDialog is closed before the RestrictAndNotifyModal is opened;
+            // otherwise the second modal just doesn't open.
+            setTimeout(() => {
+              openDialog({
+                name: 'RestrictAndNotifyModal',
+                contents: ({ onClose: closeRestrictDialog }) => (
+                  <RestrictAndNotifyModal
+                    user={selectedUser}
+                    onComplete={() => {
+                      onActionComplete();
+                      closeRestrictDialog();
+                    }}
+                    onClose={closeRestrictDialog}
+                    rejectedReason={rejectedReason}
+                    documentId={mostRecentUnapproved._id}
+                    collectionName={mostRecentUnapproved.collectionName}
+                  />
+                ),
+              });
+            }, 0);
           }}
-          onClose={onClose}
+          onClose={closeRejectDialog}
         />
       ),
     });
-  }, [selectedUser, currentUser, dispatch, openDialog, onActionComplete]);
+  }, [selectedUser, openDialog, onActionComplete, posts, comments, rejectionTemplates]);
 
   const handleRejectContentAndRemove = useCallback(() => {
     if (!selectedUser) return;
@@ -335,24 +372,32 @@ const ModerationKeyboardHandler = ({
       return;
     }
     
-    // Sort by postedAt descending to get most recent
     unapprovedContent.sort((a, b) => new Date(b.postedAt).getTime() - new Date(a.postedAt).getTime());
     const mostRecentUnapproved = unapprovedContent[0];
     
-    if (!confirm(`Reject this user's most recent ${mostRecentUnapproved.collectionName === 'Posts' ? 'post' : 'comment'} and remove them from the review queue?`)) {
-      return;
-    }
-    
-    void handleAction(async () => {
-      await rejectContentAndRemoveFromQueue({
-        variables: {
-          userId: selectedUser._id,
-          documentId: mostRecentUnapproved._id,
-          collectionName: mostRecentUnapproved.collectionName,
-        },
-      });
+    openDialog({
+      name: 'RejectContentDialog',
+      contents: ({ onClose }) => (
+        <RejectContentDialog
+          rejectionTemplates={rejectionTemplates}
+          rejectContent={(rejectedReason: string) => {
+            onClose();
+            void handleAction(async () => {
+              await rejectContentAndRemoveFromQueue({
+                variables: {
+                  userId: selectedUser._id,
+                  documentId: mostRecentUnapproved._id,
+                  collectionName: mostRecentUnapproved.collectionName,
+                  rejectedReason,
+                },
+              });
+            });
+          }}
+          onClose={onClose}
+        />
+      ),
     });
-  }, [selectedUser, posts, comments, handleAction, rejectContentAndRemoveFromQueue]);
+  }, [selectedUser, posts, comments, handleAction, rejectContentAndRemoveFromQueue, openDialog, rejectionTemplates]);
 
   const openCommandPalette = useCommandPalette();
 
@@ -492,6 +537,11 @@ const ModerationKeyboardHandler = ({
   useGlobalKeydown(
     useCallback(
       (event: KeyboardEvent) => {
+        // Don't trigger any shortcuts if a dialog is open.
+        if (isDialogOpen) {
+          return;
+        }
+
         // Don't handle keyboard shortcuts if user is typing in an input/textarea
         const target = event.target as HTMLElement;
         if (
@@ -562,10 +612,6 @@ const ModerationKeyboardHandler = ({
         }
 
         if (event.key === 'Escape') {
-          // Don't close detail view if a dialog is open - let the dialog handle the escape key
-          if (isDialogOpen) {
-            return;
-          }
           event.preventDefault();
           onCloseDetail();
           return;
