@@ -1280,7 +1280,7 @@ extend type Query {
 extend type Mutation {
   lockThread(commentId: String!, until: String): Boolean!
   unlockThread(commentId: String!): Boolean!
-  rejectContentAndRemoveUserFromQueue(userId: String!, documentId: String!, collectionName: ContentCollectionName!): Boolean!
+  rejectContentAndRemoveUserFromQueue(userId: String!, documentId: String!, collectionName: ContentCollectionName!, rejectedReason: String!, messageContent: String): Boolean!
   approveUserCurrentContentOnly(userId: String!): Boolean!
 }
 

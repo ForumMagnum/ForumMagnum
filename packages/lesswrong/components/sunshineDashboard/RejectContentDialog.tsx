@@ -34,12 +34,6 @@ const styles = defineStyles('RejectContentDialog', (theme: ThemeType) => ({
     paddingTop: 2,
     paddingBottom: 2
   },
-  modalTextField: {
-    marginTop: 10,
-  },
-  hideModalTextField: {
-    display: 'none'
-  },
   editorContainer: {
     marginTop: 10,
     minHeight: 150,
@@ -67,14 +61,6 @@ const styles = defineStyles('RejectContentDialog', (theme: ThemeType) => ({
       color: theme.palette.primary.main,
     }
   },
-  defaultIntroHeader: {
-    fontSize: 12,
-    fontWeight: 600,
-    color: theme.palette.grey[600],
-    marginBottom: 8,
-    textTransform: 'uppercase',
-    letterSpacing: 0.5,
-  },
   card: {
     padding: 12,
     width: 500,
@@ -92,11 +78,6 @@ const styles = defineStyles('RejectContentDialog', (theme: ThemeType) => ({
     height: 12,
     color: theme.palette.grey[500],
     opacity: 0
-  },
-  loadMore: {
-    paddingTop: 6,
-    paddingLeft: 12,
-    paddingBottom: 6
   },
   topReason: {
     fontWeight: 600

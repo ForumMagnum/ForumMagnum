@@ -151,10 +151,6 @@ const styles = defineStyles('ModerationContentItem', (theme: ThemeType) => ({
       backgroundColor: theme.palette.grey[300],
     },
   },
-  aiOutput: {
-    fontSize: '0.9em',
-    textWrap: 'pretty',
-  },
 }));
 
 type ContentItem = SunshinePostsList | CommentsListWithParentMetadata;

@@ -16,6 +16,8 @@ import { useUserContentPermissions } from './useUserContentPermissions';
 import RejectContentDialog from '../RejectContentDialog';
 import { useRejectContent } from '@/components/hooks/useRejectContent';
 import { ContentItem, isPost } from './helpers';
+import { useMessages } from '@/components/common/withMessages';
+import { parseKeystroke, getCode } from '@/lib/vendor/ckeditor5-util/keyboard';
 
 const SunshineUsersListUpdateMutation = gql(`
   mutation updateUserModerationKeyboard($selector: SelectorInput!, $data: UpdateUserDataInput!) {
@@ -28,8 +30,8 @@ const SunshineUsersListUpdateMutation = gql(`
 `);
 
 const RejectContentAndRemoveFromQueueMutation = gql(`
-  mutation rejectContentAndRemoveFromQueueModerationKeyboard($userId: String!, $documentId: String!, $collectionName: ContentCollectionName!) {
-    rejectContentAndRemoveUserFromQueue(userId: $userId, documentId: $documentId, collectionName: $collectionName)
+  mutation rejectContentAndRemoveFromQueueModerationKeyboard($userId: String!, $documentId: String!, $collectionName: ContentCollectionName!, $rejectedReason: String!) {
+    rejectContentAndRemoveUserFromQueue(userId: $userId, documentId: $documentId, collectionName: $collectionName, rejectedReason: $rejectedReason)
   }
 `);
 
@@ -43,8 +45,53 @@ function specialKeyPressed(event: KeyboardEvent) {
   return event.metaKey || event.ctrlKey || event.altKey;
 }
 
+function isNavigationKey(key: string) {
+  return key === 'ArrowUp' || key === 'ArrowDown' || key === 'ArrowLeft' || key === 'ArrowRight' || key === 'Enter' || key === 'Escape';
+}
+
+function matchesKeystroke(event: KeyboardEvent, keystroke: string): boolean {
+  const key = event.key;
+
+  if (key === 'Escape') {
+    return keystroke === 'esc';
+  }
+
+  if (isNavigationKey(key)) {
+    const normalizedKeystroke = keystroke.toLowerCase();
+    const normalizedKey = key.toLowerCase();
+
+    return normalizedKeystroke === normalizedKey;
+  }
+
+  try {
+    const keystrokeCode = parseKeystroke(keystroke);
+    const eventCode = getCode(event);
+    return keystrokeCode === eventCode;
+  } catch (error) {
+    return false;
+  }
+}
+
 function canRejectCurrentlySelectedContent(selectedContent?: ContentItem) {
   return selectedContent && !selectedContent.rejected && selectedContent.authorIsUnreviewed;
+}
+
+function getMostRecentUnapprovedContent(posts: SunshinePostsList[], comments: CommentsListWithParentMetadata[]) {
+  const allContent = [
+    ...(posts || []).map(p => ({ _id: p._id, postedAt: p.postedAt, rejected: p.rejected, authorIsUnreviewed: p.authorIsUnreviewed, collectionName: 'Posts' as const })),
+    ...(comments || []).map(c => ({ _id: c._id, postedAt: c.postedAt, rejected: c.rejected, authorIsUnreviewed: c.authorIsUnreviewed, collectionName: 'Comments' as const }))
+  ];
+
+  const unapprovedContent = allContent.filter(
+    item => !item.rejected && item.authorIsUnreviewed
+  );
+
+  if (unapprovedContent.length === 0) {
+    return null;
+  }
+
+  unapprovedContent.sort((a, b) => new Date(b.postedAt).getTime() - new Date(a.postedAt).getTime());
+  return unapprovedContent[0];
 }
 
 const ModerationKeyboardHandler = ({
@@ -75,6 +122,7 @@ const ModerationKeyboardHandler = ({
   dispatch: React.ActionDispatch<[action: InboxAction]>;
 }) => {
   const { openDialog, isDialogOpen } = useDialog();
+  const { flash } = useMessages();
   const [updateUser] = useMutation(SunshineUsersListUpdateMutation);
   const [rejectContentAndRemoveFromQueue] = useMutation(RejectContentAndRemoveFromQueueMutation);
   const [approveCurrentContentOnly] = useMutation(ApproveCurrentContentOnlyMutation);
@@ -103,26 +151,41 @@ const ModerationKeyboardHandler = ({
     [onActionComplete]
   );
 
+  const updateUserWith = useCallback(async (data: UpdateUserDataInput, removeFromQueue: boolean = false) => {
+    if (!selectedUser) return;
+
+    if (removeFromQueue) {
+      await handleAction(async () => {
+        await updateUser({
+          variables: {
+            selector: { _id: selectedUser._id },
+            data,
+          },
+        });
+      });
+    } else {
+      await updateUser({
+        variables: {
+          selector: { _id: selectedUser._id },
+          data,
+        },
+      });
+    }
+  }, [selectedUser, updateUser, handleAction]);
+
   const handleReview = useCallback(() => {
     if (!selectedUser) return;
     const notes = selectedUser.sunshineNotes || '';
     const newNotes = getModSignatureWithNote('Approved') + notes;
-    void handleAction(async () => {
-      await updateUser({
-        variables: {
-          selector: { _id: selectedUser._id },
-          data: {
-            sunshineFlagged: false,
-            reviewedByUserId: currentUser._id,
-            reviewedAt: new Date(),
-            needsReview: false,
-            sunshineNotes: newNotes,
-            snoozedUntilContentCount: null,
-          },
-        },
-      });
-    });
-  }, [selectedUser, currentUser, getModSignatureWithNote, handleAction, updateUser]);
+    void updateUserWith({
+      sunshineFlagged: false,
+      reviewedByUserId: currentUser._id,
+      reviewedAt: new Date(),
+      needsReview: false,
+      sunshineNotes: newNotes,
+      snoozedUntilContentCount: null,
+    }, true);
+  }, [selectedUser, currentUser, getModSignatureWithNote, updateUserWith]);
 
   const handleApproveCurrentOnly = useCallback(() => {
     if (!selectedUser) return;
@@ -140,22 +203,15 @@ const ModerationKeyboardHandler = ({
       if (!selectedUser) return;
       const notes = selectedUser.sunshineNotes || '';
       const newNotes = getModSignatureWithNote(`Snooze ${contentCount}`) + notes;
-      void handleAction(async () => {
-        await updateUser({
-          variables: {
-            selector: { _id: selectedUser._id },
-            data: {
-              needsReview: false,
-              reviewedAt: new Date(),
-              reviewedByUserId: currentUser._id,
-              sunshineNotes: newNotes,
-              snoozedUntilContentCount: getNewSnoozeUntilContentCount(selectedUser, contentCount),
-            },
-          },
-        });
-      });
+      void updateUserWith({
+        needsReview: false,
+        reviewedAt: new Date(),
+        reviewedByUserId: currentUser._id,
+        sunshineNotes: newNotes,
+        snoozedUntilContentCount: getNewSnoozeUntilContentCount(selectedUser, contentCount),
+      }, true);
     },
-    [selectedUser, currentUser, getModSignatureWithNote, handleAction, updateUser]
+    [selectedUser, currentUser, getModSignatureWithNote, updateUserWith]
   );
 
   const handleSnoozeCustom = useCallback(() => {
@@ -178,20 +234,13 @@ const ModerationKeyboardHandler = ({
     if (!selectedUser) return;
     const notes = selectedUser.sunshineNotes || '';
     const newNotes = getModSignatureWithNote('removed from review queue without snooze/approval') + notes;
-    void handleAction(async () => {
-      await updateUser({
-        variables: {
-          selector: { _id: selectedUser._id },
-          data: {
-            needsReview: false,
-            reviewedByUserId: null,
-            reviewedAt: selectedUser.reviewedAt ? new Date() : null,
-            sunshineNotes: newNotes,
-          },
-        },
-      });
-    });
-  }, [selectedUser, getModSignatureWithNote, handleAction, updateUser]);
+    void updateUserWith({
+      needsReview: false,
+      reviewedByUserId: null,
+      reviewedAt: selectedUser.reviewedAt ? new Date() : null,
+      sunshineNotes: newNotes,
+    }, true);
+  }, [selectedUser, getModSignatureWithNote, updateUserWith]);
 
   const handleBan = useCallback(() => {
     if (!selectedUser) return;
@@ -200,22 +249,15 @@ const ModerationKeyboardHandler = ({
 
     const notes = selectedUser.sunshineNotes || '';
     const newNotes = getModSignatureWithNote('Ban') + notes;
-    void handleAction(async () => {
-      await updateUser({
-        variables: {
-          selector: { _id: selectedUser._id },
-          data: {
-            sunshineFlagged: false,
-            reviewedByUserId: currentUser._id,
-            needsReview: false,
-            reviewedAt: new Date(),
-            banned: moment().add(banMonths, 'months').toDate(),
-            sunshineNotes: newNotes,
-          },
-        },
-      });
-    });
-  }, [selectedUser, currentUser, getModSignatureWithNote, handleAction, updateUser]);
+    void updateUserWith({
+      sunshineFlagged: false,
+      reviewedByUserId: currentUser._id,
+      needsReview: false,
+      reviewedAt: new Date(),
+      banned: moment().add(banMonths, 'months').toDate(),
+      sunshineNotes: newNotes,
+    }, true);
+  }, [selectedUser, currentUser, getModSignatureWithNote, updateUserWith]);
 
   const handlePurge = useCallback(() => {
     if (!selectedUser) return;
@@ -223,24 +265,17 @@ const ModerationKeyboardHandler = ({
 
     const notes = selectedUser.sunshineNotes || '';
     const newNotes = getModSignatureWithNote('Purge') + notes;
-    void handleAction(async () => {
-      await updateUser({
-        variables: {
-          selector: { _id: selectedUser._id },
-          data: {
-            sunshineFlagged: false,
-            reviewedByUserId: currentUser._id,
-            nullifyVotes: true,
-            deleteContent: true,
-            needsReview: false,
-            reviewedAt: new Date(),
-            banned: moment().add(1000, 'years').toDate(),
-            sunshineNotes: newNotes,
-          },
-        },
-      });
-    });
-  }, [selectedUser, currentUser, getModSignatureWithNote, handleAction, updateUser]);
+    void updateUserWith({
+      sunshineFlagged: false,
+      reviewedByUserId: currentUser._id,
+      nullifyVotes: true,
+      deleteContent: true,
+      needsReview: false,
+      reviewedAt: new Date(),
+      banned: moment().add(1000, 'years').toDate(),
+      sunshineNotes: newNotes,
+    }, true);
+  }, [selectedUser, currentUser, getModSignatureWithNote, updateUserWith]);
 
   const handleFlag = useCallback(() => {
     if (!selectedUser) return;
@@ -251,16 +286,11 @@ const ModerationKeyboardHandler = ({
     
     dispatch({ type: 'UPDATE_USER', userId: selectedUser._id, fields: { sunshineNotes: newNotes, sunshineFlagged: newFlaggedState } });
     
-    void updateUser({
-      variables: {
-        selector: { _id: selectedUser._id },
-        data: {
-          sunshineFlagged: newFlaggedState,
-          sunshineNotes: newNotes,
-        },
-      },
+    void updateUserWith({
+      sunshineFlagged: newFlaggedState,
+      sunshineNotes: newNotes,
     });
-  }, [selectedUser, getModSignatureWithNote, updateUser, dispatch]);
+  }, [selectedUser, getModSignatureWithNote, dispatch, updateUserWith]);
 
   const handleRejectCurrentContent = useCallback(() => {
     if (!selectedUser) return;
@@ -300,198 +330,219 @@ const ModerationKeyboardHandler = ({
 
   const handleRestrictAndNotify = useCallback(() => {
     if (!selectedUser) return;
+    
+    // Find the most recent unapproved post or comment
+    const mostRecentUnapproved = getMostRecentUnapprovedContent(posts, comments);
+    if (!mostRecentUnapproved) {
+      alert('No unapproved content found for this user');
+      return;
+    }
+
     openDialog({
-      name: 'RestrictAndNotifyModal',
+      name: 'RejectContentDialog',
+      contents: ({ onClose: closeRejectDialog }) => (
+        <RejectContentDialog
+          rejectionTemplates={rejectionTemplates}
+          rejectContent={(rejectedReason: string) => {
+            closeRejectDialog();
+            
+            // We need setTimeout to ensure the RejectContentDialog is closed before the RestrictAndNotifyModal is opened;
+            // otherwise the second modal just doesn't open.
+            setTimeout(() => {
+              openDialog({
+                name: 'RestrictAndNotifyModal',
+                contents: ({ onClose: closeRestrictDialog }) => (
+                  <RestrictAndNotifyModal
+                    user={selectedUser}
+                    onComplete={() => {
+                      onActionComplete();
+                      closeRestrictDialog();
+                    }}
+                    onClose={closeRestrictDialog}
+                    rejectedReason={rejectedReason}
+                    documentId={mostRecentUnapproved._id}
+                    collectionName={mostRecentUnapproved.collectionName}
+                  />
+                ),
+              });
+            }, 0);
+          }}
+          onClose={closeRejectDialog}
+        />
+      ),
+    });
+  }, [selectedUser, openDialog, onActionComplete, posts, comments, rejectionTemplates]);
+
+  const handleCopyUserId = useCallback(async () => {
+    if (!selectedUser) return;
+    
+    try {
+      await navigator.clipboard.writeText(selectedUser._id);
+      flash({ messageString: "userId copied!" });
+    } catch (err) {
+      flash({ messageString: "Failed to copy userId" });
+    }
+  }, [selectedUser, flash]);
+
+  const handleRejectContentAndRemove = useCallback(() => {
+    if (!selectedUser) return;
+    
+    const mostRecentUnapproved = getMostRecentUnapprovedContent(posts, comments);
+    if (!mostRecentUnapproved) {
+      alert('No unapproved content found for this user');
+      return;
+    }
+    
+    openDialog({
+      name: 'RejectContentDialog',
       contents: ({ onClose }) => (
-        <RestrictAndNotifyModal
-          user={selectedUser}
-          currentUser={currentUser}
-          dispatch={dispatch}
-          onComplete={() => {
-            onActionComplete();
+        <RejectContentDialog
+          rejectionTemplates={rejectionTemplates}
+          rejectContent={(rejectedReason: string) => {
             onClose();
+            void handleAction(async () => {
+              await rejectContentAndRemoveFromQueue({
+                variables: {
+                  userId: selectedUser._id,
+                  documentId: mostRecentUnapproved._id,
+                  collectionName: mostRecentUnapproved.collectionName,
+                  rejectedReason,
+                },
+              });
+            });
           }}
           onClose={onClose}
         />
       ),
     });
-  }, [selectedUser, currentUser, dispatch, openDialog, onActionComplete]);
-
-  const handleRejectContentAndRemove = useCallback(() => {
-    if (!selectedUser) return;
-    
-    // Find the most recent unapproved post or comment
-    const allContent = [
-      ...(posts || []).map(p => ({ _id: p._id, postedAt: p.postedAt, rejected: p.rejected, authorIsUnreviewed: p.authorIsUnreviewed, collectionName: 'Posts' as const })),
-      ...(comments || []).map(c => ({ _id: c._id, postedAt: c.postedAt, rejected: c.rejected, authorIsUnreviewed: c.authorIsUnreviewed, collectionName: 'Comments' as const }))
-    ];
-    
-    const unapprovedContent = allContent.filter(
-      item => !item.rejected && item.authorIsUnreviewed
-    );
-    
-    if (unapprovedContent.length === 0) {
-      alert('No unapproved content found for this user');
-      return;
-    }
-    
-    // Sort by postedAt descending to get most recent
-    unapprovedContent.sort((a, b) => new Date(b.postedAt).getTime() - new Date(a.postedAt).getTime());
-    const mostRecentUnapproved = unapprovedContent[0];
-    
-    if (!confirm(`Reject this user's most recent ${mostRecentUnapproved.collectionName === 'Posts' ? 'post' : 'comment'} and remove them from the review queue?`)) {
-      return;
-    }
-    
-    void handleAction(async () => {
-      await rejectContentAndRemoveFromQueue({
-        variables: {
-          userId: selectedUser._id,
-          documentId: mostRecentUnapproved._id,
-          collectionName: mostRecentUnapproved.collectionName,
-        },
-      });
-    });
-  }, [selectedUser, posts, comments, handleAction, rejectContentAndRemoveFromQueue]);
+  }, [selectedUser, posts, comments, handleAction, rejectContentAndRemoveFromQueue, openDialog, rejectionTemplates]);
 
   const openCommandPalette = useCommandPalette();
 
-  const commands: CommandPaletteItem[] = useMemo(() => [
-    {
-      label: 'Approve',
-      keystroke: 'A',
-      isDisabled: () => !selectedUser,
-      execute: handleReview,
-    },
-    {
-      label: 'Approve Current Content Only',
-      keystroke: 'Shift+A',
-      isDisabled: () => !selectedUser,
-      execute: handleApproveCurrentOnly,
-    },
-    {
-      label: 'Snooze 10',
-      keystroke: 'S',
-      isDisabled: () => !selectedUser,
-      execute: () => handleSnooze(10),
-    },
-    {
-      label: 'Snooze Custom Amount',
-      keystroke: 'Shift+S',
-      isDisabled: () => !selectedUser,
-      execute: handleSnoozeCustom,
-    },
-    {
-      label: 'Remove',
-      keystroke: 'Q',
-      isDisabled: () => !selectedUser,
-      execute: handleRemoveNeedsReview,
-    },
-    {
-      label: 'Reject Latest & Remove',
-      keystroke: 'X',
-      isDisabled: () => !selectedUser,
-      execute: handleRejectContentAndRemove,
-    },
-    {
-      label: 'Ban 3mo',
-      keystroke: 'B',
-      isDisabled: () => !selectedUser,
-      execute: handleBan,
-    },
-    {
-      label: 'Purge',
-      keystroke: 'P',
-      isDisabled: () => !selectedUser,
-      execute: handlePurge,
-    },
-    {
-      label: 'Flag',
-      keystroke: 'F',
-      isDisabled: () => !selectedUser,
-      execute: handleFlag,
-    },
-    {
-      label: 'Disable Posting',
-      keystroke: 'D',
-      isDisabled: () => !selectedUser,
-      execute: toggleDisablePosting,
-    },
-    {
-      label: 'Disable Commenting',
-      keystroke: 'C',
-      isDisabled: () => !selectedUser,
-      execute: toggleDisableCommenting,
-    },
-    {
-      label: 'Disable Messaging',
-      keystroke: 'M',
-      isDisabled: () => !selectedUser,
-      execute: toggleDisableMessaging,
-    },
-    {
-      label: 'Disable Voting',
-      keystroke: 'V',
-      isDisabled: () => !selectedUser,
-      execute: toggleDisableVoting,
-    },
-    {
-      label: 'Reject Current',
-      keystroke: 'R',
-      isDisabled: () => !selectedUser || !canRejectCurrentlySelectedContent(selectedContent),
-      execute: handleRejectCurrentContent,
-    },
-    {
-      label: 'Reject All, Restrict, & Notify',
-      keystroke: 'Shift+R',
-      isDisabled: () => !selectedUser,
-      execute: handleRestrictAndNotify,
-    },
-    {
-      label: isDetailView ? 'Next Content Item' : 'Next User',
-      keystroke: 'ArrowDown',
-      isDisabled: () => isDetailView ? allContent.length === 0 : false,
-      execute: isDetailView 
-        ? () => dispatch({ type: 'NEXT_CONTENT', contentLength: allContent.length })
-        : onNextUser,
-    },
-    {
-      label: isDetailView ? 'Previous Content Item' : 'Previous User',
-      keystroke: 'ArrowUp',
-      isDisabled: () => isDetailView ? allContent.length === 0 : false,
-      execute: isDetailView 
-        ? () => dispatch({ type: 'PREV_CONTENT', contentLength: allContent.length })
-        : onPrevUser,
-    },
-    {
-      label: isDetailView ? 'Next User' : 'Next Tab',
-      keystroke: 'ArrowRight',
-      isDisabled: () => false,
-      execute: isDetailView ? onNextUser : onNextTab,
-    },
-    {
-      label: isDetailView ? 'Previous User' : 'Previous Tab',
-      keystroke: 'ArrowLeft',
-      isDisabled: () => false,
-      execute: isDetailView ? onPrevUser : onPrevTab,
-    },
-    {
-      label: 'Open Detail View',
-      keystroke: 'enter',
-      isDisabled: () => false,
-      execute: onOpenDetail,
-    },
-    {
-      label: 'Close Detail View',
-      keystroke: 'esc',
-      isDisabled: () => false,
-      execute: onCloseDetail,
-    },
-    ], [handleReview, handleApproveCurrentOnly, handleSnoozeCustom, handleRemoveNeedsReview, handleRejectContentAndRemove, handleBan, handlePurge, handleFlag, toggleDisablePosting, toggleDisableCommenting, toggleDisableMessaging, toggleDisableVoting, handleRejectCurrentContent, handleRestrictAndNotify, onNextUser, onPrevUser, onNextTab, onPrevTab, onOpenDetail, onCloseDetail, selectedUser, handleSnooze, isDetailView, dispatch, allContent.length, selectedContent]);
+  const commands: CommandPaletteItem[] = useMemo(() => [{
+    label: 'Approve',
+    keystroke: 'A',
+    isDisabled: () => !selectedUser,
+    execute: handleReview,
+  }, {
+    label: 'Approve Current Content Only',
+    keystroke: 'Shift+A',
+    isDisabled: () => !selectedUser,
+    execute: handleApproveCurrentOnly,
+  }, {
+    label: 'Snooze 10',
+    keystroke: 'S',
+    isDisabled: () => !selectedUser,
+    execute: () => handleSnooze(10),
+  }, {
+    label: 'Snooze Custom Amount',
+    keystroke: 'Shift+S',
+    isDisabled: () => !selectedUser,
+    execute: handleSnoozeCustom,
+  }, {
+    label: 'Remove',
+    keystroke: 'Q',
+    isDisabled: () => !selectedUser,
+    execute: handleRemoveNeedsReview,
+  }, {
+    label: 'Ban 3mo',
+    keystroke: 'B',
+    isDisabled: () => !selectedUser,
+    execute: handleBan,
+  }, {
+    label: 'Purge',
+    keystroke: 'P',
+    isDisabled: () => !selectedUser,
+    execute: handlePurge,
+  }, {
+    label: 'Flag',
+    keystroke: 'F',
+    isDisabled: () => !selectedUser,
+    execute: handleFlag,
+  }, {
+    label: 'Copy User ID',
+    keystroke: 'U',
+    isDisabled: () => !selectedUser,
+    execute: handleCopyUserId,
+  }, {
+    label: 'Reject Current',
+    keystroke: 'R',
+    isDisabled: () => !selectedUser || !canRejectCurrentlySelectedContent(selectedContent),
+    execute: handleRejectCurrentContent,
+  }, {
+    label: 'Reject Latest & Remove',
+    keystroke: 'X',
+    isDisabled: () => !selectedUser,
+    execute: handleRejectContentAndRemove,
+  }, {
+    label: 'Reject Latest, Restrict, & Notify',
+    keystroke: 'Shift+R',
+    isDisabled: () => !selectedUser,
+    execute: handleRestrictAndNotify,
+  }, {
+    label: 'Disable Posting',
+    keystroke: 'D',
+    isDisabled: () => !selectedUser,
+    execute: toggleDisablePosting,
+  }, {
+    label: 'Disable Commenting',
+    keystroke: 'C',
+    isDisabled: () => !selectedUser,
+    execute: toggleDisableCommenting,
+  }, {
+    label: 'Disable Messaging',
+    keystroke: 'M',
+    isDisabled: () => !selectedUser,
+    execute: toggleDisableMessaging,
+  }, {
+    label: 'Disable Voting',
+    keystroke: 'V',
+    isDisabled: () => !selectedUser,
+    execute: toggleDisableVoting,
+  }, {
+    label: isDetailView ? 'Next Content Item' : 'Next User',
+    keystroke: 'ArrowDown',
+    isDisabled: () => isDetailView ? allContent.length === 0 : false,
+    execute: isDetailView 
+      ? () => dispatch({ type: 'NEXT_CONTENT', contentLength: allContent.length })
+      : onNextUser,
+  }, {
+    label: isDetailView ? 'Previous Content Item' : 'Previous User',
+    keystroke: 'ArrowUp',
+    isDisabled: () => isDetailView ? allContent.length === 0 : false,
+    execute: isDetailView 
+      ? () => dispatch({ type: 'PREV_CONTENT', contentLength: allContent.length })
+      : onPrevUser,
+  }, {
+    label: isDetailView ? 'Next User' : 'Next Tab',
+    keystroke: 'ArrowRight',
+    isDisabled: () => false,
+    execute: isDetailView ? onNextUser : onNextTab,
+  }, {
+    label: isDetailView ? 'Previous User' : 'Previous Tab',
+    keystroke: 'ArrowLeft',
+    isDisabled: () => false,
+    execute: isDetailView ? onPrevUser : onPrevTab,
+  }, {
+    label: 'Open Detail View',
+    keystroke: 'enter',
+    isDisabled: () => false,
+    execute: onOpenDetail,
+  }, {
+    label: 'Close Detail View',
+    keystroke: 'esc',
+    isDisabled: () => false,
+    execute: onCloseDetail,
+  }], [handleReview, handleApproveCurrentOnly, handleSnoozeCustom, handleRemoveNeedsReview, handleRejectContentAndRemove, handleBan, handlePurge, handleFlag, handleCopyUserId, toggleDisablePosting, toggleDisableCommenting, toggleDisableMessaging, toggleDisableVoting, handleRejectCurrentContent, handleRestrictAndNotify, onNextUser, onPrevUser, onNextTab, onPrevTab, onOpenDetail, onCloseDetail, selectedUser, handleSnooze, isDetailView, dispatch, allContent.length, selectedContent]);
 
   useGlobalKeydown(
     useCallback(
       (event: KeyboardEvent) => {
+        // Don't trigger any shortcuts if a dialog is open.
+        if (isDialogOpen) {
+          return;
+        }
+
         // Don't handle keyboard shortcuts if user is typing in an input/textarea
         const target = event.target as HTMLElement;
         if (
@@ -505,154 +556,30 @@ const ModerationKeyboardHandler = ({
           }
         }
 
-        // Command palette
         if ((event.metaKey || event.ctrlKey) && event.key === 'k') {
           event.preventDefault();
           openCommandPalette(commands, () => {});
           return;
         }
 
-        // Arrow key navigation - context-aware based on view
-        // In detail view: up/down = content items, left/right = users
-        // In inbox view: up/down = users, left/right = tabs
-        if (event.key === 'ArrowDown') {
-          event.preventDefault();
-          if (isDetailView) {
-            dispatch({ type: 'NEXT_CONTENT', contentLength: allContent.length });
-          } else {
-            onNextUser();
-          }
+        // Block shortcuts when special keys (Cmd/Ctrl/Alt) are pressed, except for navigation keys
+        if (specialKeyPressed(event) && !isNavigationKey(event.key)) {
           return;
         }
 
-        if (event.key === 'ArrowUp') {
-          event.preventDefault();
-          if (isDetailView) {
-            dispatch({ type: 'PREV_CONTENT', contentLength: allContent.length });
-          } else {
-            onPrevUser();
-          }
-          return;
-        }
+        for (const command of commands) {
+          if (matchesKeystroke(event, command.keystroke)) {
+            if (command.isDisabled()) {
+              return;
+            }
 
-        if (event.key === 'ArrowLeft') {
-          event.preventDefault();
-          if (isDetailView) {
-            onPrevUser();
-          } else {
-            onPrevTab();
-          }
-          return;
-        }
-
-        if (event.key === 'ArrowRight') {
-          event.preventDefault();
-          if (isDetailView) {
-            onNextUser();
-          } else {
-            onNextTab();
-          }
-          return;
-        }
-
-        if (event.key === 'Enter') {
-          event.preventDefault();
-          onOpenDetail();
-          return;
-        }
-
-        if (event.key === 'Escape') {
-          // Don't close detail view if a dialog is open - let the dialog handle the escape key
-          if (isDialogOpen) {
+            event.preventDefault();
+            command.execute();
             return;
           }
-          event.preventDefault();
-          onCloseDetail();
-          return;
-        }
-
-        // Action shortcuts (only if user is selected)
-        if (!selectedUser) return;
-
-        if (specialKeyPressed(event)) return;
-
-        if (event.key === 'a' && !event.shiftKey) {
-          event.preventDefault();
-          handleReview();
-        } else if (event.key === 'A' && event.shiftKey) {
-          event.preventDefault();
-          handleApproveCurrentOnly();
-        } else if (event.key === 's' && !event.shiftKey) {
-          event.preventDefault();
-          handleSnooze(10);
-        } else if (event.key === 'S' && event.shiftKey) {
-          event.preventDefault();
-          handleSnoozeCustom();
-        } else if (event.key === 'q' && !event.shiftKey) {
-          event.preventDefault();
-          handleRemoveNeedsReview();
-        } else if (event.key === 'r' && !event.shiftKey) {
-          event.preventDefault();
-          handleRejectCurrentContent();
-        } else if (event.key === 'R' && event.shiftKey) {
-          event.preventDefault();
-          handleRestrictAndNotify();
-        } else if (event.key === 'b') {
-          event.preventDefault();
-          handleBan();
-        } else if (event.key === 'p') {
-          event.preventDefault();
-          handlePurge();
-        } else if (event.key === 'f') {
-          event.preventDefault();
-          handleFlag();
-        } else if (event.key === 'd') {
-          event.preventDefault();
-          toggleDisablePosting();
-        } else if (event.key === 'c') {
-          event.preventDefault();
-          toggleDisableCommenting();
-        } else if (event.key === 'm') {
-          event.preventDefault();
-          toggleDisableMessaging();
-        } else if (event.key === 'v') {
-          event.preventDefault();
-          void toggleDisableVoting();
-        } else if (event.key === 'x') {
-          event.preventDefault();
-          handleRejectContentAndRemove();
         }
       },
-      [
-        onNextUser,
-        onPrevUser,
-        onNextTab,
-        onPrevTab,
-        onOpenDetail,
-        onCloseDetail,
-        isDetailView,
-        selectedUser,
-        handleReview,
-        handleApproveCurrentOnly,
-        handleSnooze,
-        handleSnoozeCustom,
-        handleRemoveNeedsReview,
-        handleRejectContentAndRemove,
-        handleRejectCurrentContent,
-        handleRestrictAndNotify,
-        handleBan,
-        handlePurge,
-        handleFlag,
-        toggleDisablePosting,
-        toggleDisableCommenting,
-        toggleDisableMessaging,
-        toggleDisableVoting,
-        commands,
-        openCommandPalette,
-        dispatch,
-        allContent,
-        isDialogOpen,
-      ]
+      [commands, openCommandPalette, isDialogOpen]
     )
   );
 

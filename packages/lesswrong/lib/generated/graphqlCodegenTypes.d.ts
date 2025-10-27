@@ -4946,6 +4946,8 @@ type MutationpublishAndDeDuplicateSpotlightArgs = {
 type MutationrejectContentAndRemoveUserFromQueueArgs = {
   collectionName: ContentCollectionName;
   documentId: Scalars['String']['input'];
+  messageContent?: InputMaybe<Scalars['String']['input']>;
+  rejectedReason: Scalars['String']['input'];
   userId: Scalars['String']['input'];
 };
 
@@ -21571,6 +21573,7 @@ type rejectContentAndRemoveFromQueueModerationKeyboardMutationVariables = Exact<
   userId: Scalars['String']['input'];
   documentId: Scalars['String']['input'];
   collectionName: ContentCollectionName;
+  rejectedReason: Scalars['String']['input'];
 }>;
 
 
@@ -21623,53 +21626,19 @@ type multiModerationTemplateRestrictAndNotifyModalQueryQueryVariables = Exact<{
 
 type multiModerationTemplateRestrictAndNotifyModalQueryQuery = multiModerationTemplateRestrictAndNotifyModalQueryQuery_Query;
 
-type updateUserRestrictAndNotifyMutation_updateUser_UserOutput_data_User = (
-  { __typename?: 'User' }
-  & SunshineUsersList
-);
-
-type updateUserRestrictAndNotifyMutation_updateUser_UserOutput = { __typename?: 'UserOutput', data: updateUserRestrictAndNotifyMutation_updateUser_UserOutput_data_User | null };
-
-type updateUserRestrictAndNotifyMutation_Mutation = { __typename?: 'Mutation', updateUser: updateUserRestrictAndNotifyMutation_updateUser_UserOutput | null };
+type rejectContentAndRemoveFromQueueRestrictAndNotifyMutation_Mutation = { __typename?: 'Mutation', rejectContentAndRemoveUserFromQueue: boolean };
 
 
-type updateUserRestrictAndNotifyMutationVariables = Exact<{
-  selector: SelectorInput;
-  data: UpdateUserDataInput;
+type rejectContentAndRemoveFromQueueRestrictAndNotifyMutationVariables = Exact<{
+  userId: Scalars['String']['input'];
+  documentId: Scalars['String']['input'];
+  collectionName: ContentCollectionName;
+  rejectedReason: Scalars['String']['input'];
+  messageContent: InputMaybe<Scalars['String']['input']>;
 }>;
 
 
-type updateUserRestrictAndNotifyMutation = updateUserRestrictAndNotifyMutation_Mutation;
-
-type updatePostRestrictAndNotifyMutation_updatePost_PostOutput_data_Post = { __typename?: 'Post', _id: string, rejected: boolean };
-
-type updatePostRestrictAndNotifyMutation_updatePost_PostOutput = { __typename?: 'PostOutput', data: updatePostRestrictAndNotifyMutation_updatePost_PostOutput_data_Post | null };
-
-type updatePostRestrictAndNotifyMutation_Mutation = { __typename?: 'Mutation', updatePost: updatePostRestrictAndNotifyMutation_updatePost_PostOutput | null };
-
-
-type updatePostRestrictAndNotifyMutationVariables = Exact<{
-  selector: SelectorInput;
-  data: UpdatePostDataInput;
-}>;
-
-
-type updatePostRestrictAndNotifyMutation = updatePostRestrictAndNotifyMutation_Mutation;
-
-type updateCommentRestrictAndNotifyMutation_updateComment_CommentOutput_data_Comment = { __typename?: 'Comment', _id: string, rejected: boolean };
-
-type updateCommentRestrictAndNotifyMutation_updateComment_CommentOutput = { __typename?: 'CommentOutput', data: updateCommentRestrictAndNotifyMutation_updateComment_CommentOutput_data_Comment | null };
-
-type updateCommentRestrictAndNotifyMutation_Mutation = { __typename?: 'Mutation', updateComment: updateCommentRestrictAndNotifyMutation_updateComment_CommentOutput | null };
-
-
-type updateCommentRestrictAndNotifyMutationVariables = Exact<{
-  selector: SelectorInput;
-  data: UpdateCommentDataInput;
-}>;
-
-
-type updateCommentRestrictAndNotifyMutation = updateCommentRestrictAndNotifyMutation_Mutation;
+type rejectContentAndRemoveFromQueueRestrictAndNotifyMutation = rejectContentAndRemoveFromQueueRestrictAndNotifyMutation_Mutation;
 
 type updateUserContentPermissionsMutation_updateUser_UserOutput_data_User = (
   { __typename?: 'User' }

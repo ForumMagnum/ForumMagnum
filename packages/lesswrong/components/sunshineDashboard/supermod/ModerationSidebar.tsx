@@ -4,12 +4,11 @@ import { useMutation } from '@apollo/client/react';
 import { gql } from '@/lib/generated/gql-codegen';
 import Input from '@/lib/vendor/@material-ui/core/src/Input';
 import UserAutoRateLimitsDisplay from '../ModeratorUserInfo/UserAutoRateLimitsDisplay';
-import ContentSummaryRows from '../ModeratorUserInfo/ContentSummaryRows';
-import { usePublishedPosts } from '@/components/hooks/usePublishedPosts';
-import { useQuery } from '@/lib/crud/useQuery';
-import { CONTENT_LIMIT } from '../UsersReviewInfoCard';
+import ContentSummary from './ContentSummary';
 import SunshineUserMessages from '../SunshineUserMessages';
 import { getSignature } from '@/lib/collections/users/helpers';
+import { useModeratedUserContents } from '@/components/hooks/useModeratedUserContents';
+import classNames from 'classnames';
 
 const SunshineUsersListUpdateMutation = gql(`
   mutation updateUserModerationSidebar($selector: SelectorInput!, $data: UpdateUserDataInput!) {
@@ -17,17 +16,6 @@ const SunshineUsersListUpdateMutation = gql(`
       data {
         ...SunshineUsersList
       }
-    }
-  }
-`);
-
-const CommentsListWithParentMetadataMultiQuery = gql(`
-  query multiCommentModerationSidebarQuery($selector: CommentSelector, $limit: Int, $enableTotal: Boolean) {
-    comments(selector: $selector, limit: $limit, enableTotal: $enableTotal) {
-      results {
-        ...CommentsListWithParentMetadata
-      }
-      totalCount
     }
   }
 `);
@@ -69,43 +57,6 @@ const styles = defineStyles('ModerationSidebar', (theme: ThemeType) => ({
     letterSpacing: '0.5px',
     flexShrink: 0,
   },
-  actionButton: {
-    width: '100%',
-    padding: '10px 16px',
-    marginBottom: 8,
-    border: theme.palette.border.normal,
-    borderRadius: 4,
-    backgroundColor: theme.palette.background.paper,
-    cursor: 'pointer',
-    fontSize: 14,
-    fontWeight: 500,
-    textAlign: 'left',
-    transition: 'all 0.15s ease',
-    '&:hover': {
-      backgroundColor: theme.palette.grey[50],
-      borderColor: theme.palette.grey[400],
-    },
-    '&:active': {
-      backgroundColor: theme.palette.grey[100],
-    },
-  },
-  primaryAction: {
-    backgroundColor: theme.palette.primary.main,
-    color: theme.palette.primary.contrastText,
-    borderColor: theme.palette.primary.main,
-    '&:hover': {
-      backgroundColor: theme.palette.primary.dark,
-      borderColor: theme.palette.primary.dark,
-    },
-  },
-  dangerAction: {
-    color: theme.palette.error.main,
-    borderColor: theme.palette.error.light,
-    '&:hover': {
-      backgroundColor: theme.palette.error.light + '20',
-      borderColor: theme.palette.error.main,
-    },
-  },
   notes: {
     border: theme.palette.border.faint,
     borderRadius: 4,
@@ -130,11 +81,8 @@ const styles = defineStyles('ModerationSidebar', (theme: ThemeType) => ({
   userMessages: {
     overflow: 'auto',
   },
-  keystrokeHint: {
-    float: 'right',
-    fontSize: 11,
-    color: theme.palette.grey[500],
-    fontWeight: 400,
+  noSectionContent: {
+    opacity: 0.5,
   },
 }));
 
@@ -158,17 +106,7 @@ const ModerationSidebar = ({
     }
   }, [user._id, user.sunshineNotes]);
 
-  const { posts = [] } = usePublishedPosts(user._id, CONTENT_LIMIT);
-
-  const { data } = useQuery(CommentsListWithParentMetadataMultiQuery, {
-    variables: {
-      selector: { sunshineNewUsersComments: { userId: user._id } },
-      limit: CONTENT_LIMIT,
-      enableTotal: false,
-    },
-  });
-
-  const comments = data?.comments?.results ?? [];
+  const { posts, comments } = useModeratedUserContents(user._id);
 
   const handleNotes = useCallback(() => {
     if (notes !== user.sunshineNotes) {
@@ -217,6 +155,16 @@ const ModerationSidebar = ({
     );
   }
 
+  const showContentSummary = posts.length > 0 || comments.length > 0;
+  const showUserAutoRateLimits = (
+    (user.smallUpvoteReceivedCount ?? 0) +
+    (user.bigUpvoteReceivedCount ?? 0) +
+    (user.smallDownvoteReceivedCount ?? 0) +
+    (user.bigDownvoteReceivedCount ?? 0)
+  ) > 0;
+
+  const showBio = user.htmlBio && user.htmlBio.trim() !== '';
+
   return (
     <div className={classes.root}>
       <div className={classes.section}>
@@ -237,18 +185,18 @@ const ModerationSidebar = ({
       </div>
 
       {!inDetailView && (
-        <div className={classes.section}>
+        <div className={classNames(classes.section, !showContentSummary && classes.noSectionContent)}>
           <div className={classes.sectionTitle}>Content Summary</div>
           <div className={classes.contentSummary}>
-            <ContentSummaryRows user={user} posts={posts} comments={comments} loading={false} />
+          <ContentSummary user={user} posts={posts} comments={comments} />
           </div>
         </div>
       )}
 
-      {!inDetailView && <div className={classes.section}>
+      {!inDetailView && <div className={classNames(classes.section, !showUserAutoRateLimits && classes.noSectionContent)}>
         <div className={classes.sectionTitle}>Automod Rate Limits</div>
         <div className={classes.rateLimits}>
-          <UserAutoRateLimitsDisplay user={user} showKarmaMeta />
+          <UserAutoRateLimitsDisplay user={user} showKarmaMeta hideIfNoVotes={false} />
         </div>
       </div>}
 
@@ -261,7 +209,7 @@ const ModerationSidebar = ({
       </div>
       
       {!inDetailView && (
-        <div className={classes.scrollableSection}>
+        <div className={classNames(classes.scrollableSection, !showBio && classes.noSectionContent)}>
           <div className={classes.sectionTitle}>Bio</div>
           <div className={classes.bioContainer} dangerouslySetInnerHTML={{ __html: user.htmlBio }} />
         </div>
