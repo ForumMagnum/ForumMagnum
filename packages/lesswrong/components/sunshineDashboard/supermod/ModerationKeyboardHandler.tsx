@@ -419,144 +419,121 @@ const ModerationKeyboardHandler = ({
 
   const openCommandPalette = useCommandPalette();
 
-  const commands: CommandPaletteItem[] = useMemo(() => [
-    {
-      label: 'Approve',
-      keystroke: 'A',
-      isDisabled: () => !selectedUser,
-      execute: handleReview,
-    },
-    {
-      label: 'Approve Current Content Only',
-      keystroke: 'Shift+A',
-      isDisabled: () => !selectedUser,
-      execute: handleApproveCurrentOnly,
-    },
-    {
-      label: 'Snooze 10',
-      keystroke: 'S',
-      isDisabled: () => !selectedUser,
-      execute: () => handleSnooze(10),
-    },
-    {
-      label: 'Snooze Custom Amount',
-      keystroke: 'Shift+S',
-      isDisabled: () => !selectedUser,
-      execute: handleSnoozeCustom,
-    },
-    {
-      label: 'Remove',
-      keystroke: 'Q',
-      isDisabled: () => !selectedUser,
-      execute: handleRemoveNeedsReview,
-    },
-    {
-      label: 'Reject Latest & Remove',
-      keystroke: 'X',
-      isDisabled: () => !selectedUser,
-      execute: handleRejectContentAndRemove,
-    },
-    {
-      label: 'Ban 3mo',
-      keystroke: 'B',
-      isDisabled: () => !selectedUser,
-      execute: handleBan,
-    },
-    {
-      label: 'Purge',
-      keystroke: 'P',
-      isDisabled: () => !selectedUser,
-      execute: handlePurge,
-    },
-    {
-      label: 'Flag',
-      keystroke: 'F',
-      isDisabled: () => !selectedUser,
-      execute: handleFlag,
-    },
-    {
-      label: 'Copy User ID',
-      keystroke: 'U',
-      isDisabled: () => !selectedUser,
-      execute: handleCopyUserId,
-    },
-    {
-      label: 'Disable Posting',
-      keystroke: 'D',
-      isDisabled: () => !selectedUser,
-      execute: toggleDisablePosting,
-    },
-    {
-      label: 'Disable Commenting',
-      keystroke: 'C',
-      isDisabled: () => !selectedUser,
-      execute: toggleDisableCommenting,
-    },
-    {
-      label: 'Disable Messaging',
-      keystroke: 'M',
-      isDisabled: () => !selectedUser,
-      execute: toggleDisableMessaging,
-    },
-    {
-      label: 'Disable Voting',
-      keystroke: 'V',
-      isDisabled: () => !selectedUser,
-      execute: toggleDisableVoting,
-    },
-    {
-      label: 'Reject Current',
-      keystroke: 'R',
-      isDisabled: () => !selectedUser || !canRejectCurrentlySelectedContent(selectedContent),
-      execute: handleRejectCurrentContent,
-    },
-    {
-      label: 'Reject All, Restrict, & Notify',
-      keystroke: 'Shift+R',
-      isDisabled: () => !selectedUser,
-      execute: handleRestrictAndNotify,
-    },
-    {
-      label: isDetailView ? 'Next Content Item' : 'Next User',
-      keystroke: 'ArrowDown',
-      isDisabled: () => isDetailView ? allContent.length === 0 : false,
-      execute: isDetailView 
-        ? () => dispatch({ type: 'NEXT_CONTENT', contentLength: allContent.length })
-        : onNextUser,
-    },
-    {
-      label: isDetailView ? 'Previous Content Item' : 'Previous User',
-      keystroke: 'ArrowUp',
-      isDisabled: () => isDetailView ? allContent.length === 0 : false,
-      execute: isDetailView 
-        ? () => dispatch({ type: 'PREV_CONTENT', contentLength: allContent.length })
-        : onPrevUser,
-    },
-    {
-      label: isDetailView ? 'Next User' : 'Next Tab',
-      keystroke: 'ArrowRight',
-      isDisabled: () => false,
-      execute: isDetailView ? onNextUser : onNextTab,
-    },
-    {
-      label: isDetailView ? 'Previous User' : 'Previous Tab',
-      keystroke: 'ArrowLeft',
-      isDisabled: () => false,
-      execute: isDetailView ? onPrevUser : onPrevTab,
-    },
-    {
-      label: 'Open Detail View',
-      keystroke: 'enter',
-      isDisabled: () => false,
-      execute: onOpenDetail,
-    },
-    {
-      label: 'Close Detail View',
-      keystroke: 'esc',
-      isDisabled: () => false,
-      execute: onCloseDetail,
-    },
-    ], [handleReview, handleApproveCurrentOnly, handleSnoozeCustom, handleRemoveNeedsReview, handleRejectContentAndRemove, handleBan, handlePurge, handleFlag, handleCopyUserId, toggleDisablePosting, toggleDisableCommenting, toggleDisableMessaging, toggleDisableVoting, handleRejectCurrentContent, handleRestrictAndNotify, onNextUser, onPrevUser, onNextTab, onPrevTab, onOpenDetail, onCloseDetail, selectedUser, handleSnooze, isDetailView, dispatch, allContent.length, selectedContent]);
+  const commands: CommandPaletteItem[] = useMemo(() => [{
+    label: 'Approve',
+    keystroke: 'A',
+    isDisabled: () => !selectedUser,
+    execute: handleReview,
+  }, {
+    label: 'Approve Current Content Only',
+    keystroke: 'Shift+A',
+    isDisabled: () => !selectedUser,
+    execute: handleApproveCurrentOnly,
+  }, {
+    label: 'Snooze 10',
+    keystroke: 'S',
+    isDisabled: () => !selectedUser,
+    execute: () => handleSnooze(10),
+  }, {
+    label: 'Snooze Custom Amount',
+    keystroke: 'Shift+S',
+    isDisabled: () => !selectedUser,
+    execute: handleSnoozeCustom,
+  }, {
+    label: 'Remove',
+    keystroke: 'Q',
+    isDisabled: () => !selectedUser,
+    execute: handleRemoveNeedsReview,
+  }, {
+    label: 'Ban 3mo',
+    keystroke: 'B',
+    isDisabled: () => !selectedUser,
+    execute: handleBan,
+  }, {
+    label: 'Purge',
+    keystroke: 'P',
+    isDisabled: () => !selectedUser,
+    execute: handlePurge,
+  }, {
+    label: 'Flag',
+    keystroke: 'F',
+    isDisabled: () => !selectedUser,
+    execute: handleFlag,
+  }, {
+    label: 'Copy User ID',
+    keystroke: 'U',
+    isDisabled: () => !selectedUser,
+    execute: handleCopyUserId,
+  }, {
+    label: 'Reject Current',
+    keystroke: 'R',
+    isDisabled: () => !selectedUser || !canRejectCurrentlySelectedContent(selectedContent),
+    execute: handleRejectCurrentContent,
+  }, {
+    label: 'Reject Latest & Remove',
+    keystroke: 'X',
+    isDisabled: () => !selectedUser,
+    execute: handleRejectContentAndRemove,
+  }, {
+    label: 'Reject Latest, Restrict, & Notify',
+    keystroke: 'Shift+R',
+    isDisabled: () => !selectedUser,
+    execute: handleRestrictAndNotify,
+  }, {
+    label: 'Disable Posting',
+    keystroke: 'D',
+    isDisabled: () => !selectedUser,
+    execute: toggleDisablePosting,
+  }, {
+    label: 'Disable Commenting',
+    keystroke: 'C',
+    isDisabled: () => !selectedUser,
+    execute: toggleDisableCommenting,
+  }, {
+    label: 'Disable Messaging',
+    keystroke: 'M',
+    isDisabled: () => !selectedUser,
+    execute: toggleDisableMessaging,
+  }, {
+    label: 'Disable Voting',
+    keystroke: 'V',
+    isDisabled: () => !selectedUser,
+    execute: toggleDisableVoting,
+  }, {
+    label: isDetailView ? 'Next Content Item' : 'Next User',
+    keystroke: 'ArrowDown',
+    isDisabled: () => isDetailView ? allContent.length === 0 : false,
+    execute: isDetailView 
+      ? () => dispatch({ type: 'NEXT_CONTENT', contentLength: allContent.length })
+      : onNextUser,
+  }, {
+    label: isDetailView ? 'Previous Content Item' : 'Previous User',
+    keystroke: 'ArrowUp',
+    isDisabled: () => isDetailView ? allContent.length === 0 : false,
+    execute: isDetailView 
+      ? () => dispatch({ type: 'PREV_CONTENT', contentLength: allContent.length })
+      : onPrevUser,
+  }, {
+    label: isDetailView ? 'Next User' : 'Next Tab',
+    keystroke: 'ArrowRight',
+    isDisabled: () => false,
+    execute: isDetailView ? onNextUser : onNextTab,
+  }, {
+    label: isDetailView ? 'Previous User' : 'Previous Tab',
+    keystroke: 'ArrowLeft',
+    isDisabled: () => false,
+    execute: isDetailView ? onPrevUser : onPrevTab,
+  }, {
+    label: 'Open Detail View',
+    keystroke: 'enter',
+    isDisabled: () => false,
+    execute: onOpenDetail,
+  }, {
+    label: 'Close Detail View',
+    keystroke: 'esc',
+    isDisabled: () => false,
+    execute: onCloseDetail,
+  }], [handleReview, handleApproveCurrentOnly, handleSnoozeCustom, handleRemoveNeedsReview, handleRejectContentAndRemove, handleBan, handlePurge, handleFlag, handleCopyUserId, toggleDisablePosting, toggleDisableCommenting, toggleDisableMessaging, toggleDisableVoting, handleRejectCurrentContent, handleRestrictAndNotify, onNextUser, onPrevUser, onNextTab, onPrevTab, onOpenDetail, onCloseDetail, selectedUser, handleSnooze, isDetailView, dispatch, allContent.length, selectedContent]);
 
   useGlobalKeydown(
     useCallback(
