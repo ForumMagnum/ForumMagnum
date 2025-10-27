@@ -879,6 +879,8 @@ export async function updatedPostMaybeTriggerReview({newDocument, oldDocument, c
   // then we consider this "publishing" the post
   if ((oldDocument.draft && !newDocument.authorIsUnreviewed) || (oldDocument.authorIsUnreviewed && !newDocument.authorIsUnreviewed)) {
     await onPostPublished(newDocument, context);
+  } else if (oldDocument.draft && !newDocument.draft) {
+    await triggerReviewIfNeeded(newDocument.userId, 'publishedPost', context);
   }
 }
 
