@@ -16,6 +16,7 @@ import { useUserContentPermissions } from './useUserContentPermissions';
 import RejectContentDialog from '../RejectContentDialog';
 import { useRejectContent } from '@/components/hooks/useRejectContent';
 import { ContentItem, isPost } from './helpers';
+import { useMessages } from '@/components/common/withMessages';
 
 const SunshineUsersListUpdateMutation = gql(`
   mutation updateUserModerationKeyboard($selector: SelectorInput!, $data: UpdateUserDataInput!) {
@@ -93,6 +94,7 @@ const ModerationKeyboardHandler = ({
   dispatch: React.ActionDispatch<[action: InboxAction]>;
 }) => {
   const { openDialog, isDialogOpen } = useDialog();
+  const { flash } = useMessages();
   const [updateUser] = useMutation(SunshineUsersListUpdateMutation);
   const [rejectContentAndRemoveFromQueue] = useMutation(RejectContentAndRemoveFromQueueMutation);
   const [approveCurrentContentOnly] = useMutation(ApproveCurrentContentOnlyMutation);
@@ -361,6 +363,17 @@ const ModerationKeyboardHandler = ({
     });
   }, [selectedUser, openDialog, onActionComplete, posts, comments, rejectionTemplates]);
 
+  const handleCopyUserId = useCallback(async () => {
+    if (!selectedUser) return;
+    
+    try {
+      await navigator.clipboard.writeText(selectedUser._id);
+      flash({ messageString: "userId copied!" });
+    } catch (err) {
+      flash({ messageString: "Failed to copy userId" });
+    }
+  }, [selectedUser, flash]);
+
   const handleRejectContentAndRemove = useCallback(() => {
     if (!selectedUser) return;
     
@@ -452,6 +465,12 @@ const ModerationKeyboardHandler = ({
       execute: handleFlag,
     },
     {
+      label: 'Copy User ID',
+      keystroke: 'U',
+      isDisabled: () => !selectedUser,
+      execute: handleCopyUserId,
+    },
+    {
       label: 'Disable Posting',
       keystroke: 'D',
       isDisabled: () => !selectedUser,
@@ -527,7 +546,7 @@ const ModerationKeyboardHandler = ({
       isDisabled: () => false,
       execute: onCloseDetail,
     },
-    ], [handleReview, handleApproveCurrentOnly, handleSnoozeCustom, handleRemoveNeedsReview, handleRejectContentAndRemove, handleBan, handlePurge, handleFlag, toggleDisablePosting, toggleDisableCommenting, toggleDisableMessaging, toggleDisableVoting, handleRejectCurrentContent, handleRestrictAndNotify, onNextUser, onPrevUser, onNextTab, onPrevTab, onOpenDetail, onCloseDetail, selectedUser, handleSnooze, isDetailView, dispatch, allContent.length, selectedContent]);
+    ], [handleReview, handleApproveCurrentOnly, handleSnoozeCustom, handleRemoveNeedsReview, handleRejectContentAndRemove, handleBan, handlePurge, handleFlag, handleCopyUserId, toggleDisablePosting, toggleDisableCommenting, toggleDisableMessaging, toggleDisableVoting, handleRejectCurrentContent, handleRestrictAndNotify, onNextUser, onPrevUser, onNextTab, onPrevTab, onOpenDetail, onCloseDetail, selectedUser, handleSnooze, isDetailView, dispatch, allContent.length, selectedContent]);
 
   useGlobalKeydown(
     useCallback(
@@ -647,6 +666,9 @@ const ModerationKeyboardHandler = ({
         } else if (event.key === 'f') {
           event.preventDefault();
           handleFlag();
+        } else if (event.key === 'u') {
+          event.preventDefault();
+          void handleCopyUserId();
         } else if (event.key === 'd') {
           event.preventDefault();
           toggleDisablePosting();
@@ -684,6 +706,7 @@ const ModerationKeyboardHandler = ({
         handleBan,
         handlePurge,
         handleFlag,
+        handleCopyUserId,
         toggleDisablePosting,
         toggleDisableCommenting,
         toggleDisableMessaging,
