@@ -86,21 +86,6 @@ const styles = defineStyles('ModerationInboxItem', (theme: ThemeType) => ({
     color: theme.palette.error.main,
     marginLeft: 4,
   },
-  badge: {
-    fontSize: 11,
-    padding: '2px 6px',
-    borderRadius: 3,
-    backgroundColor: theme.palette.grey[200],
-    color: theme.palette.grey[700],
-    marginRight: 8,
-    textTransform: 'uppercase',
-    fontWeight: 600,
-    flexShrink: 0,
-    whiteSpace: 'nowrap',
-  },
-  staleBadge: {
-    opacity: 0.5,
-  },
   email: {
     fontSize: 12,
     color: theme.palette.grey[500],

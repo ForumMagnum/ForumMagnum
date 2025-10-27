@@ -47,6 +47,24 @@ function canRejectCurrentlySelectedContent(selectedContent?: ContentItem) {
   return selectedContent && !selectedContent.rejected && selectedContent.authorIsUnreviewed;
 }
 
+function getMostRecentUnapprovedContent(posts: SunshinePostsList[], comments: CommentsListWithParentMetadata[]) {
+  const allContent = [
+    ...(posts || []).map(p => ({ _id: p._id, postedAt: p.postedAt, rejected: p.rejected, authorIsUnreviewed: p.authorIsUnreviewed, collectionName: 'Posts' as const })),
+    ...(comments || []).map(c => ({ _id: c._id, postedAt: c.postedAt, rejected: c.rejected, authorIsUnreviewed: c.authorIsUnreviewed, collectionName: 'Comments' as const }))
+  ];
+
+  const unapprovedContent = allContent.filter(
+    item => !item.rejected && item.authorIsUnreviewed
+  );
+
+  if (unapprovedContent.length === 0) {
+    return null;
+  }
+
+  unapprovedContent.sort((a, b) => new Date(b.postedAt).getTime() - new Date(a.postedAt).getTime());
+  return unapprovedContent[0];
+}
+
 const ModerationKeyboardHandler = ({
   onNextUser,
   onPrevUser,
@@ -302,23 +320,12 @@ const ModerationKeyboardHandler = ({
     if (!selectedUser) return;
     
     // Find the most recent unapproved post or comment
-    const allContent = [
-      ...(posts || []).map(p => ({ _id: p._id, postedAt: p.postedAt, rejected: p.rejected, authorIsUnreviewed: p.authorIsUnreviewed, collectionName: 'Posts' as const })),
-      ...(comments || []).map(c => ({ _id: c._id, postedAt: c.postedAt, rejected: c.rejected, authorIsUnreviewed: c.authorIsUnreviewed, collectionName: 'Comments' as const }))
-    ];
-    
-    const unapprovedContent = allContent.filter(
-      item => !item.rejected && item.authorIsUnreviewed
-    );
-    
-    if (unapprovedContent.length === 0) {
+    const mostRecentUnapproved = getMostRecentUnapprovedContent(posts, comments);
+    if (!mostRecentUnapproved) {
       alert('No unapproved content found for this user');
       return;
     }
-    
-    unapprovedContent.sort((a, b) => new Date(b.postedAt).getTime() - new Date(a.postedAt).getTime());
-    const mostRecentUnapproved = unapprovedContent[0];
-    
+
     openDialog({
       name: 'RejectContentDialog',
       contents: ({ onClose: closeRejectDialog }) => (
@@ -357,23 +364,11 @@ const ModerationKeyboardHandler = ({
   const handleRejectContentAndRemove = useCallback(() => {
     if (!selectedUser) return;
     
-    // Find the most recent unapproved post or comment
-    const allContent = [
-      ...(posts || []).map(p => ({ _id: p._id, postedAt: p.postedAt, rejected: p.rejected, authorIsUnreviewed: p.authorIsUnreviewed, collectionName: 'Posts' as const })),
-      ...(comments || []).map(c => ({ _id: c._id, postedAt: c.postedAt, rejected: c.rejected, authorIsUnreviewed: c.authorIsUnreviewed, collectionName: 'Comments' as const }))
-    ];
-    
-    const unapprovedContent = allContent.filter(
-      item => !item.rejected && item.authorIsUnreviewed
-    );
-    
-    if (unapprovedContent.length === 0) {
+    const mostRecentUnapproved = getMostRecentUnapprovedContent(posts, comments);
+    if (!mostRecentUnapproved) {
       alert('No unapproved content found for this user');
       return;
     }
-    
-    unapprovedContent.sort((a, b) => new Date(b.postedAt).getTime() - new Date(a.postedAt).getTime());
-    const mostRecentUnapproved = unapprovedContent[0];
     
     openDialog({
       name: 'RejectContentDialog',

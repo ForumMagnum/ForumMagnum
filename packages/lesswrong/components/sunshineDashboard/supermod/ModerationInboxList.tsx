@@ -9,28 +9,7 @@ const styles = defineStyles('ModerationInboxList', (theme: ThemeType) => ({
   root: {
     backgroundColor: theme.palette.background.paper,
   },
-  header: {
-    padding: '16px 20px',
-    borderBottom: theme.palette.border.normal,
-    position: 'sticky',
-    top: 0,
-    backgroundColor: theme.palette.background.paper,
-    zIndex: 1,
-  },
-  title: {
-    ...theme.typography.commentStyle,
-    fontSize: 20,
-    fontWeight: 600,
-    color: theme.palette.grey[900],
-  },
-  count: {
-    fontSize: 14,
-    color: theme.palette.grey[600],
-    marginLeft: 8,
-  },
-  list: {
-    // No padding - items will have their own spacing
-  },
+  list: {},
   empty: {
     padding: 40,
     textAlign: 'center',
