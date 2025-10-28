@@ -55,6 +55,41 @@ const getStructuredData = () => ({
 })
 
 const LWHome = () => {
+  return (
+      <AnalyticsContext pageContext="homePage">
+        <StructuredData generate={() => getStructuredData()}/>
+        {reviewIsActive() && <>
+          {getReviewPhase() !== "RESULTS" && <SingleColumnSection>
+            <SuspenseWrapper name="FrontpageReviewWidget">
+              <FrontpageReviewWidget reviewYear={REVIEW_YEAR}/>
+            </SuspenseWrapper>
+          </SingleColumnSection>}
+        </>}
+        {(!reviewIsActive() || getReviewPhase() === "RESULTS" || !showReviewOnFrontPageIfActive.get()) && !lightconeFundraiserActive.get() && <SingleColumnSection>
+          <DismissibleSpotlightItem loadingStyle="placeholder" />
+        </SingleColumnSection>}
+        <SuspenseWrapper name="LWHomePosts" fallback={<div style={{height: 800}}/>}>
+          <IsReturningVisitorContextProvider>
+            <LWHomePosts>
+              <QuickTakesSection />
+              <SuspenseWrapper name="EAPopularCommentsSection">
+                <EAPopularCommentsSection />
+              </SuspenseWrapper>
+              
+              <AnalyticsInViewTracker eventProps={{inViewType: "feedSection"}} observerProps={{threshold:[0, 0.5, 1]}}>
+                <SuspenseWrapper name="UltraFeed">
+                  <UltraFeedOrRecentDiscussion/>
+                </SuspenseWrapper>
+              </AnalyticsInViewTracker>
+
+            </LWHomePosts>
+          </IsReturningVisitorContextProvider>
+        </SuspenseWrapper>
+      </AnalyticsContext>
+  )
+}
+
+const UltraFeedOrRecentDiscussion = () => {
   const abTestGroup = useABTest(ultraFeedABTest);
   const [cookies] = useCookiesWithConsent([ULTRA_FEED_ENABLED_COOKIE]);
   
@@ -64,46 +99,16 @@ const LWHome = () => {
   
   // Determine which feed to show: if cookie is set, use that preference, otherwise use A/B test assignment
   const shouldShowUltraFeed = ultraFeedEnabledSetting.get() && (cookieValue === "true" || (!hasExplicitPreference && abTestGroup === 'ultraFeed'));
-
-  return (
-      <AnalyticsContext pageContext="homePage">
-        <IsReturningVisitorContextProvider>
-          <StructuredData generate={() => getStructuredData()}/>
-          {reviewIsActive() && <>
-            {getReviewPhase() !== "RESULTS" && <SingleColumnSection>
-              <SuspenseWrapper name="FrontpageReviewWidget">
-                <FrontpageReviewWidget reviewYear={REVIEW_YEAR}/>
-              </SuspenseWrapper>
-            </SingleColumnSection>}
-          </>}
-          {(!reviewIsActive() || getReviewPhase() === "RESULTS" || !showReviewOnFrontPageIfActive.get()) && !lightconeFundraiserActive.get() && <SingleColumnSection>
-            <DismissibleSpotlightItem loadingStyle="placeholder" />
-          </SingleColumnSection>}
-          <SuspenseWrapper name="LWHomePosts" fallback={<div style={{height: 800}}/>}>
-            <LWHomePosts>
-              <QuickTakesSection />
-              <SuspenseWrapper name="EAPopularCommentsSection">
-                <EAPopularCommentsSection />
-              </SuspenseWrapper>
-              
-              <AnalyticsInViewTracker eventProps={{inViewType: "feedSection"}} observerProps={{threshold:[0, 0.5, 1]}}>
-                <SuspenseWrapper name="UltraFeed">
-                  {shouldShowUltraFeed && <UltraFeed />}
-                  {!shouldShowUltraFeed && <DeferRender ssr={false}>
-                    <RecentDiscussionFeed
-                      af={false}
-                      commentsLimit={4}
-                      maxAgeHours={18}
-                    />
-                  </DeferRender>}
-                </SuspenseWrapper>
-              </AnalyticsInViewTracker>
-
-            </LWHomePosts>
-          </SuspenseWrapper>
-        </IsReturningVisitorContextProvider>
-      </AnalyticsContext>
-  )
+  
+  return shouldShowUltraFeed
+    ? <UltraFeed />
+    : <DeferRender ssr={false}>
+        <RecentDiscussionFeed
+          af={false}
+          commentsLimit={4}
+          maxAgeHours={18}
+        />
+      </DeferRender>
 }
 
 export default registerComponent('LWHome', LWHome, {
