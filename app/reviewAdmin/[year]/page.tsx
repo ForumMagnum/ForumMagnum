@@ -12,7 +12,7 @@ export async function generateMetadata(): Promise<Metadata> {
 }
 
 export default function Page() {
-  return <RouteRoot metadata={{ isAdmin: true }}>
+  return <RouteRoot>
     <ReviewAdminDashboard />
   </RouteRoot>;
 }

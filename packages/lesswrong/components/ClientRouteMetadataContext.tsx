@@ -13,7 +13,6 @@ export interface RouteMetadata {
   subtitleComponent?: React.FunctionComponent<{ isSubtitle?: boolean }>;
   background?: string;
   hasLeftNavigationColumn?: boolean;
-  isAdmin?: boolean;
   noFooter?: boolean;
 }
 
