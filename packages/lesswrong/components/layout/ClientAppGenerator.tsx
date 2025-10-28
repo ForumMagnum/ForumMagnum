@@ -6,7 +6,6 @@ import '@/client/publicSettings';
 import React, { use, useEffect, useRef, useState, useTransition } from 'react';
 import CookiesProvider from "@/lib/vendor/react-cookie/CookiesProvider";
 import { ABTestGroupsUsedContext, RelevantTestGroupAllocation } from '@/components/common/sharedContexts';
-import { LayoutOptionsContextProvider } from '@/components/hooks/useLayoutOptions';
 import { SSRMetadata, EnvironmentOverride, EnvironmentOverrideContext } from '@/lib/utils/timeUtil';
 import { ThemeContextProvider } from '@/components/themes/ThemeContextProvider';
 import { LocationContext, NavigationContext, SubscribeLocationContext } from '@/lib/vulcan-core/appContext';
@@ -153,7 +152,6 @@ const ClientAppGenerator = ({ abTestGroupsUsed, children }: {
         <UserContextProvider>
           <ThemeContextProvider>
             <ABTestGroupsUsedContext.Provider value={abTestGroupsUsed}>
-              <LayoutOptionsContextProvider>
                 <HelmetProvider>
                   <LocationContextProvider>
                     <MessageContextProvider>
@@ -164,7 +162,6 @@ const ClientAppGenerator = ({ abTestGroupsUsed, children }: {
                     </MessageContextProvider>
                   </LocationContextProvider>
                 </HelmetProvider>
-              </LayoutOptionsContextProvider>
             </ABTestGroupsUsedContext.Provider>
           </ThemeContextProvider>
         </UserContextProvider>

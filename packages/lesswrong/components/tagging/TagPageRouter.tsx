@@ -3,7 +3,6 @@
 import React from "react";
 import { useLocation } from "../../lib/routeUtil";
 import { registerComponent } from "../../lib/vulcan-lib/components";
-import { useOverrideLayoutOptions } from "../hooks/useLayoutOptions";
 import { useTagBySlug } from "./useTag";
 import { hasSubforums } from "@/lib/betas";
 import { isFriendlyUI } from "@/themes/forumTheme";
@@ -41,7 +40,6 @@ export const getTagStructuredData = (tag: TagPageFragment | TagPageWithRevisionF
 const TagPageRouter = () => {
   const TagPage = isFriendlyUI() ? EATagPage : LWTagPage;
   const { query, params: { slug } } = useLocation();
-  const [overridenLayoutOptions, setOverridenLayoutOptions] = useOverrideLayoutOptions();
 
   const { version: queryVersion, revision: queryRevision } = query;
   const revision = queryVersion ?? queryRevision ?? undefined;
@@ -67,7 +65,11 @@ const TagPageRouter = () => {
 
   if (!tag || loadingTag) return null;
   
-  if (
+  // ea-forum-look-here This was the only usage of overridden layout options,
+  // they didn't work well with partial-prerendering, and we aren't using
+  // subforums, so we stubbed this out. Subforums tag pages might be missing a
+  // navigation-sidebar, or something like that.
+  /*if (
     !!tag.isSubforum !== !!overridenLayoutOptions.unspacedGridLayout ||
     !!tag.isSubforum !== !!overridenLayoutOptions.standaloneNavigation ||
     !!tag.isSubforum !== !!overridenLayoutOptions.shouldUseGridLayout
@@ -80,7 +82,7 @@ const TagPageRouter = () => {
       standaloneNavigation: true,
       shouldUseGridLayout: true,
     } : {});
-  }
+  }*/
 
   if (tag.isSubforum) {
     return <TagSubforumPage2/>

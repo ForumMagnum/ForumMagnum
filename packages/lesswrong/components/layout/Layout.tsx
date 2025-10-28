@@ -16,7 +16,6 @@ import { globalStyles } from '../../themes/globalStyles/globalStyles';
 import { userCanDo, userIsAdmin } from '@/lib/vulcan-users/permissions';
 import { Helmet } from "@/components/layout/Helmet";
 import { AutosaveEditorStateContextProvider, DisableNoKibitzContextProvider } from '@/components/common/sharedContexts';
-import { LayoutOptions, LayoutOptionsContext } from '@/components/hooks/useLayoutOptions';
 // enable during ACX Everywhere
 // import { HIDE_MAP_COOKIE } from '@/lib/cookies/cookies';
 import Header, { getHeaderHeight } from '@/components/layout/Header';
@@ -283,7 +282,6 @@ const Layout = ({children}: {
   const { pathname, query } = useLocation();
   // const pathname = usePathname();
   const { metadata: routeMetadata } = useRouteMetadata();
-  const layoutOptionsState = React.useContext(LayoutOptionsContext);
 
   // enable during ACX Everywhere
   // const [cookies] = useCookiesWithConsent()
@@ -309,10 +307,6 @@ const Layout = ({children}: {
     setHideNavigationSidebar(!hideNavigationSidebar);
   }, [updateUserNoCache, currentUserId, hideNavigationSidebar]);
 
-  if (!layoutOptionsState) {
-    throw new Error("LayoutOptionsContext not set");
-  }
-
   const isInbox = pathname.startsWith('/inbox');
   const isWrapped = pathname.startsWith('/wrapped');
 
@@ -329,22 +323,16 @@ const Layout = ({children}: {
 
   const render = () => {
     const renderSunshineSidebar = isSunshineSidebarRoute(pathname) && !!(userCanDo(currentUser, 'posts.moderate.all') || currentUser?.groups?.includes('alignmentForumAdmins')) && !currentUser?.hideSunshineSidebar;
-    const baseLayoutOptions: LayoutOptions = {
-      // Check whether the current route is one which should have standalone
-      // navigation on the side. If there is no current route (ie, a 404 page),
-      // then it should.
-      // FIXME: This is using route names, but it would be better if this was
-      // a property on routes themselves.
-      standaloneNavigation: !!routeMetadata.hasLeftNavigationColumn,
-      shouldUseGridLayout: !!routeMetadata.hasLeftNavigationColumn,
-      unspacedGridLayout: isUnspacedGridRoute(pathname),
-    }
+    
+    // Check whether the current route is one which should have standalone
+    // navigation on the side. If there is no current route (ie, a 404 page),
+    // then it should.
+    // FIXME: This is using route names, but it would be better if this was
+    // a property on routes themselves.
+    const standaloneNavigation = !!routeMetadata.hasLeftNavigationColumn;
+    const shouldUseGridLayout = !!routeMetadata.hasLeftNavigationColumn;
+    const unspacedGridLayout = isUnspacedGridRoute(pathname);
 
-    const { overridenLayoutOptions: overrideLayoutOptions } = layoutOptionsState
-
-    const standaloneNavigation = overrideLayoutOptions.standaloneNavigation ?? baseLayoutOptions.standaloneNavigation
-    const shouldUseGridLayout = overrideLayoutOptions.shouldUseGridLayout ?? baseLayoutOptions.shouldUseGridLayout
-    const unspacedGridLayout = overrideLayoutOptions.unspacedGridLayout ?? baseLayoutOptions.unspacedGridLayout
     // The friendly home page has a unique grid layout, to account for the right hand side column.
     const friendlyHomeLayout = isFriendlyUI() && isHomeRoute(pathname);
     
