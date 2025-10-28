@@ -54,6 +54,16 @@ const styles = defineStyles('SunshineUserMessages', (theme: ThemeType) => ({
       opacity: 0.7,
     }
   },
+  linkIcon: {
+    height: 12,
+    width: 12,
+    cursor: "pointer",
+    "&:hover": {
+      opacity: 0.7,
+    },
+    marginBottom: -1,
+    marginLeft: 4,
+  },
   expandablePreview: {
     maxHeight: 100,
     overflow: 'hidden',
@@ -114,18 +124,19 @@ export const SunshineUserMessages = ({user, currentUser, showExpandablePreview}:
       return (
         <div key={conversation._id} className={classes.conversationItem}>
           <div className={classes.conversationHeader} onClick={() => toggleConversationPreview(conversation._id)}>
-            <Link to={`/inbox?conversation=${conversation._id}`} onClick={(e) => e.stopPropagation()}>
-              <MetaInfo><EmailIcon className={classes.icon}/> {conversation.messageCount}</MetaInfo>
-              <span>
-                Conversation with{" "} 
-                {conversation.participants?.filter(participant => participant._id !== user._id).map(participant => {
-                  return <MetaInfo key={`${conversation._id}${participant._id}`}>
-                    <UsersName simple user={participant}/>
-                  </MetaInfo>
-                })}
-              </span>
-            </Link>
+            <MetaInfo><EmailIcon className={classes.icon}/> {conversation.messageCount}</MetaInfo>
+            <span>
+              Conversation with{" "} 
+              {conversation.participants?.filter(participant => participant._id !== user._id).map(participant => {
+                return <MetaInfo key={`${conversation._id}${participant._id}`}>
+                  <UsersName simple user={participant}/>
+                </MetaInfo>
+              })}
+            </span>
             <ForumIcon icon={isExpanded ? "ExpandLess" : "ExpandMore"} className={classes.expandIcon} />
+            <Link to={`/inbox?isModInbox=true&conversation=${conversation._id}`} onClick={(e) => e.stopPropagation()}>
+              <ForumIcon icon="Link" className={classes.linkIcon} />
+            </Link>
           </div>
           {(isExpanded || showExpandablePreview) && (
             <div className={classNames((!isExpanded && showExpandablePreview) && classes.expandablePreview)}>
