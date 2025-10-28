@@ -5,7 +5,7 @@ import { getDefaultMetadata, getPageTitleFields } from "@/server/pageMetadata/sh
 import merge from "lodash/merge";
 import { getClient } from "@/lib/apollo/nextApolloClient";
 import { PostsEditFormQuery } from "@/components/posts/queries";
-import RouteRoot from "@/components/next/RouteRoot";
+import RouteRoot from "@/components/layout/RouteRoot";
 
 export async function generateMetadata({ searchParams }: { searchParams: Promise<{ postId?: string, version?: string }> }): Promise<Metadata> {
   const [{ postId, version }, defaultMetadata] = await Promise.all([searchParams, getDefaultMetadata()]);

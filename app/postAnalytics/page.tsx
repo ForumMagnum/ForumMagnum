@@ -1,6 +1,6 @@
 import React from "react";
 import PostsAnalyticsPage from '@/components/analytics/PostsAnalyticsPage';
-import RouteRoot from "@/components/next/RouteRoot";
+import RouteRoot from "@/components/layout/RouteRoot";
 
 
 export default function Page() {

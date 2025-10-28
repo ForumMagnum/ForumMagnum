@@ -4,7 +4,7 @@ import { getDefaultMetadata, getPageTitleFields } from "@/server/pageMetadata/sh
 import type { Metadata } from "next";
 import merge from "lodash/merge";
 import { hasPostRecommendations } from "@/lib/betas";
-import RouteRoot from "@/components/next/RouteRoot";
+import RouteRoot from "@/components/layout/RouteRoot";
 
 // TODO: this route previously did _not_ use the PostsPageHeaderTitle for its metadata.
 // Check whether we want that to continue to be true?

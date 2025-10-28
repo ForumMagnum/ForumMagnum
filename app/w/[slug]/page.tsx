@@ -2,7 +2,7 @@ import React from "react";
 import TagPageRouter from '@/components/tagging/TagPageRouter';
 import { TagPageTitle } from '@/components/tagging/TagPageTitle';
 import { getTagPageMetadataFunction } from "@/server/pageMetadata/tagPageMetadata";
-import RouteRoot from "@/components/next/RouteRoot";
+import RouteRoot from "@/components/layout/RouteRoot";
 import { GUIDE_PATH_PAGES_MAPPING } from "@/lib/arbital/paths";
 import { tagGetUrl } from "@/lib/collections/tags/helpers";
 import PermanentRedirect from "@/components/common/PermanentRedirect";

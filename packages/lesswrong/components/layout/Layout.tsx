@@ -2,71 +2,71 @@
 
 import React, {useRef, useState, useCallback, FC, ReactNode, createContext} from 'react';
 import classNames from 'classnames'
-import { useTheme, useThemeColor } from './themes/useTheme';
-import { useLocation } from '../lib/routeUtil';
-import { AnalyticsContext } from '../lib/analyticsEvents'
-import { useCurrentUser } from './common/withUser';
-import { TimezoneWrapper } from './common/withTimezone';
-import { DialogManager } from './common/withDialog';
-import { CommentBoxManager } from './hooks/useCommentBox';
-import { ItemsReadContextWrapper } from './hooks/useRecordPostView';
-import { pBodyStyle } from '../themes/stylePiping';
+import { useTheme, useThemeColor } from '@/components/themes/useTheme';
+import { useLocation } from '@/lib/routeUtil';
+import { AnalyticsContext } from '@/lib/analyticsEvents'
+import { useCurrentUser } from '@/components/common/withUser';
+import { TimezoneWrapper } from '@/components/common/withTimezone';
+import { DialogManager } from '@/components/common/withDialog';
+import { CommentBoxManager } from '@/components/hooks/useCommentBox';
+import { ItemsReadContextWrapper } from '@/components/hooks/useRecordPostView';
+import { pBodyStyle } from '../../themes/stylePiping';
 import { googleTagManagerIdSetting, isLW, isLWorAF, buttonBurstSetting } from '@/lib/instanceSettings';
-import { globalStyles } from '../themes/globalStyles/globalStyles';
-import { userCanDo, userIsAdmin } from '../lib/vulcan-users/permissions';
-import { Helmet } from "./common/Helmet";
-import { AutosaveEditorStateContextProvider, DisableNoKibitzContextProvider } from './common/sharedContexts';
-import { LayoutOptions, LayoutOptionsContext } from './hooks/useLayoutOptions';
+import { globalStyles } from '../../themes/globalStyles/globalStyles';
+import { userCanDo, userIsAdmin } from '@/lib/vulcan-users/permissions';
+import { Helmet } from "@/components/layout/Helmet";
+import { AutosaveEditorStateContextProvider, DisableNoKibitzContextProvider } from '@/components/common/sharedContexts';
+import { LayoutOptions, LayoutOptionsContext } from '@/components/hooks/useLayoutOptions';
 // enable during ACX Everywhere
-// import { HIDE_MAP_COOKIE } from '../lib/cookies/cookies';
-import Header, { getHeaderHeight } from './common/Header';
-import { useCookiePreferences, useCookiesWithConsent } from './hooks/useCookiesWithConsent';
-import { useHeaderVisible } from './hooks/useHeaderVisible';
-import StickyBox from '../lib/vendor/react-sticky-box';
-import { isFriendlyUI } from '../themes/forumTheme';
-import { UnreadNotificationsContextProvider } from './hooks/useUnreadNotifications';
-import { CurrentAndRecentForumEventsProvider } from './hooks/useCurrentForumEvent';
-import { LoginPopoverContextProvider } from './hooks/useLoginPopoverContext';
-import DeferRender from './common/DeferRender';
+// import { HIDE_MAP_COOKIE } from '@/lib/cookies/cookies';
+import Header, { getHeaderHeight } from '@/components/layout/Header';
+import { useCookiePreferences, useCookiesWithConsent } from '@/components/hooks/useCookiesWithConsent';
+import { useHeaderVisible } from '@/components/hooks/useHeaderVisible';
+import StickyBox from '@/lib/vendor/react-sticky-box';
+import { isFriendlyUI } from '../../themes/forumTheme';
+import { UnreadNotificationsContextProvider } from '@/components/hooks/useUnreadNotifications';
+import { CurrentAndRecentForumEventsProvider } from '@/components/hooks/useCurrentForumEvent';
+import { LoginPopoverContextProvider } from '@/components/hooks/useLoginPopoverContext';
+import DeferRender from '@/components/common/DeferRender';
 import { userHasLlmChat } from '@/lib/betas';
 
-import GlobalButtonBurst from './ea-forum/GlobalButtonBurst';
-import NavigationStandalone from "./common/TabNavigationMenu/NavigationStandalone";
-import ErrorBoundary from "./common/ErrorBoundary";
-import FlashMessages from "./common/FlashMessages";
-import AnalyticsClient from "./common/AnalyticsClient";
-import AnalyticsPageInitializer from "./common/AnalyticsPageInitializer";
+import GlobalButtonBurst from '@/components/ea-forum/GlobalButtonBurst';
+import NavigationStandalone from "@/components/common/TabNavigationMenu/NavigationStandalone";
+import ErrorBoundary from "@/components/common/ErrorBoundary";
+import FlashMessages from "@/components/layout/FlashMessages";
+import AnalyticsClient from "@/components/common/AnalyticsClient";
+import AnalyticsPageInitializer from "@/components/common/AnalyticsPageInitializer";
 // import EAOnboardingFlow from "./ea-forum/onboarding/EAOnboardingFlow";
 // import BasicOnboardingFlow from "./onboarding/BasicOnboardingFlow";
-import { CommentOnSelectionPageWrapper } from "./comments/CommentOnSelection";
-import SidebarsWrapper from "./common/SidebarsWrapper";
-import AdminToggle from "./admin/AdminToggle";
+import { CommentOnSelectionPageWrapper } from "@/components/comments/CommentOnSelection";
+import SidebarsWrapper from "@/components/layout/SidebarsWrapper";
+import AdminToggle from "@/components/admin/AdminToggle";
 // import EAHomeRightHandSide from "./ea-forum/EAHomeRightHandSide";
 // import ForumEventBanner from "./forumEvents/ForumEventBanner";
-import GlobalHotkeys from "./common/GlobalHotkeys";
-import LlmChatWrapper from "./languageModels/LlmChatWrapper";
+import GlobalHotkeys from "@/components/common/GlobalHotkeys";
+import LlmChatWrapper from "@/components/languageModels/LlmChatWrapper";
 import LWBackgroundImage from "./LWBackgroundImage";
-import IntercomWrapper from "./common/IntercomWrapper";
-import CookieBanner from "./common/CookieBanner/CookieBanner";
-import NavigationEventSender from './hooks/useOnNavigate';
-import { defineStyles, useStyles } from './hooks/useStyles';
+import IntercomWrapper from "@/components/layout/IntercomWrapper";
+import CookieBanner from "@/components/common/CookieBanner/CookieBanner";
+import NavigationEventSender from '@/components/hooks/useOnNavigate';
+import { defineStyles, useStyles } from '@/components/hooks/useStyles';
 import { useMutationNoCache } from '@/lib/crud/useMutationNoCache';
 import { gql } from "@/lib/generated/gql-codegen";
-import { DelayedLoading } from './common/DelayedLoading';
-import { SuspenseWrapper } from './common/SuspenseWrapper';
+import { DelayedLoading } from '@/components/common/DelayedLoading';
+import { SuspenseWrapper } from '@/components/common/SuspenseWrapper';
 import { useRouteMetadata } from './ClientRouteMetadataContext';
 import { isFullscreenRoute, isHomeRoute, isStandaloneRoute, isStaticHeaderRoute, isSunshineSidebarRoute, isUnspacedGridRoute } from '@/lib/routeChecks';
-import { AutoDarkModeWrapper } from './themes/ThemeContextProvider';
-import { EditorCommandsContextProvider } from './editor/EditorCommandsContext';
+import { AutoDarkModeWrapper } from '@/components/themes/ThemeContextProvider';
+import { EditorCommandsContextProvider } from '@/components/editor/EditorCommandsContext';
 import { NO_ADMIN_NEXT_REDIRECT_COOKIE, SHOW_LLM_CHAT_COOKIE } from '@/lib/cookies/cookies';
 
 import dynamic from 'next/dynamic';
-import { isBlackBarTitle } from './seasonal/petrovDay/petrov-day-story/petrovConsts';
-import PageBackgroundWrapper from './common/PageBackgroundWrapper';
+import { isBlackBarTitle } from '@/components/seasonal/petrovDay/petrov-day-story/petrovConsts';
+import PageBackgroundWrapper from '@/components/layout/PageBackgroundWrapper';
 
-const SunshineSidebar = dynamic(() => import("./sunshineDashboard/SunshineSidebar"), { ssr: false });
-const LanguageModelLauncherButton = dynamic(() => import("./languageModels/LanguageModelLauncherButton"), { ssr: false });
-const SidebarLanguageModelChat = dynamic(() => import("./languageModels/SidebarLanguageModelChat"), { ssr: false });
+const SunshineSidebar = dynamic(() => import("../sunshineDashboard/SunshineSidebar"), { ssr: false });
+const LanguageModelLauncherButton = dynamic(() => import("../languageModels/LanguageModelLauncherButton"), { ssr: false });
+const SidebarLanguageModelChat = dynamic(() => import("../languageModels/SidebarLanguageModelChat"), { ssr: false });
 
 const UsersCurrentUpdateMutation = gql(`
   mutation updateUserLayout($selector: SelectorInput!, $data: UpdateUserDataInput!) {

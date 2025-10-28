@@ -2,7 +2,7 @@ import React from "react";
 import TagDiscussionPage from '@/components/tagging/TagDiscussionPage';
 import { TagPageTitle } from '@/components/tagging/TagPageTitle';
 import { getTagPageMetadataFunction } from "@/server/pageMetadata/tagPageMetadata";
-import RouteRoot from "@/components/next/RouteRoot";
+import RouteRoot from "@/components/layout/RouteRoot";
 
 export const generateMetadata = getTagPageMetadataFunction<{ slug: string }>(({ slug }) => slug);
 

@@ -23,7 +23,7 @@ import { SuspenseWrapper } from './SuspenseWrapper';
 import DeferRender from './DeferRender';
 
 import dynamic from 'next/dynamic';
-import { IsReturningVisitorContextProvider } from './IsReturningVisitorContextProvider';
+import { IsReturningVisitorContextProvider } from '@/components/layout/IsReturningVisitorContextProvider';
 const RecentDiscussionFeed = dynamic(() => import("../recentDiscussion/RecentDiscussionFeed"), { ssr: false });
 
 const getStructuredData = () => ({

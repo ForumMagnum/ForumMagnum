@@ -7,7 +7,7 @@ import { getClient } from "@/lib/apollo/nextApolloClient";
 import { getDefaultMetadata, getMetadataDescriptionFields, getMetadataImagesFields, getPageTitleFields, handleMetadataError } from "@/server/pageMetadata/sharedMetadata";
 import merge from "lodash/merge";
 import { cloudinaryCloudNameSetting, taglineSetting } from "@/lib/instanceSettings";
-import RouteRoot from "@/components/next/RouteRoot";
+import RouteRoot from "@/components/layout/RouteRoot";
 import { notFound } from "next/navigation";
 
 const LocalgroupMetadataQuery = gql(`

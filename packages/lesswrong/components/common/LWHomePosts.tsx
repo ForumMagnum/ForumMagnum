@@ -44,7 +44,7 @@ import UltraFeedMainFeed from '../ultraFeed/UltraFeedMainFeed';
 import UltraFeedWrappers from '../ultraFeed/UltraFeedWrappers';
 import UltraFeedSettings from '../ultraFeed/UltraFeedSettings';
 import UltraFeedFollowingSettings from '../ultraFeed/UltraFeedFollowingSettings';
-import { IsReturningVisitorContext } from './IsReturningVisitorContextProvider';
+import { IsReturningVisitorContext } from '@/components/layout/IsReturningVisitorContextProvider';
 
 
 

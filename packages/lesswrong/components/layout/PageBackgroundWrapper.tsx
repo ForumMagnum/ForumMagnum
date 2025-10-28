@@ -1,7 +1,7 @@
 import React, { useEffect } from 'react';
 import { defineStyles, useStyles } from '@/components/hooks/useStyles';
 import { useLocation } from '@/lib/routeUtil';
-import { useRouteMetadata } from '../ClientRouteMetadataContext';
+import { useRouteMetadata } from '@/components/layout/ClientRouteMetadataContext';
 import { isAF, isLWorAF } from '@/lib/instanceSettings';
 import classNames from 'classnames';
 import { isFullscreenRoute } from '@/lib/routeChecks';

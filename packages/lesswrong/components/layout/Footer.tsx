@@ -1,8 +1,8 @@
 "use client";
 
 import React from 'react';
-import { defineStyles } from '../hooks/defineStyles';
-import { useStyles } from '../hooks/useStyles';
+import { defineStyles } from '@/components/hooks/defineStyles';
+import { useStyles } from '@/components/hooks/useStyles';
 
 const styles = defineStyles("Footer", (theme: ThemeType) => ({
   root: {

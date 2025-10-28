@@ -11,10 +11,10 @@ import { SSRMetadata, EnvironmentOverride, EnvironmentOverrideContext } from '@/
 import { ThemeContextProvider } from '@/components/themes/ThemeContextProvider';
 import { LocationContext, NavigationContext, SubscribeLocationContext } from '@/lib/vulcan-core/appContext';
 import { parsePath } from '@/lib/vulcan-lib/routes';
-import { MessageContextProvider } from '../common/FlashMessages';
+import { MessageContextProvider } from '@/components/layout/FlashMessages';
 import { UserContextProvider } from '../common/withUser';
 import { usePathname, useRouter, useSearchParams, useParams } from 'next/navigation';
-import Layout from '../Layout';
+import Layout from '@/components/layout/Layout';
 import { HelmetProvider } from 'react-helmet-async';
 import { EnableSuspenseContext } from '@/lib/crud/useQuery';
 import { isClient, isServer } from '@/lib/executionEnvironment';

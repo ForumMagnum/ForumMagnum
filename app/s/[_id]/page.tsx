@@ -8,7 +8,7 @@ import { getDefaultMetadata, getPageTitleFields, handleMetadataError } from "@/s
 import merge from "lodash/merge";
 import { combineUrls, getSiteUrl } from "@/lib/vulcan-lib/utils";
 import { sequenceGetPageUrl } from "@/lib/collections/sequences/helpers";
-import RouteRoot from "@/components/next/RouteRoot";
+import RouteRoot from "@/components/layout/RouteRoot";
 import { notFound } from "next/navigation";
 
 const SequenceMetadataQuery = gql(`

@@ -1,6 +1,6 @@
 import React from "react";
 import PostsSingleRoute from '@/components/posts/PostsSingleRoute';
-import RouteRoot from "@/components/next/RouteRoot";
+import RouteRoot from "@/components/layout/RouteRoot";
 import { contactPostIdSetting } from "@/lib/instanceSettings";
 
 

@@ -1,9 +1,9 @@
 import "@/components/momentjs";
 
 import React, { Suspense } from "react";
-import ClientAppGenerator, { EnvironmentOverrideContextProvider } from "@/components/next/ClientAppGenerator";
+import ClientAppGenerator, { EnvironmentOverrideContextProvider } from "@/components/layout/ClientAppGenerator";
 import { cookies } from "next/headers";
-import { ClientRouteMetadataProvider } from "@/components/ClientRouteMetadataContext";
+import { ClientRouteMetadataProvider } from "@/components/layout/ClientRouteMetadataContext";
 import { DEFAULT_TIMEZONE, SSRMetadata } from "@/lib/utils/timeUtil";
 import ClientIDAssigner from "@/components/analytics/ClientIDAssigner";
 import ClientIdsRepo from "@/server/repos/ClientIdsRepo";

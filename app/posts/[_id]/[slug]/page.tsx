@@ -3,7 +3,7 @@ import PostsSingle from '../../../../packages/lesswrong/components/posts/PostsSi
 import { getPostPageMetadataFunction } from "@/server/pageMetadata/postPageMetadata";
 import { PostsPageHeaderTitle } from "@/components/titles/PostsPageHeaderTitle";
 import { hasPostRecommendations } from "@/lib/betas";
-import RouteRoot from "@/components/next/RouteRoot";
+import RouteRoot from "@/components/layout/RouteRoot";
 
 export const generateMetadata = getPostPageMetadataFunction<{ _id: string }>(({ _id }) => _id);
 

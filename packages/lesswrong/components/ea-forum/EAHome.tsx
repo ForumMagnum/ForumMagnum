@@ -18,7 +18,7 @@ import EAHomeMainContent from "./EAHomeMainContent";
 import SmallpoxBanner from "./SmallpoxBanner";
 import EventBanner from "./EventBanner";
 import HeadTags from "../common/HeadTags";
-import BotSiteBanner from "../common/BotSiteBanner";
+import BotSiteBanner from "@/components/layout/BotSiteBanner";
 import EAGBanner from "./EAGBanner";
 import { StructuredData } from '../common/StructuredData'
 

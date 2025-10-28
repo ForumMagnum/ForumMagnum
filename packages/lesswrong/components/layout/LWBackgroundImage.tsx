@@ -1,16 +1,16 @@
 import React from 'react';
-import { registerComponent } from '../lib/vulcan-lib/components';
-import { useSubscribedLocation } from '../lib/routeUtil';
-import { getReviewPhase, reviewResultsPostPath } from '../lib/reviewUtils';
-import { defineStyles, useStyles } from './hooks/useStyles';
-import { Link } from '../lib/reactRouterWrapper';
-import ReviewVotingCanvas from "./review/ReviewVotingCanvas";
-import CloudinaryImage2 from "./common/CloudinaryImage2";
+import { registerComponent } from '@/lib/vulcan-lib/components';
+import { useSubscribedLocation } from '@/lib/routeUtil';
+import { getReviewPhase, reviewResultsPostPath } from '@/lib/reviewUtils';
+import { defineStyles, useStyles } from '@/components/hooks/useStyles';
+import { Link } from '@/lib/reactRouterWrapper';
+import ReviewVotingCanvas from "@/components/review/ReviewVotingCanvas";
+import CloudinaryImage2 from "@/components/common/CloudinaryImage2";
 import { isHomeRoute } from '@/lib/routeChecks';
-import Inkhaven2025Banner from './seasonal/Inkhaven2025';
+import Inkhaven2025Banner from '@/components/seasonal/Inkhaven2025';
 
-import MeetupMonthBanner from './seasonal/meetupMonth/MeetupMonthBanner';
-import PetrovDayStory from './seasonal/petrovDay/petrov-day-story/PetrovDayStory';
+import MeetupMonthBanner from '@/components/seasonal/meetupMonth/MeetupMonthBanner';
+import PetrovDayStory from '@/components/seasonal/petrovDay/petrov-day-story/PetrovDayStory';
 
 const styles = defineStyles("LWBackgroundImage", (theme: ThemeType) => ({
   root: {

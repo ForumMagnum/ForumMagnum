@@ -1,8 +1,8 @@
 import React from 'react';
-import { type RouteMetadata } from "@/components/ClientRouteMetadataContext";
-import { RouteMetadataSetter } from '@/components/RouteMetadataContext';
-import { StatusCodeSetter } from './StatusCodeSetter';
-import Footer from '../common/Footer';
+import { type RouteMetadata } from "@/components/layout/ClientRouteMetadataContext";
+import { RouteMetadataSetter } from '@/components/layout/RouteMetadataContext';
+import { StatusCodeSetter } from '@/components/next/StatusCodeSetter';
+import Footer from '@/components/layout/Footer';
 
 const RouteRoot = ({delayedStatusCode=false, metadata, children}: {
   delayedStatusCode?: boolean

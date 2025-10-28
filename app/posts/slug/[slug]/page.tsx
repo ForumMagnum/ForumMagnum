@@ -3,7 +3,7 @@ import PostsSingleSlugRedirect from '@/components/posts/PostsSingleSlugRedirect'
 import { PostsPageHeaderTitle } from '@/components/titles/PostsPageHeaderTitle';
 import { getPostPageMetadataFunction } from "@/server/pageMetadata/postPageMetadata";
 import { hasPostRecommendations } from "@/lib/betas";
-import RouteRoot from "@/components/next/RouteRoot";
+import RouteRoot from "@/components/layout/RouteRoot";
 
 // TODO: this route previously used PostsPageHeaderTitle for its metadata, but that was nonsensical because
 // it was using a slug to then do a permanent redirect, and PostsPageHeaderTitle needs an _id or postId
