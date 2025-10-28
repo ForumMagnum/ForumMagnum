@@ -1,6 +1,6 @@
 'use client';
 
-import React, {useRef, useState, useCallback, useEffect, FC, ReactNode, useMemo} from 'react';
+import React, {use, useRef, useState, useCallback, useEffect, FC, ReactNode, useMemo, createContext, useContext} from 'react';
 import { registerComponent } from '../lib/vulcan-lib/components';
 import classNames from 'classnames'
 import { useTheme, useThemeColor } from './themes/useTheme';
@@ -295,9 +295,6 @@ const Layout = ({children}: {
   const searchResultsAreaRef = useRef<HTMLDivElement|null>(null);
   const hideNavigationSidebarDefault = currentUser ? !!(currentUser?.hideNavigationSidebar) : false
   const [hideNavigationSidebar,setHideNavigationSidebar] = useState(hideNavigationSidebarDefault);
-  const [showLlmChatSidebar, setShowLlmChatSidebar] = useState(false);
-  const [cookies, setCookie] = useCookiesWithConsent([SHOW_LLM_CHAT_COOKIE]);
-  const theme = useTheme();
   // TODO: figure out if using usePathname directly is safe or better (concerns about unnecessary rerendering, idk; my guess is that with Next if the pathname changes we're rerendering everything anyways?)
   const { pathname, query } = useLocation();
   // const pathname = usePathname();
@@ -328,11 +325,6 @@ const Layout = ({children}: {
     setHideNavigationSidebar(!hideNavigationSidebar);
   }, [updateUserNoCache, currentUserId, hideNavigationSidebar]);
 
-  const closeLlmChatSidebar = useCallback(() => {
-    setShowLlmChatSidebar(false);
-    setCookie(SHOW_LLM_CHAT_COOKIE, "false", { path: "/" });
-  }, [setCookie]);
-
   // Some pages (eg post pages) have a solid white background, others (eg front page) have a gray
   // background against which individual elements in the central column provide their own
   // background. (In dark mode this is black and dark gray instead of white and light gray). This
@@ -360,8 +352,8 @@ const Layout = ({children}: {
     throw new Error("LayoutOptionsContext not set");
   }
 
-  const isWrapped = pathname.startsWith('/wrapped');
   const isInbox = pathname.startsWith('/inbox');
+  const isWrapped = pathname.startsWith('/wrapped');
 
   let headerBackgroundColor: ColorString;
   // For the EAF Wrapped page, we change the header's background color to a dark blue.
@@ -383,7 +375,6 @@ const Layout = ({children}: {
       // a property on routes themselves.
       standaloneNavigation: !!routeMetadata.hasLeftNavigationColumn,
       renderSunshineSidebar: isSunshineSidebarRoute(pathname) && !!(userCanDo(currentUser, 'posts.moderate.all') || currentUser?.groups?.includes('alignmentForumAdmins')) && !currentUser?.hideSunshineSidebar,
-      renderLanguageModelChatLauncher: !!currentUser && userHasLlmChat(currentUser) && !isInbox,
       shouldUseGridLayout: !!routeMetadata.hasLeftNavigationColumn,
       unspacedGridLayout: isUnspacedGridRoute(pathname),
     }
@@ -392,12 +383,11 @@ const Layout = ({children}: {
 
     const standaloneNavigation = overrideLayoutOptions.standaloneNavigation ?? baseLayoutOptions.standaloneNavigation
     const renderSunshineSidebar = overrideLayoutOptions.renderSunshineSidebar ?? baseLayoutOptions.renderSunshineSidebar
-    const renderLanguageModelChatLauncher = overrideLayoutOptions.renderLanguageModelChatLauncher ?? baseLayoutOptions.renderLanguageModelChatLauncher
     const shouldUseGridLayout = overrideLayoutOptions.shouldUseGridLayout ?? baseLayoutOptions.shouldUseGridLayout
     const unspacedGridLayout = overrideLayoutOptions.unspacedGridLayout ?? baseLayoutOptions.unspacedGridLayout
     // The friendly home page has a unique grid layout, to account for the right hand side column.
     const friendlyHomeLayout = isFriendlyUI() && isHomeRoute(pathname);
-
+    
     const isIncompletePath = allowedIncompletePaths.some(path => pathname.startsWith(`/${path}`));
     
     return (
@@ -414,26 +404,16 @@ const Layout = ({children}: {
       <DisableNoKibitzContextProvider>
       <CommentOnSelectionPageWrapper>
       <CurrentAndRecentForumEventsProvider>
-        <div className={classes.topLevelContainer}>
-          <div className={classes.pageContent}>
-            <div id="wrapper" className={classNames(
-              "wrapper",
-              {'alignment-forum': isAF(), [classes.fullscreen]: isFullscreenRoute(pathname), [classes.wrapper]: isLWorAF()},
-              useWhiteBackground && classes.whiteBackground
-            )}>
+      <LlmSidebarWrapper>
+        <div id="wrapper" className={classNames(
+          "wrapper",
+          {'alignment-forum': isAF(), [classes.fullscreen]: isFullscreenRoute(pathname), [classes.wrapper]: isLWorAF()},
+          useWhiteBackground && classes.whiteBackground
+        )}>
           {buttonBurstSetting.get() && <GlobalButtonBurst />}
           <DialogManager>
             <CommentBoxManager>
-              {/* ea-forum-look-here: the font downloads probably don't work in NextJS, may need to move them to e.g. SharedScripts */}
-              <Helmet name="fonts">
-                {theme.typography.fontDownloads &&
-                  theme.typography.fontDownloads.map(
-                    (url: string)=><link rel="stylesheet" key={`font-${url}`} href={url}/>
-                  )
-                }
-                <meta httpEquiv="Accept-CH" content="DPR, Viewport-Width, Width"/>
-              </Helmet>
-
+              <ThemeFontDownloads/>
               <AnalyticsClient/>
               <AnalyticsPageInitializer/>
               <GlobalHotkeys/>
@@ -454,7 +434,6 @@ const Layout = ({children}: {
                   toggleStandaloneNavigation={toggleStandaloneNavigation}
                   stayAtTop={isStaticHeaderRoute(pathname)}
                   backgroundColor={headerBackgroundColor}
-                  llmChatSidebarOpen={showLlmChatSidebar}
                 />
               </SuspenseWrapper>}
               {/* <SuspenseWrapper name="ForumEventBanner">
@@ -528,22 +507,8 @@ const Layout = ({children}: {
             </CommentBoxManager>
           </DialogManager>
           <NavigationEventSender />
-            </div>
-          </div>
-          {renderLanguageModelChatLauncher && (
-            <div className={classes.llmChatColumn}>
-              <DeferRender ssr={false}>
-                {showLlmChatSidebar ? (
-                  <SuspenseWrapper name="SidebarLanguageModelChat">
-                    <SidebarLanguageModelChat onClose={closeLlmChatSidebar} />
-                  </SuspenseWrapper>
-                ) : (
-                  <LanguageModelLauncherButton onClick={() => setShowLlmChatSidebar(true)} />
-                )}
-              </DeferRender>
-            </div>
-          )}
         </div>
+      </LlmSidebarWrapper>
       </CurrentAndRecentForumEventsProvider>
       </CommentOnSelectionPageWrapper>
       </DisableNoKibitzContextProvider>
@@ -575,6 +540,67 @@ function MaybeCookieBanner({ hideIntercomButton }: { hideIntercomButton: boolean
   return hideIntercomButton ? null : <IntercomWrapper />
 }
 
-export default registerComponent('Layout', Layout);
+function ThemeFontDownloads() {
+  const theme = useTheme();
+
+  // ea-forum-look-here: the font downloads probably don't work in NextJS, may need to move them to e.g. SharedScripts
+  return <Helmet name="fonts">
+    {theme.typography.fontDownloads &&
+      theme.typography.fontDownloads.map(
+        (url: string)=><link rel="stylesheet" key={`font-${url}`} href={url}/>
+      )
+    }
+    <meta httpEquiv="Accept-CH" content="DPR, Viewport-Width, Width"/>
+  </Helmet>
+}
+
+export const IsLlmChatSidebarOpenContext = createContext(false);
+
+/**
+ * Wrapper that splits the layout into a main column and a right-hand sidebar
+ * for an LLM chat wrapper, if open. Otherwise may provide a floating button,
+ * if the feature is enabled for the current user and route. Provides a context
+ * IsLlmChatSidebarOpenContext, which is used by <Header> to adjust its width.
+ */
+const LlmSidebarWrapper = ({children}: {
+  children: React.ReactNode
+}) => {
+  const classes = useStyles(styles);
+  const currentUser = useCurrentUser();
+  const { pathname } = useLocation();
+  const isInbox = pathname.startsWith('/inbox');
+  const [cookies, setCookie] = useCookiesWithConsent([SHOW_LLM_CHAT_COOKIE]);
+
+  const [showLlmChatSidebar, setShowLlmChatSidebar] = useState(false);
+  const closeLlmChatSidebar = useCallback(() => {
+    setShowLlmChatSidebar(false);
+    setCookie(SHOW_LLM_CHAT_COOKIE, "false", { path: "/" });
+  }, [setCookie]);
+
+  const renderLanguageModelChatLauncher = !!currentUser && userHasLlmChat(currentUser) && !isInbox;
+
+  return <div className={classes.topLevelContainer}>
+    <div className={classes.pageContent}>
+      <IsLlmChatSidebarOpenContext.Provider value={showLlmChatSidebar}>
+        {children}
+      </IsLlmChatSidebarOpenContext.Provider>
+    </div>
+    {renderLanguageModelChatLauncher && (
+      <div className={classes.llmChatColumn}>
+        <DeferRender ssr={false}>
+          {showLlmChatSidebar ? (
+            <SuspenseWrapper name="SidebarLanguageModelChat">
+              <SidebarLanguageModelChat onClose={closeLlmChatSidebar} />
+            </SuspenseWrapper>
+          ) : (
+            <LanguageModelLauncherButton onClick={() => setShowLlmChatSidebar(true)} />
+          )}
+        </DeferRender>
+      </div>
+    )}
+  </div>
+}
+
+export default Layout;
 
 
