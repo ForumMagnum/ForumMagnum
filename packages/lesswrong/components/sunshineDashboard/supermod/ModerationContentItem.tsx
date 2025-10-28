@@ -227,7 +227,7 @@ const ModerationContentItem = ({
       
       {item.rejected && (
         <div className={classNames(classes.status, classes.rejectedStatus)}>
-          Rejected
+          {score && score >= 0.5 ? 'Autorejected' : 'Rejected'}
         </div>
       )}
 
