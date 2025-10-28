@@ -1,23 +1,21 @@
-import { registerComponent } from '../../lib/vulcan-lib/components';
 import React from 'react';
+import { defineStyles } from '../hooks/defineStyles';
+import { useStyles } from '../hooks/useStyles';
 
-const styles = (theme: ThemeType) => ({
+const styles = defineStyles("Footer", (theme: ThemeType) => ({
   root: {
-    height: 150,
+    height: 165,
     "@media print": {
       height: 0,
     },
   }
-});
+}));
 
-const Footer = ({classes}: {
-  classes: ClassesType<typeof styles>,
-}) => {
-  return (
-    <div className={classes.root} />
-  )
+const Footer = () => {
+  const classes = useStyles(styles);
+  return <div className={classes.root}/>;
 }
 
-export default registerComponent('Footer', Footer, {styles});
+export default Footer;
 
 

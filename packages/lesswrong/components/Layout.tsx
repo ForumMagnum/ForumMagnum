@@ -92,7 +92,6 @@ const allowedIncompletePaths: string[] = ["termsOfUse"];
 const styles = defineStyles("Layout", (theme: ThemeType) => ({
   main: {
     paddingTop: theme.spacing.mainLayoutPaddingTop,
-    paddingBottom: 15,
     marginLeft: "auto",
     marginRight: "auto",
     // Make sure the background extends to the bottom of the page, I'm sure there is a better way to do this
@@ -111,9 +110,6 @@ const styles = defineStyles("Layout", (theme: ThemeType) => ({
   wrapper: {
     position: 'relative',
     overflowX: 'clip'
-  },
-  mainNoFooter: {
-    paddingBottom: 0,
   },
   mainFullscreen: {
     height: "100%",
@@ -506,7 +502,6 @@ const Layout = ({children}: {
                 </SuspenseWrapper>}
                 <div ref={searchResultsAreaRef} className={classes.searchResultsArea} />
                 <div className={classNames(classes.main, {
-                  [classes.mainNoFooter]: routeMetadata.noFooter,
                   [classes.mainFullscreen]: isFullscreenRoute(pathname),
                   [classes.mainUnspacedGrid]: shouldUseGridLayout && unspacedGridLayout,
                 })}>
@@ -522,7 +517,6 @@ const Layout = ({children}: {
                       {!isIncompletePath && isEAForum() ? <EAOnboardingFlow/> : <BasicOnboardingFlow/>}
                     </SuspenseWrapper> */}
                   </ErrorBoundary>
-                  {!isFullscreenRoute(pathname) && !routeMetadata.noFooter && <Footer />}
                 </div>
                 {isLW() && <LWBackgroundImage standaloneNavigation={standaloneNavigation} />}
                 {/* {!renderSunshineSidebar &&

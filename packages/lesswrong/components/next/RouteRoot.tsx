@@ -3,6 +3,7 @@ import { type RouteMetadata } from "@/components/ClientRouteMetadataContext";
 import { RouteMetadataSetter } from '@/components/RouteMetadataContext';
 import { StatusCodeSetter } from './StatusCodeSetter';
 import { isProduction } from '@/lib/executionEnvironment';
+import Footer from '../common/Footer';
 
 let routeRootRenderCount = 0;
 
@@ -29,7 +30,7 @@ const RouteRoot = ({delayedStatusCode=false, metadata, children}: {
     {!delayedStatusCode && <StatusCodeSetter status={200}/>}
     {metadata && <RouteMetadataSetter metadata={metadata}/>}
     {children}
-    <div className="renderCount" style={{display: "none"}}>{++routeRootRenderCount}</div>
+    {!metadata?.noFooter && <Footer/>}
   </>
 }
 
