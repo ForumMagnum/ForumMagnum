@@ -138,7 +138,7 @@ const ModerationKeyboardHandler = ({
     );
   }, [posts, comments]);
 
-  const selectedContent = useMemo(() => allContent[selectedContentIndex], [allContent, selectedContentIndex]);
+  const selectedContent = useMemo<ContentItem | undefined>(() => allContent[selectedContentIndex], [allContent, selectedContentIndex]);
 
   const getModSignatureWithNote = useCallback(
     (note: string) => getSignatureWithNote(currentUser.displayName, note),
@@ -295,7 +295,7 @@ const ModerationKeyboardHandler = ({
 
   const handleRejectCurrentContent = useCallback(() => {
     if (!selectedUser) return;
-    if (!canRejectCurrentlySelectedContent(selectedContent)) return;
+    if (!selectedContent || !canRejectCurrentlySelectedContent(selectedContent)) return;
 
     const contentWrapper = isPost(selectedContent) ? {
       collectionName: 'Posts' as const,
@@ -323,7 +323,7 @@ const ModerationKeyboardHandler = ({
 
   const handleUnrejectCurrentContent = useCallback(() => {
     if (!selectedUser) return;
-    if (!selectedContent.rejected) return;
+    if (!selectedContent?.rejected) return;
     if (!confirm("Are you sure you want to unreject this content?")) return;
 
     const contentWrapper = isPost(selectedContent) ? {
@@ -445,7 +445,7 @@ const ModerationKeyboardHandler = ({
   const openCommandPalette = useCommandPalette();
 
   const rejectOrUnrejectCommand: CommandPaletteItem = useMemo(() => {
-    if (selectedContent.rejected) {
+    if (selectedContent?.rejected) {
       return {
         label: 'Unreject',
         keystroke: 'R',
