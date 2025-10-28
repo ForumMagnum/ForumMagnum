@@ -5,29 +5,22 @@ import { getUserReviewGroup, getTabsInPriorityOrder, type ReviewGroup, REVIEW_GR
 import type { GroupEntry } from './ModerationInboxList';
 import type { TabInfo } from './ModerationTabs';
 
-/**
- * Moderation Inbox State Machine
- *
- * ## States
- * - Inbox View: openedUserId=null, viewing list with optional focus
- * - Detail View: openedUserId!=null, viewing single user details
- *
- * ## State Transitions
- * 1. OPEN_USER: Inbox View → Detail View
- * 2. CLOSE_DETAIL: Detail View → Inbox View (restores focus to opened user)
- * 3. CHANGE_TAB: Inbox View → Inbox View (switches tab, focuses first user in new tab)
- * 4. NEXT_USER/PREV_USER: Navigates within current tab (works in both views)
- * 5. NEXT_TAB/PREV_TAB: Switches tabs (only in Inbox View)
- * 6. REMOVE_USER: Removes user from local list and navigates to next
- *    - If current tab has more users → navigate to next user at same index
- *    - If current tab is now empty → switch to next non-empty tab
- *    - If no users left → return to empty Inbox View
- *
- * The reducer maintains a local copy of the user list that is mutated when actions complete.
- * No refetching happens - the list is only updated via REMOVE_USER actions.
- *
- * The reducer is initialized lazily with user data passed from the component.
- */
+export interface HistoryItem {
+  user: SunshineUsersList;
+  actionLabel: string;
+  timestamp: number;
+}
+
+export interface UndoHistoryItem {
+  user: SunshineUsersList;
+  actionLabel: string;
+  timestamp: number;
+  expiresAt: number;
+  timeoutId: NodeJS.Timeout;
+  executeAction: () => Promise<void>;
+};
+
+
 export type InboxState = {
   // The local copy of users (mutated when actions complete)
   users: SunshineUsersList[];
@@ -39,6 +32,10 @@ export type InboxState = {
   openedUserId: string | null;
   // Index of focused content item in detail view
   focusedContentIndex: number;
+  // Undo queue - actions that can be undone (within 30 seconds)
+  undoQueue: UndoHistoryItem[];
+  // History - expired actions that can't be undone
+  history: HistoryItem[];
 };
 
 export type InboxAction =
@@ -53,7 +50,10 @@ export type InboxAction =
   | { type: 'NEXT_CONTENT'; contentLength: number; }
   | { type: 'PREV_CONTENT'; contentLength: number; }
   | { type: 'OPEN_CONTENT'; contentIndex: number; }
-  | { type: 'UPDATE_USER'; userId: string; fields: Partial<SunshineUsersList>; };
+  | { type: 'UPDATE_USER'; userId: string; fields: Partial<SunshineUsersList>; }
+  | { type: 'ADD_TO_UNDO_QUEUE'; item: UndoHistoryItem; }
+  | { type: 'UNDO_ACTION'; userId: string; }
+  | { type: 'EXPIRE_UNDO_ITEM'; userId: string; };
 
 
 
@@ -91,6 +91,40 @@ export function getVisibleTabsInOrder(
 
 export function inboxStateReducer(state: InboxState, action: InboxAction): InboxState {
   switch (action.type) {
+    case 'ADD_TO_UNDO_QUEUE': {
+      return {
+        ...state,
+        undoQueue: [...state.undoQueue, action.item],
+      };
+    }
+
+    case 'UNDO_ACTION': {
+      const item = state.undoQueue.find(item => item.user._id === action.userId);
+      if (!item) return state;
+
+      if (item.timeoutId) {
+        clearTimeout(item.timeoutId);
+      }
+
+      return {
+        ...state,
+        users: [...state.users, item.user],
+        undoQueue: state.undoQueue.filter(item => item.user._id !== action.userId),
+      };
+    }
+
+    case 'EXPIRE_UNDO_ITEM': {
+      const item = state.undoQueue.find(item => item.user._id === action.userId);
+      if (!item) return state;
+
+      // Note: The action execution itself happens in the component via the timeout callback
+      return {
+        ...state,
+        undoQueue: state.undoQueue.filter(item => item.user._id !== action.userId),
+        history: [...state.history, item],
+      };
+    }
+
     case 'OPEN_USER': {
       return {
         ...state,
@@ -257,6 +291,8 @@ export function inboxStateReducer(state: InboxState, action: InboxAction): Inbox
           focusedUserId: null,
           openedUserId: null,
           focusedContentIndex: 0,
+          undoQueue: state.undoQueue,
+          history: state.history,
         };
       }
 
@@ -287,6 +323,8 @@ export function inboxStateReducer(state: InboxState, action: InboxAction): Inbox
             focusedUserId: null,
             openedUserId: nextUserId,
             focusedContentIndex: 0,
+            undoQueue: state.undoQueue,
+            history: state.history,
           };
         } else {
           return {
@@ -295,6 +333,8 @@ export function inboxStateReducer(state: InboxState, action: InboxAction): Inbox
             focusedUserId: nextUserId,
             openedUserId: null,
             focusedContentIndex: 0,
+            undoQueue: state.undoQueue,
+            history: state.history,
           };
         }
       }
@@ -324,6 +364,8 @@ export function inboxStateReducer(state: InboxState, action: InboxAction): Inbox
           focusedUserId: nextUserId,
           openedUserId: null,
           focusedContentIndex: 0,
+          undoQueue: state.undoQueue,
+          history: state.history,
         };
       }
 
@@ -334,6 +376,8 @@ export function inboxStateReducer(state: InboxState, action: InboxAction): Inbox
         focusedUserId: null,
         openedUserId: null,
         focusedContentIndex: 0,
+        undoQueue: state.undoQueue,
+        history: state.history,
       };
     }
 

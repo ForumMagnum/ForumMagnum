@@ -11,6 +11,7 @@ import ModerationInboxList, { GroupEntry } from './ModerationInboxList';
 import ModerationDetailView from './ModerationDetailView';
 import ModerationSidebar from './ModerationSidebar';
 import ModerationKeyboardHandler from './ModerationKeyboardHandler';
+import ModerationUndoHistory from './ModerationUndoHistory';
 import Loading from '@/components/vulcan-core/Loading';
 import groupBy from 'lodash/groupBy';
 import { getUserReviewGroup, REVIEW_GROUP_TO_PRIORITY, type ReviewGroup } from './groupings';
@@ -56,6 +57,14 @@ const styles = defineStyles('ModerationInbox', (theme: ThemeType) => ({
     display: 'flex',
     flexDirection: 'column',
   },
+  sidebarTop: {
+    flex: '0 0 50%',
+    overflow: 'auto',
+  },
+  sidebarBottom: {
+    flex: '0 0 50%',
+    overflow: 'auto',
+  },
   loading: {
     display: 'flex',
     alignItems: 'center',
@@ -75,7 +84,7 @@ const ModerationInboxInner = ({ users, initialOpenedUserId, currentUser }: {
 
   const [state, dispatch] = useReducer(
     inboxStateReducer,
-    { users: [], activeTab: 'all', focusedUserId: null, openedUserId: initialOpenedUserId, focusedContentIndex: 0 },
+    { users: [], activeTab: 'all', focusedUserId: null, openedUserId: initialOpenedUserId, focusedContentIndex: 0, undoQueue: [], history: [] },
     (): InboxState => {
       if (users.length === 0) {
         return {
@@ -84,6 +93,8 @@ const ModerationInboxInner = ({ users, initialOpenedUserId, currentUser }: {
           focusedUserId: null,
           openedUserId: null,
           focusedContentIndex: 0,
+          undoQueue: [],
+          history: [],
         };
       }
 
@@ -100,6 +111,8 @@ const ModerationInboxInner = ({ users, initialOpenedUserId, currentUser }: {
         focusedUserId: orderedUsers[0]?._id ?? null,
         openedUserId: initialOpenedUserId,
         focusedContentIndex: 0,
+        undoQueue: [],
+        history: [],
       };
     }
   );
@@ -170,13 +183,35 @@ const ModerationInboxInner = ({ users, initialOpenedUserId, currentUser }: {
 
   const handlePrevTab = useCallback(() => dispatch({ type: 'PREV_TAB' }), []);
 
-  const handleActionComplete = useCallback(() => {
-    // Remove the current user (either opened or focused) from the queue
+  const addToUndoQueue = useCallback((actionLabel: string, executeAction: () => Promise<void>) => {
+    // Remove the current user (either opened or focused) from the queue and add to undo queue
     const userIdToRemove = state.openedUserId ?? state.focusedUserId;
     if (userIdToRemove) {
-      dispatch({ type: 'REMOVE_USER', userId: userIdToRemove });
+      const user = allOrderedUsers.find(u => u._id === userIdToRemove);
+      if (user) {
+        const now = Date.now();
+        
+        // Create timeout that will execute the action and move to history
+        const timeoutId = setTimeout(() => {
+          dispatch({ type: 'EXPIRE_UNDO_ITEM', userId: user._id });
+          void executeAction();
+        }, 30_000);
+        
+        dispatch({
+          type: 'ADD_TO_UNDO_QUEUE',
+          item: {
+            user,
+            actionLabel,
+            timestamp: now,
+            expiresAt: now + 30_000,
+            timeoutId,
+            executeAction,
+          },
+        });
+        dispatch({ type: 'REMOVE_USER', userId: userIdToRemove });
+      }
     }
-  }, [state.openedUserId, state.focusedUserId]);
+  }, [state.openedUserId, state.focusedUserId, allOrderedUsers]);
 
   return (
     <div className={classes.root}>
@@ -196,7 +231,8 @@ const ModerationInboxInner = ({ users, initialOpenedUserId, currentUser }: {
         selectedUser={sidebarUser}
         selectedContentIndex={state.focusedContentIndex}
         currentUser={currentUser}
-        onActionComplete={handleActionComplete}
+        addToUndoQueue={addToUndoQueue}
+        undoQueue={state.undoQueue}
         isDetailView={!!state.openedUserId}
         dispatch={dispatch}
       />
@@ -221,11 +257,19 @@ const ModerationInboxInner = ({ users, initialOpenedUserId, currentUser }: {
           )}
         </div>
         <div className={classes.sidebar}>
-          {sidebarUser && <ModerationSidebar
-            user={sidebarUser}
-            currentUser={currentUser}
-            inDetailView={!!state.openedUserId}
-          />}
+          <div className={classes.sidebarTop}>
+            {sidebarUser && <ModerationSidebar
+              user={sidebarUser}
+              currentUser={currentUser}
+            />}
+          </div>
+          <div className={classes.sidebarBottom}>
+            <ModerationUndoHistory
+              undoQueue={state.undoQueue}
+              history={state.history}
+              dispatch={dispatch}
+            />
+          </div>
         </div>
       </div>
     </div>

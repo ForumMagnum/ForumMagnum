@@ -7,11 +7,11 @@ import MessageIcon from '@/lib/vendor/@material-ui/icons/src/Message';
 import { htmlToTextDefault } from '@/lib/htmlToText';
 import { truncate } from '@/lib/editor/ellipsize';
 import RejectContentButton from '../RejectContentButton';
-import { getEnvKeystrokeText } from '@/lib/vendor/ckeditor5-util/keyboard';
 import { useDialog } from '@/components/common/withDialog';
 import { DialogContent } from '@/components/widgets/DialogContent';
 import LWDialog from '@/components/common/LWDialog';
 import { highlightHtmlWithLlmDetectionScores } from '../helpers';
+import KeystrokeDisplay from './KeystrokeDisplay';
 
 const styles = defineStyles('ModerationContentItem', (theme: ThemeType) => ({
   root: {
@@ -116,20 +116,6 @@ const styles = defineStyles('ModerationContentItem', (theme: ThemeType) => ({
     gap: 4,
     marginLeft: 8,
     flexShrink: 0,
-  },
-  keystroke: {
-    display: 'flex',
-    alignItems: 'center',
-    justifyContent: 'center',
-    minWidth: 18,
-    height: 18,
-    fontSize: 10,
-    color: theme.palette.grey[600],
-    fontFamily: theme.typography.fontFamily,
-    backgroundColor: theme.palette.grey[100],
-    borderRadius: 3,
-    border: `1px solid ${theme.palette.grey[300]}`,
-    padding: '0 4px',
   },
   automatedEvaluations: {
     display: 'flex',
@@ -265,7 +251,7 @@ const ModerationContentItem = ({
       {!item.rejected && item.authorIsUnreviewed && (
         <div className={classes.rejectButtonContainer} onClick={(e) => e.stopPropagation()}>
           <RejectContentButton contentWrapper={contentWrapper} />
-          <span className={classes.keystroke}>{getEnvKeystrokeText('R')}</span>
+          <KeystrokeDisplay keystroke="R" />
         </div>
       )}
     </div>

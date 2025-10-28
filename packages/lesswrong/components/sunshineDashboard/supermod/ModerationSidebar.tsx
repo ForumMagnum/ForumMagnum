@@ -3,12 +3,8 @@ import { defineStyles, useStyles } from '@/components/hooks/useStyles';
 import { useMutation } from '@apollo/client/react';
 import { gql } from '@/lib/generated/gql-codegen';
 import Input from '@/lib/vendor/@material-ui/core/src/Input';
-import UserAutoRateLimitsDisplay from '../ModeratorUserInfo/UserAutoRateLimitsDisplay';
-import ContentSummary from './ContentSummary';
 import SunshineUserMessages from '../SunshineUserMessages';
 import { getSignature } from '@/lib/collections/users/helpers';
-import { useModeratedUserContents } from '@/components/hooks/useModeratedUserContents';
-import classNames from 'classnames';
 
 const SunshineUsersListUpdateMutation = gql(`
   mutation updateUserModerationSidebar($selector: SelectorInput!, $data: UpdateUserDataInput!) {
@@ -24,7 +20,6 @@ const styles = defineStyles('ModerationSidebar', (theme: ThemeType) => ({
   root: {
     ...theme.typography.commentStyle,
     padding: 20,
-    height: '100%',
     display: 'flex',
     flexDirection: 'column',
     overflow: 'auto',
@@ -39,14 +34,6 @@ const styles = defineStyles('ModerationSidebar', (theme: ThemeType) => ({
     marginBottom: 12,
     flexShrink: 0,
     overflow: 'hidden',
-  },
-  scrollableSection: {
-    marginBottom: 12,
-    flexShrink: 1,
-    minHeight: 0,
-    overflow: 'auto',
-    display: 'flex',
-    flexDirection: 'column',
   },
   sectionTitle: {
     fontSize: 12,
@@ -64,36 +51,17 @@ const styles = defineStyles('ModerationSidebar', (theme: ThemeType) => ({
     maxHeight: 200,
     overflow: 'auto',
   },
-  bioContainer: {
-    maxHeight: 300,
-    overflow: 'auto',
-    fontSize: 14,
-    lineHeight: 1.5,
-  },
-  contentSummary: {
-    maxHeight: 150,
-    overflow: 'auto',
-  },
-  rateLimits: {
-    maxHeight: 150,
-    overflow: 'auto',
-  },
   userMessages: {
     overflow: 'auto',
-  },
-  noSectionContent: {
-    opacity: 0.5,
   },
 }));
 
 const ModerationSidebar = ({
   user,
   currentUser,
-  inDetailView,
 }: {
   user: SunshineUsersList;
   currentUser: UsersCurrent;
-  inDetailView: boolean;
 }) => {
   const classes = useStyles(styles);
   const [notes, setNotes] = useState(user.sunshineNotes);
@@ -105,8 +73,6 @@ const ModerationSidebar = ({
       setNotes(user.sunshineNotes);
     }
   }, [user._id, user.sunshineNotes]);
-
-  const { posts, comments } = useModeratedUserContents(user._id);
 
   const handleNotes = useCallback(() => {
     if (notes !== user.sunshineNotes) {
@@ -155,16 +121,6 @@ const ModerationSidebar = ({
     );
   }
 
-  const showContentSummary = posts.length > 0 || comments.length > 0;
-  const showUserAutoRateLimits = (
-    (user.smallUpvoteReceivedCount ?? 0) +
-    (user.bigUpvoteReceivedCount ?? 0) +
-    (user.smallDownvoteReceivedCount ?? 0) +
-    (user.bigDownvoteReceivedCount ?? 0)
-  ) > 0;
-
-  const showBio = user.htmlBio && user.htmlBio.trim() !== '';
-
   return (
     <div className={classes.root}>
       <div className={classes.section}>
@@ -184,22 +140,6 @@ const ModerationSidebar = ({
         </div>
       </div>
 
-      {!inDetailView && (
-        <div className={classNames(classes.section, !showContentSummary && classes.noSectionContent)}>
-          <div className={classes.sectionTitle}>Content Summary</div>
-          <div className={classes.contentSummary}>
-          <ContentSummary user={user} posts={posts} comments={comments} />
-          </div>
-        </div>
-      )}
-
-      {!inDetailView && <div className={classNames(classes.section, !showUserAutoRateLimits && classes.noSectionContent)}>
-        <div className={classes.sectionTitle}>Automod Rate Limits</div>
-        <div className={classes.rateLimits}>
-          <UserAutoRateLimitsDisplay user={user} showKarmaMeta hideIfNoVotes={false} />
-        </div>
-      </div>}
-
       <div className={classes.section}>
         <div className={classes.sectionTitle}>User Messages</div>
         <div className={classes.userMessages}>
@@ -207,13 +147,6 @@ const ModerationSidebar = ({
           <SunshineUserMessages key={user._id} user={user} currentUser={currentUser} />
         </div>
       </div>
-      
-      {!inDetailView && (
-        <div className={classNames(classes.scrollableSection, !showBio && classes.noSectionContent)}>
-          <div className={classes.sectionTitle}>Bio</div>
-          <div className={classes.bioContainer} dangerouslySetInnerHTML={{ __html: user.htmlBio }} />
-        </div>
-      )}
     </div>
   );
 };
