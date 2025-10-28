@@ -1,7 +1,6 @@
 'use client';
 
-import React, {use, useRef, useState, useCallback, useEffect, FC, ReactNode, useMemo, createContext, useContext} from 'react';
-import { registerComponent } from '../lib/vulcan-lib/components';
+import React, {useRef, useState, useCallback, FC, ReactNode, createContext} from 'react';
 import classNames from 'classnames'
 import { useTheme, useThemeColor } from './themes/useTheme';
 import { useLocation } from '../lib/routeUtil';
@@ -12,7 +11,7 @@ import { DialogManager } from './common/withDialog';
 import { CommentBoxManager } from './hooks/useCommentBox';
 import { ItemsReadContextWrapper } from './hooks/useRecordPostView';
 import { pBodyStyle } from '../themes/stylePiping';
-import { googleTagManagerIdSetting, isAF, isEAForum, isLW, isLWorAF, buttonBurstSetting } from '@/lib/instanceSettings';
+import { googleTagManagerIdSetting, isLW, isLWorAF, buttonBurstSetting } from '@/lib/instanceSettings';
 import { globalStyles } from '../themes/globalStyles/globalStyles';
 import { userCanDo, userIsAdmin } from '../lib/vulcan-users/permissions';
 import { Helmet } from "./common/Helmet";
@@ -34,7 +33,6 @@ import { userHasLlmChat } from '@/lib/betas';
 import GlobalButtonBurst from './ea-forum/GlobalButtonBurst';
 import NavigationStandalone from "./common/TabNavigationMenu/NavigationStandalone";
 import ErrorBoundary from "./common/ErrorBoundary";
-import Footer from "./common/Footer";
 import FlashMessages from "./common/FlashMessages";
 import AnalyticsClient from "./common/AnalyticsClient";
 import AnalyticsPageInitializer from "./common/AnalyticsPageInitializer";
@@ -64,6 +62,7 @@ import { NO_ADMIN_NEXT_REDIRECT_COOKIE, SHOW_LLM_CHAT_COOKIE } from '@/lib/cooki
 
 import dynamic from 'next/dynamic';
 import { isBlackBarTitle } from './seasonal/petrovDay/petrov-day-story/petrovConsts';
+import PageBackgroundWrapper from './common/PageBackgroundWrapper';
 
 const SunshineSidebar = dynamic(() => import("./sunshineDashboard/SunshineSidebar"), { ssr: false });
 const LanguageModelLauncherButton = dynamic(() => import("./languageModels/LanguageModelLauncherButton"), { ssr: false });
@@ -107,10 +106,6 @@ const styles = defineStyles("Layout", (theme: ThemeType) => ({
       paddingRight: 8,
     },
   },
-  wrapper: {
-    position: 'relative',
-    overflowX: 'clip'
-  },
   mainFullscreen: {
     height: "100%",
     padding: 0,
@@ -121,14 +116,6 @@ const styles = defineStyles("Layout", (theme: ThemeType) => ({
       paddingLeft: 0,
       paddingRight: 0,
     }
-  },
-  fullscreen: {
-    // The min height of 600px here is so that the page doesn't shrink down completely when the keyboard is open on mobile.
-    // I chose 600 as being a bit smaller than the smallest phone screen size, although it's hard to find a good reference
-    // for this. Here is one site with a good list from 2018: https://mediag.com/blog/popular-screen-resolutions-designing-for-all/
-    height: "max(100vh, 600px)",
-    display: "flex",
-    flexDirection: "column",
   },
   fullscreenBodyWrapper: {
     flexBasis: 0,
@@ -196,9 +183,6 @@ const styles = defineStyles("Layout", (theme: ThemeType) => ({
     [theme.breakpoints.down('lg')]: {
       display: 'none',
     }
-  },
-  whiteBackground: {
-    background: theme.palette.background.pageActiveAreaBackground,
   },
   topLevelContainer: {
     display: 'flex',
@@ -325,29 +309,6 @@ const Layout = ({children}: {
     setHideNavigationSidebar(!hideNavigationSidebar);
   }, [updateUserNoCache, currentUserId, hideNavigationSidebar]);
 
-  // Some pages (eg post pages) have a solid white background, others (eg front page) have a gray
-  // background against which individual elements in the central column provide their own
-  // background. (In dark mode this is black and dark gray instead of white and light gray). This
-  // is handled by putting `classes.whiteBackground` onto the main wrapper.
-  //
-  // But, caveat/hack: If the page has horizontal scrolling and the horizontal scrolling is the
-  // result of a floating window, the page wrapper doesn't extend far enough to the right. So we
-  // also have a `useEffect` which adds a class to `<body>`. (This has to be a useEffect because
-  // <body> is outside the React tree entirely. An alternative way to do this would be to change
-  // overflow properties so that `<body>` isn't scrollable but a `<div>` in here is.)
-  const useWhiteBackground = routeMetadata.background === "white";
-
-  useEffect(() => {
-    const isWhite = document.body.classList.contains(classes.whiteBackground);
-    if (isWhite !== useWhiteBackground) {
-      if (useWhiteBackground) {
-        document.body.classList.add(classes.whiteBackground);
-      } else {
-        document.body.classList.remove(classes.whiteBackground);
-      }
-    }
-  }, [useWhiteBackground, classes.whiteBackground]);
-
   if (!layoutOptionsState) {
     throw new Error("LayoutOptionsContext not set");
   }
@@ -367,6 +328,7 @@ const Layout = ({children}: {
   }
 
   const render = () => {
+    const renderSunshineSidebar = isSunshineSidebarRoute(pathname) && !!(userCanDo(currentUser, 'posts.moderate.all') || currentUser?.groups?.includes('alignmentForumAdmins')) && !currentUser?.hideSunshineSidebar;
     const baseLayoutOptions: LayoutOptions = {
       // Check whether the current route is one which should have standalone
       // navigation on the side. If there is no current route (ie, a 404 page),
@@ -374,7 +336,6 @@ const Layout = ({children}: {
       // FIXME: This is using route names, but it would be better if this was
       // a property on routes themselves.
       standaloneNavigation: !!routeMetadata.hasLeftNavigationColumn,
-      renderSunshineSidebar: isSunshineSidebarRoute(pathname) && !!(userCanDo(currentUser, 'posts.moderate.all') || currentUser?.groups?.includes('alignmentForumAdmins')) && !currentUser?.hideSunshineSidebar,
       shouldUseGridLayout: !!routeMetadata.hasLeftNavigationColumn,
       unspacedGridLayout: isUnspacedGridRoute(pathname),
     }
@@ -382,7 +343,6 @@ const Layout = ({children}: {
     const { overridenLayoutOptions: overrideLayoutOptions } = layoutOptionsState
 
     const standaloneNavigation = overrideLayoutOptions.standaloneNavigation ?? baseLayoutOptions.standaloneNavigation
-    const renderSunshineSidebar = overrideLayoutOptions.renderSunshineSidebar ?? baseLayoutOptions.renderSunshineSidebar
     const shouldUseGridLayout = overrideLayoutOptions.shouldUseGridLayout ?? baseLayoutOptions.shouldUseGridLayout
     const unspacedGridLayout = overrideLayoutOptions.unspacedGridLayout ?? baseLayoutOptions.unspacedGridLayout
     // The friendly home page has a unique grid layout, to account for the right hand side column.
@@ -405,11 +365,7 @@ const Layout = ({children}: {
       <CommentOnSelectionPageWrapper>
       <CurrentAndRecentForumEventsProvider>
       <LlmSidebarWrapper>
-        <div id="wrapper" className={classNames(
-          "wrapper",
-          {'alignment-forum': isAF(), [classes.fullscreen]: isFullscreenRoute(pathname), [classes.wrapper]: isLWorAF()},
-          useWhiteBackground && classes.whiteBackground
-        )}>
+        <PageBackgroundWrapper>
           {buttonBurstSetting.get() && <GlobalButtonBurst />}
           <DialogManager>
             <CommentBoxManager>
@@ -507,7 +463,7 @@ const Layout = ({children}: {
             </CommentBoxManager>
           </DialogManager>
           <NavigationEventSender />
-        </div>
+        </PageBackgroundWrapper>
       </LlmSidebarWrapper>
       </CurrentAndRecentForumEventsProvider>
       </CommentOnSelectionPageWrapper>
