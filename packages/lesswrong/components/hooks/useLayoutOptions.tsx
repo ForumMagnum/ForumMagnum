@@ -2,7 +2,6 @@ import React, { useEffect, useMemo, useState } from "react";
 
 export type LayoutOptions = {
   standaloneNavigation: boolean,
-  renderSunshineSidebar: boolean,
   shouldUseGridLayout: boolean,
   unspacedGridLayout: boolean,
 }
