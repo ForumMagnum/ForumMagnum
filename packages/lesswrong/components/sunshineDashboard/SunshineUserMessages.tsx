@@ -13,6 +13,7 @@ import { gql } from "@/lib/generated/gql-codegen";
 import ConversationPreview from '../messaging/ConversationPreview';
 import ForumIcon from '../common/ForumIcon';
 import { defineStyles, useStyles } from '../hooks/useStyles';
+import classNames from 'classnames';
 
 const ConversationsListMultiQuery = gql(`
   query multiConversationSunshineUserMessagesQuery($selector: ConversationSelector, $limit: Int, $enableTotal: Boolean) {
@@ -53,14 +54,27 @@ const styles = defineStyles('SunshineUserMessages', (theme: ThemeType) => ({
       opacity: 0.7,
     }
   },
-  previewContainer: {
-    marginTop: theme.spacing.unit * 0.5,
-  }
+  expandablePreview: {
+    maxHeight: 100,
+    overflow: 'hidden',
+    position: 'relative',
+    '&::after': {
+      content: '""',
+      position: 'absolute',
+      bottom: 0,
+      left: 0,
+      right: 0,
+      height: 30,
+      background: `linear-gradient(to bottom, ${theme.palette.inverseGreyAlpha(0)}, ${theme.palette.background.pageActiveAreaBackground})`,
+      pointerEvents: 'none',
+    },
+  },
 }));
 
-export const SunshineUserMessages = ({user, currentUser}: {
+export const SunshineUserMessages = ({user, currentUser, showExpandablePreview}: {
   user: SunshineUsersList,
   currentUser: UsersCurrent,
+  showExpandablePreview?: boolean,
 }) => {
   const classes = useStyles(styles);
   
@@ -113,9 +127,9 @@ export const SunshineUserMessages = ({user, currentUser}: {
             </Link>
             <ForumIcon icon={isExpanded ? "ExpandLess" : "ExpandMore"} className={classes.expandIcon} />
           </div>
-          {isExpanded && (
-            <div className={classes.previewContainer}>
-              <ConversationPreview conversationId={conversation._id} showTitle={false} />
+          {(isExpanded || showExpandablePreview) && (
+            <div className={classNames((!isExpanded && showExpandablePreview) && classes.expandablePreview)}>
+              <ConversationPreview conversationId={conversation._id} showTitle={false} showFullWidth />
             </div>
           )}
         </div>
