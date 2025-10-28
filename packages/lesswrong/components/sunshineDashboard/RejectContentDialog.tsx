@@ -452,19 +452,22 @@ const RejectContentDialog = ({rejectionTemplates, onClose, rejectContent}: {
           <ContentItemBody dangerouslySetInnerHTML={{__html: standardIntroHtml}} />
         </ContentStyles>
       </div>
-      <CKEditor
-        editor={CommentEditor}
-        data={rejectedReason}
-        config={editorConfig}
-        isCollaborative={false}
-        onReady={(editor: Editor) => {
-          setEditor(editor);
-        }}
-        onChange={(event: any, editor: Editor) => {
-          const data = editor.getData();
-          setRejectedReason(data);
-        }}
-      />
+
+      <ContentStyles contentType='comment'>
+        <CKEditor
+          editor={CommentEditor}
+          data={rejectedReason}
+          config={editorConfig}
+          isCollaborative={false}
+          onReady={(editor: Editor) => {
+            setEditor(editor);
+          }}
+          onChange={(event: any, editor: Editor) => {
+            const data = editor.getData();
+            setRejectedReason(data);
+          }}
+        />
+      </ContentStyles>
     </div>
   </div>
 
