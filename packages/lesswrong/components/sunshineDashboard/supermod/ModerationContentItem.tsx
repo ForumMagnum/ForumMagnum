@@ -31,13 +31,7 @@ const styles = defineStyles('ModerationContentItem', (theme: ThemeType) => ({
   focused: {
     borderLeft: `3px solid ${theme.palette.primary.main}`,
     paddingLeft: 17,
-    backgroundColor: theme.palette.grey[50],
-  },
-  rejected: {
-    backgroundColor: theme.palette.panelBackground.deletedComment,
-    '&:hover': {
-      backgroundColor: theme.palette.panelBackground.deletedComment,
-    },
+    backgroundColor: theme.palette.grey[100],
   },
   icon: {
     height: 14,
@@ -201,7 +195,6 @@ const ModerationContentItem = ({
     <div
       className={classNames(classes.root, {
         [classes.focused]: isFocused,
-        [classes.rejected]: item.rejected,
       })}
       onClick={onOpen}
     >
