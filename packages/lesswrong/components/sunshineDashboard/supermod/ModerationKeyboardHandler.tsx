@@ -324,6 +324,7 @@ const ModerationKeyboardHandler = ({
   const handleUnrejectCurrentContent = useCallback(() => {
     if (!selectedUser) return;
     if (!selectedContent.rejected) return;
+    if (!confirm("Are you sure you want to unreject this content?")) return;
 
     const contentWrapper = isPost(selectedContent) ? {
       collectionName: 'Posts' as const,
@@ -576,7 +577,7 @@ const ModerationKeyboardHandler = ({
     keystroke: 'esc',
     isDisabled: () => false,
     execute: onCloseDetail,
-  }], [handleUndoMostRecent, handleReview, handleApproveCurrentOnly, handleSnoozeCustom, handleRemoveNeedsReview, handleRejectContentAndRemove, handleBan, handlePurge, handleFlag, handleCopyUserId, toggleDisablePosting, toggleDisableCommenting, toggleDisableMessaging, toggleDisableVoting, handleRejectCurrentContent, handleRestrictAndNotify, onNextUser, onPrevUser, onNextTab, onPrevTab, onOpenDetail, onCloseDetail, selectedUser, handleSnooze, isDetailView, dispatch, allContent.length, selectedContent, undoQueue.length]);
+  }], [handleUndoMostRecent, handleReview, handleApproveCurrentOnly, handleSnoozeCustom, handleRemoveNeedsReview, handleBan, handlePurge, handleFlag, handleCopyUserId, rejectOrUnrejectCommand, handleRejectContentAndRemove, handleRestrictAndNotify, toggleDisablePosting, toggleDisableCommenting, toggleDisableMessaging, toggleDisableVoting, isDetailView, onNextUser, onPrevUser, onNextTab, onPrevTab, onOpenDetail, onCloseDetail, undoQueue.length, selectedUser, handleSnooze, allContent.length, dispatch]);
 
   useGlobalKeydown(
     useCallback(
