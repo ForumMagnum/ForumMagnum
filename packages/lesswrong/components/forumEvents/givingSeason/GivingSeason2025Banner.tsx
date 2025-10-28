@@ -94,7 +94,7 @@ const styles = defineStyles("GivingSeason2025Banner", (theme: ThemeType) => ({
     zIndex: 2,
     padding: "20px 80px 40px 80px",
     display: "grid",
-    gridTemplateColumns: "400px 580px",
+    gridTemplateColumns: "500px 560px",
     gap: "80px",
     justifyContent: "start",
     color: "var(--event-color)",
@@ -129,17 +129,17 @@ const styles = defineStyles("GivingSeason2025Banner", (theme: ThemeType) => ({
     },
   },
   eventDate: {
-    fontSize: 13,
+    fontSize: 14,
     fontWeight: 600,
     lineHeight: "100%",
     letterSpacing: "4%",
     whiteSpace: "nowrap",
   },
   eventTitle: {
-    fontSize: 33,
+    fontSize: 36,
     fontWeight: 600,
     lineHeight: "115%",
-    letterSpacing: "-5%",
+    letterSpacing: "-0.04em",
     [theme.breakpoints.down("xs")]: {
       fontSize: 24,
     },
@@ -169,7 +169,7 @@ const styles = defineStyles("GivingSeason2025Banner", (theme: ThemeType) => ({
     color: theme.palette.text.alwaysBlack,
     position: "relative",
     zIndex: 2,
-    padding: "16px 50px",
+    padding: "12px 50px",
     display: "flex",
     justifyContent: "space-between",
     [theme.breakpoints.down("md")]: {
@@ -185,7 +185,7 @@ const styles = defineStyles("GivingSeason2025Banner", (theme: ThemeType) => ({
   electionStatus: {
     display: "flex",
     flexDirection: "column",
-    gap: 6,
+    gap: 4,
     maxWidth: "100%",
   },
   amountRaised: {
@@ -224,7 +224,7 @@ const styles = defineStyles("GivingSeason2025Banner", (theme: ThemeType) => ({
     zIndex: 2,
   },
   match: {
-    fontSize: 13,
+    fontSize: 14,
     fontWeight: 500,
     letterSpacing: "-1%",
     opacity: 0.4,
