@@ -102,7 +102,10 @@ const ModerationInboxInner = ({ users, initialOpenedUserId, currentUser }: {
       const groupedUsers = groupBy(users, user => getUserReviewGroup(user));
       const visibleTabs = getVisibleTabsInOrder(groupedUsers, users.length);
 
-      const firstTab = visibleTabs[0]?.group ?? 'all';
+      // Find first non-empty tab
+      const firstNonEmptyTab = visibleTabs.find(tab => tab.count > 0);
+      const firstTab = firstNonEmptyTab?.group ?? 'all';
+      
       const filteredGroups = getFilteredGroups(groupedUsers, firstTab);
       const orderedUsers = filteredGroups.flatMap(([_, users]) => users);
 

@@ -30,7 +30,7 @@ export function useCommandPalette({ large, hideDisabledCommands }: CommandPalett
         }}
       />
     });
-  }, [openDialog, large]);
+  }, [openDialog, large, hideDisabledCommands]);
 
   return openCommandPalette;
 }

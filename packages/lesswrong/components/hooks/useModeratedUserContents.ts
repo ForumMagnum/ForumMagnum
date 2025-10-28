@@ -64,6 +64,7 @@ export function useModeratedUserContents(userId: string, contentLimit = 20) {
         broadcast: false,
       });
     }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [posts]);
 
   return {
