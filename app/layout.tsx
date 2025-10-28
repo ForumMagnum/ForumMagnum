@@ -5,7 +5,6 @@ import ClientAppGenerator, { EnvironmentOverrideContextProvider } from "@/compon
 import { cookies } from "next/headers";
 import { ClientRouteMetadataProvider } from "@/components/ClientRouteMetadataContext";
 import { DEFAULT_TIMEZONE, SSRMetadata } from "@/lib/utils/timeUtil";
-import { getRouteMetadata } from "@/components/ServerRouteMetadataContext";
 import ClientIDAssigner from "@/components/analytics/ClientIDAssigner";
 import ClientIdsRepo from "@/server/repos/ClientIdsRepo";
 import { CLIENT_ID_COOKIE, CLIENT_ID_NEW_COOKIE, TIMEZONE_COOKIE } from "@/lib/cookies/cookies";
@@ -22,8 +21,6 @@ export default async function RootLayout({
 }: {
   children: React.ReactNode;
 }) {
-  const routeMetadata = getRouteMetadata().get();
-
   return (
     <html>
       <head>
@@ -35,7 +32,7 @@ export default async function RootLayout({
         </Suspense>
         <Suspense>
           <EnvironmentOverrideContextProviderServer>
-            <ClientRouteMetadataProvider initialMetadata={routeMetadata}>
+            <ClientRouteMetadataProvider>
               <ClientAppGenerator abTestGroupsUsed={{}}>
                 {children}
               </ClientAppGenerator>

@@ -1,6 +1,7 @@
 'use client';
 
 import React, { createContext, useContext, useState, ReactNode, useEffect, useMemo, useRef } from 'react';
+import { getRouteMetadata } from './ServerRouteMetadataContext';
 
 // TODO: see if we can successfully move all of the <head> metadata to NextJS-native functionality
 // like metadata objects or generateMetadata functions.  Probably depends on whether we can use
@@ -23,7 +24,8 @@ interface RouteMetadataContextType {
 
 const RouteMetadataContext = createContext<RouteMetadataContextType | null>(null);
 
-export const ClientRouteMetadataProvider = ({ initialMetadata, children }: { initialMetadata: RouteMetadata, children: ReactNode }) => {
+export const ClientRouteMetadataProvider = ({ children }: { children: ReactNode }) => {
+  const initialMetadata = getRouteMetadata().get();
   const [metadata, setMetadata] = useState<RouteMetadata>(initialMetadata);
 
   const value = useMemo(() => ({ metadata, setMetadata }), [metadata, setMetadata]);
