@@ -2,7 +2,7 @@ import Button from '@/lib/vendor/@material-ui/core/src/Button';
 import Checkbox from '@/lib/vendor/@material-ui/core/src/Checkbox';
 import { Paper, Card }from '@/components/widgets/Paper';
 import classNames from 'classnames';
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect, useCallback, useRef } from 'react';
 import EditIcon from '@/lib/vendor/@material-ui/icons/src/Edit'
 import { Link } from '../../lib/reactRouterWrapper';
 import LWTooltip from "../common/LWTooltip";
@@ -26,9 +26,25 @@ const styles = defineStyles('RejectContentDialog', (theme: ThemeType) => ({
     fontFamily: theme.palette.fonts.sansSerifStack,
     overflow: 'auto',
   },
+  searchInput: {
+    width: '100%',
+    padding: '8px 12px',
+    marginBottom: 12,
+    border: `1px solid ${theme.palette.grey[300]}`,
+    borderRadius: 4,
+    fontSize: 14,
+    fontFamily: theme.palette.fonts.sansSerifStack,
+    backgroundColor: theme.palette.background.paper,
+    outline: 'none',
+    // Necessary to override the default input styling which remove the border if the input is focused
+    '&:focus': {
+      border: `1px solid ${theme.palette.grey[300]}`,
+    }
+  },
   rejectionCheckboxes: {
     display: 'flex',
-    flexDirection: 'column'
+    flexDirection: 'column',
+    overflowY: 'auto',
   },
   checkbox: {
     paddingTop: 2,
@@ -248,6 +264,10 @@ const RejectContentDialog = ({rejectionTemplates, onClose, rejectContent}: {
   const [hiddenTemplateIds, setHiddenTemplateIds] = useState<Set<string>>(new Set());
   const [templateOrder, setTemplateOrder] = useState<string[]>([]);
   const [showHiddenSection, setShowHiddenSection] = useState(false);
+  const [searchQuery, setSearchQuery] = useState('');
+  const [initialHeight, setInitialHeight] = useState<number | null>(null);
+  const searchInputRef = useRef<HTMLInputElement>(null);
+  const checkboxesContainerRef = useRef<HTMLDivElement>(null);
   
   const rejectionReasons = Object.fromEntries(rejectionTemplates.map(({name, contents}) => [name, contents?.html]));
 
@@ -288,6 +308,21 @@ const RejectContentDialog = ({rejectionTemplates, onClose, rejectContent}: {
       setTemplateOrder(rejectionTemplates.map(t => t._id));
     }
   }, [currentUser, rejectionTemplates]);
+
+  useEffect(() => {
+    // Without the setTimeout, the input doesn't end up focused.
+    // Maybe something about how dialog contents are mounted?  :shrug:
+    setTimeout(() => {
+      searchInputRef.current?.focus();
+    }, 0);
+  }, []);
+
+  useEffect(() => {
+    if (checkboxesContainerRef.current && initialHeight === null && templateOrder.length > 0) {
+      const height = checkboxesContainerRef.current.offsetHeight;
+      setInitialHeight(height);
+    }
+  }, [templateOrder, initialHeight]);
 
   const saveConfig = useCallback((hiddenIds: Set<string>, order: string[]) => {
     const ls = getBrowserLocalStorage();
@@ -378,8 +413,13 @@ const RejectContentDialog = ({rejectionTemplates, onClose, rejectContent}: {
     .map(id => templatesById[id])
     .filter(template => !!template);
   
-  const visibleTemplates = orderedTemplates.filter(t => !hiddenTemplateIds.has(t._id));
-  const hiddenTemplates = orderedTemplates.filter(t => hiddenTemplateIds.has(t._id));
+  const matchesSearch = (template: ModerationTemplateFragment) => {
+    if (!searchQuery) return true;
+    return template.name.toLowerCase().includes(searchQuery.toLowerCase());
+  };
+  
+  const visibleTemplates = orderedTemplates.filter(t => !hiddenTemplateIds.has(t._id) && matchesSearch(t));
+  const hiddenTemplates = orderedTemplates.filter(t => hiddenTemplateIds.has(t._id) && matchesSearch(t));
 
   const SortableTemplateList = makeSortableListComponent({
     RenderItem: ({ contents: templateId }) => {
@@ -408,7 +448,20 @@ const RejectContentDialog = ({rejectionTemplates, onClose, rejectContent}: {
     }
   });
 
-  const dialogContent = <div className={classes.rejectionCheckboxes}>
+  const dialogContent = <>
+    <input
+      ref={searchInputRef}
+      className={classes.searchInput}
+      type="text"
+      placeholder="Search templates..."
+      value={searchQuery}
+      onChange={(e) => setSearchQuery(e.target.value)}
+    />
+    <div 
+      ref={checkboxesContainerRef}
+      className={classes.rejectionCheckboxes}
+      style={initialHeight !== null ? { minHeight: initialHeight } : undefined}
+    >
     <SortableTemplateList
       value={visibleTemplates.map(t => t._id)}
       setValue={updateTemplateOrder}
@@ -452,21 +505,25 @@ const RejectContentDialog = ({rejectionTemplates, onClose, rejectContent}: {
           <ContentItemBody dangerouslySetInnerHTML={{__html: standardIntroHtml}} />
         </ContentStyles>
       </div>
-      <CKEditor
-        editor={CommentEditor}
-        data={rejectedReason}
-        config={editorConfig}
-        isCollaborative={false}
-        onReady={(editor: Editor) => {
-          setEditor(editor);
-        }}
-        onChange={(event: any, editor: Editor) => {
-          const data = editor.getData();
-          setRejectedReason(data);
-        }}
-      />
+
+      <ContentStyles contentType='comment'>
+        <CKEditor
+          editor={CommentEditor}
+          data={rejectedReason}
+          config={editorConfig}
+          isCollaborative={false}
+          onReady={(editor: Editor) => {
+            setEditor(editor);
+          }}
+          onChange={(event: any, editor: Editor) => {
+            const data = editor.getData();
+            setRejectedReason(data);
+          }}
+        />
+      </ContentStyles>
     </div>
-  </div>
+    </div>
+  </>
 
   const dialogElement = <Paper>
     <div className={classes.dialogContent}>

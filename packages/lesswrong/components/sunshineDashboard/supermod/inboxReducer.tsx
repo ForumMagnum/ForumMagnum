@@ -77,11 +77,10 @@ export function getVisibleTabsInOrder(
   const tabsInOrder = getTabsInPriorityOrder();
   const tabs: TabInfo[] = [];
   
+  // Always show all tabs, even if empty
   for (const group of tabsInOrder) {
     const count = groupedUsers[group]?.length ?? 0;
-    if (count > 0) {
-      tabs.push({ group, count });
-    }
+    tabs.push({ group, count });
   }
   
   tabs.push({ group: 'all', count: totalUsers });
@@ -244,9 +243,19 @@ export function inboxStateReducer(state: InboxState, action: InboxAction): Inbox
       if (visibleTabs.length === 0) return state;
 
       const currentIndex = visibleTabs.findIndex(tab => tab.group === state.activeTab);
-      const nextIndex = (currentIndex + 1) % visibleTabs.length;
+      
+      // Find next non-empty tab
+      let nextIndex = (currentIndex + 1) % visibleTabs.length;
+      let attempts = 0;
+      while (visibleTabs[nextIndex].count === 0 && attempts < visibleTabs.length) {
+        nextIndex = (nextIndex + 1) % visibleTabs.length;
+        attempts++;
+      }
+      
+      // If all tabs are empty, stay on current tab
+      if (attempts >= visibleTabs.length) return state;
+      
       const nextTab = visibleTabs[nextIndex].group;
-
       const filteredGroups = getFilteredGroups(groupedUsers, nextTab);
       const orderedUsers = filteredGroups.flatMap(([_, users]) => users);
 
@@ -267,9 +276,19 @@ export function inboxStateReducer(state: InboxState, action: InboxAction): Inbox
       if (visibleTabs.length === 0) return state;
 
       const currentIndex = visibleTabs.findIndex(tab => tab.group === state.activeTab);
-      const prevIndex = currentIndex <= 0 ? visibleTabs.length - 1 : currentIndex - 1;
+      
+      // Find previous non-empty tab
+      let prevIndex = currentIndex <= 0 ? visibleTabs.length - 1 : currentIndex - 1;
+      let attempts = 0;
+      while (visibleTabs[prevIndex].count === 0 && attempts < visibleTabs.length) {
+        prevIndex = prevIndex <= 0 ? visibleTabs.length - 1 : prevIndex - 1;
+        attempts++;
+      }
+      
+      // If all tabs are empty, stay on current tab
+      if (attempts >= visibleTabs.length) return state;
+      
       const prevTab = visibleTabs[prevIndex].group;
-
       const filteredGroups = getFilteredGroups(groupedUsers, prevTab);
       const orderedUsers = filteredGroups.flatMap(([_, users]) => users);
 

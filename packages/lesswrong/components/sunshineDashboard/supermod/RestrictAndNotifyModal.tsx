@@ -220,19 +220,21 @@ const RestrictAndNotifyModal = ({
         )}
 
         <div className={classes.editorContainer}>
-          <CKEditor
-            editor={CommentEditor}
-            data={messageContent}
-            config={editorConfig}
-            isCollaborative={false}
-            onReady={(editorInstance: Editor) => {
-              setEditor(editorInstance);
-            }}
-            onChange={(event: any, editorInstance: Editor) => {
-              const data = editorInstance.getData();
-              setMessageContent(data);
-            }}
-          />
+          <ContentStyles contentType='comment'>
+            <CKEditor
+              editor={CommentEditor}
+              data={messageContent}
+              config={editorConfig}
+              isCollaborative={false}
+              onReady={(editorInstance: Editor) => {
+                setEditor(editorInstance);
+              }}
+              onChange={(event: any, editorInstance: Editor) => {
+                const data = editorInstance.getData();
+                setMessageContent(data);
+              }}
+            />
+          </ContentStyles>
         </div>
       </DialogContent>
       <DialogActions className={classes.actions}>

@@ -40,7 +40,7 @@ const styles = defineStyles('ModerationSidebar', (theme: ThemeType) => ({
     fontWeight: 600,
     textTransform: 'uppercase',
     color: theme.palette.grey[600],
-    marginBottom: 12,
+    marginBottom: 8,
     letterSpacing: '0.5px',
     flexShrink: 0,
   },
@@ -144,7 +144,7 @@ const ModerationSidebar = ({
         <div className={classes.sectionTitle}>User Messages</div>
         <div className={classes.userMessages}>
           {/* TODO: maybe "expand" should actually open a model with the contents, since expanding a conversation inline is kind of annoying with the "no overflow" thing */}
-          <SunshineUserMessages key={user._id} user={user} currentUser={currentUser} />
+          <SunshineUserMessages key={user._id} user={user} currentUser={currentUser} showExpandablePreview />
         </div>
       </div>
     </div>

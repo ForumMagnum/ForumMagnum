@@ -5,6 +5,7 @@ import { defineStyles, useStyles } from '@/components/hooks/useStyles';
 import type { UndoHistoryItem, InboxAction, HistoryItem } from './inboxReducer';
 import classNames from 'classnames';
 import KeystrokeDisplay from './KeystrokeDisplay';
+import { UNDO_QUEUE_DURATION } from './constants';
 
 const styles = defineStyles('ModerationUndoHistory', (theme: ThemeType) => ({
   root: {
@@ -166,7 +167,7 @@ const ModerationUndoHistory = ({
               className={classNames(classes.item, classes.undoableItem)}
               onClick={() => handleUndo(item.user._id)}
             >
-              <ProgressBar expiresAt={item.expiresAt} totalDuration={30000} />
+              <ProgressBar expiresAt={item.expiresAt} totalDuration={UNDO_QUEUE_DURATION} />
               <div className={classes.itemContent}>
                 <div className={classes.itemLeft}>
                   <span className={classes.userName}>{item.user.displayName}</span>
