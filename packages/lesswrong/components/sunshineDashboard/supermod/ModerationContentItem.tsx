@@ -12,6 +12,7 @@ import { DialogContent } from '@/components/widgets/DialogContent';
 import LWDialog from '@/components/common/LWDialog';
 import { highlightHtmlWithLlmDetectionScores } from '../helpers';
 import KeystrokeDisplay from './KeystrokeDisplay';
+import HoverOver from '@/components/common/HoverOver';
 
 const styles = defineStyles('ModerationContentItem', (theme: ThemeType) => ({
   root: {
@@ -131,6 +132,35 @@ const styles = defineStyles('ModerationContentItem', (theme: ThemeType) => ({
       backgroundColor: theme.palette.grey[300],
     },
   },
+  rejectedReasonTooltipContents: {
+    maxHeight: 300,
+    overflowY: 'auto',
+    '& ul': {
+      marginBlockStart: 0,
+      marginBlockEnd: 0,
+    }
+  },
+  rejectionInfo: {
+    display: 'flex',
+    flexDirection: 'column',
+    gap: 4,
+    flexShrink: 0,
+    maxWidth: 140,
+  },
+  rejectionTopRow: {
+    display: 'flex',
+    gap: 6,
+    alignItems: 'center',
+  },
+  rejectionReasonPreview: {
+    marginLeft: 8,
+    fontSize: 11,
+    color: theme.palette.grey[600],
+    overflow: 'hidden',
+    textOverflow: 'ellipsis',
+    whiteSpace: 'nowrap',
+    maxWidth: 300,
+  },
 }));
 
 type ContentItem = SunshinePostsList | CommentsListWithParentMetadata;
@@ -191,6 +221,10 @@ const ModerationContentItem = ({
 
   const score = automatedContentEvaluations?.score;
 
+  const rejectedReasonText = item.rejectedReason 
+    ? truncate(htmlToTextDefault(item.rejectedReason), 80, 'characters')
+    : '[No reason provided]';
+
   return (
     <div
       className={classNames(classes.root, {
@@ -226,12 +260,28 @@ const ModerationContentItem = ({
       )}
       
       {item.rejected && (
-        <div className={classNames(classes.status, classes.rejectedStatus)}>
-          {score && score >= 0.5 ? 'Autorejected' : 'Rejected'}
+        <div className={classes.rejectionInfo}>
+          <div className={classes.rejectionTopRow}>
+            <HoverOver
+              title={<div className={classes.rejectedReasonTooltipContents} dangerouslySetInnerHTML={{ __html: item.rejectedReason ?? '[No reason provided]' }} />}
+              placement="auto-end"
+              clickable
+            >
+              <div className={classNames(classes.status, classes.rejectedStatus)}>
+                {score && score >= 0.5 ? 'Autorejected' : 'Rejected'}
+              </div>
+            </HoverOver>
+            {typeof score === 'number' && (
+              <span className={classes.evaluationBadge} onClick={handleLLMScoreClick}>
+                LLM: {score.toFixed(2)}
+              </span>
+            )}
+          </div>
+          <div className={classes.rejectionReasonPreview}>{rejectedReasonText}</div>
         </div>
       )}
 
-      {automatedContentEvaluations && (
+      {!item.rejected && automatedContentEvaluations && (
         <div className={classes.automatedEvaluations}>
           {typeof score === 'number' && (
             <span className={classes.evaluationBadge} onClick={handleLLMScoreClick}>
