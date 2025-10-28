@@ -11,7 +11,7 @@ import SnoozeAmountModal from './SnoozeAmountModal';
 import RestrictAndNotifyModal from './RestrictAndNotifyModal';
 import { useCommandPalette } from '@/components/hooks/useCommandPalette';
 import { useModeratedUserContents } from '@/components/hooks/useModeratedUserContents';
-import type { InboxAction } from './inboxReducer';
+import type { InboxAction, UndoHistoryItem } from './inboxReducer';
 import { useUserContentPermissions } from './useUserContentPermissions';
 import RejectContentDialog from '../RejectContentDialog';
 import { useRejectContent } from '@/components/hooks/useRejectContent';
@@ -104,7 +104,8 @@ const ModerationKeyboardHandler = ({
   selectedUser,
   selectedContentIndex,
   currentUser,
-  onActionComplete,
+  addToUndoQueue,
+  undoQueue,
   isDetailView,
   dispatch,
 }: {
@@ -118,7 +119,8 @@ const ModerationKeyboardHandler = ({
   selectedContentIndex: number;
   isDetailView: boolean;
   currentUser: UsersCurrent;
-  onActionComplete: () => void;
+  addToUndoQueue: (actionLabel: string, executeAction: () => Promise<void>) => void;
+  undoQueue: UndoHistoryItem[];
   dispatch: React.ActionDispatch<[action: InboxAction]>;
 }) => {
   const { openDialog, isDialogOpen } = useDialog();
@@ -144,18 +146,17 @@ const ModerationKeyboardHandler = ({
   );
 
   const handleAction = useCallback(
-    async (actionFn: () => Promise<void>) => {
-      onActionComplete();
-      await actionFn();
+    (actionLabel: string, actionFn: () => Promise<void>) => {
+      addToUndoQueue(actionLabel, actionFn);
     },
-    [onActionComplete]
+    [addToUndoQueue]
   );
 
-  const updateUserWith = useCallback(async (data: UpdateUserDataInput, removeFromQueue: boolean = false) => {
+  const updateUserWith = useCallback((data: UpdateUserDataInput, undoActionLabel?: string) => {
     if (!selectedUser) return;
 
-    if (removeFromQueue) {
-      await handleAction(async () => {
+    if (undoActionLabel) {
+      handleAction(undoActionLabel, async () => {
         await updateUser({
           variables: {
             selector: { _id: selectedUser._id },
@@ -164,7 +165,7 @@ const ModerationKeyboardHandler = ({
         });
       });
     } else {
-      await updateUser({
+      void updateUser({
         variables: {
           selector: { _id: selectedUser._id },
           data,
@@ -184,12 +185,12 @@ const ModerationKeyboardHandler = ({
       needsReview: false,
       sunshineNotes: newNotes,
       snoozedUntilContentCount: null,
-    }, true);
+    }, 'Approved');
   }, [selectedUser, currentUser, getModSignatureWithNote, updateUserWith]);
 
   const handleApproveCurrentOnly = useCallback(() => {
     if (!selectedUser) return;
-    void handleAction(async () => {
+    handleAction('Approved Current Only', async () => {
       await approveCurrentContentOnly({
         variables: {
           userId: selectedUser._id,
@@ -209,7 +210,7 @@ const ModerationKeyboardHandler = ({
         reviewedByUserId: currentUser._id,
         sunshineNotes: newNotes,
         snoozedUntilContentCount: getNewSnoozeUntilContentCount(selectedUser, contentCount),
-      }, true);
+      }, `Snoozed ${contentCount}`);
     },
     [selectedUser, currentUser, getModSignatureWithNote, updateUserWith]
   );
@@ -239,7 +240,7 @@ const ModerationKeyboardHandler = ({
       reviewedByUserId: null,
       reviewedAt: selectedUser.reviewedAt ? new Date() : null,
       sunshineNotes: newNotes,
-    }, true);
+    }, 'Removed from queue');
   }, [selectedUser, getModSignatureWithNote, updateUserWith]);
 
   const handleBan = useCallback(() => {
@@ -256,7 +257,7 @@ const ModerationKeyboardHandler = ({
       reviewedAt: new Date(),
       banned: moment().add(banMonths, 'months').toDate(),
       sunshineNotes: newNotes,
-    }, true);
+    }, 'Banned 3mo');
   }, [selectedUser, currentUser, getModSignatureWithNote, updateUserWith]);
 
   const handlePurge = useCallback(() => {
@@ -274,7 +275,7 @@ const ModerationKeyboardHandler = ({
       reviewedAt: new Date(),
       banned: moment().add(1000, 'years').toDate(),
       sunshineNotes: newNotes,
-    }, true);
+    }, 'Purged');
   }, [selectedUser, currentUser, getModSignatureWithNote, updateUserWith]);
 
   const handleFlag = useCallback(() => {
@@ -354,9 +355,9 @@ const ModerationKeyboardHandler = ({
                 contents: ({ onClose: closeRestrictDialog }) => (
                   <RestrictAndNotifyModal
                     user={selectedUser}
-                    onComplete={() => {
-                      onActionComplete();
+                    onComplete={(executeAction: () => Promise<void>) => {
                       closeRestrictDialog();
+                      addToUndoQueue('Restricted & Notified', executeAction);
                     }}
                     onClose={closeRestrictDialog}
                     rejectedReason={rejectedReason}
@@ -371,7 +372,7 @@ const ModerationKeyboardHandler = ({
         />
       ),
     });
-  }, [selectedUser, openDialog, onActionComplete, posts, comments, rejectionTemplates]);
+  }, [selectedUser, openDialog, addToUndoQueue, posts, comments, rejectionTemplates]);
 
   const handleCopyUserId = useCallback(async () => {
     if (!selectedUser) return;
@@ -383,6 +384,15 @@ const ModerationKeyboardHandler = ({
       flash({ messageString: "Failed to copy userId" });
     }
   }, [selectedUser, flash]);
+
+  const handleUndoMostRecent = useCallback(() => {
+    if (undoQueue.length === 0) return;
+    
+    // Get the most recent item (last in array since we append)
+    const mostRecentItem = undoQueue[undoQueue.length - 1];
+    dispatch({ type: 'UNDO_ACTION', userId: mostRecentItem.user._id });
+    flash({ messageString: `Undid: ${mostRecentItem.actionLabel}` });
+  }, [undoQueue, dispatch, flash]);
 
   const handleRejectContentAndRemove = useCallback(() => {
     if (!selectedUser) return;
@@ -400,7 +410,7 @@ const ModerationKeyboardHandler = ({
           rejectionTemplates={rejectionTemplates}
           rejectContent={(rejectedReason: string) => {
             onClose();
-            void handleAction(async () => {
+            handleAction('Rejected & Removed', async () => {
               await rejectContentAndRemoveFromQueue({
                 variables: {
                   userId: selectedUser._id,
@@ -420,6 +430,11 @@ const ModerationKeyboardHandler = ({
   const openCommandPalette = useCommandPalette();
 
   const commands: CommandPaletteItem[] = useMemo(() => [{
+    label: 'Undo Most Recent Action',
+    keystroke: 'Ctrl+Z',
+    isDisabled: () => undoQueue.length === 0,
+    execute: handleUndoMostRecent,
+  }, {
     label: 'Approve',
     keystroke: 'A',
     isDisabled: () => !selectedUser,
@@ -533,7 +548,7 @@ const ModerationKeyboardHandler = ({
     keystroke: 'esc',
     isDisabled: () => false,
     execute: onCloseDetail,
-  }], [handleReview, handleApproveCurrentOnly, handleSnoozeCustom, handleRemoveNeedsReview, handleRejectContentAndRemove, handleBan, handlePurge, handleFlag, handleCopyUserId, toggleDisablePosting, toggleDisableCommenting, toggleDisableMessaging, toggleDisableVoting, handleRejectCurrentContent, handleRestrictAndNotify, onNextUser, onPrevUser, onNextTab, onPrevTab, onOpenDetail, onCloseDetail, selectedUser, handleSnooze, isDetailView, dispatch, allContent.length, selectedContent]);
+  }], [handleUndoMostRecent, handleReview, handleApproveCurrentOnly, handleSnoozeCustom, handleRemoveNeedsReview, handleRejectContentAndRemove, handleBan, handlePurge, handleFlag, handleCopyUserId, toggleDisablePosting, toggleDisableCommenting, toggleDisableMessaging, toggleDisableVoting, handleRejectCurrentContent, handleRestrictAndNotify, onNextUser, onPrevUser, onNextTab, onPrevTab, onOpenDetail, onCloseDetail, selectedUser, handleSnooze, isDetailView, dispatch, allContent.length, selectedContent, undoQueue.length]);
 
   useGlobalKeydown(
     useCallback(
@@ -563,7 +578,7 @@ const ModerationKeyboardHandler = ({
         }
 
         // Block shortcuts when special keys (Cmd/Ctrl/Alt) are pressed, except for navigation keys
-        if (specialKeyPressed(event) && !isNavigationKey(event.key)) {
+        if (specialKeyPressed(event) && (!isNavigationKey(event.key) && event.key !== 'z')) {
           return;
         }
 

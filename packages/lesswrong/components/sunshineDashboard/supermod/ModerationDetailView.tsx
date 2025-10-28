@@ -15,9 +15,9 @@ import type { InboxAction } from './inboxReducer';
 import FormatDate from '@/components/common/FormatDate';
 import AltAccountInfo from '../ModeratorUserInfo/AltAccountInfo';
 import { Link } from '@/lib/reactRouterWrapper';
-import { getEnvKeystrokeText } from '@/lib/vendor/ckeditor5-util/keyboard';
 import { useUserContentPermissions } from './useUserContentPermissions';
 import ContentSummary from './ContentSummary';
+import KeystrokeDisplay from './KeystrokeDisplay';
 
 const sharedVoteStyles = {
   marginLeft: 4,
@@ -234,26 +234,6 @@ const styles = defineStyles('ModerationDetailView', (theme: ThemeType) => ({
   permissionButtonLabel: {
     flexGrow: 1,
   },
-  keystroke: {
-    display: 'flex',
-    alignItems: 'center',
-    justifyContent: 'center',
-    minWidth: 18,
-    height: 18,
-    fontSize: 10,
-    color: theme.palette.grey[600],
-    fontFamily: theme.typography.fontFamily,
-    backgroundColor: theme.palette.grey[100],
-    borderRadius: 3,
-    border: `1px solid ${theme.palette.grey[300]}`,
-    padding: '0 4px',
-    marginLeft: 8,
-    '.active &': {
-      backgroundColor: theme.palette.error.dark,
-      borderColor: theme.palette.error.dark,
-      color: theme.palette.error.contrastText,
-    },
-  },
   contentSection: {
     display: 'flex',
     height: 'calc(100vh - 400px)',
@@ -403,28 +383,28 @@ const ModerationDetailView = ({
                 onClick={toggleDisablePosting}
               >
                 <span className={classes.permissionButtonLabel}>Posting</span>
-                <span className={classes.keystroke}>{getEnvKeystrokeText('D')}</span>
+                <KeystrokeDisplay keystroke="D" withMargin activeContext={!!user.postingDisabled} />
               </div>
               <div 
                 className={classNames(classes.permissionButton, user.allCommentingDisabled && 'active')}
                 onClick={toggleDisableCommenting}
               >
                 <span className={classes.permissionButtonLabel}>Commenting</span>
-                <span className={classes.keystroke}>{getEnvKeystrokeText('C')}</span>
+                <KeystrokeDisplay keystroke="C" withMargin activeContext={!!user.allCommentingDisabled} />
               </div>
               <div 
                 className={classNames(classes.permissionButton, user.conversationsDisabled && 'active')}
                 onClick={toggleDisableMessaging}
               >
                 <span className={classes.permissionButtonLabel}>Messaging</span>
-                <span className={classes.keystroke}>{getEnvKeystrokeText('M')}</span>
+                <KeystrokeDisplay keystroke="M" withMargin activeContext={!!user.conversationsDisabled} />
               </div>
               <div 
                 className={classNames(classes.permissionButton, user.votingDisabled && 'active')}
                 onClick={() => toggleDisableVoting()}
               >
                 <span className={classes.permissionButtonLabel}>Voting</span>
-                <span className={classes.keystroke}>{getEnvKeystrokeText('V')}</span>
+                <KeystrokeDisplay keystroke="V" withMargin activeContext={!!user.votingDisabled} />
               </div>
             </div>
           </div>
