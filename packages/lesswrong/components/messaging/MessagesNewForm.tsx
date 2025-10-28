@@ -17,7 +17,6 @@ import { useFormErrors } from "@/components/tanstack-form-components/BaseAppForm
 import { useFormSubmitOnCmdEnter } from "../hooks/useFormSubmitOnCmdEnter";
 import Loading from "../vulcan-core/Loading";
 import ForumIcon from "../common/ForumIcon";
-import FormComponentCheckbox from "../form-components/FormComponentCheckbox";
 import Error404 from "../common/Error404";
 
 const messageListFragmentMutation = gql(`
@@ -115,33 +114,12 @@ const styles = defineStyles('MessagesNewForm', (theme: ThemeType) => ({
       backgroundColor: theme.palette.background.primaryDim,
     },
   },
-  editorWrapper: {
-    marginRight: -64,
-  },
-  emailCheckbox: {
-    marginTop: 0,
-    marginRight: 0,
-    justifyContent: "flex-end",
-    '& .MuiFormControlLabel-label': {
-      marginTop: -3,
-    },
-  },
-  emailCheckboxWrapper: {
-    '&&': {
-      alignSelf: 'start',
-      marginTop: -30,
-      marginRight: -36,
-      minWidth: 110,
-      [theme.breakpoints.down('xs')]: {
-        marginRight: -44,
-      },
-    },
-  }
 }));
 
 interface MessagesNewFormProps {
   isMinimalist: boolean;
   submitLabel?: React.ReactNode;
+  sendEmail?: boolean;
   prefilledProps: {
     conversationId: string;
     contents: {
@@ -157,6 +135,7 @@ interface MessagesNewFormProps {
 const InnerMessagesNewForm = ({
   isMinimalist,
   submitLabel = "Submit",
+  sendEmail = true,
   prefilledProps,
   onSuccess,
 }: MessagesNewFormProps) => {
@@ -181,7 +160,6 @@ const InnerMessagesNewForm = ({
   const form = useForm({
     defaultValues: {
       ...prefilledProps,
-      email: false,
     },
     onSubmit: async ({ formApi }) => {
       await onSubmitCallback.current?.();
@@ -189,8 +167,9 @@ const InnerMessagesNewForm = ({
       try {
         let result: messageListFragment;
 
-        const { email, ...rest } = formApi.state.values;
-        const submitData = userIsAdmin(currentUser) ? { ...rest, noEmail: !email } : rest;
+        const submitData = userIsAdmin(currentUser) 
+          ? { ...formApi.state.values, noEmail: !sendEmail } 
+          : formApi.state.values;
 
         const { data } = await create({ variables: { data: submitData } });
         if (!data?.createMessage?.data) {
@@ -219,7 +198,7 @@ const InnerMessagesNewForm = ({
         e.stopPropagation();
         void form.handleSubmit();
       }}>
-        <div className={classNames("form-component-EditorFormComponent", classes.fieldWrapper, classes.editorWrapper)}>
+        <div className={classNames("form-component-EditorFormComponent", classes.fieldWrapper)}>
           <form.Field name="contents">
             {(field) => (
               <EditorFormComponent
@@ -240,18 +219,6 @@ const InnerMessagesNewForm = ({
             )}
           </form.Field>
         </div>
-
-        {userIsAdmin(currentUser) && <div className={classNames(classes.fieldWrapper, classes.emailCheckboxWrapper)}>
-          <form.Field name="email">
-            {(field) => (
-              <FormComponentCheckbox
-                field={field}
-                label="Send email"
-                className={classes.emailCheckbox}
-              />
-            )}
-          </form.Field>
-        </div>}
 
         <form.Subscribe selector={(s) => [s.isSubmitting]}>
           {([isSubmitting]) => (
@@ -276,12 +243,14 @@ export const MessagesNewForm = ({
   templateQueries,
   successEvent,
   submitLabel,
+  sendEmail = true,
   formStyle="default",
 }: {
   conversationId: string;
   templateQueries?: TemplateQueryStrings;
   successEvent: (newMessage: messageListFragment) => void;
   submitLabel?: string,
+  sendEmail?: boolean;
   formStyle?: FormDisplayMode;
 }) => {
   const classes = useStyles(styles);
@@ -308,6 +277,7 @@ export const MessagesNewForm = ({
       <InnerMessagesNewForm
         isMinimalist={isMinimalist}
         submitLabel={submitLabel}
+        sendEmail={sendEmail}
         prefilledProps={{
           conversationId,
           contents: {

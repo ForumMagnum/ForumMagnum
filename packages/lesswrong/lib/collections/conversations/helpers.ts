@@ -18,12 +18,12 @@ export const conversationGetTitle = (conversation: ConversationsList, currentUse
 /**
  * Get the title of a conversation, formatted like e.g. "Bob, Charlie + 1 more"
  */
-export const conversationGetFriendlyTitle = (conversation: ConversationsList, currentUser: UsersCurrent): string => {
+export const conversationGetFriendlyTitle = (conversation: ConversationsList, currentUserId: string): string => {
   if (!!conversation.title) {
     return conversation.title
   }
 
-  const otherParticipants = conversation.participants?.filter((u)=> u._id !== currentUser._id) ?? [];
+  const otherParticipants = conversation.participants?.filter((u)=> u._id !== currentUserId) ?? [];
   const participantNames = otherParticipants.map(participant => participant.displayName);
 
   if (participantNames.length > 0) {
