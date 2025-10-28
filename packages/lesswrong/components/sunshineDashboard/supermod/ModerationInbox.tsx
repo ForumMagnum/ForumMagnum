@@ -17,6 +17,7 @@ import groupBy from 'lodash/groupBy';
 import { getUserReviewGroup, REVIEW_GROUP_TO_PRIORITY, type ReviewGroup } from './groupings';
 import { getFilteredGroups, getVisibleTabsInOrder, InboxState, inboxStateReducer } from './inboxReducer';
 import type { TabInfo } from './ModerationTabs';
+import { UNDO_QUEUE_DURATION } from './constants';
 
 const SunshineUsersListMultiQuery = gql(`
   query multiUserModerationInboxQuery($selector: UserSelector, $limit: Int, $enableTotal: Boolean) {
@@ -195,7 +196,7 @@ const ModerationInboxInner = ({ users, initialOpenedUserId, currentUser }: {
         const timeoutId = setTimeout(() => {
           dispatch({ type: 'EXPIRE_UNDO_ITEM', userId: user._id });
           void executeAction();
-        }, 30_000);
+        }, UNDO_QUEUE_DURATION);
         
         dispatch({
           type: 'ADD_TO_UNDO_QUEUE',
@@ -203,7 +204,7 @@ const ModerationInboxInner = ({ users, initialOpenedUserId, currentUser }: {
             user,
             actionLabel,
             timestamp: now,
-            expiresAt: now + 30_000,
+            expiresAt: now + UNDO_QUEUE_DURATION,
             timeoutId,
             executeAction,
           },
