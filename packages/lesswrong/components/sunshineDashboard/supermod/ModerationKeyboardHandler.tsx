@@ -306,7 +306,7 @@ const ModerationKeyboardHandler = ({
     };
 
     const handleRejectContent = (reason: string) => {
-      rejectContent({ ...contentWrapper, reason });
+      void rejectContent({ ...contentWrapper, reason });
     };
 
     openDialog({
@@ -319,8 +319,22 @@ const ModerationKeyboardHandler = ({
         />
       ),
     });
-
   }, [openDialog, rejectContent, rejectionTemplates, selectedContent, selectedUser]);
+
+  const handleUnrejectCurrentContent = useCallback(() => {
+    if (!selectedUser) return;
+    if (!selectedContent.rejected) return;
+
+    const contentWrapper = isPost(selectedContent) ? {
+      collectionName: 'Posts' as const,
+      document: selectedContent,
+    } : {
+      collectionName: 'Comments' as const,
+      document: selectedContent,
+    };
+
+    void unrejectContent(contentWrapper);
+  }, [selectedUser, selectedContent, unrejectContent]);
 
   const {
     toggleDisablePosting,
@@ -429,6 +443,23 @@ const ModerationKeyboardHandler = ({
 
   const openCommandPalette = useCommandPalette();
 
+  const rejectOrUnrejectCommand: CommandPaletteItem = useMemo(() => {
+    if (selectedContent.rejected) {
+      return {
+        label: 'Unreject',
+        keystroke: 'R',
+        isDisabled: () => !selectedUser || !selectedContent.rejected,
+        execute: handleUnrejectCurrentContent,
+      };
+    }
+    return {
+      label: 'Reject',
+      keystroke: 'R',
+      isDisabled: () => !selectedUser || !canRejectCurrentlySelectedContent(selectedContent),
+      execute: handleRejectCurrentContent,
+    };
+  }, [selectedUser, selectedContent, handleRejectCurrentContent, handleUnrejectCurrentContent]);
+
   const commands: CommandPaletteItem[] = useMemo(() => [{
     label: 'Undo Most Recent Action',
     keystroke: 'Ctrl+Z',
@@ -480,10 +511,7 @@ const ModerationKeyboardHandler = ({
     isDisabled: () => !selectedUser,
     execute: handleCopyUserId,
   }, {
-    label: 'Reject Current',
-    keystroke: 'R',
-    isDisabled: () => !selectedUser || !canRejectCurrentlySelectedContent(selectedContent),
-    execute: handleRejectCurrentContent,
+    ...rejectOrUnrejectCommand
   }, {
     label: 'Reject Latest & Remove',
     keystroke: 'X',

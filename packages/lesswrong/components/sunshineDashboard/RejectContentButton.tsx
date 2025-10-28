@@ -43,7 +43,7 @@ export const RejectContentButton = ({contentWrapper, classes}: {
 
   const handleRejectContent = (reason: string) => {
     setShowRejectionDialog(false);
-    rejectContent({ reason, ...contentWrapper });
+    void rejectContent({ reason, ...contentWrapper });
   };
 
   const openRejectionDialog = () => {
