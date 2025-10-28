@@ -21,7 +21,6 @@ import { isClient, isServer } from '@/lib/executionEnvironment';
 import Cookies from 'universal-cookie';
 import { ApolloWrapper } from '@/components/common/ApolloWrapper';
 
-import type { RequestCookie } from 'next/dist/compiled/@edge-runtime/cookies';
 import type { RouterLocation } from '@/lib/vulcan-lib/routes';
 import type { AppRouterInstance } from 'next/dist/shared/lib/app-router-context.shared-runtime';
 import { initClientOnce } from '@/client/initClient';
@@ -36,7 +35,7 @@ if (isClient) {
   initClientOnce();
 }
 
-const AppComponent = ({ children }: { children: React.ReactNode }) => {
+const LocationContextProvider = ({ children }: { children: React.ReactNode }) => {
   const locationContext = useRef<RouterLocation | null>(null);
   const subscribeLocationContext = useRef<RouterLocation | null>(null);
   const history = useRouter();
@@ -128,72 +127,67 @@ const AppComponent = ({ children }: { children: React.ReactNode }) => {
     Object.assign(subscribeLocationContext.current, location);
   }
 
-  return <HelmetProvider>
-  <LocationContext.Provider value={locationContext.current}>
-  <NavigationContext.Provider value={navigationContext.current}>
-  <SubscribeLocationContext.Provider value={subscribeLocationContext.current}>
-    <MessageContextProvider>
-      {/* <HeadTags image={siteImageSetting.get()} /> */}
-      <Layout>
+  return <LocationContext.Provider value={locationContext.current}>
+    <NavigationContext.Provider value={navigationContext.current}>
+      <SubscribeLocationContext.Provider value={subscribeLocationContext.current}>
         {children}
-      </Layout>
-    </MessageContextProvider>
-  </SubscribeLocationContext.Provider>
-  </NavigationContext.Provider>
+      </SubscribeLocationContext.Provider>
+    </NavigationContext.Provider>
   </LocationContext.Provider>
-  </HelmetProvider>;
 }
 
-const AppGenerator = ({ abTestGroupsUsed, children }: {
+const ClientAppGenerator = ({ abTestGroupsUsed, children }: {
   abTestGroupsUsed: RelevantTestGroupAllocation,
   children: React.ReactNode,
 }) => {
-  let universalCookies;
-  let parsedCookies: RequestCookie[];
-  if (isServer) {
-    const { cookies } = use(import('next/headers'));
-    const serverCookies = use(cookies());
-    parsedCookies = serverCookies.getAll();
-    universalCookies = new Cookies(Object.fromEntries(parsedCookies.map((cookie) => [cookie.name, cookie.value])));
-  } else {
-    const browserCookies = document.cookie;
-    parsedCookies = browserCookies.split(';').map((cookie) => {
-      const [name, value] = cookie.split('=');
-      return { name, value };
-    });
-    universalCookies = new Cookies(browserCookies);
-  }
-
+  const universalCookies = useGetUniversalCookies();
   const urlSearchParams = useSearchParams();
   const loginToken = universalCookies.get('loginToken');
 
-  return (
-    // <ApolloProvider client={apolloClient}>
-      // <ForeignApolloClientProvider value={foreignApolloClient}>
-        <EnableSuspenseContext.Provider value={isServer}>
-        <ApolloWrapper
-          loginToken={loginToken ?? null}
-          searchParams={Object.fromEntries(urlSearchParams.entries())}
-        >
-        <CookiesProvider cookies={universalCookies}>
+  return <EnableSuspenseContext.Provider value={isServer}>
+    <ApolloWrapper
+      loginToken={loginToken ?? null}
+      searchParams={Object.fromEntries(urlSearchParams.entries())}
+    >
+      <CookiesProvider cookies={universalCookies}>
         <UserContextProvider>
           <ThemeContextProvider>
             <ABTestGroupsUsedContext.Provider value={abTestGroupsUsed}>
               <LayoutOptionsContextProvider>
-                <AppComponent>
-                  {children}
-                </AppComponent>
+                <HelmetProvider>
+                  <LocationContextProvider>
+                    <MessageContextProvider>
+                      {/* <HeadTags image={siteImageSetting.get()} /> */}
+                      <Layout>
+                        {children}
+                      </Layout>
+                    </MessageContextProvider>
+                  </LocationContextProvider>
+                </HelmetProvider>
               </LayoutOptionsContextProvider>
             </ABTestGroupsUsedContext.Provider>
           </ThemeContextProvider>
         </UserContextProvider>
-        </CookiesProvider>
-        </ApolloWrapper>
-        </EnableSuspenseContext.Provider>
-    //   </ForeignApolloClientProvider>
-    // </ApolloProvider>
-  );
+      </CookiesProvider>
+    </ApolloWrapper>
+  </EnableSuspenseContext.Provider>
 };
+
+const useGetUniversalCookies = () => {
+  if (isServer) {
+    const { cookies } = use(import('next/headers'));
+    const serverCookies = use(cookies());
+    const parsedCookies = serverCookies.getAll();
+    return new Cookies(Object.fromEntries(parsedCookies.map((cookie) => [cookie.name, cookie.value])));
+  } else {
+    const browserCookies = document.cookie;
+    const parsedCookies = browserCookies.split(';').map((cookie) => {
+      const [name, value] = cookie.split('=');
+      return { name, value };
+    });
+    return new Cookies(browserCookies);
+  }
+}
 
 export const EnvironmentOverrideContextProvider = ({ssrMetadata, children}: {
   ssrMetadata: SSRMetadata
@@ -219,4 +213,4 @@ export const EnvironmentOverrideContextProvider = ({ssrMetadata, children}: {
   </EnvironmentOverrideContext.Provider>
 }
 
-export default AppGenerator;
+export default ClientAppGenerator;

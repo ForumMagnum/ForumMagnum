@@ -16,7 +16,7 @@ import { googleTagManagerIdSetting, isAF, isEAForum, isLW, isLWorAF, buttonBurst
 import { globalStyles } from '../themes/globalStyles/globalStyles';
 import { userCanDo, userIsAdmin } from '../lib/vulcan-users/permissions';
 import { Helmet } from "./common/Helmet";
-import { DisableNoKibitzContext, AutosaveEditorStateContext } from './common/sharedContexts';
+import { AutosaveEditorStateContextProvider, DisableNoKibitzContextProvider } from './common/sharedContexts';
 import { LayoutOptions, LayoutOptionsContext } from './hooks/useLayoutOptions';
 // enable during ACX Everywhere
 // import { HIDE_MAP_COOKIE } from '../lib/cookies/cookies';
@@ -293,8 +293,6 @@ const Layout = ({children}: {
   const currentUser = useCurrentUser();
   const currentUserId = currentUser?._id;
   const searchResultsAreaRef = useRef<HTMLDivElement|null>(null);
-  const [disableNoKibitz, setDisableNoKibitz] = useState(false); 
-  const [autosaveEditorState, setAutosaveEditorState] = useState<(() => Promise<void>) | null>(null);
   const hideNavigationSidebarDefault = currentUser ? !!(currentUser?.hideNavigationSidebar) : false
   const [hideNavigationSidebar,setHideNavigationSidebar] = useState(hideNavigationSidebarDefault);
   const [showLlmChatSidebar, setShowLlmChatSidebar] = useState(false);
@@ -362,16 +360,6 @@ const Layout = ({children}: {
     throw new Error("LayoutOptionsContext not set");
   }
 
-  const noKibitzContext = useMemo(
-    () => ({ disableNoKibitz, setDisableNoKibitz }),
-    [disableNoKibitz, setDisableNoKibitz]
-  );
-
-  const autosaveEditorStateContext = useMemo(
-    () => ({ autosaveEditorState, setAutosaveEditorState }),
-    [autosaveEditorState, setAutosaveEditorState]
-  );
-
   const isWrapped = pathname.startsWith('/wrapped');
   const isInbox = pathname.startsWith('/inbox');
 
@@ -421,9 +409,9 @@ const Layout = ({children}: {
       <LoginPopoverContextProvider>
       <SidebarsWrapper>
       <EditorCommandsContextProvider>
-      <AutosaveEditorStateContext.Provider value={autosaveEditorStateContext}>
+      <AutosaveEditorStateContextProvider>
       <LlmChatWrapper>
-      <DisableNoKibitzContext.Provider value={noKibitzContext}>
+      <DisableNoKibitzContextProvider>
       <CommentOnSelectionPageWrapper>
       <CurrentAndRecentForumEventsProvider>
         <div className={classes.topLevelContainer}>
@@ -558,9 +546,9 @@ const Layout = ({children}: {
         </div>
       </CurrentAndRecentForumEventsProvider>
       </CommentOnSelectionPageWrapper>
-      </DisableNoKibitzContext.Provider>
+      </DisableNoKibitzContextProvider>
       </LlmChatWrapper>
-      </AutosaveEditorStateContext.Provider>
+      </AutosaveEditorStateContextProvider>
       </EditorCommandsContextProvider>
       </SidebarsWrapper>
       </LoginPopoverContextProvider>
