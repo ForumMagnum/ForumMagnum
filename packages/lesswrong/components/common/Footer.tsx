@@ -1,3 +1,5 @@
+"use client";
+
 import React from 'react';
 import { defineStyles } from '../hooks/defineStyles';
 import { useStyles } from '../hooks/useStyles';
