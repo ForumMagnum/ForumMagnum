@@ -96,7 +96,7 @@ const RestrictAndNotifyModal = ({
   collectionName,
 }: {
   user: SunshineUsersList;
-  onComplete: () => void;
+  onComplete: (executeAction: () => Promise<void>) => void;
   onClose: () => void;
   rejectedReason: string;
   documentId: string;
@@ -104,7 +104,6 @@ const RestrictAndNotifyModal = ({
 }) => {
   const classes = useStyles(styles);
   const [selectedTemplateId, setSelectedTemplateId] = useState<string | null>(null);
-  const [loading, setLoading] = useState(false);
   const [messageContent, setMessageContent] = useState('');
   const [editor, setEditor] = useState<Editor | null>(null);
 
@@ -135,11 +134,10 @@ const RestrictAndNotifyModal = ({
     }
   }, [templates, user.displayName, editor]);
 
-  const handleConfirm = async () => {
+  const handleConfirm = () => {
     if (!selectedTemplateId || !messageContent) return;
 
-    setLoading(true);
-    try {
+    const executeAction = async () => {
       await rejectContentAndRemoveFromQueue({
         variables: {
           userId: user._id,
@@ -149,14 +147,9 @@ const RestrictAndNotifyModal = ({
           messageContent,
         },
       });
+    };
 
-      onComplete();
-    } catch (error) {
-      // eslint-disable-next-line no-console
-      console.error('Error restricting and notifying user:', error);
-      alert('An error occurred. Please try again.');
-      setLoading(false);
-    }
+    onComplete(executeAction);
   };
 
   const CommentEditor = getCkCommentEditor();
@@ -243,16 +236,16 @@ const RestrictAndNotifyModal = ({
         </div>
       </DialogContent>
       <DialogActions className={classes.actions}>
-        <Button onClick={onClose} disabled={loading}>
+        <Button onClick={onClose}>
           Cancel
         </Button>
         <Button
           onClick={handleConfirm}
           color="primary"
           variant="contained"
-          disabled={!selectedTemplateId || loading || !messageContent}
+          disabled={!selectedTemplateId || !messageContent}
         >
-          {loading ? 'Processing...' : 'Restrict & Notify'}
+          Restrict & Notify
         </Button>
       </DialogActions>
     </LWDialog>
