@@ -24,33 +24,42 @@ export interface UndoHistoryItem {
 export type InboxState = {
   // The local copy of users (mutated when actions complete)
   users: SunshineUsersList[];
+  // The local copy of posts (mutated when actions complete)
+  posts: SunshinePostsList[];
   // Current active tab
-  activeTab: ReviewGroup | 'all';
+  activeTab: ReviewGroup | 'all' | 'posts';
   // Focused user in inbox view
   focusedUserId: string | null;
   // Opened user in detail view
   openedUserId: string | null;
+  // Focused post in inbox view (posts don't have detail view)
+  focusedPostId: string | null;
   // Index of focused content item in detail view
   focusedContentIndex: number;
-  // Undo queue - actions that can be undone (within 30 seconds)
+  // Undo queue - actions that can be undone (within 30 seconds) - only for users
   undoQueue: UndoHistoryItem[];
-  // History - expired actions that can't be undone
+  // History - expired actions that can't be undone - only for users
   history: HistoryItem[];
 };
 
 export type InboxAction =
   | { type: 'OPEN_USER'; userId: string; }
   | { type: 'CLOSE_DETAIL'; }
-  | { type: 'CHANGE_TAB'; tab: ReviewGroup | 'all'; }
+  | { type: 'CHANGE_TAB'; tab: ReviewGroup | 'all' | 'posts'; }
   | { type: 'NEXT_USER'; }
   | { type: 'PREV_USER'; }
+  | { type: 'NEXT_POST'; }
+  | { type: 'PREV_POST'; }
+  | { type: 'FOCUS_POST'; postId: string; }
   | { type: 'NEXT_TAB'; }
   | { type: 'PREV_TAB'; }
   | { type: 'REMOVE_USER'; userId: string; }
+  | { type: 'REMOVE_POST'; postId: string; }
   | { type: 'NEXT_CONTENT'; contentLength: number; }
   | { type: 'PREV_CONTENT'; contentLength: number; }
   | { type: 'OPEN_CONTENT'; contentIndex: number; }
   | { type: 'UPDATE_USER'; userId: string; fields: Partial<SunshineUsersList>; }
+  | { type: 'UPDATE_POST'; postId: string; fields: Partial<SunshinePostsList>; }
   | { type: 'ADD_TO_UNDO_QUEUE'; item: UndoHistoryItem; }
   | { type: 'UNDO_ACTION'; userId: string; }
   | { type: 'EXPIRE_UNDO_ITEM'; userId: string; };
@@ -73,6 +82,7 @@ export function getFilteredGroups(
 export function getVisibleTabsInOrder(
   groupedUsers: Partial<Record<ReviewGroup, SunshineUsersList[]>>,
   totalUsers: number,
+  totalPosts: number,
 ): TabInfo[] {
   const tabsInOrder = getTabsInPriorityOrder();
   const tabs: TabInfo[] = [];
@@ -84,6 +94,7 @@ export function getVisibleTabsInOrder(
   }
   
   tabs.push({ group: 'all', count: totalUsers });
+  tabs.push({ group: 'posts', count: totalPosts });
   
   return tabs;
 }
@@ -184,6 +195,18 @@ export function inboxStateReducer(state: InboxState, action: InboxAction): Inbox
       // Don't change tabs in detail view
       if (state.openedUserId) return state;
 
+      // Switching to posts tab
+      if (action.tab === 'posts') {
+        return {
+          ...state,
+          activeTab: 'posts',
+          focusedPostId: state.posts[0]?._id ?? null,
+          focusedUserId: null,
+          focusedContentIndex: 0,
+        };
+      }
+
+      // Switching to a user tab
       const groupedUsers = groupBy(state.users, user => getUserReviewGroup(user));
       const filteredGroups = getFilteredGroups(groupedUsers, action.tab);
       const orderedUsers = filteredGroups.flatMap(([_, users]) => users);
@@ -192,11 +215,15 @@ export function inboxStateReducer(state: InboxState, action: InboxAction): Inbox
         ...state,
         activeTab: action.tab,
         focusedUserId: orderedUsers[0]?._id ?? null,
+        focusedPostId: null,
         focusedContentIndex: 0,
       };
     }
 
     case 'NEXT_USER': {
+      // Don't navigate users when on posts tab
+      if (state.activeTab === 'posts') return state;
+
       const groupedUsers = groupBy(state.users, user => getUserReviewGroup(user));
       const filteredGroups = getFilteredGroups(groupedUsers, state.activeTab);
       const orderedUsers = filteredGroups.flatMap(([_, users]) => users);
@@ -216,6 +243,9 @@ export function inboxStateReducer(state: InboxState, action: InboxAction): Inbox
     }
 
     case 'PREV_USER': {
+      // Don't navigate users when on posts tab
+      if (state.activeTab === 'posts') return state;
+
       const groupedUsers = groupBy(state.users, user => getUserReviewGroup(user));
       const filteredGroups = getFilteredGroups(groupedUsers, state.activeTab);
       const orderedUsers = filteredGroups.flatMap(([_, users]) => users);
@@ -238,7 +268,7 @@ export function inboxStateReducer(state: InboxState, action: InboxAction): Inbox
       if (state.openedUserId) return state;
 
       const groupedUsers = groupBy(state.users, user => getUserReviewGroup(user));
-      const visibleTabs = getVisibleTabsInOrder(groupedUsers, state.users.length);
+      const visibleTabs = getVisibleTabsInOrder(groupedUsers, state.users.length, state.posts.length);
 
       if (visibleTabs.length === 0) return state;
 
@@ -256,6 +286,19 @@ export function inboxStateReducer(state: InboxState, action: InboxAction): Inbox
       if (attempts >= visibleTabs.length) return state;
       
       const nextTab = visibleTabs[nextIndex].group;
+
+      // If switching to posts tab
+      if (nextTab === 'posts') {
+        return {
+          ...state,
+          activeTab: 'posts',
+          focusedPostId: state.posts[0]?._id ?? null,
+          focusedUserId: null,
+          focusedContentIndex: 0,
+        };
+      }
+
+      // Switching to a user tab
       const filteredGroups = getFilteredGroups(groupedUsers, nextTab);
       const orderedUsers = filteredGroups.flatMap(([_, users]) => users);
 
@@ -263,6 +306,7 @@ export function inboxStateReducer(state: InboxState, action: InboxAction): Inbox
         ...state,
         activeTab: nextTab,
         focusedUserId: orderedUsers[0]?._id ?? null,
+        focusedPostId: null,
         focusedContentIndex: 0,
       };
     }
@@ -271,7 +315,7 @@ export function inboxStateReducer(state: InboxState, action: InboxAction): Inbox
       if (state.openedUserId) return state;
 
       const groupedUsers = groupBy(state.users, user => getUserReviewGroup(user));
-      const visibleTabs = getVisibleTabsInOrder(groupedUsers, state.users.length);
+      const visibleTabs = getVisibleTabsInOrder(groupedUsers, state.users.length, state.posts.length);
 
       if (visibleTabs.length === 0) return state;
 
@@ -289,6 +333,19 @@ export function inboxStateReducer(state: InboxState, action: InboxAction): Inbox
       if (attempts >= visibleTabs.length) return state;
       
       const prevTab = visibleTabs[prevIndex].group;
+
+      // If switching to posts tab
+      if (prevTab === 'posts') {
+        return {
+          ...state,
+          activeTab: 'posts',
+          focusedPostId: state.posts[0]?._id ?? null,
+          focusedUserId: null,
+          focusedContentIndex: 0,
+        };
+      }
+
+      // Switching to a user tab
       const filteredGroups = getFilteredGroups(groupedUsers, prevTab);
       const orderedUsers = filteredGroups.flatMap(([_, users]) => users);
 
@@ -296,7 +353,68 @@ export function inboxStateReducer(state: InboxState, action: InboxAction): Inbox
         ...state,
         activeTab: prevTab,
         focusedUserId: orderedUsers[0]?._id ?? null,
+        focusedPostId: null,
         focusedContentIndex: 0,
+      };
+    }
+
+    case 'UPDATE_POST': {
+      const updatedPosts = state.posts.map(post => post._id === action.postId
+        ? { ...post, ...action.fields }
+        : post
+      );
+      return {
+        ...state,
+        posts: updatedPosts,
+      };
+    }
+
+    case 'NEXT_POST': {
+      if (state.posts.length === 0) return state;
+
+      const currentIndex = state.posts.findIndex(p => p._id === state.focusedPostId);
+      const nextIndex = (currentIndex + 1) % state.posts.length;
+      const nextPostId = state.posts[nextIndex]._id;
+
+      return { ...state, focusedPostId: nextPostId };
+    }
+
+    case 'PREV_POST': {
+      if (state.posts.length === 0) return state;
+
+      const currentIndex = state.posts.findIndex(p => p._id === state.focusedPostId);
+      const prevIndex = currentIndex <= 0 ? state.posts.length - 1 : currentIndex - 1;
+      const prevPostId = state.posts[prevIndex]._id;
+
+      return { ...state, focusedPostId: prevPostId };
+    }
+
+    case 'FOCUS_POST': {
+      return {
+        ...state,
+        focusedPostId: action.postId,
+      };
+    }
+
+    case 'REMOVE_POST': {
+      const newPosts = state.posts.filter(p => p._id !== action.postId);
+
+      if (newPosts.length === 0) {
+        return {
+          ...state,
+          posts: [],
+          focusedPostId: null,
+        };
+      }
+
+      const currentIndex = state.posts.findIndex(p => p._id === state.focusedPostId);
+      const nextIndex = currentIndex >= newPosts.length ? 0 : Math.max(0, currentIndex);
+      const nextPostId = newPosts[nextIndex]._id;
+
+      return {
+        ...state,
+        posts: newPosts,
+        focusedPostId: nextPostId,
       };
     }
 
@@ -305,13 +423,20 @@ export function inboxStateReducer(state: InboxState, action: InboxAction): Inbox
 
       if (newUsers.length === 0) {
         return {
+          ...state,
           users: [],
           activeTab: 'all',
           focusedUserId: null,
           openedUserId: null,
           focusedContentIndex: 0,
-          undoQueue: state.undoQueue,
-          history: state.history,
+        };
+      }
+
+      // If we're on posts tab, just remove the user without changing focus
+      if (state.activeTab === 'posts') {
+        return {
+          ...state,
+          users: newUsers,
         };
       }
 
@@ -337,23 +462,19 @@ export function inboxStateReducer(state: InboxState, action: InboxAction): Inbox
 
         if (state.openedUserId) {
           return {
+            ...state,
             users: newUsers,
-            activeTab: state.activeTab,
             focusedUserId: null,
             openedUserId: nextUserId,
             focusedContentIndex: 0,
-            undoQueue: state.undoQueue,
-            history: state.history,
           };
         } else {
           return {
+            ...state,
             users: newUsers,
-            activeTab: state.activeTab,
             focusedUserId: nextUserId,
             openedUserId: null,
             focusedContentIndex: 0,
-            undoQueue: state.undoQueue,
-            history: state.history,
           };
         }
       }
@@ -378,25 +499,23 @@ export function inboxStateReducer(state: InboxState, action: InboxAction): Inbox
         // When switching tabs due to current tab being empty,
         // always return to inbox view (not detail view)
         return {
+          ...state,
           users: newUsers,
           activeTab: nextTab,
           focusedUserId: nextUserId,
           openedUserId: null,
           focusedContentIndex: 0,
-          undoQueue: state.undoQueue,
-          history: state.history,
         };
       }
 
       // Fallback: no users anywhere
       return {
+        ...state,
         users: newUsers,
         activeTab: 'all',
         focusedUserId: null,
         openedUserId: null,
         focusedContentIndex: 0,
-        undoQueue: state.undoQueue,
-        history: state.history,
       };
     }
 

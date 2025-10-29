@@ -21548,6 +21548,25 @@ type multiUserModerationInboxQueryQueryVariables = Exact<{
 
 type multiUserModerationInboxQueryQuery = multiUserModerationInboxQueryQuery_Query;
 
+type multiPostModerationInboxQueryQuery_posts_MultiPostOutput_results_Post = (
+  { __typename?: 'Post' }
+  & SunshinePostsList
+);
+
+type multiPostModerationInboxQueryQuery_posts_MultiPostOutput = { __typename?: 'MultiPostOutput', totalCount: number | null, results: Array<multiPostModerationInboxQueryQuery_posts_MultiPostOutput_results_Post> };
+
+type multiPostModerationInboxQueryQuery_Query = { __typename?: 'Query', posts: multiPostModerationInboxQueryQuery_posts_MultiPostOutput | null };
+
+
+type multiPostModerationInboxQueryQueryVariables = Exact<{
+  selector: InputMaybe<PostSelector>;
+  limit: InputMaybe<Scalars['Int']['input']>;
+  enableTotal: InputMaybe<Scalars['Boolean']['input']>;
+}>;
+
+
+type multiPostModerationInboxQueryQuery = multiPostModerationInboxQueryQuery_Query;
+
 type updateUserModerationKeyboardMutation_updateUser_UserOutput_data_User = (
   { __typename?: 'User' }
   & SunshineUsersList
@@ -21588,6 +21607,38 @@ type approveCurrentContentOnlyModerationKeyboardMutationVariables = Exact<{
 
 
 type approveCurrentContentOnlyModerationKeyboardMutation = approveCurrentContentOnlyModerationKeyboardMutation_Mutation;
+
+type updatePostModerationPostSidebarMutation_updatePost_PostOutput_data_Post = (
+  { __typename?: 'Post' }
+  & PostsList
+);
+
+type updatePostModerationPostSidebarMutation_updatePost_PostOutput = { __typename?: 'PostOutput', data: updatePostModerationPostSidebarMutation_updatePost_PostOutput_data_Post | null };
+
+type updatePostModerationPostSidebarMutation_Mutation = { __typename?: 'Mutation', updatePost: updatePostModerationPostSidebarMutation_updatePost_PostOutput | null };
+
+
+type updatePostModerationPostSidebarMutationVariables = Exact<{
+  selector: SelectorInput;
+  data: UpdatePostDataInput;
+}>;
+
+
+type updatePostModerationPostSidebarMutation = updatePostModerationPostSidebarMutation_Mutation;
+
+type createModeratorActionModerationPostSidebarMutation_createModeratorAction_ModeratorActionOutput_data_ModeratorAction = { __typename?: 'ModeratorAction', _id: string };
+
+type createModeratorActionModerationPostSidebarMutation_createModeratorAction_ModeratorActionOutput = { __typename?: 'ModeratorActionOutput', data: createModeratorActionModerationPostSidebarMutation_createModeratorAction_ModeratorActionOutput_data_ModeratorAction | null };
+
+type createModeratorActionModerationPostSidebarMutation_Mutation = { __typename?: 'Mutation', createModeratorAction: createModeratorActionModerationPostSidebarMutation_createModeratorAction_ModeratorActionOutput | null };
+
+
+type createModeratorActionModerationPostSidebarMutationVariables = Exact<{
+  data: CreateModeratorActionDataInput;
+}>;
+
+
+type createModeratorActionModerationPostSidebarMutation = createModeratorActionModerationPostSidebarMutation_Mutation;
 
 type updateUserModerationSidebarMutation_updateUser_UserOutput_data_User = (
   { __typename?: 'User' }
