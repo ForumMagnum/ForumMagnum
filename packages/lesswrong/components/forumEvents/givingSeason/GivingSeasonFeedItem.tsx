@@ -15,16 +15,29 @@ import classNames from "classnames";
 
 const styles = defineStyles("GivingSeasonFeedItem", (theme: ThemeType) => ({
   root: {
+    position: "relative",
     display: "flex",
     gap: "8px",
     fontSize: 14,
     lineHeight: "140%",
     padding: 8,
     borderRadius: theme.borderRadius.default,
+    overflow: "hidden",
     cursor: "pointer",
-    "&:hover": {
-      background: theme.palette.givingSeason.feedHover,
+    "&:hover .GivingSeasonFeedItem-background": {
+      opacity: 0.2,
     },
+  },
+  background: {
+    pointerEvents: "none",
+    position: "absolute",
+    top: 0,
+    left: 0,
+    width: "100%",
+    height: "100%",
+    background: "var(--event-color)",
+    opacity: 0,
+    transition: "opacity ease 0.2s",
   },
   icon: {
     display: "flex",
@@ -63,8 +76,8 @@ const styles = defineStyles("GivingSeasonFeedItem", (theme: ThemeType) => ({
   },
   date: {
     opacity: 0.7,
-    whiteSpace: "nowrap",
     float: "right",
+    whiteSpace: "nowrap",
     marginRight: 12,
   },
   info: {
@@ -109,6 +122,7 @@ export const GivingSeasonFeedItem = ({
   const classes = useStyles(styles);
   return (
     <div onClick={onClick} className={classes.root}>
+      <div className={classes.background} />
       <div
         className={classNames(
           classes.icon,

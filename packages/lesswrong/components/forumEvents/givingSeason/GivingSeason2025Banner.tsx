@@ -1,4 +1,4 @@
-import React, { CSSProperties, FC, Fragment, MouseEvent, useCallback } from "react";
+import React, { CSSProperties, FC, Fragment, useCallback } from "react";
 import { registerComponent } from "@/lib/vulcan-lib/components";
 import { defineStyles, useStyles } from "@/components/hooks/useStyles";
 import { AnalyticsContext, useTracking } from "@/lib/analyticsEvents";
@@ -7,7 +7,6 @@ import { commentGetPageUrl } from "@/lib/collections/comments/helpers";
 import { formatStat } from "@/components/users/EAUserTooltipContent";
 import { HEADER_HEIGHT } from "@/components/common/Header";
 import { useCurrentTime } from "@/lib/utils/timeUtil";
-import { useNavigate } from "@/lib/routeUtil";
 import { Link } from "@/lib/reactRouterWrapper";
 import {
   ELECTION_DONATE_HREF,
@@ -77,7 +76,7 @@ const styles = defineStyles("GivingSeason2025Banner", (theme: ThemeType) => ({
       color: "var(--event-color)",
       padding: "0 24px 12px",
       margin: "0 auto",
-      fontSize: 19,
+      fontSize: 16,
       fontWeight: 600,
       letterSpacing: "-3%",
       borderBottom: "1px solid var(--event-color)",
@@ -103,7 +102,7 @@ const styles = defineStyles("GivingSeason2025Banner", (theme: ThemeType) => ({
       justifyContent: "center",
     },
     [theme.breakpoints.down("md")]: {
-      gridTemplateColumns: "400px 500px",
+      gridTemplateColumns: "450px 500px",
       padding: "20px 16px",
       gap: "24px",
     },
@@ -120,12 +119,19 @@ const styles = defineStyles("GivingSeason2025Banner", (theme: ThemeType) => ({
   },
   event: {
     cursor: "pointer",
-    transition: "opacity ease 0.2s",
     display: "contents",
+    "& > *": {
+      transition: "opacity ease 0.2s",
+    },
   },
   eventNotSelected: {
     "& > *": {
       opacity: 0.6,
+    },
+    "&:hover": {
+      "& > *": {
+        opacity: 1,
+      },
     },
   },
   eventDate: {
@@ -141,7 +147,7 @@ const styles = defineStyles("GivingSeason2025Banner", (theme: ThemeType) => ({
     lineHeight: "115%",
     letterSpacing: "-0.04em",
     [theme.breakpoints.down("xs")]: {
-      fontSize: 24,
+      fontSize: 28,
     },
   },
   eventDescription: {
@@ -185,16 +191,30 @@ const styles = defineStyles("GivingSeason2025Banner", (theme: ThemeType) => ({
   electionStatus: {
     display: "flex",
     flexDirection: "column",
-    gap: 4,
+    gap: "4px",
+    width: "100%",
     maxWidth: "100%",
   },
   amountRaised: {
-    fontSize: 19,
     fontWeight: 700,
     lineHeight: "140%",
     letterSpacing: "-3%",
     "& span": {
-      opacity: 0.4,
+      opacity: 0.5,
+    },
+  },
+  amountRaisedDesktop: {
+    fontSize: 19,
+    [theme.breakpoints.down("sm")]: {
+      display: "none",
+    },
+  },
+  amountRaisedMobile: {
+    display: "flex",
+    justifyContent: "space-between",
+    fontSize: 16,
+    [theme.breakpoints.up("md")]: {
+      display: "none",
     },
   },
   progress: {
@@ -204,6 +224,9 @@ const styles = defineStyles("GivingSeason2025Banner", (theme: ThemeType) => ({
     height: 12,
     borderRadius: 100,
     overflow: "hidden",
+    [theme.breakpoints.down("sm")]: {
+      width: "100%",
+    },
   },
   progressBackground: {
     position: "absolute",
@@ -237,19 +260,23 @@ const styles = defineStyles("GivingSeason2025Banner", (theme: ThemeType) => ({
     alignItems: "center",
     gap: "8px",
     height: "100%",
-    "& button": {
+    "& a": {
       cursor: "pointer",
       height: 38,
       padding: "12px 24px",
       outline: "none",
       borderRadius: theme.borderRadius.default,
       fontSize: 14,
-      fontWeight: 600,
+      fontWeight: 500,
       display: "flex",
       alignItems: "center",
       justifyContent: "center",
+      textDecoration: "none",
       border: `1px solid ${theme.palette.text.alwaysBlack}`,
       transition: "background-color ease 0.2, color ease 0.2s",
+      "&:hover": {
+        opacity: 1,
+      },
     },
     [theme.breakpoints.down("sm")]: {
       display: "none",
@@ -276,7 +303,6 @@ const styles = defineStyles("GivingSeason2025Banner", (theme: ThemeType) => ({
 export const GivingSeason2025Banner: FC = () => {
   const now = useCurrentTime();
   const {captureEvent} = useTracking();
-  const navigate = useNavigate();
   const {
     currentEvent,
     selectedEvent,
@@ -285,15 +311,9 @@ export const GivingSeason2025Banner: FC = () => {
     amountTarget,
   } = useGivingSeason();
 
-  const onButtonClick = useCallback((
-    eventName: string,
-    href: string,
-    ev: MouseEvent<HTMLButtonElement>,
-  ) => {
-    ev.preventDefault();
+  const onLinkClick = useCallback((eventName: string, href: string) => {
     captureEvent(eventName, {href});
-    navigate(href);
-  }, [captureEvent, navigate]);
+  }, [captureEvent]);
 
   const classes = useStyles(styles);
   if (!currentEvent) {
@@ -359,11 +379,9 @@ export const GivingSeason2025Banner: FC = () => {
                     <div />
                     <div className={classes.eventDescription}>
                       {event.description}{" "}
-                      {event.readMoreHref && (
-                        <Link to={event.readMoreHref} className={classes.readMore}>
-                          Read more.
-                        </Link>
-                      )}
+                      <Link to={event.readMoreHref} className={classes.readMore}>
+                        Read more.
+                      </Link>
                     </div>
                   </>
                 )}
@@ -412,7 +430,7 @@ export const GivingSeason2025Banner: FC = () => {
                   }}
                 />
             )}
-            {selectedEvent?.tag &&
+            {selectedEvent.tag &&
                 selectedEvent.end < now &&
                 selectedEvent !== currentEvent && (
               <GivingSeasonTopPosts
@@ -424,9 +442,19 @@ export const GivingSeason2025Banner: FC = () => {
         </div>
         <div className={classes.election}>
           <div className={classes.electionStatus}>
-            <div className={classes.amountRaised}>
+            <div className={classNames(
+              classes.amountRaised,
+              classes.amountRaisedDesktop,
+            )}>
               ${formatStat(amountRaised)} raised{" "}
               <span>to the Donation Election Fund</span>
+            </div>
+            <div className={classNames(
+              classes.amountRaised,
+              classes.amountRaisedMobile,
+            )}>
+              <span>Donation Election Fund</span>
+              <div>${formatStat(amountRaised)}</div>
             </div>
             <div className={classes.progress} aria-hidden>
               <div className={classes.progressBackground} />
@@ -440,18 +468,22 @@ export const GivingSeason2025Banner: FC = () => {
             </div>
           </div>
           <div className={classes.electionButtons}>
-            <button
-              onClick={onButtonClick.bind(null, "learnMore", ELECTION_INFO_HREF)}
+            <a
+              href={ELECTION_INFO_HREF}
+              onClick={onLinkClick.bind(null, "learnMore", ELECTION_INFO_HREF)}
               className={classes.buttonOutlined}
             >
               Learn more
-            </button>
-            <button
-              onClick={onButtonClick.bind(null, "donate", ELECTION_DONATE_HREF)}
+            </a>
+            <a
+              href={ELECTION_DONATE_HREF}
+              onClick={onLinkClick.bind(null, "donate", ELECTION_DONATE_HREF)}
               className={classes.buttonFilled}
+              target="_blank"
+              rel="noopener noreferrer"
             >
               Donate
-            </button>
+            </a>
           </div>
         </div>
       </div>

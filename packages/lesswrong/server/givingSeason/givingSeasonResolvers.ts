@@ -50,7 +50,7 @@ export const givingSeasonTagFeedGraphQLQueries = {
         viewBasedSubquery({
           type: "newPost",
           collection: Posts,
-          sortField: "createdAt",
+          sortField: "postedAt",
           context,
           selector: {
             _id: {$in: postIds},
@@ -61,7 +61,7 @@ export const givingSeasonTagFeedGraphQLQueries = {
         viewBasedSubquery({
           type: "newComment",
           collection: Comments,
-          sortField: "createdAt",
+          sortField: "postedAt",
           context,
           selector: {
             postId: {$in: postIds},
