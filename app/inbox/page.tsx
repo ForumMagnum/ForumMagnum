@@ -10,7 +10,11 @@ export async function generateMetadata(): Promise<Metadata> {
 }
 
 export default function Page() {
-  return <RouteRoot delayedStatusCode metadata={{noFooter: true}}>
+  return <RouteRoot
+    delayedStatusCode
+    metadata={{noFooter: true}}
+    fullscreen
+  >
     <InboxWrapper />
   </RouteRoot>
 }

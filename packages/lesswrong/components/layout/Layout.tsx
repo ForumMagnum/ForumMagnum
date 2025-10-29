@@ -54,7 +54,7 @@ import { gql } from "@/lib/generated/gql-codegen";
 import { DelayedLoading } from '@/components/common/DelayedLoading';
 import { SuspenseWrapper } from '@/components/common/SuspenseWrapper';
 import { useRouteMetadata } from './ClientRouteMetadataContext';
-import { isFullscreenRoute, isHomeRoute, isStandaloneRoute, isStaticHeaderRoute, isSunshineSidebarRoute, isUnspacedGridRoute } from '@/lib/routeChecks';
+import { isFullscreenRoute, isHomeRoute, isStandaloneRoute, isStaticHeaderRoute, isSunshineSidebarRoute } from '@/lib/routeChecks';
 import { AutoDarkModeWrapper } from '@/components/themes/ThemeContextProvider';
 import { EditorCommandsContextProvider } from '@/components/editor/EditorCommandsContext';
 import { NO_ADMIN_NEXT_REDIRECT_COOKIE, SHOW_LLM_CHAT_COOKIE } from '@/lib/cookies/cookies';
@@ -88,34 +88,6 @@ const STICKY_SECTION_TOP_MARGIN = 20;
 const allowedIncompletePaths: string[] = ["termsOfUse"];
 
 const styles = defineStyles("Layout", (theme: ThemeType) => ({
-  main: {
-    paddingTop: theme.spacing.mainLayoutPaddingTop,
-    marginLeft: "auto",
-    marginRight: "auto",
-    // Make sure the background extends to the bottom of the page, I'm sure there is a better way to do this
-    // but almost all pages are bigger than this anyway so it's not that important
-    minHeight: `calc(100vh - ${getHeaderHeight()}px)`,
-    gridArea: 'main',
-    [theme.breakpoints.down('md')]: {
-      paddingTop: theme.isFriendlyUI ? 0 : theme.spacing.mainLayoutPaddingTop,
-    },
-    [theme.breakpoints.down('sm')]: {
-      paddingTop: theme.isFriendlyUI ? 0 : 10,
-      paddingLeft: 8,
-      paddingRight: 8,
-    },
-  },
-  mainFullscreen: {
-    height: "100%",
-    padding: 0,
-  },
-  mainUnspacedGrid: {
-    [theme.breakpoints.down('sm')]: {
-      paddingTop: 0,
-      paddingLeft: 0,
-      paddingRight: 0,
-    }
-  },
   fullscreenBodyWrapper: {
     flexBasis: 0,
     flexGrow: 1,
@@ -137,26 +109,6 @@ const styles = defineStyles("Layout", (theme: ThemeType) => ({
         minmax(0, ${isLWorAF() ? 7 : 1}fr)
         minmax(0, min-content)
       `,
-    },
-    [theme.breakpoints.down('md')]: {
-      display: 'block'
-    }
-  },
-  unspacedGridActivated: {
-    '@supports (grid-template-areas: "title")': {
-      display: 'grid',
-      gridTemplateAreas: `
-        "navSidebar main sunshine"
-      `,
-      gridTemplateColumns: `
-        0px
-        minmax(0, 1fr)
-        minmax(0, min-content)
-      `,
-    },
-    '& .Layout-main': {
-      width: '100%',
-      paddingTop: 0,
     },
     [theme.breakpoints.down('md')]: {
       display: 'block'
@@ -331,7 +283,6 @@ const Layout = ({children}: {
     // a property on routes themselves.
     const standaloneNavigation = !!routeMetadata.hasLeftNavigationColumn;
     const shouldUseGridLayout = !!routeMetadata.hasLeftNavigationColumn;
-    const unspacedGridLayout = isUnspacedGridRoute(pathname);
 
     // The friendly home page has a unique grid layout, to account for the right hand side column.
     const friendlyHomeLayout = isFriendlyUI() && isHomeRoute(pathname);
@@ -390,21 +341,23 @@ const Layout = ({children}: {
                 </SuspenseWrapper> */}
               </span>}
 
+              <ErrorBoundary>
+                <FlashMessages />
+              </ErrorBoundary>
+              {isFriendlyUI() && !isWrapped && <AdminToggle />}
+
               <div className={classNames({
-                [classes.spacedGridActivated]: shouldUseGridLayout && !unspacedGridLayout,
-                [classes.unspacedGridActivated]: shouldUseGridLayout && unspacedGridLayout,
+                [classes.spacedGridActivated]: shouldUseGridLayout,
                 [classes.eaHomeLayout]: friendlyHomeLayout && !renderSunshineSidebar,
                 [classes.fullscreenBodyWrapper]: isFullscreenRoute(pathname),
               }
               )}>
-                {isFriendlyUI() && !isWrapped && <AdminToggle />}
                 {standaloneNavigation && <SuspenseWrapper fallback={<span/>} name="NavigationStandalone" >
                   <MaybeStickyWrapper sticky={friendlyHomeLayout}>
                     <DeferRender ssr={true} clientTiming='mobile-aware'>
                       <SuspenseWrapper name="NavigationStandalone">
                         <NavigationStandalone
                           sidebarHidden={hideNavigationSidebar}
-                          unspacedGridLayout={unspacedGridLayout}
                           noTopMargin={friendlyHomeLayout}
                         />
                       </SuspenseWrapper>
@@ -412,23 +365,9 @@ const Layout = ({children}: {
                   </MaybeStickyWrapper>
                 </SuspenseWrapper>}
                 <div ref={searchResultsAreaRef} className={classes.searchResultsArea} />
-                <div className={classNames(classes.main, {
-                  [classes.mainFullscreen]: isFullscreenRoute(pathname),
-                  [classes.mainUnspacedGrid]: shouldUseGridLayout && unspacedGridLayout,
-                })}>
-                  <ErrorBoundary>
-                    <FlashMessages />
-                  </ErrorBoundary>
-                  <ErrorBoundary>
-                    <SuspenseWrapper name="Route" fallback={<DelayedLoading/>}>
-                      {children}
-                    </SuspenseWrapper>
-                    {/* ea-forum-look-here We've commented out some EAForum-specific components for bundle size reasons */}
-                    {/* <SuspenseWrapper name="OnboardingFlow">
-                      {!isIncompletePath && isEAForum() ? <EAOnboardingFlow/> : <BasicOnboardingFlow/>}
-                    </SuspenseWrapper> */}
-                  </ErrorBoundary>
-                </div>
+                
+                {children}
+                
                 {isLW() && <LWBackgroundImage standaloneNavigation={standaloneNavigation} />}
                 {/* {!renderSunshineSidebar &&
                   friendlyHomeLayout &&
