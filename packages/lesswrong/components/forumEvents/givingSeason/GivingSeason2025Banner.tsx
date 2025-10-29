@@ -102,7 +102,7 @@ const styles = defineStyles("GivingSeason2025Banner", (theme: ThemeType) => ({
       justifyContent: "center",
     },
     [theme.breakpoints.down("md")]: {
-      gridTemplateColumns: "450px 500px",
+      gridTemplateColumns: "420px 500px",
       padding: "20px 16px",
       gap: "24px",
     },

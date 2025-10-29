@@ -57,6 +57,7 @@ export const givingSeasonTagFeedGraphQLQueries = {
             baseScore: {$gt: 0},
           },
           includeDefaultSelector: true,
+          sortDirection: "desc",
         }),
         viewBasedSubquery({
           type: "newComment",
@@ -68,6 +69,7 @@ export const givingSeasonTagFeedGraphQLQueries = {
             baseScore: {$gt: 0},
           },
           includeDefaultSelector: true,
+          sortDirection: "desc",
         }),
       ],
     });
