@@ -120,6 +120,9 @@ export const GivingSeasonFeedItem = ({
 }) => {
   const {onClick} = useClickableCell({href, ignoreLinks: true});
   const classes = useStyles(styles);
+  if (!post) {
+    return null;
+  }
   return (
     <div onClick={onClick} className={classes.root}>
       <div className={classes.background} />
@@ -151,12 +154,12 @@ export const GivingSeasonFeedItem = ({
             </InteractionWrapper>{" "}
             <span className={classes.action}>{action}</span>{" "}
             <InteractionWrapper className={classes.interaction}>
-              <PostsTooltip postId={post?._id} placement="bottom-start">
+              <PostsTooltip postId={post._id} placement="bottom-start">
                 <Link
-                  to={post ? postGetPageUrl(post) : "#"}
+                  to={postGetPageUrl(post)}
                   className={classes.post}
                 >
-                  {post?.title}
+                  {post.title}
                 </Link>
               </PostsTooltip>
             </InteractionWrapper>
