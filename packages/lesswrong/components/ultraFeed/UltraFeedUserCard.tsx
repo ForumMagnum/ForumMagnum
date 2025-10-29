@@ -2,7 +2,6 @@ import React, { useEffect, useRef, useCallback } from 'react';
 import classNames from 'classnames';
 import { defineStyles, useStyles } from '../hooks/useStyles';
 import { useCurrentUserId } from '../common/withUser';
-import { useDialog } from '../common/withDialog';
 import FollowUserButton from "../users/FollowUserButton";
 import UserMetaInfo from "../users/UserMetaInfo";
 import UserContentFeed from "../users/UserContentFeed";
@@ -10,7 +9,6 @@ import { Link } from '../../lib/reactRouterWrapper';
 import { userGetProfileUrl } from '../../lib/collections/users/helpers';
 import UserActionsButton from "../dropdowns/users/UserActionsButton";
 import FeedContentBody from "./FeedContentBody";
-import UltraFeedUserDialog from "./UltraFeedUserDialog";
 import { SHOW_ALL_BREAKPOINT_VALUE } from './ultraFeedSettingsTypes';
 
 const styles = defineStyles("UltraFeedUserCard", (theme: ThemeType) => ({
@@ -142,23 +140,9 @@ const UltraFeedUserCard = ({ user, inModal = false, onNameVisibilityChange }: {
 }) => {
   const classes = useStyles(styles);
   const currentUserId = useCurrentUserId();
-  const { openDialog } = useDialog();
   const nameRef = useRef<HTMLDivElement>(null);
   const scrollContainerRef = useRef<HTMLDivElement>(null);
   
-  const handleOpenUserModal = useCallback(() => {
-    if (!user) return;
-    openDialog({
-      name: "UltraFeedUserDialog",
-      closeOnNavigate: true,
-      contents: ({ onClose }) => (
-        <UltraFeedUserDialog
-          user={user}
-          onClose={onClose}
-        />
-      )
-    });
-  }, [openDialog, user]);
 
   // Track visibility of the name row when in modal
   useEffect(() => {
@@ -240,12 +224,12 @@ const UltraFeedUserCard = ({ user, inModal = false, onNameVisibilityChange }: {
     <div className={classNames(classes.root, classes.rootInHover)}>
       <div className={classes.hoverCardContent}>
         <div className={classNames(classes.nameRow, classes.nameRowHover)}>
-          <div 
+          <Link
+            to={userGetProfileUrl(user)}
             className={classNames(classes.name, classes.nameInHover, classes.nameLink)}
-            onClick={handleOpenUserModal}
           >
             {displayName}
-          </div>
+          </Link>
           <div className={classes.followButton}>
             <FollowUserButton user={user} styleVariant="ultraFeed" />
           </div>
@@ -258,7 +242,7 @@ const UltraFeedUserCard = ({ user, inModal = false, onNameVisibilityChange }: {
             html={htmlBio}
             initialWordCount={250}
             maxWordCount={1000}
-            onContinueReadingClick={handleOpenUserModal}
+            continueReadingUrl={profileUrl}
             className={classes.bio}
           />
         )}
