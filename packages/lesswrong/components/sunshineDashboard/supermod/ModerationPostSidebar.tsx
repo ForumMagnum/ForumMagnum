@@ -10,6 +10,7 @@ import FooterTagList from '@/components/tagging/FooterTagList';
 import classNames from 'classnames';
 import PostsPageWrapper from '@/components/posts/PostsPage/PostsPageWrapper';
 import ForumIcon from '@/components/common/ForumIcon';
+import KeystrokeDisplay from './KeystrokeDisplay';
 import type { InboxAction } from './inboxReducer';
 import { usePostReviewActions } from './usePostReviewActions';
 
@@ -59,6 +60,13 @@ const styles = defineStyles('ModerationPostSidebar', (theme: ThemeType) => ({
     fontSize: 13,
     padding: '6px 12px',
     minWidth: 'auto',
+    display: 'flex',
+    alignItems: 'center',
+    gap: 4,
+  },
+  buttonIcon: {
+    width: 14,
+    marginRight: 4,
   },
   robotIcon: {
     width: 14,
@@ -140,36 +148,40 @@ const ModerationPostSidebar = ({
 
         <div className={classes.buttonRow}>
           <Button onClick={markAsPersonal} className={classes.button}>
-            <PersonIcon style={{ width: 14, marginRight: 4 }} />
+            <PersonIcon className={classes.buttonIcon} />
             Personal
             {autoFrontpage === "hide" && (
               <span className={classes.robotIcon}>
                 <ForumIcon icon="Robot" />
               </span>
             )}
+            <KeystrokeDisplay keystroke="P" withMargin />
           </Button>
           {post.submitToFrontpage && (
             <Button onClick={markAsFrontpage} className={classes.button}>
-              <HomeIcon style={{ width: 14, marginRight: 4 }} />
+              <HomeIcon className={classes.buttonIcon} />
               Frontpage
               {autoFrontpage === "show" && (
                 <span className={classes.robotIcon}>
                   <ForumIcon icon="Robot" />
                 </span>
               )}
+              <KeystrokeDisplay keystroke="F" withMargin />
             </Button>
           )}
           <Button onClick={moveToDraft} className={classes.button}>
-            <ClearIcon style={{ width: 14, marginRight: 4 }} />
+            <ClearIcon className={classes.buttonIcon} />
             Draft
+            <KeystrokeDisplay keystroke="D" withMargin />
           </Button>
           <Button
             onClick={flagUser}
             disabled={isUserAlreadyFlagged}
             className={classes.button}
           >
-            <VisibilityOutlinedIcon style={{ width: 14, marginRight: 4 }} />
+            <VisibilityOutlinedIcon className={classes.buttonIcon} />
             Flag User
+            <KeystrokeDisplay keystroke="U" withMargin />
           </Button>
         </div>
       </div>

@@ -12,6 +12,7 @@ import ModerationDetailView from './ModerationDetailView';
 import ModerationSidebar from './ModerationSidebar';
 import ModerationPostSidebar from './ModerationPostSidebar';
 import ModerationKeyboardHandler from './ModerationKeyboardHandler';
+import ModerationPostKeyboardHandler from './ModerationPostKeyboardHandler';
 import ModerationUndoHistory from './ModerationUndoHistory';
 import Loading from '@/components/vulcan-core/Loading';
 import groupBy from 'lodash/groupBy';
@@ -269,27 +270,39 @@ const ModerationInboxInner = ({ users, posts, initialOpenedUserId, currentUser }
 
   return (
     <div className={classes.root}>
-      <ModerationKeyboardHandler
-        onNextUser={isPostsTab ? handleNextPost : handleNextUser}
-        onPrevUser={isPostsTab ? handlePrevPost : handlePrevUser}
-        onNextTab={handleNextTab}
-        onPrevTab={handlePrevTab}
-        onOpenDetail={() => {
-          if (state.focusedUserId && !state.openedUserId) {
-            handleOpenUser(state.focusedUserId);
-          } else if (!state.focusedUserId && orderedUsers.length > 0) {
-            handleOpenUser(orderedUsers[0]._id);
-          }
-        }}
-        onCloseDetail={handleCloseDetail}
-        selectedUser={sidebarUser}
-        selectedContentIndex={state.focusedContentIndex}
-        currentUser={currentUser}
-        addToUndoQueue={addToUndoQueue}
-        undoQueue={state.undoQueue}
-        isDetailView={!!state.openedUserId}
-        dispatch={dispatch}
-      />
+      {isPostsTab ? (
+        <ModerationPostKeyboardHandler
+          onNextPost={handleNextPost}
+          onPrevPost={handlePrevPost}
+          onNextTab={handleNextTab}
+          onPrevTab={handlePrevTab}
+          selectedPost={focusedPost}
+          currentUser={currentUser}
+          dispatch={dispatch}
+        />
+      ) : (
+        <ModerationKeyboardHandler
+          onNextUser={handleNextUser}
+          onPrevUser={handlePrevUser}
+          onNextTab={handleNextTab}
+          onPrevTab={handlePrevTab}
+          onOpenDetail={() => {
+            if (state.focusedUserId && !state.openedUserId) {
+              handleOpenUser(state.focusedUserId);
+            } else if (!state.focusedUserId && orderedUsers.length > 0) {
+              handleOpenUser(orderedUsers[0]._id);
+            }
+          }}
+          onCloseDetail={handleCloseDetail}
+          selectedUser={sidebarUser}
+          selectedContentIndex={state.focusedContentIndex}
+          currentUser={currentUser}
+          addToUndoQueue={addToUndoQueue}
+          undoQueue={state.undoQueue}
+          isDetailView={!!state.openedUserId}
+          dispatch={dispatch}
+        />
+      )}
       <div className={classes.mainContent}>
         <div className={classes.leftPanel}>
           {openedUser ? (

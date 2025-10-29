@@ -3,7 +3,6 @@ import { useMutation } from '@apollo/client/react';
 import { gql } from '@/lib/generated/gql-codegen';
 import { MANUAL_FLAG_ALERT } from '@/lib/collections/moderatorActions/constants';
 import { userGetProfileUrl } from '@/lib/collections/users/helpers';
-import { useCurrentUser } from '@/components/common/withUser';
 import type { InboxAction } from './inboxReducer';
 
 const PostsListUpdateMutation = gql(`
