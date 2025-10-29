@@ -21608,38 +21608,6 @@ type approveCurrentContentOnlyModerationKeyboardMutationVariables = Exact<{
 
 type approveCurrentContentOnlyModerationKeyboardMutation = approveCurrentContentOnlyModerationKeyboardMutation_Mutation;
 
-type updatePostModerationPostSidebarMutation_updatePost_PostOutput_data_Post = (
-  { __typename?: 'Post' }
-  & PostsList
-);
-
-type updatePostModerationPostSidebarMutation_updatePost_PostOutput = { __typename?: 'PostOutput', data: updatePostModerationPostSidebarMutation_updatePost_PostOutput_data_Post | null };
-
-type updatePostModerationPostSidebarMutation_Mutation = { __typename?: 'Mutation', updatePost: updatePostModerationPostSidebarMutation_updatePost_PostOutput | null };
-
-
-type updatePostModerationPostSidebarMutationVariables = Exact<{
-  selector: SelectorInput;
-  data: UpdatePostDataInput;
-}>;
-
-
-type updatePostModerationPostSidebarMutation = updatePostModerationPostSidebarMutation_Mutation;
-
-type createModeratorActionModerationPostSidebarMutation_createModeratorAction_ModeratorActionOutput_data_ModeratorAction = { __typename?: 'ModeratorAction', _id: string };
-
-type createModeratorActionModerationPostSidebarMutation_createModeratorAction_ModeratorActionOutput = { __typename?: 'ModeratorActionOutput', data: createModeratorActionModerationPostSidebarMutation_createModeratorAction_ModeratorActionOutput_data_ModeratorAction | null };
-
-type createModeratorActionModerationPostSidebarMutation_Mutation = { __typename?: 'Mutation', createModeratorAction: createModeratorActionModerationPostSidebarMutation_createModeratorAction_ModeratorActionOutput | null };
-
-
-type createModeratorActionModerationPostSidebarMutationVariables = Exact<{
-  data: CreateModeratorActionDataInput;
-}>;
-
-
-type createModeratorActionModerationPostSidebarMutation = createModeratorActionModerationPostSidebarMutation_Mutation;
-
 type updateUserModerationSidebarMutation_updateUser_UserOutput_data_User = (
   { __typename?: 'User' }
   & SunshineUsersList
@@ -21690,6 +21658,38 @@ type rejectContentAndRemoveFromQueueRestrictAndNotifyMutationVariables = Exact<{
 
 
 type rejectContentAndRemoveFromQueueRestrictAndNotifyMutation = rejectContentAndRemoveFromQueueRestrictAndNotifyMutation_Mutation;
+
+type updatePostPostReviewActionsMutation_updatePost_PostOutput_data_Post = (
+  { __typename?: 'Post' }
+  & PostsList
+);
+
+type updatePostPostReviewActionsMutation_updatePost_PostOutput = { __typename?: 'PostOutput', data: updatePostPostReviewActionsMutation_updatePost_PostOutput_data_Post | null };
+
+type updatePostPostReviewActionsMutation_Mutation = { __typename?: 'Mutation', updatePost: updatePostPostReviewActionsMutation_updatePost_PostOutput | null };
+
+
+type updatePostPostReviewActionsMutationVariables = Exact<{
+  selector: SelectorInput;
+  data: UpdatePostDataInput;
+}>;
+
+
+type updatePostPostReviewActionsMutation = updatePostPostReviewActionsMutation_Mutation;
+
+type createModeratorActionPostReviewActionsMutation_createModeratorAction_ModeratorActionOutput_data_ModeratorAction = { __typename?: 'ModeratorAction', _id: string };
+
+type createModeratorActionPostReviewActionsMutation_createModeratorAction_ModeratorActionOutput = { __typename?: 'ModeratorActionOutput', data: createModeratorActionPostReviewActionsMutation_createModeratorAction_ModeratorActionOutput_data_ModeratorAction | null };
+
+type createModeratorActionPostReviewActionsMutation_Mutation = { __typename?: 'Mutation', createModeratorAction: createModeratorActionPostReviewActionsMutation_createModeratorAction_ModeratorActionOutput | null };
+
+
+type createModeratorActionPostReviewActionsMutationVariables = Exact<{
+  data: CreateModeratorActionDataInput;
+}>;
+
+
+type createModeratorActionPostReviewActionsMutation = createModeratorActionPostReviewActionsMutation_Mutation;
 
 type updateUserContentPermissionsMutation_updateUser_UserOutput_data_User = (
   { __typename?: 'User' }
@@ -21984,25 +21984,6 @@ type multiTagArbitalExplorePageQueryQueryVariables = Exact<{
 
 
 type multiTagArbitalExplorePageQueryQuery = multiTagArbitalExplorePageQueryQuery_Query;
-
-type multiTagCoreTagsChecklistQueryQuery_tags_MultiTagOutput_results_Tag = (
-  { __typename?: 'Tag' }
-  & TagFragment
-);
-
-type multiTagCoreTagsChecklistQueryQuery_tags_MultiTagOutput = { __typename?: 'MultiTagOutput', totalCount: number | null, results: Array<multiTagCoreTagsChecklistQueryQuery_tags_MultiTagOutput_results_Tag> };
-
-type multiTagCoreTagsChecklistQueryQuery_Query = { __typename?: 'Query', tags: multiTagCoreTagsChecklistQueryQuery_tags_MultiTagOutput | null };
-
-
-type multiTagCoreTagsChecklistQueryQueryVariables = Exact<{
-  selector: InputMaybe<TagSelector>;
-  limit: InputMaybe<Scalars['Int']['input']>;
-  enableTotal: InputMaybe<Scalars['Boolean']['input']>;
-}>;
-
-
-type multiTagCoreTagsChecklistQueryQuery = multiTagCoreTagsChecklistQueryQuery_Query;
 
 type multiTagCoreTagsSectionQueryQuery_tags_MultiTagOutput_results_Tag = (
   { __typename?: 'Tag' }
@@ -23222,6 +23203,25 @@ type tagPageWithArbitalContentAndLensRevisionBySlugQueryVariables = Exact<{
 
 
 type tagPageWithArbitalContentAndLensRevisionBySlugQuery = tagPageWithArbitalContentAndLensRevisionBySlugQuery_Query;
+
+type multiTagCoreTagsChecklistQueryQuery_tags_MultiTagOutput_results_Tag = (
+  { __typename?: 'Tag' }
+  & TagFragment
+);
+
+type multiTagCoreTagsChecklistQueryQuery_tags_MultiTagOutput = { __typename?: 'MultiTagOutput', totalCount: number | null, results: Array<multiTagCoreTagsChecklistQueryQuery_tags_MultiTagOutput_results_Tag> };
+
+type multiTagCoreTagsChecklistQueryQuery_Query = { __typename?: 'Query', tags: multiTagCoreTagsChecklistQueryQuery_tags_MultiTagOutput | null };
+
+
+type multiTagCoreTagsChecklistQueryQueryVariables = Exact<{
+  selector: InputMaybe<TagSelector>;
+  limit: InputMaybe<Scalars['Int']['input']>;
+  enableTotal: InputMaybe<Scalars['Boolean']['input']>;
+}>;
+
+
+type multiTagCoreTagsChecklistQueryQuery = multiTagCoreTagsChecklistQueryQuery_Query;
 
 type getTagOrLensPreviewQuery_TagPreview_TagPreviewWithSummaries_tag_Tag = (
   { __typename?: 'Tag' }

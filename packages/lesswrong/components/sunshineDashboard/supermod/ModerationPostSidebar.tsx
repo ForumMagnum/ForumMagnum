@@ -1,39 +1,17 @@
-import React, { useCallback } from 'react';
+import React from 'react';
 import { defineStyles, useStyles } from '@/components/hooks/useStyles';
-import { useMutation } from '@apollo/client/react';
-import { gql } from '@/lib/generated/gql-codegen';
 import Button from '@/lib/vendor/@material-ui/core/src/Button';
 import PersonIcon from '@/lib/vendor/@material-ui/icons/src/Person';
 import HomeIcon from '@/lib/vendor/@material-ui/icons/src/Home';
 import ClearIcon from '@/lib/vendor/@material-ui/icons/src/Clear';
 import VisibilityOutlinedIcon from '@/lib/vendor/@material-ui/icons/src/VisibilityOutlined';
 import { MANUAL_FLAG_ALERT } from '@/lib/collections/moderatorActions/constants';
-import { userGetProfileUrl } from '@/lib/collections/users/helpers';
 import FooterTagList from '@/components/tagging/FooterTagList';
 import classNames from 'classnames';
 import PostsPageWrapper from '@/components/posts/PostsPage/PostsPageWrapper';
 import ForumIcon from '@/components/common/ForumIcon';
 import type { InboxAction } from './inboxReducer';
-
-const PostsListUpdateMutation = gql(`
-  mutation updatePostModerationPostSidebar($selector: SelectorInput!, $data: UpdatePostDataInput!) {
-    updatePost(selector: $selector, data: $data) {
-      data {
-        ...PostsList
-      }
-    }
-  }
-`);
-
-const ModeratorActionsCreateMutation = gql(`
-  mutation createModeratorActionModerationPostSidebar($data: CreateModeratorActionDataInput!) {
-    createModeratorAction(data: $data) {
-      data {
-        _id
-      }
-    }
-  }
-`);
+import { usePostReviewActions } from './usePostReviewActions';
 
 const styles = defineStyles('ModerationPostSidebar', (theme: ThemeType) => ({
   root: {
@@ -117,86 +95,7 @@ const ModerationPostSidebar = ({
 }) => {
   const classes = useStyles(styles);
 
-  const [updatePost] = useMutation(PostsListUpdateMutation);
-  const [createModeratorAction] = useMutation(ModeratorActionsCreateMutation);
-
-  const handlePersonal = useCallback(async () => {
-    if (!post) return;
-    dispatch({ type: 'REMOVE_POST', postId: post._id });
-    await updatePost({
-      variables: {
-        selector: { _id: post._id },
-        data: {
-          frontpageDate: null,
-          reviewedByUserId: currentUser._id,
-          authorIsUnreviewed: false,
-        },
-      },
-    });
-  }, [post, currentUser._id, updatePost, dispatch]);
-
-  const handleFrontpage = useCallback(async () => {
-    if (!post) return;
-    dispatch({ type: 'REMOVE_POST', postId: post._id });
-    await updatePost({
-      variables: {
-        selector: { _id: post._id },
-        data: {
-          frontpageDate: new Date(),
-          reviewedByUserId: currentUser._id,
-          authorIsUnreviewed: false,
-        },
-      },
-    });
-  }, [post, currentUser._id, updatePost, dispatch]);
-
-  const handleDraft = useCallback(async () => {
-    if (!post) return;
-    if (confirm("Are you sure you want to move this post to the author's draft?")) {
-      window.open(userGetProfileUrl(post.user), '_blank');
-      dispatch({ type: 'REMOVE_POST', postId: post._id });
-      await updatePost({
-        variables: {
-          selector: { _id: post._id },
-          data: {
-            draft: true,
-          },
-        },
-      });
-    }
-  }, [post, updatePost, dispatch]);
-
-  const handleFlagUser = useCallback(async () => {
-    if (!post) return;
-    const lastManualUserFlag = post.user?.moderatorActions?.find(
-      action => action.type === MANUAL_FLAG_ALERT
-    );
-    const isUserAlreadyFlagged = post.user?.needsReview || lastManualUserFlag?.active;
-
-    if (isUserAlreadyFlagged) return;
-
-    if (post.user) {
-      dispatch({
-        type: 'UPDATE_POST',
-        postId: post._id,
-        fields: {
-          user: {
-            ...post.user,
-            needsReview: true,
-          },
-        },
-      });
-    }
-
-    await createModeratorAction({
-      variables: {
-        data: {
-          type: MANUAL_FLAG_ALERT,
-          userId: post.userId,
-        },
-      },
-    });
-  }, [post, createModeratorAction, dispatch]);
+  const { markAsPersonal, markAsFrontpage, moveToDraft, flagUser } = usePostReviewActions(post, currentUser, dispatch);
 
   if (!post) {
     return (
@@ -240,7 +139,7 @@ const ModerationPostSidebar = ({
         )}
 
         <div className={classes.buttonRow}>
-          <Button onClick={handlePersonal} className={classes.button}>
+          <Button onClick={markAsPersonal} className={classes.button}>
             <PersonIcon style={{ width: 14, marginRight: 4 }} />
             Personal
             {autoFrontpage === "hide" && (
@@ -250,7 +149,7 @@ const ModerationPostSidebar = ({
             )}
           </Button>
           {post.submitToFrontpage && (
-            <Button onClick={handleFrontpage} className={classes.button}>
+            <Button onClick={markAsFrontpage} className={classes.button}>
               <HomeIcon style={{ width: 14, marginRight: 4 }} />
               Frontpage
               {autoFrontpage === "show" && (
@@ -260,12 +159,12 @@ const ModerationPostSidebar = ({
               )}
             </Button>
           )}
-          <Button onClick={handleDraft} className={classes.button}>
+          <Button onClick={moveToDraft} className={classes.button}>
             <ClearIcon style={{ width: 14, marginRight: 4 }} />
             Draft
           </Button>
           <Button
-            onClick={handleFlagUser}
+            onClick={flagUser}
             disabled={isUserAlreadyFlagged}
             className={classes.button}
           >
