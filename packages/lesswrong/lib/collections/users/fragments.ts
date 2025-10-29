@@ -97,6 +97,9 @@ export const UsersProfile = () => frag`
     commentingOnOtherUsersDisabled
     conversationsDisabled
     mentionsDisabled
+
+    givingSeason2025DonatedFlair
+    givingSeason2025VotedFlair
   }
 `
 

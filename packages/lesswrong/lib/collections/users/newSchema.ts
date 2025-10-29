@@ -4414,6 +4414,40 @@ const schema = {
       canUpdate: [userOwns],
     },
   },
+  givingSeason2025DonatedFlair: {
+    database: {
+      type: "BOOL",
+      defaultValue: false,
+      canAutofillDefault: true,
+      nullable: false,
+    },
+    graphql: {
+      outputType: "Boolean!",
+      inputType: "Boolean",
+      canRead: ["guests"],
+      canUpdate: [userOwns, "admins", "sunshineRegiment"],
+      validation: {
+        optional: true,
+      },
+    },
+  },
+  givingSeason2025VotedFlair: {
+    database: {
+      type: "BOOL",
+      defaultValue: false,
+      canAutofillDefault: true,
+      nullable: false,
+    },
+    graphql: {
+      outputType: "Boolean!",
+      inputType: "Boolean",
+      canRead: ["guests"],
+      canUpdate: [userOwns, "admins", "sunshineRegiment"],
+      validation: {
+        optional: true,
+      },
+    },
+  },
 } satisfies Record<string, CollectionFieldSpecification<"Users">>;
 
 export default schema;

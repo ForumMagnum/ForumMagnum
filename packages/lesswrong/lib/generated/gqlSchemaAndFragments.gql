@@ -4995,6 +4995,8 @@ type User {
   inactiveSummaryEmailSentAt: Date
   karmaChanges(startDate: Date, endDate: Date): KarmaChanges
   recommendationSettings: JSON
+  givingSeason2025DonatedFlair: Boolean!
+  givingSeason2025VotedFlair: Boolean!
 }
 
 input UserSelectorUniqueInput {
@@ -7447,6 +7449,8 @@ input UpdateUserDataInput {
   userSurveyEmailSentAt: Date
   inactiveSummaryEmailSentAt: Date
   recommendationSettings: RecommendationSettingsInput
+  givingSeason2025DonatedFlair: Boolean
+  givingSeason2025VotedFlair: Boolean
 }
 
 input UpdateUserInput {
@@ -12466,6 +12470,8 @@ fragment UsersDefaultFragment on User {
   userSurveyEmailSentAt
   inactiveSummaryEmailSentAt
   recommendationSettings
+  givingSeason2025DonatedFlair
+  givingSeason2025VotedFlair
 }
 
 fragment UsersEdit on User {
@@ -12699,6 +12705,9 @@ fragment UsersProfile on User {
   commentingOnOtherUsersDisabled
   conversationsDisabled
   mentionsDisabled
+
+  givingSeason2025DonatedFlair
+  givingSeason2025VotedFlair
 }
 
 fragment UsersProfileEdit on User {

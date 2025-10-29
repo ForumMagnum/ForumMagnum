@@ -3535,7 +3535,9 @@ CREATE TABLE "Users" (
   "inactiveSurveyEmailSentAt" TIMESTAMPTZ,
   "userSurveyEmailSentAt" TIMESTAMPTZ,
   "inactiveSummaryEmailSentAt" TIMESTAMPTZ,
-  "recommendationSettings" JSONB
+  "recommendationSettings" JSONB,
+  "givingSeason2025DonatedFlair" BOOL NOT NULL DEFAULT FALSE,
+  "givingSeason2025VotedFlair" BOOL NOT NULL DEFAULT FALSE
 );
 
 -- Index "idx_Users_username"
