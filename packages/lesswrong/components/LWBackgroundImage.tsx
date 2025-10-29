@@ -8,6 +8,7 @@ import ReviewVotingCanvas from "./review/ReviewVotingCanvas";
 import CloudinaryImage2 from "./common/CloudinaryImage2";
 import { isHomeRoute } from '@/lib/routeChecks';
 import Inkhaven2025Banner from './seasonal/Inkhaven2025';
+import { SolsticeSeasonBanner } from './seasonal/solsticeSeason/SolsticeSeasonBanner';
 
 import MeetupMonthBanner from './seasonal/meetupMonth/MeetupMonthBanner';
 import PetrovDayStory from './seasonal/petrovDay/petrov-day-story/PetrovDayStory';
@@ -147,16 +148,10 @@ export const LWBackgroundImage = ({standaloneNavigation}: {
   if (getReviewPhase() === 'VOTING') homePageImage = <ReviewVotingCanvas />
   if (getReviewPhase() === 'RESULTS') homePageImage = reviewCompleteImage
 
-  // If we're on the homepage and it is still before the end of September 30 (Pacific time),
-  // override with the Inkhaven banner.
   const now = new Date();
-  const inkhavenDeadline = new Date('2025-10-01T07:00:00Z'); // Midnight PST-8 / PDT-7 ≈ 07:00 UTC
-  if (isHomePage && now < inkhavenDeadline) {
-    homePageImage = <Inkhaven2025Banner />;
-  }
 
   return <div className={classes.root}>
-    {homePageImage}
+    <SolsticeSeasonBanner />
   </div>;
 }
 

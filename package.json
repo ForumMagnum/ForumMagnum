@@ -261,6 +261,7 @@
     "react-map-gl": "^5.2.9",
     "react-popper": "^2.3.0",
     "react-router": "^5.2.0",
+    "react-simple-maps": "^3.0.0",
     "react-transition-group": "^4.4.5",
     "recharts": "^2.1.4",
     "recombee-api-client": "^4.1.5",

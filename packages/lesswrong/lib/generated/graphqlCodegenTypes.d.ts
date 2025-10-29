@@ -19841,6 +19841,18 @@ type petrovDay2024ResolversQueryVariables = Exact<{ [key: string]: never; }>;
 
 type petrovDay2024ResolversQuery = petrovDay2024ResolversQuery_Query;
 
+type solsticeSeasonQueryQuery_HomepageCommunityEvents_HomepageCommunityEventMarkersResult_events_HomepageCommunityEventMarker = { __typename?: 'HomepageCommunityEventMarker', _id: string, lat: number, lng: number, types: Array<string> | null };
+
+type solsticeSeasonQueryQuery_HomepageCommunityEvents_HomepageCommunityEventMarkersResult = { __typename?: 'HomepageCommunityEventMarkersResult', events: Array<solsticeSeasonQueryQuery_HomepageCommunityEvents_HomepageCommunityEventMarkersResult_events_HomepageCommunityEventMarker> };
+
+type solsticeSeasonQueryQuery_Query = { __typename?: 'Query', HomepageCommunityEvents: solsticeSeasonQueryQuery_HomepageCommunityEvents_HomepageCommunityEventMarkersResult };
+
+
+type solsticeSeasonQueryQueryVariables = Exact<{ [key: string]: never; }>;
+
+
+type solsticeSeasonQueryQuery = solsticeSeasonQueryQuery_Query;
+
 type updateChapterAddDraftPostDialogMutation_updateChapter_ChapterOutput_data_Chapter = (
   { __typename?: 'Chapter' }
   & ChaptersFragment
