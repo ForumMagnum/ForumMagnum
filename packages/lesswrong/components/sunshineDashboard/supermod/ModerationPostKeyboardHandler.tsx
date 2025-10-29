@@ -1,37 +1,8 @@
-import React, { useCallback, useMemo } from 'react';
-import { useGlobalKeydown } from '@/components/common/withGlobalKeydown';
-import { useDialog } from '@/components/common/withDialog';
+import React, { useMemo } from 'react';
 import type { CommandPaletteItem } from '@/components/common/CommandPalette';
-import { useCommandPalette } from '@/components/hooks/useCommandPalette';
+import { useSupermodKeyboardCommands } from '@/components/hooks/useSupermodKeyboardCommands';
 import type { InboxAction } from './inboxReducer';
 import { usePostReviewActions } from './usePostReviewActions';
-import { parseKeystroke, getCode } from '@/lib/vendor/ckeditor5-util/keyboard';
-
-function specialKeyPressed(event: KeyboardEvent) {
-  return event.metaKey || event.ctrlKey || event.altKey;
-}
-
-function isNavigationKey(key: string) {
-  return key === 'ArrowUp' || key === 'ArrowDown' || key === 'ArrowLeft' || key === 'ArrowRight';
-}
-
-function matchesKeystroke(event: KeyboardEvent, keystroke: string): boolean {
-  const key = event.key;
-
-  if (isNavigationKey(key)) {
-    const normalizedKeystroke = keystroke.toLowerCase();
-    const normalizedKey = key.toLowerCase();
-    return normalizedKeystroke === normalizedKey;
-  }
-
-  try {
-    const keystrokeCode = parseKeystroke(keystroke);
-    const eventCode = getCode(event);
-    return keystrokeCode === eventCode;
-  } catch (error) {
-    return false;
-  }
-}
 
 const ModerationPostKeyboardHandler = ({
   onNextPost,
@@ -50,15 +21,11 @@ const ModerationPostKeyboardHandler = ({
   currentUser: UsersCurrent;
   dispatch: React.Dispatch<InboxAction>;
 }) => {
-  const { isDialogOpen } = useDialog();
-  
   const { markAsPersonal, markAsFrontpage, moveToDraft, flagUser } = usePostReviewActions(
     selectedPost,
     currentUser,
     dispatch
   );
-
-  const openCommandPalette = useCommandPalette({ large: true, hideDisabledCommands: true });
 
   const markAsPersonalCommand: CommandPaletteItem = useMemo(() => ({
     label: 'Mark as Personal',
@@ -139,52 +106,11 @@ const ModerationPostKeyboardHandler = ({
     previousTabCommand,
   ]);
 
-  useGlobalKeydown(
-    useCallback(
-      (event: KeyboardEvent) => {
-        // Don't trigger any shortcuts if a dialog is open
-        if (isDialogOpen) {
-          return;
-        }
-
-        // Don't handle keyboard shortcuts if user is typing in an input/textarea
-        const target = event.target as HTMLElement;
-        if (
-          target.tagName === 'INPUT' ||
-          target.tagName === 'TEXTAREA' ||
-          target.isContentEditable
-        ) {
-          return;
-        }
-
-        // Open command palette
-        if ((event.metaKey || event.ctrlKey) && event.key === 'k') {
-          event.preventDefault();
-          openCommandPalette(commands, () => {});
-          return;
-        }
-
-        // Block shortcuts when special keys are pressed, except for navigation
-        if (specialKeyPressed(event) && !isNavigationKey(event.key)) {
-          return;
-        }
-
-        // Try to match and execute commands
-        for (const command of commands) {
-          if (matchesKeystroke(event, command.keystroke)) {
-            if (command.isDisabled()) {
-              return;
-            }
-
-            event.preventDefault();
-            command.execute();
-            return;
-          }
-        }
-      },
-      [commands, openCommandPalette, isDialogOpen]
-    )
-  );
+  useSupermodKeyboardCommands({
+    commands,
+    handleWhileInTextInputs: [],
+    allowWithSpecialKeys: ['ArrowUp', 'ArrowDown', 'ArrowLeft', 'ArrowRight'],
+  });
 
   return null;
 };
