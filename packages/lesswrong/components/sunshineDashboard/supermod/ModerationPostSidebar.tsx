@@ -50,6 +50,7 @@ const styles = defineStyles('ModerationPostSidebar', (theme: ThemeType) => ({
   },
   tagsSection: {
     marginBottom: 12,
+    minHeight: 60,
   },
   buttonRow: {
     display: 'flex',
