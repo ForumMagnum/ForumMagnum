@@ -25,6 +25,9 @@ export const UsersMinimumInfo = () => frag`
     spamRiskScore
     tagRevisionCount
     reviewedByUserId
+
+    givingSeason2025DonatedFlair
+    givingSeason2025VotedFlair
   }
 `
 
@@ -97,9 +100,6 @@ export const UsersProfile = () => frag`
     commentingOnOtherUsersDisabled
     conversationsDisabled
     mentionsDisabled
-
-    givingSeason2025DonatedFlair
-    givingSeason2025VotedFlair
   }
 `
 

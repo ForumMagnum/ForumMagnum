@@ -12630,6 +12630,9 @@ fragment UsersMinimumInfo on User {
   spamRiskScore
   tagRevisionCount
   reviewedByUserId
+
+  givingSeason2025DonatedFlair
+  givingSeason2025VotedFlair
 }
 
 fragment UsersOptedInToDialogueFacilitation on User {
@@ -12705,9 +12708,6 @@ fragment UsersProfile on User {
   commentingOnOtherUsersDisabled
   conversationsDisabled
   mentionsDisabled
-
-  givingSeason2025DonatedFlair
-  givingSeason2025VotedFlair
 }
 
 fragment UsersProfileEdit on User {

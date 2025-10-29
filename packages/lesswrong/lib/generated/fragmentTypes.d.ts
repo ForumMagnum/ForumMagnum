@@ -5272,6 +5272,8 @@ interface UsersMinimumInfo { // fragment on Users
   readonly spamRiskScore: number,
   readonly tagRevisionCount: number,
   readonly reviewedByUserId: string|null,
+  readonly givingSeason2025DonatedFlair: boolean,
+  readonly givingSeason2025VotedFlair: boolean,
 }
 
 interface UsersOptedInToDialogueFacilitation { // fragment on Users
@@ -5336,8 +5338,6 @@ interface UsersProfile extends UsersMinimumInfo, SharedUserBooleans { // fragmen
   readonly commentingOnOtherUsersDisabled: boolean|null,
   readonly conversationsDisabled: boolean|null,
   readonly mentionsDisabled: boolean|null,
-  readonly givingSeason2025DonatedFlair: boolean,
-  readonly givingSeason2025VotedFlair: boolean,
 }
 
 interface UsersProfileEdit { // fragment on Users
