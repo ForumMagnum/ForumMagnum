@@ -26,7 +26,7 @@ const styles = defineStyles("GivingSeasonTopPosts", (theme: ThemeType) => ({
   heading: {
     fontSize: 19,
     fontWeight: 600,
-    letterSpacing: "-3%",
+    letterSpacing: "-0.03em",
     marginBottom: 4,
   },
   loading: {

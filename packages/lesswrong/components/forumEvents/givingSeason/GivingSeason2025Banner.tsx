@@ -78,7 +78,7 @@ const styles = defineStyles("GivingSeason2025Banner", (theme: ThemeType) => ({
       margin: "0 auto",
       fontSize: 16,
       fontWeight: 600,
-      letterSpacing: "-3%",
+      letterSpacing: "-0.03em",
       borderBottom: "1px solid var(--event-color)",
     },
     "& span": {
@@ -138,7 +138,7 @@ const styles = defineStyles("GivingSeason2025Banner", (theme: ThemeType) => ({
     fontSize: 14,
     fontWeight: 600,
     lineHeight: "100%",
-    letterSpacing: "4%",
+    letterSpacing: "0.04em",
     whiteSpace: "nowrap",
   },
   eventTitle: {
@@ -154,7 +154,6 @@ const styles = defineStyles("GivingSeason2025Banner", (theme: ThemeType) => ({
     fontSize: 14,
     fontWeight: 500,
     lineHeight: "140%",
-    letterSpacing: "0%",
     marginTop: -6,
   },
   readMore: {
@@ -198,7 +197,7 @@ const styles = defineStyles("GivingSeason2025Banner", (theme: ThemeType) => ({
   amountRaised: {
     fontWeight: 700,
     lineHeight: "140%",
-    letterSpacing: "-3%",
+    letterSpacing: "-0.03em",
     "& span": {
       opacity: 0.5,
     },
@@ -249,7 +248,7 @@ const styles = defineStyles("GivingSeason2025Banner", (theme: ThemeType) => ({
   match: {
     fontSize: 14,
     fontWeight: 500,
-    letterSpacing: "-1%",
+    letterSpacing: "-0.01em",
     opacity: 0.4,
   },
   electionButtons: {
