@@ -94,7 +94,7 @@ function getMostRecentUnapprovedContent(posts: SunshinePostsList[], comments: Co
   return unapprovedContent[0];
 }
 
-const ModerationKeyboardHandler = ({
+const ModerationUserKeyboardHandler = ({
   onNextUser,
   onPrevUser,
   onOpenDetail,
@@ -666,5 +666,5 @@ const ModerationKeyboardHandler = ({
   return null;
 };
 
-export default ModerationKeyboardHandler;
+export default ModerationUserKeyboardHandler;
 

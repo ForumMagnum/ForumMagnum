@@ -11,7 +11,7 @@ import ModerationInboxList, { GroupEntry } from './ModerationInboxList';
 import ModerationDetailView from './ModerationDetailView';
 import ModerationSidebar from './ModerationSidebar';
 import ModerationPostSidebar from './ModerationPostSidebar';
-import ModerationKeyboardHandler from './ModerationKeyboardHandler';
+import ModerationUserKeyboardHandler from './ModerationUserKeyboardHandler';
 import ModerationPostKeyboardHandler from './ModerationPostKeyboardHandler';
 import ModerationUndoHistory from './ModerationUndoHistory';
 import Loading from '@/components/vulcan-core/Loading';
@@ -281,7 +281,7 @@ const ModerationInboxInner = ({ users, posts, initialOpenedUserId, currentUser }
           dispatch={dispatch}
         />
       ) : (
-        <ModerationKeyboardHandler
+        <ModerationUserKeyboardHandler
           onNextUser={handleNextUser}
           onPrevUser={handlePrevUser}
           onNextTab={handleNextTab}
