@@ -4425,7 +4425,7 @@ const schema = {
       outputType: "Boolean!",
       inputType: "Boolean",
       canRead: ["guests"],
-      canUpdate: [userOwns, "admins", "sunshineRegiment"],
+      canUpdate: ["admins", "sunshineRegiment"],
       validation: {
         optional: true,
       },
@@ -4442,7 +4442,7 @@ const schema = {
       outputType: "Boolean!",
       inputType: "Boolean",
       canRead: ["guests"],
-      canUpdate: [userOwns, "admins", "sunshineRegiment"],
+      canUpdate: ["admins", "sunshineRegiment"],
       validation: {
         optional: true,
       },
