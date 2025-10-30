@@ -81,7 +81,7 @@ export const reviewTriggerModeratorActions = new TupleSet([
   MANUAL_RATE_LIMIT_EXPIRED,
 ] as const);
 
-export const displayedModeratorActions = new TupleSet([
+export const persistentDisplayedModeratorActions = new TupleSet([
   FLAGGED_FOR_N_DMS,
   AUTO_BLOCKED_FROM_SENDING_DMS,
   RECEIVED_VOTING_PATTERN_WARNING,

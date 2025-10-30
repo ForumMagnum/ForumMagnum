@@ -6,7 +6,7 @@ import Input from '@/lib/vendor/@material-ui/core/src/Input';
 import SunshineUserMessages from '../SunshineUserMessages';
 import { getSignature } from '@/lib/collections/users/helpers';
 import ModeratorActionItem from '../ModeratorUserInfo/ModeratorActionItem';
-import { displayedModeratorActions } from '@/lib/collections/moderatorActions/constants';
+import { persistentDisplayedModeratorActions } from '@/lib/collections/moderatorActions/constants';
 import UserRateLimitItem from '../UserRateLimitItem';
 import classNames from 'classnames';
 
@@ -157,7 +157,7 @@ const ModerationSidebar = ({
       <div className={classes.section}>
         <div className={classes.sectionTitle}>Outstanding Moderator Actions</div>
         <div className={classes.userModActions}>
-          {user.moderatorActions?.filter(action => action.active && displayedModeratorActions.has(action.type)).map(action => (
+          {user.moderatorActions?.filter(action => action.active && persistentDisplayedModeratorActions.has(action.type)).map(action => (
             <div key={action._id} className={classes.modActionItem}>
               <ModeratorActionItem user={user} moderatorAction={action} comments={[]} posts={[]} />
             </div>

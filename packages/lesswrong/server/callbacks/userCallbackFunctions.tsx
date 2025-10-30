@@ -41,6 +41,8 @@ import { EmailContentItemBody } from "../emailComponents/EmailContentItemBody";
 import { PostsHTML } from "@/lib/collections/posts/fragments";
 import { emailTokenTypesByName } from "../emails/emailTokens";
 import { backgroundTask } from "../utils/backgroundTask";
+import { persistentDisplayedModeratorActions, reviewTriggerModeratorActions } from "@/lib/collections/moderatorActions/constants";
+import { updateModeratorAction } from "../collections/moderatorActions/mutations";
 
 
 async function sendWelcomeMessageTo(userId: string) {
@@ -731,9 +733,31 @@ export async function newAlignmentUserMoveShortform(newUser: DbUser, oldUser: Db
   if (utils.isAlignmentForumMember(newUser) && !utils.isAlignmentForumMember(oldUser)) {
     if (newUser.shortformFeedId) {
       await updatePost({ data: {
-                  af: true
-                }, selector: { _id: newUser.shortformFeedId } }, createAnonymousContext())
+        af: true
+      }, selector: { _id: newUser.shortformFeedId } }, createAnonymousContext())
     }
+  }
+}
+
+export async function closeReviewTriggerModeratorActionsOnReview(newUser: DbUser, oldUser: DbUser, context: ResolverContext) {
+  if (!newUser.needsReview && oldUser.needsReview) {
+    const { ModeratorActions } = context;
+    const autoCloseableModeratorActionTypes = [...reviewTriggerModeratorActions].filter(type => !persistentDisplayedModeratorActions.has(type));
+
+    const moderatorActions = await ModeratorActions.find({
+      userId: newUser._id,
+      type: { $in: autoCloseableModeratorActionTypes },
+      $or: [{ endedAt: null }, { endedAt: { $gt: new Date() } }]
+    }).fetch();
+
+    const endedAt = new Date();
+
+    await Promise.all(moderatorActions.map(action => 
+      updateModeratorAction({
+        data: { endedAt },
+        selector: { _id: action._id }
+      }, context)
+    ));
   }
 }
 
