@@ -1049,6 +1049,8 @@ function sunshineNewUsersPosts(terms: PostsViewTerms) {
       authorIsUnreviewed: null,
       groupId: null,
       rejected: null,
+      // Override default view's draft: false to allow viewing redrafted posts
+      draft: viewFieldAllowAny,
       $or: [
         { wasEverUndrafted: true },
         { draft: false }

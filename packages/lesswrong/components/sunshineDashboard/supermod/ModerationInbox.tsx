@@ -10,20 +10,37 @@ import { gql } from '@/lib/generated/gql-codegen';
 import ModerationInboxList, { GroupEntry } from './ModerationInboxList';
 import ModerationDetailView from './ModerationDetailView';
 import ModerationSidebar from './ModerationSidebar';
-import ModerationKeyboardHandler from './ModerationKeyboardHandler';
+import ModerationPostSidebar from './ModerationPostSidebar';
+import ModerationUserKeyboardHandler from './ModerationUserKeyboardHandler';
+import ModerationPostKeyboardHandler from './ModerationPostKeyboardHandler';
 import ModerationUndoHistory from './ModerationUndoHistory';
 import Loading from '@/components/vulcan-core/Loading';
 import groupBy from 'lodash/groupBy';
+import classNames from 'classnames';
 import { getUserReviewGroup, REVIEW_GROUP_TO_PRIORITY, type ReviewGroup } from './groupings';
 import { getFilteredGroups, getVisibleTabsInOrder, InboxState, inboxStateReducer } from './inboxReducer';
 import type { TabInfo } from './ModerationTabs';
 import { UNDO_QUEUE_DURATION } from './constants';
+import { useHydrateModerationPostCache } from '@/components/hooks/useHydrateModerationPostCache';
+import { useCoreTags } from '@/components/tagging/useCoreTags';
+import { CoreTagsKeyboardProvider } from '@/components/tagging/CoreTagsKeyboardContext';
 
 const SunshineUsersListMultiQuery = gql(`
   query multiUserModerationInboxQuery($selector: UserSelector, $limit: Int, $enableTotal: Boolean) {
     users(selector: $selector, limit: $limit, enableTotal: $enableTotal) {
       results {
         ...SunshineUsersList
+      }
+      totalCount
+    }
+  }
+`);
+
+const SunshinePostsListMultiQuery = gql(`
+  query multiPostModerationInboxQuery($selector: PostSelector, $limit: Int, $enableTotal: Boolean) {
+    posts(selector: $selector, limit: $limit, enableTotal: $enableTotal) {
+      results {
+        ...SunshinePostsList
       }
       totalCount
     }
@@ -58,6 +75,9 @@ const styles = defineStyles('ModerationInbox', (theme: ThemeType) => ({
     display: 'flex',
     flexDirection: 'column',
   },
+  sidebarWide: {
+    width: 800,
+  },
   sidebarTop: {
     flex: '0 0 50%',
     overflow: 'auto',
@@ -74,8 +94,9 @@ const styles = defineStyles('ModerationInbox', (theme: ThemeType) => ({
   },
 }));
 
-const ModerationInboxInner = ({ users, initialOpenedUserId, currentUser }: {
+const ModerationInboxInner = ({ users, posts, initialOpenedUserId, currentUser }: {
   users: SunshineUsersList[];
+  posts: SunshinePostsList[];
   initialOpenedUserId: string | null;
   currentUser: UsersCurrent;
 }) => {
@@ -85,14 +106,16 @@ const ModerationInboxInner = ({ users, initialOpenedUserId, currentUser }: {
 
   const [state, dispatch] = useReducer(
     inboxStateReducer,
-    { users: [], activeTab: 'all', focusedUserId: null, openedUserId: initialOpenedUserId, focusedContentIndex: 0, undoQueue: [], history: [] },
+    { users: [], posts: [], activeTab: 'all', focusedUserId: null, openedUserId: initialOpenedUserId, focusedPostId: null, focusedContentIndex: 0, undoQueue: [], history: [] },
     (): InboxState => {
-      if (users.length === 0) {
+      if (users.length === 0 && posts.length === 0) {
         return {
           users: [],
+          posts: [],
           activeTab: 'all',
           focusedUserId: null,
           openedUserId: null,
+          focusedPostId: null,
           focusedContentIndex: 0,
           undoQueue: [],
           history: [],
@@ -100,20 +123,36 @@ const ModerationInboxInner = ({ users, initialOpenedUserId, currentUser }: {
       }
 
       const groupedUsers = groupBy(users, user => getUserReviewGroup(user));
-      const visibleTabs = getVisibleTabsInOrder(groupedUsers, users.length);
+      const visibleTabs = getVisibleTabsInOrder(groupedUsers, users.length, posts.length);
 
       // Find first non-empty tab
       const firstNonEmptyTab = visibleTabs.find(tab => tab.count > 0);
       const firstTab = firstNonEmptyTab?.group ?? 'all';
       
+      if (firstTab === 'posts') {
+        return {
+          users,
+          posts,
+          activeTab: 'posts',
+          focusedUserId: null,
+          openedUserId: null,
+          focusedPostId: posts[0]?._id ?? null,
+          focusedContentIndex: 0,
+          undoQueue: [],
+          history: [],
+        };
+      }
+
       const filteredGroups = getFilteredGroups(groupedUsers, firstTab);
       const orderedUsers = filteredGroups.flatMap(([_, users]) => users);
 
       return {
         users,
+        posts,
         activeTab: firstTab,
         focusedUserId: orderedUsers[0]?._id ?? null,
         openedUserId: initialOpenedUserId,
+        focusedPostId: null,
         focusedContentIndex: 0,
         undoQueue: [],
         history: [],
@@ -157,8 +196,8 @@ const ModerationInboxInner = ({ users, initialOpenedUserId, currentUser }: {
   const orderedUsers = useMemo(() => filteredGroups.map(([_, users]) => users).flat(), [filteredGroups]);
 
   const visibleTabs = useMemo((): TabInfo[] => {
-    return getVisibleTabsInOrder(groupedUsers, allOrderedUsers.length);
-  }, [groupedUsers, allOrderedUsers.length]);
+    return getVisibleTabsInOrder(groupedUsers, allOrderedUsers.length, state.posts.length);
+  }, [groupedUsers, allOrderedUsers.length, state.posts.length]);
 
   const openedUser = useMemo(() => {
     if (!state.openedUserId) return null;
@@ -173,7 +212,14 @@ const ModerationInboxInner = ({ users, initialOpenedUserId, currentUser }: {
     return null;
   }, [openedUser, state.focusedUserId, allOrderedUsers]);
 
+  const focusedPost = useMemo(() => {
+    if (!state.focusedPostId) return null;
+    return state.posts.find(p => p._id === state.focusedPostId) ?? null;
+  }, [state.focusedPostId, state.posts]);
+
   const handleOpenUser = useCallback((userId: string) => dispatch({ type: 'OPEN_USER', userId }), []);
+
+  const handleFocusPost = useCallback((postId: string) => dispatch({ type: 'FOCUS_POST', postId }), []);
 
   const handleCloseDetail = useCallback(() => dispatch({ type: 'CLOSE_DETAIL' }), []);
 
@@ -181,7 +227,11 @@ const ModerationInboxInner = ({ users, initialOpenedUserId, currentUser }: {
 
   const handlePrevUser = useCallback(() => dispatch({ type: 'PREV_USER' }), []);
 
-  const handleTabChange = useCallback((newTab: ReviewGroup | 'all') => dispatch({ type: 'CHANGE_TAB', tab: newTab }), []);
+  const handleNextPost = useCallback(() => dispatch({ type: 'NEXT_POST' }), []);
+
+  const handlePrevPost = useCallback(() => dispatch({ type: 'PREV_POST' }), []);
+
+  const handleTabChange = useCallback((newTab: ReviewGroup | 'all' | 'posts') => dispatch({ type: 'CHANGE_TAB', tab: newTab }), []);
 
   const handleNextTab = useCallback(() => dispatch({ type: 'NEXT_TAB' }), []);
 
@@ -217,29 +267,44 @@ const ModerationInboxInner = ({ users, initialOpenedUserId, currentUser }: {
     }
   }, [state.openedUserId, state.focusedUserId, allOrderedUsers]);
 
+  const isPostsTab = state.activeTab === 'posts';
+
   return (
+    <CoreTagsKeyboardProvider>
     <div className={classes.root}>
-      <ModerationKeyboardHandler
-        onNextUser={handleNextUser}
-        onPrevUser={handlePrevUser}
-        onNextTab={handleNextTab}
-        onPrevTab={handlePrevTab}
-        onOpenDetail={() => {
-          if (state.focusedUserId && !state.openedUserId) {
-            handleOpenUser(state.focusedUserId);
-          } else if (!state.focusedUserId && orderedUsers.length > 0) {
-            handleOpenUser(orderedUsers[0]._id);
-          }
-        }}
-        onCloseDetail={handleCloseDetail}
-        selectedUser={sidebarUser}
-        selectedContentIndex={state.focusedContentIndex}
-        currentUser={currentUser}
-        addToUndoQueue={addToUndoQueue}
-        undoQueue={state.undoQueue}
-        isDetailView={!!state.openedUserId}
-        dispatch={dispatch}
-      />
+      {isPostsTab ? (
+        <ModerationPostKeyboardHandler
+          onNextPost={handleNextPost}
+          onPrevPost={handlePrevPost}
+          onNextTab={handleNextTab}
+          onPrevTab={handlePrevTab}
+          selectedPost={focusedPost}
+          currentUser={currentUser}
+          dispatch={dispatch}
+        />
+      ) : (
+        <ModerationUserKeyboardHandler
+          onNextUser={handleNextUser}
+          onPrevUser={handlePrevUser}
+          onNextTab={handleNextTab}
+          onPrevTab={handlePrevTab}
+          onOpenDetail={() => {
+            if (state.focusedUserId && !state.openedUserId) {
+              handleOpenUser(state.focusedUserId);
+            } else if (!state.focusedUserId && orderedUsers.length > 0) {
+              handleOpenUser(orderedUsers[0]._id);
+            }
+          }}
+          onCloseDetail={handleCloseDetail}
+          selectedUser={sidebarUser}
+          selectedContentIndex={state.focusedContentIndex}
+          currentUser={currentUser}
+          addToUndoQueue={addToUndoQueue}
+          undoQueue={state.undoQueue}
+          isDetailView={!!state.openedUserId}
+          dispatch={dispatch}
+        />
+      )}
       <div className={classes.mainContent}>
         <div className={classes.leftPanel}>
           {openedUser ? (
@@ -251,32 +316,46 @@ const ModerationInboxInner = ({ users, initialOpenedUserId, currentUser }: {
           ) : (
             <ModerationInboxList
               userGroups={filteredGroups}
+              posts={state.posts}
               focusedUserId={state.focusedUserId}
+              focusedPostId={state.focusedPostId}
               onFocusUser={handleOpenUser}
               onOpenUser={handleOpenUser}
+              onFocusPost={handleFocusPost}
               visibleTabs={visibleTabs}
               activeTab={state.activeTab}
               onTabChange={handleTabChange}
             />
           )}
         </div>
-        <div className={classes.sidebar}>
-          <div className={classes.sidebarTop}>
-            {sidebarUser && <ModerationSidebar
-              user={sidebarUser}
+        <div className={classNames(classes.sidebar, { [classes.sidebarWide]: isPostsTab })}>
+          {isPostsTab ? (
+            <ModerationPostSidebar
+              post={focusedPost}
               currentUser={currentUser}
-            />}
-          </div>
-          <div className={classes.sidebarBottom}>
-            <ModerationUndoHistory
-              undoQueue={state.undoQueue}
-              history={state.history}
               dispatch={dispatch}
             />
-          </div>
+          ) : (
+            <>
+              <div className={classes.sidebarTop}>
+                {sidebarUser && <ModerationSidebar
+                  user={sidebarUser}
+                  currentUser={currentUser}
+                />}
+              </div>
+              <div className={classes.sidebarBottom}>
+                <ModerationUndoHistory
+                  undoQueue={state.undoQueue}
+                  history={state.history}
+                  dispatch={dispatch}
+                />
+              </div>
+            </>
+          )}
         </div>
       </div>
     </div>
+    </CoreTagsKeyboardProvider>
   );
 };
 
@@ -285,7 +364,7 @@ const ModerationInbox = () => {
   const currentUser = useCurrentUser();
   const { query } = useLocation();
 
-  const { data, loading } = useQuery(SunshineUsersListMultiQuery, {
+  const { data: usersData, loading: usersLoading } = useQuery(SunshineUsersListMultiQuery, {
     variables: {
       selector: { sunshineNewUsers: {} },
       limit: 100,
@@ -294,11 +373,28 @@ const ModerationInbox = () => {
     fetchPolicy: 'cache-and-network',
   });
 
+  const { data: postsData, loading: postsLoading } = useQuery(SunshinePostsListMultiQuery, {
+    variables: {
+      selector: { sunshineNewPosts: {} },
+      limit: 100,
+      enableTotal: true,
+    },
+    fetchPolicy: 'cache-and-network',
+  });
+
+  // This is just to pre-fetch the core tags so that they're available when you open the posts tab
+  useCoreTags();
+
+  const users = useMemo(() => usersData?.users?.results.filter(user => user.needsReview) ?? [], [usersData]);
+  const posts = useMemo(() => postsData?.posts?.results.filter(post => !post.reviewedByUserId) ?? [], [postsData]);
+
+  useHydrateModerationPostCache(posts);
+
   if (!currentUser || !userIsAdminOrMod(currentUser)) {
     return null;
   }
 
-  if (loading && !data) {
+  if ((usersLoading && !usersData) || (postsLoading && !postsData)) {
     return (
       <div className={classes.loading}>
         <Loading />
@@ -306,10 +402,14 @@ const ModerationInbox = () => {
     );
   }
 
-  const users = data?.users?.results.filter(user => user.needsReview) ?? [];
   const initialOpenedUserId = query.user || null;
 
-  return <ModerationInboxInner users={users} initialOpenedUserId={initialOpenedUserId} currentUser={currentUser} />;
+  return <ModerationInboxInner
+    users={users}
+    posts={posts}
+    initialOpenedUserId={initialOpenedUserId}
+    currentUser={currentUser}
+  />;
 };
 
 export default ModerationInbox;

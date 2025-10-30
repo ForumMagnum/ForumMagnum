@@ -4040,6 +4040,7 @@ interface Post {
   tagRel: TagRel | null;
   tags: Array<Tag>;
   tagRelevance: any;
+  tagRels: Array<TagRel>;
   lastPromotedComment: Comment | null;
   bestAnswer: Comment | null;
   noIndex: boolean;
