@@ -34,6 +34,7 @@ import { useRouteMetadata } from './ClientRouteMetadataContext';
 import { forumSelect } from '@/lib/forumTypeUtils';
 import NotificationsMenu from "../notifications/NotificationsMenu";
 import { IsLlmChatSidebarOpenContext } from './Layout';
+import { useIsOnGrayBackground } from '../hooks/useIsOnGrayBackground';
 
 /** Height of top header. On Book UI sites, this is for desktop only */
 export const getHeaderHeight = () => isBookUI() ? 64 : 66;
@@ -543,6 +544,8 @@ const Header = ({
 
   // Adjust header width when LLM chat sidebar is open and header is fixed
   const llmChatSidebarOpen = useContext(IsLlmChatSidebarOpenContext);
+  
+  const isGrayBackground = useIsOnGrayBackground();
 
   return (
     <AnalyticsContext pageSectionContext="header">
@@ -563,7 +566,7 @@ const Header = ({
             className={classNames(
               classes.appBar,
               useContrastText && classes.appBarDarkBackground,
-              routeMetadata.background === "white" && classes.blackBackgroundAppBar,
+              !isGrayBackground && classes.blackBackgroundAppBar,
             )}
             style={headerStyle}
           >

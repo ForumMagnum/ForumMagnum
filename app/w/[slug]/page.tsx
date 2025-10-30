@@ -6,8 +6,11 @@ import RouteRoot from "@/components/layout/RouteRoot";
 import { GUIDE_PATH_PAGES_MAPPING } from "@/lib/arbital/paths";
 import { tagGetUrl } from "@/lib/collections/tags/helpers";
 import PermanentRedirect from "@/components/common/PermanentRedirect";
+import { assertRouteHasWhiteBackground } from "@/components/layout/routeBackgroundColors";
 
 export const generateMetadata = getTagPageMetadataFunction<{ slug: string }>(({ slug }) => slug);
+
+assertRouteHasWhiteBackground("/w/[slug]");
 
 export default async function Page({ params, searchParams }: { params: Promise<{ slug: string }>, searchParams: Promise<{ startPath?: string }> }) {
   // enableResourcePrefetch was: function
@@ -26,7 +29,6 @@ export default async function Page({ params, searchParams }: { params: Promise<{
   return <RouteRoot
     delayedStatusCode
     metadata={{
-      background: 'white',
       titleComponent: TagPageTitle,
       subtitleComponent: TagPageTitle
     }}

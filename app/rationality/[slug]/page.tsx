@@ -4,6 +4,7 @@ import { getDefaultMetadata } from "@/server/pageMetadata/sharedMetadata";
 import type { Metadata } from "next";
 import merge from "lodash/merge";
 import RouteRoot from "@/components/layout/RouteRoot";
+import { assertRouteHasWhiteBackground } from "@/components/layout/routeBackgroundColors";
 
 export async function generateMetadata(): Promise<Metadata> {
   return merge({}, await getDefaultMetadata(), {
@@ -11,11 +12,12 @@ export async function generateMetadata(): Promise<Metadata> {
   });
 }
 
+assertRouteHasWhiteBackground("/rationality/[slug]");
+
 export default function Page() {
   return <RouteRoot delayedStatusCode metadata={{
     subtitle: 'Rationality: A-Z',
     subtitleLink: '/rationality',
-    background: 'white'
   }}>
     <PostsSingleSlug />
   </RouteRoot>;

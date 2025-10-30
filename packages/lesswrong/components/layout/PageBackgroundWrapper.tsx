@@ -1,10 +1,11 @@
 import React, { useEffect } from 'react';
 import { defineStyles, useStyles } from '@/components/hooks/useStyles';
-import { useLocation } from '@/lib/routeUtil';
-import { useRouteMetadata } from '@/components/layout/ClientRouteMetadataContext';
 import { isAF, isLWorAF } from '@/lib/instanceSettings';
 import classNames from 'classnames';
 import { isFullscreenRoute } from '@/lib/routeChecks';
+import { usePrerenderablePathname } from '../next/usePrerenderablePathname';
+import { routeHasWhiteBackground } from './routeBackgroundColors';
+import { THEME_COOKIE } from '@/lib/cookies/cookies';
 
 const styles = defineStyles("PageBackgroundWrapper", (theme: ThemeType) => ({
   wrapper: {
@@ -28,8 +29,7 @@ function PageBackgroundWrapper({children}: {
   children: React.ReactNode
 }) {
   const classes = useStyles(styles);
-  const { pathname } = useLocation();
-  const { metadata: routeMetadata } = useRouteMetadata();
+  const pathname = usePrerenderablePathname();
 
   // Some pages (eg post pages) have a solid white background, others (eg front page) have a gray
   // background against which individual elements in the central column provide their own
@@ -41,7 +41,7 @@ function PageBackgroundWrapper({children}: {
   // also have a `useEffect` which adds a class to `<body>`. (This has to be a useEffect because
   // <body> is outside the React tree entirely. An alternative way to do this would be to change
   // overflow properties so that `<body>` isn't scrollable but a `<div>` in here is.)
-  const useWhiteBackground = routeMetadata.background === "white";
+  const useWhiteBackground = routeHasWhiteBackground(pathname);
 
   useEffect(() => {
     const isWhite = document.body.classList.contains(classes.whiteBackground);
@@ -65,6 +65,41 @@ function PageBackgroundWrapper({children}: {
   )}>
     {children}
   </div>
+}
+
+export function BodyWithBackgroundColor({children}: {
+  children: React.ReactNode
+}) {
+  const pathname = usePrerenderablePathname();
+  const isWhiteBackground = routeHasWhiteBackground(pathname);
+  
+  // TODO: Also inject a script that reads the theme cookie and sets the color-scheme on the body element
+  // TODO: Swtich over from PageBackgroundWrapper to this
+  
+  return <body className={classNames(
+    isWhiteBackground && "whiteBackground",
+    !isWhiteBackground && "greyBackground"
+  )}>
+    <style>{`
+      @media (prefers-color-schema: light) {
+        body.whiteBackground {
+          background: white;
+        }
+        body.greyBackground {
+          background: #f8f4ee;
+        }
+      }
+      @media (prefers-color-schema: dark) {
+        body.whiteBackground {
+          background: black;
+        }
+        body.greyBackground {
+          background: #262626;
+        }
+      }
+    `}</style>
+    {children}
+  </body>
 }
 
 

@@ -1,6 +1,7 @@
-import { useRouteMetadata } from '@/components/layout/ClientRouteMetadataContext';
+import { usePrerenderablePathname } from '../next/usePrerenderablePathname';
+import { routeHasWhiteBackground } from '../layout/routeBackgroundColors';
 
 export const useIsOnGrayBackground = () => {
-  const { metadata } = useRouteMetadata();
-  return metadata.background !== "white";
+  const pathname = usePrerenderablePathname();
+  return !routeHasWhiteBackground(pathname);
 }

@@ -4,6 +4,7 @@ import { getDefaultMetadata, getMetadataDescriptionFields, getMetadataImagesFiel
 import type { Metadata } from "next";
 import merge from "lodash/merge";
 import RouteRoot from "@/components/layout/RouteRoot";
+import { assertRouteHasWhiteBackground } from "@/components/layout/routeBackgroundColors";
 
 export async function generateMetadata(): Promise<Metadata> {
   return merge(
@@ -15,8 +16,10 @@ export async function generateMetadata(): Promise<Metadata> {
   );
 }
 
+assertRouteHasWhiteBackground("/books/2019");
+
 export default function Page() {
-  return <RouteRoot metadata={{ background: 'white' }}>
+  return <RouteRoot>
     <Book2019Landing />
   </RouteRoot>;
 }

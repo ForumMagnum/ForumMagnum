@@ -20,7 +20,6 @@ export default function Page() {
   return <RouteRoot metadata={{
     subtitle: 'The Best of LessWrong',
     subtitleLink: '/leastwrong',
-    background: '#f8f4ee'
   }}>
     <TopPostsPage />
   </RouteRoot>;

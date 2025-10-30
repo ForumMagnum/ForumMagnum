@@ -3,11 +3,14 @@ import SequencesPost from '@/components/sequences/SequencesPost';
 import { PostsPageHeaderTitle } from '@/components/titles/PostsPageHeaderTitle';
 import { getPostPageMetadataFunction } from "@/server/pageMetadata/postPageMetadata";
 import RouteRoot from "@/components/layout/RouteRoot";
+import { assertRouteHasWhiteBackground } from "@/components/layout/routeBackgroundColors";
+
+assertRouteHasWhiteBackground("/s/[_id]/p/[postId]");
 
 export const generateMetadata = getPostPageMetadataFunction<{ _id: string; postId: string }>(({ postId }) => postId);
 
 export default function Page() {
-  return <RouteRoot metadata={{ background: 'white', titleComponent: PostsPageHeaderTitle }}>
+  return <RouteRoot metadata={{ titleComponent: PostsPageHeaderTitle }}>
     <SequencesPost />
   </RouteRoot>;
 }
