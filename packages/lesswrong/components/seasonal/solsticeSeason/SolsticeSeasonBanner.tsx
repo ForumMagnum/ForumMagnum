@@ -19,9 +19,10 @@ function getCarouselSections(classes: JssStyles) {
     {
       minorTitle: "Solstice",
       subtitle: <div>
-        <div>Celebrate the solstice with events around the world. Join communities marking the longest or shortest day of the year.</div>
+        <div>Celebrate humanity's Schelling holiday around the world. Find a local solstice event or create your own.</div>
         <Link to={`/newPost?eventForm=true&SOLSTICE=true`} target="_blank" rel="noopener noreferrer" className={classes.createEventButton}>
-          <span className={classes.createEventButtonIcon}>+</span> CREATE SOLSTICE EVENT</Link>
+          CREATE SOLSTICE EVENT
+        </Link>
       </div>,
       buttonText: "Solstice",
       shortButtonText: "Solstice"
@@ -46,7 +47,7 @@ const styles = defineStyles("SolsticeSeasonBanner", (theme: ThemeType) => ({
     fontWeight: 500,
     fontFamily: theme.typography.headerStyle.fontFamily,
     fontVariant: 'small-caps',
-    color: theme.palette.text.primary,
+    color: "white",
     zIndex: 2,
     transition: 'opacity 0.3s ease-out',
     marginBottom: 0,
@@ -60,7 +61,7 @@ const styles = defineStyles("SolsticeSeasonBanner", (theme: ThemeType) => ({
     },
     fontFamily: theme.typography.headerStyle.fontFamily,
     fontVariant: 'small-caps',
-    color: theme.palette.text.primary,
+    color: "white",
     zIndex: 2,
     transition: 'opacity 0.3s ease-out',
     marginBottom: 0,
@@ -95,16 +96,16 @@ const styles = defineStyles("SolsticeSeasonBanner", (theme: ThemeType) => ({
       height: 120,
     },
     '& a': {
-      color: theme.dark ? theme.palette.primary.light : theme.palette.primary.main,
+      color: "white",
     },
     fontWeight: 500,
     marginTop: 12,
     display: 'flex',
     flexDirection: 'column',
     justifyContent: 'center',
-    textShadow: `0 0 5px light-dark(${theme.palette.background.default}, transparent), 0 0 10px light-dark(${theme.palette.background.default}, transparent), 0 0 15px light-dark(${theme.palette.background.default}, transparent)`,
+    // textShadow: `0 0 5px light-dark(${theme.palette.background.default}, transparent), 0 0 10px light-dark(${theme.palette.background.default}, transparent), 0 0 15px light-dark(${theme.palette.background.default}, transparent)`,
     fontFamily: theme.typography.postStyle.fontFamily,
-    color: theme.palette.text.primary,
+    color: "white",
     transition: 'opacity 0.3s ease-out',
     '& li': {
       marginLeft: -10
@@ -177,26 +178,15 @@ const styles = defineStyles("SolsticeSeasonBanner", (theme: ThemeType) => ({
     marginBottom: 10,
     opacity: 0.8,
   },
-  globeGradient: {
-    position: 'absolute',
-    top: 0,
-    right: 0,
-    width: '100%',
-    height: '100%',
-    background: `radial-gradient(ellipse at top, transparent 30%, ${theme.palette.background.default} 100%)`,
-    zIndex: 1,
-    pointerEvents: 'none',
-    transition: 'opacity 0.3s ease-out',
-  },
   globeGradientRight: {
     position: 'absolute',
     top: 0,
     right: 0,
-    width: '100%',
+    width: 'calc(100% + 270px)',
     height: '100%',
-    background: `linear-gradient(to left, transparent 0%, ${theme.palette.background.default} 100%)`,
+    background: `linear-gradient(to right, transparent 30%, ${theme.palette.background.default} 100%)`,
     [theme.breakpoints.up(1620)]: {
-      background: `linear-gradient(to left, transparent 0%, ${theme.palette.background.default} 100%)`,
+      background: `linear-gradient(to left, transparent 30%, ${theme.palette.background.default} 100%)`,
     },
     zIndex: 1,
     pointerEvents: 'none',
@@ -206,10 +196,10 @@ const styles = defineStyles("SolsticeSeasonBanner", (theme: ThemeType) => ({
     position: 'absolute',
     top: -80,
     right: 0,
-    width: '80%',
+    width: '60%',
     height: '100vh',
     transition: 'opacity 0.3s ease-out',
-    zIndex: 2,
+    zIndex: 0,
   },
   scrollBackground: {
     position: 'absolute',
@@ -222,9 +212,9 @@ const styles = defineStyles("SolsticeSeasonBanner", (theme: ThemeType) => ({
     pointerEvents: 'none',
   },
   contentContainer: {
-    width: 'calc(100% - 400px)',
+    width: '100%',
     [theme.breakpoints.up(smallBreakpoint)]: {
-      width: 'calc(100% - 300px)',
+      width: '100%',
     },
     paddingTop: 120,
     paddingBottom: 80,
@@ -529,7 +519,7 @@ export default function SolsticeSeasonBannerInner() {
 
   if (isLoading) {
     return <div className={classes.root}>
-      <div className={classes.globeGradient} />
+      {/* <div className={classes.globeGradient} /> */}
       <div className={classes.globeGradientRight} />
       <div className={classes.scrollBackground} />
       <div 
@@ -566,7 +556,7 @@ export default function SolsticeSeasonBannerInner() {
   }
 
   return <div className={classNames(classes.root)}>
-    <div className={classes.globeGradient}/>
+    {/* <div className={classes.globeGradient}/> */}
     <div className={classes.globeGradientRight} />
     <div className={classes.scrollBackground} />
     <div 
@@ -585,7 +575,7 @@ export default function SolsticeSeasonBannerInner() {
         style={{ width: '100%', height: '100%' }}
         onClick={() => setEverClickedGlobe(true)}
       /> */}
-              <SolsticeGlobe3D 
+        <SolsticeGlobe3D 
           pointsData={pointsData}
           defaultPointOfView={defaultPointOfView}
           onPointClick={(point: SolsticeGlobePoint, screenCoords: { x: number; y: number }) => {

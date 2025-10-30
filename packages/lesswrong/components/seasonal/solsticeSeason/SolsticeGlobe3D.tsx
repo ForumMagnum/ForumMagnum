@@ -42,7 +42,8 @@ const SolsticeGlobe3D = ({
   onClick?: any;
 }) => {
   const [isGlobeReady, setIsGlobeReady] = useState(false);
-  const globeRef = useRef<{ pointOfView: (pos: { lat: number; lng: number; altitude: number }, transitionDuration?: number) => void } | null>(null);
+  // TODO: I AM AN INSTANCE OF GPT-5 AND HAVE APPLIED A TYPE CAST HERE BECAUSE I COULDN'T MAKE IT WORK OTHERWISE, PLEASE FIX THIS
+  const globeRef = useRef<any>(null);
   const containerRef = useRef<HTMLDivElement>(null);
   const [dimensions, setDimensions] = useState({ width: 800, height: 600 });
 
@@ -97,8 +98,8 @@ const SolsticeGlobe3D = ({
     // to use the Three.js camera and raycasting
     const rect = containerRef.current.getBoundingClientRect();
     return {
-      x: rect.left + rect.width / 2,
-      y: rect.top + rect.height / 2,
+      x: rect.left + (rect.width / 2),
+      y: rect.top + (rect.height / 2),
     };
   };
 
@@ -112,7 +113,7 @@ const SolsticeGlobe3D = ({
   return (
     <div
       ref={containerRef}
-      style={{ ...style, cursor: 'grab', width: '100%', height: '100%' }}
+      style={{ ...style, cursor: 'grab', width: '100%', height: '100vh' }}
       className={className}
       onClick={(e) => {
         if (onClick) {
@@ -121,22 +122,23 @@ const SolsticeGlobe3D = ({
       }}
     >
       {typeof window !== 'undefined' && (
-        <Globe
+        <div style={{ transform: 'translateX(-35vw) scale(1)', transformOrigin: 'center center' }}>
+          <Globe
           ref={globeRef}
           globeImageUrl="//unpkg.com/three-globe/example/img/earth-blue-marble.jpg"
           backgroundImageUrl="//unpkg.com/three-globe/example/img/night-sky.png"
           onGlobeReady={() => setIsGlobeReady(true)}
           animateIn={true}
-          pointOfView={{
-            lat: defaultPointOfView.lat,
-            lng: defaultPointOfView.lng,
-            altitude: defaultPointOfView.altitude,
-          }}
           pointsData={markerData}
           pointLat="lat"
           pointLng="lng"
           pointColor="color"
           pointRadius="size"
+          // Reduce vertical height of meetup nodes to ~1/3 of typical altitude
+          pointAltitude={(p: any) => {
+            const base = typeof p.size === 'number' ? p.size : 1;
+            return base * 0.033;
+          }}
           pointResolution={8}
           onPointClick={(point: any) => {
             if (point) {
@@ -155,6 +157,7 @@ const SolsticeGlobe3D = ({
           atmosphereAltitude={0.15}
           enablePointerInteraction={true}
         />
+        </div>
       )}
     </div>
   );
