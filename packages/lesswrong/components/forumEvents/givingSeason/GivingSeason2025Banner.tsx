@@ -390,7 +390,7 @@ export const GivingSeason2025Banner: FC = () => {
           <div className={classes.feed}>
             {currentEvent?.tag && selectedEvent === currentEvent && (
                <MixedTypeFeed
-                  firstPageSize={3}
+                  firstPageSize={selectedEvent?.feedCount}
                   hideLoading
                   disableLoadMore
                   resolverName="GivingSeasonTagFeed"

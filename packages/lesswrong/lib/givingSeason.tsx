@@ -33,6 +33,7 @@ type GivingSeasonEvent = {
   color: string,
   desktopCloudinaryId: string,
   mobileCloudinaryId: string,
+  feedCount: number,
 }
 
 export const givingSeasonEvents: GivingSeasonEvent[] = [
@@ -49,6 +50,7 @@ export const givingSeasonEvents: GivingSeasonEvent[] = [
     color: "#BCDFE1",
     desktopCloudinaryId: "week2_desktop_ydo4wc",
     mobileCloudinaryId: "week2_mobile_cbygzj",
+    feedCount: 4,
   },
   {
     name: "Marginal funding week",
@@ -63,6 +65,7 @@ export const givingSeasonEvents: GivingSeasonEvent[] = [
     color: "#FF7454",
     desktopCloudinaryId: "week3_desktop_hqdsiu",
     mobileCloudinaryId: "week3_mobile_kby9wq",
+    feedCount: 3,
   },
   {
     name: "Donation election",
@@ -73,6 +76,7 @@ export const givingSeasonEvents: GivingSeasonEvent[] = [
     color: "#FFC500",
     desktopCloudinaryId: "week4_desktop_s1iy4m",
     mobileCloudinaryId: "week4_mobile_u0l7pw",
+    feedCount: 0,
   },
   {
     name: "Why I donate week",
@@ -83,6 +87,7 @@ export const givingSeasonEvents: GivingSeasonEvent[] = [
     color: "#63C5D5",
     desktopCloudinaryId: "week1_desktop_toao8n",
     mobileCloudinaryId: "week1_mobile_fwltv9",
+    feedCount: 4,
   },
   {
     name: "Donation celebration",
@@ -93,6 +98,7 @@ export const givingSeasonEvents: GivingSeasonEvent[] = [
     color: "#F59469",
     desktopCloudinaryId: "week5_desktop_bqdvi3",
     mobileCloudinaryId: "week5_mobile_n7bysk",
+    feedCount: 0,
   },
 ];
 
