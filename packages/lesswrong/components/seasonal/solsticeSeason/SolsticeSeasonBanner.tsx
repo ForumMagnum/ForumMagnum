@@ -1,4 +1,4 @@
-import React, { useState, useMemo, useCallback } from 'react';
+import React, { useState, useMemo, useCallback, useEffect } from 'react';
 import { defineStyles, useStyles } from '../../hooks/useStyles';
 import { useQuery } from "@/lib/crud/useQuery";
 import { SuspenseWrapper } from '@/components/common/SuspenseWrapper';
@@ -32,7 +32,7 @@ function getCarouselSections(classes: JssStyles) {
 
 const styles = defineStyles("SolsticeSeasonBanner", (theme: ThemeType) => ({
   root: {
-    position: 'absolute',
+    position: 'fixed',
     background: "black",
     top: 0,
     right: 0,
@@ -184,7 +184,7 @@ const styles = defineStyles("SolsticeSeasonBanner", (theme: ThemeType) => ({
     right: 0,
     width: 'calc(100% + 270px)',
     height: '100%',
-    background: `linear-gradient(to right, transparent 30%, ${theme.palette.background.default} 100%)`,
+    background: `linear-gradient(to left, transparent 30%, ${theme.palette.background.default} 100%)`,
     [theme.breakpoints.up(1620)]: {
       background: `linear-gradient(to left, transparent 30%, ${theme.palette.background.default} 100%)`,
     },
@@ -387,6 +387,7 @@ const SolsticeGlobePopup = ({ eventId, screenCoords, onClose, classes }: Solstic
       <div
         className={classes.popupContainer}
         style={{
+          position: 'fixed',
           left: `${screenCoords.x}px`,
           top: `${screenCoords.y - 15}px`,
           transform: 'translate(-50%, -100%)',
@@ -440,6 +441,19 @@ export default function SolsticeSeasonBannerInner() {
   const [isLoading, setIsLoading] = useState(true);
   const [everClickedGlobe, setEverClickedGlobe] = useState(false);
   const carouselSections = useMemo(() => getCarouselSections(classes), [classes]);
+  const [bannerOpacity, setBannerOpacity] = useState(1);
+  
+  useEffect(() => {
+    const handleScroll = () => {
+      const y = window.scrollY || window.pageYOffset || 0;
+      const fadeDistance = 600; // px until fully faded
+      const nextOpacity = Math.max(0, 1 - y / fadeDistance);
+      setBannerOpacity(nextOpacity);
+    };
+    handleScroll();
+    window.addEventListener('scroll', handleScroll, { passive: true });
+    return () => window.removeEventListener('scroll', handleScroll);
+  }, []);
   
   const defaultPointOfView = useMemo(() => ({
     lat: 20,
@@ -518,7 +532,7 @@ export default function SolsticeSeasonBannerInner() {
   }, [currentCarouselIndex])
 
   if (isLoading) {
-    return <div className={classes.root}>
+    return <div className={classes.root} style={{ opacity: bannerOpacity }}>
       {/* <div className={classes.globeGradient} /> */}
       <div className={classes.globeGradientRight} />
       <div className={classes.scrollBackground} />
@@ -527,18 +541,6 @@ export default function SolsticeSeasonBannerInner() {
         onClick={() => setEverClickedGlobe(true)}
         style={{ opacity: 0 }}
       >
-        {/* <SolsticeGlobe 
-          pointsData={pointsData}
-          defaultPointOfView={defaultPointOfView}
-          onPointClick={(point: SolsticeGlobePoint, screenCoords: { x: number; y: number }) => {
-            if (point.eventId) {
-              setSelectedEventId(point.eventId);
-              setPopupCoords(screenCoords);
-            }
-          }}
-          onReady={() => setIsLoading(false)}
-          style={{ width: '100%', height: '100%' }}
-        /> */}
         <SolsticeGlobe3D 
           pointsData={pointsData}
           defaultPointOfView={defaultPointOfView}
@@ -555,7 +557,7 @@ export default function SolsticeSeasonBannerInner() {
     </div>;
   }
 
-  return <div className={classNames(classes.root)}>
+  return <div className={classNames(classes.root)} style={{ opacity: bannerOpacity }}>
     {/* <div className={classes.globeGradient}/> */}
     <div className={classes.globeGradientRight} />
     <div className={classes.scrollBackground} />

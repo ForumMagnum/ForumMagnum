@@ -78,6 +78,21 @@ const SolsticeGlobe3D = ({
     }
   }, [isGlobeReady, onReady]);
 
+  // Boost night texture visibility by increasing emissive on the globe material
+  useEffect(() => {
+    if (!isGlobeReady || !globeRef.current?.globeMaterial) return;
+    try {
+      const material = globeRef.current.globeMaterial();
+      if (material && material.emissive) {
+        material.emissive.set('#999999');
+        material.emissiveIntensity = 1.35;
+        material.needsUpdate = true;
+      }
+    } catch (_e) {
+      // best-effort enhancement; ignore if underlying lib changes
+    }
+  }, [isGlobeReady]);
+
   // Convert points data to format expected by react-globe.gl
   const markerData = pointsData.map((point, index) => ({
     lat: point.lat,
@@ -125,7 +140,7 @@ const SolsticeGlobe3D = ({
         <div style={{ transform: 'translateX(-35vw) scale(1)', transformOrigin: 'center center' }}>
           <Globe
           ref={globeRef}
-          globeImageUrl="//unpkg.com/three-globe/example/img/earth-blue-marble.jpg"
+          globeImageUrl="https://res.cloudinary.com/lesswrong-2-0/image/upload/v1761791669/earth-blue-marble-night-half_v2smtx.jpg"
           backgroundImageUrl="//unpkg.com/three-globe/example/img/night-sky.png"
           onGlobeReady={() => setIsGlobeReady(true)}
           animateIn={true}

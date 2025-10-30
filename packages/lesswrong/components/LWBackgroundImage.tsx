@@ -144,14 +144,14 @@ export const LWBackgroundImage = ({standaloneNavigation}: {
       />
   </div>
 
-  let homePageImage = defaultImage
+  let homePageImage = standaloneNavigation ? <SolsticeSeasonBanner /> : defaultImage
   if (getReviewPhase() === 'VOTING') homePageImage = <ReviewVotingCanvas />
   if (getReviewPhase() === 'RESULTS') homePageImage = reviewCompleteImage
 
   const now = new Date();
 
   return <div className={classes.root}>
-    <SolsticeSeasonBanner />
+    {homePageImage}
   </div>;
 }
 
