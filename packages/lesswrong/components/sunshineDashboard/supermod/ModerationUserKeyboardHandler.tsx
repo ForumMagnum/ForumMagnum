@@ -1,5 +1,4 @@
 import React, { useCallback, useMemo } from 'react';
-import { useGlobalKeydown } from '@/components/common/withGlobalKeydown';
 import { useDialog } from '@/components/common/withDialog';
 import type { CommandPaletteItem } from '@/components/common/CommandPalette';
 import { useMutation } from '@apollo/client/react';
@@ -9,7 +8,7 @@ import { getSignatureWithNote } from '@/lib/collections/users/helpers';
 import { getNewSnoozeUntilContentCount } from '../ModeratorActions';
 import SnoozeAmountModal from './SnoozeAmountModal';
 import RestrictAndNotifyModal from './RestrictAndNotifyModal';
-import { useCommandPalette } from '@/components/hooks/useCommandPalette';
+import { useSupermodKeyboardCommands } from '@/components/hooks/useSupermodKeyboardCommands';
 import { useModeratedUserContents } from '@/components/hooks/useModeratedUserContents';
 import type { InboxAction, UndoHistoryItem } from './inboxReducer';
 import { useUserContentPermissions } from './useUserContentPermissions';
@@ -17,7 +16,6 @@ import RejectContentDialog from '../RejectContentDialog';
 import { useRejectContent } from '@/components/hooks/useRejectContent';
 import { ContentItem, isPost } from './helpers';
 import { useMessages } from '@/components/common/withMessages';
-import { parseKeystroke, getCode } from '@/lib/vendor/ckeditor5-util/keyboard';
 
 const SunshineUsersListUpdateMutation = gql(`
   mutation updateUserModerationKeyboard($selector: SelectorInput!, $data: UpdateUserDataInput!) {
@@ -41,37 +39,6 @@ const ApproveCurrentContentOnlyMutation = gql(`
   }
 `);
 
-function specialKeyPressed(event: KeyboardEvent) {
-  return event.metaKey || event.ctrlKey || event.altKey;
-}
-
-function isNavigationKey(key: string) {
-  return key === 'ArrowUp' || key === 'ArrowDown' || key === 'ArrowLeft' || key === 'ArrowRight' || key === 'Enter' || key === 'Escape';
-}
-
-function matchesKeystroke(event: KeyboardEvent, keystroke: string): boolean {
-  const key = event.key;
-
-  if (key === 'Escape') {
-    return keystroke === 'esc';
-  }
-
-  if (isNavigationKey(key)) {
-    const normalizedKeystroke = keystroke.toLowerCase();
-    const normalizedKey = key.toLowerCase();
-
-    return normalizedKeystroke === normalizedKey;
-  }
-
-  try {
-    const keystrokeCode = parseKeystroke(keystroke);
-    const eventCode = getCode(event);
-    return keystrokeCode === eventCode;
-  } catch (error) {
-    return false;
-  }
-}
-
 function canRejectCurrentlySelectedContent(selectedContent?: ContentItem) {
   return selectedContent && !selectedContent.rejected && selectedContent.authorIsUnreviewed;
 }
@@ -94,7 +61,7 @@ function getMostRecentUnapprovedContent(posts: SunshinePostsList[], comments: Co
   return unapprovedContent[0];
 }
 
-const ModerationKeyboardHandler = ({
+const ModerationUserKeyboardHandler = ({
   onNextUser,
   onPrevUser,
   onOpenDetail,
@@ -123,14 +90,26 @@ const ModerationKeyboardHandler = ({
   undoQueue: UndoHistoryItem[];
   dispatch: React.ActionDispatch<[action: InboxAction]>;
 }) => {
-  const { openDialog, isDialogOpen } = useDialog();
+  const { openDialog } = useDialog();
   const { flash } = useMessages();
   const [updateUser] = useMutation(SunshineUsersListUpdateMutation);
   const [rejectContentAndRemoveFromQueue] = useMutation(RejectContentAndRemoveFromQueueMutation);
   const [approveCurrentContentOnly] = useMutation(ApproveCurrentContentOnlyMutation);
   
   const { posts, comments } = useModeratedUserContents(selectedUser?._id ?? '', 20);
-  const { rejectContent, unrejectContent, rejectionTemplates } = useRejectContent();
+
+  const {
+    rejectContent,
+    unrejectContent,
+    rejectionTemplates,
+  } = useRejectContent();
+
+  const {
+    toggleDisablePosting,
+    toggleDisableCommenting,
+    toggleDisableMessaging,
+    toggleDisableVoting,
+  } = useUserContentPermissions(selectedUser, dispatch);
   
   const allContent = useMemo(() => {
     return [...posts, ...comments].sort((a, b) => 
@@ -138,7 +117,7 @@ const ModerationKeyboardHandler = ({
     );
   }, [posts, comments]);
 
-  const selectedContent = useMemo(() => allContent[selectedContentIndex], [allContent, selectedContentIndex]);
+  const selectedContent = useMemo<ContentItem | undefined>(() => allContent[selectedContentIndex], [allContent, selectedContentIndex]);
 
   const getModSignatureWithNote = useCallback(
     (note: string) => getSignatureWithNote(currentUser.displayName, note),
@@ -146,31 +125,19 @@ const ModerationKeyboardHandler = ({
   );
 
   const handleAction = useCallback(
-    (actionLabel: string, actionFn: () => Promise<void>) => {
-      addToUndoQueue(actionLabel, actionFn);
-    },
+    (actionLabel: string, actionFn: () => Promise<void>) => addToUndoQueue(actionLabel, actionFn),
     [addToUndoQueue]
   );
 
   const updateUserWith = useCallback((data: UpdateUserDataInput, undoActionLabel?: string) => {
     if (!selectedUser) return;
 
+    const variables = { selector: { _id: selectedUser._id }, data };
+
     if (undoActionLabel) {
-      handleAction(undoActionLabel, async () => {
-        await updateUser({
-          variables: {
-            selector: { _id: selectedUser._id },
-            data,
-          },
-        });
-      });
+      handleAction(undoActionLabel, async () => { await updateUser({ variables }); });
     } else {
-      void updateUser({
-        variables: {
-          selector: { _id: selectedUser._id },
-          data,
-        },
-      });
+      void updateUser({ variables });
     }
   }, [selectedUser, updateUser, handleAction]);
 
@@ -191,11 +158,7 @@ const ModerationKeyboardHandler = ({
   const handleApproveCurrentOnly = useCallback(() => {
     if (!selectedUser) return;
     handleAction('Approved Current Only', async () => {
-      await approveCurrentContentOnly({
-        variables: {
-          userId: selectedUser._id,
-        },
-      });
+      await approveCurrentContentOnly({ variables: { userId: selectedUser._id } });
     });
   }, [selectedUser, handleAction, approveCurrentContentOnly]);
 
@@ -295,7 +258,7 @@ const ModerationKeyboardHandler = ({
 
   const handleRejectCurrentContent = useCallback(() => {
     if (!selectedUser) return;
-    if (!canRejectCurrentlySelectedContent(selectedContent)) return;
+    if (!selectedContent || !canRejectCurrentlySelectedContent(selectedContent)) return;
 
     const contentWrapper = isPost(selectedContent) ? {
       collectionName: 'Posts' as const,
@@ -305,9 +268,7 @@ const ModerationKeyboardHandler = ({
       document: selectedContent,
     };
 
-    const handleRejectContent = (reason: string) => {
-      rejectContent({ ...contentWrapper, reason });
-    };
+    const handleRejectContent = (reason: string) => { void rejectContent({ ...contentWrapper, reason }); };
 
     openDialog({
       name: 'RejectContentDialog',
@@ -319,15 +280,23 @@ const ModerationKeyboardHandler = ({
         />
       ),
     });
-
   }, [openDialog, rejectContent, rejectionTemplates, selectedContent, selectedUser]);
 
-  const {
-    toggleDisablePosting,
-    toggleDisableCommenting,
-    toggleDisableMessaging,
-    toggleDisableVoting,
-  } = useUserContentPermissions(selectedUser, dispatch);
+  const handleUnrejectCurrentContent = useCallback(() => {
+    if (!selectedUser) return;
+    if (!selectedContent?.rejected) return;
+    if (!confirm("Are you sure you want to unreject this content?")) return;
+
+    const contentWrapper = isPost(selectedContent) ? {
+      collectionName: 'Posts' as const,
+      document: selectedContent,
+    } : {
+      collectionName: 'Comments' as const,
+      document: selectedContent,
+    };
+
+    void unrejectContent(contentWrapper);
+  }, [selectedUser, selectedContent, unrejectContent]);
 
   const handleRestrictAndNotify = useCallback(() => {
     if (!selectedUser) return;
@@ -427,179 +396,198 @@ const ModerationKeyboardHandler = ({
     });
   }, [selectedUser, posts, comments, handleAction, rejectContentAndRemoveFromQueue, openDialog, rejectionTemplates]);
 
-  const openCommandPalette = useCommandPalette();
-
-  const commands: CommandPaletteItem[] = useMemo(() => [{
-    label: 'Undo Most Recent Action',
-    keystroke: 'Ctrl+Z',
-    isDisabled: () => undoQueue.length === 0,
-    execute: handleUndoMostRecent,
-  }, {
+  const approveCommand: CommandPaletteItem = useMemo(() => ({
     label: 'Approve',
     keystroke: 'A',
     isDisabled: () => !selectedUser,
     execute: handleReview,
-  }, {
+  }), [selectedUser, handleReview]);
+
+  const approveCurrentOnlyCommand: CommandPaletteItem = useMemo(() => ({
     label: 'Approve Current Content Only',
     keystroke: 'Shift+A',
     isDisabled: () => !selectedUser,
     execute: handleApproveCurrentOnly,
-  }, {
+  }), [selectedUser, handleApproveCurrentOnly]);
+
+  const snooze10Command: CommandPaletteItem = useMemo(() => ({
     label: 'Snooze 10',
     keystroke: 'S',
     isDisabled: () => !selectedUser,
     execute: () => handleSnooze(10),
-  }, {
+  }), [selectedUser, handleSnooze]);
+
+  const snoozeCustomCommand: CommandPaletteItem = useMemo(() => ({
     label: 'Snooze Custom Amount',
     keystroke: 'Shift+S',
     isDisabled: () => !selectedUser,
     execute: handleSnoozeCustom,
-  }, {
+  }), [selectedUser, handleSnoozeCustom]);
+
+  const removeCommand: CommandPaletteItem = useMemo(() => ({
     label: 'Remove',
     keystroke: 'Q',
     isDisabled: () => !selectedUser,
     execute: handleRemoveNeedsReview,
-  }, {
+  }), [selectedUser, handleRemoveNeedsReview]);
+
+  const ban3moCommand: CommandPaletteItem = useMemo(() => ({
     label: 'Ban 3mo',
     keystroke: 'B',
     isDisabled: () => !selectedUser,
     execute: handleBan,
-  }, {
+  }), [selectedUser, handleBan]);
+
+  const purgeCommand: CommandPaletteItem = useMemo(() => ({
     label: 'Purge',
     keystroke: 'P',
     isDisabled: () => !selectedUser,
     execute: handlePurge,
-  }, {
+  }), [selectedUser, handlePurge]);
+
+  const flagCommand: CommandPaletteItem = useMemo(() => ({
     label: 'Flag',
     keystroke: 'F',
     isDisabled: () => !selectedUser,
     execute: handleFlag,
-  }, {
+  }), [selectedUser, handleFlag]);
+
+  const copyUserIdCommand: CommandPaletteItem = useMemo(() => ({
     label: 'Copy User ID',
     keystroke: 'U',
     isDisabled: () => !selectedUser,
     execute: handleCopyUserId,
-  }, {
-    label: 'Reject Current',
+  }), [selectedUser, handleCopyUserId]);
+
+  const rejectOrUnrejectCommand: CommandPaletteItem = useMemo(() => ({
+    label: selectedContent?.rejected ? 'Unreject' : 'Reject',
     keystroke: 'R',
-    isDisabled: () => !selectedUser || !canRejectCurrentlySelectedContent(selectedContent),
-    execute: handleRejectCurrentContent,
-  }, {
+    isDisabled: () => (
+      !isDetailView
+      || !selectedUser
+      || (selectedContent?.rejected
+          ? !selectedContent.rejected
+          : !canRejectCurrentlySelectedContent(selectedContent))
+    ),
+    execute: selectedContent?.rejected
+      ? handleUnrejectCurrentContent
+      : handleRejectCurrentContent,
+  }), [isDetailView, selectedUser, selectedContent, handleRejectCurrentContent, handleUnrejectCurrentContent]);
+
+  const rejectLatestAndRemoveCommand: CommandPaletteItem = useMemo(() => ({
     label: 'Reject Latest & Remove',
     keystroke: 'X',
-    isDisabled: () => !selectedUser,
+    isDisabled: () => !isDetailView || !selectedUser,
     execute: handleRejectContentAndRemove,
-  }, {
+  }), [isDetailView, selectedUser, handleRejectContentAndRemove]);
+
+  const restrictAndNotifyCommand: CommandPaletteItem = useMemo(() => ({
     label: 'Reject Latest, Restrict, & Notify',
     keystroke: 'Shift+R',
-    isDisabled: () => !selectedUser,
+    isDisabled: () => !isDetailView || !selectedUser,
     execute: handleRestrictAndNotify,
-  }, {
+  }), [isDetailView, selectedUser, handleRestrictAndNotify]);
+
+  const disablePostingCommand: CommandPaletteItem = useMemo(() => ({
     label: 'Disable Posting',
     keystroke: 'D',
-    isDisabled: () => !selectedUser,
+    isDisabled: () => !isDetailView || !selectedUser,
     execute: toggleDisablePosting,
-  }, {
+  }), [isDetailView, selectedUser, toggleDisablePosting]);
+
+  const disableCommentingCommand: CommandPaletteItem = useMemo(() => ({
     label: 'Disable Commenting',
     keystroke: 'C',
-    isDisabled: () => !selectedUser,
+    isDisabled: () => !isDetailView || !selectedUser,
     execute: toggleDisableCommenting,
-  }, {
+  }), [isDetailView, selectedUser, toggleDisableCommenting]);
+
+  const disableMessagingCommand: CommandPaletteItem = useMemo(() => ({
     label: 'Disable Messaging',
     keystroke: 'M',
-    isDisabled: () => !selectedUser,
+    isDisabled: () => !isDetailView || !selectedUser,
     execute: toggleDisableMessaging,
-  }, {
+  }), [isDetailView, selectedUser, toggleDisableMessaging]);
+
+  const disableVotingCommand: CommandPaletteItem = useMemo(() => ({
     label: 'Disable Voting',
     keystroke: 'V',
-    isDisabled: () => !selectedUser,
+    isDisabled: () => !isDetailView || !selectedUser,
     execute: toggleDisableVoting,
-  }, {
+  }), [isDetailView, selectedUser, toggleDisableVoting]);
+
+  const nextContentOrUserCommand: CommandPaletteItem = useMemo(() => ({
     label: isDetailView ? 'Next Content Item' : 'Next User',
     keystroke: 'ArrowDown',
-    isDisabled: () => isDetailView ? allContent.length === 0 : false,
-    execute: isDetailView 
+    isDisabled: () => isDetailView
+      ? allContent.length === 0
+      : false,
+    execute: isDetailView
       ? () => dispatch({ type: 'NEXT_CONTENT', contentLength: allContent.length })
       : onNextUser,
-  }, {
+  }), [isDetailView, allContent.length, dispatch, onNextUser]);
+
+  const previousContentOrUserCommand: CommandPaletteItem = useMemo(() => ({
     label: isDetailView ? 'Previous Content Item' : 'Previous User',
     keystroke: 'ArrowUp',
-    isDisabled: () => isDetailView ? allContent.length === 0 : false,
-    execute: isDetailView 
+    isDisabled: () => isDetailView
+      ? allContent.length === 0
+      : false,
+    execute: isDetailView
       ? () => dispatch({ type: 'PREV_CONTENT', contentLength: allContent.length })
       : onPrevUser,
-  }, {
+  }), [isDetailView, allContent.length, dispatch, onPrevUser]);
+
+  const nextUserOrTabCommand: CommandPaletteItem = useMemo(() => ({
     label: isDetailView ? 'Next User' : 'Next Tab',
     keystroke: 'ArrowRight',
     isDisabled: () => false,
     execute: isDetailView ? onNextUser : onNextTab,
-  }, {
+  }), [onNextUser, onNextTab, isDetailView]);
+  
+  const previousUserOrTabCommand: CommandPaletteItem = useMemo(() => ({
     label: isDetailView ? 'Previous User' : 'Previous Tab',
     keystroke: 'ArrowLeft',
     isDisabled: () => false,
     execute: isDetailView ? onPrevUser : onPrevTab,
-  }, {
-    label: 'Open Detail View',
-    keystroke: 'enter',
-    isDisabled: () => false,
-    execute: onOpenDetail,
-  }, {
-    label: 'Close Detail View',
-    keystroke: 'esc',
-    isDisabled: () => false,
-    execute: onCloseDetail,
-  }], [handleUndoMostRecent, handleReview, handleApproveCurrentOnly, handleSnoozeCustom, handleRemoveNeedsReview, handleRejectContentAndRemove, handleBan, handlePurge, handleFlag, handleCopyUserId, toggleDisablePosting, toggleDisableCommenting, toggleDisableMessaging, toggleDisableVoting, handleRejectCurrentContent, handleRestrictAndNotify, onNextUser, onPrevUser, onNextTab, onPrevTab, onOpenDetail, onCloseDetail, selectedUser, handleSnooze, isDetailView, dispatch, allContent.length, selectedContent, undoQueue.length]);
+  }), [onPrevUser, onPrevTab, isDetailView]);
 
-  useGlobalKeydown(
-    useCallback(
-      (event: KeyboardEvent) => {
-        // Don't trigger any shortcuts if a dialog is open.
-        if (isDialogOpen) {
-          return;
-        }
+  const openOrCloseDetailViewCommand: CommandPaletteItem = useMemo(() => ({
+    label: isDetailView ? 'Close Detail View' : 'Open Detail View',
+    keystroke: isDetailView ? 'esc' : 'enter',
+    isDisabled: () => !selectedUser,
+    execute: isDetailView ? onCloseDetail : onOpenDetail,
+  }), [onCloseDetail, onOpenDetail, isDetailView, selectedUser]);
 
-        // Don't handle keyboard shortcuts if user is typing in an input/textarea
-        const target = event.target as HTMLElement;
-        if (
-          target.tagName === 'INPUT' ||
-          target.tagName === 'TEXTAREA' ||
-          target.isContentEditable
-        ) {
-          // Exception: allow Escape even in inputs
-          if (event.key !== 'Escape') {
-            return;
-          }
-        }
+  const undoMostRecentActionCommand: CommandPaletteItem = useMemo(() => ({
+    label: 'Undo Most Recent Action',
+    keystroke: 'Ctrl+Z',
+    isDisabled: () => undoQueue.length === 0,
+    execute: handleUndoMostRecent,
+  }), [handleUndoMostRecent, undoQueue.length]);
 
-        if ((event.metaKey || event.ctrlKey) && event.key === 'k') {
-          event.preventDefault();
-          openCommandPalette(commands, () => {});
-          return;
-        }
+  const commands: CommandPaletteItem[] = useMemo(() => [
+    approveCommand, approveCurrentOnlyCommand,
+    snooze10Command, snoozeCustomCommand,
+    removeCommand,
+    rejectOrUnrejectCommand, rejectLatestAndRemoveCommand, restrictAndNotifyCommand,
+    purgeCommand,
+    flagCommand,
+    copyUserIdCommand,
+    disablePostingCommand, disableCommentingCommand, disableMessagingCommand, disableVotingCommand,
+    nextContentOrUserCommand, previousContentOrUserCommand, nextUserOrTabCommand, previousUserOrTabCommand,
+    openOrCloseDetailViewCommand, undoMostRecentActionCommand,
+    ban3moCommand,
+  ], [approveCommand, approveCurrentOnlyCommand, snooze10Command, snoozeCustomCommand, removeCommand, ban3moCommand, purgeCommand, flagCommand, copyUserIdCommand, rejectOrUnrejectCommand, rejectLatestAndRemoveCommand, restrictAndNotifyCommand, disablePostingCommand, disableCommentingCommand, disableMessagingCommand, disableVotingCommand, nextContentOrUserCommand, previousContentOrUserCommand, nextUserOrTabCommand, previousUserOrTabCommand, openOrCloseDetailViewCommand, undoMostRecentActionCommand]);
 
-        // Block shortcuts when special keys (Cmd/Ctrl/Alt) are pressed, except for navigation keys
-        if (specialKeyPressed(event) && (!isNavigationKey(event.key) && event.key !== 'z')) {
-          return;
-        }
-
-        for (const command of commands) {
-          if (matchesKeystroke(event, command.keystroke)) {
-            if (command.isDisabled()) {
-              return;
-            }
-
-            event.preventDefault();
-            command.execute();
-            return;
-          }
-        }
-      },
-      [commands, openCommandPalette, isDialogOpen]
-    )
-  );
+  useSupermodKeyboardCommands({
+    commands,
+    handleWhileInTextInputs: ['Escape'],
+    allowWithSpecialKeys: ['ArrowUp', 'ArrowDown', 'ArrowLeft', 'ArrowRight', 'Enter', 'Escape', 'z'],
+  });
 
   return null;
 };
 
-export default ModerationKeyboardHandler;
+export default ModerationUserKeyboardHandler;
 

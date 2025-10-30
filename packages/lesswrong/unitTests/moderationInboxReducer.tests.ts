@@ -67,9 +67,11 @@ describe('Moderation Inbox Reducer', () => {
 
       const state: InboxState = {
         users,
+        posts: [],
         activeTab: 'newContent',
         focusedUserId: null,
         openedUserId: 'user2',
+        focusedPostId: null,
         focusedContentIndex: 0,
         undoQueue: [],
         history: [],
@@ -93,9 +95,11 @@ describe('Moderation Inbox Reducer', () => {
 
       let state: InboxState = {
         users,
+        posts: [],
         activeTab: 'newContent',
         focusedUserId: 'user3',
         openedUserId: null,
+        focusedPostId: null,
         focusedContentIndex: 0,
         undoQueue: [],
         history: [],
@@ -115,9 +119,11 @@ describe('Moderation Inbox Reducer', () => {
 
       let state: InboxState = {
         users,
+        posts: [],
         activeTab: 'newContent',
         focusedUserId: 'user1',
         openedUserId: null,
+        focusedPostId: null,
         focusedContentIndex: 0,
         undoQueue: [],
         history: [],
@@ -139,9 +145,11 @@ describe('Moderation Inbox Reducer', () => {
 
       let state: InboxState = {
         users,
+        posts: [],
         activeTab: 'newContent',
         focusedUserId: 'user2',
         openedUserId: null,
+        focusedPostId: null,
         focusedContentIndex: 0,
         undoQueue: [],
         history: [],
@@ -160,7 +168,8 @@ describe('Moderation Inbox Reducer', () => {
       state = inboxStateReducer(state, { type: 'NEXT_TAB' });
       expect(state.activeTab).toBe('all');
 
-      // Next from 'all' should wrap to first tab
+      // After 'all', posts tab would come but it's empty (count: 0) so it gets skipped
+      // Next from 'all' wraps to first non-empty tab
       state = inboxStateReducer(state, { type: 'NEXT_TAB' });
       expect(state.activeTab).toBe('newContent');
     });
@@ -174,9 +183,11 @@ describe('Moderation Inbox Reducer', () => {
 
       let state: InboxState = {
         users,
+        posts: [],
         activeTab: 'newContent',
         focusedUserId: 'user2',
         openedUserId: null,
+        focusedPostId: null,
         focusedContentIndex: 0,
         undoQueue: [],
         history: [],
@@ -185,7 +196,8 @@ describe('Moderation Inbox Reducer', () => {
       // Start at newContent (highest priority)
       expect(state.activeTab).toBe('newContent');
 
-      // Prev from first tab should wrap to 'all'
+      // Prev from first tab should wrap to last non-empty tab
+      // 'posts' is empty (count: 0) so it gets skipped, wrapping to 'all'
       state = inboxStateReducer(state, { type: 'PREV_TAB' });
       expect(state.activeTab).toBe('all');
 
@@ -205,9 +217,11 @@ describe('Moderation Inbox Reducer', () => {
 
       let state: InboxState = {
         users,
+        posts: [],
         activeTab: 'newContent',
         focusedUserId: 'user2',
         openedUserId: null,
+        focusedPostId: null,
         focusedContentIndex: 0,
         undoQueue: [],
         history: [],
@@ -230,9 +244,11 @@ describe('Moderation Inbox Reducer', () => {
 
       let state: InboxState = {
         users,
+        posts: [],
         activeTab: 'newContent',
         focusedUserId: 'user1',
         openedUserId: null,
+        focusedPostId: null,
         focusedContentIndex: 0,
         undoQueue: [],
         history: [],
@@ -253,9 +269,11 @@ describe('Moderation Inbox Reducer', () => {
 
       let state: InboxState = {
         users,
+        posts: [],
         activeTab: 'newContent',
         focusedUserId: 'user1',
         openedUserId: null,
+        focusedPostId: null,
         focusedContentIndex: 0,
         undoQueue: [],
         history: [],
@@ -280,9 +298,11 @@ describe('Moderation Inbox Reducer', () => {
 
       let state: InboxState = {
         users,
+        posts: [],
         activeTab: 'newContent',
         focusedUserId: null,
         openedUserId: 'user2',
+        focusedPostId: null,
         focusedContentIndex: 0,
         undoQueue: [],
         history: [],
@@ -305,9 +325,11 @@ describe('Moderation Inbox Reducer', () => {
 
       let state: InboxState = {
         users,
+        posts: [],
         activeTab: 'newContent',
         focusedUserId: null,
         openedUserId: 'user1',
+        focusedPostId: null,
         focusedContentIndex: 0,
         undoQueue: [],
         history: [],
@@ -329,9 +351,11 @@ describe('Moderation Inbox Reducer', () => {
 
       let state: InboxState = {
         users,
+        posts: [],
         activeTab: 'newContent',
         focusedUserId: null,
         openedUserId: 'user1',
+        focusedPostId: null,
         focusedContentIndex: 0,
         undoQueue: [],
         history: [],
@@ -355,9 +379,11 @@ describe('Moderation Inbox Reducer', () => {
 
       let state: InboxState = {
         users,
+        posts: [],
         activeTab: 'newContent',
         focusedUserId: null,
         openedUserId: 'user1',
+        focusedPostId: null,
         focusedContentIndex: 0,
         undoQueue: [],
         history: [],
