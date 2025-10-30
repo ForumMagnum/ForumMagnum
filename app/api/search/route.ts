@@ -2,6 +2,9 @@ import { queryRequestSchema, type SearchOptions, type SearchQuery } from "@/lib/
 import ElasticService from "@/server/search/elastic/ElasticService";
 import uniq from "lodash/uniq";
 import type { NextRequest } from "next/server";
+import { suggestedTimeouts } from "@/server/pageTimeouts";
+
+export const maxDuration = suggestedTimeouts.simpleApiRoute;
 
 const getSearchService = (() => {
   let searchService: ElasticService | null = null;

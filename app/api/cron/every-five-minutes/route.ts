@@ -2,6 +2,9 @@ import type { NextRequest } from 'next/server';
 import PageCacheRepo from '@/server/repos/PageCacheRepo';
 import { userLoginTokensView } from "@/server/postgresView";
 import { getCronLock } from '@/server/cron/cronLock';
+import { suggestedTimeouts } from "@/server/pageTimeouts";
+
+export const maxDuration = suggestedTimeouts.cronjob;
 
 export async function GET(request: NextRequest) {
   const authHeader = request.headers.get('authorization');

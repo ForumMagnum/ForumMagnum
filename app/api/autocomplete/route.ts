@@ -4,6 +4,9 @@ import { userIsAdmin } from "@/lib/vulcan-users/permissions";
 import { getAnthropicClientOrThrow } from "@/server/languageModels/anthropicClient";
 import { constructMessageHistory } from "@/server/autocompleteEndpoint";
 import { z } from "zod";
+import { suggestedTimeouts } from "@/server/pageTimeouts";
+
+export const maxDuration = suggestedTimeouts.llmStreaming;
 
 const AutocompleteRequestSchema = z.object({
   prefix: z.string().optional().default(''),
