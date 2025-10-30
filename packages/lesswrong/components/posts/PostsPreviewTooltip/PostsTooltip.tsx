@@ -110,6 +110,7 @@ const PostsTooltip = ({
         postId: postId ?? post?._id,
       }}
       className={className}
+      closeOnNavigate
     >
       {children}
     </HoverOver>

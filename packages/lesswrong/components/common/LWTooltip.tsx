@@ -47,6 +47,13 @@ export type LWTooltipProps = {
    * e.g. to display a tooltip when a user has a command palette menu item selected with their keyboard.
    */
   renderWithoutHover?: boolean,
+  /**
+   * If true, the tooltip will be automatically hidden when navigation occurs.
+   * This is useful for tooltips on links that navigate to a new page, preventing the tooltip
+   * from persisting during the page transition when using the Activity API. This specifically 
+   * arose in the context of PostItem tooltips on the frontpage when using the Activity API.
+   */
+  closeOnNavigate?: boolean,
   classes: ClassesType<typeof styles>,
 }
 
@@ -71,6 +78,7 @@ const LWTooltip = ({
   className,
   forceOpen,
   renderWithoutHover,
+  closeOnNavigate = false,
   classes,
 }: LWTooltipProps) => {
   const [delayedClickable, setDelayedClickable] = useState(false);
@@ -141,6 +149,7 @@ const LWTooltip = ({
       clickable={delayedClickable}
       hideOnTouchScreens={hideOnTouchScreens}
       className={popperClassName}
+      closeOnNavigate={closeOnNavigate}
     >
       <div className={classNames(
         tooltip && classes.tooltip,

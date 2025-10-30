@@ -5,6 +5,7 @@ import classNames from 'classnames';
 import { usePopper } from 'react-popper';
 import { createPortal } from 'react-dom';
 import type { State } from '@popperjs/core/lib/types';
+import { useNavigationTooltipContainer } from './NavigationTooltipContainer';
 
 const styles = (theme: ThemeType) => ({
   popper: {
@@ -52,7 +53,8 @@ const LWPopper = ({
   placement,
   clickable = true,
   hideOnTouchScreens,
-  updateRef
+  updateRef,
+  closeOnNavigate = false,
 }: {
   classes: ClassesType<typeof styles>,
   children: ReactNode,
@@ -67,9 +69,11 @@ const LWPopper = ({
   className?: string,
   clickable?: boolean,
   hideOnTouchScreens?: boolean,
-  updateRef?: MutableRefObject<(() => Promise<Partial<State>>) | null | undefined>
+  updateRef?: MutableRefObject<(() => Promise<Partial<State>>) | null | undefined>,
+  closeOnNavigate?: boolean,
 }) => {
   const [popperElement, setPopperElement] = useState<HTMLElement | null>(null);
+  const navigationTooltipContainer = useNavigationTooltipContainer();
 
   const flipModifier = !flip && allowOverflow ? [
     {
@@ -119,9 +123,11 @@ const LWPopper = ({
     return null;
   }
   
-  // We use createPortal here to avoid having to deal with overflow problems and styling from the current child
-  // context, by placing the Popper element directly into the document root
+  // We use createPortal to avoid overflow and styling issues from the current context.
+  // Portal target: document.body by default, or navigationTooltipContainer when closeOnNavigate is true.
+  // The navigation container remounts on navigation, automatically cleaning up tooltips avoiding persistence during page transitions when using the Activity API.
   // Rest of usage from https://popper.js.org/react-popper/v2/
+  const portalTarget = closeOnNavigate && navigationTooltipContainer ? navigationTooltipContainer : document.body;
   return <>{
     createPortal(
       <div
@@ -138,7 +144,7 @@ const LWPopper = ({
       >
         { children }
       </div>,
-      document.body
+      portalTarget
     )
   }</>
 };

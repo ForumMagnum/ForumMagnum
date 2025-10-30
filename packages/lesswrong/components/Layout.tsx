@@ -62,6 +62,7 @@ import { isFullscreenRoute, isHomeRoute, isStandaloneRoute, isStaticHeaderRoute,
 import { AutoDarkModeWrapper } from './themes/ThemeContextProvider';
 import { EditorCommandsContextProvider } from './editor/EditorCommandsContext';
 import { NO_ADMIN_NEXT_REDIRECT_COOKIE, SHOW_LLM_CHAT_COOKIE } from '@/lib/cookies/cookies';
+import NavigationTooltipContainer from './common/NavigationTooltipContainer';
 
 import dynamic from 'next/dynamic';
 import { isBlackBarTitle } from './seasonal/petrovDay/petrov-day-story/petrovConsts';
@@ -431,6 +432,7 @@ const Layout = ({children}: {
       <DisableNoKibitzContext.Provider value={noKibitzContext}>
       <CommentOnSelectionPageWrapper>
       <CurrentAndRecentForumEventsProvider>
+      <NavigationTooltipContainer>
         <div className={classes.topLevelContainer}>
           <div className={classes.pageContent}>
             <div id="wrapper" className={classNames(
@@ -565,6 +567,7 @@ const Layout = ({children}: {
             </div>
           )}
         </div>
+      </NavigationTooltipContainer>
       </CurrentAndRecentForumEventsProvider>
       </CommentOnSelectionPageWrapper>
       </DisableNoKibitzContext.Provider>
