@@ -18,7 +18,7 @@ import gql from "graphql-tag";
 export const GIVING_SEASON_INFO_HREF = "/posts/RzdKnBYe3jumrZxkB/giving-season-2025-announcement";
 export const ELECTION_INFO_HREF = "/posts/RzdKnBYe3jumrZxkB/giving-season-2025-announcement#November_24th_to_December_7th_";
 export const ELECTION_DONATE_HREF = "https://www.every.org/ea-forum-donation-election-2025";
-const ELECTION_TARGET_AMOUNT = 60000; // TODO
+const ELECTION_TARGET_AMOUNT = 30000;
 
 type GivingSeasonEvent = {
   name: string,
@@ -38,7 +38,7 @@ type GivingSeasonEvent = {
 export const givingSeasonEvents: GivingSeasonEvent[] = [
   {
     name: "Funding strategy week",
-    description: "Encouraging content around a range of important funding considerations.",
+    description: "A week for discussing funding diversification, when to donate, and other strategic questions.",
     readMoreHref: "/posts/RzdKnBYe3jumrZxkB/giving-season-2025-announcement#November_10th_to_16th",
     tag: { // TODO
       _id: "4ktPbiFf6FLnfyRiC",
@@ -52,7 +52,7 @@ export const givingSeasonEvents: GivingSeasonEvent[] = [
   },
   {
     name: "Marginal funding week",
-    description: "Encouraging content around a range of important funding considerations.",
+    description: "A week for organisations to share what they could do with extra funding.",
     readMoreHref: "/posts/RzdKnBYe3jumrZxkB/giving-season-2025-announcement#November_17th_to_23rd",
     start: new Date("2025-11-17"),
     end: new Date("2025-11-24"),
@@ -62,7 +62,7 @@ export const givingSeasonEvents: GivingSeasonEvent[] = [
   },
   {
     name: "Donation election",
-    description: "Encouraging content around a range of important funding considerations.",
+    description: "Allocating a pot of collective funds to three organisations, based on your votes.",
     readMoreHref: "/posts/RzdKnBYe3jumrZxkB/giving-season-2025-announcement#November_24th_to_December_7th_",
     start: new Date("2025-11-24"),
     end: new Date("2025-12-08"),
@@ -72,7 +72,7 @@ export const givingSeasonEvents: GivingSeasonEvent[] = [
   },
   {
     name: "Why I donate week",
-    description: "Encouraging content around a range of important funding considerations.",
+    description: "A week to share the personal stories and reasons behind our donations.",
     readMoreHref: "/posts/RzdKnBYe3jumrZxkB/giving-season-2025-announcement#December_8th_to_14th",
     start: new Date("2025-12-08"),
     end: new Date("2025-12-15"),
@@ -82,7 +82,7 @@ export const givingSeasonEvents: GivingSeasonEvent[] = [
   },
   {
     name: "Donation celebration",
-    description: "Encouraging content around a range of important funding considerations.",
+    description: "When you’ve finished making your giving season donations, add a heart to the banner and celebrate with us!",
     readMoreHref: "/posts/RzdKnBYe3jumrZxkB/giving-season-2025-announcement#December_15th_to_the_end_of_the_year",
     start: new Date("2025-12-15"),
     end: new Date("2025-12-31"),
