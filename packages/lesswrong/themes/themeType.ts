@@ -554,6 +554,9 @@ declare global {
     tocScrollbarColors: string,
     eventsHomeLoadMoreHover: ColorString,
 
+    givingSeason: {
+      primary: ColorString,
+    },
     wrapped: {
       background: ColorString,
       darkBackground: ColorString,
