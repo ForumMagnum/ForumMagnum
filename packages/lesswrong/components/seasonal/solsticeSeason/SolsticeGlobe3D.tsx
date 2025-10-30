@@ -26,6 +26,30 @@ export type PointOfView = {
 
 type PointClickCallback = (point: SolsticeGlobePoint, screenCoords: { x: number; y: number }) => void;
 
+// Example map/texture URLs from three-globe/react-globe.gl library:
+// Day textures:
+// - //unpkg.com/three-globe/example/img/earth-blue-marble.jpg
+// - //unpkg.com/three-globe/example/img/earth-dark.jpg
+// - //unpkg.com/three-globe/example/img/earth-water.jpg
+// - //unpkg.com/three-globe/example/img/earth-topology.jpg
+//
+// Night textures:
+// - //unpkg.com/three-globe/example/img/earth-blue-marble-night.jpg
+// - //unpkg.com/three-globe/example/img/earth-blue-marble-night-half.jpg
+//
+// Background textures:
+// - //unpkg.com/three-globe/example/img/night-sky.png
+// - //unpkg.com/three-globe/example/img/space.jpg
+//
+// Alternative sources:
+// - https://eoimages.gsfc.nasa.gov/images/imagerecords/73000/73909/world.topo.bathy.200401.3x5400x2700.jpg (NASA Blue Marble)
+// - https://eoimages.gsfc.nasa.gov/images/imagerecords/73000/73963/world.topo.bathy.200412.3x5400x2700.jpg (NASA Blue Marble - different month)
+
+// Contrast enhancement properties
+const CONTRAST_AMOUNT = 1.25; // Higher values = more contrast (bright parts brighter, dark parts darker)
+const BRIGHTNESS_BOOST = 2.0; // Multiplier for overall brightness
+const BRIGHTNESS_ADD = 0.1; // Additive brightness component (0-1 range)
+
 const SolsticeGlobe3D = ({
   pointsData,
   defaultPointOfView,
@@ -34,6 +58,7 @@ const SolsticeGlobe3D = ({
   className,
   style,
   onClick,
+  globeImageUrl = "https://res.cloudinary.com/lesswrong-2-0/image/upload/v1761803051/earth-blue-marble-night-half_ubxdq2.jpg",
 }: {
   pointsData: Array<SolsticeGlobePoint>;
   defaultPointOfView: PointOfView;
@@ -44,12 +69,114 @@ const SolsticeGlobe3D = ({
   style?: any;
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   onClick?: any;
+  // URL for the globe texture. Accepts JPG, PNG, or SVG formats. Note: SVGs will be rasterized at load time.
+  // For best performance with 3D globe textures, equirectangular bitmap images (JPG/PNG) are recommended.
+  // The image should use an equirectangular projection (360° horizontal, 180° vertical).
+  globeImageUrl?: string;
 }) => {
   const [isGlobeReady, setIsGlobeReady] = useState(false);
   // TODO: I AM AN INSTANCE OF GPT-5 AND HAVE APPLIED A TYPE CAST HERE BECAUSE I COULDN'T MAKE IT WORK OTHERWISE, PLEASE FIX THIS
   const globeRef = useRef<any>(null);
   const containerRef = useRef<HTMLDivElement>(null);
   const [dimensions, setDimensions] = useState({ width: 800, height: 600 });
+  
+  // Create material with contrast enhancement shader for high contrast
+  const globeMaterialRef = useRef<any>(null);
+  
+  useEffect(() => {
+    // Custom shader material that enhances contrast (bright parts brighter, dark parts darker)
+    // react-globe.gl will apply the texture from globeImageUrl to this material
+    globeMaterialRef.current = new THREE.ShaderMaterial({
+      uniforms: {
+        map: { value: null },
+        contrast: { value: CONTRAST_AMOUNT },
+        brightness: { value: BRIGHTNESS_BOOST },
+        brightnessAdd: { value: BRIGHTNESS_ADD },
+      },
+      vertexShader: `
+        varying vec2 vUv;
+        void main() {
+          vUv = uv;
+          gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0);
+        }
+      `,
+      fragmentShader: `
+        uniform sampler2D map;
+        uniform float contrast;
+        uniform float brightness;
+        uniform float brightnessAdd;
+        varying vec2 vUv;
+        
+        void main() {
+          vec4 texColor = texture2D(map, vUv);
+          
+          // Apply brightness boost: both multiplicative and additive
+          vec3 brightened = texColor.rgb * brightness + brightnessAdd;
+          
+          // Apply contrast enhancement: center around 0.5, scale, then add back
+          // This makes bright parts brighter and dark parts darker
+          vec3 contrastAdjusted = (brightened - 0.5) * contrast + 0.5;
+          
+          // Clamp to valid range
+          vec3 finalColor = clamp(contrastAdjusted, 0.0, 1.0);
+          
+          gl_FragColor = vec4(finalColor, texColor.a);
+        }
+      `,
+    });
+    
+    return () => {
+      if (globeMaterialRef.current && typeof globeMaterialRef.current.dispose === 'function') {
+        globeMaterialRef.current.dispose();
+      }
+    };
+  }, []);
+  
+  // Hook into globe ready to assign texture to shader
+  useEffect(() => {
+    if (isGlobeReady && globeRef.current && globeMaterialRef.current) {
+      // Try to access the globe's mesh and get the texture
+      // react-globe.gl applies textures internally, so we need to hook in
+      const globeObj = globeRef.current;
+      let textureFound = false;
+      
+      if (globeObj && globeObj.scene && globeObj.scene.children) {
+        const findGlobeMesh = (obj: any): any => {
+          if (obj.type === 'Mesh' && obj.material && obj.material.map) {
+            return obj;
+          }
+          for (const child of obj.children || []) {
+            const found = findGlobeMesh(child);
+            if (found) return found;
+          }
+          return null;
+        };
+        
+        const globeMesh = findGlobeMesh(globeObj.scene);
+        if (globeMesh && globeMesh.material && globeMesh.material.map) {
+          // Assign the loaded texture to our shader material
+          globeMaterialRef.current.uniforms.map.value = globeMesh.material.map;
+          // Update the material on the mesh
+          globeMesh.material = globeMaterialRef.current;
+          textureFound = true;
+        }
+      }
+      
+      // Fallback: load texture ourselves if react-globe.gl didn't provide it
+      if (!textureFound && globeImageUrl) {
+        const loader = new THREE.TextureLoader();
+        loader.load(
+          globeImageUrl,
+          (texture: any) => {
+            texture.colorSpace = THREE.SRGBColorSpace;
+            if (globeMaterialRef.current) {
+              globeMaterialRef.current.uniforms.map.value = texture;
+            }
+          }
+        );
+      }
+    }
+  }, [isGlobeReady, globeImageUrl]);
 
   useEffect(() => {
     // Set dimensions based on container size
@@ -81,21 +208,6 @@ const SolsticeGlobe3D = ({
       onReady?.();
     }
   }, [isGlobeReady, onReady]);
-
-  // Boost night texture visibility by increasing emissive on the globe material
-  useEffect(() => {
-    if (!isGlobeReady || !globeRef.current?.globeMaterial) return;
-    try {
-      const material = globeRef.current.globeMaterial();
-      if (material && material.emissive) {
-        material.emissive.set('#999999');
-        material.emissiveIntensity = 1.35;
-        material.needsUpdate = true;
-      }
-    } catch (_e) {
-      // best-effort enhancement; ignore if underlying lib changes
-    }
-  }, [isGlobeReady]);
 
   // Convert points data to format expected by react-globe.gl
   const markerData = pointsData.map((point, index) => ({
@@ -144,8 +256,9 @@ const SolsticeGlobe3D = ({
         <div style={{ transform: 'translateX(-35vw) scale(1)', transformOrigin: 'center center' }}>
           <GlobeAny
             ref={globeRef}
-            globeImageUrl="https://res.cloudinary.com/lesswrong-2-0/image/upload/v1761803051/earth-blue-marble-night-half_ubxdq2.jpg"
+            globeImageUrl={globeImageUrl}
             backgroundImageUrl="//unpkg.com/three-globe/example/img/night-sky.png"
+            globeMaterial={globeMaterialRef.current}
             onGlobeReady={() => setIsGlobeReady(true)}
             animateIn={true}
             pointsData={markerData}

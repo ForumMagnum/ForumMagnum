@@ -3,43 +3,15 @@ import { defineStyles, useStyles } from '../../hooks/useStyles';
 import { useQuery } from "@/lib/crud/useQuery";
 import { SuspenseWrapper } from '@/components/common/SuspenseWrapper';
 import { gql } from '@/lib/generated/gql-codegen';
-import type { DocumentNode } from 'graphql';
-import { PostsList } from '@/lib/collections/posts/fragments';
 import { JssStyles } from '@/lib/jssStyles';
 import { Link } from '@/lib/reactRouterWrapper';
 import classNames from 'classnames';
 import SolsticeGlobe, { SolsticeGlobePoint } from './SolsticeGlobe';
 import SolsticeGlobe3D from './SolsticeGlobe3D';
-import { postGetPageUrl } from '../../../lib/collections/posts/helpers';
-import GroupLinks from '../../localGroups/GroupLinks';
-import ContentStyles from '../../common/ContentStyles'; 
+import { FixedPositionEventPopup } from '../HomepageMap/HomepageCommunityMap';
 import Row from '@/components/common/Row';
 
 const smallBreakpoint = 1525
-
-function getCarouselSections(classes: JssStyles) {
-  return [
-    {
-      minorTitle: "Solstice Season",
-      subtitle: <div>
-        <p style={{ marginTop: "20px", marginBottom: "20px" }}>Celebrate humanity's Schelling holiday around the world. Find a local solstice event or create your own.</p>
-        <Row gap={10}>
-          <Link to="https://waypoint.lighthaven.space/solstice-season" target="_blank" rel="noopener noreferrer" className={classes.createEventButton} style={{ marginTop: "10px", textAlign: "right" }}>
-            Berkeley Megameetup
-          </Link>
-          <Link to={`/newPost?eventForm=true&SOLSTICE=true`} target="_blank" rel="noopener noreferrer" className={classes.createEventButton} style={{ background: "white", color: "black", padding: "8px 12px", borderRadius: "3px", textAlign: "center", marginTop: "10px" }}>
-            HOST A SOLSTICE
-          </Link>
-          <Link to="" target="_blank" rel="noopener noreferrer" className={classes.createEventButton} style={{ marginTop: "10px" }}>
-            New York Megameetup
-          </Link>
-        </Row>  
-      </div>,
-      buttonText: "Solstice",
-      shortButtonText: "Solstice"
-    }
-  ]
-}
 
 const styles = defineStyles("SolsticeSeasonBanner", (theme: ThemeType) => ({
   root: {
@@ -54,28 +26,16 @@ const styles = defineStyles("SolsticeSeasonBanner", (theme: ThemeType) => ({
     },
   },
   title: {
-    fontSize: 45,
-    fontWeight: 500,
-    fontFamily: theme.typography.headerStyle.fontFamily,
-    fontVariant: 'small-caps',
-    color: "white",
-    zIndex: 2,
-    transition: 'opacity 0.3s ease-out',
-    marginBottom: 0,
-    lineHeight: 1.2,
-  },
-  minorTitle: {
-    fontSize: 42,
+    fontSize: 55,
     fontWeight: 500,
     [theme.breakpoints.down(smallBreakpoint)]: {
       fontSize: 34,
     },
     fontFamily: theme.typography.headerStyle.fontFamily,
-    fontVariant: 'small-caps',
-    color: "white",
+    color: theme.palette.text.alwaysWhite,
     zIndex: 2,
     transition: 'opacity 0.3s ease-out',
-    marginBottom: 0,
+    paddingBottom: 1,
     lineHeight: 1.2,
   },
   textContainer: {
@@ -108,7 +68,7 @@ const styles = defineStyles("SolsticeSeasonBanner", (theme: ThemeType) => ({
       height: 120,
     },
     '& a': {
-      color: "white",
+      color: theme.palette.text.alwaysWhite,
     },
     fontWeight: 500,
     marginTop: 12,
@@ -117,7 +77,7 @@ const styles = defineStyles("SolsticeSeasonBanner", (theme: ThemeType) => ({
     justifyContent: 'center',
     // textShadow: `0 0 5px light-dark(${theme.palette.background.default}, transparent), 0 0 10px light-dark(${theme.palette.background.default}, transparent), 0 0 15px light-dark(${theme.palette.background.default}, transparent)`,
     fontFamily: theme.typography.postStyle.fontFamily,
-    color: "white",
+    color: theme.palette.text.alwaysWhite,
     transition: 'opacity 0.3s ease-out',
     '& li': {
       marginLeft: -10
@@ -274,86 +234,6 @@ const styles = defineStyles("SolsticeSeasonBanner", (theme: ThemeType) => ({
       display: 'inline-block',
     },
   },
-  popupContainer: {
-    position: 'fixed',
-    zIndex: 1000,
-    background: theme.palette.panelBackground.default,
-    borderRadius: theme.borderRadius.default,
-    width: 250,
-    maxHeight: 400,
-    overflowY: 'auto',
-    boxShadow: theme.palette.boxShadowColor(0.3),
-    padding: 16,
-  },
-  popupLoading: {
-    padding: 10,
-    width: 250,
-    height: 250,
-    background: theme.palette.panelBackground.default,
-    borderRadius: theme.borderRadius.default,
-    display: 'flex',
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  popupTitle: {
-    fontSize: "15px",
-    marginTop: "3.5px",
-    marginBottom: "0px",
-    marginRight: 10,
-    color: theme.palette.text.primary,
-  },
-  popupBody: {
-    marginTop: 10,
-    marginBottom: 10,
-    maxHeight: 150,
-    overflowY: 'auto',
-    wordBreak: 'break-word',
-    '&::-webkit-scrollbar': {
-      width: '2px'
-    },
-    '&::-webkit-scrollbar-track': {
-      background: 'transparent'
-    },
-    '&::-webkit-scrollbar-thumb': {
-      background: theme.palette.grey[400],
-      borderRadius: '2px',
-      '&:hover': {
-        background: theme.palette.grey[600]
-      }
-    },
-    scrollbarWidth: 'thin',
-    scrollbarColor: `${theme.palette.grey[400]} transparent`
-  },
-  popupContactInfo: {
-    marginBottom: "10px",
-    marginTop: "10px",
-    fontWeight: theme.isEAForum ? 450 : 400,
-    color: theme.palette.text.dim60,
-  },
-  popupLink: {
-    fontWeight: theme.isEAForum ? 450 : 400,
-    color: theme.palette.link.dim3,
-    flex: 'none'
-  },
-  popupLinksWrapper: {
-    display: 'flex',
-    justifyContent: 'space-between'
-  },
-  popupCloseButton: {
-    position: 'absolute',
-    top: 8,
-    right: 8,
-    cursor: 'pointer',
-    background: 'none',
-    border: 'none',
-    fontSize: 20,
-    color: theme.palette.text.dim60,
-    lineHeight: 1,
-    padding: 4,
-    '&:hover': {
-      color: theme.palette.text.primary,
-    }
-  },
 }));
 
 
@@ -370,90 +250,10 @@ export const SolsticeSeasonQuery = gql(`
   }
 `);
 
-export const PostsListQuery = gql(`
-  query SolsticeSeasonEventPopup($documentId: String) {
-    post(input: { selector: { documentId: $documentId } }) {
-      result {
-        ...PostsList
-      }
-    }
-  }
-`);
-
-type SolsticeGlobePopupProps = {
-  eventId: string;
-  screenCoords: { x: number; y: number };
-  onClose: () => void;
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  classes: any;
-};
-
-const SolsticeGlobePopup = ({ eventId, screenCoords, onClose, classes }: SolsticeGlobePopupProps) => {
-  // TODO: I AM AN INSTANCE OF GPT-5 AND HAVE APPLIED A TYPE CAST HERE BECAUSE I COULDN'T MAKE IT WORK OTHERWISE, PLEASE FIX THIS
-  const { loading, data } = useQuery(PostsListQuery as unknown as DocumentNode, {
-    variables: { documentId: eventId },
-  });
-  const document = (data as any)?.post?.result;
-
-  if (loading) {
-    return (
-      <div
-        className={classes.popupContainer}
-        style={{
-          position: 'fixed',
-          left: `${screenCoords.x}px`,
-          top: `${screenCoords.y - 15}px`,
-          transform: 'translate(-50%, -100%)',
-        }}
-      >
-        <div className={classes.popupLoading}>Loading...</div>
-      </div>
-    );
-  }
-
-  if (!document) return null;
-
-  const { htmlHighlight = "" } = document.contents || {};
-  const htmlBody = { __html: htmlHighlight };
-
-  return (
-    <div
-      className={classes.popupContainer}
-      style={{
-        left: `${screenCoords.x}px`,
-        top: `${screenCoords.y - 15}px`,
-        transform: 'translate(-50%, -100%)',
-      }}
-    >
-      <button className={classes.popupCloseButton} onClick={onClose}>
-        ×
-      </button>
-      <Link to={postGetPageUrl(document)}>
-        <h5 className={classes.popupTitle}> [Event] {document.title} </h5>
-      </Link>
-      <ContentStyles contentType={"comment"} className={classes.popupBody}>
-        <div dangerouslySetInnerHTML={htmlBody} />
-      </ContentStyles>
-      {document.contactInfo && (
-        <div className={classes.popupContactInfo}>{document.contactInfo}</div>
-      )}
-      <div className={classes.popupLinksWrapper}>
-        <Link className={classes.popupLink} to={postGetPageUrl(document)}>
-          Full link
-        </Link>
-        <div>
-          <GroupLinks document={document} />
-        </div>
-      </div>
-    </div>
-  );
-};
-
 export default function SolsticeSeasonBannerInner() {
   const classes = useStyles(styles);
   const [isLoading, setIsLoading] = useState(true);
   const [everClickedGlobe, setEverClickedGlobe] = useState(false);
-  const carouselSections = useMemo(() => getCarouselSections(classes), [classes]);
   const [bannerOpacity, setBannerOpacity] = useState(1);
   
   useEffect(() => {
@@ -603,48 +403,31 @@ export default function SolsticeSeasonBannerInner() {
           style={{ width: '100%', height: '100%' }}
         />
       {selectedEventId && popupCoords && (
-        <SolsticeGlobePopup
+        <FixedPositionEventPopup
           eventId={selectedEventId}
           screenCoords={popupCoords}
           onClose={() => {
             setSelectedEventId(null);
             setPopupCoords(null);
           }}
-          classes={classes}
         />
       )}
       <div className={classes.contentContainer}>
         <div className={classes.textContainer} onClick={() => setEverClickedGlobe(true)}>
-          {carouselSections.map((section, index) => {
-            
-            const aboutToTransition = isSettingUp && index === nextCarouselIndex
-            const isTransitioningOut = (!isSettingUp && isTransitioning && index === currentCarouselIndex)
-            const isTransitioningIn = (!isSettingUp && isTransitioning && index === nextCarouselIndex)
-            
-            let translateX = '0'
-            if (isTransitioningOut) {
-              translateX = '-100%'
-            } else if (aboutToTransition) {
-              translateX = '100%'
-            } else if (isTransitioningIn) {
-              translateX = '0'
-            }
-
-            const shouldRender = index === currentCarouselIndex || index === nextCarouselIndex
-            
-            const opacity = (aboutToTransition || isTransitioningOut) ? 0 : 1;
-
-            return <div key={index} className={classes.carouselSection} style={{
-              display: shouldRender ? 'block' : 'none',
-              opacity,
-              transition: !isSettingUp ? 'opacity 0.15s ease-in-out, transform 0.3s ease-in-out' : 'none',
-              transform: `translateX(${translateX})`,
-            }}>
-              {section.minorTitle && <h3 className={classes.minorTitle}>{section.minorTitle}</h3>}
-              {section.subtitle && <div className={classes.subtitle}>{section.subtitle}</div>}
-            </div>
-          })}
-        </div>
+          <h1 className={classes.title}>Solstice Season</h1>
+            <p style={{ marginTop: "20px", marginBottom: "20px" }}>Celebrate humanity's Schelling holiday around the world. Find a local solstice event or create your own.</p>
+            <Row gap={10}>
+              <Link to="https://waypoint.lighthaven.space/solstice-season" target="_blank" rel="noopener noreferrer" className={classes.createEventButton} style={{ marginTop: "10px", textAlign: "right" }}>
+                Berkeley Megameetup
+              </Link>
+              <Link to={`/newPost?eventForm=true&SOLSTICE=true`} target="_blank" rel="noopener noreferrer" className={classes.createEventButton} style={{ background: "white", color: "black", padding: "8px 12px", borderRadius: "3px", textAlign: "center", marginTop: "10px" }}>
+                HOST A SOLSTICE
+              </Link>
+              <Link to="" target="_blank" rel="noopener noreferrer" className={classes.createEventButton} style={{ marginTop: "10px" }}>
+                New York Megameetup
+              </Link>
+            </Row>  
+          </div>
       </div>
     </div>
   </div>;
