@@ -6,8 +6,10 @@ import { gql } from '@/lib/generated/gql-codegen';
 import { JssStyles } from '@/lib/jssStyles';
 import { Link } from '@/lib/reactRouterWrapper';
 import classNames from 'classnames';
-import { LocalEventWrapperPopUp } from '../HomepageMap/HomepageCommunityMap';
-import SolsticeGlobe from './SolsticeGlobe'; 
+import SolsticeGlobe, { SolsticeGlobePoint } from './SolsticeGlobe';
+import { postGetPageUrl } from '../../../lib/collections/posts/helpers';
+import GroupLinks from '../../localGroups/GroupLinks';
+import ContentStyles from '../../common/ContentStyles'; 
 
 const smallBreakpoint = 1525
 
@@ -204,8 +206,9 @@ const styles = defineStyles("SolsticeSeasonBanner", (theme: ThemeType) => ({
     top: -80,
     right: 0,
     width: '80%',
-    height: '100%',
+    height: '100vh',
     transition: 'opacity 0.3s ease-out',
+    zIndex: 2,
   },
   scrollBackground: {
     position: 'absolute',
@@ -268,6 +271,86 @@ const styles = defineStyles("SolsticeSeasonBanner", (theme: ThemeType) => ({
       display: 'inline-block',
     },
   },
+  popupContainer: {
+    position: 'fixed',
+    zIndex: 1000,
+    background: theme.palette.panelBackground.default,
+    borderRadius: theme.borderRadius.default,
+    width: 250,
+    maxHeight: 400,
+    overflowY: 'auto',
+    boxShadow: theme.palette.boxShadowColor(0.3),
+    padding: 16,
+  },
+  popupLoading: {
+    padding: 10,
+    width: 250,
+    height: 250,
+    background: theme.palette.panelBackground.default,
+    borderRadius: theme.borderRadius.default,
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  popupTitle: {
+    fontSize: "15px",
+    marginTop: "3.5px",
+    marginBottom: "0px",
+    marginRight: 10,
+    color: theme.palette.text.primary,
+  },
+  popupBody: {
+    marginTop: 10,
+    marginBottom: 10,
+    maxHeight: 150,
+    overflowY: 'auto',
+    wordBreak: 'break-word',
+    '&::-webkit-scrollbar': {
+      width: '2px'
+    },
+    '&::-webkit-scrollbar-track': {
+      background: 'transparent'
+    },
+    '&::-webkit-scrollbar-thumb': {
+      background: theme.palette.grey[400],
+      borderRadius: '2px',
+      '&:hover': {
+        background: theme.palette.grey[600]
+      }
+    },
+    scrollbarWidth: 'thin',
+    scrollbarColor: `${theme.palette.grey[400]} transparent`
+  },
+  popupContactInfo: {
+    marginBottom: "10px",
+    marginTop: "10px",
+    fontWeight: theme.isEAForum ? 450 : 400,
+    color: theme.palette.text.dim60,
+  },
+  popupLink: {
+    fontWeight: theme.isEAForum ? 450 : 400,
+    color: theme.palette.link.dim3,
+    flex: 'none'
+  },
+  popupLinksWrapper: {
+    display: 'flex',
+    justifyContent: 'space-between'
+  },
+  popupCloseButton: {
+    position: 'absolute',
+    top: 8,
+    right: 8,
+    cursor: 'pointer',
+    background: 'none',
+    border: 'none',
+    fontSize: 20,
+    color: theme.palette.text.dim60,
+    lineHeight: 1,
+    padding: 4,
+    '&:hover': {
+      color: theme.palette.text.primary,
+    }
+  },
 }));
 
 
@@ -284,6 +367,82 @@ export const SolsticeSeasonQuery = gql(`
   }
 `);
 
+export const PostsListQuery = gql(`
+  query SolsticeSeasonEventPopup($documentId: String) {
+    post(input: { selector: { documentId: $documentId } }) {
+      result {
+        ...PostsList
+      }
+    }
+  }
+`);
+
+type SolsticeGlobePopupProps = {
+  eventId: string;
+  screenCoords: { x: number; y: number };
+  onClose: () => void;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  classes: any;
+};
+
+const SolsticeGlobePopup = ({ eventId, screenCoords, onClose, classes }: SolsticeGlobePopupProps) => {
+  const { loading, data } = useQuery(PostsListQuery, {
+    variables: { documentId: eventId },
+  });
+  const document = (data as any)?.post?.result;
+
+  if (loading) {
+    return (
+      <div
+        className={classes.popupContainer}
+        style={{
+          left: `${screenCoords.x}px`,
+          top: `${screenCoords.y - 15}px`,
+          transform: 'translate(-50%, -100%)',
+        }}
+      >
+        <div className={classes.popupLoading}>Loading...</div>
+      </div>
+    );
+  }
+
+  if (!document) return null;
+
+  const { htmlHighlight = "" } = document.contents || {};
+  const htmlBody = { __html: htmlHighlight };
+
+  return (
+    <div
+      className={classes.popupContainer}
+      style={{
+        left: `${screenCoords.x}px`,
+        top: `${screenCoords.y - 15}px`,
+        transform: 'translate(-50%, -100%)',
+      }}
+    >
+      <button className={classes.popupCloseButton} onClick={onClose}>
+        ×
+      </button>
+      <Link to={postGetPageUrl(document)}>
+        <h5 className={classes.popupTitle}> [Event] {document.title} </h5>
+      </Link>
+      <ContentStyles contentType={"comment"} className={classes.popupBody}>
+        <div dangerouslySetInnerHTML={htmlBody} />
+      </ContentStyles>
+      {document.contactInfo && (
+        <div className={classes.popupContactInfo}>{document.contactInfo}</div>
+      )}
+      <div className={classes.popupLinksWrapper}>
+        <Link className={classes.popupLink} to={postGetPageUrl(document)}>
+          Full link
+        </Link>
+        <div>
+          <GroupLinks document={document} />
+        </div>
+      </div>
+    </div>
+  );
+};
 
 export default function SolsticeSeasonBannerInner() {
   const classes = useStyles(styles);
@@ -317,6 +476,7 @@ export default function SolsticeSeasonBannerInner() {
   const [currentCarouselIndex, setCurrentCarouselIndex] = useState(0)
   const [nextCarouselIndex, setNextCarouselIndex] = useState<number | null>(null)
   const [selectedEventId, setSelectedEventId] = useState<string | null>(null)
+  const [popupCoords, setPopupCoords] = useState<{ x: number; y: number } | null>(null)
 
   
   const acxCarouselIndex = 1 
@@ -379,15 +539,18 @@ export default function SolsticeSeasonBannerInner() {
         <SolsticeGlobe 
           pointsData={pointsData}
           defaultPointOfView={defaultPointOfView}
-          onPointClick={(point: any) => { if (point.eventId) setSelectedEventId(point.eventId) }}
+          onPointClick={(point: SolsticeGlobePoint, screenCoords: { x: number; y: number }) => {
+            if (point.eventId) {
+              setSelectedEventId(point.eventId);
+              setPopupCoords(screenCoords);
+            }
+          }}
           onReady={() => setIsLoading(false)}
           style={{ width: '100%', height: '100%' }}
         />
       </div>
     </div>;
   }
-
-  const selectedEvent = selectedEventId ? events.find((e: EventType) => e._id === selectedEventId) : null;
 
   return <div className={classNames(classes.root)}>
     <div className={classes.globeGradient}/>
@@ -400,23 +563,25 @@ export default function SolsticeSeasonBannerInner() {
       <SolsticeGlobe 
         pointsData={pointsData}
         defaultPointOfView={defaultPointOfView}
-        onPointClick={(point: any) => { if (point.eventId) setSelectedEventId(point.eventId) }}
+        onPointClick={(point: SolsticeGlobePoint, screenCoords: { x: number; y: number }) => {
+          if (point.eventId) {
+            setSelectedEventId(point.eventId);
+            setPopupCoords(screenCoords);
+          }
+        }}
         style={{ width: '100%', height: '100%' }}
         onClick={() => setEverClickedGlobe(true)}
       />
-      {selectedEvent && (
-        <div style={{
-          position: 'absolute',
-          top: 10,
-          left: 10,
-          zIndex: 10,
-          background: 'rgba(255, 255, 255, 0.9)',
-          padding: '10px',
-          borderRadius: '4px',
-          maxWidth: '200px'
-        }}>
-          <LocalEventWrapperPopUp localEvent={selectedEvent} handleClose={() => setSelectedEventId(null)} />
-        </div>
+      {selectedEventId && popupCoords && (
+        <SolsticeGlobePopup
+          eventId={selectedEventId}
+          screenCoords={popupCoords}
+          onClose={() => {
+            setSelectedEventId(null);
+            setPopupCoords(null);
+          }}
+          classes={classes}
+        />
       )}
       <div className={classes.contentContainer}>
         <div className={classes.textContainer} onClick={() => setEverClickedGlobe(true)}>

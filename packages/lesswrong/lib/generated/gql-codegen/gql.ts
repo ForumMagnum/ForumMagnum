@@ -404,6 +404,7 @@ type Documents = {
     "\n  mutation createPetrovDayActionPetrovWarningConsole($data: CreatePetrovDayActionDataInput!) {\n    createPetrovDayAction(data: $data) {\n      data {\n        ...PetrovDayActionInfo\n      }\n    }\n  }\n": typeof types.createPetrovDayActionPetrovWarningConsoleDocument,
     "\n    query petrovDay2024Resolvers {\n      PetrovDay2024CheckNumberOfIncoming {\n        count\n      }\n    }\n  ": typeof types.petrovDay2024ResolversDocument,
     "\n  query solsticeSeasonQuery {\n    HomepageCommunityEvents(limit: 500) {\n      events {\n        _id\n        lat\n        lng\n        types\n      }\n    }\n  }\n": typeof types.solsticeSeasonQueryDocument,
+    "\n  query SolsticeSeasonEventPopup($documentId: String) {\n    post(input: { selector: { documentId: $documentId } }) {\n      result {\n        ...PostsList\n      }\n    }\n  }\n": typeof types.SolsticeSeasonEventPopupDocument,
     "\n  mutation updateChapterAddDraftPostDialog($selector: SelectorInput!, $data: UpdateChapterDataInput!) {\n    updateChapter(selector: $selector, data: $data) {\n      data {\n        ...ChaptersFragment\n      }\n    }\n  }\n": typeof types.updateChapterAddDraftPostDialogDocument,
     "\n  mutation updateBookBooksForm($selector: SelectorInput!, $data: UpdateBookDataInput!) {\n    updateBook(selector: $selector, data: $data) {\n      data {\n        ...BookPageFragment\n      }\n    }\n  }\n": typeof types.updateBookBooksFormDocument,
     "\n  mutation createBookBooksForm($data: CreateBookDataInput!) {\n    createBook(data: $data) {\n      data {\n        ...BookPageFragment\n      }\n    }\n  }\n": typeof types.createBookBooksFormDocument,
@@ -1306,6 +1307,7 @@ const documents: Documents = {
     "\n  mutation createPetrovDayActionPetrovWarningConsole($data: CreatePetrovDayActionDataInput!) {\n    createPetrovDayAction(data: $data) {\n      data {\n        ...PetrovDayActionInfo\n      }\n    }\n  }\n": types.createPetrovDayActionPetrovWarningConsoleDocument,
     "\n    query petrovDay2024Resolvers {\n      PetrovDay2024CheckNumberOfIncoming {\n        count\n      }\n    }\n  ": types.petrovDay2024ResolversDocument,
     "\n  query solsticeSeasonQuery {\n    HomepageCommunityEvents(limit: 500) {\n      events {\n        _id\n        lat\n        lng\n        types\n      }\n    }\n  }\n": types.solsticeSeasonQueryDocument,
+    "\n  query SolsticeSeasonEventPopup($documentId: String) {\n    post(input: { selector: { documentId: $documentId } }) {\n      result {\n        ...PostsList\n      }\n    }\n  }\n": types.SolsticeSeasonEventPopupDocument,
     "\n  mutation updateChapterAddDraftPostDialog($selector: SelectorInput!, $data: UpdateChapterDataInput!) {\n    updateChapter(selector: $selector, data: $data) {\n      data {\n        ...ChaptersFragment\n      }\n    }\n  }\n": types.updateChapterAddDraftPostDialogDocument,
     "\n  mutation updateBookBooksForm($selector: SelectorInput!, $data: UpdateBookDataInput!) {\n    updateBook(selector: $selector, data: $data) {\n      data {\n        ...BookPageFragment\n      }\n    }\n  }\n": types.updateBookBooksFormDocument,
     "\n  mutation createBookBooksForm($data: CreateBookDataInput!) {\n    createBook(data: $data) {\n      data {\n        ...BookPageFragment\n      }\n    }\n  }\n": types.createBookBooksFormDocument,
@@ -3392,6 +3394,10 @@ export function gql(source: "\n    query petrovDay2024Resolvers {\n      PetrovD
  * The gql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
  */
 export function gql(source: "\n  query solsticeSeasonQuery {\n    HomepageCommunityEvents(limit: 500) {\n      events {\n        _id\n        lat\n        lng\n        types\n      }\n    }\n  }\n"): (typeof documents)["\n  query solsticeSeasonQuery {\n    HomepageCommunityEvents(limit: 500) {\n      events {\n        _id\n        lat\n        lng\n        types\n      }\n    }\n  }\n"];
+/**
+ * The gql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
+ */
+export function gql(source: "\n  query SolsticeSeasonEventPopup($documentId: String) {\n    post(input: { selector: { documentId: $documentId } }) {\n      result {\n        ...PostsList\n      }\n    }\n  }\n"): (typeof documents)["\n  query SolsticeSeasonEventPopup($documentId: String) {\n    post(input: { selector: { documentId: $documentId } }) {\n      result {\n        ...PostsList\n      }\n    }\n  }\n"];
 /**
  * The gql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
  */
