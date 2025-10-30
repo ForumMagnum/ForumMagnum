@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useMemo } from 'react';
 import { defineStyles, useStyles } from '@/components/hooks/useStyles';
 import Button from '@/lib/vendor/@material-ui/core/src/Button';
 import PersonIcon from '@/lib/vendor/@material-ui/icons/src/Person';
@@ -6,13 +6,13 @@ import HomeIcon from '@/lib/vendor/@material-ui/icons/src/Home';
 import ClearIcon from '@/lib/vendor/@material-ui/icons/src/Clear';
 import VisibilityOutlinedIcon from '@/lib/vendor/@material-ui/icons/src/VisibilityOutlined';
 import { MANUAL_FLAG_ALERT } from '@/lib/collections/moderatorActions/constants';
-import FooterTagList from '@/components/tagging/FooterTagList';
 import classNames from 'classnames';
 import PostsPageWrapper from '@/components/posts/PostsPage/PostsPageWrapper';
 import ForumIcon from '@/components/common/ForumIcon';
 import KeystrokeDisplay from './KeystrokeDisplay';
 import type { InboxAction } from './inboxReducer';
 import { usePostReviewActions } from './usePostReviewActions';
+import ModeratorCoreTagsChecklist from './ModeratorCoreTagsChecklist';
 
 const styles = defineStyles('ModerationPostSidebar', (theme: ThemeType) => ({
   root: {
@@ -50,7 +50,7 @@ const styles = defineStyles('ModerationPostSidebar', (theme: ThemeType) => ({
   },
   tagsSection: {
     marginBottom: 12,
-    minHeight: 60,
+    minHeight: 64,
   },
   buttonRow: {
     display: 'flex',
@@ -127,7 +127,7 @@ const ModerationPostSidebar = ({
     <div className={classes.root}>
       <div className={classes.actionsSection}>
         <div className={classes.tagsSection}>
-          <FooterTagList post={post} showCoreTags highlightAutoApplied />
+          <ModeratorCoreTagsChecklist post={post} dispatch={dispatch} />
         </div>
 
         {prediction && (

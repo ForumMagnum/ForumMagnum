@@ -5794,6 +5794,7 @@ type Post = {
   tableOfContentsRevision?: Maybe<Scalars['JSON']['output']>;
   tagRel?: Maybe<TagRel>;
   tagRelevance?: Maybe<Scalars['JSON']['output']>;
+  tagRels: Array<TagRel>;
   tags: Array<Tag>;
   targetPostRelations: Array<PostRelation>;
   title: Scalars['String']['output'];
@@ -21567,6 +21568,24 @@ type multiPostModerationInboxQueryQueryVariables = Exact<{
 
 type multiPostModerationInboxQueryQuery = multiPostModerationInboxQueryQuery_Query;
 
+type updateUserModerationSidebarMutation_updateUser_UserOutput_data_User = (
+  { __typename?: 'User' }
+  & SunshineUsersList
+);
+
+type updateUserModerationSidebarMutation_updateUser_UserOutput = { __typename?: 'UserOutput', data: updateUserModerationSidebarMutation_updateUser_UserOutput_data_User | null };
+
+type updateUserModerationSidebarMutation_Mutation = { __typename?: 'Mutation', updateUser: updateUserModerationSidebarMutation_updateUser_UserOutput | null };
+
+
+type updateUserModerationSidebarMutationVariables = Exact<{
+  selector: SelectorInput;
+  data: UpdateUserDataInput;
+}>;
+
+
+type updateUserModerationSidebarMutation = updateUserModerationSidebarMutation_Mutation;
+
 type updateUserModerationKeyboardMutation_updateUser_UserOutput_data_User = (
   { __typename?: 'User' }
   & SunshineUsersList
@@ -21608,23 +21627,58 @@ type approveCurrentContentOnlyModerationKeyboardMutationVariables = Exact<{
 
 type approveCurrentContentOnlyModerationKeyboardMutation = approveCurrentContentOnlyModerationKeyboardMutation_Mutation;
 
-type updateUserModerationSidebarMutation_updateUser_UserOutput_data_User = (
-  { __typename?: 'User' }
-  & SunshineUsersList
+type multiTagRelModeratorCoreTagsChecklistQueryQuery_tagRels_MultiTagRelOutput_results_TagRel = (
+  { __typename?: 'TagRel' }
+  & TagRelMinimumFragment
 );
 
-type updateUserModerationSidebarMutation_updateUser_UserOutput = { __typename?: 'UserOutput', data: updateUserModerationSidebarMutation_updateUser_UserOutput_data_User | null };
+type multiTagRelModeratorCoreTagsChecklistQueryQuery_tagRels_MultiTagRelOutput = { __typename?: 'MultiTagRelOutput', results: Array<multiTagRelModeratorCoreTagsChecklistQueryQuery_tagRels_MultiTagRelOutput_results_TagRel> };
 
-type updateUserModerationSidebarMutation_Mutation = { __typename?: 'Mutation', updateUser: updateUserModerationSidebarMutation_updateUser_UserOutput | null };
+type multiTagRelModeratorCoreTagsChecklistQueryQuery_Query = { __typename?: 'Query', tagRels: multiTagRelModeratorCoreTagsChecklistQueryQuery_tagRels_MultiTagRelOutput | null };
 
 
-type updateUserModerationSidebarMutationVariables = Exact<{
-  selector: SelectorInput;
-  data: UpdateUserDataInput;
+type multiTagRelModeratorCoreTagsChecklistQueryQueryVariables = Exact<{
+  selector: InputMaybe<TagRelSelector>;
+  limit: InputMaybe<Scalars['Int']['input']>;
 }>;
 
 
-type updateUserModerationSidebarMutation = updateUserModerationSidebarMutation_Mutation;
+type multiTagRelModeratorCoreTagsChecklistQueryQuery = multiTagRelModeratorCoreTagsChecklistQueryQuery_Query;
+
+type addOrUpvoteTagModeratorCoreTagsChecklistMutation_addOrUpvoteTag_TagRel = (
+  { __typename?: 'TagRel' }
+  & TagRelMinimumFragment
+);
+
+type addOrUpvoteTagModeratorCoreTagsChecklistMutation_Mutation = { __typename?: 'Mutation', addOrUpvoteTag: addOrUpvoteTagModeratorCoreTagsChecklistMutation_addOrUpvoteTag_TagRel | null };
+
+
+type addOrUpvoteTagModeratorCoreTagsChecklistMutationVariables = Exact<{
+  tagId: InputMaybe<Scalars['String']['input']>;
+  postId: InputMaybe<Scalars['String']['input']>;
+}>;
+
+
+type addOrUpvoteTagModeratorCoreTagsChecklistMutation = addOrUpvoteTagModeratorCoreTagsChecklistMutation_Mutation;
+
+type performVoteTagRelModeratorCoreTagsChecklistMutation_performVoteTagRel_VoteResultTagRel_document_TagRel = (
+  { __typename?: 'TagRel' }
+  & WithVoteTagRel
+);
+
+type performVoteTagRelModeratorCoreTagsChecklistMutation_performVoteTagRel_VoteResultTagRel = { __typename?: 'VoteResultTagRel', document: performVoteTagRelModeratorCoreTagsChecklistMutation_performVoteTagRel_VoteResultTagRel_document_TagRel };
+
+type performVoteTagRelModeratorCoreTagsChecklistMutation_Mutation = { __typename?: 'Mutation', performVoteTagRel: performVoteTagRelModeratorCoreTagsChecklistMutation_performVoteTagRel_VoteResultTagRel | null };
+
+
+type performVoteTagRelModeratorCoreTagsChecklistMutationVariables = Exact<{
+  documentId: InputMaybe<Scalars['String']['input']>;
+  voteType: InputMaybe<Scalars['String']['input']>;
+  extendedVote: InputMaybe<Scalars['JSON']['input']>;
+}>;
+
+
+type performVoteTagRelModeratorCoreTagsChecklistMutation = performVoteTagRelModeratorCoreTagsChecklistMutation_Mutation;
 
 type multiModerationTemplateRestrictAndNotifyModalQueryQuery_moderationTemplates_MultiModerationTemplateOutput_results_ModerationTemplate = (
   { __typename?: 'ModerationTemplate' }
@@ -25436,8 +25490,13 @@ type SunshinePostsList_Post_user_User = (
 
 type SunshinePostsList_Post_frontpageClassification_FrontpageClassification = { __typename?: 'FrontpageClassification', isFrontpage: boolean, probability: number };
 
+type SunshinePostsList_Post_tagRels_TagRel = (
+  { __typename?: 'TagRel' }
+  & TagRelMinimumFragment
+);
+
 type SunshinePostsList = (
-  { __typename?: 'Post', currentUserVote: string | null, currentUserExtendedVote: any | null, rejectedReason: string | null, autoFrontpage: string | null, fmCrosspost: SunshinePostsList_Post_fmCrosspost_CrosspostOutput | null, contents: SunshinePostsList_Post_contents_Revision | null, automatedContentEvaluations: SunshinePostsList_Post_automatedContentEvaluations_AutomatedContentEvaluation | null, moderationGuidelines: SunshinePostsList_Post_moderationGuidelines_Revision | null, user: SunshinePostsList_Post_user_User | null, frontpageClassification: SunshinePostsList_Post_frontpageClassification_FrontpageClassification | null }
+  { __typename?: 'Post', currentUserVote: string | null, currentUserExtendedVote: any | null, rejectedReason: string | null, autoFrontpage: string | null, fmCrosspost: SunshinePostsList_Post_fmCrosspost_CrosspostOutput | null, contents: SunshinePostsList_Post_contents_Revision | null, automatedContentEvaluations: SunshinePostsList_Post_automatedContentEvaluations_AutomatedContentEvaluation | null, moderationGuidelines: SunshinePostsList_Post_moderationGuidelines_Revision | null, user: SunshinePostsList_Post_user_User | null, frontpageClassification: SunshinePostsList_Post_frontpageClassification_FrontpageClassification | null, tagRels: Array<SunshinePostsList_Post_tagRels_TagRel> }
   & PostsListBase
 );
 

@@ -23,6 +23,7 @@ import type { TabInfo } from './ModerationTabs';
 import { UNDO_QUEUE_DURATION } from './constants';
 import { useHydrateModerationPostCache } from '@/components/hooks/useHydrateModerationPostCache';
 import { useCoreTags } from '@/components/tagging/useCoreTags';
+import { CoreTagsKeyboardProvider } from '@/components/tagging/CoreTagsKeyboardContext';
 
 const SunshineUsersListMultiQuery = gql(`
   query multiUserModerationInboxQuery($selector: UserSelector, $limit: Int, $enableTotal: Boolean) {
@@ -269,6 +270,7 @@ const ModerationInboxInner = ({ users, posts, initialOpenedUserId, currentUser }
   const isPostsTab = state.activeTab === 'posts';
 
   return (
+    <CoreTagsKeyboardProvider>
     <div className={classes.root}>
       {isPostsTab ? (
         <ModerationPostKeyboardHandler
@@ -353,6 +355,7 @@ const ModerationInboxInner = ({ users, posts, initialOpenedUserId, currentUser }
         </div>
       </div>
     </div>
+    </CoreTagsKeyboardProvider>
   );
 };
 
@@ -401,7 +404,12 @@ const ModerationInbox = () => {
 
   const initialOpenedUserId = query.user || null;
 
-  return <ModerationInboxInner users={users} posts={posts} initialOpenedUserId={initialOpenedUserId} currentUser={currentUser} />;
+  return <ModerationInboxInner
+    users={users}
+    posts={posts}
+    initialOpenedUserId={initialOpenedUserId}
+    currentUser={currentUser}
+  />;
 };
 
 export default ModerationInbox;

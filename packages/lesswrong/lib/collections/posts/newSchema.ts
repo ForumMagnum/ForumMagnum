@@ -1597,6 +1597,17 @@ const schema = {
       },
     },
   },
+  tagRels: {
+    graphql: {
+      outputType: "[TagRel!]!",
+      canRead: ["guests"],
+      resolver: async (post, args, context) => {
+        const { currentUser, TagRels } = context;
+        const tagRels = await getWithLoader(context, TagRels, "tagRelsByPost", { postId: post._id }, "postId", post._id);
+        return await accessFilterMultiple(currentUser, "TagRels", tagRels, context);
+      },
+    },
+  },
   lastPromotedComment: {
     graphql: {
       outputType: "Comment",

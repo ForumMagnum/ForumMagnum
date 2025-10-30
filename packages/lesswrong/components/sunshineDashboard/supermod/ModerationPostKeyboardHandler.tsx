@@ -3,6 +3,7 @@ import type { CommandPaletteItem } from '@/components/common/CommandPalette';
 import { useSupermodKeyboardCommands } from '@/components/hooks/useSupermodKeyboardCommands';
 import type { InboxAction } from './inboxReducer';
 import { usePostReviewActions } from './usePostReviewActions';
+import { useCoreTagsKeyboard } from '@/components/tagging/CoreTagsKeyboardContext';
 
 const ModerationPostKeyboardHandler = ({
   onNextPost,
@@ -86,6 +87,37 @@ const ModerationPostKeyboardHandler = ({
     execute: onPrevTab,
   }), [onPrevTab]);
 
+  const coreTagsContext = useCoreTagsKeyboard();
+  const existingTagIds = useMemo(() => (
+    (selectedPost?.tagRels ?? [])
+      .filter(tr => tr.baseScore > 0)
+      .map(tr => tr.tag)
+      .filter(t => !!t)
+      .map(t => t._id)
+  ), [selectedPost]);
+
+  const coreTagCommands: CommandPaletteItem[] = useMemo(() => {
+    if (!coreTagsContext?.coreTagsWithShortcuts || !coreTagsContext.onTagSelected || !coreTagsContext.onTagRemoved) {
+      return [];
+    }
+
+    return coreTagsContext.coreTagsWithShortcuts.map(({ tagId, tagName, shortcut }) => ({
+      label: existingTagIds.includes(tagId) ? `Remove ${tagName}` : `Add ${tagName}`,
+      keystroke: shortcut,
+      isDisabled: () => !selectedPost,
+      execute: async () => {
+        if (!selectedPost) return;
+        
+        const isCurrentlyApplied = existingTagIds.includes(tagId);
+        if (isCurrentlyApplied) {
+          await coreTagsContext.onTagRemoved?.({ tagId, tagName }, existingTagIds);
+        } else {
+          await coreTagsContext.onTagSelected?.({ tagId, tagName }, existingTagIds);
+        }
+      },
+    }));
+  }, [coreTagsContext, existingTagIds, selectedPost]);
+
   const commands: CommandPaletteItem[] = useMemo(() => [
     markAsPersonalCommand,
     markAsFrontpageCommand,
@@ -95,6 +127,7 @@ const ModerationPostKeyboardHandler = ({
     previousPostCommand,
     nextTabCommand,
     previousTabCommand,
+    ...coreTagCommands,
   ], [
     markAsPersonalCommand,
     markAsFrontpageCommand,
@@ -104,6 +137,7 @@ const ModerationPostKeyboardHandler = ({
     previousPostCommand,
     nextTabCommand,
     previousTabCommand,
+    coreTagCommands,
   ]);
 
   useSupermodKeyboardCommands({
