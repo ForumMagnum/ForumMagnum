@@ -40,9 +40,9 @@ export const givingSeasonEvents: GivingSeasonEvent[] = [
     name: "Funding strategy week",
     description: "A week for discussing funding diversification, when to donate, and other strategic questions.",
     readMoreHref: "/posts/RzdKnBYe3jumrZxkB/giving-season-2025-announcement#November_10th_to_16th",
-    tag: { // TODO
-      _id: "4ktPbiFf6FLnfyRiC",
-      slug: "funding-strategy-week-2024",
+    tag: {
+      _id: "kSLB5r7cX77Lbuegw",
+      slug: "funding-strategy-week-2025",
     },
     start: new Date("2025-10-22"), // TODO: Set this to 2025-11-10 before deploying
     end: new Date("2025-11-17"),
@@ -54,6 +54,10 @@ export const givingSeasonEvents: GivingSeasonEvent[] = [
     name: "Marginal funding week",
     description: "A week for organisations to share what they could do with extra funding.",
     readMoreHref: "/posts/RzdKnBYe3jumrZxkB/giving-season-2025-announcement#November_17th_to_23rd",
+    tag: {
+      _id: "hmhCHsvuminjfEPhy",
+      slug: "marginal-funding-week-2025",
+    },
     start: new Date("2025-11-17"),
     end: new Date("2025-11-24"),
     color: "#FF7454",
