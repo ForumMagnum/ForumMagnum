@@ -22,6 +22,7 @@ const styles = defineStyles('ModerationPostItem', (theme: ThemeType) => ({
   focused: {
     borderLeft: `3px solid ${theme.palette.primary.main}`,
     paddingLeft: 17, // 20 - 3 to account for border
+    backgroundColor: theme.palette.grey[100],
   },
   displayName: {
     fontSize: 15,
