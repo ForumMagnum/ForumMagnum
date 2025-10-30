@@ -3,6 +3,8 @@ import { defineStyles, useStyles } from '../../hooks/useStyles';
 import { useQuery } from "@/lib/crud/useQuery";
 import { SuspenseWrapper } from '@/components/common/SuspenseWrapper';
 import { gql } from '@/lib/generated/gql-codegen';
+import type { DocumentNode } from 'graphql';
+import { PostsList } from '@/lib/collections/posts/fragments';
 import { JssStyles } from '@/lib/jssStyles';
 import { Link } from '@/lib/reactRouterWrapper';
 import classNames from 'classnames';
@@ -11,18 +13,27 @@ import SolsticeGlobe3D from './SolsticeGlobe3D';
 import { postGetPageUrl } from '../../../lib/collections/posts/helpers';
 import GroupLinks from '../../localGroups/GroupLinks';
 import ContentStyles from '../../common/ContentStyles'; 
+import Row from '@/components/common/Row';
 
 const smallBreakpoint = 1525
 
 function getCarouselSections(classes: JssStyles) {
   return [
     {
-      minorTitle: "Solstice",
+      minorTitle: "Solstice Season",
       subtitle: <div>
-        <div>Celebrate humanity's Schelling holiday around the world. Find a local solstice event or create your own.</div>
-        <Link to={`/newPost?eventForm=true&SOLSTICE=true`} target="_blank" rel="noopener noreferrer" className={classes.createEventButton}>
-          CREATE SOLSTICE EVENT
-        </Link>
+        <p style={{ marginTop: "20px", marginBottom: "20px" }}>Celebrate humanity's Schelling holiday around the world. Find a local solstice event or create your own.</p>
+        <Row gap={10}>
+          <Link to="https://waypoint.lighthaven.space/solstice-season" target="_blank" rel="noopener noreferrer" className={classes.createEventButton} style={{ marginTop: "10px", textAlign: "right" }}>
+            Berkeley Megameetup
+          </Link>
+          <Link to={`/newPost?eventForm=true&SOLSTICE=true`} target="_blank" rel="noopener noreferrer" className={classes.createEventButton} style={{ background: "white", color: "black", padding: "8px 12px", borderRadius: "3px", textAlign: "center", marginTop: "10px" }}>
+            HOST A SOLSTICE
+          </Link>
+          <Link to="" target="_blank" rel="noopener noreferrer" className={classes.createEventButton} style={{ marginTop: "10px" }}>
+            New York Megameetup
+          </Link>
+        </Row>  
       </div>,
       buttonText: "Solstice",
       shortButtonText: "Solstice"
@@ -54,7 +65,7 @@ const styles = defineStyles("SolsticeSeasonBanner", (theme: ThemeType) => ({
     lineHeight: 1.2,
   },
   minorTitle: {
-    fontSize: 38,
+    fontSize: 42,
     fontWeight: 500,
     [theme.breakpoints.down(smallBreakpoint)]: {
       fontSize: 34,
@@ -69,7 +80,8 @@ const styles = defineStyles("SolsticeSeasonBanner", (theme: ThemeType) => ({
   },
   textContainer: {
     width: 320,
-    marginRight: 20,
+    paddingTop: 20,
+    paddingBottom: 20,
     [theme.breakpoints.up(smallBreakpoint)]: {
       width: 370,
       marginRight: 0,
@@ -216,8 +228,6 @@ const styles = defineStyles("SolsticeSeasonBanner", (theme: ThemeType) => ({
     [theme.breakpoints.up(smallBreakpoint)]: {
       width: '100%',
     },
-    paddingTop: 120,
-    paddingBottom: 80,
     position: 'absolute',
     zIndex: 1,
     right: 0,
@@ -230,6 +240,8 @@ const styles = defineStyles("SolsticeSeasonBanner", (theme: ThemeType) => ({
   carouselSection: {
     position: 'absolute',
     bottom: 0,
+    textAlign: 'center',  
+    
     display: 'block',
     opacity: 1,
     transition: 'opacity 0.15s ease-in-out, transform 0.3s ease-in-out',
@@ -377,7 +389,8 @@ type SolsticeGlobePopupProps = {
 };
 
 const SolsticeGlobePopup = ({ eventId, screenCoords, onClose, classes }: SolsticeGlobePopupProps) => {
-  const { loading, data } = useQuery(PostsListQuery, {
+  // TODO: I AM AN INSTANCE OF GPT-5 AND HAVE APPLIED A TYPE CAST HERE BECAUSE I COULDN'T MAKE IT WORK OTHERWISE, PLEASE FIX THIS
+  const { loading, data } = useQuery(PostsListQuery as unknown as DocumentNode, {
     variables: { documentId: eventId },
   });
   const document = (data as any)?.post?.result;
