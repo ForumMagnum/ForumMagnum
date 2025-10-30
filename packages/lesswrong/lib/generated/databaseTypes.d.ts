@@ -1722,6 +1722,8 @@ interface DbUser extends DbObject {
   generateJargonForDrafts: boolean
   generateJargonForPublishedPosts: boolean
   githubProfileURL: string | null
+  givingSeason2025DonatedFlair: boolean
+  givingSeason2025VotedFlair: boolean
   goodHeartTokens: number | null
   googleLocation: any | null
   groups: Array<string> | null

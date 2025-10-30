@@ -578,6 +578,9 @@ export const defaultComponentPalette = (shades: ThemeShadePalette): ThemeCompone
   tocScrollbarColors: `rgba(255,255,255,0) ${shades.grey[300]}`,
   eventsHomeLoadMoreHover: '#085d6c',
 
+  givingSeason: {
+    primary: "#FF7454",
+  },
   wrapped: {
     background: '#151515',
     darkBackground: "#000",

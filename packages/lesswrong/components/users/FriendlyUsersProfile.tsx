@@ -206,6 +206,22 @@ const styles = (theme: ThemeType) => ({
       marginRight: 6,
     },
   },
+  donationIcon: {
+    position: "relative",
+    bottom: 1,
+    color: theme.palette.givingSeason.primary,
+    fontSize: 24,
+    marginLeft: 8,
+    transform: "translateY(-2px)",
+  },
+  votedIcon: {
+    position: "relative",
+    bottom: 1,
+    color: theme.palette.givingSeason.primary,
+    fontSize: 24,
+    marginLeft: 8,
+    transform: "translateY(1px)",
+  },
 });
 
 const FriendlyUsersProfile = ({terms, slug, classes}: {
@@ -503,6 +519,22 @@ const FriendlyUsersProfile = ({terms, slug, classes}: {
           <EAUsersProfileImage user={user} />
           <Typography variant="headline" className={classNames(classes.username, {[classes.deletedUsername]: user.deleted})}>
             <DisplayNameWithMarkers name={displayName} />{user.deleted && <span className={classes.accountDeletedText}>(account deleted)</span>}
+            {user.givingSeason2025DonatedFlair &&
+              <LWTooltip
+                placement="bottom-start"
+                title="Donated to the Donation Election fund"
+              >
+                <ForumIcon icon="GivingHand" className={classes.donationIcon} />
+              </LWTooltip>
+            }
+           {user.givingSeason2025VotedFlair &&
+              <LWTooltip
+                placement="bottom-start"
+                title="Voted in the Donation Election"
+              >
+                <ForumIcon icon="Voted" className={classes.votedIcon} />
+              </LWTooltip>
+            }
           </Typography>
           {(user.jobTitle || user.organization) && <ContentStyles contentType="comment" className={classes.roleAndOrg}>
             {user.jobTitle} {user.organization ? `@ ${user.organization}` : ''}

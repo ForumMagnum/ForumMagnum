@@ -1358,6 +1358,28 @@ const UsersForm = ({
 
       {showAdminGroup && <LegacyFormGroupLayout label="Admin">
         {(userIsAdmin(currentUser) || userIsMemberOf(currentUser, 'realAdmins')) && <div className={classes.fieldWrapper}>
+          <form.Field name="givingSeason2025DonatedFlair">
+            {(field) => (
+              <FormComponentCheckbox
+                field={field}
+                label="Giving Season donated flair"
+              />
+            )}
+          </form.Field>
+        </div>}
+
+        {(userIsAdmin(currentUser) || userIsMemberOf(currentUser, 'realAdmins')) && <div className={classes.fieldWrapper}>
+          <form.Field name="givingSeason2025VotedFlair">
+            {(field) => (
+              <FormComponentCheckbox
+                field={field}
+                label="Giving Season voted flair"
+              />
+            )}
+          </form.Field>
+        </div>}
+
+        {(userIsAdmin(currentUser) || userIsMemberOf(currentUser, 'realAdmins')) && <div className={classes.fieldWrapper}>
           <form.Field name="isAdmin">
             {(field) => (
               <FormComponentCheckbox
