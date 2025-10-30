@@ -36,6 +36,7 @@ function loadTsConfig(configPath: string) {
 
 /** @type {import('next').NextConfig} */
 module.exports = {
+  cacheComponents: true,
   reactStrictMode: false,
 
   compiler: {

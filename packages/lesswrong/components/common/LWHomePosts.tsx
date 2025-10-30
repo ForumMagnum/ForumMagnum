@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useMemo, useState } from 'react';
+import React, { useCallback, useContext, useEffect, useMemo, useState } from 'react';
 import { useCurrentUser } from '../common/withUser';
 import { Link } from '../../lib/reactRouterWrapper';
 import { useLocation } from '../../lib/routeUtil';
@@ -44,6 +44,7 @@ import UltraFeedMainFeed from '../ultraFeed/UltraFeedMainFeed';
 import UltraFeedWrappers from '../ultraFeed/UltraFeedWrappers';
 import UltraFeedSettings from '../ultraFeed/UltraFeedSettings';
 import UltraFeedFollowingSettings from '../ultraFeed/UltraFeedFollowingSettings';
+import { IsReturningVisitorContext } from './IsReturningVisitorContextProvider';
 
 
 
@@ -243,7 +244,7 @@ function useSelectedTab(currentUser: UsersCurrent|null, enabledTabs: TabRecord[]
   const { captureEvent } = useTracking();
 
   const cookieTab = cookies[SELECTED_FRONTPAGE_TAB_COOKIE];
-  const isReturningVisitor = isServer ? !!cookies[LAST_VISITED_FRONTPAGE_COOKIE] : !!window.isReturningVisitor;
+  const isReturningVisitor = useContext(IsReturningVisitorContext);
 
   let currentTab: string;
 

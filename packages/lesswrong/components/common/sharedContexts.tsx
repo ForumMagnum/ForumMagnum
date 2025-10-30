@@ -1,6 +1,6 @@
 'use client';
 
-import React, { createContext } from 'react';
+import React, { createContext, useState, useMemo } from 'react';
 import { createContext as contextSelectorCreateContext } from "use-context-selector";
 import type { EditorContents } from '../editor/Editor';
 
@@ -26,11 +26,40 @@ type DisableNoKibitzContextType = { disableNoKibitz: boolean; setDisableNoKibitz
 export const TimezoneContext = createContext<string | null>(null);
 export const UserContext = contextSelectorCreateContext<UsersCurrent|null>(null);
 export const DynamicTableOfContentsContext = createContext<DynamicTableOfContentsContextType | null>(null);
+
 export const AutosaveEditorStateContext = React.createContext<AutosaveEditorStateContext>({
   autosaveEditorState: null,
   setAutosaveEditorState: _ => { },
 });
+
+export const AutosaveEditorStateContextProvider = ({children}: {
+  children: React.ReactNode
+}) => {
+  const [autosaveEditorState, setAutosaveEditorState] = useState<(() => Promise<void>) | null>(null);
+  const autosaveEditorStateContext = useMemo(
+    () => ({ autosaveEditorState, setAutosaveEditorState }),
+    [autosaveEditorState, setAutosaveEditorState]
+  );
+  return <AutosaveEditorStateContext.Provider value={autosaveEditorStateContext}>
+    {children}
+  </AutosaveEditorStateContext.Provider>
+}
+
 export const DisableNoKibitzContext = createContext<DisableNoKibitzContextType>({ disableNoKibitz: false, setDisableNoKibitz: () => { } });
+
+export const DisableNoKibitzContextProvider = ({children}: {
+  children: React.ReactNode
+}) => {
+  const [disableNoKibitz, setDisableNoKibitz] = useState(false); 
+  const noKibitzContext = useMemo(
+    () => ({ disableNoKibitz, setDisableNoKibitz }),
+    [disableNoKibitz, setDisableNoKibitz]
+  );
+
+  return <DisableNoKibitzContext.Provider value={noKibitzContext}>
+    {children}
+  </DisableNoKibitzContext.Provider>
+}
 
 // RelevantTestGroupAllocation: A dictionary from the names of A/B tests to
 // which group a user is in, which is pruned to only the tests which affected

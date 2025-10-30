@@ -33,6 +33,7 @@ import { isHomeRoute } from '@/lib/routeChecks';
 import { useRouteMetadata } from '../ClientRouteMetadataContext';
 import { forumSelect } from '@/lib/forumTypeUtils';
 import NotificationsMenu from "../notifications/NotificationsMenu";
+import { IsLlmChatSidebarOpenContext } from '../Layout';
 
 /** Height of top header. On Book UI sites, this is for desktop only */
 export const getHeaderHeight = () => isBookUI() ? 64 : 66;
@@ -110,6 +111,8 @@ const textColorOverrideStyles = ({
     },
   },
 });
+
+const LLM_CHAT_SIDEBAR_WIDTH = 500;
 
 export const styles = (theme: ThemeType) => ({
   appBar: {
@@ -308,6 +311,11 @@ export const styles = (theme: ThemeType) => ({
     marginLeft: theme.spacing.unit,
     marginBottom: 1.5,
   },
+  reserveSpaceForLlmChatSidebar: {
+    "& .headroom": {
+      width: `calc(100% - ${LLM_CHAT_SIDEBAR_WIDTH}px)`,
+    },
+  },
 });
 
 const Header = ({
@@ -317,7 +325,6 @@ const Header = ({
   stayAtTop=false,
   searchResultsArea,
   backgroundColor,
-  llmChatSidebarOpen=false,
   classes,
 }: {
   standaloneNavigationPresent: boolean,
@@ -327,7 +334,6 @@ const Header = ({
   searchResultsArea: React.RefObject<HTMLDivElement|null>,
   // CSS var corresponding to the background color you want to apply (see also appBarDarkBackground above)
   backgroundColor?: string,
-  llmChatSidebarOpen?: boolean,
   classes: ClassesType<typeof styles>,
 }) => {
   const [navigationOpen, setNavigationOpenState] = useState(false);
@@ -536,10 +542,7 @@ const Header = ({
   const useContrastText = Object.keys(headerStyle).length > 0;
 
   // Adjust header width when LLM chat sidebar is open and header is fixed
-  const LLM_CHAT_SIDEBAR_WIDTH = 500;
-  if (llmChatSidebarOpen && !unFixed) {
-    headerStyle.width = `calc(100% - ${LLM_CHAT_SIDEBAR_WIDTH}px)`;
-  }
+  const llmChatSidebarOpen = useContext(IsLlmChatSidebarOpenContext);
 
   return (
     <AnalyticsContext pageSectionContext="header">
@@ -550,6 +553,7 @@ const Header = ({
           height={getHeaderHeight()}
           className={classNames(classes.headroom, {
             [classes.headroomPinnedOpen]: searchOpen,
+            [classes.reserveSpaceForLlmChatSidebar]: llmChatSidebarOpen && !unFixed,
           })}
           onUnfix={() => setUnFixed(true)}
           onUnpin={() => setUnFixed(false)}
