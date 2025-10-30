@@ -7,6 +7,7 @@ import { JssStyles } from '@/lib/jssStyles';
 import { Link } from '@/lib/reactRouterWrapper';
 import classNames from 'classnames';
 import SolsticeGlobe, { SolsticeGlobePoint } from './SolsticeGlobe';
+import SolsticeGlobe3D from './SolsticeGlobe3D';
 import { postGetPageUrl } from '../../../lib/collections/posts/helpers';
 import GroupLinks from '../../localGroups/GroupLinks';
 import ContentStyles from '../../common/ContentStyles'; 
@@ -536,7 +537,19 @@ export default function SolsticeSeasonBannerInner() {
         onClick={() => setEverClickedGlobe(true)}
         style={{ opacity: 0 }}
       >
-        <SolsticeGlobe 
+        {/* <SolsticeGlobe 
+          pointsData={pointsData}
+          defaultPointOfView={defaultPointOfView}
+          onPointClick={(point: SolsticeGlobePoint, screenCoords: { x: number; y: number }) => {
+            if (point.eventId) {
+              setSelectedEventId(point.eventId);
+              setPopupCoords(screenCoords);
+            }
+          }}
+          onReady={() => setIsLoading(false)}
+          style={{ width: '100%', height: '100%' }}
+        /> */}
+        <SolsticeGlobe3D 
           pointsData={pointsData}
           defaultPointOfView={defaultPointOfView}
           onPointClick={(point: SolsticeGlobePoint, screenCoords: { x: number; y: number }) => {
@@ -560,7 +573,7 @@ export default function SolsticeSeasonBannerInner() {
       className={classes.globeContainer} 
       onClick={() => setEverClickedGlobe(true)}
     >
-      <SolsticeGlobe 
+      {/* <SolsticeGlobe 
         pointsData={pointsData}
         defaultPointOfView={defaultPointOfView}
         onPointClick={(point: SolsticeGlobePoint, screenCoords: { x: number; y: number }) => {
@@ -571,7 +584,19 @@ export default function SolsticeSeasonBannerInner() {
         }}
         style={{ width: '100%', height: '100%' }}
         onClick={() => setEverClickedGlobe(true)}
-      />
+      /> */}
+              <SolsticeGlobe3D 
+          pointsData={pointsData}
+          defaultPointOfView={defaultPointOfView}
+          onPointClick={(point: SolsticeGlobePoint, screenCoords: { x: number; y: number }) => {
+            if (point.eventId) {
+              setSelectedEventId(point.eventId);
+              setPopupCoords(screenCoords);
+            }
+          }}
+          onReady={() => setIsLoading(false)}
+          style={{ width: '100%', height: '100%' }}
+        />
       {selectedEventId && popupCoords && (
         <SolsticeGlobePopup
           eventId={selectedEventId}

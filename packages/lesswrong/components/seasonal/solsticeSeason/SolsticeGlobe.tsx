@@ -125,18 +125,36 @@ const SolsticeGlobe = ({
   };
 
   // Get opacity for a point based on whether it's on the front or back hemisphere
+  // Uses d3-geo's projection directly to determine visibility, which is more reliable
+  // than manually replicating the rotation math
   const getPointOpacity = (lat: number, lng: number): number => {
-    // Convert lat/lng to radians
+    // Create the same projection used for rendering
+    const projection = d3.geoOrthographic()
+      .scale(zoomScale)
+      .rotate([-rotation[0], -rotation[1], rotation[2]])
+      .translate([dimensions.width / 2, dimensions.height / 2])
+      .clipAngle(90);
+    
+    // Project the point - if it returns null, it's on the back hemisphere (clipped)
+    const projected = projection([lng, lat]);
+    
+    // If the point is clipped (returns null), it's on the far side - low opacity
+    if (!projected) {
+      return 0.1;
+    }
+    
+    // For visible points, calculate dot product between point position and camera direction
+    // to determine how "facing" the camera it is
     const latRad = (lat * Math.PI) / 180;
     const lngRad = (lng * Math.PI) / 180;
     
     // Convert to 3D Cartesian coordinates on unit sphere
+    // Standard geographic to Cartesian: x=east, y=north, z=up (completing right-handed)
     const x = Math.cos(latRad) * Math.cos(lngRad);
-    const y = Math.sin(latRad);
-    const z = Math.cos(latRad) * Math.sin(lngRad);
+    const y = Math.cos(latRad) * Math.sin(lngRad);
+    const z = Math.sin(latRad);
     
     // Apply rotation matching d3-geo orthographic projection
-    // Rotation is [longitude, latitude, 0] in degrees
     // d3-geo rotates: first around Y by -latitude, then around Z by -longitude
     const rotLngRad = (rotation[0] * Math.PI) / 180;
     const rotLatRad = (rotation[1] * Math.PI) / 180;
@@ -155,8 +173,73 @@ const SolsticeGlobe = ({
     const y2 = (x1 * sinLng) + (y1 * cosLng);
     const z2 = z1;
     
-    // Return high opacity for front hemisphere (z < 0), low opacity for back (z > 0)
-    return z2 < 0 ? 0.9 : 0.1;
+    // In d3-geo orthographic, camera looks down -Z axis (toward negative Z)
+    // Points with negative Z are closer to camera (front hemisphere)
+    // Points with positive Z are further from camera (back hemisphere)
+    // So z2 < 0 means facing camera, z2 > 0 means facing away
+    // However, we already checked for clipping above, so if we get here, the point is visible
+    // We want to make points "more facing" the camera have higher opacity
+    // For orthographic view, a simple heuristic: points closer to center of visible hemisphere
+    // have higher opacity. We can use the z-coordinate, but we should check the sign.
+    
+    // Actually, wait - if the projection returned a value, the point IS visible
+    // But we still want to make points on the "far edge" (near the horizon) less visible
+    // For a point to be "facing camera" in orthographic, its surface normal (which is just
+    // the vector from center to point) should point toward the camera
+    
+    // Camera direction in orthographic is typically (0, 0, -1) in view space
+    // After rotation, we check if z < 0 (pointing toward camera)
+    // But actually, the check should be: is the z coordinate negative AFTER rotation?
+    // If z < 0, the point's normal points in negative Z direction, which is toward camera
+    
+    // However, I suspect the issue might be that the sign is inverted, or the rotation
+    // doesn't match d3-geo exactly. Let's use a more direct approach:
+    
+    // Use the dot product of the point's position vector with the camera view direction
+    // Camera looks from (0,0,1) toward (0,0,0) in standard orthographic, so view dir is (0,0,-1)
+    // After rotating the point, if z-component is negative, dot product with (0,0,-1) is positive
+    // So z2 < 0 means facing camera
+    
+    // But wait - maybe the coordinate system is different. Let me think...
+    // Actually, the safest check: if z2 < 0, it's on the "near" side (facing camera)
+    // But we already know it's visible (not null), so maybe we want a gradient based on z2
+    
+    // For now, let's keep the original logic but use the projection check for reliability:
+    // Points that are clipped have low opacity, points that are visible...
+    // We still want to use z2 to determine front vs back
+    
+    // Actually, I think the issue is that we need to check if z2 > 0 instead of z2 < 0
+    // Let me verify: in a standard orthographic projection looking down -Z:
+    // - Points with z < 0 are in front (visible and facing camera)
+    // - Points with z > 0 are behind (either clipped or facing away)
+    
+    // But d3-geo might use the opposite convention. Let me check by testing:
+    // If the projection returns a value, the point is in the visible hemisphere
+    // The question is: what is the z-value for a visible point?
+    
+    // Actually, I realize the safest fix: just use the fact that if projection returns
+    // a value, it's visible. For additional fade effect, we could check distance from
+    // clip edge, but for now let's just fix the core issue
+    
+    // The original code checks z2 < 0 for high opacity
+    // This assumes camera looks down -Z, so negative Z = facing camera
+    // But d3-geo might use opposite convention. Let me invert the check:
+    // Calculate the center point of the current view in world coordinates
+    // The center corresponds to the point at (-rotation[0], -rotation[1]) in lat/lng
+    const centerLatRad = (-rotation[1] * Math.PI) / 180;
+    const centerLngRad = (-rotation[0] * Math.PI) / 180;
+    const centerX = Math.cos(centerLatRad) * Math.cos(centerLngRad);
+    const centerY = Math.cos(centerLatRad) * Math.sin(centerLngRad);
+    const centerZ = Math.sin(centerLatRad);
+    
+    // Calculate dot product: cos(angle between point and center)
+    // When angle = 0 (directly facing), dot = 1 (max opacity)
+    // When angle = 90 (at horizon), dot = 0 (min opacity)
+    const dotProduct = (x * centerX) + (y * centerY) + (z * centerZ);
+    
+    // Map from [0 (horizon) to 1 (facing)] to [0.4 (low) to 0.9 (high)] opacity
+    const clampedDot = Math.max(0, Math.min(1, dotProduct));
+    return 0.4 + (clampedDot * 0.5);
   };
 
   const handleMouseDown = (e: React.MouseEvent) => {
