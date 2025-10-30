@@ -21627,24 +21627,6 @@ type approveCurrentContentOnlyModerationKeyboardMutationVariables = Exact<{
 
 type approveCurrentContentOnlyModerationKeyboardMutation = approveCurrentContentOnlyModerationKeyboardMutation_Mutation;
 
-type multiTagRelModeratorCoreTagsChecklistQueryQuery_tagRels_MultiTagRelOutput_results_TagRel = (
-  { __typename?: 'TagRel' }
-  & TagRelMinimumFragment
-);
-
-type multiTagRelModeratorCoreTagsChecklistQueryQuery_tagRels_MultiTagRelOutput = { __typename?: 'MultiTagRelOutput', results: Array<multiTagRelModeratorCoreTagsChecklistQueryQuery_tagRels_MultiTagRelOutput_results_TagRel> };
-
-type multiTagRelModeratorCoreTagsChecklistQueryQuery_Query = { __typename?: 'Query', tagRels: multiTagRelModeratorCoreTagsChecklistQueryQuery_tagRels_MultiTagRelOutput | null };
-
-
-type multiTagRelModeratorCoreTagsChecklistQueryQueryVariables = Exact<{
-  selector: InputMaybe<TagRelSelector>;
-  limit: InputMaybe<Scalars['Int']['input']>;
-}>;
-
-
-type multiTagRelModeratorCoreTagsChecklistQueryQuery = multiTagRelModeratorCoreTagsChecklistQueryQuery_Query;
-
 type addOrUpvoteTagModeratorCoreTagsChecklistMutation_addOrUpvoteTag_TagRel = (
   { __typename?: 'TagRel' }
   & TagRelMinimumFragment
