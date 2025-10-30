@@ -12516,6 +12516,7 @@ type User = {
   twitterProfileURL?: Maybe<Scalars['String']['output']>;
   twitterProfileURLAdmin?: Maybe<Scalars['String']['output']>;
   unsubscribeFromAll?: Maybe<Scalars['Boolean']['output']>;
+  userRateLimits: Array<UserRateLimit>;
   userSurveyEmailSentAt?: Maybe<Scalars['Date']['output']>;
   username?: Maybe<Scalars['String']['output']>;
   usernameUnset?: Maybe<Scalars['Boolean']['output']>;
@@ -26384,8 +26385,13 @@ type SunshineUsersList_User_moderatorActions_ModeratorAction = (
 
 type SunshineUsersList_User_associatedClientIds_ClientId = { __typename?: 'ClientId', clientId: string | null, firstSeenReferrer: string | null, firstSeenLandingPage: string | null, userIds: Array<string> | null };
 
+type SunshineUsersList_User_userRateLimits_UserRateLimit = (
+  { __typename?: 'UserRateLimit' }
+  & UserRateLimitDisplay
+);
+
 type SunshineUsersList = (
-  { __typename?: 'User', karma: number, htmlBio: string, website: string | null, createdAt: string, email: string | null, emails: Array<any> | null, commentCount: number, maxCommentCount: number, postCount: number, maxPostCount: number, shortformFeedId: string | null, voteCount: number | null, smallUpvoteCount: number | null, bigUpvoteCount: number | null, smallDownvoteCount: number | null, bigDownvoteCount: number | null, banned: string | null, reviewedByUserId: string | null, reviewedAt: string | null, signUpReCaptchaRating: number | null, mapLocation: any | null, needsReview: boolean | null, sunshineNotes: string | null, sunshineFlagged: boolean | null, postingDisabled: boolean | null, allCommentingDisabled: boolean | null, commentingOnOtherUsersDisabled: boolean | null, conversationsDisabled: boolean | null, votingDisabled: boolean, snoozedUntilContentCount: number | null, nullifyVotes: boolean | null, deleteContent: boolean | null, usersContactedBeforeReview: Array<string> | null, altAccountsDetected: boolean | null, voteReceivedCount: number | null, smallUpvoteReceivedCount: number | null, bigUpvoteReceivedCount: number | null, smallDownvoteReceivedCount: number | null, bigDownvoteReceivedCount: number | null, recentKarmaInfo: any | null, lastNotificationsCheck: string | null, lastRemovedFromReviewQueueAt: string | null, rejectedContentCount: number | null, moderatorActions: Array<SunshineUsersList_User_moderatorActions_ModeratorAction> | null, associatedClientIds: Array<SunshineUsersList_User_associatedClientIds_ClientId> | null }
+  { __typename?: 'User', karma: number, htmlBio: string, website: string | null, createdAt: string, email: string | null, emails: Array<any> | null, commentCount: number, maxCommentCount: number, postCount: number, maxPostCount: number, shortformFeedId: string | null, voteCount: number | null, smallUpvoteCount: number | null, bigUpvoteCount: number | null, smallDownvoteCount: number | null, bigDownvoteCount: number | null, banned: string | null, reviewedByUserId: string | null, reviewedAt: string | null, signUpReCaptchaRating: number | null, mapLocation: any | null, needsReview: boolean | null, sunshineNotes: string | null, sunshineFlagged: boolean | null, postingDisabled: boolean | null, allCommentingDisabled: boolean | null, commentingOnOtherUsersDisabled: boolean | null, conversationsDisabled: boolean | null, votingDisabled: boolean, snoozedUntilContentCount: number | null, nullifyVotes: boolean | null, deleteContent: boolean | null, usersContactedBeforeReview: Array<string> | null, altAccountsDetected: boolean | null, voteReceivedCount: number | null, smallUpvoteReceivedCount: number | null, bigUpvoteReceivedCount: number | null, smallDownvoteReceivedCount: number | null, bigDownvoteReceivedCount: number | null, recentKarmaInfo: any | null, lastNotificationsCheck: string | null, lastRemovedFromReviewQueueAt: string | null, rejectedContentCount: number | null, moderatorActions: Array<SunshineUsersList_User_moderatorActions_ModeratorAction> | null, associatedClientIds: Array<SunshineUsersList_User_associatedClientIds_ClientId> | null, userRateLimits: Array<SunshineUsersList_User_userRateLimits_UserRateLimit> }
   & UsersMinimumInfo
 );
 

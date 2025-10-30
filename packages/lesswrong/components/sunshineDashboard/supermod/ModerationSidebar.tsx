@@ -5,6 +5,10 @@ import { gql } from '@/lib/generated/gql-codegen';
 import Input from '@/lib/vendor/@material-ui/core/src/Input';
 import SunshineUserMessages from '../SunshineUserMessages';
 import { getSignature } from '@/lib/collections/users/helpers';
+import ModeratorActionItem from '../ModeratorUserInfo/ModeratorActionItem';
+import { displayedModeratorActions } from '@/lib/collections/moderatorActions/constants';
+import UserRateLimitItem from '../UserRateLimitItem';
+import classNames from 'classnames';
 
 const SunshineUsersListUpdateMutation = gql(`
   mutation updateUserModerationSidebar($selector: SelectorInput!, $data: UpdateUserDataInput!) {
@@ -44,6 +48,9 @@ const styles = defineStyles('ModerationSidebar', (theme: ThemeType) => ({
     letterSpacing: '0.5px',
     flexShrink: 0,
   },
+  noBottomMargin: {
+    marginBottom: 'unset',
+  },
   notes: {
     border: theme.palette.border.faint,
     borderRadius: 4,
@@ -51,6 +58,13 @@ const styles = defineStyles('ModerationSidebar', (theme: ThemeType) => ({
     maxHeight: 200,
     overflow: 'auto',
   },
+  userModActions: {
+    overflow: 'auto',
+    display: 'flex',
+    flexDirection: 'column',
+    gap: 4,
+  },
+  modActionItem: {},
   userMessages: {
     overflow: 'auto',
   },
@@ -137,6 +151,24 @@ const ModerationSidebar = ({
             multiline
             rows={6}
           />
+        </div>
+      </div>
+
+      <div className={classes.section}>
+        <div className={classes.sectionTitle}>Outstanding Moderator Actions</div>
+        <div className={classes.userModActions}>
+          {user.moderatorActions?.filter(action => action.active && displayedModeratorActions.has(action.type)).map(action => (
+            <div key={action._id} className={classes.modActionItem}>
+              <ModeratorActionItem user={user} moderatorAction={action} comments={[]} posts={[]} />
+            </div>
+          ))}
+        </div>
+      </div>
+
+      <div className={classes.section}>
+        <div className={classNames(classes.sectionTitle, classes.noBottomMargin)}>Rate Limits</div>
+        <div className={classes.userModActions}>
+          <UserRateLimitItem user={user} />
         </div>
       </div>
 

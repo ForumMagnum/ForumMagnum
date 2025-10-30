@@ -74,7 +74,12 @@ const UserRateLimitDisplayMutation = gql(`
   }
 `);
 
-const styles = (theme: ThemeType) => ({
+const styles = defineStyles('UserRateLimitItem', (theme: ThemeType) => ({
+  setRateLimit: {
+    display: 'flex',
+    alignItems: 'flex-end',
+    gap: 6,
+  },
   rateLimitForm: {
     [theme.breakpoints.up('md')]: {
       border: theme.palette.border.normal,
@@ -127,7 +132,7 @@ const styles = (theme: ThemeType) => ({
       opacity: 1
     },
   },
-});
+}));
 
 const USER_RATE_LIMIT_TYPES = {
   allComments: "Comments",
@@ -383,10 +388,19 @@ export const UserRateLimitsForm = ({
   );
 };
 
-export const UserRateLimitItem = ({ userId, classes }: {
-  userId: string,
-  classes: ClassesType<typeof styles>,
-}) => {
+type UserRateLimitItemProps = {
+  userId: string;
+  user?: undefined;
+} | {
+  userId?: undefined;
+  user: SunshineUsersList;
+};
+
+export const UserRateLimitItem = (props: UserRateLimitItemProps) => {
+  const classes = useStyles(styles);
+
+  const userId = props.userId ?? props.user._id;
+
   const [createNewRateLimit, setCreateNewRateLimit] = useState(false);
   const [editingExistingRateLimitId, setEditingExistingRateLimitId] = useState<string>();
 
@@ -397,9 +411,10 @@ export const UserRateLimitItem = ({ userId, classes }: {
       enableTotal: false,
     },
     notifyOnNetworkStatusChange: true,
+    skip: !userId,
   });
 
-  const existingRateLimits = data?.userRateLimits?.results;
+  const existingRateLimits = data?.userRateLimits?.results ?? props.user?.userRateLimits;
 
   const [create] = useMutation(UserRateLimitMutationFragmentCreateMutation);
 
@@ -438,8 +453,9 @@ export const UserRateLimitItem = ({ userId, classes }: {
 
   return <div>
     {/** Doesn't have both a comment and post rate limit */}
-    {existingRateLimits.length < 2 && <div>
-      Set Rate Limit: <Select
+    {existingRateLimits.length < 2 && <div className={classes.setRateLimit}>
+      <span>{'Set Rate Limit: '}</span>
+      <Select
         value=''
         onChange={(e) => createRateLimit(e.target.value)}
         className={classes.newRateLimit}
@@ -490,7 +506,7 @@ export const UserRateLimitItem = ({ userId, classes }: {
   </div>;
 }
 
-export default registerComponent('UserRateLimitItem', UserRateLimitItem, { styles });
+export default registerComponent('UserRateLimitItem', UserRateLimitItem);
 
 
 
