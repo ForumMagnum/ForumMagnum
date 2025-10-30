@@ -579,7 +579,7 @@ export const defaultComponentPalette = (shades: ThemeShadePalette): ThemeCompone
   eventsHomeLoadMoreHover: '#085d6c',
 
   givingSeason: {
-    primary: "#8A0003",
+    primary: "#FF7454",
   },
   wrapped: {
     background: '#151515',
