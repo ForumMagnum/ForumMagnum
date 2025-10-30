@@ -6,7 +6,17 @@ import { forumSelect } from "@/lib/forumTypeUtils";
 import EAHome from "@/components/ea-forum/EAHome";
 
 export default async function Home() {
-  return <RouteRoot metadata={{ hasLeftNavigationColumn: true }}>
+  const background = forumSelect({
+    LessWrong: '#f8f4ee',
+    EAForum: '#f6f8f9',
+    AlignmentForum: undefined, // Uses theme's grey[60]
+    default: '#f8f4ee',
+  });
+  
+  return <RouteRoot metadata={{ 
+    hasLeftNavigationColumn: true,
+    background
+  }}>
     <span/>
   </RouteRoot>;
 }
