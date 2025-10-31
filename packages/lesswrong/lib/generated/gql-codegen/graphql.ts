@@ -12519,7 +12519,7 @@ export type User = {
   twitterProfileURL: Maybe<Scalars['String']['output']>;
   twitterProfileURLAdmin: Maybe<Scalars['String']['output']>;
   unsubscribeFromAll: Maybe<Scalars['Boolean']['output']>;
-  userRateLimits: Array<UserRateLimit>;
+  userRateLimits: Maybe<Array<UserRateLimit>>;
   userSurveyEmailSentAt: Maybe<Scalars['Date']['output']>;
   username: Maybe<Scalars['String']['output']>;
   usernameUnset: Maybe<Scalars['Boolean']['output']>;
@@ -21341,7 +21341,7 @@ export type SunshineUsersList = (
   )> | null, associatedClientIds: Array<{ __typename?: 'ClientId', clientId: string | null, firstSeenReferrer: string | null, firstSeenLandingPage: string | null, userIds: Array<string> | null }> | null, userRateLimits: Array<(
     { __typename?: 'UserRateLimit' }
     & UserRateLimitDisplay
-  )> }
+  )> | null }
   & UsersMinimumInfo
 );
 

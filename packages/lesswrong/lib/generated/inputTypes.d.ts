@@ -7467,7 +7467,7 @@ interface User {
   recommendationSettings: any;
   lastRemovedFromReviewQueueAt: Date | null;
   rejectedContentCount: number | null;
-  userRateLimits: Array<UserRateLimit>;
+  userRateLimits: Array<UserRateLimit> | null;
 }
 
 interface UserSelectorUniqueInput {

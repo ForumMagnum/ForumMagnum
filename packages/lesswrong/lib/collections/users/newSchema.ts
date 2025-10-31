@@ -4324,7 +4324,7 @@ const schema = {
   },
   userRateLimits: {
     graphql: {
-      outputType: "[UserRateLimit!]!",
+      outputType: "[UserRateLimit!]",
       canRead: ["sunshineRegiment", "admins"],
       resolver: async (user, args, context) => {
         const { UserRateLimits } = context;
