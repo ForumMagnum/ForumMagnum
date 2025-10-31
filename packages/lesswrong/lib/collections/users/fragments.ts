@@ -25,6 +25,9 @@ export const UsersMinimumInfo = () => frag`
     spamRiskScore
     tagRevisionCount
     reviewedByUserId
+
+    givingSeason2025DonatedFlair
+    givingSeason2025VotedFlair
   }
 `
 

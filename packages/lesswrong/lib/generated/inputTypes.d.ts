@@ -4221,6 +4221,8 @@ interface User {
   inactiveSummaryEmailSentAt: Date | null;
   karmaChanges: KarmaChanges | null;
   recommendationSettings: any;
+  givingSeason2025DonatedFlair: boolean;
+  givingSeason2025VotedFlair: boolean;
 }
 
 interface UserSelectorUniqueInput {
@@ -6447,6 +6449,8 @@ interface UpdateUserDataInput {
   userSurveyEmailSentAt?: Date | null;
   inactiveSummaryEmailSentAt?: Date | null;
   recommendationSettings?: RecommendationSettingsInput | null;
+  givingSeason2025DonatedFlair?: boolean | null;
+  givingSeason2025VotedFlair?: boolean | null;
 }
 
 interface UpdateUserInput {

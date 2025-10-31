@@ -4814,6 +4814,8 @@ interface UsersDefaultFragment { // fragment on Users
   readonly userSurveyEmailSentAt: Date|null,
   readonly inactiveSummaryEmailSentAt: Date|null,
   readonly recommendationSettings: RecommendationSettingsInput,
+  readonly givingSeason2025DonatedFlair: boolean,
+  readonly givingSeason2025VotedFlair: boolean,
 }
 
 interface UsersEdit extends UsersCurrent { // fragment on Users
@@ -5270,6 +5272,8 @@ interface UsersMinimumInfo { // fragment on Users
   readonly spamRiskScore: number,
   readonly tagRevisionCount: number,
   readonly reviewedByUserId: string|null,
+  readonly givingSeason2025DonatedFlair: boolean,
+  readonly givingSeason2025VotedFlair: boolean,
 }
 
 interface UsersOptedInToDialogueFacilitation { // fragment on Users

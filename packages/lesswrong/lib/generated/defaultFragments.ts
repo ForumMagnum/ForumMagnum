@@ -1828,6 +1828,8 @@ export const UsersDefaultFragment = `
     userSurveyEmailSentAt
     inactiveSummaryEmailSentAt
     recommendationSettings
+    givingSeason2025DonatedFlair
+    givingSeason2025VotedFlair
   }
 `;
 
