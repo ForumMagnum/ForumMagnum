@@ -553,7 +553,7 @@ export function updateUserMayTriggerReview({newDocument, data, context, oldDocum
     // Biography is an editable field and I don't want to trigger review if the value
     // is updated to an empty string.
     if (field === 'biography') {
-      return !!fieldValue.originalContents.data;
+      return !!fieldValue?.originalContents?.data;
     }
   });
 
