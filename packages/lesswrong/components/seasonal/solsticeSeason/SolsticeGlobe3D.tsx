@@ -43,10 +43,15 @@ type PointClickCallback = (point: SolsticeGlobePoint, screenCoords: { x: number;
 // - https://eoimages.gsfc.nasa.gov/images/imagerecords/73000/73909/world.topo.bathy.200401.3x5400x2700.jpg (NASA Blue Marble)
 // - https://eoimages.gsfc.nasa.gov/images/imagerecords/73000/73963/world.topo.bathy.200412.3x5400x2700.jpg (NASA Blue Marble - different month)
 
+//https://res.cloudinary.com/lesswrong-2-0/image/upload/v1761941357/Equirectangular_projection_world_map_without_borders_emqf42.jpg
+
+
+//https://res.cloudinary.com/lesswrong-2-0/image/upload/v1761941646/starfield_fdoup4.jpg
+
 // Contrast enhancement properties
 const CONTRAST_AMOUNT = 1.25; // Higher values = more contrast (bright parts brighter, dark parts darker)
-const BRIGHTNESS_BOOST = 1.5; // Multiplier for overall brightness
-const BRIGHTNESS_ADD = 0.12; // Additive brightness component (0-1 range)
+const BRIGHTNESS_BOOST = 1; // Multiplier for overall brightness
+const BRIGHTNESS_ADD = 0.1; // Additive brightness component (0-1 range)
 // Countries GeoJSON (Natural Earth 110m) used for drawing borders
 const COUNTRIES_GEOJSON_URL = '//unpkg.com/three-globe/example/datasets/ne_110m_admin_0_countries.geojson';
 
@@ -285,7 +290,7 @@ const SolsticeGlobe3D = ({
   className,
   style,
   onClick,
-  globeImageUrl = "https://res.cloudinary.com/lesswrong-2-0/image/upload/v1761897106/earth-day-night-light_v34otw.jpg",
+  globeImageUrl = "https://res.cloudinary.com/lesswrong-2-0/image/upload/v1761942539/earth-day-night-dark_p4ltda.jpg",
   // Marker rendering controls
   markerRenderer = 'glow',
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -321,6 +326,7 @@ const SolsticeGlobe3D = ({
   // Create material with contrast enhancement shader for high contrast
   const globeMaterialRef = useGlobeContrastMaterial();
   const countryPolygons = useCountryPolygons(COUNTRIES_GEOJSON_URL);
+
   const starBackgroundUrl = useMemo<string>(() => {
     const width = Math.max(1, Math.floor(dimensions.width || 1920));
     const height = Math.max(1, Math.floor(dimensions.height || 1080));
@@ -366,7 +372,7 @@ const SolsticeGlobe3D = ({
           <GlobeAny
             ref={globeRef}
             globeImageUrl={globeImageUrl}
-            backgroundImageUrl={starBackgroundUrl}
+            backgroundImageUrl={"https://res.cloudinary.com/lesswrong-2-0/image/upload/v1761941646/starfield_fdoup4.jpg"}
             globeMaterial={globeMaterialRef.current}
             onGlobeReady={() => setIsGlobeReady(true)}
             animateIn={true}
