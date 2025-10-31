@@ -79,11 +79,11 @@ const styles = defineStyles('ModerationInbox', (theme: ThemeType) => ({
     width: 800,
   },
   sidebarTop: {
-    flex: '0 0 50%',
+    flex: '0 0 70%',
     overflow: 'auto',
   },
   sidebarBottom: {
-    flex: '0 0 50%',
+    flex: '0 0 30%',
     overflow: 'auto',
   },
   loading: {

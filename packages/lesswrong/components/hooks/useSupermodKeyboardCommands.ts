@@ -14,6 +14,9 @@ function matchesKeystroke(event: KeyboardEvent, keystroke: string, allowWithSpec
 
   // Check if this is a key that's allowed with special keys
   if (allowWithSpecialKeys.includes(key)) {
+    if (key === 'Escape') {
+      return keystroke === 'esc';
+    }
     const normalizedKeystroke = keystroke.toLowerCase();
     const normalizedKey = key.toLowerCase();
     return normalizedKeystroke === normalizedKey;
