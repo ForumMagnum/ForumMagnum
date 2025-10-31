@@ -171,6 +171,7 @@ import LeaderboardComponent from '@/components/users/Leaderboard';
 import KeywordsPage from '@/components/keywords/KeywordsPage';
 import KeywordResultsPage from '@/components/keywords/KeywordResultsPage';
 import AdminEventPostEmailPage from '@/components/admin/AdminEventPostEmailPage';
+import MarginalFundingPage from '@/components/givingSeason/MarginalFundingPage';
 
 const communitySubtitle = { subtitleLink: communityPath, subtitle: isEAForum ? 'Groups' : 'Community' };
 
@@ -1056,6 +1057,14 @@ const eaLwAfForumSpecificRoutes = forumSelect<Route[]>({
       component: Auth0PasswordResetPage,
       title: 'Set password',
       hideFromSitemap: true,
+    },
+    {
+      name: "marginFunding",
+      path: "/marginal-funding",
+      component: MarginalFundingPage,
+      title: "Marginal funding",
+      fullscreen: true,
+      noFooter: true,
     },
   ],
   LessWrong: [
