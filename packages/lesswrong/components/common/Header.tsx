@@ -10,15 +10,15 @@ import { SidebarsContext } from './SidebarsWrapper';
 import withErrorBoundary from '../common/withErrorBoundary';
 import classNames from 'classnames';
 import { AnalyticsContext, useTracking } from '../../lib/analyticsEvents';
-import { forumHeaderTitleSetting, forumShortTitleSetting, isAF, isEAForum, isLW } from '../../lib/instanceSettings';
+import { forumHeaderTitleSetting, forumShortTitleSetting, isAF, isEAForum } from '../../lib/instanceSettings';
 import { useUnreadNotifications } from '../hooks/useUnreadNotifications';
 import { isBookUI, isFriendlyUI } from '../../themes/forumTheme';
-import { hasProminentLogoSetting, lightconeFundraiserUnsyncedAmount, lightconeFundraiserThermometerBgUrl, lightconeFundraiserThermometerGoalAmount, lightconeFundraiserActive, lightconeFundraiserPostId } from '../../lib/publicSettings';
+import { hasProminentLogoSetting } from '../../lib/publicSettings';
 import { useLocation } from '../../lib/routeUtil';
 import { useCurrentAndRecentForumEvents } from '../hooks/useCurrentForumEvent';
 import { makeCloudinaryImageUrl } from './CloudinaryImage2';
+import { GIVING_SEASON_INFO_HREF, useGivingSeason } from '@/lib/givingSeason';
 import { hasForumEvents } from '@/lib/betas';
-import { useFundraiserStripeTotal, useLivePercentage } from '@/lib/lightconeFundraiser';
 import SearchBar from "./SearchBar";
 import UsersMenu from "../users/UsersMenu";
 import UsersAccountMenu from "../users/UsersAccountMenu";
@@ -131,6 +131,9 @@ export const styles = (theme: ThemeType) => ({
       },
       [theme.breakpoints.down('xs')]: {
         padding: '9px 11px',
+      },
+      "& *": {
+        transition: "color ease 0.2s",
       },
     } : {}),
   },
@@ -270,19 +273,21 @@ export const styles = (theme: ThemeType) => ({
       position: "fixed !important",
     },
   },
-  lightconeFundraiserHeaderItem: {
-    color: theme.palette.review.winner,
-    fontFamily: theme.typography.headerStyle.fontFamily,
-    fontSize: '1.4rem',
-    marginLeft: theme.spacing.unit,
-  },
-  lightconeFundraiserHeaderItemSmall: {
-    color: theme.palette.review.winner,
-    fontFamily: theme.typography.headerStyle.fontFamily,
-    fontSize: '1.4rem',
+  givingSeason: {
+    position: "absolute",
+    left: "50%",
+    top: "50%",
+    transform: "translate(-50%, -50%)",
+    fontFamily: theme.palette.fonts.sansSerifStack,
+    fontSize: 19,
     fontWeight: 600,
-    marginLeft: theme.spacing.unit,
-    marginBottom: 1.5,
+    letterSpacing: "-3%",
+    "& span": {
+      opacity: 0.6,
+    },
+    [theme.breakpoints.down("xs")]: {
+      display: "none",
+    },
   },
 });
 
@@ -481,12 +486,19 @@ const Header = ({
       />
     );
 
+  const isHomePage = currentRoute?.name === "home";
+  const givingSeason = useGivingSeason();
+  const showGivingSeasonUI = !!givingSeason.currentEvent && isHomePage;
+
   const headerStyle: CSSProperties = {}
   const bannerImageId = currentForumEvent?.bannerImageId
   // If we're explicitly given a backgroundColor, that overrides any event header
   if (backgroundColor) {
     headerStyle.backgroundColor = backgroundColor
-  } else if (hasForumEvents && currentRoute?.name === "home" && bannerImageId && currentForumEvent?.eventFormat !== "BASIC") {
+  } else if (showGivingSeasonUI) {
+    headerStyle.background = "transparent";
+    (headerStyle as any)["--header-text-color"] = givingSeason.selectedEvent.color;
+  } else if (hasForumEvents && isHomePage && bannerImageId && currentForumEvent?.eventFormat !== "BASIC") {
     // On EAF, forum events with polls or stickers also update the home page header background and text
     const darkColor = currentForumEvent.darkColor;
     const background = `top / cover no-repeat url(${makeCloudinaryImageUrl(bannerImageId, {
@@ -546,6 +558,14 @@ const Header = ({
                   </Link>
                 </div>
               </Typography>
+              {showGivingSeasonUI && (
+                <Link
+                  to={GIVING_SEASON_INFO_HREF}
+                  className={classes.givingSeason}
+                >
+                  Giving season <span>2025</span>
+                </Link>
+              )}
               {!isEAForum &&<ActiveDialogues />}
               {rightHeaderItemsNode}
             </Toolbar>

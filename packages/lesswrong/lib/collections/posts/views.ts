@@ -8,7 +8,7 @@ import { viewFieldAllowAny, viewFieldNullOrMissing, jsonArrayContainsSelector } 
 import { filters, openThreadTagIdSetting, postStatuses, startHerePostIdSetting } from './constants';
 import { getPositiveVoteThreshold, QUICK_REVIEW_SCORE_THRESHOLD, ReviewPhase, REVIEW_AND_VOTING_PHASE_VOTECOUNT_THRESHOLD, VOTING_PHASE_REVIEW_THRESHOLD, longformReviewTagId } from '../../reviewUtils';
 import { EA_FORUM_COMMUNITY_TOPIC_ID } from '../tags/helpers';
-import { filter, isEmpty, pick } from 'underscore';
+import { isEmpty, pick } from 'underscore';
 import { visitorGetsDynamicFrontpage } from '../../betas';
 import { TupleSet, UnionOf } from '@/lib/utils/typeGuardUtils';
 import { CollectionViewSet } from '../../../lib/views/collectionViewSet';
@@ -156,6 +156,9 @@ function defaultView(terms: PostsViewTerms, _: ApolloClient<NormalizedCacheObjec
   }
   if (terms.userId) {
     params.selector.hideAuthor = false
+  }
+  if (terms.tagId) {
+    params.selector[`tagRelevance.${terms.tagId}`] = {$gte: 1};
   }
   if (terms.includeRelatedQuestions === "true") {
     params.selector.hiddenRelatedQuestion = viewFieldAllowAny

@@ -536,7 +536,7 @@ interface DbForumEvent extends DbObject {
   commentPrompt: string | null
   contrastColor: string | null
   createdAt: Date
-  customComponent: "GivingSeason2024Banner" | null
+  customComponent: string | null
   darkColor: string
   endDate: Date | null
   eventFormat: "BASIC" | "POLL" | "STICKERS"

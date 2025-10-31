@@ -785,6 +785,23 @@ extend type Query {
   RecentDiscussionFeed(limit: Int, cutoff: Date, offset: Int, af: Boolean): RecentDiscussionFeedQueryResults!
 }
 
+type GivingSeasonTagFeedQueryResults {
+  cutoff: Date
+  endOffset: Int!
+  results: [GivingSeasonTagFeedEntryType!]
+}
+
+type GivingSeasonTagFeedEntryType {
+  type: String!
+  newPost: Post
+  newComment: Comment
+}
+
+extend type Query {
+  GivingSeason2025DonationTotal: Float!
+  GivingSeasonTagFeed(limit: Int, cutoff: Date, offset: Int, tagId: String!): GivingSeasonTagFeedQueryResults!
+}
+
 type SubscribedPostAndComments {
   _id: String!
   post: Post!
