@@ -4,12 +4,13 @@ import { SequencesPageTitle } from '@/components/titles/SequencesPageTitle';
 import type { Metadata } from "next";
 import { gql } from "@/lib/generated/gql-codegen";
 import { getClient } from "@/lib/apollo/nextApolloClient";
-import { getDefaultMetadata, getPageTitleFields, handleMetadataError } from "@/server/pageMetadata/sharedMetadata";
+import { getDefaultMetadata, getMetadataDescriptionFields, getMetadataImagesFields, getPageTitleFields, handleMetadataError } from "@/server/pageMetadata/sharedMetadata";
 import merge from "lodash/merge";
 import { combineUrls, getSiteUrl } from "@/lib/vulcan-lib/utils";
 import { sequenceGetPageUrl } from "@/lib/collections/sequences/helpers";
 import RouteRoot from "@/components/next/RouteRoot";
 import { notFound } from "next/navigation";
+import { makeCloudinaryImageUrl } from "@/components/common/cloudinaryHelpers";
 
 const SequenceMetadataQuery = gql(`
   query SequenceMetadata($sequenceId: String) {
@@ -17,6 +18,12 @@ const SequenceMetadataQuery = gql(`
       result {
         _id
         title
+        bannerImageId
+        gridImageId
+        noindex
+        contents {
+          plaintextDescription
+        }
       }
     }
   }
@@ -43,12 +50,29 @@ export async function generateMetadata({ params }: { params: Promise<{ _id: stri
   
     const ogUrl = combineUrls(getSiteUrl(), `/s/${_id}`);
     const canonicalUrl = sequenceGetPageUrl({ _id }, true);
-  
-    return merge({}, await getDefaultMetadata(), {
-      ...titleFields,
-      openGraph: { url: ogUrl },
-      alternates: { canonical: canonicalUrl },
-    });  
+
+    const socialImageId = sequence.gridImageId || sequence.bannerImageId;
+    const socialImageUrl = socialImageId ? makeCloudinaryImageUrl(socialImageId, {
+      c: "fill",
+      dpr: "auto",
+      q: "auto",
+      f: "auto",
+      g: "auto:faces",
+    }) : undefined;
+
+    return merge({},
+      await getDefaultMetadata(),
+      titleFields,
+      getMetadataImagesFields(socialImageUrl ?? null),
+      getMetadataDescriptionFields(sequence.contents?.plaintextDescription ?? null),
+      {
+        openGraph: { url: ogUrl },
+        alternates: { canonical: canonicalUrl },
+        robots: {
+          index: !sequence.noindex,
+        },
+      } satisfies Metadata
+    );
   } catch (error) {
     return handleMetadataError('Error generating sequence page metadata', error);
   }
