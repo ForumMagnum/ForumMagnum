@@ -8081,6 +8081,7 @@ type User {
   recommendationSettings: JSON
   lastRemovedFromReviewQueueAt: Date
   rejectedContentCount: Int
+  userRateLimits: [UserRateLimit!]
 }
 
 enum ReactPaletteStyle {
