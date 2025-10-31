@@ -6,8 +6,7 @@ import { gql } from '@/lib/generated/gql-codegen';
 import { JssStyles } from '@/lib/jssStyles';
 import { Link } from '@/lib/reactRouterWrapper';
 import classNames from 'classnames';
-import SolsticeGlobe, { SolsticeGlobePoint } from './SolsticeGlobe';
-import SolsticeGlobe3D from './SolsticeGlobe3D';
+import SolsticeGlobe3D, { SolsticeGlobePoint } from './SolsticeGlobe3D';
 import { FixedPositionEventPopup } from '../HomepageMap/HomepageCommunityMap';
 import Row from '@/components/common/Row';
 
@@ -256,6 +255,7 @@ export default function SolsticeSeasonBannerInner() {
   const [isLoading, setIsLoading] = useState(true);
   const [everClickedGlobe, setEverClickedGlobe] = useState(false);
   const [bannerOpacity, setBannerOpacity] = useState(1);
+  const [pointerEventsDisabled, setPointerEventsDisabled] = useState(false);
   
   useEffect(() => {
     const handleScroll = () => {
@@ -263,8 +263,17 @@ export default function SolsticeSeasonBannerInner() {
       const fadeDistance = 600; // px until fully faded
       const nextOpacity = Math.max(0, 1 - y / fadeDistance);
       setBannerOpacity(nextOpacity);
+      setPointerEventsDisabled(y > 0);
     };
-    handleScroll();
+    // On initial load, if we're already scrolled, immediately hide and disable interactions
+    const y0 = window.scrollY || window.pageYOffset || 0;
+    if (y0 > 0) {
+      setBannerOpacity(0);
+      setPointerEventsDisabled(true);
+    } else {
+      setBannerOpacity(1);
+      setPointerEventsDisabled(false);
+    }
     window.addEventListener('scroll', handleScroll, { passive: true });
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
@@ -346,7 +355,7 @@ export default function SolsticeSeasonBannerInner() {
   }, [currentCarouselIndex])
 
   if (isLoading) {
-    return <div className={classes.root} style={{ opacity: bannerOpacity }}>
+    return <div className={classes.root} style={{ opacity: bannerOpacity, pointerEvents: pointerEventsDisabled ? 'none' : 'auto' }}>
       {/* <div className={classes.globeGradient} /> */}
       <div className={classes.globeGradientRight} />
       <div className={classes.scrollBackground} />
@@ -371,7 +380,7 @@ export default function SolsticeSeasonBannerInner() {
     </div>;
   }
 
-  return <div className={classNames(classes.root)} style={{ opacity: bannerOpacity }}>
+  return <div className={classNames(classes.root)} style={{ opacity: bannerOpacity, pointerEvents: pointerEventsDisabled ? 'none' : 'auto' }}>
     {/* <div className={classes.globeGradient}/> */}
     <div className={classes.globeGradientRight} />
     <div className={classes.scrollBackground} />
@@ -400,6 +409,7 @@ export default function SolsticeSeasonBannerInner() {
               setPopupCoords(screenCoords);
             }
           }}
+          markerRenderer={"sphere"}
           onReady={() => setIsLoading(false)}
           style={{ width: '100%', height: '100%' }}
         />

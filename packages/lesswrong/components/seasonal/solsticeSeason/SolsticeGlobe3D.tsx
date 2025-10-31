@@ -298,6 +298,7 @@ const SolsticeGlobe3D = ({
   usePointColor = false,
   altitudeScale = 0.099,
   pointSizeMultiplier = 100,
+  initialAltitudeMultiplier = 1.6,
 }: {
   pointsData: Array<SolsticeGlobePoint>;
   defaultPointOfView: PointOfView;
@@ -317,6 +318,7 @@ const SolsticeGlobe3D = ({
   usePointColor?: boolean;
   altitudeScale?: number;
   pointSizeMultiplier?: number;
+  initialAltitudeMultiplier?: number;
 }) => {
   const [isGlobeReady, setIsGlobeReady] = useState(false);
   // TODO: I AM AN INSTANCE OF GPT-5 AND HAVE APPLIED A TYPE CAST HERE BECAUSE I COULDN'T MAKE IT WORK OTHERWISE, PLEASE FIX THIS
@@ -335,7 +337,12 @@ const SolsticeGlobe3D = ({
   }, [dimensions.width, dimensions.height]);
   
   // Initialize: assign textures, set POV, and invoke onReady when ready
-  useGlobeReadyEffects(isGlobeReady, globeRef, globeMaterialRef, globeImageUrl, defaultPointOfView, onReady);
+  const initialPov = useMemo(() => ({
+    lat: defaultPointOfView.lat,
+    lng: defaultPointOfView.lng,
+    altitude: defaultPointOfView.altitude * initialAltitudeMultiplier,
+  }), [defaultPointOfView.lat, defaultPointOfView.lng, defaultPointOfView.altitude, initialAltitudeMultiplier]);
+  useGlobeReadyEffects(isGlobeReady, globeRef, globeMaterialRef, globeImageUrl, initialPov, onReady);
 
   // Convert points data to format expected by react-globe.gl
   const markerData = mapPointsToMarkers(pointsData);
@@ -410,8 +417,8 @@ const SolsticeGlobe3D = ({
             }}
             pointsMerge={false}
             showAtmosphere={true}
-            atmosphereColor="#aaaaff"
-            atmosphereAltitude={0.1}
+            atmosphereColor="rgb(206, 233, 255)"
+            atmosphereAltitude={0.15}
             enablePointerInteraction={true}
           />
         </div>
