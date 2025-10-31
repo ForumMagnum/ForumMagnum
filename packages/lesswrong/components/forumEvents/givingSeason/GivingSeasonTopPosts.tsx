@@ -42,7 +42,7 @@ const styles = defineStyles("GivingSeasonTopPosts", (theme: ThemeType) => ({
     borderRadius: theme.borderRadius.default,
     padding: "8px 24px",
     fontSize: 14,
-    fontWeight: 600,
+    fontWeight: 500,
     marginTop: 10,
     display: "inline-flex",
     alignItems: "center",

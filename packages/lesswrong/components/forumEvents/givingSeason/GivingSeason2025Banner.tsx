@@ -21,6 +21,8 @@ import GivingSeasonFeedItem from "./GivingSeasonFeedItem";
 import GivingSeasonTopPosts from "./GivingSeasonTopPosts";
 import CloudinaryImage2 from "@/components/common/CloudinaryImage2";
 import MixedTypeFeed from "@/components/common/MixedTypeFeed";
+import ForumIcon from "@/components/common/ForumIcon";
+import { tagGetUrl } from "@/lib/collections/tags/helpers";
 
 const styles = defineStyles("GivingSeason2025Banner", (theme: ThemeType) => ({
   root: {
@@ -168,6 +170,26 @@ const styles = defineStyles("GivingSeason2025Banner", (theme: ThemeType) => ({
       display: "none",
     },
   },
+  buttonFilled: {
+    background: "var(--event-color)",
+    color: theme.palette.text.alwaysBlack,
+    borderRadius: theme.borderRadius.default,
+    padding: "8px 24px",
+    fontSize: 14,
+    fontWeight: 500,
+    marginTop: 10,
+    display: "inline-flex",
+    alignItems: "center",
+    justifyContent: "center",
+    gap: 8,
+    transition: "opacity ease 0.2s",
+    "& svg": {
+      width: 16,
+    },
+    "&:hover": {
+      opacity: 0.8,
+    },
+  },
   election: {
     backgroundColor: "var(--event-color)",
     transition: "background-color ease 0.2s",
@@ -289,7 +311,7 @@ const styles = defineStyles("GivingSeason2025Banner", (theme: ThemeType) => ({
       color: theme.palette.text.alwaysWhite,
     },
   },
-  buttonFilled: {
+  buttonBlack: {
     backgroundColor: theme.palette.text.alwaysBlack,
     color: theme.palette.text.alwaysWhite,
     "&:hover": {
@@ -389,6 +411,7 @@ export const GivingSeason2025Banner: FC = () => {
           </div>
           <div className={classes.feed}>
             {currentEvent?.tag && selectedEvent === currentEvent && (
+              <>
                <MixedTypeFeed
                   firstPageSize={selectedEvent?.feedCount}
                   hideLoading
@@ -428,6 +451,18 @@ export const GivingSeason2025Banner: FC = () => {
                     },
                   }}
                 />
+                {currentEvent?.name === "Marginal funding week" &&
+                    currentEvent.name === selectedEvent.name &&
+                    selectedEvent.tag &&
+                  <Link
+                    to={tagGetUrl(selectedEvent.tag)}
+                    className={classes.buttonFilled}
+                  >
+                    Explore all posts
+                    <ForumIcon icon="ArrowRight" />
+                  </Link>
+                }
+              </>
             )}
             {selectedEvent.tag &&
                 selectedEvent.end < now &&
@@ -477,7 +512,7 @@ export const GivingSeason2025Banner: FC = () => {
             <a
               href={ELECTION_DONATE_HREF}
               onClick={onLinkClick.bind(null, "donate", ELECTION_DONATE_HREF)}
-              className={classes.buttonFilled}
+              className={classes.buttonBlack}
               target="_blank"
               rel="noopener noreferrer"
             >
