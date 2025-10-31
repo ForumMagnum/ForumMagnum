@@ -531,7 +531,7 @@ const Header = ({
   const llmSidebarAllowed = useIsAboveBreakpoint('lg');
 
   useEffect(() => {
-    const setForumEventHeaderStyle = hasForumEvents() && isHomeRoute(pathname) && bannerImageId && currentForumEvent?.eventFormat !== "BASIC";
+    const setForumEventHeaderStyle = hasForumEvents() && isHomeRoute(pathname) && bannerImageId && currentForumEvent?.eventFormat !== "BASIC" && !backgroundColor;
     if (setForumEventHeaderStyle || llmSidebarAllowed) {
       const forumEventHeaderStyle = setForumEventHeaderStyle ? {
         background: getForumEventBackgroundStyle(currentForumEvent, bannerImageId),
@@ -566,7 +566,7 @@ const Header = ({
         }
       });
     }
-  }, [bannerImageId, currentForumEvent, llmChatSidebarOpen, llmSidebarAllowed, pathname, unFixed]);
+  }, [bannerImageId, currentForumEvent, llmChatSidebarOpen, llmSidebarAllowed, pathname, unFixed, backgroundColor]);
 
   // Make all the text and icons the same color as the text on the current forum event banner
   const useContrastText = useMemo(() => Object.keys(headerStyle).includes('backgroundColor') || Object.keys(headerStyle).includes('background'), [headerStyle]);
