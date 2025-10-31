@@ -2019,6 +2019,7 @@ interface PostsDefaultFragment { // fragment on Posts
   readonly hideAuthor: boolean,
   readonly sideCommentVisibility: string|null,
   readonly disableSidenotes: boolean,
+  readonly marginalFundingOrg: string|null,
   readonly moderationStyle: string|null,
   readonly ignoreRateLimits: boolean|null,
   readonly hideCommentKarma: boolean,
@@ -2087,6 +2088,7 @@ interface PostsDetails extends PostsListBase { // fragment on Posts
   readonly activateRSVPs: boolean|null,
   readonly fmCrosspost: CrosspostOutput,
   readonly glossary: Array<JargonTermsPost>,
+  readonly marginalFundingOrg: string|null,
 }
 
 interface PostsDetails_canonicalSequence { // fragment on Sequences

@@ -3492,6 +3492,7 @@ type Post {
   sideCommentsCache: SideCommentCache
   sideCommentVisibility: String
   disableSidenotes: Boolean!
+  marginalFundingOrg: String
   moderationStyle: String
   ignoreRateLimits: Boolean
   hideCommentKarma: Boolean!
@@ -6192,6 +6193,7 @@ input CreatePostDataInput {
   hideAuthor: Boolean
   sideCommentVisibility: String
   disableSidenotes: Boolean
+  marginalFundingOrg: String
   moderationStyle: String
   ignoreRateLimits: Boolean
   hideCommentKarma: Boolean
@@ -6309,6 +6311,7 @@ input UpdatePostDataInput {
   hideAuthor: Boolean
   sideCommentVisibility: String
   disableSidenotes: Boolean
+  marginalFundingOrg: String
   moderationStyle: String
   ignoreRateLimits: Boolean
   hideCommentKarma: Boolean
@@ -9669,6 +9672,7 @@ fragment PostsDefaultFragment on Post {
   hideAuthor
   sideCommentVisibility
   disableSidenotes
+  marginalFundingOrg
   moderationStyle
   ignoreRateLimits
   hideCommentKarma
@@ -9803,6 +9807,8 @@ fragment PostsDetails on Post {
   glossary {
     ...JargonTermsPost
   }
+
+  marginalFundingOrg
 }
 
 fragment PostsEdit on Post {

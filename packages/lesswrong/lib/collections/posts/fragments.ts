@@ -456,6 +456,8 @@ export const PostsDetails = () => frag`
     glossary {
       ...JargonTermsPost
     }
+
+    marginalFundingOrg
   }
 `
 
