@@ -215,6 +215,7 @@ const styles = defineStyles("SolsticeSeasonBanner", (theme: ThemeType) => ({
     display: 'inline-block',
     cursor: 'pointer',
     border: 'none',
+    background: theme.palette.text.alwaysWhite,
   },
   createEventButtonIcon: {
     fontSize: 16,
@@ -415,12 +416,12 @@ export default function SolsticeSeasonBannerInner() {
       <div className={classes.contentContainer}>
         <div className={classes.textContainer} onClick={() => setEverClickedGlobe(true)}>
           <h1 className={classes.title}>Solstice Season</h1>
-            <p style={{ marginTop: "20px", marginBottom: "20px" }}>Celebrate humanity's Schelling holiday around the world. Find a local solstice event or create your own.</p>
+            <p className={classes.subtitle}>Celebrate humanity's Schelling holiday around the world. Find a local solstice event or create your own.</p>
             <Row gap={10}>
               <Link to="https://waypoint.lighthaven.space/solstice-season" target="_blank" rel="noopener noreferrer" className={classes.createEventButton} style={{ marginTop: "10px", textAlign: "right" }}>
                 Berkeley Megameetup
               </Link>
-              <Link to={`/newPost?eventForm=true&SOLSTICE=true`} target="_blank" rel="noopener noreferrer" className={classes.createEventButton} style={{ background: "white", color: "black", padding: "8px 12px", borderRadius: "3px", textAlign: "center", marginTop: "10px" }}>
+              <Link to={`/newPost?eventForm=true&SOLSTICE=true`} target="_blank" rel="noopener noreferrer" className={classes.createEventButton}>
                 HOST A SOLSTICE
               </Link>
               <Link to="" target="_blank" rel="noopener noreferrer" className={classes.createEventButton} style={{ marginTop: "10px" }}>

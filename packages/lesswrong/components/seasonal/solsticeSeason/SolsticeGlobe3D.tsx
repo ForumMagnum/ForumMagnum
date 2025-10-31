@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useRef } from 'react';
+import React, { useEffect, useState, useRef, useMemo } from 'react';
 import dynamic from 'next/dynamic';
 // eslint-disable-next-line @typescript-eslint/no-var-requires
 const THREE = require('three');
@@ -59,6 +59,13 @@ const SolsticeGlobe3D = ({
   style,
   onClick,
   globeImageUrl = "https://res.cloudinary.com/lesswrong-2-0/image/upload/v1761897106/earth-day-night-light_v34otw.jpg",
+  // Marker rendering controls
+  markerRenderer = 'glow',
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  customPointThreeObject,
+  usePointColor = false,
+  altitudeScale = 0.099,
+  pointSizeMultiplier = 100,
 }: {
   pointsData: Array<SolsticeGlobePoint>;
   defaultPointOfView: PointOfView;
@@ -73,6 +80,13 @@ const SolsticeGlobe3D = ({
   // For best performance with 3D globe textures, equirectangular bitmap images (JPG/PNG) are recommended.
   // The image should use an equirectangular projection (360° horizontal, 180° vertical).
   globeImageUrl?: string;
+  // Marker rendering controls
+  markerRenderer?: 'glow' | 'sphere' | 'custom';
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  customPointThreeObject?: (p: any) => any;
+  usePointColor?: boolean;
+  altitudeScale?: number;
+  pointSizeMultiplier?: number;
 }) => {
   const [isGlobeReady, setIsGlobeReady] = useState(false);
   // TODO: I AM AN INSTANCE OF GPT-5 AND HAVE APPLIED A TYPE CAST HERE BECAUSE I COULDN'T MAKE IT WORK OTHERWISE, PLEASE FIX THIS
@@ -83,6 +97,39 @@ const SolsticeGlobe3D = ({
   // Create material with contrast enhancement shader for high contrast
   const globeMaterialRef = useRef<any>(null);
   const [countryPolygons, setCountryPolygons] = useState<Array<any>>([]);
+  const starBackgroundUrl = useMemo<string>(() => {
+    const width = Math.max(1, Math.floor(dimensions.width || 1920));
+    const height = Math.max(1, Math.floor(dimensions.height || 1080));
+    const seed = Math.floor(Math.random() * 1000000);
+    const svg = `<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" width="${width}" height="${height}" viewBox="0 0 ${width} ${height}" preserveAspectRatio="none">
+  <defs>
+    <filter id="starfield" x="0" y="0" width="100%" height="100%" color-interpolation-filters="sRGB">
+      <feTurbulence type="fractalNoise" baseFrequency="0.85" numOctaves="1" seed="${seed}" stitchTiles="stitch" result="noise"/>
+      <feColorMatrix in="noise" type="saturate" values="0" result="gray"/>
+      <feComponentTransfer in="gray" result="small">
+        <feFuncR type="gamma" amplitude="1" exponent="0.45" offset="0"/>
+        <feFuncG type="gamma" amplitude="1" exponent="0.45" offset="0"/>
+        <feFuncB type="gamma" amplitude="1" exponent="0.45" offset="0"/>
+      </feComponentTransfer>
+      <feComponentTransfer in="gray" result="big">
+        <feFuncR type="gamma" amplitude="1" exponent="6.5" offset="0"/>
+        <feFuncG type="gamma" amplitude="1" exponent="6.5" offset="0"/>
+        <feFuncB type="gamma" amplitude="1" exponent="6.5" offset="0"/>
+      </feComponentTransfer>
+      <feMorphology in="big" operator="dilate" radius="0.8" result="bigDilated"/>
+      <feMerge result="stars">
+        <feMergeNode in="small"/>
+        <feMergeNode in="bigDilated"/>
+      </feMerge>
+      <feColorMatrix in="stars" type="matrix" values="1 0 0 0 0  0 1 0 0 0  0 0 1 0 0  0 0 0 1.6 0" result="final"/>
+    </filter>
+  </defs>
+  <rect width="100%" height="100%" fill="#000"/>
+  <rect width="100%" height="100%" filter="url(#starfield)"/>
+</svg>`;
+    return `data:image/svg+xml;utf8,${encodeURIComponent(svg)}`;
+  }, [dimensions.width, dimensions.height]);
   
   useEffect(() => {
     // Custom shader material that enhances contrast (bright parts brighter, dark parts darker)
@@ -237,6 +284,43 @@ const SolsticeGlobe3D = ({
     _index: index, // Store original index for matching
   }));
 
+  // Factory for the bright glow marker geometry
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const glowPointThreeObject = (p: any) => {
+    const colorString = usePointColor && typeof p.color === 'string' ? p.color : '#ffffff';
+    const baseSize = typeof p.size === 'number' ? p.size * pointSizeMultiplier : 1;
+    const coreMaterial = new THREE.MeshBasicMaterial({ color: colorString, transparent: true });
+    coreMaterial.toneMapped = false;
+    const core = new THREE.Mesh(
+      new THREE.SphereGeometry(Math.max(baseSize * 0.05, 0.02), 16, 16),
+      coreMaterial
+    );
+    core.renderOrder = 999;
+    const glowMaterial = new THREE.SpriteMaterial({
+      color: colorString,
+      transparent: true,
+      opacity: 1,
+      blending: THREE.AdditiveBlending,
+      depthWrite: false,
+    });
+    glowMaterial.toneMapped = false;
+    const glow = new THREE.Sprite(glowMaterial);
+    const glowScale = Math.max(baseSize * 0.6, 0.3);
+    glow.scale.set(glowScale, glowScale, 1);
+    core.add(glow);
+    return core;
+  };
+
+  // Choose which renderer to use: built-in spheres, our glow geometry, or a custom factory
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const selectedPointThreeObject: any = (
+    markerRenderer === 'sphere'
+      ? undefined
+      : (markerRenderer === 'custom'
+          ? (customPointThreeObject ?? glowPointThreeObject)
+          : glowPointThreeObject)
+  );
+
   // Get screen coordinates for a lat/lng point
   const getScreenCoordinates = (lat: number, lng: number): { x: number; y: number } | null => {
     if (!containerRef.current || !globeRef.current) return null;
@@ -274,7 +358,7 @@ const SolsticeGlobe3D = ({
           <GlobeAny
             ref={globeRef}
             globeImageUrl={globeImageUrl}
-            backgroundImageUrl="//unpkg.com/three-globe/example/img/night-sky.png"
+            backgroundImageUrl={starBackgroundUrl}
             globeMaterial={globeMaterialRef.current}
             onGlobeReady={() => setIsGlobeReady(true)}
             animateIn={true}
@@ -293,33 +377,11 @@ const SolsticeGlobe3D = ({
             // Reduce vertical height of meetup nodes to ~1/3 of typical altitude
             pointAltitude={(p: any) => {
               const base = typeof p.size === 'number' ? p.size : 1;
-              return base * 0.099;
+              return base * altitudeScale;
             }}
             pointResolution={8}
-            // Make points maximally bright by rendering as unlit spheres with additive glow
-            pointThreeObject={(p: any) => {
-              const color = new THREE.Color(p.color ?? '#ffffff');
-              const baseSize = typeof p.size === 'number' ? p.size * 100 : 1;
-              // Core bright sphere (unlit, always bright)
-              const core = new THREE.Mesh(
-                new THREE.SphereGeometry(Math.max(baseSize * 0.05, 0.02), 16, 16),
-                new THREE.MeshBasicMaterial({ color, transparent: true })
-              );
-              core.renderOrder = 999;
-              // Additive glow sprite for extra emissive look
-              const glowMaterial = new THREE.SpriteMaterial({
-                color,
-                transparent: true,
-                opacity: 1,
-                blending: THREE.AdditiveBlending,
-                depthWrite: false,
-              });
-              const glow = new THREE.Sprite(glowMaterial);
-              const glowScale = Math.max(baseSize * 0.6, 0.3);
-              glow.scale.set(glowScale, glowScale, 1);
-              core.add(glow);
-              return core;
-            }}
+            // Use selected renderer; when undefined, falls back to library's colored spheres
+            pointThreeObject={selectedPointThreeObject}
             onPointClick={(point: any) => {
               if (point) {
                 // Find the original point by index or eventId
