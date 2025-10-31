@@ -50,58 +50,10 @@ const BRIGHTNESS_ADD = 0.12; // Additive brightness component (0-1 range)
 // Countries GeoJSON (Natural Earth 110m) used for drawing borders
 const COUNTRIES_GEOJSON_URL = '//unpkg.com/three-globe/example/datasets/ne_110m_admin_0_countries.geojson';
 
-const SolsticeGlobe3D = ({
-  pointsData,
-  defaultPointOfView,
-  onPointClick,
-  onReady,
-  className,
-  style,
-  onClick,
-  globeImageUrl = "https://res.cloudinary.com/lesswrong-2-0/image/upload/v1761897106/earth-day-night-light_v34otw.jpg",
-  // Marker rendering controls
-  markerRenderer = 'glow',
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  customPointThreeObject,
-  usePointColor = false,
-  altitudeScale = 0.099,
-  pointSizeMultiplier = 100,
-}: {
-  pointsData: Array<SolsticeGlobePoint>;
-  defaultPointOfView: PointOfView;
-  onPointClick?: PointClickCallback;
-  onReady?: () => void;
-  className?: string;
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  style?: any;
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  onClick?: any;
-  // URL for the globe texture. Accepts JPG, PNG, or SVG formats. Note: SVGs will be rasterized at load time.
-  // For best performance with 3D globe textures, equirectangular bitmap images (JPG/PNG) are recommended.
-  // The image should use an equirectangular projection (360° horizontal, 180° vertical).
-  globeImageUrl?: string;
-  // Marker rendering controls
-  markerRenderer?: 'glow' | 'sphere' | 'custom';
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  customPointThreeObject?: (p: any) => any;
-  usePointColor?: boolean;
-  altitudeScale?: number;
-  pointSizeMultiplier?: number;
-}) => {
-  const [isGlobeReady, setIsGlobeReady] = useState(false);
-  // TODO: I AM AN INSTANCE OF GPT-5 AND HAVE APPLIED A TYPE CAST HERE BECAUSE I COULDN'T MAKE IT WORK OTHERWISE, PLEASE FIX THIS
-  const globeRef = useRef<any>(null);
-  const containerRef = useRef<HTMLDivElement>(null);
-  const [dimensions, setDimensions] = useState({ width: 800, height: 600 });
-  
-  // Create material with contrast enhancement shader for high contrast
-  const globeMaterialRef = useRef<any>(null);
-  const [countryPolygons, setCountryPolygons] = useState<Array<any>>([]);
-  const starBackgroundUrl = useMemo<string>(() => {
-    const width = Math.max(1, Math.floor(dimensions.width || 1920));
-    const height = Math.max(1, Math.floor(dimensions.height || 1080));
-    const seed = Math.floor(Math.random() * 1000000);
-    const svg = `<?xml version="1.0" encoding="UTF-8"?>
+// --- Utility functions ---
+// Generate a starfield background as a data URL SVG with deterministic seed
+const generateStarBackgroundDataUrl = (width: number, height: number, seed: number): string => {
+  const svg = `<?xml version="1.0" encoding="UTF-8"?>
 <svg xmlns="http://www.w3.org/2000/svg" width="${width}" height="${height}" viewBox="0 0 ${width} ${height}" preserveAspectRatio="none">
   <defs>
     <filter id="starfield" x="0" y="0" width="100%" height="100%" color-interpolation-filters="sRGB">
@@ -128,62 +80,133 @@ const SolsticeGlobe3D = ({
   <rect width="100%" height="100%" fill="#000"/>
   <rect width="100%" height="100%" filter="url(#starfield)"/>
 </svg>`;
-    return `data:image/svg+xml;utf8,${encodeURIComponent(svg)}`;
-  }, [dimensions.width, dimensions.height]);
-  
-  useEffect(() => {
-    // Custom shader material that enhances contrast (bright parts brighter, dark parts darker)
-    // react-globe.gl will apply the texture from globeImageUrl to this material
-    globeMaterialRef.current = new THREE.ShaderMaterial({
-      uniforms: {
-        map: { value: null },
-        contrast: { value: CONTRAST_AMOUNT },
-        brightness: { value: BRIGHTNESS_BOOST },
-        brightnessAdd: { value: BRIGHTNESS_ADD },
-      },
-      vertexShader: `
-        varying vec2 vUv;
-        void main() {
-          vUv = uv;
-          gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0);
-        }
-      `,
-      fragmentShader: `
-        uniform sampler2D map;
-        uniform float contrast;
-        uniform float brightness;
-        uniform float brightnessAdd;
-        varying vec2 vUv;
+  return `data:image/svg+xml;utf8,${encodeURIComponent(svg)}`;
+};
+
+// Build the contrast-enhancing shader material
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+const createContrastShaderMaterial = (THREERef: any, contrast: number, brightness: number, brightnessAdd: number) => {
+  return new THREERef.ShaderMaterial({
+    uniforms: {
+      map: { value: null },
+      contrast: { value: contrast },
+      brightness: { value: brightness },
+      brightnessAdd: { value: brightnessAdd },
+    },
+    vertexShader: `
+      varying vec2 vUv;
+      void main() {
+        vUv = uv;
+        gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0);
+      }
+    `,
+    fragmentShader: `
+      uniform sampler2D map;
+      uniform float contrast;
+      uniform float brightness;
+      uniform float brightnessAdd;
+      varying vec2 vUv;
+      
+      void main() {
+        vec4 texColor = texture2D(map, vUv);
         
-        void main() {
-          vec4 texColor = texture2D(map, vUv);
-          
-          // Apply brightness boost: both multiplicative and additive
-          vec3 brightened = texColor.rgb * brightness + brightnessAdd;
-          
-          // Apply contrast enhancement: center around 0.5, scale, then add back
-          // This makes bright parts brighter and dark parts darker
-          vec3 contrastAdjusted = (brightened - 0.5) * contrast + 0.5;
-          
-          // Clamp to valid range
-          vec3 finalColor = clamp(contrastAdjusted, 0.0, 1.0);
-          
-          gl_FragColor = vec4(finalColor, texColor.a);
-        }
-      `,
-    });
-    
+        // Apply brightness boost: both multiplicative and additive
+        vec3 brightened = texColor.rgb * brightness + brightnessAdd;
+        
+        // Apply contrast enhancement: center around 0.5, scale, then add back
+        // This makes bright parts brighter and dark parts darker
+        vec3 contrastAdjusted = (brightened - 0.5) * contrast + 0.5;
+        
+        // Clamp to valid range
+        vec3 finalColor = clamp(contrastAdjusted, 0.0, 1.0);
+        
+        gl_FragColor = vec4(finalColor, texColor.a);
+      }
+    `,
+  });
+};
+
+// Recursively find a mesh with a texture map applied
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+const findMeshWithTexture = (obj: any): any => {
+  if (obj && obj.type === 'Mesh' && obj.material && obj.material.map) return obj;
+  for (const child of obj?.children || []) {
+    const found = findMeshWithTexture(child);
+    if (found) return found;
+  }
+  return null;
+};
+
+// Map input points to react-globe.gl points
+const mapPointsToMarkers = (pointsData: Array<SolsticeGlobePoint>) => pointsData.map((point, index) => ({
+  lat: point.lat,
+  lng: point.lng,
+  size: point.size,
+  color: point.color,
+  eventId: point.eventId,
+  event: point.event,
+  _index: index,
+}));
+
+// Factory to build a glowing marker renderer
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+const makeGlowPointThreeObject = (usePointColor: boolean, pointSizeMultiplier: number) => (p: any) => {
+  const colorString = usePointColor && typeof p.color === 'string' ? p.color : '#ffffff';
+  const baseSize = typeof p.size === 'number' ? p.size * pointSizeMultiplier : 1;
+  const coreMaterial = new THREE.MeshBasicMaterial({ color: colorString, transparent: true });
+  coreMaterial.toneMapped = false;
+  const core = new THREE.Mesh(
+    new THREE.SphereGeometry(Math.max(baseSize * 0.05, 0.02), 16, 16),
+    coreMaterial
+  );
+  core.renderOrder = 999;
+  const glowMaterial = new THREE.SpriteMaterial({
+    color: colorString,
+    transparent: true,
+    opacity: 1,
+    blending: THREE.AdditiveBlending,
+    depthWrite: false,
+  });
+  glowMaterial.toneMapped = false;
+  const glow = new THREE.Sprite(glowMaterial);
+  const glowScale = Math.max(baseSize * 0.6, 0.3);
+  glow.scale.set(glowScale, glowScale, 1);
+  core.add(glow);
+  return core;
+};
+
+// (inlined below where used)
+
+// Centered screen coords helper
+const getCenteredScreenCoords = (containerEl: HTMLDivElement | null): { x: number; y: number } | null => {
+  if (!containerEl) return null;
+  const rect = containerEl.getBoundingClientRect();
+  return { x: rect.left + (rect.width / 2), y: rect.top + (rect.height / 2) };
+};
+
+// --- Hooks ---
+// Create and manage the globe material lifecycle
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+const useGlobeContrastMaterial = (): React.MutableRefObject<any> => {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const globeMaterialRef = useRef<any>(null);
+  useEffect(() => {
+    globeMaterialRef.current = createContrastShaderMaterial(THREE, CONTRAST_AMOUNT, BRIGHTNESS_BOOST, BRIGHTNESS_ADD);
     return () => {
       if (globeMaterialRef.current && typeof globeMaterialRef.current.dispose === 'function') {
         globeMaterialRef.current.dispose();
       }
     };
   }, []);
+  return globeMaterialRef;
+};
 
-  // Load country borders GeoJSON for stroke-only borders overlay
+// Fetch country borders polygons
+const useCountryPolygons = (url: string): Array<any> => {
+  const [countryPolygons, setCountryPolygons] = useState<Array<any>>([]);
   useEffect(() => {
     let aborted = false;
-    fetch(COUNTRIES_GEOJSON_URL)
+    fetch(url)
       .then(res => res.json())
       .then((geo: any) => {
         if (!aborted) setCountryPolygons(Array.isArray(geo?.features) ? geo.features : []);
@@ -191,152 +214,137 @@ const SolsticeGlobe3D = ({
       .catch(() => {
         // Silently ignore fetch errors; borders are optional visual detail
       });
-    return () => {
-      aborted = true;
-    };
-  }, []);
-  
-  // Hook into globe ready to assign texture to shader
-  useEffect(() => {
-    if (isGlobeReady && globeRef.current && globeMaterialRef.current) {
-      // Try to access the globe's mesh and get the texture
-      // react-globe.gl applies textures internally, so we need to hook in
-      const globeObj = globeRef.current;
-      let textureFound = false;
-      
-      if (globeObj && globeObj.scene && globeObj.scene.children) {
-        const findGlobeMesh = (obj: any): any => {
-          if (obj.type === 'Mesh' && obj.material && obj.material.map) {
-            return obj;
-          }
-          for (const child of obj.children || []) {
-            const found = findGlobeMesh(child);
-            if (found) return found;
-          }
-          return null;
-        };
-        
-        const globeMesh = findGlobeMesh(globeObj.scene);
-        if (globeMesh && globeMesh.material && globeMesh.material.map) {
-          // Assign the loaded texture to our shader material
-          globeMaterialRef.current.uniforms.map.value = globeMesh.material.map;
-          // Update the material on the mesh
-          globeMesh.material = globeMaterialRef.current;
-          textureFound = true;
-        }
-      }
-      
-      // Fallback: load texture ourselves if react-globe.gl didn't provide it
-      if (!textureFound && globeImageUrl) {
-        const loader = new THREE.TextureLoader();
-        loader.load(
-          globeImageUrl,
-          (texture: any) => {
-            texture.colorSpace = THREE.SRGBColorSpace;
-            if (globeMaterialRef.current) {
-              globeMaterialRef.current.uniforms.map.value = texture;
-            }
-          }
-        );
-      }
-    }
-  }, [isGlobeReady, globeImageUrl]);
+    return () => { aborted = true; };
+  }, [url]);
+  return countryPolygons;
+};
 
+// Dimensions from container (single measurement on mount)
+const useContainerDimensions = (containerRef: React.RefObject<HTMLDivElement | null>, initial: { width: number; height: number }) => {
+  const [dimensions, setDimensions] = useState(initial);
   useEffect(() => {
-    // Set dimensions based on container size
     if (containerRef.current) {
       const rect = containerRef.current.getBoundingClientRect();
-      setDimensions({
-        width: rect.width || 800,
-        height: rect.height || 600,
-      });
+      setDimensions({ width: rect.width || initial.width, height: rect.height || initial.height });
     }
-  }, []);
+  }, [containerRef, initial.height, initial.width]);
+  return dimensions;
+};
 
+// Combine: assign texture, set POV, and call onReady once globe is ready
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+const useGlobeReadyEffects = (
+  isGlobeReady: boolean,
+  globeRef: React.MutableRefObject<any>,
+  globeMaterialRef: React.MutableRefObject<any>,
+  globeImageUrl: string | undefined,
+  pov: PointOfView,
+  onReady?: () => void
+) => {
   useEffect(() => {
-    // Set initial point of view when globe is ready
-    if (isGlobeReady && globeRef.current) {
-      globeRef.current.pointOfView(
-        {
-          lat: defaultPointOfView.lat,
-          lng: defaultPointOfView.lng,
-          altitude: defaultPointOfView.altitude,
-        },
-        0
+    if (!isGlobeReady || !globeRef.current) return;
+
+    const globeObj = globeRef.current;
+    let textureFound = false;
+
+    if (globeObj && globeObj.scene && globeObj.scene.children) {
+      const globeMesh = findMeshWithTexture(globeObj.scene);
+      if (globeMesh && globeMesh.material && globeMesh.material.map) {
+        if (globeMaterialRef.current) {
+          globeMaterialRef.current.uniforms.map.value = globeMesh.material.map;
+          globeMesh.material = globeMaterialRef.current;
+        }
+        textureFound = true;
+      }
+    }
+
+    if (!textureFound && globeImageUrl) {
+      const loader = new THREE.TextureLoader();
+      loader.load(
+        globeImageUrl,
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        (texture: any) => {
+          texture.colorSpace = THREE.SRGBColorSpace;
+          if (globeMaterialRef.current) {
+            globeMaterialRef.current.uniforms.map.value = texture;
+          }
+        }
       );
     }
-  }, [defaultPointOfView.lat, defaultPointOfView.lng, defaultPointOfView.altitude, isGlobeReady]);
 
-  useEffect(() => {
-    if (isGlobeReady) {
-      onReady?.();
-    }
-  }, [isGlobeReady, onReady]);
+    globeRef.current.pointOfView({ lat: pov.lat, lng: pov.lng, altitude: pov.altitude }, 0);
+    onReady?.();
+  }, [isGlobeReady, globeRef, globeMaterialRef, globeImageUrl, pov.lat, pov.lng, pov.altitude, onReady]);
+};
+
+const SolsticeGlobe3D = ({
+  pointsData,
+  defaultPointOfView,
+  onPointClick,
+  onReady,
+  className,
+  style,
+  onClick,
+  globeImageUrl = "https://res.cloudinary.com/lesswrong-2-0/image/upload/v1761897106/earth-day-night-light_v34otw.jpg",
+  // Marker rendering controls
+  markerRenderer = 'glow',
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  customPointThreeObject,
+  usePointColor = false,
+  altitudeScale = 0.099,
+  pointSizeMultiplier = 100,
+}: {
+  pointsData: Array<SolsticeGlobePoint>;
+  defaultPointOfView: PointOfView;
+  onPointClick?: PointClickCallback;
+  onReady?: () => void;
+  className?: string;
+  style?: React.CSSProperties;
+  onClick?: React.MouseEventHandler<HTMLDivElement>;
+  // URL for the globe texture. Accepts JPG, PNG, or SVG formats. Note: SVGs will be rasterized at load time.
+  // For best performance with 3D globe textures, equirectangular bitmap images (JPG/PNG) are recommended.
+  // The image should use an equirectangular projection (360° horizontal, 180° vertical).
+  globeImageUrl?: string;
+  // Marker rendering controls
+  markerRenderer?: 'glow' | 'sphere' | 'custom';
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  customPointThreeObject?: (p: any) => any;
+  usePointColor?: boolean;
+  altitudeScale?: number;
+  pointSizeMultiplier?: number;
+}) => {
+  const [isGlobeReady, setIsGlobeReady] = useState(false);
+  // TODO: I AM AN INSTANCE OF GPT-5 AND HAVE APPLIED A TYPE CAST HERE BECAUSE I COULDN'T MAKE IT WORK OTHERWISE, PLEASE FIX THIS
+  const globeRef = useRef<any>(null);
+  const containerRef = useRef<HTMLDivElement>(null);
+  const dimensions = useContainerDimensions(containerRef, { width: 800, height: 600 });
+  // Create material with contrast enhancement shader for high contrast
+  const globeMaterialRef = useGlobeContrastMaterial();
+  const countryPolygons = useCountryPolygons(COUNTRIES_GEOJSON_URL);
+  const starBackgroundUrl = useMemo<string>(() => {
+    const width = Math.max(1, Math.floor(dimensions.width || 1920));
+    const height = Math.max(1, Math.floor(dimensions.height || 1080));
+    const seed = Math.floor(Math.random() * 1000000);
+    return generateStarBackgroundDataUrl(width, height, seed);
+  }, [dimensions.width, dimensions.height]);
+  
+  // Initialize: assign textures, set POV, and invoke onReady when ready
+  useGlobeReadyEffects(isGlobeReady, globeRef, globeMaterialRef, globeImageUrl, defaultPointOfView, onReady);
 
   // Convert points data to format expected by react-globe.gl
-  const markerData = pointsData.map((point, index) => ({
-    lat: point.lat,
-    lng: point.lng,
-    size: point.size,
-    color: point.color,
-    eventId: point.eventId,
-    event: point.event,
-    _index: index, // Store original index for matching
-  }));
+  const markerData = mapPointsToMarkers(pointsData);
 
-  // Factory for the bright glow marker geometry
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const glowPointThreeObject = (p: any) => {
-    const colorString = usePointColor && typeof p.color === 'string' ? p.color : '#ffffff';
-    const baseSize = typeof p.size === 'number' ? p.size * pointSizeMultiplier : 1;
-    const coreMaterial = new THREE.MeshBasicMaterial({ color: colorString, transparent: true });
-    coreMaterial.toneMapped = false;
-    const core = new THREE.Mesh(
-      new THREE.SphereGeometry(Math.max(baseSize * 0.05, 0.02), 16, 16),
-      coreMaterial
-    );
-    core.renderOrder = 999;
-    const glowMaterial = new THREE.SpriteMaterial({
-      color: colorString,
-      transparent: true,
-      opacity: 1,
-      blending: THREE.AdditiveBlending,
-      depthWrite: false,
-    });
-    glowMaterial.toneMapped = false;
-    const glow = new THREE.Sprite(glowMaterial);
-    const glowScale = Math.max(baseSize * 0.6, 0.3);
-    glow.scale.set(glowScale, glowScale, 1);
-    core.add(glow);
-    return core;
-  };
-
+  const glowPointThreeObject = makeGlowPointThreeObject(usePointColor, pointSizeMultiplier);
   // Choose which renderer to use: built-in spheres, our glow geometry, or a custom factory
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const selectedPointThreeObject: any = (
+  const pointThreeObject: any = (
     markerRenderer === 'sphere'
       ? undefined
-      : (markerRenderer === 'custom'
-          ? (customPointThreeObject ?? glowPointThreeObject)
-          : glowPointThreeObject)
+      : (markerRenderer === 'custom' ? (customPointThreeObject ?? glowPointThreeObject) : glowPointThreeObject)
   );
 
-  // Get screen coordinates for a lat/lng point
-  const getScreenCoordinates = (lat: number, lng: number): { x: number; y: number } | null => {
-    if (!containerRef.current || !globeRef.current) return null;
-    
-    // For react-globe.gl, we can't directly get screen coordinates from lat/lng
-    // This is a simplified approximation - in a real implementation, you might need
-    // to use the Three.js camera and raycasting
-    const rect = containerRef.current.getBoundingClientRect();
-    return {
-      x: rect.left + (rect.width / 2),
-      y: rect.top + (rect.height / 2),
-    };
-  };
-
   const handlePointClick = (point: SolsticeGlobePoint) => {
-    const screenCoords = getScreenCoordinates(point.lat, point.lng);
+    const screenCoords = getCenteredScreenCoords(containerRef.current);
     if (screenCoords && onPointClick) {
       onPointClick(point, screenCoords);
     }
@@ -375,13 +383,14 @@ const SolsticeGlobe3D = ({
             pointColor="color"
             pointRadius="size"
             // Reduce vertical height of meetup nodes to ~1/3 of typical altitude
+            // eslint-disable-next-line @typescript-eslint/no-explicit-any
             pointAltitude={(p: any) => {
               const base = typeof p.size === 'number' ? p.size : 1;
               return base * altitudeScale;
             }}
             pointResolution={8}
             // Use selected renderer; when undefined, falls back to library's colored spheres
-            pointThreeObject={selectedPointThreeObject}
+            pointThreeObject={pointThreeObject}
             onPointClick={(point: any) => {
               if (point) {
                 // Find the original point by index or eventId
