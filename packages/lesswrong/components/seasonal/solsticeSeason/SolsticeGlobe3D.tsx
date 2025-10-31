@@ -49,7 +49,7 @@ type PointClickCallback = (point: SolsticeGlobePoint, screenCoords: { x: number;
 //https://res.cloudinary.com/lesswrong-2-0/image/upload/v1761941646/starfield_fdoup4.jpg
 
 // Contrast enhancement properties
-const CONTRAST_AMOUNT = 1.25; // Higher values = more contrast (bright parts brighter, dark parts darker)
+const CONTRAST_AMOUNT = 1; // Higher values = more contrast (bright parts brighter, dark parts darker)
 const BRIGHTNESS_BOOST = 1; // Multiplier for overall brightness
 const BRIGHTNESS_ADD = 0.1; // Additive brightness component (0-1 range)
 // Countries GeoJSON (Natural Earth 110m) used for drawing borders

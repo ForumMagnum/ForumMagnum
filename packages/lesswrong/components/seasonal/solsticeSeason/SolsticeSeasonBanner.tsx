@@ -390,7 +390,7 @@ export default function SolsticeSeasonBannerInner() {
     >
       {/* <SolsticeGlobe 
         pointsData={pointsData}
-        defaultPointOfView={defaultPointOfView}
+        defaultPointOfView={defaultPointOfView}   /
         onPointClick={(point: SolsticeGlobePoint, screenCoords: { x: number; y: number }) => {
           if (point.eventId) {
             setSelectedEventId(point.eventId);
@@ -409,7 +409,7 @@ export default function SolsticeSeasonBannerInner() {
               setPopupCoords(screenCoords);
             }
           }}
-          markerRenderer={"sphere"}
+          markerRenderer={"glow"}
           onReady={() => setIsLoading(false)}
           style={{ width: '100%', height: '100%' }}
         />
