@@ -47,6 +47,8 @@ type PointClickCallback = (point: SolsticeGlobePoint, screenCoords: { x: number;
 const CONTRAST_AMOUNT = 1.25; // Higher values = more contrast (bright parts brighter, dark parts darker)
 const BRIGHTNESS_BOOST = 1.5; // Multiplier for overall brightness
 const BRIGHTNESS_ADD = 0.12; // Additive brightness component (0-1 range)
+// Countries GeoJSON (Natural Earth 110m) used for drawing borders
+const COUNTRIES_GEOJSON_URL = '//unpkg.com/three-globe/example/datasets/ne_110m_admin_0_countries.geojson';
 
 const SolsticeGlobe3D = ({
   pointsData,
@@ -56,7 +58,7 @@ const SolsticeGlobe3D = ({
   className,
   style,
   onClick,
-  globeImageUrl = "https://res.cloudinary.com/lesswrong-2-0/image/upload/v1761896563/earth-day-night_fvu2gz.jpg",
+  globeImageUrl = "https://res.cloudinary.com/lesswrong-2-0/image/upload/v1761897106/earth-day-night-light_v34otw.jpg",
 }: {
   pointsData: Array<SolsticeGlobePoint>;
   defaultPointOfView: PointOfView;
@@ -80,6 +82,7 @@ const SolsticeGlobe3D = ({
   
   // Create material with contrast enhancement shader for high contrast
   const globeMaterialRef = useRef<any>(null);
+  const [countryPolygons, setCountryPolygons] = useState<Array<any>>([]);
   
   useEffect(() => {
     // Custom shader material that enhances contrast (bright parts brighter, dark parts darker)
@@ -127,6 +130,22 @@ const SolsticeGlobe3D = ({
       if (globeMaterialRef.current && typeof globeMaterialRef.current.dispose === 'function') {
         globeMaterialRef.current.dispose();
       }
+    };
+  }, []);
+
+  // Load country borders GeoJSON for stroke-only borders overlay
+  useEffect(() => {
+    let aborted = false;
+    fetch(COUNTRIES_GEOJSON_URL)
+      .then(res => res.json())
+      .then((geo: any) => {
+        if (!aborted) setCountryPolygons(Array.isArray(geo?.features) ? geo.features : []);
+      })
+      .catch(() => {
+        // Silently ignore fetch errors; borders are optional visual detail
+      });
+    return () => {
+      aborted = true;
     };
   }, []);
   
@@ -259,6 +278,13 @@ const SolsticeGlobe3D = ({
             globeMaterial={globeMaterialRef.current}
             onGlobeReady={() => setIsGlobeReady(true)}
             animateIn={true}
+            // Country borders overlay (stroke only)
+            polygonsData={countryPolygons}
+            polygonCapColor={() => 'rgba(0,0,0,0)'}
+            polygonSideColor={() => 'rgba(0,0,0,0)'}
+            polygonStrokeColor={() => 'rgba(255,255,255,0.35)'}
+            polygonsTransitionDuration={0}
+            polygonAltitude={0.03}
             pointsData={markerData}
             pointLat="lat"
             pointLng="lng"
