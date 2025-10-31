@@ -30,8 +30,6 @@ type PointClickCallback = (point: SolsticeGlobePoint, screenCoords: { x: number;
 // Day textures:
 // - //unpkg.com/three-globe/example/img/earth-blue-marble.jpg
 // - //unpkg.com/three-globe/example/img/earth-dark.jpg
-// - //unpkg.com/three-globe/example/img/earth-water.jpg
-// - //unpkg.com/three-globe/example/img/earth-topology.jpg
 //
 // Night textures:
 // - //unpkg.com/three-globe/example/img/earth-blue-marble-night.jpg
@@ -47,8 +45,8 @@ type PointClickCallback = (point: SolsticeGlobePoint, screenCoords: { x: number;
 
 // Contrast enhancement properties
 const CONTRAST_AMOUNT = 1.25; // Higher values = more contrast (bright parts brighter, dark parts darker)
-const BRIGHTNESS_BOOST = 2.0; // Multiplier for overall brightness
-const BRIGHTNESS_ADD = 0.1; // Additive brightness component (0-1 range)
+const BRIGHTNESS_BOOST = 1.5; // Multiplier for overall brightness
+const BRIGHTNESS_ADD = 0.12; // Additive brightness component (0-1 range)
 
 const SolsticeGlobe3D = ({
   pointsData,
@@ -58,7 +56,7 @@ const SolsticeGlobe3D = ({
   className,
   style,
   onClick,
-  globeImageUrl = "https://res.cloudinary.com/lesswrong-2-0/image/upload/v1761803051/earth-blue-marble-night-half_ubxdq2.jpg",
+  globeImageUrl = "https://res.cloudinary.com/lesswrong-2-0/image/upload/v1761896563/earth-day-night_fvu2gz.jpg",
 }: {
   pointsData: Array<SolsticeGlobePoint>;
   defaultPointOfView: PointOfView;
@@ -309,8 +307,8 @@ const SolsticeGlobe3D = ({
             }}
             pointsMerge={false}
             showAtmosphere={true}
-            atmosphereColor="#ffffff"
-            atmosphereAltitude={0.15}
+            atmosphereColor="#aaaaff"
+            atmosphereAltitude={0.1}
             enablePointerInteraction={true}
           />
         </div>
