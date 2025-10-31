@@ -11,6 +11,8 @@ import { CLIENT_ID_COOKIE, CLIENT_ID_NEW_COOKIE, TIMEZONE_COOKIE } from "@/lib/c
 import { SharedScripts } from "@/components/next/SharedScripts";
 import { getDefaultMetadata } from "@/server/pageMetadata/sharedMetadata";
 import type { Metadata } from "next";
+import { BodyWithBackgroundColor } from "@/components/layout/PageBackgroundWrapper";
+import PageBackgroundColorSwitcher from "@/components/layout/PageBackgroundColorSwitcher";
 
 export async function generateMetadata(): Promise<Metadata> {
   return getDefaultMetadata();
@@ -26,9 +28,10 @@ export default async function RootLayout({
       <head>
         <SharedScripts/>
       </head>
-      <body>
+      <BodyWithBackgroundColor>
         <Suspense>
           <ClientIDAssignerServer/>
+          <PageBackgroundColorSwitcher/>
         </Suspense>
         <Suspense>
           <EnvironmentOverrideContextProviderServer>
@@ -39,7 +42,7 @@ export default async function RootLayout({
             </ClientRouteMetadataProvider>
           </EnvironmentOverrideContextProviderServer>
         </Suspense>
-      </body>
+      </BodyWithBackgroundColor>
     </html>
   );
 }

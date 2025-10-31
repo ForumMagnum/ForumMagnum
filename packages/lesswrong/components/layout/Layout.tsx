@@ -11,7 +11,7 @@ import { DialogManager } from '@/components/common/withDialog';
 import { CommentBoxManager } from '@/components/hooks/useCommentBox';
 import { ItemsReadContextWrapper } from '@/components/hooks/useRecordPostView';
 import { pBodyStyle } from '../../themes/stylePiping';
-import { googleTagManagerIdSetting, isLW, isLWorAF, buttonBurstSetting } from '@/lib/instanceSettings';
+import { googleTagManagerIdSetting, isLW, isLWorAF, buttonBurstSetting, isAF } from '@/lib/instanceSettings';
 import { globalStyles } from '../../themes/globalStyles/globalStyles';
 import { userCanDo, userIsAdmin } from '@/lib/vulcan-users/permissions';
 import { Helmet } from "@/components/layout/Helmet";
@@ -55,13 +55,12 @@ import { DelayedLoading } from '@/components/common/DelayedLoading';
 import { SuspenseWrapper } from '@/components/common/SuspenseWrapper';
 import { useRouteMetadata } from './ClientRouteMetadataContext';
 import { isFullscreenRoute, isHomeRoute, isStandaloneRoute, isStaticHeaderRoute, isSunshineSidebarRoute } from '@/lib/routeChecks';
-import { AutoDarkModeWrapper } from '@/components/themes/ThemeContextProvider';
 import { EditorCommandsContextProvider } from '@/components/editor/EditorCommandsContext';
 import { NO_ADMIN_NEXT_REDIRECT_COOKIE, SHOW_LLM_CHAT_COOKIE } from '@/lib/cookies/cookies';
 
 import dynamic from 'next/dynamic';
 import { isBlackBarTitle } from '@/components/seasonal/petrovDay/petrov-day-story/petrovConsts';
-import PageBackgroundWrapper from '@/components/layout/PageBackgroundWrapper';
+import { usePrerenderablePathname } from '../next/usePrerenderablePathname';
 
 const SunshineSidebar = dynamic(() => import("../sunshineDashboard/SunshineSidebar"), { ssr: false });
 const LanguageModelLauncherButton = dynamic(() => import("../languageModels/LanguageModelLauncherButton"), { ssr: false });
@@ -291,7 +290,6 @@ const Layout = ({children}: {
     
     return (
       <AnalyticsContext path={pathname}>
-      <AutoDarkModeWrapper>
       <UnreadNotificationsContextProvider>
       <TimezoneWrapper>
       <ItemsReadContextWrapper>
@@ -403,7 +401,6 @@ const Layout = ({children}: {
       </ItemsReadContextWrapper>
       </TimezoneWrapper>
       </UnreadNotificationsContextProvider>
-      </AutoDarkModeWrapper>
       </AnalyticsContext>
     )
   };
@@ -481,6 +478,38 @@ const LlmSidebarWrapper = ({children}: {
         </DeferRender>
       </div>
     )}
+  </div>
+}
+
+const pageBackgroundWrapperStyles = defineStyles("PageBackgroundWrapper", (theme: ThemeType) => ({
+  wrapper: {
+    position: 'relative',
+    overflowX: 'clip'
+  },
+  fullscreen: {
+    // The min height of 600px here is so that the page doesn't shrink down completely when the keyboard is open on mobile.
+    // I chose 600 as being a bit smaller than the smallest phone screen size, although it's hard to find a good reference
+    // for this. Here is one site with a good list from 2018: https://mediag.com/blog/popular-screen-resolutions-designing-for-all/
+    height: "max(100vh, 600px)",
+    display: "flex",
+    flexDirection: "column",
+  },
+}))
+
+function PageBackgroundWrapper({children}: {
+  children: React.ReactNode
+}) {
+  const classes = useStyles(pageBackgroundWrapperStyles);
+  const pathname = usePrerenderablePathname();
+
+  return <div id="wrapper" className={classNames(
+    "wrapper", {
+      'alignment-forum': isAF(),
+      [classes.fullscreen]: isFullscreenRoute(pathname),
+      [classes.wrapper]: isLWorAF(),
+    },
+  )}>
+    {children}
   </div>
 }
 
