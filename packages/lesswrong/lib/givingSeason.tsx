@@ -71,6 +71,10 @@ export const givingSeasonEvents: GivingSeasonEvent[] = [
     name: "Donation election",
     description: "Allocating a pot of collective funds to three organisations, based on your votes.",
     readMoreHref: "/posts/RzdKnBYe3jumrZxkB/giving-season-2025-announcement#November_24th_to_December_7th_",
+    tag: {
+      _id: "5S6ttX5JADjsPpxym",
+      slug: "donation-election-2025",
+    },
     start: new Date("2025-11-24"),
     end: new Date("2025-12-08"),
     color: "#FFC500",
@@ -82,6 +86,10 @@ export const givingSeasonEvents: GivingSeasonEvent[] = [
     name: "Why I donate week",
     description: "A week to share the personal stories and reasons behind our donations.",
     readMoreHref: "/posts/RzdKnBYe3jumrZxkB/giving-season-2025-announcement#December_8th_to_14th",
+    tag: {
+      _id: "pxHqtADbp4vCEndc8",
+      slug: "why-i-donate-week-2025",
+    },
     start: new Date("2025-12-08"),
     end: new Date("2025-12-15"),
     color: "#63C5D5",
