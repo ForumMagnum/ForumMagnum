@@ -36,6 +36,7 @@ export async function proxy(request: NextRequest) {
   // we have a codegen step that generates a trie which we use to find a matching canonical
   // path (if one exists).
   const currentPath = request.nextUrl.pathname;
+  console.log(`Proxy ran for ${currentPath}`);
   const canonical = canonicalizePath(currentPath);
   if (canonical && canonical !== currentPath) {
     const url = request.nextUrl.clone();
@@ -200,7 +201,7 @@ async function findStatusCodeInStream(stream: ReadableStream<Uint8Array<ArrayBuf
 export const config: MiddlewareConfig = {
   matcher: [
     /*
-     * Match all request paths except for the ones starting with:
+     * Match all request paths except for / (exact match) and the ones starting with:
      * - api (a subset of API routes)
      * - auth (auth routes)
      * - graphql, analyticsEvent, ckeditor-token, feed.xml (high-volume API routes)
@@ -211,8 +212,8 @@ export const config: MiddlewareConfig = {
      * - favicon.ico, sitemap.xml, robots.txt (metadata files)
      */
     {
-      source: '/((?!api|auth|graphql|analyticsEvent|public|ckeditor-token|feed.xml|reactionImages|_next/static|_next/image|favicon.ico|sitemap.xml|robots.txt).*)',
-      missing: [{ type: 'header', key: 'next-router-state-tree' }]
+      source: "/((?!^/$|api|auth|graphql|analyticsEvent|public|ckeditor-token|feed.xml|reactionImages|_next/static|_next/image|favicon.ico|sitemap.xml|robots.txt).*)",
+      missing: [{ type: 'header', key: 'next-router-state-tree' }],
     }
   ]
 }
