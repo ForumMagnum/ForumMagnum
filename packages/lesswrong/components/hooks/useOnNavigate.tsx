@@ -1,4 +1,4 @@
-import { useEffect } from 'react';
+import { useEffect, useLayoutEffect } from 'react';
 import { registerComponent } from '../../lib/vulcan-lib/components';
 import type { RouterLocation } from '../../lib/vulcan-lib/routes';
 import { useSubscribedLocation } from '../../lib/routeUtil';
@@ -12,7 +12,7 @@ const NavigationEventSender = () => {
   const location = useSubscribedLocation();
   const { captureEvent } = useTracking();
   
-  useEffect(() => {
+  useLayoutEffect(() => {
     // Check if the path has actually changed
     if (location.pathname !== lastLocation?.pathname) {
       // Don't send the callback on the initial pageload, only on post-load navigations

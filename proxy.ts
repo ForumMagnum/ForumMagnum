@@ -4,7 +4,7 @@ import { randomId } from './packages/lesswrong/lib/random';
 
 // These need to be defined here instead of imported from @/lib/cookies/cookies
 // because that import chain contains a transitive import of lodash, which
-// causes the middleware build to fail (lodash contains some "Dynamic Code Evaluation"
+// causes the proxy build to fail (lodash contains some "Dynamic Code Evaluation"
 // somewhere).
 export const CLIENT_ID_COOKIE = 'clientId';
 export const CLIENT_ID_NEW_COOKIE = 'clientIdUnset';
@@ -18,7 +18,7 @@ function urlIsAbsolute(url: string): boolean {
 }
 
 /**
- * Nextjs middleware. Because nextjs only allows a single middleware function,
+ * Nextjs proxy. Because nextjs only allows a single proxy function,
  * this is three middlewares jammed into one: One for canonicalizing the
  * capitalization of route names, one for assigning a clientId cookie to clients
  * that don't have one, and one that handles http status codes and redirects.
@@ -30,7 +30,7 @@ function urlIsAbsolute(url: string): boolean {
  * that <StatusCodeSetter> appears in the DOM (ideally after the smallest-
  * possible amount of loading).
  */
-export async function middleware(request: NextRequest) {
+export async function proxy(request: NextRequest) {
   // Before NextJS, we were using react-router, which wasn't case-sensitive by default.
   // To solve the problem of any existing links going to non-canonically-capitalized paths,
   // we have a codegen step that generates a trie which we use to find a matching canonical

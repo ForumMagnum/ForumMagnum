@@ -1,6 +1,7 @@
-import { useState, useRef, useCallback } from 'react';
+import { useState, useRef, useCallback, useEffect } from 'react';
 import { EventProps, useTracking } from "../../lib/analyticsEvents";
-import { isMobile } from '../../lib/utils/isMobile'
+import { isMobile } from '../../lib/utils/isMobile';
+import { useNavigationCount } from '../next/ClientAppGenerator';
 
 function datesDifference(a: Date, b: Date): number {
   return (a as any)-(b as any);
@@ -34,6 +35,8 @@ export const useHover = <EventType extends {currentTarget: HTMLElement}=React.Mo
   const delayTimer = useRef<any>(null)
   const mouseOverStart = useRef<Date|null>(null)
 
+  const navigationCount = useNavigationCount();
+  const [hoverNavigationCount, setHoverNavigationCount] = useState<number|null>(null)
   const { captureEvent } = useTracking({eventType:"hoverEventTriggered", eventProps})
 
   const captureHoverEvent = useCallback(() => {
@@ -62,10 +65,11 @@ export const useHover = <EventType extends {currentTarget: HTMLElement}=React.Mo
     });
     setEverHovered(true);
     setAnchorEl(event.currentTarget);
+    setHoverNavigationCount(navigationCount)
     mouseOverStart.current = new Date()
     clearTimeout(delayTimer.current)
     delayTimer.current = setTimeout(captureHoverEvent,500)
-  }, [captureHoverEvent, onEnter, disabledOnMobile])
+  }, [captureHoverEvent, onEnter, disabledOnMobile, navigationCount])
 
   const handleMouseLeave = useCallback(() => {
     setHover((currentValue) => {
@@ -106,7 +110,7 @@ export const useHover = <EventType extends {currentTarget: HTMLElement}=React.Mo
       onMouseOver: handleMouseOver,
       onMouseLeave: handleMouseLeave,
     },
-    hover,
+    hover: hover && hoverNavigationCount === navigationCount,
     everHovered,
     anchorEl,
     forceUnHover,
