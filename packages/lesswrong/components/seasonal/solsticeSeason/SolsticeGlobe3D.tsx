@@ -30,7 +30,7 @@ type PointClickCallback = (point: SolsticeGlobePoint, screenCoords: { x: number;
 // Countries GeoJSON (Natural Earth 110m) used for drawing borders
 const COUNTRIES_GEOJSON_URL = '//unpkg.com/three-globe/example/datasets/ne_110m_admin_0_countries.geojson';
 // Day-night cycle settings - velocity in minutes per frame (like the example)
-const VELOCITY = .1; // minutes per frame
+const VELOCITY = 1; // minutes per frame
 // Contrast enhancement properties
 const CONTRAST_AMOUNT = 1; // Higher values = more contrast (bright parts brighter, dark parts darker)
 const BRIGHTNESS_BOOST = 1; // Multiplier for overall brightness
@@ -275,32 +275,25 @@ const useGlobeReadyEffects = (
 };
 
 // Calculate sun position based on date/time - includes Earth's tilt (declination)
+// Sun position is fixed (no longitude rotation over time since earth rotates instead)
 // Based on react-globe.gl example
 const sunPosAt = (dt: number): [number, number] => {
-  const day = new Date(dt).setUTCHours(0, 0, 0, 0);
   const daysSinceJ2000 = (dt - 946728000000) / 86400000; // J2000 = Jan 1, 2000
-  
-  // Calculate mean anomaly (simplified)
-  const meanAnomaly = (357.5291 + (0.98560028 * daysSinceJ2000)) % 360;
-  const meanAnomalyRad = (meanAnomaly * Math.PI) / 180;
-  
-  // Equation of time (simplified approximation)
-  const equationOfTime = 4 * (meanAnomalyRad + (0.0334 * Math.sin(meanAnomalyRad)) - 1.5347);
   
   // Solar declination (Earth's axial tilt effect) - simplified
   const declinationRad = ((23.44 * Math.PI) / 180) * Math.sin((2 * Math.PI * ((daysSinceJ2000 + 284) / 365.25)));
   const declination = (declinationRad * 180) / Math.PI;
   
-  // Calculate longitude based on time of day
-  const longitude = (((day - dt) / 86400000) * 360) - 180;
-  
-  return [longitude - (equationOfTime / 4), declination];
+  // Sun position is fixed at longitude 0 (noon position)
+  // The earth will rotate instead of the shadow moving
+  return [0, declination];
 };
 
-// Day-night cycle animation hook - exact copy from react-globe.gl example
+// Day-night cycle animation hook - rotates earth instead of shadow
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 const useDayNightCycle = (globeRef: React.MutableRefObject<any>, globeMaterialRef: React.MutableRefObject<any>, isGlobeReady: boolean, pov: PointOfView) => {
   const [dt, setDt] = useState(+new Date());
+  const [earthRotation, setEarthRotation] = useState(0);
   
   useEffect(() => {
     if (!isGlobeReady || !globeMaterialRef.current) return;
@@ -309,6 +302,9 @@ const useDayNightCycle = (globeRef: React.MutableRefObject<any>, globeMaterialRe
     
     const iterateTime = () => {
       setDt(dt => dt + (VELOCITY * 60 * 1000));
+      // Rotate earth: one full rotation per day (360 degrees)
+      // VELOCITY is minutes per frame, so convert to degrees per frame
+      setEarthRotation(rot => (rot + (VELOCITY / (24 * 60)) * 360) % 360);
       animationFrameId = requestAnimationFrame(iterateTime);
     };
     
@@ -324,7 +320,7 @@ const useDayNightCycle = (globeRef: React.MutableRefObject<any>, globeMaterialRe
   useEffect(() => {
     if (!globeMaterialRef.current) return;
     
-    // Update sun position based on current time
+    // Update sun position based on current time (fixed longitude, only declination changes)
     const sunPos = sunPosAt(dt);
     if (globeMaterialRef.current.uniforms?.sunPosition) {
       globeMaterialRef.current.uniforms.sunPosition.value.set(sunPos[0], sunPos[1]);
@@ -339,6 +335,25 @@ const useDayNightCycle = (globeRef: React.MutableRefObject<any>, globeMaterialRe
       globeMaterialRef.current.uniforms.globeRotation.value.set(pov.lng, pov.lat);
     }
   }, [globeRef, globeMaterialRef, pov.lat, pov.lng]);
+  
+  // Rotate the earth mesh on its tilted axis
+  useEffect(() => {
+    if (!globeRef.current || !isGlobeReady) return;
+    
+    const globeObj = globeRef.current;
+    if (globeObj && globeObj.scene && globeObj.scene.children) {
+      const globeMesh = findMeshWithTexture(globeObj.scene);
+      if (globeMesh) {
+        // Earth's axial tilt: 23.44 degrees
+        const AXIAL_TILT = 23.44 * (Math.PI / 180);
+        const rotationRad = (earthRotation * Math.PI) / 180;
+        
+        // Set rotation explicitly: tilt around X-axis first, then rotate around Y-axis
+        // This creates a tilted rotation axis (Y-axis is tilted), and then rotates around that tilted axis
+        globeMesh.rotation.set(AXIAL_TILT, rotationRad, 0);
+      }
+    }
+  }, [earthRotation, globeRef, isGlobeReady]);
 };
 
 const SolsticeGlobe3D = ({
