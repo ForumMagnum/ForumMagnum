@@ -85,46 +85,6 @@ const styles = defineStyles("SolsticeSeasonBanner", (theme: ThemeType) => ({
       margin: 0,
     },
   },
-  meetupTypes: {
-    display: 'flex',
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'flex-start',
-    width: 320,
-    marginRight: 20,
-    [theme.breakpoints.up(smallBreakpoint)]: {
-      width: 370,
-      marginRight: 0,
-    },
-    gap: 8,
-    paddingTop: 10,
-  },
-  meetupType: {
-    background: theme.palette.grey[400],
-    color: theme.palette.text.alwaysWhite,
-    borderRadius: 4,
-    paddingLeft: 10,
-    paddingRight: 10,
-    paddingTop: 7,
-    paddingBottom: 7,
-    cursor: 'pointer',
-    fontSize: 14,
-    fontWeight: 400,
-    '&:hover': {
-      opacity: 0.5
-    },
-    fontFamily: theme.typography.body2.fontFamily,
-    transition: 'opacity 0.1s ease-out',
-    marginBottom: 10,
-    display: 'flex',
-    alignItems: 'center',
-    '& a': {
-      textDecoration: 'underline',
-    },
-    '& a:hover': {
-      textDecoration: 'none',
-    },
-  },
   activeMeetupType: {
     background: theme.palette.primary.main,
     color: theme.palette.text.alwaysWhite,
@@ -206,15 +166,27 @@ const styles = defineStyles("SolsticeSeasonBanner", (theme: ThemeType) => ({
     transition: 'opacity 0.15s ease-in-out, transform 0.3s ease-in-out',
     transform: 'translateX(0)',
   },
+  buttonContainer: {
+    display: 'flex',
+    justifyContent: 'space-between',
+    alignItems: 'stretch',
+    gap: 0,
+  },
   createEventButton: {
     ...theme.typography.commentStyle,
-    color: theme.dark ? theme.palette.primary.light : theme.palette.primary.main,
     paddingTop: 10,
+    paddingBottom: 10,
+    borderRadius: 3,
+    background: theme.palette.primary.main,
+    color: theme.palette.text.alwaysWhite,
     fontSize: 15,
-    display: 'inline-block',
+    display: 'flex',  
     cursor: 'pointer',
     border: 'none',
-    background: theme.palette.text.alwaysWhite,
+    textAlign: 'center',
+    width: 'calc(100% - 16px)',
+    justifyContent: 'center',
+    alignItems: 'center',
   },
   createEventButtonIcon: {
     fontSize: 16,
@@ -414,17 +386,17 @@ export default function SolsticeSeasonBannerInner() {
         <div className={classes.textContainer} onClick={() => setEverClickedGlobe(true)}>
           <h1 className={classes.title}>Solstice Season</h1>
             <p className={classes.subtitle}>Celebrate humanity's Schelling holiday around the world. Find a local solstice event or create your own.</p>
-            <Row gap={10}>
-              <Link to="https://waypoint.lighthaven.space/solstice-season" target="_blank" rel="noopener noreferrer" className={classes.createEventButton} style={{ marginTop: "10px", textAlign: "right" }}>
-                Berkeley Megameetup
+            <div className={classes.buttonContainer}>
+              <Link to="https://waypoint.lighthaven.space/solstice-season" target="_blank" rel="noopener noreferrer">
+                <div className={classes.createEventButton}>Berkeley Megameetup</div>
               </Link>
-              <Link to={`/newPost?eventForm=true&SOLSTICE=true`} target="_blank" rel="noopener noreferrer" className={classes.createEventButton}>
-                HOST A SOLSTICE
+              <Link to={`/newPost?eventForm=true&SOLSTICE=true`} target="_blank" rel="noopener noreferrer">
+                <div className={classes.createEventButton}>Announce a Solstice Event</div>
               </Link>
-              <Link to="" target="_blank" rel="noopener noreferrer" className={classes.createEventButton} style={{ marginTop: "10px" }}>
-                New York Megameetup
+              <Link to="" target="_blank" rel="noopener noreferrer">
+                <div className={classes.createEventButton}>New York Megameetup</div> 
               </Link>
-            </Row>  
+            </div>  
           </div>
       </div>
     </div>
