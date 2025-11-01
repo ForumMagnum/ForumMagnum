@@ -153,13 +153,6 @@ const mapPointsToMarkers = (pointsData: Array<SolsticeGlobePoint>) => pointsData
   _index: index,
 }));
 
-// Centered screen coords helper
-const getCenteredScreenCoords = (containerEl: HTMLDivElement | null): { x: number; y: number } | null => {
-  if (!containerEl) return null;
-  const rect = containerEl.getBoundingClientRect();
-  return { x: rect.left + (rect.width / 2), y: rect.top + (rect.height / 2) };
-};
-
 // --- Hooks ---
 // Create and manage the globe material lifecycle with day-night support
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -410,9 +403,8 @@ const SolsticeGlobe3D = ({
   // Convert points data to format expected by react-globe.gl
   const markerData = mapPointsToMarkers(pointsData);
 
-  const handlePointClick = (point: SolsticeGlobePoint) => {
-    const screenCoords = getCenteredScreenCoords(containerRef.current);
-    if (screenCoords && onPointClick) {
+  const handlePointClick = (point: SolsticeGlobePoint, screenCoords: { x: number; y: number }) => {
+    if (onPointClick) {
       onPointClick(point, screenCoords);
     }
   };
@@ -442,7 +434,7 @@ const SolsticeGlobe3D = ({
         (d.eventId && p.eventId === d.eventId)
       );
       if (originalPoint) {
-        handlePointClick(originalPoint);
+        handlePointClick(originalPoint, { x: e.clientX, y: e.clientY });
       }
     });
     return el;
