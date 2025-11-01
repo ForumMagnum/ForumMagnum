@@ -61,7 +61,6 @@ const styles = defineStyles("SolsticeSeasonBanner", (theme: ThemeType) => ({
   },
   subtitle: {
     fontSize: 15,
-    height: 90,
     [theme.breakpoints.up(smallBreakpoint)]: {
       fontSize: 18,
       height: 120,
@@ -388,18 +387,6 @@ export default function SolsticeSeasonBannerInner() {
       className={classes.globeContainer} 
       onClick={() => setEverClickedGlobe(true)}
     >
-      {/* <SolsticeGlobe 
-        pointsData={pointsData}
-        defaultPointOfView={defaultPointOfView}   /
-        onPointClick={(point: SolsticeGlobePoint, screenCoords: { x: number; y: number }) => {
-          if (point.eventId) {
-            setSelectedEventId(point.eventId);
-            setPopupCoords(screenCoords);
-          }
-        }}
-        style={{ width: '100%', height: '100%' }}
-        onClick={() => setEverClickedGlobe(true)}
-      /> */}
         <SolsticeGlobe3D 
           pointsData={pointsData}
           defaultPointOfView={defaultPointOfView}
