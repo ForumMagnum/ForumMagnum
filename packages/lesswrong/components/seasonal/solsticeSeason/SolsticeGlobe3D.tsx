@@ -482,6 +482,37 @@ const SolsticeGlobe3D = ({
     }
   };
 
+  // HTML marker renderer function based on react-globe.gl example
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const renderHtmlElement = (d: any) => {
+    const point = pointsData.find(p => 
+      (d._index !== undefined && p === pointsData[d._index]) || 
+      (d.eventId && p.eventId === d.eventId)
+    ) || d;
+    const color = typeof point.color === 'string' ? point.color : '#ffffff';
+    const el = document.createElement('div');
+    el.style.color = color;
+    el.style.cursor = 'pointer';
+    el.innerHTML = `
+      <div style="text-align: center;">
+        <svg viewBox="0 0 24 24" style="width:24px;margin:0 auto;">
+          <path fill="currentColor" d="M12 2C8.13 2 5 5.13 5 9c0 3.25 2.5 6.75 7 11.54 4.5-4.79 7-8.29 7-11.54 0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5S10.62 6.5 12 6.5s2.5 1.12 2.5 2.5S13.38 11.5 12 11.5z"/>
+        </svg>
+      </div>
+    `;
+    el.addEventListener('click', (e) => {
+      e.stopPropagation();
+      const originalPoint = pointsData.find(p => 
+        (d._index !== undefined && p === pointsData[d._index]) || 
+        (d.eventId && p.eventId === d.eventId)
+      );
+      if (originalPoint) {
+        handlePointClick(originalPoint);
+      }
+    });
+    return el;
+  };
+
   return (
     <div
       ref={containerRef}
@@ -509,35 +540,14 @@ const SolsticeGlobe3D = ({
             polygonStrokeColor={() => 'rgba(255,255,255,0.35)'}
             polygonsTransitionDuration={0}
             polygonAltitude={0.03}
-            pointsData={markerData}
-            pointLat="lat"
-            pointLng="lng"
-            pointColor="color"
-            // eslint-disable-next-line @typescript-eslint/no-explicit-any
-            pointRadius={(p: any) => usingCustomMarker ? 0 : (typeof p.size === 'number' ? p.size : 1)}
-            // Reduce vertical height of meetup nodes to ~1/3 of typical altitude
-            // When rendering custom markers, hide the default cylinders by making radius 0 (above)
-            // and keeping altitude near-flat to avoid visual stubs while preventing z-fighting.
-            // eslint-disable-next-line @typescript-eslint/no-explicit-any
-            pointAltitude={(p: any) => {
-              const base = typeof p.size === 'number' ? p.size : 1;
-              return usingCustomMarker ? 0.002 : base * altitudeScale;
+            htmlElementsData={markerData}
+            htmlLat={(d: any) => d.lat}
+            htmlLng={(d: any) => d.lng}
+            htmlAltitude={(d: any) => {
+              const base = typeof d.size === 'number' ? d.size : 1;
+              return base * altitudeScale * 0.01;
             }}
-            pointResolution={8}
-            // Use selected renderer; when undefined, falls back to library's colored spheres
-            pointThreeObject={pointThreeObject}
-            onPointClick={(point: any) => {
-              if (point) {
-                // Find the original point by index or eventId
-                const originalPoint = point._index !== undefined 
-                  ? pointsData[point._index]
-                  : pointsData.find(p => p.eventId === point.eventId);
-                if (originalPoint) {
-                  handlePointClick(originalPoint);
-                }
-              }
-            }}
-            pointsMerge={false}
+            htmlElement={renderHtmlElement}
             showAtmosphere={true}
             atmosphereColor="rgb(206, 233, 255)"
             atmosphereAltitude={0.15}
