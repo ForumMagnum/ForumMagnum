@@ -36,6 +36,8 @@ const styles = defineStyles("SolsticeSeasonBanner", (theme: ThemeType) => ({
     transition: 'opacity 0.3s ease-out',
     paddingBottom: 1,
     lineHeight: 1.2,
+    marginTop: 0,
+    marginBottom: 12,
   },
   textContainer: {
     width: 320,
@@ -63,13 +65,12 @@ const styles = defineStyles("SolsticeSeasonBanner", (theme: ThemeType) => ({
     fontSize: 15,
     [theme.breakpoints.up(smallBreakpoint)]: {
       fontSize: 18,
-      height: 120,
     },
     '& a': {
       color: theme.palette.text.alwaysWhite,
     },
     fontWeight: 500,
-    marginTop: 12,
+    marginTop: 0,
     display: 'flex',
     flexDirection: 'column',
     justifyContent: 'center',
@@ -396,7 +397,6 @@ export default function SolsticeSeasonBannerInner() {
               setPopupCoords(screenCoords);
             }
           }}
-          markerRenderer={"glow"}
           onReady={() => setIsLoading(false)}
           style={{ width: '100%', height: '100%' }}
         />

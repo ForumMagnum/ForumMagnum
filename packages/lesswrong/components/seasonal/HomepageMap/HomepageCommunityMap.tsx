@@ -16,6 +16,7 @@ import GroupLinks from "../../localGroups/GroupLinks";
 import HomepageMapFilter from "./HomepageMapFilter";
 import { WrappedReactMapGL } from '@/components/community/WrappedReactMapGL';
 import { defineStyles, useStyles } from '../../hooks/useStyles';
+import { JssStyles } from '@/lib/jssStyles';
 
 const Popup = componentWithChildren(BadlyTypedPopup);
 

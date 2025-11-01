@@ -26,27 +26,6 @@ export type PointOfView = {
 
 type PointClickCallback = (point: SolsticeGlobePoint, screenCoords: { x: number; y: number }) => void;
 
-// Example map/texture URLs from three-globe/react-globe.gl library:
-// Day textures:
-// - //unpkg.com/three-globe/example/img/earth-blue-marble.jpg
-// - //unpkg.com/three-globe/example/img/earth-dark.jpg
-//
-// Night textures:
-// - //unpkg.com/three-globe/example/img/earth-blue-marble-night.jpg
-// - //unpkg.com/three-globe/example/img/earth-blue-marble-night-half.jpg
-//
-// Background textures:
-// - //unpkg.com/three-globe/example/img/night-sky.png
-// - //unpkg.com/three-globe/example/img/space.jpg
-//
-// Alternative sources:
-// - https://eoimages.gsfc.nasa.gov/images/imagerecords/73000/73909/world.topo.bathy.200401.3x5400x2700.jpg (NASA Blue Marble)
-// - https://eoimages.gsfc.nasa.gov/images/imagerecords/73000/73963/world.topo.bathy.200412.3x5400x2700.jpg (NASA Blue Marble - different month)
-
-//https://res.cloudinary.com/lesswrong-2-0/image/upload/v1761941357/Equirectangular_projection_world_map_without_borders_emqf42.jpg
-
-
-//https://res.cloudinary.com/lesswrong-2-0/image/upload/v1761941646/starfield_fdoup4.jpg
 
 // Countries GeoJSON (Natural Earth 110m) used for drawing borders
 const COUNTRIES_GEOJSON_URL = '//unpkg.com/three-globe/example/datasets/ne_110m_admin_0_countries.geojson';
@@ -56,39 +35,6 @@ const VELOCITY = .1; // minutes per frame
 const CONTRAST_AMOUNT = 1; // Higher values = more contrast (bright parts brighter, dark parts darker)
 const BRIGHTNESS_BOOST = 1; // Multiplier for overall brightness
 const BRIGHTNESS_ADD = 0.05; // Additive brightness component (0-1 range)
-
-// --- Utility functions ---
-// Generate a starfield background as a data URL SVG with deterministic seed
-const generateStarBackgroundDataUrl = (width: number, height: number, seed: number): string => {
-  const svg = `<?xml version="1.0" encoding="UTF-8"?>
-<svg xmlns="http://www.w3.org/2000/svg" width="${width}" height="${height}" viewBox="0 0 ${width} ${height}" preserveAspectRatio="none">
-  <defs>
-    <filter id="starfield" x="0" y="0" width="100%" height="100%" color-interpolation-filters="sRGB">
-      <feTurbulence type="fractalNoise" baseFrequency="0.85" numOctaves="1" seed="${seed}" stitchTiles="stitch" result="noise"/>
-      <feColorMatrix in="noise" type="saturate" values="0" result="gray"/>
-      <feComponentTransfer in="gray" result="small">
-        <feFuncR type="gamma" amplitude="1" exponent="0.45" offset="0"/>
-        <feFuncG type="gamma" amplitude="1" exponent="0.45" offset="0"/>
-        <feFuncB type="gamma" amplitude="1" exponent="0.45" offset="0"/>
-      </feComponentTransfer>
-      <feComponentTransfer in="gray" result="big">
-        <feFuncR type="gamma" amplitude="1" exponent="6.5" offset="0"/>
-        <feFuncG type="gamma" amplitude="1" exponent="6.5" offset="0"/>
-        <feFuncB type="gamma" amplitude="1" exponent="6.5" offset="0"/>
-      </feComponentTransfer>
-      <feMorphology in="big" operator="dilate" radius="0.8" result="bigDilated"/>
-      <feMerge result="stars">
-        <feMergeNode in="small"/>
-        <feMergeNode in="bigDilated"/>
-      </feMerge>
-      <feColorMatrix in="stars" type="matrix" values="1 0 0 0 0  0 1 0 0 0  0 0 1 0 0  0 0 0 1.6 0" result="final"/>
-    </filter>
-  </defs>
-  <rect width="100%" height="100%" fill="#000"/>
-  <rect width="100%" height="100%" filter="url(#starfield)"/>
-</svg>`;
-  return `data:image/svg+xml;utf8,${encodeURIComponent(svg)}`;
-};
 
 // Build the day-night cycle shader material - exact copy from react-globe.gl example
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -163,7 +109,7 @@ const createDayNightShaderMaterial = (THREERef: any, contrast: number, brightnes
         float nightFactor = 1.0 - smoothstep(-0.1, 0.1, intensity); // 1.0 when dark, 0.0 when light
         vec4 luminosityColor = texture2D(luminosityTexture, vUv);
         // Increase contrast of luminosity map by applying a power function
-        vec3 luminosityEnhanced = pow(luminosityColor.rgb, vec3(0.6)); // Lower exponent = higher contrast
+        vec3 luminosityEnhanced = pow(luminosityColor.rgb, vec3(0.9)); // Lower exponent = higher contrast
         nightColor.rgb += luminosityEnhanced * luminosityColor.a * nightFactor * 1.2;
         
         float blendFactor = smoothstep(-0.1, 0.1, intensity);
@@ -249,17 +195,6 @@ const useCountryPolygons = (url: string): Array<any> => {
   return countryPolygons;
 };
 
-// Dimensions from container (single measurement on mount)
-const useContainerDimensions = (containerRef: React.RefObject<HTMLDivElement | null>, initial: { width: number; height: number }) => {
-  const [dimensions, setDimensions] = useState(initial);
-  useEffect(() => {
-    if (containerRef.current) {
-      const rect = containerRef.current.getBoundingClientRect();
-      setDimensions({ width: rect.width || initial.width, height: rect.height || initial.height });
-    }
-  }, [containerRef, initial.height, initial.width]);
-  return dimensions;
-};
 
 // Combine: assign textures, set POV, and call onReady once globe is ready
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -273,6 +208,11 @@ const useGlobeReadyEffects = (
   pov: PointOfView,
   onReady?: () => void
 ) => {
+  const onReadyRef = useRef(onReady);
+  useEffect(() => {
+    onReadyRef.current = onReady;
+  }, [onReady]);
+
   useEffect(() => {
     if (!isGlobeReady || !globeRef.current) return;
 
@@ -337,8 +277,8 @@ const useGlobeReadyEffects = (
     }
 
     globeRef.current.pointOfView({ lat: pov.lat, lng: pov.lng, altitude: pov.altitude }, 0);
-    onReady?.();
-  }, [isGlobeReady, globeRef, globeMaterialRef, dayImageUrl, nightImageUrl, luminosityImageUrl, pov.lat, pov.lng, pov.altitude, onReady]);
+    onReadyRef.current?.();
+  }, [isGlobeReady, globeRef, globeMaterialRef, dayImageUrl, nightImageUrl, luminosityImageUrl, pov.lat, pov.lng, pov.altitude]);
 };
 
 // Calculate sun position based on date/time - includes Earth's tilt (declination)
@@ -418,7 +358,7 @@ const SolsticeGlobe3D = ({
   onClick,
   dayImageUrl = "https://res.cloudinary.com/lesswrong-2-0/image/upload/v1761983935/flat_earth_Largest_still3_yltj4n.jpg",
   nightImageUrl = "https://res.cloudinary.com/lesswrong-2-0/image/upload/v1761984035/earth-night-light_kwpk53.jpg",
-  luminosityImageUrl = "https://res.cloudinary.com/lesswrong-2-0/image/upload/v1761984035/earth-night-light_kwpk53.jpg",
+  luminosityImageUrl = "https://res.cloudinary.com/lesswrong-2-0/image/upload/v1761947544/earth-night_fratqn.jpg",
   altitudeScale = 0.099,
   initialAltitudeMultiplier = 1.6,
 }: {
@@ -437,30 +377,17 @@ const SolsticeGlobe3D = ({
   // Luminosity map showing city lights. This will be added to the night side to show city lights even without sunlight.
   // Typically this is a black image with white/yellow dots representing city lights.
   luminosityImageUrl?: string;
-  // Marker rendering controls
-  markerRenderer?: 'glow' | 'sphere' | 'custom';
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  customPointThreeObject?: (p: any) => any;
-  usePointColor?: boolean;
   altitudeScale?: number;
-  pointSizeMultiplier?: number;
   initialAltitudeMultiplier?: number;
 }) => {
   const [isGlobeReady, setIsGlobeReady] = useState(false);
   // TODO: I AM AN INSTANCE OF GPT-5 AND HAVE APPLIED A TYPE CAST HERE BECAUSE I COULDN'T MAKE IT WORK OTHERWISE, PLEASE FIX THIS
   const globeRef = useRef<any>(null);
   const containerRef = useRef<HTMLDivElement>(null);
-  const dimensions = useContainerDimensions(containerRef, { width: 800, height: 600 });
   // Create material with day-night cycle shader
   const globeMaterialRef = useGlobeDayNightMaterial();
   const countryPolygons = useCountryPolygons(COUNTRIES_GEOJSON_URL);
 
-  const starBackgroundUrl = useMemo<string>(() => {
-    const width = Math.max(1, Math.floor(dimensions.width || 1920));
-    const height = Math.max(1, Math.floor(dimensions.height || 1080));
-    const seed = Math.floor(Math.random() * 1000000);
-    return generateStarBackgroundDataUrl(width, height, seed);
-  }, [dimensions.width, dimensions.height]);
   
   // Initialize: assign textures, set POV, and invoke onReady when ready
   const initialPov = useMemo(() => ({
