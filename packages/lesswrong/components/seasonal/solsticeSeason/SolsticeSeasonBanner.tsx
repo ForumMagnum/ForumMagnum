@@ -392,12 +392,12 @@ export default function SolsticeSeasonBannerInner() {
                 </div>
               </Link>
               <Link to={`/newPost?eventForm=true&SOLSTICE=true`} target="_blank" rel="noopener noreferrer">
-                <div className={classes.createEventButton} style={{backgroundColor: "#af9255"}} >
+                <div className={classes.createEventButton} style={{backgroundColor:  "rgb(46, 105, 70)"}} >
                   Announce a Solstice Event
                 </div>
               </Link>
               <Link to="" target="_blank" rel="noopener noreferrer">
-                <div className={classes.createEventButton} style={{backgroundColor: "rgb(68, 143, 184)"}} >
+                <div className={classes.createEventButton} style={{backgroundColor:"rgb(39, 167, 186)"}} >
                   New York Megameetup
                 </div> 
               </Link>
