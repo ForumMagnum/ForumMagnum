@@ -170,23 +170,22 @@ const styles = defineStyles("SolsticeSeasonBanner", (theme: ThemeType) => ({
     display: 'flex',
     justifyContent: 'space-between',
     alignItems: 'stretch',
-    gap: 0,
   },
   createEventButton: {
+    display: 'block',
     ...theme.typography.commentStyle,
-    paddingTop: 10,
-    paddingBottom: 10,
     borderRadius: 3,
     background: theme.palette.primary.main,
     color: theme.palette.text.alwaysWhite,
-    fontSize: 15,
-    display: 'flex',  
+    fontSize: 14,  
     cursor: 'pointer',
     border: 'none',
     textAlign: 'center',
-    width: 'calc(100% - 16px)',
+    width: 'calc(100% - 10px)',
     justifyContent: 'center',
     alignItems: 'center',
+    wordWrap: 'balance',
+    padding: 10,
   },
   createEventButtonIcon: {
     fontSize: 16,
@@ -388,13 +387,19 @@ export default function SolsticeSeasonBannerInner() {
             <p className={classes.subtitle}>Celebrate humanity's Schelling holiday around the world. Find a local solstice event or create your own.</p>
             <div className={classes.buttonContainer}>
               <Link to="https://waypoint.lighthaven.space/solstice-season" target="_blank" rel="noopener noreferrer">
-                <div className={classes.createEventButton}>Berkeley Megameetup</div>
+                <div className={classes.createEventButton} style={{backgroundColor: "rgb(38, 90, 118)"}} >
+                  Berkeley Megameetup
+                </div>
               </Link>
               <Link to={`/newPost?eventForm=true&SOLSTICE=true`} target="_blank" rel="noopener noreferrer">
-                <div className={classes.createEventButton}>Announce a Solstice Event</div>
+                <div className={classes.createEventButton} style={{backgroundColor: "#af9255"}} >
+                  Announce a Solstice Event
+                </div>
               </Link>
               <Link to="" target="_blank" rel="noopener noreferrer">
-                <div className={classes.createEventButton}>New York Megameetup</div> 
+                <div className={classes.createEventButton} style={{backgroundColor: "rgb(68, 143, 184)"}} >
+                  New York Megameetup
+                </div> 
               </Link>
             </div>  
           </div>
