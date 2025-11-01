@@ -51,7 +51,7 @@ type PointClickCallback = (point: SolsticeGlobePoint, screenCoords: { x: number;
 // Countries GeoJSON (Natural Earth 110m) used for drawing borders
 const COUNTRIES_GEOJSON_URL = '//unpkg.com/three-globe/example/datasets/ne_110m_admin_0_countries.geojson';
 // Day-night cycle settings - velocity in minutes per frame (like the example)
-const VELOCITY = 1; // minutes per frame
+const VELOCITY = .1; // minutes per frame
 
 // --- Utility functions ---
 // Generate a starfield background as a data URL SVG with deterministic seed
@@ -173,35 +173,6 @@ const mapPointsToMarkers = (pointsData: Array<SolsticeGlobePoint>) => pointsData
   event: point.event,
   _index: index,
 }));
-
-// Factory to build a glowing marker renderer
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-const makeGlowPointThreeObject = (usePointColor: boolean, pointSizeMultiplier: number) => (p: any) => {
-  const colorString = usePointColor && typeof p.color === 'string' ? p.color : '#ffffff';
-  const baseSize = typeof p.size === 'number' ? p.size * pointSizeMultiplier : 1;
-  const coreMaterial = new THREE.MeshBasicMaterial({ color: colorString, transparent: true });
-  coreMaterial.toneMapped = false;
-  const core = new THREE.Mesh(
-    new THREE.SphereGeometry(Math.max(baseSize * 0.05, 0.02), 16, 16),
-    coreMaterial
-  );
-  core.renderOrder = 999;
-  const glowMaterial = new THREE.SpriteMaterial({
-    color: colorString,
-    transparent: true,
-    opacity: 1,
-    blending: THREE.AdditiveBlending,
-    depthWrite: false,
-  });
-  glowMaterial.toneMapped = false;
-  const glow = new THREE.Sprite(glowMaterial);
-  const glowScale = Math.max(baseSize * 0.6, 0.3);
-  glow.scale.set(glowScale, glowScale, 1);
-  core.add(glow);
-  return core;
-};
-
-// (inlined below where used)
 
 // Centered screen coords helper
 const getCenteredScreenCoords = (containerEl: HTMLDivElement | null): { x: number; y: number } | null => {
@@ -398,13 +369,7 @@ const SolsticeGlobe3D = ({
   onClick,
   dayImageUrl = "https://res.cloudinary.com/lesswrong-2-0/image/upload/v1761946618/flat_earth_Largest_still_blchxn.jpg",
   nightImageUrl = "https://res.cloudinary.com/lesswrong-2-0/image/upload/v1761947544/earth-night_fratqn.jpg",
-  // Marker rendering controls
-  markerRenderer = 'glow',
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  customPointThreeObject,
-  usePointColor = false,
   altitudeScale = 0.099,
-  pointSizeMultiplier = 100,
   initialAltitudeMultiplier = 1.6,
 }: {
   pointsData: Array<SolsticeGlobePoint>;
@@ -464,16 +429,6 @@ const SolsticeGlobe3D = ({
 
   // Convert points data to format expected by react-globe.gl
   const markerData = mapPointsToMarkers(pointsData);
-
-  const glowPointThreeObject = makeGlowPointThreeObject(usePointColor, pointSizeMultiplier);
-  // Choose which renderer to use: built-in spheres, our glow geometry, or a custom factory
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const pointThreeObject: any = (
-    markerRenderer === 'sphere'
-      ? undefined
-      : (markerRenderer === 'custom' ? (customPointThreeObject ?? glowPointThreeObject) : glowPointThreeObject)
-  );
-  const usingCustomMarker = markerRenderer !== 'sphere';
 
   const handlePointClick = (point: SolsticeGlobePoint) => {
     const screenCoords = getCenteredScreenCoords(containerRef.current);
