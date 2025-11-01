@@ -62,6 +62,34 @@ export const styles = (theme: ThemeType) => ({
   },
 });
 
+export const StyledMapPopupContent = ({
+  children, classes, link, title,
+  metaInfo, cornerLinks, hideBottomLinks
+}: {
+  children?: ReactNode,
+  classes: ClassesType<typeof styles>,
+  link: string,
+  title: string|ReactNode,
+  metaInfo?: any,
+  cornerLinks?: any,
+  hideBottomLinks?: boolean
+}) => {
+  return (
+    <div className={classes.root}>
+      <Link to={link}><h5 className={classes.groupMarkerName}> {title} </h5></Link>
+      <ContentStyles contentType={"comment"} className={classes.root}>
+        <div className={classes.markerBody}>{children}</div>
+      </ContentStyles>
+     
+      {metaInfo && <div className={classes.contactInfo}>{metaInfo}</div>}
+      {!hideBottomLinks && <div className={classes.linksWrapper}>
+        <Link className={classes.markerPageLink} to={link}> Full link </Link>
+        <div>{cornerLinks}</div>
+      </div>}
+    </div>
+  );
+};
+
 const StyledMapPopup = ({
   children, classes, link, title,
   metaInfo, cornerLinks, lat, lng,
@@ -91,18 +119,16 @@ const StyledMapPopup = ({
     captureClick
     captureScroll
     anchor="bottom" >
-      <div className={classes.root}>
-        <Link to={link}><h5 className={classes.groupMarkerName}> {title} </h5></Link>
-        <ContentStyles contentType={"comment"} className={classes.root}>
-          <div className={classes.markerBody}>{children}</div>
-        </ContentStyles>
-       
-        {metaInfo && <div className={classes.contactInfo}>{metaInfo}</div>}
-        {!hideBottomLinks && <div className={classes.linksWrapper}>
-          <Link className={classes.markerPageLink} to={link}> Full link </Link>
-          <div>{cornerLinks}</div>
-        </div>}
-      </div>
+      <StyledMapPopupContent
+        classes={classes}
+        link={link}
+        title={title}
+        metaInfo={metaInfo}
+        cornerLinks={cornerLinks}
+        hideBottomLinks={hideBottomLinks}
+      >
+        {children}
+      </StyledMapPopupContent>
   </Popup>
 }
 

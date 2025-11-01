@@ -202,7 +202,7 @@ const PostsNewForm = () => {
   });
   const currentUserWithModGuidelines = dataUser?.user?.result;
 
-  const types = (['IFANYONE', 'PETROV'] as const).filter(type => query[type])
+  const types = (['IFANYONE', 'PETROV', 'SOLSTICE'] as const).filter(type => query[type])
   const { data, title } = getMeetupMonthInfo(types)
 
   let prefilledProps: PrefilledPost = templateDocument ? prefillFromTemplate(templateDocument, currentUser) : {

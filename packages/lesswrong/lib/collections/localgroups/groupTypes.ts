@@ -23,6 +23,10 @@ export const groupTypes = [
   {
     shortName: "PETROV",
     longName: "Petrov Day",
+  },
+  {
+    shortName: "SOLSTICE",
+    longName: "Solstice Celebration",
   }
 ];
 
