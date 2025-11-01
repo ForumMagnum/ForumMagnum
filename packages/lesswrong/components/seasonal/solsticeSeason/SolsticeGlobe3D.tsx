@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useRef, useMemo } from 'react';
+import React, { useEffect, useState, useRef, useMemo, useCallback } from 'react';
 import dynamic from 'next/dynamic';
 // eslint-disable-next-line @typescript-eslint/no-var-requires
 const THREE = require('three');
@@ -48,12 +48,10 @@ type PointClickCallback = (point: SolsticeGlobePoint, screenCoords: { x: number;
 
 //https://res.cloudinary.com/lesswrong-2-0/image/upload/v1761941646/starfield_fdoup4.jpg
 
-// Contrast enhancement properties
-const CONTRAST_AMOUNT = 1; // Higher values = more contrast (bright parts brighter, dark parts darker)
-const BRIGHTNESS_BOOST = 1; // Multiplier for overall brightness
-const BRIGHTNESS_ADD = 0.1; // Additive brightness component (0-1 range)
 // Countries GeoJSON (Natural Earth 110m) used for drawing borders
 const COUNTRIES_GEOJSON_URL = '//unpkg.com/three-globe/example/datasets/ne_110m_admin_0_countries.geojson';
+// Day-night cycle settings - velocity in minutes per frame (like the example)
+const VELOCITY = 1; // minutes per frame
 
 // --- Utility functions ---
 // Generate a starfield background as a data URL SVG with deterministic seed
@@ -88,44 +86,67 @@ const generateStarBackgroundDataUrl = (width: number, height: number, seed: numb
   return `data:image/svg+xml;utf8,${encodeURIComponent(svg)}`;
 };
 
-// Build the contrast-enhancing shader material
+// Build the day-night cycle shader material - exact copy from react-globe.gl example
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
-const createContrastShaderMaterial = (THREERef: any, contrast: number, brightness: number, brightnessAdd: number) => {
+const createDayNightShaderMaterial = (THREERef: any) => {
   return new THREERef.ShaderMaterial({
     uniforms: {
-      map: { value: null },
-      contrast: { value: contrast },
-      brightness: { value: brightness },
-      brightnessAdd: { value: brightnessAdd },
+      dayTexture: { value: null },
+      nightTexture: { value: null },
+      sunPosition: { value: new THREERef.Vector2() },
+      globeRotation: { value: new THREERef.Vector2() },
     },
     vertexShader: `
+      varying vec3 vNormal;
       varying vec2 vUv;
       void main() {
+        vNormal = normalize(normalMatrix * normal);
         vUv = uv;
         gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0);
       }
     `,
     fragmentShader: `
-      uniform sampler2D map;
-      uniform float contrast;
-      uniform float brightness;
-      uniform float brightnessAdd;
+      #define PI 3.141592653589793
+      uniform sampler2D dayTexture;
+      uniform sampler2D nightTexture;
+      uniform vec2 sunPosition;
+      uniform vec2 globeRotation;
+      varying vec3 vNormal;
       varying vec2 vUv;
-      
+
+      float toRad(in float a) {
+        return a * PI / 180.0;
+      }
+
+      vec3 Polar2Cartesian(in vec2 c) {
+        float theta = toRad(90.0 - c.x);
+        float phi = toRad(90.0 - c.y);
+        return vec3(
+          sin(phi) * cos(theta),
+          cos(phi),
+          sin(phi) * sin(theta)
+        );
+      }
+
       void main() {
-        vec4 texColor = texture2D(map, vUv);
-        
-        // Apply brightness boost: both multiplicative and additive
-        vec3 brightened = texColor.rgb * brightness + brightnessAdd;
-        
-        // Apply contrast enhancement: center around 0.5, scale, then add back
-        // This makes bright parts brighter and dark parts darker
-        vec3 contrastAdjusted = (brightened - 0.5) * contrast + 0.5;
-        
-        // Clamp to valid range
-        vec3 finalColor = clamp(contrastAdjusted, 0.0, 1.0);
-        
-        gl_FragColor = vec4(finalColor, texColor.a);
+        float invLon = toRad(globeRotation.x);
+        float invLat = -toRad(globeRotation.y);
+        mat3 rotX = mat3(
+          1, 0, 0,
+          0, cos(invLat), -sin(invLat),
+          0, sin(invLat), cos(invLat)
+        );
+        mat3 rotY = mat3(
+          cos(invLon), 0, sin(invLon),
+          0, 1, 0,
+          -sin(invLon), 0, cos(invLon)
+        );
+        vec3 rotatedSunDirection = rotX * rotY * Polar2Cartesian(sunPosition);
+        float intensity = dot(normalize(vNormal), normalize(rotatedSunDirection));
+        vec4 dayColor = texture2D(dayTexture, vUv);
+        vec4 nightColor = texture2D(nightTexture, vUv);
+        float blendFactor = smoothstep(-0.1, 0.1, intensity);
+        gl_FragColor = mix(nightColor, dayColor, blendFactor);
       }
     `,
   });
@@ -190,13 +211,13 @@ const getCenteredScreenCoords = (containerEl: HTMLDivElement | null): { x: numbe
 };
 
 // --- Hooks ---
-// Create and manage the globe material lifecycle
+// Create and manage the globe material lifecycle with day-night support
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
-const useGlobeContrastMaterial = (): React.MutableRefObject<any> => {
+const useGlobeDayNightMaterial = (): React.MutableRefObject<any> => {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const globeMaterialRef = useRef<any>(null);
   useEffect(() => {
-    globeMaterialRef.current = createContrastShaderMaterial(THREE, CONTRAST_AMOUNT, BRIGHTNESS_BOOST, BRIGHTNESS_ADD);
+    globeMaterialRef.current = createDayNightShaderMaterial(THREE);
     return () => {
       if (globeMaterialRef.current && typeof globeMaterialRef.current.dispose === 'function') {
         globeMaterialRef.current.dispose();
@@ -236,13 +257,14 @@ const useContainerDimensions = (containerRef: React.RefObject<HTMLDivElement | n
   return dimensions;
 };
 
-// Combine: assign texture, set POV, and call onReady once globe is ready
+// Combine: assign textures, set POV, and call onReady once globe is ready
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 const useGlobeReadyEffects = (
   isGlobeReady: boolean,
   globeRef: React.MutableRefObject<any>,
   globeMaterialRef: React.MutableRefObject<any>,
-  globeImageUrl: string | undefined,
+  dayImageUrl: string | undefined,
+  nightImageUrl: string | undefined,
   pov: PointOfView,
   onReady?: () => void
 ) => {
@@ -254,24 +276,41 @@ const useGlobeReadyEffects = (
 
     if (globeObj && globeObj.scene && globeObj.scene.children) {
       const globeMesh = findMeshWithTexture(globeObj.scene);
-      if (globeMesh && globeMesh.material && globeMesh.material.map) {
+      if (globeMesh && globeMesh.material) {
         if (globeMaterialRef.current) {
-          globeMaterialRef.current.uniforms.map.value = globeMesh.material.map;
           globeMesh.material = globeMaterialRef.current;
         }
         textureFound = true;
       }
     }
 
-    if (!textureFound && globeImageUrl) {
-      const loader = new THREE.TextureLoader();
+    const loader = new THREE.TextureLoader();
+    if (dayImageUrl) {
       loader.load(
-        globeImageUrl,
+        dayImageUrl,
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
         (texture: any) => {
           texture.colorSpace = THREE.SRGBColorSpace;
+          // Set wrapping for equirectangular textures: repeat horizontally, clamp vertically
+          texture.wrapS = THREE.RepeatWrapping;
+          texture.wrapT = THREE.ClampToEdgeWrapping;
           if (globeMaterialRef.current) {
-            globeMaterialRef.current.uniforms.map.value = texture;
+            globeMaterialRef.current.uniforms.dayTexture.value = texture;
+          }
+        }
+      );
+    }
+    if (nightImageUrl) {
+      loader.load(
+        nightImageUrl,
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        (texture: any) => {
+          texture.colorSpace = THREE.SRGBColorSpace;
+          // Set wrapping for equirectangular textures: repeat horizontally, clamp vertically
+          texture.wrapS = THREE.RepeatWrapping;
+          texture.wrapT = THREE.ClampToEdgeWrapping;
+          if (globeMaterialRef.current) {
+            globeMaterialRef.current.uniforms.nightTexture.value = texture;
           }
         }
       );
@@ -279,7 +318,74 @@ const useGlobeReadyEffects = (
 
     globeRef.current.pointOfView({ lat: pov.lat, lng: pov.lng, altitude: pov.altitude }, 0);
     onReady?.();
-  }, [isGlobeReady, globeRef, globeMaterialRef, globeImageUrl, pov.lat, pov.lng, pov.altitude, onReady]);
+  }, [isGlobeReady, globeRef, globeMaterialRef, dayImageUrl, nightImageUrl, pov.lat, pov.lng, pov.altitude, onReady]);
+};
+
+// Calculate sun position based on date/time - includes Earth's tilt (declination)
+// Based on react-globe.gl example
+const sunPosAt = (dt: number): [number, number] => {
+  const day = new Date(dt).setUTCHours(0, 0, 0, 0);
+  const daysSinceJ2000 = (dt - 946728000000) / 86400000; // J2000 = Jan 1, 2000
+  
+  // Calculate mean anomaly (simplified)
+  const meanAnomaly = (357.5291 + (0.98560028 * daysSinceJ2000)) % 360;
+  const meanAnomalyRad = (meanAnomaly * Math.PI) / 180;
+  
+  // Equation of time (simplified approximation)
+  const equationOfTime = 4 * (meanAnomalyRad + (0.0334 * Math.sin(meanAnomalyRad)) - 1.5347);
+  
+  // Solar declination (Earth's axial tilt effect) - simplified
+  const declinationRad = ((23.44 * Math.PI) / 180) * Math.sin((2 * Math.PI * ((daysSinceJ2000 + 284) / 365.25)));
+  const declination = (declinationRad * 180) / Math.PI;
+  
+  // Calculate longitude based on time of day
+  const longitude = (((day - dt) / 86400000) * 360) - 180;
+  
+  return [longitude - (equationOfTime / 4), declination];
+};
+
+// Day-night cycle animation hook - exact copy from react-globe.gl example
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+const useDayNightCycle = (globeRef: React.MutableRefObject<any>, globeMaterialRef: React.MutableRefObject<any>, isGlobeReady: boolean, pov: PointOfView) => {
+  const [dt, setDt] = useState(+new Date());
+  
+  useEffect(() => {
+    if (!isGlobeReady || !globeMaterialRef.current) return;
+
+    let animationFrameId: number;
+    
+    const iterateTime = () => {
+      setDt(dt => dt + (VELOCITY * 60 * 1000));
+      animationFrameId = requestAnimationFrame(iterateTime);
+    };
+    
+    iterateTime();
+
+    return () => {
+      if (animationFrameId) {
+        cancelAnimationFrame(animationFrameId);
+      }
+    };
+  }, [isGlobeReady, globeMaterialRef]);
+  
+  useEffect(() => {
+    if (!globeMaterialRef.current) return;
+    
+    // Update sun position based on current time
+    const sunPos = sunPosAt(dt);
+    if (globeMaterialRef.current.uniforms?.sunPosition) {
+      globeMaterialRef.current.uniforms.sunPosition.value.set(sunPos[0], sunPos[1]);
+    }
+  }, [dt, globeMaterialRef]);
+  
+  useEffect(() => {
+    if (!globeRef.current || !globeMaterialRef.current) return;
+    
+    // Update globe rotation when POV changes
+    if (globeMaterialRef.current.uniforms?.globeRotation) {
+      globeMaterialRef.current.uniforms.globeRotation.value.set(pov.lng, pov.lat);
+    }
+  }, [globeRef, globeMaterialRef, pov.lat, pov.lng]);
 };
 
 const SolsticeGlobe3D = ({
@@ -290,7 +396,8 @@ const SolsticeGlobe3D = ({
   className,
   style,
   onClick,
-  globeImageUrl = "https://res.cloudinary.com/lesswrong-2-0/image/upload/v1761942539/earth-day-night-dark_p4ltda.jpg",
+  dayImageUrl = "https://res.cloudinary.com/lesswrong-2-0/image/upload/v1761946618/flat_earth_Largest_still_blchxn.jpg",
+  nightImageUrl = "https://res.cloudinary.com/lesswrong-2-0/image/upload/v1761947544/earth-night_fratqn.jpg",
   // Marker rendering controls
   markerRenderer = 'glow',
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -307,10 +414,11 @@ const SolsticeGlobe3D = ({
   className?: string;
   style?: React.CSSProperties;
   onClick?: React.MouseEventHandler<HTMLDivElement>;
-  // URL for the globe texture. Accepts JPG, PNG, or SVG formats. Note: SVGs will be rasterized at load time.
+  // URLs for the globe day and night textures. Accepts JPG, PNG, or SVG formats. Note: SVGs will be rasterized at load time.
   // For best performance with 3D globe textures, equirectangular bitmap images (JPG/PNG) are recommended.
-  // The image should use an equirectangular projection (360° horizontal, 180° vertical).
-  globeImageUrl?: string;
+  // The images should use an equirectangular projection (360° horizontal, 180° vertical).
+  dayImageUrl?: string;
+  nightImageUrl?: string;
   // Marker rendering controls
   markerRenderer?: 'glow' | 'sphere' | 'custom';
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -325,8 +433,8 @@ const SolsticeGlobe3D = ({
   const globeRef = useRef<any>(null);
   const containerRef = useRef<HTMLDivElement>(null);
   const dimensions = useContainerDimensions(containerRef, { width: 800, height: 600 });
-  // Create material with contrast enhancement shader for high contrast
-  const globeMaterialRef = useGlobeContrastMaterial();
+  // Create material with day-night cycle shader
+  const globeMaterialRef = useGlobeDayNightMaterial();
   const countryPolygons = useCountryPolygons(COUNTRIES_GEOJSON_URL);
 
   const starBackgroundUrl = useMemo<string>(() => {
@@ -342,7 +450,17 @@ const SolsticeGlobe3D = ({
     lng: defaultPointOfView.lng,
     altitude: defaultPointOfView.altitude * initialAltitudeMultiplier,
   }), [defaultPointOfView.lat, defaultPointOfView.lng, defaultPointOfView.altitude, initialAltitudeMultiplier]);
-  useGlobeReadyEffects(isGlobeReady, globeRef, globeMaterialRef, globeImageUrl, initialPov, onReady);
+  useGlobeReadyEffects(isGlobeReady, globeRef, globeMaterialRef, dayImageUrl, nightImageUrl, initialPov, onReady);
+  
+  // Start day-night cycle animation
+  useDayNightCycle(globeRef, globeMaterialRef, isGlobeReady, initialPov);
+
+  // Update globe rotation when user zooms/interacts (matches example)
+  const handleZoom = useCallback(({ lng, lat }: { lng: number; lat: number }) => {
+    if (globeMaterialRef.current?.uniforms?.globeRotation) {
+      globeMaterialRef.current.uniforms.globeRotation.value.set(lng, lat);
+    }
+  }, [globeMaterialRef]);
 
   // Convert points data to format expected by react-globe.gl
   const markerData = mapPointsToMarkers(pointsData);
@@ -355,6 +473,7 @@ const SolsticeGlobe3D = ({
       ? undefined
       : (markerRenderer === 'custom' ? (customPointThreeObject ?? glowPointThreeObject) : glowPointThreeObject)
   );
+  const usingCustomMarker = markerRenderer !== 'sphere';
 
   const handlePointClick = (point: SolsticeGlobePoint) => {
     const screenCoords = getCenteredScreenCoords(containerRef.current);
@@ -378,7 +497,7 @@ const SolsticeGlobe3D = ({
         <div style={{ transform: 'translateX(-35vw) scale(1)', transformOrigin: 'center center' }}>
           <GlobeAny
             ref={globeRef}
-            globeImageUrl={globeImageUrl}
+            globeImageUrl={undefined}
             backgroundImageUrl={"https://res.cloudinary.com/lesswrong-2-0/image/upload/v1761941646/starfield_fdoup4.jpg"}
             globeMaterial={globeMaterialRef.current}
             onGlobeReady={() => setIsGlobeReady(true)}
@@ -394,12 +513,15 @@ const SolsticeGlobe3D = ({
             pointLat="lat"
             pointLng="lng"
             pointColor="color"
-            pointRadius="size"
+            // eslint-disable-next-line @typescript-eslint/no-explicit-any
+            pointRadius={(p: any) => usingCustomMarker ? 0 : (typeof p.size === 'number' ? p.size : 1)}
             // Reduce vertical height of meetup nodes to ~1/3 of typical altitude
+            // When rendering custom markers, hide the default cylinders by making radius 0 (above)
+            // and keeping altitude near-flat to avoid visual stubs while preventing z-fighting.
             // eslint-disable-next-line @typescript-eslint/no-explicit-any
             pointAltitude={(p: any) => {
               const base = typeof p.size === 'number' ? p.size : 1;
-              return base * altitudeScale;
+              return usingCustomMarker ? 0.002 : base * altitudeScale;
             }}
             pointResolution={8}
             // Use selected renderer; when undefined, falls back to library's colored spheres
@@ -420,6 +542,7 @@ const SolsticeGlobe3D = ({
             atmosphereColor="rgb(206, 233, 255)"
             atmosphereAltitude={0.15}
             enablePointerInteraction={true}
+            onZoom={handleZoom}
           />
         </div>
       )}
