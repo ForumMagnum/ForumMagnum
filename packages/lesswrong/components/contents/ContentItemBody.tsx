@@ -17,7 +17,7 @@ import { useTracking } from '@/lib/analyticsEvents';
 import ForumEventPostPagePollSection from '../forumEvents/ForumEventPostPagePollSection';
 import repeat from 'lodash/repeat';
 import { captureException } from '@/lib/sentryWrapper';
-import { getColorReplacements } from '@/themes/userThemes/darkMode';
+import { getColorReplacementsCache } from '@/themes/userThemes/darkMode';
 import { colorToString, invertColor, parseColor } from '@/themes/colorUtil';
 import { ThemeContext } from '../themes/useTheme';
 
@@ -597,6 +597,7 @@ function transformStylesForDarkMode(styles: Record<string,string>, themeName: Us
   if (themeName === 'dark' || themeName === 'auto') {
     return Object.fromEntries(Object.entries(styles).map(([attribute,value]) => {
       if (attributesNeedingTransform[attribute]) {
+        console.log(`Transforming ${attribute}:${value}`);
         const darkModeValue = transformAttributeValueForDarkMode(value)
         if (themeName === "auto" && darkModeValue !== value) {
           return [attribute, `light-dark(${value},${darkModeValue})`];
@@ -613,22 +614,26 @@ function transformStylesForDarkMode(styles: Record<string,string>, themeName: Us
 }
 
 function transformAttributeValueForDarkMode(attributeValue: string): string {
+  console.log(`Transforming color ${attributeValue}`);
   const normalized = attributeValue.trim().toLowerCase();
-  if (!getColorReplacements()[normalized]) {
+  if (!getColorReplacementsCache()[normalized]) {
     const parsedColor = parseColor(normalized);
     if (parsedColor) {
       const invertedColor = invertColor(parsedColor);
-      getColorReplacements()[normalized] = colorToString(invertedColor);
+      getColorReplacementsCache()[normalized] = colorToString(invertedColor);
     } else {
       // If unable to parse a color (eg an unsupported color format), use black
       // as a safe dark-mode background color
-      getColorReplacements()[normalized] = "#000000";
+      getColorReplacementsCache()[normalized] = "#000000";
     }
   }
   
-  if (getColorReplacements()[normalized]) {
-    return getColorReplacements()[normalized];
+  if (getColorReplacementsCache()[normalized]) {
+    const result = getColorReplacementsCache()[normalized];
+    console.log(`Returning ${result} (replacement)`);
+    return result;
   } else {
+    console.log(`Returning ${attributeValue}`);
     return attributeValue;
   }
 }
