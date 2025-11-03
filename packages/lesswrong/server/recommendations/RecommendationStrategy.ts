@@ -124,7 +124,6 @@ abstract class RecommendationStrategy {
       filter: `
         p."status" = $(postStatus) AND
         p."draft" IS NOT TRUE AND
-        p."deletedDraft" IS NOT TRUE AND
         p."isFuture" IS NOT TRUE AND
         p."shortform" IS NOT TRUE AND
         p."hiddenRelatedQuestion" IS NOT TRUE AND
