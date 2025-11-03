@@ -4,6 +4,7 @@ import classNames from 'classnames';
 import { usePrerenderablePathname } from '../next/usePrerenderablePathname';
 import { routeHasWhiteBackground } from './routeBackgroundColors';
 import { isClient } from '@/lib/executionEnvironment';
+import "./pageBackground.css";
 
 const themeSelectorScript = `
 (function _addThemeClass() {
