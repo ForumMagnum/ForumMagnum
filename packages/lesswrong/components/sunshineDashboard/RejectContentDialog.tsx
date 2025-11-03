@@ -473,10 +473,14 @@ const RejectContentDialog = ({rejectionTemplates, onClose, rejectContent}: {
         if (hideTextField) {
           setHideTextField(false);
         }
-        editorContainerRef.current?.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+        // We need the outer setTimeout to allow a rerender after `setHideTextField` causes a state update to show the editor
+        // and the inner timeout to allow the scroll to finish (since apparently focusing an element will interrupt the scroll)
         setTimeout(() => {
-          editor?.focus();
-        }, 100);
+          editorContainerRef.current?.scrollIntoView({ behavior: 'smooth', block: 'center' });
+          setTimeout(() => {
+            editor?.focus();
+          }, 300);
+        }, 0);
         break;
     }
   }, [visibleTemplates, selectedIndex, selections, composeRejectedReason, rejectedReason, hideTextField, editor, handleClick]);
