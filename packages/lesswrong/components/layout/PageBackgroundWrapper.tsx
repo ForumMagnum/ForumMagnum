@@ -28,52 +28,18 @@ function getThemeClassnameFromCookie() {
   try {
     const getCookie = (name: string) => {
       const cookie = document.cookie.split(';').filter(c=>c.trim().startsWith(name+"="))[0];
-      console.log(cookie);
       if (cookie) {
         return decodeURIComponent(cookie.split("=")[1]);
       }
     }
     const themeOptions = getCookie("theme")
     themeName = themeOptions ? JSON.parse(themeOptions).name : "default";
-  } catch {
+  } catch(e) {
+    // eslint-disable-next-line no-console
+    console.error(`Error seting theme from cookie: ${e}`);
   }
   return "theme-"+themeName;
 }
-
-const bodyBackgroundStyles = `
-body.whiteBackground.theme-default {
-  color-scheme: light only;
-  background: white;
-}
-body.greyBackground.theme-default{
-  color-scheme: light only;
-  background: #f8f4ee;
-}
-body.whiteBackground.theme-dark {
-  color-scheme: dark only;
-  background: black;
-}
-body.greyBackground.theme-dark {
-  color-scheme: dark only;
-  background: #262626;
-}
-@media (prefers-color-scheme: light) {
-  body.whiteBackground.theme-auto {
-    background: white;
-  }
-  body.greyBackground.theme-auto {
-    background: #f8f4ee;
-  }
-}
-@media (prefers-color-scheme: dark) {
-  body.whiteBackground.theme-auto {
-    background: black;
-  }
-  body.greyBackground.theme-auto {
-    background: #262626;
-  }
-}
-`;
 
 export function BodyWithBackgroundColor({children}: {
   children: React.ReactNode
@@ -88,8 +54,16 @@ export function BodyWithBackgroundColor({children}: {
     themeClassname,
   )}>
     <script>{themeSelectorScript}</script>
-    <style>{bodyBackgroundStyles}</style>
     {children}
+    
+    {/*
+      Chrome has a special case where, if the page doesn't "contain visible
+      text", it won't paint a frame. This winds up delaying the background-
+      color paint by 500ms, which is pretty significant. As a workaround, add
+      a div containing "visible" (but not really visible) text, which makes the
+      background color get painted significantly sooner.
+    */}
+    <div style={{opacity: 0.001}}>x</div>
   </body>
 }
 
