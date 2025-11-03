@@ -597,7 +597,6 @@ function transformStylesForDarkMode(styles: Record<string,string>, themeName: Us
   if (themeName === 'dark' || themeName === 'auto') {
     return Object.fromEntries(Object.entries(styles).map(([attribute,value]) => {
       if (attributesNeedingTransform[attribute]) {
-        console.log(`Transforming ${attribute}:${value}`);
         const darkModeValue = transformAttributeValueForDarkMode(value)
         if (themeName === "auto" && darkModeValue !== value) {
           return [attribute, `light-dark(${value},${darkModeValue})`];
@@ -614,7 +613,6 @@ function transformStylesForDarkMode(styles: Record<string,string>, themeName: Us
 }
 
 function transformAttributeValueForDarkMode(attributeValue: string): string {
-  console.log(`Transforming color ${attributeValue}`);
   const normalized = attributeValue.trim().toLowerCase();
   if (!getColorReplacementsCache()[normalized]) {
     const parsedColor = parseColor(normalized);
@@ -629,11 +627,8 @@ function transformAttributeValueForDarkMode(attributeValue: string): string {
   }
   
   if (getColorReplacementsCache()[normalized]) {
-    const result = getColorReplacementsCache()[normalized];
-    console.log(`Returning ${result} (replacement)`);
-    return result;
+    return getColorReplacementsCache()[normalized];
   } else {
-    console.log(`Returning ${attributeValue}`);
     return attributeValue;
   }
 }
