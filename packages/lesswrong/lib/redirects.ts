@@ -1,3 +1,5 @@
+import type { Redirect } from "next/dist/lib/load-custom-routes";
+
 /**
  * Redirects table. This is used for hover previews, pingbacks, and in
  * next.config.js (which performs the redirects themselves). Because this is
@@ -451,5 +453,5 @@ export const redirects = [
     destination: "/account",
     permanent: true
   },
-];
+] satisfies Redirect[];
 
