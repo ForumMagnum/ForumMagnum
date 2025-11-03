@@ -537,6 +537,9 @@ const Header = ({
 
   const llmSidebarAllowed = useIsAboveBreakpoint('lg');
 
+  // Adjust header width when LLM chat sidebar is open and header is fixed
+  const llmChatSidebarOpen = useContext(IsLlmChatSidebarOpenContext);
+
   useEffect(() => {
     const setForumEventHeaderStyle = hasForumEvents() && isHomeRoute(pathname) && bannerImageId && currentForumEvent?.eventFormat !== "BASIC" && !backgroundColor;
     if (setForumEventHeaderStyle || llmSidebarAllowed) {
@@ -578,9 +581,6 @@ const Header = ({
   // Make all the text and icons the same color as the text on the current forum event banner
   const useContrastText = useMemo(() => Object.keys(headerStyle).includes('backgroundColor') || Object.keys(headerStyle).includes('background'), [headerStyle]);
 
-  // Adjust header width when LLM chat sidebar is open and header is fixed
-  const llmChatSidebarOpen = useContext(IsLlmChatSidebarOpenContext);
-  
   const isGrayBackground = useIsOnGrayBackground();
 
   return (
