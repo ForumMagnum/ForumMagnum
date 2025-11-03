@@ -20,8 +20,6 @@ const clearStyle = (theme: ThemeType) => ({
   },
   body: {
     margin: 0,
-    background: theme.palette.background.default,
-    
     "@media print": {
       background: theme.palette.panelBackground.default,
     },

@@ -3,7 +3,10 @@ import ResendVerificationEmailPage from '@/components/users/ResendVerificationEm
 import { getDefaultMetadata } from "@/server/pageMetadata/sharedMetadata";
 import type { Metadata } from "next";
 import merge from "lodash/merge";
-import RouteRoot from "@/components/next/RouteRoot";
+import RouteRoot from "@/components/layout/RouteRoot";
+import { assertRouteHasWhiteBackground } from "@/components/layout/routeBackgroundColors";
+
+assertRouteHasWhiteBackground("/resendVerificationEmail");
 
 export async function generateMetadata(): Promise<Metadata> {
   return merge({}, await getDefaultMetadata(), {
@@ -12,7 +15,7 @@ export async function generateMetadata(): Promise<Metadata> {
 }
 
 export default function Page() {
-  return <RouteRoot metadata={{ background: 'white' }}>
+  return <RouteRoot>
     <ResendVerificationEmailPage />
   </RouteRoot>;
 }

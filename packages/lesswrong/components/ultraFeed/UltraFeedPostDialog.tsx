@@ -48,7 +48,7 @@ import { unflattenComments } from '../../lib/utils/unflatten';
 import PostsPageQuestionContent from "../questions/PostsPageQuestionContent";
 import { useSubscribedLocation } from "@/lib/routeUtil";
 import { RecombeeRecommendationsContextWrapper } from '../recommendations/RecombeeRecommendationsContextWrapper';
-import { Helmet } from '../common/Helmet';
+import { Helmet } from '@/components/layout/Helmet';
 import AnalyticsInViewTracker from "../common/AnalyticsInViewTracker";
 import AttributionInViewTracker from "../common/AttributionInViewTracker";
 import { commentIsHiddenPendingReview } from '../../lib/collections/comments/helpers';

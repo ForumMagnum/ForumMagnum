@@ -3,7 +3,8 @@ import Book2018Landing from '@/components/books/Book2018Landing';
 import { getDefaultMetadata, getMetadataDescriptionFields, getMetadataImagesFields, getPageTitleFields } from "@/server/pageMetadata/sharedMetadata";
 import type { Metadata } from "next";
 import merge from "lodash/merge";
-import RouteRoot from "@/components/next/RouteRoot";
+import RouteRoot from "@/components/layout/RouteRoot";
+import { assertRouteHasWhiteBackground } from "@/components/layout/routeBackgroundColors";
 
 export async function generateMetadata(): Promise<Metadata> {
   return merge(
@@ -15,8 +16,10 @@ export async function generateMetadata(): Promise<Metadata> {
   );
 }
 
+assertRouteHasWhiteBackground("/books/2018");
+
 export default function Page() {
-  return <RouteRoot metadata={{ background: 'white' }}>
+  return <RouteRoot>
     <Book2018Landing />
   </RouteRoot>;
 }

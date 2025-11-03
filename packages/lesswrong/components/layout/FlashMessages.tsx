@@ -1,11 +1,10 @@
 import React, { useState, useCallback, ReactNode, useMemo, useContext, type ReactElement, useEffect } from 'react';
-import { registerComponent } from '../../lib/vulcan-lib/components';
-import { MessageFunctionsContext } from './withMessages';
+import { MessageFunctionsContext } from '@/components/common/withMessages';
 import Button from '@/lib/vendor/@material-ui/core/src/Button';
 import { Snackbar } from '../widgets/Snackbar';
 import { defineStyles, useStyles } from '../hooks/useStyles';
-import { Paper } from '../widgets/Paper';
-import { Typography } from "./Typography";
+import { Paper } from '@/components/widgets/Paper';
+import { Typography } from "@/components/common/Typography";
 
 const styles = defineStyles("FlashMessages", (theme) => ({
   root: {
@@ -180,6 +179,6 @@ const FlashMessages = () => {
   );
 }
 
-export default registerComponent('FlashMessages', FlashMessages);
+export default FlashMessages;
 
 

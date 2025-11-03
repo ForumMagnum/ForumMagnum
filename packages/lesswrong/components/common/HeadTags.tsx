@@ -2,9 +2,9 @@ import React from 'react';
 import { combineUrls, getBasePath, getSiteUrl } from '../../lib/vulcan-lib/utils';
 import { useSubscribedLocation } from '../../lib/routeUtil';
 import { taglineSetting, tabTitleSetting, tabLongTitleSetting, noIndexSetting } from '../../lib/instanceSettings';
-import { Helmet } from "./Helmet";
+import { Helmet } from "@/components/layout/Helmet";
 import { SuspenseWrapper } from './SuspenseWrapper';
-import { useRouteMetadata } from '../ClientRouteMetadataContext';
+import { useRouteMetadata } from '@/components/layout/ClientRouteMetadataContext';
 
 const HeadTags = ({
   ogUrl: ogUrlProp,

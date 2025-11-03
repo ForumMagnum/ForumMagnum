@@ -3,7 +3,7 @@ import { registerComponent } from '../../lib/vulcan-lib/components';
 import { Hits, Configure } from 'react-instantsearch-dom';
 import { SearchIndexCollectionName, getSearchIndexName } from '../../lib/search/searchUtil';
 import { Link } from '../../lib/reactRouterWrapper';
-import { getHeaderHeight, getMobileHeaderHeight } from '../common/Header';
+import { getHeaderHeight, getMobileHeaderHeight } from '../layout/Header';
 import { SearchHitComponentProps } from './types';
 import { Index } from '../../lib/utils/componentsWithChildren';
 import ErrorBoundary from "../common/ErrorBoundary";

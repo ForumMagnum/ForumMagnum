@@ -13,7 +13,7 @@ import { userIsAdmin } from '../../lib/vulcan-users/permissions'
 import LibraryAddIcon from '@/lib/vendor/@material-ui/icons/src/LibraryAdd';
 import { pickBestReverseGeocodingResult } from '../../lib/geocoding';
 import { useGoogleMaps } from '../form-components/LocationFormComponent';
-import { WithMessagesFunctions } from '../common/FlashMessages';
+import { WithMessagesFunctions } from '@/components/layout/FlashMessages';
 import SetPersonalMapLocationDialog from "./SetPersonalMapLocationDialog";
 import LoginPopup from "../users/LoginPopup";
 import EventNotificationsDialog from "./EventNotificationsDialog";

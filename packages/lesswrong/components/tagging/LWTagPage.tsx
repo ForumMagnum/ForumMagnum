@@ -20,7 +20,7 @@ import { isFriendlyUI } from "../../themes/forumTheme";
 import DeferRender from "../common/DeferRender";
 import { RelevanceLabel, tagPageHeaderStyles, tagPostTerms } from "./TagPageUtils";
 import { useStyles, defineStyles } from "../hooks/useStyles";
-import { getHeaderHeight } from "../common/Header";
+import { getHeaderHeight } from "@/components/layout/Header";
 import { MAX_COLUMN_WIDTH } from '../posts/PostsPage/constants';
 import { TagLens, useTagLenses } from "@/lib/arbital/useTagLenses";
 import { MAIN_TAB_ID } from "@/lib/collections/tags/constants";

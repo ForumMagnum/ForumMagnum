@@ -3,6 +3,7 @@ import AllComments from '@/components/comments/AllComments';
 import { getDefaultMetadata } from "@/server/pageMetadata/sharedMetadata";
 import type { Metadata } from "next";
 import merge from "lodash/merge";
+import RouteRoot from "@/components/layout/RouteRoot";
 
 export async function generateMetadata(): Promise<Metadata> {
   return merge({}, await getDefaultMetadata(), {
@@ -13,5 +14,7 @@ export async function generateMetadata(): Promise<Metadata> {
 export default function Page() {
   // enableResourcePrefetch was: true
   
-  return <AllComments />;
+  return <RouteRoot>
+    <AllComments />
+  </RouteRoot>
 }

@@ -44,12 +44,10 @@ const styles = (theme: ThemeType) => ({
 
 const NavigationStandalone = ({
   sidebarHidden,
-  unspacedGridLayout,
   noTopMargin,
   classes,
 }: {
   sidebarHidden: boolean,
-  unspacedGridLayout?: boolean,
   noTopMargin?: boolean,
   classes: ClassesType<typeof styles>,
 }) => {
@@ -60,12 +58,9 @@ const NavigationStandalone = ({
   return <>
     <div className={classNames({[classes.sidebarWrapper]: isFriendlyUI})}>
       <Slide slidIn={!sidebarHidden}>
-        <div className={classNames(classes.sidebar, {[classes.background]: background, [classes.navSidebarTransparent]: unspacedGridLayout})}>
+        <div className={classNames(classes.sidebar, {[classes.background]: background})}>
           {/* In the unspaced grid layout the sidebar can appear on top of other componenents, so make the background transparent */}
-          <TabNavigationMenu
-            transparentBackground={unspacedGridLayout}
-            noTopMargin={noTopMargin}
-          />
+          <TabNavigationMenu noTopMargin={noTopMargin} />
         </div>
       </Slide>
     </div>

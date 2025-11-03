@@ -23,7 +23,6 @@ declare global {
     Intercom: any,
     grecaptcha?: any,
     google?: any,
-    isReturningVisitor?: boolean,
     serverInsertedStyleNodes?: HTMLStyleElement[]|null,
 
     /**

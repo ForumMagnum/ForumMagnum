@@ -1,5 +1,5 @@
 import React from "react";
-import RouteRoot from "@/components/next/RouteRoot";
+import RouteRoot from "@/components/layout/RouteRoot";
 import { getDefaultMetadata, getPageTitleFields } from "@/server/pageMetadata/sharedMetadata";
 import type { Metadata } from "next";
 import merge from "lodash/merge";
@@ -12,7 +12,7 @@ export async function generateMetadata(): Promise<Metadata> {
 
 export default function PetrovDayStoryPage() {
   return <RouteRoot
-    metadata={{ noFooter: true, background: '#f8f4ee', hasLeftNavigationColumn: false }}
+    metadata={{ noFooter: true, hasLeftNavigationColumn: false }}
   >
     <PetrovDayPage />
   </RouteRoot>;

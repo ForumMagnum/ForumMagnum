@@ -19,7 +19,7 @@ import repeat from 'lodash/repeat';
 import { captureException } from '@/lib/sentryWrapper';
 import { getColorReplacements } from '@/themes/userThemes/darkMode';
 import { colorToString, invertColor, parseColor } from '@/themes/colorUtil';
-import { ThemeContext } from '../themes/useTheme';
+import { useAbstractThemeOptions } from '../themes/useTheme';
 
 type PassedThroughContentItemBodyProps = Pick<ContentItemBodyProps, "description"|"noHoverPreviewPrefetch"|"nofollow"|"contentStyleType"|"replacedSubstrings"|"idInsertions"> & {
   themeName: UserThemeSetting,
@@ -58,7 +58,7 @@ type SubstitutionsAttr = Array<{substitutionIndex: number, isSplitContinuation: 
 export const ContentItemBody = (props: ContentItemBodyProps) => {
   const { onContentReady, nofollow, dangerouslySetInnerHTML, replacedSubstrings, className, ref, invertSubstitutionColors } = props;
   const bodyRef = useRef<HTMLDivElement|null>(null);
-  const themeContext = useContext(ThemeContext)
+  const abstractThemeOptions = useAbstractThemeOptions();
   const html = (nofollow
     ? addNofollowToHTML(dangerouslySetInnerHTML.__html)
     : dangerouslySetInnerHTML.__html
@@ -91,7 +91,7 @@ export const ContentItemBody = (props: ContentItemBodyProps) => {
   
   const passedThroughProps: PassedThroughContentItemBodyProps = {
     ...pick(props, ["description", "noHoverPreviewPrefetch", "nofollow", "contentStyleType", "replacedSubstrings", "idInsertions"]),
-    themeName: themeContext!.abstractThemeOptions.name,
+    themeName: abstractThemeOptions.name,
     bodyRef,
   };
   

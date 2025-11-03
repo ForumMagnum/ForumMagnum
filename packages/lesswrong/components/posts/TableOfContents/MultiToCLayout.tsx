@@ -2,7 +2,7 @@ import classNames from 'classnames';
 import React, { useEffect, useRef } from 'react';
 import { MAX_COLUMN_WIDTH } from '../PostsPage/constants';
 import { fullHeightToCEnabled } from '../../../lib/betas';
-import { getHeaderHeight } from '@/components/common/Header';
+import { getHeaderHeight } from '@/components/layout/Header';
 import { defineStyles, useStyles } from '@/components/hooks/useStyles';
 
 export const MAX_CONTENT_WIDTH = 720;
