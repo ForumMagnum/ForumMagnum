@@ -37,16 +37,20 @@ const KeystrokeDisplay = ({
   keystroke,
   withMargin = false,
   activeContext = false,
+  splitBeforeTranslation = false,
 }: {
   keystroke: string;
   withMargin?: boolean;
   activeContext?: boolean;
+  splitBeforeTranslation?: boolean;
 }) => {
   const classes = useStyles(styles);
 
+  const displayedKeystrokes = splitBeforeTranslation ? keystroke.split('+').map(key => getEnvKeystrokeText(key)) : getEnvKeystrokeText(keystroke).split('');
+
   return (
     <span className={classNames(classes.root, withMargin && classes.withMargin)}>
-      {getEnvKeystrokeText(keystroke).split('').map((char) => (
+      {displayedKeystrokes.map((char) => (
         <span
           key={char}
           className={classNames(

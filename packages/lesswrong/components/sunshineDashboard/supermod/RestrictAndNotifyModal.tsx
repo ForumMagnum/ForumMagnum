@@ -1,4 +1,4 @@
-import React, { useState, useCallback, useMemo } from 'react';
+import React, { useState, useCallback, useMemo, useEffect, useRef } from 'react';
 import { defineStyles, useStyles } from '@/components/hooks/useStyles';
 import LWDialog from "@/components/common/LWDialog";
 import { DialogTitle } from '@/components/widgets/DialogTitle';
@@ -18,6 +18,9 @@ import type { Editor } from '@ckeditor/ckeditor5-core';
 import { getDraftMessageHtml } from '@/lib/collections/messages/helpers';
 import LWTooltip from '@/components/common/LWTooltip';
 import { Card } from '@/components/widgets/Paper';
+import classNames from 'classnames';
+import KeystrokeDisplay from './KeystrokeDisplay';
+import { useGlobalKeydown } from '@/components/common/withGlobalKeydown';
 
 const ModerationTemplateFragmentMultiQuery = gql(`
   query multiModerationTemplateRestrictAndNotifyModalQuery($selector: ModerationTemplateSelector, $limit: Int, $enableTotal: Boolean) {
@@ -41,8 +44,22 @@ const styles = defineStyles('RestrictAndNotifyModal', (theme: ThemeType) => ({
     minWidth: 500,
     maxWidth: 600,
   },
+  searchInput: {
+    width: '100%',
+    padding: '8px 12px',
+    marginBottom: 12,
+    border: `1px solid ${theme.palette.grey[300]}`,
+    borderRadius: 4,
+    fontSize: 14,
+    fontFamily: theme.palette.fonts.sansSerifStack,
+    backgroundColor: theme.palette.background.paper,
+    outline: 'none',
+    '&:focus': {
+      border: `1px solid ${theme.palette.grey[300]}`,
+    },
+  },
   templateList: {
-    marginTop: 16,
+    marginTop: 4,
     marginBottom: 16,
     display: 'flex',
     flexDirection: 'column',
@@ -51,8 +68,12 @@ const styles = defineStyles('RestrictAndNotifyModal', (theme: ThemeType) => ({
     display: 'flex',
     alignItems: 'center',
     cursor: 'pointer',
+    borderRadius: 3,
     '&:hover': {
       backgroundColor: theme.palette.grey[50],
+    },
+    '&.selected': {
+      backgroundColor: theme.palette.grey[200],
     },
   },
   radio: {
@@ -106,6 +127,11 @@ const RestrictAndNotifyModal = ({
   const [selectedTemplateId, setSelectedTemplateId] = useState<string | null>(null);
   const [messageContent, setMessageContent] = useState('');
   const [editor, setEditor] = useState<Editor | null>(null);
+  const [searchQuery, setSearchQuery] = useState('');
+  const [selectedIndex, setSelectedIndex] = useState(0);
+  const searchInputRef = useRef<HTMLInputElement>(null);
+  const templateListRef = useRef<HTMLDivElement>(null);
+  const editorContainerRef = useRef<HTMLDivElement>(null);
 
   const [rejectContentAndRemoveFromQueue] = useMutation(RejectContentAndRemoveFromQueueMutation);
 
@@ -118,6 +144,30 @@ const RestrictAndNotifyModal = ({
   });
 
   const templates = useMemo(() => templatesData?.moderationTemplates?.results ?? [], [templatesData]);
+
+  const filteredTemplates = useMemo(() => {
+    if (!searchQuery) return templates;
+    return templates.filter(template =>
+      template.name.toLowerCase().includes(searchQuery.toLowerCase())
+    );
+  }, [templates, searchQuery]);
+
+  useEffect(() => {
+    setTimeout(() => {
+      searchInputRef.current?.focus();
+    }, 0);
+  }, []);
+
+  useEffect(() => {
+    setSelectedIndex(0);
+  }, [searchQuery]);
+
+  useEffect(() => {
+    const selectedElement = templateListRef.current?.children[selectedIndex] as HTMLElement;
+    if (selectedElement) {
+      selectedElement.scrollIntoView({ block: 'nearest' });
+    }
+  }, [selectedIndex]);
 
   const handleTemplateSelect = useCallback((templateId: string) => {
     setSelectedTemplateId(templateId);
@@ -134,7 +184,7 @@ const RestrictAndNotifyModal = ({
     }
   }, [templates, user.displayName, editor]);
 
-  const handleConfirm = () => {
+  const handleConfirm = useCallback(() => {
     if (!selectedTemplateId || !messageContent) return;
 
     const executeAction = async () => {
@@ -150,7 +200,53 @@ const RestrictAndNotifyModal = ({
     };
 
     onComplete(executeAction);
-  };
+  }, [selectedTemplateId, messageContent, rejectContentAndRemoveFromQueue, user._id, documentId, collectionName, rejectedReason, onComplete]);
+
+  const handleKeyDown = useCallback((e: React.KeyboardEvent) => {
+    switch (e.key) {
+      case 'ArrowDown':
+        e.preventDefault();
+        setSelectedIndex(prev => prev === filteredTemplates.length - 1 ? 0 : prev + 1);
+        break;
+      case 'ArrowUp':
+        e.preventDefault();
+        setSelectedIndex(prev => prev === 0 ? filteredTemplates.length - 1 : prev - 1);
+        break;
+      case 'Enter':
+        if (e.ctrlKey || e.metaKey) {
+          e.preventDefault();
+          if (selectedTemplateId && messageContent) {
+            handleConfirm();
+          }
+        } else {
+          e.preventDefault();
+          if (filteredTemplates[selectedIndex]) {
+            handleTemplateSelect(filteredTemplates[selectedIndex]._id);
+          }
+        }
+        break;
+      case 'Tab':
+        e.preventDefault();
+        // We need the outer setTimeout to allow a rerender after `setHideTextField` causes a state update to show the editor
+        // and the inner timeout to allow the scroll to finish (since apparently focusing an element will interrupt the scroll)
+        setTimeout(() => {
+          editorContainerRef.current?.scrollIntoView({ behavior: 'smooth', block: 'center' });
+          setTimeout(() => {
+            editor?.focus();
+          }, 300);
+        }, 0);
+        break;
+    }
+  }, [filteredTemplates, selectedIndex, handleTemplateSelect, selectedTemplateId, messageContent, editor, handleConfirm]);
+
+  useGlobalKeydown(useCallback((e: KeyboardEvent) => {
+    if ((e.ctrlKey || e.metaKey) && e.key === 'Enter') {
+      if (selectedTemplateId && messageContent) {
+        e.preventDefault();
+        handleConfirm();
+      }
+    }
+  }, [selectedTemplateId, messageContent, handleConfirm]));
 
   const CommentEditor = getCkCommentEditor();
 
@@ -188,38 +284,49 @@ const RestrictAndNotifyModal = ({
             <Loading />
           </div>
         ) : (
-          <div className={classes.templateList}>
-            {templates.map((template) => (
-              <LWTooltip
-                key={template._id}
-                className={classes.templateTooltip}
-                placement="right-end"
-                tooltip={false}
-                title={
-                  <Card className={classes.card}>
-                    <ContentStyles contentType='comment'>
-                      <ContentItemBody dangerouslySetInnerHTML={{__html: template.contents?.html ?? ""}} />
-                    </ContentStyles>
-                  </Card>
-                }
-              >
-                <div
-                  className={classes.templateRow}
-                  onClick={() => handleTemplateSelect(template._id)}
+          <>
+            <input
+              ref={searchInputRef}
+              className={classes.searchInput}
+              type="text"
+              placeholder="Search templates..."
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              onKeyDown={handleKeyDown}
+            />
+            <div className={classes.templateList} ref={templateListRef}>
+              {filteredTemplates.map((template, index) => (
+                <LWTooltip
+                  key={template._id}
+                  className={classes.templateTooltip}
+                  placement="right-end"
+                  tooltip={false}
+                  title={
+                    <Card className={classes.card}>
+                      <ContentStyles contentType='comment'>
+                        <ContentItemBody dangerouslySetInnerHTML={{__html: template.contents?.html ?? ""}} />
+                      </ContentStyles>
+                    </Card>
+                  }
                 >
-                  <Radio
-                    checked={selectedTemplateId === template._id}
-                    onChange={() => handleTemplateSelect(template._id)}
-                    className={classes.radio}
-                  />
-                  <span className={classes.templateName}>{template.name}</span>
-                </div>
-              </LWTooltip>
-            ))}
-          </div>
+                  <div
+                    className={classNames(classes.templateRow, { selected: index === selectedIndex })}
+                    onClick={() => handleTemplateSelect(template._id)}
+                  >
+                    <Radio
+                      checked={selectedTemplateId === template._id}
+                      onChange={() => handleTemplateSelect(template._id)}
+                      className={classes.radio}
+                    />
+                    <span className={classes.templateName}>{template.name}</span>
+                  </div>
+                </LWTooltip>
+              ))}
+            </div>
+          </>
         )}
 
-        <div className={classes.editorContainer}>
+        <div className={classes.editorContainer} ref={editorContainerRef}>
           <ContentStyles contentType='comment'>
             <CKEditor
               editor={CommentEditor}
@@ -248,6 +355,7 @@ const RestrictAndNotifyModal = ({
           disabled={!selectedTemplateId || !messageContent}
         >
           Restrict & Notify
+          <KeystrokeDisplay keystroke="Ctrl+Enter" withMargin splitBeforeTranslation />
         </Button>
       </DialogActions>
     </LWDialog>
