@@ -39,7 +39,8 @@
     "sentry.server.config.ts",
     "sentry.edge.config.ts",
     "deployCkEditorBundle.ts",
-    "migrate.ts"
+    "migrate.ts",
+    "next.config.ts"
   ],
   "exclude": [
     "node_modules",
