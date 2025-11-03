@@ -282,6 +282,21 @@ const RejectContentDialog = ({rejectionTemplates, onClose, rejectContent}: {
   
   const rejectionReasons = Object.fromEntries(rejectionTemplates.map(({name, contents}) => [name, contents?.html]));
 
+  // Create a map for quick template lookup
+  const templatesById = Object.fromEntries(rejectionTemplates.map(t => [t._id, t]));
+
+  const orderedTemplates = templateOrder
+    .map(id => templatesById[id])
+    .filter(template => !!template);
+  
+  const matchesSearch = (template: ModerationTemplateFragment) => {
+    if (!searchQuery) return true;
+    return template.name.toLowerCase().includes(searchQuery.toLowerCase());
+  };
+  
+  const visibleTemplates = orderedTemplates.filter(t => !hiddenTemplateIds.has(t._id) && matchesSearch(t));
+  const hiddenTemplates = orderedTemplates.filter(t => hiddenTemplateIds.has(t._id) && matchesSearch(t));  
+
   useEffect(() => {
     const ls = getBrowserLocalStorage();
     if (!ls || !currentUser) return;
@@ -360,11 +375,15 @@ const RejectContentDialog = ({rejectionTemplates, onClose, rejectContent}: {
   }, [currentUser]);
 
   const hideTemplate = useCallback((templateId: string) => {
+    if (visibleTemplates.findIndex(t => t._id === templateId) <= selectedIndex) {
+      setSelectedIndex(0);
+    }
+
     const newHiddenIds = new Set(hiddenTemplateIds);
     newHiddenIds.add(templateId);
     setHiddenTemplateIds(newHiddenIds);
     saveConfig(newHiddenIds, templateOrder);
-  }, [hiddenTemplateIds, templateOrder, saveConfig]);
+  }, [hiddenTemplateIds, saveConfig, templateOrder, visibleTemplates, selectedIndex]);
 
   const unhideTemplate = useCallback((templateId: string) => {
     const newHiddenIds = new Set(hiddenTemplateIds);
@@ -427,21 +446,6 @@ const RejectContentDialog = ({rejectionTemplates, onClose, rejectContent}: {
     <p>LessWrong aims for particularly high quality (and somewhat oddly-specific) discussion quality. We get a lot of content from new users and sadly can't give detailed feedback on every piece we reject, but I generally recommend checking out our <a href="https://www.lesswrong.com/posts/LbbrnRvc9QwjJeics/new-user-s-guide-to-lesswrong">New User's Guide</a>, in particular the section on <a href="https://www.lesswrong.com/posts/LbbrnRvc9QwjJeics/new-user-s-guide-to-lesswrong#How_to_ensure_your_first_post_or_comment_is_well_received">how to ensure your content is approved</a>.</p>
     <p>Your content didn't meet the bar for at least the following reason(s):</p>
   `;
-
-  // Create a map for quick template lookup
-  const templatesById = Object.fromEntries(rejectionTemplates.map(t => [t._id, t]));
-
-  const orderedTemplates = templateOrder
-    .map(id => templatesById[id])
-    .filter(template => !!template);
-  
-  const matchesSearch = (template: ModerationTemplateFragment) => {
-    if (!searchQuery) return true;
-    return template.name.toLowerCase().includes(searchQuery.toLowerCase());
-  };
-  
-  const visibleTemplates = orderedTemplates.filter(t => !hiddenTemplateIds.has(t._id) && matchesSearch(t));
-  const hiddenTemplates = orderedTemplates.filter(t => hiddenTemplateIds.has(t._id) && matchesSearch(t));
 
   const handleKeyDown = useCallback((e: React.KeyboardEvent) => {
     switch (e.key) {
