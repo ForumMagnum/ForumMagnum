@@ -36,7 +36,6 @@ export async function proxy(request: NextRequest) {
   // we have a codegen step that generates a trie which we use to find a matching canonical
   // path (if one exists).
   const currentPath = request.nextUrl.pathname;
-  console.log(`Proxy ran for ${currentPath}`);
   const canonical = canonicalizePath(currentPath);
   if (canonical && canonical !== currentPath) {
     const url = request.nextUrl.clone();
@@ -212,7 +211,7 @@ export const config: MiddlewareConfig = {
      * - favicon.ico, sitemap.xml, robots.txt (metadata files)
      */
     {
-      source: "/((?!^/$|api|auth|graphql|analyticsEvent|public|ckeditor-token|feed.xml|reactionImages|_next/static|_next/image|favicon.ico|sitemap.xml|robots.txt).*)",
+      source: "/((?!api|$|auth|graphql|analyticsEvent|public|ckeditor-token|feed.xml|reactionImages|_next/static|_next/image|favicon.ico|sitemap.xml|robots.txt).*)",
       missing: [{ type: 'header', key: 'next-router-state-tree' }],
     }
   ]
