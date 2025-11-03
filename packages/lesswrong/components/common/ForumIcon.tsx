@@ -134,6 +134,9 @@ import ThumbUpOutlineIcon from '@/lib/vendor/@material-ui/icons/src/ThumbUpOutli
 import CopyIcon from "@heroicons/react/24/outline/DocumentDuplicateIcon";
 import MuiAddIcon from "@/lib/vendor/@material-ui/icons/src/Add";
 import BookIcon from "@heroicons/react/24/solid/BookOpenIcon";
+import MuiPostIcon from "@/lib/vendor/@material-ui/icons/src/Description";
+import MuiCommentIcon from "@/lib/vendor/@material-ui/icons/src/Message";
+import MuiSnoozeIcon from "@/lib/vendor/@material-ui/icons/src/Snooze";
 import MuiFlagIcon from "@/lib/vendor/@material-ui/icons/src/Flag";
 
 /**
@@ -317,6 +320,9 @@ export type ForumIconName =
   "NoteAdd" |
   "ThumbUp" |
   "ThumbUpOutline" |
+  "Post" |
+  "ModDashboardComment" |
+  "Snooze" |
   "Flag";
 
 const ICONS: ForumOptions<Record<ForumIconName, IconComponent>> = {
@@ -455,6 +461,9 @@ const ICONS: ForumOptions<Record<ForumIconName, IconComponent>> = {
     NoteAdd: MuiNoteAddOutlinedIcon,
     ThumbUp: ThumbsUpIcon,
     ThumbUpOutline: ThumbUpOutlineIcon,
+    Post: MuiPostIcon,
+    ModDashboardComment: MuiCommentIcon,
+    Snooze: MuiSnoozeIcon,
     Flag: MuiFlagIcon,
   },
   default: {
@@ -592,6 +601,9 @@ const ICONS: ForumOptions<Record<ForumIconName, IconComponent>> = {
     NoteAdd: MuiNoteAddOutlinedIcon,
     ThumbUp: ThumbsUpIcon,
     ThumbUpOutline: ThumbUpOutlineIcon,
+    Post: DocumentTextIcon,
+    ModDashboardComment: CommentIcon,
+    Snooze: MuiSnoozeIcon,
     Flag: FlagIcon,
   },
 };

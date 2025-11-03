@@ -31,7 +31,9 @@ import { getKarmaChangeDateRange, getKarmaChangeNextBatchDate, getKarmaChanges }
 import { rateLimitDateWhenUserNextAbleToComment, rateLimitDateWhenUserNextAbleToPost, getRecentKarmaInfo } from "@/server/rateLimitUtils";
 import GraphQLJSON from "@/lib/vendor/graphql-type-json";
 import { bothChannelsEnabledNotificationTypeSettings, dailyEmailBatchNotificationSettingOnCreate, defaultNotificationTypeSettings, emailEnabledNotificationSettingOnCreate, notificationTypeSettingsSchema } from "./notificationFieldHelpers";
-import { loadByIds } from "@/lib/loaders";
+import { getWithLoader, loadByIds } from "@/lib/loaders";
+import { VOTING_DISABLED } from "../moderatorActions/constants";
+import { isActionActive } from "../moderatorActions/helpers";
 
 ///////////////////////////////////////
 // Order for the Schema is as follows. Change as you see fit:
@@ -1533,6 +1535,34 @@ const schema = {
         optional: true,
       },
     },
+  },
+  votingDisabled: {
+    graphql: {
+      outputType: "Boolean!",
+      canRead: ["guests"],
+      resolver: async (user: DbUser, args: unknown, context: ResolverContext) => {
+        const { ModeratorActions } = context;
+
+        const moderatorActions = await getWithLoader(
+          context,
+          ModeratorActions,
+          'votingDisabledModeratorAction',
+          {
+            userId: user._id,
+            type: VOTING_DISABLED,
+          },
+          'userId',
+          user._id,
+          { sort: { createdAt: -1 } }
+        );
+
+        if (moderatorActions.length === 0) return false;
+
+        const moderatorAction = moderatorActions[0];
+
+        return isActionActive(moderatorAction);
+      },
+    }
   },
   // deleteContent: Flag all comments and posts from this user as deleted
   deleteContent: {
@@ -4256,6 +4286,59 @@ const schema = {
       inputType: "RecommendationSettingsInput",
       canRead: [userOwns],
       canUpdate: [userOwns],
+    },
+  },
+  lastRemovedFromReviewQueueAt: {
+    graphql: {
+      outputType: "Date",
+      canRead: ["sunshineRegiment", "admins"],
+      resolver: async (user, args, context) => {
+        const { FieldChanges } = context;
+
+        // TODO: use a custom data loader here?
+        const fieldChanges = await getWithLoader(
+          context,
+          FieldChanges,
+          'needsReviewFieldChanges',
+          { documentId: user._id, fieldName: "needsReview", newValue: 'false' },
+          'documentId',
+          user._id,
+          { sort: { createdAt: -1 }, limit: 1 },
+        );
+
+        return fieldChanges[0]?.createdAt;
+      },
+    },
+  },
+  rejectedContentCount: {
+    graphql: {
+      outputType: "Int",
+      canRead: ["sunshineRegiment", "admins"],
+      resolver: async (user, args, context) => {
+        const { Posts, Comments } = context;
+        const postCount = await Posts.find({ userId: user._id, rejected: true }).count();
+        const commentCount = await Comments.find({ userId: user._id, rejected: true }).count();
+        return postCount + commentCount;
+      },
+    }
+  },
+  userRateLimits: {
+    graphql: {
+      outputType: "[UserRateLimit!]",
+      canRead: ["sunshineRegiment", "admins"],
+      resolver: async (user, args, context) => {
+        const { UserRateLimits } = context;
+        const userRateLimits = await getWithLoader(
+          context,
+          UserRateLimits,
+          'userRateLimits',
+          { userId: user._id },
+          'userId',
+          user._id
+        );
+
+        return userRateLimits;
+      },
     },
   },
 } satisfies Record<string, CollectionFieldSpecification<"Users">>;

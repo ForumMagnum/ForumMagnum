@@ -57,6 +57,9 @@ export const routeTrie = {
         "recentlyActiveUsers": {
           "hasPage": true
         },
+        "supermod": {
+          "hasPage": true
+        },
         "synonyms": {
           "hasPage": true
         },
@@ -76,6 +79,7 @@ export const routeTrie = {
         "onboarding": "onboarding",
         "random-user": "random-user",
         "recentlyactiveusers": "recentlyActiveUsers",
+        "supermod": "supermod",
         "synonyms": "synonyms",
         "tagmerge": "tagMerge"
       },
@@ -306,8 +310,7 @@ export const routeTrie = {
         "child": {
           "hasPage": true
         }
-      },
-      "hasPage": true
+      }
     },
     "bookmarks": {
       "hasPage": true
@@ -385,24 +388,10 @@ export const routeTrie = {
         "w": "w"
       }
     },
-    "concepts": {
-      "staticChildren": {
-        "all": {
-          "hasPage": true
-        }
-      },
-      "lowerCase": {
-        "all": "all"
-      },
-      "hasPage": true
-    },
     "contact": {
       "hasPage": true
     },
     "crosspostLogin": {
-      "hasPage": true
-    },
-    "curated": {
       "hasPage": true
     },
     "debug": {
@@ -429,9 +418,6 @@ export const routeTrie = {
       "hasPage": true
     },
     "editPost": {
-      "hasPage": true
-    },
-    "editor": {
       "hasPage": true
     },
     "emailToken": {
@@ -535,9 +521,6 @@ export const routeTrie = {
     "leaderboard": {
       "hasPage": true
     },
-    "leastwrong": {
-      "hasPage": true
-    },
     "library": {
       "hasPage": true
     },
@@ -589,9 +572,6 @@ export const routeTrie = {
         }
       }
     },
-    "meta": {
-      "hasPage": true
-    },
     "moderation": {
       "staticChildren": {
         "altAccounts": {
@@ -621,8 +601,7 @@ export const routeTrie = {
         "child": {
           "hasPage": true
         }
-      },
-      "hasPage": true
+      }
     },
     "nominations": {
       "staticChildren": {
@@ -636,14 +615,7 @@ export const routeTrie = {
       "lowerCase": {
         "2018": "2018",
         "2019": "2019"
-      },
-      "hasPage": true
-    },
-    "nominations2018": {
-      "hasPage": true
-    },
-    "nominations2019": {
-      "hasPage": true
+      }
     },
     "out": {
       "hasRoute": true
@@ -663,8 +635,7 @@ export const routeTrie = {
       "lowerCase": {
         "account": "account",
         "admin": "admin"
-      },
-      "hasPage": true
+      }
     },
     "petrov": {
       "staticChildren": {
@@ -739,8 +710,7 @@ export const routeTrie = {
         "child": {
           "hasPage": true
         }
-      },
-      "hasPage": true
+      }
     },
     "quicktakes": {
       "hasPage": true
@@ -774,11 +744,7 @@ export const routeTrie = {
         "child": {
           "hasPage": true
         }
-      },
-      "hasPage": true
-    },
-    "reviewQuickPage": {
-      "hasPage": true
+      }
     },
     "reviewVoting": {
       "dynamicChild": {
@@ -786,8 +752,7 @@ export const routeTrie = {
         "child": {
           "hasPage": true
         }
-      },
-      "hasPage": true
+      }
     },
     "reviews": {
       "dynamicChild": {
@@ -795,14 +760,7 @@ export const routeTrie = {
         "child": {
           "hasPage": true
         }
-      },
-      "hasPage": true
-    },
-    "reviews2018": {
-      "hasPage": true
-    },
-    "reviews2019": {
-      "hasPage": true
+      }
     },
     "revisions": {
       "staticChildren": {
@@ -872,59 +830,7 @@ export const routeTrie = {
     "sequencesNew": {
       "hasPage": true
     },
-    "shortform": {
-      "hasPage": true
-    },
     "spotlights": {
-      "hasPage": true
-    },
-    "tag": {
-      "staticChildren": {
-        "create": {
-          "hasPage": true
-        }
-      },
-      "lowerCase": {
-        "create": "create"
-      }
-    },
-    "tagActivity": {
-      "hasPage": true
-    },
-    "tagFeed": {
-      "hasPage": true
-    },
-    "tagVoting": {
-      "hasPage": true
-    },
-    "tags": {
-      "staticChildren": {
-        "all": {
-          "hasPage": true
-        },
-        "dashboard": {
-          "hasPage": true
-        },
-        "random": {
-          "hasPage": true
-        }
-      },
-      "lowerCase": {
-        "all": "all",
-        "dashboard": "dashboard",
-        "random": "random"
-      },
-      "hasPage": true
-    },
-    "topics": {
-      "staticChildren": {
-        "all": {
-          "hasPage": true
-        }
-      },
-      "lowerCase": {
-        "all": "all"
-      },
       "hasPage": true
     },
     "u": {
@@ -1018,9 +924,6 @@ export const routeTrie = {
     "wFeed": {
       "hasPage": true
     },
-    "wiki": {
-      "hasPage": true
-    },
     "wikitags": {
       "staticChildren": {
         "all": {
@@ -1029,8 +932,7 @@ export const routeTrie = {
       },
       "lowerCase": {
         "all": "all"
-      },
-      "hasPage": true
+      }
     }
   },
   "lowerCase": {
@@ -1059,16 +961,13 @@ export const routeTrie = {
     "collections": "collections",
     "community": "community",
     "compare": "compare",
-    "concepts": "concepts",
     "contact": "contact",
     "crosspostlogin": "crosspostLogin",
-    "curated": "curated",
     "debug": "debug",
     "dialogues": "dialogues",
     "donate": "donate",
     "drafts": "drafts",
     "editpost": "editPost",
-    "editor": "editor",
     "emailtoken": "emailToken",
     "events": "events",
     "faq": "faq",
@@ -1086,7 +985,6 @@ export const routeTrie = {
     "inbox": "inbox",
     "item": "item",
     "leaderboard": "leaderboard",
-    "leastwrong": "leastwrong",
     "library": "library",
     "login": "login",
     "logout": "logout",
@@ -1094,7 +992,6 @@ export const routeTrie = {
     "managesubscriptions": "manageSubscriptions",
     "meetups": "meetups",
     "message": "message",
-    "meta": "meta",
     "moderation": "moderation",
     "moderatorcomments": "moderatorComments",
     "moderatorinbox": "moderatorInbox",
@@ -1102,8 +999,6 @@ export const routeTrie = {
     "newpost": "newPost",
     "nominateposts": "nominatePosts",
     "nominations": "nominations",
-    "nominations2018": "nominations2018",
-    "nominations2019": "nominations2019",
     "out": "out",
     "pastevents": "pastEvents",
     "payments": "payments",
@@ -1121,25 +1016,15 @@ export const routeTrie = {
     "resendverificationemail": "resendVerificationEmail",
     "resetpassword": "resetPassword",
     "reviewadmin": "reviewAdmin",
-    "reviewquickpage": "reviewQuickPage",
     "reviewvoting": "reviewVoting",
     "reviews": "reviews",
-    "reviews2018": "reviews2018",
-    "reviews2019": "reviews2019",
     "revisions": "revisions",
     "robots.txt": "robots.txt",
     "s": "s",
     "search": "search",
     "sequences": "sequences",
     "sequencesnew": "sequencesNew",
-    "shortform": "shortform",
     "spotlights": "spotlights",
-    "tag": "tag",
-    "tagactivity": "tagActivity",
-    "tagfeed": "tagFeed",
-    "tagvoting": "tagVoting",
-    "tags": "tags",
-    "topics": "topics",
     "u": "u",
     "upcomingevents": "upcomingEvents",
     "user": "user",
@@ -1147,7 +1032,6 @@ export const routeTrie = {
     "w": "w",
     "wactivity": "wActivity",
     "wfeed": "wFeed",
-    "wiki": "wiki",
     "wikitags": "wikitags"
   },
   "hasPage": true
