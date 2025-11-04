@@ -1,7 +1,6 @@
 'use client';
-
-import React, { createContext, useContext, useRef, useEffect } from 'react';
-import { useNavigationCount } from '../next/ClientAppGenerator';
+import React, { createContext, useContext, useRef } from 'react';
+import { useNavigationCount } from '@/components/layout/ClientAppGenerator';
 
 const NavigationTooltipContainerContext = createContext<HTMLDivElement | null>(null);
 

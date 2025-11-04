@@ -303,19 +303,9 @@ const Layout = ({children}: {
       <DisableNoKibitzContextProvider>
       <CommentOnSelectionPageWrapper>
       <CurrentAndRecentForumEventsProvider>
-<<<<<<< HEAD:packages/lesswrong/components/layout/Layout.tsx
+      <NavigationTooltipContainer>
       <LlmSidebarWrapper>
         <PageBackgroundWrapper>
-=======
-      <NavigationTooltipContainer>
-        <div className={classes.topLevelContainer}>
-          <div className={classes.pageContent}>
-            <div id="wrapper" className={classNames(
-              "wrapper",
-              {'alignment-forum': isAF(), [classes.fullscreen]: isFullscreenRoute(pathname), [classes.wrapper]: isLWorAF()},
-              useWhiteBackground && classes.whiteBackground
-            )}>
->>>>>>> 7f1d886ff23a6534bc6a3e86d174736db2b69493:packages/lesswrong/components/Layout.tsx
           {buttonBurstSetting.get() && <GlobalButtonBurst />}
           <DialogManager>
             <CommentBoxManager>
@@ -376,33 +366,9 @@ const Layout = ({children}: {
                   </MaybeStickyWrapper>
                 </SuspenseWrapper>}
                 <div ref={searchResultsAreaRef} className={classes.searchResultsArea} />
-<<<<<<< HEAD:packages/lesswrong/components/layout/Layout.tsx
-                
+
                 {children}
                 
-=======
-                <div className={classNames(classes.main, {
-                  [classes.mainNoFooter]: routeMetadata.noFooter,
-                  [classes.mainFullscreen]: isFullscreenRoute(pathname),
-                  [classes.mainUnspacedGrid]: shouldUseGridLayout && unspacedGridLayout,
-                })}>
-                  <ErrorBoundary>
-                    <FlashMessages />
-                  </ErrorBoundary>
-                  <ErrorBoundary>
-                    <PersistentHomepage>
-                      <SuspenseWrapper name="Route" fallback={<DelayedLoading/>}>
-                        {children}
-                      </SuspenseWrapper>
-                    </PersistentHomepage>
-                    {/* ea-forum-look-here We've commented out some EAForum-specific components for bundle size reasons */}
-                    {/* <SuspenseWrapper name="OnboardingFlow">
-                      {!isIncompletePath && isEAForum() ? <EAOnboardingFlow/> : <BasicOnboardingFlow/>}
-                    </SuspenseWrapper> */}
-                  </ErrorBoundary>
-                  {!isFullscreenRoute(pathname) && !routeMetadata.noFooter && <Footer />}
-                </div>
->>>>>>> 7f1d886ff23a6534bc6a3e86d174736db2b69493:packages/lesswrong/components/Layout.tsx
                 {isLW() && <LWBackgroundImage standaloneNavigation={standaloneNavigation} />}
                 {/* {!renderSunshineSidebar &&
                   friendlyHomeLayout &&
@@ -425,28 +391,8 @@ const Layout = ({children}: {
             </CommentBoxManager>
           </DialogManager>
           <NavigationEventSender />
-<<<<<<< HEAD:packages/lesswrong/components/layout/Layout.tsx
         </PageBackgroundWrapper>
       </LlmSidebarWrapper>
-=======
-            </div>
-          </div>
-          {renderLanguageModelChatLauncher && (
-            <div className={classes.llmChatColumn}>
-              <DeferRender ssr={false}>
-                {showLlmChatSidebar ? (
-                  <SuspenseWrapper name="SidebarLanguageModelChat">
-                    <SidebarLanguageModelChat onClose={closeLlmChatSidebar} />
-                  </SuspenseWrapper>
-                ) : (
-                  <LanguageModelLauncherButton onClick={() => setShowLlmChatSidebar(true)} />
-                )}
-              </DeferRender>
-            </div>
-          )}
-        </div>
-      </NavigationTooltipContainer>
->>>>>>> 7f1d886ff23a6534bc6a3e86d174736db2b69493:packages/lesswrong/components/Layout.tsx
       </CurrentAndRecentForumEventsProvider>
       </CommentOnSelectionPageWrapper>
       </DisableNoKibitzContextProvider>
