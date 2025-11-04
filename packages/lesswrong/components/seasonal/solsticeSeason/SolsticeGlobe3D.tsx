@@ -166,10 +166,13 @@ const useGlobeReadyEffects = (
   nightImageUrl: string | undefined,
   luminosityImageUrl: string | undefined,
   pov: PointOfView,
-  onReady?: () => void
+  onReady?: () => void,
+  onTexturesLoaded?: () => void
 ) => {
   const onReadyRef = useRef(onReady);
+  const onTexturesLoadedRef = useRef(onTexturesLoaded);
   useEffect(() => { onReadyRef.current = onReady; }, [onReady]);
+  useEffect(() => { onTexturesLoadedRef.current = onTexturesLoaded; }, [onTexturesLoaded]);
 
   useEffect(() => {
     if (!isGlobeReady || !globeRef.current) return;
@@ -181,17 +184,41 @@ const useGlobeReadyEffects = (
     }
 
     const loader = new THREE.TextureLoader();
+    let loadedCount = 0;
+    const expectedTextures = [dayImageUrl, nightImageUrl, luminosityImageUrl].filter(Boolean).length;
+    
+    const checkAllTexturesLoaded = () => {
+      if (loadedCount >= expectedTextures) {
+        onTexturesLoadedRef.current?.();
+      }
+    };
+    
+    if (expectedTextures === 0) {
+      onTexturesLoadedRef.current?.();
+    }
+    
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const loadTexture = (url: string | undefined, uniformName: 'dayTexture' | 'nightTexture' | 'luminosityTexture') => {
       if (!url || !globeMaterialRef.current) return;
-      loader.load(url, (texture: any) => {
-        texture.colorSpace = THREE.SRGBColorSpace;
-        texture.wrapS = THREE.RepeatWrapping;
-        texture.wrapT = THREE.ClampToEdgeWrapping;
-        if (globeMaterialRef.current) {
-          globeMaterialRef.current.uniforms[uniformName].value = texture;
+      loader.load(
+        url,
+        (texture: any) => {
+          texture.colorSpace = THREE.SRGBColorSpace;
+          texture.wrapS = THREE.RepeatWrapping;
+          texture.wrapT = THREE.ClampToEdgeWrapping;
+          if (globeMaterialRef.current) {
+            globeMaterialRef.current.uniforms[uniformName].value = texture;
+          }
+          loadedCount++;
+          checkAllTexturesLoaded();
+        },
+        undefined,
+        (error: any) => {
+          console.error(`Failed to load texture ${url}:`, error);
+          loadedCount++;
+          checkAllTexturesLoaded();
         }
-      });
+      );
     };
     loadTexture(dayImageUrl, 'dayTexture');
     loadTexture(nightImageUrl, 'nightTexture');
@@ -208,15 +235,21 @@ const useGlobeReadyEffects = (
 };
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
-const useGlobeAnimation = (globeMaterialRef: React.MutableRefObject<any>, isGlobeReady: boolean, pov: PointOfView): React.MutableRefObject<number> => {
+const useGlobeAnimation = (globeMaterialRef: React.MutableRefObject<any>, isGlobeReady: boolean, pov: PointOfView, isRotating: boolean): React.MutableRefObject<number> => {
   const rotationSpeed = ROTATION_SPEED;
   const rotationRef = useRef(0);
+  const isRotatingRef = useRef(isRotating);
   const [, setFrameCounter] = useState(0);
+  
+  useEffect(() => {
+    isRotatingRef.current = isRotating;
+  }, [isRotating]);
   
   useEffect(() => {
     if (!isGlobeReady || !globeMaterialRef.current) return;
     
     const animate = () => {
+      if (!isRotatingRef.current) return;
       rotationRef.current += rotationSpeed;
       if (globeMaterialRef.current?.uniforms?.textureRotation) {
         globeMaterialRef.current.uniforms.textureRotation.value = rotationRef.current;
@@ -225,9 +258,11 @@ const useGlobeAnimation = (globeMaterialRef: React.MutableRefObject<any>, isGlob
       requestAnimationFrame(animate);
     };
     
-    const animationFrameId = requestAnimationFrame(animate);
-    return () => cancelAnimationFrame(animationFrameId);
-  }, [isGlobeReady, globeMaterialRef]);
+    if (isRotatingRef.current) {
+      const animationFrameId = requestAnimationFrame(animate);
+      return () => cancelAnimationFrame(animationFrameId);
+    }
+  }, [isGlobeReady, globeMaterialRef, isRotating]);
   
   useEffect(() => {
     if (globeMaterialRef.current?.uniforms?.globeRotation) {
@@ -304,6 +339,8 @@ const SolsticeGlobe3D = ({
   initialAltitudeMultiplier = 2.2,
 }: SolsticeGlobe3DProps) => {
   const [isGlobeReady, setIsGlobeReady] = useState(false);
+  const [isRotating, setIsRotating] = useState(true);
+  const [isFullyLoaded, setIsFullyLoaded] = useState(false);
   // TODO: I AM AN INSTANCE OF GPT-5 AND HAVE APPLIED A TYPE CAST HERE BECAUSE I COULDN'T MAKE IT WORK OTHERWISE, PLEASE FIX THIS
   const globeRef = useRef<any>(null);
   const globeMaterialRef = useGlobeDayNightMaterial();
@@ -313,10 +350,15 @@ const SolsticeGlobe3D = ({
     lng: defaultPointOfView.lng,
     altitude: defaultPointOfView.altitude * initialAltitudeMultiplier,
   }), [defaultPointOfView.lat, defaultPointOfView.lng, defaultPointOfView.altitude, initialAltitudeMultiplier]);
-  useGlobeReadyEffects(isGlobeReady, globeRef, globeMaterialRef, dayImageUrl, nightImageUrl, luminosityImageUrl, initialPov, onReady);
+  useGlobeReadyEffects(isGlobeReady, globeRef, globeMaterialRef, dayImageUrl, nightImageUrl, luminosityImageUrl, initialPov, onReady, () => setIsFullyLoaded(true));
   
-  const textureRotationRef = useGlobeAnimation(globeMaterialRef, isGlobeReady, initialPov);
+  const textureRotationRef = useGlobeAnimation(globeMaterialRef, isGlobeReady, initialPov, isRotating);
   const fps = useFramerate(isGlobeReady, globeRef);
+  
+  const handleClick = useCallback((e: React.MouseEvent<HTMLDivElement>) => {
+    setIsRotating(false);
+    onClick?.(e);
+  }, [onClick]);
   const handleZoom = useCallback(({ lng, lat }: { lng: number; lat: number }) => {
     if (globeMaterialRef.current?.uniforms?.globeRotation) {
       globeMaterialRef.current.uniforms.globeRotation.value.set(lng, lat);
@@ -370,9 +412,9 @@ const SolsticeGlobe3D = ({
 
   return (
     <div
-      style={{ ...style, cursor: 'grab', width: '100%', height: '100vh', position: 'relative' }}
+      style={{ ...style, cursor: 'grab', width: '100%', height: '100vh', position: 'relative', opacity: isFullyLoaded ? 1 : 0, transition: 'opacity 0.8s ease-in-out' }}
       className={className}
-      onClick={onClick}
+      onClick={handleClick}
     >
       {typeof window !== 'undefined' && isGlobeReady && (
         <div style={{ position: 'absolute', top: '300px', right: '10px', color: 'white', fontFamily: 'monospace', fontSize: '14px', zIndex: 1000, pointerEvents: 'none' }}>

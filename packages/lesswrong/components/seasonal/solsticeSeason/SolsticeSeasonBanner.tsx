@@ -9,13 +9,13 @@ import classNames from 'classnames';
 import SolsticeGlobe3D, { SolsticeGlobePoint } from './SolsticeGlobe3D';
 import { FixedPositionEventPopup } from '../HomepageMap/HomepageCommunityMap';
 import Row from '@/components/common/Row';
+import { useIsAboveBreakpoint } from '@/components/hooks/useScreenWidth';
 
 const smallBreakpoint = 1525
 
 const styles = defineStyles("SolsticeSeasonBanner", (theme: ThemeType) => ({
   root: {
     position: 'fixed',
-    background: "black",
     top: 0,
     right: 0,
     width: '50vw',
@@ -244,6 +244,16 @@ export default function SolsticeSeasonBannerInner() {
 
   const { data } = useQuery(SolsticeSeasonQuery)
 
+  const handleGlobeReady = useCallback(() => {
+    setIsLoading(false);
+  }, []);
+
+  const isWidescreen = useIsAboveBreakpoint('lg');
+  const [renderSolsticeSeason, setRenderSolsticeSeason] = useState(false);
+  useEffect(() => {
+    setRenderSolsticeSeason(isWidescreen);
+  }, [isWidescreen]);
+
   type QueryResult = {
     HomepageCommunityEvents?: {
       events: Array<{
@@ -331,8 +341,7 @@ export default function SolsticeSeasonBannerInner() {
               setPopupCoords(screenCoords);
             }
           }}
-          onReady={() => setIsLoading(false)}
-          style={{ width: '100%', height: '100%' }}
+          onReady={handleGlobeReady}
         />
       </div>
     </div>;
@@ -346,7 +355,7 @@ export default function SolsticeSeasonBannerInner() {
       className={classes.globeContainer} 
       onClick={() => setEverClickedGlobe(true)}
     >
-        <SolsticeGlobe3D 
+        {renderSolsticeSeason && <SolsticeGlobe3D 
           pointsData={pointsData}
           defaultPointOfView={defaultPointOfView}
           onPointClick={(point: SolsticeGlobePoint, screenCoords: { x: number; y: number }) => {
@@ -355,9 +364,9 @@ export default function SolsticeSeasonBannerInner() {
               setPopupCoords(screenCoords);
             }
           }}
-          onReady={() => setIsLoading(false)}
+          onReady={handleGlobeReady}
           style={{ width: '100%', height: '100%' }}
-        />
+        />}
       {selectedEventId && popupCoords && (
         <FixedPositionEventPopup
           eventId={selectedEventId}
@@ -371,7 +380,7 @@ export default function SolsticeSeasonBannerInner() {
       <div className={classes.contentContainer}>
         <div className={classes.textContainer} onClick={() => setEverClickedGlobe(true)}>
           <h1 className={classes.title}>Solstice Season</h1>
-            <p className={classes.subtitle}>Celebrate humanity's Schelling holiday around the world. Find a local solstice event or create your own.</p>
+            <p className={classes.subtitle}>Celebrate the longest night of the year. Visit a megameetup at a major city, or host a small ceremony for your friends the night of the 21st.</p>
             <div className={classes.buttonContainer}>
               <Link to="https://waypoint.lighthaven.space/solstice-season" target="_blank" rel="noopener noreferrer"  className={classes.createEventButton}>
                 Berkeley <span className={classes.date}>Dec 6</span>

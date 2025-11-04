@@ -118,8 +118,6 @@ export const LWBackgroundImage = ({standaloneNavigation}: {
   const { pathname } = useSubscribedLocation();
   // const pathname = usePathname();
   const isHomePage = isHomeRoute(pathname);
-  const isWidescreen = useIsAboveBreakpoint('lg');
-  const [renderSolsticeSeason, setRenderSolsticeSeason] = useState(false);
 
   const defaultImage = standaloneNavigation ? <div className={classes.imageColumn}> 
     {/* Background image shown in the top-right corner of LW. The
@@ -147,10 +145,6 @@ export const LWBackgroundImage = ({standaloneNavigation}: {
       />
   </div>
 
-  useEffect(() => {
-    setRenderSolsticeSeason(isWidescreen);
-  }, [isWidescreen]);
-
   let homePageImage = standaloneNavigation ? <SolsticeSeasonBanner /> : defaultImage
   if (getReviewPhase() === 'VOTING') homePageImage = <ReviewVotingCanvas />
   if (getReviewPhase() === 'RESULTS') homePageImage = reviewCompleteImage
@@ -159,7 +153,6 @@ export const LWBackgroundImage = ({standaloneNavigation}: {
 
   return <div className={classes.root}>
     {homePageImage}
-    {renderSolsticeSeason && <SolsticeSeasonBanner />}
   </div>;
 }
 
