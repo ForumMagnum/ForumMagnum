@@ -25,7 +25,7 @@ const styles = defineStyles("SolsticeSeasonBanner", (theme: ThemeType) => ({
     },
   },
   title: {
-    fontSize: 50,
+    fontSize: 53,
     fontWeight: 500,
     [theme.breakpoints.down(smallBreakpoint)]: {
       fontSize: 34,
@@ -72,9 +72,9 @@ const styles = defineStyles("SolsticeSeasonBanner", (theme: ThemeType) => ({
     textShadow: `none`,
   },
   subtitle: {
-    fontSize: 15,
+    fontSize: 16,
     [theme.breakpoints.up(smallBreakpoint)]: {
-      fontSize: 18,
+      fontSize: 20,
     },
     '& a': {
       color: theme.palette.text.alwaysWhite,
@@ -137,10 +137,10 @@ const styles = defineStyles("SolsticeSeasonBanner", (theme: ThemeType) => ({
   },
   buttonContainer: {
     display: 'flex',
-    width: 296,
+    width: 310,
     flexWrap: 'wrap',
     gap: 8,
-    marginTop: "1rem",
+    marginTop: 24,
   },
   createEventButton: {
     display: 'flex',
@@ -162,9 +162,9 @@ const styles = defineStyles("SolsticeSeasonBanner", (theme: ThemeType) => ({
     paddingLeft: 10,
     paddingRight: 10,
     [theme.breakpoints.up(smallBreakpoint)]: {
-      padding: 10,
-      paddingLeft: 12,
-      paddingRight: 12,
+      padding: 8,
+      paddingLeft: 10,
+      paddingRight: 10,
       fontSize: 14,  
     },
   },
@@ -177,7 +177,7 @@ const styles = defineStyles("SolsticeSeasonBanner", (theme: ThemeType) => ({
     opacity: 0.8,
   },
   createEventButtonAnnounce: {
-    width: "100%",
+    width: "calc(100% - 2px)",
     justifyContent: 'center',
   },
 }));

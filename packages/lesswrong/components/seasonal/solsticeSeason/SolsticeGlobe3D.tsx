@@ -147,11 +147,6 @@ export const SolsticeGlobe3D = ({
       onMouseDown={handleMouseDown}
       onClick={handleClick}
     >
-      {typeof window !== 'undefined' && isGlobeReady && (
-        <div style={{ position: 'absolute', top: '300px', right: '10px', color: 'white', fontFamily: 'monospace', fontSize: '14px', zIndex: 1000, pointerEvents: 'none' }}>
-          {fps} FPS
-        </div>
-      )}
       {typeof window !== 'undefined' && (
         <div style={{ transform: 'translateX(-35vw) scale(1)', transformOrigin: 'center center' }}>
           <GlobeAny
@@ -179,6 +174,7 @@ export const SolsticeGlobe3D = ({
           />
         </div>
       )}
+        {fps ? (fps < 90 ? <div style={{ position: 'absolute', bottom: 10, right: 10, color: 'white', fontSize: 12, zIndex: 1000, pointerEvents: 'none' }}>Alas, this globe is rendering slowly on your machine.</div> : <div style={{ position: 'absolute', bottom: 10, right: 10, color: 'white', fontFamily: 'monospace', fontSize: '14px', zIndex: 1000, pointerEvents: 'none' }}>{fps} FPS</div>) : null}
     </div>
   );
 };
