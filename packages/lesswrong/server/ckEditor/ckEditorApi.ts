@@ -116,7 +116,7 @@ async function fetchCkEditorRestAPI<T extends boolean = false>(method: string, u
 }
 
 
-const documentHelpers = {
+export const documentHelpers = {
   postIdToCkEditorDocumentId(postId: string) {
     return `${postId}-edit`;
   },
@@ -215,7 +215,7 @@ const documentHelpers = {
 };
 
 // See https://docs.cke-cs.com/api/v5/docs for documentation on ckEditor's api.
-const ckEditorApi = {
+export const ckEditorApi = {
   async getStorageDocument(ckEditorId: string) {
     const rawResult = await fetchCkEditorRestAPI("GET", `/storage/${ckEditorId}`);
     let parsedResult;
@@ -429,7 +429,7 @@ const ckEditorApi = {
   }
 }
 
-const ckEditorApiHelpers = {
+export const ckEditorApiHelpers = {
   async fetchCkEditorCloudStorageDocumentHtml(ckEditorId: string): Promise<string> {
     // First try getting the document from /collaborations, then from /documents.
     // The former corresponds to a running CkEditor process on CkEditor's servers,
@@ -524,6 +524,3 @@ export const cke = {
   ...ckEditorApiHelpers,
   ...documentHelpers,
 };
-
-
-export { ckEditorApi, ckEditorApiHelpers, documentHelpers };
