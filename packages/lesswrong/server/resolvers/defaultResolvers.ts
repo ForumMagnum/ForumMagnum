@@ -272,7 +272,7 @@ export const getDefaultResolvers = <N extends CollectionNameString>(
     }
     const documentId = usedSelector._id;
     
-    if (!documentId) {
+    if (!documentId && !usedSelector.slug) {
       if (allowNull) {
         return { result: null };
       } else {

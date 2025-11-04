@@ -4493,6 +4493,7 @@ type Post {
   tagRel(tagId: String): TagRel
   tags: [Tag!]!
   tagRelevance: JSON
+  tagRels: [TagRel!]!
   lastPromotedComment: Comment
   bestAnswer: Comment
   noIndex: Boolean!
@@ -8080,6 +8081,7 @@ type User {
   recommendationSettings: JSON
   lastRemovedFromReviewQueueAt: Date
   rejectedContentCount: Int
+  userRateLimits: [UserRateLimit!]
 }
 
 enum ReactPaletteStyle {

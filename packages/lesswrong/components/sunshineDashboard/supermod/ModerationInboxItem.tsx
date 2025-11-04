@@ -6,7 +6,7 @@ import FlagIcon from '@/lib/vendor/@material-ui/icons/src/Flag';
 import { getUserEmail } from '@/lib/collections/users/helpers';
 import DescriptionIcon from '@/lib/vendor/@material-ui/icons/src/Description'
 import MessageIcon from '@/lib/vendor/@material-ui/icons/src/Message'
-import { getPrimaryDisplayedModeratorAction, getDisplayedReasonForGroupAssignment, partitionModeratorActions, ReviewGroup } from './groupings';
+import { getDisplayedReasonForGroupAssignment, ReviewGroup } from './groupings';
 import ForumIcon from '@/components/common/ForumIcon';
 import { htmlToTextDefault } from '@/lib/htmlToText';
 import { useModeratedUserContents } from '@/components/hooks/useModeratedUserContents';
@@ -30,6 +30,7 @@ const styles = defineStyles('ModerationInboxItem', (theme: ThemeType) => ({
   focused: {
     borderLeft: `3px solid ${theme.palette.primary.main}`,
     paddingLeft: 17, // 20 - 3 to account for border
+    backgroundColor: theme.palette.grey[100],
   },
   flagged: {
     backgroundColor: theme.palette.panelBackground.sunshineFlaggedUser,

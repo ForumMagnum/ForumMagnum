@@ -1,10 +1,12 @@
-import { useCallback } from 'react';
+import { useCallback, useRef } from 'react';
 import { useMutation } from '@apollo/client/react';
 import { gql } from '@/lib/generated/gql-codegen';
 import { getSignatureWithNote } from '@/lib/collections/users/helpers';
 import { useCurrentUser } from '@/components/common/withUser';
 import type { InboxAction } from './inboxReducer';
 import { VOTING_DISABLED } from '@/lib/collections/moderatorActions/constants';
+import { useDebouncedCallback } from '@/components/hooks/useDebouncedCallback';
+import type { MutateResult } from '@apollo/client';
 
 const SunshineUsersListUpdateMutation = gql(`
   mutation updateUserContentPermissions($selector: SelectorInput!, $data: UpdateUserDataInput!) {
@@ -81,21 +83,42 @@ export function useUserContentPermissions(
   const [createModeratorAction] = useMutation(CreateModeratorActionMutation);
   const [updateModeratorAction] = useMutation(UpdateModeratorActionMutation);
 
+  // Mutation queue to ensure sequential execution and prevent race conditions from sending the opposite-direction action before the previous one has finished
+  const mutationQueueRef = useRef<Promise<void>>(Promise.resolve());
+
+  const queueMutation = useCallback(async (mutationFn: () => Promise<any>) => {
+    const currentQueue = mutationQueueRef.current;
+    const newMutation = currentQueue
+      .then(mutationFn)
+      .catch(_ => {});
+    mutationQueueRef.current = newMutation;
+    return newMutation;
+  }, []);
+
+  const debouncedSourceOfTruthUpdate = useDebouncedCallback<MutateResult<updateUserContentPermissionsMutation>>(({ data }) => {
+    const updatedUser = data?.updateUser?.data;
+    if (updatedUser) {
+      dispatch({ type: 'UPDATE_USER', userId: user!._id, fields: updatedUser });
+    }
+  }, {
+    allowExplicitCallAfterUnmount: true,
+    callOnLeadingEdge: false,
+    onUnmount: 'callIfScheduled',
+    rateLimitMs: 5000,
+  });
+
   const updateUserWith = useCallback((data: UpdateUserDataInput) => {
     if (!user) return;
 
-    void updateUser({
-      variables: {
-        selector: { _id: user._id },
-        data,
-      },
-    }).then(({ data }) => {
-      const updatedUser = data?.updateUser?.data;
-      if (updatedUser) {
-        dispatch({ type: 'UPDATE_USER', userId: user._id, fields: updatedUser });
-      }
+    void queueMutation(async () => {
+      await updateUser({
+        variables: {
+          selector: { _id: user._id },
+          data,
+        },
+      }).then(debouncedSourceOfTruthUpdate);
     });
-  }, [user, updateUser, dispatch]);
+  }, [user, updateUser, debouncedSourceOfTruthUpdate, queueMutation]);
 
   const toggleDisablePosting = useCallback(() => {
     if (!user) return;

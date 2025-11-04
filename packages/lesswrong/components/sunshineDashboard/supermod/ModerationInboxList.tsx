@@ -1,6 +1,7 @@
 import React, { useMemo } from 'react';
 import { defineStyles, useStyles } from '@/components/hooks/useStyles';
 import ModerationInboxItem from './ModerationInboxItem';
+import ModerationPostItem from './ModerationPostItem';
 import ModerationTabs, { TabInfo } from './ModerationTabs';
 import type { ReviewGroup } from './groupings';
 import classNames from 'classnames';
@@ -37,20 +38,26 @@ export type GroupEntry = [ReviewGroup, SunshineUsersList[]];
 
 const ModerationInboxList = ({
   userGroups,
+  posts,
   focusedUserId,
+  focusedPostId,
   onFocusUser,
   onOpenUser,
+  onFocusPost,
   visibleTabs,
   activeTab,
   onTabChange,
 }: {
-  userGroups: GroupEntry[],
+  userGroups: GroupEntry[];
+  posts: SunshinePostsList[];
   focusedUserId: string | null;
+  focusedPostId: string | null;
   onFocusUser: (userId: string) => void;
   onOpenUser: (userId: string) => void;
+  onFocusPost: (postId: string) => void;
   visibleTabs: TabInfo[];
-  activeTab: ReviewGroup | 'all';
-  onTabChange: (tab: ReviewGroup | 'all') => void;
+  activeTab: ReviewGroup | 'all' | 'posts';
+  onTabChange: (tab: ReviewGroup | 'all' | 'posts') => void;
 }) => {
   const classes = useStyles(styles);
 
@@ -63,25 +70,44 @@ const ModerationInboxList = ({
         activeTab={activeTab}
         onTabChange={onTabChange}
       />
-      {userCount === 0 ? (
-        <div className={classes.empty}>
-          No users to review
-        </div>
-      ) : (
-        userGroups.map(([group, users]) => {
-          const groupStyling = activeTab === 'all' ? classes[group] : undefined;
-          return <div key={group} className={classNames(classes.list, groupStyling)}>
-            {users.map((user) => (
-              <ModerationInboxItem
-                key={user._id}
-                user={user}
-                reviewGroup={group}
-                isFocused={user._id === focusedUserId}
-                onOpen={() => onOpenUser(user._id)}
+      {activeTab === 'posts' ? (
+        posts.length === 0 ? (
+          <div className={classes.empty}>
+            No posts to review
+          </div>
+        ) : (
+          <div className={classes.list}>
+            {posts.map((post) => (
+              <ModerationPostItem
+                key={post._id}
+                post={post}
+                isFocused={post._id === focusedPostId}
+                onFocus={() => onFocusPost(post._id)}
               />
             ))}
           </div>
-        })
+        )
+      ) : (
+        userCount === 0 ? (
+          <div className={classes.empty}>
+            No users to review
+          </div>
+        ) : (
+          userGroups.map(([group, users]) => {
+            const groupStyling = activeTab === 'all' ? classes[group] : undefined;
+            return <div key={group} className={classNames(classes.list, groupStyling)}>
+              {users.map((user) => (
+                <ModerationInboxItem
+                  key={user._id}
+                  user={user}
+                  reviewGroup={group}
+                  isFocused={user._id === focusedUserId}
+                  onOpen={() => onOpenUser(user._id)}
+                />
+              ))}
+            </div>
+          })
+        )
       )}
     </div>
   );

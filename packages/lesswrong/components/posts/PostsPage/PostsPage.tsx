@@ -464,7 +464,6 @@ const PostsPage = ({fullPost, postPreload, refetch, embedded}: {
     !currentUser?.hidePostsRecommendations &&
     !post.shortform &&
     !post.draft &&
-    !post.deletedDraft &&
     !post.question &&
     !post.debate &&
     !post.isEvent &&
