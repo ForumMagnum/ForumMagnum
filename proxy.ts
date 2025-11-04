@@ -30,7 +30,8 @@ function urlIsAbsolute(url: string): boolean {
  * that <StatusCodeSetter> appears in the DOM (ideally after the smallest-
  * possible amount of loading).
  */
-export async function middleware(request: NextRequest) {
+export async function proxy(request: NextRequest) {
+  console.log(`Proxying ${request.nextUrl}`);
   // Before NextJS, we were using react-router, which wasn't case-sensitive by default.
   // To solve the problem of any existing links going to non-canonically-capitalized paths,
   // we have a codegen step that generates a trie which we use to find a matching canonical
@@ -244,7 +245,11 @@ export const config: MiddlewareConfig = {
      */
     {
       source: '/((?!api|auth|graphql|analyticsEvent|public|ckeditor-token|feed.xml|reactionImages|_next/static|_next/image|favicon.ico|sitemap.xml|robots.txt).*)',
-      missing: [{ type: 'header', key: 'next-router-state-tree' }]
+      missing: [
+        { type: 'header', key: 'next-router-state-tree' },
+        { type: 'header', key: 'next-router-prefetch' },
+        { type: 'header', key: 'x-forwarded-for-status-codes' },
+      ],
     }
   ]
 }
