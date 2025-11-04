@@ -148,7 +148,7 @@ const NotificationsItem = ({notification, lastNotificationsCheck, classes}: {
       )
     }
 
-    const parsedPath = parseRouteWithErrors(notificationLink, ['/inbox/:_id']);
+    const parsedPath = parseRouteWithErrors(notificationLink);
     switch (notification.documentType) {
       case "tagRel":
         return (
@@ -180,7 +180,7 @@ const NotificationsItem = ({notification, lastNotificationsCheck, classes}: {
       case "message":
         return (
           <TooltipWrapper
-            title={<ConversationPreview conversationId={parsedPath?.params?._id} />}
+            title={<ConversationPreview conversationId={parsedPath?.query?.conversation} count={1} />}
             classes={classes}
           >
             {children}

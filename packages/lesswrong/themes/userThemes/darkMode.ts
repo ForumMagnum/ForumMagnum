@@ -206,6 +206,11 @@ export const getDarkModeTheme = (): UserThemeSpecification => ({
       bannerAdTranslucentStrong: "rgba(0,0,0,0.6)",
       recentDiscussionThread: 'rgba(0,0,0,0.4)',
       appBarDarkBackground: 'rgba(255,255,255,0.1)',
+      sunshineNewContentGroup: "linear-gradient(135deg, rgba(0,80,0,.50) 0%, rgba(0,80,0,0) 100%)",
+      sunshineHighContextGroup: "linear-gradient(135deg, rgba(120,120,0,.50) 0%, rgba(36, 36, 9, 0) 100%)",
+      sunshineMaybeSpamGroup: "linear-gradient(135deg, rgba(120,0,120,.50) 0%, rgba(120,0,120,0) 100%)",
+      sunshineAutomodGroup: "linear-gradient(135deg, rgba(120,120,0,.50) 0%, rgba(120,120,0,0) 100%)",
+      sunshineUnknownGroup: "linear-gradient(135deg, rgba(120,120,120,.50) 0%, rgba(120,120,120,0) 100%)",
     },
     background: {
       default: shadePalette.grey[100],

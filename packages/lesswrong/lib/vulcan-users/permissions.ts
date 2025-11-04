@@ -112,7 +112,7 @@ export const documentIsNotDeleted = (
   // to represent "deleted-ness"
   return !(
     (document as unknown as DbComment).deleted ||
-    (document as unknown as DbPost).deletedDraft ||
+    ((document as unknown as DbPost).draft && (document as unknown as DbPost).deletedDraft) ||
     (document as unknown as DbSequence).isDeleted
   );
 }

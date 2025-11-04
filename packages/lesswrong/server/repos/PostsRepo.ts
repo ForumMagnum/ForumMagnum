@@ -273,8 +273,7 @@ class PostsRepo extends AbstractRepo<"Posts"> {
         p."shortform" is not true AND
         p."isFuture" is not true AND
         p."authorIsUnreviewed" is not true AND
-        p."draft" is not true AND
-        p."deletedDraft" is not true
+        p."draft" is not true
       ORDER BY p."baseScore" desc
       LIMIT 200
     `, [digestId, startDate, end], "getEligiblePostsForDigest");
@@ -288,8 +287,7 @@ class PostsRepo extends AbstractRepo<"Posts"> {
       JOIN "DigestPosts" dp ON dp."postId" = p."_id" AND dp."onsiteDigestStatus" = 'yes'
       JOIN "Digests" d ON d.num = $1 AND dp."digestId" = d._id
       WHERE
-        p."draft" is not true AND
-        p."deletedDraft" is not true
+        p."draft" is not true
       ORDER BY p."curatedDate" DESC NULLS LAST, p."suggestForCuratedUserIds" DESC NULLS LAST, p."baseScore" desc
       LIMIT 50
     `, [num]);

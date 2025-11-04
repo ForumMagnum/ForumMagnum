@@ -30,13 +30,12 @@ const styles = defineStyles("InlineReactHoverableHighlight", (theme: ThemeType) 
     marginLeft: 4,
     paddingLeft: 4,
     paddingRight: 4,
-    
+  },
+  sidebarInlineReactIconsNonInbox: {
+    display: "none",
     [theme.breakpoints.up('sm')]: {
       display: "inline-block",
     },
-  },
-  hideInlineReactsDefault: {
-    display: "none",
   },
   inlineReactSidebarLine: {
     background: theme.palette.sideItemIndicator.inlineReaction,
@@ -138,7 +137,10 @@ const SidebarInlineReact = ({quote,reactions, voteProps, hoverEventHandlers}: {
   
   return <>
     {!isInbox && <SideItemLine colorClass={classes.inlineReactSidebarLine}/>}
-    <span {...hoverEventHandlers} className={classNames(classes.sidebarInlineReactIcons, !isInbox && classes.hideInlineReactsDefault)}>
+    <span {...hoverEventHandlers} className={classNames(
+      classes.sidebarInlineReactIcons,
+      !isInbox && classes.sidebarInlineReactIconsNonInbox,
+    )}>
       {reactionsUsed.map(r => <span key={r}>
         <LWTooltip
           title={<InlineReactHoverInfo

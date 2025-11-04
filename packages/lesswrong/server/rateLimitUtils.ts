@@ -357,16 +357,20 @@ async function createModeratorActionForStricterRateLimit(userId: string, autoRat
     ? STRICTER_COMMENT_AUTOMOD_RATE_LIMIT
     : STRICTER_POST_AUTOMOD_RATE_LIMIT;
 
-  // Importing this directly causes a crash-on-startup dependency cycle; probably something from this file
+  // Importing these directly causes a crash-on-startup dependency cycle; probably something from this file
   // is imported and used directly in a collection schema declaration.
   const { createModeratorAction } = await import("./collections/moderatorActions/mutations");
+  const { createAdminContext } = await import("./vulcan-lib/createContexts");
+  
+  // Use admin context instead to avoid leaking bits about whose vote on this user triggered the stricter rate limit
+  const adminContext = createAdminContext();
 
   await createModeratorAction({
     data: {
       type: moderatorActionType,
       userId,
     },
-  }, context);
+  }, adminContext);
 
   const itemType = actionType === 'Comments' ? 'comment' : 'post';
   const sunshineNote = `User triggered a stricter ${itemsPerTimeframe} ${itemType}(s) per ${timeframeLength} ${timeframeUnit} rate limit`;
@@ -375,7 +379,7 @@ async function createModeratorActionForStricterRateLimit(userId: string, autoRat
     moderatedUserId: userId,
     adminName: 'Automod',
     text: sunshineNote,
-    context,
+    context: adminContext,
   })
 }
 

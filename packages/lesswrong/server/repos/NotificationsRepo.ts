@@ -193,12 +193,10 @@ export default class NotificationsRepo extends AbstractRepo<"Notifications"> {
         n."waitingForBatch" IS NOT TRUE AND
         ${type ? `n."type" = $(type) AND` : ""}
         ${includeMessages ? "": `COALESCE(n."documentType", '') <> 'message' AND`}
-        NOT COALESCE(p."deletedDraft", FALSE) AND
         NOT COALESCE(pu."deleted", FALSE) AND
         NOT COALESCE(pl."deleted", FALSE) AND
         NOT COALESCE(c."deleted", FALSE) AND
         NOT COALESCE(cu."deleted", FALSE) AND
-        NOT COALESCE(cp."deletedDraft", FALSE) AND
         NOT COALESCE(cpu."deleted", FALSE) AND
         NOT COALESCE(cpl."deleted", FALSE) AND
         NOT COALESCE(t."deleted", FALSE) AND

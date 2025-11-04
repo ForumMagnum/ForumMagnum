@@ -1,6 +1,7 @@
 import { forumSelect } from "@/lib/forumTypeUtils";
 import { TupleSet, UnionOf } from "@/lib/utils/typeGuardUtils";
-import type { ForumTypeString, ReasonReviewIsNeeded } from "@/lib/instanceSettings";
+import type { ForumTypeString } from "@/lib/instanceSettings";
+import type { ReasonReviewIsNeeded } from "@/server/callbacks/sunshineCallbackUtils";
 
 
 export const RATE_LIMIT_ONE_PER_DAY = "rateLimitOnePerDay";
@@ -30,10 +31,13 @@ export const UNREVIEWED_MAP_LOCATION_UPDATE = "unreviewedMapLocationUpdate";
 export const UNREVIEWED_PROFILE_IMAGE_UPDATE = "unreviewedProfileImageUpdate";
 export const UNREVIEWED_FIRST_POST = "unreviewedFirstPost";
 export const UNREVIEWED_FIRST_COMMENT = "unreviewedFirstComment";
+export const UNREVIEWED_POST = "unreviewedPost";
+export const UNREVIEWED_COMMENT = "unreviewedComment";
 export const SNOOZE_EXPIRED = "snoozeExpired";
 export const STRICTER_COMMENT_AUTOMOD_RATE_LIMIT = "stricterCommentAutomodRateLimit";
 export const STRICTER_POST_AUTOMOD_RATE_LIMIT = "stricterPostAutomodRateLimit";
 export const MANUAL_RATE_LIMIT_EXPIRED = "manualRateLimitExpired";
+export const VOTING_DISABLED = "votingDisabled";
 
 
 export const postRateLimits = [] as const;
@@ -59,7 +63,7 @@ export type AllRateLimitTypes = (typeof allRateLimits)[number];
 // moderation actions that restrict the user's permissions in some way
 export const restrictionModeratorActions = [...allRateLimits] as const;
 
-const reviewTriggerModeratorActions = [
+export const reviewTriggerModeratorActions = new TupleSet([
   MANUAL_NEEDS_REVIEW,
   MANUAL_FLAG_ALERT,
   FLAGGED_FOR_N_DMS,
@@ -76,7 +80,14 @@ const reviewTriggerModeratorActions = [
   STRICTER_COMMENT_AUTOMOD_RATE_LIMIT,
   STRICTER_POST_AUTOMOD_RATE_LIMIT,
   MANUAL_RATE_LIMIT_EXPIRED,
-];
+] as const);
+
+export const persistentDisplayedModeratorActions = new TupleSet([
+  FLAGGED_FOR_N_DMS,
+  AUTO_BLOCKED_FROM_SENDING_DMS,
+  RECEIVED_VOTING_PATTERN_WARNING,
+  POTENTIAL_TARGETED_DOWNVOTING,
+] as const);
 
 export const MODERATOR_ACTION_TYPES = {
   [RATE_LIMIT_ONE_PER_DAY]: "Rate Limit (1 per day)",
@@ -106,10 +117,13 @@ export const MODERATOR_ACTION_TYPES = {
   [UNREVIEWED_PROFILE_IMAGE_UPDATE]: "Unreviewed profile image update",
   [UNREVIEWED_FIRST_POST]: "Unreviewed first post",
   [UNREVIEWED_FIRST_COMMENT]: "Unreviewed first comment",
+  [UNREVIEWED_POST]: "Unreviewed post",
+  [UNREVIEWED_COMMENT]: "Unreviewed comment",
   [SNOOZE_EXPIRED]: "Snooze expired",
   [STRICTER_COMMENT_AUTOMOD_RATE_LIMIT]: "Stricter comment automod rate limit",
   [STRICTER_POST_AUTOMOD_RATE_LIMIT]: "Stricter post automod rate limit",
   [MANUAL_RATE_LIMIT_EXPIRED]: "Manual rate limit expired",
+  [VOTING_DISABLED]: "Voting disabled",
 } satisfies Record<ModeratorActionType, string>;
 
 /** The max # of users an unapproved account is allowed to DM before being flagged */
@@ -119,10 +133,12 @@ export const MAX_ALLOWED_CONTACTS_BEFORE_FLAG = 2;
 export const getMaxAllowedContactsBeforeBlock = (forumType: ForumTypeString) => forumSelect({ EAForum: 4, default: 9 }, forumType);
 
 export const REVIEW_REASON_TO_MODERATOR_ACTION = {
-  bio: UNREVIEWED_BIO_UPDATE,
+  biography: UNREVIEWED_BIO_UPDATE,
   mapLocation: UNREVIEWED_MAP_LOCATION_UPDATE,
-  profileImage: UNREVIEWED_PROFILE_IMAGE_UPDATE,
+  profileImageId: UNREVIEWED_PROFILE_IMAGE_UPDATE,
   firstPost: UNREVIEWED_FIRST_POST,
   firstComment: UNREVIEWED_FIRST_COMMENT,
+  unreviewedPost: UNREVIEWED_POST,
+  unreviewedComment: UNREVIEWED_COMMENT,
   newContent: SNOOZE_EXPIRED,
-} satisfies Record<Exclude<ReasonReviewIsNeeded, 'contactedTooManyUsers'>, DbModeratorAction['type']>;
+} satisfies Record<ReasonReviewIsNeeded, DbModeratorAction['type']>;

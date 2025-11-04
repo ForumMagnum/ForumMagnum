@@ -166,7 +166,7 @@ export async function onPostPublished(post: DbPost, context: ResolverContext) {
   const { updateScoreOnPostPublish } = await import("./votingCallbacks");
   await updateScoreOnPostPublish(post, context);
   await onPublishUtils.ensureNonzeroRevisionVersionsAfterUndraft(post, context);
-  await triggerReviewIfNeeded(post.userId, context)
+  await triggerReviewIfNeeded(post.userId, 'publishedPost', context)
 }
 
 const utils = {
@@ -461,7 +461,6 @@ export async function checkRecentRepost<T extends CreatePostDataInput | Partial<
       title: post.title,
       userId: post.userId,
       draft: {$ne: true},
-      deletedDraft: {$ne: true},
       createdAt: {$gt: oneHourAgo},
     });
     if (existing) {
@@ -665,7 +664,7 @@ export async function notifyUsersAddedAsPostCoauthors({ document: post }: AfterC
 
 export async function triggerReviewForNewPostIfNeeded({ document, context }: AfterCreateCallbackProperties<'Posts'>) {
   if (!document.draft) {
-    await triggerReviewIfNeeded(document.userId, context)
+    await triggerReviewIfNeeded(document.userId, 'publishedPost', context)
   }
 }
 
@@ -847,11 +846,10 @@ export async function autoTagUndraftedPost({oldDocument, newDocument, context}: 
   }
 }
 
-export async function updatePostEmbeddingsOnChange(newPost: Pick<DbPost, '_id' | 'contents_latest' | 'draft' | 'deletedDraft' | 'status'>, oldPost?: DbPost) {
+export async function updatePostEmbeddingsOnChange(newPost: Pick<DbPost, '_id' | 'contents_latest' | 'draft' | 'status'>, oldPost?: DbPost) {
   const hasChanged = !oldPost || oldPost.contents_latest !== newPost.contents_latest;
   if (hasChanged &&
     !newPost.draft &&
-    !newPost.deletedDraft &&
     newPost.status === postStatuses.STATUS_APPROVED &&
     !isAnyTest
   ) {
@@ -879,6 +877,8 @@ export async function updatedPostMaybeTriggerReview({newDocument, oldDocument, c
   // then we consider this "publishing" the post
   if ((oldDocument.draft && !newDocument.authorIsUnreviewed) || (oldDocument.authorIsUnreviewed && !newDocument.authorIsUnreviewed)) {
     await onPostPublished(newDocument, context);
+  } else if (oldDocument.draft && !newDocument.draft) {
+    await triggerReviewIfNeeded(newDocument.userId, 'publishedPost', context);
   }
 }
 
