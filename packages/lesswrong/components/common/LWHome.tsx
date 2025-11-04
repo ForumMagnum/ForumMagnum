@@ -66,18 +66,6 @@ const styles = defineStyles("LWHome", (theme: ThemeType) => ({
   },
 }))
 
-const DebugIncrementCounterButton = () => {
-  const [counter, setCounter] = useState(0);
-  return (
-    <SingleColumnSection>
-      <div>
-        <button onClick={() => setCounter(counter + 1)}>Increment Counter</button>
-        <div>Counter: {counter}</div>
-      </div>
-    </SingleColumnSection>
-  )
-}
-
 const LWHome = () => {
   const abTestGroup = useABTest(ultraFeedABTest);
   const [cookies] = useCookiesWithConsent([ULTRA_FEED_ENABLED_COOKIE]);
@@ -104,7 +92,6 @@ const LWHome = () => {
           {(!reviewIsActive() || getReviewPhase() === "RESULTS" || !showReviewOnFrontPageIfActive.get()) && !lightconeFundraiserActive.get() && <SingleColumnSection>
             <DismissibleSpotlightItem loadingStyle="placeholder" />
           </SingleColumnSection>}
-          <DebugIncrementCounterButton />
           <SuspenseWrapper name="LWHomePosts" fallback={<div style={{height: 800}}/>}>
             <LWHomePosts>
               <QuickTakesSection />
