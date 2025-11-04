@@ -299,7 +299,7 @@ const sunPosAt = (dt: number): [number, number] => {
 // Globe rotation animation hook - rotates texture coordinates in shader for smooth rotation
 // Returns a ref to the current rotation value in radians so markers can be rotated accordingly
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
-const useGlobeRotation = (globeMaterialRef: React.MutableRefObject<any>, isGlobeReady: boolean, recordMetric?: (name: string, time: number) => void): React.MutableRefObject<number> => {
+const useGlobeRotation = (globeMaterialRef: React.MutableRefObject<any>, isGlobeReady: boolean): React.MutableRefObject<number> => {
   const rotationSpeed = 0.005; // radians per frame (adjust for desired rotation speed)
   const rotationRef = useRef(0); // Track cumulative rotation
   
@@ -309,19 +309,12 @@ const useGlobeRotation = (globeMaterialRef: React.MutableRefObject<any>, isGlobe
     let animationFrameId: number;
     
     const animate = () => {
-      const start = performance.now();
-      
       // Increment rotation (this will wrap naturally when it exceeds 2*PI)
       rotationRef.current += rotationSpeed;
       
       // Update texture rotation uniform in shader
       if (globeMaterialRef.current?.uniforms?.textureRotation) {
         globeMaterialRef.current.uniforms.textureRotation.value = rotationRef.current;
-      }
-      
-      const end = performance.now();
-      if (recordMetric) {
-        recordMetric('Texture Rotation Update', end - start);
       }
       
       animationFrameId = requestAnimationFrame(animate);
@@ -334,124 +327,9 @@ const useGlobeRotation = (globeMaterialRef: React.MutableRefObject<any>, isGlobe
         cancelAnimationFrame(animationFrameId);
       }
     };
-  }, [isGlobeReady, globeMaterialRef, recordMetric]);
+  }, [isGlobeReady, globeMaterialRef]);
   
   return rotationRef;
-};
-
-// Performance metrics tracking
-type PerformanceMetric = {
-  name: string;
-  time: number;
-};
-
-type FrameMetrics = {
-  timestamp: number;
-  metrics: Array<PerformanceMetric>;
-  totalTime: number;
-};
-
-const FRAME_HISTORY_SIZE = 30;
-
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-const usePerformanceProfiler = (isGlobeReady: boolean): { recordMetric: (name: string, time: number) => void; getStats: () => Record<string, { avgTime: number; percentage: number; maxTime: number }> } => {
-  const frameHistoryRef = useRef<Array<FrameMetrics>>([]);
-  const currentFrameMetricsRef = useRef<Array<PerformanceMetric>>([]);
-  const previousFrameStartRef = useRef<number>(0);
-  const isTrackingFrameRef = useRef<boolean>(false);
-  
-  const recordMetric = useCallback((name: string, time: number) => {
-    if (isTrackingFrameRef.current) {
-      currentFrameMetricsRef.current.push({ name, time });
-    }
-  }, []);
-  
-  useEffect(() => {
-    if (!isGlobeReady) return;
-    
-    let animationFrameId: number;
-    
-    const trackFrame = (timestamp: number) => {
-      // Disable tracking for the previous frame (if any)
-      const wasTracking = isTrackingFrameRef.current;
-      isTrackingFrameRef.current = false;
-      
-      // If we have metrics from the previous frame, capture them now
-      if (wasTracking && previousFrameStartRef.current > 0 && currentFrameMetricsRef.current.length > 0) {
-        const frameEnd = timestamp;
-        const totalTime = frameEnd - previousFrameStartRef.current;
-        
-        const frameMetrics: FrameMetrics = {
-          timestamp: previousFrameStartRef.current,
-          metrics: [...currentFrameMetricsRef.current],
-          totalTime,
-        };
-        
-        frameHistoryRef.current.push(frameMetrics);
-        if (frameHistoryRef.current.length > FRAME_HISTORY_SIZE) {
-          frameHistoryRef.current.shift();
-        }
-      }
-      
-      // Start tracking new frame
-      previousFrameStartRef.current = timestamp;
-      currentFrameMetricsRef.current = [];
-      isTrackingFrameRef.current = true;
-      
-      animationFrameId = requestAnimationFrame(trackFrame);
-    };
-    
-    animationFrameId = requestAnimationFrame(trackFrame);
-    
-    return () => {
-      if (animationFrameId) {
-        cancelAnimationFrame(animationFrameId);
-      }
-    };
-  }, [isGlobeReady]);
-  
-  const getStats = useCallback(() => {
-    const stats: Record<string, { totalTime: number; count: number; maxTime: number }> = {};
-    
-    frameHistoryRef.current.forEach(frame => {
-      frame.metrics.forEach(metric => {
-        if (!stats[metric.name]) {
-          stats[metric.name] = { totalTime: 0, count: 0, maxTime: 0 };
-        }
-        stats[metric.name].totalTime += metric.time;
-        stats[metric.name].count += 1;
-        stats[metric.name].maxTime = Math.max(stats[metric.name].maxTime, metric.time);
-      });
-    });
-    
-    // Calculate average frame time from all frames
-    const avgFrameTime = frameHistoryRef.current.length > 0
-      ? frameHistoryRef.current.reduce((sum, f) => sum + f.totalTime, 0) / frameHistoryRef.current.length
-      : 0;
-    
-    const result: Record<string, { avgTime: number; percentage: number; maxTime: number }> = {};
-    Object.keys(stats).forEach(name => {
-      const avgTime = stats[name].totalTime / stats[name].count;
-      // Percentage relative to average frame time
-      const percentage = avgFrameTime > 0 ? (avgTime / avgFrameTime) * 100 : 0;
-      result[name] = {
-        avgTime,
-        percentage,
-        maxTime: stats[name].maxTime,
-      };
-    });
-    
-    // Add frame time as a special metric
-    result['_TOTAL_FRAME_TIME_'] = {
-      avgTime: avgFrameTime,
-      percentage: 100,
-      maxTime: Math.max(...frameHistoryRef.current.map(f => f.totalTime), 0),
-    };
-    
-    return result;
-  }, []);
-  
-  return { recordMetric, getStats };
 };
 
 // Framerate counter hook
@@ -493,7 +371,7 @@ const useFramerate = (isGlobeReady: boolean): number => {
 
 // Day-night cycle animation hook
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
-const useDayNightCycle = (globeMaterialRef: React.MutableRefObject<any>, isGlobeReady: boolean, pov: PointOfView, recordMetric?: (name: string, time: number) => void) => {
+const useDayNightCycle = (globeMaterialRef: React.MutableRefObject<any>, isGlobeReady: boolean, pov: PointOfView) => {
   const [dt, setDt] = useState(+new Date());
   
   useEffect(() => {
@@ -502,12 +380,7 @@ const useDayNightCycle = (globeMaterialRef: React.MutableRefObject<any>, isGlobe
     let animationFrameId: number;
     
     const iterateTime = () => {
-      const start = performance.now();
       setDt(dt => dt + (VELOCITY * 60 * 1000));
-      const end = performance.now();
-      if (recordMetric) {
-        recordMetric('Day-Night Time Update', end - start);
-      }
       animationFrameId = requestAnimationFrame(iterateTime);
     };
     
@@ -518,110 +391,28 @@ const useDayNightCycle = (globeMaterialRef: React.MutableRefObject<any>, isGlobe
         cancelAnimationFrame(animationFrameId);
       }
     };
-  }, [isGlobeReady, globeMaterialRef, recordMetric]);
+  }, [isGlobeReady, globeMaterialRef]);
   
   useEffect(() => {
     if (!globeMaterialRef.current) return;
-    
-    const start = performance.now();
     
     // Update sun position based on current time (fixed longitude, only declination changes)
     const sunPos = sunPosAt(dt);
     if (globeMaterialRef.current.uniforms?.sunPosition) {
       globeMaterialRef.current.uniforms.sunPosition.value.set(sunPos[0], sunPos[1]);
     }
-    
-    const end = performance.now();
-    if (recordMetric) {
-      recordMetric('Sun Position Update', end - start);
-    }
-  }, [dt, globeMaterialRef, recordMetric]);
+  }, [dt, globeMaterialRef]);
   
   useEffect(() => {
     if (!globeMaterialRef.current) return;
-    
-    const start = performance.now();
     
     // Update globe rotation when POV changes
     if (globeMaterialRef.current.uniforms?.globeRotation) {
       globeMaterialRef.current.uniforms.globeRotation.value.set(pov.lng, pov.lat);
     }
-    
-    const end = performance.now();
-    if (recordMetric) {
-      recordMetric('Globe Rotation Uniform Update', end - start);
-    }
-  }, [globeMaterialRef, pov.lat, pov.lng, recordMetric]);
+  }, [globeMaterialRef, pov.lat, pov.lng]);
 };
 
-// Performance display component
-const PerformanceDisplay = ({ stats }: { stats: Record<string, { avgTime: number; percentage: number; maxTime: number }> }) => {
-  const totalFrameTime = stats['_TOTAL_FRAME_TIME_'];
-  const entries = Object.entries(stats)
-    .filter(([name]) => name !== '_TOTAL_FRAME_TIME_')
-    .sort((a, b) => b[1].percentage - a[1].percentage);
-  
-  return (
-    <div style={{
-      position: 'absolute',
-      top: '10px',
-      left: '10px',
-      background: 'rgba(0, 0, 0, 0.7)',
-      color: 'white',
-      fontFamily: 'monospace',
-      fontSize: '11px',
-      padding: '10px',
-      borderRadius: '4px',
-      zIndex: 1001,
-      pointerEvents: 'none',
-      maxWidth: '300px',
-      lineHeight: '1.4',
-    }}>
-      <div style={{ fontWeight: 'bold', marginBottom: '8px', borderBottom: '1px solid rgba(255,255,255,0.3)', paddingBottom: '4px' }}>
-        Performance (Last 30 frames)
-      </div>
-      {totalFrameTime && (
-        <div style={{ marginBottom: '8px', paddingBottom: '4px', borderBottom: '1px solid rgba(255,255,255,0.2)' }}>
-          <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '10px', color: '#aaa' }}>
-            <span>Avg Frame: {totalFrameTime.avgTime.toFixed(2)}ms</span>
-            <span>Max: {totalFrameTime.maxTime.toFixed(2)}ms</span>
-          </div>
-        </div>
-      )}
-      {entries.length === 0 ? (
-        <div style={{ color: '#aaa' }}>Collecting data...</div>
-      ) : (
-        entries.map(([name, data]) => (
-          <div key={name} style={{ marginBottom: '4px' }}>
-            <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '2px' }}>
-              <span>{name}:</span>
-              <span>{data.percentage.toFixed(1)}%</span>
-            </div>
-            <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '10px', color: '#aaa' }}>
-              <span>avg: {data.avgTime.toFixed(2)}ms</span>
-              <span>max: {data.maxTime.toFixed(2)}ms</span>
-            </div>
-            <div style={{
-              width: '100%',
-              height: '4px',
-              background: 'rgba(255,255,255,0.2)',
-              marginTop: '2px',
-              borderRadius: '2px',
-              overflow: 'hidden',
-            }}>
-              <div style={{
-                width: `${Math.min(data.percentage, 100)}%`,
-                height: '100%',
-                background: `hsl(${Math.max(0, 120 - data.percentage * 1.2)}, 70%, 50%)`,
-                transition: 'width 0.3s ease',
-              }} />
-            </div>
-          </div>
-        ))
-      )}
-    </div>
-  );
-};
 
 const SolsticeGlobe3D = ({
   pointsData,
@@ -662,22 +453,6 @@ const SolsticeGlobe3D = ({
   const globeMaterialRef = useGlobeDayNightMaterial();
   const countryPolygons = useCountryPolygons(COUNTRIES_GEOJSON_URL);
 
-  // Performance profiler
-  const { recordMetric, getStats } = usePerformanceProfiler(isGlobeReady);
-  const [perfStats, setPerfStats] = useState<Record<string, { avgTime: number; percentage: number; maxTime: number }>>({});
-  
-  // Update performance stats periodically
-  useEffect(() => {
-    if (!isGlobeReady) return;
-    
-    const interval = setInterval(() => {
-      const stats = getStats();
-      setPerfStats(stats);
-    }, 500); // Update every 500ms
-    
-    return () => clearInterval(interval);
-  }, [isGlobeReady, getStats]);
-  
   // Initialize: assign textures, set POV, and invoke onReady when ready
   const initialPov = useMemo(() => ({
     lat: defaultPointOfView.lat,
@@ -687,25 +462,20 @@ const SolsticeGlobe3D = ({
   useGlobeReadyEffects(isGlobeReady, globeRef, globeMaterialRef, dayImageUrl, nightImageUrl, luminosityImageUrl, initialPov, onReady);
   
   // Start globe rotation animation and get ref to current rotation value
-  const textureRotationRef = useGlobeRotation(globeMaterialRef, isGlobeReady, recordMetric);
+  const textureRotationRef = useGlobeRotation(globeMaterialRef, isGlobeReady);
   
   // Start day-night cycle animation
-  useDayNightCycle(globeMaterialRef, isGlobeReady, initialPov, recordMetric);
+  useDayNightCycle(globeMaterialRef, isGlobeReady, initialPov);
   
   // Track framerate
   const fps = useFramerate(isGlobeReady);
 
   // Update globe rotation when user zooms/interacts (matches example)
   const handleZoom = useCallback(({ lng, lat }: { lng: number; lat: number }) => {
-    const start = performance.now();
     if (globeMaterialRef.current?.uniforms?.globeRotation) {
       globeMaterialRef.current.uniforms.globeRotation.value.set(lng, lat);
     }
-    const end = performance.now();
-    if (recordMetric) {
-      recordMetric('Zoom Interaction', end - start);
-    }
-  }, [globeMaterialRef, recordMetric]);
+  }, [globeMaterialRef]);
 
   // Convert points data to format expected by react-globe.gl
   const markerData = mapPointsToMarkers(pointsData);
@@ -719,7 +489,6 @@ const SolsticeGlobe3D = ({
   // HTML marker renderer function based on react-globe.gl example
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const renderHtmlElement = useCallback((d: any) => {
-    const start = performance.now();
     const point = pointsData.find(p => 
       (d._index !== undefined && p === pointsData[d._index]) || 
       (d.eventId && p.eventId === d.eventId)
@@ -745,37 +514,21 @@ const SolsticeGlobe3D = ({
         handlePointClick(originalPoint, { x: e.clientX, y: e.clientY });
       }
     });
-    const end = performance.now();
-    if (recordMetric) {
-      recordMetric('Marker Element Creation', end - start);
-    }
     return el;
-  }, [pointsData, handlePointClick, recordMetric]);
+  }, [pointsData, handlePointClick]);
   
   // Wrapped marker calculation functions with performance tracking
   const htmlLng = useCallback((d: any) => {
-    const start = performance.now();
     // Apply texture rotation to marker longitude to keep markers aligned with rotating texture
     // Texture rotation is in radians, convert to degrees and subtract to counter-rotate markers
     const rotationDegrees = (textureRotationRef.current * 180) / Math.PI;
-    const result = d.lng - rotationDegrees;
-    const end = performance.now();
-    if (recordMetric) {
-      recordMetric('Marker Longitude Calculation', end - start);
-    }
-    return result;
-  }, [textureRotationRef, recordMetric]);
+    return d.lng - rotationDegrees;
+  }, [textureRotationRef]);
   
   const htmlAltitude = useCallback((d: any) => {
-    const start = performance.now();
     const base = typeof d.size === 'number' ? d.size : 1;
-    const result = base * altitudeScale * 0.01;
-    const end = performance.now();
-    if (recordMetric) {
-      recordMetric('Marker Altitude Calculation', end - start);
-    }
-    return result;
-  }, [altitudeScale, recordMetric]);
+    return base * altitudeScale * 0.01;
+  }, [altitudeScale]);
 
   return (
     <div
@@ -792,7 +545,6 @@ const SolsticeGlobe3D = ({
           <div style={{ position: 'absolute', top: '300px', right: '10px', color: 'white', fontFamily: 'monospace', fontSize: '14px', zIndex: 1000, pointerEvents: 'none' }}>
             {fps} FPS
           </div>
-          <PerformanceDisplay stats={perfStats} />
         </>
       )}
       {typeof window !== 'undefined' && (
