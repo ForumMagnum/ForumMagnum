@@ -57,7 +57,7 @@ const styles = defineStyles("SolsticeSeasonBanner", (theme: ThemeType) => ({
     transform: 'translateX(-50%)',
     zIndex: 4,
     lineHeight: 1.5,
-    transition: 'transform 0.5s ease-in-out, opacity 0.5s ease-in-out',
+    transition: 'opacity 0.5s ease-in-out',
     opacity: 1,
     '&.transitioning': {
       transform: 'translateX(-50%) translateX(-100%)',
@@ -96,22 +96,6 @@ const styles = defineStyles("SolsticeSeasonBanner", (theme: ThemeType) => ({
     '& a': {
       color: theme.palette.text.alwaysBlack,
     },
-  },
-  activeMeetupType: {
-    background: theme.palette.primary.main,
-    color: theme.palette.text.alwaysWhite,
-  },
-  activeAcxMeetupType: {
-    background: theme.palette.meetupMonth.acx,
-    color: theme.palette.text.alwaysWhite,
-  },
-  activeIfanyoneMeetupType: {
-    background: theme.palette.meetupMonth.ifanyone,
-    color: theme.palette.text.alwaysWhite,
-  },
-  activePetrovMeetupType: {
-    background: theme.palette.meetupMonth.petrov,
-    color: theme.palette.grey[100],
   },
   globeGradientRight: {
     position: 'absolute',
@@ -160,17 +144,23 @@ const styles = defineStyles("SolsticeSeasonBanner", (theme: ThemeType) => ({
     '&&': {
       color: theme.palette.text.alwaysWhite,
     },
-    fontSize: 14,  
     cursor: 'pointer',
     border: 'none',
     justifyContent: 'space-between',
     width: 'calc(50% - 5px)',
     alignItems: 'center',
     wordWrap: 'balance',
-    padding: 10,
-    paddingLeft: 14,
-    paddingRight: 14,
     transition: 'background 0.8s ease-in-out',
+    fontSize: 12,
+    padding: 8,
+    paddingLeft: 12,
+    paddingRight: 12,
+    [theme.breakpoints.up(smallBreakpoint)]: {
+      padding: 10,
+      paddingLeft: 14,
+      paddingRight: 14,
+      fontSize: 14,  
+    },
   },
   createEventButtonNotLoaded: {
     background: theme.palette.grey[300],
@@ -179,18 +169,6 @@ const styles = defineStyles("SolsticeSeasonBanner", (theme: ThemeType) => ({
     fontSize: 12,
     fontWeight: 400,
     opacity: 0.8,
-  },
-  buttonText: {
-    display: 'inline-block',
-    [theme.breakpoints.down(smallBreakpoint)]: {
-      display: 'none',
-    },
-  },
-  shortButtonText: {
-    display: 'none',
-    [theme.breakpoints.down(smallBreakpoint)]: {
-      display: 'inline-block',
-    },
   },
   createEventButtonAnnounce: {
     width: "100%",
