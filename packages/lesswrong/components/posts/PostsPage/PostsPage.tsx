@@ -28,6 +28,7 @@ import { useVote } from '@/components/votes/withVote';
 import { getVotingSystemByName } from '@/lib/voting/getVotingSystem';
 import DeferRender from '@/components/common/DeferRender';
 import { SideItemVisibilityContextProvider } from '@/components/dropdowns/posts/SetSideItemVisibility';
+import PostsBottomBar from '../PostsBottomBar';
 import LWPostsPageHeader, { LW_POST_PAGE_PADDING } from './LWPostsPageHeader';
 import { useCommentLinkState } from '@/components/comments/CommentsItem/useCommentLink';
 import { useCurrentTime } from '@/lib/utils/timeUtil';
@@ -854,6 +855,7 @@ const PostsPage = ({fullPost, postPreload, refetch, embedded}: {
     </ImageProvider>
     </SideItemsContainer>
     </RecombeeRecommendationsContextWrapper>
+    <PostsBottomBar />
     </PostsPageContext.Provider>
   </AnalyticsContext>
 }

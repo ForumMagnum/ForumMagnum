@@ -23,7 +23,6 @@ import { ultraFeedEnabledSetting } from '@/lib/instanceSettings';
 import { useUltraFeedSettings } from '../hooks/useUltraFeedSettings';
 import type { UltraFeedSettingsType, TruncationLevel } from './ultraFeedSettingsTypes';
 import AnalyticsInViewTracker from '../common/AnalyticsInViewTracker';
-import UltraFeedBottomBar from './UltraFeedBottomBar';
 import Loading from '../vulcan-core/Loading';
 import UltraFeedSubscriptionsFeed from './UltraFeedSubscriptionsFeed';
 import UltraFeedMainFeed from './UltraFeedMainFeed';
@@ -320,7 +319,7 @@ const UltraFeedContent = ({
   return (
     <AnalyticsContext pageSectionContext="ultraFeed" ultraFeedContext={{ feedSessionId: sessionId }}>
       <AnalyticsInViewTracker eventProps={{inViewType: "ultraFeed"}}>
-      <div className={classes.root} ref={feedContainerRef}>
+      <div id="ultrafeed" className={classes.root} ref={feedContainerRef}>
         <UltraFeedObserverProvider incognitoMode={resolverSettings.incognitoMode}>
         <OverflowNavObserverProvider>
             <div ref={topSentinelRef} style={{ scrollMarginTop: 400 }} />
@@ -399,12 +398,6 @@ const UltraFeedContent = ({
         )}
       </div>
       </AnalyticsInViewTracker>
-      {isFeedInView && (
-        <UltraFeedBottomBar
-          refetchFeed={handleRefreshFeed}
-          isTopVisible={isTopVisible}
-          feedRootEl={feedContainerRef.current} />
-      )}
     </AnalyticsContext>
   );
 };
