@@ -310,18 +310,23 @@ const useGlobeRotation = (globeMaterialRef: React.MutableRefObject<any>, isGlobe
   return rotationRef;
 };
 
-// Framerate counter hook
-const useFramerate = (isGlobeReady: boolean): number => {
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+const useFramerate = (isGlobeReady: boolean, globeRef: React.MutableRefObject<any>): number => {
   const [fps, setFps] = useState(0);
   
   useEffect(() => {
-    if (!isGlobeReady) return;
+    if (!isGlobeReady || !globeRef.current) return;
+    
+    const globeInstance = globeRef.current;
+    const renderer = globeInstance.renderer?.();
+    if (!renderer) return;
     
     let lastTime = performance.now();
     let frameCount = 0;
-    let animationFrameId: number;
     
-    const updateFps = () => {
+    // Hook into the renderer's render cycle to track actual frames rendered
+    const originalRender = renderer.render.bind(renderer);
+    renderer.render = function(...args: any[]) {
       frameCount++;
       const currentTime = performance.now();
       const elapsed = currentTime - lastTime;
@@ -332,17 +337,14 @@ const useFramerate = (isGlobeReady: boolean): number => {
         lastTime = currentTime;
       }
       
-      animationFrameId = requestAnimationFrame(updateFps);
+      return originalRender(...args);
     };
-    
-    animationFrameId = requestAnimationFrame(updateFps);
     
     return () => {
-      if (animationFrameId) {
-        cancelAnimationFrame(animationFrameId);
-      }
+      // Restore original render method
+      renderer.render = originalRender;
     };
-  }, [isGlobeReady]);
+  }, [isGlobeReady, globeRef]);
   
   return fps;
 };
@@ -444,8 +446,8 @@ const SolsticeGlobe3D = ({
   // Start day-night cycle animation
   useDayNightCycle(globeMaterialRef, isGlobeReady, initialPov);
   
-  // Track framerate
-  const fps = useFramerate(isGlobeReady);
+  // Track framerate using react-globe.gl's renderer
+  const fps = useFramerate(isGlobeReady, globeRef);
 
   // Update globe rotation when user zooms/interacts (matches example)
   const handleZoom = useCallback(({ lng, lat }: { lng: number; lat: number }) => {
