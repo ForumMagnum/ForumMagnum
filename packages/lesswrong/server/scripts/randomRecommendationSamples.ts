@@ -15,7 +15,6 @@ export const randomRecommendationSamples = async () => {
     WHERE "createdAt" > $1 AND
       "status" = 2 AND
       "draft" IS NOT TRUE AND
-      "deletedDraft" IS NOT TRUE AND
       "isFuture" IS NOT TRUE AND
       "shortform" IS NOT TRUE AND
       "hiddenRelatedQuestion" IS NOT TRUE AND
