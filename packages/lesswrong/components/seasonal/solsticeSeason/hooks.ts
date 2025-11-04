@@ -2,7 +2,7 @@ import React, { useEffect, useState, useRef } from 'react';
 // eslint-disable-next-line @typescript-eslint/no-var-requires
 const THREE = require('three');
 import { createDayNightShaderMaterial } from './shader';
-import { CONTRAST_AMOUNT, BRIGHTNESS_BOOST, BRIGHTNESS_ADD, ROTATION_SPEED } from './constants';
+import { CONTRAST_AMOUNT, BRIGHTNESS_BOOST, BRIGHTNESS_ADD, ROTATION_SPEED, DEFAULT_SUN_POSITION } from './solsiceSeasonConstants';
 import { findMeshWithTexture } from './utils';
 import { PointOfView } from './types';
 
@@ -91,7 +91,7 @@ export const useGlobeReadyEffects = (
     globeRef.current.pointOfView({ lat: pov.lat, lng: pov.lng, altitude: pov.altitude }, 0);
     
     if (globeMaterialRef.current?.uniforms?.sunPosition) {
-      globeMaterialRef.current.uniforms.sunPosition.value.set(0, 0);
+      globeMaterialRef.current.uniforms.sunPosition.value.set(DEFAULT_SUN_POSITION.lng, DEFAULT_SUN_POSITION.lat);
     }
     
     onReadyRef.current?.();

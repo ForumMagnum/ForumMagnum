@@ -4,6 +4,7 @@ import { SolsticeGlobe3DProps, SolsticeGlobePoint, PointClickCallback } from './
 import { useGlobeDayNightMaterial, useGlobeReadyEffects, useGlobeAnimation, useFramerate } from './hooks';
 import { mapPointsToMarkers } from './utils';
 import { useEventListener } from '@/components/hooks/useEventListener';
+import { DEFAULT_DAY_IMAGE_URL, DEFAULT_NIGHT_IMAGE_URL, DEFAULT_LUMINOSITY_IMAGE_URL, DEFAULT_ALTITUDE_SCALE, DEFAULT_INITIAL_ALTITUDE_MULTIPLIER } from './solsiceSeasonConstants';
 
 // Dynamically import react-globe.gl to avoid SSR issues
 const Globe = dynamic(() => import('react-globe.gl'), { ssr: false });
@@ -19,11 +20,11 @@ export const SolsticeGlobe3D = ({
   className,
   style,
   onClick,
-  dayImageUrl = "https://res.cloudinary.com/lesswrong-2-0/image/upload/v1761983935/flat_earth_Largest_still3_yltj4n.jpg",
-  nightImageUrl = "https://res.cloudinary.com/lesswrong-2-0/image/upload/v1761984035/earth-night-light_kwpk53.jpg",
-  luminosityImageUrl = "https://res.cloudinary.com/lesswrong-2-0/image/upload/v1761947544/earth-night_fratqn.jpg",
-  altitudeScale = 0.099,
-  initialAltitudeMultiplier = 1,
+  dayImageUrl = DEFAULT_DAY_IMAGE_URL,
+  nightImageUrl = DEFAULT_NIGHT_IMAGE_URL,
+  luminosityImageUrl = DEFAULT_LUMINOSITY_IMAGE_URL,
+  altitudeScale = DEFAULT_ALTITUDE_SCALE,
+  initialAltitudeMultiplier = DEFAULT_INITIAL_ALTITUDE_MULTIPLIER,
 }: SolsticeGlobe3DProps) => {
   const [isGlobeReady, setIsGlobeReady] = useState(false);
   const [isRotating, setIsRotating] = useState(true);
