@@ -1,6 +1,7 @@
 import { MiddlewareConfig, NextRequest, NextResponse } from 'next/server'
 import { canonicalizePath } from "./packages/lesswrong/lib/generated/routeManifest";
 import { randomId } from './packages/lesswrong/lib/random';
+import { fetch } from 'undici';
 
 // These need to be defined here instead of imported from @/lib/cookies/cookies
 // because that import chain contains a transitive import of lodash, which
@@ -64,15 +65,16 @@ export async function proxy(request: NextRequest) {
         referrer: request.referrer,
         mode: request.mode,
         body: request.body,
+        duplex: 'half',
         // Upgrading NextJS to v16 apparently pulled in https://github.com/whatwg/fetch/pull/1457,
         // which causes this call to fail if `duplex` isn't included.  However, the typescript lib
         // type definition for fetch's `RequestInit` doesn't yet contain the field!  So we need to
         // spread it like this to avoid the type checker complaining.
-        ...({ duplex: 'half' }),
+        // ...({ duplex: 'half' }),
       }
     );
     
-    const originalBody = forwardedFetchResponse.body;
+    const originalBody = forwardedFetchResponse.body as ReadableStream<Uint8Array<ArrayBufferLike>> | null;
     if (!originalBody) {
       return forwardedFetchResponse;
     }
@@ -89,7 +91,7 @@ export async function proxy(request: NextRequest) {
     } else {
       const status = statusFromStream ? statusFromStream.status : forwardedFetchResponse.status;
   
-      const nextResponse = new NextResponse(responseStream, { headers: forwardedFetchResponse.headers, status });
+      const nextResponse = new NextResponse(responseStream, { headers: forwardedFetchResponse.headers as HeadersInit, status });
       if (addedClientId) {
         return addClientIdToResponseHeaders(nextResponse, addedClientId);
       }
