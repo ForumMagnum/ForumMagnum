@@ -12,6 +12,7 @@ import { collectionNameToTypeName } from '@/lib/generated/collectionTypeNames';
 import VotingPatternsWarningPopup from "./VotingPatternsWarningPopup";
 import { gql } from '@/lib/generated/gql-codegen';
 import { useGetCurrentUser } from '../common/withUser';
+import map from 'lodash/map';
 
 const performVoteCommentMutation = gql(`
   mutation performVoteComment($documentId: String, $voteType: String, $extendedVote: JSON) {
@@ -176,8 +177,7 @@ export const useVote = <T extends VoteableTypeClient, CollectionName extends Vot
         },
       })
     } catch(e) {
-      const errorMessage = e.graphQLErrors.map((gqlErr: any)=>gqlErr.message).join("; ");
-      messages.flash({ messageString: errorMessage });
+      messages.flash({ messageString: e.message });
       setOptimisticResponseDocument(null);
     }
   }, [messages, mutate, collectionName, votingSystemOrDefault, getCurrentUser]);
