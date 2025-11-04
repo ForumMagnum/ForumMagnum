@@ -1,6 +1,6 @@
 import { useState, useRef, useCallback } from 'react';
 import { EventProps, useTracking } from "../../lib/analyticsEvents";
-import { isMobile } from '../../lib/utils/isMobile'
+import { isMobile } from '../../lib/utils/isMobile';
 
 function datesDifference(a: Date, b: Date): number {
   return (a as any)-(b as any);

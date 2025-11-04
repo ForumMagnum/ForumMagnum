@@ -8,6 +8,7 @@ import { UltraFeedObserverProvider } from './UltraFeedObserver';
 import { OverflowNavObserverProvider } from './OverflowNavObserverContext';
 import { AnalyticsContext, useTracking } from '@/lib/analyticsEvents';
 import { userIsAdminOrMod } from '@/lib/vulcan-users/permissions';
+import { useMarkUltraFeedAsViewed } from '../layout/PersistentHomepage';
 import UltraFeedHeader from './UltraFeedHeader';
 import SingleColumnSection from "../common/SingleColumnSection";
 import SettingsButton from "../icons/SettingsButton";
@@ -22,7 +23,6 @@ import { ultraFeedEnabledSetting } from '@/lib/instanceSettings';
 import { useUltraFeedSettings } from '../hooks/useUltraFeedSettings';
 import type { UltraFeedSettingsType, TruncationLevel } from './ultraFeedSettingsTypes';
 import AnalyticsInViewTracker from '../common/AnalyticsInViewTracker';
-import UltraFeedBottomBar from './UltraFeedBottomBar';
 import Loading from '../vulcan-core/Loading';
 import UltraFeedSubscriptionsFeed from './UltraFeedSubscriptionsFeed';
 import UltraFeedMainFeed from './UltraFeedMainFeed';
@@ -212,7 +212,10 @@ const UltraFeedContent = ({
 
   const { openDialog } = useDialog();
   const { captureEvent } = useTracking();
-  const [sessionId] = useState<string>(randomId);
+  const markUltraFeedAsViewed = useMarkUltraFeedAsViewed();
+  
+  const [sessionId] = useState<string>(() => randomId());
+
   const refetchForYouRef = useRef<null | ObservableQuery['refetch']>(null);
   const refetchFollowingRef = useRef<null | (() => void)>(null);
   const topSentinelRef = useRef<HTMLDivElement | null>(null);
@@ -253,6 +256,31 @@ const UltraFeedContent = ({
     };
   }, []);
 
+  // Mark UltraFeed as viewed when scrolled 100px into viewport
+  useEffect(() => {
+    const containerEl = feedContainerRef.current;
+    if (!containerEl || !markUltraFeedAsViewed) return;
+
+    const viewedObserver = new IntersectionObserver(
+      ([entry]) => {
+        if (entry.isIntersecting) {
+          markUltraFeedAsViewed();
+        }
+      },
+      { 
+        root: null,
+        rootMargin: '-100px 0px 0px 0px',
+        threshold: 0
+      }
+    );
+
+    viewedObserver.observe(containerEl);
+
+    return () => {
+      viewedObserver.disconnect();
+    };
+  }, [markUltraFeedAsViewed]);
+
   // When switching to a tab for the first time, mark it as mounted
   useEffect(() => {
     if (activeTab === 'following' && !hasRenderedFollowing) {
@@ -291,7 +319,7 @@ const UltraFeedContent = ({
   return (
     <AnalyticsContext pageSectionContext="ultraFeed" ultraFeedContext={{ feedSessionId: sessionId }}>
       <AnalyticsInViewTracker eventProps={{inViewType: "ultraFeed"}}>
-      <div className={classes.root} ref={feedContainerRef}>
+      <div id="ultrafeed" className={classes.root} ref={feedContainerRef}>
         <UltraFeedObserverProvider incognitoMode={resolverSettings.incognitoMode}>
         <OverflowNavObserverProvider>
             <div ref={topSentinelRef} style={{ scrollMarginTop: 400 }} />
@@ -370,12 +398,6 @@ const UltraFeedContent = ({
         )}
       </div>
       </AnalyticsInViewTracker>
-      {isFeedInView && (
-        <UltraFeedBottomBar
-          refetchFeed={handleRefreshFeed}
-          isTopVisible={isTopVisible}
-          feedRootEl={feedContainerRef.current} />
-      )}
     </AnalyticsContext>
   );
 };

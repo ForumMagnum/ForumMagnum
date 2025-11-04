@@ -37,7 +37,7 @@ interface PostActionsComponentProps {
   isSeeLessMode?: boolean;
 }
 
-const PostActionsButton = ({post, vertical, popperGap, autoPlace, flip, includeBookmark=true, onSeeLess, isSeeLessMode, className, ActionsComponent}: {
+const PostActionsButton = ({post, vertical, popperGap, autoPlace, flip, includeBookmark=true, onSeeLess, isSeeLessMode, className, iconClassName, ActionsComponent}: {
   post: PostsList|SunshinePostsList,
   vertical?: boolean,
   popperGap?: number,
@@ -47,6 +47,7 @@ const PostActionsButton = ({post, vertical, popperGap, autoPlace, flip, includeB
   onSeeLess?: () => void;
   isSeeLessMode?: boolean;
   className?: string,
+  iconClassName?: string,
   ActionsComponent?: React.ComponentType<PostActionsComponentProps>,
 }) => {
   const classes = useStyles(styles);
@@ -82,7 +83,7 @@ const PostActionsButton = ({post, vertical, popperGap, autoPlace, flip, includeB
   const MenuComponent = ActionsComponent ?? PostActions;
   return <div className={classNames(classes.root, className)}>
     <div ref={anchorEl}>
-      <Icon className={classes.icon} onClick={(ev: React.MouseEvent) => handleSetOpen(!isOpen)}/>
+      <Icon className={classNames(classes.icon, iconClassName)} onClick={(ev: React.MouseEvent) => handleSetOpen(!isOpen)}/>
     </div>
     <PopperCard
       open={isOpen}

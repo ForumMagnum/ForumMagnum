@@ -177,6 +177,8 @@ import { CrossReactionCapIcon } from "../icons/CrossReactionCapIcon";
 import { GivingHandIcon } from "../icons/GivingHandIcon";
 import { DictionaryIcon } from "../icons/Dictionary";
 import { QuestionMarkIcon } from "../icons/QuestionMarkIcon";
+import MuiArrowForwardIcon from "@/lib/vendor/@material-ui/icons/src/ArrowForward";
+import MuiVolumeUpIcon from "@/lib/vendor/@material-ui/icons/src/VolumeUp";
 import { defineStyles, useStyles } from "../hooks/useStyles";
 
 /**
@@ -187,6 +189,7 @@ import { defineStyles, useStyles } from "../hooks/useStyles";
  */
 export type ForumIconName =
   "VolumeUp" |
+  "VolumeUpBookUI" |
   "GivingHand" |
   "BookOpen" |
   "Bookmark" |
@@ -266,6 +269,7 @@ export type ForumIconName =
   "DocumentFilled" |
   "SoftUpArrow" |
   "ArrowLeft" |
+  "ArrowForward" |
   "ArrowRight" |
   "ArrowRightOutline" |
   "ArrowCircle" |
@@ -328,6 +332,7 @@ export type ForumIconName =
 const ICONS: ForumOptions<Record<ForumIconName, IconComponent>> = {
   LWAF: {
     VolumeUp: SpeakerWaveIcon,
+    VolumeUpBookUI: MuiVolumeUpIcon,
     GivingHand: GivingHandIcon,
     BookOpen: BookOpenIcon,
     Bookmark: MuiBookmarkIcon,
@@ -408,6 +413,7 @@ const ICONS: ForumOptions<Record<ForumIconName, IconComponent>> = {
     SoftUpArrow: SoftUpArrowIcon,
     ArrowRight: ArrowRightIcon,
     ArrowLeft: ArrowLeftIcon,
+    ArrowForward: MuiArrowForwardIcon,
     ArrowRightOutline: ArrowRightOutlineIcon,
     ArrowCircle: ArrowCircleIcon,
     Autorenew: MuiReplayIcon,
@@ -468,6 +474,7 @@ const ICONS: ForumOptions<Record<ForumIconName, IconComponent>> = {
   },
   default: {
     VolumeUp: SpeakerWaveIcon,
+    VolumeUpBookUI: MuiVolumeUpIcon,
     GivingHand: GivingHandIcon,
     BookOpen: BookOpenIcon,
     Bookmark: BookmarkIcon,
@@ -547,6 +554,7 @@ const ICONS: ForumOptions<Record<ForumIconName, IconComponent>> = {
     List: ListIcon,
     SoftUpArrow: SoftUpArrowIcon,
     ArrowLeft: ArrowLeftIcon,
+    ArrowForward: MuiArrowForwardIcon,
     ArrowRight: ArrowRightIcon,
     ArrowRightOutline: ArrowRightOutlineIcon,
     ArrowCircle: ArrowCircleIcon,

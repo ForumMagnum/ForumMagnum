@@ -24,6 +24,10 @@ import type { RouterLocation } from '@/lib/vulcan-lib/routes';
 import type { AppRouterInstance } from 'next/dist/shared/lib/app-router-context.shared-runtime';
 import { initClientOnce } from '@/client/initClient';
 
+export const NavigationCountContext = React.createContext<number>(0);
+
+export const useNavigationCount = () => React.useContext(NavigationCountContext);
+
 if (isClient) {
   // This has a downstream call to `googleTagManagerIdSetting.get()`.
   // Normally top-level calls to settings are prohibited because settings
@@ -61,6 +65,23 @@ const LocationContextProvider = ({ children }: { children: React.ReactNode }) =>
 
   const pathname = usePathname();
   const hash = isClient ? window.location.hash : '';
+
+  // Track navigation count (excluding hash-only changes)
+  const navigationCountRef = useRef(0);
+  const previousPathnameRef = useRef<string | null>(null);
+  const previousQueryRef = useRef<string | null>(null);
+
+  if (previousPathnameRef.current === null) {
+    previousPathnameRef.current = pathname;
+    previousQueryRef.current = searchParamsString;
+  }
+
+  if (previousPathnameRef.current !== pathname || previousQueryRef.current !== searchParamsString) {
+    navigationCountRef.current += 1;
+    previousPathnameRef.current = pathname;
+    previousQueryRef.current = searchParamsString;
+  }
+
 
   useEffect(() => {
     const eventListener = (e: HashChangeEvent) => {
@@ -128,9 +149,11 @@ const LocationContextProvider = ({ children }: { children: React.ReactNode }) =>
 
   return <LocationContext.Provider value={locationContext.current}>
     <NavigationContext.Provider value={navigationContext.current}>
-      <SubscribeLocationContext.Provider value={subscribeLocationContext.current}>
-        {children}
-      </SubscribeLocationContext.Provider>
+    <SubscribeLocationContext.Provider value={subscribeLocationContext.current}>
+    <NavigationCountContext.Provider value={navigationCountRef.current}>
+      {children}
+    </NavigationCountContext.Provider>
+    </SubscribeLocationContext.Provider>
     </NavigationContext.Provider>
   </LocationContext.Provider>
 }
