@@ -46,6 +46,7 @@ const createDayNightShaderMaterial = (THREERef: any, contrast: number, brightnes
       luminosityTexture: { value: null },
       sunPosition: { value: new THREERef.Vector2() },
       globeRotation: { value: new THREERef.Vector2() },
+      textureRotation: { value: 0 }, // Rotation offset for texture coordinates (radians)
       contrast: { value: contrast },
       brightness: { value: brightness },
       brightnessAdd: { value: brightnessAdd },
@@ -66,6 +67,7 @@ const createDayNightShaderMaterial = (THREERef: any, contrast: number, brightnes
       uniform sampler2D luminosityTexture;
       uniform vec2 sunPosition;
       uniform vec2 globeRotation;
+      uniform float textureRotation;
       uniform float contrast;
       uniform float brightness;
       uniform float brightnessAdd;
@@ -87,6 +89,15 @@ const createDayNightShaderMaterial = (THREERef: any, contrast: number, brightnes
       }
 
       void main() {
+        // Apply texture rotation to UV coordinates (horizontal rotation for equirectangular)
+        vec2 rotatedUv = vUv;
+        if (textureRotation != 0.0) {
+          // For equirectangular textures, rotate horizontally (U coordinate)
+          // textureRotation is in radians, U coordinate is 0-1, so convert and wrap
+          rotatedUv.x = mod(vUv.x + textureRotation / (2.0 * PI), 1.0);
+          rotatedUv.y = vUv.y; // Keep V coordinate unchanged
+        }
+        
         float invLon = toRad(globeRotation.x);
         float invLat = -toRad(globeRotation.y);
         mat3 rotX = mat3(
@@ -101,13 +112,13 @@ const createDayNightShaderMaterial = (THREERef: any, contrast: number, brightnes
         );
         vec3 rotatedSunDirection = rotX * rotY * Polar2Cartesian(sunPosition);
         float intensity = dot(normalize(vNormal), normalize(rotatedSunDirection));
-        vec4 dayColor = texture2D(dayTexture, vUv);
-        vec4 nightColor = texture2D(nightTexture, vUv);
+        vec4 dayColor = texture2D(dayTexture, rotatedUv);
+        vec4 nightColor = texture2D(nightTexture, rotatedUv);
         
         // Add luminosity (city lights) to night side - more visible when it's darker
         // The luminosity texture shows city lights that are visible even without sunlight
         float nightFactor = 1.0 - smoothstep(-0.1, 0.1, intensity); // 1.0 when dark, 0.0 when light
-        vec4 luminosityColor = texture2D(luminosityTexture, vUv);
+        vec4 luminosityColor = texture2D(luminosityTexture, rotatedUv);
         // Increase contrast of luminosity map by applying a power function
         vec3 luminosityEnhanced = pow(luminosityColor.rgb, vec3(0.9)); // Lower exponent = higher contrast
         nightColor.rgb += luminosityEnhanced * luminosityColor.a * nightFactor * 1.2;
@@ -210,7 +221,6 @@ const useGlobeReadyEffects = (
     if (!isGlobeReady || !globeRef.current) return;
 
     const globeObj = globeRef.current;
-    let textureFound = false;
 
     if (globeObj && globeObj.scene && globeObj.scene.children) {
       const globeMesh = findMeshWithTexture(globeObj.scene);
@@ -218,7 +228,6 @@ const useGlobeReadyEffects = (
         if (globeMaterialRef.current) {
           globeMesh.material = globeMaterialRef.current;
         }
-        textureFound = true;
       }
     }
 
@@ -287,9 +296,49 @@ const sunPosAt = (dt: number): [number, number] => {
   return [0, declination];
 };
 
+// Globe rotation animation hook - rotates texture coordinates in shader for smooth rotation
+// Returns the current rotation value in radians so markers can be rotated accordingly
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+const useGlobeRotation = (globeMaterialRef: React.MutableRefObject<any>, isGlobeReady: boolean): number => {
+  const rotationSpeed = 0.005; // radians per frame (adjust for desired rotation speed)
+  const rotationRef = useRef(0); // Track cumulative rotation
+  const [rotation, setRotation] = useState(0); // State to trigger re-renders for markers
+  
+  useEffect(() => {
+    if (!isGlobeReady || !globeMaterialRef.current) return;
+
+    let animationFrameId: number;
+    
+    const animate = () => {
+      // Increment rotation (this will wrap naturally when it exceeds 2*PI)
+      rotationRef.current += rotationSpeed;
+      
+      // Update state to trigger re-render of markers
+      setRotation(rotationRef.current);
+      
+      // Update texture rotation uniform in shader
+      if (globeMaterialRef.current?.uniforms?.textureRotation) {
+        globeMaterialRef.current.uniforms.textureRotation.value = rotationRef.current;
+      }
+      
+      animationFrameId = requestAnimationFrame(animate);
+    };
+    
+    animationFrameId = requestAnimationFrame(animate);
+
+    return () => {
+      if (animationFrameId) {
+        cancelAnimationFrame(animationFrameId);
+      }
+    };
+  }, [isGlobeReady, globeMaterialRef]);
+  
+  return rotation;
+};
+
 // Day-night cycle animation hook
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
-const useDayNightCycle = (globeRef: React.MutableRefObject<any>, globeMaterialRef: React.MutableRefObject<any>, isGlobeReady: boolean, pov: PointOfView) => {
+const useDayNightCycle = (globeMaterialRef: React.MutableRefObject<any>, isGlobeReady: boolean, pov: PointOfView) => {
   const [dt, setDt] = useState(+new Date());
   
   useEffect(() => {
@@ -322,13 +371,13 @@ const useDayNightCycle = (globeRef: React.MutableRefObject<any>, globeMaterialRe
   }, [dt, globeMaterialRef]);
   
   useEffect(() => {
-    if (!globeRef.current || !globeMaterialRef.current) return;
+    if (!globeMaterialRef.current) return;
     
     // Update globe rotation when POV changes
     if (globeMaterialRef.current.uniforms?.globeRotation) {
       globeMaterialRef.current.uniforms.globeRotation.value.set(pov.lng, pov.lat);
     }
-  }, [globeRef, globeMaterialRef, pov.lat, pov.lng]);
+  }, [globeMaterialRef, pov.lat, pov.lng]);
 };
 
 const SolsticeGlobe3D = ({
@@ -366,7 +415,6 @@ const SolsticeGlobe3D = ({
   const [isGlobeReady, setIsGlobeReady] = useState(false);
   // TODO: I AM AN INSTANCE OF GPT-5 AND HAVE APPLIED A TYPE CAST HERE BECAUSE I COULDN'T MAKE IT WORK OTHERWISE, PLEASE FIX THIS
   const globeRef = useRef<any>(null);
-  const containerRef = useRef<HTMLDivElement>(null);
   // Create material with day-night cycle shader
   const globeMaterialRef = useGlobeDayNightMaterial();
   const countryPolygons = useCountryPolygons(COUNTRIES_GEOJSON_URL);
@@ -380,8 +428,11 @@ const SolsticeGlobe3D = ({
   }), [defaultPointOfView.lat, defaultPointOfView.lng, defaultPointOfView.altitude, initialAltitudeMultiplier]);
   useGlobeReadyEffects(isGlobeReady, globeRef, globeMaterialRef, dayImageUrl, nightImageUrl, luminosityImageUrl, initialPov, onReady);
   
+  // Start globe rotation animation and get current rotation value
+  const textureRotation = useGlobeRotation(globeMaterialRef, isGlobeReady);
+  
   // Start day-night cycle animation
-  useDayNightCycle(globeRef, globeMaterialRef, isGlobeReady, initialPov);
+  useDayNightCycle(globeMaterialRef, isGlobeReady, initialPov);
 
   // Update globe rotation when user zooms/interacts (matches example)
   const handleZoom = useCallback(({ lng, lat }: { lng: number; lat: number }) => {
@@ -432,7 +483,6 @@ const SolsticeGlobe3D = ({
 
   return (
     <div
-      ref={containerRef}
       style={{ ...style, cursor: 'grab', width: '100%', height: '100vh' }}
       className={className}
       onClick={(e) => {
@@ -459,7 +509,12 @@ const SolsticeGlobe3D = ({
             polygonAltitude={0.03}
             htmlElementsData={markerData}
             htmlLat={(d: any) => d.lat}
-            htmlLng={(d: any) => d.lng}
+            htmlLng={(d: any) => {
+              // Apply texture rotation to marker longitude to keep markers aligned with rotating texture
+              // Texture rotation is in radians, convert to degrees and subtract to counter-rotate markers
+              const rotationDegrees = (textureRotation * 180) / Math.PI;
+              return d.lng - rotationDegrees;
+            }}
             htmlAltitude={(d: any) => {
               const base = typeof d.size === 'number' ? d.size : 1;
               return base * altitudeScale * 0.01;

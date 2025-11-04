@@ -42,7 +42,6 @@ const styles = defineStyles("SolsticeSeasonBanner", (theme: ThemeType) => ({
   textContainer: {
     width: 320,
     paddingTop: 20,
-    paddingBottom: 20,
     [theme.breakpoints.up(smallBreakpoint)]: {
       width: 370,
       marginRight: 0,
@@ -52,7 +51,6 @@ const styles = defineStyles("SolsticeSeasonBanner", (theme: ThemeType) => ({
     transition: 'transform 0.5s ease-in-out, opacity 0.5s ease-in-out',
     transform: 'translateX(0)',
     opacity: 1,
-    marginBottom: 14,
     '&.transitioning': {
       transform: 'translateX(-100%)',
       opacity: 0,
@@ -101,14 +99,6 @@ const styles = defineStyles("SolsticeSeasonBanner", (theme: ThemeType) => ({
     background: theme.palette.meetupMonth.petrov,
     color: theme.palette.grey[100],
   },
-  date: {
-    fontSize: 16,
-    fontWeight: 400,
-    color: theme.palette.text.primary,
-    transition: 'opacity 0.3s ease-out',
-    marginBottom: 10,
-    opacity: 0.8,
-  },
   globeGradientRight: {
     position: 'absolute',
     top: 0,
@@ -156,42 +146,35 @@ const styles = defineStyles("SolsticeSeasonBanner", (theme: ThemeType) => ({
     justifyContent: 'flex-end',
     alignItems: 'center',
   },
-  carouselSection: {
-    position: 'absolute',
-    bottom: 0,
-    textAlign: 'center',  
-    
-    display: 'block',
-    opacity: 1,
-    transition: 'opacity 0.15s ease-in-out, transform 0.3s ease-in-out',
-    transform: 'translateX(0)',
-  },
   buttonContainer: {
     display: 'flex',
-    justifyContent: 'space-between',
-    alignItems: 'stretch',
+    width: 330,
+    flexWrap: 'wrap',
+    gap: 10
   },
   createEventButton: {
-    display: 'block',
+    display: 'flex',
     ...theme.typography.commentStyle,
     borderRadius: 3,
-    background: theme.palette.primary.main,
-    color: theme.palette.text.alwaysWhite,
+    background: theme.palette.grey[800],
+    '&&': {
+      color: theme.palette.text.alwaysWhite,
+    },
     fontSize: 14,  
     cursor: 'pointer',
     border: 'none',
-    textAlign: 'center',
-    width: 'calc(100% - 10px)',
-    justifyContent: 'center',
+    justifyContent: 'space-between',
+    width: 'calc(50% - 5px)',
     alignItems: 'center',
     wordWrap: 'balance',
     padding: 10,
+    paddingLeft: 14,
+    paddingRight: 14,
   },
-  createEventButtonIcon: {
-    fontSize: 16,
-    fontWeight: 900,
-    marginRight: 8,
-    marginLeft: 8,
+  date: {
+    fontSize: 12,
+    fontWeight: 400,
+    opacity: 0.8,
   },
   buttonText: {
     display: 'inline-block',
@@ -204,6 +187,10 @@ const styles = defineStyles("SolsticeSeasonBanner", (theme: ThemeType) => ({
     [theme.breakpoints.down(smallBreakpoint)]: {
       display: 'inline-block',
     },
+  },
+  createEventButtonAnnounce: {
+    width: "100%",
+    justifyContent: 'center',
   },
 }));
 
@@ -386,20 +373,14 @@ export default function SolsticeSeasonBannerInner() {
           <h1 className={classes.title}>Solstice Season</h1>
             <p className={classes.subtitle}>Celebrate humanity's Schelling holiday around the world. Find a local solstice event or create your own.</p>
             <div className={classes.buttonContainer}>
-              <Link to="https://waypoint.lighthaven.space/solstice-season" target="_blank" rel="noopener noreferrer">
-                <div className={classes.createEventButton} style={{backgroundColor: "rgb(38, 90, 118)"}} >
-                  Berkeley Megameetup
-                </div>
+              <Link to="https://waypoint.lighthaven.space/solstice-season" target="_blank" rel="noopener noreferrer"  className={classes.createEventButton}>
+                Berkeley <span className={classes.date}>Dec 6</span>
               </Link>
-              <Link to={`/newPost?eventForm=true&SOLSTICE=true`} target="_blank" rel="noopener noreferrer">
-                <div className={classes.createEventButton} >
-                  Announce a Solstice
-                </div>
+              <Link to="https://rationalistmegameetup.com/" target="_blank" rel="noopener noreferrer" className={classes.createEventButton}>
+                New York <span className={classes.date}>Dec 13</span>
               </Link>
-              <Link to="https://rationalistmegameetup.com/" target="_blank" rel="noopener noreferrer">
-                <div className={classes.createEventButton} style={{backgroundColor:"rgb(151, 138, 64)"}} >
-                  New York Megameetup
-                </div> 
+              <Link to={`/newPost?eventForm=true&SOLSTICE=true`} target="_blank" rel="noopener noreferrer" className={classNames(classes.createEventButton, classes.createEventButtonAnnounce)}>
+                Announce Your Own Solstice
               </Link>
             </div>  
           </div>
