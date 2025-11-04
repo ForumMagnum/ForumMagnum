@@ -64,6 +64,11 @@ export async function proxy(request: NextRequest) {
         referrer: request.referrer,
         mode: request.mode,
         body: request.body,
+        // Upgrading NextJS to v16 apparently pulled in https://github.com/whatwg/fetch/pull/1457,
+        // which causes this call to fail if `duplex` isn't included.  However, the typescript lib
+        // type definition for fetch's `RequestInit` doesn't yet contain the field!  So we need to
+        // spread it like this to avoid the type checker complaining.
+        ...({ duplex: 'half' }),
       }
     );
     
