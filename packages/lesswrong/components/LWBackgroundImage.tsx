@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { registerComponent } from '../lib/vulcan-lib/components';
 import { useSubscribedLocation } from '../lib/routeUtil';
 import { getReviewPhase, reviewResultsPostPath } from '../lib/reviewUtils';
@@ -12,6 +12,7 @@ import { SolsticeSeasonBanner } from './seasonal/solsticeSeason/SolsticeSeasonBa
 
 import MeetupMonthBanner from './seasonal/meetupMonth/MeetupMonthBanner';
 import PetrovDayStory from './seasonal/petrovDay/petrov-day-story/PetrovDayStory';
+import { useIsAboveBreakpoint } from './hooks/useScreenWidth';
 
 const styles = defineStyles("LWBackgroundImage", (theme: ThemeType) => ({
   root: {
@@ -117,6 +118,8 @@ export const LWBackgroundImage = ({standaloneNavigation}: {
   const { pathname } = useSubscribedLocation();
   // const pathname = usePathname();
   const isHomePage = isHomeRoute(pathname);
+  const isWidescreen = useIsAboveBreakpoint('lg');
+  const [renderSolsticeSeason, setRenderSolsticeSeason] = useState(false);
 
   const defaultImage = standaloneNavigation ? <div className={classes.imageColumn}> 
     {/* Background image shown in the top-right corner of LW. The
@@ -144,6 +147,10 @@ export const LWBackgroundImage = ({standaloneNavigation}: {
       />
   </div>
 
+  useEffect(() => {
+    setRenderSolsticeSeason(isWidescreen);
+  }, [isWidescreen]);
+
   let homePageImage = standaloneNavigation ? <SolsticeSeasonBanner /> : defaultImage
   if (getReviewPhase() === 'VOTING') homePageImage = <ReviewVotingCanvas />
   if (getReviewPhase() === 'RESULTS') homePageImage = reviewCompleteImage
@@ -152,6 +159,7 @@ export const LWBackgroundImage = ({standaloneNavigation}: {
 
   return <div className={classes.root}>
     {homePageImage}
+    {renderSolsticeSeason && <SolsticeSeasonBanner />}
   </div>;
 }
 

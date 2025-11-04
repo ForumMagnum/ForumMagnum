@@ -26,9 +26,6 @@ export type PointOfView = {
 
 type PointClickCallback = (point: SolsticeGlobePoint, screenCoords: { x: number; y: number }) => void;
 
-
-// Countries GeoJSON (Natural Earth 110m) used for drawing borders
-const COUNTRIES_GEOJSON_URL = '//unpkg.com/three-globe/example/datasets/ne_110m_admin_0_countries.geojson';
 // Day-night cycle settings - velocity in minutes per frame (like the example)
 const VELOCITY = 1; // minutes per frame
 // Contrast enhancement properties
@@ -180,25 +177,6 @@ const useGlobeDayNightMaterial = (): React.MutableRefObject<any> => {
   }, []);
   return globeMaterialRef;
 };
-
-// Fetch country borders polygons
-const useCountryPolygons = (url: string): Array<any> => {
-  const [countryPolygons, setCountryPolygons] = useState<Array<any>>([]);
-  useEffect(() => {
-    let aborted = false;
-    fetch(url)
-      .then(res => res.json())
-      .then((geo: any) => {
-        if (!aborted) setCountryPolygons(Array.isArray(geo?.features) ? geo.features : []);
-      })
-      .catch(() => {
-        // Silently ignore fetch errors; borders are optional visual detail
-      });
-    return () => { aborted = true; };
-  }, [url]);
-  return countryPolygons;
-};
-
 
 // Combine: assign textures, set POV, and call onReady once globe is ready
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -451,7 +429,6 @@ const SolsticeGlobe3D = ({
   const globeRef = useRef<any>(null);
   // Create material with day-night cycle shader
   const globeMaterialRef = useGlobeDayNightMaterial();
-  const countryPolygons = useCountryPolygons(COUNTRIES_GEOJSON_URL);
 
   // Initialize: assign textures, set POV, and invoke onReady when ready
   const initialPov = useMemo(() => ({
@@ -557,7 +534,6 @@ const SolsticeGlobe3D = ({
             onGlobeReady={() => setIsGlobeReady(true)}
             animateIn={true}
             // Country borders overlay (stroke only)
-            polygonsData={countryPolygons}
             polygonCapColor={() => 'rgba(0,0,0,0)'}
             polygonSideColor={() => 'rgba(0,0,0,0)'}
             polygonStrokeColor={() => 'rgba(255,255,255,0.35)'}
