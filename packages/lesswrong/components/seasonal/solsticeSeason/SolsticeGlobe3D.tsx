@@ -1,334 +1,20 @@
-import React, { useEffect, useState, useRef, useMemo, useCallback } from 'react';
+import React, { useState, useRef, useMemo, useCallback } from 'react';
 import dynamic from 'next/dynamic';
-// eslint-disable-next-line @typescript-eslint/no-var-requires
-const THREE = require('three');
+import { SolsticeGlobe3DProps, SolsticeGlobePoint, PointClickCallback } from './types';
+import { useGlobeDayNightMaterial, useGlobeReadyEffects, useGlobeAnimation, useFramerate } from './hooks';
+import { mapPointsToMarkers } from './utils';
 
 // Dynamically import react-globe.gl to avoid SSR issues
 const Globe = dynamic(() => import('react-globe.gl'), { ssr: false });
 // TODO: I AM AN INSTANCE OF GPT-5 AND HAVE APPLIED A TYPE CAST HERE BECAUSE I COULDN'T MAKE IT WORK OTHERWISE, PLEASE FIX THIS
 const GlobeAny = Globe as unknown as any;
 
-export type SolsticeGlobePoint = {
-  lat: number;
-  lng: number;
-  size: number;
-  color: string;
-  eventId?: string;
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  event?: any;
-};
-
-export type PointOfView = {
-  lat: number;
-  lng: number;
-  altitude: number;
-};
-
-type PointClickCallback = (point: SolsticeGlobePoint, screenCoords: { x: number; y: number }) => void;
-
-const CONTRAST_AMOUNT = 1;
-const BRIGHTNESS_BOOST = 1;
-const BRIGHTNESS_ADD = 0.05;
-const ROTATION_SPEED = 0.001;
-
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-const createDayNightShaderMaterial = (THREERef: any, contrast: number, brightness: number, brightnessAdd: number) => {
-  return new THREERef.ShaderMaterial({
-    uniforms: {
-      dayTexture: { value: null },
-      nightTexture: { value: null },
-      luminosityTexture: { value: null },
-      sunPosition: { value: new THREERef.Vector2() },
-      globeRotation: { value: new THREERef.Vector2() },
-      textureRotation: { value: 0 }, // Rotation offset for texture coordinates (radians)
-      contrast: { value: contrast },
-      brightness: { value: brightness },
-      brightnessAdd: { value: brightnessAdd },
-    },
-    vertexShader: `
-      varying vec3 vNormal;
-      varying vec2 vUv;
-      void main() {
-        vNormal = normalize(normalMatrix * normal);
-        vUv = uv;
-        gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0);
-      }
-    `,
-      fragmentShader: `
-      #define PI 3.141592653589793
-      uniform sampler2D dayTexture;
-      uniform sampler2D nightTexture;
-      uniform sampler2D luminosityTexture;
-      uniform vec2 sunPosition;
-      uniform vec2 globeRotation;
-      uniform float textureRotation;
-      uniform float contrast;
-      uniform float brightness;
-      uniform float brightnessAdd;
-      varying vec3 vNormal;
-      varying vec2 vUv;
-
-      float toRad(in float a) {
-        return a * PI / 180.0;
-      }
-
-      vec3 Polar2Cartesian(in vec2 c) {
-        float theta = toRad(90.0 - c.x);
-        float phi = toRad(90.0 - c.y);
-        return vec3(
-          sin(phi) * cos(theta),
-          cos(phi),
-          sin(phi) * sin(theta)
-        );
-      }
-
-      void main() {
-        vec2 rotatedUv = vUv;
-        if (textureRotation != 0.0) {
-          rotatedUv.x = mod(vUv.x + textureRotation / (2.0 * PI), 1.0);
-        }
-        
-        float invLon = toRad(globeRotation.x);
-        float invLat = -toRad(globeRotation.y);
-        mat3 rotX = mat3(
-          1, 0, 0,
-          0, cos(invLat), -sin(invLat),
-          0, sin(invLat), cos(invLat)
-        );
-        mat3 rotY = mat3(
-          cos(invLon), 0, sin(invLon),
-          0, 1, 0,
-          -sin(invLon), 0, cos(invLon)
-        );
-        vec3 rotatedSunDirection = rotX * rotY * Polar2Cartesian(sunPosition);
-        float intensity = dot(normalize(vNormal), normalize(rotatedSunDirection));
-        vec4 dayColor = texture2D(dayTexture, rotatedUv);
-        vec4 nightColor = texture2D(nightTexture, rotatedUv);
-        
-        float nightFactor = 1.0 - smoothstep(-0.1, 0.1, intensity);
-        vec4 luminosityColor = texture2D(luminosityTexture, rotatedUv);
-        vec3 luminosityEnhanced = pow(luminosityColor.rgb, vec3(0.9));
-        nightColor.rgb += luminosityEnhanced * luminosityColor.a * nightFactor * 1.2;
-        
-        float blendFactor = smoothstep(-0.1, 0.1, intensity);
-        vec4 blendedColor = mix(nightColor, dayColor, blendFactor);
-        vec3 brightened = blendedColor.rgb * brightness + brightnessAdd;
-        vec3 contrastAdjusted = (brightened - 0.5) * contrast + 0.5;
-        vec3 finalColor = clamp(contrastAdjusted, 0.0, 1.0);
-        
-        gl_FragColor = vec4(finalColor, blendedColor.a);
-      }
-    `,
-  });
-};
-
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-const findMeshWithTexture = (obj: any): any => {
-  if (obj?.type === 'Mesh' && obj.material?.map) return obj;
-  for (const child of obj?.children || []) {
-    const found = findMeshWithTexture(child);
-    if (found) return found;
-  }
-  return null;
-};
-
-const mapPointsToMarkers = (pointsData: Array<SolsticeGlobePoint>) => pointsData.map((point, index) => ({
-  lat: point.lat,
-  lng: point.lng,
-  size: point.size,
-  color: point.color,
-  eventId: point.eventId,
-  event: point.event,
-  _index: index,
-}));
-
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-const useGlobeDayNightMaterial = (): React.MutableRefObject<any> => {
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const globeMaterialRef = useRef<any>(null);
-  useEffect(() => {
-    globeMaterialRef.current = createDayNightShaderMaterial(THREE, CONTRAST_AMOUNT, BRIGHTNESS_BOOST, BRIGHTNESS_ADD);
-    return () => {
-      if (globeMaterialRef.current && typeof globeMaterialRef.current.dispose === 'function') {
-        globeMaterialRef.current.dispose();
-      }
-    };
-  }, []);
-  return globeMaterialRef;
-};
-
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-const useGlobeReadyEffects = (
-  isGlobeReady: boolean,
-  globeRef: React.MutableRefObject<any>,
-  globeMaterialRef: React.MutableRefObject<any>,
-  dayImageUrl: string | undefined,
-  nightImageUrl: string | undefined,
-  luminosityImageUrl: string | undefined,
-  pov: PointOfView,
-  onReady?: () => void,
-  onTexturesLoaded?: () => void
-) => {
-  const onReadyRef = useRef(onReady);
-  const onTexturesLoadedRef = useRef(onTexturesLoaded);
-  useEffect(() => { onReadyRef.current = onReady; }, [onReady]);
-  useEffect(() => { onTexturesLoadedRef.current = onTexturesLoaded; }, [onTexturesLoaded]);
-
-  useEffect(() => {
-    if (!isGlobeReady || !globeRef.current) return;
-
-    const globeObj = globeRef.current;
-    const globeMesh = findMeshWithTexture(globeObj.scene);
-    if (globeMesh?.material && globeMaterialRef.current) {
-      globeMesh.material = globeMaterialRef.current;
-    }
-
-    const loader = new THREE.TextureLoader();
-    let loadedCount = 0;
-    const expectedTextures = [dayImageUrl, nightImageUrl, luminosityImageUrl].filter(Boolean).length;
-    
-    const checkAllTexturesLoaded = () => {
-      if (loadedCount >= expectedTextures) {
-        onTexturesLoadedRef.current?.();
-      }
-    };
-    
-    if (expectedTextures === 0) {
-      onTexturesLoadedRef.current?.();
-    }
-    
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const loadTexture = (url: string | undefined, uniformName: 'dayTexture' | 'nightTexture' | 'luminosityTexture') => {
-      if (!url || !globeMaterialRef.current) return;
-      loader.load(
-        url,
-        (texture: any) => {
-          texture.colorSpace = THREE.SRGBColorSpace;
-          texture.wrapS = THREE.RepeatWrapping;
-          texture.wrapT = THREE.ClampToEdgeWrapping;
-          if (globeMaterialRef.current) {
-            globeMaterialRef.current.uniforms[uniformName].value = texture;
-          }
-          loadedCount++;
-          checkAllTexturesLoaded();
-        },
-        undefined,
-        (error: any) => {
-          console.error(`Failed to load texture ${url}:`, error);
-          loadedCount++;
-          checkAllTexturesLoaded();
-        }
-      );
-    };
-    loadTexture(dayImageUrl, 'dayTexture');
-    loadTexture(nightImageUrl, 'nightTexture');
-    loadTexture(luminosityImageUrl, 'luminosityTexture');
-
-    globeRef.current.pointOfView({ lat: pov.lat, lng: pov.lng, altitude: pov.altitude }, 0);
-    
-    if (globeMaterialRef.current?.uniforms?.sunPosition) {
-      globeMaterialRef.current.uniforms.sunPosition.value.set(0, 0);
-    }
-    
-    onReadyRef.current?.();
-  }, [isGlobeReady, globeRef, globeMaterialRef, dayImageUrl, nightImageUrl, luminosityImageUrl, pov.lat, pov.lng, pov.altitude]);
-};
-
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-const useGlobeAnimation = (globeMaterialRef: React.MutableRefObject<any>, isGlobeReady: boolean, pov: PointOfView, isRotating: boolean): React.MutableRefObject<number> => {
-  const rotationSpeed = ROTATION_SPEED;
-  const rotationRef = useRef(0);
-  const isRotatingRef = useRef(isRotating);
-  const [, setFrameCounter] = useState(0);
-  
-  useEffect(() => {
-    isRotatingRef.current = isRotating;
-  }, [isRotating]);
-  
-  useEffect(() => {
-    if (!isGlobeReady || !globeMaterialRef.current) return;
-    
-    const animate = () => {
-      if (!isRotatingRef.current) return;
-      rotationRef.current += rotationSpeed;
-      if (globeMaterialRef.current?.uniforms?.textureRotation) {
-        globeMaterialRef.current.uniforms.textureRotation.value = rotationRef.current;
-      }
-      setFrameCounter(n => n + 1);
-      requestAnimationFrame(animate);
-    };
-    
-    if (isRotatingRef.current) {
-      const animationFrameId = requestAnimationFrame(animate);
-      return () => cancelAnimationFrame(animationFrameId);
-    }
-  }, [isGlobeReady, globeMaterialRef, isRotating]);
-  
-  useEffect(() => {
-    if (globeMaterialRef.current?.uniforms?.globeRotation) {
-      globeMaterialRef.current.uniforms.globeRotation.value.set(pov.lng, pov.lat);
-    }
-  }, [globeMaterialRef, pov.lat, pov.lng]);
-  
-  return rotationRef;
-};
-
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-const useFramerate = (isGlobeReady: boolean, globeRef: React.MutableRefObject<any>): number => {
-  const [fps, setFps] = useState(0);
-  
-  useEffect(() => {
-    if (!isGlobeReady || !globeRef.current) return;
-    
-    const renderer = globeRef.current.renderer?.();
-    if (!renderer) return;
-    
-    let lastTime = performance.now();
-    let frameCount = 0;
-    const originalRender = renderer.render.bind(renderer);
-    
-    renderer.render = function(...args: any[]) {
-      frameCount++;
-      const now = performance.now();
-      if (now - lastTime >= 1000) {
-        setFps(Math.round((frameCount * 1000) / (now - lastTime)));
-        frameCount = 0;
-        lastTime = now;
-      }
-      return originalRender(...args);
-    };
-    
-    return () => { renderer.render = originalRender; };
-  }, [isGlobeReady, globeRef]);
-  
-  return fps;
-};
-
-type SolsticeGlobe3DProps = {
-  pointsData: Array<SolsticeGlobePoint>;
-  defaultPointOfView: PointOfView;
-  onPointClick?: PointClickCallback;
-  onReady?: () => void;
-  className?: string;
-  style?: React.CSSProperties;
-  onClick?: React.MouseEventHandler<HTMLDivElement>;
-  // URLs for the globe day and night textures. Accepts JPG, PNG, or SVG formats. Note: SVGs will be rasterized at load time.
-  // For best performance with 3D globe textures, equirectangular bitmap images (JPG/PNG) are recommended.
-  // The images should use an equirectangular projection (360° horizontal, 180° vertical).
-  dayImageUrl?: string;
-  nightImageUrl?: string;
-  // Luminosity map showing city lights. This will be added to the night side to show city lights even without sunlight.
-  // Typically this is a black image with white/yellow dots representing city lights.
-  luminosityImageUrl?: string;
-  altitudeScale?: number;
-  initialAltitudeMultiplier?: number;
-}
-
-const SolsticeGlobe3D = ({
+export const SolsticeGlobe3D = ({
   pointsData,
   defaultPointOfView,
   onPointClick,
   onReady,
+  onFullyLoaded,
   className,
   style,
   onClick,
@@ -350,7 +36,10 @@ const SolsticeGlobe3D = ({
     lng: defaultPointOfView.lng,
     altitude: defaultPointOfView.altitude * initialAltitudeMultiplier,
   }), [defaultPointOfView.lat, defaultPointOfView.lng, defaultPointOfView.altitude, initialAltitudeMultiplier]);
-  useGlobeReadyEffects(isGlobeReady, globeRef, globeMaterialRef, dayImageUrl, nightImageUrl, luminosityImageUrl, initialPov, onReady, () => setIsFullyLoaded(true));
+  useGlobeReadyEffects(isGlobeReady, globeRef, globeMaterialRef, dayImageUrl, nightImageUrl, luminosityImageUrl, initialPov, onReady, () => {
+    setIsFullyLoaded(true);
+    onFullyLoaded?.();
+  });
   
   const textureRotationRef = useGlobeAnimation(globeMaterialRef, isGlobeReady, initialPov, isRotating);
   const fps = useFramerate(isGlobeReady, globeRef);
@@ -453,4 +142,7 @@ const SolsticeGlobe3D = ({
 };
 
 export default SolsticeGlobe3D;
+
+// Re-export types for convenience
+export type { SolsticeGlobePoint, PointOfView, PointClickCallback, SolsticeGlobe3DProps } from './types';
 

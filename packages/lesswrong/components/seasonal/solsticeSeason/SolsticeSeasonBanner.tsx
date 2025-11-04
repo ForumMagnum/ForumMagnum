@@ -19,7 +19,7 @@ const styles = defineStyles("SolsticeSeasonBanner", (theme: ThemeType) => ({
     top: 0,
     right: 0,
     width: '50vw',
-    height: '100vh',
+    height: '100%',
     [theme.breakpoints.down(1425)]: {
       display: 'none',
     },
@@ -33,15 +33,20 @@ const styles = defineStyles("SolsticeSeasonBanner", (theme: ThemeType) => ({
     fontFamily: theme.typography.headerStyle.fontFamily,
     color: theme.palette.text.alwaysWhite,
     zIndex: 2,
-    transition: 'opacity 0.3s ease-out',
+    transition: 'color 0.8s ease-in-out, opacity 0.3s ease-out',
     paddingBottom: 1,
     lineHeight: 1.2,
     marginTop: 0,
     marginBottom: 12,
   },
+  titleNotLoaded: {
+    color: theme.palette.text.alwaysBlack,
+  },
   textContainer: {
+    position: 'absolute',
+    bottom: 0,
     width: 320,
-    paddingTop: 20,
+    paddingBottom: 20,
     [theme.breakpoints.up(smallBreakpoint)]: {
       width: 370,
       marginRight: 0,
@@ -75,12 +80,18 @@ const styles = defineStyles("SolsticeSeasonBanner", (theme: ThemeType) => ({
     // textShadow: `0 0 5px light-dark(${theme.palette.background.default}, transparent), 0 0 10px light-dark(${theme.palette.background.default}, transparent), 0 0 15px light-dark(${theme.palette.background.default}, transparent)`,
     fontFamily: theme.typography.postStyle.fontFamily,
     color: theme.palette.text.alwaysWhite,
-    transition: 'opacity 0.3s ease-out',
+    transition: 'color 0.8s ease-in-out, opacity 0.3s ease-out',
     '& li': {
       marginLeft: -10
     },
     '& ul': {
       margin: 0,
+    },
+  },
+  subtitleNotLoaded: {
+    color: theme.palette.text.alwaysBlack,
+    '& a': {
+      color: theme.palette.text.alwaysBlack,
     },
   },
   activeMeetupType: {
@@ -115,10 +126,10 @@ const styles = defineStyles("SolsticeSeasonBanner", (theme: ThemeType) => ({
   },
   globeContainer: {
     position: 'absolute',
-    top: -80,
+    top: 0,
     right: 0,
     width: '60%',
-    height: '100vh',
+    height: 'calc(100vh + 120px)',
     transition: 'opacity 0.3s ease-out',
     zIndex: 0,
   },
@@ -131,20 +142,6 @@ const styles = defineStyles("SolsticeSeasonBanner", (theme: ThemeType) => ({
     background: theme.dark ? 'rgba(255, 255, 255, 0.03)' : 'rgba(0, 0, 0, 0.02)',
     zIndex: 0,
     pointerEvents: 'none',
-  },
-  contentContainer: {
-    width: '100%',
-    [theme.breakpoints.up(smallBreakpoint)]: {
-      width: '100%',
-    },
-    position: 'absolute',
-    zIndex: 1,
-    right: 0,
-    bottom: 0,
-    display: 'flex',
-    flexDirection: 'column',
-    justifyContent: 'flex-end',
-    alignItems: 'center',
   },
   buttonContainer: {
     display: 'flex',
@@ -170,6 +167,10 @@ const styles = defineStyles("SolsticeSeasonBanner", (theme: ThemeType) => ({
     padding: 10,
     paddingLeft: 14,
     paddingRight: 14,
+    transition: 'background 0.8s ease-in-out',
+  },
+  createEventButtonNotLoaded: {
+    background: theme.palette.grey[300],
   },
   date: {
     fontSize: 12,
@@ -214,6 +215,13 @@ export default function SolsticeSeasonBannerInner() {
   const [everClickedGlobe, setEverClickedGlobe] = useState(false);
   const [bannerOpacity, setBannerOpacity] = useState(1);
   const [pointerEventsDisabled, setPointerEventsDisabled] = useState(false);
+  const isWidescreen = useIsAboveBreakpoint('lg');
+  const [renderSolsticeSeason, setRenderSolsticeSeason] = useState(false);
+  const [isGlobeFullyLoaded, setIsGlobeFullyLoaded] = useState(false);
+  
+  useEffect(() => {
+    setRenderSolsticeSeason(isWidescreen);
+  }, [isWidescreen]);
   
   useEffect(() => {
     const handleScroll = () => {
@@ -248,11 +256,9 @@ export default function SolsticeSeasonBannerInner() {
     setIsLoading(false);
   }, []);
 
-  const isWidescreen = useIsAboveBreakpoint('lg');
-  const [renderSolsticeSeason, setRenderSolsticeSeason] = useState(false);
-  useEffect(() => {
-    setRenderSolsticeSeason(isWidescreen);
-  }, [isWidescreen]);
+  const handleGlobeFullyLoaded = useCallback(() => {
+    setIsGlobeFullyLoaded(true);
+  }, []);
 
   type QueryResult = {
     HomepageCommunityEvents?: {
@@ -322,31 +328,6 @@ export default function SolsticeSeasonBannerInner() {
     }, 10)
   }, [currentCarouselIndex])
 
-  if (isLoading) {
-    return <div className={classes.root} style={{ opacity: bannerOpacity, pointerEvents: pointerEventsDisabled ? 'none' : 'auto' }}>
-      {/* <div className={classes.globeGradient} /> */}
-      <div className={classes.globeGradientRight} />
-      <div className={classes.scrollBackground} />
-      <div 
-        className={classes.globeContainer} 
-        onClick={() => setEverClickedGlobe(true)}
-        style={{ opacity: 0 }}
-      >
-        <SolsticeGlobe3D 
-          pointsData={pointsData}
-          defaultPointOfView={defaultPointOfView}
-          onPointClick={(point: SolsticeGlobePoint, screenCoords: { x: number; y: number }) => {
-            if (point.eventId) {
-              setSelectedEventId(point.eventId);
-              setPopupCoords(screenCoords);
-            }
-          }}
-          onReady={handleGlobeReady}
-        />
-      </div>
-    </div>;
-  }
-
   return <div className={classNames(classes.root)} style={{ opacity: bannerOpacity, pointerEvents: pointerEventsDisabled ? 'none' : 'auto' }}>
     {/* <div className={classes.globeGradient}/> */}
     <div className={classes.globeGradientRight} />
@@ -365,6 +346,7 @@ export default function SolsticeSeasonBannerInner() {
             }
           }}
           onReady={handleGlobeReady}
+          onFullyLoaded={handleGlobeFullyLoaded}
           style={{ width: '100%', height: '100%' }}
         />}
       {selectedEventId && popupCoords && (
@@ -377,22 +359,22 @@ export default function SolsticeSeasonBannerInner() {
           }}
         />
       )}
-      <div className={classes.contentContainer}>
-        <div className={classes.textContainer} onClick={() => setEverClickedGlobe(true)}>
-          <h1 className={classes.title}>Solstice Season</h1>
-            <p className={classes.subtitle}>Celebrate the longest night of the year. Visit a megameetup at a major city, or host a small ceremony for your friends the night of the 21st.</p>
-            <div className={classes.buttonContainer}>
-              <Link to="https://waypoint.lighthaven.space/solstice-season" target="_blank" rel="noopener noreferrer"  className={classes.createEventButton}>
-                Berkeley <span className={classes.date}>Dec 6</span>
-              </Link>
-              <Link to="https://rationalistmegameetup.com/" target="_blank" rel="noopener noreferrer" className={classes.createEventButton}>
-                New York <span className={classes.date}>Dec 13</span>
-              </Link>
-              <Link to={`/newPost?eventForm=true&SOLSTICE=true`} target="_blank" rel="noopener noreferrer" className={classNames(classes.createEventButton, classes.createEventButtonAnnounce)}>
-                Announce Your Own Solstice
-              </Link>
-            </div>  
-          </div>
+      <div className={classes.textContainer} onClick={() => setEverClickedGlobe(true)}>
+        <h1 className={classNames(classes.title, { [classes.titleNotLoaded]: !isGlobeFullyLoaded })}>Solstice Season</h1>
+          <p className={classNames(classes.subtitle, { [classes.subtitleNotLoaded]: !isGlobeFullyLoaded })}>
+            Celebrate the longest night of the year. Visit a megameetup at a major city, or host a small ceremony for your friends the night of the 21st.
+          </p>
+          <div className={classes.buttonContainer}>
+            <Link to="https://waypoint.lighthaven.space/solstice-season" target="_blank" rel="noopener noreferrer"  className={classNames(classes.createEventButton, { [classes.createEventButtonNotLoaded]: !isGlobeFullyLoaded })}>
+              Berkeley <span className={classes.date}>Dec 6</span>
+            </Link>
+            <Link to="https://rationalistmegameetup.com/" target="_blank" rel="noopener noreferrer" className={classNames(classes.createEventButton, { [classes.createEventButtonNotLoaded]: !isGlobeFullyLoaded })}>
+              New York <span className={classes.date}>Dec 13</span>
+            </Link>
+            <Link to={`/newPost?eventForm=true&SOLSTICE=true`} target="_blank" rel="noopener noreferrer" className={classNames(classes.createEventButton, classes.createEventButtonAnnounce, { [classes.createEventButtonNotLoaded]: !isGlobeFullyLoaded })}>
+              Announce Your Own Solstice
+            </Link>
+          </div>  
       </div>
     </div>
   </div>;
