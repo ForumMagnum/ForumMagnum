@@ -576,7 +576,7 @@ const Header = ({
       <div className={classes.root}>
         <Headroom
           disableInlineStyles
-          downTolerance={10} upTolerance={10}
+          downTolerance={1} upTolerance={1}
           height={getHeaderHeight()}
           className={classNames(classes.headroom, {
             [classes.headroomPinnedOpen]: searchOpen,
