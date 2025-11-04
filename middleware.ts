@@ -53,10 +53,11 @@ export async function middleware(request: NextRequest) {
   }
   
   if (shouldProxyForStatusCode(request)) {
+    console.log(`Middleware attempting proxying on ${currentPath}`);
     const forwardedHeaders = new Headers(request.headers);
     forwardedHeaders.set(ForwardingHeaderName, "true");
     
-    const requestBody = request.body ? await streamToUint8Array(request.body) : null;
+    //const requestBody = request.body ? await streamToUint8Array(request.body) : null;
     
     const forwardedFetchResponse = await undiciFetch(
       request.nextUrl,
@@ -66,7 +67,7 @@ export async function middleware(request: NextRequest) {
         redirect: 'manual',
         referrer: request.referrer,
         mode: request.mode,
-        body: requestBody,
+        body: request.body,
       }
     );
     
@@ -91,6 +92,7 @@ export async function middleware(request: NextRequest) {
       if (addedClientId) {
         return addClientIdToResponseHeaders(nextResponse, addedClientId);
       }
+      console.log(`Middleware returning a proxied response on ${currentPath}`);
       return nextResponse;
     }
   } else {
