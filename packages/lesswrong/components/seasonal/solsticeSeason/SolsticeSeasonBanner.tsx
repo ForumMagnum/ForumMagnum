@@ -259,21 +259,6 @@ export default function SolsticeSeasonBannerInner() {
       const globeContainerWidth = viewportWidth * 0.3;
       const leftPercent = (leftPosition / globeContainerWidth) * 100;
       
-      // Debug logging (can be removed after verification)
-      if (process.env.NODE_ENV === 'development') {
-        console.log('Solstice Season centering:', {
-          layoutEnd,
-          viewportWidth,
-          availableSpaceStart,
-          availableSpaceEnd,
-          availableSpaceCenter,
-          globeContainerLeft,
-          leftPosition,
-          globeContainerWidth,
-          leftPercent,
-        });
-      }
-      
       setTextContainerLeft(`${leftPercent}%`);
     };
 
@@ -309,7 +294,7 @@ export default function SolsticeSeasonBannerInner() {
     const handleScroll = () => {
       const y = window.scrollY || window.pageYOffset || 0;
       const fadeDistance = 600; // px until fully faded
-      const nextOpacity = Math.max(0, 1 - y / fadeDistance);
+      const nextOpacity = Math.max(0, 1 - (y / fadeDistance));
       setBannerOpacity(nextOpacity);
       setPointerEventsDisabled(y > 0);
     };

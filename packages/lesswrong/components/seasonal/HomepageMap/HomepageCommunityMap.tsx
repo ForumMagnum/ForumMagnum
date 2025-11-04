@@ -11,12 +11,11 @@ import classNames from 'classnames';
 import { componentWithChildren } from '../../../lib/utils/componentsWithChildren';
 import { useQuery } from "@/lib/crud/useQuery";
 import { gql } from "@/lib/generated/gql-codegen";
-import StyledMapPopup, { StyledMapPopupContent, styles as styledMapPopupStylesFunction } from "../../localGroups/StyledMapPopup";
+import StyledMapPopup, { StyledMapPopupContent } from "../../localGroups/StyledMapPopup";
 import GroupLinks from "../../localGroups/GroupLinks";
 import HomepageMapFilter from "./HomepageMapFilter";
 import { WrappedReactMapGL } from '@/components/community/WrappedReactMapGL';
 import { defineStyles, useStyles } from '../../hooks/useStyles';
-import { JssStyles } from '@/lib/jssStyles';
 
 const Popup = componentWithChildren(BadlyTypedPopup);
 
@@ -134,7 +133,57 @@ export const LocalEventWrapperPopUp = ({localEvent, handleClose}: {
   </StyledMapPopup>
 }
 
-const styledMapPopupStyles = defineStyles("StyledMapPopup", styledMapPopupStylesFunction as (theme: ThemeType) => JssStyles<"root" | "groupMarkerName" | "markerBody" | "contactInfo" | "markerPageLink" | "linksWrapper">);
+const styledMapPopupStyles = defineStyles("HomepageCommunityMapStyledMapPopup", (theme: ThemeType) => ({
+  root: {
+    ...theme.typography.body2,
+    width: 250,
+    userSelect: 'text',
+    cursor: 'auto'
+  },
+  groupMarkerName: {
+    fontSize: "15px",
+    marginTop: "3.5px",
+    marginBottom: "0px",
+    marginRight: 10
+  },
+  markerBody: {
+    marginTop: 10,
+    marginBottom: 10,
+    maxHeight: 150,
+    overflowY: 'auto',
+    wordBreak: 'break-word',
+    '&::-webkit-scrollbar': {
+      width: '2px'
+    },
+    '&::-webkit-scrollbar-track': {
+      background: 'transparent'
+    },
+    '&::-webkit-scrollbar-thumb': {
+      background: theme.palette.grey[400],
+      borderRadius: '2px',
+      '&:hover': {
+        background: theme.palette.grey[600]
+      }
+    },
+    scrollbarWidth: 'thin',
+    scrollbarColor: `${theme.palette.grey[400]} transparent`
+  },
+  contactInfo: {
+    marginBottom: "10px",
+    marginTop: "10px",
+    fontWeight: theme.isEAForum ? 450 : 400,
+    color: theme.palette.text.dim60,
+  },
+  markerPageLink: {
+    fontWeight: theme.isEAForum ? 450 : 400,
+    color: theme.palette.link.dim3,
+    flex: 'none'
+  },
+  linksWrapper: {
+    display: 'flex',
+    justifyContent: 'space-between'
+  },
+}));
 
 const fixedPositionEventPopupStyles = defineStyles("fixedPositionEventPopupStyles", (theme: ThemeType) => ({
   popupContainer: {

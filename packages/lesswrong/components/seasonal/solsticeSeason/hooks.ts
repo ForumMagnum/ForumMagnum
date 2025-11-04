@@ -78,6 +78,7 @@ export const useGlobeReadyEffects = (
         },
         undefined,
         (error: any) => {
+          // eslint-disable-next-line no-console
           console.error(`Failed to load texture ${url}:`, error);
           loadedCount++;
           checkAllTexturesLoaded();
@@ -134,7 +135,7 @@ export const useGlobeAnimation = (globeMaterialRef: React.MutableRefObject<any>,
       const animationFrameId = requestAnimationFrame(animate);
       return () => cancelAnimationFrame(animationFrameId);
     }
-  }, [isGlobeReady, globeMaterialRef, isRotating]);
+  }, [isGlobeReady, globeMaterialRef, isRotating, rotationSpeed]);
   
   useEffect(() => {
     if (globeMaterialRef.current?.uniforms?.globeRotation) {
