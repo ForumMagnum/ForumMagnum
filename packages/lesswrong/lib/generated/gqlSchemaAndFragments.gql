@@ -9510,6 +9510,8 @@ fragment PostsBase on Post {
   votingSystem
     
   disableRecommendation
+
+  marginalFundingOrg
 }
 
 fragment PostsBestOfList on Post {
@@ -9807,8 +9809,6 @@ fragment PostsDetails on Post {
   glossary {
     ...JargonTermsPost
   }
-
-  marginalFundingOrg
 }
 
 fragment PostsEdit on Post {

@@ -1845,6 +1845,7 @@ interface PostsBase extends PostsMinimumInfo { // fragment on Posts
   readonly reviewCount2019: number,
   readonly votingSystem: string|null,
   readonly disableRecommendation: boolean,
+  readonly marginalFundingOrg: string|null,
 }
 
 interface PostsBase_group { // fragment on Localgroups
@@ -2088,7 +2089,6 @@ interface PostsDetails extends PostsListBase { // fragment on Posts
   readonly activateRSVPs: boolean|null,
   readonly fmCrosspost: CrosspostOutput,
   readonly glossary: Array<JargonTermsPost>,
-  readonly marginalFundingOrg: string|null,
 }
 
 interface PostsDetails_canonicalSequence { // fragment on Sequences

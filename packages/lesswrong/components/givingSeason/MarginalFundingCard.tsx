@@ -10,10 +10,9 @@ import classNames from "classnames";
 
 const styles = defineStyles("MarginalFundingCard", (theme) => ({
   root: {
-    padding: 80,
+    padding: 40,
     display: "flex",
-    flexDirection: "column",
-    gap: 16,
+    gap: 32,
     cursor: "pointer",
     "&:hover": {
       opacity: 0.9,
@@ -24,6 +23,11 @@ const styles = defineStyles("MarginalFundingCard", (theme) => ({
   },
   unread: {
     background: theme.palette.text.alwaysWhite,
+  },
+  details: {
+    display: "flex",
+    flexDirection: "column",
+    gap: 16,
   },
   image: {
     width: "100%",
@@ -58,6 +62,18 @@ const styles = defineStyles("MarginalFundingCard", (theme) => ({
   interaction: {
     display: "inline",
   },
+  org: {
+    writingMode: "vertical-rl",
+    textOrientation: "mixed",
+    textTransform: "uppercase",
+    border: `1px solid ${theme.palette.text.alwaysBlack}`,
+    borderRadius: "26px",
+    fontSize: 13,
+    fontWeight: 500,
+    letterSpacing: "-0.01em",
+    lineHeight: "140%",
+    padding: "6px 2px",
+  },
 }));
 
 const getImageUrl = (post: PostsListWithVotes) => {
@@ -81,33 +97,42 @@ export const MarginalFundingCard = ({post}: {post: PostsListWithVotes}) => {
         post.isRead ? classes.read : classes.unread,
       )}
     >
-      <img
-        src={getImageUrl(post)}
-        alt={post.title}
-        className={classes.image}
-      />
-      <InteractionWrapper>
-        <Link to={href} className={classes.title}>
-          {post.title}
-        </Link>
-      </InteractionWrapper>
-      <div className={classes.preview}>
-        {post.contents?.plaintextDescription}
-      </div>
-      <div className={classes.authors}>
-        by{" "}
-        <InteractionWrapper className={classes.interaction}>
-          <UsersName user={post.user} tooltipPlacement="bottom-start" />
+      <div className={classes.details}>
+        <img
+          src={getImageUrl(post)}
+          alt={post.title}
+          className={classes.image}
+        />
+        <InteractionWrapper>
+          <Link to={href} className={classes.title}>
+            {post.title}
+          </Link>
         </InteractionWrapper>
-        {post.coauthors.map((user) => (
-          <Fragment key={user._id}>
-            {", "}
-            <InteractionWrapper className={classes.interaction}>
-              <UsersName user={user} tooltipPlacement="bottom-start" />
-            </InteractionWrapper>
-          </Fragment>
-        ))}
+        <div className={classes.preview}>
+          {post.contents?.plaintextDescription}
+        </div>
+        <div className={classes.authors}>
+          by{" "}
+          <InteractionWrapper className={classes.interaction}>
+            <UsersName user={post.user} tooltipPlacement="bottom-start" />
+          </InteractionWrapper>
+          {post.coauthors.map((user) => (
+            <Fragment key={user._id}>
+              {", "}
+              <InteractionWrapper className={classes.interaction}>
+                <UsersName user={user} tooltipPlacement="bottom-start" />
+              </InteractionWrapper>
+            </Fragment>
+          ))}
+        </div>
       </div>
+      {post.marginalFundingOrg &&
+        <div>
+          <div className={classes.org}>
+            {post.marginalFundingOrg}
+          </div>
+        </div>
+      }
     </article>
   );
 }

@@ -175,6 +175,8 @@ export const PostsBase = () => frag`
     votingSystem
     
     disableRecommendation
+
+    marginalFundingOrg
   }
 `
 
@@ -456,8 +458,6 @@ export const PostsDetails = () => frag`
     glossary {
       ...JargonTermsPost
     }
-
-    marginalFundingOrg
   }
 `
 
