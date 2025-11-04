@@ -1,7 +1,6 @@
 import { MiddlewareConfig, NextRequest, NextResponse } from 'next/server'
 import { canonicalizePath } from "./packages/lesswrong/lib/generated/routeManifest";
 import { randomId } from './packages/lesswrong/lib/random';
-import { fetch as undiciFetch } from 'undici';
 
 // These need to be defined here instead of imported from @/lib/cookies/cookies
 // because that import chain contains a transitive import of lodash, which
@@ -59,7 +58,7 @@ export async function middleware(request: NextRequest) {
     
     //const requestBody = request.body ? await streamToUint8Array(request.body) : null;
     
-    const forwardedFetchResponse = await undiciFetch(
+    const forwardedFetchResponse = await fetch(
       request.nextUrl,
       {
         headers: addedClientId ? addClientIdToRequestHeaders(forwardedHeaders, addedClientId) : forwardedHeaders,
