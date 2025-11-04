@@ -17,7 +17,7 @@ import { useTracking } from '@/lib/analyticsEvents';
 import ForumEventPostPagePollSection from '../forumEvents/ForumEventPostPagePollSection';
 import repeat from 'lodash/repeat';
 import { captureException } from '@/lib/sentryWrapper';
-import { getColorReplacements } from '@/themes/userThemes/darkMode';
+import { getColorReplacementsCache } from '@/themes/userThemes/darkMode';
 import { colorToString, invertColor, parseColor } from '@/themes/colorUtil';
 import { ThemeContext } from '../themes/useTheme';
 
@@ -614,20 +614,20 @@ function transformStylesForDarkMode(styles: Record<string,string>, themeName: Us
 
 function transformAttributeValueForDarkMode(attributeValue: string): string {
   const normalized = attributeValue.trim().toLowerCase();
-  if (!getColorReplacements()[normalized]) {
+  if (!getColorReplacementsCache()[normalized]) {
     const parsedColor = parseColor(normalized);
     if (parsedColor) {
       const invertedColor = invertColor(parsedColor);
-      getColorReplacements()[normalized] = colorToString(invertedColor);
+      getColorReplacementsCache()[normalized] = colorToString(invertedColor);
     } else {
       // If unable to parse a color (eg an unsupported color format), use black
       // as a safe dark-mode background color
-      getColorReplacements()[normalized] = "#000000";
+      getColorReplacementsCache()[normalized] = "#000000";
     }
   }
   
-  if (getColorReplacements()[normalized]) {
-    return getColorReplacements()[normalized];
+  if (getColorReplacementsCache()[normalized]) {
+    return getColorReplacementsCache()[normalized];
   } else {
     return attributeValue;
   }
