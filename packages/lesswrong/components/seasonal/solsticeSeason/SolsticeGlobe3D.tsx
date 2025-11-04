@@ -274,26 +274,45 @@ const sunPosAt = (dt: number): [number, number] => {
   return [0, declination];
 };
 
-// Globe rotation animation hook - rotates texture coordinates in shader for smooth rotation
+// Combined animation hook: manages both globe rotation and day-night cycle in a single animation loop
 // Returns a ref to the current rotation value in radians so markers can be rotated accordingly
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
-const useGlobeRotation = (globeMaterialRef: React.MutableRefObject<any>, isGlobeReady: boolean): React.MutableRefObject<number> => {
+const useGlobeAnimation = (globeMaterialRef: React.MutableRefObject<any>, isGlobeReady: boolean, pov: PointOfView): React.MutableRefObject<number> => {
   const rotationSpeed = 0.005; // radians per frame (adjust for desired rotation speed)
   const rotationRef = useRef(0); // Track cumulative rotation
+  const dtRef = useRef(+new Date()); // Track current time for day-night cycle
+  const [, setFrameCounter] = useState(0); // Trigger re-renders for marker updates
   
   useEffect(() => {
     if (!isGlobeReady || !globeMaterialRef.current) return;
 
     let animationFrameId: number;
+    let frameCount = 0;
     
     const animate = () => {
-      // Increment rotation (this will wrap naturally when it exceeds 2*PI)
+      // Update rotation
       rotationRef.current += rotationSpeed;
       
-      // Update texture rotation uniform in shader
-      if (globeMaterialRef.current?.uniforms?.textureRotation) {
-        globeMaterialRef.current.uniforms.textureRotation.value = rotationRef.current;
+      // Update time for day-night cycle
+      dtRef.current += VELOCITY * 60 * 1000;
+      
+      // Update shader uniforms
+      if (globeMaterialRef.current?.uniforms) {
+        // Update texture rotation uniform
+        if (globeMaterialRef.current.uniforms.textureRotation) {
+          globeMaterialRef.current.uniforms.textureRotation.value = rotationRef.current;
+        }
+        
+        // Update sun position based on current time
+        if (globeMaterialRef.current.uniforms.sunPosition) {
+          const sunPos = sunPosAt(dtRef.current);
+          globeMaterialRef.current.uniforms.sunPosition.value.set(sunPos[0], sunPos[1]);
+        }
       }
+      
+      // Trigger re-render every frame so markers update their positions
+      frameCount++;
+      setFrameCounter(frameCount);
       
       animationFrameId = requestAnimationFrame(animate);
     };
@@ -306,6 +325,12 @@ const useGlobeRotation = (globeMaterialRef: React.MutableRefObject<any>, isGlobe
       }
     };
   }, [isGlobeReady, globeMaterialRef]);
+  
+  // Update globe rotation when POV changes (separate from animation loop)
+  useEffect(() => {
+    if (!globeMaterialRef.current?.uniforms?.globeRotation) return;
+    globeMaterialRef.current.uniforms.globeRotation.value.set(pov.lng, pov.lat);
+  }, [globeMaterialRef, pov.lat, pov.lng]);
   
   return rotationRef;
 };
@@ -347,50 +372,6 @@ const useFramerate = (isGlobeReady: boolean, globeRef: React.MutableRefObject<an
   }, [isGlobeReady, globeRef]);
   
   return fps;
-};
-
-// Day-night cycle animation hook
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-const useDayNightCycle = (globeMaterialRef: React.MutableRefObject<any>, isGlobeReady: boolean, pov: PointOfView) => {
-  const [dt, setDt] = useState(+new Date());
-  
-  useEffect(() => {
-    if (!isGlobeReady || !globeMaterialRef.current) return;
-
-    let animationFrameId: number;
-    
-    const iterateTime = () => {
-      setDt(dt => dt + (VELOCITY * 60 * 1000));
-      animationFrameId = requestAnimationFrame(iterateTime);
-    };
-    
-    iterateTime();
-
-    return () => {
-      if (animationFrameId) {
-        cancelAnimationFrame(animationFrameId);
-      }
-    };
-  }, [isGlobeReady, globeMaterialRef]);
-  
-  useEffect(() => {
-    if (!globeMaterialRef.current) return;
-    
-    // Update sun position based on current time (fixed longitude, only declination changes)
-    const sunPos = sunPosAt(dt);
-    if (globeMaterialRef.current.uniforms?.sunPosition) {
-      globeMaterialRef.current.uniforms.sunPosition.value.set(sunPos[0], sunPos[1]);
-    }
-  }, [dt, globeMaterialRef]);
-  
-  useEffect(() => {
-    if (!globeMaterialRef.current) return;
-    
-    // Update globe rotation when POV changes
-    if (globeMaterialRef.current.uniforms?.globeRotation) {
-      globeMaterialRef.current.uniforms.globeRotation.value.set(pov.lng, pov.lat);
-    }
-  }, [globeMaterialRef, pov.lat, pov.lng]);
 };
 
 
@@ -440,11 +421,8 @@ const SolsticeGlobe3D = ({
   }), [defaultPointOfView.lat, defaultPointOfView.lng, defaultPointOfView.altitude, initialAltitudeMultiplier]);
   useGlobeReadyEffects(isGlobeReady, globeRef, globeMaterialRef, dayImageUrl, nightImageUrl, luminosityImageUrl, initialPov, onReady);
   
-  // Start globe rotation animation and get ref to current rotation value
-  const textureRotationRef = useGlobeRotation(globeMaterialRef, isGlobeReady);
-  
-  // Start day-night cycle animation
-  useDayNightCycle(globeMaterialRef, isGlobeReady, initialPov);
+  // Start combined globe rotation and day-night cycle animation
+  const textureRotationRef = useGlobeAnimation(globeMaterialRef, isGlobeReady, initialPov);
   
   // Track framerate using react-globe.gl's renderer
   const fps = useFramerate(isGlobeReady, globeRef);
