@@ -26,8 +26,6 @@ export type PointOfView = {
 
 type PointClickCallback = (point: SolsticeGlobePoint, screenCoords: { x: number; y: number }) => void;
 
-// Day-night cycle settings - velocity in minutes per frame (like the example)
-const VELOCITY = 1; // minutes per frame
 // Contrast enhancement properties
 const CONTRAST_AMOUNT = 1; // Higher values = more contrast (bright parts brighter, dark parts darker)
 const BRIGHTNESS_BOOST = 1; // Multiplier for overall brightness
@@ -257,30 +255,22 @@ const useGlobeReadyEffects = (
     }
 
     globeRef.current.pointOfView({ lat: pov.lat, lng: pov.lng, altitude: pov.altitude }, 0);
+    
+    // Set fixed sun position (no datetime-based updates)
+    if (globeMaterialRef.current?.uniforms?.sunPosition) {
+      globeMaterialRef.current.uniforms.sunPosition.value.set(0, 0);
+    }
+    
     onReadyRef.current?.();
   }, [isGlobeReady, globeRef, globeMaterialRef, dayImageUrl, nightImageUrl, luminosityImageUrl, pov.lat, pov.lng, pov.altitude]);
 };
 
-// Calculate sun position based on date/time - includes Earth's tilt (declination)
-// Based on react-globe.gl example
-const sunPosAt = (dt: number): [number, number] => {
-  const daysSinceJ2000 = (dt - 946728000000) / 86400000; // J2000 = Jan 1, 2000
-  
-  // Solar declination (Earth's axial tilt effect) - simplified
-  const declinationRad = ((23.44 * Math.PI) / 180) * Math.sin((2 * Math.PI * ((daysSinceJ2000 + 284) / 365.25)));
-  const declination = (declinationRad * 180) / Math.PI;
-  
-  // Sun position is fixed at longitude 0 (noon position)
-  return [0, declination];
-};
-
-// Combined animation hook: manages both globe rotation and day-night cycle in a single animation loop
+// Animation hook: manages globe rotation in an animation loop
 // Returns a ref to the current rotation value in radians so markers can be rotated accordingly
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 const useGlobeAnimation = (globeMaterialRef: React.MutableRefObject<any>, isGlobeReady: boolean, pov: PointOfView): React.MutableRefObject<number> => {
   const rotationSpeed = 0.005; // radians per frame (adjust for desired rotation speed)
   const rotationRef = useRef(0); // Track cumulative rotation
-  const dtRef = useRef(+new Date()); // Track current time for day-night cycle
   const [, setFrameCounter] = useState(0); // Trigger re-renders for marker updates
   
   useEffect(() => {
@@ -293,20 +283,11 @@ const useGlobeAnimation = (globeMaterialRef: React.MutableRefObject<any>, isGlob
       // Update rotation
       rotationRef.current += rotationSpeed;
       
-      // Update time for day-night cycle
-      dtRef.current += VELOCITY * 60 * 1000;
-      
       // Update shader uniforms
       if (globeMaterialRef.current?.uniforms) {
         // Update texture rotation uniform
         if (globeMaterialRef.current.uniforms.textureRotation) {
           globeMaterialRef.current.uniforms.textureRotation.value = rotationRef.current;
-        }
-        
-        // Update sun position based on current time
-        if (globeMaterialRef.current.uniforms.sunPosition) {
-          const sunPos = sunPosAt(dtRef.current);
-          globeMaterialRef.current.uniforms.sunPosition.value.set(sunPos[0], sunPos[1]);
         }
       }
       
