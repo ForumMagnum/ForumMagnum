@@ -1,5 +1,4 @@
 import React, { useCallback, useMemo } from 'react';
-import { useGlobalKeydown } from '@/components/common/withGlobalKeydown';
 import { useDialog } from '@/components/common/withDialog';
 import type { CommandPaletteItem } from '@/components/common/CommandPalette';
 import { useMutation } from '@apollo/client/react';
@@ -9,7 +8,7 @@ import { getSignatureWithNote } from '@/lib/collections/users/helpers';
 import { getNewSnoozeUntilContentCount } from '../ModeratorActions';
 import SnoozeAmountModal from './SnoozeAmountModal';
 import RestrictAndNotifyModal from './RestrictAndNotifyModal';
-import { useCommandPalette } from '@/components/hooks/useCommandPalette';
+import { useSupermodKeyboardCommands } from '@/components/hooks/useSupermodKeyboardCommands';
 import { useModeratedUserContents } from '@/components/hooks/useModeratedUserContents';
 import type { InboxAction, UndoHistoryItem } from './inboxReducer';
 import { useUserContentPermissions } from './useUserContentPermissions';
@@ -17,7 +16,6 @@ import RejectContentDialog from '../RejectContentDialog';
 import { useRejectContent } from '@/components/hooks/useRejectContent';
 import { ContentItem, isPost } from './helpers';
 import { useMessages } from '@/components/common/withMessages';
-import { parseKeystroke, getCode } from '@/lib/vendor/ckeditor5-util/keyboard';
 
 const SunshineUsersListUpdateMutation = gql(`
   mutation updateUserModerationKeyboard($selector: SelectorInput!, $data: UpdateUserDataInput!) {
@@ -41,37 +39,6 @@ const ApproveCurrentContentOnlyMutation = gql(`
   }
 `);
 
-function specialKeyPressed(event: KeyboardEvent) {
-  return event.metaKey || event.ctrlKey || event.altKey;
-}
-
-function isNavigationKey(key: string) {
-  return key === 'ArrowUp' || key === 'ArrowDown' || key === 'ArrowLeft' || key === 'ArrowRight' || key === 'Enter' || key === 'Escape';
-}
-
-function matchesKeystroke(event: KeyboardEvent, keystroke: string): boolean {
-  const key = event.key;
-
-  if (key === 'Escape') {
-    return keystroke === 'esc';
-  }
-
-  if (isNavigationKey(key)) {
-    const normalizedKeystroke = keystroke.toLowerCase();
-    const normalizedKey = key.toLowerCase();
-
-    return normalizedKeystroke === normalizedKey;
-  }
-
-  try {
-    const keystrokeCode = parseKeystroke(keystroke);
-    const eventCode = getCode(event);
-    return keystrokeCode === eventCode;
-  } catch (error) {
-    return false;
-  }
-}
-
 function canRejectCurrentlySelectedContent(selectedContent?: ContentItem) {
   return selectedContent && !selectedContent.rejected && selectedContent.authorIsUnreviewed;
 }
@@ -94,7 +61,7 @@ function getMostRecentUnapprovedContent(posts: SunshinePostsList[], comments: Co
   return unapprovedContent[0];
 }
 
-const ModerationKeyboardHandler = ({
+const ModerationUserKeyboardHandler = ({
   onNextUser,
   onPrevUser,
   onOpenDetail,
@@ -123,7 +90,7 @@ const ModerationKeyboardHandler = ({
   undoQueue: UndoHistoryItem[];
   dispatch: React.ActionDispatch<[action: InboxAction]>;
 }) => {
-  const { openDialog, isDialogOpen } = useDialog();
+  const { openDialog } = useDialog();
   const { flash } = useMessages();
   const [updateUser] = useMutation(SunshineUsersListUpdateMutation);
   const [rejectContentAndRemoveFromQueue] = useMutation(RejectContentAndRemoveFromQueueMutation);
@@ -429,8 +396,6 @@ const ModerationKeyboardHandler = ({
     });
   }, [selectedUser, posts, comments, handleAction, rejectContentAndRemoveFromQueue, openDialog, rejectionTemplates]);
 
-  const openCommandPalette = useCommandPalette({ large: true, hideDisabledCommands: true });
-
   const approveCommand: CommandPaletteItem = useMemo(() => ({
     label: 'Approve',
     keystroke: 'A',
@@ -615,56 +580,14 @@ const ModerationKeyboardHandler = ({
     ban3moCommand,
   ], [approveCommand, approveCurrentOnlyCommand, snooze10Command, snoozeCustomCommand, removeCommand, ban3moCommand, purgeCommand, flagCommand, copyUserIdCommand, rejectOrUnrejectCommand, rejectLatestAndRemoveCommand, restrictAndNotifyCommand, disablePostingCommand, disableCommentingCommand, disableMessagingCommand, disableVotingCommand, nextContentOrUserCommand, previousContentOrUserCommand, nextUserOrTabCommand, previousUserOrTabCommand, openOrCloseDetailViewCommand, undoMostRecentActionCommand]);
 
-  useGlobalKeydown(
-    useCallback(
-      (event: KeyboardEvent) => {
-        // Don't trigger any shortcuts if a dialog is open.
-        if (isDialogOpen) {
-          return;
-        }
-
-        // Don't handle keyboard shortcuts if user is typing in an input/textarea
-        const target = event.target as HTMLElement;
-        if (
-          target.tagName === 'INPUT' ||
-          target.tagName === 'TEXTAREA' ||
-          target.isContentEditable
-        ) {
-          // Exception: allow Escape even in inputs
-          if (event.key !== 'Escape') {
-            return;
-          }
-        }
-
-        if ((event.metaKey || event.ctrlKey) && event.key === 'k') {
-          event.preventDefault();
-          openCommandPalette(commands, () => {});
-          return;
-        }
-
-        // Block shortcuts when special keys (Cmd/Ctrl/Alt) are pressed, except for navigation keys
-        if (specialKeyPressed(event) && (!isNavigationKey(event.key) && event.key !== 'z')) {
-          return;
-        }
-
-        for (const command of commands) {
-          if (matchesKeystroke(event, command.keystroke)) {
-            if (command.isDisabled()) {
-              return;
-            }
-
-            event.preventDefault();
-            command.execute();
-            return;
-          }
-        }
-      },
-      [commands, openCommandPalette, isDialogOpen]
-    )
-  );
+  useSupermodKeyboardCommands({
+    commands,
+    handleWhileInTextInputs: ['Escape'],
+    allowWithSpecialKeys: ['ArrowUp', 'ArrowDown', 'ArrowLeft', 'ArrowRight', 'Enter', 'Escape', 'z'],
+  });
 
   return null;
 };
 
-export default ModerationKeyboardHandler;
+export default ModerationUserKeyboardHandler;
 

@@ -4040,6 +4040,7 @@ interface Post {
   tagRel: TagRel | null;
   tags: Array<Tag>;
   tagRelevance: any;
+  tagRels: Array<TagRel>;
   lastPromotedComment: Comment | null;
   bestAnswer: Comment | null;
   noIndex: boolean;
@@ -7466,6 +7467,7 @@ interface User {
   recommendationSettings: any;
   lastRemovedFromReviewQueueAt: Date | null;
   rejectedContentCount: number | null;
+  userRateLimits: Array<UserRateLimit> | null;
 }
 
 interface UserSelectorUniqueInput {

@@ -81,6 +81,13 @@ export const reviewTriggerModeratorActions = new TupleSet([
   MANUAL_RATE_LIMIT_EXPIRED,
 ] as const);
 
+export const persistentDisplayedModeratorActions = new TupleSet([
+  FLAGGED_FOR_N_DMS,
+  AUTO_BLOCKED_FROM_SENDING_DMS,
+  RECEIVED_VOTING_PATTERN_WARNING,
+  POTENTIAL_TARGETED_DOWNVOTING,
+] as const);
+
 export const MODERATOR_ACTION_TYPES = {
   [RATE_LIMIT_ONE_PER_DAY]: "Rate Limit (1 per day)",
   [RATE_LIMIT_ONE_PER_THREE_DAYS]: "Rate Limit (1 per 3 days)",

@@ -62,7 +62,7 @@ const inverseGreyAlpha = (alpha: number) => {
 // We handle this in ContentItemBody with transformStylesForDarkMode. The
 // colors below have dedicated color-mappings; all other colors use `parseColor`
 // and `invertColor` from `colorUtil.ts`.
-export const getColorReplacements = (): Record<string,string> => ({
+const getManualColorReplacements = () => ({
   "initial":            "rgba(255,255,255,.87)",
   "rgba(255,255,255,.5)": "rgba(0,0,0.5)",
   "hsl(0, 0%, 90%)":    "hsl(0, 0%, 10%)",
@@ -74,6 +74,8 @@ export const getColorReplacements = (): Record<string,string> => ({
   "rgb(255, 238, 187)": colorToString(invertColor([255/255.0,238/255.0,187/255.0,1])),
   "rgb(230, 230, 230)": colorToString(invertColor([230/255.0,230/255.0,230/255.0,1])),
 } as const);
+const colorReplacementsCache = getManualColorReplacements();
+export const getColorReplacementsCache = (): Record<string,string> => colorReplacementsCache;
 
 const forumComponentPalette = (shadePalette: ThemeShadePalette) =>
   forumSelect({
