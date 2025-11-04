@@ -246,7 +246,6 @@ export const getDefaultResolvers = <N extends CollectionNameString>(
     context: ResolverContext,
     info: GraphQLResolveInfo,
   ) => {
-    console.log("In singleResolver");
     const collection = context[collectionName] as unknown as PgCollection<N>;
     const { input: _input, selector: _selector, ...otherQueryVariables } = info.variableValues;
     allowNull ??= input.allowNull ?? false;
