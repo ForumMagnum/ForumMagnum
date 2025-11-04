@@ -56,6 +56,8 @@ export async function proxy(request: NextRequest) {
     const forwardedHeaders = new Headers(request.headers);
     forwardedHeaders.set(ForwardingHeaderName, "true");
     
+    const requestBody = request.body ? await streamToUint8Array(request.body) : null;
+    
     const forwardedFetchResponse = await undiciFetch(
       request.nextUrl,
       {
@@ -64,13 +66,7 @@ export async function proxy(request: NextRequest) {
         redirect: 'manual',
         referrer: request.referrer,
         mode: request.mode,
-        body: request.body,
-        duplex: 'half',
-        // Upgrading NextJS to v16 apparently pulled in https://github.com/whatwg/fetch/pull/1457,
-        // which causes this call to fail if `duplex` isn't included.  However, the typescript lib
-        // type definition for fetch's `RequestInit` doesn't yet contain the field!  So we need to
-        // spread it like this to avoid the type checker complaining.
-        // ...({ duplex: 'half' }),
+        body: requestBody,
       }
     );
     
@@ -107,6 +103,34 @@ export async function proxy(request: NextRequest) {
     }
     return nextResponse;
   }
+}
+
+/**
+ * Read an entire ReadableStream<Uint8Array> into a single contiguous Uint8Array.
+ */
+async function streamToUint8Array(stream: ReadableStream<Uint8Array>): Promise<Uint8Array> {
+  const reader = stream.getReader();
+  const chunks: Uint8Array[] = [];
+  let total = 0;
+
+  try {
+    while (true) {
+      const { done, value } = await reader.read();
+      if (done) break;
+      chunks.push(value);
+      total += value.byteLength;
+    }
+  } finally {
+    try { reader.releaseLock(); } catch {}
+  }
+
+  const out = new Uint8Array(total);
+  let offset = 0;
+  for (const chunk of chunks) {
+    out.set(chunk, offset);
+    offset += chunk.byteLength;
+  }
+  return out;
 }
 
 function shouldProxyForStatusCode(req: NextRequest) {
