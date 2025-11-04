@@ -1,7 +1,7 @@
 import { MiddlewareConfig, NextRequest, NextResponse } from 'next/server'
 import { canonicalizePath } from "./packages/lesswrong/lib/generated/routeManifest";
 import { randomId } from './packages/lesswrong/lib/random';
-import { fetch } from 'undici';
+import { fetch as undiciFetch } from 'undici';
 
 // These need to be defined here instead of imported from @/lib/cookies/cookies
 // because that import chain contains a transitive import of lodash, which
@@ -56,7 +56,7 @@ export async function proxy(request: NextRequest) {
     const forwardedHeaders = new Headers(request.headers);
     forwardedHeaders.set(ForwardingHeaderName, "true");
     
-    const forwardedFetchResponse = await fetch(
+    const forwardedFetchResponse = await undiciFetch(
       request.nextUrl,
       {
         headers: addedClientId ? addClientIdToRequestHeaders(forwardedHeaders, addedClientId) : forwardedHeaders,
