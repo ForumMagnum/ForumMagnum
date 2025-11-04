@@ -63,6 +63,7 @@ const styles = defineStyles("MarginalFundingCard", (theme) => ({
     display: "inline",
   },
   org: {
+    whiteSpace: "nowrap",
     writingMode: "vertical-rl",
     textOrientation: "mixed",
     textTransform: "uppercase",

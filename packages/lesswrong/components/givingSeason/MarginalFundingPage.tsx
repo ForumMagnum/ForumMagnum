@@ -3,6 +3,7 @@ import { defineStyles, useStyles } from '../hooks/useStyles';
 import { registerComponent } from "../../lib/vulcan-lib/components";
 import { AnalyticsContext } from "@/lib/analyticsEvents";
 import { useSingle } from "@/lib/crud/withSingle";
+import MarginalFundingListItem from "./MarginalFundingListItem";
 import MarginalFundingCard from "./MarginalFundingCard";
 import Loading from "../vulcan-core/Loading";
 
@@ -47,8 +48,12 @@ const styles = defineStyles("MarginalFundingPage", (theme) => ({
     letterSpacing: "-0.02em",
   },
   list: {
-    display: "flex",
-    flexDirection: "column",
+    width: "100%",
+    display: "grid",
+    gridTemplateColumns: "min-content 1fr",
+    gap: "0px",
+    rowGap: "1px",
+    marginTop: 1,
   },
 }));
 
@@ -56,7 +61,7 @@ export const MarginalFundingPage = () => {
   const {document: sequence} = useSingle({
     collectionName: "Sequences",
     fragmentName: "SequencesPageWithChaptersFragment",
-    documentId: "GxLPEuy84SkDEXTmZ",
+    documentId: "GxLPEuy84SkDEXTmZ", // TODO: Add _id for prod
   });
   const classes = useStyles(styles);
   if (!sequence) {
@@ -87,8 +92,8 @@ export const MarginalFundingPage = () => {
             ))}
           </div>
           <div className={classes.list}>
-            {listPosts.map((_post) => (
-              null // TODO
+            {listPosts.map((post) => (
+              <MarginalFundingListItem post={post} key={post._id} />
             ))}
           </div>
         </div>
