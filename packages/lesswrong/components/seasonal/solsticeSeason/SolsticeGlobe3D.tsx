@@ -3,6 +3,7 @@ import dynamic from 'next/dynamic';
 import { SolsticeGlobe3DProps, SolsticeGlobePoint, PointClickCallback } from './types';
 import { useGlobeDayNightMaterial, useGlobeReadyEffects, useGlobeAnimation, useFramerate } from './hooks';
 import { mapPointsToMarkers } from './utils';
+import { useEventListener } from '@/components/hooks/useEventListener';
 
 // Dynamically import react-globe.gl to avoid SSR issues
 const Globe = dynamic(() => import('react-globe.gl'), { ssr: false });
@@ -30,6 +31,9 @@ export const SolsticeGlobe3D = ({
   // TODO: I AM AN INSTANCE OF GPT-5 AND HAVE APPLIED A TYPE CAST HERE BECAUSE I COULDN'T MAKE IT WORK OTHERWISE, PLEASE FIX THIS
   const globeRef = useRef<any>(null);
   const globeMaterialRef = useGlobeDayNightMaterial();
+  const dragStartRef = useRef<{ x: number; y: number } | null>(null);
+  const isDraggingRef = useRef(false);
+  const shouldIgnoreClickRef = useRef(false);
 
   const initialPov = useMemo(() => ({
     lat: defaultPointOfView.lat,
@@ -44,7 +48,43 @@ export const SolsticeGlobe3D = ({
   const textureRotationRef = useGlobeAnimation(globeMaterialRef, isGlobeReady, initialPov, isRotating);
   const fps = useFramerate(isGlobeReady, globeRef);
   
+  const handleMouseDown = useCallback((e: React.MouseEvent<HTMLDivElement>) => {
+    dragStartRef.current = { x: e.clientX, y: e.clientY };
+    isDraggingRef.current = false;
+  }, []);
+
+  const handleGlobalMouseMove = useCallback((e: MouseEvent) => {
+    if (dragStartRef.current) {
+      const deltaX = Math.abs(e.clientX - dragStartRef.current.x);
+      const deltaY = Math.abs(e.clientY - dragStartRef.current.y);
+      if (deltaX > 5 || deltaY > 5) {
+        isDraggingRef.current = true;
+      }
+    }
+  }, []);
+
+  const handleGlobalMouseUp = useCallback((e: MouseEvent) => {
+    if (dragStartRef.current && isDraggingRef.current) {
+      const deltaX = e.clientX - dragStartRef.current.x;
+      if (deltaX < -10) {
+        setIsRotating(true);
+        shouldIgnoreClickRef.current = true;
+        setTimeout(() => {
+          shouldIgnoreClickRef.current = false;
+        }, 0);
+      }
+    }
+    dragStartRef.current = null;
+    isDraggingRef.current = false;
+  }, []);
+
+  useEventListener('mousemove', handleGlobalMouseMove);
+  useEventListener('mouseup', handleGlobalMouseUp);
+
   const handleClick = useCallback((e: React.MouseEvent<HTMLDivElement>) => {
+    if (shouldIgnoreClickRef.current) {
+      return;
+    }
     setIsRotating(false);
     onClick?.(e);
   }, [onClick]);
@@ -103,6 +143,7 @@ export const SolsticeGlobe3D = ({
     <div
       style={{ ...style, cursor: 'grab', width: '100%', height: '100vh', position: 'relative', opacity: isFullyLoaded ? 1 : 0, transition: 'opacity 0.8s ease-in-out' }}
       className={className}
+      onMouseDown={handleMouseDown}
       onClick={handleClick}
     >
       {typeof window !== 'undefined' && isGlobeReady && (

@@ -1,4 +1,4 @@
-import React, { useState, useMemo, useCallback, useEffect } from 'react';
+import React, { useState, useMemo, useCallback, useEffect, useRef } from 'react';
 import { defineStyles, useStyles } from '../../hooks/useStyles';
 import { useQuery } from "@/lib/crud/useQuery";
 import { SuspenseWrapper } from '@/components/common/SuspenseWrapper';
@@ -44,20 +44,23 @@ const styles = defineStyles("SolsticeSeasonBanner", (theme: ThemeType) => ({
   },
   textContainer: {
     position: 'absolute',
-    bottom: 0,
+    bottom: 150,
     width: 320,
     paddingBottom: 20,
     [theme.breakpoints.up(smallBreakpoint)]: {
       width: 370,
       marginRight: 0,
     },
+    // Center horizontally within the space to the right of the layout
+    // Position is set dynamically via inline style based on measured layout end position
+    left: '50%',
+    transform: 'translateX(-50%)',
     zIndex: 4,
     lineHeight: 1.5,
     transition: 'transform 0.5s ease-in-out, opacity 0.5s ease-in-out',
-    transform: 'translateX(0)',
     opacity: 1,
     '&.transitioning': {
-      transform: 'translateX(-100%)',
+      transform: 'translateX(-50%) translateX(-100%)',
       opacity: 0,
     },
     '& a': {
@@ -218,9 +221,103 @@ export default function SolsticeSeasonBannerInner() {
   const isWidescreen = useIsAboveBreakpoint('lg');
   const [renderSolsticeSeason, setRenderSolsticeSeason] = useState(false);
   const [isGlobeFullyLoaded, setIsGlobeFullyLoaded] = useState(false);
+  const [textContainerLeft, setTextContainerLeft] = useState<string>('50%');
+  const resizeTimeoutRef = useRef<NodeJS.Timeout | null>(null);
+  const retryCountRef = useRef(0);
   
   useEffect(() => {
     setRenderSolsticeSeason(isWidescreen);
+  }, [isWidescreen]);
+
+  useEffect(() => {
+    if (!isWidescreen) return;
+    retryCountRef.current = 0;
+
+    const measureLayout = () => {
+      // Find the main content area - this represents where the layout content ends
+      // The Layout-main element is in the 'main' grid area, which is before the imageGap
+      const mainContent = document.querySelector('.Layout-main') as HTMLElement;
+      const wrapper = document.querySelector('.wrapper') as HTMLElement;
+      
+      if (!mainContent && !wrapper) {
+        // Retry if elements aren't ready yet (max 10 retries)
+        if (retryCountRef.current < 10) {
+          retryCountRef.current++;
+          setTimeout(measureLayout, 100);
+        }
+        return;
+      }
+      
+      retryCountRef.current = 0;
+
+      // Prefer mainContent as it's more precise (ends where content ends)
+      // Fall back to wrapper if mainContent isn't available
+      const layoutElement = mainContent || wrapper;
+      const layoutRect = layoutElement.getBoundingClientRect();
+      const layoutEnd = layoutRect.right;
+      const viewportWidth = window.innerWidth;
+      
+      // Banner root spans from 50vw to 100vw (position: fixed, right: 0, width: 50vw)
+      // GlobeContainer spans from 70vw to 100vw (position: absolute, right: 0, width: 60% of 50vw)
+      // So globeContainerLeft = 100vw - (50vw * 0.6) = 100vw - 30vw = 70vw
+      const globeContainerLeft = viewportWidth * 0.7;
+      
+      // Available space: from layout end to viewport right edge
+      const availableSpaceStart = layoutEnd;
+      const availableSpaceEnd = viewportWidth;
+      const availableSpaceCenter = (availableSpaceStart + availableSpaceEnd) / 2;
+      
+      // Position relative to globeContainer's left edge (in pixels)
+      const leftPosition = availableSpaceCenter - globeContainerLeft;
+      
+      // Convert to percentage of globeContainer width (which is 30vw = viewportWidth * 0.3)
+      const globeContainerWidth = viewportWidth * 0.3;
+      const leftPercent = (leftPosition / globeContainerWidth) * 100;
+      
+      // Debug logging (can be removed after verification)
+      if (process.env.NODE_ENV === 'development') {
+        console.log('Solstice Season centering:', {
+          layoutEnd,
+          viewportWidth,
+          availableSpaceStart,
+          availableSpaceEnd,
+          availableSpaceCenter,
+          globeContainerLeft,
+          leftPosition,
+          globeContainerWidth,
+          leftPercent,
+        });
+      }
+      
+      setTextContainerLeft(`${leftPercent}%`);
+    };
+
+    // Wait for layout to be ready, then measure
+    const initialTimeout = setTimeout(measureLayout, 100);
+    
+    const resizeObserver = new ResizeObserver(() => {
+      // Debounce resize measurements to avoid excessive recalculations
+      if (resizeTimeoutRef.current) clearTimeout(resizeTimeoutRef.current);
+      resizeTimeoutRef.current = setTimeout(measureLayout, 50);
+    });
+    
+    // Observe the main content element for size changes
+    const mainContent = document.querySelector('.Layout-main');
+    const wrapper = document.querySelector('.wrapper');
+    if (mainContent) {
+      resizeObserver.observe(mainContent);
+    } else if (wrapper) {
+      resizeObserver.observe(wrapper);
+    }
+    
+    window.addEventListener('resize', measureLayout);
+    
+    return () => {
+      clearTimeout(initialTimeout);
+      if (resizeTimeoutRef.current) clearTimeout(resizeTimeoutRef.current);
+      resizeObserver.disconnect();
+      window.removeEventListener('resize', measureLayout);
+    };
   }, [isWidescreen]);
   
   useEffect(() => {
@@ -359,7 +456,7 @@ export default function SolsticeSeasonBannerInner() {
           }}
         />
       )}
-      <div className={classes.textContainer} onClick={() => setEverClickedGlobe(true)}>
+      <div className={classes.textContainer} style={{ left: textContainerLeft }} onClick={() => setEverClickedGlobe(true)}>
         <h1 className={classNames(classes.title, { [classes.titleNotLoaded]: !isGlobeFullyLoaded })}>Solstice Season</h1>
           <p className={classNames(classes.subtitle, { [classes.subtitleNotLoaded]: !isGlobeFullyLoaded })}>
             Celebrate the longest night of the year. Visit a megameetup at a major city, or host a small ceremony for your friends the night of the 21st.

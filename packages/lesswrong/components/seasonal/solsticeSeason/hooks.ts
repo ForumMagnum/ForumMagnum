@@ -103,6 +103,7 @@ export const useGlobeAnimation = (globeMaterialRef: React.MutableRefObject<any>,
   const rotationSpeed = ROTATION_SPEED;
   const rotationRef = useRef(0);
   const isRotatingRef = useRef(isRotating);
+  const lastFrameTimeRef = useRef<number | null>(null);
   const [, setFrameCounter] = useState(0);
   
   useEffect(() => {
@@ -112,17 +113,24 @@ export const useGlobeAnimation = (globeMaterialRef: React.MutableRefObject<any>,
   useEffect(() => {
     if (!isGlobeReady || !globeMaterialRef.current) return;
     
-    const animate = () => {
+    const animate = (currentTime: number) => {
       if (!isRotatingRef.current) return;
-      rotationRef.current += rotationSpeed;
-      if (globeMaterialRef.current?.uniforms?.textureRotation) {
-        globeMaterialRef.current.uniforms.textureRotation.value = rotationRef.current;
+      
+      if (lastFrameTimeRef.current !== null) {
+        const deltaTime = currentTime - lastFrameTimeRef.current;
+        // deltaTime is in milliseconds, convert to seconds for rotationSpeed (rad/s)
+        rotationRef.current += rotationSpeed * (deltaTime / 1000);
+        if (globeMaterialRef.current?.uniforms?.textureRotation) {
+          globeMaterialRef.current.uniforms.textureRotation.value = rotationRef.current;
+        }
       }
+      lastFrameTimeRef.current = currentTime;
       setFrameCounter(n => n + 1);
       requestAnimationFrame(animate);
     };
     
     if (isRotatingRef.current) {
+      lastFrameTimeRef.current = null;
       const animationFrameId = requestAnimationFrame(animate);
       return () => cancelAnimationFrame(animationFrameId);
     }
