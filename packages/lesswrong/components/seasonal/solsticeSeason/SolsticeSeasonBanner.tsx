@@ -25,7 +25,7 @@ const styles = defineStyles("SolsticeSeasonBanner", (theme: ThemeType) => ({
     },
   },
   title: {
-    fontSize: 55,
+    fontSize: 50,
     fontWeight: 500,
     [theme.breakpoints.down(smallBreakpoint)]: {
       fontSize: 34,
@@ -47,8 +47,9 @@ const styles = defineStyles("SolsticeSeasonBanner", (theme: ThemeType) => ({
     bottom: 150,
     width: 320,
     paddingBottom: 20,
+    textShadow: `0 0 5px ${theme.palette.text.alwaysBlack}, 0 0 15px ${theme.palette.text.alwaysBlack}, 0 0 50px ${theme.palette.text.alwaysBlack}`,
     [theme.breakpoints.up(smallBreakpoint)]: {
-      width: 370,
+      width: 330,
       marginRight: 0,
     },
     // Center horizontally within the space to the right of the layout
@@ -67,6 +68,9 @@ const styles = defineStyles("SolsticeSeasonBanner", (theme: ThemeType) => ({
       color: theme.palette.link.color,
     },
   },
+  textContainerNotLoaded: {
+    textShadow: `none`,
+  },
   subtitle: {
     fontSize: 15,
     [theme.breakpoints.up(smallBreakpoint)]: {
@@ -76,7 +80,8 @@ const styles = defineStyles("SolsticeSeasonBanner", (theme: ThemeType) => ({
       color: theme.palette.text.alwaysWhite,
     },
     fontWeight: 500,
-    marginTop: 0,
+    marginTop: ".5rem",
+    marginBottom: ".5rem",
     display: 'flex',
     flexDirection: 'column',
     justifyContent: 'center',
@@ -132,9 +137,10 @@ const styles = defineStyles("SolsticeSeasonBanner", (theme: ThemeType) => ({
   },
   buttonContainer: {
     display: 'flex',
-    width: 330,
+    width: 296,
     flexWrap: 'wrap',
-    gap: 10
+    gap: 8,
+    marginTop: "1rem",
   },
   createEventButton: {
     display: 'flex',
@@ -153,12 +159,12 @@ const styles = defineStyles("SolsticeSeasonBanner", (theme: ThemeType) => ({
     transition: 'background 0.8s ease-in-out',
     fontSize: 12,
     padding: 8,
-    paddingLeft: 12,
-    paddingRight: 12,
+    paddingLeft: 10,
+    paddingRight: 10,
     [theme.breakpoints.up(smallBreakpoint)]: {
       padding: 10,
-      paddingLeft: 14,
-      paddingRight: 14,
+      paddingLeft: 12,
+      paddingRight: 12,
       fontSize: 14,  
     },
   },
@@ -199,6 +205,7 @@ export default function SolsticeSeasonBannerInner() {
   const isWidescreen = useIsAboveBreakpoint('lg');
   const [renderSolsticeSeason, setRenderSolsticeSeason] = useState(false);
   const [isGlobeFullyLoaded, setIsGlobeFullyLoaded] = useState(false);
+  const [isTextContainerFullyLoaded, setIsTextContainerFullyLoaded] = useState(false);
   const [textContainerLeft, setTextContainerLeft] = useState<string>('50%');
   const resizeTimeoutRef = useRef<NodeJS.Timeout | null>(null);
   const retryCountRef = useRef(0);
@@ -335,6 +342,15 @@ export default function SolsticeSeasonBannerInner() {
     setIsGlobeFullyLoaded(true);
   }, []);
 
+  useEffect(() => {
+    if (isGlobeFullyLoaded) {
+      const timeout = setTimeout(() => {
+        setIsTextContainerFullyLoaded(true);
+      }, 2000);
+      return () => clearTimeout(timeout);
+    }
+  }, [isGlobeFullyLoaded]);
+
   type QueryResult = {
     HomepageCommunityEvents?: {
       events: Array<{
@@ -434,11 +450,13 @@ export default function SolsticeSeasonBannerInner() {
           }}
         />
       )}
-      <div className={classes.textContainer} style={{ left: textContainerLeft }} onClick={() => setEverClickedGlobe(true)}>
+      <div className={classNames(classes.textContainer, { [classes.textContainerNotLoaded]: !isTextContainerFullyLoaded })} style={{ left: textContainerLeft }} onClick={() => setEverClickedGlobe(true)}>
         <h1 className={classNames(classes.title, { [classes.titleNotLoaded]: !isGlobeFullyLoaded })}>Solstice Season</h1>
           <p className={classNames(classes.subtitle, { [classes.subtitleNotLoaded]: !isGlobeFullyLoaded })}>
-            Celebrate the longest night of the year. Visit a megameetup at a major city, or host a small ceremony for your friends the night of the 21st.
+            Celebrate the longest night of the year!
           </p>
+          <p className={classNames(classes.subtitle, { [classes.subtitleNotLoaded]: !isGlobeFullyLoaded })}>
+            Visit a megameetup at a major city, or host a small gathering for your friends the night of the 21st.</p>
           <div className={classes.buttonContainer}>
             <Link to="https://waypoint.lighthaven.space/solstice-season" target="_blank" rel="noopener noreferrer"  className={classNames(classes.createEventButton, { [classes.createEventButtonNotLoaded]: !isGlobeFullyLoaded })}>
               Berkeley <span className={classes.date}>Dec 6</span>
