@@ -13,13 +13,12 @@ const RouteRoot = ({delayedStatusCode=false, metadata, fullscreen, children}: {
 }) => {
   return <>
     {!delayedStatusCode && <StatusCodeSetter status={200}/>}
-    {metadata && <RouteMetadataSetter metadata={metadata}/>}
+    {metadata && <RouteMetadataSetter metadata={{
+      ...metadata,
+      fullScreen: fullscreen
+    }}/>}
     
-    <RouteRootClient
-      fullscreen={!!fullscreen}
-    >
-      {children}
-    </RouteRootClient>
+    {children}
     
     {!metadata?.noFooter && <Footer/>}
   </>

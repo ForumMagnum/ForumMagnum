@@ -1,7 +1,6 @@
 import React from 'react';
 import { registerComponent } from "../../../lib/vulcan-lib/components";
 import moment from '../../../lib/moment-timezone';
-import { useCurrentTime } from '../../../lib/utils/timeUtil';
 import TimeTag from "../../common/TimeTag";
 
 

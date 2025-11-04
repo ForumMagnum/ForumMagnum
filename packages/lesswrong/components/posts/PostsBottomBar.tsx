@@ -4,12 +4,11 @@ import { defineStyles, useStyles } from '../hooks/useStyles';
 import ForumIcon from '../common/ForumIcon';
 import { AnalyticsContext, useTracking } from '@/lib/analyticsEvents';
 import LWTooltip from '../common/LWTooltip';
-import { useLocation } from '@/lib/routeUtil';
 import Headroom from '@/lib/react-headroom';
 import PostActionsButton from '../dropdowns/posts/PostActionsButton';
 import { usePostsPageContext } from './PostsPage/PostsPageContext';
 import CommentIcon from '@/lib/vendor/@material-ui/icons/src/ModeComment';
-import { getMobileHeaderHeight } from '../common/Header';
+import { getMobileHeaderHeight } from '@/components/layout/Header';
 
 const styles = defineStyles("PostsBottomBar", (theme: ThemeType) => ({
   headroom: {

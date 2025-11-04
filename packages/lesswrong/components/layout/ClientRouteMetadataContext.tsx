@@ -13,6 +13,7 @@ export interface RouteMetadata {
   subtitleLink?: string;
   subtitleComponent?: React.FunctionComponent<{ isSubtitle?: boolean }>;
   hasLeftNavigationColumn?: boolean;
+  fullScreen?: boolean;
   noFooter?: boolean;
 }
 

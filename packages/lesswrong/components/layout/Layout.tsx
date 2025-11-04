@@ -45,7 +45,7 @@ import AdminToggle from "@/components/admin/AdminToggle";
 import GlobalHotkeys from "@/components/common/GlobalHotkeys";
 import LlmChatWrapper from "@/components/languageModels/LlmChatWrapper";
 import LWBackgroundImage from "./LWBackgroundImage";
-import PersistentHomepage from "./layout/PersistentHomepage";
+import PersistentHomepage from "@/components/layout/PersistentHomepage";
 import IntercomWrapper from "@/components/layout/IntercomWrapper";
 import CookieBanner from "@/components/common/CookieBanner/CookieBanner";
 import NavigationEventSender from '@/components/hooks/useOnNavigate';
@@ -63,6 +63,7 @@ import NavigationTooltipContainer from '@/components/common/NavigationTooltipCon
 import dynamic from 'next/dynamic';
 import { isBlackBarTitle } from '@/components/seasonal/petrovDay/petrov-day-story/petrovConsts';
 import { usePrerenderablePathname } from '../next/usePrerenderablePathname';
+import { RouteRootClient } from './RouteRootClient';
 
 const SunshineSidebar = dynamic(() => import("../sunshineDashboard/SunshineSidebar"), { ssr: false });
 const LanguageModelLauncherButton = dynamic(() => import("../languageModels/LanguageModelLauncherButton"), { ssr: false });
@@ -367,7 +368,11 @@ const Layout = ({children}: {
                 </SuspenseWrapper>}
                 <div ref={searchResultsAreaRef} className={classes.searchResultsArea} />
 
-                {children}
+                <RouteRootClient fullscreen={!!routeMetadata.fullScreen} >
+                  <PersistentHomepage>
+                    {children}
+                  </PersistentHomepage>
+                </RouteRootClient>
                 
                 {isLW() && <LWBackgroundImage standaloneNavigation={standaloneNavigation} />}
                 {/* {!renderSunshineSidebar &&
@@ -393,6 +398,7 @@ const Layout = ({children}: {
           <NavigationEventSender />
         </PageBackgroundWrapper>
       </LlmSidebarWrapper>
+      </NavigationTooltipContainer>
       </CurrentAndRecentForumEventsProvider>
       </CommentOnSelectionPageWrapper>
       </DisableNoKibitzContextProvider>
