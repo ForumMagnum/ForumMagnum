@@ -10,7 +10,7 @@ import { TimezoneWrapper } from './common/withTimezone';
 import { DialogManager } from './common/withDialog';
 import { CommentBoxManager } from './hooks/useCommentBox';
 import { ItemsReadContextWrapper } from './hooks/useRecordPostView';
-import { commentBodyStyles, pBodyStyle } from '../themes/stylePiping';
+import { pBodyStyle } from '../themes/stylePiping';
 import { DatabasePublicSetting, blackBarTitle, googleTagManagerIdSetting } from '../lib/publicSettings';
 import { isAF, isEAForum, isLW, isLWorAF } from '../lib/instanceSettings';
 import { globalStyles } from '../themes/globalStyles/globalStyles';
@@ -49,21 +49,18 @@ import BasicOnboardingFlow from "./onboarding/BasicOnboardingFlow";
 import { CommentOnSelectionPageWrapper } from "./comments/CommentOnSelection";
 import SidebarsWrapper from "./common/SidebarsWrapper";
 import HomepageCommunityMap from "./seasonal/HomepageMap/HomepageCommunityMap";
-import EASurveyBanner from "./ea-forum/EASurveyBanner";
 import AdminToggle from "./admin/AdminToggle";
 import SunshineSidebar from "./sunshineDashboard/SunshineSidebar";
 import EAHomeRightHandSide from "./ea-forum/EAHomeRightHandSide";
-import CloudinaryImage2 from "./common/CloudinaryImage2";
 import ForumEventBanner from "./forumEvents/ForumEventBanner";
 import GlobalHotkeys from "./common/GlobalHotkeys";
 import LanguageModelLauncherButton from "./languageModels/LanguageModelLauncherButton";
 import LlmChatWrapper from "./languageModels/LlmChatWrapper";
-import TabNavigationMenuFooter from "./common/TabNavigationMenu/TabNavigationMenuFooter";
-import ReviewVotingCanvas from "./review/ReviewVotingCanvas";
 import LWBackgroundImage from "./LWBackgroundImage";
 import IntercomWrapper from "./common/IntercomWrapper";
 import CookieBanner from "./common/CookieBanner/CookieBanner";
 import { defineStyles, useStyles } from './hooks/useStyles';
+import { GivingSeasonContext } from '@/lib/givingSeason';
 
 const STICKY_SECTION_TOP_MARGIN = 20;
 
@@ -367,7 +364,6 @@ const Layout = ({currentUser, children}: {
     const renderLanguageModelChatLauncher = overrideLayoutOptions.renderLanguageModelChatLauncher ?? baseLayoutOptions.renderLanguageModelChatLauncher
     const shouldUseGridLayout = overrideLayoutOptions.shouldUseGridLayout ?? baseLayoutOptions.shouldUseGridLayout
     const unspacedGridLayout = overrideLayoutOptions.unspacedGridLayout ?? baseLayoutOptions.unspacedGridLayout
-    const navigationFooterBar = !currentRoute || currentRoute.navigationFooterBar;
     // The friendly home page has a unique grid layout, to account for the right hand side column.
     const friendlyHomeLayout = isFriendlyUI && currentRoute?.name === 'home'
 
@@ -385,6 +381,7 @@ const Layout = ({currentUser, children}: {
       <LlmChatWrapper>
       <DisableNoKibitzContext.Provider value={noKibitzContext}>
       <CommentOnSelectionPageWrapper>
+      <GivingSeasonContext>
       <CurrentAndRecentForumEventsProvider>
         <div className={classNames(
           "wrapper",
@@ -493,6 +490,7 @@ const Layout = ({currentUser, children}: {
           </DialogManager>
         </div>
       </CurrentAndRecentForumEventsProvider>
+      </GivingSeasonContext>
       </CommentOnSelectionPageWrapper>
       </DisableNoKibitzContext.Provider>
       </LlmChatWrapper>
