@@ -38,9 +38,11 @@ export const useGlobeReadyEffects = (
     if (!isGlobeReady || !globeRef.current) return;
 
     const globeObj = globeRef.current;
-    const globeMesh = findMeshWithTexture(globeObj.scene);
-    if (globeMesh?.material && globeMaterialRef.current) {
-      globeMesh.material = globeMaterialRef.current;
+    if (globeObj.scene) {
+      const globeMesh = findMeshWithTexture(globeObj.scene);
+      if (globeMesh?.material && globeMaterialRef.current) {
+        globeMesh.material = globeMaterialRef.current;
+      }
     }
 
     const loader = new THREE.TextureLoader();

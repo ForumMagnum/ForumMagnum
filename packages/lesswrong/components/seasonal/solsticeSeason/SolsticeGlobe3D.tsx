@@ -5,7 +5,10 @@ import { mapPointsToMarkers } from './utils';
 import { useEventListener } from '@/components/hooks/useEventListener';
 import { useThemeColor } from '@/components/themes/useTheme';
 import { DEFAULT_DAY_IMAGE_URL, DEFAULT_NIGHT_IMAGE_URL, DEFAULT_LUMINOSITY_IMAGE_URL, DEFAULT_ALTITUDE_SCALE, DEFAULT_INITIAL_ALTITUDE_MULTIPLIER } from './solsiceSeasonConstants';
-import Globe, { type GlobeMethods } from 'react-globe.gl';
+import { type GlobeMethods } from 'react-globe.gl';
+import dynamic from 'next/dynamic';
+
+const Globe = dynamic(() => import('react-globe.gl').then(mod => mod.default), { ssr: false });
 
 type GlobeMarkerData = {
   lat: number;
