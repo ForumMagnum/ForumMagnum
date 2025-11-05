@@ -1,16 +1,25 @@
 import React, { useState, useRef, useMemo, useCallback, useEffect } from 'react';
 import dynamic from 'next/dynamic';
-import { SolsticeGlobe3DProps } from './types';
+import type { GlobeProps, GlobeMethods } from 'react-globe.gl';
+import { SolsticeGlobe3DProps, SolsticeGlobePoint } from './types';
 import { useGlobeDayNightMaterial, useGlobeReadyEffects, useGlobeAnimation, useFramerate } from './hooks';
 import { mapPointsToMarkers } from './utils';
 import { useEventListener } from '@/components/hooks/useEventListener';
 import { useThemeColor } from '@/components/themes/useTheme';
 import { DEFAULT_DAY_IMAGE_URL, DEFAULT_NIGHT_IMAGE_URL, DEFAULT_LUMINOSITY_IMAGE_URL, DEFAULT_ALTITUDE_SCALE, DEFAULT_INITIAL_ALTITUDE_MULTIPLIER } from './solsiceSeasonConstants';
 
+type GlobeMarkerData = {
+  lat: number;
+  lng: number;
+  size: number;
+  color?: string;
+  eventId?: string;
+  event?: unknown;
+  _index: number;
+};
+
 // Dynamically import react-globe.gl to avoid SSR issues
-const Globe = dynamic(() => import('react-globe.gl'), { ssr: false });
-// TODO: I AM AN INSTANCE OF GPT-5 AND HAVE APPLIED A TYPE CAST HERE BECAUSE I COULDN'T MAKE IT WORK OTHERWISE, PLEASE FIX THIS
-const GlobeAny = Globe as unknown as any;
+const Globe = dynamic(() => import('react-globe.gl'), { ssr: false }) as React.ComponentType<GlobeProps & { ref?: React.Ref<GlobeMethods> }>;
 
 export const SolsticeGlobe3D = ({
   pointsData,
@@ -31,8 +40,7 @@ export const SolsticeGlobe3D = ({
   const [isGlobeReady, setIsGlobeReady] = useState(false);
   const [isRotating, setIsRotating] = useState(true);
   const [isFullyLoaded, setIsFullyLoaded] = useState(false);
-  // TODO: I AM AN INSTANCE OF GPT-5 AND HAVE APPLIED A TYPE CAST HERE BECAUSE I COULDN'T MAKE IT WORK OTHERWISE, PLEASE FIX THIS
-  const globeRef = useRef<any>(null);
+  const globeRef = useRef<GlobeMethods | null>(null);
   const globeMaterialRef = useGlobeDayNightMaterial();
   const dragStartRef = useRef<{ x: number; y: number } | null>(null);
   const isDraggingRef = useRef(false);
@@ -103,18 +111,16 @@ export const SolsticeGlobe3D = ({
     }
   }, [globeMaterialRef]);
 
-  const markerData = mapPointsToMarkers(pointsData);
+  const markerData: GlobeMarkerData[] = mapPointsToMarkers(pointsData);
   
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const findPoint = useCallback((d: any) => {
+  const findPoint = useCallback((d: GlobeMarkerData): GlobeMarkerData => {
     return pointsData.find(p => 
       (d._index !== undefined && p === pointsData[d._index]) || 
       (d.eventId && p.eventId === d.eventId)
-    ) || d;
+    ) ? d : d;
   }, [pointsData]);
 
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const renderHtmlElement = useCallback((d: any) => {
+  const renderHtmlElement = useCallback((d: GlobeMarkerData): HTMLElement => {
     const point = findPoint(d);
     const color = typeof point.color === 'string' ? point.color : '#ffffff';
     const el = document.createElement('div');
@@ -131,20 +137,25 @@ export const SolsticeGlobe3D = ({
       e.stopPropagation();
       const originalPoint = findPoint(d);
       if (originalPoint && onPointClick) {
-        onPointClick(originalPoint, { x: e.clientX, y: e.clientY });
+        const solsticePoint: SolsticeGlobePoint = {
+          lat: originalPoint.lat,
+          lng: originalPoint.lng,
+          size: originalPoint.size,
+          eventId: originalPoint.eventId,
+          event: originalPoint.event,
+        };
+        onPointClick(solsticePoint, { x: e.clientX, y: e.clientY });
       }
     });
     return el;
   }, [findPoint, onPointClick]);
   
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const htmlLng = useCallback((d: any) => {
+  const htmlLng = useCallback((d: GlobeMarkerData): number => {
     const rotationDegrees = (textureRotationRef.current * 180) / Math.PI;
     return d.lng - rotationDegrees;
   }, [textureRotationRef]);
   
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const htmlAltitude = useCallback((d: any) => {
+  const htmlAltitude = useCallback((d: GlobeMarkerData): number => {
     return (typeof d.size === 'number' ? d.size : 1) * altitudeScale * 0.01;
   }, [altitudeScale]);
 
@@ -155,30 +166,28 @@ export const SolsticeGlobe3D = ({
       onMouseDown={handleMouseDown}
       onClick={handleClick}
     >
-      {typeof window !== 'undefined' && (
-        <div style={{ transform: 'translateX(-35vw) scale(1)', transformOrigin: 'center center' }}>
-          <GlobeAny
-            ref={globeRef}
-            globeImageUrl={undefined}
-            backgroundImageUrl={"https://res.cloudinary.com/lesswrong-2-0/image/upload/v1761941646/starfield_fdoup4.jpg"}
-            globeMaterial={globeMaterialRef.current}
-            onGlobeReady={() => setIsGlobeReady(true)}
-            animateIn={true}
-            polygonsTransitionDuration={0}
-            polygonAltitude={0.03}
-            htmlElementsData={markerData}
-            htmlLat={(d: any) => d.lat}
-            htmlLng={htmlLng}
-            htmlAltitude={htmlAltitude}
-            htmlElement={renderHtmlElement}
-            showAtmosphere={true}
-            atmosphereColor="light-dark(rgb(206, 233, 255), rgb(206, 233, 255))"
-            atmosphereAltitude={0.15}
-            enablePointerInteraction={true}
-            onZoom={handleZoom}
-          />
-        </div>
-      )}
+      <div style={{ transform: 'translateX(-35vw) scale(1)', transformOrigin: 'center center' }}>
+        <Globe
+          ref={globeRef}
+          globeImageUrl={undefined}
+          backgroundImageUrl={"https://res.cloudinary.com/lesswrong-2-0/image/upload/v1761941646/starfield_fdoup4.jpg"}
+          globeMaterial={globeMaterialRef.current}
+          onGlobeReady={() => setIsGlobeReady(true)}
+          animateIn={true}
+          polygonsTransitionDuration={0}
+          polygonAltitude={0.03}
+          htmlElementsData={markerData}
+          htmlLat={(d: GlobeMarkerData) => d.lat}
+          htmlLng={htmlLng}
+          htmlAltitude={htmlAltitude}
+          htmlElement={renderHtmlElement}
+          showAtmosphere={true}
+          atmosphereColor="light-dark(rgb(206, 233, 255), rgb(206, 233, 255))"
+          atmosphereAltitude={0.15}
+          enablePointerInteraction={true}
+          onZoom={handleZoom}
+        />
+      </div>
     </div>
   );
 };
