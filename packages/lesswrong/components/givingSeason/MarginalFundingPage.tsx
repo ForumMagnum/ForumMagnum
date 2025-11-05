@@ -6,6 +6,7 @@ import { AnalyticsContext, useTracking } from "@/lib/analyticsEvents";
 import { useCurrentUser } from "../common/withUser";
 import { useNavigate } from "@/lib/routeUtil";
 import { useSingle } from "@/lib/crud/withSingle";
+import { MARGINAL_FUNDING_SEQUENCE_ID } from "@/lib/givingSeason";
 import orderBy from "lodash/orderBy";
 import MarginalFundingSubscribeButton from "./MarginalFundingSubscribeButton";
 import MarginalFundingShareButton from "./MarginalFundingShareButton";
@@ -13,8 +14,6 @@ import MarginalFundingListItem from "./MarginalFundingListItem";
 import MarginalFundingCard from "./MarginalFundingCard";
 import ForumIcon from "../common/ForumIcon";
 import Loading from "../vulcan-core/Loading";
-
-const SEQUENCE_ID = "GxLPEuy84SkDEXTmZ"; // TODO: Add _id for prod
 
 const styles = defineStyles("MarginalFundingPage", (theme) => ({
   root: {
@@ -101,7 +100,7 @@ export const MarginalFundingPage = () => {
   const {document: sequence} = useSingle({
     collectionName: "Sequences",
     fragmentName: "SequencesPageWithChaptersFragment",
-    documentId: SEQUENCE_ID,
+    documentId: MARGINAL_FUNDING_SEQUENCE_ID,
   });
 
   const onListen = useCallback(() => {
@@ -111,7 +110,7 @@ export const MarginalFundingPage = () => {
 
   const onEdit = useCallback(() => {
     captureEvent("marginalFundingEditClick");
-    navigate(sequenceGetPageUrl({_id: SEQUENCE_ID}));
+    navigate(sequenceGetPageUrl({_id: MARGINAL_FUNDING_SEQUENCE_ID}));
   }, [captureEvent, navigate]);
 
   const [cardPosts, listPosts] = useMemo(() => {
