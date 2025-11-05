@@ -171,7 +171,7 @@ import LeaderboardComponent from '@/components/users/Leaderboard';
 import KeywordsPage from '@/components/keywords/KeywordsPage';
 import KeywordResultsPage from '@/components/keywords/KeywordResultsPage';
 import AdminEventPostEmailPage from '@/components/admin/AdminEventPostEmailPage';
-import MarginalFundingPage from '@/components/givingSeason/MarginalFundingPage';
+import MarginalFundingPage from '@/components/forumEvents/givingSeason/MarginalFundingPage';
 
 const communitySubtitle = { subtitleLink: communityPath, subtitle: isEAForum ? 'Groups' : 'Community' };
 

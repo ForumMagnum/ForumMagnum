@@ -1,10 +1,10 @@
 import React, { Fragment } from "react";
-import { defineStyles, useStyles } from '../hooks/useStyles';
-import { registerComponent } from "../../lib/vulcan-lib/components";
+import { defineStyles, useStyles } from '../../hooks/useStyles';
+import { registerComponent } from "../../../lib/vulcan-lib/components";
 import { postGetPageUrl } from "@/lib/collections/posts/helpers";
-import { InteractionWrapper, useClickableCell } from "../common/useClickableCell";
+import { InteractionWrapper, useClickableCell } from "../../common/useClickableCell";
 import { Link } from "@/lib/reactRouterWrapper";
-import UsersName from "../users/UsersName";
+import UsersName from "../../users/UsersName";
 import classNames from "classnames";
 
 const styles = defineStyles("MarginalFundingListItem", (theme) => ({

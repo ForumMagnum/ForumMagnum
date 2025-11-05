@@ -1,18 +1,18 @@
 import React, { useCallback, useRef, useState } from "react";
 import { registerComponent } from "@/lib/vulcan-lib/components";
-import { defineStyles, useStyles } from "../hooks/useStyles";
+import { defineStyles, useStyles } from "../../hooks/useStyles";
 import { useTracking } from "@/lib/analyticsEvents";
-import { useMessages } from "../common/withMessages";
+import { useMessages } from "../../common/withMessages";
 import { makeAbsolute } from "@/lib/vulcan-lib/utils";
 import { isMobile } from "@/lib/utils/isMobile";
-import { Paper } from "../widgets/Paper";
-import ForumIcon from "../common/ForumIcon";
-import PopperCard from "../common/PopperCard";
-import DropdownMenu from "../dropdowns/DropdownMenu";
-import DropdownItem from "../dropdowns/DropdownItem";
-import SocialMediaIcon from "../icons/SocialMediaIcon";
-import DropdownDivider from "../dropdowns/DropdownDivider";
-import LWClickAwayListener from "../common/LWClickAwayListener";
+import { Paper } from "../../widgets/Paper";
+import ForumIcon from "../../common/ForumIcon";
+import PopperCard from "../../common/PopperCard";
+import DropdownMenu from "../../dropdowns/DropdownMenu";
+import DropdownItem from "../../dropdowns/DropdownItem";
+import SocialMediaIcon from "../../icons/SocialMediaIcon";
+import DropdownDivider from "../../dropdowns/DropdownDivider";
+import LWClickAwayListener from "../../common/LWClickAwayListener";
 
 const styles = defineStyles("MarginalFundingShareButton", (theme) => ({
   icon: {

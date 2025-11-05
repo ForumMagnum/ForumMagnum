@@ -1,11 +1,11 @@
 import React, { Fragment } from "react";
-import { defineStyles, useStyles } from '../hooks/useStyles';
-import { registerComponent } from "../../lib/vulcan-lib/components";
-import { InteractionWrapper, useClickableCell } from "../common/useClickableCell";
+import { defineStyles, useStyles } from '../../hooks/useStyles';
+import { registerComponent } from "../../../lib/vulcan-lib/components";
+import { InteractionWrapper, useClickableCell } from "../../common/useClickableCell";
 import { cloudinaryCloudNameSetting } from "@/lib/publicSettings";
 import { postGetPageUrl } from "@/lib/collections/posts/helpers";
 import { Link } from "@/lib/reactRouterWrapper";
-import UsersName from "../users/UsersName";
+import UsersName from "../../users/UsersName";
 import classNames from "classnames";
 
 const styles = defineStyles("MarginalFundingCard", (theme) => ({

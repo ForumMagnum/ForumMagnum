@@ -1,10 +1,10 @@
 import React, { MouseEvent, useCallback, useState } from "react";
 import { registerComponent } from "@/lib/vulcan-lib/components";
-import { defineStyles, useStyles } from "../hooks/useStyles";
+import { defineStyles, useStyles } from "../../hooks/useStyles";
 import { useTracking } from "@/lib/analyticsEvents";
-import { useNotifyMe } from "../hooks/useNotifyMe";
-import ForumIcon from "../common/ForumIcon";
-import Loading from "../vulcan-core/Loading";
+import { useNotifyMe } from "../../hooks/useNotifyMe";
+import ForumIcon from "../../common/ForumIcon";
+import Loading from "../../vulcan-core/Loading";
 
 const styles = defineStyles("MarginalFundingSubscribeButton", (theme) => ({
   loading: {

@@ -1,9 +1,9 @@
 import React, { useCallback, useMemo } from "react";
-import { defineStyles, useStyles } from "../hooks/useStyles";
-import { registerComponent } from "../../lib/vulcan-lib/components";
+import { defineStyles, useStyles } from "../../hooks/useStyles";
+import { registerComponent } from "../../../lib/vulcan-lib/components";
 import { sequenceGetPageUrl } from "@/lib/collections/sequences/helpers";
 import { AnalyticsContext, useTracking } from "@/lib/analyticsEvents";
-import { useCurrentUser } from "../common/withUser";
+import { useCurrentUser } from "../../common/withUser";
 import { useNavigate } from "@/lib/routeUtil";
 import { useSingle } from "@/lib/crud/withSingle";
 import { MARGINAL_FUNDING_SEQUENCE_ID } from "@/lib/givingSeason";
@@ -13,8 +13,8 @@ import MarginalFundingSubscribeButton from "./MarginalFundingSubscribeButton";
 import MarginalFundingShareButton from "./MarginalFundingShareButton";
 import MarginalFundingListItem from "./MarginalFundingListItem";
 import MarginalFundingCard from "./MarginalFundingCard";
-import ForumIcon from "../common/ForumIcon";
-import Loading from "../vulcan-core/Loading";
+import ForumIcon from "../../common/ForumIcon";
+import Loading from "../../vulcan-core/Loading";
 
 const styles = defineStyles("MarginalFundingPage", (theme) => ({
   root: {
