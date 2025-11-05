@@ -31,6 +31,7 @@ export const MarginalFundingSubscribeButton = ({sequence, className}: {
     try {
       await subscribe?.(ev);
     } catch (e) {
+      // eslint-disable-next-line no-console
       console.error("Error subscribing", e);
     } finally {
       setSubscribing(false);

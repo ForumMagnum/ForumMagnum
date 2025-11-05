@@ -65,8 +65,8 @@ export const MarginalFundingListItem = ({post}: {post: PostsListWithVotes}) => {
       <div
         className={classNames(
           classes.cell,
-          post.isRead ? classes.read : classes.unread)
-        }
+          post.isRead ? classes.read : classes.unread
+        )}
       >
         {post.marginalFundingOrg &&
           <div className={classes.org}>{post.marginalFundingOrg}</div>
@@ -75,8 +75,8 @@ export const MarginalFundingListItem = ({post}: {post: PostsListWithVotes}) => {
       <div
         className={classNames(
           classes.cell,
-          post.isRead ? classes.read : classes.unread)
-        }
+          post.isRead ? classes.read : classes.unread
+        )}
       >
         <InteractionWrapper>
           <Link to={href} className={classes.title}>

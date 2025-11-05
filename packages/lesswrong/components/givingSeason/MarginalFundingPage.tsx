@@ -8,6 +8,7 @@ import { useNavigate } from "@/lib/routeUtil";
 import { useSingle } from "@/lib/crud/withSingle";
 import { MARGINAL_FUNDING_SEQUENCE_ID } from "@/lib/givingSeason";
 import orderBy from "lodash/orderBy";
+import classNames from "classnames";
 import MarginalFundingSubscribeButton from "./MarginalFundingSubscribeButton";
 import MarginalFundingShareButton from "./MarginalFundingShareButton";
 import MarginalFundingListItem from "./MarginalFundingListItem";
@@ -22,6 +23,12 @@ const styles = defineStyles("MarginalFundingPage", (theme) => ({
     color: theme.palette.text.alwaysBlack,
     width: "100%",
     minHeight: "100vh",
+  },
+  loading: {
+    paddingTop: 40,
+    "& > div > *": {
+      backgroundColor: `${theme.palette.text.alwaysBlack} !important`,
+    },
   },
   container: {
     maxWidth: 1800,
@@ -125,7 +132,11 @@ export const MarginalFundingPage = () => {
 
   const classes = useStyles(styles);
   if (!sequence) {
-    return <Loading />
+    return (
+      <div className={classNames(classes.root, classes.loading)}>
+        <Loading />
+      </div>
+    );
   }
   return (
     <AnalyticsContext pageContext="marginalFunding">
