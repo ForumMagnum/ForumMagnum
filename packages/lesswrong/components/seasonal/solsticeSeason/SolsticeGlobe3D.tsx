@@ -187,6 +187,4 @@ export const SolsticeGlobe3D = ({
 
 export default SolsticeGlobe3D;
 
-// Re-export types for convenience
-export type { SolsticeGlobePoint, PointOfView, PointClickCallback, SolsticeGlobe3DProps } from './types';
 
