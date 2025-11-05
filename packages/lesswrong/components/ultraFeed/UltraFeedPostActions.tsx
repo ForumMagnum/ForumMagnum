@@ -10,6 +10,8 @@ import { userGetDisplayName } from "@/lib/collections/users/helpers";
 import { useCurrentUser } from "../common/withUser";
 import SeeLessDropdownItem from "../dropdowns/posts/SeeLessDropdownItem";
 import BookmarkDropdownItem from "../dropdowns/posts/BookmarkDropdownItem";
+import ScoreBreakdownDropdownItem from "../dropdowns/ScoreBreakdownDropdownItem";
+import { FeedPostMetaInfo } from "./ultraFeedTypes";
 
 const styles = defineStyles("UltraFeedPostActions", (theme: ThemeType) => ({
   root: {
@@ -17,12 +19,13 @@ const styles = defineStyles("UltraFeedPostActions", (theme: ThemeType) => ({
   },
 }));
 
-const UltraFeedPostActions = ({ post, closeMenu, includeBookmark, onSeeLess, isSeeLessMode }: {
+const UltraFeedPostActions = ({ post, closeMenu, includeBookmark, onSeeLess, isSeeLessMode, postMetaInfo }: {
   post: PostsListWithVotes,
   closeMenu: () => void,
   includeBookmark?: boolean,
   onSeeLess?: () => void,
   isSeeLessMode?: boolean,
+  postMetaInfo?: FeedPostMetaInfo,
 }) => {
   const classes = useStyles(styles);
   const currentUser = useCurrentUser();
@@ -53,6 +56,11 @@ const UltraFeedPostActions = ({ post, closeMenu, includeBookmark, onSeeLess, isS
         document={author}
         title={`Follow ${userGetDisplayName(author)}`}
         subscriptionType="newActivityForFeed"
+      />}
+      {postMetaInfo?.rankingMetadata && <ScoreBreakdownDropdownItem
+        metadata={postMetaInfo.rankingMetadata}
+        sources={postMetaInfo.sources} 
+        postMetaInfo={postMetaInfo}
       />}
       {onSeeLess && <SeeLessDropdownItem onSeeLess={handleSeeLess} isSeeLessMode={isSeeLessMode} />}
       {includeBookmark && <BookmarkDropdownItem documentId={post._id} collectionName="Posts" />}

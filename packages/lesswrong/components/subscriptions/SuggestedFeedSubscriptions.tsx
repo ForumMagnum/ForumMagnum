@@ -268,9 +268,7 @@ export const SuggestedFeedSubscriptions = ({ suggestedUsers, settingsButton, ena
   
   const followingCount = followingCountData?.subscriptions?.totalCount ?? 0;
   
-  const baseUsersToShow = isMobile ? INITIAL_USERS_TO_SHOW_MOBILE : INITIAL_USERS_TO_SHOW_DESKTOP;
-  // Show twice as many users when following count is < 2
-  const usersToShow = followingCount < 2 ? baseUsersToShow * 2 : baseUsersToShow;
+  const usersToShow = isMobile ? INITIAL_USERS_TO_SHOW_MOBILE : INITIAL_USERS_TO_SHOW_DESKTOP;
 
   const { captureEvent } = useTracking();
 

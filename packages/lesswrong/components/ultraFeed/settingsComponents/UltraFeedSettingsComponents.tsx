@@ -8,7 +8,9 @@ import {
   truncationLevels,
   DEFAULT_SETTINGS,
   ThreadInterestModelFormState,
-  CommentScoringFormState
+  CommentScoringFormState,
+  UnifiedScoringFormState,
+  UltraFeedAlgorithm
 } from '../ultraFeedSettingsTypes';
 import { FeedItemSourceType } from '../ultraFeedTypes';
 import Slider from '@/lib/vendor/@material-ui/core/src/Slider';
@@ -984,17 +986,149 @@ export const ThreadInterestTuningSettings: React.FC<ThreadInterestTuningSettings
   );
 };
 
+export interface UnifiedScoringSettingsProps {
+  formValues: UnifiedScoringFormState;
+  errors: ZodFormattedError<UnifiedScoringFormState, string> | null;
+  onFieldChange: (field: keyof UnifiedScoringFormState, value: number | string) => void;
+  defaultOpen?: boolean;
+  className?: string;
+}
+
+export const UnifiedScoringSettings: React.FC<UnifiedScoringSettingsProps> = ({
+  formValues,
+  errors,
+  onFieldChange,
+  defaultOpen = true,
+  className,
+}) => {
+  const classes = useStyles(styles);
+
+  const defaultUnifiedScoringSettings = DEFAULT_SETTINGS.resolverSettings.unifiedScoring;
+
+  const subscribedBonusSetting = formValues.subscribedBonusSetting;
+  const subscribedBonusValue = typeof subscribedBonusSetting === 'number' ? subscribedBonusSetting : defaultUnifiedScoringSettings.subscribedBonusSetting;
+  const subscribedBonusError = errors?.subscribedBonusSetting?._errors[0];
+
+  const otherFields = [
+    {
+      key: 'quicktakeBonus' as const,
+      label: "Quick Take Bonus",
+      description: `Bonus score for Quick Take threads. Default: ${defaultUnifiedScoringSettings.quicktakeBonus}`,
+      min: 0, max: 50, step: 1,
+    },
+    {
+      key: 'timeDecayStrength' as const,
+      label: "Time Decay Strength",
+      description: `How quickly non-timeless items lose score over time. Higher values mean faster decay. Default: ${defaultUnifiedScoringSettings.timeDecayStrength}`,
+      min: 0.5, max: 3, step: 0.1,
+    },
+    {
+      key: 'postsStartingValue' as const,
+      label: "Posts Starting Value",
+      description: `Base score for posts before other factors are applied. Default: ${defaultUnifiedScoringSettings.postsStartingValue}`,
+      min: 0.1, max: 10, step: 0.1,
+    },
+    {
+      key: 'threadsStartingValue' as const,
+      label: "Threads Starting Value",
+      description: `Base score for comment threads before other factors are applied. Default: ${defaultUnifiedScoringSettings.threadsStartingValue}`,
+      min: 0.1, max: 10, step: 0.1,
+    },
+  ];
+
+  return (
+    <CollapsibleSettingGroup title="Unified Scoring Settings" defaultOpen={defaultOpen} className={className ?? classes.settingGroup}>
+      <div className={classes.groupDescription}>
+        <p>Adjust scoring parameters for the unified scoring algorithm.</p>
+      </div>
+
+      {/* Subscribed Bonus Setting */}
+      <div key="subscribedBonusSetting" className={classes.sourceWeightItem}>
+        <div className={classes.sourceWeightContainer}>
+          <label className={classes.sourceWeightLabel}>Subscribed Bonus</label>
+          <Slider
+            className={classes.sourceWeightSlider}
+            value={subscribedBonusValue}
+            onChange={(_, val) => onFieldChange('subscribedBonusSetting', val as number)}
+            min={0}
+            max={5}
+            step={1}
+          />
+          <input
+            type="number"
+            className={classNames(classes.sourceWeightInput, { [classes.invalidInput]: !!subscribedBonusError })}
+            value={subscribedBonusSetting}
+            onChange={(e) => onFieldChange('subscribedBonusSetting', e.target.value)}
+            min={0}
+            max={5}
+            step={1}
+          />
+        </div>
+        <p className={classes.sourceWeightDescription}>
+           Scale: 0 (None) to 5 (Very Strong). Applies to both posts and comments.
+        </p>
+        {subscribedBonusError && (
+          <p className={classes.errorMessage}>{subscribedBonusError}</p>
+        )}
+      </div>
+
+      {/* Other fields */}
+      {otherFields.map(field => {
+        const currentValue = formValues[field.key];
+        const currentError = errors?.[field.key]?._errors[0];
+        const defaultVal = defaultUnifiedScoringSettings[field.key];
+        const sliderValue = typeof currentValue === 'number' ? currentValue : defaultVal;
+
+        return (
+          <div key={field.key} className={classes.sourceWeightItem}>
+            <div className={classes.sourceWeightContainer}>
+              <label className={classes.sourceWeightLabel}>{field.label}</label>
+              <Slider
+                className={classes.sourceWeightSlider}
+                value={sliderValue}
+                onChange={(_, val) => onFieldChange(field.key, val as number)}
+                min={field.min}
+                max={field.max}
+                step={field.step}
+              />
+              <input
+                type="number"
+                className={classNames(classes.sourceWeightInput, { [classes.invalidInput]: !!currentError })}
+                value={currentValue}
+                onChange={(e) => onFieldChange(field.key, e.target.value)}
+                min={field.min}
+                max={field.max}
+                step={field.step}
+              />
+            </div>
+            <p className={classes.sourceWeightDescription}>{field.description}</p>
+            {currentError && (
+              <p className={classes.errorMessage}>{currentError}</p>
+            )}
+          </div>
+        );
+      })}
+    </CollapsibleSettingGroup>
+  );
+};
+
 export interface MiscSettingsProps {
   formValues: {
     incognitoMode: boolean;
+    algorithm: UltraFeedAlgorithm;
     defaultOpen?: boolean;
   };
   onBooleanChange: (field: 'incognitoMode', checked: boolean) => void;
+  onAlgorithmChange: (algorithm: UltraFeedAlgorithm) => void;
   defaultOpen?: boolean;
+  currentUser: UsersCurrent | null;
 }
 
-export const MiscSettings: React.FC<MiscSettingsProps> = ({ formValues, onBooleanChange, defaultOpen = true }) => {
+export const MiscSettings: React.FC<MiscSettingsProps> = ({ formValues, onBooleanChange, onAlgorithmChange, defaultOpen = true, currentUser }) => {
   const classes = useStyles(styles);
+  const { userIsAdminOrMod } = require('@/lib/vulcan-users/permissions');
+  const isAdmin = userIsAdminOrMod(currentUser);
+  
   return (
     <CollapsibleSettingGroup title="Misc" defaultOpen={defaultOpen} className={classes.settingGroup}>
       <div className={classes.checkboxContainer}>
@@ -1012,6 +1146,27 @@ export const MiscSettings: React.FC<MiscSettingsProps> = ({ formValues, onBoolea
       <p className={classes.groupDescription}>
         When enabled, the feed algorithm does not log viewing behavior (votes and comments will still influence it). This does not disable standard LessWrong analytics separate from the feed.
       </p>
+
+      {isAdmin && (
+        <>
+          <div className={classes.sourceWeightItem}>
+            <div className={classes.sourceWeightContainer}>
+              <label className={classes.sourceWeightLabel}>Algorithm</label>
+              <select
+                className={classNames(classes.sourceWeightInput, classes.threadAggSelect)}
+                value={formValues.algorithm}
+                onChange={(e) => onAlgorithmChange(e.target.value as UltraFeedAlgorithm)}
+              >
+                <option value="scoring">Unified Scoring</option>
+                <option value="sampling">Legacy Sampling</option>
+              </select>
+            </div>
+            <p className={classes.sourceWeightDescription}>
+              Choose between the new unified scoring algorithm (transparent, predictable) and the legacy weighted sampling algorithm. (Admin-only setting)
+            </p>
+          </div>
+        </>
+      )}
 
     </CollapsibleSettingGroup>
   );

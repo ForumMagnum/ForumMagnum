@@ -71,11 +71,21 @@ const subscriptionsFeedSettingsSchema = z.object({
   hideRead: z.boolean(),
 });
 
+const unifiedScoringSchema = z.object({
+  subscribedBonusSetting: z.number().int().min(0, { message: "Must be between 0 and 5" }).max(5, { message: "Must be between 0 and 5" }),
+  quicktakeBonus: z.number().min(0, { message: "Must be non-negative" }).max(50, { message: "Must be at most 50" }),
+  timeDecayStrength: z.number().min(0.5, { message: "Must be at least 0.5" }).max(3, { message: "Must be at most 3" }),
+  postsStartingValue: z.number().min(0.1, { message: "Must be at least 0.1" }).max(10, { message: "Must be at most 10" }),
+  threadsStartingValue: z.number().min(0.1, { message: "Must be at least 0.1" }).max(10, { message: "Must be at most 10" }),
+});
+
 const resolverSettingsSchema = z.object({
   incognitoMode: z.boolean(),
+  algorithm: z.enum(['scoring', 'sampling']).default('sampling'),
   sourceWeights: sourceWeightsSchema.default(DEFAULT_SETTINGS.resolverSettings.sourceWeights),
   commentScoring: commentScoringSchema.default(DEFAULT_SETTINGS.resolverSettings.commentScoring),
   threadInterestModel: threadInterestModelSchema.default(DEFAULT_SETTINGS.resolverSettings.threadInterestModel),
+  unifiedScoring: unifiedScoringSchema.default(DEFAULT_SETTINGS.resolverSettings.unifiedScoring),
   subscriptionsFeedSettings: subscriptionsFeedSettingsSchema.default(DEFAULT_SETTINGS.resolverSettings.subscriptionsFeedSettings),
 });
 
@@ -87,4 +97,7 @@ export const ultraFeedSettingsSchema = z.object({
 export type ValidatedUltraFeedSettings = z.infer<typeof ultraFeedSettingsSchema>;
 export type ValidatedCommentScoring = z.infer<typeof commentScoringSchema>;
 export type ValidatedThreadInterestModel = z.infer<typeof threadInterestModelSchema>;
-export type UltraFeedSettingsZodErrors = z.ZodFormattedError<ValidatedUltraFeedSettings, string> | null; 
+export type ValidatedUnifiedScoring = z.infer<typeof unifiedScoringSchema>;
+export type UltraFeedSettingsZodErrors = z.ZodFormattedError<ValidatedUltraFeedSettings, string> | null;
+
+export { unifiedScoringSchema }; 

@@ -11,6 +11,14 @@ import {
   createUltraFeedResponse,
   UltraFeedEventInsertData
 } from './ultraFeedResolverHelpers';
+import {
+  toPostRankable,
+  toThreadRankable,
+  scoreItems,
+} from '../ultraFeed/ultraFeedRanking';
+import type {
+  MappablePreparedThread,
+} from '../ultraFeed/ultraFeedRankingTypes';
 
 type SubscribedFeedEntryType = 'feedPost' | 'feedCommentThread' | 'feedSubscriptionSuggestions';
 
@@ -47,6 +55,106 @@ interface SliceTarget {
   postedAt: Date;
 }
 
+/**
+ * Scores feed items and returns new items with ranking metadata attached. This is so the developers can build understanding of the ranking algorithm.
+ * For posts: attaches to postMetaInfo.rankingMetadata
+ * For threads: attaches to first comment's metaInfo.rankingMetadata
+ */
+function addRankingMetadata<T extends {
+  type: SubscribedFeedEntryType;
+  data: {
+    _id: string;
+    post?: DbPost | null;
+    postMetaInfo?: FeedPostMetaInfo;
+    comments?: DbComment[];
+    commentMetaInfos?: Record<string, FeedCommentMetaInfo>;
+    isOnReadPost?: boolean;
+  };
+}>(feedItems: T[]): T[] {
+  const now = new Date();
+  const rankableItemsForScoring = feedItems
+    .filter(item => item.type === 'feedPost' || item.type === 'feedCommentThread')
+    .map(item => {
+      if (item.type === 'feedPost' && item.data.post && item.data.postMetaInfo) {
+        return toPostRankable({ post: item.data.post, postMetaInfo: item.data.postMetaInfo }, now);
+      } else if (item.type === 'feedCommentThread' && item.data.comments && item.data.commentMetaInfos) {
+        const threadForScoring: MappablePreparedThread = {
+          comments: item.data.comments
+            .filter((c): c is DbComment & { postId: string } => c.postId !== null)
+            .map(c => ({
+              commentId: c._id,
+              postId: c.postId,
+              baseScore: c.baseScore ?? 0,
+              topLevelCommentId: c.topLevelCommentId,
+              metaInfo: item.data.commentMetaInfos?.[c._id] ?? null,
+            })),
+          primarySource: 'subscriptionsComments',
+          isOnReadPost: item.data.isOnReadPost ?? false,
+        };
+        return toThreadRankable(threadForScoring, undefined, now);
+      }
+      return null;
+    })
+    .filter((r): r is NonNullable<typeof r> => r !== null);
+  
+  const scoredItems = scoreItems(rankableItemsForScoring);
+  const scoresById = new Map(scoredItems.map(si => [si.id, si]));
+  
+  return feedItems.map((item, index) => {
+    if (item.type === 'feedPost' && item.data.post?._id) {
+      const scored = scoresById.get(item.data.post._id);
+      if (scored && item.data.postMetaInfo) {
+        return {
+          ...item,
+          data: {
+            ...item.data,
+            postMetaInfo: {
+              ...item.data.postMetaInfo,
+              rankingMetadata: {
+                scoreBreakdown: scored.breakdown,
+                selectionConstraints: [],
+                position: index,
+                rankedItemType: 'post' as const,
+              },
+            },
+          },
+        };
+      }
+    } else if (item.type === 'feedCommentThread' && item.data.comments) {
+      const threadHash = generateThreadHash(item.data.comments.map(c => c._id));
+      const scored = scoresById.get(threadHash);
+      if (scored && item.data.commentMetaInfos && item.data.comments[0]) {
+        const firstCommentId = item.data.comments[0]._id;
+        const firstCommentMetaInfo = item.data.commentMetaInfos[firstCommentId] ?? {
+          sources: ['subscriptionsComments'] as const,
+          descendentCount: 0,
+          displayStatus: 'expanded' as const,
+        };
+        
+        return {
+          ...item,
+          data: {
+            ...item.data,
+            commentMetaInfos: {
+              ...item.data.commentMetaInfos,
+              [firstCommentId]: {
+                ...firstCommentMetaInfo,
+                rankingMetadata: {
+                  scoreBreakdown: scored.breakdown,
+                  selectionConstraints: [],
+                  position: index,
+                  rankedItemType: 'commentThread' as const,
+                },
+              },
+            },
+          },
+        };
+      }
+    }
+    return item;
+  });
+}
+
 export const ultraFeedSubscriptionsQueries = {
   UltraFeedSubscriptions: async (_root: void, args: UltraFeedSubscriptionsArgs, context: ResolverContext) => {
     const { currentUser } = context;
@@ -64,7 +172,7 @@ export const ultraFeedSubscriptionsQueries = {
       personalBlog: 'Default',
     };
 
-    const [postRows, subscriptionComments] = await Promise.all([
+    const [postRows, allComments] = await Promise.all([
       postsRepo.getLatestAndSubscribedFeedPosts(
         context,
         {
@@ -83,6 +191,9 @@ export const ultraFeedSubscriptionsQueries = {
         true
       )
     ]);
+    
+    // Feed only shows comments on posts, not tag comments. If we introduce tag comments, we'll need to update this.
+    const subscriptionComments = allComments.filter(c => c.postId !== null);
 
     const postIdsFromPosts = postRows.map(r => r.post._id).filter((id): id is string => !!id);
     const postIdsFromComments: string[] = Array.from(new Set(subscriptionComments.map(c => c.postId)));
@@ -264,13 +375,16 @@ export const ultraFeedSubscriptionsQueries = {
       }
     }
 
-    feedItems.sort((a, b) => (b.sortDate.getTime() - a.sortDate.getTime()) || (a.type < b.type ? -1 : 1));
+    // Score items and attach ranking metadata (doesn't affect ordering in this feed)
+    const feedItemsWithMetadata = addRankingMetadata(feedItems);
+
+    feedItemsWithMetadata.sort((a, b) => (b.sortDate.getTime() - a.sortDate.getTime()) || (a.type < b.type ? -1 : 1));
 
     // Use offset-based pagination (ignore cutoff) to align with main feed behavior
     const pageStart = offset ?? 0;
     const pageEnd = pageStart + (limit ?? 20);
-    const pageCore = feedItems.slice(pageStart, pageEnd);
-    const pageItems: typeof feedItems = [];
+    const pageCore = feedItemsWithMetadata.slice(pageStart, pageEnd);
+    const pageItems: typeof feedItemsWithMetadata = [];
     // Insert a suggestions entry after every N feed items
     for (let i = 0; i < pageCore.length; i++) {
       pageItems.push(pageCore[i]);

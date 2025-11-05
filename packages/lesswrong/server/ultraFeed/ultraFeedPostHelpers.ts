@@ -3,6 +3,7 @@ import { FilterSettings, getDefaultFilterSettings } from "@/lib/filterSettings";
 import { recombeeApi, recombeeRequestHelpers } from "@/server/recombee/client";
 import { RecombeeRecommendationArgs } from "@/lib/collections/users/recommendationSettings";
 import { UltraFeedResolverSettings } from "@/components/ultraFeed/ultraFeedSettingsTypes";
+import type { RecommendedPost } from "@/lib/recombee/types";
 import keyBy from 'lodash/keyBy';
 
 // Configuration for unviewed items optimization
@@ -85,7 +86,13 @@ export async function getRecommendedPostsForUltraFeed(
     ...(exclusionFilterString && { filter: exclusionFilterString }),
   };
 
-  const recommendedResults = await recombeeApi.getRecommendationsForUser(recombeeUser, adjustedLimit, lwAlgoSettings, context);
+  let recommendedResults: RecommendedPost[] = [];
+  try {
+    recommendedResults = await recombeeApi.getRecommendationsForUser(recombeeUser, adjustedLimit, lwAlgoSettings, context);
+  } catch (error) {
+    // eslint-disable-next-line no-console
+    console.error("getRecommendedPostsForUltraFeed: Recombee API error, falling back to empty results", error);
+  }
   
   const allPostIds = [
     ...unviewedRecombeePostIds.slice(0, limit),

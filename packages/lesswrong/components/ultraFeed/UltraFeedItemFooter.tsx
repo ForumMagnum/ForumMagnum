@@ -1,5 +1,4 @@
 import React from "react";
-import { registerComponent } from "../../lib/vulcan-lib/components";
 import { defineStyles, useStyles } from "../hooks/useStyles";
 import classNames from "classnames";
 import CommentIcon from '@/lib/vendor/@material-ui/icons/src/ModeCommentOutlined';
@@ -24,6 +23,7 @@ import UltraFeedReplyEditor from "./UltraFeedReplyEditor";
 import { ReplyConfig } from "./UltraFeedCommentItem";
 import { useUltraFeedContext } from "./UltraFeedContextProvider";
 import { UltraFeedEventCreateMutation } from "./ultraFeedMutations";
+import UltraFeedScoreBreakdown from "./UltraFeedScoreBreakdown";
 
 const styles = defineStyles("UltraFeedItemFooter", (theme: ThemeType) => ({
   root: {
@@ -178,6 +178,11 @@ const styles = defineStyles("UltraFeedItemFooter", (theme: ThemeType) => ({
       display: 'none',
     },
   },
+  scoreBreakdownContainer: {
+    [theme.breakpoints.down('sm')]: {
+      display: 'none',
+    },
+  },
   bookmarkButton: {
     position: "relative", 
     top: 1,
@@ -268,21 +273,23 @@ interface UltraFeedItemFooterCoreSharedProps {
   voteProps: VotingProps<VoteableTypeClient> & { collectionName: UltraFeedEventCollectionName };
   hideKarma?: boolean;
   bookmarkProps?: BookmarkProps;
-  metaInfo?: FeedPostMetaInfo | FeedCommentMetaInfo;
   className?: string;
   replyConfig: ReplyConfig;
   cannotReplyReason?: string | null;
   hideReacts?: boolean;
+  isFirstCommentInThread?: boolean;
 }
 
 type UltraFeedItemFooterCorePostsProps = UltraFeedItemFooterCoreSharedProps & {
   collectionName: "Posts";
   document: PostsListWithVotes;
+  metaInfo?: FeedPostMetaInfo;
 };
 
 type UltraFeedItemFooterCoreCommentsProps = UltraFeedItemFooterCoreSharedProps & {
   collectionName: "Comments";
   document: UltraFeedComment;
+  metaInfo?: FeedCommentMetaInfo;
 };
 
 type UltraFeedItemFooterCoreProps =
@@ -303,6 +310,7 @@ const UltraFeedItemFooterCore = ({
   replyConfig,
   cannotReplyReason,
   hideReacts = false,
+  isFirstCommentInThread,
 }: UltraFeedItemFooterCoreProps) => {
   const classes = useStyles(styles);
   const currentUser = useCurrentUser();
@@ -445,6 +453,22 @@ const UltraFeedItemFooterCore = ({
           </div>
         )}
 
+        <div className={classes.scoreBreakdownContainer}>
+          {collectionName === "Comments" ? (
+            <UltraFeedScoreBreakdown 
+              metadata={metaInfo?.rankingMetadata} 
+              isFirstCommentInThread={isFirstCommentInThread}
+              sources={metaInfo?.sources}
+              commentMetaInfo={metaInfo}
+            />
+          ) : (
+            <UltraFeedScoreBreakdown 
+              metadata={metaInfo?.rankingMetadata} 
+              sources={metaInfo?.sources}
+              postMetaInfo={metaInfo}
+            />
+          )}
+        </div>
         { bookmarkProps && bookmarkableCollectionNames.has(collectionName) && (
           <div 
             className={classes.bookmarkButtonContainer}
@@ -547,7 +571,23 @@ const UltraFeedPostFooter = ({ post, metaInfo, className, replyConfig, hideReact
 }
 
 
-const UltraFeedCommentFooter = ({ comment, metaInfo, className, replyConfig, cannotReplyReason, hideReacts }: { comment: UltraFeedComment, metaInfo: FeedCommentMetaInfo, className?: string, replyConfig: ReplyConfig, cannotReplyReason?: string | null, hideReacts?: boolean }) => {
+const UltraFeedCommentFooter = ({ 
+  comment,
+  metaInfo,
+  className, 
+  replyConfig,
+  cannotReplyReason,
+  hideReacts,
+  isFirstCommentInThread,
+}: { 
+  comment: UltraFeedComment,
+  metaInfo: FeedCommentMetaInfo,
+  className?: string,
+  replyConfig: ReplyConfig,
+  cannotReplyReason?: string | null,
+  hideReacts?: boolean,
+  isFirstCommentInThread?: boolean,
+}) => {
   const { openDialog } = useDialog();
   const { openInNewTab } = useUltraFeedContext();
 
@@ -608,6 +648,7 @@ const UltraFeedCommentFooter = ({ comment, metaInfo, className, replyConfig, can
         replyConfig={replyConfig}
         cannotReplyReason={cannotReplyReason}
         hideReacts={hideReacts}
+        isFirstCommentInThread={isFirstCommentInThread}
       />
 
       {isReplying && <UltraFeedReplyEditor
@@ -631,6 +672,7 @@ interface UltraFeedPostFooterProps {
   replyConfig: ReplyConfig;
   cannotReplyReason?: string | null;
   hideReacts?: boolean;
+  isFirstCommentInThread?: boolean;
 }
 
 interface UltraFeedCommentFooterProps {
@@ -641,11 +683,21 @@ interface UltraFeedCommentFooterProps {
   replyConfig: ReplyConfig;
   cannotReplyReason?: string | null;
   hideReacts?: boolean;
+  isFirstCommentInThread?: boolean;
 }
 
 type UltraFeedItemFooterProps = UltraFeedPostFooterProps | UltraFeedCommentFooterProps;
 
-const UltraFeedItemFooter = ({ document, collectionName, metaInfo, className, replyConfig, cannotReplyReason, hideReacts }: UltraFeedItemFooterProps) => {
+const UltraFeedItemFooter = ({
+  collectionName,
+  document,
+  metaInfo,
+  className,
+  replyConfig,
+  cannotReplyReason,
+  hideReacts,
+  isFirstCommentInThread,
+}: UltraFeedItemFooterProps) => {
   if (collectionName === "Posts") {
     return <UltraFeedPostFooter
       post={document}
@@ -654,18 +706,18 @@ const UltraFeedItemFooter = ({ document, collectionName, metaInfo, className, re
       replyConfig={replyConfig}
       hideReacts={hideReacts}
     />;
-  } else if (collectionName === "Comments") {
-    return <UltraFeedCommentFooter
-      comment={document}
-      metaInfo={metaInfo}
-      className={className}
-      replyConfig={replyConfig}
-      cannotReplyReason={cannotReplyReason}
-      hideReacts={hideReacts}
-    />;
   }
-  return null;
+  
+  return <UltraFeedCommentFooter
+    comment={document}
+    metaInfo={metaInfo}
+    className={className}
+    replyConfig={replyConfig}
+    cannotReplyReason={cannotReplyReason}
+    hideReacts={hideReacts}
+    isFirstCommentInThread={isFirstCommentInThread}
+  />;
 };
 
 
-export default registerComponent("UltraFeedItemFooter", UltraFeedItemFooter);
+export default UltraFeedItemFooter;

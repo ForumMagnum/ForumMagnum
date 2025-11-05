@@ -8,7 +8,8 @@ import {
   SettingsFormState,
   ThreadInterestModelFormState,
   CommentScoringFormState,
-  DisplaySettingsFormState
+  DisplaySettingsFormState,
+  UltraFeedAlgorithm
 } from './ultraFeedSettingsTypes';
 import { FeedItemSourceType } from './ultraFeedTypes';
 import { defineStyles, useStyles } from '../hooks/useStyles';
@@ -16,12 +17,14 @@ import classNames from 'classnames';
 import { useTracking } from '@/lib/analyticsEvents';
 import { useMessages } from '../common/withMessages';
 import { useLocalStorageState } from '../hooks/useLocalStorageState';
+import { useCurrentUser } from '../common/withUser';
 import { 
   ultraFeedSettingsSchema, 
   UltraFeedSettingsZodErrors,
   ValidatedUltraFeedSettings,
   ValidatedCommentScoring,
-  ValidatedThreadInterestModel
+  ValidatedThreadInterestModel,
+  ValidatedUnifiedScoring
 } from './ultraFeedSettingsValidation';
 import { ZodFormattedError } from 'zod';
 import mergeWith from 'lodash/mergeWith';
@@ -36,6 +39,7 @@ import {
   MiscSettings,
   ExploreExploitBiasSettings,
   ThreadInterestTuningSettings,
+  UnifiedScoringSettings,
   AdvancedTruncationSettingsProps,
   ExploreExploitBiasSettingsProps,
   TruncationGridSettingsProps,
@@ -177,35 +181,56 @@ const styles = defineStyles('UltraFeedSettings', (theme: ThemeType) => ({
 
 // Helper components for Simple and Advanced views
 interface SimpleViewProps {
+  algorithm: UltraFeedAlgorithm;
   exploreExploitBiasProps: ExploreExploitBiasSettingsProps;
   sourceWeights: SettingsFormState['sourceWeights'];
   sourceWeightErrors: Record<FeedItemSourceType, string | undefined>;
   onSourceWeightChange: (key: FeedItemSourceType, value: number | string) => void;
   truncationGridProps: TruncationGridSettingsProps;
+  unifiedScoringFormValues: SettingsFormState['unifiedScoring'];
+  unifiedScoringErrors: ZodFormattedError<ValidatedUnifiedScoring, string> | null;
+  onUnifiedScoringFieldChange: (field: keyof SettingsFormState['unifiedScoring'], value: number | string) => void;
   miscSettingsProps: MiscSettingsProps;
 }
 
 const SimpleView: React.FC<SimpleViewProps> = ({
+  algorithm,
   exploreExploitBiasProps,
   sourceWeights,
   sourceWeightErrors,
   onSourceWeightChange,
   truncationGridProps,
+  unifiedScoringFormValues,
+  unifiedScoringErrors,
+  onUnifiedScoringFieldChange,
   miscSettingsProps,
 }) => (
   <>
-    <ExploreExploitBiasSettings {...exploreExploitBiasProps} />
-    <SourceWeightsSettings
-      weights={sourceWeights}
-      errors={sourceWeightErrors}
-      onChange={onSourceWeightChange}
-    />
+    {algorithm === 'scoring' && (
+      <UnifiedScoringSettings
+        formValues={unifiedScoringFormValues}
+        errors={unifiedScoringErrors}
+        onFieldChange={onUnifiedScoringFieldChange}
+        defaultOpen={true}
+      />
+    )}
+    {algorithm === 'sampling' && (
+      <>
+        <ExploreExploitBiasSettings {...exploreExploitBiasProps} />
+        <SourceWeightsSettings
+          weights={sourceWeights}
+          errors={sourceWeightErrors}
+          onChange={onSourceWeightChange}
+        />
+      </>
+    )}
     <TruncationGridSettings {...truncationGridProps} defaultOpen={true} />
     <MiscSettings {...miscSettingsProps} defaultOpen={false} />
   </>
 );
 
 interface AdvancedViewProps {
+  algorithm: UltraFeedAlgorithm;
   sourceWeights: SettingsFormState['sourceWeights'];
   sourceWeightErrors: Record<FeedItemSourceType, string | undefined>;
   onSourceWeightChange: (key: FeedItemSourceType, value: number | string) => void;
@@ -216,10 +241,14 @@ interface AdvancedViewProps {
   threadInterestModelFormValues: ThreadInterestModelFormState;
   threadInterestModelErrors: ZodFormattedError<ValidatedThreadInterestModel, string> | null;
   onThreadInterestFieldChange: (field: keyof ThreadInterestModelFormState, value: number | string) => void;
+  unifiedScoringFormValues: SettingsFormState['unifiedScoring'];
+  unifiedScoringErrors: ZodFormattedError<ValidatedUnifiedScoring, string> | null;
+  onUnifiedScoringFieldChange: (field: keyof SettingsFormState['unifiedScoring'], value: number | string) => void;
   miscSettingsProps: MiscSettingsProps;
 }
 
 const AdvancedView: React.FC<AdvancedViewProps> = ({
+  algorithm,
   sourceWeights,
   sourceWeightErrors,
   onSourceWeightChange,
@@ -230,27 +259,42 @@ const AdvancedView: React.FC<AdvancedViewProps> = ({
   threadInterestModelFormValues,
   threadInterestModelErrors,
   onThreadInterestFieldChange,
+  unifiedScoringFormValues,
+  unifiedScoringErrors,
+  onUnifiedScoringFieldChange,
   miscSettingsProps,
 }) => (
   <>
-    <SourceWeightsSettings
-      weights={sourceWeights}
-      errors={sourceWeightErrors}
-      onChange={onSourceWeightChange}
-    />
-    <AdvancedTruncationSettings {...advancedTruncationProps} />
-    <MultipliersSettings
-      formValues={commentScoringFormValues}
-      errors={commentScoringErrors}
-      onFieldChange={onCommentScoringFieldChange}
-      defaultOpen={false}
-    />
-    <ThreadInterestTuningSettings
-      formValues={threadInterestModelFormValues}
-      errors={threadInterestModelErrors}
-      onFieldChange={onThreadInterestFieldChange}
-      defaultOpen={false}
-    />
+    {algorithm === 'scoring' && (
+      <UnifiedScoringSettings
+        formValues={unifiedScoringFormValues}
+        errors={unifiedScoringErrors}
+        onFieldChange={onUnifiedScoringFieldChange}
+        defaultOpen={true}
+      />
+    )}
+    {algorithm === 'sampling' && (
+      <>
+        <SourceWeightsSettings
+          weights={sourceWeights}
+          errors={sourceWeightErrors}
+          onChange={onSourceWeightChange}
+        />
+        <AdvancedTruncationSettings {...advancedTruncationProps} />
+        <MultipliersSettings
+          formValues={commentScoringFormValues}
+          errors={commentScoringErrors}
+          onFieldChange={onCommentScoringFieldChange}
+          defaultOpen={false}
+        />
+        <ThreadInterestTuningSettings
+          formValues={threadInterestModelFormValues}
+          errors={threadInterestModelErrors}
+          onFieldChange={onThreadInterestFieldChange}
+          defaultOpen={false}
+        />
+      </>
+    )}
     <MiscSettings {...miscSettingsProps} />
   </>
 );
@@ -272,7 +316,7 @@ const customNullishCoalesceProperties = (objValue: any, srcValue: any): any => {
 
 const deriveFormValuesFromSettings = (settings: UltraFeedSettingsType): SettingsFormState => {
   const { displaySettings: defaultDisplaySettings, resolverSettings: defaultResolverSettings } = DEFAULT_SETTINGS;
-  const { commentScoring: defaultCommentScoring, threadInterestModel: defaultThreadInterestModel } = defaultResolverSettings;
+  const { commentScoring: defaultCommentScoring, threadInterestModel: defaultThreadInterestModel, unifiedScoring: defaultUnifiedScoring } = defaultResolverSettings;
 
   const { displaySettings, resolverSettings } = settings;
 
@@ -283,6 +327,7 @@ const deriveFormValuesFromSettings = (settings: UltraFeedSettingsType): Settings
       customNullishCoalesceProperties
     ),
     incognitoMode: resolverSettings.incognitoMode ?? defaultResolverSettings.incognitoMode,
+    algorithm: resolverSettings.algorithm ?? defaultResolverSettings.algorithm,
     displaySetting: {
       lineClampNumberOfLines: displaySettings.lineClampNumberOfLines ?? defaultDisplaySettings.lineClampNumberOfLines,
       postInitialWords: displaySettings.postInitialWords ?? defaultDisplaySettings.postInitialWords,
@@ -299,6 +344,11 @@ const deriveFormValuesFromSettings = (settings: UltraFeedSettingsType): Settings
     threadInterestModel: mergeWith(
       cloneDeep(defaultThreadInterestModel),
       resolverSettings.threadInterestModel,
+      customNullishCoalesceProperties
+    ),
+    unifiedScoring: mergeWith(
+      cloneDeep(defaultUnifiedScoring),
+      resolverSettings.unifiedScoring,
       customNullishCoalesceProperties
     ),
   };
@@ -361,6 +411,7 @@ const UltraFeedSettings = ({
   const classes = useStyles(styles);
   const { flash } = useMessages();
   const [showFeedback, setShowFeedback] = useState(false);
+  const currentUser = useCurrentUser();
 
 
   const { ultraFeedSettingsViewMode, setUltraFeedSettingsViewMode } = useLocalStorageState('ultraFeedSettingsViewMode', (key) => key, initialViewMode);
@@ -444,10 +495,14 @@ const UltraFeedSettings = ({
     checked: boolean
   ) => {
     setZodErrors(null);
-    if (field === 'incognitoMode') {
-      updateForm(field, checked);
-    }
-  }, [updateForm]);
+    updateForm(field, checked);
+  }, [updateForm, setZodErrors]);
+
+  const handleAlgorithmChange = useCallback((algorithm: UltraFeedAlgorithm) => {
+    setZodErrors(null);
+    updateForm('algorithm', algorithm);
+    captureEvent('ultraFeedAlgorithmChanged', { algorithm });
+  }, [updateForm, setZodErrors, captureEvent]);
 
   const handleLineClampChange = useCallback((value: number | string) => {
     const strValue = String(value).trim();
@@ -498,6 +553,12 @@ const UltraFeedSettings = ({
     updateForm('threadInterestModel', prevModel => ({ ...prevModel, [field]: processedValue, }));
   }, [updateForm]);
 
+  const handleUnifiedScoringFieldChange = useCallback((field: keyof SettingsFormState['unifiedScoring'], value: number | string) => {
+    const strValue = String(value).trim();
+    const processedValue = strValue === '' ? '' : (isNaN(parseFloat(strValue)) ? '' : parseFloat(strValue));
+    updateForm('unifiedScoring', prevModel => ({ ...prevModel, [field]: processedValue }));
+  }, [updateForm]);
+
   const handleExploreBiasChange = useCallback((newExploreBiasValue: number) => {
     setZodErrors(null); 
     const newLogImpactFactor = 2 - newExploreBiasValue;
@@ -528,6 +589,7 @@ const UltraFeedSettings = ({
     const defaultResolverSettings = DEFAULT_SETTINGS.resolverSettings;
     const defaultThreadInterestModel = defaultResolverSettings.threadInterestModel;
     const defaultCommentScoring = defaultResolverSettings.commentScoring;
+    const defaultUnifiedScoring = defaultResolverSettings.unifiedScoring;
 
     const settingsToUpdate: Partial<UltraFeedSettingsType> = {
       resolverSettings: {
@@ -537,6 +599,7 @@ const UltraFeedSettings = ({
           (defaultWeightVal, formWeightVal) => parseNumericInputAsZeroOrNumber(formWeightVal, 0)
         ),
         incognitoMode: formValues.incognitoMode,
+        algorithm: formValues.algorithm,
         commentScoring: mergeWith(
           cloneDeep(defaultCommentScoring),
           formValues.commentScoring,
@@ -550,6 +613,11 @@ const UltraFeedSettings = ({
         threadInterestModel: mergeWith(
           cloneDeep(defaultThreadInterestModel),
           formValues.threadInterestModel,
+          (defaultVal, formVal) => parseNumericInputAsZeroOrNumber(formVal, defaultVal)
+        ),
+        unifiedScoring: mergeWith(
+          cloneDeep(defaultUnifiedScoring),
+          formValues.unifiedScoring,
           (defaultVal, formVal) => parseNumericInputAsZeroOrNumber(formVal, defaultVal)
         ),
         subscriptionsFeedSettings: settings.resolverSettings.subscriptionsFeedSettings,
@@ -654,9 +722,11 @@ const UltraFeedSettings = ({
   const miscSettingsProps = {
     formValues: {
       incognitoMode: formValues.incognitoMode,
+      algorithm: formValues.algorithm,
     },
     onBooleanChange: handleBooleanChange,
-
+    onAlgorithmChange: handleAlgorithmChange,
+    currentUser,
   };
 
   const exploreExploitBiasProps = {
@@ -701,15 +771,20 @@ const UltraFeedSettings = ({
       <div className={classes.settingsGroupsContainer}>
         {viewMode === 'simple' ? (
           <SimpleView
+            algorithm={formValues.algorithm}
             exploreExploitBiasProps={exploreExploitBiasProps}
             sourceWeights={formValues.sourceWeights}
             sourceWeightErrors={sourceWeightErrors}
             onSourceWeightChange={handleSourceWeightChange}
             truncationGridProps={truncationGridProps}
+            unifiedScoringFormValues={formValues.unifiedScoring}
+            unifiedScoringErrors={zodErrors?.resolverSettings?.unifiedScoring ?? null}
+            onUnifiedScoringFieldChange={handleUnifiedScoringFieldChange}
             miscSettingsProps={miscSettingsProps}
           />
         ) : (
           <AdvancedView
+            algorithm={formValues.algorithm}
             sourceWeights={formValues.sourceWeights}
             sourceWeightErrors={sourceWeightErrors}
             onSourceWeightChange={handleSourceWeightChange}
@@ -720,6 +795,9 @@ const UltraFeedSettings = ({
             threadInterestModelFormValues={formValues.threadInterestModel}
             threadInterestModelErrors={zodErrors?.resolverSettings?.threadInterestModel ?? null}
             onThreadInterestFieldChange={handleThreadInterestFieldChange}
+            unifiedScoringFormValues={formValues.unifiedScoring}
+            unifiedScoringErrors={zodErrors?.resolverSettings?.unifiedScoring ?? null}
+            onUnifiedScoringFieldChange={handleUnifiedScoringFieldChange}
             miscSettingsProps={miscSettingsProps}
           />
         )}

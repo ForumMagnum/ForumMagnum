@@ -522,6 +522,7 @@ function prepareThreadForDisplay(
       postedAt: comment.postedAt,
       displayStatus: displayStatus,
       highlight: shouldHighlight ?? false,
+      isParentPostRead: isOnReadPost,
     };
 
     return {
@@ -638,7 +639,10 @@ export async function getUltraFeedCommentThreads(
     return true;
   });
 
-  // --- Prepare for Display --- 
+  // --- Prepare for Display ---
+  // eslint-disable-next-line no-console
+  console.log(`UltraFeed: Comment threads before slicing - viable: ${viableThreads.length}, limit: ${limit}`);
+  
   const displayThreads = viableThreads
     .slice(0, limit) 
     .map(rankedThreadInfo => prepareThreadForDisplay(rankedThreadInfo, engagementStatsMap))

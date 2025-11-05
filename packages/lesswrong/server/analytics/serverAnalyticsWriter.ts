@@ -233,3 +233,8 @@ export function startAnalyticsWriter() {
     }
   }
 }
+
+// Auto-start in dev mode (instrumentation.js doesn't run in dev)
+if (typeof window === 'undefined' && process.env.NODE_ENV === 'development') {
+  startAnalyticsWriter();
+}

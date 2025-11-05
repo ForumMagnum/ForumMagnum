@@ -8,6 +8,8 @@ import {
   feedSpotlightSourceTypesArray,
   FeedPostStub,
   UserOrClientId,
+  ThreadEngagementStats,
+  FeedPostMetaInfo,
 } from "@/components/ultraFeed/ultraFeedTypes";
 import { filterNonnull } from "@/lib/utils/typeGuardUtils";
 import gql from 'graphql-tag';
@@ -29,6 +31,15 @@ import {
   UltraFeedEventInsertData,
   insertSubscriptionSuggestions
 } from './ultraFeedResolverHelpers';
+import {
+  toPostRankable,
+  toThreadRankable,
+} from '../ultraFeed/ultraFeedRanking';
+import type {
+  RankableItem,
+  MappablePreparedThread
+} from '../ultraFeed/ultraFeedRankingTypes';
+import { getAlgorithm, type UltraFeedAlgorithmName } from '../ultraFeed/algorithms/algorithmRegistry';
 
 
 interface UltraFeedDateCutoffs {
@@ -51,6 +62,7 @@ export const ultraFeedGraphQLTypeDefs = gql`
   type FeedSpotlightMetaInfo {
     sources: [String!]!
     servedEventId: String!
+    rankingMetadata: JSON
   }
 
   type FeedPost {
@@ -66,6 +78,7 @@ export const ultraFeedGraphQLTypeDefs = gql`
     post: Post
     isOnReadPost: Boolean
     postSources: [String!]
+    postMetaInfo: JSON
   }
 
   type FeedSpotlightItem {
@@ -119,50 +132,6 @@ type SampledItem =
   | { type: "feedPost"; feedPostStub: FeedPostStub }
   | { type: "feedSpotlight"; feedSpotlight: FeedSpotlight }
   | { type: "feedSubscriptionSuggestions"; feedSubscriptionSuggestions: { suggestedUserIds: string[] } };
-
-interface WeightedSource {
-  weight: number;
-  items: SampledItem[];
-}
-
-const weightedSample = (
-  inputs: Partial<Record<FeedItemSourceType, WeightedSource>>,
-  totalItems: number
-): SampledItem[] => {
-  const sourcesWithCopiedItems = cloneDeep(inputs);
-  const finalFeed: SampledItem[] = [];
-
-  let totalWeight = Object.values(sourcesWithCopiedItems)
-    .reduce((sum, s) => sum + (s?.items.length ? s.weight : 0), 0);
-
-  for (let i = 0; i < totalItems; i++) {
-    if (totalWeight <= 0) break;
-    const pick = Math.random() * totalWeight;
-    let cumulative = 0;
-    let chosen: FeedItemSourceType | null = null;
-
-    for (const [k, src] of Object.entries(sourcesWithCopiedItems)) {
-      if (!src || !src.items.length) continue;
-      cumulative += src.weight;
-      if (pick < cumulative) {
-        chosen = k as FeedItemSourceType;
-        break;
-      }
-    }
-
-    if (chosen) {
-      const src = sourcesWithCopiedItems[chosen]!;
-      const item = src.items.shift();
-      if (item) {
-        finalFeed.push(item);
-      }
-      if (!src.items.length) {
-        totalWeight -= src.weight;
-      }
-    }
-  }
-  return finalFeed;
-};
 
 const getSampledItemKey = (item: SampledItem): string | undefined => {
   switch (item.type) {
@@ -240,95 +209,6 @@ const parseUltraFeedSettings = (settingsJson?: string): UltraFeedResolverSetting
   }
   return parsedSettings;
 };
-
-/**
- * Create a map of source type to weighted source with items
- */
-const createSourcesMap = (
-  sourceWeights: Record<string, number>,
-  postThreadsItems: FeedFullPost[],
-  commentThreadsItems: FeedCommentsThread[],
-  spotlightItems: FeedSpotlight[],
-  bookmarkItems: PreparedBookmarkItem[]
-): Partial<Record<FeedItemSourceType, WeightedSource>> => {
-
-  const sources = Object.entries(sourceWeights)
-    .filter(([, w]) => w > 0)
-    .reduce((acc, [src, w]) => {
-      acc[src as FeedItemSourceType] = { weight: w, items: [] };
-      return acc;
-    }, {} as Partial<Record<FeedItemSourceType, WeightedSource>>);
-
-  const addedPostIds = new Set<string>();
-
-  if (sources.spotlights) {
-    spotlightItems.forEach(s => {
-      sources.spotlights?.items.push({ type: "feedSpotlight", feedSpotlight: s });
-    });
-  }
-
-  postThreadsItems.forEach(p => {
-    const postId = p.post?._id;
-    if (!postId || addedPostIds.has(postId)) {
-      return;
-    }
-    let addedToAnySource = false;
-    (p.postMetaInfo?.sources ?? []).forEach(src => {
-      const bucket = sources[src];
-      if (bucket) {
-        bucket.items.push({ type: "feedPostWithContents", feedPost: p });
-        addedToAnySource = true;
-      }
-    });
-    if (addedToAnySource) {
-        addedPostIds.add(postId);
-    }
-  });
-
-  if (sources.bookmarks) {
-    bookmarkItems.forEach(item => {
-      if (item.type === "feedPost") {
-        const postId = item.feedPostStub.postId;
-        if (addedPostIds.has(postId)) {
-          return;
-        }
-        sources.bookmarks?.items.push(item);
-        addedPostIds.add(postId);
-      } else if (item.type === "feedCommentThread") {
-        sources.bookmarks?.items.push(item);
-      }
-    });
-  }
-
-  // Handle comment threads - distribute into appropriate buckets
-  // For backwards compatibility, if client has recentComments weight > 0 but new weights = 0,
-  // we still populate all threads there
-  const hasNewCommentBuckets = (sources.quicktakes || 
-    sources.subscriptionsComments);
-  const useOldBucket = sources.recentComments && !hasNewCommentBuckets;
-
-  commentThreadsItems.forEach(t => {
-    const primarySource = t.primarySource;
-    
-    if (useOldBucket && sources.recentComments) {
-      // Backwards compatibility mode
-      sources.recentComments.items.push({ type: "feedCommentThread", feedCommentThread: t });
-    } else {
-      // New bucket distribution
-      if (primarySource === 'quicktakes' && sources.quicktakes) {
-        sources.quicktakes.items.push({ type: "feedCommentThread", feedCommentThread: t });
-      } else if (primarySource === 'subscriptionsComments' && sources.subscriptionsComments) {
-        sources.subscriptionsComments.items.push({ type: "feedCommentThread", feedCommentThread: t });
-      } else if (primarySource === 'recentComments' && sources.recentComments) {
-        sources.recentComments.items.push({ type: "feedCommentThread", feedCommentThread: t });
-      }
-    }
-  });
-
-  return Object.fromEntries(Object.entries(sources).filter(([, v]) => v?.items.length ?? 0 > 0));
-};
-
-
 
 /**
  * Extract IDs that need to be loaded from sampled items
@@ -448,14 +328,15 @@ const transformItemsForResolver = (
           ...(post && { post }),
           spotlightMetaInfo: {
             servedEventId: randomId(),
-            sources: ['spotlights' as const]
+            sources: ['spotlights' as const],
+            rankingMetadata: item.feedSpotlight.rankingMetadata
           }
         }
       };
     }
 
     if (item.type === "feedCommentThread") {
-      const { comments: preDisplayComments, isOnReadPost, postSources } = item.feedCommentThread;
+      const { comments: preDisplayComments, isOnReadPost, postSources, rankingMetadata } = item.feedCommentThread;
       let loadedComments: DbComment[] = [];
 
       if (preDisplayComments && preDisplayComments.length > 0) {
@@ -484,6 +365,19 @@ const transformItemsForResolver = (
           }
         });
       }
+      
+      // Attach ranking metadata to the first comment's metaInfo
+      if (rankingMetadata && loadedComments.length > 0) {
+        const firstCommentId = loadedComments[0]._id;
+        if (!commentMetaInfos[firstCommentId]) {
+          commentMetaInfos[firstCommentId] = {
+            sources: [],
+            descendentCount: 0,
+            displayStatus: 'expanded',
+          };
+        }
+        commentMetaInfos[firstCommentId].rankingMetadata = rankingMetadata;
+      }
 
       let threadId = `feed-comment-thread-${index}`; // Fallback ID
       if (loadedComments.length > 0) {
@@ -504,13 +398,28 @@ const transformItemsForResolver = (
          }
       }
       
+      // Construct postMetaInfo for the thread (only when we're showing the post)
+      let postMetaInfo: FeedPostMetaInfo | undefined;
+      if (!isOnReadPost && loadedComments.length > 0) {
+        const firstCommentMetaInfo = commentMetaInfos[loadedComments[0]._id];
+        postMetaInfo = {
+          sources: postSources ?? firstCommentMetaInfo?.sources ?? [],
+          displayStatus: 'expanded',
+          servedEventId: firstCommentMetaInfo?.servedEventId ?? '',
+          highlight: true,
+          isRead: false,
+          rankingMetadata: firstCommentMetaInfo?.rankingMetadata,
+        };
+      }
+      
            const resultData: FeedCommentsThreadResolverType = {
        _id: threadId,
        comments: loadedComments,
        commentMetaInfos,
        isOnReadPost,
        postSources,
-       post
+       post,
+       postMetaInfo,
      };
 
       return {
@@ -655,9 +564,9 @@ interface UltraFeedArgs {
 const calculateFetchLimits = (
   sourceWeights: Record<string, number>,
   totalLimit: number,
-  bufferMultiplier = 1.2,
-  latestAndSubscribedPostMultiplier = 1.0,
-  recombeeMultiplier = 1.2,
+  bufferMultiplier = 3.6,
+  latestAndSubscribedPostMultiplier = 3.0,
+  recombeeMultiplier = 3.6,
 ): {
   totalWeight: number;
   recombeePostFetchLimit: number;
@@ -729,7 +638,16 @@ export const ultraFeedGraphQLQueries = {
       // TODO: This is a little hand-wavy since fetching them together breaks the paradigm. Figure out better solution later.
       const latestAndSubscribedPostLimit = hackerNewsPostFetchLimit + subscribedPostFetchLimit;
 
-      const [combinedPostItems, commentThreadsItemsResult, spotlightItemsResult, bookmarkItemsResult] = await Promise.all([
+      // Fetch engagement stats for threads separately to pass to ranking
+      const userIdOrClientId = currentUser?._id ?? clientId;
+      const engagementStatsListPromise = userIdOrClientId && commentFetchLimit > 0
+        ? context.repos.comments.getThreadEngagementStatsForRecentlyActiveThreads(
+            userIdOrClientId,
+            ULTRA_FEED_DATE_CUTOFFS.threadEngagementLookbackDays
+          )
+        : Promise.resolve([]);
+
+      const [combinedPostItems, commentThreadsItemsResult, spotlightItemsResult, bookmarkItemsResult, engagementStatsList] = await Promise.all([
         (recombeePostFetchLimit + latestAndSubscribedPostLimit > 0) 
           ? getUltraFeedPostThreads( 
               context, 
@@ -751,19 +669,235 @@ export const ultraFeedGraphQLQueries = {
             ) 
           : Promise.resolve([]),
         spotlightFetchLimit > 0 ? spotlightsRepo.getUltraFeedSpotlights(context, spotlightFetchLimit) : Promise.resolve([]),
-        bookmarkFetchLimit > 0 ? getUltraFeedBookmarks(context, bookmarkFetchLimit) : Promise.resolve([])
-      ]) as [FeedFullPost[], FeedCommentsThread[], FeedSpotlight[], PreparedBookmarkItem[]];
+        bookmarkFetchLimit > 0 ? getUltraFeedBookmarks(context, bookmarkFetchLimit) : Promise.resolve([]),
+        engagementStatsListPromise
+      ]) as [FeedFullPost[], FeedCommentsThread[], FeedSpotlight[], PreparedBookmarkItem[], ThreadEngagementStats[]];
       
-      const populatedSources = createSourcesMap(
-        sourceWeights,
-        combinedPostItems,
-        commentThreadsItemsResult,
-        spotlightItemsResult,
-        bookmarkItemsResult
-      );
+      const engagementStatsMap = new Map(engagementStatsList.map(stats => [stats.threadTopLevelId, stats]));
 
-      // Sample items from sources based on weights
-      const sampledItemsRaw = weightedSample(populatedSources, limit);
+      // Convert fetched items to rankable format
+      const now = new Date();
+      
+      // Convert posts to rankable items
+      const rankablePosts = combinedPostItems.map(post => toPostRankable(post, now));
+      
+      // Convert threads to rankable items with engagement stats
+      const rankableThreads = commentThreadsItemsResult.map(thread => {
+        const threadCommentIds = thread.comments?.map(c => c.commentId) ?? [];
+        const topLevelId = threadCommentIds.length > 0 
+          ? (thread.comments?.[0]?.topLevelCommentId ?? threadCommentIds[0])
+          : undefined;
+        const engagement = topLevelId ? engagementStatsMap.get(topLevelId) : undefined;
+        return toThreadRankable(thread as MappablePreparedThread, engagement, now);
+      });
+      
+      // Convert spotlights and bookmarks to minimal rankable items
+      const rankableSpotlights: RankableItem[] = spotlightItemsResult.map(s => ({
+        id: s.spotlightId,
+        itemType: 'post' as const, // Use 'post' type since we don't have separate spotlight type
+        postId: s.spotlightId,
+        sources: ['spotlights' as FeedItemSourceType],
+        ageHrs: null, // No recency bonus for spotlights (evergreen content)
+        isRead: false,
+        userSubscribedToAuthor: false,
+        karma: 0,
+      }));
+      
+      // Bookmarks can be either posts or threads
+      const rankableBookmarks: RankableItem[] = bookmarkItemsResult.map(b => {
+        if (b.type === 'feedPost') {
+          return {
+            id: b.feedPostStub.postId,
+            itemType: 'post' as const,
+            postId: b.feedPostStub.postId,
+            sources: ['bookmarks' as FeedItemSourceType],
+            ageHrs: null, // No recency bonus for bookmarks (saved items, not based on post age)
+            isRead: false,
+            userSubscribedToAuthor: false,
+            karma: 0,
+          };
+        } else {
+          // feedCommentThread bookmark
+          const threadCommentIds = b.feedCommentThread.comments?.map(c => c.commentId) ?? [];
+          return {
+            id: generateThreadHash(threadCommentIds),
+            itemType: 'commentThread' as const,
+            threadId: generateThreadHash(threadCommentIds),
+            sources: ['bookmarks' as FeedItemSourceType],
+            ageHrs: 0, // Threads still need a number for now
+            isRead: false,
+            userSubscribedToAuthor: false,
+            stats: {
+              commentCount: threadCommentIds.length,
+              unviewedCount: 0,
+              lastActivityAgeHrs: 0,
+              hasShortform: false,
+            },
+            comments: [],
+          };
+        }
+      });
+
+      const rankableItems: RankableItem[] = [
+        ...rankablePosts,
+        ...rankableThreads,
+        ...rankableSpotlights,
+        ...rankableBookmarks,
+      ];
+
+      // Get the user's preferred algorithm from settings (defaults to 'scoring')
+      const algorithmName = parsedSettings.algorithm as UltraFeedAlgorithmName;
+      const algorithm = getAlgorithm(algorithmName);
+      
+      // Rank items using the selected algorithm
+      const rankedItemsWithMetadata = algorithm.rankItems(rankableItems, limit);
+      
+      // eslint-disable-next-line no-console
+      console.log('UltraFeed: Ranked items with metadata:', rankedItemsWithMetadata.length, 'items using', algorithm.name, 'algorithm');
+      
+      // Log ranked items with scores for analysis
+      backgroundTask((async () => {
+        const itemsForLogging = rankedItemsWithMetadata.map(({ id, metadata }) => {
+          const item = rankableItems.find(r => r.id === id);
+          return {
+            itemId: id,
+            itemType: item?.itemType ?? 'unknown',
+            position: metadata.position,
+            totalScore: metadata.scoreBreakdown.total,
+            constraints: metadata.selectionConstraints.join(','),
+            sources: item?.sources?.join(',') ?? '',
+            repetitionPenaltyMultiplier: 'repetitionPenaltyMultiplier' in metadata.scoreBreakdown 
+              ? metadata.scoreBreakdown.repetitionPenaltyMultiplier 
+              : 1,
+            scoreComponents: metadata.scoreBreakdown.components,
+          };
+        });
+        
+        serverCaptureEvent('ultraFeedItemsRanked', {
+          sessionId,
+          userId: currentUser?._id ?? undefined,
+          clientId: clientId ?? undefined,
+          offset: offset ?? 0,
+          itemCount: rankedItemsWithMetadata.length,
+          algorithm: algorithm.name,
+          items: itemsForLogging,
+        });
+      })());
+      
+      // Create a map to store metadata by ID
+      const metadataById = new Map(
+        rankedItemsWithMetadata.map(({ id, metadata }) => [id, metadata])
+      );
+      
+      // Extract just the IDs for mapping
+      const rankedIds = rankedItemsWithMetadata.map(({ id }) => id);
+      
+      // Create maps to look up original items by their rankable ID
+      const postIdToOriginal = new Map<string, FeedFullPost>();
+      combinedPostItems.forEach(post => {
+        if (post.post?._id) {
+          postIdToOriginal.set(post.post._id, post);
+        }
+      });
+      
+      const threadIdToOriginal = new Map<string, FeedCommentsThread>();
+      commentThreadsItemsResult.forEach(thread => {
+        const threadCommentIds = thread.comments?.map(c => c.commentId) ?? [];
+        if (threadCommentIds.length > 0) {
+          const threadHash = generateThreadHash(threadCommentIds);
+          threadIdToOriginal.set(threadHash, thread);
+        }
+      });
+      
+      const spotlightIdToOriginal = new Map<string, FeedSpotlight>();
+      spotlightItemsResult.forEach(s => {
+        spotlightIdToOriginal.set(s.spotlightId, s);
+      });
+      
+      const bookmarkIdToOriginal = new Map<string, PreparedBookmarkItem>();
+      bookmarkItemsResult.forEach(b => {
+        if (b.type === 'feedPost') {
+          bookmarkIdToOriginal.set(b.feedPostStub.postId, b);
+        } else {
+          const threadCommentIds = b.feedCommentThread.comments?.map(c => c.commentId) ?? [];
+          const threadHash = generateThreadHash(threadCommentIds);
+          bookmarkIdToOriginal.set(threadHash, b);
+        }
+      });
+      
+      // Build sampled items in ranked order, attaching metadata
+      const sampledItemsRaw: SampledItem[] = filterNonnull(rankedIds.map(id => {
+        const metadata = metadataById.get(id);
+        
+        // eslint-disable-next-line no-console
+        console.log('Mapping id:', id, 'metadata:', metadata ? 'present' : 'MISSING');
+        
+        // Try to find in each map
+        const post = postIdToOriginal.get(id);
+        if (post) {
+          // Attach ranking metadata to post
+          const postWithMetadata: FeedFullPost = {
+            ...post,
+            postMetaInfo: {
+              ...post.postMetaInfo,
+              rankingMetadata: metadata,
+            },
+          };
+          // eslint-disable-next-line no-console
+          console.log('Post with metadata:', post.post?._id, 'rankingMetadata:', postWithMetadata.postMetaInfo.rankingMetadata ? 'attached' : 'MISSING');
+          return { type: "feedPostWithContents" as const, feedPost: postWithMetadata };
+        }
+        
+        const thread = threadIdToOriginal.get(id);
+        if (thread) {
+          // Attach ranking metadata to thread
+          const threadWithMetadata: FeedCommentsThread = {
+            ...thread,
+            rankingMetadata: metadata,
+          };
+          // eslint-disable-next-line no-console
+          console.log('Thread with metadata:', id, 'rankingMetadata:', threadWithMetadata.rankingMetadata ? 'attached' : 'MISSING');
+          return { type: "feedCommentThread" as const, feedCommentThread: threadWithMetadata };
+        }
+        
+        const spotlight = spotlightIdToOriginal.get(id);
+        if (spotlight) {
+          // Spotlights get minimal metadata
+          const spotlightWithMetadata: FeedSpotlight = {
+            ...spotlight,
+            rankingMetadata: metadata,
+          };
+          return { type: "feedSpotlight" as const, feedSpotlight: spotlightWithMetadata };
+        }
+        
+        const bookmark = bookmarkIdToOriginal.get(id);
+        if (bookmark) {
+          // Attach metadata to bookmark
+          if (bookmark.type === 'feedPost') {
+            return {
+              ...bookmark,
+              feedPostStub: {
+                ...bookmark.feedPostStub,
+                postMetaInfo: {
+                  ...bookmark.feedPostStub.postMetaInfo,
+                  rankingMetadata: metadata,
+                },
+              },
+            } as SampledItem;
+          } else {
+            return {
+              ...bookmark,
+              feedCommentThread: {
+                ...bookmark.feedCommentThread,
+                rankingMetadata: metadata,
+              },
+            } as SampledItem;
+          }
+        }
+        
+        return null;
+      }));
+
       const sampledItemsDeduped = dedupSampledItems(sampledItemsRaw);
       
       // Maybe insert subscription suggestions with 20% probability

@@ -27,9 +27,10 @@ interface CommentsMenuComponentProps {
   showEdit: () => void;
   onSeeLess?: () => void;
   isSeeLessMode?: boolean;
+  commentMetaInfo?: any;
 }
 
-const CommentsMenu = ({classes, className, comment, post, tag, showEdit, onSeeLess, isSeeLessMode, icon, ActionsComponent}: {
+const CommentsMenu = ({classes, className, comment, post, tag, showEdit, onSeeLess, isSeeLessMode, icon, ActionsComponent, commentMetaInfo}: {
   classes: ClassesType<typeof styles>,
   className?: string,
   comment: CommentsList,
@@ -40,6 +41,7 @@ const CommentsMenu = ({classes, className, comment, post, tag, showEdit, onSeeLe
   isSeeLessMode?: boolean,
   icon?: any,
   ActionsComponent?: React.ComponentType<CommentsMenuComponentProps>,
+  commentMetaInfo?: any,
 }) => {
   const [anchorEl, setAnchorEl] = useState<any>(null);
 
@@ -82,6 +84,7 @@ const CommentsMenu = ({classes, className, comment, post, tag, showEdit, onSeeLe
           showEdit={showEdit}
           onSeeLess={onSeeLess}
           isSeeLessMode={isSeeLessMode}
+          commentMetaInfo={commentMetaInfo}
         />}
       </Menu>
     </>

@@ -1244,6 +1244,7 @@ interface RssPostChangeInfo {
 interface FeedSpotlightMetaInfo {
   sources: Array<string>;
   servedEventId: string;
+  rankingMetadata: any;
 }
 
 interface FeedPost {
@@ -1259,6 +1260,7 @@ interface FeedCommentThread {
   post: Post | null;
   isOnReadPost: boolean | null;
   postSources: Array<string> | null;
+  postMetaInfo: any;
 }
 
 interface FeedSpotlightItem {

@@ -390,6 +390,7 @@ const UltraFeedPostItemHeader = ({
               onSeeLess={handleSeeLess}
               isSeeLessMode={isSeeLessMode}
               ActionsComponent={UltraFeedPostActions}
+              postMetaInfo={postMetaInfo}
               className={classnames(classes.tripleDotMenu, { [classes.greyedOut]: isSeeLessMode })}
             />
           </AnalyticsContext>
@@ -637,6 +638,7 @@ const UltraFeedPostItem = ({
               onSeeLess={handleSeeLessClick}
               isSeeLessMode={isSeeLessMode}
               ActionsComponent={UltraFeedPostActions}
+              postMetaInfo={postMetaInfo}
               includeBookmark={true}
               className={classnames(classes.tripleDotMenu, { [classes.greyedOut]: isSeeLessMode })}
             />
