@@ -366,26 +366,11 @@ export default function SolsticeSeasonBannerInner() {
   const [selectedEventId, setSelectedEventId] = useState<string | null>(null)
   const [popupCoords, setPopupCoords] = useState<{ x: number; y: number } | null>(null)
 
-  
-  const acxCarouselIndex = 1 
-  const solsticeCarouselIndex = 2 
-  // const ifanyoneCarouselIndex = 2 
-  // const petrovCarouselIndex = 3 
-  const lwCarouselIndex = 3
-  const activeIndex = nextCarouselIndex ?? currentCarouselIndex
-  const filterKey = activeIndex === acxCarouselIndex ? 'SSC' : activeIndex === solsticeCarouselIndex ? 'SOLSTICE' : activeIndex === lwCarouselIndex ? 'LW' : undefined
 
   type EventType = typeof events[0];
-  
-  const filteredEvents = useMemo(() => {
-    if (filterKey) {
-      return events.filter((event: EventType) => (event.types ?? []).includes(filterKey));
-    }
-    return events;
-  }, [filterKey, events]);
 
   const pointsData = useMemo(() => {
-    return filteredEvents
+    return events
       .filter((event: EventType) => event.lat != null && event.lng != null)
       .map((event: EventType) => ({
         lat: event.lat!,
@@ -394,7 +379,7 @@ export default function SolsticeSeasonBannerInner() {
         eventId: event._id,
         event: event,
       }));
-  }, [filteredEvents, filterKey]);
+  }, [events]);
 
   const handleMeetupTypeClick = useCallback((index: number) => {
     if (index === currentCarouselIndex) return
