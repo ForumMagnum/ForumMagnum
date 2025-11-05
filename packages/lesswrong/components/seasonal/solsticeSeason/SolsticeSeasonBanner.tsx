@@ -489,7 +489,7 @@ export default function SolsticeSeasonBannerInner() {
             </Link>
           </div>  
           <div className={classes.fpsWarning}>
-            {fps ? (fps < 90 ? "If your compute is slow, you can switch to the map view." : `${fps} FPS`) : null}
+            {fps ? (fps < 90 ? `If your computer is slow, you can switch to the map view. ${fps} FPS` : `${fps} FPS`) : null}
           </div>
       </div>
     </div>
