@@ -22,6 +22,7 @@ export type SolsticeGlobe3DProps = {
   onPointClick?: PointClickCallback;
   onReady?: () => void;
   onFullyLoaded?: () => void;
+  onFpsChange?: (fps: number) => void;
   className?: string;
   style?: React.CSSProperties;
   onClick?: React.MouseEventHandler<HTMLDivElement>;

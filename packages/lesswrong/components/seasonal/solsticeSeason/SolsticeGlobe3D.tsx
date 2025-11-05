@@ -1,4 +1,4 @@
-import React, { useState, useRef, useMemo, useCallback } from 'react';
+import React, { useState, useRef, useMemo, useCallback, useEffect } from 'react';
 import dynamic from 'next/dynamic';
 import { SolsticeGlobe3DProps, SolsticeGlobePoint, PointClickCallback } from './types';
 import { useGlobeDayNightMaterial, useGlobeReadyEffects, useGlobeAnimation, useFramerate } from './hooks';
@@ -17,6 +17,7 @@ export const SolsticeGlobe3D = ({
   onPointClick,
   onReady,
   onFullyLoaded,
+  onFpsChange,
   className,
   style,
   onClick,
@@ -48,6 +49,12 @@ export const SolsticeGlobe3D = ({
   
   const textureRotationRef = useGlobeAnimation(globeMaterialRef, isGlobeReady, initialPov, isRotating);
   const fps = useFramerate(isGlobeReady, globeRef);
+  
+  useEffect(() => {
+    if (fps && onFpsChange) {
+      onFpsChange(fps);
+    }
+  }, [fps, onFpsChange]);
   
   const handleMouseDown = useCallback((e: React.MouseEvent<HTMLDivElement>) => {
     dragStartRef.current = { x: e.clientX, y: e.clientY };
@@ -174,7 +181,6 @@ export const SolsticeGlobe3D = ({
           />
         </div>
       )}
-        {fps ? (fps < 90 ? <div style={{ position: 'absolute', bottom: 10, right: 10, color: 'white', fontSize: 12, zIndex: 1000, pointerEvents: 'none' }}>Alas, this globe is rendering slowly on your machine.</div> : <div style={{ position: 'absolute', bottom: 10, right: 10, color: 'white', fontFamily: 'monospace', fontSize: '14px', zIndex: 1000, pointerEvents: 'none' }}>{fps} FPS</div>) : null}
     </div>
   );
 };

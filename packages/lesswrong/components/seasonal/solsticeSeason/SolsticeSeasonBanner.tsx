@@ -180,6 +180,15 @@ const styles = defineStyles("SolsticeSeasonBanner", (theme: ThemeType) => ({
     width: "calc(100% - 2px)",
     justifyContent: 'center',
   },
+  fpsWarning: {
+    ...theme.typography.commentStyle,
+    fontSize: 12,
+    fontWeight: 400,
+    opacity: 0.8,
+    color: theme.palette.text.alwaysWhite,
+    textAlign: 'center',
+    marginTop: 10,
+  },
 }));
 
 
@@ -207,6 +216,7 @@ export default function SolsticeSeasonBannerInner() {
   const [isGlobeFullyLoaded, setIsGlobeFullyLoaded] = useState(false);
   const [isTextContainerFullyLoaded, setIsTextContainerFullyLoaded] = useState(false);
   const [textContainerLeft, setTextContainerLeft] = useState<string>('50%');
+  const [fps, setFps] = useState<number | null>(null);
   const resizeTimeoutRef = useRef<NodeJS.Timeout | null>(null);
   const retryCountRef = useRef(0);
   
@@ -422,6 +432,7 @@ export default function SolsticeSeasonBannerInner() {
           }}
           onReady={handleGlobeReady}
           onFullyLoaded={handleGlobeFullyLoaded}
+          onFpsChange={setFps}
           style={{ width: '100%', height: '100%' }}
         />}
       {selectedEventId && popupCoords && (
@@ -452,6 +463,8 @@ export default function SolsticeSeasonBannerInner() {
               Announce Your Own Solstice
             </Link>
           </div>  
+          {fps ? (fps < 90 ? <div  className={classes.fpsWarning}>Alas, this globe is rendering slowly on your machine. {fps} FPS.</div> : <div className={classes.fpsWarning}>{fps} FPS</div>) : null}
+
       </div>
     </div>
   </div>;
