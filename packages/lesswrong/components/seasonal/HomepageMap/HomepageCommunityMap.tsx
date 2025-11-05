@@ -392,6 +392,3 @@ export const HomepageCommunityMap = ({dontAskUserLocation = false, classes}: {
 }
 
 export default registerComponent('HomepageCommunityMap', HomepageCommunityMap, {styles});
-
-
-

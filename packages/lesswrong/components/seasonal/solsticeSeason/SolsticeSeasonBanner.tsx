@@ -381,7 +381,6 @@ export default function SolsticeSeasonBannerInner() {
         lat: event.lat!,
         lng: event.lng!,
         size: 0.5,
-        color: filterKey === 'SSC' ? '#ff6b6b' : filterKey === 'SOLSTICE' ? '#c7ceea' : filterKey === 'LW' ? '#95e1d3' : '#c7ceea',
         eventId: event._id,
         event: event,
       }));
