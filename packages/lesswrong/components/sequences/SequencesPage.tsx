@@ -30,6 +30,8 @@ import { Typography } from "../common/Typography";
 import SectionButton from "../common/SectionButton";
 import ContentStyles from "../common/ContentStyles";
 import NotifyMeButton from "../notifications/NotifyMeButton";
+import { MARGINAL_FUNDING_SEQUENCE_ID } from '@/lib/givingSeason';
+import PermanentRedirect from '../common/PermanentRedirect';
 
 export const sequencesImageScrim = (theme: ThemeType) => ({
   position: 'absolute',
@@ -198,6 +200,11 @@ const SequencesPage = ({ documentId, classes }: {
   const showSequence = useCallback(() => {
     setEdit(false);
   }, []);
+  if (documentId === MARGINAL_FUNDING_SEQUENCE_ID && !currentUser?.isAdmin) {
+    return (
+      <PermanentRedirect url="/marginal-funding" />
+    );
+  }
   if (document?.isDeleted) {
     return <SingleColumnSection>
       <Typography variant="body2" className={classes.deletedText}>
