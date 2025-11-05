@@ -461,7 +461,6 @@ export async function checkRecentRepost<T extends CreatePostDataInput | Partial<
       title: post.title,
       userId: post.userId,
       draft: {$ne: true},
-      deletedDraft: {$ne: true},
       createdAt: {$gt: oneHourAgo},
     });
     if (existing) {
@@ -847,11 +846,10 @@ export async function autoTagUndraftedPost({oldDocument, newDocument, context}: 
   }
 }
 
-export async function updatePostEmbeddingsOnChange(newPost: Pick<DbPost, '_id' | 'contents_latest' | 'draft' | 'deletedDraft' | 'status'>, oldPost?: DbPost) {
+export async function updatePostEmbeddingsOnChange(newPost: Pick<DbPost, '_id' | 'contents_latest' | 'draft' | 'status'>, oldPost?: DbPost) {
   const hasChanged = !oldPost || oldPost.contents_latest !== newPost.contents_latest;
   if (hasChanged &&
     !newPost.draft &&
-    !newPost.deletedDraft &&
     newPost.status === postStatuses.STATUS_APPROVED &&
     !isAnyTest
   ) {

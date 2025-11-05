@@ -458,6 +458,11 @@ const schema = {
       },
     },
   },
+  /**
+   * Whether the post should be hidden from the user's drafts list, if it's a
+   * draft. This flag must not be set if `draft` isn't also true, and should
+   * not be checked in any contxt where drafts are already excluded.
+   */
   deletedDraft: {
     database: {
       type: "BOOL",
@@ -469,12 +474,11 @@ const schema = {
       outputType: "Boolean!",
       inputType: "Boolean",
       canRead: ["guests"],
-      canUpdate: ["members"],
-      onUpdate: ({ data, newDocument, oldDocument, currentUser }) => {
-        if (!currentUser?.isAdmin && oldDocument.deletedDraft && !newDocument.deletedDraft) {
-          throw new Error("You cannot un-delete posts");
-        }
-        return data.deletedDraft;
+      canUpdate: [userOwns, "sunshineRegiment", "admins"],
+      onUpdate: ({ newDocument }) => {
+        // The `deletedDraft` field can't be set if `draft` is false
+        if (!newDocument.draft) return false;
+        else return newDocument.deletedDraft;
       },
       validation: {
         optional: true,
@@ -1863,7 +1867,6 @@ const schema = {
           {
             documentId: post._id,
             draft: false,
-            deletedDraft: false,
           },
           "documentId",
           post._id
@@ -1877,7 +1880,6 @@ const schema = {
           on: {
             documentId: field("_id"),
             draft: "false",
-            deletedDraft: "false",
           },
           resolver: (spotlightsField) => spotlightsField("*"),
         }),
