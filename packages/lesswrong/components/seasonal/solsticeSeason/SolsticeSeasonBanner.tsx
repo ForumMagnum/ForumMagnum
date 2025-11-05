@@ -3,13 +3,11 @@ import { defineStyles, useStyles } from '../../hooks/useStyles';
 import { useQuery } from "@/lib/crud/useQuery";
 import { SuspenseWrapper } from '@/components/common/SuspenseWrapper';
 import { gql } from '@/lib/generated/gql-codegen';
-import { JssStyles } from '@/lib/jssStyles';
 import { Link } from '@/lib/reactRouterWrapper';
 import classNames from 'classnames';
 import SolsticeGlobe3D from './SolsticeGlobe3D';
 import { SolsticeGlobePoint } from './types';
 import { FixedPositionEventPopup } from '../HomepageMap/HomepageCommunityMap';
-import Row from '@/components/common/Row';
 import { useIsAboveBreakpoint } from '@/components/hooks/useScreenWidth';
 
 const smallBreakpoint = 1525
@@ -182,6 +180,9 @@ const styles = defineStyles("SolsticeSeasonBanner", (theme: ThemeType) => ({
     justifyContent: 'center',
   },
   fpsWarning: {
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'space-between',
     ...theme.typography.commentStyle,
     fontSize: 12,
     fontWeight: 400,
@@ -189,6 +190,44 @@ const styles = defineStyles("SolsticeSeasonBanner", (theme: ThemeType) => ({
     color: theme.palette.text.alwaysWhite,
     textAlign: 'center',
     marginTop: 10,
+  },
+  hideButton: {
+    ...theme.typography.commentStyle,
+    background: "none",
+    border: "none",
+    fontSize: 12,
+    fontWeight: 400,
+    opacity: 0.8,
+    color: theme.palette.text.alwaysWhite,
+    textDecoration: 'underline',
+    cursor: 'pointer',
+    marginLeft: 8,
+    '&:hover': {
+      opacity: 1,
+    },
+  },
+  mapContainer: {
+    position: 'absolute',
+    top: 0,
+    right: 0,
+    width: '100%',
+    height: '100%',
+    transition: 'opacity 0.3s ease-out',
+    zIndex: 0,
+  },
+  mapGradientRight: {
+    position: 'absolute',
+    top: 0,
+    right: 0,
+    width: 'calc(100% + 260px)',
+    height: '100%',
+    background: `linear-gradient(to left, transparent 60%, ${theme.palette.background.default} 100%)`,
+    [theme.breakpoints.up(1620)]: {
+      background: `linear-gradient(to left, transparent 60%, ${theme.palette.background.default} 100%)`,
+    },
+    zIndex: 1,
+    pointerEvents: 'none',
+    transition: 'opacity 0.3s ease-out',
   },
 }));
 
@@ -399,8 +438,8 @@ export default function SolsticeSeasonBannerInner() {
     }, 10)
   }, [currentCarouselIndex])
 
+
   return <div className={classNames(classes.root)} style={{ opacity: bannerOpacity, pointerEvents: pointerEventsDisabled ? 'none' : 'auto' }}>
-    {/* <div className={classes.globeGradient}/> */}
     <div className={classes.globeGradientRight} />
     <div className={classes.scrollBackground} />
     <div 
@@ -449,8 +488,9 @@ export default function SolsticeSeasonBannerInner() {
               Announce Your Own Solstice
             </Link>
           </div>  
-          {fps ? (fps < 90 ? <div  className={classes.fpsWarning}>Alas, this globe is rendering slowly on your machine. {fps} FPS.</div> : <div className={classes.fpsWarning}>{fps} FPS</div>) : null}
-
+          <div className={classes.fpsWarning}>
+            {fps ? (fps < 90 ? "If your compute is slow, you can switch to the map view." : `${fps} FPS`) : null}
+          </div>
       </div>
     </div>
   </div>;

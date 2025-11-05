@@ -13,6 +13,8 @@ import { SolsticeSeasonBanner } from './seasonal/solsticeSeason/SolsticeSeasonBa
 import MeetupMonthBanner from './seasonal/meetupMonth/MeetupMonthBanner';
 import PetrovDayStory from './seasonal/petrovDay/petrov-day-story/PetrovDayStory';
 import { useIsAboveBreakpoint } from './hooks/useScreenWidth';
+import { useCookiesWithConsent } from './hooks/useCookiesWithConsent';
+import { HIDE_SOLSTICE_GLOBE_COOKIE } from '@/lib/cookies/cookies';
 
 const styles = defineStyles("LWBackgroundImage", (theme: ThemeType) => ({
   root: {
@@ -107,6 +109,28 @@ const styles = defineStyles("LWBackgroundImage", (theme: ThemeType) => ({
       fontStyle: 'italic',
       opacity: .5,
     }
+  },
+  showSolsticeButton: {
+    position: 'fixed',
+    bottom: 12,
+    right: '12vw',
+    zIndex: 10,
+    ...theme.typography.commentStyle,
+    background: "transparent",
+    border: 'none',
+    borderRadius: 3,
+    fontSize: 14,
+    fontWeight: 400,
+    cursor: 'pointer',
+    padding: '8px 16px',
+    opacity: 0.5,
+    transition: 'opacity 0.2s ease-out',
+    '&:hover': {
+      opacity: 1,
+    },
+    [theme.breakpoints.down(1425)]: {
+      display: 'none',
+    },
   }
 }));
 
@@ -118,6 +142,20 @@ export const LWBackgroundImage = ({standaloneNavigation}: {
   const { pathname } = useSubscribedLocation();
   // const pathname = usePathname();
   const isHomePage = isHomeRoute(pathname);
+
+  const [cookies, setCookie] = useCookiesWithConsent([HIDE_SOLSTICE_GLOBE_COOKIE]);
+  const hideGlobeCookie = cookies[HIDE_SOLSTICE_GLOBE_COOKIE] === "true";
+  // Initialize to false to avoid SSR/client hydration mismatch, then sync from cookie after mount
+  const [hideSpecialFrontpage, setHideSpecialFrontpage] = useState(false);
+  
+  useEffect(() => {
+    setHideSpecialFrontpage(hideGlobeCookie);
+  }, [hideGlobeCookie]);
+
+  const handleSetHideSpecialFrontpage = (value: boolean) => {
+    setHideSpecialFrontpage(value);
+    setCookie(HIDE_SOLSTICE_GLOBE_COOKIE, value ? "true" : "false", { path: "/" });
+  };
 
   const defaultImage = standaloneNavigation ? <div className={classes.imageColumn}> 
     {/* Background image shown in the top-right corner of LW. The
@@ -145,14 +183,24 @@ export const LWBackgroundImage = ({standaloneNavigation}: {
       />
   </div>
 
-  let homePageImage = (standaloneNavigation && isHomePage) ? <SolsticeSeasonBanner /> : defaultImage
+  let homePageImage = (standaloneNavigation && isHomePage && !hideSpecialFrontpage) ? <SolsticeSeasonBanner /> : defaultImage
   if (getReviewPhase() === 'VOTING') homePageImage = <ReviewVotingCanvas />
   if (getReviewPhase() === 'RESULTS') homePageImage = reviewCompleteImage
+
+  const showSolsticeButton = standaloneNavigation && isHomePage && hideSpecialFrontpage && getReviewPhase() !== 'VOTING' && getReviewPhase() !== 'RESULTS';
 
   const now = new Date();
 
   return <div className={classes.root}>
     {homePageImage}
+    {showSolsticeButton && (
+      <button
+        className={classes.showSolsticeButton}
+        onClick={() => handleSetHideSpecialFrontpage(false)}
+      >
+        Show Solstice Season
+      </button>
+    )}
   </div>;
 }
 
