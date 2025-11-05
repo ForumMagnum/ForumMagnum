@@ -45,7 +45,7 @@ export const givingSeasonEvents: GivingSeasonEvent[] = [
       _id: "kSLB5r7cX77Lbuegw",
       slug: "funding-strategy-week-2025",
     },
-    start: new Date("2025-10-22"), // TODO: Set this to 2025-11-10 before deploying
+    start: new Date("2025-11-10"),
     end: new Date("2025-11-17"),
     color: "#BCDFE1",
     desktopCloudinaryId: "week2_desktop_ydo4wc",
