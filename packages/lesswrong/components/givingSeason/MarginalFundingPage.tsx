@@ -40,6 +40,12 @@ const styles = defineStyles("MarginalFundingPage", (theme) => ({
     gridTemplateColumns: "repeat(3, 1fr)",
     borderTop: `1px solid ${theme.palette.text.alwaysBlack}`,
     gap: 1,
+    [theme.breakpoints.down("sm")]: {
+      gridTemplateColumns: "1fr 1fr",
+    },
+    [theme.breakpoints.down("xs")]: {
+      gridTemplateColumns: "1fr",
+    },
   },
   header: {
     background: theme.palette.givingSeason.primary,
@@ -51,10 +57,15 @@ const styles = defineStyles("MarginalFundingPage", (theme) => ({
     "& > *": {
       maxWidth: "calc(min(700px, 100%))",
     },
+    [theme.breakpoints.down("xs")]: {
+      gridColumn: "unset",
+    },
   },
   options: {
     display: "flex",
     gap: "16px",
+    flexWrap: "wrap",
+    whiteSpace: "nowrap",
   },
   option: {
     fontSize: 14,
@@ -96,6 +107,9 @@ const styles = defineStyles("MarginalFundingPage", (theme) => ({
     gap: "0px",
     rowGap: "1px",
     marginTop: 1,
+    [theme.breakpoints.down("sm")]: {
+      gridTemplateColumns: "1fr",
+    },
   },
 }));
 

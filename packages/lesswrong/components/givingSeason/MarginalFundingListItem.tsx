@@ -10,6 +10,10 @@ import classNames from "classnames";
 const styles = defineStyles("MarginalFundingListItem", (theme) => ({
   root: {
     display: "contents",
+    [theme.breakpoints.down("sm")]: {
+      display: "flex",
+      flexDirection: "column",
+    },
   },
   read: {
     background: theme.palette.givingSeason.primary,
@@ -22,8 +26,18 @@ const styles = defineStyles("MarginalFundingListItem", (theme) => ({
     flexDirection: "column",
     justifyContent: "center",
     padding: "40px 60px",
+    [theme.breakpoints.down("sm")]: {
+      display: "block",
+      "&:first-child": {
+        paddingBottom: 0,
+      },
+      "&:not(:first-child)": {
+        paddingTop: 16,
+      },
+    },
   },
   org: {
+    display: "inline-block",
     whiteSpace: "nowrap",
     textTransform: "uppercase",
     border: `1px solid ${theme.palette.text.alwaysBlack}`,
