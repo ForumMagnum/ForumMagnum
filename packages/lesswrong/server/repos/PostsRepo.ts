@@ -1288,7 +1288,9 @@ class PostsRepo extends AbstractRepo<"Posts"> {
     return new Map(result.map(row => [row.postId, row.isRead]));
   }
   
-  async getHomepageCommunityEvents(limit: number): Promise<Array<HomepageCommunityEventMarker>> {
+  async getHomepageCommunityEvents(limit: number, eventType?: string): Promise<Array<HomepageCommunityEventMarker>> {
+    const eventTypeFilter = eventType ? `AND "eventType" = $2` : '';
+    const params = eventType ? [limit, eventType] : [limit];
     return this.getRawDb().any<HomepageCommunityEventMarker>(`
       -- PostsRepo.getHomepageCommunityEvents
       SELECT 
@@ -1302,8 +1304,9 @@ class PostsRepo extends AbstractRepo<"Posts"> {
       AND "startTime" < NOW() + INTERVAL '5 months'
       AND "googleLocation" -> 'geometry' -> 'location' ->> 'lat' IS NOT NULL
       AND "googleLocation" -> 'geometry' -> 'location' ->> 'lng' IS NOT NULL
+      ${eventTypeFilter}
       LIMIT $1
-    `, [limit]);
+    `, params);
   }
 }
 

@@ -7836,6 +7836,7 @@ type QueryGivingSeasonHeartsArgs = {
 
 
 type QueryHomepageCommunityEventsArgs = {
+  eventType?: InputMaybe<Scalars['String']['input']>;
   limit: Scalars['Int']['input'];
 };
 
@@ -19856,23 +19857,6 @@ type solsticeSeasonQueryQueryVariables = Exact<{ [key: string]: never; }>;
 
 
 type solsticeSeasonQueryQuery = solsticeSeasonQueryQuery_Query;
-
-type SolsticeSeasonEventPopupQuery_post_SinglePostOutput_result_Post = (
-  { __typename?: 'Post' }
-  & PostsList
-);
-
-type SolsticeSeasonEventPopupQuery_post_SinglePostOutput = { __typename?: 'SinglePostOutput', result: SolsticeSeasonEventPopupQuery_post_SinglePostOutput_result_Post | null };
-
-type SolsticeSeasonEventPopupQuery_Query = { __typename?: 'Query', post: SolsticeSeasonEventPopupQuery_post_SinglePostOutput | null };
-
-
-type SolsticeSeasonEventPopupQueryVariables = Exact<{
-  documentId: InputMaybe<Scalars['String']['input']>;
-}>;
-
-
-type SolsticeSeasonEventPopupQuery = SolsticeSeasonEventPopupQuery_Query;
 
 type updateChapterAddDraftPostDialogMutation_updateChapter_ChapterOutput_data_Chapter = (
   { __typename?: 'Chapter' }

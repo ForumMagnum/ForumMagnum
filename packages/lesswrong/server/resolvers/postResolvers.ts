@@ -277,9 +277,9 @@ export const postGqlQueries = {
       }
     })
   },
-  async HomepageCommunityEvents(root: void, { limit }: { limit: number }, context: ResolverContext): Promise<HomepageCommunityEventMarkersResult> {
+  async HomepageCommunityEvents(root: void, { limit, eventType }: { limit: number, eventType?: string }, context: ResolverContext): Promise<HomepageCommunityEventMarkersResult> {
     const { repos } = context
-    const events = await repos.posts.getHomepageCommunityEvents(limit)
+    const events = await repos.posts.getHomepageCommunityEvents(limit, eventType)
     return { events }
   },
   ...DigestHighlightsQuery,
@@ -445,7 +445,7 @@ export const postGqlTypeDefs = gql`
     DigestPlannerData(digestId: String, startDate: Date, endDate: Date): [DigestPlannerPost!]!
     DigestPosts(num: Int): [Post!]
 
-    HomepageCommunityEvents(limit: Int!): HomepageCommunityEventMarkersResult!
+    HomepageCommunityEvents(limit: Int!, eventType: String): HomepageCommunityEventMarkersResult!
   }
 
   extend type Mutation {

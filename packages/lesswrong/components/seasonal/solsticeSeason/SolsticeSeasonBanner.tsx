@@ -234,7 +234,7 @@ const styles = defineStyles("SolsticeSeasonBanner", (theme: ThemeType) => ({
 
 export const SolsticeSeasonQuery = gql(`
   query solsticeSeasonQuery {
-    HomepageCommunityEvents(limit: 500) {
+    HomepageCommunityEvents(limit: 500, eventType: "SOLSTICE") {
       events {
         _id
         lat

@@ -620,7 +620,7 @@ extend type Query {
   PostIsCriticism(args: JSON): Boolean
   DigestPlannerData(digestId: String, startDate: Date, endDate: Date): [DigestPlannerPost!]!
   DigestPosts(num: Int): [Post!]
-  HomepageCommunityEvents(limit: Int!): HomepageCommunityEventMarkersResult!
+  HomepageCommunityEvents(limit: Int!, eventType: String): HomepageCommunityEventMarkersResult!
 }
 
 extend type Mutation {
