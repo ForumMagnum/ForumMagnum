@@ -4,6 +4,7 @@ import { SolsticeGlobe3DProps } from './types';
 import { useGlobeDayNightMaterial, useGlobeReadyEffects, useGlobeAnimation, useFramerate } from './hooks';
 import { mapPointsToMarkers } from './utils';
 import { useEventListener } from '@/components/hooks/useEventListener';
+import { useThemeColor } from '@/components/themes/useTheme';
 import { DEFAULT_DAY_IMAGE_URL, DEFAULT_NIGHT_IMAGE_URL, DEFAULT_LUMINOSITY_IMAGE_URL, DEFAULT_ALTITUDE_SCALE, DEFAULT_INITIAL_ALTITUDE_MULTIPLIER } from './solsiceSeasonConstants';
 
 // Dynamically import react-globe.gl to avoid SSR issues
@@ -163,9 +164,6 @@ export const SolsticeGlobe3D = ({
             globeMaterial={globeMaterialRef.current}
             onGlobeReady={() => setIsGlobeReady(true)}
             animateIn={true}
-            polygonCapColor={() => 'rgba(0,0,0,0)'}
-            polygonSideColor={() => 'rgba(0,0,0,0)'}
-            polygonStrokeColor={() => 'rgba(255,255,255,0.35)'}
             polygonsTransitionDuration={0}
             polygonAltitude={0.03}
             htmlElementsData={markerData}
