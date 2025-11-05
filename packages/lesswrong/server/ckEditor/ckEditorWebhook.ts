@@ -32,14 +32,6 @@ interface CkEditorUserConnectionChange {
 // Webhook payloads don't seem to have Typescript types exported anywhere, but
 // they're pretty simple so we define them inline.
 export async function handleCkEditorWebhook(message: any) {
-  console.log({ ckEditorDocumentIdToPostId });
-  try {
-    const foobar = ckEditorDocumentIdToPostId("foobar");
-    console.log({ foobar });
-  } catch (error) {
-    console.error({ error });
-  }
-  return;
   // eslint-disable-next-line no-console
   console.log(`Got CkEditor webhook: ${JSON.stringify(message)}`);
   
