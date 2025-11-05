@@ -1,12 +1,13 @@
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-export const createDayNightShaderMaterial = (THREERef: any, contrast: number, brightness: number, brightnessAdd: number) => {
-  return new THREERef.ShaderMaterial({
+import * as THREE from 'three';
+
+export const createDayNightShaderMaterial = (contrast: number, brightness: number, brightnessAdd: number) => {
+  return new THREE.ShaderMaterial({
     uniforms: {
       dayTexture: { value: null },
       nightTexture: { value: null },
       luminosityTexture: { value: null },
-      sunPosition: { value: new THREERef.Vector2() },
-      globeRotation: { value: new THREERef.Vector2() },
+      sunPosition: { value: new THREE.Vector2() },
+      globeRotation: { value: new THREE.Vector2() },
       textureRotation: { value: 0 }, // Rotation offset for texture coordinates (radians)
       contrast: { value: contrast },
       brightness: { value: brightness },

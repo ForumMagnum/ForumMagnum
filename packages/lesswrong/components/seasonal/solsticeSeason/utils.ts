@@ -1,9 +1,25 @@
 import { SolsticeGlobePoint } from './types';
+import * as THREE from 'three';
 
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-export const findMeshWithTexture = (obj: any): any => {
-  if (obj?.type === 'Mesh' && obj.material?.map) return obj;
-  for (const child of obj?.children || []) {
+export const findMeshWithTexture = (obj: THREE.Object3D | null | undefined): THREE.Mesh | null => {
+  if (!obj) return null;
+  
+  if (obj instanceof THREE.Mesh) {
+    // Check if mesh has a material with a texture map
+    const material = obj.material;
+    if (material) {
+      // Handle both single material and array of materials
+      const materials = Array.isArray(material) ? material : [material];
+      for (const mat of materials) {
+        // Check if material has a map property (texture)
+        if ('map' in mat && mat.map) {
+          return obj;
+        }
+      }
+    }
+  }
+  
+  for (const child of obj.children) {
     const found = findMeshWithTexture(child);
     if (found) return found;
   }

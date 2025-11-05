@@ -1,14 +1,13 @@
 import React, { ReactNode } from 'react';
 import { Link } from '../../lib/reactRouterWrapper';
-import { registerComponent } from '../../lib/vulcan-lib/components';
 import { Popup as BadlyTypedPopup } from 'react-map-gl';
 import { componentWithChildren } from '../../lib/utils/componentsWithChildren';
 import ContentStyles from '../common/ContentStyles';
+import { defineStyles, useStyles } from '@/components/hooks/useStyles';
 
 const Popup = componentWithChildren(BadlyTypedPopup);
 
-// Shared with LocalEventMarker
-export const styles = (theme: ThemeType) => ({
+const styles = defineStyles("StyledMapPopup", (theme: ThemeType) => ({
   root: {
     ...theme.typography.body2,
     width: 250,
@@ -60,20 +59,20 @@ export const styles = (theme: ThemeType) => ({
     display: 'flex',
     justifyContent: 'space-between'
   },
-});
+}));
 
 export const StyledMapPopupContent = ({
-  children, classes, link, title,
+  children, link, title,
   metaInfo, cornerLinks, hideBottomLinks
 }: {
   children?: ReactNode,
-  classes: ClassesType<typeof styles>,
   link: string,
   title: string|ReactNode,
   metaInfo?: any,
   cornerLinks?: any,
   hideBottomLinks?: boolean
 }) => {
+  const classes = useStyles(styles);
   return (
     <div className={classes.root}>
       <Link to={link}><h5 className={classes.groupMarkerName}> {title} </h5></Link>
@@ -91,12 +90,11 @@ export const StyledMapPopupContent = ({
 };
 
 const StyledMapPopup = ({
-  children, classes, link, title,
+  children, link, title,
   metaInfo, cornerLinks, lat, lng,
   onClose, offsetTop=-20, offsetLeft, hideBottomLinks
 }: {
   children?: ReactNode,
-  classes: ClassesType<typeof styles>,
   link: string,
   title: string|ReactNode,
   metaInfo?: any,
@@ -120,7 +118,6 @@ const StyledMapPopup = ({
     captureScroll
     anchor="bottom" >
       <StyledMapPopupContent
-        classes={classes}
         link={link}
         title={title}
         metaInfo={metaInfo}
@@ -132,7 +129,7 @@ const StyledMapPopup = ({
   </Popup>
 }
 
-export default registerComponent("StyledMapPopup", StyledMapPopup, {styles});
+export default StyledMapPopup;
 
 
 

@@ -311,6 +311,7 @@
     "@types/cors": "^2.8.18",
     "@types/diff": "^7.0.1",
     "@types/react-html-parser": "^2.0.6",
+    "@types/three": "^0.181.0",
     "@typescript-eslint/eslint-plugin": "^8.32.1",
     "@typescript-eslint/parser": "^8.32.1",
     "@vitejs/plugin-react": "^4.3.3",

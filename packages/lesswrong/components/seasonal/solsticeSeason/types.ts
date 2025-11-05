@@ -1,11 +1,12 @@
+import type { HomepageCommunityEventMarker } from '@/lib/generated/gql-codegen/graphql';
+
 export type SolsticeGlobePoint = {
   lat: number;
   lng: number;
   size: number;
   color?: string;
   eventId?: string;
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  event?: any;
+  event?: HomepageCommunityEventMarker;
 };
 
 export type PointOfView = {

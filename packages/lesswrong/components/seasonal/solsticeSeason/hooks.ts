@@ -1,17 +1,14 @@
 import React, { useEffect, useState, useRef } from 'react';
-// eslint-disable-next-line @typescript-eslint/no-var-requires
-const THREE = require('three');
+import * as THREE from 'three';
 import { createDayNightShaderMaterial } from './shader';
 import { CONTRAST_AMOUNT, BRIGHTNESS_BOOST, BRIGHTNESS_ADD, ROTATION_SPEED, DEFAULT_SUN_POSITION } from './solsiceSeasonConstants';
 import { findMeshWithTexture } from './utils';
 import { PointOfView } from './types';
 
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
 export const useGlobeDayNightMaterial = (): React.MutableRefObject<any> => {
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const globeMaterialRef = useRef<any>(null);
   useEffect(() => {
-    globeMaterialRef.current = createDayNightShaderMaterial(THREE, CONTRAST_AMOUNT, BRIGHTNESS_BOOST, BRIGHTNESS_ADD);
+    globeMaterialRef.current = createDayNightShaderMaterial(CONTRAST_AMOUNT, BRIGHTNESS_BOOST, BRIGHTNESS_ADD);
     return () => {
       if (globeMaterialRef.current && typeof globeMaterialRef.current.dispose === 'function') {
         globeMaterialRef.current.dispose();
@@ -21,7 +18,6 @@ export const useGlobeDayNightMaterial = (): React.MutableRefObject<any> => {
   return globeMaterialRef;
 };
 
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
 export const useGlobeReadyEffects = (
   isGlobeReady: boolean,
   globeRef: React.MutableRefObject<any>,
