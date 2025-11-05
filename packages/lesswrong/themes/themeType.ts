@@ -556,6 +556,7 @@ declare global {
 
     givingSeason: {
       primary: ColorString,
+      cardHover: ColorString,
     },
     wrapped: {
       background: ColorString,

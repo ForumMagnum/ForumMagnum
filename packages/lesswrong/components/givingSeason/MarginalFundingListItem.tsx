@@ -10,9 +10,22 @@ import classNames from "classnames";
 const styles = defineStyles("MarginalFundingListItem", (theme) => ({
   root: {
     display: "contents",
+    cursor: "pointer",
     [theme.breakpoints.down("sm")]: {
       display: "flex",
       flexDirection: "column",
+    },
+    "&:hover": {
+      color: theme.palette.givingSeason.primary,
+      "& .MarginalFundingListItem-read": {
+        background: `${theme.palette.givingSeason.cardHover} !important`,
+      },
+      "& .MarginalFundingListItem-unread": {
+        background: `${theme.palette.givingSeason.cardHover} !important`,
+      },
+      "& .MarginalFundingListItem-org": {
+        borderColor: theme.palette.givingSeason.primary,
+      },
     },
   },
   read: {
@@ -52,6 +65,9 @@ const styles = defineStyles("MarginalFundingListItem", (theme) => ({
     fontSize: 30,
     fontWeight: 600,
     letterSpacing: "-0.02em",
+    "&:hover": {
+      opacity: 1,
+    },
   },
   authors: {
     fontSize: 14,

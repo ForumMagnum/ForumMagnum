@@ -15,7 +15,14 @@ const styles = defineStyles("MarginalFundingCard", (theme) => ({
     gap: 32,
     cursor: "pointer",
     "&:hover": {
-      opacity: 0.9,
+      background: `${theme.palette.givingSeason.cardHover} !important`,
+      color: theme.palette.givingSeason.primary,
+      "& .MarginalFundingCard-org": {
+        borderColor: theme.palette.givingSeason.primary,
+      },
+      "& .MarginalFundingCard-image": {
+        transform: "scale(1.02)",
+      },
     },
   },
   read: {
@@ -33,6 +40,7 @@ const styles = defineStyles("MarginalFundingCard", (theme) => ({
     width: "100%",
     height: 216,
     objectFit: "cover",
+    transition: "transform ease 0.2s",
   },
   title: {
     fontSize: 28,
