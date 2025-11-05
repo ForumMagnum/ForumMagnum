@@ -1,12 +1,11 @@
 import React, { useState, useRef, useMemo, useCallback, useEffect } from 'react';
-import dynamic from 'next/dynamic';
-import type { GlobeProps, GlobeMethods } from 'react-globe.gl';
 import { SolsticeGlobe3DProps, SolsticeGlobePoint } from './types';
 import { useGlobeDayNightMaterial, useGlobeReadyEffects, useGlobeAnimation, useFramerate } from './hooks';
 import { mapPointsToMarkers } from './utils';
 import { useEventListener } from '@/components/hooks/useEventListener';
 import { useThemeColor } from '@/components/themes/useTheme';
 import { DEFAULT_DAY_IMAGE_URL, DEFAULT_NIGHT_IMAGE_URL, DEFAULT_LUMINOSITY_IMAGE_URL, DEFAULT_ALTITUDE_SCALE, DEFAULT_INITIAL_ALTITUDE_MULTIPLIER } from './solsiceSeasonConstants';
+import Globe, { type GlobeMethods } from 'react-globe.gl';
 
 type GlobeMarkerData = {
   lat: number;
@@ -17,9 +16,6 @@ type GlobeMarkerData = {
   event?: unknown;
   _index: number;
 };
-
-// Dynamically import react-globe.gl to avoid SSR issues
-const Globe = dynamic(() => import('react-globe.gl'), { ssr: false }) as React.ComponentType<GlobeProps & { ref?: React.Ref<GlobeMethods> }>;
 
 export const SolsticeGlobe3D = ({
   pointsData,
@@ -40,7 +36,7 @@ export const SolsticeGlobe3D = ({
   const [isGlobeReady, setIsGlobeReady] = useState(false);
   const [isRotating, setIsRotating] = useState(true);
   const [isFullyLoaded, setIsFullyLoaded] = useState(false);
-  const globeRef = useRef<GlobeMethods | null>(null);
+  const globeRef = useRef<GlobeMethods | undefined>(undefined);
   const globeMaterialRef = useGlobeDayNightMaterial();
   const dragStartRef = useRef<{ x: number; y: number } | null>(null);
   const isDraggingRef = useRef(false);
