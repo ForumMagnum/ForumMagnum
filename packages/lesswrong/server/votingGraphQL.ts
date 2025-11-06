@@ -1,5 +1,7 @@
 import { collectionNameToTypeName } from '@/lib/generated/collectionTypeNames';
+import { voteableCollectionNames } from '@/lib/types/collectionTypes';
 import gql from 'graphql-tag';
+import merge from 'lodash/merge';
 
 const performVoteMutation = async (args: {documentId: string, voteType: DbVote['voteType']|null, extendedVote?: any}, context: ResolverContext, collectionName: VoteableCollectionName) => {
   const { performVoteServer, clearVotesServer } = await import('./voteServer');
@@ -65,4 +67,15 @@ export function getVoteGraphql(collectionName: VoteableCollectionName) {
     graphqlVoteTypeDefs,
     graphqlVoteMutations,
   }
+}
+
+export function getVoteTypedefs() {
+  return voteableCollectionNames.map(collectionName =>
+    getVoteGraphql(collectionName).graphqlVoteTypeDefs
+  ).join("\n");
+}
+
+export function getVoteMutations() {
+  return merge(voteableCollectionNames.map(collectionName =>
+    getVoteGraphql(collectionName).graphqlVoteMutations))
 }

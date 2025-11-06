@@ -6,7 +6,7 @@ import { makeExecutableSchema } from '@graphql-tools/schema';
 import type { GraphQLResolveInfo, GraphQLScalarType, GraphQLSchema } from 'graphql';
 import GraphQLJSON from '@/lib/vendor/graphql-type-json';
 import GraphQLDate from './graphql-date';
-import { getVoteGraphql } from '@/server/votingGraphQL';
+import { getVoteGraphql, getVoteMutations, getVoteTypedefs } from '@/server/votingGraphQL';
 import { graphqlTypeDefs as notificationTypeDefs, graphqlQueries as notificationQueries } from '@/server/notificationBatching';
 import { graphqlTypeDefs as arbitalLinkedPagesTypeDefs } from '@/lib/collections/helpers/arbitalLinkedPagesField';
 import { graphqlTypeDefs as additionalPostsTypeDefs } from "@/lib/collections/posts/graphqlTypeDefs";
@@ -206,27 +206,18 @@ import { createUserTagRelGqlMutation, updateUserTagRelGqlMutation, graphqlUserTa
 import { createUserGqlMutation, updateUserGqlMutation, graphqlUserTypeDefs } from "@/server/collections/users/mutations";
 
 
-const selectorInput = gql`
+const getSelectorInput = () => gql`
   input SelectorInput {
     _id: String
     documentId: String
   }
 `;
 
-const emptyViewInput = gql`
+const getEmptyViewInput = () => gql`
   input EmptyViewInput {
     _: Boolean @deprecated(reason: "GraphQL doesn't support empty input types, so we need to provide a field.  Don't pass anything in, it doesn't do anything.")
   }
 `;
-
-const { graphqlVoteTypeDefs: postVoteTypeDefs, graphqlVoteMutations: postVoteMutations } = getVoteGraphql('Posts');
-const { graphqlVoteTypeDefs: commentVoteTypeDefs, graphqlVoteMutations: commentVoteMutations } = getVoteGraphql('Comments');
-const { graphqlVoteTypeDefs: messageVoteTypeDefs, graphqlVoteMutations: messageVoteMutations } = getVoteGraphql('Messages');
-const { graphqlVoteTypeDefs: tagRelVoteTypeDefs, graphqlVoteMutations: tagRelVoteMutations } = getVoteGraphql('TagRels');
-const { graphqlVoteTypeDefs: revisionVoteTypeDefs, graphqlVoteMutations: revisionVoteMutations } = getVoteGraphql('Revisions');
-const { graphqlVoteTypeDefs: electionCandidateVoteTypeDefs, graphqlVoteMutations: electionCandidateVoteMutations } = getVoteGraphql('ElectionCandidates');
-const { graphqlVoteTypeDefs: tagVoteTypeDefs, graphqlVoteMutations: tagVoteMutations } = getVoteGraphql('Tags');
-const { graphqlVoteTypeDefs: multiDocumentVoteTypeDefs, graphqlVoteMutations: multiDocumentVoteMutations } = getVoteGraphql('MultiDocuments');
 
 export const getTypeDefs = () => gql`
   type Query
@@ -244,8 +235,8 @@ export const getTypeDefs = () => gql`
     data: ContentTypeData!
   }
 
-  ${selectorInput}
-  ${emptyViewInput}
+  ${getSelectorInput()}
+  ${getEmptyViewInput()}
   ${notificationTypeDefs}
   ${arbitalLinkedPagesTypeDefs}
   ${additionalPostsTypeDefs}
@@ -253,17 +244,9 @@ export const getTypeDefs = () => gql`
   ${additionalUsersTypeDefs}
   ${recommendationsTypeDefs}
   ${userResolversTypeDefs}
-  # # Vote typedefs
-  ${postVoteTypeDefs}
-  ${commentVoteTypeDefs}
-  ${messageVoteTypeDefs}
-  ${tagRelVoteTypeDefs}
-  ${revisionVoteTypeDefs}
-  ${electionCandidateVoteTypeDefs}
-  ${tagVoteTypeDefs}
-  ${multiDocumentVoteTypeDefs}
+  ${getVoteTypedefs()}
+
   ${commentTypeDefs}
-  # # End vote typedefs
   ${karmaChangesTypeDefs}
   ${analyticsGraphQLTypeDefs}
   ${arbitalGraphQLTypeDefs}
@@ -570,14 +553,7 @@ const getResolvers = () => ({
   },
   Mutation: {
     ...userResolversMutations,
-    ...postVoteMutations,
-    ...commentVoteMutations,
-    ...messageVoteMutations,
-    ...tagRelVoteMutations,
-    ...revisionVoteMutations,
-    ...electionCandidateVoteMutations,
-    ...tagVoteMutations,
-    ...multiDocumentVoteMutations,
+    ...getVoteMutations(),
     ...commentMutations,
     ...notificationResolversGqlMutations,
     ...elicitPredictionsGraphQLMutations,
