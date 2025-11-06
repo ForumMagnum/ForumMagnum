@@ -392,7 +392,8 @@ class MainFormView extends View {
         // on the first render when applying the `isOn` class to the current selection
         setTimeout(() => {
           // Apply dynamic background color
-          buttonView.element.style.backgroundColor = colorScheme.darkColor;
+          buttonView.element.style.setProperty("--poll-dark", colorScheme.darkColor);
+          buttonView.element.style.setProperty("--poll-light", colorScheme.lightColor);
           // Add class on initial render
           buttonView.element.classList.add('ck-color-selector-button');
         }, 0);
@@ -424,13 +425,6 @@ class MainFormView extends View {
            buttonView.element.classList.add('ck-color-selector-button');
         }
       });
-
-      // buttonView.on("change:isOn", () => {
-      //   // Ensure the class is applied after change the `isOn` state
-      //   if (buttonView.element) {
-      //      buttonView.element.classList.add('ck-color-selector-button');
-      //   }
-      // });
 
       return buttonView;
     });

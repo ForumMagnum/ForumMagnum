@@ -102,7 +102,9 @@
 }
 
 .ck-reset_all .ck-color-selector-button {
-  border: 1px solid #ccc;
+  border-radius: 50% !important;
+  border: 2px solid var(--poll-dark);
+  background-color: var(--poll-light);
   box-sizing: border-box;
   cursor: pointer;
 }
