@@ -370,10 +370,14 @@ class MainFormView extends View {
       const buttonView = new ButtonView(this.locale);
 
       buttonView.on('render', () => {
-        // Apply dynamic background color
-        buttonView.element.style.backgroundColor = colorScheme.darkColor;
-        // Add class on initial render
-        buttonView.element.classList.add('ck-color-selector-button');
+        // This setTimeout is required to prevent the new class from being removed
+        // on the first render when applying the `isOn` class to the current selection
+        setTimeout(() => {
+          // Apply dynamic background color
+          buttonView.element.style.backgroundColor = colorScheme.darkColor;
+          // Add class on initial render
+          buttonView.element.classList.add('ck-color-selector-button');
+        }, 0);
       });
 
       buttonView.on('execute', () => {
@@ -402,6 +406,13 @@ class MainFormView extends View {
            buttonView.element.classList.add('ck-color-selector-button');
         }
       });
+
+      // buttonView.on("change:isOn", () => {
+      //   // Ensure the class is applied after change the `isOn` state
+      //   if (buttonView.element) {
+      //      buttonView.element.classList.add('ck-color-selector-button');
+      //   }
+      // });
 
       return buttonView;
     });
