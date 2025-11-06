@@ -116,7 +116,14 @@ const styles = defineStyles('MessagesNewForm', (theme: ThemeType) => ({
   },
 }));
 
-interface MessagesNewFormProps {
+const InnerMessagesNewForm = ({
+  isMinimalist,
+  submitLabel = "Submit",
+  sendEmail = true,
+  prefilledProps,
+  conversationId,
+  onSuccess,
+}: {
   isMinimalist: boolean;
   submitLabel?: React.ReactNode;
   sendEmail?: boolean;
@@ -129,16 +136,9 @@ interface MessagesNewFormProps {
       };
     };
   };
+  conversationId: string;
   onSuccess: (doc: messageListFragment) => void;
-}
-
-const InnerMessagesNewForm = ({
-  isMinimalist,
-  submitLabel = "Submit",
-  sendEmail = true,
-  prefilledProps,
-  onSuccess,
-}: MessagesNewFormProps) => {
+}) => {
   const classes = useStyles(styles);
   const currentUser = useCurrentUser();
   
@@ -215,6 +215,7 @@ const InnerMessagesNewForm = ({
                 commentEditor={true}
                 commentStyles={true}
                 hideControls={true}
+                getLocalStorageId={() => ({id: conversationId, verify: false})}
               />
             )}
           </form.Field>
@@ -287,6 +288,7 @@ export const MessagesNewForm = ({
             },
           },
         }}
+        conversationId={conversationId}
         onSuccess={(newMessage) => successEvent(newMessage)}
       />
     </div>
