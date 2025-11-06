@@ -21,12 +21,9 @@ import LWHomePosts from "./LWHomePosts";
 import UltraFeed from "../ultraFeed/UltraFeed";
 import { StructuredData } from './StructuredData';
 import { SuspenseWrapper } from './SuspenseWrapper';
-import DeferRender from './DeferRender';
-import { defineStyles, useStyles } from '../hooks/useStyles';
+import { defineStyles } from '../hooks/useStyles';
 
-import dynamic from 'next/dynamic';
 import PetrovStoryMobileBanner from '../seasonal/petrovDay/petrov-day-story/PetrovStoryMobileBanner';
-const RecentDiscussionFeed = dynamic(() => import("../recentDiscussion/RecentDiscussionFeed"), { ssr: false });
 
 const getStructuredData = () => ({
   "@context": "http://schema.org",
