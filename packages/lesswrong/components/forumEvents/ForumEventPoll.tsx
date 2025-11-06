@@ -119,7 +119,7 @@ const styles = (theme: ThemeType) => ({
   sliderLine: {
     position: "relative",
     width: "100%",
-    height: 2,
+    height: 1,
     backgroundColor: "var(--forum-event-foreground)",
     marginBottom: "16px",
     transition: "transform 0.5s ease-in-out",
@@ -130,8 +130,8 @@ const styles = (theme: ThemeType) => ({
     left: 0,
     right: 0,
     height: USER_IMAGE_SIZE,
-    paddingTop: (USER_IMAGE_SIZE - 12) / 2,
-    paddingBottom: (USER_IMAGE_SIZE - 12) / 2,
+    paddingTop: (USER_IMAGE_SIZE - 6) / 2,
+    paddingBottom: (USER_IMAGE_SIZE - 6) / 2,
     display: "flex",
     gap: GAP,
     '&:hover $tick': {
@@ -147,7 +147,7 @@ const styles = (theme: ThemeType) => ({
       top: 0,
       bottom: 0,
       left: "50%",
-      width: 2,
+      width: 1,
       backgroundColor: "var(--forum-event-foreground)",
       opacity: 0.3,
       transform: "translateX(-50%)",
@@ -173,14 +173,15 @@ const styles = (theme: ThemeType) => ({
   sliderArrow: {
     stroke: "var(--forum-event-foreground)",
     position: "absolute",
-    top: -11,
+    top: -4.5,
+    "--icon-size": "10px",
   },
   sliderArrowLeft: {
-    transform: "translateX(-8px)",
+    transform: "translateX(-4px)",
     left: 0,
   },
   sliderArrowRight: {
-    transform: "translateX(8px)",
+    transform: "translateX(4px)",
     right: 0,
   },
   voteTooltipHeading: {
