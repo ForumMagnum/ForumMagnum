@@ -5,7 +5,7 @@ import { getFieldGqlResolvers } from "@/server/vulcan-lib/apollo-server/helpers"
 import gql from "graphql-tag";
 import { LocalgroupsViews } from "@/lib/collections/localgroups/views";
 
-export const graphqlLocalgroupQueryTypeDefs = gql`
+export const graphqlLocalgroupQueryTypeDefs = () => gql`
   type Localgroup ${ getAllGraphQLFields(schema) }
   
   input SingleLocalgroupInput {

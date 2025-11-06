@@ -96,10 +96,7 @@ export const updateUserMostValuablePostGqlMutation = makeGqlUpdateMutation('User
   accessFilter: (rawResult, context) => accessFilterSingle(context.currentUser, 'UserMostValuablePosts', rawResult, context)
 });
 
-
-
-
-export const graphqlUserMostValuablePostTypeDefs = gql`
+export const graphqlUserMostValuablePostTypeDefs = () => gql`
   input CreateUserMostValuablePostDataInput ${
     getCreatableGraphQLFields(schema)
   }

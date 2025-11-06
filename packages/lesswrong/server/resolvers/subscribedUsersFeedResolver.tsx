@@ -38,7 +38,7 @@ function getExpandedCommentIds(postAndCommentsRow: PostAndCommentsResultRow, com
   return expandCommentIds;
 }
 
-export const subscribedUsersFeedGraphQLTypeDefs = gql`
+export const subscribedUsersFeedGraphQLTypeDefs = () => gql`
   type SubscribedPostAndComments {
     _id: String!
     post: Post!

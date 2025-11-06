@@ -11,6 +11,7 @@ import { getLegacyCreateCallbackProps, getLegacyUpdateCallbackProps, insertAndRe
 import gql from "graphql-tag";
 import cloneDeep from "lodash/cloneDeep";
 
+
 function newCheck(user: DbUser | null) {
   if (!user) return false;
   if (isAdmin(user)) return true;
@@ -98,10 +99,7 @@ export const updateElectionVoteGqlMutation = makeGqlUpdateMutation('ElectionVote
   accessFilter: (rawResult, context) => accessFilterSingle(context.currentUser, 'ElectionVotes', rawResult, context)
 });
 
-
-
-
-export const graphqlElectionVoteTypeDefs = gql`
+export const graphqlElectionVoteTypeDefs = () => gql`
   input CreateElectionVoteDataInput ${
     getCreatableGraphQLFields(schema)
   }

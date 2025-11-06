@@ -30,7 +30,7 @@ export const elasticGqlMutations = {
     }
   }
 
-export const elasticGqlTypeDefs = gql`
+export const elasticGqlTypeDefs = () => gql`
   extend type Query {
     SearchSynonyms: [String!]!
   }

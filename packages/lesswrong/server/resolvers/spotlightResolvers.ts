@@ -40,7 +40,7 @@ export const spotlightGqlQueries = {
   }
 };
 
-export const spotlightGqlTypeDefs = gql`
+export const spotlightGqlTypeDefs = () => gql`
   extend type Mutation {
     publishAndDeDuplicateSpotlight(spotlightId: String): Spotlight
   }

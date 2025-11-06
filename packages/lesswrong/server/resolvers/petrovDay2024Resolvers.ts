@@ -16,7 +16,7 @@ const getIncomingCount = (incoming: boolean, role: 'eastPetrov' | 'westPetrov') 
   return missileCountArray[result];
 }
 
-export const petrovDay2024GraphQLTypeDefs = gql`
+export const petrovDay2024GraphQLTypeDefs = () => gql`
   type PetrovDay2024CheckNumberOfIncomingData {
     count: Int
   }

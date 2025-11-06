@@ -5,7 +5,7 @@ import { getFieldGqlResolvers } from "@/server/vulcan-lib/apollo-server/helpers"
 import gql from "graphql-tag";
 import { SpotlightsViews } from "@/lib/collections/spotlights/views";
 
-export const graphqlSpotlightQueryTypeDefs = gql`
+export const graphqlSpotlightQueryTypeDefs = () => gql`
   type Spotlight ${ getAllGraphQLFields(schema) }
 
   enum SpotlightDocumentType {

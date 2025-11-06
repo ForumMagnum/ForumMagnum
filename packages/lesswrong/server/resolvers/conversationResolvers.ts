@@ -35,7 +35,7 @@ const getTriggeredDmContents = (eventType: DmTriggeringEvent) => {
   }
 }
 
-export const conversationGqlTypeDefs = gql`
+export const conversationGqlTypeDefs = () => gql`
   extend type Mutation {
     markConversationRead(conversationId: String!): Boolean!
     sendEventTriggeredDM(eventType: String!): Boolean!

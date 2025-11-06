@@ -22,7 +22,7 @@ export const recommendationsGqlMutations = {
   }
 }
 
-export const recommendationsGqlTypeDefs = gql`
+export const recommendationsGqlTypeDefs = () => gql`
   extend type Mutation {
     observeRecommendation(postId: String!): Boolean
     clickRecommendation(postId: String!): Boolean

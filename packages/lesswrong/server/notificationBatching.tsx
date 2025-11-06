@@ -173,7 +173,7 @@ export const graphqlQueries = {
   }
 };
 
-export const graphqlTypeDefs = gql`
+export const graphqlTypeDefs = () => gql`
   type EmailPreview {
     to: String
     subject: String

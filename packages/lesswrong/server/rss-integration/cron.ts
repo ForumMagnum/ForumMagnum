@@ -90,7 +90,7 @@ function getRssPostContents(rssPost: AnyBecauseHard): string {
   }
 }
 
-export const cronGraphQLTypeDefs = gql`
+export const cronGraphQLTypeDefs = () => gql`
   type RssPostChangeInfo {
     isChanged: Boolean!
     newHtml: String!

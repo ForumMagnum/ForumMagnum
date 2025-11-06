@@ -7,7 +7,7 @@ import { backgroundTask } from '../utils/backgroundTask';
 
 export const arbitalCacheExpirationMs = 2*60*60*1000;
 
-export const arbitalGraphQLTypeDefs = gql`
+export const arbitalGraphQLTypeDefs = () => gql`
   type ArbitalPageData {
     html: String
     title: String

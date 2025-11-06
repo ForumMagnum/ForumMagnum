@@ -1,7 +1,7 @@
 import gql from "graphql-tag"
 import { refreshSettingsCaches } from "../loadDatabaseSettings";
 
-export const databaseSettingsGqlTypeDefs = gql`
+export const databaseSettingsGqlTypeDefs = () => gql`
   extend type Mutation {
     RefreshDbSettings: Boolean
   }

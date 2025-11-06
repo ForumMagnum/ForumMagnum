@@ -2,7 +2,7 @@ import { generateCoverImagesForPost } from '@/server/scripts/generativeModels/co
 import { userIsAdmin } from '@/lib/vulcan-users/permissions';
 import { gql } from "graphql-tag";
 
-export const generateCoverImagesForPostGraphQLTypeDefs = gql`
+export const generateCoverImagesForPostGraphQLTypeDefs = () => gql`
   extend type Mutation {
     generateCoverImagesForPost(postId: String!, prompt: String): [ReviewWinnerArt]
   }
@@ -26,7 +26,7 @@ export const generateCoverImagesForPostGraphQLMutations = {
   },
 }
 
-export const flipSplashArtImageGraphQLTypeDefs = gql`
+export const flipSplashArtImageGraphQLTypeDefs = () => gql`
   extend type Mutation {
     flipSplashArtImage(reviewWinnerArtId: String!): Boolean
   }

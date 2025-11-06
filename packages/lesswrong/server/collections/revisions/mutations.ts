@@ -20,6 +20,7 @@ import Posts from "../posts/collection";
 import ModerationTemplates from "../moderationTemplates/collection";
 import { sendRejectionPM } from "@/server/callbacks/postCallbackFunctions";
 
+
 function editCheck(user: DbUser | null) {
   return userIsAdminOrMod(user);
 }
@@ -93,7 +94,7 @@ export const updateRevisionGqlMutation = makeGqlUpdateMutation('Revisions', upda
   accessFilter: (rawResult, context) => accessFilterSingle(context.currentUser, 'Revisions', rawResult, context)
 });
 
-export const graphqlRevisionTypeDefs = gql`
+export const graphqlRevisionTypeDefs = () => gql`
   input ContentTypeInput {
     type: String!
     data: ContentTypeData!

@@ -410,7 +410,7 @@ export const graphqlMutations = {
   }
 }
 
-export const graphqlTypeDefs = gql`
+export const graphqlTypeDefs = () => gql`
   type RecommendResumeSequence {
     sequence: Sequence
     collection: Collection

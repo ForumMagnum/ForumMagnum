@@ -1,7 +1,7 @@
 import gql from 'graphql-tag';
 // When adding fields here, you almost certainly want to update the
 // `UserKarmaChanges` fragment too
-export const karmaChangesTypeDefs = gql`
+export const karmaChangesTypeDefs = () => gql`
   type PostKarmaChange {
     _id: String!
     collectionName: String!

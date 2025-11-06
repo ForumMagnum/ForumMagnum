@@ -132,7 +132,7 @@ const queries: QueryFunc[] = [
   })
 ];
 
-export const analyticsGraphQLTypeDefs = gql`
+export const analyticsGraphQLTypeDefs = () => gql`
   type UniqueClientViewsSeries {
     uniqueClientViews: Int
     date: Date

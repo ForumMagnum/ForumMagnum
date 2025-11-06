@@ -77,10 +77,7 @@ export const updateElicitQuestionGqlMutation = makeGqlUpdateMutation('ElicitQues
   accessFilter: (rawResult, context) => accessFilterSingle(context.currentUser, 'ElicitQuestions', rawResult, context)
 });
 
-
-
-
-export const graphqlElicitQuestionTypeDefs = gql`
+export const graphqlElicitQuestionTypeDefs = () => gql`
   input CreateElicitQuestionDataInput ${
     getCreatableGraphQLFields(schema)
   }

@@ -115,10 +115,7 @@ export const updateModerationTemplateGqlMutation = makeGqlUpdateMutation('Modera
   accessFilter: (rawResult, context) => accessFilterSingle(context.currentUser, 'ModerationTemplates', rawResult, context)
 });
 
-
-
-
-export const graphqlModerationTemplateTypeDefs = gql`
+export const graphqlModerationTemplateTypeDefs = () => gql`
   input CreateModerationTemplateDataInput ${
     getCreatableGraphQLFields(schema)
   }

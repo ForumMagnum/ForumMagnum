@@ -14,6 +14,7 @@ import { getLegacyCreateCallbackProps, getLegacyUpdateCallbackProps, insertAndRe
 import gql from "graphql-tag";
 import cloneDeep from "lodash/cloneDeep";
 
+
 function newCheck(user: DbUser | null, document: DbSequence | null) {
   if (!user || !document) return false;
   // Either the document is unowned (and will be filled in with the userId
@@ -134,10 +135,7 @@ export const updateSequenceGqlMutation = makeGqlUpdateMutation('Sequences', upda
   accessFilter: (rawResult, context) => accessFilterSingle(context.currentUser, 'Sequences', rawResult, context)
 });
 
-
-
-
-export const graphqlSequenceTypeDefs = gql`
+export const graphqlSequenceTypeDefs = () => gql`
   input CreateSequenceDataInput ${
     getCreatableGraphQLFields(schema)
   }

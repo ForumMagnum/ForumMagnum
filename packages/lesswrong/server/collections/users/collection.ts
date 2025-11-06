@@ -11,7 +11,7 @@ export const Users = createCollection({
   ],
 });
 
-export const usersGraphQLTypeDefs = gql`
+export const usersGraphQLTypeDefs = () => gql`
   extend type Query {
     currentUser: User
   }

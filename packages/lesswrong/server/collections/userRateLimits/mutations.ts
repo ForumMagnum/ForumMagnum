@@ -96,10 +96,7 @@ export const updateUserRateLimitGqlMutation = makeGqlUpdateMutation('UserRateLim
   accessFilter: (rawResult, context) => accessFilterSingle(context.currentUser, 'UserRateLimits', rawResult, context)
 });
 
-
-
-
-export const graphqlUserRateLimitTypeDefs = gql`
+export const graphqlUserRateLimitTypeDefs = () => gql`
   input CreateUserRateLimitDataInput ${
     getCreatableGraphQLFields(schema)
   }

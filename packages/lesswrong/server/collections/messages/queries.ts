@@ -5,7 +5,7 @@ import { getFieldGqlResolvers } from "@/server/vulcan-lib/apollo-server/helpers"
 import gql from "graphql-tag";
 import { MessagesViews } from "@/lib/collections/messages/views";
 
-export const graphqlMessageQueryTypeDefs = gql`
+export const graphqlMessageQueryTypeDefs = () => gql`
   type Message ${ getAllGraphQLFields(schema) }
   
   input SingleMessageInput {

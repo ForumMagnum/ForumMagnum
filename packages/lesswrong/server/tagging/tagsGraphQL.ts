@@ -50,7 +50,7 @@ export const addOrUpvoteTag = async ({tagId, postId, currentUser, ignoreParent =
   }
 }
 
-export const tagsGqlTypeDefs = gql`
+export const tagsGqlTypeDefs = () => gql`
   extend type Mutation {
     addOrUpvoteTag(tagId: String, postId: String): TagRel
     addTags(postId: String, tagIds: [String]): Boolean

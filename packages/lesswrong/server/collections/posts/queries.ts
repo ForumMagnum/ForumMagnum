@@ -5,7 +5,7 @@ import { getFieldGqlResolvers } from "@/server/vulcan-lib/apollo-server/helpers"
 import gql from "graphql-tag";
 import { PostsViews } from "@/lib/collections/posts/views";
 
-export const graphqlPostQueryTypeDefs = gql`
+export const graphqlPostQueryTypeDefs = () => gql`
   type Post ${ getAllGraphQLFields(schema) }
 
   type FrontpageClassification {

@@ -5,7 +5,7 @@ import { getFieldGqlResolvers } from "@/server/vulcan-lib/apollo-server/helpers"
 import gql from "graphql-tag";
 import { GoogleServiceAccountSessionsViews } from "@/lib/collections/googleServiceAccountSessions/views";
 
-export const graphqlGoogleServiceAccountSessionQueryTypeDefs = gql`
+export const graphqlGoogleServiceAccountSessionQueryTypeDefs = () => gql`
   type GoogleServiceAccountSession ${ getAllGraphQLFields(schema) }
   
   input SingleGoogleServiceAccountSessionInput {

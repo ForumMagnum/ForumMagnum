@@ -93,7 +93,7 @@ async function getAndValidateToken(token: string) {
   return { tokenObj, tokenType }
 }
 
-export const emailTokensGraphQLTypeDefs = gql`
+export const emailTokensGraphQLTypeDefs = () => gql`
   extend type Mutation {
     useEmailToken(token: String, args: JSON): JSON
   }

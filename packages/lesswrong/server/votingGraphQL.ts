@@ -38,7 +38,7 @@ export function getVoteGraphql(collectionName: VoteableCollectionName) {
   const backCompatMutationName = `setVote${typeName}`;
   const mutationName = `performVote${typeName}`;
 
-  const graphqlVoteTypeDefs = gql`
+  const graphqlVoteTypeDefs = `
     type VoteResult${typeName} {
       document: ${typeName}!
       showVotingPatternWarning: Boolean!
@@ -76,6 +76,6 @@ export function getVoteTypedefs() {
 }
 
 export function getVoteMutations() {
-  return merge(voteableCollectionNames.map(collectionName =>
+  return merge({}, ...voteableCollectionNames.map(collectionName =>
     getVoteGraphql(collectionName).graphqlVoteMutations))
 }

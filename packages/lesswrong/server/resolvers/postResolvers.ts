@@ -425,8 +425,7 @@ export const postGqlMutations = {
   },
 }
 
-export const postGqlTypeDefs = gql`
-
+export const postGqlTypeDefs = () => gql`
   extend type Query {
     UsersReadPostsOfTargetUser(userId: String!, targetUserId: String!, limit: Int): [Post!]
     UserReadHistory(

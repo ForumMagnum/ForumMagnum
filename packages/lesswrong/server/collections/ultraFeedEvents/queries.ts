@@ -5,7 +5,7 @@ import { getFieldGqlResolvers } from "@/server/vulcan-lib/apollo-server/helpers"
 import gql from "graphql-tag";
 import { UltraFeedEventsViews } from "@/lib/collections/ultraFeedEvents/views";
 
-export const graphqlUltraFeedEventQueryTypeDefs = gql`
+export const graphqlUltraFeedEventQueryTypeDefs = () => gql`
   type UltraFeedEvent ${ getAllGraphQLFields(schema) }
   
   input SingleUltraFeedEventInput {

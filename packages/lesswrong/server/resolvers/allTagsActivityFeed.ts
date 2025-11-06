@@ -4,7 +4,7 @@ import { Tags } from '../../server/collections/tags/collection';
 import { Revisions } from '../../server/collections/revisions/collection';
 import gql from 'graphql-tag';
 
-export const allTagsActivityFeedGraphQLTypeDefs = gql`
+export const allTagsActivityFeedGraphQLTypeDefs = () => gql`
   type AllTagsActivityFeedQueryResults {
     cutoff: Date
     endOffset: Int!

@@ -96,10 +96,7 @@ export const updateUserEAGDetailGqlMutation = makeGqlUpdateMutation('UserEAGDeta
   accessFilter: (rawResult, context) => accessFilterSingle(context.currentUser, 'UserEAGDetails', rawResult, context)
 });
 
-
-
-
-export const graphqlUserEAGDetailTypeDefs = gql`
+export const graphqlUserEAGDetailTypeDefs = () => gql`
   input CreateUserEAGDetailDataInput ${
     getCreatableGraphQLFields(schema)
   }

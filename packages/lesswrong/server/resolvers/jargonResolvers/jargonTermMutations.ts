@@ -395,7 +395,7 @@ export const createNewJargonTerms = async ({ postId, currentUser, context, ...ex
   return newJargonTerms;
 }
 
-export const jargonTermsGraphQLTypeDefs = gql`
+export const jargonTermsGraphQLTypeDefs = () => gql`
   extend type Mutation {
     getNewJargonTerms(postId: String!, glossaryPrompt: String, examplePost: String, exampleTerm: String, exampleAltTerm: String, exampleDefinition: String): [JargonTerm]
   }

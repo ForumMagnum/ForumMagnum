@@ -5,7 +5,7 @@ import { getFieldGqlResolvers } from "@/server/vulcan-lib/apollo-server/helpers"
 import gql from "graphql-tag";
 import { RSSFeedsViews } from "@/lib/collections/rssfeeds/views";
 
-export const graphqlRssfeedQueryTypeDefs = gql`
+export const graphqlRssfeedQueryTypeDefs = () => gql`
   type RSSFeed ${ getAllGraphQLFields(schema) }
   
   input SingleRSSFeedInput {

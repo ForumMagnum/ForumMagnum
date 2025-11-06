@@ -3,7 +3,7 @@ import { getAllGraphQLFields } from "@/server/vulcan-lib/apollo-server/graphqlTe
 import { getFieldGqlResolvers } from "@/server/vulcan-lib/apollo-server/helpers";
 import gql from "graphql-tag";
 
-export const graphqlPostRecommendationQueryTypeDefs = gql`
+export const graphqlPostRecommendationQueryTypeDefs = () => gql`
   type PostRecommendation ${
     getAllGraphQLFields(schema)
   }

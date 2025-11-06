@@ -5,7 +5,7 @@ import { getFieldGqlResolvers } from "@/server/vulcan-lib/apollo-server/helpers"
 import gql from "graphql-tag";
 import { CollectionViewSet } from "@/lib/views/collectionViewSet";
 
-export const graphqlSurveyQuestionQueryTypeDefs = gql`
+export const graphqlSurveyQuestionQueryTypeDefs = () => gql`
   type SurveyQuestion ${ getAllGraphQLFields(schema) }
 
   enum SurveyQuestionFormat {

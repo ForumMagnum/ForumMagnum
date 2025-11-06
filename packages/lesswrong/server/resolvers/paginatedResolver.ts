@@ -67,15 +67,6 @@ export const createPaginatedResolver = <
   let cachedAt = Date.now();
   let cached: ReturnType[] = [];
 
-  // Try to get the collection for later permission checking if we're passed in a GraphQL type which would allow that
-  let collection: CollectionBase<CollectionNameString> | undefined;
-  try {
-    collection = getCollectionByTypeName(graphQLType);
-  } catch (err) {
-    // Nothing to do anything in this case
-    // We can't yet distinguish between getting passed a GraphQL type which is real but not a collection-derived type, and one that isn't real
-  }
-
   const allArgs = {...args, limit: "Int"};
   const argString = Object
     .keys(allArgs)
@@ -89,6 +80,15 @@ export const createPaginatedResolver = <
         args: Args & {limit: number},
         context: ResolverContext,
       ): Promise<{results: ReturnType[]}> => {
+        // Try to get the collection for later permission checking if we're passed in a GraphQL type which would allow that
+        let collection: CollectionBase<CollectionNameString> | undefined;
+        try {
+          collection = getCollectionByTypeName(graphQLType);
+        } catch (err) {
+          // Nothing to do anything in this case
+          // We can't yet distinguish between getting passed a GraphQL type which is real but not a collection-derived type, and one that isn't real
+        }
+
         const accessFilterFunction = collection
           ? (records: (ReturnType & DbObject)[]) => accessFilterMultiple(context.currentUser, collection!.collectionName, records as AnyBecauseHard[], context)
           : undefined;

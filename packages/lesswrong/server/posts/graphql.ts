@@ -6,7 +6,7 @@ GraphQL config
 
 import gql from 'graphql-tag';
 
-export const extraPostResolversGraphQLTypeDefs = gql`
+export const extraPostResolversGraphQLTypeDefs = () => gql`
   extend type Mutation {
     increasePostViewCount(postId: String): Float
   }

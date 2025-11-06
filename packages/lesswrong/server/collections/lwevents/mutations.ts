@@ -73,7 +73,7 @@ export const createLWEventGqlMutation = makeGqlCreateMutation('LWEvents', create
 
 
 
-export const graphqlLWEventTypeDefs = gql`
+export const graphqlLWEventTypeDefs = () => gql`
   input CreateLWEventDataInput ${
     getCreatableGraphQLFields(schema)
   }

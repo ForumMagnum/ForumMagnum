@@ -62,7 +62,7 @@ type UpdateFunc<N extends CollectionNameString, D extends CreateInputsByCollecti
   | ((args: { selector: SelectorInput, data: D }, context: ResolverContext) => Promise<any>)
   | ((args: { selector: string, data: D }, context: ResolverContext) => Promise<any>);
 
-  export function makeGqlUpdateMutation<
+export function makeGqlUpdateMutation<
   N extends CollectionNameString,
   D extends CreateInputsByCollectionName[N]['data'],
   T extends UpdateFunc<N, D>,
@@ -157,59 +157,61 @@ function isGraphQLResolverField<N extends CollectionNameString>(field: [string, 
 }
 
 export function getFieldGqlResolvers<N extends CollectionNameString, S extends SchemaType<N>>(collectionName: N, schema: S) {
-  const typeName = collectionNameToTypeName[collectionName];
-  const collectionFieldResolvers = Object.fromEntries(Object.entries(schema)
-    .map(([fieldName, field]) => [fieldName, field.graphql])
-    .filter(isGraphQLResolverField)
-    .map(([fieldName, graphql]) => {
-      const fieldType = getGraphQLType(graphql);
-      const permissionData = getSqlResolverPermissionsData(fieldType);
-      const fieldResolver = (document: ObjectsByCollectionName[N], args: any, context: ResolverContext) => {
-        // Check that current user has permission to access the original
-        // non-resolved field.
-        if (!userCanReadField(context.currentUser, graphql.canRead, document)) {
-          return null;
-        }
-
-        // First, check if the value was already fetched by a SQL resolver.
-        // A field with a SQL resolver that returns no value (for instance,
-        // if it uses a LEFT JOIN and no matching object is found) can be
-        // distinguished from a field with no SQL resolver as the former
-        // will be `null` and the latter will be `undefined`.
-        if (graphql.sqlResolver) {
-          const typedName = fieldName as keyof ObjectsByCollectionName[N];
-          let existingValue = document[typedName];
-          if (existingValue !== undefined && existingValue !== null) {
-            const {sqlPostProcess} = graphql;
-            if (sqlPostProcess) {
-              existingValue = sqlPostProcess(existingValue, document, context);
-            }
-            if (permissionData) {
-              const filter = permissionData.isArray
-                ? accessFilterMultiple
-                : accessFilterSingle;
-              return filter(
-                context.currentUser,
-                permissionData.collectionName,
-                existingValue as AnyBecauseHard,
-                context,
-              );
-            }
-            return existingValue;
+  return () => {
+    const typeName = collectionNameToTypeName[collectionName];
+    const collectionFieldResolvers = Object.fromEntries(Object.entries(schema)
+      .map(([fieldName, field]) => [fieldName, field.graphql])
+      .filter(isGraphQLResolverField)
+      .map(([fieldName, graphql]) => {
+        const fieldType = getGraphQLType(graphql);
+        const permissionData = getSqlResolverPermissionsData(fieldType);
+        const fieldResolver = (document: ObjectsByCollectionName[N], args: any, context: ResolverContext) => {
+          // Check that current user has permission to access the original
+          // non-resolved field.
+          if (!userCanReadField(context.currentUser, graphql.canRead, document)) {
+            return null;
           }
-        }
-
-        // If the value wasn't supplied by a SQL resolver then we need
-        // to run the code resolver instead.
-        return graphql.resolver!(document, args, context);
-      };
-
-      return [fieldName, fieldResolver];
-    }));
-
-  if (Object.keys(collectionFieldResolvers).length === 0) {
-    return {};
+  
+          // First, check if the value was already fetched by a SQL resolver.
+          // A field with a SQL resolver that returns no value (for instance,
+          // if it uses a LEFT JOIN and no matching object is found) can be
+          // distinguished from a field with no SQL resolver as the former
+          // will be `null` and the latter will be `undefined`.
+          if (graphql.sqlResolver) {
+            const typedName = fieldName as keyof ObjectsByCollectionName[N];
+            let existingValue = document[typedName];
+            if (existingValue !== undefined && existingValue !== null) {
+              const {sqlPostProcess} = graphql;
+              if (sqlPostProcess) {
+                existingValue = sqlPostProcess(existingValue, document, context);
+              }
+              if (permissionData) {
+                const filter = permissionData.isArray
+                  ? accessFilterMultiple
+                  : accessFilterSingle;
+                return filter(
+                  context.currentUser,
+                  permissionData.collectionName,
+                  existingValue as AnyBecauseHard,
+                  context,
+                );
+              }
+              return existingValue;
+            }
+          }
+  
+          // If the value wasn't supplied by a SQL resolver then we need
+          // to run the code resolver instead.
+          return graphql.resolver!(document, args, context);
+        };
+  
+        return [fieldName, fieldResolver];
+      }));
+  
+    if (Object.keys(collectionFieldResolvers).length === 0) {
+      return {};
+    }
+  
+    return { [typeName]: collectionFieldResolvers };
   }
-
-  return { [typeName]: collectionFieldResolvers };
 }

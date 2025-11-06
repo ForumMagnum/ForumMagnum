@@ -1,4 +1,3 @@
-
 import schema from "@/lib/collections/subscriptions/newSchema";
 import { accessFilterSingle } from "@/lib/utils/schemaUtils";
 import { userCanDo } from "@/lib/vulcan-users/permissions";
@@ -9,11 +8,11 @@ import { makeGqlCreateMutation } from "@/server/vulcan-lib/apollo-server/helpers
 import { getLegacyCreateCallbackProps, getLegacyUpdateCallbackProps, insertAndReturnCreateAfterProps, runFieldOnCreateCallbacks, runFieldOnUpdateCallbacks, updateAndReturnDocument, assignUserIdToData } from "@/server/vulcan-lib/mutators";
 import gql from "graphql-tag";
 
+
 function newCheck(user: DbUser | null, document: CreateSubscriptionDataInput | null) {
   if (!user || !document) return false;
   return userCanDo(user, 'subscriptions.new');
 }
-
 
 export async function createSubscription({ data }: CreateSubscriptionInput, context: ResolverContext) {
   const { currentUser } = context;
@@ -62,10 +61,7 @@ export const createSubscriptionGqlMutation = makeGqlCreateMutation('Subscription
   accessFilter: (rawResult, context) => accessFilterSingle(context.currentUser, 'Subscriptions', rawResult, context)
 });
 
-
-
-
-export const graphqlSubscriptionTypeDefs = gql`
+export const graphqlSubscriptionTypeDefs = () => gql`
   input CreateSubscriptionDataInput ${
     getCreatableGraphQLFields(schema)
   }

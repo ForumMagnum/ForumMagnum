@@ -124,7 +124,7 @@ export async function createAndSetToken(headers: Headers|undefined, user: DbUser
 
 
 
-export const loginDataGraphQLTypeDefs = gql`
+export const loginDataGraphQLTypeDefs = () => gql`
   type LoginReturnData {
     token: String
   }
