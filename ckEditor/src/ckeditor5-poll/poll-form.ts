@@ -377,6 +377,7 @@ class MainFormView extends View {
           // Apply dynamic background color
           buttonView.element.style.setProperty("--poll-dark", colorScheme.darkColor);
           buttonView.element.style.setProperty("--poll-light", colorScheme.lightColor);
+          buttonView.element.style.setProperty("--poll-text", colorScheme.bannerTextColor);
           // Add class on initial render
           buttonView.element.classList.add('ck-color-selector-button');
         }, 0);
