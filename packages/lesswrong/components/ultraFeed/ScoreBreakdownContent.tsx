@@ -140,7 +140,8 @@ const sourceTooltips: Partial<Record<FeedItemSourceType, string>> = {
 const postComponentExplanations: Record<string, string> = {
   "Starting Value": `Starting score for all posts (${postConfig.startingValue})`,
   "Subscribed Author": `Bonus for posts from authors you follow (+${postConfig.subscribedBonus}). Configurable in settings (0-25)`,
-  "Karma Bonus": `For hacker-news posts: karma / (ageHrs + ${postConfig.hnDecayBias})^${postConfig.hnDecayFactor}. For recombee/subscription posts: min(karma^${postConfig.karmaSuperlinearExponent} / ${postConfig.karmaDivisor}, ${postConfig.karmaMaxBonus})`,
+  "Karma Bonus (time-decaying)": `Hacker-news style time decay: karma / (ageHrs + ${postConfig.hnDecayBias})^${postConfig.hnDecayFactor}. Promotes recent high-karma posts.`,
+  "Karma Bonus (timeless)": `No time decay: min(karma^${postConfig.karmaSuperlinearExponent} / ${postConfig.karmaDivisor}, ${postConfig.karmaMaxBonus}). Used for personalized recommendations and author subscriptions.`,
   "Topic Affinity": `Bonus for posts on topics you read often (0-${postConfig.topicAffinityMaxBonus}, TODO)`,
 };
 
@@ -150,7 +151,7 @@ const threadComponentExplanations: Record<string, string> = {
   "Prior Engagement": `+${threadConfig.engagementParticipationBonus} if commented, else +${threadConfig.engagementVotingBonus} if voted, else +${threadConfig.engagementViewingBonus} if viewed`,
   "Replies to You": `Someone replied to your comment (+${threadConfig.repliesToYouBonus}, TODO)`,
   "Your Post": `New comments on a post you wrote (+${threadConfig.yourPostBonus}, TODO)`,
-  "Karma Bonus": `HN-style decay for unread non-subscribed comments: sum((karma + 1) / (ageHrs + ${threadConfig.commentDecayBias})^${threadConfig.commentDecayFactor})`,
+  "Karma Bonus (time-decaying)": `HN-style decay for unread non-subscribed comments: sum((karma + 1) / (ageHrs + ${threadConfig.commentDecayBias})^${threadConfig.commentDecayFactor})`,
   "Topic Affinity": `Bonus for threads on topics you read often (0-${postConfig.topicAffinityMaxBonus}) TODO`,
   "Quicktake": `Top-level comment is an unread quicktake (+${threadConfig.quicktakeBonus})`,
   "Read Post Context": `You've read the post, so you have context (+${threadConfig.readPostContextBonus})`,
@@ -247,10 +248,14 @@ export const PostScoreBreakdownContent = ({ breakdown, sources, metaInfo }: { br
   const { components } = breakdown;
   const [dialogOpen, setDialogOpen] = useState(false);
   
+  // Determine which karma bonus type to display based on sources
+  const isRecombeeOrSubscription = sources?.includes('recombee-lesswrong-custom') || sources?.includes('subscriptionsPosts');
+  const karmaBonusLabel = isRecombeeOrSubscription ? "Karma Bonus (timeless)" : "Karma Bonus (time-decaying)";
+  
   const allComponents = [
     { name: "Starting Value", value: components.startingValue, isBase: true },
     { name: "Subscribed Author", value: components.subscribedBonus, isBase: false },
-    { name: "Karma Bonus", value: components.karmaBonus, isBase: false },
+    { name: karmaBonusLabel, value: components.karmaBonus, isBase: false },
     { name: "Topic Affinity", value: components.topicAffinityBonus, isBase: false },
   ];
   

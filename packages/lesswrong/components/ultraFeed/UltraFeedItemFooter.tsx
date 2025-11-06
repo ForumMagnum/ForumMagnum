@@ -42,7 +42,7 @@ const styles = defineStyles("UltraFeedItemFooter", (theme: ThemeType) => ({
       marginRight: 16,
     },
     "& > *:nth-last-child(2)": {
-      marginRight: 4,
+      marginRight: 0,
     },
     "& a:hover, & a:active": {
       textDecoration: "none",
@@ -172,6 +172,11 @@ const styles = defineStyles("UltraFeedItemFooter", (theme: ThemeType) => ({
   },
   hidden: {
     visibility: 'hidden',
+  },
+  bookmarksAndScore: {
+    display: 'flex',
+    alignItems: 'center',
+    gap: 8,
   },
   bookmarkButtonContainer: {
     [theme.breakpoints.down('sm')]: {
@@ -453,37 +458,39 @@ const UltraFeedItemFooterCore = ({
           </div>
         )}
 
-        <div className={classes.scoreBreakdownContainer}>
-          {collectionName === "Comments" ? (
-            <UltraFeedScoreBreakdown 
-              metadata={metaInfo?.rankingMetadata} 
-              isFirstCommentInThread={isFirstCommentInThread}
-              sources={metaInfo?.sources}
-              commentMetaInfo={metaInfo}
-            />
-          ) : (
-            <UltraFeedScoreBreakdown 
-              metadata={metaInfo?.rankingMetadata} 
-              sources={metaInfo?.sources}
-              postMetaInfo={metaInfo}
-            />
+        <div className={classes.bookmarksAndScore}>
+          <div className={classes.scoreBreakdownContainer}>
+            {collectionName === "Comments" ? (
+              <UltraFeedScoreBreakdown 
+                metadata={metaInfo?.rankingMetadata} 
+                isFirstCommentInThread={isFirstCommentInThread}
+                sources={metaInfo?.sources}
+                commentMetaInfo={metaInfo}
+              />
+            ) : (
+              <UltraFeedScoreBreakdown 
+                metadata={metaInfo?.rankingMetadata} 
+                sources={metaInfo?.sources}
+                postMetaInfo={metaInfo}
+              />
+            )}
+          </div>
+          { bookmarkProps && bookmarkableCollectionNames.has(collectionName) && (
+            <div 
+              className={classes.bookmarkButtonContainer}
+              onClick={() => {
+                captureEvent('ultraFeedBookmarkInFooterClicked', { documentId: bookmarkProps.documentId, collectionName: collectionName });
+                handleInteractionLog('bookmarkClicked');
+              }}
+            >
+              <BookmarkButton
+                documentId={bookmarkProps.documentId}
+                collectionName={collectionName}
+                className={classNames(classes.bookmarkButton, { [classes.bookmarkButtonHighlighted]: bookmarkProps.highlighted })}
+              />
+            </div>
           )}
         </div>
-        { bookmarkProps && bookmarkableCollectionNames.has(collectionName) && (
-          <div 
-            className={classes.bookmarkButtonContainer}
-            onClick={() => {
-              captureEvent('ultraFeedBookmarkInFooterClicked', { documentId: bookmarkProps.documentId, collectionName: collectionName });
-              handleInteractionLog('bookmarkClicked');
-            }}
-          >
-            <BookmarkButton
-              documentId={bookmarkProps.documentId}
-              collectionName={collectionName}
-              className={classNames(classes.bookmarkButton, { [classes.bookmarkButtonHighlighted]: bookmarkProps.highlighted })}
-            />
-          </div>
-        )}
       </div>
     </AnalyticsContext>
   );
