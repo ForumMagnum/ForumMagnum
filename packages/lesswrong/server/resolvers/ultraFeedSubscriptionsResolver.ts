@@ -68,7 +68,6 @@ function addRankingMetadata<T extends {
     postMetaInfo?: FeedPostMetaInfo;
     comments?: DbComment[];
     commentMetaInfos?: Record<string, FeedCommentMetaInfo>;
-    isOnReadPost?: boolean;
   };
 }>(feedItems: T[]): T[] {
   const now = new Date();
@@ -89,7 +88,6 @@ function addRankingMetadata<T extends {
               metaInfo: item.data.commentMetaInfos?.[c._id] ?? null,
             })),
           primarySource: 'subscriptionsComments',
-          isOnReadPost: item.data.isOnReadPost ?? false,
         };
         return toThreadRankable(threadForScoring, undefined, now);
       }
@@ -249,7 +247,6 @@ export const ultraFeedSubscriptionsQueries = {
         postMetaInfo?: FeedPostMetaInfo;
         comments?: DbComment[];
         commentMetaInfos?: Record<string, FeedCommentMetaInfo>;
-        isOnReadPost?: boolean;
         postSources?: string[];
         users?: DbUser[];
       };
@@ -323,6 +320,8 @@ export const ultraFeedSubscriptionsQueries = {
           const postId = firstComment.postId;
           const post = postId ? postsById.get(postId) : undefined;
 
+          const isParentPostRead = postId ? (postReadStatuses.get(postId) ?? false) : false;
+
           const commentMetaInfos: Record<string, FeedCommentMetaInfo> = {};
           loadedComments.forEach(c => {
             const src = commentDataById.get(c._id);
@@ -338,6 +337,7 @@ export const ultraFeedSubscriptionsQueries = {
               lastViewed: src?.lastViewed ?? null,
               lastInteracted: src?.lastInteracted ?? null,
               fromSubscribedUser: !!src?.fromSubscribedUser,
+              isParentPostRead,
             };
           });
 
@@ -357,8 +357,6 @@ export const ultraFeedSubscriptionsQueries = {
             }
           }
 
-          const isOnReadPost = postId ? (postReadStatuses.get(postId) ?? false) : false;
-
           feedItems.push({
             type: 'feedCommentThread',
             sortDate,
@@ -366,7 +364,6 @@ export const ultraFeedSubscriptionsQueries = {
               _id: `${threadStableId}_${hourStr}`,
               comments: loadedComments,
               commentMetaInfos,
-              isOnReadPost,
               postSources: ['subscriptionsComments'],
               post,
             },

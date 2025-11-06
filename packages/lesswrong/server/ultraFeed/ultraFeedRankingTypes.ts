@@ -104,6 +104,5 @@ export type RankedItemMetadata =
 export interface MappablePreparedThread {
   comments: PreDisplayFeedComment[];
   primarySource?: FeedItemSourceType;
-  isOnReadPost?: boolean;
 }
 

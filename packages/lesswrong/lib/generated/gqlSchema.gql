@@ -1413,7 +1413,6 @@ type FeedCommentThread {
   commentMetaInfos: JSON
   comments: [Comment!]!
   post: Post
-  isOnReadPost: Boolean
   postSources: [String!]
   postMetaInfo: JSON
 }
