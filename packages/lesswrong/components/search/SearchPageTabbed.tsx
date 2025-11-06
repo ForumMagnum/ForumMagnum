@@ -286,7 +286,10 @@ const SearchPageTabbed = () => {
         ...searchState,
         sort: elasticSortingToUrlParam(newSorting),
       }),
-    }, {replace: true});
+    }, {
+      replace: true,
+      skipRouter: true,
+    });
   }
   // we try to keep the URL synced with the search state
   const updateUrl = useCallback((search: ExpandedSearchState, tags: Array<string>) => {
@@ -326,7 +329,7 @@ const SearchPageTabbed = () => {
       
     updateUrl(updatedSearchState, clearTagFilters ? [] : tagsFilter)
     setSearchState(updatedSearchState)
-  }, [updateUrl, tagsFilter])
+  }, [updateUrl])
 
   useEffect(() => {
     if (searchState.query) {
@@ -342,7 +345,8 @@ const SearchPageTabbed = () => {
         query: query.query,
       }));
     }
-  }, [query.query, searchState?.query]);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [query.query]);
 
   if (!isSearchEnabled()) {
     return <div className={classes.root}>
