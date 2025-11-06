@@ -11,8 +11,6 @@ import { visitorGetsDynamicFrontpage } from '../../lib/betas';
 import { useCurrentUser } from './withUser';
 import { combineUrls, getSiteUrl } from "../../lib/vulcan-lib/utils";
 import { registerComponent } from "../../lib/vulcan-lib/components";
-import { useABTest } from '@/components/hooks/useAbTests';
-import { ultraFeedABTest } from '../../lib/abTests';
 import AnalyticsInViewTracker from "./AnalyticsInViewTracker";
 import FrontpageReviewWidget from "../review/FrontpageReviewWidget";
 import SingleColumnSection from "./SingleColumnSection";
@@ -67,15 +65,13 @@ const styles = defineStyles("LWHome", (theme: ThemeType) => ({
 }))
 
 const LWHome = () => {
-  const abTestGroup = useABTest(ultraFeedABTest);
   const [cookies] = useCookiesWithConsent([ULTRA_FEED_ENABLED_COOKIE]);
   
-  // Check if user has already made a choice via checkbox (which sets a cookie)
+  // Check if user has explicitly opted out via checkbox
   const cookieValue = cookies[ULTRA_FEED_ENABLED_COOKIE];
-  const hasExplicitPreference = cookieValue === "true" || cookieValue === "false";
   
-  // Determine which feed to show: if cookie is set, use that preference, otherwise use A/B test assignment
-  const shouldShowUltraFeed = ultraFeedEnabledSetting.get() && (cookieValue === "true" || (!hasExplicitPreference && abTestGroup === 'ultraFeed'));
+  // Show UltraFeed by default unless user has explicitly opted out (set cookie to "false")
+  const shouldShowUltraFeed = ultraFeedEnabledSetting.get() && cookieValue !== "false";
 
   return (
       <AnalyticsContext pageContext="homePage">
@@ -102,13 +98,6 @@ const LWHome = () => {
               <AnalyticsInViewTracker eventProps={{inViewType: "feedSection"}} observerProps={{threshold:[0, 0.5, 1]}}>
                 <SuspenseWrapper name="UltraFeed">
                   {shouldShowUltraFeed && <UltraFeed />}
-                  {!shouldShowUltraFeed && <DeferRender ssr={false}>
-                    <RecentDiscussionFeed
-                      af={false}
-                      commentsLimit={4}
-                      maxAgeHours={18}
-                    />
-                  </DeferRender>}
                 </SuspenseWrapper>
               </AnalyticsInViewTracker>
 
