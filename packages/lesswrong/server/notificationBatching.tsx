@@ -13,22 +13,25 @@ import toDictionary from '@/lib/utils/toDictionary';
 import { getNotificationTypes } from '@/lib/notificationTypes';
 import { EventDebouncer } from './debouncer';
 import { backgroundTask } from './utils/backgroundTask';
+import { createSingleton } from '@/lib/utils/createSingleton';
 
 // string (notification type name) => Debouncer
-export const notificationDebouncers = toDictionary(getNotificationTypes(),
-  notificationTypeName => notificationTypeName,
-  notificationTypeName => {
-    return new EventDebouncer({
-      name: `notification_${notificationTypeName}`,
-      defaultTiming: {
-        type: "delayed",
-        delayMinutes: 15,
-      },
-      callback: ({ userId, notificationType }: {userId: string, notificationType: string}, notificationIds: Array<string>) => {
-        backgroundTask(sendNotificationBatch({userId, notificationIds, notificationType}));
-      }
-    });
-  }
+export const getNotificationDebouncers = createSingleton(() =>
+  toDictionary(getNotificationTypes(),
+    notificationTypeName => notificationTypeName,
+    notificationTypeName => {
+      return new EventDebouncer({
+        name: `notification_${notificationTypeName}`,
+        defaultTiming: {
+          type: "delayed",
+          delayMinutes: 15,
+        },
+        callback: ({ userId, notificationType }: { userId: string, notificationType: string }, notificationIds: Array<string>) => {
+          backgroundTask(sendNotificationBatch({userId, notificationIds, notificationType}));
+        }
+      });
+    }
+  )
 );
 
 export const getUtmParamsForNotificationType = (notificationType: string): Partial<Record<UtmParam, string>> => {
