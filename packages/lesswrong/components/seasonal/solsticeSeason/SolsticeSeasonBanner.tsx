@@ -229,6 +229,15 @@ const styles = defineStyles("SolsticeSeasonBanner", (theme: ThemeType) => ({
     pointerEvents: 'none',
     transition: 'opacity 0.3s ease-out',
   },
+  postsListBlockingRect: {
+    position: 'absolute',
+    top: 0,
+    height: '100%',
+    width: 800,
+    right: "calc(100% - 375px)",
+    zIndex: 5,
+    pointerEvents: 'auto',
+  },
 }));
 
 
@@ -442,6 +451,7 @@ export default function SolsticeSeasonBannerInner() {
   return <div className={classNames(classes.root)} style={{ opacity: bannerOpacity, pointerEvents: pointerEventsDisabled ? 'none' : 'auto' }}>
     <div className={classes.globeGradientRight} />
     <div className={classes.scrollBackground} />
+    <div className={classes.postsListBlockingRect}/>
     <div 
       className={classes.globeContainer} 
       onClick={() => setEverClickedGlobe(true)}
