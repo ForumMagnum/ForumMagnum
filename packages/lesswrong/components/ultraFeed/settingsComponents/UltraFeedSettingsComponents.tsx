@@ -98,7 +98,7 @@ const styles = defineStyles('UltraFeedSettingsComponents', (theme: ThemeType) =>
   },
   sourceWeightInput: {
     marginLeft: 12,
-    width: 70,
+    width: 80,
     padding: 6,
     border: '1px solid ' + theme.palette.grey[400],
     borderRadius: 4,
@@ -107,7 +107,7 @@ const styles = defineStyles('UltraFeedSettingsComponents', (theme: ThemeType) =>
     textAlign: 'right',
   },
   threadAggSelect: {
-    minWidth: "100px",
+    minWidth: "150px",
     marginLeft: "auto",
   },
   lineClampLabel: {
