@@ -38,11 +38,9 @@ export const useGlobeReadyEffects = (
     if (!isGlobeReady || !globeRef.current) return;
 
     const globeObj = globeRef.current;
-    if (globeObj.scene) {
-      const globeMesh = findMeshWithTexture(globeObj.scene);
-      if (globeMesh?.material && globeMaterialRef.current) {
-        globeMesh.material = globeMaterialRef.current;
-      }
+    const globeMesh = findMeshWithTexture(globeObj.scene);
+    if (globeMesh?.material && globeMaterialRef.current) {
+      globeMesh.material = globeMaterialRef.current;
     }
 
     const loader = new THREE.TextureLoader();
@@ -103,7 +101,6 @@ export const useGlobeAnimation = (globeMaterialRef: React.MutableRefObject<any>,
   const rotationRef = useRef(0);
   const isRotatingRef = useRef(isRotating);
   const lastFrameTimeRef = useRef<number | null>(null);
-  const [, setFrameCounter] = useState(0);
   
   useEffect(() => {
     isRotatingRef.current = isRotating;
@@ -124,7 +121,6 @@ export const useGlobeAnimation = (globeMaterialRef: React.MutableRefObject<any>,
         }
       }
       lastFrameTimeRef.current = currentTime;
-      setFrameCounter(n => n + 1);
       requestAnimationFrame(animate);
     };
     

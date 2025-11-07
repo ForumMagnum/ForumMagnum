@@ -44,6 +44,7 @@ export const SolsticeGlobe3D = ({
   const dragStartRef = useRef<{ x: number; y: number } | null>(null);
   const isDraggingRef = useRef(false);
   const shouldIgnoreClickRef = useRef(false);
+  const clickIgnoreTimeoutRef = useRef<NodeJS.Timeout | null>(null);
 
   const initialPov = useMemo(() => ({
     lat: defaultPointOfView.lat,
@@ -85,8 +86,13 @@ export const SolsticeGlobe3D = ({
       if (deltaX < -10) {
         setIsRotating(true);
         shouldIgnoreClickRef.current = true;
-        setTimeout(() => {
+        // Clear any existing timeout to prevent accumulation
+        if (clickIgnoreTimeoutRef.current) {
+          clearTimeout(clickIgnoreTimeoutRef.current);
+        }
+        clickIgnoreTimeoutRef.current = setTimeout(() => {
           shouldIgnoreClickRef.current = false;
+          clickIgnoreTimeoutRef.current = null;
         }, 0);
       }
     }
