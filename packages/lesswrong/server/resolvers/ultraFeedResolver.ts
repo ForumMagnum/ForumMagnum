@@ -40,7 +40,7 @@ import type {
   MappablePreparedThread
 } from '../ultraFeed/ultraFeedRankingTypes';
 import { getAlgorithm, type UltraFeedAlgorithmName } from '../ultraFeed/algorithms/algorithmRegistry';
-import { ultraFeedDebug } from '../ultraFeed/ultraFeedDebug';
+import { ultraFeedDebug, ULTRAFEED_DEBUG_ENABLED } from '../ultraFeed/ultraFeedDebug';
 
 
 interface UltraFeedDateCutoffs {
@@ -790,34 +790,36 @@ export const ultraFeedGraphQLQueries = {
       
       ultraFeedDebug.log(`Ranked ${rankedItemsWithMetadata.length} items using ${algorithm.name} algorithm`);
       
-      // Log ranked items with scores for analysis
-      backgroundTask((async () => {
-        const itemsForLogging = rankedItemsWithMetadata.map(({ id, metadata }) => {
-          const item = rankableItems.find(r => r.id === id);
-          return {
-            itemId: id,
-            itemType: item?.itemType ?? 'unknown',
-            position: metadata.position,
-            totalScore: metadata.scoreBreakdown.total,
-            constraints: metadata.selectionConstraints.join(','),
-            sources: item?.sources?.join(',') ?? '',
-            repetitionPenaltyMultiplier: 'repetitionPenaltyMultiplier' in metadata.scoreBreakdown 
-              ? metadata.scoreBreakdown.repetitionPenaltyMultiplier 
-              : 1,
-            scoreComponents: metadata.scoreBreakdown.components,
-          };
-        });
-        
-        serverCaptureEvent('ultraFeedItemsRanked', {
-          sessionId,
-          userId: currentUser?._id ?? undefined,
-          clientId: clientId ?? undefined,
-          offset: offset ?? 0,
-          itemCount: rankedItemsWithMetadata.length,
-          algorithm: algorithm.name,
-          items: itemsForLogging,
-        });
-      })());
+      // Log ranked items with scores for analysis (only when debug enabled)
+      if (ULTRAFEED_DEBUG_ENABLED) {
+        backgroundTask((async () => {
+          const itemsForLogging = rankedItemsWithMetadata.map(({ id, metadata }) => {
+            const item = rankableItems.find(r => r.id === id);
+            return {
+              itemId: id,
+              itemType: item?.itemType ?? 'unknown',
+              position: metadata.position,
+              totalScore: metadata.scoreBreakdown.total,
+              constraints: metadata.selectionConstraints.join(','),
+              sources: item?.sources?.join(',') ?? '',
+              repetitionPenaltyMultiplier: 'repetitionPenaltyMultiplier' in metadata.scoreBreakdown 
+                ? metadata.scoreBreakdown.repetitionPenaltyMultiplier 
+                : 1,
+              scoreComponents: metadata.scoreBreakdown.components,
+            };
+          });
+          
+          serverCaptureEvent('ultraFeedItemsRanked', {
+            sessionId,
+            userId: currentUser?._id ?? undefined,
+            clientId: clientId ?? undefined,
+            offset: offset ?? 0,
+            itemCount: rankedItemsWithMetadata.length,
+            algorithm: algorithm.name,
+            items: itemsForLogging,
+          });
+        })());
+      }
       
       // Create a map to store metadata by ID
       const metadataById = new Map(
