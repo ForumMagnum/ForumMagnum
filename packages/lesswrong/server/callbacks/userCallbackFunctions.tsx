@@ -39,7 +39,7 @@ import { updateComment } from "../collections/comments/mutations";
 import { createUser, updateUser } from "../collections/users/mutations";
 import { EmailContentItemBody } from "../emailComponents/EmailContentItemBody";
 import { PostsHTML } from "@/lib/collections/posts/fragments";
-import { emailTokenTypesByName } from "../emails/emailTokens";
+import { getEmailTokenTypesByName } from "../emails/emailTokens";
 import { backgroundTask } from "../utils/backgroundTask";
 import { persistentDisplayedModeratorActions, reviewTriggerModeratorActions } from "@/lib/collections/moderatorActions/constants";
 import { updateModeratorAction } from "../collections/moderatorActions/mutations";
@@ -132,7 +132,7 @@ export const welcomeMessageDelayer = new EventDebouncer({
 });
 
 async function sendVerificationEmail(user: DbUser) {
-  const verifyEmailLink = await emailTokenTypesByName.verifyEmail.generateLink(user._id);
+  const verifyEmailLink = await getEmailTokenTypesByName().verifyEmail.generateLink(user._id);
   await wrapAndSendEmail({
     user,
     force: true,

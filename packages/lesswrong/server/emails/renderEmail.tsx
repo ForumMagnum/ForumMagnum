@@ -240,7 +240,7 @@ export const wrapAndRenderEmail = async ({
   body: (emailContext: EmailContextType) => React.ReactNode;
   utmParams?: Partial<Record<UtmParam, string>>;
 }): Promise<RenderedEmail> => {
-  const unsubscribeAllLink = user ? await emailTokenTypesByName.unsubscribeAll.generateLink(user._id) : null;
+  const unsubscribeAllLink = user ? await getEmailTokenTypesByName().unsubscribeAll.generateLink(user._id) : null;
   
   const emailContext = await createEmailContext(user);
 

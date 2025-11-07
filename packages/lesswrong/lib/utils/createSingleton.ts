@@ -1,5 +1,5 @@
 
-export function createSingleton<T>(get: ()=>T) {
+export function createSingleton<T>(get: () => T) {
   let value: T|null = null;
   return () => {
     if (value !== null) {
