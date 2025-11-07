@@ -39,37 +39,23 @@ export const createDayNightShaderMaterial = (contrast: number, brightness: numbe
           rotatedUv.x = mod(vUv.x + textureRotation / (2.0 * PI), 1.0);
         }
         
-        // Convert UV coordinates to latitude/longitude (equirectangular projection)
-        // UV.x: 0 = -180°, 0.5 = 0°, 1 = +180° (longitude)
-        // UV.y: 0 = -90°, 0.5 = 0°, 1 = +90° (latitude)
         float longitude = (rotatedUv.x - 0.5) * 360.0;
         float latitude = (rotatedUv.y - 0.5) * 180.0;
         
         // Account for globe rotation
         float adjustedLongitude = longitude - globeRotation.x;
         
-        // Sun position: x = longitude, y = latitude (in degrees)
-        // Rotate night texture position by 90 degrees
         float sunLongitude = sunPosition.x + 90.0;
         float sunLatitude = sunPosition.y;
         
-        // Calculate longitude difference (accounting for wrap-around)
         float lonDiff = adjustedLongitude - sunLongitude;
         if (lonDiff > 180.0) lonDiff -= 360.0;
         if (lonDiff < -180.0) lonDiff += 360.0;
         
-        // Simple day/night calculation: blend based on angular distance from sun
-        // This creates a terminator that divides the sphere roughly in half
-        // Use cosine of the angle for smooth transition
-        // For a sphere, the terminator is a great circle, so we use longitude difference
-        // as a simple approximation (this works well for most viewing angles)
         float angleFromSun = abs(lonDiff);
         if (angleFromSun > 180.0) angleFromSun = 360.0 - angleFromSun;
         
-        // Convert angle to blend factor: 0° = day (1.0), 180° = night (0.0)
-        // Cosine gives us: cos(0°) = 1 (full day), cos(180°) = -1 (full night)
         float rawBlend = cos(angleFromSun * PI / 180.0);
-        // Apply transition zone using smoothstep (same as original)
         float blendFactor = smoothstep(-0.1, 0.1, rawBlend);
         
         vec4 dayColor = texture2D(dayTexture, rotatedUv);
