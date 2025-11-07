@@ -346,6 +346,7 @@ export const SpotlightItem = ({
   refetchAllSpotlights,
   className,
   classes,
+  duplicate, // if the spotlight is a draft, flags that there is already a non-draft with the same documentId
 }: {
   spotlight: SpotlightDisplay,
   showAdminInfo?: boolean,
@@ -354,6 +355,7 @@ export const SpotlightItem = ({
   refetchAllSpotlights?: () => void,
   className?: string,
   classes: ClassesType<typeof styles>,
+  duplicate?: boolean,
 }) => {
   const currentUser = useCurrentUser()
 
@@ -418,7 +420,7 @@ export const SpotlightItem = ({
         <div className={classNames(classes.content, {[classes.postPadding]: spotlight.documentType === "Post"})}>
           <div className={classes.title}>
             <Link to={url}>
-              {spotlight.customTitle ?? spotlight.document.title}
+              {spotlight.customTitle ?? spotlight.document.title} {duplicate && <span>[Duplicate]</span>}
             </Link>
             <span className={classes.editDescriptionButton}>
               {showAdminInfo && userCanDo(currentUser, 'spotlights.edit.all') && <LWTooltip title="Edit Spotlight">
@@ -490,6 +492,14 @@ export const SpotlightItem = ({
         <div className={classes.draftButton}>
           {showAdminInfo && userCanDo(currentUser, 'spotlights.edit.all') && 
             <LWTooltip title={spotlight.draft ? "Undraft" : "Draft"}>
+              <PublishIcon className={classNames(classes.adminButtonIcon, classes.editAllButtonIcon, 
+                !spotlight.draft && classes.reverseIcon)} onClick={() => toggleDraft()}/>
+            </LWTooltip>
+          }
+        </div>
+        <div className={classes.readButton}>
+          {showAdminInfo && userCanDo(currentUser, 'spotlights.edit.all') && 
+            <LWTooltip title={"Show post contents"}>
               <PublishIcon className={classNames(classes.adminButtonIcon, classes.editAllButtonIcon, 
                 !spotlight.draft && classes.reverseIcon)} onClick={() => toggleDraft()}/>
             </LWTooltip>
