@@ -4,14 +4,12 @@ export const feedTypes = ["following", "ultraFeed", "userContent", "bookmarksFee
 export type FeedType = typeof feedTypes[number];
 
 export interface PostScoreBreakdownComponents {
-  startingValue: number;
   subscribedBonus: number;
   karmaBonus: number;
   topicAffinityBonus: number;
 }
 
 export interface ThreadScoreBreakdownComponents {
-  startingValue: number;
   unreadSubscribedCommentBonus: number;
   engagementContinuationBonus: number;
   repliesToYouBonus: number;
@@ -25,12 +23,14 @@ export interface ThreadScoreBreakdownComponents {
 export interface PostScoreBreakdown {
   total: number;
   components: PostScoreBreakdownComponents;
+  typeMultiplier: number;
 }
 
 export interface ThreadScoreBreakdown {
   total: number;
   components: ThreadScoreBreakdownComponents;
   repetitionPenaltyMultiplier: number;
+  typeMultiplier: number;
 }
 
 export type ScoreBreakdown = PostScoreBreakdown | ThreadScoreBreakdown;

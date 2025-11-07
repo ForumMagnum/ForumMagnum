@@ -141,71 +141,61 @@ export function toThreadRankable(
  */
 function scorePost(
   post: PostRankableItem,
-  userTagAffinity: Map<string, number> | null,
-  config: RankingConfig['posts']
+  config: RankingConfig
 ): { score: number; breakdown: PostScoreBreakdown } {
+  const postConfig = config.posts;
   const startingValue = config.startingValue;
 
-  const subscribedBonus = post.userSubscribedToAuthor ? config.subscribedBonus : 0;
+  const subscribedBonus = post.userSubscribedToAuthor ? postConfig.subscribedBonus : 0;
 
   // Topic affinity bonus: based on post tags matching user's reading history
-  // TODO: Currently returns 0 as placeholder until tagRelevance data is available
-  const topicAffinityBonus = userTagAffinity
-    ? calculateTopicAffinityBonus(post, userTagAffinity, config.topicAffinityMaxBonus)
-    : 0;
+  // TODO: Not yet implemented - will be calculated from user's tag reading history when available
+  const topicAffinityBonus = 0;
 
   // Determine scoring approach based on source
   const isRecombeePost = post.sources.includes('recombee-lesswrong-custom');
   const isSubscriptionPost = post.sources.includes('subscriptionsPosts');
+  const isBookmark = post.sources.includes('bookmarks');
   
   let karmaBonus = 0;
 
-  if (isRecombeePost || isSubscriptionPost || post.ageHrs === null) {
-    // Recombee posts, subscription posts, and ageless items (spotlights/bookmarks): 
+  if (isBookmark) {
+    // Bookmarks: give a fixed moderate score since they're user-selected
+    karmaBonus = 10;
+  } else if (isRecombeePost || isSubscriptionPost || post.ageHrs === null) {
+    // Recombee posts, subscription posts, and ageless items (spotlights): 
     // use legacy karma bonus (no time decay)
     karmaBonus = Math.min(
-      Math.pow(post.karma, config.karmaSuperlinearExponent) / config.karmaDivisor,
-      config.karmaMaxBonus
+      Math.pow(post.karma, postConfig.karmaSuperlinearExponent) / postConfig.karmaDivisor,
+      postConfig.karmaMaxBonus
     );
   } else {
-    // Hacker-news posts only: use HN-style time decay
-    // score = karma / (ageHours + bias)^decayFactor
-    const denominator = Math.pow(post.ageHrs + config.hnDecayBias, config.hnDecayFactor);
+    // Hacker-news posts: use hyperbolic time decay with cap
+    // Formula: karmaBonus = min(karma * scale^exponent / (ageHrs + bias)^exponent, maxBonus)
+    const denominator = Math.pow(post.ageHrs + postConfig.timeDecayBias, postConfig.timeDecayExponent);
+    const numerator = Math.pow(postConfig.timeDecayScale, postConfig.timeDecayExponent);
     if (denominator > 0 && Number.isFinite(denominator)) {
-      karmaBonus = post.karma / denominator;
+      karmaBonus = Math.min(post.karma * numerator / denominator, postConfig.karmaMaxBonus);
     }
-    // Recency is now implicit in the decayed karma score
   }
 
-  const total = startingValue + subscribedBonus + karmaBonus + topicAffinityBonus;
+  const additiveTotal = startingValue + subscribedBonus + karmaBonus + topicAffinityBonus;
+  const total = additiveTotal * postConfig.typeMultiplier;
 
   return {
     score: total,
     breakdown: {
       total,
       components: {
-        startingValue,
         subscribedBonus,
         karmaBonus,
         topicAffinityBonus,
       },
+      typeMultiplier: postConfig.typeMultiplier,
     },
   };
 }
 
-/**
- * Calculate topic affinity bonus for a post based on user's tag reading history
- */
-function calculateTopicAffinityBonus(
-  post: PostRankableItem,
-  userTagAffinity: Map<string, number>,
-  maxBonus: number
-): number {
-  // TODO: Need to access post.tagRelevance from the DbPost
-  // For now, return 0 as placeholder
-  // This will be implemented when we wire up the actual post data with tagRelevance
-  return 0;
-}
 
 /**
  * Score a single comment thread based on its rankable signals.
@@ -227,10 +217,34 @@ function scoreThread(
   config: RankingConfig
 ): { score: number; breakdown: ThreadScoreBreakdown } {
   const cfg = config.threads;
-  const startingValue = cfg.startingValue;
+  const startingValue = config.startingValue;
+
+  // Special case: bookmarks get a fixed moderate score
+  const isBookmark = thread.sources.includes('bookmarks');
+  if (isBookmark) {
+    const bookmarkScore = 11; // 1 starting + 10 bookmark bonus
+    return {
+      score: bookmarkScore * cfg.typeMultiplier,
+      breakdown: {
+        total: bookmarkScore * cfg.typeMultiplier,
+        components: {
+          unreadSubscribedCommentBonus: 0,
+          engagementContinuationBonus: 0,
+          repliesToYouBonus: 0,
+          yourPostActivityBonus: 0,
+          overallKarmaBonus: 10, // Show the bookmark bonus here
+          topicAffinityBonus: 0,
+          quicktakeBonus: 0,
+          readPostContextBonus: 0,
+        },
+        repetitionPenaltyMultiplier: 1.0,
+        typeMultiplier: cfg.typeMultiplier,
+      },
+    };
+  }
 
   // 1. Unread subscribed comment bonus: subscribedCommentBonus per unread subscribed comment
-  // No time decay applied - subscriptions are priority regardless of age
+  // Flat bonus regardless of karma or age - subscriptions are priority
   const unreadSubscribedComments = thread.comments.filter(c => !c.isRead && c.userSubscribedToAuthor);
   const unreadSubscribedCommentBonus = unreadSubscribedComments.length * cfg.subscribedCommentBonus;
 
@@ -258,18 +272,21 @@ function scoreThread(
   const isYourPost = false; // TODO: Implement
   const yourPostActivityBonus = isYourPost ? cfg.yourPostBonus : 0;
 
-  // 5. Overall karma bonus: HN-style decayed sum for unread non-subscribed comments
-  // score = sum(karma / (ageHrs + bias)^factor) for each unread non-subscribed comment
-  // Subscribed comments are handled separately above with no decay
-  // This replaces both the old overallKarmaBonus and recencyBonus
-  const unreadNonSubscribedComments = thread.comments.filter(c => !c.isRead && !c.userSubscribedToAuthor);
+  // 5. Overall karma bonus: hyperbolic time-decayed sum for ALL unread comments
+  // Formula: min(sum(karma * scale^exponent / (ageHrs + bias)^exponent), maxBonus)
+  // This applies to both subscribed and non-subscribed comments
+  // (subscribed comments also get the flat bonus above)
+  const unreadComments = thread.comments.filter(c => !c.isRead);
   let overallKarmaBonus = 0;
-  for (const comment of unreadNonSubscribedComments) {
-    const denominator = Math.pow(comment.ageHrs + cfg.commentDecayBias, cfg.commentDecayFactor);
+  const numerator = Math.pow(cfg.timeDecayScale, cfg.timeDecayExponent);
+  for (const comment of unreadComments) {
+    const denominator = Math.pow(comment.ageHrs + cfg.timeDecayBias, cfg.timeDecayExponent);
     if (denominator > 0 && Number.isFinite(denominator)) {
-      overallKarmaBonus += comment.karma / denominator;
+      overallKarmaBonus += comment.karma * numerator / denominator;
     }
   }
+  // Apply cap to total karma bonus
+  overallKarmaBonus = Math.min(overallKarmaBonus, cfg.karmaMaxBonus);
 
   // 6. Topic affinity bonus: based on post tags (TODO: not implemented yet)
   const topicAffinityBonus = 0; // TODO: Implement when post data available
@@ -297,19 +314,18 @@ function scoreThread(
   let repetitionPenaltyMultiplier = 1.0;
   if (engagement?.servingHoursAgo && engagement.servingHoursAgo.length > 0) {
     for (const hoursAgo of engagement.servingHoursAgo) {
-      const decayFactor = 1 / (1 + hoursAgo / cfg.repetitionDecayHours);
-      repetitionPenaltyMultiplier *= (1 - cfg.repetitionPenaltyStrength * decayFactor);
+      const decayFactor = 1 / (1 + (hoursAgo / cfg.repetitionDecayHours));
+      repetitionPenaltyMultiplier *= (1 - (cfg.repetitionPenaltyStrength * decayFactor));
     }
   }
 
-  const total = additiveTotal * repetitionPenaltyMultiplier;
+  const total = additiveTotal * repetitionPenaltyMultiplier * cfg.typeMultiplier;
 
   return {
     score: total,
     breakdown: {
       total,
       components: {
-        startingValue,
         unreadSubscribedCommentBonus,
         engagementContinuationBonus,
         repliesToYouBonus,
@@ -320,6 +336,7 @@ function scoreThread(
         readPostContextBonus,
       },
       repetitionPenaltyMultiplier,
+      typeMultiplier: cfg.typeMultiplier,
     },
   };
 }
@@ -329,6 +346,15 @@ interface ScoredItem {
   score: number;
   item: RankableItem;
   breakdown: ScoreBreakdown;
+}
+
+/**
+ * Normalize sources array for comparison by sorting.
+ * This ensures that e.g. ['hacker-news', 'subscriptionsPosts'] matches ['subscriptionsPosts', 'hacker-news'].
+ */
+function normalizeSourcesKey(sources?: FeedItemSourceType[]): string {
+  if (!sources || sources.length === 0) return '';
+  return [...sources].sort().join(',');
 }
 
 /**
@@ -348,6 +374,7 @@ function selectWithDiversityConstraints(
   // Track recent selections for diversity
   const recentTypes: RankableItemType[] = [];
   const recentSubscribed: boolean[] = [];
+  const recentSources: string[] = []; // normalized source keys
   
   while (selectedWithMetadata.length < totalItems && available.length > 0) {
     const currentPosition = selectedWithMetadata.length;
@@ -369,11 +396,11 @@ function selectWithDiversityConstraints(
     }).length;
     
     // Force bookmark/spotlight near end of window if not already present
-    // Spotlight at position 8 (9th item), bookmark at position 9 (10th item)
-    const needsSpotlight = positionInWindow === 8 && 
+    // With windowSize=20: Spotlight at position 17 (18th item), bookmark at position 19 (20th item)
+    const needsSpotlight = positionInWindow === (constraints.guaranteedSlotsPerWindow.windowSize - 3) && 
       spotlightsInWindow < constraints.guaranteedSlotsPerWindow.spotlights;
     
-    const needsBookmark = positionInWindow === 9 && 
+    const needsBookmark = positionInWindow === (constraints.guaranteedSlotsPerWindow.windowSize - 1) && 
       bookmarksInWindow < constraints.guaranteedSlotsPerWindow.bookmarks;
     
     // Check if we need subscription diversity
@@ -381,9 +408,17 @@ function selectWithDiversityConstraints(
     const needsNonSubscribed = lastNSubscribed.length >= constraints.subscriptionDiversityWindow &&
       lastNSubscribed.every(s => s);
     
+    // Check if we need source diversity
+    const lastNSources = recentSources.slice(-constraints.sourceDiversityWindow);
+    const needsDifferentSource = lastNSources.length >= constraints.sourceDiversityWindow &&
+      lastNSources.every(s => s === lastNSources[0] && s !== '');
+    const requiredDifferentSourceKey = needsDifferentSource ? lastNSources[0] : undefined;
+    
     let selectedItem: ScoredItem | undefined;
+    let attemptedConstraint: string | undefined;
     
     if (needsBookmark) {
+      attemptedConstraint = 'forced-bookmark';
       // Find highest-scoring bookmark
       selectedItem = available.find(si => 
         !selectedSet.has(si.id) &&
@@ -393,6 +428,7 @@ function selectWithDiversityConstraints(
         appliedConstraints.push('forced-bookmark');
       }
     } else if (needsSpotlight) {
+      attemptedConstraint = 'forced-spotlight';
       // Find highest-scoring spotlight
       selectedItem = available.find(si => 
         !selectedSet.has(si.id) &&
@@ -402,6 +438,7 @@ function selectWithDiversityConstraints(
         appliedConstraints.push('forced-spotlight');
       }
     } else if (needsNonSubscribed) {
+      attemptedConstraint = 'subscription-diversity';
       // Find highest-scoring non-subscribed item
       selectedItem = available.find(si => {
         if (selectedSet.has(si.id)) return false;
@@ -413,7 +450,19 @@ function selectWithDiversityConstraints(
       if (selectedItem) {
         appliedConstraints.push('subscription-diversity');
       }
+    } else if (needsDifferentSource) {
+      attemptedConstraint = 'source-diversity';
+      // Find highest-scoring item with different sources than recent window
+      selectedItem = available.find(si => {
+        if (selectedSet.has(si.id)) return false;
+        const sourceKey = normalizeSourcesKey(si.item.sources);
+        return sourceKey !== requiredDifferentSourceKey;
+      });
+      if (selectedItem) {
+        appliedConstraints.push('source-diversity');
+      }
     } else {
+      attemptedConstraint = 'type-diversity';
       // Normal selection: pick highest-scoring item that doesn't violate type diversity
       let skippedDueToTypeDiversity = false;
       for (const candidate of available) {
@@ -438,8 +487,8 @@ function selectWithDiversityConstraints(
     if (!selectedItem) {
       // No item found matching constraints, pick best available
       selectedItem = available.find(si => !selectedSet.has(si.id));
-      if (selectedItem) {
-        appliedConstraints.push('fallback-no-constraints-match');
+      if (selectedItem && attemptedConstraint) {
+        appliedConstraints.push(`no-match-for-${attemptedConstraint}`);
       }
     }
     
@@ -461,6 +510,7 @@ function selectWithDiversityConstraints(
         ? selectedItem.item.userSubscribedToAuthor
         : false;
     recentSubscribed.push(isSubscribed);
+    recentSources.push(normalizeSourcesKey(selectedItem.item.sources));
   }
   
   return selectedWithMetadata;
@@ -472,28 +522,27 @@ function selectWithDiversityConstraints(
  */
 export function scoreItems(
   items: RankableItem[],
-  userTagAffinity?: Map<string, number> | null,
   config: RankingConfig = DEFAULT_RANKING_CONFIG
 ): ScoredItem[] {
   return items.map(item => {
     let scoreResult: { score: number; breakdown: ScoreBreakdown };
     
     if (item.itemType === 'post') {
-      scoreResult = scorePost(item, userTagAffinity ?? null, config.posts);
+      scoreResult = scorePost(item, config);
     } else if (item.itemType === 'commentThread') {
       scoreResult = scoreThread(item, config);
     } else {
-      // Spotlights, bookmarks, etc. get baseline score with minimal breakdown
+      // Spotlights get baseline score with minimal breakdown
       scoreResult = {
         score: 1,
         breakdown: {
           total: 1,
           components: {
-            startingValue: 1,
             subscribedBonus: 0,
             karmaBonus: 0,
             topicAffinityBonus: 0,
           },
+          typeMultiplier: 1.0,
         },
       };
     }
@@ -517,12 +566,11 @@ export function scoreItems(
 export function rankUltraFeedItems(
   items: RankableItem[],
   totalItems: number,
-  userTagAffinity?: Map<string, number> | null,
   config: RankingConfig = DEFAULT_RANKING_CONFIG,
   diversityConstraints: DiversityConstraints = DEFAULT_DIVERSITY_CONSTRAINTS
 ): Array<{ id: string; metadata: RankedItemMetadata }> {
   // Score all items
-  const scoredItems = scoreItems(items, userTagAffinity, config);
+  const scoredItems = scoreItems(items, config);
 
   // Filter out items with zero or negative scores
   const positiveScoreItems = scoredItems.filter(item => item.score > 0);

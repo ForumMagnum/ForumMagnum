@@ -13,7 +13,6 @@ import {
 } from "@/components/ultraFeed/ultraFeedTypes";
 import { filterNonnull } from "@/lib/utils/typeGuardUtils";
 import gql from 'graphql-tag';
-import cloneDeep from 'lodash/cloneDeep';
 import { getUltraFeedCommentThreads, generateThreadHash } from '@/server/ultraFeed/ultraFeedThreadHelpers';
 import { DEFAULT_SETTINGS as DEFAULT_ULTRAFEED_SETTINGS, UltraFeedResolverSettings } from '@/components/ultraFeed/ultraFeedSettingsTypes';
 import { getUltraFeedPostThreads } from '@/server/ultraFeed/ultraFeedPostHelpers';
@@ -22,6 +21,7 @@ import { randomId } from '@/lib/random';
 import union from 'lodash/union';
 import groupBy from 'lodash/groupBy';
 import mergeWith from 'lodash/mergeWith';
+import cloneDeep from 'lodash/cloneDeep';
 import { backgroundTask } from "../utils/backgroundTask";
 import { serverCaptureEvent } from "../analytics/serverAnalyticsWriter";
 import { bulkRawInsert } from '../manualMigrations/migrationUtils';
@@ -40,6 +40,7 @@ import type {
   MappablePreparedThread
 } from '../ultraFeed/ultraFeedRankingTypes';
 import { getAlgorithm, type UltraFeedAlgorithmName } from '../ultraFeed/algorithms/algorithmRegistry';
+import { ultraFeedDebug } from '../ultraFeed/ultraFeedDebug';
 
 
 interface UltraFeedDateCutoffs {
@@ -76,7 +77,6 @@ export const ultraFeedGraphQLTypeDefs = gql`
     commentMetaInfos: JSON
     comments: [Comment!]!
     post: Post
-    isOnReadPost: Boolean
     postSources: [String!]
     postMetaInfo: JSON
   }
@@ -194,14 +194,12 @@ const parseUltraFeedSettings = (settingsJson?: string): UltraFeedResolverSetting
   if (settingsJson) {
     try {
       const settingsFromArg = JSON.parse(settingsJson);
-      const resolverKeys = Object.keys(DEFAULT_RESOLVER_SETTINGS) as Array<keyof UltraFeedResolverSettings>;
-      const filteredSettings: Partial<UltraFeedResolverSettings> = {};
-      resolverKeys.forEach(key => {
-         if (settingsFromArg[key] !== undefined) {
-            filteredSettings[key] = settingsFromArg[key];
-         }
-      });
-      parsedSettings = { ...DEFAULT_RESOLVER_SETTINGS, ...filteredSettings };
+      // Deep merge user settings with defaults to handle missing fields, e.g. prevent breaking changes
+      parsedSettings = mergeWith(
+        cloneDeep(DEFAULT_RESOLVER_SETTINGS),
+        settingsFromArg,
+        (defaultVal, userVal) => userVal ?? defaultVal
+      );
     } catch (e) {
       // eslint-disable-next-line no-console
       console.error("UltraFeedResolver: Failed to parse settings argument", e);
@@ -230,7 +228,8 @@ const extractIdsToLoad = (sampled: SampledItem[]) => {
       it.feedCommentThread.comments?.forEach(c => c.commentId && commentIdsSet.add(c.commentId));
       // Extract post ID from the first comment to preload the post
       const firstComment = it.feedCommentThread.comments?.[0];
-      if (firstComment?.postId && !it.feedCommentThread.isOnReadPost) {
+      const isParentPostRead = firstComment?.metaInfo?.isParentPostRead ?? false;
+      if (firstComment?.postId && !isParentPostRead) {
         postIds.push(firstComment.postId);
       }
     } else if (it.type === "feedPost") {
@@ -250,7 +249,7 @@ const extractIdsToLoad = (sampled: SampledItem[]) => {
 
 /**
  * Deduplicate posts that appear both as standalone items and in comment threads.
- * When a comment thread will show the post (!isOnReadPost), we remove the standalone
+ * When a comment thread will show the post (parent post not read), we remove the standalone
  * post item and transfer its source information to the thread.
  */
 const deduplicatePostsInThreads = (results: UltraFeedResolverType[]): UltraFeedResolverType[] => {
@@ -261,9 +260,12 @@ const deduplicatePostsInThreads = (results: UltraFeedResolverType[]): UltraFeedR
   for (const result of results) {
     if (result.type === "feedCommentThread" && result.feedCommentThread) {
       const thread = result.feedCommentThread;
-      // If isOnReadPost is false or null/undefined, the post will be shown with the thread
-      if (!thread.isOnReadPost && thread.comments?.length > 0) {
-        const postId = thread.comments[0]?.postId;
+      // If parent post is not read, the post will be shown with the thread
+      const firstComment = thread.comments?.[0];
+      const firstCommentMetaInfo = firstComment?._id ? thread.commentMetaInfos?.[firstComment._id] : undefined;
+      const isParentPostRead = firstCommentMetaInfo?.isParentPostRead ?? false;
+      if (!isParentPostRead && thread.comments?.length > 0) {
+        const postId = firstComment?.postId;
         if (postId) {
           postIdsInExpandedThreads.set(postId, []);
           threadsByPostId.set(postId, result);
@@ -336,7 +338,7 @@ const transformItemsForResolver = (
     }
 
     if (item.type === "feedCommentThread") {
-      const { comments: preDisplayComments, isOnReadPost, postSources, rankingMetadata } = item.feedCommentThread;
+      const { comments: preDisplayComments, postSources, rankingMetadata } = item.feedCommentThread;
       let loadedComments: DbComment[] = [];
 
       if (preDisplayComments && preDisplayComments.length > 0) {
@@ -345,9 +347,10 @@ const transformItemsForResolver = (
         );
       }
       
-      // Load the post if the thread will display it
+      // Load the post if the thread will display it (parent post not read)
       let post: DbPost | null = null;
-      if (!isOnReadPost && loadedComments.length > 0) {
+      const isParentPostRead = preDisplayComments?.[0]?.metaInfo?.isParentPostRead ?? false;
+      if (!isParentPostRead && loadedComments.length > 0) {
         const postId = loadedComments[0]?.postId;
         if (postId) {
           post = postsById.get(postId) ?? null;
@@ -400,7 +403,7 @@ const transformItemsForResolver = (
       
       // Construct postMetaInfo for the thread (only when we're showing the post)
       let postMetaInfo: FeedPostMetaInfo | undefined;
-      if (!isOnReadPost && loadedComments.length > 0) {
+      if (!isParentPostRead && loadedComments.length > 0) {
         const firstCommentMetaInfo = commentMetaInfos[loadedComments[0]._id];
         postMetaInfo = {
           sources: postSources ?? firstCommentMetaInfo?.sources ?? [],
@@ -416,7 +419,6 @@ const transformItemsForResolver = (
        _id: threadId,
        comments: loadedComments,
        commentMetaInfos,
-       isOnReadPost,
        postSources,
        post,
        postMetaInfo,
@@ -564,6 +566,7 @@ interface UltraFeedArgs {
 const calculateFetchLimits = (
   sourceWeights: Record<string, number>,
   totalLimit: number,
+  offset: number = 0,
   bufferMultiplier = 3.6,
   latestAndSubscribedPostMultiplier = 3.0,
   recombeeMultiplier = 3.6,
@@ -586,12 +589,21 @@ const calculateFetchLimits = (
   const totalCommentWeight = feedCommentSourceTypesArray.reduce((sum: number, type: FeedItemSourceType) => sum + (sourceWeights[type] || 0), 0);
   const totalSpotlightWeight = feedSpotlightSourceTypesArray.reduce((sum: number, type: FeedItemSourceType) => sum + (sourceWeights[type] || 0), 0);
 
+  const baseCommentFetchLimit = Math.ceil(totalLimit * (totalCommentWeight / totalWeight) * bufferMultiplier);
+  
+  // Scale up comment fetch limit based on offset to reduce repetition in subsequent calls: grows incrementally with each call, capped at 200
+  const commentFetchLimit = Math.min(baseCommentFetchLimit + Math.round(offset / 2), 200);
+  
+  if (offset > 0 && commentFetchLimit > baseCommentFetchLimit) {
+    ultraFeedDebug.log(`Scaled up comment fetch limit: ${baseCommentFetchLimit} → ${commentFetchLimit} (base from limit=${totalLimit}, offset=${offset})`);
+  }
+
   return {
     totalWeight,
     recombeePostFetchLimit: Math.ceil(totalLimit * (recombeePostWeight / totalWeight) * recombeeMultiplier),
     hackerNewsPostFetchLimit: Math.ceil(totalLimit * (hackerNewsPostWeight / totalWeight) * latestAndSubscribedPostMultiplier),
     subscribedPostFetchLimit: Math.ceil(totalLimit * (subscribedPostWeight / totalWeight) * latestAndSubscribedPostMultiplier),
-    commentFetchLimit: Math.ceil(totalLimit * (totalCommentWeight / totalWeight) * bufferMultiplier),
+    commentFetchLimit,
     spotlightFetchLimit: Math.ceil(totalLimit * (totalSpotlightWeight / totalWeight) * bufferMultiplier),
     bookmarkFetchLimit: Math.ceil(totalLimit * (bookmarkWeight / totalWeight) * bufferMultiplier),
     bufferMultiplier
@@ -604,6 +616,8 @@ const calculateFetchLimits = (
 export const ultraFeedGraphQLQueries = {
   UltraFeed: async (_root: void, args: UltraFeedArgs, context: ResolverContext) => {
     const startTime = Date.now();
+    ultraFeedDebug.log(`============================================================================ Session ID: ${args.sessionId}`);
+    ultraFeedDebug.log('UltraFeed resolver called', { args });
     
     const {limit = 20, cutoff, offset, sessionId, settings: settingsJson} = args;
     
@@ -627,7 +641,7 @@ export const ultraFeedGraphQLQueries = {
     try {
       const spotlightsRepo = context.repos.spotlights;
 
-      const { totalWeight, recombeePostFetchLimit, hackerNewsPostFetchLimit, subscribedPostFetchLimit, commentFetchLimit, spotlightFetchLimit, bookmarkFetchLimit } = calculateFetchLimits(sourceWeights, limit);
+      const { totalWeight, recombeePostFetchLimit, hackerNewsPostFetchLimit, subscribedPostFetchLimit, commentFetchLimit, spotlightFetchLimit, bookmarkFetchLimit } = calculateFetchLimits(sourceWeights, limit, offset);
 
       if (totalWeight <= 0) {
         // eslint-disable-next-line no-console
@@ -637,6 +651,16 @@ export const ultraFeedGraphQLQueries = {
 
       // TODO: This is a little hand-wavy since fetching them together breaks the paradigm. Figure out better solution later.
       const latestAndSubscribedPostLimit = hackerNewsPostFetchLimit + subscribedPostFetchLimit;
+
+      ultraFeedDebug.log('Fetch limits requested:', {
+        recombeePostFetchLimit,
+        hackerNewsPostFetchLimit,
+        subscribedPostFetchLimit,
+        latestAndSubscribedPostLimit,
+        commentFetchLimit,
+        spotlightFetchLimit,
+        bookmarkFetchLimit,
+      });
 
       // Fetch engagement stats for threads separately to pass to ranking
       const userIdOrClientId = currentUser?._id ?? clientId;
@@ -672,6 +696,14 @@ export const ultraFeedGraphQLQueries = {
         bookmarkFetchLimit > 0 ? getUltraFeedBookmarks(context, bookmarkFetchLimit) : Promise.resolve([]),
         engagementStatsListPromise
       ]) as [FeedFullPost[], FeedCommentsThread[], FeedSpotlight[], PreparedBookmarkItem[], ThreadEngagementStats[]];
+      
+      ultraFeedDebug.log('Fetch results returned:', {
+        postsReturned: combinedPostItems.length,
+        commentThreadsReturned: commentThreadsItemsResult.length,
+        spotlightsReturned: spotlightItemsResult.length,
+        bookmarksReturned: bookmarkItemsResult.length,
+        engagementStatsReturned: engagementStatsList.length,
+      });
       
       const engagementStatsMap = new Map(engagementStatsList.map(stats => [stats.threadTopLevelId, stats]));
 
@@ -750,10 +782,13 @@ export const ultraFeedGraphQLQueries = {
       const algorithm = getAlgorithm(algorithmName);
       
       // Rank items using the selected algorithm
-      const rankedItemsWithMetadata = algorithm.rankItems(rankableItems, limit);
+      const rankedItemsWithMetadata = algorithm.rankItems(
+        rankableItems, 
+        limit,
+        parsedSettings
+      );
       
-      // eslint-disable-next-line no-console
-      console.log('UltraFeed: Ranked items with metadata:', rankedItemsWithMetadata.length, 'items using', algorithm.name, 'algorithm');
+      ultraFeedDebug.log(`Ranked ${rankedItemsWithMetadata.length} items using ${algorithm.name} algorithm`);
       
       // Log ranked items with scores for analysis
       backgroundTask((async () => {
@@ -829,8 +864,6 @@ export const ultraFeedGraphQLQueries = {
       const sampledItemsRaw: SampledItem[] = filterNonnull(rankedIds.map(id => {
         const metadata = metadataById.get(id);
         
-        // eslint-disable-next-line no-console
-        console.log('Mapping id:', id, 'metadata:', metadata ? 'present' : 'MISSING');
         
         // Try to find in each map
         const post = postIdToOriginal.get(id);
@@ -843,8 +876,6 @@ export const ultraFeedGraphQLQueries = {
               rankingMetadata: metadata,
             },
           };
-          // eslint-disable-next-line no-console
-          console.log('Post with metadata:', post.post?._id, 'rankingMetadata:', postWithMetadata.postMetaInfo.rankingMetadata ? 'attached' : 'MISSING');
           return { type: "feedPostWithContents" as const, feedPost: postWithMetadata };
         }
         
@@ -855,8 +886,6 @@ export const ultraFeedGraphQLQueries = {
             ...thread,
             rankingMetadata: metadata,
           };
-          // eslint-disable-next-line no-console
-          console.log('Thread with metadata:', id, 'rankingMetadata:', threadWithMetadata.rankingMetadata ? 'attached' : 'MISSING');
           return { type: "feedCommentThread" as const, feedCommentThread: threadWithMetadata };
         }
         

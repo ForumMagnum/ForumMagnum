@@ -29,6 +29,7 @@ import {
 import { ZodFormattedError } from 'zod';
 import mergeWith from 'lodash/mergeWith';
 import cloneDeep from 'lodash/cloneDeep';
+import isEqual from 'lodash/isEqual';
 import UltraFeedFeedback from './UltraFeedFeedback';
 import FeedSelectorCheckbox from '../common/FeedSelectorCheckbox';
 import {
@@ -128,7 +129,18 @@ const styles = defineStyles('UltraFeedSettings', (theme: ThemeType) => ({
   buttonRow: {
     display: 'flex',
     justifyContent: 'flex-end',
+    gap: 12,
+    alignItems: 'center',
     marginTop: 12,
+  },
+  unsavedChangesIndicator: {
+    color: theme.palette.warning.main,
+    fontSize: 16,
+    fontStyle: 'italic',
+  },
+  buttonGroup: {
+    display: 'flex',
+    gap: theme.spacing.unit * 1.5,
   },
   button: {
     minWidth: 100,
@@ -141,9 +153,6 @@ const styles = defineStyles('UltraFeedSettings', (theme: ThemeType) => ({
     fontWeight: 500,
     '&:hover': {
       backgroundColor: theme.palette.primary.dark,
-    },
-    '&:not(:last-child)': {
-      marginRight: theme.spacing.unit * 1.5,
     },
   },
   saveButton: {
@@ -393,7 +402,6 @@ const ViewModeButton: React.FC<{
 const UltraFeedSettings = ({
   settings,
   updateSettings,
-  resetSettingsToDefault,
   onClose,
   initialViewMode = 'simple',
   truncationMaps,
@@ -401,7 +409,6 @@ const UltraFeedSettings = ({
 }: {
   settings: UltraFeedSettingsType,
   updateSettings: (newSettings: Partial<UltraFeedSettingsType>) => void,
-  resetSettingsToDefault: () => void,
   onClose?: () => void,
   initialViewMode?: 'simple' | 'advanced',
   truncationMaps: { commentMap: Record<TruncationLevel, number>, postMap: Record<TruncationLevel, number> },
@@ -691,10 +698,12 @@ const UltraFeedSettings = ({
   }, [formValues, simpleViewTruncationLevels, updateSettings, captureEvent, settings, viewMode, flash, truncationMaps]);
   
   const handleReset = useCallback(() => {
-    resetSettingsToDefault();
+    // Reset local form state to defaults without persisting
+    setFormValues(deriveFormValuesFromSettings(DEFAULT_SETTINGS));
+    setSimpleViewTruncationLevels(deriveSimpleViewTruncationLevelsFromSettings(DEFAULT_SETTINGS, truncationMaps));
     setZodErrors(null);
     captureEvent("ultraFeedSettingsReset");
-  }, [resetSettingsToDefault, captureEvent]);
+  }, [captureEvent, truncationMaps]);
 
   const truncationGridProps = {
     levels: simpleViewTruncationLevels,
@@ -733,6 +742,13 @@ const UltraFeedSettings = ({
     currentLogImpactFactor: formValues.threadInterestModel.logImpactFactor,
     onExploreBiasChange: handleExploreBiasChange,
   };
+
+  const hasUnsavedChanges = useMemo(() => {
+    const savedFormState = deriveFormValuesFromSettings(settings);
+    const savedTruncationLevels = deriveSimpleViewTruncationLevelsFromSettings(settings, truncationMaps);
+    
+    return !isEqual(formValues, savedFormState) || !isEqual(simpleViewTruncationLevels, savedTruncationLevels);
+  }, [formValues, simpleViewTruncationLevels, settings, truncationMaps]);
 
   const hasAnyErrors = useMemo(() => {
      return zodErrors !== null;
@@ -804,21 +820,26 @@ const UltraFeedSettings = ({
       </div>
 
       <div className={classes.buttonRow}>
-        <button
-          className={classNames(classes.button, classes.resetButton)}
-          onClick={handleReset}
-        >
-          Reset
-        </button>
-        <button
-          className={classNames(classes.button, classes.saveButton, {
-            [classes.buttonDisabled]: hasAnyErrors
-          })}
-          onClick={handleSave}
-          disabled={hasAnyErrors}
-        >
-          Save
-        </button>
+        <div className={classes.unsavedChangesIndicator}>
+          {hasUnsavedChanges && 'you have unsaved changes'}
+        </div>
+        <div className={classes.buttonGroup}>
+          <button
+            className={classNames(classes.button, classes.resetButton)}
+            onClick={handleReset}
+          >
+            Reset
+          </button>
+          <button
+            className={classNames(classes.button, classes.saveButton, {
+              [classes.buttonDisabled]: hasAnyErrors
+            })}
+            onClick={handleSave}
+            disabled={hasAnyErrors}
+          >
+            Save
+          </button>
+        </div>
       </div>
     </div>
   );

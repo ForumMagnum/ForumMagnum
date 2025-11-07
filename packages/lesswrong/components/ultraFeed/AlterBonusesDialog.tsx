@@ -1,4 +1,4 @@
-import React, { useState, useCallback, useMemo } from 'react';
+import React, { useState, useCallback, useMemo, useEffect } from 'react';
 import { defineStyles, useStyles } from '../hooks/useStyles';
 import LWDialog from '../common/LWDialog';
 import { DialogTitle } from '../widgets/DialogTitle';
@@ -13,10 +13,12 @@ import { useUltraFeedSettings } from '../hooks/useUltraFeedSettings';
 import classNames from 'classnames';
 import mergeWith from 'lodash/mergeWith';
 import cloneDeep from 'lodash/cloneDeep';
+import isEqual from 'lodash/isEqual';
 
 const styles = defineStyles('AlterBonusesDialog', (theme: ThemeType) => ({
   dialogContent: {
     minWidth: 500,
+    maxWidth: 700,
     [theme.breakpoints.down('sm')]: {
       minWidth: 'auto',
     },
@@ -24,7 +26,7 @@ const styles = defineStyles('AlterBonusesDialog', (theme: ThemeType) => ({
   compactSettingGroup: {
     backgroundColor: theme.palette.background.paper,
     width: '100%',
-    padding: 16,
+    padding: `16px 16px 0 16px`,
     borderRadius: 4,
   },
   button: {
@@ -53,6 +55,25 @@ const styles = defineStyles('AlterBonusesDialog', (theme: ThemeType) => ({
   buttonDisabled: {
     opacity: 0.5,
     cursor: 'not-allowed',
+  },
+  actionsContent: {
+    paddingRight: 16,
+    paddingBottom: 16,
+    display: 'flex',
+    width: '100%',
+    justifyContent: 'flex-end',
+    gap: 12,
+    alignItems: 'center',
+  },
+  unsavedChangesIndicator: {
+    fontFamily: theme.palette.fonts.sansSerifStack,
+    color: theme.palette.warning.main,
+    fontSize: 16,
+    fontStyle: 'italic',
+  },
+  buttonGroup: {
+    display: 'flex',
+    gap: 8,
   },
 }));
 
@@ -88,6 +109,14 @@ const AlterBonusesDialog = ({ open, onClose, className }: { open: boolean; onClo
   const [formValues, setFormValues] = useState<UnifiedScoringFormState>(initialFormState);
   const [zodErrors, setZodErrors] = useState<ZodFormattedError<ValidatedUnifiedScoring, string> | null>(null);
 
+  // Reset form when dialog opens
+  useEffect(() => {
+    if (open) {
+      setFormValues(initialFormState);
+      setZodErrors(null);
+    }
+  }, [open, initialFormState]);
+
   const handleFieldChange = useCallback((
     field: keyof UnifiedScoringFormState,
     value: number | string
@@ -102,10 +131,9 @@ const AlterBonusesDialog = ({ open, onClose, className }: { open: boolean; onClo
     const parsedValues = {
       subscribedBonusSetting: parseNumericInputAsZeroOrNumber(formValues.subscribedBonusSetting, defaultUnifiedScoring.subscribedBonusSetting),
       quicktakeBonus: parseNumericInputAsZeroOrNumber(formValues.quicktakeBonus, defaultUnifiedScoring.quicktakeBonus),
-      postsTimeDecayStrength: parseNumericInputAsZeroOrNumber(formValues.postsTimeDecayStrength, defaultUnifiedScoring.postsTimeDecayStrength),
-      commentsTimeDecayStrength: parseNumericInputAsZeroOrNumber(formValues.commentsTimeDecayStrength, defaultUnifiedScoring.commentsTimeDecayStrength),
-      postsStartingValue: parseNumericInputAsZeroOrNumber(formValues.postsStartingValue, defaultUnifiedScoring.postsStartingValue),
-      threadsStartingValue: parseNumericInputAsZeroOrNumber(formValues.threadsStartingValue, defaultUnifiedScoring.threadsStartingValue),
+      timeDecayHalfLifeHours: parseNumericInputAsZeroOrNumber(formValues.timeDecayHalfLifeHours, defaultUnifiedScoring.timeDecayHalfLifeHours),
+      postsMultiplier: parseNumericInputAsZeroOrNumber(formValues.postsMultiplier, defaultUnifiedScoring.postsMultiplier),
+      threadsMultiplier: parseNumericInputAsZeroOrNumber(formValues.threadsMultiplier, defaultUnifiedScoring.threadsMultiplier),
     };
 
     const validationResult = unifiedScoringSchema.safeParse(parsedValues);
@@ -128,6 +156,10 @@ const AlterBonusesDialog = ({ open, onClose, className }: { open: boolean; onClo
 
   const hasErrors = zodErrors !== null;
 
+  const hasUnsavedChanges = useMemo(() => {
+    return !isEqual(formValues, initialFormState);
+  }, [formValues, initialFormState]);
+
   return (
     <LWDialog
       open={open}
@@ -144,22 +176,29 @@ const AlterBonusesDialog = ({ open, onClose, className }: { open: boolean; onClo
           className={classes.compactSettingGroup}
         />
       </DialogContent>
-      <DialogActions>
-        <button
-          className={classNames(classes.button, classes.cancelButton)}
-          onClick={onClose}
-        >
-          Cancel
-        </button>
-        <button
-          className={classNames(classes.button, classes.saveButton, {
-            [classes.buttonDisabled]: hasErrors
-          })}
-          onClick={handleSave}
-          disabled={hasErrors}
-        >
-          Save
-        </button>
+      <DialogActions disableActionSpacing>
+        <div className={classes.actionsContent}>
+          <div className={classes.unsavedChangesIndicator}>
+            {hasUnsavedChanges && 'you have unsaved changes'}
+          </div>
+          <div className={classes.buttonGroup}>
+            <button
+              className={classNames(classes.button, classes.cancelButton)}
+              onClick={onClose}
+            >
+              Cancel
+            </button>
+            <button
+              className={classNames(classes.button, classes.saveButton, {
+                [classes.buttonDisabled]: hasErrors
+              })}
+              onClick={handleSave}
+              disabled={hasErrors}
+            >
+              Save
+            </button>
+          </div>
+        </div>
       </DialogActions>
     </LWDialog>
   );

@@ -1005,11 +1005,19 @@ export const UnifiedScoringSettings: React.FC<UnifiedScoringSettingsProps> = ({
 
   const defaultUnifiedScoringSettings = DEFAULT_SETTINGS.resolverSettings.unifiedScoring;
 
-  const subscribedBonusSetting = formValues.subscribedBonusSetting;
-  const subscribedBonusValue = typeof subscribedBonusSetting === 'number' ? subscribedBonusSetting : defaultUnifiedScoringSettings.subscribedBonusSetting;
-  const subscribedBonusError = errors?.subscribedBonusSetting?._errors[0];
-
-  const otherFields = [
+  const allFields = [
+    {
+      key: 'postsMultiplier' as const,
+      label: "Posts Multiplier",
+      description: `Multiplier applied to final post scores. Increase to see more posts, decrease to see fewer. Default: ${defaultUnifiedScoringSettings.postsMultiplier}`,
+      min: 0.5, max: 2.0, step: 0.1,
+    },
+    {
+      key: 'threadsMultiplier' as const,
+      label: "Threads Multiplier",
+      description: `Multiplier applied to final thread scores. Increase to see more threads, decrease to see fewer. Default: ${defaultUnifiedScoringSettings.threadsMultiplier}`,
+      min: 0.5, max: 2.0, step: 0.1,
+    },
     {
       key: 'quicktakeBonus' as const,
       label: "Quick Take Bonus",
@@ -1017,28 +1025,16 @@ export const UnifiedScoringSettings: React.FC<UnifiedScoringSettingsProps> = ({
       min: 0, max: 50, step: 1,
     },
     {
-      key: 'postsTimeDecayStrength' as const,
-      label: "Time Decay (posts)",
-      description: `How quickly posts lose score over time. Formula: karma / (ageHrs + 2)^strength. Default: ${defaultUnifiedScoringSettings.postsTimeDecayStrength}`,
-      min: 0.5, max: 3, step: 0.1,
+      key: 'subscribedBonusSetting' as const,
+      label: "Subscribed Bonus",
+      description: `Scale: 0 (None) to 5 (Very Strong). Applies to both posts and comments.`,
+      min: 0, max: 5, step: 1,
     },
     {
-      key: 'commentsTimeDecayStrength' as const,
-      label: "Time Decay (comments)",
-      description: `How quickly comment threads lose score over time. Formula: karma / (ageHrs + 2)^strength. Default: ${defaultUnifiedScoringSettings.commentsTimeDecayStrength}`,
-      min: 0.5, max: 3, step: 0.1,
-    },
-    {
-      key: 'postsStartingValue' as const,
-      label: "Posts Starting Value",
-      description: `Base score for posts before other factors are applied. Default: ${defaultUnifiedScoringSettings.postsStartingValue}`,
-      min: 0.1, max: 10, step: 0.1,
-    },
-    {
-      key: 'threadsStartingValue' as const,
-      label: "Threads Starting Value",
-      description: `Base score for comment threads before other factors are applied. Default: ${defaultUnifiedScoringSettings.threadsStartingValue}`,
-      min: 0.1, max: 10, step: 0.1,
+      key: 'timeDecayHalfLifeHours' as const,
+      label: "Time Decay Scale",
+      description: `Controls time decay rate (applies to posts and comments). Higher = slower decay. Formula: scale^0.25 / (ageHrs + 12)^0.25. At ${defaultUnifiedScoringSettings.timeDecayHalfLifeHours}hrs: 1day old = 78%, 1week old = 56%. Default: ${defaultUnifiedScoringSettings.timeDecayHalfLifeHours} hours`,
+      min: 1, max: 48, step: 1,
     },
   ];
 
@@ -1048,38 +1044,8 @@ export const UnifiedScoringSettings: React.FC<UnifiedScoringSettingsProps> = ({
         <p>Adjust scoring parameters for the unified scoring algorithm.</p>
       </div>
 
-      {/* Subscribed Bonus Setting */}
-      <div key="subscribedBonusSetting" className={classes.sourceWeightItem}>
-        <div className={classes.sourceWeightContainer}>
-          <label className={classes.sourceWeightLabel}>Subscribed Bonus</label>
-          <Slider
-            className={classes.sourceWeightSlider}
-            value={subscribedBonusValue}
-            onChange={(_, val) => onFieldChange('subscribedBonusSetting', val as number)}
-            min={0}
-            max={5}
-            step={1}
-          />
-          <input
-            type="number"
-            className={classNames(classes.sourceWeightInput, { [classes.invalidInput]: !!subscribedBonusError })}
-            value={subscribedBonusSetting}
-            onChange={(e) => onFieldChange('subscribedBonusSetting', e.target.value)}
-            min={0}
-            max={5}
-            step={1}
-          />
-        </div>
-        <p className={classes.sourceWeightDescription}>
-           Scale: 0 (None) to 5 (Very Strong). Applies to both posts and comments.
-        </p>
-        {subscribedBonusError && (
-          <p className={classes.errorMessage}>{subscribedBonusError}</p>
-        )}
-      </div>
-
-      {/* Other fields */}
-      {otherFields.map(field => {
+      {/* All fields */}
+      {allFields.map(field => {
         const currentValue = formValues[field.key];
         const currentError = errors?.[field.key]?._errors[0];
         const defaultVal = defaultUnifiedScoringSettings[field.key];

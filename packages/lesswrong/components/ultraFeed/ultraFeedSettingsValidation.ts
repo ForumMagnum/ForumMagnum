@@ -74,10 +74,9 @@ const subscriptionsFeedSettingsSchema = z.object({
 const unifiedScoringSchema = z.object({
   subscribedBonusSetting: z.number().int().min(0, { message: "Must be between 0 and 5" }).max(5, { message: "Must be between 0 and 5" }),
   quicktakeBonus: z.number().min(0, { message: "Must be non-negative" }).max(50, { message: "Must be at most 50" }),
-  postsTimeDecayStrength: z.number().min(0.5, { message: "Must be at least 0.5" }).max(3, { message: "Must be at most 3" }),
-  commentsTimeDecayStrength: z.number().min(0.5, { message: "Must be at least 0.5" }).max(3, { message: "Must be at most 3" }),
-  postsStartingValue: z.number().min(0.1, { message: "Must be at least 0.1" }).max(10, { message: "Must be at most 10" }),
-  threadsStartingValue: z.number().min(0.1, { message: "Must be at least 0.1" }).max(10, { message: "Must be at most 10" }),
+  timeDecayHalfLifeHours: z.number().min(1, { message: "Must be at least 1 hour" }).max(48, { message: "Must be at most 48 hours" }),
+  postsMultiplier: z.number().min(0.5, { message: "Must be between 0.5 and 2.0" }).max(2.0, { message: "Must be between 0.5 and 2.0" }),
+  threadsMultiplier: z.number().min(0.5, { message: "Must be between 0.5 and 2.0" }).max(2.0, { message: "Must be between 0.5 and 2.0" }),
 });
 
 const resolverSettingsSchema = z.object({

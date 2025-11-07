@@ -1,11 +1,15 @@
 // Scoring configuration
 export interface RankingConfig {
+  startingValue: number; // Base starting value for all items (before type multiplier)
   posts: {
-    startingValue: number;
+    typeMultiplier: number; // Multiplier applied to final post score
     subscribedBonus: number;
-    // HN-style decay parameters (used for hacker-news posts)
-    hnDecayFactor: number; // Exponent in (age + bias)^factor
-    hnDecayBias: number; // Bias added to age in hours
+    // Time decay parameters (hyperbolic)
+    // Formula: multiplier = 1 / ((ageHrs + bias) / scale)^exponent
+    //        = scale^exponent / (ageHrs + bias)^exponent
+    timeDecayBias: number; // Bias added to age (prevents division by zero, softens early decay)
+    timeDecayScale: number; // Scale factor (controls overall decay rate)
+    timeDecayExponent: number; // Fixed at 1 for simple hyperbolic decay
     // Legacy karma bonus (used for recombee/subscription posts without decay)
     karmaSuperlinearExponent: number;
     karmaDivisor: number;
@@ -13,11 +17,15 @@ export interface RankingConfig {
     topicAffinityMaxBonus: number;
   };
   threads: {
-    startingValue: number;
-    // HN-style decay for individual non-subscribed comments
-    commentDecayFactor: number;
-    commentDecayBias: number;
+    typeMultiplier: number; // Multiplier applied to final thread score
+    // Time decay for comments
+    // Formula: multiplier = 1 / ((ageHrs + bias) / scale)^exponent
+    //        = scale^exponent / (ageHrs + bias)^exponent
+    timeDecayBias: number; // Bias added to age (prevents division by zero, softens early decay)
+    timeDecayScale: number; // Scale factor (controls overall decay rate)
+    timeDecayExponent: number; // Fixed at 1 for simple hyperbolic decay
     subscribedCommentBonus: number; // Bonus added per comment from subscribed author
+    karmaMaxBonus: number; // Maximum karma bonus from all comments combined
     engagementParticipationBonus: number;
     engagementVotingBonus: number;
     engagementViewingBonus: number;
@@ -32,21 +40,25 @@ export interface RankingConfig {
 }
 
 export const DEFAULT_RANKING_CONFIG: RankingConfig = {
+  startingValue: 1,
   posts: {
-    startingValue: 1,
-    subscribedBonus: 15,
-    hnDecayFactor: 1.3,
-    hnDecayBias: 2,
+    typeMultiplier: 1.0,
+    subscribedBonus: 6, // subscribedBonusSetting=3 * 2
+    timeDecayBias: 12,
+    timeDecayScale: 12,
+    timeDecayExponent: 0.25,
     karmaSuperlinearExponent: 1.2,
     karmaDivisor: 20,
     karmaMaxBonus: 20,
     topicAffinityMaxBonus: 15,
   },
   threads: {
-    startingValue: 2,
-    commentDecayFactor: 1.3,
-    commentDecayBias: 2,
-    subscribedCommentBonus: 6, // +6 per comment from subscribed author (subscribedBonusSetting=3 * 2)
+    typeMultiplier: 1.0,
+    timeDecayBias: 12,
+    timeDecayScale: 12,
+    timeDecayExponent: 0.25,
+    subscribedCommentBonus: 6, // subscribedBonusSetting=3 * 2
+    karmaMaxBonus: 20,
     engagementParticipationBonus: 20,
     engagementVotingBonus: 10,
     engagementViewingBonus: 5,
@@ -67,50 +79,56 @@ export interface DiversityConstraints {
     bookmarks: number;  
     spotlights: number; 
   };
-  subscriptionDiversityWindow: number; 
+  subscriptionDiversityWindow: number;
+  sourceDiversityWindow: number;
 }
 
 export const DEFAULT_DIVERSITY_CONSTRAINTS: DiversityConstraints = {
   maxConsecutiveSameType: 3,
   guaranteedSlotsPerWindow: {
-    windowSize: 10,
+    windowSize: 20,
     bookmarks: 1,
     spotlights: 1,
   },
   subscriptionDiversityWindow: 5,
+  sourceDiversityWindow: 3,
 };
 
 /**
  * Build a RankingConfig from user settings.
- * Allows users to customize decay strengths, starting values, and bonuses.
+ * Allows users to customize decay parameters, starting values, and bonuses.
  */
 export function buildRankingConfigFromSettings(unifiedScoring: {
   subscribedBonusSetting: number;
   quicktakeBonus: number;
-  postsTimeDecayStrength: number;
-  commentsTimeDecayStrength: number;
-  postsStartingValue: number;
-  threadsStartingValue: number;
+  timeDecayHalfLifeHours: number;
+  postsMultiplier: number;
+  threadsMultiplier: number;
 }): RankingConfig {
-  const postSubscribedBonus = unifiedScoring.subscribedBonusSetting * 5;
+  const postSubscribedBonus = unifiedScoring.subscribedBonusSetting * 2;
   const commentSubscribedBonus = unifiedScoring.subscribedBonusSetting * 2;
+  const timeDecayHalfLifeHours = unifiedScoring.timeDecayHalfLifeHours;
   
   return {
+    startingValue: 1,
     posts: {
-      startingValue: unifiedScoring.postsStartingValue,
+      typeMultiplier: unifiedScoring.postsMultiplier,
       subscribedBonus: postSubscribedBonus,
-      hnDecayFactor: unifiedScoring.postsTimeDecayStrength,
-      hnDecayBias: 2, // Keep bias constant for now
+      timeDecayBias: 12, // Fixed bias
+      timeDecayScale: timeDecayHalfLifeHours, // Use half-life as scale parameter
+      timeDecayExponent: 0.25, // Gentle decay with long tail
       karmaSuperlinearExponent: 1.2,
       karmaDivisor: 20,
       karmaMaxBonus: 20,
       topicAffinityMaxBonus: 15,
     },
     threads: {
-      startingValue: unifiedScoring.threadsStartingValue,
-      commentDecayFactor: unifiedScoring.commentsTimeDecayStrength,
-      commentDecayBias: 2, // Keep bias constant for now
+      typeMultiplier: unifiedScoring.threadsMultiplier,
+      timeDecayBias: 12, // Fixed bias
+      timeDecayScale: timeDecayHalfLifeHours, // Use half-life as scale parameter
+      timeDecayExponent: 0.25, // Gentle decay with long tail
       subscribedCommentBonus: commentSubscribedBonus,
+      karmaMaxBonus: 20,
       engagementParticipationBonus: 20,
       engagementVotingBonus: 10,
       engagementViewingBonus: 5,

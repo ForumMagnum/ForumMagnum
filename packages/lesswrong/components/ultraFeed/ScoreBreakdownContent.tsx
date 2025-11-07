@@ -51,7 +51,6 @@ export const scoreBreakdownStyles = defineStyles('ScoreBreakdownContent', (theme
     fontSize: 13,
     fontStyle: 'italic',
     color: theme.palette.text.secondary,
-    marginTop: 8,
   },
   multiplierPenalty: {
     color: theme.palette.error.main,
@@ -148,12 +147,15 @@ const sourceTooltips: Partial<Record<FeedItemSourceType, string>> = {
 function getPostComponentExplanations(settings?: ReturnType<typeof useUltraFeedSettings>['settings']): Record<string, string> {
   const config = getUserRankingConfig(settings);
   const postConfig = config.posts;
+  const subscribedBonusSetting = settings?.resolverSettings?.unifiedScoring?.subscribedBonusSetting ?? 3;
+  const bias = postConfig.timeDecayBias;
+  const scale = postConfig.timeDecayScale;
+  const multiplier = postConfig.typeMultiplier;
   
   return {
-    "Starting Value": `Starting score for all posts (${postConfig.startingValue})`,
-    "Subscribed Author": `Bonus for posts from authors you follow (+${postConfig.subscribedBonus}). Configurable in settings (0-25)`,
-    "Karma Bonus (time-decaying)": `Hacker-news style time decay: karma / (ageHrs + ${postConfig.hnDecayBias})^${postConfig.hnDecayFactor}. Promotes recent high-karma posts.`,
-    "Karma Bonus (timeless)": `No time decay: min(karma^${postConfig.karmaSuperlinearExponent} / ${postConfig.karmaDivisor}, ${postConfig.karmaMaxBonus}). Used for personalized recommendations and author subscriptions.`,
+    "Subscribed Author": `Bonus for posts from authors you follow. Formula: subscribedBonusSetting × 2 = ${subscribedBonusSetting} × 2 = ${postConfig.subscribedBonus}. Configurable in settings (0-5, gives 0-10 bonus)`,
+    "Karma Bonus (time-decaying)": `Decay: min(karma × ${scale}^0.25 / (ageHrs + ${bias})^0.25, ${postConfig.karmaMaxBonus}). Age 0: 100%, 1day: 78%, 3days: 67%, 1week: 56%. All items start with base 1 point.`,
+    "Karma Bonus (timeless)": `No time decay: min(karma^${postConfig.karmaSuperlinearExponent} / ${postConfig.karmaDivisor}, ${postConfig.karmaMaxBonus}). Used for personalized recommendations and author subscriptions. All items start with base 1 point.`,
     "Topic Affinity": `Bonus for posts on topics you read often (0-${postConfig.topicAffinityMaxBonus}, TODO)`,
   };
 }
@@ -162,14 +164,17 @@ function getThreadComponentExplanations(settings?: ReturnType<typeof useUltraFee
   const config = getUserRankingConfig(settings);
   const threadConfig = config.threads;
   const postConfig = config.posts;
+  const subscribedBonusSetting = settings?.resolverSettings?.unifiedScoring?.subscribedBonusSetting ?? 3;
+  const bias = threadConfig.timeDecayBias;
+  const scale = threadConfig.timeDecayScale;
+  const multiplier = threadConfig.typeMultiplier;
   
   return {
-    "Starting Value": `Starting score for all threads (${threadConfig.startingValue})`,
-    "Subscribed Comments": `+${threadConfig.subscribedCommentBonus} per unread comment from authors you follow. No time decay applied. Configurable in settings (0-10 per comment)`,
+    "Subscribed Comments": `Flat bonus per unread comment from authors you follow: subscribedBonusSetting × 2 = ${subscribedBonusSetting} × 2 = ${threadConfig.subscribedCommentBonus} per comment. Applies in addition to karma bonus. Configurable in settings (0-5, gives 0-10 per comment)`,
     "Prior Engagement": `+${threadConfig.engagementParticipationBonus} if commented, else +${threadConfig.engagementVotingBonus} if voted, else +${threadConfig.engagementViewingBonus} if viewed`,
     "Replies to You": `Someone replied to your comment (+${threadConfig.repliesToYouBonus}, TODO)`,
     "Your Post": `New comments on a post you wrote (+${threadConfig.yourPostBonus}, TODO)`,
-    "Karma Bonus (time-decaying)": `HN-style decay for unread non-subscribed comments: sum(karma / (ageHrs + ${threadConfig.commentDecayBias})^${threadConfig.commentDecayFactor})`,
+    "Karma Bonus (time-decaying)": `Decay: min(sum(karma × ${scale}^0.25 / (ageHrs + ${bias})^0.25), ${threadConfig.karmaMaxBonus}) for ALL unread comments. Age 0: 100%, 1day: 78%, 3days: 67%, 1week: 56%. All items start with base 1 point.`,
     "Topic Affinity": `Bonus for threads on topics you read often (0-${postConfig.topicAffinityMaxBonus}) TODO`,
     "Quicktake": `Top-level comment is an unread quicktake (+${threadConfig.quicktakeBonus})`,
     "Read Post Context": `You've read the post, so you have context (+${threadConfig.readPostContextBonus})`,
@@ -272,18 +277,12 @@ export const PostScoreBreakdownContent = ({ breakdown, sources, metaInfo }: { br
   const karmaBonusLabel = isRecombeeOrSubscription ? "Karma Bonus (timeless)" : "Karma Bonus (time-decaying)";
   
   const allComponents = [
-    { name: "Starting Value", value: components.startingValue, isBase: true },
-    { name: "Subscribed Author", value: components.subscribedBonus, isBase: false },
-    { name: karmaBonusLabel, value: components.karmaBonus, isBase: false },
-    { name: "Topic Affinity", value: components.topicAffinityBonus, isBase: false },
+    { name: "Subscribed Author", value: components.subscribedBonus },
+    { name: karmaBonusLabel, value: components.karmaBonus },
+    { name: "Topic Affinity", value: components.topicAffinityBonus },
   ];
   
-  const baseScore = allComponents.find(c => c.isBase);
-  const otherComponents = allComponents
-    .filter(c => !c.isBase)
-    .sort((a, b) => Math.abs(b.value) - Math.abs(a.value));
-  
-  const componentList = baseScore ? [baseScore, ...otherComponents] : otherComponents;
+  const componentList = allComponents.sort((a, b) => Math.abs(b.value) - Math.abs(a.value));
   
   const postExplanations = getPostComponentExplanations(settings);
   
@@ -300,6 +299,22 @@ export const PostScoreBreakdownContent = ({ breakdown, sources, metaInfo }: { br
           <ScoreComponent key={name} name={name} value={value} explanations={postExplanations} />
         ))}
       </div>
+      
+      <LWTooltip 
+        title={Math.abs(breakdown.typeMultiplier - 1) < 0.01 
+          ? "No type multiplier applied (1.0×)"
+          : `Posts are multiplied by ${breakdown.typeMultiplier}× to adjust their relative priority vs threads`
+        }
+        placement="left"
+        inlineBlock={false}
+        As="div"
+      >
+        <div className={classNames(classes.multiplier, {
+          [classes.multiplierNoPenalty]: Math.abs(breakdown.typeMultiplier - 1) < 0.01
+        })}>
+          Type Multiplier: ×{formatScore(breakdown.typeMultiplier)}
+        </div>
+      </LWTooltip>
     </>
   );
 };
@@ -307,26 +322,20 @@ export const PostScoreBreakdownContent = ({ breakdown, sources, metaInfo }: { br
 export const ThreadScoreBreakdownContent = ({ breakdown, sources, metaInfo }: { breakdown: ThreadScoreBreakdown; sources?: FeedItemSourceType[]; metaInfo?: FeedCommentMetaInfo }) => {
   const classes = useStyles(scoreBreakdownStyles);
   const { settings } = useUltraFeedSettings();
-  const { components, repetitionPenaltyMultiplier } = breakdown;
+  const { components, repetitionPenaltyMultiplier, typeMultiplier } = breakdown;
   
   const allComponents = [
-    { name: "Starting Value", value: components.startingValue, isBase: true },
-    { name: "Subscribed Comments", value: components.unreadSubscribedCommentBonus, isBase: false },
-    { name: "Prior Engagement", value: components.engagementContinuationBonus, isBase: false },
-    { name: "Replies to You", value: components.repliesToYouBonus, isBase: false },
-    { name: "Your Post", value: components.yourPostActivityBonus, isBase: false },
-    { name: "Karma Bonus (time-decaying)", value: components.overallKarmaBonus, isBase: false },
-    { name: "Topic Affinity", value: components.topicAffinityBonus, isBase: false },
-    { name: "Quicktake", value: components.quicktakeBonus, isBase: false },
-    { name: "Read Post Context", value: components.readPostContextBonus, isBase: false },
+    { name: "Subscribed Comments", value: components.unreadSubscribedCommentBonus },
+    { name: "Prior Engagement", value: components.engagementContinuationBonus },
+    { name: "Replies to You", value: components.repliesToYouBonus },
+    { name: "Your Post", value: components.yourPostActivityBonus },
+    { name: "Karma Bonus (time-decaying)", value: components.overallKarmaBonus },
+    { name: "Topic Affinity", value: components.topicAffinityBonus },
+    { name: "Quicktake", value: components.quicktakeBonus },
+    { name: "Read Post Context", value: components.readPostContextBonus },
   ];
   
-  const baseScore = allComponents.find(c => c.isBase);
-  const otherComponents = allComponents
-    .filter(c => !c.isBase)
-    .sort((a, b) => Math.abs(b.value) - Math.abs(a.value));
-  
-  const componentList = baseScore ? [baseScore, ...otherComponents] : otherComponents;
+  const componentList = allComponents.sort((a, b) => Math.abs(b.value) - Math.abs(a.value));
   
   const threadExplanations = getThreadComponentExplanations(settings);
   
@@ -358,6 +367,22 @@ export const ThreadScoreBreakdownContent = ({ breakdown, sources, metaInfo }: { 
           [classes.multiplierNoPenalty]: Math.abs(repetitionPenaltyMultiplier - 1) < 0.01
         })}>
           Repetition Penalty: ×{formatScore(repetitionPenaltyMultiplier)}
+        </div>
+      </LWTooltip>
+      
+      <LWTooltip 
+        title={Math.abs(typeMultiplier - 1) < 0.01 
+          ? "No type multiplier applied (1.0×)"
+          : `Threads are multiplied by ${typeMultiplier}× to adjust their relative priority`
+        }
+        placement="left"
+        inlineBlock={false}
+        As="div"
+      >
+        <div className={classNames(classes.multiplier, {
+          [classes.multiplierNoPenalty]: Math.abs(typeMultiplier - 1) < 0.01
+        })}>
+          Type Multiplier: ×{formatScore(typeMultiplier)}
         </div>
       </LWTooltip>
     </>

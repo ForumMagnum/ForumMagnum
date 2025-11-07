@@ -58,17 +58,16 @@ export type RankableItem = PostRankableItem | ThreadRankableItem;
 export interface PostScoreBreakdown {
   total: number;
   components: {
-    startingValue: number; // base ranking score for this item type before additional bonuses are applied
     subscribedBonus: number;
     karmaBonus: number;
     topicAffinityBonus: number;
   };
+  typeMultiplier: number;
 }
 
 export interface ThreadScoreBreakdown {
   total: number;
   components: {
-    startingValue: number;
     unreadSubscribedCommentBonus: number;
     engagementContinuationBonus: number;
     repliesToYouBonus: number;
@@ -79,6 +78,7 @@ export interface ThreadScoreBreakdown {
     readPostContextBonus: number;
   };
   repetitionPenaltyMultiplier: number;
+  typeMultiplier: number;
 }
 
 export type ScoreBreakdown = PostScoreBreakdown | ThreadScoreBreakdown;
