@@ -60,7 +60,7 @@ export const givingSeasonEvents: GivingSeasonEvent[] = [
   {
     name: "Marginal funding week",
     description: "A week for organisations to share what they could do with extra funding.",
-    readMoreHref: "/posts/RzdKnBYe3jumrZxkB/giving-season-2025-announcement#November_17th_to_23rd",
+    readMoreHref: "/marginal-funding",
     tag: {
       _id: "hmhCHsvuminjfEPhy",
       slug: "marginal-funding-week-2025",
