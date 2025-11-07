@@ -7,6 +7,15 @@
 
 import type { RankableItem, RankedItemMetadata } from './ultraFeedRankingTypes';
 
+export interface UnifiedScoringSettings {
+  subscribedBonusSetting: number;
+  quicktakeBonus: number;
+  postsTimeDecayStrength: number;
+  commentsTimeDecayStrength: number;
+  postsStartingValue: number;
+  threadsStartingValue: number;
+}
+
 export interface UltraFeedAlgorithm {
   /**
    * Name/identifier for this algorithm
@@ -19,12 +28,14 @@ export interface UltraFeedAlgorithm {
    * @param items - The items to rank (posts, threads, spotlights, bookmarks)
    * @param totalItems - Maximum number of items to return
    * @param userTagAffinity - Optional user tag affinity map for topic-based ranking
+   * @param unifiedScoring - Optional user scoring settings (only used by scoring algorithm)
    * @returns Array of ranked item IDs with their ranking metadata
    */
   rankItems(
     items: RankableItem[],
     totalItems: number,
-    userTagAffinity?: Map<string, number> | null
+    userTagAffinity?: Map<string, number> | null,
+    unifiedScoring?: UnifiedScoringSettings
   ): Array<{ id: string; metadata: RankedItemMetadata }>;
 }
 

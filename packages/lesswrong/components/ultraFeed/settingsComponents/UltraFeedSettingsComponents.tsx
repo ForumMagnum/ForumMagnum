@@ -1017,9 +1017,15 @@ export const UnifiedScoringSettings: React.FC<UnifiedScoringSettingsProps> = ({
       min: 0, max: 50, step: 1,
     },
     {
-      key: 'timeDecayStrength' as const,
-      label: "Time Decay Strength",
-      description: `How quickly non-timeless items lose score over time. Higher values mean faster decay. Default: ${defaultUnifiedScoringSettings.timeDecayStrength}`,
+      key: 'postsTimeDecayStrength' as const,
+      label: "Time Decay (posts)",
+      description: `How quickly posts lose score over time. Formula: karma / (ageHrs + 2)^strength. Default: ${defaultUnifiedScoringSettings.postsTimeDecayStrength}`,
+      min: 0.5, max: 3, step: 0.1,
+    },
+    {
+      key: 'commentsTimeDecayStrength' as const,
+      label: "Time Decay (comments)",
+      description: `How quickly comment threads lose score over time. Formula: karma / (ageHrs + 2)^strength. Default: ${defaultUnifiedScoringSettings.commentsTimeDecayStrength}`,
       min: 0.5, max: 3, step: 0.1,
     },
     {

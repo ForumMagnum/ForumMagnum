@@ -216,7 +216,7 @@ function calculateTopicAffinityBonus(
  * - engagementContinuationBonus: Boost if you've previously participated/voted/viewed this thread
  * - repliesToYouBonus: High-priority boost if someone replied to your comment(s)
  * - yourPostActivityBonus: High-priority boost for new comments on your post
- * - overallKarmaBonus: HN-style decayed sum of unread non-subscribed comments: sum((karma+1)/(age+bias)^1.3)
+ * - overallKarmaBonus: HN-style decayed sum of unread non-subscribed comments: sum(karma/(age+bias)^1.3)
  * - topicAffinityBonus: Boost based on post topic matching user interests (TODO: not implemented)
  * - quicktakeBonus: Boost for shortform/quicktake threads (only if top-level comment is unread)
  * - readPostContextBonus: Small boost if you've read the post (you have context)
@@ -259,7 +259,7 @@ function scoreThread(
   const yourPostActivityBonus = isYourPost ? cfg.yourPostBonus : 0;
 
   // 5. Overall karma bonus: HN-style decayed sum for unread non-subscribed comments
-  // score = sum((karma + 1) / (ageHrs + bias)^factor) for each unread non-subscribed comment
+  // score = sum(karma / (ageHrs + bias)^factor) for each unread non-subscribed comment
   // Subscribed comments are handled separately above with no decay
   // This replaces both the old overallKarmaBonus and recencyBonus
   const unreadNonSubscribedComments = thread.comments.filter(c => !c.isRead && !c.userSubscribedToAuthor);
@@ -267,7 +267,7 @@ function scoreThread(
   for (const comment of unreadNonSubscribedComments) {
     const denominator = Math.pow(comment.ageHrs + cfg.commentDecayBias, cfg.commentDecayFactor);
     if (denominator > 0 && Number.isFinite(denominator)) {
-      overallKarmaBonus += (comment.karma + 1) / denominator;
+      overallKarmaBonus += comment.karma / denominator;
     }
   }
 
@@ -493,9 +493,8 @@ export function scoreItems(
             subscribedBonus: 0,
             karmaBonus: 0,
             topicAffinityBonus: 0,
-            recencyBonus: 0,
           },
-        } as PostScoreBreakdown,
+        },
       };
     }
     

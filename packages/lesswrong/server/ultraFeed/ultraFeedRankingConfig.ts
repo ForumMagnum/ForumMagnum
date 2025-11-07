@@ -35,11 +35,8 @@ export const DEFAULT_RANKING_CONFIG: RankingConfig = {
   posts: {
     startingValue: 1,
     subscribedBonus: 15,
-    // HN-style decay: score = karma / (ageHours + 2)^1.8
-    // Standard HN values (SCORE_BIAS=2, TIME_DECAY_FACTOR=1.8)
     hnDecayFactor: 1.3,
     hnDecayBias: 2,
-    // Legacy karma bonus for recombee/subscription posts (no decay)
     karmaSuperlinearExponent: 1.2,
     karmaDivisor: 20,
     karmaMaxBonus: 20,
@@ -47,8 +44,6 @@ export const DEFAULT_RANKING_CONFIG: RankingConfig = {
   },
   threads: {
     startingValue: 2,
-    // Comment decay: score = (karma + 1) / (ageHours + 2)^1.3 (milder than posts)
-    // Only applied to non-subscribed comments
     commentDecayFactor: 1.3,
     commentDecayBias: 2,
     subscribedCommentBonus: 6, // +6 per comment from subscribed author (subscribedBonusSetting=3 * 2)
@@ -84,4 +79,49 @@ export const DEFAULT_DIVERSITY_CONSTRAINTS: DiversityConstraints = {
   },
   subscriptionDiversityWindow: 5,
 };
+
+/**
+ * Build a RankingConfig from user settings.
+ * Allows users to customize decay strengths, starting values, and bonuses.
+ */
+export function buildRankingConfigFromSettings(unifiedScoring: {
+  subscribedBonusSetting: number;
+  quicktakeBonus: number;
+  postsTimeDecayStrength: number;
+  commentsTimeDecayStrength: number;
+  postsStartingValue: number;
+  threadsStartingValue: number;
+}): RankingConfig {
+  const postSubscribedBonus = unifiedScoring.subscribedBonusSetting * 5;
+  const commentSubscribedBonus = unifiedScoring.subscribedBonusSetting * 2;
+  
+  return {
+    posts: {
+      startingValue: unifiedScoring.postsStartingValue,
+      subscribedBonus: postSubscribedBonus,
+      hnDecayFactor: unifiedScoring.postsTimeDecayStrength,
+      hnDecayBias: 2, // Keep bias constant for now
+      karmaSuperlinearExponent: 1.2,
+      karmaDivisor: 20,
+      karmaMaxBonus: 20,
+      topicAffinityMaxBonus: 15,
+    },
+    threads: {
+      startingValue: unifiedScoring.threadsStartingValue,
+      commentDecayFactor: unifiedScoring.commentsTimeDecayStrength,
+      commentDecayBias: 2, // Keep bias constant for now
+      subscribedCommentBonus: commentSubscribedBonus,
+      engagementParticipationBonus: 20,
+      engagementVotingBonus: 10,
+      engagementViewingBonus: 5,
+      repliesToYouBonus: 20,
+      yourPostBonus: 20,
+      quicktakeBonus: unifiedScoring.quicktakeBonus,
+      readPostContextBonus: 3,
+      repetitionPenaltyStrength: 0.8,
+      repetitionDecayHours: 6,
+    },
+    maxScore: 100,
+  };
+}
 

@@ -20,7 +20,8 @@ export type UltraFeedAlgorithm = 'scoring' | 'sampling';
 export interface UnifiedScoringSettings {
   subscribedBonusSetting: number; // 0-5 scale, maps to different bonuses for posts vs comments
   quicktakeBonus: number;
-  timeDecayStrength: number;
+  postsTimeDecayStrength: number; // Exponent for post time decay: karma / (ageHrs + bias)^strength
+  commentsTimeDecayStrength: number; // Exponent for comment time decay: (karma + 1) / (ageHrs + bias)^strength
   postsStartingValue: number;
   threadsStartingValue: number;
 }
@@ -156,7 +157,8 @@ const DEFAULT_THREAD_INTEREST_MODEL_SETTINGS: ThreadInterestModelSettings = {
 const DEFAULT_UNIFIED_SCORING_SETTINGS: UnifiedScoringSettings = {
   subscribedBonusSetting: 3, // Default: posts get +15 (3*5), comments get +6 (3*2) per comment
   quicktakeBonus: 5,
-  timeDecayStrength: 1.3,
+  postsTimeDecayStrength: 1.3, // Default decay exponent for posts
+  commentsTimeDecayStrength: 1.3, // Default decay exponent for comments
   postsStartingValue: 1,
   threadsStartingValue: 2,
 };

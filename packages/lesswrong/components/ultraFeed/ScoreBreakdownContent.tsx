@@ -1,10 +1,10 @@
-import React, { useState } from 'react';
+import React from 'react';
 import classNames from 'classnames';
 import { defineStyles, useStyles } from '../hooks/useStyles';
 import { PostScoreBreakdown, ThreadScoreBreakdown, FeedItemSourceType, FeedCommentMetaInfo, FeedPostMetaInfo } from './ultraFeedTypes';
 import LWTooltip from '../common/LWTooltip';
-import { DEFAULT_RANKING_CONFIG } from '../../server/ultraFeed/ultraFeedRankingConfig';
-import AlterBonusesDialog from './AlterBonusesDialog';
+import { DEFAULT_RANKING_CONFIG, buildRankingConfigFromSettings } from '../../server/ultraFeed/ultraFeedRankingConfig';
+import { useUltraFeedSettings } from '../hooks/useUltraFeedSettings';
 
 export const scoreBreakdownStyles = defineStyles('ScoreBreakdownContent', (theme: ThemeType) => ({
   tooltipContent: {
@@ -97,7 +97,11 @@ export const scoreBreakdownStyles = defineStyles('ScoreBreakdownContent', (theme
     border: 'none',
     borderRadius: 4,
     cursor: 'pointer',
-    width: '100%',
+    display: 'block',
+    width: 'auto',
+    marginLeft: 'auto',
+    marginRight: 'auto',
+    minWidth: 120,
     '&:hover': {
       backgroundColor: theme.palette.primary.dark,
     },
@@ -112,13 +116,17 @@ const formatScore = (value: number): string => {
   return value.toFixed(2);
 };
 
-const postConfig = DEFAULT_RANKING_CONFIG.posts;
-const threadConfig = DEFAULT_RANKING_CONFIG.threads;
+const getUserRankingConfig = (settings?: ReturnType<typeof useUltraFeedSettings>['settings']) => {
+  if (!settings?.resolverSettings?.unifiedScoring) {
+    return DEFAULT_RANKING_CONFIG;
+  }
+  return buildRankingConfigFromSettings(settings.resolverSettings.unifiedScoring);
+};
 
 const sourceLabels: Record<FeedItemSourceType, string> = {
   'subscriptionsPosts': 'you follow the author',
   'subscriptionsComments': 'comments by authors you follow',
-  'recombee-lesswrong-custom': 'personalized AI-recommendation based on reads and votes',
+  'recombee-lesswrong-custom': 'personalized AI-recommendation based on your reads and votes',
   'hacker-news': 'recently published post',
   'bookmarks': 'you bookmarked this',
   'quicktakes': 'recent Quick Take',
@@ -137,25 +145,36 @@ const sourceTooltips: Partial<Record<FeedItemSourceType, string>> = {
   // 'spotlights': 'This item was selected as a spotlight',
 };
 
-const postComponentExplanations: Record<string, string> = {
-  "Starting Value": `Starting score for all posts (${postConfig.startingValue})`,
-  "Subscribed Author": `Bonus for posts from authors you follow (+${postConfig.subscribedBonus}). Configurable in settings (0-25)`,
-  "Karma Bonus (time-decaying)": `Hacker-news style time decay: karma / (ageHrs + ${postConfig.hnDecayBias})^${postConfig.hnDecayFactor}. Promotes recent high-karma posts.`,
-  "Karma Bonus (timeless)": `No time decay: min(karma^${postConfig.karmaSuperlinearExponent} / ${postConfig.karmaDivisor}, ${postConfig.karmaMaxBonus}). Used for personalized recommendations and author subscriptions.`,
-  "Topic Affinity": `Bonus for posts on topics you read often (0-${postConfig.topicAffinityMaxBonus}, TODO)`,
-};
+function getPostComponentExplanations(settings?: ReturnType<typeof useUltraFeedSettings>['settings']): Record<string, string> {
+  const config = getUserRankingConfig(settings);
+  const postConfig = config.posts;
+  
+  return {
+    "Starting Value": `Starting score for all posts (${postConfig.startingValue})`,
+    "Subscribed Author": `Bonus for posts from authors you follow (+${postConfig.subscribedBonus}). Configurable in settings (0-25)`,
+    "Karma Bonus (time-decaying)": `Hacker-news style time decay: karma / (ageHrs + ${postConfig.hnDecayBias})^${postConfig.hnDecayFactor}. Promotes recent high-karma posts.`,
+    "Karma Bonus (timeless)": `No time decay: min(karma^${postConfig.karmaSuperlinearExponent} / ${postConfig.karmaDivisor}, ${postConfig.karmaMaxBonus}). Used for personalized recommendations and author subscriptions.`,
+    "Topic Affinity": `Bonus for posts on topics you read often (0-${postConfig.topicAffinityMaxBonus}, TODO)`,
+  };
+}
 
-const threadComponentExplanations: Record<string, string> = {
-  "Starting Value": `Starting score for all threads (${threadConfig.startingValue})`,
-  "Subscribed Comments": `+${threadConfig.subscribedCommentBonus} per unread comment from authors you follow. No time decay applied. Configurable in settings (0-10 per comment)`,
-  "Prior Engagement": `+${threadConfig.engagementParticipationBonus} if commented, else +${threadConfig.engagementVotingBonus} if voted, else +${threadConfig.engagementViewingBonus} if viewed`,
-  "Replies to You": `Someone replied to your comment (+${threadConfig.repliesToYouBonus}, TODO)`,
-  "Your Post": `New comments on a post you wrote (+${threadConfig.yourPostBonus}, TODO)`,
-  "Karma Bonus (time-decaying)": `HN-style decay for unread non-subscribed comments: sum((karma + 1) / (ageHrs + ${threadConfig.commentDecayBias})^${threadConfig.commentDecayFactor})`,
-  "Topic Affinity": `Bonus for threads on topics you read often (0-${postConfig.topicAffinityMaxBonus}) TODO`,
-  "Quicktake": `Top-level comment is an unread quicktake (+${threadConfig.quicktakeBonus})`,
-  "Read Post Context": `You've read the post, so you have context (+${threadConfig.readPostContextBonus})`,
-};
+function getThreadComponentExplanations(settings?: ReturnType<typeof useUltraFeedSettings>['settings']): Record<string, string> {
+  const config = getUserRankingConfig(settings);
+  const threadConfig = config.threads;
+  const postConfig = config.posts;
+  
+  return {
+    "Starting Value": `Starting score for all threads (${threadConfig.startingValue})`,
+    "Subscribed Comments": `+${threadConfig.subscribedCommentBonus} per unread comment from authors you follow. No time decay applied. Configurable in settings (0-10 per comment)`,
+    "Prior Engagement": `+${threadConfig.engagementParticipationBonus} if commented, else +${threadConfig.engagementVotingBonus} if voted, else +${threadConfig.engagementViewingBonus} if viewed`,
+    "Replies to You": `Someone replied to your comment (+${threadConfig.repliesToYouBonus}, TODO)`,
+    "Your Post": `New comments on a post you wrote (+${threadConfig.yourPostBonus}, TODO)`,
+    "Karma Bonus (time-decaying)": `HN-style decay for unread non-subscribed comments: sum(karma / (ageHrs + ${threadConfig.commentDecayBias})^${threadConfig.commentDecayFactor})`,
+    "Topic Affinity": `Bonus for threads on topics you read often (0-${postConfig.topicAffinityMaxBonus}) TODO`,
+    "Quicktake": `Top-level comment is an unread quicktake (+${threadConfig.quicktakeBonus})`,
+    "Read Post Context": `You've read the post, so you have context (+${threadConfig.readPostContextBonus})`,
+  };
+}
 
 
 const ScoreComponent = ({ 
@@ -245,8 +264,8 @@ const SourcesSection = ({ sources, metaInfo, itemType }: SourcesSectionProps) =>
 
 export const PostScoreBreakdownContent = ({ breakdown, sources, metaInfo }: { breakdown: PostScoreBreakdown; sources?: FeedItemSourceType[]; metaInfo?: FeedPostMetaInfo }) => {
   const classes = useStyles(scoreBreakdownStyles);
+  const { settings } = useUltraFeedSettings();
   const { components } = breakdown;
-  const [dialogOpen, setDialogOpen] = useState(false);
   
   // Determine which karma bonus type to display based on sources
   const isRecombeeOrSubscription = sources?.includes('recombee-lesswrong-custom') || sources?.includes('subscriptionsPosts');
@@ -266,8 +285,10 @@ export const PostScoreBreakdownContent = ({ breakdown, sources, metaInfo }: { br
   
   const componentList = baseScore ? [baseScore, ...otherComponents] : otherComponents;
   
+  const postExplanations = getPostComponentExplanations(settings);
+  
   return (
-    <div className={classes.tooltipContent}>
+    <>
       <SourcesSection sources={sources} metaInfo={metaInfo} itemType="post" />
       
       <div className={classes.totalScore}>
@@ -276,31 +297,16 @@ export const PostScoreBreakdownContent = ({ breakdown, sources, metaInfo }: { br
       
       <div className={classes.section}>
         {componentList.map(({ name, value }) => (
-          <ScoreComponent key={name} name={name} value={value} explanations={postComponentExplanations} />
+          <ScoreComponent key={name} name={name} value={value} explanations={postExplanations} />
         ))}
       </div>
-      
-      <button 
-        className={classes.alterBonusesButton}
-        onClick={(e) => {
-          e.stopPropagation();
-          setDialogOpen(true);
-        }}
-      >
-        Alter Bonuses
-      </button>
-      
-      <AlterBonusesDialog
-        open={dialogOpen}
-        onClose={() => setDialogOpen(false)}
-        className={classes.alterBonusesDialogWrapper}
-      />
-    </div>
+    </>
   );
 };
 
 export const ThreadScoreBreakdownContent = ({ breakdown, sources, metaInfo }: { breakdown: ThreadScoreBreakdown; sources?: FeedItemSourceType[]; metaInfo?: FeedCommentMetaInfo }) => {
   const classes = useStyles(scoreBreakdownStyles);
+  const { settings } = useUltraFeedSettings();
   const { components, repetitionPenaltyMultiplier } = breakdown;
   
   const allComponents = [
@@ -309,7 +315,7 @@ export const ThreadScoreBreakdownContent = ({ breakdown, sources, metaInfo }: { 
     { name: "Prior Engagement", value: components.engagementContinuationBonus, isBase: false },
     { name: "Replies to You", value: components.repliesToYouBonus, isBase: false },
     { name: "Your Post", value: components.yourPostActivityBonus, isBase: false },
-    { name: "Karma Bonus", value: components.overallKarmaBonus, isBase: false },
+    { name: "Karma Bonus (time-decaying)", value: components.overallKarmaBonus, isBase: false },
     { name: "Topic Affinity", value: components.topicAffinityBonus, isBase: false },
     { name: "Quicktake", value: components.quicktakeBonus, isBase: false },
     { name: "Read Post Context", value: components.readPostContextBonus, isBase: false },
@@ -322,8 +328,10 @@ export const ThreadScoreBreakdownContent = ({ breakdown, sources, metaInfo }: { 
   
   const componentList = baseScore ? [baseScore, ...otherComponents] : otherComponents;
   
+  const threadExplanations = getThreadComponentExplanations(settings);
+  
   return (
-    <div className={classes.tooltipContent}>
+    <>
       <SourcesSection sources={sources} metaInfo={metaInfo} itemType="commentThread" />
       
       <div className={classes.totalScore}>
@@ -332,7 +340,7 @@ export const ThreadScoreBreakdownContent = ({ breakdown, sources, metaInfo }: { 
       
       <div className={classes.section}>
         {componentList.map(({ name, value }) => (
-          <ScoreComponent key={name} name={name} value={value} explanations={threadComponentExplanations} />
+          <ScoreComponent key={name} name={name} value={value} explanations={threadExplanations} />
         ))}
       </div>
       
@@ -352,7 +360,7 @@ export const ThreadScoreBreakdownContent = ({ breakdown, sources, metaInfo }: { 
           Repetition Penalty: ×{formatScore(repetitionPenaltyMultiplier)}
         </div>
       </LWTooltip>
-    </div>
+    </>
   );
 };
 
