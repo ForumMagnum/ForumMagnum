@@ -219,6 +219,7 @@ export const getDarkModeTheme = (): UserThemeSpecification => ({
       sunshineHighContextGroup: "linear-gradient(135deg, rgba(120,120,0,.50) 0%, rgba(36, 36, 9, 0) 100%)",
       sunshineMaybeSpamGroup: "linear-gradient(135deg, rgba(120,0,120,.50) 0%, rgba(120,0,120,0) 100%)",
       sunshineAutomodGroup: "linear-gradient(135deg, rgba(120,120,0,.50) 0%, rgba(120,120,0,0) 100%)",
+      sunshineSnoozeExpiredGroup: "linear-gradient(135deg, rgba(120,120,0,.50) 0%, rgba(120,120,0,0) 100%)",
       sunshineUnknownGroup: "linear-gradient(135deg, rgba(120,120,120,.50) 0%, rgba(120,120,120,0) 100%)",
     },
     background: {
