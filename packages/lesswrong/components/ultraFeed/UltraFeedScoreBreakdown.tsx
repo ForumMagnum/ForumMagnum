@@ -1,10 +1,11 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { defineStyles, useStyles } from '../hooks/useStyles';
 import { RankedItemMetadata, FeedItemSourceType, FeedCommentMetaInfo, FeedPostMetaInfo } from './ultraFeedTypes';
 import LWTooltip from '../common/LWTooltip';
 import ForumIcon from '../common/ForumIcon';
-import { PostScoreBreakdownContent, ThreadScoreBreakdownContent } from './ScoreBreakdownContent';
+import { PostScoreBreakdownContent, ThreadScoreBreakdownContent, scoreBreakdownStyles } from './ScoreBreakdownContent';
 import { useUltraFeedContext } from './UltraFeedContextProvider';
+import AlterBonusesDialog from './AlterBonusesDialog';
 
 const styles = defineStyles('UltraFeedScoreBreakdown', (theme: ThemeType) => ({
   container: {
@@ -33,14 +34,12 @@ const styles = defineStyles('UltraFeedScoreBreakdown', (theme: ThemeType) => ({
     boxShadow: theme.palette.boxShadow.lwCard,
   },
   headerText: {
-    padding: '12px 16px',
     fontSize: 16,
-    // marginBottom: 12,
+    marginBottom: 12,
     color: theme.palette.text.primary,
     fontStyle: 'italic',
   },
   sectionTitle: {
-    padding: '0 12px',
     fontSize: 12,
     fontWeight: 600,
     textTransform: 'uppercase',
@@ -51,7 +50,6 @@ const styles = defineStyles('UltraFeedScoreBreakdown', (theme: ThemeType) => ({
     color: theme.palette.primary.main,
     marginTop: 8,
     fontStyle: 'italic',
-    padding: '0 12px',
   },
 }));
 
@@ -63,7 +61,9 @@ const UltraFeedScoreBreakdown = ({ metadata, isFirstCommentInThread, sources, co
   postMetaInfo?: FeedPostMetaInfo;
 }) => {
   const classes = useStyles(styles);
+  const breakdownClasses = useStyles(scoreBreakdownStyles);
   const { showScoreBreakdown, setShowScoreBreakdown } = useUltraFeedContext();
+  const [dialogOpen, setDialogOpen] = useState(false);
   
   // For comment threads, only show on the first comment
   // For posts, isFirstCommentInThread will be undefined, so we always show
@@ -87,7 +87,7 @@ const UltraFeedScoreBreakdown = ({ metadata, isFirstCommentInThread, sources, co
   
   if (isPostShowingThreadScore) {
     tooltipContent = (
-      <>
+      <div className={breakdownClasses.tooltipContent}>
         <div className={classes.headerText}>
           Post displayed because of comment thread
         </div>
@@ -100,11 +100,20 @@ const UltraFeedScoreBreakdown = ({ metadata, isFirstCommentInThread, sources, co
             Thread constraints: {metadata.selectionConstraints.join(', ')}
           </div>
         )}
-      </>
+        <button 
+          className={breakdownClasses.alterBonusesButton}
+          onClick={(e) => {
+            e.stopPropagation();
+            setDialogOpen(true);
+          }}
+        >
+          Alter Bonuses
+        </button>
+      </div>
     );
   } else if (metadata.rankedItemType === 'commentThread') {
     tooltipContent = (
-      <>
+      <div className={breakdownClasses.tooltipContent}>
         <ThreadScoreBreakdownContent 
           breakdown={metadata.scoreBreakdown} 
           sources={sources} 
@@ -115,11 +124,20 @@ const UltraFeedScoreBreakdown = ({ metadata, isFirstCommentInThread, sources, co
             Constraints: {metadata.selectionConstraints.join(', ')}
           </div>
         )}
-      </>
+        <button 
+          className={breakdownClasses.alterBonusesButton}
+          onClick={(e) => {
+            e.stopPropagation();
+            setDialogOpen(true);
+          }}
+        >
+          Alter Bonuses
+        </button>
+      </div>
     );
   } else {
     tooltipContent = (
-      <>
+      <div className={breakdownClasses.tooltipContent}>
         <PostScoreBreakdownContent 
           breakdown={metadata.scoreBreakdown} 
           sources={sources} 
@@ -130,25 +148,41 @@ const UltraFeedScoreBreakdown = ({ metadata, isFirstCommentInThread, sources, co
             Constraints: {metadata.selectionConstraints.join(', ')}
           </div>
         )}
-      </>
+        <button 
+          className={breakdownClasses.alterBonusesButton}
+          onClick={(e) => {
+            e.stopPropagation();
+            setDialogOpen(true);
+          }}
+        >
+          Alter Bonuses
+        </button>
+      </div>
     );
   }
   
   return (
     <span className={classes.container}>
-      {showScoreBreakdown && (
-        <span className={classes.score}>
-          {metadata.scoreBreakdown.total.toFixed(2)}
-        </span>
-      )}
       <LWTooltip 
         title={tooltipContent} 
         placement="top"
         popperClassName={classes.tooltip}
         clickable={true}
       >
-        <ForumIcon icon="Insights" className={classes.icon} onClick={handleClick} />
+        <span>
+          {showScoreBreakdown && (
+            <span className={classes.score}>
+              {metadata.scoreBreakdown.total.toFixed(2)}
+            </span>
+          )}
+          <ForumIcon icon="Insights" className={classes.icon} onClick={handleClick} />
+        </span>
       </LWTooltip>
+      <AlterBonusesDialog
+        open={dialogOpen}
+        onClose={() => setDialogOpen(false)}
+        className={breakdownClasses.alterBonusesDialogWrapper}
+      />
     </span>
   );
 };

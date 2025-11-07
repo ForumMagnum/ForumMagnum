@@ -11,6 +11,7 @@
 
 import type { UltraFeedAlgorithm } from '../ultraFeedAlgorithmInterface';
 import type { RankableItem, RankedItemMetadata } from '../ultraFeedRankingTypes';
+import type { UltraFeedResolverSettings } from '@/components/ultraFeed/ultraFeedSettingsTypes';
 
 /**
  * Sample items using weighted random selection.
@@ -70,8 +71,10 @@ export const samplingAlgorithm: UltraFeedAlgorithm = {
   rankItems(
     items: RankableItem[],
     totalItems: number,
-    _userTagAffinity?: Map<string, number> | null
+    settings: UltraFeedResolverSettings
   ): Array<{ id: string; metadata: RankedItemMetadata }> {
+    // Use simple weighted random sampling based on item properties
+    // (sourceWeights are used upstream to determine which items are fetched)
     const weights = items.map(item => getItemWeight(item));
     
     const sampledItems = weightedSample(items, weights, totalItems);

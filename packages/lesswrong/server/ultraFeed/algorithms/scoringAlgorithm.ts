@@ -11,7 +11,9 @@
 
 import type { UltraFeedAlgorithm } from '../ultraFeedAlgorithmInterface';
 import type { RankableItem, RankedItemMetadata } from '../ultraFeedRankingTypes';
+import type { UltraFeedResolverSettings } from '@/components/ultraFeed/ultraFeedSettingsTypes';
 import { rankUltraFeedItems } from '../ultraFeedRanking';
+import { buildRankingConfigFromSettings } from '../ultraFeedRankingConfig';
 
 export const scoringAlgorithm: UltraFeedAlgorithm = {
   name: 'scoring',
@@ -19,9 +21,11 @@ export const scoringAlgorithm: UltraFeedAlgorithm = {
   rankItems(
     items: RankableItem[],
     totalItems: number,
-    userTagAffinity?: Map<string, number> | null
+    settings: UltraFeedResolverSettings
   ): Array<{ id: string; metadata: RankedItemMetadata }> {
-    return rankUltraFeedItems(items, totalItems, userTagAffinity);
+    const config = buildRankingConfigFromSettings(settings.unifiedScoring);
+    
+    return rankUltraFeedItems(items, totalItems, config);
   },
 };
 

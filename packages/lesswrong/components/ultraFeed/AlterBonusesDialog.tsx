@@ -102,7 +102,8 @@ const AlterBonusesDialog = ({ open, onClose, className }: { open: boolean; onClo
     const parsedValues = {
       subscribedBonusSetting: parseNumericInputAsZeroOrNumber(formValues.subscribedBonusSetting, defaultUnifiedScoring.subscribedBonusSetting),
       quicktakeBonus: parseNumericInputAsZeroOrNumber(formValues.quicktakeBonus, defaultUnifiedScoring.quicktakeBonus),
-      timeDecayStrength: parseNumericInputAsZeroOrNumber(formValues.timeDecayStrength, defaultUnifiedScoring.timeDecayStrength),
+      postsTimeDecayStrength: parseNumericInputAsZeroOrNumber(formValues.postsTimeDecayStrength, defaultUnifiedScoring.postsTimeDecayStrength),
+      commentsTimeDecayStrength: parseNumericInputAsZeroOrNumber(formValues.commentsTimeDecayStrength, defaultUnifiedScoring.commentsTimeDecayStrength),
       postsStartingValue: parseNumericInputAsZeroOrNumber(formValues.postsStartingValue, defaultUnifiedScoring.postsStartingValue),
       threadsStartingValue: parseNumericInputAsZeroOrNumber(formValues.threadsStartingValue, defaultUnifiedScoring.threadsStartingValue),
     };
