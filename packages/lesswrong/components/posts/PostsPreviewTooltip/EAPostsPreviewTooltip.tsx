@@ -106,6 +106,7 @@ const EAPostsPreviewTooltip = ({
                 truncated
                 hoverPreview
                 forceUnCollapsed
+                noAutoScroll
               />
             )
             : (
