@@ -185,7 +185,6 @@ const styles = defineStyles("UltraFeed", (theme: ThemeType) => ({
 const UltraFeedContent = ({
   settings,
   updateSettings,
-  resetSettings,
   truncationMaps,
   settingsVisible,
   onCloseSettings,
@@ -195,7 +194,6 @@ const UltraFeedContent = ({
 }: {
   settings: UltraFeedSettingsType,
   updateSettings: (newSettings: Partial<UltraFeedSettingsType>) => void,
-  resetSettings: () => void,
   truncationMaps: { commentMap: Record<TruncationLevel, number>, postMap: Record<TruncationLevel, number> },
   alwaysShow?: boolean
   settingsVisible?: boolean
@@ -282,10 +280,6 @@ const UltraFeedContent = ({
     }
   };
 
-  const resetSettingsToDefault = () => {
-    resetSettings();
-  };
-
   const { resolverSettings } = settings;
 
   return (
@@ -302,7 +296,6 @@ const UltraFeedContent = ({
                   <UltraFeedSettings 
                     settings={settings}
                     updateSettings={updateSettings}
-                    resetSettingsToDefault={resetSettingsToDefault}
                     onClose={() => onCloseSettings?.()} 
                     truncationMaps={truncationMaps}
                     showFeedSelector
@@ -398,7 +391,7 @@ const UltraFeed = ({
   const [internalInfoVisible, setInternalInfoVisible] = useState(false);
   const [activeTab, setActiveTab] = useState<FeedType>(() => (cookies[ULTRA_FEED_ACTIVE_TAB_COOKIE] === 'following' ? 'following' : 'ultraFeed'));
   const { captureEvent } = useTracking();
-  const { settings, updateSettings, resetSettings, truncationMaps } = useUltraFeedSettings();
+  const { settings, updateSettings, truncationMaps } = useUltraFeedSettings();
 
   const handleTabChange = (tab: FeedType) => {
     setActiveTab(tab);
@@ -467,7 +460,6 @@ const UltraFeed = ({
           <UltraFeedContent 
             settings={settings}
             updateSettings={updateSettings}
-            resetSettings={resetSettings}
             truncationMaps={truncationMaps}
             alwaysShow={alwaysShow}
             settingsVisible={actualSettingsVisible}
