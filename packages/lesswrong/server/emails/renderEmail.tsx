@@ -6,7 +6,7 @@ import { forumTitleSetting, isLWorAF } from '../../lib/instanceSettings';
 import { getForumTheme } from '../../themes/forumTheme';
 import { defaultEmailSetting, enableDevelopmentEmailsSetting } from '../databaseSettings';
 import { computeContextFromUser } from '../vulcan-lib/apollo-server/context';
-import { emailTokenTypesByName } from '../emails/emailTokens';
+import { getEmailTokenTypesByName } from '../emails/emailTokens';
 import { captureException } from '@/lib/sentryWrapper';
 import { isE2E } from '../../lib/executionEnvironment';
 import { cheerioParse } from '../utils/htmlUtil';
