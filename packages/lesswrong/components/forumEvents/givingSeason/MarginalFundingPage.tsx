@@ -4,9 +4,12 @@ import { registerComponent } from "../../../lib/vulcan-lib/components";
 import { sequenceGetPageUrl } from "@/lib/collections/sequences/helpers";
 import { AnalyticsContext, useTracking } from "@/lib/analyticsEvents";
 import { useCurrentUser } from "../../common/withUser";
-import { useNavigate } from "@/lib/routeUtil";
 import { useSingle } from "@/lib/crud/withSingle";
-import { MARGINAL_FUNDING_SEQUENCE_ID } from "@/lib/givingSeason";
+import { Link } from "@/lib/reactRouterWrapper";
+import {
+  MARGINAL_FUNDING_SEQUENCE_ID,
+  MARGINAL_FUNDING_SPOTIFY_URL,
+} from "@/lib/givingSeason";
 import orderBy from "lodash/orderBy";
 import classNames from "classnames";
 import MarginalFundingSubscribeButton from "./MarginalFundingSubscribeButton";
@@ -87,6 +90,7 @@ const styles = defineStyles("MarginalFundingPage", (theme) => ({
       height: 20,
     },
     "&:hover": {
+      opacity: 1,
       background: theme.palette.greyAlpha(0.1),
     },
   },
@@ -114,7 +118,6 @@ const styles = defineStyles("MarginalFundingPage", (theme) => ({
 }));
 
 export const MarginalFundingPage = () => {
-  const navigate = useNavigate();
   const currentUser = useCurrentUser();
   const {captureEvent} = useTracking()
 
@@ -126,13 +129,11 @@ export const MarginalFundingPage = () => {
 
   const onListen = useCallback(() => {
     captureEvent("marginalFundingListenClick");
-    // TODO
   }, [captureEvent]);
 
   const onEdit = useCallback(() => {
     captureEvent("marginalFundingEditClick");
-    navigate(sequenceGetPageUrl({_id: MARGINAL_FUNDING_SEQUENCE_ID}));
-  }, [captureEvent, navigate]);
+  }, [captureEvent]);
 
   const [cardPosts, listPosts] = useMemo(() => {
     const posts = sequence?.chapters.flatMap((chapter) => chapter.posts) ?? [];
@@ -159,18 +160,26 @@ export const MarginalFundingPage = () => {
           <div className={classes.grid}>
             <div className={classes.header}>
               <div className={classes.options}>
-                <button onClick={onListen} className={classes.option}>
+                <Link
+                  to={MARGINAL_FUNDING_SPOTIFY_URL}
+                  onClick={onListen}
+                  className={classes.option}
+                >
                   <ForumIcon icon="VolumeUp" /> Listen to the posts
-                </button>
+                </Link>
                 <MarginalFundingSubscribeButton
                   sequence={sequence}
                   className={classes.option}
                 />
                 <MarginalFundingShareButton className={classes.option} />
                 {currentUser?.isAdmin &&
-                  <button onClick={onEdit} className={classes.option}>
+                  <Link
+                    to={sequenceGetPageUrl({_id: MARGINAL_FUNDING_SEQUENCE_ID})}
+                    onClick={onEdit}
+                    className={classes.option}
+                  >
                     <ForumIcon icon="Pencil" /> Edit
-                  </button>
+                  </Link>
                 }
               </div>
               <div className={classes.title}>{sequence.title}</div>
