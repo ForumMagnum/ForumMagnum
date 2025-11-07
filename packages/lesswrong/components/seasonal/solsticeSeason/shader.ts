@@ -14,10 +14,8 @@ export const createDayNightShaderMaterial = (contrast: number, brightness: numbe
       brightnessAdd: { value: brightnessAdd },
     },
     vertexShader: `
-      varying vec3 vNormal;
       varying vec2 vUv;
       void main() {
-        vNormal = normalize(normalMatrix * normal);
         vUv = uv;
         gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0);
       }
@@ -33,22 +31,7 @@ export const createDayNightShaderMaterial = (contrast: number, brightness: numbe
       uniform float contrast;
       uniform float brightness;
       uniform float brightnessAdd;
-      varying vec3 vNormal;
       varying vec2 vUv;
-
-      float toRad(in float a) {
-        return a * PI / 180.0;
-      }
-
-      vec3 Polar2Cartesian(in vec2 c) {
-        float theta = toRad(90.0 - c.x);
-        float phi = toRad(90.0 - c.y);
-        return vec3(
-          sin(phi) * cos(theta),
-          cos(phi),
-          sin(phi) * sin(theta)
-        );
-      }
 
       void main() {
         vec2 rotatedUv = vUv;
@@ -56,29 +39,47 @@ export const createDayNightShaderMaterial = (contrast: number, brightness: numbe
           rotatedUv.x = mod(vUv.x + textureRotation / (2.0 * PI), 1.0);
         }
         
-        float invLon = toRad(globeRotation.x);
-        float invLat = -toRad(globeRotation.y);
-        mat3 rotX = mat3(
-          1, 0, 0,
-          0, cos(invLat), -sin(invLat),
-          0, sin(invLat), cos(invLat)
-        );
-        mat3 rotY = mat3(
-          cos(invLon), 0, sin(invLon),
-          0, 1, 0,
-          -sin(invLon), 0, cos(invLon)
-        );
-        vec3 rotatedSunDirection = rotX * rotY * Polar2Cartesian(sunPosition);
-        float intensity = dot(normalize(vNormal), normalize(rotatedSunDirection));
+        // Convert UV coordinates to latitude/longitude (equirectangular projection)
+        // UV.x: 0 = -180°, 0.5 = 0°, 1 = +180° (longitude)
+        // UV.y: 0 = -90°, 0.5 = 0°, 1 = +90° (latitude)
+        float longitude = (rotatedUv.x - 0.5) * 360.0;
+        float latitude = (rotatedUv.y - 0.5) * 180.0;
+        
+        // Account for globe rotation
+        float adjustedLongitude = longitude - globeRotation.x;
+        
+        // Sun position: x = longitude, y = latitude (in degrees)
+        // Rotate night texture position by 90 degrees
+        float sunLongitude = sunPosition.x + 90.0;
+        float sunLatitude = sunPosition.y;
+        
+        // Calculate longitude difference (accounting for wrap-around)
+        float lonDiff = adjustedLongitude - sunLongitude;
+        if (lonDiff > 180.0) lonDiff -= 360.0;
+        if (lonDiff < -180.0) lonDiff += 360.0;
+        
+        // Simple day/night calculation: blend based on angular distance from sun
+        // This creates a terminator that divides the sphere roughly in half
+        // Use cosine of the angle for smooth transition
+        // For a sphere, the terminator is a great circle, so we use longitude difference
+        // as a simple approximation (this works well for most viewing angles)
+        float angleFromSun = abs(lonDiff);
+        if (angleFromSun > 180.0) angleFromSun = 360.0 - angleFromSun;
+        
+        // Convert angle to blend factor: 0° = day (1.0), 180° = night (0.0)
+        // Cosine gives us: cos(0°) = 1 (full day), cos(180°) = -1 (full night)
+        float rawBlend = cos(angleFromSun * PI / 180.0);
+        // Apply transition zone using smoothstep (same as original)
+        float blendFactor = smoothstep(-0.1, 0.1, rawBlend);
+        
         vec4 dayColor = texture2D(dayTexture, rotatedUv);
         vec4 nightColor = texture2D(nightTexture, rotatedUv);
         
-        float nightFactor = 1.0 - smoothstep(-0.1, 0.1, intensity);
+        float nightFactor = 1.0 - blendFactor;
         vec4 luminosityColor = texture2D(luminosityTexture, rotatedUv);
         vec3 luminosityEnhanced = pow(luminosityColor.rgb, vec3(0.9));
         nightColor.rgb += luminosityEnhanced * luminosityColor.a * nightFactor * 1.2;
         
-        float blendFactor = smoothstep(-0.1, 0.1, intensity);
         vec4 blendedColor = mix(nightColor, dayColor, blendFactor);
         vec3 brightened = blendedColor.rgb * brightness + brightnessAdd;
         vec3 contrastAdjusted = (brightened - 0.5) * contrast + 0.5;

@@ -56,14 +56,14 @@ export const SolsticeGlobe3D = ({
     onFullyLoaded?.();
   });
   
-  const textureRotationRef = useGlobeAnimation(globeMaterialRef, isGlobeReady, initialPov, isRotating);
-  const fps = useFramerate(isGlobeReady, globeRef);
+  // const textureRotationRef = useGlobeAnimation(globeMaterialRef, isGlobeReady, initialPov, isRotating);
+  // const fps = useFramerate(isGlobeReady, globeRef);
   
-  useEffect(() => {
-    if (fps && onFpsChange) {
-      onFpsChange(fps);
-    }
-  }, [fps, onFpsChange]);
+  // useEffect(() => {
+  //   if (fps && onFpsChange) {
+  //     onFpsChange(fps);
+  //   }
+  // }, [fps, onFpsChange]);
   
   const handleMouseDown = useCallback((e: React.MouseEvent<HTMLDivElement>) => {
     dragStartRef.current = { x: e.clientX, y: e.clientY };
@@ -155,10 +155,10 @@ export const SolsticeGlobe3D = ({
     return el;
   }, [findPoint, onPointClick]);
   
-  const htmlLng = useCallback((d: GlobeMarkerData): number => {
-    const rotationDegrees = (textureRotationRef.current * 180) / Math.PI;
-    return d.lng - rotationDegrees;
-  }, [textureRotationRef]);
+  // const htmlLng = useCallback((d: GlobeMarkerData): number => {
+  //   const rotationDegrees = (textureRotationRef.current * 180) / Math.PI;
+  //   return d.lng - rotationDegrees;
+  // }, [textureRotationRef]);
   
   const htmlAltitude = useCallback((d: GlobeMarkerData): number => {
     return (typeof d.size === 'number' ? d.size : 1) * altitudeScale * 0.01;
@@ -183,7 +183,7 @@ export const SolsticeGlobe3D = ({
           polygonAltitude={0.03}
           htmlElementsData={markerData}
           htmlLat={(d: GlobeMarkerData) => d.lat}
-          htmlLng={htmlLng}
+          // htmlLng={htmlLng}
           htmlAltitude={htmlAltitude}
           htmlElement={renderHtmlElement}
           showAtmosphere={true}
