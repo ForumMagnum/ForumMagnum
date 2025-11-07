@@ -9,16 +9,7 @@ import { makeGqlUpdateMutation } from "@/server/vulcan-lib/apollo-server/helpers
 import { getLegacyCreateCallbackProps, getLegacyUpdateCallbackProps, insertAndReturnCreateAfterProps, runFieldOnCreateCallbacks, runFieldOnUpdateCallbacks, updateAndReturnDocument, assignUserIdToData } from "@/server/vulcan-lib/mutators";
 import gql from "graphql-tag";
 import cloneDeep from "lodash/cloneDeep";
-import { dataToMarkdown } from "@/server/editor/conversionUtils";
-import AutomatedContentEvaluations from "../automatedContentEvaluations/collection";
-import { z } from "zod"; // Add this import for Zod
-import { getOpenAI } from "@/server/languageModels/languageModelIntegration";
-import { assertPollsAllowed, upsertPolls } from "@/server/callbacks/forumEventCallbacks";
-import { captureException } from "@/lib/sentryWrapper";
 import { backgroundTask } from "@/server/utils/backgroundTask";
-import Posts from "../posts/collection";
-import ModerationTemplates from "../moderationTemplates/collection";
-import { sendRejectionPM } from "@/server/callbacks/postCallbackFunctions";
 
 
 function editCheck(user: DbUser | null) {
@@ -45,6 +36,8 @@ export async function createRevision({ data }: { data: Partial<DbInsertion<DbRev
   const afterCreateProperties = await insertAndReturnCreateAfterProps(data, 'Revisions', callbackProps);
   let documentWithId = afterCreateProperties.document;
 
+
+  const { assertPollsAllowed } = await import("@/server/callbacks/forumEventCallbacks");
   assertPollsAllowed(documentWithId);
   await upvoteOwnTagRevision({
     revision: documentWithId,

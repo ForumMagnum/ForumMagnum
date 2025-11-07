@@ -1,5 +1,5 @@
 import { getForumType, ThemeOptions } from './themeNames';
-import { baseTheme } from './createThemeDefaults';
+import { getBaseTheme } from './createThemeDefaults';
 import { getUserTheme } from './userThemes/index';
 import { getSiteTheme } from './siteThemes/index';
 import type { ForumTypeString } from '../lib/instanceSettings';
@@ -67,6 +67,7 @@ const buildTheme = (
   forumType: ForumTypeString,
   themeOptions: ThemeOptions,
 ): ThemeType => {
+  const baseTheme = getBaseTheme();
   let shadePalette: ThemeShadePalette = baseTheme.shadePalette;
   if (siteTheme.shadePalette) shadePalette = deepmerge(shadePalette, siteTheme.shadePalette);
   if (userTheme.shadePalette) shadePalette = deepmerge(shadePalette, userTheme.shadePalette);

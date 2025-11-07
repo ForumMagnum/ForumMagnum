@@ -44,7 +44,6 @@ import { createConversation } from "../collections/conversations/mutations";
 import { createMessage } from "../collections/messages/mutations";
 import { createModeratorAction } from "../collections/moderatorActions/mutations";
 import { createPostRelation } from "../collections/postRelations/mutations";
-import { updatePost } from "../collections/posts/mutations";
 import { updateDialogueMatchPreference } from "../collections/dialogueMatchPreferences/mutations";
 import { updateDialogueCheck } from "../collections/dialogueChecks/mutations";
 import { updateNotification } from "../collections/notifications/mutations";
@@ -52,7 +51,6 @@ import { EmailCuratedAuthors } from "../emailComponents/EmailCuratedAuthors";
 import { EventUpdatedEmail } from "../emailComponents/EventUpdatedEmail";
 import { PostsHTML } from "@/lib/collections/posts/fragments";
 import { backgroundTask } from "../utils/backgroundTask";
-import { createAutomatedContentEvaluation } from "../collections/automatedContentEvaluations/helpers";
 import CurationEmails from "../collections/curationEmails/collection";
 
 
@@ -297,6 +295,7 @@ const utils = {
     );
   
     if (autoFrontpageReview) {
+      const { updatePost } = await import("../collections/posts/mutations");
       await updatePost({
         data: {
           frontpageDate: defaultFrontpageHide ? new Date() : null,
@@ -1166,6 +1165,7 @@ export async function maybeCreateAutomatedContentEvaluation(post: DbPost, oldPos
   if (shouldEvaluate) {
     const revision = await getLatestContentsRevision(post, context);
     if (revision) {
+      const { createAutomatedContentEvaluation } = await import("../collections/automatedContentEvaluations/helpers");
       await createAutomatedContentEvaluation(revision, context);
     }
   }

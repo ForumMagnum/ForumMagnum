@@ -1,10 +1,22 @@
 import pgp, { IDatabase } from "pg-promise";
 import Query from "@/server/sql/Query";
-import { isAnyTest, isDevelopment } from "../lib/executionEnvironment";
+import { isAnyTest, isDevelopment, isProduction } from "../lib/executionEnvironment";
 import omit from "lodash/omit";
-import { logAllQueries, logQueryArguments, measureSqlBytesDownloaded } from "@/server/sql/sqlClient";
 import { getIsSSRRequest, getParentTraceId, recordSqlQueryPerfMetric } from "./perfMetrics";
 import { backgroundTask } from "./utils/backgroundTask";
+
+// logAllQueries: If true, generate a console log for all postgres queries.
+// Intended for debugging and performance investigation, not for prod.
+export const logAllQueries = process.env.QUERY_LOGGING === 'true';
+
+// logQueryArguments: If true, logged queries will include the parameters to
+// the query (which may include sensitive data). Intended for debugging, not for
+// prod.
+export const logQueryArguments = false;
+
+// measureSqlBytesDownloaded: If true, logged queries will include the size (in
+// bytes) of the result set.
+export const measureSqlBytesDownloaded = !isProduction;
 
 let sqlBytesDownloaded = 0;
 
