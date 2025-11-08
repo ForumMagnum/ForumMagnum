@@ -1,7 +1,7 @@
 import React, { useEffect, useState, useRef } from 'react';
 import * as THREE from 'three';
 import { createDayNightShaderMaterial } from './shader';
-import { CONTRAST_AMOUNT, BRIGHTNESS_BOOST, BRIGHTNESS_ADD, ROTATION_SPEED, DEFAULT_SUN_POSITION } from './solsiceSeasonConstants';
+import { CONTRAST_AMOUNT, BRIGHTNESS_BOOST, BRIGHTNESS_ADD, DEFAULT_SUN_POSITION } from './solsticeSeasonConstants';
 import { findMeshWithTexture } from './utils';
 import { PointOfView } from './types';
 
@@ -93,49 +93,4 @@ export const useGlobeReadyEffects = (
     
     onReadyRef.current?.();
   }, [isGlobeReady, globeRef, globeMaterialRef, dayImageUrl, nightImageUrl, luminosityImageUrl, pov.lat, pov.lng, pov.altitude]);
-};
-
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-export const useGlobeAnimation = (globeMaterialRef: React.MutableRefObject<any>, isGlobeReady: boolean, pov: PointOfView, isRotating: boolean): React.MutableRefObject<number> => {
-  const rotationSpeed = ROTATION_SPEED;
-  const rotationRef = useRef(0);
-  const isRotatingRef = useRef(isRotating);
-  const lastFrameTimeRef = useRef<number | null>(null);
-  
-  useEffect(() => {
-    isRotatingRef.current = isRotating;
-  }, [isRotating]);
-  
-  useEffect(() => {
-    if (!isGlobeReady || !globeMaterialRef.current) return;
-    
-    const animate = (currentTime: number) => {
-      if (!isRotatingRef.current) return;
-      
-      if (lastFrameTimeRef.current !== null) {
-        const deltaTime = currentTime - lastFrameTimeRef.current;
-        // deltaTime is in milliseconds, convert to seconds for rotationSpeed (rad/s)
-        rotationRef.current += rotationSpeed * (deltaTime / 1000);
-        if (globeMaterialRef.current?.uniforms?.textureRotation) {
-          globeMaterialRef.current.uniforms.textureRotation.value = rotationRef.current;
-        }
-      }
-      lastFrameTimeRef.current = currentTime;
-      requestAnimationFrame(animate);
-    };
-    
-    if (isRotatingRef.current) {
-      lastFrameTimeRef.current = null;
-      const animationFrameId = requestAnimationFrame(animate);
-      return () => cancelAnimationFrame(animationFrameId);
-    }
-  }, [isGlobeReady, globeMaterialRef, isRotating, rotationSpeed]);
-  
-  useEffect(() => {
-    if (globeMaterialRef.current?.uniforms?.globeRotation) {
-      globeMaterialRef.current.uniforms.globeRotation.value.set(pov.lng, pov.lat);
-    }
-  }, [globeMaterialRef, pov.lat, pov.lng]);
-  
-  return rotationRef;
 };

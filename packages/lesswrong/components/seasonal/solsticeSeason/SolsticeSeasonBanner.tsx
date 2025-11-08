@@ -9,6 +9,8 @@ import SolsticeGlobe3D from './SolsticeGlobe3D';
 import { SolsticeGlobePoint } from './types';
 import { useIsAboveBreakpoint } from '@/components/hooks/useScreenWidth';
 import { GlobePopup } from './GlobePopup';
+import { HIDE_SOLSTICE_GLOBE_COOKIE } from '@/lib/cookies/cookies';
+import { useCookiesWithConsent } from '@/components/hooks/useCookiesWithConsent';
 
 const smallBreakpoint = 1525
 
@@ -37,9 +39,6 @@ const styles = defineStyles("SolsticeSeasonBanner", (theme: ThemeType) => ({
     lineHeight: 1.2,
     marginTop: 0,
     marginBottom: 12,
-  },
-  titleNotLoaded: {
-    ...(theme.dark ? {} : { color: theme.palette.text.alwaysBlack }),
   },
   textContainer: {
     position: 'absolute',
@@ -71,9 +70,6 @@ const styles = defineStyles("SolsticeSeasonBanner", (theme: ThemeType) => ({
       color: theme.palette.link.color,
     },
   },
-  textContainerNotLoaded: {
-    textShadow: `none`,
-  },
   subtitle: {
     fontSize: 16,
     [theme.breakpoints.up(smallBreakpoint)]: {
@@ -99,14 +95,6 @@ const styles = defineStyles("SolsticeSeasonBanner", (theme: ThemeType) => ({
       margin: 0,
     },
   },
-  subtitleNotLoaded: {
-    ...(theme.dark ? {} : { 
-      color: theme.palette.text.alwaysBlack,
-      '& a': {
-        color: theme.palette.text.alwaysBlack,
-      },
-    }),
-  },
   globeGradientRight: {
     position: 'absolute',
     top: 0,
@@ -130,16 +118,6 @@ const styles = defineStyles("SolsticeSeasonBanner", (theme: ThemeType) => ({
     height: 'calc(100vh + 120px)',
     transition: 'opacity 0.3s ease-out',
     zIndex: 0,
-  },
-  scrollBackground: {
-    position: 'absolute',
-    top: -80,
-    right: 0,
-    width: '80%',
-    height: '80%',
-    background: theme.dark ? 'rgba(255, 255, 255, 0.03)' : 'rgba(0, 0, 0, 0.02)',
-    zIndex: 0,
-    pointerEvents: 'none',
   },
   buttonContainer: {
     display: 'flex',
@@ -173,9 +151,6 @@ const styles = defineStyles("SolsticeSeasonBanner", (theme: ThemeType) => ({
       paddingRight: 10,
       fontSize: 14,  
     },
-  },
-  createEventButtonNotLoaded: {
-    background: theme.dark ? theme.palette.grey[300] : theme.palette.grey[800],
   },
   date: {
     fontSize: 12,
@@ -212,29 +187,6 @@ const styles = defineStyles("SolsticeSeasonBanner", (theme: ThemeType) => ({
     '&:hover': {
       opacity: 1,
     },
-  },
-  mapContainer: {
-    position: 'absolute',
-    top: 0,
-    right: 0,
-    width: '100%',
-    height: '100%',
-    transition: 'opacity 0.3s ease-out',
-    zIndex: 0,
-  },
-  mapGradientRight: {
-    position: 'absolute',
-    top: 0,
-    right: 0,
-    width: 'calc(100% + 260px)',
-    height: '100%',
-    background: `linear-gradient(to left, transparent 60%, ${theme.palette.background.default} 100%)`,
-    [theme.breakpoints.up(1620)]: {
-      background: `linear-gradient(to left, transparent 60%, ${theme.palette.background.default} 100%)`,
-    },
-    zIndex: 1,
-    pointerEvents: 'none',
-    transition: 'opacity 0.3s ease-out',
   },
   postsListBlockingRect: {
     position: 'absolute',
@@ -287,9 +239,6 @@ export default function SolsticeSeasonBannerInner() {
   const [pointerEventsDisabled, setPointerEventsDisabled] = useState(false);
   const isWidescreen = useIsAboveBreakpoint('lg');
   const [renderSolsticeSeason, setRenderSolsticeSeason] = useState(false);
-  const [isGlobeFullyLoaded, setIsGlobeFullyLoaded] = useState(false);
-  const [isTextContainerFullyLoaded, setIsTextContainerFullyLoaded] = useState(false);
-  const [fps, setFps] = useState<number | null>(null);
   
   useEffect(() => {
     setRenderSolsticeSeason(isWidescreen);
@@ -299,7 +248,6 @@ export default function SolsticeSeasonBannerInner() {
     variables: { eventType: "SOLSTICE" },
   });
   const eventPosts = data?.HomepageCommunityEventPosts?.posts ?? [];
-  // const events = []
   const events = eventPosts.map((post: PostsList) => ({
     _id: post._id,
     lat: post.googleLocation?.geometry?.location?.lat,
@@ -335,18 +283,11 @@ export default function SolsticeSeasonBannerInner() {
     altitude: 2.2
   }), [])
 
-  const handleGlobeFullyLoaded = useCallback(() => {
-    setIsGlobeFullyLoaded(true);
-  }, []);
+  const [_, setCookie] = useCookiesWithConsent([HIDE_SOLSTICE_GLOBE_COOKIE]);
 
-  useEffect(() => {
-    if (isGlobeFullyLoaded) {
-      const timeout = setTimeout(() => {
-        setIsTextContainerFullyLoaded(true);
-      }, 2000);
-      return () => clearTimeout(timeout);
-    }
-  }, [isGlobeFullyLoaded]);
+  const handleHideSolsticeSeason = useCallback(() => {
+     setCookie(HIDE_SOLSTICE_GLOBE_COOKIE, true);
+  }, [setCookie]);
 
   const [selectedEventId, setSelectedEventId] = useState<string | null>(null)
   const [popupCoords, setPopupCoords] = useState<{ x: number; y: number } | null>(null)
@@ -397,7 +338,6 @@ export default function SolsticeSeasonBannerInner() {
           pointsData={pointsData}
           defaultPointOfView={defaultPointOfView}
           onPointClick={(point: SolsticeGlobePoint, screenCoords: { x: number; y: number }) => handleMeetupClick(undefined, point.eventId, screenCoords)}
-          onFullyLoaded={handleGlobeFullyLoaded}
           style={{ width: '100%', height: '100%' }}
         />}
       {selectedEventId && popupCoords && selectedEventPost && (
@@ -410,7 +350,7 @@ export default function SolsticeSeasonBannerInner() {
           }}
         />
       )}
-      <div className={classNames(classes.textContainer, { [classes.textContainerNotLoaded]: !isTextContainerFullyLoaded })}>
+      <div className={classNames(classes.textContainer)}>
         <h1 className={classNames(classes.title)}>Solstice Season</h1>
           <p className={classNames(classes.subtitle)}>
             Celebrate the longest night of the year!
@@ -429,7 +369,9 @@ export default function SolsticeSeasonBannerInner() {
             </Link>
           </div>  
           <div className={classes.fpsWarning}>
-            {fps ? (fps < 90 ? `If your computer is slow, you can switch to the map view. ${fps} FPS` : `${fps} FPS`) : null}
+            <button className={classes.hideButton} onClick={() => handleHideSolsticeSeason()}>
+              Hide
+            </button>
           </div>
       </div>
     </div>

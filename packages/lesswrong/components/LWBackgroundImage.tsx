@@ -145,17 +145,6 @@ export const LWBackgroundImage = ({standaloneNavigation}: {
 
   const [cookies, setCookie] = useCookiesWithConsent([HIDE_SOLSTICE_GLOBE_COOKIE]);
   const hideGlobeCookie = cookies[HIDE_SOLSTICE_GLOBE_COOKIE] === "true";
-  // Initialize to false to avoid SSR/client hydration mismatch, then sync from cookie after mount
-  const [hideSpecialFrontpage, setHideSpecialFrontpage] = useState(false);
-  
-  useEffect(() => {
-    setHideSpecialFrontpage(hideGlobeCookie);
-  }, [hideGlobeCookie]);
-
-  const handleSetHideSpecialFrontpage = (value: boolean) => {
-    setHideSpecialFrontpage(value);
-    setCookie(HIDE_SOLSTICE_GLOBE_COOKIE, value ? "true" : "false", { path: "/" });
-  };
 
   const defaultImage = standaloneNavigation ? <div className={classes.imageColumn}> 
     {/* Background image shown in the top-right corner of LW. The
@@ -182,12 +171,12 @@ export const LWBackgroundImage = ({standaloneNavigation}: {
         darkPublicId={"happyWizard_mmmnjx"}
       />
   </div>
-
-  let homePageImage = (standaloneNavigation && isHomePage && !hideSpecialFrontpage) ? <SolsticeSeasonBanner /> : defaultImage
+  
+  let homePageImage = (standaloneNavigation && isHomePage && !hideGlobeCookie) ? <SolsticeSeasonBanner /> : defaultImage
   if (getReviewPhase() === 'VOTING') homePageImage = <ReviewVotingCanvas />
   if (getReviewPhase() === 'RESULTS') homePageImage = reviewCompleteImage
 
-  const showSolsticeButton = standaloneNavigation && isHomePage && hideSpecialFrontpage && getReviewPhase() !== 'VOTING' && getReviewPhase() !== 'RESULTS';
+  const showSolsticeButton = standaloneNavigation && isHomePage && hideGlobeCookie
 
   const now = new Date();
 
@@ -196,7 +185,7 @@ export const LWBackgroundImage = ({standaloneNavigation}: {
     {showSolsticeButton && (
       <button
         className={classes.showSolsticeButton}
-        onClick={() => handleSetHideSpecialFrontpage(false)}
+        onClick={() => setCookie(HIDE_SOLSTICE_GLOBE_COOKIE, "false")}
       >
         Show Solstice Season
       </button>

@@ -3,7 +3,7 @@ import { SolsticeGlobe3DProps, SolsticeGlobePoint } from './types';
 import { useGlobeDayNightMaterial, useGlobeReadyEffects } from './hooks';
 import { mapPointsToMarkers } from './utils';
 import { useEventListener } from '@/components/hooks/useEventListener';
-import { DEFAULT_DAY_IMAGE_URL, DEFAULT_NIGHT_IMAGE_URL, DEFAULT_LUMINOSITY_IMAGE_URL, DEFAULT_ALTITUDE_SCALE, DEFAULT_INITIAL_ALTITUDE_MULTIPLIER } from './solsiceSeasonConstants';
+import { DEFAULT_DAY_IMAGE_URL, DEFAULT_NIGHT_IMAGE_URL, DEFAULT_LUMINOSITY_IMAGE_URL, DEFAULT_ALTITUDE_SCALE, DEFAULT_INITIAL_ALTITUDE_MULTIPLIER } from './solsticeSeasonConstants';
 import { type GlobeMethods } from 'react-globe.gl';
 import dynamic from 'next/dynamic';
 
@@ -208,7 +208,7 @@ export const SolsticeGlobe3D = ({
     const el = document.createElement('div');
     el.setAttribute('data-globe-marker', 'true');
     el.setAttribute('data-marker-index', String(d._index));
-    el.style.color = "hsl(40, 100.00%, 80.00%)"; //light-dark(rgb(206, 233, 255), rgb(206, 233, 255))";
+    el.style.color = "light-dark(rgb(206, 233, 255), rgb(206, 233, 255))";
     el.innerHTML = `
       <div style="text-align: center;">
         <svg viewBox="0 0 24 24" style="width:${markerSize}px;margin:0 auto;">
