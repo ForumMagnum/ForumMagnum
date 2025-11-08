@@ -78,6 +78,7 @@ export function buildDistinctLinearThreads(
         lastViewed: candidate.lastViewed,
         lastInteracted: candidate.lastInteracted,
         postedAt: candidate.postedAt,
+        fromSubscribedUser: candidate.fromSubscribedUser,
       }
     };
   });
@@ -524,6 +525,7 @@ function prepareThreadForDisplay(
       displayStatus: displayStatus,
       highlight: shouldHighlight ?? false,
       isParentPostRead: isOnReadPost,
+      fromSubscribedUser: comment.metaInfo?.fromSubscribedUser,
     };
 
     return {

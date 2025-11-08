@@ -70,7 +70,7 @@ export function toThreadRankable(
     const ageHrs = postedAt ? moment(now).diff(postedAt, 'hours') : 0;
     const isRead = Boolean(c.metaInfo?.lastViewed || c.metaInfo?.lastInteracted);
     const primarySource = (c.metaInfo?.sources?.[0] as FeedItemSourceType | undefined);
-    const userSubscribedToAuthor = Boolean(c.metaInfo?.sources?.includes('subscriptionsComments' as FeedItemSourceType));
+    const userSubscribedToAuthor = Boolean(c.metaInfo?.sources?.includes('subscriptionsComments' as const));
     return {
       commentId: c.commentId,
       ageHrs,
