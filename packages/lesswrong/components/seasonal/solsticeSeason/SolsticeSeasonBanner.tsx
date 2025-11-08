@@ -47,13 +47,17 @@ const styles = defineStyles("SolsticeSeasonBanner", (theme: ThemeType) => ({
     width: 320,
     paddingBottom: 20,
     textShadow: `0 0 5px ${theme.palette.text.alwaysBlack}, 0 0 15px ${theme.palette.text.alwaysBlack}, 0 0 50px ${theme.palette.text.alwaysBlack}`,
+    left: '55%',
     [theme.breakpoints.up(smallBreakpoint)]: {
+      left: '50%',
       width: 330,
       marginRight: 0,
     },
+    [theme.breakpoints.up(1620)]: {
+      left: '40%',
+    },
     // Center horizontally within the space to the right of the layout
     // Position is set dynamically via inline style based on measured layout end position
-    left: '50%',
     transform: 'translateX(-50%)',
     zIndex: 4,
     lineHeight: 1.5,
@@ -261,10 +265,7 @@ export default function SolsticeSeasonBannerInner() {
   const [renderSolsticeSeason, setRenderSolsticeSeason] = useState(false);
   const [isGlobeFullyLoaded, setIsGlobeFullyLoaded] = useState(false);
   const [isTextContainerFullyLoaded, setIsTextContainerFullyLoaded] = useState(false);
-  const [textContainerLeft, setTextContainerLeft] = useState<string>('50%');
   const [fps, setFps] = useState<number | null>(null);
-  const resizeTimeoutRef = useRef<NodeJS.Timeout | null>(null);
-  const retryCountRef = useRef(0);
   
   useEffect(() => {
     setRenderSolsticeSeason(isWidescreen);
@@ -385,7 +386,7 @@ export default function SolsticeSeasonBannerInner() {
           }}
         />
       )}
-      <div className={classNames(classes.textContainer, { [classes.textContainerNotLoaded]: !isTextContainerFullyLoaded })} style={{ left: textContainerLeft }}>
+      <div className={classNames(classes.textContainer, { [classes.textContainerNotLoaded]: !isTextContainerFullyLoaded })}>
         <h1 className={classNames(classes.title, { [classes.titleNotLoaded]: !isGlobeFullyLoaded })}>Solstice Season</h1>
           <p className={classNames(classes.subtitle, { [classes.subtitleNotLoaded]: !isGlobeFullyLoaded })}>
             Celebrate the longest night of the year!
