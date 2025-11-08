@@ -6,6 +6,8 @@ import { MenuItem } from '../common/Menus';
 import ListItemIcon from '@/lib/vendor/@material-ui/core/src/ListItemIcon';
 import ForumIcon from '../common/ForumIcon';
 import { PostScoreBreakdownContent, ThreadScoreBreakdownContent } from '../ultraFeed/ScoreBreakdownContent';
+import { useCurrentUser } from '../common/withUser';
+import { userIsAdmin } from '@/lib/vulcan-users/permissions';
 
 const styles = defineStyles('ScoreBreakdownDropdownItem', (theme: ThemeType) => ({
   tooltipWrapper: {
@@ -50,6 +52,11 @@ const ScoreBreakdownDropdownItem = ({
   postMetaInfo?: FeedPostMetaInfo;
 }) => {
   const classes = useStyles(styles);
+  const currentUser = useCurrentUser();
+
+  if (!userIsAdmin(currentUser)) {
+    return null;
+  }
 
   let tooltipContent: React.ReactNode;
   if (metadata.rankedItemType === 'commentThread') {

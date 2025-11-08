@@ -6,6 +6,8 @@ import ForumIcon from '../common/ForumIcon';
 import { PostScoreBreakdownContent, ThreadScoreBreakdownContent, scoreBreakdownStyles } from './ScoreBreakdownContent';
 import { useUltraFeedContext } from './UltraFeedContextProvider';
 import AlterBonusesDialog from './AlterBonusesDialog';
+import { useCurrentUser } from '../common/withUser';
+import { userIsAdmin } from '@/lib/vulcan-users/permissions';
 
 const styles = defineStyles('UltraFeedScoreBreakdown', (theme: ThemeType) => ({
   container: {
@@ -64,6 +66,11 @@ const UltraFeedScoreBreakdown = ({ metadata, isFirstCommentInThread, sources, co
   const breakdownClasses = useStyles(scoreBreakdownStyles);
   const { showScoreBreakdown, setShowScoreBreakdown } = useUltraFeedContext();
   const [dialogOpen, setDialogOpen] = useState(false);
+  const currentUser = useCurrentUser();
+  
+  if (!userIsAdmin(currentUser)) {
+    return null;
+  }
   
   // For comment threads, only show on the first comment
   // For posts, isFirstCommentInThread will be undefined, so we always show

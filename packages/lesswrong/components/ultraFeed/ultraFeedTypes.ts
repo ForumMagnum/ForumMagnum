@@ -3,13 +3,13 @@
 export const feedTypes = ["following", "ultraFeed", "userContent", "bookmarksFeed"] as const;
 export type FeedType = typeof feedTypes[number];
 
-export interface PostScoreBreakdownComponents {
+export interface PostScoreBreakdownComponents extends Record<string, number> {
   subscribedBonus: number;
   karmaBonus: number;
   topicAffinityBonus: number;
 }
 
-export interface ThreadScoreBreakdownComponents {
+export interface ThreadScoreBreakdownComponents extends Record<string, number> {
   unreadSubscribedCommentBonus: number;
   engagementContinuationBonus: number;
   repliesToYouBonus: number;
