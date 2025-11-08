@@ -6,7 +6,6 @@
  * - Applies diversity constraints during greedy selection
  * - Provides transparency via score breakdowns
  * 
- * See ULTRAFEED_RANKING_SYSTEM.md for detailed documentation.
  */
 
 import type { UltraFeedAlgorithm } from '../ultraFeedAlgorithmInterface';

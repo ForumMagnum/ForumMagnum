@@ -46,6 +46,7 @@ import {
   TruncationGridSettingsProps,
   MiscSettingsProps
 } from "./settingsComponents/UltraFeedSettingsComponents";
+import { parseNumericInputAsZeroOrNumber, customNullishCoalesceProperties, processNumericFieldInput, processIntegerFieldInput } from './ultraFeedSettingsUtils';
 
 const styles = defineStyles('UltraFeedSettings', (theme: ThemeType) => ({
   root: {
@@ -308,21 +309,6 @@ const AdvancedView: React.FC<AdvancedViewProps> = ({
   </>
 );
 
-const parseNumericInputAsZeroOrNumber = (
-  value: string | number | '',
-  defaultValueOnNaN: number 
-): number => {
-  if (value === '') {
-    return 0; 
-  }
-  const num = Number(value);
-  return isNaN(num) ? defaultValueOnNaN : num;
-};
-
-const customNullishCoalesceProperties = (objValue: any, srcValue: any): any => {
-  return srcValue ?? objValue;
-};
-
 const deriveFormValuesFromSettings = (settings: UltraFeedSettingsType): SettingsFormState => {
   const { displaySettings: defaultDisplaySettings, resolverSettings: defaultResolverSettings } = DEFAULT_SETTINGS;
   const { commentScoring: defaultCommentScoring, threadInterestModel: defaultThreadInterestModel, unifiedScoring: defaultUnifiedScoring } = defaultResolverSettings;
@@ -477,15 +463,7 @@ const UltraFeedSettings = ({
   }, []);
 
   const handleSourceWeightChange = useCallback((key: FeedItemSourceType, value: number | string) => {
-    let numValue: number | '' = '';
-    const strValue = String(value).trim();
-    if (strValue === '') {
-      numValue = '';
-    } else {
-      const parsedValue = parseInt(strValue, 10);
-      // Keep storing integers or '' in form state. Saving logic will handle final conversion.
-      numValue = (!isNaN(parsedValue) && Number.isInteger(Number(strValue))) ? parsedValue : '';
-    }
+    const numValue = processIntegerFieldInput(value);
     updateForm('sourceWeights', prev => ({ ...prev, [key]: numValue }));
   }, [updateForm]);
 
@@ -512,57 +490,35 @@ const UltraFeedSettings = ({
   }, [updateForm, setZodErrors, captureEvent]);
 
   const handleLineClampChange = useCallback((value: number | string) => {
-    const strValue = String(value).trim();
-    if (strValue === '') {
-      updateDisplaySettingForm('lineClampNumberOfLines', '');
-    } else {
-      const numValue = parseInt(strValue, 10);
-      updateDisplaySettingForm('lineClampNumberOfLines', isNaN(numValue) ? '' : numValue);
-    }
+    const processedValue = processIntegerFieldInput(value);
+    updateDisplaySettingForm('lineClampNumberOfLines', processedValue);
   }, [updateDisplaySettingForm]);
 
   const handleWordCountChange = useCallback((
     field: 'postInitialWords' | 'postMaxWords' | 'commentCollapsedInitialWords' | 'commentExpandedInitialWords' | 'commentMaxWords',
     value: string | number
   ) => {
-    const strValue = String(value).trim();
-    if (strValue === '') {
-      updateDisplaySettingForm(field, '');
-    } else {
-      const numValue = parseInt(strValue, 10);
-      updateDisplaySettingForm(field, isNaN(numValue) ? '' : numValue);
-    }
+    const processedValue = processIntegerFieldInput(value);
+    updateDisplaySettingForm(field, processedValue);
   }, [updateDisplaySettingForm]);
 
   const handleCommentScoringFieldChange = useCallback((
     field: keyof CommentScoringFormState, 
     value: number | string 
   ) => {
-    let processedValue: string | number = value;
-
-    if (field === 'threadScoreAggregation') {
-      processedValue = value as string; 
-    } else {
-      const strValue = String(value).trim();
-      if (strValue === '') {
-        processedValue = '';
-      } else {
-        const num = parseFloat(strValue);
-        processedValue = isNaN(num) ? '' : num; 
-      }
-    }
+    const processedValue = field === 'threadScoreAggregation'
+      ? value as string
+      : processNumericFieldInput(value);
     updateForm('commentScoring', prevModel => ({ ...prevModel, [field]: processedValue }));
   }, [updateForm]);
 
   const handleThreadInterestFieldChange = useCallback((field: keyof ThreadInterestModelFormState, value: number | string) => {
-    const strValue = String(value).trim();
-    const processedValue = strValue === '' ? '' : (isNaN(parseFloat(strValue)) ? '' : parseFloat(strValue));
-    updateForm('threadInterestModel', prevModel => ({ ...prevModel, [field]: processedValue, }));
+    const processedValue = processNumericFieldInput(value);
+    updateForm('threadInterestModel', prevModel => ({ ...prevModel, [field]: processedValue }));
   }, [updateForm]);
 
   const handleUnifiedScoringFieldChange = useCallback((field: keyof SettingsFormState['unifiedScoring'], value: number | string) => {
-    const strValue = String(value).trim();
-    const processedValue = strValue === '' ? '' : (isNaN(parseFloat(strValue)) ? '' : parseFloat(strValue));
+    const processedValue = processNumericFieldInput(value);
     updateForm('unifiedScoring', prevModel => ({ ...prevModel, [field]: processedValue }));
   }, [updateForm]);
 

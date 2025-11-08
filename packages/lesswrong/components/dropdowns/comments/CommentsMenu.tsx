@@ -5,6 +5,7 @@ import { Menu } from '@/components/widgets/Menu';
 import { useCurrentUserId } from '../../common/withUser';
 import { useTracking } from "../../../lib/analyticsEvents";
 import CommentActions from "./CommentActions";
+import { FeedCommentMetaInfo } from '../../ultraFeed/ultraFeedTypes';
 
 const styles = (theme: ThemeType) => ({
   root: {
@@ -27,7 +28,7 @@ interface CommentsMenuComponentProps {
   showEdit: () => void;
   onSeeLess?: () => void;
   isSeeLessMode?: boolean;
-  commentMetaInfo?: any;
+  commentMetaInfo?: FeedCommentMetaInfo;
 }
 
 const CommentsMenu = ({classes, className, comment, post, tag, showEdit, onSeeLess, isSeeLessMode, icon, ActionsComponent, commentMetaInfo}: {
@@ -41,7 +42,7 @@ const CommentsMenu = ({classes, className, comment, post, tag, showEdit, onSeeLe
   isSeeLessMode?: boolean,
   icon?: any,
   ActionsComponent?: React.ComponentType<CommentsMenuComponentProps>,
-  commentMetaInfo?: any,
+  commentMetaInfo?: FeedCommentMetaInfo,
 }) => {
   const [anchorEl, setAnchorEl] = useState<any>(null);
 

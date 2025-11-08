@@ -20,11 +20,12 @@ import LWHomePosts from "./LWHomePosts";
 import UltraFeed from "../ultraFeed/UltraFeed";
 import { StructuredData } from './StructuredData';
 import { SuspenseWrapper } from './SuspenseWrapper';
+import DeferRender from './DeferRender';
 import { defineStyles } from '../hooks/useStyles';
 
+import dynamic from 'next/dynamic';
 import PetrovStoryMobileBanner from '../seasonal/petrovDay/petrov-day-story/PetrovStoryMobileBanner';
-import DeferRender from './DeferRender';
-import RecentDiscussionFeed from '../recentDiscussion/RecentDiscussionFeed';
+const RecentDiscussionFeed = dynamic(() => import("../recentDiscussion/RecentDiscussionFeed"), { ssr: false });
 
 const getStructuredData = () => ({
   "@context": "http://schema.org",

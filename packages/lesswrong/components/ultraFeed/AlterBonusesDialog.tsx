@@ -14,6 +14,7 @@ import classNames from 'classnames';
 import mergeWith from 'lodash/mergeWith';
 import cloneDeep from 'lodash/cloneDeep';
 import isEqual from 'lodash/isEqual';
+import { parseNumericInputAsZeroOrNumber, customNullishCoalesceProperties, processNumericFieldInput } from './ultraFeedSettingsUtils';
 
 const styles = defineStyles('AlterBonusesDialog', (theme: ThemeType) => ({
   dialogContent: {
@@ -77,16 +78,6 @@ const styles = defineStyles('AlterBonusesDialog', (theme: ThemeType) => ({
   },
 }));
 
-const parseNumericInputAsZeroOrNumber = (
-  value: string | number | '',
-  defaultValueOnNaN: number 
-): number => {
-  if (value === '') return defaultValueOnNaN;
-  if (typeof value === 'number') return value;
-  const parsed = parseFloat(value);
-  return isNaN(parsed) ? defaultValueOnNaN : parsed;
-};
-
 const AlterBonusesDialog = ({ open, onClose, className }: { open: boolean; onClose: () => void; className?: string }) => {
   const classes = useStyles(styles);
   const { settings, updateSettings } = useUltraFeedSettings();
@@ -95,10 +86,6 @@ const AlterBonusesDialog = ({ open, onClose, className }: { open: boolean; onClo
   const defaultUnifiedScoring = DEFAULT_SETTINGS.resolverSettings.unifiedScoring;
 
   const initialFormState: UnifiedScoringFormState = useMemo(() => {
-    const customNullishCoalesceProperties = (objValue: any, srcValue: any): any => {
-      return srcValue ?? objValue;
-    };
-
     return mergeWith(
       cloneDeep(defaultUnifiedScoring),
       settings?.resolverSettings?.unifiedScoring,
@@ -121,8 +108,7 @@ const AlterBonusesDialog = ({ open, onClose, className }: { open: boolean; onClo
     field: keyof UnifiedScoringFormState,
     value: number | string
   ) => {
-    const strValue = String(value).trim();
-    const processedValue = strValue === '' ? '' : (isNaN(parseFloat(strValue)) ? '' : parseFloat(strValue));
+    const processedValue = processNumericFieldInput(value);
     setFormValues(prev => ({ ...prev, [field]: processedValue }));
     setZodErrors(null);
   }, []);

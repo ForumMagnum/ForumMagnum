@@ -13,21 +13,6 @@ const styles = defineStyles('ScoreBreakdownDropdownItem', (theme: ThemeType) => 
   tooltipWrapper: {
     display: 'block',
   },
-  main: {
-    ...(theme.isFriendlyUI && {
-      borderRadius: theme.borderRadius.default,
-      padding: 8,
-      '&:hover': {
-        background: theme.palette.dropdown.hoverBackground,
-        '& svg': {
-          color: theme.palette.grey[1000],
-        },
-      },
-      '& .ForumIcon-root': {
-        fontSize: theme.isFriendlyUI ? 20 : undefined,
-      },
-    }),
-  },
   title: {
     flexGrow: 1,
     overflowX: 'clip',
@@ -66,8 +51,8 @@ const ScoreBreakdownDropdownItem = ({
   }
 
   return (
-    <LWTooltip title={tooltipContent} placement="left" popperClassName={classes.tooltip} clickable className={classes.tooltipWrapper}>
-      <MenuItem className={classes.main}>
+    <LWTooltip title={tooltipContent} placement="auto" popperClassName={classes.tooltip} clickable className={classes.tooltipWrapper}>
+      <MenuItem>
         <ListItemIcon>
           <ForumIcon icon="Insights" />
         </ListItemIcon>

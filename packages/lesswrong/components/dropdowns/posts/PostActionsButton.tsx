@@ -10,6 +10,7 @@ import { defineStyles, useStyles } from '@/components/hooks/useStyles';
 import PopperCard from "../../common/PopperCard";
 import PostActions from "./PostActions";
 import LWClickAwayListener from "../../common/LWClickAwayListener";
+import { FeedPostMetaInfo } from '../../ultraFeed/ultraFeedTypes';
 
 const styles = defineStyles("PostActionsButton", (theme: ThemeType) => ({
   root: {
@@ -35,7 +36,7 @@ interface PostActionsComponentProps {
   includeBookmark?: boolean;
   onSeeLess?: () => void;
   isSeeLessMode?: boolean;
-  postMetaInfo?: any;
+  postMetaInfo?: FeedPostMetaInfo;
 }
 
 const PostActionsButton = ({post, vertical, popperGap, autoPlace, flip, includeBookmark=true, onSeeLess, isSeeLessMode, className, ActionsComponent, postMetaInfo}: {
@@ -49,7 +50,7 @@ const PostActionsButton = ({post, vertical, popperGap, autoPlace, flip, includeB
   isSeeLessMode?: boolean;
   className?: string,
   ActionsComponent?: React.ComponentType<PostActionsComponentProps>,
-  postMetaInfo?: any,
+  postMetaInfo?: FeedPostMetaInfo,
 }) => {
   const classes = useStyles(styles);
   const anchorEl = useRef<HTMLDivElement | null>(null);

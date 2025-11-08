@@ -20,9 +20,6 @@ function ensureLogDirectory(): void {
   }
 }
 
-/**
- * Log debug information (only when ULTRAFEED_DEBUG_ENABLED is true)
- */
 function log(message: string, ...args: any[]): void {
   if (!ULTRAFEED_DEBUG_ENABLED) {
     return;

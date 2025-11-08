@@ -26,10 +26,10 @@ export function getAlgorithm(name: UltraFeedAlgorithmName | undefined | null): U
 }
 
 /**
- * Get the default algorithm (currently scoring).
+ * Get the default algorithm.
  */
 export function getDefaultAlgorithm(): UltraFeedAlgorithm {
-  return algorithms.scoring;
+  return algorithms.sampling;
 }
 
 /**

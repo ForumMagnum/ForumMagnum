@@ -108,7 +108,7 @@ export function buildDistinctLinearThreads(
 
     if (visited.has(currentId)) {
       // eslint-disable-next-line no-console
-      console.warn(`[buildDistinctLinearThreads] Cycle detected at comment ${currentId}`);
+      console.error(`[buildDistinctLinearThreads] Cycle detected at comment ${currentId}`);
       return [];
     }
 
