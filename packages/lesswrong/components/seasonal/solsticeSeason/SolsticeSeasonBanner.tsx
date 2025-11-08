@@ -7,8 +7,8 @@ import { Link } from '@/lib/reactRouterWrapper';
 import classNames from 'classnames';
 import SolsticeGlobe3D from './SolsticeGlobe3D';
 import { SolsticeGlobePoint } from './types';
-import { FixedPositionEventPopup } from '../HomepageMap/HomepageCommunityMap';
 import { useIsAboveBreakpoint } from '@/components/hooks/useScreenWidth';
+import { GlobePopup } from './GlobePopup';
 
 const smallBreakpoint = 1525
 
@@ -247,10 +247,7 @@ export const SolsticeSeasonQuery = gql(`
   query solsticeSeasonQuery {
     HomepageCommunityEvents(limit: 500, eventType: "SOLSTICE") {
       events {
-        _id
-        lat
-        lng
-        types
+        ...PostsList
       }
     }
   }
@@ -454,8 +451,8 @@ export default function SolsticeSeasonBannerInner() {
           style={{ width: '100%', height: '100%' }}
         />}
       {selectedEventId && popupCoords && (
-        <FixedPositionEventPopup
-          eventId={selectedEventId}
+        <GlobePopup
+          document={events.find((event: EventType) => event._id === selectedEventId)?.document}
           screenCoords={popupCoords}
           onClose={() => {
             setSelectedEventId(null);

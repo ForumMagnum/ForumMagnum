@@ -4,13 +4,11 @@ import { StyledMapPopupContent } from "@/components/localGroups/StyledMapPopup";
 import { postGetPageUrl } from "@/lib/collections/posts/helpers";
 import { useEffect } from "react";
 import { fixedPositionEventPopupStyles } from "../HomepageMap/HomepageCommunityMap";
-import { useQuery } from "@apollo/client/react";
 import { useFloating, autoUpdate, offset, flip, shift } from '@floating-ui/react-dom';
 
 
 export const GlobePopup = ({document, screenCoords, onClose}: {
   document: PostsList;
-  eventId: string;
   screenCoords: { x: number; y: number };
   onClose: () => void;
 }) => {
