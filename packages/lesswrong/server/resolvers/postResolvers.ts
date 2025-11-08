@@ -284,7 +284,7 @@ export const postGqlQueries = {
     const events = await repos.posts.getHomepageCommunityEvents(limit, eventType)
     return { events }
   },
-  async HomepageCommunityEventPosts(root: void, { eventType }: { eventType: string }, context: ResolverContext): Promise<HomepageCommunityEventPostsResult> {
+  async HomepageCommunityEventPosts(root: void, { eventType }: { eventType: string }, context: ResolverContext) {
     const { Posts, currentUser } = context
     const defaultPostSelector = getDefaultViewSelector(PostsViews)
 
