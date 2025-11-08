@@ -398,19 +398,9 @@ export default function SolsticeSeasonBannerInner() {
     }
   }, [isGlobeFullyLoaded]);
 
-  type QueryResult = {
-    HomepageCommunityEvents?: {
-      events: Array<{
-        _id: string;
-        lat: number;
-        lng: number;
-        types: Array<string> | null;
-      }>;
-    };
-  };
-
   const [selectedEventId, setSelectedEventId] = useState<string | null>(null)
   const [popupCoords, setPopupCoords] = useState<{ x: number; y: number } | null>(null)
+  const markerClickInProgressRef = useRef(false);
 
   const selectedEventPost = useMemo(() => {
     return eventPosts.find((post: PostsList) => post._id === selectedEventId);
@@ -434,8 +424,17 @@ export default function SolsticeSeasonBannerInner() {
     event?.stopPropagation();
     event?.preventDefault();
     if (eventId) {
+      markerClickInProgressRef.current = true;
       setSelectedEventId(eventId);
       setPopupCoords(screenCoords || { x: window.innerWidth / 2, y: window.innerHeight / 2 });
+      setTimeout(() => {
+        markerClickInProgressRef.current = false;
+      }, 0);
+    } else {
+      if (!markerClickInProgressRef.current) {
+        setSelectedEventId(null);
+        setPopupCoords(null);
+      }
     }
   }, [pointsData]);
 

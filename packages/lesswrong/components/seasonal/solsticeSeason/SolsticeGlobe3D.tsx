@@ -65,14 +65,16 @@ export const SolsticeGlobe3D = ({
     
     // If we have click coordinates, check if the click is within any marker's bounds
     if (clientX !== undefined && clientY !== undefined) {
+      // Increase clickable area by adding padding around the marker
+      const clickPadding = 10;
       for (const marker of allMarkers) {
         if (marker instanceof HTMLElement) {
           const rect = marker.getBoundingClientRect();
           if (
-            clientX >= rect.left &&
-            clientX <= rect.right &&
-            clientY >= rect.top &&
-            clientY <= rect.bottom
+            clientX >= rect.left - clickPadding &&
+            clientX <= rect.right + clickPadding &&
+            clientY >= rect.top - clickPadding &&
+            clientY <= rect.bottom + clickPadding
           ) {
             return marker;
           }
@@ -213,6 +215,7 @@ export const SolsticeGlobe3D = ({
     el.setAttribute('data-marker-index', String(d._index));
     el.style.color = color;
     el.style.cursor = 'pointer';
+    el.style.padding = '15px';
     el.innerHTML = `
       <div style="text-align: center;">
         <svg viewBox="0 0 24 24" style="width:${markerSize}px;margin:0 auto;">

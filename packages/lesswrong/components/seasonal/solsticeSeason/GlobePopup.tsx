@@ -1,3 +1,4 @@
+import React from "react";
 import { useStyles } from "@/components/hooks/useStyles";
 import GroupLinks from "@/components/localGroups/GroupLinks";
 import { StyledMapPopupContent } from "@/components/localGroups/StyledMapPopup";
