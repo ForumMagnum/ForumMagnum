@@ -1,9 +1,8 @@
-import React from "react";
+import React, { useEffect } from "react";
 import { useStyles } from "@/components/hooks/useStyles";
 import GroupLinks from "@/components/localGroups/GroupLinks";
 import { StyledMapPopupContent } from "@/components/localGroups/StyledMapPopup";
 import { postGetPageUrl } from "@/lib/collections/posts/helpers";
-import { useEffect } from "react";
 import { fixedPositionEventPopupStyles } from "../HomepageMap/HomepageCommunityMap";
 import { useFloating, autoUpdate, offset, flip, shift } from '@floating-ui/react-dom';
 
