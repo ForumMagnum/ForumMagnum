@@ -284,11 +284,11 @@ export const PostScoreBreakdownContent = ({ breakdown, sources, metaInfo }: { br
     { name: "Topic Affinity", value: components.topicAffinityBonus },
   ];
   
-  // Filter out zero-value components and sort by absolute value descending
   const nonZeroComponents = allComponents.filter(c => Math.abs(c.value) >= 0.01);
-  const componentList = nonZeroComponents.sort((a, b) => Math.abs(b.value) - Math.abs(a.value));
+  const zeroComponents = allComponents
+    .filter(c => Math.abs(c.value) < 0.01)
+    .sort((a, b) => Math.abs(b.value) - Math.abs(a.value));
   
-  // Add base value at the end
   const baseValue = { name: "Base Value", value: 1 };
   
   const postExplanations = getPostComponentExplanations(settings);
@@ -302,10 +302,13 @@ export const PostScoreBreakdownContent = ({ breakdown, sources, metaInfo }: { br
       </div>
       
       <div className={classes.section}>
-        {componentList.map(({ name, value }) => (
+        {nonZeroComponents.map(({ name, value }) => (
           <ScoreComponent key={name} name={name} value={value} explanations={postExplanations} />
         ))}
         <ScoreComponent key="base" name={baseValue.name} value={baseValue.value} explanations={postExplanations} />
+        {zeroComponents.map(({ name, value }) => (
+          <ScoreComponent key={name} name={name} value={value} explanations={postExplanations} />
+        ))}
       </div>
       
       <LWTooltip 
@@ -343,11 +346,11 @@ export const ThreadScoreBreakdownContent = ({ breakdown, sources, metaInfo }: { 
     { name: "Read Post Context", value: components.readPostContextBonus },
   ];
   
-  // Filter out zero-value components and sort by absolute value descending
   const nonZeroComponents = allComponents.filter(c => Math.abs(c.value) >= 0.01);
-  const componentList = nonZeroComponents.sort((a, b) => Math.abs(b.value) - Math.abs(a.value));
+  const zeroComponents = allComponents
+    .filter(c => Math.abs(c.value) < 0.01)
+    .sort((a, b) => Math.abs(b.value) - Math.abs(a.value));
   
-  // Add base value at the end
   const baseValue = { name: "Base Value", value: 1 };
   
   const threadExplanations = getThreadComponentExplanations(settings);
@@ -361,10 +364,13 @@ export const ThreadScoreBreakdownContent = ({ breakdown, sources, metaInfo }: { 
       </div>
       
       <div className={classes.section}>
-        {componentList.map(({ name, value }) => (
+        {nonZeroComponents.map(({ name, value }) => (
           <ScoreComponent key={name} name={name} value={value} explanations={threadExplanations} />
         ))}
         <ScoreComponent key="base" name={baseValue.name} value={baseValue.value} explanations={threadExplanations} />
+        {zeroComponents.map(({ name, value }) => (
+          <ScoreComponent key={name} name={name} value={value} explanations={threadExplanations} />
+        ))}
       </div>
       
       <LWTooltip 
