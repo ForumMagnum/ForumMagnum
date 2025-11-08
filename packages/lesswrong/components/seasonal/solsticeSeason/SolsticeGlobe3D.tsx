@@ -38,6 +38,7 @@ export const SolsticeGlobe3D = ({
   const [isGlobeReady, setIsGlobeReady] = useState(false);
   const [isRotating, setIsRotating] = useState(true);
   const [isFullyLoaded, setIsFullyLoaded] = useState(false);
+  const [screenHeight, setScreenHeight] = useState(typeof window !== 'undefined' ? window.innerHeight : 1000);
   const globeRef = useRef<GlobeMethods | undefined>(undefined);
   const globeMaterialRef = useGlobeDayNightMaterial();
   const dragStartRef = useRef<{ x: number; y: number } | null>(null);
@@ -205,6 +206,7 @@ export const SolsticeGlobe3D = ({
   const renderHtmlElement = useCallback((d: GlobeMarkerData): HTMLElement => {
     const originalPoint = getOriginalPoint(d);
     const color = typeof originalPoint?.color === 'string' ? originalPoint.color : '#FFD700';
+    const markerSize = screenHeight * 0.024;
     const el = document.createElement('div');
     el.setAttribute('data-globe-marker', 'true');
     // Store the index as a data attribute so we can look it up on click
@@ -213,7 +215,7 @@ export const SolsticeGlobe3D = ({
     el.style.cursor = 'pointer';
     el.innerHTML = `
       <div style="text-align: center;">
-        <svg viewBox="0 0 24 24" style="width:24px;margin:0 auto;">
+        <svg viewBox="0 0 24 24" style="width:${markerSize}px;margin:0 auto;">
           <path fill="currentColor" d="M12 2C8.13 2 5 5.13 5 9c0 3.25 2.5 6.75 7 11.54 4.5-4.79 7-8.29 7-11.54 0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5S10.62 6.5 12 6.5s2.5 1.12 2.5 2.5S13.38 11.5 12 11.5z"/>
         </svg>
       </div>
@@ -249,7 +251,7 @@ export const SolsticeGlobe3D = ({
     });
     
     return el;
-  }, [getOriginalPoint, pointsData, onPointClick]);
+  }, [getOriginalPoint, pointsData, onPointClick, screenHeight]);
   
   // const htmlLng = useCallback((d: GlobeMarkerData): number => {
   //   const rotationDegrees = (textureRotationRef.current * 180) / Math.PI;
@@ -272,10 +274,18 @@ export const SolsticeGlobe3D = ({
     }
   }, [isGlobeReady]);
 
+  useEffect(() => {
+    const handleResize = () => {
+      setScreenHeight(window.innerHeight);
+    };
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, []);
+
   return (
     <div
       ref={containerRef}
-      style={{ ...style, cursor: 'grab', width: '100%', height: '100vh', position: 'relative', opacity: isFullyLoaded ? 1 : 0, transition: 'opacity 0.8s ease-in-out' }}
+      style={{ ...style, cursor: 'grab', width: '100%', height: screenHeight, position: 'relative', opacity: isFullyLoaded ? 1 : 0, transition: 'opacity 0.8s ease-in-out' }}
       className={className}
       onMouseDown={handleMouseDown}
       onClick={handleClick}
