@@ -3,7 +3,6 @@ import { SolsticeGlobe3DProps, SolsticeGlobePoint } from './types';
 import { useGlobeDayNightMaterial, useGlobeReadyEffects, useGlobeAnimation, useFramerate } from './hooks';
 import { mapPointsToMarkers } from './utils';
 import { useEventListener } from '@/components/hooks/useEventListener';
-import { useThemeColor } from '@/components/themes/useTheme';
 import { DEFAULT_DAY_IMAGE_URL, DEFAULT_NIGHT_IMAGE_URL, DEFAULT_LUMINOSITY_IMAGE_URL, DEFAULT_ALTITUDE_SCALE, DEFAULT_INITIAL_ALTITUDE_MULTIPLIER } from './solsiceSeasonConstants';
 import { type GlobeMethods } from 'react-globe.gl';
 import dynamic from 'next/dynamic';
