@@ -17,6 +17,8 @@ import { convertImportedGoogleDoc } from '../editor/googleDocUtils';
 import { postIsCriticism } from '../languageModels/criticismTipsBot';
 import { createPost } from '../collections/posts/mutations';
 import { createRevision } from '../collections/revisions/mutations';
+import { getDefaultViewSelector } from '@/lib/utils/viewUtils';
+import { PostsViews } from '@/lib/collections/posts/views';
 
 interface PostWithApprovedJargon {
   post: Partial<DbPost>;
@@ -282,6 +284,21 @@ export const postGqlQueries = {
     const events = await repos.posts.getHomepageCommunityEvents(limit, eventType)
     return { events }
   },
+  async HomepageCommunityEventPosts(root: void, { eventType }: { eventType: string }, context: ResolverContext): Promise<HomepageCommunityEventPostsResult> {
+    const { Posts, currentUser } = context
+    const defaultPostSelector = getDefaultViewSelector(PostsViews)
+
+    const timeRange = 5 * 30 * 24 * 60 * 60 * 1000 // 5 months
+    const posts = await Posts.find({
+      ...defaultPostSelector, 
+      startTime: { $gt: new Date(), $lt: new Date(Date.now() + timeRange) }, 
+      types: { $in: [eventType] }, 
+      "googleLocation.geometry.location.lat": { $exists: true },
+      "googleLocation.geometry.location.lng": { $exists: true },
+    }).fetch()
+    const filteredPosts = await accessFilterMultiple(currentUser, 'Posts', posts, context)
+    return { posts: filteredPosts }  
+  },
   ...DigestHighlightsQuery,
   ...DigestPostsThisWeekQuery,
   ...CuratedAndPopularThisWeekQuery,
@@ -446,6 +463,7 @@ export const postGqlTypeDefs = gql`
     DigestPosts(num: Int): [Post!]
 
     HomepageCommunityEvents(limit: Int!, eventType: String): HomepageCommunityEventMarkersResult!
+    HomepageCommunityEventPosts(eventType: String!): HomepageCommunityEventPostsResult!
   }
 
   extend type Mutation {
@@ -503,6 +521,9 @@ export const postGqlTypeDefs = gql`
   }
   type HomepageCommunityEventMarkersResult {
     events: [HomepageCommunityEventMarker!]!
+  }
+  type HomepageCommunityEventPostsResult {
+    posts: [Post!]!
   }
   ${DigestHighlightsTypeDefs}
   ${DigestPostsThisWeekTypeDefs}

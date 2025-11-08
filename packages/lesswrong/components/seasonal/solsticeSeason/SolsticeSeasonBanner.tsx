@@ -7,8 +7,8 @@ import { Link } from '@/lib/reactRouterWrapper';
 import classNames from 'classnames';
 import SolsticeGlobe3D from './SolsticeGlobe3D';
 import { SolsticeGlobePoint } from './types';
-import { FixedPositionEventPopup } from '../HomepageMap/HomepageCommunityMap';
 import { useIsAboveBreakpoint } from '@/components/hooks/useScreenWidth';
+import { GlobePopup } from './GlobePopup';
 
 const smallBreakpoint = 1525
 
@@ -39,7 +39,7 @@ const styles = defineStyles("SolsticeSeasonBanner", (theme: ThemeType) => ({
     marginBottom: 12,
   },
   titleNotLoaded: {
-    color: theme.palette.text.alwaysBlack,
+    ...(theme.dark ? {} : { color: theme.palette.text.alwaysBlack }),
   },
   textContainer: {
     position: 'absolute',
@@ -96,10 +96,12 @@ const styles = defineStyles("SolsticeSeasonBanner", (theme: ThemeType) => ({
     },
   },
   subtitleNotLoaded: {
-    color: theme.palette.text.alwaysBlack,
-    '& a': {
+    ...(theme.dark ? {} : { 
       color: theme.palette.text.alwaysBlack,
-    },
+      '& a': {
+        color: theme.palette.text.alwaysBlack,
+      },
+    }),
   },
   globeGradientRight: {
     position: 'absolute',
@@ -168,7 +170,7 @@ const styles = defineStyles("SolsticeSeasonBanner", (theme: ThemeType) => ({
     },
   },
   createEventButtonNotLoaded: {
-    background: theme.palette.grey[300],
+    background: theme.dark ? theme.palette.grey[800] : theme.palette.grey[300],
   },
   date: {
     fontSize: 12,
@@ -240,15 +242,11 @@ const styles = defineStyles("SolsticeSeasonBanner", (theme: ThemeType) => ({
   },
 }));
 
-
-export const SolsticeSeasonQuery = gql(`
-  query solsticeSeasonQuery {
-    HomepageCommunityEvents(limit: 500, eventType: "SOLSTICE") {
-      events {
-        _id
-        lat
-        lng
-        types
+const HomepageCommunityEventPostsQuery = gql(`
+  query HomepageCommunityEventPostsQuery($eventType: String!) {
+    HomepageCommunityEventPosts(eventType: $eventType) {
+      posts {
+        ...PostsList
       }
     }
   }
@@ -272,6 +270,18 @@ export default function SolsticeSeasonBannerInner() {
   useEffect(() => {
     setRenderSolsticeSeason(isWidescreen);
   }, [isWidescreen]);
+
+  const { data } = useQuery(HomepageCommunityEventPostsQuery, {
+    variables: { eventType: "SOLSTICE" },
+  });
+  const eventPosts = data?.HomepageCommunityEventPosts?.posts ?? [];
+  const events = eventPosts.map((post: PostsList) => ({
+    _id: post._id,
+    lat: post.googleLocation?.geometry?.location?.lat,
+    lng: post.googleLocation?.geometry?.location?.lng,
+    types: post.types,
+    document: post,
+  }));
 
   useEffect(() => {
     if (!isWidescreen) return;
@@ -376,8 +386,6 @@ export default function SolsticeSeasonBannerInner() {
     altitude: 2.2
   }), [])
 
-  const { data } = useQuery(SolsticeSeasonQuery)
-
   const handleGlobeReady = useCallback(() => {
     setIsLoading(false);
   }, []);
@@ -405,16 +413,13 @@ export default function SolsticeSeasonBannerInner() {
       }>;
     };
   };
-  
-  const events = useMemo(() => (data as QueryResult | undefined)?.HomepageCommunityEvents?.events ?? [], [data]);
 
-  const [isTransitioning, setIsTransitioning] = useState(false)
-  const [isSettingUp, setIsSettingUp] = useState(false)
-  const [currentCarouselIndex, setCurrentCarouselIndex] = useState(0)
-  const [nextCarouselIndex, setNextCarouselIndex] = useState<number | null>(null)
   const [selectedEventId, setSelectedEventId] = useState<string | null>(null)
   const [popupCoords, setPopupCoords] = useState<{ x: number; y: number } | null>(null)
 
+  const selectedEventPost = useMemo(() => {
+    return eventPosts.find((post: PostsList) => post._id === selectedEventId);
+  }, [eventPosts, selectedEventId]);
 
   type EventType = typeof events[0];
 
@@ -430,25 +435,16 @@ export default function SolsticeSeasonBannerInner() {
       }));
   }, [events]);
 
-  const handleMeetupTypeClick = useCallback((index: number) => {
-    if (index === currentCarouselIndex) return
+  const handleMeetupClick = useCallback((event?: React.MouseEvent<HTMLDivElement>, eventId?: string, screenCoords?: { x: number; y: number }) => {
+    event?.stopPropagation();
+    event?.preventDefault();
+    if (eventId) {
+      setSelectedEventId(eventId);
+      setPopupCoords(screenCoords || { x: window.innerWidth / 2, y: window.innerHeight / 2 });
+    }
+  }, [pointsData]);
 
-    setIsSettingUp(true)
-    setNextCarouselIndex(index)
-
-    setTimeout(() => {
-      setIsSettingUp(false)
-      setIsTransitioning(true)
-      setTimeout(() => {
-        setIsTransitioning(false)
-        setCurrentCarouselIndex(index)
-        setNextCarouselIndex(null)
-      }, 300)
-    }, 10)
-  }, [currentCarouselIndex])
-
-
-  return <div className={classNames(classes.root)} style={{ opacity: bannerOpacity, pointerEvents: pointerEventsDisabled ? 'none' : 'auto' }}>
+  return <div className={classNames(classes.root)} style={{ opacity: bannerOpacity, pointerEvents: pointerEventsDisabled ? 'none' : 'auto' }} onClick={(event) => handleMeetupClick(event, undefined)}>
     <div className={classes.globeGradientRight} />
     <div className={classes.postsListBlockingRect}/>
     <div 
@@ -458,20 +454,15 @@ export default function SolsticeSeasonBannerInner() {
         {renderSolsticeSeason && <SolsticeGlobe3D 
           pointsData={pointsData}
           defaultPointOfView={defaultPointOfView}
-          onPointClick={(point: SolsticeGlobePoint, screenCoords: { x: number; y: number }) => {
-            if (point.eventId) {
-              setSelectedEventId(point.eventId);
-              setPopupCoords(screenCoords);
-            }
-          }}
+          onPointClick={(point: SolsticeGlobePoint, screenCoords: { x: number; y: number }) => handleMeetupClick(undefined, point.eventId, screenCoords)}
           onReady={handleGlobeReady}
           onFullyLoaded={handleGlobeFullyLoaded}
           onFpsChange={setFps}
           style={{ width: '100%', height: '100%' }}
         />}
-      {selectedEventId && popupCoords && (
-        <FixedPositionEventPopup
-          eventId={selectedEventId}
+      {selectedEventId && popupCoords && selectedEventPost && (
+        <GlobePopup
+          document={selectedEventPost}
           screenCoords={popupCoords}
           onClose={() => {
             setSelectedEventId(null);
