@@ -396,9 +396,14 @@ const UltraFeed = ({
   const handleTabChange = (tab: FeedType) => {
     setActiveTab(tab);
     setCookie(ULTRA_FEED_ACTIVE_TAB_COOKIE, tab, { path: '/' });
-    // Close info panel when switching to Following tab
-    if (tab === 'following' && internalInfoVisible) {
-      setInternalInfoVisible(false);
+    // Close settings and info panels when switching to Following tab
+    if (tab === 'following') {
+      if (internalInfoVisible) {
+        setInternalInfoVisible(false);
+      }
+      if (internalSettingsVisible) {
+        setInternalSettingsVisible(false);
+      }
     }
     captureEvent("ultraFeedTabChanged", { tab });
   };
@@ -447,9 +452,9 @@ const UltraFeed = ({
           hideTitle={hideTitle}
           activeTab={activeTab}
           onTabChange={handleTabChange}
-          settingsButton={!isControlled ? (
+          settingsButton={!isControlled && activeTab === 'ultraFeed' ? (
             <div className={classes.headerButtons}>
-              {activeTab === 'ultraFeed' && <InfoButton onClick={toggleInfo} isActive={internalInfoVisible} tooltip="What is the For You feed?" />}
+              <InfoButton onClick={toggleInfo} isActive={internalInfoVisible} tooltip="What is the For You feed?" />
               <SettingsButton showIcon={true} onClick={toggleSettings} />
             </div>
           ) : undefined}
