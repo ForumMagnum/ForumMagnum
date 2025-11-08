@@ -133,7 +133,7 @@ export const LocalEventWrapperPopUp = ({localEvent, handleClose}: {
   </StyledMapPopup>
 }
 
-export const fixedPositionEventPopupStyles = defineStyles("fixedPositionEventPopupStyles", (theme: ThemeType) => ({
+const fixedPositionEventPopupStyles = defineStyles("fixedPositionEventPopupStyles", (theme: ThemeType) => ({
   popupContainer: {
     position: 'fixed',
     zIndex: 1000,
