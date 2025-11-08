@@ -39,7 +39,7 @@ const styles = defineStyles("SolsticeSeasonBanner", (theme: ThemeType) => ({
     marginBottom: 12,
   },
   titleNotLoaded: {
-    color: theme.palette.text.alwaysBlack,
+    ...(theme.dark ? {} : { color: theme.palette.text.alwaysBlack }),
   },
   textContainer: {
     position: 'absolute',
@@ -96,10 +96,12 @@ const styles = defineStyles("SolsticeSeasonBanner", (theme: ThemeType) => ({
     },
   },
   subtitleNotLoaded: {
-    color: theme.palette.text.alwaysBlack,
-    '& a': {
+    ...(theme.dark ? {} : { 
       color: theme.palette.text.alwaysBlack,
-    },
+      '& a': {
+        color: theme.palette.text.alwaysBlack,
+      },
+    }),
   },
   globeGradientRight: {
     position: 'absolute',
@@ -168,7 +170,7 @@ const styles = defineStyles("SolsticeSeasonBanner", (theme: ThemeType) => ({
     },
   },
   createEventButtonNotLoaded: {
-    background: theme.palette.grey[300],
+    background: theme.dark ? theme.palette.grey[800] : theme.palette.grey[300],
   },
   date: {
     fontSize: 12,
@@ -426,12 +428,12 @@ export default function SolsticeSeasonBannerInner() {
       }));
   }, [events]);
 
-  const handleMeetupClick = useCallback((event?: React.MouseEvent<HTMLDivElement>, eventId?: string) => {
+  const handleMeetupClick = useCallback((event?: React.MouseEvent<HTMLDivElement>, eventId?: string, screenCoords?: { x: number; y: number }) => {
     event?.stopPropagation();
     event?.preventDefault();
     if (eventId) {
       setSelectedEventId(eventId);
-      setPopupCoords({ x: window.innerWidth / 2, y: window.innerHeight / 2 });
+      setPopupCoords(screenCoords || { x: window.innerWidth / 2, y: window.innerHeight / 2 });
     }
   }, [pointsData]);
 
@@ -445,7 +447,7 @@ export default function SolsticeSeasonBannerInner() {
         {renderSolsticeSeason && <SolsticeGlobe3D 
           pointsData={pointsData}
           defaultPointOfView={defaultPointOfView}
-          onPointClick={(point: SolsticeGlobePoint, screenCoords: { x: number; y: number }) => handleMeetupClick(undefined, point.eventId)}
+          onPointClick={(point: SolsticeGlobePoint, screenCoords: { x: number; y: number }) => handleMeetupClick(undefined, point.eventId, screenCoords)}
           onReady={handleGlobeReady}
           onFullyLoaded={handleGlobeFullyLoaded}
           onFpsChange={setFps}
