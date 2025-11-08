@@ -211,7 +211,7 @@ const PostsNewForm = () => {
     activateRSVPs: true,
     onlineEvent: groupData?.isOnline,
     globalEvent: groupData?.isOnline,
-    title: title ?? "Untitled Draft",
+    title: title || "Untitled Draft",
     types,
     meta: query && !!query.meta,
     groupId: query && query.groupId,
