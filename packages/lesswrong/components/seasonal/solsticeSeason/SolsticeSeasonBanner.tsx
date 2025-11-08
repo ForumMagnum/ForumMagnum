@@ -152,7 +152,7 @@ const styles = defineStyles("SolsticeSeasonBanner", (theme: ThemeType) => ({
     display: 'flex',
     ...theme.typography.commentStyle,
     borderRadius: 3,
-    background: theme.palette.grey[300],
+    background: `light-dark(${theme.palette.grey[800]}, ${theme.palette.grey[300]})`,
     '&&': {
       color: theme.palette.text.alwaysWhite,
     },
@@ -411,20 +411,20 @@ export default function SolsticeSeasonBannerInner() {
         />
       )}
       <div className={classNames(classes.textContainer, { [classes.textContainerNotLoaded]: !isTextContainerFullyLoaded })}>
-        <h1 className={classNames(classes.title, { [classes.titleNotLoaded]: !isGlobeFullyLoaded })}>Solstice Season</h1>
-          <p className={classNames(classes.subtitle, { [classes.subtitleNotLoaded]: !isGlobeFullyLoaded })}>
+        <h1 className={classNames(classes.title)}>Solstice Season</h1>
+          <p className={classNames(classes.subtitle)}>
             Celebrate the longest night of the year!
           </p>
-          <p className={classNames(classes.subtitle, { [classes.subtitleNotLoaded]: !isGlobeFullyLoaded })}>
+          <p className={classNames(classes.subtitle)}>
             Visit a megameetup at a major city, or host a small gathering for your friends the night of the 21st.</p>
           <div className={classes.buttonContainer}>
-            <Link to="https://waypoint.lighthaven.space/solstice-season" target="_blank" rel="noopener noreferrer"  className={classNames(classes.createEventButton, { [classes.createEventButtonNotLoaded]: !isGlobeFullyLoaded })}>
+            <Link to="https://waypoint.lighthaven.space/solstice-season" target="_blank" rel="noopener noreferrer"  className={classNames(classes.createEventButton)}>
               Berkeley <span className={classes.date}>Dec 6</span>
             </Link>
-            <Link to="https://rationalistmegameetup.com/" target="_blank" rel="noopener noreferrer" className={classNames(classes.createEventButton, { [classes.createEventButtonNotLoaded]: !isGlobeFullyLoaded })}>
+            <Link to="https://rationalistmegameetup.com/" target="_blank" rel="noopener noreferrer" className={classNames(classes.createEventButton)}>
               New York <span className={classes.date}>Dec 13</span>
             </Link>
-            <Link to={`/newPost?eventForm=true&SOLSTICE=true`} target="_blank" rel="noopener noreferrer" className={classNames(classes.createEventButton, classes.createEventButtonAnnounce, { [classes.createEventButtonNotLoaded]: !isGlobeFullyLoaded })}>
+            <Link to={`/newPost?eventForm=true&SOLSTICE=true`} target="_blank" rel="noopener noreferrer" className={classNames(classes.createEventButton, classes.createEventButtonAnnounce)}>
               Announce Your Own Solstice
             </Link>
           </div>  

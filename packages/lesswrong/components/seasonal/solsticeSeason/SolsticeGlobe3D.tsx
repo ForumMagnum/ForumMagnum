@@ -204,12 +204,11 @@ export const SolsticeGlobe3D = ({
 
   const renderHtmlElement = useCallback((d: GlobeMarkerData): HTMLElement => {
     // const originalPoint = getOriginalPoint(d);
-    const color = '#FFD700';
     const markerSize = 30
     const el = document.createElement('div');
     el.setAttribute('data-globe-marker', 'true');
     el.setAttribute('data-marker-index', String(d._index));
-    el.style.color = color;
+    el.style.color = "hsl(40, 100.00%, 80.00%)"; //light-dark(rgb(206, 233, 255), rgb(206, 233, 255))";
     el.innerHTML = `
       <div style="text-align: center;">
         <svg viewBox="0 0 24 24" style="width:${markerSize}px;margin:0 auto;">
