@@ -1,4 +1,4 @@
-import React, { useState, useCallback, useMemo, useRef, useEffect } from 'react';
+import React, { useState, useCallback, useMemo } from 'react';
 import { useUserLocation } from '@/components/hooks/useUserLocation';
 import { registerComponent } from '../../../lib/vulcan-lib/components';
 import { useCurrentUser } from '../../common/withUser';
@@ -16,7 +16,6 @@ import GroupLinks from "../../localGroups/GroupLinks";
 import HomepageMapFilter from "./HomepageMapFilter";
 import { WrappedReactMapGL } from '@/components/community/WrappedReactMapGL';
 import { defineStyles, useStyles } from '../../hooks/useStyles';
-import { useFloating, autoUpdate, offset, flip, shift } from '@floating-ui/react-dom';
 
 const Popup = componentWithChildren(BadlyTypedPopup);
 
@@ -196,41 +195,16 @@ export const FixedPositionEventPopup = ({eventId, screenCoords, onClose}: {
   });
   const document = data?.post?.result;
 
-  const { refs, floatingStyles } = useFloating({
-    placement: 'top',
-    middleware: [
-      offset(10), // 10px offset from the marker
-      flip(), // Flip to bottom if not enough space on top
-      shift({ padding: 8 }), // Shift to keep within viewport with 8px padding
-    ],
-    whileElementsMounted: (reference, floating, update) => {
-      return autoUpdate(reference, floating, update);
-    },
-  });
-
-  // Set virtual reference element from screen coordinates
-  useEffect(() => {
-    const virtualElement = {
-      getBoundingClientRect: () => ({
-        width: 0,
-        height: 0,
-        x: screenCoords.x,
-        y: screenCoords.y,
-        top: screenCoords.y,
-        left: screenCoords.x,
-        right: screenCoords.x,
-        bottom: screenCoords.y,
-      }),
-    };
-    refs.setReference(virtualElement as any);
-  }, [refs, screenCoords.x, screenCoords.y]);
-
   if (loading) {
     return (
       <div
-        ref={refs.setFloating}
         className={fixedPopupClasses.popupContainer}
-        style={floatingStyles}
+        style={{
+          position: 'fixed',
+          left: `${screenCoords.x}px`,
+          top: `${screenCoords.y - 15}px`,
+          transform: 'translate(-50%, -100%)',
+        }}
       >
         <div className={fixedPopupClasses.popupLoading}></div>
       </div>
@@ -244,9 +218,12 @@ export const FixedPositionEventPopup = ({eventId, screenCoords, onClose}: {
 
   return (
     <div
-      ref={refs.setFloating}
       className={fixedPopupClasses.popupContainer}
-      style={floatingStyles}
+      style={{
+        left: `${screenCoords.x}px`,
+        top: `${screenCoords.y - 15}px`,
+        transform: 'translate(-50%, -100%)',
+      }}
     >
       <button className={fixedPopupClasses.popupCloseButton} onClick={onClose}>
         ×
