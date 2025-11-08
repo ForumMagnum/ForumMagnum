@@ -147,7 +147,7 @@ const styles = defineStyles("SolsticeSeasonBanner", (theme: ThemeType) => ({
     display: 'flex',
     ...theme.typography.commentStyle,
     borderRadius: 3,
-    background: theme.palette.grey[800],
+    background: theme.palette.grey[300],
     '&&': {
       color: theme.palette.text.alwaysWhite,
     },
@@ -170,7 +170,7 @@ const styles = defineStyles("SolsticeSeasonBanner", (theme: ThemeType) => ({
     },
   },
   createEventButtonNotLoaded: {
-    background: theme.dark ? theme.palette.grey[800] : theme.palette.grey[300],
+    background: theme.dark ? theme.palette.grey[300] : theme.palette.grey[800],
   },
   date: {
     fontSize: 12,
@@ -254,8 +254,6 @@ const HomepageCommunityEventPostsQuery = gql(`
 
 export default function SolsticeSeasonBannerInner() {
   const classes = useStyles(styles);
-  const [isLoading, setIsLoading] = useState(true);
-  const [everClickedGlobe, setEverClickedGlobe] = useState(false);
   const [bannerOpacity, setBannerOpacity] = useState(1);
   const [pointerEventsDisabled, setPointerEventsDisabled] = useState(false);
   const isWidescreen = useIsAboveBreakpoint('lg');
@@ -386,10 +384,6 @@ export default function SolsticeSeasonBannerInner() {
     altitude: 2.2
   }), [])
 
-  const handleGlobeReady = useCallback(() => {
-    setIsLoading(false);
-  }, []);
-
   const handleGlobeFullyLoaded = useCallback(() => {
     setIsGlobeFullyLoaded(true);
   }, []);
@@ -447,15 +441,11 @@ export default function SolsticeSeasonBannerInner() {
   return <div className={classNames(classes.root)} style={{ opacity: bannerOpacity, pointerEvents: pointerEventsDisabled ? 'none' : 'auto' }} onClick={(event) => handleMeetupClick(event, undefined)}>
     <div className={classes.globeGradientRight} />
     <div className={classes.postsListBlockingRect}/>
-    <div 
-      className={classes.globeContainer} 
-      onClick={() => setEverClickedGlobe(true)}
-    >
+    <div className={classes.globeContainer}>
         {renderSolsticeSeason && <SolsticeGlobe3D 
           pointsData={pointsData}
           defaultPointOfView={defaultPointOfView}
           onPointClick={(point: SolsticeGlobePoint, screenCoords: { x: number; y: number }) => handleMeetupClick(undefined, point.eventId, screenCoords)}
-          onReady={handleGlobeReady}
           onFullyLoaded={handleGlobeFullyLoaded}
           onFpsChange={setFps}
           style={{ width: '100%', height: '100%' }}
@@ -470,7 +460,7 @@ export default function SolsticeSeasonBannerInner() {
           }}
         />
       )}
-      <div className={classNames(classes.textContainer, { [classes.textContainerNotLoaded]: !isTextContainerFullyLoaded })} style={{ left: textContainerLeft }} onClick={() => setEverClickedGlobe(true)}>
+      <div className={classNames(classes.textContainer, { [classes.textContainerNotLoaded]: !isTextContainerFullyLoaded })} style={{ left: textContainerLeft }}>
         <h1 className={classNames(classes.title, { [classes.titleNotLoaded]: !isGlobeFullyLoaded })}>Solstice Season</h1>
           <p className={classNames(classes.subtitle, { [classes.subtitleNotLoaded]: !isGlobeFullyLoaded })}>
             Celebrate the longest night of the year!
