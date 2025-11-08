@@ -8,7 +8,6 @@ import { useCookiesWithConsent } from '../hooks/useCookiesWithConsent';
 import { LAST_VISITED_FRONTPAGE_COOKIE, ULTRA_FEED_ENABLED_COOKIE } from '../../lib/cookies/cookies';
 import moment from 'moment';
 import { visitorGetsDynamicFrontpage } from '../../lib/betas';
-import { useCurrentUser } from './withUser';
 import { combineUrls, getSiteUrl } from "../../lib/vulcan-lib/utils";
 import { registerComponent } from "../../lib/vulcan-lib/components";
 import AnalyticsInViewTracker from "./AnalyticsInViewTracker";
@@ -24,6 +23,8 @@ import { SuspenseWrapper } from './SuspenseWrapper';
 import { defineStyles } from '../hooks/useStyles';
 
 import PetrovStoryMobileBanner from '../seasonal/petrovDay/petrov-day-story/PetrovStoryMobileBanner';
+import DeferRender from './DeferRender';
+import RecentDiscussionFeed from '../recentDiscussion/RecentDiscussionFeed';
 
 const getStructuredData = () => ({
   "@context": "http://schema.org",
@@ -62,13 +63,7 @@ const styles = defineStyles("LWHome", (theme: ThemeType) => ({
 }))
 
 const LWHome = () => {
-  const [cookies] = useCookiesWithConsent([ULTRA_FEED_ENABLED_COOKIE]);
-  
-  // Check if user has explicitly opted out via checkbox
-  const cookieValue = cookies[ULTRA_FEED_ENABLED_COOKIE];
-  
-  // Show UltraFeed by default unless user has explicitly opted out (set cookie to "false")
-  const shouldShowUltraFeed = ultraFeedEnabledSetting.get() && cookieValue !== "false";
+  const ultraFeedEnabled = ultraFeedEnabledSetting.get()
 
   return (
       <AnalyticsContext pageContext="homePage">
@@ -94,8 +89,16 @@ const LWHome = () => {
               
               <AnalyticsInViewTracker eventProps={{inViewType: "feedSection"}} observerProps={{threshold:[0, 0.5, 1]}}>
                 <SuspenseWrapper name="UltraFeed">
-                  {shouldShowUltraFeed && <UltraFeed />}
+                  {ultraFeedEnabled && <UltraFeed />}
+                  {!ultraFeedEnabled && <DeferRender ssr={false}>
+                    <RecentDiscussionFeed
+                      af={false}
+                      commentsLimit={4}
+                      maxAgeHours={18}
+                    />
+                  </DeferRender>}
                 </SuspenseWrapper>
+
               </AnalyticsInViewTracker>
 
             </LWHomePosts>
