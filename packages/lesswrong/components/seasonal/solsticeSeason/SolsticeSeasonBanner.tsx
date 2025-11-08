@@ -158,32 +158,14 @@ const styles = defineStyles("SolsticeSeasonBanner", (theme: ThemeType) => ({
     width: "calc(100% - 2px)",
     justifyContent: 'center',
   },
-  fpsWarning: {
-    display: 'flex',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-    ...theme.typography.commentStyle,
-    fontSize: 12,
-    fontWeight: 400,
-    opacity: 0.8,
-    color: theme.palette.text.alwaysWhite,
-    textAlign: 'center',
-    marginTop: 10,
-  },
   hideButton: {
+    textAlign: 'center',
     ...theme.typography.commentStyle,
-    background: "none",
-    border: "none",
     fontSize: 12,
     fontWeight: 400,
     opacity: 0.8,
     color: theme.palette.text.alwaysWhite,
-    textDecoration: 'underline',
-    cursor: 'pointer',
-    marginLeft: 8,
-    '&:hover': {
-      opacity: 1,
-    },
+    marginTop: 10,
   },
   postsListBlockingRect: {
     position: 'absolute',
@@ -364,10 +346,8 @@ export default function SolsticeSeasonBannerInner() {
               Announce Your Own Solstice
             </Link>
           </div>  
-          <div className={classes.fpsWarning}>
-            <button className={classes.hideButton} onClick={() => handleHideSolsticeSeason()}>
-              Hide
-            </button>
+          <div className={classes.hideButton} onClick={() => handleHideSolsticeSeason()}>
+              Hide Solstice Map
           </div>
       </div>
     </div>
