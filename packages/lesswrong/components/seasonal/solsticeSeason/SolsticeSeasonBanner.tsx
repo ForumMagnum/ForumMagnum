@@ -118,7 +118,7 @@ const styles = defineStyles("SolsticeSeasonBanner", (theme: ThemeType) => ({
     height: 'calc(100vh + 120px)',
     transition: 'opacity 0.3s ease-out',
     zIndex: 0,
-    overflow: 'hidden',
+    clipPath: 'inset(0 0 0 -100vw)',
   },
   buttonContainer: {
     display: 'flex',
