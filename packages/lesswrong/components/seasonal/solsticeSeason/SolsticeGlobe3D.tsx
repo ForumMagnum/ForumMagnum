@@ -98,7 +98,43 @@ export const SolsticeGlobe3D = ({
   const handleMouseDown = useCallback((e: React.MouseEvent<HTMLDivElement>) => {
     dragStartRef.current = { x: e.clientX, y: e.clientY };
     isDraggingRef.current = false;
-  }, []);
+    
+    // Handle clicks on markers immediately for snappier feel
+    const target = e.target as HTMLElement;
+    const markerElement = findMarkerElement(target, e.clientX, e.clientY);
+    
+    if (markerElement) {
+      // This is a marker click - handle it
+      const markerIndexStr = markerElement.getAttribute('data-marker-index');
+      if (markerIndexStr !== null) {
+        const markerIndex = parseInt(markerIndexStr, 10);
+        if (!isNaN(markerIndex) && markerIndex >= 0 && markerIndex < pointsData.length) {
+          const originalPoint = pointsData[markerIndex];
+          
+          // Always trigger popup on marker click
+          if (onPointClick && originalPoint.eventId) {
+            const solsticePoint: SolsticeGlobePoint = {
+              lat: originalPoint.lat,
+              lng: originalPoint.lng,
+              size: originalPoint.size,
+              eventId: originalPoint.eventId,
+              event: originalPoint.event,
+            };
+            onPointClick(solsticePoint, { x: e.clientX, y: e.clientY });
+            // Prevent this click from triggering the onClick handler that would close the popup
+            e.stopPropagation();
+          }
+        }
+      }
+      return;
+    }
+    
+    // Non-marker click - stop rotation immediately
+    if (!shouldIgnoreClickRef.current) {
+      setIsRotating(false);
+      onClick?.(e);
+    }
+  }, [findMarkerElement, pointsData, onPointClick, onClick]);
 
   const handleGlobalMouseMove = useCallback((e: MouseEvent) => {
     if (dragStartRef.current) {
@@ -155,44 +191,17 @@ export const SolsticeGlobe3D = ({
   useEventListener('mouseup', handleGlobalMouseUp);
 
   const handleClick = useCallback((e: React.MouseEvent<HTMLDivElement>) => {
-    // Handle clicks on markers using event delegation
+    // Check if this was a marker click and prevent propagation so parent's onClick doesn't close the popup
     const target = e.target as HTMLElement;
     const markerElement = findMarkerElement(target, e.clientX, e.clientY);
     
     if (markerElement) {
-      // This is a marker click - handle it
-      const markerIndexStr = markerElement.getAttribute('data-marker-index');
-      if (markerIndexStr !== null) {
-        const markerIndex = parseInt(markerIndexStr, 10);
-        if (!isNaN(markerIndex) && markerIndex >= 0 && markerIndex < pointsData.length) {
-          const originalPoint = pointsData[markerIndex];
-          
-          // Check if click was on SVG (meetup type click) or div (point click)
-          const isSvgClick = target.closest('svg') !== null;
-          
-          
-          // Always trigger popup on marker click
-          if (onPointClick && originalPoint.eventId) {
-            const solsticePoint: SolsticeGlobePoint = {
-              lat: originalPoint.lat,
-              lng: originalPoint.lng,
-              size: originalPoint.size,
-              eventId: originalPoint.eventId,
-              event: originalPoint.event,
-            };
-            onPointClick(solsticePoint, { x: e.clientX, y: e.clientY });
-          }
-        }
-      }
+      e.stopPropagation();
       return;
     }
     
-    if (shouldIgnoreClickRef.current) {
-      return;
-    }
-    setIsRotating(false);
-    onClick?.(e);
-  }, [onClick, pointsData, onPointClick, findMarkerElement]);
+    // For non-marker clicks, let it bubble up to parent's onClick
+  }, [findMarkerElement]);
 
   const handleZoom = useCallback(({ lng, lat }: { lng: number; lat: number }) => {
     if (globeMaterialRef.current?.uniforms?.globeRotation) {
@@ -229,6 +238,7 @@ export const SolsticeGlobe3D = ({
     return (typeof d.size === 'number' ? d.size : 1) * altitudeScale * 0.01;
   }, [altitudeScale]);
 
+  // we're locking vertical rotation because it lags.
   useEffect(() => {
     if (globeRef.current) {
       const controls = globeRef.current.controls();

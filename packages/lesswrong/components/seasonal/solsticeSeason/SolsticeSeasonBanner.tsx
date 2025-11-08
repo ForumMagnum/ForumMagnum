@@ -330,7 +330,7 @@ export default function SolsticeSeasonBannerInner() {
     }
   }, [pointsData]);
 
-  return <div className={classNames(classes.root)} style={{ opacity: bannerOpacity, pointerEvents: pointerEventsDisabled ? 'none' : 'auto' }} onClick={(event) => handleMeetupClick(event, undefined)}>
+  return <div className={classNames(classes.root)} style={{ opacity: bannerOpacity, pointerEvents: pointerEventsDisabled ? 'none' : 'auto' }}>
     <div className={classes.globeGradientRight} />
     <div className={classes.postsListBlockingRect}/>
     <div className={classes.background} />
@@ -339,6 +339,7 @@ export default function SolsticeSeasonBannerInner() {
           pointsData={pointsData}
           defaultPointOfView={defaultPointOfView}
           onPointClick={(point: SolsticeGlobePoint, screenCoords: { x: number; y: number }) => handleMeetupClick(undefined, point.eventId, screenCoords)}
+          onClick={(event) => handleMeetupClick(event, undefined)}
           style={{ width: '100%', height: '100%' }}
         />}
       {selectedEventId && popupCoords && selectedEventPost && (
