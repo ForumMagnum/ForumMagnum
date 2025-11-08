@@ -1,7 +1,6 @@
 import React, { useState, useCallback, useMemo, useEffect } from 'react';
 import { defineStyles, useStyles } from '../hooks/useStyles';
 import LWDialog from '../common/LWDialog';
-import { DialogTitle } from '../widgets/DialogTitle';
 import { DialogContent } from '../widgets/DialogContent';
 import { DialogActions } from '../widgets/DialogActions';
 import { UnifiedScoringSettings } from './settingsComponents/UltraFeedSettingsComponents';
@@ -10,7 +9,6 @@ import { ValidatedUnifiedScoring, unifiedScoringSchema } from './ultraFeedSettin
 import { ZodFormattedError } from 'zod';
 import { useMessages } from '../common/withMessages';
 import { useUltraFeedSettings } from '../hooks/useUltraFeedSettings';
-import classNames from 'classnames';
 import mergeWith from 'lodash/mergeWith';
 import cloneDeep from 'lodash/cloneDeep';
 import isEqual from 'lodash/isEqual';
@@ -30,51 +28,9 @@ const styles = defineStyles('AlterBonusesDialog', (theme: ThemeType) => ({
     padding: `16px 16px 0 16px`,
     borderRadius: 4,
   },
-  button: {
-    padding: '8px 16px',
-    fontSize: '1.1rem',
-    fontFamily: theme.palette.fonts.sansSerifStack,
-    borderRadius: 4,
-    cursor: 'pointer',
-    border: 'none',
-    fontWeight: 500,
-  },
-  cancelButton: {
-    backgroundColor: theme.palette.grey[300],
-    color: theme.palette.text.primary,
-    '&:hover': {
-      backgroundColor: theme.palette.grey[400],
-    },
-  },
-  saveButton: {
-    backgroundColor: theme.palette.primary.main,
-    color: theme.palette.background.paper,
-    '&:hover': {
-      backgroundColor: theme.palette.primary.dark,
-    },
-  },
-  buttonDisabled: {
-    opacity: 0.5,
-    cursor: 'not-allowed',
-  },
   actionsContent: {
     paddingRight: 16,
     paddingBottom: 16,
-    display: 'flex',
-    width: '100%',
-    justifyContent: 'flex-end',
-    gap: 12,
-    alignItems: 'center',
-  },
-  unsavedChangesIndicator: {
-    fontFamily: theme.palette.fonts.sansSerifStack,
-    color: theme.palette.warning.main,
-    fontSize: 16,
-    fontStyle: 'italic',
-  },
-  buttonGroup: {
-    display: 'flex',
-    gap: 8,
   },
 }));
 

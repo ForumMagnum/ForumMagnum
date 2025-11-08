@@ -1143,3 +1143,97 @@ export const MiscSettings: React.FC<MiscSettingsProps> = ({ formValues, onBoolea
     </CollapsibleSettingGroup>
   );
 };
+
+const settingsButtonStyles = defineStyles('SettingsButtonGroup', (theme: ThemeType) => ({
+  buttonRow: {
+    display: 'flex',
+    justifyContent: 'flex-end',
+    gap: 12,
+    alignItems: 'center',
+    marginTop: 12,
+  },
+  unsavedChangesIndicator: {
+    fontFamily: theme.palette.fonts.sansSerifStack,
+    color: theme.palette.warning.main,
+    fontSize: 16,
+    fontStyle: 'italic',
+  },
+  buttonGroup: {
+    display: 'flex',
+    gap: 8,
+  },
+  button: {
+    padding: '8px 16px',
+    fontSize: '1.1rem',
+    fontFamily: theme.palette.fonts.sansSerifStack,
+    borderRadius: 4,
+    cursor: 'pointer',
+    border: 'none',
+    fontWeight: 500,
+  },
+  cancelButton: {
+    backgroundColor: theme.palette.grey[300],
+    color: theme.palette.text.primary,
+    '&:hover': {
+      backgroundColor: theme.palette.grey[400],
+    },
+  },
+  saveButton: {
+    backgroundColor: theme.palette.primary.main,
+    color: theme.palette.background.paper,
+    '&:hover': {
+      backgroundColor: theme.palette.primary.dark,
+    },
+  },
+  buttonDisabled: {
+    opacity: 0.5,
+    cursor: 'not-allowed',
+  },
+}));
+
+interface SettingsButtonGroupProps {
+  onSave: () => void;
+  onCancel?: () => void;
+  hasUnsavedChanges: boolean;
+  hasErrors: boolean;
+  saveLabel?: string;
+  cancelLabel?: string;
+}
+
+export const SettingsButtonGroup: React.FC<SettingsButtonGroupProps> = ({
+  onSave,
+  onCancel,
+  hasUnsavedChanges,
+  hasErrors,
+  saveLabel = 'Save',
+  cancelLabel = 'Cancel',
+}) => {
+  const classes = useStyles(settingsButtonStyles);
+  
+  return (
+    <div className={classes.buttonRow}>
+      <div className={classes.unsavedChangesIndicator}>
+        {hasUnsavedChanges && 'you have unsaved changes'}
+      </div>
+      <div className={classes.buttonGroup}>
+        {onCancel && (
+          <button
+            className={classNames(classes.button, classes.cancelButton)}
+            onClick={onCancel}
+          >
+            {cancelLabel}
+          </button>
+        )}
+        <button
+          className={classNames(classes.button, classes.saveButton, {
+            [classes.buttonDisabled]: hasErrors
+          })}
+          onClick={onSave}
+          disabled={hasErrors}
+        >
+          {saveLabel}
+        </button>
+      </div>
+    </div>
+  );
+};

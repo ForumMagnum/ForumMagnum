@@ -249,20 +249,20 @@ const SourcesSection = ({ sources, metaInfo, itemType }: SourcesSectionProps) =>
         
         if (tooltip) {
           return (
-            <React.Fragment key={source}>
+            <span key={source}>
               <LWTooltip title={tooltip} placement="top">
                 {tagContent}
               </LWTooltip>
               {!isLast && <span className={classes.sourceSeparator}>,</span>}
-            </React.Fragment>
+            </span>
           );
         }
         
         return (
-          <React.Fragment key={source}>
+          <span key={source}>
             {tagContent}
             {!isLast && <span className={classes.sourceSeparator}>,</span>}
-          </React.Fragment>
+          </span>
         );
       })}
     </div>

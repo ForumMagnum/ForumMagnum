@@ -778,7 +778,7 @@ export const ultraFeedGraphQLQueries = {
         ...rankableBookmarks,
       ];
 
-      // Get the user's preferred algorithm from settings (defaults to 'scoring')
+      // Get the user's preferred algorithm from settings (defaults to 'sampling')
       const algorithmName = parsedSettings.algorithm as UltraFeedAlgorithmName;
       const algorithm = getAlgorithm(algorithmName);
       

@@ -165,7 +165,7 @@ export const DEFAULT_SETTINGS: UltraFeedSettingsType = {
   displaySettings: DEFAULT_DISPLAY_SETTINGS_DESKTOP,
   resolverSettings: {
     incognitoMode: false,
-    algorithm: 'scoring' as const,
+    algorithm: 'sampling' as const,
     sourceWeights: DEFAULT_SOURCE_WEIGHTS,
     commentScoring: DEFAULT_COMMENT_SCORING_SETTINGS,
     threadInterestModel: DEFAULT_THREAD_INTEREST_MODEL_SETTINGS,
@@ -181,7 +181,7 @@ export const getDefaultSettingsForDevice = (device: DeviceKind): UltraFeedSettin
     displaySettings: device === 'mobile' ? DEFAULT_DISPLAY_SETTINGS_MOBILE : DEFAULT_DISPLAY_SETTINGS_DESKTOP,
     resolverSettings: {
       incognitoMode: false,
-      algorithm: 'scoring' as const,
+      algorithm: 'sampling' as const,
       sourceWeights: DEFAULT_SOURCE_WEIGHTS,
       commentScoring: { ...DEFAULT_COMMENT_SCORING_SETTINGS },
       threadInterestModel: { ...DEFAULT_THREAD_INTEREST_MODEL_SETTINGS },
