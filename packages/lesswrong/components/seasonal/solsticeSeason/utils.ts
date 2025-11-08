@@ -25,10 +25,12 @@ export const findMeshWithTexture = (obj: THREE.Object3D | null | undefined): THR
     }
   }
   
-  // Iterate through children
-  for (const child of obj.children) {
-    const found = findMeshWithTexture(child);
-    if (found) return found;
+  // Check if children exists and is iterable before iterating
+  if (obj.children && Array.isArray(obj.children)) {
+    for (const child of obj.children) {
+      const found = findMeshWithTexture(child);
+      if (found) return found;
+    }
   }
   return null;
 };
