@@ -107,7 +107,6 @@ export const SolsticeGlobe3D = ({
   }, []);
 
   const handleGlobalMouseUp = useCallback((e: MouseEvent) => {
-    console.log('handleGlobalMouseUp', e);
     e.stopPropagation();
     // Check if the click was on a marker element (don't ignore marker clicks)
     const target = e.target as HTMLElement;
