@@ -157,6 +157,7 @@ function getPostComponentExplanations(settings?: ReturnType<typeof useUltraFeedS
     "Karma Bonus (time-decaying)": `Decay: min(karma × ${scale}^0.25 / (ageHrs + ${bias})^0.25, ${postConfig.karmaMaxBonus}). Age 0: 100%, 1day: 78%, 3days: 67%, 1week: 56%. All items start with base 1 point.`,
     "Karma Bonus (timeless)": `No time decay: min(karma^${postConfig.karmaSuperlinearExponent} / ${postConfig.karmaDivisor}, ${postConfig.karmaMaxBonus}). Used for personalized recommendations and author subscriptions. All items start with base 1 point.`,
     "Topic Affinity": `Bonus for posts on topics you read often (0-${postConfig.topicAffinityMaxBonus}, TODO)`,
+    "Base Value": "All items start with a base value of 1 point before any bonuses are applied",
   };
 }
 
@@ -178,6 +179,7 @@ function getThreadComponentExplanations(settings?: ReturnType<typeof useUltraFee
     "Topic Affinity": `Bonus for threads on topics you read often (0-${postConfig.topicAffinityMaxBonus}) TODO`,
     "Quicktake": `Top-level comment is an unread quicktake (+${threadConfig.quicktakeBonus})`,
     "Read Post Context": `You've read the post, so you have context (+${threadConfig.readPostContextBonus})`,
+    "Base Value": "All items start with a base value of 1 point before any bonuses are applied",
   };
 }
 
@@ -282,7 +284,12 @@ export const PostScoreBreakdownContent = ({ breakdown, sources, metaInfo }: { br
     { name: "Topic Affinity", value: components.topicAffinityBonus },
   ];
   
-  const componentList = allComponents.sort((a, b) => Math.abs(b.value) - Math.abs(a.value));
+  // Filter out zero-value components and sort by absolute value descending
+  const nonZeroComponents = allComponents.filter(c => Math.abs(c.value) >= 0.01);
+  const componentList = nonZeroComponents.sort((a, b) => Math.abs(b.value) - Math.abs(a.value));
+  
+  // Add base value at the end
+  const baseValue = { name: "Base Value", value: 1 };
   
   const postExplanations = getPostComponentExplanations(settings);
   
@@ -298,6 +305,7 @@ export const PostScoreBreakdownContent = ({ breakdown, sources, metaInfo }: { br
         {componentList.map(({ name, value }) => (
           <ScoreComponent key={name} name={name} value={value} explanations={postExplanations} />
         ))}
+        <ScoreComponent key="base" name={baseValue.name} value={baseValue.value} explanations={postExplanations} />
       </div>
       
       <LWTooltip 
@@ -335,7 +343,12 @@ export const ThreadScoreBreakdownContent = ({ breakdown, sources, metaInfo }: { 
     { name: "Read Post Context", value: components.readPostContextBonus },
   ];
   
-  const componentList = allComponents.sort((a, b) => Math.abs(b.value) - Math.abs(a.value));
+  // Filter out zero-value components and sort by absolute value descending
+  const nonZeroComponents = allComponents.filter(c => Math.abs(c.value) >= 0.01);
+  const componentList = nonZeroComponents.sort((a, b) => Math.abs(b.value) - Math.abs(a.value));
+  
+  // Add base value at the end
+  const baseValue = { name: "Base Value", value: 1 };
   
   const threadExplanations = getThreadComponentExplanations(settings);
   
@@ -351,6 +364,7 @@ export const ThreadScoreBreakdownContent = ({ breakdown, sources, metaInfo }: { 
         {componentList.map(({ name, value }) => (
           <ScoreComponent key={name} name={name} value={value} explanations={threadExplanations} />
         ))}
+        <ScoreComponent key="base" name={baseValue.name} value={baseValue.value} explanations={threadExplanations} />
       </div>
       
       <LWTooltip 
