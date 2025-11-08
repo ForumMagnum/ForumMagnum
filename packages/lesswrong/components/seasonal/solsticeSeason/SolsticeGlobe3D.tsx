@@ -126,7 +126,7 @@ export const SolsticeGlobe3D = ({
 
   const renderHtmlElement = useCallback((d: GlobeMarkerData): HTMLElement => {
     const point = findPoint(d);
-    const color = typeof point.color === 'string' ? point.color : '#ffffff';
+    const color = typeof point.color === 'string' ? point.color : '#FFD700';
     const el = document.createElement('div');
     el.style.color = color;
     el.style.cursor = 'pointer';

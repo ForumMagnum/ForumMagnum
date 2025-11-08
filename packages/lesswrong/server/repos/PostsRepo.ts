@@ -1289,7 +1289,7 @@ class PostsRepo extends AbstractRepo<"Posts"> {
   }
   
   async getHomepageCommunityEvents(limit: number, eventType?: string): Promise<Array<HomepageCommunityEventMarker>> {
-    const eventTypeFilter = eventType ? `AND "eventType" = $2` : '';
+    const eventTypeFilter = eventType ? `AND "types" @> ARRAY[$2]::text[]` : '';
     const params = eventType ? [limit, eventType] : [limit];
     return this.getRawDb().any<HomepageCommunityEventMarker>(`
       -- PostsRepo.getHomepageCommunityEvents

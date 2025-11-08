@@ -450,7 +450,6 @@ export default function SolsticeSeasonBannerInner() {
 
   return <div className={classNames(classes.root)} style={{ opacity: bannerOpacity, pointerEvents: pointerEventsDisabled ? 'none' : 'auto' }}>
     <div className={classes.globeGradientRight} />
-    <div className={classes.scrollBackground} />
     <div className={classes.postsListBlockingRect}/>
     <div 
       className={classes.globeContainer} 
