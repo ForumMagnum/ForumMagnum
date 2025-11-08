@@ -44,6 +44,7 @@ export const SolsticeGlobe3D = ({
   const isDraggingRef = useRef(false);
   const shouldIgnoreClickRef = useRef(false);
   const clickIgnoreTimeoutRef = useRef<NodeJS.Timeout | null>(null);
+  const containerRef = useRef<HTMLDivElement | null>(null);
 
   const initialPov = useMemo(() => ({
     lat: defaultPointOfView.lat,
@@ -55,15 +56,41 @@ export const SolsticeGlobe3D = ({
     onFullyLoaded?.();
   });
   
-  // const textureRotationRef = useGlobeAnimation(globeMaterialRef, isGlobeReady, initialPov, isRotating);
-  // const fps = useFramerate(isGlobeReady, globeRef);
-  
-  // useEffect(() => {
-  //   if (fps && onFpsChange) {
-  //     onFpsChange(fps);
-  //   }
-  // }, [fps, onFpsChange]);
-  
+  // Helper function to find marker element by checking all markers' bounding boxes
+  // Finds all divs with data-globe-marker, checks their dimensions, and returns the one containing the click
+  const findMarkerElement = useCallback((element: HTMLElement | null, clientX?: number, clientY?: number): HTMLElement | null => {
+    // Find all divs with data-globe-marker
+    const allMarkers = Array.from(document.querySelectorAll('div[data-globe-marker]'));
+    
+    // If we have click coordinates, check if the click is within any marker's bounds
+    if (clientX !== undefined && clientY !== undefined) {
+      for (const marker of allMarkers) {
+        if (marker instanceof HTMLElement) {
+          const rect = marker.getBoundingClientRect();
+          if (
+            clientX >= rect.left &&
+            clientX <= rect.right &&
+            clientY >= rect.top &&
+            clientY <= rect.bottom
+          ) {
+            return marker;
+          }
+        }
+      }
+    }
+    
+    // Fallback: try traversing up the parent chain from the element
+    let current: HTMLElement | null = element;
+    while (current) {
+      if (current.hasAttribute && current.hasAttribute('data-globe-marker')) {
+        return current;
+      }
+      current = current.parentElement;
+    }
+    
+    return null;
+  }, []);
+
   const handleMouseDown = useCallback((e: React.MouseEvent<HTMLDivElement>) => {
     dragStartRef.current = { x: e.clientX, y: e.clientY };
     isDraggingRef.current = false;
@@ -80,7 +107,14 @@ export const SolsticeGlobe3D = ({
   }, []);
 
   const handleGlobalMouseUp = useCallback((e: MouseEvent) => {
-    if (dragStartRef.current && isDraggingRef.current) {
+    console.log('handleGlobalMouseUp', e);
+    e.stopPropagation();
+    // Check if the click was on a marker element (don't ignore marker clicks)
+    const target = e.target as HTMLElement;
+    const markerElement = findMarkerElement(target, e.clientX, e.clientY);
+    const isMarkerClick = markerElement !== null || target.closest('svg') !== null;
+    
+    if (dragStartRef.current && isDraggingRef.current && !isMarkerClick) {
       const deltaX = e.clientX - dragStartRef.current.x;
       if (deltaX < -10) {
         setIsRotating(true);
@@ -94,21 +128,60 @@ export const SolsticeGlobe3D = ({
           clickIgnoreTimeoutRef.current = null;
         }, 0);
       }
+    } else if (isMarkerClick) {
+      // Reset ignore flag for marker clicks
+      shouldIgnoreClickRef.current = false;
+      if (clickIgnoreTimeoutRef.current) {
+        clearTimeout(clickIgnoreTimeoutRef.current);
+        clickIgnoreTimeoutRef.current = null;
+      }
     }
     dragStartRef.current = null;
     isDraggingRef.current = false;
-  }, []);
+  }, [findMarkerElement]);
 
   useEventListener('mousemove', handleGlobalMouseMove);
   useEventListener('mouseup', handleGlobalMouseUp);
 
   const handleClick = useCallback((e: React.MouseEvent<HTMLDivElement>) => {
+    // Handle clicks on markers using event delegation
+    const target = e.target as HTMLElement;
+    const markerElement = findMarkerElement(target, e.clientX, e.clientY);
+    
+    if (markerElement) {
+      // This is a marker click - handle it
+      const markerIndexStr = markerElement.getAttribute('data-marker-index');
+      if (markerIndexStr !== null) {
+        const markerIndex = parseInt(markerIndexStr, 10);
+        if (!isNaN(markerIndex) && markerIndex >= 0 && markerIndex < pointsData.length) {
+          const originalPoint = pointsData[markerIndex];
+          
+          // Check if click was on SVG (meetup type click) or div (point click)
+          const isSvgClick = target.closest('svg') !== null;
+          
+          
+          // Always trigger popup on marker click
+          if (onPointClick && originalPoint.eventId) {
+            const solsticePoint: SolsticeGlobePoint = {
+              lat: originalPoint.lat,
+              lng: originalPoint.lng,
+              size: originalPoint.size,
+              eventId: originalPoint.eventId,
+              event: originalPoint.event,
+            };
+            onPointClick(solsticePoint, { x: e.clientX, y: e.clientY });
+          }
+        }
+      }
+      return;
+    }
+    
     if (shouldIgnoreClickRef.current) {
       return;
     }
     setIsRotating(false);
     onClick?.(e);
-  }, [onClick]);
+  }, [onClick, pointsData, onPointClick, findMarkerElement]);
   const handleZoom = useCallback(({ lng, lat }: { lng: number; lat: number }) => {
     if (globeMaterialRef.current?.uniforms?.globeRotation) {
       globeMaterialRef.current.uniforms.globeRotation.value.set(lng, lat);
@@ -117,17 +190,26 @@ export const SolsticeGlobe3D = ({
 
   const markerData: GlobeMarkerData[] = mapPointsToMarkers(pointsData);
   
-  const findPoint = useCallback((d: GlobeMarkerData): GlobeMarkerData => {
-    return pointsData.find(p => 
-      (d._index !== undefined && p === pointsData[d._index]) || 
-      (d.eventId && p.eventId === d.eventId)
-    ) ? d : d;
+  const getOriginalPoint = useCallback((d: GlobeMarkerData): SolsticeGlobePoint | null => {
+    // Use _index to directly access the original point from pointsData
+    if (d._index !== undefined && d._index >= 0 && d._index < pointsData.length) {
+      return pointsData[d._index];
+    }
+    // Fallback: try to find by eventId
+    if (d.eventId) {
+      const found = pointsData.find(p => p.eventId === d.eventId);
+      if (found) return found;
+    }
+    return null;
   }, [pointsData]);
 
   const renderHtmlElement = useCallback((d: GlobeMarkerData): HTMLElement => {
-    const point = findPoint(d);
-    const color = typeof point.color === 'string' ? point.color : '#FFD700';
+    const originalPoint = getOriginalPoint(d);
+    const color = typeof originalPoint?.color === 'string' ? originalPoint.color : '#FFD700';
     const el = document.createElement('div');
+    el.setAttribute('data-globe-marker', 'true');
+    // Store the index as a data attribute so we can look it up on click
+    el.setAttribute('data-marker-index', String(d._index));
     el.style.color = color;
     el.style.cursor = 'pointer';
     el.innerHTML = `
@@ -137,22 +219,38 @@ export const SolsticeGlobe3D = ({
         </svg>
       </div>
     `;
-    el.addEventListener('click', (e) => {
+    
+    // Attach click handler directly to the element when it's created
+    // This is the proper way to handle clicks on HTML elements in react-globe.gl
+    el.addEventListener('click', (e: MouseEvent) => {
       e.stopPropagation();
-      const originalPoint = findPoint(d);
-      if (originalPoint && onPointClick) {
-        const solsticePoint: SolsticeGlobePoint = {
-          lat: originalPoint.lat,
-          lng: originalPoint.lng,
-          size: originalPoint.size,
-          eventId: originalPoint.eventId,
-          event: originalPoint.event,
-        };
-        onPointClick(solsticePoint, { x: e.clientX, y: e.clientY });
+      e.preventDefault();
+      
+      const target = e.target as HTMLElement;
+      const markerIndex = d._index;
+      
+      if (markerIndex >= 0 && markerIndex < pointsData.length) {
+        const point = pointsData[markerIndex];
+        
+        // Check if click was on SVG (meetup type click) or div (point click)
+        const isSvgClick = target.closest('svg') !== null;
+        
+        // Always trigger popup on marker click
+        if (onPointClick && point.eventId) {
+          const solsticePoint: SolsticeGlobePoint = {
+            lat: point.lat,
+            lng: point.lng,
+            size: point.size,
+            eventId: point.eventId,
+            event: point.event,
+          };
+          onPointClick(solsticePoint, { x: e.clientX, y: e.clientY });
+        }
       }
     });
+    
     return el;
-  }, [findPoint, onPointClick]);
+  }, [getOriginalPoint, pointsData, onPointClick]);
   
   // const htmlLng = useCallback((d: GlobeMarkerData): number => {
   //   const rotationDegrees = (textureRotationRef.current * 180) / Math.PI;
@@ -165,6 +263,7 @@ export const SolsticeGlobe3D = ({
 
   return (
     <div
+      ref={containerRef}
       style={{ ...style, cursor: 'grab', width: '100%', height: '100vh', position: 'relative', opacity: isFullyLoaded ? 1 : 0, transition: 'opacity 0.8s ease-in-out' }}
       className={className}
       onMouseDown={handleMouseDown}

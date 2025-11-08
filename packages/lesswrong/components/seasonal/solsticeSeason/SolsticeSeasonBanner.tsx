@@ -408,10 +408,6 @@ export default function SolsticeSeasonBannerInner() {
   
   const events = useMemo(() => (data as QueryResult | undefined)?.HomepageCommunityEvents?.events ?? [], [data]);
 
-  const [isTransitioning, setIsTransitioning] = useState(false)
-  const [isSettingUp, setIsSettingUp] = useState(false)
-  const [currentCarouselIndex, setCurrentCarouselIndex] = useState(0)
-  const [nextCarouselIndex, setNextCarouselIndex] = useState<number | null>(null)
   const [selectedEventId, setSelectedEventId] = useState<string | null>(null)
   const [popupCoords, setPopupCoords] = useState<{ x: number; y: number } | null>(null)
 
@@ -430,25 +426,16 @@ export default function SolsticeSeasonBannerInner() {
       }));
   }, [events]);
 
-  const handleMeetupTypeClick = useCallback((index: number) => {
-    if (index === currentCarouselIndex) return
+  const handleMeetupClick = useCallback((event?: React.MouseEvent<HTMLDivElement>, eventId?: string) => {
+    event?.stopPropagation();
+    event?.preventDefault();
+    if (eventId) {
+      setSelectedEventId(eventId);
+      setPopupCoords({ x: window.innerWidth / 2, y: window.innerHeight / 2 });
+    }
+  }, [pointsData]);
 
-    setIsSettingUp(true)
-    setNextCarouselIndex(index)
-
-    setTimeout(() => {
-      setIsSettingUp(false)
-      setIsTransitioning(true)
-      setTimeout(() => {
-        setIsTransitioning(false)
-        setCurrentCarouselIndex(index)
-        setNextCarouselIndex(null)
-      }, 300)
-    }, 10)
-  }, [currentCarouselIndex])
-
-
-  return <div className={classNames(classes.root)} style={{ opacity: bannerOpacity, pointerEvents: pointerEventsDisabled ? 'none' : 'auto' }}>
+  return <div className={classNames(classes.root)} style={{ opacity: bannerOpacity, pointerEvents: pointerEventsDisabled ? 'none' : 'auto' }} onClick={(event) => handleMeetupClick(event, undefined)}>
     <div className={classes.globeGradientRight} />
     <div className={classes.postsListBlockingRect}/>
     <div 
@@ -458,12 +445,7 @@ export default function SolsticeSeasonBannerInner() {
         {renderSolsticeSeason && <SolsticeGlobe3D 
           pointsData={pointsData}
           defaultPointOfView={defaultPointOfView}
-          onPointClick={(point: SolsticeGlobePoint, screenCoords: { x: number; y: number }) => {
-            if (point.eventId) {
-              setSelectedEventId(point.eventId);
-              setPopupCoords(screenCoords);
-            }
-          }}
+          onPointClick={(point: SolsticeGlobePoint, screenCoords: { x: number; y: number }) => handleMeetupClick(undefined, point.eventId)}
           onReady={handleGlobeReady}
           onFullyLoaded={handleGlobeFullyLoaded}
           onFpsChange={setFps}

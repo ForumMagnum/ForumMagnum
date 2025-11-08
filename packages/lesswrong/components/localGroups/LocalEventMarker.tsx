@@ -7,11 +7,12 @@ import RoomIcon from '@/lib/vendor/@material-ui/icons/src/Room';
 import { isEAForum } from '../../lib/instanceSettings';
 import { componentWithChildren } from '../../lib/utils/componentsWithChildren';
 import GroupLinks from "./GroupLinks";
-import StyledMapPopup from "./StyledMapPopup";
+import StyledMapPopup from "./StyledMapPopup";;
+import { useStyles, defineStyles } from '../hooks/useStyles';
 
 const Marker = componentWithChildren(BadlyTypedMarker);
 
-const styles = (theme: ThemeType) => ({
+const styles = defineStyles("LocalEventMarker", (theme: ThemeType) => ({
   icon: {
     width: 15, 
     height: 15,
@@ -24,16 +25,16 @@ const styles = (theme: ThemeType) => ({
     fill: theme.palette.event,
     opacity: 0.8,
   },
-});
+}));
 
-const LocalEventMarker = ({ event, handleMarkerClick, handleInfoWindowClose, infoOpen, location, classes }: {
+const LocalEventMarker = ({ event, handleMarkerClick, handleInfoWindowClose, infoOpen, location }: {
   event: PostsList,
   handleMarkerClick: (eventId: string) => void,
   handleInfoWindowClose: (eventId: string) => void,
   infoOpen: boolean,
   location: any,
-  classes: ClassesType<typeof styles>,
 }) => {
+  const classes = useStyles(styles);
   if (!location?.geometry?.location?.lat || !location?.geometry?.location?.lng) return null
   const { geometry: {location: {lat, lng}}} = location
   const { htmlHighlight = "" } = event.contents || {}
@@ -72,7 +73,4 @@ const LocalEventMarker = ({ event, handleMarkerClick, handleInfoWindowClose, inf
   </React.Fragment>
 }
 
-export default registerComponent("LocalEventMarker", LocalEventMarker, {styles});
-
-
-
+export default LocalEventMarker
