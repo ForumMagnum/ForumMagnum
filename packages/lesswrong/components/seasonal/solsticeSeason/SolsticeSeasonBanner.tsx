@@ -242,11 +242,10 @@ const styles = defineStyles("SolsticeSeasonBanner", (theme: ThemeType) => ({
   },
 }));
 
-
-export const SolsticeSeasonQuery = gql(`
-  query solsticeSeasonQuery {
-    HomepageCommunityEvents(limit: 500, eventType: "SOLSTICE") {
-      events {
+const HomepageCommunityEventPostsQuery = gql(`
+  query HomepageCommunityEventPostsQuery($eventType: String!) {
+    HomepageCommunityEventPosts(eventType: $eventType) {
+      posts {
         ...PostsList
       }
     }
@@ -271,6 +270,18 @@ export default function SolsticeSeasonBannerInner() {
   useEffect(() => {
     setRenderSolsticeSeason(isWidescreen);
   }, [isWidescreen]);
+
+  const { data } = useQuery(HomepageCommunityEventPostsQuery, {
+    variables: { eventType: "SOLSTICE" },
+  });
+  const eventPosts = data?.HomepageCommunityEventPosts?.posts ?? [];
+  const events = eventPosts.map((post: PostsList) => ({
+    _id: post._id,
+    lat: post.googleLocation?.geometry?.location?.lat,
+    lng: post.googleLocation?.geometry?.location?.lng,
+    types: post.types,
+    document: post,
+  }));
 
   useEffect(() => {
     if (!isWidescreen) return;
@@ -375,8 +386,6 @@ export default function SolsticeSeasonBannerInner() {
     altitude: 2.2
   }), [])
 
-  const { data } = useQuery(SolsticeSeasonQuery)
-
   const handleGlobeReady = useCallback(() => {
     setIsLoading(false);
   }, []);
@@ -404,12 +413,13 @@ export default function SolsticeSeasonBannerInner() {
       }>;
     };
   };
-  
-  const events = useMemo(() => (data as QueryResult | undefined)?.HomepageCommunityEvents?.events ?? [], [data]);
 
   const [selectedEventId, setSelectedEventId] = useState<string | null>(null)
   const [popupCoords, setPopupCoords] = useState<{ x: number; y: number } | null>(null)
 
+  const selectedEventPost = useMemo(() => {
+    return eventPosts.find((post: PostsList) => post._id === selectedEventId);
+  }, [eventPosts, selectedEventId]);
 
   type EventType = typeof events[0];
 
@@ -450,9 +460,9 @@ export default function SolsticeSeasonBannerInner() {
           onFpsChange={setFps}
           style={{ width: '100%', height: '100%' }}
         />}
-      {selectedEventId && popupCoords && (
+      {selectedEventId && popupCoords && selectedEventPost && (
         <GlobePopup
-          document={events.find((event: EventType) => event._id === selectedEventId)?.document}
+          document={selectedEventPost}
           screenCoords={popupCoords}
           onClose={() => {
             setSelectedEventId(null);

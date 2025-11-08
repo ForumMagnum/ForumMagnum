@@ -3787,7 +3787,8 @@ WHERE
 CREATE INDEX IF NOT EXISTS idx_tags_pingbacks ON "Tags" USING gin (pingbacks);
 
 -- Function "fm_has_verified_email"
-CREATE OR REPLACE FUNCTION fm_has_verified_email (emails JSONB[]) RETURNS BOOLEAN LANGUAGE plpgsql IMMUTABLE AS $$
+CREATE OR
+REPLACE FUNCTION fm_has_verified_email (emails jsonb[]) RETURNS BOOLEAN LANGUAGE plpgsql IMMUTABLE AS $$
         DECLARE
           item jsonb;
         BEGIN
@@ -3891,7 +3892,7 @@ WHERE
 CREATE INDEX IF NOT EXISTS idx_multi_documents_pingbacks ON "MultiDocuments" USING gin (pingbacks);
 
 -- CustomIndex "idx_PageCache_path_abTestGroups_bundleHash"
-CREATE UNIQUE INDEX IF NOT EXISTS "idx_PageCache_path_abTestGroups_bundleHash" ON public."PageCache" USING btree (path, "abTestGroups", "bundleHash");
+CREATE UNIQUE INDEX IF NOT EXISTS "idx_PageCache_path_abTestGroups_bundleHash" ON public."PageCache" USING btree (PATH, "abTestGroups", "bundleHash");
 
 -- CustomIndex "idx_ReadStatuses_userId_postId_tagId"
 CREATE UNIQUE INDEX IF NOT EXISTS "idx_ReadStatuses_userId_postId_tagId" ON public."ReadStatuses" USING btree (
@@ -3930,7 +3931,8 @@ WHERE
   ((event ->> 'loggedOut')::BOOLEAN IS TRUE);
 
 -- Function "fm_build_nested_jsonb"
-CREATE OR REPLACE FUNCTION fm_build_nested_jsonb (target_path TEXT[], terminal_element JSONB) RETURNS JSONB LANGUAGE sql IMMUTABLE AS 'SELECT JSONB_BUILD_OBJECT(
+CREATE OR
+REPLACE FUNCTION fm_build_nested_jsonb (target_path TEXT[], terminal_element JSONB) RETURNS JSONB LANGUAGE sql IMMUTABLE AS 'SELECT JSONB_BUILD_OBJECT(
         target_path[1],
         CASE
           WHEN CARDINALITY(target_path) = 1 THEN terminal_element
@@ -3942,10 +3944,12 @@ CREATE OR REPLACE FUNCTION fm_build_nested_jsonb (target_path TEXT[], terminal_e
       );';
 
 -- Function "fm_add_to_set_native"
-CREATE OR REPLACE FUNCTION fm_add_to_set (ANYARRAY, ANYELEMENT) RETURNS ANYARRAY LANGUAGE sql IMMUTABLE AS 'SELECT CASE WHEN ARRAY_POSITION($1, $2) IS NULL THEN $1 || $2 ELSE $1 END;';
+CREATE OR
+REPLACE FUNCTION fm_add_to_set (ANYARRAY, ANYELEMENT) RETURNS ANYARRAY LANGUAGE sql IMMUTABLE AS 'SELECT CASE WHEN ARRAY_POSITION($1, $2) IS NULL THEN $1 || $2 ELSE $1 END;';
 
 -- Function "fm_add_to_set_json"
-CREATE OR REPLACE FUNCTION fm_add_to_set (
+CREATE OR
+REPLACE FUNCTION fm_add_to_set (
   base_field JSONB,
   target_path TEXT[],
   value_to_add ANYELEMENT
@@ -3970,7 +3974,8 @@ CREATE OR REPLACE FUNCTION fm_add_to_set (
       END;';
 
 -- Function "fm_post_tag_similarity"
-CREATE OR REPLACE FUNCTION fm_post_tag_similarity (post_id_a TEXT, post_id_b TEXT) RETURNS FLOAT LANGUAGE sql IMMUTABLE AS 'SELECT
+CREATE OR
+REPLACE FUNCTION fm_post_tag_similarity (post_id_a TEXT, post_id_b TEXT) RETURNS FLOAT LANGUAGE sql IMMUTABLE AS 'SELECT
           COALESCE(SUM(LEAST(a, b))::FLOAT / SUM(GREATEST(a, b))::FLOAT, 0)
             AS similarity
         FROM (
@@ -3987,7 +3992,8 @@ CREATE OR REPLACE FUNCTION fm_post_tag_similarity (post_id_a TEXT, post_id_b TEX
         ) "tagRelevance";';
 
 -- Function "fm_jsonb_subset"
-CREATE OR REPLACE FUNCTION fm_jsonb_subset (target JSONB, candidate JSONB) RETURNS BOOLEAN AS $$
+CREATE OR
+REPLACE FUNCTION fm_jsonb_subset (target jsonb, candidate jsonb) RETURNS BOOLEAN AS $$
       DECLARE
         key text;
       BEGIN
@@ -4003,7 +4009,8 @@ CREATE OR REPLACE FUNCTION fm_jsonb_subset (target JSONB, candidate JSONB) RETUR
       $$ LANGUAGE plpgsql;
 
 -- Function "fm_post_tag_ids"
-CREATE OR REPLACE FUNCTION fm_post_tag_ids (post_id TEXT) RETURNS TEXT[] LANGUAGE sql IMMUTABLE AS 'SELECT ARRAY_AGG(tags."tagId")
+CREATE OR
+REPLACE FUNCTION fm_post_tag_ids (post_id TEXT) RETURNS TEXT[] LANGUAGE sql IMMUTABLE AS 'SELECT ARRAY_AGG(tags."tagId")
       FROM "Posts" p
       JOIN (
         SELECT JSONB_OBJECT_KEYS("tagRelevance") AS "tagId"
@@ -4013,7 +4020,8 @@ CREATE OR REPLACE FUNCTION fm_post_tag_ids (post_id TEXT) RETURNS TEXT[] LANGUAG
       WHERE (p."tagRelevance"->tags."tagId")::INTEGER >= 1;';
 
 -- Function "fm_confidence_sort"
-CREATE OR REPLACE FUNCTION fm_confidence_sort (
+CREATE OR
+REPLACE FUNCTION fm_confidence_sort (
   ups INTEGER,
   downs INTEGER,
   downvote_multiplier FLOAT DEFAULT 1
@@ -4039,7 +4047,8 @@ CREATE OR REPLACE FUNCTION fm_confidence_sort (
       END $$;
 
 -- Function "fm_comment_confidence"
-CREATE OR REPLACE FUNCTION fm_comment_confidence (
+CREATE OR
+REPLACE FUNCTION fm_comment_confidence (
   comment_id TEXT,
   downvote_multiplier FLOAT DEFAULT 1
 ) RETURNS FLOAT LANGUAGE sql AS $$
@@ -4068,7 +4077,8 @@ CREATE OR REPLACE FUNCTION fm_comment_confidence (
       $$;
 
 -- Function "fm_vote_added_emoji"
-CREATE OR REPLACE FUNCTION fm_vote_added_emoji (vote_id TEXT, emoji_name TEXT) RETURNS BOOLEAN LANGUAGE sql AS $$
+CREATE OR
+REPLACE FUNCTION fm_vote_added_emoji (vote_id TEXT, emoji_name TEXT) RETURNS BOOLEAN LANGUAGE sql AS $$
         SELECT
           COALESCE(target."extendedVoteType"->emoji_name = TO_JSONB(TRUE), FALSE) AND
           COALESCE(v."extendedVoteType"->emoji_name <> TO_JSONB(TRUE), TRUE)
@@ -4095,7 +4105,8 @@ WHERE
   JSONB_TYPEOF("services" -> 'resume' -> 'loginTokens') = 'array';
 
 -- Function "fm_get_user_by_login_token"
-CREATE OR REPLACE FUNCTION fm_get_user_by_login_token (hashed_token TEXT) RETURNS SETOF "Users" LANGUAGE plpgsql AS $$
+CREATE OR
+REPLACE FUNCTION fm_get_user_by_login_token (hashed_token TEXT) RETURNS SETOF "Users" LANGUAGE plpgsql AS $$
         DECLARE
         BEGIN
           RETURN QUERY
@@ -4114,7 +4125,8 @@ CREATE OR REPLACE FUNCTION fm_get_user_by_login_token (hashed_token TEXT) RETURN
       $$;
 
 -- Function "fm_get_user_profile_updated_at"
-CREATE OR REPLACE FUNCTION fm_get_user_profile_updated_at (userid TEXT) RETURNS TIMESTAMPTZ LANGUAGE sql AS $$
+CREATE OR
+REPLACE FUNCTION fm_get_user_profile_updated_at (userid TEXT) RETURNS TIMESTAMPTZ LANGUAGE sql AS $$
           SELECT COALESCE(
             (SELECT "createdAt"
               FROM "FieldChanges"
