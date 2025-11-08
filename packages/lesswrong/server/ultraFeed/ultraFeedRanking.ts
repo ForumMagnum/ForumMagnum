@@ -568,7 +568,7 @@ export function rankUltraFeedItems(
   totalItems: number,
   config: RankingConfig = DEFAULT_RANKING_CONFIG,
   diversityConstraints: DiversityConstraints = DEFAULT_DIVERSITY_CONSTRAINTS
-): Array<{ id: string; metadata: RankedItemMetadata }> {
+): Array<{ id: string; metadata?: RankedItemMetadata }> {
   // Score all items
   const scoredItems = scoreItems(items, config);
 

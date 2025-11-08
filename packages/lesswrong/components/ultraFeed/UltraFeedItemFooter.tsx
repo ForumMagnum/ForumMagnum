@@ -459,22 +459,24 @@ const UltraFeedItemFooterCore = ({
         )}
 
         <div className={classes.bookmarksAndScore}>
-          <div className={classes.scoreBreakdownContainer}>
-            {collectionName === "Comments" ? (
-              <UltraFeedScoreBreakdown 
-                metadata={metaInfo?.rankingMetadata} 
-                isFirstCommentInThread={isFirstCommentInThread}
-                sources={metaInfo?.sources}
-                commentMetaInfo={metaInfo}
-              />
-            ) : (
-              <UltraFeedScoreBreakdown 
-                metadata={metaInfo?.rankingMetadata} 
-                sources={metaInfo?.sources}
-                postMetaInfo={metaInfo}
-              />
-            )}
-          </div>
+          {metaInfo?.rankingMetadata && (
+            <div className={classes.scoreBreakdownContainer}>
+              {collectionName === "Comments" ? (
+                <UltraFeedScoreBreakdown 
+                  metadata={metaInfo.rankingMetadata} 
+                  isFirstCommentInThread={isFirstCommentInThread}
+                  sources={metaInfo.sources}
+                  commentMetaInfo={metaInfo}
+                />
+              ) : (
+                <UltraFeedScoreBreakdown 
+                  metadata={metaInfo.rankingMetadata} 
+                  sources={metaInfo.sources}
+                  postMetaInfo={metaInfo}
+                />
+              )}
+            </div>
+          )}
           { bookmarkProps && bookmarkableCollectionNames.has(collectionName) && (
             <div 
               className={classes.bookmarkButtonContainer}

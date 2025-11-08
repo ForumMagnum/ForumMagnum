@@ -44,16 +44,12 @@ const ScoreBreakdownDropdownItem = ({
   commentMetaInfo,
   postMetaInfo,
 }: {
-  metadata?: RankedItemMetadata;
+  metadata: RankedItemMetadata;
   sources?: FeedItemSourceType[];
   commentMetaInfo?: FeedCommentMetaInfo;
   postMetaInfo?: FeedPostMetaInfo;
 }) => {
   const classes = useStyles(styles);
-
-  if (!metadata) {
-    return null;
-  }
 
   let tooltipContent: React.ReactNode;
   if (metadata.rankedItemType === 'commentThread') {

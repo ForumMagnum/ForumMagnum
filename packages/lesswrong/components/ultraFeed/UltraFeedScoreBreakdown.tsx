@@ -54,7 +54,7 @@ const styles = defineStyles('UltraFeedScoreBreakdown', (theme: ThemeType) => ({
 }));
 
 const UltraFeedScoreBreakdown = ({ metadata, isFirstCommentInThread, sources, commentMetaInfo, postMetaInfo }: { 
-  metadata?: RankedItemMetadata;
+  metadata: RankedItemMetadata;
   isFirstCommentInThread?: boolean;
   sources?: FeedItemSourceType[];
   commentMetaInfo?: FeedCommentMetaInfo;
@@ -71,12 +71,8 @@ const UltraFeedScoreBreakdown = ({ metadata, isFirstCommentInThread, sources, co
     return null;
   }
   
-  const isThreadBreakdown = metadata?.rankedItemType === 'commentThread';
+  const isThreadBreakdown = metadata.rankedItemType === 'commentThread';
   const isPostShowingThreadScore = isThreadBreakdown && !isFirstCommentInThread;
-  
-  if (!metadata) {
-    return null;
-  }
   
   const handleClick = (e: React.MouseEvent) => {
     e.stopPropagation();

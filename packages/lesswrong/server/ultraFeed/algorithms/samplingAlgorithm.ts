@@ -72,53 +72,16 @@ export const samplingAlgorithm: UltraFeedAlgorithm = {
     items: RankableItem[],
     totalItems: number,
     settings: UltraFeedResolverSettings
-  ): Array<{ id: string; metadata: RankedItemMetadata }> {
+  ): Array<{ id: string; metadata?: RankedItemMetadata }> {
     // Use simple weighted random sampling based on item properties
     // (sourceWeights are used upstream to determine which items are fetched)
     const weights = items.map(item => getItemWeight(item));
     
     const sampledItems = weightedSample(items, weights, totalItems);
     
-    // Return with minimal metadata (no scores since this algorithm doesn't compute them)
-    return sampledItems.map((item, index) => {
-      // All items get PostScoreBreakdown in sampling (even threads use the simpler breakdown)
-      const metadata: RankedItemMetadata = item.itemType === 'commentThread'
-        ? {
-            rankedItemType: 'commentThread' as const,
-            scoreBreakdown: {
-              total: 1,
-              components: {
-                startingValue: 1,
-                unreadSubscribedCommentBonus: 0,
-                engagementContinuationBonus: 0,
-                repliesToYouBonus: 0,
-                yourPostActivityBonus: 0,
-                overallKarmaBonus: 0,
-                topicAffinityBonus: 0,
-                quicktakeBonus: 0,
-                readPostContextBonus: 0,
-              },
-              repetitionPenaltyMultiplier: 1,
-            },
-            selectionConstraints: ['weighted-sampling'],
-            position: index,
-          }
-        : {
-            rankedItemType: 'post' as const,
-            scoreBreakdown: {
-              total: 1,
-              components: {
-                startingValue: 1,
-                subscribedBonus: 0,
-                karmaBonus: 0,
-                topicAffinityBonus: 0,
-              },
-            },
-            selectionConstraints: ['weighted-sampling'],
-            position: index,
-          };
-      
-      return { id: item.id, metadata };
+    // Sampling algorithm doesn't use scoring, so we don't provide metadata
+    return sampledItems.map((item) => {
+      return { id: item.id };
     });
   },
 };

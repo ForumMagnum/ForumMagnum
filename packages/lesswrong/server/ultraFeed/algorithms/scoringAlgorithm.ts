@@ -22,7 +22,7 @@ export const scoringAlgorithm: UltraFeedAlgorithm = {
     items: RankableItem[],
     totalItems: number,
     settings: UltraFeedResolverSettings
-  ): Array<{ id: string; metadata: RankedItemMetadata }> {
+  ): Array<{ id: string; metadata?: RankedItemMetadata }> {
     const config = buildRankingConfigFromSettings(settings.unifiedScoring);
     
     return rankUltraFeedItems(items, totalItems, config);
