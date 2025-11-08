@@ -68,8 +68,8 @@ export const StyledMapPopupContent = ({
   children?: ReactNode,
   link: string,
   title: string|ReactNode,
-  metaInfo?: any,
-  cornerLinks?: any,
+  metaInfo?: ReactNode,
+  cornerLinks?: ReactNode,
   hideBottomLinks?: boolean
 }) => {
   const classes = useStyles(styles);
@@ -97,11 +97,11 @@ const StyledMapPopup = ({
   children?: ReactNode,
   link: string,
   title: string|ReactNode,
-  metaInfo?: any,
-  cornerLinks?: any,
+  metaInfo?: ReactNode,
+  cornerLinks?: ReactNode,
   lat: number,
   lng: number,
-  onClose: any,
+  onClose: () => void,
   offsetTop?: number,
   offsetLeft?: number,
   hideBottomLinks?: boolean
@@ -130,6 +130,3 @@ const StyledMapPopup = ({
 }
 
 export default StyledMapPopup;
-
-
-
