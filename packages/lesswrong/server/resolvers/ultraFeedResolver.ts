@@ -20,6 +20,7 @@ import { getUltraFeedBookmarks, PreparedBookmarkItem } from '../ultraFeed/ultraF
 import { randomId } from '@/lib/random';
 import union from 'lodash/union';
 import groupBy from 'lodash/groupBy';
+import merge from 'lodash/merge';
 import mergeWith from 'lodash/mergeWith';
 import cloneDeep from 'lodash/cloneDeep';
 import { backgroundTask } from "../utils/backgroundTask";
@@ -195,10 +196,9 @@ const parseUltraFeedSettings = (settingsJson?: string): UltraFeedResolverSetting
     try {
       const settingsFromArg = JSON.parse(settingsJson);
       // Deep merge user settings with defaults to handle missing fields, e.g. prevent breaking changes
-      parsedSettings = mergeWith(
+      parsedSettings = merge(
         cloneDeep(DEFAULT_RESOLVER_SETTINGS),
-        settingsFromArg,
-        (defaultVal, userVal) => userVal ?? defaultVal
+        settingsFromArg
       );
     } catch (e) {
       // eslint-disable-next-line no-console
