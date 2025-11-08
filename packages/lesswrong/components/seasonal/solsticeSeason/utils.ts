@@ -1,6 +1,12 @@
 import { SolsticeGlobePoint } from './types';
 import * as THREE from 'three';
 
+type MaterialWithMap = THREE.Material & { map: THREE.Texture };
+
+const hasMapProperty = (mat: THREE.Material): mat is MaterialWithMap => {
+  return 'map' in mat && mat.map !== null && mat.map !== undefined;
+};
+
 export const findMeshWithTexture = (obj: THREE.Object3D | null | undefined): THREE.Mesh | null => {
   if (!obj) return null;
   
@@ -12,24 +18,32 @@ export const findMeshWithTexture = (obj: THREE.Object3D | null | undefined): THR
       const materials = Array.isArray(material) ? material : [material];
       for (const mat of materials) {
         // Check if material has a map property (texture)
-        if ('map' in mat && mat.map) {
+        if (hasMapProperty(mat)) {
           return obj;
         }
       }
     }
   }
   
-  // Check if children exists and is iterable before iterating
-  if (obj.children && Array.isArray(obj.children)) {
-    for (const child of obj.children) {
-      const found = findMeshWithTexture(child);
-      if (found) return found;
-    }
+  // Iterate through children
+  for (const child of obj.children) {
+    const found = findMeshWithTexture(child);
+    if (found) return found;
   }
   return null;
 };
 
-export const mapPointsToMarkers = (pointsData: Array<SolsticeGlobePoint>) => pointsData.map((point, index) => ({
+type GlobeMarkerData = {
+  lat: number;
+  lng: number;
+  size: number;
+  color?: string;
+  eventId?: string;
+  event?: SolsticeGlobePoint['event'];
+  _index: number;
+};
+
+export const mapPointsToMarkers = (pointsData: Array<SolsticeGlobePoint>): GlobeMarkerData[] => pointsData.map((point, index) => ({
   lat: point.lat,
   lng: point.lng,
   size: point.size,

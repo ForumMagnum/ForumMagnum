@@ -5,6 +5,7 @@ import { StyledMapPopupContent } from "@/components/localGroups/StyledMapPopup";
 import { postGetPageUrl } from "@/lib/collections/posts/helpers";
 import { fixedPositionEventPopupStyles } from "../HomepageMap/HomepageCommunityMap";
 import { useFloating, autoUpdate, offset, flip, shift } from '@floating-ui/react-dom';
+import type { VirtualElement } from '@floating-ui/dom';
 
 
 export const GlobePopup = ({document, screenCoords, onClose}: {
@@ -28,7 +29,7 @@ export const GlobePopup = ({document, screenCoords, onClose}: {
 
   // Set virtual reference element from screen coordinates
   useEffect(() => {
-    const virtualElement = {
+    const virtualElement: VirtualElement = {
       getBoundingClientRect: () => ({
         width: 0,
         height: 0,
@@ -40,7 +41,7 @@ export const GlobePopup = ({document, screenCoords, onClose}: {
         bottom: screenCoords.y,
       }),
     };
-    refs.setReference(virtualElement as any);
+    refs.setReference(virtualElement);
   }, [refs, screenCoords.x, screenCoords.y]);
 
   if (!document) return null;

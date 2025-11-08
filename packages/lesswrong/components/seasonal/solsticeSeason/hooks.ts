@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useRef } from 'react';
+import React, { useEffect, useRef } from 'react';
 import * as THREE from 'three';
 import { createDayNightShaderMaterial } from './shader';
 import { CONTRAST_AMOUNT, BRIGHTNESS_BOOST, BRIGHTNESS_ADD, DEFAULT_SUN_POSITION } from './solsticeSeasonConstants';
@@ -57,12 +57,11 @@ export const useGlobeReadyEffects = (
       onTexturesLoadedRef.current?.();
     }
     
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const loadTexture = (url: string | undefined, uniformName: 'dayTexture' | 'nightTexture' | 'luminosityTexture') => {
       if (!url || !globeMaterialRef.current) return;
       loader.load(
         url,
-        (texture: any) => {
+        (texture: THREE.Texture) => {
           texture.colorSpace = THREE.SRGBColorSpace;
           texture.wrapS = THREE.RepeatWrapping;
           texture.wrapT = THREE.ClampToEdgeWrapping;
@@ -73,7 +72,7 @@ export const useGlobeReadyEffects = (
           checkAllTexturesLoaded();
         },
         undefined,
-        (error: any) => {
+        (error: Error) => {
           // eslint-disable-next-line no-console
           console.error(`Failed to load texture ${url}:`, error);
           loadedCount++;

@@ -3,6 +3,7 @@ import { defineStyles, useStyles } from '../../hooks/useStyles';
 import { useQuery } from "@/lib/crud/useQuery";
 import { SuspenseWrapper } from '@/components/common/SuspenseWrapper';
 import { gql } from '@/lib/generated/gql-codegen';
+import type { PostsList } from '@/lib/generated/gql-codegen/graphql';
 import { Link } from '@/lib/reactRouterWrapper';
 import classNames from 'classnames';
 import SolsticeGlobe3D from './SolsticeGlobe3D';
@@ -62,10 +63,6 @@ const styles = defineStyles("SolsticeSeasonBanner", (theme: ThemeType) => ({
     lineHeight: 1.5,
     transition: 'opacity 0.5s ease-in-out',
     opacity: 1,
-    '&.transitioning': {
-      transform: 'translateX(-50%) translateX(-100%)',
-      opacity: 0,
-    },
     '& a': {
       color: theme.palette.link.color,
     },
@@ -84,7 +81,6 @@ const styles = defineStyles("SolsticeSeasonBanner", (theme: ThemeType) => ({
     display: 'flex',
     flexDirection: 'column',
     justifyContent: 'center',
-    // textShadow: `0 0 5px light-dark(${theme.palette.background.default}, transparent), 0 0 10px light-dark(${theme.palette.background.default}, transparent), 0 0 15px light-dark(${theme.palette.background.default}, transparent)`,
     fontFamily: theme.typography.postStyle.fontFamily,
     color: theme.palette.text.alwaysWhite,
     transition: 'color 0.8s ease-in-out, opacity 0.3s ease-out',
@@ -191,7 +187,6 @@ const styles = defineStyles("SolsticeSeasonBanner", (theme: ThemeType) => ({
   },
   postsListBlockingRect: {
     position: 'absolute',
-    // background: 'red',
     top: 0,
     height: '100%',
     width: 800,
@@ -219,7 +214,6 @@ const styles = defineStyles("SolsticeSeasonBanner", (theme: ThemeType) => ({
     width: '60vw',
     height: '100%',
     pointerEvents: 'auto',
-    // background: theme.palette.text.alwaysBlack,
     background: `linear-gradient(to left, ${theme.palette.text.alwaysBlack} 60%, transparent 100%)`,
   }
 }));
@@ -248,13 +242,13 @@ export default function SolsticeSeasonBannerInner() {
   const { data } = useQuery(HomepageCommunityEventPostsQuery, {
     variables: { eventType: "SOLSTICE" },
   });
-  const eventPosts = data?.HomepageCommunityEventPosts?.posts ?? [];
-  const events = eventPosts.map((post: PostsList) => ({
+  const eventPosts = useMemo(() => data?.HomepageCommunityEventPosts?.posts ?? [], [data?.HomepageCommunityEventPosts?.posts]);
+  const events = useMemo(() => eventPosts.map((post: PostsList) => ({
     _id: post._id,
     lat: post.googleLocation?.geometry?.location?.lat,
-    lng: post.googleLocation?.geometry?.location?.lng,
-    types: post.types,
-  }));
+      lng: post.googleLocation?.geometry?.location?.lng,
+      types: post.types,
+    })), [eventPosts]);
 
   
   useEffect(() => {
@@ -328,7 +322,7 @@ export default function SolsticeSeasonBannerInner() {
         setPopupCoords(null);
       }
     }
-  }, [pointsData]);
+  }, []);
 
   return <div className={classNames(classes.root)} style={{ opacity: bannerOpacity, pointerEvents: pointerEventsDisabled ? 'none' : 'auto' }}>
     <div className={classes.globeGradientRight} />

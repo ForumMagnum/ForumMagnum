@@ -1,4 +1,5 @@
 import type { HomepageCommunityEventMarker } from '@/lib/generated/gql-codegen/graphql';
+import type { CSSProperties, MouseEventHandler } from 'react';
 
 export type SolsticeGlobePoint = {
   lat: number;
@@ -25,8 +26,8 @@ export type SolsticeGlobe3DProps = {
   onFullyLoaded?: () => void;
   onFpsChange?: (fps: number) => void;
   className?: string;
-  style?: React.CSSProperties;
-  onClick?: React.MouseEventHandler<HTMLDivElement>;
+  style?: CSSProperties;
+  onClick?: MouseEventHandler<HTMLDivElement>;
   // URLs for the globe day and night textures. Accepts JPG, PNG, or SVG formats. Note: SVGs will be rasterized at load time.
   // For best performance with 3D globe textures, equirectangular bitmap images (JPG/PNG) are recommended.
   // The images should use an equirectangular projection (360° horizontal, 180° vertical).

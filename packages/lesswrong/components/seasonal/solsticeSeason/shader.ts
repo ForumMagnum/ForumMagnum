@@ -40,20 +40,17 @@ export const createDayNightShaderMaterial = (contrast: number, brightness: numbe
         }
         
         float longitude = (rotatedUv.x - 0.5) * 360.0;
-        float latitude = (rotatedUv.y - 0.5) * 180.0;
         
         // Account for globe rotation
         float adjustedLongitude = longitude - globeRotation.x;
         
         float sunLongitude = sunPosition.x + 90.0;
-        float sunLatitude = sunPosition.y;
         
         float lonDiff = adjustedLongitude - sunLongitude;
         if (lonDiff > 180.0) lonDiff -= 360.0;
         if (lonDiff < -180.0) lonDiff += 360.0;
         
         float angleFromSun = abs(lonDiff);
-        if (angleFromSun > 180.0) angleFromSun = 360.0 - angleFromSun;
         
         float rawBlend = cos(angleFromSun * PI / 180.0);
         float blendFactor = smoothstep(-0.1, 0.1, rawBlend);

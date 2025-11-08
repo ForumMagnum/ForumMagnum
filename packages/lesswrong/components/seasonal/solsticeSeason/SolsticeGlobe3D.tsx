@@ -25,7 +25,6 @@ export const SolsticeGlobe3D = ({
   onPointClick,
   onReady,
   onFullyLoaded,
-  onFpsChange,
   className,
   style,
   onClick,
@@ -36,7 +35,6 @@ export const SolsticeGlobe3D = ({
   initialAltitudeMultiplier = DEFAULT_INITIAL_ALTITUDE_MULTIPLIER,
 }: SolsticeGlobe3DProps) => {
   const [isGlobeReady, setIsGlobeReady] = useState(false);
-  const [isRotating, setIsRotating] = useState(true);
   const [isFullyLoaded, setIsFullyLoaded] = useState(false);
   const [screenHeight, setScreenHeight] = useState(typeof window !== 'undefined' ? window.innerHeight : 1000);
   const [isHoveringMarker, setIsHoveringMarker] = useState(false);
@@ -46,7 +44,6 @@ export const SolsticeGlobe3D = ({
   const isDraggingRef = useRef(false);
   const shouldIgnoreClickRef = useRef(false);
   const clickIgnoreTimeoutRef = useRef<NodeJS.Timeout | null>(null);
-  const containerRef = useRef<HTMLDivElement | null>(null);
 
   const initialPov = useMemo(() => ({
     lat: defaultPointOfView.lat,
@@ -66,16 +63,14 @@ export const SolsticeGlobe3D = ({
     
     // If we have click coordinates, check if the click is within any marker's bounds
     if (clientX !== undefined && clientY !== undefined) {
-      // Increase clickable area by adding padding around the marker
-      const clickPadding = 0;
       for (const marker of allMarkers) {
         if (marker instanceof HTMLElement) {
           const rect = marker.getBoundingClientRect();
           if (
-            clientX >= rect.left - clickPadding &&
-            clientX <= rect.right + clickPadding &&
-            clientY >= rect.top - clickPadding &&
-            clientY <= rect.bottom + clickPadding
+            clientX >= rect.left &&
+            clientX <= rect.right &&
+            clientY >= rect.top &&
+            clientY <= rect.bottom
           ) {
             return marker;
           }
@@ -129,9 +124,8 @@ export const SolsticeGlobe3D = ({
       return;
     }
     
-    // Non-marker click - stop rotation immediately
+    // Non-marker click
     if (!shouldIgnoreClickRef.current) {
-      setIsRotating(false);
       onClick?.(e);
     }
   }, [findMarkerElement, pointsData, onPointClick, onClick]);
@@ -156,7 +150,6 @@ export const SolsticeGlobe3D = ({
     if (dragStartRef.current && isDraggingRef.current && !isMarkerClick) {
       const deltaX = e.clientX - dragStartRef.current.x;
       if (deltaX < -10) {
-        setIsRotating(true);
         shouldIgnoreClickRef.current = true;
         // Clear any existing timeout to prevent accumulation
         if (clickIgnoreTimeoutRef.current) {
@@ -212,8 +205,7 @@ export const SolsticeGlobe3D = ({
   const markerData: GlobeMarkerData[] = mapPointsToMarkers(pointsData);
 
   const renderHtmlElement = useCallback((d: GlobeMarkerData): HTMLElement => {
-    // const originalPoint = getOriginalPoint(d);
-    const markerSize = 30
+    const markerSize = 30;
     const el = document.createElement('div');
     el.setAttribute('data-globe-marker', 'true');
     el.setAttribute('data-marker-index', String(d._index));
@@ -227,12 +219,7 @@ export const SolsticeGlobe3D = ({
     `;
     
     return el;
-  }, [pointsData, onPointClick]);
-  
-  // const htmlLng = useCallback((d: GlobeMarkerData): number => {
-  //   const rotationDegrees = (textureRotationRef.current * 180) / Math.PI;
-  //   return d.lng - rotationDegrees;
-  // }, [textureRotationRef]);
+  }, []);
   
   const htmlAltitude = useCallback((d: GlobeMarkerData): number => {
     return (typeof d.size === 'number' ? d.size : 1) * altitudeScale * 0.01;
@@ -261,7 +248,6 @@ export const SolsticeGlobe3D = ({
 
   return (
     <div
-      ref={containerRef}
       style={{ ...style, cursor: isHoveringMarker ? 'pointer' : 'grab', width: '100%', height: screenHeight, position: 'relative', opacity: isFullyLoaded ? 1 : 0, transition: 'opacity 0.8s ease-in-out' }}
       className={className}
       onMouseDown={handleMouseDown}
@@ -279,7 +265,6 @@ export const SolsticeGlobe3D = ({
           polygonAltitude={0.03}
           htmlElementsData={markerData}
           htmlLat={(d: GlobeMarkerData) => d.lat}
-          // htmlLng={htmlLng}
           htmlAltitude={htmlAltitude}
           htmlElement={renderHtmlElement}
           showAtmosphere={true}
