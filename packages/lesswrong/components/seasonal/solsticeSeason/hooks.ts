@@ -139,35 +139,3 @@ export const useGlobeAnimation = (globeMaterialRef: React.MutableRefObject<any>,
   
   return rotationRef;
 };
-
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-export const useFramerate = (isGlobeReady: boolean, globeRef: React.MutableRefObject<any>): number => {
-  const [fps, setFps] = useState(0);
-  
-  useEffect(() => {
-    if (!isGlobeReady || !globeRef.current) return;
-    
-    const renderer = globeRef.current.renderer?.();
-    if (!renderer) return;
-    
-    let lastTime = performance.now();
-    let frameCount = 0;
-    const originalRender = renderer.render.bind(renderer);
-    
-    renderer.render = function(...args: any[]) {
-      frameCount++;
-      const now = performance.now();
-      if (now - lastTime >= 1000) {
-        setFps(Math.round((frameCount * 1000) / (now - lastTime)));
-        frameCount = 0;
-        lastTime = now;
-      }
-      return originalRender(...args);
-    };
-    
-    return () => { renderer.render = originalRender; };
-  }, [isGlobeReady, globeRef]);
-  
-  return fps;
-};
-

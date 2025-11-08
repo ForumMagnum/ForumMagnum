@@ -1,6 +1,6 @@
 import React, { useState, useRef, useMemo, useCallback, useEffect } from 'react';
 import { SolsticeGlobe3DProps, SolsticeGlobePoint } from './types';
-import { useGlobeDayNightMaterial, useGlobeReadyEffects, useGlobeAnimation, useFramerate } from './hooks';
+import { useGlobeDayNightMaterial, useGlobeReadyEffects } from './hooks';
 import { mapPointsToMarkers } from './utils';
 import { useEventListener } from '@/components/hooks/useEventListener';
 import { DEFAULT_DAY_IMAGE_URL, DEFAULT_NIGHT_IMAGE_URL, DEFAULT_LUMINOSITY_IMAGE_URL, DEFAULT_ALTITUDE_SCALE, DEFAULT_INITIAL_ALTITUDE_MULTIPLIER } from './solsiceSeasonConstants';
@@ -39,6 +39,7 @@ export const SolsticeGlobe3D = ({
   const [isRotating, setIsRotating] = useState(true);
   const [isFullyLoaded, setIsFullyLoaded] = useState(false);
   const [screenHeight, setScreenHeight] = useState(typeof window !== 'undefined' ? window.innerHeight : 1000);
+  const [isHoveringMarker, setIsHoveringMarker] = useState(false);
   const globeRef = useRef<GlobeMethods | undefined>(undefined);
   const globeMaterialRef = useGlobeDayNightMaterial();
   const dragStartRef = useRef<{ x: number; y: number } | null>(null);
@@ -66,7 +67,7 @@ export const SolsticeGlobe3D = ({
     // If we have click coordinates, check if the click is within any marker's bounds
     if (clientX !== undefined && clientY !== undefined) {
       // Increase clickable area by adding padding around the marker
-      const clickPadding = 10;
+      const clickPadding = 0;
       for (const marker of allMarkers) {
         if (marker instanceof HTMLElement) {
           const rect = marker.getBoundingClientRect();
@@ -142,7 +143,15 @@ export const SolsticeGlobe3D = ({
     isDraggingRef.current = false;
   }, [findMarkerElement]);
 
+  const handleMouseMove = useCallback((e: MouseEvent) => {
+    const target = e.target as HTMLElement;
+    const markerElement = findMarkerElement(target, e.clientX, e.clientY);
+    const isOverMarker = markerElement !== null;
+    setIsHoveringMarker(isOverMarker);
+  }, [findMarkerElement]);
+
   useEventListener('mousemove', handleGlobalMouseMove);
+  useEventListener('mousemove', handleMouseMove);
   useEventListener('mouseup', handleGlobalMouseUp);
 
   const handleClick = useCallback((e: React.MouseEvent<HTMLDivElement>) => {
@@ -184,6 +193,7 @@ export const SolsticeGlobe3D = ({
     setIsRotating(false);
     onClick?.(e);
   }, [onClick, pointsData, onPointClick, findMarkerElement]);
+
   const handleZoom = useCallback(({ lng, lat }: { lng: number; lat: number }) => {
     if (globeMaterialRef.current?.uniforms?.globeRotation) {
       globeMaterialRef.current.uniforms.globeRotation.value.set(lng, lat);
@@ -191,31 +201,15 @@ export const SolsticeGlobe3D = ({
   }, [globeMaterialRef]);
 
   const markerData: GlobeMarkerData[] = mapPointsToMarkers(pointsData);
-  
-  const getOriginalPoint = useCallback((d: GlobeMarkerData): SolsticeGlobePoint | null => {
-    // Use _index to directly access the original point from pointsData
-    if (d._index !== undefined && d._index >= 0 && d._index < pointsData.length) {
-      return pointsData[d._index];
-    }
-    // Fallback: try to find by eventId
-    if (d.eventId) {
-      const found = pointsData.find(p => p.eventId === d.eventId);
-      if (found) return found;
-    }
-    return null;
-  }, [pointsData]);
 
   const renderHtmlElement = useCallback((d: GlobeMarkerData): HTMLElement => {
-    const originalPoint = getOriginalPoint(d);
-    const color = typeof originalPoint?.color === 'string' ? originalPoint.color : '#FFD700';
-    const markerSize = screenHeight * 0.024;
+    // const originalPoint = getOriginalPoint(d);
+    const color = '#FFD700';
+    const markerSize = 30
     const el = document.createElement('div');
     el.setAttribute('data-globe-marker', 'true');
-    // Store the index as a data attribute so we can look it up on click
     el.setAttribute('data-marker-index', String(d._index));
     el.style.color = color;
-    el.style.cursor = 'pointer';
-    el.style.padding = '15px';
     el.innerHTML = `
       <div style="text-align: center;">
         <svg viewBox="0 0 24 24" style="width:${markerSize}px;margin:0 auto;">
@@ -224,37 +218,8 @@ export const SolsticeGlobe3D = ({
       </div>
     `;
     
-    // Attach click handler directly to the element when it's created
-    // This is the proper way to handle clicks on HTML elements in react-globe.gl
-    el.addEventListener('click', (e: MouseEvent) => {
-      e.stopPropagation();
-      e.preventDefault();
-      
-      const target = e.target as HTMLElement;
-      const markerIndex = d._index;
-      
-      if (markerIndex >= 0 && markerIndex < pointsData.length) {
-        const point = pointsData[markerIndex];
-        
-        // Check if click was on SVG (meetup type click) or div (point click)
-        const isSvgClick = target.closest('svg') !== null;
-        
-        // Always trigger popup on marker click
-        if (onPointClick && point.eventId) {
-          const solsticePoint: SolsticeGlobePoint = {
-            lat: point.lat,
-            lng: point.lng,
-            size: point.size,
-            eventId: point.eventId,
-            event: point.event,
-          };
-          onPointClick(solsticePoint, { x: e.clientX, y: e.clientY });
-        }
-      }
-    });
-    
     return el;
-  }, [getOriginalPoint, pointsData, onPointClick, screenHeight]);
+  }, [pointsData, onPointClick]);
   
   // const htmlLng = useCallback((d: GlobeMarkerData): number => {
   //   const rotationDegrees = (textureRotationRef.current * 180) / Math.PI;
@@ -271,8 +236,8 @@ export const SolsticeGlobe3D = ({
       if (controls) {
         // Lock vertical rotation by setting min and max polar angle to the same value
         // Math.PI / 3 is 60 degrees (30 degrees higher than equator view)
-        // controls.minPolarAngle = Math.PI / 3;
-        // controls.maxPolarAngle = Math.PI / 3;
+        controls.minPolarAngle = Math.PI / 3;
+        controls.maxPolarAngle = Math.PI / 3;
       }
     }
   }, [isGlobeReady]);
@@ -288,7 +253,7 @@ export const SolsticeGlobe3D = ({
   return (
     <div
       ref={containerRef}
-      style={{ ...style, cursor: 'grab', width: '100%', height: screenHeight, position: 'relative', opacity: isFullyLoaded ? 1 : 0, transition: 'opacity 0.8s ease-in-out' }}
+      style={{ ...style, cursor: isHoveringMarker ? 'pointer' : 'grab', width: '100%', height: screenHeight, position: 'relative', opacity: isFullyLoaded ? 1 : 0, transition: 'opacity 0.8s ease-in-out' }}
       className={className}
       onMouseDown={handleMouseDown}
       onClick={handleClick}

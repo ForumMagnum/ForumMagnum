@@ -238,13 +238,37 @@ const styles = defineStyles("SolsticeSeasonBanner", (theme: ThemeType) => ({
   },
   postsListBlockingRect: {
     position: 'absolute',
+    // background: 'red',
     top: 0,
     height: '100%',
     width: 800,
     right: "calc(100% - 375px)",
+    [theme.breakpoints.up(1400)]: {
+      right: "calc(100% - 350px)",
+    },
+    [theme.breakpoints.up(1500)]: {
+      right: "calc(100% - 324px)",
+    },
+    [theme.breakpoints.up(1700)]: {
+      right: "calc(100% - 250px)"
+    },
+    [theme.breakpoints.up(1800)]: {
+      right: "calc(100% - 200px)"
+    },
+
     zIndex: 5,
     pointerEvents: 'auto',
   },
+  background: {
+    position: 'absolute',
+    top: 0,
+    right: 0,
+    width: '60vw',
+    height: '100%',
+    pointerEvents: 'auto',
+    // background: theme.palette.text.alwaysBlack,
+    background: `linear-gradient(to left, ${theme.palette.text.alwaysBlack} 60%, transparent 100%)`,
+  }
 }));
 
 const HomepageCommunityEventPostsQuery = gql(`
@@ -367,13 +391,13 @@ export default function SolsticeSeasonBannerInner() {
   return <div className={classNames(classes.root)} style={{ opacity: bannerOpacity, pointerEvents: pointerEventsDisabled ? 'none' : 'auto' }} onClick={(event) => handleMeetupClick(event, undefined)}>
     <div className={classes.globeGradientRight} />
     <div className={classes.postsListBlockingRect}/>
+    <div className={classes.background} />
     <div className={classes.globeContainer}>
         {renderSolsticeSeason && <SolsticeGlobe3D 
           pointsData={pointsData}
           defaultPointOfView={defaultPointOfView}
           onPointClick={(point: SolsticeGlobePoint, screenCoords: { x: number; y: number }) => handleMeetupClick(undefined, point.eventId, screenCoords)}
           onFullyLoaded={handleGlobeFullyLoaded}
-          onFpsChange={setFps}
           style={{ width: '100%', height: '100%' }}
         />}
       {selectedEventId && popupCoords && selectedEventPost && (
