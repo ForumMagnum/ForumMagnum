@@ -274,89 +274,14 @@ export default function SolsticeSeasonBannerInner() {
     variables: { eventType: "SOLSTICE" },
   });
   const eventPosts = data?.HomepageCommunityEventPosts?.posts ?? [];
+  // const events = []
   const events = eventPosts.map((post: PostsList) => ({
     _id: post._id,
     lat: post.googleLocation?.geometry?.location?.lat,
     lng: post.googleLocation?.geometry?.location?.lng,
     types: post.types,
-    document: post,
   }));
 
-  useEffect(() => {
-    if (!isWidescreen) return;
-    retryCountRef.current = 0;
-
-    const measureLayout = () => {
-      // Find the main content area - this represents where the layout content ends
-      // The Layout-main element is in the 'main' grid area, which is before the imageGap
-      const mainContent = document.querySelector('.Layout-main') as HTMLElement;
-      const wrapper = document.querySelector('.wrapper') as HTMLElement;
-      
-      if (!mainContent && !wrapper) {
-        // Retry if elements aren't ready yet (max 10 retries)
-        if (retryCountRef.current < 10) {
-          retryCountRef.current++;
-          setTimeout(measureLayout, 100);
-        }
-        return;
-      }
-      
-      retryCountRef.current = 0;
-
-      // Prefer mainContent as it's more precise (ends where content ends)
-      // Fall back to wrapper if mainContent isn't available
-      const layoutElement = mainContent || wrapper;
-      const layoutRect = layoutElement.getBoundingClientRect();
-      const layoutEnd = layoutRect.right;
-      const viewportWidth = window.innerWidth;
-      
-      // Banner root spans from 50vw to 100vw (position: fixed, right: 0, width: 50vw)
-      // GlobeContainer spans from 70vw to 100vw (position: absolute, right: 0, width: 60% of 50vw)
-      // So globeContainerLeft = 100vw - (50vw * 0.6) = 100vw - 30vw = 70vw
-      const globeContainerLeft = viewportWidth * 0.7;
-      
-      // Available space: from layout end to viewport right edge
-      const availableSpaceStart = layoutEnd;
-      const availableSpaceEnd = viewportWidth;
-      const availableSpaceCenter = (availableSpaceStart + availableSpaceEnd) / 2;
-      
-      // Position relative to globeContainer's left edge (in pixels)
-      const leftPosition = availableSpaceCenter - globeContainerLeft;
-      
-      // Convert to percentage of globeContainer width (which is 30vw = viewportWidth * 0.3)
-      const globeContainerWidth = viewportWidth * 0.3;
-      const leftPercent = (leftPosition / globeContainerWidth) * 100;
-      
-      setTextContainerLeft(`${leftPercent}%`);
-    };
-
-    // Wait for layout to be ready, then measure
-    const initialTimeout = setTimeout(measureLayout, 100);
-    
-    const resizeObserver = new ResizeObserver(() => {
-      // Debounce resize measurements to avoid excessive recalculations
-      if (resizeTimeoutRef.current) clearTimeout(resizeTimeoutRef.current);
-      resizeTimeoutRef.current = setTimeout(measureLayout, 50);
-    });
-    
-    // Observe the main content element for size changes
-    const mainContent = document.querySelector('.Layout-main');
-    const wrapper = document.querySelector('.wrapper');
-    if (mainContent) {
-      resizeObserver.observe(mainContent);
-    } else if (wrapper) {
-      resizeObserver.observe(wrapper);
-    }
-    
-    window.addEventListener('resize', measureLayout);
-    
-    return () => {
-      clearTimeout(initialTimeout);
-      if (resizeTimeoutRef.current) clearTimeout(resizeTimeoutRef.current);
-      resizeObserver.disconnect();
-      window.removeEventListener('resize', measureLayout);
-    };
-  }, [isWidescreen]);
   
   useEffect(() => {
     const handleScroll = () => {

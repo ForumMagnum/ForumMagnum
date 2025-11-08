@@ -271,8 +271,8 @@ export const SolsticeGlobe3D = ({
       if (controls) {
         // Lock vertical rotation by setting min and max polar angle to the same value
         // Math.PI / 3 is 60 degrees (30 degrees higher than equator view)
-        controls.minPolarAngle = Math.PI / 3;
-        controls.maxPolarAngle = Math.PI / 3;
+        // controls.minPolarAngle = Math.PI / 3;
+        // controls.maxPolarAngle = Math.PI / 3;
       }
     }
   }, [isGlobeReady]);
