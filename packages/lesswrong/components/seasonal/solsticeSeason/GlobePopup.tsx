@@ -12,16 +12,11 @@ import { useTheme } from "@/components/themes/useTheme";
 const styles = defineStyles("GlobePopup", (theme: ThemeType) => ({
   popupContainer: {
     ...commentBodyStyles(theme),
-    background: `light-dark(${theme.palette.grey[200]}, ${theme.palette.grey[800]})`,
+    background: theme.palette.grey[200],
     borderRadius: '5px !important',
-    color: theme.palette.text.alwaysBlack,
     padding: 10,
     maxWidth: 250,
     position: 'relative',
-    opacity: 0.9,
-    '&:hover': {
-      opacity: 1
-    },
   },
   triangle: {
     position: 'absolute',
@@ -35,7 +30,6 @@ const styles = defineStyles("GlobePopup", (theme: ThemeType) => ({
     textDecoration: 'none',
     gap: 4,
     textWrap: "balance",
-    color: theme.palette.text.alwaysBlack,
     '&:hover': {
       opacity: 1
     },
@@ -57,7 +51,7 @@ export const GlobePopup = ({document, screenCoords, onClose}: {
   const popupRef = useRef<HTMLDivElement>(null);
   const [triangleStyle, setTriangleStyle] = useState<React.CSSProperties>({});
   const theme = useTheme();
-  const bgColor = `light-dark(${theme.palette.grey[200]}, ${theme.palette.grey[800]})`;
+  const bgColor = theme.palette.grey[200];
 
   const { refs, floatingStyles, placement: actualPlacement } = useFloating({
     placement: 'right',

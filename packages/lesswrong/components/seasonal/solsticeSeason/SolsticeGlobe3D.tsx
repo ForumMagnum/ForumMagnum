@@ -262,19 +262,6 @@ export const SolsticeGlobe3D = ({
     return (typeof d.size === 'number' ? d.size : 1) * altitudeScale * 0.01;
   }, [altitudeScale]);
 
-  // we're locking vertical rotation because it lags.
-  useEffect(() => {
-    if (globeRef.current) {
-      const controls = globeRef.current.controls();
-      if (controls) {
-        // Lock vertical rotation by setting min and max polar angle to the same value
-        // Math.PI / 3 is 60 degrees (30 degrees higher than equator view)
-        controls.minPolarAngle = Math.PI / 3;
-        controls.maxPolarAngle = Math.PI / 3;
-      }
-    }
-  }, [isGlobeReady]);
-
   useEffect(() => {
     const handleResize = () => {
       setScreenHeight(window.innerHeight);
