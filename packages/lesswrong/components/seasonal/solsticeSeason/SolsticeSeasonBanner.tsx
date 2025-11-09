@@ -123,9 +123,9 @@ const styles = defineStyles("SolsticeSeasonBanner", (theme: ThemeType) => ({
     width: 310,
     flexWrap: 'wrap',
     gap: 8,
-    marginTop: 24,
+    marginTop: 16,
   },
-  createEventButton: {
+  eventButton: {
     display: 'flex',
     ...theme.typography.commentStyle,
     borderRadius: 3,
@@ -155,10 +155,14 @@ const styles = defineStyles("SolsticeSeasonBanner", (theme: ThemeType) => ({
     fontSize: 12,
     fontWeight: 400,
     opacity: 0.8,
+    whiteSpace: 'nowrap',
   },
   createEventButtonAnnounce: {
-    width: "calc(100% - 2px)",
-    justifyContent: 'center',
+    ...theme.typography.commentStyle,
+    fontSize: 16,
+    color: theme.palette.primary.light,
+    marginTop: 0,
+    cursor: 'pointer',
   },
   hideButton: {
     textAlign: 'center',
@@ -352,16 +356,17 @@ export default function SolsticeSeasonBannerInner() {
             Celebrate the longest night of the year!
           </p>
           <p className={classNames(classes.subtitle)}>
-            Visit a megameetup at a major city, or host a small gathering for your friends the night of the 21st.</p>
+            Visit a megameetup at a major city, or host a small gathering for your friends the night of the 21st.
+          </p>
+          <Link to={`/newPost?eventForm=true&SOLSTICE=true`} target="_blank" rel="noopener noreferrer">
+            <div className={classes.createEventButtonAnnounce}>Create a Solstice Event</div>
+          </Link>
           <div className={classes.buttonContainer}>
-            <Link to="https://waypoint.lighthaven.space/solstice-season" target="_blank" rel="noopener noreferrer"  className={classNames(classes.createEventButton)}>
-              Berkeley <span className={classes.date}>Dec 6</span>
+            <Link to="https://waypoint.lighthaven.space/solstice-season" target="_blank" rel="noopener noreferrer"  className={classNames(classes.eventButton)}>
+              Berkeley Megameetup<span className={classes.date}>Dec 6</span>
             </Link>
-            <Link to="https://rationalistmegameetup.com/" target="_blank" rel="noopener noreferrer" className={classNames(classes.createEventButton)}>
-              New York <span className={classes.date}>Dec 13</span>
-            </Link>
-            <Link to={`/newPost?eventForm=true&SOLSTICE=true`} target="_blank" rel="noopener noreferrer" className={classNames(classes.createEventButton, classes.createEventButtonAnnounce)}>
-              Announce a Solstice
+            <Link to="https://rationalistmegameetup.com/" target="_blank" rel="noopener noreferrer" className={classNames(classes.eventButton)}>
+              New York Megameetup<span className={classes.date}>Dec 13</span>
             </Link>
           </div>  
           <div className={classes.hideButton} onClick={() => handleHideSolsticeSeason()}>

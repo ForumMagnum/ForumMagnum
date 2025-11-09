@@ -26,7 +26,6 @@ const styles = defineStyles("GlobePopup", (theme: ThemeType) => ({
     textWrap: "balance",
     color: theme.palette.text.alwaysWhite,
     '&:hover': {
-      color: theme.palette.primary.dark,
       opacity: 0.8,
     },
   },
