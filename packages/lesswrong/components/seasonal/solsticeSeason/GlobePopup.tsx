@@ -1,38 +1,50 @@
-import React, { useEffect } from "react";
+import React, { useEffect, useState, useRef } from "react";
 import { defineStyles, useStyles } from "@/components/hooks/useStyles";
 import { postGetPageUrl } from "@/lib/collections/posts/helpers";;
 import { useFloating, autoUpdate, offset, flip, shift } from '@floating-ui/react-dom';
-import type { VirtualElement } from '@floating-ui/dom';
 import FormatDate from "@/components/common/FormatDate";
 import { commentBodyStyles } from "@/themes/stylePiping";
 import Link from "next/link";
 import { Row } from "@/components/common/Row";
+import { useTheme } from "@/components/themes/useTheme";
 
 
 const styles = defineStyles("GlobePopup", (theme: ThemeType) => ({
   popupContainer: {
     ...commentBodyStyles(theme),
-    background: `light-dark(${theme.palette.grey[900]}, ${theme.palette.grey[100]})`,
+    background: `light-dark(${theme.palette.grey[200]}, ${theme.palette.grey[800]})`,
     borderRadius: '5px !important',
-    color: theme.palette.text.alwaysWhite,
+    color: theme.palette.text.alwaysBlack,
     padding: 10,
-    maxWidth: 250
+    maxWidth: 250,
+    position: 'relative',
+    opacity: 0.9,
+    '&:hover': {
+      opacity: 1
+    },
+  },
+  triangle: {
+    position: 'absolute',
+    width: 0,
+    height: 0,
+    borderStyle: 'solid',
   },
   link: {
     display: 'flex',
     flexDirection: 'column',
     textDecoration: 'none',
-    gap: 6,
+    gap: 4,
     textWrap: "balance",
-    color: theme.palette.text.alwaysWhite,
+    color: theme.palette.text.alwaysBlack,
     '&:hover': {
-      opacity: 0.8,
+      opacity: 1
     },
   },
   meta: {
     fontWeight: 400,
     fontSize: '1rem',
     opacity: 0.8,
+    lineHeight: 1.2,
   }
 }));
 
@@ -42,24 +54,19 @@ export const GlobePopup = ({document, screenCoords, onClose}: {
   onClose: () => void;
 }) => {
   const classes = useStyles(styles);
+  const popupRef = useRef<HTMLDivElement>(null);
+  const [triangleStyle, setTriangleStyle] = useState<React.CSSProperties>({});
+  const theme = useTheme();
+  const bgColor = `light-dark(${theme.palette.grey[200]}, ${theme.palette.grey[800]})`;
 
-  const placement = 'right';
-
-  const { refs, floatingStyles } = useFloating({
-    placement,
-    middleware: [
-      offset(20), // 10px offset from the marker
-      flip(), // Flip to opposite side if not enough space
-      shift({ padding: 8 }), // Shift to keep within viewport with 8px padding
-    ],
-    whileElementsMounted: (reference, floating, update) => {
-      return autoUpdate(reference, floating, update);
-    },
+  const { refs, floatingStyles, placement: actualPlacement } = useFloating({
+    placement: 'right',
+    middleware: [offset(25), flip(), shift({ padding: 8 })],
+    whileElementsMounted: autoUpdate,
   });
 
-  // Set virtual reference element from screen coordinates
   useEffect(() => {
-    const virtualElement: VirtualElement = {
+    refs.setReference({
       getBoundingClientRect: () => ({
         width: 0,
         height: 0,
@@ -70,38 +77,83 @@ export const GlobePopup = ({document, screenCoords, onClose}: {
         right: screenCoords.x,
         bottom: screenCoords.y,
       }),
-    };
-    refs.setReference(virtualElement);
+    });
   }, [refs, screenCoords.x, screenCoords.y]);
+
+  useEffect(() => {
+    if (!popupRef.current) return;
+    const popupRect = popupRef.current.getBoundingClientRect();
+    const placementSide = actualPlacement.split('-')[0];
+    const isVertical = placementSide === 'top' || placementSide === 'bottom';
+    const offset = isVertical 
+      ? screenCoords.x - popupRect.left 
+      : screenCoords.y - popupRect.top;
+    const clampedOffset = Math.max(10, Math.min(
+      (isVertical ? popupRect.width : popupRect.height) - 10, 
+      offset
+    ));
+
+    const triangleConfig: Record<string, React.CSSProperties> = {
+      right: {
+        left: 0,
+        top: `${clampedOffset}px`,
+        transform: 'translateX(-100%) translateY(-50%)',
+        borderWidth: '8px 10px 8px 0',
+        borderColor: `transparent ${bgColor} transparent transparent`,
+      },
+      left: {
+        left: '100%',
+        top: `${clampedOffset}px`,
+        transform: 'translateY(-50%)',
+        borderWidth: '8px 0 8px 10px',
+        borderColor: `transparent transparent transparent ${bgColor}`,
+      }
+    };
+
+    setTriangleStyle({
+      width: 0,
+      height: 0,
+      borderStyle: 'solid',
+      ...triangleConfig[placementSide],
+    });
+  }, [actualPlacement, screenCoords.x, screenCoords.y, floatingStyles, bgColor]);
 
   if (!document) return null;
 
-  const { htmlHighlight = "" } = document.contents || {};
-  const htmlBody = {__html: htmlHighlight};
-
-  const areSameDay = document.startTime && document.endTime && (() => {
-    const start = new Date(document.startTime);
-    const end = new Date(document.endTime);
-    return start.getFullYear() === end.getFullYear() &&
-           start.getMonth() === end.getMonth() &&
-           start.getDate() === end.getDate();
-  })();
-
-  const endTimeFormat = areSameDay ? "h:mm a" : "MMM D, YYYY h:mm a";
+  const startDate = document.startTime ? new Date(document.startTime) : null;
+  const endDate = document.endTime ? new Date(document.endTime) : null;
+  const areSameDay = startDate && endDate && 
+    startDate.toDateString() === endDate.toDateString();
+  const endTimeFormat = areSameDay ? "h:mm a" : "MMM D h:mm a";
 
   return (
     <div
-      ref={refs.setFloating}
+      ref={(node) => {
+        refs.setFloating(node);
+        popupRef.current = node;
+      }}
       style={floatingStyles}
       className={classes.popupContainer}
     >
-      <Link href={postGetPageUrl(document)} className={classes.link}>
+      <div className={classes.triangle} style={triangleStyle} />
+      <Link href={postGetPageUrl(document)} className={classes.link} target="_blank" rel="noopener noreferrer">
         <div>{document.title}</div>
-        <Row justifyContent="flex-start" gap={4}>
-          {document.startTime && <div className={classes.meta}><em><FormatDate tooltip={false} date={document.startTime} format="MMM D h:mm a" /></em></div>} - 
-          {document.endTime && <div className={classes.meta}><em><FormatDate tooltip={false} date={document.endTime} format={endTimeFormat} /></em></div>}
-        </Row>
-          {document.location && <div className={classes.meta}>{document.location}</div>}
+        {(document.startTime || document.endTime) && (
+          <Row justifyContent="flex-start" gap={4}>
+            {document.startTime && (
+              <div className={classes.meta}>
+                <em><FormatDate tooltip={false} date={document.startTime} format="MMM D h:mm a" /></em>
+              </div>
+            )}
+            {document.startTime && document.endTime && ' - '}
+            {document.endTime && (
+              <div className={classes.meta}>
+                <em><FormatDate tooltip={false} date={document.endTime} format={endTimeFormat} /></em>
+              </div>
+            )}
+          </Row>
+        )}
+        {document.location && <div className={classes.meta}>{document.location}</div>}
       </Link>
     </div>
   );
