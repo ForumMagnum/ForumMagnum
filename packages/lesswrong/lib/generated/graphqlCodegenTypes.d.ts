@@ -2786,6 +2786,11 @@ type HomepageCommunityEventMarkersResult = {
   events: Array<HomepageCommunityEventMarker>;
 };
 
+type HomepageCommunityEventPostsResult = {
+  __typename?: 'HomepageCommunityEventPostsResult';
+  posts: Array<Post>;
+};
+
 type Images = {
   __typename?: 'Images';
   _id: Scalars['String']['output'];
@@ -7549,6 +7554,7 @@ type Query = {
   GetRandomUser?: Maybe<User>;
   GetUserBySlug?: Maybe<User>;
   GivingSeasonHearts: Array<GivingSeasonHeart>;
+  HomepageCommunityEventPosts: HomepageCommunityEventPostsResult;
   HomepageCommunityEvents: HomepageCommunityEventMarkersResult;
   IsDisplayNameTaken: Scalars['Boolean']['output'];
   Lightcone2024FundraiserStripeAmounts?: Maybe<Array<Scalars['Int']['output']>>;
@@ -7832,6 +7838,11 @@ type QueryGetUserBySlugArgs = {
 
 type QueryGivingSeasonHeartsArgs = {
   electionName: Scalars['String']['input'];
+};
+
+
+type QueryHomepageCommunityEventPostsArgs = {
+  eventType: Scalars['String']['input'];
 };
 
 
@@ -19844,6 +19855,23 @@ type petrovDay2024ResolversQueryVariables = Exact<{ [key: string]: never; }>;
 
 
 type petrovDay2024ResolversQuery = petrovDay2024ResolversQuery_Query;
+
+type HomepageCommunityEventPostsQueryQuery_HomepageCommunityEventPosts_HomepageCommunityEventPostsResult_posts_Post = (
+  { __typename?: 'Post' }
+  & PostsList
+);
+
+type HomepageCommunityEventPostsQueryQuery_HomepageCommunityEventPosts_HomepageCommunityEventPostsResult = { __typename?: 'HomepageCommunityEventPostsResult', posts: Array<HomepageCommunityEventPostsQueryQuery_HomepageCommunityEventPosts_HomepageCommunityEventPostsResult_posts_Post> };
+
+type HomepageCommunityEventPostsQueryQuery_Query = { __typename?: 'Query', HomepageCommunityEventPosts: HomepageCommunityEventPostsQueryQuery_HomepageCommunityEventPosts_HomepageCommunityEventPostsResult };
+
+
+type HomepageCommunityEventPostsQueryQueryVariables = Exact<{
+  eventType: Scalars['String']['input'];
+}>;
+
+
+type HomepageCommunityEventPostsQueryQuery = HomepageCommunityEventPostsQueryQuery_Query;
 
 type updateChapterAddDraftPostDialogMutation_updateChapter_ChapterOutput_data_Chapter = (
   { __typename?: 'Chapter' }

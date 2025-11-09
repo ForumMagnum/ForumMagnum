@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { registerComponent } from '../lib/vulcan-lib/components';
 import { useSubscribedLocation } from '../lib/routeUtil';
 import { getReviewPhase, reviewResultsPostPath } from '../lib/reviewUtils';
@@ -8,9 +8,13 @@ import ReviewVotingCanvas from "./review/ReviewVotingCanvas";
 import CloudinaryImage2 from "./common/CloudinaryImage2";
 import { isHomeRoute } from '@/lib/routeChecks';
 import Inkhaven2025Banner from './seasonal/Inkhaven2025';
+import { SolsticeSeasonBanner } from './seasonal/solsticeSeason/SolsticeSeasonBanner';
 
 import MeetupMonthBanner from './seasonal/meetupMonth/MeetupMonthBanner';
 import PetrovDayStory from './seasonal/petrovDay/petrov-day-story/PetrovDayStory';
+import { useIsAboveBreakpoint } from './hooks/useScreenWidth';
+import { useCookiesWithConsent } from './hooks/useCookiesWithConsent';
+import { HIDE_SOLSTICE_GLOBE_COOKIE } from '@/lib/cookies/cookies';
 
 const styles = defineStyles("LWBackgroundImage", (theme: ThemeType) => ({
   root: {
@@ -105,6 +109,28 @@ const styles = defineStyles("LWBackgroundImage", (theme: ThemeType) => ({
       fontStyle: 'italic',
       opacity: .5,
     }
+  },
+  showSolsticeButton: {
+    position: 'fixed',
+    bottom: 12,
+    right: '12vw',
+    zIndex: 10,
+    ...theme.typography.commentStyle,
+    background: "transparent",
+    border: 'none',
+    borderRadius: 3,
+    fontSize: 14,
+    fontWeight: 400,
+    cursor: 'pointer',
+    padding: '8px 16px',
+    opacity: 0.5,
+    transition: 'opacity 0.2s ease-out',
+    '&:hover': {
+      opacity: 1,
+    },
+    [theme.breakpoints.down(1425)]: {
+      display: 'none',
+    },
   }
 }));
 
@@ -116,6 +142,9 @@ export const LWBackgroundImage = ({standaloneNavigation}: {
   const { pathname } = useSubscribedLocation();
   // const pathname = usePathname();
   const isHomePage = isHomeRoute(pathname);
+
+  const [cookies, setCookie] = useCookiesWithConsent([HIDE_SOLSTICE_GLOBE_COOKIE]);
+  const hideGlobeCookie = cookies[HIDE_SOLSTICE_GLOBE_COOKIE] === "true";
 
   const defaultImage = standaloneNavigation ? <div className={classes.imageColumn}> 
     {/* Background image shown in the top-right corner of LW. The
@@ -142,21 +171,25 @@ export const LWBackgroundImage = ({standaloneNavigation}: {
         darkPublicId={"happyWizard_mmmnjx"}
       />
   </div>
-
-  let homePageImage = defaultImage
+  
+  let homePageImage = (standaloneNavigation && isHomePage && !hideGlobeCookie) ? <SolsticeSeasonBanner /> : defaultImage
   if (getReviewPhase() === 'VOTING') homePageImage = <ReviewVotingCanvas />
   if (getReviewPhase() === 'RESULTS') homePageImage = reviewCompleteImage
 
-  // If we're on the homepage and it is still before the end of September 30 (Pacific time),
-  // override with the Inkhaven banner.
+  const showSolsticeButton = standaloneNavigation && isHomePage && hideGlobeCookie
+
   const now = new Date();
-  const inkhavenDeadline = new Date('2025-10-01T07:00:00Z'); // Midnight PST-8 / PDT-7 ≈ 07:00 UTC
-  if (isHomePage && now < inkhavenDeadline) {
-    homePageImage = <Inkhaven2025Banner />;
-  }
 
   return <div className={classes.root}>
     {homePageImage}
+    {showSolsticeButton && (
+      <button
+        className={classes.showSolsticeButton}
+        onClick={() => setCookie(HIDE_SOLSTICE_GLOBE_COOKIE, "false")}
+      >
+        Show Solstice Season
+      </button>
+    )}
   </div>;
 }
 

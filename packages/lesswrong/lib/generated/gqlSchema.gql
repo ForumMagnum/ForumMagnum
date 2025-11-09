@@ -621,6 +621,7 @@ extend type Query {
   DigestPlannerData(digestId: String, startDate: Date, endDate: Date): [DigestPlannerPost!]!
   DigestPosts(num: Int): [Post!]
   HomepageCommunityEvents(limit: Int!): HomepageCommunityEventMarkersResult!
+  HomepageCommunityEventPosts(eventType: String!): HomepageCommunityEventPostsResult!
 }
 
 extend type Mutation {
@@ -680,6 +681,10 @@ type HomepageCommunityEventMarker {
 
 type HomepageCommunityEventMarkersResult {
   events: [HomepageCommunityEventMarker!]!
+}
+
+type HomepageCommunityEventPostsResult {
+  posts: [Post!]!
 }
 
 type DigestHighlightsResult {
