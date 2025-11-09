@@ -279,9 +279,9 @@ export const postGqlQueries = {
       }
     })
   },
-  async HomepageCommunityEvents(root: void, { limit, eventType }: { limit: number, eventType?: string }, context: ResolverContext): Promise<HomepageCommunityEventMarkersResult> {
+  async HomepageCommunityEvents(root: void, { limit }: { limit: number }, context: ResolverContext): Promise<HomepageCommunityEventMarkersResult> {
     const { repos } = context
-    const events = await repos.posts.getHomepageCommunityEvents(limit, eventType)
+    const events = await repos.posts.getHomepageCommunityEvents(limit)
     return { events }
   },
   async HomepageCommunityEventPosts(root: void, { eventType }: { eventType: string }, context: ResolverContext) {
