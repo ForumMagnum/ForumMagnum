@@ -15,6 +15,7 @@ import PetrovDayStory from './seasonal/petrovDay/petrov-day-story/PetrovDayStory
 import { useIsAboveBreakpoint } from './hooks/useScreenWidth';
 import { useCookiesWithConsent } from './hooks/useCookiesWithConsent';
 import { HIDE_SOLSTICE_GLOBE_COOKIE } from '@/lib/cookies/cookies';
+import withErrorBoundary from './common/withErrorBoundary';
 
 const styles = defineStyles("LWBackgroundImage", (theme: ThemeType) => ({
   root: {
@@ -195,6 +196,7 @@ export const LWBackgroundImage = ({standaloneNavigation}: {
 
 export default registerComponent('LWBackgroundImage', LWBackgroundImage, {
   areEqual: "auto",
+  hocs: [withErrorBoundary],
 });
 
 
