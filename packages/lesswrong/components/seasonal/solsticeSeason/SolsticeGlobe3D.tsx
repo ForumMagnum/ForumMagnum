@@ -142,7 +142,13 @@ export const SolsticeGlobe3D = ({
               eventId: originalPoint.eventId,
               event: originalPoint.event,
             };
-            onPointClick(solsticePoint, { x: e.clientX, y: e.clientY });
+            // Use marker element's center position instead of click coordinates for deterministic positioning
+            const markerRect = markerElement.getBoundingClientRect();
+            const markerCenter = {
+              x: markerRect.left + (markerRect.width / 2),
+              y: markerRect.top + (markerRect.height / 2),
+            };
+            onPointClick(solsticePoint, markerCenter);
             // Prevent this click from triggering the onClick handler that would close the popup
             e.stopPropagation();
           }

@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo, useState } from "react";
+import React, { useEffect } from "react";
 import { defineStyles, useStyles } from "@/components/hooks/useStyles";
 import { postGetPageUrl } from "@/lib/collections/posts/helpers";;
 import { useFloating, autoUpdate, offset, flip, shift } from '@floating-ui/react-dom';
@@ -42,26 +42,13 @@ export const GlobePopup = ({document, screenCoords, onClose}: {
   onClose: () => void;
 }) => {
   const classes = useStyles(styles);
-  const [windowWidth, setWindowWidth] = useState(typeof window !== 'undefined' ? window.innerWidth : 0);
 
-  useEffect(() => {
-    const handleResize = () => {
-      setWindowWidth(window.innerWidth);
-    };
-    window.addEventListener('resize', handleResize);
-    return () => window.removeEventListener('resize', handleResize);
-  }, []);
-
-  // Place popup on right if marker is far from right edge (>10vw), otherwise on left
-  const placement = useMemo(() => {
-    const distanceFromRight = windowWidth - screenCoords.x;
-    return distanceFromRight > windowWidth * 0.1 ? 'right' : 'left';
-  }, [windowWidth, screenCoords.x]);
+  const placement = 'right';
 
   const { refs, floatingStyles } = useFloating({
     placement,
     middleware: [
-      offset(10), // 10px offset from the marker
+      offset(20), // 10px offset from the marker
       flip(), // Flip to opposite side if not enough space
       shift({ padding: 8 }), // Shift to keep within viewport with 8px padding
     ],
