@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import { defineStyles, useStyles } from "@/components/hooks/useStyles";
 import { postGetPageUrl } from "@/lib/collections/posts/helpers";;
 import { useFloating, autoUpdate, offset, flip, shift } from '@floating-ui/react-dom';
@@ -6,6 +6,7 @@ import type { VirtualElement } from '@floating-ui/dom';
 import FormatDate from "@/components/common/FormatDate";
 import { commentBodyStyles } from "@/themes/stylePiping";
 import Link from "next/link";
+import { Row } from "@/components/common/Row";
 
 
 const styles = defineStyles("GlobePopup", (theme: ThemeType) => ({
@@ -15,10 +16,19 @@ const styles = defineStyles("GlobePopup", (theme: ThemeType) => ({
     borderRadius: '5px !important',
     color: theme.palette.text.alwaysWhite,
     padding: 10,
-    width: 250,
+    maxWidth: 250
+  },
+  link: {
     display: 'flex',
     flexDirection: 'column',
-    gap: 8,
+    textDecoration: 'none',
+    gap: 6,
+    textWrap: "balance",
+    color: theme.palette.text.alwaysWhite,
+    '&:hover': {
+      color: theme.palette.primary.dark,
+      opacity: 0.8,
+    },
   },
   meta: {
     fontWeight: 400,
@@ -83,16 +93,29 @@ export const GlobePopup = ({document, screenCoords, onClose}: {
   const { htmlHighlight = "" } = document.contents || {};
   const htmlBody = {__html: htmlHighlight};
 
+  const areSameDay = document.startTime && document.endTime && (() => {
+    const start = new Date(document.startTime);
+    const end = new Date(document.endTime);
+    return start.getFullYear() === end.getFullYear() &&
+           start.getMonth() === end.getMonth() &&
+           start.getDate() === end.getDate();
+  })();
+
+  const endTimeFormat = areSameDay ? "h:mm a" : "MMM D, YYYY h:mm a";
+
   return (
     <div
       ref={refs.setFloating}
       style={floatingStyles}
       className={classes.popupContainer}
     >
-      <Link href={postGetPageUrl(document)}>
+      <Link href={postGetPageUrl(document)} className={classes.link}>
         <div>{document.title}</div>
-        {document.startTime && <div className={classes.meta}><em><FormatDate date={document.startTime} format="MMM D, YYYY HH:mm" /></em></div>}
-        {document.location && <div className={classes.meta}>{document.location}</div>}
+        <Row justifyContent="flex-start" gap={4}>
+          {document.startTime && <div className={classes.meta}><em><FormatDate tooltip={false} date={document.startTime} format="MMM D h:mm a" /></em></div>} - 
+          {document.endTime && <div className={classes.meta}><em><FormatDate tooltip={false} date={document.endTime} format={endTimeFormat} /></em></div>}
+        </Row>
+          {document.location && <div className={classes.meta}>{document.location}</div>}
       </Link>
     </div>
   );
