@@ -409,6 +409,7 @@ export const defaultComponentPalette = (shades: ThemeShadePalette): ThemeCompone
     sunshineHighContextGroup: "linear-gradient(135deg, rgba(120,120,0,.20) 0%, rgba(120,120,0,0) 100%)",
     sunshineMaybeSpamGroup: "linear-gradient(135deg, rgba(120,0,120,.20) 0%, rgba(120,0,120,0) 100%)",
     sunshineAutomodGroup: "linear-gradient(135deg, rgba(120,120,0,.20) 0%, rgba(120,120,0,0) 100%)",
+    sunshineSnoozeExpiredGroup: "linear-gradient(135deg, rgba(120,120,0,.20) 0%, rgba(120,120,0,0) 100%)",
     sunshineUnknownGroup: "linear-gradient(135deg, rgba(120,120,120,.20) 0%, rgba(120,120,120,0) 100%)",
     mobileNavFooter: shades.grey[0],
     singleLineComment: shades.grey[140],

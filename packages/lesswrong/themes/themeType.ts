@@ -367,6 +367,7 @@ declare global {
       sunshineHighContextGroup: string,
       sunshineMaybeSpamGroup: string,
       sunshineAutomodGroup: string,
+      sunshineSnoozeExpiredGroup: string,
       sunshineUnknownGroup: string,
       mobileNavFooter: ColorString,
       singleLineComment: ColorString,

@@ -236,6 +236,12 @@ export const PINNED_GLOSSARY_COOKIE = registerCookie({
   description: 'Whether the glossary is pinned',
 });
 
+export const HIDE_SOLSTICE_GLOBE_COOKIE = registerCookie({
+  name: 'hide_solstice_globe',
+  type: 'necessary',
+  description: 'Whether the solstice season globe is hidden and replaced with a map',
+});
+
 export const NO_ADMIN_NEXT_REDIRECT_COOKIE = registerCookie({
   name: 'no_admin_next_redirect',
   type: 'functional',
