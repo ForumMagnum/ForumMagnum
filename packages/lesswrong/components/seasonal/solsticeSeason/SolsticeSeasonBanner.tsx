@@ -24,6 +24,21 @@ const styles = defineStyles("SolsticeSeasonBanner", (theme: ThemeType) => ({
     width: '50vw',
     height: '100%',
   },
+  overlay: {
+    position: 'absolute',
+    top: 0,
+    right: 0,
+    width: '100vw',
+    height: '100%',
+    backgroundColor: theme.palette.background.default,
+    opacity: 0,
+    transition: 'opacity 2s ease-in-out',
+    zIndex: 10,
+    pointerEvents: 'none',
+  },
+  overlayVisible: {
+    opacity: 1,
+  },
   title: {
     fontSize: 53,
     fontWeight: 500,
@@ -220,8 +235,7 @@ export default function SolsticeSeasonBannerInner() {
   const classes = useStyles(styles);
   // SSR-safe: start with false, check after mount to avoid hydration mismatch
   const [shouldRender, setShouldRender] = useState(false);
-  const [bannerOpacity, setBannerOpacity] = useState(1);
-  const [pointerEventsDisabled, setPointerEventsDisabled] = useState(false);
+  const [isScrolled, setIsScrolled] = useState(false);
   const [selectedEventId, setSelectedEventId] = useState<string | null>(null)
   const [popupCoords, setPopupCoords] = useState<{ x: number; y: number } | null>(null)
   const markerClickInProgressRef = useRef(false);
@@ -257,20 +271,11 @@ export default function SolsticeSeasonBannerInner() {
     if (!isClient) return;
     const handleScroll = () => {
       const y = window.scrollY || window.pageYOffset || 0;
-      const fadeDistance = 600; // px until fully faded
-      const nextOpacity = Math.max(0, 1 - (y / fadeDistance));
-      setBannerOpacity(nextOpacity);
-      setPointerEventsDisabled(y > 0);
+      setIsScrolled(y > 0);
     };
-    // On initial load, if we're already scrolled, immediately hide and disable interactions
+    // On initial load, if we're already scrolled, immediately hide
     const y0 = window.scrollY || window.pageYOffset || 0;
-    if (y0 > 0) {
-      setBannerOpacity(0);
-      setPointerEventsDisabled(true);
-    } else {
-      setBannerOpacity(1);
-      setPointerEventsDisabled(false);
-    }
+    setIsScrolled(y0 > 0);
     window.addEventListener('scroll', handleScroll, { passive: true });
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
@@ -328,7 +333,8 @@ export default function SolsticeSeasonBannerInner() {
     return null;
   }
 
-  return <div className={classNames(classes.root)} style={{ opacity: bannerOpacity, pointerEvents: pointerEventsDisabled ? 'none' : 'auto' }}>
+  return <div className={classes.root} style={{ pointerEvents: isScrolled ? 'none' : 'auto' }}>
+    <div className={classNames(classes.overlay, { [classes.overlayVisible]: isScrolled })} />
     <div className={classes.globeGradientRight} />
     <div className={classes.postsListBlockingRect}/>
     <div className={classes.background} />
