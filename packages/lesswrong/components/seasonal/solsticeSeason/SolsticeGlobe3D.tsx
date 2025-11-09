@@ -6,6 +6,8 @@ import { useEventListener } from '@/components/hooks/useEventListener';
 import { DEFAULT_DAY_IMAGE_URL, DEFAULT_NIGHT_IMAGE_URL, DEFAULT_LUMINOSITY_IMAGE_URL, DEFAULT_ALTITUDE_SCALE, DEFAULT_INITIAL_ALTITUDE_MULTIPLIER } from './solsticeSeasonConstants';
 import { type GlobeMethods } from 'react-globe.gl';
 import dynamic from 'next/dynamic';
+import { defineStyles, useStyles } from '@/components/hooks/useStyles';
+import classNames from 'classnames';
 
 const Globe = dynamic(() => import('react-globe.gl').then(mod => mod.default), { ssr: false });
 
@@ -18,6 +20,30 @@ type GlobeMarkerData = {
   event?: unknown;
   _index: number;
 };
+
+const styles = defineStyles("SolsticeGlobe3D", (theme: ThemeType) => ({
+  root: {
+    width: '100%',
+    position: 'relative',
+    transition: 'opacity 0.8s ease-in-out',
+  },
+  rootCursorPointer: {
+    cursor: 'pointer',
+  },
+  rootCursorGrab: {
+    cursor: 'grab',
+  },
+  rootLoaded: {
+    opacity: 1,
+  },
+  rootNotLoaded: {
+    opacity: 0,
+  },
+  globeWrapper: {
+    transform: 'translateX(-35vw) scale(1)',
+    transformOrigin: 'center center',
+  },
+}));
 
 export const SolsticeGlobe3D = ({
   pointsData,
@@ -34,6 +60,7 @@ export const SolsticeGlobe3D = ({
   altitudeScale = DEFAULT_ALTITUDE_SCALE,
   initialAltitudeMultiplier = DEFAULT_INITIAL_ALTITUDE_MULTIPLIER,
 }: SolsticeGlobe3DProps) => {
+  const classes = useStyles(styles);
   const [isGlobeReady, setIsGlobeReady] = useState(false);
   const [isFullyLoaded, setIsFullyLoaded] = useState(false);
   const [screenHeight, setScreenHeight] = useState(typeof window !== 'undefined' ? window.innerHeight : 1000);
@@ -214,7 +241,6 @@ export const SolsticeGlobe3D = ({
     el.setAttribute('data-globe-marker', 'true');
     el.setAttribute('data-marker-index', String(d._index));
     el.style.color = markerColor;
-    // el.style.stroke = "light-dark(black, black)";
     el.innerHTML = `
       <div style="text-align: center;">
         <svg viewBox="0 0 24 24" style="width:${markerSize}px;margin:0 auto;">
@@ -253,12 +279,17 @@ export const SolsticeGlobe3D = ({
 
   return (
     <div
-      style={{ ...style, cursor: isHoveringMarker ? 'pointer' : 'grab', width: '100%', height: screenHeight, position: 'relative', opacity: isFullyLoaded ? 1 : 0, transition: 'opacity 0.8s ease-in-out' }}
-      className={className}
+      style={{ ...style, height: screenHeight }}
+      className={classNames(className, classes.root, {
+        [classes.rootCursorPointer]: isHoveringMarker,
+        [classes.rootCursorGrab]: !isHoveringMarker,
+        [classes.rootLoaded]: isFullyLoaded,
+        [classes.rootNotLoaded]: !isFullyLoaded,
+      })}
       onMouseDown={handleMouseDown}
       onClick={handleClick}
     >
-      <div style={{ transform: 'translateX(-35vw) scale(1)', transformOrigin: 'center center' }}>
+      <div className={classes.globeWrapper}>
         <Globe
           ref={globeRef}
           globeImageUrl={undefined}
