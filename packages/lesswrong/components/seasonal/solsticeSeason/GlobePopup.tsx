@@ -1,4 +1,4 @@
-import React, { useEffect } from "react";
+import React, { useEffect, useState, useMemo } from "react";
 import { useStyles } from "@/components/hooks/useStyles";
 import GroupLinks from "@/components/localGroups/GroupLinks";
 import { StyledMapPopupContent } from "@/components/localGroups/StyledMapPopup";
@@ -14,12 +14,27 @@ export const GlobePopup = ({document, screenCoords, onClose}: {
   onClose: () => void;
 }) => {
   const fixedPopupClasses = useStyles(fixedPositionEventPopupStyles);
+  const [windowWidth, setWindowWidth] = useState(typeof window !== 'undefined' ? window.innerWidth : 0);
+
+  useEffect(() => {
+    const handleResize = () => {
+      setWindowWidth(window.innerWidth);
+    };
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, []);
+
+  // Place popup on right if marker is far from right edge (>10vw), otherwise on left
+  const placement = useMemo(() => {
+    const distanceFromRight = windowWidth - screenCoords.x;
+    return distanceFromRight > windowWidth * 0.1 ? 'right' : 'left';
+  }, [windowWidth, screenCoords.x]);
 
   const { refs, floatingStyles } = useFloating({
-    placement: 'top',
+    placement,
     middleware: [
       offset(10), // 10px offset from the marker
-      flip(), // Flip to bottom if not enough space on top
+      flip(), // Flip to opposite side if not enough space
       shift({ padding: 8 }), // Shift to keep within viewport with 8px padding
     ],
     whileElementsMounted: (reference, floating, update) => {
