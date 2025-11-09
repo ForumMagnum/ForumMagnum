@@ -8,12 +8,13 @@ import { Link } from '@/lib/reactRouterWrapper';
 import classNames from 'classnames';
 import SolsticeGlobe3D from './SolsticeGlobe3D';
 import { SolsticeGlobePoint } from './types';
-import { useIsAboveBreakpoint } from '@/components/hooks/useScreenWidth';
 import { GlobePopup } from './GlobePopup';
 import { HIDE_SOLSTICE_GLOBE_COOKIE } from '@/lib/cookies/cookies';
 import { useCookiesWithConsent } from '@/components/hooks/useCookiesWithConsent';
+import { isClient } from '@/lib/executionEnvironment';
 
 const smallBreakpoint = 1525
+const minBannerWidth = 1425
 
 const styles = defineStyles("SolsticeSeasonBanner", (theme: ThemeType) => ({
   root: {
@@ -22,9 +23,6 @@ const styles = defineStyles("SolsticeSeasonBanner", (theme: ThemeType) => ({
     right: 0,
     width: '50vw',
     height: '100%',
-    [theme.breakpoints.down(1425)]: {
-      display: 'none',
-    },
   },
   title: {
     fontSize: 53,
@@ -101,6 +99,10 @@ const styles = defineStyles("SolsticeSeasonBanner", (theme: ThemeType) => ({
     [theme.breakpoints.up(1620)]: {
       width: 'calc(100vw - 560px)',
       background: `linear-gradient(to left, transparent 60%, ${theme.palette.background.default} 90%)`,
+    },
+    [theme.breakpoints.up(2000)]: {
+
+      width: 'calc(75vw - 200px)',
     },
     zIndex: 1,
     pointerEvents: 'none',
@@ -212,14 +214,28 @@ const HomepageCommunityEventPostsQuery = gql(`
 
 export default function SolsticeSeasonBannerInner() {
   const classes = useStyles(styles);
+  // SSR-safe: start with false, check after mount to avoid hydration mismatch
+  const [shouldRender, setShouldRender] = useState(false);
   const [bannerOpacity, setBannerOpacity] = useState(1);
   const [pointerEventsDisabled, setPointerEventsDisabled] = useState(false);
-  const isWidescreen = useIsAboveBreakpoint('lg');
-  const [renderSolsticeSeason, setRenderSolsticeSeason] = useState(false);
+  const [selectedEventId, setSelectedEventId] = useState<string | null>(null)
+  const [popupCoords, setPopupCoords] = useState<{ x: number; y: number } | null>(null)
+  const markerClickInProgressRef = useRef(false);
   
   useEffect(() => {
-    setRenderSolsticeSeason(isWidescreen);
-  }, [isWidescreen]);
+    if (!isClient) return;
+    
+    const checkWidth = () => {
+      setShouldRender(window.innerWidth >= minBannerWidth);
+    };
+    
+    // Check on mount
+    checkWidth();
+    
+    // Check on resize
+    window.addEventListener('resize', checkWidth);
+    return () => window.removeEventListener('resize', checkWidth);
+  }, []);
 
   const { data } = useQuery(HomepageCommunityEventPostsQuery, {
     variables: { eventType: "SOLSTICE" },
@@ -234,6 +250,7 @@ export default function SolsticeSeasonBannerInner() {
 
   
   useEffect(() => {
+    if (!isClient) return;
     const handleScroll = () => {
       const y = window.scrollY || window.pageYOffset || 0;
       const fadeDistance = 600; // px until fully faded
@@ -265,10 +282,6 @@ export default function SolsticeSeasonBannerInner() {
   const handleHideSolsticeSeason = useCallback(() => {
      setCookie(HIDE_SOLSTICE_GLOBE_COOKIE, "true");
   }, [setCookie]);
-
-  const [selectedEventId, setSelectedEventId] = useState<string | null>(null)
-  const [popupCoords, setPopupCoords] = useState<{ x: number; y: number } | null>(null)
-  const markerClickInProgressRef = useRef(false);
 
   const selectedEventPost = useMemo(() => {
     return eventPosts.find((post: PostsList) => post._id === selectedEventId);
@@ -306,18 +319,23 @@ export default function SolsticeSeasonBannerInner() {
     }
   }, []);
 
+  // Conditional render after all hooks - prevents rendering entirely if below breakpoint
+  if (!shouldRender) {
+    return null;
+  }
+
   return <div className={classNames(classes.root)} style={{ opacity: bannerOpacity, pointerEvents: pointerEventsDisabled ? 'none' : 'auto' }}>
     <div className={classes.globeGradientRight} />
     <div className={classes.postsListBlockingRect}/>
     <div className={classes.background} />
     <div className={classes.globeContainer}>
-        {renderSolsticeSeason && <SolsticeGlobe3D 
+        <SolsticeGlobe3D 
           pointsData={pointsData}
           defaultPointOfView={defaultPointOfView}
           onPointClick={(point: SolsticeGlobePoint, screenCoords: { x: number; y: number }) => handleMeetupClick(undefined, point.eventId, screenCoords)}
           onClick={(event) => handleMeetupClick(event, undefined)}
           style={{ width: '100%', height: '100%' }}
-        />}
+        />
       {selectedEventId && popupCoords && selectedEventPost && (
         <GlobePopup
           document={selectedEventPost}
