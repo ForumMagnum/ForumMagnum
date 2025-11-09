@@ -7850,7 +7850,6 @@ export type QueryHomepageCommunityEventPostsArgs = {
 
 
 export type QueryHomepageCommunityEventsArgs = {
-  eventType?: InputMaybe<Scalars['String']['input']>;
   limit: Scalars['Int']['input'];
 };
 

@@ -462,7 +462,7 @@ export const postGqlTypeDefs = gql`
     DigestPlannerData(digestId: String, startDate: Date, endDate: Date): [DigestPlannerPost!]!
     DigestPosts(num: Int): [Post!]
 
-    HomepageCommunityEvents(limit: Int!, eventType: String): HomepageCommunityEventMarkersResult!
+    HomepageCommunityEvents(limit: Int!): HomepageCommunityEventMarkersResult!
     HomepageCommunityEventPosts(eventType: String!): HomepageCommunityEventPostsResult!
   }
 
