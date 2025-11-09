@@ -263,7 +263,7 @@ export default function SolsticeSeasonBannerInner() {
   const [_, setCookie] = useCookiesWithConsent([HIDE_SOLSTICE_GLOBE_COOKIE]);
 
   const handleHideSolsticeSeason = useCallback(() => {
-     setCookie(HIDE_SOLSTICE_GLOBE_COOKIE, true);
+     setCookie(HIDE_SOLSTICE_GLOBE_COOKIE, "true");
   }, [setCookie]);
 
   const [selectedEventId, setSelectedEventId] = useState<string | null>(null)
