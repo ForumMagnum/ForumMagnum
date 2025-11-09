@@ -1,19 +1,38 @@
-import React, { useEffect, useState, useMemo } from "react";
-import { useStyles } from "@/components/hooks/useStyles";
-import GroupLinks from "@/components/localGroups/GroupLinks";
-import { StyledMapPopupContent } from "@/components/localGroups/StyledMapPopup";
-import { postGetPageUrl } from "@/lib/collections/posts/helpers";
-import { fixedPositionEventPopupStyles } from "../HomepageMap/HomepageCommunityMap";
+import React, { useEffect, useMemo } from "react";
+import { defineStyles, useStyles } from "@/components/hooks/useStyles";
+import { postGetPageUrl } from "@/lib/collections/posts/helpers";;
 import { useFloating, autoUpdate, offset, flip, shift } from '@floating-ui/react-dom';
 import type { VirtualElement } from '@floating-ui/dom';
+import FormatDate from "@/components/common/FormatDate";
+import { commentBodyStyles } from "@/themes/stylePiping";
+import Link from "next/link";
 
+
+const styles = defineStyles("GlobePopup", (theme: ThemeType) => ({
+  popupContainer: {
+    ...commentBodyStyles(theme),
+    background: `light-dark(${theme.palette.grey[900]}, ${theme.palette.grey[100]})`,
+    borderRadius: '5px !important',
+    color: theme.palette.text.alwaysWhite,
+    padding: 10,
+    width: 250,
+    display: 'flex',
+    flexDirection: 'column',
+    gap: 8,
+  },
+  meta: {
+    fontWeight: 400,
+    fontSize: '1rem',
+    opacity: 0.8,
+  }
+}));
 
 export const GlobePopup = ({document, screenCoords, onClose}: {
   document: PostsList;
   screenCoords: { x: number; y: number };
   onClose: () => void;
 }) => {
-  const fixedPopupClasses = useStyles(fixedPositionEventPopupStyles);
+  const classes = useStyles(styles);
   const [windowWidth, setWindowWidth] = useState(typeof window !== 'undefined' ? window.innerWidth : 0);
 
   useEffect(() => {
@@ -67,20 +86,14 @@ export const GlobePopup = ({document, screenCoords, onClose}: {
   return (
     <div
       ref={refs.setFloating}
-      className={fixedPopupClasses.popupContainer}
       style={floatingStyles}
+      className={classes.popupContainer}
     >
-      <button className={fixedPopupClasses.popupCloseButton} onClick={onClose}>
-        ×
-      </button>
-      <StyledMapPopupContent
-        link={postGetPageUrl(document)}
-        title={` [Event] ${document.title} `}
-        metaInfo={document.contactInfo}
-        cornerLinks={<GroupLinks document={document}/>}
-      >
-        <div dangerouslySetInnerHTML={htmlBody} />
-      </StyledMapPopupContent>
+      <Link href={postGetPageUrl(document)}>
+        <div>{document.title}</div>
+        {document.startTime && <div className={classes.meta}><em><FormatDate date={document.startTime} format="MMM D, YYYY HH:mm" /></em></div>}
+        {document.location && <div className={classes.meta}>{document.location}</div>}
+      </Link>
     </div>
   );
 };
