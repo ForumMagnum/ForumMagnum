@@ -241,7 +241,14 @@ export default function SolsticeSeasonBannerInner() {
   const markerClickInProgressRef = useRef(false);
   
   useEffect(() => {
-    if (!isClient) return;
+    if (!isClient) {
+      return;
+    }
+    
+    // Don't try to render the globe inside the CloudWatch canary (it's too slow and fails)
+    if (window.navigator.userAgent.includes('CloudWatch-canary-coVij6peechaekou')) {
+      return;
+    }
     
     const checkWidth = () => {
       setShouldRender(window.innerWidth >= minBannerWidth);
