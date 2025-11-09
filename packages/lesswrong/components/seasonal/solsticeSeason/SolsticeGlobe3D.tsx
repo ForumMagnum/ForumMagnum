@@ -205,11 +205,16 @@ export const SolsticeGlobe3D = ({
   const markerData: GlobeMarkerData[] = mapPointsToMarkers(pointsData);
 
   const renderHtmlElement = useCallback((d: GlobeMarkerData): HTMLElement => {
-    const markerSize = 30;
+    const eventId = d.event && typeof d.event === 'object' && '_id' in d.event && typeof d.event._id === 'string' ? d.event._id : null;
+    const isSpecialMarker = eventId === "FjHG3XcrhXkGWTDwf" ||
+                           eventId === "YcKFwMLjCrr9hnerm";
+    const markerSize = isSpecialMarker ? 45 : 30;
+    const markerColor = isSpecialMarker ? "light-dark(rgb(254, 237, 138), rgb(244, 230, 154))" : "light-dark(rgb(206, 233, 255), rgb(206, 233, 255))";
     const el = document.createElement('div');
     el.setAttribute('data-globe-marker', 'true');
     el.setAttribute('data-marker-index', String(d._index));
-    el.style.color = "light-dark(rgb(206, 233, 255), rgb(206, 233, 255))";
+    el.style.color = markerColor;
+    // el.style.stroke = "light-dark(black, black)";
     el.innerHTML = `
       <div style="text-align: center;">
         <svg viewBox="0 0 24 24" style="width:${markerSize}px;margin:0 auto;">
