@@ -244,7 +244,9 @@ export default function SolsticeSeasonBannerInner() {
     if (!isClient) return;
     
     const checkWidth = () => {
-      setShouldRender(window.innerWidth >= minBannerWidth);
+      if (!window.navigator.userAgent.includes('CloudWatch-canary-coVij6peechaekou')) {
+        setShouldRender(window.innerWidth >= minBannerWidth);
+      }
     };
     
     // Check on mount
