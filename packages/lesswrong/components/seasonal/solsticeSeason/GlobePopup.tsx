@@ -110,7 +110,7 @@ export const GlobePopup = ({document, screenCoords, onClose}: {
       borderStyle: 'solid',
       ...triangleConfig[placementSide],
     });
-  }, [actualPlacement, screenCoords.x, screenCoords.y, floatingStyles, bgColor]);
+  }, [actualPlacement, screenCoords.x, screenCoords.y, bgColor]);
 
   if (!document) return null;
 
