@@ -144,9 +144,9 @@ const styles = defineStyles("SolsticeSeasonBanner", (theme: ThemeType) => ({
     paddingRight: 10,
     [theme.breakpoints.up(smallBreakpoint)]: {
       padding: 8,
-      paddingLeft: 10,
-      paddingRight: 10,
-      fontSize: 14,  
+      paddingLeft: 12,
+      paddingRight: 12,
+      fontSize: 15,  
     },
   },
   date: {
@@ -343,7 +343,7 @@ export default function SolsticeSeasonBannerInner() {
               New York <span className={classes.date}>Dec 13</span>
             </Link>
             <Link to={`/newPost?eventForm=true&SOLSTICE=true`} target="_blank" rel="noopener noreferrer" className={classNames(classes.createEventButton, classes.createEventButtonAnnounce)}>
-              Announce Your Own Solstice
+              Announce a Solstice
             </Link>
           </div>  
           <div className={classes.hideButton} onClick={() => handleHideSolsticeSeason()}>
