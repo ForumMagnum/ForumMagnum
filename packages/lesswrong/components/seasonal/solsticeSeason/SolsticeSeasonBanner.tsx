@@ -236,6 +236,7 @@ const styles = defineStyles("SolsticeSeasonBanner", (theme: ThemeType) => ({
     cursor: 'pointer',
   },
   hideButton: {
+    width: 310,
     textAlign: 'center',
     ...theme.typography.commentStyle,
     fontSize: 12,
@@ -424,7 +425,7 @@ export default function SolsticeSeasonBannerInner() {
             </Link>
           </div>  
           <div className={classes.hideButton} onClick={() => handleHideSolsticeSeason()}>
-              Hide Solstice Map
+              Hide Map
           </div>
       </div>
     </div>
