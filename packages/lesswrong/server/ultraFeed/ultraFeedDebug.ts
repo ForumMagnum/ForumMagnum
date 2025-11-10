@@ -81,7 +81,7 @@ export const logRankedItemsForAnalysis = async (
         repetitionPenaltyMultiplier: metadata.rankedItemType === 'commentThread'
           ? metadata.scoreBreakdown.repetitionPenaltyMultiplier
           : 1,
-        scoreComponents: metadata.scoreBreakdown.components,
+        scoreTerms: metadata.scoreBreakdown.terms,
       };
   });
   

@@ -20,7 +20,7 @@ export const scoreBreakdownStyles = defineStyles('ScoreBreakdownContent', (theme
   section: {
     marginBottom: 12,
   },
-  componentRow: {
+  termRow: {
     display: 'flex',
     justifyContent: 'space-between',
     fontSize: 13,
@@ -30,11 +30,11 @@ export const scoreBreakdownStyles = defineStyles('ScoreBreakdownContent', (theme
       backgroundColor: theme.palette.greyAlpha(0.05),
     },
   },
-  componentName: {
+  termName: {
     marginRight: 16,
     whiteSpace: 'nowrap',
   },
-  componentValue: {
+  termValue: {
     fontWeight: 500,
   },
   positiveValue: {
@@ -122,9 +122,9 @@ const getUserRankingConfig = (settings?: ReturnType<typeof useUltraFeedSettings>
   return buildRankingConfigFromSettings(settings.resolverSettings.unifiedScoring);
 };
 
-const splitZeroAndNonZeroTerms = (components: Array<{ name: string; value: number }>) => {
-  const nonZero = components.filter(c => Math.abs(c.value) >= 0.01);
-  const zero = components
+const splitZeroAndNonZeroTerms = (terms: Array<{ name: string; value: number }>) => {
+  const nonZero = terms.filter(c => Math.abs(c.value) >= 0.01);
+  const zero = terms
     .filter(c => Math.abs(c.value) < 0.01)
     .sort((a, b) => Math.abs(b.value) - Math.abs(a.value));
   return { nonZero, zero };
@@ -146,7 +146,7 @@ const sourceTooltips: Partial<Record<FeedItemSourceType, string>> = {
   'bookmarks': 'Bookmarks are inserted periodically into your feed to remind you about them, you can turn this off in the settings',
 };
 
-function getPostComponentExplanations(settings?: ReturnType<typeof useUltraFeedSettings>['settings']): Record<string, string> {
+function getPostTermExplanations(settings?: ReturnType<typeof useUltraFeedSettings>['settings']): Record<string, string> {
   const config = getUserRankingConfig(settings);
   const postConfig = config.posts;
   const subscribedBonusSetting = settings?.resolverSettings?.unifiedScoring?.subscribedBonusSetting ?? 3;
@@ -162,7 +162,7 @@ function getPostComponentExplanations(settings?: ReturnType<typeof useUltraFeedS
   };
 }
 
-function getThreadComponentExplanations(settings?: ReturnType<typeof useUltraFeedSettings>['settings']): Record<string, string> {
+function getThreadTermExplanations(settings?: ReturnType<typeof useUltraFeedSettings>['settings']): Record<string, string> {
   const config = getUserRankingConfig(settings);
   const threadConfig = config.threads;
   const postConfig = config.posts;
@@ -184,7 +184,7 @@ function getThreadComponentExplanations(settings?: ReturnType<typeof useUltraFee
 }
 
 
-const ScoreComponent = ({ 
+const ScoreTerm = ({ 
   name, 
   value, 
   explanations 
@@ -203,9 +203,9 @@ const ScoreComponent = ({
   const explanation = explanations[name] ?? '';
   
   const row = (
-    <div className={classNames(classes.componentRow, rowClass)}>
-      <span className={classes.componentName}>{name}</span>
-      <span className={classNames(classes.componentValue, valueClass)}>
+    <div className={classNames(classes.termRow, rowClass)}>
+      <span className={classes.termName}>{name}</span>
+      <span className={classNames(classes.termValue, valueClass)}>
         {sign}{formatScore(value)}
       </span>
     </div>
@@ -301,17 +301,17 @@ const SourcesSection = ({ sources, metaInfo, itemType }: SourcesSectionProps) =>
 
 const ScoreBreakdown = ({ 
   total, 
-  components, 
+  terms, 
   multipliers, 
   explanations 
 }: { 
   total: number;
-  components: Array<{ name: string; value: number }>;
+  terms: Array<{ name: string; value: number }>;
   multipliers: Array<{ label: string; value: number; tooltip: string }>;
   explanations: Record<string, string>;
 }) => {
   const classes = useStyles(scoreBreakdownStyles);
-  const { nonZero, zero } = splitZeroAndNonZeroTerms(components);
+  const { nonZero, zero } = splitZeroAndNonZeroTerms(terms);
   const baseValue = { name: "Base Value", value: 1 };
   
   return (
@@ -322,11 +322,11 @@ const ScoreBreakdown = ({
       
       <div className={classes.section}>
         {nonZero.map(({ name, value }) => (
-          <ScoreComponent key={name} name={name} value={value} explanations={explanations} />
+          <ScoreTerm key={name} name={name} value={value} explanations={explanations} />
         ))}
-        <ScoreComponent key="base" name={baseValue.name} value={baseValue.value} explanations={explanations} />
+        <ScoreTerm key="base" name={baseValue.name} value={baseValue.value} explanations={explanations} />
         {zero.map(({ name, value }) => (
-          <ScoreComponent key={name} name={name} value={value} explanations={explanations} />
+          <ScoreTerm key={name} name={name} value={value} explanations={explanations} />
         ))}
       </div>
       
@@ -344,15 +344,15 @@ const ScoreBreakdown = ({
 
 export const PostScoreBreakdownContent = ({ breakdown, sources, metaInfo }: { breakdown: PostScoreBreakdown; sources?: FeedItemSourceType[]; metaInfo?: FeedPostMetaInfo }) => {
   const { settings } = useUltraFeedSettings();
-  const { components, typeMultiplier, total } = breakdown;
+  const { terms, typeMultiplier, total } = breakdown;
   
   const isRecombeeOrSubscription = sources?.includes('recombee-lesswrong-custom') || sources?.includes('subscriptionsPosts');
   const karmaBonusLabel = isRecombeeOrSubscription ? "Karma Bonus (timeless)" : "Karma Bonus (time-decaying)";
   
-  const allComponents = [
-    { name: "Subscribed Author", value: components.subscribedBonus },
-    { name: karmaBonusLabel, value: components.karmaBonus },
-    { name: "Topic Affinity", value: components.topicAffinityBonus },
+  const allTerms = [
+    { name: "Subscribed Author", value: terms.subscribedBonus },
+    { name: karmaBonusLabel, value: terms.karmaBonus },
+    { name: "Topic Affinity", value: terms.topicAffinityBonus },
   ];
   
   const multipliers = [
@@ -370,9 +370,9 @@ export const PostScoreBreakdownContent = ({ breakdown, sources, metaInfo }: { br
       <SourcesSection sources={sources} metaInfo={metaInfo} itemType="post" />
       <ScoreBreakdown 
         total={total}
-        components={allComponents}
+        terms={allTerms}
         multipliers={multipliers}
-        explanations={getPostComponentExplanations(settings)}
+        explanations={getPostTermExplanations(settings)}
       />
     </>
   );
@@ -380,17 +380,17 @@ export const PostScoreBreakdownContent = ({ breakdown, sources, metaInfo }: { br
 
 export const ThreadScoreBreakdownContent = ({ breakdown, sources, metaInfo }: { breakdown: ThreadScoreBreakdown; sources?: FeedItemSourceType[]; metaInfo?: FeedCommentMetaInfo }) => {
   const { settings } = useUltraFeedSettings();
-  const { components, repetitionPenaltyMultiplier, typeMultiplier, total } = breakdown;
+  const { terms, repetitionPenaltyMultiplier, typeMultiplier, total } = breakdown;
   
-  const allComponents = [
-    { name: "Subscribed Comments", value: components.unreadSubscribedCommentBonus },
-    { name: "Prior Engagement", value: components.engagementContinuationBonus },
-    { name: "Replies to You", value: components.repliesToYouBonus },
-    { name: "Your Post", value: components.yourPostActivityBonus },
-    { name: "Karma Bonus (time-decaying)", value: components.overallKarmaBonus },
-    { name: "Topic Affinity", value: components.topicAffinityBonus },
-    { name: "Quicktake", value: components.quicktakeBonus },
-    { name: "Read Post Context", value: components.readPostContextBonus },
+  const allTerms = [
+    { name: "Subscribed Comments", value: terms.unreadSubscribedCommentBonus },
+    { name: "Prior Engagement", value: terms.engagementContinuationBonus },
+    { name: "Replies to You", value: terms.repliesToYouBonus },
+    { name: "Your Post", value: terms.yourPostActivityBonus },
+    { name: "Karma Bonus (time-decaying)", value: terms.overallKarmaBonus },
+    { name: "Topic Affinity", value: terms.topicAffinityBonus },
+    { name: "Quicktake", value: terms.quicktakeBonus },
+    { name: "Read Post Context", value: terms.readPostContextBonus },
   ];
   
   const multipliers = [
@@ -415,9 +415,9 @@ export const ThreadScoreBreakdownContent = ({ breakdown, sources, metaInfo }: { 
       <SourcesSection sources={sources} metaInfo={metaInfo} itemType="commentThread" />
       <ScoreBreakdown 
         total={total}
-        components={allComponents}
+        terms={allTerms}
         multipliers={multipliers}
-        explanations={getThreadComponentExplanations(settings)}
+        explanations={getThreadTermExplanations(settings)}
       />
     </>
   );

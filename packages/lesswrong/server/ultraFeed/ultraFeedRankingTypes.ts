@@ -57,7 +57,7 @@ export type RankableItem = PostRankableItem | ThreadRankableItem;
 // Score transparency types
 export interface PostScoreBreakdown {
   total: number;
-  components: {
+  terms: {
     subscribedBonus: number;
     karmaBonus: number;
     topicAffinityBonus: number;
@@ -67,7 +67,7 @@ export interface PostScoreBreakdown {
 
 export interface ThreadScoreBreakdown {
   total: number;
-  components: {
+  terms: {
     unreadSubscribedCommentBonus: number;
     engagementContinuationBonus: number;
     repliesToYouBonus: number;

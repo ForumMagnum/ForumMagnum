@@ -132,7 +132,7 @@ export function toThreadRankable(
 /**
  * Score a single post based on its rankable signals.
  * 
- * Score components (additive, then typeMultiplier applied):
+ * Score terms (additive, then typeMultiplier applied):
  * - startingValue: Starting point for all posts
  * - subscribedBonus: Large boost if post is from a subscribed author
  * - karmaBonus: For hacker-news posts: HN-style decay karma/(age+bias)^factor
@@ -183,7 +183,7 @@ function scorePost(
     score: total,
     breakdown: {
       total,
-      components: {
+      terms: {
         subscribedBonus,
         karmaBonus,
         topicAffinityBonus,
@@ -197,7 +197,7 @@ function scorePost(
 /**
  * Score a single comment thread based on its rankable signals.
  * 
- * Score components (additive, then repetitionPenaltyMultiplier, then typeMultiplier):
+ * Score terms (additive, then repetitionPenaltyMultiplier, then typeMultiplier):
  * - startingValue: Starting point for all threads
  * - unreadSubscribedCommentBonus: Flat bonus per unread subscribed comment (no decay)
  * - engagementContinuationBonus: Boost if you've previously participated/voted/viewed this thread
@@ -282,7 +282,7 @@ function scoreThread(
     quicktakeBonus + readPostContextBonus;
 
   // 10. Repetition penalty: multiplicative penalty for recently served threads
-  // Applied AFTER all additive components to ensure it dominates
+  // Applied AFTER all additive terms to ensure it dominates
   // For each recent serving: multiply by (1 - penaltyStrength * decayFactor)
   // where decayFactor = 1/(1 + hoursAgo/repetitionDecayHours)
   // Examples with default config (penaltyStrength=0.8, decayHours=6):
@@ -301,7 +301,7 @@ function scoreThread(
     score: total,
     breakdown: {
       total,
-      components: {
+      terms: {
         unreadSubscribedCommentBonus,
         engagementContinuationBonus,
         repliesToYouBonus,
@@ -512,7 +512,7 @@ export function scoreItems(
         score: 1,
         breakdown: {
           total: 1,
-          components: {
+          terms: {
             subscribedBonus: 0,
             karmaBonus: 0,
             topicAffinityBonus: 0,
