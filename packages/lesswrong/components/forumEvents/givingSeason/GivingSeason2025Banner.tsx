@@ -11,6 +11,7 @@ import { Link } from "@/lib/reactRouterWrapper";
 import {
   ELECTION_DONATE_HREF,
   ELECTION_INFO_HREF,
+  ELECTION_LEARN_MORE_HREF,
   GIVING_SEASON_INFO_HREF,
   givingSeasonEvents,
   useGivingSeason,
@@ -503,7 +504,7 @@ export const GivingSeason2025Banner: FC = () => {
           </div>
           <div className={classes.electionButtons}>
             <a
-              href={ELECTION_INFO_HREF}
+              href={ELECTION_LEARN_MORE_HREF}
               onClick={onLinkClick.bind(null, "learnMore", ELECTION_INFO_HREF)}
               className={classes.buttonOutlined}
             >
