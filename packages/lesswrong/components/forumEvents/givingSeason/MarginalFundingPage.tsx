@@ -37,6 +37,8 @@ const styles = defineStyles("MarginalFundingPage", (theme) => ({
     maxWidth: 1800,
     margin: "0 auto",
     background: theme.palette.text.alwaysBlack,
+    borderRight: `1px solid ${theme.palette.text.alwaysBlack}`,
+    borderLeft: `1px solid ${theme.palette.text.alwaysBlack}`,
   },
   grid: {
     display: "grid",
@@ -71,6 +73,7 @@ const styles = defineStyles("MarginalFundingPage", (theme) => ({
     whiteSpace: "nowrap",
   },
   option: {
+    fontFamily: theme.palette.fonts.sansSerifStack,
     fontSize: 14,
     fontWeight: 500,
     lineHeight: "140%",
@@ -137,6 +140,11 @@ export const MarginalFundingPage = () => {
 
   const [cardPosts, listPosts] = useMemo(() => {
     const posts = sequence?.chapters.flatMap((chapter) => chapter.posts) ?? [];
+
+    if (posts.length === 0) {
+      return [[], []]
+    }
+
     const sortedPosts = [
       posts[0],
       ...orderBy(posts.slice(1), "baseScore", "desc"),

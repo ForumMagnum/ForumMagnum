@@ -53,7 +53,7 @@ export const MarginalFundingShareButton = ({className}: {
 
   const copyLink = useCallback(() => {
     captureEvent("shareMarginalFunding", {option: "copyLink"})
-    void navigator.clipboard.writeText(sharingUrl("link"));
+    void navigator.clipboard?.writeText(sharingUrl("link"));
     flash("Link copied to clipboard");
   }, [captureEvent, flash, sharingUrl]);
 

@@ -40,7 +40,7 @@ export const MarginalFundingSubscribeButton = ({sequence, className}: {
   const label = isSubscribed ? "Unsubscribe" : "Subscribe";
   const classes = useStyles(styles);
   return (
-    <button onClick={onSubscribe} className={className}>
+    <button type="button" onClick={onSubscribe} className={className} disabled={subscribing || !subscribe}>
       <ForumIcon icon="Envelope" />{" "}
       {subscribing ? <Loading className={classes.loading} /> : label}
     </button>
