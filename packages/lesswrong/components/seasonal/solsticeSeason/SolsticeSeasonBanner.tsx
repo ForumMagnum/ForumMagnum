@@ -413,9 +413,9 @@ export default function SolsticeSeasonBannerInner() {
           <p className={classNames(classes.subtitle)}>
             Visit a megameetup at a major city, or host a small gathering for your friends the night of the 21st.
           </p>
-          <Link to={`/newPost?eventForm=true&SOLSTICE=true`} target="_blank" rel="noopener noreferrer">
+          {/* <Link to={`/newPost?eventForm=true&SOLSTICE=true`} target="_blank" rel="noopener noreferrer">
             <div className={classes.createEventButtonAnnounce}>Create a Solstice Event</div>
-          </Link>
+          </Link> */}
           <div className={classes.buttonContainer}>
             <Link to="https://waypoint.lighthaven.space/solstice-season" target="_blank" rel="noopener noreferrer"  className={classNames(classes.eventButton)}>
               Berkeley Megameetup<span className={classes.date}>Dec 6</span>
