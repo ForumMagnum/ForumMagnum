@@ -37,11 +37,11 @@ const styles = defineStyles("SolsticeSeasonBanner", (theme: ThemeType) => ({
   },
   '@keyframes solsticeGlobeFade': {
     '0%': {
-      opacity: 1,
+      // opacity: 1,
       pointerEvents: 'auto',
     },
     '100%': {
-      opacity: 0,
+      // opacity: 0,
       pointerEvents: 'none',
     },
   },
@@ -78,22 +78,22 @@ const styles = defineStyles("SolsticeSeasonBanner", (theme: ThemeType) => ({
       animationFillMode: 'both',
       animationRange: '0% 10%',
     },
-    postsListBlockingRect: {
-      animationName: '$solsticeGlobeFade',
-      animationTimeline: 'scroll()',
-      animationDuration: '1s',
-      animationTimingFunction: 'linear',
-      animationFillMode: 'both',
-      animationRange: '0% 10%',
-    },
-    background: {
-      animationName: '$solsticeGlobeFade',
-      animationTimeline: 'scroll()',
-      animationDuration: '1s',
-      animationTimingFunction: 'linear',
-      animationFillMode: 'both',
-      animationRange: '0% 10%',
-    }
+    // postsListBlockingRect: {
+    //   animationName: '$solsticeGlobeFade',
+    //   animationTimeline: 'scroll()',
+    //   animationDuration: '1s',
+    //   animationTimingFunction: 'linear',
+    //   animationFillMode: 'both',
+    //   animationRange: '0% 10%',
+    // },
+    // background: {
+    //   animationName: '$solsticeGlobeFade',
+    //   animationTimeline: 'scroll()',
+    //   animationDuration: '1s',
+    //   animationTimingFunction: 'linear',
+    //   animationFillMode: 'both',
+    //   animationRange: '0% 10%',
+    // }
   },
   title: {
     fontSize: 53,
