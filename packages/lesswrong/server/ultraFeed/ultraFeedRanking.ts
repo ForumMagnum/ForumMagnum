@@ -132,12 +132,13 @@ export function toThreadRankable(
 /**
  * Score a single post based on its rankable signals.
  * 
- * Score components (additive):
+ * Score components (additive, then typeMultiplier applied):
  * - startingValue: Starting point for all posts
  * - subscribedBonus: Large boost if post is from a subscribed author
  * - karmaBonus: For hacker-news posts: HN-style decay karma/(age+bias)^factor
- *               For subscriptionsPosts/recombee: Legacy superlinear bonus (no decay)
+ *               For subscriptionsPosts/recombee/ageless: Legacy superlinear bonus (no decay)
  * - topicAffinityBonus: Boost based on match with user's topic interests (via tags)
+ * - typeMultiplier: Multiplier applied to final additive total
  */
 function scorePost(
   post: PostRankableItem,
@@ -155,15 +156,11 @@ function scorePost(
   // Determine scoring approach based on source
   const isRecombeePost = post.sources.includes('recombee-lesswrong-custom');
   const isSubscriptionPost = post.sources.includes('subscriptionsPosts');
-  const isBookmark = post.sources.includes('bookmarks');
   
   let karmaBonus = 0;
 
-  if (isBookmark) {
-    // Bookmarks: give a fixed moderate score since they're user-selected
-    karmaBonus = 10;
-  } else if (isRecombeePost || isSubscriptionPost || post.ageHrs === null) {
-    // Recombee posts, subscription posts, and ageless items (spotlights): 
+  if (isRecombeePost || isSubscriptionPost || post.ageHrs === null) {
+    // Recombee posts, subscription posts, and ageless items (spotlights, bookmarks): 
     // use legacy karma bonus (no time decay)
     karmaBonus = Math.min(
       Math.pow(post.karma, postConfig.karmaSuperlinearExponent) / postConfig.karmaDivisor,
@@ -200,17 +197,18 @@ function scorePost(
 /**
  * Score a single comment thread based on its rankable signals.
  * 
- * Score components (additive, then multiplicative repetition penalty):
+ * Score components (additive, then repetitionPenaltyMultiplier, then typeMultiplier):
  * - startingValue: Starting point for all threads
- * - unreadSubscribedCommentBonus: Quality-weighted bonus for unread subscribed comments (no decay)
+ * - unreadSubscribedCommentBonus: Flat bonus per unread subscribed comment (no decay)
  * - engagementContinuationBonus: Boost if you've previously participated/voted/viewed this thread
  * - repliesToYouBonus: High-priority boost if someone replied to your comment(s)
  * - yourPostActivityBonus: High-priority boost for new comments on your post
- * - overallKarmaBonus: HN-style decayed sum of unread non-subscribed comments: sum(karma/(age+bias)^1.3)
+ * - overallKarmaBonus: HN-style decayed sum of ALL unread comments: sum(karma/(age+bias)^exponent)
  * - topicAffinityBonus: Boost based on post topic matching user interests (TODO: not implemented)
  * - quicktakeBonus: Boost for shortform/quicktake threads (only if top-level comment is unread)
  * - readPostContextBonus: Small boost if you've read the post (you have context)
- * - repetitionPenaltyMultiplier: Strong multiplicative penalty for recently served threads (applied last)
+ * - repetitionPenaltyMultiplier: Multiplicative penalty for recently served threads
+ * - typeMultiplier: Multiplier applied to final score
  */
 function scoreThread(
   thread: ThreadRankableItem,
@@ -218,30 +216,6 @@ function scoreThread(
 ): { score: number; breakdown: ThreadScoreBreakdown } {
   const cfg = config.threads;
   const startingValue = config.startingValue;
-
-  // Special case: bookmarks get a fixed moderate score
-  const isBookmark = thread.sources.includes('bookmarks');
-  if (isBookmark) {
-    const bookmarkScore = 11; // 1 starting + 10 bookmark bonus
-    return {
-      score: bookmarkScore * cfg.typeMultiplier,
-      breakdown: {
-        total: bookmarkScore * cfg.typeMultiplier,
-        components: {
-          unreadSubscribedCommentBonus: 0,
-          engagementContinuationBonus: 0,
-          repliesToYouBonus: 0,
-          yourPostActivityBonus: 0,
-          overallKarmaBonus: 10, // Show the bookmark bonus here
-          topicAffinityBonus: 0,
-          quicktakeBonus: 0,
-          readPostContextBonus: 0,
-        },
-        repetitionPenaltyMultiplier: 1.0,
-        typeMultiplier: cfg.typeMultiplier,
-      },
-    };
-  }
 
   // 1. Unread subscribed comment bonus: subscribedCommentBonus per unread subscribed comment
   // Flat bonus regardless of karma or age - subscriptions are priority
@@ -309,8 +283,10 @@ function scoreThread(
 
   // 10. Repetition penalty: multiplicative penalty for recently served threads
   // Applied AFTER all additive components to ensure it dominates
-  // For each recent serving: multiply by (1 - 0.8 * decayFactor) where decayFactor = 1/(1 + hoursAgo/6)
-  // Examples: served 0 hrs ago → ×0.2 (80% reduction), 3 hrs ago → ×0.5, 6 hrs ago → ×0.7
+  // For each recent serving: multiply by (1 - penaltyStrength * decayFactor)
+  // where decayFactor = 1/(1 + hoursAgo/repetitionDecayHours)
+  // Examples with default config (penaltyStrength=0.8, decayHours=6):
+  //   served 0 hrs ago → ×0.2 (80% reduction), 3 hrs ago → ×0.5, 6 hrs ago → ×0.7
   let repetitionPenaltyMultiplier = 1.0;
   if (engagement?.servingHoursAgo && engagement.servingHoursAgo.length > 0) {
     for (const hoursAgo of engagement.servingHoursAgo) {
@@ -381,10 +357,8 @@ function selectWithDiversityConstraints(
     const appliedConstraints: string[] = [];
     const windowStart = Math.floor(currentPosition / constraints.guaranteedSlotsPerWindow.windowSize) * constraints.guaranteedSlotsPerWindow.windowSize;
     const positionInWindow = currentPosition - windowStart;
-    const isLastPositionInWindow = positionInWindow === constraints.guaranteedSlotsPerWindow.windowSize - 1;
     
     // Check if we need to force a bookmark or spotlight for this window
-    // Only check at the last position of each window
     const selectedInWindow = selectedWithMetadata.slice(windowStart, currentPosition).map(s => s.id);
     const bookmarksInWindow = selectedInWindow.filter(id => {
       const scoredItem = scoredItems.find(si => si.id === id);
@@ -518,6 +492,7 @@ function selectWithDiversityConstraints(
 
 /**
  * Score items without applying constraints or ordering.
+ * Applies a global score cap (config.maxScore) to all items.
  * Returns items with their score breakdowns for display/analysis.
  */
 export function scoreItems(

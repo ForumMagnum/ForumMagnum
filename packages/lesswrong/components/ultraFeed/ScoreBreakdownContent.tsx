@@ -122,6 +122,14 @@ const getUserRankingConfig = (settings?: ReturnType<typeof useUltraFeedSettings>
   return buildRankingConfigFromSettings(settings.resolverSettings.unifiedScoring);
 };
 
+const splitZeroAndNonZeroTerms = (components: Array<{ name: string; value: number }>) => {
+  const nonZero = components.filter(c => Math.abs(c.value) >= 0.01);
+  const zero = components
+    .filter(c => Math.abs(c.value) < 0.01)
+    .sort((a, b) => Math.abs(b.value) - Math.abs(a.value));
+  return { nonZero, zero };
+};
+
 const sourceLabels: Record<FeedItemSourceType, string> = {
   'subscriptionsPosts': 'you follow the author',
   'subscriptionsComments': 'comments by authors you follow',
@@ -134,14 +142,8 @@ const sourceLabels: Record<FeedItemSourceType, string> = {
 };
 
 const sourceTooltips: Partial<Record<FeedItemSourceType, string>> = {
-  // 'subscriptionsPosts': 'Post from an author you follow',
-  // 'subscriptionsComments': 'This comment is from an author you follow',
   'recombee-lesswrong-custom': 'LessWrong uses Recombee, trained on your reads and votes',
-  // 'hacker-news': 'This post was recently published',
   'bookmarks': 'Bookmarks are inserted periodically into your feed to remind you about them, you can turn this off in the settings',
-  // 'quicktakes': 'This is a quicktake (short form post)',
-  // 'recentComments': 'This is a recent comment',
-  // 'spotlights': 'This item was selected as a spotlight',
 };
 
 function getPostComponentExplanations(settings?: ReturnType<typeof useUltraFeedSettings>['settings']): Record<string, string> {
@@ -150,7 +152,6 @@ function getPostComponentExplanations(settings?: ReturnType<typeof useUltraFeedS
   const subscribedBonusSetting = settings?.resolverSettings?.unifiedScoring?.subscribedBonusSetting ?? 3;
   const bias = postConfig.timeDecayBias;
   const scale = postConfig.timeDecayScale;
-  const multiplier = postConfig.typeMultiplier;
   
   return {
     "Subscribed Author": `Bonus for posts from authors you follow. Formula: subscribedBonusSetting × 2 = ${subscribedBonusSetting} × 2 = ${postConfig.subscribedBonus}. Configurable in settings (0-5, gives 0-10 bonus)`,
@@ -168,7 +169,6 @@ function getThreadComponentExplanations(settings?: ReturnType<typeof useUltraFee
   const subscribedBonusSetting = settings?.resolverSettings?.unifiedScoring?.subscribedBonusSetting ?? 3;
   const bias = threadConfig.timeDecayBias;
   const scale = threadConfig.timeDecayScale;
-  const multiplier = threadConfig.typeMultiplier;
   
   return {
     "Subscribed Comments": `Flat bonus per unread comment from authors you follow: subscribedBonusSetting × 2 = ${subscribedBonusSetting} × 2 = ${threadConfig.subscribedCommentBonus} per comment. Applies in addition to karma bonus. Configurable in settings (0-5, gives 0-10 per comment)`,
@@ -222,6 +222,36 @@ const ScoreComponent = ({
   );
 };
 
+const MultiplierRow = ({ 
+  label, 
+  value, 
+  tooltip 
+}: { 
+  label: string; 
+  value: number; 
+  tooltip: string;
+}) => {
+  const classes = useStyles(scoreBreakdownStyles);
+  const isNeutral = Math.abs(value - 1) < 0.01;
+  const isPenalty = value < 1;
+  
+  return (
+    <LWTooltip 
+      title={tooltip}
+      placement="left"
+      inlineBlock={false}
+      As="div"
+    >
+      <div className={classNames(classes.multiplier, {
+        [classes.multiplierPenalty]: isPenalty,
+        [classes.multiplierNoPenalty]: isNeutral
+      })}>
+        {label}: ×{formatScore(value)}
+      </div>
+    </LWTooltip>
+  );
+};
+
 type SourcesSectionProps = 
   | { sources?: FeedItemSourceType[]; metaInfo?: FeedPostMetaInfo; itemType: 'post' }
   | { sources?: FeedItemSourceType[]; metaInfo?: FeedCommentMetaInfo; itemType: 'commentThread' };
@@ -269,12 +299,53 @@ const SourcesSection = ({ sources, metaInfo, itemType }: SourcesSectionProps) =>
   );
 };
 
-export const PostScoreBreakdownContent = ({ breakdown, sources, metaInfo }: { breakdown: PostScoreBreakdown; sources?: FeedItemSourceType[]; metaInfo?: FeedPostMetaInfo }) => {
+const ScoreBreakdown = ({ 
+  total, 
+  components, 
+  multipliers, 
+  explanations 
+}: { 
+  total: number;
+  components: Array<{ name: string; value: number }>;
+  multipliers: Array<{ label: string; value: number; tooltip: string }>;
+  explanations: Record<string, string>;
+}) => {
   const classes = useStyles(scoreBreakdownStyles);
-  const { settings } = useUltraFeedSettings();
-  const { components } = breakdown;
+  const { nonZero, zero } = splitZeroAndNonZeroTerms(components);
+  const baseValue = { name: "Base Value", value: 1 };
   
-  // Determine which karma bonus type to display based on sources
+  return (
+    <>
+      <div className={classes.totalScore}>
+        Total Score: {formatScore(total)}
+      </div>
+      
+      <div className={classes.section}>
+        {nonZero.map(({ name, value }) => (
+          <ScoreComponent key={name} name={name} value={value} explanations={explanations} />
+        ))}
+        <ScoreComponent key="base" name={baseValue.name} value={baseValue.value} explanations={explanations} />
+        {zero.map(({ name, value }) => (
+          <ScoreComponent key={name} name={name} value={value} explanations={explanations} />
+        ))}
+      </div>
+      
+      {multipliers.map((multiplier) => (
+        <MultiplierRow 
+          key={multiplier.label}
+          label={multiplier.label}
+          value={multiplier.value}
+          tooltip={multiplier.tooltip}
+        />
+      ))}
+    </>
+  );
+};
+
+export const PostScoreBreakdownContent = ({ breakdown, sources, metaInfo }: { breakdown: PostScoreBreakdown; sources?: FeedItemSourceType[]; metaInfo?: FeedPostMetaInfo }) => {
+  const { settings } = useUltraFeedSettings();
+  const { components, typeMultiplier, total } = breakdown;
+  
   const isRecombeeOrSubscription = sources?.includes('recombee-lesswrong-custom') || sources?.includes('subscriptionsPosts');
   const karmaBonusLabel = isRecombeeOrSubscription ? "Karma Bonus (timeless)" : "Karma Bonus (time-decaying)";
   
@@ -284,56 +355,32 @@ export const PostScoreBreakdownContent = ({ breakdown, sources, metaInfo }: { br
     { name: "Topic Affinity", value: components.topicAffinityBonus },
   ];
   
-  const nonZeroComponents = allComponents.filter(c => Math.abs(c.value) >= 0.01);
-  const zeroComponents = allComponents
-    .filter(c => Math.abs(c.value) < 0.01)
-    .sort((a, b) => Math.abs(b.value) - Math.abs(a.value));
-  
-  const baseValue = { name: "Base Value", value: 1 };
-  
-  const postExplanations = getPostComponentExplanations(settings);
+  const multipliers = [
+    {
+      label: "Type Multiplier",
+      value: typeMultiplier,
+      tooltip: Math.abs(typeMultiplier - 1) < 0.01 
+        ? "No type multiplier applied (1.0×)"
+        : `Posts are multiplied by ${typeMultiplier}× to adjust their relative priority vs threads`
+    }
+  ];
   
   return (
     <>
       <SourcesSection sources={sources} metaInfo={metaInfo} itemType="post" />
-      
-      <div className={classes.totalScore}>
-        Total Score: {formatScore(breakdown.total)}
-      </div>
-      
-      <div className={classes.section}>
-        {nonZeroComponents.map(({ name, value }) => (
-          <ScoreComponent key={name} name={name} value={value} explanations={postExplanations} />
-        ))}
-        <ScoreComponent key="base" name={baseValue.name} value={baseValue.value} explanations={postExplanations} />
-        {zeroComponents.map(({ name, value }) => (
-          <ScoreComponent key={name} name={name} value={value} explanations={postExplanations} />
-        ))}
-      </div>
-      
-      <LWTooltip 
-        title={Math.abs(breakdown.typeMultiplier - 1) < 0.01 
-          ? "No type multiplier applied (1.0×)"
-          : `Posts are multiplied by ${breakdown.typeMultiplier}× to adjust their relative priority vs threads`
-        }
-        placement="left"
-        inlineBlock={false}
-        As="div"
-      >
-        <div className={classNames(classes.multiplier, {
-          [classes.multiplierNoPenalty]: Math.abs(breakdown.typeMultiplier - 1) < 0.01
-        })}>
-          Type Multiplier: ×{formatScore(breakdown.typeMultiplier)}
-        </div>
-      </LWTooltip>
+      <ScoreBreakdown 
+        total={total}
+        components={allComponents}
+        multipliers={multipliers}
+        explanations={getPostComponentExplanations(settings)}
+      />
     </>
   );
 };
 
 export const ThreadScoreBreakdownContent = ({ breakdown, sources, metaInfo }: { breakdown: ThreadScoreBreakdown; sources?: FeedItemSourceType[]; metaInfo?: FeedCommentMetaInfo }) => {
-  const classes = useStyles(scoreBreakdownStyles);
   const { settings } = useUltraFeedSettings();
-  const { components, repetitionPenaltyMultiplier, typeMultiplier } = breakdown;
+  const { components, repetitionPenaltyMultiplier, typeMultiplier, total } = breakdown;
   
   const allComponents = [
     { name: "Subscribed Comments", value: components.unreadSubscribedCommentBonus },
@@ -346,65 +393,32 @@ export const ThreadScoreBreakdownContent = ({ breakdown, sources, metaInfo }: { 
     { name: "Read Post Context", value: components.readPostContextBonus },
   ];
   
-  const nonZeroComponents = allComponents.filter(c => Math.abs(c.value) >= 0.01);
-  const zeroComponents = allComponents
-    .filter(c => Math.abs(c.value) < 0.01)
-    .sort((a, b) => Math.abs(b.value) - Math.abs(a.value));
-  
-  const baseValue = { name: "Base Value", value: 1 };
-  
-  const threadExplanations = getThreadComponentExplanations(settings);
+  const multipliers = [
+    {
+      label: "Repetition Penalty",
+      value: repetitionPenaltyMultiplier,
+      tooltip: Math.abs(repetitionPenaltyMultiplier - 1) < 0.01 
+        ? "No penalty is applied to this thread for having been shown recently"
+        : "This item has been penalized since the same thread was already shown recently"
+    },
+    {
+      label: "Type Multiplier",
+      value: typeMultiplier,
+      tooltip: Math.abs(typeMultiplier - 1) < 0.01 
+        ? "No type multiplier applied (1.0×)"
+        : `Threads are multiplied by ${typeMultiplier}× to adjust their relative priority`
+    }
+  ];
   
   return (
     <>
       <SourcesSection sources={sources} metaInfo={metaInfo} itemType="commentThread" />
-      
-      <div className={classes.totalScore}>
-        Total Score: {formatScore(breakdown.total)}
-      </div>
-      
-      <div className={classes.section}>
-        {nonZeroComponents.map(({ name, value }) => (
-          <ScoreComponent key={name} name={name} value={value} explanations={threadExplanations} />
-        ))}
-        <ScoreComponent key="base" name={baseValue.name} value={baseValue.value} explanations={threadExplanations} />
-        {zeroComponents.map(({ name, value }) => (
-          <ScoreComponent key={name} name={name} value={value} explanations={threadExplanations} />
-        ))}
-      </div>
-      
-      <LWTooltip 
-        title={Math.abs(repetitionPenaltyMultiplier - 1) < 0.01 
-          ? "No penalty is applied to this thread for having been shown recently"
-          : "This item has been penalized since the same thread was already shown recently"
-        }
-        placement="left"
-        inlineBlock={false}
-        As="div"
-      >
-        <div className={classNames(classes.multiplier, {
-          [classes.multiplierPenalty]: repetitionPenaltyMultiplier < 1,
-          [classes.multiplierNoPenalty]: Math.abs(repetitionPenaltyMultiplier - 1) < 0.01
-        })}>
-          Repetition Penalty: ×{formatScore(repetitionPenaltyMultiplier)}
-        </div>
-      </LWTooltip>
-      
-      <LWTooltip 
-        title={Math.abs(typeMultiplier - 1) < 0.01 
-          ? "No type multiplier applied (1.0×)"
-          : `Threads are multiplied by ${typeMultiplier}× to adjust their relative priority`
-        }
-        placement="left"
-        inlineBlock={false}
-        As="div"
-      >
-        <div className={classNames(classes.multiplier, {
-          [classes.multiplierNoPenalty]: Math.abs(typeMultiplier - 1) < 0.01
-        })}>
-          Type Multiplier: ×{formatScore(typeMultiplier)}
-        </div>
-      </LWTooltip>
+      <ScoreBreakdown 
+        total={total}
+        components={allComponents}
+        multipliers={multipliers}
+        explanations={getThreadComponentExplanations(settings)}
+      />
     </>
   );
 };
