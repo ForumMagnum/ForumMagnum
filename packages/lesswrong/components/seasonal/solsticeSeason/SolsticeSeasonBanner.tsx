@@ -38,23 +38,19 @@ const styles = defineStyles("SolsticeSeasonBanner", (theme: ThemeType) => ({
   '@keyframes solsticeGlobeFade': {
     '0%': {
       opacity: 1,
-      visibility: 'visible',
       pointerEvents: 'auto',
     },
     '100%': {
       opacity: 0,
-      visibility: 'hidden',
       pointerEvents: 'none',
     },
   },
   '@keyframes solsticeGlobeFadeVisual': {
     '0%': {
       opacity: 1,
-      visibility: 'visible',
     },
     '100%': {
       opacity: 0,
-      visibility: 'hidden',
     },
   },
   '@keyframes solsticeOverlayFade': {
@@ -97,15 +93,7 @@ const styles = defineStyles("SolsticeSeasonBanner", (theme: ThemeType) => ({
       animationTimingFunction: 'linear',
       animationFillMode: 'both',
       animationRange: '0% 10%',
-    },
-    globeGradientRight: {
-      animationName: '$solsticeGlobeFadeVisual',
-      animationTimeline: 'scroll()',
-      animationDuration: '1s',
-      animationTimingFunction: 'linear',
-      animationFillMode: 'both',
-      animationRange: '0% 10%',
-    },
+    }
   },
   title: {
     fontSize: 53,
