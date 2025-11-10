@@ -32,12 +32,80 @@ const styles = defineStyles("SolsticeSeasonBanner", (theme: ThemeType) => ({
     height: '100%',
     backgroundColor: theme.palette.background.default,
     opacity: 0,
-    transition: 'opacity 2s ease-in-out',
     zIndex: 10,
     pointerEvents: 'none',
   },
-  overlayVisible: {
-    opacity: 1,
+  '@keyframes solsticeGlobeFade': {
+    '0%': {
+      opacity: 1,
+      visibility: 'visible',
+      pointerEvents: 'auto',
+    },
+    '100%': {
+      opacity: 0,
+      visibility: 'hidden',
+      pointerEvents: 'none',
+    },
+  },
+  '@keyframes solsticeGlobeFadeVisual': {
+    '0%': {
+      opacity: 1,
+      visibility: 'visible',
+    },
+    '100%': {
+      opacity: 0,
+      visibility: 'hidden',
+    },
+  },
+  '@keyframes solsticeOverlayFade': {
+    '0%': {
+      opacity: 0,
+    },
+    '100%': {
+      opacity: 1,
+    },
+  },
+  '@supports (animation-timeline: scroll())': {
+    overlay: {
+      animationName: '$solsticeOverlayFade',
+      animationTimeline: 'scroll()',
+      animationDuration: '1s',
+      animationTimingFunction: 'linear',
+      animationFillMode: 'both',
+      animationRange: '0% 10%',
+    },
+    globeContainer: {
+      animationName: '$solsticeGlobeFade',
+      animationTimeline: 'scroll()',
+      animationDuration: '1s',
+      animationTimingFunction: 'linear',
+      animationFillMode: 'both',
+      animationRange: '0% 10%',
+    },
+    postsListBlockingRect: {
+      animationName: '$solsticeGlobeFade',
+      animationTimeline: 'scroll()',
+      animationDuration: '1s',
+      animationTimingFunction: 'linear',
+      animationFillMode: 'both',
+      animationRange: '0% 10%',
+    },
+    background: {
+      animationName: '$solsticeGlobeFade',
+      animationTimeline: 'scroll()',
+      animationDuration: '1s',
+      animationTimingFunction: 'linear',
+      animationFillMode: 'both',
+      animationRange: '0% 10%',
+    },
+    globeGradientRight: {
+      animationName: '$solsticeGlobeFadeVisual',
+      animationTimeline: 'scroll()',
+      animationDuration: '1s',
+      animationTimingFunction: 'linear',
+      animationFillMode: 'both',
+      animationRange: '0% 10%',
+    },
   },
   title: {
     fontSize: 53,
@@ -235,7 +303,6 @@ export default function SolsticeSeasonBannerInner() {
   const classes = useStyles(styles);
   // SSR-safe: start with false, check after mount to avoid hydration mismatch
   const [shouldRender, setShouldRender] = useState(false);
-  const [isScrolled, setIsScrolled] = useState(false);
   const [selectedEventId, setSelectedEventId] = useState<string | null>(null)
   const [popupCoords, setPopupCoords] = useState<{ x: number; y: number } | null>(null)
   const markerClickInProgressRef = useRef(false);
@@ -273,20 +340,6 @@ export default function SolsticeSeasonBannerInner() {
       types: post.types,
     })), [eventPosts]);
 
-  
-  useEffect(() => {
-    if (!isClient) return;
-    const handleScroll = () => {
-      const y = window.scrollY || window.pageYOffset || 0;
-      setIsScrolled(y > 0);
-    };
-    // On initial load, if we're already scrolled, immediately hide
-    const y0 = window.scrollY || window.pageYOffset || 0;
-    setIsScrolled(y0 > 0);
-    window.addEventListener('scroll', handleScroll, { passive: true });
-    return () => window.removeEventListener('scroll', handleScroll);
-  }, []);
-  
   const defaultPointOfView = useMemo(() => ({
     lat: 20,
     lng: -70,
@@ -340,8 +393,8 @@ export default function SolsticeSeasonBannerInner() {
     return null;
   }
 
-  return <div className={classes.root} style={{ pointerEvents: isScrolled ? 'none' : 'auto' }}>
-    <div className={classNames(classes.overlay, { [classes.overlayVisible]: isScrolled })} />
+  return <div className={classes.root}>
+    <div className={classes.overlay} />
     <div className={classes.globeGradientRight} />
     <div className={classes.postsListBlockingRect}/>
     <div className={classes.background} />
