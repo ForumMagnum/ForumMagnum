@@ -37,11 +37,11 @@ export const MarginalFundingSubscribeButton = ({sequence, className}: {
       setSubscribing(false);
     }
   }, [captureEvent, subscribe]);
-  const label = isSubscribed ? "Unsubscribe" : "Subscribe";
+  const label = "Get notified";
   const classes = useStyles(styles);
   return (
     <button type="button" onClick={onSubscribe} className={className} disabled={subscribing || !subscribe}>
-      <ForumIcon icon="Envelope" />{" "}
+      <ForumIcon icon={isSubscribed ? "Bell" : "BellBorder"} />{" "}
       {subscribing ? <Loading className={classes.loading} /> : label}
     </button>
   );

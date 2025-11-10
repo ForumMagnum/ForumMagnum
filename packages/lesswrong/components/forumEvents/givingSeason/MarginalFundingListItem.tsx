@@ -38,6 +38,7 @@ const styles = defineStyles("MarginalFundingListItem", (theme) => ({
     display: "flex",
     flexDirection: "column",
     justifyContent: "center",
+    gap: "4px",
     padding: "40px 60px",
     [theme.breakpoints.down("sm")]: {
       display: "block",

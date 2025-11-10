@@ -1,4 +1,4 @@
-import React, { useCallback, useMemo } from "react";
+import React, { useCallback, useEffect, useMemo } from "react";
 import { defineStyles, useStyles } from "../../hooks/useStyles";
 import { registerComponent } from "../../../lib/vulcan-lib/components";
 import { sequenceGetPageUrl } from "@/lib/collections/sequences/helpers";
@@ -18,6 +18,7 @@ import MarginalFundingListItem from "./MarginalFundingListItem";
 import MarginalFundingCard from "./MarginalFundingCard";
 import ForumIcon from "../../common/ForumIcon";
 import Loading from "../../vulcan-core/Loading";
+import { useItemsRead } from "../../hooks/useRecordPostView";
 
 const styles = defineStyles("MarginalFundingPage", (theme) => ({
   root: {
@@ -63,6 +64,7 @@ const styles = defineStyles("MarginalFundingPage", (theme) => ({
       maxWidth: "calc(min(700px, 100%))",
     },
     [theme.breakpoints.down("xs")]: {
+      padding: "40px",
       gridColumn: "unset",
     },
   },
@@ -86,7 +88,7 @@ const styles = defineStyles("MarginalFundingPage", (theme) => ({
     gap: "8px",
     alignItems: "center",
     borderRadius: theme.borderRadius.default,
-    padding: 4,
+    padding: "4px 8px",
     transition: "background ease 0.2s",
     "& svg": {
       width: 20,
@@ -101,11 +103,13 @@ const styles = defineStyles("MarginalFundingPage", (theme) => ({
     fontSize: 72,
     fontWeight: 600,
     letterSpacing: "-0.07em",
+    lineHeight: "110%",
   },
   description: {
     fontSize: 19,
     fontWeight: 500,
     letterSpacing: "-0.02em",
+    lineHeight: "140%",
   },
   list: {
     width: "100%",
@@ -124,11 +128,23 @@ export const MarginalFundingPage = () => {
   const currentUser = useCurrentUser();
   const {captureEvent} = useTracking()
 
-  const {document: sequence} = useSingle({
+  const {document: sequence, refetch} = useSingle({
     collectionName: "Sequences",
     fragmentName: "SequencesPageWithChaptersFragment",
     documentId: MARGINAL_FUNDING_SEQUENCE_ID,
+    fetchPolicy: "network-only"
   });
+
+  const {postsRead} = useItemsRead();
+
+  // Refetch when any post in this sequence is marked as read
+  useEffect(() => {
+    const sequencePostIds = sequence?.chapters.flatMap(ch => ch.posts.map(p => p._id)) ?? [];
+    const hasReadChanges = sequencePostIds.some(id => id in postsRead);
+    if (hasReadChanges && refetch) {
+      void refetch();
+    }
+  }, [postsRead, sequence, refetch]);
 
   const onListen = useCallback(() => {
     captureEvent("marginalFundingListenClick");

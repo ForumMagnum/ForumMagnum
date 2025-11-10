@@ -51,7 +51,7 @@ const styles = defineStyles("MarginalFundingCard", (theme) => ({
     },
   },
   preview: {
-    fontSize: 14,
+    fontSize: 16,
     fontWeight: 500,
     letterSpacing: "-0.01em",
     lineHeight: "140%",
