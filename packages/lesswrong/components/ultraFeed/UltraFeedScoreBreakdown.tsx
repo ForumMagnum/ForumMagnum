@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, ReactNode } from 'react';
 import { defineStyles, useStyles } from '../hooks/useStyles';
 import { RankedItemMetadata, FeedItemSourceType, FeedCommentMetaInfo, FeedPostMetaInfo } from './ultraFeedTypes';
 import LWTooltip from '../common/LWTooltip';
@@ -41,12 +41,6 @@ const styles = defineStyles('UltraFeedScoreBreakdown', (theme: ThemeType) => ({
     color: theme.palette.text.primary,
     fontStyle: 'italic',
   },
-  sectionTitle: {
-    fontSize: 12,
-    fontWeight: 600,
-    textTransform: 'uppercase',
-    marginBottom: 6,
-  },
   constraints: {
     fontSize: 12,
     color: theme.palette.primary.main,
@@ -54,6 +48,46 @@ const styles = defineStyles('UltraFeedScoreBreakdown', (theme: ThemeType) => ({
     fontStyle: 'italic',
   },
 }));
+
+const ScoreBreakdownTooltip = ({ 
+  children, 
+  headerText, 
+  constraints, 
+  onAlterBonuses 
+}: { 
+  children: ReactNode;
+  headerText?: string;
+  constraints: string[];
+  onAlterBonuses: () => void;
+}) => {
+  const classes = useStyles(styles);
+  const breakdownClasses = useStyles(scoreBreakdownStyles);
+  
+  return (
+    <div className={breakdownClasses.tooltipContent}>
+      {headerText && (
+        <div className={classes.headerText}>
+          {headerText}
+        </div>
+      )}
+      {children}
+      {constraints.length > 0 && (
+        <div className={classes.constraints}>
+          {headerText ? 'Thread constraints' : 'Constraints'}: {constraints.join(', ')}
+        </div>
+      )}
+      <button 
+        className={breakdownClasses.alterBonusesButton}
+        onClick={(e) => {
+          e.stopPropagation();
+          onAlterBonuses();
+        }}
+      >
+        Alter Bonuses
+      </button>
+    </div>
+  );
+};
 
 const UltraFeedScoreBreakdown = ({ metadata, isFirstCommentInThread, sources, commentMetaInfo, postMetaInfo }: { 
   metadata: RankedItemMetadata;
@@ -78,91 +112,38 @@ const UltraFeedScoreBreakdown = ({ metadata, isFirstCommentInThread, sources, co
     return null;
   }
   
-  const isThreadBreakdown = metadata.rankedItemType === 'commentThread';
-  const isPostShowingThreadScore = isThreadBreakdown && !isFirstCommentInThread;
-  
   const handleClick = (e: React.MouseEvent) => {
     e.stopPropagation();
     setShowScoreBreakdown(!showScoreBreakdown);
   };
 
-  let tooltipContent;
+  const isThreadBreakdown = metadata.rankedItemType === 'commentThread';
+  const isPostShowingThreadScore = isThreadBreakdown && !isFirstCommentInThread;
   
-  if (isPostShowingThreadScore) {
-    tooltipContent = (
-      <div className={breakdownClasses.tooltipContent}>
-        <div className={classes.headerText}>
-          Post displayed because of comment thread
-        </div>
-        <ThreadScoreBreakdownContent 
-          breakdown={metadata.scoreBreakdown} 
-          metaInfo={commentMetaInfo}
-        />
-        {metadata.selectionConstraints.length > 0 && (
-          <div className={classes.constraints}>
-            Thread constraints: {metadata.selectionConstraints.join(', ')}
-          </div>
-        )}
-        <button 
-          className={breakdownClasses.alterBonusesButton}
-          onClick={(e) => {
-            e.stopPropagation();
-            setDialogOpen(true);
-          }}
-        >
-          Alter Bonuses
-        </button>
-      </div>
-    );
-  } else if (metadata.rankedItemType === 'commentThread') {
-    tooltipContent = (
-      <div className={breakdownClasses.tooltipContent}>
-        <ThreadScoreBreakdownContent 
-          breakdown={metadata.scoreBreakdown} 
-          sources={sources} 
-          metaInfo={commentMetaInfo}
-        />
-        {metadata.selectionConstraints.length > 0 && (
-          <div className={classes.constraints}>
-            Constraints: {metadata.selectionConstraints.join(', ')}
-          </div>
-        )}
-        <button 
-          className={breakdownClasses.alterBonusesButton}
-          onClick={(e) => {
-            e.stopPropagation();
-            setDialogOpen(true);
-          }}
-        >
-          Alter Bonuses
-        </button>
-      </div>
-    );
-  } else {
-    tooltipContent = (
-      <div className={breakdownClasses.tooltipContent}>
-        <PostScoreBreakdownContent 
-          breakdown={metadata.scoreBreakdown} 
-          sources={sources} 
-          metaInfo={postMetaInfo}
-        />
-        {metadata.selectionConstraints.length > 0 && (
-          <div className={classes.constraints}>
-            Constraints: {metadata.selectionConstraints.join(', ')}
-          </div>
-        )}
-        <button 
-          className={breakdownClasses.alterBonusesButton}
-          onClick={(e) => {
-            e.stopPropagation();
-            setDialogOpen(true);
-          }}
-        >
-          Alter Bonuses
-        </button>
-      </div>
-    );
-  }
+  const tooltipContent = isThreadBreakdown ? (
+    <ScoreBreakdownTooltip
+      headerText={isPostShowingThreadScore ? "Post displayed because of comment thread" : undefined}
+      constraints={metadata.selectionConstraints}
+      onAlterBonuses={() => setDialogOpen(true)}
+    >
+      <ThreadScoreBreakdownContent 
+        breakdown={metadata.scoreBreakdown} 
+        sources={isPostShowingThreadScore ? undefined : sources}
+        metaInfo={commentMetaInfo}
+      />
+    </ScoreBreakdownTooltip>
+  ) : (
+    <ScoreBreakdownTooltip
+      constraints={metadata.selectionConstraints}
+      onAlterBonuses={() => setDialogOpen(true)}
+    >
+      <PostScoreBreakdownContent 
+        breakdown={metadata.scoreBreakdown} 
+        sources={sources} 
+        metaInfo={postMetaInfo}
+      />
+    </ScoreBreakdownTooltip>
+  );
   
   return (
     <span className={classes.container}>
