@@ -2,7 +2,7 @@ import { Posts } from '../../server/collections/posts/collection';
 import { accessFilterMultiple } from '../../lib/utils/schemaUtils';
 import { canUserEditPostMetadata, extractGoogleDocId } from '../../lib/collections/posts/helpers';
 import { buildRevision } from '../editor/conversionUtils';
-import { isAF, twitterBotKarmaThresholdSetting } from '../../lib/instanceSettings';
+import { twitterBotKarmaThresholdSetting } from '../../lib/instanceSettings';
 import { randomId } from '../../lib/random';
 import { getLatestRev, getNextVersion, htmlToChangeMetrics } from '../editor/utils';
 import { GoogleDocMetadata } from '../collections/revisions/helpers';
@@ -412,7 +412,7 @@ export const postGqlMutations = {
       return await Posts.findOne({_id: postId})
     } else {
       let afField = {};
-      if (isAF()) {
+      if (context.forumType === "AlignmentForum") {
         afField = !userCanDo(currentUser, 'posts.alignment.new')
           ? { suggestForAlignmentUserIds: [currentUser._id] }
           : { af: true };

@@ -6,6 +6,7 @@ import { randomId } from '../../lib/random';
 import { getSqlClientOrThrow } from '@/server/sql/sqlClient';
 import { ActivityWindowData, getUserActivityData } from './getUserActivityData';
 import { isAnyTest } from '../../lib/executionEnvironment';
+import { forumTypeSetting } from '@/lib/forumTypeUtils';
 
 const ACTIVITY_WINDOW_HOURS = 21 * 24; // 3 weeks
 
@@ -302,17 +303,17 @@ async function concatNewActivity({
  *
  * Exported to allow running manually with "yarn repl"
  */
-export async function updateUserActivities(props?: {
+export async function updateUserActivities(props: {
   updateStartDate?: Date,
   updateEndDate?: Date,
   randomWait?: boolean,
   silent?: boolean,
 }) {
-  const log = props?.silent || isAnyTest ? console.log : () => {};
+  const log = props.silent || isAnyTest ? console.log : () => {};
 
   const dataDb = getSqlClientOrThrow();
 
-  if (props?.randomWait) {
+  if (props.randomWait) {
     // sleep for random amount of time up to 10 seconds
     // FIXME remove once we have a better solution for not running this function twice
     const sleepTime = Math.random() * 10000;
@@ -324,7 +325,11 @@ export async function updateUserActivities(props?: {
   const { prevStartDate, updateStartDate, updateEndDate } = {...(await getStartEndDate(dataDb)), ...props};
 
   // Get the most recent activity data from the analytics database
-  const newActivityData = await getUserActivityData(updateStartDate, updateEndDate);
+  const newActivityData = await getUserActivityData({
+    startDate: updateStartDate,
+    endDate: updateEndDate,
+    forumType: forumTypeSetting.get(),
+  });
 
   log(`Updating user activity for ${newActivityData.length} users between ${updateStartDate} and ${updateEndDate}`);
 

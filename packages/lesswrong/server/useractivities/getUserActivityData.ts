@@ -1,7 +1,7 @@
 /* See lib/collections/useractivities/collection.ts for a high-level overview */
 import { forumSelect } from "../../lib/forumTypeUtils";
 import { getAnalyticsConnection } from "../analytics/postgresConnection";
-import { environmentDescriptionSetting } from '@/lib/instanceSettings';
+import { environmentDescriptionSetting, type ForumTypeString } from '@/lib/instanceSettings';
 
 export interface ActivityWindowData {
   userOrClientId: string;
@@ -11,7 +11,7 @@ export interface ActivityWindowData {
 /*
  * When running this script locally we want it to use the real analytics events
  */
-const getLiveEnvDescriptions = () => forumSelect<Record<string, string>>({
+const getLiveEnvDescriptions = (forumType: ForumTypeString) => forumSelect<Record<string, string>>({
   EAForum: {
     "production": 'production',
     "staging": 'staging',
@@ -33,17 +33,18 @@ const getLiveEnvDescriptions = () => forumSelect<Record<string, string>>({
     "local-dev-prod-db": 'production', // prod running locally
     "local-dev-staging-db": 'staging', // staging running locally
   }
-})
+}, forumType)
 
 /**
  * Get an array of ActivityWindowData, one for each user or client that was active between startDate and endDate.
  *
  * In the typical case, this will be called with start date of 22 days ago (to the hour) and an end date of 24 hours ago.
  */
-export async function getUserActivityData(
+export async function getUserActivityData({ startDate, endDate, forumType }: {
   startDate: Date,
-  endDate: Date
-): Promise<ActivityWindowData[]> {
+  endDate: Date,
+  forumType: ForumTypeString
+}): Promise<ActivityWindowData[]> {
   const analyticsDb = await getAnalyticsConnection();
   if (!analyticsDb) {
     throw new Error('Analytics database not available');
@@ -61,7 +62,7 @@ export async function getUserActivityData(
   if (startDate > endDate) {
     throw new Error('startDate must be before endDate');
   }
-  const liveEnvDescription = getLiveEnvDescriptions()[environmentDescriptionSetting.get()]
+  const liveEnvDescription = getLiveEnvDescriptions(forumType)[environmentDescriptionSetting.get()]
   if (!liveEnvDescription) {
     throw new Error(`Unknown environmentDescriptionSetting: ${environmentDescriptionSetting.get()}`);
   }

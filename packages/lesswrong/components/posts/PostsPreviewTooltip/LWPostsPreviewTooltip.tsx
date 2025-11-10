@@ -18,6 +18,7 @@ import FormatDate from "../../common/FormatDate";
 import Loading from "../../vulcan-core/Loading";
 import ContentStyles from "../../common/ContentStyles";
 import EventTime from "../../localGroups/EventTime";
+import { useForumType } from '@/components/hooks/useForumType';
 
 const PostWithDialogueMessageQuery = gql(`
   query LWPostsPreviewTooltip1($documentId: String, $dialogueMessageId: String) {
@@ -154,6 +155,7 @@ const LWPostsPreviewTooltip = ({
   classes,
 }: LWPostsPreviewTooltipProps) => {
   const [expanded, setExpanded] = useState(false)
+  const { forumType } = useForumType();
 
   const { loading, data: dataHighlight } = useQuery(HighlightWithHashQuery, {
     variables: { documentId: post?.fmCrosspost?.foreignPostId ?? post?._id, hash },
@@ -215,8 +217,8 @@ const LWPostsPreviewTooltip = ({
               { !postsList && <>
                 {post.user && <PostsUserAndCoauthors post={post}/>}
                 <div className={classes.metadata}>
-                  <span className={classes.smallText}>{postGetKarma(post)} karma</span>
-                  <span className={classes.smallText}>{postGetCommentCountStr(post)}</span>
+                  <span className={classes.smallText}>{postGetKarma(post, forumType)} karma</span>
+                  <span className={classes.smallText}>{postGetCommentCountStr({post, forumType})}</span>
                   <span className={classes.smallText}>
                     <FormatDate date={post.postedAt}/>
                   </span>

@@ -3,7 +3,7 @@
 import React, { useEffect } from 'react';
 import { AnalyticsContext } from "../../lib/analyticsEvents";
 import { getReviewPhase, reviewIsActive, REVIEW_YEAR } from '../../lib/reviewUtils';
-import { showReviewOnFrontPageIfActive, lightconeFundraiserActive, ultraFeedEnabledSetting, isLW, isAF } from '@/lib/instanceSettings';
+import { showReviewOnFrontPageIfActive, lightconeFundraiserActive, ultraFeedEnabledSetting } from '@/lib/instanceSettings';
 import { useCookiesWithConsent } from '../hooks/useCookiesWithConsent';
 import { LAST_VISITED_FRONTPAGE_COOKIE, ULTRA_FEED_ENABLED_COOKIE } from '../../lib/cookies/cookies';
 import moment from 'moment';
@@ -28,9 +28,10 @@ import { defineStyles, useStyles } from '../hooks/useStyles';
 
 import dynamic from 'next/dynamic';
 import PetrovStoryMobileBanner from '../seasonal/petrovDay/petrov-day-story/PetrovStoryMobileBanner';
+import { useForumType } from '../hooks/useForumType';
 const RecentDiscussionFeed = dynamic(() => import("../recentDiscussion/RecentDiscussionFeed"), { ssr: false });
 
-const getStructuredData = () => ({
+const getStructuredData = ({isLW, isAF}: {isLW: boolean, isAF: boolean}) => ({
   "@context": "http://schema.org",
   "@type": "WebSite",
   "url": `${getSiteUrl()}`,
@@ -43,14 +44,14 @@ const getStructuredData = () => ({
     "@type": "WebPage",
     "@id": `${getSiteUrl()}`,
   },
-  ...(isLW() && {
+  ...(isLW && {
     "description": [
       "LessWrong is an online forum and community dedicated to improving human reasoning and decision-making.", 
       "We seek to hold true beliefs and to be effective at accomplishing our goals.", 
       "Each day, we aim to be less wrong about the world than the day before."
     ].join(' ')
   }),
-  ...(isAF() && {
+  ...(isAF && {
     "description": [
       "The Alignment Forum is a single online hub for researchers to discuss all ideas related to ensuring that transformatively powerful AIs are aligned with human values.", 
       "Discussion ranges from technical models of agency to the strategic landscape, and everything in between."
@@ -69,6 +70,7 @@ const styles = defineStyles("LWHome", (theme: ThemeType) => ({
 const LWHome = () => {
   const abTestGroup = useABTest(ultraFeedABTest);
   const [cookies] = useCookiesWithConsent([ULTRA_FEED_ENABLED_COOKIE]);
+  const { isLW, isAF } = useForumType();
   
   // Check if user has already made a choice via checkbox (which sets a cookie)
   const cookieValue = cookies[ULTRA_FEED_ENABLED_COOKIE];
@@ -80,7 +82,7 @@ const LWHome = () => {
   return (
       <AnalyticsContext pageContext="homePage">
         <React.Fragment>
-          <StructuredData generate={() => getStructuredData()}/>
+          <StructuredData generate={() => getStructuredData({isLW, isAF})}/>
           <UpdateLastVisitCookie />
           {reviewIsActive() && <>
             {getReviewPhase() !== "RESULTS" && <SingleColumnSection>

@@ -21,6 +21,7 @@ import CoreTagsSection from "./CoreTagsSection";
 import SingleColumnSection from "../common/SingleColumnSection";
 import { useQuery } from "@/lib/crud/useQuery";
 import { gql } from "@/lib/generated/gql-codegen";
+import { useForumType } from '../hooks/useForumType';
 
 const TagEditFragmentQuery = gql(`
   query EAAllTagsPage($documentId: String) {
@@ -84,6 +85,7 @@ const EAAllTagsPage = ({classes}: {
 }) => {
   const { openDialog } = useDialog()
   const currentUser = useCurrentUser()
+  const { forumType } = useForumType();
   const { tag } = useTagBySlug("portal", "AllTagsPageFragment");
   const [ editing, setEditing ] = useState(false)
 
@@ -105,7 +107,7 @@ const EAAllTagsPage = ({classes}: {
         <div className={classes.portalSection}>
           <SectionTitle title={portalTitle}>
             <SectionButton>
-              {currentUser && tagUserHasSufficientKarma(currentUser, "new") && <Link
+              {currentUser && tagUserHasSufficientKarma(currentUser, "new", forumType) && <Link
                 to={getTagCreateUrl()}
               >
                 <AddBoxIcon className={classes.addTagButton}/>

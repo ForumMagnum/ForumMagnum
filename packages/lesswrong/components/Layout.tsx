@@ -12,7 +12,7 @@ import { DialogManager } from './common/withDialog';
 import { CommentBoxManager } from './hooks/useCommentBox';
 import { ItemsReadContextWrapper } from './hooks/useRecordPostView';
 import { pBodyStyle } from '../themes/stylePiping';
-import { googleTagManagerIdSetting, isAF, isEAForum, isLW, isLWorAF, buttonBurstSetting } from '@/lib/instanceSettings';
+import { googleTagManagerIdSetting, buttonBurstSetting } from '@/lib/instanceSettings';
 import { globalStyles } from '../themes/globalStyles/globalStyles';
 import { userCanDo, userIsAdmin } from '../lib/vulcan-users/permissions';
 import { Helmet } from "./common/Helmet";
@@ -64,6 +64,7 @@ import { NO_ADMIN_NEXT_REDIRECT_COOKIE, SHOW_LLM_CHAT_COOKIE } from '@/lib/cooki
 
 import dynamic from 'next/dynamic';
 import { isBlackBarTitle } from './seasonal/petrovDay/petrov-day-story/petrovConsts';
+import { useForumType } from './hooks/useForumType';
 
 const SunshineSidebar = dynamic(() => import("./sunshineDashboard/SunshineSidebar"), { ssr: false });
 const LanguageModelLauncherButton = dynamic(() => import("./languageModels/LanguageModelLauncherButton"), { ssr: false });
@@ -152,7 +153,7 @@ const styles = defineStyles("Layout", (theme: ThemeType) => ({
         minmax(0, min-content)
         minmax(0, 1fr)
         minmax(0, min-content)
-        minmax(0, ${isLWorAF() ? 7 : 1}fr)
+        minmax(0, ${theme.isLWorAF ? 7 : 1}fr)
         minmax(0, min-content)
       `,
     },
@@ -296,6 +297,7 @@ const Layout = ({children}: {
   const classes = useStyles(styles);
   const currentUser = useCurrentUser();
   const currentUserId = currentUser?._id;
+  const { isAF, isLW, isLWorAF } = useForumType();
   const searchResultsAreaRef = useRef<HTMLDivElement|null>(null);
   const [disableNoKibitz, setDisableNoKibitz] = useState(false); 
   const [autosaveEditorState, setAutosaveEditorState] = useState<(() => Promise<void>) | null>(null);
@@ -316,7 +318,7 @@ const Layout = ({children}: {
   // also uncomment out the dynamic import and render of the HomepageCommunityMap.
   // (they're commented out to reduce the split bundle size.)
   const renderCommunityMap = false
-  // (isLW()) && isHomeRoute(pathname) && (!currentUser?.hideFrontpageMap) && !cookies[HIDE_MAP_COOKIE]
+  // isLW && isHomeRoute(pathname) && (!currentUser?.hideFrontpageMap) && !cookies[HIDE_MAP_COOKIE]
   
   const [updateUserNoCache] = useMutationNoCache(UsersCurrentUpdateMutation);
   
@@ -434,7 +436,7 @@ const Layout = ({children}: {
           <div className={classes.pageContent}>
             <div id="wrapper" className={classNames(
               "wrapper",
-              {'alignment-forum': isAF(), [classes.fullscreen]: isFullscreenRoute(pathname), [classes.wrapper]: isLWorAF()},
+              {'alignment-forum': isAF, [classes.fullscreen]: isFullscreenRoute(pathname), [classes.wrapper]: isLWorAF},
               useWhiteBackground && classes.whiteBackground
             )}>
           {buttonBurstSetting.get() && <GlobalButtonBurst />}
@@ -524,7 +526,7 @@ const Layout = ({children}: {
                   </ErrorBoundary>
                   {!isFullscreenRoute(pathname) && !routeMetadata.noFooter && <Footer />}
                 </div>
-                {isLW() && <LWBackgroundImage standaloneNavigation={standaloneNavigation} />}
+                {isLW && <LWBackgroundImage standaloneNavigation={standaloneNavigation} />}
                 {/* {!renderSunshineSidebar &&
                   friendlyHomeLayout &&
                   <MaybeStickyWrapper sticky={friendlyHomeLayout}>

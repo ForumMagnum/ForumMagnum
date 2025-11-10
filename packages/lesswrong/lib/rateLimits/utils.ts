@@ -203,11 +203,11 @@ export function getCurrentAndPreviousUserKarmaInfo(user: DbUser, currentVotes: R
   return { currentUserKarmaInfo, previousUserKarmaInfo };
 }
 
-export function getRateLimitStrictnessComparisons(userKarmaInfoWindow: UserKarmaInfoWindow) {
+export function getRateLimitStrictnessComparisons(userKarmaInfoWindow: UserKarmaInfoWindow, context: ResolverContext) {
   const { currentUserKarmaInfo, previousUserKarmaInfo } = userKarmaInfoWindow;
 
-  const commentRateLimits = forumSelect(autoCommentRateLimits);
-  const postRateLimits = forumSelect(autoPostRateLimits);
+  const commentRateLimits = forumSelect(autoCommentRateLimits, context.forumType);
+  const postRateLimits = forumSelect(autoPostRateLimits, context.forumType);
 
   const activeCommentRateLimits = getActiveRateLimits(currentUserKarmaInfo, commentRateLimits);
   const previousCommentRateLimits = getActiveRateLimits(previousUserKarmaInfo, commentRateLimits);

@@ -248,10 +248,10 @@ export async function triggerAutomodIfNeeded(userId: string, context: ResolverCo
   await triggerAutomodIfNeededForUser(user, context);
 }
 
-export async function triggerCommentAutomodIfNeeded(comment: DbVoteableType, vote: DbVote) {
+export async function triggerCommentAutomodIfNeeded(comment: DbVoteableType, vote: DbVote, context: ResolverContext) {
   const { createAdminContext }: typeof import("../vulcan-lib/createContexts") = require("../vulcan-lib/createContexts");
 
-  const context = createAdminContext();
+  const adminContext = createAdminContext();
   const { Votes, CommentModeratorActions } = context;
   const commentId = comment._id;
 
@@ -266,7 +266,7 @@ export async function triggerCommentAutomodIfNeeded(comment: DbVoteableType, vot
     LessWrong: hasMultipleDownvotes,
     EAForum: isDownvotedBelowBar(-10),
     default: () => false
-  });
+  }, context.forumType);
   
   const needsModeration = automodRule({ voteableItem: comment, votes: allVotes });
 
@@ -276,6 +276,6 @@ export async function triggerCommentAutomodIfNeeded(comment: DbVoteableType, vot
         type: DOWNVOTED_COMMENT_ALERT,
         commentId
       },
-    }, context));
+    }, adminContext));
   }
 }

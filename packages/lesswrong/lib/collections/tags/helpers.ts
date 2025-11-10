@@ -1,6 +1,6 @@
 import qs from "qs";
 import { forumSelect } from "../../forumTypeUtils";
-import { siteUrlSetting, tagUrlBaseSetting, allowTypeIIIPlayerSetting } from '@/lib/instanceSettings';
+import { siteUrlSetting, tagUrlBaseSetting, allowTypeIIIPlayerSetting, type ForumTypeString } from '@/lib/instanceSettings';
 import { combineUrls } from "../../vulcan-lib/utils";
 import { TagCommentType } from "../comments/types";
 import { isFriendlyUI, preferredHeadingCase } from "../../../themes/forumTheme";
@@ -10,7 +10,7 @@ import type { TagLens } from "@/lib/arbital/useTagLenses";
 import { getSortOrderOptions, SettingsOption } from "../posts/dropdownOptions";
 import type { TagHistorySettings } from "@/components/tagging/history/TagHistoryPage";
 
-export const getTagMinimumKarmaPermissions = () => forumSelect({
+export const getTagMinimumKarmaPermissions = (forumType: ForumTypeString) => forumSelect({
   // Topic spampocalypse defense
   EAForum: {
     new: 1,
@@ -25,7 +25,7 @@ export const getTagMinimumKarmaPermissions = () => forumSelect({
     new: -1000,
     edit: -1000,
   }
-})
+}, forumType)
 
 type GetUrlOptions = {
   edit?: boolean,
@@ -80,10 +80,10 @@ export const tagGetRevisionLink = (tag: DbTag|TagBasicInfo, versionNumber: strin
   return `/${tagUrlBaseSetting.get()}/${tag.slug}?${lensParam}version=${versionNumber}`;
 }
 
-export const tagUserHasSufficientKarma = (user: UsersCurrent | DbUser | null, action: "new" | "edit"): boolean => {
+export const tagUserHasSufficientKarma = (user: UsersCurrent|DbUser|null, action: "new"|"edit", forumType: ForumTypeString): boolean => {
   if (!user) return false
   if (user.isAdmin) return true
-  if ((user.karma) >= getTagMinimumKarmaPermissions()[action]) return true
+  if ((user.karma) >= getTagMinimumKarmaPermissions(forumType)[action]) return true
   return false
 }
 

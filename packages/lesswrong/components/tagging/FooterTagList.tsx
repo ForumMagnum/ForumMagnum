@@ -10,7 +10,6 @@ import FooterTag, { tagStyle, smallTagTextStyle } from './FooterTag';
 import classNames from 'classnames';
 import { Card } from "@/components/widgets/Paper";
 import { Link } from '../../lib/reactRouterWrapper';
-import { forumSelect } from '../../lib/forumTypeUtils';
 import { useMessages } from '../common/withMessages';
 import { isLWorAF, taggingNamePluralSetting } from '../../lib/instanceSettings';
 import stringify from 'json-stringify-deterministic';
@@ -25,6 +24,7 @@ import AddTagButton from "./AddTagButton";
 import CoreTagsChecklist from "./CoreTagsChecklist";
 import PostsAnnualReviewMarketTag from "../posts/PostsAnnualReviewMarketTag";
 import { apolloSSRFlag } from "@/lib/helpers";
+import { useForumType } from '../hooks/useForumType';
 
 const styles = (theme: ThemeType) => ({
   root: theme.isFriendlyUI ? {
@@ -168,6 +168,7 @@ const FooterTagList = ({
   const rootRef = useRef<HTMLSpanElement>(null);
   const [showAll, setShowAll] = useState(!allowTruncate);
   const [displayShowAllButton, setDisplayShowAllButton] = useState(false);
+  const { forumSelect } = useForumType();
 
   const currentUserId = useCurrentUserId();
   const { captureEvent } = useTracking()

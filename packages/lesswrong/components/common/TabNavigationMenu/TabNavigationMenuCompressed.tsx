@@ -6,6 +6,7 @@ import getMenuTabs from './menuTabs'
 import { forumSelect } from '../../../lib/forumTypeUtils';
 import TabNavigationCompressedItem from "./TabNavigationCompressedItem";
 import SimpleDivider from "../../widgets/SimpleDivider";
+import { useForumType } from '@/components/hooks/useForumType';
 
 const styles = (theme: ThemeType) => ({
   root: {
@@ -27,9 +28,11 @@ const TabNavigationMenuCompressed = ({onClickSection, classes}: {
   onClickSection: (e?: React.BaseSyntheticEvent) => void,
   classes: ClassesType<typeof styles>
 }) => {
+  const { forumType } = useForumType();
+
   return (
     <div className={classes.root}>
-      {forumSelect(getMenuTabs()).map(tab => {
+      {forumSelect(getMenuTabs(), forumType).map(tab => {
         if (!('showOnCompressed' in tab) || !tab.showOnCompressed) {
           return
         }

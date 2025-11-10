@@ -50,7 +50,7 @@ export function getContributorsFieldResolver(options: ContributorsFieldOptions) 
         LessWrong: -(contributionStatsByUserId[userId]!.currentAttributionCharCount ?? 0),
         AlignmentForum: -(contributionStatsByUserId[userId]!.currentAttributionCharCount ?? 0),
         default: -contributionStatsByUserId[userId]!.contributionScore
-      })
+      }, context.forumType)
     );
 
     const contributorsWithStats: ContributorWithStats[] = sortedContributors.map(userId => ({

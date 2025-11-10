@@ -13,7 +13,7 @@ import PencilIcon from '@/lib/vendor/@material-ui/icons/src/Create'
 import classNames from 'classnames';
 import { useCurrentUser } from '../common/withUser';
 import {AnalyticsContext} from "../../lib/analyticsEvents";
-import { hasEventsSetting, siteNameWithArticleSetting, taggingNameIsSet, taggingNameCapitalSetting, taggingNameSetting, taglineSetting, isAF, nofollowKarmaThreshold } from '@/lib/instanceSettings';
+import { hasEventsSetting, siteNameWithArticleSetting, taggingNameIsSet, taggingNameCapitalSetting, taggingNameSetting, taglineSetting, nofollowKarmaThreshold } from '@/lib/instanceSettings';
 import { separatorBulletStyles } from '../common/SectionFooter';
 import { getSortOrderOptions } from '../../lib/collections/posts/dropdownOptions';
 import CopyToClipboard from 'react-copy-to-clipboard';
@@ -59,6 +59,7 @@ import { useQuery } from "@/lib/crud/useQuery";
 import { gql } from "@/lib/generated/gql-codegen";
 import { StatusCodeSetter } from '../next/StatusCodeSetter';
 import CommentsDraftList from '../comments/CommentsDraftList';
+import { useForumType } from '../hooks/useForumType';
 
 const UsersProfileMultiQuery = gql(`
   query multiUserUsersProfileQuery($selector: UserSelector, $limit: Int, $enableTotal: Boolean) {
@@ -165,6 +166,7 @@ const UsersProfileFn = ({terms, slug, classes}: {
   slug: string,
   classes: ClassesType<typeof styles>,
 }) => {
+  const { isAF } = useForumType();
   const [showSettings, setShowSettings] = useState(false);
 
   const currentUser = useCurrentUser();
@@ -188,7 +190,7 @@ const UsersProfileFn = ({terms, slug, classes}: {
   const { openDialog } = useDialog();
 
   const displaySequenceSection = (canEdit: boolean, user: UsersProfile) => {
-    if (isAF()) {
+    if (isAF) {
         return !!((canEdit && user.afSequenceDraftCount) || user.afSequenceCount) || !!(!canEdit && user.afSequenceCount)
     } else {
         return !!((canEdit && user.sequenceDraftCount) || user.sequenceCount) || !!(!canEdit && user.sequenceCount)
@@ -209,19 +211,19 @@ const UsersProfileFn = ({terms, slug, classes}: {
 
     const userKarma = karma || 0
     const userAfKarma = afKarma || 0
-    const userPostCount = !isAF() ? postCount || 0 : afPostCount || 0
-    const userCommentCount = !isAF() ? commentCount || 0 : afCommentCount || 0
+    const userPostCount = !isAF ? postCount || 0 : afPostCount || 0
+    const userCommentCount = !isAF ? commentCount || 0 : afCommentCount || 0
 
       return <div className={classes.meta}>
 
-        { !isAF() && <TooltipSpan title={`${userKarma} karma`} className={classes.userMetaInfo}>
+        { !isAF && <TooltipSpan title={`${userKarma} karma`} className={classes.userMetaInfo}>
           <StarIcon className={classNames(classes.icon, classes.specificalz)}/>
           <MetaInfo title="Karma">
             {userKarma}
           </MetaInfo>
         </TooltipSpan>}
 
-        {!!userAfKarma && <TooltipSpan title={`${userAfKarma} karma${(!isAF()) ? " on alignmentforum.org" : ""}`} className={classes.userMetaInfo}>
+        {!!userAfKarma && <TooltipSpan title={`${userAfKarma} karma${(!isAF) ? " on alignmentforum.org" : ""}`} className={classes.userMetaInfo}>
           <OmegaIcon className={classNames(classes.icon, classes.specificalz)}/>
           <MetaInfo title="Alignment Karma">
             {userAfKarma}
@@ -311,7 +313,7 @@ const UsersProfileFn = ({terms, slug, classes}: {
     const username = userGetDisplayName(user)
     const metaDescription = `${username}'s profile on ${siteNameWithArticleSetting.get()} — ${taglineSetting.get()}`
     
-    const nonAFMember = (isAF() && !userCanDo(currentUser, "posts.alignment.new"))
+    const nonAFMember = (isAF && !userCanDo(currentUser, "posts.alignment.new"))
 
     const showMessageButton = currentUser?._id !== user._id
 

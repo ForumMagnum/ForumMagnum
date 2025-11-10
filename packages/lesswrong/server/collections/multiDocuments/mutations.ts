@@ -12,7 +12,7 @@ import { makeGqlCreateMutation, makeGqlUpdateMutation } from "@/server/vulcan-li
 import { getLegacyCreateCallbackProps, getLegacyUpdateCallbackProps, insertAndReturnCreateAfterProps, runFieldOnCreateCallbacks, runFieldOnUpdateCallbacks, updateAndReturnDocument, assignUserIdToData } from "@/server/vulcan-lib/mutators";
 import gql from "graphql-tag";
 import cloneDeep from "lodash/cloneDeep";
-import { editCheck as editTagCheck, newCheck as newTagCheck } from "@/server/collections/tags/helpers";
+import { editTagCheck, newTagCheck } from "@/server/collections/tags/helpers";
 import { backgroundTask } from "@/server/utils/backgroundTask";
 
 /**
@@ -34,8 +34,11 @@ async function canMutateParentDocument(user: DbUser | null, multiDocument: DbMul
   }
 
   const { document: parentDocument } = rootDocumentInfo;
-  const check = mutation === 'create' ? newTagCheck : editTagCheck;
-  return check(user, parentDocument);
+  if (mutation === 'create') {
+    return newTagCheck(user, parentDocument, context);
+  } else {
+    return editTagCheck(user, parentDocument, context);
+  }
 }
 
 function newCheck(user: DbUser | null, multiDocument: CreateMultiDocumentDataInput | null, context: ResolverContext) {

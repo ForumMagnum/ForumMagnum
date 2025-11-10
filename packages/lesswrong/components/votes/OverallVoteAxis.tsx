@@ -2,7 +2,6 @@ import React from 'react';
 import { userIsAdmin } from '../../lib/vulcan-users/permissions';
 import moment from '../../lib/moment-timezone';
 import { useCurrentUser } from '../common/withUser';
-import { isAF } from '../../lib/instanceSettings';
 import { useVoteButtonsDisabled } from './useVoteButtonsDisabled';
 import type { VotingProps } from './votingProps';
 import OverallVoteButton from './OverallVoteButton';
@@ -11,6 +10,7 @@ import { isFriendlyUI } from '../../themes/forumTheme';
 import { defineStyles, useStyles } from '../hooks/useStyles';
 import UsersName from "../users/UsersName";
 import LWTooltip from "../common/LWTooltip";
+import { useForumType } from '../hooks/useForumType';
 
 const styles = defineStyles('OverallVoteAxis', theme => ({
   overallSection: {
@@ -93,6 +93,7 @@ const OverallVoteAxis = ({
   secondaryScoreClassName?: string,
 }) => {
   const classes = useStyles(styles);
+  const { isAF } = useForumType();
   const collectionName = voteProps.collectionName;
   const extendedScore = voteProps.document?.extendedScore
   const voteCount = extendedScore && ("approvalVoteCount" in extendedScore)
@@ -148,7 +149,7 @@ const OverallVoteAxis = ({
 
   return <TooltipIfDisabled>
     <span className={classes.vote}>
-      {!!af && !isAF() && !hideAfScore &&
+      {!!af && !isAF && !hideAfScore &&
         <LWTooltip
           placement={tooltipPlacement}
           popperClassName={classes.tooltip}
@@ -165,7 +166,7 @@ const OverallVoteAxis = ({
           </span>
         </LWTooltip>
       }
-      {!af && isAF() &&
+      {!af && isAF &&
         <LWTooltip
           title="LessWrong Karma"
           placement={tooltipPlacement}
@@ -177,7 +178,7 @@ const OverallVoteAxis = ({
           </span>
         </LWTooltip>
       }
-      {(!isAF() || !!af) &&
+      {(!isAF || !!af) &&
         <span className={classNames(classes.overallSection, className, {
           [classes.overallSectionBox]: showBox,
           [classes.verticalArrows]: verticalArrows,

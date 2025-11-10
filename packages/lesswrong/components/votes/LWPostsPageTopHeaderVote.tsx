@@ -1,12 +1,12 @@
 import { registerComponent } from '../../lib/vulcan-lib/components';
 import React from 'react';
 import { useVote } from './withVote';
-import { isAF } from '../../lib/instanceSettings';
 import { useVoteButtonsDisabled } from './useVoteButtonsDisabled';
 import { VotingSystem } from '@/lib/voting/votingSystemTypes';
 import { TooltipSpan } from '../common/FMTooltip';
 import OverallVoteButton from "./OverallVoteButton";
 import { Typography } from "../common/Typography";
+import { useForumType } from '../hooks/useForumType';
 
 const styles = (theme: ThemeType) => ({
   voteBlockHorizontal: {
@@ -57,6 +57,7 @@ const LWPostsPageTopHeaderVote = ({
   votingSystem: VotingSystem<PostsWithVotes>,
   classes: ClassesType<typeof styles>
 }) => {
+  const { isAF } = useForumType();
   const voteProps = useVote(post, "Posts", votingSystem);
 
   const {fail, reason: whyYouCantVote} = useVoteButtonsDisabled();
@@ -67,7 +68,7 @@ const LWPostsPageTopHeaderVote = ({
 
   const tooltipText = <div>
     <div>{`${voteProps.voteCount} ${voteProps.voteCount === 1 ? "vote" : "votes"}`}</div>
-    {post.af && !isAF() && <div><em>{post.afBaseScore} karma on AlignmentForum</em></div>}
+    {post.af && !isAF && <div><em>{post.afBaseScore} karma on AlignmentForum</em></div>}
   </div>
 
   return (

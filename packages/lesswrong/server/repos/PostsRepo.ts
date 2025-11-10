@@ -5,7 +5,7 @@ import LRU from "lru-cache";
 import { getViewableCommentsSelector, getViewableEventsSelector, getViewablePostsSelector } from "./helpers";
 import { EA_FORUM_COMMUNITY_TOPIC_ID } from "../../lib/collections/tags/helpers";
 import { recordPerfMetrics } from "./perfMetricWrapper";
-import { isAF } from "../../lib/instanceSettings";
+import { ForumTypeString } from "../../lib/instanceSettings";
 import {FilterPostsForReview} from '@/components/bookmarks/ReadHistoryTab'
 import { FilterSettings, FilterMode } from "@/lib/filterSettings";
 import { FeedFullPost, FeedItemSourceType } from "@/components/ultraFeed/ultraFeedTypes";
@@ -88,7 +88,7 @@ function filterModeToMultiplicativeKarmaModifier(mode: FilterMode): number {
  * Constructs a SQL expression for calculating the filteredScore based on filterSettings
  * This mirrors the logic in the "magic" view's filterSettingsToParams function
  */
-function constructFilteredScoreSql(filterSettings: FilterSettings): string {
+function constructFilteredScoreSql(filterSettings: FilterSettings, forumType: ForumTypeString): string {
   const tagsSoftFiltered = filterSettings.tags.filter(
     t => t.filterMode !== "Hidden" && t.filterMode !== "Required" && t.filterMode !== "Default"
   );
@@ -118,7 +118,7 @@ function constructFilteredScoreSql(filterSettings: FilterSettings): string {
   `;
   
   const timeDecayFactor = TIME_DECAY_FACTOR.get();
-  const ageOffset = isAF() ? 6 : SCORE_BIAS;
+  const ageOffset = forumType==="AlignmentForum" ? 6 : SCORE_BIAS;
   
   const timeDecayDenominatorSql = `
     POWER(
@@ -159,8 +159,8 @@ class PostsRepo extends AbstractRepo<"Posts"> {
     `, [oldUserId, newUserId]);
   }
 
-  async postRouteWillDefinitelyReturn200(id: string): Promise<boolean> {
-    const maybeRequireAF = isAF() ? "AND af IS TRUE" : ""
+  async postRouteWillDefinitelyReturn200(id: string, context: ResolverContext): Promise<boolean> {
+    const maybeRequireAF = context.forumType === "AlignmentForum" ? "AND af IS TRUE" : ""
     const res = await this.getRawDb().oneOrNone<{exists: boolean}>(`
       -- PostsRepo.postRouteWillDefinitelyReturn200
       SELECT EXISTS(
@@ -1133,7 +1133,7 @@ class PostsRepo extends AbstractRepo<"Posts"> {
       ? 'AND p."frontpageDate" IS NOT NULL' 
       : '';
 
-    const filteredScoreSql = constructFilteredScoreSql(filterSettings);
+    const filteredScoreSql = constructFilteredScoreSql(filterSettings, context.forumType);
     const hiddenPostIds = currentUser?.hiddenPostsMetadata?.map(metadata => metadata.postId) ?? [];
     const hiddenPostIdsCondition = hiddenPostIds.length > 0 
       ? `AND p."_id" NOT IN ($(hiddenPostIds:csv))` 

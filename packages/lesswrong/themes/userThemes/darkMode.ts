@@ -144,14 +144,7 @@ const forumComponentPalette = (shadePalette: ThemeShadePalette) =>
         translucentBackground: "rgba(0,0,0,.5)",
       }
     },
-  });
-
-const forumOverrides = (palette: ThemePalette): PartialDeep<ThemeType['overrides']> =>
-  forumSelect({
-    EAForum: {
-    },
-    default: {},
-  });
+  }, shadePalette.forumType);
 
 export const getDarkModeTheme = (): UserThemeSpecification => ({
   shadePalette: {
@@ -337,7 +330,6 @@ export const getDarkModeTheme = (): UserThemeSpecification => ({
       // have black-on-transparent text in them.
       background: "#ffffff",
     },
-    overrides: forumOverrides(palette),
     rawCSS: []
   }),
 });

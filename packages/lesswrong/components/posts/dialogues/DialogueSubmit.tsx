@@ -2,7 +2,6 @@ import React from 'react';
 import Button from '@/lib/vendor/@material-ui/core/src/Button';
 import classNames from 'classnames';
 import { useCurrentUser } from "../../common/withUser";
-import { isLW } from "../../../lib/instanceSettings";
 import { isFriendlyUI } from '../../../themes/forumTheme';
 import { EditorContext } from '../EditorContext';
 import { useNavigate } from '../../../lib/routeUtil';
@@ -12,6 +11,7 @@ import { defineStyles, useStyles } from '../../hooks/useStyles';
 import Row from "../../common/Row";
 import { useMutation } from "@apollo/client/react";
 import { gql } from "@/lib/generated/gql-codegen";
+import { useForumType } from '@/components/hooks/useForumType';
 
 const CommentEditMutation = gql(`
   mutation createCommentDialogueSubmit($data: CreateCommentDataInput!) {
@@ -73,6 +73,7 @@ export const DialogueSubmit = ({
 }: DialogueSubmitProps) => {
   const classes = useStyles(styles);
   const currentUser = useCurrentUser();
+  const { isLW } = useForumType();
   if (!currentUser) throw Error("must be logged in to post")
 
   const [createShortform, { loading, error }] = useMutation(CommentEditMutation);
@@ -93,7 +94,7 @@ export const DialogueSubmit = ({
 
   const submitWithoutConfirmation = () => formApi.setFieldValue('draft', false);
 
-  const requireConfirmation = isLW() && !!document.debate;
+  const requireConfirmation = isLW && !!document.debate;
   const showShortformButton = !!userShortformId && !isFriendlyUI();
 
   const onSubmitClick = requireConfirmation ? submitWithConfirmation : submitWithoutConfirmation;

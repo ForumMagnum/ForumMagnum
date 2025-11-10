@@ -6,7 +6,7 @@ import { useCurrentUser } from '../../common/withUser';
 import withErrorBoundary from '../../common/withErrorBoundary'
 import { useRecordPostView } from '../../hooks/useRecordPostView';
 import { AnalyticsContext, useTracking } from "../../../lib/analyticsEvents";
-import { isAF, isEAForum, isLWorAF, recombeeEnabledSetting } from '@/lib/instanceSettings';
+import { recombeeEnabledSetting } from '@/lib/instanceSettings';
 import classNames from 'classnames';
 import { hasPostRecommendations, commentsTableOfContentsEnabled, hasSidenotes } from '../../../lib/betas';
 import { useDialog } from '../../common/withDialog';
@@ -84,6 +84,7 @@ import { useQuery } from "@/lib/crud/useQuery"
 import { returnIfValidNumber } from '@/lib/utils/typeGuardUtils';
 import { useQueryWithLoadMore } from '@/components/hooks/useQueryWithLoadMore';
 import { CommentsListMultiQuery, postCommentsThreadQuery } from '../queries';
+import { useForumType } from '@/components/hooks/useForumType';
 
 const HIDE_TOC_WORDCOUNT_LIMIT = 300
 const MAX_ANSWERS_AND_REPLIES_QUERIED = 10000
@@ -297,6 +298,7 @@ const PostsPage = ({fullPost, postPreload, refetch, embedded}: {
   | { fullPost: undefined, postPreload: PostsListWithVotes }
 )) => {
   const classes = useStyles(styles);
+  const { isAF, isLWorAF, isEAForum, forumType } = useForumType();
   const post = fullPost ?? postPreload;
   const location = useSubscribedLocation();
   const navigate = useNavigate();
@@ -346,7 +348,7 @@ const PostsPage = ({fullPost, postPreload, refetch, embedded}: {
   // and we don't want to hide the splash header for any post that _is_ part of a sequence, since that's many review winners
 
   const isReviewWinner = ('reviewWinner' in post) && post.reviewWinner;
-  const showSplashPageHeader = isLWorAF() && !!isReviewWinner && !params.sequenceId;
+  const showSplashPageHeader = isLWorAF && !!isReviewWinner && !params.sequenceId;
 
   useEffect(() => {
     if (!query[SHARE_POPUP_QUERY_PARAM]) return;
@@ -399,7 +401,7 @@ const PostsPage = ({fullPost, postPreload, refetch, embedded}: {
 
   const debateResponses = dataDebateResponses?.comments?.results ?? emptyArray;
 
-  const defaultView = commentGetDefaultView(post, currentUser);
+  const defaultView = commentGetDefaultView(post, currentUser, forumType);
   const defaultTerms = { view: defaultView, limit: 1000 };
   const { view, limit } = usePostCommentTerms(currentUser, defaultTerms, query);
 
@@ -512,7 +514,7 @@ const PostsPage = ({fullPost, postPreload, refetch, embedded}: {
 
   // If the user has just posted a comment, and they are sorting by magic, put it at the top of the list for them
   const comments = useMemo(() => {
-    if (!isEAForum() || !rawComments || view !== "postCommentsMagic") return rawComments;
+    if (!isEAForum || !rawComments || view !== "postCommentsMagic") return rawComments;
 
     const recentUserComments = rawComments
       .filter((c) => c.userId === currentUser?._id && now.getTime() - new Date(c.postedAt).getTime() < 60000)
@@ -526,7 +528,7 @@ const PostsPage = ({fullPost, postPreload, refetch, embedded}: {
   }, [view, rawComments, currentUser?._id]);
 
   const displayedPublicCommentCount = comments?.filter(c => commentIncludedInCounts(c))?.length ?? 0;
-  const { commentCount: totalComments } = getResponseCounts({ post, answers })
+  const { commentCount: totalComments } = getResponseCounts({ post, answers, forumType })
   const commentTree = useMemo(() => unflattenComments(comments ?? []), [comments]);
   const answersTree = useMemo(() => unflattenComments(answersAndReplies ?? []), [answersAndReplies]);
   const answerCount = post.question ? answersTree.length : undefined;
@@ -537,7 +539,7 @@ const PostsPage = ({fullPost, postPreload, refetch, embedded}: {
   // rewrite crossposting.
   const hasTableOfContents = !!sectionData && !isCrosspostedQuestion;
   const tableOfContents = hasTableOfContents
-    ? (isLWorAF()
+    ? (isLWorAF
         ? <TableOfContents
             sectionData={sectionData}
             title={post.title}
@@ -577,7 +579,7 @@ const PostsPage = ({fullPost, postPreload, refetch, embedded}: {
 
   const header = <>
     {fullPost && !linkedCommentId && <>
-      <StructuredData generate={() => getStructuredData({post: fullPost, description, commentTree, answersTree})}/>
+      <StructuredData generate={() => getStructuredData({post: fullPost, description, commentTree, answersTree, forumType})}/>
       <CitationTags
         title={post.title}
         author={post.user?.displayName}
@@ -641,7 +643,7 @@ const PostsPage = ({fullPost, postPreload, refetch, embedded}: {
 
 
   // If this is a non-AF post being viewed on AF, redirect to LW.
-  if (isAF() && !post.af) {
+  if (isAF && !post.af) {
     const lwURL = "https://www.lesswrong.com" + location.url;
     return <PermanentRedirect url={lwURL}/>
   }
@@ -666,7 +668,7 @@ const PostsPage = ({fullPost, postPreload, refetch, embedded}: {
     )}>
       {isBookUI() && header}
       {/* Body */}
-      {fullPost && isEAForum() && <PostsAudioPlayerWrapper showEmbeddedPlayer={showEmbeddedPlayer} post={fullPost}/>}
+      {fullPost && isEAForum && <PostsAudioPlayerWrapper showEmbeddedPlayer={showEmbeddedPlayer} post={fullPost}/>}
       {fullPost && post.isEvent && fullPost.activateRSVPs &&  <RSVPs post={fullPost} />}
       {!post.debate && <ContentStyles
         contentType="post"
@@ -776,7 +778,7 @@ const PostsPage = ({fullPost, postPreload, refetch, embedded}: {
               highlightDate={highlightDate ?? undefined}
               setHighlightDate={setHighlightDate}
             />}
-            {isAF() && <AFUnreviewedCommentCount post={post}/>}
+            {isAF && <AFUnreviewedCommentCount post={post}/>}
           </AnalyticsContext>
           {isFriendlyUI() && Math.max(post.commentCount, comments?.length ?? 0) < 1 &&
             <div className={classes.noCommentsPlaceholder}>
@@ -842,7 +844,7 @@ const PostsPage = ({fullPost, postPreload, refetch, embedded}: {
         </ToCColumn>
     }
   
-    {isEAForum() && <DeferRender ssr={false}><MaybeStickyDigestAd post={post} /></DeferRender>}
+    {isEAForum && <DeferRender ssr={false}><MaybeStickyDigestAd post={post} /></DeferRender>}
     {hasPostRecommendations() && fullPost && <AnalyticsInViewTracker eventProps={{inViewType: "postPageFooterRecommendations"}}>
       <PostBottomRecommendations
         post={post}

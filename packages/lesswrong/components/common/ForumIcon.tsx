@@ -2,7 +2,7 @@
 
 import React, { ComponentType, MouseEventHandler, CSSProperties } from "react";
 import { registerComponent } from "../../lib/vulcan-lib/components";
-import { forumSelect, ForumOptions } from "../../lib/forumTypeUtils";
+import { ForumOptions } from "../../lib/forumTypeUtils";
 import classNames from "classnames";
 import { SpeakerWaveIcon } from "../icons/speakerWaveIcon";
 import BookmarkIcon from "@heroicons/react/24/solid/BookmarkIcon";
@@ -178,6 +178,7 @@ import { GivingHandIcon } from "../icons/GivingHandIcon";
 import { DictionaryIcon } from "../icons/Dictionary";
 import { QuestionMarkIcon } from "../icons/QuestionMarkIcon";
 import { defineStyles, useStyles } from "../hooks/useStyles";
+import { useForumType } from "../hooks/useForumType";
 
 /**
  * This exists to allow us to easily use different icon sets on different
@@ -675,6 +676,7 @@ const ForumIcon = ({
   className,
   ...props
 }: ForumIconProps) => {
+  const { forumSelect } = useForumType();
   const classes = useStyles(styles);
   const icons = forumSelect(ICONS);
   const Icon = icons[icon] ?? ICONS.default[icon];

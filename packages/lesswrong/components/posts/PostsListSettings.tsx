@@ -8,7 +8,7 @@ import { useCurrentUser } from '../common/withUser';
 import { DEFAULT_LOW_KARMA_THRESHOLD, MAX_LOW_KARMA_THRESHOLD } from '../../lib/collections/posts/views'
 
 import { getSortOrderOptions, SettingsOption } from '../../lib/collections/posts/dropdownOptions';
-import { isEAForum } from '../../lib/instanceSettings';
+import { type ForumTypeString } from '../../lib/instanceSettings';
 import { preferredHeadingCase } from '../../themes/forumTheme';
 import { ForumOptions, forumSelect } from '../../lib/forumTypeUtils';
 import pick from 'lodash/pick';
@@ -16,6 +16,7 @@ import { timeframeLabels, timeframeSettings as defaultTimeframes, TimeframeSetti
 import { TooltipSpan } from '../common/FMTooltip';
 import MetaInfo from "../common/MetaInfo";
 import SettingsColumn from "../common/SettingsColumn";
+import { useForumType } from '../hooks/useForumType';
 
 type Filters = 'all'|'questions'|'meta'|'frontpage'|'curated'|'events'|'linkpost';
 
@@ -96,7 +97,7 @@ const FILTERS_ALL: ForumOptions<Partial<Record<Filters, SettingsOption>>> = {
   }
 }
 
-const getFilters = () => forumSelect(FILTERS_ALL)
+const getFilters = (forumType: ForumTypeString) => forumSelect(FILTERS_ALL, forumType)
 
 const styles = (theme: ThemeType) => ({
   root: {
@@ -160,6 +161,7 @@ const PostsListSettings = ({persistentSettings, hidden, currentTimeframe, curren
 }) => {
   const currentUser = useCurrentUser();
   const updateCurrentUser = useUpdateCurrentUser();
+  const { forumType, isEAForum } = useForumType();
 
   const setSetting = (type: keyof typeof USER_SETTING_NAMES, newSetting: any) => {
     if (currentUser && persistentSettings) {
@@ -192,7 +194,7 @@ const PostsListSettings = ({persistentSettings, hidden, currentTimeframe, curren
         <SettingsColumn
           type={'filter'}
           title={'Filtered by:'}
-          options={getFilters()}
+          options={getFilters(forumType)}
           currentOption={currentFilter}
           setSetting={setSetting}
           nofollow
@@ -243,7 +245,7 @@ const PostsListSettings = ({persistentSettings, hidden, currentTimeframe, curren
             </QueryLink>
           </TooltipSpan>
 
-          {isEAForum() && <TooltipSpan
+          {isEAForum && <TooltipSpan
             title={<div>
               <div>By default, Community posts are shown.</div>
               <div>Toggle to hide them.</div>

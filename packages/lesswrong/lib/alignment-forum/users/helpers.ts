@@ -1,5 +1,4 @@
 import { userCanDo, userOwns } from '../../vulcan-users/permissions';
-import { isAF } from "../../instanceSettings";
 
 export const userCanSuggestPostForAlignment = ({currentUser, post}: {
   currentUser: UsersCurrent|DbUser|null,
@@ -29,10 +28,13 @@ export const userCanMakeAlignmentComment = (user: DbUser|UsersCurrent|null) => {
   return userCanDo(user, 'comments.alignment.new')
 }
 
-export const userNeedsAFNonMemberWarning = (user: DbUser|UsersCurrent|null, initial =true) => {
-  
+export const userNeedsAFNonMemberWarning = ({user, initial=true, isAF}: {
+  user: DbUser|UsersCurrent|null,
+  isAF: boolean,
+  initial?: boolean,
+}) => {
   return (!!user
-    && isAF()
+    && isAF
     && (!user.hideAFNonMemberInitialWarning || !initial) 
     && !(userCanDo(user, 'comments.alignment.new')||userCanDo(user, 'posts.alignment.new')))
 }

@@ -1,7 +1,7 @@
 import React from 'react';
 import { registerComponent } from '../../../lib/vulcan-lib/components';
 import Info from '@/lib/vendor/@material-ui/icons/src/Info';
-import { siteNameWithArticleSetting } from '../../../lib/instanceSettings';
+import { ForumTypeString, siteNameWithArticleSetting } from '../../../lib/instanceSettings';
 import { useCurrentUser } from '../../common/withUser';
 import { getReviewPhase, postEligibleForReview, reviewIsActive } from '../../../lib/reviewUtils';
 import { forumSelect } from "../../../lib/forumTypeUtils";
@@ -16,6 +16,7 @@ import { ContentItemBody } from "../../contents/ContentItemBody";
 import ContentStyles from "../../common/ContentStyles";
 import PostPageReviewButton from "./PostPageReviewButton";
 import { BOOKUI_LINKPOST_WORDCOUNT_THRESHOLD } from '@/components/posts/PostsPage/constants';
+import { useForumType } from '@/components/hooks/useForumType';
 
 const getShortformDraftMessage = () => isFriendlyUI()
   ? "This is a special post that holds your quick takes. Because it's marked as a draft, your quick takes will not be displayed. To un-draft it, pick Edit from the menu above, then click Publish."
@@ -55,12 +56,12 @@ const styles = (theme: ThemeType) => ({
   },
 });
 
-const getForumNewUserProcessingTime = () => forumSelect({
+const getForumNewUserProcessingTime = (forumType: ForumTypeString) => forumSelect({
   EAForum: 24,
   LessWrong: 72,
   AlignmentForum: 72,
   default: 24
-})
+}, forumType)
 
 const PostBodyPrefix = ({post, query, classes}: {
   post: PostsWithNavigation|PostsWithNavigationAndRevision|PostsList,
@@ -68,6 +69,7 @@ const PostBodyPrefix = ({post, query, classes}: {
   classes: ClassesType<typeof styles>,
 }) => {
   const currentUser = useCurrentUser();
+  const { forumType } = useForumType();
 
   return <>
     {reviewIsActive() && postEligibleForReview(post) && getReviewPhase() !== "RESULTS" && <PostPageReviewButton post={post}/>}
@@ -96,7 +98,7 @@ const PostBodyPrefix = ({post, query, classes}: {
       }
       <LWTooltip title={<p>
         New users' first posts on {siteNameWithArticleSetting.get()} are checked by moderators before they appear on the site.
-        Most posts will be approved within {getForumNewUserProcessingTime()} hours; posts that are spam or that don't meet site
+        Most posts will be approved within {getForumNewUserProcessingTime(forumType)} hours; posts that are spam or that don't meet site
         standards will be deleted. After you've had a post approved, future posts will appear
         immediately without waiting for review.
       </p>}>

@@ -11,7 +11,7 @@ import { autoCommentRateLimits, autoPostRateLimits } from "@/lib/rateLimits/cons
 import { getActiveRateLimits, getDownvoteRatio, calculateRecentKarmaInfo } from "@/lib/rateLimits/utils";
 import { createAdminContext } from "../vulcan-lib/createContexts";
 
-export const up = async ({db}: MigrationContext) => {
+export const up = async ({db, forumType}: MigrationContext) => {
   const context = await createAdminContext();
 
   // First, delete any existing rate limit events (in case this migration was run before with incorrect data)
@@ -44,8 +44,8 @@ export const up = async ({db}: MigrationContext) => {
   // eslint-disable-next-line no-console
   console.log(`Found ${activeUserIds.length} users with recent activity`);
 
-  const commentRateLimits = forumSelect(autoCommentRateLimits);
-  const postRateLimits = forumSelect(autoPostRateLimits);
+  const commentRateLimits = forumSelect(autoCommentRateLimits, forumType);
+  const postRateLimits = forumSelect(autoPostRateLimits, forumType);
 
   if (!commentRateLimits || !postRateLimits) {
     // eslint-disable-next-line no-console

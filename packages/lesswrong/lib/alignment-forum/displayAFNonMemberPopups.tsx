@@ -7,6 +7,7 @@ import uniq from 'lodash/uniq';
 import { useCurrentUser } from '@/components/common/withUser';
 
 import dynamic from 'next/dynamic';
+import { useForumType } from '@/components/hooks/useForumType';
 const AFNonMemberInitialPopup = dynamic(() => import("@/components/alignment-forum/AFNonMemberInitialPopup"), { ssr: false });
 const AFNonMemberSuccessPopup = dynamic(() => import("@/components/alignment-forum/AFNonMemberSuccessPopup"), { ssr: false });
 
@@ -35,8 +36,8 @@ const isComment = (document: PostsBase | CommentsList): document is CommentsList
   return false
 }
 
-export const afNonMemberDisplayInitialPopup = (currentUser: UsersCurrent|null, openDialog: OpenDialogContextType["openDialog"]): boolean => {
-  if (userNeedsAFNonMemberWarning(currentUser)) { //only fires on AF for non-members
+export const afNonMemberDisplayInitialPopup = (currentUser: UsersCurrent|null, openDialog: OpenDialogContextType["openDialog"], isAF: boolean): boolean => {
+  if (userNeedsAFNonMemberWarning({user: currentUser, isAF})) { //only fires on AF for non-members
     openDialog({
       name: "AFNonMemberInitialPopup",
       contents: ({onClose}) => <AFNonMemberInitialPopup onClose={onClose}/>
@@ -50,12 +51,13 @@ export const afNonMemberDisplayInitialPopup = (currentUser: UsersCurrent|null, o
 //displays explanation of what happens upon non-member submission and submits to queue
 export const useAfNonMemberSuccessHandling = () => {
   const currentUser = useCurrentUser();
+  const { isAF } = useForumType();
   const { openDialog } = useDialog();
   const [updateComment] = useMutation(SuggestAlignmentCommentUpdateMutation);
   const [updatePost] = useMutation(SuggestAlignmentPostUpdateMutation);
   
   return useCallback((document: PostsBase | CommentsList) => {
-    if (!!currentUser && userNeedsAFNonMemberWarning(currentUser, false)) {
+    if (!!currentUser && userNeedsAFNonMemberWarning({user: currentUser, initial: false, isAF})) {
       if (isComment(document)) {
         // eslint-disable-next-line @typescript-eslint/no-floating-promises
         void updateComment({
@@ -89,5 +91,5 @@ export const useAfNonMemberSuccessHandling = () => {
         })
       }
     }
-  }, [currentUser, openDialog, updateComment, updatePost]);
+  }, [currentUser, openDialog, updateComment, updatePost, isAF]);
 }

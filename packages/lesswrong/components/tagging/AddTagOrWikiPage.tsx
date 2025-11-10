@@ -12,6 +12,7 @@ import { getAllTagsPath } from '@/lib/pathConstants';
 import type { SearchState } from 'react-instantsearch-core';
 import TagSearchHit from "./TagSearchHit";
 import DropdownDivider from "../dropdowns/DropdownDivider";
+import { useForumType } from '../hooks/useForumType';
 
 const styles = (theme: ThemeType) => ({
   root: {
@@ -47,6 +48,7 @@ const AddTagOrWikiPage = ({onTagSelected, isVotingContext, onlyTags, numSuggesti
   classes: ClassesType<typeof styles>,
 }) => {
   const currentUser = useCurrentUser()
+  const { forumType } = useForumType();
   const [searchOpen, setSearchOpen] = React.useState(false);
   const searchStateChanged = React.useCallback((searchState: SearchState) => {
     setSearchOpen((searchState.query?.length ?? 0) > 0);
@@ -128,7 +130,7 @@ const AddTagOrWikiPage = ({onTagSelected, isVotingContext, onlyTags, numSuggesti
       <Link target="_blank" to={getAllTagsPath()} className={classes.newTag}>
         All {taggingNamePluralCapitalSetting.get()}
       </Link>
-      {userCanCreateTags(currentUser) && tagUserHasSufficientKarma(currentUser, "new") && <Link
+      {userCanCreateTags(currentUser) && tagUserHasSufficientKarma(currentUser, "new", forumType) && <Link
         target="_blank"
         to={getTagCreateUrl()}
         className={classes.newTag}

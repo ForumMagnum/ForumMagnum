@@ -9,13 +9,14 @@ import EventIcon from '@/lib/vendor/@material-ui/icons/src/Event';
 import QuestionAnswerIcon from '@/lib/vendor/@material-ui/icons/src/QuestionAnswer';
 import { forumTitleSetting, siteNameWithArticleSetting, taggingNameCapitalSetting, taggingNameIsSet } from '../../../lib/instanceSettings';
 import { curatedUrl } from '@/components/recommendations/constants';
-import { ForumOptions, forumSelect } from '../../../lib/forumTypeUtils';
+import { ForumOptions } from '../../../lib/forumTypeUtils';
 import classNames from 'classnames';
 import { getAllTagsPath } from '@/lib/pathConstants';
 import { isFriendlyUI } from '../../../themes/forumTheme';
 import { Typography } from "../../common/Typography";
 import LWTooltip from "../../common/LWTooltip";
 import SectionTitle from "../../common/SectionTitle";
+import { useForumType } from '@/components/hooks/useForumType';
 
 const styles = (theme: ThemeType) => ({
   root: {
@@ -337,6 +338,7 @@ const ContentType = ({classes, className, type, label}: {
   type: ContentTypeString,
   label?: string
 }) => {
+  const { forumSelect } = useForumType();
   if (!type) {
     throw new Error('ContentType requires type property')
   }

@@ -13,6 +13,7 @@ import SectionButton from "../common/SectionButton";
 import Loading from "../vulcan-core/Loading";
 import { useQuery } from "@/lib/crud/useQuery";
 import { gql } from "@/lib/generated/gql-codegen";
+import { useForumType } from '../hooks/useForumType';
 
 const TagPreviewFragmentMultiQuery = gql(`
   query multiTagAllTagsAlphabeticalQuery($selector: TagSelector, $limit: Int, $enableTotal: Boolean) {
@@ -44,6 +45,7 @@ const styles = (theme: ThemeType) => ({
 const AllTagsAlphabetical = ({classes}: {
   classes: ClassesType<typeof styles>,
 }) => {
+  const { forumType } = useForumType();
   const { data, loading } = useQuery(TagPreviewFragmentMultiQuery, {
     variables: {
       selector: { allTagsHierarchical: {} },
@@ -64,7 +66,7 @@ const AllTagsAlphabetical = ({classes}: {
         title={`All ${taggingNamePluralCapitalSetting.get()} (${loading ? "loading" : results?.length})`}
         anchor={`all-${taggingNamePluralSetting.get()}`}
       >
-        {userCanCreateTags(currentUser) && tagUserHasSufficientKarma(currentUser, "new") &&
+        {userCanCreateTags(currentUser) && tagUserHasSufficientKarma(currentUser, "new", forumType) &&
           <SectionButton>
             <AddBoxIcon/>
             <Link to={getTagCreateUrl()}>

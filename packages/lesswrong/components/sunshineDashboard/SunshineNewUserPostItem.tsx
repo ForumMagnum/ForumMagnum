@@ -11,6 +11,7 @@ import LinkPostMessage from "../posts/LinkPostMessage";
 import { RejectedContentControls } from "./RejectedContentControls";
 import ForumIcon from "../common/ForumIcon";
 import { defineStyles, useStyles } from '../hooks/useStyles';
+import { useForumType } from '../hooks/useForumType';
 
 const styles = defineStyles("SunshineNewUserPostItem", (theme: ThemeType) => ({
   row: {
@@ -61,6 +62,7 @@ export const SunshineNewUserPostItem = ({post}: {
 }) => {
   const classes = useStyles(styles);
   const [isCollapsed, setIsCollapsed] = useState(!!post.rejected);
+  const {forumType} = useForumType();
 
   return <div className={classes.post}>
     <div className={classes.rejection}>
@@ -81,7 +83,7 @@ export const SunshineNewUserPostItem = ({post}: {
         </MetaInfo>
         <MetaInfo>
           <Link to={`${postGetPageUrl(post)}#comments`}>
-            {postGetCommentCountStr(post)}
+            {postGetCommentCountStr({post, forumType})}
           </Link>
         </MetaInfo>
         <PostActionsButton post={post} />

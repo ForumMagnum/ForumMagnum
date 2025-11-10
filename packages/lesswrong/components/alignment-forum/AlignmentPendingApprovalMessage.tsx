@@ -1,8 +1,8 @@
 import { registerComponent } from '../../lib/vulcan-lib/components';
 import React from 'react';
-import { isAF } from '../../lib/instanceSettings';
 import { Link } from "../../lib/reactRouterWrapper";
 import { useCurrentUser } from "../common/withUser";
+import { useForumType } from '../hooks/useForumType';
 
 const styles = (theme: ThemeType) => ({
   root: {
@@ -15,12 +15,13 @@ const AlignmentPendingApprovalMessage = ({post, classes}: {
   post: PostsBase,
   classes: ClassesType<typeof styles>,
 }) => {
+  const { isAF } = useForumType();
   const currentUser = useCurrentUser()
   if (!currentUser) return null
   
   const userSubmittedPost = !!post.suggestForAlignmentUserIds && post.suggestForAlignmentUserIds.includes(currentUser._id)
   
-  if (!post.af && userSubmittedPost && isAF()) {
+  if (!post.af && userSubmittedPost && isAF) {
     return (
       <div className={classes.root}>
         <p>

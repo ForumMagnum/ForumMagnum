@@ -10,6 +10,7 @@ import { PostsListViewType, usePostsListView } from "../hooks/usePostsListView";
 import { gql } from "@/lib/generated/gql-codegen";
 import { useQueryWithLoadMore } from '../hooks/useQueryWithLoadMore';
 import uniqBy from 'lodash/uniqBy';
+import { useForumType } from '../hooks/useForumType';
 
 const postsListWithVotesQuery = gql(`
   query postsListWithVotes($selector: PostSelector, $limit: Int, $enableTotal: Boolean) {
@@ -146,6 +147,7 @@ export const usePostsList = <TagId extends string | undefined = undefined>({
   ...restProps
 }: PostsListConfig) => {
   const [haveLoadedMore, setHaveLoadedMore] = useState(false);
+  const { forumType } = useForumType();
 
   const tagVariables = tagId
     ? {
@@ -236,7 +238,7 @@ export const usePostsList = <TagId extends string | undefined = undefined>({
   let orderedResults = (order && uniqueResults) ? sortBy(uniqueResults, post => order.indexOf(post._id)) : results;
   if (defaultToShowUnreadComments && orderedResults) {
     orderedResults = sortBy(orderedResults, (post) => {
-      const postLastCommentedAt = postGetLastCommentedAt(post)
+      const postLastCommentedAt = postGetLastCommentedAt(post, forumType)
       return !post.lastVisitedAt || !postLastCommentedAt || (new Date(post.lastVisitedAt) >= postLastCommentedAt);
     })
   }

@@ -4,7 +4,7 @@ import Conversations from "@/server/collections/conversations/collection";
 import Users from "@/server/collections/users/collection";
 import { getUserEmail, userGetLocation, userShortformPostTitle } from "@/lib/collections/users/helpers";
 import { isAnyTest } from "@/lib/executionEnvironment";
-import { forumTitleSetting, isEAForum, isLW, isLWorAF, verifyEmailsSetting, mailchimpEAForumListIdSetting, mailchimpForumDigestListIdSetting, mailchimpEAForumNewsletterListIdSetting, recombeeEnabledSetting } from '@/lib/instanceSettings';
+import { forumTitleSetting, isEAForum, isLWorAF, verifyEmailsSetting, mailchimpEAForumListIdSetting, mailchimpForumDigestListIdSetting, mailchimpEAForumNewsletterListIdSetting, recombeeEnabledSetting } from '@/lib/instanceSettings';
 import { encodeIntlError } from "@/lib/vulcan-lib/utils";
 import { userIsAdminOrMod, userOwns } from "@/lib/vulcan-users/permissions";
 import { captureException } from "@/lib/sentryWrapper";
@@ -123,8 +123,9 @@ export const welcomeMessageDelayer = new EventDebouncer({
   // accounts are often doing so because they're about to write a comment or
   // something, and derailing them with a bunch of stuff to read at that
   // particular moment could be bad.
-  // LW wants people to see site intro before posting
-  defaultTiming: () => isLW() ? {type: "none"} : {type: "delayed", delayMinutes: 5},
+  // LW wants people to see site intro before posting. AF shares cronjob-running
+  // with LW so must be the same.
+  defaultTiming: () => isLWorAF() ? {type: "none"} : {type: "delayed", delayMinutes: 5},
   
   callback: (userId: string) => {
     backgroundTask(sendWelcomeMessageTo(userId));

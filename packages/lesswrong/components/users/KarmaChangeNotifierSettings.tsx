@@ -8,12 +8,14 @@ import { useTimezone } from '../common/withTimezone';
 import withErrorBoundary from '../common/withErrorBoundary';
 import moment from '../../lib/moment-timezone';
 import { convertTimeOfWeekTimezone } from '../../lib/utils/timeUtil';
-import { karmaChangeNotifierDefaultSettings, KarmaChangeUpdateFrequency, type KarmaChangeSettingsType } from '../../lib/collections/users/helpers';
+import { getKarmaChangeNotifierDefaultSettings, KarmaChangeUpdateFrequency, type KarmaChangeSettingsType } from '../../lib/collections/users/helpers';
 import { preferredHeadingCase } from '../../themes/forumTheme';
 import { TypedFieldApi } from '@/components/tanstack-form-components/BaseAppForm';
 import { defineStyles, useStyles } from '../hooks/useStyles';
 import { Typography } from "../common/Typography";
 import { MenuItem } from "../common/Menus";
+import { type ForumTypeString } from '@/lib/instanceSettings';
+import { useForumType } from '../hooks/useForumType';
 
 const styles = defineStyles('KarmaChangeNotifierSettings', (theme: ThemeType) => ({
   root: {
@@ -51,7 +53,7 @@ type KarmaNotificationTimingStrings = {
 };
 
 
-export function getKarmaNotificationTimingChoices(): Record<string, KarmaNotificationTimingStrings> {
+export function getKarmaNotificationTimingChoices(forumType: ForumTypeString): Record<string, KarmaNotificationTimingStrings> {
   const choices = {
     disabled: {
       label: "Disabled",
@@ -75,7 +77,7 @@ export function getKarmaNotificationTimingChoices(): Record<string, KarmaNotific
     },
   };
 
-  const defaultValue = (karmaChangeNotifierDefaultSettings.get()).updateFrequency;
+  const defaultValue = (getKarmaChangeNotifierDefaultSettings(forumType)).updateFrequency;
   choices[defaultValue].label += " (default)"
 
   return choices;
@@ -93,6 +95,7 @@ const KarmaChangeNotifierSettings = ({
   field: TypedFieldApi<KarmaChangeSettingsType>;
 }) => {
   const classes = useStyles(styles);
+  const { forumType } = useForumType();
   const { timezone } = useTimezone();
   const settings = field.state.value;
 
@@ -180,7 +183,7 @@ const KarmaChangeNotifierSettings = ({
       from the header entirely), or to some other update interval.
     </Typography>
     <div className={classes.radioGroup}>
-      {Object.entries(getKarmaNotificationTimingChoices()).map(([key, timingChoice]) =>
+      {Object.entries(getKarmaNotificationTimingChoices(forumType)).map(([key, timingChoice]) =>
         <FormControlLabel
           key={key}
           control={

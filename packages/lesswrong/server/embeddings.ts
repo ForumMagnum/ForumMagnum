@@ -15,7 +15,6 @@ import { fetchFragment, fetchFragmentSingle } from "./fetchFragment";
 import mapValues from "lodash/mapValues";
 import chunk from "lodash/chunk";
 import { EMBEDDINGS_VECTOR_SIZE } from "../lib/collections/postEmbeddings/newSchema";
-import { forumSelect } from "@/lib/forumTypeUtils";
 import { PostsPage } from "@/lib/collections/posts/fragments";
 
 export const hasEmbeddingsForRecommendations = () => (isEAForum() || isLWorAF()) && !isE2E;
@@ -29,23 +28,20 @@ const DEFAULT_EMBEDDINGS_MODEL = "text-embedding-3-large";
 const TOKENIZER_MODEL: TiktokenModel = 'text-embedding-ada-002'
 
 const DEFAULT_EMBEDDINGS_MODEL_MAX_TOKENS = 8191;
-  
-export const getEmbeddingsSettings = () => forumSelect({
-  "EAForum": {
-    "tokenizerModel": TOKENIZER_MODEL,
-    "embeddingModel": LEGACY_EMBEDDINGS_MODEL,
-    "maxTokens": DEFAULT_EMBEDDINGS_MODEL_MAX_TOKENS,
-    "dimensions": null,
-    "supportsBatchUpdate": false,
-  },
-  "default": {
-    "tokenizerModel": TOKENIZER_MODEL,
-    "embeddingModel": DEFAULT_EMBEDDINGS_MODEL,
-    "maxTokens": DEFAULT_EMBEDDINGS_MODEL_MAX_TOKENS,
-    "dimensions": EMBEDDINGS_VECTOR_SIZE,
-    "supportsBatchUpdate": true,
-  }
-})
+
+export const getEmbeddingsSettings = () => isEAForum() ? {
+  "tokenizerModel": TOKENIZER_MODEL,
+  "embeddingModel": LEGACY_EMBEDDINGS_MODEL,
+  "maxTokens": DEFAULT_EMBEDDINGS_MODEL_MAX_TOKENS,
+  "dimensions": null,
+  "supportsBatchUpdate": false,
+} : {
+  "tokenizerModel": TOKENIZER_MODEL,
+  "embeddingModel": DEFAULT_EMBEDDINGS_MODEL,
+  "maxTokens": DEFAULT_EMBEDDINGS_MODEL_MAX_TOKENS,
+  "dimensions": EMBEDDINGS_VECTOR_SIZE,
+  "supportsBatchUpdate": true,
+}
 
 type EmbeddingsResult = {
   embeddings: number[],

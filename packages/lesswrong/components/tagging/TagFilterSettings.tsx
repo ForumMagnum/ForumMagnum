@@ -13,6 +13,7 @@ import { type QueryRef } from '@apollo/client/react';
 import { type ResultOf } from '@graphql-typed-document-node/core';
 import { defineStyles, useStyles } from '../hooks/useStyles';
 import { useReadSuggestedTags, type TagBasicInfoMultiQuery } from '../hooks/useFilterSettings';
+import { useForumType } from '../hooks/useForumType';
 
 const styles = defineStyles("TagFilterSettings", (theme: ThemeType) => ({
   root: {
@@ -73,11 +74,12 @@ const TagFilterSettingsInner = ({
 }) => {
   const classes = useStyles(styles);
   const currentUser = useCurrentUser()
+  const { forumType } = useForumType();
 
   const {
     name: personalBlogpostName,
     tooltip: personalBlogpostTooltip,
-  } = usePersonalBlogpostInfo();
+  } = usePersonalBlogpostInfo(forumType);
 
   return <>
       <FilterModeGroup
