@@ -3,7 +3,7 @@ import { SolsticeGlobe3DProps, SolsticeGlobePoint } from './types';
 import { useGlobeDayNightMaterial, useGlobeReadyEffects } from './hooks';
 import { mapPointsToMarkers } from './utils';
 import { useEventListener } from '@/components/hooks/useEventListener';
-import { DEFAULT_DAY_IMAGE_URL, DEFAULT_NIGHT_IMAGE_URL, DEFAULT_LUMINOSITY_IMAGE_URL, DEFAULT_ALTITUDE_SCALE, DEFAULT_INITIAL_ALTITUDE_MULTIPLIER } from './solsticeSeasonConstants';
+import { DEFAULT_DAY_IMAGE_URL, DEFAULT_NIGHT_IMAGE_URL, DEFAULT_LUMINOSITY_IMAGE_URL, DEFAULT_ALTITUDE_SCALE, DEFAULT_INITIAL_ALTITUDE_MULTIPLIER, DEFAULT_NIGHT_SKY_IMAGE_URL } from './solsticeSeasonConstants';
 import { type GlobeMethods } from 'react-globe.gl';
 import dynamic from 'next/dynamic';
 import { defineStyles, useStyles } from '@/components/hooks/useStyles';
@@ -242,7 +242,7 @@ export const SolsticeGlobe3D = ({
     const isSpecialMarker = eventId === "FjHG3XcrhXkGWTDwf" ||
                            eventId === "YcKFwMLjCrr9hnerm";
     const markerSize = isSpecialMarker ? 45 : 30;
-    const markerColor = isSpecialMarker ? "light-dark(rgb(254, 237, 138), rgb(244, 230, 154))" : "light-dark(rgb(206, 233, 255), rgb(206, 233, 255))";
+    const markerColor = isSpecialMarker ? "light-dark(white, white)" : "light-dark(rgb(206, 233, 255), rgb(206, 233, 255))";
     const el = document.createElement('div');
     el.setAttribute('data-globe-marker', 'true');
     el.setAttribute('data-marker-index', String(d._index));
@@ -286,7 +286,7 @@ export const SolsticeGlobe3D = ({
         <Globe
           ref={globeRef}
           globeImageUrl={undefined}
-          backgroundImageUrl={"https://res.cloudinary.com/lesswrong-2-0/image/upload/v1761941646/starfield_fdoup4.jpg"}
+          backgroundImageUrl={DEFAULT_NIGHT_SKY_IMAGE_URL}
           globeMaterial={globeMaterialRef.current}
           onGlobeReady={() => setIsGlobeReady(true)}
           animateIn={true}
