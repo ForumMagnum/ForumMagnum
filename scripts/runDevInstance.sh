@@ -68,7 +68,7 @@ run_dev_server () {
   #        ~2x faster, at the expense of bugs that, as far as we know, don't
   #        impact development.
   #    "$@": Pass through exra arguments that were passed to the script, eg --port
-  node --inspect --inspect-publish-uid=http --no-deprecation ./node_modules/.bin/next dev --turbopack "$@"
+  NODE_OPTIONS="--inspect --inspect-publish-uid=http --no-deprecation" ./node_modules/.bin/next dev --turbopack "$@"
 }
 
 pull_envvars && \

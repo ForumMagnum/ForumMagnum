@@ -5,7 +5,7 @@ import type { NextConfig } from 'next';
 import type { WebpackConfigContext } from 'next/dist/server/config-shared';
 
 const serverExternalPackages = [
-  'superagent-proxy', 'gpt-3-encoder', 'mathjax-node', 'mathjax', 'turndown', 'cloudinary',
+  'superagent-proxy', 'gpt-3-encoder', 'mathjax-node-page', 'mathjax-node', 'mathjax', 'turndown', 'cloudinary',
   '@aws-sdk/client-cloudfront', 'auth0', 'jimp', 'juice', '@sentry/nextjs',
   'request', 'stripe', 'openai', 'twitter-api-v2', 'draft-js', 'draft-convert', 'csso',
   'js-tiktoken', 'cheerio', '@elastic/elasticsearch', '@googlemaps/google-maps-services-js',
@@ -16,11 +16,9 @@ const serverExternalPackages = [
   // rendering). This has a somewhat high risk of causing problems related to there
   // being multiple different versions of React present.
   'react-dom/static',
-];
-
-const webpackExternalPackages = [
   '@extractus/article-extractor', 'linkedom', 'canvas', 'mz',
-  'pg', 'pg-promise', 'pg-cloudflare'
+  'pg', 'pg-promise', 'pg-cloudflare', 'three',
+  'recombee-api-client'
 ];
 
 // Helper function to read and parse tsconfig
@@ -234,7 +232,6 @@ module.exports = nextConfig;
 // Injected content via Sentry wizard below
 
 import { withSentryConfig } from "@sentry/nextjs";
-
 module.exports = process.env.E2E ? module.exports : withSentryConfig(
   module.exports,
   {
