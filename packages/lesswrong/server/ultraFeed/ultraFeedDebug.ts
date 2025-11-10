@@ -51,3 +51,48 @@ export const ultraFeedDebug = {
   log,
 };
 
+/**
+ * Log ranked items with scores for analysis (only when debug enabled)
+ */
+export const logRankedItemsForAnalysis = async (
+  rankedItemsWithMetadata: Array<{ id: string; metadata?: any }>,
+  rankableItems: Array<any>,
+  algorithmName: string,
+  sessionId: string,
+  currentUser: DbUser | null,
+  clientId: string | undefined,
+  offset: number
+): Promise<void> => {
+  if (!ULTRAFEED_DEBUG_ENABLED) return;
+
+  const { serverCaptureEvent } = await import('../analytics/serverAnalyticsWriter');
+  
+  const itemsForLogging = rankedItemsWithMetadata
+    .filter((item): item is { id: string; metadata: any } => item.metadata !== undefined)
+    .map(({ id, metadata }) => {
+      const item = rankableItems.find((r: any) => r.id === id);
+      return {
+        itemId: id,
+        itemType: item?.itemType ?? 'unknown',
+        position: metadata.position,
+        totalScore: metadata.scoreBreakdown.total,
+        constraints: metadata.selectionConstraints.join(','),
+        sources: item?.sources?.join(',') ?? '',
+        repetitionPenaltyMultiplier: metadata.rankedItemType === 'commentThread'
+          ? metadata.scoreBreakdown.repetitionPenaltyMultiplier
+          : 1,
+        scoreComponents: metadata.scoreBreakdown.components,
+      };
+  });
+  
+  serverCaptureEvent('ultraFeedItemsRanked', {
+    sessionId,
+    userId: currentUser?._id ?? undefined,
+    clientId: clientId ?? undefined,
+    offset,
+    itemCount: rankedItemsWithMetadata.length,
+    algorithm: algorithmName,
+    items: itemsForLogging,
+  });
+};
+
