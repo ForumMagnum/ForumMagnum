@@ -61,7 +61,7 @@ export const scoreBreakdownStyles = defineStyles('ScoreBreakdownContent', (theme
   sourcesSection: {
     marginBottom: 12,
     paddingBottom: 12,
-    borderBottom: `1px solid rgba(0,0,0,0.1)`,
+    borderBottom: theme.palette.border.slightlyFaint,
     fontSize: 16,
     lineHeight: 1.5,
   },
