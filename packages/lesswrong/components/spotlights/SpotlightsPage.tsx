@@ -1,10 +1,8 @@
 "use client";
 
 import React, { useMemo } from 'react';
-import sortBy from 'lodash/sortBy';
 import sumBy from 'lodash/sumBy';
 import uniq from 'lodash/uniq';
-import maxBy from 'lodash/maxBy';
 import { userCanDo } from '../../lib/vulcan-users/permissions';
 import { useCurrentUser } from '../common/withUser';
 import { useLocation } from '../../lib/routeUtil';
@@ -22,6 +20,7 @@ import LoadMore from "../common/LoadMore";
 import { useQueryWithLoadMore } from "@/components/hooks/useQueryWithLoadMore";
 import { gql } from "@/lib/generated/gql-codegen";
 import { SpotlightDisplay } from "@/lib/generated/gql-codegen/graphql";
+import { buildPromotionSchedule, getPromotionOrderedSpotlights, PromotionScheduleEntry } from "@/lib/collections/spotlights/spotlightScheduling";
 
 const SpotlightDisplayMultiQuery = gql(`
   query multiSpotlightSpotlightsPageQuery($selector: SpotlightSelector, $limit: Int, $enableTotal: Boolean) {
@@ -43,65 +42,7 @@ const styles = (theme: ThemeType) => ({
   }
 });
 
-const MS_IN_DAY = 1000 * 60 * 60 * 24;
-
-type PromotionScheduleEntry = {
-  spotlight: SpotlightDisplay;
-  activationDate: Date;
-  endDate: Date;
-};
-
-const getDateValue = (value: Date | string) => {
-  const timestamp = new Date(value).valueOf();
-  return Number.isNaN(timestamp) ? 0 : timestamp;
-};
-
-const getCurrentSpotlight = (spotlights: SpotlightDisplay[]) => {
-  return maxBy(spotlights, spotlight => getDateValue(spotlight.lastPromotedAt));
-};
-
-const getPromotionOrderedSpotlights = (spotlights: SpotlightDisplay[]) => {
-  if (!spotlights.length) {
-    return [];
-  }
-  const currentSpotlight = getCurrentSpotlight(spotlights);
-  const spotlightsByPosition = sortBy(spotlights, spotlight => spotlight.position);
-  if (!currentSpotlight) {
-    return spotlightsByPosition;
-  }
-  const currentIndex = spotlightsByPosition.findIndex(spotlight => spotlight._id === currentSpotlight._id);
-  if (currentIndex === -1) {
-    return spotlightsByPosition;
-  }
-  return [
-    ...spotlightsByPosition.slice(currentIndex),
-    ...spotlightsByPosition.slice(0, currentIndex),
-  ];
-};
-
-const buildPromotionSchedule = (orderedSpotlights: SpotlightDisplay[]): PromotionScheduleEntry[] => {
-  if (!orderedSpotlights.length) {
-    return [];
-  }
-  let activationTimestamp = getDateValue(orderedSpotlights[0].lastPromotedAt);
-  return orderedSpotlights.map((spotlight, index) => {
-    if (index === 0) {
-      activationTimestamp = getDateValue(spotlight.lastPromotedAt);
-    } else {
-      const previousSpotlight = orderedSpotlights[index - 1];
-      activationTimestamp += (previousSpotlight.duration ?? 0) * MS_IN_DAY;
-    }
-    const activationDate = new Date(activationTimestamp);
-    const endDate = new Date(activationDate.valueOf() + ((spotlight.duration ?? 0) * MS_IN_DAY));
-    return {
-      spotlight,
-      activationDate,
-      endDate,
-    };
-  });
-};
-
-const buildSectionData = (promotionSchedule: PromotionScheduleEntry[], draftSpotlights: SpotlightDisplay[], includeDrafts: boolean) => {
+const buildSectionData = (promotionSchedule: PromotionScheduleEntry<SpotlightDisplay>[], draftSpotlights: SpotlightDisplay[], includeDrafts: boolean) => {
   return {
     html: "",
     sections: [
@@ -161,7 +102,7 @@ export const SpotlightsPage = ({classes}: {
     }
     return getPromotionOrderedSpotlights(activeSpotlights);
   }, [spotlights]);
-  const promotionSchedule = useMemo<PromotionScheduleEntry[]>(() => buildPromotionSchedule(spotlightsInPromotionOrder), [spotlightsInPromotionOrder]);
+  const promotionSchedule = useMemo<PromotionScheduleEntry<SpotlightDisplay>[]>(() => buildPromotionSchedule(spotlightsInPromotionOrder), [spotlightsInPromotionOrder]);
 
   const draftSpotlights = useMemo<SpotlightDisplay[]>(() => spotlights.filter(spotlight => spotlight.draft), [spotlights]);
   
