@@ -377,6 +377,12 @@ function selectWithDiversityConstraints(
     const needsBookmark = positionInWindow === (constraints.guaranteedSlotsPerWindow.windowSize - 1) && 
       bookmarksInWindow < constraints.guaranteedSlotsPerWindow.bookmarks;
     
+    // Check if we need type diversity
+    const lastNTypes = recentTypes.slice(-constraints.maxConsecutiveSameType);
+    const needsTypeDiversity = lastNTypes.length >= constraints.maxConsecutiveSameType &&
+      lastNTypes.every(t => t === lastNTypes[0]);
+    const bannedType = needsTypeDiversity ? lastNTypes[0] : undefined;
+    
     // Check if we need subscription diversity
     const lastNSubscribed = recentSubscribed.slice(-constraints.subscriptionDiversityWindow);
     const needsNonSubscribed = lastNSubscribed.length >= constraints.subscriptionDiversityWindow &&
@@ -391,7 +397,17 @@ function selectWithDiversityConstraints(
     let selectedItem: ScoredItem | undefined;
     let attemptedConstraint: string | undefined;
     
-    if (needsBookmark) {
+    if (needsSpotlight) {
+      attemptedConstraint = 'forced-spotlight';
+      // Find highest-scoring spotlight
+      selectedItem = available.find(si => 
+        !selectedSet.has(si.id) &&
+        si.item.sources?.includes('spotlights' as FeedItemSourceType)
+      );
+      if (selectedItem) {
+        appliedConstraints.push('forced-spotlight');
+      }
+    } else if (needsBookmark) {
       attemptedConstraint = 'forced-bookmark';
       // Find highest-scoring bookmark
       selectedItem = available.find(si => 
@@ -401,15 +417,15 @@ function selectWithDiversityConstraints(
       if (selectedItem) {
         appliedConstraints.push('forced-bookmark');
       }
-    } else if (needsSpotlight) {
-      attemptedConstraint = 'forced-spotlight';
-      // Find highest-scoring spotlight
-      selectedItem = available.find(si => 
-        !selectedSet.has(si.id) &&
-        si.item.sources?.includes('spotlights' as FeedItemSourceType)
-      );
+    } else if (needsTypeDiversity) {
+      attemptedConstraint = 'type-diversity';
+      // Find highest-scoring item with different type than recent window
+      selectedItem = available.find(si => {
+        if (selectedSet.has(si.id)) return false;
+        return si.item.itemType !== bannedType;
+      });
       if (selectedItem) {
-        appliedConstraints.push('forced-spotlight');
+        appliedConstraints.push('type-diversity');
       }
     } else if (needsNonSubscribed) {
       attemptedConstraint = 'subscription-diversity';
@@ -436,26 +452,8 @@ function selectWithDiversityConstraints(
         appliedConstraints.push('source-diversity');
       }
     } else {
-      attemptedConstraint = 'type-diversity';
-      // Normal selection: pick highest-scoring item that doesn't violate type diversity
-      let skippedDueToTypeDiversity = false;
-      for (const candidate of available) {
-        if (selectedSet.has(candidate.id)) continue;
-        
-        // Check type diversity constraint
-        const lastNTypes = recentTypes.slice(-constraints.maxConsecutiveSameType);
-        if (lastNTypes.length >= constraints.maxConsecutiveSameType && 
-            lastNTypes.every(t => t === candidate.item.itemType)) {
-          skippedDueToTypeDiversity = true;
-          continue; // Would violate consecutive type limit
-        }
-        
-        selectedItem = candidate;
-        if (skippedDueToTypeDiversity) {
-          appliedConstraints.push('type-diversity');
-        }
-        break;
-      }
+      // Normal selection: pick highest-scoring item
+      selectedItem = available.find(si => !selectedSet.has(si.id));
     }
     
     if (!selectedItem) {
