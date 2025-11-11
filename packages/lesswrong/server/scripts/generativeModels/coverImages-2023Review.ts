@@ -1,5 +1,4 @@
-import OpenAI from 'openai';
-import { zodResponseFormat } from "openai/helpers/zod";
+import type OpenAI from 'openai';
 import { z } from "zod";
 import { getOpenAI } from '../../languageModels/languageModelIntegration.ts';
 import { fetchFragment } from '../../fetchFragment.ts';
@@ -166,11 +165,13 @@ const getEssaysWithoutEnoughArt = async (): Promise<Essay[]> => {
 
 type Essay = {post: PostsPage, title: string, content: string, neededArtCount: number, promptsGenerated: number}
 
-const TextResponseFormat = zodResponseFormat(z.object({
-  metaphors: z.array(z.string()),
-}), "TextResponseFormat")
-
 const getPromptTextElements = async (openAiClient: OpenAI, essay: {title: string, content: string, promptsGenerated: number}, tryCount = 0): Promise<string[]> => {
+  const { OpenAI } = await import("openai");
+  const { zodResponseFormat } = await import("openai/helpers/zod");
+  const TextResponseFormat = zodResponseFormat(z.object({
+    metaphors: z.array(z.string()),
+  }), "TextResponseFormat")
+
   const content = essay.content.length > 25_000 ? essay.content.slice(0, 12_500) + "\n[EXCERPTED FOR LENGTH]\n" + essay.content.slice(-12_500) : essay.content
   const completion = await openAiClient.chat.completions.create({
     messages: [{role: "user", content: llm_prompt(essay.title, content, essay.promptsGenerated)}],
