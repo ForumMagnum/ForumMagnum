@@ -2,7 +2,7 @@ import { getOpenAI } from './languageModelIntegration';
 import { isAnyTest, isProduction } from '../../lib/executionEnvironment';
 import sanitizeHtml from 'sanitize-html';
 import { isEAForum } from '../../lib/instanceSettings';
-import OpenAI from 'openai';
+import type OpenAI from 'openai';
 import { serverCaptureEvent as captureEvent } from '@/server/analytics/serverAnalyticsWriter';
 import type { PostIsCriticismRequest } from '../resolvers/postResolvers';
 import { sanitizeHtmlOptions } from './modGPT';
@@ -78,6 +78,7 @@ export async function postIsCriticism(post: PostIsCriticismRequest, currentUserI
     return finalWord === "yes"
     
   } catch (error) {
+    const { OpenAI } = await import("openai");
     if (error instanceof OpenAI.APIError) {
       captureEvent("criticismTipsBotError", {
         ...analyticsData,

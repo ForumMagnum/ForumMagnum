@@ -8,9 +8,8 @@ import { inspect } from "util";
 import md5 from "md5";
 import { isAnyTest, isE2E } from "../lib/executionEnvironment";
 import { isEAForum, isLWorAF } from "../lib/instanceSettings";
-// Avoid importing all of js-tiktoken, it's very large and increases bundle size noticeably
-import { Tiktoken, type TiktokenModel } from "js-tiktoken/lite";
-import cl100k_base from "js-tiktoken/ranks/cl100k_base";
+// Avoid importing all of js-tiktoken and defer until usage, it's very large and increases bundle size noticeably
+import { type TiktokenModel } from "js-tiktoken/lite";
 import { fetchFragment, fetchFragmentSingle } from "./fetchFragment";
 import mapValues from "lodash/mapValues";
 import chunk from "lodash/chunk";
@@ -64,11 +63,13 @@ type EmbeddingsResult = {
  * actually encoding length. In the vast majority of cases, no more than 2
  * iterations of the loop should be necessary.
  */
-const trimText = (
+const trimText = async (
   text: string,
   model: TiktokenModel,
   maxTokens: number,
-): string => {
+): Promise<string> => {
+  const { Tiktoken } = await import("js-tiktoken/lite");
+  const cl100k_base = await import("js-tiktoken/ranks/cl100k_base");
   const encoding = new Tiktoken(cl100k_base);
 
   for (
@@ -100,7 +101,7 @@ const getBatchEmbeddingsFromApi = async (inputs: Record<string, string>) => {
   const trimmedInputTuples: [string, string][] = [];
   for (const [postId, postText] of Object.entries(inputs)) {
     try {
-      const trimmedText = trimText(
+      const trimmedText = await trimText(
         postText.replaceAll("<|endoftext|>", "_endoftext_"),
         tokenizerModel, maxTokens
       );
@@ -162,7 +163,7 @@ export const getEmbeddingsFromApi = async (text: string): Promise<EmbeddingsResu
 
   const { maxTokens, embeddingModel, tokenizerModel, dimensions } = getEmbeddingsSettings()
 
-  const trimmedText = trimText(text, tokenizerModel, maxTokens);
+  const trimmedText = await trimText(text, tokenizerModel, maxTokens);
   const result = await api.embeddings.create({
     input: trimmedText,
     model: embeddingModel,
