@@ -56,9 +56,8 @@ interface SliceTarget {
 }
 
 /**
- * Scores feed items and returns new items with ranking metadata attached. This is so the developers can build understanding of the ranking algorithm.
- * For posts: attaches to postMetaInfo.rankingMetadata
- * For threads: attaches to first comment's metaInfo.rankingMetadata
+ * Scores feed items and returns new items with ranking metadata attached.
+ * This does not impact the display of items, it is just so developers can better understand the scoring algorithm.
  */
 function addRankingMetadata<T extends {
   type: SubscribedFeedEntryType;
@@ -372,7 +371,6 @@ export const ultraFeedSubscriptionsQueries = {
       }
     }
 
-    // Score items and attach ranking metadata (doesn't affect ordering in this feed)
     const feedItemsWithMetadata = addRankingMetadata(feedItems);
 
     feedItemsWithMetadata.sort((a, b) => (b.sortDate.getTime() - a.sortDate.getTime()) || (a.type < b.type ? -1 : 1));
@@ -397,7 +395,6 @@ export const ultraFeedSubscriptionsQueries = {
       }
     }
     
-    // Load suggested users if we have a suggestions item
     const hasSuggestions = pageItems.some(it => it.type === 'feedSubscriptionSuggestions');
     const suggestedUsers = hasSuggestions ? await context.repos.users.getSubscriptionFeedSuggestedUsersForLoggedIn(currentUser._id, 40) : [];
 
@@ -443,7 +440,6 @@ export const ultraFeedSubscriptionsQueries = {
       if (item.type === 'feedCommentThread') {
         return { type: 'feedCommentThread', feedCommentThread: item.data };
       }
-      // feedSubscriptionSuggestions
       return { 
         type: 'feedSubscriptionSuggestions', 
         feedSubscriptionSuggestions: { 

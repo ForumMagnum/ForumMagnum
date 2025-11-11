@@ -1,10 +1,10 @@
 /**
- * Score-based ranking algorithm for UltraFeed (new algorithm)
+ * Score-based ranking algorithm for UltraFeed
  * 
  * This algorithm:
- * - Computes explicit scores for each item based on multiple signals (karma, recency, engagement, etc.)
- * - Applies diversity constraints during greedy selection
- * - Provides transparency via score breakdowns
+ * 1) Computes explicit scores for each item based on multiple factors (karma, recency, engagement, etc.)
+ * 2) Applies diversity constraints during greedy selection
+ * 3) Provides transparency via user-facing score breakdowns
  * 
  */
 

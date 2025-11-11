@@ -1,68 +1,101 @@
 /**
  * Weighted sampling algorithm for UltraFeed (original algorithm)
- * 
- * This algorithm:
- * - Uses weighted random sampling based on source weights
- * - Does not compute explicit scores for items
- * - Provides simpler, more random-feeling feed experience
- * 
- * This is the legacy algorithm kept for comparison and user preference.
+ * This algorithm uses source-based weighted random sampling: items are grouped by source,
+ * and sources are sampled proportionally to their configured weights.
  */
 
 import type { UltraFeedAlgorithm } from '../ultraFeedAlgorithmInterface';
 import type { RankableItem, RankedItemMetadata } from '../ultraFeedRankingTypes';
 import type { UltraFeedResolverSettings } from '@/components/ultraFeed/ultraFeedSettingsTypes';
+import type { FeedItemSourceType } from '@/components/ultraFeed/ultraFeedTypes';
 
-/**
- * Sample items using weighted random selection.
- * Each source type has a weight, and we sample proportionally to those weights.
- */
-function weightedSample<T>(
-  items: T[],
-  weights: number[],
-  count: number
-): T[] {
-  if (items.length === 0 || count === 0) return [];
-  if (items.length <= count) return [...items];
+interface SourceBucket {
+  weight: number;
+  items: RankableItem[];
+}
+
+function weightedSampleBySources(
+  sourceBuckets: Partial<Record<FeedItemSourceType, SourceBucket>>,
+  totalItems: number
+): RankableItem[] {
+  const result: RankableItem[] = [];
   
-  const result: T[] = [];
-  const available = items.map((item, i) => ({ item, weight: weights[i] ?? 1 }));
+  const buckets = { ...sourceBuckets };
   
-  for (let i = 0; i < count && available.length > 0; i++) {
-    const totalWeight = available.reduce((sum, a) => sum + a.weight, 0);
-    let random = Math.random() * totalWeight;
+  let totalWeight = Object.values(buckets)
+    .reduce((sum, bucket) => sum + (bucket && bucket.items.length > 0 ? bucket.weight : 0), 0);
+  
+  for (let i = 0; i < totalItems; i++) {
+    if (totalWeight <= 0) break;
     
-    let selectedIndex = 0;
-    for (let j = 0; j < available.length; j++) {
-      random -= available[j].weight;
-      if (random <= 0) {
-        selectedIndex = j;
+    const pick = Math.random() * totalWeight;
+    let cumulative = 0;
+    let chosenSource: FeedItemSourceType | null = null;
+    
+    for (const [source, bucket] of Object.entries(buckets)) {
+      if (!bucket || bucket.items.length === 0) continue;
+      cumulative += bucket.weight;
+      if (pick < cumulative) {
+        chosenSource = source as FeedItemSourceType;
         break;
       }
     }
     
-    result.push(available[selectedIndex].item);
-    available.splice(selectedIndex, 1);
+    if (chosenSource && buckets[chosenSource]) {
+      const bucket = buckets[chosenSource]!;
+      const item = bucket.items.shift();
+      if (item) {
+        result.push(item);
+      }
+      
+      if (bucket.items.length === 0) {
+        totalWeight -= bucket.weight;
+      }
+    }
   }
   
   return result;
 }
 
 /**
- * Get a simple weight for an item based on its sources.
- * Items from multiple sources get boosted weight.
+ * Group items by their source types, creating a bucket for each source.
+ * Items that appear in multiple sources will be added to each of their source buckets.
  */
-function getItemWeight(item: RankableItem): number {
-  const sourceCount = item.sources?.length ?? 1;
+function groupItemsBySources(
+  items: RankableItem[],
+  sourceWeights: Record<string, number>
+): Partial<Record<FeedItemSourceType, SourceBucket>> {
+  const buckets: Partial<Record<FeedItemSourceType, SourceBucket>> = {};
   
-  // Base weight of 1, boost for items that appear in multiple sources
-  const baseWeight = 1;
-  const sourceBonus = (sourceCount - 1) * 0.5;
+  for (const [source, weight] of Object.entries(sourceWeights)) {
+    if (weight > 0) {
+      buckets[source as FeedItemSourceType] = {
+        weight,
+        items: []
+      };
+    }
+  }
   
-  // Small boost for unread items
-  const unreadBonus = !item.isRead ? 0.2 : 0;
+  const addedToSource = new Map<FeedItemSourceType, Set<string>>();
   
-  return baseWeight + sourceBonus + unreadBonus;
+  for (const item of items) {
+    const sources = item.sources ?? [];
+    for (const source of sources) {
+      const bucket = buckets[source];
+      if (bucket) {
+        if (!addedToSource.has(source)) {
+          addedToSource.set(source, new Set());
+        }
+        const sourceSet = addedToSource.get(source)!;
+        if (!sourceSet.has(item.id)) {
+          bucket.items.push(item);
+          sourceSet.add(item.id);
+        }
+      }
+    }
+  }
+  
+  return buckets;
 }
 
 export const samplingAlgorithm: UltraFeedAlgorithm = {
@@ -73,13 +106,9 @@ export const samplingAlgorithm: UltraFeedAlgorithm = {
     totalItems: number,
     settings: UltraFeedResolverSettings
   ): Array<{ id: string; metadata?: RankedItemMetadata }> {
-    // Use simple weighted random sampling based on item properties
-    // (sourceWeights are used upstream to determine which items are fetched)
-    const weights = items.map(item => getItemWeight(item));
+    const sourceBuckets = groupItemsBySources(items, settings.sourceWeights);
+    const sampledItems = weightedSampleBySources(sourceBuckets, totalItems);
     
-    const sampledItems = weightedSample(items, weights, totalItems);
-    
-    // Sampling algorithm doesn't use scoring, so we don't provide metadata
     return sampledItems.map((item) => {
       return { id: item.id };
     });

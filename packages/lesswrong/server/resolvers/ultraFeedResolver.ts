@@ -10,7 +10,6 @@ import {
   UserOrClientId,
   ThreadEngagementStats,
   FeedPostMetaInfo,
-  RankedItemMetadata,
 } from "@/components/ultraFeed/ultraFeedTypes";
 import { filterNonnull } from "@/lib/utils/typeGuardUtils";
 import gql from 'graphql-tag';
@@ -33,9 +32,6 @@ import {
   UltraFeedEventInsertData,
   insertSubscriptionSuggestions
 } from './ultraFeedResolverHelpers';
-import type {
-  RankableItem,
-} from '../ultraFeed/ultraFeedRankingTypes';
 import { getAlgorithm, type UltraFeedAlgorithmName } from '../ultraFeed/algorithms/algorithmRegistry';
 import { ultraFeedDebug, ULTRAFEED_DEBUG_ENABLED, logRankedItemsForAnalysis } from '../ultraFeed/ultraFeedDebug';
 import { 
@@ -148,7 +144,7 @@ const getSampledItemKey = (item: SampledItem): string | undefined => {
     case "feedSpotlight":
       return item.feedSpotlight.spotlightId;
     case "feedSubscriptionSuggestions":
-      return "subscription-suggestions"; // Fixed key since we only want one per feed
+      return "subscription-suggestions";
     default:
       return undefined;
   }
@@ -159,7 +155,7 @@ const mergeDuplicateSampledItems = (target: SampledItem, incoming: SampledItem):
     if (key === 'sources') {
       return union(objVal, srcVal);
     }
-    return undefined; // default merge for other keys
+    return undefined;
   };
 
   return mergeWith(target, incoming, customizer);
@@ -208,9 +204,6 @@ const parseUltraFeedSettings = (settingsJson?: string): UltraFeedResolverSetting
   return parsedSettings;
 };
 
-/**
- * Extract IDs that need to be loaded from sampled items
- */
 const extractIdsToLoad = (sampled: SampledItem[]) => {
   const postIds: string[] = [];
   const spotlightIds: string[] = [];
@@ -220,13 +213,11 @@ const extractIdsToLoad = (sampled: SampledItem[]) => {
   sampled.forEach(it => {
     if (it.type === "feedSpotlight") {
       spotlightIds.push(it.feedSpotlight.spotlightId);
-      // Also extract post IDs from spotlights that have posts so we can load them
       if (it.feedSpotlight.documentType === 'Post') {
         postIds.push(it.feedSpotlight.documentId);
       }
     } else if (it.type === "feedCommentThread") {
       it.feedCommentThread.comments?.forEach(c => c.commentId && commentIdsSet.add(c.commentId));
-      // Extract post ID from the first comment to preload the post
       const firstComment = it.feedCommentThread.comments?.[0];
       const isParentPostRead = firstComment?.metaInfo?.isParentPostRead ?? false;
       if (firstComment?.postId && !isParentPostRead) {
@@ -248,19 +239,17 @@ const extractIdsToLoad = (sampled: SampledItem[]) => {
 };
 
 /**
- * Deduplicate posts that appear both as standalone items and in comment threads.
- * When a comment thread will show the post (parent post not read), we remove the standalone
- * post item and transfer its source information to the thread.
+ * Deduplicate posts that appear both as standalone items and in comment threads: 
+ * When a thread is on an unread post, we show the post with the thread.
+ * We should not also show the post as a standalone item even if it was also coming from another source -> hence deduplication.
  */
 const deduplicatePostsInThreads = (results: UltraFeedResolverType[]): UltraFeedResolverType[] => {
   const postIdsInExpandedThreads = new Map<string, FeedItemSourceType[]>();
   const threadsByPostId = new Map<string, UltraFeedResolverType>();
   
-  // First pass: identify threads that will show posts
   for (const result of results) {
     if (result.type === "feedCommentThread" && result.feedCommentThread) {
       const thread = result.feedCommentThread;
-      // If parent post is not read, the post will be shown with the thread
       const firstComment = thread.comments?.[0];
       const firstCommentMetaInfo = firstComment?._id ? thread.commentMetaInfos?.[firstComment._id] : undefined;
       const isParentPostRead = firstCommentMetaInfo?.isParentPostRead ?? false;
@@ -274,12 +263,10 @@ const deduplicatePostsInThreads = (results: UltraFeedResolverType[]): UltraFeedR
     }
   }
   
-  // If no threads will show posts, return unchanged
   if (postIdsInExpandedThreads.size === 0) {
     return results;
   }
   
-  // Second pass: collect sources from standalone posts and filter them out
   const filteredResults = results.filter(result => {
     if (result.type === "feedPost" && result.feedPost?.post?._id) {
       const postId = result.feedPost.post._id;
@@ -292,7 +279,6 @@ const deduplicatePostsInThreads = (results: UltraFeedResolverType[]): UltraFeedR
     return true;
   });
   
-  // Third pass: add the collected sources to the comment threads
   for (const [postId, postSources] of postIdsInExpandedThreads) {
     const threadResult = threadsByPostId.get(postId);
     if (threadResult?.type === "feedCommentThread" && threadResult.feedCommentThread && postSources.length > 0) {
@@ -303,9 +289,6 @@ const deduplicatePostsInThreads = (results: UltraFeedResolverType[]): UltraFeedR
   return filteredResults;
 };
 
-/**
- * Transform sampled items into UltraFeedResolverType results
- */
 const transformItemsForResolver = (
   sampled: SampledItem[],
   spotlightsById: Map<string, DbSpotlight>,
@@ -347,7 +330,6 @@ const transformItemsForResolver = (
         );
       }
       
-      // Load the post if the thread will display it (parent post not read)
       let post: DbPost | null = null;
       const isParentPostRead = preDisplayComments?.[0]?.metaInfo?.isParentPostRead ?? false;
       if (!isParentPostRead && loadedComments.length > 0) {
@@ -369,7 +351,6 @@ const transformItemsForResolver = (
         });
       }
       
-      // Attach ranking metadata to the first comment's metaInfo
       if (rankingMetadata && loadedComments.length > 0) {
         const firstCommentId = loadedComments[0]._id;
         if (!commentMetaInfos[firstCommentId]) {
@@ -394,14 +375,12 @@ const transformItemsForResolver = (
           console.warn(`UltraFeedResolver: Thread at index ${index} resulted in empty comment IDs list.`);
         }
       } else {
-         // Only warn if we expected comments based on preDisplayComments
          if (preDisplayComments && preDisplayComments.length > 0) {
            // eslint-disable-next-line no-console
            console.warn(`UltraFeedResolver: Thread at index ${index} has no loaded comments despite having preDisplayComments.`);
          }
       }
       
-      // Construct postMetaInfo for the thread (only when we're showing the post)
       let postMetaInfo: FeedPostMetaInfo | undefined;
       if (!isParentPostRead && loadedComments.length > 0) {
         const firstCommentMetaInfo = commentMetaInfos[loadedComments[0]._id];
@@ -481,9 +460,6 @@ const transformItemsForResolver = (
   }));
 };
 
-/**
- * Create UltraFeed events for tracking served items
- */
 const createUltraFeedEvents = (
   results: UltraFeedResolverType[],
   userOrClientId: UserOrClientId,
@@ -662,7 +638,6 @@ export const ultraFeedGraphQLQueries = {
         bookmarkFetchLimit,
       });
 
-      // Fetch engagement stats for threads separately to pass to ranking
       const userIdOrClientId = currentUser?._id ?? clientId;
       const engagementStatsListPromise = userIdOrClientId && commentFetchLimit > 0
         ? context.repos.comments.getThreadEngagementStatsForRecentlyActiveThreads(
@@ -676,7 +651,7 @@ export const ultraFeedGraphQLQueries = {
           ? getUltraFeedPostThreads( 
               context, 
               recombeePostFetchLimit, 
-              latestAndSubscribedPostLimit,  // This now includes both latest AND subscribed posts
+              latestAndSubscribedPostLimit,
               parsedSettings,
               ULTRA_FEED_DATE_CUTOFFS.latestPostsMaxAgeDays
             ) 
@@ -707,7 +682,6 @@ export const ultraFeedGraphQLQueries = {
       
       const engagementStatsMap = new Map(engagementStatsList.map(stats => [stats.threadTopLevelId, stats]));
 
-      // Convert fetched items to rankable format
       const rankableItems = convertFetchedItemsToRankable(
         combinedPostItems,
         commentThreadsItemsResult,
@@ -717,11 +691,9 @@ export const ultraFeedGraphQLQueries = {
         new Date()
       );
 
-      // Get the user's preferred algorithm from settings (defaults to 'sampling')
       const algorithmName = parsedSettings.algorithm as UltraFeedAlgorithmName;
       const algorithm = getAlgorithm(algorithmName);
       
-      // Rank items using the selected algorithm
       const rankedItemsWithMetadata = algorithm.rankItems(
         rankableItems, 
         limit,
@@ -730,7 +702,6 @@ export const ultraFeedGraphQLQueries = {
       
       ultraFeedDebug.log(`Ranked ${rankedItemsWithMetadata.length} items using ${algorithm.name} algorithm`);
       
-      // Log ranked items with scores for analysis (only when debug enabled)
       if (ULTRAFEED_DEBUG_ENABLED) {
         backgroundTask(logRankedItemsForAnalysis(
           rankedItemsWithMetadata,
@@ -743,7 +714,6 @@ export const ultraFeedGraphQLQueries = {
         ));
       }
       
-      // Map ranked IDs back to sampled items with metadata attached
       const sampledItemsRanked = mapRankedIdsToSampledItems(
         rankedItemsWithMetadata,
         combinedPostItems,
@@ -760,10 +730,8 @@ export const ultraFeedGraphQLQueries = {
         feedSubscriptionSuggestions: { suggestedUserIds: [] }
       }), 0.2, 4);
       
-      // Extract IDs to load
       const { spotlightIds, commentIds, postIds, needsSuggestedUsers } = extractIdsToLoad(sampledItems);
 
-      // Load full content for sampled items and suggested users in parallel
       const [{ postsById, commentsById, spotlightsById }, suggestedUsers] = await Promise.all([
         loadMultipleEntitiesById(context, {
           posts: postIds,

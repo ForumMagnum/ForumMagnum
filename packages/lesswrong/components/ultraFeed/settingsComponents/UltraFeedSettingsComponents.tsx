@@ -1044,7 +1044,6 @@ export const UnifiedScoringSettings: React.FC<UnifiedScoringSettingsProps> = ({
         <p>Adjust scoring parameters for the unified scoring algorithm.</p>
       </div>
 
-      {/* All fields */}
       {allFields.map(field => {
         const currentValue = formValues[field.key];
         const currentError = errors?.[field.key]?._errors[0];

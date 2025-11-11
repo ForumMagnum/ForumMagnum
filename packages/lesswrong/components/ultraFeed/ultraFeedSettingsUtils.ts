@@ -5,10 +5,6 @@
 /**
  * Parses a numeric input value, returning either the parsed number or a default value.
  * Handles empty strings, numeric strings, and already-parsed numbers.
- * 
- * @param value - The input value to parse (can be string, number, or empty string)
- * @param defaultValueOnNaN - The value to return if parsing fails or input is empty
- * @returns The parsed number or the default value
  */
 export const parseNumericInputAsZeroOrNumber = (
   value: string | number | '',
@@ -30,10 +26,6 @@ export const parseNumericInputAsZeroOrNumber = (
  * 
  * Used with lodash's mergeWith to merge user settings with defaults while preserving
  * explicit zero/false values but replacing null/undefined with defaults.
- * 
- * @param objValue - The destination object value (typically the default)
- * @param srcValue - The source value (typically the user's setting)
- * @returns The merged value using nullish coalescing
  */
 export const customNullishCoalesceProperties = (objValue: any, srcValue: any): any => {
   return srcValue ?? objValue;
@@ -42,9 +34,6 @@ export const customNullishCoalesceProperties = (objValue: any, srcValue: any): a
 /**
  * Processes a numeric field input, converting strings to numbers or empty string.
  * Used for controlled inputs where we want to allow temporary empty states.
- * 
- * @param value - The input value from a form field
- * @returns Either a parsed number or empty string (for invalid/empty input)
  */
 export const processNumericFieldInput = (value: string | number): number | '' => {
   const strValue = String(value).trim();
@@ -58,9 +47,6 @@ export const processNumericFieldInput = (value: string | number): number | '' =>
 /**
  * Processes an integer field input, ensuring the result is an integer or empty string.
  * Used for controlled inputs that should only accept whole numbers.
- * 
- * @param value - The input value from a form field
- * @returns Either a parsed integer or empty string (for invalid/empty input)
  */
 export const processIntegerFieldInput = (value: string | number): number | '' => {
   const strValue = String(value).trim();

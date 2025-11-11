@@ -8,11 +8,11 @@
 
 import fs from 'fs';
 import path from 'path';
+import { serverCaptureEvent } from '../analytics/serverAnalyticsWriter';
 
 export const ULTRAFEED_DEBUG_ENABLED = false;
 const LOG_FILE_PATH = path.join(process.cwd(), 'tmp', 'ultrafeed-debug.log');
 
-// Ensure tmp directory exists
 function ensureLogDirectory(): void {
   const logDir = path.dirname(LOG_FILE_PATH);
   if (!fs.existsSync(logDir)) {
@@ -39,7 +39,6 @@ function log(message: string, ...args: any[]): void {
     
     fs.appendFileSync(LOG_FILE_PATH, logEntry, 'utf8');
   } catch (error) {
-    // Fallback to console if file writing fails
     // eslint-disable-next-line no-console
     console.error('[UltraFeed] Failed to write to log file:', error);
     // eslint-disable-next-line no-console
@@ -51,9 +50,6 @@ export const ultraFeedDebug = {
   log,
 };
 
-/**
- * Log ranked items with scores for analysis (only when debug enabled)
- */
 export const logRankedItemsForAnalysis = async (
   rankedItemsWithMetadata: Array<{ id: string; metadata?: any }>,
   rankableItems: Array<any>,
@@ -64,8 +60,6 @@ export const logRankedItemsForAnalysis = async (
   offset: number
 ): Promise<void> => {
   if (!ULTRAFEED_DEBUG_ENABLED) return;
-
-  const { serverCaptureEvent } = await import('../analytics/serverAnalyticsWriter');
   
   const itemsForLogging = rankedItemsWithMetadata
     .filter((item): item is { id: string; metadata: any } => item.metadata !== undefined)

@@ -44,17 +44,16 @@ export interface ThreadRankableItem extends RankableItemBase {
   itemType: 'commentThread';
   threadId: string;
   sources: FeedItemSourceType[];
-  ageHrs: number; // based on most recent comment postedAt
+  ageHrs: number; 
   isRead: boolean;
-  userSubscribedToAuthor: boolean; // true if any comment is from a subscribed author
-  engagement?: ThreadEngagementStats; // optional; available if supplied by caller
+  userSubscribedToAuthor: boolean;
+  engagement?: ThreadEngagementStats;
   stats: ThreadAggregateStats;
   comments: CommentRankableItem[];
 }
 
 export type RankableItem = PostRankableItem | ThreadRankableItem;
 
-// Score transparency types
 export interface PostScoreBreakdown {
   total: number;
   terms: {

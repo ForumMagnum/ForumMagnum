@@ -86,13 +86,7 @@ export async function getRecommendedPostsForUltraFeed(
     ...(exclusionFilterString && { filter: exclusionFilterString }),
   };
 
-  let recommendedResults: RecommendedPost[] = [];
-  try {
-    recommendedResults = await recombeeApi.getRecommendationsForUser(recombeeUser, adjustedLimit, lwAlgoSettings, context);
-  } catch (error) {
-    // eslint-disable-next-line no-console
-    console.error("getRecommendedPostsForUltraFeed: Recombee API error, falling back to empty results", error);
-  }
+  const recommendedResults = await recombeeApi.getRecommendationsForUser(recombeeUser, adjustedLimit, lwAlgoSettings, context);
   
   const allPostIds = [
     ...unviewedRecombeePostIds.slice(0, limit),

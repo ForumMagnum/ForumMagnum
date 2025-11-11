@@ -18,9 +18,9 @@ export interface UltraFeedDisplaySettings {
 export type UltraFeedAlgorithm = 'scoring' | 'sampling';
 
 export interface UnifiedScoringSettings {
-  subscribedBonusSetting: number; // 0-5 scale, maps to different bonuses for posts vs comments
+  subscribedBonusSetting: number;
   quicktakeBonus: number;
-  timeDecayHalfLifeHours: number; // Scale parameter for time decay (applies to both posts and comments)
+  timeDecayHalfLifeHours: number;
   postsMultiplier: number;
   threadsMultiplier: number;
 }
@@ -154,9 +154,9 @@ const DEFAULT_THREAD_INTEREST_MODEL_SETTINGS: ThreadInterestModelSettings = {
 };
 
 const DEFAULT_UNIFIED_SCORING_SETTINGS: UnifiedScoringSettings = {
-  subscribedBonusSetting: 3, // Default: posts get +6 (3*2), comments get +6 (3*2) per comment
+  subscribedBonusSetting: 3,
   quicktakeBonus: 5,
-  timeDecayHalfLifeHours: 12, // Scale parameter for gentle time decay (exponent=0.25, bias=12)
+  timeDecayHalfLifeHours: 12,
   postsMultiplier: 1.0,
   threadsMultiplier: 1.0,
 };

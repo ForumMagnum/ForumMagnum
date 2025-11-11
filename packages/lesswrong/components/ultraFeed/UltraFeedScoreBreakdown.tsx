@@ -106,8 +106,6 @@ const UltraFeedScoreBreakdown = ({ metadata, isFirstCommentInThread, sources, co
     return null;
   }
   
-  // For comment threads, only show on the first comment
-  // For posts, isFirstCommentInThread will be undefined, so we always show
   if (isFirstCommentInThread === false) {
     return null;
   }

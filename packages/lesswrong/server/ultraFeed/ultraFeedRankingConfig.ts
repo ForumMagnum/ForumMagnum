@@ -1,31 +1,34 @@
 // Scoring configuration
+
+// See ultraFeedRanking.ts for more details on how these parameters are used to score items and to check the comments here are up to date.
+// Karma bonuses are calculated differently for "timeless" content (e.g. Recombee recommendations, Bookmarks, etc) vs "timeful" content (e.g. recent posts).
+// The later has its karma score contribution calculated with a hyperbolic delay whereas the former does not.
 export interface RankingConfig {
-  startingValue: number; // Base starting value for all items (before type multiplier)
+  startingValue: number; // Set to 1 so that if items have a type multiplier, it has something to multiple even if no other bonuses are applied
   posts: {
-    typeMultiplier: number; // Multiplier applied to final post score
+    typeMultiplier: number;
     subscribedBonus: number;
+
     // Time decay parameters (hyperbolic)
-    // Formula: multiplier = 1 / ((ageHrs + bias) / scale)^exponent
-    //        = scale^exponent / (ageHrs + bias)^exponent
+    // Formula: karmaBonus = min(karma * scale^exponent / (ageHrs + bias)^exponent, maxBonus)
     timeDecayBias: number; // Bias added to age (prevents division by zero, softens early decay)
     timeDecayScale: number; // Scale factor (controls overall decay rate)
     timeDecayExponent: number; // Fixed at 1 for simple hyperbolic decay
-    // Legacy karma bonus (used for recombee/subscription posts without decay)
+
+    // Timeless karma bonuses
+    // Formula: karmaBonus = min(karma^exponent / divisor, maxBonus)
     karmaSuperlinearExponent: number;
     karmaDivisor: number;
     karmaMaxBonus: number;
     topicAffinityMaxBonus: number;
   };
   threads: {
-    typeMultiplier: number; // Multiplier applied to final thread score
-    // Time decay for comments
-    // Formula: multiplier = 1 / ((ageHrs + bias) / scale)^exponent
-    //        = scale^exponent / (ageHrs + bias)^exponent
-    timeDecayBias: number; // Bias added to age (prevents division by zero, softens early decay)
-    timeDecayScale: number; // Scale factor (controls overall decay rate)
-    timeDecayExponent: number; // Fixed at 1 for simple hyperbolic decay
-    subscribedCommentBonus: number; // Bonus added per comment from subscribed author
-    karmaMaxBonus: number; // Maximum karma bonus from all comments combined
+    typeMultiplier: number;
+    timeDecayBias: number;
+    timeDecayScale: number;
+    timeDecayExponent: number;
+    subscribedCommentBonus: number;
+    karmaMaxBonus: number;
     engagementParticipationBonus: number;
     engagementVotingBonus: number;
     engagementViewingBonus: number;
@@ -43,7 +46,7 @@ export const DEFAULT_RANKING_CONFIG: RankingConfig = {
   startingValue: 1,
   posts: {
     typeMultiplier: 1.0,
-    subscribedBonus: 6, // subscribedBonusSetting=3 * 2
+    subscribedBonus: 6,
     timeDecayBias: 12,
     timeDecayScale: 12,
     timeDecayExponent: 0.25,
@@ -57,7 +60,7 @@ export const DEFAULT_RANKING_CONFIG: RankingConfig = {
     timeDecayBias: 12,
     timeDecayScale: 12,
     timeDecayExponent: 0.25,
-    subscribedCommentBonus: 6, // subscribedBonusSetting=3 * 2
+    subscribedCommentBonus: 6,
     karmaMaxBonus: 20,
     engagementParticipationBonus: 20,
     engagementVotingBonus: 10,
@@ -94,10 +97,6 @@ export const DEFAULT_DIVERSITY_CONSTRAINTS: DiversityConstraints = {
   sourceDiversityWindow: 3,
 };
 
-/**
- * Build a RankingConfig from user settings.
- * Allows users to customize decay parameters, starting values, and bonuses.
- */
 export function buildRankingConfigFromSettings(unifiedScoring: {
   subscribedBonusSetting: number;
   quicktakeBonus: number;
@@ -114,9 +113,9 @@ export function buildRankingConfigFromSettings(unifiedScoring: {
     posts: {
       typeMultiplier: unifiedScoring.postsMultiplier,
       subscribedBonus: postSubscribedBonus,
-      timeDecayBias: 12, // Fixed bias
-      timeDecayScale: timeDecayHalfLifeHours, // Use half-life as scale parameter
-      timeDecayExponent: 0.25, // Gentle decay with long tail
+      timeDecayBias: 12,
+      timeDecayScale: timeDecayHalfLifeHours,
+      timeDecayExponent: 0.25,
       karmaSuperlinearExponent: 1.2,
       karmaDivisor: 20,
       karmaMaxBonus: 20,
@@ -124,9 +123,9 @@ export function buildRankingConfigFromSettings(unifiedScoring: {
     },
     threads: {
       typeMultiplier: unifiedScoring.threadsMultiplier,
-      timeDecayBias: 12, // Fixed bias
-      timeDecayScale: timeDecayHalfLifeHours, // Use half-life as scale parameter
-      timeDecayExponent: 0.25, // Gentle decay with long tail
+      timeDecayBias: 12,
+      timeDecayScale: timeDecayHalfLifeHours,
+      timeDecayExponent: 0.25,
       subscribedCommentBonus: commentSubscribedBonus,
       karmaMaxBonus: 20,
       engagementParticipationBonus: 20,

@@ -15,9 +15,6 @@ import type {
 } from './ultraFeedRankingTypes';
 import type { PreparedBookmarkItem } from './ultraFeedBookmarkHelpers';
 
-/**
- * Convert all fetched items (posts, threads, spotlights, bookmarks) into rankable format
- */
 export const convertFetchedItemsToRankable = (
   posts: FeedFullPost[],
   threads: FeedCommentsThread[],
@@ -26,10 +23,7 @@ export const convertFetchedItemsToRankable = (
   engagementStatsMap: Map<string, ThreadEngagementStats>,
   now: Date
 ): RankableItem[] => {
-  // Convert posts to rankable items
   const rankablePosts = posts.map(post => toPostRankable(post, now));
-  
-  // Convert threads to rankable items with engagement stats
   const rankableThreads = threads.map(thread => {
     const threadCommentIds = thread.comments?.map(c => c.commentId) ?? [];
     const topLevelId = threadCommentIds.length > 0 
@@ -39,7 +33,6 @@ export const convertFetchedItemsToRankable = (
     return toThreadRankable(thread as MappablePreparedThread, engagement, now);
   });
   
-  // Convert spotlights to minimal rankable items
   const rankableSpotlights: RankableItem[] = spotlights.map(s => ({
     id: s.spotlightId,
     itemType: 'post' as const,
@@ -51,7 +44,6 @@ export const convertFetchedItemsToRankable = (
     karma: 0,
   }));
   
-  // Convert bookmarks to rankable items (can be either posts or threads)
   const rankableBookmarks: RankableItem[] = bookmarks.map(b => {
     if (b.type === 'feedPost') {
       return {
@@ -93,9 +85,6 @@ export const convertFetchedItemsToRankable = (
   ];
 };
 
-/**
- * Helper to attach ranking metadata to a post
- */
 const attachMetadataToPost = (
   post: FeedFullPost,
   metadata?: RankedItemMetadata
@@ -107,9 +96,6 @@ const attachMetadataToPost = (
   },
 });
 
-/**
- * Helper to attach ranking metadata to a thread
- */
 const attachMetadataToThread = (
   thread: FeedCommentsThread,
   metadata?: RankedItemMetadata
@@ -118,9 +104,6 @@ const attachMetadataToThread = (
   rankingMetadata: metadata,
 });
 
-/**
- * Helper to attach ranking metadata to a spotlight
- */
 const attachMetadataToSpotlight = (
   spotlight: FeedSpotlight,
   metadata?: RankedItemMetadata
@@ -129,9 +112,6 @@ const attachMetadataToSpotlight = (
   rankingMetadata: metadata,
 });
 
-/**
- * Helper to attach ranking metadata to a bookmark
- */
 const attachMetadataToBookmark = (
   bookmark: PreparedBookmarkItem,
   metadata?: RankedItemMetadata
@@ -165,9 +145,6 @@ type SampledItem =
   | { type: "feedSpotlight"; feedSpotlight: FeedSpotlight }
   | { type: "feedSubscriptionSuggestions"; feedSubscriptionSuggestions: { suggestedUserIds: string[] } };
 
-/**
- * Map ranked IDs back to original sampled items with metadata attached
- */
 export const mapRankedIdsToSampledItems = (
   rankedItemsWithMetadata: Array<{ id: string; metadata?: RankedItemMetadata }>,
   originalPosts: FeedFullPost[],
@@ -175,15 +152,12 @@ export const mapRankedIdsToSampledItems = (
   originalSpotlights: FeedSpotlight[],
   originalBookmarks: PreparedBookmarkItem[]
 ): SampledItem[] => {
-  // Create a map to store metadata by ID
   const metadataById = new Map(
     rankedItemsWithMetadata.map(({ id, metadata }) => [id, metadata])
   );
   
-  // Extract just the IDs for mapping
   const rankedIds = rankedItemsWithMetadata.map(({ id }) => id);
   
-  // Create maps to look up original items by their rankable ID
   const postIdToOriginal = new Map<string, FeedFullPost>();
   originalPosts.forEach(post => {
     if (post.post?._id) {
@@ -216,11 +190,9 @@ export const mapRankedIdsToSampledItems = (
     }
   });
   
-  // Build sampled items in ranked order, attaching metadata
   return filterNonnull(rankedIds.map(id => {
     const metadata = metadataById.get(id);
     
-    // Try to find in each map
     const post = postIdToOriginal.get(id);
     if (post) {
       return {

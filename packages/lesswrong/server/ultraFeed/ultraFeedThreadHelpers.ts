@@ -525,7 +525,7 @@ function prepareThreadForDisplay(
       displayStatus: displayStatus,
       highlight: shouldHighlight ?? false,
       isParentPostRead: isOnReadPost,
-      fromSubscribedUser: comment.metaInfo?.fromSubscribedUser,
+      fromSubscribedUser: comment.fromSubscribedUser,
     };
 
     return {
@@ -642,7 +642,7 @@ export async function getUltraFeedCommentThreads(
       return false;
     }
     
-    // Exclude threads where ALL comments have already been served in this session, i.e. duplicate thread
+    // Exclude threads where ALL comments have already been served in this session
     if (sessionId && servedCommentIdsInSession.size > 0) {
       const hasUnservedComment = thread.some(comment => 
         !servedCommentIdsInSession.has(comment.commentId)
@@ -656,7 +656,6 @@ export async function getUltraFeedCommentThreads(
     return true;
   });
 
-  // --- Prepare for Display ---
   const totalThreads = finalRankedThreads.length;
   const nonViableCount = totalThreads - viableThreads.length;
   ultraFeedDebug.log(
@@ -671,7 +670,6 @@ export async function getUltraFeedCommentThreads(
     .map(rankedThreadInfo => prepareThreadForDisplay(rankedThreadInfo, engagementStatsMap))
     .filter(rankedThreadInfo => !!rankedThreadInfo);
 
-  // Log comment IDs being returned
   const returnedCommentIds = displayThreads.flatMap(thread => 
     thread.comments.map(comment => comment.commentId.substring(0, 3))
   );

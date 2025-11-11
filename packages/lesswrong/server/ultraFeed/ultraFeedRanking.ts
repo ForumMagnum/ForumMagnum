@@ -1,4 +1,4 @@
-import { FeedFullPost, PreDisplayFeedComment, FeedItemSourceType, ThreadEngagementStats } from '@/components/ultraFeed/ultraFeedTypes';
+import { FeedFullPost, FeedItemSourceType, ThreadEngagementStats } from '@/components/ultraFeed/ultraFeedTypes';
 import { generateThreadHash } from './ultraFeedThreadHelpers';
 import moment from 'moment';
 import uniq from 'lodash/uniq';
@@ -22,9 +22,6 @@ import {
 } from './ultraFeedRankingConfig';
 
 
-/**
- * Map a FeedFullPost into a PostRankableItem
- */
 export function toPostRankable(
   item: FeedFullPost,
   now: Date = new Date(),
@@ -53,10 +50,6 @@ export function toPostRankable(
   return rankable;
 }
 
-/**
- * Map a prepared thread (with PreDisplayFeedComment[]) into a ThreadRankableItem.
- * Optionally supply engagement signals if available to the caller.
- */
 export function toThreadRankable(
   thread: MappablePreparedThread,
   engagement?: ThreadEngagementStats,
@@ -130,15 +123,8 @@ export function toThreadRankable(
 }
 
 /**
- * Score a single post based on its rankable signals.
- * 
- * Score terms (additive, then typeMultiplier applied):
- * - startingValue: Starting point for all posts
- * - subscribedBonus: Large boost if post is from a subscribed author
- * - karmaBonus: For hacker-news posts: HN-style decay karma/(age+bias)^factor
- *               For subscriptionsPosts/recombee/ageless: Legacy superlinear bonus (no decay)
- * - topicAffinityBonus: Boost based on match with user's topic interests (via tags)
- * - typeMultiplier: Multiplier applied to final additive total
+ * Score a single post based on its properties and configured scoring parameters.
+ * See ultraFeedRankingConfig.ts for more details on the parameters.
  */
 function scorePost(
   post: PostRankableItem,
@@ -149,26 +135,20 @@ function scorePost(
 
   const subscribedBonus = post.userSubscribedToAuthor ? postConfig.subscribedBonus : 0;
 
-  // Topic affinity bonus: based on post tags matching user's reading history
   // TODO: Not yet implemented - will be calculated from user's tag reading history when available
   const topicAffinityBonus = 0;
 
-  // Determine scoring approach based on source
   const isRecombeePost = post.sources.includes('recombee-lesswrong-custom');
   const isSubscriptionPost = post.sources.includes('subscriptionsPosts');
   
   let karmaBonus = 0;
 
   if (isRecombeePost || isSubscriptionPost || post.ageHrs === null) {
-    // Recombee posts, subscription posts, and ageless items (spotlights, bookmarks): 
-    // use legacy karma bonus (no time decay)
     karmaBonus = Math.min(
       Math.pow(post.karma, postConfig.karmaSuperlinearExponent) / postConfig.karmaDivisor,
       postConfig.karmaMaxBonus
     );
   } else {
-    // Hacker-news posts: use hyperbolic time decay with cap
-    // Formula: karmaBonus = min(karma * scale^exponent / (ageHrs + bias)^exponent, maxBonus)
     const denominator = Math.pow(post.ageHrs + postConfig.timeDecayBias, postConfig.timeDecayExponent);
     const numerator = Math.pow(postConfig.timeDecayScale, postConfig.timeDecayExponent);
     if (denominator > 0 && Number.isFinite(denominator)) {
@@ -196,19 +176,7 @@ function scorePost(
 
 /**
  * Score a single comment thread based on its rankable signals.
- * 
- * Score terms (additive, then repetitionPenaltyMultiplier, then typeMultiplier):
- * - startingValue: Starting point for all threads
- * - unreadSubscribedCommentBonus: Flat bonus per unread subscribed comment (no decay)
- * - engagementContinuationBonus: Boost if you've previously participated/voted/viewed this thread
- * - repliesToYouBonus: High-priority boost if someone replied to your comment(s)
- * - yourPostActivityBonus: High-priority boost for new comments on your post
- * - overallKarmaBonus: HN-style decayed sum of ALL unread comments: sum(karma/(age+bias)^exponent)
- * - topicAffinityBonus: Boost based on post topic matching user interests (TODO: not implemented)
- * - quicktakeBonus: Boost for shortform/quicktake threads (only if top-level comment is unread)
- * - readPostContextBonus: Small boost if you've read the post (you have context)
- * - repetitionPenaltyMultiplier: Multiplicative penalty for recently served threads
- * - typeMultiplier: Multiplier applied to final score
+ * See ultraFeedRankingConfig.ts for more details on the parameters.
  */
 function scoreThread(
   thread: ThreadRankableItem,
@@ -217,39 +185,29 @@ function scoreThread(
   const cfg = config.threads;
   const startingValue = config.startingValue;
 
-  // 1. Unread subscribed comment bonus: subscribedCommentBonus per unread subscribed comment
-  // Flat bonus regardless of karma or age - subscriptions are priority
   const unreadSubscribedComments = thread.comments.filter(c => !c.isRead && c.userSubscribedToAuthor);
   const unreadSubscribedCommentBonus = unreadSubscribedComments.length * cfg.subscribedCommentBonus;
 
-  // 2. Engagement continuation bonus: tiered based on your strongest prior engagement
-  // Participation (commented) > Voting > Viewing
   const engagement = thread.engagement;
   let engagementContinuationBonus = 0;
   if (engagement) {
     if (engagement.participationCount > 0) {
-      engagementContinuationBonus = cfg.engagementParticipationBonus; // 20 pts
+      engagementContinuationBonus = cfg.engagementParticipationBonus;
     } else if (engagement.votingActivityScore > 0) {
-      engagementContinuationBonus = cfg.engagementVotingBonus; // 10 pts
+      engagementContinuationBonus = cfg.engagementVotingBonus;
     } else if (engagement.viewScore > 0) {
-      engagementContinuationBonus = cfg.engagementViewingBonus; // 5 pts
+      engagementContinuationBonus = cfg.engagementViewingBonus;
     }
   }
 
-  // 3. Replies to you: high-priority signal if someone replied to your comment(s)
   // TODO: Need to add hasRepliesToYou to ThreadRankableItem, stubbed to false for now
   const hasRepliesToYou = false; // TODO: Implement
   const repliesToYouBonus = hasRepliesToYou ? cfg.repliesToYouBonus : 0;
 
-  // 4. Your post activity: high-priority signal for new comments on a post you wrote
   // TODO: Need to add isYourPost to ThreadRankableItem, stubbed to false for now
   const isYourPost = false; // TODO: Implement
   const yourPostActivityBonus = isYourPost ? cfg.yourPostBonus : 0;
 
-  // 5. Overall karma bonus: hyperbolic time-decayed sum for ALL unread comments
-  // Formula: min(sum(karma * scale^exponent / (ageHrs + bias)^exponent), maxBonus)
-  // This applies to both subscribed and non-subscribed comments
-  // (subscribed comments also get the flat bonus above)
   const unreadComments = thread.comments.filter(c => !c.isRead);
   let overallKarmaBonus = 0;
   const numerator = Math.pow(cfg.timeDecayScale, cfg.timeDecayExponent);
@@ -259,34 +217,21 @@ function scoreThread(
       overallKarmaBonus += comment.karma * numerator / denominator;
     }
   }
-  // Apply cap to total karma bonus
   overallKarmaBonus = Math.min(overallKarmaBonus, cfg.karmaMaxBonus);
 
-  // 6. Topic affinity bonus: based on post tags (TODO: not implemented yet)
-  const topicAffinityBonus = 0; // TODO: Implement when post data available
-
-  // 7. Quicktake bonus: boost for shortform/quicktake threads
-  // Only applies if the top-level comment itself is a quicktake AND is unread
+  const topicAffinityBonus = 0;
   const topLevelComment = thread.comments.find(c => c.commentId === thread.comments[0]?.commentId);
   const isQuicktake = thread.stats.hasShortform;
   const topLevelCommentIsUnread = topLevelComment ? !topLevelComment.isRead : false;
   const quicktakeBonus = (isQuicktake && topLevelCommentIsUnread) ? cfg.quicktakeBonus : 0;
 
-  // 8. Read post context bonus: small boost if you've read the post (you have context)
   const isReadPost = engagement?.isOnReadPost ?? false;
   const readPostContextBonus = isReadPost ? cfg.readPostContextBonus : 0;
 
-  // Calculate additive total before repetition
   const additiveTotal = startingValue + unreadSubscribedCommentBonus + engagementContinuationBonus +
     repliesToYouBonus + yourPostActivityBonus + overallKarmaBonus + topicAffinityBonus +
     quicktakeBonus + readPostContextBonus;
 
-  // 10. Repetition penalty: multiplicative penalty for recently served threads
-  // Applied AFTER all additive terms to ensure it dominates
-  // For each recent serving: multiply by (1 - penaltyStrength * decayFactor)
-  // where decayFactor = 1/(1 + hoursAgo/repetitionDecayHours)
-  // Examples with default config (penaltyStrength=0.8, decayHours=6):
-  //   served 0 hrs ago → ×0.2 (80% reduction), 3 hrs ago → ×0.5, 6 hrs ago → ×0.7
   let repetitionPenaltyMultiplier = 1.0;
   if (engagement?.servingHoursAgo && engagement.servingHoursAgo.length > 0) {
     for (const hoursAgo of engagement.servingHoursAgo) {
@@ -347,10 +292,9 @@ function selectWithDiversityConstraints(
   const selectedSet = new Set<string>();
   const available = [...scoredItems];
   
-  // Track recent selections for diversity
   const recentTypes: RankableItemType[] = [];
   const recentSubscribed: boolean[] = [];
-  const recentSources: string[] = []; // normalized source keys
+  const recentSources: string[] = [];
   
   while (selectedWithMetadata.length < totalItems && available.length > 0) {
     const currentPosition = selectedWithMetadata.length;
@@ -358,7 +302,6 @@ function selectWithDiversityConstraints(
     const windowStart = Math.floor(currentPosition / constraints.guaranteedSlotsPerWindow.windowSize) * constraints.guaranteedSlotsPerWindow.windowSize;
     const positionInWindow = currentPosition - windowStart;
     
-    // Check if we need to force a bookmark or spotlight for this window
     const selectedInWindow = selectedWithMetadata.slice(windowStart, currentPosition).map(s => s.id);
     const bookmarksInWindow = selectedInWindow.filter(id => {
       const scoredItem = scoredItems.find(si => si.id === id);
@@ -377,18 +320,15 @@ function selectWithDiversityConstraints(
     const needsBookmark = positionInWindow === (constraints.guaranteedSlotsPerWindow.windowSize - 1) && 
       bookmarksInWindow < constraints.guaranteedSlotsPerWindow.bookmarks;
     
-    // Check if we need type diversity
     const lastNTypes = recentTypes.slice(-constraints.maxConsecutiveSameType);
     const needsTypeDiversity = lastNTypes.length >= constraints.maxConsecutiveSameType &&
       lastNTypes.every(t => t === lastNTypes[0]);
     const bannedType = needsTypeDiversity ? lastNTypes[0] : undefined;
     
-    // Check if we need subscription diversity
     const lastNSubscribed = recentSubscribed.slice(-constraints.subscriptionDiversityWindow);
     const needsNonSubscribed = lastNSubscribed.length >= constraints.subscriptionDiversityWindow &&
       lastNSubscribed.every(s => s);
     
-    // Check if we need source diversity
     const lastNSources = recentSources.slice(-constraints.sourceDiversityWindow);
     const needsDifferentSource = lastNSources.length >= constraints.sourceDiversityWindow &&
       lastNSources.every(s => s === lastNSources[0] && s !== '');
@@ -399,7 +339,6 @@ function selectWithDiversityConstraints(
     
     if (needsSpotlight) {
       attemptedConstraint = 'forced-spotlight';
-      // Find highest-scoring spotlight
       selectedItem = available.find(si => 
         !selectedSet.has(si.id) &&
         si.item.sources?.includes('spotlights' as FeedItemSourceType)
@@ -409,17 +348,17 @@ function selectWithDiversityConstraints(
       }
     } else if (needsBookmark) {
       attemptedConstraint = 'forced-bookmark';
-      // Find highest-scoring bookmark
-      selectedItem = available.find(si => 
+      const availableBookmarks = available.filter(si => 
         !selectedSet.has(si.id) &&
         si.item.sources?.includes('bookmarks' as FeedItemSourceType)
       );
-      if (selectedItem) {
+      if (availableBookmarks.length > 0) {
+        const randomIndex = Math.floor(Math.random() * availableBookmarks.length);
+        selectedItem = availableBookmarks[randomIndex];
         appliedConstraints.push('forced-bookmark');
       }
     } else if (needsTypeDiversity) {
       attemptedConstraint = 'type-diversity';
-      // Find highest-scoring item with different type than recent window
       selectedItem = available.find(si => {
         if (selectedSet.has(si.id)) return false;
         return si.item.itemType !== bannedType;
@@ -429,20 +368,18 @@ function selectWithDiversityConstraints(
       }
     } else if (needsNonSubscribed) {
       attemptedConstraint = 'subscription-diversity';
-      // Find highest-scoring non-subscribed item
       selectedItem = available.find(si => {
         if (selectedSet.has(si.id)) return false;
         if (si.item.itemType === 'post' || si.item.itemType === 'commentThread') {
           return !si.item.userSubscribedToAuthor;
         }
-        return true; // spotlights/bookmarks count as non-subscribed
+        return true;
       });
       if (selectedItem) {
         appliedConstraints.push('subscription-diversity');
       }
     } else if (needsDifferentSource) {
       attemptedConstraint = 'source-diversity';
-      // Find highest-scoring item with different sources than recent window
       selectedItem = available.find(si => {
         if (selectedSet.has(si.id)) return false;
         const sourceKey = normalizeSourcesKey(si.item.sources);
@@ -452,21 +389,18 @@ function selectWithDiversityConstraints(
         appliedConstraints.push('source-diversity');
       }
     } else {
-      // Normal selection: pick highest-scoring item
       selectedItem = available.find(si => !selectedSet.has(si.id));
     }
     
     if (!selectedItem) {
-      // No item found matching constraints, pick best available
       selectedItem = available.find(si => !selectedSet.has(si.id));
       if (selectedItem && attemptedConstraint) {
         appliedConstraints.push(`no-match-for-${attemptedConstraint}`);
       }
     }
     
-    if (!selectedItem) break; // No more items available
+    if (!selectedItem) break;
     
-    // Add to selected with metadata
     selectedWithMetadata.push({
       id: selectedItem.id,
       appliedConstraints,
@@ -474,7 +408,6 @@ function selectWithDiversityConstraints(
     });
     selectedSet.add(selectedItem.id);
     
-    // Track for diversity
     recentTypes.push(selectedItem.item.itemType);
     const isSubscribed = selectedItem.item.itemType === 'post' 
       ? selectedItem.item.userSubscribedToAuthor
@@ -532,37 +465,25 @@ export function scoreItems(
   });
 }
 
-/**
- * Rank UltraFeed items using a scoring algorithm with diversity constraints.
- * Returns ordered items with their ranking metadata (score breakdown and constraints).
- */
 export function rankUltraFeedItems(
   items: RankableItem[],
   totalItems: number,
   config: RankingConfig = DEFAULT_RANKING_CONFIG,
   diversityConstraints: DiversityConstraints = DEFAULT_DIVERSITY_CONSTRAINTS
 ): Array<{ id: string; metadata?: RankedItemMetadata }> {
-  // Score all items
   const scoredItems = scoreItems(items, config);
 
-  // Filter out items with zero or negative scores
-  const positiveScoreItems = scoredItems.filter(item => item.score > 0);
 
-  // Sort by score descending
-  positiveScoreItems.sort((a, b) => b.score - a.score);
+  scoredItems.sort((a, b) => b.score - a.score);
 
-  // Apply diversity constraints via greedy selection
-  const selectedWithConstraints = selectWithDiversityConstraints(positiveScoreItems, totalItems, diversityConstraints);
+  const selectedWithConstraints = selectWithDiversityConstraints(scoredItems, totalItems, diversityConstraints);
   
-  // Build final result with complete metadata
   return selectedWithConstraints.map(({ id, appliedConstraints, position }) => {
-    const scoredItem = positiveScoreItems.find(si => si.id === id);
+    const scoredItem = scoredItems.find(si => si.id === id);
     if (!scoredItem) {
       throw new Error(`rankUltraFeedItems: Could not find scored item for id ${id}`);
     }
     
-    // TypeScript note: scoreItems() guarantees that commentThread items get ThreadScoreBreakdown
-    // and all other items get PostScoreBreakdown. This mapping maintains that invariant.
     if (scoredItem.item.itemType === 'commentThread') {
       return {
         id,
@@ -575,7 +496,6 @@ export function rankUltraFeedItems(
       };
     }
     
-    // All non-commentThread items (posts, spotlights, subscriptionSuggestions) use PostScoreBreakdown
     return {
       id,
       metadata: {
