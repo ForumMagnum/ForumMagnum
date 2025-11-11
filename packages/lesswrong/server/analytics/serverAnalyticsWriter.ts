@@ -234,9 +234,3 @@ export function startAnalyticsWriter() {
     }
   }
 }
-
-// In production, serverAnalyticsWriter is called via a chain that starts with register()
-// in instrumentation.js, however this doesn't run (runServerOnStartupFunctions doesn't run) in development so we need to call it manually.
-if (typeof window === 'undefined' && process.env.NODE_ENV === 'development') {
-  startAnalyticsWriter();
-}
