@@ -33,6 +33,7 @@ interface Query {
   DigestPlannerData: Array<DigestPlannerPost>;
   DigestPosts: Array<Post> | null;
   HomepageCommunityEvents: HomepageCommunityEventMarkersResult;
+  HomepageCommunityEventPosts: HomepageCommunityEventPostsResult;
   DigestHighlights: DigestHighlightsResult | null;
   DigestPostsThisWeek: DigestPostsThisWeekResult | null;
   CuratedAndPopularThisWeek: CuratedAndPopularThisWeekResult | null;
@@ -881,6 +882,10 @@ interface HomepageCommunityEventMarker {
 
 interface HomepageCommunityEventMarkersResult {
   events: Array<HomepageCommunityEventMarker>;
+}
+
+interface HomepageCommunityEventPostsResult {
+  posts: Array<Post>;
 }
 
 interface DigestHighlightsResult {
@@ -9825,6 +9830,7 @@ interface GraphQLTypeMap {
   PostWithApprovedJargon: PostWithApprovedJargon;
   HomepageCommunityEventMarker: HomepageCommunityEventMarker;
   HomepageCommunityEventMarkersResult: HomepageCommunityEventMarkersResult;
+  HomepageCommunityEventPostsResult: HomepageCommunityEventPostsResult;
   DigestHighlightsResult: DigestHighlightsResult;
   DigestPostsThisWeekResult: DigestPostsThisWeekResult;
   CuratedAndPopularThisWeekResult: CuratedAndPopularThisWeekResult;

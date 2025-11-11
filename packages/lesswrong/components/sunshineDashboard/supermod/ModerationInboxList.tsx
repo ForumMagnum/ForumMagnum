@@ -29,6 +29,9 @@ const styles = defineStyles('ModerationInboxList', (theme: ThemeType) => ({
   automod: {
     background: theme.palette.panelBackground.sunshineAutomodGroup,
   },
+  snoozeExpired: {
+    background: theme.palette.panelBackground.sunshineSnoozeExpiredGroup,
+  },
   unknown: {
     background: theme.palette.panelBackground.sunshineUnknownGroup,
   },

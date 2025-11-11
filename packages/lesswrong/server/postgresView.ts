@@ -54,6 +54,7 @@ export class PostgresView {
   }
 }
 
+// TODO: this view is now unused; remove it in a follow-up PR along with a migration to drop it from the DB.
 export const conversationUnreadMessagesView = new PostgresView(
   "ConversationUnreadMessages",
   `CREATE OR REPLACE VIEW "ConversationUnreadMessages" AS
