@@ -4,6 +4,7 @@ import type { TimeSeries } from "../../lib/collections/posts/karmaInflation";
 import { randomId } from "../../lib/random";
 import type { GivingSeasonHeart } from "../../components/review/ReviewVotingCanvas";
 import keyBy from "lodash/keyBy";
+import { ELECTION_2025_MATCHED_AMOUNT } from "@/lib/givingSeason";
 
 export default class DatabaseMetadataRepo extends AbstractRepo<"DatabaseMetadata"> {
   constructor() {
@@ -136,6 +137,20 @@ export default class DatabaseMetadataRepo extends AbstractRepo<"DatabaseMetadata
   }
 
   async addGivingSeason2025Donation(usdAmount: number): Promise<void> {
+    const matchThreshold = 2 * ELECTION_2025_MATCHED_AMOUNT;
+
+    // // Typescript equivalent of the SQL formula below (for amount added):
+    // function calculateDonationWithMatching(usdAmount: number, currentTotal: number): number {
+    //   const remainingMatchable = Math.max(0, matchThreshold - currentTotal);
+    //   const matchedPortion = Math.min(usdAmount, remainingMatchable / 2);
+    //   const amountToAdd = matchedPortion + usdAmount;
+    //   return amountToAdd;
+    // }
+    // // Examples with `matchThreshold === 10_000`:
+    // calculateDonationWithMatching(1000, 0) === 2000 // Amount is fully matched
+    // calculateDonationWithMatching(1000, 10_000) === 1000 // Amount is not matched when at or above the threshold
+    // calculateDonationWithMatching(1000, 9000) === 1500 // First 500 is matched, which takes it to the threshold. The next 500 is applied as normal
+
     await this.none(`
       -- DatabaseMetadataRepo.addGivingSeason2025Donation
       INSERT INTO "DatabaseMetadata" ("_id", "name", "value", "createdAt")
@@ -143,12 +158,19 @@ export default class DatabaseMetadataRepo extends AbstractRepo<"DatabaseMetadata
       ON CONFLICT ("name") DO UPDATE SET
         "value" = JSONB_BUILD_OBJECT(
           'total',
-          (("DatabaseMetadata"."value")->'total')::FLOAT + $3
+          (("DatabaseMetadata"."value")->'total')::FLOAT + (
+            -- Calculate matched portion: min(donation, remaining_matchable / 2)
+            LEAST(
+              $3,
+              GREATEST(0, $4 - COALESCE((("DatabaseMetadata"."value")->'total')::FLOAT, 0)) / 2.0
+            ) + $3
+          )
         )
     `, [
       randomId(),
       {total: usdAmount},
       usdAmount,
+      matchThreshold,
     ]);
   }
 

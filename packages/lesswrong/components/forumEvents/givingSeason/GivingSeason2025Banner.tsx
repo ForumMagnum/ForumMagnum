@@ -499,7 +499,7 @@ export const GivingSeason2025Banner: FC = () => {
               />
             </div>
             <div className={classes.match}>
-              We&apos;re matching the first $5000
+              Includes our match on the first $5000
             </div>
           </div>
           <div className={classes.electionButtons}>
