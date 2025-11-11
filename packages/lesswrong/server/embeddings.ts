@@ -69,7 +69,7 @@ const trimText = async (
   maxTokens: number,
 ): Promise<string> => {
   const { Tiktoken } = await import("js-tiktoken/lite");
-  const cl100k_base = await import("js-tiktoken/ranks/cl100k_base");
+  const { default: cl100k_base } = await import("js-tiktoken/ranks/cl100k_base");
   const encoding = new Tiktoken(cl100k_base);
 
   for (
