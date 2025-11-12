@@ -379,5 +379,6 @@
   "graphql": {
     "schema": "packages/lesswrong/lib/generated/gqlSchema.gql",
     "documents": "packages/lesswrong/**/*.{graphql,ts,tsx}"
-  }
+  },
+  "browserslist": ["chrome 111", "edge 111", "firefox 111", "safari 12"]
 }
