@@ -441,11 +441,9 @@ export async function convertImportedGoogleDocMarkdown({markdown, postId}: {
   markdown: string,
   postId: string
 }): Promise<string> {
-  console.log(markdown);
   const html = await markdownToHtml(markdown);
-  // TODO
-  console.log(html);
-  return html;
+  const { html: rehostedHtml } = await convertImagesInHTML(html, postId, _ => true);
+  return rehostedHtml;
 }
 
 /**
@@ -462,7 +460,6 @@ export async function convertImportedGoogleDoc({
   html: string;
   postId: string;
 }) {
-  console.log(html);
   const converters: (((html: string) => Promise<string>) | ((html: string) => string))[] = [
     async (html: string) => {
       const { html: rehostedHtml } = await convertImagesInHTML(html, postId, (url) =>
