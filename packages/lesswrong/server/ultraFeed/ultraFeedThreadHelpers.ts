@@ -24,7 +24,9 @@ import {
   ThreadEngagementStats,
 } from '../../components/ultraFeed/ultraFeedTypes';
 import * as crypto from 'crypto';
-import { ultraFeedDebug } from './ultraFeedDebug';
+import { loggerConstructor } from '@/lib/utils/logging';
+
+const ultraFeedLog = loggerConstructor('ultrafeed');
 
 /**
  * Generates a stable hash ID for a comment thread based on its comment IDs. This creates a consistent identifier for each unique thread composition.
@@ -658,7 +660,7 @@ export async function getUltraFeedCommentThreads(
 
   const totalThreads = finalRankedThreads.length;
   const nonViableCount = totalThreads - viableThreads.length;
-  ultraFeedDebug.log(
+  ultraFeedLog(
     `Comment threads - total: ${totalThreads}, viable: ${viableThreads.length}, ` +
     `non-viable: ${nonViableCount} (score≤0: ${nonViableReasons.zeroOrNegativeScore}, ` +
     `viewed: ${nonViableReasons.allCommentsViewed}, served: ${nonViableReasons.allCommentsServedInSession}), ` +
@@ -673,7 +675,7 @@ export async function getUltraFeedCommentThreads(
   const returnedCommentIds = displayThreads.flatMap(thread => 
     thread.comments.map(comment => comment.commentId.substring(0, 3))
   );
-  ultraFeedDebug.log(`Returning comments (first 3 chars): [${returnedCommentIds.join(', ')}]`);
+  ultraFeedLog(`Returning comments (first 3 chars): [${returnedCommentIds.join(', ')}]`);
 
   return displayThreads;
 } 

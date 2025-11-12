@@ -33,12 +33,13 @@ import {
   insertSubscriptionSuggestions
 } from './ultraFeedResolverHelpers';
 import { getAlgorithm, type UltraFeedAlgorithmName } from '../ultraFeed/algorithms/algorithmRegistry';
-import { ultraFeedDebug, ULTRAFEED_DEBUG_ENABLED, logRankedItemsForAnalysis } from '../ultraFeed/ultraFeedDebug';
+import { loggerConstructor } from '@/lib/utils/logging';
 import { 
   convertFetchedItemsToRankable,
   mapRankedIdsToSampledItems,
 } from '../ultraFeed/ultraFeedRankingConverters';
 
+const ultraFeedLog = loggerConstructor('ultrafeed');
 
 interface UltraFeedDateCutoffs {
   latestPostsMaxAgeDays: number;
@@ -571,7 +572,7 @@ const calculateFetchLimits = (
   const commentFetchLimit = Math.min(baseCommentFetchLimit + Math.round(offset / 2), 200);
   
   if (offset > 0 && commentFetchLimit > baseCommentFetchLimit) {
-    ultraFeedDebug.log(`Scaled up comment fetch limit: ${baseCommentFetchLimit} → ${commentFetchLimit} (base from limit=${totalLimit}, offset=${offset})`);
+    ultraFeedLog(`Scaled up comment fetch limit: ${baseCommentFetchLimit} → ${commentFetchLimit} (base from limit=${totalLimit}, offset=${offset})`);
   }
 
   return {
@@ -592,8 +593,8 @@ const calculateFetchLimits = (
 export const ultraFeedGraphQLQueries = {
   UltraFeed: async (_root: void, args: UltraFeedArgs, context: ResolverContext) => {
     const startTime = Date.now();
-    ultraFeedDebug.log(`============================================================================ Session ID: ${args.sessionId}`);
-    ultraFeedDebug.log('UltraFeed resolver called', { args });
+    ultraFeedLog(`============================================================================ Session ID: ${args.sessionId}`);
+    ultraFeedLog('UltraFeed resolver called', { args });
     
     const {limit = 20, cutoff, offset, sessionId, settings: settingsJson} = args;
     
@@ -628,7 +629,7 @@ export const ultraFeedGraphQLQueries = {
       // TODO: This is a little hand-wavy since fetching them together breaks the paradigm. Figure out better solution later.
       const latestAndSubscribedPostLimit = hackerNewsPostFetchLimit + subscribedPostFetchLimit;
 
-      ultraFeedDebug.log('Fetch limits requested:', {
+      ultraFeedLog('Fetch limits requested:', {
         recombeePostFetchLimit,
         hackerNewsPostFetchLimit,
         subscribedPostFetchLimit,
@@ -672,7 +673,7 @@ export const ultraFeedGraphQLQueries = {
         engagementStatsListPromise
       ]);
       
-      ultraFeedDebug.log('Fetch results returned:', {
+      ultraFeedLog('Fetch results returned:', {
         postsReturned: combinedPostItems.length,
         commentThreadsReturned: commentThreadsItemsResult.length,
         spotlightsReturned: spotlightItemsResult.length,
@@ -700,19 +701,36 @@ export const ultraFeedGraphQLQueries = {
         parsedSettings
       );
       
-      ultraFeedDebug.log(`Ranked ${rankedItemsWithMetadata.length} items using ${algorithm.name} algorithm`);
+      ultraFeedLog(`Ranked ${rankedItemsWithMetadata.length} items using ${algorithm.name} algorithm`);
       
-      if (ULTRAFEED_DEBUG_ENABLED) {
-        backgroundTask(logRankedItemsForAnalysis(
-          rankedItemsWithMetadata,
-          rankableItems,
-          algorithm.name,
-          sessionId,
-          currentUser,
-          clientId ?? undefined,
-          offset ?? 0
-        ));
-      }
+      // Log ranked items for analysis
+      const itemsForLogging = rankedItemsWithMetadata
+        .filter((item): item is { id: string; metadata: any } => item.metadata !== undefined)
+        .map(({ id, metadata }) => {
+          const item = rankableItems.find((r: any) => r.id === id);
+          return {
+            itemId: id,
+            itemType: item?.itemType ?? 'unknown',
+            position: metadata.position,
+            totalScore: metadata.scoreBreakdown.total,
+            constraints: metadata.selectionConstraints.join(','),
+            sources: item?.sources?.join(',') ?? '',
+            repetitionPenaltyMultiplier: metadata.rankedItemType === 'commentThread'
+              ? metadata.scoreBreakdown.repetitionPenaltyMultiplier
+              : 1,
+            scoreTerms: metadata.scoreBreakdown.terms,
+          };
+        });
+      
+      serverCaptureEvent('ultraFeedItemsRanked', {
+        sessionId,
+        userId: currentUser?._id ?? undefined,
+        clientId: clientId ?? undefined,
+        offset: offset ?? 0,
+        itemCount: rankedItemsWithMetadata.length,
+        algorithm: algorithm.name,
+        items: itemsForLogging,
+      });
       
       const sampledItemsRanked = mapRankedIdsToSampledItems(
         rankedItemsWithMetadata,
