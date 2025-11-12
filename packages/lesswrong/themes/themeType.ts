@@ -557,6 +557,13 @@ declare global {
     givingSeason: {
       primary: ColorString,
       cardHover: ColorString,
+      portalPrimary: ColorString,
+      candidateShadow: ColorString,
+      candidateBorder: ColorString,
+      candidateBackground: ColorString,
+      candidateOrder: ColorString,
+      electionFundBackground: ColorString,
+      electionFundBackgroundHeavy: ColorString,
     },
     wrapped: {
       background: ColorString,

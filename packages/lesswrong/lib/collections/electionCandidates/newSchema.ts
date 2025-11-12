@@ -77,7 +77,10 @@ const schema = {
       canCreate: ["sunshineRegiment", "admins"],
     },
   },
-  /** Link for this candidate's GWWC fundraiser page */
+  /**
+   * @deprecated
+   * Link for this candidate's GWWC fundraiser page
+   */
   fundraiserLink: {
     database: {
       type: "TEXT",
@@ -93,7 +96,10 @@ const schema = {
       },
     },
   },
-  /** Link for this candidate's page on GWWC (ex: https://www.givingwhatwecan.org/en-US/charities/helen-keller-international) */
+  /**
+   * @deprecated
+   * Link for this candidate's page on GWWC (ex: https://www.givingwhatwecan.org/en-US/charities/helen-keller-international)
+   */
   gwwcLink: {
     database: {
       type: "TEXT",
@@ -110,6 +116,7 @@ const schema = {
     },
   },
   /**
+   * @deprecated
    * The id of the fundraiser ("Parfit slug" in gwwc's CMS). This can be different from the slug in the fundraiser link
    * (although they are often the same)
    */
@@ -167,7 +174,10 @@ const schema = {
       resolver: generateIdResolverSingle({ foreignCollectionName: "Users", fieldName: "userId" }),
     },
   },
-  /** Denormalized count of posts referencing this candidate in this election */
+  /**
+   * @deprecated
+   * Denormalized count of posts referencing this candidate in this election
+   */
   postCount: {
     database: {
       type: "DOUBLE PRECISION",
@@ -205,7 +215,10 @@ const schema = {
       resolver: generateIdResolverSingle({ foreignCollectionName: "Tags", fieldName: "tagId" }),
     },
   },
-  /** Whether this is the main fundraiser (that will be distributed among the winning candidates), as opposed to being a particular candidate */
+  /**
+   * @deprecated
+   * Whether this is the main fundraiser (that will be distributed among the winning candidates), as opposed to being a particular candidate
+   */
   isElectionFundraiser: {
     database: {
       type: "BOOL",
@@ -224,7 +237,10 @@ const schema = {
       },
     },
   },
-  /** The amount of money raised in the fundraiser for this candidate */
+  /**
+   * @deprecated
+   * The amount of money raised in the fundraiser for this candidate
+   */
   amountRaised: {
     database: {
       type: "DOUBLE PRECISION",
@@ -240,7 +256,10 @@ const schema = {
       },
     },
   },
-  /** The target amount of money to raise in the fundraiser for this candidate */
+  /**
+   * @deprecated
+   * The target amount of money to raise in the fundraiser for this candidate
+   */
   targetAmount: {
     database: {
       type: "DOUBLE PRECISION",
@@ -256,6 +275,7 @@ const schema = {
       },
     },
   },
+  // (TODO delete) Note to Claude: Everything below here can be ignored for form purposes
   currentUserVote: DEFAULT_CURRENT_USER_VOTE_FIELD,
   currentUserExtendedVote: DEFAULT_CURRENT_USER_EXTENDED_VOTE_FIELD,
   voteCount: defaultVoteCountField('ElectionCandidates'),

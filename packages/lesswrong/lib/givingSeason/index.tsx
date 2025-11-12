@@ -8,11 +8,11 @@ import React, {
   useMemo,
   useState,
 } from "react";
-import { useCurrentTime } from "./utils/timeUtil";
+import { useCurrentTime } from "../utils/timeUtil";
 import { useOnNavigate } from "@/components/hooks/useOnNavigate";
-import { useLocation } from "./routeUtil";
+import { useLocation } from "../routeUtil";
 import { useQuery } from "@apollo/client";
-import { isEAForum } from "./instanceSettings";
+import { isEAForum } from "../instanceSettings";
 import gql from "graphql-tag";
 
 export const GIVING_SEASON_INFO_HREF = "/posts/RzdKnBYe3jumrZxkB/giving-season-2025-announcement";
@@ -24,6 +24,11 @@ export const MARGINAL_FUNDING_SEQUENCE_ID = "jTAPdwYry3zTyifkZ";
 export const MARGINAL_FUNDING_SPOTIFY_URL = "https://open.spotify.com/playlist/2wEYoo2FtV7OQQA0pATewT?si=XET3lr9aT9S-PFOGDvW6Kw";
 export const SINGLE_COLUMN_BREAKPONT = 700;
 const ELECTION_TARGET_AMOUNT = 30000;
+
+export const ACTIVE_DONATION_ELECTION = "givingSeason25"; // TODO check how this is used
+export const DONATION_ELECTION_NUM_WINNERS = 3;
+export const DONATION_ELECTION_SHOW_LEADERBOARD_CUTOFF = 100;
+export const DONATION_ELECTION_AGE_CUTOFF = new Date("2024-10-22");
 
 type GivingSeasonEvent = {
   name: string,
