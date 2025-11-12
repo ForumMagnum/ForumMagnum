@@ -450,7 +450,7 @@ const LWHomePosts = ({ children, }: {
   const { mobileSettingsVisible, toggleMobileSettingsVisible } = useDefaultSettingsVisibility(currentUser, 'mobile', selectedTab);
   
   const { scenarioConfig, updateScenarioConfig } = useRecombeeSettings(currentUser, enabledTabs, filterSettings);
-  const { settings: ultraFeedSettings, updateSettings: updateUltraFeedSettings, resetSettings: resetUltraFeedSettings, truncationMaps } = useUltraFeedSettings();
+  const { settings: ultraFeedSettings, updateSettings: updateUltraFeedSettings, truncationMaps } = useUltraFeedSettings();
 
   const changeShowTagFilterSettingsDesktop = () => {
     toggleDesktopSettingsVisible(!desktopSettingsVisible);
@@ -538,7 +538,6 @@ const LWHomePosts = ({ children, }: {
         <UltraFeedSettings
           settings={ultraFeedSettings}
           updateSettings={updateUltraFeedSettings}
-          resetSettingsToDefault={resetUltraFeedSettings}
           onClose={() => toggleDesktopSettingsVisible(false)}
           truncationMaps={truncationMaps}
         />

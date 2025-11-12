@@ -1404,6 +1404,7 @@ extend type Mutation {
 type FeedSpotlightMetaInfo {
   sources: [String!]!
   servedEventId: String!
+  rankingMetadata: JSON
 }
 
 type FeedPost {
@@ -1417,8 +1418,8 @@ type FeedCommentThread {
   commentMetaInfos: JSON
   comments: [Comment!]!
   post: Post
-  isOnReadPost: Boolean
   postSources: [String!]
+  postMetaInfo: JSON
 }
 
 type FeedSpotlightItem {

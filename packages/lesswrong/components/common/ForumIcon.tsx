@@ -103,6 +103,7 @@ import MuiVisibilityOff from "@/lib/vendor/@material-ui/icons/src/VisibilityOff"
 import MuiVisibility from "@/lib/vendor/@material-ui/icons/src/Visibility";
 import MuiEditIcon from "@/lib/vendor/@material-ui/icons/src/Edit";
 import MuiShowChartIcon from "@/lib/vendor/@material-ui/icons/src/ShowChart";
+import MuiInsightsIcon from "@/lib/vendor/@material-ui/icons/src/Insights";
 import MuiNotesIcon from "@/lib/vendor/@material-ui/icons/src/Notes";
 import MuiWarningIcon from "@/lib/vendor/@material-ui/icons/src/Warning";
 import MuiLocationIcon from "@/lib/vendor/@material-ui/icons/src/LocationOn";
@@ -283,6 +284,7 @@ export type ForumIconName =
   "CloseMenu" |
   "Q" |
   "BarChart" |
+  "Insights" |
   "Funnel" |
   "FilterBars" |
   "Voted" |
@@ -424,6 +426,7 @@ const ICONS: ForumOptions<Record<ForumIconName, IconComponent>> = {
     CloseMenu: CloseMenuIcon,
     Q: QIcon,
     BarChart: ChartBarIcon,
+    Insights: MuiInsightsIcon,
     Funnel: FilterAlt,
     FilterBars: FilterBarsIcon,
     Voted: VotedIcon,
@@ -564,6 +567,7 @@ const ICONS: ForumOptions<Record<ForumIconName, IconComponent>> = {
     CloseMenu: CloseMenuIcon,
     Q: QIcon,
     BarChart: ChartBarOutlineIcon,
+    Insights: MuiInsightsIcon,
     Funnel: FunnelIcon,
     FilterBars: FilterBarsIcon,
     Voted: VotedIcon,

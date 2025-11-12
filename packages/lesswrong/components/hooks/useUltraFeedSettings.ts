@@ -12,6 +12,8 @@ import {
   ULTRA_FEED_SETTINGS_KEY,
 } from '@/components/ultraFeed/ultraFeedSettingsTypes';
 import { isMobile } from '@/lib/utils/isMobile';
+import merge from 'lodash/merge';
+import cloneDeep from 'lodash/cloneDeep';
 
 export interface UseUltraFeedSettingsResult {
   settings: UltraFeedSettingsType;
@@ -28,7 +30,12 @@ const readStoredSettings = (): UltraFeedSettingsType | null => {
   const raw = ls.getItem(ULTRA_FEED_SETTINGS_KEY);
   if (!raw) return null;
   try {
-    return { ...DEFAULT_SETTINGS, ...JSON.parse(raw) } as UltraFeedSettingsType;
+    const parsed = JSON.parse(raw);
+    // Deep merge user settings with defaults to handle missing fields
+    return merge(
+      cloneDeep(DEFAULT_SETTINGS),
+      parsed
+    ) as UltraFeedSettingsType;
   } catch {
     return null;
   }
@@ -74,5 +81,4 @@ export const useUltraFeedSettings = (): UseUltraFeedSettingsResult => {
 };
 
 export default useUltraFeedSettings;
-
 
