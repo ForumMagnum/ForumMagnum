@@ -31,7 +31,6 @@ import mergeWith from 'lodash/mergeWith';
 import cloneDeep from 'lodash/cloneDeep';
 import isEqual from 'lodash/isEqual';
 import UltraFeedFeedback from './UltraFeedFeedback';
-import FeedSelectorCheckbox from '../common/FeedSelectorCheckbox';
 import {
   SourceWeightsSettings,
   TruncationGridSettings,
@@ -391,14 +390,12 @@ const UltraFeedSettings = ({
   onClose,
   initialViewMode = 'simple',
   truncationMaps,
-  showFeedSelector = false,
 }: {
   settings: UltraFeedSettingsType,
   updateSettings: (newSettings: Partial<UltraFeedSettingsType>) => void,
   onClose?: () => void,
   initialViewMode?: 'simple' | 'advanced',
   truncationMaps: { commentMap: Record<TruncationLevel, number>, postMap: Record<TruncationLevel, number> },
-  showFeedSelector?: boolean,
 }) => {
   const { captureEvent } = useTracking();
   const classes = useStyles(styles);
@@ -743,7 +740,6 @@ const UltraFeedSettings = ({
           >
             give feedback
           </span>
-          {showFeedSelector && <FeedSelectorCheckbox currentFeedType="new" />}
         </div>
       </div>
       {showFeedback && <UltraFeedFeedback />}
