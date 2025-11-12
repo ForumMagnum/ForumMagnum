@@ -388,7 +388,7 @@ const transformItemsForResolver = (
         postMetaInfo = {
           sources: postSources ?? firstCommentMetaInfo?.sources ?? [],
           displayStatus: 'expanded',
-          servedEventId: firstCommentMetaInfo?.servedEventId ?? '',
+          servedEventId: firstCommentMetaInfo?.servedEventId ?? '', // this is a foreign key to the served event, so when missing fallback to empty string
           highlight: true,
           isRead: false,
           rankingMetadata: firstCommentMetaInfo?.rankingMetadata,
