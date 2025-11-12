@@ -2,6 +2,7 @@ import { getOpenAI } from './languageModelIntegration';
 import { isAnyTest, isProduction } from '../../lib/executionEnvironment';
 import sanitizeHtml from 'sanitize-html';
 import { isEAForum } from '../../lib/instanceSettings';
+// eslint-disable-next-line no-restricted-imports
 import type OpenAI from 'openai';
 import { serverCaptureEvent as captureEvent } from '@/server/analytics/serverAnalyticsWriter';
 import type { PostIsCriticismRequest } from '../resolvers/postResolvers';

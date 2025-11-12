@@ -4,6 +4,7 @@ import sanitizeHtml from 'sanitize-html';
 import { sanitizeAllowedTags } from '../../lib/vulcan-lib/utils';
 import Comments from '../../server/collections/comments/collection';
 import { dataToHTML } from '../editor/conversionUtils';
+// eslint-disable-next-line no-restricted-imports
 import type OpenAI from 'openai';
 import { serverCaptureEvent as captureEvent } from '@/server/analytics/serverAnalyticsWriter';
 import difference from 'lodash/difference';

@@ -1,5 +1,6 @@
 import { LanguageModelTemplate, wikiSlugToTemplate, substituteIntoTemplate } from './languageModelIntegration';
 import { dataToMarkdown } from '../editor/conversionUtils';
+// eslint-disable-next-line no-restricted-imports
 import type OpenAI from "openai";
 import { autoFrontpageModelSetting, autoFrontpagePromptSetting, tagBotAccountSlug } from '../databaseSettings';
 import { cheerioParse } from '../utils/htmlUtil';

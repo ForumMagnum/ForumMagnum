@@ -9,6 +9,7 @@ import md5 from "md5";
 import { isAnyTest, isE2E } from "../lib/executionEnvironment";
 import { isEAForum, isLWorAF } from "../lib/instanceSettings";
 // Avoid importing all of js-tiktoken and defer until usage, it's very large and increases bundle size noticeably
+// eslint-disable-next-line no-restricted-imports
 import { type TiktokenModel } from "js-tiktoken/lite";
 import { fetchFragment, fetchFragmentSingle } from "./fetchFragment";
 import mapValues from "lodash/mapValues";

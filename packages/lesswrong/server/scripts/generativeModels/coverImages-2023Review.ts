@@ -1,3 +1,4 @@
+// eslint-disable-next-line no-restricted-imports
 import type OpenAI from 'openai';
 import { z } from "zod";
 import { getOpenAI } from '../../languageModels/languageModelIntegration.ts';
