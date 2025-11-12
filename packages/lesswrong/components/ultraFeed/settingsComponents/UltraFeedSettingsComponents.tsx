@@ -18,6 +18,7 @@ import Checkbox from '@/lib/vendor/@material-ui/core/src/Checkbox';
 import { ZodFormattedError } from 'zod';
 import LWTooltip from '@/components/common/LWTooltip';
 import ForumIcon from '@/components/common/ForumIcon';
+import { userIsAdminOrMod } from '@/lib/vulcan-users/permissions';
 
 const styles = defineStyles('UltraFeedSettingsComponents', (theme: ThemeType) => ({
   settingGroup: {
@@ -1097,7 +1098,6 @@ export interface MiscSettingsProps {
 
 export const MiscSettings: React.FC<MiscSettingsProps> = ({ formValues, onBooleanChange, onAlgorithmChange, defaultOpen = true, currentUser }) => {
   const classes = useStyles(styles);
-  const { userIsAdminOrMod } = require('@/lib/vulcan-users/permissions');
   const isAdmin = userIsAdminOrMod(currentUser);
   
   return (
