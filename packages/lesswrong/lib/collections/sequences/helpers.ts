@@ -5,6 +5,7 @@ import keyBy from 'lodash/keyBy';
 import * as _ from 'underscore';
 import type { RouterLocation } from '../../vulcan-lib/routes';
 import type { Request, Response } from 'express';
+import { MARGINAL_FUNDING_SEQUENCE_ID } from '@/lib/givingSeason';
 
 export const SHOW_NEW_SEQUENCE_KARMA_THRESHOLD = 100;
 
@@ -167,5 +168,6 @@ export const sequenceContainsPost = async function(sequenceId: string, postId: s
 export const sequenceRouteWillDefinitelyReturn200 = async (req: Request, res: Response, parsedRoute: RouterLocation, context: ResolverContext) => {
   const sequenceId = parsedRoute.params._id;
   if (!sequenceId) return false;
+  if (sequenceId === MARGINAL_FUNDING_SEQUENCE_ID) return false;
   return await context.repos.sequences.sequenceRouteWillDefinitelyReturn200(sequenceId);
 }

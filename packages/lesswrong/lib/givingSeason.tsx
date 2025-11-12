@@ -13,6 +13,7 @@ import { useOnNavigate } from "@/components/hooks/useOnNavigate";
 import { useLocation } from "./routeUtil";
 import { useQuery } from "@apollo/client";
 import { isEAForum } from "./instanceSettings";
+import { isProduction } from "./executionEnvironment";
 import gql from "graphql-tag";
 
 export const GIVING_SEASON_INFO_HREF = "/posts/RzdKnBYe3jumrZxkB/giving-season-2025-announcement";
@@ -20,6 +21,8 @@ export const ELECTION_INFO_HREF = "/posts/RzdKnBYe3jumrZxkB/giving-season-2025-a
 export const ELECTION_LEARN_MORE_HREF = "/posts/93KvQDDQfaZEBTP7t/donation-election-fund-rewards-and-matching";
 export const ELECTION_DONATE_HREF = "https://www.every.org/ea-forum-donation-election-2025";
 export const ELECTION_2025_MATCHED_AMOUNT = 5000;
+export const MARGINAL_FUNDING_SEQUENCE_ID = isProduction ? "jTAPdwYry3zTyifkZ" : "GxLPEuy84SkDEXTmZ"; // TODO
+export const MARGINAL_FUNDING_SPOTIFY_URL = ""; // TODO
 const ELECTION_TARGET_AMOUNT = 30000;
 
 type GivingSeasonEvent = {
@@ -57,7 +60,7 @@ export const givingSeasonEvents: GivingSeasonEvent[] = [
   {
     name: "Marginal funding week",
     description: "A week for organisations to share what they could do with extra funding.",
-    readMoreHref: "/posts/RzdKnBYe3jumrZxkB/giving-season-2025-announcement#November_17th_to_23rd",
+    readMoreHref: "/marginal-funding",
     tag: {
       _id: "hmhCHsvuminjfEPhy",
       slug: "marginal-funding-week-2025",

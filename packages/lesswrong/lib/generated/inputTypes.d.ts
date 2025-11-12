@@ -2821,6 +2821,7 @@ interface Post {
   sideCommentsCache: SideCommentCache | null;
   sideCommentVisibility: string | null;
   disableSidenotes: boolean;
+  marginalFundingOrg: string | null;
   moderationStyle: string | null;
   ignoreRateLimits: boolean | null;
   hideCommentKarma: boolean;
@@ -5271,6 +5272,7 @@ interface CreatePostDataInput {
   hideAuthor?: boolean | null;
   sideCommentVisibility?: string | null;
   disableSidenotes?: boolean | null;
+  marginalFundingOrg?: string | null;
   moderationStyle?: string | null;
   ignoreRateLimits?: boolean | null;
   hideCommentKarma?: boolean | null;
@@ -5388,6 +5390,7 @@ interface UpdatePostDataInput {
   hideAuthor?: boolean | null;
   sideCommentVisibility?: string | null;
   disableSidenotes?: boolean | null;
+  marginalFundingOrg?: string | null;
   moderationStyle?: string | null;
   ignoreRateLimits?: boolean | null;
   hideCommentKarma?: boolean | null;

@@ -3760,6 +3760,21 @@ const schema = {
       },
     },
   },
+  marginalFundingOrg: {
+    database: {
+      type: "TEXT",
+      nullable: true,
+    },
+    graphql: {
+      outputType: "String",
+      canRead: ["guests"],
+      canUpdate: ["sunshineRegiment", "admins"],
+      canCreate: ["sunshineRegiment", "admins"],
+      validation: {
+        optional: true,
+      },
+    },
+  },
   moderationStyle: {
     database: {
       type: "TEXT",
