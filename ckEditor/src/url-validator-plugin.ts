@@ -1,14 +1,18 @@
 import Plugin from '@ckeditor/ckeditor5-core/src/plugin';
 import { validateUrl } from "./url-validator-utils";
 import type Document from "@ckeditor/ckeditor5-engine/src/model/document";
-
+import type { Batch } from '@ckeditor/ckeditor5-engine';
 
 /**
  * CkEditor plugin to validate and fix link URLs
  */
 export default class UrlValidator extends Plugin {
 	init() {
-		this.editor.model.document.on('change:data', (eventInfo) => {
+		this.editor.model.document.on('change:data', (eventInfo, batch: Batch) => {
+			if (!batch.isLocal || batch.isUndo) {
+				return;
+			}
+
 			// JB: Downcast the event source to a document (which it should be). For
 			// some reason my language server is able to figure out what type this is
 			// from just the fact that it's the second argument of the .on(), but

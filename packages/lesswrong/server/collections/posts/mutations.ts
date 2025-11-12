@@ -3,7 +3,7 @@ import schema from "@/lib/collections/posts/newSchema";
 import { userCanPost } from "@/lib/collections/users/helpers";
 import { isEAForum, isElasticEnabled, isLWorAF } from "@/lib/instanceSettings";
 import { accessFilterSingle } from "@/lib/utils/schemaUtils";
-import { userCanDo, userIsMemberOf, userIsPodcaster } from "@/lib/vulcan-users/permissions";
+import { userCanDo, userIsMemberOf, userIsPodcaster, userOwns } from "@/lib/vulcan-users/permissions";
 import { swrInvalidatePostRoute } from "@/server/cache/swr";
 import { moveToAFUpdatesUserAFKarma } from "@/server/callbacks/alignment-forum/callbacks";
 import { updateCountOfReferencesOnOtherCollectionsAfterCreate, updateCountOfReferencesOnOtherCollectionsAfterUpdate } from "@/server/callbacks/countOfReferenceCallbacks";
@@ -23,7 +23,6 @@ import { makeGqlCreateMutation, makeGqlUpdateMutation } from "@/server/vulcan-li
 import { getLegacyCreateCallbackProps, getLegacyUpdateCallbackProps, insertAndReturnCreateAfterProps, runFieldOnCreateCallbacks, runFieldOnUpdateCallbacks, updateAndReturnDocument, assignUserIdToData, dataToModifier, modifierToData } from '@/server/vulcan-lib/mutators';
 import gql from "graphql-tag";
 import cloneDeep from "lodash/cloneDeep";
-import { createAutomatedContentEvaluation } from "../automatedContentEvaluations/helpers";
 
 
 async function newCheck(user: DbUser | null, document: CreatePostDataInput | null, context: ResolverContext) {
@@ -38,6 +37,13 @@ async function editCheck(user: DbUser|null, document: DbPost|null, context: Reso
   if (!user || !document) return false;
 
   await postsUndraftRateLimit(document, previewDocument, user, context);
+
+  // Prevent users from editing or re-drafting rejected posts to hide them
+  // Also, if the user doesn't have posting permissions, don't let them edit posts at all
+  // This prevents them from publishing previously-made draft posts, etc.
+  if ((userOwns(user, document) && document.rejected) || !userCanPost(user)) {
+    return false;
+  }
 
   if (userCanDo(user, 'posts.alignment.move.all') ||
       userCanDo(user, 'posts.alignment.suggest') ||

@@ -36,10 +36,13 @@ export const graphqlModeratorActionQueryTypeDefs = gql`
     unreviewedProfileImageUpdate
     unreviewedFirstPost
     unreviewedFirstComment
+    unreviewedPost
+    unreviewedComment
     snoozeExpired
     stricterCommentAutomodRateLimit
     stricterPostAutomodRateLimit
     manualRateLimitExpired
+    votingDisabled
   }
   
   input SingleModeratorActionInput {

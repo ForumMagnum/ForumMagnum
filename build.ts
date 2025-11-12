@@ -515,7 +515,7 @@ async function main() {
     },
     external: [
       "node_modules",
-      "akismet-api", "canvas", "express", "pg", "pg-promise", "mathjax", "mathjax-node",
+      "canvas", "express", "pg", "pg-promise", "mathjax", "mathjax-node",
       "mathjax-node-page", "jsdom", "@sentry/node", "node-fetch", "later", "turndown",
       "@apollo/server", "graphql", "csso", "io-ts", "fp-ts",
       "bcrypt", "node-pre-gyp", "intercom-client", "node:*",

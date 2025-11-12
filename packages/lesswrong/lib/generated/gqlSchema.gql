@@ -621,6 +621,7 @@ extend type Query {
   DigestPlannerData(digestId: String, startDate: Date, endDate: Date): [DigestPlannerPost!]!
   DigestPosts(num: Int): [Post!]
   HomepageCommunityEvents(limit: Int!): HomepageCommunityEventMarkersResult!
+  HomepageCommunityEventPosts(eventType: String!): HomepageCommunityEventPostsResult!
 }
 
 extend type Mutation {
@@ -680,6 +681,10 @@ type HomepageCommunityEventMarker {
 
 type HomepageCommunityEventMarkersResult {
   events: [HomepageCommunityEventMarker!]!
+}
+
+type HomepageCommunityEventPostsResult {
+  posts: [Post!]!
 }
 
 type DigestHighlightsResult {
@@ -1268,6 +1273,11 @@ type ModeratorIPAddressInfo {
   userIds: [String!]!
 }
 
+enum ContentCollectionName {
+  Posts
+  Comments
+}
+
 extend type Query {
   moderatorViewIPAddress(ipAddress: String!): ModeratorIPAddressInfo
 }
@@ -1275,6 +1285,8 @@ extend type Query {
 extend type Mutation {
   lockThread(commentId: String!, until: String): Boolean!
   unlockThread(commentId: String!): Boolean!
+  rejectContentAndRemoveUserFromQueue(userId: String!, documentId: String!, collectionName: ContentCollectionName!, rejectedReason: String!, messageContent: String): Boolean!
+  approveUserCurrentContentOnly(userId: String!): Boolean!
 }
 
 extend type Mutation {
@@ -1392,6 +1404,7 @@ extend type Mutation {
 type FeedSpotlightMetaInfo {
   sources: [String!]!
   servedEventId: String!
+  rankingMetadata: JSON
 }
 
 type FeedPost {
@@ -1405,8 +1418,8 @@ type FeedCommentThread {
   commentMetaInfos: JSON
   comments: [Comment!]!
   post: Post
-  isOnReadPost: Boolean
   postSources: [String!]
+  postMetaInfo: JSON
 }
 
 type FeedSpotlightItem {
@@ -3958,10 +3971,13 @@ enum ModeratorActionType {
   unreviewedProfileImageUpdate
   unreviewedFirstPost
   unreviewedFirstComment
+  unreviewedPost
+  unreviewedComment
   snoozeExpired
   stricterCommentAutomodRateLimit
   stricterPostAutomodRateLimit
   manualRateLimitExpired
+  votingDisabled
 }
 
 input SingleModeratorActionInput {
@@ -4483,6 +4499,7 @@ type Post {
   tagRel(tagId: String): TagRel
   tags: [Tag!]!
   tagRelevance: JSON
+  tagRels: [TagRel!]!
   lastPromotedComment: Comment
   bestAnswer: Comment
   noIndex: Boolean!
@@ -7892,6 +7909,7 @@ type User {
   permanentDeletionRequestedAt: Date
   voteBanned: Boolean
   nullifyVotes: Boolean
+  votingDisabled: Boolean!
   deleteContent: Boolean
   banned: Date
   IPs: [String!]
@@ -8067,6 +8085,9 @@ type User {
   userSurveyEmailSentAt: Date
   karmaChanges(startDate: Date, endDate: Date): KarmaChanges
   recommendationSettings: JSON
+  lastRemovedFromReviewQueueAt: Date
+  rejectedContentCount: Int
+  userRateLimits: [UserRateLimit!]
 }
 
 enum ReactPaletteStyle {

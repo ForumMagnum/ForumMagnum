@@ -39,6 +39,7 @@ const HoverPreviewLink = ({ href, id, rel, noPrefetch, contentStyleType, classNa
 }) => {
   const URLClass = getUrlClass()
   const location = useLocation();
+  href = href ? href.trim() : href;
 
   // Invalid link with no href? Don't transform it.
   if (!href) {

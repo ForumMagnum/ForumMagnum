@@ -176,8 +176,7 @@ export const useVote = <T extends VoteableTypeClient, CollectionName extends Vot
         },
       })
     } catch(e) {
-      const errorMessage = e.graphQLErrors.map((gqlErr: any)=>gqlErr.message).join("; ");
-      messages.flash({ messageString: errorMessage });
+      messages.flash({ messageString: e.message });
       setOptimisticResponseDocument(null);
     }
   }, [messages, mutate, collectionName, votingSystemOrDefault, getCurrentUser]);

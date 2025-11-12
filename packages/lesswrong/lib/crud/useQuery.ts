@@ -10,7 +10,7 @@ import type { TypedDocumentNode } from "@graphql-typed-document-node/core";
 
 export const EnableSuspenseContext = createContext(false);
 
-type UseQueryOptions = {
+export type UseQueryOptions = {
   fetchPolicy: SuspenseQueryHookFetchPolicy,
   ssr?: boolean,
   skip?: boolean,

@@ -632,7 +632,9 @@ function drafts(terms: PostsViewTerms) {
       groupId: null, // TODO: fix vulcan so it doesn't do deep merges on viewFieldAllowAny
       authorIsUnreviewed: viewFieldAllowAny,
       hiddenRelatedQuestion: viewFieldAllowAny,
-      deletedDraft: false,
+      ...(!terms.includeArchived && {
+        deletedDraft: false,
+      }),
     },
     options: {
       sort: {}
@@ -641,9 +643,6 @@ function drafts(terms: PostsViewTerms) {
   
   if (terms.includeDraftEvents) {
     query.selector.isEvent = viewFieldAllowAny
-  }
-  if (terms.includeArchived) {
-    query.selector.deletedDraft = viewFieldAllowAny
   }
   if (!terms.includeShared) {
     query.selector.userId = terms.userId
@@ -1049,6 +1048,8 @@ function sunshineNewUsersPosts(terms: PostsViewTerms) {
       authorIsUnreviewed: null,
       groupId: null,
       rejected: null,
+      // Override default view's draft: false to allow viewing redrafted posts
+      draft: viewFieldAllowAny,
       $or: [
         { wasEverUndrafted: true },
         { draft: false }

@@ -5,16 +5,13 @@ import { useLocation } from "../../lib/routeUtil";
 import { useTracking } from "../../lib/analyticsEvents";
 import { getBrowserLocalStorage } from "../editor/localStorageHandlers";
 import stringify from "json-stringify-deterministic";
-import {isFriendlyUI} from '../../themes/forumTheme.ts'
 import MessagesNewForm from "./MessagesNewForm";
 import Error404 from "../common/Error404";
 import Loading from "../vulcan-core/Loading";
 import MessageItem from "./MessageItem";
-import Divider from "../common/Divider";
 import { useQuery } from "@/lib/crud/useQuery";
 import { gql } from "@/lib/generated/gql-codegen";
-import { SideItemsContainer, SideItemsSidebar } from "../contents/SideItems.tsx";
-import { widthElements } from "juice";
+import { SideItemsContainer } from "../contents/SideItems.tsx";
 
 const messageListFragmentMultiQuery = gql(`
   query multiMessageConversationContentsQuery($selector: MessageSelector, $limit: Int, $enableTotal: Boolean) {
@@ -34,7 +31,9 @@ const styles = (theme: ThemeType) => ({
     marginBottom: 12,
   },
   editor: {
-    position: "relative",
+    position: "sticky",
+    bottom: 0,
+    width: "100%",
     '& .form-submit': {
       // form-submit has display: block by default, which for some reason makes it take up 0 height
       // on mobile. This fixes that.
@@ -44,7 +43,8 @@ const styles = (theme: ThemeType) => ({
       padding: '18px 0px',
       marginTop: "auto",
     } : {
-      margin: '32px 0px',
+      padding: '8px 0px',
+      backgroundColor: theme.palette.background.paper,
     })
   },
   backButton: {
@@ -55,27 +55,32 @@ const styles = (theme: ThemeType) => ({
     justifyContent: "space-between",
   },
   messagesContainer: {
-    display: "flex",
+    height: '100%',
   },
   messagesColumn: {
-    width: "calc(100% - 50px)",
+    position: "relative",
+    height: "100%",
+    width: "100%",
+    display: "flex",
+    flexDirection: "column",
+    justifyContent: "space-between",
     [theme.breakpoints.down("xs")]: {
       width: "calc(100% - 5px)",
     },
-  },
-  sidebar: {
   },
 });
 
 const ConversationContents = ({
   conversation,
-  currentUser,
+  currentUserId,
   scrollRef,
+  sendEmail = true,
   classes,
 }: {
   conversation: ConversationsList;
-  currentUser: UsersCurrent;
+  currentUserId: string;
   scrollRef?: React.RefObject<HTMLDivElement|null>;
+  sendEmail?: boolean;
   classes: ClassesType<typeof styles>;
 }) => {
   // Count messages sent, and use it to set a distinct value for `key` on `MessagesNewForm`
@@ -139,20 +144,22 @@ const ConversationContents = ({
       profileViewedFrom.current = query.from;
     } else if (conversation && conversation.participantIds?.length === 2 && ls) {
       // if this is a conversation with one other person, see if we have info on where the current user found them
-      const otherUserId = conversation.participantIds.find((id) => id !== currentUser._id);
+      const otherUserId = conversation.participantIds.find((id) => id !== currentUserId);
       const storedLastViewedProfiles = ls.getItem("lastViewedProfiles")
       const lastViewedProfiles = storedLastViewedProfiles ? JSON.parse(storedLastViewedProfiles) : [];
       profileViewedFrom.current = lastViewedProfiles?.find((profile: any) => profile.userId === otherUserId)?.from;
     }
-  }, [query.from, conversation, currentUser._id]);
+  }, [query.from, conversation, currentUserId]);
+
   const renderMessages = () => {
-    if (loading && !results) return <Loading />;
     if (!results?.length) return null;
 
     return (
       <div data-testid="conversation-messages">
-        {results.map((message) => (
-          <MessageItem key={message._id} message={message} />
+        {results.map((message, idx) => (
+          <SideItemsContainer key={message._id}>
+            <MessageItem message={message} />
+          </SideItemsContainer>
         ))}
       </div>
     );
@@ -162,48 +169,42 @@ const ConversationContents = ({
   if (!conversation) return <Error404 />;
 
   return (
-    <div>
-      <SideItemsContainer>
-        <div className={classes.messagesContainer}>
-          <div className={classes.messagesColumn}>
-            {renderMessages()}
-            <div className={classes.editor}>
-              <MessagesNewForm
-                key={`sendMessage-${messageSentCount}`}
-                conversationId={conversation._id}
-                templateQueries={{ templateId: query.templateId, displayName: query.displayName }}
-                formStyle={isFriendlyUI() ? "minimalist" : undefined}
-                successEvent={(newMessage) => {
-                  setMessageSentCount(messageSentCount + 1);
-                  captureEvent("messageSent", {
-                    conversationId: conversation._id,
-                    sender: currentUser._id,
-                    participantIds: conversation.participantIds,
-                    messageCount: (conversation.messageCount || 0) + 1,
-                    ...(profileViewedFrom?.current && { from: profileViewedFrom.current }),
-                  });
-                  updateQuery((_, { previousData }) => {
-                    const previousResults = previousData?.messages?.results ?? [];
-                    const previousMessages = previousResults.filter((m): m is messageListFragment => m !== undefined) ?? [];
+    <div className={classes.messagesContainer}>
+      <div className={classes.messagesColumn}>
+        {renderMessages()}
+        <div className={classes.editor}>
+          <MessagesNewForm
+            key={`sendMessage-${messageSentCount}`}
+            conversationId={conversation._id}
+            templateQueries={{ templateId: query.templateId, displayName: query.displayName }}
+            formStyle="minimalist"
+            sendEmail={sendEmail}
+            successEvent={(newMessage) => {
+              setMessageSentCount(messageSentCount + 1);
+              captureEvent("messageSent", {
+                conversationId: conversation._id,
+                sender: currentUserId,
+                participantIds: conversation.participantIds,
+                messageCount: (conversation.messageCount || 0) + 1,
+                ...(profileViewedFrom?.current && { from: profileViewedFrom.current }),
+              });
+              updateQuery((_, { previousData }) => {
+                const previousResults = previousData?.messages?.results ?? [];
+                const previousMessages = previousResults.filter((m): m is messageListFragment => m !== undefined) ?? [];
 
-                    return {
-                      __typename: "Query" as const,
-                      messages: {
-                        __typename: "MultiMessageOutput" as const,
-                        results: [...previousMessages, newMessage],
-                        totalCount: previousData?.messages?.totalCount ? previousData?.messages?.totalCount + 1 : 1,
-                      },
-                    }
-                  })
-                }}
-              />
-            </div>
-          </div>
-          <div className={classes.sidebar}>
-            <SideItemsSidebar/>
-          </div>
+                return {
+                  __typename: "Query" as const,
+                  messages: {
+                    __typename: "MultiMessageOutput" as const,
+                    results: [...previousMessages, newMessage],
+                    totalCount: previousData?.messages?.totalCount ? previousData?.messages?.totalCount + 1 : 1,
+                  },
+                }
+              })
+            }}
+          />
         </div>
-        </SideItemsContainer>
+      </div>
     </div>
   );
 };

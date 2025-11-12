@@ -13,8 +13,10 @@ jest.mock('../lib/forumTypeUtils', () => {
     },
     isLW: jest.fn(() => { throw new Error('isLW should never be called at import-time!'); }),
     isAF: jest.fn(() => { throw new Error('isAF should never be called at import-time!'); }),
+    // We might in the future merge the LW and AF projects, so we don't forbid calling isLWorAF.
+    // (Also, technically, calling any of the individual functions is probably also safe, now that
+    // they depend on values in process.env that are added at build time, but :shrug:)
     isEAForum: jest.fn(() => { throw new Error('isEAForum should never be called at import-time!'); }),
-    isLWorAF: jest.fn(() => { throw new Error('isLWorAF should never be called at import-time!'); }),
     forumSelect: jest.fn(() => { throw new Error('forumSelect should never be called at import-time!'); }),
   };
 });

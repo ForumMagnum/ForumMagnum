@@ -59,7 +59,7 @@ export async function POST(req: NextRequest) {
   const anthropic = createAnthropic({ apiKey });
 
   const result = await generateText({
-    model: anthropic('claude-sonnet-4.5'),
+    model: anthropic('claude-sonnet-4-5'),
     prompt: `${prompt}\n\n<Post>${markdown}</Post>`,
     tools: {
       suggestedEdits: tool({

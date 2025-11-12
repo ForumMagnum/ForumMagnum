@@ -1,13 +1,14 @@
 import Spotlights from "../../../server/collections/spotlights/collection";
 import { fetchFragment } from "../../fetchFragment";
 import { getAnthropicClientOrThrow } from "@/server/languageModels/anthropicClient";
-import { reviewWinnerCache, ReviewWinnerWithPost } from "@/server/review/reviewWinnersCache";
 import { createAdminContext } from "../../vulcan-lib/createContexts";
 import { createSpotlight as createSpotlightMutator } from "@/server/collections/spotlights/mutations";
 import { ReviewWinnerTopPostsPage } from "@/lib/collections/reviewWinners/fragments";
 import { PostsWithNavigation } from "@/lib/collections/posts/fragments";
 import { backgroundTask } from "@/server/utils/backgroundTask";
 import type { MessageParam } from "@anthropic-ai/sdk/resources/messages.mjs";
+import { createClient } from "@/server/vulcan-lib/apollo-ssr/apolloClient";
+import { gql } from "@/lib/generated/gql-codegen";
 
 async function queryClaudeJailbreak(prompt: MessageParam[], maxTokens: number) {
   const client = getAnthropicClientOrThrow()
@@ -19,10 +20,10 @@ async function queryClaudeJailbreak(prompt: MessageParam[], maxTokens: number) {
   })
 }
 
-function createSpotlight (post: PostsWithNavigation, reviewWinner: ReviewWinnerWithPost|undefined, summary: string) {
+function createSpotlight (post: PostsWithNavigation, reviewWinner: PostsTopItemInfo|undefined, summary: string) {
   const context = createAdminContext();
   const postYear = new Date(post.postedAt).getFullYear()
-  const cloudinaryImageUrl = reviewWinner?.reviewWinner.reviewWinnerArt?.splashArtImageUrl
+  const cloudinaryImageUrl = reviewWinner?.reviewWinner?.reviewWinnerArt?.splashArtImageUrl
 
   backgroundTask(createSpotlightMutator({
     data: {
@@ -33,7 +34,7 @@ function createSpotlight (post: PostsWithNavigation, reviewWinner: ReviewWinnerW
       draft: true,
       showAuthor: true,
       spotlightSplashImageUrl: cloudinaryImageUrl,
-      subtitleUrl: `/bestoflesswrong?year=${postYear}&category=${reviewWinner?.reviewWinner.category}`,
+      subtitleUrl: `/bestoflesswrong?year=${postYear}&category=${reviewWinner?.reviewWinner?.category}`,
       description: { originalContents: { type: 'ckEditorMarkup', data: summary } },
       lastPromotedAt: new Date(0),
     }
@@ -125,11 +126,22 @@ const getSpotlightPrompt = ({post, summary_prompt_name}: {post: PostsWithNavigat
 */
 export async function createSpotlights() {
   const context = createAdminContext();
+  const apolloClient = await createClient(context);
   // eslint-disable-next-line no-console
   console.log("Creating spotlights for review winners");
 
   const { posts, spotlights } = await getPromptInfo()
-  const { reviewWinners } = await reviewWinnerCache.get(context)
+  // const { reviewWinners } = await reviewWinnerPostsCache.get(context)
+  const { data } = await apolloClient.query({
+    query: gql(`
+      query GetReviewWinners {
+        GetAllReviewWinners {
+          ...PostsTopItemInfo
+        }
+      }
+    `),
+  })
+  const reviewWinners = data?.GetAllReviewWinners ?? []
   const postsForPrompt = getPostsForPrompt({posts, spotlights})
   const postsWithoutSpotlights = posts.filter(post => !spotlights.find(spotlight => spotlight.documentId === post._id))
 

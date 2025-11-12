@@ -1,3 +1,5 @@
+import type { Redirect } from "next/dist/lib/load-custom-routes";
+
 /**
  * Redirects table. This is used for hover previews, pingbacks, and in
  * next.config.js (which performs the redirects themselves). Because this is
@@ -400,6 +402,10 @@ export const redirects = [
     source: "/recentComments",
     destination: "/allComments",
     permanent: true
+  }, {
+    source: "/inbox/:conversationId",
+    destination: "/inbox?conversation=:conversationId",
+    permanent: true
   },
   // TODO: all the redirects from here until "saved" need to be gated to AF somehow.
   {
@@ -447,5 +453,5 @@ export const redirects = [
     destination: "/account",
     permanent: true
   },
-];
+] satisfies Redirect[];
 

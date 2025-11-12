@@ -18,12 +18,12 @@ export const conversationGetTitle = (conversation: ConversationsList, currentUse
 /**
  * Get the title of a conversation, formatted like e.g. "Bob, Charlie + 1 more"
  */
-export const conversationGetFriendlyTitle = (conversation: ConversationsList, currentUser: UsersCurrent): string => {
+export const conversationGetFriendlyTitle = (conversation: ConversationsList, currentUserId: string): string => {
   if (!!conversation.title) {
     return conversation.title
   }
 
-  const otherParticipants = conversation.participants?.filter((u)=> u._id !== currentUser._id) ?? [];
+  const otherParticipants = conversation.participants?.filter((u)=> u._id !== currentUserId) ?? [];
   const participantNames = otherParticipants.map(participant => participant.displayName);
 
   if (participantNames.length > 0) {
@@ -45,7 +45,7 @@ export const conversationGetFriendlyTitle = (conversation: ConversationsList, cu
 export const conversationGetPageUrl = (conversation: HasIdType, isAbsolute=false): string => {
   const prefix = isAbsolute ? getSiteUrl().slice(0,-1) : '';
 
-  return `${prefix}/inbox/${conversation._id}`;
+  return `${prefix}/inbox?conversation=${conversation._id}`;
 }
 
 export const userCanStartConversations = (user: DbUser|UsersCurrent) => {

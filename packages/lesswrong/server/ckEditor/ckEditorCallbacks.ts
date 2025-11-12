@@ -7,7 +7,7 @@ import { accessFilterSingle } from '../../lib/utils/schemaUtils';
 import { userCanDo } from '../../lib/vulcan-users/permissions';
 import { restrictViewableFields } from '@/lib/vulcan-users/restrictViewableFields';
 import { revisionIsChange } from '../editor/make_editable_callbacks';
-import { ckEditorApiHelpers } from './ckEditorApi';
+import { pushRevisionToCkEditor } from './ckEditorApi';
 import gql from 'graphql-tag';
 import { updatePost } from '../collections/posts/mutations';
 
@@ -128,7 +128,7 @@ export const ckEditorCallbacksGraphQLMutations = {
     if (revision.originalContents.type === "ckEditorMarkup" && isCollaborative(post, "contents")) {
       // eslint-disable-next-line no-console
       console.log("Reverting to a CkEditor collaborative revision");
-      await ckEditorApiHelpers.pushRevisionToCkEditor(post._id, revision.originalContents.data);
+      await pushRevisionToCkEditor(post._id, revision.originalContents.data);
     } else {
       // eslint-disable-next-line no-console
       console.log("Reverting to a non-collaborative revision");

@@ -65,6 +65,11 @@ const getFragmentInfo = ({ fieldName, fieldNodes, fragments }: GraphQLResolveInf
   };
 };
 
+const stripNonDbFields = <N extends CollectionNameString>(doc: ObjectsByCollectionName[N], collectionName: N, context: ResolverContext) => {
+  const schema = context[collectionName].schema;
+  return Object.fromEntries(Object.entries(doc).filter(([fieldName]) => !!schema[fieldName]?.database));
+};
+
 type DefaultSingleResolverHandler<N extends CollectionNameString> = {
   [k in N as `${CamelCaseify<typeof collectionNameToTypeName[k]>}`]: (_root: void, { input }: { input: AnyBecauseTodo; }, context: ResolverContext, info: GraphQLResolveInfo) => Promise<{ result: Partial<ObjectsByCollectionName[N]> | null; }>
 };
@@ -208,6 +213,10 @@ export const getDefaultResolvers = <N extends CollectionNameString>(
       );
     }
     let docs = await fetchDocs();
+    
+    // strip out any non-db fields from the docs so we can prime the loader cache with them
+    const sanitizedDocs = docs.map(doc => stripNonDbFields(doc, collectionName, context));
+    sanitizedDocs.forEach((doc: AnyBecauseTodo) => context.loaders[collectionName].prime(doc._id, doc));
 
     // Were there enough results to reach the limit specified in the query?
     const saturated = parameters.options.limit && docs.length>=parameters.options.limit;
@@ -220,9 +229,6 @@ export const getDefaultResolvers = <N extends CollectionNameString>(
 
     // take the remaining documents and remove any fields that shouldn't be accessible
     const restrictedDocs = await restrictViewableFieldsMultiple(currentUser, collection, viewableDocs);
-
-    // prime the cache
-    restrictedDocs.forEach((doc: AnyBecauseTodo) => context.loaders[collectionName].prime(doc._id, doc));
 
     const data: { results: Partial<T>[]; totalCount?: number } = { results: restrictedDocs };
 
@@ -272,7 +278,7 @@ export const getDefaultResolvers = <N extends CollectionNameString>(
     }
     const documentId = usedSelector._id;
     
-    if (!documentId) {
+    if (!documentId && !usedSelector.slug) {
       if (allowNull) {
         return { result: null };
       } else {

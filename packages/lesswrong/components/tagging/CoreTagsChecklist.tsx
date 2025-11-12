@@ -1,22 +1,9 @@
 import React from 'react';
 import { registerComponent } from '../../lib/vulcan-lib/components';
 import { tagStyle } from './FooterTag';
-import { taggingNameSetting } from '../../lib/instanceSettings';
 import TagsChecklist from "./TagsChecklist";
 import Loading from "../vulcan-core/Loading";
-import { useQuery } from "@/lib/crud/useQuery";
-import { gql } from "@/lib/generated/gql-codegen";
-
-const TagFragmentMultiQuery = gql(`
-  query multiTagCoreTagsChecklistQuery($selector: TagSelector, $limit: Int, $enableTotal: Boolean) {
-    tags(selector: $selector, limit: $limit, enableTotal: $enableTotal) {
-      results {
-        ...TagFragment
-      }
-      totalCount
-    }
-  }
-`);
+import { useCoreTags } from './useCoreTags';
 
 const styles = (theme: ThemeType) => ({
   root: {
@@ -48,14 +35,7 @@ const CoreTagsChecklist = ({onTagSelected, classes, existingTagIds=[] }: {
   classes: ClassesType<typeof styles>,
   existingTagIds?: Array<string|undefined>
 }) => {
-  const { data, loading } = useQuery(TagFragmentMultiQuery, {
-    variables: {
-      selector: { coreTags: {} },
-      limit: 100,
-      enableTotal: false,
-    },
-    notifyOnNetworkStatusChange: true,
-  });
+  const { data, loading } = useCoreTags();
 
   const results = data?.tags?.results;
   if (loading) return <Loading/>

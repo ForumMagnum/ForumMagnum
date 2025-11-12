@@ -3,6 +3,7 @@ import GraphQLJSON from '@/lib/vendor/graphql-type-json';
 import SimpleSchema from '@/lib/utils/simpleSchema'
 import { graphqlTypeToCollectionName } from "../../lib/vulcan-lib/collections";
 import { isValidCollectionName } from "@/server/collections/allCollections";
+import fs from 'fs';
 
 export const generatedFileHeader = `//
 // GENERATED FILE
@@ -191,4 +192,17 @@ export function autoUnindent(s: string): string {
   });
   
   return unindentedLines.join('\n').trim();
+}
+
+export function writeIfChanged(contents: string, path: string) {
+  let oldFileContents = "";
+  try {
+    oldFileContents = fs.readFileSync(path, 'utf-8');
+  } catch {
+    // eslint-disable-next-line no-console
+    console.warn(`Updating file ${path} but it was not found`);
+  }
+  if (contents !== oldFileContents) {
+    fs.writeFileSync(path, contents);
+  }
 }

@@ -8,7 +8,8 @@ import {
   SettingsFormState,
   ThreadInterestModelFormState,
   CommentScoringFormState,
-  DisplaySettingsFormState
+  DisplaySettingsFormState,
+  UltraFeedAlgorithm
 } from './ultraFeedSettingsTypes';
 import { FeedItemSourceType } from './ultraFeedTypes';
 import { defineStyles, useStyles } from '../hooks/useStyles';
@@ -16,18 +17,20 @@ import classNames from 'classnames';
 import { useTracking } from '@/lib/analyticsEvents';
 import { useMessages } from '../common/withMessages';
 import { useLocalStorageState } from '../hooks/useLocalStorageState';
+import { useCurrentUser } from '../common/withUser';
 import { 
   ultraFeedSettingsSchema, 
   UltraFeedSettingsZodErrors,
   ValidatedUltraFeedSettings,
   ValidatedCommentScoring,
-  ValidatedThreadInterestModel
+  ValidatedThreadInterestModel,
+  ValidatedUnifiedScoring
 } from './ultraFeedSettingsValidation';
 import { ZodFormattedError } from 'zod';
 import mergeWith from 'lodash/mergeWith';
 import cloneDeep from 'lodash/cloneDeep';
+import isEqual from 'lodash/isEqual';
 import UltraFeedFeedback from './UltraFeedFeedback';
-import FeedSelectorCheckbox from '../common/FeedSelectorCheckbox';
 import {
   SourceWeightsSettings,
   TruncationGridSettings,
@@ -36,11 +39,13 @@ import {
   MiscSettings,
   ExploreExploitBiasSettings,
   ThreadInterestTuningSettings,
+  UnifiedScoringSettings,
   AdvancedTruncationSettingsProps,
   ExploreExploitBiasSettingsProps,
   TruncationGridSettingsProps,
   MiscSettingsProps
 } from "./settingsComponents/UltraFeedSettingsComponents";
+import { parseNumericInputAsZeroOrNumber, customNullishCoalesceProperties, processNumericFieldInput, processIntegerFieldInput } from './ultraFeedSettingsUtils';
 
 const styles = defineStyles('UltraFeedSettings', (theme: ThemeType) => ({
   root: {
@@ -124,7 +129,18 @@ const styles = defineStyles('UltraFeedSettings', (theme: ThemeType) => ({
   buttonRow: {
     display: 'flex',
     justifyContent: 'flex-end',
+    gap: 12,
+    alignItems: 'center',
     marginTop: 12,
+  },
+  unsavedChangesIndicator: {
+    color: theme.palette.warning.main,
+    fontSize: 16,
+    fontStyle: 'italic',
+  },
+  buttonGroup: {
+    display: 'flex',
+    gap: theme.spacing.unit * 1.5,
   },
   button: {
     minWidth: 100,
@@ -137,9 +153,6 @@ const styles = defineStyles('UltraFeedSettings', (theme: ThemeType) => ({
     fontWeight: 500,
     '&:hover': {
       backgroundColor: theme.palette.primary.dark,
-    },
-    '&:not(:last-child)': {
-      marginRight: theme.spacing.unit * 1.5,
     },
   },
   saveButton: {
@@ -177,35 +190,56 @@ const styles = defineStyles('UltraFeedSettings', (theme: ThemeType) => ({
 
 // Helper components for Simple and Advanced views
 interface SimpleViewProps {
+  algorithm: UltraFeedAlgorithm;
   exploreExploitBiasProps: ExploreExploitBiasSettingsProps;
   sourceWeights: SettingsFormState['sourceWeights'];
   sourceWeightErrors: Record<FeedItemSourceType, string | undefined>;
   onSourceWeightChange: (key: FeedItemSourceType, value: number | string) => void;
   truncationGridProps: TruncationGridSettingsProps;
+  unifiedScoringFormValues: SettingsFormState['unifiedScoring'];
+  unifiedScoringErrors: ZodFormattedError<ValidatedUnifiedScoring, string> | null;
+  onUnifiedScoringFieldChange: (field: keyof SettingsFormState['unifiedScoring'], value: number | string) => void;
   miscSettingsProps: MiscSettingsProps;
 }
 
 const SimpleView: React.FC<SimpleViewProps> = ({
+  algorithm,
   exploreExploitBiasProps,
   sourceWeights,
   sourceWeightErrors,
   onSourceWeightChange,
   truncationGridProps,
+  unifiedScoringFormValues,
+  unifiedScoringErrors,
+  onUnifiedScoringFieldChange,
   miscSettingsProps,
 }) => (
   <>
-    <ExploreExploitBiasSettings {...exploreExploitBiasProps} />
-    <SourceWeightsSettings
-      weights={sourceWeights}
-      errors={sourceWeightErrors}
-      onChange={onSourceWeightChange}
-    />
+    {algorithm === 'scoring' && (
+      <UnifiedScoringSettings
+        formValues={unifiedScoringFormValues}
+        errors={unifiedScoringErrors}
+        onFieldChange={onUnifiedScoringFieldChange}
+        defaultOpen={true}
+      />
+    )}
+    {algorithm === 'sampling' && (
+      <>
+        <ExploreExploitBiasSettings {...exploreExploitBiasProps} />
+        <SourceWeightsSettings
+          weights={sourceWeights}
+          errors={sourceWeightErrors}
+          onChange={onSourceWeightChange}
+        />
+      </>
+    )}
     <TruncationGridSettings {...truncationGridProps} defaultOpen={true} />
     <MiscSettings {...miscSettingsProps} defaultOpen={false} />
   </>
 );
 
 interface AdvancedViewProps {
+  algorithm: UltraFeedAlgorithm;
   sourceWeights: SettingsFormState['sourceWeights'];
   sourceWeightErrors: Record<FeedItemSourceType, string | undefined>;
   onSourceWeightChange: (key: FeedItemSourceType, value: number | string) => void;
@@ -216,10 +250,14 @@ interface AdvancedViewProps {
   threadInterestModelFormValues: ThreadInterestModelFormState;
   threadInterestModelErrors: ZodFormattedError<ValidatedThreadInterestModel, string> | null;
   onThreadInterestFieldChange: (field: keyof ThreadInterestModelFormState, value: number | string) => void;
+  unifiedScoringFormValues: SettingsFormState['unifiedScoring'];
+  unifiedScoringErrors: ZodFormattedError<ValidatedUnifiedScoring, string> | null;
+  onUnifiedScoringFieldChange: (field: keyof SettingsFormState['unifiedScoring'], value: number | string) => void;
   miscSettingsProps: MiscSettingsProps;
 }
 
 const AdvancedView: React.FC<AdvancedViewProps> = ({
+  algorithm,
   sourceWeights,
   sourceWeightErrors,
   onSourceWeightChange,
@@ -230,49 +268,49 @@ const AdvancedView: React.FC<AdvancedViewProps> = ({
   threadInterestModelFormValues,
   threadInterestModelErrors,
   onThreadInterestFieldChange,
+  unifiedScoringFormValues,
+  unifiedScoringErrors,
+  onUnifiedScoringFieldChange,
   miscSettingsProps,
 }) => (
   <>
-    <SourceWeightsSettings
-      weights={sourceWeights}
-      errors={sourceWeightErrors}
-      onChange={onSourceWeightChange}
-    />
-    <AdvancedTruncationSettings {...advancedTruncationProps} />
-    <MultipliersSettings
-      formValues={commentScoringFormValues}
-      errors={commentScoringErrors}
-      onFieldChange={onCommentScoringFieldChange}
-      defaultOpen={false}
-    />
-    <ThreadInterestTuningSettings
-      formValues={threadInterestModelFormValues}
-      errors={threadInterestModelErrors}
-      onFieldChange={onThreadInterestFieldChange}
-      defaultOpen={false}
-    />
+    {algorithm === 'scoring' && (
+      <UnifiedScoringSettings
+        formValues={unifiedScoringFormValues}
+        errors={unifiedScoringErrors}
+        onFieldChange={onUnifiedScoringFieldChange}
+        defaultOpen={true}
+      />
+    )}
+    {algorithm === 'sampling' && (
+      <>
+        <SourceWeightsSettings
+          weights={sourceWeights}
+          errors={sourceWeightErrors}
+          onChange={onSourceWeightChange}
+        />
+        <AdvancedTruncationSettings {...advancedTruncationProps} />
+        <MultipliersSettings
+          formValues={commentScoringFormValues}
+          errors={commentScoringErrors}
+          onFieldChange={onCommentScoringFieldChange}
+          defaultOpen={false}
+        />
+        <ThreadInterestTuningSettings
+          formValues={threadInterestModelFormValues}
+          errors={threadInterestModelErrors}
+          onFieldChange={onThreadInterestFieldChange}
+          defaultOpen={false}
+        />
+      </>
+    )}
     <MiscSettings {...miscSettingsProps} />
   </>
 );
 
-const parseNumericInputAsZeroOrNumber = (
-  value: string | number | '',
-  defaultValueOnNaN: number 
-): number => {
-  if (value === '') {
-    return 0; 
-  }
-  const num = Number(value);
-  return isNaN(num) ? defaultValueOnNaN : num;
-};
-
-const customNullishCoalesceProperties = (objValue: any, srcValue: any): any => {
-  return srcValue ?? objValue;
-};
-
 const deriveFormValuesFromSettings = (settings: UltraFeedSettingsType): SettingsFormState => {
   const { displaySettings: defaultDisplaySettings, resolverSettings: defaultResolverSettings } = DEFAULT_SETTINGS;
-  const { commentScoring: defaultCommentScoring, threadInterestModel: defaultThreadInterestModel } = defaultResolverSettings;
+  const { commentScoring: defaultCommentScoring, threadInterestModel: defaultThreadInterestModel, unifiedScoring: defaultUnifiedScoring } = defaultResolverSettings;
 
   const { displaySettings, resolverSettings } = settings;
 
@@ -283,6 +321,7 @@ const deriveFormValuesFromSettings = (settings: UltraFeedSettingsType): Settings
       customNullishCoalesceProperties
     ),
     incognitoMode: resolverSettings.incognitoMode ?? defaultResolverSettings.incognitoMode,
+    algorithm: resolverSettings.algorithm ?? defaultResolverSettings.algorithm,
     displaySetting: {
       lineClampNumberOfLines: displaySettings.lineClampNumberOfLines ?? defaultDisplaySettings.lineClampNumberOfLines,
       postInitialWords: displaySettings.postInitialWords ?? defaultDisplaySettings.postInitialWords,
@@ -299,6 +338,11 @@ const deriveFormValuesFromSettings = (settings: UltraFeedSettingsType): Settings
     threadInterestModel: mergeWith(
       cloneDeep(defaultThreadInterestModel),
       resolverSettings.threadInterestModel,
+      customNullishCoalesceProperties
+    ),
+    unifiedScoring: mergeWith(
+      cloneDeep(defaultUnifiedScoring),
+      resolverSettings.unifiedScoring,
       customNullishCoalesceProperties
     ),
   };
@@ -343,24 +387,21 @@ const ViewModeButton: React.FC<{
 const UltraFeedSettings = ({
   settings,
   updateSettings,
-  resetSettingsToDefault,
   onClose,
   initialViewMode = 'simple',
   truncationMaps,
-  showFeedSelector = false,
 }: {
   settings: UltraFeedSettingsType,
   updateSettings: (newSettings: Partial<UltraFeedSettingsType>) => void,
-  resetSettingsToDefault: () => void,
   onClose?: () => void,
   initialViewMode?: 'simple' | 'advanced',
   truncationMaps: { commentMap: Record<TruncationLevel, number>, postMap: Record<TruncationLevel, number> },
-  showFeedSelector?: boolean,
 }) => {
   const { captureEvent } = useTracking();
   const classes = useStyles(styles);
   const { flash } = useMessages();
   const [showFeedback, setShowFeedback] = useState(false);
+  const currentUser = useCurrentUser();
 
 
   const { ultraFeedSettingsViewMode, setUltraFeedSettingsViewMode } = useLocalStorageState('ultraFeedSettingsViewMode', (key) => key, initialViewMode);
@@ -419,15 +460,7 @@ const UltraFeedSettings = ({
   }, []);
 
   const handleSourceWeightChange = useCallback((key: FeedItemSourceType, value: number | string) => {
-    let numValue: number | '' = '';
-    const strValue = String(value).trim();
-    if (strValue === '') {
-      numValue = '';
-    } else {
-      const parsedValue = parseInt(strValue, 10);
-      // Keep storing integers or '' in form state. Saving logic will handle final conversion.
-      numValue = (!isNaN(parsedValue) && Number.isInteger(Number(strValue))) ? parsedValue : '';
-    }
+    const numValue = processIntegerFieldInput(value);
     updateForm('sourceWeights', prev => ({ ...prev, [key]: numValue }));
   }, [updateForm]);
 
@@ -444,58 +477,46 @@ const UltraFeedSettings = ({
     checked: boolean
   ) => {
     setZodErrors(null);
-    if (field === 'incognitoMode') {
-      updateForm(field, checked);
-    }
-  }, [updateForm]);
+    updateForm(field, checked);
+  }, [updateForm, setZodErrors]);
+
+  const handleAlgorithmChange = useCallback((algorithm: UltraFeedAlgorithm) => {
+    setZodErrors(null);
+    updateForm('algorithm', algorithm);
+    captureEvent('ultraFeedAlgorithmChanged', { algorithm });
+  }, [updateForm, setZodErrors, captureEvent]);
 
   const handleLineClampChange = useCallback((value: number | string) => {
-    const strValue = String(value).trim();
-    if (strValue === '') {
-      updateDisplaySettingForm('lineClampNumberOfLines', '');
-    } else {
-      const numValue = parseInt(strValue, 10);
-      updateDisplaySettingForm('lineClampNumberOfLines', isNaN(numValue) ? '' : numValue);
-    }
+    const processedValue = processIntegerFieldInput(value);
+    updateDisplaySettingForm('lineClampNumberOfLines', processedValue);
   }, [updateDisplaySettingForm]);
 
   const handleWordCountChange = useCallback((
     field: 'postInitialWords' | 'postMaxWords' | 'commentCollapsedInitialWords' | 'commentExpandedInitialWords' | 'commentMaxWords',
     value: string | number
   ) => {
-    const strValue = String(value).trim();
-    if (strValue === '') {
-      updateDisplaySettingForm(field, '');
-    } else {
-      const numValue = parseInt(strValue, 10);
-      updateDisplaySettingForm(field, isNaN(numValue) ? '' : numValue);
-    }
+    const processedValue = processIntegerFieldInput(value);
+    updateDisplaySettingForm(field, processedValue);
   }, [updateDisplaySettingForm]);
 
   const handleCommentScoringFieldChange = useCallback((
     field: keyof CommentScoringFormState, 
     value: number | string 
   ) => {
-    let processedValue: string | number = value;
-
-    if (field === 'threadScoreAggregation') {
-      processedValue = value as string; 
-    } else {
-      const strValue = String(value).trim();
-      if (strValue === '') {
-        processedValue = '';
-      } else {
-        const num = parseFloat(strValue);
-        processedValue = isNaN(num) ? '' : num; 
-      }
-    }
+    const processedValue = field === 'threadScoreAggregation'
+      ? value as string
+      : processNumericFieldInput(value);
     updateForm('commentScoring', prevModel => ({ ...prevModel, [field]: processedValue }));
   }, [updateForm]);
 
   const handleThreadInterestFieldChange = useCallback((field: keyof ThreadInterestModelFormState, value: number | string) => {
-    const strValue = String(value).trim();
-    const processedValue = strValue === '' ? '' : (isNaN(parseFloat(strValue)) ? '' : parseFloat(strValue));
-    updateForm('threadInterestModel', prevModel => ({ ...prevModel, [field]: processedValue, }));
+    const processedValue = processNumericFieldInput(value);
+    updateForm('threadInterestModel', prevModel => ({ ...prevModel, [field]: processedValue }));
+  }, [updateForm]);
+
+  const handleUnifiedScoringFieldChange = useCallback((field: keyof SettingsFormState['unifiedScoring'], value: number | string) => {
+    const processedValue = processNumericFieldInput(value);
+    updateForm('unifiedScoring', prevModel => ({ ...prevModel, [field]: processedValue }));
   }, [updateForm]);
 
   const handleExploreBiasChange = useCallback((newExploreBiasValue: number) => {
@@ -528,6 +549,7 @@ const UltraFeedSettings = ({
     const defaultResolverSettings = DEFAULT_SETTINGS.resolverSettings;
     const defaultThreadInterestModel = defaultResolverSettings.threadInterestModel;
     const defaultCommentScoring = defaultResolverSettings.commentScoring;
+    const defaultUnifiedScoring = defaultResolverSettings.unifiedScoring;
 
     const settingsToUpdate: Partial<UltraFeedSettingsType> = {
       resolverSettings: {
@@ -537,6 +559,7 @@ const UltraFeedSettings = ({
           (defaultWeightVal, formWeightVal) => parseNumericInputAsZeroOrNumber(formWeightVal, 0)
         ),
         incognitoMode: formValues.incognitoMode,
+        algorithm: formValues.algorithm,
         commentScoring: mergeWith(
           cloneDeep(defaultCommentScoring),
           formValues.commentScoring,
@@ -550,6 +573,11 @@ const UltraFeedSettings = ({
         threadInterestModel: mergeWith(
           cloneDeep(defaultThreadInterestModel),
           formValues.threadInterestModel,
+          (defaultVal, formVal) => parseNumericInputAsZeroOrNumber(formVal, defaultVal)
+        ),
+        unifiedScoring: mergeWith(
+          cloneDeep(defaultUnifiedScoring),
+          formValues.unifiedScoring,
           (defaultVal, formVal) => parseNumericInputAsZeroOrNumber(formVal, defaultVal)
         ),
         subscriptionsFeedSettings: settings.resolverSettings.subscriptionsFeedSettings,
@@ -623,10 +651,19 @@ const UltraFeedSettings = ({
   }, [formValues, simpleViewTruncationLevels, updateSettings, captureEvent, settings, viewMode, flash, truncationMaps]);
   
   const handleReset = useCallback(() => {
-    resetSettingsToDefault();
+    // Preserve the current algorithm choice when resetting
+    const currentAlgorithm = formValues.algorithm;
+    
+    // Reset local form state to defaults without persisting
+    const resetFormValues = deriveFormValuesFromSettings(DEFAULT_SETTINGS);
+    setFormValues({
+      ...resetFormValues,
+      algorithm: currentAlgorithm,
+    });
+    setSimpleViewTruncationLevels(deriveSimpleViewTruncationLevelsFromSettings(DEFAULT_SETTINGS, truncationMaps));
     setZodErrors(null);
     captureEvent("ultraFeedSettingsReset");
-  }, [resetSettingsToDefault, captureEvent]);
+  }, [captureEvent, truncationMaps, formValues.algorithm]);
 
   const truncationGridProps = {
     levels: simpleViewTruncationLevels,
@@ -654,15 +691,24 @@ const UltraFeedSettings = ({
   const miscSettingsProps = {
     formValues: {
       incognitoMode: formValues.incognitoMode,
+      algorithm: formValues.algorithm,
     },
     onBooleanChange: handleBooleanChange,
-
+    onAlgorithmChange: handleAlgorithmChange,
+    currentUser,
   };
 
   const exploreExploitBiasProps = {
     currentLogImpactFactor: formValues.threadInterestModel.logImpactFactor,
     onExploreBiasChange: handleExploreBiasChange,
   };
+
+  const hasUnsavedChanges = useMemo(() => {
+    const savedFormState = deriveFormValuesFromSettings(settings);
+    const savedTruncationLevels = deriveSimpleViewTruncationLevelsFromSettings(settings, truncationMaps);
+    
+    return !isEqual(formValues, savedFormState) || !isEqual(simpleViewTruncationLevels, savedTruncationLevels);
+  }, [formValues, simpleViewTruncationLevels, settings, truncationMaps]);
 
   const hasAnyErrors = useMemo(() => {
      return zodErrors !== null;
@@ -694,22 +740,26 @@ const UltraFeedSettings = ({
           >
             give feedback
           </span>
-          {showFeedSelector && <FeedSelectorCheckbox currentFeedType="new" />}
         </div>
       </div>
       {showFeedback && <UltraFeedFeedback />}
       <div className={classes.settingsGroupsContainer}>
         {viewMode === 'simple' ? (
           <SimpleView
+            algorithm={formValues.algorithm}
             exploreExploitBiasProps={exploreExploitBiasProps}
             sourceWeights={formValues.sourceWeights}
             sourceWeightErrors={sourceWeightErrors}
             onSourceWeightChange={handleSourceWeightChange}
             truncationGridProps={truncationGridProps}
+            unifiedScoringFormValues={formValues.unifiedScoring}
+            unifiedScoringErrors={zodErrors?.resolverSettings?.unifiedScoring ?? null}
+            onUnifiedScoringFieldChange={handleUnifiedScoringFieldChange}
             miscSettingsProps={miscSettingsProps}
           />
         ) : (
           <AdvancedView
+            algorithm={formValues.algorithm}
             sourceWeights={formValues.sourceWeights}
             sourceWeightErrors={sourceWeightErrors}
             onSourceWeightChange={handleSourceWeightChange}
@@ -720,27 +770,35 @@ const UltraFeedSettings = ({
             threadInterestModelFormValues={formValues.threadInterestModel}
             threadInterestModelErrors={zodErrors?.resolverSettings?.threadInterestModel ?? null}
             onThreadInterestFieldChange={handleThreadInterestFieldChange}
+            unifiedScoringFormValues={formValues.unifiedScoring}
+            unifiedScoringErrors={zodErrors?.resolverSettings?.unifiedScoring ?? null}
+            onUnifiedScoringFieldChange={handleUnifiedScoringFieldChange}
             miscSettingsProps={miscSettingsProps}
           />
         )}
       </div>
 
       <div className={classes.buttonRow}>
-        <button
-          className={classNames(classes.button, classes.resetButton)}
-          onClick={handleReset}
-        >
-          Reset
-        </button>
-        <button
-          className={classNames(classes.button, classes.saveButton, {
-            [classes.buttonDisabled]: hasAnyErrors
-          })}
-          onClick={handleSave}
-          disabled={hasAnyErrors}
-        >
-          Save
-        </button>
+        <div className={classes.unsavedChangesIndicator}>
+          {hasUnsavedChanges && 'you have unsaved changes'}
+        </div>
+        <div className={classes.buttonGroup}>
+          <button
+            className={classNames(classes.button, classes.resetButton)}
+            onClick={handleReset}
+          >
+            Reset
+          </button>
+          <button
+            className={classNames(classes.button, classes.saveButton, {
+              [classes.buttonDisabled]: hasAnyErrors
+            })}
+            onClick={handleSave}
+            disabled={hasAnyErrors}
+          >
+            Save
+          </button>
+        </div>
       </div>
     </div>
   );

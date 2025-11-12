@@ -362,7 +362,7 @@ export const sanitize = function(s: string): string {
       munderover: [...allowedMathMLGlobalAttributes, 'accent','accentunder'],
     },
     allowedIframeHostnames: [
-      'www.youtube.com', 'youtube.com',
+      'www.youtube.com', 'youtube.com', 'www.youtube-nocookie.com', 'youtube-nocookie.com',
       'd3s0w6fek99l5b.cloudfront.net', // Metaculus CDN that provides the iframes
       'metaculus.com',
       'manifold.markets',

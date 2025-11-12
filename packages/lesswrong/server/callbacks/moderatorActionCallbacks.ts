@@ -1,5 +1,5 @@
-import { isActionActive } from '../../lib/collections/moderatorActions/newSchema';
-import { MODERATOR_ACTION_TYPES, RECEIVED_SENIOR_DOWNVOTES_ALERT } from "@/lib/collections/moderatorActions/constants";
+import { isActionActive } from "@/lib/collections/moderatorActions/helpers";
+import { MODERATOR_ACTION_TYPES, reviewTriggerModeratorActions } from "@/lib/collections/moderatorActions/constants";
 import { appendToSunshineNotes } from '../../lib/collections/users/helpers';
 import { loggerConstructor } from '../../lib/utils/logging';
 import { AfterCreateCallbackProperties } from '../mutationCallbacks';
@@ -10,7 +10,7 @@ export async function triggerReviewAfterModeration({ newDocument, currentUser, c
   const moderatedUserId = newDocument.userId;
   const logger = loggerConstructor('callbacks-moderatoractions');
   logger('ModeratorAction created, triggering review if necessary')
-  if (isActionActive(moderatorAction) || moderatorAction.type === RECEIVED_SENIOR_DOWNVOTES_ALERT) {
+  if (reviewTriggerModeratorActions.has(moderatorAction.type) && isActionActive(moderatorAction)) {
     logger('isActionActive truthy')
     await triggerReview(moderatedUserId, context);
   }

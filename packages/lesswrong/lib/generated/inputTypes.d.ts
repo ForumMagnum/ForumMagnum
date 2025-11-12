@@ -33,6 +33,7 @@ interface Query {
   DigestPlannerData: Array<DigestPlannerPost>;
   DigestPosts: Array<Post> | null;
   HomepageCommunityEvents: HomepageCommunityEventMarkersResult;
+  HomepageCommunityEventPosts: HomepageCommunityEventPostsResult;
   DigestHighlights: DigestHighlightsResult | null;
   DigestPostsThisWeek: DigestPostsThisWeekResult | null;
   CuratedAndPopularThisWeek: CuratedAndPopularThisWeekResult | null;
@@ -265,6 +266,8 @@ interface Mutation {
   autosaveRevision: Revision | null;
   lockThread: boolean;
   unlockThread: boolean;
+  rejectContentAndRemoveUserFromQueue: boolean;
+  approveUserCurrentContentOnly: boolean;
   reorderSummaries: boolean | null;
   publishAndDeDuplicateSpotlight: Spotlight | null;
   toggleBookmark: ToggleBookmarkOutput | null;
@@ -881,6 +884,10 @@ interface HomepageCommunityEventMarkersResult {
   events: Array<HomepageCommunityEventMarker>;
 }
 
+interface HomepageCommunityEventPostsResult {
+  posts: Array<Post>;
+}
+
 interface DigestHighlightsResult {
   results: Array<Post>;
 }
@@ -1242,6 +1249,7 @@ interface RssPostChangeInfo {
 interface FeedSpotlightMetaInfo {
   sources: Array<string>;
   servedEventId: string;
+  rankingMetadata: any;
 }
 
 interface FeedPost {
@@ -1255,8 +1263,8 @@ interface FeedCommentThread {
   commentMetaInfos: any;
   comments: Array<Comment>;
   post: Post | null;
-  isOnReadPost: boolean | null;
   postSources: Array<string> | null;
+  postMetaInfo: any;
 }
 
 interface FeedSpotlightItem {
@@ -4038,6 +4046,7 @@ interface Post {
   tagRel: TagRel | null;
   tags: Array<Tag>;
   tagRelevance: any;
+  tagRels: Array<TagRel>;
   lastPromotedComment: Comment | null;
   bestAnswer: Comment | null;
   noIndex: boolean;
@@ -7286,6 +7295,7 @@ interface User {
   permanentDeletionRequestedAt: Date | null;
   voteBanned: boolean | null;
   nullifyVotes: boolean | null;
+  votingDisabled: boolean;
   deleteContent: boolean | null;
   banned: Date | null;
   IPs: Array<string> | null;
@@ -7461,6 +7471,9 @@ interface User {
   userSurveyEmailSentAt: Date | null;
   karmaChanges: KarmaChanges | null;
   recommendationSettings: any;
+  lastRemovedFromReviewQueueAt: Date | null;
+  rejectedContentCount: number | null;
+  userRateLimits: Array<UserRateLimit> | null;
 }
 
 interface UserSelectorUniqueInput {
@@ -9817,6 +9830,7 @@ interface GraphQLTypeMap {
   PostWithApprovedJargon: PostWithApprovedJargon;
   HomepageCommunityEventMarker: HomepageCommunityEventMarker;
   HomepageCommunityEventMarkersResult: HomepageCommunityEventMarkersResult;
+  HomepageCommunityEventPostsResult: HomepageCommunityEventPostsResult;
   DigestHighlightsResult: DigestHighlightsResult;
   DigestPostsThisWeekResult: DigestPostsThisWeekResult;
   CuratedAndPopularThisWeekResult: CuratedAndPopularThisWeekResult;

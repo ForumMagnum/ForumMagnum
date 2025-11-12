@@ -717,6 +717,10 @@ export const SunshinePostsList = gql(`
       isFrontpage
       probability
     }
+    
+    tagRels {
+      ...TagRelMinimumFragment
+    }
   }
 `)
 

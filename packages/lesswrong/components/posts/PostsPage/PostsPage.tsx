@@ -289,8 +289,9 @@ function usePostCommentTerms<T extends CommentsViewTerms>(currentUser: UsersCurr
 }
 
 
-const PostsPage = ({fullPost, postPreload, refetch}: {
+const PostsPage = ({fullPost, postPreload, refetch, embedded}: {
   refetch: () => void,
+  embedded?: boolean,
 } & (
   { fullPost: PostsWithNavigation|PostsWithNavigationAndRevision, postPreload: undefined }
   | { fullPost: undefined, postPreload: PostsListWithVotes }
@@ -462,7 +463,6 @@ const PostsPage = ({fullPost, postPreload, refetch}: {
     !currentUser?.hidePostsRecommendations &&
     !post.shortform &&
     !post.draft &&
-    !post.deletedDraft &&
     !post.question &&
     !post.debate &&
     !post.isEvent &&
@@ -829,6 +829,7 @@ const PostsPage = ({fullPost, postPreload, refetch}: {
             answerCount={answerCount}
             commentCount={displayedPublicCommentCount}
           />}
+          embedded={embedded}
         />
       : <ToCColumn
           tableOfContents={tableOfContents}

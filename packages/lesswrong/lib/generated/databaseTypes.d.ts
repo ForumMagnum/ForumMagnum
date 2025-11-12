@@ -174,7 +174,7 @@ interface DbCommentEmbedding extends DbObject {
   __collectionName?: "CommentEmbeddings"
   commentId: string
   createdAt: Date
-  embeddings: string
+  embeddings: Array<number>
   lastGeneratedAt: Date
   model: string
 }
@@ -780,7 +780,7 @@ interface DbModeratorAction extends DbObject {
   createdAt: Date
   endedAt: Date | null
   legacyData: any | null
-  type: "rateLimitOnePerDay" | "rateLimitOnePerThreeDays" | "rateLimitOnePerWeek" | "rateLimitOnePerFortnight" | "rateLimitOnePerMonth" | "rateLimitThreeCommentsPerPost" | "recentlyDownvotedContentAlert" | "lowAverageKarmaCommentAlert" | "lowAverageKarmaPostAlert" | "negativeUserKarmaAlert" | "movedPostToDraft" | "sentModeratorMessage" | "manualFlag" | "votingPatternWarningDelivered" | "flaggedForNDMs" | "autoBlockedFromSendingDMs" | "rejectedPost" | "rejectedComment" | "potentialTargetedDownvoting" | "exemptFromRateLimits" | "receivedSeniorDownvotesAlert" | "manualNeedsReview" | "unreviewedBioUpdate" | "unreviewedMapLocationUpdate" | "unreviewedProfileImageUpdate" | "unreviewedFirstPost" | "unreviewedFirstComment" | "snoozeExpired" | "stricterCommentAutomodRateLimit" | "stricterPostAutomodRateLimit" | "manualRateLimitExpired"
+  type: "rateLimitOnePerDay" | "rateLimitOnePerThreeDays" | "rateLimitOnePerWeek" | "rateLimitOnePerFortnight" | "rateLimitOnePerMonth" | "rateLimitThreeCommentsPerPost" | "recentlyDownvotedContentAlert" | "lowAverageKarmaCommentAlert" | "lowAverageKarmaPostAlert" | "negativeUserKarmaAlert" | "movedPostToDraft" | "sentModeratorMessage" | "manualFlag" | "votingPatternWarningDelivered" | "flaggedForNDMs" | "autoBlockedFromSendingDMs" | "rejectedPost" | "rejectedComment" | "potentialTargetedDownvoting" | "exemptFromRateLimits" | "receivedSeniorDownvotesAlert" | "manualNeedsReview" | "unreviewedBioUpdate" | "unreviewedMapLocationUpdate" | "unreviewedProfileImageUpdate" | "unreviewedFirstPost" | "unreviewedFirstComment" | "unreviewedPost" | "unreviewedComment" | "snoozeExpired" | "stricterCommentAutomodRateLimit" | "stricterPostAutomodRateLimit" | "manualRateLimitExpired" | "votingDisabled"
   userId: string
 }
 
@@ -901,7 +901,7 @@ type PostEmbeddingsCollection = PgCollection<"PostEmbeddings">;
 interface DbPostEmbedding extends DbObject {
   __collectionName?: "PostEmbeddings"
   createdAt: Date
-  embeddings: string
+  embeddings: Array<number>
   lastGeneratedAt: Date
   legacyData: any | null
   model: string

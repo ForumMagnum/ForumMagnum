@@ -531,7 +531,8 @@ const UltraFeedSpotlightItem = ({
     lastServed: currentTime,
     lastViewed: null,
     lastInteracted: null,
-  }), [currentTime]);
+    rankingMetadata: spotlightMetaInfo?.rankingMetadata,
+  }), [currentTime, spotlightMetaInfo?.rankingMetadata]);
 
   const handleContentClick = useCallback((event: React.MouseEvent) => {
     if (isRegularClick(event) && post) {
