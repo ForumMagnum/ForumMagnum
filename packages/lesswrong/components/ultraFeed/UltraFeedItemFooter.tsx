@@ -325,7 +325,7 @@ const UltraFeedItemFooterCore = ({
   const { isReplying, onReplyClick, onReplyCancel } = replyConfig;
 
   const rankingMetadata = metaInfo?.rankingMetadata;
-  const shouldShowScoringBreakdown = userIsAdmin(currentUser) && rankingMetadata && (collectionName === "Posts" || isFirstCommentInThread !== false);
+  const shouldShowScoringBreakdown = userIsAdmin(currentUser) && rankingMetadata && (collectionName === "Posts" || !!isFirstCommentInThread);
 
   const [createUltraFeedEvent] = useMutation(UltraFeedEventCreateMutation);
 
