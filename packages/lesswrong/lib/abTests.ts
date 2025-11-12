@@ -63,4 +63,22 @@ export const twoLineEventsSidebarABTest = new ABTest({
   },
 });
 
-export const allABTests = [welcomeBoxABTest, twoLineEventsSidebarABTest];
+export const ultraFeedAlgorithmABTest = new ABTest({
+  name: "ultraFeedAlgorithm",
+  active: true,
+  affectsLoggedOut: true,
+  description: "Tests different UltraFeed ranking algorithms",
+  groups: {
+    scoring: {
+      description: "Use the scoring algorithm for UltraFeed",
+      weight: 1,
+    },
+    sampling: {
+      description: "Use the sampling algorithm for UltraFeed",
+      weight: 1,
+    },
+  },
+});
+
+export const allABTests = [welcomeBoxABTest, twoLineEventsSidebarABTest, ultraFeedAlgorithmABTest];
+

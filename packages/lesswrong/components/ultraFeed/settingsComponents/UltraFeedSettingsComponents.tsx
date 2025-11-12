@@ -1128,12 +1128,13 @@ export const MiscSettings: React.FC<MiscSettingsProps> = ({ formValues, onBoolea
                 value={formValues.algorithm}
                 onChange={(e) => onAlgorithmChange(e.target.value as UltraFeedAlgorithm)}
               >
+                <option value="auto">Auto (A/B Test)</option>
                 <option value="scoring">Unified Scoring</option>
                 <option value="sampling">Legacy Sampling</option>
               </select>
             </div>
             <p className={classes.sourceWeightDescription}>
-              Choose between the new unified scoring algorithm (transparent, predictable) and the legacy weighted sampling algorithm. (Admin-only setting)
+              Choose between automatic A/B testing, the new unified scoring algorithm (transparent, predictable), or the legacy weighted sampling algorithm. (Admin-only setting)
             </p>
           </div>
         </>

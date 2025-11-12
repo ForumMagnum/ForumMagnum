@@ -9,7 +9,8 @@ import {
   ThreadInterestModelFormState,
   CommentScoringFormState,
   DisplaySettingsFormState,
-  UltraFeedAlgorithm
+  UltraFeedAlgorithm,
+  UltraFeedAlgorithmName
 } from './ultraFeedSettingsTypes';
 import { FeedItemSourceType } from './ultraFeedTypes';
 import { defineStyles, useStyles } from '../hooks/useStyles';
@@ -18,6 +19,8 @@ import { useTracking } from '@/lib/analyticsEvents';
 import { useMessages } from '../common/withMessages';
 import { useLocalStorageState } from '../hooks/useLocalStorageState';
 import { useCurrentUser } from '../common/withUser';
+import { useABTest } from '../hooks/useAbTests';
+import { ultraFeedAlgorithmABTest } from '@/lib/abTests';
 import { 
   ultraFeedSettingsSchema, 
   UltraFeedSettingsZodErrors,
@@ -191,7 +194,7 @@ const styles = defineStyles('UltraFeedSettings', (theme: ThemeType) => ({
 
 // Helper components for Simple and Advanced views
 interface SimpleViewProps {
-  algorithm: UltraFeedAlgorithm;
+  algorithm: UltraFeedAlgorithmName;
   exploreExploitBiasProps: ExploreExploitBiasSettingsProps;
   sourceWeights: SettingsFormState['sourceWeights'];
   sourceWeightErrors: Record<FeedItemSourceType, string | undefined>;
@@ -240,7 +243,7 @@ const SimpleView: React.FC<SimpleViewProps> = ({
 );
 
 interface AdvancedViewProps {
-  algorithm: UltraFeedAlgorithm;
+  algorithm: UltraFeedAlgorithmName;
   sourceWeights: SettingsFormState['sourceWeights'];
   sourceWeightErrors: Record<FeedItemSourceType, string | undefined>;
   onSourceWeightChange: (key: FeedItemSourceType, value: number | string) => void;
@@ -421,6 +424,9 @@ const UltraFeedSettings = ({
   const [formValues, setFormValues] = useState<SettingsFormState>(() => 
     deriveFormValuesFromSettings(settings)
   );
+
+  const abTestAlgorithm = useABTest(ultraFeedAlgorithmABTest);
+  const effectiveAlgorithm: UltraFeedAlgorithmName = formValues.algorithm === 'auto' ? abTestAlgorithm : formValues.algorithm;
 
   const [zodErrors, setZodErrors] = useState<UltraFeedSettingsZodErrors>(null);
 
@@ -750,7 +756,7 @@ const UltraFeedSettings = ({
       <div className={classes.settingsGroupsContainer}>
         {viewMode === 'simple' ? (
           <SimpleView
-            algorithm={formValues.algorithm}
+            algorithm={effectiveAlgorithm}
             exploreExploitBiasProps={exploreExploitBiasProps}
             sourceWeights={formValues.sourceWeights}
             sourceWeightErrors={sourceWeightErrors}
@@ -763,7 +769,7 @@ const UltraFeedSettings = ({
           />
         ) : (
           <AdvancedView
-            algorithm={formValues.algorithm}
+            algorithm={effectiveAlgorithm}
             sourceWeights={formValues.sourceWeights}
             sourceWeightErrors={sourceWeightErrors}
             onSourceWeightChange={handleSourceWeightChange}

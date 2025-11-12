@@ -7,18 +7,32 @@
 import type { UltraFeedAlgorithm } from '../ultraFeedAlgorithmInterface';
 import { scoringAlgorithm } from './scoringAlgorithm';
 import { samplingAlgorithm } from './samplingAlgorithm';
-import { userIsAdmin } from '@/lib/vulcan-users/permissions';
-
-export type UltraFeedAlgorithmName = 'scoring' | 'sampling';
+import { ultraFeedAlgorithmABTest } from '@/lib/abTests';
+import { getUserABTestGroup } from '@/lib/abTestImpl';
+import type { UserOrClientId } from '@/components/ultraFeed/ultraFeedTypes';
+import type { UltraFeedAlgorithmName } from '@/components/ultraFeed/ultraFeedSettingsTypes';
 
 const algorithms: Record<UltraFeedAlgorithmName, UltraFeedAlgorithm> = {
   scoring: scoringAlgorithm,
   sampling: samplingAlgorithm,
 };
 
-export function getAlgorithm(name: UltraFeedAlgorithmName | undefined | null, currentUser?: DbUser | null): UltraFeedAlgorithm {
-  if (!name || !algorithms[name]) {
-    return userIsAdmin(currentUser ?? null) ? algorithms.scoring : algorithms.sampling;
+export function getAlgorithm(
+  name: UltraFeedAlgorithmName | 'auto' | undefined | null,
+  userOrClientId: UserOrClientId | null,
+  currentUser?: DbUser | null
+): UltraFeedAlgorithm {
+  if (!name || name === 'auto' || !algorithms[name as UltraFeedAlgorithmName]) {
+    const abKeyInfo = userOrClientId?.type === 'user' && currentUser
+      ? { user: currentUser }
+      : { clientId: userOrClientId?.id };
+    
+    const abTestGroup = getUserABTestGroup(
+      abKeyInfo,
+      ultraFeedAlgorithmABTest
+    );
+    
+    return algorithms[abTestGroup];
   }
   return algorithms[name];
 }
