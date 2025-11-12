@@ -693,7 +693,7 @@ export const ultraFeedGraphQLQueries = {
       );
 
       const algorithmName = parsedSettings.algorithm as UltraFeedAlgorithmName;
-      const algorithm = getAlgorithm(algorithmName);
+      const algorithm = getAlgorithm(algorithmName, currentUser);
       
       const rankedItemsWithMetadata = algorithm.rankItems(
         rankableItems, 
