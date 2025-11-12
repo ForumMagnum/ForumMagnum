@@ -396,7 +396,15 @@ const UltraFeedCommentsItemMeta = ({
       <div className={classes.tripleDotMenu}>
         {!hideActionsMenu && setShowEdit && post &&
           <AnalyticsContext pageElementContext="tripleDotMenu">
-            <CommentsMenu comment={comment} post={post} showEdit={setShowEdit} onSeeLess={onSeeLess} isSeeLessMode={isSeeLessMode} ActionsComponent={UltraFeedCommentActions} />
+            <CommentsMenu
+              comment={comment}
+              post={post}
+              showEdit={setShowEdit}
+              onSeeLess={onSeeLess}
+              isSeeLessMode={isSeeLessMode}
+              ActionsComponent={UltraFeedCommentActions}
+              commentMetaInfo={metaInfo}
+            />
           </AnalyticsContext>
         }
       </div>

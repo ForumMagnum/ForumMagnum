@@ -10,6 +10,7 @@ import { defineStyles, useStyles } from '@/components/hooks/useStyles';
 import PopperCard from "../../common/PopperCard";
 import PostActions from "./PostActions";
 import LWClickAwayListener from "../../common/LWClickAwayListener";
+import { FeedPostMetaInfo } from '../../ultraFeed/ultraFeedTypes';
 
 const styles = defineStyles("PostActionsButton", (theme: ThemeType) => ({
   root: {
@@ -35,9 +36,10 @@ interface PostActionsComponentProps {
   includeBookmark?: boolean;
   onSeeLess?: () => void;
   isSeeLessMode?: boolean;
+  postMetaInfo?: FeedPostMetaInfo;
 }
 
-const PostActionsButton = ({post, vertical, popperGap, autoPlace, flip, includeBookmark=true, onSeeLess, isSeeLessMode, className, ActionsComponent}: {
+const PostActionsButton = ({post, vertical, popperGap, autoPlace, flip, includeBookmark=true, onSeeLess, isSeeLessMode, className, ActionsComponent, postMetaInfo}: {
   post: PostsList|SunshinePostsList,
   vertical?: boolean,
   popperGap?: number,
@@ -48,6 +50,7 @@ const PostActionsButton = ({post, vertical, popperGap, autoPlace, flip, includeB
   isSeeLessMode?: boolean;
   className?: string,
   ActionsComponent?: React.ComponentType<PostActionsComponentProps>,
+  postMetaInfo?: FeedPostMetaInfo,
 }) => {
   const classes = useStyles(styles);
   const anchorEl = useRef<HTMLDivElement | null>(null);
@@ -94,7 +97,7 @@ const PostActionsButton = ({post, vertical, popperGap, autoPlace, flip, includeB
     >
       {/*FIXME: ClickAwayListener doesn't handle portals correctly, which winds up making submenus inoperable. But we do still need clickaway to close.*/}
       <LWClickAwayListener onClickAway={() => handleSetOpen(false)}>
-        <MenuComponent post={post} closeMenu={() => handleSetOpen(false)} includeBookmark={includeBookmark} onSeeLess={onSeeLess} isSeeLessMode={isSeeLessMode} />
+        <MenuComponent post={post} closeMenu={() => handleSetOpen(false)} includeBookmark={includeBookmark} onSeeLess={onSeeLess} isSeeLessMode={isSeeLessMode} postMetaInfo={postMetaInfo} />
       </LWClickAwayListener>
     </PopperCard>
   </div>

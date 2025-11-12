@@ -87,7 +87,8 @@ async function writeEventsToAnalyticsDB(events: {type: string, timestamp: Date, 
       const valuesToInsert = events.map(ev => ({
         environment: environmentDescription,
         event_type: ev.type,
-        timestamp: ev.timestamp,
+        // Convert to ISO string to ensure UTC timezone is used
+        timestamp: ev.timestamp.toISOString(),
         event: ev.props,
       }));
       const query = getPgPromiseLib().helpers.insert(valuesToInsert, analyticsColumnSet);
@@ -101,7 +102,7 @@ async function writeEventsToAnalyticsDB(events: {type: string, timestamp: Date, 
       
       inFlightRequestCounter.inFlightRequests++;
       try {
-        await connection?.none(query);
+        await connection.none(query);
       } finally {
         inFlightRequestCounter.inFlightRequests--;
       }
