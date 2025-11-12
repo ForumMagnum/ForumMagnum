@@ -644,7 +644,7 @@ export const ultraFeedGraphQLQueries = {
             userIdOrClientId,
             ULTRA_FEED_DATE_CUTOFFS.threadEngagementLookbackDays
           )
-        : Promise.resolve([]);
+        : Promise.resolve<ThreadEngagementStats[]>([]);
 
       const [combinedPostItems, commentThreadsItemsResult, spotlightItemsResult, bookmarkItemsResult, engagementStatsList] = await Promise.all([
         (recombeePostFetchLimit + latestAndSubscribedPostLimit > 0) 
@@ -655,7 +655,7 @@ export const ultraFeedGraphQLQueries = {
               parsedSettings,
               ULTRA_FEED_DATE_CUTOFFS.latestPostsMaxAgeDays
             ) 
-          : Promise.resolve([]),
+          : Promise.resolve<FeedFullPost[]>([]),
         commentFetchLimit > 0 
           ? getUltraFeedCommentThreads(
               context, 
@@ -666,11 +666,11 @@ export const ultraFeedGraphQLQueries = {
               ULTRA_FEED_DATE_CUTOFFS.threadEngagementLookbackDays,
               sessionId
             ) 
-          : Promise.resolve([]),
-        spotlightFetchLimit > 0 ? spotlightsRepo.getUltraFeedSpotlights(context, spotlightFetchLimit) : Promise.resolve([]),
-        bookmarkFetchLimit > 0 ? getUltraFeedBookmarks(context, bookmarkFetchLimit) : Promise.resolve([]),
+          : Promise.resolve<FeedCommentsThread[]>([]),
+        spotlightFetchLimit > 0 ? spotlightsRepo.getUltraFeedSpotlights(context, spotlightFetchLimit) : Promise.resolve<FeedSpotlight[]>([]),
+        bookmarkFetchLimit > 0 ? getUltraFeedBookmarks(context, bookmarkFetchLimit) : Promise.resolve<PreparedBookmarkItem[]>([]),
         engagementStatsListPromise
-      ]) as [FeedFullPost[], FeedCommentsThread[], FeedSpotlight[], PreparedBookmarkItem[], ThreadEngagementStats[]];
+      ]);
       
       ultraFeedDebug.log('Fetch results returned:', {
         postsReturned: combinedPostItems.length,
