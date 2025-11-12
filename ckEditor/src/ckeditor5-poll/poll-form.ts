@@ -25,10 +25,11 @@ import { PollProps } from "./constants";
 export const DEFAULT_POLL_DURATION = { days: 7, hours: 0, minutes: 0 };
 
 export const POLL_COLOR_SCHEMES: PollProps['colorScheme'][] = [
-  { darkColor: '#06005C', lightColor: '#FFFFFF', bannerTextColor: '#FFFFFF'},
-  { darkColor: '#1D2A17', lightColor: '#FFFFFF', bannerTextColor: '#FFFFFF'},
-  { darkColor: '#7B3402', lightColor: '#FFFFFF', bannerTextColor: '#FFFFFF'},
-  { darkColor: '#F3F3E1', lightColor: '#222222', bannerTextColor: '#222222'},
+  { darkColor: '#d0d0d0', lightColor: '#f5f5f5', bannerTextColor: '#000000'},
+  { darkColor: '#fbdccf', lightColor: '#fef2ee', bannerTextColor: '#d94300'},
+  { darkColor: '#cce5e8', lightColor: '#edf6f7', bannerTextColor: '#007584'},
+  { darkColor: '#cddde6', lightColor: '#eef5f6', bannerTextColor: '#004a83'},
+  { darkColor: '#cfe6d3', lightColor: '#eef6f0', bannerTextColor: '#007311'},
 ]
 
 class MainFormView extends View {
@@ -370,10 +371,16 @@ class MainFormView extends View {
       const buttonView = new ButtonView(this.locale);
 
       buttonView.on('render', () => {
-        // Apply dynamic background color
-        buttonView.element.style.backgroundColor = colorScheme.darkColor;
-        // Add class on initial render
-        buttonView.element.classList.add('ck-color-selector-button');
+        // This setTimeout is required to prevent the new class from being removed
+        // on the first render when applying the `isOn` class to the current selection
+        setTimeout(() => {
+          // Apply dynamic background color
+          buttonView.element.style.setProperty("--poll-dark", colorScheme.darkColor);
+          buttonView.element.style.setProperty("--poll-light", colorScheme.lightColor);
+          buttonView.element.style.setProperty("--poll-text", colorScheme.bannerTextColor);
+          // Add class on initial render
+          buttonView.element.classList.add('ck-color-selector-button');
+        }, 0);
       });
 
       buttonView.on('execute', () => {
