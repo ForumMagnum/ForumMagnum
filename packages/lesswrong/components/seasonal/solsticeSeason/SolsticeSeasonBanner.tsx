@@ -421,7 +421,7 @@ export default function SolsticeSeasonBannerInner() {
               Berkeley Megameetup<span className={classes.date}>Dec 6</span>
             </Link>
             <Link to="https://rationalistmegameetup.com/" target="_blank" rel="noopener noreferrer" className={classNames(classes.eventButton)}>
-              New York Megameetup<span className={classes.date}>Dec 13</span>
+              New York Megameetup<span className={classes.date}>Dec 20</span>
             </Link>
           </div>  
           <div className={classes.hideButton} onClick={() => handleHideSolsticeSeason()}>
