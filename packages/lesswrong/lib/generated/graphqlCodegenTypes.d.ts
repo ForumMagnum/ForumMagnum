@@ -20462,6 +20462,25 @@ type multiSpotlightSpotlightsPageQueryQueryVariables = Exact<{
 
 type multiSpotlightSpotlightsPageQueryQuery = multiSpotlightSpotlightsPageQueryQuery_Query;
 
+type multiSpotlightSpotlightsSchedulePageQueryQuery_spotlights_MultiSpotlightOutput_results_Spotlight = (
+  { __typename?: 'Spotlight' }
+  & SpotlightDisplay
+);
+
+type multiSpotlightSpotlightsSchedulePageQueryQuery_spotlights_MultiSpotlightOutput = { __typename?: 'MultiSpotlightOutput', totalCount: number | null, results: Array<multiSpotlightSpotlightsSchedulePageQueryQuery_spotlights_MultiSpotlightOutput_results_Spotlight> };
+
+type multiSpotlightSpotlightsSchedulePageQueryQuery_Query = { __typename?: 'Query', spotlights: multiSpotlightSpotlightsSchedulePageQueryQuery_spotlights_MultiSpotlightOutput | null };
+
+
+type multiSpotlightSpotlightsSchedulePageQueryQueryVariables = Exact<{
+  selector: InputMaybe<SpotlightSelector>;
+  limit: InputMaybe<Scalars['Int']['input']>;
+  enableTotal: InputMaybe<Scalars['Boolean']['input']>;
+}>;
+
+
+type multiSpotlightSpotlightsSchedulePageQueryQuery = multiSpotlightSpotlightsSchedulePageQueryQuery_Query;
+
 type publishAndDeDuplicateSpotlightMutation_publishAndDeDuplicateSpotlight_Spotlight = (
   { __typename?: 'Spotlight' }
   & SpotlightDisplay
