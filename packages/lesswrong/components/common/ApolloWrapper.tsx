@@ -1,5 +1,5 @@
 import React, { use, useCallback } from 'react';
-import { headerLink, createErrorLink, createHttpLink } from "@/lib/apollo/links";
+import { headerLink, createErrorLink, createHttpLink, markPageAsUnloading } from "@/lib/apollo/links";
 import { isServer } from "@/lib/executionEnvironment";
 import { getSiteUrl } from "@/lib/vulcan-lib/utils";
 import { ApolloLink } from "@apollo/client";
@@ -9,6 +9,7 @@ import {
 } from "@apollo/client-integration-nextjs";
 import { ApolloNextAppProvider } from "@/lib/vendor/@apollo/client-integration-nextjs/ApolloNextAppProvider";
 import { disableFragmentWarnings } from "graphql-tag";
+import { useEventListener } from '../hooks/useEventListener';
 
 // In the internals of apollo client, they do two round-trips that look like `gql(print(gql(options.query)))`
 // This causes graphql-tag to emit warnings that look like "Warning: fragment with name PostsMinimumInfo already exists",
@@ -68,6 +69,9 @@ export function ApolloWrapper({ loginToken, searchParams, children }: React.Prop
   loginToken: string|null,
   searchParams: Record<string, string>,
 }>) {
+  useEventListener("beforeunload", () => {
+    markPageAsUnloading();
+  });
   // Either this is an SSR context, in which case constructing an apollo client
   // involves an async function call because of dynamic imports, or this is in
   // a client context, in which case construting an apollo client can be done
