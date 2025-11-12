@@ -6,8 +6,6 @@ import ForumIcon from '../common/ForumIcon';
 import { PostScoreBreakdownContent, ThreadScoreBreakdownContent, scoreBreakdownStyles } from './ScoreBreakdownContent';
 import { useUltraFeedContext } from './UltraFeedContextProvider';
 import AlterBonusesDialog from './AlterBonusesDialog';
-import { useCurrentUser } from '../common/withUser';
-import { userIsAdmin } from '@/lib/vulcan-users/permissions';
 
 const styles = defineStyles('UltraFeedScoreBreakdown', (theme: ThemeType) => ({
   container: {
@@ -89,9 +87,8 @@ const ScoreBreakdownTooltip = ({
   );
 };
 
-const UltraFeedScoreBreakdown = ({ metadata, isFirstCommentInThread, sources, commentMetaInfo, postMetaInfo }: { 
+const UltraFeedScoreBreakdown = ({ metadata, sources, commentMetaInfo, postMetaInfo }: { 
   metadata: RankedItemMetadata;
-  isFirstCommentInThread?: boolean;
   sources?: FeedItemSourceType[];
   commentMetaInfo?: FeedCommentMetaInfo;
   postMetaInfo?: FeedPostMetaInfo;
@@ -100,15 +97,6 @@ const UltraFeedScoreBreakdown = ({ metadata, isFirstCommentInThread, sources, co
   const breakdownClasses = useStyles(scoreBreakdownStyles);
   const { showScoreBreakdown, setShowScoreBreakdown } = useUltraFeedContext();
   const [dialogOpen, setDialogOpen] = useState(false);
-  const currentUser = useCurrentUser();
-  
-  if (!userIsAdmin(currentUser)) {
-    return null;
-  }
-  
-  if (isFirstCommentInThread === false) {
-    return null;
-  }
   
   const handleClick = (e: React.MouseEvent) => {
     e.stopPropagation();
@@ -116,17 +104,15 @@ const UltraFeedScoreBreakdown = ({ metadata, isFirstCommentInThread, sources, co
   };
 
   const isThreadBreakdown = metadata.rankedItemType === 'commentThread';
-  const isPostShowingThreadScore = isThreadBreakdown && !isFirstCommentInThread;
   
   const tooltipContent = isThreadBreakdown ? (
     <ScoreBreakdownTooltip
-      headerText={isPostShowingThreadScore ? "Post displayed because of comment thread" : undefined}
       constraints={metadata.selectionConstraints}
       onAlterBonuses={() => setDialogOpen(true)}
     >
       <ThreadScoreBreakdownContent 
         breakdown={metadata.scoreBreakdown} 
-        sources={isPostShowingThreadScore ? undefined : sources}
+        sources={sources}
         metaInfo={commentMetaInfo}
       />
     </ScoreBreakdownTooltip>

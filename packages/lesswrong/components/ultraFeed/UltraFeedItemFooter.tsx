@@ -24,6 +24,7 @@ import { ReplyConfig } from "./UltraFeedCommentItem";
 import { useUltraFeedContext } from "./UltraFeedContextProvider";
 import { UltraFeedEventCreateMutation } from "./ultraFeedMutations";
 import UltraFeedScoreBreakdown from "./UltraFeedScoreBreakdown";
+import { userIsAdmin } from "@/lib/vulcan-users/permissions";
 
 const styles = defineStyles("UltraFeedItemFooter", (theme: ThemeType) => ({
   root: {
@@ -323,6 +324,9 @@ const UltraFeedItemFooterCore = ({
 
   const { isReplying, onReplyClick, onReplyCancel } = replyConfig;
 
+  const rankingMetadata = metaInfo?.rankingMetadata;
+  const shouldShowScoringBreakdown = userIsAdmin(currentUser) && rankingMetadata && (collectionName === "Posts" || isFirstCommentInThread !== false);
+
   const [createUltraFeedEvent] = useMutation(UltraFeedEventCreateMutation);
 
   // TODO:the wrapping approach does not work with votes as click-handlers inside the vote bottons prevent an onClick at this level from firing
@@ -459,18 +463,17 @@ const UltraFeedItemFooterCore = ({
         )}
 
         <div className={classes.bookmarksAndScore}>
-          {metaInfo?.rankingMetadata && (
+          {shouldShowScoringBreakdown && (
             <div className={classes.scoreBreakdownContainer}>
               {collectionName === "Comments" ? (
                 <UltraFeedScoreBreakdown 
-                  metadata={metaInfo.rankingMetadata} 
-                  isFirstCommentInThread={isFirstCommentInThread}
+                  metadata={rankingMetadata} 
                   sources={metaInfo.sources}
                   commentMetaInfo={metaInfo}
                 />
               ) : (
                 <UltraFeedScoreBreakdown 
-                  metadata={metaInfo.rankingMetadata} 
+                  metadata={rankingMetadata} 
                   sources={metaInfo.sources}
                   postMetaInfo={metaInfo}
                 />
