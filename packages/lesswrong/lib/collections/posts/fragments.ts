@@ -175,6 +175,8 @@ export const PostsBase = () => frag`
     votingSystem
     
     disableRecommendation
+
+    marginalFundingOrg
   }
 `
 

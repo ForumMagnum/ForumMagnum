@@ -580,6 +580,7 @@ export const defaultComponentPalette = (shades: ThemeShadePalette): ThemeCompone
 
   givingSeason: {
     primary: "#FF7454",
+    cardHover: "#FFF1EE",
   },
   wrapped: {
     background: '#151515',

@@ -1845,6 +1845,7 @@ interface PostsBase extends PostsMinimumInfo { // fragment on Posts
   readonly reviewCount2019: number,
   readonly votingSystem: string|null,
   readonly disableRecommendation: boolean,
+  readonly marginalFundingOrg: string|null,
 }
 
 interface PostsBase_group { // fragment on Localgroups
@@ -2019,6 +2020,7 @@ interface PostsDefaultFragment { // fragment on Posts
   readonly hideAuthor: boolean,
   readonly sideCommentVisibility: string|null,
   readonly disableSidenotes: boolean,
+  readonly marginalFundingOrg: string|null,
   readonly moderationStyle: string|null,
   readonly ignoreRateLimits: boolean|null,
   readonly hideCommentKarma: boolean,

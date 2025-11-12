@@ -614,6 +614,17 @@ const PostForm = ({
 
       {userIsAdminOrMod(currentUser) && <LegacyFormGroupLayout label={preferredHeadingCase("Admin Options")} startCollapsed={true}>
         <div className={classes.fieldWrapper}>
+          <form.Field name="marginalFundingOrg">
+            {(field) => (
+              <MuiTextField
+                field={field}
+                label="Marginal funding org"
+              />
+            )}
+          </form.Field>
+        </div>
+
+        <div className={classes.fieldWrapper}>
           <form.Field name="sticky">
             {(field) => (
               <FormComponentCheckbox
