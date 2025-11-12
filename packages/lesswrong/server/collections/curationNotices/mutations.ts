@@ -11,6 +11,7 @@ import { getLegacyCreateCallbackProps, getLegacyUpdateCallbackProps, insertAndRe
 import gql from "graphql-tag";
 import cloneDeep from "lodash/cloneDeep";
 
+
 function newCheck(user: DbUser | null, document: CreateCurationNoticeDataInput | null) {
   return userIsAdminOrMod(user)
 }
@@ -113,10 +114,7 @@ export const updateCurationNoticeGqlMutation = makeGqlUpdateMutation('CurationNo
   accessFilter: (rawResult, context) => accessFilterSingle(context.currentUser, 'CurationNotices', rawResult, context)
 });
 
-
-
-
-export const graphqlCurationNoticeTypeDefs = gql`
+export const graphqlCurationNoticeTypeDefs = () => gql`
   input CreateCurationNoticeDataInput ${
     getCreatableGraphQLFields(schema)
   }

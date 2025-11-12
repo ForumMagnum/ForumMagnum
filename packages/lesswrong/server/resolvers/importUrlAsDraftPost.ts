@@ -120,7 +120,7 @@ export async function importUrlAsDraftPost(url: string, context: ResolverContext
   }
 }
 
-export const importUrlAsDraftPostTypeDefs = gql`
+export const importUrlAsDraftPostTypeDefs = () => gql`
   type ExternalPost {
     _id: String!
     slug: String

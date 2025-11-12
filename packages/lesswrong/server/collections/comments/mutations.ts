@@ -18,6 +18,7 @@ import { getLegacyCreateCallbackProps, getLegacyUpdateCallbackProps, insertAndRe
 import gql from "graphql-tag";
 import cloneDeep from "lodash/cloneDeep";
 
+
 async function newCheck(user: DbUser | null, document: CreateCommentDataInput | null, context: ResolverContext) {
   if (!user || !document) return false;
   
@@ -217,10 +218,7 @@ export const updateCommentGqlMutation = makeGqlUpdateMutation('Comments', update
   accessFilter: (rawResult, context) => accessFilterSingle(context.currentUser, 'Comments', rawResult, context)
 });
 
-
-
-
-export const graphqlCommentTypeDefs = gql`
+export const graphqlCommentTypeDefs = () => gql`
   input CreateCommentDataInput ${
     getCreatableGraphQLFields(schema)
   }

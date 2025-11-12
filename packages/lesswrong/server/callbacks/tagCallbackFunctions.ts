@@ -8,7 +8,6 @@ import { filterNonnull } from "@/lib/utils/typeGuardUtils";
 import { createNotifications, getSubscribedUsers } from "../notificationCallbacksHelpers";
 import { postIsPublic } from "@/lib/collections/posts/helpers";
 import { subscriptionTypes } from "@/lib/collections/subscriptions/helpers";
-import { updateTag } from "../collections/tags/mutations";
 import difference from "lodash/difference";
 import { backgroundTask } from "../utils/backgroundTask";
 import { performVoteServer } from "../voteServer";
@@ -94,6 +93,7 @@ export async function cascadeSoftDeleteToTagRels(newDoc: DbTag, { oldDocument, c
 
 export async function updateParentTagSubTagIds(newDoc: DbTag, { oldDocument, context }: UpdateCallbackProperties<'Tags'>): Promise<DbTag> {
   const { Tags } = context;
+  const { updateTag } = await import("../collections/tags/mutations");
 
   // If a parent tag has been added, add this tag to the subTagIds of the parent
   if (newDoc.parentTagId === oldDocument.parentTagId) return newDoc;

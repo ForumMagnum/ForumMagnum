@@ -5,7 +5,7 @@ import { getFieldGqlResolvers } from "@/server/vulcan-lib/apollo-server/helpers"
 import gql from "graphql-tag";
 import { CollectionViewSet } from "@/lib/views/collectionViewSet";
 
-export const graphqlElicitQuestionQueryTypeDefs = gql`
+export const graphqlElicitQuestionQueryTypeDefs = () => gql`
   type ElicitQuestion ${ getAllGraphQLFields(schema) }
   
   input SingleElicitQuestionInput {

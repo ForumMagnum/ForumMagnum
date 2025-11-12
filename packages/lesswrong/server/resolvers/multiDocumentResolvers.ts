@@ -4,7 +4,7 @@ import gql from "graphql-tag";
 import { updateMultiDocument, editCheck as editMultiDocumentCheck } from "../collections/multiDocuments/mutations";
 
 
-export const multiDocumentTypeDefs = gql`
+export const multiDocumentTypeDefs = () => gql`
   extend type Mutation {
     reorderSummaries(parentDocumentId: String!, parentDocumentCollectionName: String!, summaryIds: [String!]!): Boolean
   }

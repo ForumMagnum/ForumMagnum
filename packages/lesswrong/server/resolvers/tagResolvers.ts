@@ -133,7 +133,7 @@ const createSubforumFeedResolver = <SortKeyType extends number | Date>(sorting: 
   ],
 });
 
-export const subForumFeedGraphQLTypeDefs = gql(subforumSortings.map(sorting => `
+export const subForumFeedGraphQLTypeDefs = () => gql(subforumSortings.map(sorting => `
   type Subforum${subforumSortingToResolverName(sorting)}FeedQueryResults {
     cutoff: Date
     endOffset: Int!
@@ -168,7 +168,7 @@ export const subForumFeedGraphQLQueries = {
   ])))
 }
 
-export const tagGraphQLTypeDefs = gql`
+export const tagGraphQLTypeDefs = () => gql`
   enum DocumentDeletionNetChange {
     deleted
     restored

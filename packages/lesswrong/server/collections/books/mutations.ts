@@ -120,7 +120,7 @@ export const updateBookGqlMutation = makeGqlUpdateMutation('Books', updateBook, 
 
 
 
-export const graphqlBookTypeDefs = gql`
+export const graphqlBookTypeDefs = () => gql`
   input CreateBookDataInput ${
     getCreatableGraphQLFields(schema)
   }

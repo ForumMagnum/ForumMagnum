@@ -11,6 +11,7 @@ import { getLegacyCreateCallbackProps, getLegacyUpdateCallbackProps, insertAndRe
 import gql from "graphql-tag";
 import cloneDeep from "lodash/cloneDeep";
 
+
 function newCheck(user: DbUser | null, document: DbRSSFeed | null) {
   if (!document || !user) return false;
   return userCanDo(user, 'rssfeeds.new.all')
@@ -83,10 +84,7 @@ export const updateRSSFeedGqlMutation = makeGqlUpdateMutation('RSSFeeds', update
   accessFilter: (rawResult, context) => accessFilterSingle(context.currentUser, 'RSSFeeds', rawResult, context)
 });
 
-
-
-
-export const graphqlRSSFeedTypeDefs = gql`
+export const graphqlRSSFeedTypeDefs = () => gql`
   input CreateRSSFeedDataInput ${
     getCreatableGraphQLFields(schema)
   }

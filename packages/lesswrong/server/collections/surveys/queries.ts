@@ -5,7 +5,7 @@ import { getFieldGqlResolvers } from "@/server/vulcan-lib/apollo-server/helpers"
 import gql from "graphql-tag";
 import { SurveysViews } from "@/lib/collections/surveys/views";
 
-export const graphqlSurveyQueryTypeDefs = gql`
+export const graphqlSurveyQueryTypeDefs = () => gql`
   type Survey ${ getAllGraphQLFields(schema) }
   
   input SingleSurveyInput {

@@ -17,7 +17,7 @@ import { createMessage } from '../collections/messages/mutations';
 import { createModeratorAction } from '../collections/moderatorActions/mutations';
 import { VOTING_DISABLED } from '../../lib/collections/moderatorActions/constants';
 
-export const moderationGqlTypeDefs = gql`
+export const moderationGqlTypeDefs = () => gql`
   type ModeratorIPAddressInfo {
     ip: String!
     userIds: [String!]!

@@ -3,7 +3,7 @@ import { getAllGraphQLFields } from "@/server/vulcan-lib/apollo-server/graphqlTe
 import { getFieldGqlResolvers } from "@/server/vulcan-lib/apollo-server/helpers";
 import gql from "graphql-tag";
 
-export const graphqlPetrovDayLaunchQueryTypeDefs = gql`
+export const graphqlPetrovDayLaunchQueryTypeDefs = () => gql`
   type PetrovDayLaunch ${
     getAllGraphQLFields(schema)
   }

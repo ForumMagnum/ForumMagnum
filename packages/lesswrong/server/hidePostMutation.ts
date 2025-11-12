@@ -5,7 +5,7 @@ import reject from 'lodash/reject'
 import gql from 'graphql-tag';
 import { updateUser } from './collections/users/mutations';
 
-export const hidePostGqlTypeDefs = gql`
+export const hidePostGqlTypeDefs = () => gql`
   extend type Mutation {
     setIsHidden(postId: String!, isHidden: Boolean!): User!
   }

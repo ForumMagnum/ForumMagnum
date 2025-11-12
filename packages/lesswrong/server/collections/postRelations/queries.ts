@@ -5,7 +5,7 @@ import { getFieldGqlResolvers } from "@/server/vulcan-lib/apollo-server/helpers"
 import gql from "graphql-tag";
 import { PostRelationsViews } from "@/lib/collections/postRelations/views";
 
-export const graphqlPostRelationQueryTypeDefs = gql`
+export const graphqlPostRelationQueryTypeDefs = () => gql`
   type PostRelation ${ getAllGraphQLFields(schema) }
   
   input SinglePostRelationInput {

@@ -82,10 +82,7 @@ export const updateDigestGqlMutation = makeGqlUpdateMutation('Digests', updateDi
   accessFilter: (rawResult, context) => accessFilterSingle(context.currentUser, 'Digests', rawResult, context)
 });
 
-
-
-
-export const graphqlDigestTypeDefs = gql`
+export const graphqlDigestTypeDefs = () => gql`
   input CreateDigestDataInput ${
     getCreatableGraphQLFields(schema)
   }

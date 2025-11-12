@@ -3,6 +3,7 @@ import { defaultShadePalette, defaultComponentPalette } from './defaultPalette';
 import { defaultZIndexes } from "./zIndexes";
 import { isBookUI, isFriendlyUI } from './forumTheme';
 import { isAF, isEAForum, isLW, isLWorAF } from '@/lib/instanceSettings';
+import { createSingleton } from '@/lib/utils/createSingleton';
 
 const monoStack = [
   '"Liberation Mono"',
@@ -18,7 +19,7 @@ const monoStack = [
 // of the secondaryInfo text to the bottom of the associated div
 const titleDividerSpacing = 20
 
-export const baseTheme: BaseThemeSpecification = {
+export const getBaseTheme = createSingleton((): BaseThemeSpecification => ({
   shadePalette: defaultShadePalette(),
   componentPalette: (shadePalette: ThemeShadePalette) => defaultComponentPalette(shadePalette),
   make: (palette: ThemePalette): NativeThemeType => {
@@ -320,4 +321,4 @@ export const baseTheme: BaseThemeSpecification = {
       isEAForum: isEAForum(),
     };
   }
-};
+}));

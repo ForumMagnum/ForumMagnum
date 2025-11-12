@@ -5,7 +5,7 @@ import { getFieldGqlResolvers } from "@/server/vulcan-lib/apollo-server/helpers"
 import gql from "graphql-tag";
 import { MultiDocumentsViews } from "@/lib/collections/multiDocuments/views";
 
-export const graphqlMultiDocumentQueryTypeDefs = gql`
+export const graphqlMultiDocumentQueryTypeDefs = () => gql`
   type MultiDocument ${ getAllGraphQLFields(schema) }
 
   enum MultiDocumentCollectionName {

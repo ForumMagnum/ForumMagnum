@@ -2,7 +2,7 @@ import gql from 'graphql-tag';
 import { forumTitleSetting, siteUrlSetting } from '../../lib/instanceSettings';
 import { getLogoUrl } from '../../lib/vulcan-lib/utils';
 
-export const siteGraphQLTypeDefs = gql`
+export const siteGraphQLTypeDefs = () => gql`
   type Site {
     title: String
     url: String

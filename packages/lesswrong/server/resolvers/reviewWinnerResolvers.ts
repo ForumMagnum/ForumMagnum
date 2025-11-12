@@ -15,7 +15,7 @@ export async function initReviewWinnerCache() {
   }
 }
 
-export const reviewWinnerGraphQLTypeDefs = gql`
+export const reviewWinnerGraphQLTypeDefs = () => gql`
   extend type Query {
     GetAllReviewWinners: [Post!]!
   }

@@ -300,16 +300,6 @@ extend type Mutation {
   performVoteComment(documentId: String, voteType: String, extendedVote: JSON): VoteResultComment
 }
 
-type VoteResultMessage {
-  document: Message!
-  showVotingPatternWarning: Boolean!
-}
-
-extend type Mutation {
-  setVoteMessage(documentId: String, voteType: String, extendedVote: JSON): Message
-  performVoteMessage(documentId: String, voteType: String, extendedVote: JSON): VoteResultMessage
-}
-
 type VoteResultTagRel {
   document: TagRel!
   showVotingPatternWarning: Boolean!
@@ -358,6 +348,16 @@ type VoteResultMultiDocument {
 extend type Mutation {
   setVoteMultiDocument(documentId: String, voteType: String, extendedVote: JSON): MultiDocument
   performVoteMultiDocument(documentId: String, voteType: String, extendedVote: JSON): VoteResultMultiDocument
+}
+
+type VoteResultMessage {
+  document: Message!
+  showVotingPatternWarning: Boolean!
+}
+
+extend type Mutation {
+  setVoteMessage(documentId: String, voteType: String, extendedVote: JSON): Message
+  performVoteMessage(documentId: String, voteType: String, extendedVote: JSON): VoteResultMessage
 }
 
 extend type Query {

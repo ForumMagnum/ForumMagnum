@@ -5,7 +5,7 @@ import { getFieldGqlResolvers } from "@/server/vulcan-lib/apollo-server/helpers"
 import gql from "graphql-tag";
 import { FieldChangesViews } from "@/lib/collections/fieldChanges/views";
 
-export const graphqlFieldChangeQueryTypeDefs = gql`
+export const graphqlFieldChangeQueryTypeDefs = () => gql`
   type FieldChange ${ getAllGraphQLFields(schema) }
   
   input SingleFieldChangeInput {

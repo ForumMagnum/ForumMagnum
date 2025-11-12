@@ -89,10 +89,7 @@ export const updateModeratorActionGqlMutation = makeGqlUpdateMutation('Moderator
   accessFilter: (rawResult, context) => accessFilterSingle(context.currentUser, 'ModeratorActions', rawResult, context)
 });
 
-
-
-
-export const graphqlModeratorActionTypeDefs = gql`
+export const graphqlModeratorActionTypeDefs = () => gql`
   input CreateModeratorActionDataInput ${
     getCreatableGraphQLFields(schema)
   }

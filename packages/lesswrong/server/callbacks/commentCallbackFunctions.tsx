@@ -10,7 +10,6 @@ import { randomId } from "@/lib/random";
 import { userCanDo, userIsAdminOrMod } from "@/lib/vulcan-users/permissions";
 import { noDeletionPmReason } from "@/lib/collections/comments/constants";
 import { fetchFragmentSingle } from "../fetchFragment";
-import { checkModGPT } from "../languageModels/modGPT";
 import { CreateCallbackProperties, UpdateCallbackProperties, AfterCreateCallbackProperties } from "../mutationCallbacks";
 import { createNotifications, getSubscribedUsers } from "../notificationCallbacksHelpers";
 import { rateLimitDateWhenUserNextAbleToComment } from "../rateLimitUtils";
@@ -856,7 +855,10 @@ export async function checkModGPTOnCommentCreate({document, context}: AfterCreat
   const postTags = post.tagRelevance
   if (!postTags || !Object.keys(postTags).includes(EA_FORUM_COMMUNITY_TOPIC_ID)) return
   
-  backgroundTask(checkModGPT(document, post, context))
+  backgroundTask((async () => {
+    const { checkModGPT } = await import("../languageModels/modGPT");
+    await checkModGPT(document, post, context)
+  })())
 }
 
 // Elastic callback might go here
@@ -1080,7 +1082,10 @@ export async function checkModGPTOnCommentUpdate({oldDocument, newDocument, cont
   const postTags = post.tagRelevance
   if (!postTags || !Object.keys(postTags).includes(EA_FORUM_COMMUNITY_TOPIC_ID)) return
   
-  backgroundTask(checkModGPT(newDocument, post, context))
+  backgroundTask((async () => {
+    const { checkModGPT } = await import("../languageModels/modGPT");
+    await checkModGPT(newDocument, post, context)
+  })())
 }
 
 /* EDIT ASYNC */

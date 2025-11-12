@@ -15,6 +15,7 @@ import { getLegacyCreateCallbackProps, getLegacyUpdateCallbackProps, insertAndRe
 import gql from "graphql-tag";
 import cloneDeep from "lodash/cloneDeep";
 
+
 function newCheck() {
   return true;
 }
@@ -173,10 +174,7 @@ export const updateUserGqlMutation = makeGqlUpdateMutation('Users', updateUser, 
   accessFilter: (rawResult, context) => accessFilterSingle(context.currentUser, 'Users', rawResult, context)
 });
 
-
-
-
-export const graphqlUserTypeDefs = gql`
+export const graphqlUserTypeDefs = () => gql`
   input CreateUserDataInput ${
     getCreatableGraphQLFields(schema)
   }

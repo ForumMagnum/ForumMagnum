@@ -5,7 +5,7 @@ import { getFieldGqlResolvers } from "@/server/vulcan-lib/apollo-server/helpers"
 import gql from "graphql-tag";
 import { UsersViews } from "@/lib/collections/users/views";
 
-export const graphqlUserQueryTypeDefs = gql`
+export const graphqlUserQueryTypeDefs = () => gql`
   type User ${ getAllGraphQLFields(schema) }
 
   enum ReactPaletteStyle {

@@ -6,7 +6,7 @@ import groupBy from 'lodash/groupBy';
 import sortBy from 'lodash/sortBy';
 import max from 'lodash/max';
 
-export const migrationsDashboardGraphQLTypeDefs = gql`
+export const migrationsDashboardGraphQLTypeDefs = () => gql`
   type MigrationsDashboardData {
     migrations: [MigrationStatus!]
   }

@@ -2,7 +2,7 @@ import { isWrappedYear } from "@/components/ea-forum/wrapped/constants";
 import { getWrappedDataByYear } from '../wrapped/wrappedDataByYear';
 import gql from 'graphql-tag';
 
-export const wrappedResolversGqlTypeDefs = gql`
+export const wrappedResolversGqlTypeDefs = () => gql`
   type MostReadTopic {
     slug: String,
     name: String,

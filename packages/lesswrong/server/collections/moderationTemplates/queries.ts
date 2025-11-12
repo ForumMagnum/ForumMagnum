@@ -5,7 +5,7 @@ import { getFieldGqlResolvers } from "@/server/vulcan-lib/apollo-server/helpers"
 import gql from "graphql-tag";
 import { ModerationTemplatesViews } from "@/lib/collections/moderationTemplates/views";
 
-export const graphqlModerationTemplateQueryTypeDefs = gql`
+export const graphqlModerationTemplateQueryTypeDefs = () => gql`
   type ModerationTemplate ${ getAllGraphQLFields(schema) }
 
   enum ModerationTemplateType {

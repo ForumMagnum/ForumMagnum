@@ -1,7 +1,7 @@
 import gql from "graphql-tag";
 
 
-export const graphqlTypeDefs = gql`
+export const graphqlTypeDefs = () => gql`
   type LatLng {
     lat: Float!
     lng: Float!

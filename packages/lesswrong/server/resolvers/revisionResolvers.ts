@@ -8,7 +8,7 @@ import gql from 'graphql-tag';
 import { createRevision } from '../collections/revisions/mutations';
 import { updateTag } from '../collections/tags/mutations';
 
-export const revisionResolversGraphQLTypeDefs = gql`
+export const revisionResolversGraphQLTypeDefs = () => gql`
   input AutosaveContentType {
     type: String
     value: ContentTypeData

@@ -5,7 +5,7 @@ import { getFieldGqlResolvers } from "@/server/vulcan-lib/apollo-server/helpers"
 import gql from "graphql-tag";
 import { CurationNoticesViews } from "@/lib/collections/curationNotices/views";
 
-export const graphqlCurationNoticeQueryTypeDefs = gql`
+export const graphqlCurationNoticeQueryTypeDefs = () => gql`
   type CurationNotice ${ getAllGraphQLFields(schema) }
   
   input SingleCurationNoticeInput {

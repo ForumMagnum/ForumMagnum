@@ -149,7 +149,7 @@ const postsToReadStatuses = async (user: DbUser, postIds: Array<string>) => {
   return resultDict;
 }
 
-export const partiallyReadSequencesTypeDefs = gql`
+export const partiallyReadSequencesTypeDefs = () => gql`
   extend type Mutation {
     updateContinueReading(sequenceId: String!, postId: String!): Boolean
   }

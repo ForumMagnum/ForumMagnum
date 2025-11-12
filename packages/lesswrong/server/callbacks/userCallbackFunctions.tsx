@@ -22,7 +22,6 @@ import ElasticClient from "../search/elastic/ElasticClient";
 import ElasticExporter from "../search/elastic/ElasticExporter";
 import { hasType3ApiAccess, regenerateAllType3AudioForUser } from "../type3";
 import { editableUserProfileFields, simpleUserProfileFields } from "../userProfileUpdates";
-import { userDeleteContent } from "../users/moderationUtils";
 import { getAdminTeamAccount } from "../utils/adminTeamAccount";
 import { nullifyVotesForUser } from '../nullifyVotesForUser';
 import { triggerReviewIfNeeded } from "./sunshineCallbackUtils";
@@ -35,11 +34,9 @@ import { createMessage } from "../collections/messages/mutations";
 import { computeContextFromUser } from "@/server/vulcan-lib/apollo-server/context";
 import { createAnonymousContext } from "@/server/vulcan-lib/createContexts";
 import { updatePost } from "../collections/posts/mutations";
-import { updateComment } from "../collections/comments/mutations";
-import { createUser, updateUser } from "../collections/users/mutations";
 import { EmailContentItemBody } from "../emailComponents/EmailContentItemBody";
 import { PostsHTML } from "@/lib/collections/posts/fragments";
-import { emailTokenTypesByName } from "../emails/emailTokens";
+import { getEmailTokenTypesByName } from "../emails/emailTokens";
 import { backgroundTask } from "../utils/backgroundTask";
 import { persistentDisplayedModeratorActions, reviewTriggerModeratorActions } from "@/lib/collections/moderatorActions/constants";
 import { updateModeratorAction } from "../collections/moderatorActions/mutations";
@@ -132,7 +129,7 @@ export const welcomeMessageDelayer = new EventDebouncer({
 });
 
 async function sendVerificationEmail(user: DbUser) {
-  const verifyEmailLink = await emailTokenTypesByName.verifyEmail.generateLink(user._id);
+  const verifyEmailLink = await getEmailTokenTypesByName().verifyEmail.generateLink(user._id);
   await wrapAndSendEmail({
     user,
     force: true,
@@ -201,6 +198,7 @@ const utils = {
         displayName: "AI Alignment Forum",
         email: "aialignmentforum@lesswrong.com",
       }
+      const { createUser } = await import("../collections/users/mutations");
       const response = await createUser({ data: userData }, context);
       account = response
     }
@@ -567,7 +565,10 @@ export async function userEditDeleteContentCallbacksAsync({ newDocument, oldDocu
     await nullifyVotesForUser(newDocument);
   }
   if (newDocument.deleteContent && !oldDocument.deleteContent && currentUser) {
-    backgroundTask(userDeleteContent(newDocument, currentUser, context));
+    backgroundTask((async () => {
+      const { userDeleteContent } = await import("../users/moderationUtils");
+      await userDeleteContent(newDocument, currentUser, context)
+    })());
   }
 }
 
@@ -613,6 +614,7 @@ export async function approveUnreviewedSubmissions(userId: string, context: Reso
   // in that case, we want to trigger the relevant comment notifications once the author is reviewed.
   const unreviewedComments = await Comments.find({userId, authorIsUnreviewed: true}).fetch();
   for (let comment of unreviewedComments) {
+    const { updateComment } = await import("../collections/comments/mutations");
     await updateComment({
       data: { authorIsUnreviewed: false },
       selector: { _id: comment._id }
@@ -667,7 +669,8 @@ export async function updatingPostAudio(newUser: DbUser, oldUser: DbUser) {
 
 export async function userEditChangeDisplayNameCallbacksAsync(user: DbUser, oldUser: DbUser, context: ResolverContext) {
   const { Users } = context;
-  
+  const { updateUser } = await import("../collections/users/mutations");
+
   // if the user is setting up their profile and their username changes from that form,
   // we don't want this action to count toward their one username change
   const isSettingUsername = oldUser.usernameUnset && !user.usernameUnset

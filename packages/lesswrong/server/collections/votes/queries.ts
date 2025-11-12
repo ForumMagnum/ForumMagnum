@@ -5,7 +5,7 @@ import { getFieldGqlResolvers } from "@/server/vulcan-lib/apollo-server/helpers"
 import gql from "graphql-tag";
 import { VotesViews } from "@/lib/collections/votes/views";
 
-export const graphqlVoteQueryTypeDefs = gql`
+export const graphqlVoteQueryTypeDefs = () => gql`
   type Vote ${ getAllGraphQLFields(schema) }
 
   enum VoteType {

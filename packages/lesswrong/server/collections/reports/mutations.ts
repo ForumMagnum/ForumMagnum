@@ -173,10 +173,7 @@ export const updateReportGqlMutation = makeGqlUpdateMutation('Reports', updateRe
   accessFilter: (rawResult, context) => accessFilterSingle(context.currentUser, 'Reports', rawResult, context)
 });
 
-
-
-
-export const graphqlReportTypeDefs = gql`
+export const graphqlReportTypeDefs = () => gql`
   input CreateReportDataInput ${
     getCreatableGraphQLFields(schema)
   }

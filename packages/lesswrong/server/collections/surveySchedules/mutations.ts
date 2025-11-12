@@ -78,10 +78,7 @@ export const updateSurveyScheduleGqlMutation = makeGqlUpdateMutation('SurveySche
   accessFilter: (rawResult, context) => accessFilterSingle(context.currentUser, 'SurveySchedules', rawResult, context)
 });
 
-
-
-
-export const graphqlSurveyScheduleTypeDefs = gql`
+export const graphqlSurveyScheduleTypeDefs = () => gql`
   input CreateSurveyScheduleDataInput ${
     getCreatableGraphQLFields(schema)
   }

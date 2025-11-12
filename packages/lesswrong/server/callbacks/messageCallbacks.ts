@@ -5,8 +5,6 @@ import type { AfterCreateCallbackProperties } from '../mutationCallbacks';
 import { createNotifications } from '../notificationCallbacksHelpers';
 import { createModeratorAction } from '../collections/moderatorActions/mutations';
 import { computeContextFromUser } from "@/server/vulcan-lib/apollo-server/context";
-import { createAnonymousContext } from "@/server/vulcan-lib/createContexts";
-import { updateConversation } from '../collections/conversations/mutations';
 import { backgroundTask } from "../utils/backgroundTask";
 
 export function checkIfNewMessageIsEmpty(message: CreateMessageDataInput) {
@@ -74,6 +72,7 @@ export async function addParticipantIfNew({ document, currentUser, context }: Af
     conversation &&
     !conversation.participantIds.includes(currentUser._id)
   ) {
+    const { updateConversation } = await import('../collections/conversations/mutations');
     await updateConversation({
       data: { participantIds: [...conversation.participantIds, currentUser._id] },
       selector: { _id: conversationId }
@@ -90,6 +89,7 @@ export async function updateConversationActivity(message: DbMessage, context: Re
   if (!conversation) throw Error(`Can't find conversation for message ${message}`)
     
   const userContext = await computeContextFromUser({ user: user, isSSR: false });
+  const { updateConversation } = await import('../collections/conversations/mutations');
   await updateConversation({ data: {latestActivity: message.createdAt}, selector: { _id: conversation._id } }, userContext);
 }
 

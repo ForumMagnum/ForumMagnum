@@ -1,4 +1,3 @@
-
 import schema from "@/lib/collections/podcastEpisodes/newSchema";
 import { accessFilterSingle } from "@/lib/utils/schemaUtils";
 import { userIsAdmin, userIsPodcaster } from "@/lib/vulcan-users/permissions";
@@ -7,6 +6,7 @@ import { getCreatableGraphQLFields } from "@/server/vulcan-lib/apollo-server/gra
 import { makeGqlCreateMutation } from "@/server/vulcan-lib/apollo-server/helpers";
 import { getLegacyCreateCallbackProps, insertAndReturnCreateAfterProps, runFieldOnCreateCallbacks } from "@/server/vulcan-lib/mutators";
 import gql from "graphql-tag";
+
 
 function newCheck(user: DbUser | null) {
   return userIsAdmin(user) || userIsPodcaster(user);
@@ -38,9 +38,7 @@ export const createPodcastEpisodeGqlMutation = makeGqlCreateMutation('PodcastEpi
   accessFilter: (rawResult, context) => accessFilterSingle(context.currentUser, 'PodcastEpisodes', rawResult, context)
 });
 
-
-
-export const graphqlPodcastEpisodeTypeDefs = gql`
+export const graphqlPodcastEpisodeTypeDefs = () => gql`
   input CreatePodcastEpisodeDataInput ${
     getCreatableGraphQLFields(schema)
   }

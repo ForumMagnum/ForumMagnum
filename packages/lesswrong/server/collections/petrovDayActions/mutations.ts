@@ -1,4 +1,3 @@
-
 import schema from "@/lib/collections/petrovDayActions/newSchema";
 import { accessFilterSingle } from "@/lib/utils/schemaUtils";
 import { updateCountOfReferencesOnOtherCollectionsAfterCreate, updateCountOfReferencesOnOtherCollectionsAfterUpdate } from "@/server/callbacks/countOfReferenceCallbacks";
@@ -6,6 +5,7 @@ import { getCreatableGraphQLFields } from "@/server/vulcan-lib/apollo-server/gra
 import { makeGqlCreateMutation, makeGqlUpdateMutation } from "@/server/vulcan-lib/apollo-server/helpers";
 import { getLegacyCreateCallbackProps, insertAndReturnCreateAfterProps, runFieldOnCreateCallbacks, assignUserIdToData } from "@/server/vulcan-lib/mutators";
 import gql from "graphql-tag";
+
 
 async function newCheck(user: DbUser | null, document: CreatePetrovDayActionDataInput | null, context: ResolverContext) {
   const { PetrovDayActions } = context;
@@ -65,9 +65,7 @@ export const createPetrovDayActionGqlMutation = makeGqlCreateMutation('PetrovDay
   accessFilter: (rawResult, context) => accessFilterSingle(context.currentUser, 'PetrovDayActions', rawResult, context)
 });
 
-
-
-export const graphqlPetrovDayActionTypeDefs = gql`
+export const graphqlPetrovDayActionTypeDefs = () => gql`
   input CreatePetrovDayActionDataInput ${
     getCreatableGraphQLFields(schema)
   }

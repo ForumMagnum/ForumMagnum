@@ -5,7 +5,7 @@ import { getFieldGqlResolvers } from "@/server/vulcan-lib/apollo-server/helpers"
 import gql from "graphql-tag";
 import { GardenCodesViews } from "@/lib/collections/gardencodes/views";
 
-export const graphqlGardencodeQueryTypeDefs = gql`
+export const graphqlGardencodeQueryTypeDefs = () => gql`
   type GardenCode ${ getAllGraphQLFields(schema) }
   
   input SingleGardenCodeInput {

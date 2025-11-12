@@ -1,4 +1,3 @@
-
 import schema from "@/lib/collections/messages/newSchema";
 import { accessFilterSingle } from "@/lib/utils/schemaUtils";
 import { userCanDo } from "@/lib/vulcan-users/permissions";
@@ -9,6 +8,7 @@ import { getCreatableGraphQLFields, getUpdatableGraphQLFields } from "@/server/v
 import { makeGqlCreateMutation, makeGqlUpdateMutation } from "@/server/vulcan-lib/apollo-server/helpers";
 import { getLegacyCreateCallbackProps, getLegacyUpdateCallbackProps, insertAndReturnCreateAfterProps, runFieldOnCreateCallbacks, runFieldOnUpdateCallbacks, updateAndReturnDocument, assignUserIdToData } from "@/server/vulcan-lib/mutators";
 import gql from "graphql-tag";
+
 
 async function newCheck(user: DbUser | null, document: DbMessage | null, context: ResolverContext) {
   const { Conversations } = context;
@@ -126,7 +126,7 @@ export const updateMessageGqlMutation = makeGqlUpdateMutation('Messages', update
 
 
 
-export const graphqlMessageTypeDefs = gql`
+export const graphqlMessageTypeDefs = () => gql`
   input CreateMessageDataInput ${
     getCreatableGraphQLFields(schema)
   }

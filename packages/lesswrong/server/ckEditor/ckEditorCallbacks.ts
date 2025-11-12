@@ -11,7 +11,7 @@ import { pushRevisionToCkEditor } from './ckEditorApi';
 import gql from 'graphql-tag';
 import { updatePost } from '../collections/posts/mutations';
 
-export const ckEditorCallbacksGraphQLTypeDefs = gql`
+export const ckEditorCallbacksGraphQLTypeDefs = () => gql`
   extend type Query {
     getLinkSharedPost(postId: String!, linkSharingKey: String!): Post
   }

@@ -5,7 +5,7 @@ import { getFieldGqlResolvers } from "@/server/vulcan-lib/apollo-server/helpers"
 import gql from "graphql-tag";
 import { LWEventsViews } from "@/lib/collections/lwevents/views";
 
-export const graphqlLweventQueryTypeDefs = gql`
+export const graphqlLweventQueryTypeDefs = () => gql`
   type LWEvent ${ getAllGraphQLFields(schema) }
   
   input SingleLWEventInput {

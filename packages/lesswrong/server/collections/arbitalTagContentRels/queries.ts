@@ -5,7 +5,7 @@ import { getFieldGqlResolvers } from "@/server/vulcan-lib/apollo-server/helpers"
 import gql from "graphql-tag";
 import { CollectionViewSet } from "@/lib/views/collectionViewSet";
 
-export const graphqlArbitalTagContentRelQueryTypeDefs = gql`
+export const graphqlArbitalTagContentRelQueryTypeDefs = () => gql`
   type ArbitalTagContentRel ${ getAllGraphQLFields(schema) }
   
   input SingleArbitalTagContentRelInput {

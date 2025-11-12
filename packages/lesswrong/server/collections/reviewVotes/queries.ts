@@ -5,7 +5,7 @@ import { getFieldGqlResolvers } from "@/server/vulcan-lib/apollo-server/helpers"
 import gql from "graphql-tag";
 import { ReviewVotesViews } from "@/lib/collections/reviewVotes/views";
 
-export const graphqlReviewVoteQueryTypeDefs = gql`
+export const graphqlReviewVoteQueryTypeDefs = () => gql`
   type ReviewVote ${ getAllGraphQLFields(schema) }
   
   input SingleReviewVoteInput {

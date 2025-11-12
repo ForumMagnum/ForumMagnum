@@ -13,7 +13,7 @@ import union from 'lodash/union';
 import UsersRepo, { MongoNearLocation } from './repos/UsersRepo';
 import { sequenceGetPageUrl } from '../lib/collections/sequences/helpers';
 import { createNotification as createNotificationMutator } from './collections/notifications/mutations';
-import { notificationDebouncers } from './notificationBatching';
+import { getNotificationDebouncers } from './notificationBatching';
 import { getDocument } from '@/lib/notificationDataHelpers';
 
 /**
@@ -204,7 +204,7 @@ export const createNotification = async ({
     extraData,
   }
 
-  const debouncer = notificationDebouncers[notificationType];
+  const debouncer = getNotificationDebouncers()[notificationType];
 
   const { onsite, email } = notificationTypeSettings;
 

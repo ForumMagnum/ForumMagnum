@@ -12,6 +12,7 @@ import { getLegacyCreateCallbackProps, getLegacyUpdateCallbackProps, insertAndRe
 import gql from "graphql-tag";
 import cloneDeep from "lodash/cloneDeep";
 
+
 function newCheck(user: DbUser | null, document: DbTagFlag | null) {
   if (!user || !document) return false;
   return userCanDo(user, `tagFlags.new`)
@@ -118,10 +119,7 @@ export const updateTagFlagGqlMutation = makeGqlUpdateMutation('TagFlags', update
   accessFilter: (rawResult, context) => accessFilterSingle(context.currentUser, 'TagFlags', rawResult, context)
 });
 
-
-
-
-export const graphqlTagFlagTypeDefs = gql`
+export const graphqlTagFlagTypeDefs = () => gql`
   input CreateTagFlagDataInput ${
     getCreatableGraphQLFields(schema)
   }

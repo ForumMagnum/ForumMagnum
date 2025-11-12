@@ -13,7 +13,7 @@ export const serverId = randomId();
 
 const isValidEventAge = (age: number) => age>=0 && age<=60*60*1000;
 
-export const analyticsEventTypeDefs = gql`
+export const analyticsEventTypeDefs = () => gql`
   extend type Mutation {
     analyticsEvent(events: [JSON!], now: Date): Boolean
   }

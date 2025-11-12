@@ -5,7 +5,7 @@ import { getFieldGqlResolvers } from "@/server/vulcan-lib/apollo-server/helpers"
 import gql from "graphql-tag";
 import { ElectionVotesViews } from "@/lib/collections/electionVotes/views";
 
-export const graphqlElectionVoteQueryTypeDefs = gql`
+export const graphqlElectionVoteQueryTypeDefs = () => gql`
   type ElectionVote ${ getAllGraphQLFields(schema) }
   
   input SingleElectionVoteInput {

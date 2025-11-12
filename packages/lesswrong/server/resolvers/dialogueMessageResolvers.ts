@@ -10,7 +10,7 @@ const extractLatestDialogueMessages = async (dialogueHtml: string, numMessages: 
   return messages.toArray().slice(-numMessages).map(message => $(message).toString());
 };
 
-export const dialogueMessageGqlTypeDefs = gql`
+export const dialogueMessageGqlTypeDefs = () => gql`
   extend type Query {
     latestDialogueMessages(dialogueId: String!, numMessages: Int!): [String!]
   }

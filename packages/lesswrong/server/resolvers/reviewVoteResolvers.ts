@@ -8,7 +8,7 @@ import gql from 'graphql-tag';
 import { createReviewVote, updateReviewVote } from '../collections/reviewVotes/mutations';
 import { createAnonymousContext } from "@/server/vulcan-lib/createContexts";
 
-export const reviewVoteGraphQLTypeDefs = gql`
+export const reviewVoteGraphQLTypeDefs = () => gql`
   type GivingSeasonHeart {
     userId: String!
     displayName: String!

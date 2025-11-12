@@ -15,6 +15,7 @@ import cloneDeep from "lodash/cloneDeep";
 import { newCheck, editCheck } from "./helpers";
 import { backgroundTask } from "@/server/utils/backgroundTask";
 
+
 export async function createTag({ data }: CreateTagInput, context: ResolverContext) {
   const { currentUser } = context;
 
@@ -130,10 +131,7 @@ export const updateTagGqlMutation = makeGqlUpdateMutation('Tags', updateTag, {
   accessFilter: (rawResult, context) => accessFilterSingle(context.currentUser, 'Tags', rawResult, context)
 });
 
-
-
-
-export const graphqlTagTypeDefs = gql`
+export const graphqlTagTypeDefs = () => gql`
   input CreateTagDataInput ${
     getCreatableGraphQLFields(schema)
   }

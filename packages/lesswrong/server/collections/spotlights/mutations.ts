@@ -1,4 +1,3 @@
-
 import schema from "@/lib/collections/spotlights/newSchema";
 import { accessFilterSingle } from "@/lib/utils/schemaUtils";
 import { userIsAdmin } from "@/lib/vulcan-users/permissions";
@@ -105,10 +104,7 @@ export const updateSpotlightGqlMutation = makeGqlUpdateMutation('Spotlights', up
   accessFilter: (rawResult, context) => accessFilterSingle(context.currentUser, 'Spotlights', rawResult, context)
 });
 
-
-
-
-export const graphqlSpotlightTypeDefs = gql`
+export const graphqlSpotlightTypeDefs = () => gql`
   input CreateSpotlightDataInput ${
     getCreatableGraphQLFields(schema)
   }

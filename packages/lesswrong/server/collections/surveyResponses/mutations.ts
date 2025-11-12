@@ -1,4 +1,3 @@
-
 import schema from "@/lib/collections/surveyResponses/newSchema";
 import { accessFilterSingle } from "@/lib/utils/schemaUtils";
 import { userIsAdmin } from "@/lib/vulcan-users/permissions";
@@ -70,10 +69,7 @@ export const updateSurveyResponseGqlMutation = makeGqlUpdateMutation('SurveyResp
   accessFilter: (rawResult, context) => accessFilterSingle(context.currentUser, 'SurveyResponses', rawResult, context)
 });
 
-
-
-
-export const graphqlSurveyResponseTypeDefs = gql`
+export const graphqlSurveyResponseTypeDefs = () => gql`
   input CreateSurveyResponseDataInput ${
     getCreatableGraphQLFields(schema)
   }

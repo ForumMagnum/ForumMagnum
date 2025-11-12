@@ -6,7 +6,7 @@ import gql from 'graphql-tag';
 import { createElicitQuestionPrediction } from '../collections/elicitQuestionPredictions/mutations';
 import { computeContextFromUser } from '../vulcan-lib/apollo-server/context';
 
-export const elicitPredictionsGraphQLTypeDefs = gql`
+export const elicitPredictionsGraphQLTypeDefs = () => gql`
   type ElicitUser {
     isQuestionCreator: Boolean
     displayName: String

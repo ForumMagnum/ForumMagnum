@@ -5,7 +5,7 @@ import { getFieldGqlResolvers } from "@/server/vulcan-lib/apollo-server/helpers"
 import gql from "graphql-tag";
 import { PetrovDayActionsViews } from "@/lib/collections/petrovDayActions/views";
 
-export const graphqlPetrovDayActionQueryTypeDefs = gql`
+export const graphqlPetrovDayActionQueryTypeDefs = () => gql`
   type PetrovDayAction ${ getAllGraphQLFields(schema) }
   
   input SinglePetrovDayActionInput {

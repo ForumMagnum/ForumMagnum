@@ -5,7 +5,7 @@ import { getDefaultResolvers } from "@/server/resolvers/defaultResolvers";
 import gql from "graphql-tag";
 import { BookmarksViews } from "@/lib/collections/bookmarks/views";
 
-export const graphqlBookmarkQueryTypeDefs = gql`
+export const graphqlBookmarkQueryTypeDefs = () => gql`
   type Bookmark ${ getAllGraphQLFields(schema) }
 
   input SingleBookmarkInput {

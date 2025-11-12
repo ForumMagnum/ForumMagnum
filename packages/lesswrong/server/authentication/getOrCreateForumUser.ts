@@ -3,7 +3,6 @@ import { captureException } from "@/lib/sentryWrapper";
 import { userFindOneByEmail, usersFindAllByEmail } from "../commonQueries";
 import Users from "../../server/collections/users/collection";
 import { createAnonymousContext } from "@/server/vulcan-lib/createContexts";
-import { updateUser, createUser } from "../collections/users/mutations";
 
 export type IdFromProfile<P extends Profile> = (profile: P) => string | number;
 
@@ -32,6 +31,7 @@ const syncOAuthUser = async (user: DbUser, profile: Profile): Promise<DbUser> =>
     // with the same email.
     const preexistingAccountWithEmail = await userFindOneByEmail(profileEmails[0]);
     if (!preexistingAccountWithEmail) {
+      const { updateUser } = await import("../collections/users/mutations");
       const updatedUserResponse = await updateUser({
         data: {
           email: profileEmails[0],
@@ -78,6 +78,7 @@ export const getOrCreateForumUserAsync = async <P extends Profile>(
         }
         const user = matchingUsers[0];
         if (user) {
+          const { updateUser } = await import("../collections/users/mutations");
           const userUpdated = await updateUser({ data: {[profilePath]: profile}, selector: { _id: user._id } }, createAnonymousContext());
           if (user.banned && new Date(user.banned) > new Date()) {
             throw new Error("banned");
@@ -86,6 +87,7 @@ export const getOrCreateForumUserAsync = async <P extends Profile>(
         }
       }
 
+      const { createUser } = await import("../collections/users/mutations");
       const userCreated = await createUser({ data: await getUserDataFromProfile(profile) }, createAnonymousContext());
       return userCreated;
     }

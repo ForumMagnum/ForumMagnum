@@ -11,7 +11,7 @@ import { MAIN_TAB_ID } from "@/lib/collections/tags/constants";
 import gql from 'graphql-tag';
 
 
-export const tagHistoryFeedGraphQLTypeDefs = gql`
+export const tagHistoryFeedGraphQLTypeDefs = () => gql`
   type TagHistoryFeedQueryResults {
     cutoff: Date
     endOffset: Int!

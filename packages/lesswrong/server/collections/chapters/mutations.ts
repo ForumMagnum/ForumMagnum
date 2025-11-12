@@ -130,7 +130,7 @@ export const updateChapterGqlMutation = makeGqlUpdateMutation('Chapters', update
 
 
 
-export const graphqlChapterTypeDefs = gql`
+export const graphqlChapterTypeDefs = () => gql`
   input CreateChapterDataInput ${
     getCreatableGraphQLFields(schema)
   }

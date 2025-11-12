@@ -10,7 +10,7 @@ import sum from 'lodash/sum';
 // indexes the order of keys matters, and that ordering doesn't survive
 // traversal through GraphQL.
 
-export const siteAdminMetadataGraphQLTypeDefs = gql`
+export const siteAdminMetadataGraphQLTypeDefs = () => gql`
   extend type Query {
     AdminMetadata: String
   }

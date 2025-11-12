@@ -5,7 +5,7 @@ import { getFieldGqlResolvers } from "@/server/vulcan-lib/apollo-server/helpers"
 import gql from "graphql-tag";
 import { CommentModeratorActionsViews } from "@/lib/collections/commentModeratorActions/views";
 
-export const graphqlCommentModeratorActionQueryTypeDefs = gql`
+export const graphqlCommentModeratorActionQueryTypeDefs = () => gql`
   type CommentModeratorAction ${ getAllGraphQLFields(schema) }
   
   input SingleCommentModeratorActionInput {

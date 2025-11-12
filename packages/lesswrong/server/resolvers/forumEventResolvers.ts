@@ -85,7 +85,7 @@ export const forumEventGqlMutations = {
   },
 }
 
-export const forumEventGqlTypeDefs = gql`
+export const forumEventGqlTypeDefs = () => gql`
   extend type Mutation {
     AddForumEventVote(forumEventId: String!, x: Float!, delta: Float, postIds: [String]): Boolean
     RemoveForumEventVote(forumEventId: String!): Boolean

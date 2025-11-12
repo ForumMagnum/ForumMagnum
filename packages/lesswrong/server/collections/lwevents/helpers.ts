@@ -1,6 +1,5 @@
 import { getIntercomClient } from "@/server/intercomSetup";
 import { AfterCreateCallbackProperties } from "@/server/mutationCallbacks";
-import { updateSequenceReadStatusForPostRead } from "@/server/partiallyReadSequences";
 import { captureException } from "@/lib/sentryWrapper";
 
 export async function updateReadStatus(event: Partial<DbInsertion<DbLWEvent>>, context: ResolverContext) {
@@ -41,7 +40,7 @@ export async function updatePartiallyReadSequences(props: AfterCreateCallbackPro
     // a post. But if the sequence is already there, update their position in
     // the sequence.
     if (userHasPartiallyReadSequence(user, sequenceId) && event.documentId) {
-      // Deliberately lacks an await - this runs concurrently in the background
+      const { updateSequenceReadStatusForPostRead } = await import("@/server/partiallyReadSequences");
       await updateSequenceReadStatusForPostRead(user._id, event.documentId, event.properties.sequenceId, context);
     }
   }

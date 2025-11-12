@@ -5,7 +5,7 @@ import { getFieldGqlResolvers } from "@/server/vulcan-lib/apollo-server/helpers"
 import gql from "graphql-tag";
 import { JargonTermsViews } from "@/lib/collections/jargonTerms/views";
 
-export const graphqlJargonTermQueryTypeDefs = gql`
+export const graphqlJargonTermQueryTypeDefs = () => gql`
   type JargonTerm ${ getAllGraphQLFields(schema) }
   
   input SingleJargonTermInput {

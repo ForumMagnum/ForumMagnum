@@ -5,7 +5,7 @@ import { getFieldGqlResolvers } from "@/server/vulcan-lib/apollo-server/helpers"
 import gql from "graphql-tag";
 import { UserRateLimitsViews } from "@/lib/collections/userRateLimits/views";
 
-export const graphqlUserRateLimitQueryTypeDefs = gql`
+export const graphqlUserRateLimitQueryTypeDefs = () => gql`
   type UserRateLimit ${ getAllGraphQLFields(schema) }
 
   enum UserRateLimitType {

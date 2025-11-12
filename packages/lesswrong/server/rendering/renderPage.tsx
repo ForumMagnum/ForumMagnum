@@ -31,7 +31,6 @@ import { responseIsCacheable } from '@/server/cacheControlMiddleware';
 import { preloadScrollToCommentScript } from '@/lib/scrollUtils';
 // import { ensureClientId } from '@/server/clientIdMiddleware';
 import { getSqlBytesDownloaded } from '@/server/sqlConnection';
-import { measureSqlBytesDownloaded } from '@/server/sql/sqlClient';
 import { globalExternalStylesheets } from '@/themes/globalStyles/externalStyles';
 import { getPublicSettings, getPublicSettingsLoaded } from '@/lib/settingsCache';
 import { randomId } from '@/lib/random';

@@ -2,7 +2,7 @@ import gql from 'graphql-tag';
 import { BookmarkableCollectionName } from '@/lib/collections/bookmarks/constants';
 import { backgroundTask } from '@/server/utils/backgroundTask';
 
-export const bookmarkGqlTypeDefs = gql`
+export const bookmarkGqlTypeDefs = () => gql`
   input ToggleBookmarkInput {
     documentId: String!
     collectionName: String!

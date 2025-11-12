@@ -14,6 +14,7 @@ import { backgroundTask } from "@/server/utils/backgroundTask";
 import gql from "graphql-tag";
 import cloneDeep from "lodash/cloneDeep";
 
+
 function userHasJargonTermPostPermission(user: DbUser | null, post: DbPost) {
   return userIsAdmin(user) || userOwns(user, post) || userIsPostCoauthor(user, post);
 }
@@ -145,7 +146,7 @@ export const updateJargonTermGqlMutation = makeGqlUpdateMutation('JargonTerms', 
 
 
 
-export const graphqlJargonTermTypeDefs = gql`
+export const graphqlJargonTermTypeDefs = () => gql`
   input CreateJargonTermDataInput ${
     getCreatableGraphQLFields(schema)
   }

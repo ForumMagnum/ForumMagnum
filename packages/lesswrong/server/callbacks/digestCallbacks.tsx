@@ -9,7 +9,7 @@ export async function createNextDigestOnPublish({newDocument, oldDocument, conte
   const newerDigest = await Digests.findOne({ num: {$gt: newDocument.num ?? 0} })
   if (newerDigest) return
 
-  const { createDigest }: typeof import('../collections/digests/mutations') = await require('../collections/digests/mutations');
+  const { createDigest } = await import('../collections/digests/mutations');
 
   backgroundTask(createDigest({
     data: {

@@ -22,7 +22,7 @@ const seeLessEventDataSchema = z.object({
   cancelled: z.boolean().optional(),
 });
 
-export const graphqlUltraFeedEventTypeDefs = gql`
+export const graphqlUltraFeedEventTypeDefs = () => gql`
   enum UltraFeedEventCollectionName {
     Comments
     Posts

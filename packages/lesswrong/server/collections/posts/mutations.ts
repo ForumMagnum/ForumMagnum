@@ -282,10 +282,7 @@ export const updatePostGqlMutation = makeGqlUpdateMutation('Posts', updatePost, 
   accessFilter: (rawResult, context) => accessFilterSingle(context.currentUser, 'Posts', rawResult, context)
 });
 
-
-
-
-export const graphqlPostTypeDefs = gql`
+export const graphqlPostTypeDefs = () => gql`
   input CreatePostDataInput ${
     getCreatableGraphQLFields(schema)
   }

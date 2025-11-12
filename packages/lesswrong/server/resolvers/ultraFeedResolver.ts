@@ -57,7 +57,7 @@ const ULTRA_FEED_DATE_CUTOFFS: UltraFeedDateCutoffs = {
   threadEngagementLookbackDays: 30,
 };
 
-export const ultraFeedGraphQLTypeDefs = gql`
+export const ultraFeedGraphQLTypeDefs = () => gql`
   type FeedSpotlightMetaInfo {
     sources: [String!]!
     servedEventId: String!
