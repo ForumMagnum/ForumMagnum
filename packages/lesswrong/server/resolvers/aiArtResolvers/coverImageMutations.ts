@@ -1,4 +1,3 @@
-import { generateCoverImagesForPost } from '@/server/scripts/generativeModels/coverImages-2023Review';
 import { userIsAdmin } from '@/lib/vulcan-users/permissions';
 import { gql } from "graphql-tag";
 
@@ -14,6 +13,7 @@ export const generateCoverImagesForPostGraphQLMutations = {
     if (!currentUser || !userIsAdmin(currentUser)) {
       throw new Error('You must be an admin to generate cover images');
     }
+    const { generateCoverImagesForPost } = await import('@/server/scripts/generativeModels/coverImages-2023Review');
     try {
       const results = await generateCoverImagesForPost(postId, prompt);
       const reviewWinnerArts = results.map(result => result.reviewWinnerArt);

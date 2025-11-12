@@ -1,3 +1,4 @@
+// eslint-disable-next-line no-restricted-imports
 import type OpenAI from "openai";
 import { dataToMarkdown } from '../editor/conversionUtils';
 import { openAIApiKey, openAIOrganizationId } from '../databaseSettings';
