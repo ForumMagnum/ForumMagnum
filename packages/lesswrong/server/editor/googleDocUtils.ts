@@ -2,7 +2,7 @@ import axios from 'axios';
 import cheerio from 'cheerio';
 import { convertImagesInHTML, uploadBufferToCloudinary } from '../scripts/convertImagesToCloudinary';
 import { extractTableOfContents } from '@/lib/tableOfContents';
-import { dataToCkEditor } from './conversionUtils';
+import { dataToCkEditor, markdownToHtml } from './conversionUtils';
 import { parseDocumentFromString } from '@/lib/domParser';
 
 /**
@@ -437,6 +437,17 @@ function removeEmptyBodyParagraphs(html: string): string {
   return $.html();
 }
 
+export async function convertImportedGoogleDocMarkdown({markdown, postId}: {
+  markdown: string,
+  postId: string
+}): Promise<string> {
+  console.log(markdown);
+  const html = await markdownToHtml(markdown);
+  // TODO
+  console.log(html);
+  return html;
+}
+
 /**
  * We need to convert a few things in the raw html exported from google to make it work with ckeditor, this is
  * largely mirroring conversions we do on paste in the ckeditor code:
@@ -451,6 +462,7 @@ export async function convertImportedGoogleDoc({
   html: string;
   postId: string;
 }) {
+  console.log(html);
   const converters: (((html: string) => Promise<string>) | ((html: string) => string))[] = [
     async (html: string) => {
       const { html: rehostedHtml } = await convertImagesInHTML(html, postId, (url) =>
