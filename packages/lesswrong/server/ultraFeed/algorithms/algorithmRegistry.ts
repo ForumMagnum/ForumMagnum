@@ -7,6 +7,7 @@
 import type { UltraFeedAlgorithm } from '../ultraFeedAlgorithmInterface';
 import { scoringAlgorithm } from './scoringAlgorithm';
 import { samplingAlgorithm } from './samplingAlgorithm';
+import { userIsAdmin } from '@/lib/vulcan-users/permissions';
 
 export type UltraFeedAlgorithmName = 'scoring' | 'sampling';
 
@@ -15,9 +16,9 @@ const algorithms: Record<UltraFeedAlgorithmName, UltraFeedAlgorithm> = {
   sampling: samplingAlgorithm,
 };
 
-export function getAlgorithm(name: UltraFeedAlgorithmName | undefined | null): UltraFeedAlgorithm {
+export function getAlgorithm(name: UltraFeedAlgorithmName | undefined | null, currentUser?: DbUser | null): UltraFeedAlgorithm {
   if (!name || !algorithms[name]) {
-    return algorithms.sampling;
+    return userIsAdmin(currentUser ?? null) ? algorithms.scoring : algorithms.sampling;
   }
   return algorithms[name];
 }
