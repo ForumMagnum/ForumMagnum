@@ -110,6 +110,11 @@ const styles = defineStyles("MarginalFundingPage", (theme) => ({
     fontWeight: 500,
     letterSpacing: "-0.02em",
     lineHeight: "140%",
+    '& a': {
+      textDecoration: 'underline',
+      fontWeight: 600,
+      textUnderlineOffset: '3px'
+    }
   },
   list: {
     width: "100%",
