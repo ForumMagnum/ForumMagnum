@@ -1138,7 +1138,14 @@ export const MiscSettings: React.FC<MiscSettingsProps> = ({ formValues, onBoolea
               <select
                 className={classes.algorithmSelect}
                 value={formValues.algorithm ?? ''}
-                onChange={(e) => onAlgorithmChange(e.target.value === '' ? undefined : e.target.value as UltraFeedAlgorithm)}
+                onChange={(e) => {
+                  const value = e.target.value;
+                  if (value === '') {
+                    onAlgorithmChange(undefined);
+                  } else if (value === 'scoring' || value === 'sampling') {
+                    onAlgorithmChange(value);
+                  }
+                }}
               >
                 <option value="">Default (Admins: Scoring, Others: Sampling)</option>
                 <option value="scoring">Unified Scoring</option>
