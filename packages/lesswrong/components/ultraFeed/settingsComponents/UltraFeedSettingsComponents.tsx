@@ -111,6 +111,18 @@ const styles = defineStyles('UltraFeedSettingsComponents', (theme: ThemeType) =>
     minWidth: "150px",
     marginLeft: "auto",
   },
+  algorithmSelect: {
+    marginLeft: 'auto',
+    width: 'fit-content',
+    padding: 6,
+    border: '1px solid ' + theme.palette.grey[400],
+    borderRadius: 4,
+    fontSize: '1.1rem',
+    fontFamily: 'inherit',
+    cursor: 'pointer',
+    backgroundColor: theme.palette.background.default,
+    color: theme.palette.text.primary,
+  },
   lineClampLabel: {
     fontSize: '1.1rem',
     width: 70,
@@ -1087,11 +1099,11 @@ export const UnifiedScoringSettings: React.FC<UnifiedScoringSettingsProps> = ({
 export interface MiscSettingsProps {
   formValues: {
     incognitoMode: boolean;
-    algorithm: UltraFeedAlgorithm;
+    algorithm: UltraFeedAlgorithm | undefined;
     defaultOpen?: boolean;
   };
   onBooleanChange: (field: 'incognitoMode', checked: boolean) => void;
-  onAlgorithmChange: (algorithm: UltraFeedAlgorithm) => void;
+  onAlgorithmChange: (algorithm: UltraFeedAlgorithm | undefined) => void;
   defaultOpen?: boolean;
   currentUser: UsersCurrent | null;
 }
@@ -1124,17 +1136,15 @@ export const MiscSettings: React.FC<MiscSettingsProps> = ({ formValues, onBoolea
             <div className={classes.sourceWeightContainer}>
               <label className={classes.sourceWeightLabel}>Algorithm</label>
               <select
-                className={classNames(classes.sourceWeightInput, classes.threadAggSelect)}
-                value={formValues.algorithm}
-                onChange={(e) => onAlgorithmChange(e.target.value as UltraFeedAlgorithm)}
+                className={classes.algorithmSelect}
+                value={formValues.algorithm ?? ''}
+                onChange={(e) => onAlgorithmChange(e.target.value === '' ? undefined : e.target.value as UltraFeedAlgorithm)}
               >
+                <option value="">Default (Admins: Scoring, Others: Sampling)</option>
                 <option value="scoring">Unified Scoring</option>
                 <option value="sampling">Legacy Sampling</option>
               </select>
             </div>
-            <p className={classes.sourceWeightDescription}>
-              Choose between the new unified scoring algorithm (transparent, predictable) and the legacy weighted sampling algorithm. (Admin-only setting)
-            </p>
           </div>
         </>
       )}
