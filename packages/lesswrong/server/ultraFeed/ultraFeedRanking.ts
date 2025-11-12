@@ -61,9 +61,9 @@ export function toThreadRankable(
   const perComment: CommentRankableItem[] = thread.comments.map((c): CommentRankableItem => {
     const postedAt = c.metaInfo?.postedAt ?? null;
     const ageHrs = postedAt ? moment(now).diff(postedAt, 'hours') : 0;
-    const isRead = Boolean(c.metaInfo?.lastViewed || c.metaInfo?.lastInteracted);
+    const isRead = !!(c.metaInfo?.lastViewed || c.metaInfo?.lastInteracted);
     const primarySource = (c.metaInfo?.sources?.[0] as FeedItemSourceType | undefined);
-    const userSubscribedToAuthor = Boolean(c.metaInfo?.sources?.includes('subscriptionsComments' as const));
+    const userSubscribedToAuthor = !!c.metaInfo?.fromSubscribedUser;
     return {
       commentId: c.commentId,
       ageHrs,
