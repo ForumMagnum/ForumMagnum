@@ -70,20 +70,26 @@ function applyMarkdownFootnoteRules(mdi: markdownIt) {
   
     if (tokens[idx].meta.subId > 0) refid += `:${tokens[idx].meta.subId}`
   
+    // The markdown-it-footnote default here was:
     //return `<sup class="footnote-ref"><a href="#fn${id}" id="fnref${refid}">${caption}</a></sup>`
+
     const footnoteIndex = Number(tokens[idx].meta.id + 1).toString()
     return `<span data-footnote-reference="" data-footnote-index="${footnoteIndex}" data-footnote-id="${id}" role="doc-noteref" id="fnref${id}" class="footnote-reference">
       <sup><a href="#fn${id}" class="">[${caption}]</a></sup>
     </span>`
   };
   mdi.renderer.rules.footnote_block_open = (tokens, idx, options) => {
+    // The markdown-it-footnote default here was:
     //return (options.xhtmlOut ? '<hr class="footnotes-sep" />\n' : '<hr class="footnotes-sep">\n') +
     //  '<section class="footnotes">\n' +
     //  '<ol class="footnotes-list">\n'
+
     return '<ol data-footnote-section="" role="doc-endnotes" class="footnote-section footnotes">';
   };
   mdi.renderer.rules.footnote_block_close = () => {
+    // The markdown-it-footnote default here was:
     //return '</ol>\n</section>\n'
+
     return '</ol>\n'
   };
   mdi.renderer.rules.footnote_open = (tokens, idx, options, env, self) => {
@@ -91,6 +97,7 @@ function applyMarkdownFootnoteRules(mdi: markdownIt) {
 
     if (tokens[idx].meta.subId > 0) id += `:${tokens[idx].meta.subId}`
   
+    // The markdown-it-footnote default here was:
     //return `<li id="fn${id}" class="footnote-item">`
     const footnoteIndex = Number(tokens[idx].meta.id + 1).toString()
     return `<li data-footnote-item="" data-footnote-index="${footnoteIndex}" data-footnote-id="${id}" id="fn${id}" role="doc-endnote" class="footnote-item">`
