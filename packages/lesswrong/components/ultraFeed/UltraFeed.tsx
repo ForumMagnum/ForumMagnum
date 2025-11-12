@@ -298,7 +298,6 @@ const UltraFeedContent = ({
                     updateSettings={updateSettings}
                     onClose={() => onCloseSettings?.()} 
                     truncationMaps={truncationMaps}
-                    showFeedSelector
                   />
                 ) : (
                   <UltraFeedFollowingSettings
