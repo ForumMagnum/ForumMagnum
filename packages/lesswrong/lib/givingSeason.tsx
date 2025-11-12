@@ -21,8 +21,8 @@ export const ELECTION_INFO_HREF = "/posts/RzdKnBYe3jumrZxkB/giving-season-2025-a
 export const ELECTION_LEARN_MORE_HREF = "/posts/93KvQDDQfaZEBTP7t/donation-election-fund-rewards-and-matching";
 export const ELECTION_DONATE_HREF = "https://www.every.org/ea-forum-donation-election-2025";
 export const ELECTION_2025_MATCHED_AMOUNT = 5000;
-export const MARGINAL_FUNDING_SEQUENCE_ID = isProduction ? "" : "GxLPEuy84SkDEXTmZ"; // TODO
-export const MARGINAL_FUNDING_SPOTIFY_URL = "#"; // TODO
+export const MARGINAL_FUNDING_SEQUENCE_ID = isProduction ? "jTAPdwYry3zTyifkZ" : "GxLPEuy84SkDEXTmZ"; // TODO
+export const MARGINAL_FUNDING_SPOTIFY_URL = ""; // TODO
 const ELECTION_TARGET_AMOUNT = 30000;
 
 type GivingSeasonEvent = {

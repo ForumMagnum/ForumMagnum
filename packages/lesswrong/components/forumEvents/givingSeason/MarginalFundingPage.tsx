@@ -184,13 +184,13 @@ export const MarginalFundingPage = () => {
           <div className={classes.grid}>
             <div className={classes.header}>
               <div className={classes.options}>
-                <Link
+                {MARGINAL_FUNDING_SPOTIFY_URL && <Link
                   to={MARGINAL_FUNDING_SPOTIFY_URL}
                   onClick={onListen}
                   className={classes.option}
                 >
                   <ForumIcon icon="VolumeUp" /> Listen to the posts
-                </Link>
+                </Link>}
                 <MarginalFundingSubscribeButton
                   sequence={sequence}
                   className={classes.option}
