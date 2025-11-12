@@ -654,12 +654,19 @@ const UltraFeedSettings = ({
   }, [formValues, simpleViewTruncationLevels, updateSettings, captureEvent, settings, viewMode, flash, truncationMaps]);
   
   const handleReset = useCallback(() => {
+    // Preserve the current algorithm choice when resetting
+    const currentAlgorithm = formValues.algorithm;
+    
     // Reset local form state to defaults without persisting
-    setFormValues(deriveFormValuesFromSettings(DEFAULT_SETTINGS));
+    const resetFormValues = deriveFormValuesFromSettings(DEFAULT_SETTINGS);
+    setFormValues({
+      ...resetFormValues,
+      algorithm: currentAlgorithm,
+    });
     setSimpleViewTruncationLevels(deriveSimpleViewTruncationLevelsFromSettings(DEFAULT_SETTINGS, truncationMaps));
     setZodErrors(null);
     captureEvent("ultraFeedSettingsReset");
-  }, [captureEvent, truncationMaps]);
+  }, [captureEvent, truncationMaps, formValues.algorithm]);
 
   const truncationGridProps = {
     levels: simpleViewTruncationLevels,
