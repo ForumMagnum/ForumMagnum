@@ -4,9 +4,6 @@ import Notifications from "@/server/collections/notifications/collection";
 import { getUserFromReq } from "@/server/vulcan-lib/apollo-server/getUserFromReq";
 import { isFriendlyUI } from "@/themes/forumTheme";
 import { NextResponse, type NextRequest } from "next/server";
-import { suggestedTimeouts } from "@/server/pageTimeouts";
-
-export const maxDuration = suggestedTimeouts.simpleApiRoute;
 
 export async function GET(req: NextRequest) {
   const currentUser = await getUserFromReq(req);

@@ -4,9 +4,6 @@ import RouteRoot from "@/components/next/RouteRoot";
 import AlignmentForumHome from "@/components/alignment-forum/AlignmentForumHome";
 import { forumSelect } from "@/lib/forumTypeUtils";
 import EAHome from "@/components/ea-forum/EAHome";
-import { suggestedTimeouts } from "@/server/pageTimeouts";
-
-export const maxDuration = suggestedTimeouts.normalPage;
 
 export default async function Home() {
   return <RouteRoot metadata={{ hasLeftNavigationColumn: true }}>

@@ -9,9 +9,6 @@ import { sendJobAdReminderEmails } from '@/server/userJobAdCron';
 import { expiredRateLimitsReturnToReviewQueue } from '@/server/users/cron';
 import { updateScoreInactiveDocuments } from '@/server/votingCron';
 import { isEAForum, performanceMetricLoggingEnabled } from '@/lib/instanceSettings';
-import { suggestedTimeouts } from "@/server/pageTimeouts";
-
-export const maxDuration = suggestedTimeouts.cronjob;
 
 export async function GET(request: NextRequest) {
   const authHeader = request.headers.get('authorization');

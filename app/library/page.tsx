@@ -6,9 +6,6 @@ import merge from "lodash/merge";
 import RouteRoot from "@/components/next/RouteRoot";
 import { isAF } from "@/lib/forumTypeUtils";
 import AFLibraryPage from "@/components/alignment-forum/AFLibraryPage";
-import { suggestedTimeouts } from "@/server/pageTimeouts";
-
-export const maxDuration = suggestedTimeouts.potentiallySlowPage;
 
 export async function generateMetadata(): Promise<Metadata> {
   return merge({}, await getDefaultMetadata(), {
