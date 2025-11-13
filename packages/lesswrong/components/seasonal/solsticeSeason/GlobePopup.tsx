@@ -14,6 +14,7 @@ const styles = defineStyles("GlobePopup", (theme: ThemeType) => ({
     ...commentBodyStyles(theme),
     background: theme.palette.grey[200],
     borderRadius: '5px !important',
+    boxShadow: theme.shadows[10],
     padding: 10,
     maxWidth: 250,
     position: 'relative',
@@ -55,7 +56,7 @@ export const GlobePopup = ({document, screenCoords, onClose}: {
 
   const { refs, floatingStyles, placement: actualPlacement } = useFloating({
     placement: 'right',
-    middleware: [offset(25), flip(), shift({ padding: 8 })],
+    middleware: [offset(25), flip({ fallbackPlacements: ['left'] }), shift({ padding: 8 })],
     whileElementsMounted: autoUpdate,
   });
 
@@ -76,28 +77,20 @@ export const GlobePopup = ({document, screenCoords, onClose}: {
 
   useEffect(() => {
     if (!popupRef.current) return;
-    const popupRect = popupRef.current.getBoundingClientRect();
     const placementSide = actualPlacement.split('-')[0];
-    const isVertical = placementSide === 'top' || placementSide === 'bottom';
-    const offset = isVertical 
-      ? screenCoords.x - popupRect.left 
-      : screenCoords.y - popupRect.top;
-    const clampedOffset = Math.max(10, Math.min(
-      (isVertical ? popupRect.width : popupRect.height) - 10, 
-      offset
-    ));
 
+    // Always center the triangle along the corresponding edge of the popup.
     const triangleConfig: Record<string, React.CSSProperties> = {
       right: {
         left: 0,
-        top: `${clampedOffset}px`,
+        top: '50%',
         transform: 'translateX(-100%) translateY(-50%)',
         borderWidth: '8px 10px 8px 0',
         borderColor: `transparent ${bgColor} transparent transparent`,
       },
       left: {
         left: '100%',
-        top: `${clampedOffset}px`,
+        top: '50%',
         transform: 'translateY(-50%)',
         borderWidth: '8px 0 8px 10px',
         borderColor: `transparent transparent transparent ${bgColor}`,
