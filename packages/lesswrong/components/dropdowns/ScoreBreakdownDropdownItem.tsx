@@ -12,6 +12,9 @@ import { userIsAdmin } from '@/lib/vulcan-users/permissions';
 const styles = defineStyles('ScoreBreakdownDropdownItem', (theme: ThemeType) => ({
   tooltipWrapper: {
     display: 'block',
+    [theme.breakpoints.down('sm')]: {
+      display: 'none',
+    },
   },
   title: {
     flexGrow: 1,
