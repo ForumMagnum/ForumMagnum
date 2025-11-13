@@ -1,7 +1,4 @@
 import { testServerSetting } from "@/lib/instanceSettings";
-import { suggestedTimeouts } from "@/server/pageTimeouts";
-
-export const maxDuration = suggestedTimeouts.simpleApiRoute;
 
 export async function POST() {
   if (!testServerSetting.get()) {

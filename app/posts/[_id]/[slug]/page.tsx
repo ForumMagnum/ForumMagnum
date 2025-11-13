@@ -4,9 +4,6 @@ import { getPostPageMetadataFunction } from "@/server/pageMetadata/postPageMetad
 import { PostsPageHeaderTitle } from "@/components/titles/PostsPageHeaderTitle";
 import { hasPostRecommendations } from "@/lib/betas";
 import RouteRoot from "@/components/next/RouteRoot";
-import { suggestedTimeouts } from "@/server/pageTimeouts";
-
-export const maxDuration = suggestedTimeouts.postPage;
 
 export const generateMetadata = getPostPageMetadataFunction<{ _id: string }>(({ _id }) => _id);
 

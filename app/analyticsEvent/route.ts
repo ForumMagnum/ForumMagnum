@@ -1,9 +1,6 @@
 import { handleAnalyticsEventWriteRequest } from "@/server/analytics/serverAnalyticsWriter";
 import { backgroundTask } from "@/server/utils/backgroundTask";
 import type { NextRequest } from "next/server";
-import { suggestedTimeouts } from "@/server/pageTimeouts";
-
-export const maxDuration = suggestedTimeouts.simpleApiRoute;
 
 export async function POST(req: NextRequest) {
   let bodyText: string|null = null;

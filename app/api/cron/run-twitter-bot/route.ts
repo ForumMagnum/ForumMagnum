@@ -1,8 +1,5 @@
 import type { NextRequest } from 'next/server';
 import { runTwitterBot } from '@/server/twitterBot';
-import { suggestedTimeouts } from "@/server/pageTimeouts";
-
-export const maxDuration = suggestedTimeouts.cronjob;
 
 export async function GET(request: NextRequest) {
   const authHeader = request.headers.get('authorization');

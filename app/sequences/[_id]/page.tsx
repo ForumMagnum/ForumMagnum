@@ -6,9 +6,6 @@ import merge from "lodash/merge";
 import { sequenceGetPageUrl } from "@/lib/collections/sequences/helpers";
 import { combineUrls, getSiteUrl } from "@/lib/vulcan-lib/utils";
 import RouteRoot from "@/components/next/RouteRoot";
-import { suggestedTimeouts } from "@/server/pageTimeouts";
-
-export const maxDuration = suggestedTimeouts.normalPage;
 
 export async function generateMetadata({ params }: { params: Promise<{ _id: string }> }): Promise<Metadata> {
   const [{ _id }, defaultMetadata] = await Promise.all([
