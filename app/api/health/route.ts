@@ -1,7 +1,4 @@
 import { getSqlClientOrThrow } from "@/server/sql/sqlClient";
-import { suggestedTimeouts } from "@/server/pageTimeouts";
-
-export const maxDuration = suggestedTimeouts.simpleApiRoute;
 
 export async function GET() {
   try {

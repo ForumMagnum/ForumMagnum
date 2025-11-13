@@ -8,9 +8,6 @@ import { getDefaultMetadata, getMetadataDescriptionFields, getMetadataImagesFiel
 import { taglineSetting } from "@/lib/instanceSettings";
 import { makeCloudinaryImageUrl } from "@/components/common/cloudinaryHelpers";
 import RouteRoot from "@/components/next/RouteRoot";
-import { suggestedTimeouts } from "@/server/pageTimeouts";
-
-export const maxDuration = suggestedTimeouts.potentiallySlowPage;
 
 export async function generateMetadata({ params }: { params: Promise<{ _id: string }> }): Promise<Metadata> {
   const [{ _id }, defaultMetadata] = await Promise.all([params, getDefaultMetadata()]);

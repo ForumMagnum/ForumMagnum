@@ -11,9 +11,6 @@ import { GraphQLFormattedError } from 'graphql';
 import { inspect } from 'util';
 import { formatError } from 'apollo-errors';
 import { crosspostOptionsHandler, setCorsHeaders } from "@/server/crossposting/cors";
-import { suggestedTimeouts } from "@/server/pageTimeouts";
-
-export const maxDuration = suggestedTimeouts.graphqlApiEndpoint;
 
 class ApolloServerLogging implements ApolloServerPlugin<ResolverContext> {
   async requestDidStart({ request, contextValue: context }: GraphQLRequestContext<ResolverContext>) {
