@@ -25,7 +25,7 @@ const styles = defineStyles('UltraFeedSettingsComponents', (theme: ThemeType) =>
     backgroundColor: theme.palette.background.paper,
     width: '100%',
     padding: 16,
-    border: `1px solid ${theme.palette.grey[300]}`,
+    border: theme.palette.border.grey300,
     borderRadius: 4,
     paddingLeft: 32,
     paddingRight: 32,
@@ -101,7 +101,7 @@ const styles = defineStyles('UltraFeedSettingsComponents', (theme: ThemeType) =>
     marginLeft: 12,
     width: 80,
     padding: 6,
-    border: '1px solid ' + theme.palette.grey[400],
+    border: theme.palette.border.grey400,
     borderRadius: 4,
     color: theme.palette.text.primary,
     background: theme.palette.background.default,
@@ -110,6 +110,18 @@ const styles = defineStyles('UltraFeedSettingsComponents', (theme: ThemeType) =>
   threadAggSelect: {
     minWidth: "150px",
     marginLeft: "auto",
+  },
+  algorithmSelect: {
+    marginLeft: 'auto',
+    width: 'fit-content',
+    padding: 6,
+    border: theme.palette.border.grey400,
+    borderRadius: 4,
+    fontSize: '1.1rem',
+    fontFamily: 'inherit',
+    cursor: 'pointer',
+    backgroundColor: theme.palette.background.default,
+    color: theme.palette.text.primary,
   },
   lineClampLabel: {
     fontSize: '1.1rem',
@@ -207,7 +219,7 @@ const styles = defineStyles('UltraFeedSettingsComponents', (theme: ThemeType) =>
     fontSize: '1.1rem',
     fontFamily: 'inherit',
     cursor: 'pointer',
-    border: `1px solid ${theme.palette.grey[400]}`,
+    border: theme.palette.border.grey400,
     borderRadius: 4,
     backgroundColor: theme.palette.background.default,
     color: theme.palette.text.primary,
@@ -1087,11 +1099,11 @@ export const UnifiedScoringSettings: React.FC<UnifiedScoringSettingsProps> = ({
 export interface MiscSettingsProps {
   formValues: {
     incognitoMode: boolean;
-    algorithm: UltraFeedAlgorithm;
+    algorithm: UltraFeedAlgorithm | undefined;
     defaultOpen?: boolean;
   };
   onBooleanChange: (field: 'incognitoMode', checked: boolean) => void;
-  onAlgorithmChange: (algorithm: UltraFeedAlgorithm) => void;
+  onAlgorithmChange: (algorithm: UltraFeedAlgorithm | undefined) => void;
   defaultOpen?: boolean;
   currentUser: UsersCurrent | null;
 }
@@ -1124,17 +1136,22 @@ export const MiscSettings: React.FC<MiscSettingsProps> = ({ formValues, onBoolea
             <div className={classes.sourceWeightContainer}>
               <label className={classes.sourceWeightLabel}>Algorithm</label>
               <select
-                className={classNames(classes.sourceWeightInput, classes.threadAggSelect)}
-                value={formValues.algorithm}
-                onChange={(e) => onAlgorithmChange(e.target.value as UltraFeedAlgorithm)}
+                className={classes.algorithmSelect}
+                value={formValues.algorithm ?? ''}
+                onChange={(e) => {
+                  const value = e.target.value;
+                  if (value === '') {
+                    onAlgorithmChange(undefined);
+                  } else if (value === 'scoring' || value === 'sampling') {
+                    onAlgorithmChange(value);
+                  }
+                }}
               >
+                <option value="">Default (Admins: Scoring, Others: Sampling)</option>
                 <option value="scoring">Unified Scoring</option>
                 <option value="sampling">Legacy Sampling</option>
               </select>
             </div>
-            <p className={classes.sourceWeightDescription}>
-              Choose between the new unified scoring algorithm (transparent, predictable) and the legacy weighted sampling algorithm. (Admin-only setting)
-            </p>
           </div>
         </>
       )}
