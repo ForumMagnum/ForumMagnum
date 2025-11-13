@@ -18,6 +18,7 @@ import { useTracking } from '@/lib/analyticsEvents';
 import { useMessages } from '../common/withMessages';
 import { useLocalStorageState } from '../hooks/useLocalStorageState';
 import { useCurrentUser } from '../common/withUser';
+import { userIsAdmin } from '@/lib/vulcan-users/permissions';
 import { 
   ultraFeedSettingsSchema, 
   UltraFeedSettingsZodErrors,
@@ -419,6 +420,8 @@ const UltraFeedSettings = ({
     deriveFormValuesFromSettings(settings)
   );
 
+  const effectiveAlgorithm: UltraFeedAlgorithm = formValues.algorithm ?? (userIsAdmin(currentUser) ? 'scoring' : 'sampling');
+
   const [zodErrors, setZodErrors] = useState<UltraFeedSettingsZodErrors>(null);
 
   const sourceWeightErrors: Record<FeedItemSourceType, string | undefined> = React.useMemo(() => {
@@ -746,7 +749,7 @@ const UltraFeedSettings = ({
       <div className={classes.settingsGroupsContainer}>
         {viewMode === 'simple' ? (
           <SimpleView
-            algorithm={formValues.algorithm}
+            algorithm={effectiveAlgorithm}
             exploreExploitBiasProps={exploreExploitBiasProps}
             sourceWeights={formValues.sourceWeights}
             sourceWeightErrors={sourceWeightErrors}
@@ -759,7 +762,7 @@ const UltraFeedSettings = ({
           />
         ) : (
           <AdvancedView
-            algorithm={formValues.algorithm}
+            algorithm={effectiveAlgorithm}
             sourceWeights={formValues.sourceWeights}
             sourceWeightErrors={sourceWeightErrors}
             onSourceWeightChange={handleSourceWeightChange}

@@ -178,16 +178,13 @@ const styles = defineStyles("UltraFeedItemFooter", (theme: ThemeType) => ({
     display: 'flex',
     alignItems: 'center',
     gap: 8,
+    [theme.breakpoints.down('sm')]: {
+      display: 'none',
+    },
   },
   bookmarkButtonContainer: {
-    [theme.breakpoints.down('sm')]: {
-      display: 'none',
-    },
   },
   scoreBreakdownContainer: {
-    [theme.breakpoints.down('sm')]: {
-      display: 'none',
-    },
   },
   bookmarkButton: {
     position: "relative", 
