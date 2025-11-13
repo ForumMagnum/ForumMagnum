@@ -169,7 +169,7 @@
     "cheerio": "1.0.0-rc.9",
     "chokidar": "^3.5.0",
     "classnames": "^2.2.6",
-    "cloudinary": "^1.23.0",
+    "cloudinary": "^2.7.0",
     "cloudinary-react": "1.0.6",
     "cors": "^2.8.5",
     "crypto-js": "^4.2.0",
