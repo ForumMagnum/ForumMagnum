@@ -4,6 +4,9 @@ import { NextRequest } from "next/server";
 import { ClaudeMessageRequestSchema } from "@/components/languageModels/schema";
 import { userHasLlmChat } from "@/lib/betas";
 import { htmlToMarkdown } from "@/server/editor/conversionUtils";
+import { suggestedTimeouts } from "@/server/pageTimeouts";
+
+export const maxDuration = suggestedTimeouts.llmStreaming;
 
 export async function POST(req: NextRequest) {
   try {
