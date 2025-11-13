@@ -156,7 +156,7 @@ export const usePostsList = <TagId extends string | undefined = undefined>({
     } as const
     : {};
 
-  const query = !!tagId ? postsListWithVotesQuery : postsListTagWithVotesQuery;
+  const query = !!tagId ? postsListTagWithVotesQuery : postsListWithVotesQuery ;
   const { view = 'default', limit = 10, ...selectorTerms } = terms ?? {};
 
   const { data, error, loading, loadMoreProps } = useQueryWithLoadMore(query, {
