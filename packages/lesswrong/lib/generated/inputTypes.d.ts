@@ -2754,6 +2754,7 @@ interface Post {
   fmCrosspost: CrosspostOutput | null;
   canonicalSequenceId: string | null;
   canonicalSequence: Sequence | null;
+  isMarginalFunding2025Post: boolean;
   canonicalCollectionSlug: string | null;
   canonicalCollection: Collection | null;
   canonicalBookId: string | null;
