@@ -2326,6 +2326,10 @@ interface PostsPlaintextDescription_contents { // fragment on Revisions
   readonly plaintextDescription: string,
 }
 
+interface PostsPostsPageBannerDetails extends PostsDetails { // fragment on Posts
+  readonly isMarginalFunding2025Post: boolean,
+}
+
 interface PostsRSSFeed extends PostsPage { // fragment on Posts
   readonly scoreExceeded2Date: Date|null,
   readonly scoreExceeded30Date: Date|null,
@@ -5776,6 +5780,7 @@ interface FragmentTypes {
   PostsOriginalContents: PostsOriginalContents
   PostsPage: PostsPage
   PostsPlaintextDescription: PostsPlaintextDescription
+  PostsPostsPageBannerDetails: PostsPostsPageBannerDetails
   PostsRSSFeed: PostsRSSFeed
   PostsRecentDiscussion: PostsRecentDiscussion
   PostsReviewVotingList: PostsReviewVotingList
@@ -6022,7 +6027,7 @@ interface FragmentTypesByCollection {
   PostRelations: "PostRelationsDefaultFragment"
   PostViewTimes: "PostViewTimesDefaultFragment"
   PostViewses: "PostViewsDefaultFragment"
-  Posts: "HighlightWithHash"|"PostForReviewWinnerItem"|"PostSequenceNavigation"|"PostSideComments"|"PostWithDialogueMessage"|"PostWithGeneratedSummary"|"PostsAuthors"|"PostsBase"|"PostsBestOfList"|"PostsDefaultFragment"|"PostsDetails"|"PostsEdit"|"PostsEditMutationFragment"|"PostsEditQueryFragment"|"PostsExpandedHighlight"|"PostsForAutocomplete"|"PostsHTML"|"PostsList"|"PostsListBase"|"PostsListTag"|"PostsListTagWithVotes"|"PostsListWithVotes"|"PostsListWithVotesAndSequence"|"PostsMinimumInfo"|"PostsModerationGuidelines"|"PostsOriginalContents"|"PostsPage"|"PostsPlaintextDescription"|"PostsRSSFeed"|"PostsRecentDiscussion"|"PostsReviewVotingList"|"PostsRevision"|"PostsRevisionEdit"|"PostsRevisionsList"|"PostsTopItemInfo"|"PostsTwitterAdmin"|"PostsWithNavigation"|"PostsWithNavigationAndRevision"|"PostsWithVotes"|"ShortformRecentDiscussion"|"SuggestAlignmentPost"|"SunshineCurationPostsList"|"SunshinePostsList"|"UltraFeedPostFragment"|"UsersBannedFromPostsModerationLog"|"WithVotePost"
+  Posts: "HighlightWithHash"|"PostForReviewWinnerItem"|"PostSequenceNavigation"|"PostSideComments"|"PostWithDialogueMessage"|"PostWithGeneratedSummary"|"PostsAuthors"|"PostsBase"|"PostsBestOfList"|"PostsDefaultFragment"|"PostsDetails"|"PostsEdit"|"PostsEditMutationFragment"|"PostsEditQueryFragment"|"PostsExpandedHighlight"|"PostsForAutocomplete"|"PostsHTML"|"PostsList"|"PostsListBase"|"PostsListTag"|"PostsListTagWithVotes"|"PostsListWithVotes"|"PostsListWithVotesAndSequence"|"PostsMinimumInfo"|"PostsModerationGuidelines"|"PostsOriginalContents"|"PostsPage"|"PostsPlaintextDescription"|"PostsPostsPageBannerDetails"|"PostsRSSFeed"|"PostsRecentDiscussion"|"PostsReviewVotingList"|"PostsRevision"|"PostsRevisionEdit"|"PostsRevisionsList"|"PostsTopItemInfo"|"PostsTwitterAdmin"|"PostsWithNavigation"|"PostsWithNavigationAndRevision"|"PostsWithVotes"|"ShortformRecentDiscussion"|"SuggestAlignmentPost"|"SunshineCurationPostsList"|"SunshinePostsList"|"UltraFeedPostFragment"|"UsersBannedFromPostsModerationLog"|"WithVotePost"
   RSSFeeds: "RSSFeedMinimumInfo"|"RSSFeedMutationFragment"|"RSSFeedsDefaultFragment"|"newRSSFeedFragment"
   ReadStatuses: "ReadStatusesDefaultFragment"
   RecommendationsCaches: "RecommendationsCachesDefaultFragment"
@@ -6225,6 +6230,7 @@ interface CollectionNamesByFragmentName {
   PostsOriginalContents: "Posts"
   PostsPage: "Posts"
   PostsPlaintextDescription: "Posts"
+  PostsPostsPageBannerDetails: "Posts"
   PostsRSSFeed: "Posts"
   PostsRecentDiscussion: "Posts"
   PostsReviewVotingList: "Posts"
