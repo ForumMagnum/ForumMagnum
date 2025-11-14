@@ -27,6 +27,7 @@ const styles = (theme: ThemeType) => ({
       flexDirection: "column",
       alignItems: "flex-start",
       gap: "12px",
+      marginTop: 5,
     },
   },
   textContent: {
