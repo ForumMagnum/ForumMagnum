@@ -233,7 +233,7 @@ const utils = {
         createNotifications({userIds: newReplyToYouIndirectUserIds, notificationType: 'newReplyToYou', documentType: 'comment', documentId: comment._id, extraData: {direct: false}})
       ]);
   
-      notifiedUsers = [...notifiedUsers, ...newReplyUserIds, ...newReplyToYouDirectUserIds];
+      notifiedUsers = [...notifiedUsers, ...newReplyUserIds, ...newReplyToYouDirectUserIds, ...newReplyToYouIndirectUserIds];
     }
   
     // 2. If this comment is a debate comment, notify users who are subscribed to the post as a debate (`newDebateComments`)
