@@ -3,11 +3,6 @@ declare module "deepmerge" {
   export default function deepmerge(a: any, b: any, options?: {isMergeableObject: any}): any
 }
 
-declare module "markdown-it-footnote" {
-  const markdownItFootnote: AnyBecauseTodo;
-  export default markdownItFootnote;
-}
-
 declare module "markdown-it-sub" {
   const markdownItSub: AnyBecauseTodo;
   export default markdownItSub;

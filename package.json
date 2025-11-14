@@ -119,6 +119,7 @@
     "@types/lru-cache": "^5.1.0",
     "@types/markdown-it": "^14.1.2",
     "@types/markdown-it-container": "^2.0.10",
+    "@types/markdown-it-footnote": "^3.0.4",
     "@types/md5": "^2.3.2",
     "@types/mocha": "^5.2.7",
     "@types/moment": "^2.13.0",
@@ -380,5 +381,10 @@
     "schema": "packages/lesswrong/lib/generated/gqlSchema.gql",
     "documents": "packages/lesswrong/**/*.{graphql,ts,tsx}"
   },
-  "browserslist": ["chrome 111", "edge 111", "firefox 111", "safari 12"]
+  "browserslist": [
+    "chrome 111",
+    "edge 111",
+    "firefox 111",
+    "safari 12"
+  ]
 }

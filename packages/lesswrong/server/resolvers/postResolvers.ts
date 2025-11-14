@@ -13,7 +13,7 @@ import { userCanDo, userIsAdmin } from '../../lib/vulcan-users/permissions';
 import { FilterPostsForReview } from '@/components/bookmarks/ReadHistoryTab';
 import gql from "graphql-tag";
 import { createPaginatedResolver } from './paginatedResolver';
-import { convertImportedGoogleDoc } from '../editor/googleDocUtils';
+import { convertImportedGoogleDoc, convertImportedGoogleDocMarkdown } from '../editor/googleDocUtils';
 import { postIsCriticism } from '../languageModels/criticismTipsBot';
 import { createPost } from '../collections/posts/mutations';
 import { createRevision } from '../collections/revisions/mutations';
@@ -341,9 +341,9 @@ export const postGqlMutations = {
     }
 
     // Fetch the HTML directly from the public export URL
-    const exportUrl = `https://docs.google.com/document/d/${fileId}/export?format=html`;
+    const exportUrl = `https://docs.google.com/document/d/${fileId}/export?format=markdown`;
 
-    let html: string;
+    let markdown: string;
     let docTitle: string;
 
     try {
@@ -354,10 +354,10 @@ export const postGqlMutations = {
         }
       });
 
-      html = await response.text();
+      markdown = await response.text();
 
-      if (!html || html.length === 0) {
-        throw new Error("Received empty HTML from Google Docs");
+      if (!markdown || markdown.length === 0) {
+        throw new Error("Received empty result from Google Docs");
       }
 
     } catch (error: any) {
@@ -377,7 +377,8 @@ export const postGqlMutations = {
     // Converting to ckeditor markup does some thing like removing styles to standardise
     // the result, so we always want to do this first before converting to whatever format the user
     // is using
-    const ckEditorMarkup = await convertImportedGoogleDoc({ html, postId: finalPostId })
+    const ckEditorMarkup = await convertImportedGoogleDocMarkdown({ markdown, postId: finalPostId })
+    //const ckEditorMarkup = await convertImportedGoogleDoc({ html, postId: finalPostId })
     const commitMessage = `[Google Doc import]`
     const originalContents = {type: "ckEditorMarkup", data: ckEditorMarkup}
 
@@ -404,7 +405,7 @@ export const postGqlMutations = {
         version: getNextVersion(previousRev, revisionType, true),
         updateType: revisionType,
         commitMessage,
-        changeMetrics: htmlToChangeMetrics(previousRev?.html || "", html),
+        changeMetrics: htmlToChangeMetrics(previousRev?.html || "", ckEditorMarkup),
       };
 
       await createRevision({ data: newRevision }, context);
