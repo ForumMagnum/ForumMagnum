@@ -1350,7 +1350,7 @@ class PostsRepo extends AbstractRepo<"Posts"> {
 
   async isInSequence(postId: string, sequenceId: string): Promise<boolean> {
     const result = await this.getRawDb().oneOrNone<{exists: boolean}>(`
-      -- PostsRepo.isMarginalFunding2025Post
+      -- PostsRepo.isInSequence
       SELECT EXISTS(
         SELECT 1
         FROM "Chapters"

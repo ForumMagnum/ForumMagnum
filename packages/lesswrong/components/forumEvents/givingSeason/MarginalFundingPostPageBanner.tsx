@@ -97,7 +97,7 @@ const MarginalFundingPostPageBanner = ({classes}: {
           <div className={classes.title}>{sequence.title}</div>
         </div>
         <Link to="/marginal-funding" className={classes.viewAllButton}>
-          View all {postsCount} posts
+          View all {postsCount} {postsCount === 1 ? 'post' : 'posts'}
         </Link>
       </div>
     </div>
