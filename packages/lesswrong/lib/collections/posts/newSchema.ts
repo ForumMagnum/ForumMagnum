@@ -74,6 +74,7 @@ import keyBy from "lodash/keyBy";
 import { filterNonnull } from "@/lib/utils/typeGuardUtils";
 import gql from "graphql-tag";
 import { commentIncludedInCounts } from "../comments/helpers";
+import { MARGINAL_FUNDING_SEQUENCE_ID } from "@/lib/givingSeason";
 
 export const graphqlTypeDefs = gql`
   type SocialPreviewType {
@@ -2464,6 +2465,15 @@ const schema = {
       outputType: "Sequence",
       canRead: ["guests"],
       resolver: generateIdResolverSingle({ foreignCollectionName: "Sequences", fieldName: "canonicalSequenceId" }),
+    },
+  },
+  isMarginalFunding2025Post: {
+    graphql: {
+      outputType: "Boolean!",
+      canRead: ["guests"],
+      resolver: async (post, _args, context) => {
+        return await context.repos.posts.isInSequence(post._id, MARGINAL_FUNDING_SEQUENCE_ID);
+      },
     },
   },
   canonicalCollectionSlug: {

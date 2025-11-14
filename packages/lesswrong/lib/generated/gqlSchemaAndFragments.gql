@@ -3425,6 +3425,7 @@ type Post {
   fmCrosspost: CrosspostOutput
   canonicalSequenceId: String
   canonicalSequence: Sequence
+  isMarginalFunding2025Post: Boolean!
   canonicalCollectionSlug: String
   canonicalCollection: Collection
   canonicalBookId: String
@@ -10048,6 +10049,11 @@ fragment PostsPlaintextDescription on Post {
     _id
     plaintextDescription
   }
+}
+
+fragment PostsPostsPageBannerDetails on Post {
+  ...PostsDetails
+  isMarginalFunding2025Post
 }
 
 fragment PostsRSSFeed on Post {

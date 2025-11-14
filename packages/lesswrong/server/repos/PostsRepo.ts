@@ -1347,6 +1347,20 @@ class PostsRepo extends AbstractRepo<"Posts"> {
       ORDER BY "postedAt" DESC
     `);
   }
+
+  async isInSequence(postId: string, sequenceId: string): Promise<boolean> {
+    const result = await this.getRawDb().oneOrNone<{exists: boolean}>(`
+      -- PostsRepo.isMarginalFunding2025Post
+      SELECT EXISTS(
+        SELECT 1
+        FROM "Chapters"
+        WHERE "sequenceId" = $1
+        AND $2 = ANY("postIds")
+      ) as "exists"
+    `, [sequenceId, postId]);
+
+    return result?.exists ?? false;
+  }
 }
 
 recordPerfMetrics(PostsRepo);

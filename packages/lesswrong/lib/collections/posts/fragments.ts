@@ -461,6 +461,14 @@ export const PostsDetails = () => frag`
   }
 `
 
+// Note: delete once giving season 2025 is over
+export const PostsPostsPageBannerDetails = () => frag`
+  fragment PostsPostsPageBannerDetails on Post {
+    ${PostsDetails}
+    isMarginalFunding2025Post
+  }
+`
+
 export const PostsExpandedHighlight = () => frag`
   fragment PostsExpandedHighlight on Post {
     _id
