@@ -52,6 +52,7 @@ import IntercomWrapper from "./common/IntercomWrapper";
 import CookieBanner from "./common/CookieBanner/CookieBanner";
 import NavigationEventSender from './hooks/useOnNavigate';
 import { defineStyles, useStyles } from './hooks/useStyles';
+import { useIsAboveScreenWidth } from './hooks/useScreenWidth';
 import { useMutationNoCache } from '@/lib/crud/useMutationNoCache';
 import { gql } from "@/lib/generated/gql-codegen";
 import { DelayedLoading } from './common/DelayedLoading';
@@ -80,6 +81,8 @@ const UsersCurrentUpdateMutation = gql(`
 `);
 
 const STICKY_SECTION_TOP_MARGIN = 20;
+const ENABLE_ICON_ONLY_NAVIGATION = true;
+const ICON_ONLY_NAVIGATION_BREAKPOINT = 1424;
 
 /**
  * When a new user signs up, their profile is 'incomplete' (ie; without a display name)
@@ -156,7 +159,7 @@ const styles = defineStyles("Layout", (theme: ThemeType) => ({
         minmax(0, min-content)
       `,
     },
-    [theme.breakpoints.down('md')]: {
+    [theme.breakpoints.down('sm')]: {
       display: 'block'
     }
   },
@@ -176,7 +179,7 @@ const styles = defineStyles("Layout", (theme: ThemeType) => ({
       width: '100%',
       paddingTop: 0,
     },
-    [theme.breakpoints.down('md')]: {
+    [theme.breakpoints.down('sm')]: {
       display: 'block'
     }
   },
@@ -304,6 +307,7 @@ const Layout = ({children}: {
   const [showLlmChatSidebar, setShowLlmChatSidebar] = useState(false);
   const [cookies, setCookie] = useCookiesWithConsent([SHOW_LLM_CHAT_COOKIE]);
   const theme = useTheme();
+  const isAboveIconOnlySidebarBreakpoint = useIsAboveScreenWidth(ICON_ONLY_NAVIGATION_BREAKPOINT);
   // TODO: figure out if using usePathname directly is safe or better (concerns about unnecessary rerendering, idk; my guess is that with Next if the pathname changes we're rerendering everything anyways?)
   const { pathname, query } = useLocation();
   // const pathname = usePathname();
@@ -413,6 +417,7 @@ const Layout = ({children}: {
     const unspacedGridLayout = overrideLayoutOptions.unspacedGridLayout ?? baseLayoutOptions.unspacedGridLayout
     // The friendly home page has a unique grid layout, to account for the right hand side column.
     const friendlyHomeLayout = isFriendlyUI() && isHomeRoute(pathname);
+    const iconOnlyNavigation = ENABLE_ICON_ONLY_NAVIGATION && standaloneNavigation && isLW() && !unspacedGridLayout && !isAboveIconOnlySidebarBreakpoint;
 
     const isIncompletePath = allowedIncompletePaths.some(path => pathname.startsWith(`/${path}`));
     
@@ -499,6 +504,7 @@ const Layout = ({children}: {
                           sidebarHidden={hideNavigationSidebar}
                           unspacedGridLayout={unspacedGridLayout}
                           noTopMargin={friendlyHomeLayout}
+                          iconOnlySidebar={iconOnlyNavigation}
                         />
                       </SuspenseWrapper>
                     </DeferRender>

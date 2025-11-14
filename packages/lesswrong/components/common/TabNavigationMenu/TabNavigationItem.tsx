@@ -1,5 +1,5 @@
 import { registerComponent } from '../../../lib/vulcan-lib/components';
-import React, { useCallback } from 'react';
+import React, { useCallback, useContext } from 'react';
 import classNames from 'classnames';
 import { useLocation } from '../../../lib/routeUtil';
 import { MenuTabRegular } from './menuTabs';
@@ -11,6 +11,7 @@ import TabNavigationSubItem from "./TabNavigationSubItem";
 import LWTooltip from "../LWTooltip";
 import { MenuItemLink } from "../Menus";
 import { defineStyles, useStyles } from '@/components/hooks/useStyles';
+import { IconOnlyNavigationContext } from './iconOnlyNavigationContext';
 
 export const iconWidth = 30
 
@@ -32,6 +33,10 @@ const styles = defineStyles('TabNavigationItem', (theme: ThemeType) => ({
   },
   menuItem: {
     width: theme.isFriendlyUI ? 210 : 190,
+  },
+  iconOnlyMenuItem: {
+    width: "100%",
+    minWidth: 0,
   },
   desktopOnly: {
     [theme.breakpoints.down("xs")]: {
@@ -89,6 +94,17 @@ const styles = defineStyles('TabNavigationItem', (theme: ThemeType) => ({
     ...(theme.isFriendlyUI && {
       opacity: 1,
     }),
+  },
+  iconOnlyIcon: {
+    marginRight: 0,
+    width: "100%",
+    display: "flex",
+    justifyContent: "center",
+  },
+  iconOnlyNavButton: {
+    justifyContent: "center",
+    paddingLeft: 0,
+    paddingRight: 0,
   },
   selectedIcon: {
     "& svg": {
@@ -194,6 +210,7 @@ const TabNavigationItem = ({tab, onClick, className}: TabNavigationItemProps) =>
   const {pathname} = useLocation();
   const currentUser = useCurrentUser();
   const {flag, onClickFlag} = useFlag(tab);
+  const iconOnlyMode = useContext(IconOnlyNavigationContext);
 
   // Due to an issue with using anchor tags, we use react-router links, even for
   // external links, we just use window.open to actuate the link.
@@ -213,13 +230,28 @@ const TabNavigationItem = ({tab, onClick, className}: TabNavigationItemProps) =>
   }
 
   const isSelected = pathname === tab.link;
-  const hasIcon = tab.icon || tab.iconComponent || tab.selectedIconComponent;
-  const IconComponent = isSelected
+  const hasIcon = tab.icon || tab.iconComponent || tab.selectedIconComponent || tab.compressedIconComponent;
+  const baseIconComponent = isSelected
     ? tab.selectedIconComponent ?? tab.iconComponent
     : tab.iconComponent;
+  const iconElement = (() => {
+    if (!hasIcon) return null;
+    if (iconOnlyMode && tab.compressedIconComponent) {
+      const CompressedIcon = tab.compressedIconComponent;
+      return <CompressedIcon />;
+    }
+    if (baseIconComponent) {
+      const ComponentToRender = baseIconComponent;
+      return <ComponentToRender />;
+    }
+    if (tab.icon) {
+      return tab.icon;
+    }
+    return null;
+  })();
   return <LWTooltip
     placement='right-start'
-    title={tab.tooltip || ''}
+    title={tab.tooltip || tab.title}
     className={classes.tooltip}
   >
     <MenuItemLink
@@ -229,7 +261,9 @@ const TabNavigationItem = ({tab, onClick, className}: TabNavigationItemProps) =>
       // entire sidebar fail on iOS. True story.
       to={tab.link}
       className={classNames(classes.menuItem, className, {
+        [classes.iconOnlyMenuItem]: iconOnlyMode,
         [classes.navButton]: !tab.subItem,
+        [classes.iconOnlyNavButton]: iconOnlyMode && !tab.subItem,
         [classes.subItemOverride]: tab.subItem,
         [classes.selected]: isSelected,
         [classes.desktopOnly]: tab.desktopOnly,
@@ -237,21 +271,21 @@ const TabNavigationItem = ({tab, onClick, className}: TabNavigationItemProps) =>
       disableTouchRipple
     >
       {hasIcon && <span className={classNames(classes.icon, {
+        [classes.iconOnlyIcon]: iconOnlyMode,
         [classes.selectedIcon]: isSelected,
         [classes.homeIcon]: tab.id === 'home',
       })}>
-        {IconComponent && <IconComponent />}
-        {tab.icon && tab.icon}
+        {iconElement}
       </span>}
-      {tab.subItem ?
+      {!iconOnlyMode && (tab.subItem ?
         <TabNavigationSubItem>
           {tab.title}
         </TabNavigationSubItem> :
         <span className={classes.navText}>
           {tab.title}
         </span>
-      }
-      {flag && <span className={classes.flag}>{flag}</span>}
+      )}
+      {!iconOnlyMode && flag && <span className={classes.flag}>{flag}</span>}
     </MenuItemLink>
   </LWTooltip>
 }

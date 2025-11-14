@@ -7,6 +7,9 @@ import { isFriendlyUI } from '../../../themes/forumTheme';
 import { HOME_RHS_MAX_SCREEN_WIDTH } from '@/components/ea-forum/constants';
 import { defineStyles, useStyles } from '@/components/hooks/useStyles';
 import { getCommunityPath } from '@/lib/pathConstants';
+import { IconOnlyNavigationContext } from './iconOnlyNavigationContext';
+
+const ICON_ONLY_NAVIGATION_WIDTH = 64;
 
 const styles = (theme: ThemeType) => ({
   // This wrapper is on friendly sites so that when this sidebar is hidden
@@ -21,18 +24,24 @@ const styles = (theme: ThemeType) => ({
     [`@media(max-width: ${HOME_RHS_MAX_SCREEN_WIDTH}px)`]: {
       minWidth: 0,
     },
-    [theme.breakpoints.down('md')]: {
+    [theme.breakpoints.down('sm')]: {
       display: "none"
     },
   },
   sidebar: {
     width: TAB_NAVIGATION_MENU_WIDTH,
-    [theme.breakpoints.down('md')]: {
+    [theme.breakpoints.down('sm')]: {
       display: "none"
     },
     ...(theme.isFriendlyUI && {
       top: 26,
     })
+  },
+  sidebarIconOnly: {
+    width: ICON_ONLY_NAVIGATION_WIDTH,
+  },
+  sidebarWrapperIconOnly: {
+    minWidth: ICON_ONLY_NAVIGATION_WIDTH,
   },
   navSidebarTransparent: {
     zIndex: 10,
@@ -46,26 +55,39 @@ const NavigationStandalone = ({
   sidebarHidden,
   unspacedGridLayout,
   noTopMargin,
+  iconOnlySidebar,
   classes,
 }: {
   sidebarHidden: boolean,
   unspacedGridLayout?: boolean,
   noTopMargin?: boolean,
+  iconOnlySidebar?: boolean,
   classes: ClassesType<typeof styles>,
 }) => {
   const { location } = useLocation();
+  const friendlyUI = isFriendlyUI();
+  const iconOnlyValue = !!iconOnlySidebar;
 
   const background = location.pathname === getCommunityPath();
 
   return <>
-    <div className={classNames({[classes.sidebarWrapper]: isFriendlyUI})}>
+    <div className={classNames({
+      [classes.sidebarWrapper]: friendlyUI,
+      [classes.sidebarWrapperIconOnly]: friendlyUI && iconOnlySidebar,
+    })}>
       <Slide slidIn={!sidebarHidden}>
-        <div className={classNames(classes.sidebar, {[classes.background]: background, [classes.navSidebarTransparent]: unspacedGridLayout})}>
+        <div className={classNames(classes.sidebar, {
+          [classes.background]: background,
+          [classes.navSidebarTransparent]: unspacedGridLayout,
+          [classes.sidebarIconOnly]: iconOnlySidebar,
+        })}>
           {/* In the unspaced grid layout the sidebar can appear on top of other componenents, so make the background transparent */}
-          <TabNavigationMenu
-            transparentBackground={unspacedGridLayout}
-            noTopMargin={noTopMargin}
-          />
+          <IconOnlyNavigationContext.Provider value={iconOnlyValue}>
+            <TabNavigationMenu
+              transparentBackground={unspacedGridLayout}
+              noTopMargin={noTopMargin}
+            />
+          </IconOnlyNavigationContext.Provider>
         </div>
       </Slide>
     </div>

@@ -1,4 +1,4 @@
-import React, { useState, useMemo, useCallback, useEffect, useRef } from 'react';
+import React, { useState, useMemo, useCallback, useRef } from 'react';
 import { defineStyles, useStyles } from '../../hooks/useStyles';
 import { useQuery } from "@/lib/crud/useQuery";
 import { SuspenseWrapper } from '@/components/common/SuspenseWrapper';
@@ -14,7 +14,7 @@ import { useCookiesWithConsent } from '@/components/hooks/useCookiesWithConsent'
 import { isClient } from '@/lib/executionEnvironment';
 
 const smallBreakpoint = 1525
-const minBannerWidth = 1425
+const minBannerWidth = 1200
 
 const styles = defineStyles("SolsticeSeasonBanner", (theme: ThemeType) => ({
   root: {
@@ -23,6 +23,10 @@ const styles = defineStyles("SolsticeSeasonBanner", (theme: ThemeType) => ({
     right: 0,
     width: '50vw',
     height: '100%',
+    display: 'none',
+    [theme.breakpoints.up(minBannerWidth)]: {
+      display: 'block',
+    },
   },
   overlay: {
     position: 'absolute',
@@ -164,9 +168,14 @@ const styles = defineStyles("SolsticeSeasonBanner", (theme: ThemeType) => ({
     position: 'absolute',
     top: 0,
     right: 0,
-    width: 'calc(100vw - 460px)',
+    width: 'calc(100vw - 360px)',
+    background: `linear-gradient(to left, transparent 20%, ${theme.palette.background.default} 90%)`,
+    [theme.breakpoints.up(1400)]: {
+      width: 'calc(100vw - 460px)',
+      background: `linear-gradient(to left, transparent 40%, ${theme.palette.background.default} 90%)`,
+    },
     height: '100%',
-    background: `linear-gradient(to left, transparent 60%, ${theme.palette.background.default} 90%)`,
+    
     [theme.breakpoints.up(1620)]: {
       width: 'calc(100vw - 560px)',
       background: `linear-gradient(to left, transparent 60%, ${theme.palette.background.default} 90%)`,
@@ -290,33 +299,10 @@ const HomepageCommunityEventPostsQuery = gql(`
 
 export default function SolsticeSeasonBannerInner() {
   const classes = useStyles(styles);
-  // SSR-safe: start with false, check after mount to avoid hydration mismatch
-  const [shouldRender, setShouldRender] = useState(false);
   const [selectedEventId, setSelectedEventId] = useState<string | null>(null)
   const [popupCoords, setPopupCoords] = useState<{ x: number; y: number } | null>(null)
   const markerClickInProgressRef = useRef(false);
-  
-  useEffect(() => {
-    if (!isClient) {
-      return;
-    }
-    
-    // Don't try to render the globe inside the CloudWatch canary (it's too slow and fails)
-    if (window.navigator.userAgent.includes('CloudWatch-canary-coVij6peechaekou')) {
-      return;
-    }
-    
-    const checkWidth = () => {
-      setShouldRender(window.innerWidth >= minBannerWidth);
-    };
-    
-    // Check on mount
-    checkWidth();
-    
-    // Check on resize
-    window.addEventListener('resize', checkWidth);
-    return () => window.removeEventListener('resize', checkWidth);
-  }, []);
+  const hideSolsticeBanner = isClient && window.navigator.userAgent.includes('CloudWatch-canary-coVij6peechaekou');
 
   const { data } = useQuery(HomepageCommunityEventPostsQuery, {
     variables: { eventType: "SOLSTICE" },
@@ -377,8 +363,7 @@ export default function SolsticeSeasonBannerInner() {
     }
   }, []);
 
-  // Conditional render after all hooks - prevents rendering entirely if below breakpoint
-  if (!shouldRender) {
+  if (hideSolsticeBanner) {
     return null;
   }
 
