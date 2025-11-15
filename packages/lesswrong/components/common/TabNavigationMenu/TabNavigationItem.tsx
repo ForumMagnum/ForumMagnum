@@ -230,10 +230,14 @@ const TabNavigationItem = ({tab, onClick, className}: TabNavigationItemProps) =>
   }
 
   const isSelected = pathname === tab.link;
-  const hasIcon = tab.icon || tab.iconComponent || tab.selectedIconComponent || tab.compressedIconComponent;
+  
   const baseIconComponent = isSelected
     ? tab.selectedIconComponent ?? tab.iconComponent
     : tab.iconComponent;
+    
+  const hasIcon = iconOnlyMode
+    ? Boolean(tab.compressedIconComponent ?? tab.icon ?? baseIconComponent)
+    : Boolean(tab.icon ?? baseIconComponent);
   const iconElement = (() => {
     if (!hasIcon) return null;
     if (iconOnlyMode && tab.compressedIconComponent) {
