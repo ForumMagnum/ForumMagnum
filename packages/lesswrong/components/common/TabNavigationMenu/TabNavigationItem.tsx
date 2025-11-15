@@ -37,6 +37,10 @@ const styles = defineStyles('TabNavigationItem', (theme: ThemeType) => ({
   iconOnlyMenuItem: {
     width: "100%",
     minWidth: 0,
+    height: "auto",
+    whiteSpace: "normal",
+    overflow: "visible",
+    textOverflow: "unset",
   },
   desktopOnly: {
     [theme.breakpoints.down("xs")]: {
@@ -97,6 +101,7 @@ const styles = defineStyles('TabNavigationItem', (theme: ThemeType) => ({
   },
   iconOnlyIcon: {
     marginRight: 0,
+    marginLeft: 17,
     width: "100%",
     display: "flex",
     justifyContent: "center",
@@ -105,6 +110,9 @@ const styles = defineStyles('TabNavigationItem', (theme: ThemeType) => ({
     justifyContent: "center",
     paddingLeft: 0,
     paddingRight: 0,
+    flexDirection: "column",
+    gap: 3,
+    textAlign: "center",
   },
   selectedIcon: {
     "& svg": {
@@ -118,6 +126,13 @@ const styles = defineStyles('TabNavigationItem', (theme: ThemeType) => ({
       color: theme.palette.text.bannerAdOverlay,
     }),
     textTransform: "none !important",
+  },
+  iconOnlyNavText: {
+    fontSize: 10,
+    color: theme.palette.grey[600],
+    marginBottom: 8,
+    marginLeft: 17,
+    textAlign: "center",
   },
   homeIcon: {
     '& svg': {
@@ -211,6 +226,8 @@ const TabNavigationItem = ({tab, onClick, className}: TabNavigationItemProps) =>
   const currentUser = useCurrentUser();
   const {flag, onClickFlag} = useFlag(tab);
   const iconOnlyMode = useContext(IconOnlyNavigationContext);
+  const navTitle = iconOnlyMode ? (tab.mobileTitle ?? tab.title) : tab.title;
+  const tooltipTitle = tab.tooltip || navTitle;
 
   // Due to an issue with using anchor tags, we use react-router links, even for
   // external links, we just use window.open to actuate the link.
@@ -255,7 +272,7 @@ const TabNavigationItem = ({tab, onClick, className}: TabNavigationItemProps) =>
   })();
   return <LWTooltip
     placement='right-start'
-    title={tab.tooltip || tab.title}
+    title={tooltipTitle}
     className={classes.tooltip}
   >
     <MenuItemLink
@@ -267,8 +284,8 @@ const TabNavigationItem = ({tab, onClick, className}: TabNavigationItemProps) =>
       className={classNames(classes.menuItem, className, {
         [classes.iconOnlyMenuItem]: iconOnlyMode,
         [classes.navButton]: !tab.subItem,
-        [classes.iconOnlyNavButton]: iconOnlyMode && !tab.subItem,
-        [classes.subItemOverride]: tab.subItem,
+        [classes.iconOnlyNavButton]: iconOnlyMode,
+        [classes.subItemOverride]: tab.subItem && !iconOnlyMode,
         [classes.selected]: isSelected,
         [classes.desktopOnly]: tab.desktopOnly,
       })}
@@ -281,12 +298,21 @@ const TabNavigationItem = ({tab, onClick, className}: TabNavigationItemProps) =>
       })}>
         {iconElement}
       </span>}
-      {!iconOnlyMode && (tab.subItem ?
-        <TabNavigationSubItem>
-          {tab.title}
-        </TabNavigationSubItem> :
-        <span className={classes.navText}>
-          {tab.title}
+      {tab.subItem ? (
+        iconOnlyMode ? (
+          <span className={classNames(classes.navText, classes.iconOnlyNavText)}>
+            {navTitle}
+          </span>
+        ) : (
+          <TabNavigationSubItem>
+            {tab.title}
+          </TabNavigationSubItem>
+        )
+      ) : (
+        <span className={classNames(classes.navText, {
+          [classes.iconOnlyNavText]: iconOnlyMode,
+        })}>
+          {navTitle}
         </span>
       )}
       {!iconOnlyMode && flag && <span className={classes.flag}>{flag}</span>}
