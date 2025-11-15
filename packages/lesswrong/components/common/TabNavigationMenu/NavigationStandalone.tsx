@@ -7,6 +7,10 @@ import { isFriendlyUI } from '../../../themes/forumTheme';
 import { HOME_RHS_MAX_SCREEN_WIDTH } from '@/components/ea-forum/constants';
 import { defineStyles, useStyles } from '@/components/hooks/useStyles';
 import { getCommunityPath } from '@/lib/pathConstants';
+import { IconOnlyNavigationContext } from './iconOnlyNavigationContext';
+
+const ICON_ONLY_NAVIGATION_WIDTH = 64;
+const ICON_ONLY_NAVIGATION_BREAKPOINT = 1424;
 
 const styles = (theme: ThemeType) => ({
   // This wrapper is on friendly sites so that when this sidebar is hidden
@@ -21,18 +25,35 @@ const styles = (theme: ThemeType) => ({
     [`@media(max-width: ${HOME_RHS_MAX_SCREEN_WIDTH}px)`]: {
       minWidth: 0,
     },
-    [theme.breakpoints.down('md')]: {
+    [theme.breakpoints.down('sm')]: {
       display: "none"
     },
   },
   sidebar: {
     width: TAB_NAVIGATION_MENU_WIDTH,
-    [theme.breakpoints.down('md')]: {
+    [theme.breakpoints.down('sm')]: {
       display: "none"
     },
     ...(theme.isFriendlyUI && {
       top: 26,
     })
+  },
+  sidebarIconOnly: {
+    width: ICON_ONLY_NAVIGATION_WIDTH,
+  },
+  sidebarWrapperIconOnly: {
+    minWidth: ICON_ONLY_NAVIGATION_WIDTH,
+  },
+  fullNavWrapper: {
+    [`@media(max-width: ${ICON_ONLY_NAVIGATION_BREAKPOINT}px)`]: {
+      display: "none"
+    },
+  },
+  iconOnlyNavWrapper: {
+    display: "none",
+    [`@media(max-width: ${ICON_ONLY_NAVIGATION_BREAKPOINT}px)`]: {
+      display: "block"
+    },
   },
   navSidebarTransparent: {
     zIndex: 10,
@@ -46,29 +67,60 @@ const NavigationStandalone = ({
   sidebarHidden,
   unspacedGridLayout,
   noTopMargin,
+  iconOnlyNavigationEnabled,
   classes,
 }: {
   sidebarHidden: boolean,
   unspacedGridLayout?: boolean,
   noTopMargin?: boolean,
+  iconOnlyNavigationEnabled?: boolean,
   classes: ClassesType<typeof styles>,
 }) => {
   const { location } = useLocation();
+  const friendlyUI = isFriendlyUI();
+  const showIconOnlyVariant = !!iconOnlyNavigationEnabled;
 
   const background = location.pathname === getCommunityPath();
 
   return <>
-    <div className={classNames({[classes.sidebarWrapper]: isFriendlyUI})}>
+    <div className={classNames({
+      [classes.sidebarWrapper]: friendlyUI,
+      [classes.fullNavWrapper]: showIconOnlyVariant,
+    })}>
       <Slide slidIn={!sidebarHidden}>
-        <div className={classNames(classes.sidebar, {[classes.background]: background, [classes.navSidebarTransparent]: unspacedGridLayout})}>
+        <div className={classNames(classes.sidebar, {
+          [classes.background]: background,
+          [classes.navSidebarTransparent]: unspacedGridLayout,
+        })}>
           {/* In the unspaced grid layout the sidebar can appear on top of other componenents, so make the background transparent */}
-          <TabNavigationMenu
-            transparentBackground={unspacedGridLayout}
-            noTopMargin={noTopMargin}
-          />
+          <IconOnlyNavigationContext.Provider value={false}>
+            <TabNavigationMenu
+              transparentBackground={unspacedGridLayout}
+              noTopMargin={noTopMargin}
+            />
+          </IconOnlyNavigationContext.Provider>
         </div>
       </Slide>
     </div>
+    {showIconOnlyVariant && <div className={classNames({
+      [classes.sidebarWrapper]: friendlyUI,
+      [classes.sidebarWrapperIconOnly]: friendlyUI,
+    }, classes.iconOnlyNavWrapper)}>
+      <Slide slidIn={!sidebarHidden}>
+        <div className={classNames(classes.sidebar, {
+          [classes.background]: background,
+          [classes.navSidebarTransparent]: unspacedGridLayout,
+          [classes.sidebarIconOnly]: true,
+        })}>
+          <IconOnlyNavigationContext.Provider value={true}>
+            <TabNavigationMenu
+              transparentBackground={unspacedGridLayout}
+              noTopMargin={noTopMargin}
+            />
+          </IconOnlyNavigationContext.Provider>
+        </div>
+      </Slide>
+    </div>}
   </>
 }
 

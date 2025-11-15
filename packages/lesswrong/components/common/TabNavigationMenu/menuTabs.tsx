@@ -208,7 +208,7 @@ export const getMenuTabs = (): ForumOptions<Array<MenuTab>> => ({
       title: 'About',
       link: '/about',
       subItem: true,
-      compressedIconComponent: Info,
+      compressedIconComponent: 'Info',
       showOnCompressed: true,
     },  {
       id: 'faq',
@@ -262,7 +262,7 @@ export const getMenuTabs = (): ForumOptions<Array<MenuTab>> => ({
       title: 'About',
       link: '/about',
       subItem: true,
-      compressedIconComponent: Info,
+      iconComponent: Info,
       showOnCompressed: true,
     }
   ],
