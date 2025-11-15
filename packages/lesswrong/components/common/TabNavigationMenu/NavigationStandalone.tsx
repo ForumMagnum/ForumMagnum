@@ -10,6 +10,7 @@ import { getCommunityPath } from '@/lib/pathConstants';
 import { IconOnlyNavigationContext } from './iconOnlyNavigationContext';
 
 const ICON_ONLY_NAVIGATION_WIDTH = 64;
+const ICON_ONLY_NAVIGATION_BREAKPOINT = 1424;
 
 const styles = (theme: ThemeType) => ({
   // This wrapper is on friendly sites so that when this sidebar is hidden
@@ -43,6 +44,17 @@ const styles = (theme: ThemeType) => ({
   sidebarWrapperIconOnly: {
     minWidth: ICON_ONLY_NAVIGATION_WIDTH,
   },
+  fullNavWrapper: {
+    [`@media(max-width: ${ICON_ONLY_NAVIGATION_BREAKPOINT}px)`]: {
+      display: "none"
+    },
+  },
+  iconOnlyNavWrapper: {
+    display: "none",
+    [`@media(max-width: ${ICON_ONLY_NAVIGATION_BREAKPOINT}px)`]: {
+      display: "block"
+    },
+  },
   navSidebarTransparent: {
     zIndex: 10,
   },
@@ -55,34 +67,33 @@ const NavigationStandalone = ({
   sidebarHidden,
   unspacedGridLayout,
   noTopMargin,
-  iconOnlySidebar,
+  iconOnlyNavigationEnabled,
   classes,
 }: {
   sidebarHidden: boolean,
   unspacedGridLayout?: boolean,
   noTopMargin?: boolean,
-  iconOnlySidebar?: boolean,
+  iconOnlyNavigationEnabled?: boolean,
   classes: ClassesType<typeof styles>,
 }) => {
   const { location } = useLocation();
   const friendlyUI = isFriendlyUI();
-  const iconOnlyValue = !!iconOnlySidebar;
+  const showIconOnlyVariant = !!iconOnlyNavigationEnabled;
 
   const background = location.pathname === getCommunityPath();
 
   return <>
     <div className={classNames({
       [classes.sidebarWrapper]: friendlyUI,
-      [classes.sidebarWrapperIconOnly]: friendlyUI && iconOnlySidebar,
+      [classes.fullNavWrapper]: showIconOnlyVariant,
     })}>
       <Slide slidIn={!sidebarHidden}>
         <div className={classNames(classes.sidebar, {
           [classes.background]: background,
           [classes.navSidebarTransparent]: unspacedGridLayout,
-          [classes.sidebarIconOnly]: iconOnlySidebar,
         })}>
           {/* In the unspaced grid layout the sidebar can appear on top of other componenents, so make the background transparent */}
-          <IconOnlyNavigationContext.Provider value={iconOnlyValue}>
+          <IconOnlyNavigationContext.Provider value={false}>
             <TabNavigationMenu
               transparentBackground={unspacedGridLayout}
               noTopMargin={noTopMargin}
@@ -91,6 +102,25 @@ const NavigationStandalone = ({
         </div>
       </Slide>
     </div>
+    {showIconOnlyVariant && <div className={classNames({
+      [classes.sidebarWrapper]: friendlyUI,
+      [classes.sidebarWrapperIconOnly]: friendlyUI,
+    }, classes.iconOnlyNavWrapper)}>
+      <Slide slidIn={!sidebarHidden}>
+        <div className={classNames(classes.sidebar, {
+          [classes.background]: background,
+          [classes.navSidebarTransparent]: unspacedGridLayout,
+          [classes.sidebarIconOnly]: true,
+        })}>
+          <IconOnlyNavigationContext.Provider value={true}>
+            <TabNavigationMenu
+              transparentBackground={unspacedGridLayout}
+              noTopMargin={noTopMargin}
+            />
+          </IconOnlyNavigationContext.Provider>
+        </div>
+      </Slide>
+    </div>}
   </>
 }
 
