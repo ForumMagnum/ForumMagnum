@@ -1023,13 +1023,13 @@ export const UnifiedScoringSettings: React.FC<UnifiedScoringSettingsProps> = ({
       key: 'postsMultiplier' as const,
       label: "Posts Multiplier",
       description: `Multiplier applied to final post scores. Increase to see more posts, decrease to see fewer. Default: ${defaultUnifiedScoringSettings.postsMultiplier}`,
-      min: 0.5, max: 2.0, step: 0.1,
+      min: 0.1, max: 10, step: 0.1,
     },
     {
       key: 'threadsMultiplier' as const,
       label: "Threads Multiplier",
       description: `Multiplier applied to final thread scores. Increase to see more threads, decrease to see fewer. Default: ${defaultUnifiedScoringSettings.threadsMultiplier}`,
-      min: 0.5, max: 2.0, step: 0.1,
+      min: 0.1, max: 10, step: 0.1,
     },
     {
       key: 'quicktakeBonus' as const,

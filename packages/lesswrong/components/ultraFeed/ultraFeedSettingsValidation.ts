@@ -75,8 +75,8 @@ const unifiedScoringSchema = z.object({
   subscribedBonusSetting: z.number().int().min(0, { message: "Must be between 0 and 5" }).max(5, { message: "Must be between 0 and 5" }),
   quicktakeBonus: z.number().min(0, { message: "Must be non-negative" }).max(50, { message: "Must be at most 50" }),
   timeDecayHalfLifeHours: z.number().min(1, { message: "Must be at least 1 hour" }).max(48, { message: "Must be at most 48 hours" }),
-  postsMultiplier: z.number().min(0.5, { message: "Must be between 0.5 and 2.0" }).max(2.0, { message: "Must be between 0.5 and 2.0" }),
-  threadsMultiplier: z.number().min(0.5, { message: "Must be between 0.5 and 2.0" }).max(2.0, { message: "Must be between 0.5 and 2.0" }),
+  postsMultiplier: z.number().min(0.1, { message: "Must be between 0.1 and 100" }).max(100, { message: "Must be between 0.1 and 100" }),
+  threadsMultiplier: z.number().min(0.1, { message: "Must be between 0.1 and 100" }).max(100, { message: "Must be between 0.1 and 100" }),
 });
 
 const resolverSettingsSchema = z.object({
