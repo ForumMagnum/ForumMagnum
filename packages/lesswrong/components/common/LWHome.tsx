@@ -13,7 +13,6 @@ import { registerComponent } from "../../lib/vulcan-lib/components";
 import AnalyticsInViewTracker from "./AnalyticsInViewTracker";
 import FrontpageReviewWidget from "../review/FrontpageReviewWidget";
 import SingleColumnSection from "./SingleColumnSection";
-import EAPopularCommentsSection from "../ea-forum/EAPopularCommentsSection";
 import DismissibleSpotlightItem, { SpotlightItemFallback } from "../spotlights/DismissibleSpotlightItem";
 import QuickTakesSection from "../quickTakes/QuickTakesSection";
 import LWHomePosts from "./LWHomePosts";
@@ -84,9 +83,6 @@ const LWHome = () => {
           <SuspenseWrapper name="LWHomePosts" fallback={<div style={{height: 800}}/>}>
             <LWHomePosts>
               <QuickTakesSection />
-              <SuspenseWrapper name="EAPopularCommentsSection">
-                <EAPopularCommentsSection />
-              </SuspenseWrapper>
               
               <AnalyticsInViewTracker eventProps={{inViewType: "feedSection"}} observerProps={{threshold:[0, 0.5, 1]}}>
                 <SuspenseWrapper name="UltraFeed">

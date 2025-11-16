@@ -26,6 +26,7 @@ import cloneDeep from 'lodash/cloneDeep';
 import { backgroundTask } from "../utils/backgroundTask";
 import { serverCaptureEvent } from "../analytics/serverAnalyticsWriter";
 import { bulkRawInsert } from '../manualMigrations/migrationUtils';
+import { userIsAdmin } from '@/lib/vulcan-users/permissions';
 import {
   loadMultipleEntitiesById,
   createUltraFeedResponse,
@@ -722,15 +723,18 @@ export const ultraFeedGraphQLQueries = {
           };
         });
       
-      serverCaptureEvent('ultraFeedItemsRanked', {
-        sessionId,
-        userId: currentUser?._id ?? undefined,
-        clientId: clientId ?? undefined,
-        offset: offset ?? 0,
-        itemCount: rankedItemsWithMetadata.length,
-        algorithm: algorithm.name,
-        items: itemsForLogging,
-      });
+      // This is a large log so limit it to admins, for the sake of algorithm development
+      if (currentUser && userIsAdmin(currentUser)) {
+        serverCaptureEvent('ultraFeedItemsRanked', {
+          sessionId,
+          userId: currentUser?._id ?? undefined,
+          clientId: clientId ?? undefined,
+          offset: offset ?? 0,
+          itemCount: rankedItemsWithMetadata.length,
+          algorithm: algorithm.name,
+          items: itemsForLogging,
+        });
+      }
       
       const sampledItemsRanked = mapRankedIdsToSampledItems(
         rankedItemsWithMetadata,
