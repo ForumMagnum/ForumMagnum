@@ -87,14 +87,14 @@ export interface DiversityConstraints {
 }
 
 export const DEFAULT_DIVERSITY_CONSTRAINTS: DiversityConstraints = {
-  maxConsecutiveSameType: 3,
+  maxConsecutiveSameType: 5,
   guaranteedSlotsPerWindow: {
     windowSize: 20,
     bookmarks: 1,
     spotlights: 1,
   },
   subscriptionDiversityWindow: 5,
-  sourceDiversityWindow: 3,
+  sourceDiversityWindow: 5,
 };
 
 export function buildRankingConfigFromSettings(unifiedScoring: {
