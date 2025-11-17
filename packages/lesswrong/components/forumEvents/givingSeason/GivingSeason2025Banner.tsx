@@ -23,7 +23,6 @@ import GivingSeasonTopPosts from "./GivingSeasonTopPosts";
 import CloudinaryImage2 from "@/components/common/CloudinaryImage2";
 import MixedTypeFeed from "@/components/common/MixedTypeFeed";
 import ForumIcon from "@/components/common/ForumIcon";
-import { tagGetUrl } from "@/lib/collections/tags/helpers";
 
 const styles = defineStyles("GivingSeason2025Banner", (theme: ThemeType) => ({
   root: {
@@ -456,7 +455,7 @@ export const GivingSeason2025Banner: FC = () => {
                     currentEvent.name === selectedEvent.name &&
                     selectedEvent.tag &&
                   <Link
-                    to={tagGetUrl(selectedEvent.tag)}
+                    to={currentEvent.readMoreHref}
                     className={classes.buttonFilled}
                   >
                     Explore all posts
