@@ -423,7 +423,6 @@ function selectWithDiversityConstraints(
 
 /**
  * Score items without applying constraints or ordering.
- * Applies a global score cap (config.maxScore) to all items.
  * Returns items with their score breakdowns for display/analysis.
  */
 export function scoreItems(
@@ -453,12 +452,9 @@ export function scoreItems(
       };
     }
     
-    // Apply global cap
-    const cappedScore = Math.min(scoreResult.score, config.maxScore);
-    
     return { 
       id: item.id, 
-      score: cappedScore, 
+      score: scoreResult.score, 
       item,
       breakdown: scoreResult.breakdown,
     };
