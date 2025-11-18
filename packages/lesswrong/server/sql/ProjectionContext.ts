@@ -98,7 +98,7 @@ class ProjectionContext<N extends CollectionNameString = CollectionNameString> {
         const customResolver: CustomResolver<N> = {
           type: outputType,
           resolver,
-          ...(enableCustomSqlResolvers ? {sqlResolver} : {}),
+          ...(enableSqlResolver ? {sqlResolver} : {}),
           sqlPostProcess,
           arguments: resolverArgs,
           fieldName,
