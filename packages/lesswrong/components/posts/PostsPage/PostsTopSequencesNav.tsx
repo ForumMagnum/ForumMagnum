@@ -22,6 +22,8 @@ export const titleStyles = (theme: ThemeType) => ({
   fontFamily: theme.typography.uiSecondary.fontFamily,
   lineHeight: '24px',
   color: theme.palette.text.dim,
+  paddingTop: 12,
+  paddingBottom: 12,
   ...theme.typography.smallCaps,
 })
 
@@ -37,7 +39,6 @@ const styles = (theme: ThemeType) => ({
   },
   title: {
     ...titleStyles(theme),
-    
     ...(isFriendlyUI && {
       textTransform: 'uppercase',
       fontSize: 18,
