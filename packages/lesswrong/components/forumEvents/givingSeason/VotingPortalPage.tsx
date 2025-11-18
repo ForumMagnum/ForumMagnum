@@ -21,7 +21,8 @@ import { useCurrentUser } from "@/components/common/withUser";
 import { useUpdateCurrentUser } from "@/components/hooks/useUpdateCurrentUser";
 import { useWindowSize } from "@/components/hooks/useScreenWidth";
 import { MOBILE_HEADER_HEIGHT } from "@/components/common/Header";
-import { DONATION_ELECTION_AGE_CUTOFF, DONATION_ELECTION_APPROX_CLOSING_DATE, ELECTION_DONATE_HREF, useElectionCandidates } from "@/lib/givingSeason";
+import { DONATION_ELECTION_AGE_CUTOFF, DONATION_ELECTION_APPROX_CLOSING_DATE, ELECTION_DONATE_HREF } from "@/lib/givingSeason";
+import { useElectionCandidates } from "./hooks";
 import { useGivingSeason } from "@/lib/givingSeason";
 import { formatStat } from "@/components/users/EAUserTooltipContent";
 import {
@@ -298,7 +299,7 @@ const styles = (theme: ThemeType) => ({
     "& .EditorTypeSelect-select": {
       display: "none",
     },
-    "& #new-comment-submit": {
+    "& #new-comment-submit, & .CommentsSubmitDropdown-buttonWrapper, & .CommentsSubmitDropdown-button": {
       background: theme.palette.givingSeason.portalPrimary,
       fontSize: 14,
       fontWeight: 600,

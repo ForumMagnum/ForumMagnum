@@ -1,7 +1,6 @@
 // TODO Adding back voting portal: FINISHED
 import React from "react";
 import { useCurrentUser } from "../../common/withUser";
-import { useElectionCandidates } from "./hooks";
 import { Link } from "../../../lib/reactRouterWrapper";
 import { userIsAdmin } from "@/lib/vulcan-users/permissions";
 import Error404 from "@/components/common/Error404";
@@ -10,6 +9,7 @@ import Loading from "@/components/vulcan-core/Loading";
 import EAButton from "@/components/ea-forum/EAButton";
 import ForumIcon from "@/components/common/ForumIcon";
 import { registerComponent } from "@/lib/vulcan-lib/components";
+import { useElectionCandidates } from "./hooks";
 
 const styles = (theme: ThemeType) => ({
   root: {
