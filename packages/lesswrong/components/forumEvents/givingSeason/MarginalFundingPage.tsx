@@ -18,6 +18,7 @@ import MarginalFundingSubscribeButton from "./MarginalFundingSubscribeButton";
 import MarginalFundingShareButton from "./MarginalFundingShareButton";
 import MarginalFundingListItem from "./MarginalFundingListItem";
 import MarginalFundingCard from "./MarginalFundingCard";
+import HeadTags from "@/components/common/HeadTags";
 import ForumIcon from "../../common/ForumIcon";
 import Loading from "../../vulcan-core/Loading";
 
@@ -195,6 +196,11 @@ export const MarginalFundingPage = () => {
   }
   return (
     <AnalyticsContext pageContext="marginalFunding">
+      <HeadTags
+        title="Marginal funding"
+        description="What will effective charities actually do with your money?"
+        image="https://res.cloudinary.com/cea/image/upload/v1763462529/SocialPreview/og-marginal-funding.jpg"
+      />
       <main className={classes.root}>
         <div className={classes.container}>
           <div className={classes.grid}>
