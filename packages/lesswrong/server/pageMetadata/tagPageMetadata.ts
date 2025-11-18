@@ -4,6 +4,8 @@ import type { Metadata } from "next";
 import { CommentPermalinkMetadataQuery, getCommentDescription, getDefaultMetadata, getMetadataDescriptionFields, getPageTitleFields, handleMetadataError, noIndexMetadata } from "./sharedMetadata";
 import merge from "lodash/merge";
 import { notFound } from "next/navigation";
+import { tagGetDiscussionUrl, tagGetHistoryUrl, tagGetUrl } from "@/lib/collections/tags/helpers";
+import { combineUrls, getSiteUrl } from "@/lib/vulcan-lib/utils";
 
 const TagMetadataQuery = gql(`
   query TagMetadata($tagSlug: String) {
@@ -11,6 +13,7 @@ const TagMetadataQuery = gql(`
       results {
         _id
         name
+        slug
         noindex
         description {
           _id
@@ -23,6 +26,7 @@ const TagMetadataQuery = gql(`
 
 interface TagPageMetadataOptions {
   historyPage?: boolean;
+  discussionPage?: boolean;
   noIndex?: boolean;
 }
 
@@ -68,13 +72,26 @@ export function getTagPageMetadataFunction<Params>(paramsToTagSlugConverter: (pa
   
       const descriptionFields = getMetadataDescriptionFields(description);
       const noIndexFields = noIndex ? noIndexMetadata : {};
+
+      const urlBase = options?.historyPage
+        ? tagGetHistoryUrl(tag)
+        : options?.discussionPage
+          ? tagGetDiscussionUrl(tag)
+          : tagGetUrl(tag);
+
+      const ogUrl = combineUrls(getSiteUrl(), urlBase);
+      const canonicalUrl = ogUrl;
+
+      const urlFields = {
+        openGraph: {
+          url: ogUrl,
+        },
+        alternates: {
+          canonical: canonicalUrl,
+        },
+      };
   
-      const tagMetadata = {
-        ...titleFields,
-        ...noIndexFields,
-      } satisfies Metadata;
-  
-      return merge({}, defaultMetadata, tagMetadata, descriptionFields);
+      return merge({}, defaultMetadata, titleFields, noIndexFields, descriptionFields, urlFields);
     } catch (error) {
       return handleMetadataError('Error generating tag page metadata', error);
     }
