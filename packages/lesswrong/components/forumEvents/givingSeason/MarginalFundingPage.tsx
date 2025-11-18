@@ -4,11 +4,13 @@ import { registerComponent } from "../../../lib/vulcan-lib/components";
 import { sequenceGetPageUrl } from "@/lib/collections/sequences/helpers";
 import { AnalyticsContext, useTracking } from "@/lib/analyticsEvents";
 import { useCurrentUser } from "../../common/withUser";
+import { useItemsRead } from "../../hooks/useRecordPostView";
 import { useSingle } from "@/lib/crud/withSingle";
 import { Link } from "@/lib/reactRouterWrapper";
 import {
   MARGINAL_FUNDING_SEQUENCE_ID,
   MARGINAL_FUNDING_SPOTIFY_URL,
+  SINGLE_COLUMN_BREAKPONT,
 } from "@/lib/givingSeason";
 import orderBy from "lodash/orderBy";
 import classNames from "classnames";
@@ -16,9 +18,9 @@ import MarginalFundingSubscribeButton from "./MarginalFundingSubscribeButton";
 import MarginalFundingShareButton from "./MarginalFundingShareButton";
 import MarginalFundingListItem from "./MarginalFundingListItem";
 import MarginalFundingCard from "./MarginalFundingCard";
+import HeadTags from "@/components/common/HeadTags";
 import ForumIcon from "../../common/ForumIcon";
 import Loading from "../../vulcan-core/Loading";
-import { useItemsRead } from "../../hooks/useRecordPostView";
 
 const styles = defineStyles("MarginalFundingPage", (theme) => ({
   root: {
@@ -49,7 +51,7 @@ const styles = defineStyles("MarginalFundingPage", (theme) => ({
     [theme.breakpoints.down("sm")]: {
       gridTemplateColumns: "1fr 1fr",
     },
-    [theme.breakpoints.down("xs")]: {
+    [theme.breakpoints.down(SINGLE_COLUMN_BREAKPONT)]: {
       gridTemplateColumns: "1fr",
     },
   },
@@ -63,9 +65,12 @@ const styles = defineStyles("MarginalFundingPage", (theme) => ({
     "& > *": {
       maxWidth: "calc(min(700px, 100%))",
     },
-    [theme.breakpoints.down("xs")]: {
+    [theme.breakpoints.down(SINGLE_COLUMN_BREAKPONT)]: {
       padding: "40px",
       gridColumn: "unset",
+    },
+    [theme.breakpoints.down("xs")]: {
+      padding: "40px 20px",
     },
   },
   options: {
@@ -76,6 +81,7 @@ const styles = defineStyles("MarginalFundingPage", (theme) => ({
   },
   option: {
     fontFamily: theme.palette.fonts.sansSerifStack,
+    color: theme.palette.text.alwaysBlack,
     fontSize: 14,
     fontWeight: 500,
     lineHeight: "140%",
@@ -104,6 +110,12 @@ const styles = defineStyles("MarginalFundingPage", (theme) => ({
     fontWeight: 600,
     letterSpacing: "-0.07em",
     lineHeight: "110%",
+    [theme.breakpoints.down("sm")]: {
+      fontSize: 56,
+    },
+    [theme.breakpoints.down("xs")]: {
+      fontSize: 48,
+    },
   },
   description: {
     fontSize: 19,
@@ -114,7 +126,7 @@ const styles = defineStyles("MarginalFundingPage", (theme) => ({
       textDecoration: 'underline',
       fontWeight: 600,
       textUnderlineOffset: '3px'
-    }
+    },
   },
   list: {
     width: "100%",
@@ -184,6 +196,11 @@ export const MarginalFundingPage = () => {
   }
   return (
     <AnalyticsContext pageContext="marginalFunding">
+      <HeadTags
+        title="Marginal funding"
+        description="What will effective charities actually do with your money?"
+        image="https://res.cloudinary.com/cea/image/upload/v1763462529/SocialPreview/og-marginal-funding.jpg"
+      />
       <main className={classes.root}>
         <div className={classes.container}>
           <div className={classes.grid}>

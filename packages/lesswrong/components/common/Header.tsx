@@ -495,8 +495,9 @@ const Header = ({
   // If we're explicitly given a backgroundColor, that overrides any event header
   if (backgroundColor) {
     headerStyle.backgroundColor = backgroundColor
-  } else if (showGivingSeasonUI) {
+  } else if (showGivingSeasonUI && unFixed) {
     headerStyle.background = "transparent";
+    headerStyle.transition = "background ease 0.2s";
     (headerStyle as any)["--header-text-color"] = givingSeason.selectedEvent.color;
   } else if (hasForumEvents && isHomePage && bannerImageId && currentForumEvent?.eventFormat !== "BASIC") {
     // On EAF, forum events with polls or stickers also update the home page header background and text

@@ -3,6 +3,7 @@ import { defineStyles, useStyles } from '../../hooks/useStyles';
 import { registerComponent } from "../../../lib/vulcan-lib/components";
 import { InteractionWrapper, useClickableCell } from "../../common/useClickableCell";
 import { cloudinaryCloudNameSetting } from "@/lib/publicSettings";
+import { SINGLE_COLUMN_BREAKPONT } from "@/lib/givingSeason";
 import { postGetPageUrl } from "@/lib/collections/posts/helpers";
 import { Link } from "@/lib/reactRouterWrapper";
 import UsersName from "../../users/UsersName";
@@ -14,15 +15,20 @@ const styles = defineStyles("MarginalFundingCard", (theme) => ({
     display: "flex",
     gap: 32,
     cursor: "pointer",
-    "&:hover": {
-      background: `${theme.palette.givingSeason.cardHover} !important`,
-      color: theme.palette.givingSeason.primary,
-      "& .MarginalFundingCard-org": {
-        borderColor: theme.palette.givingSeason.primary,
+    "@media (pointer:fine)": {
+      "&:hover": {
+        background: `${theme.palette.givingSeason.cardHover} !important`,
+        color: theme.palette.givingSeason.primary,
+        "& .MarginalFundingCard-org": {
+          borderColor: theme.palette.givingSeason.primary,
+        },
+        "& .MarginalFundingCard-image": {
+          transform: "scale(1.02)",
+        },
       },
-      "& .MarginalFundingCard-image": {
-        transform: "scale(1.02)",
-      },
+    },
+    [theme.breakpoints.down("xs")]: {
+      padding: 20,
     },
   },
   read: {
@@ -41,6 +47,9 @@ const styles = defineStyles("MarginalFundingCard", (theme) => ({
     height: 216,
     objectFit: "cover",
     transition: "transform ease 0.2s",
+    [theme.breakpoints.down(SINGLE_COLUMN_BREAKPONT)]: {
+      height: "unset",
+    },
   },
   title: {
     fontSize: 28,

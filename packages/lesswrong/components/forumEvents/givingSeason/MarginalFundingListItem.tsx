@@ -15,16 +15,18 @@ const styles = defineStyles("MarginalFundingListItem", (theme) => ({
       display: "flex",
       flexDirection: "column",
     },
-    "&:hover": {
-      color: theme.palette.givingSeason.primary,
-      "& .MarginalFundingListItem-read": {
-        background: `${theme.palette.givingSeason.cardHover} !important`,
-      },
-      "& .MarginalFundingListItem-unread": {
-        background: `${theme.palette.givingSeason.cardHover} !important`,
-      },
-      "& .MarginalFundingListItem-org": {
-        borderColor: theme.palette.givingSeason.primary,
+    "@media (pointer:fine)": {
+      "&:hover": {
+        color: theme.palette.givingSeason.primary,
+        "& .MarginalFundingListItem-read": {
+          background: `${theme.palette.givingSeason.cardHover} !important`,
+        },
+        "& .MarginalFundingListItem-unread": {
+          background: `${theme.palette.givingSeason.cardHover} !important`,
+        },
+        "& .MarginalFundingListItem-org": {
+          borderColor: theme.palette.givingSeason.primary,
+        },
       },
     },
   },
@@ -48,6 +50,9 @@ const styles = defineStyles("MarginalFundingListItem", (theme) => ({
       "&:not(:first-child)": {
         paddingTop: 16,
       },
+    },
+    [theme.breakpoints.down("xs")]: {
+      padding: 20,
     },
   },
   org: {
