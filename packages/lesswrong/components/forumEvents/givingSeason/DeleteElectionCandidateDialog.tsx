@@ -1,3 +1,4 @@
+// TODO Adding back voting portal: FINISHED
 import React, { useCallback } from "react";
 import { useCurrentUser } from "../../common/withUser";
 import { useDelete } from "../../../lib/crud/withDelete";

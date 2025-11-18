@@ -1,3 +1,4 @@
+// TODO Adding back voting portal: FINISHED
 import React from "react";
 import { useCurrentUser } from "../../common/withUser";
 import { useElectionCandidates } from "./hooks";

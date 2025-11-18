@@ -21,9 +21,7 @@ import { useCurrentUser } from "@/components/common/withUser";
 import { useUpdateCurrentUser } from "@/components/hooks/useUpdateCurrentUser";
 import { useWindowSize } from "@/components/hooks/useScreenWidth";
 import { MOBILE_HEADER_HEIGHT } from "@/components/common/Header";
-import { DONATION_ELECTION_AGE_CUTOFF, ELECTION_DONATE_HREF } from "@/lib/givingSeason";
-// TODO may roll into lib/givingSeason
-import { useElectionCandidates } from "./hooks";
+import { DONATION_ELECTION_AGE_CUTOFF, DONATION_ELECTION_APPROX_CLOSING_DATE, ELECTION_DONATE_HREF, useElectionCandidates } from "@/lib/givingSeason";
 import { useGivingSeason } from "@/lib/givingSeason";
 import { formatStat } from "@/components/users/EAUserTooltipContent";
 import {
@@ -46,13 +44,12 @@ import ToggleSwitch from "@/components/common/ToggleSwitch";
 import UsersName from "@/components/users/UsersName";
 import FormatDate from "@/components/common/FormatDate";
 
-const BACKGROUND_HREF = "https://res.cloudinary.com/cea/image/upload/v1731932208/tallbackground.jpg"; // TODO update
-const FUND_HREF = "https://www.every.org/effective-ventures-foundation-usa-inc-for-the-ea-forum-donation-election-fund-2024"; // TODO update
-const VOTING_HREF = "/posts/j6fmnYM5ZRu9fJyrq/donation-election-how-to-vote"; // TODO re-check (I think it's fine)
-const CANDIDATES_HREF = "/posts/tucbWEN7SBWxNiHWj/meet-the-candidates-in-the-forum-s-donation-election-2024"; // TODO update
-const FRAUD_HREF = "/posts/j6fmnYM5ZRu9fJyrq/donation-election-how-to-vote#What_s_not_allowed"; // TODO re-check (I think it's fine)
-const THREAD_HREF = "/posts/q6C23rxvyHX2ZxNNS/donation-election-discussion-thread"; // TODO update
-const COMMENT_POST_ID = isProduction ? "q6C23rxvyHX2ZxNNS" : "TKPz7FSTd6siveswn"; // TODO update
+const BACKGROUND_HREF = "https://res.cloudinary.com/cea/image/upload/v1731932208/tallbackground.jpg"; // TODO update, see full checklist: https://docs.google.com/document/d/1Y_guOnL78yV6PbmjL1fpFsMq9LSc39tCwpIuuYY1sYs/edit?tab=t.0
+const VOTING_HREF = "/posts/RzdKnBYe3jumrZxkB/giving-season-2025-announcement#November_24th_to_December_7th_"; // TODO flag to Toby/Agnes that this is not that comprehensive
+const CANDIDATES_HREF = "/posts/tucbWEN7SBWxNiHWj/meet-the-candidates-in-the-forum-s-donation-election-2024"; // TODO update, see full checklist: https://docs.google.com/document/d/1Y_guOnL78yV6PbmjL1fpFsMq9LSc39tCwpIuuYY1sYs/edit?tab=t.0
+const FRAUD_HREF = "/posts/j6fmnYM5ZRu9fJyrq/donation-election-how-to-vote#What_s_not_allowed"; // TODO flag to Toby/Agnes that this is potentially outdated
+const THREAD_HREF = "/posts/q6C23rxvyHX2ZxNNS/donation-election-discussion-thread"; // TODO update, see full checklist: https://docs.google.com/document/d/1Y_guOnL78yV6PbmjL1fpFsMq9LSc39tCwpIuuYY1sYs/edit?tab=t.0
+const COMMENT_POST_ID = isProduction ? "q6C23rxvyHX2ZxNNS" : "TKPz7FSTd6siveswn"; // TODO update, see full checklist: https://docs.google.com/document/d/1Y_guOnL78yV6PbmjL1fpFsMq9LSc39tCwpIuuYY1sYs/edit?tab=t.0
 
 const styles = (theme: ThemeType) => ({
   root: {
@@ -532,16 +529,17 @@ const WelcomeScreen = ({onNext, isTooYoung, classes}: {
   isTooYoung: boolean,
   classes: ClassesType<typeof styles>,
 }) => {
+  // TODO make this time based
   const votingOpen = true;
   const disableVoting = isTooYoung || !votingOpen
 
   return (
     <div className={classes.welcomeRoot}>
       <div className={classes.welcomeTitle}>
-        Vote in the Donation Election 2024
+        Vote in the Donation Election 2025
       </div>
       <div className={classes.welcomeDescription}>
-        The <Link to={FUND_HREF}>Donation Election Fund</Link> will be
+        The <Link to={ELECTION_DONATE_HREF}>Donation Election Fund</Link> will be
         distributed to the top 3 candidates<sup>1</sup>. We&apos;re
         using <Link to={VOTING_HREF}>ranked-choice voting</Link>. You can change
         your vote<sup>2</sup> as many times as you like until the deadline. Find
@@ -835,7 +833,7 @@ const ThankYouScreen = ({
         />
       }
       <div className={classes.thankYouTitle}>
-        Thank you for voting in the EA Forum Donation Election 2024
+        Thank you for voting in the EA Forum Donation Election 2025
       </div>
       <div className={classNames(classes.thankYouBox, classes.thankYouRow)}>
         <ForumIcon icon="Voted" />
@@ -890,7 +888,7 @@ const ThankYouScreen = ({
       </div>
       <EAButton onClick={onEditVote} className={classes.thankYouButton}>
         Edit your vote&nbsp;{""}
-        <span className={classes.thankYouSecondaryText}>(until Dec 2)</span>
+        <span className={classes.thankYouSecondaryText}>(until {DONATION_ELECTION_APPROX_CLOSING_DATE})</span>
       </EAButton>
     </div>
   );
@@ -1006,10 +1004,9 @@ const VotingPortalPage = ({classes}: {classes: ClassesType<typeof styles>}) => {
     }
   }, [candidates, existingVote]);
 
-  // TODO update to 2025
   const [saveVote] = useMutation(gql`
-    mutation GivingSeason2024Vote($vote: JSON!) {
-      GivingSeason2024Vote(vote: $vote)
+    mutation GivingSeason2025Vote($vote: JSON!) {
+      GivingSeason2025Vote(vote: $vote)
     }
   `);
 
@@ -1046,7 +1043,7 @@ const VotingPortalPage = ({classes}: {classes: ClassesType<typeof styles>}) => {
   const isCenterAligned = screen === "welcome" || screen === "thank-you";
 
   return (
-    <AnalyticsContext pageContext="votingPortal2024" pageSectionContext={screen}>
+    <AnalyticsContext pageContext="votingPortal" pageSectionContext={screen}>
       <div className={classNames(classes.root, {
         [classes.rootAlignCentered]: isCenterAligned,
         [classes.rootAlignTop]: !isCenterAligned,
@@ -1093,7 +1090,7 @@ const VotingPortalPage = ({classes}: {classes: ClassesType<typeof styles>}) => {
                   classes.commentTertiaryText,
                   classes.noMobile,
                 )}>
-                  You can change your vote until Dec 2
+                  You can change your vote until {DONATION_ELECTION_APPROX_CLOSING_DATE}
                 </span>
               }
               underText={
@@ -1101,7 +1098,7 @@ const VotingPortalPage = ({classes}: {classes: ClassesType<typeof styles>}) => {
                   classes.commentTertiaryText,
                   classes.onlyMobile,
                 )}>
-                  You can change your vote until Dec 2
+                  You can change your vote until {DONATION_ELECTION_APPROX_CLOSING_DATE}
                 </span>
               }
               continueText="Submit your vote"

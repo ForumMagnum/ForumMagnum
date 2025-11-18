@@ -3,7 +3,7 @@ import Comments from "../collections/comments/collection";
 import Posts from "../collections/posts/collection";
 import gql from 'graphql-tag';
 import ElectionVotes from "../collections/electionVotes/collection";
-import { ACTIVE_DONATION_ELECTION } from "@/lib/givingSeason";
+import { ACTIVE_DONATION_ELECTION, DONATION_ELECTION_AGE_CUTOFF } from "@/lib/givingSeason";
 
 export const givingSeasonGraphQLTypeDefs = gql`
   type GivingSeasonTagFeedQueryResults {
@@ -99,12 +99,10 @@ export const givingSeasonGraphQLQueries = {
 export const givingSeasonGraphQLMutations = {
   GivingSeason2025Vote: async (
     _root: void,
-    _args: {vote: Record<string, number>},
-    _context: ResolverContext,
+    {vote}: {vote: Record<string, number>},
+    {currentUser, repos}: ResolverContext,
   ) => {
     // TODO make this open on a timer
-    throw new Error("Voting has closed");
-    /*
     if (
       !currentUser ||
       currentUser.banned ||
@@ -130,6 +128,5 @@ export const givingSeasonGraphQLMutations = {
       vote,
     );
     return true;
-     */
   },
 }

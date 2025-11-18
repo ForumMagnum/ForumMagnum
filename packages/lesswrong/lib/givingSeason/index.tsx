@@ -14,6 +14,11 @@ import { useLocation } from "../routeUtil";
 import { useQuery } from "@apollo/client";
 import { isEAForum } from "../instanceSettings";
 import gql from "graphql-tag";
+import { useMulti, UseMultiOptions } from "../crud/withMulti";
+import { useCurrentUser } from "@/components/common/withUser";
+import { useCookiesWithConsent } from "@/components/hooks/useCookiesWithConsent";
+import { CLIENT_ID_COOKIE } from "../cookies/cookies";
+import seedrandom from "../seedrandom";
 
 export const GIVING_SEASON_INFO_HREF = "/posts/RzdKnBYe3jumrZxkB/giving-season-2025-announcement";
 export const ELECTION_INFO_HREF = "/posts/RzdKnBYe3jumrZxkB/giving-season-2025-announcement#November_24th_to_December_7th_";
@@ -28,7 +33,8 @@ const ELECTION_TARGET_AMOUNT = 30000;
 export const ACTIVE_DONATION_ELECTION = "givingSeason25"; // TODO check how this is used
 export const DONATION_ELECTION_NUM_WINNERS = 3;
 export const DONATION_ELECTION_SHOW_LEADERBOARD_CUTOFF = 100;
-export const DONATION_ELECTION_AGE_CUTOFF = new Date("2024-10-22");
+export const DONATION_ELECTION_AGE_CUTOFF = new Date("2025-10-24"); // TODO Adding back voting portal: FINISHED, using time of https://forum.effectivealtruism.org/posts/RzdKnBYe3jumrZxkB/giving-season-2025-announcement
+export const DONATION_ELECTION_APPROX_CLOSING_DATE = 'Dec 2nd';
 
 type GivingSeasonEvent = {
   name: string,
@@ -186,4 +192,37 @@ export const useGivingSeason = () => {
     throw new Error("Giving season context not found");
   }
   return value;
+}
+
+export const useElectionCandidates = (
+  sortBy: ElectionCandidatesSort | "random" = "mostPreVoted",
+  options?: Partial<UseMultiOptions<"ElectionCandidateBasicInfo", "ElectionCandidates">>,
+) => {
+  const currentUser = useCurrentUser();
+  const [cookies] = useCookiesWithConsent([CLIENT_ID_COOKIE]);
+  const clientId = cookies[CLIENT_ID_COOKIE];
+
+  const {results, ...retVal} = useMulti({
+    collectionName: "ElectionCandidates",
+    fragmentName: "ElectionCandidateBasicInfo",
+    terms: {
+      electionName: ACTIVE_DONATION_ELECTION,
+      sortBy: sortBy === "random" ? "name" : sortBy,
+    },
+    limit: 100,
+    // There is an SSR mismatch bug that occurs on safari when using the random sort
+    ssr: false,
+    ...options,
+  });
+
+  let resultsCopy = results ? [...results] : undefined;
+  if (sortBy === "random") {
+    const rng = seedrandom(currentUser?.abTestKey ?? clientId);
+    resultsCopy?.sort(() => rng() - 0.5);
+  }
+
+  return {
+    results: resultsCopy,
+    ...retVal,
+  };
 }
