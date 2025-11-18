@@ -329,6 +329,7 @@ const SearchPageTabbed = () => {
       
     updateUrl(updatedSearchState, clearTagFilters ? [] : tagsFilter)
     setSearchState(updatedSearchState)
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [updateUrl])
 
   useEffect(() => {
