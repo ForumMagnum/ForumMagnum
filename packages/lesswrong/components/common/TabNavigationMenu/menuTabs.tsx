@@ -265,7 +265,7 @@ export const getMenuTabs = (): ForumOptions<Array<MenuTab>> => ({
       mobileTitle: 'About',
       link: '/about',
       subItem: true,
-      iconComponent: AboutQuestionIcon,
+      compressedIconComponent: AboutQuestionIcon,
       showOnCompressed: true,
     }
   ],
