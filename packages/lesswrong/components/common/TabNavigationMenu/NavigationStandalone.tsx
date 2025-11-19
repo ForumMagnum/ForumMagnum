@@ -8,6 +8,7 @@ import { HOME_RHS_MAX_SCREEN_WIDTH } from '@/components/ea-forum/constants';
 import { defineStyles, useStyles } from '@/components/hooks/useStyles';
 import { getCommunityPath } from '@/lib/pathConstants';
 import { IconOnlyNavigationContext } from './iconOnlyNavigationContext';
+import { useIsAboveScreenWidth } from '@/components/hooks/useScreenWidth';
 
 const ICON_ONLY_NAVIGATION_WIDTH = 64;
 const ICON_ONLY_NAVIGATION_BREAKPOINT = 1424;
@@ -44,17 +45,6 @@ const styles = (theme: ThemeType) => ({
   sidebarWrapperIconOnly: {
     minWidth: ICON_ONLY_NAVIGATION_WIDTH,
   },
-  fullNavWrapper: {
-    [`@media(max-width: ${ICON_ONLY_NAVIGATION_BREAKPOINT}px)`]: {
-      display: "none"
-    },
-  },
-  iconOnlyNavWrapper: {
-    display: "none",
-    [`@media(max-width: ${ICON_ONLY_NAVIGATION_BREAKPOINT}px)`]: {
-      display: "block"
-    },
-  },
   navSidebarTransparent: {
     zIndex: 10,
   },
@@ -78,50 +68,31 @@ const NavigationStandalone = ({
 }) => {
   const { location } = useLocation();
   const friendlyUI = isFriendlyUI();
-  const showIconOnlyVariant = !!iconOnlyNavigationEnabled;
+  const isAboveBreakpoint = useIsAboveScreenWidth(ICON_ONLY_NAVIGATION_BREAKPOINT);
+  const useIconOnlyMode = iconOnlyNavigationEnabled && !isAboveBreakpoint;
 
   const background = location.pathname === getCommunityPath();
 
-  return <>
-    <div className={classNames({
-      [classes.sidebarWrapper]: friendlyUI,
-      [classes.fullNavWrapper]: showIconOnlyVariant,
-    })}>
-      <Slide slidIn={!sidebarHidden}>
-        <div className={classNames(classes.sidebar, {
-          [classes.background]: background,
-          [classes.navSidebarTransparent]: unspacedGridLayout,
-        })}>
-          {/* In the unspaced grid layout the sidebar can appear on top of other componenents, so make the background transparent */}
-          <IconOnlyNavigationContext.Provider value={false}>
-            <TabNavigationMenu
-              transparentBackground={unspacedGridLayout}
-              noTopMargin={noTopMargin}
-            />
-          </IconOnlyNavigationContext.Provider>
-        </div>
-      </Slide>
-    </div>
-    {showIconOnlyVariant && <div className={classNames({
-      [classes.sidebarWrapper]: friendlyUI,
-      [classes.sidebarWrapperIconOnly]: friendlyUI,
-    }, classes.iconOnlyNavWrapper)}>
-      <Slide slidIn={!sidebarHidden}>
-        <div className={classNames(classes.sidebar, {
-          [classes.background]: background,
-          [classes.navSidebarTransparent]: unspacedGridLayout,
-          [classes.sidebarIconOnly]: true,
-        })}>
-          <IconOnlyNavigationContext.Provider value={true}>
-            <TabNavigationMenu
-              transparentBackground={unspacedGridLayout}
-              noTopMargin={noTopMargin}
-            />
-          </IconOnlyNavigationContext.Provider>
-        </div>
-      </Slide>
-    </div>}
-  </>
+  return <div className={classNames({
+    [classes.sidebarWrapper]: friendlyUI,
+    [classes.sidebarWrapperIconOnly]: friendlyUI && useIconOnlyMode,
+  })}>
+    <Slide slidIn={!sidebarHidden}>
+      <div className={classNames(classes.sidebar, {
+        [classes.background]: background,
+        [classes.navSidebarTransparent]: unspacedGridLayout,
+        [classes.sidebarIconOnly]: useIconOnlyMode,
+      })}>
+        {/* In the unspaced grid layout the sidebar can appear on top of other componenents, so make the background transparent */}
+        <IconOnlyNavigationContext.Provider value={useIconOnlyMode}>
+          <TabNavigationMenu
+            transparentBackground={unspacedGridLayout}
+            noTopMargin={noTopMargin}
+          />
+        </IconOnlyNavigationContext.Provider>
+      </div>
+    </Slide>
+  </div>
 }
 
 const slideStyles = defineStyles("Slide", (theme: ThemeType) => ({
