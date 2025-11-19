@@ -22,6 +22,7 @@ import UsersMenu from "../users/UsersMenu";
 import { LWUsersAccountMenu, EAUsersAccountMenu } from "../users/UsersAccountMenu";
 import NotificationsMenuButton from "../notifications/NotificationsMenuButton";
 import NavigationDrawer from "./TabNavigationMenu/NavigationDrawer";
+import { ICON_ONLY_NAVIGATION_BREAKPOINT } from "./TabNavigationMenu/NavigationStandalone";
 import { KarmaChangeNotifier } from "../users/karmaChanges/KarmaChangeNotifier";
 import HeaderSubtitle from "./HeaderSubtitle";
 import { Typography } from "./Typography";
@@ -228,12 +229,12 @@ export const styles = (theme: ThemeType) => ({
     },
   },
   hideLgUp: {
-    [theme.breakpoints.up(1424)]: {
+    [theme.breakpoints.up(ICON_ONLY_NAVIGATION_BREAKPOINT)]: {
       display:"none !important"
     }
   },
   hideMdDown: {
-    [theme.breakpoints.down(1424)]: {
+    [theme.breakpoints.down(ICON_ONLY_NAVIGATION_BREAKPOINT)]: {
       display:"none !important"
     }
   },

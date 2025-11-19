@@ -406,7 +406,6 @@ const Layout = ({children}: {
 
     const { overridenLayoutOptions: overrideLayoutOptions } = layoutOptionsState
 
-    const ENABLE_ICON_ONLY_NAVIGATION = isLW();
     const standaloneNavigation = overrideLayoutOptions.standaloneNavigation ?? baseLayoutOptions.standaloneNavigation
     const renderSunshineSidebar = overrideLayoutOptions.renderSunshineSidebar ?? baseLayoutOptions.renderSunshineSidebar
     const renderLanguageModelChatLauncher = overrideLayoutOptions.renderLanguageModelChatLauncher ?? baseLayoutOptions.renderLanguageModelChatLauncher
@@ -414,7 +413,8 @@ const Layout = ({children}: {
     const unspacedGridLayout = overrideLayoutOptions.unspacedGridLayout ?? baseLayoutOptions.unspacedGridLayout
     // The friendly home page has a unique grid layout, to account for the right hand side column.
     const friendlyHomeLayout = isFriendlyUI() && isHomeRoute(pathname);
-    const iconOnlyNavigationEnabled = ENABLE_ICON_ONLY_NAVIGATION && standaloneNavigation && !unspacedGridLayout;
+    const useIconOnlyNavigation = isLW()
+    const iconOnlyNavigationEnabled = useIconOnlyNavigation && standaloneNavigation && !unspacedGridLayout;
 
     const isIncompletePath = allowedIncompletePaths.some(path => pathname.startsWith(`/${path}`));
     

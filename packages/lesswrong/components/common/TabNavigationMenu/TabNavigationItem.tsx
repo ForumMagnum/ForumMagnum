@@ -251,28 +251,26 @@ const TabNavigationItem = ({tab, onClick, className}: TabNavigationItemProps) =>
 
   const isSelected = pathname === tab.link;
   
-  const baseIconComponent = isSelected
+  // Determine which icon to show
+  const iconComponent = isSelected
     ? tab.selectedIconComponent ?? tab.iconComponent
     : tab.iconComponent;
+  
+  const iconToRender = iconOnlyMode && tab.compressedIconComponent
+    ? tab.compressedIconComponent
+    : iconComponent;
     
-  const hasIcon = iconOnlyMode
-    ? Boolean(tab.compressedIconComponent ?? tab.icon ?? baseIconComponent)
-    : Boolean(tab.icon ?? baseIconComponent);
-  const iconElement = (() => {
-    if (!hasIcon) return null;
-    if (iconOnlyMode && tab.compressedIconComponent) {
-      const CompressedIcon = tab.compressedIconComponent;
-      return <CompressedIcon />;
+  const hasIcon = Boolean(tab.icon ?? iconToRender);
+  
+  let iconElement = null;
+  if (hasIcon) {
+    if (iconToRender) {
+      const IconComponent = iconToRender;
+      iconElement = <IconComponent />;
+    } else {
+      iconElement = tab.icon;
     }
-    if (baseIconComponent) {
-      const ComponentToRender = baseIconComponent;
-      return <ComponentToRender />;
-    }
-    if (tab.icon) {
-      return tab.icon;
-    }
-    return null;
-  })();
+  }
   return <LWTooltip
     placement='right-start'
     title={tooltipTitle}

@@ -11,7 +11,7 @@ import { IconOnlyNavigationContext } from './iconOnlyNavigationContext';
 import { useIsAboveScreenWidth } from '@/components/hooks/useScreenWidth';
 
 const ICON_ONLY_NAVIGATION_WIDTH = 64;
-const ICON_ONLY_NAVIGATION_BREAKPOINT = 1424;
+export const ICON_ONLY_NAVIGATION_BREAKPOINT = 1424;
 
 const styles = (theme: ThemeType) => ({
   // This wrapper is on friendly sites so that when this sidebar is hidden
@@ -69,7 +69,7 @@ const NavigationStandalone = ({
   const { location } = useLocation();
   const friendlyUI = isFriendlyUI();
   const isAboveBreakpoint = useIsAboveScreenWidth(ICON_ONLY_NAVIGATION_BREAKPOINT);
-  const useIconOnlyMode = iconOnlyNavigationEnabled && !isAboveBreakpoint;
+  const useIconOnlyMode = !!iconOnlyNavigationEnabled && !isAboveBreakpoint;
 
   const background = location.pathname === getCommunityPath();
 
