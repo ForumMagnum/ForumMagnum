@@ -1,4 +1,3 @@
-// TODO Adding back voting portal: FINISHED
 import React from "react";
 import { useCurrentUser } from "../../common/withUser";
 import { Link } from "../../../lib/reactRouterWrapper";

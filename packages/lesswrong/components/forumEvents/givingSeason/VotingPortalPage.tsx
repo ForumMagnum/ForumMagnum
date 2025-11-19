@@ -21,9 +21,13 @@ import { useCurrentUser } from "@/components/common/withUser";
 import { useUpdateCurrentUser } from "@/components/hooks/useUpdateCurrentUser";
 import { useWindowSize } from "@/components/hooks/useScreenWidth";
 import { MOBILE_HEADER_HEIGHT } from "@/components/common/Header";
-import { DONATION_ELECTION_APPROX_CLOSING_DATE, ELECTION_DONATE_HREF, userIsAllowedToVoteInDonationElection } from "@/lib/givingSeason";
+import {
+  DONATION_ELECTION_APPROX_CLOSING_DATE,
+  ELECTION_DONATE_HREF,
+  userIsAllowedToVoteInDonationElection,
+  useGivingSeason,
+} from "@/lib/givingSeason";
 import { useElectionCandidates } from "./hooks";
-import { useGivingSeason } from "@/lib/givingSeason";
 import { formatStat } from "@/components/users/EAUserTooltipContent";
 import {
   DragDropContext,
@@ -794,12 +798,16 @@ const CommentScreen = ({currentUser, commentsPost, onSubmitVote, classes}: {
     navigate(commentLink);
   }, [onSubmitVote, navigate]);
   const onSuccess = useCallback((comment: CommentsList) => {
-    const onClick = onViewComment.bind(null, comment);
+    const commentLink = commentGetPageUrlFromIds({
+      commentId: comment._id,
+      postId: comment.postId,
+    });
+
     flash({
       type: "success",
       messageString: (
         <div className={classes.commentFlash}>
-          Comment created. <a onClick={onClick}>Submit vote and view comment</a>.
+          Comment created. <a href={commentLink} target="_blank" rel="noopener noreferrer">View comment</a>.
         </div>
       ),
     });
