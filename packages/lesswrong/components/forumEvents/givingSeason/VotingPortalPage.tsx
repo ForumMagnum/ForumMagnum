@@ -128,22 +128,43 @@ const styles = (theme: ThemeType) => ({
       fontSize: 16,
     },
   },
+  welcomeButtons: {
+    display: "flex",
+    gap: "12px",
+    [theme.breakpoints.down("xs")]: {
+      flexDirection: "column",
+    },
+  },
   welcomeButton: {
     width: "100%",
     padding: "16px 24px",
     fontSize: 16,
     fontWeight: 600,
     lineHeight: "120%",
+    textDecoration: "none !important",
+    "&:hover": {
+      opacity: 0.8,
+      textDecoration: 'none'
+    },
+  },
+  welcomeButtonPrimary: {
     color: theme.palette.givingSeason.votingPortalSecondary,
     background: theme.palette.givingSeason.votingPortalPrimary,
     "&:hover": {
       background: theme.palette.givingSeason.votingPortalPrimary,
-      opacity: 0.8,
+    },
+  },
+  welcomeButtonSecondary: {
+    color: theme.palette.givingSeason.votingPortalPrimary,
+    background: theme.palette.givingSeason.votingPortalSecondary,
+    border: `1px solid ${theme.palette.givingSeason.votingPortalPrimary}`,
+    "&:hover": {
+      background: theme.palette.givingSeason.votingPortalSecondary,
     },
   },
   welcomeButtonDisabled: {
     opacity: 0.6,
-    cursor: "default",
+    cursor: "not-allowed",
     "&:hover": {
       opacity: 0.6,
     },
@@ -573,17 +594,25 @@ const WelcomeScreen = ({onNext, isTooYoung, classes}: {
           your vote<sup>2</sup> as many times as you like until the deadline. Find
           out more about the candidates <Link to={CANDIDATES_HREF}>here</Link>.
         </div>
-        <EAButton
-          onClick={disableVoting ? undefined : onNext}
-          className={classNames(classes.welcomeButton, {
-            [classes.welcomeButtonDisabled]: disableVoting,
-          })}
-        >
-          {isTooYoung
-            ? "Your account is too young to vote in the Donation Election"
-            : votingOpen ? "Vote in the Election ->" : "Voting has closed"
-          }
-        </EAButton>
+        <div className={classes.welcomeButtons}>
+          <EAButton
+            onClick={disableVoting ? undefined : onNext}
+            className={classNames(classes.welcomeButton, classes.welcomeButtonPrimary, {
+              [classes.welcomeButtonDisabled]: disableVoting,
+            })}
+          >
+            {isTooYoung
+              ? "Your account is too young to vote in the Donation Election"
+              : votingOpen ? "Vote in the Election ->" : "Voting has closed"
+            }
+          </EAButton>
+          <EAButton
+            href={CANDIDATES_HREF}
+            className={classNames(classes.welcomeButton, classes.welcomeButtonSecondary)}
+          >
+            Meet the candidates
+          </EAButton>
+        </div>
         {/* TODO add button here */}
         <div>
           <div className={classes.welcomeFootnote}>
