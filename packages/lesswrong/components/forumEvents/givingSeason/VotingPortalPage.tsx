@@ -789,14 +789,7 @@ const CommentScreen = ({currentUser, commentsPost, onSubmitVote, classes}: {
 }) => {
   const {flash} = useMessages();
   const navigate = useNavigate();
-  const onViewComment = useCallback((comment: CommentsList) => {
-    const commentLink = commentGetPageUrlFromIds({
-      commentId: comment._id,
-      postId: comment.postId,
-    });
-    onSubmitVote();
-    navigate(commentLink);
-  }, [onSubmitVote, navigate]);
+
   const onSuccess = useCallback((comment: CommentsList) => {
     const commentLink = commentGetPageUrlFromIds({
       commentId: comment._id,
@@ -811,7 +804,7 @@ const CommentScreen = ({currentUser, commentsPost, onSubmitVote, classes}: {
         </div>
       ),
     });
-  }, [flash, onViewComment, classes.commentFlash]);
+  }, [flash, classes.commentFlash]);
 
   return (
     <div className={classes.commentRoot}>
