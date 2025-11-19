@@ -424,6 +424,7 @@ type Documents = {
     "\n    query GetAllReviewWinners {\n      GetAllReviewWinners {\n        ...PostsTopItemInfo\n      }\n    }\n  ": typeof types.GetAllReviewWinnersDocument,
     "\n    query GetReviewWinnerSpotlights($selector: PostSelector, $limit: Int, $enableTotal: Boolean) {\n      posts(selector: $selector, limit: $limit, enableTotal: $enableTotal) {\n        results {\n          ...PostsBase\n          reviewWinner {\n            ...ReviewWinnerTopPostsPage\n          }\n          spotlight {\n            ...SpotlightDisplay\n          }\n        }\n      }\n    }\n  ": typeof types.GetReviewWinnerSpotlightsDocument,
     "\n  query CollectionsPage($documentId: String) {\n    collection(input: { selector: { documentId: $documentId } }) {\n      result {\n        ...CollectionsPageFragment\n      }\n    }\n  }\n": typeof types.CollectionsPageDocument,
+    "\n  query PostsSequenceMetadataQuery($selector: PostSelector!) {\n    posts(selector: $selector) {\n      results {\n        ...PostsList\n      }\n    }\n  }\n": typeof types.PostsSequenceMetadataQueryDocument,
     "\n    mutation updateContinueReading($sequenceId: String!, $postId: String!) {\n      updateContinueReading(sequenceId: $sequenceId, postId: $postId)\n    }\n  ": typeof types.updateContinueReadingDocument,
     "\n  query ProfileShortform($documentId: String) {\n    post(input: { selector: { documentId: $documentId } }) {\n      result {\n        ...PostsListWithVotes\n      }\n    }\n  }\n": typeof types.ProfileShortformDocument,
     "\n  query multiCommentRepliesToCommentListQuery($selector: CommentSelector, $limit: Int, $enableTotal: Boolean) {\n    comments(selector: $selector, limit: $limit, enableTotal: $enableTotal) {\n      results {\n        ...CommentsList\n      }\n      totalCount\n    }\n  }\n": typeof types.multiCommentRepliesToCommentListQueryDocument,
@@ -667,6 +668,7 @@ type Documents = {
     "\n  fragment BookPageFragment on Book {\n    _id\n    createdAt\n    title\n    number\n    subtitle\n    tocTitle\n    contents {\n      ...RevisionDisplay\n    }\n    sequenceIds\n    sequences {\n      ...SequencesPageWithChaptersFragment\n    }\n    postIds\n    posts {\n      ...PostsListWithVotes\n    }\n    collectionId\n    displaySequencesAsGrid\n    hideProgressBar\n    showChapters\n  }\n": typeof types.BookPageFragmentDoc,
     "\n  fragment BookEdit on Book {\n    ...BookPageFragment\n    contents {\n      ...RevisionEdit\n    }\n  }\n": typeof types.BookEditDoc,
     "\n  fragment ChaptersFragment on Chapter {\n    _id\n    createdAt\n    title\n    subtitle\n    contents {\n      ...RevisionDisplay\n    }\n    number\n    sequenceId\n    postIds\n    posts {\n      ...PostsListWithVotes\n    }\n  }\n": typeof types.ChaptersFragmentDoc,
+    "\n  fragment SlimChapter on Chapter {\n    _id\n    createdAt\n    title\n    subtitle\n    contents {\n      ...RevisionDisplay\n    }\n    number\n    sequenceId\n    postIds\n    posts {\n      ...ChapterPostSlim\n    }\n  }\n": typeof types.SlimChapterDoc,
     "\n  fragment ChaptersEdit on Chapter {\n    ...ChaptersFragment\n    contents {\n      ...RevisionEdit\n    }\n  }\n": typeof types.ChaptersEditDoc,
     "\n  fragment CkEditorUserSessionInfo on CkEditorUserSession {\n    _id\n    userId\n    documentId\n    endedAt\n    endedBy\n  }\n": typeof types.CkEditorUserSessionInfoDoc,
     "\n  fragment ModeratorClientIDInfo on ClientId {\n    _id\n    clientId\n    createdAt\n    firstSeenReferrer\n    firstSeenLandingPage\n    users {\n      ...UsersMinimumInfo\n    }\n  }\n": typeof types.ModeratorClientIDInfoDoc,
@@ -781,6 +783,7 @@ type Documents = {
     "\n  fragment PostsForAutocomplete on Post {\n    _id\n    title\n    userId\n    baseScore\n    extendedScore\n    user {\n      ...UsersMinimumInfo\n    }\n    contents {\n      markdown\n    }\n  }\n": typeof types.PostsForAutocompleteDoc,
     "\n  fragment PostsTwitterAdmin on Post {\n    ...PostsListWithVotes\n    user {\n      ...UsersSocialMediaInfo\n    }\n    coauthors {\n      ...UsersSocialMediaInfo\n    }\n  }\n": typeof types.PostsTwitterAdminDoc,
     "\n  fragment SuggestAlignmentPost on Post {\n    ...PostsList\n    suggestForAlignmentUsers {\n      _id\n      displayName\n    }\n  }\n": typeof types.SuggestAlignmentPostDoc,
+    "\n  fragment ChapterPostSlim on Post {\n    _id\n    title\n    slug\n    isRead\n  }\n": typeof types.ChapterPostSlimDoc,
     "\n  fragment UnclaimedReportsList on Report {\n    _id\n    userId\n    user {\n      ...UsersMinimumInfo\n    }\n    commentId\n    comment {\n      ...CommentsList\n      post {\n        ...PostsMinimumInfo\n      }\n      tag {\n        ...TagBasicInfo\n      }\n    }\n    postId\n    post {\n      ...PostsList\n    }\n    reportedUser {\n      ...SunshineUsersList\n    }\n    closedAt\n    createdAt\n    claimedUserId\n    claimedUser {\n      _id\n      displayName\n      username\n      slug\n    }\n    link\n    description\n    reportedAsSpam\n    markedAsSpam\n  }\n": typeof types.UnclaimedReportsListDoc,
     "\n  fragment reviewVoteFragment on ReviewVote {\n    _id\n    createdAt\n    userId\n    postId\n    qualitativeScore\n    quadraticScore\n    comment\n    year\n    dummy\n    reactions\n  }\n": typeof types.reviewVoteFragmentDoc,
     "\n  fragment reviewAdminDashboard on ReviewVote {\n    _id\n    createdAt\n    userId\n    user {\n      _id\n      displayName\n      karma\n    }\n  }\n": typeof types.reviewAdminDashboardDoc,
@@ -803,7 +806,7 @@ type Documents = {
     "\n  fragment SequencesPageTitleFragment on Sequence {\n    _id\n    title\n    canonicalCollectionSlug\n    canonicalCollection {\n      _id\n      title\n    }\n  }\n": typeof types.SequencesPageTitleFragmentDoc,
     "\n  fragment SequencesPageFragment on Sequence {\n    ...SequencesPageTitleFragment\n    createdAt\n    userId\n    user {\n      ...UsersMinimumInfo\n    }\n    contents {\n      ...RevisionDisplay\n    }\n    gridImageId\n    bannerImageId\n    canonicalCollectionSlug\n    draft\n    isDeleted\n    hidden\n    hideFromAuthorPage\n    noindex\n    curatedOrder\n    userProfileOrder\n    af\n    postsCount\n    readPostsCount\n  }\n": typeof types.SequencesPageFragmentDoc,
     "\n  fragment SequenceContinueReadingFragment on Sequence {\n    _id\n    title\n    gridImageId\n    canonicalCollectionSlug\n  }\n": typeof types.SequenceContinueReadingFragmentDoc,
-    "\n  fragment SequencesPageWithChaptersFragment on Sequence {\n    ...SequencesPageFragment\n    chapters {\n      ...ChaptersFragment\n    }\n  }\n": typeof types.SequencesPageWithChaptersFragmentDoc,
+    "\n  fragment SequencesPageWithChaptersFragment on Sequence {\n    ...SequencesPageFragment\n    chapters {\n      ...SlimChapter\n    }\n  }\n": typeof types.SequencesPageWithChaptersFragmentDoc,
     "\n  fragment SequencesEdit on Sequence {\n    ...SequencesPageFragment\n    contents { \n      ...RevisionEdit\n    }\n  }\n": typeof types.SequencesEditDoc,
     "\n  fragment SideCommentCacheMinimumInfo on SideCommentCache {\n    _id\n    postId\n    annotatedHtml\n    commentsByBlock\n    version\n    createdAt\n  }\n": typeof types.SideCommentCacheMinimumInfoDoc,
     "\n  fragment SplashArtCoordinates on SplashArtCoordinate {\n    _id\n    reviewWinnerArtId\n    leftXPct\n    leftYPct\n    leftHeightPct\n    leftWidthPct\n    leftFlipped\n    middleXPct\n    middleYPct\n    middleHeightPct\n    middleWidthPct\n    middleFlipped\n    rightXPct\n    rightYPct\n    rightHeightPct\n    rightWidthPct\n    rightFlipped\n  }\n": typeof types.SplashArtCoordinatesDoc,
@@ -1331,6 +1334,7 @@ const documents: Documents = {
     "\n    query GetAllReviewWinners {\n      GetAllReviewWinners {\n        ...PostsTopItemInfo\n      }\n    }\n  ": types.GetAllReviewWinnersDocument,
     "\n    query GetReviewWinnerSpotlights($selector: PostSelector, $limit: Int, $enableTotal: Boolean) {\n      posts(selector: $selector, limit: $limit, enableTotal: $enableTotal) {\n        results {\n          ...PostsBase\n          reviewWinner {\n            ...ReviewWinnerTopPostsPage\n          }\n          spotlight {\n            ...SpotlightDisplay\n          }\n        }\n      }\n    }\n  ": types.GetReviewWinnerSpotlightsDocument,
     "\n  query CollectionsPage($documentId: String) {\n    collection(input: { selector: { documentId: $documentId } }) {\n      result {\n        ...CollectionsPageFragment\n      }\n    }\n  }\n": types.CollectionsPageDocument,
+    "\n  query PostsSequenceMetadataQuery($selector: PostSelector!) {\n    posts(selector: $selector) {\n      results {\n        ...PostsList\n      }\n    }\n  }\n": types.PostsSequenceMetadataQueryDocument,
     "\n    mutation updateContinueReading($sequenceId: String!, $postId: String!) {\n      updateContinueReading(sequenceId: $sequenceId, postId: $postId)\n    }\n  ": types.updateContinueReadingDocument,
     "\n  query ProfileShortform($documentId: String) {\n    post(input: { selector: { documentId: $documentId } }) {\n      result {\n        ...PostsListWithVotes\n      }\n    }\n  }\n": types.ProfileShortformDocument,
     "\n  query multiCommentRepliesToCommentListQuery($selector: CommentSelector, $limit: Int, $enableTotal: Boolean) {\n    comments(selector: $selector, limit: $limit, enableTotal: $enableTotal) {\n      results {\n        ...CommentsList\n      }\n      totalCount\n    }\n  }\n": types.multiCommentRepliesToCommentListQueryDocument,
@@ -1574,6 +1578,7 @@ const documents: Documents = {
     "\n  fragment BookPageFragment on Book {\n    _id\n    createdAt\n    title\n    number\n    subtitle\n    tocTitle\n    contents {\n      ...RevisionDisplay\n    }\n    sequenceIds\n    sequences {\n      ...SequencesPageWithChaptersFragment\n    }\n    postIds\n    posts {\n      ...PostsListWithVotes\n    }\n    collectionId\n    displaySequencesAsGrid\n    hideProgressBar\n    showChapters\n  }\n": types.BookPageFragmentDoc,
     "\n  fragment BookEdit on Book {\n    ...BookPageFragment\n    contents {\n      ...RevisionEdit\n    }\n  }\n": types.BookEditDoc,
     "\n  fragment ChaptersFragment on Chapter {\n    _id\n    createdAt\n    title\n    subtitle\n    contents {\n      ...RevisionDisplay\n    }\n    number\n    sequenceId\n    postIds\n    posts {\n      ...PostsListWithVotes\n    }\n  }\n": types.ChaptersFragmentDoc,
+    "\n  fragment SlimChapter on Chapter {\n    _id\n    createdAt\n    title\n    subtitle\n    contents {\n      ...RevisionDisplay\n    }\n    number\n    sequenceId\n    postIds\n    posts {\n      ...ChapterPostSlim\n    }\n  }\n": types.SlimChapterDoc,
     "\n  fragment ChaptersEdit on Chapter {\n    ...ChaptersFragment\n    contents {\n      ...RevisionEdit\n    }\n  }\n": types.ChaptersEditDoc,
     "\n  fragment CkEditorUserSessionInfo on CkEditorUserSession {\n    _id\n    userId\n    documentId\n    endedAt\n    endedBy\n  }\n": types.CkEditorUserSessionInfoDoc,
     "\n  fragment ModeratorClientIDInfo on ClientId {\n    _id\n    clientId\n    createdAt\n    firstSeenReferrer\n    firstSeenLandingPage\n    users {\n      ...UsersMinimumInfo\n    }\n  }\n": types.ModeratorClientIDInfoDoc,
@@ -1688,6 +1693,7 @@ const documents: Documents = {
     "\n  fragment PostsForAutocomplete on Post {\n    _id\n    title\n    userId\n    baseScore\n    extendedScore\n    user {\n      ...UsersMinimumInfo\n    }\n    contents {\n      markdown\n    }\n  }\n": types.PostsForAutocompleteDoc,
     "\n  fragment PostsTwitterAdmin on Post {\n    ...PostsListWithVotes\n    user {\n      ...UsersSocialMediaInfo\n    }\n    coauthors {\n      ...UsersSocialMediaInfo\n    }\n  }\n": types.PostsTwitterAdminDoc,
     "\n  fragment SuggestAlignmentPost on Post {\n    ...PostsList\n    suggestForAlignmentUsers {\n      _id\n      displayName\n    }\n  }\n": types.SuggestAlignmentPostDoc,
+    "\n  fragment ChapterPostSlim on Post {\n    _id\n    title\n    slug\n    isRead\n  }\n": types.ChapterPostSlimDoc,
     "\n  fragment UnclaimedReportsList on Report {\n    _id\n    userId\n    user {\n      ...UsersMinimumInfo\n    }\n    commentId\n    comment {\n      ...CommentsList\n      post {\n        ...PostsMinimumInfo\n      }\n      tag {\n        ...TagBasicInfo\n      }\n    }\n    postId\n    post {\n      ...PostsList\n    }\n    reportedUser {\n      ...SunshineUsersList\n    }\n    closedAt\n    createdAt\n    claimedUserId\n    claimedUser {\n      _id\n      displayName\n      username\n      slug\n    }\n    link\n    description\n    reportedAsSpam\n    markedAsSpam\n  }\n": types.UnclaimedReportsListDoc,
     "\n  fragment reviewVoteFragment on ReviewVote {\n    _id\n    createdAt\n    userId\n    postId\n    qualitativeScore\n    quadraticScore\n    comment\n    year\n    dummy\n    reactions\n  }\n": types.reviewVoteFragmentDoc,
     "\n  fragment reviewAdminDashboard on ReviewVote {\n    _id\n    createdAt\n    userId\n    user {\n      _id\n      displayName\n      karma\n    }\n  }\n": types.reviewAdminDashboardDoc,
@@ -1710,7 +1716,7 @@ const documents: Documents = {
     "\n  fragment SequencesPageTitleFragment on Sequence {\n    _id\n    title\n    canonicalCollectionSlug\n    canonicalCollection {\n      _id\n      title\n    }\n  }\n": types.SequencesPageTitleFragmentDoc,
     "\n  fragment SequencesPageFragment on Sequence {\n    ...SequencesPageTitleFragment\n    createdAt\n    userId\n    user {\n      ...UsersMinimumInfo\n    }\n    contents {\n      ...RevisionDisplay\n    }\n    gridImageId\n    bannerImageId\n    canonicalCollectionSlug\n    draft\n    isDeleted\n    hidden\n    hideFromAuthorPage\n    noindex\n    curatedOrder\n    userProfileOrder\n    af\n    postsCount\n    readPostsCount\n  }\n": types.SequencesPageFragmentDoc,
     "\n  fragment SequenceContinueReadingFragment on Sequence {\n    _id\n    title\n    gridImageId\n    canonicalCollectionSlug\n  }\n": types.SequenceContinueReadingFragmentDoc,
-    "\n  fragment SequencesPageWithChaptersFragment on Sequence {\n    ...SequencesPageFragment\n    chapters {\n      ...ChaptersFragment\n    }\n  }\n": types.SequencesPageWithChaptersFragmentDoc,
+    "\n  fragment SequencesPageWithChaptersFragment on Sequence {\n    ...SequencesPageFragment\n    chapters {\n      ...SlimChapter\n    }\n  }\n": types.SequencesPageWithChaptersFragmentDoc,
     "\n  fragment SequencesEdit on Sequence {\n    ...SequencesPageFragment\n    contents { \n      ...RevisionEdit\n    }\n  }\n": types.SequencesEditDoc,
     "\n  fragment SideCommentCacheMinimumInfo on SideCommentCache {\n    _id\n    postId\n    annotatedHtml\n    commentsByBlock\n    version\n    createdAt\n  }\n": types.SideCommentCacheMinimumInfoDoc,
     "\n  fragment SplashArtCoordinates on SplashArtCoordinate {\n    _id\n    reviewWinnerArtId\n    leftXPct\n    leftYPct\n    leftHeightPct\n    leftWidthPct\n    leftFlipped\n    middleXPct\n    middleYPct\n    middleHeightPct\n    middleWidthPct\n    middleFlipped\n    rightXPct\n    rightYPct\n    rightHeightPct\n    rightWidthPct\n    rightFlipped\n  }\n": types.SplashArtCoordinatesDoc,
@@ -3485,6 +3491,10 @@ export function gql(source: "\n  query CollectionsPage($documentId: String) {\n 
 /**
  * The gql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
  */
+export function gql(source: "\n  query PostsSequenceMetadataQuery($selector: PostSelector!) {\n    posts(selector: $selector) {\n      results {\n        ...PostsList\n      }\n    }\n  }\n"): (typeof documents)["\n  query PostsSequenceMetadataQuery($selector: PostSelector!) {\n    posts(selector: $selector) {\n      results {\n        ...PostsList\n      }\n    }\n  }\n"];
+/**
+ * The gql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
+ */
 export function gql(source: "\n    mutation updateContinueReading($sequenceId: String!, $postId: String!) {\n      updateContinueReading(sequenceId: $sequenceId, postId: $postId)\n    }\n  "): (typeof documents)["\n    mutation updateContinueReading($sequenceId: String!, $postId: String!) {\n      updateContinueReading(sequenceId: $sequenceId, postId: $postId)\n    }\n  "];
 /**
  * The gql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
@@ -4457,6 +4467,10 @@ export function gql(source: "\n  fragment ChaptersFragment on Chapter {\n    _id
 /**
  * The gql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
  */
+export function gql(source: "\n  fragment SlimChapter on Chapter {\n    _id\n    createdAt\n    title\n    subtitle\n    contents {\n      ...RevisionDisplay\n    }\n    number\n    sequenceId\n    postIds\n    posts {\n      ...ChapterPostSlim\n    }\n  }\n"): (typeof documents)["\n  fragment SlimChapter on Chapter {\n    _id\n    createdAt\n    title\n    subtitle\n    contents {\n      ...RevisionDisplay\n    }\n    number\n    sequenceId\n    postIds\n    posts {\n      ...ChapterPostSlim\n    }\n  }\n"];
+/**
+ * The gql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
+ */
 export function gql(source: "\n  fragment ChaptersEdit on Chapter {\n    ...ChaptersFragment\n    contents {\n      ...RevisionEdit\n    }\n  }\n"): (typeof documents)["\n  fragment ChaptersEdit on Chapter {\n    ...ChaptersFragment\n    contents {\n      ...RevisionEdit\n    }\n  }\n"];
 /**
  * The gql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
@@ -4913,6 +4927,10 @@ export function gql(source: "\n  fragment SuggestAlignmentPost on Post {\n    ..
 /**
  * The gql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
  */
+export function gql(source: "\n  fragment ChapterPostSlim on Post {\n    _id\n    title\n    slug\n    isRead\n  }\n"): (typeof documents)["\n  fragment ChapterPostSlim on Post {\n    _id\n    title\n    slug\n    isRead\n  }\n"];
+/**
+ * The gql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
+ */
 export function gql(source: "\n  fragment UnclaimedReportsList on Report {\n    _id\n    userId\n    user {\n      ...UsersMinimumInfo\n    }\n    commentId\n    comment {\n      ...CommentsList\n      post {\n        ...PostsMinimumInfo\n      }\n      tag {\n        ...TagBasicInfo\n      }\n    }\n    postId\n    post {\n      ...PostsList\n    }\n    reportedUser {\n      ...SunshineUsersList\n    }\n    closedAt\n    createdAt\n    claimedUserId\n    claimedUser {\n      _id\n      displayName\n      username\n      slug\n    }\n    link\n    description\n    reportedAsSpam\n    markedAsSpam\n  }\n"): (typeof documents)["\n  fragment UnclaimedReportsList on Report {\n    _id\n    userId\n    user {\n      ...UsersMinimumInfo\n    }\n    commentId\n    comment {\n      ...CommentsList\n      post {\n        ...PostsMinimumInfo\n      }\n      tag {\n        ...TagBasicInfo\n      }\n    }\n    postId\n    post {\n      ...PostsList\n    }\n    reportedUser {\n      ...SunshineUsersList\n    }\n    closedAt\n    createdAt\n    claimedUserId\n    claimedUser {\n      _id\n      displayName\n      username\n      slug\n    }\n    link\n    description\n    reportedAsSpam\n    markedAsSpam\n  }\n"];
 /**
  * The gql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
@@ -5001,7 +5019,7 @@ export function gql(source: "\n  fragment SequenceContinueReadingFragment on Seq
 /**
  * The gql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
  */
-export function gql(source: "\n  fragment SequencesPageWithChaptersFragment on Sequence {\n    ...SequencesPageFragment\n    chapters {\n      ...ChaptersFragment\n    }\n  }\n"): (typeof documents)["\n  fragment SequencesPageWithChaptersFragment on Sequence {\n    ...SequencesPageFragment\n    chapters {\n      ...ChaptersFragment\n    }\n  }\n"];
+export function gql(source: "\n  fragment SequencesPageWithChaptersFragment on Sequence {\n    ...SequencesPageFragment\n    chapters {\n      ...SlimChapter\n    }\n  }\n"): (typeof documents)["\n  fragment SequencesPageWithChaptersFragment on Sequence {\n    ...SequencesPageFragment\n    chapters {\n      ...SlimChapter\n    }\n  }\n"];
 /**
  * The gql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
  */

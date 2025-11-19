@@ -1,5 +1,5 @@
 import { registerComponent } from '../../lib/vulcan-lib/components';
-import React from 'react';
+import React, { useMemo } from 'react';
 import { Link } from '../../lib/reactRouterWrapper';
 import { postGetPageUrl } from '../../lib/collections/posts/helpers';
 import classNames from 'classnames';
@@ -7,6 +7,8 @@ import { useItemsRead } from '../hooks/useRecordPostView';
 import LWTooltip from "../common/LWTooltip";
 import PostsTooltip from "../posts/PostsPreviewTooltip/PostsTooltip";
 import LoginToTrack from "./LoginToTrack";
+import { useQuery } from '@/lib/crud/useQuery';
+import { PostsSequenceMetadataQuery } from './queries';
 
 export const postProgressBoxStyles = (theme: ThemeType) => ({
   border: theme.palette.border.normal,
@@ -65,10 +67,22 @@ const BooksProgressBar = ({ book, classes }: {
 }) => {
   const { postsRead: clientPostsRead } = useItemsRead();
 
-  const bookPosts = book.sequences.flatMap(sequence => sequence.chapters.flatMap(chapter => chapter.posts));
+  const bookPostIds = book.sequences.flatMap(sequence => sequence.chapters.flatMap(chapter => chapter.postIds));
+  const preloadedBookPosts = book.sequences.flatMap(sequence => sequence.chapters.flatMap(chapter => chapter.posts));
+
+  // We're going through a lot of effort to not fetch revisions during the initial query,
+  // since that makes loading Collection pages horribly slow.  So we fetch the posts with
+  // revisions inside of a suspense boundary.
+  const { data, loading: postsLoading } = useQuery(PostsSequenceMetadataQuery, {
+    variables: { selector: { default: { exactPostIds: bookPostIds } } },
+    fetchPolicy: 'cache-first',
+  });
+
+  const bookPosts = useMemo(() => data?.posts?.results ?? [], [data]);
+
   // Check whether the post is marked as read either on the server or in the client-side context
-  const readPosts = bookPosts.filter(post => post.isRead || clientPostsRead[post._id]);
-  const totalPosts = bookPosts.length;
+  const readPosts = preloadedBookPosts.filter(post => post.isRead || clientPostsRead[post._id]);
+  const totalPosts = preloadedBookPosts.length;
 
   const postsReadText = `${readPosts.length} / ${totalPosts} posts read`;
   const totalWordCount = bookPosts.reduce((i, post) => i + (post.contents?.wordCount || 0), 0)
@@ -78,19 +92,26 @@ const BooksProgressBar = ({ book, classes }: {
     <div>Approximately {readTime} read</div>
   </div>
 
+  const postsForBoxes: (PostsList | ChapterPostSlim)[] = useMemo(() => postsLoading
+    ? preloadedBookPosts
+    // Order the loaded posts in the same order as preloaded posts, by id; by default they'll be in the wrong order
+    : [...bookPosts].sort((a, b) => preloadedBookPosts.findIndex(p => p._id === a._id) - preloadedBookPosts.findIndex(p => p._id === b._id)),
+  [postsLoading, preloadedBookPosts, bookPosts]);
+
   if (book.hideProgressBar) return null
 
   return <div key={book._id} className={classes.root}>
     <div className={classes.bookProgress}>
-      {
-        bookPosts.map(post => (
-          <PostsTooltip post={post} key={post._id}>
-            <Link to={postGetPageUrl(post)}>
-              <div className={classNames(classes.postProgressBox, {[classes.read]: post.isRead || clientPostsRead[post._id]})} />
-            </Link>
-          </PostsTooltip>
-        ))
-      }
+      {postsForBoxes.map(post => (
+        <PostsTooltip
+          {...('contents' in post ? { post } : { postId: post._id })}
+          key={post._id}
+        >
+          <Link to={postGetPageUrl(post)}>
+            <div className={classNames(classes.postProgressBox, {[classes.read]: post.isRead || clientPostsRead[post._id]})} />
+          </Link>
+        </PostsTooltip>
+      ))}
     </div>
     <div className={classes.progressText}>
       <LWTooltip title={postsReadTooltip}>{postsReadText}</LWTooltip>

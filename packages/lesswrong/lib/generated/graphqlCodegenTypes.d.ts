@@ -20235,6 +20235,23 @@ type CollectionsPageQueryVariables = Exact<{
 
 type CollectionsPageQuery = CollectionsPageQuery_Query;
 
+type PostsSequenceMetadataQueryQuery_posts_MultiPostOutput_results_Post = (
+  { __typename?: 'Post' }
+  & PostsList
+);
+
+type PostsSequenceMetadataQueryQuery_posts_MultiPostOutput = { __typename?: 'MultiPostOutput', results: Array<PostsSequenceMetadataQueryQuery_posts_MultiPostOutput_results_Post> };
+
+type PostsSequenceMetadataQueryQuery_Query = { __typename?: 'Query', posts: PostsSequenceMetadataQueryQuery_posts_MultiPostOutput | null };
+
+
+type PostsSequenceMetadataQueryQueryVariables = Exact<{
+  selector: PostSelector;
+}>;
+
+
+type PostsSequenceMetadataQueryQuery = PostsSequenceMetadataQueryQuery_Query;
+
 type updateContinueReadingMutation_Mutation = { __typename?: 'Mutation', updateContinueReading: boolean | null };
 
 
@@ -24483,6 +24500,18 @@ type ChaptersFragment_Chapter_posts_Post = (
 
 type ChaptersFragment = { __typename?: 'Chapter', _id: string, createdAt: string, title: string | null, subtitle: string | null, number: number | null, sequenceId: string | null, postIds: Array<string>, contents: ChaptersFragment_Chapter_contents_Revision | null, posts: Array<ChaptersFragment_Chapter_posts_Post> };
 
+type SlimChapter_Chapter_contents_Revision = (
+  { __typename?: 'Revision' }
+  & RevisionDisplay
+);
+
+type SlimChapter_Chapter_posts_Post = (
+  { __typename?: 'Post' }
+  & ChapterPostSlim
+);
+
+type SlimChapter = { __typename?: 'Chapter', _id: string, createdAt: string, title: string | null, subtitle: string | null, number: number | null, sequenceId: string | null, postIds: Array<string>, contents: SlimChapter_Chapter_contents_Revision | null, posts: Array<SlimChapter_Chapter_posts_Post> };
+
 type ChaptersEdit_Chapter_contents_Revision = (
   { __typename?: 'Revision' }
   & RevisionEdit
@@ -25591,6 +25620,8 @@ type SuggestAlignmentPost = (
   & PostsList
 );
 
+type ChapterPostSlim = { __typename?: 'Post', _id: string, title: string, slug: string, isRead: boolean | null };
+
 type UnclaimedReportsList_Report_user_User = (
   { __typename?: 'User' }
   & UsersMinimumInfo
@@ -25764,7 +25795,7 @@ type SequenceContinueReadingFragment = { __typename?: 'Sequence', _id: string, t
 
 type SequencesPageWithChaptersFragment_Sequence_chapters_Chapter = (
   { __typename?: 'Chapter' }
-  & ChaptersFragment
+  & SlimChapter
 );
 
 type SequencesPageWithChaptersFragment = (
