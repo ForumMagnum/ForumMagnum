@@ -41,6 +41,9 @@ const styles = defineStyles('TabNavigationItem', (theme: ThemeType) => ({
     whiteSpace: "normal",
     overflow: "visible",
     textOverflow: "unset",
+    '&:hover': {
+      backgroundColor: 'transparent', // Prevent MUI default behavior of rendering solid background on hover
+    }
   },
   desktopOnly: {
     [theme.breakpoints.down("xs")]: {
