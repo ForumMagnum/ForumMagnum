@@ -1,4 +1,3 @@
-// TODO Adding back voting portal: FINISHED
 import React, { useCallback } from "react";
 import { useCurrentUser } from "../../common/withUser";
 import { useLocation, useNavigate } from "../../../lib/routeUtil";
@@ -124,7 +123,6 @@ const EditElectionCandidate = ({classes}: {
 
   const deleteCallback = useCallback(() => {
     if (!isNewForm) {
-      // TODO adopt new dialog system
       openDialog({
         name: "DeleteElectionCandidateDialog",
         contents: ({onClose}) => <DeleteElectionCandidateDialog onClose={onClose} candidateId={candidateId} />

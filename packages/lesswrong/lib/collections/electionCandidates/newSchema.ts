@@ -275,7 +275,6 @@ const schema = {
       },
     },
   },
-  // (TODO delete) Note to Claude: Everything below here can be ignored for form purposes
   currentUserVote: DEFAULT_CURRENT_USER_VOTE_FIELD,
   currentUserExtendedVote: DEFAULT_CURRENT_USER_EXTENDED_VOTE_FIELD,
   voteCount: defaultVoteCountField('ElectionCandidates'),
