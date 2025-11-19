@@ -18,7 +18,7 @@ export default registerMigration({
 });
 
 async function migrateLoginTokensForUserBatch(users: DbUser[]) {
-  const tokensToInsert: Array<DbInsertion<DbLoginToken>> = [];
+  const tokensToInsert: Array<Omit<DbInsertion<DbLoginToken>, "schemaVersion">> = [];
   for (const user of users) {
     if (!user.services?.resume?.loginTokens) {
       continue;

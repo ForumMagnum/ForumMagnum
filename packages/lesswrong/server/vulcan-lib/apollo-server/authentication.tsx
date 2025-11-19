@@ -265,7 +265,7 @@ async function insertHashedLoginToken(userId: string, hashedToken: string) {
   });
 };
 
-async function invalidateLoginTokensFor(userId: string) {
+export async function invalidateLoginTokensFor(userId: string) {
   const now = new Date();
   await LoginTokens.rawUpdateMany(
     {userId, loggedOutAt: null},
