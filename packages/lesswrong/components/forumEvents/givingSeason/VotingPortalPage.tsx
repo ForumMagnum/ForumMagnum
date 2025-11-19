@@ -45,6 +45,7 @@ import ToggleSwitch from "@/components/common/ToggleSwitch";
 import UsersName from "@/components/users/UsersName";
 import FormatDate from "@/components/common/FormatDate";
 
+const BACKGROUND_HREF = "https://res.cloudinary.com/cea/image/upload/v1763548915/Banner/voting-portal-2025-background.png"
 const VOTING_HREF = "/posts/RzdKnBYe3jumrZxkB/giving-season-2025-announcement#November_24th_to_December_7th_"; // TODO flag to Toby/Agnes that this is not that comprehensive
 const CANDIDATES_HREF = "/posts/tucbWEN7SBWxNiHWj/meet-the-candidates-in-the-forum-s-donation-election-2024"; // TODO update, see full checklist: https://docs.google.com/document/d/1Y_guOnL78yV6PbmjL1fpFsMq9LSc39tCwpIuuYY1sYs/edit?tab=t.0
 const FRAUD_HREF = "/posts/j6fmnYM5ZRu9fJyrq/donation-election-how-to-vote#What_s_not_allowed"; // TODO flag to Toby/Agnes that this is potentially outdated
@@ -82,15 +83,34 @@ const styles = (theme: ThemeType) => ({
   rootAlignCentered: {
     alignItems: "center",
   },
+  rootSplashImage: {
+    backgroundImage: `url(${BACKGROUND_HREF})`,
+    backgroundRepeat: "no-repeat",
+    backgroundSize: "cover",
+    backgroundPosition: "center",
+  },
   rootAlignTop: {
     alignItems: "flex-start",
     paddingTop: 70,
   },
   welcomeRoot: {
+    // On large screen, make the welcome box sit in the bottom left
+    [theme.breakpoints.up("md")]: {
+      display: "flex",
+      flex: 1,
+      margin: 100,
+      maxWidth: 1350,
+      alignSelf: 'stretch',
+      maxHeight: 'calc(50vh + 250px)',
+      alignItems: 'flex-end',
+    }
+  },
+  welcomeContent: {
     display: "flex",
     flexDirection: "column",
     gap: "24px",
     maxWidth: 600,
+    height: 'fit-content',
     padding: 24,
   },
   welcomeTitle: {
@@ -542,36 +562,39 @@ const WelcomeScreen = ({onNext, isTooYoung, classes}: {
 
   return (
     <div className={classes.welcomeRoot}>
-      <div className={classes.welcomeTitle}>
-        Vote in the Donation Election 2025
-      </div>
-      <div className={classes.welcomeDescription}>
-        The <Link to={ELECTION_DONATE_HREF}>Donation Election Fund</Link> will be
-        distributed to the top 3 candidates<sup>1</sup>. We&apos;re
-        using <Link to={VOTING_HREF}>ranked-choice voting</Link>. You can change
-        your vote<sup>2</sup> as many times as you like until the deadline. Find
-        out more about the candidates <Link to={CANDIDATES_HREF}>here</Link>.
-      </div>
-      <EAButton
-        onClick={disableVoting ? undefined : onNext}
-        className={classNames(classes.welcomeButton, {
-          [classes.welcomeButtonDisabled]: disableVoting,
-        })}
-      >
-        {isTooYoung
-          ? "Your account is too young to vote in the Donation Election"
-          : votingOpen ? "Vote in the Election ->" : "Voting has closed"
-        }
-      </EAButton>
-      <div>
-        <div className={classes.welcomeFootnote}>
-          1. The Forum team reserves the right to revoke candidacy for any
-          reason.
+      <div className={classes.welcomeContent}>
+        <div className={classes.welcomeTitle}>
+          Vote in the Donation Election 2025
         </div>
-        <div className={classes.welcomeFootnote}>
-          2. Your vote is anonymous. If we have reason to believe you've
-          committed <Link to={FRAUD_HREF}>voter fraud</Link>, for example by
-          voting from more than one account, you could be banned from the Forum.
+        <div className={classes.welcomeDescription}>
+          The <Link to={ELECTION_DONATE_HREF}>Donation Election Fund</Link> will be
+          distributed to the top 3 candidates<sup>1</sup>. We&apos;re
+          using <Link to={VOTING_HREF}>ranked-choice voting</Link>. You can change
+          your vote<sup>2</sup> as many times as you like until the deadline. Find
+          out more about the candidates <Link to={CANDIDATES_HREF}>here</Link>.
+        </div>
+        <EAButton
+          onClick={disableVoting ? undefined : onNext}
+          className={classNames(classes.welcomeButton, {
+            [classes.welcomeButtonDisabled]: disableVoting,
+          })}
+        >
+          {isTooYoung
+            ? "Your account is too young to vote in the Donation Election"
+            : votingOpen ? "Vote in the Election ->" : "Voting has closed"
+          }
+        </EAButton>
+        {/* TODO add button here */}
+        <div>
+          <div className={classes.welcomeFootnote}>
+            1. The Forum team reserves the right to revoke candidacy for any
+            reason.
+          </div>
+          <div className={classes.welcomeFootnote}>
+            2. Your vote is anonymous. If we have reason to believe you've
+            committed <Link to={FRAUD_HREF}>voter fraud</Link>, for example by
+            voting from more than one account, you could be banned from the Forum.
+          </div>
         </div>
       </div>
     </div>
@@ -1047,6 +1070,7 @@ const VotingPortalPage = ({classes}: {classes: ClassesType<typeof styles>}) => {
   return (
     <AnalyticsContext pageContext="votingPortal" pageSectionContext={screen}>
       <div className={classNames(classes.root, {
+        [classes.rootSplashImage]: screen === "welcome",
         [classes.rootAlignCentered]: isCenterAligned,
         [classes.rootAlignTop]: !isCenterAligned,
       })}>
