@@ -414,6 +414,7 @@ const accessFilters = {
   LlmConversations: llmConversationCheckAccess,
   LlmMessages: llmMessageCheckAccess,
   Localgroups: allowAccess,
+  LoginTokens: allowAccess,
   LWEvents: lweventCheckAccess,
   ManifoldProbabilitiesCaches: allowAccess,
   Messages: messageCheckAccess,
