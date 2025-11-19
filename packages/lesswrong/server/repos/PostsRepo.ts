@@ -685,7 +685,7 @@ class PostsRepo extends AbstractRepo<"Posts"> {
             visible_posts)
         UNION ALL (
           SELECT
-            "coauthorUserIds" AS "userId"
+            UNNEST("coauthorUserIds") AS "userId"
           FROM
             visible_posts)
       ),
