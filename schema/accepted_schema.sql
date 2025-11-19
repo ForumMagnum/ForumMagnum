@@ -3555,32 +3555,6 @@ CREATE INDEX IF NOT EXISTS "idx_Users_email" ON "Users" USING btree ("email");
 -- Index "idx_Users_emails__address"
 CREATE INDEX IF NOT EXISTS "idx_Users_emails__address" ON "Users" USING gin ("emails");
 
--- Index "idx_Users_services__resume__loginTokens__hashedToken"
-CREATE INDEX IF NOT EXISTS "idx_Users_services__resume__loginTokens__hashedToken" ON "Users" USING gin (
-  (
-    "services" -> 'resume' -> 'loginTokens' -> 'hashedToken'
-  )
-);
-
--- Index "idx_Users_services__resume__loginTokens__token"
-CREATE INDEX IF NOT EXISTS "idx_Users_services__resume__loginTokens__token" ON "Users" USING gin (
-  (
-    "services" -> 'resume' -> 'loginTokens' -> 'token'
-  )
-);
-
--- Index "idx_Users_services__resume__haveLoginTokensToDelete"
-CREATE INDEX IF NOT EXISTS "idx_Users_services__resume__haveLoginTokensToDelete" ON "Users" USING gin (
-  (
-    "services" -> 'resume' -> 'haveLoginTokensToDelete'
-  )
-);
-
--- Index "idx_Users_services__resume__loginTokens__when"
-CREATE INDEX IF NOT EXISTS "idx_Users_services__resume__loginTokens__when" ON "Users" USING gin (
-  ("services" -> 'resume' -> 'loginTokens' -> 'when')
-);
-
 -- Index "idx_Users_services__email__verificationTokens__token"
 CREATE INDEX IF NOT EXISTS "idx_Users_services__email__verificationTokens__token" ON "Users" USING gin (
   (
@@ -4109,36 +4083,6 @@ REPLACE FUNCTION fm_vote_added_emoji (vote_id TEXT, emoji_name TEXT) RETURNS BOO
         LIMIT 1
       $$;
 
--- View "UserLoginTokens"
-CREATE MATERIALIZED VIEW IF NOT EXISTS "UserLoginTokens" AS
-SELECT
-  JSONB_ARRAY_ELEMENTS("services" -> 'resume' -> 'loginTokens') ->> 'hashedToken' "hashedToken",
-  "_id" "userId"
-FROM
-  "Users"
-WHERE
-  JSONB_TYPEOF("services" -> 'resume' -> 'loginTokens') = 'array';
-
--- Function "fm_get_user_by_login_token"
-CREATE OR
-REPLACE FUNCTION fm_get_user_by_login_token (hashed_token TEXT) RETURNS SETOF "Users" LANGUAGE plpgsql AS $$
-        DECLARE
-        BEGIN
-          RETURN QUERY
-            SELECT u.*
-            FROM "Users" u
-            JOIN "UserLoginTokens" lt ON lt."userId" = u."_id"
-            WHERE lt."hashedToken" = hashed_token;
-          IF (FOUND = FALSE) THEN
-            RETURN QUERY
-              SELECT *
-              FROM "Users"
-              WHERE "services"->'resume'->'loginTokens' @>
-                ('[{"hashedToken": "' || hashed_token || '"}]')::JSONB;
-          END IF;
-        END
-      $$;
-
 -- Function "fm_get_user_profile_updated_at"
 CREATE OR
 REPLACE FUNCTION fm_get_user_profile_updated_at (userid TEXT) RETURNS TIMESTAMPTZ LANGUAGE sql AS $$
@@ -4182,9 +4126,6 @@ FROM
     FROM
       "Conversations"
   ) q;
-
--- CustomIndex "idx_user_login_tokens_hashed_token"
-CREATE UNIQUE INDEX IF NOT EXISTS idx_user_login_tokens_hashed_token ON "UserLoginTokens" USING BTREE ("hashedToken");
 
 -- View "UniquePostUpvoters"
 CREATE MATERIALIZED VIEW IF NOT EXISTS "UniquePostUpvoters" AS
