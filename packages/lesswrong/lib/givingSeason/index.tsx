@@ -23,7 +23,7 @@ export const ELECTION_DONATE_HREF = "https://www.every.org/ea-forum-donation-ele
 export const ELECTION_2025_MATCHED_AMOUNT = 5000;
 export const MARGINAL_FUNDING_SEQUENCE_ID = "jTAPdwYry3zTyifkZ";
 export const MARGINAL_FUNDING_SPOTIFY_URL = "https://open.spotify.com/playlist/2wEYoo2FtV7OQQA0pATewT?si=XET3lr9aT9S-PFOGDvW6Kw";
-export const SINGLE_COLUMN_BREAKPONT = 700;
+export const SINGLE_COLUMN_BREAKPOINT = 700;
 const ELECTION_TARGET_AMOUNT = 30000;
 
 export const ACTIVE_DONATION_ELECTION = "givingSeason25";

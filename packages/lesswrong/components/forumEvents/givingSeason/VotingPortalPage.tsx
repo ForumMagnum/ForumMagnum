@@ -411,7 +411,7 @@ const styles = (theme: ThemeType) => ({
   },
   thankYouSecondaryText: {
     fontSize: 13,
-    fontWeigh: 500,
+    fontWeight: 500,
     opacity: 0.7,
   },
   thankYouPostInfo: {
@@ -781,14 +781,12 @@ const RankingScreen = ({items, setItems, classes}: {
   );
 }
 
-const CommentScreen = ({currentUser, commentsPost, onSubmitVote, classes}: {
+const CommentScreen = ({currentUser, commentsPost, classes}: {
   currentUser: UsersCurrent | null,
   commentsPost?: PostsMinimumInfo,
-  onSubmitVote: () => void,
   classes: ClassesType<typeof styles>,
 }) => {
   const {flash} = useMessages();
-  const navigate = useNavigate();
 
   const onSuccess = useCallback((comment: CommentsList) => {
     const commentLink = commentGetPageUrlFromIds({
@@ -864,7 +862,7 @@ const ThankYouScreen = ({
     void updateCurrentUser({
       givingSeason2025VotedFlair: newValue,
     });
-    captureEvent("setGivingSeasonVotedFlair", {value: newValue, year: 2024});
+    captureEvent("setGivingSeasonVotedFlair", {value: newValue, year: 2025});
   }, [updateCurrentUser, captureEvent]);
 
   const fundPercent = Math.round((amountRaised / amountTarget) * 100);
@@ -1128,7 +1126,6 @@ const VotingPortalPage = ({classes}: {classes: ClassesType<typeof styles>}) => {
             <CommentScreen
               currentUser={currentUser}
               commentsPost={commentsPost}
-              onSubmitVote={onSubmitVote}
               classes={classes}
             />
             <Footer

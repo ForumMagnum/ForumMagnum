@@ -44,7 +44,7 @@ const DeleteElectionCandidateDialog = ({candidateId, onClose, classes}: {
           _id: candidateId,
         },
       });
-      onClose?.();
+      onClose();
       flash("Candidate deleted");
       navigate({pathname: "/admin/election-candidates"});
     } catch (e) {

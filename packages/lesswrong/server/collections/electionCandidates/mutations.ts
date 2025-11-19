@@ -89,7 +89,7 @@ export async function deleteElectionCandidate({ selector }: DeleteElectionCandid
     throwError({ id: 'app.operation_not_allowed', data: { documentId: documentSelector._id } });
   }
 
-  await ElectionCandidates.rawRemove(selector);
+  await ElectionCandidates.rawRemove(documentSelector);
 
   return document;
 }
