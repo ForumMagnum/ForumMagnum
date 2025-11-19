@@ -22,7 +22,7 @@ const schema = {
   },
   loggedOutAt: {
     database: {
-      type: "BOOL",
+      type: "TIMESTAMPTZ",
       nullable: true,
     },
   },

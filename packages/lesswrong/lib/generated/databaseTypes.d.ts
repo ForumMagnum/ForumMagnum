@@ -719,7 +719,7 @@ interface DbLoginToken extends DbObject {
   __collectionName?: "LoginTokens"
   createdAt: Date
   hashedToken: string
-  loggedOutAt: boolean | null
+  loggedOutAt: Date | null
   userId: string
 }
 
