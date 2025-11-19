@@ -18,6 +18,7 @@ import { createDisplayName } from '@/lib/collections/users/newSchema';
 import { comparePasswords, createPasswordHash, validatePassword } from './passwordHelpers';
 import type { NextRequest } from 'next/server';
 import { backgroundTask } from '@/server/utils/backgroundTask';
+import LoginTokens from '@/server/collections/loginTokens/collection';
 
 // Given an HTTP request, clear a named cookie. Handles the difference between
 // the Meteor and Express server middleware setups. Works by setting an
@@ -155,6 +156,10 @@ export const loginDataGraphQLMutations = {
   async logout(root: void, args: {}, context: ResolverContext) {
     await clearCookie("loginToken");
     await clearCookie("meteor_login_token");
+    const currentUserId = context.currentUser?._id;
+    if (currentUserId) {
+      await invalidateLoginTokensFor(currentUserId);
+    }
     return {
       token: null
     }
@@ -252,17 +257,23 @@ export const loginDataGraphQLMutations = {
 
 
 async function insertHashedLoginToken(userId: string, hashedToken: string) {
-  const tokenWithMetadata = {
-    when: new Date(),
-    hashedToken
-  }
-
-  await Users.rawUpdateOne({_id: userId}, {
-    $addToSet: {
-      "services.resume.loginTokens": tokenWithMetadata
-    }
+  await LoginTokens.rawInsert({
+    createdAt: new Date(),
+    userId,
+    hashedToken,
+    loggedOutAt: null,
   });
 };
+
+async function invalidateLoginTokensFor(userId: string) {
+  const now = new Date();
+  await LoginTokens.rawUpdateMany(
+    {userId, loggedOutAt: null},
+    {$set: {
+      loggedOutAt: now
+    }}
+  );
+}
 
 
 function registerLoginEvent(user: DbUser, headers: Headers|undefined) {
