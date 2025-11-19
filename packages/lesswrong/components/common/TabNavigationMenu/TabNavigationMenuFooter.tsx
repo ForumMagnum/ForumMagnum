@@ -9,7 +9,7 @@ import TabNavigationFooterItem from "./TabNavigationFooterItem";
 
 const styles = (theme: ThemeType) => ({
   wrapper: {
-    [theme.breakpoints.up('lg')]: {
+    [theme.breakpoints.up(1424)]: {
       display: "none"
     },
     "@media print": {

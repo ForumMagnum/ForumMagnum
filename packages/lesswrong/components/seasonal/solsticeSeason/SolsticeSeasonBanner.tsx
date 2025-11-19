@@ -275,8 +275,14 @@ const styles = defineStyles("SolsticeSeasonBanner", (theme: ThemeType) => ({
     top: 0,
     height: '100%',
     width: 800,
-    right: "calc(100% - 375px)",
-    [theme.breakpoints.up(1400)]: {
+    right: "calc(100% - 315px)",
+    [theme.breakpoints.up(1200)]: {
+      right: "calc(100% - 300px)",
+    },
+    [theme.breakpoints.up(1300)]: {
+      right: "calc(100% - 240px)",
+    },
+    [theme.breakpoints.up(1424)]: {
       right: "calc(100% - 350px)",
     },
     [theme.breakpoints.up(1500)]: {

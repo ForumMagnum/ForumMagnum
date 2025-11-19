@@ -228,12 +228,12 @@ export const styles = (theme: ThemeType) => ({
     },
   },
   hideLgUp: {
-    [theme.breakpoints.up('lg')]: {
+    [theme.breakpoints.up(1424)]: {
       display:"none !important"
     }
   },
   hideMdDown: {
-    [theme.breakpoints.down('md')]: {
+    [theme.breakpoints.down(1424)]: {
       display:"none !important"
     }
   },
