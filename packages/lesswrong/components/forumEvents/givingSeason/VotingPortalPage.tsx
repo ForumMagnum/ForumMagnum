@@ -21,7 +21,7 @@ import { useCurrentUser } from "@/components/common/withUser";
 import { useUpdateCurrentUser } from "@/components/hooks/useUpdateCurrentUser";
 import { useWindowSize } from "@/components/hooks/useScreenWidth";
 import { MOBILE_HEADER_HEIGHT } from "@/components/common/Header";
-import { DONATION_ELECTION_AGE_CUTOFF, DONATION_ELECTION_APPROX_CLOSING_DATE, ELECTION_DONATE_HREF } from "@/lib/givingSeason";
+import { DONATION_ELECTION_APPROX_CLOSING_DATE, ELECTION_DONATE_HREF, userIsAllowedToVoteInDonationElection } from "@/lib/givingSeason";
 import { useElectionCandidates } from "./hooks";
 import { useGivingSeason } from "@/lib/givingSeason";
 import { formatStat } from "@/components/users/EAUserTooltipContent";
@@ -44,6 +44,7 @@ import PostsTooltip from "@/components/posts/PostsPreviewTooltip/PostsTooltip";
 import ToggleSwitch from "@/components/common/ToggleSwitch";
 import UsersName from "@/components/users/UsersName";
 import FormatDate from "@/components/common/FormatDate";
+import { useCurrentTime } from "@/lib/utils/timeUtil";
 
 const BACKGROUND_HREF = "https://res.cloudinary.com/cea/image/upload/v1763548915/Banner/voting-portal-2025-background.png"
 const VOTING_HREF = "/posts/RzdKnBYe3jumrZxkB/giving-season-2025-announcement#November_24th_to_December_7th_"; // TODO flag to Toby/Agnes that this is not that comprehensive
@@ -572,14 +573,13 @@ const styles = (theme: ThemeType) => ({
   },
 });
 
-const WelcomeScreen = ({onNext, isTooYoung, classes}: {
+const WelcomeScreen = ({onNext, currentUser, classes}: {
   onNext: () => void,
-  isTooYoung: boolean,
+  currentUser: UsersCurrent | null,
   classes: ClassesType<typeof styles>,
 }) => {
-  // TODO make this time based
-  const votingOpen = true;
-  const disableVoting = isTooYoung || !votingOpen
+  const now = useCurrentTime();
+  const { allowed, reason } = userIsAllowedToVoteInDonationElection(currentUser, now);
 
   return (
     <div className={classes.welcomeRoot}>
@@ -595,15 +595,12 @@ const WelcomeScreen = ({onNext, isTooYoung, classes}: {
         </div>
         <div className={classes.welcomeButtons}>
           <EAButton
-            onClick={disableVoting ? undefined : onNext}
+            onClick={allowed ? onNext : undefined}
             className={classNames(classes.welcomeButton, classes.welcomeButtonPrimary, {
-              [classes.welcomeButtonDisabled]: disableVoting,
+              [classes.welcomeButtonDisabled]: !allowed,
             })}
           >
-            {isTooYoung
-              ? "Your account is too young to vote in the Donation Election"
-              : votingOpen ? "Vote in the Election ->" : "Voting has closed"
-            }
+            {allowed ? "Vote in the Election ->" : reason}
           </EAButton>
           <EAButton
             href={CANDIDATES_HREF}
@@ -612,7 +609,6 @@ const WelcomeScreen = ({onNext, isTooYoung, classes}: {
             Meet the candidates
           </EAButton>
         </div>
-        {/* TODO add button here */}
         <div>
           <div className={classes.welcomeFootnote}>
             1. The Forum team reserves the right to revoke candidacy for any
@@ -1041,8 +1037,6 @@ const VotingPortalPage = ({classes}: {classes: ClassesType<typeof styles>}) => {
     () => items.filter(({ordered}) => ordered).length,
     [items],
   );
-  const isTooYoung = !!currentUser &&
-    (new Date(currentUser.createdAt) > DONATION_ELECTION_AGE_CUTOFF);
 
   const {document: commentsPost} = useSingle({
     collectionName: "Posts",
@@ -1105,7 +1099,7 @@ const VotingPortalPage = ({classes}: {classes: ClassesType<typeof styles>}) => {
         {screen === "welcome" &&
           <WelcomeScreen
             onNext={onNext}
-            isTooYoung={isTooYoung}
+            currentUser={currentUser}
             classes={classes}
           />
         }

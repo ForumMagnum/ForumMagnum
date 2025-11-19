@@ -14,6 +14,7 @@ import { useLocation } from "../routeUtil";
 import { useQuery } from "@apollo/client";
 import { isEAForum } from "../instanceSettings";
 import gql from "graphql-tag";
+import { userIsAdmin } from "../vulcan-users/permissions";
 
 export const GIVING_SEASON_INFO_HREF = "/posts/RzdKnBYe3jumrZxkB/giving-season-2025-announcement";
 export const ELECTION_INFO_HREF = "/posts/RzdKnBYe3jumrZxkB/giving-season-2025-announcement#November_24th_to_December_7th_";
@@ -25,11 +26,54 @@ export const MARGINAL_FUNDING_SPOTIFY_URL = "https://open.spotify.com/playlist/2
 export const SINGLE_COLUMN_BREAKPONT = 700;
 const ELECTION_TARGET_AMOUNT = 30000;
 
-export const ACTIVE_DONATION_ELECTION = "givingSeason25"; // TODO check how this is used
+export const ACTIVE_DONATION_ELECTION = "givingSeason25";
 export const DONATION_ELECTION_NUM_WINNERS = 3;
 export const DONATION_ELECTION_SHOW_LEADERBOARD_CUTOFF = 100;
-export const DONATION_ELECTION_AGE_CUTOFF = new Date("2025-10-24"); // TODO Adding back voting portal: FINISHED, using time of https://forum.effectivealtruism.org/posts/RzdKnBYe3jumrZxkB/giving-season-2025-announcement
+export const DONATION_ELECTION_ACCOUNT_AGE_CUTOFF = new Date("2025-10-24T00:00:00.000Z"); // TODO Adding back voting portal: FINISHED, using time of https://forum.effectivealtruism.org/posts/RzdKnBYe3jumrZxkB/giving-season-2025-announcement
 export const DONATION_ELECTION_APPROX_CLOSING_DATE = 'Dec 7th';
+export const DONATION_ELECTION_START = new Date("2025-11-24T00:00:00.000Z");
+export const DONATION_ELECTION_END = new Date("2025-12-08T00:00:00.000Z");
+
+/**
+ * Check if a user is allowed to vote in the donation election
+ * @returns Object with `allowed` boolean and `reason` string explaining why if not allowed
+ */
+export function userIsAllowedToVoteInDonationElection(
+  currentUser: UsersCurrent | DbUser | null,
+  now: Date,
+): { allowed: boolean; reason: string } {
+  if (!currentUser) {
+    return { allowed: false, reason: "You must be logged in to vote" };
+  }
+
+  if (currentUser.banned) {
+    return { allowed: false, reason: "Banned users cannot vote" };
+  }
+
+  const isAdmin = userIsAdmin(currentUser);
+
+  // Admins can always vote
+  if (isAdmin) {
+    return { allowed: true, reason: "" };
+  }
+
+  // Check if voting is currently open
+  const votingOpen = now >= DONATION_ELECTION_START && now < DONATION_ELECTION_END;
+  if (!votingOpen) {
+    if (now < DONATION_ELECTION_START) {
+      return { allowed: false, reason: "Voting has not yet opened" };
+    } else {
+      return { allowed: false, reason: "Voting has closed" };
+    }
+  }
+
+  // Check if account is old enough
+  if (new Date(currentUser.createdAt) > DONATION_ELECTION_ACCOUNT_AGE_CUTOFF) {
+    return { allowed: false, reason: "Your account is too young to vote in the Donation Election" };
+  }
+
+  return { allowed: true, reason: "" };
+}
 
 type GivingSeasonEvent = {
   name: string,

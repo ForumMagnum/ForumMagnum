@@ -3,7 +3,7 @@ import Comments from "../collections/comments/collection";
 import Posts from "../collections/posts/collection";
 import gql from 'graphql-tag';
 import ElectionVotes from "../collections/electionVotes/collection";
-import { ACTIVE_DONATION_ELECTION, DONATION_ELECTION_AGE_CUTOFF } from "@/lib/givingSeason";
+import { ACTIVE_DONATION_ELECTION, userIsAllowedToVoteInDonationElection } from "@/lib/givingSeason";
 
 export const givingSeasonGraphQLTypeDefs = gql`
   type GivingSeasonTagFeedQueryResults {
@@ -102,14 +102,12 @@ export const givingSeasonGraphQLMutations = {
     {vote}: {vote: Record<string, number>},
     {currentUser, repos}: ResolverContext,
   ) => {
-    // TODO make this open on a timer
-    if (
-      !currentUser ||
-      currentUser.banned ||
-      currentUser.createdAt > DONATION_ELECTION_AGE_CUTOFF
-    ) {
-      throw new Error("Unauthorized");
+    const { allowed, reason } = userIsAllowedToVoteInDonationElection(currentUser, new Date());
+
+    if (!allowed || !currentUser) {
+      throw new Error(reason || "Unauthorized");
     }
+
     if (!vote || typeof vote !== "object") {
       throw new Error("Missing vote");
     }
