@@ -147,6 +147,7 @@ const givingSeasonContext = createContext<GivingSeasonContext | null>(null)
 export const GivingSeasonContext = ({children}: {children: ReactNode}) => {
   const {currentRoute} = useLocation();
   const isHomePage = currentRoute?.name === "home";
+  const isVotingPortalPage = currentRoute?.name === "VotingPortal";
   const currentEvent = useCurrentGivingSeasonEvent()
   const defaultEvent = currentEvent ?? givingSeasonEvents[0];
   const [selectedEvent, setSelectedEvent] = useState(defaultEvent);
@@ -163,7 +164,7 @@ export const GivingSeasonContext = ({children}: {children: ReactNode}) => {
   `, {
     pollInterval: 60 * 1000, // Poll once per minute
     ssr: true,
-    skip: !isEAForum || !isHomePage,
+    skip: !isEAForum || (!isHomePage && !isVotingPortalPage),
   });
   const amountRaised = Math.round(data?.GivingSeason2025DonationTotal ?? 0);
 

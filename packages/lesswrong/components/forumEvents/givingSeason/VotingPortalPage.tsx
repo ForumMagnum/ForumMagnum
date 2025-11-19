@@ -45,7 +45,6 @@ import ToggleSwitch from "@/components/common/ToggleSwitch";
 import UsersName from "@/components/users/UsersName";
 import FormatDate from "@/components/common/FormatDate";
 
-const BACKGROUND_HREF = "https://res.cloudinary.com/cea/image/upload/v1731932208/tallbackground.jpg"; // TODO update, see full checklist: https://docs.google.com/document/d/1Y_guOnL78yV6PbmjL1fpFsMq9LSc39tCwpIuuYY1sYs/edit?tab=t.0
 const VOTING_HREF = "/posts/RzdKnBYe3jumrZxkB/giving-season-2025-announcement#November_24th_to_December_7th_"; // TODO flag to Toby/Agnes that this is not that comprehensive
 const CANDIDATES_HREF = "/posts/tucbWEN7SBWxNiHWj/meet-the-candidates-in-the-forum-s-donation-election-2024"; // TODO update, see full checklist: https://docs.google.com/document/d/1Y_guOnL78yV6PbmjL1fpFsMq9LSc39tCwpIuuYY1sYs/edit?tab=t.0
 const FRAUD_HREF = "/posts/j6fmnYM5ZRu9fJyrq/donation-election-how-to-vote#What_s_not_allowed"; // TODO flag to Toby/Agnes that this is potentially outdated
@@ -59,13 +58,11 @@ const styles = (theme: ThemeType) => ({
     left: 0,
     width: "100vw",
     minHeight: "100vh",
-    backgroundImage: `url(${BACKGROUND_HREF})`,
-    backgroundRepeat: "no-repeat",
-    backgroundSize: "cover",
+    background: theme.palette.givingSeason.votingPortalBackground,
     display: "flex",
     justifyContent: "center",
     fontFamily: theme.palette.fonts.sansSerifStack,
-    color: theme.palette.text.alwaysWhite,
+    color: theme.palette.givingSeason.votingPortalPrimary,
     marginBottom: 0,
     fontWeight: 500,
     "& a": {
@@ -117,10 +114,10 @@ const styles = (theme: ThemeType) => ({
     fontSize: 16,
     fontWeight: 600,
     lineHeight: "120%",
-    color: theme.palette.givingSeason.portalPrimary,
-    background: theme.palette.text.alwaysWhite,
+    color: theme.palette.givingSeason.votingPortalSecondary,
+    background: theme.palette.givingSeason.votingPortalPrimary,
     "&:hover": {
-      background: theme.palette.text.alwaysWhite,
+      background: theme.palette.givingSeason.votingPortalPrimary,
       opacity: 0.8,
     },
   },
@@ -178,20 +175,19 @@ const styles = (theme: ThemeType) => ({
     display: "flex",
     alignItems: "center",
     borderRadius: theme.borderRadius.default,
-    boxShadow: `0px 2px 4px 0px ${theme.palette.givingSeason.candidateShadow}`,
     border: `1px solid ${theme.palette.givingSeason.candidateBorder}`,
     padding: "8px 12px",
     marginBottom: 4,
   },
   candidateUnordered: {
-    background: theme.palette.givingSeason.candidateBackground,
+    background: theme.palette.givingSeason.votingPortalPrimaryTranslucent1,
     "&:hover": {
-      opacity: 0.7,
+      opacity: 0.9,
     },
   },
   candidateOrdered: {
-    background: theme.palette.text.alwaysWhite,
-    color: theme.palette.text.alwaysBlack,
+    background: theme.palette.givingSeason.votingPortalPrimary,
+    color: theme.palette.givingSeason.votingPortalSecondary,
   },
   candidateHandle: {
     marginRight: 8,
@@ -200,8 +196,8 @@ const styles = (theme: ThemeType) => ({
     marginTop: 4,
   },
   candidateOrder: {
-    background: theme.palette.givingSeason.candidateOrder,
-    color: theme.palette.text.alwaysWhite,
+    background: theme.palette.text.alwaysWhite,
+    color: theme.palette.givingSeason.votingPortalSecondary,
     width: 20,
     height: 20,
     borderRadius: theme.borderRadius.small,
@@ -294,24 +290,32 @@ const styles = (theme: ThemeType) => ({
   },
   commentForm: {
     flexGrow: 1,
-    background: theme.palette.givingSeason.electionFundBackgroundHeavy,
+    background: theme.palette.text.alwaysWhite,
     borderRadius: theme.borderRadius.default,
     "& .EditorTypeSelect-select": {
       display: "none",
     },
     "& #new-comment-submit, & .CommentsSubmitDropdown-buttonWrapper, & .CommentsSubmitDropdown-button": {
-      background: theme.palette.givingSeason.portalPrimary,
+      backgroundColor: theme.palette.givingSeason.votingPortalPrimary,
+      color: theme.palette.givingSeason.votingPortalSecondary,
       fontSize: 14,
       fontWeight: 600,
+      "& .CommentsSubmitDropdown-dropdownIcon": {
+        color: theme.palette.givingSeason.votingPortalSecondary,
+      },
+      "& .CommentsSubmitDropdown-divider" : {
+        backgroundColor: theme.palette.givingSeason.votingPortalSecondary,
+      },
       "&:hover": {
-        background: theme.palette.givingSeason.primary,
+        background: theme.palette.givingSeason.votingPortalPrimary,
+        color: theme.palette.givingSeason.votingPortalSecondary,
+        opacity: 0.8,
       },
     },
     "& .form-input": {
       marginBottom: 0,
     },
     "& .ck-placeholder::before": {
-      color: `${theme.palette.text.alwaysWhite} !important`,
       fontStyle: "italic",
       opacity: 0.7,
     },
@@ -339,7 +343,7 @@ const styles = (theme: ThemeType) => ({
     fontWeight: 600,
   },
   thankYouBox: {
-    background: theme.palette.givingSeason.electionFundBackground,
+    background: theme.palette.givingSeason.votingPortalPrimaryTranslucent1,
     borderRadius: theme.borderRadius.default,
     padding: 16,
     flexBasis: 0,
@@ -393,23 +397,25 @@ const styles = (theme: ThemeType) => ({
     },
   },
   thankYouBoxButton: {
-    background: theme.palette.givingSeason.electionFundBackground,
+    background: theme.palette.givingSeason.votingPortalPrimaryTranslucent2,
+    color: theme.palette.givingSeason.votingPortalPrimary,
     textDecoration: "none !important",
     padding: "12px 24px",
     fontSize: 14,
     fontWeight: 600,
     "&:hover": {
-      background: theme.palette.givingSeason.electionFundBackgroundHeavy,
+      background: theme.palette.givingSeason.votingPortalPrimaryTranslucent2,
+      opacity: 0.8,
     },
   },
   thankYouButton: {
     padding: 16,
     fontSize: 14,
     fontWeight: 600,
-    color: theme.palette.givingSeason.portalPrimary,
-    background: theme.palette.text.alwaysWhite,
+    color: theme.palette.givingSeason.votingPortalSecondary,
+    background: theme.palette.givingSeason.votingPortalPrimary,
     "&:hover": {
-      background: theme.palette.text.alwaysWhite,
+      background: theme.palette.givingSeason.votingPortalPrimary,
       opacity: 0.8,
     }
   },
@@ -417,22 +423,22 @@ const styles = (theme: ThemeType) => ({
     width: "100%",
     height: 12,
     marginBottom: 20,
-    background: theme.palette.givingSeason.electionFundBackground,
+    background: theme.palette.givingSeason.votingPortalPrimaryTranslucent1,
     borderRadius: theme.borderRadius.small,
     overflow: "hidden",
   },
   thankYouBar: {
     height: "100%",
-    background: theme.palette.text.alwaysWhite,
+    background: theme.palette.givingSeason.votingPortalPrimary,
     transition: "width 0.5s ease",
   },
   thankYouToggle: {
-    background: theme.palette.givingSeason.electionFundBackground,
+    background: theme.palette.givingSeason.votingPortalPrimaryTranslucent2,
     "& .ToggleSwitch-switchOff": {
-      background: theme.palette.givingSeason.electionFundBackground,
+      background: theme.palette.givingSeason.votingPortalPrimaryTranslucent2,
     },
     "& .ToggleSwitch-switchOn": {
-      background: theme.palette.givingSeason.primary,
+      background: theme.palette.givingSeason.votingPortalPrimary,
     },
   },
   footer: {
@@ -441,8 +447,8 @@ const styles = (theme: ThemeType) => ({
     left: 0,
     width: "100vw",
     minHeight: 100,
-    background: theme.palette.text.alwaysWhite,
-    color: theme.palette.givingSeason.portalPrimary,
+    background: theme.palette.givingSeason.votingPortalPrimary,
+    color: theme.palette.givingSeason.votingPortalSecondary,
     display: "flex",
     flexDirection: "column",
     alignItems: "center",
@@ -477,18 +483,18 @@ const styles = (theme: ThemeType) => ({
     textDecoration: "none !important",
     whiteSpace: "nowrap",
     "&:hover": {
-      opacity: 1,
-      color: theme.palette.givingSeason.primary,
+      opacity: 0.8,
     },
   },
   footerButton: {
-    background: theme.palette.givingSeason.portalPrimary,
+    background: theme.palette.givingSeason.votingPortalSecondary,
     color: theme.palette.text.alwaysWhite,
     padding: "16px 40px",
     fontWeight: 600,
     whiteSpace: "nowrap",
     "&:hover": {
-      background: theme.palette.givingSeason.primary,
+      background: theme.palette.givingSeason.votingPortalSecondary,
+      opacity: 0.8
     },
     [theme.breakpoints.down("sm")]: {
       padding: 16,
@@ -637,10 +643,8 @@ const RankingScreen = ({items, setItems, classes}: {
           Rank the candidates
         </div>
         <div className={classes.rankingDescription}>
-          Rank the candidates in descending order with your favourite at the
-          top. Click on candidates to rank them, drag to change order. Unranked
-          candidates get no points. Find out more{" "}
-          <Link to={VOTING_HREF}>here</Link>.
+          Click a candidate to rank it, drag to reorder. Unranked get no
+          points. <Link to={VOTING_HREF}>Learn more</Link>.
         </div>
         <div className={classes.rankingSubDescription}>
           If you’re unsure about your ranking: vote, read more, and change your
@@ -771,7 +775,7 @@ const CommentScreen = ({currentUser, commentsPost, onSubmitVote, classes}: {
       <div className={classes.commentFormContainer}>
         <UsersProfileImage user={currentUser} size={40} />
         <CommentsNewForm
-          overrideHintText="Type here..."
+          overrideHintText="Consider sharing why you picked the candidates you selected, writing a note about your experience with the Donation Election, etc."
           interactionType="comment"
           post={commentsPost}
           successCallback={onSuccess}
@@ -783,14 +787,12 @@ const CommentScreen = ({currentUser, commentsPost, onSubmitVote, classes}: {
 }
 
 const ThankYouScreen = ({
-  currentUser,
   commentsPost,
   onEditVote,
   amountRaised,
   amountTarget,
   classes,
 }: {
-  currentUser: UsersCurrent,
   commentsPost?: PostsList,
   onEditVote: () => void,
   amountRaised: number,
@@ -817,8 +819,7 @@ const ThankYouScreen = ({
     captureEvent("setGivingSeasonVotedFlair", {value: newValue, year: 2024});
   }, [updateCurrentUser, captureEvent]);
 
-  const amountRaisedPlusMatched = amountRaised + Math.min(amountRaised, 5000);
-  const fundPercent = Math.round((amountRaisedPlusMatched / amountTarget) * 100);
+  const fundPercent = Math.round((amountRaised / amountTarget) * 100);
 
   return (
     <div className={classes.thankYouRoot}>
@@ -871,7 +872,7 @@ const ThankYouScreen = ({
         </div>
         <div className={classes.thankYouBox}>
           <div className={classes.thankYouSubtitle}>
-            ${formatStat(Math.round(amountRaisedPlusMatched))}
+            ${formatStat(Math.round(amountRaised))}
           </div>
           <div className={classes.thankYouBarContainer}>
             <div
@@ -1109,7 +1110,6 @@ const VotingPortalPage = ({classes}: {classes: ClassesType<typeof styles>}) => {
         }
         {screen === "thank-you" && currentUser &&
           <ThankYouScreen
-            currentUser={currentUser}
             commentsPost={commentsPost}
             onEditVote={onEditVote}
             amountRaised={amountRaised}
