@@ -591,8 +591,7 @@ const WelcomeScreen = ({onNext, isTooYoung, classes}: {
           The <Link to={ELECTION_DONATE_HREF}>Donation Election Fund</Link> will be
           distributed to the top 3 candidates<sup>1</sup>. We&apos;re
           using <Link to={VOTING_HREF}>ranked-choice voting</Link>. You can change
-          your vote<sup>2</sup> as many times as you like until the deadline. Find
-          out more about the candidates <Link to={CANDIDATES_HREF}>here</Link>.
+          your vote<sup>2</sup> as many times as you like until the deadline.
         </div>
         <div className={classes.welcomeButtons}>
           <EAButton
@@ -816,7 +815,7 @@ const CommentScreen = ({currentUser, commentsPost, onSubmitVote, classes}: {
         Post a comment about your vote
       </div>
       <div className={classes.commentExplanation}>
-        This will get posted in the{" "}
+        This will be posted in the{" "}
         <Link to={THREAD_HREF}>Donation Election discussion thread</Link>{" "}
        with your user name, but your vote will remain anonymous.
       </div>
