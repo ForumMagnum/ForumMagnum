@@ -409,7 +409,7 @@ export default function SolsticeSeasonBannerInner() {
     }
   }, []);
 
-  if (hideSolsticeBanner) {
+  if (hideSolsticeBanner || !shouldRender) {
     return null;
   }
 
