@@ -37,7 +37,7 @@ const styles = (theme: ThemeType) => ({
       top: 26,
     })
   },
-  responsiveSidebar: {
+  iconOnlySidebar: {
     [`@media (max-width: ${ICON_ONLY_NAVIGATION_BREAKPOINT}px)`]: {
       width: ICON_ONLY_NAVIGATION_WIDTH,
     },
@@ -89,7 +89,7 @@ const NavigationStandalone = ({
     <Slide slidIn={!sidebarHidden}>
       <div className={classNames(classes.sidebar, {
         [classes.background]: background,
-        [classes.responsiveSidebar]: iconOnlyNavigationEnabled,
+        [classes.iconOnlySidebar]: iconOnlyNavigationEnabled,
       })}>
         <div className={classes.fullNavigation}>
           <TabNavigationMenu
