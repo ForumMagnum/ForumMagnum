@@ -1,7 +1,7 @@
 import React from 'react';
 import { Link } from '../../lib/reactRouterWrapper';
 import HeaderEventSubtitle from "./HeaderEventSubtitle";
-import { useRouteMetadata } from '../ClientRouteMetadataContext';
+import { useRouteMetadata } from '@/components/layout/ClientRouteMetadataContext';
 import { defineStyles, useStyles } from '../hooks/useStyles';
 import { isBlackBarTitle } from '../seasonal/petrovDay/petrov-day-story/petrovConsts';
 

@@ -1,5 +1,5 @@
 import React from "react";
-import { Helmet } from "./Helmet";
+import { Helmet } from "@/components/layout/Helmet";
 import { registerComponent } from "../../lib/vulcan-lib/components";
 
 /**

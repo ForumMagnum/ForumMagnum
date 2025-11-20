@@ -2,7 +2,7 @@ import React from "react"
 import { registerComponent } from "@/lib/vulcan-lib/components";
 import { AnalyticsContext } from "@/lib/analyticsEvents";
 import { useLocation } from "@/lib/routeUtil";
-import { getHeaderHeight, getMobileHeaderHeight } from "@/components/common/Header";
+import { getHeaderHeight, getMobileHeaderHeight } from "@/components/layout/Header";
 import { useCurrentUser } from "@/components/common/withUser";
 import { makeCloudinaryImageUrl } from '@/components/common/cloudinaryHelpers';
 import { ForumWrappedProvider, useForumWrapped } from "./hooks";

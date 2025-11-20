@@ -2,7 +2,7 @@ import React from "react";
 import { getDefaultMetadata } from "@/server/pageMetadata/sharedMetadata";
 import type { Metadata } from "next";
 import merge from "lodash/merge";
-import RouteRoot from "@/components/next/RouteRoot";
+import RouteRoot from "@/components/layout/RouteRoot";
 import { getSqlClientOrThrow } from "@/server/sql/sqlClient";
 import { unstable_cache } from 'next/cache';
 import ModerationPageContent from "./ModerationPageContent";

@@ -7,7 +7,7 @@ import type { Metadata } from "next";
 import { getDefaultMetadata, getMetadataDescriptionFields, getMetadataImagesFields, getPageTitleFields, noIndexMetadata } from "@/server/pageMetadata/sharedMetadata";
 import { taglineSetting } from "@/lib/instanceSettings";
 import { makeCloudinaryImageUrl } from "@/components/common/cloudinaryHelpers";
-import RouteRoot from "@/components/next/RouteRoot";
+import RouteRoot from "@/components/layout/RouteRoot";
 
 export async function generateMetadata({ params }: { params: Promise<{ _id: string }> }): Promise<Metadata> {
   const [{ _id }, defaultMetadata] = await Promise.all([params, getDefaultMetadata()]);
