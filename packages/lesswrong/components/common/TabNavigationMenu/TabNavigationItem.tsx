@@ -33,17 +33,6 @@ const styles = defineStyles('TabNavigationItem', (theme: ThemeType) => ({
   menuItem: {
     width: theme.isFriendlyUI ? 210 : 190,
   },
-  iconOnlyMenuItem: {
-    width: "100%",
-    minWidth: 0,
-    height: "auto",
-    whiteSpace: "normal",
-    overflow: "visible",
-    textOverflow: "unset",
-    '&:hover': {
-      backgroundColor: 'transparent', // Prevent MUI default behavior of rendering solid background on hover
-    }
-  },
   desktopOnly: {
     [theme.breakpoints.down("xs")]: {
       display: "none !important",
@@ -108,13 +97,22 @@ const styles = defineStyles('TabNavigationItem', (theme: ThemeType) => ({
     display: "flex",
     justifyContent: "center",
   },
-  iconOnlyNavButton: {
+  iconOnlyMode: {
+    width: "100%",
+    minWidth: 0,
+    height: "auto",
+    whiteSpace: "normal",
+    overflow: "visible",
+    textOverflow: "unset",
     justifyContent: "center",
     paddingLeft: 0,
     paddingRight: 0,
     flexDirection: "column",
     gap: 3,
     textAlign: "center",
+    '&:hover': {
+      backgroundColor: 'transparent',
+    }
   },
   selectedIcon: {
     "& svg": {
@@ -283,12 +281,11 @@ const TabNavigationItem = ({tab, onClick, className, iconOnlyNavigationEnabled}:
       // entire sidebar fail on iOS. True story.
       to={tab.link}
       className={classNames(classes.menuItem, className, {
-        [classes.iconOnlyMenuItem]: iconOnlyMode,
         [classes.navButton]: !tab.subItem,
-        [classes.iconOnlyNavButton]: iconOnlyMode,
-        [classes.subItemOverride]: tab.subItem && !iconOnlyMode,
         [classes.selected]: isSelected,
         [classes.desktopOnly]: tab.desktopOnly,
+        [classes.subItemOverride]: tab.subItem && !iconOnlyMode,
+        [classes.iconOnlyMode]: iconOnlyMode,
       })}
       disableTouchRipple
     >
