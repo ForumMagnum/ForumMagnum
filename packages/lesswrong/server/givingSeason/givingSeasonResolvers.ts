@@ -2,8 +2,10 @@ import { mergeFeedQueries, viewBasedSubquery } from "../utils/feedUtil";
 import Comments from "../collections/comments/collection";
 import Posts from "../collections/posts/collection";
 import gql from 'graphql-tag';
+import ElectionVotes from "../collections/electionVotes/collection";
+import { ACTIVE_DONATION_ELECTION, userIsAllowedToVoteInDonationElection } from "@/lib/givingSeason";
 
-export const givingSeasonTagFeedGraphQLTypeDefs = gql`
+export const givingSeasonGraphQLTypeDefs = gql`
   type GivingSeasonTagFeedQueryResults {
     cutoff: Date
     endOffset: Int!
@@ -22,10 +24,14 @@ export const givingSeasonTagFeedGraphQLTypeDefs = gql`
       offset: Int,
       tagId: String!,
     ): GivingSeasonTagFeedQueryResults!
+    GivingSeason2025MyVote: JSON!
+  }
+  extend type Mutation {
+    GivingSeason2025Vote(vote: JSON!): Boolean!
   }
 `;
 
-export const givingSeasonTagFeedGraphQLQueries = {
+export const givingSeasonGraphQLQueries = {
   GivingSeason2025DonationTotal: (
     _root: void,
     _args: {},
@@ -74,4 +80,51 @@ export const givingSeasonTagFeedGraphQLQueries = {
       ],
     });
   },
-};
+  GivingSeason2025MyVote: async (
+    _root: void,
+    _args: {},
+    {currentUser}: ResolverContext,
+  ) => {
+    if (!currentUser) {
+      return {};
+    }
+    const vote = await ElectionVotes.findOne({
+      electionName: ACTIVE_DONATION_ELECTION,
+      userId: currentUser?._id,
+    });
+    return vote?.vote ?? {};
+  },
+}
+
+export const givingSeasonGraphQLMutations = {
+  GivingSeason2025Vote: async (
+    _root: void,
+    {vote}: {vote: Record<string, number>},
+    {currentUser, repos}: ResolverContext,
+  ) => {
+    const { allowed, reason } = userIsAllowedToVoteInDonationElection(currentUser, new Date());
+
+    if (!allowed || !currentUser) {
+      throw new Error(reason || "Unauthorized");
+    }
+
+    if (!vote || typeof vote !== "object") {
+      throw new Error("Missing vote");
+    }
+    const keys = Object.keys(vote);
+    if (keys.length > 100) {
+      throw new Error("Malformed vote object");
+    }
+    for (const key of keys) {
+      if (!Number.isInteger(vote[key]) || vote[key] < 1 || vote[key] > 100) {
+        throw new Error("Malformed vote");
+      }
+    }
+    await repos.electionVotes.upsertVote(
+      ACTIVE_DONATION_ELECTION,
+      currentUser._id,
+      vote,
+    );
+    return true;
+  },
+}

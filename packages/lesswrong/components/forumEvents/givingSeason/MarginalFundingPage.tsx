@@ -10,7 +10,7 @@ import { Link } from "@/lib/reactRouterWrapper";
 import {
   MARGINAL_FUNDING_SEQUENCE_ID,
   MARGINAL_FUNDING_SPOTIFY_URL,
-  SINGLE_COLUMN_BREAKPONT,
+  SINGLE_COLUMN_BREAKPOINT,
 } from "@/lib/givingSeason";
 import orderBy from "lodash/orderBy";
 import classNames from "classnames";
@@ -51,7 +51,7 @@ const styles = defineStyles("MarginalFundingPage", (theme) => ({
     [theme.breakpoints.down("sm")]: {
       gridTemplateColumns: "1fr 1fr",
     },
-    [theme.breakpoints.down(SINGLE_COLUMN_BREAKPONT)]: {
+    [theme.breakpoints.down(SINGLE_COLUMN_BREAKPOINT)]: {
       gridTemplateColumns: "1fr",
     },
   },
@@ -65,7 +65,7 @@ const styles = defineStyles("MarginalFundingPage", (theme) => ({
     "& > *": {
       maxWidth: "calc(min(700px, 100%))",
     },
-    [theme.breakpoints.down(SINGLE_COLUMN_BREAKPONT)]: {
+    [theme.breakpoints.down(SINGLE_COLUMN_BREAKPOINT)]: {
       padding: "40px",
       gridColumn: "unset",
     },

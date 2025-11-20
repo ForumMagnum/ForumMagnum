@@ -8,6 +8,8 @@ import { logFieldChanges } from "@/server/fieldChanges";
 import { getCreatableGraphQLFields, getUpdatableGraphQLFields } from "@/server/vulcan-lib/apollo-server/graphqlTemplates";
 import { makeGqlCreateMutation, makeGqlUpdateMutation } from "@/server/vulcan-lib/apollo-server/helpers";
 import { getLegacyCreateCallbackProps, getLegacyUpdateCallbackProps, insertAndReturnCreateAfterProps, runFieldOnCreateCallbacks, runFieldOnUpdateCallbacks, updateAndReturnDocument, assignUserIdToData } from "@/server/vulcan-lib/mutators";
+import { UpdateSelector, convertDocumentIdToIdInSelector } from "@/lib/vulcan-lib/utils";
+import { throwError } from "@/server/vulcan-lib/errors";
 import gql from "graphql-tag";
 import cloneDeep from "lodash/cloneDeep";
 
@@ -73,6 +75,25 @@ export async function updateElectionCandidate({ selector, data }: UpdateElection
   return updatedDocument;
 }
 
+export async function deleteElectionCandidate({ selector }: DeleteElectionCandidateInput, context: ResolverContext) {
+  const { currentUser, ElectionCandidates } = context;
+
+  const documentSelector = convertDocumentIdToIdInSelector(selector as UpdateSelector);
+  const document = await ElectionCandidates.findOne(documentSelector);
+
+  if (!document) {
+    throwError({ id: 'app.document_not_found', data: { documentId: documentSelector._id } });
+  }
+
+  if (!(await editCheck(currentUser, document, context))) {
+    throwError({ id: 'app.operation_not_allowed', data: { documentId: documentSelector._id } });
+  }
+
+  await ElectionCandidates.rawRemove(documentSelector);
+
+  return document;
+}
+
 export const createElectionCandidateGqlMutation = makeGqlCreateMutation('ElectionCandidates', createElectionCandidate, {
   newCheck,
   accessFilter: (rawResult, context) => accessFilterSingle(context.currentUser, 'ElectionCandidates', rawResult, context)
@@ -82,6 +103,12 @@ export const updateElectionCandidateGqlMutation = makeGqlUpdateMutation('Electio
   editCheck,
   accessFilter: (rawResult, context) => accessFilterSingle(context.currentUser, 'ElectionCandidates', rawResult, context)
 });
+
+export const deleteElectionCandidateGqlMutation = async (root: void, args: { selector: { _id?: string, documentId?: string } }, context: ResolverContext) => {
+  const result = await deleteElectionCandidate(args, context);
+  const filteredResult = await accessFilterSingle(context.currentUser, 'ElectionCandidates', result, context);
+  return { data: filteredResult };
+};
 
 
 
@@ -104,6 +131,15 @@ export const graphqlElectionCandidateTypeDefs = gql`
     data: UpdateElectionCandidateDataInput!
   }
   
+  input ElectionCandidateSelectorUniqueInput {
+    _id: String
+    documentId: String
+  }
+  
+  input DeleteElectionCandidateInput {
+    selector: ElectionCandidateSelectorUniqueInput!
+  }
+  
   type ElectionCandidateOutput {
     data: ElectionCandidate
   }
@@ -111,5 +147,6 @@ export const graphqlElectionCandidateTypeDefs = gql`
   extend type Mutation {
     createElectionCandidate(data: CreateElectionCandidateDataInput!): ElectionCandidateOutput
     updateElectionCandidate(selector: SelectorInput!, data: UpdateElectionCandidateDataInput!): ElectionCandidateOutput
+    deleteElectionCandidate(selector: ElectionCandidateSelectorUniqueInput!): ElectionCandidateOutput
   }
 `;

@@ -800,6 +800,11 @@ type GivingSeasonTagFeedEntryType {
 extend type Query {
   GivingSeason2025DonationTotal: Float!
   GivingSeasonTagFeed(limit: Int, cutoff: Date, offset: Int, tagId: String!): GivingSeasonTagFeedQueryResults!
+  GivingSeason2025MyVote: JSON!
+}
+
+extend type Mutation {
+  GivingSeason2025Vote(vote: JSON!): Boolean!
 }
 
 type SubscribedPostAndComments {
@@ -5598,6 +5603,15 @@ input UpdateElectionCandidateInput {
   data: UpdateElectionCandidateDataInput!
 }
 
+input ElectionCandidateSelectorUniqueInput {
+  _id: String
+  documentId: String
+}
+
+input DeleteElectionCandidateInput {
+  selector: ElectionCandidateSelectorUniqueInput!
+}
+
 type ElectionCandidateOutput {
   data: ElectionCandidate
 }
@@ -5605,6 +5619,7 @@ type ElectionCandidateOutput {
 extend type Mutation {
   createElectionCandidate(data: CreateElectionCandidateDataInput!): ElectionCandidateOutput
   updateElectionCandidate(selector: SelectorInput!, data: UpdateElectionCandidateDataInput!): ElectionCandidateOutput
+  deleteElectionCandidate(selector: ElectionCandidateSelectorUniqueInput!): ElectionCandidateOutput
 }
 
 input CreateElectionVoteDataInput {
