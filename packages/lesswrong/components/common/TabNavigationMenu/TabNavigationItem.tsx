@@ -254,7 +254,6 @@ const TabNavigationItem = ({tab, onClick, className, iconOnlyNavigationEnabled}:
     || tab.iconComponent;
   
   const iconElement = IconComponent ? <IconComponent /> : tab.icon;
-  const hasIcon = Boolean(iconElement);
   
   return <LWTooltip
     placement='right-start'
@@ -276,7 +275,7 @@ const TabNavigationItem = ({tab, onClick, className, iconOnlyNavigationEnabled}:
       })}
       disableTouchRipple
     >
-      {hasIcon && <span className={classNames(classes.icon, {
+      {iconElement && <span className={classNames(classes.icon, {
         [classes.iconOnlyIcon]: iconOnlyMode,
         [classes.selectedIcon]: isSelected,
         [classes.homeIcon]: tab.id === 'home',
