@@ -17,6 +17,7 @@ import { getLatestRev, getNextVersion, getPrecedingRev, htmlToChangeMetrics } fr
 import { createAdminContext } from "../vulcan-lib/createContexts";
 import { createRevision } from '../collections/revisions/mutations';
 import { updateCkEditorUserSession } from '../collections/ckEditorUserSessions/mutations';
+import { captureException } from '@/lib/sentryWrapper';
 
 // TODO: actually implement these in Zod
 interface CkEditorComment {
@@ -246,12 +247,14 @@ export async function fetchCkEditorDocumentFromStorage(ckEditorId: string): Prom
     throw new Error(`Failure to parse response from ckEditor when fetching document from storage. Returned data: ${rawResult}`);
   }
 
+  // Validate the response against what we think the response schema should be
+  // and log if it's mismatched, but if it's not what we expect, return it anyways.
   const validatedResult = DocumentResponseSchema.safeParse(parsedResult);
   if (!validatedResult.success) {
-    throw new Error(`Failure to validate response from ckEditor when fetching document from storage. Validation error: ${validatedResult.error}.  Parsed data: ${parsedResult}`);
+    captureException(new Error(`Failure to validate response from ckEditor when fetching document from storage. Validation error: ${validatedResult.error}.  Parsed data: ${parsedResult}`));
   }
 
-  return validatedResult.data;
+  return parsedResult;
 }
 
 export async function getAllCollaborations() {
