@@ -72,11 +72,11 @@ export const triggerWrappedRefresh = async (recreateViews = false) => {
   if (viewExists.to_regclass === USER_ENGAGEMENT_VIEW_NAME) {
     if (!recreateViews) {
       console.log(`Triggering a refresh for ${USER_ENGAGEMENT_VIEW_NAME}...`);
-      void analyticsDb.none(`REFRESH MATERIALIZED VIEW ${USER_ENGAGEMENT_VIEW_NAME};`);
+      await analyticsDb.none(`REFRESH MATERIALIZED VIEW ${USER_ENGAGEMENT_VIEW_NAME};`);
     } else {
       console.log(`Dropping and recreating ${USER_ENGAGEMENT_VIEW_NAME}...`);
       await analyticsDb.none(`DROP MATERIALIZED VIEW ${USER_ENGAGEMENT_VIEW_NAME};`);
-      void analyticsDb.none(`CREATE MATERIALIZED VIEW ${USER_ENGAGEMENT_VIEW_NAME} AS ${USER_ENGAGEMENT_VIEWDEF};`);
+      await analyticsDb.none(`CREATE MATERIALIZED VIEW ${USER_ENGAGEMENT_VIEW_NAME} AS ${USER_ENGAGEMENT_VIEWDEF};`);
     }
   } else {
     // If it doesn't, create the view
