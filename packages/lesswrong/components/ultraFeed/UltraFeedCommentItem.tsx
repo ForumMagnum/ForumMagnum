@@ -524,6 +524,7 @@ export const UltraFeedCommentItem = ({
               className={classNames(classes.footer, { [classes.footerGreyedOut]: isSeeLessMode })}
               replyConfig={replyConfig}
               cannotReplyReason={cannotReplyReason}
+              isFirstCommentInThread={isFirstComment}
             />}
         </div>
       </div>

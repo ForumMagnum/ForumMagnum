@@ -2538,8 +2538,8 @@ type FeedCommentThread = {
   _id: Scalars['String']['output'];
   commentMetaInfos?: Maybe<Scalars['JSON']['output']>;
   comments: Array<Comment>;
-  isOnReadPost?: Maybe<Scalars['Boolean']['output']>;
   post?: Maybe<Post>;
+  postMetaInfo?: Maybe<Scalars['JSON']['output']>;
   postSources?: Maybe<Array<Scalars['String']['output']>>;
 };
 
@@ -2560,6 +2560,7 @@ type FeedSpotlightItem = {
 
 type FeedSpotlightMetaInfo = {
   __typename?: 'FeedSpotlightMetaInfo';
+  rankingMetadata?: Maybe<Scalars['JSON']['output']>;
   servedEventId: Scalars['String']['output'];
   sources: Array<Scalars['String']['output']>;
 };
@@ -2784,6 +2785,11 @@ type HomepageCommunityEventMarker = {
 type HomepageCommunityEventMarkersResult = {
   __typename?: 'HomepageCommunityEventMarkersResult';
   events: Array<HomepageCommunityEventMarker>;
+};
+
+type HomepageCommunityEventPostsResult = {
+  __typename?: 'HomepageCommunityEventPostsResult';
+  posts: Array<Post>;
 };
 
 type Images = {
@@ -7549,6 +7555,7 @@ type Query = {
   GetRandomUser?: Maybe<User>;
   GetUserBySlug?: Maybe<User>;
   GivingSeasonHearts: Array<GivingSeasonHeart>;
+  HomepageCommunityEventPosts: HomepageCommunityEventPostsResult;
   HomepageCommunityEvents: HomepageCommunityEventMarkersResult;
   IsDisplayNameTaken: Scalars['Boolean']['output'];
   Lightcone2024FundraiserStripeAmounts?: Maybe<Array<Scalars['Int']['output']>>;
@@ -7832,6 +7839,11 @@ type QueryGetUserBySlugArgs = {
 
 type QueryGivingSeasonHeartsArgs = {
   electionName: Scalars['String']['input'];
+};
+
+
+type QueryHomepageCommunityEventPostsArgs = {
+  eventType: Scalars['String']['input'];
 };
 
 
@@ -19845,6 +19857,23 @@ type petrovDay2024ResolversQueryVariables = Exact<{ [key: string]: never; }>;
 
 type petrovDay2024ResolversQuery = petrovDay2024ResolversQuery_Query;
 
+type HomepageCommunityEventPostsQueryQuery_HomepageCommunityEventPosts_HomepageCommunityEventPostsResult_posts_Post = (
+  { __typename?: 'Post' }
+  & PostsList
+);
+
+type HomepageCommunityEventPostsQueryQuery_HomepageCommunityEventPosts_HomepageCommunityEventPostsResult = { __typename?: 'HomepageCommunityEventPostsResult', posts: Array<HomepageCommunityEventPostsQueryQuery_HomepageCommunityEventPosts_HomepageCommunityEventPostsResult_posts_Post> };
+
+type HomepageCommunityEventPostsQueryQuery_Query = { __typename?: 'Query', HomepageCommunityEventPosts: HomepageCommunityEventPostsQueryQuery_HomepageCommunityEventPosts_HomepageCommunityEventPostsResult };
+
+
+type HomepageCommunityEventPostsQueryQueryVariables = Exact<{
+  eventType: Scalars['String']['input'];
+}>;
+
+
+type HomepageCommunityEventPostsQueryQuery = HomepageCommunityEventPostsQueryQuery_Query;
+
 type updateChapterAddDraftPostDialogMutation_updateChapter_ChapterOutput_data_Chapter = (
   { __typename?: 'Chapter' }
   & ChaptersFragment
@@ -26564,7 +26593,7 @@ type FeedCommentThreadFragment_FeedCommentThread_comments_Comment = (
   & UltraFeedComment
 );
 
-type FeedCommentThreadFragment = { __typename?: 'FeedCommentThread', _id: string, commentMetaInfos: any | null, isOnReadPost: boolean | null, postSources: Array<string> | null, post: FeedCommentThreadFragment_FeedCommentThread_post_Post | null, comments: Array<FeedCommentThreadFragment_FeedCommentThread_comments_Comment> };
+type FeedCommentThreadFragment = { __typename?: 'FeedCommentThread', _id: string, commentMetaInfos: any | null, postSources: Array<string> | null, postMetaInfo: any | null, post: FeedCommentThreadFragment_FeedCommentThread_post_Post | null, comments: Array<FeedCommentThreadFragment_FeedCommentThread_comments_Comment> };
 
 type FeedSpotlightFragment_FeedSpotlightItem_spotlight_Spotlight = (
   { __typename?: 'Spotlight' }
@@ -26576,7 +26605,7 @@ type FeedSpotlightFragment_FeedSpotlightItem_post_Post = (
   & PostsListWithVotes
 );
 
-type FeedSpotlightFragment_FeedSpotlightItem_spotlightMetaInfo_FeedSpotlightMetaInfo = { __typename?: 'FeedSpotlightMetaInfo', sources: Array<string>, servedEventId: string };
+type FeedSpotlightFragment_FeedSpotlightItem_spotlightMetaInfo_FeedSpotlightMetaInfo = { __typename?: 'FeedSpotlightMetaInfo', sources: Array<string>, servedEventId: string, rankingMetadata: any | null };
 
 type FeedSpotlightFragment = { __typename?: 'FeedSpotlightItem', _id: string, spotlight: FeedSpotlightFragment_FeedSpotlightItem_spotlight_Spotlight | null, post: FeedSpotlightFragment_FeedSpotlightItem_post_Post | null, spotlightMetaInfo: FeedSpotlightFragment_FeedSpotlightItem_spotlightMetaInfo_FeedSpotlightMetaInfo | null };
 
@@ -26945,7 +26974,7 @@ type CommentPermalinkMetadataQuery = CommentPermalinkMetadataQuery_Query;
 
 type TagMetadataQuery_tags_MultiTagOutput_results_Tag_description_Revision = { __typename?: 'Revision', _id: string, plaintextDescription: string };
 
-type TagMetadataQuery_tags_MultiTagOutput_results_Tag = { __typename?: 'Tag', _id: string, name: string, noindex: boolean, description: TagMetadataQuery_tags_MultiTagOutput_results_Tag_description_Revision | null };
+type TagMetadataQuery_tags_MultiTagOutput_results_Tag = { __typename?: 'Tag', _id: string, name: string, slug: string, noindex: boolean, description: TagMetadataQuery_tags_MultiTagOutput_results_Tag_description_Revision | null };
 
 type TagMetadataQuery_tags_MultiTagOutput = { __typename?: 'MultiTagOutput', results: Array<TagMetadataQuery_tags_MultiTagOutput_results_Tag> };
 

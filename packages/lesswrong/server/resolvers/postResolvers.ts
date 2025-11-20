@@ -13,10 +13,12 @@ import { userCanDo, userIsAdmin } from '../../lib/vulcan-users/permissions';
 import { FilterPostsForReview } from '@/components/bookmarks/ReadHistoryTab';
 import gql from "graphql-tag";
 import { createPaginatedResolver } from './paginatedResolver';
-import { convertImportedGoogleDoc } from '../editor/googleDocUtils';
+import { convertImportedGoogleDoc, convertImportedGoogleDocMarkdown } from '../editor/googleDocUtils';
 import { postIsCriticism } from '../languageModels/criticismTipsBot';
 import { createPost } from '../collections/posts/mutations';
 import { createRevision } from '../collections/revisions/mutations';
+import { getDefaultViewSelector } from '@/lib/utils/viewUtils';
+import { PostsViews } from '@/lib/collections/posts/views';
 
 interface PostWithApprovedJargon {
   post: Partial<DbPost>;
@@ -282,6 +284,21 @@ export const postGqlQueries = {
     const events = await repos.posts.getHomepageCommunityEvents(limit)
     return { events }
   },
+  async HomepageCommunityEventPosts(root: void, { eventType }: { eventType: string }, context: ResolverContext) {
+    const { Posts, currentUser } = context
+    const defaultPostSelector = getDefaultViewSelector(PostsViews)
+
+    const timeRange = 5 * 30 * 24 * 60 * 60 * 1000 // 5 months
+    const posts = await Posts.find({
+      ...defaultPostSelector, 
+      startTime: { $gt: new Date(), $lt: new Date(Date.now() + timeRange) }, 
+      types: { $in: [eventType] }, 
+      "googleLocation.geometry.location.lat": { $exists: true },
+      "googleLocation.geometry.location.lng": { $exists: true },
+    }).fetch()
+    const filteredPosts = await accessFilterMultiple(currentUser, 'Posts', posts, context)
+    return { posts: filteredPosts }  
+  },
   ...DigestHighlightsQuery,
   ...DigestPostsThisWeekQuery,
   ...CuratedAndPopularThisWeekQuery,
@@ -324,9 +341,9 @@ export const postGqlMutations = {
     }
 
     // Fetch the HTML directly from the public export URL
-    const exportUrl = `https://docs.google.com/document/d/${fileId}/export?format=html`;
+    const exportUrl = `https://docs.google.com/document/d/${fileId}/export?format=markdown`;
 
-    let html: string;
+    let markdown: string;
     let docTitle: string;
 
     try {
@@ -337,10 +354,10 @@ export const postGqlMutations = {
         }
       });
 
-      html = await response.text();
+      markdown = await response.text();
 
-      if (!html || html.length === 0) {
-        throw new Error("Received empty HTML from Google Docs");
+      if (!markdown || markdown.length === 0) {
+        throw new Error("Received empty result from Google Docs");
       }
 
     } catch (error: any) {
@@ -360,7 +377,8 @@ export const postGqlMutations = {
     // Converting to ckeditor markup does some thing like removing styles to standardise
     // the result, so we always want to do this first before converting to whatever format the user
     // is using
-    const ckEditorMarkup = await convertImportedGoogleDoc({ html, postId: finalPostId })
+    const ckEditorMarkup = await convertImportedGoogleDocMarkdown({ markdown, postId: finalPostId })
+    //const ckEditorMarkup = await convertImportedGoogleDoc({ html, postId: finalPostId })
     const commitMessage = `[Google Doc import]`
     const originalContents = {type: "ckEditorMarkup", data: ckEditorMarkup}
 
@@ -387,7 +405,7 @@ export const postGqlMutations = {
         version: getNextVersion(previousRev, revisionType, true),
         updateType: revisionType,
         commitMessage,
-        changeMetrics: htmlToChangeMetrics(previousRev?.html || "", html),
+        changeMetrics: htmlToChangeMetrics(previousRev?.html || "", ckEditorMarkup),
       };
 
       await createRevision({ data: newRevision }, context);
@@ -446,6 +464,7 @@ export const postGqlTypeDefs = gql`
     DigestPosts(num: Int): [Post!]
 
     HomepageCommunityEvents(limit: Int!): HomepageCommunityEventMarkersResult!
+    HomepageCommunityEventPosts(eventType: String!): HomepageCommunityEventPostsResult!
   }
 
   extend type Mutation {
@@ -503,6 +522,9 @@ export const postGqlTypeDefs = gql`
   }
   type HomepageCommunityEventMarkersResult {
     events: [HomepageCommunityEventMarker!]!
+  }
+  type HomepageCommunityEventPostsResult {
+    posts: [Post!]!
   }
   ${DigestHighlightsTypeDefs}
   ${DigestPostsThisWeekTypeDefs}

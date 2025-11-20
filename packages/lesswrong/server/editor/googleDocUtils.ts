@@ -2,7 +2,7 @@ import axios from 'axios';
 import cheerio from 'cheerio';
 import { convertImagesInHTML, uploadBufferToCloudinary } from '../scripts/convertImagesToCloudinary';
 import { extractTableOfContents } from '@/lib/tableOfContents';
-import { dataToCkEditor } from './conversionUtils';
+import { dataToCkEditor, markdownToHtml } from './conversionUtils';
 import { parseDocumentFromString } from '@/lib/domParser';
 
 /**
@@ -435,6 +435,15 @@ function removeEmptyBodyParagraphs(html: string): string {
   });
 
   return $.html();
+}
+
+export async function convertImportedGoogleDocMarkdown({markdown, postId}: {
+  markdown: string,
+  postId: string
+}): Promise<string> {
+  const html = await markdownToHtml(markdown);
+  const { html: rehostedHtml } = await convertImagesInHTML(html, postId, _ => true);
+  return rehostedHtml;
 }
 
 /**

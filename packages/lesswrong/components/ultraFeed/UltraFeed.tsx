@@ -185,7 +185,6 @@ const styles = defineStyles("UltraFeed", (theme: ThemeType) => ({
 const UltraFeedContent = ({
   settings,
   updateSettings,
-  resetSettings,
   truncationMaps,
   settingsVisible,
   onCloseSettings,
@@ -195,7 +194,6 @@ const UltraFeedContent = ({
 }: {
   settings: UltraFeedSettingsType,
   updateSettings: (newSettings: Partial<UltraFeedSettingsType>) => void,
-  resetSettings: () => void,
   truncationMaps: { commentMap: Record<TruncationLevel, number>, postMap: Record<TruncationLevel, number> },
   alwaysShow?: boolean
   settingsVisible?: boolean
@@ -282,10 +280,6 @@ const UltraFeedContent = ({
     }
   };
 
-  const resetSettingsToDefault = () => {
-    resetSettings();
-  };
-
   const { resolverSettings } = settings;
 
   return (
@@ -302,10 +296,8 @@ const UltraFeedContent = ({
                   <UltraFeedSettings 
                     settings={settings}
                     updateSettings={updateSettings}
-                    resetSettingsToDefault={resetSettingsToDefault}
                     onClose={() => onCloseSettings?.()} 
                     truncationMaps={truncationMaps}
-                    showFeedSelector
                   />
                 ) : (
                   <UltraFeedFollowingSettings
@@ -398,14 +390,19 @@ const UltraFeed = ({
   const [internalInfoVisible, setInternalInfoVisible] = useState(false);
   const [activeTab, setActiveTab] = useState<FeedType>(() => (cookies[ULTRA_FEED_ACTIVE_TAB_COOKIE] === 'following' ? 'following' : 'ultraFeed'));
   const { captureEvent } = useTracking();
-  const { settings, updateSettings, resetSettings, truncationMaps } = useUltraFeedSettings();
+  const { settings, updateSettings, truncationMaps } = useUltraFeedSettings();
 
   const handleTabChange = (tab: FeedType) => {
     setActiveTab(tab);
     setCookie(ULTRA_FEED_ACTIVE_TAB_COOKIE, tab, { path: '/' });
-    // Close info panel when switching to Following tab
-    if (tab === 'following' && internalInfoVisible) {
-      setInternalInfoVisible(false);
+    // Close settings and info panels when switching to Following tab
+    if (tab === 'following') {
+      if (internalInfoVisible) {
+        setInternalInfoVisible(false);
+      }
+      if (internalSettingsVisible) {
+        setInternalSettingsVisible(false);
+      }
     }
     captureEvent("ultraFeedTabChanged", { tab });
   };
@@ -454,9 +451,9 @@ const UltraFeed = ({
           hideTitle={hideTitle}
           activeTab={activeTab}
           onTabChange={handleTabChange}
-          settingsButton={!isControlled ? (
+          settingsButton={!isControlled && activeTab === 'ultraFeed' ? (
             <div className={classes.headerButtons}>
-              {activeTab === 'ultraFeed' && <InfoButton onClick={toggleInfo} isActive={internalInfoVisible} tooltip="What is the For You feed?" />}
+              <InfoButton onClick={toggleInfo} isActive={internalInfoVisible} tooltip="What is the For You feed?" />
               <SettingsButton showIcon={true} onClick={toggleSettings} />
             </div>
           ) : undefined}
@@ -467,7 +464,6 @@ const UltraFeed = ({
           <UltraFeedContent 
             settings={settings}
             updateSettings={updateSettings}
-            resetSettings={resetSettings}
             truncationMaps={truncationMaps}
             alwaysShow={alwaysShow}
             settingsVisible={actualSettingsVisible}

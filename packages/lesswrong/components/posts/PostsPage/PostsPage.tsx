@@ -262,13 +262,6 @@ const getDebateResponseBlocks = (responses: readonly CommentsList[], replies: re
   replies: replies.filter(reply => reply.topLevelCommentId === debateResponse._id)
 }));
 
-export const postsCommentsThreadMultiOptions = {
-  collectionName: "Comments" as const,
-  fragmentName: 'CommentsList' as const,
-  fetchPolicy: 'cache-and-network' as const,
-  enableTotal: true,
-}
-
 function usePostCommentTerms<T extends CommentsViewTerms>(currentUser: UsersCurrent | null, defaultTerms: T, query: Record<string, string>) {
   const commentOpts = { includeAdminViews: currentUser?.isAdmin };
   let view;
@@ -370,18 +363,18 @@ const PostsPage = ({fullPost, postPreload, refetch, embedded}: {
   }, [navigate, location.location, openDialog, fullPost, query]);
 
   const sortBy: CommentSortingMode = (query.answersSorting as CommentSortingMode) || "top";
-  const { data } = useQuery(CommentsListMultiQuery, {
+  const { data: answersAndRepliesData } = useQuery(CommentsListMultiQuery, {
     variables: {
       selector: { answersAndReplies: { postId: post._id, sortBy } },
       limit: MAX_ANSWERS_AND_REPLIES_QUERIED,
-      enableTotal: true,
+      enableTotal: false,
     },
     skip: !post.question,
     fetchPolicy: 'cache-and-network',
     notifyOnNetworkStatusChange: true,
   });
 
-  const answersAndReplies = data?.comments?.results;
+  const answersAndReplies = answersAndRepliesData?.comments?.results;
   const answers = answersAndReplies?.filter(c => c.answer) ?? [];
 
   // note: these are from a debate feature that was deprecated in favor of collabEditorDialogue.
@@ -463,7 +456,6 @@ const PostsPage = ({fullPost, postPreload, refetch, embedded}: {
     !currentUser?.hidePostsRecommendations &&
     !post.shortform &&
     !post.draft &&
-    !post.deletedDraft &&
     !post.question &&
     !post.debate &&
     !post.isEvent &&
@@ -502,7 +494,7 @@ const PostsPage = ({fullPost, postPreload, refetch, embedded}: {
     variables: {
       selector: { [view]: { postId: post._id } },
       limit,
-      enableTotal: true,
+      enableTotal: false,
     },
     fetchPolicy: 'cache-and-network' as const,
   });

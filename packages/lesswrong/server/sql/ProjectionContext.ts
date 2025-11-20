@@ -4,6 +4,9 @@ import isEqual from "lodash/isEqual";
 import chunk from "lodash/chunk";
 import type { GraphQLScalarType } from "graphql";
 
+// Experiment to disable custom SQL resolvers, to see how that impacts performance
+export const enableCustomSqlResolvers = false;
+
 export type CustomResolver<N extends CollectionNameString = CollectionNameString> = {
   type: string | GraphQLScalarType,
   description?: string,
@@ -91,10 +94,11 @@ class ProjectionContext<N extends CollectionNameString = CollectionNameString> {
       const field = schema[fieldName];
       if (field.graphql?.resolver) {
         const { outputType, resolver, sqlResolver, skipSqlResolver, sqlPostProcess, arguments: resolverArgs } = field.graphql;
+        const enableSqlResolver = !(skipSqlResolver?.() ) && enableCustomSqlResolvers;
         const customResolver: CustomResolver<N> = {
           type: outputType,
           resolver,
-          ...(skipSqlResolver?.() ? {} : {sqlResolver}),
+          ...(enableSqlResolver ? {sqlResolver} : {}),
           sqlPostProcess,
           arguments: resolverArgs,
           fieldName,

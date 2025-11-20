@@ -621,6 +621,7 @@ extend type Query {
   DigestPlannerData(digestId: String, startDate: Date, endDate: Date): [DigestPlannerPost!]!
   DigestPosts(num: Int): [Post!]
   HomepageCommunityEvents(limit: Int!): HomepageCommunityEventMarkersResult!
+  HomepageCommunityEventPosts(eventType: String!): HomepageCommunityEventPostsResult!
 }
 
 extend type Mutation {
@@ -680,6 +681,10 @@ type HomepageCommunityEventMarker {
 
 type HomepageCommunityEventMarkersResult {
   events: [HomepageCommunityEventMarker!]!
+}
+
+type HomepageCommunityEventPostsResult {
+  posts: [Post!]!
 }
 
 type DigestHighlightsResult {
@@ -1399,6 +1404,7 @@ extend type Mutation {
 type FeedSpotlightMetaInfo {
   sources: [String!]!
   servedEventId: String!
+  rankingMetadata: JSON
 }
 
 type FeedPost {
@@ -1412,8 +1418,8 @@ type FeedCommentThread {
   commentMetaInfos: JSON
   comments: [Comment!]!
   post: Post
-  isOnReadPost: Boolean
   postSources: [String!]
+  postMetaInfo: JSON
 }
 
 type FeedSpotlightItem {

@@ -1,20 +1,19 @@
 'use client';
 
-import React from 'react';
+import React, { useEffect } from 'react';
 import { AnalyticsContext } from "../../lib/analyticsEvents";
 import { getReviewPhase, reviewIsActive, REVIEW_YEAR } from '../../lib/reviewUtils';
 import { showReviewOnFrontPageIfActive, lightconeFundraiserActive, ultraFeedEnabledSetting, isLW, isAF } from '@/lib/instanceSettings';
 import { useCookiesWithConsent } from '../hooks/useCookiesWithConsent';
-import { ULTRA_FEED_ENABLED_COOKIE } from '../../lib/cookies/cookies';
+import { LAST_VISITED_FRONTPAGE_COOKIE } from '../../lib/cookies/cookies';
+import moment from 'moment';
+import { visitorGetsDynamicFrontpage } from '../../lib/betas';
 import { combineUrls, getSiteUrl } from "../../lib/vulcan-lib/utils";
 import { registerComponent } from "../../lib/vulcan-lib/components";
-import { useABTest } from '@/components/hooks/useAbTests';
-import { ultraFeedABTest } from '../../lib/abTests';
 import AnalyticsInViewTracker from "./AnalyticsInViewTracker";
 import FrontpageReviewWidget from "../review/FrontpageReviewWidget";
 import SingleColumnSection from "./SingleColumnSection";
-import EAPopularCommentsSection from "../ea-forum/EAPopularCommentsSection";
-import DismissibleSpotlightItem from "../spotlights/DismissibleSpotlightItem";
+import DismissibleSpotlightItem from "@/components/spotlights/DismissibleSpotlightItem";
 import QuickTakesSection from "../quickTakes/QuickTakesSection";
 import LWHomePosts from "./LWHomePosts";
 import UltraFeed from "../ultraFeed/UltraFeed";
@@ -58,6 +57,7 @@ const LWHome = () => {
   return (
       <AnalyticsContext pageContext="homePage">
         <StructuredData generate={() => getStructuredData()}/>
+        <UpdateLastVisitCookie />
         {reviewIsActive() && <>
           {getReviewPhase() !== "RESULTS" && <SingleColumnSection>
             <SuspenseWrapper name="FrontpageReviewWidget">
@@ -72,16 +72,12 @@ const LWHome = () => {
           <IsReturningVisitorContextProvider>
             <LWHomePosts>
               <QuickTakesSection />
-              <SuspenseWrapper name="EAPopularCommentsSection">
-                <EAPopularCommentsSection />
-              </SuspenseWrapper>
-              
+
               <AnalyticsInViewTracker eventProps={{inViewType: "feedSection"}} observerProps={{threshold:[0, 0.5, 1]}}>
                 <SuspenseWrapper name="UltraFeed">
                   <UltraFeedOrRecentDiscussion/>
                 </SuspenseWrapper>
               </AnalyticsInViewTracker>
-
             </LWHomePosts>
           </IsReturningVisitorContextProvider>
         </SuspenseWrapper>
@@ -90,17 +86,9 @@ const LWHome = () => {
 }
 
 const UltraFeedOrRecentDiscussion = () => {
-  const abTestGroup = useABTest(ultraFeedABTest);
-  const [cookies] = useCookiesWithConsent([ULTRA_FEED_ENABLED_COOKIE]);
+  const ultraFeedEnabled = ultraFeedEnabledSetting.get()
   
-  // Check if user has already made a choice via checkbox (which sets a cookie)
-  const cookieValue = cookies[ULTRA_FEED_ENABLED_COOKIE];
-  const hasExplicitPreference = cookieValue === "true" || cookieValue === "false";
-  
-  // Determine which feed to show: if cookie is set, use that preference, otherwise use A/B test assignment
-  const shouldShowUltraFeed = ultraFeedEnabledSetting.get() && (cookieValue === "true" || (!hasExplicitPreference && abTestGroup === 'ultraFeed'));
-  
-  return shouldShowUltraFeed
+  return ultraFeedEnabled
     ? <UltraFeed />
     : <DeferRender ssr={false}>
         <RecentDiscussionFeed
@@ -109,6 +97,18 @@ const UltraFeedOrRecentDiscussion = () => {
           maxAgeHours={18}
         />
       </DeferRender>
+}
+
+const UpdateLastVisitCookie = () => {
+  const [_, setCookie] = useCookiesWithConsent([LAST_VISITED_FRONTPAGE_COOKIE]);
+
+  useEffect(() => {
+    if (visitorGetsDynamicFrontpage(null)) {
+      setCookie(LAST_VISITED_FRONTPAGE_COOKIE, new Date().toISOString(), { path: "/", expires: moment().add(1, 'year').toDate() });
+    }
+  }, [setCookie])
+
+  return <></>
 }
 
 export default registerComponent('LWHome', LWHome, {

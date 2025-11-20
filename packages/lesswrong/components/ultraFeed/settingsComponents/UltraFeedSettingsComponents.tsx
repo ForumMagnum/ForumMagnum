@@ -8,7 +8,9 @@ import {
   truncationLevels,
   DEFAULT_SETTINGS,
   ThreadInterestModelFormState,
-  CommentScoringFormState
+  CommentScoringFormState,
+  UnifiedScoringFormState,
+  UltraFeedAlgorithm
 } from '../ultraFeedSettingsTypes';
 import { FeedItemSourceType } from '../ultraFeedTypes';
 import Slider from '@/lib/vendor/@material-ui/core/src/Slider';
@@ -16,13 +18,14 @@ import Checkbox from '@/lib/vendor/@material-ui/core/src/Checkbox';
 import { ZodFormattedError } from 'zod';
 import LWTooltip from '@/components/common/LWTooltip';
 import ForumIcon from '@/components/common/ForumIcon';
+import { userIsAdminOrMod } from '@/lib/vulcan-users/permissions';
 
 const styles = defineStyles('UltraFeedSettingsComponents', (theme: ThemeType) => ({
   settingGroup: {
     backgroundColor: theme.palette.background.paper,
     width: '100%',
     padding: 16,
-    border: `1px solid ${theme.palette.grey[300]}`,
+    border: theme.palette.border.grey300,
     borderRadius: 4,
     paddingLeft: 32,
     paddingRight: 32,
@@ -96,17 +99,29 @@ const styles = defineStyles('UltraFeedSettingsComponents', (theme: ThemeType) =>
   },
   sourceWeightInput: {
     marginLeft: 12,
-    width: 70,
+    width: 80,
     padding: 6,
-    border: '1px solid ' + theme.palette.grey[400],
+    border: theme.palette.border.grey400,
     borderRadius: 4,
     color: theme.palette.text.primary,
     background: theme.palette.background.default,
     textAlign: 'right',
   },
   threadAggSelect: {
-    minWidth: "100px",
+    minWidth: "150px",
     marginLeft: "auto",
+  },
+  algorithmSelect: {
+    marginLeft: 'auto',
+    width: 'fit-content',
+    padding: 6,
+    border: theme.palette.border.grey400,
+    borderRadius: 4,
+    fontSize: '1.1rem',
+    fontFamily: 'inherit',
+    cursor: 'pointer',
+    backgroundColor: theme.palette.background.default,
+    color: theme.palette.text.primary,
   },
   lineClampLabel: {
     fontSize: '1.1rem',
@@ -204,7 +219,7 @@ const styles = defineStyles('UltraFeedSettingsComponents', (theme: ThemeType) =>
     fontSize: '1.1rem',
     fontFamily: 'inherit',
     cursor: 'pointer',
-    border: `1px solid ${theme.palette.grey[400]}`,
+    border: theme.palette.border.grey400,
     borderRadius: 4,
     backgroundColor: theme.palette.background.default,
     color: theme.palette.text.primary,
@@ -984,17 +999,119 @@ export const ThreadInterestTuningSettings: React.FC<ThreadInterestTuningSettings
   );
 };
 
+export interface UnifiedScoringSettingsProps {
+  formValues: UnifiedScoringFormState;
+  errors: ZodFormattedError<UnifiedScoringFormState, string> | null;
+  onFieldChange: (field: keyof UnifiedScoringFormState, value: number | string) => void;
+  defaultOpen?: boolean;
+  className?: string;
+}
+
+export const UnifiedScoringSettings: React.FC<UnifiedScoringSettingsProps> = ({
+  formValues,
+  errors,
+  onFieldChange,
+  defaultOpen = true,
+  className,
+}) => {
+  const classes = useStyles(styles);
+
+  const defaultUnifiedScoringSettings = DEFAULT_SETTINGS.resolverSettings.unifiedScoring;
+
+  const allFields = [
+    {
+      key: 'postsMultiplier' as const,
+      label: "Posts Multiplier",
+      description: `Multiplier applied to final post scores. Increase to see more posts, decrease to see fewer. Default: ${defaultUnifiedScoringSettings.postsMultiplier}`,
+      min: 0.1, max: 10, step: 0.1,
+    },
+    {
+      key: 'threadsMultiplier' as const,
+      label: "Threads Multiplier",
+      description: `Multiplier applied to final thread scores. Increase to see more threads, decrease to see fewer. Default: ${defaultUnifiedScoringSettings.threadsMultiplier}`,
+      min: 0.1, max: 10, step: 0.1,
+    },
+    {
+      key: 'quicktakeBonus' as const,
+      label: "Quick Take Bonus",
+      description: `Bonus score for Quick Take threads. Default: ${defaultUnifiedScoringSettings.quicktakeBonus}`,
+      min: 0, max: 50, step: 1,
+    },
+    {
+      key: 'subscribedBonusSetting' as const,
+      label: "Subscribed Bonus",
+      description: `Scale: 0 (None) to 5 (Very Strong). Applies to both posts and comments.`,
+      min: 0, max: 5, step: 1,
+    },
+    {
+      key: 'timeDecayHalfLifeHours' as const,
+      label: "Time Decay Scale",
+      description: `Controls time decay rate (applies to posts and comments). Higher = slower decay. Formula: scale^0.25 / (ageHrs + 12)^0.25. At ${defaultUnifiedScoringSettings.timeDecayHalfLifeHours}hrs: 1day old = 78%, 1week old = 56%. Default: ${defaultUnifiedScoringSettings.timeDecayHalfLifeHours} hours`,
+      min: 1, max: 48, step: 1,
+    },
+  ];
+
+  return (
+    <CollapsibleSettingGroup title="Unified Scoring Settings" defaultOpen={defaultOpen} className={className ?? classes.settingGroup}>
+      <div className={classes.groupDescription}>
+        <p>Adjust scoring parameters for the unified scoring algorithm.</p>
+      </div>
+
+      {allFields.map(field => {
+        const currentValue = formValues[field.key];
+        const currentError = errors?.[field.key]?._errors[0];
+        const defaultVal = defaultUnifiedScoringSettings[field.key];
+        const sliderValue = typeof currentValue === 'number' ? currentValue : defaultVal;
+
+        return (
+          <div key={field.key} className={classes.sourceWeightItem}>
+            <div className={classes.sourceWeightContainer}>
+              <label className={classes.sourceWeightLabel}>{field.label}</label>
+              <Slider
+                className={classes.sourceWeightSlider}
+                value={sliderValue}
+                onChange={(_, val) => onFieldChange(field.key, val as number)}
+                min={field.min}
+                max={field.max}
+                step={field.step}
+              />
+              <input
+                type="number"
+                className={classNames(classes.sourceWeightInput, { [classes.invalidInput]: !!currentError })}
+                value={currentValue}
+                onChange={(e) => onFieldChange(field.key, e.target.value)}
+                min={field.min}
+                max={field.max}
+                step={field.step}
+              />
+            </div>
+            <p className={classes.sourceWeightDescription}>{field.description}</p>
+            {currentError && (
+              <p className={classes.errorMessage}>{currentError}</p>
+            )}
+          </div>
+        );
+      })}
+    </CollapsibleSettingGroup>
+  );
+};
+
 export interface MiscSettingsProps {
   formValues: {
     incognitoMode: boolean;
+    algorithm: UltraFeedAlgorithm | undefined;
     defaultOpen?: boolean;
   };
   onBooleanChange: (field: 'incognitoMode', checked: boolean) => void;
+  onAlgorithmChange: (algorithm: UltraFeedAlgorithm | undefined) => void;
   defaultOpen?: boolean;
+  currentUser: UsersCurrent | null;
 }
 
-export const MiscSettings: React.FC<MiscSettingsProps> = ({ formValues, onBooleanChange, defaultOpen = true }) => {
+export const MiscSettings: React.FC<MiscSettingsProps> = ({ formValues, onBooleanChange, onAlgorithmChange, defaultOpen = true, currentUser }) => {
   const classes = useStyles(styles);
+  const isAdmin = userIsAdminOrMod(currentUser);
+  
   return (
     <CollapsibleSettingGroup title="Misc" defaultOpen={defaultOpen} className={classes.settingGroup}>
       <div className={classes.checkboxContainer}>
@@ -1013,6 +1130,126 @@ export const MiscSettings: React.FC<MiscSettingsProps> = ({ formValues, onBoolea
         When enabled, the feed algorithm does not log viewing behavior (votes and comments will still influence it). This does not disable standard LessWrong analytics separate from the feed.
       </p>
 
+      {isAdmin && (
+        <>
+          <div className={classes.sourceWeightItem}>
+            <div className={classes.sourceWeightContainer}>
+              <label className={classes.sourceWeightLabel}>Algorithm</label>
+              <select
+                className={classes.algorithmSelect}
+                value={formValues.algorithm ?? ''}
+                onChange={(e) => {
+                  const value = e.target.value;
+                  if (value === '') {
+                    onAlgorithmChange(undefined);
+                  } else if (value === 'scoring' || value === 'sampling') {
+                    onAlgorithmChange(value);
+                  }
+                }}
+              >
+                <option value="">Default (Admins: Scoring, Others: Sampling)</option>
+                <option value="scoring">Unified Scoring</option>
+                <option value="sampling">Legacy Sampling</option>
+              </select>
+            </div>
+          </div>
+        </>
+      )}
+
     </CollapsibleSettingGroup>
+  );
+};
+
+const settingsButtonStyles = defineStyles('SettingsButtonGroup', (theme: ThemeType) => ({
+  buttonRow: {
+    display: 'flex',
+    justifyContent: 'flex-end',
+    gap: 12,
+    alignItems: 'center',
+    marginTop: 12,
+  },
+  unsavedChangesIndicator: {
+    fontFamily: theme.palette.fonts.sansSerifStack,
+    color: theme.palette.warning.main,
+    fontSize: 16,
+    fontStyle: 'italic',
+  },
+  buttonGroup: {
+    display: 'flex',
+    gap: 8,
+  },
+  button: {
+    padding: '8px 16px',
+    fontSize: '1.1rem',
+    fontFamily: theme.palette.fonts.sansSerifStack,
+    borderRadius: 4,
+    cursor: 'pointer',
+    border: 'none',
+    fontWeight: 500,
+  },
+  cancelButton: {
+    backgroundColor: theme.palette.grey[300],
+    color: theme.palette.text.primary,
+    '&:hover': {
+      backgroundColor: theme.palette.grey[400],
+    },
+  },
+  saveButton: {
+    backgroundColor: theme.palette.primary.main,
+    color: theme.palette.background.paper,
+    '&:hover': {
+      backgroundColor: theme.palette.primary.dark,
+    },
+  },
+  buttonDisabled: {
+    opacity: 0.5,
+    cursor: 'not-allowed',
+  },
+}));
+
+interface SettingsButtonGroupProps {
+  onSave: () => void;
+  onCancel?: () => void;
+  hasUnsavedChanges: boolean;
+  hasErrors: boolean;
+  saveLabel?: string;
+  cancelLabel?: string;
+}
+
+export const SettingsButtonGroup: React.FC<SettingsButtonGroupProps> = ({
+  onSave,
+  onCancel,
+  hasUnsavedChanges,
+  hasErrors,
+  saveLabel = 'Save',
+  cancelLabel = 'Cancel',
+}) => {
+  const classes = useStyles(settingsButtonStyles);
+  
+  return (
+    <div className={classes.buttonRow}>
+      <div className={classes.unsavedChangesIndicator}>
+        {hasUnsavedChanges && 'you have unsaved changes'}
+      </div>
+      <div className={classes.buttonGroup}>
+        {onCancel && (
+          <button
+            className={classNames(classes.button, classes.cancelButton)}
+            onClick={onCancel}
+          >
+            {cancelLabel}
+          </button>
+        )}
+        <button
+          className={classNames(classes.button, classes.saveButton, {
+            [classes.buttonDisabled]: hasErrors
+          })}
+          onClick={onSave}
+          disabled={hasErrors}
+        >
+          {saveLabel}
+        </button>
+      </div>
+    </div>
   );
 };

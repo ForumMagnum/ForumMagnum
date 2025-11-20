@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useCallback } from 'react';
 import { UltraFeedContextProvider } from './UltraFeedContextProvider';
 import { MixedTypeFeed } from '../common/MixedTypeFeed';
 import { UltraFeedQuery } from '../common/feeds/feedQueries';
@@ -6,6 +6,18 @@ import { createUltraFeedRenderers } from './renderers/createUltraFeedRenderers';
 import type { UltraFeedSettingsType } from './ultraFeedSettingsTypes';
 import type { ObservableQuery, WatchQueryFetchPolicy } from '@apollo/client';
 import { randomId } from '../../lib/random';
+import { defineStyles, useStyles } from '../hooks/useStyles';
+
+const styles = defineStyles("UltraFeedMainFeed", (theme: ThemeType) => ({
+  emptyStateMessage: {
+    fontFamily: theme.palette.fonts.serifStack,
+    ...theme.typography.commentStyle,
+    color: theme.palette.error.main,
+    fontSize: 18,
+    textAlign: 'center',
+    padding: 20,
+  },
+}));
 
 type UltraFeedMainFeedProps = {
   settings: UltraFeedSettingsType;
@@ -26,8 +38,18 @@ const UltraFeedMainFeed = ({
   fetchPolicy = 'cache-first',
   loadMoreDistanceProp,
 }: UltraFeedMainFeedProps) => {
+  const classes = useStyles(styles);
   const [internalSessionId] = useState<string>(() => randomId());
   const actualSessionId = sessionId ?? internalSessionId;
+  const [hasResults, setHasResults] = useState(true);
+  const [isLoading, setIsLoading] = useState(true);
+
+  const handleLoadingStateChange = useCallback((results: Array<{type: string, [key: string]: unknown}>, loading: boolean) => {
+    setHasResults(results.length > 0);
+    setIsLoading(loading);
+  }, []);
+
+  const showEmptyState = !isLoading && !hasResults;
 
   return (
     <UltraFeedContextProvider feedType="ultraFeed">
@@ -43,7 +65,9 @@ const UltraFeedMainFeed = ({
         loadMoreDistanceProp={loadMoreDistanceProp}
         fetchPolicy={fetchPolicy}
         renderers={createUltraFeedRenderers({ settings })}
+        onLoadingStateChange={handleLoadingStateChange}
       />
+      {showEmptyState && <div className={classes.emptyStateMessage}>Oh no! Something has gone wrong. There are no results to display.</div>}
     </UltraFeedContextProvider>
   );
 };

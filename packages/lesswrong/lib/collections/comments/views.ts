@@ -540,10 +540,11 @@ function shortformFrontpage(terms: CommentsViewTerms, _: ApolloClient, context?:
   const twoHoursAgo = moment().subtract(2, 'hours').toDate();
   const maxAgeDays = terms.maxAgeDays ?? 5;
   const currentUserId = context?.currentUser?._id;
+  const hidePersonalShortforms = !context?.currentUser || context.currentUser.frontpageFilterSettings?.personalBlog === "Hidden";
   return {
     selector: {
       shortform: true,
-      shortformFrontpage: true,
+      ...(hidePersonalShortforms ? { shortformFrontpage: true } : {}),
       deleted: false,
       rejected: {$ne: true},
       parentCommentId: viewFieldNullOrMissing,

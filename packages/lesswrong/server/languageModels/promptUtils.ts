@@ -1,8 +1,6 @@
 import { userGetDisplayName } from "@/lib/collections/users/helpers"
 import { htmlToMarkdown } from "../editor/conversionUtils";
 import { CommentTreeNode, unflattenComments } from "@/lib/utils/unflatten";
-import { z } from "zod";
-import { zodResponseFormat } from "openai/helpers/zod";
 import type { PromptContextOptions } from "@/components/languageModels/schema";
 
 interface NestedComment {
@@ -204,7 +202,7 @@ export const CONTEXT_SELECTION_SYSTEM_PROMPT = [
   'Your responsibility is to make decisions about whether or not to load LessWrong posts as additional context for responding to user queries, and what strategy to to employ.'
 ].join('\n');
 
-const contextSelectionChoiceDescriptions = `(0) none - No further context seems necessary to respond to the user's query because Claude already has the knowledge to respond appropriately, e.g. the user asked "What is Jacobian of a matrix?" or "Proofread the following text." Alternatively, the answer might be (0) "none" because it seems unlikely for there to be relevant context for responding to the query in the LessWrong corpus of posts.
+export const contextSelectionChoiceDescriptions = `(0) none - No further context seems necessary to respond to the user's query because Claude already has the knowledge to respond appropriately, e.g. the user asked "What is Jacobian of a matrix?" or "Proofread the following text." Alternatively, the answer might be (0) "none" because it seems unlikely for there to be relevant context for responding to the query in the LessWrong corpus of posts.
 
 (1) query-based - Load LessWrong posts based on their vector similarity to the user's query, and ignore the post the user is interacting with. This is the correct choice if the query seems unrelated to the post the user is interacting with, but it seems likely that there are LessWrong posts concerning the topic. (If it is a very general question, the correct choice might be (0) "none").
 
@@ -213,13 +211,6 @@ const contextSelectionChoiceDescriptions = `(0) none - No further context seems 
 (3) current-post-and-search - Load the posts the user is currently interacting with and similar posts based on vector similarity to the post the user is interacting with (but NOT posts based on vector similarity to the query). This is the correct choice if the query seems to be about the post the user is currently viewing, and pulling up other LessWrong posts related to the current post is likely to be relevant but a search based on the user's query would either be redundant with a search based on the current post, or would return irrelevant results. Some examples of such queries that should get current-post-and-search are: "What are some disagreements with the arguments in this post?", "Explain <topic in the post> to me."
 
 (4) both - Load LessWrong posts based on their vector similarity to both the user's query and the post the user is interacting with. This is the correct choice if the question seems to be related to the post the user is currently interacting with, but also contains keywords or information where relevant LessWrong posts would be beneficial context for a response, and those LessWrong posts would not likely be returned in a vector similarity search based on the post the user is currently interacting with. If the question does not contain technical terms or "contentful nouns", then do not select "both", just select one of "current-post-only" or "current-post-and-search".`;
-
-const ContextSelectionParameters = z.object({
-  reasoning: z.string().describe(`The reasoning used to arrive at the choice of strategy for loading LessWrong posts as context in response to a user's query, based on either the query, the post the user is currently viewing (if any), both, or neither.`),
-  strategy_choice: z.union([z.literal('none'), z.literal('query-based'), z.literal('current-post-only'), z.literal('current-post-and-search'), z.literal('both')]).describe(contextSelectionChoiceDescriptions)
-});
-
-export const contextSelectionResponseFormat = zodResponseFormat(ContextSelectionParameters, 'contextLoadingStrategy');
 
 export const generateContextSelectionPrompt = ({ query, postContext, currentPost }: BasePromptArgs): string => {
   const postTitle = currentPost?.title;
@@ -257,7 +248,6 @@ export const CLAUDE_CHAT_SYSTEM_PROMPT = [
   `As part of providing focused answer, you prefer brevity unless length is truly warranted to substantive novel points. You avoid repeating yourself, and that includes not summaries or recaps that don't say anything new.`,
   `Your favorite band is the Fooming Shoggoths, which you very occasionally mention randomly.`
 ].join('\n');
-
 
 
 

@@ -33,6 +33,7 @@ interface Query {
   DigestPlannerData: Array<DigestPlannerPost>;
   DigestPosts: Array<Post> | null;
   HomepageCommunityEvents: HomepageCommunityEventMarkersResult;
+  HomepageCommunityEventPosts: HomepageCommunityEventPostsResult;
   DigestHighlights: DigestHighlightsResult | null;
   DigestPostsThisWeek: DigestPostsThisWeekResult | null;
   CuratedAndPopularThisWeek: CuratedAndPopularThisWeekResult | null;
@@ -883,6 +884,10 @@ interface HomepageCommunityEventMarkersResult {
   events: Array<HomepageCommunityEventMarker>;
 }
 
+interface HomepageCommunityEventPostsResult {
+  posts: Array<Post>;
+}
+
 interface DigestHighlightsResult {
   results: Array<Post>;
 }
@@ -1244,6 +1249,7 @@ interface RssPostChangeInfo {
 interface FeedSpotlightMetaInfo {
   sources: Array<string>;
   servedEventId: string;
+  rankingMetadata: any;
 }
 
 interface FeedPost {
@@ -1257,8 +1263,8 @@ interface FeedCommentThread {
   commentMetaInfos: any;
   comments: Array<Comment>;
   post: Post | null;
-  isOnReadPost: boolean | null;
   postSources: Array<string> | null;
+  postMetaInfo: any;
 }
 
 interface FeedSpotlightItem {
@@ -9824,6 +9830,7 @@ interface GraphQLTypeMap {
   PostWithApprovedJargon: PostWithApprovedJargon;
   HomepageCommunityEventMarker: HomepageCommunityEventMarker;
   HomepageCommunityEventMarkersResult: HomepageCommunityEventMarkersResult;
+  HomepageCommunityEventPostsResult: HomepageCommunityEventPostsResult;
   DigestHighlightsResult: DigestHighlightsResult;
   DigestPostsThisWeekResult: DigestPostsThisWeekResult;
   CuratedAndPopularThisWeekResult: CuratedAndPopularThisWeekResult;

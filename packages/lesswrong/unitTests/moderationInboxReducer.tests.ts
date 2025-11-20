@@ -6,6 +6,7 @@ import {
   UNREVIEWED_BIO_UPDATE,
   STRICTER_COMMENT_AUTOMOD_RATE_LIMIT,
   MANUAL_NEEDS_REVIEW,
+  SNOOZE_EXPIRED,
 } from '../lib/collections/moderatorActions/constants';
 
 const moderatorActionTypes: Record<ReviewGroup, ModeratorActionType> = {
@@ -13,6 +14,7 @@ const moderatorActionTypes: Record<ReviewGroup, ModeratorActionType> = {
   highContext: MANUAL_FLAG_ALERT,
   maybeSpam: UNREVIEWED_BIO_UPDATE,
   automod: STRICTER_COMMENT_AUTOMOD_RATE_LIMIT,
+  snoozeExpired: SNOOZE_EXPIRED,
   unknown: MANUAL_NEEDS_REVIEW,
 };
 
