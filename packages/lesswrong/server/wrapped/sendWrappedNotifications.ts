@@ -39,7 +39,7 @@ export const sendWrappedNotifications = async (year: WrappedYear) => {
 
   // eslint-disable-next-line no-console
   console.log(`Sending onsite Wrapped ${year} notifications to ${users.length} users`);
-  void createNotifications({
+  await createNotifications({
     userIds: users.map(u => u._id),
     notificationType: 'wrapped',
     documentId: null,
@@ -63,7 +63,7 @@ export const sendWrappedNotifications = async (year: WrappedYear) => {
 
   // eslint-disable-next-line no-console
   console.log(`Sending email Wrapped ${year} notifications to ${emailUsers.length} users`);
-  void createNotifications({
+  await createNotifications({
     userIds: emailUsers.map(u => u._id),
     notificationType: 'wrapped',
     documentId: null,

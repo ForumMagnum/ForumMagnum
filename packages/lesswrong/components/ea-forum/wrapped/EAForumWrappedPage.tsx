@@ -51,7 +51,7 @@ const EAForumWrappedPage = ({classes}: {classes: ClassesType<typeof styles>}) =>
   const currentUser = useCurrentUser();
 
   const rawYear = parseInt(params.year);
-  const year = isWrappedYear(rawYear) ? rawYear : 2024;
+  const year = isWrappedYear(rawYear) ? rawYear : 2025;
 
   const {data} = useForumWrapped({
     userId: currentUser?._id,
