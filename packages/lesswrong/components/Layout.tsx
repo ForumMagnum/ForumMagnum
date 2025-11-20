@@ -156,9 +156,6 @@ const styles = defineStyles("Layout", (theme: ThemeType) => ({
         minmax(0, min-content)
       `,
     },
-    [theme.breakpoints.down('sm')]: {
-      display: 'block'
-    }
   },
   unspacedGridActivated: {
     '@supports (grid-template-areas: "title")': {
@@ -176,6 +173,13 @@ const styles = defineStyles("Layout", (theme: ThemeType) => ({
       width: '100%',
       paddingTop: 0,
     },
+  },
+  gridBreakpointMd: {
+    [theme.breakpoints.down('md')]: {
+      display: 'block'
+    }
+  },
+  gridBreakpointSm: {
     [theme.breakpoints.down('sm')]: {
       display: 'block'
     }
@@ -488,6 +492,8 @@ const Layout = ({children}: {
               <div className={classNames({
                 [classes.spacedGridActivated]: shouldUseGridLayout && !unspacedGridLayout,
                 [classes.unspacedGridActivated]: shouldUseGridLayout && unspacedGridLayout,
+                [classes.gridBreakpointMd]: !useIconOnlyNavigation && shouldUseGridLayout,
+                [classes.gridBreakpointSm]: useIconOnlyNavigation && shouldUseGridLayout,
                 [classes.eaHomeLayout]: friendlyHomeLayout && !renderSunshineSidebar,
                 [classes.fullscreenBodyWrapper]: isFullscreenRoute(pathname),
               }
