@@ -9,63 +9,58 @@ export const UserSchema = z.object({
   last_connected_at: z.optional(z.string())
 });
 
-const DocumentUserSchema = z.object({
-  id: z.string(),
-});
-
 const CommentSchema = z.object({
   id: z.string(),
-  document_id: z.string(),
+  document_id: z.optional(z.string()),
   thread_id: z.string(),
   content: z.string(),
-  user: DocumentUserSchema,
+  attributes: z.record(z.any()).nullable(),
+  user: z.any(),
+  type: z.union([z.literal(1), z.literal(2)]),
   created_at: z.string(),
   updated_at: z.string(),
-  deleted_at: z.optional(z.string()),
-  attributes: z.record(z.any()),
-  type: z.union([z.literal(1), z.literal(2)]),
+  deleted_at: z.string().nullable(),
 });
 
 const SuggestionSchema = z.object({
   id: z.string(),
   type: z.string(),
-  data: z.optional(z.record(z.any())),
+  data: z.record(z.any()).nullable(),
   author_id: z.string(),
-  attributes: z.record(z.any()),
-  document_id: z.string(),
-  deleted_at: z.optional(z.string()),
+  attributes: z.record(z.any()).nullable(),
+  document_id: z.optional(z.string()),
+  deleted_at: z.string().nullable(),
   created_at: z.string(),
-  updated_at: z.optional(z.string()),
+  updated_at: z.string(),
   state: z.union([z.literal('open'), z.literal('accepted'), z.literal('rejected')]),
   has_comments: z.boolean(),
 });
 
 const ThreadSchema = z.object({
   id: z.string(),
-  document_id: z.string(),
+  document_id: z.optional(z.string()),
   author_id: z.string(),
-  deleted_at: z.string(),
   created_at: z.string(),
-  updated_at: z.string(),
-  resolved_at: z.string(),
-  unlinked_at: z.string(),
-  resolved_by: z.string(),
-  attributes: z.record(z.any()),
-  context: z.object({
+  updated_at: z.optional(z.string()),
+  deleted_at: z.optional(z.string()),
+  resolved_at: z.optional(z.string()),
+  resolved_by: z.optional(z.string()),
+  context: z.optional(z.object({
     key: z.string(),
-  }),
+  })),
+  attributes: z.optional(z.record(z.any())),
+  unlinked_at: z.optional(z.string()),
 });
 
 const RevisionSchema = z.object({
   revision_id: z.string(),
-  request_id: z.number(),
+  request_id: z.optional(z.string()),
   name: z.string(),
   created_at: z.string(),
   creator_id: z.string(),
   from_version: z.number(),
   to_version: z.number(),
   authors_ids: z.array(z.string()),
-  document_id: z.string(),
   diff_data: z.string(),
 });
 
@@ -74,12 +69,8 @@ export const DocumentResponseSchema = z.object({
   content: z.object({
     bundle_version: z.string(),
     data: z.string(),
-    attributes: z.optional(z.object({
-      main: z.optional(z.object({
-        order: z.number(),
-      })),
-    })),
-    version: z.optional(z.number())
+    version: z.optional(z.number()),
+    attributes: z.optional(z.any())
   }),
   comments: z.array(CommentSchema),
   suggestions: z.array(SuggestionSchema),

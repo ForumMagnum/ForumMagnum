@@ -1,6 +1,6 @@
 import React, { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { registerComponent } from "../../lib/vulcan-lib/components";
-import { getHeaderHeight } from "../common/Header";
+import { getHeaderHeight } from "@/components/layout/Header";
 import { useCurrentUser } from "../common/withUser";
 import { styles as popoverStyles } from "../common/FriendlyHoverOver";
 import { useNotificationDisplays } from "./NotificationsPage/useNotificationDisplays";
