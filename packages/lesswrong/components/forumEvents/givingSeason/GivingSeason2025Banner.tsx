@@ -214,6 +214,29 @@ const styles = defineStyles("GivingSeason2025Banner", (theme: ThemeType) => ({
     color: "var(--event-color)",
     border: "1px solid var(--event-color)",
   },
+  mobileLeaderboard: {
+    marginTop: 16,
+    display: "none",
+    [theme.breakpoints.down("sm")]: {
+      display: "block",
+      padding: 0,
+      color: "var(--event-color)",
+    },
+  },
+  eventHiddenOnMobile: {
+    [theme.breakpoints.down("sm")]: {
+      display: "none",
+    },
+  },
+  mobileButtonRow: {
+    display: "grid",
+    gridTemplateColumns: "1fr 1fr",
+    gap: "12px",
+    marginTop: 16,
+    [theme.breakpoints.up("md")]: {
+      display: "none",
+    },
+  },
   electionExpanded: {
     padding: "24px 50px !important",
     "& .GivingSeason2025Banner-electionStatus": {
@@ -388,6 +411,9 @@ export const GivingSeason2025Banner: FC = () => {
   const isVotingEnded = now > DONATION_ELECTION_END;
   const isVotingOpen = DONATION_ELECTION_START < now && !isVotingEnded;
 
+  const isMobileLeaderboardAllowed = currentEvent.name === "Donation election";
+  const isMobileLeaderboardDisplayed = isMobileLeaderboardAllowed && isLeaderboardDisplayed;
+
   return (
     <AnalyticsContext pageSectionContext="GivingSeason2025Banner">
       <div
@@ -427,7 +453,10 @@ export const GivingSeason2025Banner: FC = () => {
         </div>
         <div className={classes.main}>
           <div className={classes.events}>
-            {givingSeasonEvents.map((event) => (
+            {givingSeasonEvents.map((event) => {
+              const shouldHideOnMobile = isMobileLeaderboardAllowed && event.end > currentEvent.end;
+
+              return (
               <div
                 key={event.name}
                 role="button"
@@ -435,6 +464,7 @@ export const GivingSeason2025Banner: FC = () => {
                 className={classNames(
                   classes.event,
                   event !== selectedEvent && classes.eventNotSelected,
+                  shouldHideOnMobile && classes.eventHiddenOnMobile,
                 )}
               >
                 <div className={classes.eventDate}>
@@ -455,7 +485,41 @@ export const GivingSeason2025Banner: FC = () => {
                   </>
                 )}
               </div>
-            ))}
+              );
+            })}
+          </div>
+          {isMobileLeaderboardDisplayed && (
+            <div className={classes.mobileLeaderboard}>
+              <DonationElectionLeaderboard
+                voteCounts={leaderboard}
+                hideHeader
+              />
+            </div>
+          )}
+          <div className={classes.mobileButtonRow}>
+            {!isVotingOpen && <Link
+              to={ELECTION_LEARN_MORE_HREF}
+              onClick={onLinkClick.bind(null, "learnMore", ELECTION_LEARN_MORE_HREF)}
+              className={classNames(classes.feedButton, classes.feedButtonSecondary)}
+            >
+              Learn more
+            </Link>}
+            {!isVotingEnded && <a
+              href={ELECTION_DONATE_HREF}
+              onClick={onLinkClick.bind(null, "donate", ELECTION_DONATE_HREF)}
+              className={classNames(classes.feedButton, classes.feedButtonPrimary)}
+              target="_blank"
+              rel="noopener noreferrer"
+            >
+              Donate
+            </a>}
+            {isVotingOpen && <Link
+              to={ELECTION_VOTE_HREF}
+              onClick={onLinkClick.bind(null, "vote", ELECTION_VOTE_HREF)}
+              className={classNames(classes.feedButton, classes.feedButtonSecondary)}
+            >
+              Vote in the election
+            </Link>}
           </div>
           <div className={classes.feed}>
             <div className={classes.feedPostsList}>
@@ -581,7 +645,7 @@ export const GivingSeason2025Banner: FC = () => {
           <div className={classes.electionButtons}>
             {!isVotingOpen && <Link
               to={ELECTION_LEARN_MORE_HREF}
-              onClick={onLinkClick.bind(null, "learnMore", ELECTION_INFO_HREF)}
+              onClick={onLinkClick.bind(null, "learnMore", ELECTION_LEARN_MORE_HREF)}
               className={classes.buttonOutlined}
             >
               Learn more

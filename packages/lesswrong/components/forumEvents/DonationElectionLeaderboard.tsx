@@ -90,6 +90,9 @@ const styles = (theme: ThemeType) => ({
     fontWeight: 500,
     display: "flex",
     alignItems: "center",
+    [theme.breakpoints.down("xs")]: {
+      display: "none"
+    },
   },
   infoCircle: {
     width: 20,
