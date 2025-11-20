@@ -31,7 +31,7 @@ describe('instantRunoffResults', () => {
     // Round 2: {'B': 2} (the vote for 'C' didn't rank 'B', so 'B' gains no votes here)
 
     const winners = 1;
-    const result = instantRunoffResults({ votes, winners });
+    const result = instantRunoffResults({ votes, winners, seed: "givingSeason24" });
     expect(result).toEqual({ 'B': 2 });
   });
 

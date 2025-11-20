@@ -38,7 +38,7 @@ function tallyVotes({votes, eliminatedCandidates}: {votes: IRVote[], eliminatedC
   return candidateScores;
 }
 
-export function instantRunoffResults({ votes, winners }: { votes: IRVote[]; winners: number; }): Record<string, number> {
+export function instantRunoffResults({ votes, winners, seed = ACTIVE_DONATION_ELECTION }: { votes: IRVote[]; winners: number; seed?: string; }): Record<string, number> {
   const eliminatedCandidates: Set<string> = new Set();
 
   let voteCount = tallyVotes({votes, eliminatedCandidates});
@@ -52,7 +52,7 @@ export function instantRunoffResults({ votes, winners }: { votes: IRVote[]; winn
 
     const candidateToEliminate =
       candidatesWithMinScore.length > 1
-        ? weightedRandomPick(Object.fromEntries(candidatesWithMinScore.map((c) => [c, 1])), ACTIVE_DONATION_ELECTION)
+        ? weightedRandomPick(Object.fromEntries(candidatesWithMinScore.map((c) => [c, 1])), seed)
         : candidatesWithMinScore[0];
 
     eliminatedCandidates.add(candidateToEliminate);
