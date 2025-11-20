@@ -42,7 +42,7 @@ const styles = (theme: ThemeType) => ({
       width: ICON_ONLY_NAVIGATION_WIDTH,
     },
   },
-  responsiveSidebarWrapper: {
+  iconOnlySidebarWrapper: {
     [`@media (max-width: ${ICON_ONLY_NAVIGATION_BREAKPOINT}px)`]: {
       minWidth: ICON_ONLY_NAVIGATION_WIDTH,
     },
@@ -84,7 +84,7 @@ const NavigationStandalone = ({
 
   return <div className={classNames({
     [classes.sidebarWrapper]: friendlyUI,
-    [classes.responsiveSidebarWrapper]: friendlyUI && iconOnlyNavigationEnabled,
+    [classes.iconOnlySidebarWrapper]: friendlyUI && iconOnlyNavigationEnabled,
   })}>
     <Slide slidIn={!sidebarHidden}>
       <div className={classNames(classes.sidebar, {
