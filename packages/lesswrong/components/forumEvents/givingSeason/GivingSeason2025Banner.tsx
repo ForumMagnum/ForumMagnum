@@ -183,6 +183,7 @@ const styles = defineStyles("GivingSeason2025Banner", (theme: ThemeType) => ({
     maxWidth: 560,
   },
   feedButtonRow: {
+    marginTop: 6,
     display: "flex",
     gap: "12px",
   },
@@ -532,26 +533,25 @@ export const GivingSeason2025Banner: FC = () => {
                   Vote in the election
                   <ForumIcon icon="ArrowRight" />
                 </Link>}
-                {DONATION_ELECTION_WINNERS_HREF ? <Link
-                  to={DONATION_ELECTION_WINNERS_HREF}
-                  onClick={onLinkClick.bind(null, "meetTheWinners", DONATION_ELECTION_WINNERS_HREF)}
-                  className={classNames(classes.feedButton, classes.feedButtonPrimary)}
-                >
-                  Read about the winners
-                </Link> :
-                <Link
+                {DONATION_ELECTION_CANDIDATES_HREF && !DONATION_ELECTION_WINNERS_HREF && <Link
                   to={DONATION_ELECTION_CANDIDATES_HREF}
                   onClick={onLinkClick.bind(null, "meetTheCandidates", DONATION_ELECTION_CANDIDATES_HREF)}
                   className={classNames(classes.feedButton, classes.feedButtonSecondary)}
                 >
                   Read about the candidates
-                </Link>
-                }
+                </Link>}
+                {DONATION_ELECTION_WINNERS_HREF && <Link
+                  to={DONATION_ELECTION_WINNERS_HREF}
+                  onClick={onLinkClick.bind(null, "meetTheWinners", DONATION_ELECTION_WINNERS_HREF)}
+                  className={classNames(classes.feedButton, classes.feedButtonPrimary)}
+                >
+                  Read about the winners
+                </Link>}
               </div>
             )}
           </div>
         </div>
-        <div className={classNames(classes.election, isVotingOpen && classes.electionExpanded)}>
+        <div className={classNames(classes.election, currentEvent.name === "Donation election" && classes.electionExpanded)}>
           <div className={classes.electionStatus}>
             <div className={classNames(
               classes.amountRaised,

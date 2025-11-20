@@ -605,7 +605,7 @@ const WelcomeScreen = ({onNext, currentUser, classes}: {
             {allowed ? "Vote in the Election ->" : reason}
           </EAButton>
           <EAButton
-            href={DONATION_ELECTION_CANDIDATES_HREF}
+            href={DONATION_ELECTION_CANDIDATES_HREF ?? '#'}
             className={classNames(classes.welcomeButton, classes.welcomeButtonSecondary)}
           >
             Meet the candidates

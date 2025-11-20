@@ -176,14 +176,13 @@ export const DonationElectionLeaderboard = ({
 
   const maxVotes = sortedCharityIds[0][1];
 
-  // TODO: Decide exact closing time later
-  const electionIsOver = now > DONATION_ELECTION_END;
+  const isVotingEnded = now > DONATION_ELECTION_END;
 
   return (
     <div className={classNames(classes.root, className)}>
       {!hideHeader &&
         <div className={classes.header}>
-          {electionIsOver ? "Winners" : "Leaderboard"}
+          {isVotingEnded ? "Winners" : "Leaderboard"}
         </div>
       }
       {sortedCharities.map(({ count, candidate }, index) => (
@@ -209,7 +208,7 @@ export const DonationElectionLeaderboard = ({
           </div>
         </div>
       ))}
-      {!electionIsOver && voteCounts[winnerCount + 1] && (
+      {!isVotingEnded && voteCounts[winnerCount + 1] && (
         <div className={classes.showMoreRow}>
           <div className={classes.showMoreButton} onClick={handleShowMore}>
             + Show one more
