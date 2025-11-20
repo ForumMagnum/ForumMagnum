@@ -158,7 +158,7 @@ const styles = defineStyles("SolsticeSeasonBanner", (theme: ThemeType) => ({
       margin: 0,
     },
   },
-  hideOnSmallScreens: {
+  hideOnSmallishScreens: {
     [theme.breakpoints.down(smallBreakpoint)]: {
       display: 'none',
     },
@@ -438,7 +438,7 @@ export default function SolsticeSeasonBannerInner() {
       )}
       <div className={classNames(classes.textContainer)}>
         <h1 className={classNames(classes.title)}>Solstice Season</h1>
-          <p className={classNames(classes.subtitle, classes.hideOnSmallScreens)}>
+          <p className={classNames(classes.subtitle, classes.hideOnSmallishScreens)}>
             Celebrate the longest night of the year!
           </p>
           <p className={classNames(classes.subtitle)}>
