@@ -1,5 +1,5 @@
 import { registerComponent } from '../../../lib/vulcan-lib/components';
-import React, { useCallback, useContext } from 'react';
+import React, { useCallback } from 'react';
 import classNames from 'classnames';
 import { useLocation } from '../../../lib/routeUtil';
 import { MenuTabRegular } from './menuTabs';
@@ -11,7 +11,6 @@ import TabNavigationSubItem from "./TabNavigationSubItem";
 import LWTooltip from "../LWTooltip";
 import { MenuItemLink } from "../Menus";
 import { defineStyles, useStyles } from '@/components/hooks/useStyles';
-import { IconOnlyNavigationContext } from './iconOnlyNavigationContext';
 
 export const iconWidth = 30
 
@@ -165,6 +164,7 @@ export type TabNavigationItemProps = {
   tab: MenuTabRegular,
   onClick?: (event: React.MouseEvent<HTMLAnchorElement>) => void,
   className?: string,
+  iconOnlyNavigationEnabled?: boolean,
 }
 
 const parseCookie = (
@@ -223,12 +223,12 @@ const useFlag = (tab: MenuTabRegular): {
   return {flag};
 }
 
-const TabNavigationItem = ({tab, onClick, className}: TabNavigationItemProps) => {
+const TabNavigationItem = ({tab, onClick, className, iconOnlyNavigationEnabled}: TabNavigationItemProps) => {
   const classes = useStyles(styles);
   const {pathname} = useLocation();
   const currentUser = useCurrentUser();
   const {flag, onClickFlag} = useFlag(tab);
-  const iconOnlyMode = useContext(IconOnlyNavigationContext);
+  const iconOnlyMode = !!iconOnlyNavigationEnabled;
   const navTitle = iconOnlyMode ? (tab.mobileTitle ?? tab.title) : tab.title;
   const tooltipTitle = tab.tooltip || navTitle;
 

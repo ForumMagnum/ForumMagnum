@@ -1,5 +1,5 @@
 import { registerComponent } from '../../../lib/vulcan-lib/components';
-import React, { useContext } from 'react';
+import React from 'react';
 import { useCurrentUserId } from '../withUser';
 import TabNavigationItem, { iconWidth } from './TabNavigationItem'
 
@@ -10,7 +10,6 @@ import { forumSelect } from '../../../lib/forumTypeUtils';
 import classNames from 'classnames';
 import EventsList from './EventsList';
 import { SubscribeWidget } from '../SubscribeWidget';
-import { IconOnlyNavigationContext } from './iconOnlyNavigationContext';
 
 export const TAB_NAVIGATION_MENU_WIDTH = 250
 export const TAB_NAVIGATION_MENU_ICON_ONLY_WIDTH = 64
@@ -72,6 +71,7 @@ type TabNavigationMenuProps = {
   onClickSection?: (e?: React.BaseSyntheticEvent) => void,
   transparentBackground?: boolean,
   noTopMargin?: boolean,
+  iconOnlyNavigationEnabled?: boolean,
   classes: ClassesType<typeof styles>,
 }
 
@@ -79,11 +79,12 @@ const TabNavigationMenu = ({
   onClickSection,
   transparentBackground,
   noTopMargin,
+  iconOnlyNavigationEnabled,
   classes,
 }: TabNavigationMenuProps) => {
   const currentUserId = useCurrentUserId();
   const { captureEvent } = useTracking()
-  const iconOnly = useContext(IconOnlyNavigationContext);
+  const iconOnly = !!iconOnlyNavigationEnabled;
   const handleClick = (e: React.BaseSyntheticEvent, tabId: string) => {
     captureEvent(`${tabId}NavClicked`)
     onClickSection && onClickSection(e)
@@ -130,6 +131,7 @@ const TabNavigationMenu = ({
               key={tab.id}
               tab={tab}
               onClick={(e) => handleClick(e, tab.id)}
+              iconOnlyNavigationEnabled={iconOnly}
             />
           })}
           {/* NB: This returns null if you don't have any active resources */}
