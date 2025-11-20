@@ -68,13 +68,11 @@ const styles = (theme: ThemeType) => ({
 
 const NavigationStandalone = ({
   sidebarHidden,
-  unspacedGridLayout,
   noTopMargin,
   iconOnlyNavigationEnabled,
   classes,
 }: {
   sidebarHidden: boolean,
-  unspacedGridLayout?: boolean,
   noTopMargin?: boolean,
   iconOnlyNavigationEnabled?: boolean,
   classes: ClassesType<typeof styles>,
@@ -91,20 +89,17 @@ const NavigationStandalone = ({
     <Slide slidIn={!sidebarHidden}>
       <div className={classNames(classes.sidebar, {
         [classes.background]: background,
-        [classes.navSidebarTransparent]: unspacedGridLayout,
         [classes.responsiveSidebar]: iconOnlyNavigationEnabled,
       })}>
         <div className={classes.fullNavigation}>
           <TabNavigationMenu
             iconOnlyNavigationEnabled={false}
-            transparentBackground={unspacedGridLayout}
             noTopMargin={noTopMargin}
           />
         </div>
         {iconOnlyNavigationEnabled && <div className={classes.iconOnlyNavigation}>
           <TabNavigationMenu
             iconOnlyNavigationEnabled={iconOnlyNavigationEnabled}
-            transparentBackground={unspacedGridLayout}
             noTopMargin={noTopMargin}
           />
         </div>}

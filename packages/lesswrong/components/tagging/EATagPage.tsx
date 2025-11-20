@@ -18,7 +18,7 @@ import { useTagBySlug } from './useTag';
 import { taggingNameCapitalSetting, taggingNamePluralCapitalSetting, taggingNamePluralSetting, quickTakesTagsEnabledSetting } from '@/lib/instanceSettings';
 import truncateTagDescription from "../../lib/utils/truncateTagDescription";
 import { getTagStructuredData } from "./TagPageRouter";
-import { getHeaderHeight } from "../common/Header";
+import { getHeaderHeight } from "@/components/layout/Header";
 import { isFriendlyUI } from "../../themes/forumTheme";
 import DeferRender from "../common/DeferRender";
 import { RelevanceLabel, tagPageHeaderStyles, tagPostTerms } from "./TagPageUtils";

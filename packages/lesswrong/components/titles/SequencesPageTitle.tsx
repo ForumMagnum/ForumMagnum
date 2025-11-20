@@ -5,7 +5,7 @@ import { Link } from '../../lib/reactRouterWrapper';
 import { useLocation } from '../../lib/routeUtil';
 import { getCollectionOrSequenceUrl } from '../../lib/collections/sequences/helpers';
 import { headerSubtitleStyles } from '../common/HeaderSubtitle';
-import { Helmet } from '../common/Helmet';
+import { Helmet } from '@/components/layout/Helmet';
 import { useQuery } from "@/lib/crud/useQuery";
 import { gql } from "@/lib/generated/gql-codegen";
 import { useStyles } from '../hooks/useStyles';

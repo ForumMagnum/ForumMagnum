@@ -38,6 +38,7 @@ function loadTsConfig(configPath: string) {
 
 /** @type {NextConfig} */
 const nextConfig: NextConfig = {
+  cacheComponents: true,
   reactStrictMode: false,
 
   compiler: {

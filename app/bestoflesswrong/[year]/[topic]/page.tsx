@@ -4,7 +4,7 @@ import { getDefaultMetadata, getMetadataDescriptionFields, getMetadataImagesFiel
 import type { Metadata } from "next";
 import merge from "lodash/merge";
 import { siteNameWithArticleSetting } from "@/lib/instanceSettings";
-import RouteRoot from "@/components/next/RouteRoot";
+import RouteRoot from "@/components/layout/RouteRoot";
 
 export async function generateMetadata(): Promise<Metadata> {
   return merge(
@@ -20,7 +20,6 @@ export default function Page() {
   return <RouteRoot metadata={{
     subtitle: 'The Best of LessWrong',
     subtitleLink: '/leastwrong',
-    background: '#f8f4ee'
   }}>
     <TopPostsPage />
   </RouteRoot>;

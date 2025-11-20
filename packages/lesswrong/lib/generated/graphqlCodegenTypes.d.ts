@@ -26974,7 +26974,7 @@ type CommentPermalinkMetadataQuery = CommentPermalinkMetadataQuery_Query;
 
 type TagMetadataQuery_tags_MultiTagOutput_results_Tag_description_Revision = { __typename?: 'Revision', _id: string, plaintextDescription: string };
 
-type TagMetadataQuery_tags_MultiTagOutput_results_Tag = { __typename?: 'Tag', _id: string, name: string, noindex: boolean, description: TagMetadataQuery_tags_MultiTagOutput_results_Tag_description_Revision | null };
+type TagMetadataQuery_tags_MultiTagOutput_results_Tag = { __typename?: 'Tag', _id: string, name: string, slug: string, noindex: boolean, description: TagMetadataQuery_tags_MultiTagOutput_results_Tag_description_Revision | null };
 
 type TagMetadataQuery_tags_MultiTagOutput = { __typename?: 'MultiTagOutput', results: Array<TagMetadataQuery_tags_MultiTagOutput_results_Tag> };
 

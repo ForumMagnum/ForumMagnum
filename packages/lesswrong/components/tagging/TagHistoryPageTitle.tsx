@@ -8,7 +8,7 @@ import { headerSubtitleStyles } from '../common/HeaderSubtitle';
 import { taggingNamePluralCapitalSetting } from '../../lib/instanceSettings';
 import { getAllTagsPath } from '@/lib/pathConstants';
 import { useStyles } from '../hooks/useStyles';
-import { Helmet } from '../common/Helmet';
+import { Helmet } from '@/components/layout/Helmet';
 
 export const TagHistoryPageTitle = ({isSubtitle, siteName}: {
   isSubtitle: boolean,
