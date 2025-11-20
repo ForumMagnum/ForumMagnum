@@ -1,4 +1,4 @@
-import React, { useState, useMemo, useCallback, useRef } from 'react';
+import React, { useState, useMemo, useCallback, useRef, useEffect } from 'react';
 import { defineStyles, useStyles } from '../../hooks/useStyles';
 import { useQuery } from "@/lib/crud/useQuery";
 import { SuspenseWrapper } from '@/components/common/SuspenseWrapper';
@@ -321,10 +321,34 @@ const HomepageCommunityEventPostsQuery = gql(`
 
 export default function SolsticeSeasonBannerInner() {
   const classes = useStyles(styles);
+  // SSR-safe: start with false, check after mount to avoid hydration mismatch
+  const [shouldRender, setShouldRender] = useState(false);
   const [selectedEventId, setSelectedEventId] = useState<string | null>(null)
   const [popupCoords, setPopupCoords] = useState<{ x: number; y: number } | null>(null)
   const markerClickInProgressRef = useRef(false);
   const hideSolsticeBanner = isClient && window.navigator.userAgent.includes('CloudWatch-canary-coVij6peechaekou');
+
+  useEffect(() => {
+    if (!isClient) {
+      return;
+    }
+    
+    // Don't try to render the globe inside the CloudWatch canary (it's too slow and fails)
+    if (window.navigator.userAgent.includes('CloudWatch-canary-coVij6peechaekou')) {
+      return;
+    }
+    
+    const checkWidth = () => {
+      setShouldRender(window.innerWidth >= minBannerWidth);
+    };
+    
+    // Check on mount
+    checkWidth();
+    
+    // Check on resize
+    window.addEventListener('resize', checkWidth);
+    return () => window.removeEventListener('resize', checkWidth);
+  }, []);
 
   const { data } = useQuery(HomepageCommunityEventPostsQuery, {
     variables: { eventType: "SOLSTICE" },
