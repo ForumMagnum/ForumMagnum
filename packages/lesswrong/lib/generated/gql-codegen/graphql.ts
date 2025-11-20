@@ -7658,8 +7658,10 @@ export type Query = {
   forumEvents: Maybe<MultiForumEventOutput>;
   gardenCode: Maybe<SingleGardenCodeOutput>;
   gardenCodes: Maybe<MultiGardenCodeOutput>;
+  getBookWordCount: Maybe<Scalars['Float']['output']>;
   getCrosspost: Maybe<Scalars['JSON']['output']>;
   getLinkSharedPost: Maybe<Post>;
+  getSequenceStats: Maybe<SequenceStats>;
   googleServiceAccountSession: Maybe<SingleGoogleServiceAccountSessionOutput>;
   googleServiceAccountSessions: Maybe<MultiGoogleServiceAccountSessionOutput>;
   jargonTerm: Maybe<SingleJargonTermOutput>;
@@ -8491,6 +8493,11 @@ export type QuerygardenCodesArgs = {
 };
 
 
+export type QuerygetBookWordCountArgs = {
+  bookId: Scalars['String']['input'];
+};
+
+
 export type QuerygetCrosspostArgs = {
   args?: InputMaybe<Scalars['JSON']['input']>;
 };
@@ -8499,6 +8506,11 @@ export type QuerygetCrosspostArgs = {
 export type QuerygetLinkSharedPostArgs = {
   linkSharingKey: Scalars['String']['input'];
   postId: Scalars['String']['input'];
+};
+
+
+export type QuerygetSequenceStatsArgs = {
+  sequenceId: Scalars['String']['input'];
 };
 
 
@@ -9572,6 +9584,12 @@ export type SequenceSelector = {
   userProfile?: InputMaybe<SequencesUserProfileInput>;
   userProfileAll?: InputMaybe<SequencesUserProfileAllInput>;
   userProfilePrivate?: InputMaybe<SequencesUserProfilePrivateInput>;
+};
+
+export type SequenceStats = {
+  __typename?: 'SequenceStats';
+  totalReadTime: Maybe<Scalars['Float']['output']>;
+  totalWordCount: Maybe<Scalars['Float']['output']>;
 };
 
 export type SequencesCommunitySequencesInput = {
@@ -17255,6 +17273,13 @@ export type BooksItemQuery = { __typename?: 'Query', book: { __typename?: 'Singl
       & BookEdit
     ) | null } | null };
 
+export type GetBookWordCountQueryVariables = Exact<{
+  bookId: Scalars['String']['input'];
+}>;
+
+
+export type GetBookWordCountQuery = { __typename?: 'Query', getBookWordCount: number | null };
+
 export type updateChapterChaptersFormMutationVariables = Exact<{
   selector: SelectorInput;
   data: UpdateChapterDataInput;
@@ -17318,6 +17343,13 @@ export type CollectionsEditQuery = { __typename?: 'Query', collection: { __typen
       { __typename?: 'Collection' }
       & CollectionsEditFragment
     ) | null } | null };
+
+export type GetSequenceStatsQueryVariables = Exact<{
+  sequenceId: Scalars['String']['input'];
+}>;
+
+
+export type GetSequenceStatsQuery = { __typename?: 'Query', getSequenceStats: { __typename?: 'SequenceStats', totalWordCount: number | null, totalReadTime: number | null } | null };
 
 export type multiPostSequenceDraftsListQueryQueryVariables = Exact<{
   selector?: InputMaybe<PostSelector>;
@@ -22133,8 +22165,10 @@ export const FrontpageBestOfLWWidgetDocument = {"kind":"Document","definitions":
 export const FrontpageShortformCommentsDoc = {"kind":"Document","definitions":[FrontpageShortformCommentsFragmentDef,ShortformCommentsFragmentDef,CommentsListFragmentDef,TagPreviewFragmentFragmentDef,TagBasicInfoFragmentDef,UsersMinimumInfoFragmentDef,PostsMinimumInfoFragmentDef]} as unknown as DocumentNode<FrontpageShortformComments, unknown>;
 export const GenerateCoverImagesForPostDocument = {"kind":"Document","definitions":[{"kind":"OperationDefinition","operation":"mutation","name":{"kind":"Name","value":"GenerateCoverImagesForPost"},"variableDefinitions":[{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"postId"}},"type":{"kind":"NonNullType","type":{"kind":"NamedType","name":{"kind":"Name","value":"String"}}}},{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"prompt"}},"type":{"kind":"NamedType","name":{"kind":"Name","value":"String"}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"generateCoverImagesForPost"},"arguments":[{"kind":"Argument","name":{"kind":"Name","value":"postId"},"value":{"kind":"Variable","name":{"kind":"Name","value":"postId"}}},{"kind":"Argument","name":{"kind":"Name","value":"prompt"},"value":{"kind":"Variable","name":{"kind":"Name","value":"prompt"}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"_id"}}]}}]}}]} as unknown as DocumentNode<GenerateCoverImagesForPostMutation, GenerateCoverImagesForPostMutationVariables>;
 export const GetAllReviewWinnersDocument = {"kind":"Document","definitions":[{"kind":"OperationDefinition","operation":"query","name":{"kind":"Name","value":"GetAllReviewWinners"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"GetAllReviewWinners"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"FragmentSpread","name":{"kind":"Name","value":"PostsTopItemInfo"}}]}}]}},PostsTopItemInfoFragmentDef,PostsMinimumInfoFragmentDef,ReviewWinnerTopPostsPageFragmentDef,SplashArtCoordinatesEditFragmentDef,SplashArtCoordinatesFragmentDef]} as unknown as DocumentNode<GetAllReviewWinnersQuery, GetAllReviewWinnersQueryVariables>;
+export const GetBookWordCountDocument = {"kind":"Document","definitions":[{"kind":"OperationDefinition","operation":"query","name":{"kind":"Name","value":"GetBookWordCount"},"variableDefinitions":[{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"bookId"}},"type":{"kind":"NonNullType","type":{"kind":"NamedType","name":{"kind":"Name","value":"String"}}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"getBookWordCount"},"arguments":[{"kind":"Argument","name":{"kind":"Name","value":"bookId"},"value":{"kind":"Variable","name":{"kind":"Name","value":"bookId"}}}]}]}}]} as unknown as DocumentNode<GetBookWordCountQuery, GetBookWordCountQueryVariables>;
 export const GetReviewWinnerSpotlightsDocument = {"kind":"Document","definitions":[{"kind":"OperationDefinition","operation":"query","name":{"kind":"Name","value":"GetReviewWinnerSpotlights"},"variableDefinitions":[{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"selector"}},"type":{"kind":"NamedType","name":{"kind":"Name","value":"PostSelector"}}},{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"limit"}},"type":{"kind":"NamedType","name":{"kind":"Name","value":"Int"}}},{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"enableTotal"}},"type":{"kind":"NamedType","name":{"kind":"Name","value":"Boolean"}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"posts"},"arguments":[{"kind":"Argument","name":{"kind":"Name","value":"selector"},"value":{"kind":"Variable","name":{"kind":"Name","value":"selector"}}},{"kind":"Argument","name":{"kind":"Name","value":"limit"},"value":{"kind":"Variable","name":{"kind":"Name","value":"limit"}}},{"kind":"Argument","name":{"kind":"Name","value":"enableTotal"},"value":{"kind":"Variable","name":{"kind":"Name","value":"enableTotal"}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"results"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"FragmentSpread","name":{"kind":"Name","value":"PostsBase"}},{"kind":"Field","name":{"kind":"Name","value":"reviewWinner"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"FragmentSpread","name":{"kind":"Name","value":"ReviewWinnerTopPostsPage"}}]}},{"kind":"Field","name":{"kind":"Name","value":"spotlight"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"FragmentSpread","name":{"kind":"Name","value":"SpotlightDisplay"}}]}}]}}]}}]}},PostsBaseFragmentDef,PostsMinimumInfoFragmentDef,ReviewWinnerTopPostsPageFragmentDef,SplashArtCoordinatesEditFragmentDef,SplashArtCoordinatesFragmentDef,SpotlightDisplayFragmentDef,SpotlightMinimumInfoFragmentDef,UsersMinimumInfoFragmentDef]} as unknown as DocumentNode<GetReviewWinnerSpotlightsQuery, GetReviewWinnerSpotlightsQueryVariables>;
 export const GetReviewWinnersDocument = {"kind":"Document","definitions":[{"kind":"OperationDefinition","operation":"query","name":{"kind":"Name","value":"GetReviewWinners"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"GetAllReviewWinners"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"FragmentSpread","name":{"kind":"Name","value":"PostsTopItemInfo"}}]}}]}},PostsTopItemInfoFragmentDef,PostsMinimumInfoFragmentDef,ReviewWinnerTopPostsPageFragmentDef,SplashArtCoordinatesEditFragmentDef,SplashArtCoordinatesFragmentDef]} as unknown as DocumentNode<GetReviewWinnersQuery, GetReviewWinnersQueryVariables>;
+export const GetSequenceStatsDocument = {"kind":"Document","definitions":[{"kind":"OperationDefinition","operation":"query","name":{"kind":"Name","value":"GetSequenceStats"},"variableDefinitions":[{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"sequenceId"}},"type":{"kind":"NonNullType","type":{"kind":"NamedType","name":{"kind":"Name","value":"String"}}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"getSequenceStats"},"arguments":[{"kind":"Argument","name":{"kind":"Name","value":"sequenceId"},"value":{"kind":"Variable","name":{"kind":"Name","value":"sequenceId"}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"totalWordCount"}},{"kind":"Field","name":{"kind":"Name","value":"totalReadTime"}}]}}]}}]} as unknown as DocumentNode<GetSequenceStatsQuery, GetSequenceStatsQueryVariables>;
 export const GetTagsByCoreTagIdDocument = {"kind":"Document","definitions":[{"kind":"OperationDefinition","operation":"query","name":{"kind":"Name","value":"GetTagsByCoreTagId"},"variableDefinitions":[{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"coreTagId"}},"type":{"kind":"NamedType","name":{"kind":"Name","value":"String"}}},{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"limit"}},"type":{"kind":"NamedType","name":{"kind":"Name","value":"Int"}}},{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"searchTagIds"}},"type":{"kind":"ListType","type":{"kind":"NamedType","name":{"kind":"Name","value":"String"}}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"TagsByCoreTagId"},"arguments":[{"kind":"Argument","name":{"kind":"Name","value":"coreTagId"},"value":{"kind":"Variable","name":{"kind":"Name","value":"coreTagId"}}},{"kind":"Argument","name":{"kind":"Name","value":"limit"},"value":{"kind":"Variable","name":{"kind":"Name","value":"limit"}}},{"kind":"Argument","name":{"kind":"Name","value":"searchTagIds"},"value":{"kind":"Variable","name":{"kind":"Name","value":"searchTagIds"}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"tags"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"FragmentSpread","name":{"kind":"Name","value":"ConceptItemFragment"}}]}},{"kind":"Field","name":{"kind":"Name","value":"totalCount"}}]}}]}},ConceptItemFragmentFragmentDef]} as unknown as DocumentNode<GetTagsByCoreTagIdQuery, GetTagsByCoreTagIdQueryVariables>;
 export const GivingSeasonHeartsQueryDocument = {"kind":"Document","definitions":[{"kind":"OperationDefinition","operation":"query","name":{"kind":"Name","value":"GivingSeasonHeartsQuery"},"variableDefinitions":[{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"electionName"}},"type":{"kind":"NonNullType","type":{"kind":"NamedType","name":{"kind":"Name","value":"String"}}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"GivingSeasonHearts"},"arguments":[{"kind":"Argument","name":{"kind":"Name","value":"electionName"},"value":{"kind":"Variable","name":{"kind":"Name","value":"electionName"}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"userId"}},{"kind":"Field","name":{"kind":"Name","value":"displayName"}},{"kind":"Field","name":{"kind":"Name","value":"x"}},{"kind":"Field","name":{"kind":"Name","value":"y"}},{"kind":"Field","name":{"kind":"Name","value":"theta"}}]}}]}}]} as unknown as DocumentNode<GivingSeasonHeartsQueryQuery, GivingSeasonHeartsQueryQueryVariables>;
 export const GoogleServiceAccountSessionAdminInfoDoc = {"kind":"Document","definitions":[GoogleServiceAccountSessionAdminInfoFragmentDef]} as unknown as DocumentNode<GoogleServiceAccountSessionAdminInfo, unknown>;

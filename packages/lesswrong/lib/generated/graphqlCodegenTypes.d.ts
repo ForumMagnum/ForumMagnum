@@ -7655,8 +7655,10 @@ type Query = {
   forumEvents?: Maybe<MultiForumEventOutput>;
   gardenCode?: Maybe<SingleGardenCodeOutput>;
   gardenCodes?: Maybe<MultiGardenCodeOutput>;
+  getBookWordCount?: Maybe<Scalars['Float']['output']>;
   getCrosspost?: Maybe<Scalars['JSON']['output']>;
   getLinkSharedPost?: Maybe<Post>;
+  getSequenceStats?: Maybe<SequenceStats>;
   googleServiceAccountSession?: Maybe<SingleGoogleServiceAccountSessionOutput>;
   googleServiceAccountSessions?: Maybe<MultiGoogleServiceAccountSessionOutput>;
   jargonTerm?: Maybe<SingleJargonTermOutput>;
@@ -8488,6 +8490,11 @@ type QuerygardenCodesArgs = {
 };
 
 
+type QuerygetBookWordCountArgs = {
+  bookId: Scalars['String']['input'];
+};
+
+
 type QuerygetCrosspostArgs = {
   args?: InputMaybe<Scalars['JSON']['input']>;
 };
@@ -8496,6 +8503,11 @@ type QuerygetCrosspostArgs = {
 type QuerygetLinkSharedPostArgs = {
   linkSharingKey: Scalars['String']['input'];
   postId: Scalars['String']['input'];
+};
+
+
+type QuerygetSequenceStatsArgs = {
+  sequenceId: Scalars['String']['input'];
 };
 
 
@@ -9569,6 +9581,12 @@ type SequenceSelector = {
   userProfile?: InputMaybe<SequencesUserProfileInput>;
   userProfileAll?: InputMaybe<SequencesUserProfileAllInput>;
   userProfilePrivate?: InputMaybe<SequencesUserProfilePrivateInput>;
+};
+
+type SequenceStats = {
+  __typename?: 'SequenceStats';
+  totalReadTime?: Maybe<Scalars['Float']['output']>;
+  totalWordCount?: Maybe<Scalars['Float']['output']>;
 };
 
 type SequencesCommunitySequencesInput = {
@@ -19944,6 +19962,16 @@ type BooksItemQueryVariables = Exact<{
 
 type BooksItemQuery = BooksItemQuery_Query;
 
+type GetBookWordCountQuery_Query = { __typename?: 'Query', getBookWordCount: number | null };
+
+
+type GetBookWordCountQueryVariables = Exact<{
+  bookId: Scalars['String']['input'];
+}>;
+
+
+type GetBookWordCountQuery = GetBookWordCountQuery_Query;
+
 type updateChapterChaptersFormMutation_updateChapter_ChapterOutput_data_Chapter = (
   { __typename?: 'Chapter' }
   & ChaptersEdit
@@ -20049,6 +20077,18 @@ type CollectionsEditQueryVariables = Exact<{
 
 
 type CollectionsEditQuery = CollectionsEditQuery_Query;
+
+type GetSequenceStatsQuery_getSequenceStats_SequenceStats = { __typename?: 'SequenceStats', totalWordCount: number | null, totalReadTime: number | null };
+
+type GetSequenceStatsQuery_Query = { __typename?: 'Query', getSequenceStats: GetSequenceStatsQuery_getSequenceStats_SequenceStats | null };
+
+
+type GetSequenceStatsQueryVariables = Exact<{
+  sequenceId: Scalars['String']['input'];
+}>;
+
+
+type GetSequenceStatsQuery = GetSequenceStatsQuery_Query;
 
 type multiPostSequenceDraftsListQueryQuery_posts_MultiPostOutput_results_Post = (
   { __typename?: 'Post' }

@@ -54,7 +54,7 @@ const SequencesSmallPostLink = ({classes, post, sequenceId, large, placement="le
       />
     </span>
     <PostsTooltip
-      {...('contents' in post ? { post } : { postId: post._id })}
+      {...('contents' in post ? { post } : { postId: post._id, preload: 'on-screen' })}
       postsList={isLWorAF()}
       placement={placement}
       inlineBlock={false}

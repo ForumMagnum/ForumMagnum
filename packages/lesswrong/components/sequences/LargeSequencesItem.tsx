@@ -11,8 +11,17 @@ import ContentItemTruncated from "../common/ContentItemTruncated";
 import LWTooltip from "../common/LWTooltip";
 import ChapterTitle from "./ChapterTitle";
 import { useQuery } from '@/lib/crud/useQuery';
-import { PostsSequenceMetadataQuery } from './queries';
+import { gql } from "@/lib/generated/gql-codegen";
 import Loading from '../vulcan-core/Loading';
+
+const GET_SEQUENCE_STATS = gql(`
+  query GetSequenceStats($sequenceId: String!) {
+    getSequenceStats(sequenceId: $sequenceId) {
+      totalWordCount
+      totalReadTime
+    }
+  }
+`);
 
 const styles = (theme: ThemeType) => ({
   root: {
@@ -161,24 +170,14 @@ export const LargeSequencesItem = ({sequence, showAuthor=false, showChapters=fal
 
   const cloudinaryCloudName = cloudinaryCloudNameSetting.get()
 
-  const postIds = sequence.chapters.flatMap(chapter => chapter.postIds);
-  const preloadedPosts = sequence.chapters.flatMap(chapter => chapter.posts);
 
-  const { data, loading: postsLoading } = useQuery(PostsSequenceMetadataQuery, {
-    variables: { selector: { default: { exactPostIds: postIds } } },
+  const { data, loading: statsLoading } = useQuery(GET_SEQUENCE_STATS, {
+    variables: { sequenceId: sequence._id },
     fetchPolicy: 'cache-first',
   });
 
-  const postsWithMetadata = data?.posts?.results ?? [];
-  const postsForLinks = postsLoading ? preloadedPosts : postsWithMetadata;
-
-  const [
-    totalWordCount,
-    totalReadTime,
-  ] = postsWithMetadata.reduce(([wordCount, readTime], curr) => ([
-    wordCount + (curr?.contents?.wordCount ?? 0),
-    readTime + (curr?.readTimeMinutes ?? 0),
-  ]), [0, 0]);
+  const totalWordCount = data?.getSequenceStats?.totalWordCount ?? 0;
+  const totalReadTime = data?.getSequenceStats?.totalReadTime ?? 0;
 
   const highlight = sequence.contents?.htmlHighlight || ""
 
@@ -222,16 +221,16 @@ export const LargeSequencesItem = ({sequence, showAuthor=false, showChapters=fal
               description={`sequence ${sequence._id}`}
             />
           </ContentStyles>}
-          {postsLoading ? <Loading/> : <LWTooltip title={<div> ({totalWordCount.toLocaleString("en-US")} words)</div>}>
+          {statsLoading ? <Loading/> : <LWTooltip title={<div> ({totalWordCount.toLocaleString("en-US")} words)</div>}>
             <div className={classes.wordcount}>{totalReadTime} min read</div>
           </LWTooltip>}
         </div>
       </div>
       <div className={classes.right}>
-        {sequence.chapters.flatMap(({postIds, title}, index) =>
+        {sequence.chapters.flatMap(({posts, title}, index) =>
           <React.Fragment key={index}>
             {title && <ChapterTitle title={title}/>}
-            {postIds.map(postId => postsForLinks.find(post => post._id === postId)).filter(post => !!post).map(post => (
+            {posts.map(post => (
               <SequencesSmallPostLink
                 key={sequence._id + post._id}
                 post={post}

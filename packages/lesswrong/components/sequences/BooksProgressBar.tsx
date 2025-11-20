@@ -8,7 +8,13 @@ import LWTooltip from "../common/LWTooltip";
 import PostsTooltip from "../posts/PostsPreviewTooltip/PostsTooltip";
 import LoginToTrack from "./LoginToTrack";
 import { useQuery } from '@/lib/crud/useQuery';
-import { PostsSequenceMetadataQuery } from './queries';
+import { gql } from "@/lib/generated/gql-codegen";
+
+const GET_BOOK_WORD_COUNT = gql(`
+  query GetBookWordCount($bookId: String!) {
+    getBookWordCount(bookId: $bookId)
+  }
+`);
 
 export const postProgressBoxStyles = (theme: ThemeType) => ({
   border: theme.palette.border.normal,
@@ -67,44 +73,37 @@ const BooksProgressBar = ({ book, classes }: {
 }) => {
   const { postsRead: clientPostsRead } = useItemsRead();
 
-  const bookPostIds = book.sequences.flatMap(sequence => sequence.chapters.flatMap(chapter => chapter.postIds));
   const preloadedBookPosts = book.sequences.flatMap(sequence => sequence.chapters.flatMap(chapter => chapter.posts));
 
   // We're going through a lot of effort to not fetch revisions during the initial query,
-  // since that makes loading Collection pages horribly slow.  So we fetch the posts with
-  // revisions inside of a suspense boundary.
-  const { data, loading: postsLoading } = useQuery(PostsSequenceMetadataQuery, {
-    variables: { selector: { default: { exactPostIds: bookPostIds } } },
+  // since that makes loading Collection pages horribly slow.  So we fetch the word count
+  // with a custom query inside of a suspense boundary.
+  const { data } = useQuery(GET_BOOK_WORD_COUNT, {
+    variables: { bookId: book._id },
     fetchPolicy: 'cache-first',
   });
 
-  const bookPosts = useMemo(() => data?.posts?.results ?? [], [data]);
+  const totalWordCount = data?.getBookWordCount ?? 0;
 
   // Check whether the post is marked as read either on the server or in the client-side context
   const readPosts = preloadedBookPosts.filter(post => post.isRead || clientPostsRead[post._id]);
   const totalPosts = preloadedBookPosts.length;
 
   const postsReadText = `${readPosts.length} / ${totalPosts} posts read`;
-  const totalWordCount = bookPosts.reduce((i, post) => i + (post.contents?.wordCount || 0), 0)
   const readTime = totalWordCount > WORDS_PER_HOUR ? `${(totalWordCount/WORDS_PER_HOUR).toFixed(1)} hour` : `${Math.round(totalWordCount/WORDS_PER_MINUTE)} min`
   const postsReadTooltip = <div>
     <div>{totalWordCount.toLocaleString()} words, {Math.round(totalWordCount / WORDS_PER_PAGE)} pages</div>
     <div>Approximately {readTime} read</div>
   </div>
 
-  const postsForBoxes: (PostsList | ChapterPostSlim)[] = useMemo(() => postsLoading
-    ? preloadedBookPosts
-    // Order the loaded posts in the same order as preloaded posts, by id; by default they'll be in the wrong order
-    : [...bookPosts].sort((a, b) => preloadedBookPosts.findIndex(p => p._id === a._id) - preloadedBookPosts.findIndex(p => p._id === b._id)),
-  [postsLoading, preloadedBookPosts, bookPosts]);
-
   if (book.hideProgressBar) return null
 
   return <div key={book._id} className={classes.root}>
     <div className={classes.bookProgress}>
-      {postsForBoxes.map(post => (
+      {preloadedBookPosts.map(post => (
         <PostsTooltip
-          {...('contents' in post ? { post } : { postId: post._id })}
+          postId={post._id}
+          preload="on-screen"
           key={post._id}
         >
           <Link to={postGetPageUrl(post)}>
