@@ -16498,6 +16498,23 @@ type PostAnalyticsQueryQueryVariables = Exact<{
 
 type PostAnalyticsQueryQuery = PostAnalyticsQueryQuery_Query;
 
+type PostsPreviewTooltipSingleQuery_post_SinglePostOutput_result_Post = (
+  { __typename?: 'Post' }
+  & PostsList
+);
+
+type PostsPreviewTooltipSingleQuery_post_SinglePostOutput = { __typename?: 'SinglePostOutput', result: PostsPreviewTooltipSingleQuery_post_SinglePostOutput_result_Post | null };
+
+type PostsPreviewTooltipSingleQuery_Query = { __typename?: 'Query', post: PostsPreviewTooltipSingleQuery_post_SinglePostOutput | null };
+
+
+type PostsPreviewTooltipSingleQueryVariables = Exact<{
+  documentId: InputMaybe<Scalars['String']['input']>;
+}>;
+
+
+type PostsPreviewTooltipSingleQuery = PostsPreviewTooltipSingleQuery_Query;
+
 type multiPostusePublishedPostsQueryQuery_posts_MultiPostOutput_results_Post = (
   { __typename?: 'Post' }
   & SunshinePostsList
@@ -18654,23 +18671,6 @@ type PostsPreviewTooltipSingle3QueryVariables = Exact<{
 
 
 type PostsPreviewTooltipSingle3Query = PostsPreviewTooltipSingle3Query_Query;
-
-type PostsPreviewTooltipSingleQuery_post_SinglePostOutput_result_Post = (
-  { __typename?: 'Post' }
-  & PostsList
-);
-
-type PostsPreviewTooltipSingleQuery_post_SinglePostOutput = { __typename?: 'SinglePostOutput', result: PostsPreviewTooltipSingleQuery_post_SinglePostOutput_result_Post | null };
-
-type PostsPreviewTooltipSingleQuery_Query = { __typename?: 'Query', post: PostsPreviewTooltipSingleQuery_post_SinglePostOutput | null };
-
-
-type PostsPreviewTooltipSingleQueryVariables = Exact<{
-  documentId: InputMaybe<Scalars['String']['input']>;
-}>;
-
-
-type PostsPreviewTooltipSingleQuery = PostsPreviewTooltipSingleQuery_Query;
 
 type multiPostPostsTimeBlockQueryQuery_posts_MultiPostOutput_results_Post = (
   { __typename?: 'Post' }

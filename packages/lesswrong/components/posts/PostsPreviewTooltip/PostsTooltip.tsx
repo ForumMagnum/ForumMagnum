@@ -42,7 +42,7 @@ interface PostsTooltipPropsBase {
 
 type PostsTooltipProps = PostsTooltipPropsBase & (
   {
-    post?: PostsList | SunshinePostsList,
+    post?: PostsList | SunshinePostsList | null,
     postId?: never,
     /**
      * If set to 'on-screen', the post will be preloaded when the tooltip anchor element enters the screen

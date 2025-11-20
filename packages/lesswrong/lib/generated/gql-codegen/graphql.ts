@@ -15140,6 +15140,16 @@ export type PostAnalyticsQueryQueryVariables = Exact<{
 
 export type PostAnalyticsQueryQuery = { __typename?: 'Query', PostAnalytics: { __typename?: 'PostAnalyticsResult', allViews: number | null, uniqueClientViews: number | null, uniqueClientViews10Sec: number | null, medianReadingTime: number | null, uniqueClientViews5Min: number | null, uniqueClientViewsSeries: Array<{ __typename?: 'UniqueClientViewsSeries', date: string | null, uniqueClientViews: number | null } | null> | null } };
 
+export type PostsPreviewTooltipSingleQueryVariables = Exact<{
+  documentId?: InputMaybe<Scalars['String']['input']>;
+}>;
+
+
+export type PostsPreviewTooltipSingleQuery = { __typename?: 'Query', post: { __typename?: 'SinglePostOutput', result: (
+      { __typename?: 'Post' }
+      & PostsList
+    ) | null } | null };
+
 export type multiPostusePublishedPostsQueryQueryVariables = Exact<{
   selector?: InputMaybe<PostSelector>;
   limit?: InputMaybe<Scalars['Int']['input']>;
@@ -16466,16 +16476,6 @@ export type PostsPreviewTooltipSingle3QueryVariables = Exact<{
 export type PostsPreviewTooltipSingle3Query = { __typename?: 'Query', comment: { __typename?: 'SingleCommentOutput', result: (
       { __typename?: 'Comment' }
       & CommentsList
-    ) | null } | null };
-
-export type PostsPreviewTooltipSingleQueryVariables = Exact<{
-  documentId?: InputMaybe<Scalars['String']['input']>;
-}>;
-
-
-export type PostsPreviewTooltipSingleQuery = { __typename?: 'Query', post: { __typename?: 'SinglePostOutput', result: (
-      { __typename?: 'Post' }
-      & PostsList
     ) | null } | null };
 
 export type multiPostPostsTimeBlockQueryQueryVariables = Exact<{
