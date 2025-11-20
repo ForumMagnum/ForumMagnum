@@ -15,8 +15,7 @@ const styles = (theme: ThemeType) => ({
     flexDirection: "column",
     gap: "16px",
     flex: 1,
-    maxWidth: 750,
-    marginBottom: 16
+    maxWidth: 850,
   },
   header: {
     fontSize: 18,
@@ -60,19 +59,18 @@ const styles = (theme: ThemeType) => ({
   },
   voteCount: {
     fontWeight: 500,
-    color: theme.palette.text.alwaysWhite,
     opacity: 0.8
   },
   barContainer: {
     position: 'relative',
-    height: '12px',
+    height: '14px',
     overflow: 'hidden',
     marginTop: '8px',
   },
   barFill: {
     position: 'absolute',
     height: '100%',
-    backgroundColor: theme.palette.text.alwaysWhite,
+    backgroundColor: "var(--event-color)",
     opacity: 0.5,
     transition: 'width 0.3s ease',
     borderRadius: '2px',
@@ -87,14 +85,11 @@ const styles = (theme: ThemeType) => ({
     fontWeight: 600,
   },
   showMoreInfo: {
-    color: theme.palette.text.alwaysWhite,
+    color: "var(--event-color)",
     opacity: 0.7,
     fontWeight: 500,
     display: "flex",
     alignItems: "center",
-    [theme.breakpoints.down("md")]: {
-      display: "none"
-    },
   },
   infoCircle: {
     width: 20,
@@ -103,7 +98,7 @@ const styles = (theme: ThemeType) => ({
     marginLeft: 4,
     cursor: "pointer",
     '&:hover': {
-      color: theme.palette.text.alwaysWhite,
+      opacity: 1,
     }
   },
   infoTooltipPopper: {

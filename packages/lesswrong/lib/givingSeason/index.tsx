@@ -21,14 +21,14 @@ export const GIVING_SEASON_INFO_HREF = "/posts/RzdKnBYe3jumrZxkB/giving-season-2
 export const ELECTION_INFO_HREF = "/posts/RzdKnBYe3jumrZxkB/giving-season-2025-announcement#November_24th_to_December_7th_";
 export const ELECTION_LEARN_MORE_HREF = "/posts/93KvQDDQfaZEBTP7t/donation-election-fund-rewards-and-matching";
 export const ELECTION_DONATE_HREF = "https://www.every.org/ea-forum-donation-election-2025";
+export const ELECTION_VOTE_HREF = "/voting-portal";
 export const ELECTION_2025_MATCHED_AMOUNT = 5000;
 export const MARGINAL_FUNDING_SEQUENCE_ID = "jTAPdwYry3zTyifkZ";
 export const MARGINAL_FUNDING_SPOTIFY_URL = "https://open.spotify.com/playlist/2wEYoo2FtV7OQQA0pATewT?si=XET3lr9aT9S-PFOGDvW6Kw";
 export const SINGLE_COLUMN_BREAKPOINT = 700;
 const ELECTION_TARGET_AMOUNT = 30000;
 
-// TODO revert to givingSeason25
-export const ACTIVE_DONATION_ELECTION = "givingSeason24";
+export const ACTIVE_DONATION_ELECTION = "givingSeason25";
 export const DONATION_ELECTION_NUM_WINNERS = 3;
 export const DONATION_ELECTION_SHOW_LEADERBOARD_CUTOFF = 100;
 export const DONATION_ELECTION_ACCOUNT_AGE_CUTOFF = new Date("2025-10-24T00:00:00.000Z"); // Based on the time of https://forum.effectivealtruism.org/posts/RzdKnBYe3jumrZxkB/giving-season-2025-announcement

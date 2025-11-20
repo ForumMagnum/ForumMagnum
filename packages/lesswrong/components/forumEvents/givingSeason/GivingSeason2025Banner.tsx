@@ -11,10 +11,12 @@ import { Link } from "@/lib/reactRouterWrapper";
 import {
   DONATION_ELECTION_CANDIDATES_HREF,
   DONATION_ELECTION_END,
+  DONATION_ELECTION_START,
   DONATION_ELECTION_WINNERS_HREF,
   ELECTION_DONATE_HREF,
   ELECTION_INFO_HREF,
   ELECTION_LEARN_MORE_HREF,
+  ELECTION_VOTE_HREF,
   GIVING_SEASON_INFO_HREF,
   givingSeasonEvents,
   useGivingSeason,
@@ -27,6 +29,7 @@ import CloudinaryImage2 from "@/components/common/CloudinaryImage2";
 import MixedTypeFeed from "@/components/common/MixedTypeFeed";
 import ForumIcon from "@/components/common/ForumIcon";
 import DonationElectionLeaderboard from "../DonationElectionLeaderboard";
+import { countInstantRunoffVotes } from "@/lib/givingSeason/instantRunoff";
 
 const styles = defineStyles("GivingSeason2025Banner", (theme: ThemeType) => ({
   root: {
@@ -99,7 +102,7 @@ const styles = defineStyles("GivingSeason2025Banner", (theme: ThemeType) => ({
     zIndex: 2,
     padding: "20px 80px 40px 80px",
     display: "grid",
-    gridTemplateColumns: "500px 560px",
+    gridTemplateColumns: "500px 1fr",
     gap: "80px",
     justifyContent: "start",
     color: "var(--event-color)",
@@ -108,7 +111,7 @@ const styles = defineStyles("GivingSeason2025Banner", (theme: ThemeType) => ({
       justifyContent: "center",
     },
     [theme.breakpoints.down("md")]: {
-      gridTemplateColumns: "420px 500px",
+      gridTemplateColumns: "420px 1fr",
       padding: "20px 16px",
       gap: "24px",
     },
@@ -120,6 +123,7 @@ const styles = defineStyles("GivingSeason2025Banner", (theme: ThemeType) => ({
   events: {
     display: "grid",
     gridTemplateColumns: "min-content 1fr",
+    marginBottom: "auto", // Don't expand based on RHS content
     alignItems: "center",
     gap: "12px",
   },
@@ -170,20 +174,19 @@ const styles = defineStyles("GivingSeason2025Banner", (theme: ThemeType) => ({
     },
   },
   feed: {
+    minWidth: 0, // Trick to force it to respect the parents grid cells
     [theme.breakpoints.down("sm")]: {
       display: "none",
     },
   },
+  feedPostsList: {
+    maxWidth: 560,
+  },
   feedButtonRow: {
     display: "flex",
     gap: "12px",
-    [theme.breakpoints.down("xs")]: {
-      flexDirection: "column",
-    },
   },
-  buttonPrimary: {
-    background: "var(--event-color)",
-    color: theme.palette.text.alwaysBlack,
+  feedButton: {
     borderRadius: theme.borderRadius.default,
     padding: "8px 24px",
     fontSize: 14,
@@ -201,26 +204,20 @@ const styles = defineStyles("GivingSeason2025Banner", (theme: ThemeType) => ({
       opacity: 0.8,
     },
   },
-  // TODO
-  buttonSecondary: {
+  feedButtonPrimary: {
     background: "var(--event-color)",
     color: theme.palette.text.alwaysBlack,
-    borderRadius: theme.borderRadius.default,
-    padding: "8px 24px",
-    fontSize: 14,
-    fontWeight: 500,
-    marginTop: 10,
-    display: "inline-flex",
-    alignItems: "center",
-    justifyContent: "center",
-    gap: 8,
-    transition: "opacity ease 0.2s",
-    "& svg": {
-      width: 16,
-    },
-    "&:hover": {
-      opacity: 0.8,
-    },
+  },
+  feedButtonSecondary: {
+    background: theme.palette.text.alwaysBlack,
+    color: "var(--event-color)",
+    border: "1px solid var(--event-color)",
+  },
+  electionExpanded: {
+    padding: "24px 50px !important",
+    "& .GivingSeason2025Banner-electionStatus": {
+      gap: "6px !important"
+    }
   },
   election: {
     backgroundColor: "var(--event-color)",
@@ -313,7 +310,7 @@ const styles = defineStyles("GivingSeason2025Banner", (theme: ThemeType) => ({
     alignItems: "center",
     gap: "8px",
     height: "100%",
-    "& a": {
+    "& *": {
       cursor: "pointer",
       height: 38,
       padding: "12px 24px",
@@ -341,6 +338,15 @@ const styles = defineStyles("GivingSeason2025Banner", (theme: ThemeType) => ({
     "&:hover": {
       backgroundColor: theme.palette.text.alwaysBlack,
       color: theme.palette.text.alwaysWhite,
+    },
+  },
+  buttonOutlinedDisabled: {
+    backgroundColor: "transparent",
+    color: theme.palette.text.alwaysBlack,
+    cursor: "not-allowed",
+    opacity: 0.5,
+    "&:hover": {
+      opacity: 0.5,
     },
   },
   buttonBlack: {
@@ -376,17 +382,10 @@ export const GivingSeason2025Banner: FC = () => {
 
   const isLeaderboardDisplayed =
     selectedEvent.name === "Donation election" &&
-    leaderboard &&
-    leaderboard[3] &&
-    // TODO extract into a util
-    Object.values(leaderboard[3]).reduce((a, b) => a + b, 0) >= 100;
-  const isVotingOpen = now < DONATION_ELECTION_END;
+    leaderboard && countInstantRunoffVotes(leaderboard) >= 100;
 
-  console.log({
-    isLeaderboardDisplayed,
-    leaderboard,
-    count: leaderboard && leaderboard[3] && Object.values(leaderboard[3]).reduce((a, b) => a + b, 0)
-  })
+  const isVotingEnded = now > DONATION_ELECTION_END;
+  const isVotingOpen = DONATION_ELECTION_START < now && !isVotingEnded;
 
   return (
     <AnalyticsContext pageSectionContext="GivingSeason2025Banner">
@@ -458,90 +457,92 @@ export const GivingSeason2025Banner: FC = () => {
             ))}
           </div>
           <div className={classes.feed}>
-            {!isLeaderboardDisplayed && currentEvent?.tag && selectedEvent === currentEvent && (
-              <>
-               <MixedTypeFeed
-                  firstPageSize={selectedEvent?.feedCount}
-                  hideLoading
-                  disableLoadMore
-                  resolverName="GivingSeasonTagFeed"
-                  resolverArgs={{tagId: "String!"}}
-                  resolverArgsValues={{tagId: currentEvent.tag._id}}
-                  sortKeyType="Date"
-                  renderers={{
-                    newPost: {
-                      fragmentName: "PostsList",
-                      render: (post: PostsList) => (
-                        <GivingSeasonFeedItem
-                          href={postGetPageUrl(post)}
-                          iconStyle="post"
-                          action="posted"
-                          user={post.user}
-                          post={post}
-                          date={post.postedAt}
-                          preview={post.contents?.plaintextDescription ?? ""}
-                        />
-                      ),
-                    },
-                    newComment: {
-                      fragmentName: "CommentsListWithParentMetadata",
-                      render: (comment: CommentsListWithParentMetadata) => (
-                        <GivingSeasonFeedItem
-                          href={commentGetPageUrl(comment)}
-                          iconStyle="comment"
-                          action="on"
-                          user={comment.user}
-                          post={comment.post}
-                          date={comment.postedAt}
-                          preview={comment.contents?.plaintextMainText ?? ""}
-                        />
-                      ),
-                    },
-                  }}
+            <div className={classes.feedPostsList}>
+              {!isLeaderboardDisplayed && currentEvent?.tag && selectedEvent === currentEvent && (
+                <>
+                <MixedTypeFeed
+                    firstPageSize={selectedEvent?.feedCount}
+                    hideLoading
+                    disableLoadMore
+                    resolverName="GivingSeasonTagFeed"
+                    resolverArgs={{tagId: "String!"}}
+                    resolverArgsValues={{tagId: currentEvent.tag._id}}
+                    sortKeyType="Date"
+                    renderers={{
+                      newPost: {
+                        fragmentName: "PostsList",
+                        render: (post: PostsList) => (
+                          <GivingSeasonFeedItem
+                            href={postGetPageUrl(post)}
+                            iconStyle="post"
+                            action="posted"
+                            user={post.user}
+                            post={post}
+                            date={post.postedAt}
+                            preview={post.contents?.plaintextDescription ?? ""}
+                          />
+                        ),
+                      },
+                      newComment: {
+                        fragmentName: "CommentsListWithParentMetadata",
+                        render: (comment: CommentsListWithParentMetadata) => (
+                          <GivingSeasonFeedItem
+                            href={commentGetPageUrl(comment)}
+                            iconStyle="comment"
+                            action="on"
+                            user={comment.user}
+                            post={comment.post}
+                            date={comment.postedAt}
+                            preview={comment.contents?.plaintextMainText ?? ""}
+                          />
+                        ),
+                      },
+                    }}
+                  />
+                  {currentEvent?.name === "Marginal funding week" &&
+                      currentEvent.name === selectedEvent.name &&
+                      selectedEvent.tag &&
+                    <Link
+                      to={currentEvent.readMoreHref}
+                      className={classNames(classes.feedButton, classes.feedButtonPrimary)}
+                    >
+                      Explore all posts
+                      <ForumIcon icon="ArrowRight" />
+                    </Link>
+                  }
+                </>
+              )}
+              {!isLeaderboardDisplayed && selectedEvent.tag &&
+                  selectedEvent.end < now &&
+                  selectedEvent !== currentEvent && (
+                <GivingSeasonTopPosts
+                  tagId={selectedEvent.tag._id}
+                  tagSlug={selectedEvent.tag.slug}
                 />
-                {currentEvent?.name === "Marginal funding week" &&
-                    currentEvent.name === selectedEvent.name &&
-                    selectedEvent.tag &&
-                  <Link
-                    to={currentEvent.readMoreHref}
-                    className={classes.buttonPrimary}
-                  >
-                    Explore all posts
-                    <ForumIcon icon="ArrowRight" />
-                  </Link>
-                }
-              </>
-            )}
-            {!isLeaderboardDisplayed && selectedEvent.tag &&
-                selectedEvent.end < now &&
-                selectedEvent !== currentEvent && (
-              <GivingSeasonTopPosts
-                tagId={selectedEvent.tag._id}
-                tagSlug={selectedEvent.tag.slug}
-              />
-            )}
-            {isLeaderboardDisplayed && <DonationElectionLeaderboard
-              voteCounts={leaderboard ?? {}}
-              // TODO className
-            />}
+              )}
+            </div>
+            {isLeaderboardDisplayed && <DonationElectionLeaderboard voteCounts={leaderboard} />}
             {selectedEvent?.name === "Donation election" && (
               <div className={classes.feedButtonRow}>
                 {isVotingOpen && <Link
-                  to="/voting-portal"
-                  className={classes.buttonPrimary}
+                  to={ELECTION_VOTE_HREF}
+                  onClick={onLinkClick.bind(null, "vote", ELECTION_VOTE_HREF)}
+                  className={classNames(classes.feedButton, classes.feedButtonPrimary)}
                 >
                   Vote in the election
                   <ForumIcon icon="ArrowRight" />
                 </Link>}
                 {DONATION_ELECTION_WINNERS_HREF ? <Link
                   to={DONATION_ELECTION_WINNERS_HREF}
-                  className={classes.buttonPrimary}
+                  onClick={onLinkClick.bind(null, "meetTheWinners", DONATION_ELECTION_WINNERS_HREF)}
+                  className={classNames(classes.feedButton, classes.feedButtonPrimary)}
                 >
                   Read about the winners
                 </Link> :
                 <Link
                   to={DONATION_ELECTION_CANDIDATES_HREF}
-                  className={classes.buttonSecondary}
+                  onClick={onLinkClick.bind(null, "meetTheCandidates", DONATION_ELECTION_CANDIDATES_HREF)}
+                  className={classNames(classes.feedButton, classes.feedButtonSecondary)}
                 >
                   Read about the candidates
                 </Link>
@@ -550,7 +551,7 @@ export const GivingSeason2025Banner: FC = () => {
             )}
           </div>
         </div>
-        <div className={classes.election}>
+        <div className={classNames(classes.election, isVotingOpen && classes.electionExpanded)}>
           <div className={classes.electionStatus}>
             <div className={classNames(
               classes.amountRaised,
@@ -578,14 +579,14 @@ export const GivingSeason2025Banner: FC = () => {
             </div>
           </div>
           <div className={classes.electionButtons}>
-            <a
-              href={ELECTION_LEARN_MORE_HREF}
+            {!isVotingOpen && <Link
+              to={ELECTION_LEARN_MORE_HREF}
               onClick={onLinkClick.bind(null, "learnMore", ELECTION_INFO_HREF)}
               className={classes.buttonOutlined}
             >
               Learn more
-            </a>
-            <a
+            </Link>}
+            {!isVotingEnded && <a
               href={ELECTION_DONATE_HREF}
               onClick={onLinkClick.bind(null, "donate", ELECTION_DONATE_HREF)}
               className={classes.buttonBlack}
@@ -593,7 +594,19 @@ export const GivingSeason2025Banner: FC = () => {
               rel="noopener noreferrer"
             >
               Donate
-            </a>
+            </a>}
+            {isVotingOpen && <Link
+              to={ELECTION_VOTE_HREF}
+              onClick={onLinkClick.bind(null, "vote", ELECTION_VOTE_HREF)}
+              className={classes.buttonOutlined}
+            >
+              Vote in the election
+            </Link>}
+            {isVotingEnded && <div
+              className={classes.buttonOutlinedDisabled}
+            >
+              You can no longer vote or donate
+            </div>}
           </div>
         </div>
       </div>
