@@ -3,7 +3,7 @@ import { defineStyles, useStyles } from '../../hooks/useStyles';
 import { registerComponent } from "../../../lib/vulcan-lib/components";
 import { InteractionWrapper, useClickableCell } from "../../common/useClickableCell";
 import { cloudinaryCloudNameSetting } from "@/lib/publicSettings";
-import { SINGLE_COLUMN_BREAKPONT } from "@/lib/givingSeason";
+import { SINGLE_COLUMN_BREAKPOINT } from "@/lib/givingSeason";
 import { postGetPageUrl } from "@/lib/collections/posts/helpers";
 import { Link } from "@/lib/reactRouterWrapper";
 import UsersName from "../../users/UsersName";
@@ -47,7 +47,7 @@ const styles = defineStyles("MarginalFundingCard", (theme) => ({
     height: 216,
     objectFit: "cover",
     transition: "transform ease 0.2s",
-    [theme.breakpoints.down(SINGLE_COLUMN_BREAKPONT)]: {
+    [theme.breakpoints.down(SINGLE_COLUMN_BREAKPOINT)]: {
       height: "unset",
     },
   },

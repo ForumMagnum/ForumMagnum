@@ -5,7 +5,6 @@
 export const eaLegacyRedirects: {from: string, to: string}[] = [
   // Giving season
   {from: "/giving-portal", to: "/posts/j6fmnYM5ZRu9fJyrq/donation-election-how-to-vote"},
-  {from: "/voting-portal", to: "/posts/j6fmnYM5ZRu9fJyrq/donation-election-how-to-vote"},
 
   // Oxford Prioritisation Project posts
   {from: "/ea/1ae/a_model_of_the_machine_intelligence_research", to: "/topics/oxford-prioritisation-project"},
