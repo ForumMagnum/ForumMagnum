@@ -9,6 +9,9 @@ import { HEADER_HEIGHT } from "@/components/common/Header";
 import { useCurrentTime } from "@/lib/utils/timeUtil";
 import { Link } from "@/lib/reactRouterWrapper";
 import {
+  DONATION_ELECTION_CANDIDATES_HREF,
+  DONATION_ELECTION_END,
+  DONATION_ELECTION_WINNERS_HREF,
   ELECTION_DONATE_HREF,
   ELECTION_INFO_HREF,
   ELECTION_LEARN_MORE_HREF,
@@ -23,6 +26,7 @@ import GivingSeasonTopPosts from "./GivingSeasonTopPosts";
 import CloudinaryImage2 from "@/components/common/CloudinaryImage2";
 import MixedTypeFeed from "@/components/common/MixedTypeFeed";
 import ForumIcon from "@/components/common/ForumIcon";
+import DonationElectionLeaderboard from "../DonationElectionLeaderboard";
 
 const styles = defineStyles("GivingSeason2025Banner", (theme: ThemeType) => ({
   root: {
@@ -170,7 +174,35 @@ const styles = defineStyles("GivingSeason2025Banner", (theme: ThemeType) => ({
       display: "none",
     },
   },
-  buttonFilled: {
+  feedButtonRow: {
+    display: "flex",
+    gap: "12px",
+    [theme.breakpoints.down("xs")]: {
+      flexDirection: "column",
+    },
+  },
+  buttonPrimary: {
+    background: "var(--event-color)",
+    color: theme.palette.text.alwaysBlack,
+    borderRadius: theme.borderRadius.default,
+    padding: "8px 24px",
+    fontSize: 14,
+    fontWeight: 500,
+    marginTop: 10,
+    display: "inline-flex",
+    alignItems: "center",
+    justifyContent: "center",
+    gap: 8,
+    transition: "opacity ease 0.2s",
+    "& svg": {
+      width: 16,
+    },
+    "&:hover": {
+      opacity: 0.8,
+    },
+  },
+  // TODO
+  buttonSecondary: {
     background: "var(--event-color)",
     color: theme.palette.text.alwaysBlack,
     borderRadius: theme.borderRadius.default,
@@ -330,6 +362,7 @@ export const GivingSeason2025Banner: FC = () => {
     setSelectedEvent,
     amountRaised,
     amountTarget,
+    leaderboard,
   } = useGivingSeason();
 
   const onLinkClick = useCallback((eventName: string, href: string) => {
@@ -340,6 +373,21 @@ export const GivingSeason2025Banner: FC = () => {
   if (!currentEvent) {
     return null;
   }
+
+  const isLeaderboardDisplayed =
+    selectedEvent.name === "Donation election" &&
+    leaderboard &&
+    leaderboard[3] &&
+    // TODO extract into a util
+    Object.values(leaderboard[3]).reduce((a, b) => a + b, 0) >= 100;
+  const isVotingOpen = now < DONATION_ELECTION_END;
+
+  console.log({
+    isLeaderboardDisplayed,
+    leaderboard,
+    count: leaderboard && leaderboard[3] && Object.values(leaderboard[3]).reduce((a, b) => a + b, 0)
+  })
+
   return (
     <AnalyticsContext pageSectionContext="GivingSeason2025Banner">
       <div
@@ -410,7 +458,7 @@ export const GivingSeason2025Banner: FC = () => {
             ))}
           </div>
           <div className={classes.feed}>
-            {currentEvent?.tag && selectedEvent === currentEvent && (
+            {!isLeaderboardDisplayed && currentEvent?.tag && selectedEvent === currentEvent && (
               <>
                <MixedTypeFeed
                   firstPageSize={selectedEvent?.feedCount}
@@ -456,7 +504,7 @@ export const GivingSeason2025Banner: FC = () => {
                     selectedEvent.tag &&
                   <Link
                     to={currentEvent.readMoreHref}
-                    className={classes.buttonFilled}
+                    className={classes.buttonPrimary}
                   >
                     Explore all posts
                     <ForumIcon icon="ArrowRight" />
@@ -464,13 +512,41 @@ export const GivingSeason2025Banner: FC = () => {
                 }
               </>
             )}
-            {selectedEvent.tag &&
+            {!isLeaderboardDisplayed && selectedEvent.tag &&
                 selectedEvent.end < now &&
                 selectedEvent !== currentEvent && (
               <GivingSeasonTopPosts
                 tagId={selectedEvent.tag._id}
                 tagSlug={selectedEvent.tag.slug}
               />
+            )}
+            {isLeaderboardDisplayed && <DonationElectionLeaderboard
+              voteCounts={leaderboard ?? {}}
+              // TODO className
+            />}
+            {selectedEvent?.name === "Donation election" && (
+              <div className={classes.feedButtonRow}>
+                {isVotingOpen && <Link
+                  to="/voting-portal"
+                  className={classes.buttonPrimary}
+                >
+                  Vote in the election
+                  <ForumIcon icon="ArrowRight" />
+                </Link>}
+                {DONATION_ELECTION_WINNERS_HREF ? <Link
+                  to={DONATION_ELECTION_WINNERS_HREF}
+                  className={classes.buttonPrimary}
+                >
+                  Read about the winners
+                </Link> :
+                <Link
+                  to={DONATION_ELECTION_CANDIDATES_HREF}
+                  className={classes.buttonSecondary}
+                >
+                  Read about the candidates
+                </Link>
+                }
+              </div>
             )}
           </div>
         </div>

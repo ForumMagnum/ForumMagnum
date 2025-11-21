@@ -14,7 +14,6 @@ import { useSingle } from "@/lib/crud/withSingle";
 import { useLoginPopoverContext } from "@/components/hooks/useLoginPopoverContext";
 import { useMessages } from "@/components/common/withMessages";
 import { gql, useMutation, useQuery } from "@apollo/client";
-import { isProduction } from "@/lib/executionEnvironment";
 import { commentGetPageUrlFromIds } from "@/lib/collections/comments/helpers";
 import { AnalyticsContext, useTracking } from "@/lib/analyticsEvents";
 import { useCurrentUser } from "@/components/common/withUser";
@@ -23,6 +22,7 @@ import { useWindowSize } from "@/components/hooks/useScreenWidth";
 import { MOBILE_HEADER_HEIGHT } from "@/components/common/Header";
 import {
   DONATION_ELECTION_APPROX_CLOSING_DATE,
+  DONATION_ELECTION_CANDIDATES_HREF,
   ELECTION_DONATE_HREF,
   userIsAllowedToVoteInDonationElection,
   useGivingSeason,
@@ -39,7 +39,6 @@ import ReactConfetti from "react-confetti";
 import classNames from "classnames";
 import sortBy from "lodash/sortBy";
 import { registerComponent } from "@/lib/vulcan-lib/components";
-import { useNavigate } from "@/lib/routeUtil";
 import UsersProfileImage from "@/components/users/UsersProfileImage";
 import CommentsNewForm from "@/components/comments/CommentsNewForm";
 import EAButton from "@/components/ea-forum/EAButton";
@@ -52,7 +51,6 @@ import { useCurrentTime } from "@/lib/utils/timeUtil";
 
 const BACKGROUND_HREF = "https://res.cloudinary.com/cea/image/upload/v1763548915/Banner/voting-portal-2025-background.png"
 const VOTING_HREF = "/posts/GyjtmSuQviTngRtjn/donation-election-2025-how-to-vote";
-const CANDIDATES_HREF = "/posts/YqYSGpRbLa7ppkuWs/meet-the-candidates-donation-election-2025";
 const FRAUD_HREF = "/posts/GyjtmSuQviTngRtjn/donation-election-2025-how-to-vote#What_s_not_allowed";
 const THREAD_HREF = "/posts/prnkA8BksF7Bbobfc/donation-election-discussion-thread-1";
 const COMMENT_POST_ID = "prnkA8BksF7Bbobfc";
@@ -607,7 +605,7 @@ const WelcomeScreen = ({onNext, currentUser, classes}: {
             {allowed ? "Vote in the Election ->" : reason}
           </EAButton>
           <EAButton
-            href={CANDIDATES_HREF}
+            href={DONATION_ELECTION_CANDIDATES_HREF}
             className={classNames(classes.welcomeButton, classes.welcomeButtonSecondary)}
           >
             Meet the candidates

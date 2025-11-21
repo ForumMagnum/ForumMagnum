@@ -4,6 +4,16 @@ import Posts from "../collections/posts/collection";
 import gql from 'graphql-tag';
 import ElectionVotes from "../collections/electionVotes/collection";
 import { ACTIVE_DONATION_ELECTION, userIsAllowedToVoteInDonationElection } from "@/lib/givingSeason";
+import { instantRunoffAllPossibleResults, IRVote } from "@/lib/givingSeason/instantRunoff";
+import { memoizeWithExpiration } from "@/lib/utils/memoizeWithExpiration";
+
+const getVoteCounts = async () => {
+  const dbVotes = await ElectionVotes.find({ electionName: ACTIVE_DONATION_ELECTION }).fetch();
+  const votes: IRVote[] = dbVotes.map((vote) => vote.vote);
+  return instantRunoffAllPossibleResults(votes as IRVote[]);
+};
+
+const voteCountsWithCache = memoizeWithExpiration(getVoteCounts, 60 * 1000);
 
 export const givingSeasonGraphQLTypeDefs = gql`
   type GivingSeasonTagFeedQueryResults {
@@ -18,6 +28,7 @@ export const givingSeasonGraphQLTypeDefs = gql`
   }
   extend type Query {
     GivingSeason2025DonationTotal: Float!
+    GivingSeason2025VoteCounts: JSON!
     GivingSeasonTagFeed(
       limit: Int,
       cutoff: Date,
@@ -37,6 +48,13 @@ export const givingSeasonGraphQLQueries = {
     _args: {},
     context: ResolverContext,
   ) => context.repos.databaseMetadata.getGivingSeason2025DonationTotal(),
+  GivingSeason2025VoteCounts: async (
+    _root: void,
+    _args: {},
+    _context: ResolverContext,
+  ) => {
+    return voteCountsWithCache.get();
+  },
   GivingSeasonTagFeed: async (
     _root: void,
     {limit = 4, cutoff, offset, tagId}: {
