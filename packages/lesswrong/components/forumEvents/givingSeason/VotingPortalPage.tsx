@@ -52,10 +52,10 @@ import { useCurrentTime } from "@/lib/utils/timeUtil";
 
 const BACKGROUND_HREF = "https://res.cloudinary.com/cea/image/upload/v1763548915/Banner/voting-portal-2025-background.png"
 const VOTING_HREF = "/posts/GyjtmSuQviTngRtjn/donation-election-2025-how-to-vote";
-const CANDIDATES_HREF = "/posts/tucbWEN7SBWxNiHWj/meet-the-candidates-in-the-forum-s-donation-election-2024"; // TODO update, see full checklist: https://docs.google.com/document/d/1Y_guOnL78yV6PbmjL1fpFsMq9LSc39tCwpIuuYY1sYs/edit?tab=t.0
+const CANDIDATES_HREF = "/posts/YqYSGpRbLa7ppkuWs/meet-the-candidates-donation-election-2025";
 const FRAUD_HREF = "/posts/GyjtmSuQviTngRtjn/donation-election-2025-how-to-vote#What_s_not_allowed";
-const THREAD_HREF = "/posts/q6C23rxvyHX2ZxNNS/donation-election-discussion-thread"; // TODO update, see full checklist: https://docs.google.com/document/d/1Y_guOnL78yV6PbmjL1fpFsMq9LSc39tCwpIuuYY1sYs/edit?tab=t.0
-const COMMENT_POST_ID = isProduction ? "q6C23rxvyHX2ZxNNS" : "TKPz7FSTd6siveswn"; // TODO update, see full checklist: https://docs.google.com/document/d/1Y_guOnL78yV6PbmjL1fpFsMq9LSc39tCwpIuuYY1sYs/edit?tab=t.0
+const THREAD_HREF = "/posts/prnkA8BksF7Bbobfc/donation-election-discussion-thread-1";
+const COMMENT_POST_ID = "prnkA8BksF7Bbobfc";
 
 const styles = (theme: ThemeType) => ({
   root: {

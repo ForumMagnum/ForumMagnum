@@ -31,7 +31,7 @@ export const DONATION_ELECTION_NUM_WINNERS = 3;
 export const DONATION_ELECTION_SHOW_LEADERBOARD_CUTOFF = 100;
 export const DONATION_ELECTION_ACCOUNT_AGE_CUTOFF = new Date("2025-10-24T00:00:00.000Z"); // Based on the time of https://forum.effectivealtruism.org/posts/RzdKnBYe3jumrZxkB/giving-season-2025-announcement
 export const DONATION_ELECTION_APPROX_CLOSING_DATE = 'Dec 7th';
-export const DONATION_ELECTION_START = new Date("2025-11-24T00:00:00.000Z");
+export const DONATION_ELECTION_START = new Date("2025-11-24T10:00:00.000Z");
 export const DONATION_ELECTION_END = new Date("2025-12-08T00:00:00.000Z");
 
 /**
@@ -116,7 +116,7 @@ export const givingSeasonEvents: GivingSeasonEvent[] = [
       slug: "marginal-funding-week-2025",
     },
     start: new Date("2025-11-17"),
-    end: new Date("2025-11-24"),
+    end: new Date("2025-11-24T10:00:00.000Z"),
     color: "#FF7454",
     desktopCloudinaryId: "week3_desktop_hqdsiu",
     mobileCloudinaryId: "week3_mobile_kby9wq",
@@ -130,7 +130,7 @@ export const givingSeasonEvents: GivingSeasonEvent[] = [
       _id: "5S6ttX5JADjsPpxym",
       slug: "donation-election-2025",
     },
-    start: new Date("2025-11-24"),
+    start: new Date("2025-11-24T10:00:00.000Z"),
     end: new Date("2025-12-08"),
     color: "#FFC500",
     desktopCloudinaryId: "week4_desktop_s1iy4m",
