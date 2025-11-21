@@ -2,7 +2,7 @@ import { GraphQLSchema, SourceLocation } from "graphql";
 import { SchemaLink } from '@apollo/client/link/schema';
 import { BatchHttpLink } from '@apollo/client/link/batch-http';
 import { onError } from '@apollo/client/link/error';
-import { isServer } from '../executionEnvironment';
+import { isClient, isServer } from '../executionEnvironment';
 import { graphqlBatchMaxSetting } from '../instanceSettings';
 import { ApolloLink, Operation, selectURI } from "@apollo/client/core";
 import { crosspostUserAgent } from "./constants";
@@ -69,6 +69,37 @@ export const createHttpLink = (baseUrl: string, loginToken: string|null) => {
     fetch,
     batchKey,
   });
+}
+
+let pageIsUnloading = false;
+let globalFetchIsPatched = false;
+export function markPageAsUnloading() {
+  pageIsUnloading = true;
+}
+type FetchFunction = typeof globalThis.fetch;
+function patchGlobalFetch() {
+  if (globalFetchIsPatched) return;
+  const originalFetch = globalThis.fetch;
+  globalThis.fetch = function() {
+    return new Promise(async (resolve, reject) => {
+      try {
+        const fetchResult = await (originalFetch as any)(...arguments);
+        if (!pageIsUnloading) {
+          resolve(fetchResult);
+        }
+      } catch(e) {
+        if (pageIsUnloading) {
+          console.log("Suppressed exception from aborted fetch during page unload");
+        } else {
+          reject(e);
+        }
+      }
+    });
+  }
+}
+
+if (isClient) {
+  patchGlobalFetch();
 }
 
 export const headerLink = new ApolloLink((operation, forward) => {
