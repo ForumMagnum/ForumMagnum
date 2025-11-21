@@ -1,4 +1,4 @@
-import React, { useState, useMemo, useCallback, useEffect, useRef } from 'react';
+import React, { useState, useMemo, useCallback, useRef, useEffect } from 'react';
 import { defineStyles, useStyles } from '../../hooks/useStyles';
 import { useQuery } from "@/lib/crud/useQuery";
 import { SuspenseWrapper } from '@/components/common/SuspenseWrapper';
@@ -13,8 +13,13 @@ import { HIDE_SOLSTICE_GLOBE_COOKIE } from '@/lib/cookies/cookies';
 import { useCookiesWithConsent } from '@/components/hooks/useCookiesWithConsent';
 import { isClient } from '@/lib/executionEnvironment';
 
-const smallBreakpoint = 1525
-const minBannerWidth = 1425
+const mediumBreakpoint = 1525
+const smallBreakpoint = 1200
+const minBannerWidth = 1100
+
+const smallTextWidth = 205
+const mediumTextWidth = 270
+const largeTextWidth = 330
 
 const styles = defineStyles("SolsticeSeasonBanner", (theme: ThemeType) => ({
   root: {
@@ -23,6 +28,10 @@ const styles = defineStyles("SolsticeSeasonBanner", (theme: ThemeType) => ({
     right: 0,
     width: '50vw',
     height: '100%',
+    display: 'none',
+    [theme.breakpoints.up(minBannerWidth)]: {
+      display: 'block',
+    },
   },
   overlay: {
     position: 'absolute',
@@ -78,28 +87,15 @@ const styles = defineStyles("SolsticeSeasonBanner", (theme: ThemeType) => ({
       animationFillMode: 'both',
       animationRange: '0% 10%',
     },
-    // postsListBlockingRect: {
-    //   animationName: '$solsticeGlobeFade',
-    //   animationTimeline: 'scroll()',
-    //   animationDuration: '1s',
-    //   animationTimingFunction: 'linear',
-    //   animationFillMode: 'both',
-    //   animationRange: '0% 10%',
-    // },
-    // background: {
-    //   animationName: '$solsticeGlobeFade',
-    //   animationTimeline: 'scroll()',
-    //   animationDuration: '1s',
-    //   animationTimingFunction: 'linear',
-    //   animationFillMode: 'both',
-    //   animationRange: '0% 10%',
-    // }
   },
   title: {
     fontSize: 53,
     fontWeight: 500,
+    [theme.breakpoints.down(mediumBreakpoint)]: {
+      fontSize: 43,
+    },
     [theme.breakpoints.down(smallBreakpoint)]: {
-      fontSize: 34,
+      fontSize: 33,
     },
     fontFamily: theme.typography.headerStyle.fontFamily,
     color: theme.palette.text.alwaysWhite,
@@ -113,20 +109,22 @@ const styles = defineStyles("SolsticeSeasonBanner", (theme: ThemeType) => ({
   textContainer: {
     position: 'absolute',
     bottom: 150,
-    width: 320,
+    width: smallTextWidth,
     paddingBottom: 20,
     textShadow: `0 0 5px ${theme.palette.text.alwaysBlack}, 0 0 15px ${theme.palette.text.alwaysBlack}, 0 0 50px ${theme.palette.text.alwaysBlack}`,
-    left: '55%',
+    left: '63.5%',
     [theme.breakpoints.up(smallBreakpoint)]: {
+      left: '55%',
+      width: mediumTextWidth,
+    },
+    [theme.breakpoints.up(mediumBreakpoint)]: {
       left: '50%',
-      width: 330,
+      width: largeTextWidth,
       marginRight: 0,
     },
     [theme.breakpoints.up(1620)]: {
       left: '40%',
     },
-    // Center horizontally within the space to the right of the layout
-    // Position is set dynamically via inline style based on measured layout end position
     transform: 'translateX(-50%)',
     zIndex: 4,
     lineHeight: 1.5,
@@ -138,7 +136,7 @@ const styles = defineStyles("SolsticeSeasonBanner", (theme: ThemeType) => ({
   },
   subtitle: {
     fontSize: 16,
-    [theme.breakpoints.up(smallBreakpoint)]: {
+    [theme.breakpoints.up(mediumBreakpoint)]: {
       fontSize: 20,
     },
     '& a': {
@@ -160,13 +158,28 @@ const styles = defineStyles("SolsticeSeasonBanner", (theme: ThemeType) => ({
       margin: 0,
     },
   },
+  hideOnSmallishScreens: {
+    [theme.breakpoints.down(smallBreakpoint)]: {
+      display: 'none',
+    },
+  },
+  hideOnMediumScreens: {
+    [theme.breakpoints.down(mediumBreakpoint)]: {
+      display: 'none',
+    },
+  },
   globeGradientRight: {
     position: 'absolute',
     top: 0,
     right: 0,
-    width: 'calc(100vw - 460px)',
+    width: 'calc(100vw - 360px)',
+    background: `linear-gradient(to left, transparent 20%, ${theme.palette.background.default} 90%)`,
+    [theme.breakpoints.up(1400)]: {
+      width: 'calc(100vw - 460px)',
+      background: `linear-gradient(to left, transparent 40%, ${theme.palette.background.default} 90%)`,
+    },
     height: '100%',
-    background: `linear-gradient(to left, transparent 60%, ${theme.palette.background.default} 90%)`,
+    
     [theme.breakpoints.up(1620)]: {
       width: 'calc(100vw - 560px)',
       background: `linear-gradient(to left, transparent 60%, ${theme.palette.background.default} 90%)`,
@@ -191,10 +204,19 @@ const styles = defineStyles("SolsticeSeasonBanner", (theme: ThemeType) => ({
   },
   buttonContainer: {
     display: 'flex',
-    width: 310,
+    width: smallTextWidth - 10,
     flexWrap: 'wrap',
+    flexDirection: 'column',
     gap: 8,
     marginTop: 16,
+    [theme.breakpoints.up(smallBreakpoint)]: {
+      width: mediumTextWidth,
+      flexDirection: 'row',
+    },
+    [theme.breakpoints.up(mediumBreakpoint)]: {
+      width: largeTextWidth,
+      flexDirection: 'row',
+    },
   },
   eventButton: {
     display: 'flex',
@@ -207,7 +229,7 @@ const styles = defineStyles("SolsticeSeasonBanner", (theme: ThemeType) => ({
     cursor: 'pointer',
     border: 'none',
     justifyContent: 'space-between',
-    width: 'calc(50% - 5px)',
+    width: '100%',
     alignItems: 'center',
     wordWrap: 'balance',
     transition: 'background 0.8s ease-in-out',
@@ -216,6 +238,9 @@ const styles = defineStyles("SolsticeSeasonBanner", (theme: ThemeType) => ({
     paddingLeft: 10,
     paddingRight: 10,
     [theme.breakpoints.up(smallBreakpoint)]: {
+      width: 'calc(50% - 5px)',
+    },
+    [theme.breakpoints.up(mediumBreakpoint)]: {
       padding: 8,
       paddingLeft: 12,
       paddingRight: 12,
@@ -250,8 +275,14 @@ const styles = defineStyles("SolsticeSeasonBanner", (theme: ThemeType) => ({
     top: 0,
     height: '100%',
     width: 800,
-    right: "calc(100% - 375px)",
-    [theme.breakpoints.up(1400)]: {
+    right: "calc(100% - 315px)",
+    [theme.breakpoints.up(1200)]: {
+      right: "calc(100% - 300px)",
+    },
+    [theme.breakpoints.up(1300)]: {
+      right: "calc(100% - 240px)",
+    },
+    [theme.breakpoints.up(1424)]: {
       right: "calc(100% - 350px)",
     },
     [theme.breakpoints.up(1500)]: {
@@ -295,7 +326,8 @@ export default function SolsticeSeasonBannerInner() {
   const [selectedEventId, setSelectedEventId] = useState<string | null>(null)
   const [popupCoords, setPopupCoords] = useState<{ x: number; y: number } | null>(null)
   const markerClickInProgressRef = useRef(false);
-  
+  const hideSolsticeBanner = isClient && window.navigator.userAgent.includes('CloudWatch-canary-coVij6peechaekou');
+
   useEffect(() => {
     if (!isClient) {
       return;
@@ -377,8 +409,7 @@ export default function SolsticeSeasonBannerInner() {
     }
   }, []);
 
-  // Conditional render after all hooks - prevents rendering entirely if below breakpoint
-  if (!shouldRender) {
+  if (hideSolsticeBanner || !shouldRender) {
     return null;
   }
 
@@ -407,21 +438,19 @@ export default function SolsticeSeasonBannerInner() {
       )}
       <div className={classNames(classes.textContainer)}>
         <h1 className={classNames(classes.title)}>Solstice Season</h1>
-          <p className={classNames(classes.subtitle)}>
+          <p className={classNames(classes.subtitle, classes.hideOnSmallishScreens)}>
             Celebrate the longest night of the year!
           </p>
           <p className={classNames(classes.subtitle)}>
             Visit a megameetup at a major city, or host a small gathering for your friends the night of the 21st.
           </p>
-          {/* <Link to={`/newPost?eventForm=true&SOLSTICE=true`} target="_blank" rel="noopener noreferrer">
-            <div className={classes.createEventButtonAnnounce}>Create a Solstice Event</div>
-          </Link> */}
           <div className={classes.buttonContainer}>
             <Link to="https://waypoint.lighthaven.space/solstice-season" target="_blank" rel="noopener noreferrer"  className={classNames(classes.eventButton)}>
-              Berkeley Megameetup<span className={classes.date}>Dec 6</span>
+              <span>Berkeley <span className={classes.hideOnMediumScreens}>
+                Megameetup</span></span><span className={classes.date}>Dec 6</span>
             </Link>
             <Link to="https://rationalistmegameetup.com/" target="_blank" rel="noopener noreferrer" className={classNames(classes.eventButton)}>
-              New York Megameetup<span className={classes.date}>Dec 20</span>
+              <span>New York <span className={classes.hideOnMediumScreens}>Megameetup</span></span><span className={classes.date}>Dec 20</span>
             </Link>
           </div>  
           <div className={classes.hideButton} onClick={() => handleHideSolsticeSeason()}>

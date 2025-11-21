@@ -8,6 +8,9 @@ import { HOME_RHS_MAX_SCREEN_WIDTH } from '@/components/ea-forum/constants';
 import { defineStyles, useStyles } from '@/components/hooks/useStyles';
 import { getCommunityPath } from '@/lib/pathConstants';
 
+const ICON_ONLY_NAVIGATION_WIDTH = 64;
+export const ICON_ONLY_NAVIGATION_BREAKPOINT = 1424;
+
 const styles = (theme: ThemeType) => ({
   // This wrapper is on friendly sites so that when this sidebar is hidden
   // and the right-hand sidebar is visible,
@@ -21,50 +24,88 @@ const styles = (theme: ThemeType) => ({
     [`@media(max-width: ${HOME_RHS_MAX_SCREEN_WIDTH}px)`]: {
       minWidth: 0,
     },
-    [theme.breakpoints.down('md')]: {
+    [theme.breakpoints.down('sm')]: {
       display: "none"
     },
   },
   sidebar: {
     width: TAB_NAVIGATION_MENU_WIDTH,
-    [theme.breakpoints.down('md')]: {
+    [theme.breakpoints.down('sm')]: {
       display: "none"
     },
     ...(theme.isFriendlyUI && {
       top: 26,
     })
   },
+  iconOnlySidebar: {
+    [`@media (max-width: ${ICON_ONLY_NAVIGATION_BREAKPOINT}px)`]: {
+      width: ICON_ONLY_NAVIGATION_WIDTH,
+    },
+  },
+  iconOnlySidebarWrapper: {
+    [`@media (max-width: ${ICON_ONLY_NAVIGATION_BREAKPOINT}px)`]: {
+      minWidth: ICON_ONLY_NAVIGATION_WIDTH,
+    },
+  },
   navSidebarTransparent: {
     zIndex: 10,
   },
   background: {
     background: theme.palette.panelBackground.translucent3,
-  }
+  },
+  fullNavigation: {
+    [`@media (max-width: ${ICON_ONLY_NAVIGATION_BREAKPOINT}px)`]: {
+      display: "none",
+    },
+  },
+  iconOnlyNavigation: {
+    display: "none",
+    [`@media (max-width: ${ICON_ONLY_NAVIGATION_BREAKPOINT}px)`]: {
+      display: "block",
+    },
+  },
 })
 
 const NavigationStandalone = ({
   sidebarHidden,
   noTopMargin,
+  iconOnlyNavigationEnabled,
   classes,
 }: {
   sidebarHidden: boolean,
   noTopMargin?: boolean,
+  iconOnlyNavigationEnabled?: boolean,
   classes: ClassesType<typeof styles>,
 }) => {
   const { location } = useLocation();
+  const friendlyUI = isFriendlyUI();
 
   const background = location.pathname === getCommunityPath();
 
-  return <>
-    <div className={classNames({[classes.sidebarWrapper]: isFriendlyUI})}>
-      <Slide slidIn={!sidebarHidden}>
-        <div className={classNames(classes.sidebar, {[classes.background]: background})}>
-          {/* In the unspaced grid layout the sidebar can appear on top of other componenents, so make the background transparent */}
-          <TabNavigationMenu noTopMargin={noTopMargin} />
+  return <div className={classNames({
+    [classes.sidebarWrapper]: friendlyUI,
+    [classes.iconOnlySidebarWrapper]: friendlyUI && iconOnlyNavigationEnabled,
+  })}>
+    <Slide slidIn={!sidebarHidden}>
+      <div className={classNames(classes.sidebar, {
+        [classes.background]: background,
+        [classes.iconOnlySidebar]: iconOnlyNavigationEnabled,
+      })}>
+        <div className={classes.fullNavigation}>
+          <TabNavigationMenu
+            iconOnlyNavigationEnabled={false}
+            noTopMargin={noTopMargin}
+          />
         </div>
-      </Slide>
-    </div>
-  </>
+        {iconOnlyNavigationEnabled && <div className={classes.iconOnlyNavigation}>
+          <TabNavigationMenu
+            iconOnlyNavigationEnabled={iconOnlyNavigationEnabled}
+            noTopMargin={noTopMargin}
+          />
+        </div>}
+      </div>
+    </Slide>
+  </div>
 }
 
 const slideStyles = defineStyles("Slide", (theme: ThemeType) => ({

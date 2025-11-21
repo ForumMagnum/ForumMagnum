@@ -61,6 +61,7 @@ import { NO_ADMIN_NEXT_REDIRECT_COOKIE, SHOW_LLM_CHAT_COOKIE } from '@/lib/cooki
 import dynamic from 'next/dynamic';
 import { isBlackBarTitle } from '@/components/seasonal/petrovDay/petrov-day-story/petrovConsts';
 import { usePrerenderablePathname } from '../next/usePrerenderablePathname';
+import { PopperPortalProvider } from '../common/LWPopper';
 
 const SunshineSidebar = dynamic(() => import("../sunshineDashboard/SunshineSidebar"), { ssr: false });
 const LanguageModelLauncherButton = dynamic(() => import("../languageModels/LanguageModelLauncherButton"), { ssr: false });
@@ -109,7 +110,14 @@ const styles = defineStyles("Layout", (theme: ThemeType) => ({
         minmax(0, min-content)
       `,
     },
+  },
+  gridBreakpointMd: {
     [theme.breakpoints.down('md')]: {
+      display: 'block'
+    }
+  },
+  gridBreakpointSm: {
+    [theme.breakpoints.down('sm')]: {
       display: 'block'
     }
   },
@@ -285,11 +293,17 @@ const Layout = ({children}: {
 
     // The friendly home page has a unique grid layout, to account for the right hand side column.
     const friendlyHomeLayout = isFriendlyUI() && isHomeRoute(pathname);
-    
+
+    // an optional mode for displaying the side navigation, for when we want the right banner
+    // to be displayed on medium screens
+    const renderIconOnlyNavigation = isLW()
+    const iconOnlyNavigationEnabled = renderIconOnlyNavigation && standaloneNavigation
+
     const isIncompletePath = allowedIncompletePaths.some(path => pathname.startsWith(`/${path}`));
     
     return (
       <AnalyticsContext path={pathname}>
+      <PopperPortalProvider>
       <UnreadNotificationsContextProvider>
       <TimezoneWrapper>
       <ItemsReadContextWrapper>
@@ -346,6 +360,8 @@ const Layout = ({children}: {
 
               <div className={classNames({
                 [classes.spacedGridActivated]: shouldUseGridLayout,
+                [classes.gridBreakpointMd]: !renderIconOnlyNavigation && shouldUseGridLayout,
+                [classes.gridBreakpointSm]: renderIconOnlyNavigation && shouldUseGridLayout,
                 [classes.eaHomeLayout]: friendlyHomeLayout && !renderSunshineSidebar,
                 [classes.fullscreenBodyWrapper]: isFullscreenRoute(pathname),
               }
@@ -357,6 +373,7 @@ const Layout = ({children}: {
                         <NavigationStandalone
                           sidebarHidden={hideNavigationSidebar}
                           noTopMargin={friendlyHomeLayout}
+                          iconOnlyNavigationEnabled={iconOnlyNavigationEnabled}
                         />
                       </SuspenseWrapper>
                     </DeferRender>
@@ -401,6 +418,7 @@ const Layout = ({children}: {
       </ItemsReadContextWrapper>
       </TimezoneWrapper>
       </UnreadNotificationsContextProvider>
+      </PopperPortalProvider>
       </AnalyticsContext>
     )
   };

@@ -4,6 +4,7 @@ import { RouteMetadataSetter } from '@/components/layout/RouteMetadataContext';
 import { StatusCodeSetter } from '@/components/next/StatusCodeSetter';
 import Footer from '@/components/layout/Footer';
 import { RouteRootClient } from './RouteRootClient';
+import { PopperPortalProvider } from '../common/LWPopper';
 
 const RouteRoot = ({delayedStatusCode=false, metadata, fullscreen, children}: {
   delayedStatusCode?: boolean
@@ -18,7 +19,9 @@ const RouteRoot = ({delayedStatusCode=false, metadata, fullscreen, children}: {
     <RouteRootClient
       fullscreen={!!fullscreen}
     >
-      {children}
+      <PopperPortalProvider>
+        {children}
+      </PopperPortalProvider>
     </RouteRootClient>
     
     {!metadata?.noFooter && <Footer/>}

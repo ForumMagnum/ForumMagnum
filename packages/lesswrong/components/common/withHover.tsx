@@ -1,4 +1,4 @@
-import { useState, useRef, useCallback } from 'react';
+import { useState, useRef, useCallback, useEffect } from 'react';
 import { EventProps, useTracking } from "../../lib/analyticsEvents";
 import { isMobile } from '../../lib/utils/isMobile'
 
@@ -35,6 +35,18 @@ export const useHover = <EventType extends {currentTarget: HTMLElement}=React.Mo
   const mouseOverStart = useRef<Date|null>(null)
 
   const { captureEvent } = useTracking({eventType:"hoverEventTriggered", eventProps})
+  
+  // On unmount, unhover. This is necessary when <Activity> is used (including
+  // implicitly by nextjs) because that breaks the assumption that an element
+  // which has seen a mouseOver event is still hovered so long as it hasn't seen
+  // a mouseLeave event.
+  useEffect(() => {
+    return () => {
+      setHover(false);
+      setAnchorEl(null);
+    }
+  //eslint-disable-next-line
+  }, []);
 
   const captureHoverEvent = useCallback(() => {
     if (!isMobile()) {

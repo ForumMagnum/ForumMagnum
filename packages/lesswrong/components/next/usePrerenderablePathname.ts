@@ -17,9 +17,17 @@ import { useContext } from 'react';
 export function usePrerenderablePathname() {
   const layoutRouterContext = useContext(LayoutRouterContext);
   if (layoutRouterContext) {
-    return layoutRouterContext.url;
+    const pathname = layoutRouterContext.url;
+    return removeQueryFrom(pathname);
   } else {
     throw new Error("No LayoutRouterContext");
   }
 }
 
+function removeQueryFrom(pathname: string) {
+  if (pathname.indexOf("?") >= 0) {
+    return pathname.substring(0, pathname.indexOf("?"));
+  } else {
+    return pathname;
+  }
+}
