@@ -12,7 +12,7 @@ export type IRPossibleVoteCounts = Record<number, Record<string, number>>
 
 export function countInstantRunoffVotes(possibleVoteCounts: IRPossibleVoteCounts) {
   const highestKey = Math.max(...Object.keys(possibleVoteCounts).map(Number));
-  return possibleVoteCounts[highestKey] && Object.values(possibleVoteCounts[highestKey]).reduce((a, b) => a + b, 0);
+  return (possibleVoteCounts[highestKey] && Object.values(possibleVoteCounts[highestKey]).reduce((a, b) => a + b, 0)) ?? 0;
 }
 
 function tallyVotes({votes, eliminatedCandidates}: {votes: IRVote[], eliminatedCandidates: Set<string>}) {
