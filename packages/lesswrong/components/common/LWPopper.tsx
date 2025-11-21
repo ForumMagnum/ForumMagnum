@@ -1,12 +1,14 @@
-import { registerComponent } from '../../lib/vulcan-lib/components';
-import React, {MutableRefObject, ReactNode, useState} from 'react';
+"use client";
+import React, {use, createContext, MutableRefObject, ReactNode, useState, useRef, RefObject, useEffect, useLayoutEffect} from 'react';
 import type { Placement as PopperPlacementType } from "popper.js"
 import classNames from 'classnames';
 import { usePopper } from 'react-popper';
 import { createPortal } from 'react-dom';
 import type { State } from '@popperjs/core/lib/types';
+import { defineStyles } from '../hooks/defineStyles';
+import { useStyles } from '../hooks/useStyles';
 
-const styles = (theme: ThemeType) => ({
+const styles = defineStyles("LWPopper", (theme: ThemeType) => ({
   popper: {
     position: "absolute",
     zIndex: theme.zIndexes.lwPopper
@@ -34,12 +36,11 @@ const styles = (theme: ThemeType) => ({
       display: "none",
     },
   },
-})
+}))
 
 // This is a wrapper around the Popper library so we can easily replace it with different versions and
 // implementations
 const LWPopper = ({
-  classes,
   children,
   className,
   tooltip=false,
@@ -54,7 +55,6 @@ const LWPopper = ({
   hideOnTouchScreens,
   updateRef
 }: {
-  classes: ClassesType<typeof styles>,
   children: ReactNode,
   tooltip?: boolean,
   allowOverflow?: boolean,
@@ -69,6 +69,7 @@ const LWPopper = ({
   hideOnTouchScreens?: boolean,
   updateRef?: MutableRefObject<(() => Promise<Partial<State>>) | null | undefined>
 }) => {
+  const classes = useStyles(styles);
   const [popperElement, setPopperElement] = useState<HTMLElement | null>(null);
 
   const flipModifier = !flip && allowOverflow ? [
@@ -86,13 +87,17 @@ const LWPopper = ({
     }
   ];
 
-  const { styles, attributes, update } = usePopper(anchorEl, popperElement, {
+  const { styles: popperStyles, attributes, update } = usePopper(anchorEl, popperElement, {
     placement,
     modifiers: [
       {
         name: 'computeStyles',
         options: {
-          gpuAcceleration: false, // true by default
+          // This misnamed option causes the emitted styles to use `transform`
+          // rather than `left` and `top`. Under some browsers at some zoom
+          // levels, this causes ugly resampling. (This has no effect on whether
+          // GPU acceleration is used or on performance.)
+          gpuAcceleration: false,
         },
       },
       ...(distance>0 ? [{
@@ -119,9 +124,13 @@ const LWPopper = ({
     return null;
   }
   
-  // We use createPortal here to avoid having to deal with overflow problems and styling from the current child
-  // context, by placing the Popper element directly into the document root
-  // Rest of usage from https://popper.js.org/react-popper/v2/
+  // We use createPortal to place the tooltip element in a container a ways
+  // up the tree, to avoid inheriting styles and positioning that we may not
+  // want. However, we need to avoid portaling across a React <Activity>,
+  // because that will cause components to remain mounted (but with their styles
+  // unmounted) after page navigations.
+  const tooltipContainer = use(PopperPortalContainerContext)?.current;
+  if (!tooltipContainer) return null;
   return <>{
     createPortal(
       <div
@@ -133,16 +142,28 @@ const LWPopper = ({
           [classes.hideOnTouchScreens]: hideOnTouchScreens},
           className
         )}
-        style={styles.popper}
+        style={popperStyles.popper}
         {...attributes.popper}
       >
         { children }
       </div>,
-      document.body
+      tooltipContainer
     )
   }</>
 };
 
-export default registerComponent('LWPopper', LWPopper, {styles});
+const PopperPortalContainerContext = createContext<RefObject<HTMLDivElement|null>|null>(null);
+export const PopperPortalProvider = ({children}: {
+  children: React.ReactNode
+}) => {
+  const popperContainerRef = useRef<HTMLDivElement|null>(null);
+  return <>
+    <PopperPortalContainerContext.Provider value={popperContainerRef}>
+      {children}
+    </PopperPortalContainerContext.Provider>
+    <div ref={popperContainerRef}/>
+  </>
+}
 
+export default LWPopper;
 

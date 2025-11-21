@@ -61,6 +61,7 @@ import { NO_ADMIN_NEXT_REDIRECT_COOKIE, SHOW_LLM_CHAT_COOKIE } from '@/lib/cooki
 import dynamic from 'next/dynamic';
 import { isBlackBarTitle } from '@/components/seasonal/petrovDay/petrov-day-story/petrovConsts';
 import { usePrerenderablePathname } from '../next/usePrerenderablePathname';
+import { PopperPortalProvider } from '../common/LWPopper';
 
 const SunshineSidebar = dynamic(() => import("../sunshineDashboard/SunshineSidebar"), { ssr: false });
 const LanguageModelLauncherButton = dynamic(() => import("../languageModels/LanguageModelLauncherButton"), { ssr: false });
@@ -290,6 +291,7 @@ const Layout = ({children}: {
     
     return (
       <AnalyticsContext path={pathname}>
+      <PopperPortalProvider>
       <UnreadNotificationsContextProvider>
       <TimezoneWrapper>
       <ItemsReadContextWrapper>
@@ -401,6 +403,7 @@ const Layout = ({children}: {
       </ItemsReadContextWrapper>
       </TimezoneWrapper>
       </UnreadNotificationsContextProvider>
+      </PopperPortalProvider>
       </AnalyticsContext>
     )
   };
