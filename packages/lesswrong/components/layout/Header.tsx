@@ -21,6 +21,7 @@ import SearchBar from "@/components/common/SearchBar";
 import UsersMenu from "../users/UsersMenu";
 import { LWUsersAccountMenu, EAUsersAccountMenu } from "../users/UsersAccountMenu";
 import NotificationsMenuButton from "../notifications/NotificationsMenuButton";
+import { ICON_ONLY_NAVIGATION_BREAKPOINT } from "@/components/common/TabNavigationMenu/NavigationStandalone";
 import NavigationDrawer from "@/components/common/TabNavigationMenu/NavigationDrawer";
 import { KarmaChangeNotifier } from "../users/karmaChanges/KarmaChangeNotifier";
 import HeaderSubtitle from "@/components/common/HeaderSubtitle";
@@ -232,12 +233,12 @@ export const styles = (theme: ThemeType) => ({
     },
   },
   hideLgUp: {
-    [theme.breakpoints.up('lg')]: {
+    [theme.breakpoints.up(ICON_ONLY_NAVIGATION_BREAKPOINT)]: {
       display:"none !important"
     }
   },
   hideMdDown: {
-    [theme.breakpoints.down('md')]: {
+    [theme.breakpoints.down(ICON_ONLY_NAVIGATION_BREAKPOINT)]: {
       display:"none !important"
     }
   },

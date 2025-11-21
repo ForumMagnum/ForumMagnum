@@ -109,7 +109,14 @@ const styles = defineStyles("Layout", (theme: ThemeType) => ({
         minmax(0, min-content)
       `,
     },
+  },
+  gridBreakpointMd: {
     [theme.breakpoints.down('md')]: {
+      display: 'block'
+    }
+  },
+  gridBreakpointSm: {
+    [theme.breakpoints.down('sm')]: {
       display: 'block'
     }
   },
@@ -285,7 +292,12 @@ const Layout = ({children}: {
 
     // The friendly home page has a unique grid layout, to account for the right hand side column.
     const friendlyHomeLayout = isFriendlyUI() && isHomeRoute(pathname);
-    
+
+    // an optional mode for displaying the side navigation, for when we want the right banner
+    // to be displayed on medium screens
+    const renderIconOnlyNavigation = isLW()
+    const iconOnlyNavigationEnabled = renderIconOnlyNavigation && standaloneNavigation
+
     const isIncompletePath = allowedIncompletePaths.some(path => pathname.startsWith(`/${path}`));
     
     return (
@@ -346,6 +358,8 @@ const Layout = ({children}: {
 
               <div className={classNames({
                 [classes.spacedGridActivated]: shouldUseGridLayout,
+                [classes.gridBreakpointMd]: !renderIconOnlyNavigation && shouldUseGridLayout,
+                [classes.gridBreakpointSm]: renderIconOnlyNavigation && shouldUseGridLayout,
                 [classes.eaHomeLayout]: friendlyHomeLayout && !renderSunshineSidebar,
                 [classes.fullscreenBodyWrapper]: isFullscreenRoute(pathname),
               }
@@ -357,6 +371,7 @@ const Layout = ({children}: {
                         <NavigationStandalone
                           sidebarHidden={hideNavigationSidebar}
                           noTopMargin={friendlyHomeLayout}
+                          iconOnlyNavigationEnabled={iconOnlyNavigationEnabled}
                         />
                       </SuspenseWrapper>
                     </DeferRender>
