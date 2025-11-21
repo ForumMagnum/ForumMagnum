@@ -12991,17 +12991,6 @@ export type SequenceMetadataQueryVariables = Exact<{
 
 export type SequenceMetadataQuery = { __typename?: 'Query', sequence: { __typename?: 'SingleSequenceOutput', result: { __typename?: 'Sequence', _id: string, title: string, bannerImageId: string | null, gridImageId: string | null, noindex: boolean, contents: { __typename?: 'Revision', plaintextDescription: string } | null } | null } | null };
 
-export type updateUserLayoutMutationVariables = Exact<{
-  selector: SelectorInput;
-  data: UpdateUserDataInput;
-}>;
-
-
-export type updateUserLayoutMutation = { __typename?: 'Mutation', updateUser: { __typename?: 'UserOutput', data: (
-      { __typename?: 'User' }
-      & UsersCurrent
-    ) | null } | null };
-
 export type AdminMetadataQueryQueryVariables = Exact<{ [key: string]: never; }>;
 
 
@@ -15442,6 +15431,17 @@ export type PostSummaryDialogQueryVariables = Exact<{
 export type PostSummaryDialogQuery = { __typename?: 'Query', post: { __typename?: 'SinglePostOutput', result: (
       { __typename?: 'Post' }
       & PostWithGeneratedSummary
+    ) | null } | null };
+
+export type updateUserLayoutMutationVariables = Exact<{
+  selector: SelectorInput;
+  data: UpdateUserDataInput;
+}>;
+
+
+export type updateUserLayoutMutation = { __typename?: 'Mutation', updateUser: { __typename?: 'UserOutput', data: (
+      { __typename?: 'User' }
+      & UsersCurrent
     ) | null } | null };
 
 export type PostLinkPreviewSequenceQueryVariables = Exact<{
