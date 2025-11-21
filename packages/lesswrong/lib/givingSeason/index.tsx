@@ -223,7 +223,7 @@ export const GivingSeasonContext = ({children}: {children: ReactNode}) => {
     }
   `, {
     ssr: true,
-    skip: !isEAForum,
+    skip: !isEAForum || !isHomePage,
   });
 
   const value = useMemo(() => ({
