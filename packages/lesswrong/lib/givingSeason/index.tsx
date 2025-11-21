@@ -15,11 +15,13 @@ import { useQuery } from "@apollo/client";
 import { isEAForum } from "../instanceSettings";
 import gql from "graphql-tag";
 import { userIsAdmin } from "../vulcan-users/permissions";
+import { IRPossibleVoteCounts } from "./instantRunoff";
 
 export const GIVING_SEASON_INFO_HREF = "/posts/RzdKnBYe3jumrZxkB/giving-season-2025-announcement";
 export const ELECTION_INFO_HREF = "/posts/RzdKnBYe3jumrZxkB/giving-season-2025-announcement#November_24th_to_December_7th_";
 export const ELECTION_LEARN_MORE_HREF = "/posts/93KvQDDQfaZEBTP7t/donation-election-fund-rewards-and-matching";
 export const ELECTION_DONATE_HREF = "https://www.every.org/ea-forum-donation-election-2025";
+export const ELECTION_VOTE_HREF = "/voting-portal";
 export const ELECTION_2025_MATCHED_AMOUNT = 5000;
 export const MARGINAL_FUNDING_SEQUENCE_ID = "jTAPdwYry3zTyifkZ";
 export const MARGINAL_FUNDING_SPOTIFY_URL = "https://open.spotify.com/playlist/2wEYoo2FtV7OQQA0pATewT?si=XET3lr9aT9S-PFOGDvW6Kw";
@@ -33,6 +35,8 @@ export const DONATION_ELECTION_ACCOUNT_AGE_CUTOFF = new Date("2025-10-24T00:00:0
 export const DONATION_ELECTION_APPROX_CLOSING_DATE = 'Dec 7th';
 export const DONATION_ELECTION_START = new Date("2025-11-24T10:00:00.000Z");
 export const DONATION_ELECTION_END = new Date("2025-12-08T00:00:00.000Z");
+export const DONATION_ELECTION_CANDIDATES_HREF = "/posts/YqYSGpRbLa7ppkuWs/meet-the-candidates-donation-election-2025";
+export const DONATION_ELECTION_WINNERS_HREF = null;
 
 /**
  * Check if a user is allowed to vote in the donation election
@@ -184,6 +188,7 @@ type GivingSeasonContext = {
   setSelectedEvent: Dispatch<SetStateAction<GivingSeasonEvent>>,
   amountRaised: number,
   amountTarget: number,
+  leaderboard?: IRPossibleVoteCounts,
 }
 
 const givingSeasonContext = createContext<GivingSeasonContext | null>(null)
@@ -201,7 +206,7 @@ export const GivingSeasonContext = ({children}: {children: ReactNode}) => {
   }, [defaultEvent]);
   useOnNavigate(onNavigate);
 
-  const {data} = useQuery(gql`
+  const {data: donationTotalData} = useQuery(gql`
     query GivingSeason2025DonationTotal {
       GivingSeason2025DonationTotal
     }
@@ -210,7 +215,16 @@ export const GivingSeasonContext = ({children}: {children: ReactNode}) => {
     ssr: true,
     skip: !isEAForum || (!isHomePage && !isVotingPortalPage),
   });
-  const amountRaised = Math.round(data?.GivingSeason2025DonationTotal ?? 0);
+  const amountRaised = Math.round(donationTotalData?.GivingSeason2025DonationTotal ?? 0);
+
+  const { data: leaderboardData } = useQuery<{ GivingSeason2025VoteCounts: IRPossibleVoteCounts }>(gql`
+    query GivingSeason2025VoteCounts {
+      GivingSeason2025VoteCounts
+    }
+  `, {
+    ssr: true,
+    skip: !isEAForum || !isHomePage,
+  });
 
   const value = useMemo(() => ({
     currentEvent,
@@ -218,7 +232,9 @@ export const GivingSeasonContext = ({children}: {children: ReactNode}) => {
     setSelectedEvent,
     amountRaised,
     amountTarget: ELECTION_TARGET_AMOUNT,
-  }), [currentEvent, selectedEvent, setSelectedEvent, amountRaised]);
+    leaderboard: leaderboardData?.GivingSeason2025VoteCounts,
+  }), [currentEvent, selectedEvent, amountRaised, leaderboardData?.GivingSeason2025VoteCounts]);
+
   return (
     <givingSeasonContext.Provider value={value}>
       {children}
