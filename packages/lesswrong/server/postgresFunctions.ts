@@ -263,6 +263,11 @@ export const postgresFunctions: PostgresFunction[] = [
     `,
   },
   {
+    // LEGACY: After migration, this postgres function will be unused and
+    // droppable. This looks up a user from the UserLoginTokens materialized
+    // view, with fallback to the services field on Users. Post-migration
+    // there's a LoginTokens table, which won't require a fallback, so it's
+    // queried directly without a stored procedure being involved.
     // Fetches user by hashed login token. First attempts to read from the cached
     // version in the `UserLoginTokens` materialized view, otherwise falls back
     // to reading directly from the user object (which is slower).
