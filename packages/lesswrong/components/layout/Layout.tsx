@@ -293,8 +293,11 @@ const Layout = ({children}: {
     // The friendly home page has a unique grid layout, to account for the right hand side column.
     const friendlyHomeLayout = isFriendlyUI() && isHomeRoute(pathname);
 
-    const useIconOnlyNavigation = isLW()
-    const iconOnlyNavigationEnabled = useIconOnlyNavigation && standaloneNavigation
+    // an optional mode for displaying the side navigation, for when we want the right banner
+    // to be displayed on medium screens
+    const renderIconOnlyNavigation = isLW()
+    const iconOnlyNavigationEnabled = renderIconOnlyNavigation && standaloneNavigation
+
     const isIncompletePath = allowedIncompletePaths.some(path => pathname.startsWith(`/${path}`));
     
     return (
@@ -355,8 +358,8 @@ const Layout = ({children}: {
 
               <div className={classNames({
                 [classes.spacedGridActivated]: shouldUseGridLayout,
-                [classes.gridBreakpointMd]: !useIconOnlyNavigation && shouldUseGridLayout,
-                [classes.gridBreakpointSm]: useIconOnlyNavigation && shouldUseGridLayout,
+                [classes.gridBreakpointMd]: !renderIconOnlyNavigation && shouldUseGridLayout,
+                [classes.gridBreakpointSm]: renderIconOnlyNavigation && shouldUseGridLayout,
                 [classes.eaHomeLayout]: friendlyHomeLayout && !renderSunshineSidebar,
                 [classes.fullscreenBodyWrapper]: isFullscreenRoute(pathname),
               }

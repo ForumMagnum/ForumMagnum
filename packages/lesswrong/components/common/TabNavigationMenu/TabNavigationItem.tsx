@@ -249,6 +249,7 @@ const TabNavigationItem = ({tab, onClick, className, iconOnlyNavigationEnabled}:
 
   const isSelected = pathname === tab.link;
   
+  // when we're in renderIconOnlyNavigation (see Layout.tsx), display the compressed version
   const IconComponent = (iconOnlyMode && tab.compressedIconComponent) 
     || (isSelected && tab.selectedIconComponent) 
     || tab.iconComponent;
