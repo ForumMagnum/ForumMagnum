@@ -10,8 +10,7 @@ import { constantTimeCompare } from "@/lib/helpers";
 import { userCanDo, userIsAdmin, userIsAdminOrMod, userOwns } from "@/lib/vulcan-users/permissions";
 
 
-const defaultCheckAccess: CheckAccessFunction<CollectionNameString> = async () => false;
-
+const denyAll: CheckAccessFunction<CollectionNameString> = async () => false;
 export const allowAccess: CheckAccessFunction<CollectionNameString> = async () => true;
 
 const automatedContentEvaluationCheckAccess: CheckAccessFunction<'AutomatedContentEvaluations'> = async (currentUser, document, context): Promise<boolean> => {
@@ -385,7 +384,7 @@ const accessFilters = {
   CkEditorUserSessions: allowAccess,
   ClientIds: clientIdCheckAccess,
   Collections: allowAccess,
-  CommentEmbeddings: defaultCheckAccess,
+  CommentEmbeddings: denyAll,
   Comments: commentCheckAccess,
   CommentModeratorActions: allowAccess,
   Conversations: conversationCheckAccess,
@@ -414,7 +413,7 @@ const accessFilters = {
   LlmConversations: llmConversationCheckAccess,
   LlmMessages: llmMessageCheckAccess,
   Localgroups: allowAccess,
-  LoginTokens: allowAccess,
+  LoginTokens: denyAll,
   LWEvents: lweventCheckAccess,
   ManifoldProbabilitiesCaches: allowAccess,
   Messages: messageCheckAccess,
