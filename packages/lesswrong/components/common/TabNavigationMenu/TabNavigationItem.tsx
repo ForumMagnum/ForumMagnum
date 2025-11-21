@@ -252,7 +252,7 @@ const TabNavigationItem = ({tab, onClick, className, iconOnlyNavigationEnabled}:
   const IconComponent = (iconOnlyMode && tab.compressedIconComponent) 
     || (isSelected && tab.selectedIconComponent) 
     || tab.iconComponent;
-  
+    
   const iconElement = IconComponent ? <IconComponent /> : tab.icon;
   
   return <LWTooltip
