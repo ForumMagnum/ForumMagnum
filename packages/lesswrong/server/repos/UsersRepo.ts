@@ -48,9 +48,24 @@ class UsersRepo extends AbstractRepo<"Users"> {
     super(Users);
   }
 
-  getUserByLoginToken(hashedToken: string): Promise<DbUser | null> {
-    return this.oneOrNone(`
+  async getUserByLoginToken(hashedToken: string): Promise<DbUser | null> {
+    // Get user by login token, first checking the LoginTokens table, then
+    // falling back to fm_get_user_by_login_token which checks a materialized
+    // view then checks the `services` field on the `Users` table.
+    // Post-migration, only this first query will be needed.
+    const userFromLoginTokensTable = await this.oneOrNone(`
       -- UsersRepo.getUserByLoginToken
+      SELECT u.*
+      FROM "Users" u
+      JOIN "LoginTokens" lt ON lt."userId"=u."_id"
+      WHERE lt."hashedToken" = $1
+        AND lt."loggedOutAt" IS NULL
+    `, [hashedToken]);
+    if (userFromLoginTokensTable)
+      return userFromLoginTokensTable;
+
+    return this.oneOrNone(`
+      -- UsersRepo.getUserByLoginToken fallback
       SELECT * FROM fm_get_user_by_login_token($1)
     `, [hashedToken]);
   }

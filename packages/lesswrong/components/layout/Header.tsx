@@ -1,4 +1,4 @@
-import React, { useContext, useState, useCallback, useEffect, CSSProperties, useMemo } from 'react';
+import React, { useContext, useState, useCallback, useEffect } from 'react';
 import { registerComponent } from '../../lib/vulcan-lib/components';
 import { Link } from '../../lib/reactRouterWrapper';
 import Headroom from '../../lib/react-headroom'
@@ -31,12 +31,10 @@ import SiteLogo from "../ea-forum/SiteLogo";
 import MessagesMenuButton from "../messaging/MessagesMenuButton";
 import { SuspenseWrapper } from '@/components/common/SuspenseWrapper';
 import { isHomeRoute } from '@/lib/routeChecks';
-import { useRouteMetadata } from './ClientRouteMetadataContext';
 import { forumSelect } from '@/lib/forumTypeUtils';
 import NotificationsMenu from "../notifications/NotificationsMenu";
 import { IsLlmChatSidebarOpenContext } from './Layout';
 import { useIsOnGrayBackground } from '../hooks/useIsOnGrayBackground';
-import { useIsAboveBreakpoint } from '../hooks/useScreenWidth';
 
 /** Height of top header. On Book UI sites, this is for desktop only */
 export const getHeaderHeight = () => isBookUI() ? 64 : 66;
@@ -315,9 +313,11 @@ export const styles = (theme: ThemeType) => ({
     marginBottom: 1.5,
   },
   reserveSpaceForLlmChatSidebar: {
-    "& .headroom": {
-      width: `calc(100% - ${LLM_CHAT_SIDEBAR_WIDTH}px)`,
-    },
+    [theme.breakpoints.up("lg")]: {
+      "& .headroom": {
+        width: `calc(100% - ${LLM_CHAT_SIDEBAR_WIDTH}px)`,
+      },
+    }
   },
 });
 
@@ -362,9 +362,8 @@ const Header = ({
   const { captureEvent } = useTracking()
   const { notificationsOpened } = useUnreadNotifications();
   const { pathname, hash } = useLocation();
-  const { metadata: routeMetadata } = useRouteMetadata();
   const {currentForumEvent} = useCurrentAndRecentForumEvents();
-  const [headerStyle, setHeaderStyle] = useState<CSSProperties>(() => ({ ...(backgroundColor ? { backgroundColor } : {}) }));
+  let headerStyle = { ...(backgroundColor ? { backgroundColor } : {}) };
 
   useEffect(() => {
     // When we move to a different page we will be positioned at the top of
@@ -536,51 +535,25 @@ const Header = ({
 
   const bannerImageId = currentForumEvent?.bannerImageId
 
-  const llmSidebarAllowed = useIsAboveBreakpoint('lg');
-
   // Adjust header width when LLM chat sidebar is open and header is fixed
   const llmChatSidebarOpen = useContext(IsLlmChatSidebarOpenContext);
 
-  useEffect(() => {
-    const setForumEventHeaderStyle = hasForumEvents() && isHomeRoute(pathname) && bannerImageId && currentForumEvent?.eventFormat !== "BASIC" && !backgroundColor;
-    if (setForumEventHeaderStyle || llmSidebarAllowed) {
-      const forumEventHeaderStyle = setForumEventHeaderStyle ? {
-        background: getForumEventBackgroundStyle(currentForumEvent, bannerImageId),
-        "--header-text-color": currentForumEvent.bannerTextColor ?? undefined,
-        "--header-contrast-color": currentForumEvent.darkColor ?? undefined,
-      } : {};
+  const setForumEventHeaderStyle = hasForumEvents() && isHomeRoute(pathname) && bannerImageId && currentForumEvent?.eventFormat !== "BASIC" && !backgroundColor;
+  if (setForumEventHeaderStyle) {
+    const forumEventHeaderStyle = setForumEventHeaderStyle ? {
+      background: getForumEventBackgroundStyle(currentForumEvent, bannerImageId),
+      "--header-text-color": currentForumEvent.bannerTextColor ?? undefined,
+      "--header-contrast-color": currentForumEvent.darkColor ?? undefined,
+    } : {};
 
-      const LLM_CHAT_SIDEBAR_WIDTH = 500;
-
-      const unfixedLLmSidebarOpenHeaderWidth = `calc(100% - ${LLM_CHAT_SIDEBAR_WIDTH}px)`;
-
-      const llmSidebarStyle = (llmSidebarAllowed && llmChatSidebarOpen && !unFixed) ? {
-        width: unfixedLLmSidebarOpenHeaderWidth,
-      } : {};
-
-      setHeaderStyle(prev => {
-        // Destructure the four properties that might be set by either forumEventHeaderStyle or llmSidebarStyle
-        // so that we don't need to worry about passing in `undefined` values for those styles in the ternary
-        // else branches, otherwise we'd fail to remove them from the headerStyles with the state function
-        // since they'd stick around from the previous state.
-        const {
-          width,
-          background,
-          "--header-text-color": headerTextColor,
-          "--header-contrast-color": headerContrastColor,
-          ...rest
-        } = (prev as AnyBecauseHard);
-        return {
-          ...rest,
-          ...(setForumEventHeaderStyle ? forumEventHeaderStyle : {}),
-          ...(llmSidebarAllowed && llmChatSidebarOpen && !unFixed ? llmSidebarStyle : {}),
-        }
-      });
+    headerStyle = {
+      ...headerStyle,
+      ...(setForumEventHeaderStyle ? forumEventHeaderStyle : {}),
     }
-  }, [bannerImageId, currentForumEvent, llmChatSidebarOpen, llmSidebarAllowed, pathname, unFixed, backgroundColor]);
+  }
 
   // Make all the text and icons the same color as the text on the current forum event banner
-  const useContrastText = useMemo(() => Object.keys(headerStyle).includes('backgroundColor') || Object.keys(headerStyle).includes('background'), [headerStyle]);
+  const useContrastText = Object.keys(headerStyle).includes('backgroundColor') || Object.keys(headerStyle).includes('background');
 
   const isGrayBackground = useIsOnGrayBackground();
 

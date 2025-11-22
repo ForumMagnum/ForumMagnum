@@ -4,6 +4,7 @@ import Users from '../../server/collections/users/collection'
 import moment from 'moment'
 import { createAdminContext } from '../vulcan-lib/createContexts'
 import { backgroundTask } from '../utils/backgroundTask'
+import { invalidateLoginTokensFor } from '../vulcan-lib/apollo-server/authentication'
 
 const banUser = async (user: DbUser, adminUser: DbUser) => {
   // this was not updated when we moved from the "bio" field to the "biography" field,
@@ -24,7 +25,7 @@ const banUser = async (user: DbUser, adminUser: DbUser) => {
   }])
 
   const adminContext = createAdminContext();
-  backgroundTask(adminContext.repos.users.clearLoginTokens(user._id));
+  backgroundTask(invalidateLoginTokensFor(user._id));
   backgroundTask(userDeleteContent(user, adminUser, adminContext));
 }
 

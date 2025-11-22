@@ -10825,6 +10825,7 @@ interface CreateInputsByCollectionName {
   LegacyData: never;
   LlmConversations: never;
   LlmMessages: never;
+  LoginTokens: never;
   ManifoldProbabilitiesCaches: never;
   Migrations: never;
   Notifications: never;
@@ -10916,6 +10917,7 @@ interface UpdateInputsByCollectionName {
   LWEvents: never;
   LegacyData: never;
   LlmMessages: never;
+  LoginTokens: never;
   ManifoldProbabilitiesCaches: never;
   Migrations: never;
   PageCache: never;
