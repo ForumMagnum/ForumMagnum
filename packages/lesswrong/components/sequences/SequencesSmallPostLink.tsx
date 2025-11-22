@@ -41,7 +41,7 @@ const styles = (theme: ThemeType) => ({
 
 const SequencesSmallPostLink = ({classes, post, sequenceId, large, placement="left-start"}: {
   classes: ClassesType<typeof styles>,
-  post: PostsList,
+  post: ChapterPostSlim | PostsList,
   sequenceId: string,
   large?: boolean,
   placement?: PopperPlacementType,
@@ -54,7 +54,7 @@ const SequencesSmallPostLink = ({classes, post, sequenceId, large, placement="le
       />
     </span>
     <PostsTooltip
-      post={post}
+      {...('contents' in post ? { post } : { postId: post._id, preload: 'on-screen' })}
       postsList={isLWorAF()}
       placement={placement}
       inlineBlock={false}

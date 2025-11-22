@@ -29,7 +29,7 @@ import {
   userPassesCrosspostingKarmaThreshold,
   getDefaultVotingSystem
 } from "./helpers";
-import { postStatuses, sideCommentAlwaysExcludeKarma, sideCommentFilterMinKarma } from "./constants";
+import { postStatuses, READ_WORDS_PER_MINUTE, sideCommentAlwaysExcludeKarma, sideCommentFilterMinKarma } from "./constants";
 import { userGetDisplayNameById } from "../../vulcan-users/helpers";
 import { loadByIds, getWithLoader, getWithCustomLoader } from "../../loaders";
 import SimpleSchema from "@/lib/utils/simpleSchema";
@@ -78,9 +78,6 @@ import { commentIncludedInCounts } from "../comments/helpers";
 import { votingSystemNames } from "@/lib/voting/votingSystemNames";
 import { backgroundTask } from "@/server/utils/backgroundTask";
 import { classifyPost } from "@/server/frontpageClassifier/predictions";
-
-// TODO: This disagrees with the value used for the book progress bar
-export const READ_WORDS_PER_MINUTE = 250;
 
 const rsvpType = new SimpleSchema({
   name: {

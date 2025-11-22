@@ -9,3 +9,13 @@ export const CollectionsPageFragmentQuery = gql(`
     }
   }
 `);
+
+export const PostsSequenceMetadataQuery = gql(`
+  query PostsSequenceMetadataQuery($selector: PostSelector!) {
+    posts(selector: $selector) {
+      results {
+        ...PostsList
+      }
+    }
+  }
+`);

@@ -1,3 +1,5 @@
+import BookmarksRepo from "./BookmarksRepo";
+import BooksRepo from "./BooksRepo";
 import CollectionsRepo from "./CollectionsRepo";
 import ClientIdsRepo from "./ClientIdsRepo";
 import CommentsRepo from "./CommentsRepo";
@@ -37,7 +39,6 @@ import TweetsRepo from "./TweetsRepo";
 import UltraFeedEventsRepo from "./UltraFeedEventsRepo";
 import UsersRepo from "./UsersRepo";
 import VotesRepo from "./VotesRepo";
-import BookmarksRepo from "./BookmarksRepo";
 
 declare global {
   type AllRepos = typeof allRepos;
@@ -50,6 +51,7 @@ declare global {
 
 const allRepos = {
   bookmarks: BookmarksRepo,
+  books: BooksRepo,
   clientIds: ClientIdsRepo,
   collections: CollectionsRepo,
   comments: CommentsRepo,

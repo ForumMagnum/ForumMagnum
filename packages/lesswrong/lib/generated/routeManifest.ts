@@ -401,11 +401,15 @@ export const routeTrie = {
         },
         "notificationEmailPreview": {
           "hasPage": true
+        },
+        "query-waterfall": {
+          "hasPage": true
         }
       },
       "lowerCase": {
         "emailhistory": "emailHistory",
-        "notificationemailpreview": "notificationEmailPreview"
+        "notificationemailpreview": "notificationEmailPreview",
+        "query-waterfall": "query-waterfall"
       }
     },
     "dialogues": {

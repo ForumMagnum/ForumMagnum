@@ -1479,6 +1479,19 @@ type ElicitQuestionPredictionCreator {
   sourceUserId: String
 }
 
+extend type Query {
+  getBookWordCount(bookId: String!): Float
+}
+
+type SequenceStats {
+  totalWordCount: Float
+  totalReadTime: Float
+}
+
+extend type Query {
+  getSequenceStats(sequenceId: String!): SequenceStats
+}
+
 type AdvisorRequest {
   _id: String!
   schemaVersion: Float!
