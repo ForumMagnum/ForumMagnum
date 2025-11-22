@@ -55,10 +55,9 @@ export const LanguageModelLauncherButton = ({classes, onClick}: {
   },[captureEvent, setCookie, onClick]);
 
   useEffect(() => {
-    if (cookies[SHOW_LLM_CHAT_COOKIE]==="false" || isE2E) {
-      return;
+    if (cookies[SHOW_LLM_CHAT_COOKIE]==="true" && !isE2E) {
+      openLlmChat();
     }
-    openLlmChat();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
