@@ -92,7 +92,7 @@ export const makeCrossSiteRequest = async <RouteName extends ValidatedPostRouteN
   return validatedResponse.right;
 }
 
-export const fmCrosspostGraphQLTypeDefs = gql`
+export const fmCrosspostGraphQLTypeDefs = () => gql`
   extend type Mutation {
     connectCrossposter(token: String): String
     unlinkCrossposter: String

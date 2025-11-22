@@ -32,7 +32,7 @@ const SUBSCRIBED_FEED_DATE_CUTOFFS: SubscribedFeedDateCutoffs = {
   commentServedEventRecencyHours: 48,
 };
 
-export const ultraFeedSubscriptionsTypeDefs = gql`
+export const ultraFeedSubscriptionsTypeDefs = () => gql`
   extend type Query {
     UltraFeedSubscriptions(
       limit: Int,

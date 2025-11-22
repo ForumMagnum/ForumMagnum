@@ -10,6 +10,7 @@ import { getLegacyCreateCallbackProps, getLegacyUpdateCallbackProps, insertAndRe
 import gql from "graphql-tag";
 import cloneDeep from "lodash/cloneDeep";
 
+
 function newCheck(user: DbUser | null, userTagRel: CreateUserTagRelDataInput | null) {
   return userCanUseTags(user);
 }
@@ -76,10 +77,7 @@ export const updateUserTagRelGqlMutation = makeGqlUpdateMutation('UserTagRels', 
   accessFilter: (rawResult, context) => accessFilterSingle(context.currentUser, 'UserTagRels', rawResult, context)
 });
 
-
-
-
-export const graphqlUserTagRelTypeDefs = gql`
+export const graphqlUserTagRelTypeDefs = () => gql`
   input CreateUserTagRelDataInput ${
     getCreatableGraphQLFields(schema)
   }

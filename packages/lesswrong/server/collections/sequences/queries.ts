@@ -5,7 +5,7 @@ import { getFieldGqlResolvers } from "@/server/vulcan-lib/apollo-server/helpers"
 import gql from "graphql-tag";
 import { SequencesViews } from "@/lib/collections/sequences/views";
 
-export const graphqlSequenceQueryTypeDefs = gql`
+export const graphqlSequenceQueryTypeDefs = () => gql`
   type Sequence ${ getAllGraphQLFields(schema) }
   
   input SingleSequenceInput {

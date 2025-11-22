@@ -5,7 +5,7 @@ import { getFieldGqlResolvers } from "@/server/vulcan-lib/apollo-server/helpers"
 import gql from "graphql-tag";
 import { ClientIdsViews } from "@/lib/collections/clientIds/views";
 
-export const graphqlClientIdQueryTypeDefs = gql`
+export const graphqlClientIdQueryTypeDefs = () => gql`
   type ClientId ${ getAllGraphQLFields(schema) }
   
   input SingleClientIdInput {

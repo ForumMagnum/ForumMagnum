@@ -9,7 +9,6 @@ import { createModeratorAction } from '../collections/moderatorActions/mutations
 import { computeContextFromUser } from '../vulcan-lib/apollo-server/context';
 import { createAnonymousContext } from "@/server/vulcan-lib/createContexts";
 import { createMessage } from '../collections/messages/mutations';
-import { updateUser } from '../collections/users/mutations';
 import { backgroundTask } from "../utils/backgroundTask";
 
 /**
@@ -73,12 +72,15 @@ export async function flagOrBlockUserOnManyDMs({
   }
   
   // Always update the numUsersContacted field, for denormalization
-  backgroundTask(updateUser({
-    data: {
-      usersContactedBeforeReview: allUsersEverContacted,
-    },
-    selector: { _id: currentUser._id }
-  }, createAnonymousContext()));
+  backgroundTask((async () => {
+    const { updateUser } = await import('../collections/users/mutations');
+    await updateUser({
+      data: {
+        usersContactedBeforeReview: allUsersEverContacted,
+      },
+      selector: { _id: currentUser._id }
+    }, createAnonymousContext());
+  })());
   
   if (allUsersEverContacted.length > getMaxAllowedContactsBeforeBlock() && !currentUser.reviewedAt) {
     logger('Blocking user')

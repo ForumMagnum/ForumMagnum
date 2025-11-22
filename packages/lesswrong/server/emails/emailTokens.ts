@@ -6,11 +6,11 @@ import { siteNameWithArticleSetting } from '../../lib/instanceSettings';
 import gql from 'graphql-tag';
 import { createAnonymousContext } from "@/server/vulcan-lib/createContexts";
 import { updateEmailToken } from '../collections/emailTokens/mutations';
-import { updateUser } from '../collections/users/mutations';
 import type { EmailTokenResult } from '@/components/users/EmailTokenResult';
 import { userEmailAddressIsVerified } from '@/lib/collections/users/helpers';
 import UsersRepo from '../repos/UsersRepo';
 import { createPasswordHash, validatePassword } from '../vulcan-lib/apollo-server/passwordHelpers';
+import { createSingleton } from '@/lib/utils/createSingleton';
 
 type emailTokenResultComponents = {
   EmailTokenResult: typeof EmailTokenResult,
@@ -83,7 +83,7 @@ async function getAndValidateToken(token: string) {
     throw new Error("Invalid email token");
   const tokenObj = results[0];
   
-  const tokenType = emailTokenTypesByName[tokenObj.tokenType];
+  const tokenType = getEmailTokenTypesByName()[tokenObj.tokenType];
   if (!tokenType)
     throw new Error("Email token has invalid type");
   
@@ -93,7 +93,7 @@ async function getAndValidateToken(token: string) {
   return { tokenObj, tokenType }
 }
 
-export const emailTokensGraphQLTypeDefs = gql`
+export const emailTokensGraphQLTypeDefs = () => gql`
   extend type Mutation {
     useEmailToken(token: String, args: JSON): JSON
   }
@@ -124,10 +124,11 @@ export const emailTokensGraphQLMutations = {
     }
 };
 
-export const emailTokenTypesByName = {
+export const getEmailTokenTypesByName = createSingleton(() => ({
   unsubscribeAll: new EmailTokenType({
     name: "unsubscribeAll",
     onUseAction: async (user: DbUser) => {
+      const { updateUser } = await import('../collections/users/mutations');
       await updateUser({
         data: { unsubscribeFromAll: true },
         selector: { _id: user._id }
@@ -161,4 +162,4 @@ export const emailTokenTypesByName = {
     resultComponentName: "EmailTokenResult",
     path: "resetPassword" // Defined in routes.ts
   }),
-} satisfies Record<DbEmailTokens['tokenType'], EmailTokenType<EmailTokenResultComponentName>>;
+} satisfies Record<DbEmailTokens['tokenType'], EmailTokenType<EmailTokenResultComponentName>>));

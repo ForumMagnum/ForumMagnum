@@ -11,6 +11,7 @@ import { GraphQLFormattedError } from 'graphql';
 import { inspect } from 'util';
 import { formatError } from 'apollo-errors';
 import { crosspostOptionsHandler, setCorsHeaders } from "@/server/crossposting/cors";
+import { createSingleton } from '@/lib/utils/createSingleton';
 
 class ApolloServerLogging implements ApolloServerPlugin<ResolverContext> {
   async requestDidStart({ request, contextValue: context }: GraphQLRequestContext<ResolverContext>) {
@@ -48,41 +49,43 @@ class ApolloServerLogging implements ApolloServerPlugin<ResolverContext> {
 // TODO: decide whether we want to always filter all of these out on /graphql requests
 const NOISY_ERROR_MESSAGES = new Set(['app.operation_not_allowed', 'app.missing_document', 'app.document_not_found']);
 
-const server = new ApolloServer<ResolverContext>({
-  schema: getExecutableSchema(),
-  introspection: true,
-  allowBatchedHttpRequests: true,
-  csrfPrevention: false,
-  includeStacktraceInErrorResponses: true,
-  plugins: [new ApolloServerLogging()],
-  formatError: (formattedError, error): GraphQLFormattedError => {
-    captureException(error);
-    const {message, ...properties} = formattedError;
-    if (!NOISY_ERROR_MESSAGES.has(message)) {
-      // eslint-disable-next-line no-console
-      console.error(`[GraphQLError: ${message}]`, inspect(properties, {depth: null}), error);
-    }
 
-    // TODO: Replace sketchy apollo-errors package with something first-party
-    // and that doesn't require a cast here
-    return formatError(formattedError) as any;
-  },
-});
+const getRequestHandler = createSingleton(() => {
+  const server = new ApolloServer<ResolverContext>({
+    schema: getExecutableSchema(),
+    introspection: true,
+    allowBatchedHttpRequests: true,
+    csrfPrevention: false,
+    includeStacktraceInErrorResponses: true,
+    plugins: [new ApolloServerLogging()],
+    formatError: (formattedError, error): GraphQLFormattedError => {
+      captureException(error);
+      const {message, ...properties} = formattedError;
+      if (!NOISY_ERROR_MESSAGES.has(message)) {
+        // eslint-disable-next-line no-console
+        console.error(`[GraphQLError: ${message}]`, inspect(properties, {depth: null}), error);
+      }
+  
+      // TODO: Replace sketchy apollo-errors package with something first-party
+      // and that doesn't require a cast here
+      return formatError(formattedError) as any;
+    },
+  });
 
-
-const handler = startServerAndCreateNextHandler<NextRequest, ResolverContext>(server, {
-  context: async (req) => {
-    const context = await getContextFromReqAndRes({ req, isSSR: false });
-    const Sentry = getSentry();
-    if (!Sentry) {
+  return startServerAndCreateNextHandler<NextRequest, ResolverContext>(server, {
+    context: async (req) => {
+      const context = await getContextFromReqAndRes({ req, isSSR: false });
+      const Sentry = getSentry();
+      if (!Sentry) {
+        return context;
+      }
+      
+      const isolationScope = Sentry.getIsolationScope();
+      configureSentryScope(context, isolationScope);
       return context;
     }
-    
-    const isolationScope = Sentry.getIsolationScope();
-    configureSentryScope(context, isolationScope);
-    return context;
-  }
-});
+  });
+})
 
 function isCrossSiteRequest(request: NextRequest) {
   const fmCrosspostBaseUrl = fmCrosspostBaseUrlSetting.get();
@@ -107,6 +110,7 @@ function isCrossSiteRequest(request: NextRequest) {
 }
 
 async function sharedHandler(request: NextRequest) {
+  const handler = getRequestHandler();
   if (!performanceMetricLoggingEnabled.get()) {
     const res = await handler(request);
 

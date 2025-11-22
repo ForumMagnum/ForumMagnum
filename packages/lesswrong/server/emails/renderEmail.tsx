@@ -6,7 +6,7 @@ import { forumTitleSetting, isLWorAF } from '../../lib/instanceSettings';
 import { getForumTheme } from '../../themes/forumTheme';
 import { defaultEmailSetting, enableDevelopmentEmailsSetting } from '../databaseSettings';
 import { computeContextFromUser } from '../vulcan-lib/apollo-server/context';
-import { emailTokenTypesByName } from '../emails/emailTokens';
+import { getEmailTokenTypesByName } from '../emails/emailTokens';
 import { captureException } from '@/lib/sentryWrapper';
 import { isE2E } from '../../lib/executionEnvironment';
 import { cheerioParse } from '../utils/htmlUtil';
@@ -240,7 +240,7 @@ export const wrapAndRenderEmail = async ({
   body: (emailContext: EmailContextType) => React.ReactNode;
   utmParams?: Partial<Record<UtmParam, string>>;
 }): Promise<RenderedEmail> => {
-  const unsubscribeAllLink = user ? await emailTokenTypesByName.unsubscribeAll.generateLink(user._id) : null;
+  const unsubscribeAllLink = user ? await getEmailTokenTypesByName().unsubscribeAll.generateLink(user._id) : null;
   
   const emailContext = await createEmailContext(user);
 

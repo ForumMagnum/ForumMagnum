@@ -368,8 +368,6 @@ type CollectionFragmentTypeName = {
   [k in keyof FragmentTypes]: CollectionNamesByFragmentName[k] extends never ? never : k;
 }[keyof FragmentTypes];
 
-type VoteableCollectionName = "Posts"|"Comments"|"TagRels"|"Revisions"|"ElectionCandidates"|"Tags"|"MultiDocuments"|"Messages";
-
 interface EditableFieldContents {
   html: string
   wordCount: number
@@ -419,4 +417,9 @@ type InsertionRecord<T extends DbObject & { createdAt?: Date; legacyData?: Json 
 type CollectionNameWithPingbacks = {
   [K in CollectionNameString]: 'pingbacks' extends keyof ObjectsByCollectionName[K] ? K : never
 }[CollectionNameString];
+}
+
+export const voteableCollectionNames = [ "Posts", "Comments", "TagRels", "Revisions", "ElectionCandidates", "Tags", "MultiDocuments", "Messages" ] as const;
+declare global {
+  type VoteableCollectionName = "Posts"|"Comments"|"TagRels"|"Revisions"|"ElectionCandidates"|"Tags"|"MultiDocuments"|"Messages";
 }

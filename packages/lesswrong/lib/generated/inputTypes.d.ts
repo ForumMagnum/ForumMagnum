@@ -222,8 +222,6 @@ interface Mutation {
   performVotePost: VoteResultPost | null;
   setVoteComment: Comment | null;
   performVoteComment: VoteResultComment | null;
-  setVoteMessage: Message | null;
-  performVoteMessage: VoteResultMessage | null;
   setVoteTagRel: TagRel | null;
   performVoteTagRel: VoteResultTagRel | null;
   setVoteRevision: Revision | null;
@@ -234,6 +232,8 @@ interface Mutation {
   performVoteTag: VoteResultTag | null;
   setVoteMultiDocument: MultiDocument | null;
   performVoteMultiDocument: VoteResultMultiDocument | null;
+  setVoteMessage: Message | null;
+  performVoteMessage: VoteResultMessage | null;
   moderateComment: Comment | null;
   MakeElicitPrediction: ElicitBlockData | null;
   MarkAllNotificationsAsRead: boolean | null;
@@ -621,11 +621,6 @@ interface VoteResultComment {
   showVotingPatternWarning: boolean;
 }
 
-interface VoteResultMessage {
-  document: Message;
-  showVotingPatternWarning: boolean;
-}
-
 interface VoteResultTagRel {
   document: TagRel;
   showVotingPatternWarning: boolean;
@@ -648,6 +643,11 @@ interface VoteResultTag {
 
 interface VoteResultMultiDocument {
   document: MultiDocument;
+  showVotingPatternWarning: boolean;
+}
+
+interface VoteResultMessage {
+  document: Message;
   showVotingPatternWarning: boolean;
 }
 
@@ -9791,12 +9791,12 @@ interface GraphQLTypeMap {
   SuggestedTopActiveUsersResult: SuggestedTopActiveUsersResult;
   VoteResultPost: VoteResultPost;
   VoteResultComment: VoteResultComment;
-  VoteResultMessage: VoteResultMessage;
   VoteResultTagRel: VoteResultTagRel;
   VoteResultRevision: VoteResultRevision;
   VoteResultElectionCandidate: VoteResultElectionCandidate;
   VoteResultTag: VoteResultTag;
   VoteResultMultiDocument: VoteResultMultiDocument;
+  VoteResultMessage: VoteResultMessage;
   CommentsWithReactsResult: CommentsWithReactsResult;
   PopularCommentsResult: PopularCommentsResult;
   PostKarmaChange: PostKarmaChange;

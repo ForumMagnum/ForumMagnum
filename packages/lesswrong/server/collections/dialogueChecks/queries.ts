@@ -5,7 +5,7 @@ import { getFieldGqlResolvers } from "@/server/vulcan-lib/apollo-server/helpers"
 import gql from "graphql-tag";
 import { DialogueChecksViews } from "@/lib/collections/dialogueChecks/views";
 
-export const graphqlDialogueCheckQueryTypeDefs = gql`
+export const graphqlDialogueCheckQueryTypeDefs = () => gql`
   type DialogueCheck ${ getAllGraphQLFields(schema) }
   
   input SingleDialogueCheckInput {

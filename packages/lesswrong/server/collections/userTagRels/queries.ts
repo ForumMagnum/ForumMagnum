@@ -5,7 +5,7 @@ import { getFieldGqlResolvers } from "@/server/vulcan-lib/apollo-server/helpers"
 import gql from "graphql-tag";
 import { UserTagRelsViews } from "@/lib/collections/userTagRels/views";
 
-export const graphqlUserTagRelQueryTypeDefs = gql`
+export const graphqlUserTagRelQueryTypeDefs = () => gql`
   type UserTagRel ${ getAllGraphQLFields(schema) }
   
   input SingleUserTagRelInput {

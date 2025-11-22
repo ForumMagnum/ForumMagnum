@@ -5,7 +5,7 @@ import { getFieldGqlResolvers } from "@/server/vulcan-lib/apollo-server/helpers"
 import gql from "graphql-tag";
 import { ChaptersViews } from "@/lib/collections/chapters/views";
 
-export const graphqlChapterQueryTypeDefs = gql`
+export const graphqlChapterQueryTypeDefs = () => gql`
   type Chapter ${ getAllGraphQLFields(schema) }
   
   input SingleChapterInput {

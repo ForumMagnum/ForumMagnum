@@ -125,7 +125,7 @@ export async function createAndSetToken(headers: Headers|undefined, user: DbUser
 
 
 
-export const loginDataGraphQLTypeDefs = gql`
+export const loginDataGraphQLTypeDefs = () => gql`
   type LoginReturnData {
     token: String
   }
@@ -236,9 +236,9 @@ export const loginDataGraphQLMutations = {
     if (!email) throw Error("Email is required for resetting passwords")
     const user = await userFindOneByEmail(email)
     if (!user) throw Error("Can't find user with given email address")
-    const { emailTokenTypesByName } = await import("@/server/emails/emailTokens");
+    const { getEmailTokenTypesByName } = await import("@/server/emails/emailTokens");
 
-    const tokenLink = await emailTokenTypesByName.resetPassword.generateLink(user._id)
+    const tokenLink = await getEmailTokenTypesByName().resetPassword.generateLink(user._id)
     const emailSucceeded = await wrapAndSendEmail({
       user,
       force: true,

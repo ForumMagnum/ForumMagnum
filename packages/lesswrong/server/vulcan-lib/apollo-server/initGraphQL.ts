@@ -6,7 +6,7 @@ import { makeExecutableSchema } from '@graphql-tools/schema';
 import type { GraphQLResolveInfo, GraphQLScalarType, GraphQLSchema } from 'graphql';
 import GraphQLJSON from '@/lib/vendor/graphql-type-json';
 import GraphQLDate from './graphql-date';
-import { getVoteGraphql } from '@/server/votingGraphQL';
+import { getVoteGraphql, getVoteMutations, getVoteTypedefs } from '@/server/votingGraphQL';
 import { graphqlTypeDefs as notificationTypeDefs, graphqlQueries as notificationQueries } from '@/server/notificationBatching';
 import { graphqlTypeDefs as arbitalLinkedPagesTypeDefs } from '@/lib/collections/helpers/arbitalLinkedPagesField';
 import { graphqlTypeDefs as additionalPostsTypeDefs } from "@/lib/collections/posts/graphqlTypeDefs";
@@ -204,29 +204,21 @@ import { createUserMostValuablePostGqlMutation, updateUserMostValuablePostGqlMut
 import { createUserRateLimitGqlMutation, updateUserRateLimitGqlMutation, graphqlUserRateLimitTypeDefs } from "@/server/collections/userRateLimits/mutations";
 import { createUserTagRelGqlMutation, updateUserTagRelGqlMutation, graphqlUserTagRelTypeDefs } from "@/server/collections/userTagRels/mutations";
 import { createUserGqlMutation, updateUserGqlMutation, graphqlUserTypeDefs } from "@/server/collections/users/mutations";
+import { createSingleton } from '@/lib/utils/createSingleton';
 
 
-const selectorInput = gql`
+const getSelectorInput = () => gql`
   input SelectorInput {
     _id: String
     documentId: String
   }
 `;
 
-const emptyViewInput = gql`
+const getEmptyViewInput = () => gql`
   input EmptyViewInput {
     _: Boolean @deprecated(reason: "GraphQL doesn't support empty input types, so we need to provide a field.  Don't pass anything in, it doesn't do anything.")
   }
 `;
-
-const { graphqlVoteTypeDefs: postVoteTypeDefs, graphqlVoteMutations: postVoteMutations } = getVoteGraphql('Posts');
-const { graphqlVoteTypeDefs: commentVoteTypeDefs, graphqlVoteMutations: commentVoteMutations } = getVoteGraphql('Comments');
-const { graphqlVoteTypeDefs: messageVoteTypeDefs, graphqlVoteMutations: messageVoteMutations } = getVoteGraphql('Messages');
-const { graphqlVoteTypeDefs: tagRelVoteTypeDefs, graphqlVoteMutations: tagRelVoteMutations } = getVoteGraphql('TagRels');
-const { graphqlVoteTypeDefs: revisionVoteTypeDefs, graphqlVoteMutations: revisionVoteMutations } = getVoteGraphql('Revisions');
-const { graphqlVoteTypeDefs: electionCandidateVoteTypeDefs, graphqlVoteMutations: electionCandidateVoteMutations } = getVoteGraphql('ElectionCandidates');
-const { graphqlVoteTypeDefs: tagVoteTypeDefs, graphqlVoteMutations: tagVoteMutations } = getVoteGraphql('Tags');
-const { graphqlVoteTypeDefs: multiDocumentVoteTypeDefs, graphqlVoteMutations: multiDocumentVoteMutations } = getVoteGraphql('MultiDocuments');
 
 export const getTypeDefs = () => gql`
   type Query
@@ -244,218 +236,212 @@ export const getTypeDefs = () => gql`
     data: ContentTypeData!
   }
 
-  ${selectorInput}
-  ${emptyViewInput}
-  ${notificationTypeDefs}
-  ${arbitalLinkedPagesTypeDefs}
-  ${additionalPostsTypeDefs}
-  ${additionalTagsTypeDefs}
-  ${additionalUsersTypeDefs}
-  ${recommendationsTypeDefs}
-  ${userResolversTypeDefs}
-  # # Vote typedefs
-  ${postVoteTypeDefs}
-  ${commentVoteTypeDefs}
-  ${messageVoteTypeDefs}
-  ${tagRelVoteTypeDefs}
-  ${revisionVoteTypeDefs}
-  ${electionCandidateVoteTypeDefs}
-  ${tagVoteTypeDefs}
-  ${multiDocumentVoteTypeDefs}
-  ${commentTypeDefs}
-  # # End vote typedefs
-  ${karmaChangesTypeDefs}
-  ${analyticsGraphQLTypeDefs}
-  ${arbitalGraphQLTypeDefs}
-  ${elicitPredictionsGraphQLTypeDefs}
-  ${notificationResolversGqlTypeDefs}
-  ${lightcone2024FundraiserGraphQLTypeDefs}
-  ${petrovDay2024GraphQLTypeDefs}
-  ${petrovDayLaunchGraphQLTypeDefs}
-  ${reviewVoteGraphQLTypeDefs}
-  ${postGqlTypeDefs}
-  ${alignmentForumTypeDefs}
-  ${allTagsActivityFeedGraphQLTypeDefs}
-  ${recentDiscussionFeedGraphQLTypeDefs}
-  ${subscribedUsersFeedGraphQLTypeDefs}
-  ${tagHistoryFeedGraphQLTypeDefs}
-  ${subForumFeedGraphQLTypeDefs}
-  ${conversationGqlTypeDefs}
-  ${surveyResolversGraphQLTypeDefs}
-  ${tagGraphQLTypeDefs}
-  ${wrappedResolversGqlTypeDefs}
-  ${databaseSettingsGqlTypeDefs}
-  ${siteGraphQLTypeDefs}
-  ${loginDataGraphQLTypeDefs}
-  ${dialogueMessageGqlTypeDefs}
-  ${forumEventGqlTypeDefs}
-  ${ckEditorCallbacksGraphQLTypeDefs}
-  ${migrationsDashboardGraphQLTypeDefs}
-  ${reviewWinnerGraphQLTypeDefs}
-  ${importUrlAsDraftPostTypeDefs}
-  ${revisionResolversGraphQLTypeDefs}
-  ${moderationGqlTypeDefs}
-  ${multiDocumentTypeDefs}
-  ${spotlightGqlTypeDefs}
-  ${bookmarkGqlTypeDefs}
-  ${hidePostGqlTypeDefs}
-  ${markAsUnreadTypeDefs}
-  ${cronGraphQLTypeDefs}
-  ${partiallyReadSequencesTypeDefs}
-  ${jargonTermsGraphQLTypeDefs}
-  ${rsvpToEventsTypeDefs}
-  ${siteAdminMetadataGraphQLTypeDefs}
-  ${tagsGqlTypeDefs}
-  ${analyticsEventTypeDefs}
-  ${usersGraphQLTypeDefs}
-  ${elasticGqlTypeDefs}
-  ${emailTokensGraphQLTypeDefs}
-  ${fmCrosspostGraphQLTypeDefs}
-  ${diffGqlTypeDefs}
-  ${recommendationsGqlTypeDefs}
-  ${extraPostResolversGraphQLTypeDefs}
-  ${ultraFeedGraphQLTypeDefs}
-  ${ultraFeedSubscriptionsTypeDefs}
-  ${generateCoverImagesForPostGraphQLTypeDefs}
-  ${flipSplashArtImageGraphQLTypeDefs}
-  ${elicitQuestionPredictionsGraphQLTypeDefs}
+  ${getSelectorInput()}
+  ${getEmptyViewInput()}
+  ${notificationTypeDefs()}
+  ${arbitalLinkedPagesTypeDefs()}
+  ${additionalPostsTypeDefs()}
+  ${additionalTagsTypeDefs()}
+  ${additionalUsersTypeDefs()}
+  ${recommendationsTypeDefs()}
+  ${userResolversTypeDefs()}
+  ${getVoteTypedefs()}
+
+  ${commentTypeDefs()}
+  ${karmaChangesTypeDefs()}
+  ${analyticsGraphQLTypeDefs()}
+  ${arbitalGraphQLTypeDefs()}
+  ${elicitPredictionsGraphQLTypeDefs()}
+  ${notificationResolversGqlTypeDefs()}
+  ${lightcone2024FundraiserGraphQLTypeDefs()}
+  ${petrovDay2024GraphQLTypeDefs()}
+  ${petrovDayLaunchGraphQLTypeDefs()}
+  ${reviewVoteGraphQLTypeDefs()}
+  ${postGqlTypeDefs()}
+  ${alignmentForumTypeDefs()}
+  ${allTagsActivityFeedGraphQLTypeDefs()}
+  ${recentDiscussionFeedGraphQLTypeDefs()}
+  ${subscribedUsersFeedGraphQLTypeDefs()}
+  ${tagHistoryFeedGraphQLTypeDefs()}
+  ${subForumFeedGraphQLTypeDefs()}
+  ${conversationGqlTypeDefs()}
+  ${surveyResolversGraphQLTypeDefs()}
+  ${tagGraphQLTypeDefs()}
+  ${wrappedResolversGqlTypeDefs()}
+  ${databaseSettingsGqlTypeDefs()}
+  ${siteGraphQLTypeDefs()}
+  ${loginDataGraphQLTypeDefs()}
+  ${dialogueMessageGqlTypeDefs()}
+  ${forumEventGqlTypeDefs()}
+  ${ckEditorCallbacksGraphQLTypeDefs()}
+  ${migrationsDashboardGraphQLTypeDefs()}
+  ${reviewWinnerGraphQLTypeDefs()}
+  ${importUrlAsDraftPostTypeDefs()}
+  ${revisionResolversGraphQLTypeDefs()}
+  ${moderationGqlTypeDefs()}
+  ${multiDocumentTypeDefs()}
+  ${spotlightGqlTypeDefs()}
+  ${bookmarkGqlTypeDefs()}
+  ${hidePostGqlTypeDefs()}
+  ${markAsUnreadTypeDefs()}
+  ${cronGraphQLTypeDefs()}
+  ${partiallyReadSequencesTypeDefs()}
+  ${jargonTermsGraphQLTypeDefs()}
+  ${rsvpToEventsTypeDefs()}
+  ${siteAdminMetadataGraphQLTypeDefs()}
+  ${tagsGqlTypeDefs()}
+  ${analyticsEventTypeDefs()}
+  ${usersGraphQLTypeDefs()}
+  ${elasticGqlTypeDefs()}
+  ${emailTokensGraphQLTypeDefs()}
+  ${fmCrosspostGraphQLTypeDefs()}
+  ${diffGqlTypeDefs()}
+  ${recommendationsGqlTypeDefs()}
+  ${extraPostResolversGraphQLTypeDefs()}
+  ${ultraFeedGraphQLTypeDefs()}
+  ${ultraFeedSubscriptionsTypeDefs()}
+  ${generateCoverImagesForPostGraphQLTypeDefs()}
+  ${flipSplashArtImageGraphQLTypeDefs()}
+  ${elicitQuestionPredictionsGraphQLTypeDefs()}
+
   ## CRUD Query typedefs
-  ${graphqlAdvisorRequestQueryTypeDefs}
-  ${graphqlArbitalCachesQueryTypeDefs}
-  ${graphqlArbitalTagContentRelQueryTypeDefs}
-  ${graphqlAutomatedContentEvaluationQueryTypeDefs}
-  ${graphqlBanQueryTypeDefs}
-  ${graphqlBookmarkQueryTypeDefs}
-  ${graphqlBookQueryTypeDefs}
-  ${graphqlChapterQueryTypeDefs}
-  ${graphqlCkEditorUserSessionQueryTypeDefs}
-  ${graphqlClientIdQueryTypeDefs}
-  ${graphqlCollectionQueryTypeDefs}
-  ${graphqlCommentEmbeddingQueryTypeDefs}
-  ${graphqlCommentModeratorActionQueryTypeDefs}
-  ${graphqlCommentQueryTypeDefs}
-  ${graphqlConversationQueryTypeDefs}
-  ${graphqlCronHistoryQueryTypeDefs}
-  ${graphqlCurationEmailQueryTypeDefs}
-  ${graphqlCurationNoticeQueryTypeDefs}
-  ${graphqlDatabaseMetadataQueryTypeDefs}
-  ${graphqlDebouncerEventsQueryTypeDefs}
-  ${graphqlDialogueCheckQueryTypeDefs}
-  ${graphqlDialogueMatchPreferenceQueryTypeDefs}
-  ${graphqlDigestPostQueryTypeDefs}
-  ${graphqlDigestQueryTypeDefs}
-  ${graphqlElectionCandidateQueryTypeDefs}
-  ${graphqlElectionVoteQueryTypeDefs}
-  ${graphqlElicitQuestionPredictionQueryTypeDefs}
-  ${graphqlElicitQuestionQueryTypeDefs}
-  ${graphqlEmailTokensQueryTypeDefs}
-  ${graphqlFeaturedResourceQueryTypeDefs}
-  ${graphqlFieldChangeQueryTypeDefs}
-  ${graphqlForumEventQueryTypeDefs}
-  ${graphqlGardencodeQueryTypeDefs}
-  ${graphqlGoogleServiceAccountSessionQueryTypeDefs}
-  ${graphqlImagesQueryTypeDefs}
-  ${graphqlJargonTermQueryTypeDefs}
-  ${graphqlLweventQueryTypeDefs}
-  ${graphqlLegacyDataQueryTypeDefs}
-  ${graphqlLlmConversationQueryTypeDefs}
-  ${graphqlLlmMessageQueryTypeDefs}
-  ${graphqlLocalgroupQueryTypeDefs}
-  ${graphqlManifoldProbabilitiesCacheQueryTypeDefs}
-  ${graphqlMessageQueryTypeDefs}
-  ${graphqlMigrationQueryTypeDefs}
-  ${graphqlModerationTemplateQueryTypeDefs}
-  ${graphqlModeratorActionQueryTypeDefs}
-  ${graphqlMultiDocumentQueryTypeDefs}
-  ${graphqlNotificationQueryTypeDefs}
-  ${graphqlPageCacheEntryQueryTypeDefs}
-  ${graphqlPetrovDayActionQueryTypeDefs}
-  ${graphqlPetrovDayLaunchQueryTypeDefs}
-  ${graphqlPodcastEpisodeQueryTypeDefs}
-  ${graphqlPodcastQueryTypeDefs}
-  ${graphqlPostRecommendationQueryTypeDefs}
-  ${graphqlPostRelationQueryTypeDefs}
-  ${graphqlPostQueryTypeDefs}
-  ${graphqlRssfeedQueryTypeDefs}
-  ${graphqlReadStatusQueryTypeDefs}
-  ${graphqlRecommendationsCacheQueryTypeDefs}
-  ${graphqlReportQueryTypeDefs}
-  ${graphqlReviewVoteQueryTypeDefs}
-  ${graphqlReviewWinnerArtQueryTypeDefs}
-  ${graphqlReviewWinnerQueryTypeDefs}
-  ${graphqlRevisionQueryTypeDefs}
-  ${graphqlSequenceQueryTypeDefs}
-  ${graphqlSessionQueryTypeDefs}
-  ${graphqlSideCommentCacheQueryTypeDefs}
-  ${graphqlSplashArtCoordinateQueryTypeDefs}
-  ${graphqlSpotlightQueryTypeDefs}
-  ${graphqlSubscriptionQueryTypeDefs}
-  ${graphqlSurveyQuestionQueryTypeDefs}
-  ${graphqlSurveyResponseQueryTypeDefs}
-  ${graphqlSurveyScheduleQueryTypeDefs}
-  ${graphqlSurveyQueryTypeDefs}
-  ${graphqlTagFlagQueryTypeDefs}
-  ${graphqlTagRelQueryTypeDefs}
-  ${graphqlTagQueryTypeDefs}
-  ${graphqlTweetQueryTypeDefs}
-  ${graphqlTypingIndicatorQueryTypeDefs}
-  ${graphqlUltraFeedEventQueryTypeDefs}
-  ${graphqlUserActivityQueryTypeDefs}
-  ${graphqlUserEagDetailQueryTypeDefs}
-  ${graphqlUserJobAdQueryTypeDefs}
-  ${graphqlUserMostValuablePostQueryTypeDefs}
-  ${graphqlUserRateLimitQueryTypeDefs}
-  ${graphqlUserTagRelQueryTypeDefs}
-  ${graphqlUserQueryTypeDefs}
-  ${graphqlVoteQueryTypeDefs}
+  ${graphqlAdvisorRequestQueryTypeDefs()}
+  ${graphqlArbitalCachesQueryTypeDefs()}
+  ${graphqlArbitalTagContentRelQueryTypeDefs()}
+  ${graphqlAutomatedContentEvaluationQueryTypeDefs()}
+  ${graphqlBanQueryTypeDefs()}
+  ${graphqlBookmarkQueryTypeDefs()}
+  ${graphqlBookQueryTypeDefs()}
+  ${graphqlChapterQueryTypeDefs()}
+  ${graphqlCkEditorUserSessionQueryTypeDefs()}
+  ${graphqlClientIdQueryTypeDefs()}
+  ${graphqlCollectionQueryTypeDefs()}
+  ${graphqlCommentEmbeddingQueryTypeDefs()}
+  ${graphqlCommentModeratorActionQueryTypeDefs()}
+  ${graphqlCommentQueryTypeDefs()}
+  ${graphqlConversationQueryTypeDefs()}
+  ${graphqlCronHistoryQueryTypeDefs()}
+  ${graphqlCurationEmailQueryTypeDefs()}
+  ${graphqlCurationNoticeQueryTypeDefs()}
+  ${graphqlDatabaseMetadataQueryTypeDefs()}
+  ${graphqlDebouncerEventsQueryTypeDefs()}
+  ${graphqlDialogueCheckQueryTypeDefs()}
+  ${graphqlDialogueMatchPreferenceQueryTypeDefs()}
+  ${graphqlDigestPostQueryTypeDefs()}
+  ${graphqlDigestQueryTypeDefs()}
+  ${graphqlElectionCandidateQueryTypeDefs()}
+  ${graphqlElectionVoteQueryTypeDefs()}
+  ${graphqlElicitQuestionPredictionQueryTypeDefs()}
+  ${graphqlElicitQuestionQueryTypeDefs()}
+  ${graphqlEmailTokensQueryTypeDefs()}
+  ${graphqlFeaturedResourceQueryTypeDefs()}
+  ${graphqlFieldChangeQueryTypeDefs()}
+  ${graphqlForumEventQueryTypeDefs()}
+  ${graphqlGardencodeQueryTypeDefs()}
+  ${graphqlGoogleServiceAccountSessionQueryTypeDefs()}
+  ${graphqlImagesQueryTypeDefs()}
+  ${graphqlJargonTermQueryTypeDefs()}
+  ${graphqlLweventQueryTypeDefs()}
+  ${graphqlLegacyDataQueryTypeDefs()}
+  ${graphqlLlmConversationQueryTypeDefs()}
+  ${graphqlLlmMessageQueryTypeDefs()}
+  ${graphqlLocalgroupQueryTypeDefs()}
+  ${graphqlManifoldProbabilitiesCacheQueryTypeDefs()}
+  ${graphqlMessageQueryTypeDefs()}
+  ${graphqlMigrationQueryTypeDefs()}
+  ${graphqlModerationTemplateQueryTypeDefs()}
+  ${graphqlModeratorActionQueryTypeDefs()}
+  ${graphqlMultiDocumentQueryTypeDefs()}
+  ${graphqlNotificationQueryTypeDefs()}
+  ${graphqlPageCacheEntryQueryTypeDefs()}
+  ${graphqlPetrovDayActionQueryTypeDefs()}
+  ${graphqlPetrovDayLaunchQueryTypeDefs()}
+  ${graphqlPodcastEpisodeQueryTypeDefs()}
+  ${graphqlPodcastQueryTypeDefs()}
+  ${graphqlPostRecommendationQueryTypeDefs()}
+  ${graphqlPostRelationQueryTypeDefs()}
+  ${graphqlPostQueryTypeDefs()}
+  ${graphqlRssfeedQueryTypeDefs()}
+  ${graphqlReadStatusQueryTypeDefs()}
+  ${graphqlRecommendationsCacheQueryTypeDefs()}
+  ${graphqlReportQueryTypeDefs()}
+  ${graphqlReviewVoteQueryTypeDefs()}
+  ${graphqlReviewWinnerArtQueryTypeDefs()}
+  ${graphqlReviewWinnerQueryTypeDefs()}
+  ${graphqlRevisionQueryTypeDefs()}
+  ${graphqlSequenceQueryTypeDefs()}
+  ${graphqlSessionQueryTypeDefs()}
+  ${graphqlSideCommentCacheQueryTypeDefs()}
+  ${graphqlSplashArtCoordinateQueryTypeDefs()}
+  ${graphqlSpotlightQueryTypeDefs()}
+  ${graphqlSubscriptionQueryTypeDefs()}
+  ${graphqlSurveyQuestionQueryTypeDefs()}
+  ${graphqlSurveyResponseQueryTypeDefs()}
+  ${graphqlSurveyScheduleQueryTypeDefs()}
+  ${graphqlSurveyQueryTypeDefs()}
+  ${graphqlTagFlagQueryTypeDefs()}
+  ${graphqlTagRelQueryTypeDefs()}
+  ${graphqlTagQueryTypeDefs()}
+  ${graphqlTweetQueryTypeDefs()}
+  ${graphqlTypingIndicatorQueryTypeDefs()}
+  ${graphqlUltraFeedEventQueryTypeDefs()}
+  ${graphqlUserActivityQueryTypeDefs()}
+  ${graphqlUserEagDetailQueryTypeDefs()}
+  ${graphqlUserJobAdQueryTypeDefs()}
+  ${graphqlUserMostValuablePostQueryTypeDefs()}
+  ${graphqlUserRateLimitQueryTypeDefs()}
+  ${graphqlUserTagRelQueryTypeDefs()}
+  ${graphqlUserQueryTypeDefs()}
+  ${graphqlVoteQueryTypeDefs()}
+
   ## CRUD Mutation and input typedefs
-  ${graphqlAdvisorRequestTypeDefs}
-  ${graphqlBookTypeDefs}
-  ${graphqlChapterTypeDefs}
-  ${graphqlCollectionTypeDefs}
-  ${graphqlCommentModeratorActionTypeDefs}
-  ${graphqlCommentTypeDefs}
-  ${graphqlConversationTypeDefs}
-  ${graphqlCurationNoticeTypeDefs}
-  ${graphqlDigestPostTypeDefs}
-  ${graphqlDigestTypeDefs}
-  ${graphqlElectionCandidateTypeDefs}
-  ${graphqlElectionVoteTypeDefs}
-  ${graphqlElicitQuestionTypeDefs}
-  ${graphqlForumEventTypeDefs}
-  ${graphqlJargonTermTypeDefs}
-  ${graphqlLWEventTypeDefs}
-  ${graphqlLlmConversationTypeDefs}
-  ${graphqlLocalgroupTypeDefs}
-  ${graphqlMessageTypeDefs}
-  ${graphqlModerationTemplateTypeDefs}
-  ${graphqlModeratorActionTypeDefs}
-  ${graphqlMultiDocumentTypeDefs}
-  ${graphqlNotificationTypeDefs}
-  ${graphqlPetrovDayActionTypeDefs}
-  ${graphqlPodcastEpisodeTypeDefs}
-  ${graphqlPostTypeDefs}
-  ${graphqlRSSFeedTypeDefs}
-  ${graphqlReportTypeDefs}
-  ${graphqlRevisionTypeDefs}
-  ${graphqlSequenceTypeDefs}
-  ${graphqlSplashArtCoordinateTypeDefs}
-  ${graphqlSpotlightTypeDefs}
-  ${graphqlSubscriptionTypeDefs}
-  ${graphqlSurveyQuestionTypeDefs}
-  ${graphqlSurveyResponseTypeDefs}
-  ${graphqlSurveyScheduleTypeDefs}
-  ${graphqlSurveyTypeDefs}
-  ${graphqlTagFlagTypeDefs}
-  ${graphqlTagTypeDefs}
-  ${graphqlUltraFeedEventTypeDefs}
-  ${graphqlUserEAGDetailTypeDefs}
-  ${graphqlUserJobAdTypeDefs}
-  ${graphqlUserMostValuablePostTypeDefs}
-  ${graphqlUserRateLimitTypeDefs}
-  ${graphqlUserTagRelTypeDefs}
-  ${graphqlUserTypeDefs}
-`
+  ${graphqlAdvisorRequestTypeDefs()}
+  ${graphqlBookTypeDefs()}
+  ${graphqlChapterTypeDefs()}
+  ${graphqlCollectionTypeDefs()}
+  ${graphqlCommentModeratorActionTypeDefs()}
+  ${graphqlCommentTypeDefs()}
+  ${graphqlConversationTypeDefs()}
+  ${graphqlCurationNoticeTypeDefs()}
+  ${graphqlDigestPostTypeDefs()}
+  ${graphqlDigestTypeDefs()}
+  ${graphqlElectionCandidateTypeDefs()}
+  ${graphqlElectionVoteTypeDefs()}
+  ${graphqlElicitQuestionTypeDefs()}
+  ${graphqlForumEventTypeDefs()}
+  ${graphqlJargonTermTypeDefs()}
+  ${graphqlLWEventTypeDefs()}
+  ${graphqlLlmConversationTypeDefs()}
+  ${graphqlLocalgroupTypeDefs()}
+  ${graphqlMessageTypeDefs()}
+  ${graphqlModerationTemplateTypeDefs()}
+  ${graphqlModeratorActionTypeDefs()}
+  ${graphqlMultiDocumentTypeDefs()}
+  ${graphqlNotificationTypeDefs()}
+  ${graphqlPetrovDayActionTypeDefs()}
+  ${graphqlPodcastEpisodeTypeDefs()}
+  ${graphqlPostTypeDefs()}
+  ${graphqlRSSFeedTypeDefs()}
+  ${graphqlReportTypeDefs()}
+  ${graphqlRevisionTypeDefs()}
+  ${graphqlSequenceTypeDefs()}
+  ${graphqlSplashArtCoordinateTypeDefs()}
+  ${graphqlSpotlightTypeDefs()}
+  ${graphqlSubscriptionTypeDefs()}
+  ${graphqlSurveyQuestionTypeDefs()}
+  ${graphqlSurveyResponseTypeDefs()}
+  ${graphqlSurveyScheduleTypeDefs()}
+  ${graphqlSurveyTypeDefs()}
+  ${graphqlTagFlagTypeDefs()}
+  ${graphqlTagTypeDefs()}
+  ${graphqlUltraFeedEventTypeDefs()}
+  ${graphqlUserEAGDetailTypeDefs()}
+  ${graphqlUserJobAdTypeDefs()}
+  ${graphqlUserMostValuablePostTypeDefs()}
+  ${graphqlUserRateLimitTypeDefs()}
+  ${graphqlUserTagRelTypeDefs()}
+  ${graphqlUserTypeDefs()}
+`;
 
 
 const getResolvers = () => ({
@@ -570,14 +556,7 @@ const getResolvers = () => ({
   },
   Mutation: {
     ...userResolversMutations,
-    ...postVoteMutations,
-    ...commentVoteMutations,
-    ...messageVoteMutations,
-    ...tagRelVoteMutations,
-    ...revisionVoteMutations,
-    ...electionCandidateVoteMutations,
-    ...tagVoteMutations,
-    ...multiDocumentVoteMutations,
+    ...getVoteMutations(),
     ...commentMutations,
     ...notificationResolversGqlMutations,
     ...elicitPredictionsGraphQLMutations,
@@ -703,94 +682,94 @@ const getResolvers = () => ({
   ...karmaChangesFieldResolvers,
   ...elicitPredictionsGraphQLFieldResolvers,
   // Collection Field Resolvers
-  ...advisorRequestGqlFieldResolvers,
-  ...arbitalCachesGqlFieldResolvers,
-  ...arbitalTagContentRelGqlFieldResolvers,
-  ...automatedContentEvaluationGqlFieldResolvers,
-  ...banGqlFieldResolvers,
-  ...bookGqlFieldResolvers,
-  ...bookmarkGqlFieldResolvers,
-  ...chapterGqlFieldResolvers,
-  ...ckEditorUserSessionGqlFieldResolvers,
-  ...clientIdGqlFieldResolvers,
-  ...collectionGqlFieldResolvers,
-  ...commentEmbeddingGqlFieldResolvers,
-  ...commentModeratorActionGqlFieldResolvers,
-  ...commentGqlFieldResolvers,
-  ...conversationGqlFieldResolvers,
-  ...cronHistoryGqlFieldResolvers,
-  ...curationEmailGqlFieldResolvers,
-  ...curationNoticeGqlFieldResolvers,
-  ...databaseMetadataGqlFieldResolvers,
-  ...debouncerEventsGqlFieldResolvers,
-  ...dialogueCheckGqlFieldResolvers,
-  ...dialogueMatchPreferenceGqlFieldResolvers,
-  ...digestPostGqlFieldResolvers,
-  ...digestGqlFieldResolvers,
-  ...electionCandidateGqlFieldResolvers,
-  ...electionVoteGqlFieldResolvers,
-  ...elicitQuestionPredictionGqlFieldResolvers,
-  ...elicitQuestionGqlFieldResolvers,
-  ...emailTokensGqlFieldResolvers,
-  ...featuredResourceGqlFieldResolvers,
-  ...fieldChangeGqlFieldResolvers,
-  ...forumEventGqlFieldResolvers,
-  ...gardencodeGqlFieldResolvers,
-  ...googleServiceAccountSessionGqlFieldResolvers,
-  ...imagesGqlFieldResolvers,
-  ...jargonTermGqlFieldResolvers,
-  ...lweventGqlFieldResolvers,
-  ...legacyDataGqlFieldResolvers,
-  ...llmConversationGqlFieldResolvers,
-  ...llmMessageGqlFieldResolvers,
-  ...localgroupGqlFieldResolvers,
-  ...manifoldProbabilitiesCacheGqlFieldResolvers,
-  ...messageGqlFieldResolvers,
-  ...migrationGqlFieldResolvers,
-  ...moderationTemplateGqlFieldResolvers,
-  ...moderatorActionGqlFieldResolvers,
-  ...multiDocumentGqlFieldResolvers,
-  ...notificationGqlFieldResolvers,
-  ...pageCacheEntryGqlFieldResolvers,
-  ...petrovDayActionGqlFieldResolvers,
-  ...petrovDayLaunchGqlFieldResolvers,
-  ...podcastEpisodeGqlFieldResolvers,
-  ...podcastGqlFieldResolvers,
-  ...postRecommendationGqlFieldResolvers,
-  ...postRelationGqlFieldResolvers,
-  ...postGqlFieldResolvers,
-  ...rssfeedGqlFieldResolvers,
-  ...readStatusGqlFieldResolvers,
-  ...recommendationsCacheGqlFieldResolvers,
-  ...reportGqlFieldResolvers,
-  ...reviewVoteGqlFieldResolvers,
-  ...reviewWinnerArtGqlFieldResolvers,
-  ...reviewWinnerGqlFieldResolvers,
-  ...revisionGqlFieldResolvers,
-  ...sequenceGqlFieldResolvers,
-  ...sessionGqlFieldResolvers,
-  ...sideCommentCacheGqlFieldResolvers,
-  ...splashArtCoordinateGqlFieldResolvers,
-  ...spotlightGqlFieldResolvers,
-  ...subscriptionGqlFieldResolvers,
-  ...surveyQuestionGqlFieldResolvers,
-  ...surveyResponseGqlFieldResolvers,
-  ...surveyScheduleGqlFieldResolvers,
-  ...surveyGqlFieldResolvers,
-  ...tagFlagGqlFieldResolvers,
-  ...tagRelGqlFieldResolvers,
-  ...tagGqlFieldResolvers,
-  ...tweetGqlFieldResolvers,
-  ...typingIndicatorGqlFieldResolvers,
-  ...ultraFeedEventGqlFieldResolvers,
-  ...userActivityGqlFieldResolvers,
-  ...userEagDetailGqlFieldResolvers,
-  ...userJobAdGqlFieldResolvers,
-  ...userMostValuablePostGqlFieldResolvers,
-  ...userRateLimitGqlFieldResolvers,
-  ...userTagRelGqlFieldResolvers,
-  ...userGqlFieldResolvers,
-  ...voteGqlFieldResolvers,
+  ...advisorRequestGqlFieldResolvers(),
+  ...arbitalCachesGqlFieldResolvers(),
+  ...arbitalTagContentRelGqlFieldResolvers(),
+  ...automatedContentEvaluationGqlFieldResolvers(),
+  ...banGqlFieldResolvers(),
+  ...bookGqlFieldResolvers(),
+  ...bookmarkGqlFieldResolvers(),
+  ...chapterGqlFieldResolvers(),
+  ...ckEditorUserSessionGqlFieldResolvers(),
+  ...clientIdGqlFieldResolvers(),
+  ...collectionGqlFieldResolvers(),
+  ...commentEmbeddingGqlFieldResolvers(),
+  ...commentModeratorActionGqlFieldResolvers(),
+  ...commentGqlFieldResolvers(),
+  ...conversationGqlFieldResolvers(),
+  ...cronHistoryGqlFieldResolvers(),
+  ...curationEmailGqlFieldResolvers(),
+  ...curationNoticeGqlFieldResolvers(),
+  ...databaseMetadataGqlFieldResolvers(),
+  ...debouncerEventsGqlFieldResolvers(),
+  ...dialogueCheckGqlFieldResolvers(),
+  ...dialogueMatchPreferenceGqlFieldResolvers(),
+  ...digestPostGqlFieldResolvers(),
+  ...digestGqlFieldResolvers(),
+  ...electionCandidateGqlFieldResolvers(),
+  ...electionVoteGqlFieldResolvers(),
+  ...elicitQuestionPredictionGqlFieldResolvers(),
+  ...elicitQuestionGqlFieldResolvers(),
+  ...emailTokensGqlFieldResolvers(),
+  ...featuredResourceGqlFieldResolvers(),
+  ...fieldChangeGqlFieldResolvers(),
+  ...forumEventGqlFieldResolvers(),
+  ...gardencodeGqlFieldResolvers(),
+  ...googleServiceAccountSessionGqlFieldResolvers(),
+  ...imagesGqlFieldResolvers(),
+  ...jargonTermGqlFieldResolvers(),
+  ...lweventGqlFieldResolvers(),
+  ...legacyDataGqlFieldResolvers(),
+  ...llmConversationGqlFieldResolvers(),
+  ...llmMessageGqlFieldResolvers(),
+  ...localgroupGqlFieldResolvers(),
+  ...manifoldProbabilitiesCacheGqlFieldResolvers(),
+  ...messageGqlFieldResolvers(),
+  ...migrationGqlFieldResolvers(),
+  ...moderationTemplateGqlFieldResolvers(),
+  ...moderatorActionGqlFieldResolvers(),
+  ...multiDocumentGqlFieldResolvers(),
+  ...notificationGqlFieldResolvers(),
+  ...pageCacheEntryGqlFieldResolvers(),
+  ...petrovDayActionGqlFieldResolvers(),
+  ...petrovDayLaunchGqlFieldResolvers(),
+  ...podcastEpisodeGqlFieldResolvers(),
+  ...podcastGqlFieldResolvers(),
+  ...postRecommendationGqlFieldResolvers(),
+  ...postRelationGqlFieldResolvers(),
+  ...postGqlFieldResolvers(),
+  ...rssfeedGqlFieldResolvers(),
+  ...readStatusGqlFieldResolvers(),
+  ...recommendationsCacheGqlFieldResolvers(),
+  ...reportGqlFieldResolvers(),
+  ...reviewVoteGqlFieldResolvers(),
+  ...reviewWinnerArtGqlFieldResolvers(),
+  ...reviewWinnerGqlFieldResolvers(),
+  ...revisionGqlFieldResolvers(),
+  ...sequenceGqlFieldResolvers(),
+  ...sessionGqlFieldResolvers(),
+  ...sideCommentCacheGqlFieldResolvers(),
+  ...splashArtCoordinateGqlFieldResolvers(),
+  ...spotlightGqlFieldResolvers(),
+  ...subscriptionGqlFieldResolvers(),
+  ...surveyQuestionGqlFieldResolvers(),
+  ...surveyResponseGqlFieldResolvers(),
+  ...surveyScheduleGqlFieldResolvers(),
+  ...surveyGqlFieldResolvers(),
+  ...tagFlagGqlFieldResolvers(),
+  ...tagRelGqlFieldResolvers(),
+  ...tagGqlFieldResolvers(),
+  ...tweetGqlFieldResolvers(),
+  ...typingIndicatorGqlFieldResolvers(),
+  ...ultraFeedEventGqlFieldResolvers(),
+  ...userActivityGqlFieldResolvers(),
+  ...userEagDetailGqlFieldResolvers(),
+  ...userJobAdGqlFieldResolvers(),
+  ...userMostValuablePostGqlFieldResolvers(),
+  ...userRateLimitGqlFieldResolvers(),
+  ...userTagRelGqlFieldResolvers(),
+  ...userGqlFieldResolvers(),
+  ...voteGqlFieldResolvers(),
 } satisfies {
   JSON: typeof GraphQLJSON,
   Date: typeof GraphQLDate,
@@ -810,12 +789,6 @@ export type SchemaGraphQLFieldDescription = {
   required?: boolean
 };
 
-let _executableSchema: GraphQLSchema|null = null;
-export function getExecutableSchema() {
-  if (!_executableSchema) {
-    _executableSchema = makeExecutableSchema({ typeDefs: getTypeDefs(), resolvers: getResolvers() });
-  }
-  return _executableSchema;
-}
+export const getExecutableSchema = createSingleton(() => makeExecutableSchema({ typeDefs: getTypeDefs(), resolvers: getResolvers() }));
 
 

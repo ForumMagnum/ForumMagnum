@@ -35,7 +35,7 @@ const {Query: NotificationDisplaysQuery, typeDefs: NotificationDisplaysTypeDefs}
   },
 });
 
-export const notificationResolversGqlTypeDefs = gql`
+export const notificationResolversGqlTypeDefs = () => gql`
   type NotificationCounts {
     checkedAt: Date!
     unreadNotifications: Int!

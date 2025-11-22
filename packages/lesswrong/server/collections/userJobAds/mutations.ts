@@ -96,10 +96,7 @@ export const updateUserJobAdGqlMutation = makeGqlUpdateMutation('UserJobAds', up
   accessFilter: (rawResult, context) => accessFilterSingle(context.currentUser, 'UserJobAds', rawResult, context)
 });
 
-
-
-
-export const graphqlUserJobAdTypeDefs = gql`
+export const graphqlUserJobAdTypeDefs = () => gql`
   input CreateUserJobAdDataInput ${
     getCreatableGraphQLFields(schema)
   }

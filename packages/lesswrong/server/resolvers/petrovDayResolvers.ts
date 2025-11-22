@@ -4,7 +4,7 @@ import { userCanLaunchPetrovMissile } from "../../lib/petrovHelpers";
 import gql from 'graphql-tag';
 import { createPetrovDayLaunch } from '../collections/petrovDayLaunchs/mutations';
 
-export const petrovDayLaunchGraphQLTypeDefs = gql`
+export const petrovDayLaunchGraphQLTypeDefs = () => gql`
   type PetrovDayCheckIfIncomingData {
     launched: Boolean
     createdAt: Date

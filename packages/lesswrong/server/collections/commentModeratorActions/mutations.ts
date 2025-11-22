@@ -81,7 +81,7 @@ export const updateCommentModeratorActionGqlMutation = makeGqlUpdateMutation('Co
 
 
 
-export const graphqlCommentModeratorActionTypeDefs = gql`
+export const graphqlCommentModeratorActionTypeDefs = () => gql`
   input CreateCommentModeratorActionDataInput ${
     getCreatableGraphQLFields(schema)
   }

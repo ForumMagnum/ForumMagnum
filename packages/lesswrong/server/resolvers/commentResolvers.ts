@@ -110,7 +110,7 @@ export const graphqlQueries = {
   }
 }
 
-export const graphqlTypeDefs = gql`
+export const graphqlTypeDefs = () => gql`
   extend type Query {
     CommentEmbeddingSearch(query: String!, scoreBias: Float): [Comment!]!
     CommentEmbeddingSimilaritySearch(commentId: String!, scoreBias: Float): [Comment!]!

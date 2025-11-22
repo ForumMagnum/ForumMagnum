@@ -5,7 +5,7 @@ import { getFieldGqlResolvers } from "@/server/vulcan-lib/apollo-server/helpers"
 import gql from "graphql-tag";
 import { SubscriptionsViews } from "@/lib/collections/subscriptions/views";
 
-export const graphqlSubscriptionQueryTypeDefs = gql`
+export const graphqlSubscriptionQueryTypeDefs = () => gql`
   type Subscription ${ getAllGraphQLFields(schema) }
   
   input SingleSubscriptionInput {

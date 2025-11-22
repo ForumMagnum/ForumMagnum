@@ -54,7 +54,7 @@ const {Query: suggestedTopActiveUsersQuery, typeDefs: suggestedTopActiveUsersTyp
   }
 });
 
-export const graphqlTypeDefs = gql`
+export const graphqlTypeDefs = () => gql`
   type CommentCountTag {
     name: String!
     comment_count: Int!

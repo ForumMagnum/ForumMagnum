@@ -1,4 +1,3 @@
-
 import schema from "@/lib/collections/splashArtCoordinates/newSchema";
 import { accessFilterSingle } from "@/lib/utils/schemaUtils";
 import { userIsAdminOrMod } from "@/lib/vulcan-users/permissions";
@@ -7,6 +6,7 @@ import { getCreatableGraphQLFields } from "@/server/vulcan-lib/apollo-server/gra
 import { makeGqlCreateMutation } from "@/server/vulcan-lib/apollo-server/helpers";
 import { getLegacyCreateCallbackProps, insertAndReturnCreateAfterProps, runFieldOnCreateCallbacks } from "@/server/vulcan-lib/mutators";
 import gql from "graphql-tag";
+
 
 function newCheck(user: DbUser | null) {
   return userIsAdminOrMod(user);
@@ -38,9 +38,7 @@ export const createSplashArtCoordinateGqlMutation = makeGqlCreateMutation('Splas
   accessFilter: (rawResult, context) => accessFilterSingle(context.currentUser, 'SplashArtCoordinates', rawResult, context)
 });
 
-
-
-export const graphqlSplashArtCoordinateTypeDefs = gql`
+export const graphqlSplashArtCoordinateTypeDefs = () => gql`
   input CreateSplashArtCoordinateDataInput ${
     getCreatableGraphQLFields(schema)
   }

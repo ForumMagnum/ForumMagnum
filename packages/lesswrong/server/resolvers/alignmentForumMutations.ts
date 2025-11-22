@@ -42,7 +42,7 @@ export const alignmentForumMutations = {
 
 
 
-export const alignmentForumTypeDefs = gql`
+export const alignmentForumTypeDefs = () => gql`
   extend type Mutation {
     alignmentComment(commentId: String, af: Boolean): Comment
     alignmentPost(postId: String, af: Boolean): Post

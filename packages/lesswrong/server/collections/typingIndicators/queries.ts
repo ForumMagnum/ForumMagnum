@@ -5,7 +5,7 @@ import { getFieldGqlResolvers } from "@/server/vulcan-lib/apollo-server/helpers"
 import gql from "graphql-tag";
 import { CollectionViewSet } from "@/lib/views/collectionViewSet";
 
-export const graphqlTypingIndicatorQueryTypeDefs = gql`
+export const graphqlTypingIndicatorQueryTypeDefs = () => gql`
   type TypingIndicator ${ getAllGraphQLFields(schema) }
   
   input SingleTypingIndicatorInput {

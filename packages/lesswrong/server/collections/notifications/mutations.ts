@@ -1,4 +1,3 @@
-
 import schema from "@/lib/collections/notifications/newSchema";
 import { accessFilterSingle } from "@/lib/utils/schemaUtils";
 import { userCanDo, userOwns } from "@/lib/vulcan-users/permissions";
@@ -63,9 +62,7 @@ export const updateNotificationGqlMutation = makeGqlUpdateMutation('Notification
   accessFilter: (rawResult, context) => accessFilterSingle(context.currentUser, 'Notifications', rawResult, context)
 });
 
-
-
-export const graphqlNotificationTypeDefs = gql`
+export const graphqlNotificationTypeDefs = () => gql`
   input UpdateNotificationDataInput ${
     getUpdatableGraphQLFields(schema)
   }

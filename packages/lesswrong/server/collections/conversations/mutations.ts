@@ -1,4 +1,3 @@
-
 import { userCanStartConversations } from "@/lib/collections/conversations/helpers";
 import schema from "@/lib/collections/conversations/newSchema";
 import { accessFilterSingle } from "@/lib/utils/schemaUtils";
@@ -9,6 +8,7 @@ import { getCreatableGraphQLFields, getUpdatableGraphQLFields } from "@/server/v
 import { makeGqlCreateMutation, makeGqlUpdateMutation } from "@/server/vulcan-lib/apollo-server/helpers";
 import { getLegacyCreateCallbackProps, getLegacyUpdateCallbackProps, insertAndReturnCreateAfterProps, runFieldOnCreateCallbacks, runFieldOnUpdateCallbacks, updateAndReturnDocument, assignUserIdToData } from "@/server/vulcan-lib/mutators";
 import gql from "graphql-tag";
+
 
 function newCheck(user: DbUser | null, document: DbConversation | null) {
   if (!user || !document) return false;
@@ -82,10 +82,7 @@ export const updateConversationGqlMutation = makeGqlUpdateMutation('Conversation
   accessFilter: (rawResult, context) => accessFilterSingle(context.currentUser, 'Conversations', rawResult, context)
 });
 
-
-
-
-export const graphqlConversationTypeDefs = gql`
+export const graphqlConversationTypeDefs = () => gql`
   input CreateConversationDataInput ${
     getCreatableGraphQLFields(schema)
   }

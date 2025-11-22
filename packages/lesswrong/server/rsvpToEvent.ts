@@ -16,7 +16,7 @@ const isValidResponse = (response: string): response is ValidResponse => {
   return response in responseSortOrder;
 }
 
-export const rsvpToEventsTypeDefs = gql`
+export const rsvpToEventsTypeDefs = () => gql`
   extend type Mutation {
     RSVPToEvent(postId: String, name: String, email: String, private: Boolean, response: String): Post
     CancelRSVPToEvent(postId: String, name: String, userId: String): Post

@@ -5,7 +5,7 @@ import { getFieldGqlResolvers } from "@/server/vulcan-lib/apollo-server/helpers"
 import gql from "graphql-tag";
 import { PodcastEpisodesViews } from "@/lib/collections/podcastEpisodes/views";
 
-export const graphqlPodcastEpisodeQueryTypeDefs = gql`
+export const graphqlPodcastEpisodeQueryTypeDefs = () => gql`
   type PodcastEpisode ${ getAllGraphQLFields(schema) }
   
   input SinglePodcastEpisodeInput {

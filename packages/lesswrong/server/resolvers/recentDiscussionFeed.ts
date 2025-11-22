@@ -22,7 +22,7 @@ const communityFilters = {
 
 type CommunityFilter = typeof communityFilters[keyof typeof communityFilters];
 
-export const recentDiscussionFeedGraphQLTypeDefs = gql`
+export const recentDiscussionFeedGraphQLTypeDefs = () => gql`
   type RecentDiscussionFeedQueryResults {
     cutoff: Date
     endOffset: Int!

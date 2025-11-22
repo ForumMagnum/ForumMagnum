@@ -66,7 +66,7 @@ export const diffGqlQueries = {
   }
 }
 
-export const diffGqlTypeDefs = gql`
+export const diffGqlTypeDefs = () => gql`
   extend type Query {
     RevisionsDiff(collectionName: String!, fieldName: String!, id: String, beforeRev: String, afterRev: String!, trim: Boolean): String
   }

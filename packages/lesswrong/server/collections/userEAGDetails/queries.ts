@@ -5,7 +5,7 @@ import { getFieldGqlResolvers } from "@/server/vulcan-lib/apollo-server/helpers"
 import gql from "graphql-tag";
 import { UserEAGDetailsViews } from "@/lib/collections/userEAGDetails/views";
 
-export const graphqlUserEagDetailQueryTypeDefs = gql`
+export const graphqlUserEagDetailQueryTypeDefs = () => gql`
   type UserEAGDetail ${ getAllGraphQLFields(schema) }
   
   input SingleUserEAGDetailInput {

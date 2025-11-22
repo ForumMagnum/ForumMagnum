@@ -15,6 +15,7 @@ import cloneDeep from "lodash/cloneDeep";
 import { editCheck as editTagCheck, newCheck as newTagCheck } from "@/server/collections/tags/helpers";
 import { backgroundTask } from "@/server/utils/backgroundTask";
 
+
 /**
  * The logic for validating whether a user can either create or update a multi-document is basically the same.
  * In both cases, we defer to the `check` defined on the parent document's collection to see if the user would be allowed to mutate the parent document.
@@ -162,10 +163,7 @@ export const updateMultiDocumentGqlMutation = makeGqlUpdateMutation('MultiDocume
   accessFilter: (rawResult, context) => accessFilterSingle(context.currentUser, 'MultiDocuments', rawResult, context)
 });
 
-
-
-
-export const graphqlMultiDocumentTypeDefs = gql`
+export const graphqlMultiDocumentTypeDefs = () => gql`
   input CreateMultiDocumentDataInput ${
     getCreatableGraphQLFields(schema)
   }

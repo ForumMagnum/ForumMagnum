@@ -72,7 +72,7 @@ export const updateLlmConversationGqlMutation = makeGqlUpdateMutation('LlmConver
 
 
 
-export const graphqlLlmConversationTypeDefs = gql`
+export const graphqlLlmConversationTypeDefs = () => gql`
   input UpdateLlmConversationDataInput ${
     getUpdatableGraphQLFields(schema)
   }

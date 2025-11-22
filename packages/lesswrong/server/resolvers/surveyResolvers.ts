@@ -13,7 +13,7 @@ type EditSurveyArgs = {
   questions: SurveyQuestionInfo[],
 }
 
-export const surveyResolversGraphQLTypeDefs = gql`
+export const surveyResolversGraphQLTypeDefs = () => gql`
   input SurveyQuestionInfo {
     _id: String
     question: String!

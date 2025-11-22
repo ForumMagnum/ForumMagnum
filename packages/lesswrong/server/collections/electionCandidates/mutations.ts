@@ -83,10 +83,7 @@ export const updateElectionCandidateGqlMutation = makeGqlUpdateMutation('Electio
   accessFilter: (rawResult, context) => accessFilterSingle(context.currentUser, 'ElectionCandidates', rawResult, context)
 });
 
-
-
-
-export const graphqlElectionCandidateTypeDefs = gql`
+export const graphqlElectionCandidateTypeDefs = () => gql`
   input CreateElectionCandidateDataInput ${
     getCreatableGraphQLFields(schema)
   }

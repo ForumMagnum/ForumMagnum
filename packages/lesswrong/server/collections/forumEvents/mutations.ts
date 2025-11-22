@@ -13,6 +13,7 @@ import { getLegacyCreateCallbackProps, getLegacyUpdateCallbackProps, insertAndRe
 import gql from "graphql-tag";
 import cloneDeep from "lodash/cloneDeep";
 
+
 function newCheck(user: DbUser | null, document: CreateForumEventDataInput | null, context: ResolverContext) {
   if (!user || !document) return false;
 
@@ -127,10 +128,7 @@ export const updateForumEventGqlMutation = makeGqlUpdateMutation('ForumEvents', 
   accessFilter: (rawResult, context) => accessFilterSingle(context.currentUser, 'ForumEvents', rawResult, context)
 });
 
-
-
-
-export const graphqlForumEventTypeDefs = gql`
+export const graphqlForumEventTypeDefs = () => gql`
   input CreateForumEventDataInput ${
     getCreatableGraphQLFields(schema)
   }

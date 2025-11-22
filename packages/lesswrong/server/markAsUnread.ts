@@ -1,6 +1,6 @@
 import gql from 'graphql-tag';
 
-export const markAsUnreadTypeDefs = gql`
+export const markAsUnreadTypeDefs = () => gql`
   extend type Mutation {
     markAsReadOrUnread(postId: String, isRead:Boolean): Boolean
     markPostCommentsRead(postId: String!): Boolean

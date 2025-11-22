@@ -10,7 +10,7 @@ const commonFields = (nullable: boolean) => ({
   nullable,
 });
 
-export const elicitQuestionPredictionsGraphQLTypeDefs = gql`
+export const elicitQuestionPredictionsGraphQLTypeDefs = () => gql`
   type ElicitQuestionPredictionCreator {
     _id: String!
     displayName: String!

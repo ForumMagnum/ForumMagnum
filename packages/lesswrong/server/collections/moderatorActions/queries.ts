@@ -5,7 +5,7 @@ import { getFieldGqlResolvers } from "@/server/vulcan-lib/apollo-server/helpers"
 import gql from "graphql-tag";
 import { ModeratorActionsViews } from "@/lib/collections/moderatorActions/views";
 
-export const graphqlModeratorActionQueryTypeDefs = gql`
+export const graphqlModeratorActionQueryTypeDefs = () => gql`
   type ModeratorAction ${ getAllGraphQLFields(schema) }
 
   enum ModeratorActionType {
