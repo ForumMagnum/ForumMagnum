@@ -85,22 +85,6 @@ export const RecentDiscussionFeedQuery = gql(`
   }
 `);
 
-export const SubscribedFeedQuery = gql(`
-  query SubscribedFeed($limit: Int, $cutoff: Date, $offset: Int, $af: Boolean) {
-    SubscribedFeed(limit: $limit, cutoff: $cutoff, offset: $offset, af: $af) {
-      __typename
-      cutoff
-      endOffset
-      results {
-        type
-        postCommented {
-          ...SubscribedPostAndCommentsFeed
-        }
-      }
-    }
-  }
-`);
-
 const SubforumMagicFeedQuery = gql(`
   query SubforumMagicFeed($tagId: String!, $limit: Int, $cutoff: Float, $offset: Int, $af: Boolean, $commentsLimit: Int, $maxAgeHours: Int) {
     SubforumMagicFeed(tagId: $tagId, limit: $limit, cutoff: $cutoff, offset: $offset, af: $af) {
@@ -239,14 +223,17 @@ export const UltraFeedQuery = gql(`
         feedSubscriptionSuggestions {
           ...FeedSubscriptionSuggestionsFragment
         }
+        feedMarker {
+          ...FeedMarkerFragment
+        }
       }
     }
   }
 `);
 
 export const UltraFeedSubscriptionsQuery = gql(`
-  query UltraFeedSubscriptions($limit: Int, $cutoff: Date, $offset: Int, $settings: JSON) {
-    UltraFeedSubscriptions(limit: $limit, cutoff: $cutoff, offset: $offset, settings: $settings) {
+  query UltraFeedSubscriptions($limit: Int, $cutoff: Date, $offset: Int, $settings: JSON, $timezoneOffset: Int) {
+    UltraFeedSubscriptions(limit: $limit, cutoff: $cutoff, offset: $offset, settings: $settings, timezoneOffset: $timezoneOffset) {
       __typename
       cutoff
       endOffset
@@ -261,6 +248,9 @@ export const UltraFeedSubscriptionsQuery = gql(`
         feedSubscriptionSuggestions {
           ...FeedSubscriptionSuggestionsFragment
         }
+        feedMarker {
+          ...FeedMarkerFragment
+        }
       }
     }
   }
@@ -270,7 +260,6 @@ export type FeedQuery =
   | typeof AllTagsActivityFeedQuery
   | typeof TagHistoryFeedQuery
   | typeof RecentDiscussionFeedQuery
-  | typeof SubscribedFeedQuery
   | typeof SubforumMagicFeedQuery
   | typeof SubforumNewFeedQuery
   | typeof SubforumOldFeedQuery

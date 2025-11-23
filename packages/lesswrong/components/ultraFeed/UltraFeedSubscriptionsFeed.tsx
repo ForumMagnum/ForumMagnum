@@ -61,16 +61,19 @@ interface UltraFeedSubscriptionsFeedProps {
   settings: UltraFeedSettingsType;
   updateSettings?: (newSettings: Partial<UltraFeedSettingsType>) => void;
   showHideReadToggle?: boolean;
+  isActive?: boolean;
 }
 
-const UltraFeedSubscriptionsFeed = ({ embedded = false, refetchRef, settings, updateSettings, showHideReadToggle = true }: UltraFeedSubscriptionsFeedProps) => {
+const UltraFeedSubscriptionsFeed = ({ embedded = false, refetchRef, settings, updateSettings, showHideReadToggle = true, isActive = true }: UltraFeedSubscriptionsFeedProps) => {
   const classes = useStyles(styles);
   const currentUser = useCurrentUser();
   const [isLoading, setIsLoading] = useState(true);
   const feedContainerRef = useRef<HTMLDivElement | null>(null);
-  const [isTransitioning, setIsTransitioning] = useState(false);
-  
-  const handleLoadingStateChange = useCallback((results: Array<{type: string, [key: string]: unknown}>, loading: boolean) => {
+    const [isTransitioning, setIsTransitioning] = useState(false);
+    
+    const timezoneOffset = new Date().getTimezoneOffset();
+    
+    const handleLoadingStateChange = useCallback((results: Array<{type: string, [key: string]: unknown}>, loading: boolean) => {
     setIsLoading(loading);
     if (!loading && isTransitioning) {
       // Remove min-height after content loads
@@ -88,7 +91,7 @@ const UltraFeedSubscriptionsFeed = ({ embedded = false, refetchRef, settings, up
     );
   }
 
-  const { feedCommentThread, feedPost, feedSubscriptionSuggestions } = createUltraFeedRenderers({ settings });
+  const { feedCommentThread, feedPost, feedSubscriptionSuggestions, feedMarker } = createUltraFeedRenderers({ settings });
 
   const hideRead = settings?.resolverSettings?.subscriptionsFeedSettings?.hideRead ?? false;
   const handleToggleHideRead = (checked: boolean) => {
@@ -132,16 +135,21 @@ const UltraFeedSubscriptionsFeed = ({ embedded = false, refetchRef, settings, up
     )}
     <MixedTypeFeed
       query={UltraFeedSubscriptionsQuery}
-      variables={{ settings: { subscriptionsFeedSettings: { hideRead } } }}
+      variables={{ 
+        settings: { subscriptionsFeedSettings: { hideRead } },
+        timezoneOffset,
+      }}
       firstPageSize={20}
       pageSize={30}
       fetchPolicy="network-only"
       refetchRef={refetchRef}
       onLoadingStateChange={handleLoadingStateChange}
+      pausePagination={!isActive}
       renderers={{
         feedCommentThread,
         feedPost,
         feedSubscriptionSuggestions,
+        feedMarker,
       }}
     />
     {!isLoading && <>

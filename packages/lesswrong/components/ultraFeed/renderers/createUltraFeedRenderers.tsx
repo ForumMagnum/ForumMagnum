@@ -6,6 +6,7 @@ import UltraFeedSpotlightItem from '../UltraFeedSpotlightItem';
 import SuggestedFeedSubscriptions from '../../subscriptions/SuggestedFeedSubscriptions';
 import { FeedItemSourceType } from '../ultraFeedTypes';
 import type { UltraFeedSettingsType } from '../ultraFeedSettingsTypes';
+import FeedMarker from '../FeedMarker';
 
 export function createUltraFeedRenderers({ settings }: { settings: UltraFeedSettingsType }) {
   return {
@@ -71,6 +72,18 @@ export function createUltraFeedRenderers({ settings }: { settings: UltraFeedSett
               suggestedUsers={item.suggestedUsers}
             />
           </FeedItemWrapper>
+        );
+      },
+    },
+    feedMarker: {
+      render: (item: FeedMarkerFragment) => {
+        if (!item) return null;
+        return (
+          <FeedMarker
+            timestamp={item.timestamp}
+            markerType={item.markerType}
+            label={item.label}
+          />
         );
       },
     },
