@@ -1,13 +1,15 @@
 "use client";
 
-import React, { useState } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { defineStyles, useStyles } from '@/components/hooks/useStyles';
 import HyperdensePostCard from './HyperdensePostCard';
 import PostsLoading from './PostsLoading';
 import { usePostsList } from './usePostsList';
 import LoadMore from '../common/LoadMore';
 import SectionFooter from '../common/SectionFooter';
+import Loading from '../vulcan-core/Loading';
 import type { PostsListWithVotes } from '@/lib/generated/gql-codegen/graphql';
+import classNames from 'classnames';
 
 const styles = defineStyles('HyperdensePostsPage', (theme: ThemeType) => ({
   container: {
@@ -28,14 +30,20 @@ const styles = defineStyles('HyperdensePostsPage', (theme: ThemeType) => ({
     height: 350,
     overflow: 'visible',
   },
+  loadingSpinner: {
+    display: 'flex',
+    justifyContent: 'center',
+    padding: 20,
+  },
 }));
 
-const INITIAL_LIMIT = 12;
-const ITEMS_PER_PAGE = 25;
+const INITIAL_LIMIT = 15;
+const ITEMS_PER_PAGE = 50;
 
 const HyperdensePostsPage = () => {
   const classes = useStyles(styles);
   const [expandedPostId, setExpandedPostId] = useState<string | null>(null);
+  const hasAutoLoaded = useRef(false);
 
   const {
     orderedResults,
@@ -55,13 +63,24 @@ const HyperdensePostsPage = () => {
 
   const posts = (orderedResults ?? []) as PostsListWithVotes[];
 
+  useEffect(() => {
+    if (!loading && posts.length === INITIAL_LIMIT && !hasAutoLoaded.current) {
+      hasAutoLoaded.current = true;
+      // Wait a bit to ensure initial render completes before loading more
+      const timeoutId = setTimeout(() => {
+        void loadMore();
+      }, 500);
+      return () => clearTimeout(timeoutId);
+    }
+  }, [loading, posts.length, loadMore]);
+
   const handleToggle = (postId: string) => {
     setExpandedPostId(expandedPostId === postId ? null : postId);
   };
 
   if (loading && !posts.length) {
     return (
-      <div className={classes.container}>
+      <div className={classNames(classes.container, classes.loadingSpinner)}>
         <PostsLoading placeholderCount={INITIAL_LIMIT} viewType="list" />
       </div>
     );
@@ -81,6 +100,7 @@ const HyperdensePostsPage = () => {
           </div>
         ))}
       </div>
+
       {maybeMorePosts && (
         <SectionFooter>
           <LoadMore
