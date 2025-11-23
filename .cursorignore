@@ -1,0 +1,6 @@
+# Cursor Ignore File
+# Controls which files Cursor can access for indexing and AI features
+
+**/LessWrong-Credentials/
+**/.env*
+
