@@ -1,6 +1,6 @@
 "use client";
 
-import React from 'react';
+import React, { useRef, useEffect, useState } from 'react';
 import { defineStyles, useStyles } from '@/components/hooks/useStyles';
 import { postGetPageUrl } from '@/lib/collections/posts/helpers';
 import { useNavigate } from '@/lib/routeUtil';
@@ -18,6 +18,7 @@ const styles = defineStyles('HyperdensePostCard', (theme: ThemeType) => ({
     background: theme.palette.grey[0],
     ...commentBodyStyles(theme),
     padding: 10,
+    paddingBottom: 0,
     cursor: 'pointer',
     boxShadow: theme.palette.boxShadow.lwCard,
     display: 'flex',
@@ -34,21 +35,29 @@ const styles = defineStyles('HyperdensePostCard', (theme: ThemeType) => ({
     fontSize: 32,
     textWrap: 'balance',
     fontWeight: 700,
-    lineHeight: 1.3,
+    lineHeight: 1.23,
     marginBottom: 3,
     display: '-webkit-box',
     WebkitBoxOrient: 'vertical',
   },
+  titleLong: {
+    fontSize: 24,
+  },
   meta: {
-    borderTop: `1px solid ${theme.palette.grey[400]}`,
+    borderTop: `1px solid ${theme.palette.grey[200]}`,
     paddingTop: 6,
     marginTop: 6,
-    fontSize: 12,
+    fontSize: 11,
     color: theme.palette.grey[600],
     marginBottom: 4,
     display: 'flex',
     gap: 6,
     flexShrink: 0,
+    '-webkit-line-clamp': 1,
+    overflow: 'hidden',
+    textOverflow: 'ellipsis',
+    whiteSpace: 'nowrap',
+    flexGrow: 1,
   },
   karma: {
     fontWeight: 600,
@@ -65,13 +74,24 @@ const styles = defineStyles('HyperdensePostCard', (theme: ThemeType) => ({
     lineHeight: 1.3,
     color: theme.palette.grey[700],
   },
+  author: {
+    fontSize: 12,
+    ...theme.typography.title,
+    color: theme.palette.grey[900],
+
+    marginTop: 8,
+    marginBottom: 4,
+    display: 'flex',
+    justifyContent: 'flex-start',
+    alignItems: 'center',
+  },
   preview: {
     overflow: 'hidden',
     textOverflow: 'ellipsis',
     display: '-webkit-box',
     // WebkitLineClamp: 10,
     WebkitBoxOrient: 'vertical',
-    maxHeight: 220,
+    maxHeight: 286,
     transition: 'max-height 0.3s ease-in-out',
     '& p': {
       marginTop: '.5em',
@@ -95,19 +115,7 @@ const styles = defineStyles('HyperdensePostCard', (theme: ThemeType) => ({
       fontSize: 14,
       lineHeight: 1.4,
     },
-    '& ul': {
-      margin: 0,
-      padding: 0,
-      listStyle: 'none',
-    },
-    '& ol': {
-      margin: 0,
-      padding: 0,
-      listStyle: 'none',
-    },
     '& li': {
-      margin: 0,
-      padding: 0,
       lineHeight: 1.3,
       fontSize: 14,
     },
@@ -140,17 +148,33 @@ const HyperdensePostCard = ({post, baseHeight, isExpanded, onToggle}: {post: Pos
   const classes = useStyles(styles);
   const navigate = useNavigate();
   const postUrl = postGetPageUrl(post);
+  const titleRef = useRef<HTMLDivElement>(null);
+  const [isTitleLong, setIsTitleLong] = useState(false);
   
   const htmlHighlight = post.contents?.htmlHighlight || post.customHighlight?.html || '';
   const tagNames = (post.tags ?? []).map(tag => tag.name).filter((name): name is string => !!name);
   const visibleTags = tagNames.slice(0, 3);
 
+  useEffect(() => {
+    if (titleRef.current) {
+      const titleElement = titleRef.current;
+      const fontSize = 32;
+      const lineHeight = 1.3;
+      const twoLineHeight = fontSize * lineHeight * 2;
+      const actualHeight = titleElement.scrollHeight;
+      setIsTitleLong(actualHeight > twoLineHeight);
+    }
+  }, [post.title]);
+
   return (
     <div className={classNames(classes.card, isExpanded ? classes.cardExpanded : '')} onClick={onToggle}>
-      <div className={classes.title}>
-        <Link to={postUrl}>{post.title}</Link>
-      </div>
       <div className={classNames(classes.preview, isExpanded ? classes.previewExpanded : '')}>
+        <div ref={titleRef} className={classNames(classes.title, isTitleLong ? classes.titleLong : '')}>
+          <Link to={postUrl}>{post.title}</Link>
+        </div>
+        <div className={classes.author}>
+          <PostsUserAndCoauthors post={post} abbreviateIfLong={true} simple={true} />
+        </div>
         <ContentStyles
           contentType="comment"
           className={classes.previewContent}
@@ -163,7 +187,6 @@ const HyperdensePostCard = ({post, baseHeight, isExpanded, onToggle}: {post: Pos
       </div>
       <div className={classes.meta}>
         <span className={classes.karma}>{post.baseScore}</span>
-        <PostsUserAndCoauthors post={post} abbreviateIfLong={true} simple={true} />
         {visibleTags.length > 0 && (
           <span className={classes.tags}>{visibleTags.join(', ')}</span>
         )}
