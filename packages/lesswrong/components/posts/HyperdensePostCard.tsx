@@ -45,19 +45,21 @@ const styles = defineStyles('HyperdensePostCard', (theme: ThemeType) => ({
   },
   meta: {
     borderTop: `1px solid ${theme.palette.grey[200]}`,
-    paddingTop: 6,
+    paddingTop: 3,
     marginTop: 6,
     fontSize: 11,
     color: theme.palette.grey[600],
     marginBottom: 4,
-    display: 'flex',
     gap: 6,
+    width: '100%',
     flexShrink: 0,
     '-webkit-line-clamp': 1,
     overflow: 'hidden',
     textOverflow: 'ellipsis',
     whiteSpace: 'nowrap',
-    flexGrow: 1,
+    display: 'flex',
+    justifyContent: 'space-between',
+    alignItems: 'center',
   },
   karma: {
     fontWeight: 600,
@@ -68,6 +70,7 @@ const styles = defineStyles('HyperdensePostCard', (theme: ThemeType) => ({
     textOverflow: 'ellipsis',
     whiteSpace: 'nowrap',
     flexGrow: 1,
+    textAlign: 'right',
   },
   previewContent: {
     fontSize: 14,
@@ -75,8 +78,10 @@ const styles = defineStyles('HyperdensePostCard', (theme: ThemeType) => ({
     color: theme.palette.grey[700],
   },
   author: {
-    fontSize: 12,
     ...theme.typography.title,
+    textAlign: 'right',
+    width: '100%',
+    fontSize: 14,
     color: theme.palette.grey[900],
 
     marginTop: 8,
@@ -187,9 +192,11 @@ const HyperdensePostCard = ({post, baseHeight, isExpanded, onToggle}: {post: Pos
       </div>
       <div className={classes.meta}>
         <span className={classes.karma}>{post.baseScore}</span>
-        {visibleTags.length > 0 && (
-          <span className={classes.tags}>{visibleTags.join(', ')}</span>
-        )}
+        <div className={classes.tags}>
+          {visibleTags.length > 0 && (
+            <span>{visibleTags.join(', ')}</span>
+          )}
+        </div>
       </div>
     </div>
   );
