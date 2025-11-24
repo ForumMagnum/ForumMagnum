@@ -490,7 +490,7 @@ const styles = (theme: ThemeType) => ({
     bottom: 0,
     left: 0,
     width: "100vw",
-    minHeight: 100,
+    minHeight: 90,
     background: theme.palette.givingSeason.votingPortalPrimary,
     color: theme.palette.givingSeason.votingPortalSecondary,
     display: "flex",
@@ -546,6 +546,10 @@ const styles = (theme: ThemeType) => ({
   },
   footerButtonDisabled: {
     opacity: 0.5,
+    cursor: 'not-allowed',
+    "&:hover": {
+      opacity: 0.5
+    },
   },
   footerUnderText: {
     width: "100%",
@@ -1026,7 +1030,7 @@ const VotingPortalPage = ({classes}: {classes: ClassesType<typeof styles>}) => {
     () => existingVoteData?.GivingSeason2025MyVote ?? {},
     [existingVoteData],
   );
-  const {results: candidates = []} = useElectionCandidates();
+  const {results: candidates = []} = useElectionCandidates({ sortBy: "random" });
   const [items, setItems] = useState(
     candidatesToListItems.bind(null, candidates, existingVote),
   );

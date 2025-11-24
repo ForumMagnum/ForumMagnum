@@ -30,9 +30,12 @@ const AdminElectionCandidates = ({classes}: {
   classes: ClassesType<typeof styles>,
 }) => {
   const currentUser = useCurrentUser();
-  const {results, loading} = useElectionCandidates("name", {
-    fetchPolicy: "network-only",
-  });
+  const {results, loading} = useElectionCandidates({
+      sortBy: "name",
+      options: {
+        fetchPolicy: "network-only",
+      }
+    });
 
   if (!userIsAdmin(currentUser)) {
     return (
