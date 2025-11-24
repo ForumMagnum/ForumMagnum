@@ -28,6 +28,7 @@ import NewPostHowToGuides from "./NewPostHowToGuides";
 import { withDateFields } from '@/lib/utils/dateUtils';
 import { PostsEditFormQuery } from './queries';
 import { StatusCodeSetter } from '../next/StatusCodeSetter';
+import { usePathname } from 'next/navigation';
 
 const UsersCurrentPostRateLimitQuery = gql(`
   query PostsEditFormUser($documentId: String, $eventForm: Boolean) {
@@ -130,11 +131,10 @@ const styles = defineStyles("PostsEditForm", (theme: ThemeType) => ({
   },
 }))
 
-const PostsEditForm = ({ documentId, version }: {
+const PostsEditFormInner = ({ documentId, version }: {
   documentId: string,
   version?: string | null,
 }) => {
-  // return <></>;
   const classes = useStyles(styles);
   const { query } = useLocation();
   const navigate = useNavigate();
@@ -169,7 +169,7 @@ const PostsEditForm = ({ documentId, version }: {
     }
   }, [isDraft]);
   
-  if (!document && loading) {
+  if (loading) {
     return <Loading/>
   }
 
@@ -248,6 +248,22 @@ const PostsEditForm = ({ documentId, version }: {
   </>);
 }
 
-export default registerComponent('PostsEditForm', PostsEditForm);
+const PostsEditForm = ({ documentId, version }: {
+  documentId: string,
+  version?: string | null,
+}) => {
+  // HACK: key PostsEditForm with usePathname, so that when you navigate off of
+  // /editPost and then return, no state belonging to PostsEditFormInner will be
+  // preserved. Without this, if you save a post and then return to the edit
+  // page, nextjs (starting in next 16 with cacheComponents:true) will keep a
+  // copy of the editor's state variables inside an inactive <Activity>, and
+  // when resurrected, the useQuery(..., fetchPolicy: "network-only") will
+  // return a stale value on its first render. (This is a bug in the interaction
+  // between apollo-client and nextjs 16.)
+  const pathname = usePathname();
+  return <PostsEditFormInner documentId={documentId} version={version} key={pathname}/>
+}
+
+export default PostsEditForm;
 
 
