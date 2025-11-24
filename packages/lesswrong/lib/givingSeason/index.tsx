@@ -139,7 +139,7 @@ export const givingSeasonEvents: GivingSeasonEvent[] = [
     color: "#FFC500",
     desktopCloudinaryId: "week4_desktop_s1iy4m",
     mobileCloudinaryId: "week4_mobile_u0l7pw",
-    feedCount: 0,
+    feedCount: 4,
   },
   {
     name: "Why I donate week",

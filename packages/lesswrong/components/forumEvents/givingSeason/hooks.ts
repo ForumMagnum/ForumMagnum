@@ -5,10 +5,13 @@ import { CLIENT_ID_COOKIE } from "@/lib/cookies/cookies";
 import seedrandom from "@/lib/seedrandom";
 import { ACTIVE_DONATION_ELECTION } from "@/lib/givingSeason";
 
-export const useElectionCandidates = (
-  sortBy: ElectionCandidatesSort | "random" = "mostPreVoted",
-  options?: Partial<UseMultiOptions<"ElectionCandidateBasicInfo", "ElectionCandidates">>,
-) => {
+export const useElectionCandidates = ({
+  sortBy = "mostPreVoted",
+  options,
+}: {
+  sortBy?: ElectionCandidatesSort | "random";
+  options?: Partial<UseMultiOptions<"ElectionCandidateBasicInfo", "ElectionCandidates">>;
+} = {}) => {
   const currentUser = useCurrentUser();
   const [cookies] = useCookiesWithConsent([CLIENT_ID_COOKIE]);
   const clientId = cookies[CLIENT_ID_COOKIE];
@@ -37,4 +40,3 @@ export const useElectionCandidates = (
     ...retVal,
   };
 }
-
