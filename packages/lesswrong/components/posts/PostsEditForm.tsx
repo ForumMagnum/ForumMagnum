@@ -169,7 +169,7 @@ const PostsEditFormInner = ({ documentId, version }: {
     }
   }, [isDraft]);
   
-  if (!document || loading) {
+  if (loading) {
     return <Loading/>
   }
 
