@@ -1,7 +1,7 @@
 import React from 'react';
 import { Link } from '../../lib/reactRouterWrapper';
 import { useTagPreview } from './useTag';
-import { linkStyles } from '../linkPreview/linkStyles';
+import { linkStyles, VisitedIndicator } from '../linkPreview/linkStyles';
 import { removeUrlParameters } from '../../lib/routeUtil';
 import classNames from 'classnames';
 import { hasWikiLenses } from '@/lib/betas';
@@ -73,6 +73,7 @@ export const TagHoverPreview = ({
         to={linkTarget}
       >
         {tagName ?? children}
+        <VisitedIndicator/>
       </Link>
       {!!(showPostCount && tag?.postCount) &&
         <span className={classes.count}>({tag?.postCount})</span>
