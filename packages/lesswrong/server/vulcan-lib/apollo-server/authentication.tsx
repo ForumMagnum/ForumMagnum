@@ -159,7 +159,7 @@ export const loginDataGraphQLMutations = {
     for (const cookieName of ["loginToken", "meteor_login_token"]) {
       const cookieValue = cookieStore.get(cookieName)?.value
       if (cookieValue) {
-        await invalidateLoginToken(cookieValue);
+        await invalidateLoginToken(hashLoginToken(cookieValue));
         await clearCookie(cookieName);
       }
     }
