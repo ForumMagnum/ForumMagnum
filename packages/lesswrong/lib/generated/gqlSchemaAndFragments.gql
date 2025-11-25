@@ -799,7 +799,13 @@ type GivingSeasonTagFeedEntryType {
 
 extend type Query {
   GivingSeason2025DonationTotal: Float!
+  GivingSeason2025VoteCounts: JSON!
   GivingSeasonTagFeed(limit: Int, cutoff: Date, offset: Int, tagId: String!): GivingSeasonTagFeedQueryResults!
+  GivingSeason2025MyVote: JSON!
+}
+
+extend type Mutation {
+  GivingSeason2025Vote(vote: JSON!): Boolean!
 }
 
 type SubscribedPostAndComments {
@@ -3425,6 +3431,7 @@ type Post {
   fmCrosspost: CrosspostOutput
   canonicalSequenceId: String
   canonicalSequence: Sequence
+  isMarginalFunding2025Post: Boolean!
   canonicalCollectionSlug: String
   canonicalCollection: Collection
   canonicalBookId: String
@@ -3492,6 +3499,7 @@ type Post {
   sideCommentsCache: SideCommentCache
   sideCommentVisibility: String
   disableSidenotes: Boolean!
+  marginalFundingOrg: String
   moderationStyle: String
   ignoreRateLimits: Boolean
   hideCommentKarma: Boolean!
@@ -5596,6 +5604,15 @@ input UpdateElectionCandidateInput {
   data: UpdateElectionCandidateDataInput!
 }
 
+input ElectionCandidateSelectorUniqueInput {
+  _id: String
+  documentId: String
+}
+
+input DeleteElectionCandidateInput {
+  selector: ElectionCandidateSelectorUniqueInput!
+}
+
 type ElectionCandidateOutput {
   data: ElectionCandidate
 }
@@ -5603,6 +5620,7 @@ type ElectionCandidateOutput {
 extend type Mutation {
   createElectionCandidate(data: CreateElectionCandidateDataInput!): ElectionCandidateOutput
   updateElectionCandidate(selector: SelectorInput!, data: UpdateElectionCandidateDataInput!): ElectionCandidateOutput
+  deleteElectionCandidate(selector: ElectionCandidateSelectorUniqueInput!): ElectionCandidateOutput
 }
 
 input CreateElectionVoteDataInput {
@@ -6192,6 +6210,7 @@ input CreatePostDataInput {
   hideAuthor: Boolean
   sideCommentVisibility: String
   disableSidenotes: Boolean
+  marginalFundingOrg: String
   moderationStyle: String
   ignoreRateLimits: Boolean
   hideCommentKarma: Boolean
@@ -6309,6 +6328,7 @@ input UpdatePostDataInput {
   hideAuthor: Boolean
   sideCommentVisibility: String
   disableSidenotes: Boolean
+  marginalFundingOrg: String
   moderationStyle: String
   ignoreRateLimits: Boolean
   hideCommentKarma: Boolean
@@ -9507,6 +9527,8 @@ fragment PostsBase on Post {
   votingSystem
     
   disableRecommendation
+
+  marginalFundingOrg
 }
 
 fragment PostsBestOfList on Post {
@@ -9669,6 +9691,7 @@ fragment PostsDefaultFragment on Post {
   hideAuthor
   sideCommentVisibility
   disableSidenotes
+  marginalFundingOrg
   moderationStyle
   ignoreRateLimits
   hideCommentKarma
@@ -10042,6 +10065,11 @@ fragment PostsPlaintextDescription on Post {
     _id
     plaintextDescription
   }
+}
+
+fragment PostsPostsPageBannerDetails on Post {
+  ...PostsDetails
+  isMarginalFunding2025Post
 }
 
 fragment PostsRSSFeed on Post {

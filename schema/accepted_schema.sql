@@ -1753,6 +1753,7 @@ CREATE TABLE "Posts" (
   "hideAuthor" BOOL NOT NULL DEFAULT FALSE,
   "sideCommentVisibility" TEXT,
   "disableSidenotes" BOOL NOT NULL DEFAULT FALSE,
+  "marginalFundingOrg" TEXT,
   "moderationStyle" TEXT,
   "ignoreRateLimits" BOOL,
   "hideCommentKarma" BOOL NOT NULL DEFAULT FALSE,

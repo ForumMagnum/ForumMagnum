@@ -43,9 +43,6 @@ const styles = (theme: ThemeType) => ({
     '& .ck.ck-editor__editable_inline': {
       border: "none !important",
     },
-    '& .EditorTypeSelect-select': {
-      display: 'none',
-    },
   },
   commentFormCollapsed: {
     '& .form-input': {

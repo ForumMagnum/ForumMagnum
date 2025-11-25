@@ -74,6 +74,7 @@ import keyBy from "lodash/keyBy";
 import { filterNonnull } from "@/lib/utils/typeGuardUtils";
 import gql from "graphql-tag";
 import { commentIncludedInCounts } from "../comments/helpers";
+import { MARGINAL_FUNDING_SEQUENCE_ID } from "@/lib/givingSeason";
 
 export const graphqlTypeDefs = gql`
   type SocialPreviewType {
@@ -2466,6 +2467,15 @@ const schema = {
       resolver: generateIdResolverSingle({ foreignCollectionName: "Sequences", fieldName: "canonicalSequenceId" }),
     },
   },
+  isMarginalFunding2025Post: {
+    graphql: {
+      outputType: "Boolean!",
+      canRead: ["guests"],
+      resolver: async (post, _args, context) => {
+        return await context.repos.posts.isInSequence(post._id, MARGINAL_FUNDING_SEQUENCE_ID);
+      },
+    },
+  },
   canonicalCollectionSlug: {
     database: {
       type: "TEXT",
@@ -3755,6 +3765,21 @@ const schema = {
       // HACK: canCreate is more restrictive than canUpdate so that it's hidden on the new-post page, for clutter-reduction reasons, while leaving it still visible on the edit-post page
       canCreate: ["sunshineRegiment"],
       canUpdate: ["members"],
+      validation: {
+        optional: true,
+      },
+    },
+  },
+  marginalFundingOrg: {
+    database: {
+      type: "TEXT",
+      nullable: true,
+    },
+    graphql: {
+      outputType: "String",
+      canRead: ["guests"],
+      canUpdate: ["sunshineRegiment", "admins"],
+      canCreate: ["sunshineRegiment", "admins"],
       validation: {
         optional: true,
       },

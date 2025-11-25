@@ -11,6 +11,8 @@ import {
 import ContentStyles from "../common/ContentStyles";
 import { ContentItemBody } from "../contents/ContentItemBody";
 import CloudinaryImage2 from "../common/CloudinaryImage2";
+import MarginalFundingPostPageBanner from "./givingSeason/MarginalFundingPostPageBanner";
+import { useGivingSeason } from "@/lib/givingSeason";
 
 const BANNER_HEIGHT = 60;
 
@@ -54,24 +56,35 @@ export const ForumEventPostPageBanner = ({classes}: {
 }) => {
   const {params} = useLocation();
   const {currentForumEvent} = useCurrentAndRecentForumEvents();
+  const { currentEvent: currentGivingSeasonEvent } = useGivingSeason();
 
   const hideBanner =
-    !currentForumEvent ||
+    (!currentForumEvent ||
     currentForumEvent.eventFormat !== "BASIC" ||
-    !!currentForumEvent.customComponent;
+    !!currentForumEvent.customComponent ||
+    !currentForumEvent?.tagId) &&
+    !currentGivingSeasonEvent;
 
   const {document: post} = useSingle({
     collectionName: "Posts",
-    fragmentName: "PostsDetails",
+    fragmentName: "PostsPostsPageBannerDetails",
     documentId: params._id,
     skip:
       !hasForumEvents ||
       !params._id ||
-      hideBanner ||
-      !currentForumEvent?.tagId,
+      hideBanner
   });
 
   if (hideBanner || !post) {
+    return null;
+  }
+
+  if (post.isMarginalFunding2025Post) {
+    return <MarginalFundingPostPageBanner />;
+  }
+
+  // Note: Delete once marginal funding week is over, can be covered by hideBanner
+  if (!currentForumEvent) {
     return null;
   }
 

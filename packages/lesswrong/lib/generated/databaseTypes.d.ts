@@ -1039,6 +1039,7 @@ interface DbPost extends DbObject {
   localStartTime: Date | null
   location: string | null
   manifoldReviewMarketId: string | null
+  marginalFundingOrg: string | null
   maxBaseScore: number
   meetupLink: string | null
   meta: boolean

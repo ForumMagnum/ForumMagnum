@@ -2754,6 +2754,7 @@ interface Post {
   fmCrosspost: CrosspostOutput | null;
   canonicalSequenceId: string | null;
   canonicalSequence: Sequence | null;
+  isMarginalFunding2025Post: boolean;
   canonicalCollectionSlug: string | null;
   canonicalCollection: Collection | null;
   canonicalBookId: string | null;
@@ -2821,6 +2822,7 @@ interface Post {
   sideCommentsCache: SideCommentCache | null;
   sideCommentVisibility: string | null;
   disableSidenotes: boolean;
+  marginalFundingOrg: string | null;
   moderationStyle: string | null;
   ignoreRateLimits: boolean | null;
   hideCommentKarma: boolean;
@@ -4745,6 +4747,15 @@ interface UpdateElectionCandidateInput {
   data: UpdateElectionCandidateDataInput;
 }
 
+interface ElectionCandidateSelectorUniqueInput {
+  _id?: string | null;
+  documentId?: string | null;
+}
+
+interface DeleteElectionCandidateInput {
+  selector: ElectionCandidateSelectorUniqueInput;
+}
+
 interface ElectionCandidateOutput {
   data: ElectionCandidate | null;
 }
@@ -5271,6 +5282,7 @@ interface CreatePostDataInput {
   hideAuthor?: boolean | null;
   sideCommentVisibility?: string | null;
   disableSidenotes?: boolean | null;
+  marginalFundingOrg?: string | null;
   moderationStyle?: string | null;
   ignoreRateLimits?: boolean | null;
   hideCommentKarma?: boolean | null;
@@ -5388,6 +5400,7 @@ interface UpdatePostDataInput {
   hideAuthor?: boolean | null;
   sideCommentVisibility?: string | null;
   disableSidenotes?: boolean | null;
+  marginalFundingOrg?: string | null;
   moderationStyle?: string | null;
   ignoreRateLimits?: boolean | null;
   hideCommentKarma?: boolean | null;
@@ -7003,6 +7016,8 @@ interface GraphQLTypeMap {
   CreateElectionCandidateInput: CreateElectionCandidateInput;
   UpdateElectionCandidateDataInput: UpdateElectionCandidateDataInput;
   UpdateElectionCandidateInput: UpdateElectionCandidateInput;
+  ElectionCandidateSelectorUniqueInput: ElectionCandidateSelectorUniqueInput;
+  DeleteElectionCandidateInput: DeleteElectionCandidateInput;
   ElectionCandidateOutput: ElectionCandidateOutput;
   CreateElectionVoteDataInput: CreateElectionVoteDataInput;
   CreateElectionVoteInput: CreateElectionVoteInput;

@@ -1845,6 +1845,7 @@ interface PostsBase extends PostsMinimumInfo { // fragment on Posts
   readonly reviewCount2019: number,
   readonly votingSystem: string|null,
   readonly disableRecommendation: boolean,
+  readonly marginalFundingOrg: string|null,
 }
 
 interface PostsBase_group { // fragment on Localgroups
@@ -2019,6 +2020,7 @@ interface PostsDefaultFragment { // fragment on Posts
   readonly hideAuthor: boolean,
   readonly sideCommentVisibility: string|null,
   readonly disableSidenotes: boolean,
+  readonly marginalFundingOrg: string|null,
   readonly moderationStyle: string|null,
   readonly ignoreRateLimits: boolean|null,
   readonly hideCommentKarma: boolean,
@@ -2322,6 +2324,10 @@ interface PostsPlaintextDescription { // fragment on Posts
 interface PostsPlaintextDescription_contents { // fragment on Revisions
   readonly _id: string,
   readonly plaintextDescription: string,
+}
+
+interface PostsPostsPageBannerDetails extends PostsDetails { // fragment on Posts
+  readonly isMarginalFunding2025Post: boolean,
 }
 
 interface PostsRSSFeed extends PostsPage { // fragment on Posts
@@ -5774,6 +5780,7 @@ interface FragmentTypes {
   PostsOriginalContents: PostsOriginalContents
   PostsPage: PostsPage
   PostsPlaintextDescription: PostsPlaintextDescription
+  PostsPostsPageBannerDetails: PostsPostsPageBannerDetails
   PostsRSSFeed: PostsRSSFeed
   PostsRecentDiscussion: PostsRecentDiscussion
   PostsReviewVotingList: PostsReviewVotingList
@@ -6020,7 +6027,7 @@ interface FragmentTypesByCollection {
   PostRelations: "PostRelationsDefaultFragment"
   PostViewTimes: "PostViewTimesDefaultFragment"
   PostViewses: "PostViewsDefaultFragment"
-  Posts: "HighlightWithHash"|"PostForReviewWinnerItem"|"PostSequenceNavigation"|"PostSideComments"|"PostWithDialogueMessage"|"PostWithGeneratedSummary"|"PostsAuthors"|"PostsBase"|"PostsBestOfList"|"PostsDefaultFragment"|"PostsDetails"|"PostsEdit"|"PostsEditMutationFragment"|"PostsEditQueryFragment"|"PostsExpandedHighlight"|"PostsForAutocomplete"|"PostsHTML"|"PostsList"|"PostsListBase"|"PostsListTag"|"PostsListTagWithVotes"|"PostsListWithVotes"|"PostsListWithVotesAndSequence"|"PostsMinimumInfo"|"PostsModerationGuidelines"|"PostsOriginalContents"|"PostsPage"|"PostsPlaintextDescription"|"PostsRSSFeed"|"PostsRecentDiscussion"|"PostsReviewVotingList"|"PostsRevision"|"PostsRevisionEdit"|"PostsRevisionsList"|"PostsTopItemInfo"|"PostsTwitterAdmin"|"PostsWithNavigation"|"PostsWithNavigationAndRevision"|"PostsWithVotes"|"ShortformRecentDiscussion"|"SuggestAlignmentPost"|"SunshineCurationPostsList"|"SunshinePostsList"|"UltraFeedPostFragment"|"UsersBannedFromPostsModerationLog"|"WithVotePost"
+  Posts: "HighlightWithHash"|"PostForReviewWinnerItem"|"PostSequenceNavigation"|"PostSideComments"|"PostWithDialogueMessage"|"PostWithGeneratedSummary"|"PostsAuthors"|"PostsBase"|"PostsBestOfList"|"PostsDefaultFragment"|"PostsDetails"|"PostsEdit"|"PostsEditMutationFragment"|"PostsEditQueryFragment"|"PostsExpandedHighlight"|"PostsForAutocomplete"|"PostsHTML"|"PostsList"|"PostsListBase"|"PostsListTag"|"PostsListTagWithVotes"|"PostsListWithVotes"|"PostsListWithVotesAndSequence"|"PostsMinimumInfo"|"PostsModerationGuidelines"|"PostsOriginalContents"|"PostsPage"|"PostsPlaintextDescription"|"PostsPostsPageBannerDetails"|"PostsRSSFeed"|"PostsRecentDiscussion"|"PostsReviewVotingList"|"PostsRevision"|"PostsRevisionEdit"|"PostsRevisionsList"|"PostsTopItemInfo"|"PostsTwitterAdmin"|"PostsWithNavigation"|"PostsWithNavigationAndRevision"|"PostsWithVotes"|"ShortformRecentDiscussion"|"SuggestAlignmentPost"|"SunshineCurationPostsList"|"SunshinePostsList"|"UltraFeedPostFragment"|"UsersBannedFromPostsModerationLog"|"WithVotePost"
   RSSFeeds: "RSSFeedMinimumInfo"|"RSSFeedMutationFragment"|"RSSFeedsDefaultFragment"|"newRSSFeedFragment"
   ReadStatuses: "ReadStatusesDefaultFragment"
   RecommendationsCaches: "RecommendationsCachesDefaultFragment"
@@ -6223,6 +6230,7 @@ interface CollectionNamesByFragmentName {
   PostsOriginalContents: "Posts"
   PostsPage: "Posts"
   PostsPlaintextDescription: "Posts"
+  PostsPostsPageBannerDetails: "Posts"
   PostsRSSFeed: "Posts"
   PostsRecentDiscussion: "Posts"
   PostsReviewVotingList: "Posts"

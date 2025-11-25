@@ -11,6 +11,7 @@ import classNames from 'classnames';
 import { isFriendlyUI } from '@/themes/forumTheme';
 import SequencesTooltip from "../../sequences/SequencesTooltip";
 import SequencesNavigationLink from "../../sequences/SequencesNavigationLink";
+import { MARGINAL_FUNDING_SEQUENCE_ID } from '@/lib/givingSeason';
 
 export const darkGreyAlpha = .7
 
@@ -83,8 +84,9 @@ const PostsTopSequencesNav = ({post, classes, blackText}: {
   }, [navigate, post]);
   useGlobalKeydown(handleKey);
 
-  if (!post?.sequence)
+  if (!post?.sequence || post.sequence._id === MARGINAL_FUNDING_SEQUENCE_ID) {
     return null;
+  }
 
   if (post.sequence.draft && (!currentUser || currentUser._id!==post.sequence.userId) && !currentUser?.isAdmin) {
     return null;
@@ -116,5 +118,3 @@ export default registerComponent(
     hocs: [withErrorBoundary]
   }
 );
-
-

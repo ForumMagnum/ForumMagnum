@@ -1,0 +1,143 @@
+import React, { Fragment } from "react";
+import { defineStyles, useStyles } from '../../hooks/useStyles';
+import { registerComponent } from "../../../lib/vulcan-lib/components";
+import { postGetPageUrl } from "@/lib/collections/posts/helpers";
+import { InteractionWrapper, useClickableCell } from "../../common/useClickableCell";
+import { Link } from "@/lib/reactRouterWrapper";
+import UsersName from "../../users/UsersName";
+import classNames from "classnames";
+
+const styles = defineStyles("MarginalFundingListItem", (theme) => ({
+  root: {
+    display: "contents",
+    cursor: "pointer",
+    [theme.breakpoints.down("sm")]: {
+      display: "flex",
+      flexDirection: "column",
+    },
+    "@media (pointer:fine)": {
+      "&:hover": {
+        color: theme.palette.givingSeason.primary,
+        "& .MarginalFundingListItem-read": {
+          background: `${theme.palette.givingSeason.cardHover} !important`,
+        },
+        "& .MarginalFundingListItem-unread": {
+          background: `${theme.palette.givingSeason.cardHover} !important`,
+        },
+        "& .MarginalFundingListItem-org": {
+          borderColor: theme.palette.givingSeason.primary,
+        },
+      },
+    },
+  },
+  read: {
+    background: theme.palette.givingSeason.primary,
+  },
+  unread: {
+    background: theme.palette.text.alwaysWhite,
+  },
+  cell: {
+    display: "flex",
+    flexDirection: "column",
+    justifyContent: "center",
+    gap: "4px",
+    padding: "40px 60px",
+    [theme.breakpoints.down("sm")]: {
+      display: "block",
+      "&:first-child": {
+        paddingBottom: 0,
+      },
+      "&:not(:first-child)": {
+        paddingTop: 16,
+      },
+    },
+    [theme.breakpoints.down("xs")]: {
+      padding: 20,
+    },
+  },
+  org: {
+    display: "inline-block",
+    whiteSpace: "nowrap",
+    textTransform: "uppercase",
+    border: `1px solid ${theme.palette.text.alwaysBlack}`,
+    borderRadius: "26px",
+    fontSize: 13,
+    fontWeight: 500,
+    letterSpacing: "-0.01em",
+    lineHeight: "140%",
+    padding: "2px 6px",
+  },
+  title: {
+    fontSize: 30,
+    fontWeight: 600,
+    letterSpacing: "-0.02em",
+    "&:hover": {
+      opacity: 1,
+    },
+  },
+  authors: {
+    fontSize: 14,
+    fontWeight: 600,
+    letterSpacing: "-0.01em",
+    lineHeight: "140%",
+  },
+  by: {
+    fontWeight: 500,
+  },
+  interaction: {
+    display: "inline",
+  },
+}))
+
+export const MarginalFundingListItem = ({post}: {post: PostsListWithVotes}) => {
+  const href = postGetPageUrl(post);
+  const {onClick} = useClickableCell({href});
+  const classes = useStyles(styles);
+  return (
+    <article
+      onClick={onClick}
+      className={classes.root}
+    >
+      <div
+        className={classNames(
+          classes.cell,
+          post.isRead ? classes.read : classes.unread
+        )}
+      >
+        {post.marginalFundingOrg &&
+          <div>
+            <div className={classes.org}>{post.marginalFundingOrg}</div>
+          </div>
+        }
+      </div>
+      <div
+        className={classNames(
+          classes.cell,
+          post.isRead ? classes.read : classes.unread
+        )}
+      >
+        <InteractionWrapper>
+          <Link to={href} className={classes.title}>
+            {post.title}
+          </Link>
+        </InteractionWrapper>
+        <div className={classes.authors}>
+          <span className={classes.by}>by</span>{" "}
+          <InteractionWrapper className={classes.interaction}>
+            <UsersName user={post.user} tooltipPlacement="bottom-start" />
+          </InteractionWrapper>
+          {post.coauthors.map((user) => (
+            <Fragment key={user._id}>
+              {", "}
+              <InteractionWrapper className={classes.interaction}>
+                <UsersName user={user} tooltipPlacement="bottom-start" />
+              </InteractionWrapper>
+            </Fragment>
+          ))}
+        </div>
+      </div>
+    </article>
+  );
+}
+
+export default registerComponent('MarginalFundingListItem', MarginalFundingListItem);

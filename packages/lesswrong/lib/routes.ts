@@ -171,6 +171,10 @@ import LeaderboardComponent from '@/components/users/Leaderboard';
 import KeywordsPage from '@/components/keywords/KeywordsPage';
 import KeywordResultsPage from '@/components/keywords/KeywordResultsPage';
 import AdminEventPostEmailPage from '@/components/admin/AdminEventPostEmailPage';
+import MarginalFundingPage from '@/components/forumEvents/givingSeason/MarginalFundingPage';
+import VotingPortalPage from '@/components/forumEvents/givingSeason/VotingPortalPage';
+import AdminElectionCandidates from '@/components/forumEvents/givingSeason/AdminElectionCandidates';
+import EditElectionCandidate from '@/components/forumEvents/givingSeason/EditElectionCandidate';
 
 const communitySubtitle = { subtitleLink: communityPath, subtitle: isEAForum ? 'Groups' : 'Community' };
 
@@ -1056,6 +1060,35 @@ const eaLwAfForumSpecificRoutes = forumSelect<Route[]>({
       component: Auth0PasswordResetPage,
       title: 'Set password',
       hideFromSitemap: true,
+    },
+    {
+      name: "marginFunding",
+      path: "/marginal-funding",
+      component: MarginalFundingPage,
+      title: "Marginal funding",
+      fullscreen: true,
+      noFooter: true,
+    },
+    {
+      name: 'VotingPortal',
+      path: '/voting-portal',
+      component: VotingPortalPage,
+      title: 'Vote in the Donation Election',
+      noFooter: true,
+    },
+    {
+      name: 'ElectionCandidates',
+      path: '/admin/election-candidates',
+      component: AdminElectionCandidates,
+      title: 'Election Candidates',
+      isAdmin: true,
+    },
+    {
+      name: 'EditElectionCandidate',
+      path: '/admin/election-candidates/:id',
+      component: EditElectionCandidate,
+      title: 'Edit Election Candidate',
+      isAdmin: true,
     },
   ],
   LessWrong: [

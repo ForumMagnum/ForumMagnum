@@ -123,6 +123,9 @@ export const GivingSeasonTopPosts = ({tagId, tagSlug}: {
       sortedBy: "top",
     },
   });
+  const href = tagSlug === "marginal-funding-week-2025"
+    ? "/marginal-funding"
+    : tagGetUrl({slug: tagSlug});
   const classes = useStyles(styles);
   return (
     <div className={classes.root}>
@@ -134,7 +137,7 @@ export const GivingSeasonTopPosts = ({tagId, tagSlug}: {
         </div>
       )}
       <div>
-        <Link to={tagGetUrl({slug: tagSlug})} className={classes.viewAll}>
+        <Link to={href} className={classes.viewAll}>
           View all posts
           <ForumIcon icon="ArrowRight" />
         </Link>

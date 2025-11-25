@@ -8,17 +8,76 @@ import React, {
   useMemo,
   useState,
 } from "react";
-import { useCurrentTime } from "./utils/timeUtil";
+import { useCurrentTime } from "../utils/timeUtil";
 import { useOnNavigate } from "@/components/hooks/useOnNavigate";
-import { useLocation } from "./routeUtil";
+import { useLocation } from "../routeUtil";
 import { useQuery } from "@apollo/client";
-import { isEAForum } from "./instanceSettings";
+import { isEAForum } from "../instanceSettings";
 import gql from "graphql-tag";
+import { userIsAdmin } from "../vulcan-users/permissions";
+import { IRPossibleVoteCounts } from "./instantRunoff";
 
 export const GIVING_SEASON_INFO_HREF = "/posts/RzdKnBYe3jumrZxkB/giving-season-2025-announcement";
 export const ELECTION_INFO_HREF = "/posts/RzdKnBYe3jumrZxkB/giving-season-2025-announcement#November_24th_to_December_7th_";
+export const ELECTION_LEARN_MORE_HREF = "/posts/93KvQDDQfaZEBTP7t/donation-election-fund-rewards-and-matching";
 export const ELECTION_DONATE_HREF = "https://www.every.org/ea-forum-donation-election-2025";
+export const ELECTION_VOTE_HREF = "/voting-portal";
+export const ELECTION_2025_MATCHED_AMOUNT = 5000;
+export const MARGINAL_FUNDING_SEQUENCE_ID = "jTAPdwYry3zTyifkZ";
+export const MARGINAL_FUNDING_SPOTIFY_URL = "https://open.spotify.com/playlist/2wEYoo2FtV7OQQA0pATewT?si=XET3lr9aT9S-PFOGDvW6Kw";
+export const SINGLE_COLUMN_BREAKPOINT = 700;
 const ELECTION_TARGET_AMOUNT = 30000;
+
+export const ACTIVE_DONATION_ELECTION = "givingSeason25";
+export const DONATION_ELECTION_NUM_WINNERS = 3;
+export const DONATION_ELECTION_SHOW_LEADERBOARD_CUTOFF = 100;
+export const DONATION_ELECTION_ACCOUNT_AGE_CUTOFF = new Date("2025-10-24T00:00:00.000Z"); // Based on the time of https://forum.effectivealtruism.org/posts/RzdKnBYe3jumrZxkB/giving-season-2025-announcement
+export const DONATION_ELECTION_APPROX_CLOSING_DATE = 'Dec 7th';
+export const DONATION_ELECTION_START = new Date("2025-11-24T10:00:00.000Z");
+export const DONATION_ELECTION_END = new Date("2025-12-08T00:00:00.000Z");
+export const DONATION_ELECTION_CANDIDATES_HREF = "/posts/YqYSGpRbLa7ppkuWs/meet-the-candidates-donation-election-2025";
+export const DONATION_ELECTION_WINNERS_HREF = null;
+
+/**
+ * Check if a user is allowed to vote in the donation election
+ * @returns Object with `allowed` boolean and `reason` string explaining why if not allowed
+ */
+export function userIsAllowedToVoteInDonationElection(
+  currentUser: UsersCurrent | DbUser | null,
+  now: Date,
+): { allowed: boolean; reason: string } {
+  if (!currentUser) {
+    return { allowed: false, reason: "You must be logged in to vote" };
+  }
+
+  if (currentUser.banned) {
+    return { allowed: false, reason: "Banned users cannot vote" };
+  }
+
+  const isAdmin = userIsAdmin(currentUser);
+
+  // Admins can always vote
+  if (isAdmin) {
+    return { allowed: true, reason: "" };
+  }
+
+  // Check if voting is currently open
+  const votingOpen = now >= DONATION_ELECTION_START && now < DONATION_ELECTION_END;
+  if (!votingOpen) {
+    if (now < DONATION_ELECTION_START) {
+      return { allowed: false, reason: "Voting has not yet opened" };
+    } else {
+      return { allowed: false, reason: "Voting has closed" };
+    }
+  }
+
+  // Check if account is old enough
+  if (new Date(currentUser.createdAt) > DONATION_ELECTION_ACCOUNT_AGE_CUTOFF) {
+    return { allowed: false, reason: "Your account is too young to vote in the Donation Election" };
+  }
+
+  return { allowed: true, reason: "" };
+}
 
 type GivingSeasonEvent = {
   name: string,
@@ -55,13 +114,13 @@ export const givingSeasonEvents: GivingSeasonEvent[] = [
   {
     name: "Marginal funding week",
     description: "A week for organisations to share what they could do with extra funding.",
-    readMoreHref: "/posts/RzdKnBYe3jumrZxkB/giving-season-2025-announcement#November_17th_to_23rd",
+    readMoreHref: "/marginal-funding",
     tag: {
       _id: "hmhCHsvuminjfEPhy",
       slug: "marginal-funding-week-2025",
     },
     start: new Date("2025-11-17"),
-    end: new Date("2025-11-24"),
+    end: new Date("2025-11-24T10:00:00.000Z"),
     color: "#FF7454",
     desktopCloudinaryId: "week3_desktop_hqdsiu",
     mobileCloudinaryId: "week3_mobile_kby9wq",
@@ -75,12 +134,12 @@ export const givingSeasonEvents: GivingSeasonEvent[] = [
       _id: "5S6ttX5JADjsPpxym",
       slug: "donation-election-2025",
     },
-    start: new Date("2025-11-24"),
+    start: new Date("2025-11-24T10:00:00.000Z"),
     end: new Date("2025-12-08"),
     color: "#FFC500",
     desktopCloudinaryId: "week4_desktop_s1iy4m",
     mobileCloudinaryId: "week4_mobile_u0l7pw",
-    feedCount: 0,
+    feedCount: 4,
   },
   {
     name: "Why I donate week",
@@ -129,6 +188,7 @@ type GivingSeasonContext = {
   setSelectedEvent: Dispatch<SetStateAction<GivingSeasonEvent>>,
   amountRaised: number,
   amountTarget: number,
+  leaderboard?: IRPossibleVoteCounts,
 }
 
 const givingSeasonContext = createContext<GivingSeasonContext | null>(null)
@@ -136,6 +196,7 @@ const givingSeasonContext = createContext<GivingSeasonContext | null>(null)
 export const GivingSeasonContext = ({children}: {children: ReactNode}) => {
   const {currentRoute} = useLocation();
   const isHomePage = currentRoute?.name === "home";
+  const isVotingPortalPage = currentRoute?.name === "VotingPortal";
   const currentEvent = useCurrentGivingSeasonEvent()
   const defaultEvent = currentEvent ?? givingSeasonEvents[0];
   const [selectedEvent, setSelectedEvent] = useState(defaultEvent);
@@ -145,16 +206,25 @@ export const GivingSeasonContext = ({children}: {children: ReactNode}) => {
   }, [defaultEvent]);
   useOnNavigate(onNavigate);
 
-  const {data} = useQuery(gql`
+  const {data: donationTotalData} = useQuery(gql`
     query GivingSeason2025DonationTotal {
       GivingSeason2025DonationTotal
     }
   `, {
     pollInterval: 60 * 1000, // Poll once per minute
     ssr: true,
+    skip: !isEAForum || (!isHomePage && !isVotingPortalPage),
+  });
+  const amountRaised = Math.round(donationTotalData?.GivingSeason2025DonationTotal ?? 0);
+
+  const { data: leaderboardData } = useQuery<{ GivingSeason2025VoteCounts: IRPossibleVoteCounts }>(gql`
+    query GivingSeason2025VoteCounts {
+      GivingSeason2025VoteCounts
+    }
+  `, {
+    ssr: true,
     skip: !isEAForum || !isHomePage,
   });
-  const amountRaised = Math.round(data?.GivingSeason2025DonationTotal ?? 0);
 
   const value = useMemo(() => ({
     currentEvent,
@@ -162,7 +232,9 @@ export const GivingSeasonContext = ({children}: {children: ReactNode}) => {
     setSelectedEvent,
     amountRaised,
     amountTarget: ELECTION_TARGET_AMOUNT,
-  }), [currentEvent, selectedEvent, setSelectedEvent, amountRaised]);
+    leaderboard: leaderboardData?.GivingSeason2025VoteCounts,
+  }), [currentEvent, selectedEvent, amountRaised, leaderboardData?.GivingSeason2025VoteCounts]);
+
   return (
     <givingSeasonContext.Provider value={value}>
       {children}

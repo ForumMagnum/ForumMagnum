@@ -175,6 +175,8 @@ export const PostsBase = () => frag`
     votingSystem
     
     disableRecommendation
+
+    marginalFundingOrg
   }
 `
 
@@ -456,6 +458,14 @@ export const PostsDetails = () => frag`
     glossary {
       ...JargonTermsPost
     }
+  }
+`
+
+// Note: delete once giving season 2025 is over
+export const PostsPostsPageBannerDetails = () => frag`
+  fragment PostsPostsPageBannerDetails on Post {
+    ${PostsDetails}
+    isMarginalFunding2025Post
   }
 `
 

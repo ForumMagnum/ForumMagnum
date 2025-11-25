@@ -175,7 +175,7 @@ import { createConversationGqlMutation, updateConversationGqlMutation, graphqlCo
 import { createCurationNoticeGqlMutation, updateCurationNoticeGqlMutation, graphqlCurationNoticeTypeDefs } from "@/server/collections/curationNotices/mutations";
 import { createDigestPostGqlMutation, updateDigestPostGqlMutation, graphqlDigestPostTypeDefs } from "@/server/collections/digestPosts/mutations";
 import { createDigestGqlMutation, updateDigestGqlMutation, graphqlDigestTypeDefs } from "@/server/collections/digests/mutations";
-import { createElectionCandidateGqlMutation, updateElectionCandidateGqlMutation, graphqlElectionCandidateTypeDefs } from "@/server/collections/electionCandidates/mutations";
+import { createElectionCandidateGqlMutation, updateElectionCandidateGqlMutation, deleteElectionCandidateGqlMutation, graphqlElectionCandidateTypeDefs } from "@/server/collections/electionCandidates/mutations";
 import { createElectionVoteGqlMutation, updateElectionVoteGqlMutation, graphqlElectionVoteTypeDefs } from "@/server/collections/electionVotes/mutations";
 import { createElicitQuestionGqlMutation, updateElicitQuestionGqlMutation, graphqlElicitQuestionTypeDefs } from "@/server/collections/elicitQuestions/mutations";
 import { createForumEventGqlMutation, updateForumEventGqlMutation, graphqlForumEventTypeDefs } from "@/server/collections/forumEvents/mutations";
@@ -213,7 +213,7 @@ import { createUserTagRelGqlMutation, updateUserTagRelGqlMutation, graphqlUserTa
 import { createUserGqlMutation, updateUserGqlMutation, graphqlUserTypeDefs } from "@/server/collections/users/mutations";
 import { keywordAlertsQueryHandlers, keywordAlertsTypeDefs } from '@/server/keywordAlerts/keywordAlertsResolvers';
 import { eventPostEmailsGqlMutations, eventPostEmailsGqlTypeDefs } from '@/server/eventPostEmails/eventPostEmailsResolvers';
-import { givingSeasonTagFeedGraphQLQueries, givingSeasonTagFeedGraphQLTypeDefs } from '@/server/givingSeason/givingSeasonResolvers';
+import { givingSeasonGraphQLMutations, givingSeasonGraphQLQueries, givingSeasonGraphQLTypeDefs } from '@/server/givingSeason/givingSeasonResolvers';
 
 const selectorInput = gql`
   input SelectorInput {
@@ -260,7 +260,7 @@ export const typeDefs = gql`
   ${alignmentForumTypeDefs}
   ${allTagsActivityFeedGraphQLTypeDefs}
   ${recentDiscussionFeedGraphQLTypeDefs}
-  ${givingSeasonTagFeedGraphQLTypeDefs}
+  ${givingSeasonGraphQLTypeDefs}
   ${subscribedUsersFeedGraphQLTypeDefs}
   ${tagHistoryFeedGraphQLTypeDefs}
   ${subForumFeedGraphQLTypeDefs}
@@ -464,7 +464,7 @@ export const resolvers = {
     ...postGqlQueries,
     ...allTagsActivityFeedGraphQLQueries,
     ...recentDiscussionFeedGraphQLQueries,
-    ...givingSeasonTagFeedGraphQLQueries,
+    ...givingSeasonGraphQLQueries,
     ...subscribedUsersFeedGraphQLQueries,
     ...tagHistoryFeedGraphQLQueries,
     ...subForumFeedGraphQLQueries,
@@ -602,6 +602,7 @@ export const resolvers = {
     ...recommendationsGqlMutations,
     ...extraPostResolversGraphQLMutations,
     ...loginDataGraphQLMutations,
+    ...givingSeasonGraphQLMutations,
 
     // CRUD Mutation Handlers
     createAdvisorRequest: createAdvisorRequestGqlMutation,
@@ -626,6 +627,7 @@ export const resolvers = {
     updateDigest: updateDigestGqlMutation,
     createElectionCandidate: createElectionCandidateGqlMutation,
     updateElectionCandidate: updateElectionCandidateGqlMutation,
+    deleteElectionCandidate: deleteElectionCandidateGqlMutation,
     createElectionVote: createElectionVoteGqlMutation,
     updateElectionVote: updateElectionVoteGqlMutation,
     createElicitQuestion: createElicitQuestionGqlMutation,

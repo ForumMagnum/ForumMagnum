@@ -1040,6 +1040,7 @@ export const PostsDefaultFragment = `
     hideAuthor
     sideCommentVisibility
     disableSidenotes
+    marginalFundingOrg
     moderationStyle
     ignoreRateLimits
     hideCommentKarma

@@ -580,6 +580,13 @@ export const defaultComponentPalette = (shades: ThemeShadePalette): ThemeCompone
 
   givingSeason: {
     primary: "#FF7454",
+    cardHover: "#FFF1EE",
+    votingPortalPrimary: "#FFC500",
+    votingPortalSecondary: "#000000",
+    votingPortalBackground: "#000000",
+    votingPortalPrimaryTranslucent1: "rgba(255, 197, 0, 0.18)",
+    votingPortalPrimaryTranslucent2: "rgba(255, 197, 0, 0.4)",
+    candidateBorder: "rgba(7, 6, 5, 0.4)",
   },
   wrapped: {
     background: '#151515',
