@@ -849,9 +849,7 @@ const ThankYouScreen = ({
 }) => {
   const updateCurrentUser = useUpdateCurrentUser();
   const {captureEvent} = useTracking();
-  const [addFlair, setAddFlair] = useState(
-    false,
-  );
+  const [addFlair, setAddFlair] = useState(true);
   const [confetti, setConfetti] = useState(true);
   const {width, height} = useWindowSize();
 
@@ -868,6 +866,13 @@ const ThankYouScreen = ({
   }, [updateCurrentUser, captureEvent]);
 
   const fundPercent = Math.round((amountRaised / amountTarget) * 100);
+
+  // Turn on the flair by default
+  useEffect(() => {
+    void updateCurrentUser({
+      givingSeason2025VotedFlair: true,
+    });
+  }, [updateCurrentUser]);
 
   return (
     <div className={classes.thankYouRoot}>
