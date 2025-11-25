@@ -14,7 +14,6 @@ import {
   DONATION_ELECTION_START,
   DONATION_ELECTION_WINNERS_HREF,
   ELECTION_DONATE_HREF,
-  ELECTION_INFO_HREF,
   ELECTION_LEARN_MORE_HREF,
   ELECTION_VOTE_HREF,
   GIVING_SEASON_INFO_HREF,
@@ -189,13 +188,14 @@ const styles = defineStyles("GivingSeason2025Banner", (theme: ThemeType) => ({
   },
   feedButton: {
     borderRadius: theme.borderRadius.default,
-    padding: "8px 24px",
+    padding: "12px 24px",
     fontSize: 14,
     fontWeight: 500,
     marginTop: 10,
     display: "inline-flex",
     alignItems: "center",
     justifyContent: "center",
+    textAlign: "center",
     gap: 8,
     transition: "opacity ease 0.2s",
     "& svg": {
@@ -203,6 +203,12 @@ const styles = defineStyles("GivingSeason2025Banner", (theme: ThemeType) => ({
     },
     "&:hover": {
       opacity: 0.8,
+    },
+    [theme.breakpoints.down("sm")]: {
+      padding: "8px 12px",
+    },
+    [theme.breakpoints.down("xs")]: {
+      padding: 8,
     },
   },
   feedButtonPrimary: {
@@ -241,7 +247,10 @@ const styles = defineStyles("GivingSeason2025Banner", (theme: ThemeType) => ({
     padding: "24px 50px !important",
     "& .GivingSeason2025Banner-electionStatus": {
       gap: "6px !important"
-    }
+    },
+    [theme.breakpoints.down("md")]: {
+      padding: "16px !important",
+    },
   },
   election: {
     backgroundColor: "var(--event-color)",
