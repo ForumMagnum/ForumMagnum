@@ -11,11 +11,11 @@ import { conceptsIcon } from '../../icons/conceptsIcon';
 import { communityGlobeIcon } from '../../icons/communityGlobeIcon';
 import { BookIcon } from '../../icons/bookIcon'
 import { allPostsIcon } from '../../icons/allPostsIcon';
+import { AboutQuestionIcon } from '../../icons/aboutQuestionIcon';
 
 import Home from '@/lib/vendor/@material-ui/icons/src/Home'
 import LocalOffer from '@/lib/vendor/@material-ui/icons/src/LocalOffer';
 import Sort from '@/lib/vendor/@material-ui/icons/src/Sort'
-import Info from '@/lib/vendor/@material-ui/icons/src/Info';
 import SupervisedUserCircleIcon from '@/lib/vendor/@material-ui/icons/src/SupervisedUserCircle';
 
 // EA Forum menu icons
@@ -38,6 +38,7 @@ import {
   PeopleDirectorySelectedIcon,
 } from '../../icons/peopleDirectoryIcon';
 import { podcastPost } from '@/lib/eaPodcasts';
+import Info from '@/lib/vendor/@material-ui/icons/src/Info';
 
 // The sidebar / bottom bar of the Forum contain 10 or so similar tabs, unique to each Forum. The
 // tabs can appear in
@@ -206,9 +207,10 @@ export const getMenuTabs = (): ForumOptions<Array<MenuTab>> => ({
     }, {
       id: 'about',
       title: 'About',
+      mobileTitle: 'About',
       link: '/about',
       subItem: true,
-      compressedIconComponent: Info,
+      compressedIconComponent: AboutQuestionIcon,
       showOnCompressed: true,
     },  {
       id: 'faq',
@@ -260,9 +262,10 @@ export const getMenuTabs = (): ForumOptions<Array<MenuTab>> => ({
     }, {
       id: 'about',
       title: 'About',
+      mobileTitle: 'About',
       link: '/about',
       subItem: true,
-      compressedIconComponent: Info,
+      compressedIconComponent: AboutQuestionIcon,
       showOnCompressed: true,
     }
   ],
@@ -444,9 +447,10 @@ export const getMenuTabs = (): ForumOptions<Array<MenuTab>> => ({
     }, {
       id: 'about',
       title: 'About the Forum',
+      mobileTitle: 'About',
       link: '/about',
       subItem: true,
-      compressedIconComponent: Info,
+      compressedIconComponent: AboutQuestionIcon,
       showOnCompressed: true,
     }, {
       id: 'contact',

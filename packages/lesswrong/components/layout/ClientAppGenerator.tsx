@@ -3,33 +3,25 @@
 // Import needed to get the database settings from the window on the client
 import '@/client/publicSettings';
 
-import React, { use, useEffect, useMemo, useRef, useState, useTransition } from 'react';
+import React, { use, useEffect, useRef, useState, useTransition } from 'react';
 import CookiesProvider from "@/lib/vendor/react-cookie/CookiesProvider";
 import { ABTestGroupsUsedContext, RelevantTestGroupAllocation } from '@/components/common/sharedContexts';
-import type { AbstractThemeOptions } from '@/themes/themeNames';
-import { LayoutOptionsContextProvider } from '@/components/hooks/useLayoutOptions';
 import { SSRMetadata, EnvironmentOverride, EnvironmentOverrideContext } from '@/lib/utils/timeUtil';
 import { ThemeContextProvider } from '@/components/themes/ThemeContextProvider';
 import { LocationContext, NavigationContext, SubscribeLocationContext } from '@/lib/vulcan-core/appContext';
 import { parsePath } from '@/lib/vulcan-lib/routes';
-import { MessageContextProvider } from '../common/FlashMessages';
-import { RefetchCurrentUserContext, UserContextProvider } from '../common/withUser';
-import ScrollToTop from '../vulcan-core/ScrollToTop';
-import { useQueryCurrentUser } from '@/lib/crud/withCurrentUser';
+import { MessageContextProvider } from '@/components/layout/FlashMessages';
+import { UserContextProvider } from '../common/withUser';
 import { usePathname, useRouter, useSearchParams, useParams } from 'next/navigation';
-import Layout from '../Layout';
+import Layout from '@/components/layout/Layout';
 import { HelmetProvider } from 'react-helmet-async';
 import { EnableSuspenseContext } from '@/lib/crud/useQuery';
 import { isClient, isServer } from '@/lib/executionEnvironment';
 import Cookies from 'universal-cookie';
 import { ApolloWrapper } from '@/components/common/ApolloWrapper';
 
-import type { RequestCookie } from 'next/dist/compiled/@edge-runtime/cookies';
 import type { RouterLocation } from '@/lib/vulcan-lib/routes';
 import type { AppRouterInstance } from 'next/dist/shared/lib/app-router-context.shared-runtime';
-import { onUserChanged } from '@/client/logging';
-import moment from 'moment';
-import { localeSetting } from '@/lib/instanceSettings';
 import { initClientOnce } from '@/client/initClient';
 
 if (isClient) {
@@ -42,7 +34,7 @@ if (isClient) {
   initClientOnce();
 }
 
-const AppComponent = ({ children }: { children: React.ReactNode }) => {
+const LocationContextProvider = ({ children }: { children: React.ReactNode }) => {
   const locationContext = useRef<RouterLocation | null>(null);
   const subscribeLocationContext = useRef<RouterLocation | null>(null);
   const history = useRouter();
@@ -68,29 +60,7 @@ const AppComponent = ({ children }: { children: React.ReactNode }) => {
   }, searchParams);
 
   const pathname = usePathname();
-  const hash = isClient ? window.location.hash : '';
-
-  useEffect(() => {
-    const eventListener = (e: HashChangeEvent) => {
-      const newHash = new URL(e.newURL).hash;
-
-      if (locationContext.current) {
-        Object.assign(locationContext.current, { hash: newHash });
-      }
-
-      if (subscribeLocationContext.current) {
-        // Reassign the reference to force subscribed consumers to rerender if it changes
-        subscribeLocationContext.current = { ...subscribeLocationContext.current, hash: newHash };
-      }
-    };
-
-    window.addEventListener('hashchange', eventListener);
-    
-    return () => {
-      window.removeEventListener('hashchange', eventListener);
-    };
-  }, []);
-
+  const hash = useLocationHash();
   const reconstructedPath = `${pathname}${searchParamsString ? `?${searchParamsString}` : ''}${hash ? hash : ''}`;
   const parsedPath = parsePath(reconstructedPath);
   
@@ -133,79 +103,94 @@ const AppComponent = ({ children }: { children: React.ReactNode }) => {
   } else {
     Object.assign(subscribeLocationContext.current, location);
   }
-
-  return <HelmetProvider>
-  <LocationContext.Provider value={locationContext.current}>
-  <NavigationContext.Provider value={navigationContext.current}>
-  <SubscribeLocationContext.Provider value={subscribeLocationContext.current}>
-    <MessageContextProvider>
-      {/* <HeadTags image={siteImageSetting.get()} /> */}
-      <Layout>
+  
+  return <LocationContext.Provider value={locationContext.current}>
+    <NavigationContext.Provider value={navigationContext.current}>
+      <SubscribeLocationContext.Provider value={subscribeLocationContext.current}>
         {children}
-      </Layout>
-    </MessageContextProvider>
-  </SubscribeLocationContext.Provider>
-  </NavigationContext.Provider>
+      </SubscribeLocationContext.Provider>
+    </NavigationContext.Provider>
   </LocationContext.Provider>
-  </HelmetProvider>;
 }
 
-const AppGenerator = ({ abTestGroupsUsed, ssrMetadata, children }: {
+/**
+ * Get the hash part of the URL (ie #anchor). During SSR, this will be blank
+ * (because it's not part of the request).
+ */
+function useLocationHash() {
+  const [hash, setHash] = useState("");
+  
+  // HACK: There is no nextjs API for getting the hash, or triggering rerenders
+  // when the hash changes, and the browser-builtin `hashchange` event doesn't
+  // fire when using history.pushState/history.replaceState. However,
+  // `useParams` (which is technically not the right thing) _does_ reliably
+  // trigger rerenders in this case. This trick is undocumented and comes from
+  // https://github.com/vercel/next.js/issues/69256 so it is likely to break in
+  // the future. This is replacing a previous trick we were using for the same
+  // purpose, which broke. There is no documented way whatsoever to access
+  // window.location.hash safely in nextjs.
+  const params = useParams();
+  useEffect(() => {
+    const newHash = window.location.hash;
+    setHash(newHash);
+  }, [params]);
+  
+  return hash;
+}
+
+const ClientAppGenerator = ({ abTestGroupsUsed, children }: {
   abTestGroupsUsed: RelevantTestGroupAllocation,
-  ssrMetadata?: SSRMetadata,
   children: React.ReactNode,
 }) => {
-  let universalCookies;
-  let parsedCookies: RequestCookie[];
-  if (isServer) {
-    const { cookies } = use(import('next/headers'));
-    const serverCookies = use(cookies());
-    parsedCookies = serverCookies.getAll();
-    universalCookies = new Cookies(Object.fromEntries(parsedCookies.map((cookie) => [cookie.name, cookie.value])));
-  } else {
-    const browserCookies = document.cookie;
-    parsedCookies = browserCookies.split(';').map((cookie) => {
-      const [name, value] = cookie.split('=');
-      return { name, value };
-    });
-    universalCookies = new Cookies(browserCookies);
-  }
-
+  const universalCookies = useGetUniversalCookies();
   const urlSearchParams = useSearchParams();
   const loginToken = universalCookies.get('loginToken');
 
-  return (
-    // <ApolloProvider client={apolloClient}>
-      // <ForeignApolloClientProvider value={foreignApolloClient}>
-        <EnableSuspenseContext.Provider value={isServer}>
-        <ApolloWrapper
-          loginToken={loginToken ?? null}
-          searchParams={Object.fromEntries(urlSearchParams.entries())}
-        >
-        <CookiesProvider cookies={universalCookies}>
+  return <EnableSuspenseContext.Provider value={isServer}>
+    <ApolloWrapper
+      loginToken={loginToken ?? null}
+      searchParams={Object.fromEntries(urlSearchParams.entries())}
+    >
+      <CookiesProvider cookies={universalCookies}>
         <UserContextProvider>
           <ThemeContextProvider>
             <ABTestGroupsUsedContext.Provider value={abTestGroupsUsed}>
-              <LayoutOptionsContextProvider>
-                <EnvironmentOverrideContextProvider ssrMetadata={ssrMetadata}>
-                  <AppComponent>
-                    {children}
-                  </AppComponent>
-                </EnvironmentOverrideContextProvider>
-              </LayoutOptionsContextProvider>
+                <HelmetProvider>
+                  <LocationContextProvider>
+                    <MessageContextProvider>
+                      {/* <HeadTags image={siteImageSetting.get()} /> */}
+                      <Layout>
+                        {children}
+                      </Layout>
+                    </MessageContextProvider>
+                  </LocationContextProvider>
+                </HelmetProvider>
             </ABTestGroupsUsedContext.Provider>
           </ThemeContextProvider>
         </UserContextProvider>
-        </CookiesProvider>
-        </ApolloWrapper>
-        </EnableSuspenseContext.Provider>
-    //   </ForeignApolloClientProvider>
-    // </ApolloProvider>
-  );
+      </CookiesProvider>
+    </ApolloWrapper>
+  </EnableSuspenseContext.Provider>
 };
 
-const EnvironmentOverrideContextProvider = ({ssrMetadata, children}: {
-  ssrMetadata?: SSRMetadata
+const useGetUniversalCookies = () => {
+  if (isServer) {
+    const { cookies } = use(import('next/headers'));
+    const serverCookies = use(cookies());
+    const parsedCookies = serverCookies.getAll();
+    return new Cookies(Object.fromEntries(parsedCookies.map((cookie) => [cookie.name, cookie.value])));
+  } else {
+    const browserCookies = document.cookie;
+    const parsedCookies = browserCookies.split(';').map((cookie) => {
+      const [name, value] = cookie.split('=');
+      return { name, value };
+    });
+    return new Cookies(browserCookies);
+  }
+}
+
+export const EnvironmentOverrideContextProvider = ({ssrMetadata, children}: {
+  ssrMetadata: SSRMetadata
   children: React.ReactNode
 }) => {
   const [envOverride, setEnvOverride] = useState<EnvironmentOverride>(ssrMetadata ? {
@@ -228,4 +213,4 @@ const EnvironmentOverrideContextProvider = ({ssrMetadata, children}: {
   </EnvironmentOverrideContext.Provider>
 }
 
-export default AppGenerator;
+export default ClientAppGenerator;

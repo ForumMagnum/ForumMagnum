@@ -5,7 +5,7 @@ import moment from "moment";
 import { HIDE_FORUM_EVENT_BANNER_PREFIX } from "../../lib/cookies/cookies";
 import { useDismissable } from "../hooks/useDismissable";
 import classNames from "classnames";
-import { getHeaderHeight } from "../common/Header";
+import { getHeaderHeight } from "@/components/layout/Header";
 import { AnalyticsContext } from "@/lib/analyticsEvents";
 import ContentStyles from "../common/ContentStyles";
 import { ContentItemBody } from "../contents/ContentItemBody";

@@ -2,7 +2,7 @@
 
 import React from 'react';
 import { useLocation } from '../../lib/routeUtil';
-import { Helmet } from '../common/Helmet';
+import { Helmet } from '@/components/layout/Helmet';
 import { useQuery } from "@/lib/crud/useQuery";
 import { gql } from "@/lib/generated/gql-codegen";
 

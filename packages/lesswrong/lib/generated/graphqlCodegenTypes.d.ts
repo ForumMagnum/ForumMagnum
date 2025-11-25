@@ -13013,24 +13013,6 @@ type SequenceMetadataQueryVariables = Exact<{
 
 type SequenceMetadataQuery = SequenceMetadataQuery_Query;
 
-type updateUserLayoutMutation_updateUser_UserOutput_data_User = (
-  { __typename?: 'User' }
-  & UsersCurrent
-);
-
-type updateUserLayoutMutation_updateUser_UserOutput = { __typename?: 'UserOutput', data: updateUserLayoutMutation_updateUser_UserOutput_data_User | null };
-
-type updateUserLayoutMutation_Mutation = { __typename?: 'Mutation', updateUser: updateUserLayoutMutation_updateUser_UserOutput | null };
-
-
-type updateUserLayoutMutationVariables = Exact<{
-  selector: SelectorInput;
-  data: UpdateUserDataInput;
-}>;
-
-
-type updateUserLayoutMutation = updateUserLayoutMutation_Mutation;
-
 type AdminMetadataQueryQuery_Query = { __typename?: 'Query', AdminMetadata: string | null };
 
 
@@ -16999,6 +16981,24 @@ type PostSummaryDialogQueryVariables = Exact<{
 
 
 type PostSummaryDialogQuery = PostSummaryDialogQuery_Query;
+
+type updateUserLayoutMutation_updateUser_UserOutput_data_User = (
+  { __typename?: 'User' }
+  & UsersCurrent
+);
+
+type updateUserLayoutMutation_updateUser_UserOutput = { __typename?: 'UserOutput', data: updateUserLayoutMutation_updateUser_UserOutput_data_User | null };
+
+type updateUserLayoutMutation_Mutation = { __typename?: 'Mutation', updateUser: updateUserLayoutMutation_updateUser_UserOutput | null };
+
+
+type updateUserLayoutMutationVariables = Exact<{
+  selector: SelectorInput;
+  data: UpdateUserDataInput;
+}>;
+
+
+type updateUserLayoutMutation = updateUserLayoutMutation_Mutation;
 
 type PostLinkPreviewSequenceQuery_sequence_SingleSequenceOutput_result_Sequence = (
   { __typename?: 'Sequence' }

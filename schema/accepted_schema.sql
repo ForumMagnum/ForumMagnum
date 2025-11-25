@@ -1241,7 +1241,7 @@ CREATE TABLE "LoginTokens" (
   "hashedToken" TEXT NOT NULL,
   "createdAt" TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP NOT NULL,
   "userId" TEXT NOT NULL,
-  "loggedOutAt" BOOL
+  "loggedOutAt" TIMESTAMPTZ
 );
 
 -- Index "idx_LoginTokens_hashedToken"
