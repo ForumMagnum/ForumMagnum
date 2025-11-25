@@ -16,6 +16,7 @@ interface FragmentTypes {
   BookmarksFeedItemFragment: BookmarksFeedItemFragment
   BookmarksMinimumInfoFragment: BookmarksMinimumInfoFragment
   BookmarksWithDocumentFragment: BookmarksWithDocumentFragment
+  ChapterPostSlim: ChapterPostSlim
   ChaptersEdit: ChaptersEdit
   ChaptersFragment: ChaptersFragment
   CkEditorUserSessionInfo: CkEditorUserSessionInfo
@@ -137,6 +138,7 @@ interface FragmentTypes {
   ShortformComments: ShortformComments
   ShortformRecentDiscussion: ShortformRecentDiscussion
   SideCommentCacheMinimumInfo: SideCommentCacheMinimumInfo
+  SlimChapter: SlimChapter
   SplashArtCoordinates: SplashArtCoordinates
   SplashArtCoordinatesEdit: SplashArtCoordinatesEdit
   SpotlightDisplay: SpotlightDisplay
@@ -244,7 +246,7 @@ interface FragmentTypesByCollection {
   AutomatedContentEvaluations: "AutomatedContentEvaluationsFragment"
   Bookmarks: "BookmarksFeedItemFragment"|"BookmarksMinimumInfoFragment"|"BookmarksWithDocumentFragment"
   Books: "BookEdit"|"BookPageFragment"
-  Chapters: "ChaptersEdit"|"ChaptersFragment"
+  Chapters: "ChaptersEdit"|"ChaptersFragment"|"SlimChapter"
   CkEditorUserSessions: "CkEditorUserSessionInfo"
   ClientIds: "ModeratorClientIDInfo"
   Collections: "CollectionContinueReadingFragment"|"CollectionsBestOfFragment"|"CollectionsEditFragment"|"CollectionsPageFragment"
@@ -276,7 +278,7 @@ interface FragmentTypesByCollection {
   PetrovDayActions: "PetrovDayActionInfo"
   PodcastEpisodes: "PodcastEpisodeCreateFragment"|"PodcastEpisodeFull"
   Podcasts: "PodcastSelect"
-  Posts: "HighlightWithHash"|"PostPodcastEpisode"|"PostSequenceNavigation"|"PostSideComments"|"PostWithDialogueMessage"|"PostWithGeneratedSummary"|"PostsAuthors"|"PostsBase"|"PostsBestOfList"|"PostsDetails"|"PostsEdit"|"PostsEditMutationFragment"|"PostsEditQueryFragment"|"PostsExpandedHighlight"|"PostsForAutocomplete"|"PostsHTML"|"PostsList"|"PostsListBase"|"PostsListTag"|"PostsListTagWithVotes"|"PostsListWithVotes"|"PostsListWithVotesAndSequence"|"PostsMinimumInfo"|"PostsModerationGuidelines"|"PostsOriginalContents"|"PostsPage"|"PostsPlaintextDescription"|"PostsRSSFeed"|"PostsRecentDiscussion"|"PostsReviewVotingList"|"PostsRevision"|"PostsRevisionsList"|"PostsTopItemInfo"|"PostsTwitterAdmin"|"PostsWithNavigation"|"PostsWithNavigationAndRevision"|"PostsWithVotes"|"ShortformRecentDiscussion"|"SuggestAlignmentPost"|"SunshineCurationPostsList"|"SunshinePostsList"|"UltraFeedPostFragment"|"UsersBannedFromPostsModerationLog"|"WithVotePost"
+  Posts: "ChapterPostSlim"|"HighlightWithHash"|"PostPodcastEpisode"|"PostSequenceNavigation"|"PostSideComments"|"PostWithDialogueMessage"|"PostWithGeneratedSummary"|"PostsAuthors"|"PostsBase"|"PostsBestOfList"|"PostsDetails"|"PostsEdit"|"PostsEditMutationFragment"|"PostsEditQueryFragment"|"PostsExpandedHighlight"|"PostsForAutocomplete"|"PostsHTML"|"PostsList"|"PostsListBase"|"PostsListTag"|"PostsListTagWithVotes"|"PostsListWithVotes"|"PostsListWithVotesAndSequence"|"PostsMinimumInfo"|"PostsModerationGuidelines"|"PostsOriginalContents"|"PostsPage"|"PostsPlaintextDescription"|"PostsRSSFeed"|"PostsRecentDiscussion"|"PostsReviewVotingList"|"PostsRevision"|"PostsRevisionsList"|"PostsTopItemInfo"|"PostsTwitterAdmin"|"PostsWithNavigation"|"PostsWithNavigationAndRevision"|"PostsWithVotes"|"ShortformRecentDiscussion"|"SuggestAlignmentPost"|"SunshineCurationPostsList"|"SunshinePostsList"|"UltraFeedPostFragment"|"UsersBannedFromPostsModerationLog"|"WithVotePost"
   RSSFeeds: "RSSFeedMinimumInfo"|"newRSSFeedFragment"
   Reports: "UnclaimedReportsList"
   ReviewVotes: "reviewAdminDashboard"|"reviewVoteFragment"
@@ -314,6 +316,7 @@ interface CollectionNamesByFragmentName {
   BookmarksFeedItemFragment: "Bookmarks"
   BookmarksMinimumInfoFragment: "Bookmarks"
   BookmarksWithDocumentFragment: "Bookmarks"
+  ChapterPostSlim: "Posts"
   ChaptersEdit: "Chapters"
   ChaptersFragment: "Chapters"
   CkEditorUserSessionInfo: "CkEditorUserSessions"
@@ -435,6 +438,7 @@ interface CollectionNamesByFragmentName {
   ShortformComments: "Comments"
   ShortformRecentDiscussion: "Posts"
   SideCommentCacheMinimumInfo: "SideCommentCaches"
+  SlimChapter: "Chapters"
   SplashArtCoordinates: "SplashArtCoordinates"
   SplashArtCoordinatesEdit: "SplashArtCoordinates"
   SpotlightDisplay: "Spotlights"
