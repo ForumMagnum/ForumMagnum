@@ -60,29 +60,7 @@ const LocationContextProvider = ({ children }: { children: React.ReactNode }) =>
   }, searchParams);
 
   const pathname = usePathname();
-  const hash = isClient ? window.location.hash : '';
-
-  useEffect(() => {
-    const eventListener = (e: HashChangeEvent) => {
-      const newHash = new URL(e.newURL).hash;
-
-      if (locationContext.current) {
-        Object.assign(locationContext.current, { hash: newHash });
-      }
-
-      if (subscribeLocationContext.current) {
-        // Reassign the reference to force subscribed consumers to rerender if it changes
-        subscribeLocationContext.current = { ...subscribeLocationContext.current, hash: newHash };
-      }
-    };
-
-    window.addEventListener('hashchange', eventListener);
-    
-    return () => {
-      window.removeEventListener('hashchange', eventListener);
-    };
-  }, []);
-
+  const hash = useLocationHash();
   const reconstructedPath = `${pathname}${searchParamsString ? `?${searchParamsString}` : ''}${hash ? hash : ''}`;
   const parsedPath = parsePath(reconstructedPath);
   
@@ -125,7 +103,7 @@ const LocationContextProvider = ({ children }: { children: React.ReactNode }) =>
   } else {
     Object.assign(subscribeLocationContext.current, location);
   }
-
+  
   return <LocationContext.Provider value={locationContext.current}>
     <NavigationContext.Provider value={navigationContext.current}>
       <SubscribeLocationContext.Provider value={subscribeLocationContext.current}>
@@ -133,6 +111,31 @@ const LocationContextProvider = ({ children }: { children: React.ReactNode }) =>
       </SubscribeLocationContext.Provider>
     </NavigationContext.Provider>
   </LocationContext.Provider>
+}
+
+/**
+ * Get the hash part of the URL (ie #anchor). During SSR, this will be blank
+ * (because it's not part of the request).
+ */
+function useLocationHash() {
+  const [hash, setHash] = useState("");
+  
+  // HACK: There is no nextjs API for getting the hash, or triggering rerenders
+  // when the hash changes, and the browser-builtin `hashchange` event doesn't
+  // fire when using history.pushState/history.replaceState. However,
+  // `useParams` (which is technically not the right thing) _does_ reliably
+  // trigger rerenders in this case. This trick is undocumented and comes from
+  // https://github.com/vercel/next.js/issues/69256 so it is likely to break in
+  // the future. This is replacing a previous trick we were using for the same
+  // purpose, which broke. There is no documented way whatsoever to access
+  // window.location.hash safely in nextjs.
+  const params = useParams();
+  useEffect(() => {
+    const newHash = window.location.hash;
+    setHash(newHash);
+  }, [params]);
+  
+  return hash;
 }
 
 const ClientAppGenerator = ({ abTestGroupsUsed, children }: {
