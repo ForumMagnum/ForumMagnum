@@ -21,7 +21,8 @@ import qs from 'qs';
 import moment from 'moment';
 
 function isWithin24Hours(date: moment.Moment) {
-  return date.diff(new Date()) < (24 * 60 * 60 * 1000)
+  const diff = date.diff(new Date());
+  return diff > 0 && diff < (24 * 60 * 60 * 1000);
 }
 
 const styles = defineStyles("AnnualReviewSidebarBanner", (theme: ThemeType) => ({
