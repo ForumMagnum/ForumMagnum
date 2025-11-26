@@ -109,7 +109,13 @@ export const getNominationPhaseEndDisplay = (reviewYear: ReviewYear) => getNomin
 export const getReviewPhaseEndDisplay = (reviewYear: ReviewYear) => getReviewPhaseEnd(reviewYear).subtract(1, 'days')
 export const getVotingPhaseEndDisplay = (reviewYear: ReviewYear) => getVotingPhaseEnd(reviewYear).subtract(1, 'days')
 
+const DEBUG_REVIEW_PHASE_OVERRIDE: ReviewPhase | null = null;
+
+
+
 function recomputeReviewPhase(reviewYear?: ReviewYear): ReviewPhase {
+  if (DEBUG_REVIEW_PHASE_OVERRIDE) return DEBUG_REVIEW_PHASE_OVERRIDE;
+  
   if (reviewYear && reviewYear !== REVIEW_YEAR) {
     return "COMPLETE"
   }
