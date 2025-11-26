@@ -63,8 +63,11 @@ export function BodyWithBackgroundColor({children}: {
       color paint by 500ms, which is pretty significant. As a workaround, add
       a div containing "visible" (but not really visible) text, which makes the
       background color get painted significantly sooner.
+      
+      Using position: absolute to avoid contributing to document height
+      (which would cause unwanted scrollbars on some fullscreen routes).
     */}
-    <div style={{opacity: 0.001}}>x</div>
+    <div style={{opacity: 0.001, position: 'absolute', top: 0, left: 0}}>x</div>
   </body>
 }
 
