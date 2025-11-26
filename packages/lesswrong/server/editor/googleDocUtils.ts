@@ -214,10 +214,22 @@ async function googleDocCropImages(html: string): Promise<string> {
     if (leftRelative === 0 && topRelative === 0 && widthRelative === 1 && heightRelative === 1) {
       return
     }
-
     try {
-      const response = await axios.get(src, { responseType: 'arraybuffer' });
-      const buffer = Buffer.from(response.data, 'binary');
+      let buffer: Buffer;
+
+      // Handle data URIs (base64-encoded images from Google Docs API)
+      if (src.startsWith('data:')) {
+        // Extract the base64 data after the comma
+        const base64Data = src.split(',')[1];
+        if (!base64Data) {
+          throw new Error('Invalid data URI: missing base64 data');
+        }
+        buffer = Buffer.from(base64Data, 'base64');
+      } else {
+        // Handle regular URLs
+        const response = await axios.get(src, { responseType: 'arraybuffer' });
+        buffer = Buffer.from(response.data, 'binary');
+      }
 
       const image = await Jimp.read(buffer);
       const originalWidth = image.bitmap.width;

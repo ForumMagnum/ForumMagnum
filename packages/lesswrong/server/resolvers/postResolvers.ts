@@ -392,6 +392,7 @@ export const postGqlMutations = {
 
     if (postId) {
       const previousRev = await getLatestRev(postId, "contents", context)
+
       // Revision type controls whether we increase the major or minor version
       // number; if we increase the major version number it flags it to
       // end-users and shows a version-history dropdown. This was built
@@ -400,12 +401,16 @@ export const postGqlMutations = {
       // before the post is undrafted for the first time.
       const revisionType = "minor"
 
+      const builtRevision = await buildRevision({
+        originalContents,
+        currentUser,
+        context
+      });
+
+      const changeMetrics = htmlToChangeMetrics(previousRev?.html || "", builtRevision.html || "");
+
       const newRevision: Partial<DbRevision> = {
-        ...(await buildRevision({
-          originalContents,
-          currentUser,
-          context
-        })),
+        ...builtRevision,
         documentId: postId,
         draft: true,
         fieldName: "contents",
@@ -413,7 +418,7 @@ export const postGqlMutations = {
         version: getNextVersion(previousRev, revisionType, true),
         updateType: revisionType,
         commitMessage,
-        changeMetrics: htmlToChangeMetrics(previousRev?.html || "", html),
+        changeMetrics,
         googleDocMetadata: docMetadata
       };
 
