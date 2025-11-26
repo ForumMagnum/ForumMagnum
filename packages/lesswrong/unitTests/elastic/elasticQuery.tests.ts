@@ -84,4 +84,25 @@ describe("ElasticQuery", () => {
     });
     expect(result).toBe("(1 - (doc['baseScore'].size() == 0 ? 0 : (((saturation(Math.max(1, doc['baseScore'].value), 20L)) * 2))))");
   });
+
+  it("Keeps user filters when using quoted terms", () => {
+    const compiledQuery = new ElasticQuery({
+      index: "posts",
+      search: 'user:eliezer_yudkowsky "qualia"',
+      filters: [],
+    }).compile();
+
+    const requestBody = compiledQuery.body;
+    const filterClauses = requestBody.query?.script_score?.query?.bool?.filter ?? [];
+    const hasUserFilter = filterClauses.some((clause) => {
+      const userShoulds = clause.bool?.should ?? [];
+      const userShouldsArray = Array.isArray(userShoulds) ? userShoulds : [userShoulds];
+      return userShouldsArray.some((shouldClause) => {
+        const term = shouldClause.term ?? {};
+        return term["authorSlug.sort"] === "eliezer_yudkowsky";
+      });
+    });
+
+    expect(hasUserFilter).toBe(true);
+  });
 });
