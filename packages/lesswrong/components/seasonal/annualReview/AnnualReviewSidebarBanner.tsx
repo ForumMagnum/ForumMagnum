@@ -70,7 +70,7 @@ const styles = defineStyles("AnnualReviewSidebarBanner", (theme: ThemeType) => (
     bottom: 0,
     background: `linear-gradient(to bottom, 
                 transparent 50%,
-                ${theme.palette.background.default} 80%)`,
+                ${theme.palette.background.default} 70%)`,
     pointerEvents: 'none',
   },
   gradientOverlayLeft: {
@@ -90,7 +90,6 @@ const styles = defineStyles("AnnualReviewSidebarBanner", (theme: ThemeType) => (
     right: 16,
     bottom: 80,
     color: theme.palette.greyAlpha(0.87),
-    textShadow: `0 0 3px ${theme.palette.background.default}, 0 0 3px ${theme.palette.background.default}`,
     textAlign: 'right',
     width: 500,
     [theme.breakpoints.down(1600)]: {
@@ -103,7 +102,7 @@ const styles = defineStyles("AnnualReviewSidebarBanner", (theme: ThemeType) => (
     display: 'flex',
     flexDirection: 'column',
     alignItems: 'flex-end',
-    gap: 16,
+    gap: 8,
   },
   title: {
     fontSize: 'clamp(2.5rem, 3vw, 4rem)',
@@ -132,6 +131,7 @@ const styles = defineStyles("AnnualReviewSidebarBanner", (theme: ThemeType) => (
     fontSize: '16px !important',
     fontStyle: 'normal',
     maxWidth: 300,
+    textBalance: 'auto',
     marginLeft: 'auto',
     textAlign: 'right',
     color: 'inherit',
@@ -191,7 +191,7 @@ const reviewPostsLink = `/reviewVoting`;
 const phaseConfigs: Partial<Record<ReviewPhase, PhaseConfig>> = {
   NOMINATIONS: {
     phaseName: "Nomination",
-    phaseDescription: `In the nomination phase, we identify posts worthy of consideration in the review.`,
+    phaseDescription: "In the nomination phase, we identify posts worthy of consideration in the review.",
     buttonLabel: "Nominate Now",
     getDateRange: () => ({
       start: getReviewStart(REVIEW_YEAR),
@@ -201,7 +201,7 @@ const phaseConfigs: Partial<Record<ReviewPhase, PhaseConfig>> = {
   },
   REVIEWS: {
     phaseName: "Discussion",
-    phaseDescription: `In the discussion phase, we review and debate posts. Posts that receive one review move to the final Voting Phase.`,
+    phaseDescription: "In the discussion phase, we review and debate posts. Posts that receive one written review move to the final voting phase.",
     buttonLabel: "Review Now",
     getDateRange: () => ({
       start: getNominationPhaseEnd(REVIEW_YEAR),
@@ -211,7 +211,7 @@ const phaseConfigs: Partial<Record<ReviewPhase, PhaseConfig>> = {
   },
   VOTING: {
     phaseName: "Voting",
-    phaseDescription: `In the Final Voting phase, we do a full voting pass. The outcome determines Best of LessWrong results.`,
+    phaseDescription: "In the final voting phase, we do a full voting pass. The outcome determines Best of LessWrong results.",
     buttonLabel: "Vote Now",
     getDateRange: () => ({
       start: getReviewPhaseEnd(REVIEW_YEAR),
@@ -221,7 +221,7 @@ const phaseConfigs: Partial<Record<ReviewPhase, PhaseConfig>> = {
   },
   RESULTS: {
     phaseName: "Results",
-    phaseDescription: `Voting is complete! Check out the results and see which posts made it into Best of LessWrong.`,
+    phaseDescription: "Voting is complete! See which posts made it into the Best of LessWrong.",
     buttonLabel: "View Results",
     getDateRange: () => ({
       start: getVotingPhaseEndDisplay(REVIEW_YEAR),
@@ -271,7 +271,7 @@ export const AnnualReviewSidebarBanner = () => {
           
           <div className={classes.description}>
             <p>{commonIntro}</p>
-            <p><em>{config.phaseDescription}</em></p>
+            <p>{config.phaseDescription}</p>
           </div>
           
           <a href={config.getButtonLink()} className={classes.actionButton}>
