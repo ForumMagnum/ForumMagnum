@@ -21,6 +21,7 @@ export const GIVING_SEASON_INFO_HREF = "/posts/RzdKnBYe3jumrZxkB/giving-season-2
 export const ELECTION_INFO_HREF = "/posts/RzdKnBYe3jumrZxkB/giving-season-2025-announcement#November_24th_to_December_7th_";
 export const ELECTION_LEARN_MORE_HREF = "/posts/93KvQDDQfaZEBTP7t/donation-election-fund-rewards-and-matching";
 export const ELECTION_DONATE_HREF = "https://www.every.org/ea-forum-donation-election-2025";
+export const ELECTION_HOW_TO_VOTE_HREF = "/posts/GyjtmSuQviTngRtjn/donation-election-2025-how-to-vote";
 export const ELECTION_VOTE_HREF = "/voting-portal";
 export const ELECTION_2025_MATCHED_AMOUNT = 5000;
 export const MARGINAL_FUNDING_SEQUENCE_ID = "jTAPdwYry3zTyifkZ";
