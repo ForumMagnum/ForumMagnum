@@ -92,11 +92,12 @@ describe("ElasticQuery", () => {
       filters: [],
     }).compile();
 
-    const requestBody = "body" in compiledQuery ? compiledQuery.body : compiledQuery;
+    const requestBody = compiledQuery.body;
     const filterClauses = requestBody.query?.script_score?.query?.bool?.filter ?? [];
     const hasUserFilter = filterClauses.some((clause) => {
       const userShoulds = clause.bool?.should ?? [];
-      return userShoulds.some((shouldClause) => {
+      const userShouldsArray = Array.isArray(userShoulds) ? userShoulds : [userShoulds];
+      return userShouldsArray.some((shouldClause) => {
         const term = shouldClause.term ?? {};
         return term["authorSlug.sort"] === "eliezer_yudkowsky";
       });

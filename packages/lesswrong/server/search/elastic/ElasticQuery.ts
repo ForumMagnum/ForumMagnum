@@ -493,7 +493,7 @@ class ElasticQuery {
     return sort;
   }
 
-  compile(): SearchRequestInfo | SearchRequestBody {
+  compile() {
     const {
       preTag,
       postTag,
