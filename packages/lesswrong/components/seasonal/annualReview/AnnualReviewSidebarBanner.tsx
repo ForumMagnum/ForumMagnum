@@ -45,18 +45,17 @@ const styles = defineStyles("AnnualReviewSidebarBanner", (theme: ThemeType) => (
     height: "100vh",
     width: '640px',
     pointerEvents: 'auto',
-    ['@media(max-width: 1650px)']: {
+    ['@media(max-width: 1720px)']: {
       right: -100,
     },
     ['@media(max-width: 1550px)']: {
-      right: -250,
+      right: -200,
     },
     ['@media(max-width: 1450px)']: {
-      right: -350,
+      right: -250,
     },
   },
   image: {
-    marginLeft: 100,
     width: '100%',
     height: '100%',
     objectFit: 'cover',
@@ -254,7 +253,8 @@ export const AnnualReviewSidebarBanner = () => {
           <CloudinaryImage2
             loading="lazy"
             className={classes.image}
-            publicId="ruby37_httpss.mj.runm9px7I65VuI_a_scene_revealed_within_a_tear__ed4d26ab-6506-4a0b-ba9c-82e9ff7a5554_annual_review_1_qnokcw"
+            publicId="ruby_37_annual_review_banner_2025_cropped"
+            darkPublicId="Generated_Image_November_26_2025_-_1_21PM_rtfv62"
           />
           <div className={classes.gradientOverlayDown} />
           <div className={classes.gradientOverlayLeft} />
