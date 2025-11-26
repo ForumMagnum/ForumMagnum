@@ -214,6 +214,7 @@ async function googleDocCropImages(html: string): Promise<string> {
     if (leftRelative === 0 && topRelative === 0 && widthRelative === 1 && heightRelative === 1) {
       return
     }
+
     try {
       let buffer: Buffer;
 
