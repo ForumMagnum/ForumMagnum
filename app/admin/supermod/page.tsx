@@ -12,7 +12,10 @@ export async function generateMetadata(): Promise<Metadata> {
 }
 
 export default function Page() {
-  return <RouteRoot metadata={{ noFooter: true }}>
+  return <RouteRoot
+    metadata={{ noFooter: true }}
+    fullscreen
+  >
     <ModerationInbox />
   </RouteRoot>
 }

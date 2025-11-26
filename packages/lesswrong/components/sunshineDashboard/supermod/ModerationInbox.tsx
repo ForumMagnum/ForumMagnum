@@ -55,7 +55,8 @@ const styles = defineStyles('ModerationInbox', (theme: ThemeType) => ({
     backgroundColor: theme.palette.background.pageActiveAreaBackground,
     overflow: 'hidden',
     position: 'fixed',
-    marginTop: -50,
+    top: 0,
+    left: 0,
   },
   mainContent: {
     flex: 1,
