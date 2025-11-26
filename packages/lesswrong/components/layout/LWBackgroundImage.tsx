@@ -1,7 +1,7 @@
 import React from 'react';
 import { registerComponent } from '@/lib/vulcan-lib/components';
 import { useSubscribedLocation } from '@/lib/routeUtil';
-import { getReviewPhase } from '@/lib/reviewUtils';
+import { reviewIsActive } from '@/lib/reviewUtils';
 import { defineStyles, useStyles } from '@/components/hooks/useStyles';
 import CloudinaryImage2 from "@/components/common/CloudinaryImage2";
 import { isHomeRoute } from '@/lib/routeChecks';
@@ -88,9 +88,8 @@ export const LWBackgroundImage = ({standaloneNavigation}: {
     />
   </div> : null
 
-  const reviewPhase = getReviewPhase();
   let homePageImage = (standaloneNavigation && isHomePage && !hideGlobeCookie) ? <SolsticeSeasonBanner /> : defaultImage
-  if (reviewPhase === 'NOMINATIONS' || reviewPhase === 'REVIEWS' || reviewPhase === 'VOTING' || reviewPhase === 'RESULTS') {
+  if (reviewIsActive()) {
     homePageImage = <AnnualReviewSidebarBanner />
   }
 
