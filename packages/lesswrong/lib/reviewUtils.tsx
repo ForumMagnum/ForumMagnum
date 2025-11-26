@@ -34,7 +34,7 @@ export const reviewWinnerCategories = new TupleSet(['rationality', 'modeling', '
 export type ReviewWinnerCategory = UnionOf<typeof reviewWinnerCategories>;
 
 /** Review year is the year under review, not the year in which the review takes place. */
-export const REVIEW_YEAR = 2023
+export const REVIEW_YEAR = 2024
 export const BEST_OF_LESSWRONG_PUBLISH_YEAR: PublishedReviewYear = 2023
 
 const publishedReviewYearsArray = [2018, 2019, 2020, 2021, 2022, 2023] as const;
@@ -69,7 +69,7 @@ export function getReviewShortTitle(reviewYear: ReviewYear): string {
   return `${reviewYear} Review`
 }
 
-export const reviewPostPath = "/posts/pudQtkre7f9GLmb2b/the-2023-lesswrong-review-the-basic-ask"
+export const reviewPostPath = "/posts/ZpRzTr5QBT6C3Faor/the-2024-lesswrong-review"
 export const reviewResultsPostPath = "/posts/sHvByGZRCsFuxtTKr/voting-results-for-the-2023-review"
 export const longformReviewTagId = "aRnXghESsn4HDm872"
 
@@ -97,7 +97,7 @@ export function getReviewPeriodEnd(reviewYear: ReviewYear = REVIEW_YEAR) {
   return moment.utc(`${reviewYear+1}-01-01`).add(TIMEZONE_OFFSET, 'hours')
 }
 
-export const getReviewStart = (reviewYear: ReviewYear) => moment.utc(`${reviewYear+1}-12-02`).add(TIMEZONE_OFFSET, 'hours')
+export const getReviewStart = (reviewYear: ReviewYear) => moment.utc(`${reviewYear+1}-11-26`).add(TIMEZONE_OFFSET, 'hours')
 export const getNominationPhaseEnd = (reviewYear: ReviewYear) => moment.utc(`${reviewYear+1}-12-16`).add(TIMEZONE_OFFSET, 'hours')
 export const getReviewPhaseEnd = (reviewYear: ReviewYear) => moment.utc(`${reviewYear+2}-01-16`).add(TIMEZONE_OFFSET, 'hours')
 export const getVotingPhaseEnd = (reviewYear: ReviewYear) => moment.utc(`${reviewYear+2}-02-06`).add(TIMEZONE_OFFSET, 'hours')
