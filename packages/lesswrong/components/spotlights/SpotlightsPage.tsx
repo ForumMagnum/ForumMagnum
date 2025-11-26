@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useMemo } from 'react';
+import React, { useMemo, useState } from 'react';
 import { userCanDo } from '../../lib/vulcan-users/permissions';
 import { useCurrentUser } from '../common/withUser';
 import { useLocation } from '../../lib/routeUtil';
@@ -35,13 +35,77 @@ const styles = (theme: ThemeType) => ({
     background: theme.palette.background.pageActiveAreaBackground,
     boxShadow: theme.palette.boxShadow.featuredResourcesCard,
     marginBottom: 16
+  },
+  sortByToggle: {
+    display: 'flex',
+    alignItems: 'center',
+    gap: '8px',
+    userSelect: 'none',
+    cursor: 'pointer',
+    marginLeft: '16px',
+    [theme.breakpoints.down('sm')]: {
+      marginLeft: '8px',
+    },
+  },
+  sortByLabel: {
+    fontSize: '14px',
+    fontWeight: 600,
+    color: theme.palette.grey[700],
+  },
+  sortBySelect: {
+    padding: '4px 8px',
+    fontSize: '14px',
+    border: `1px solid ${theme.palette.grey[300]}`,
+    borderRadius: '4px',
+    backgroundColor: theme.palette.background.paper,
+    cursor: 'pointer',
+    color: theme.palette.grey[700],
+    '&:hover': {
+      borderColor: theme.palette.grey[400],
+    },
   }
 });
+
+function sortSpotlightsInDisplayOrder(spotlights: SpotlightDisplay[], sortBy: 'lastPromotedAt' | 'position' = 'position'): SpotlightDisplay[] {
+  if (!spotlights.length) return spotlights;
+  
+  const [currentSpotlight] = [...spotlights].filter(spotlight => spotlight.draft === false).sort((a, b) => {
+    const aTime = new Date(a.lastPromotedAt).getTime();
+    const bTime = new Date(b.lastPromotedAt).getTime();
+    if (aTime && bTime) {
+      return bTime - aTime; // Sort descending to get most recent first
+    }
+    return 0;
+  });
+  
+  const upcomingSpotlights = spotlights.filter(spotlight => spotlight.position > currentSpotlight.position).sort((a, b) => {
+    if (sortBy === 'position') {
+      return a.position - b.position; // Ascending position
+    } else {
+      const aTime = new Date(a.lastPromotedAt).getTime();
+      const bTime = new Date(b.lastPromotedAt).getTime();
+      return bTime - aTime; // Ascending lastPromotedAt
+    }
+  });
+  
+  const recycledSpotlights = spotlights.filter(spotlight => spotlight.position < currentSpotlight.position).sort((a, b) => {
+    if (sortBy === 'position') {
+      return a.position - b.position; // Ascending position
+    } else {
+      const aTime = new Date(a.lastPromotedAt).getTime();
+      const bTime = new Date(b.lastPromotedAt).getTime();
+      return bTime - aTime; // Descending lastPromotedAt
+    }
+  });
+  
+  return [currentSpotlight, ...upcomingSpotlights, ...recycledSpotlights];
+}
 
 export const SpotlightsPage = ({classes}: {
   classes: ClassesType<typeof styles>,
 }) => {
   const currentUser = useCurrentUser();
+  const [sortBy, setSortBy] = useState<'upcoming' | 'past'>('upcoming');
 
   const { query } = useLocation();
   const onlyDrafts = query.drafts === 'true';
@@ -63,15 +127,32 @@ export const SpotlightsPage = ({classes}: {
 
   const spotlights = useMemo(() => data?.spotlights?.results ?? [], [data?.spotlights?.results]);
 
-  const spotlightsInDisplayOrder = useMemo(() => {
-    if (!spotlights.length) return spotlights;
-    const [currentSpotlight] = spotlights;
-    const upcomingSpotlights = spotlights.filter(spotlight => spotlight.position > currentSpotlight.position);
-    const recycledSpotlights = spotlights.filter(spotlight => spotlight.position < currentSpotlight.position);
-    return [currentSpotlight, ...upcomingSpotlights, ...recycledSpotlights];
-  }, [spotlights]);
+  const spotlightsInDisplayOrder = useMemo(() => sortSpotlightsInDisplayOrder(spotlights), [spotlights]);
 
-  const upcomingSpotlights = spotlightsInDisplayOrder.filter(spotlight => !spotlight.draft)
+  const allNonDraftSpotlights = spotlightsInDisplayOrder.filter(spotlight => !spotlight.draft);
+  
+  // Find the current spotlight (most recently promoted)
+  const currentSpotlight = useMemo(() => {
+    return [...allNonDraftSpotlights].sort((a, b) => {
+      const aTime = new Date(a.lastPromotedAt).getTime();
+      const bTime = new Date(b.lastPromotedAt).getTime();
+      return bTime - aTime;
+    })[0];
+  }, [allNonDraftSpotlights]);
+
+  // Split into upcoming (position > current) and past (position < current)
+  const upcomingSpotlights = useMemo(() => {
+    if (!currentSpotlight) return allNonDraftSpotlights;
+    return [currentSpotlight, ...allNonDraftSpotlights.filter(s => s.position > currentSpotlight.position)];
+  }, [allNonDraftSpotlights, currentSpotlight]);
+
+  const pastSpotlights = useMemo(() => {
+    if (!currentSpotlight) return [];
+    return allNonDraftSpotlights.filter(s => s.position < currentSpotlight.position);
+  }, [allNonDraftSpotlights, currentSpotlight]);
+
+  const displayedSpotlights = sortBy === 'upcoming' ? upcomingSpotlights : pastSpotlights;
+  
   const draftSpotlights = spotlights.filter(spotlight => spotlight.draft)
   const uniqueDocumentIds = [...new Set(draftSpotlights.map(spotlight => spotlight.documentId))];
 
@@ -81,19 +162,21 @@ export const SpotlightsPage = ({classes}: {
     </SingleColumnSection>;
   }
 
-  const totalUpcomingDuration = upcomingSpotlights.reduce((total, spotlight) => total + spotlight.duration, 0);
+  const totalDisplayedDuration = Math.round(displayedSpotlights.reduce((total, spotlight) => total + spotlight.duration, 0));
 
   const totalDraftDuration = draftSpotlights.reduce((total, spotlight) => total + spotlight.duration, 0);
+
+  const sectionTitle = sortBy === 'upcoming' ? 'Upcoming Spotlights' : 'Past Spotlights';
 
   const sectionData = {
     html: "",
     sections: [
       {
-        title: "Upcoming Spotlights",
-        anchor: "upcoming-spotlights",
+        title: sectionTitle,
+        anchor: "spotlights",
         level: 1
       },
-      ...upcomingSpotlights.map(spotlight => ({
+      ...displayedSpotlights.map(spotlight => ({
         title: getSpotlightDisplayTitle(spotlight),
         anchor: spotlight._id,
         level: 2
@@ -127,10 +210,23 @@ export const SpotlightsPage = ({classes}: {
         </SpotlightEditorStyles>
       </div>
       {loading && !onlyDrafts && <Loading/>}
-      <SectionTitle title="Upcoming Spotlights">
-        <div>Total: {totalUpcomingDuration} days, {upcomingSpotlights.length} spotlights</div>
+      <SectionTitle title={sectionTitle}>
+        <div style={{ display: 'flex', alignItems: 'center' }}>
+          <div>Total: {totalDisplayedDuration} days, {displayedSpotlights.length} spotlights</div>
+          <div className={classes.sortByToggle}>
+            <span className={classes.sortByLabel}>Sort by:</span>
+            <select 
+              className={classes.sortBySelect}
+              value={sortBy}
+              onChange={(e) => setSortBy(e.target.value as 'upcoming' | 'past')}
+            >
+              <option value="upcoming">Upcoming</option>
+              <option value="past">Past</option>
+            </select>
+          </div>
+        </div>
       </SectionTitle>
-      {upcomingSpotlights.map(spotlight => <SpotlightItem key={`spotlightpage${spotlight._id}`} spotlight={spotlight} refetchAllSpotlights={refetch} showAdminInfo/>)}
+      {displayedSpotlights.map(spotlight => <SpotlightItem key={`spotlightpage${spotlight._id}`} spotlight={spotlight} refetchAllSpotlights={refetch} showAdminInfo/>)}
       <LoadMore {...loadMoreProps} />
       {!noDrafts && <div>
         <SectionTitle title="Draft Spotlights">
