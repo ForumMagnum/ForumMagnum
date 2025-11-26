@@ -27,11 +27,11 @@ function isWithin24Hours(date: moment.Moment) {
 
 const styles = defineStyles("AnnualReviewSidebarBanner", (theme: ThemeType) => ({
   root: {
-    position: 'fixed',
+    position: 'absolute',
     top: 0,
     right: 0,
     width: '50vw',
-    height: '100%',
+    height: '100vh',
     zIndex: theme.zIndexes.frontpageSplashImage,
     pointerEvents: 'none',
     [theme.breakpoints.down(1200)]: {

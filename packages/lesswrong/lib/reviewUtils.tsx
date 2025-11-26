@@ -71,7 +71,7 @@ export function getReviewShortTitle(reviewYear: ReviewYear): string {
 
 export const reviewPostPath = "/posts/ZpRzTr5QBT6C3Faor/the-2024-lesswrong-review"
 export const reviewResultsPostPath = "/posts/sHvByGZRCsFuxtTKr/voting-results-for-the-2023-review"
-export const longformReviewTagId = "aRnXghESsn4HDm872"
+export const longformReviewTagId = "iAmF7peh3Trtdxobd"
 
 const reviewPhases = new TupleSet(['UNSTARTED', 'NOMINATIONS', 'REVIEWS', 'VOTING', 'RESULTS', 'COMPLETE'] as const);
 export type ReviewPhase = UnionOf<typeof reviewPhases>;

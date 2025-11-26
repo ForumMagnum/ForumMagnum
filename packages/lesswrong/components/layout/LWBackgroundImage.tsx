@@ -89,7 +89,7 @@ export const LWBackgroundImage = ({standaloneNavigation}: {
   </div> : null
 
   let homePageImage = (standaloneNavigation && isHomePage && !hideGlobeCookie) ? <SolsticeSeasonBanner /> : defaultImage
-  if (reviewIsActive()) {
+  if (reviewIsActive() && standaloneNavigation && isHomePage) {
     homePageImage = <AnnualReviewSidebarBanner />
   }
 
