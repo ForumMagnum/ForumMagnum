@@ -821,22 +821,24 @@ const schema = {
   },
   // DEPRECATED field for GreaterWrong backwards compatibility
   wordCount: {
+    database: {
+      type: "INTEGER",
+      nullable: false,
+      defaultValue: 0,
+      denormalized: true,
+    },
     graphql: {
       outputType: "Int",
       canRead: ["guests"],
       resolver: async (post, _args, context) => {
+        const storedWordCount = typeof post.wordCount === "number" ? post.wordCount : null;
+        if (storedWordCount && storedWordCount > 0) {
+          return storedWordCount;
+        }
         const revision = await getLatestContentsRevision(post, context);
-        return revision?.wordCount ?? 0;
+        return revision?.wordCount ?? storedWordCount ?? 0;
       },
-      sqlResolver: ({ field, join }) =>
-        join({
-          table: "Revisions",
-          type: "left",
-          on: {
-            _id: field("contents_latest"),
-          },
-          resolver: (revisionsField) => revisionsField("wordCount"),
-        }),
+      sqlResolver: ({ field }) => field("wordCount"),
     },
   },
   // DEPRECATED field for GreaterWrong backwards compatibility

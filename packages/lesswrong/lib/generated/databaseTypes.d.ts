@@ -1155,6 +1155,7 @@ interface DbPost extends DbObject {
   votingSystem: string | null
   wasEverUndrafted: boolean
   website: string | null
+  wordCount: number
 }
 
 type RSSFeedsCollection = PgCollection<"RSSFeeds">;
