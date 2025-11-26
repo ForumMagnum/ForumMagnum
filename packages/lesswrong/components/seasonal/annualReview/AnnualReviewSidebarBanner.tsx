@@ -254,7 +254,7 @@ export const AnnualReviewSidebarBanner = () => {
             loading="lazy"
             className={classes.image}
             publicId="ruby_37_annual_review_banner_2025_cropped"
-            darkPublicId="Generated_Image_November_26_2025_-_1_21PM_rtfv62"
+            darkPublicId="annual_review_2025_darkmode_cropped_2_upscaled_xbaqqk"
           />
           <div className={classes.gradientOverlayDown} />
           <div className={classes.gradientOverlayLeft} />

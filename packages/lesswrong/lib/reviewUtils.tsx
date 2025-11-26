@@ -97,7 +97,7 @@ export function getReviewPeriodEnd(reviewYear: ReviewYear = REVIEW_YEAR) {
   return moment.utc(`${reviewYear+1}-01-01`).add(TIMEZONE_OFFSET, 'hours')
 }
 
-export const getReviewStart = (reviewYear: ReviewYear) => moment.utc(`${reviewYear+1}-12-01`).add(TIMEZONE_OFFSET, 'hours')
+export const getReviewStart = (reviewYear: ReviewYear) => moment.utc(`${reviewYear+1}-11-24`).add(TIMEZONE_OFFSET, 'hours')
 export const getNominationPhaseEnd = (reviewYear: ReviewYear) => moment.utc(`${reviewYear+1}-12-16`).add(TIMEZONE_OFFSET, 'hours')
 export const getReviewPhaseEnd = (reviewYear: ReviewYear) => moment.utc(`${reviewYear+2}-01-16`).add(TIMEZONE_OFFSET, 'hours')
 export const getVotingPhaseEnd = (reviewYear: ReviewYear) => moment.utc(`${reviewYear+2}-02-06`).add(TIMEZONE_OFFSET, 'hours')
