@@ -14,7 +14,20 @@ fi
 
 # Check if this is a pull request deployment
 if [ -z "$VERCEL_GIT_PULL_REQUEST_ID" ]; then
-  echo "🛑 Not a pull request deployment - Build cancelled"
+  # Check if branch name contains "preview" or "cursor/"
+  if [[ "$VERCEL_GIT_COMMIT_REF" == *"preview"* ]] || [[ "$VERCEL_GIT_COMMIT_REF" == *"cursor/"* ]]; then
+    echo "✓ Branch name contains 'preview' or 'cursor/' - Build will proceed"
+    echo "✓ Branch: $VERCEL_GIT_COMMIT_REF"
+    exit 1
+  fi
+  # Check if commit message contains "preview" (case-insensitive)
+  COMMIT_MSG_LOWER=$(echo "$VERCEL_GIT_COMMIT_MESSAGE" | tr '[:upper:]' '[:lower:]')
+  if [[ "$COMMIT_MSG_LOWER" == *"preview"* ]]; then
+    echo "✓ Commit message contains 'preview' - Build will proceed"
+    echo "✓ Commit message: $VERCEL_GIT_COMMIT_MESSAGE"
+    exit 1
+  fi
+  echo "🛑 Not a pull request deployment and branch name/commit message doesn't match preview pattern - Build cancelled"
   exit 0
 fi
 
