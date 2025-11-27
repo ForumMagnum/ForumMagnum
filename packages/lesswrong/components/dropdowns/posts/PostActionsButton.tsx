@@ -39,7 +39,7 @@ interface PostActionsComponentProps {
   postMetaInfo?: FeedPostMetaInfo;
 }
 
-const PostActionsButton = ({post, vertical, popperGap, autoPlace, flip, includeBookmark=true, onSeeLess, isSeeLessMode, className, ActionsComponent, postMetaInfo}: {
+const PostActionsButton = ({post, vertical, popperGap, autoPlace, flip, includeBookmark=true, onSeeLess, isSeeLessMode, className, iconClassName, ActionsComponent, postMetaInfo}: {
   post: PostsList|SunshinePostsList,
   vertical?: boolean,
   popperGap?: number,
@@ -49,6 +49,7 @@ const PostActionsButton = ({post, vertical, popperGap, autoPlace, flip, includeB
   onSeeLess?: () => void;
   isSeeLessMode?: boolean;
   className?: string,
+  iconClassName?: string,
   ActionsComponent?: React.ComponentType<PostActionsComponentProps>,
   postMetaInfo?: FeedPostMetaInfo,
 }) => {
@@ -85,7 +86,7 @@ const PostActionsButton = ({post, vertical, popperGap, autoPlace, flip, includeB
   const MenuComponent = ActionsComponent ?? PostActions;
   return <div className={classNames(classes.root, className)}>
     <div ref={anchorEl}>
-      <Icon className={classes.icon} onClick={(ev: React.MouseEvent) => handleSetOpen(!isOpen)}/>
+      <Icon className={classNames(classes.icon, iconClassName)} onClick={(ev: React.MouseEvent) => handleSetOpen(!isOpen)}/>
     </div>
     <PopperCard
       open={isOpen}

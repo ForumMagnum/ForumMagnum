@@ -22,7 +22,6 @@ import { ultraFeedEnabledSetting } from '@/lib/instanceSettings';
 import { useUltraFeedSettings } from '../hooks/useUltraFeedSettings';
 import type { UltraFeedSettingsType, TruncationLevel } from './ultraFeedSettingsTypes';
 import AnalyticsInViewTracker from '../common/AnalyticsInViewTracker';
-import UltraFeedBottomBar from './UltraFeedBottomBar';
 import Loading from '../vulcan-core/Loading';
 import UltraFeedSubscriptionsFeed from './UltraFeedSubscriptionsFeed';
 import UltraFeedMainFeed from './UltraFeedMainFeed';
@@ -204,16 +203,12 @@ const UltraFeedContent = ({
 }) => {
   const classes = useStyles(styles);
   const currentUser = useCurrentUser();
-  const [isRefreshing, setIsRefreshing] = useState(false);
-  const [isTopVisible, setIsTopVisible] = useState(true);
-  const [isFeedInView, setIsFeedInView] = useState(false);
 
   const { openDialog } = useDialog();
   const { captureEvent } = useTracking();
   const [sessionId] = useState<string>(randomId);
   const refetchForYouRef = useRef<null | ObservableQuery['refetch']>(null);
   const refetchFollowingRef = useRef<null | (() => void)>(null);
-  const topSentinelRef = useRef<HTMLDivElement | null>(null);
   const feedContainerRef = useRef<HTMLDivElement | null>(null);
   const forYouWrapperRef = useRef<HTMLDivElement | null>(null);
   const followingWrapperRef = useRef<HTMLDivElement | null>(null);
@@ -228,28 +223,6 @@ const UltraFeedContent = ({
       contents: ({onClose}) => <UltraFeedQuickTakeDialog onClose={onClose} currentUser={currentUser} />
     });
   };
-
-  useEffect(() => {
-    const topEl = topSentinelRef.current;
-    const containerEl = feedContainerRef.current;
-    if (!topEl || !containerEl) return;
-
-    const topObserver = new IntersectionObserver(([entry]) => {
-      setIsTopVisible(entry.isIntersecting);
-    }, { root: null, threshold: 0 });
-
-    const presenceObserver = new IntersectionObserver(([entry]) => {
-      setIsFeedInView(entry.isIntersecting);
-    }, { root: null, threshold: 0 });
-
-    topObserver.observe(topEl);
-    presenceObserver.observe(containerEl);
-
-    return () => {
-      topObserver.disconnect();
-      presenceObserver.disconnect();
-    };
-  }, []);
 
   // When switching to a tab for the first time, mark it as mounted
   useEffect(() => {
@@ -270,16 +243,6 @@ const UltraFeedContent = ({
     return () => clearTimeout(timer);
   }, [activeTab]);
 
-  const handleRefreshFeed = () => {
-    const refetchFn = activeTab === 'ultraFeed' ? refetchForYouRef.current : refetchFollowingRef.current;
-    if (refetchFn) {
-      setIsRefreshing(true);
-      void Promise.resolve(refetchFn()).finally(() => {
-        setIsRefreshing(false);
-      });
-    }
-  };
-
   const { resolverSettings } = settings;
 
   return (
@@ -288,8 +251,6 @@ const UltraFeedContent = ({
       <div className={classes.root} ref={feedContainerRef}>
         <UltraFeedObserverProvider incognitoMode={resolverSettings.incognitoMode}>
         <OverflowNavObserverProvider>
-            <div ref={topSentinelRef} style={{ scrollMarginTop: 400 }} />
-            
             {settingsVisible && (
               <div className={useExternalContainer ? classes.settingsContainerExternal : classes.settingsContainer}>
                 {activeTab === 'ultraFeed' ? (
@@ -316,9 +277,6 @@ const UltraFeedContent = ({
             )}
             
             <div className={classes.ultraFeedNewContentContainer} style={isTransitioning ? { minHeight: FEED_MIN_HEIGHT } : undefined}>
-              {isRefreshing && <div className={classes.refetchLoading}>
-                <Loading />
-              </div>}
               {hasRenderedForYou && (
                 <div
                   ref={forYouWrapperRef}
@@ -362,12 +320,6 @@ const UltraFeedContent = ({
         )}
       </div>
       </AnalyticsInViewTracker>
-      {isFeedInView && (
-        <UltraFeedBottomBar
-          refetchFeed={handleRefreshFeed}
-          isTopVisible={isTopVisible}
-          feedRootEl={feedContainerRef.current} />
-      )}
     </AnalyticsContext>
   );
 };
