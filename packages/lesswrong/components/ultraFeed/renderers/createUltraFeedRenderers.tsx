@@ -82,7 +82,6 @@ export function createUltraFeedRenderers({ settings }: { settings: UltraFeedSett
           <FeedMarker
             timestamp={item.timestamp}
             markerType={item.markerType}
-            label={item.label}
           />
         );
       },

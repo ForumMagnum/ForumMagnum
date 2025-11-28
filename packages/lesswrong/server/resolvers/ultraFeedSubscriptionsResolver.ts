@@ -1,4 +1,5 @@
 import gql from 'graphql-tag';
+import moment from 'moment-timezone';
 import { filterNonnull } from '@/lib/utils/typeGuardUtils';
 import { randomId } from '@/lib/random';
 import { buildDistinctLinearThreads, generateThreadHash } from '@/server/ultraFeed/ultraFeedThreadHelpers';
@@ -38,8 +39,7 @@ export const ultraFeedSubscriptionsTypeDefs = gql`
       limit: Int,
       cutoff: Date,
       offset: Int,
-      settings: JSON,
-      timezoneOffset: Int
+      settings: JSON
     ): UltraFeedQueryResults!
   }
 `;
@@ -49,7 +49,6 @@ interface UltraFeedSubscriptionsArgs {
   cutoff?: Date | null;
   offset?: number;
   settings?: any;
-  timezoneOffset?: number;
 }
 
 interface SliceTarget {
@@ -164,7 +163,9 @@ export const ultraFeedSubscriptionsQueries = {
     const limit = args.limit ?? 20;
     const offset = args.offset ?? 0;
     const hideRead = !!(args.settings?.subscriptionsFeedSettings?.hideRead);
-    const timezoneOffset = args.timezoneOffset ?? 0;
+    
+    const userTimezone = currentUser.lastUsedTimezone;
+    const timezoneOffset = userTimezone ? -moment.tz(userTimezone).utcOffset() : 0;
 
     const postsRepo = context.repos.posts;
     const commentsRepo = context.repos.comments;

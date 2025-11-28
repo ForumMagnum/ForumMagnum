@@ -69,11 +69,9 @@ const UltraFeedSubscriptionsFeed = ({ embedded = false, refetchRef, settings, up
   const currentUser = useCurrentUser();
   const [isLoading, setIsLoading] = useState(true);
   const feedContainerRef = useRef<HTMLDivElement | null>(null);
-    const [isTransitioning, setIsTransitioning] = useState(false);
+  const [isTransitioning, setIsTransitioning] = useState(false);
     
-    const timezoneOffset = new Date().getTimezoneOffset();
-    
-    const handleLoadingStateChange = useCallback((results: Array<{type: string, [key: string]: unknown}>, loading: boolean) => {
+  const handleLoadingStateChange = useCallback((results: Array<{type: string, [key: string]: unknown}>, loading: boolean) => {
     setIsLoading(loading);
     if (!loading && isTransitioning) {
       // Remove min-height after content loads
@@ -137,7 +135,6 @@ const UltraFeedSubscriptionsFeed = ({ embedded = false, refetchRef, settings, up
       query={UltraFeedSubscriptionsQuery}
       variables={{ 
         settings: { subscriptionsFeedSettings: { hideRead } },
-        timezoneOffset,
       }}
       firstPageSize={20}
       pageSize={30}
