@@ -309,14 +309,14 @@ const FeedContentBody = ({
     if (wasTruncated && !isExpanded && readMoreElement) {
       e.preventDefault();
       
-      // Check if this should navigate
+      // Check if this should navigate, otherwise fall back to expanding in place
       if (readMoreElement.classList.contains('read-more-navigate') && continueReadingUrl) {
         navigate(continueReadingUrl);
-      } else if (wordCount <= maxWordCount) {
+      } else {
         handleExpand();
       }
     }
-  }, [handleExpand, wasTruncated, isExpanded, wordCount, maxWordCount, continueReadingUrl, navigate]);
+  }, [handleExpand, wasTruncated, isExpanded, wordCount, continueReadingUrl, navigate]);
 
   const getLineClampClass = () => {
     if (!applyLineClamp || !clampOverride) return "";

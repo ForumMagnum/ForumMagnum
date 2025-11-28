@@ -17,6 +17,7 @@ import { useCurrentUser } from "../common/withUser";
 import { userIsAdmin, userOwns } from "../../lib/vulcan-users/permissions";
 import CommentsEditForm from "../comments/CommentsEditForm";
 import { useUltraFeedContext } from "./UltraFeedContextProvider";
+import { tagGetCommentLink } from "@/lib/collections/tags/helpers";
 
 
 const commentHeaderPaddingDesktop = 12;
@@ -418,7 +419,12 @@ export const UltraFeedCommentItem = ({
     initialWordCount = truncationParams.initialWordCount;
   }
 
-  const continueReadingUrl = comment.post ? `/posts/${comment.post._id}/${comment.post.slug}?commentId=${comment._id}` : undefined;
+  let continueReadingUrl: string | undefined;
+  if (comment.post) {
+    continueReadingUrl = `/posts/${comment.post._id}/${comment.post.slug}?commentId=${comment._id}`;
+  } else if (comment.tag) {
+    continueReadingUrl = tagGetCommentLink({ tagSlug: comment.tag.slug, commentId: comment._id, tagCommentType: comment.tagCommentType ?? "DISCUSSION" });
+  }
 
   return (
     <AnalyticsContext ultraFeedElementType="feedComment" commentId={comment._id} postId={comment.postId ?? undefined} ultraFeedSources={metaInfo.sources}>

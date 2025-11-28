@@ -3,7 +3,6 @@ import classNames from 'classnames';
 import { defineStyles, useStyles } from '../hooks/useStyles';
 import FollowUserButton from "../users/FollowUserButton";
 import UserMetaInfo from "../users/UserMetaInfo";
-import { Link } from '../../lib/reactRouterWrapper';
 import { userGetProfileUrl } from '../../lib/collections/users/helpers';
 import ContentStyles from "../common/ContentStyles";
 import { commentBodyStyles } from '@/themes/stylePiping';
@@ -13,6 +12,7 @@ import Loading from "../vulcan-core/Loading";
 import TagSmallPostLink from '../tagging/TagSmallPostLink';
 import { AnalyticsContext } from '../../lib/analyticsEvents';
 import { useCurrentUserId } from '../common/withUser';
+import { useNavigate } from '../../lib/routeUtil';
 
 const UserRecentPostsQuery = gql(`
   query UserRecentPostsForCompactCard($selector: PostSelector, $limit: Int, $enableTotal: Boolean) {
@@ -142,8 +142,11 @@ const UltraFeedSuggestedUserCard = ({
   const classes = useStyles(styles);
   const followButtonRef = useRef<HTMLDivElement>(null);
   const currentUserId = useCurrentUserId();
+  const navigate = useNavigate();
   
-  const hasBio = !!(user.htmlBio && user.htmlBio.trim().length > 0);
+  const { htmlBio, displayName } = user;
+  const profileUrl = userGetProfileUrl(user);
+  const hasBio = !!(htmlBio && htmlBio.trim().length > 0);
   
   const { data: postsData, loading: postsLoading } = useQuery(UserRecentPostsQuery, {
     variables: {
@@ -155,6 +158,7 @@ const UltraFeedSuggestedUserCard = ({
     notifyOnNetworkStatusChange: true,
   });
   
+  const posts = postsData?.posts?.results;
 
   const handleFollowClick = useCallback((e: React.MouseEvent) => {
     e.stopPropagation();
@@ -164,18 +168,23 @@ const UltraFeedSuggestedUserCard = ({
     }
   }, [currentUserId, user, onFollowToggle]);
 
+  const handleCardClick = useCallback((e: React.MouseEvent) => {
+    // Check if the click was on a nested link or button - if so, let it handle the navigation
+    const target = e.target as HTMLElement;
+    if (target.closest('a, button')) {
+      return;
+    }
+    navigate(profileUrl);
+  }, [navigate, profileUrl]);
+
   if (!user?._id) {
     return <div className={classes.root}>User not found</div>;
   }
 
-  const { htmlBio, displayName } = user;
-  const profileUrl = userGetProfileUrl(user);
-  const posts = postsData?.posts?.results;
-
   
   return (
     <AnalyticsContext pageElementContext="suggestedUserCard" userIdDisplayed={user._id}>
-      <Link to={profileUrl} className={classes.root}>
+      <div className={classes.root} onClick={handleCardClick}>
         <div className={classes.nameRow}>
           <div className={classNames(classes.name, classes.nameLink)}>
             {displayName}
@@ -226,7 +235,7 @@ const UltraFeedSuggestedUserCard = ({
             ))}
           </div>
         )}
-      </Link>
+      </div>
     </AnalyticsContext>
   );
 
