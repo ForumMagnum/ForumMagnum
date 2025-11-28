@@ -1,4 +1,4 @@
-import React, { useContext, useState, useCallback, useEffect, CSSProperties, useMemo } from 'react';
+import React, { useContext, useState, useCallback, useEffect } from 'react';
 import { registerComponent } from '../../lib/vulcan-lib/components';
 import { Link } from '../../lib/reactRouterWrapper';
 import Headroom from '../../lib/react-headroom'
@@ -15,25 +15,26 @@ import { useUnreadNotifications } from '../hooks/useUnreadNotifications';
 import { isBookUI, isFriendlyUI } from '../../themes/forumTheme';
 import { useLocation } from '../../lib/routeUtil';
 import { useCurrentAndRecentForumEvents } from '../hooks/useCurrentForumEvent';
-import { makeCloudinaryImageUrl } from './cloudinaryHelpers';
+import { makeCloudinaryImageUrl } from '@/components/common/cloudinaryHelpers';
 import { hasForumEvents } from '@/lib/betas';
-import SearchBar from "./SearchBar";
+import SearchBar from "@/components/common/SearchBar";
 import UsersMenu from "../users/UsersMenu";
 import { LWUsersAccountMenu, EAUsersAccountMenu } from "../users/UsersAccountMenu";
 import NotificationsMenuButton from "../notifications/NotificationsMenuButton";
-import NavigationDrawer from "./TabNavigationMenu/NavigationDrawer";
+import { ICON_ONLY_NAVIGATION_BREAKPOINT } from "@/components/common/TabNavigationMenu/NavigationStandalone";
+import NavigationDrawer from "@/components/common/TabNavigationMenu/NavigationDrawer";
 import { KarmaChangeNotifier } from "../users/karmaChanges/KarmaChangeNotifier";
-import HeaderSubtitle from "./HeaderSubtitle";
-import { Typography } from "./Typography";
-import ForumIcon from "./ForumIcon";
+import HeaderSubtitle from "@/components/common/HeaderSubtitle";
+import { Typography } from "@/components/common/Typography";
+import ForumIcon from "@/components/common/ForumIcon";
 import SiteLogo from "../ea-forum/SiteLogo";
 import MessagesMenuButton from "../messaging/MessagesMenuButton";
-import { SuspenseWrapper } from './SuspenseWrapper';
+import { SuspenseWrapper } from '@/components/common/SuspenseWrapper';
 import { isHomeRoute } from '@/lib/routeChecks';
-import { useRouteMetadata } from '../ClientRouteMetadataContext';
 import { forumSelect } from '@/lib/forumTypeUtils';
 import NotificationsMenu from "../notifications/NotificationsMenu";
-import { useIsAboveBreakpoint } from '../hooks/useScreenWidth';
+import { IsLlmChatSidebarOpenContext } from './Layout';
+import { useIsOnGrayBackground } from '../hooks/useIsOnGrayBackground';
 
 /** Height of top header. On Book UI sites, this is for desktop only */
 export const getHeaderHeight = () => isBookUI() ? 64 : 66;
@@ -111,6 +112,8 @@ const textColorOverrideStyles = ({
     },
   },
 });
+
+const LLM_CHAT_SIDEBAR_WIDTH = 500;
 
 export const styles = (theme: ThemeType) => ({
   appBar: {
@@ -228,12 +231,12 @@ export const styles = (theme: ThemeType) => ({
     },
   },
   hideLgUp: {
-    [theme.breakpoints.up('lg')]: {
+    [theme.breakpoints.up(ICON_ONLY_NAVIGATION_BREAKPOINT)]: {
       display:"none !important"
     }
   },
   hideMdDown: {
-    [theme.breakpoints.down('md')]: {
+    [theme.breakpoints.down(ICON_ONLY_NAVIGATION_BREAKPOINT)]: {
       display:"none !important"
     }
   },
@@ -309,6 +312,13 @@ export const styles = (theme: ThemeType) => ({
     marginLeft: theme.spacing.unit,
     marginBottom: 1.5,
   },
+  reserveSpaceForLlmChatSidebar: {
+    [theme.breakpoints.up("lg")]: {
+      "& .headroom": {
+        width: `calc(100% - ${LLM_CHAT_SIDEBAR_WIDTH}px)`,
+      },
+    }
+  },
 });
 
 function getForumEventBackgroundStyle(currentForumEvent: ForumEventsDisplay, bannerImageId: string) {
@@ -329,7 +339,6 @@ const Header = ({
   stayAtTop=false,
   searchResultsArea,
   backgroundColor,
-  llmChatSidebarOpen=false,
   classes,
 }: {
   standaloneNavigationPresent: boolean,
@@ -339,7 +348,6 @@ const Header = ({
   searchResultsArea: React.RefObject<HTMLDivElement|null>,
   // CSS var corresponding to the background color you want to apply (see also appBarDarkBackground above)
   backgroundColor?: string,
-  llmChatSidebarOpen?: boolean,
   classes: ClassesType<typeof styles>,
 }) => {
   const [navigationOpen, setNavigationOpenState] = useState(false);
@@ -354,9 +362,8 @@ const Header = ({
   const { captureEvent } = useTracking()
   const { notificationsOpened } = useUnreadNotifications();
   const { pathname, hash } = useLocation();
-  const { metadata: routeMetadata } = useRouteMetadata();
   const {currentForumEvent} = useCurrentAndRecentForumEvents();
-  const [headerStyle, setHeaderStyle] = useState<CSSProperties>(() => ({ ...(backgroundColor ? { backgroundColor } : {}) }));
+  let headerStyle = { ...(backgroundColor ? { backgroundColor } : {}) };
 
   useEffect(() => {
     // When we move to a different page we will be positioned at the top of
@@ -528,48 +535,27 @@ const Header = ({
 
   const bannerImageId = currentForumEvent?.bannerImageId
 
-  const llmSidebarAllowed = useIsAboveBreakpoint('lg');
+  // Adjust header width when LLM chat sidebar is open and header is fixed
+  const llmChatSidebarOpen = useContext(IsLlmChatSidebarOpenContext);
 
-  useEffect(() => {
-    const setForumEventHeaderStyle = hasForumEvents() && isHomeRoute(pathname) && bannerImageId && currentForumEvent?.eventFormat !== "BASIC" && !backgroundColor;
-    if (setForumEventHeaderStyle || llmSidebarAllowed) {
-      const forumEventHeaderStyle = setForumEventHeaderStyle ? {
-        background: getForumEventBackgroundStyle(currentForumEvent, bannerImageId),
-        "--header-text-color": currentForumEvent.bannerTextColor ?? undefined,
-        "--header-contrast-color": currentForumEvent.darkColor ?? undefined,
-      } : {};
+  const setForumEventHeaderStyle = hasForumEvents() && isHomeRoute(pathname) && bannerImageId && currentForumEvent?.eventFormat !== "BASIC" && !backgroundColor;
+  if (setForumEventHeaderStyle) {
+    const forumEventHeaderStyle = setForumEventHeaderStyle ? {
+      background: getForumEventBackgroundStyle(currentForumEvent, bannerImageId),
+      "--header-text-color": currentForumEvent.bannerTextColor ?? undefined,
+      "--header-contrast-color": currentForumEvent.darkColor ?? undefined,
+    } : {};
 
-      const LLM_CHAT_SIDEBAR_WIDTH = 500;
-
-      const unfixedLLmSidebarOpenHeaderWidth = `calc(100% - ${LLM_CHAT_SIDEBAR_WIDTH}px)`;
-
-      const llmSidebarStyle = (llmSidebarAllowed && llmChatSidebarOpen && !unFixed) ? {
-        width: unfixedLLmSidebarOpenHeaderWidth,
-      } : {};
-
-      setHeaderStyle(prev => {
-        // Destructure the four properties that might be set by either forumEventHeaderStyle or llmSidebarStyle
-        // so that we don't need to worry about passing in `undefined` values for those styles in the ternary
-        // else branches, otherwise we'd fail to remove them from the headerStyles with the state function
-        // since they'd stick around from the previous state.
-        const {
-          width,
-          background,
-          "--header-text-color": headerTextColor,
-          "--header-contrast-color": headerContrastColor,
-          ...rest
-        } = (prev as AnyBecauseHard);
-        return {
-          ...rest,
-          ...(setForumEventHeaderStyle ? forumEventHeaderStyle : {}),
-          ...(llmSidebarAllowed && llmChatSidebarOpen && !unFixed ? llmSidebarStyle : {}),
-        }
-      });
+    headerStyle = {
+      ...headerStyle,
+      ...(setForumEventHeaderStyle ? forumEventHeaderStyle : {}),
     }
-  }, [bannerImageId, currentForumEvent, llmChatSidebarOpen, llmSidebarAllowed, pathname, unFixed, backgroundColor]);
+  }
 
   // Make all the text and icons the same color as the text on the current forum event banner
-  const useContrastText = useMemo(() => Object.keys(headerStyle).includes('backgroundColor') || Object.keys(headerStyle).includes('background'), [headerStyle]);
+  const useContrastText = Object.keys(headerStyle).includes('backgroundColor') || Object.keys(headerStyle).includes('background');
+
+  const isGrayBackground = useIsOnGrayBackground();
 
   return (
     <AnalyticsContext pageSectionContext="header">
@@ -580,6 +566,7 @@ const Header = ({
           height={getHeaderHeight()}
           className={classNames(classes.headroom, {
             [classes.headroomPinnedOpen]: searchOpen,
+            [classes.reserveSpaceForLlmChatSidebar]: llmChatSidebarOpen && !unFixed,
           })}
           onUnfix={() => setUnFixed(true)}
           onUnpin={() => setUnFixed(false)}
@@ -589,7 +576,7 @@ const Header = ({
             className={classNames(
               classes.appBar,
               useContrastText && classes.appBarDarkBackground,
-              routeMetadata.background === "white" && classes.blackBackgroundAppBar,
+              !isGrayBackground && classes.blackBackgroundAppBar,
             )}
             style={headerStyle}
           >

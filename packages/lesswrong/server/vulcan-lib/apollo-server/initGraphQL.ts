@@ -66,6 +66,8 @@ import { recommendationsGqlMutations, recommendationsGqlTypeDefs } from '@/serve
 import { extraPostResolversGraphQLMutations, extraPostResolversGraphQLTypeDefs } from '@/server/posts/graphql';
 import { generateCoverImagesForPostGraphQLMutations, generateCoverImagesForPostGraphQLTypeDefs, flipSplashArtImageGraphQLMutations, flipSplashArtImageGraphQLTypeDefs } from '@/server/resolvers/aiArtResolvers/coverImageMutations';
 import { elicitQuestionPredictionsGraphQLTypeDefs } from '@/lib/collections/elicitQuestionPredictions/newSchema';
+import { booksResolversTypeDefs, booksResolversQueries } from '@/server/resolvers/booksResolvers';
+import { sequencesResolversTypeDefs, sequencesResolversQueries } from '@/server/resolvers/sequencesResolvers';
 
 // Collection imports
 import { graphqlAdvisorRequestQueryTypeDefs, advisorRequestGqlQueryHandlers, advisorRequestGqlFieldResolvers } from "@/server/collections/advisorRequests/queries";
@@ -317,6 +319,8 @@ export const getTypeDefs = () => gql`
   ${generateCoverImagesForPostGraphQLTypeDefs}
   ${flipSplashArtImageGraphQLTypeDefs}
   ${elicitQuestionPredictionsGraphQLTypeDefs}
+  ${booksResolversTypeDefs}
+  ${sequencesResolversTypeDefs}
   ## CRUD Query typedefs
   ${graphqlAdvisorRequestQueryTypeDefs}
   ${graphqlArbitalCachesQueryTypeDefs}
@@ -498,6 +502,8 @@ const getResolvers = () => ({
     ...ultraFeedGraphQLQueries,
     ...ultraFeedSubscriptionsQueries,
     ...spotlightGqlQueries,
+    ...booksResolversQueries,
+    ...sequencesResolversQueries,
 
     // CRUD Query Handlers
     ...advisorRequestGqlQueryHandlers,

@@ -1,6 +1,6 @@
 import React from 'react';
 import { componentWithChildren } from '@/lib/utils/componentsWithChildren';
-import { Helmet } from "../common/Helmet";
+import { Helmet } from "@/components/layout/Helmet";
 import BadlyTypedReactMapGL, { InteractiveMapProps } from 'react-map-gl';
 import { useMapStyle } from '../hooks/useMapStyle';
 import { mapboxAPIKeySetting } from '@/lib/instanceSettings';

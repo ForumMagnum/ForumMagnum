@@ -1,21 +1,16 @@
-import React, { useEffect, useState } from 'react';
-import { registerComponent } from '../lib/vulcan-lib/components';
-import { useSubscribedLocation } from '../lib/routeUtil';
-import { getReviewPhase, reviewResultsPostPath } from '../lib/reviewUtils';
-import { defineStyles, useStyles } from './hooks/useStyles';
-import { Link } from '../lib/reactRouterWrapper';
-import ReviewVotingCanvas from "./review/ReviewVotingCanvas";
-import CloudinaryImage2 from "./common/CloudinaryImage2";
+import React from 'react';
+import { registerComponent } from '@/lib/vulcan-lib/components';
+import { useSubscribedLocation } from '@/lib/routeUtil';
+import { getReviewPhase, reviewResultsPostPath } from '@/lib/reviewUtils';
+import { defineStyles, useStyles } from '@/components/hooks/useStyles';
+import { Link } from '@/lib/reactRouterWrapper';
+import ReviewVotingCanvas from "@/components/review/ReviewVotingCanvas";
+import CloudinaryImage2 from "@/components/common/CloudinaryImage2";
 import { isHomeRoute } from '@/lib/routeChecks';
-import Inkhaven2025Banner from './seasonal/Inkhaven2025';
-import { SolsticeSeasonBanner } from './seasonal/solsticeSeason/SolsticeSeasonBanner';
-
-import MeetupMonthBanner from './seasonal/meetupMonth/MeetupMonthBanner';
-import PetrovDayStory from './seasonal/petrovDay/petrov-day-story/PetrovDayStory';
-import { useIsAboveBreakpoint } from './hooks/useScreenWidth';
-import { useCookiesWithConsent } from './hooks/useCookiesWithConsent';
+import { useCookiesWithConsent } from '../hooks/useCookiesWithConsent';
 import { HIDE_SOLSTICE_GLOBE_COOKIE } from '@/lib/cookies/cookies';
-import withErrorBoundary from './common/withErrorBoundary';
+import { SolsticeSeasonBanner } from '../seasonal/solsticeSeason/SolsticeSeasonBanner';
+import withErrorBoundary from '@/components/common/withErrorBoundary';
 
 const styles = defineStyles("LWBackgroundImage", (theme: ThemeType) => ({
   root: {

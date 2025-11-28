@@ -1,6 +1,6 @@
 import React from 'react';
-import { ClientRouteMetadataSetter, type RouteMetadata } from "./ClientRouteMetadataContext";
-import { RouteMetadataSetter as ServerRouteMetadataSetter } from "./ServerRouteMetadataContext";
+import { ClientRouteMetadataSetter, type RouteMetadata } from "@/components/layout/ClientRouteMetadataContext";
+import { RouteMetadataSetter as ServerRouteMetadataSetter } from "@/components/layout/ServerRouteMetadataContext";
 
 /**
  * Modifying our `Layout` from a child route creates two distinct challenges:

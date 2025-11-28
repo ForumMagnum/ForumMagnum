@@ -5,7 +5,7 @@ import { useCurrentUser } from '../common/withUser';
 import { sectionFooterLeftStyles } from '../users/UsersProfile'
 import {AnalyticsContext} from "../../lib/analyticsEvents";
 import { defaultSequenceBannerIdSetting, nofollowKarmaThreshold } from '@/lib/instanceSettings';
-import { getHeaderHeight, getMobileHeaderHeight } from '../common/Header';
+import { getHeaderHeight, getMobileHeaderHeight } from '../layout/Header';
 import { isFriendlyUI } from '../../themes/forumTheme';
 import { makeCloudinaryImageUrl } from '../common/cloudinaryHelpers';
 import { allowSubscribeToSequencePosts } from '../../lib/betas';

@@ -78,6 +78,8 @@ interface Query {
   RevisionsDiff: string | null;
   UltraFeed: UltraFeedQueryResults;
   UltraFeedSubscriptions: UltraFeedQueryResults;
+  getBookWordCount: number | null;
+  getSequenceStats: SequenceStats | null;
   advisorRequest: SingleAdvisorRequestOutput | null;
   advisorRequests: MultiAdvisorRequestOutput | null;
   arbitalTagContentRel: SingleArbitalTagContentRelOutput | null;
@@ -1286,6 +1288,11 @@ interface ElicitQuestionPredictionCreator {
   displayName: string;
   isQuestionCreator: boolean;
   sourceUserId: string | null;
+}
+
+interface SequenceStats {
+  totalWordCount: number | null;
+  totalReadTime: number | null;
 }
 
 interface AdvisorRequest {
@@ -9879,6 +9886,7 @@ interface GraphQLTypeMap {
   UltraFeedQueryResults: UltraFeedQueryResults;
   UltraFeedEntry: UltraFeedEntry;
   ElicitQuestionPredictionCreator: ElicitQuestionPredictionCreator;
+  SequenceStats: SequenceStats;
   AdvisorRequest: AdvisorRequest;
   SingleAdvisorRequestInput: SingleAdvisorRequestInput;
   SingleAdvisorRequestOutput: SingleAdvisorRequestOutput;
@@ -10810,6 +10818,7 @@ interface CreateInputsByCollectionName {
   LegacyData: never;
   LlmConversations: never;
   LlmMessages: never;
+  LoginTokens: never;
   ManifoldProbabilitiesCaches: never;
   Migrations: never;
   Notifications: never;
@@ -10901,6 +10910,7 @@ interface UpdateInputsByCollectionName {
   LWEvents: never;
   LegacyData: never;
   LlmMessages: never;
+  LoginTokens: never;
   ManifoldProbabilitiesCaches: never;
   Migrations: never;
   PageCache: never;

@@ -120,6 +120,7 @@ dependency-graph.svg
 .env.sentry-build-plugin
 
 tsconfig.tsbuildinfo
+tsconfig-client.tsbuildinfo
 
 # NextJS
 next-env.d.ts

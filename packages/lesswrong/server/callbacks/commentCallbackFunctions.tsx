@@ -403,7 +403,8 @@ const utils = {
     const { loaders } = context;
   
     const commentDeletedByAnotherUser =
-      (!comment.deletedByUserId || comment.deletedByUserId !== comment.userId)
+      comment.deletedByUserId
+      && comment.deletedByUserId !== comment.userId
       && comment.deleted
       && comment.contents?.html;
   

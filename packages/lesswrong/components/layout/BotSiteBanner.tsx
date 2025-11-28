@@ -1,6 +1,6 @@
 import React from "react";
-import { registerComponent } from "../../lib/vulcan-lib/components";
-import SingleColumnSection from "./SingleColumnSection";
+import { registerComponent } from "@/lib/vulcan-lib/components";
+import SingleColumnSection from "@/components/common/SingleColumnSection";
 
 const styles = (theme: ThemeType) => ({
   root: {

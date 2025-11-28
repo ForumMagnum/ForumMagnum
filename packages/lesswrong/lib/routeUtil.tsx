@@ -91,16 +91,6 @@ export const useNavigate = () => {
         } else {
           window.history.pushState(null, '', normalizedLocation);
         }
-
-        const hashChanged = updatedLocationDescriptor.hash !== window.location.hash;
-
-        if (hashChanged) {
-          const base = new URL(window.location.href).origin;
-          const oldURL = new URL(createPath(window.location), base).toString();
-          const newURL = new URL(normalizedLocation, base).toString();
-          const hashChangeEvent = new HashChangeEvent('hashchange', { oldURL, newURL });
-          window.dispatchEvent(hashChangeEvent);
-        }
       } else if (options?.replace) {
         if (normalizedLocation !== normalizedOldLocation) {
           history.replace(normalizedLocation);

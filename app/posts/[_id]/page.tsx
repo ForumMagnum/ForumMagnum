@@ -3,17 +3,17 @@ import PostsSingle from '@/components/posts/PostsSingle';
 import { PostsPageHeaderTitle } from '@/components/titles/PostsPageHeaderTitle';
 import { getPostPageMetadataFunction } from "@/server/pageMetadata/postPageMetadata";
 import { hasPostRecommendations } from "@/lib/betas";
-import RouteRoot from "@/components/next/RouteRoot";
+import RouteRoot from "@/components/layout/RouteRoot";
+import { assertRouteHasWhiteBackground } from "@/components/layout/routeBackgroundColors";
 
 export const generateMetadata = getPostPageMetadataFunction<{ _id: string }>(({ _id }) => _id);
 
+assertRouteHasWhiteBackground("/posts/[_id]");
+
 export default function Page() {
-  // enableResourcePrefetch was: function
-  
   return <RouteRoot
     delayedStatusCode
     metadata={{
-      background: 'white',
       noFooter: hasPostRecommendations(),
       titleComponent: PostsPageHeaderTitle
     }}

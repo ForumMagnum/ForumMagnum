@@ -1,5 +1,5 @@
 import React, { useContext } from 'react';
-import type { WithMessagesFunctions } from './FlashMessages';
+import type { WithMessagesFunctions } from '@/components/layout/FlashMessages';
 
 export const MessageFunctionsContext = React.createContext<WithMessagesFunctions|null>(null);
 
