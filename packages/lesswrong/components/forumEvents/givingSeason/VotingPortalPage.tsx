@@ -336,6 +336,9 @@ const styles = (theme: ThemeType) => ({
     flexGrow: 1,
     background: theme.palette.text.alwaysWhite,
     borderRadius: theme.borderRadius.default,
+    "& .ContentStyles-commentBody": {
+      color: theme.palette.text.alwaysBlack
+    },
     "& .EditorTypeSelect-select": {
       display: "none",
     },
