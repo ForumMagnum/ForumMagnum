@@ -9,7 +9,7 @@ import Headroom from '@/lib/react-headroom';
 import PostActionsButton from '../dropdowns/posts/PostActionsButton';
 import { usePostsPageContext } from './PostsPage/PostsPageContext';
 import CommentIcon from '@/lib/vendor/@material-ui/icons/src/ModeComment';
-import { getMobileHeaderHeight } from '../common/Header';
+import { getMobileHeaderHeight } from '../layout/Header';
 
 const styles = defineStyles("PostsBottomBar", (theme: ThemeType) => ({
   headroom: {
