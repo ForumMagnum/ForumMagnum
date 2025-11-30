@@ -261,7 +261,6 @@ const UltraFeedContent = ({
     }
   }, [activeTab, hasRenderedFollowing, hasRenderedForYou]);
 
-  // Handle tab transitions
   useEffect(() => {
     setIsTransitioning(true);
     const timer = setTimeout(() => {
@@ -332,6 +331,7 @@ const UltraFeedContent = ({
                     loadMoreDistanceProp={1000}
                     firstPageSize={15}
                     pageSize={30}
+                    isActive={activeTab === 'ultraFeed'}
                   />
                 </div>
               )}
@@ -347,6 +347,7 @@ const UltraFeedContent = ({
                       settings={settings}
                       updateSettings={updateSettings}
                       showHideReadToggle={false}
+                      isActive={activeTab === 'following'}
                     />
                   </UltraFeedContextProvider>
                 </div>

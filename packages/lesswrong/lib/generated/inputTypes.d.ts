@@ -47,7 +47,6 @@ interface Query {
   PostsWithApprovedJargon: PostsWithApprovedJargonResult | null;
   AllTagsActivityFeed: AllTagsActivityFeedQueryResults;
   RecentDiscussionFeed: RecentDiscussionFeedQueryResults;
-  SubscribedFeed: SubscribedFeedQueryResults;
   TagHistoryFeed: TagHistoryFeedQueryResults;
   SubforumMagicFeed: SubforumMagicFeedQueryResults;
   SubforumTopFeed: SubforumTopFeedQueryResults;
@@ -962,25 +961,6 @@ interface RecentDiscussionFeedEntry {
   tagRevised: Revision | null;
 }
 
-interface SubscribedPostAndComments {
-  _id: string;
-  post: Post;
-  comments: Array<Comment> | null;
-  expandCommentIds: Array<string> | null;
-  postIsFromSubscribedUser: boolean;
-}
-
-interface SubscribedFeedQueryResults {
-  cutoff: Date | null;
-  endOffset: number;
-  results: Array<SubscribedFeedEntry> | null;
-}
-
-interface SubscribedFeedEntry {
-  type: SubscribedFeedEntryType;
-  postCommented: SubscribedPostAndComments | null;
-}
-
 interface TagHistoryFeedQueryResults {
   cutoff: Date | null;
   endOffset: number;
@@ -1281,6 +1261,12 @@ interface FeedSubscriptionSuggestions {
   suggestedUsers: Array<User>;
 }
 
+interface FeedMarker {
+  _id: string;
+  markerType: string;
+  timestamp: Date;
+}
+
 interface UltraFeedQueryResults {
   cutoff: Date | null;
   endOffset: number;
@@ -1294,6 +1280,7 @@ interface UltraFeedEntry {
   feedPost: FeedPost | null;
   feedSpotlight: FeedSpotlightItem | null;
   feedSubscriptionSuggestions: FeedSubscriptionSuggestions | null;
+  feedMarker: FeedMarker | null;
 }
 
 interface ElicitQuestionPredictionCreator {
@@ -9853,9 +9840,6 @@ interface GraphQLTypeMap {
   AllTagsActivityFeedEntry: AllTagsActivityFeedEntry;
   RecentDiscussionFeedQueryResults: RecentDiscussionFeedQueryResults;
   RecentDiscussionFeedEntry: RecentDiscussionFeedEntry;
-  SubscribedPostAndComments: SubscribedPostAndComments;
-  SubscribedFeedQueryResults: SubscribedFeedQueryResults;
-  SubscribedFeedEntry: SubscribedFeedEntry;
   TagHistoryFeedQueryResults: TagHistoryFeedQueryResults;
   TagHistoryFeedEntry: TagHistoryFeedEntry;
   SubforumMagicFeedQueryResults: SubforumMagicFeedQueryResults;
@@ -9898,6 +9882,7 @@ interface GraphQLTypeMap {
   FeedCommentThread: FeedCommentThread;
   FeedSpotlightItem: FeedSpotlightItem;
   FeedSubscriptionSuggestions: FeedSubscriptionSuggestions;
+  FeedMarker: FeedMarker;
   UltraFeedQueryResults: UltraFeedQueryResults;
   UltraFeedEntry: UltraFeedEntry;
   ElicitQuestionPredictionCreator: ElicitQuestionPredictionCreator;

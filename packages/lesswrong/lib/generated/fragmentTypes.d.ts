@@ -47,6 +47,7 @@ interface FragmentTypes {
   ExplorePageTagFragment: ExplorePageTagFragment
   FeaturedResourcesFragment: FeaturedResourcesFragment
   FeedCommentThreadFragment: FeedCommentThreadFragment
+  FeedMarkerFragment: FeedMarkerFragment
   FeedPostFragment: FeedPostFragment
   FeedSpotlightFragment: FeedSpotlightFragment
   FeedSubscriptionSuggestionsFragment: FeedSubscriptionSuggestionsFragment
@@ -146,7 +147,6 @@ interface FragmentTypes {
   SpotlightHeaderEventSubtitle: SpotlightHeaderEventSubtitle
   SpotlightMinimumInfo: SpotlightMinimumInfo
   StickySubforumCommentFragment: StickySubforumCommentFragment
-  SubscribedPostAndCommentsFeed: SubscribedPostAndCommentsFeed
   SubscriptionState: SubscriptionState
   SuggestAlignmentComment: SuggestAlignmentComment
   SuggestAlignmentPost: SuggestAlignmentPost
@@ -259,6 +259,7 @@ interface FragmentTypesByCollection {
   ElicitQuestions: "ElicitQuestionFragment"
   FeaturedResources: "FeaturedResourcesFragment"
   FeedCommentThreads: "FeedCommentThreadFragment"
+  FeedMarkers: "FeedMarkerFragment"
   FeedPosts: "FeedPostFragment"
   FeedSpotlightItems: "FeedSpotlightFragment"
   FeedSubscriptionSuggestionses: "FeedSubscriptionSuggestionsFragment"
@@ -289,7 +290,6 @@ interface FragmentTypesByCollection {
   SideCommentCaches: "SideCommentCacheMinimumInfo"
   SplashArtCoordinates: "SplashArtCoordinates"|"SplashArtCoordinatesEdit"
   Spotlights: "SpotlightDisplay"|"SpotlightEditQueryFragment"|"SpotlightHeaderEventSubtitle"|"SpotlightMinimumInfo"
-  SubscribedPostAndCommentses: "SubscribedPostAndCommentsFeed"
   Subscriptions: "MembersOfGroupFragment"|"SubscriptionState"
   SurveyQuestions: "SurveyQuestionMinimumInfo"
   SurveyResponses: "SurveyResponseMinimumInfo"
@@ -347,6 +347,7 @@ interface CollectionNamesByFragmentName {
   ExplorePageTagFragment: "Tags"
   FeaturedResourcesFragment: "FeaturedResources"
   FeedCommentThreadFragment: never
+  FeedMarkerFragment: never
   FeedPostFragment: never
   FeedSpotlightFragment: never
   FeedSubscriptionSuggestionsFragment: never
@@ -446,7 +447,6 @@ interface CollectionNamesByFragmentName {
   SpotlightHeaderEventSubtitle: "Spotlights"
   SpotlightMinimumInfo: "Spotlights"
   StickySubforumCommentFragment: "Comments"
-  SubscribedPostAndCommentsFeed: never
   SubscriptionState: "Subscriptions"
   SuggestAlignmentComment: "Comments"
   SuggestAlignmentPost: "Posts"

@@ -2543,6 +2543,13 @@ type FeedCommentThread = {
   postSources?: Maybe<Array<Scalars['String']['output']>>;
 };
 
+type FeedMarker = {
+  __typename?: 'FeedMarker';
+  _id: Scalars['String']['output'];
+  markerType: Scalars['String']['output'];
+  timestamp: Scalars['Date']['output'];
+};
+
 type FeedPost = {
   __typename?: 'FeedPost';
   _id: Scalars['String']['output'];
@@ -7588,7 +7595,6 @@ type Query = {
   SubforumOldFeed: SubforumOldFeedQueryResults;
   SubforumRecentCommentsFeed: SubforumRecentCommentsFeedQueryResults;
   SubforumTopFeed: SubforumTopFeedQueryResults;
-  SubscribedFeed: SubscribedFeedQueryResults;
   SuggestedFeedSubscriptionUsers?: Maybe<SuggestedFeedSubscriptionUsersResult>;
   SuggestedTopActiveUsers?: Maybe<SuggestedTopActiveUsersResult>;
   TagHistoryFeed: TagHistoryFeedQueryResults;
@@ -8010,14 +8016,6 @@ type QuerySubforumTopFeedArgs = {
   limit?: InputMaybe<Scalars['Int']['input']>;
   offset?: InputMaybe<Scalars['Int']['input']>;
   tagId: Scalars['String']['input'];
-};
-
-
-type QuerySubscribedFeedArgs = {
-  af?: InputMaybe<Scalars['Boolean']['input']>;
-  cutoff?: InputMaybe<Scalars['Date']['input']>;
-  limit?: InputMaybe<Scalars['Int']['input']>;
-  offset?: InputMaybe<Scalars['Int']['input']>;
 };
 
 
@@ -10540,31 +10538,6 @@ type SubforumTopFeedQueryResults = {
   results?: Maybe<Array<SubforumTopFeedEntry>>;
 };
 
-type SubscribedFeedEntry = {
-  __typename?: 'SubscribedFeedEntry';
-  postCommented?: Maybe<SubscribedPostAndComments>;
-  type: SubscribedFeedEntryType;
-};
-
-type SubscribedFeedEntryType =
-  | 'postCommented';
-
-type SubscribedFeedQueryResults = {
-  __typename?: 'SubscribedFeedQueryResults';
-  cutoff?: Maybe<Scalars['Date']['output']>;
-  endOffset: Scalars['Int']['output'];
-  results?: Maybe<Array<SubscribedFeedEntry>>;
-};
-
-type SubscribedPostAndComments = {
-  __typename?: 'SubscribedPostAndComments';
-  _id: Scalars['String']['output'];
-  comments?: Maybe<Array<Comment>>;
-  expandCommentIds?: Maybe<Array<Scalars['String']['output']>>;
-  post: Post;
-  postIsFromSubscribedUser: Scalars['Boolean']['output'];
-};
-
 type Subscription = {
   __typename?: 'Subscription';
   _id: Scalars['String']['output'];
@@ -11226,6 +11199,7 @@ type TypingIndicatorSelector = {
 type UltraFeedEntry = {
   __typename?: 'UltraFeedEntry';
   feedCommentThread?: Maybe<FeedCommentThread>;
+  feedMarker?: Maybe<FeedMarker>;
   feedPost?: Maybe<FeedPost>;
   feedSpotlight?: Maybe<FeedSpotlightItem>;
   feedSubscriptionSuggestions?: Maybe<FeedSubscriptionSuggestions>;
@@ -11234,6 +11208,7 @@ type UltraFeedEntry = {
 
 type UltraFeedEntryType =
   | 'feedCommentThread'
+  | 'feedMarker'
   | 'feedPost'
   | 'feedSpotlight'
   | 'feedSubscriptionSuggestions';
@@ -14122,28 +14097,6 @@ type RecentDiscussionFeedQueryVariables = Exact<{
 
 type RecentDiscussionFeedQuery = RecentDiscussionFeedQuery_Query;
 
-type SubscribedFeedQuery_SubscribedFeed_SubscribedFeedQueryResults_results_SubscribedFeedEntry_postCommented_SubscribedPostAndComments = (
-  { __typename?: 'SubscribedPostAndComments' }
-  & SubscribedPostAndCommentsFeed
-);
-
-type SubscribedFeedQuery_SubscribedFeed_SubscribedFeedQueryResults_results_SubscribedFeedEntry = { __typename?: 'SubscribedFeedEntry', type: SubscribedFeedEntryType, postCommented: SubscribedFeedQuery_SubscribedFeed_SubscribedFeedQueryResults_results_SubscribedFeedEntry_postCommented_SubscribedPostAndComments | null };
-
-type SubscribedFeedQuery_SubscribedFeed_SubscribedFeedQueryResults = { __typename: 'SubscribedFeedQueryResults', cutoff: string | null, endOffset: number, results: Array<SubscribedFeedQuery_SubscribedFeed_SubscribedFeedQueryResults_results_SubscribedFeedEntry> | null };
-
-type SubscribedFeedQuery_Query = { __typename?: 'Query', SubscribedFeed: SubscribedFeedQuery_SubscribedFeed_SubscribedFeedQueryResults };
-
-
-type SubscribedFeedQueryVariables = Exact<{
-  limit: InputMaybe<Scalars['Int']['input']>;
-  cutoff: InputMaybe<Scalars['Date']['input']>;
-  offset: InputMaybe<Scalars['Int']['input']>;
-  af: InputMaybe<Scalars['Boolean']['input']>;
-}>;
-
-
-type SubscribedFeedQuery = SubscribedFeedQuery_Query;
-
 type SubforumMagicFeedQuery_SubforumMagicFeed_SubforumMagicFeedQueryResults_results_SubforumMagicFeedEntry_tagSubforumPosts_Post = (
   { __typename?: 'Post' }
   & PostsRecentDiscussion
@@ -14339,7 +14292,12 @@ type UltraFeedQuery_UltraFeed_UltraFeedQueryResults_results_UltraFeedEntry_feedS
   & FeedSubscriptionSuggestionsFragment
 );
 
-type UltraFeedQuery_UltraFeed_UltraFeedQueryResults_results_UltraFeedEntry = { __typename?: 'UltraFeedEntry', type: UltraFeedEntryType, feedCommentThread: UltraFeedQuery_UltraFeed_UltraFeedQueryResults_results_UltraFeedEntry_feedCommentThread_FeedCommentThread | null, feedPost: UltraFeedQuery_UltraFeed_UltraFeedQueryResults_results_UltraFeedEntry_feedPost_FeedPost | null, feedSpotlight: UltraFeedQuery_UltraFeed_UltraFeedQueryResults_results_UltraFeedEntry_feedSpotlight_FeedSpotlightItem | null, feedSubscriptionSuggestions: UltraFeedQuery_UltraFeed_UltraFeedQueryResults_results_UltraFeedEntry_feedSubscriptionSuggestions_FeedSubscriptionSuggestions | null };
+type UltraFeedQuery_UltraFeed_UltraFeedQueryResults_results_UltraFeedEntry_feedMarker_FeedMarker = (
+  { __typename?: 'FeedMarker' }
+  & FeedMarkerFragment
+);
+
+type UltraFeedQuery_UltraFeed_UltraFeedQueryResults_results_UltraFeedEntry = { __typename?: 'UltraFeedEntry', type: UltraFeedEntryType, feedCommentThread: UltraFeedQuery_UltraFeed_UltraFeedQueryResults_results_UltraFeedEntry_feedCommentThread_FeedCommentThread | null, feedPost: UltraFeedQuery_UltraFeed_UltraFeedQueryResults_results_UltraFeedEntry_feedPost_FeedPost | null, feedSpotlight: UltraFeedQuery_UltraFeed_UltraFeedQueryResults_results_UltraFeedEntry_feedSpotlight_FeedSpotlightItem | null, feedSubscriptionSuggestions: UltraFeedQuery_UltraFeed_UltraFeedQueryResults_results_UltraFeedEntry_feedSubscriptionSuggestions_FeedSubscriptionSuggestions | null, feedMarker: UltraFeedQuery_UltraFeed_UltraFeedQueryResults_results_UltraFeedEntry_feedMarker_FeedMarker | null };
 
 type UltraFeedQuery_UltraFeed_UltraFeedQueryResults = { __typename: 'UltraFeedQueryResults', cutoff: string | null, endOffset: number, results: Array<UltraFeedQuery_UltraFeed_UltraFeedQueryResults_results_UltraFeedEntry> | null };
 
@@ -14372,7 +14330,12 @@ type UltraFeedSubscriptionsQuery_UltraFeedSubscriptions_UltraFeedQueryResults_re
   & FeedSubscriptionSuggestionsFragment
 );
 
-type UltraFeedSubscriptionsQuery_UltraFeedSubscriptions_UltraFeedQueryResults_results_UltraFeedEntry = { __typename?: 'UltraFeedEntry', type: UltraFeedEntryType, feedCommentThread: UltraFeedSubscriptionsQuery_UltraFeedSubscriptions_UltraFeedQueryResults_results_UltraFeedEntry_feedCommentThread_FeedCommentThread | null, feedPost: UltraFeedSubscriptionsQuery_UltraFeedSubscriptions_UltraFeedQueryResults_results_UltraFeedEntry_feedPost_FeedPost | null, feedSubscriptionSuggestions: UltraFeedSubscriptionsQuery_UltraFeedSubscriptions_UltraFeedQueryResults_results_UltraFeedEntry_feedSubscriptionSuggestions_FeedSubscriptionSuggestions | null };
+type UltraFeedSubscriptionsQuery_UltraFeedSubscriptions_UltraFeedQueryResults_results_UltraFeedEntry_feedMarker_FeedMarker = (
+  { __typename?: 'FeedMarker' }
+  & FeedMarkerFragment
+);
+
+type UltraFeedSubscriptionsQuery_UltraFeedSubscriptions_UltraFeedQueryResults_results_UltraFeedEntry = { __typename?: 'UltraFeedEntry', type: UltraFeedEntryType, feedCommentThread: UltraFeedSubscriptionsQuery_UltraFeedSubscriptions_UltraFeedQueryResults_results_UltraFeedEntry_feedCommentThread_FeedCommentThread | null, feedPost: UltraFeedSubscriptionsQuery_UltraFeedSubscriptions_UltraFeedQueryResults_results_UltraFeedEntry_feedPost_FeedPost | null, feedSubscriptionSuggestions: UltraFeedSubscriptionsQuery_UltraFeedSubscriptions_UltraFeedQueryResults_results_UltraFeedEntry_feedSubscriptionSuggestions_FeedSubscriptionSuggestions | null, feedMarker: UltraFeedSubscriptionsQuery_UltraFeedSubscriptions_UltraFeedQueryResults_results_UltraFeedEntry_feedMarker_FeedMarker | null };
 
 type UltraFeedSubscriptionsQuery_UltraFeedSubscriptions_UltraFeedQueryResults = { __typename: 'UltraFeedQueryResults', cutoff: string | null, endOffset: number, results: Array<UltraFeedSubscriptionsQuery_UltraFeedSubscriptions_UltraFeedQueryResults_results_UltraFeedEntry> | null };
 
@@ -26635,18 +26598,6 @@ type Lightcone2024FundraiserStripeAmountsQueryVariables = Exact<{ [key: string]:
 
 type Lightcone2024FundraiserStripeAmountsQuery = Lightcone2024FundraiserStripeAmountsQuery_Query;
 
-type SubscribedPostAndCommentsFeed_SubscribedPostAndComments_post_Post = (
-  { __typename?: 'Post' }
-  & PostsList
-);
-
-type SubscribedPostAndCommentsFeed_SubscribedPostAndComments_comments_Comment = (
-  { __typename?: 'Comment' }
-  & CommentsList
-);
-
-type SubscribedPostAndCommentsFeed = { __typename?: 'SubscribedPostAndComments', _id: string, expandCommentIds: Array<string> | null, postIsFromSubscribedUser: boolean, post: SubscribedPostAndCommentsFeed_SubscribedPostAndComments_post_Post, comments: Array<SubscribedPostAndCommentsFeed_SubscribedPostAndComments_comments_Comment> | null };
-
 type FeedPostFragment_FeedPost_post_Post = (
   { __typename?: 'Post' }
   & PostsListWithVotes
@@ -26686,6 +26637,8 @@ type FeedSubscriptionSuggestionsFragment_FeedSubscriptionSuggestions_suggestedUs
 );
 
 type FeedSubscriptionSuggestionsFragment = { __typename?: 'FeedSubscriptionSuggestions', _id: string, suggestedUsers: Array<FeedSubscriptionSuggestionsFragment_FeedSubscriptionSuggestions_suggestedUsers_User> };
+
+type FeedMarkerFragment = { __typename?: 'FeedMarker', _id: string, markerType: string, timestamp: string };
 
 type multiPostsForAutocompleteQueryQuery_posts_MultiPostOutput_results_Post = (
   { __typename?: 'Post' }
