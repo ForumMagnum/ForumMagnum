@@ -170,7 +170,7 @@ export const DEFAULT_SETTINGS: UltraFeedSettingsType = {
     commentScoring: DEFAULT_COMMENT_SCORING_SETTINGS,
     threadInterestModel: DEFAULT_THREAD_INTEREST_MODEL_SETTINGS,
     unifiedScoring: DEFAULT_UNIFIED_SCORING_SETTINGS,
-    subscriptionsFeedSettings: { hideRead: true },
+    subscriptionsFeedSettings: { hideRead: false },
   },
 };
 
@@ -186,7 +186,7 @@ export const getDefaultSettingsForDevice = (device: DeviceKind): UltraFeedSettin
       commentScoring: { ...DEFAULT_COMMENT_SCORING_SETTINGS },
       threadInterestModel: { ...DEFAULT_THREAD_INTEREST_MODEL_SETTINGS },
       unifiedScoring: { ...DEFAULT_UNIFIED_SCORING_SETTINGS },
-      subscriptionsFeedSettings: { hideRead: true },
+      subscriptionsFeedSettings: { hideRead: false },
     },
   };
 };

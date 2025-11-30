@@ -30,7 +30,6 @@ import { allTagsActivityFeedGraphQLQueries, allTagsActivityFeedGraphQLTypeDefs }
 import { recentDiscussionFeedGraphQLQueries, recentDiscussionFeedGraphQLTypeDefs } from '@/server/resolvers/recentDiscussionFeed';
 import { ultraFeedGraphQLQueries, ultraFeedGraphQLTypeDefs } from '@/server/resolvers/ultraFeedResolver';
 import { ultraFeedSubscriptionsQueries, ultraFeedSubscriptionsTypeDefs } from '@/server/resolvers/ultraFeedSubscriptionsResolver';
-import { subscribedUsersFeedGraphQLQueries, subscribedUsersFeedGraphQLTypeDefs } from '@/server/resolvers/subscribedUsersFeedResolver';
 import { tagHistoryFeedGraphQLQueries, tagHistoryFeedGraphQLTypeDefs } from '@/server/resolvers/tagHistoryFeed';
 import { subForumFeedGraphQLQueries, subForumFeedGraphQLTypeDefs, tagGraphQLTypeDefs, tagResolversGraphQLMutations, tagResolversGraphQLQueries } from '@/server/resolvers/tagResolvers';
 import { conversationGqlMutations, conversationGqlTypeDefs } from '@/server/resolvers/conversationResolvers'
@@ -279,7 +278,6 @@ export const getTypeDefs = () => gql`
   ${alignmentForumTypeDefs}
   ${allTagsActivityFeedGraphQLTypeDefs}
   ${recentDiscussionFeedGraphQLTypeDefs}
-  ${subscribedUsersFeedGraphQLTypeDefs}
   ${tagHistoryFeedGraphQLTypeDefs}
   ${subForumFeedGraphQLTypeDefs}
   ${conversationGqlTypeDefs}
@@ -482,7 +480,6 @@ const getResolvers = () => ({
     ...postGqlQueries,
     ...allTagsActivityFeedGraphQLQueries,
     ...recentDiscussionFeedGraphQLQueries,
-    ...subscribedUsersFeedGraphQLQueries,
     ...tagHistoryFeedGraphQLQueries,
     ...subForumFeedGraphQLQueries,
     ...wrappedResolversGraphQLQueries,

@@ -51,3 +51,10 @@ export const FeedSubscriptionSuggestionsFragment = gql(`
   }
 `)
 
+export const FeedMarkerFragment = gql(`
+  fragment FeedMarkerFragment on FeedMarker {
+    _id
+    markerType
+    timestamp
+  }
+`)

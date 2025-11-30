@@ -92,6 +92,12 @@ export const ultraFeedGraphQLTypeDefs = gql`
     suggestedUsers: [User!]!
   }
 
+  type FeedMarker {
+    _id: String!
+    markerType: String!
+    timestamp: Date!
+  }
+
   type UltraFeedQueryResults {
     cutoff: Date
     endOffset: Int!
@@ -104,6 +110,7 @@ export const ultraFeedGraphQLTypeDefs = gql`
     feedPost
     feedSpotlight
     feedSubscriptionSuggestions
+    feedMarker
   }
 
   type UltraFeedEntry {
@@ -112,6 +119,7 @@ export const ultraFeedGraphQLTypeDefs = gql`
     feedPost: FeedPost
     feedSpotlight: FeedSpotlightItem
     feedSubscriptionSuggestions: FeedSubscriptionSuggestions
+    feedMarker: FeedMarker
   }
 
   extend type Query {

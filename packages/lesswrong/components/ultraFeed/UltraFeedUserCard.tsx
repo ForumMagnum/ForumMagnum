@@ -20,7 +20,7 @@ const styles = defineStyles("UltraFeedUserCard", (theme: ThemeType) => ({
     fontWeight: 450,
     lineHeight: "19.5px",
     color: theme.palette.text.primary,
-    backgroundColor: theme.palette.panelBackground.bannerAdTranslucentHeavy,
+    backgroundColor: theme.palette.panelBackground.default,
     borderRadius: 8,
     ...theme.typography.postStyle,
   },

@@ -29,5 +29,4 @@ import '../components/spuriousChange';
 import './rateLimits/constants';
 import './rateLimits/types';
 
-import './subscribedUsersFeed';
 import './ultraFeed';

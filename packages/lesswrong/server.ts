@@ -68,7 +68,6 @@ import './server/resolvers/commentResolvers';
 import './server/resolvers/notificationResolvers';
 import './server/resolvers/conversationResolvers';
 import './server/resolvers/dialogueMessageResolvers';
-import './server/resolvers/subscribedUsersFeedResolver';
 import './server/posts/validatePost';
 import './server/callbacks/chapterCallbacks';
 import './server/callbacks/sequenceCallbacks';
