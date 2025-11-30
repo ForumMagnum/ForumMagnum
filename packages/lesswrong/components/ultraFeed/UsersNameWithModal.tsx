@@ -1,14 +1,17 @@
 import React from 'react';
+import classNames from 'classnames';
 import UsersName from '../users/UsersName';
 import UltraFeedUserCard from '../ultraFeed/UltraFeedUserCard';
 import HoverOver from '../common/HoverOver';
 import { userGetDisplayName, userGetProfileUrl } from '../../lib/collections/users/helpers';
 import { Link } from '../../lib/reactRouterWrapper';
-import { AnalyticsContext, useTracking } from '../../lib/analyticsEvents';
+import { AnalyticsContext } from '../../lib/analyticsEvents';
 import type { Placement as PopperPlacementType } from "popper.js";
 import UserNameDeleted from '../users/UserNameDeleted';
 import { defineStyles, useStyles } from '../hooks/useStyles';
 import SubscriptionsIcon from '@/lib/vendor/@material-ui/icons/src/NotificationsNone';
+import { useHover } from '../common/withHover';
+import { useNoKibitz } from '../hooks/useNoKibitz';
 
 const styles = defineStyles("UsersNameWithModal", (theme: ThemeType) => ({
   subscribeIcon: {
@@ -24,11 +27,15 @@ const styles = defineStyles("UsersNameWithModal", (theme: ThemeType) => ({
     background: "unset",
     maxWidth: "none",
   },
+  noKibitz: {
+    minWidth: 55,
+  },
 }));
 
 /**
- * A username component specifically for UltraFeed that shows an enhanced card on hover (desktop)
- * or opens a modal dialog (mobile) when clicked.
+ * A username component introduced for the UltraFeed, originally so that a modal was opened upon click.
+ * Currently, the difference is in tooltip/hover shown.
+ * TODO: Reconcile with existing UsersName component.
  */
 const UsersNameWithModal = ({
   user,
@@ -51,6 +58,14 @@ const UsersNameWithModal = ({
   pageSectionContext?: string;
 }) => {
   const classes = useStyles(styles);
+  const {eventHandlers, hover} = useHover({
+    eventProps: {
+      pageSubElementContext: "ultraFeedUserName",
+      userId: user?._id
+    },
+  });
+  const noKibitz = useNoKibitz(user);
+  const nameHidden = noKibitz && !hover;
 
   if (!user && !documentId) {
     return <UsersName user={user} documentId={documentId} {...otherProps} className={className} />;
@@ -64,36 +79,39 @@ const UsersNameWithModal = ({
     return <UserNameDeleted />;
   }
 
-  const displayName = userGetDisplayName(user);
+  const displayName = nameHidden ? "(hidden)" : userGetDisplayName(user);
   const profileUrl = userGetProfileUrl(user);
 
   if (simple) {
-    return <span className={className}>
-      {displayName}
-      {showSubscribedIcon && <SubscriptionsIcon className={classes.subscribeIcon} />}
-    </span>;
+    return (
+      <span {...eventHandlers} className={classNames(className, noKibitz && classes.noKibitz)} >
+        {displayName}
+        {showSubscribedIcon && <SubscriptionsIcon className={classes.subscribeIcon} />}
+      </span>
+    );
   }
-
 
   return (
     <AnalyticsContext pageElementContext="ultraFeedUserName" userIdDisplayed={user._id}>
-      <HoverOver
-        title={<UltraFeedUserCard user={user} />}
-        placement={tooltipPlacement}
-        clickable
-        disabledOnMobile
-        flip
-        popperClassName={classes.cardWrapper}
-      >
-        <Link
-          to={profileUrl}
-          className={className}
-          {...(nofollow ? { rel: "nofollow" } : {})}
+      <span {...eventHandlers}>
+        <HoverOver
+          title={<UltraFeedUserCard user={user} />}
+          placement={tooltipPlacement}
+          clickable
+          disabledOnMobile
+          flip
+          popperClassName={classes.cardWrapper}
         >
-          {displayName}
-          {showSubscribedIcon && <SubscriptionsIcon className={classes.subscribeIcon} />}
-        </Link>
-      </HoverOver>
+          <Link
+            to={profileUrl}
+            className={classNames(className, noKibitz && classes.noKibitz)}
+            {...(nofollow ? { rel: "nofollow" } : {})}
+          >
+            {displayName}
+            {showSubscribedIcon && <SubscriptionsIcon className={classes.subscribeIcon} />}
+          </Link>
+        </HoverOver>
+      </span>
     </AnalyticsContext>
   );
 };
