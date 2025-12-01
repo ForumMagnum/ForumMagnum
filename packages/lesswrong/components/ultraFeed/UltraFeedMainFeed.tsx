@@ -27,6 +27,7 @@ type UltraFeedMainFeedProps = {
   pageSize?: number;
   fetchPolicy?: WatchQueryFetchPolicy;
   loadMoreDistanceProp?: number;
+  isActive?: boolean;
 };
 
 const UltraFeedMainFeed = ({
@@ -37,6 +38,7 @@ const UltraFeedMainFeed = ({
   pageSize = 30,
   fetchPolicy = 'cache-first',
   loadMoreDistanceProp,
+  isActive = true,
 }: UltraFeedMainFeedProps) => {
   const classes = useStyles(styles);
   const [internalSessionId] = useState<string>(() => randomId());
@@ -66,6 +68,7 @@ const UltraFeedMainFeed = ({
         fetchPolicy={fetchPolicy}
         renderers={createUltraFeedRenderers({ settings })}
         onLoadingStateChange={handleLoadingStateChange}
+        pausePagination={!isActive}
       />
       {showEmptyState && <div className={classes.emptyStateMessage}>Oh no! Something has gone wrong. There are no results to display.</div>}
     </UltraFeedContextProvider>

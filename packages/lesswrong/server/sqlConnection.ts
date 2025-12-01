@@ -164,7 +164,7 @@ const logIfSlow = async <T>(
     const describeString = typeof describe === "string" ? describe : describe();
     // Truncate this at a pretty high limit, just to avoid logging things like
     // entire rendered pages
-    return describeString.slice(0, truncateLength ?? 5000)
+    return describeString.slice(0, truncateLength ?? 10_000)
   }
 
   const isSSRRequest = getIsSSRRequest();
@@ -187,9 +187,9 @@ const logIfSlow = async <T>(
   }
   if (logAllQueries) {
     // eslint-disable-next-line no-console
-    console.log(`Finished query #${queryID}, ${getParentTraceId().parent_trace_id} (${milliseconds} ms) (${JSON.stringify(result).length}b)`);
+    console.log(`Finished query #${queryID}, ${getParentTraceId().parent_trace_id} (${milliseconds} ms, ${Date.now()}) (${JSON.stringify(result).length}b)`);
   } else if (SLOW_QUERY_REPORT_CUTOFF_MS >= 0 && milliseconds > SLOW_QUERY_REPORT_CUTOFF_MS && !quiet && !isAnyTest) {
-    const description = isDevelopment ? getDescription(50) : getDescription(5000);
+    const description = isDevelopment ? getDescription(50) : getDescription(10_000);
     const message = `Slow Postgres query detected (${milliseconds} ms): ${description}`;
     // eslint-disable-next-line no-console
     console.warn(message);

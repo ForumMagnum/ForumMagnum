@@ -30,7 +30,6 @@ import { allTagsActivityFeedGraphQLQueries, allTagsActivityFeedGraphQLTypeDefs }
 import { recentDiscussionFeedGraphQLQueries, recentDiscussionFeedGraphQLTypeDefs } from '@/server/resolvers/recentDiscussionFeed';
 import { ultraFeedGraphQLQueries, ultraFeedGraphQLTypeDefs } from '@/server/resolvers/ultraFeedResolver';
 import { ultraFeedSubscriptionsQueries, ultraFeedSubscriptionsTypeDefs } from '@/server/resolvers/ultraFeedSubscriptionsResolver';
-import { subscribedUsersFeedGraphQLQueries, subscribedUsersFeedGraphQLTypeDefs } from '@/server/resolvers/subscribedUsersFeedResolver';
 import { tagHistoryFeedGraphQLQueries, tagHistoryFeedGraphQLTypeDefs } from '@/server/resolvers/tagHistoryFeed';
 import { subForumFeedGraphQLQueries, subForumFeedGraphQLTypeDefs, tagGraphQLTypeDefs, tagResolversGraphQLMutations, tagResolversGraphQLQueries } from '@/server/resolvers/tagResolvers';
 import { conversationGqlMutations, conversationGqlTypeDefs } from '@/server/resolvers/conversationResolvers'
@@ -67,6 +66,8 @@ import { recommendationsGqlMutations, recommendationsGqlTypeDefs } from '@/serve
 import { extraPostResolversGraphQLMutations, extraPostResolversGraphQLTypeDefs } from '@/server/posts/graphql';
 import { generateCoverImagesForPostGraphQLMutations, generateCoverImagesForPostGraphQLTypeDefs, flipSplashArtImageGraphQLMutations, flipSplashArtImageGraphQLTypeDefs } from '@/server/resolvers/aiArtResolvers/coverImageMutations';
 import { elicitQuestionPredictionsGraphQLTypeDefs } from '@/lib/collections/elicitQuestionPredictions/newSchema';
+import { booksResolversTypeDefs, booksResolversQueries } from '@/server/resolvers/booksResolvers';
+import { sequencesResolversTypeDefs, sequencesResolversQueries } from '@/server/resolvers/sequencesResolvers';
 
 // Collection imports
 import { graphqlAdvisorRequestQueryTypeDefs, advisorRequestGqlQueryHandlers, advisorRequestGqlFieldResolvers } from "@/server/collections/advisorRequests/queries";
@@ -277,7 +278,6 @@ export const getTypeDefs = () => gql`
   ${alignmentForumTypeDefs}
   ${allTagsActivityFeedGraphQLTypeDefs}
   ${recentDiscussionFeedGraphQLTypeDefs}
-  ${subscribedUsersFeedGraphQLTypeDefs}
   ${tagHistoryFeedGraphQLTypeDefs}
   ${subForumFeedGraphQLTypeDefs}
   ${conversationGqlTypeDefs}
@@ -319,6 +319,8 @@ export const getTypeDefs = () => gql`
   ${generateCoverImagesForPostGraphQLTypeDefs}
   ${flipSplashArtImageGraphQLTypeDefs}
   ${elicitQuestionPredictionsGraphQLTypeDefs}
+  ${booksResolversTypeDefs}
+  ${sequencesResolversTypeDefs}
   ## CRUD Query typedefs
   ${graphqlAdvisorRequestQueryTypeDefs}
   ${graphqlArbitalCachesQueryTypeDefs}
@@ -478,7 +480,6 @@ const getResolvers = () => ({
     ...postGqlQueries,
     ...allTagsActivityFeedGraphQLQueries,
     ...recentDiscussionFeedGraphQLQueries,
-    ...subscribedUsersFeedGraphQLQueries,
     ...tagHistoryFeedGraphQLQueries,
     ...subForumFeedGraphQLQueries,
     ...wrappedResolversGraphQLQueries,
@@ -501,6 +502,8 @@ const getResolvers = () => ({
     ...ultraFeedGraphQLQueries,
     ...ultraFeedSubscriptionsQueries,
     ...spotlightGqlQueries,
+    ...booksResolversQueries,
+    ...sequencesResolversQueries,
 
     // CRUD Query Handlers
     ...advisorRequestGqlQueryHandlers,

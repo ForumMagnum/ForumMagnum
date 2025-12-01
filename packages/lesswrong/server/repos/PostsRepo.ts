@@ -2,7 +2,7 @@ import Posts from "../../server/collections/posts/collection";
 import AbstractRepo from "./AbstractRepo";
 import { eaPublicEmojiNames } from "../../lib/voting/eaEmojiPalette";
 import LRU from "lru-cache";
-import { getViewableCommentsSelector, getViewableEventsSelector, getViewablePostsSelector } from "./helpers";
+import { getViewableEventsSelector, getViewablePostsSelector } from "./helpers";
 import { EA_FORUM_COMMUNITY_TOPIC_ID } from "../../lib/collections/tags/helpers";
 import { recordPerfMetrics } from "./perfMetricWrapper";
 import { isAF } from "../../lib/instanceSettings";
@@ -36,16 +36,6 @@ const commentEmojiReactorCache = new LRU<string, Promise<CommentEmojiReactors>>(
   maxAge: 30 * 1000, // 30 second TTL
   updateAgeOnGet: false,
 });
-
-export type PostAndCommentsResultRow = {
-  postId: string
-  commentIds: string[]|null
-  fullCommentTreeIds: string[]|null
-  subscribedPosts: boolean|null
-  subscribedComments: boolean|null
-  postedAt: Date|null
-  last_commented: Date|null
-};
 
 const constructFilters = (
   {
@@ -964,98 +954,6 @@ class PostsRepo extends AbstractRepo<"Posts"> {
       LIMIT $2
     `, 
     [userId, limit]);
-  }
-  
-  async getPostsAndCommentsFromSubscriptions(userId: string, maxAgeDays: number): Promise<Array<PostAndCommentsResultRow >> {
-    return await this.getRawDb().manyOrNone<PostAndCommentsResultRow>(`
-      WITH RECURSIVE user_subscriptions AS (
-        SELECT DISTINCT type, "documentId" AS "userId"
-        FROM "Subscriptions" s
-        WHERE state = 'subscribed'
-          AND s.deleted IS NOT TRUE
-          AND "collectionName" = 'Users'
-          AND "type" = 'newActivityForFeed'
-          AND "userId" = $(userId)
-      ),
-      posts_by_subscribees AS (
-        SELECT
-          p._id AS "postId",
-          "postedAt",
-          TRUE as "subscribedPosts"
-        FROM "Posts" p
-        JOIN user_subscriptions us
-        USING ("userId")
-        WHERE p."postedAt" > CURRENT_TIMESTAMP - INTERVAL $(maxAgeDays)
-        ORDER BY p."postedAt" DESC
-      ),
-      comments_from_subscribees AS (
-        SELECT
-          "postId",
-          (ARRAY_AGG(c._id ORDER BY c."postedAt" DESC))[1:5] AS "commentIds",
-          MAX(c."postedAt") AS last_commented
-        FROM "Comments" c
-        JOIN user_subscriptions us
-        USING ("userId")
-        WHERE c."postedAt" > CURRENT_TIMESTAMP - INTERVAL $(maxAgeDays)
-          AND c."postId" IS NOT NULL
-          AND c.deleted IS NOT TRUE
-          AND c.retracted IS NOT TRUE
-          AND ${getViewableCommentsSelector('c')}
-        GROUP BY "postId"
-      ),
-      posts_with_comments_from_subscribees AS (
-        SELECT
-          c."postId",
-          ARRAY_AGG(c._id) AS "commentIds",
-          MAX(c."postedAt") AS last_commented,
-          TRUE as "subscribedComments"
-        FROM "Comments" c
-        JOIN (SELECT UNNEST("commentIds") AS _id, "postId", last_commented FROM comments_from_subscribees) un
-        ON c._id = un._id AND c."postId" = un."postId" AND c."postedAt" > un.last_commented - INTERVAL '1 week'
-        GROUP BY c."postId"
-      ),
-      parent_comments AS (
-        SELECT
-          c._id,
-          c."postId",
-          c."parentCommentId",
-          c."postedAt"
-        FROM "Comments" c
-        WHERE c._id IN (SELECT UNNEST("commentIds") FROM posts_with_comments_from_subscribees)
-        UNION
-        SELECT
-          c._id,
-          c."postId",
-          c."parentCommentId",
-          c."postedAt"
-        FROM "Comments" c
-        JOIN parent_comments pc ON pc."parentCommentId" = c._id
-      ),
-      combined AS (
-        SELECT
-          *
-        FROM posts_by_subscribees
-        FULL JOIN posts_with_comments_from_subscribees USING ("postId")
-      )
-      SELECT combined.*, ARRAY_AGG(DISTINCT parent_comments._id) AS "fullCommentTreeIds"
-      FROM combined
-      JOIN "Posts" p ON combined."postId" = p._id
-      LEFT JOIN parent_comments ON parent_comments."postId" = combined."postId"
-      WHERE
-        p.draft IS NOT TRUE
-        AND p.status = 2
-        AND p.rejected IS NOT TRUE
-        AND p."authorIsUnreviewed" IS NOT TRUE
-        AND p."hiddenRelatedQuestion" IS NOT TRUE
-        AND p.unlisted IS NOT TRUE
-        AND p."isFuture" IS NOT TRUE
-        AND p."isEvent" IS NOT TRUE
-      GROUP BY combined."postId", combined."postedAt", last_commented, combined."subscribedPosts", combined."subscribedComments", combined."commentIds"
-      ORDER BY GREATEST(last_commented, combined."postedAt") DESC;    
-    `, {
-      userId,
-      maxAgeDays: `${maxAgeDays} days`,
-    });
   }
   
   async ensurePostHasNonDraftContents(postId: string) {
