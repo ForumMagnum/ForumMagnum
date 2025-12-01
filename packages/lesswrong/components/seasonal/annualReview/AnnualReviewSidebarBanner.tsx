@@ -2,6 +2,9 @@ import React from 'react';
 import { AnalyticsContext } from "@/lib/analyticsEvents";
 import { defineStyles, useStyles } from '@/components/hooks/useStyles';
 import CloudinaryImage2 from "@/components/common/CloudinaryImage2";
+import { useCurrentUser } from '@/components/common/withUser';
+import { useDialog } from '@/components/common/withDialog';
+import LoginPopup from '@/components/users/LoginPopup';
 import { 
   REVIEW_YEAR, 
   getReviewTitle, 
@@ -233,6 +236,8 @@ const phaseConfigs: Partial<Record<ReviewPhase, PhaseConfig>> = {
 
 export const AnnualReviewSidebarBanner = () => {
   const classes = useStyles(styles);
+  const currentUser = useCurrentUser();
+  const { openDialog } = useDialog();
   
   const activePhase = getReviewPhase(REVIEW_YEAR);
   
@@ -245,6 +250,16 @@ export const AnnualReviewSidebarBanner = () => {
 
   const { start, end } = config.getDateRange();
   const subtitle = `${config.phaseName} | ${formatPhaseDateRange(start, end)}`;
+
+  function handleButtonClick(e: React.MouseEvent) {
+    if (!currentUser) {
+      openDialog({
+        name: "LoginPopup",
+        contents: ({onClose}) => <LoginPopup onClose={onClose} />
+      });
+      e.preventDefault();
+    }
+  }
 
   return (
     <AnalyticsContext pageSectionContext="AnnualReviewSidebarBanner">
@@ -275,7 +290,7 @@ export const AnnualReviewSidebarBanner = () => {
             <p>{config.phaseDescription}</p>
           </div>
           
-          <a href={config.getButtonLink()} className={classes.actionButton}>
+          <a href={config.getButtonLink()} onClick={handleButtonClick} className={classes.actionButton}>
             {config.buttonLabel}
           </a>
 
