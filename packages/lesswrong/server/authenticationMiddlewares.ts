@@ -212,6 +212,7 @@ const addGoogleDriveLinkMiddleware = (addConnectHandler: AddMiddlewareType) => {
 
     const url = oauth2Client.generateAuthUrl({
       access_type: 'offline', // offline => get a refresh token that persists for 6 months
+      prompt: 'consent',
       scope: [
         'https://www.googleapis.com/auth/drive.readonly',
         'https://www.googleapis.com/auth/userinfo.profile',
