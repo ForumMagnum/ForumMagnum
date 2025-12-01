@@ -213,15 +213,15 @@ export const redirects = [
     permanent: true
   }, {
     source: "/reviewVoting",
-    destination: "/reviewVoting/2023",
+    destination: "/reviewVoting/2024",
     permanent: true
   }, {
     source: "/reviewQuickPage",
-    destination: "/quickReview/2023",
+    destination: "/quickReview/2024",
     permanent: true
   }, {
     source: "/quickReview",
-    destination: "/quickReview/2023",
+    destination: "/quickReview/2024",
     permanent: true
   }, {
     source: "/tagVoting",
@@ -229,7 +229,7 @@ export const redirects = [
     permanent: true
   }, {
     source: "/nominatePosts",
-    destination: "/nominatePosts/2023",
+    destination: "/nominatePosts/2024",
     permanent: true
   }, {
     source: "/tag/create",
