@@ -2,6 +2,8 @@ import React from "react";
 import { defineStyles, useStyles } from "../hooks/useStyles";
 import { Link } from "../../lib/reactRouterWrapper";
 import CommentsNewForm from "../comments/CommentsNewForm";
+import { commentGetPageUrlFromIds } from "@/lib/collections/comments/helpers";
+import { postGetCommentsUrl } from "@/lib/collections/posts/helpers";
 
 const styles = defineStyles("UltraFeedReplyEditor", (theme: ThemeType) => ({
   replyEditorContainer: {
@@ -80,8 +82,12 @@ const UltraFeedReplyEditor = ({
   const parentComment = collectionName === "Comments" ? document : undefined;
   
   const viewAllCommentsUrl = collectionName === "Comments" 
-    ? `/posts/${post._id}/${post.slug}?commentId=${document._id}`
-    : `/posts/${post._id}/${post.slug}#comments`;
+    ? commentGetPageUrlFromIds({
+        postId: post._id,
+        postSlug: post.slug,
+        commentId: document._id,
+      })
+    : postGetCommentsUrl(post);
 
   return (
     <>

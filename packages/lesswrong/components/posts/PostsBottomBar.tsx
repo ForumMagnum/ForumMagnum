@@ -4,7 +4,6 @@ import { defineStyles, useStyles } from '../hooks/useStyles';
 import ForumIcon from '../common/ForumIcon';
 import { AnalyticsContext, useTracking } from '@/lib/analyticsEvents';
 import LWTooltip from '../common/LWTooltip';
-import { useLocation } from '@/lib/routeUtil';
 import Headroom from '@/lib/react-headroom';
 import PostActionsButton from '../dropdowns/posts/PostActionsButton';
 import { usePostsPageContext } from './PostsPage/PostsPageContext';
@@ -149,19 +148,19 @@ const PostsBottomBar = () => {
         pinStart={-999999} // In contrast to the header where we want to switch postion from fixed to relative, doing this for the bottom bar would make it disappear since it is no longer fixed to the viewport. -999999 prevents this.
       >
         <div className={classes.root}>
-          <LWTooltip title="Back" placement="top">
+          <LWTooltip title="Back" placement="top" disabledOnMobile>
             <div className={classes.button} onClick={handleBackClick}>
               <ForumIcon icon="ArrowForward" className={classNames(classes.icon, classes.backArrow)} />
             </div>
           </LWTooltip>
 
-          <LWTooltip title="Scroll to top" placement="top">
+          <LWTooltip title="Scroll to top" placement="top" disabledOnMobile>
             <div className={classes.button} onClick={handleScrollToTop}>
               <ForumIcon icon="ArrowForward" className={classNames(classes.icon, classes.upArrow)} />
             </div>
           </LWTooltip>
 
-          <LWTooltip title="Comments" placement="top">
+          <LWTooltip title="Comments" placement="top" disabledOnMobile>
             <div className={classes.button} onClick={handleCommentsClick}>
               <div className={classes.commentsButton}>
                 <CommentIcon className={classes.commentIcon} />
@@ -174,11 +173,11 @@ const PostsBottomBar = () => {
             </div>
           </LWTooltip>
 
-        {post && (
-          <div className={classes.actionsButton}>
-            <PostActionsButton post={post} flip={true} autoPlace={true} iconClassName={classes.actionsIcon} />
-          </div>
-        )}
+          {post && (
+            <div className={classes.actionsButton}>
+              <PostActionsButton post={post} flip={true} autoPlace={true} iconClassName={classes.actionsIcon} />
+            </div>
+          )}
         </div>
       </Headroom>
     </AnalyticsContext>

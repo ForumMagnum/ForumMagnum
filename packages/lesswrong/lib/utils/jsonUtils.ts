@@ -5,8 +5,5 @@
  */
 export const toEmbeddableJson = (serializable: unknown): string => {
   const json = JSON.stringify(serializable);
-  if (json === undefined) {
-    return 'undefined';
-  }
   return json.replace(/<\//g, "<\\/");
 }

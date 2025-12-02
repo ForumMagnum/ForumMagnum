@@ -13,7 +13,8 @@ import { bookmarkableCollectionNames } from "@/lib/collections/bookmarks/constan
 import BookmarkButton from "../posts/BookmarkButton";
 import OverallVoteAxis from "../votes/OverallVoteAxis";
 import AgreementVoteAxis from "../votes/AgreementVoteAxis";
-import { getDefaultVotingSystem } from "@/lib/collections/posts/helpers";
+import { getDefaultVotingSystem, postGetCommentsUrl } from "@/lib/collections/posts/helpers";
+import { commentGetPageUrlFromIds } from "@/lib/collections/comments/helpers";
 import { useMutation } from "@apollo/client/react";
 import CondensedFooterReactions from "./CondensedFooterReactions";
 import LWTooltip from "../common/LWTooltip";
@@ -501,7 +502,7 @@ const UltraFeedPostFooter = ({ post, metaInfo, className, replyConfig, hideReact
   const commentCount = post.commentCount ?? 0;
   const bookmarkProps: BookmarkProps = {documentId: post._id, highlighted: metaInfo.sources?.includes("bookmarks")};
   
-  const postCommentsUrl = `/posts/${post._id}/${post.slug}#comments`;
+  const postCommentsUrl = postGetCommentsUrl(post);
 
   const { isReplying, onReplySubmit, onReplyCancel } = replyConfig;
 
@@ -562,8 +563,13 @@ const UltraFeedCommentFooter = ({
   const commentCount = metaInfo.descendentCount;
   const bookmarkProps: BookmarkProps = {documentId: comment._id, highlighted: metaInfo.sources?.includes("bookmarks")};
   
-  const post = comment.post;
-  const commentsUrl = post ? `/posts/${post._id}/${post.slug}?commentId=${comment._id}` : undefined;
+  const commentsUrl = commentGetPageUrlFromIds({
+    postId: comment.post?._id,
+    postSlug: comment.post?.slug,
+    tagSlug: comment.tag?.slug,
+    tagCommentType: comment.tagCommentType,
+    commentId: comment._id,
+  });
   
   const { isReplying, onReplySubmit, onReplyCancel } = replyConfig;
 
