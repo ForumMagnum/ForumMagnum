@@ -306,8 +306,6 @@ const FeedContentBody = ({
     
     e.preventDefault();
     
-    // If total content exceeds maxWordCount → navigate
-    // If total content fits within maxWordCount → expand in place
     if (wordCount > maxWordCount && continueReadingUrl) {
       navigate(continueReadingUrl);
     } else {
