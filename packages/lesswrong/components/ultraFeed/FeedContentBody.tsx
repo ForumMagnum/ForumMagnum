@@ -299,24 +299,21 @@ const FeedContentBody = ({
       return;
     }
     
-    // If wordCount is undefined, don't handle clicks for expansion
-    if (wordCount === undefined) {
+    // Only handle clicks if content is truncated and not yet expanded
+    if (!wasTruncated || isExpanded || wordCount === undefined) {
       return;
     }
     
-    // Check if clicking on the read-more suffix
-    const readMoreElement = target.closest('.read-more-suffix');
-    if (wasTruncated && !isExpanded && readMoreElement) {
-      e.preventDefault();
-      
-      // Check if this should navigate, otherwise fall back to expanding in place
-      if (readMoreElement.classList.contains('read-more-navigate') && continueReadingUrl) {
-        navigate(continueReadingUrl);
-      } else {
-        handleExpand();
-      }
+    e.preventDefault();
+    
+    // If total content exceeds maxWordCount → navigate
+    // If total content fits within maxWordCount → expand in place
+    if (wordCount > maxWordCount && continueReadingUrl) {
+      navigate(continueReadingUrl);
+    } else {
+      handleExpand();
     }
-  }, [handleExpand, wasTruncated, isExpanded, wordCount, continueReadingUrl, navigate]);
+  }, [handleExpand, wasTruncated, isExpanded, wordCount, maxWordCount, continueReadingUrl, navigate]);
 
   const getLineClampClass = () => {
     if (!applyLineClamp || !clampOverride) return "";
