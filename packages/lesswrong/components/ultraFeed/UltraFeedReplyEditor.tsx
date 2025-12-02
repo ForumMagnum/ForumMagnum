@@ -1,6 +1,9 @@
 import React from "react";
 import { defineStyles, useStyles } from "../hooks/useStyles";
+import { Link } from "../../lib/reactRouterWrapper";
 import CommentsNewForm from "../comments/CommentsNewForm";
+import { commentGetPageUrlFromIds } from "@/lib/collections/comments/helpers";
+import { postGetCommentsUrl } from "@/lib/collections/posts/helpers";
 
 const styles = defineStyles("UltraFeedReplyEditor", (theme: ThemeType) => ({
   replyEditorContainer: {
@@ -45,7 +48,6 @@ interface UltraFeedReplyEditorBaseProps {
   cannotReplyReason?: string | null;
   onReplySubmit: (newComment: UltraFeedComment) => void;
   onReplyCancel: () => void;
-  onViewAllComments: () => void;
 }
 
 type UltraFeedReplyEditorPostProps = UltraFeedReplyEditorBaseProps & {
@@ -68,7 +70,6 @@ const UltraFeedReplyEditor = ({
   cannotReplyReason,
   onReplySubmit,
   onReplyCancel,
-  onViewAllComments,
 }: UltraFeedReplyEditorProps) => {
   const classes = useStyles(styles);
 
@@ -78,8 +79,15 @@ const UltraFeedReplyEditor = ({
     return null;
   }
 
-  const parentComment =
-    collectionName === "Comments" ? document : undefined;
+  const parentComment = collectionName === "Comments" ? document : undefined;
+  
+  const viewAllCommentsUrl = collectionName === "Comments" 
+    ? commentGetPageUrlFromIds({
+        postId: post._id,
+        postSlug: post.slug,
+        commentId: document._id,
+      })
+    : postGetCommentsUrl(post);
 
   return (
     <>
@@ -111,9 +119,11 @@ const UltraFeedReplyEditor = ({
           />
         </div>
       )}
-      <div className={classes.viewAllCommentsButton} onClick={onViewAllComments} >
-        Click to view all comments
-      </div>
+      {viewAllCommentsUrl && (
+        <Link to={viewAllCommentsUrl} className={classes.viewAllCommentsButton}>
+          Click to view all comments
+        </Link>
+      )}
     </>
   );
 };

@@ -594,6 +594,10 @@ const recombeeApi = {
       context
     });
 
+    if (!recombeeResponseWithScenario) {
+      return [];
+    }
+
     const { recomms, recommId, scenario } = recombeeResponseWithScenario;
     const recsWithMetadata = new Map(recomms.map(rec => [rec.id, { ...rec, recommId, scenario }]));
     const recommendedPostIds = recomms.map(({ id }) => id);
