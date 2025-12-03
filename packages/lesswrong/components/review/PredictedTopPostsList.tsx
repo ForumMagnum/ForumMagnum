@@ -63,19 +63,8 @@ const ReviewPredictionPosts = gql(`
   }
 `);
 
-const PredictionInefficiency = gql(`
-  query PredictionInefficiency($year: Int!) {
-    manifoldPredictionInefficiency(year: $year) {
-      inefficiency
-      totalPredicted
-    }
-  }
-`);
-
-const PredictedTop50Intro = ({ inefficiency, totalPredicted, loading }: { inefficiency: number, totalPredicted: number, loading: boolean }) => {
+const PredictedTop50Intro = () => {
   const classes = useStyles(styles);
-  const ineff = loading ? "..." : parseFloat(inefficiency.toPrecision(3)).toLocaleString('en-US', { maximumFractionDigits: 0 });
-  const predictedCount = loading ? "..." : totalPredicted.toFixed(0);
   return (
     <ContentStyles contentType="post" className={classes.intro}>
       <p>
@@ -85,11 +74,6 @@ const PredictedTop50Intro = ({ inefficiency, totalPredicted, loading }: { ineffi
       </p>
 
       <p>
-        Can we trust these markets?
-        Here's a simple check: right now, they collectively predict that {predictedCount} posts will make the top 50 this year.
-        {(!loading && inefficiency > 100) && (
-          <> That means there's M${ineff} of free Mana (the platform's currency) for anyone who spots inconsistencies and brings the odds into line.</>
-        )}
         <Link to="https://manifold.markets/topic/lesswrong-annual-review"> See the markets here.</Link>
       </p>
     </ContentStyles>
@@ -126,14 +110,9 @@ export default function PredictedTopPostsList({ year }: { year: number }) {
   });
   const posts = data?.reviewPredictionPosts ?? [];
 
-  const { data: ineffData, loading: ineffLoading } = useQuery(PredictionInefficiency, {
-    variables: { year },
-  });
-  const { inefficiency, totalPredicted } = ineffData?.manifoldPredictionInefficiency ?? { inefficiency: 0, totalPredicted: 0 };
-
   return (
     <div className={classes.root}>
-      <PredictedTop50Intro inefficiency={inefficiency} totalPredicted={totalPredicted} loading={ineffLoading} />
+      <PredictedTop50Intro />
       <div className={classes.predictedPostList}>
         {postsLoading ? <div className={classes.loading}><Loading /></div> : <PostsList posts={posts} />}
       </div>

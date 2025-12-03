@@ -80,6 +80,7 @@ interface Query {
   UltraFeedSubscriptions: UltraFeedQueryResults;
   getBookWordCount: number | null;
   getSequenceStats: SequenceStats | null;
+  reviewPredictionPosts: Array<Post>;
   advisorRequest: SingleAdvisorRequestOutput | null;
   advisorRequests: MultiAdvisorRequestOutput | null;
   arbitalTagContentRel: SingleArbitalTagContentRelOutput | null;

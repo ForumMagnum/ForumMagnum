@@ -1261,10 +1261,7 @@ CREATE UNLOGGED TABLE "ManifoldProbabilitiesCaches" (
   "isResolved" BOOL NOT NULL,
   "year" DOUBLE PRECISION NOT NULL,
   "lastUpdated" TIMESTAMPTZ NOT NULL,
-  "url" TEXT,
-  "mechanism" TEXT,
-  "pool" JSONB,
-  "p" DOUBLE PRECISION
+  "url" TEXT
 );
 
 -- Index "idx_ManifoldProbabilitiesCaches_schemaVersion"
@@ -1822,25 +1819,17 @@ CREATE TABLE "Posts" (
   "afVoteCount" DOUBLE PRECISION
 );
 
--- Index "idx_posts_predictions_year_filter"
-CREATE INDEX IF NOT EXISTS "idx_posts_predictions_year_filter" ON "Posts" USING btree (
-  "status",
-  "isFuture",
-  "draft",
-  "unlisted",
-  "shortform",
-  "hiddenRelatedQuestion",
-  "authorIsUnreviewed",
-  "groupId",
-  "postedAt",
-  "isEvent",
-  "_id",
-  "meta",
-  "af",
-  "frontpageDate",
-  "curatedDate",
-  "baseScore"
-);
+-- Index "idx_posts_manifold_predictions_optimized"
+CREATE INDEX IF NOT EXISTS "idx_posts_manifold_predictions_optimized" ON "Posts" USING btree ("manifoldReviewMarketId", "postedAt")
+WHERE
+  (
+    "status" = 2 AND
+    "draft" IS FALSE AND
+    "shortform" IS FALSE AND
+    "unlisted" IS FALSE AND
+    "isEvent" IS FALSE AND
+    "manifoldReviewMarketId" IS NOT NULL
+  );
 
 -- Index "idx_posts_manifoldReviewMarketId"
 CREATE INDEX IF NOT EXISTS "idx_posts_manifoldReviewMarketId" ON "Posts" USING btree ("manifoldReviewMarketId");

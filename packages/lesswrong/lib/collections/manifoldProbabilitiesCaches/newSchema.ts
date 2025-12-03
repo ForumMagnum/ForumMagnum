@@ -74,48 +74,6 @@ const schema = {
       },
     },
   },
-  mechanism: {
-    database: {
-      type: "TEXT",
-      nullable: true,
-    },
-    graphql: {
-      outputType: "String",
-      canRead: ["guests"],
-      canCreate: ["admins"],
-      validation: {
-        optional: true,
-      },
-    },
-  },
-  pool: {
-    database: {
-      type: "JSONB",
-      nullable: true,
-    },
-    graphql: {
-      outputType: "JSON",
-      canRead: ["guests"],
-      canCreate: ["admins"],
-      validation: {
-        optional: true,
-      },
-    },
-  },
-  p: {
-    database: {
-      type: "DOUBLE PRECISION",
-      nullable: true,
-    },
-    graphql: {
-      outputType: "Float",
-      canRead: ["guests"],
-      canCreate: ["admins"],
-      validation: {
-        optional: true,
-      },
-    },
-  },
 } satisfies Record<string, CollectionFieldSpecification<"ManifoldProbabilitiesCaches">>;
 
 export default schema;
