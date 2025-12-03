@@ -35,11 +35,17 @@ import { forumSelect } from '@/lib/forumTypeUtils';
 import NotificationsMenu from "../notifications/NotificationsMenu";
 import { IsLlmChatSidebarOpenContext } from './Layout';
 import { useIsOnGrayBackground } from '../hooks/useIsOnGrayBackground';
+import FundraiserBanner from '../common/FundraiserBanner';
+import { useCookiesWithConsent } from '../hooks/useCookiesWithConsent';
+import { HIDE_FUNDRAISER_BANNER_COOKIE } from '@/lib/cookies/cookies';
 
-/** Height of top header. On Book UI sites, this is for desktop only */
+/** Height of the fundraiser banner */
+export const FUNDRAISER_BANNER_HEIGHT = 34;
+export const FUNDRAISER_BANNER_HEIGHT_MOBILE = 32;
+/** Height of top header (without fundraiser banner). On Book UI sites, this is for desktop only */
 export const getHeaderHeight = () => isBookUI() ? 64 : 66;
-/** Height of top header on mobile. On Friendly UI sites, this is the same as the HEADER_HEIGHT */
-export const getMobileHeaderHeight = () => isBookUI() ? 56 : getHeaderHeight();
+/** Height of top header on mobile (without fundraiser banner). On Friendly UI sites, this is the same as the HEADER_HEIGHT */
+export const getMobileHeaderHeight = () => isBookUI() ? 56 : 66;
 
 const textColorOverrideStyles = ({
   theme,
@@ -174,13 +180,19 @@ export const styles = (theme: ThemeType) => ({
   root: {
     // This height (including the breakpoint at xs/600px) is set by Headroom, and this wrapper (which surrounds
     // Headroom and top-pads the page) has to match.
-    height: getHeaderHeight(),
+    height: getHeaderHeight() + FUNDRAISER_BANNER_HEIGHT,
     [theme.breakpoints.down('xs')]: {
-      height: getMobileHeaderHeight(),
+      height: getMobileHeaderHeight() + FUNDRAISER_BANNER_HEIGHT_MOBILE,
     },
     "@media print": {
       display: "none"
     }
+  },
+  rootNoBanner: {
+    height: getHeaderHeight(),
+    [theme.breakpoints.down('xs')]: {
+      height: getMobileHeaderHeight(),
+    },
   },
   titleSubtitleContainer: {
     display: 'flex',
@@ -355,6 +367,8 @@ const Header = ({
   const [notificationHasOpened, setNotificationHasOpened] = useState(false);
   const [searchOpen, setSearchOpenState] = useState(false);
   const [unFixed, setUnFixed] = useState(true);
+  const [cookies] = useCookiesWithConsent([HIDE_FUNDRAISER_BANNER_COOKIE]);
+  const showFundraiserBanner = cookies[HIDE_FUNDRAISER_BANNER_COOKIE] !== "true";
   const getCurrentUser = useGetCurrentUser();
   const isLoggedIn = !!useCurrentUserId();
   const usernameUnset = useFilteredCurrentUser(u => !!u?.usernameUnset);
@@ -559,11 +573,13 @@ const Header = ({
 
   return (
     <AnalyticsContext pageSectionContext="header">
-      <div className={classes.root}>
+      <div className={classNames(classes.root, {
+        [classes.rootNoBanner]: !showFundraiserBanner,
+      })}>
         <Headroom
           disableInlineStyles
           downTolerance={1} upTolerance={1}
-          height={getHeaderHeight()}
+          height={getHeaderHeight() + (showFundraiserBanner ? FUNDRAISER_BANNER_HEIGHT : 0)}
           className={classNames(classes.headroom, {
             [classes.headroomPinnedOpen]: searchOpen,
             [classes.reserveSpaceForLlmChatSidebar]: llmChatSidebarOpen && !unFixed,
@@ -572,6 +588,7 @@ const Header = ({
           onUnpin={() => setUnFixed(false)}
           disable={stayAtTop}
         >
+          {showFundraiserBanner && <FundraiserBanner />}
           <header
             className={classNames(
               classes.appBar,

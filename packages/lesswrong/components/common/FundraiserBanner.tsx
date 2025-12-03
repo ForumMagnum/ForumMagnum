@@ -19,7 +19,6 @@ const styles = defineStyles("FundraiserBanner", (theme: ThemeType) => ({
   root: {
     display: "block",
     position: "relative",
-    zIndex: 10000,
     height: 34,
     overflow: "hidden",
     textDecoration: "none",
