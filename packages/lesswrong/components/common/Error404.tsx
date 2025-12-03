@@ -1,7 +1,5 @@
 "use client";
-
-import { registerComponent } from '../../lib/vulcan-lib/components';
-import React from 'react';
+import React, { Suspense, use } from 'react';
 import SingleColumnSection from "./SingleColumnSection";
 import { defineStyles, useStyles } from '../hooks/useStyles';
 import { StatusCodeSetter } from '../next/StatusCodeSetter';
@@ -20,10 +18,19 @@ const Error404 = () => {
       <StatusCodeSetter status={404}/>
       <h2>404 Not Found</h2>
       <h3>Sorry, we couldn't find what you were looking for.</h3>
+
+      <Suspense>
+        <TrivialSuspender/>
+      </Suspense>
     </SingleColumnSection>
   );
 };
 
-export default registerComponent('Error404', Error404);
+function TrivialSuspender() {
+  use(Promise.resolve());
+  return null;
+}
+
+export default Error404;
 
 

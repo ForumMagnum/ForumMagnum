@@ -3,7 +3,8 @@ import RouteRoot from '@/components/layout/RouteRoot';
 import React from 'react';
 
 export default function NotFound() {
-  return <RouteRoot delayedStatusCode>
+  /*return <RouteRoot delayedStatusCode>
     <Error404 />
-  </RouteRoot>
+  </RouteRoot>*/
+  return <div>404</div>
 }

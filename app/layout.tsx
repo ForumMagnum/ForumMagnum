@@ -23,7 +23,7 @@ export default async function RootLayout({
 }: {
   children: React.ReactNode;
 }) {
-  return (
+  /*return (
     <html>
       <head>
         <SharedScripts/>
@@ -44,7 +44,8 @@ export default async function RootLayout({
         </Suspense>
       </BodyWithBackgroundColor>
     </html>
-  );
+  );*/
+  return <div>{children}</div>
 }
 
 const ClientIDAssignerServer = async () => {
