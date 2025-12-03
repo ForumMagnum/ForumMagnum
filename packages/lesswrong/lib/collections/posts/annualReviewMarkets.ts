@@ -114,9 +114,6 @@ export const postGetMarketInfoFromManifold = async (marketId: string, year: numb
     isResolved: fullMarket.isResolved,
     year,
     url: fullMarket.url,
-    mechanism: fullMarket.mechanism,
-    pool: fullMarket.pool,
-    p: fullMarket.p,
   }
 }
 
@@ -215,9 +212,6 @@ export const getPostMarketInfo = async (post: DbPost, context: ResolverContext):
     isResolved: cacheItem.isResolved,
     year: cacheItem.year,
     url: cacheItem.url ?? '',
-    mechanism: cacheItem.mechanism ?? undefined,
-    pool: cacheItem.pool ?? undefined,
-    p: cacheItem.p ?? undefined,
   };
 }
 

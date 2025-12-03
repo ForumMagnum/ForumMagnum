@@ -12,8 +12,7 @@ function augmentForDefaultView(indexFields: MongoIndexKeyObj<DbPost>) {
 
 export function getDbIndexesOnPosts() {
   const indexSet = new DatabaseIndexSet();
-  // Optimized index for fetchCandidatePosts in reviewPredictionResolvers
-  // Covers the exact query pattern with partial filter for constant conditions
+  // RK added this to optimize the query for fetchCandidatePosts in reviewPredictionResolvers
   indexSet.addIndex("Posts",
     {
       manifoldReviewMarketId: 1,

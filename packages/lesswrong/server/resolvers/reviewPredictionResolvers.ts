@@ -9,7 +9,6 @@ export const reviewPredictionGraphQLTypeDefs = gql`
   }
 `;
 
-// Shared helper to fetch candidate posts for a given year
 async function fetchCandidatePosts(year: number, context: ResolverContext): Promise<DbPost[]> {
   const start = moment.utc(`${year}-01-01`).toDate();
   const end = moment.utc(`${year + 1}-01-01`).toDate();
@@ -27,7 +26,6 @@ async function fetchCandidatePosts(year: number, context: ResolverContext): Prom
 export const reviewPredictionGraphQLQueries = {
   async reviewPredictionPosts(_: void, { year, limit }: { year: number, limit?: number }, context: ResolverContext) {
     const candidates = await fetchCandidatePosts(year, context);
-    // Load probabilities; this triggers cache refresh for missing markets
     const withProbs = await Promise.all(candidates.map(async (p: DbPost) => {
       const info = await getPostMarketInfo(p, context);
       return { post: p, info } as const;
