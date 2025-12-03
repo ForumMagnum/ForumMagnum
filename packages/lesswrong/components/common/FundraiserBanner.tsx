@@ -96,11 +96,11 @@ const styles = defineStyles("FundraiserBanner", (theme: ThemeType) => ({
     },
   },
   goalText: {
-    color: "rgba(255, 255, 255, 0.75)",
+    color: "rgba(255, 255, 255, 0.92)",
     fontFamily: theme.palette.fonts.sansSerifStack,
     fontSize: 12,
     fontWeight: 400,
-    textShadow: "0 1px 3px rgba(0,0,0,0.5)",
+    textShadow: "0 1px 3px rgba(0,0,0,0.6)",
     [theme.breakpoints.down("xs")]: {
       display: "none",
     },
