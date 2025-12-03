@@ -18,7 +18,6 @@ import { useTagBySlug } from './useTag';
 import { taggingNameCapitalSetting, taggingNamePluralCapitalSetting, taggingNamePluralSetting, quickTakesTagsEnabledSetting } from '@/lib/instanceSettings';
 import truncateTagDescription from "../../lib/utils/truncateTagDescription";
 import { getTagStructuredData } from "./TagPageRouter";
-import { getHeaderHeight } from "@/components/layout/Header";
 import { isFriendlyUI } from "../../themes/forumTheme";
 import DeferRender from "../common/DeferRender";
 import { RelevanceLabel, tagPageHeaderStyles, tagPostTerms } from "./TagPageUtils";
@@ -91,7 +90,7 @@ const styles = (theme: ThemeType) => ({
       width: '100%',
     },
     position: 'absolute',
-    top: getHeaderHeight(),
+    top: "var(--header-height)",
     [theme.breakpoints.down('sm')]: {
       width: 'unset',
       '& > picture > img': {
