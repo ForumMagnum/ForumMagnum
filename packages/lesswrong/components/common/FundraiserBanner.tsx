@@ -34,7 +34,7 @@ const styles = defineStyles("FundraiserBanner", (theme: ThemeType) => ({
   },
   rootHoverable: {
     "&:hover $overlay": {
-      background: `linear-gradient(90deg, ${theme.palette.greyAlpha(0.4)} 0%, ${theme.palette.greyAlpha(0.15)} 60%, ${theme.palette.greyAlpha(0.3)} 100%)`,
+      background: `linear-gradient(90deg, color-mix(in srgb, ${theme.palette.text.alwaysBlack} 40%, transparent) 0%, color-mix(in srgb, ${theme.palette.text.alwaysBlack} 15%, transparent) 60%, color-mix(in srgb, ${theme.palette.text.alwaysBlack} 30%, transparent) 100%)`,
     },
     "&:hover $backgroundImage": {
       filter: "brightness(0.9)",
@@ -58,7 +58,7 @@ const styles = defineStyles("FundraiserBanner", (theme: ThemeType) => ({
     left: 0,
     right: 0,
     bottom: 0,
-    background: `linear-gradient(90deg, ${theme.palette.greyAlpha(0.5)} 0%, ${theme.palette.greyAlpha(0.25)} 60%, ${theme.palette.greyAlpha(0.4)} 100%)`,
+    background: `linear-gradient(90deg, color-mix(in srgb, ${theme.palette.text.alwaysBlack} 50%, transparent) 0%, color-mix(in srgb, ${theme.palette.text.alwaysBlack} 25%, transparent) 60%, color-mix(in srgb, ${theme.palette.text.alwaysBlack} 40%, transparent) 100%)`,
     transition: "background 0.2s ease",
   },
   content: {
@@ -90,7 +90,7 @@ const styles = defineStyles("FundraiserBanner", (theme: ThemeType) => ({
     fontFamily: theme.palette.fonts.sansSerifStack,
     fontSize: 13,
     fontWeight: 500,
-    textShadow: `0 1px 3px ${theme.palette.greyAlpha(0.6)}`,
+    textShadow: `0 1px 3px color-mix(in srgb, ${theme.palette.text.alwaysBlack} 60%, transparent)`,
     [theme.breakpoints.down("sm")]: {
       fontSize: 12,
     },
@@ -100,7 +100,7 @@ const styles = defineStyles("FundraiserBanner", (theme: ThemeType) => ({
     fontFamily: theme.palette.fonts.sansSerifStack,
     fontSize: 12,
     fontWeight: 400,
-    textShadow: `0 1px 3px ${theme.palette.greyAlpha(0.6)}`,
+    textShadow: `0 1px 3px color-mix(in srgb, ${theme.palette.text.alwaysBlack} 60%, transparent)`,
     [theme.breakpoints.down("xs")]: {
       display: "none",
     },
@@ -113,7 +113,7 @@ const styles = defineStyles("FundraiserBanner", (theme: ThemeType) => ({
     fontWeight: 500,
     fontFamily: theme.palette.fonts.sansSerifStack,
     textDecoration: "none",
-    textShadow: `0 1px 2px ${theme.palette.greyAlpha(0.4)}`,
+    textShadow: `0 1px 2px color-mix(in srgb, ${theme.palette.text.alwaysBlack} 40%, transparent)`,
     background: theme.palette.inverseGreyAlpha(0.15),
     border: `1px solid ${theme.palette.inverseGreyAlpha(0.25)}`,
     transition: "background 0.15s ease, border-color 0.15s ease",
