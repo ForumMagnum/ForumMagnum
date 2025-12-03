@@ -42,6 +42,8 @@ export type WrappedYear = UnionOf<typeof wrappedYears>
 export const isWrappedYear = (year: number): year is WrappedYear =>
   wrappedYears.has(year);
 
+export const currentWrappedYear = () => Array.from(wrappedYears).pop();
+
 export type WrappedMostReadTopic = {
   name: string;
   shortName: string;
