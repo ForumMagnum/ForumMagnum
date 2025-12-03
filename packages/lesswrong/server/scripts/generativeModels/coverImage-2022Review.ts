@@ -1,3 +1,4 @@
+// eslint-disable-next-line no-restricted-imports
 import OpenAI from 'openai';
 import ReviewWinners from '../../../server/collections/reviewWinners/collection.ts';
 import ReviewWinnerArts from '../../../server/collections/reviewWinnerArts/collection.ts';

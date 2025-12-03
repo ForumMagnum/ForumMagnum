@@ -16,6 +16,7 @@ interface FragmentTypes {
   BookmarksFeedItemFragment: BookmarksFeedItemFragment
   BookmarksMinimumInfoFragment: BookmarksMinimumInfoFragment
   BookmarksWithDocumentFragment: BookmarksWithDocumentFragment
+  ChapterPostSlim: ChapterPostSlim
   ChaptersEdit: ChaptersEdit
   ChaptersFragment: ChaptersFragment
   CkEditorUserSessionInfo: CkEditorUserSessionInfo
@@ -46,6 +47,7 @@ interface FragmentTypes {
   ExplorePageTagFragment: ExplorePageTagFragment
   FeaturedResourcesFragment: FeaturedResourcesFragment
   FeedCommentThreadFragment: FeedCommentThreadFragment
+  FeedMarkerFragment: FeedMarkerFragment
   FeedPostFragment: FeedPostFragment
   FeedSpotlightFragment: FeedSpotlightFragment
   FeedSubscriptionSuggestionsFragment: FeedSubscriptionSuggestionsFragment
@@ -137,6 +139,7 @@ interface FragmentTypes {
   ShortformComments: ShortformComments
   ShortformRecentDiscussion: ShortformRecentDiscussion
   SideCommentCacheMinimumInfo: SideCommentCacheMinimumInfo
+  SlimChapter: SlimChapter
   SplashArtCoordinates: SplashArtCoordinates
   SplashArtCoordinatesEdit: SplashArtCoordinatesEdit
   SpotlightDisplay: SpotlightDisplay
@@ -144,7 +147,6 @@ interface FragmentTypes {
   SpotlightHeaderEventSubtitle: SpotlightHeaderEventSubtitle
   SpotlightMinimumInfo: SpotlightMinimumInfo
   StickySubforumCommentFragment: StickySubforumCommentFragment
-  SubscribedPostAndCommentsFeed: SubscribedPostAndCommentsFeed
   SubscriptionState: SubscriptionState
   SuggestAlignmentComment: SuggestAlignmentComment
   SuggestAlignmentPost: SuggestAlignmentPost
@@ -244,7 +246,7 @@ interface FragmentTypesByCollection {
   AutomatedContentEvaluations: "AutomatedContentEvaluationsFragment"
   Bookmarks: "BookmarksFeedItemFragment"|"BookmarksMinimumInfoFragment"|"BookmarksWithDocumentFragment"
   Books: "BookEdit"|"BookPageFragment"
-  Chapters: "ChaptersEdit"|"ChaptersFragment"
+  Chapters: "ChaptersEdit"|"ChaptersFragment"|"SlimChapter"
   CkEditorUserSessions: "CkEditorUserSessionInfo"
   ClientIds: "ModeratorClientIDInfo"
   Collections: "CollectionContinueReadingFragment"|"CollectionsBestOfFragment"|"CollectionsEditFragment"|"CollectionsPageFragment"
@@ -257,6 +259,7 @@ interface FragmentTypesByCollection {
   ElicitQuestions: "ElicitQuestionFragment"
   FeaturedResources: "FeaturedResourcesFragment"
   FeedCommentThreads: "FeedCommentThreadFragment"
+  FeedMarkers: "FeedMarkerFragment"
   FeedPosts: "FeedPostFragment"
   FeedSpotlightItems: "FeedSpotlightFragment"
   FeedSubscriptionSuggestionses: "FeedSubscriptionSuggestionsFragment"
@@ -276,7 +279,7 @@ interface FragmentTypesByCollection {
   PetrovDayActions: "PetrovDayActionInfo"
   PodcastEpisodes: "PodcastEpisodeCreateFragment"|"PodcastEpisodeFull"
   Podcasts: "PodcastSelect"
-  Posts: "HighlightWithHash"|"PostPodcastEpisode"|"PostSequenceNavigation"|"PostSideComments"|"PostWithDialogueMessage"|"PostWithGeneratedSummary"|"PostsAuthors"|"PostsBase"|"PostsBestOfList"|"PostsDetails"|"PostsEdit"|"PostsEditMutationFragment"|"PostsEditQueryFragment"|"PostsExpandedHighlight"|"PostsForAutocomplete"|"PostsHTML"|"PostsList"|"PostsListBase"|"PostsListTag"|"PostsListTagWithVotes"|"PostsListWithVotes"|"PostsListWithVotesAndSequence"|"PostsMinimumInfo"|"PostsModerationGuidelines"|"PostsOriginalContents"|"PostsPage"|"PostsPlaintextDescription"|"PostsRSSFeed"|"PostsRecentDiscussion"|"PostsReviewVotingList"|"PostsRevision"|"PostsRevisionsList"|"PostsTopItemInfo"|"PostsTwitterAdmin"|"PostsWithNavigation"|"PostsWithNavigationAndRevision"|"PostsWithVotes"|"ShortformRecentDiscussion"|"SuggestAlignmentPost"|"SunshineCurationPostsList"|"SunshinePostsList"|"UltraFeedPostFragment"|"UsersBannedFromPostsModerationLog"|"WithVotePost"
+  Posts: "ChapterPostSlim"|"HighlightWithHash"|"PostPodcastEpisode"|"PostSequenceNavigation"|"PostSideComments"|"PostWithDialogueMessage"|"PostWithGeneratedSummary"|"PostsAuthors"|"PostsBase"|"PostsBestOfList"|"PostsDetails"|"PostsEdit"|"PostsEditMutationFragment"|"PostsEditQueryFragment"|"PostsExpandedHighlight"|"PostsForAutocomplete"|"PostsHTML"|"PostsList"|"PostsListBase"|"PostsListTag"|"PostsListTagWithVotes"|"PostsListWithVotes"|"PostsListWithVotesAndSequence"|"PostsMinimumInfo"|"PostsModerationGuidelines"|"PostsOriginalContents"|"PostsPage"|"PostsPlaintextDescription"|"PostsRSSFeed"|"PostsRecentDiscussion"|"PostsReviewVotingList"|"PostsRevision"|"PostsRevisionsList"|"PostsTopItemInfo"|"PostsTwitterAdmin"|"PostsWithNavigation"|"PostsWithNavigationAndRevision"|"PostsWithVotes"|"ShortformRecentDiscussion"|"SuggestAlignmentPost"|"SunshineCurationPostsList"|"SunshinePostsList"|"UltraFeedPostFragment"|"UsersBannedFromPostsModerationLog"|"WithVotePost"
   RSSFeeds: "RSSFeedMinimumInfo"|"newRSSFeedFragment"
   Reports: "UnclaimedReportsList"
   ReviewVotes: "reviewAdminDashboard"|"reviewVoteFragment"
@@ -287,7 +290,6 @@ interface FragmentTypesByCollection {
   SideCommentCaches: "SideCommentCacheMinimumInfo"
   SplashArtCoordinates: "SplashArtCoordinates"|"SplashArtCoordinatesEdit"
   Spotlights: "SpotlightDisplay"|"SpotlightEditQueryFragment"|"SpotlightHeaderEventSubtitle"|"SpotlightMinimumInfo"
-  SubscribedPostAndCommentses: "SubscribedPostAndCommentsFeed"
   Subscriptions: "MembersOfGroupFragment"|"SubscriptionState"
   SurveyQuestions: "SurveyQuestionMinimumInfo"
   SurveyResponses: "SurveyResponseMinimumInfo"
@@ -314,6 +316,7 @@ interface CollectionNamesByFragmentName {
   BookmarksFeedItemFragment: "Bookmarks"
   BookmarksMinimumInfoFragment: "Bookmarks"
   BookmarksWithDocumentFragment: "Bookmarks"
+  ChapterPostSlim: "Posts"
   ChaptersEdit: "Chapters"
   ChaptersFragment: "Chapters"
   CkEditorUserSessionInfo: "CkEditorUserSessions"
@@ -344,6 +347,7 @@ interface CollectionNamesByFragmentName {
   ExplorePageTagFragment: "Tags"
   FeaturedResourcesFragment: "FeaturedResources"
   FeedCommentThreadFragment: never
+  FeedMarkerFragment: never
   FeedPostFragment: never
   FeedSpotlightFragment: never
   FeedSubscriptionSuggestionsFragment: never
@@ -435,6 +439,7 @@ interface CollectionNamesByFragmentName {
   ShortformComments: "Comments"
   ShortformRecentDiscussion: "Posts"
   SideCommentCacheMinimumInfo: "SideCommentCaches"
+  SlimChapter: "Chapters"
   SplashArtCoordinates: "SplashArtCoordinates"
   SplashArtCoordinatesEdit: "SplashArtCoordinates"
   SpotlightDisplay: "Spotlights"
@@ -442,7 +447,6 @@ interface CollectionNamesByFragmentName {
   SpotlightHeaderEventSubtitle: "Spotlights"
   SpotlightMinimumInfo: "Spotlights"
   StickySubforumCommentFragment: "Comments"
-  SubscribedPostAndCommentsFeed: never
   SubscriptionState: "Subscriptions"
   SuggestAlignmentComment: "Comments"
   SuggestAlignmentPost: "Posts"
@@ -537,9 +541,9 @@ interface CollectionNamesByFragmentName {
   reviewVoteFragment: "ReviewVotes"
 }
 
-type CollectionNameString = "AdvisorRequests"|"ArbitalCaches"|"ArbitalTagContentRels"|"AutomatedContentEvaluations"|"Bans"|"Bookmarks"|"Books"|"Chapters"|"CkEditorUserSessions"|"ClientIds"|"Collections"|"CommentEmbeddings"|"CommentModeratorActions"|"Comments"|"Conversations"|"CronHistories"|"CurationEmails"|"CurationNotices"|"DatabaseMetadata"|"DebouncerEvents"|"DialogueChecks"|"DialogueMatchPreferences"|"DigestPosts"|"Digests"|"ElectionCandidates"|"ElectionVotes"|"ElicitQuestionPredictions"|"ElicitQuestions"|"EmailTokens"|"FeaturedResources"|"FieldChanges"|"ForumEvents"|"GardenCodes"|"GoogleServiceAccountSessions"|"Images"|"JargonTerms"|"LWEvents"|"LegacyData"|"LlmConversations"|"LlmMessages"|"Localgroups"|"ManifoldProbabilitiesCaches"|"Messages"|"Migrations"|"ModerationTemplates"|"ModeratorActions"|"MultiDocuments"|"Notifications"|"PageCache"|"PetrovDayActions"|"PetrovDayLaunchs"|"PodcastEpisodes"|"Podcasts"|"PostEmbeddings"|"PostRecommendations"|"PostRelations"|"PostViewTimes"|"PostViews"|"Posts"|"RSSFeeds"|"ReadStatuses"|"RecommendationsCaches"|"Reports"|"ReviewVotes"|"ReviewWinnerArts"|"ReviewWinners"|"Revisions"|"Sequences"|"Sessions"|"SideCommentCaches"|"SplashArtCoordinates"|"Spotlights"|"Subscriptions"|"SurveyQuestions"|"SurveyResponses"|"SurveySchedules"|"Surveys"|"TagFlags"|"TagRels"|"Tags"|"Tweets"|"TypingIndicators"|"UltraFeedEvents"|"UserActivities"|"UserEAGDetails"|"UserJobAds"|"UserMostValuablePosts"|"UserRateLimits"|"UserTagRels"|"Users"|"Votes"
+type CollectionNameString = "AdvisorRequests"|"ArbitalCaches"|"ArbitalTagContentRels"|"AutomatedContentEvaluations"|"Bans"|"Bookmarks"|"Books"|"Chapters"|"CkEditorUserSessions"|"ClientIds"|"Collections"|"CommentEmbeddings"|"CommentModeratorActions"|"Comments"|"Conversations"|"CronHistories"|"CurationEmails"|"CurationNotices"|"DatabaseMetadata"|"DebouncerEvents"|"DialogueChecks"|"DialogueMatchPreferences"|"DigestPosts"|"Digests"|"ElectionCandidates"|"ElectionVotes"|"ElicitQuestionPredictions"|"ElicitQuestions"|"EmailTokens"|"FeaturedResources"|"FieldChanges"|"ForumEvents"|"GardenCodes"|"GoogleServiceAccountSessions"|"Images"|"JargonTerms"|"LWEvents"|"LegacyData"|"LlmConversations"|"LlmMessages"|"Localgroups"|"LoginTokens"|"ManifoldProbabilitiesCaches"|"Messages"|"Migrations"|"ModerationTemplates"|"ModeratorActions"|"MultiDocuments"|"Notifications"|"PageCache"|"PetrovDayActions"|"PetrovDayLaunchs"|"PodcastEpisodes"|"Podcasts"|"PostEmbeddings"|"PostRecommendations"|"PostRelations"|"PostViewTimes"|"PostViews"|"Posts"|"RSSFeeds"|"ReadStatuses"|"RecommendationsCaches"|"Reports"|"ReviewVotes"|"ReviewWinnerArts"|"ReviewWinners"|"Revisions"|"Sequences"|"Sessions"|"SideCommentCaches"|"SplashArtCoordinates"|"Spotlights"|"Subscriptions"|"SurveyQuestions"|"SurveyResponses"|"SurveySchedules"|"Surveys"|"TagFlags"|"TagRels"|"Tags"|"Tweets"|"TypingIndicators"|"UltraFeedEvents"|"UserActivities"|"UserEAGDetails"|"UserJobAds"|"UserMostValuablePosts"|"UserRateLimits"|"UserTagRels"|"Users"|"Votes"
 
-type CollectionNameWithCreatedAt = "AdvisorRequests"|"ArbitalCaches"|"ArbitalTagContentRels"|"AutomatedContentEvaluations"|"Bans"|"Bookmarks"|"Books"|"Chapters"|"CkEditorUserSessions"|"ClientIds"|"Collections"|"CommentEmbeddings"|"CommentModeratorActions"|"Comments"|"Conversations"|"CurationEmails"|"CurationNotices"|"DatabaseMetadata"|"DebouncerEvents"|"DialogueChecks"|"DialogueMatchPreferences"|"DigestPosts"|"Digests"|"ElectionCandidates"|"ElectionVotes"|"ElicitQuestionPredictions"|"ElicitQuestions"|"EmailTokens"|"FeaturedResources"|"FieldChanges"|"ForumEvents"|"GardenCodes"|"GoogleServiceAccountSessions"|"Images"|"JargonTerms"|"LWEvents"|"LegacyData"|"LlmConversations"|"LlmMessages"|"Localgroups"|"ManifoldProbabilitiesCaches"|"Messages"|"Migrations"|"ModerationTemplates"|"ModeratorActions"|"MultiDocuments"|"Notifications"|"PageCache"|"PetrovDayActions"|"PetrovDayLaunchs"|"PodcastEpisodes"|"Podcasts"|"PostEmbeddings"|"PostRecommendations"|"PostRelations"|"PostViewTimes"|"PostViews"|"Posts"|"RSSFeeds"|"ReadStatuses"|"RecommendationsCaches"|"Reports"|"ReviewVotes"|"ReviewWinnerArts"|"ReviewWinners"|"Revisions"|"Sequences"|"SideCommentCaches"|"SplashArtCoordinates"|"Spotlights"|"Subscriptions"|"SurveyQuestions"|"SurveyResponses"|"SurveySchedules"|"Surveys"|"TagFlags"|"TagRels"|"Tags"|"Tweets"|"TypingIndicators"|"UltraFeedEvents"|"UserActivities"|"UserEAGDetails"|"UserJobAds"|"UserMostValuablePosts"|"UserRateLimits"|"UserTagRels"|"Users"|"Votes"
+type CollectionNameWithCreatedAt = "AdvisorRequests"|"ArbitalCaches"|"ArbitalTagContentRels"|"AutomatedContentEvaluations"|"Bans"|"Bookmarks"|"Books"|"Chapters"|"CkEditorUserSessions"|"ClientIds"|"Collections"|"CommentEmbeddings"|"CommentModeratorActions"|"Comments"|"Conversations"|"CurationEmails"|"CurationNotices"|"DatabaseMetadata"|"DebouncerEvents"|"DialogueChecks"|"DialogueMatchPreferences"|"DigestPosts"|"Digests"|"ElectionCandidates"|"ElectionVotes"|"ElicitQuestionPredictions"|"ElicitQuestions"|"EmailTokens"|"FeaturedResources"|"FieldChanges"|"ForumEvents"|"GardenCodes"|"GoogleServiceAccountSessions"|"Images"|"JargonTerms"|"LWEvents"|"LegacyData"|"LlmConversations"|"LlmMessages"|"LoginTokens"|"Localgroups"|"ManifoldProbabilitiesCaches"|"Messages"|"Migrations"|"ModerationTemplates"|"ModeratorActions"|"MultiDocuments"|"Notifications"|"PageCache"|"PetrovDayActions"|"PetrovDayLaunchs"|"PodcastEpisodes"|"Podcasts"|"PostEmbeddings"|"PostRecommendations"|"PostRelations"|"PostViewTimes"|"PostViews"|"Posts"|"RSSFeeds"|"ReadStatuses"|"RecommendationsCaches"|"Reports"|"ReviewVotes"|"ReviewWinnerArts"|"ReviewWinners"|"Revisions"|"Sequences"|"SideCommentCaches"|"SplashArtCoordinates"|"Spotlights"|"Subscriptions"|"SurveyQuestions"|"SurveyResponses"|"SurveySchedules"|"Surveys"|"TagFlags"|"TagRels"|"Tags"|"Tweets"|"TypingIndicators"|"UltraFeedEvents"|"UserActivities"|"UserEAGDetails"|"UserJobAds"|"UserMostValuablePosts"|"UserRateLimits"|"UserTagRels"|"Users"|"Votes"
 
 type CollectionNameWithSlug = "Collections"|"GardenCodes"|"MultiDocuments"|"Posts"|"TagFlags"|"Tags"|"Users"
 

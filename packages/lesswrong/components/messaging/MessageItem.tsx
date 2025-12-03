@@ -1,4 +1,4 @@
-import React, { useRef } from 'react';
+import React, { useRef, useState } from 'react';
 import { registerComponent } from '../../lib/vulcan-lib/components';
 import classNames from 'classnames';
 import withErrorBoundary from '../common/withErrorBoundary';
@@ -13,28 +13,48 @@ import { ContentItemBody } from "../contents/ContentItemBody";
 import { getVotingSystemByName } from "../../lib/voting/getVotingSystem";
 import { useVote } from "../votes/withVote";
 import InlineReactSelectionWrapper from "../votes/lwReactions/InlineReactSelectionWrapper";
-import { ReactionsAndLikesVote } from "../votes/lwReactions/ReactionsAndLikesVote";
 import type { ContentItemBodyImperative, ContentReplacedSubstringComponentInfo } from "../contents/contentBodyUtil";
-import { commentBottomComponents, messageBottomComponents } from '@/lib/voting/votingSystemComponents';
+import { messageBottomComponents } from '@/lib/voting/votingSystemComponents';
 import HoveredReactionContextProvider from '../votes/lwReactions/HoveredReactionContextProvider';
+import { useHover } from '../common/withHover';
+import type { MessageVotingBottomComponent } from '@/lib/voting/votingSystemTypes';
+import { SideItemsSidebar } from '../contents/SideItems';
+import { commentBodyStyles, postBodyStyles } from '@/themes/stylePiping';
 
 const styles = (theme: ThemeType) => ({
+  hoverWrapper: {
+    width: '100%',
+    display: 'flex',
+  },
   root: {
     marginBottom:theme.spacing.unit*1.5,
   },
   rootWithImages: {
+    maxWidth: '95%',
     display: 'grid',
     columnGap: 10,
-    maxWidth: '95%',
     gridTemplateColumns: `${PROFILE_IMG_DIAMETER}px minmax(100px, 100%)`,
     gridTemplateAreas: '"image message"',
     [theme.breakpoints.down('xs')]: {
       gridTemplateColumns: `${PROFILE_IMG_DIAMETER_MOBILE}px minmax(100px, 100%)`,
     }
   },
-  rootCurrentUserWithImages: {
+  rootWithoutImages: {
+    maxWidth: '60%',
+    width: 'fit-content',
+    [theme.breakpoints.down('xs')]: {
+      maxWidth: "80%",
+    },
+  },
+  rootCurrentUser: {
     columnGap: 0,
-    marginLeft: 'auto',
+  },
+  fullWidth: {
+    maxWidth: '100%',
+  },
+  messageWrapper: {
+    position: 'relative',
+    gridArea: 'message',
   },
   message: {
     backgroundColor: theme.palette.grey[200],
@@ -47,22 +67,25 @@ const styles = (theme: ThemeType) => ({
     overflowWrap: "break-word",
     whiteSpace: "normal",
     flexGrow: 1,
-    gridArea: 'message',
   },
   backgroundIsCurrent: {
     backgroundColor: theme.palette.grey[700],
-    color: theme.palette.panelBackground.default,
+    color: theme.palette.inverseGreyAlpha(.87),
+    '& *, & li::marker': {
+      color: theme.palette.inverseGreyAlpha(.87),
+    },
     marginLeft:theme.spacing.unit*1.5,
   },
   meta: {
-    marginBottom:theme.spacing.unit*1.5,
+    marginBottom: theme.spacing.unit * (theme.isFriendlyUI ? 1.5 : 0.5),
   },
   whiteMeta: {
-    color: theme.palette.text.invertedBackgroundText2,
+    color: theme.palette.inverseGreyAlpha(.93),
   },
   messageBody: {
+    ...postBodyStyles(theme),
+    ...commentBodyStyles(theme),
     '& a': {
-      color: theme.palette.primary.light,
       wordWrap: "break-word",
       overflowWrap: "break-word",
       whiteSpace: "normal",
@@ -86,26 +109,34 @@ const styles = (theme: ThemeType) => ({
   bottom: {
     display: 'flex',
     justifyContent: 'flex-end',
+  },
+  currentUserHoverWrapper: {
+    justifyContent: 'flex-end',
+  },
+  currentUserMessageReactSidebar: {
+    marginRight: 20,
   }
 })
 
 /**
  * Display of a single message in the Conversation Wrapper
 */
-const MessageItem = ({message, classes}: {
+const MessageItem = ({message, showFullWidth=false, classes}: {
   message: messageListFragment,
+  showFullWidth?: boolean,
   classes: ClassesType<typeof styles>,
 }) => {
   const currentUser = useCurrentUser();
+  const [selection, setSelection] = useState<{ text: string, disabled: boolean }>();
   const { html = "" } = message?.contents || {}
 
   
   const isCurrentUser = (currentUser && message.user) && currentUser._id === message.user._id
-  const htmlBody = {__html: html};
 
   const votingSystem = getVotingSystemByName("namesAttachedReactions");
   const voteProps = useVote(message, "Messages", votingSystem);
   const messageBodyRef = useRef<ContentItemBodyImperative|null>(null);
+  const { hover, eventHandlers } = useHover();
 
   if (!message) return null;
   if (!html) return null
@@ -122,7 +153,7 @@ const MessageItem = ({message, classes}: {
     highlights = votingSystem.getMessageHighlights({message, voteProps});
   }
 
-  const VoteBottomComponent = messageBottomComponents[votingSystem.name]?.() ?? null;
+  const VoteBottomComponent: MessageVotingBottomComponent | null = messageBottomComponents[votingSystem.name]?.() ?? null;
 
   const bodyElement = <ContentItemBody
     ref={messageBodyRef}
@@ -134,40 +165,55 @@ const MessageItem = ({message, classes}: {
   />;
   
   return (
-    <div className={classNames(classes.root, {[classes.rootWithImages]: isFriendlyUI(), [classes.rootCurrentUserWithImages]: isFriendlyUI() && isCurrentUser})}>
+    <span className={classNames(classes.hoverWrapper, isCurrentUser && classes.currentUserHoverWrapper)} {...eventHandlers}>
+    {isCurrentUser && <span className={classes.currentUserMessageReactSidebar}>
+      <SideItemsSidebar/>
+    </span>}
+    <div className={classNames(
+      classes.root,
+      isFriendlyUI() ? classes.rootWithImages : classes.rootWithoutImages,
+      isCurrentUser && classes.rootCurrentUser,
+      showFullWidth && classes.fullWidth,
+    )}>
       {profilePhoto}
       <HoveredReactionContextProvider voteProps={voteProps}>
-        <Typography variant="body2" className={classNames(classes.message, {[classes.backgroundIsCurrent]: isCurrentUser})}>
-          <div className={classes.meta}>
-            {message.user && <span className={classes.username}>
-              <span className={colorClassName}><UsersName user={message.user}/></span>
-            </span>}
-            <span>{" " /* Explicit space (rather than just padding/margin) for copy-paste purposes */}</span>
-            {message.createdAt && <MetaInfo>
-              <span className={colorClassName}><FormatDate date={message.createdAt}/></span>
-            </MetaInfo>}
-          </div>
-
-          {votingSystem.hasInlineReacts ? <InlineReactSelectionWrapper contentRef={messageBodyRef} voteProps={voteProps} styling="comment">
-              {bodyElement}
-            </InlineReactSelectionWrapper>
-          : bodyElement}
-          
-          {VoteBottomComponent && <div className={classes.bottom}>
-              <VoteBottomComponent
-                document={message}
-                hideKarma={false}
-                collectionName="Messages"
-                votingSystem={votingSystem}
-                voteProps={voteProps}
-                commentBodyRef={messageBodyRef}
-                invertColors={!!isCurrentUser}
-              />
+        <div className={classes.messageWrapper}>
+          <Typography variant="body2" className={classNames(classes.message, {[classes.backgroundIsCurrent]: isCurrentUser})}>
+            <div className={classes.meta}>
+              {message.user && <span className={classes.username}>
+                <span className={colorClassName}><UsersName user={message.user}/></span>
+              </span>}
+              <span>{" " /* Explicit space (rather than just padding/margin) for copy-paste purposes */}</span>
+              {message.createdAt && <MetaInfo>
+                <span className={colorClassName}><FormatDate date={message.createdAt}/></span>
+              </MetaInfo>}
             </div>
-          }
-        </Typography>
+
+            {votingSystem.hasInlineReacts ? <InlineReactSelectionWrapper
+              contentRef={messageBodyRef}
+              voteProps={voteProps}
+              styling={isCurrentUser ? "messageLeft" : "messageRight"}
+              setSelection={setSelection}
+            >
+                {bodyElement}
+              </InlineReactSelectionWrapper>
+            : bodyElement}
+          </Typography>
+          
+          {VoteBottomComponent && (
+            <VoteBottomComponent
+              voteProps={voteProps}
+              invertColors={!!isCurrentUser}
+              isCurrentUser={!!isCurrentUser}
+              showReactionButton={hover || !!selection}
+              selection={selection}
+            />
+          )}
+        </div>
       </HoveredReactionContextProvider>
     </div>
+    {!isCurrentUser && <SideItemsSidebar/>}
+    </span>
   )
 }
 

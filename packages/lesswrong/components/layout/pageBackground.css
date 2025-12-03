@@ -1,0 +1,37 @@
+/*
+ * Page background color. These classnames get set on the <body> tag in
+ * <PageBackgroundWrapper>. They currently have to be in this CSS rather than
+ * in JSS styles because it's static-prerendered.
+*/
+body.whiteBackground.theme-default {
+  color-scheme: light only;
+  background: white;
+}
+body.greyBackground.theme-default{
+  color-scheme: light only;
+  background: #f8f4ee;
+}
+body.whiteBackground.theme-dark {
+  color-scheme: dark only;
+  background: black;
+}
+body.greyBackground.theme-dark {
+  color-scheme: dark only;
+  background: #262626;
+}
+@media (prefers-color-scheme: light) {
+  body.whiteBackground.theme-auto {
+    background: white;
+  }
+  body.greyBackground.theme-auto {
+    background: #f8f4ee;
+  }
+}
+@media (prefers-color-scheme: dark) {
+  body.whiteBackground.theme-auto {
+    background: black;
+  }
+  body.greyBackground.theme-auto {
+    background: #262626;
+  }
+}

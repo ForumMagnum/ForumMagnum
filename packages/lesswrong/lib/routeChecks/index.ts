@@ -18,13 +18,17 @@ export const isStandaloneRoute = (pathname: string) => ['/crosspostLogin', '/gro
 
 export const isStaticHeaderRoute = (pathname: string) => pathnameMatchesRoutePath(pathname, '/admin/digests/:num');
 
-export const isFullscreenRoute = (pathname: string) => ["/inbox", "/moderatorInbox", "/conversation"].some(route => pathnameMatchesRoutePath(pathname, route));
+export const isFullscreenRoute = (pathname: string) => ["/inbox", "/inbox/:_id", "/moderatorInbox", "/conversation"].some(route => pathnameMatchesRoutePath(pathname, route));
 
-export const isUnspacedGridRoute = (pathname: string) => {
+// ea-forum-look-here There was some special casing in Layout specific to the
+// subforum2 route. We dropped that route entirely along with its special
+// casing, but the corresponding styles are likely significantly easier to
+// reimplement with things as they're currently organized than they were before.
+/*export const isUnspacedGridRoute = (pathname: string) => {
   // Check for the subforum2 route pattern
   const routePath = `/${taggingNamePluralSetting.get()}/:slug/subforum2`;
   return pathnameMatchesRoutePath(pathname, routePath);
-};
+};*/
 
 export const isPostsSingleRoute = (pathname: string) => {
   const match = matchPath(pathname, {

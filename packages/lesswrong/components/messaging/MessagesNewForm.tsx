@@ -1,10 +1,9 @@
-import React, { useCallback, useState } from "react";
+import React, { useCallback } from "react";
 import Button from "@/lib/vendor/@material-ui/core/src/Button";
 import { getDraftMessageHtml } from "../../lib/collections/messages/helpers";
 import { TemplateQueryStrings } from "./NewConversationButton";
 import classNames from "classnames";
 import { FormDisplayMode } from "../comments/CommentsNewForm";
-import { registerComponent } from "../../lib/vulcan-lib/components";
 import { useMutation } from "@apollo/client/react";
 import { useQuery } from "@/lib/crud/useQuery";
 import { gql } from "@/lib/generated/gql-codegen";
@@ -18,7 +17,6 @@ import { useFormErrors } from "@/components/tanstack-form-components/BaseAppForm
 import { useFormSubmitOnCmdEnter } from "../hooks/useFormSubmitOnCmdEnter";
 import Loading from "../vulcan-core/Loading";
 import ForumIcon from "../common/ForumIcon";
-import FormComponentCheckbox from "../form-components/FormComponentCheckbox";
 import Error404 from "../common/Error404";
 
 const messageListFragmentMutation = gql(`
@@ -41,21 +39,21 @@ const ModerationTemplateFragmentQuery = gql(`
   }
 `);
 
-const styles = (theme: ThemeType) => ({
+const styles = defineStyles('MessagesNewForm', (theme: ThemeType) => ({
   root: {
     ...theme.typography.commentStyle,
   },
   rootMinimalist: {
     ...theme.typography.commentStyle,
-    padding: 10,
+    padding: "0 2px 0 10px",
     border: theme.palette.border.extraFaint,
-    borderRadius: theme.borderRadius.default,
+    borderRadius: theme.isFriendlyUI ? theme.borderRadius.default : theme.borderRadius.small,
     backgroundColor: theme.palette.grey[100],
     width: "100%",
     '& form': {
       display: "flex",
       flexDirection: "row",
-      alignItems: "flex-end",
+      alignItems: "center",
     },
     '& form > div': {
       marginTop: '2.5px',
@@ -64,10 +62,10 @@ const styles = (theme: ThemeType) => ({
     '& form > .form-component-EditorFormComponent': {
       flexGrow: 1,
     },
+    "& button": {
+      marginLeft: 2,
+    },
   },
-});
-
-const formStyles = defineStyles('MessagesForm', (theme: ThemeType) => ({
   fieldWrapper: {
     marginTop: theme.spacing.unit * 2,
     marginBottom: theme.spacing.unit * 2,
@@ -75,6 +73,7 @@ const formStyles = defineStyles('MessagesForm', (theme: ThemeType) => ({
   submitMinimalist: {
     height: 'fit-content',
     marginTop: "auto",
+    alignSelf: "end",
   },
   formButton: {
     fontFamily: theme.typography.fontFamily,
@@ -113,13 +112,21 @@ const formStyles = defineStyles('MessagesForm', (theme: ThemeType) => ({
     fontWeight: 500,
     '&:hover': {
       backgroundColor: theme.palette.background.primaryDim,
-    }
+    },
   },
 }));
 
-interface MessagesNewFormProps {
+const InnerMessagesNewForm = ({
+  isMinimalist,
+  submitLabel = "Submit",
+  sendEmail = true,
+  prefilledProps,
+  conversationId,
+  onSuccess,
+}: {
   isMinimalist: boolean;
   submitLabel?: React.ReactNode;
+  sendEmail?: boolean;
   prefilledProps: {
     conversationId: string;
     contents: {
@@ -129,16 +136,10 @@ interface MessagesNewFormProps {
       };
     };
   };
+  conversationId: string;
   onSuccess: (doc: messageListFragment) => void;
-}
-
-const InnerMessagesNewForm = ({
-  isMinimalist,
-  submitLabel = "Submit",
-  prefilledProps,
-  onSuccess,
-}: MessagesNewFormProps) => {
-  const classes = useStyles(formStyles);
+}) => {
+  const classes = useStyles(styles);
   const currentUser = useCurrentUser();
   
   const formButtonClass = isMinimalist ? classes.formButtonMinimalist : classes.formButton;
@@ -159,7 +160,6 @@ const InnerMessagesNewForm = ({
   const form = useForm({
     defaultValues: {
       ...prefilledProps,
-      noEmail: false,
     },
     onSubmit: async ({ formApi }) => {
       await onSubmitCallback.current?.();
@@ -167,8 +167,9 @@ const InnerMessagesNewForm = ({
       try {
         let result: messageListFragment;
 
-        const { noEmail, ...rest } = formApi.state.values;
-        const submitData = userIsAdmin(currentUser) ? { ...rest, noEmail } : rest;
+        const submitData = userIsAdmin(currentUser) 
+          ? { ...formApi.state.values, noEmail: !sendEmail } 
+          : formApi.state.values;
 
         const { data } = await create({ variables: { data: submitData } });
         if (!data?.createMessage?.data) {
@@ -190,46 +191,36 @@ const InnerMessagesNewForm = ({
   const formRef = useFormSubmitOnCmdEnter(handleSubmit);
 
   return (
-    <form className="vulcan-form" ref={formRef} onSubmit={(e) => {
-      e.preventDefault();
-      e.stopPropagation();
-      void form.handleSubmit();
-    }}>
+    <div>
       {displayedErrorComponent}
-      <div className={classNames("form-component-EditorFormComponent", classes.fieldWrapper)}>
-        <form.Field name="contents">
-          {(field) => (
-            <EditorFormComponent
-              field={field}
-              name="contents"
-              formType='new'
-              document={form.state.values}
-              addOnSubmitCallback={addOnSubmitCallback}
-              addOnSuccessCallback={addOnSuccessCallback}
-              hintText={hintText}
-              commentMinimalistStyle={commentMinimalistStyle}
-              fieldName="contents"
-              collectionName="Messages"
-              commentEditor={true}
-              commentStyles={true}
-              hideControls={false}
-            />
-          )}
-        </form.Field>
-      </div>
+      <form className="vulcan-form" ref={formRef} onSubmit={(e) => {
+        e.preventDefault();
+        e.stopPropagation();
+        void form.handleSubmit();
+      }}>
+        <div className={classNames("form-component-EditorFormComponent", classes.fieldWrapper)}>
+          <form.Field name="contents">
+            {(field) => (
+              <EditorFormComponent
+                field={field}
+                name="contents"
+                formType='new'
+                document={form.state.values}
+                addOnSubmitCallback={addOnSubmitCallback}
+                addOnSuccessCallback={addOnSuccessCallback}
+                hintText={hintText}
+                commentMinimalistStyle={commentMinimalistStyle}
+                fieldName="contents"
+                collectionName="Messages"
+                commentEditor={true}
+                commentStyles={true}
+                hideControls={true}
+                getLocalStorageId={() => ({id: conversationId, verify: false})}
+              />
+            )}
+          </form.Field>
+        </div>
 
-      {userIsAdmin(currentUser) && <div className={classes.fieldWrapper}>
-        <form.Field name="noEmail">
-          {(field) => (
-            <FormComponentCheckbox
-              field={field}
-              label="No email"
-            />
-          )}
-        </form.Field>
-      </div>}
-
-      <div className="form-submit">
         <form.Subscribe selector={(s) => [s.isSubmitting]}>
           {([isSubmitting]) => (
             <div className={classNames("form-submit", { [classes.submitMinimalist]: isMinimalist })}>
@@ -243,8 +234,8 @@ const InnerMessagesNewForm = ({
             </div>
           )}
         </form.Subscribe>
-      </div>
-    </form>
+      </form>
+    </div>
   );
 };
 
@@ -253,16 +244,18 @@ export const MessagesNewForm = ({
   templateQueries,
   successEvent,
   submitLabel,
+  sendEmail = true,
   formStyle="default",
-  classes,
 }: {
   conversationId: string;
   templateQueries?: TemplateQueryStrings;
   successEvent: (newMessage: messageListFragment) => void;
   submitLabel?: string,
+  sendEmail?: boolean;
   formStyle?: FormDisplayMode;
-  classes: ClassesType<typeof styles>;
 }) => {
+  const classes = useStyles(styles);
+  
   const skip = !templateQueries?.templateId;
   const isMinimalist = formStyle === "minimalist"
 
@@ -285,6 +278,7 @@ export const MessagesNewForm = ({
       <InnerMessagesNewForm
         isMinimalist={isMinimalist}
         submitLabel={submitLabel}
+        sendEmail={sendEmail}
         prefilledProps={{
           conversationId,
           contents: {
@@ -294,12 +288,13 @@ export const MessagesNewForm = ({
             },
           },
         }}
+        conversationId={conversationId}
         onSuccess={(newMessage) => successEvent(newMessage)}
       />
     </div>
   );
 };
 
-export default registerComponent("MessagesNewForm", MessagesNewForm, { styles });
+export default MessagesNewForm;
 
 

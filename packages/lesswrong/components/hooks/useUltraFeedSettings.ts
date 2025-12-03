@@ -1,6 +1,5 @@
-import { useCallback, useMemo, useState } from 'react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
 import { getBrowserLocalStorage } from '@/components/editor/localStorageHandlers';
-import { isClient } from '@/lib/executionEnvironment';
 import { useTracking } from '@/lib/analyticsEvents';
 import {
   DeviceKind,
@@ -12,6 +11,8 @@ import {
   ULTRA_FEED_SETTINGS_KEY,
 } from '@/components/ultraFeed/ultraFeedSettingsTypes';
 import { isMobile } from '@/lib/utils/isMobile';
+import merge from 'lodash/merge';
+import cloneDeep from 'lodash/cloneDeep';
 
 export interface UseUltraFeedSettingsResult {
   settings: UltraFeedSettingsType;
@@ -22,13 +23,17 @@ export interface UseUltraFeedSettingsResult {
 }
 
 const readStoredSettings = (): UltraFeedSettingsType | null => {
-  if (!isClient) return null;
   const ls = getBrowserLocalStorage();
   if (!ls) return null;
   const raw = ls.getItem(ULTRA_FEED_SETTINGS_KEY);
   if (!raw) return null;
   try {
-    return { ...DEFAULT_SETTINGS, ...JSON.parse(raw) } as UltraFeedSettingsType;
+    const parsed = JSON.parse(raw);
+    // Deep merge user settings with defaults to handle missing fields
+    return merge(
+      cloneDeep(DEFAULT_SETTINGS),
+      parsed
+    ) as UltraFeedSettingsType;
   } catch {
     return null;
   }
@@ -44,13 +49,16 @@ export const useUltraFeedSettings = (): UseUltraFeedSettingsResult => {
   const { captureEvent } = useTracking();
   const deviceKind = useMemo<DeviceKind>(() => (isMobile() ? 'mobile' : 'desktop'), []);
 
-  const initialSettings: UltraFeedSettingsType = useMemo(() => {
-    const stored = readStoredSettings();
-    if (stored) return stored;
-    return getDefaultSettingsForDevice(deviceKind);
-  }, [deviceKind]);
+  // Always start with default settings to ensure SSR/client hydration match
+  const defaultSettings = useMemo(() => getDefaultSettingsForDevice(deviceKind), [deviceKind]);
+  const [settings, setSettings] = useState<UltraFeedSettingsType>(defaultSettings);
 
-  const [settings, setSettings] = useState<UltraFeedSettingsType>(initialSettings);
+  useEffect(() => {
+    const stored = readStoredSettings();
+    if (stored) {
+      setSettings(stored);
+    }
+  }, []);
 
   const updateSettings = useCallback((partial: Partial<UltraFeedSettingsType>) => {
     setSettings(prev => {
@@ -74,5 +82,4 @@ export const useUltraFeedSettings = (): UseUltraFeedSettingsResult => {
 };
 
 export default useUltraFeedSettings;
-
 

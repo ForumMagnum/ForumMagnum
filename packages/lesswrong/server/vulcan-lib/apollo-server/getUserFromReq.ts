@@ -3,32 +3,16 @@ import UsersRepo from '@/server/repos/UsersRepo';
 import type { NextRequest } from 'next/server';
 
 export const getUser = async (loginToken: string|null): Promise<DbUser|null> => {
-  if (loginToken) {
-    if (typeof loginToken !== 'string')
-      throw new Error("Login token is not a string");
+  if (!loginToken) return null;
+  if (typeof loginToken !== 'string') throw new Error("Login token is not a string");
 
-    const hashedToken = hashLoginToken(loginToken)
+  const hashedToken = hashLoginToken(loginToken)
 
-    const user = await new UsersRepo().getUserByLoginToken(hashedToken);
+  const user = await new UsersRepo().getUserByLoginToken(hashedToken);
+  if (!user) return null;
+  if (userIsBanned(user)) return null;
 
-    if (user && !userIsBanned(user)) {
-      // find the right login token corresponding, the current user may have
-      // several sessions logged on different browsers / computers
-      const tokenInformation = user.services.resume.loginTokens.find(
-        (tokenInfo: AnyBecauseTodo) => tokenInfo.hashedToken === hashedToken
-      )
-
-      const expiresAt = tokenExpiration(tokenInformation.when)
-
-      const isExpired = expiresAt < new Date()
-
-      if (!isExpired) {
-        return user
-      }
-    }
-  }
-  
-  return null;
+  return user
 };
 
 export const getUserFromReq = async (req: NextRequest): Promise<DbUser | null> => {

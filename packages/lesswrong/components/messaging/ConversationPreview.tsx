@@ -44,11 +44,12 @@ const styles = (theme: ThemeType) => ({
   }
 })
 
-const ConversationPreview = ({conversationId, classes, showTitle=true, count=10}: {
+const ConversationPreview = ({conversationId, classes, showTitle=true, count=10, showFullWidth}: {
   conversationId: string,
   classes: ClassesType<typeof styles>,
   showTitle?: boolean,
-  count?: number
+  count?: number,
+  showFullWidth?: boolean,
 }) => {
   const currentUser = useCurrentUser()!;
   const { loading: conversationLoading, data } = useQuery(ConversationsListQuery, {
@@ -77,7 +78,7 @@ const ConversationPreview = ({conversationId, classes, showTitle=true, count=10}
     { conversation && showTitle && <div className={classes.title}>{ conversationGetTitle(conversation, currentUser) }</div>}
     { conversationLoading && <Loading />}
     
-    { conversation && reversedMessages.map((message) => (<MessageItem key={message._id} message={message} />))}
+    { conversation && reversedMessages.map((message) => (<MessageItem key={message._id} message={message} showFullWidth={showFullWidth || count === 1} />))}
   </div>
 }
 

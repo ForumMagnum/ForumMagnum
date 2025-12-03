@@ -58,6 +58,7 @@
     "next-start": "NODE_OPTIONS='--inspect --no-deprecation --enable-source-maps' next start"
   },
   "dependencies": {
+    "@ai-sdk/anthropic": "^2.0.26",
     "@anthropic-ai/sdk": "^0.63.1",
     "@apollo/client": "^4.0.4",
     "@apollo/client-integration-nextjs": "^0.13.1",
@@ -84,7 +85,7 @@
     "@graphql-typed-document-node/core": "^3.2.0",
     "@heroicons/react": "^2.0.16",
     "@popperjs/core": "^2.11.5",
-    "@sentry/nextjs": "^9.41.0",
+    "@sentry/nextjs": "^10.22.0",
     "@slack/web-api": "^7.10.0",
     "@swc/core": "^1.10.18",
     "@tanstack/react-form": "^1.9.0",
@@ -118,6 +119,7 @@
     "@types/lru-cache": "^5.1.0",
     "@types/markdown-it": "^14.1.2",
     "@types/markdown-it-container": "^2.0.10",
+    "@types/markdown-it-footnote": "^3.0.4",
     "@types/md5": "^2.3.2",
     "@types/mocha": "^5.2.7",
     "@types/moment": "^2.13.0",
@@ -154,11 +156,12 @@
     "@types/shallowequal": "^1.1.1",
     "@types/simpl-schema": "^1.10.4",
     "@types/speakingurl": "^13.0.2",
+    "@types/three": "^0.181.0",
     "@types/turndown": "^5.0.0",
     "@types/uuid": "^7.0.2",
     "@types/warning": "^3.0.3",
     "@vercel/functions": "^3.1.0",
-    "akismet-api": "^4.2.0",
+    "ai": "^5.0.68",
     "algoliasearch": "^3.29.0",
     "apollo-errors": "^1.9.0",
     "auth0": "^2.42.0",
@@ -230,7 +233,7 @@
     "moment": "^2.29.4",
     "moment-timezone": "^0.5.46",
     "mysql2": "^3.11.4",
-    "next": "^15.5.2",
+    "next": "^16.0.7",
     "node-abort-controller": "^3.1.1",
     "nodemailer": "^6.9.9",
     "normalize-scroll-left": "^0.2.1",
@@ -252,6 +255,7 @@
     "react-dom": "^19.0.0",
     "react-event-listener": "^0.6.6",
     "react-geosuggest": "^2.8.0",
+    "react-globe.gl": "^2.37.0",
     "react-helmet-async": "^2.0.5",
     "react-instantsearch": "6.40.4",
     "react-instantsearch-core": "6.40.4",
@@ -282,7 +286,7 @@
     "uuid": "^7.0.0",
     "voyageai": "^0.0.8",
     "warning": "^4.0.3",
-    "zod": "^3.24.2",
+    "zod": "^3.25.76",
     "zod-to-json-schema": "^3.23.5"
   },
   "devDependencies": {
@@ -294,9 +298,9 @@
     "@babel/preset-env": "7.11.5",
     "@babel/preset-react": "7.10.4",
     "@babel/preset-typescript": "^7.12.1",
-    "@graphql-codegen/cli": "5.0.5",
-    "@graphql-codegen/client-preset": "4.8.0",
-    "@graphql-codegen/introspection": "4.0.3",
+    "@graphql-codegen/cli": "6.0.1",
+    "@graphql-codegen/client-preset": "5.1.1",
+    "@graphql-codegen/introspection": "5.0.0",
     "@next/bundle-analyzer": "^15.5.2",
     "@next/env": "^15.5.3",
     "@next/eslint-plugin-next": "^15.4.6",
@@ -376,5 +380,11 @@
   "graphql": {
     "schema": "packages/lesswrong/lib/generated/gqlSchema.gql",
     "documents": "packages/lesswrong/**/*.{graphql,ts,tsx}"
-  }
+  },
+  "browserslist": [
+    "chrome 111",
+    "edge 111",
+    "firefox 111",
+    "safari 12"
+  ]
 }

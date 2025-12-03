@@ -587,15 +587,6 @@ export const useExperimentalTagStyleSetting = new PublicInstanceSetting<boolean>
 
 export const showAnalyticsDebug = new PublicInstanceSetting<"never" | "dev" | "always">("showAnalyticsDebug", "dev", "optional");
 
-type ReasonNoReviewNeeded = "alreadyApproved" | "noReview";
-type ReasonReviewIsNeeded = "mapLocation" | "firstPost" | "firstComment" | "contactedTooManyUsers" | "bio" | "profileImage" | "newContent";
-export type ReasonForInitialReview = Exclude<ReasonReviewIsNeeded, 'newContent'>;
-export type GetReasonForReviewResult =
-  { needsReview: false; reason: ReasonNoReviewNeeded; } |
-  { needsReview: true; reason: ReasonReviewIsNeeded; };
-
-
-export const reviewReasonsSetting = new PublicInstanceSetting<Array<ReasonForInitialReview>>('moderation.reasonsForInitialReview', ['firstPost', 'firstComment', 'contactedTooManyUsers', 'bio', 'profileImage'], "optional");
 
 export const type3DateCutoffSetting = new PublicInstanceSetting<string>('type3.cutoffDate', '2023-05-01', "optional");
 export const type3ExplicitlyAllowedPostIdsSetting = new PublicInstanceSetting<string[]>('type3.explicitlyAllowedPostIds', [], "optional");

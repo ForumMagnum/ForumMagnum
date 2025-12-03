@@ -3,6 +3,7 @@ import { DialogueMessageInfo, PostsPreviewTooltip } from './PostsPreviewTooltip'
 import { useQuery } from "@/lib/crud/useQuery";
 import { gql } from "@/lib/generated/gql-codegen";
 import PostsPreviewLoading from "./PostsPreviewLoading";
+import { usePostForTooltip } from '@/components/hooks/usePostForTooltip';
 
 const TagRelFragmentQuery = gql(`
   query PostsPreviewTooltipSingle4($documentId: String) {
@@ -24,24 +25,11 @@ const CommentsListQuery = gql(`
   }
 `);
 
-const PostsListQuery = gql(`
-  query PostsPreviewTooltipSingle($documentId: String) {
-    post(input: { selector: { documentId: $documentId } }) {
-      result {
-        ...PostsList
-      }
-    }
-  }
-`);
-
 export const PostsPreviewTooltipSingle = ({postId, postsList=false}: {
   postId: string,
   postsList?: boolean
 }) => {
-  const { loading: postLoading, data } = useQuery(PostsListQuery, {
-    variables: { documentId: postId },
-    fetchPolicy: 'cache-first',
-  });
+  const { loading: postLoading, data } = usePostForTooltip(postId);
   const post = data?.post?.result;
 
   if (postLoading) {
@@ -58,10 +46,7 @@ export const DialogueMessagePreviewTooltip = ({postId, postsList=false, dialogue
   postsList?: boolean
   dialogueMessageInfo: DialogueMessageInfo,
 }) => {
-  const { loading: postLoading, data } = useQuery(PostsListQuery, {
-    variables: { documentId: postId },
-    fetchPolicy: 'cache-first',
-  });
+  const { loading: postLoading, data } = usePostForTooltip(postId);
   const post = data?.post?.result;
 
   if (postLoading) {
@@ -77,10 +62,7 @@ export const PostsPreviewTooltipSingleWithComment = ({postId, commentId}: {
   postId: string,
   commentId: string,
 }) => {
-  const { loading: postLoading, data: dataPost } = useQuery(PostsListQuery, {
-    variables: { documentId: postId },
-    fetchPolicy: 'cache-first',
-  });
+  const { loading: postLoading, data: dataPost } = usePostForTooltip(postId);
   const post = dataPost?.post?.result;
 
   const { loading: commentLoading, data: dataComment } = useQuery(CommentsListQuery, {

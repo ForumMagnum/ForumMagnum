@@ -20,6 +20,14 @@ export interface NamesAttachedReactionsCommentBottomProps extends CommentVotingC
   invertColors?: boolean;
 }
 
+export interface NamesAttachedReactionsMessageBottomProps {
+  voteProps: VotingProps<VoteableTypeClient>;
+  invertColors?: boolean;
+  isCurrentUser?: boolean;
+  showReactionButton?: boolean;
+  selection?: { text: string, disabled: boolean };
+}
+
 export type PostVotingComponentProps = {
   document: PostsWithVotes;
   votingSystem: VotingSystem;
@@ -28,7 +36,7 @@ export type PostVotingComponentProps = {
 
 export type CommentVotingComponent = React.ComponentType<CommentVotingComponentProps>;
 export type CommentVotingBottomComponent = React.ComponentType<NamesAttachedReactionsCommentBottomProps>;
-export type MessageVotingBottomComponent = React.ComponentType<NamesAttachedReactionsCommentBottomProps>;
+export type MessageVotingBottomComponent = React.ComponentType<NamesAttachedReactionsMessageBottomProps>;
 export type PostVotingComponent = React.ComponentType<PostVotingComponentProps>;
 
 export interface VotingSystem<ExtendedVoteType = any, ExtendedScoreType = any> {

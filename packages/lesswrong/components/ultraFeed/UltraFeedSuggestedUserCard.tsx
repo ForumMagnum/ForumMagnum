@@ -1,13 +1,10 @@
 import React, { useCallback, useRef } from 'react';
 import classNames from 'classnames';
 import { defineStyles, useStyles } from '../hooks/useStyles';
-import { useDialog } from '../common/withDialog';
 import FollowUserButton from "../users/FollowUserButton";
 import UserMetaInfo from "../users/UserMetaInfo";
-import { Link } from '../../lib/reactRouterWrapper';
 import { userGetProfileUrl } from '../../lib/collections/users/helpers';
 import ContentStyles from "../common/ContentStyles";
-import UltraFeedUserDialog from "./UltraFeedUserDialog";
 import { commentBodyStyles } from '@/themes/stylePiping';
 import { useQuery } from "@/lib/crud/useQuery";
 import { gql } from "@/lib/generated/gql-codegen";
@@ -15,6 +12,7 @@ import Loading from "../vulcan-core/Loading";
 import TagSmallPostLink from '../tagging/TagSmallPostLink';
 import { AnalyticsContext } from '../../lib/analyticsEvents';
 import { useCurrentUserId } from '../common/withUser';
+import { useNavigate } from '../../lib/routeUtil';
 
 const UserRecentPostsQuery = gql(`
   query UserRecentPostsForCompactCard($selector: PostSelector, $limit: Int, $enableTotal: Boolean) {
@@ -142,11 +140,13 @@ const UltraFeedSuggestedUserCard = ({
   onFollowToggle?: (user: UsersMinimumInfo) => void;
 }) => {
   const classes = useStyles(styles);
-  const { openDialog } = useDialog();
   const followButtonRef = useRef<HTMLDivElement>(null);
   const currentUserId = useCurrentUserId();
+  const navigate = useNavigate();
   
-  const hasBio = !!(user.htmlBio && user.htmlBio.trim().length > 0);
+  const { htmlBio, displayName } = user;
+  const profileUrl = userGetProfileUrl(user);
+  const hasBio = !!(htmlBio && htmlBio.trim().length > 0);
   
   const { data: postsData, loading: postsLoading } = useQuery(UserRecentPostsQuery, {
     variables: {
@@ -158,31 +158,7 @@ const UltraFeedSuggestedUserCard = ({
     notifyOnNetworkStatusChange: true,
   });
   
-  const handleOpenUserModal = useCallback(() => {
-    openDialog({
-      name: "UltraFeedUserDialog",
-      closeOnNavigate: true,
-      contents: ({ onClose }) => (
-        <UltraFeedUserDialog
-          user={user}
-          onClose={onClose}
-        />
-      )
-    });
-  }, [openDialog, user]);
-
-  const handleCardClick = useCallback((e: React.MouseEvent) => {
-    // Don't open modal if clicking on follow button
-    if (followButtonRef.current?.contains(e.target as Node)) {
-      return;
-    }
-    const target = e.target as HTMLElement;
-    // Check if we clicked on a link (like in posts)
-    if (target.closest('a')) {
-      return;
-    }
-    handleOpenUserModal();
-  }, [handleOpenUserModal]);
+  const posts = postsData?.posts?.results;
 
   const handleFollowClick = useCallback((e: React.MouseEvent) => {
     e.stopPropagation();
@@ -192,33 +168,27 @@ const UltraFeedSuggestedUserCard = ({
     }
   }, [currentUserId, user, onFollowToggle]);
 
+  const handleCardClick = useCallback((e: React.MouseEvent) => {
+    // Check if the click was on a nested link or button - if so, let it handle the navigation
+    const target = e.target as HTMLElement;
+    if (target.closest('a, button')) {
+      return;
+    }
+    navigate(profileUrl);
+  }, [navigate, profileUrl]);
+
   if (!user?._id) {
     return <div className={classes.root}>User not found</div>;
   }
 
-  const { htmlBio, displayName } = user;
-  const profileUrl = userGetProfileUrl(user);
-  const posts = postsData?.posts?.results;
-
   
   return (
     <AnalyticsContext pageElementContext="suggestedUserCard" userIdDisplayed={user._id}>
-      <div 
-        className={classes.root}
-        onClick={handleCardClick}
-      >
+      <div className={classes.root} onClick={handleCardClick}>
         <div className={classes.nameRow}>
-          <Link 
-            to={profileUrl}
-            className={classNames(classes.name, classes.nameLink)}
-            onClick={(e) => {
-              e.preventDefault();
-              e.stopPropagation();
-              handleOpenUserModal();
-            }}
-          >
+          <div className={classNames(classes.name, classes.nameLink)}>
             {displayName}
-          </Link>
+          </div>
           <div 
             ref={followButtonRef}
             className={classes.followButtonWrapper}

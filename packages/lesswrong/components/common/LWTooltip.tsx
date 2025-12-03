@@ -40,6 +40,13 @@ export type LWTooltipProps = {
   onHide?: () => void,
   children?: ReactNode,
   forceOpen?: boolean,
+  /**
+   * By default, LWTooltip avoids rendering the underlying LWPopper element until the first time the anchor
+   * element is hovered.  If this is set to true, the LWPopper will be rendered immediately.  This allows
+   * displaying tooltips by the use of `forceOpen`, without requiring the user to hover over them.
+   * e.g. to display a tooltip when a user has a command palette menu item selected with their keyboard.
+   */
+  renderWithoutHover?: boolean,
   classes: ClassesType<typeof styles>,
 }
 
@@ -63,11 +70,17 @@ const LWTooltip = ({
   children,
   className,
   forceOpen,
+  renderWithoutHover,
   classes,
 }: LWTooltipProps) => {
   const [delayedClickable, setDelayedClickable] = useState(false);
 
   const timeoutRef = useRef<NodeJS.Timeout | null>(null);
+  
+  // In the case where we have `renderWithoutHover: true`, we want the wrapping span/div
+  // to serve as the default anchor element for the tooltip, since we won't have one
+  // from `useHover` unless the user manually hovers over the element with their mouse.
+  const defaultAnchorElRef = useRef<HTMLDivElement>(null);
 
   const clearDelayTimeout = useCallback(() => {
     if (timeoutRef.current) {
@@ -115,14 +128,14 @@ const LWTooltip = ({
   return <As className={classNames(
     inlineBlock && classes.root,
     className
-  )} {...eventHandlers}>
+  )} {...eventHandlers} ref={defaultAnchorElRef}>
     { /* Only render the LWPopper if this element has ever been hovered. (But
          keep it in the React tree thereafter, so it can remember its state and
          can have a closing animation if applicable. */ }
-    {everHovered && <LWPopper
+    {(everHovered || renderWithoutHover) && <LWPopper
       placement={placement}
       open={forceOpen || (hover && !disabled)}
-      anchorEl={anchorEl}
+      anchorEl={anchorEl ?? defaultAnchorElRef.current}
       tooltip={tooltip}
       allowOverflow={!flip}
       clickable={delayedClickable}

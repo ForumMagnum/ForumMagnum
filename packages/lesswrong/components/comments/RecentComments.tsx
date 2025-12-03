@@ -1,24 +1,12 @@
 import React from 'react';
 import { registerComponent } from '../../lib/vulcan-lib/components';
-import classNames from 'classnames';
 import { Typography } from "../common/Typography";
 import Loading from "../vulcan-core/Loading";
 import CommentsNode from "./CommentsNode";
 import LoadMore from "../common/LoadMore";
 import { NetworkStatus } from "@apollo/client";
 import { useQueryWithLoadMore } from "@/components/hooks/useQueryWithLoadMore";
-import { gql } from "@/lib/generated/gql-codegen";
-
-const CommentsListWithParentMetadataMultiQuery = gql(`
-  query multiCommentRecentCommentsQuery($selector: CommentSelector, $limit: Int, $enableTotal: Boolean) {
-    comments(selector: $selector, limit: $limit, enableTotal: $enableTotal) {
-      results {
-        ...CommentsListWithParentMetadata
-      }
-      totalCount
-    }
-  }
-`);
+import { CommentsListWithParentMetadataMultiQuery } from './queries';
 
 const styles = (theme: ThemeType) =>  ({
   root: {

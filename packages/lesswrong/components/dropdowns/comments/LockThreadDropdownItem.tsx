@@ -20,7 +20,7 @@ const LockThreadDropdownItem = ({comment}: {comment: CommentsList}) => {
     }
   `));
 
-  if (!userIsAdminOrMod(currentUser)) {
+  if (!userIsAdminOrMod(currentUser) || comment.draft) {
     return null;
   }
 

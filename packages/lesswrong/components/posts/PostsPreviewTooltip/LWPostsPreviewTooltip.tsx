@@ -240,6 +240,7 @@ const LWPostsPreviewTooltip = ({
                 comment={renderedComment}
                 hoverPreview
                 forceUnCollapsed
+                noAutoScroll
               />
             </div>
           : loading

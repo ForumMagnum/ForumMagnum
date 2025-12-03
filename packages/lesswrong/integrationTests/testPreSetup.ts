@@ -2,6 +2,7 @@ import 'regenerator-runtime/runtime';
 import { filterConsoleLogSpam } from '../lib/consoleFilters';
 import { AbortSignal } from "node-abort-controller";
 // See https://github.com/openai/openai-node#customizing-the-fetch-client
+// eslint-disable-next-line no-restricted-imports
 import "openai/shims/node";
 
 // Fix for Reference error AbortSignal in `lru-cache`

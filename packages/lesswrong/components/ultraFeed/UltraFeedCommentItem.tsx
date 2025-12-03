@@ -7,8 +7,6 @@ import { useUltraFeedObserver } from "./UltraFeedObserver";
 import { AnalyticsContext, useTracking } from "@/lib/analyticsEvents";
 import { FeedCommentMetaInfo, FeedItemDisplayStatus } from "./ultraFeedTypes";
 import { useOverflowNav } from "./OverflowNavObserverContext";
-import { useDialog } from "../common/withDialog";
-import UltraFeedPostDialog from "./UltraFeedPostDialog";
 import UltraFeedCommentsItemMeta from "./UltraFeedCommentsItemMeta";
 import FeedContentBody from "./FeedContentBody";
 import UltraFeedItemFooter from "./UltraFeedItemFooter";
@@ -19,6 +17,7 @@ import { useCurrentUser } from "../common/withUser";
 import { userIsAdmin, userOwns } from "../../lib/vulcan-users/permissions";
 import CommentsEditForm from "../comments/CommentsEditForm";
 import { useUltraFeedContext } from "./UltraFeedContextProvider";
+import { commentGetPageUrlFromIds } from "@/lib/collections/comments/helpers";
 
 
 const commentHeaderPaddingDesktop = 12;
@@ -294,7 +293,6 @@ export const UltraFeedCommentItem = ({
   const classes = useStyles(styles);
   const { observe, unobserve, trackExpansion } = useUltraFeedObserver();
   const elementRef = useRef<HTMLDivElement | null>(null);
-  const { openDialog } = useDialog();
   const { openInNewTab } = useUltraFeedContext();
   const overflowNav = useOverflowNav(elementRef);
   const currentUser = useCurrentUser();
@@ -379,40 +377,6 @@ export const UltraFeedCommentItem = ({
 
   }, [trackExpansion, comment._id, comment.postId, displayStatus, onChangeDisplayStatus, metaInfo.servedEventId, captureEvent, threadIndex, commentIndex]);
 
-  const handleContinueReadingClick = useCallback(() => {
-    captureEvent("ultraFeedCommentItemContinueReadingClicked");
-    
-    // If comment doesn't have a post, we can't open the dialog but this should never happen
-    if (!comment.post) {
-      return;
-    }
-    
-    const post = comment.post;
-    
-    if (openInNewTab) {
-      const postUrl = `/posts/${post._id}/${post.slug}?commentId=${comment._id}`;
-      window.open(postUrl, '_blank');
-    } else {
-      openDialog({
-        name: "UltraFeedPostDialog",
-        closeOnNavigate: true,
-        contents: ({ onClose }) => (
-          <UltraFeedPostDialog 
-            partialPost={post}
-            postMetaInfo={{
-              sources: metaInfo.sources,
-              displayStatus: 'expanded' as const,
-              servedEventId: metaInfo.servedEventId ?? '',
-              highlight: false
-            }}
-            targetCommentId={comment._id}
-            topLevelCommentId={comment.topLevelCommentId ?? comment._id}
-            onClose={onClose}
-          />
-        )
-      });
-    }
-  }, [openDialog, comment, captureEvent, metaInfo, openInNewTab]);
 
   const truncationParams = useMemo(() => {
     const { displaySettings } = settings;
@@ -455,6 +419,13 @@ export const UltraFeedCommentItem = ({
     initialWordCount = truncationParams.initialWordCount;
   }
 
+  const continueReadingUrl = commentGetPageUrlFromIds({
+    postId: comment.post?._id,
+    postSlug: comment.post?.slug,
+    tagSlug: comment.tag?.slug,
+    tagCommentType: comment.tagCommentType,
+    commentId: comment._id,
+  });
 
   return (
     <AnalyticsContext ultraFeedElementType="feedComment" commentId={comment._id} postId={comment.postId ?? undefined} ultraFeedSources={metaInfo.sources}>
@@ -506,10 +477,10 @@ export const UltraFeedCommentItem = ({
                   initialWordCount={initialWordCount}
                   maxWordCount={truncationParams.maxWordCount}
                   wordCount={comment.contents?.wordCount ?? 0}
+                  continueReadingUrl={continueReadingUrl}
                   nofollow={(comment.user?.karma ?? 0) < nofollowKarmaThreshold.get()}
                   clampOverride={displaySettings.lineClampNumberOfLines}
                   onExpand={handleContentExpand}
-                  onContinueReadingClick={handleContinueReadingClick}
                   hideSuffix={false}
                   resetSignal={resetSig}
                   isRead={isRead}
@@ -524,6 +495,7 @@ export const UltraFeedCommentItem = ({
               className={classNames(classes.footer, { [classes.footerGreyedOut]: isSeeLessMode })}
               replyConfig={replyConfig}
               cannotReplyReason={cannotReplyReason}
+              isFirstCommentInThread={isFirstComment}
             />}
         </div>
       </div>

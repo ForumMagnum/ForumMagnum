@@ -1,12 +1,11 @@
 import moment from "moment"
 import { getTimeframeForRateLimit } from "../lib/collections/moderatorActions/helpers"
-import { EXEMPT_FROM_RATE_LIMITS, MODERATOR_ACTION_TYPES, PostAndCommentRateLimitTypes, RATE_LIMIT_THREE_COMMENTS_PER_POST_PER_WEEK, postAndCommentRateLimits } from "@/lib/collections/moderatorActions/constants"
+import { EXEMPT_FROM_RATE_LIMITS, MODERATOR_ACTION_TYPES, PostAndCommentRateLimitTypes, RATE_LIMIT_THREE_COMMENTS_PER_POST_PER_WEEK, STRICTER_COMMENT_AUTOMOD_RATE_LIMIT, STRICTER_POST_AUTOMOD_RATE_LIMIT, postAndCommentRateLimits } from "@/lib/collections/moderatorActions/constants"
 import { forumSelect } from "../lib/forumTypeUtils"
 import { userIsAdmin, userIsMemberOf } from "../lib/vulcan-users/permissions"
 import { autoCommentRateLimits, autoPostRateLimits } from "../lib/rateLimits/constants"
-import type { CommentAutoRateLimit, PostAutoRateLimit, RateLimitComparison, RateLimitFeatures, RateLimitInfo, RecentKarmaInfo, RecentVoteInfo, UserKarmaInfoWindow, UserRateLimit } from "../lib/rateLimits/types"
+import type { AutoRateLimit, CommentAutoRateLimit, PostAutoRateLimit, RateLimitComparison, RateLimitFeatures, RateLimitInfo, RecentKarmaInfo, RecentVoteInfo, UserKarmaInfoWindow, UserRateLimit } from "../lib/rateLimits/types"
 import { calculateRecentKarmaInfo, documentOnlyHasSelfVote, getActiveRateLimits, getAutoRateLimitInfo, getCurrentAndPreviousUserKarmaInfo, getMaxAutoLimitHours, getModRateLimitInfo, getRateLimitStrictnessComparisons, getStrictestRateLimitInfo, getManualRateLimitInfo, getManualRateLimitIntervalHours, getDownvoteRatio } from "../lib/rateLimits/utils"
-import { triggerReview } from "./callbacks/helpers"
 import { appendToSunshineNotes } from "../lib/collections/users/helpers"
 import { isNonEmpty } from "@/lib/utils/typeGuardUtils"
 import type { NonEmptyArray } from "fp-ts/lib/NonEmptyArray"
@@ -331,7 +330,6 @@ async function recordRateLimitEvent(
   }
 
   const { LWEvents } = context;
-  // Use rawInsert to avoid circular dependencies with createLWEvent
   await LWEvents.rawInsert({
     name: eventName,
     userId,
@@ -348,8 +346,40 @@ async function recordRateLimitEvent(
       timeframeUnit: rateLimit.timeframeUnit,
       rateLimitMessage: rateLimit.rateLimitMessage,
       triggeredAt: triggeredAt.toISOString()
-    } as any // Type assertion needed for JSONB field
+    }
   });
+}
+
+async function createModeratorActionForStricterRateLimit(userId: string, autoRateLimit: AutoRateLimit, context: ResolverContext) {
+  const { actionType, itemsPerTimeframe, timeframeUnit, timeframeLength } = autoRateLimit;
+  const moderatorActionType = actionType === 'Comments'
+    ? STRICTER_COMMENT_AUTOMOD_RATE_LIMIT
+    : STRICTER_POST_AUTOMOD_RATE_LIMIT;
+
+  // Importing these directly causes a crash-on-startup dependency cycle; probably something from this file
+  // is imported and used directly in a collection schema declaration.
+  const { createModeratorAction } = await import("./collections/moderatorActions/mutations");
+  const { createAdminContext } = await import("./vulcan-lib/createContexts");
+  
+  // Use admin context instead to avoid leaking bits about whose vote on this user triggered the stricter rate limit
+  const adminContext = createAdminContext();
+
+  await createModeratorAction({
+    data: {
+      type: moderatorActionType,
+      userId,
+    },
+  }, adminContext);
+
+  const itemType = actionType === 'Comments' ? 'comment' : 'post';
+  const sunshineNote = `User triggered a stricter ${itemsPerTimeframe} ${itemType}(s) per ${timeframeLength} ${timeframeUnit} rate limit`;
+
+  await appendToSunshineNotes({
+    moderatedUserId: userId,
+    adminName: 'Automod',
+    text: sunshineNote,
+    context: adminContext,
+  })
 }
 
 function triggerReviewForStricterRateLimits(
@@ -367,29 +397,13 @@ function triggerReviewForStricterRateLimits(
 
   if (commentRateLimitComparison.isStricter) {
     const { strictestNewRateLimit } = commentRateLimitComparison;
-    const { itemsPerTimeframe, timeframeUnit, timeframeLength } = strictestNewRateLimit;
-
-    backgroundTask(triggerReview(userId, context));
-    backgroundTask(appendToSunshineNotes({
-      moderatedUserId: userId,
-      adminName: 'Automod',
-      text: `User triggered a stricter ${itemsPerTimeframe} comment(s) per ${timeframeLength} ${timeframeUnit} rate limit`,
-      context,
-    }));
+    backgroundTask(createModeratorActionForStricterRateLimit(userId, strictestNewRateLimit, context))
     backgroundTask(recordRateLimitEvent(userId, "rateLimitActivated", strictestNewRateLimit, documentId, collectionName, triggeredAt, context));
   }
 
   if (postRateLimitComparison.isStricter) {
     const { strictestNewRateLimit } = postRateLimitComparison;
-    const { itemsPerTimeframe, timeframeUnit, timeframeLength } = strictestNewRateLimit;
-
-    backgroundTask(triggerReview(userId, context));
-    backgroundTask(appendToSunshineNotes({
-      moderatedUserId: userId,
-      adminName: 'Automod',
-      text: `User triggered a stricter ${itemsPerTimeframe} post(s) per ${timeframeLength} ${timeframeUnit} rate limit`,
-      context,
-    }));
+    backgroundTask(createModeratorActionForStricterRateLimit(userId, strictestNewRateLimit, context))
     backgroundTask(recordRateLimitEvent(userId, "rateLimitActivated", strictestNewRateLimit, documentId, collectionName, triggeredAt, context));
   }
 }

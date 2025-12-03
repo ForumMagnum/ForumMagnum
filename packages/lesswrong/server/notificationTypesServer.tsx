@@ -196,7 +196,6 @@ export const NewSequencePostsNotification = createServerNotificationType({
     const posts = await Posts.find({
       _id: {$in: extraData.postIds},
       draft: {$ne: true},
-      deletedDraft: {$ne: true},
     }).fetch()
     
     if (!posts.length) throw Error(`No valid new posts for notification: ${notifications[0]}`)

@@ -54,6 +54,9 @@ export const MixedTypeFeed = <
   // Disable automatically loading more - only show the initially fetched documents
   disableLoadMore?: boolean,
 
+  // Pause pagination - don't fetch more even if scrolling
+  pausePagination?: boolean,
+
   className?: string,
 
   // Distance from bottom of viewport to trigger loading more items
@@ -75,6 +78,7 @@ export const MixedTypeFeed = <
     reorderOnRefetch=false,
     hideLoading,
     disableLoadMore,
+    pausePagination=false,
     className,
     loadMoreDistanceProp = defaultLoadMoreDistance,
     fetchPolicy = "cache-and-network",
@@ -116,6 +120,9 @@ export const MixedTypeFeed = <
   // maybeStartLoadingMore: Test whether the scroll position is close enough to
   // the bottom that we should start loading the next page, and if so, start loading it.
   const maybeStartLoadingMore = () => {
+    // Don't paginate if paused
+    if (pausePagination) return;
+    
     // Client side, scrolled to near the bottom? Start loading if we aren't loading already.
     if (isClient
       && bottomRef?.current

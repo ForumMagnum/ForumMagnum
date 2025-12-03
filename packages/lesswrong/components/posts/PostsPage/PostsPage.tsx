@@ -28,6 +28,7 @@ import { useVote } from '@/components/votes/withVote';
 import { getVotingSystemByName } from '@/lib/voting/getVotingSystem';
 import DeferRender from '@/components/common/DeferRender';
 import { SideItemVisibilityContextProvider } from '@/components/dropdowns/posts/SetSideItemVisibility';
+import PostsBottomBar from '../PostsBottomBar';
 import LWPostsPageHeader, { LW_POST_PAGE_PADDING } from './LWPostsPageHeader';
 import { useCommentLinkState } from '@/components/comments/CommentsItem/useCommentLink';
 import { useCurrentTime } from '@/lib/utils/timeUtil';
@@ -81,21 +82,9 @@ import { StructuredData } from '@/components/common/StructuredData';
 import { LWCommentCount } from '../TableOfContents/LWCommentCount';
 import { NetworkStatus } from "@apollo/client";
 import { useQuery } from "@/lib/crud/useQuery"
-import { gql } from "@/lib/generated/gql-codegen";
 import { returnIfValidNumber } from '@/lib/utils/typeGuardUtils';
-import { useQueryWithLoadMore, LoadMoreProps } from '@/components/hooks/useQueryWithLoadMore';
-import type { useQuery as useQueryType } from '@apollo/client/react';
-
-const CommentsListMultiQuery = gql(`
-  query multiCommentPostsPageQuery($selector: CommentSelector, $limit: Int, $enableTotal: Boolean) {
-    comments(selector: $selector, limit: $limit, enableTotal: $enableTotal) {
-      results {
-        ...CommentsList
-      }
-      totalCount
-    }
-  }
-`);
+import { useQueryWithLoadMore } from '@/components/hooks/useQueryWithLoadMore';
+import { CommentsListMultiQuery, postCommentsThreadQuery } from '../queries';
 
 const HIDE_TOC_WORDCOUNT_LIMIT = 300
 const MAX_ANSWERS_AND_REPLIES_QUERIED = 10000
@@ -274,24 +263,6 @@ const getDebateResponseBlocks = (responses: readonly CommentsList[], replies: re
   replies: replies.filter(reply => reply.topLevelCommentId === debateResponse._id)
 }));
 
-export const postsCommentsThreadMultiOptions = {
-  collectionName: "Comments" as const,
-  fragmentName: 'CommentsList' as const,
-  fetchPolicy: 'cache-and-network' as const,
-  enableTotal: true,
-}
-
-export const postCommentsThreadQuery = gql(`
-  query postCommentsThreadQuery($selector: CommentSelector, $limit: Int, $enableTotal: Boolean) {
-    comments(selector: $selector, limit: $limit, enableTotal: $enableTotal) {
-      results {
-        ...CommentsList
-      }
-      totalCount
-    }
-  }
-`);
-
 function usePostCommentTerms<T extends CommentsViewTerms>(currentUser: UsersCurrent | null, defaultTerms: T, query: Record<string, string>) {
   const commentOpts = { includeAdminViews: currentUser?.isAdmin };
   let view;
@@ -312,8 +283,9 @@ function usePostCommentTerms<T extends CommentsViewTerms>(currentUser: UsersCurr
 }
 
 
-const PostsPage = ({fullPost, postPreload, refetch}: {
+const PostsPage = ({fullPost, postPreload, refetch, embedded}: {
   refetch: () => void,
+  embedded?: boolean,
 } & (
   { fullPost: PostsWithNavigation|PostsWithNavigationAndRevision, postPreload: undefined }
   | { fullPost: undefined, postPreload: PostsListWithVotes }
@@ -392,18 +364,18 @@ const PostsPage = ({fullPost, postPreload, refetch}: {
   }, [navigate, location.location, openDialog, fullPost, query]);
 
   const sortBy: CommentSortingMode = (query.answersSorting as CommentSortingMode) || "top";
-  const { data } = useQuery(CommentsListMultiQuery, {
+  const { data: answersAndRepliesData } = useQuery(CommentsListMultiQuery, {
     variables: {
       selector: { answersAndReplies: { postId: post._id, sortBy } },
       limit: MAX_ANSWERS_AND_REPLIES_QUERIED,
-      enableTotal: true,
+      enableTotal: false,
     },
     skip: !post.question,
     fetchPolicy: 'cache-and-network',
     notifyOnNetworkStatusChange: true,
   });
 
-  const answersAndReplies = data?.comments?.results;
+  const answersAndReplies = answersAndRepliesData?.comments?.results;
   const answers = answersAndReplies?.filter(c => c.answer) ?? [];
 
   // note: these are from a debate feature that was deprecated in favor of collabEditorDialogue.
@@ -485,7 +457,6 @@ const PostsPage = ({fullPost, postPreload, refetch}: {
     !currentUser?.hidePostsRecommendations &&
     !post.shortform &&
     !post.draft &&
-    !post.deletedDraft &&
     !post.question &&
     !post.debate &&
     !post.isEvent &&
@@ -524,7 +495,7 @@ const PostsPage = ({fullPost, postPreload, refetch}: {
     variables: {
       selector: { [view]: { postId: post._id } },
       limit,
-      enableTotal: true,
+      enableTotal: false,
     },
     fetchPolicy: 'cache-and-network' as const,
   });
@@ -852,6 +823,7 @@ const PostsPage = ({fullPost, postPreload, refetch}: {
             answerCount={answerCount}
             commentCount={displayedPublicCommentCount}
           />}
+          embedded={embedded}
         />
       : <ToCColumn
           tableOfContents={tableOfContents}
@@ -875,6 +847,7 @@ const PostsPage = ({fullPost, postPreload, refetch}: {
     </ImageProvider>
     </SideItemsContainer>
     </RecombeeRecommendationsContextWrapper>
+    <PostsBottomBar />
     </PostsPageContext.Provider>
   </AnalyticsContext>
 }

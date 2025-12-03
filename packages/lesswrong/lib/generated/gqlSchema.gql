@@ -621,6 +621,7 @@ extend type Query {
   DigestPlannerData(digestId: String, startDate: Date, endDate: Date): [DigestPlannerPost!]!
   DigestPosts(num: Int): [Post!]
   HomepageCommunityEvents(limit: Int!): HomepageCommunityEventMarkersResult!
+  HomepageCommunityEventPosts(eventType: String!): HomepageCommunityEventPostsResult!
 }
 
 extend type Mutation {
@@ -680,6 +681,10 @@ type HomepageCommunityEventMarker {
 
 type HomepageCommunityEventMarkersResult {
   events: [HomepageCommunityEventMarker!]!
+}
+
+type HomepageCommunityEventPostsResult {
+  posts: [Post!]!
 }
 
 type DigestHighlightsResult {
@@ -824,33 +829,6 @@ type RecentDiscussionFeedEntry {
 
 extend type Query {
   RecentDiscussionFeed(limit: Int, cutoff: Date, offset: Int, af: Boolean): RecentDiscussionFeedQueryResults!
-}
-
-type SubscribedPostAndComments {
-  _id: String!
-  post: Post!
-  comments: [Comment!]
-  expandCommentIds: [String!]
-  postIsFromSubscribedUser: Boolean!
-}
-
-type SubscribedFeedQueryResults {
-  cutoff: Date
-  endOffset: Int!
-  results: [SubscribedFeedEntry!]
-}
-
-enum SubscribedFeedEntryType {
-  postCommented
-}
-
-type SubscribedFeedEntry {
-  type: SubscribedFeedEntryType!
-  postCommented: SubscribedPostAndComments
-}
-
-extend type Query {
-  SubscribedFeed(limit: Int, cutoff: Date, offset: Int, af: Boolean): SubscribedFeedQueryResults!
 }
 
 type TagHistoryFeedQueryResults {
@@ -1268,6 +1246,11 @@ type ModeratorIPAddressInfo {
   userIds: [String!]!
 }
 
+enum ContentCollectionName {
+  Posts
+  Comments
+}
+
 extend type Query {
   moderatorViewIPAddress(ipAddress: String!): ModeratorIPAddressInfo
 }
@@ -1275,6 +1258,8 @@ extend type Query {
 extend type Mutation {
   lockThread(commentId: String!, until: String): Boolean!
   unlockThread(commentId: String!): Boolean!
+  rejectContentAndRemoveUserFromQueue(userId: String!, documentId: String!, collectionName: ContentCollectionName!, rejectedReason: String!, messageContent: String): Boolean!
+  approveUserCurrentContentOnly(userId: String!): Boolean!
 }
 
 extend type Mutation {
@@ -1392,6 +1377,7 @@ extend type Mutation {
 type FeedSpotlightMetaInfo {
   sources: [String!]!
   servedEventId: String!
+  rankingMetadata: JSON
 }
 
 type FeedPost {
@@ -1405,8 +1391,8 @@ type FeedCommentThread {
   commentMetaInfos: JSON
   comments: [Comment!]!
   post: Post
-  isOnReadPost: Boolean
   postSources: [String!]
+  postMetaInfo: JSON
 }
 
 type FeedSpotlightItem {
@@ -1421,6 +1407,12 @@ type FeedSubscriptionSuggestions {
   suggestedUsers: [User!]!
 }
 
+type FeedMarker {
+  _id: String!
+  markerType: String!
+  timestamp: Date!
+}
+
 type UltraFeedQueryResults {
   cutoff: Date
   endOffset: Int!
@@ -1433,6 +1425,7 @@ enum UltraFeedEntryType {
   feedPost
   feedSpotlight
   feedSubscriptionSuggestions
+  feedMarker
 }
 
 type UltraFeedEntry {
@@ -1441,6 +1434,7 @@ type UltraFeedEntry {
   feedPost: FeedPost
   feedSpotlight: FeedSpotlightItem
   feedSubscriptionSuggestions: FeedSubscriptionSuggestions
+  feedMarker: FeedMarker
 }
 
 extend type Query {
@@ -1466,14 +1460,17 @@ type ElicitQuestionPredictionCreator {
   sourceUserId: String
 }
 
-type PredictionInefficiency {
-  inefficiency: Float!
-  totalPredicted: Float!
+extend type Query {
+  getBookWordCount(bookId: String!): Float
+}
+
+type SequenceStats {
+  totalWordCount: Float
+  totalReadTime: Float
 }
 
 extend type Query {
-  reviewPredictionPosts(year: Int!, limit: Int = 50): [Post!]!
-  manifoldPredictionInefficiency(year: Int!): PredictionInefficiency!
+  getSequenceStats(sequenceId: String!): SequenceStats
 }
 
 type AdvisorRequest {
@@ -3801,9 +3798,6 @@ type ManifoldProbabilitiesCache {
   year: Float!
   lastUpdated: Date!
   url: String
-  mechanism: String
-  pool: JSON
-  p: Float
 }
 
 type Message {
@@ -3965,6 +3959,19 @@ enum ModeratorActionType {
   potentialTargetedDownvoting
   exemptFromRateLimits
   receivedSeniorDownvotesAlert
+  manualNeedsReview
+  unreviewedBioUpdate
+  unreviewedMapLocationUpdate
+  unreviewedProfileImageUpdate
+  unreviewedFirstPost
+  unreviewedFirstComment
+  unreviewedPost
+  unreviewedComment
+  snoozeExpired
+  stricterCommentAutomodRateLimit
+  stricterPostAutomodRateLimit
+  manualRateLimitExpired
+  votingDisabled
 }
 
 input SingleModeratorActionInput {
@@ -4486,6 +4493,7 @@ type Post {
   tagRel(tagId: String): TagRel
   tags: [Tag!]!
   tagRelevance: JSON
+  tagRels: [TagRel!]!
   lastPromotedComment: Comment
   bestAnswer: Comment
   noIndex: Boolean!
@@ -4643,6 +4651,12 @@ type Post {
   afBaseScore: Float
   afExtendedScore: JSON
   afVoteCount: Float
+  frontpageClassification: FrontpageClassification
+}
+
+type FrontpageClassification {
+  isFrontpage: Boolean!
+  probability: Float!
 }
 
 enum PostCategory {
@@ -7889,6 +7903,7 @@ type User {
   permanentDeletionRequestedAt: Date
   voteBanned: Boolean
   nullifyVotes: Boolean
+  votingDisabled: Boolean!
   deleteContent: Boolean
   banned: Date
   IPs: [String!]
@@ -8064,6 +8079,9 @@ type User {
   userSurveyEmailSentAt: Date
   karmaChanges(startDate: Date, endDate: Date): KarmaChanges
   recommendationSettings: JSON
+  lastRemovedFromReviewQueueAt: Date
+  rejectedContentCount: Int
+  userRateLimits: [UserRateLimit!]
 }
 
 enum ReactPaletteStyle {

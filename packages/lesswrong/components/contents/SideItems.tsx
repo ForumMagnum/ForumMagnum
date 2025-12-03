@@ -1,9 +1,6 @@
 import React, { createContext, useCallback, useContext, useEffect, useMemo, useReducer, useRef, useState } from 'react';
-import classNames from 'classnames';
 import orderBy from 'lodash/orderBy';
 import { createPortal } from 'react-dom';
-import { useHover } from '@/components/common/withHover';
-import { registerComponent } from '@/lib/vulcan-lib/components';
 import { getOffsetChainTop } from '@/lib/utils/domUtil';
 import { defineStyles, useStyles } from '../hooks/useStyles';
 
@@ -22,7 +19,7 @@ type SideItem = {
   anchorEl: HTMLElement
   container: HTMLElement
   options: SideItemOptions
-
+  
   anchorTop: number|null
   anchorLeft: number|null
   sideItemHeight: number|null
@@ -201,7 +198,7 @@ export const SideItemsSidebar = () => {
       const style = `top:${newTop}px; --sidebar-column-remaining-height: ${sidebarColumnHeight - newTop}px`;
 
       sideItem.container.setAttribute("style", style);
-      top = newTop + sideItem.sideItemHeight!;  
+      top = newTop + sideItem.sideItemHeight!;
     }
     
     // Use a ResizeObserver to watch for size-changes of side-item containers

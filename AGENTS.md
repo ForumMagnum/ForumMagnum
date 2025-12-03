@@ -202,7 +202,7 @@ export const ChaptersViews = new CollectionViewSet('Chapters', {
 **Key Concepts**:
 - MUST use `gql` from `@/lib/generated/gql-codegen` (NOT from `graphql-tag` or `@apollo/client`)
 - Use `useQuery` from `@/lib/crud/useQuery` (wrapper around Apollo's useQuery)
-- Run `yarn generate` after modifying schemas, resolvers, GraphQL definitions, or fragments
+- Run `SKIP_VERCEL_CODE_PULL=true yarn generate` after modifying schemas, resolvers, GraphQL definitions, or fragments
 - Query results are fully typed based on the generated types.  Do not use `as any` or any other type casts to work around type errors that seem to be caused by missing generated types.
 - Style note: define queries at the top level of the component file they're used in, not nested inside the component function.  Exception: when the same query is used in multiple files, define it in a separate file.
 
@@ -251,7 +251,7 @@ const MyComponent = () => {
 
 **Important Notes**:
 - The `gql` function from `@/lib/generated/gql-codegen` is processed at build time to generate types
-- After changing any schema, you MUST run `yarn generate` to regenerate types
+- After changing any schema, you MUST run `SKIP_VERCEL_CODE_PULL=true yarn generate` to regenerate types
 - Use fragments to share field selections across queries
 - Our `useQuery` wrapper handles SSR with Suspense automatically
 
@@ -738,10 +738,10 @@ export async function createComment({ data }: CreateCommentInput, context: Resol
 **Purpose**: Generate TypeScript types, GraphQL schemas, and boilerplate code from collection definitions.
 
 **Key Commands**:
-- `yarn generate` - Run after ANY schema or GraphQL changes. Generates types and GraphQL artifacts.
-- `yarn create-collection PascalCasedPluralObjects` - Create a new collection with all boilerplate files.  This is a rare operation; only do this if you're creating a new collection from scratch.
+- `SKIP_VERCEL_CODE_PULL=true yarn generate` - Run after ANY schema or GraphQL changes. Generates types and GraphQL artifacts.
+- `SKIP_VERCEL_CODE_PULL=true yarn create-collection PascalCasedPluralObjects` - Create a new collection with all boilerplate files.  This is a rare operation; only do this if you're creating a new collection from scratch.
 
-**What `yarn generate` does**:
+**What `SKIP_VERCEL_CODE_PULL=true yarn generate` does**:
 Generates TypeScript types for:
 1. GraphQL schemas, queries, mutations, and fragments
 2. Database schemas
@@ -749,7 +749,7 @@ Also updates:
 1. The collectionTypeNames module
 2. The routeManifest module
 
-**When to run `yarn generate`**:
+**When to run `SKIP_VERCEL_CODE_PULL=true yarn generate`**:
 - After adding a field to any schema file (`newSchema.ts`)
 - After modifying any GraphQL type definitions
 - After adding a new collection view
@@ -762,7 +762,7 @@ Also updates:
 
 ```bash
 # Create a new collection (rare operation)
-yarn create-collection Articles
+SKIP_VERCEL_CODE_PULL=true yarn create-collection Articles
 
 # This creates:
 # - packages/lesswrong/lib/collections/articles/newSchema.ts
@@ -774,7 +774,7 @@ yarn create-collection Articles
 # - packages/lesswrong/server/collections/allCollections.ts
 
 # Then always run:
-yarn generate
+SKIP_VERCEL_CODE_PULL=true yarn generate
 ```
 
 **See Also**:
@@ -877,8 +877,6 @@ const TestComponent = () => {
 };
 ```
 
-If you need to combine multiple classNames, use `import classNames from 'classnames';` rather than combining them via template string.
-
 We have some legacy instances of `registerComponent` lying around.  Do not use this unless you need custom memoization behavior for your component.  Just do `export default TestComponent;`.
 
 Use `useLocation` if you need to get anything related to the current client-side location, i.e. pathname, query parameters, hash, etc.  This is the interface of the object it returns:
@@ -903,8 +901,10 @@ Never apply `as any` type casts, and try very hard to avoid any other type casts
 // TODO: I AM AN INSTANCE OF ${MODEL_NAME} AND HAVE APPLIED A TYPE CAST HERE BECAUSE I COULDN'T MAKE IT WORK OTHERWISE, PLEASE FIX THIS
 ```
 
+Never add new inline dynamic imports (i.e. `await import(...)` or `require(...)`).
 Strongly prefer to avoid writing classes to encapsulate functionality.  Write top-level functions and only export those that are meant to be used by other parts of the codebase.
 Strongly prefer to avoid declaring inline functions that capture scope; declare them at the top of the module and pass in all the necessary dependencies.
+If you need to combine multiple classNames, use `import classNames from 'classnames';` rather than combining them via template string.
 Prefer interfaces to types where possible.
 
 Reminder: after you finish making changes, go over them again to check whether any of them violated the style guide, and fix those violations if so.

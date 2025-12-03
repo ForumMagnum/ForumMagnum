@@ -10,8 +10,6 @@ import { useRecordPostView } from "../hooks/useRecordPostView";
 import classnames from "classnames";
 import { highlightMaxChars } from "../../lib/editor/ellipsize";
 import { useOverflowNav } from "./OverflowNavObserverContext";
-import { useDialog } from "../common/withDialog";
-import UltraFeedPostDialog from "./UltraFeedPostDialog";
 import FormatDate from "../common/FormatDate";
 import PostActionsButton from "../dropdowns/posts/PostActionsButton";
 import FeedContentBody from "./FeedContentBody";
@@ -35,6 +33,7 @@ import TruncatedAuthorsList from "../posts/TruncatedAuthorsList";
 import ForumIcon from "../common/ForumIcon";
 import { RecombeeRecommendationsContextWrapper } from "../recommendations/RecombeeRecommendationsContextWrapper";
 import { useUltraFeedContext } from "./UltraFeedContextProvider";
+import { Link } from "@/lib/reactRouterWrapper";
 
 const localPostQuery = gql(`
   query LocalPostQuery($documentId: String!) {
@@ -292,7 +291,6 @@ const sourceIconMap: Array<{ source: FeedItemSourceType, icon: any, tooltip: str
 
 interface UltraFeedPostItemHeaderProps {
   post: PostsListWithVotes;
-  handleOpenDialog: () => void;
   sources: FeedItemSourceType[];
   isSeeLessMode: boolean;
   handleSeeLess: () => void;
@@ -301,7 +299,6 @@ interface UltraFeedPostItemHeaderProps {
 
 const UltraFeedPostItemHeader = ({
   post,
-  handleOpenDialog,
   sources,
   handleSeeLess,
   isSeeLessMode,
@@ -314,13 +311,6 @@ const UltraFeedPostItemHeader = ({
   const isSubscribedFeed = feedType === 'following';
   const isFromSubscribedSource = postMetaInfo.sources.includes('subscriptionsPosts' as const);
 
-  const handleTitleClick = (event: React.MouseEvent<HTMLAnchorElement>) => {
-    if (event.button === 0 && !event.metaKey && !event.ctrlKey && !event.altKey && !event.shiftKey) {
-      event.preventDefault();
-      handleOpenDialog();
-    }
-  };
-
   const sourceIcons = sourceIconMap
     .filter(({ source }) => sources.includes(source))
     .map(({ source, icon, tooltip }) => ({ icon, tooltip, key: source }));
@@ -330,13 +320,10 @@ const UltraFeedPostItemHeader = ({
   return (
     <div className={classes.header}>
       <div className={classes.titleContainer}>
-        <a
-          href={postGetPageUrl(post)}
-          onClick={handleTitleClick}
-          className={classes.title}
+        <Link to={postGetPageUrl(post)} className={classes.title}
         >
           {post.title}
-        </a>
+        </Link>
       </div>
       <div className={classes.metaRow} ref={metaRowRef}>
         <div className={classes.mobileAuthorsListWrapper}>
@@ -390,6 +377,7 @@ const UltraFeedPostItemHeader = ({
               onSeeLess={handleSeeLess}
               isSeeLessMode={isSeeLessMode}
               ActionsComponent={UltraFeedPostActions}
+              postMetaInfo={postMetaInfo}
               className={classnames(classes.tripleDotMenu, { [classes.greyedOut]: isSeeLessMode })}
             />
           </AnalyticsContext>
@@ -416,7 +404,6 @@ const UltraFeedPostItem = ({
   const classes = useStyles(styles);
   const { observe, trackExpansion } = useUltraFeedObserver();
   const elementRef = useRef<HTMLDivElement | null>(null);
-  const { openDialog } = useDialog();
   const { openInNewTab, feedType } = useUltraFeedContext();
   const overflowNav = useOverflowNav(elementRef);
   const { captureEvent } = useTracking();
@@ -549,52 +536,6 @@ const UltraFeedPostItem = ({
     onReplyCancel: handleReplyCancel,
   }), [isReplying, handleReplyClick, handleReplySubmit, handleReplyCancel]);
 
-  const handleOpenDialog = useCallback((location: "title" | "content") => {
-    captureEvent("ultraFeedPostDialogOpened", { location });
-    trackExpansion({
-      documentId: post._id,
-      documentType: 'post',
-      level: 1,
-      maxLevelReached: true,
-      wordCount: post.contents?.wordCount ?? 0,
-      servedEventId: postMetaInfo.servedEventId,
-      feedCardIndex: index,
-    });
-    
-    if (!hasRecordedViewOnExpand) {
-      void recordPostView({ post, extraEventProperties: { type: 'ultraFeedExpansion' } });
-      setHasRecordedViewOnExpand(true);
-    }
-    
-    if (openInNewTab) {
-      const postUrl = `/posts/${post._id}/${post.slug}`;
-      window.open(postUrl, '_blank');
-    } else {
-      openDialog({
-        name: "UltraFeedPostDialog",
-        closeOnNavigate: true,
-        contents: ({ onClose }) => (
-          <UltraFeedPostDialog
-            {...(fullPost ? { post: fullPost } : { partialPost: post })}
-            postMetaInfo={postMetaInfo}
-            onClose={onClose}
-          />
-        )
-      });
-    }
-  }, [
-    openDialog,
-    post,
-    captureEvent,
-    fullPost,
-    trackExpansion,
-    postMetaInfo,
-    openInNewTab,
-    hasRecordedViewOnExpand,
-    recordPostView,
-    index,
-  ]);
-
   const { isRead } = postMetaInfo;
 
   const shortformHtml = post.shortform 
@@ -637,6 +578,7 @@ const UltraFeedPostItem = ({
               onSeeLess={handleSeeLessClick}
               isSeeLessMode={isSeeLessMode}
               ActionsComponent={UltraFeedPostActions}
+              postMetaInfo={postMetaInfo}
               includeBookmark={true}
               className={classnames(classes.tripleDotMenu, { [classes.greyedOut]: isSeeLessMode })}
             />
@@ -646,7 +588,6 @@ const UltraFeedPostItem = ({
         <div className={classnames({ [classes.greyedOut]: isSeeLessMode })}>
           <UltraFeedPostItemHeader
             post={post}
-            handleOpenDialog={() => handleOpenDialog("title")}
             sources={postMetaInfo.sources}
             isSeeLessMode={isSeeLessMode}
             handleSeeLess={handleSeeLessClick}
@@ -667,8 +608,8 @@ const UltraFeedPostItem = ({
             initialWordCount={truncationParams.initialWordCount}
             maxWordCount={truncationParams.maxWordCount}
             wordCount={displayWordCount ?? 200}
+            continueReadingUrl={postGetPageUrl(post)}
             nofollow={(post.user?.karma ?? 0) < nofollowKarmaThreshold.get()}
-            onContinueReadingClick={() => handleOpenDialog("content")}
             onExpand={handleContentExpand}
             hideSuffix={loadingFullPost}
             resetSignal={resetSig}

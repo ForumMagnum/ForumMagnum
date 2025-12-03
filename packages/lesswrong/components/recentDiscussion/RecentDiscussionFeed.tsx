@@ -20,7 +20,6 @@ import SectionTitle from "../common/SectionTitle";
 import { MixedTypeFeed } from "../common/MixedTypeFeed";
 import AnalyticsInViewTracker from "../common/AnalyticsInViewTracker";
 import { RecentDiscussionFeedQuery } from '../common/feeds/feedQueries';
-import FeedSelectorDropdown from '../common/FeedSelectorCheckbox';
 import { defineStyles, useStyles } from '../hooks/useStyles';
 import { randomId } from '../../lib/random';
 
@@ -117,9 +116,7 @@ const RecentDiscussionFeed = ({
     <AnalyticsContext pageSectionContext="recentDiscussion" recentDiscussionContext={{ feedSessionId: sessionId }}>
       <AnalyticsInViewTracker eventProps={{inViewType: "recentDiscussion"}}>
         <SingleColumnSection>
-          <SectionTitle title={title} titleClassName={classes.titleText}>
-            <FeedSelectorDropdown currentFeedType="classic" />
-          </SectionTitle>
+          <SectionTitle title={title} titleClassName={classes.titleText} />
           <MixedTypeFeed
             query={RecentDiscussionFeedQuery}
             variables={{

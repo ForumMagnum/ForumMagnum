@@ -102,25 +102,6 @@ module.exports = {
     "react/display-name": 0,
     "react/jsx-no-comment-textnodes": 1,
 
-    // A function with a name starting with an uppercase letter should only be
-    // used as a constructor
-    "babel/new-cap": [1, {
-      "capIsNewExceptions": [
-        "Optional",
-        "OneOf",
-        "Maybe",
-        "MailChimpAPI",
-        "Juice",
-        "Run",
-        "AppComposer",
-        "Query",
-        "Map",
-        "List",
-        "GET",
-        "POST",
-      ]
-    }],
-
     // Warn if defining a component inside a function, which results in the
     // component's subtree and its state being destroyed on every render
     "react/no-unstable-nested-components": [1, {
@@ -184,9 +165,25 @@ module.exports = {
     // }],
     "import/no-mutable-exports": 1,
     "no-restricted-imports": ["error", {
-      "paths": restrictedImportsPaths,
+      "paths": [
+        ...restrictedImportsPaths,
+      ],
       patterns: [
-        "@/lib/vendor/@material-ui/core/src/colors/*"
+        {
+          group: ["@/lib/vendor/@material-ui/core/src/colors/*"],
+        },
+        {
+          group: ["js-tiktoken*"],
+          message: "Don't import js-tiktoken at top level unless the turbopack bundler bug has been fixed",
+        },
+        {
+          group: ["openai*"],
+          message: "Don't import openai at top level unless the turbopack bundler bug has been fixed",
+        },
+        {
+          group: ["linkedom*"],
+          message: "Don't import openai at top level unless the turbopack bundler bug has been fixed",
+        },
       ]
     }],
 
@@ -332,6 +329,8 @@ module.exports = {
 
     // Disabling this until we figure out whether we want to stick with Cloudinary
     "@next/next/no-img-element": 0,
+
+    "@next/next/no-html-link-for-pages": 0,
   },
   "overrides": [
     {

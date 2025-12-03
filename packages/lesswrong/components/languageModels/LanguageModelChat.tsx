@@ -1,13 +1,9 @@
 import React, { useEffect, useRef, useState, useCallback, useContext } from 'react';
 import classNames from 'classnames';
 import DeferRender from '../common/DeferRender';
-import Button from '@/lib/vendor/@material-ui/core/src/Button';
 import { useMessages } from '../common/withMessages';
-import Select from '@/lib/vendor/@material-ui/core/src/Select';
-import CloseIcon from '@/lib/vendor/@material-ui/icons/src/Close';
 import { useLocation } from "../../lib/routeUtil";
 import { NewLlmMessage, useLlmChat } from './LlmChatWrapper';
-import { PromptContextOptions, RAG_MODE_SET, RagModeType } from './schema';
 import type { Editor } from '@ckeditor/ckeditor5-core';
 import CKEditor from '@/lib/vendor/ckeditor5-react/ckeditor';
 import { getCkCommentEditor } from '@/lib/wrapCkEditor';
@@ -16,25 +12,34 @@ import { ckEditorStyles } from '@/themes/stylePiping';
 import { HIDE_LLM_CHAT_GUIDE_COOKIE } from '@/lib/cookies/cookies';
 import { useCookiesWithConsent } from '../hooks/useCookiesWithConsent';
 import { AnalyticsContext } from '@/lib/analyticsEvents';
+import { useEditorCommands } from '../editor/EditorCommandsContext';
+import Button from '@/lib/vendor/@material-ui/core/src/Button/Button';
+import Input from '@/lib/vendor/@material-ui/core/src/Input/Input';
+import { PromptContextOptions, RAG_MODE_SET, RagModeType } from './schema';
+import Select from '@/lib/vendor/@material-ui/core/src/Select';
+import { useStyles, defineStyles } from '../hooks/useStyles';
+import { Prompt, promptLibrary } from '@/lib/promptLibrary';
 import { AutosaveEditorStateContext } from '../common/sharedContexts';
-import { ContentItemBody } from "../contents/ContentItemBody";
-import ContentStyles from "../common/ContentStyles";
-import Loading from "../vulcan-core/Loading";
-import { MenuItem } from "../common/Menus";
-import { CkEditorPortalContext, CKEditorPortalProvider } from '../editor/CKEditorPortalProvider';
-import { defineStyles, useStyles } from '../hooks/useStyles';
+import ContentStyles from '../common/ContentStyles';
+import { ContentItemBody } from '../contents/ContentItemBody';
+import Row from '../common/Row';
+import LWTooltip from '../common/LWTooltip';
+import ForumIcon from '../common/ForumIcon';
+import { MenuItem } from '../common/Menus';
+import Loading from '../vulcan-core/Loading';
 
-const styles = defineStyles("LanguageModelChat", (theme: ThemeType) => ({
+const styles = defineStyles('LanguageModelChat', (theme: ThemeType) => ({
   root: {
     height: "calc(100vh - 190px)"
   },
   subRoot: {
     display: "flex",
     flexDirection: "column",
-    height: "100%"
+    height: "100%",
+    paddingLeft: 8,
+    paddingRight: 8,
   },
   submission: {
-    margin: 10,
     display: "flex",
     padding: 20,
     ...theme.typography.commentStyle,
@@ -54,8 +59,8 @@ const styles = defineStyles("LanguageModelChat", (theme: ThemeType) => ({
     }
   },
   inputTextbox: {
-    margin: 10,
     marginTop: 20,
+    marginBottom: 10,
     borderRadius: 4,
     maxHeight: "40vh",
     backgroundColor: theme.palette.panelBackground.commentNodeEven,
@@ -80,10 +85,10 @@ const styles = defineStyles("LanguageModelChat", (theme: ThemeType) => ({
   editorButtons: {
     display: "flex",
     justifyContent: "flex-end",
-    padding: "10px",
+    paddingRight: 8,
+    paddingBottom: 8,
   },
   welcomeGuide: {
-    margin: 10,
     display: "flex",
     flexDirection: "column",
   },
@@ -101,7 +106,6 @@ const styles = defineStyles("LanguageModelChat", (theme: ThemeType) => ({
   },
   chatMessage: {
     padding: 20,
-    margin: 10,
     borderRadius: 10,
     backgroundColor: theme.palette.grey[100],
   },
@@ -125,6 +129,8 @@ const styles = defineStyles("LanguageModelChat", (theme: ThemeType) => ({
     flexGrow: 0,
     flexShrink: 0,
     flexBasis: "auto",
+    display: "flex",
+    alignItems: "center",
     fontFamily: theme.palette.fonts.sansSerifStack,
     marginLeft: 10
   },
@@ -152,11 +158,86 @@ const styles = defineStyles("LanguageModelChat", (theme: ThemeType) => ({
   loadingSpinner: {
     marginTop: 10
   },
+  iconButton: {
+    cursor: "pointer",
+    opacity: 0.8,
+    marginRight: 8
+  },
+  userFeedbackPromptInput: {
+    borderRadius: 4,
+    width: "100%",
+    ...theme.typography.body2,
+  },
+  postSuggestionsButton: {
+    border: theme.palette.border.commentBorder,
+    cursor: 'pointer',
+    opacity: 0.8,
+    alignSelf: 'flex-start',
+    ...theme.typography.body2,
+    width: "100%",
+    fontSize: "1.1rem",
+    marginBottom: 4,
+    paddingTop: 6,
+    paddingBottom: 6,
+    paddingLeft: 10,
+    paddingRight: 10,
+    borderRadius: 4,
+    whiteSpace: "nowrap",
+    '& $suggestionIcon': {
+      opacity: 0,
+    },
+    '&:hover $suggestionIcon': {
+      opacity: .5,
+    },
+  },
+  postSuggestionsList: {
+    display: "flex",
+    flex: 1,
+    gap: "8px",
+    maxHeight: 32,
+    flexWrap: "wrap",
+    overflow: "hidden",
+    ...theme.typography.body2,
+    color: theme.palette.grey[600],
+    fontSize: "1.1rem",
+  },
+  suggestionIcon: {
+    width: 16,
+    height: 16,
+  },
+  disabledButton: {
+    opacity: 0.3,
+    cursor: "default",
+  },
+  customPromptContainer: {
+    border: theme.palette.border.commentBorder,
+    alignSelf: 'flex-start',
+    ...theme.typography.body2,
+    width: "100%",
+    fontSize: "1.1rem",
+    marginBottom: 4,
+    paddingTop: 6,
+    paddingBottom: 6,
+    paddingLeft: 10,
+    paddingRight: 10,
+    borderRadius: 4,
+  },
+  customPromptInput: {
+    borderRadius: 4,
+    width: "100%",
+    ...theme.typography.body2,
+    marginTop: 8,
+  },
+  customPromptHeader: {
+    display: "flex",
+    justifyContent: "space-between",
+    alignItems: "center",
+    cursor: 'pointer',
+    opacity: 0.8,
+  },
 }));
 
-const NEW_CONVERSATION_MENU_ITEM = "New Conversation";
-
-export const LlmChatMessage = ({message}: {
+export const LLMChatMessage = ({message}: {
   message: LlmMessagesFragment | NewLlmMessage,
 }) => {
   const classes = useStyles(styles);
@@ -168,7 +249,7 @@ export const LlmChatMessage = ({message}: {
         [classes.userMessage]: role === 'user',
         [classes.errorMessage]: role === 'error'
       })}
-      dangerouslySetInnerHTML={{__html: content ?? ''}}
+      dangerouslySetInnerHTML={{__html: content ?? ""}}
     />
   </ContentStyles>
 }
@@ -178,14 +259,13 @@ const LLMInputTextbox = ({onSubmit}: {
 }) => {
   const classes = useStyles(styles);
   const [currentMessage, setCurrentMessage] = useState('');
-  const portalContext = useContext(CkEditorPortalContext);
   const ckEditorRef = useRef<CKEditor<any> | null>(null);
   const editorRef = useRef<Editor | null>(null);
 
   // TODO: we probably want to come back to this and enable cloud services for image uploading
   const editorConfig = {
-    placeholder: 'Type here.  Ctrl/Cmd + Enter to submit.',
-    mention: mentionPluginConfiguration(portalContext),
+    placeholder: 'Type here.  Ctrl/Cmd + Enter to submit to Claude 3.5. ',
+    mention: mentionPluginConfiguration,
   };
 
   const submitEditorContentAndClear = useCallback(() => {
@@ -236,7 +316,6 @@ const LLMInputTextbox = ({onSubmit}: {
   // TODO: styling and debouncing
   return <ContentStyles className={classes.inputTextbox} contentType='comment'>
     <div className={classes.editor}>
-      <CKEditorPortalProvider>
       <CKEditor
         data={currentMessage}
         ref={ckEditorRef}
@@ -262,7 +341,6 @@ const LLMInputTextbox = ({onSubmit}: {
         }}
         config={editorConfig}
       />
-      </CKEditorPortalProvider>
     </div>
     {submitButton}
   </ContentStyles>
@@ -306,9 +384,150 @@ function useCurrentPostContext(): CurrentPostContext {
   return {};
 }
 
+const PostSuggestionsPromptInput = ({prompt}: {prompt: Prompt}) => {
+  const classes = useStyles(styles);
+
+  const [edit, setEdit] = useState(false);
+  const [userFeedbackPrompt, setUserFeedbackPrompt] = useState(prompt.prompt);
+  const { getLlmFeedbackCommand, cancelLlmFeedbackCommand, llmFeedbackCommandLoadingSourceId } = useEditorCommands();
+
+  const handleSubmit = useCallback(async () => {
+    if (getLlmFeedbackCommand) {
+      await getLlmFeedbackCommand(userFeedbackPrompt, prompt.title);
+    }
+    setEdit(false);
+  }, [getLlmFeedbackCommand, userFeedbackPrompt, prompt.title]);
+
+  const handleCancel = useCallback(() => {
+    if (cancelLlmFeedbackCommand) {
+      cancelLlmFeedbackCommand();
+    }
+    setEdit(false);
+  }, [cancelLlmFeedbackCommand]);
+
+  if (!getLlmFeedbackCommand) {
+    return <div className={classNames(classes.postSuggestionsButton, classes.disabledButton)}>
+      <Row alignItems="center" gap={4}>
+        <LWTooltip title="Enable collaborative editing to get AI suggestions" placement="left">
+          {prompt.title}
+        </LWTooltip>
+      </Row>
+    </div>
+  }
+
+  if (prompt.title === llmFeedbackCommandLoadingSourceId) {
+    return <div className={classes.postSuggestionsButton} onClick={handleCancel}>
+      <Row alignItems="center" gap={4}>
+        <LWTooltip title="Generating suggestions, click to cancel" placement="left">
+          <Loading />
+        </LWTooltip>
+      </Row>
+    </div>
+  }
+
+  return <div onClick={handleSubmit} className={classes.postSuggestionsButton}>
+    <Row alignItems="center" gap={4}>
+      <LWTooltip title={prompt.description} placement="left">
+        <div>{prompt.title}</div>
+      </LWTooltip>
+      {!edit && <LWTooltip title={edit ? "Cancel" : "Edit Prompt"} placement="right"> 
+        <ForumIcon className={classes.suggestionIcon} icon={edit ? "Clear" : "Edit"} onClick={() => setEdit(!edit)}/>
+      </LWTooltip>}
+    </Row>
+    <div style={{display: edit ? "block" : "none"}}>
+      <Input
+        id="user-feedback-prompt-input"
+        className={classes.userFeedbackPromptInput}
+        type="text"
+        placeholder="Prompt"
+        value={userFeedbackPrompt}
+        onChange={(e) => setUserFeedbackPrompt(e.target.value)}
+        multiline
+        disableUnderline
+      />
+    </div>
+    {edit && <Button onClick={() => setEdit(false)}>Submit</Button>}
+  </div>
+}
+
+const CustomPromptInput = () => {
+  const classes = useStyles(styles);
+
+  const [expanded, setExpanded] = useState(false);
+  const [customPrompt, setCustomPrompt] = useState('');
+  const { getLlmFeedbackCommand, cancelLlmFeedbackCommand, llmFeedbackCommandLoadingSourceId } = useEditorCommands();
+
+  const handleSubmit = useCallback(async () => {
+    if (getLlmFeedbackCommand && customPrompt.trim()) {
+      await getLlmFeedbackCommand(customPrompt, 'Custom Prompt');
+      setCustomPrompt('');
+      setExpanded(false);
+    }
+  }, [getLlmFeedbackCommand, customPrompt]);
+
+  const handleCancel = useCallback(() => {
+    if (cancelLlmFeedbackCommand) {
+      cancelLlmFeedbackCommand();
+    }
+  }, [cancelLlmFeedbackCommand]);
+
+  if (!getLlmFeedbackCommand) {
+    return <div className={classNames(classes.customPromptContainer, classes.disabledButton)}>
+      <div className={classes.customPromptHeader}>
+        <LWTooltip title="Enable collaborative editing to get AI suggestions" placement="left">
+          Custom Prompt
+        </LWTooltip>
+      </div>
+    </div>
+  }
+
+  if (llmFeedbackCommandLoadingSourceId === 'Custom Prompt') {
+    return <div className={classes.customPromptContainer}>
+      <div className={classes.customPromptHeader} onClick={handleCancel}>
+        <LWTooltip title="Generating suggestions, click to cancel" placement="left">
+          <Row alignItems="center" gap={4}>
+            <Loading />
+          </Row>
+        </LWTooltip>
+      </div>
+    </div>
+  }
+
+  return <div className={classes.customPromptContainer}>
+    <div className={classes.customPromptHeader} onClick={() => setExpanded(!expanded)}>
+      <Row alignItems="center" gap={4}>
+        <div>Custom Prompt</div>
+        <LWTooltip title={expanded ? "Collapse" : "Expand"} placement="right">
+          <ForumIcon className={classes.suggestionIcon} icon={expanded ? "ExpandLess" : "ExpandMore"} />
+        </LWTooltip>
+      </Row>
+    </div>
+    {expanded && (
+      <div>
+        <Input
+          id="custom-feedback-prompt-input"
+          className={classes.customPromptInput}
+          type="text"
+          placeholder="Enter your custom prompt here..."
+          value={customPrompt}
+          onChange={(e) => setCustomPrompt(e.target.value)}
+          multiline
+          disableUnderline
+        />
+        <div className={classes.editorButtons}>
+          <Button onClick={handleSubmit} disabled={!customPrompt.trim()}>
+            Submit
+          </Button>
+        </div>
+      </div>
+    )}
+  </div>
+}
+
 export const ChatInterface = () => {
   const classes = useStyles(styles);
-  const { currentConversation, setCurrentConversation, archiveConversation, orderedConversations, submitMessage, currentConversationLoading } = useLlmChat();
+
+  const { currentConversation, setCurrentConversation, archiveConversation, orderedConversations, submitMessage, currentConversationLoading, orderedConversationsLoading } = useLlmChat();
   const { currentPostId, postContext } = useCurrentPostContext();
   const { autosaveEditorState } = useContext(AutosaveEditorStateContext);
 
@@ -386,14 +605,14 @@ export const ChatInterface = () => {
   const messagesForDisplay = <div className={classes.messages} ref={messagesRef}>
     {llmChatGuide}
     {currentConversation?.messages.map((message, index) => (
-      <LlmChatMessage key={index} message={message} />
+      <LLMChatMessage key={index} message={message} />
     ))}
   </div>
 
   const exportHistoryToClipboard = () => {
     if (!currentConversation) return
     const conversationHistory = currentConversation.messages.filter(({role}) => role && ['user', 'assistant', 'user-context'].includes(role))
-    const formattedChatHistory = conversationHistory.map(({role, content}) => `<strong>${role?.toUpperCase()}:</strong> ${content}`).join("\n")
+    const formattedChatHistory = conversationHistory.map(({role, content}) => role ? `<strong>${role.toUpperCase()}:</strong> ${content}` : content).join("\n")
     void navigator.clipboard.writeText(formattedChatHistory)
     flash('Chat history copied to clipboard')
   }
@@ -416,21 +635,18 @@ export const ChatInterface = () => {
 
   const conversationSelect = <Select 
     onChange={onSelect} 
-    value={currentConversation?._id ?? NEW_CONVERSATION_MENU_ITEM}
+    value={currentConversation?._id ?? orderedConversations[0]?._id}
     disableUnderline
     className={classes.select}
-    renderValue={(conversationId: string) => orderedConversations.find(c => c._id === conversationId)?.title ?? NEW_CONVERSATION_MENU_ITEM}
+    renderValue={(conversationId: string) => orderedConversations.find(c => c._id === conversationId)?.title}
     >
       {
         orderedConversations.map(({ title, _id }, index) => (
           <MenuItem key={index} value={_id} className={classes.menuItem}>
             {title ?? "...Title Pending..."}
-            <CloseIcon onClick={(ev: React.MouseEvent) => deleteConversation(ev, _id)} className={classes.deleteConvoIcon} />
+            <ForumIcon icon="Close" onClick={(ev: React.MouseEvent) => deleteConversation(ev, _id)} className={classes.deleteConvoIcon} />
           </MenuItem>
       ))}
-      <MenuItem value={NEW_CONVERSATION_MENU_ITEM} className={classes.menuItem}>
-        New Conversation
-      </MenuItem>
     </Select>;
 
     const ragModeSelect = <Select 
@@ -448,15 +664,20 @@ export const ChatInterface = () => {
 
 
   const options = <div className={classes.options}>
-    <Button onClick={() => setCurrentConversation()}>
-      New Chat
-    </Button>
-    <Button onClick={exportHistoryToClipboard} disabled={!currentConversation}>
-      Export
-    </Button>
-    {conversationSelect}
+    <LWTooltip title="Start a new conversation">
+      <ForumIcon icon="Add" onClick={() => setCurrentConversation()} className={classes.iconButton} />
+    </LWTooltip>
+    <LWTooltip title={`Copy conversation to clipboard`}>
+      <ForumIcon icon="Copy" onClick={exportHistoryToClipboard} className={classNames(classes.iconButton, {[classes.disabledButton]: !currentConversation })} />
+    </LWTooltip>
+    {orderedConversationsLoading ? <Loading /> : conversationSelect}
     {ragModeSelect}
-  </div>  
+  </div>
+  const renderEditorFeedbackPrompts = !currentConversation?.messages?.length
+  const editorFeedbackPrompts = <div>
+    {renderEditorFeedbackPrompts && promptLibrary.editorFeedback.map((prompt: Prompt) => <PostSuggestionsPromptInput key={prompt.title} prompt={prompt} />)}
+    {renderEditorFeedbackPrompts && <CustomPromptInput />}
+  </div>
 
   const handleSubmit = useCallback(async (message: string) => {
     if (autosaveEditorState) {
@@ -467,6 +688,7 @@ export const ChatInterface = () => {
 
   return <div className={classes.subRoot}>
     {messagesForDisplay}
+    {editorFeedbackPrompts}
     {currentConversationLoading && <Loading className={classes.loadingSpinner}/>}
     <LLMInputTextbox onSubmit={handleSubmit} />
     {options}
@@ -475,7 +697,7 @@ export const ChatInterface = () => {
 
 
 // Wrapper component needed so we can use deferRender
-const LanguageModelChat = () => {
+export const LanguageModelChat = () => {
   const classes = useStyles(styles);
   return <DeferRender ssr={false}>
     <AnalyticsContext pageSectionContext='llmChat'>
@@ -485,8 +707,3 @@ const LanguageModelChat = () => {
     </AnalyticsContext>
   </DeferRender>;
 }
-
-export default LanguageModelChat;
-
-
-

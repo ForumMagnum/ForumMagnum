@@ -65,16 +65,19 @@ function getPageTitleString(title: string) {
   return `${title} — ${siteName}`;
 }
 
-export function getPageTitleFields(title: string) {
+export function getPageTitleFields(title: string): Metadata {
   return {
     title: getPageTitleString(title),
     openGraph: {
       title: getPageTitleString(title),
     },
-  } satisfies Metadata;
+  };
 }
 
-export function getMetadataDescriptionFields(description: string) {
+export function getMetadataDescriptionFields(description: string|null): Metadata {
+  if (!description) {
+    return {};
+  }
   return {
     description,
     twitter: {
@@ -83,10 +86,13 @@ export function getMetadataDescriptionFields(description: string) {
     openGraph: {
       description,
     },
-  } satisfies Metadata;
+  };
 }
 
-export function getMetadataImagesFields(images: string) {
+export function getMetadataImagesFields(images: string|null): Metadata {
+  if (!images) {
+    return {};
+  }
   return {
     twitter: {
       ...(images ? { images } : {}),
@@ -94,7 +100,7 @@ export function getMetadataImagesFields(images: string) {
     openGraph: {
       ...(images ? { images } : {}),
     },
-  } satisfies Metadata;
+  };
 }
 
 export function getCommentDescription(comment: CommentPermalinkMetadataQuery_comment_SingleCommentOutput_result_Comment) {
