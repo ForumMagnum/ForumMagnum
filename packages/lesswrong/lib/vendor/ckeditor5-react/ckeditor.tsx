@@ -15,7 +15,7 @@ import PropTypes, { InferProps, Validator } from 'prop-types';
 
 import type { EventInfo } from '@ckeditor/ckeditor5-utils';
 import type { Editor, EditorConfig } from '@ckeditor/ckeditor5-core';
-import type { DocumentChangeEvent } from '@ckeditor/ckeditor5-engine';
+import type { ModelDocumentChangeEvent as DocumentChangeEvent } from '@ckeditor/ckeditor5-engine';
 import type { WatchdogConfig } from '../ckeditor5-watchdog/watchdog';
 import type { EditorCreatorFunction } from '../ckeditor5-watchdog/editorwatchdog';
 

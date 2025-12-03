@@ -1,12 +1,12 @@
 /* eslint-disable no-tabs */
-import Plugin from '@ckeditor/ckeditor5-core/src/plugin';
-import ClickObserver from '@ckeditor/ckeditor5-engine/src/view/observer/clickobserver';
-import ContextualBalloon from '@ckeditor/ckeditor5-ui/src/panel/balloon/contextualballoon';
-import clickOutsideHandler from '@ckeditor/ckeditor5-ui/src/bindings/clickoutsidehandler';
-import uid from '@ckeditor/ckeditor5-utils/src/uid';
-import global from '@ckeditor/ckeditor5-utils/src/dom/global';
+import { Plugin } from '@ckeditor/ckeditor5-core/src/plugin';
+import { ClickObserver } from '@ckeditor/ckeditor5-engine/src/view/observer/clickobserver';
+import { ContextualBalloon } from '@ckeditor/ckeditor5-ui/src/panel/balloon/contextualballoon';
+import { clickOutsideHandler } from '@ckeditor/ckeditor5-ui/src/bindings/clickoutsidehandler';
+import { uid } from '@ckeditor/ckeditor5-utils/src/uid';
+import { global } from '@ckeditor/ckeditor5-utils/src/dom/global';
 
-import ButtonView from '@ckeditor/ckeditor5-ui/src/button/buttonview';
+import { ButtonView } from '@ckeditor/ckeditor5-ui/src/button/buttonview';
 import MainFormView from './ui/mainformview';
 
 // Need math commands from there
