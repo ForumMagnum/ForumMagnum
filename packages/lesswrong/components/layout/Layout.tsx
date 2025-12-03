@@ -47,7 +47,6 @@ import LlmChatWrapper from "@/components/languageModels/LlmChatWrapper";
 import LWBackgroundImage from "./LWBackgroundImage";
 import IntercomWrapper from "@/components/layout/IntercomWrapper";
 import CookieBanner from "@/components/common/CookieBanner/CookieBanner";
-import FundraiserBanner from "@/components/common/FundraiserBanner";
 import NavigationEventSender from '@/components/hooks/useOnNavigate';
 import { defineStyles, useStyles } from '@/components/hooks/useStyles';
 import { useMutationNoCache } from '@/lib/crud/useMutationNoCache';
@@ -334,7 +333,6 @@ const Layout = ({children}: {
               {/* Google Tag Manager i-frame fallback */}
               <noscript><iframe src={`https://www.googletagmanager.com/ns.html?id=${googleTagManagerIdSetting.get()}`} height="0" width="0" style={{display:"none", visibility:"hidden"}}/></noscript>
 
-              {!isStandaloneRoute(pathname) && <FundraiserBanner />}
               {!isStandaloneRoute(pathname) && <SuspenseWrapper name="Header">
                 <Header
                   searchResultsArea={searchResultsAreaRef}
