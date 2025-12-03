@@ -3,7 +3,6 @@
 import React, { useCallback, useState } from "react";
 import { useCookiesWithConsent } from "../hooks/useCookiesWithConsent";
 import moment from "moment";
-import DeferRender from "./DeferRender";
 import { HIDE_FUNDRAISER_BANNER_COOKIE } from "@/lib/cookies/cookies";
 import ForumIcon from "./ForumIcon";
 import { useTracking } from "../../lib/analyticsEvents";
@@ -173,45 +172,43 @@ const FundraiserBanner = () => {
   const formattedGoal = `$${(FUNDRAISER_GOAL / 1_000_000).toFixed(0)}M`;
 
   return (
-    <DeferRender ssr={false}>
-      <Link 
-        to={FUNDRAISER_LINK}
-        target="_blank"
-        rel="noopener noreferrer"
-        onClick={onClickBanner}
-        className={classNames(classes.root, {
-          [classes.rootHoverable]: !hoveringInteractive,
-        })}
-      >
-        <div className={classes.backgroundImage} />
-        <div className={classes.overlay} />
-        <div className={classes.content}>
-          <div className={classes.leftSection}>
-            <span className={classes.title}>
-              LessWrong & Lighthaven are fundraising for 2026
-            </span>
-            <span className={classes.goalText}>
-              – We need to raise at least {formattedGoal} to keep the lights on
-            </span>
-          </div>
-
-          <div 
-            className={classes.rightSection}
-            onMouseEnter={() => setHoveringInteractive(true)}
-            onMouseLeave={() => setHoveringInteractive(false)}
-          >
-            <span className={classes.ctaButton}>
-              Donate
-            </span>
-            <ForumIcon
-              icon="Close"
-              onClick={onDismissBanner}
-              className={classes.close}
-            />
-          </div>
+    <Link 
+      to={FUNDRAISER_LINK}
+      target="_blank"
+      rel="noopener noreferrer"
+      onClick={onClickBanner}
+      className={classNames(classes.root, {
+        [classes.rootHoverable]: !hoveringInteractive,
+      })}
+    >
+      <div className={classes.backgroundImage} />
+      <div className={classes.overlay} />
+      <div className={classes.content}>
+        <div className={classes.leftSection}>
+          <span className={classes.title}>
+            LessWrong & Lighthaven are fundraising for 2026
+          </span>
+          <span className={classes.goalText}>
+            – we expect to spend around {formattedGoal} over the next year
+          </span>
         </div>
-      </Link>
-    </DeferRender>
+
+        <div 
+          className={classes.rightSection}
+          onMouseEnter={() => setHoveringInteractive(true)}
+          onMouseLeave={() => setHoveringInteractive(false)}
+        >
+          <span className={classes.ctaButton}>
+            Donate
+          </span>
+          <ForumIcon
+            icon="Close"
+            onClick={onDismissBanner}
+            className={classes.close}
+          />
+        </div>
+      </div>
+    </Link>
   );
 };
 
