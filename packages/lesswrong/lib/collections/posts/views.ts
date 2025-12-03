@@ -5,7 +5,7 @@ import { isAF, isEAForum, defaultVisibilityTags, openThreadTagIdSetting, startHe
 import { frontpageTimeDecayExpr, postScoreModifiers, timeDecayExpr } from '../../scoring';
 import { viewFieldAllowAny, viewFieldNullOrMissing, jsonArrayContainsSelector } from '@/lib/utils/viewConstants';
 import { filters, postStatuses } from './constants';
-import { getPositiveVoteThreshold, QUICK_REVIEW_SCORE_THRESHOLD, ReviewPhase, REVIEW_AND_VOTING_PHASE_VOTECOUNT_THRESHOLD, VOTING_PHASE_REVIEW_THRESHOLD, longformReviewTagId } from '../../reviewUtils';
+import { getPositiveVoteThreshold, QUICK_REVIEW_SCORE_THRESHOLD, reviewExcludedPostIds, ReviewPhase, REVIEW_AND_VOTING_PHASE_VOTECOUNT_THRESHOLD, VOTING_PHASE_REVIEW_THRESHOLD, longformReviewTagId } from '../../reviewUtils';
 import { EA_FORUM_COMMUNITY_TOPIC_ID } from '../tags/helpers';
 import isEmpty from 'lodash/isEmpty';
 import pick from 'lodash/pick';
@@ -1222,8 +1222,6 @@ function nominatablePostsByVote(terms: PostsViewTerms, _: ApolloClient, context?
   }
 }
 
-// Exclude IDs that should not be included, e.g. were republished and postedAt date isn't actually in current review
-const reviewExcludedPostIds = ['MquvZCGWyYinsN49c', '5n2ZQcbc7r4R8mvqc'];
 
 // Nominations for the (≤)2020 review are determined by the number of votes
 function reviewVoting(terms: PostsViewTerms) {

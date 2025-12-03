@@ -2,7 +2,6 @@ import React from "react"
 import { registerComponent } from "@/lib/vulcan-lib/components";
 import { AnalyticsContext } from "@/lib/analyticsEvents";
 import { useLocation } from "@/lib/routeUtil";
-import { getHeaderHeight, getMobileHeaderHeight } from "@/components/layout/Header";
 import { useCurrentUser } from "@/components/common/withUser";
 import { makeCloudinaryImageUrl } from '@/components/common/cloudinaryHelpers';
 import { ForumWrappedProvider, useForumWrapped } from "./hooks";
@@ -31,14 +30,14 @@ const styles = (theme: ThemeType) => ({
     textAlign: "center",
     // Compensate for the padding added in Layout.tsx and the site header, so
     // that section starts at the top of the page
-    marginTop: -getHeaderHeight() - theme.spacing.mainLayoutPaddingTop,
-    paddingTop: getHeaderHeight(),
+    marginTop: `calc(-var(--header-height) - ${theme.spacing.mainLayoutPaddingTop}px)`,
+    paddingTop: "var(--header-height)",
     [theme.breakpoints.down("md")]: {
-      marginTop: -getHeaderHeight(),
+      marginTop: `calc(-var(--header-height))`,
     },
     [theme.breakpoints.down("xs")]: {
-      marginTop: -getMobileHeaderHeight(),
-      paddingTop: getMobileHeaderHeight(),
+      marginTop: `calc(-var(--header-height))`,
+      paddingTop: "var(--header-height)",
     },
     [theme.breakpoints.down("sm")]: {
       marginLeft: -8,
