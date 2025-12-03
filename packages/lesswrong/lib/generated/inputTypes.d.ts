@@ -4237,6 +4237,8 @@ interface PostDefaultViewInput {
   before?: string | null;
   timeField?: string | null;
   curatedAfter?: string | null;
+  requiredUnnominated?: boolean | null;
+  requiredFrontpage?: boolean | null;
 }
 
 interface PostsUserPostsInput {
@@ -4406,6 +4408,8 @@ interface PostsTimeframeInput {
   timeField?: string | null;
   curatedAfter?: string | null;
   limit?: number | null;
+  requiredUnnominated?: boolean | null;
+  requiredFrontpage?: boolean | null;
 }
 
 interface PostsDailyInput {
