@@ -39,6 +39,7 @@ import FundraiserBanner from '../common/FundraiserBanner';
 import { useCookiesWithConsent } from '../hooks/useCookiesWithConsent';
 import { HIDE_FUNDRAISER_BANNER_COOKIE } from '@/lib/cookies/cookies';
 import { useStyles, defineStyles } from '../hooks/useStyles';
+import { usePrerenderablePathname } from '../next/usePrerenderablePathname';
 
 /** Height of the fundraiser banner */
 export const FUNDRAISER_BANNER_HEIGHT = 34;
@@ -47,6 +48,7 @@ export const FUNDRAISER_BANNER_HEIGHT_MOBILE = 32;
 const getHeaderHeight = () => isBookUI() ? 64 : 66;
 /** Height of top header on mobile (without fundraiser banner). On Friendly UI sites, this is the same as the HEADER_HEIGHT */
 const getMobileHeaderHeight = () => isBookUI() ? 56 : 66;
+
 
 const textColorOverrideStyles = ({
   theme,
@@ -186,19 +188,10 @@ export const styles = defineStyles("Header", (theme: ThemeType) => ({
   root: {
     // This height (including the breakpoint at xs/600px) is set by Headroom, and this wrapper (which surrounds
     // Headroom and top-pads the page) has to match.
-    height: getHeaderHeight() + FUNDRAISER_BANNER_HEIGHT,
-    [theme.breakpoints.down('xs')]: {
-      height: getMobileHeaderHeight() + FUNDRAISER_BANNER_HEIGHT_MOBILE,
-    },
+    height: "var(--header-height)",
     "@media print": {
       display: "none"
     }
-  },
-  rootNoBanner: {
-    height: getHeaderHeight(),
-    [theme.breakpoints.down('xs')]: {
-      height: getMobileHeaderHeight(),
-    },
   },
   titleSubtitleContainer: {
     display: 'flex',
@@ -589,9 +582,7 @@ const Header = ({
 
   return (
     <AnalyticsContext pageSectionContext="header">
-      <div className={classNames(classes.root, {
-        [classes.rootNoBanner]: !showFundraiserBanner,
-      })}>
+      <div className={classes.root}>
         <Headroom
           disableInlineStyles
           downTolerance={1} upTolerance={1}
@@ -648,7 +639,10 @@ const Header = ({
 export const HeaderHeightProvider = ({ children }: { children: React.ReactNode }) => {
   const classes = useStyles(styles);
   const [cookies] = useCookiesWithConsent([HIDE_FUNDRAISER_BANNER_COOKIE]);
-  const showFundraiserBanner = cookies[HIDE_FUNDRAISER_BANNER_COOKIE] !== "true";
+  const hideFundraiserBanner = cookies[HIDE_FUNDRAISER_BANNER_COOKIE] === "true";
+  const pathname = usePrerenderablePathname();
+  const isFrontPage = isHomeRoute(pathname);
+  const showFundraiserBanner = !hideFundraiserBanner && isFrontPage;
   const value = useMemo<HeaderHeightContextValue>(() => ({ showFundraiserBanner, }), [showFundraiserBanner]);
 
   return (
