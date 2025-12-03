@@ -20,7 +20,6 @@ import { isFriendlyUI } from "../../themes/forumTheme";
 import DeferRender from "../common/DeferRender";
 import { RelevanceLabel, tagPageHeaderStyles, tagPostTerms } from "./TagPageUtils";
 import { useStyles, defineStyles } from "../hooks/useStyles";
-import { getHeaderHeight } from "@/components/layout/Header";
 import { MAX_COLUMN_WIDTH } from '../posts/PostsPage/constants';
 import { TagLens, useTagLenses } from "@/lib/arbital/useTagLenses";
 import { MAIN_TAB_ID } from "@/lib/collections/tags/constants";
@@ -119,7 +118,7 @@ const styles = defineStyles("LWTagPage", (theme: ThemeType) => ({
       width: '100%',
     },
     position: 'absolute',
-    top: getHeaderHeight(),
+    top: "var(--header-height)",
     [theme.breakpoints.down('sm')]: {
       width: 'unset',
       '& > picture > img': {
@@ -174,7 +173,7 @@ const styles = defineStyles("LWTagPage", (theme: ThemeType) => ({
       display: 'none !important',
     },
     position: 'absolute',
-    top: 74,
+    top: "calc(var(--header-height) + 10px)",
     right: 8,
   },
   mobileButtonRow: {
