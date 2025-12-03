@@ -34,7 +34,7 @@ const styles = defineStyles("FundraiserBanner", (theme: ThemeType) => ({
   },
   rootHoverable: {
     "&:hover $overlay": {
-      background: "linear-gradient(90deg, rgba(0,0,0,0.4) 0%, rgba(0,0,0,0.15) 60%, rgba(0,0,0,0.3) 100%)",
+      background: `linear-gradient(90deg, ${theme.palette.greyAlpha(0.4)} 0%, ${theme.palette.greyAlpha(0.15)} 60%, ${theme.palette.greyAlpha(0.3)} 100%)`,
     },
     "&:hover $backgroundImage": {
       filter: "brightness(0.9)",
@@ -58,7 +58,7 @@ const styles = defineStyles("FundraiserBanner", (theme: ThemeType) => ({
     left: 0,
     right: 0,
     bottom: 0,
-    background: "linear-gradient(90deg, rgba(0,0,0,0.5) 0%, rgba(0,0,0,0.25) 60%, rgba(0,0,0,0.4) 100%)",
+    background: `linear-gradient(90deg, ${theme.palette.greyAlpha(0.5)} 0%, ${theme.palette.greyAlpha(0.25)} 60%, ${theme.palette.greyAlpha(0.4)} 100%)`,
     transition: "background 0.2s ease",
   },
   content: {
@@ -90,17 +90,17 @@ const styles = defineStyles("FundraiserBanner", (theme: ThemeType) => ({
     fontFamily: theme.palette.fonts.sansSerifStack,
     fontSize: 13,
     fontWeight: 500,
-    textShadow: "0 1px 3px rgba(0,0,0,0.6)",
+    textShadow: `0 1px 3px ${theme.palette.greyAlpha(0.6)}`,
     [theme.breakpoints.down("sm")]: {
       fontSize: 12,
     },
   },
   goalText: {
-    color: "rgba(255, 255, 255, 0.75)",
+    color: `color-mix(in srgb, ${theme.palette.text.alwaysWhite} 92%, transparent)`,
     fontFamily: theme.palette.fonts.sansSerifStack,
     fontSize: 12,
     fontWeight: 400,
-    textShadow: "0 1px 3px rgba(0,0,0,0.5)",
+    textShadow: `0 1px 3px ${theme.palette.greyAlpha(0.6)}`,
     [theme.breakpoints.down("xs")]: {
       display: "none",
     },
@@ -113,13 +113,13 @@ const styles = defineStyles("FundraiserBanner", (theme: ThemeType) => ({
     fontWeight: 500,
     fontFamily: theme.palette.fonts.sansSerifStack,
     textDecoration: "none",
-    textShadow: "0 1px 2px rgba(0,0,0,0.4)",
-    background: "rgba(255, 255, 255, 0.15)",
-    border: "1px solid rgba(255, 255, 255, 0.25)",
+    textShadow: `0 1px 2px ${theme.palette.greyAlpha(0.4)}`,
+    background: theme.palette.inverseGreyAlpha(0.15),
+    border: `1px solid ${theme.palette.inverseGreyAlpha(0.25)}`,
     transition: "background 0.15s ease, border-color 0.15s ease",
     "&:hover": {
-      background: "rgba(255, 255, 255, 0.25)",
-      borderColor: "rgba(255, 255, 255, 0.4)",
+      background: theme.palette.inverseGreyAlpha(0.25),
+      borderColor: theme.palette.inverseGreyAlpha(0.4),
     },
     [theme.breakpoints.down("sm")]: {
       padding: "2px 8px",
@@ -128,14 +128,14 @@ const styles = defineStyles("FundraiserBanner", (theme: ThemeType) => ({
   },
   close: {
     cursor: "pointer",
-    color: "rgba(255, 255, 255, 0.6)",
+    color: theme.palette.inverseGreyAlpha(0.6),
     fontSize: 16,
     padding: 2,
     borderRadius: 3,
     transition: "color 0.15s ease, background 0.15s ease",
     "&:hover": {
-      color: "rgba(255, 255, 255, 0.9)",
-      background: "rgba(255, 255, 255, 0.1)",
+      color: theme.palette.inverseGreyAlpha(0.9),
+      background: theme.palette.inverseGreyAlpha(0.1),
     },
   },
 }));
