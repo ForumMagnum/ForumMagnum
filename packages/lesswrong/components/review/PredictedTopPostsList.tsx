@@ -105,10 +105,21 @@ const PostsList = ({ posts }: { posts: PostsListWithVotes[] }) => {
 export default function PredictedTopPostsList({ year }: { year: number }) {
   const classes = useStyles(styles);
 
-  const { data, loading: postsLoading } = useQuery(ReviewPredictionPosts, {
+  const { data, loading: postsLoading, error: postsError } = useQuery(ReviewPredictionPosts, {
     variables: { year, limit: 50 },
   });
   const posts = data?.reviewPredictionPosts ?? [];
+
+  if (postsError) {
+    return (
+      <div className={classes.root}>
+        <PredictedTop50Intro />
+        <div className={classes.predictedPostList}>
+          <p>Error loading predictions: {postsError.message}</p>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className={classes.root}>
