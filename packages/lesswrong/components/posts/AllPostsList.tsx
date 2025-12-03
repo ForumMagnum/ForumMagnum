@@ -53,6 +53,8 @@ const AllPostsList = ({
     sortedBy: currentSorting,
     after: query.after,
     before: query.before,
+    requiredUnnominated: query.unnominated === 'true',
+    requiredFrontpage: query.frontpage === 'true',
   };
   if (currentTimeframe === "allTime") {
     return (
