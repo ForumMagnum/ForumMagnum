@@ -58,7 +58,7 @@
     "@ckeditor/ckeditor5-mention": "^43.1.0",
     "@ckeditor/ckeditor5-paragraph": "^43.1.0",
     "@ckeditor/ckeditor5-paste-from-office": "^43.1.0",
-    "@ckeditor/ckeditor5-real-time-collaboration": "^43.1.0",
+    "@ckeditor/ckeditor5-real-time-collaboration": "^44.2.1",
     "@ckeditor/ckeditor5-remove-format": "^43.1.0",
     "@ckeditor/ckeditor5-table": "^43.1.0",
     "@ckeditor/ckeditor5-theme-lark": "^43.1.0",
