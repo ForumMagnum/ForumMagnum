@@ -1,4 +1,4 @@
-import React, { useContext, useState, useCallback, useEffect } from 'react';
+import React, { createContext, useContext, useState, useCallback, useEffect, useMemo } from 'react';
 import { registerComponent } from '../../lib/vulcan-lib/components';
 import { Link } from '../../lib/reactRouterWrapper';
 import Headroom from '../../lib/react-headroom'
@@ -38,14 +38,15 @@ import { useIsOnGrayBackground } from '../hooks/useIsOnGrayBackground';
 import FundraiserBanner from '../common/FundraiserBanner';
 import { useCookiesWithConsent } from '../hooks/useCookiesWithConsent';
 import { HIDE_FUNDRAISER_BANNER_COOKIE } from '@/lib/cookies/cookies';
+import { useStyles, defineStyles } from '../hooks/useStyles';
 
 /** Height of the fundraiser banner */
 export const FUNDRAISER_BANNER_HEIGHT = 34;
 export const FUNDRAISER_BANNER_HEIGHT_MOBILE = 32;
 /** Height of top header (without fundraiser banner). On Book UI sites, this is for desktop only */
-export const getHeaderHeight = () => isBookUI() ? 64 : 66;
+const getHeaderHeight = () => isBookUI() ? 64 : 66;
 /** Height of top header on mobile (without fundraiser banner). On Friendly UI sites, this is the same as the HEADER_HEIGHT */
-export const getMobileHeaderHeight = () => isBookUI() ? 56 : 66;
+const getMobileHeaderHeight = () => isBookUI() ? 56 : 66;
 
 const textColorOverrideStyles = ({
   theme,
@@ -121,7 +122,12 @@ const textColorOverrideStyles = ({
 
 const LLM_CHAT_SIDEBAR_WIDTH = 500;
 
-export const styles = (theme: ThemeType) => ({
+type HeaderHeightContextValue = {
+  showFundraiserBanner: boolean;
+};
+const HeaderHeightContext = createContext<HeaderHeightContextValue>({showFundraiserBanner: true});
+
+export const styles = defineStyles("Header", (theme: ThemeType) => ({
   appBar: {
     boxShadow: theme.palette.boxShadow.appBar,
     color: theme.palette.text.bannerAdOverlay,
@@ -331,7 +337,19 @@ export const styles = (theme: ThemeType) => ({
       },
     }
   },
-});
+  headerHeight: {
+    "--header-height": `${getHeaderHeight()}px`,
+    [theme.breakpoints.down('xs')]: {
+      "--header-height": `${getMobileHeaderHeight()}px`,
+    },
+  },
+  headerHeightWithBanner: {
+    "--header-height": `${getHeaderHeight() + FUNDRAISER_BANNER_HEIGHT}px`,
+    [theme.breakpoints.down('xs')]: {
+      "--header-height": `${getMobileHeaderHeight() + FUNDRAISER_BANNER_HEIGHT_MOBILE}px`,
+    },
+  },
+}));
 
 function getForumEventBackgroundStyle(currentForumEvent: ForumEventsDisplay, bannerImageId: string) {
   const darkColor = currentForumEvent.darkColor;
@@ -351,7 +369,6 @@ const Header = ({
   stayAtTop=false,
   searchResultsArea,
   backgroundColor,
-  classes,
 }: {
   standaloneNavigationPresent: boolean,
   sidebarHidden: boolean,
@@ -360,15 +377,14 @@ const Header = ({
   searchResultsArea: React.RefObject<HTMLDivElement|null>,
   // CSS var corresponding to the background color you want to apply (see also appBarDarkBackground above)
   backgroundColor?: string,
-  classes: ClassesType<typeof styles>,
 }) => {
+  const classes = useStyles(styles);
   const [navigationOpen, setNavigationOpenState] = useState(false);
   const [notificationOpen, setNotificationOpen] = useState(false);
   const [notificationHasOpened, setNotificationHasOpened] = useState(false);
   const [searchOpen, setSearchOpenState] = useState(false);
   const [unFixed, setUnFixed] = useState(true);
-  const [cookies] = useCookiesWithConsent([HIDE_FUNDRAISER_BANNER_COOKIE]);
-  const showFundraiserBanner = cookies[HIDE_FUNDRAISER_BANNER_COOKIE] !== "true";
+  const { showFundraiserBanner } = useContext(HeaderHeightContext);
   const getCurrentUser = useGetCurrentUser();
   const isLoggedIn = !!useCurrentUserId();
   const usernameUnset = useFilteredCurrentUser(u => !!u?.usernameUnset);
@@ -579,7 +595,7 @@ const Header = ({
         <Headroom
           disableInlineStyles
           downTolerance={1} upTolerance={1}
-          height={getHeaderHeight() + (showFundraiserBanner ? FUNDRAISER_BANNER_HEIGHT : 0)}
+          height={showFundraiserBanner ? getHeaderHeight() + FUNDRAISER_BANNER_HEIGHT : getHeaderHeight()}
           className={classNames(classes.headroom, {
             [classes.headroomPinnedOpen]: searchOpen,
             [classes.reserveSpaceForLlmChatSidebar]: llmChatSidebarOpen && !unFixed,
@@ -629,10 +645,25 @@ const Header = ({
   )
 }
 
+export const HeaderHeightProvider = ({ children }: { children: React.ReactNode }) => {
+  const classes = useStyles(styles);
+  const [cookies] = useCookiesWithConsent([HIDE_FUNDRAISER_BANNER_COOKIE]);
+  const showFundraiserBanner = cookies[HIDE_FUNDRAISER_BANNER_COOKIE] !== "true";
+  const value = useMemo<HeaderHeightContextValue>(() => ({ showFundraiserBanner, }), [showFundraiserBanner]);
+
+  return (
+    <HeaderHeightContext.Provider value={value}>
+      <span className={classNames(classes.headerHeight, {
+        [classes.headerHeightWithBanner]: showFundraiserBanner,
+      })}>
+        {children}
+      </span>
+    </HeaderHeightContext.Provider>
+  );
+};
+
 export default registerComponent('Header', Header, {
-  styles,
   areEqual: "auto",
   hocs: [withErrorBoundary]
 });
-
 

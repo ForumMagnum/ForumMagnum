@@ -8,7 +8,6 @@ import Headroom from '@/lib/react-headroom';
 import PostActionsButton from '../dropdowns/posts/PostActionsButton';
 import { usePostsPageContext } from './PostsPage/PostsPageContext';
 import CommentIcon from '@/lib/vendor/@material-ui/icons/src/ModeComment';
-import { getMobileHeaderHeight } from '../layout/Header';
 
 const styles = defineStyles("PostsBottomBar", (theme: ThemeType) => ({
   headroom: {
@@ -38,11 +37,11 @@ const styles = defineStyles("PostsBottomBar", (theme: ThemeType) => ({
     },
     // Move bottom bar up when Type III sticky player is visible
     "body.t3a-sticky-player-visible & .headroom": {
-      bottom: getMobileHeaderHeight(),
+      bottom: "var(--header-height)",
     },
   },
   root: {
-    height: getMobileHeaderHeight(),
+    height: "var(--header-height)",
     opacity: 0.95,
     backgroundColor: theme.palette.background.pageActiveAreaBackground,
     boxShadow: `0 -2px 8px ${theme.palette.greyAlpha(0.1)}`,

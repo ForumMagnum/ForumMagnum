@@ -5,7 +5,6 @@ import classNames from 'classnames';
 import { DelayedLoading } from '../common/DelayedLoading';
 import ErrorBoundary from '../common/ErrorBoundary';
 import { SuspenseWrapper } from '../common/SuspenseWrapper';
-import { getHeaderHeight } from './Header';
 
 const styles = defineStyles("RouteRootClient", (theme: ThemeType) => ({
   main: {
@@ -14,7 +13,7 @@ const styles = defineStyles("RouteRootClient", (theme: ThemeType) => ({
     marginRight: "auto",
     // Make sure the background extends to the bottom of the page, I'm sure there is a better way to do this
     // but almost all pages are bigger than this anyway so it's not that important
-    minHeight: `calc(100vh - ${getHeaderHeight()}px)`,
+    minHeight: `calc(100vh - var(--header-height))`,
     gridArea: 'main',
     [theme.breakpoints.down('md')]: {
       paddingTop: theme.isFriendlyUI ? 0 : theme.spacing.mainLayoutPaddingTop,
