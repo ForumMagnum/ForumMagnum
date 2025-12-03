@@ -3,14 +3,8 @@ import { registerComponent } from '../../../lib/vulcan-lib/components';
 import UserNameDeleted from "../../users/UserNameDeleted";
 import UsersName from "../../users/UsersName";
 import UserCommentMarkers from "../../users/UserCommentMarkers";
-import PostsCoauthor from "./PostsCoauthor";
+import PostsCoauthor, { AUTHOR_MARKER_STYLES } from "./PostsCoauthor";
 import { Typography } from "../../common/Typography";
-
-export const AUTHOR_MARKER_STYLES = {
-  display: "inline-block",
-  marginLeft: 3,
-  marginRight: -3,
-};
 
 const styles = (theme: ThemeType) => ({
   root: {
