@@ -122,7 +122,7 @@ export function calculateRecentKarmaInfo(userId: string, allVotes: RecentVoteInf
 }
 
 function getRateLimitName (rateLimit: AutoRateLimit) {
-  return rateLimit.rateLimitName
+  return `${rateLimit.itemsPerTimeframe} ${rateLimit.actionType} per ${rateLimit.timeframeLength} ${rateLimit.timeframeUnit}`;
 }
 
 function getActiveRateLimits<T extends AutoRateLimit>(user: UserKarmaInfo & { recentKarmaInfo: RecentKarmaInfo }, autoRateLimits: T[]) {

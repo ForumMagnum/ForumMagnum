@@ -337,8 +337,6 @@ const Layout = ({currentUser, children}: {
   // For the EAF Wrapped page, we change the header's background color to a dark blue.
   if (isWrapped) {
     headerBackgroundColor = wrappedBackgroundColor;
-  } else if (pathname.startsWith("/voting-portal")) {
-    headerBackgroundColor = "transparent";
   } else if (blackBarTitle.get()) {
     headerBackgroundColor = 'rgba(0, 0, 0, 0.7)';
   }

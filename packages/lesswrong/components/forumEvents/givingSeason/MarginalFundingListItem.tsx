@@ -105,7 +105,9 @@ export const MarginalFundingListItem = ({post}: {post: PostsListWithVotes}) => {
         )}
       >
         {post.marginalFundingOrg &&
-          <div className={classes.org}>{post.marginalFundingOrg}</div>
+          <div>
+            <div className={classes.org}>{post.marginalFundingOrg}</div>
+          </div>
         }
       </div>
       <div

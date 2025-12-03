@@ -4747,6 +4747,15 @@ interface UpdateElectionCandidateInput {
   data: UpdateElectionCandidateDataInput;
 }
 
+interface ElectionCandidateSelectorUniqueInput {
+  _id?: string | null;
+  documentId?: string | null;
+}
+
+interface DeleteElectionCandidateInput {
+  selector: ElectionCandidateSelectorUniqueInput;
+}
+
 interface ElectionCandidateOutput {
   data: ElectionCandidate | null;
 }
@@ -7007,6 +7016,8 @@ interface GraphQLTypeMap {
   CreateElectionCandidateInput: CreateElectionCandidateInput;
   UpdateElectionCandidateDataInput: UpdateElectionCandidateDataInput;
   UpdateElectionCandidateInput: UpdateElectionCandidateInput;
+  ElectionCandidateSelectorUniqueInput: ElectionCandidateSelectorUniqueInput;
+  DeleteElectionCandidateInput: DeleteElectionCandidateInput;
   ElectionCandidateOutput: ElectionCandidateOutput;
   CreateElectionVoteDataInput: CreateElectionVoteDataInput;
   CreateElectionVoteInput: CreateElectionVoteInput;
