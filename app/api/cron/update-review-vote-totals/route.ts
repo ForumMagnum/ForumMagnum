@@ -1,5 +1,5 @@
-import { addCronJob } from './cronUtil';
-import { updateReviewVoteTotals } from '../reviewVoteUpdate';
+import type { NextRequest } from 'next/server';
+import { updateReviewVoteTotals } from '@/server/reviewVoteUpdate';
 import { 
   REVIEW_YEAR, 
   getNominationPhaseEnd, 
@@ -39,22 +39,25 @@ function getVotePhaseToUpdate(): 'nominationVote' | 'finalVote' | null {
   return null;
 }
 
-export const reviewVoteTotalsCronJob = addCronJob({
-  name: 'updateReviewVoteTotals',
-  interval: 'every 1 day',
-  job: async () => {
-    const votePhase = getVotePhaseToUpdate();
-    
-    if (votePhase) {
-      // eslint-disable-next-line no-console
-      console.log(`Running updateReviewVoteTotals for ${votePhase}`);
-      await updateReviewVoteTotals(votePhase);
-      // eslint-disable-next-line no-console
-      console.log(`Completed updateReviewVoteTotals for ${votePhase}`);
-    } else {
-      // eslint-disable-next-line no-console
-      console.log('updateReviewVoteTotals cron: not a target date, skipping');
-    }
-  },
-});
+export async function GET(request: NextRequest) {
+  const authHeader = request.headers.get('authorization');
+  if (authHeader !== `Bearer ${process.env.CRON_SECRET}`) {
+    return new Response('Unauthorized', { status: 401 });
+  }
+
+  const votePhase = getVotePhaseToUpdate();
+  
+  if (votePhase) {
+    // eslint-disable-next-line no-console
+    console.log(`Running updateReviewVoteTotals for ${votePhase}`);
+    await updateReviewVoteTotals(votePhase);
+    // eslint-disable-next-line no-console
+    console.log(`Completed updateReviewVoteTotals for ${votePhase}`);
+    return new Response(`Updated ${votePhase}`, { status: 200 });
+  }
+
+  // eslint-disable-next-line no-console
+  console.log('updateReviewVoteTotals cron: not a target date, skipping');
+  return new Response('Not a target date, skipping', { status: 200 });
+}
 
