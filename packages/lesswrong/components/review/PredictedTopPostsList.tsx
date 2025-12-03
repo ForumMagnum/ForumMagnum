@@ -10,6 +10,7 @@ import { Link } from '@/lib/reactRouterWrapper';
 import PostsItem from '../posts/PostsItem';
 import ContentStyles from '../common/ContentStyles';
 import Loading from 'app/loading';
+import ErrorMessage from '../common/ErrorMessage';
 
 const gridTemplateColumns = { gridTemplateColumns: '45px minmax(200px, 1fr)' };
 
@@ -114,9 +115,7 @@ export default function PredictedTopPostsList({ year }: { year: number }) {
     return (
       <div className={classes.root}>
         <PredictedTop50Intro />
-        <div className={classes.predictedPostList}>
-          <p>Error loading predictions: {postsError.message}</p>
-        </div>
+        <ErrorMessage message={`Error loading predictions: ${postsError.message}`} />
       </div>
     );
   }
