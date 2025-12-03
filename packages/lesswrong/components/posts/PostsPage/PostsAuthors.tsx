@@ -3,7 +3,8 @@ import { registerComponent } from '../../../lib/vulcan-lib/components';
 import UserNameDeleted from "../../users/UserNameDeleted";
 import UsersName from "../../users/UsersName";
 import UserCommentMarkers from "../../users/UserCommentMarkers";
-import PostsCoauthor, { AUTHOR_MARKER_STYLES } from "./PostsCoauthor";
+import PostsCoauthor from "./PostsCoauthor";
+import { AUTHOR_MARKER_STYLES } from "./authorMarkerStyles";
 import { Typography } from "../../common/Typography";
 
 const styles = (theme: ThemeType) => ({

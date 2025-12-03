@@ -2,12 +2,7 @@ import React from 'react'
 import { registerComponent } from '../../../lib/vulcan-lib/components';
 import UsersName from "../../users/UsersName";
 import UserCommentMarkers from "../../users/UserCommentMarkers";
-
-export const AUTHOR_MARKER_STYLES = {
-  display: "inline-block",
-  marginLeft: 3,
-  marginRight: -3,
-};
+import { AUTHOR_MARKER_STYLES } from './authorMarkerStyles';
 
 const styles = (_: ThemeType) => ({
   markers: AUTHOR_MARKER_STYLES,
