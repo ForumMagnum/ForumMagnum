@@ -4442,7 +4442,7 @@ const schema = {
       outputType: "Boolean!",
       inputType: "Boolean",
       canRead: ["guests"],
-      canUpdate: ["admins", "sunshineRegiment"],
+      canUpdate: ["members", "admins", "sunshineRegiment"],
       validation: {
         optional: true,
       },
