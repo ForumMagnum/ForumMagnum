@@ -1223,7 +1223,7 @@ function nominatablePostsByVote(terms: PostsViewTerms, _: ApolloClient, context?
 }
 
 // Exclude IDs that should not be included, e.g. were republished and postedAt date isn't actually in current review
-const reviewExcludedPostIds = ['MquvZCGWyYinsN49c'];
+const reviewExcludedPostIds = ['MquvZCGWyYinsN49c', '5n2ZQcbc7r4R8mvqc'];
 
 // Nominations for the (≤)2020 review are determined by the number of votes
 function reviewVoting(terms: PostsViewTerms) {
