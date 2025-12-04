@@ -16,6 +16,7 @@ import { createConversation } from '../collections/conversations/mutations';
 import { createMessage } from '../collections/messages/mutations';
 import { createModeratorAction } from '../collections/moderatorActions/mutations';
 import { VOTING_DISABLED } from '../../lib/collections/moderatorActions/constants';
+import { rerunSaplingCheckForPost } from '../collections/automatedContentEvaluations/helpers';
 
 export const moderationGqlTypeDefs = gql`
   type ModeratorIPAddressInfo {
@@ -37,6 +38,7 @@ export const moderationGqlTypeDefs = gql`
     unlockThread(commentId: String!): Boolean!
     rejectContentAndRemoveUserFromQueue(userId: String!, documentId: String!, collectionName: ContentCollectionName!, rejectedReason: String!, messageContent: String): Boolean!
     approveUserCurrentContentOnly(userId: String!): Boolean!
+    rerunSaplingCheck(postId: String!): AutomatedContentEvaluation!
   }
 `
 
@@ -248,6 +250,15 @@ export const moderationGqlMutations = {
     }, context);
 
     return true;
+  },
+  async rerunSaplingCheck(_root: void, args: { postId: string }, context: ResolverContext) {
+    const { currentUser } = context;
+    if (!currentUser || !userIsAdminOrMod(currentUser)) {
+      throw new Error("Only admins and moderators can rerun Sapling checks");
+    }
+
+    const { postId } = args;
+    return await rerunSaplingCheckForPost(postId, context);
   }
 }
 
