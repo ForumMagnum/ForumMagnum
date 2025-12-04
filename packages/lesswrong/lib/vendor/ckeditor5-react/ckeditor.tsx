@@ -52,6 +52,14 @@ export default class CKEditor<TEditor extends Editor> extends React.Component<Pr
 	private instance: Editor | undefined | null;
 
 	constructor( props: Props<TEditor> & { isCollaborative: boolean } ) {
+		if (props.config) {
+			props.config.licenseKey ??= process.env.NEXT_PUBLIC_CKEDITOR_LICENSE_KEY || 'GPL';
+		} else {
+			props.config = {
+				licenseKey: process.env.NEXT_PUBLIC_CKEDITOR_LICENSE_KEY || 'GPL',
+			};
+		}
+		
 		super( props );
 
 		const { CKEDITOR_VERSION } = window;

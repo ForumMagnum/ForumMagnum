@@ -586,7 +586,6 @@ const CKPostEditor = ({
     conditionalVisibility: conditionalVisibilityPluginConfiguration,
     ...cloudinaryConfig,
     claims: claimsConfig(portalContext, openDialog),
-    licenseKey: 'GPL',
   };
 
   useSyncCkEditorPlaceholder(editorObject, actualPlaceholder);
