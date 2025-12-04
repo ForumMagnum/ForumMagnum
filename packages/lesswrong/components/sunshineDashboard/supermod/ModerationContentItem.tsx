@@ -4,14 +4,18 @@ import classNames from 'classnames';
 import FormatDate from '@/components/common/FormatDate';
 import DescriptionIcon from '@/lib/vendor/@material-ui/icons/src/Description';
 import MessageIcon from '@/lib/vendor/@material-ui/icons/src/Message';
+import ReplayIcon from '@/lib/vendor/@material-ui/icons/src/Replay';
 import { htmlToTextDefault } from '@/lib/htmlToText';
 import { truncate } from '@/lib/editor/ellipsize';
 import RejectContentButton from '../RejectContentButton';
-import { getEnvKeystrokeText } from '@/lib/vendor/ckeditor5-util/keyboard';
 import { useDialog } from '@/components/common/withDialog';
 import { DialogContent } from '@/components/widgets/DialogContent';
 import LWDialog from '@/components/common/LWDialog';
 import { highlightHtmlWithLlmDetectionScores } from '../helpers';
+import KeystrokeDisplay from './KeystrokeDisplay';
+import HoverOver from '@/components/common/HoverOver';
+import type { InboxAction } from './inboxReducer';
+import { useRerunSaplingCheck } from './useRerunSaplingCheck';
 
 const styles = defineStyles('ModerationContentItem', (theme: ThemeType) => ({
   root: {
@@ -31,13 +35,7 @@ const styles = defineStyles('ModerationContentItem', (theme: ThemeType) => ({
   focused: {
     borderLeft: `3px solid ${theme.palette.primary.main}`,
     paddingLeft: 17,
-    backgroundColor: theme.palette.grey[50],
-  },
-  rejected: {
-    backgroundColor: theme.palette.panelBackground.deletedComment,
-    '&:hover': {
-      backgroundColor: theme.palette.panelBackground.deletedComment,
-    },
+    backgroundColor: theme.palette.grey[100],
   },
   icon: {
     height: 14,
@@ -117,20 +115,6 @@ const styles = defineStyles('ModerationContentItem', (theme: ThemeType) => ({
     marginLeft: 8,
     flexShrink: 0,
   },
-  keystroke: {
-    display: 'flex',
-    alignItems: 'center',
-    justifyContent: 'center',
-    minWidth: 18,
-    height: 18,
-    fontSize: 10,
-    color: theme.palette.grey[600],
-    fontFamily: theme.typography.fontFamily,
-    backgroundColor: theme.palette.grey[100],
-    borderRadius: 3,
-    border: `1px solid ${theme.palette.grey[300]}`,
-    padding: '0 4px',
-  },
   automatedEvaluations: {
     display: 'flex',
     gap: 6,
@@ -151,9 +135,67 @@ const styles = defineStyles('ModerationContentItem', (theme: ThemeType) => ({
       backgroundColor: theme.palette.grey[300],
     },
   },
-  aiOutput: {
-    fontSize: '0.9em',
-    textWrap: 'pretty',
+  rejectedReasonTooltipContents: {
+    maxHeight: 300,
+    overflowY: 'auto',
+    '& ul': {
+      marginBlockStart: 0,
+      marginBlockEnd: 0,
+    }
+  },
+  rejectionInfo: {
+    display: 'flex',
+    flexDirection: 'column',
+    gap: 4,
+    flexShrink: 0,
+    maxWidth: 140,
+  },
+  rejectionTopRow: {
+    display: 'flex',
+    gap: 6,
+    alignItems: 'center',
+  },
+  rejectionReasonPreview: {
+    marginLeft: 8,
+    fontSize: 11,
+    color: theme.palette.grey[600],
+    overflow: 'hidden',
+    textOverflow: 'ellipsis',
+    whiteSpace: 'nowrap',
+    maxWidth: 300,
+  },
+  rerunButton: {
+    display: 'flex',
+    alignItems: 'center',
+    gap: 4,
+    padding: '2px 6px',
+    borderRadius: 3,
+    fontSize: 11,
+    fontWeight: 500,
+    backgroundColor: theme.palette.grey[200],
+    color: theme.palette.grey[700],
+    cursor: 'pointer',
+    transition: 'background-color 0.1s ease',
+    border: 'none',
+    whiteSpace: 'nowrap',
+    '&:hover': {
+      backgroundColor: theme.palette.grey[300],
+    },
+    '&:disabled': {
+      opacity: 0.5,
+      cursor: 'not-allowed',
+    },
+  },
+  rerunIcon: {
+    width: 12,
+    height: 12,
+  },
+  rerunIconSpinning: {
+    animation: '$spin 1s linear infinite',
+  },
+  '@keyframes spin': {
+    from: { transform: 'rotate(0deg)' },
+    to: { transform: 'rotate(360deg)' },
   },
 }));
 
@@ -167,10 +209,12 @@ const ModerationContentItem = ({
   item,
   isFocused,
   onOpen,
+  dispatch,
 }: {
   item: ContentItem;
   isFocused: boolean;
   onOpen: () => void;
+  dispatch: React.Dispatch<InboxAction>;
 }) => {
   const classes = useStyles(styles);
   const { openDialog } = useDialog();
@@ -178,16 +222,32 @@ const ModerationContentItem = ({
   const karma = item.baseScore ?? 0;
   const karmaClass = karma < 0 ? classes.karmaNegative : karma < 3 ? classes.karmaLow : classes.karmaPositive;
 
-  const post = isPost(item);
+  const itemIsPost = isPost(item);
   const contentHtml = item.contents?.html ?? '';
   const contentText = htmlToTextDefault(contentHtml);
   const truncatedText = truncate(contentText, 100, 'characters');
 
-  const contentWrapper = post 
+  const contentWrapper = itemIsPost 
     ? { collectionName: 'Posts' as const, document: item }
     : { collectionName: 'Comments' as const, document: item };
 
   const automatedContentEvaluations = 'automatedContentEvaluations' in item ? item.automatedContentEvaluations : null;
+
+  // Show the rerun button for posts when there's no ACE or when ACE is missing the Sapling score
+  const showRerunButton = itemIsPost && (
+    !automatedContentEvaluations ||
+    automatedContentEvaluations.score === null
+  );
+
+  const { handleRerunSaplingCheck, isRunningSaplingCheck } = useRerunSaplingCheck(
+    itemIsPost ? item._id : null,
+    dispatch
+  );
+
+  const onRerunClick = useCallback((e: React.MouseEvent) => {
+    e.stopPropagation();
+    void handleRerunSaplingCheck();
+  }, [handleRerunSaplingCheck]);
 
   const handleLLMScoreClick = useCallback((e: React.MouseEvent) => {
     e.stopPropagation();
@@ -215,15 +275,18 @@ const ModerationContentItem = ({
 
   const score = automatedContentEvaluations?.score;
 
+  const rejectedReasonText = item.rejectedReason 
+    ? truncate(htmlToTextDefault(item.rejectedReason), 80, 'characters')
+    : '[No reason provided]';
+
   return (
     <div
       className={classNames(classes.root, {
         [classes.focused]: isFocused,
-        [classes.rejected]: item.rejected,
       })}
       onClick={onOpen}
     >
-      {post ? (
+      {itemIsPost ? (
         <DescriptionIcon className={classes.icon} />
       ) : (
         <MessageIcon className={classes.icon} />
@@ -238,7 +301,7 @@ const ModerationContentItem = ({
       </div>
 
       <div className={classes.contentPreview}>
-        {post && (
+        {itemIsPost && (
           <div className={classes.title}>{item.title}</div>
         )}
         <div className={classes.text}>{truncatedText}</div>
@@ -251,12 +314,28 @@ const ModerationContentItem = ({
       )}
       
       {item.rejected && (
-        <div className={classNames(classes.status, classes.rejectedStatus)}>
-          Rejected
+        <div className={classes.rejectionInfo}>
+          <div className={classes.rejectionTopRow}>
+            <HoverOver
+              title={<div className={classes.rejectedReasonTooltipContents} dangerouslySetInnerHTML={{ __html: item.rejectedReason ?? '[No reason provided]' }} />}
+              placement="auto-end"
+              clickable
+            >
+              <div className={classNames(classes.status, classes.rejectedStatus)}>
+                {score && score >= 0.5 ? 'Autorejected' : 'Rejected'}
+              </div>
+            </HoverOver>
+            {typeof score === 'number' && (
+              <span className={classes.evaluationBadge} onClick={handleLLMScoreClick}>
+                LLM: {score.toFixed(2)}
+              </span>
+            )}
+          </div>
+          <div className={classes.rejectionReasonPreview}>{rejectedReasonText}</div>
         </div>
       )}
 
-      {automatedContentEvaluations && (
+      {!item.rejected && automatedContentEvaluations && (
         <div className={classes.automatedEvaluations}>
           {typeof score === 'number' && (
             <span className={classes.evaluationBadge} onClick={handleLLMScoreClick}>
@@ -266,10 +345,22 @@ const ModerationContentItem = ({
         </div>
       )}
 
+      {!item.rejected && showRerunButton && (
+        <button
+          className={classes.rerunButton}
+          onClick={onRerunClick}
+          disabled={isRunningSaplingCheck}
+          title={automatedContentEvaluations ? "Re-run Sapling check (score missing)" : "Run Sapling check"}
+        >
+          <ReplayIcon className={classNames(classes.rerunIcon, { [classes.rerunIconSpinning]: isRunningSaplingCheck })} />
+          {isRunningSaplingCheck ? 'Checking...' : 'Sapling'}
+        </button>
+      )}
+
       {!item.rejected && item.authorIsUnreviewed && (
         <div className={classes.rejectButtonContainer} onClick={(e) => e.stopPropagation()}>
           <RejectContentButton contentWrapper={contentWrapper} />
-          <span className={classes.keystroke}>{getEnvKeystrokeText('R')}</span>
+          <KeystrokeDisplay keystroke="R" />
         </div>
       )}
     </div>

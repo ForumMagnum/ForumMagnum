@@ -1,6 +1,8 @@
 import path from 'path';
 import fs from 'fs';
 import { redirects } from "./packages/lesswrong/lib/redirects";
+import type { NextConfig } from 'next';
+import type { WebpackConfigContext } from 'next/dist/server/config-shared';
 
 const serverExternalPackages = [
   'superagent-proxy', 'gpt-3-encoder', 'mathjax-node', 'mathjax', 'turndown', 'cloudinary',
@@ -34,8 +36,9 @@ function loadTsConfig(configPath: string) {
   }
 }
 
-/** @type {import('next').NextConfig} */
-module.exports = {
+/** @type {NextConfig} */
+const nextConfig: NextConfig = {
+  cacheComponents: true,
   reactStrictMode: false,
 
   compiler: {
@@ -48,6 +51,7 @@ module.exports = {
   typedRoutes: true,
   experimental: {
     serverSourceMaps: true,
+    turbopackFileSystemCacheForDev: true,
   },
 
   outputFileTracingIncludes: {
@@ -85,7 +89,7 @@ module.exports = {
     }]
   },
 
-  webpack: (config, { isServer, dev }) => {
+  webpack: (config, { isServer, dev }: WebpackConfigContext) => {
     if (isServer && !dev) {
       config.devtool = 'source-map';
     }
@@ -164,8 +168,8 @@ module.exports = {
 
     config.resolve.plugins = config.resolve.plugins || [];
     config.resolve.plugins.push({
-      apply(resolver) {
-        resolver.hooks.resolve.tap('TsConfigPathsPlugin', (request, resolveContext) => {
+      apply(resolver: AnyBecauseHard) {
+        resolver.hooks.resolve.tap('TsConfigPathsPlugin', (request: AnyBecauseHard, resolveContext: AnyBecauseHard) => {
           if (!request.request) return;
           
           // Check each path mapping
@@ -225,6 +229,8 @@ module.exports = {
     ignoreBuildErrors: true,
   },
 };
+
+module.exports = nextConfig;
 
 // Injected content via Sentry wizard below
 

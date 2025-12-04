@@ -62,32 +62,6 @@ export const ThemeContextProvider = ({children}: {
   </ThemeContext.Provider>
 }
 
-const autoDarkModeWrapperStyles = defineStyles("AutoDarkModeWrapper", theme => ({
-  autoColorScheme: {
-    "@media (prefers-color-sceme: light)": {
-      colorScheme: "only light",
-    },
-    "@media (prefers-color-sceme: dark)": {
-      colorScheme: "only dark",
-    },
-  },
-}));
-
-export const AutoDarkModeWrapper = ({children}: {
-  children: React.ReactNode
-}) => {
-  const themeName = useContext(ThemeContext)?.abstractThemeOptions.name ?? "auto";
-  const classes = useStyles(autoDarkModeWrapperStyles);
-
-  if (themeName === "auto") {
-    return <div>{children}</div>
-  } else if (themeName === "dark") {
-    return <div style={{colorScheme: "only dark"}}>{children}</div>
-  } else if (themeName === "default") {
-    return <div className={classes.autoColorScheme}>{children}</div>
-  }
-}
-
 export const FMJssProvider = ({stylesContext, children}: {
   stylesContext: StylesContextType
   children: React.ReactNode
@@ -110,11 +84,19 @@ const ThemeStylesheetSwapper = () => {
   useLayoutEffect(() => {
     if (stringify(abstractThemeOptions) !== stringify(window.themeOptions)) {
       window.themeOptions = abstractThemeOptions;
+      updateDocumentBodyThemeClassname(abstractThemeOptions.name);
       regeneratePageStyles(themeContext, stylesContext);
     }
   }, [abstractThemeOptions, themeContext, stylesContext]);
   
   return null;
+}
+
+function updateDocumentBodyThemeClassname(themeName: string) {
+  document.body.classList.remove("theme-default");
+  document.body.classList.remove("theme-auto");
+  document.body.classList.remove("theme-dark");
+  document.body.classList.add("theme-"+themeName);
 }
 
 const StyleHTMLInjector = () => {

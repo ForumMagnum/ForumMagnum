@@ -1,22 +1,26 @@
-import React, { useState } from 'react';
+import React, { useState, useCallback, useMemo, useEffect, useRef } from 'react';
 import { defineStyles, useStyles } from '@/components/hooks/useStyles';
 import LWDialog from "@/components/common/LWDialog";
 import { DialogTitle } from '@/components/widgets/DialogTitle';
 import { DialogContent } from '@/components/widgets/DialogContent';
 import { DialogActions } from '@/components/widgets/DialogActions';
 import Button from '@/lib/vendor/@material-ui/core/src/Button';
+import Radio from '@/lib/vendor/@material-ui/core/src/Radio';
 import { useQuery } from '@/lib/crud/useQuery';
 import { useMutation } from '@apollo/client/react';
 import { gql } from '@/lib/generated/gql-codegen';
-import { getSignatureWithNote } from '@/lib/collections/users/helpers';
 import { ContentItemBody } from '@/components/contents/ContentItemBody';
-import { commentBodyStyles } from '@/themes/stylePiping';
-import { useInitiateConversation } from '@/components/hooks/useInitiateConversation';
 import Loading from '@/components/vulcan-core/Loading';
-import { CONTENT_LIMIT } from '../UsersReviewInfoCard';
-import { useModeratedUserContents } from '@/components/hooks/useModeratedUserContents';
-import { InboxAction } from './inboxReducer';
-import { useUserContentPermissions } from './useUserContentPermissions';
+import ContentStyles from "@/components/common/ContentStyles";
+import CKEditor from '@/lib/vendor/ckeditor5-react/ckeditor';
+import { getCkCommentEditor } from '@/lib/wrapCkEditor';
+import type { Editor } from '@ckeditor/ckeditor5-core';
+import { getDraftMessageHtml } from '@/lib/collections/messages/helpers';
+import LWTooltip from '@/components/common/LWTooltip';
+import { Card } from '@/components/widgets/Paper';
+import classNames from 'classnames';
+import KeystrokeDisplay from './KeystrokeDisplay';
+import { useGlobalKeydown } from '@/components/common/withGlobalKeydown';
 
 const ModerationTemplateFragmentMultiQuery = gql(`
   query multiModerationTemplateRestrictAndNotifyModalQuery($selector: ModerationTemplateSelector, $limit: Int, $enableTotal: Boolean) {
@@ -29,35 +33,9 @@ const ModerationTemplateFragmentMultiQuery = gql(`
   }
 `);
 
-const SunshineUsersListUpdateMutation = gql(`
-  mutation updateUserRestrictAndNotify($selector: SelectorInput!, $data: UpdateUserDataInput!) {
-    updateUser(selector: $selector, data: $data) {
-      data {
-        ...SunshineUsersList
-      }
-    }
-  }
-`);
-
-const PostsListUpdateMutation = gql(`
-  mutation updatePostRestrictAndNotify($selector: SelectorInput!, $data: UpdatePostDataInput!) {
-    updatePost(selector: $selector, data: $data) {
-      data {
-        _id
-        rejected
-      }
-    }
-  }
-`);
-
-const CommentsListUpdateMutation = gql(`
-  mutation updateCommentRestrictAndNotify($selector: SelectorInput!, $data: UpdateCommentDataInput!) {
-    updateComment(selector: $selector, data: $data) {
-      data {
-        _id
-        rejected
-      }
-    }
+const RejectContentAndRemoveFromQueueMutation = gql(`
+  mutation rejectContentAndRemoveFromQueueRestrictAndNotify($userId: String!, $documentId: String!, $collectionName: ContentCollectionName!, $rejectedReason: String!, $messageContent: String) {
+    rejectContentAndRemoveUserFromQueue(userId: $userId, documentId: $documentId, collectionName: $collectionName, rejectedReason: $rejectedReason, messageContent: $messageContent)
   }
 `);
 
@@ -66,40 +44,52 @@ const styles = defineStyles('RestrictAndNotifyModal', (theme: ThemeType) => ({
     minWidth: 500,
     maxWidth: 600,
   },
-  templateList: {
-    marginTop: 16,
-    marginBottom: 16,
-  },
-  templateItem: {
-    padding: 12,
-    marginBottom: 8,
-    border: theme.palette.border.normal,
+  searchInput: {
+    width: '100%',
+    padding: '8px 12px',
+    marginBottom: 12,
+    border: `1px solid ${theme.palette.grey[300]}`,
     borderRadius: 4,
-    cursor: 'pointer',
-    transition: 'all 0.15s ease',
-    '&:hover': {
-      backgroundColor: theme.palette.grey[50],
-      borderColor: theme.palette.grey[400],
+    fontSize: 14,
+    fontFamily: theme.palette.fonts.sansSerifStack,
+    backgroundColor: theme.palette.background.paper,
+    outline: 'none',
+    '&:focus': {
+      border: `1px solid ${theme.palette.grey[300]}`,
     },
   },
-  templateItemSelected: {
-    backgroundColor: theme.palette.primary.light + '20',
-    borderColor: theme.palette.primary.main,
+  templateList: {
+    marginTop: 4,
+    marginBottom: 16,
+    display: 'flex',
+    flexDirection: 'column',
+  },
+  templateRow: {
+    display: 'flex',
+    alignItems: 'center',
+    cursor: 'pointer',
+    borderRadius: 3,
+    '&:hover': {
+      backgroundColor: theme.palette.grey[50],
+    },
+    '&.selected': {
+      backgroundColor: theme.palette.grey[200],
+    },
+  },
+  radio: {
+    paddingTop: 2,
+    paddingBottom: 2,
   },
   templateName: {
     fontSize: 14,
-    fontWeight: 500,
-    marginBottom: 4,
+    flexGrow: 1,
   },
-  templatePreview: {
-    fontSize: 12,
-    ...commentBodyStyles(theme),
-    backgroundColor: theme.palette.grey[50],
-    padding: 8,
-    borderRadius: 2,
-    marginTop: 8,
-    maxHeight: 150,
-    overflow: 'auto',
+  templateTooltip: {
+    width: '100%',
+  },
+  card: {
+    padding: 12,
+    width: 500,
   },
   actions: {
     padding: 16,
@@ -109,39 +99,41 @@ const styles = defineStyles('RestrictAndNotifyModal', (theme: ThemeType) => ({
     color: theme.palette.grey[700],
     marginBottom: 12,
   },
-  warning: {
-    fontSize: 13,
-    color: theme.palette.error.main,
-    backgroundColor: theme.palette.error.light + '20',
-    padding: 12,
-    borderRadius: 4,
+  editorContainer: {
     marginTop: 16,
+    minHeight: 150,
+    '& .ck-editor__editable': {
+      minHeight: 150,
+    },
   },
 }));
 
 const RestrictAndNotifyModal = ({
   user,
-  currentUser,
-  dispatch,
   onComplete,
   onClose,
+  rejectedReason,
+  documentId,
+  collectionName,
 }: {
   user: SunshineUsersList;
-  currentUser: UsersCurrent;
-  dispatch: React.ActionDispatch<[action: InboxAction]>;
-  onComplete: () => void;
+  onComplete: (executeAction: () => Promise<void>) => void;
   onClose: () => void;
+  rejectedReason: string;
+  documentId: string;
+  collectionName: 'Posts' | 'Comments';
 }) => {
   const classes = useStyles(styles);
   const [selectedTemplateId, setSelectedTemplateId] = useState<string | null>(null);
-  const [loading, setLoading] = useState(false);
+  const [messageContent, setMessageContent] = useState('');
+  const [editor, setEditor] = useState<Editor | null>(null);
+  const [searchQuery, setSearchQuery] = useState('');
+  const [selectedIndex, setSelectedIndex] = useState(0);
+  const searchInputRef = useRef<HTMLInputElement>(null);
+  const templateListRef = useRef<HTMLDivElement>(null);
+  const editorContainerRef = useRef<HTMLDivElement>(null);
 
-  const { initiateConversation } = useInitiateConversation({ includeModerators: true });
-  const [updateUser] = useMutation(SunshineUsersListUpdateMutation);
-  const [updatePost] = useMutation(PostsListUpdateMutation);
-  const [updateComment] = useMutation(CommentsListUpdateMutation);
-
-  const { posts, comments } = useModeratedUserContents(user._id, CONTENT_LIMIT);
+  const [rejectContentAndRemoveFromQueue] = useMutation(RejectContentAndRemoveFromQueueMutation);
 
   const { data: templatesData } = useQuery(ModerationTemplateFragmentMultiQuery, {
     variables: {
@@ -151,83 +143,127 @@ const RestrictAndNotifyModal = ({
     },
   });
 
-  const templates = templatesData?.moderationTemplates?.results ?? [];
+  const templates = useMemo(() => templatesData?.moderationTemplates?.results ?? [], [templatesData]);
 
-  const { toggleDisableVoting } = useUserContentPermissions(user, dispatch);
+  const filteredTemplates = useMemo(() => {
+    if (!searchQuery) return templates;
+    return templates.filter(template =>
+      template.name.toLowerCase().includes(searchQuery.toLowerCase())
+    );
+  }, [templates, searchQuery]);
 
-  const handleConfirm = async () => {
-    if (!selectedTemplateId) return;
+  useEffect(() => {
+    setTimeout(() => {
+      searchInputRef.current?.focus();
+    }, 0);
+  }, []);
 
-    setLoading(true);
-    try {
-      const notes = user.sunshineNotes || '';
-      const newNotes = getSignatureWithNote(currentUser.displayName, 'Restricted & notified (rejected content, disabled all permissions)') + notes;
+  useEffect(() => {
+    setSelectedIndex(0);
+  }, [searchQuery]);
 
-      // 1. Restrict user permissions and remove from queue
-      await updateUser({
+  useEffect(() => {
+    const selectedElement = templateListRef.current?.children[selectedIndex] as HTMLElement;
+    if (selectedElement) {
+      selectedElement.scrollIntoView({ block: 'nearest' });
+    }
+  }, [selectedIndex]);
+
+  const handleTemplateSelect = useCallback((templateId: string) => {
+    setSelectedTemplateId(templateId);
+    const selectedTemplate = templates.find(t => t._id === templateId);
+    if (selectedTemplate?.contents?.html) {
+      const filledContent = getDraftMessageHtml({
+        html: selectedTemplate.contents.html,
+        displayName: user.displayName,
+      });
+      setMessageContent(filledContent);
+      if (editor) {
+        editor.setData(filledContent);
+      }
+    }
+  }, [templates, user.displayName, editor]);
+
+  const handleConfirm = useCallback(() => {
+    if (!selectedTemplateId || !messageContent) return;
+
+    const executeAction = async () => {
+      await rejectContentAndRemoveFromQueue({
         variables: {
-          selector: { _id: user._id },
-          data: {
-            postingDisabled: true,
-            allCommentingDisabled: true,
-            conversationsDisabled: true,
-            needsReview: false,
-            reviewedByUserId: null,
-            reviewedAt: user.reviewedAt ? new Date() : null,
-            sunshineNotes: newNotes,
-          },
+          userId: user._id,
+          documentId,
+          collectionName,
+          rejectedReason,
+          messageContent,
         },
       });
+    };
 
-      // 1b. Disable voting by creating a moderator action
-      void toggleDisableVoting(true);
+    onComplete(executeAction);
+  }, [selectedTemplateId, messageContent, rejectContentAndRemoveFromQueue, user._id, documentId, collectionName, rejectedReason, onComplete]);
 
-      // 2. Reject all unreviewed posts
-      const unrejectedPosts = posts.filter(p => !p.rejected && !p.reviewedByUserId);
-      for (const post of unrejectedPosts) {
-        await updatePost({
-          variables: {
-            selector: { _id: post._id },
-            data: {
-              rejected: true,
-            },
-          },
-        });
-      }
-
-      // 3. Reject all unreviewed comments
-      const unrejectedComments = comments.filter(c => !c.rejected && !c.reviewedByUserId);
-      for (const comment of unrejectedComments) {
-        await updateComment({
-          variables: {
-            selector: { _id: comment._id },
-            data: {
-              rejected: true,
-            },
-          },
-        });
-      }
-
-      // 4. Initiate conversation with the selected template
-      // The conversation system will automatically use the template when opened
-      await initiateConversation([user._id]);
-
-      // Note: The actual message sending happens when the moderator opens the conversation
-      // and the template is automatically loaded. This is how the existing system works.
-      // To fully automate this, we'd need to create a message directly, but that's more complex
-      // and may not be desirable (moderator should review the message before sending).
-
-      onComplete();
-    } catch (error) {
-      // eslint-disable-next-line no-console
-      console.error('Error restricting and notifying user:', error);
-      alert('An error occurred. Please try again.');
-      setLoading(false);
+  const handleKeyDown = useCallback((e: React.KeyboardEvent) => {
+    switch (e.key) {
+      case 'ArrowDown':
+        e.preventDefault();
+        setSelectedIndex(prev => prev === filteredTemplates.length - 1 ? 0 : prev + 1);
+        break;
+      case 'ArrowUp':
+        e.preventDefault();
+        setSelectedIndex(prev => prev === 0 ? filteredTemplates.length - 1 : prev - 1);
+        break;
+      case 'Enter':
+        if (e.ctrlKey || e.metaKey) {
+          e.preventDefault();
+          if (selectedTemplateId && messageContent) {
+            handleConfirm();
+          }
+        } else {
+          e.preventDefault();
+          if (filteredTemplates[selectedIndex]) {
+            handleTemplateSelect(filteredTemplates[selectedIndex]._id);
+          }
+        }
+        break;
+      case 'Tab':
+        e.preventDefault();
+        // We need the outer setTimeout to allow a rerender after `setHideTextField` causes a state update to show the editor
+        // and the inner timeout to allow the scroll to finish (since apparently focusing an element will interrupt the scroll)
+        setTimeout(() => {
+          editorContainerRef.current?.scrollIntoView({ behavior: 'smooth', block: 'center' });
+          setTimeout(() => {
+            editor?.focus();
+          }, 300);
+        }, 0);
+        break;
     }
-  };
+  }, [filteredTemplates, selectedIndex, handleTemplateSelect, selectedTemplateId, messageContent, editor, handleConfirm]);
 
-  const unreviewedPostCount = posts.filter(p => !p.rejected && !p.reviewedByUserId).length;
-  const unreviewedCommentCount = comments.filter(c => !c.rejected && !c.reviewedByUserId).length;
+  useGlobalKeydown(useCallback((e: KeyboardEvent) => {
+    if ((e.ctrlKey || e.metaKey) && e.key === 'Enter') {
+      if (selectedTemplateId && messageContent) {
+        e.preventDefault();
+        handleConfirm();
+      }
+    }
+  }, [selectedTemplateId, messageContent, handleConfirm]));
+
+  const CommentEditor = getCkCommentEditor();
+
+  const editorConfig = {
+    toolbar: [
+      'bold',
+      'italic',
+      '|',
+      'link',
+      '|',
+      'bulletedList',
+      'numberedList',
+      '|',
+      'blockQuote',
+    ],
+    placeholder: 'Edit message to user...',
+  };
 
   return (
     <LWDialog open onClose={onClose} maxWidth="md">
@@ -236,14 +272,10 @@ const RestrictAndNotifyModal = ({
         <div className={classes.description}>
           This will:
           <ul>
-            <li>Disable posting</li>
-            <li>Disable commenting on others' content</li>
-            <li>Disable messaging</li>
-            <li>Disable voting</li>
-            <li>Reject {unreviewedPostCount} unreviewed post(s)</li>
-            <li>Reject {unreviewedCommentCount} unreviewed comment(s)</li>
-            <li>Remove user from review queue (without approval)</li>
-            <li>Open a conversation with the selected message template</li>
+            <li>Disable posting, commenting, creating new conversations, and voting</li>
+            <li>Reject the user's most recent unreviewed post or comment</li>
+            <li>Send the message below to the user</li>
+            <li>Remove user from review queue</li>
           </ul>
         </div>
 
@@ -252,41 +284,78 @@ const RestrictAndNotifyModal = ({
             <Loading />
           </div>
         ) : (
-          <div className={classes.templateList}>
-            {templates.map((template) => (
-              <div
-                key={template._id}
-                className={`${classes.templateItem} ${
-                  selectedTemplateId === template._id ? classes.templateItemSelected : ''
-                }`}
-                onClick={() => setSelectedTemplateId(template._id)}
-              >
-                <div className={classes.templateName}>{template.name}</div>
-                <div className={classes.templatePreview}>
-                  <ContentItemBody
-                    dangerouslySetInnerHTML={{ __html: template.contents?.html || '' }}
-                  />
-                </div>
-              </div>
-            ))}
-          </div>
+          <>
+            <input
+              ref={searchInputRef}
+              className={classes.searchInput}
+              type="text"
+              placeholder="Search templates..."
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              onKeyDown={handleKeyDown}
+            />
+            <div className={classes.templateList} ref={templateListRef}>
+              {filteredTemplates.map((template, index) => (
+                <LWTooltip
+                  key={template._id}
+                  className={classes.templateTooltip}
+                  placement="right-end"
+                  tooltip={false}
+                  title={
+                    <Card className={classes.card}>
+                      <ContentStyles contentType='comment'>
+                        <ContentItemBody dangerouslySetInnerHTML={{__html: template.contents?.html ?? ""}} />
+                      </ContentStyles>
+                    </Card>
+                  }
+                >
+                  <div
+                    className={classNames(classes.templateRow, { selected: index === selectedIndex })}
+                    onClick={() => handleTemplateSelect(template._id)}
+                  >
+                    <Radio
+                      checked={selectedTemplateId === template._id}
+                      onChange={() => handleTemplateSelect(template._id)}
+                      className={classes.radio}
+                    />
+                    <span className={classes.templateName}>{template.name}</span>
+                  </div>
+                </LWTooltip>
+              ))}
+            </div>
+          </>
         )}
 
-        <div className={classes.warning}>
-          Warning: This action cannot be undone. The conversation will open in a new tab for you to review and send the message.
+        <div className={classes.editorContainer} ref={editorContainerRef}>
+          <ContentStyles contentType='comment'>
+            <CKEditor
+              editor={CommentEditor}
+              data={messageContent}
+              config={editorConfig}
+              isCollaborative={false}
+              onReady={(editorInstance: Editor) => {
+                setEditor(editorInstance);
+              }}
+              onChange={(event: any, editorInstance: Editor) => {
+                const data = editorInstance.getData();
+                setMessageContent(data);
+              }}
+            />
+          </ContentStyles>
         </div>
       </DialogContent>
       <DialogActions className={classes.actions}>
-        <Button onClick={onClose} disabled={loading}>
+        <Button onClick={onClose}>
           Cancel
         </Button>
         <Button
           onClick={handleConfirm}
           color="primary"
           variant="contained"
-          disabled={!selectedTemplateId || loading}
+          disabled={!selectedTemplateId || !messageContent}
         >
-          {loading ? 'Processing...' : 'Restrict & Notify'}
+          Restrict & Notify
+          <KeystrokeDisplay keystroke="Ctrl+Enter" withMargin splitBeforeTranslation />
         </Button>
       </DialogActions>
     </LWDialog>

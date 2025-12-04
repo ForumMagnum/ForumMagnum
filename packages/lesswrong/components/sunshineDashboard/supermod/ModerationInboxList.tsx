@@ -1,6 +1,7 @@
 import React, { useMemo } from 'react';
 import { defineStyles, useStyles } from '@/components/hooks/useStyles';
 import ModerationInboxItem from './ModerationInboxItem';
+import ModerationPostItem from './ModerationPostItem';
 import ModerationTabs, { TabInfo } from './ModerationTabs';
 import type { ReviewGroup } from './groupings';
 import classNames from 'classnames';
@@ -9,28 +10,7 @@ const styles = defineStyles('ModerationInboxList', (theme: ThemeType) => ({
   root: {
     backgroundColor: theme.palette.background.paper,
   },
-  header: {
-    padding: '16px 20px',
-    borderBottom: theme.palette.border.normal,
-    position: 'sticky',
-    top: 0,
-    backgroundColor: theme.palette.background.paper,
-    zIndex: 1,
-  },
-  title: {
-    ...theme.typography.commentStyle,
-    fontSize: 20,
-    fontWeight: 600,
-    color: theme.palette.grey[900],
-  },
-  count: {
-    fontSize: 14,
-    color: theme.palette.grey[600],
-    marginLeft: 8,
-  },
-  list: {
-    // No padding - items will have their own spacing
-  },
+  list: {},
   empty: {
     padding: 40,
     textAlign: 'center',
@@ -49,6 +29,9 @@ const styles = defineStyles('ModerationInboxList', (theme: ThemeType) => ({
   automod: {
     background: theme.palette.panelBackground.sunshineAutomodGroup,
   },
+  snoozeExpired: {
+    background: theme.palette.panelBackground.sunshineSnoozeExpiredGroup,
+  },
   unknown: {
     background: theme.palette.panelBackground.sunshineUnknownGroup,
   },
@@ -58,20 +41,26 @@ export type GroupEntry = [ReviewGroup, SunshineUsersList[]];
 
 const ModerationInboxList = ({
   userGroups,
+  posts,
   focusedUserId,
+  focusedPostId,
   onFocusUser,
   onOpenUser,
+  onFocusPost,
   visibleTabs,
   activeTab,
   onTabChange,
 }: {
-  userGroups: GroupEntry[],
+  userGroups: GroupEntry[];
+  posts: SunshinePostsList[];
   focusedUserId: string | null;
+  focusedPostId: string | null;
   onFocusUser: (userId: string) => void;
   onOpenUser: (userId: string) => void;
+  onFocusPost: (postId: string) => void;
   visibleTabs: TabInfo[];
-  activeTab: ReviewGroup | 'all';
-  onTabChange: (tab: ReviewGroup | 'all') => void;
+  activeTab: ReviewGroup | 'all' | 'posts';
+  onTabChange: (tab: ReviewGroup | 'all' | 'posts') => void;
 }) => {
   const classes = useStyles(styles);
 
@@ -84,25 +73,44 @@ const ModerationInboxList = ({
         activeTab={activeTab}
         onTabChange={onTabChange}
       />
-      {userCount === 0 ? (
-        <div className={classes.empty}>
-          No users to review
-        </div>
-      ) : (
-        userGroups.map(([group, users]) => {
-          const groupStyling = activeTab === 'all' ? classes[group] : undefined;
-          return <div key={group} className={classNames(classes.list, groupStyling)}>
-            {users.map((user) => (
-              <ModerationInboxItem
-                key={user._id}
-                user={user}
-                reviewGroup={group}
-                isFocused={user._id === focusedUserId}
-                onOpen={() => onOpenUser(user._id)}
+      {activeTab === 'posts' ? (
+        posts.length === 0 ? (
+          <div className={classes.empty}>
+            No posts to review
+          </div>
+        ) : (
+          <div className={classes.list}>
+            {posts.map((post) => (
+              <ModerationPostItem
+                key={post._id}
+                post={post}
+                isFocused={post._id === focusedPostId}
+                onFocus={() => onFocusPost(post._id)}
               />
             ))}
           </div>
-        })
+        )
+      ) : (
+        userCount === 0 ? (
+          <div className={classes.empty}>
+            No users to review
+          </div>
+        ) : (
+          userGroups.map(([group, users]) => {
+            const groupStyling = activeTab === 'all' ? classes[group] : undefined;
+            return <div key={group} className={classNames(classes.list, groupStyling)}>
+              {users.map((user) => (
+                <ModerationInboxItem
+                  key={user._id}
+                  user={user}
+                  reviewGroup={group}
+                  isFocused={user._id === focusedUserId}
+                  onOpen={() => onOpenUser(user._id)}
+                />
+              ))}
+            </div>
+          })
+        )
       )}
     </div>
   );

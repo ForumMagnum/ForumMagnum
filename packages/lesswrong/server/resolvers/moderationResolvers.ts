@@ -12,6 +12,11 @@ import { updatePost } from '../collections/posts/mutations';
 import { updateUser } from '../collections/users/mutations';
 import { getSignatureWithNote } from '../../lib/collections/users/helpers';
 import { approveUnreviewedSubmissions } from '../callbacks/userCallbackFunctions';
+import { createConversation } from '../collections/conversations/mutations';
+import { createMessage } from '../collections/messages/mutations';
+import { createModeratorAction } from '../collections/moderatorActions/mutations';
+import { VOTING_DISABLED } from '../../lib/collections/moderatorActions/constants';
+import { rerunSaplingCheckForPost } from '../collections/automatedContentEvaluations/helpers';
 
 export const moderationGqlTypeDefs = gql`
   type ModeratorIPAddressInfo {
@@ -31,8 +36,9 @@ export const moderationGqlTypeDefs = gql`
   extend type Mutation {
     lockThread(commentId: String!, until: String): Boolean!
     unlockThread(commentId: String!): Boolean!
-    rejectContentAndRemoveUserFromQueue(userId: String!, documentId: String!, collectionName: ContentCollectionName!): Boolean!
+    rejectContentAndRemoveUserFromQueue(userId: String!, documentId: String!, collectionName: ContentCollectionName!, rejectedReason: String!, messageContent: String): Boolean!
     approveUserCurrentContentOnly(userId: String!): Boolean!
+    rerunSaplingCheck(postId: String!): AutomatedContentEvaluation!
   }
 `
 
@@ -104,20 +110,19 @@ export const moderationGqlMutations = {
 
     return true;
   },
-  async rejectContentAndRemoveUserFromQueue(_root: void, args: {userId: string, documentId: string, collectionName: ContentCollectionName}, context: ResolverContext) {
+  async rejectContentAndRemoveUserFromQueue(_root: void, args: {userId: string, documentId: string, collectionName: ContentCollectionName, rejectedReason: string, messageContent?: string}, context: ResolverContext) {
     const { currentUser } = context;
     if (!currentUser || !userIsAdminOrMod(currentUser)) {
       throw new Error("Only admins and moderators can reject content and remove users from queue");
     }
 
-    const { userId, documentId, collectionName } = args;
+    const { userId, documentId, collectionName, rejectedReason, messageContent } = args;
 
     const user = await Users.findOne(userId);
     if (!user) {
       throw new Error("Invalid user ID");
     }
 
-    // Reject the document
     if (collectionName === 'Posts') {
       const post = await Posts.findOne(documentId);
       if (!post) {
@@ -128,7 +133,7 @@ export const moderationGqlMutations = {
       }
 
       await updatePost({
-        data: { rejected: true },
+        data: { rejected: true, rejectedReason },
         selector: { _id: documentId }
       }, context);
     } else {
@@ -141,23 +146,76 @@ export const moderationGqlMutations = {
       }
       
       await updateComment({
-        data: { rejected: true },
+        data: { rejected: true, rejectedReason },
         selector: { _id: documentId }
       }, context);
     }
 
-    // Remove user from review queue
-    const notes = user.sunshineNotes;
-    const newNotes = getSignatureWithNote(currentUser.displayName, 'removed from review queue (content rejected)') + notes;
-    await updateUser({
-      data: {
-        needsReview: false,
-        reviewedByUserId: null,
-        reviewedAt: user.reviewedAt ? new Date() : null,
-        sunshineNotes: newNotes,
-      },
-      selector: { _id: userId }
-    }, context);
+    // If messageContent is provided, we restrict all of the user's permissions and send them an offboarding message
+    if (messageContent) {
+      const restrictNote = 'Restricted & notified (rejected content, disabled all permissions)';
+      const notes = user.sunshineNotes || '';
+      const newNotes = getSignatureWithNote(currentUser.displayName, restrictNote) + notes;
+
+      await updateUser({
+        data: {
+          postingDisabled: true,
+          allCommentingDisabled: true,
+          conversationsDisabled: true,
+          needsReview: false,
+          reviewedByUserId: null,
+          reviewedAt: user.reviewedAt ? new Date() : null,
+          sunshineNotes: newNotes,
+        },
+        selector: { _id: userId }
+      }, context);
+
+      await createModeratorAction({
+        data: {
+          userId: userId,
+          type: VOTING_DISABLED,
+          endedAt: null,
+        }
+      }, context);
+
+      const conversationData: CreateConversationDataInput = {
+        participantIds: [userId, currentUser._id],
+        title: `Content rejected and permissions restricted`,
+        moderator: true,
+      };
+
+      const conversation = await createConversation({
+        data: conversationData,
+      }, context);
+
+      const messageData = {
+        userId: currentUser._id,
+        contents: {
+          originalContents: {
+            type: "html",
+            data: messageContent
+          }
+        },
+        conversationId: conversation._id,
+        noEmail: false,
+      };
+
+      await createMessage({
+        data: messageData,
+      }, context);
+    } else {
+      const notes = user.sunshineNotes || '';
+      const newNotes = getSignatureWithNote(currentUser.displayName, 'removed from review queue (content rejected)') + notes;
+      await updateUser({
+        data: {
+          needsReview: false,
+          reviewedByUserId: null,
+          reviewedAt: user.reviewedAt ? new Date() : null,
+          sunshineNotes: newNotes,
+        },
+        selector: { _id: userId }
+      }, context);
+    }
 
     return true;
   },
@@ -192,6 +250,15 @@ export const moderationGqlMutations = {
     }, context);
 
     return true;
+  },
+  async rerunSaplingCheck(_root: void, args: { postId: string }, context: ResolverContext) {
+    const { currentUser } = context;
+    if (!currentUser || !userIsAdminOrMod(currentUser)) {
+      throw new Error("Only admins and moderators can rerun Sapling checks");
+    }
+
+    const { postId } = args;
+    return await rerunSaplingCheckForPost(postId, context);
   }
 }
 

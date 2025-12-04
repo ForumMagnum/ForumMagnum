@@ -4,7 +4,8 @@ import sanitizeHtml from 'sanitize-html';
 import { sanitizeAllowedTags } from '../../lib/vulcan-lib/utils';
 import Comments from '../../server/collections/comments/collection';
 import { dataToHTML } from '../editor/conversionUtils';
-import OpenAI from 'openai';
+// eslint-disable-next-line no-restricted-imports
+import type OpenAI from 'openai';
 import { serverCaptureEvent as captureEvent } from '@/server/analytics/serverAnalyticsWriter';
 import difference from 'lodash/difference';
 import { truncatise } from '../../lib/truncatise';
@@ -94,6 +95,7 @@ export const sanitizeHtmlOptions = {
  * Ask GPT-4 to help moderate the given comment. It will respond with a "recommendation", as per the prompt above.
  */
 export async function checkModGPT(comment: DbComment, post: FetchedFragment<PostsOriginalContents, 'Posts'>, context: ResolverContext): Promise<void> {
+  const { OpenAI } = await import("openai");
   const api = await getOpenAI();
   if (!api) {
     if (!isAnyTest) {

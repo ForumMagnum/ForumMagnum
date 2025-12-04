@@ -5,7 +5,6 @@ import { useCurrentUser } from '../common/withUser';
 import { sectionFooterLeftStyles } from '../users/UsersProfile'
 import {AnalyticsContext} from "../../lib/analyticsEvents";
 import { defaultSequenceBannerIdSetting, nofollowKarmaThreshold } from '@/lib/instanceSettings';
-import { getHeaderHeight, getMobileHeaderHeight } from '../common/Header';
 import { isFriendlyUI } from '../../themes/forumTheme';
 import { makeCloudinaryImageUrl } from '../common/cloudinaryHelpers';
 import { allowSubscribeToSequencePosts } from '../../lib/betas';
@@ -62,7 +61,7 @@ export const sequencesImageScrim = (theme: ThemeType) => ({
 
 const styles = (theme: ThemeType) => ({
   root: {
-    paddingTop: theme.isFriendlyUI ? (270 + getHeaderHeight()) : 380,
+    paddingTop: theme.isFriendlyUI ? `calc(270px + var(--header-height))` : 380,
   },
   deletedText: {
     paddingTop: 20,
@@ -107,12 +106,12 @@ const styles = (theme: ThemeType) => ({
   banner: {
     position: "absolute",
     right: 0,
-    top: getHeaderHeight(),
+    top: "var(--header-height)",
     width: "100vw",
     height: 380,
     zIndex: theme.zIndexes.sequenceBanner,
     [theme.breakpoints.down('sm')]: {
-      top: getMobileHeaderHeight(),
+      top: "var(--header-height)",
     },
     "& img": {
       width: "100vw",

@@ -1,9 +1,11 @@
-import React, { createContext, useContext } from 'react';
+import React, { createContext, useContext, useState } from 'react';
 import { FeedType } from './ultraFeedTypes';
 
 interface UltraFeedContextType {
   openInNewTab: boolean;
   feedType: FeedType;
+  showScoreBreakdown: boolean;
+  setShowScoreBreakdown: (show: boolean) => void;
 }
 
 const UltraFeedContext = createContext<UltraFeedContextType | undefined>(undefined);
@@ -17,8 +19,10 @@ export const UltraFeedContextProvider = ({
   openInNewTab?: boolean;
   feedType?: FeedType;
 }) => {
+  const [showScoreBreakdown, setShowScoreBreakdown] = useState(false);
+  
   return (
-    <UltraFeedContext.Provider value={{ openInNewTab, feedType }}>
+    <UltraFeedContext.Provider value={{ openInNewTab, feedType, showScoreBreakdown, setShowScoreBreakdown }}>
       {children}
     </UltraFeedContext.Provider>
   );
@@ -26,6 +30,6 @@ export const UltraFeedContextProvider = ({
 
 export const useUltraFeedContext = () => {
   const context = useContext(UltraFeedContext);
-  return context ?? { openInNewTab: false, feedType: 'ultraFeed' };
+  return context ?? { openInNewTab: false, feedType: 'ultraFeed', showScoreBreakdown: false, setShowScoreBreakdown: () => {} };
 };
 

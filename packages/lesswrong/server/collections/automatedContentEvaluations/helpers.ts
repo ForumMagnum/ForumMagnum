@@ -7,9 +7,21 @@ import Posts from "../posts/collection";
 import ModerationTemplates from "../moderationTemplates/collection";
 import { sendRejectionPM } from "@/server/callbacks/postCallbackFunctions";
 
-async function getSaplingEvaluation(revision: DbRevision) {
+const saplingResponseSchema = z.object({
+  score: z.number(),
+  sentence_scores: z.array(
+    z.object({
+      sentence: z.string(),
+      score: z.number()
+    })
+  )
+});
+
+export async function getSaplingEvaluation(revision: DbRevision) {
   const key = process.env.SAPLING_API_KEY;
-  if (!key) return;
+  if (!key) {
+    throw new Error("SAPLING_API_KEY is not configured");
+  }
   
   const markdown = dataToMarkdown(revision.html, "html");
   const textToCheck = markdown.slice(0, 10000)
@@ -25,30 +37,31 @@ async function getSaplingEvaluation(revision: DbRevision) {
   });
 
   if (!response.ok) {
-    // eslint-disable-next-line no-console
-    console.error(`Request to api.sapling.ai failed: ${response.status}`);
+    const errorText = await response.text().catch(() => 'Unable to read error response');
+    const error = new Error(`Sapling API request failed with status ${response.status}: ${errorText}`);
+    captureException(error);
+    throw error;
   }
   
+  let saplingEvaluation;
   try {
-    const saplingEvaluation = await response.json();
-  
-    // Define single Zod schema for response validation
-    const saplingResponseSchema = z.object({
-      score: z.number(),
-      sentence_scores: z.array(
-        z.object({
-          sentence: z.string(),
-          score: z.number()
-        })
-      )
-    });
-  
-    return saplingResponseSchema.parse(saplingEvaluation);
+    saplingEvaluation = await response.json();
   } catch(e) {
-    // eslint-disable-next-line no-console
-    console.error(`Failed parsing response from api.sapling.ai: ${e.message}`);
-    captureException(e);
+    const error = new Error(`Failed to parse Sapling API response: ${e instanceof Error ? e.message : 'Unknown error'}`);
+    captureException(error);
+    throw error;
   }
+  
+  const validatedEvaluation = saplingResponseSchema.safeParse(saplingEvaluation);
+  if (!validatedEvaluation.success) {
+    const error = new Error(`Invalid Sapling API response: ${validatedEvaluation.error.message}`);
+    // eslint-disable-next-line no-console
+    console.error(`Sapling validation failed. Original response: ${JSON.stringify(saplingEvaluation)}`);
+    captureException(error);
+    throw error;
+  }
+
+  return validatedEvaluation.data;
 }
 
 async function getLlmEvaluation(revision: DbRevision, context: ResolverContext) {
@@ -270,5 +283,74 @@ export async function createAutomatedContentEvaluation(revision: DbRevision, con
       const document = await context.loaders["Posts"].load(documentId);
       await rejectPostForLLM(document, context);
     }
+  }
+}
+
+/**
+ * Re-run the Sapling LLM detection check for a post and update/create the ACE record.
+ * This is called from the moderation UI when a moderator wants to retry a failed Sapling check.
+ * Returns the updated AutomatedContentEvaluation record.
+ */
+export async function rerunSaplingCheckForPost(
+  postId: string,
+  context: ResolverContext
+): Promise<DbAutomatedContentEvaluation> {
+  const { Revisions } = context;
+
+  const post = await Posts.findOne({ _id: postId });
+  if (!post) {
+    throw new Error("Post not found");
+  }
+
+  // Get the latest published revision for the post
+  const revision = post.contents_latest
+    ? await Revisions.findOne({ _id: post.contents_latest })
+    : null;
+
+  if (!revision) {
+    throw new Error("No published revision found for post");
+  }
+
+  // Run the Sapling evaluation - errors will propagate to the client with descriptive messages
+  const saplingResult = await getSaplingEvaluation(revision);
+
+  // Check if there's an existing ACE record for this revision
+  const existingAce = await AutomatedContentEvaluations.findOne({ revisionId: revision._id });
+
+  if (existingAce) {
+    // Update the existing record with the new Sapling results
+    await AutomatedContentEvaluations.rawUpdateOne(
+      { _id: existingAce._id },
+      {
+        $set: {
+          score: saplingResult.score,
+          sentenceScores: saplingResult.sentence_scores,
+        },
+      }
+    );
+    
+    // Return the updated record
+    const updatedAce = await AutomatedContentEvaluations.findOne({ _id: existingAce._id });
+    if (!updatedAce) {
+      throw new Error("Failed to fetch updated ACE record");
+    }
+    return updatedAce;
+  } else {
+    // Create a new ACE record with just the Sapling results
+    const newAceId = await AutomatedContentEvaluations.rawInsert({
+      createdAt: new Date(),
+      revisionId: revision._id,
+      score: saplingResult.score,
+      sentenceScores: saplingResult.sentence_scores,
+      aiChoice: null,
+      aiReasoning: null,
+      aiCoT: null,
+    });
+
+    const newAce = await AutomatedContentEvaluations.findOne({ _id: newAceId });
+    if (!newAce) {
+      throw new Error("Failed to fetch created ACE record");
+    }
+    return newAce;
   }
 }

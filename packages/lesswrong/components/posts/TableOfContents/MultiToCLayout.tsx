@@ -2,7 +2,6 @@ import classNames from 'classnames';
 import React, { useEffect, useRef } from 'react';
 import { MAX_COLUMN_WIDTH } from '../PostsPage/constants';
 import { fullHeightToCEnabled } from '../../../lib/betas';
-import { getHeaderHeight } from '@/components/common/Header';
 import { defineStyles, useStyles } from '@/components/hooks/useStyles';
 
 export const MAX_CONTENT_WIDTH = 720;
@@ -99,8 +98,8 @@ const styles = defineStyles("MultiToCLayout", (theme: ThemeType) => ({
   '@global': {
     // Hard-coding this class name as a workaround for one of the JSS plugins being incapable of parsing a self-reference ($titleContainer) while inside @global
     [`body:has(.headroom--pinned) .${STICKY_BLOCK_SCROLLER_CLASS_NAME}, body:has(.headroom--unfixed) .${STICKY_BLOCK_SCROLLER_CLASS_NAME}`]: {
-      top: getHeaderHeight(),
-      height: `calc(100vh - ${getHeaderHeight()}px - var(--fixed-toc-footer-height, ${DEFAULT_FIXED_TOC_COMMENT_COUNT_HEIGHT}px))`
+      top: "var(--header-height)",
+      height: `calc(100vh - var(--header-height) - var(--fixed-toc-footer-height, ${DEFAULT_FIXED_TOC_COMMENT_COUNT_HEIGHT}px))`
     }
   },
   stickyBlockScroller: {

@@ -6,10 +6,11 @@ import { AnalyticsContext } from "../../../lib/analyticsEvents";
 import getMenuTabs from './menuTabs'
 import { forumSelect } from '../../../lib/forumTypeUtils';
 import TabNavigationFooterItem from "./TabNavigationFooterItem";
+import { ICON_ONLY_NAVIGATION_BREAKPOINT } from './NavigationStandalone';
 
 const styles = (theme: ThemeType) => ({
   wrapper: {
-    [theme.breakpoints.up('lg')]: {
+    [theme.breakpoints.up(ICON_ONLY_NAVIGATION_BREAKPOINT)]: {
       display: "none"
     },
     "@media print": {

@@ -4322,6 +4322,25 @@ const schema = {
       },
     }
   },
+  userRateLimits: {
+    graphql: {
+      outputType: "[UserRateLimit!]",
+      canRead: ["sunshineRegiment", "admins"],
+      resolver: async (user, args, context) => {
+        const { UserRateLimits } = context;
+        const userRateLimits = await getWithLoader(
+          context,
+          UserRateLimits,
+          'userRateLimits',
+          { userId: user._id },
+          'userId',
+          user._id
+        );
+
+        return userRateLimits;
+      },
+    },
+  },
 } satisfies Record<string, CollectionFieldSpecification<"Users">>;
 
 export default schema;

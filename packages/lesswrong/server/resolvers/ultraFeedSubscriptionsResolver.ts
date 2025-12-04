@@ -1,9 +1,10 @@
 import gql from 'graphql-tag';
+import moment from 'moment-timezone';
 import { filterNonnull } from '@/lib/utils/typeGuardUtils';
 import { randomId } from '@/lib/random';
 import { buildDistinctLinearThreads, generateThreadHash } from '@/server/ultraFeed/ultraFeedThreadHelpers';
 import { FilterSettings } from '@/lib/filterSettings';
-import { FeedPostMetaInfo, FeedCommentMetaInfo } from '@/components/ultraFeed/ultraFeedTypes';
+import { FeedPostMetaInfo, FeedCommentMetaInfo, UltraFeedResolverType, FeedItemSourceType } from '@/components/ultraFeed/ultraFeedTypes';
 import { bulkRawInsert } from '../manualMigrations/migrationUtils';
 import { backgroundTask } from '../utils/backgroundTask';
 import { 
@@ -11,8 +12,16 @@ import {
   createUltraFeedResponse,
   UltraFeedEventInsertData
 } from './ultraFeedResolverHelpers';
-
-type SubscribedFeedEntryType = 'feedPost' | 'feedCommentThread' | 'feedSubscriptionSuggestions';
+import {
+  toPostRankable,
+  toThreadRankable,
+  scoreItems,
+} from '../ultraFeed/ultraFeedRanking';
+import type {
+  MappablePreparedThread,
+} from '../ultraFeed/ultraFeedRankingTypes';
+import { serverCaptureEvent } from "../analytics/serverAnalyticsWriter";
+import { insertTimeMarkers, SubscribedFeedEntryType } from '../ultraFeed/feedTimeMarkers';
 
 interface SubscribedFeedDateCutoffs {
   initialCommentCandidateLookbackDays: number;
@@ -47,14 +56,116 @@ interface SliceTarget {
   postedAt: Date;
 }
 
+/**
+ * Scores feed items and returns new items with ranking metadata attached.
+ * This does not impact the display of items, it is just so developers can better understand the scoring algorithm.
+ */
+function addRankingMetadata<T extends {
+  type: SubscribedFeedEntryType;
+  data: {
+    _id: string;
+    post?: DbPost | null;
+    postMetaInfo?: FeedPostMetaInfo;
+    comments?: DbComment[];
+    commentMetaInfos?: Record<string, FeedCommentMetaInfo>;
+  };
+}>(feedItems: T[]): T[] {
+  const now = new Date();
+  const rankableItemsForScoring = feedItems
+    .filter(item => item.type === 'feedPost' || item.type === 'feedCommentThread')
+    .map(item => {
+      if (item.type === 'feedPost' && item.data.post && item.data.postMetaInfo) {
+        return toPostRankable({ post: item.data.post, postMetaInfo: item.data.postMetaInfo }, now);
+      } else if (item.type === 'feedCommentThread' && item.data.comments && item.data.commentMetaInfos) {
+        const threadForScoring: MappablePreparedThread = {
+          comments: item.data.comments
+            .filter((c): c is DbComment & { postId: string } => c.postId !== null)
+            .map(c => ({
+              commentId: c._id,
+              postId: c.postId,
+              baseScore: c.baseScore ?? 0,
+              topLevelCommentId: c.topLevelCommentId,
+              metaInfo: item.data.commentMetaInfos?.[c._id] ?? null,
+            })),
+          primarySource: 'subscriptionsComments',
+        };
+        return toThreadRankable(threadForScoring, undefined, now);
+      }
+      return null;
+    })
+    .filter((r): r is NonNullable<typeof r> => r !== null);
+  
+  const scoredItems = scoreItems(rankableItemsForScoring);
+  const scoresById = new Map(scoredItems.map(si => [si.id, si]));
+  
+  return feedItems.map((item, index) => {
+    if (item.type === 'feedPost' && item.data.post?._id) {
+      const scored = scoresById.get(item.data.post._id);
+      if (scored && item.data.postMetaInfo) {
+        return {
+          ...item,
+          data: {
+            ...item.data,
+            postMetaInfo: {
+              ...item.data.postMetaInfo,
+              rankingMetadata: {
+                scoreBreakdown: scored.breakdown,
+                selectionConstraints: [],
+                position: index,
+                rankedItemType: 'post' as const,
+              },
+            },
+          },
+        };
+      }
+    } else if (item.type === 'feedCommentThread' && item.data.comments) {
+      const threadHash = generateThreadHash(item.data.comments.map(c => c._id));
+      const scored = scoresById.get(threadHash);
+      if (scored && item.data.commentMetaInfos && item.data.comments[0]) {
+        const firstCommentId = item.data.comments[0]._id;
+        const firstCommentMetaInfo = item.data.commentMetaInfos[firstCommentId] ?? {
+          sources: ['subscriptionsComments'] as const,
+          descendentCount: 0,
+          displayStatus: 'expanded' as const,
+        };
+        
+        return {
+          ...item,
+          data: {
+            ...item.data,
+            commentMetaInfos: {
+              ...item.data.commentMetaInfos,
+              [firstCommentId]: {
+                ...firstCommentMetaInfo,
+                rankingMetadata: {
+                  scoreBreakdown: scored.breakdown,
+                  selectionConstraints: [],
+                  position: index,
+                  rankedItemType: 'commentThread' as const,
+                },
+              },
+            },
+          },
+        };
+      }
+    }
+    return item;
+  });
+}
+
 export const ultraFeedSubscriptionsQueries = {
   UltraFeedSubscriptions: async (_root: void, args: UltraFeedSubscriptionsArgs, context: ResolverContext) => {
+    
+    const startTime = Date.now();
     const { currentUser } = context;
     if (!currentUser) throw new Error('Must be logged in to fetch UltraFeedSubscriptions.');
 
     const limit = args.limit ?? 20;
     const offset = args.offset ?? 0;
     const hideRead = !!(args.settings?.subscriptionsFeedSettings?.hideRead);
+    
+    const userTimezone = currentUser.lastUsedTimezone;
+    const timezoneOffset = userTimezone ? -moment.tz(userTimezone).utcOffset() : 0;
 
     const postsRepo = context.repos.posts;
     const commentsRepo = context.repos.comments;
@@ -64,7 +175,7 @@ export const ultraFeedSubscriptionsQueries = {
       personalBlog: 'Default',
     };
 
-    const [postRows, subscriptionComments] = await Promise.all([
+    const [postRows, allComments] = await Promise.all([
       postsRepo.getLatestAndSubscribedFeedPosts(
         context,
         {
@@ -83,6 +194,9 @@ export const ultraFeedSubscriptionsQueries = {
         true
       )
     ]);
+    
+    // Feed only shows comments on posts, not tag comments. If we introduce tag comments, we'll need to update this.
+    const subscriptionComments = allComments.filter(c => c.postId !== null);
 
     const postIdsFromPosts = postRows.map(r => r.post._id).filter((id): id is string => !!id);
     const postIdsFromComments: string[] = Array.from(new Set(subscriptionComments.map(c => c.postId)));
@@ -138,7 +252,6 @@ export const ultraFeedSubscriptionsQueries = {
         postMetaInfo?: FeedPostMetaInfo;
         comments?: DbComment[];
         commentMetaInfos?: Record<string, FeedCommentMetaInfo>;
-        isOnReadPost?: boolean;
         postSources?: string[];
         users?: DbUser[];
       };
@@ -203,17 +316,25 @@ export const ultraFeedSubscriptionsQueries = {
 
           const hourStart = new Date(hourStr);
           const hourEnd = new Date(hourStart.getTime() + (60 * 60 * 1000));
-          const targetsInSlice = loadedComments.filter(c => c.postedAt >= hourStart && c.postedAt < hourEnd && c.userId && c.userId !== currentUser._id);
+          
+          // When showing a comment thread at 3:00, we only want to include comments up to 3:00 and not "acausally" include later comments.
+          // Previously we did and it results in duplicate and confusing items.
+          const commentsUpToThisHour = loadedComments.filter(c => c.postedAt <= hourEnd);
+          if (commentsUpToThisHour.length === 0) continue;
+          
+          const targetsInSlice = commentsUpToThisHour.filter(c => c.postedAt >= hourStart && c.postedAt < hourEnd && c.userId && c.userId !== currentUser._id);
           const latestInSlice = targetsInSlice.length > 0 ? new Date(Math.max(...targetsInSlice.map(c => c.postedAt.getTime()))) : null;
-          const overallLatest = loadedComments.length > 0 ? new Date(Math.max(...loadedComments.map(c => c.postedAt.getTime()))) : null;
-          const sortDate = latestInSlice ?? overallLatest ?? loadedComments[loadedComments.length - 1].postedAt;
+          const overallLatest = commentsUpToThisHour.length > 0 ? new Date(Math.max(...commentsUpToThisHour.map(c => c.postedAt.getTime()))) : null;
+          const sortDate = latestInSlice ?? overallLatest ?? commentsUpToThisHour[commentsUpToThisHour.length - 1].postedAt;
 
-          const firstComment = loadedComments[0];
+          const firstComment = commentsUpToThisHour[0];
           const postId = firstComment.postId;
           const post = postId ? postsById.get(postId) : undefined;
 
+          const isParentPostRead = postId ? (postReadStatuses.get(postId) ?? false) : false;
+
           const commentMetaInfos: Record<string, FeedCommentMetaInfo> = {};
-          loadedComments.forEach(c => {
+          commentsUpToThisHour.forEach(c => {
             const src = commentDataById.get(c._id);
             commentMetaInfos[c._id] = {
               sources: ['subscriptionsComments'] as const,
@@ -227,14 +348,15 @@ export const ultraFeedSubscriptionsQueries = {
               lastViewed: src?.lastViewed ?? null,
               lastInteracted: src?.lastInteracted ?? null,
               fromSubscribedUser: !!src?.fromSubscribedUser,
+              isParentPostRead,
             };
           });
 
-          const threadStableId = generateThreadHash(loadedComments.map(c => c._id));
+          const threadStableId = generateThreadHash(commentsUpToThisHour.map(c => c._id));
 
           // If hideRead is enabled, skip threads where all comments by subscribed authors are read
           if (hideRead) {
-            const allCommentsRead = loadedComments
+            const allCommentsRead = commentsUpToThisHour
               .filter((c: DbComment) => commentDataById.get(c._id)?.fromSubscribedUser)
               .every((c: DbComment) => {
                 const { fromSubscribedUser, lastViewed, lastInteracted } = commentDataById.get(c._id) ?? {};
@@ -246,16 +368,13 @@ export const ultraFeedSubscriptionsQueries = {
             }
           }
 
-          const isOnReadPost = postId ? (postReadStatuses.get(postId) ?? false) : false;
-
           feedItems.push({
             type: 'feedCommentThread',
             sortDate,
             data: {
               _id: `${threadStableId}_${hourStr}`,
-              comments: loadedComments,
+              comments: commentsUpToThisHour,
               commentMetaInfos,
-              isOnReadPost,
               postSources: ['subscriptionsComments'],
               post,
             },
@@ -264,13 +383,16 @@ export const ultraFeedSubscriptionsQueries = {
       }
     }
 
-    feedItems.sort((a, b) => (b.sortDate.getTime() - a.sortDate.getTime()) || (a.type < b.type ? -1 : 1));
+    const feedItemsWithMetadata = addRankingMetadata(feedItems);
+
+    feedItemsWithMetadata.sort((a, b) => (b.sortDate.getTime() - a.sortDate.getTime()) || (a.type < b.type ? -1 : 1));
 
     // Use offset-based pagination (ignore cutoff) to align with main feed behavior
     const pageStart = offset ?? 0;
     const pageEnd = pageStart + (limit ?? 20);
-    const pageCore = feedItems.slice(pageStart, pageEnd);
-    const pageItems: typeof feedItems = [];
+    const pageCore = feedItemsWithMetadata.slice(pageStart, pageEnd);
+    
+    const pageItems: typeof feedItemsWithMetadata = [];
     // Insert a suggestions entry after every N feed items
     for (let i = 0; i < pageCore.length; i++) {
       pageItems.push(pageCore[i]);
@@ -286,7 +408,6 @@ export const ultraFeedSubscriptionsQueries = {
       }
     }
     
-    // Load suggested users if we have a suggestions item
     const hasSuggestions = pageItems.some(it => it.type === 'feedSubscriptionSuggestions');
     const suggestedUsers = hasSuggestions ? await context.repos.users.getSubscriptionFeedSuggestedUsersForLoggedIn(currentUser._id, 40) : [];
 
@@ -325,30 +446,52 @@ export const ultraFeedSubscriptionsQueries = {
       backgroundTask(bulkRawInsert('UltraFeedEvents', eventsToCreate as DbUltraFeedEvent[]));
     }
 
-    const results = pageItems.map(item => {
+    const baseResults: UltraFeedResolverType[] = pageItems.map(item => {
       if (item.type === 'feedPost' && item.data.post) {
-        return { type: 'feedPost', feedPost: { _id: item.data.post._id, post: item.data.post, postMetaInfo: item.data.postMetaInfo } };
+        const postMetaInfo: FeedPostMetaInfo = item.data.postMetaInfo ?? {
+          sources: ['subscriptionsPosts'],
+          highlight: false,
+          displayStatus: 'expanded',
+        };
+        return { type: 'feedPost', feedPost: { _id: item.data.post._id, post: item.data.post, postMetaInfo } };
       }
       if (item.type === 'feedCommentThread') {
-        return { type: 'feedCommentThread', feedCommentThread: item.data };
+        return { 
+          type: 'feedCommentThread',
+          feedCommentThread: {
+            ...item.data,
+            comments: item.data.comments ?? [],
+            commentMetaInfos: item.data.commentMetaInfos ?? {},
+            postSources: item.data.postSources as FeedItemSourceType[] | undefined,
+          },
+        };
       }
-      // feedSubscriptionSuggestions
       return { 
         type: 'feedSubscriptionSuggestions', 
         feedSubscriptionSuggestions: { 
           _id: `subscription-suggestions-${offset}`,
-          suggestedUsers 
+          suggestedUsers: suggestedUsers ?? [],
         } 
       };
     });
+
+    const results = insertTimeMarkers(pageItems, baseResults, timezoneOffset, args.cutoff);
 
     const nextCutoff = pageItems.length > 0 ? pageItems[pageItems.length - 1].sortDate : null;
 
     // Compute endOffset based on core items only (exclude suggestion entries)
     const response = createUltraFeedResponse(results, offset ?? 0, null, nextCutoff);
     const trueEndOffset = pageStart + pageCore.length;
+    
+    const executionTime = Date.now() - startTime;
+    serverCaptureEvent('subscribedFeedPerformance', {
+      subscribedFeedResolverTotalExecutionTime: executionTime,
+      offset: offset ?? 0,
+      userId: currentUser._id,
+      resultCount: results.length,
+      feedType: 'Following',
+    });
+    
     return { ...response, endOffset: trueEndOffset };
   },
 };
-
-

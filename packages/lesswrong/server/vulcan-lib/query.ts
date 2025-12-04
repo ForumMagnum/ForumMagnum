@@ -6,7 +6,6 @@ Run a GraphQL request from the server with the proper context
 import { ExecutionResult, graphql, GraphQLError, print } from 'graphql';
 import { createAnonymousContext } from './createContexts';
 import { ResultOf, TypedDocumentNode } from '@graphql-typed-document-node/core';
-import { getExecutableSchema } from './apollo-server/initGraphQL';
 import { EmailContextType } from '../emailComponents/emailContext';
 import type { OperationVariables } from '@apollo/client';
 
@@ -29,6 +28,8 @@ export function setOnGraphQLError(fn: ((errors: readonly GraphQLError[]) => void
 
 // note: if no context is passed, default to running requests with full admin privileges
 export const runQuery = async <const TDocumentNode extends TypedDocumentNode<any, any>>(query: string | TDocumentNode, variables: any = {}, context?: Partial<ResolverContext>) => {
+  const { getExecutableSchema } = await import('./apollo-server/initGraphQL');
+
   const executableSchema = getExecutableSchema();
   const queryContext = createAnonymousContext(context);
 

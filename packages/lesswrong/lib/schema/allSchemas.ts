@@ -46,6 +46,7 @@ import { default as LegacyData } from '../collections/legacyData/newSchema';
 import { default as LlmConversations } from '../collections/llmConversations/newSchema';
 import { default as LlmMessages } from '../collections/llmMessages/newSchema';
 import { default as Localgroups } from '../collections/localgroups/newSchema';
+import { default as LoginTokens } from '../collections/loginTokens/newSchema';
 import { default as LWEvents } from '../collections/lwevents/newSchema';
 import { default as ManifoldProbabilitiesCaches } from '../collections/manifoldProbabilitiesCaches/newSchema';
 import { default as Messages } from '../collections/messages/newSchema';
@@ -112,11 +113,11 @@ export const allSchemas = {
   Collections, CommentEmbeddings, CommentModeratorActions, Comments, Conversations, CronHistories, CurationEmails, CurationNotices, DatabaseMetadata, DebouncerEvents,
   DialogueChecks, DialogueMatchPreferences, DigestPosts, Digests, ElectionCandidates, ElectionVotes, ElicitQuestionPredictions, ElicitQuestions, EmailTokens, FeaturedResources,
   FieldChanges, ForumEvents, GardenCodes, GoogleServiceAccountSessions, Images, InlinePredictions, JargonTerms, LWEvents, LegacyData, LlmConversations,
-  LlmMessages, Localgroups, ManifoldProbabilitiesCaches, Messages, Migrations, ModerationTemplates, ModeratorActions, MultiDocuments, Notifications, PageCache,
+  LlmMessages, LoginTokens, Localgroups, ManifoldProbabilitiesCaches, Messages, Migrations, ModerationTemplates, ModeratorActions, MultiDocuments, Notifications, PageCache,
   PetrovDayActions, PetrovDayLaunchs, PodcastEpisodes, Podcasts, PostEmbeddings, PostRecommendations, PostRelations, PostViewTimes, PostViews, Posts,
-  RSSFeeds, ReadStatuses, RecommendationsCaches, Reports, ReviewVotes, ReviewWinnerArts, ReviewWinners, Revisions, Sequences, Sessions,
-  SideCommentCaches, SplashArtCoordinates, Spotlights, Subscriptions, SurveyQuestions, SurveyResponses, SurveySchedules, Surveys, TagFlags, TagRels,
-  Tags, Tweets, TypingIndicators, UltraFeedEvents, UserActivities, UserEAGDetails, UserJobAds, UserMostValuablePosts, UserRateLimits, UserTagRels,
+  RSSFeeds, ReadStatuses, RecommendationsCaches, Reports, ReviewVotes, ReviewWinnerArts, ReviewWinners, Revisions, Sequences, Sessions, SideCommentCaches,
+  SplashArtCoordinates, Spotlights, Subscriptions, SurveyQuestions, SurveyResponses, SurveySchedules, Surveys, TagFlags, TagRels, Tags,
+  Tweets, TypingIndicators, UltraFeedEvents, UserActivities, UserEAGDetails, UserJobAds, UserMostValuablePosts, UserRateLimits, UserTagRels,
   Users, Votes, ...testSchemas,
 } satisfies Record<CollectionNameString, Record<string, CollectionFieldSpecification<CollectionNameString>>>;
 

@@ -731,6 +731,10 @@ export const SunshinePostsList = gql(`
       isFrontpage
       probability
     }
+    
+    tagRels {
+      ...TagRelMinimumFragment
+    }
   }
 `)
 
@@ -892,5 +896,14 @@ export const SuggestAlignmentPost = gql(`
       _id
       displayName
     }
+  }
+`)
+
+export const ChapterPostSlim = gql(`
+  fragment ChapterPostSlim on Post {
+    _id
+    title
+    slug
+    isRead
   }
 `)

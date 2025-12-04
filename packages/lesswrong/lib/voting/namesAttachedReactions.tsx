@@ -137,8 +137,8 @@ export function isVoteWithReactsAllowed({user, document, oldExtendedScore, exten
 
   // Users cannot antireact to reactions on their own comments
   if (some(extendedVote.reacts, r=>r.vote==="disagreed")) {
-    if (user._id===document.userId) {
-      return {allowed: false, reason: `You cannot antireact to reactions on your own comments`};
+    if (user._id===document.userId && !extendedVote.reacts.filter(r=>r.vote==="disagreed").every(r=>r.react === "typo")) {
+      return {allowed: false, reason: `You cannot antireact to reactions on your own content`};
     }
   }
   

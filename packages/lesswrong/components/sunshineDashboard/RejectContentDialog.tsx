@@ -2,7 +2,7 @@ import Button from '@/lib/vendor/@material-ui/core/src/Button';
 import Checkbox from '@/lib/vendor/@material-ui/core/src/Checkbox';
 import { Paper, Card }from '@/components/widgets/Paper';
 import classNames from 'classnames';
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect, useCallback, useRef } from 'react';
 import EditIcon from '@/lib/vendor/@material-ui/icons/src/Edit'
 import { Link } from '../../lib/reactRouterWrapper';
 import LWTooltip from "../common/LWTooltip";
@@ -17,6 +17,8 @@ import ForumIcon from '../common/ForumIcon';
 import { getBrowserLocalStorage } from '@/components/editor/localStorageHandlers';
 import { useCurrentUser } from '../common/withUser';
 import { defineStyles, useStyles } from '../hooks/useStyles';
+import KeystrokeDisplay from './supermod/KeystrokeDisplay';
+import { useGlobalKeydown } from '../common/withGlobalKeydown';
 
 const styles = defineStyles('RejectContentDialog', (theme: ThemeType) => ({
   dialogContent: {
@@ -26,19 +28,29 @@ const styles = defineStyles('RejectContentDialog', (theme: ThemeType) => ({
     fontFamily: theme.palette.fonts.sansSerifStack,
     overflow: 'auto',
   },
+  searchInput: {
+    width: '100%',
+    padding: '8px 12px',
+    marginBottom: 12,
+    border: `1px solid ${theme.palette.grey[300]}`,
+    borderRadius: 4,
+    fontSize: 14,
+    fontFamily: theme.palette.fonts.sansSerifStack,
+    backgroundColor: theme.palette.background.paper,
+    outline: 'none',
+    // Necessary to override the default input styling which remove the border if the input is focused
+    '&:focus': {
+      border: `1px solid ${theme.palette.grey[300]}`,
+    }
+  },
   rejectionCheckboxes: {
     display: 'flex',
-    flexDirection: 'column'
+    flexDirection: 'column',
+    overflowY: 'auto',
   },
   checkbox: {
     paddingTop: 2,
     paddingBottom: 2
-  },
-  modalTextField: {
-    marginTop: 10,
-  },
-  hideModalTextField: {
-    display: 'none'
   },
   editorContainer: {
     marginTop: 10,
@@ -67,14 +79,6 @@ const styles = defineStyles('RejectContentDialog', (theme: ThemeType) => ({
       color: theme.palette.primary.main,
     }
   },
-  defaultIntroHeader: {
-    fontSize: 12,
-    fontWeight: 600,
-    color: theme.palette.grey[600],
-    marginBottom: 8,
-    textTransform: 'uppercase',
-    letterSpacing: 0.5,
-  },
   card: {
     padding: 12,
     width: 500,
@@ -92,11 +96,6 @@ const styles = defineStyles('RejectContentDialog', (theme: ThemeType) => ({
     height: 12,
     color: theme.palette.grey[500],
     opacity: 0
-  },
-  loadMore: {
-    paddingTop: 6,
-    paddingLeft: 12,
-    paddingBottom: 6
   },
   topReason: {
     fontWeight: 600
@@ -121,6 +120,10 @@ const styles = defineStyles('RejectContentDialog', (theme: ThemeType) => ({
   templateRowItem: {
     display: 'flex',
     alignItems: 'center',
+    borderRadius: 3,
+    '&.selected': {
+      backgroundColor: theme.palette.grey[200],
+    },
   },
   templateName: {
     flexGrow: 1,
@@ -190,6 +193,7 @@ interface TemplateConfig {
 }
 
 type TemplateRowProps = {
+  selected: boolean;
   template: ModerationTemplateFragment;
   isTop6: boolean;
   selections: Record<string, boolean>;
@@ -206,6 +210,7 @@ type TemplateRowProps = {
 
 const TemplateRowContent = ({
   template,
+  selected,
   isTop6,
   selections,
   onCheckboxChange,
@@ -221,7 +226,7 @@ const TemplateRowContent = ({
           <ContentItemBody dangerouslySetInnerHTML={{__html: template.contents?.html ?? ""}} />
         </ContentStyles>
       </Card>}>
-        <div className={classes.templateRowItem}>
+        <div className={classNames(classes.templateRowItem, { selected })}>
           <Checkbox
             checked={selections[template.name]}
             onChange={(_, checked) => onCheckboxChange(template.name, checked)}
@@ -267,8 +272,30 @@ const RejectContentDialog = ({rejectionTemplates, onClose, rejectContent}: {
   const [hiddenTemplateIds, setHiddenTemplateIds] = useState<Set<string>>(new Set());
   const [templateOrder, setTemplateOrder] = useState<string[]>([]);
   const [showHiddenSection, setShowHiddenSection] = useState(false);
+  const [searchQuery, setSearchQuery] = useState('');
+  const [initialHeight, setInitialHeight] = useState<number | null>(null);
+  const [selectedIndex, setSelectedIndex] = useState(0);
+  const searchInputRef = useRef<HTMLInputElement>(null);
+  const checkboxesContainerRef = useRef<HTMLDivElement>(null);
+  const templateListRef = useRef<HTMLDivElement>(null);
+  const editorContainerRef = useRef<HTMLDivElement>(null);
   
   const rejectionReasons = Object.fromEntries(rejectionTemplates.map(({name, contents}) => [name, contents?.html]));
+
+  // Create a map for quick template lookup
+  const templatesById = Object.fromEntries(rejectionTemplates.map(t => [t._id, t]));
+
+  const orderedTemplates = templateOrder
+    .map(id => templatesById[id])
+    .filter(template => !!template);
+  
+  const matchesSearch = (template: ModerationTemplateFragment) => {
+    if (!searchQuery) return true;
+    return template.name.toLowerCase().includes(searchQuery.toLowerCase());
+  };
+  
+  const visibleTemplates = orderedTemplates.filter(t => !hiddenTemplateIds.has(t._id) && matchesSearch(t));
+  const hiddenTemplates = orderedTemplates.filter(t => hiddenTemplateIds.has(t._id) && matchesSearch(t));  
 
   useEffect(() => {
     const ls = getBrowserLocalStorage();
@@ -308,6 +335,32 @@ const RejectContentDialog = ({rejectionTemplates, onClose, rejectContent}: {
     }
   }, [currentUser, rejectionTemplates]);
 
+  useEffect(() => {
+    // Without the setTimeout, the input doesn't end up focused.
+    // Maybe something about how dialog contents are mounted?  :shrug:
+    setTimeout(() => {
+      searchInputRef.current?.focus();
+    }, 0);
+  }, []);
+
+  useEffect(() => {
+    if (checkboxesContainerRef.current && initialHeight === null && templateOrder.length > 0) {
+      const height = checkboxesContainerRef.current.offsetHeight;
+      setInitialHeight(height);
+    }
+  }, [templateOrder, initialHeight]);
+
+  useEffect(() => {
+    setSelectedIndex(0);
+  }, [searchQuery]);
+
+  useEffect(() => {
+    const selectedElement = templateListRef.current?.children[selectedIndex] as HTMLElement;
+    if (selectedElement) {
+      selectedElement.scrollIntoView({ block: 'nearest' });
+    }
+  }, [selectedIndex]);
+
   const saveConfig = useCallback((hiddenIds: Set<string>, order: string[]) => {
     const ls = getBrowserLocalStorage();
     if (!ls || !currentUser) return;
@@ -322,11 +375,15 @@ const RejectContentDialog = ({rejectionTemplates, onClose, rejectContent}: {
   }, [currentUser]);
 
   const hideTemplate = useCallback((templateId: string) => {
+    if (visibleTemplates.findIndex(t => t._id === templateId) <= selectedIndex) {
+      setSelectedIndex(0);
+    }
+
     const newHiddenIds = new Set(hiddenTemplateIds);
     newHiddenIds.add(templateId);
     setHiddenTemplateIds(newHiddenIds);
     saveConfig(newHiddenIds, templateOrder);
-  }, [hiddenTemplateIds, templateOrder, saveConfig]);
+  }, [hiddenTemplateIds, saveConfig, templateOrder, visibleTemplates, selectedIndex]);
 
   const unhideTemplate = useCallback((templateId: string) => {
     const newHiddenIds = new Set(hiddenTemplateIds);
@@ -344,12 +401,12 @@ const RejectContentDialog = ({rejectionTemplates, onClose, rejectContent}: {
     saveConfig(hiddenTemplateIds, fullOrder);
   }, [hiddenTemplateIds, templateOrder, saveConfig]);
 
-  const handleClick = () => {
+  const handleClick = useCallback(() => {
     rejectContent(rejectedReason);
     onClose?.();
-  };
+  }, [rejectContent, rejectedReason, onClose]);
 
-  const composeRejectedReason = (label: string, checked: boolean) => {
+  const composeRejectedReason = useCallback((label: string, checked: boolean) => {
     const newSelections = {...selections, [label]: checked};
     setSelections(newSelections);
 
@@ -364,7 +421,7 @@ const RejectContentDialog = ({rejectionTemplates, onClose, rejectContent}: {
     if (editor) {
       editor.setData(composedReason);
     }
-  };
+  }, [selections, rejectionReasons, editor]);
 
   const CommentEditor = getCkCommentEditor();
 
@@ -390,15 +447,56 @@ const RejectContentDialog = ({rejectionTemplates, onClose, rejectContent}: {
     <p>Your content didn't meet the bar for at least the following reason(s):</p>
   `;
 
-  // Create a map for quick template lookup
-  const templatesById = Object.fromEntries(rejectionTemplates.map(t => [t._id, t]));
+  const handleKeyDown = useCallback((e: React.KeyboardEvent) => {
+    switch (e.key) {
+      case 'ArrowDown':
+        e.preventDefault();
+        setSelectedIndex(prev => prev === visibleTemplates.length - 1 ? 0 : prev + 1);
+        break;
+      case 'ArrowUp':
+        e.preventDefault();
+        setSelectedIndex(prev => prev === 0 ? visibleTemplates.length - 1 : prev - 1);
+        break;
+      case 'Enter':
+        if (e.ctrlKey || e.metaKey) {
+          e.preventDefault();
+          if (rejectedReason) {
+            handleClick();
+          }
+        } else {
+          e.preventDefault();
+          if (visibleTemplates[selectedIndex]) {
+            const template = visibleTemplates[selectedIndex];
+            const currentlyChecked = selections[template.name] ?? false;
+            composeRejectedReason(template.name, !currentlyChecked);
+          }
+        }
+        break;
+      case 'Tab':
+        e.preventDefault();
+        if (hideTextField) {
+          setHideTextField(false);
+        }
+        // We need the outer setTimeout to allow a rerender after `setHideTextField` causes a state update to show the editor
+        // and the inner timeout to allow the scroll to finish (since apparently focusing an element will interrupt the scroll)
+        setTimeout(() => {
+          editorContainerRef.current?.scrollIntoView({ behavior: 'smooth', block: 'center' });
+          setTimeout(() => {
+            editor?.focus();
+          }, 300);
+        }, 0);
+        break;
+    }
+  }, [visibleTemplates, selectedIndex, selections, composeRejectedReason, rejectedReason, hideTextField, editor, handleClick]);
 
-  const orderedTemplates = templateOrder
-    .map(id => templatesById[id])
-    .filter(template => !!template);
-  
-  const visibleTemplates = orderedTemplates.filter(t => !hiddenTemplateIds.has(t._id));
-  const hiddenTemplates = orderedTemplates.filter(t => hiddenTemplateIds.has(t._id));
+  useGlobalKeydown(useCallback((e: KeyboardEvent) => {
+    if ((e.ctrlKey || e.metaKey) && e.key === 'Enter') {
+      if (rejectedReason) {
+        e.preventDefault();
+        handleClick();
+      }
+    }
+  }, [rejectedReason, handleClick]));
 
   const SortableTemplateList = makeSortableListComponent({
     RenderItem: ({ contents: templateId }) => {
@@ -407,6 +505,7 @@ const RejectContentDialog = ({rejectionTemplates, onClose, rejectContent}: {
 
       const originalIndex = visibleTemplates.findIndex(t => t._id === templateId);
       const top6 = originalIndex < 6;
+      const isSelected = originalIndex === selectedIndex;
 
       return (
         <div className={classes.templateRow}>
@@ -421,18 +520,35 @@ const RejectContentDialog = ({rejectionTemplates, onClose, rejectContent}: {
             selections={selections}
             onCheckboxChange={composeRejectedReason}
             onHide={hideTemplate}
+            selected={isSelected}
           />
         </div>
       );
     }
   });
 
-  const dialogContent = <div className={classes.rejectionCheckboxes}>
-    <SortableTemplateList
-      value={visibleTemplates.map(t => t._id)}
-      setValue={updateTemplateOrder}
-      axis="y"
+  const dialogContent = <>
+    <input
+      ref={searchInputRef}
+      className={classes.searchInput}
+      type="text"
+      placeholder="Search templates..."
+      value={searchQuery}
+      onChange={(e) => setSearchQuery(e.target.value)}
+      onKeyDown={handleKeyDown}
     />
+    <div 
+      ref={checkboxesContainerRef}
+      className={classes.rejectionCheckboxes}
+      style={initialHeight !== null ? { minHeight: initialHeight } : undefined}
+    >
+    <div ref={templateListRef}>
+      <SortableTemplateList
+        value={visibleTemplates.map(t => t._id)}
+        setValue={updateTemplateOrder}
+        axis="y"
+      />
+    </div>
     
     {hiddenTemplates.length > 0 && (
       <div className={classes.hiddenSection}>
@@ -457,6 +573,7 @@ const RejectContentDialog = ({rejectionTemplates, onClose, rejectContent}: {
                   selections={selections}
                   onCheckboxChange={composeRejectedReason}
                   onUnhide={unhideTemplate}
+                  selected={false}
                 />
               </div>
             ))}
@@ -465,36 +582,42 @@ const RejectContentDialog = ({rejectionTemplates, onClose, rejectContent}: {
       </div>
     )}
 
-    <div className={classNames(classes.editorContainer, { [classes.hideEditorContainer]: hideTextField })}>
+    <div className={classNames(classes.editorContainer, { [classes.hideEditorContainer]: hideTextField })} ref={editorContainerRef}>
       <div className={classes.defaultIntroMessage}>
         <ContentStyles contentType='comment'>
           <ContentItemBody dangerouslySetInnerHTML={{__html: standardIntroHtml}} />
         </ContentStyles>
       </div>
-      <CKEditor
-        editor={CommentEditor}
-        data={rejectedReason}
-        config={editorConfig}
-        isCollaborative={false}
-        onReady={(editor: Editor) => {
-          setEditor(editor);
-        }}
-        onChange={(event: any, editor: Editor) => {
-          const data = editor.getData();
-          setRejectedReason(data);
-        }}
-      />
+
+      <ContentStyles contentType='comment'>
+        <CKEditor
+          editor={CommentEditor}
+          data={rejectedReason}
+          config={editorConfig}
+          isCollaborative={false}
+          onReady={(editor: Editor) => {
+            setEditor(editor);
+          }}
+          onChange={(event: any, editor: Editor) => {
+            const data = editor.getData();
+            setRejectedReason(data);
+          }}
+        />
+      </ContentStyles>
     </div>
-  </div>
+    </div>
+  </>
 
   const dialogElement = <Paper>
     <div className={classes.dialogContent}>
       {dialogContent}
-      <Button onClick={handleClick}>
+      <Button onClick={handleClick} disabled={!rejectedReason}>
         Reject
+        <KeystrokeDisplay keystroke="Ctrl+Enter" withMargin splitBeforeTranslation />
       </Button>
       <Button onClick={() => setHideTextField(!hideTextField)}>
-        Edit Message
+        {hideTextField ? 'Edit Message' : 'Hide Message'}
+        <KeystrokeDisplay keystroke="Tab" withMargin />
       </Button>
     </div>
   </Paper>;

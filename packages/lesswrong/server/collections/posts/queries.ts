@@ -50,6 +50,8 @@ export const graphqlPostQueryTypeDefs = gql`
     before: String
     timeField: String
     curatedAfter: String
+    requiredUnnominated: Boolean
+    requiredFrontpage: Boolean
   }
   
   input PostsUserPostsInput {
@@ -219,6 +221,8 @@ export const graphqlPostQueryTypeDefs = gql`
     timeField: String
     curatedAfter: String
     limit: Int
+    requiredUnnominated: Boolean
+    requiredFrontpage: Boolean
   }
   
   input PostsDailyInput {

@@ -3,7 +3,8 @@ import { getAnthropicClientOrThrow } from "../languageModels/anthropicClient";
 import { getEmbeddingsFromApi } from "../embeddings";
 import { postGetPageUrl } from "@/lib/collections/posts/helpers";
 import { generateContextSelectionPrompt, CLAUDE_CHAT_SYSTEM_PROMPT, generateTitleGenerationPrompt, generateAssistantContextMessage, 
-  CONTEXT_SELECTION_SYSTEM_PROMPT, contextSelectionResponseFormat, LlmPost, BasePromptArgs } from "../languageModels/promptUtils";
+  CONTEXT_SELECTION_SYSTEM_PROMPT, LlmPost, BasePromptArgs,
+  contextSelectionChoiceDescriptions } from "../languageModels/promptUtils";
 import type { MessageParam, Model, TextBlockParam } from "@anthropic-ai/sdk/resources/messages.mjs";
 import { userGetDisplayName } from "@/lib/collections/users/helpers";
 import type { LlmCreateConversationMessage, LlmStreamChunkMessage, LlmStreamContentMessage, 
@@ -18,6 +19,8 @@ import { runQuery } from "../vulcan-lib/query";
 import { createLlmConversation } from "../collections/llmConversations/mutations";
 import { createLlmMessage } from "../collections/llmMessages/mutations";
 import { gql } from "@/lib/generated/gql-codegen";
+import z from "zod";
+import { createSingleton } from "@/lib/utils/createSingleton";
 
 interface InitializeConversationArgs {
   newMessage: ClientMessage;
@@ -96,6 +99,16 @@ function getConversationContext(newConversationChannelId: string | undefined, ne
   };
 }
 
+const ContextSelectionParameters = z.object({
+  reasoning: z.string().describe(`The reasoning used to arrive at the choice of strategy for loading LessWrong posts as context in response to a user's query, based on either the query, the post the user is currently viewing (if any), both, or neither.`),
+  strategy_choice: z.union([z.literal('none'), z.literal('query-based'), z.literal('current-post-only'), z.literal('current-post-and-search'), z.literal('both')]).describe(contextSelectionChoiceDescriptions)
+});
+
+export const getContextSelectionResponseFormat = createSingleton(() => {
+  const { zodResponseFormat }: typeof import("openai/helpers/zod") = require("openai/helpers/zod");
+  return zodResponseFormat(ContextSelectionParameters, 'contextLoadingStrategy')
+});
+
 async function getQueryContextDecision(args: BasePromptArgs): Promise<RagContextType> {
   const openai = await getOpenAI();
   if (!openai) {
@@ -110,7 +123,7 @@ async function getQueryContextDecision(args: BasePromptArgs): Promise<RagContext
       { role: 'user', content: generateContextSelectionPrompt(args) }
     ],
     // tools: [contextSelectionTool],
-    response_format: contextSelectionResponseFormat
+    response_format: getContextSelectionResponseFormat()
   });
 
   const parsedResponse = toolUseResponse.choices[0].message.parsed;

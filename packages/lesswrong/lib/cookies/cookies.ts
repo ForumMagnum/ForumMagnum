@@ -236,10 +236,22 @@ export const PINNED_GLOSSARY_COOKIE = registerCookie({
   description: 'Whether the glossary is pinned',
 });
 
+export const HIDE_SOLSTICE_GLOBE_COOKIE = registerCookie({
+  name: 'hide_solstice_globe',
+  type: 'necessary',
+  description: 'Whether the solstice season globe is hidden and replaced with a map',
+});
+
 export const NO_ADMIN_NEXT_REDIRECT_COOKIE = registerCookie({
   name: 'no_admin_next_redirect',
   type: 'functional',
   description: `If set, admins won't be redirected to the baserates-prod-test.vercel.app domain`,
+});
+
+export const HIDE_FUNDRAISER_BANNER_COOKIE = registerCookie({
+  name: 'hide_fundraiser_banner_2026',
+  type: 'necessary',
+  description: 'Whether the 2026 fundraiser banner has been dismissed',
 });
 
 

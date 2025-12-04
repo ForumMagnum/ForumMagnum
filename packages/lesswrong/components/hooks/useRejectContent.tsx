@@ -1,4 +1,4 @@
-import { useCallback, useMemo } from 'react';
+import { useCallback, useMemo, useRef } from 'react';
 import { useMutation } from "@apollo/client/react";
 import { gql } from "@/lib/generated/gql-codegen";
 import { useQuery } from '@/lib/crud/useQuery';
@@ -39,7 +39,7 @@ export type RejectContentParams = {
   document: SunshinePostsList
 } | {
   collectionName: "Comments",
-  document: CommentsList | CommentsListWithParentMetadata
+  document: CommentsListWithParentMetadata
 }
 
 export type RejectContentWithReason = {
@@ -48,7 +48,7 @@ export type RejectContentWithReason = {
   reason: string
 } | {
   collectionName: "Comments",
-  document: CommentsList | CommentsListWithParentMetadata
+  document: CommentsListWithParentMetadata
   reason: string
 }
 
@@ -66,41 +66,63 @@ export function useRejectContent() {
 
   const rejectionTemplates = useMemo(() => data?.moderationTemplates?.results ?? [], [data]);
   
+  // Mutation queue to ensure sequential execution and prevent race conditions from sending the opposite-direction action before the previous one has finished
+  const mutationQueueRef = useRef<Promise<void>>(Promise.resolve());
+
+  const queueMutation = useCallback(async (mutationFn: () => Promise<any>) => {
+    const currentQueue = mutationQueueRef.current;
+    const newMutation = currentQueue
+      .then(mutationFn)
+      .catch(_ => {});
+    mutationQueueRef.current = newMutation;
+    return newMutation;
+  }, []);
+  
   const rejectContent = useCallback(({ collectionName, document, reason }: RejectContentWithReason) => {
-    if (collectionName === "Posts") {
-      void updatePost({
-        variables: {
-          selector: { _id: document._id },
-          data: { rejected: true, rejectedReason: reason }
-        }
-      });
-    } else {
-      void updateComment({
-        variables: {
-          selector: { _id: document._id },
-          data: { rejected: true, rejectedReason: reason }
-        }
-      });
-    }
-  }, [updatePost, updateComment]);
+    return queueMutation(async () => {
+      const variables = {
+        selector: { _id: document._id },
+        data: { rejected: true, rejectedReason: reason }
+      };
+
+      if (collectionName === "Posts") {
+        await updatePost({
+          variables,
+          optimisticResponse: { updatePost: { data: { ...document, rejected: true, rejectedReason: reason } } },
+          onError: () => {},
+        });
+      } else {
+        await updateComment({
+          variables,
+          optimisticResponse: { updateComment: { data: { ...document, rejected: true, rejectedReason: reason } } },
+          onError: () => {}
+        });
+      }
+    });
+  }, [updatePost, updateComment, queueMutation]);
   
   const unrejectContent = useCallback(({ collectionName, document }: RejectContentParams) => {
-    if (collectionName === "Posts") {
-      void updatePost({
-        variables: {
-          selector: { _id: document._id },
-          data: { rejected: false }
-        }
-      });
-    } else {
-      void updateComment({
-        variables: {
-          selector: { _id: document._id },
-          data: { rejected: false }
-        }
-      });
-    }
-  }, [updatePost, updateComment]);
+    return queueMutation(async () => {
+      const variables = {
+        selector: { _id: document._id },
+        data: { rejected: false, rejectedReason: null }
+      };
+
+      if (collectionName === "Posts") {
+        await updatePost({
+          variables,
+          optimisticResponse: { updatePost: { data: { ...document, rejected: false, rejectedReason: null } } },
+          onError: () => {}
+        });
+      } else {
+        await updateComment({
+          variables,
+          optimisticResponse: { updateComment: { data: { ...document, rejected: false, rejectedReason: null } } },
+          onError: () => {}
+        });
+      }
+    });
+  }, [updatePost, updateComment, queueMutation]);
   
   return { rejectContent, unrejectContent, rejectionTemplates };
 }

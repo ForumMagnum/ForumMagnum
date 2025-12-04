@@ -1256,6 +1256,21 @@ CREATE INDEX IF NOT EXISTS "idx_Localgroups_mongoLocation_isOnline_inactive_dele
 -- Index "idx_Localgroups_isOnline_inactive_deleted_name"
 CREATE INDEX IF NOT EXISTS "idx_Localgroups_isOnline_inactive_deleted_name" ON "Localgroups" USING btree ("isOnline", "inactive", "deleted", "name");
 
+-- Table "LoginTokens"
+CREATE TABLE "LoginTokens" (
+  _id VARCHAR(27) PRIMARY KEY,
+  "hashedToken" TEXT NOT NULL,
+  "createdAt" TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP NOT NULL,
+  "userId" TEXT NOT NULL,
+  "loggedOutAt" TIMESTAMPTZ
+);
+
+-- Index "idx_LoginTokens_hashedToken"
+CREATE UNIQUE INDEX IF NOT EXISTS "idx_LoginTokens_hashedToken" ON "LoginTokens" USING btree ("hashedToken");
+
+-- Index "idx_LoginTokens_userId"
+CREATE INDEX IF NOT EXISTS "idx_LoginTokens_userId" ON "LoginTokens" USING btree ("userId");
+
 -- Table "ManifoldProbabilitiesCaches"
 CREATE UNLOGGED TABLE "ManifoldProbabilitiesCaches" (
   _id VARCHAR(27) PRIMARY KEY,

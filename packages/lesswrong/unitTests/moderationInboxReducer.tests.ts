@@ -6,6 +6,7 @@ import {
   UNREVIEWED_BIO_UPDATE,
   STRICTER_COMMENT_AUTOMOD_RATE_LIMIT,
   MANUAL_NEEDS_REVIEW,
+  SNOOZE_EXPIRED,
 } from '../lib/collections/moderatorActions/constants';
 
 const moderatorActionTypes: Record<ReviewGroup, ModeratorActionType> = {
@@ -13,6 +14,7 @@ const moderatorActionTypes: Record<ReviewGroup, ModeratorActionType> = {
   highContext: MANUAL_FLAG_ALERT,
   maybeSpam: UNREVIEWED_BIO_UPDATE,
   automod: STRICTER_COMMENT_AUTOMOD_RATE_LIMIT,
+  snoozeExpired: SNOOZE_EXPIRED,
   unknown: MANUAL_NEEDS_REVIEW,
 };
 
@@ -67,10 +69,14 @@ describe('Moderation Inbox Reducer', () => {
 
       const state: InboxState = {
         users,
+        posts: [],
         activeTab: 'newContent',
         focusedUserId: null,
         openedUserId: 'user2',
+        focusedPostId: null,
         focusedContentIndex: 0,
+        undoQueue: [],
+        history: [],
       };
 
       const newState = inboxStateReducer(state, { type: 'CLOSE_DETAIL' });
@@ -91,10 +97,14 @@ describe('Moderation Inbox Reducer', () => {
 
       let state: InboxState = {
         users,
+        posts: [],
         activeTab: 'newContent',
         focusedUserId: 'user3',
         openedUserId: null,
+        focusedPostId: null,
         focusedContentIndex: 0,
+        undoQueue: [],
+        history: [],
       };
 
       // Next from last user should wrap to first
@@ -111,10 +121,14 @@ describe('Moderation Inbox Reducer', () => {
 
       let state: InboxState = {
         users,
+        posts: [],
         activeTab: 'newContent',
         focusedUserId: 'user1',
         openedUserId: null,
+        focusedPostId: null,
         focusedContentIndex: 0,
+        undoQueue: [],
+        history: [],
       };
 
       // Prev from first user should wrap to last
@@ -133,10 +147,14 @@ describe('Moderation Inbox Reducer', () => {
 
       let state: InboxState = {
         users,
+        posts: [],
         activeTab: 'newContent',
         focusedUserId: 'user2',
         openedUserId: null,
+        focusedPostId: null,
         focusedContentIndex: 0,
+        undoQueue: [],
+        history: [],
       };
 
       // Start at newContent (highest priority)
@@ -152,7 +170,8 @@ describe('Moderation Inbox Reducer', () => {
       state = inboxStateReducer(state, { type: 'NEXT_TAB' });
       expect(state.activeTab).toBe('all');
 
-      // Next from 'all' should wrap to first tab
+      // After 'all', posts tab would come but it's empty (count: 0) so it gets skipped
+      // Next from 'all' wraps to first non-empty tab
       state = inboxStateReducer(state, { type: 'NEXT_TAB' });
       expect(state.activeTab).toBe('newContent');
     });
@@ -166,16 +185,21 @@ describe('Moderation Inbox Reducer', () => {
 
       let state: InboxState = {
         users,
+        posts: [],
         activeTab: 'newContent',
         focusedUserId: 'user2',
         openedUserId: null,
+        focusedPostId: null,
         focusedContentIndex: 0,
+        undoQueue: [],
+        history: [],
       };
 
       // Start at newContent (highest priority)
       expect(state.activeTab).toBe('newContent');
 
-      // Prev from first tab should wrap to 'all'
+      // Prev from first tab should wrap to last non-empty tab
+      // 'posts' is empty (count: 0) so it gets skipped, wrapping to 'all'
       state = inboxStateReducer(state, { type: 'PREV_TAB' });
       expect(state.activeTab).toBe('all');
 
@@ -195,10 +219,14 @@ describe('Moderation Inbox Reducer', () => {
 
       let state: InboxState = {
         users,
+        posts: [],
         activeTab: 'newContent',
         focusedUserId: 'user2',
         openedUserId: null,
+        focusedPostId: null,
         focusedContentIndex: 0,
+        undoQueue: [],
+        history: [],
       };
 
       state = inboxStateReducer(state, { type: 'REMOVE_USER', userId: 'user2' });
@@ -218,10 +246,14 @@ describe('Moderation Inbox Reducer', () => {
 
       let state: InboxState = {
         users,
+        posts: [],
         activeTab: 'newContent',
         focusedUserId: 'user1',
         openedUserId: null,
+        focusedPostId: null,
         focusedContentIndex: 0,
+        undoQueue: [],
+        history: [],
       };
 
       state = inboxStateReducer(state, { type: 'REMOVE_USER', userId: 'user1' });
@@ -239,10 +271,14 @@ describe('Moderation Inbox Reducer', () => {
 
       let state: InboxState = {
         users,
+        posts: [],
         activeTab: 'newContent',
         focusedUserId: 'user1',
         openedUserId: null,
+        focusedPostId: null,
         focusedContentIndex: 0,
+        undoQueue: [],
+        history: [],
       };
 
       state = inboxStateReducer(state, { type: 'REMOVE_USER', userId: 'user1' });
@@ -264,10 +300,14 @@ describe('Moderation Inbox Reducer', () => {
 
       let state: InboxState = {
         users,
+        posts: [],
         activeTab: 'newContent',
         focusedUserId: null,
         openedUserId: 'user2',
+        focusedPostId: null,
         focusedContentIndex: 0,
+        undoQueue: [],
+        history: [],
       };
 
       state = inboxStateReducer(state, { type: 'REMOVE_USER', userId: 'user2' });
@@ -287,10 +327,14 @@ describe('Moderation Inbox Reducer', () => {
 
       let state: InboxState = {
         users,
+        posts: [],
         activeTab: 'newContent',
         focusedUserId: null,
         openedUserId: 'user1',
+        focusedPostId: null,
         focusedContentIndex: 0,
+        undoQueue: [],
+        history: [],
       };
 
       state = inboxStateReducer(state, { type: 'REMOVE_USER', userId: 'user1' });
@@ -309,10 +353,14 @@ describe('Moderation Inbox Reducer', () => {
 
       let state: InboxState = {
         users,
+        posts: [],
         activeTab: 'newContent',
         focusedUserId: null,
         openedUserId: 'user1',
+        focusedPostId: null,
         focusedContentIndex: 0,
+        undoQueue: [],
+        history: [],
       };
 
       state = inboxStateReducer(state, { type: 'REMOVE_USER', userId: 'user1' });
@@ -333,10 +381,14 @@ describe('Moderation Inbox Reducer', () => {
 
       let state: InboxState = {
         users,
+        posts: [],
         activeTab: 'newContent',
         focusedUserId: null,
         openedUserId: 'user1',
+        focusedPostId: null,
         focusedContentIndex: 0,
+        undoQueue: [],
+        history: [],
       };
 
       // Try to change tabs

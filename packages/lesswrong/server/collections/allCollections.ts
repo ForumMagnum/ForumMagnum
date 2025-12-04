@@ -48,6 +48,7 @@ import { LegacyData } from './legacyData/collection';
 import { LlmConversations } from './llmConversations/collection';
 import { LlmMessages } from './llmMessages/collection';
 import { Localgroups } from './localgroups/collection';
+import { LoginTokens } from './loginTokens/collection';
 import { LWEvents } from './lwevents/collection';
 import { ManifoldProbabilitiesCaches } from './manifoldProbabilitiesCaches/collection';
 import { Messages } from './messages/collection';
@@ -121,10 +122,10 @@ const allCollections = {
   Collections, CommentEmbeddings, CommentModeratorActions, Comments, Conversations, CronHistories, CurationEmails, CurationNotices, DatabaseMetadata, DebouncerEvents,
   DialogueChecks, DialogueMatchPreferences, DigestPosts, Digests, ElectionCandidates, ElectionVotes, ElicitQuestionPredictions, ElicitQuestions, EmailTokens, FeaturedResources,
   FieldChanges, ForumEvents, GardenCodes, GoogleServiceAccountSessions, Images, InlinePredictions, JargonTerms, LWEvents, LegacyData, LlmConversations,
-  LlmMessages, Localgroups, ManifoldProbabilitiesCaches, Messages, Migrations, ModerationTemplates, ModeratorActions, MultiDocuments, Notifications, PageCache,
+  LlmMessages, Localgroups, LoginTokens, ManifoldProbabilitiesCaches, Messages, Migrations, ModerationTemplates, ModeratorActions, MultiDocuments, Notifications, PageCache,
   PetrovDayActions, PetrovDayLaunchs, PodcastEpisodes, Podcasts, PostEmbeddings, PostRecommendations, PostRelations, PostViewTimes, PostViews, Posts,
-  RSSFeeds, ReadStatuses, RecommendationsCaches, Reports, ReviewVotes, ReviewWinnerArts, ReviewWinners, Revisions, Sequences, Sessions,
-  SideCommentCaches, SplashArtCoordinates, Spotlights, Subscriptions, SurveyQuestions, SurveyResponses, SurveySchedules, Surveys, TagFlags, TagRels,
+  RSSFeeds, ReadStatuses, RecommendationsCaches, Reports, ReviewVotes, ReviewWinnerArts, ReviewWinners, Revisions, Sequences, Sessions, SideCommentCaches,
+  SplashArtCoordinates, Spotlights, Subscriptions, SurveyQuestions, SurveyResponses, SurveySchedules, Surveys, TagFlags, TagRels,
   Tags, Tweets, TypingIndicators, UltraFeedEvents, UserActivities, UserEAGDetails, UserJobAds, UserMostValuablePosts, UserRateLimits, UserTagRels,
   Users, Votes
 } satisfies Record<CollectionNameString, CollectionBase<CollectionNameString>>;
@@ -145,6 +146,10 @@ export function getCollection<N extends CollectionNameString>(name: N): PgCollec
 export function getAllCollections(): Array<CollectionBase<CollectionNameString>> {
   const collectionsWithTestCollections = { ...allCollections, ...getTestCollections() };
   return sortBy(Object.values(collectionsWithTestCollections), (c) => c.collectionName);
+}
+
+export function getAllNonTestCollectionsByName() {
+  return allCollections;
 }
 
 export function getAllCollectionsByName() {

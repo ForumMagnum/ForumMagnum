@@ -41,6 +41,8 @@ import { EmailContentItemBody } from "../emailComponents/EmailContentItemBody";
 import { PostsHTML } from "@/lib/collections/posts/fragments";
 import { emailTokenTypesByName } from "../emails/emailTokens";
 import { backgroundTask } from "../utils/backgroundTask";
+import { persistentDisplayedModeratorActions, reviewTriggerModeratorActions } from "@/lib/collections/moderatorActions/constants";
+import { updateModeratorAction } from "../collections/moderatorActions/mutations";
 
 
 async function sendWelcomeMessageTo(userId: string) {
@@ -526,7 +528,35 @@ export function syncProfileUpdatedAt(modifier: MongoModifier, user: DbUser) {
 /* UPDATE ASYNC */
 export function updateUserMayTriggerReview({newDocument, data, context, oldDocument}: UpdateCallbackProperties<"Users">) {
   const reviewTriggerFields = ['biography', 'mapLocation', 'profileImageId'] as const;
-  const updatedField = reviewTriggerFields.find(field => field in data && data[field] && data[field] !== oldDocument[field]);
+
+  const updatedField = reviewTriggerFields.find(field => {
+    if (!(field in data)) return false;
+
+    const fieldValue = data[field];
+    const oldFieldValue = oldDocument[field];
+
+    if (isEqual(fieldValue, oldFieldValue)) return false;
+
+    // Don't trigger review if the profileImageId is removed.
+    if (field === 'profileImageId') {
+      return !!fieldValue;
+    }
+
+    // I don't want to figure out how to introspect on mapLocation objects;
+    // this come up infrequently enough that I think it's fine to trigger review
+    // if it ever changes for an unreviewed user.  (Note: I don't think we actually
+    // have a way to see the location that they set for themselves in the UI.)
+    if (field === 'mapLocation') {
+      return true;
+    }
+
+    // Biography is an editable field and I don't want to trigger review if the value
+    // is updated to an empty string.
+    if (field === 'biography') {
+      return !!fieldValue?.originalContents?.data;
+    }
+  });
+
   if (updatedField) {
     backgroundTask(triggerReviewIfNeeded(newDocument._id, updatedField, context));
   }
@@ -703,9 +733,31 @@ export async function newAlignmentUserMoveShortform(newUser: DbUser, oldUser: Db
   if (utils.isAlignmentForumMember(newUser) && !utils.isAlignmentForumMember(oldUser)) {
     if (newUser.shortformFeedId) {
       await updatePost({ data: {
-                  af: true
-                }, selector: { _id: newUser.shortformFeedId } }, createAnonymousContext())
+        af: true
+      }, selector: { _id: newUser.shortformFeedId } }, createAnonymousContext())
     }
+  }
+}
+
+export async function closeReviewTriggerModeratorActionsOnReview(newUser: DbUser, oldUser: DbUser, context: ResolverContext) {
+  if (!newUser.needsReview && oldUser.needsReview) {
+    const { ModeratorActions } = context;
+    const autoCloseableModeratorActionTypes = [...reviewTriggerModeratorActions].filter(type => !persistentDisplayedModeratorActions.has(type));
+
+    const moderatorActions = await ModeratorActions.find({
+      userId: newUser._id,
+      type: { $in: autoCloseableModeratorActionTypes },
+      $or: [{ endedAt: null }, { endedAt: { $gt: new Date() } }]
+    }).fetch();
+
+    const endedAt = new Date();
+
+    await Promise.all(moderatorActions.map(action => 
+      updateModeratorAction({
+        data: { endedAt },
+        selector: { _id: action._id }
+      }, context)
+    ));
   }
 }
 

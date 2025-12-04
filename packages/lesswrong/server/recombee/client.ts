@@ -21,6 +21,7 @@ import { PostsViews } from '@/lib/collections/posts/views';
 import { RevisionHTML } from '@/lib/collections/revisions/fragments';
 import type { RecommendedPost, RecombeeRecommendedPost, NativeRecommendedPost } from '@/lib/recombee/types';
 import { backgroundTask } from '../utils/backgroundTask';
+import { isRecombeeRecommendablePost } from '@/lib/collections/posts/helpers';
 
 export const getRecombeeClientOrThrow = (() => {
   let client: ApiClient;
@@ -593,6 +594,10 @@ const recombeeApi = {
       context
     });
 
+    if (!recombeeResponseWithScenario) {
+      return [];
+    }
+
     const { recomms, recommId, scenario } = recombeeResponseWithScenario;
     const recsWithMetadata = new Map(recomms.map(rec => [rec.id, { ...rec, recommId, scenario }]));
     const recommendedPostIds = recomms.map(({ id }) => id);
@@ -726,6 +731,7 @@ const recombeeApi = {
   },
 
   async upsertPost(post: DbPost, context: ResolverContext) {
+    if (!isRecombeeRecommendablePost(post)) return;
     const client = getRecombeeClientOrThrow();
 
     const contents = await fetchFragmentSingle({

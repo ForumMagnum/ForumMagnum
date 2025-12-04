@@ -1,6 +1,6 @@
 import React from "react";
 import LWHome from "@/components/common/LWHome";
-import RouteRoot from "@/components/next/RouteRoot";
+import RouteRoot from "@/components/layout/RouteRoot";
 import AlignmentForumHome from "@/components/alignment-forum/AlignmentForumHome";
 import { forumSelect } from "@/lib/forumTypeUtils";
 import EAHome from "@/components/ea-forum/EAHome";

@@ -63,21 +63,4 @@ export const twoLineEventsSidebarABTest = new ABTest({
   },
 });
 
-export const ultraFeedABTest = new ABTest({
-  name: "ultraFeed",
-  active: true,
-  affectsLoggedOut: true,
-  description: "Tests the new UltraFeed vs classic Recent Discussion Feed",
-  groups: {
-    control: {
-      description: "Show classic feed (Recent Discussion)",
-      weight: 1
-    },
-    ultraFeed: {
-      description: "Show the New Feed",
-      weight: 1
-    }
-  }
-});
-
-export const allABTests = [welcomeBoxABTest, twoLineEventsSidebarABTest, ultraFeedABTest];
+export const allABTests = [welcomeBoxABTest, twoLineEventsSidebarABTest];

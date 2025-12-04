@@ -15,7 +15,7 @@ const styles = defineStyles('ModerationTabs', (theme: ThemeType) => ({
     zIndex: 2,
   },
   tab: {
-    padding: '12px 20px',
+    padding: '12px 16px',
     cursor: 'pointer',
     fontSize: 14,
     fontWeight: 500,
@@ -48,7 +48,7 @@ const styles = defineStyles('ModerationTabs', (theme: ThemeType) => ({
 }));
 
 export type TabInfo = {
-  group: ReviewGroup | 'all';
+  group: ReviewGroup | 'all' | 'posts';
   count: number;
 };
 
@@ -58,8 +58,8 @@ const ModerationTabs = ({
   onTabChange,
 }: {
   tabs: TabInfo[];
-  activeTab: ReviewGroup | 'all';
-  onTabChange: (tab: ReviewGroup | 'all') => void;
+  activeTab: ReviewGroup | 'all' | 'posts';
+  onTabChange: (tab: ReviewGroup | 'all' | 'posts') => void;
 }) => {
   const classes = useStyles(styles);
 

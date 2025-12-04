@@ -5,7 +5,6 @@ import moment from "moment";
 import { HIDE_FORUM_EVENT_BANNER_PREFIX } from "../../lib/cookies/cookies";
 import { useDismissable } from "../hooks/useDismissable";
 import classNames from "classnames";
-import { getHeaderHeight } from "../common/Header";
 import { AnalyticsContext } from "@/lib/analyticsEvents";
 import ContentStyles from "../common/ContentStyles";
 import { ContentItemBody } from "../contents/ContentItemBody";
@@ -207,10 +206,10 @@ const styles = (theme: ThemeType) => ({
   image: {
     position: "absolute",
     zIndex: -1,
-    top: -getHeaderHeight(),
+    top: "calc(-var(--header-height))",
     right: 0,
     width: '100%',
-    height: `calc(100% + ${getHeaderHeight()}px)`,
+    height: `calc(100% + var(--header-height))`,
     objectFit: "cover",
   },
   imageWithGradient: {

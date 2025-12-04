@@ -6,7 +6,7 @@ import FlagIcon from '@/lib/vendor/@material-ui/icons/src/Flag';
 import { getUserEmail } from '@/lib/collections/users/helpers';
 import DescriptionIcon from '@/lib/vendor/@material-ui/icons/src/Description'
 import MessageIcon from '@/lib/vendor/@material-ui/icons/src/Message'
-import { getPrimaryDisplayedModeratorAction, getDisplayedReasonForGroupAssignment, partitionModeratorActions, ReviewGroup } from './groupings';
+import { getDisplayedReasonForGroupAssignment, ReviewGroup } from './groupings';
 import ForumIcon from '@/components/common/ForumIcon';
 import { htmlToTextDefault } from '@/lib/htmlToText';
 import { useModeratedUserContents } from '@/components/hooks/useModeratedUserContents';
@@ -30,6 +30,7 @@ const styles = defineStyles('ModerationInboxItem', (theme: ThemeType) => ({
   focused: {
     borderLeft: `3px solid ${theme.palette.primary.main}`,
     paddingLeft: 17, // 20 - 3 to account for border
+    backgroundColor: theme.palette.grey[100],
   },
   flagged: {
     backgroundColor: theme.palette.panelBackground.sunshineFlaggedUser,
@@ -85,21 +86,6 @@ const styles = defineStyles('ModerationInboxItem', (theme: ThemeType) => ({
     width: 14,
     color: theme.palette.error.main,
     marginLeft: 4,
-  },
-  badge: {
-    fontSize: 11,
-    padding: '2px 6px',
-    borderRadius: 3,
-    backgroundColor: theme.palette.grey[200],
-    color: theme.palette.grey[700],
-    marginRight: 8,
-    textTransform: 'uppercase',
-    fontWeight: 600,
-    flexShrink: 0,
-    whiteSpace: 'nowrap',
-  },
-  staleBadge: {
-    opacity: 0.5,
   },
   email: {
     fontSize: 12,
