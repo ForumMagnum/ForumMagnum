@@ -520,6 +520,9 @@ export const routeTrie = {
       },
       "hasPage": true
     },
+    "hyperdense": {
+      "hasPage": true
+    },
     "inbox": {
       "hasPage": true
     },
@@ -990,6 +993,7 @@ export const routeTrie = {
     "groups-map": "groups-map",
     "highlights": "highlights",
     "hpmor": "hpmor",
+    "hyperdense": "hyperdense",
     "inbox": "inbox",
     "item": "item",
     "leaderboard": "leaderboard",
