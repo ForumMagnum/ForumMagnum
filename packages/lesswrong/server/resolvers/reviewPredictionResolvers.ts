@@ -31,7 +31,7 @@ export const reviewPredictionGraphQLQueries = {
       return { post: p, info } as const;
     }));
 
-    let unresolvedWithProb = withProbs.filter(x => x.info && x.info.probability != null && !x.info.isResolved);
+    const unresolvedWithProb = withProbs.filter(x => x.info && typeof x.info.probability === 'number' && !x.info.isResolved);
 
     const sorted = unresolvedWithProb.sort((a, b) => (b.info!.probability - a.info!.probability) || a.post._id.localeCompare(b.post._id));
     const selected = sorted.slice(0, limit ?? 50).map(x => x.post);

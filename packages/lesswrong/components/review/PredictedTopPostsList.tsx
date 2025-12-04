@@ -9,7 +9,7 @@ import LWTooltip from '@/components/common/LWTooltip';
 import { Link } from '@/lib/reactRouterWrapper';
 import PostsItem from '../posts/PostsItem';
 import ContentStyles from '../common/ContentStyles';
-import Loading from 'app/loading';
+import Loading from '@/components/vulcan-core/Loading';
 import ErrorMessage from '../common/ErrorMessage';
 
 const gridTemplateColumns = { gridTemplateColumns: '45px minmax(200px, 1fr)' };
