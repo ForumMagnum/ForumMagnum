@@ -369,6 +369,12 @@ const styles = defineStyles("SpotlightItem", (theme: ThemeType) => ({
     paddingTop: 6,
     paddingBottom: 12
   },
+  metaButton: {
+    marginLeft: theme.spacing.unit,
+    padding: 0,
+    minWidth: 0,
+    textTransform: "none",
+  },
   splashImage: {
     transform: "translateX(13%) scale(1.15)", // splash images aren't quite designed for this context and need this adjustment. Scale 1.15 to deal with a few random images that had weird whitespace.
     filter: "brightness(1.2)",
@@ -522,6 +528,19 @@ export const SpotlightItem = ({
     refetchAllSpotlights?.();
   }, [currentUser, spotlight._id, refetchAllSpotlights, updateSpotlight]);
 
+  const promoteSpotlightNow = useCallback(async () => {
+    if (!currentUser || !userCanDo(currentUser, 'spotlights.edit.all') || spotlight.draft) {
+      return;
+    }
+    await updateSpotlight({
+      variables: {
+        selector: { _id: spotlight._id },
+        data: { lastPromotedAt: new Date(), draft: false, deletedDraft: false }
+      }
+    });
+    refetchAllSpotlights?.();
+  }, [currentUser, spotlight._id, spotlight.draft, updateSpotlight, refetchAllSpotlights]);
+
   // Define fade color with a CSS variable to be accessed in the styles
   const style = {
     "--spotlight-fade": spotlight.imageFadeColor,
@@ -650,6 +669,13 @@ export const SpotlightItem = ({
               <LWTooltip title={`This will be on the frontpage for ${duration} days when it rotates in`}>
                 <MetaInfo>{duration} days</MetaInfo>
               </LWTooltip>
+              {!spotlight.draft && userCanDo(currentUser, 'spotlights.edit.all') &&
+                <LWTooltip title="Show this spotlight immediately">
+                  <Button size="small" className={classes.metaButton} onClick={() => void promoteSpotlightNow()}>
+                    Make current
+                  </Button>
+                </LWTooltip>
+              }
             </div>
         }
       </div>
