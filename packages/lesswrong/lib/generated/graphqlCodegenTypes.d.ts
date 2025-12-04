@@ -1021,6 +1021,10 @@ type CommentsWithReactsResult = {
   results: Array<Comment>;
 };
 
+type ContentCollectionName =
+  | 'Comments'
+  | 'Posts';
+
 type ContentType = {
   __typename?: 'ContentType';
   data: Scalars['ContentTypeData']['output'];
@@ -2534,9 +2538,16 @@ type FeedCommentThread = {
   _id: Scalars['String']['output'];
   commentMetaInfos?: Maybe<Scalars['JSON']['output']>;
   comments: Array<Comment>;
-  isOnReadPost?: Maybe<Scalars['Boolean']['output']>;
   post?: Maybe<Post>;
+  postMetaInfo?: Maybe<Scalars['JSON']['output']>;
   postSources?: Maybe<Array<Scalars['String']['output']>>;
+};
+
+type FeedMarker = {
+  __typename?: 'FeedMarker';
+  _id: Scalars['String']['output'];
+  markerType: Scalars['String']['output'];
+  timestamp: Scalars['Date']['output'];
 };
 
 type FeedPost = {
@@ -2556,6 +2567,7 @@ type FeedSpotlightItem = {
 
 type FeedSpotlightMetaInfo = {
   __typename?: 'FeedSpotlightMetaInfo';
+  rankingMetadata?: Maybe<Scalars['JSON']['output']>;
   servedEventId: Scalars['String']['output'];
   sources: Array<Scalars['String']['output']>;
 };
@@ -2678,6 +2690,12 @@ type ForumEventsUpcomingForumEventsInput = {
   limit?: InputMaybe<Scalars['String']['input']>;
 };
 
+type FrontpageClassification = {
+  __typename?: 'FrontpageClassification';
+  isFrontpage: Scalars['Boolean']['output'];
+  probability: Scalars['Float']['output'];
+};
+
 type GardenCode = {
   __typename?: 'GardenCode';
   _id: Scalars['String']['output'];
@@ -2782,6 +2800,11 @@ type HomepageCommunityEventMarker = {
 type HomepageCommunityEventMarkersResult = {
   __typename?: 'HomepageCommunityEventMarkersResult';
   events: Array<HomepageCommunityEventMarker>;
+};
+
+type HomepageCommunityEventPostsResult = {
+  __typename?: 'HomepageCommunityEventPostsResult';
+  posts: Array<Post>;
 };
 
 type Images = {
@@ -3228,6 +3251,8 @@ type ModeratorActionType =
   | 'lowAverageKarmaCommentAlert'
   | 'lowAverageKarmaPostAlert'
   | 'manualFlag'
+  | 'manualNeedsReview'
+  | 'manualRateLimitExpired'
   | 'movedPostToDraft'
   | 'negativeUserKarmaAlert'
   | 'potentialTargetedDownvoting'
@@ -3242,6 +3267,17 @@ type ModeratorActionType =
   | 'rejectedComment'
   | 'rejectedPost'
   | 'sentModeratorMessage'
+  | 'snoozeExpired'
+  | 'stricterCommentAutomodRateLimit'
+  | 'stricterPostAutomodRateLimit'
+  | 'unreviewedBioUpdate'
+  | 'unreviewedComment'
+  | 'unreviewedFirstComment'
+  | 'unreviewedFirstPost'
+  | 'unreviewedMapLocationUpdate'
+  | 'unreviewedPost'
+  | 'unreviewedProfileImageUpdate'
+  | 'votingDisabled'
   | 'votingPatternWarningDelivered';
 
 type ModeratorActionsUserModeratorActionsInput = {
@@ -4264,6 +4300,7 @@ type Mutation = {
   alignmentComment?: Maybe<Comment>;
   alignmentPost?: Maybe<Post>;
   analyticsEvent?: Maybe<Scalars['Boolean']['output']>;
+  approveUserCurrentContentOnly: Scalars['Boolean']['output'];
   autosaveRevision?: Maybe<Revision>;
   clickRecommendation?: Maybe<Scalars['Boolean']['output']>;
   connectCrossposter?: Maybe<Scalars['String']['output']>;
@@ -4337,7 +4374,9 @@ type Mutation = {
   performVoteTagRel?: Maybe<VoteResultTagRel>;
   promoteLensToMain?: Maybe<Scalars['Boolean']['output']>;
   publishAndDeDuplicateSpotlight?: Maybe<Spotlight>;
+  rejectContentAndRemoveUserFromQueue: Scalars['Boolean']['output'];
   reorderSummaries?: Maybe<Scalars['Boolean']['output']>;
+  rerunSaplingCheck: AutomatedContentEvaluation;
   resetPassword?: Maybe<Scalars['String']['output']>;
   resyncRssFeed: Scalars['Boolean']['output'];
   revertPostToRevision?: Maybe<Post>;
@@ -4522,6 +4561,11 @@ type MutationalignmentPostArgs = {
 type MutationanalyticsEventArgs = {
   events?: InputMaybe<Array<Scalars['JSON']['input']>>;
   now?: InputMaybe<Scalars['Date']['input']>;
+};
+
+
+type MutationapproveUserCurrentContentOnlyArgs = {
+  userId: Scalars['String']['input'];
 };
 
 
@@ -4921,10 +4965,24 @@ type MutationpublishAndDeDuplicateSpotlightArgs = {
 };
 
 
+type MutationrejectContentAndRemoveUserFromQueueArgs = {
+  collectionName: ContentCollectionName;
+  documentId: Scalars['String']['input'];
+  messageContent?: InputMaybe<Scalars['String']['input']>;
+  rejectedReason: Scalars['String']['input'];
+  userId: Scalars['String']['input'];
+};
+
+
 type MutationreorderSummariesArgs = {
   parentDocumentCollectionName: Scalars['String']['input'];
   parentDocumentId: Scalars['String']['input'];
   summaryIds: Array<Scalars['String']['input']>;
+};
+
+
+type MutationrerunSaplingCheckArgs = {
+  postId: Scalars['String']['input'];
 };
 
 
@@ -5626,6 +5684,7 @@ type Post = {
   firstVideoAttribsForPreview?: Maybe<Scalars['JSON']['output']>;
   fmCrosspost?: Maybe<CrosspostOutput>;
   forceAllowType3Audio: Scalars['Boolean']['output'];
+  frontpageClassification?: Maybe<FrontpageClassification>;
   frontpageDate?: Maybe<Scalars['Date']['output']>;
   generateDraftJargon?: Maybe<Scalars['Boolean']['output']>;
   globalEvent: Scalars['Boolean']['output'];
@@ -5762,6 +5821,7 @@ type Post = {
   tableOfContentsRevision?: Maybe<Scalars['JSON']['output']>;
   tagRel?: Maybe<TagRel>;
   tagRelevance?: Maybe<Scalars['JSON']['output']>;
+  tagRels: Array<TagRel>;
   tags: Array<Tag>;
   targetPostRelations: Array<PostRelation>;
   title: Scalars['String']['output'];
@@ -5890,6 +5950,8 @@ type PostDefaultViewInput = {
   notPostIds?: InputMaybe<Array<Scalars['String']['input']>>;
   postIds?: InputMaybe<Array<Scalars['String']['input']>>;
   question?: InputMaybe<Scalars['Boolean']['input']>;
+  requiredFrontpage?: InputMaybe<Scalars['Boolean']['input']>;
+  requiredUnnominated?: InputMaybe<Scalars['Boolean']['input']>;
   sortedBy?: InputMaybe<Scalars['String']['input']>;
   timeField?: InputMaybe<Scalars['String']['input']>;
   userId?: InputMaybe<Scalars['String']['input']>;
@@ -7306,6 +7368,8 @@ type PostsTimeframeInput = {
   notPostIds?: InputMaybe<Array<Scalars['String']['input']>>;
   postIds?: InputMaybe<Array<Scalars['String']['input']>>;
   question?: InputMaybe<Scalars['Boolean']['input']>;
+  requiredFrontpage?: InputMaybe<Scalars['Boolean']['input']>;
+  requiredUnnominated?: InputMaybe<Scalars['Boolean']['input']>;
   sortedBy?: InputMaybe<Scalars['String']['input']>;
   timeField?: InputMaybe<Scalars['String']['input']>;
   userId?: InputMaybe<Scalars['String']['input']>;
@@ -7516,6 +7580,7 @@ type Query = {
   GetRandomUser?: Maybe<User>;
   GetUserBySlug?: Maybe<User>;
   GivingSeasonHearts: Array<GivingSeasonHeart>;
+  HomepageCommunityEventPosts: HomepageCommunityEventPostsResult;
   HomepageCommunityEvents: HomepageCommunityEventMarkersResult;
   IsDisplayNameTaken: Scalars['Boolean']['output'];
   Lightcone2024FundraiserStripeAmounts?: Maybe<Array<Scalars['Int']['output']>>;
@@ -7548,7 +7613,6 @@ type Query = {
   SubforumOldFeed: SubforumOldFeedQueryResults;
   SubforumRecentCommentsFeed: SubforumRecentCommentsFeedQueryResults;
   SubforumTopFeed: SubforumTopFeedQueryResults;
-  SubscribedFeed: SubscribedFeedQueryResults;
   SuggestedFeedSubscriptionUsers?: Maybe<SuggestedFeedSubscriptionUsersResult>;
   SuggestedTopActiveUsers?: Maybe<SuggestedTopActiveUsersResult>;
   TagHistoryFeed: TagHistoryFeedQueryResults;
@@ -7615,9 +7679,11 @@ type Query = {
   forumEvents?: Maybe<MultiForumEventOutput>;
   gardenCode?: Maybe<SingleGardenCodeOutput>;
   gardenCodes?: Maybe<MultiGardenCodeOutput>;
+  getBookWordCount?: Maybe<Scalars['Float']['output']>;
   getCkEditorToken: Scalars['String']['output'];
   getCrosspost?: Maybe<Scalars['JSON']['output']>;
   getLinkSharedPost?: Maybe<Post>;
+  getSequenceStats?: Maybe<SequenceStats>;
   googleServiceAccountSession?: Maybe<SingleGoogleServiceAccountSessionOutput>;
   googleServiceAccountSessions?: Maybe<MultiGoogleServiceAccountSessionOutput>;
   jargonTerm?: Maybe<SingleJargonTermOutput>;
@@ -7803,6 +7869,11 @@ type QueryGivingSeasonHeartsArgs = {
 };
 
 
+type QueryHomepageCommunityEventPostsArgs = {
+  eventType: Scalars['String']['input'];
+};
+
+
 type QueryHomepageCommunityEventsArgs = {
   limit: Scalars['Int']['input'];
 };
@@ -7964,14 +8035,6 @@ type QuerySubforumTopFeedArgs = {
   limit?: InputMaybe<Scalars['Int']['input']>;
   offset?: InputMaybe<Scalars['Int']['input']>;
   tagId: Scalars['String']['input'];
-};
-
-
-type QuerySubscribedFeedArgs = {
-  af?: InputMaybe<Scalars['Boolean']['input']>;
-  cutoff?: InputMaybe<Scalars['Date']['input']>;
-  limit?: InputMaybe<Scalars['Int']['input']>;
-  offset?: InputMaybe<Scalars['Int']['input']>;
 };
 
 
@@ -8444,6 +8507,11 @@ type QuerygardenCodesArgs = {
 };
 
 
+type QuerygetBookWordCountArgs = {
+  bookId: Scalars['String']['input'];
+};
+
+
 type QuerygetCkEditorTokenArgs = {
   options: GetCkEditorTokenOptions;
 };
@@ -8457,6 +8525,11 @@ type QuerygetCrosspostArgs = {
 type QuerygetLinkSharedPostArgs = {
   linkSharingKey: Scalars['String']['input'];
   postId: Scalars['String']['input'];
+};
+
+
+type QuerygetSequenceStatsArgs = {
+  sequenceId: Scalars['String']['input'];
 };
 
 
@@ -9532,6 +9605,12 @@ type SequenceSelector = {
   userProfilePrivate?: InputMaybe<SequencesUserProfilePrivateInput>;
 };
 
+type SequenceStats = {
+  __typename?: 'SequenceStats';
+  totalReadTime?: Maybe<Scalars['Float']['output']>;
+  totalWordCount?: Maybe<Scalars['Float']['output']>;
+};
+
 type SequencesCommunitySequencesInput = {
   sequenceIds?: InputMaybe<Array<Scalars['String']['input']>>;
   userId?: InputMaybe<Scalars['String']['input']>;
@@ -10483,31 +10562,6 @@ type SubforumTopFeedQueryResults = {
   results?: Maybe<Array<SubforumTopFeedEntry>>;
 };
 
-type SubscribedFeedEntry = {
-  __typename?: 'SubscribedFeedEntry';
-  postCommented?: Maybe<SubscribedPostAndComments>;
-  type: SubscribedFeedEntryType;
-};
-
-type SubscribedFeedEntryType =
-  | 'postCommented';
-
-type SubscribedFeedQueryResults = {
-  __typename?: 'SubscribedFeedQueryResults';
-  cutoff?: Maybe<Scalars['Date']['output']>;
-  endOffset: Scalars['Int']['output'];
-  results?: Maybe<Array<SubscribedFeedEntry>>;
-};
-
-type SubscribedPostAndComments = {
-  __typename?: 'SubscribedPostAndComments';
-  _id: Scalars['String']['output'];
-  comments?: Maybe<Array<Comment>>;
-  expandCommentIds?: Maybe<Array<Scalars['String']['output']>>;
-  post: Post;
-  postIsFromSubscribedUser: Scalars['Boolean']['output'];
-};
-
 type Subscription = {
   __typename?: 'Subscription';
   _id: Scalars['String']['output'];
@@ -11169,6 +11223,7 @@ type TypingIndicatorSelector = {
 type UltraFeedEntry = {
   __typename?: 'UltraFeedEntry';
   feedCommentThread?: Maybe<FeedCommentThread>;
+  feedMarker?: Maybe<FeedMarker>;
   feedPost?: Maybe<FeedPost>;
   feedSpotlight?: Maybe<FeedSpotlightItem>;
   feedSubscriptionSuggestions?: Maybe<FeedSubscriptionSuggestions>;
@@ -11177,6 +11232,7 @@ type UltraFeedEntry = {
 
 type UltraFeedEntryType =
   | 'feedCommentThread'
+  | 'feedMarker'
   | 'feedPost'
   | 'feedSpotlight'
   | 'feedSubscriptionSuggestions';
@@ -12352,6 +12408,7 @@ type User = {
   karmaChangeNotifierSettings?: Maybe<Scalars['JSON']['output']>;
   karmaChanges?: Maybe<KarmaChanges>;
   lastNotificationsCheck?: Maybe<Scalars['Date']['output']>;
+  lastRemovedFromReviewQueueAt?: Maybe<Scalars['Date']['output']>;
   lastUsedTimezone?: Maybe<Scalars['String']['output']>;
   legacy?: Maybe<Scalars['Boolean']['output']>;
   legacyData?: Maybe<Scalars['JSON']['output']>;
@@ -12444,6 +12501,7 @@ type User = {
   reactPaletteStyle?: Maybe<ReactPaletteStyle>;
   recentKarmaInfo?: Maybe<Scalars['JSON']['output']>;
   recommendationSettings?: Maybe<Scalars['JSON']['output']>;
+  rejectedContentCount?: Maybe<Scalars['Int']['output']>;
   revealChecksToAdmins?: Maybe<Scalars['Boolean']['output']>;
   reviewForAlignmentForumUserId?: Maybe<Scalars['String']['output']>;
   reviewVoteCount?: Maybe<Scalars['Int']['output']>;
@@ -12487,6 +12545,7 @@ type User = {
   twitterProfileURL?: Maybe<Scalars['String']['output']>;
   twitterProfileURLAdmin?: Maybe<Scalars['String']['output']>;
   unsubscribeFromAll?: Maybe<Scalars['Boolean']['output']>;
+  userRateLimits?: Maybe<Array<UserRateLimit>>;
   userSurveyEmailSentAt?: Maybe<Scalars['Date']['output']>;
   username?: Maybe<Scalars['String']['output']>;
   usernameUnset?: Maybe<Scalars['Boolean']['output']>;
@@ -12495,6 +12554,7 @@ type User = {
   voteBanned?: Maybe<Scalars['Boolean']['output']>;
   voteCount?: Maybe<Scalars['Float']['output']>;
   voteReceivedCount?: Maybe<Scalars['Float']['output']>;
+  votingDisabled: Scalars['Boolean']['output'];
   walledGardenInvite?: Maybe<Scalars['Boolean']['output']>;
   walledGardenPortalOnboarded?: Maybe<Scalars['Boolean']['output']>;
   website?: Maybe<Scalars['String']['output']>;
@@ -12954,7 +13014,9 @@ type multiModeratorCommentsQueryQueryVariables = Exact<{
 
 type multiModeratorCommentsQueryQuery = multiModeratorCommentsQueryQuery_Query;
 
-type SequenceMetadataQuery_sequence_SingleSequenceOutput_result_Sequence = { __typename?: 'Sequence', _id: string, title: string };
+type SequenceMetadataQuery_sequence_SingleSequenceOutput_result_Sequence_contents_Revision = { __typename?: 'Revision', plaintextDescription: string };
+
+type SequenceMetadataQuery_sequence_SingleSequenceOutput_result_Sequence = { __typename?: 'Sequence', _id: string, title: string, bannerImageId: string | null, gridImageId: string | null, noindex: boolean, contents: SequenceMetadataQuery_sequence_SingleSequenceOutput_result_Sequence_contents_Revision | null };
 
 type SequenceMetadataQuery_sequence_SingleSequenceOutput = { __typename?: 'SingleSequenceOutput', result: SequenceMetadataQuery_sequence_SingleSequenceOutput_result_Sequence | null };
 
@@ -12967,24 +13029,6 @@ type SequenceMetadataQueryVariables = Exact<{
 
 
 type SequenceMetadataQuery = SequenceMetadataQuery_Query;
-
-type updateUserLayoutMutation_updateUser_UserOutput_data_User = (
-  { __typename?: 'User' }
-  & UsersCurrent
-);
-
-type updateUserLayoutMutation_updateUser_UserOutput = { __typename?: 'UserOutput', data: updateUserLayoutMutation_updateUser_UserOutput_data_User | null };
-
-type updateUserLayoutMutation_Mutation = { __typename?: 'Mutation', updateUser: updateUserLayoutMutation_updateUser_UserOutput | null };
-
-
-type updateUserLayoutMutationVariables = Exact<{
-  selector: SelectorInput;
-  data: UpdateUserDataInput;
-}>;
-
-
-type updateUserLayoutMutation = updateUserLayoutMutation_Mutation;
 
 type AdminMetadataQueryQuery_Query = { __typename?: 'Query', AdminMetadata: string | null };
 
@@ -13466,25 +13510,6 @@ type LinkedDraftCommentQueryQueryVariables = Exact<{
 
 type LinkedDraftCommentQueryQuery = LinkedDraftCommentQueryQuery_Query;
 
-type DraftCommentsQueryQuery_comments_MultiCommentOutput_results_Comment = (
-  { __typename?: 'Comment' }
-  & DraftComments
-);
-
-type DraftCommentsQueryQuery_comments_MultiCommentOutput = { __typename?: 'MultiCommentOutput', totalCount: number | null, results: Array<DraftCommentsQueryQuery_comments_MultiCommentOutput_results_Comment> };
-
-type DraftCommentsQueryQuery_Query = { __typename?: 'Query', comments: DraftCommentsQueryQuery_comments_MultiCommentOutput | null };
-
-
-type DraftCommentsQueryQueryVariables = Exact<{
-  selector: InputMaybe<CommentSelector>;
-  limit: InputMaybe<Scalars['Int']['input']>;
-  enableTotal: InputMaybe<Scalars['Boolean']['input']>;
-}>;
-
-
-type DraftCommentsQueryQuery = DraftCommentsQueryQuery_Query;
-
 type CommentEditQuery_comment_SingleCommentOutput_result_Comment = (
   { __typename?: 'Comment' }
   & CommentEdit
@@ -13748,25 +13773,6 @@ type PopularCommentsQueryVariables = Exact<{
 
 type PopularCommentsQuery = PopularCommentsQuery_Query;
 
-type multiCommentRecentCommentsQueryQuery_comments_MultiCommentOutput_results_Comment = (
-  { __typename?: 'Comment' }
-  & CommentsListWithParentMetadata
-);
-
-type multiCommentRecentCommentsQueryQuery_comments_MultiCommentOutput = { __typename?: 'MultiCommentOutput', totalCount: number | null, results: Array<multiCommentRecentCommentsQueryQuery_comments_MultiCommentOutput_results_Comment> };
-
-type multiCommentRecentCommentsQueryQuery_Query = { __typename?: 'Query', comments: multiCommentRecentCommentsQueryQuery_comments_MultiCommentOutput | null };
-
-
-type multiCommentRecentCommentsQueryQueryVariables = Exact<{
-  selector: InputMaybe<CommentSelector>;
-  limit: InputMaybe<Scalars['Int']['input']>;
-  enableTotal: InputMaybe<Scalars['Boolean']['input']>;
-}>;
-
-
-type multiCommentRecentCommentsQueryQuery = multiCommentRecentCommentsQueryQuery_Query;
-
 type SideCommentSingleQuery_comment_SingleCommentOutput_result_Comment = (
   { __typename?: 'Comment' }
   & CommentWithRepliesFragment
@@ -13821,6 +13827,44 @@ type multiUserUserCommentsRepliesQueryQueryVariables = Exact<{
 
 
 type multiUserUserCommentsRepliesQueryQuery = multiUserUserCommentsRepliesQueryQuery_Query;
+
+type DraftCommentsQueryQuery_comments_MultiCommentOutput_results_Comment = (
+  { __typename?: 'Comment' }
+  & DraftComments
+);
+
+type DraftCommentsQueryQuery_comments_MultiCommentOutput = { __typename?: 'MultiCommentOutput', totalCount: number | null, results: Array<DraftCommentsQueryQuery_comments_MultiCommentOutput_results_Comment> };
+
+type DraftCommentsQueryQuery_Query = { __typename?: 'Query', comments: DraftCommentsQueryQuery_comments_MultiCommentOutput | null };
+
+
+type DraftCommentsQueryQueryVariables = Exact<{
+  selector: InputMaybe<CommentSelector>;
+  limit: InputMaybe<Scalars['Int']['input']>;
+  enableTotal: InputMaybe<Scalars['Boolean']['input']>;
+}>;
+
+
+type DraftCommentsQueryQuery = DraftCommentsQueryQuery_Query;
+
+type multiCommentRecentCommentsQueryQuery_comments_MultiCommentOutput_results_Comment = (
+  { __typename?: 'Comment' }
+  & CommentsListWithParentMetadata
+);
+
+type multiCommentRecentCommentsQueryQuery_comments_MultiCommentOutput = { __typename?: 'MultiCommentOutput', totalCount: number | null, results: Array<multiCommentRecentCommentsQueryQuery_comments_MultiCommentOutput_results_Comment> };
+
+type multiCommentRecentCommentsQueryQuery_Query = { __typename?: 'Query', comments: multiCommentRecentCommentsQueryQuery_comments_MultiCommentOutput | null };
+
+
+type multiCommentRecentCommentsQueryQueryVariables = Exact<{
+  selector: InputMaybe<CommentSelector>;
+  limit: InputMaybe<Scalars['Int']['input']>;
+  enableTotal: InputMaybe<Scalars['Boolean']['input']>;
+}>;
+
+
+type multiCommentRecentCommentsQueryQuery = multiCommentRecentCommentsQueryQuery_Query;
 
 type multiCommentuseCommentQueryQuery_comments_MultiCommentOutput_results_Comment = (
   { __typename?: 'Comment' }
@@ -14077,28 +14121,6 @@ type RecentDiscussionFeedQueryVariables = Exact<{
 
 type RecentDiscussionFeedQuery = RecentDiscussionFeedQuery_Query;
 
-type SubscribedFeedQuery_SubscribedFeed_SubscribedFeedQueryResults_results_SubscribedFeedEntry_postCommented_SubscribedPostAndComments = (
-  { __typename?: 'SubscribedPostAndComments' }
-  & SubscribedPostAndCommentsFeed
-);
-
-type SubscribedFeedQuery_SubscribedFeed_SubscribedFeedQueryResults_results_SubscribedFeedEntry = { __typename?: 'SubscribedFeedEntry', type: SubscribedFeedEntryType, postCommented: SubscribedFeedQuery_SubscribedFeed_SubscribedFeedQueryResults_results_SubscribedFeedEntry_postCommented_SubscribedPostAndComments | null };
-
-type SubscribedFeedQuery_SubscribedFeed_SubscribedFeedQueryResults = { __typename: 'SubscribedFeedQueryResults', cutoff: string | null, endOffset: number, results: Array<SubscribedFeedQuery_SubscribedFeed_SubscribedFeedQueryResults_results_SubscribedFeedEntry> | null };
-
-type SubscribedFeedQuery_Query = { __typename?: 'Query', SubscribedFeed: SubscribedFeedQuery_SubscribedFeed_SubscribedFeedQueryResults };
-
-
-type SubscribedFeedQueryVariables = Exact<{
-  limit: InputMaybe<Scalars['Int']['input']>;
-  cutoff: InputMaybe<Scalars['Date']['input']>;
-  offset: InputMaybe<Scalars['Int']['input']>;
-  af: InputMaybe<Scalars['Boolean']['input']>;
-}>;
-
-
-type SubscribedFeedQuery = SubscribedFeedQuery_Query;
-
 type SubforumMagicFeedQuery_SubforumMagicFeed_SubforumMagicFeedQueryResults_results_SubforumMagicFeedEntry_tagSubforumPosts_Post = (
   { __typename?: 'Post' }
   & PostsRecentDiscussion
@@ -14294,7 +14316,12 @@ type UltraFeedQuery_UltraFeed_UltraFeedQueryResults_results_UltraFeedEntry_feedS
   & FeedSubscriptionSuggestionsFragment
 );
 
-type UltraFeedQuery_UltraFeed_UltraFeedQueryResults_results_UltraFeedEntry = { __typename?: 'UltraFeedEntry', type: UltraFeedEntryType, feedCommentThread: UltraFeedQuery_UltraFeed_UltraFeedQueryResults_results_UltraFeedEntry_feedCommentThread_FeedCommentThread | null, feedPost: UltraFeedQuery_UltraFeed_UltraFeedQueryResults_results_UltraFeedEntry_feedPost_FeedPost | null, feedSpotlight: UltraFeedQuery_UltraFeed_UltraFeedQueryResults_results_UltraFeedEntry_feedSpotlight_FeedSpotlightItem | null, feedSubscriptionSuggestions: UltraFeedQuery_UltraFeed_UltraFeedQueryResults_results_UltraFeedEntry_feedSubscriptionSuggestions_FeedSubscriptionSuggestions | null };
+type UltraFeedQuery_UltraFeed_UltraFeedQueryResults_results_UltraFeedEntry_feedMarker_FeedMarker = (
+  { __typename?: 'FeedMarker' }
+  & FeedMarkerFragment
+);
+
+type UltraFeedQuery_UltraFeed_UltraFeedQueryResults_results_UltraFeedEntry = { __typename?: 'UltraFeedEntry', type: UltraFeedEntryType, feedCommentThread: UltraFeedQuery_UltraFeed_UltraFeedQueryResults_results_UltraFeedEntry_feedCommentThread_FeedCommentThread | null, feedPost: UltraFeedQuery_UltraFeed_UltraFeedQueryResults_results_UltraFeedEntry_feedPost_FeedPost | null, feedSpotlight: UltraFeedQuery_UltraFeed_UltraFeedQueryResults_results_UltraFeedEntry_feedSpotlight_FeedSpotlightItem | null, feedSubscriptionSuggestions: UltraFeedQuery_UltraFeed_UltraFeedQueryResults_results_UltraFeedEntry_feedSubscriptionSuggestions_FeedSubscriptionSuggestions | null, feedMarker: UltraFeedQuery_UltraFeed_UltraFeedQueryResults_results_UltraFeedEntry_feedMarker_FeedMarker | null };
 
 type UltraFeedQuery_UltraFeed_UltraFeedQueryResults = { __typename: 'UltraFeedQueryResults', cutoff: string | null, endOffset: number, results: Array<UltraFeedQuery_UltraFeed_UltraFeedQueryResults_results_UltraFeedEntry> | null };
 
@@ -14327,7 +14354,12 @@ type UltraFeedSubscriptionsQuery_UltraFeedSubscriptions_UltraFeedQueryResults_re
   & FeedSubscriptionSuggestionsFragment
 );
 
-type UltraFeedSubscriptionsQuery_UltraFeedSubscriptions_UltraFeedQueryResults_results_UltraFeedEntry = { __typename?: 'UltraFeedEntry', type: UltraFeedEntryType, feedCommentThread: UltraFeedSubscriptionsQuery_UltraFeedSubscriptions_UltraFeedQueryResults_results_UltraFeedEntry_feedCommentThread_FeedCommentThread | null, feedPost: UltraFeedSubscriptionsQuery_UltraFeedSubscriptions_UltraFeedQueryResults_results_UltraFeedEntry_feedPost_FeedPost | null, feedSubscriptionSuggestions: UltraFeedSubscriptionsQuery_UltraFeedSubscriptions_UltraFeedQueryResults_results_UltraFeedEntry_feedSubscriptionSuggestions_FeedSubscriptionSuggestions | null };
+type UltraFeedSubscriptionsQuery_UltraFeedSubscriptions_UltraFeedQueryResults_results_UltraFeedEntry_feedMarker_FeedMarker = (
+  { __typename?: 'FeedMarker' }
+  & FeedMarkerFragment
+);
+
+type UltraFeedSubscriptionsQuery_UltraFeedSubscriptions_UltraFeedQueryResults_results_UltraFeedEntry = { __typename?: 'UltraFeedEntry', type: UltraFeedEntryType, feedCommentThread: UltraFeedSubscriptionsQuery_UltraFeedSubscriptions_UltraFeedQueryResults_results_UltraFeedEntry_feedCommentThread_FeedCommentThread | null, feedPost: UltraFeedSubscriptionsQuery_UltraFeedSubscriptions_UltraFeedQueryResults_results_UltraFeedEntry_feedPost_FeedPost | null, feedSubscriptionSuggestions: UltraFeedSubscriptionsQuery_UltraFeedSubscriptions_UltraFeedQueryResults_results_UltraFeedEntry_feedSubscriptionSuggestions_FeedSubscriptionSuggestions | null, feedMarker: UltraFeedSubscriptionsQuery_UltraFeedSubscriptions_UltraFeedQueryResults_results_UltraFeedEntry_feedMarker_FeedMarker | null };
 
 type UltraFeedSubscriptionsQuery_UltraFeedSubscriptions_UltraFeedQueryResults = { __typename: 'UltraFeedQueryResults', cutoff: string | null, endOffset: number, results: Array<UltraFeedSubscriptionsQuery_UltraFeedSubscriptions_UltraFeedQueryResults_results_UltraFeedEntry> | null };
 
@@ -15766,25 +15798,6 @@ type unlinkCrossposterMutationVariables = Exact<{ [key: string]: never; }>;
 
 type unlinkCrossposterMutation = unlinkCrossposterMutation_Mutation;
 
-type multiTagFormComponentPostEditorTaggingQueryQuery_tags_MultiTagOutput_results_Tag = (
-  { __typename?: 'Tag' }
-  & TagFragment
-);
-
-type multiTagFormComponentPostEditorTaggingQueryQuery_tags_MultiTagOutput = { __typename?: 'MultiTagOutput', totalCount: number | null, results: Array<multiTagFormComponentPostEditorTaggingQueryQuery_tags_MultiTagOutput_results_Tag> };
-
-type multiTagFormComponentPostEditorTaggingQueryQuery_Query = { __typename?: 'Query', tags: multiTagFormComponentPostEditorTaggingQueryQuery_tags_MultiTagOutput | null };
-
-
-type multiTagFormComponentPostEditorTaggingQueryQueryVariables = Exact<{
-  selector: InputMaybe<TagSelector>;
-  limit: InputMaybe<Scalars['Int']['input']>;
-  enableTotal: InputMaybe<Scalars['Boolean']['input']>;
-}>;
-
-
-type multiTagFormComponentPostEditorTaggingQueryQuery = multiTagFormComponentPostEditorTaggingQueryQuery_Query;
-
 type ImageUploadQuery_user_SingleUserOutput_result_User = (
   { __typename?: 'User' }
   & UsersMinimumInfo
@@ -16385,6 +16398,25 @@ type markConversationReadMutationVariables = Exact<{
 
 type markConversationReadMutation = markConversationReadMutation_Mutation;
 
+type multiCommentModerationSidebarQueryQuery_comments_MultiCommentOutput_results_Comment = (
+  { __typename?: 'Comment' }
+  & CommentsListWithParentMetadata
+);
+
+type multiCommentModerationSidebarQueryQuery_comments_MultiCommentOutput = { __typename?: 'MultiCommentOutput', totalCount: number | null, results: Array<multiCommentModerationSidebarQueryQuery_comments_MultiCommentOutput_results_Comment> };
+
+type multiCommentModerationSidebarQueryQuery_Query = { __typename?: 'Query', comments: multiCommentModerationSidebarQueryQuery_comments_MultiCommentOutput | null };
+
+
+type multiCommentModerationSidebarQueryQueryVariables = Exact<{
+  selector: InputMaybe<CommentSelector>;
+  limit: InputMaybe<Scalars['Int']['input']>;
+  enableTotal: InputMaybe<Scalars['Boolean']['input']>;
+}>;
+
+
+type multiCommentModerationSidebarQueryQuery = multiCommentModerationSidebarQueryQuery_Query;
+
 type multiSubscriptionuseNotifyMeQueryQuery_subscriptions_MultiSubscriptionOutput_results_Subscription = (
   { __typename?: 'Subscription' }
   & SubscriptionState
@@ -16434,6 +16466,23 @@ type PostAnalyticsQueryQueryVariables = Exact<{
 
 
 type PostAnalyticsQueryQuery = PostAnalyticsQueryQuery_Query;
+
+type PostsPreviewTooltipSingleQuery_post_SinglePostOutput_result_Post = (
+  { __typename?: 'Post' }
+  & PostsList
+);
+
+type PostsPreviewTooltipSingleQuery_post_SinglePostOutput = { __typename?: 'SinglePostOutput', result: PostsPreviewTooltipSingleQuery_post_SinglePostOutput_result_Post | null };
+
+type PostsPreviewTooltipSingleQuery_Query = { __typename?: 'Query', post: PostsPreviewTooltipSingleQuery_post_SinglePostOutput | null };
+
+
+type PostsPreviewTooltipSingleQueryVariables = Exact<{
+  documentId: InputMaybe<Scalars['String']['input']>;
+}>;
+
+
+type PostsPreviewTooltipSingleQuery = PostsPreviewTooltipSingleQuery_Query;
 
 type multiPostusePublishedPostsQueryQuery_posts_MultiPostOutput_results_Post = (
   { __typename?: 'Post' }
@@ -16517,6 +16566,25 @@ type RefreshDbSettingsMutationVariables = Exact<{ [key: string]: never; }>;
 
 
 type RefreshDbSettingsMutation = RefreshDbSettingsMutation_Mutation;
+
+type multiModerationTemplateRejectContentDialogQueryQuery_moderationTemplates_MultiModerationTemplateOutput_results_ModerationTemplate = (
+  { __typename?: 'ModerationTemplate' }
+  & ModerationTemplateFragment
+);
+
+type multiModerationTemplateRejectContentDialogQueryQuery_moderationTemplates_MultiModerationTemplateOutput = { __typename?: 'MultiModerationTemplateOutput', totalCount: number | null, results: Array<multiModerationTemplateRejectContentDialogQueryQuery_moderationTemplates_MultiModerationTemplateOutput_results_ModerationTemplate> };
+
+type multiModerationTemplateRejectContentDialogQueryQuery_Query = { __typename?: 'Query', moderationTemplates: multiModerationTemplateRejectContentDialogQueryQuery_moderationTemplates_MultiModerationTemplateOutput | null };
+
+
+type multiModerationTemplateRejectContentDialogQueryQueryVariables = Exact<{
+  selector: InputMaybe<ModerationTemplateSelector>;
+  limit: InputMaybe<Scalars['Int']['input']>;
+  enableTotal: InputMaybe<Scalars['Boolean']['input']>;
+}>;
+
+
+type multiModerationTemplateRejectContentDialogQueryQuery = multiModerationTemplateRejectContentDialogQueryQuery_Query;
 
 type rejectPostMutationMutation_updatePost_PostOutput_data_Post = (
   { __typename?: 'Post' }
@@ -16936,6 +17004,24 @@ type PostSummaryDialogQueryVariables = Exact<{
 
 type PostSummaryDialogQuery = PostSummaryDialogQuery_Query;
 
+type updateUserLayoutMutation_updateUser_UserOutput_data_User = (
+  { __typename?: 'User' }
+  & UsersCurrent
+);
+
+type updateUserLayoutMutation_updateUser_UserOutput = { __typename?: 'UserOutput', data: updateUserLayoutMutation_updateUser_UserOutput_data_User | null };
+
+type updateUserLayoutMutation_Mutation = { __typename?: 'Mutation', updateUser: updateUserLayoutMutation_updateUser_UserOutput | null };
+
+
+type updateUserLayoutMutationVariables = Exact<{
+  selector: SelectorInput;
+  data: UpdateUserDataInput;
+}>;
+
+
+type updateUserLayoutMutation = updateUserLayoutMutation_Mutation;
+
 type PostLinkPreviewSequenceQuery_sequence_SingleSequenceOutput_result_Sequence = (
   { __typename?: 'Sequence' }
   & SequencesPageFragment
@@ -17276,23 +17362,6 @@ type updateConversationInboxNavigationMutationVariables = Exact<{
 
 type updateConversationInboxNavigationMutation = updateConversationInboxNavigationMutation_Mutation;
 
-type ConversationPageQuery_conversation_SingleConversationOutput_result_Conversation = (
-  { __typename?: 'Conversation' }
-  & ConversationsList
-);
-
-type ConversationPageQuery_conversation_SingleConversationOutput = { __typename?: 'SingleConversationOutput', result: ConversationPageQuery_conversation_SingleConversationOutput_result_Conversation | null };
-
-type ConversationPageQuery_Query = { __typename?: 'Query', conversation: ConversationPageQuery_conversation_SingleConversationOutput | null };
-
-
-type ConversationPageQueryVariables = Exact<{
-  documentId: InputMaybe<Scalars['String']['input']>;
-}>;
-
-
-type ConversationPageQuery = ConversationPageQuery_Query;
-
 type multiMessageConversationPreviewQueryQuery_messages_MultiMessageOutput_results_Message = (
   { __typename?: 'Message' }
   & messageListFragment
@@ -17382,25 +17451,6 @@ type FriendlyInboxQueryVariables = Exact<{
 
 
 type FriendlyInboxQuery = FriendlyInboxQuery_Query;
-
-type multiConversationInboxNavigationQueryQuery_conversations_MultiConversationOutput_results_Conversation = (
-  { __typename?: 'Conversation' }
-  & ConversationsList
-);
-
-type multiConversationInboxNavigationQueryQuery_conversations_MultiConversationOutput = { __typename?: 'MultiConversationOutput', totalCount: number | null, results: Array<multiConversationInboxNavigationQueryQuery_conversations_MultiConversationOutput_results_Conversation> };
-
-type multiConversationInboxNavigationQueryQuery_Query = { __typename?: 'Query', conversations: multiConversationInboxNavigationQueryQuery_conversations_MultiConversationOutput | null };
-
-
-type multiConversationInboxNavigationQueryQueryVariables = Exact<{
-  selector: InputMaybe<ConversationSelector>;
-  limit: InputMaybe<Scalars['Int']['input']>;
-  enableTotal: InputMaybe<Scalars['Boolean']['input']>;
-}>;
-
-
-type multiConversationInboxNavigationQueryQuery = multiConversationInboxNavigationQueryQuery_Query;
 
 type MessageUserGetUserBySlugQuery_GetUserBySlug_User = (
   { __typename?: 'User' }
@@ -18449,44 +18499,6 @@ type PostBodyQueryVariables = Exact<{
 
 type PostBodyQuery = PostBodyQuery_Query;
 
-type multiCommentPostsPageQueryQuery_comments_MultiCommentOutput_results_Comment = (
-  { __typename?: 'Comment' }
-  & CommentsList
-);
-
-type multiCommentPostsPageQueryQuery_comments_MultiCommentOutput = { __typename?: 'MultiCommentOutput', totalCount: number | null, results: Array<multiCommentPostsPageQueryQuery_comments_MultiCommentOutput_results_Comment> };
-
-type multiCommentPostsPageQueryQuery_Query = { __typename?: 'Query', comments: multiCommentPostsPageQueryQuery_comments_MultiCommentOutput | null };
-
-
-type multiCommentPostsPageQueryQueryVariables = Exact<{
-  selector: InputMaybe<CommentSelector>;
-  limit: InputMaybe<Scalars['Int']['input']>;
-  enableTotal: InputMaybe<Scalars['Boolean']['input']>;
-}>;
-
-
-type multiCommentPostsPageQueryQuery = multiCommentPostsPageQueryQuery_Query;
-
-type postCommentsThreadQueryQuery_comments_MultiCommentOutput_results_Comment = (
-  { __typename?: 'Comment' }
-  & CommentsList
-);
-
-type postCommentsThreadQueryQuery_comments_MultiCommentOutput = { __typename?: 'MultiCommentOutput', totalCount: number | null, results: Array<postCommentsThreadQueryQuery_comments_MultiCommentOutput_results_Comment> };
-
-type postCommentsThreadQueryQuery_Query = { __typename?: 'Query', comments: postCommentsThreadQueryQuery_comments_MultiCommentOutput | null };
-
-
-type postCommentsThreadQueryQueryVariables = Exact<{
-  selector: InputMaybe<CommentSelector>;
-  limit: InputMaybe<Scalars['Int']['input']>;
-  enableTotal: InputMaybe<Scalars['Boolean']['input']>;
-}>;
-
-
-type postCommentsThreadQueryQuery = postCommentsThreadQueryQuery_Query;
-
 type PostsPageWrapper1Query_post_SinglePostOutput_result_Post = (
   { __typename?: 'Post' }
   & PostsWithNavigationAndRevision
@@ -18647,23 +18659,6 @@ type PostsPreviewTooltipSingle3QueryVariables = Exact<{
 
 type PostsPreviewTooltipSingle3Query = PostsPreviewTooltipSingle3Query_Query;
 
-type PostsPreviewTooltipSingleQuery_post_SinglePostOutput_result_Post = (
-  { __typename?: 'Post' }
-  & PostsList
-);
-
-type PostsPreviewTooltipSingleQuery_post_SinglePostOutput = { __typename?: 'SinglePostOutput', result: PostsPreviewTooltipSingleQuery_post_SinglePostOutput_result_Post | null };
-
-type PostsPreviewTooltipSingleQuery_Query = { __typename?: 'Query', post: PostsPreviewTooltipSingleQuery_post_SinglePostOutput | null };
-
-
-type PostsPreviewTooltipSingleQueryVariables = Exact<{
-  documentId: InputMaybe<Scalars['String']['input']>;
-}>;
-
-
-type PostsPreviewTooltipSingleQuery = PostsPreviewTooltipSingleQuery_Query;
-
 type multiPostPostsTimeBlockQueryQuery_posts_MultiPostOutput_results_Post = (
   { __typename?: 'Post' }
   & PostsListWithVotes
@@ -18757,6 +18752,44 @@ type PostsEditFormPostQueryVariables = Exact<{
 
 
 type PostsEditFormPostQuery = PostsEditFormPostQuery_Query;
+
+type multiCommentPostsPageQueryQuery_comments_MultiCommentOutput_results_Comment = (
+  { __typename?: 'Comment' }
+  & CommentsList
+);
+
+type multiCommentPostsPageQueryQuery_comments_MultiCommentOutput = { __typename?: 'MultiCommentOutput', totalCount: number | null, results: Array<multiCommentPostsPageQueryQuery_comments_MultiCommentOutput_results_Comment> };
+
+type multiCommentPostsPageQueryQuery_Query = { __typename?: 'Query', comments: multiCommentPostsPageQueryQuery_comments_MultiCommentOutput | null };
+
+
+type multiCommentPostsPageQueryQueryVariables = Exact<{
+  selector: InputMaybe<CommentSelector>;
+  limit: InputMaybe<Scalars['Int']['input']>;
+  enableTotal: InputMaybe<Scalars['Boolean']['input']>;
+}>;
+
+
+type multiCommentPostsPageQueryQuery = multiCommentPostsPageQueryQuery_Query;
+
+type postCommentsThreadQueryQuery_comments_MultiCommentOutput_results_Comment = (
+  { __typename?: 'Comment' }
+  & CommentsList
+);
+
+type postCommentsThreadQueryQuery_comments_MultiCommentOutput = { __typename?: 'MultiCommentOutput', totalCount: number | null, results: Array<postCommentsThreadQueryQuery_comments_MultiCommentOutput_results_Comment> };
+
+type postCommentsThreadQueryQuery_Query = { __typename?: 'Query', comments: postCommentsThreadQueryQuery_comments_MultiCommentOutput | null };
+
+
+type postCommentsThreadQueryQueryVariables = Exact<{
+  selector: InputMaybe<CommentSelector>;
+  limit: InputMaybe<Scalars['Int']['input']>;
+  enableTotal: InputMaybe<Scalars['Boolean']['input']>;
+}>;
+
+
+type postCommentsThreadQueryQuery = postCommentsThreadQueryQuery_Query;
 
 type multiPostusePostQueryQuery_posts_MultiPostOutput_results_Post = (
   { __typename?: 'Post' }
@@ -19829,6 +19862,23 @@ type petrovDay2024ResolversQueryVariables = Exact<{ [key: string]: never; }>;
 
 type petrovDay2024ResolversQuery = petrovDay2024ResolversQuery_Query;
 
+type HomepageCommunityEventPostsQueryQuery_HomepageCommunityEventPosts_HomepageCommunityEventPostsResult_posts_Post = (
+  { __typename?: 'Post' }
+  & PostsList
+);
+
+type HomepageCommunityEventPostsQueryQuery_HomepageCommunityEventPosts_HomepageCommunityEventPostsResult = { __typename?: 'HomepageCommunityEventPostsResult', posts: Array<HomepageCommunityEventPostsQueryQuery_HomepageCommunityEventPosts_HomepageCommunityEventPostsResult_posts_Post> };
+
+type HomepageCommunityEventPostsQueryQuery_Query = { __typename?: 'Query', HomepageCommunityEventPosts: HomepageCommunityEventPostsQueryQuery_HomepageCommunityEventPosts_HomepageCommunityEventPostsResult };
+
+
+type HomepageCommunityEventPostsQueryQueryVariables = Exact<{
+  eventType: Scalars['String']['input'];
+}>;
+
+
+type HomepageCommunityEventPostsQueryQuery = HomepageCommunityEventPostsQueryQuery_Query;
+
 type updateChapterAddDraftPostDialogMutation_updateChapter_ChapterOutput_data_Chapter = (
   { __typename?: 'Chapter' }
   & ChaptersFragment
@@ -19898,6 +19948,16 @@ type BooksItemQueryVariables = Exact<{
 
 
 type BooksItemQuery = BooksItemQuery_Query;
+
+type GetBookWordCountQuery_Query = { __typename?: 'Query', getBookWordCount: number | null };
+
+
+type GetBookWordCountQueryVariables = Exact<{
+  bookId: Scalars['String']['input'];
+}>;
+
+
+type GetBookWordCountQuery = GetBookWordCountQuery_Query;
 
 type updateChapterChaptersFormMutation_updateChapter_ChapterOutput_data_Chapter = (
   { __typename?: 'Chapter' }
@@ -20004,6 +20064,18 @@ type CollectionsEditQueryVariables = Exact<{
 
 
 type CollectionsEditQuery = CollectionsEditQuery_Query;
+
+type GetSequenceStatsQuery_getSequenceStats_SequenceStats = { __typename?: 'SequenceStats', totalWordCount: number | null, totalReadTime: number | null };
+
+type GetSequenceStatsQuery_Query = { __typename?: 'Query', getSequenceStats: GetSequenceStatsQuery_getSequenceStats_SequenceStats | null };
+
+
+type GetSequenceStatsQueryVariables = Exact<{
+  sequenceId: Scalars['String']['input'];
+}>;
+
+
+type GetSequenceStatsQuery = GetSequenceStatsQuery_Query;
 
 type multiPostSequenceDraftsListQueryQuery_posts_MultiPostOutput_results_Post = (
   { __typename?: 'Post' }
@@ -20189,6 +20261,23 @@ type CollectionsPageQueryVariables = Exact<{
 
 
 type CollectionsPageQuery = CollectionsPageQuery_Query;
+
+type PostsSequenceMetadataQueryQuery_posts_MultiPostOutput_results_Post = (
+  { __typename?: 'Post' }
+  & PostsList
+);
+
+type PostsSequenceMetadataQueryQuery_posts_MultiPostOutput = { __typename?: 'MultiPostOutput', results: Array<PostsSequenceMetadataQueryQuery_posts_MultiPostOutput_results_Post> };
+
+type PostsSequenceMetadataQueryQuery_Query = { __typename?: 'Query', posts: PostsSequenceMetadataQueryQuery_posts_MultiPostOutput | null };
+
+
+type PostsSequenceMetadataQueryQueryVariables = Exact<{
+  selector: PostSelector;
+}>;
+
+
+type PostsSequenceMetadataQueryQuery = PostsSequenceMetadataQueryQuery_Query;
 
 type updateContinueReadingMutation_Mutation = { __typename?: 'Mutation', updateContinueReading: boolean | null };
 
@@ -20751,6 +20840,23 @@ type updateUserModeratorActionsMutationVariables = Exact<{
 
 type updateUserModeratorActionsMutation = updateUserModeratorActionsMutation_Mutation;
 
+type createModeratorActionMutation_createModeratorAction_ModeratorActionOutput_data_ModeratorAction = (
+  { __typename?: 'ModeratorAction' }
+  & ModeratorActionDisplay
+);
+
+type createModeratorActionMutation_createModeratorAction_ModeratorActionOutput = { __typename?: 'ModeratorActionOutput', data: createModeratorActionMutation_createModeratorAction_ModeratorActionOutput_data_ModeratorAction | null };
+
+type createModeratorActionMutation_Mutation = { __typename?: 'Mutation', createModeratorAction: createModeratorActionMutation_createModeratorAction_ModeratorActionOutput | null };
+
+
+type createModeratorActionMutationVariables = Exact<{
+  data: CreateModeratorActionDataInput;
+}>;
+
+
+type createModeratorActionMutation = createModeratorActionMutation_Mutation;
+
 type multiConversationModeratorMessageCountQueryQuery_conversations_MultiConversationOutput_results_Conversation = (
   { __typename?: 'Conversation' }
   & ConversationsMinimumInfo
@@ -20876,25 +20982,6 @@ type NewPostModerationWarningQueryVariables = Exact<{
 
 
 type NewPostModerationWarningQuery = NewPostModerationWarningQuery_Query;
-
-type multiModerationTemplateRejectContentDialogQueryQuery_moderationTemplates_MultiModerationTemplateOutput_results_ModerationTemplate = (
-  { __typename?: 'ModerationTemplate' }
-  & ModerationTemplateFragment
-);
-
-type multiModerationTemplateRejectContentDialogQueryQuery_moderationTemplates_MultiModerationTemplateOutput = { __typename?: 'MultiModerationTemplateOutput', totalCount: number | null, results: Array<multiModerationTemplateRejectContentDialogQueryQuery_moderationTemplates_MultiModerationTemplateOutput_results_ModerationTemplate> };
-
-type multiModerationTemplateRejectContentDialogQueryQuery_Query = { __typename?: 'Query', moderationTemplates: multiModerationTemplateRejectContentDialogQueryQuery_moderationTemplates_MultiModerationTemplateOutput | null };
-
-
-type multiModerationTemplateRejectContentDialogQueryQueryVariables = Exact<{
-  selector: InputMaybe<ModerationTemplateSelector>;
-  limit: InputMaybe<Scalars['Int']['input']>;
-  enableTotal: InputMaybe<Scalars['Boolean']['input']>;
-}>;
-
-
-type multiModerationTemplateRejectContentDialogQueryQuery = multiModerationTemplateRejectContentDialogQueryQuery_Query;
 
 type createReportReportFormMutation_createReport_ReportOutput_data_Report = (
   { __typename?: 'Report' }
@@ -21519,6 +21606,265 @@ type multiCommentRejectedCommentsListQueryQueryVariables = Exact<{
 
 type multiCommentRejectedCommentsListQueryQuery = multiCommentRejectedCommentsListQueryQuery_Query;
 
+type multiUserModerationInboxQueryQuery_users_MultiUserOutput_results_User = (
+  { __typename?: 'User' }
+  & SunshineUsersList
+);
+
+type multiUserModerationInboxQueryQuery_users_MultiUserOutput = { __typename?: 'MultiUserOutput', totalCount: number | null, results: Array<multiUserModerationInboxQueryQuery_users_MultiUserOutput_results_User> };
+
+type multiUserModerationInboxQueryQuery_Query = { __typename?: 'Query', users: multiUserModerationInboxQueryQuery_users_MultiUserOutput | null };
+
+
+type multiUserModerationInboxQueryQueryVariables = Exact<{
+  selector: InputMaybe<UserSelector>;
+  limit: InputMaybe<Scalars['Int']['input']>;
+  enableTotal: InputMaybe<Scalars['Boolean']['input']>;
+}>;
+
+
+type multiUserModerationInboxQueryQuery = multiUserModerationInboxQueryQuery_Query;
+
+type multiPostModerationInboxQueryQuery_posts_MultiPostOutput_results_Post = (
+  { __typename?: 'Post' }
+  & SunshinePostsList
+);
+
+type multiPostModerationInboxQueryQuery_posts_MultiPostOutput = { __typename?: 'MultiPostOutput', totalCount: number | null, results: Array<multiPostModerationInboxQueryQuery_posts_MultiPostOutput_results_Post> };
+
+type multiPostModerationInboxQueryQuery_Query = { __typename?: 'Query', posts: multiPostModerationInboxQueryQuery_posts_MultiPostOutput | null };
+
+
+type multiPostModerationInboxQueryQueryVariables = Exact<{
+  selector: InputMaybe<PostSelector>;
+  limit: InputMaybe<Scalars['Int']['input']>;
+  enableTotal: InputMaybe<Scalars['Boolean']['input']>;
+}>;
+
+
+type multiPostModerationInboxQueryQuery = multiPostModerationInboxQueryQuery_Query;
+
+type updateUserModerationSidebarMutation_updateUser_UserOutput_data_User = (
+  { __typename?: 'User' }
+  & SunshineUsersList
+);
+
+type updateUserModerationSidebarMutation_updateUser_UserOutput = { __typename?: 'UserOutput', data: updateUserModerationSidebarMutation_updateUser_UserOutput_data_User | null };
+
+type updateUserModerationSidebarMutation_Mutation = { __typename?: 'Mutation', updateUser: updateUserModerationSidebarMutation_updateUser_UserOutput | null };
+
+
+type updateUserModerationSidebarMutationVariables = Exact<{
+  selector: SelectorInput;
+  data: UpdateUserDataInput;
+}>;
+
+
+type updateUserModerationSidebarMutation = updateUserModerationSidebarMutation_Mutation;
+
+type updateUserModerationKeyboardMutation_updateUser_UserOutput_data_User = (
+  { __typename?: 'User' }
+  & SunshineUsersList
+);
+
+type updateUserModerationKeyboardMutation_updateUser_UserOutput = { __typename?: 'UserOutput', data: updateUserModerationKeyboardMutation_updateUser_UserOutput_data_User | null };
+
+type updateUserModerationKeyboardMutation_Mutation = { __typename?: 'Mutation', updateUser: updateUserModerationKeyboardMutation_updateUser_UserOutput | null };
+
+
+type updateUserModerationKeyboardMutationVariables = Exact<{
+  selector: SelectorInput;
+  data: UpdateUserDataInput;
+}>;
+
+
+type updateUserModerationKeyboardMutation = updateUserModerationKeyboardMutation_Mutation;
+
+type rejectContentAndRemoveFromQueueModerationKeyboardMutation_Mutation = { __typename?: 'Mutation', rejectContentAndRemoveUserFromQueue: boolean };
+
+
+type rejectContentAndRemoveFromQueueModerationKeyboardMutationVariables = Exact<{
+  userId: Scalars['String']['input'];
+  documentId: Scalars['String']['input'];
+  collectionName: ContentCollectionName;
+  rejectedReason: Scalars['String']['input'];
+}>;
+
+
+type rejectContentAndRemoveFromQueueModerationKeyboardMutation = rejectContentAndRemoveFromQueueModerationKeyboardMutation_Mutation;
+
+type approveCurrentContentOnlyModerationKeyboardMutation_Mutation = { __typename?: 'Mutation', approveUserCurrentContentOnly: boolean };
+
+
+type approveCurrentContentOnlyModerationKeyboardMutationVariables = Exact<{
+  userId: Scalars['String']['input'];
+}>;
+
+
+type approveCurrentContentOnlyModerationKeyboardMutation = approveCurrentContentOnlyModerationKeyboardMutation_Mutation;
+
+type addOrUpvoteTagModeratorCoreTagsChecklistMutation_addOrUpvoteTag_TagRel = (
+  { __typename?: 'TagRel' }
+  & TagRelMinimumFragment
+);
+
+type addOrUpvoteTagModeratorCoreTagsChecklistMutation_Mutation = { __typename?: 'Mutation', addOrUpvoteTag: addOrUpvoteTagModeratorCoreTagsChecklistMutation_addOrUpvoteTag_TagRel | null };
+
+
+type addOrUpvoteTagModeratorCoreTagsChecklistMutationVariables = Exact<{
+  tagId: InputMaybe<Scalars['String']['input']>;
+  postId: InputMaybe<Scalars['String']['input']>;
+}>;
+
+
+type addOrUpvoteTagModeratorCoreTagsChecklistMutation = addOrUpvoteTagModeratorCoreTagsChecklistMutation_Mutation;
+
+type performVoteTagRelModeratorCoreTagsChecklistMutation_performVoteTagRel_VoteResultTagRel_document_TagRel = (
+  { __typename?: 'TagRel' }
+  & WithVoteTagRel
+);
+
+type performVoteTagRelModeratorCoreTagsChecklistMutation_performVoteTagRel_VoteResultTagRel = { __typename?: 'VoteResultTagRel', document: performVoteTagRelModeratorCoreTagsChecklistMutation_performVoteTagRel_VoteResultTagRel_document_TagRel };
+
+type performVoteTagRelModeratorCoreTagsChecklistMutation_Mutation = { __typename?: 'Mutation', performVoteTagRel: performVoteTagRelModeratorCoreTagsChecklistMutation_performVoteTagRel_VoteResultTagRel | null };
+
+
+type performVoteTagRelModeratorCoreTagsChecklistMutationVariables = Exact<{
+  documentId: InputMaybe<Scalars['String']['input']>;
+  voteType: InputMaybe<Scalars['String']['input']>;
+  extendedVote: InputMaybe<Scalars['JSON']['input']>;
+}>;
+
+
+type performVoteTagRelModeratorCoreTagsChecklistMutation = performVoteTagRelModeratorCoreTagsChecklistMutation_Mutation;
+
+type multiModerationTemplateRestrictAndNotifyModalQueryQuery_moderationTemplates_MultiModerationTemplateOutput_results_ModerationTemplate = (
+  { __typename?: 'ModerationTemplate' }
+  & ModerationTemplateFragment
+);
+
+type multiModerationTemplateRestrictAndNotifyModalQueryQuery_moderationTemplates_MultiModerationTemplateOutput = { __typename?: 'MultiModerationTemplateOutput', totalCount: number | null, results: Array<multiModerationTemplateRestrictAndNotifyModalQueryQuery_moderationTemplates_MultiModerationTemplateOutput_results_ModerationTemplate> };
+
+type multiModerationTemplateRestrictAndNotifyModalQueryQuery_Query = { __typename?: 'Query', moderationTemplates: multiModerationTemplateRestrictAndNotifyModalQueryQuery_moderationTemplates_MultiModerationTemplateOutput | null };
+
+
+type multiModerationTemplateRestrictAndNotifyModalQueryQueryVariables = Exact<{
+  selector: InputMaybe<ModerationTemplateSelector>;
+  limit: InputMaybe<Scalars['Int']['input']>;
+  enableTotal: InputMaybe<Scalars['Boolean']['input']>;
+}>;
+
+
+type multiModerationTemplateRestrictAndNotifyModalQueryQuery = multiModerationTemplateRestrictAndNotifyModalQueryQuery_Query;
+
+type rejectContentAndRemoveFromQueueRestrictAndNotifyMutation_Mutation = { __typename?: 'Mutation', rejectContentAndRemoveUserFromQueue: boolean };
+
+
+type rejectContentAndRemoveFromQueueRestrictAndNotifyMutationVariables = Exact<{
+  userId: Scalars['String']['input'];
+  documentId: Scalars['String']['input'];
+  collectionName: ContentCollectionName;
+  rejectedReason: Scalars['String']['input'];
+  messageContent: InputMaybe<Scalars['String']['input']>;
+}>;
+
+
+type rejectContentAndRemoveFromQueueRestrictAndNotifyMutation = rejectContentAndRemoveFromQueueRestrictAndNotifyMutation_Mutation;
+
+type updatePostPostReviewActionsMutation_updatePost_PostOutput_data_Post = (
+  { __typename?: 'Post' }
+  & PostsList
+);
+
+type updatePostPostReviewActionsMutation_updatePost_PostOutput = { __typename?: 'PostOutput', data: updatePostPostReviewActionsMutation_updatePost_PostOutput_data_Post | null };
+
+type updatePostPostReviewActionsMutation_Mutation = { __typename?: 'Mutation', updatePost: updatePostPostReviewActionsMutation_updatePost_PostOutput | null };
+
+
+type updatePostPostReviewActionsMutationVariables = Exact<{
+  selector: SelectorInput;
+  data: UpdatePostDataInput;
+}>;
+
+
+type updatePostPostReviewActionsMutation = updatePostPostReviewActionsMutation_Mutation;
+
+type createModeratorActionPostReviewActionsMutation_createModeratorAction_ModeratorActionOutput_data_ModeratorAction = { __typename?: 'ModeratorAction', _id: string };
+
+type createModeratorActionPostReviewActionsMutation_createModeratorAction_ModeratorActionOutput = { __typename?: 'ModeratorActionOutput', data: createModeratorActionPostReviewActionsMutation_createModeratorAction_ModeratorActionOutput_data_ModeratorAction | null };
+
+type createModeratorActionPostReviewActionsMutation_Mutation = { __typename?: 'Mutation', createModeratorAction: createModeratorActionPostReviewActionsMutation_createModeratorAction_ModeratorActionOutput | null };
+
+
+type createModeratorActionPostReviewActionsMutationVariables = Exact<{
+  data: CreateModeratorActionDataInput;
+}>;
+
+
+type createModeratorActionPostReviewActionsMutation = createModeratorActionPostReviewActionsMutation_Mutation;
+
+type RerunSaplingCheckHookMutation_rerunSaplingCheck_AutomatedContentEvaluation = (
+  { __typename?: 'AutomatedContentEvaluation' }
+  & AutomatedContentEvaluationsFragment
+);
+
+type RerunSaplingCheckHookMutation_Mutation = { __typename?: 'Mutation', rerunSaplingCheck: RerunSaplingCheckHookMutation_rerunSaplingCheck_AutomatedContentEvaluation };
+
+
+type RerunSaplingCheckHookMutationVariables = Exact<{
+  postId: Scalars['String']['input'];
+}>;
+
+
+type RerunSaplingCheckHookMutation = RerunSaplingCheckHookMutation_Mutation;
+
+type updateUserContentPermissionsMutation_updateUser_UserOutput_data_User = (
+  { __typename?: 'User' }
+  & SunshineUsersList
+);
+
+type updateUserContentPermissionsMutation_updateUser_UserOutput = { __typename?: 'UserOutput', data: updateUserContentPermissionsMutation_updateUser_UserOutput_data_User | null };
+
+type updateUserContentPermissionsMutation_Mutation = { __typename?: 'Mutation', updateUser: updateUserContentPermissionsMutation_updateUser_UserOutput | null };
+
+
+type updateUserContentPermissionsMutationVariables = Exact<{
+  selector: SelectorInput;
+  data: UpdateUserDataInput;
+}>;
+
+
+type updateUserContentPermissionsMutation = updateUserContentPermissionsMutation_Mutation;
+
+type createModeratorActionContentPermissionsMutation_createModeratorAction_ModeratorActionOutput_data_ModeratorAction = { __typename?: 'ModeratorAction', _id: string, type: ModeratorActionType, userId: string, endedAt: string | null };
+
+type createModeratorActionContentPermissionsMutation_createModeratorAction_ModeratorActionOutput = { __typename?: 'ModeratorActionOutput', data: createModeratorActionContentPermissionsMutation_createModeratorAction_ModeratorActionOutput_data_ModeratorAction | null };
+
+type createModeratorActionContentPermissionsMutation_Mutation = { __typename?: 'Mutation', createModeratorAction: createModeratorActionContentPermissionsMutation_createModeratorAction_ModeratorActionOutput | null };
+
+
+type createModeratorActionContentPermissionsMutationVariables = Exact<{
+  data: CreateModeratorActionDataInput;
+}>;
+
+
+type createModeratorActionContentPermissionsMutation = createModeratorActionContentPermissionsMutation_Mutation;
+
+type updateModeratorActionContentPermissionsMutation_updateModeratorAction_ModeratorActionOutput_data_ModeratorAction = { __typename?: 'ModeratorAction', _id: string, type: ModeratorActionType, userId: string, endedAt: string | null };
+
+type updateModeratorActionContentPermissionsMutation_updateModeratorAction_ModeratorActionOutput = { __typename?: 'ModeratorActionOutput', data: updateModeratorActionContentPermissionsMutation_updateModeratorAction_ModeratorActionOutput_data_ModeratorAction | null };
+
+type updateModeratorActionContentPermissionsMutation_Mutation = { __typename?: 'Mutation', updateModeratorAction: updateModeratorActionContentPermissionsMutation_updateModeratorAction_ModeratorActionOutput | null };
+
+
+type updateModeratorActionContentPermissionsMutationVariables = Exact<{
+  selector: SelectorInput;
+  data: UpdateModeratorActionDataInput;
+}>;
+
+
+type updateModeratorActionContentPermissionsMutation = updateModeratorActionContentPermissionsMutation_Mutation;
+
 type multiSurveyScheduleSurveyAdminPageQueryQuery_surveySchedules_MultiSurveyScheduleOutput_results_SurveySchedule = (
   { __typename?: 'SurveySchedule' }
   & SurveyScheduleEdit
@@ -21765,25 +22111,6 @@ type multiTagArbitalExplorePageQueryQueryVariables = Exact<{
 
 
 type multiTagArbitalExplorePageQueryQuery = multiTagArbitalExplorePageQueryQuery_Query;
-
-type multiTagCoreTagsChecklistQueryQuery_tags_MultiTagOutput_results_Tag = (
-  { __typename?: 'Tag' }
-  & TagFragment
-);
-
-type multiTagCoreTagsChecklistQueryQuery_tags_MultiTagOutput = { __typename?: 'MultiTagOutput', totalCount: number | null, results: Array<multiTagCoreTagsChecklistQueryQuery_tags_MultiTagOutput_results_Tag> };
-
-type multiTagCoreTagsChecklistQueryQuery_Query = { __typename?: 'Query', tags: multiTagCoreTagsChecklistQueryQuery_tags_MultiTagOutput | null };
-
-
-type multiTagCoreTagsChecklistQueryQueryVariables = Exact<{
-  selector: InputMaybe<TagSelector>;
-  limit: InputMaybe<Scalars['Int']['input']>;
-  enableTotal: InputMaybe<Scalars['Boolean']['input']>;
-}>;
-
-
-type multiTagCoreTagsChecklistQueryQuery = multiTagCoreTagsChecklistQueryQuery_Query;
 
 type multiTagCoreTagsSectionQueryQuery_tags_MultiTagOutput_results_Tag = (
   { __typename?: 'Tag' }
@@ -23004,6 +23331,25 @@ type tagPageWithArbitalContentAndLensRevisionBySlugQueryVariables = Exact<{
 
 type tagPageWithArbitalContentAndLensRevisionBySlugQuery = tagPageWithArbitalContentAndLensRevisionBySlugQuery_Query;
 
+type multiTagCoreTagsChecklistQueryQuery_tags_MultiTagOutput_results_Tag = (
+  { __typename?: 'Tag' }
+  & TagFragment
+);
+
+type multiTagCoreTagsChecklistQueryQuery_tags_MultiTagOutput = { __typename?: 'MultiTagOutput', totalCount: number | null, results: Array<multiTagCoreTagsChecklistQueryQuery_tags_MultiTagOutput_results_Tag> };
+
+type multiTagCoreTagsChecklistQueryQuery_Query = { __typename?: 'Query', tags: multiTagCoreTagsChecklistQueryQuery_tags_MultiTagOutput | null };
+
+
+type multiTagCoreTagsChecklistQueryQueryVariables = Exact<{
+  selector: InputMaybe<TagSelector>;
+  limit: InputMaybe<Scalars['Int']['input']>;
+  enableTotal: InputMaybe<Scalars['Boolean']['input']>;
+}>;
+
+
+type multiTagCoreTagsChecklistQueryQuery = multiTagCoreTagsChecklistQueryQuery_Query;
+
 type getTagOrLensPreviewQuery_TagPreview_TagPreviewWithSummaries_tag_Tag = (
   { __typename?: 'Tag' }
   & TagPreviewFragment
@@ -24206,6 +24552,18 @@ type ChaptersFragment_Chapter_posts_Post = (
 
 type ChaptersFragment = { __typename?: 'Chapter', _id: string, createdAt: string, title: string | null, subtitle: string | null, number: number | null, sequenceId: string | null, postIds: Array<string>, contents: ChaptersFragment_Chapter_contents_Revision | null, posts: Array<ChaptersFragment_Chapter_posts_Post> };
 
+type SlimChapter_Chapter_contents_Revision = (
+  { __typename?: 'Revision' }
+  & RevisionDisplay
+);
+
+type SlimChapter_Chapter_posts_Post = (
+  { __typename?: 'Post' }
+  & ChapterPostSlim
+);
+
+type SlimChapter = { __typename?: 'Chapter', _id: string, createdAt: string, title: string | null, subtitle: string | null, number: number | null, sequenceId: string | null, postIds: Array<string>, contents: SlimChapter_Chapter_contents_Revision | null, posts: Array<SlimChapter_Chapter_posts_Post> };
+
 type ChaptersEdit_Chapter_contents_Revision = (
   { __typename?: 'Revision' }
   & RevisionEdit
@@ -25225,8 +25583,15 @@ type SunshinePostsList_Post_user_User = (
   & UsersMinimumInfo
 );
 
+type SunshinePostsList_Post_frontpageClassification_FrontpageClassification = { __typename?: 'FrontpageClassification', isFrontpage: boolean, probability: number };
+
+type SunshinePostsList_Post_tagRels_TagRel = (
+  { __typename?: 'TagRel' }
+  & TagRelMinimumFragment
+);
+
 type SunshinePostsList = (
-  { __typename?: 'Post', currentUserVote: string | null, currentUserExtendedVote: any | null, rejectedReason: string | null, autoFrontpage: string | null, fmCrosspost: SunshinePostsList_Post_fmCrosspost_CrosspostOutput | null, contents: SunshinePostsList_Post_contents_Revision | null, automatedContentEvaluations: SunshinePostsList_Post_automatedContentEvaluations_AutomatedContentEvaluation | null, moderationGuidelines: SunshinePostsList_Post_moderationGuidelines_Revision | null, user: SunshinePostsList_Post_user_User | null }
+  { __typename?: 'Post', currentUserVote: string | null, currentUserExtendedVote: any | null, rejectedReason: string | null, autoFrontpage: string | null, fmCrosspost: SunshinePostsList_Post_fmCrosspost_CrosspostOutput | null, contents: SunshinePostsList_Post_contents_Revision | null, automatedContentEvaluations: SunshinePostsList_Post_automatedContentEvaluations_AutomatedContentEvaluation | null, moderationGuidelines: SunshinePostsList_Post_moderationGuidelines_Revision | null, user: SunshinePostsList_Post_user_User | null, frontpageClassification: SunshinePostsList_Post_frontpageClassification_FrontpageClassification | null, tagRels: Array<SunshinePostsList_Post_tagRels_TagRel> }
   & PostsListBase
 );
 
@@ -25306,6 +25671,8 @@ type SuggestAlignmentPost = (
   { __typename?: 'Post', suggestForAlignmentUsers: Array<SuggestAlignmentPost_Post_suggestForAlignmentUsers_User> }
   & PostsList
 );
+
+type ChapterPostSlim = { __typename?: 'Post', _id: string, title: string, slug: string, isRead: boolean | null };
 
 type UnclaimedReportsList_Report_user_User = (
   { __typename?: 'User' }
@@ -25480,7 +25847,7 @@ type SequenceContinueReadingFragment = { __typename?: 'Sequence', _id: string, t
 
 type SequencesPageWithChaptersFragment_Sequence_chapters_Chapter = (
   { __typename?: 'Chapter' }
-  & ChaptersFragment
+  & SlimChapter
 );
 
 type SequencesPageWithChaptersFragment = (
@@ -26132,8 +26499,13 @@ type SunshineUsersList_User_moderatorActions_ModeratorAction = (
 
 type SunshineUsersList_User_associatedClientIds_ClientId = { __typename?: 'ClientId', clientId: string | null, firstSeenReferrer: string | null, firstSeenLandingPage: string | null, userIds: Array<string> | null };
 
+type SunshineUsersList_User_userRateLimits_UserRateLimit = (
+  { __typename?: 'UserRateLimit' }
+  & UserRateLimitDisplay
+);
+
 type SunshineUsersList = (
-  { __typename?: 'User', karma: number, htmlBio: string, website: string | null, createdAt: string, email: string | null, emails: Array<any> | null, commentCount: number, maxCommentCount: number, postCount: number, maxPostCount: number, voteCount: number | null, smallUpvoteCount: number | null, bigUpvoteCount: number | null, smallDownvoteCount: number | null, bigDownvoteCount: number | null, banned: string | null, reviewedByUserId: string | null, reviewedAt: string | null, signUpReCaptchaRating: number | null, mapLocation: any | null, needsReview: boolean | null, sunshineNotes: string | null, sunshineFlagged: boolean | null, postingDisabled: boolean | null, allCommentingDisabled: boolean | null, commentingOnOtherUsersDisabled: boolean | null, conversationsDisabled: boolean | null, snoozedUntilContentCount: number | null, nullifyVotes: boolean | null, deleteContent: boolean | null, usersContactedBeforeReview: Array<string> | null, altAccountsDetected: boolean | null, voteReceivedCount: number | null, smallUpvoteReceivedCount: number | null, bigUpvoteReceivedCount: number | null, smallDownvoteReceivedCount: number | null, bigDownvoteReceivedCount: number | null, recentKarmaInfo: any | null, lastNotificationsCheck: string | null, moderatorActions: Array<SunshineUsersList_User_moderatorActions_ModeratorAction> | null, associatedClientIds: Array<SunshineUsersList_User_associatedClientIds_ClientId> | null }
+  { __typename?: 'User', karma: number, htmlBio: string, website: string | null, createdAt: string, email: string | null, emails: Array<any> | null, commentCount: number, maxCommentCount: number, postCount: number, maxPostCount: number, shortformFeedId: string | null, voteCount: number | null, smallUpvoteCount: number | null, bigUpvoteCount: number | null, smallDownvoteCount: number | null, bigDownvoteCount: number | null, banned: string | null, reviewedByUserId: string | null, reviewedAt: string | null, signUpReCaptchaRating: number | null, mapLocation: any | null, needsReview: boolean | null, sunshineNotes: string | null, sunshineFlagged: boolean | null, postingDisabled: boolean | null, allCommentingDisabled: boolean | null, commentingOnOtherUsersDisabled: boolean | null, conversationsDisabled: boolean | null, votingDisabled: boolean, snoozedUntilContentCount: number | null, nullifyVotes: boolean | null, deleteContent: boolean | null, usersContactedBeforeReview: Array<string> | null, altAccountsDetected: boolean | null, voteReceivedCount: number | null, smallUpvoteReceivedCount: number | null, bigUpvoteReceivedCount: number | null, smallDownvoteReceivedCount: number | null, bigDownvoteReceivedCount: number | null, recentKarmaInfo: any | null, lastNotificationsCheck: string | null, lastRemovedFromReviewQueueAt: string | null, rejectedContentCount: number | null, moderatorActions: Array<SunshineUsersList_User_moderatorActions_ModeratorAction> | null, associatedClientIds: Array<SunshineUsersList_User_associatedClientIds_ClientId> | null, userRateLimits: Array<SunshineUsersList_User_userRateLimits_UserRateLimit> | null }
   & UsersMinimumInfo
 );
 
@@ -26275,18 +26647,6 @@ type Lightcone2024FundraiserStripeAmountsQueryVariables = Exact<{ [key: string]:
 
 type Lightcone2024FundraiserStripeAmountsQuery = Lightcone2024FundraiserStripeAmountsQuery_Query;
 
-type SubscribedPostAndCommentsFeed_SubscribedPostAndComments_post_Post = (
-  { __typename?: 'Post' }
-  & PostsList
-);
-
-type SubscribedPostAndCommentsFeed_SubscribedPostAndComments_comments_Comment = (
-  { __typename?: 'Comment' }
-  & CommentsList
-);
-
-type SubscribedPostAndCommentsFeed = { __typename?: 'SubscribedPostAndComments', _id: string, expandCommentIds: Array<string> | null, postIsFromSubscribedUser: boolean, post: SubscribedPostAndCommentsFeed_SubscribedPostAndComments_post_Post, comments: Array<SubscribedPostAndCommentsFeed_SubscribedPostAndComments_comments_Comment> | null };
-
 type FeedPostFragment_FeedPost_post_Post = (
   { __typename?: 'Post' }
   & PostsListWithVotes
@@ -26304,7 +26664,7 @@ type FeedCommentThreadFragment_FeedCommentThread_comments_Comment = (
   & UltraFeedComment
 );
 
-type FeedCommentThreadFragment = { __typename?: 'FeedCommentThread', _id: string, commentMetaInfos: any | null, isOnReadPost: boolean | null, postSources: Array<string> | null, post: FeedCommentThreadFragment_FeedCommentThread_post_Post | null, comments: Array<FeedCommentThreadFragment_FeedCommentThread_comments_Comment> };
+type FeedCommentThreadFragment = { __typename?: 'FeedCommentThread', _id: string, commentMetaInfos: any | null, postSources: Array<string> | null, postMetaInfo: any | null, post: FeedCommentThreadFragment_FeedCommentThread_post_Post | null, comments: Array<FeedCommentThreadFragment_FeedCommentThread_comments_Comment> };
 
 type FeedSpotlightFragment_FeedSpotlightItem_spotlight_Spotlight = (
   { __typename?: 'Spotlight' }
@@ -26316,7 +26676,7 @@ type FeedSpotlightFragment_FeedSpotlightItem_post_Post = (
   & PostsListWithVotes
 );
 
-type FeedSpotlightFragment_FeedSpotlightItem_spotlightMetaInfo_FeedSpotlightMetaInfo = { __typename?: 'FeedSpotlightMetaInfo', sources: Array<string>, servedEventId: string };
+type FeedSpotlightFragment_FeedSpotlightItem_spotlightMetaInfo_FeedSpotlightMetaInfo = { __typename?: 'FeedSpotlightMetaInfo', sources: Array<string>, servedEventId: string, rankingMetadata: any | null };
 
 type FeedSpotlightFragment = { __typename?: 'FeedSpotlightItem', _id: string, spotlight: FeedSpotlightFragment_FeedSpotlightItem_spotlight_Spotlight | null, post: FeedSpotlightFragment_FeedSpotlightItem_post_Post | null, spotlightMetaInfo: FeedSpotlightFragment_FeedSpotlightItem_spotlightMetaInfo_FeedSpotlightMetaInfo | null };
 
@@ -26326,6 +26686,8 @@ type FeedSubscriptionSuggestionsFragment_FeedSubscriptionSuggestions_suggestedUs
 );
 
 type FeedSubscriptionSuggestionsFragment = { __typename?: 'FeedSubscriptionSuggestions', _id: string, suggestedUsers: Array<FeedSubscriptionSuggestionsFragment_FeedSubscriptionSuggestions_suggestedUsers_User> };
+
+type FeedMarkerFragment = { __typename?: 'FeedMarker', _id: string, markerType: string, timestamp: string };
 
 type multiPostsForAutocompleteQueryQuery_posts_MultiPostOutput_results_Post = (
   { __typename?: 'Post' }
@@ -26685,7 +27047,7 @@ type CommentPermalinkMetadataQuery = CommentPermalinkMetadataQuery_Query;
 
 type TagMetadataQuery_tags_MultiTagOutput_results_Tag_description_Revision = { __typename?: 'Revision', _id: string, plaintextDescription: string };
 
-type TagMetadataQuery_tags_MultiTagOutput_results_Tag = { __typename?: 'Tag', _id: string, name: string, noindex: boolean, description: TagMetadataQuery_tags_MultiTagOutput_results_Tag_description_Revision | null };
+type TagMetadataQuery_tags_MultiTagOutput_results_Tag = { __typename?: 'Tag', _id: string, name: string, slug: string, noindex: boolean, description: TagMetadataQuery_tags_MultiTagOutput_results_Tag_description_Revision | null };
 
 type TagMetadataQuery_tags_MultiTagOutput = { __typename?: 'MultiTagOutput', results: Array<TagMetadataQuery_tags_MultiTagOutput_results_Tag> };
 
@@ -26764,6 +27126,19 @@ type multiPostsForLLMQueryQueryVariables = Exact<{
 
 
 type multiPostsForLLMQueryQuery = multiPostsForLLMQueryQuery_Query;
+
+type GetReviewWinnersQuery_GetAllReviewWinners_Post = (
+  { __typename?: 'Post' }
+  & PostsTopItemInfo
+);
+
+type GetReviewWinnersQuery_Query = { __typename?: 'Query', GetAllReviewWinners: Array<GetReviewWinnersQuery_GetAllReviewWinners_Post> };
+
+
+type GetReviewWinnersQueryVariables = Exact<{ [key: string]: never; }>;
+
+
+type GetReviewWinnersQuery = GetReviewWinnersQuery_Query;
 
 type CommentsForEmbeddingsQuery_comments_MultiCommentOutput_results_Comment_contents_Revision = { __typename?: 'Revision', _id: string, html: string | null };
 

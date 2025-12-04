@@ -713,6 +713,16 @@ interface DbLocalgroup extends DbObject {
   website: string | null
 }
 
+type LoginTokensCollection = PgCollection<"LoginTokens">;
+
+interface DbLoginToken extends DbObject {
+  __collectionName?: "LoginTokens"
+  createdAt: Date
+  hashedToken: string
+  loggedOutAt: Date | null
+  userId: string
+}
+
 type ManifoldProbabilitiesCachesCollection = PgCollection<"ManifoldProbabilitiesCaches">;
 
 interface DbManifoldProbabilitiesCache extends DbObject {
@@ -780,7 +790,7 @@ interface DbModeratorAction extends DbObject {
   createdAt: Date
   endedAt: Date | null
   legacyData: any | null
-  type: "rateLimitOnePerDay" | "rateLimitOnePerThreeDays" | "rateLimitOnePerWeek" | "rateLimitOnePerFortnight" | "rateLimitOnePerMonth" | "rateLimitThreeCommentsPerPost" | "recentlyDownvotedContentAlert" | "lowAverageKarmaCommentAlert" | "lowAverageKarmaPostAlert" | "negativeUserKarmaAlert" | "movedPostToDraft" | "sentModeratorMessage" | "manualFlag" | "votingPatternWarningDelivered" | "flaggedForNDMs" | "autoBlockedFromSendingDMs" | "rejectedPost" | "rejectedComment" | "potentialTargetedDownvoting" | "exemptFromRateLimits" | "receivedSeniorDownvotesAlert"
+  type: "rateLimitOnePerDay" | "rateLimitOnePerThreeDays" | "rateLimitOnePerWeek" | "rateLimitOnePerFortnight" | "rateLimitOnePerMonth" | "rateLimitThreeCommentsPerPost" | "recentlyDownvotedContentAlert" | "lowAverageKarmaCommentAlert" | "lowAverageKarmaPostAlert" | "negativeUserKarmaAlert" | "movedPostToDraft" | "sentModeratorMessage" | "manualFlag" | "votingPatternWarningDelivered" | "flaggedForNDMs" | "autoBlockedFromSendingDMs" | "rejectedPost" | "rejectedComment" | "potentialTargetedDownvoting" | "exemptFromRateLimits" | "receivedSeniorDownvotesAlert" | "manualNeedsReview" | "unreviewedBioUpdate" | "unreviewedMapLocationUpdate" | "unreviewedProfileImageUpdate" | "unreviewedFirstPost" | "unreviewedFirstComment" | "unreviewedPost" | "unreviewedComment" | "snoozeExpired" | "stricterCommentAutomodRateLimit" | "stricterPostAutomodRateLimit" | "manualRateLimitExpired" | "votingDisabled"
   userId: string
 }
 
@@ -2346,6 +2356,7 @@ interface CollectionsByName {
   LlmConversations: LlmConversationsCollection
   LlmMessages: LlmMessagesCollection
   Localgroups: LocalgroupsCollection
+  LoginTokens: LoginTokensCollection
   ManifoldProbabilitiesCaches: ManifoldProbabilitiesCachesCollection
   Messages: MessagesCollection
   Migrations: MigrationsCollection
@@ -2440,6 +2451,7 @@ interface ObjectsByCollectionName {
   LlmConversations: DbLlmConversation
   LlmMessages: DbLlmMessage
   Localgroups: DbLocalgroup
+  LoginTokens: DbLoginToken
   ManifoldProbabilitiesCaches: DbManifoldProbabilitiesCache
   Messages: DbMessage
   Migrations: DbMigration
@@ -2534,6 +2546,7 @@ interface ObjectsByTypeName {
   LlmConversation: DbLlmConversation
   LlmMessage: DbLlmMessage
   Localgroup: DbLocalgroup
+  LoginToken: DbLoginToken
   ManifoldProbabilitiesCache: DbManifoldProbabilitiesCache
   Message: DbMessage
   Migration: DbMigration

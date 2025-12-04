@@ -1,7 +1,7 @@
 import React, { useContext, useRef, useState } from 'react'
 import { registerComponent } from '../../lib/vulcan-lib/components';
 import { ckEditorBundleVersion, getCkCommentEditor } from '../../lib/wrapCkEditor';
-import { generateTokenRequest, useGetCkEditorToken } from '../../lib/ckEditorUtils';
+import { useGetCkEditorToken } from '@/lib/editor/useGetCkEditorToken';
 import { ckEditorUploadUrlSetting, ckEditorWebsocketUrlSetting, ckEditorUploadUrlOverrideSetting, ckEditorWebsocketUrlOverrideSetting, isEAForum, isLWorAF } from '@/lib/instanceSettings';
 import { getDefaultEditorPlaceholder } from '@/lib/editor/defaultEditorPlaceholder';
 import { mentionPluginConfiguration } from "../../lib/editor/mentionsConfig";
@@ -87,7 +87,9 @@ const CKCommentEditor = ({
       //
       // The collaborative editor is not activated because no `websocketUrl`
       // or `documentId` is provided.
-      tokenUrl: getCkEditorToken({collectionName, fieldName, documentId: undefined, formType: "new", key: null}),
+      tokenUrl: async () => {
+        return await getCkEditorToken({collectionName, fieldName, documentId: undefined, formType: "new", key: null});
+      },
       uploadUrl: ckEditorUploadUrlOverrideSetting.get() || ckEditorUploadUrlSetting.get(),
       bundleVersion: ckEditorBundleVersion,
     } : undefined,

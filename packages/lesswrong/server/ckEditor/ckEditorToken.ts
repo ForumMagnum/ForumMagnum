@@ -1,7 +1,7 @@
 import { computeContextFromUser } from '../vulcan-lib/apollo-server/context';
 import { Posts } from '../../server/collections/posts/collection'
 import { getCollaborativeEditorAccess, CollaborativeEditingAccessLevel } from '../../lib/collections/posts/collabEditingPermissions';
-import { getCKEditorDocumentId } from '../../lib/ckEditorUtils'
+import { getCKEditorDocumentId } from '@/lib/editor/ckEditorUtils'
 import { userGetDisplayName } from '../../lib/collections/users/helpers';
 import { getCkEditorEnvironmentId, getCkEditorSecretKey } from './ckEditorServerConfig';
 import jwt from 'jsonwebtoken'
@@ -26,12 +26,13 @@ const formTypeValidator = z.enum(["edit", "new"]).nullable();
 function extractHeaders(req: NextRequest) {
   const referer = req.headers.get('referer');
   const collectionName = req.headers.get('collection-name');
+  const fieldName = req.headers.get('field-name');
   const documentId = req.headers.get('document-id') ?? undefined;
   const userId = req.headers.get('user-id') ?? undefined;
   const rawFormType = req.headers.get('form-type');
   const linkSharingKey = req.headers.get('link-sharing-key');
 
-  return { referer, collectionName, documentId, userId, rawFormType, linkSharingKey };
+  return { referer, collectionName, fieldName, documentId, userId, rawFormType, linkSharingKey };
 }
 
 function handleErrorAndReturn(req: NextRequest, error: Error) {
@@ -45,7 +46,7 @@ function handleErrorAndReturn(req: NextRequest, error: Error) {
 
 // DEPRECATED
 export async function ckEditorTokenHandler(req: NextRequest) {
-  const { collectionName, documentId, userId, rawFormType, linkSharingKey } = extractHeaders(req);
+  const { collectionName, fieldName, documentId, userId, rawFormType, linkSharingKey } = extractHeaders(req);
   
   if (!collectionName || collectionName.includes(",")) {
     const error = new Error("Missing or multiple collectionName headers");
@@ -89,7 +90,7 @@ export async function ckEditorTokenHandler(req: NextRequest) {
   });
   
   const tokenPayload = await getCkEditorToken({
-    collectionName,
+    collectionName, fieldName,
     documentId: documentId,
     formType,
     context: contextWithKey,
@@ -103,11 +104,12 @@ export async function ckEditorTokenHandler(req: NextRequest) {
   });
 }
 
-async function getCkEditorToken({collectionName, documentId, formType, linkSharingKey, context}: {
+async function getCkEditorToken({collectionName, documentId, formType, linkSharingKey=null, context}: {
   collectionName: string,
+  fieldName: string|null,
   documentId: string|undefined,
   formType: "edit"|"new",
-  linkSharingKey: string|null,
+  linkSharingKey?: string|null,
   context: ResolverContext,
 }) {
   const environmentId = getCkEditorEnvironmentId();
@@ -168,7 +170,11 @@ export const ckEditorTokenGraphQLQueries = {
     const { currentUser } = context;
     const { collectionName, fieldName, documentId, formType, linkSharingKey } = args.options;
     const tokenPayload = await getCkEditorToken({
-      collectionName, fieldName, documentId, formType, linkSharingKey, context
+      collectionName, fieldName,
+      documentId: documentId ?? undefined,
+      formType: formType as "edit"|"new",
+      linkSharingKey: linkSharingKey ?? null,
+      context
     });
     const secretKey = getCkEditorSecretKey()!; // Assume nonnull; causes lack of encryption in development
     const result = jwt.sign( tokenPayload, secretKey, { algorithm: 'HS256' } );
