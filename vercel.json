@@ -35,5 +35,8 @@
   }, {
     "path": "/api/cron/update-missing-post-embeddings",
     "schedule": "0 1 * * *"
+  }, {
+    "path": "/api/cron/update-review-vote-totals",
+    "schedule": "0 2 * * *"
   }]
 }

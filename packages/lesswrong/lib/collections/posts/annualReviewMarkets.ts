@@ -59,9 +59,6 @@ export type AnnualReviewMarketInfo = {
   isResolved: boolean;
   year: number;
   url: string;
-  mechanism?: string;
-  pool?: Record<string, number>;
-  p?: number;
 }
 
 export const getMarketInfo = (post: PostsBase): AnnualReviewMarketInfo | undefined => {

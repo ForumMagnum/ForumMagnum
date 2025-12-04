@@ -1260,6 +1260,7 @@ extend type Mutation {
   unlockThread(commentId: String!): Boolean!
   rejectContentAndRemoveUserFromQueue(userId: String!, documentId: String!, collectionName: ContentCollectionName!, rejectedReason: String!, messageContent: String): Boolean!
   approveUserCurrentContentOnly(userId: String!): Boolean!
+  rerunSaplingCheck(postId: String!): AutomatedContentEvaluation!
 }
 
 extend type Mutation {
@@ -4700,6 +4701,8 @@ input PostDefaultViewInput {
   before: String
   timeField: String
   curatedAfter: String
+  requiredUnnominated: Boolean
+  requiredFrontpage: Boolean
 }
 
 input PostsUserPostsInput {
@@ -4869,6 +4872,8 @@ input PostsTimeframeInput {
   timeField: String
   curatedAfter: String
   limit: Int
+  requiredUnnominated: Boolean
+  requiredFrontpage: Boolean
 }
 
 input PostsDailyInput {

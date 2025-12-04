@@ -137,6 +137,9 @@ export const routeTrie = {
             "update-promoted-spotlight-item": {
               "hasRoute": true
             },
+            "update-review-vote-totals": {
+              "hasRoute": true
+            },
             "update-user-activities": {
               "hasRoute": true
             }
@@ -151,6 +154,7 @@ export const routeTrie = {
             "update-analytics-collections": "update-analytics-collections",
             "update-missing-post-embeddings": "update-missing-post-embeddings",
             "update-promoted-spotlight-item": "update-promoted-spotlight-item",
+            "update-review-vote-totals": "update-review-vote-totals",
             "update-user-activities": "update-user-activities"
           }
         },
