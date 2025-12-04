@@ -112,11 +112,10 @@ export function getDbIndexesOnPosts() {
   );
   indexSet.addIndex("Posts", augmentForDefaultView({ rejected: -1, authorIsUnreviewed:1, postedAt: -1 }));
   
-  // not currently used, but seems like it should be?
-  // indexSet.addIndex("Posts",
-  //   augmentForDefaultView({ wordCount: 1, userId: 1, hideAuthor: 1, deletedDraft: 1, modifiedAt: -1, createdAt: -1 }),
-  //   { name: "posts.userId_wordCount" }
-  // );
+  indexSet.addIndex("Posts",
+    augmentForDefaultView({ wordCount: 1, userId: 1, hideAuthor: 1, deletedDraft: 1, modifiedAt: -1, createdAt: -1 }),
+    { name: "posts.userId_wordCount" }
+  );
   indexSet.addIndex("Posts",
     augmentForDefaultView({ userId: 1, hideAuthor: 1, deletedDraft: 1, modifiedAt: -1, createdAt: -1 }),
     { name: "posts.userId_createdAt" }
