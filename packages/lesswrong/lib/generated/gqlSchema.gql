@@ -1268,6 +1268,11 @@ type ModeratorIPAddressInfo {
   userIds: [String!]!
 }
 
+enum ContentCollectionName {
+  Posts
+  Comments
+}
+
 extend type Query {
   moderatorViewIPAddress(ipAddress: String!): ModeratorIPAddressInfo
 }
@@ -1275,6 +1280,8 @@ extend type Query {
 extend type Mutation {
   lockThread(commentId: String!, until: String): Boolean!
   unlockThread(commentId: String!): Boolean!
+  rejectContentAndRemoveUserFromQueue(userId: String!, documentId: String!, collectionName: ContentCollectionName!): Boolean!
+  approveUserCurrentContentOnly(userId: String!): Boolean!
 }
 
 extend type Mutation {
@@ -4004,10 +4011,13 @@ enum ModeratorActionType {
   unreviewedProfileImageUpdate
   unreviewedFirstPost
   unreviewedFirstComment
+  unreviewedPost
+  unreviewedComment
   snoozeExpired
   stricterCommentAutomodRateLimit
   stricterPostAutomodRateLimit
   manualRateLimitExpired
+  votingDisabled
 }
 
 input SingleModeratorActionInput {
@@ -7939,6 +7949,7 @@ type User {
   permanentDeletionRequestedAt: Date
   voteBanned: Boolean
   nullifyVotes: Boolean
+  votingDisabled: Boolean!
   deleteContent: Boolean
   banned: Date
   IPs: [String!]
@@ -8114,6 +8125,8 @@ type User {
   userSurveyEmailSentAt: Date
   karmaChanges(startDate: Date, endDate: Date): KarmaChanges
   recommendationSettings: JSON
+  lastRemovedFromReviewQueueAt: Date
+  rejectedContentCount: Int
 }
 
 enum ReactPaletteStyle {

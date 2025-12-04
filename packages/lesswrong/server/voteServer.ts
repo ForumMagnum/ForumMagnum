@@ -8,7 +8,7 @@ import { getVotingSystemForDocument } from '@/lib/voting/getVotingSystem';
 import { createAdminContext, createAnonymousContext } from './vulcan-lib/createContexts';
 import { randomId } from '../lib/random';
 import { ModeratorActions } from '../server/collections/moderatorActions/collection';
-import { RECEIVED_VOTING_PATTERN_WARNING, POTENTIAL_TARGETED_DOWNVOTING } from "@/lib/collections/moderatorActions/constants";
+import { RECEIVED_VOTING_PATTERN_WARNING, POTENTIAL_TARGETED_DOWNVOTING, VOTING_DISABLED } from "@/lib/collections/moderatorActions/constants";
 import { loadByIds } from '../lib/loaders';
 import { filterNonnull } from '../lib/utils/typeGuardUtils';
 import moment from 'moment';
@@ -16,7 +16,6 @@ import sumBy from 'lodash/sumBy'
 import uniq from 'lodash/uniq';
 import keyBy from 'lodash/keyBy';
 import maxBy from 'lodash/maxBy';
-import { voteButtonsDisabledForUser } from '../lib/collections/users/helpers';
 import { elasticSyncDocument } from './search/elastic/elasticCallbacks';
 import { collectionIsSearchIndexed } from '../lib/search/searchUtil';
 import VotesRepo from './repos/VotesRepo';
@@ -29,6 +28,8 @@ import { createVote as createVoteMutator } from '@/server/collections/votes/muta
 import { createModeratorAction } from './collections/moderatorActions/mutations';
 import { getSchema } from '@/lib/schema/allSchemas';
 import { backgroundTask } from './utils/backgroundTask';
+import { PermissionResult } from '@/lib/make_voteable';
+import { isActionActive } from '@/lib/collections/moderatorActions/helpers';
 
 
 // Test if a user has voted on the server
@@ -210,6 +211,18 @@ export const clearVotesServer = async ({ document, user, collection, excludeLate
   return newDocument;
 }
 
+const votingDisabledForUser = async (user: DbUser, context: ResolverContext): Promise<PermissionResult> => {
+  const { ModeratorActions } = context;
+  
+  const moderatorAction = await ModeratorActions.findOne({ userId: user._id, type: VOTING_DISABLED }, { sort: { createdAt: -1 } });
+
+  if (moderatorAction && isActionActive(moderatorAction)) {
+    return { fail: true, reason: 'Voting is disabled for this user' };
+  }
+
+  return { fail: false };
+};
+
 // Server-side database operation
 export const performVoteServer = async ({ documentId, document, voteType, extendedVote, collection, voteId = randomId(), user, toggleIfAlreadyVoted = true, skipRateLimits, context, selfVote = false }: {
   documentId?: string,
@@ -253,7 +266,7 @@ export const performVoteServer = async ({ documentId, document, voteType, extend
   if (!user) throw new Error("Error casting vote: Not logged in.");
   
   // Check whether the user is allowed to vote at all, in full generality
-  const { fail: cannotVote, reason } = voteButtonsDisabledForUser(user);
+  const { fail: cannotVote, reason } = await votingDisabledForUser(user, context);
   if (!selfVote && cannotVote) {
     throw new Error(reason);
   }

@@ -94,7 +94,26 @@ else
   echo 'N/A'
 fi
 
+echo -n "Checking for Vercel CLI... "
+if which vercel >/dev/null; then
+  echo "yes"
+
+  echo -n "Checking if working directory is linked to a Vercel environment... "
+  if [[ -f .vercel/project.json ]]; then
+    echo yes
+  else
+    echo "no"
+    echo 'You have not linked this checkout to a Vercel project. Run "vercel link" to link to a Vercel project so you can synchronize config settings.'
+  fi
+else
+  echo "no"
+  echo "You do not have the Vercel CLI installed. Follow the install instructions at https://vercel.com/docs/cli"
+fi
+
+
 #echo 'Running yarn install in ckEditor/'
 #(cd ckEditor && yarn install)
+echo
 echo 'For development, you might need to run (cd ckEditor && yarn install)'
+echo 'To start a local development server, run "yarn start development"'
 

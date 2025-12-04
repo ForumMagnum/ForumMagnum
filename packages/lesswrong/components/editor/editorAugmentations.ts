@@ -86,15 +86,13 @@ function convertKeystrokeToKeystrokeInfo(keystroke: string): KeystrokeInfo {
 }
 
 /**
- * Prevent the user from accidentally highlighting text when right-clicking in the editor,
- * stop the native browser context menu from showing up, and open the editor toolbar.
+ * Ensure we always open the editor toolbar on right-click, along with the native context menu.
  */
 function improveEditorContextMenu(
   editorElementRef: RefObject<CKEditor<AnyBecauseHard> | null>,
   editorInstance: Editor
 ) {
   (editorElementRef.current as AnyBecauseHard)?.domContainer?.current?.addEventListener('contextmenu', (event: MouseEvent) => {
-    event.preventDefault();
     const toolbar = editorInstance.plugins.get('BalloonToolbar');
     if (!toolbar) return;
     // If the user right-clicks on an element in the editor which causes their cursor position (i.e. "selection", in ckEditor parlance) to change,

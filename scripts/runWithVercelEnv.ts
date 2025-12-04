@@ -3,6 +3,7 @@ import { promisify } from "util";
 import { loadEnvConfig } from "@next/env";
 import { TupleSet } from "@/lib/utils/typeGuardUtils";
 import { detectForumType, EnvironmentType, ForumType, isCodegen, isEnvironmentType, isForumType } from "./scriptUtil"
+import fs from "fs/promises";
 
 const exec = promisify(execCb);
 
@@ -234,9 +235,27 @@ async function loadAndValidateEnv({ environment, forumType, codegen }: LoadEnvOp
   if (!process.env.SKIP_VERCEL_CODE_PULL) {
     const vercelEnvName = getVercelEnvName(environment, !!codegen);
     const settingsFileName = `.env.local`;
+    const tempFileName = '.env.temp';
+
     try {
-      await exec(`vercel env pull ${settingsFileName} --yes --environment=${vercelEnvName}`);
+      // Download settings to a temp file, then replace .env.local with it if
+      // they're different. This avoids "changing" the settings file when it
+      // isn't actually changed, which would cause any development servers
+      // watching that file to force-refresh everything.
+      // Ignore changes to VERCEL_OIDC_TOKEN because it's regenerated on every
+      // pull, and we don't actually use it.
+      await exec(`vercel env pull ${tempFileName} --yes --environment=${vercelEnvName}`);
+      if (await envFileContentsDiffer(settingsFileName, tempFileName, {
+        ignoredEnvKeys: ["VERCEL_OIDC_TOKEN"]
+      })) {
+        await fs.rename(tempFileName, settingsFileName);
+      } else {
+        await fs.unlink(tempFileName);
+      }
     } catch (e) {
+      try {
+        await fs.unlink(tempFileName);
+      } catch {}
       throw new Error(`Failed to pull Vercel environment "${vercelEnvName}" with error: ${e}`);
     }
   }
@@ -254,6 +273,22 @@ async function loadAndValidateEnv({ environment, forumType, codegen }: LoadEnvOp
 
   if (!envName.toLowerCase().includes(environment) && (environment === 'test' && !envName.toLowerCase().includes('dev'))) {
     throw new Error(`Tried to run in environment "${environment}" but ENV_NAME is "${process.env.ENV_NAME}", which doesn't correspond to that environment`);
+  }
+}
+
+async function envFileContentsDiffer(pathOne: string, pathTwo: string, options: {ignoredEnvKeys: string[]}): Promise<boolean> {
+  try {
+    const [contentsOne, contentsTwo] = await Promise.all([
+      fs.readFile(pathOne, "utf-8"),
+      fs.readFile(pathTwo, "utf-8")
+    ]);
+    const isIgnoredLine = (line: string) => options.ignoredEnvKeys.some(key => line.startsWith(key));
+    const filteredContentsOne = contentsOne.split('\n').filter(line => !isIgnoredLine(line));
+    const filteredContentsTwo = contentsTwo.split('\n').filter(line => !isIgnoredLine(line));
+    return filteredContentsOne.join("\n") !== filteredContentsTwo.join("\n");
+  } catch {
+    // If either file fails to read, treat that as differing
+    return true;
   }
 }
 

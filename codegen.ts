@@ -1,5 +1,6 @@
-import { pascalCase } from 'change-case';
 import type { CodegenConfig } from '@graphql-codegen/cli';
+
+const outputPath = "tmp/gql-codegen";
 
 const config: CodegenConfig = {
   overwrite: true,
@@ -7,7 +8,7 @@ const config: CodegenConfig = {
   documents: "./packages/lesswrong/**/*.{ts,tsx}",
   generates: {
     // One object for client-side query return types
-    "./packages/lesswrong/lib/generated/gql-codegen/": {
+    [`${outputPath}/`]: {
       preset: "client",
       plugins: [{ add: { content: '// @ts-nocheck' } }],
       config: {
@@ -38,7 +39,7 @@ const config: CodegenConfig = {
       },
     },
     // One object for everything-else types
-    './packages/lesswrong/lib/generated/graphqlCodegenTypes.d.ts': {
+    [`${outputPath}/graphqlCodegenTypes.d.ts`]: {
       plugins: [
         {
           typescript: {

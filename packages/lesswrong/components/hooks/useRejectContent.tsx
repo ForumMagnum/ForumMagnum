@@ -1,7 +1,18 @@
-import { useCallback } from 'react';
-import { useCurrentUser } from '../common/withUser';
+import { useCallback, useMemo } from 'react';
 import { useMutation } from "@apollo/client/react";
 import { gql } from "@/lib/generated/gql-codegen";
+import { useQuery } from '@/lib/crud/useQuery';
+
+const ModerationTemplateFragmentMultiQuery = gql(`
+  query multiModerationTemplateRejectContentDialogQuery($selector: ModerationTemplateSelector, $limit: Int, $enableTotal: Boolean) {
+    moderationTemplates(selector: $selector, limit: $limit, enableTotal: $enableTotal) {
+      results {
+        ...ModerationTemplateFragment
+      }
+      totalCount
+    }
+  }
+`);
 
 const rejectPostMutation = gql(`
   mutation rejectPostMutation($selector: SelectorInput!, $data: UpdatePostDataInput!) {
@@ -31,28 +42,67 @@ export type RejectContentParams = {
   document: CommentsList | CommentsListWithParentMetadata
 }
 
-export function useRejectContent ({collectionName, document}: RejectContentParams) {
-  const [updateContent] = useMutation(collectionName === "Posts" ? rejectPostMutation : rejectCommentMutation);
+export type RejectContentWithReason = {
+  collectionName: "Posts",
+  document: SunshinePostsList
+  reason: string
+} | {
+  collectionName: "Comments",
+  document: CommentsList | CommentsListWithParentMetadata
+  reason: string
+}
+
+export function useRejectContent() {
+  const [updatePost] = useMutation(rejectPostMutation);
+  const [updateComment] = useMutation(rejectCommentMutation);
+
+  const { data } = useQuery(ModerationTemplateFragmentMultiQuery, {
+    variables: {
+      selector: { moderationTemplatesList: { collectionName: "Rejections" } },
+      limit: 50,
+    },
+    ssr: false,
+  });
+
+  const rejectionTemplates = useMemo(() => data?.moderationTemplates?.results ?? [], [data]);
   
-  const rejectContent = useCallback((reason: string) => {
-    void updateContent({
-      variables: {
-        selector: { _id: document._id },
-        data: { rejected: true, rejectedReason: reason }
-      }
-    });
-  }, [updateContent, document._id]);
+  const rejectContent = useCallback(({ collectionName, document, reason }: RejectContentWithReason) => {
+    if (collectionName === "Posts") {
+      void updatePost({
+        variables: {
+          selector: { _id: document._id },
+          data: { rejected: true, rejectedReason: reason }
+        }
+      });
+    } else {
+      void updateComment({
+        variables: {
+          selector: { _id: document._id },
+          data: { rejected: true, rejectedReason: reason }
+        }
+      });
+    }
+  }, [updatePost, updateComment]);
   
-  const unrejectContent = useCallback(() => {
-    void updateContent({
-      variables: {
-        selector: { _id: document._id },
-        data: { rejected: false }
-      }
-    });
-  }, [updateContent, document._id])
+  const unrejectContent = useCallback(({ collectionName, document }: RejectContentParams) => {
+    if (collectionName === "Posts") {
+      void updatePost({
+        variables: {
+          selector: { _id: document._id },
+          data: { rejected: false }
+        }
+      });
+    } else {
+      void updateComment({
+        variables: {
+          selector: { _id: document._id },
+          data: { rejected: false }
+        }
+      });
+    }
+  }, [updatePost, updateComment]);
   
-  return {rejectContent, unrejectContent} 
+  return { rejectContent, unrejectContent, rejectionTemplates };
 }
 
 

@@ -7,8 +7,9 @@ const styles = (theme: ThemeType) => ({
     marginTop: theme.spacing.unit,
     display: "flex",
     justifyContent: "space-between",
-    alignItems: "center",
-    flexWrap: "wrap"
+    alignItems: "flex-start",
+    flexWrap: "wrap",
+    flexDirection: "column",
   },
   comment: {
     marginBottom: 16,

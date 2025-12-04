@@ -1,13 +1,7 @@
 import { DEFAULT_CREATED_AT_FIELD, DEFAULT_ID_FIELD, DEFAULT_LEGACY_DATA_FIELD, DEFAULT_SCHEMA_VERSION_FIELD } from "@/lib/collections/helpers/sharedFieldConstants";
 import { generateIdResolverSingle } from "../../utils/schemaUtils";
 import { MODERATOR_ACTION_TYPES } from "./constants";
-
-/**
- * If the action hasn't ended yet (either no endedAt, or endedAt in the future), it's active.
- */
-export const isActionActive = (moderatorAction: Pick<DbModeratorAction, "endedAt">) => {
-  return !moderatorAction.endedAt || moderatorAction.endedAt > new Date();
-};
+import { isActionActive } from "./helpers";
 
 const schema = {
   _id: DEFAULT_ID_FIELD,

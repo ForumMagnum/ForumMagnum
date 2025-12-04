@@ -35,20 +35,20 @@ export const RejectContentButton = ({contentWrapper, classes}: {
   classes: ClassesType<typeof styles>,
 }) => {
   const { eventHandlers, anchorEl } = useHover();
-  const { rejectContent, unrejectContent } = useRejectContent(contentWrapper);
+  const { rejectContent, unrejectContent, rejectionTemplates } = useRejectContent();
   const [showRejectionDialog, setShowRejectionDialog] = useState(false);
   const { document } = contentWrapper;
 
   const handleRejectContent = (reason: string) => {
     setShowRejectionDialog(false);
-    rejectContent(reason);
+    rejectContent({ reason, ...contentWrapper });
   };
 
   return <span {...eventHandlers}>
-    {document.rejected && <span >
-        <LWTooltip title="Undo rejection">
-          <ReplayIcon className={classes.icon} onClick={unrejectContent}/>
-        </LWTooltip>
+    {document.rejected && <span>
+      <LWTooltip title="Undo rejection">
+        <ReplayIcon className={classes.icon} onClick={() => unrejectContent({ ...contentWrapper })}/>
+      </LWTooltip>
     </span>}
     {!document.rejected && document.authorIsUnreviewed && <span className={classes.button} onClick={() => setShowRejectionDialog(true)}>
       <RejectedIcon className={classes.icon}/> <MetaInfo>Reject</MetaInfo>
@@ -61,7 +61,7 @@ export const RejectContentButton = ({contentWrapper, classes}: {
       placement={"right-start"}
     >
       <LWClickAwayListener onClickAway={() => setShowRejectionDialog(false)}>
-        <RejectContentDialog rejectContent={handleRejectContent}/>
+        <RejectContentDialog rejectionTemplates={rejectionTemplates} rejectContent={handleRejectContent}/>
       </LWClickAwayListener>
     </LWPopper>
   </span>
