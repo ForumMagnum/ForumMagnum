@@ -4696,6 +4696,8 @@ input PostDefaultViewInput {
   before: String
   timeField: String
   curatedAfter: String
+  requiredUnnominated: Boolean
+  requiredFrontpage: Boolean
 }
 
 input PostsUserPostsInput {
@@ -4865,6 +4867,8 @@ input PostsTimeframeInput {
   timeField: String
   curatedAfter: String
   limit: Int
+  requiredUnnominated: Boolean
+  requiredFrontpage: Boolean
 }
 
 input PostsDailyInput {
