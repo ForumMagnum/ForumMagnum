@@ -8,10 +8,6 @@ export function getDbIndexesOnUsers() {
   indexSet.addIndex("Users", {username:1}, {unique:true,sparse:1});
   indexSet.addIndex("Users", {email:1}, {sparse:1});
   indexSet.addIndex("Users", {"emails.address":1}, {unique:true,sparse:1}); //TODO: deprecate emails field – do not build upon
-  indexSet.addIndex("Users", {"services.resume.loginTokens.hashedToken":1}, {unique:true,sparse:1});
-  indexSet.addIndex("Users", {"services.resume.loginTokens.token":1}, {unique:true,sparse:1});
-  indexSet.addIndex("Users", {"services.resume.haveLoginTokensToDelete":1}, {sparse:1});
-  indexSet.addIndex("Users", {"services.resume.loginTokens.when":1}, {sparse:1});
   indexSet.addIndex("Users", {"services.email.verificationTokens.token":1}, {unique:true,sparse:1});
   indexSet.addIndex("Users", {"services.password.reset.token":1}, {unique:true,sparse:1});
   indexSet.addIndex("Users", {"services.password.reset.when":1}, {sparse:1});

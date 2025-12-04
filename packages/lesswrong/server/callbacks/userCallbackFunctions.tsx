@@ -43,6 +43,7 @@ import { emailTokenTypesByName } from "../emails/emailTokens";
 import { backgroundTask } from "../utils/backgroundTask";
 import { persistentDisplayedModeratorActions, reviewTriggerModeratorActions } from "@/lib/collections/moderatorActions/constants";
 import { updateModeratorAction } from "../collections/moderatorActions/mutations";
+import { invalidateLoginTokensFor } from "../vulcan-lib/apollo-server/authentication";
 
 
 async function sendWelcomeMessageTo(userId: string) {
@@ -684,7 +685,7 @@ export function userEditBannedCallbacksAsync(user: DbUser, oldUser: DbUser, cont
   const previousUserWasBanned = !!(previousBanDate && new Date(previousBanDate) > now)
   
   if (updatedUserIsBanned && !previousUserWasBanned) {
-    backgroundTask(context.repos.users.clearLoginTokens(user._id));
+    backgroundTask(invalidateLoginTokensFor(user._id));
   }
 }
 

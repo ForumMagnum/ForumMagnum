@@ -2,7 +2,6 @@ import AbstractRepo from "./AbstractRepo";
 import Users from "../../server/collections/users/collection";
 import { recordPerfMetrics } from "./perfMetricWrapper";
 import { isEAForum } from "../../lib/instanceSettings";
-import { userLoginTokensView } from "../postgresView";
 import { getDefaultFacetFieldSelector, getFacetField } from "../search/facetFieldSearch";
 import { MULTISELECT_SUGGESTION_LIMIT } from "@/lib/collections/users/helpers";
 import { getViewablePostsSelector } from "./helpers";
@@ -49,24 +48,13 @@ class UsersRepo extends AbstractRepo<"Users"> {
   }
 
   async getUserByLoginToken(hashedToken: string): Promise<DbUser | null> {
-    // Get user by login token, first checking the LoginTokens table, then
-    // falling back to fm_get_user_by_login_token which checks a materialized
-    // view then checks the `services` field on the `Users` table.
-    // Post-migration, only this first query will be needed.
-    const userFromLoginTokensTable = await this.oneOrNone(`
+    return await this.oneOrNone(`
       -- UsersRepo.getUserByLoginToken
       SELECT u.*
       FROM "Users" u
       JOIN "LoginTokens" lt ON lt."userId"=u."_id"
       WHERE lt."hashedToken" = $1
         AND lt."loggedOutAt" IS NULL
-    `, [hashedToken]);
-    if (userFromLoginTokensTable)
-      return userFromLoginTokensTable;
-
-    return this.oneOrNone(`
-      -- UsersRepo.getUserByLoginToken fallback
-      SELECT * FROM fm_get_user_by_login_token($1)
     `, [hashedToken]);
   }
 
@@ -104,21 +92,6 @@ class UsersRepo extends AbstractRepo<"Users"> {
     return this.oneOrNone(GET_USER_BY_USERNAME_OR_EMAIL_QUERY, [usernameOrEmail]);
   }
 
-  async clearLoginTokens(userId: string): Promise<void> {
-    await this.none(`
-      -- UsersRepo.clearLoginTokens
-      UPDATE "Users"
-      SET services = jsonb_set(
-        services,
-        '{resume, loginTokens}'::TEXT[],
-        '[]'::JSONB,
-        true
-      )
-      WHERE _id = $1
-    `, [userId]);
-    await this.refreshUserLoginTokens();
-  }
-
   async resetPassword(userId: string, hashedPassword: string): Promise<void> {
     await this.none(`
       -- UsersRepo.resetPassword
@@ -145,11 +118,6 @@ class UsersRepo extends AbstractRepo<"Users"> {
       )
       WHERE _id = $1
     `, [userId, hashedPassword]);
-    await this.refreshUserLoginTokens();
-  }
-
-  private async refreshUserLoginTokens() {
-    await userLoginTokensView.refresh(this.getRawDb());
   }
 
   verifyEmail(userId: string): Promise<null> {
