@@ -1,6 +1,7 @@
 import React from "react";
 import { defineStyles, useStyles } from '@/components/hooks/useStyles';
 import { registerComponent } from '@/lib/vulcan-lib/components';
+import { currentWrappedYear } from "./hooks";
 import { useCurrentUser } from "@/components/common/withUser";
 import { AnalyticsContext } from "@/lib/analyticsEvents";
 import { Link } from "@/lib/reactRouterWrapper";
@@ -48,7 +49,7 @@ export const WrappedAd = () => {
       <div className={classes.root}>
         <Link to="/wrapped" className={classes.container}>
           <h2 className={classes.heading}>
-            Your 2025 EA Forum
+            Your {currentWrappedYear()} EA Forum
             <div className={classes.highlight}>Wrapped</div>
           </h2>
         </Link>
