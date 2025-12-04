@@ -1,5 +1,5 @@
 import { parseRoute, parsePath } from '@/lib/vulcan-lib/routes';
-import { CommentLinkPreviewLegacy, PostCommentLinkPreviewGreaterWrong, PostLinkPreview, PostLinkPreviewLegacy, PostLinkPreviewSequencePost, PostLinkPreviewSlug, SequencePreview } from './PostLinkPreview';
+import { CommentLinkPreviewLegacy, MessagePreview, PostCommentLinkPreviewGreaterWrong, PostLinkPreview, PostLinkPreviewLegacy, PostLinkPreviewSequencePost, PostLinkPreviewSlug, SequencePreview } from './PostLinkPreview';
 import { TagHoverPreview } from '../tagging/TagHoverPreview';
 
 // ea-forum-look-here
@@ -24,6 +24,8 @@ export const routePreviewComponentMapping = {
   [`/${legacyRouteAcronym}/:id/:slug?`]: PostLinkPreviewLegacy,
     // TODO: Pingback with getPostPingbackByLegacyId
   [`/${legacyRouteAcronym}/:id/:slug/:commentId`]: CommentLinkPreviewLegacy,
+  '/inbox/:conversationId': MessagePreview,
+  '/inbox': MessagePreview,
 }
 
 export const parseRouteWithErrors = <const T extends string[] | [] = []>(onsiteUrl: string, extraRoutePatterns?: T) => {

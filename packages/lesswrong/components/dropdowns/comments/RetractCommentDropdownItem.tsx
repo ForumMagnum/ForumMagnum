@@ -38,7 +38,7 @@ const RetractCommentDropdownItem = ({comment}: {comment: CommentsList}) => {
     });
   }
 
-  if (!currentUser || comment.userId !== currentUser._id) {
+  if (!currentUser || comment.userId !== currentUser._id || comment.draft) {
     return null;
   }
   if (comment.retracted) {

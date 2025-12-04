@@ -2,7 +2,6 @@ import classNames from 'classnames';
 import React, { useEffect, useRef } from 'react';
 import { MAX_COLUMN_WIDTH } from '../PostsPage/constants';
 import { fullHeightToCEnabled } from '../../../lib/betas';
-import { getHeaderHeight } from '@/components/common/Header';
 import { defineStyles, useStyles } from '@/components/hooks/useStyles';
 
 export const MAX_CONTENT_WIDTH = 720;
@@ -59,6 +58,17 @@ const styles = defineStyles("MultiToCLayout", (theme: ThemeType) => ({
       `
     },
   },
+  onEmbeddedPostPage: {
+    gridTemplateColumns: `
+      0px
+      0px
+      1fr
+      minmax(0,${MAX_COLUMN_WIDTH}px)
+      minmax(5px,1fr)
+      0px
+      0px
+      `,
+  },
   gap1: {gridArea: "gap1"},
   toc: {
     position: 'unset',
@@ -88,8 +98,8 @@ const styles = defineStyles("MultiToCLayout", (theme: ThemeType) => ({
   '@global': {
     // Hard-coding this class name as a workaround for one of the JSS plugins being incapable of parsing a self-reference ($titleContainer) while inside @global
     [`body:has(.headroom--pinned) .${STICKY_BLOCK_SCROLLER_CLASS_NAME}, body:has(.headroom--unfixed) .${STICKY_BLOCK_SCROLLER_CLASS_NAME}`]: {
-      top: getHeaderHeight(),
-      height: `calc(100vh - ${getHeaderHeight()}px - var(--fixed-toc-footer-height, ${DEFAULT_FIXED_TOC_COMMENT_COUNT_HEIGHT}px))`
+      top: "var(--header-height)",
+      height: `calc(100vh - var(--header-height) - var(--fixed-toc-footer-height, ${DEFAULT_FIXED_TOC_COMMENT_COUNT_HEIGHT}px))`
     }
   },
   stickyBlockScroller: {
@@ -168,12 +178,13 @@ export type ToCLayoutSegment = {
   isCommentToC?: boolean,
 };
 
-const MultiToCLayout = ({segments, tocRowMap = [], showSplashPageHeader = false, tocContext, sharedToCFooter}: {
+const MultiToCLayout = ({segments, tocRowMap = [], showSplashPageHeader = false, tocContext, sharedToCFooter, embedded}: {
   segments: ToCLayoutSegment[],
   tocRowMap?: number[], // This allows you to specify which row each ToC should be in, where maybe you want a ToC to span more than one row
   showSplashPageHeader?: boolean,
   tocContext?: 'tag' | 'post',
   sharedToCFooter?: React.ReactNode,
+  embedded?: boolean
 }) => {
   const classes = useStyles(styles);
   const tocVisible = true;
@@ -198,7 +209,7 @@ const MultiToCLayout = ({segments, tocRowMap = [], showSplashPageHeader = false,
   }, []);
 
   return <div className={classes.root} ref={rootRef}>
-    <div className={classNames(classes.tableOfContents)} style={{ gridTemplateAreas, gridTemplateRows }}>
+    <div className={classNames(classes.tableOfContents, embedded && classes.onEmbeddedPostPage)} style={{ gridTemplateAreas, gridTemplateRows }}>
       {segments.map((segment,i) => <React.Fragment key={i}>
         {segment.toc && tocVisible && <>
           <div
@@ -210,7 +221,7 @@ const MultiToCLayout = ({segments, tocRowMap = [], showSplashPageHeader = false,
               !showSplashPageHeader && classes.normalHeaderToc,
             )}
           >
-            <div className={classNames(
+            {!embedded && <div className={classNames(
               classes.stickyBlockScroller,
               STICKY_BLOCK_SCROLLER_CLASS_NAME,
               segment.isCommentToC && classes.commentToCIntersection
@@ -218,7 +229,7 @@ const MultiToCLayout = ({segments, tocRowMap = [], showSplashPageHeader = false,
               <div className={classes.stickyBlock}>
                 {segment.toc}
               </div>
-            </div>
+            </div>}
           </div>
         </>}
         <div className={classes.gap1}/>
@@ -230,7 +241,7 @@ const MultiToCLayout = ({segments, tocRowMap = [], showSplashPageHeader = false,
         </div>}
       </React.Fragment>)}
     </div>
-    {sharedToCFooter && <div className={classes.tocFooter}>
+    {sharedToCFooter && !embedded && <div className={classes.tocFooter}>
       {sharedToCFooter}
     </div>}
   </div>

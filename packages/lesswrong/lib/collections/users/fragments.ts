@@ -450,6 +450,7 @@ export const SunshineUsersList = gql(`
     maxCommentCount
     postCount
     maxPostCount
+    shortformFeedId
     voteCount
     smallUpvoteCount
     bigUpvoteCount
@@ -467,6 +468,7 @@ export const SunshineUsersList = gql(`
     allCommentingDisabled
     commentingOnOtherUsersDisabled
     conversationsDisabled
+    votingDisabled
     snoozedUntilContentCount
     nullifyVotes
     deleteContent
@@ -491,6 +493,12 @@ export const SunshineUsersList = gql(`
 
     recentKarmaInfo
     lastNotificationsCheck
+    
+    lastRemovedFromReviewQueueAt
+    rejectedContentCount
+    userRateLimits {
+      ...UserRateLimitDisplay
+    }
   }
 `)
 

@@ -42,6 +42,7 @@ Disallow: /compare
 Disallow: /emailToken
 Disallow: /*?commentId=*
 Disallow: /users/*/replies
+Disallow: /moderation
 Crawl-Delay: 3
 
 User-Agent: SemrushBot

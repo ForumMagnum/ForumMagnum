@@ -97,6 +97,15 @@ const CommentPermalink = ({
     forceUnCollapsed: true,
     noAutoScroll: true
   };
+  
+  // If there's a `?commentId=...` in the URL for a comment but the comment is
+  // on a different post, don't show it. This mostly mitigates the effect when
+  // a bug makes a link that fails to clear the ?commentId query term from a
+  // URL, and also makes it so you can't construct tricky links that make a
+  // comment look like a reply to a post that it isn't a reply to.
+  if (post && (comment.postId !== post._id)) {
+    return null;
+  }
 
   // NB: classes.root is not in the above styles, but is used by eaTheme
   return (

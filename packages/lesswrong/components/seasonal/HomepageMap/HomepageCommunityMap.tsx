@@ -11,7 +11,7 @@ import classNames from 'classnames';
 import { componentWithChildren } from '../../../lib/utils/componentsWithChildren';
 import { useQuery } from "@/lib/crud/useQuery";
 import { gql } from "@/lib/generated/gql-codegen";
-import StyledMapPopup from "../../localGroups/StyledMapPopup";
+import StyledMapPopup, { StyledMapPopupContent } from "../../localGroups/StyledMapPopup";
 import GroupLinks from "../../localGroups/GroupLinks";
 import HomepageMapFilter from "./HomepageMapFilter";
 import { WrappedReactMapGL } from '@/components/community/WrappedReactMapGL';
@@ -133,7 +133,6 @@ export const LocalEventWrapperPopUp = ({localEvent, handleClose}: {
   </StyledMapPopup>
 }
 
-
 const localEventMapMarkerWrappersStyles = defineStyles("localEventMapMarkerWrappersStyles", (theme: ThemeType) => ({
   icon: {
     height: 20,
@@ -231,6 +230,3 @@ export const HomepageCommunityMap = ({dontAskUserLocation = false, classes}: {
 }
 
 export default registerComponent('HomepageCommunityMap', HomepageCommunityMap, {styles});
-
-
-

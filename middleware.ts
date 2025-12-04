@@ -4,7 +4,7 @@ import { randomId } from './packages/lesswrong/lib/random';
 
 // These need to be defined here instead of imported from @/lib/cookies/cookies
 // because that import chain contains a transitive import of lodash, which
-// causes the middleware build to fail (lodash contains some "Dynamic Code Evaluation"
+// causes the proxy build to fail (lodash contains some "Dynamic Code Evaluation"
 // somewhere).
 export const CLIENT_ID_COOKIE = 'clientId';
 export const CLIENT_ID_NEW_COOKIE = 'clientIdUnset';
@@ -18,7 +18,7 @@ function urlIsAbsolute(url: string): boolean {
 }
 
 /**
- * Nextjs middleware. Because nextjs only allows a single middleware function,
+ * Nextjs proxy. Because nextjs only allows a single proxy function,
  * this is three middlewares jammed into one: One for canonicalizing the
  * capitalization of route names, one for assigning a clientId cookie to clients
  * that don't have one, and one that handles http status codes and redirects.
@@ -200,7 +200,7 @@ async function findStatusCodeInStream(stream: ReadableStream<Uint8Array<ArrayBuf
 export const config: MiddlewareConfig = {
   matcher: [
     /*
-     * Match all request paths except for the ones starting with:
+     * Match all request paths except for / (exact match) and the ones starting with:
      * - api (a subset of API routes)
      * - auth (auth routes)
      * - graphql, analyticsEvent, ckeditor-token, feed.xml (high-volume API routes)
@@ -211,8 +211,8 @@ export const config: MiddlewareConfig = {
      * - favicon.ico, sitemap.xml, robots.txt (metadata files)
      */
     {
-      source: '/((?!api|auth|graphql|analyticsEvent|public|ckeditor-token|feed.xml|reactionImages|_next/static|_next/image|favicon.ico|sitemap.xml|robots.txt).*)',
-      missing: [{ type: 'header', key: 'next-router-state-tree' }]
+      source: "/((?!api|$|auth|graphql|analyticsEvent|public|ckeditor-token|ckeditor-webhook|feed.xml|reactionImages|_next/static|_next/image|favicon.ico|sitemap.xml|robots.txt).*)",
+      missing: [{ type: 'header', key: 'next-router-state-tree' }],
     }
   ]
 }

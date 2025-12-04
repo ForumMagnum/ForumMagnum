@@ -86,6 +86,7 @@ import ArrowDownOnSquareIcon from '@heroicons/react/24/outline/ArrowDownOnSquare
 import ArrowDownRightIcon from '@heroicons/react/24/outline/ArrowDownRightIcon';
 import ChevronUpDownIcon from "@heroicons/react/24/outline/ChevronUpDownIcon";
 import ArrowsUpDownIcon from "@heroicons/react/20/solid/ArrowsUpDownIcon";
+import FlagIcon from "@heroicons/react/24/outline/FlagIcon";
 import MuiBookmarkIcon from "@/lib/vendor/@material-ui/icons/src/Bookmark";
 import MuiBookmarkBorderIcon from "@/lib/vendor/@material-ui/icons/src/BookmarkBorder";
 import MuiBookmarksIcon from "@/lib/vendor/@material-ui/icons/src/Bookmarks";
@@ -102,6 +103,7 @@ import MuiVisibilityOff from "@/lib/vendor/@material-ui/icons/src/VisibilityOff"
 import MuiVisibility from "@/lib/vendor/@material-ui/icons/src/Visibility";
 import MuiEditIcon from "@/lib/vendor/@material-ui/icons/src/Edit";
 import MuiShowChartIcon from "@/lib/vendor/@material-ui/icons/src/ShowChart";
+import MuiInsightsIcon from "@/lib/vendor/@material-ui/icons/src/Insights";
 import MuiNotesIcon from "@/lib/vendor/@material-ui/icons/src/Notes";
 import MuiWarningIcon from "@/lib/vendor/@material-ui/icons/src/Warning";
 import MuiLocationIcon from "@/lib/vendor/@material-ui/icons/src/LocationOn";
@@ -130,6 +132,13 @@ import MuiDragIndicatorIcon from '@/lib/vendor/@material-ui/icons/src/DragIndica
 import MuiNoteAddOutlinedIcon from '@/lib/vendor/@material-ui/icons/src/NoteAddOutlined';
 import ThumbsUpIcon from '@/lib/vendor/@material-ui/icons/src/ThumbUp';
 import ThumbUpOutlineIcon from '@/lib/vendor/@material-ui/icons/src/ThumbUpOutlined';
+import CopyIcon from "@heroicons/react/24/outline/DocumentDuplicateIcon";
+import MuiAddIcon from "@/lib/vendor/@material-ui/icons/src/Add";
+import BookIcon from "@heroicons/react/24/solid/BookOpenIcon";
+import MuiPostIcon from "@/lib/vendor/@material-ui/icons/src/Description";
+import MuiCommentIcon from "@/lib/vendor/@material-ui/icons/src/Message";
+import MuiSnoozeIcon from "@/lib/vendor/@material-ui/icons/src/Snooze";
+import MuiFlagIcon from "@/lib/vendor/@material-ui/icons/src/Flag";
 
 /**
  * ForumIcon can be used with custom SVG elements but you MUST pass through
@@ -169,6 +178,8 @@ import { CrossReactionCapIcon } from "../icons/CrossReactionCapIcon";
 import { GivingHandIcon } from "../icons/GivingHandIcon";
 import { DictionaryIcon } from "../icons/Dictionary";
 import { QuestionMarkIcon } from "../icons/QuestionMarkIcon";
+import MuiArrowForwardIcon from "@/lib/vendor/@material-ui/icons/src/ArrowForward";
+import MuiVolumeUpIcon from "@/lib/vendor/@material-ui/icons/src/VolumeUp";
 import { defineStyles, useStyles } from "../hooks/useStyles";
 
 /**
@@ -179,6 +190,7 @@ import { defineStyles, useStyles } from "../hooks/useStyles";
  */
 export type ForumIconName =
   "VolumeUp" |
+  "VolumeUpBookUI" |
   "GivingHand" |
   "BookOpen" |
   "Bookmark" |
@@ -258,6 +270,7 @@ export type ForumIconName =
   "DocumentFilled" |
   "SoftUpArrow" |
   "ArrowLeft" |
+  "ArrowForward" |
   "ArrowRight" |
   "ArrowRightOutline" |
   "ArrowCircle" |
@@ -275,6 +288,7 @@ export type ForumIconName =
   "CloseMenu" |
   "Q" |
   "BarChart" |
+  "Insights" |
   "Funnel" |
   "FilterBars" |
   "Voted" |
@@ -303,16 +317,24 @@ export type ForumIconName =
   "TickReaction" |
   "CrossReaction" |
   "CrossReactionCap" |
+  "Add" |
+  "Copy" |
+  "Book" |
   "Dictionary" |
   "ArrowDownRight" |
   "DragIndicator" |
   "NoteAdd" |
   "ThumbUp" |
-  "ThumbUpOutline";
+  "ThumbUpOutline" |
+  "Post" |
+  "ModDashboardComment" |
+  "Snooze" |
+  "Flag";
 
 const ICONS: ForumOptions<Record<ForumIconName, IconComponent>> = {
   LWAF: {
     VolumeUp: SpeakerWaveIcon,
+    VolumeUpBookUI: MuiVolumeUpIcon,
     GivingHand: GivingHandIcon,
     BookOpen: BookOpenIcon,
     Bookmark: MuiBookmarkIcon,
@@ -393,6 +415,7 @@ const ICONS: ForumOptions<Record<ForumIconName, IconComponent>> = {
     SoftUpArrow: SoftUpArrowIcon,
     ArrowRight: ArrowRightIcon,
     ArrowLeft: ArrowLeftIcon,
+    ArrowForward: MuiArrowForwardIcon,
     ArrowRightOutline: ArrowRightOutlineIcon,
     ArrowCircle: ArrowCircleIcon,
     Autorenew: MuiReplayIcon,
@@ -409,6 +432,7 @@ const ICONS: ForumOptions<Record<ForumIconName, IconComponent>> = {
     CloseMenu: CloseMenuIcon,
     Q: QIcon,
     BarChart: ChartBarIcon,
+    Insights: MuiInsightsIcon,
     Funnel: FilterAlt,
     FilterBars: FilterBarsIcon,
     Voted: VotedIcon,
@@ -437,15 +461,23 @@ const ICONS: ForumOptions<Record<ForumIconName, IconComponent>> = {
     TickReaction: TickReactionIcon,
     CrossReaction: CrossReactionIcon,
     CrossReactionCap: CrossReactionCapIcon,
+    Add: MuiAddIcon,
+    Copy: CopyIcon,
+    Book: BookIcon,
     Dictionary: DictionaryIcon,
     ArrowDownRight: MuiArrowDownRightIcon,
     DragIndicator: MuiDragIndicatorIcon,
     NoteAdd: MuiNoteAddOutlinedIcon,
     ThumbUp: ThumbsUpIcon,
     ThumbUpOutline: ThumbUpOutlineIcon,
+    Post: MuiPostIcon,
+    ModDashboardComment: MuiCommentIcon,
+    Snooze: MuiSnoozeIcon,
+    Flag: MuiFlagIcon,
   },
   default: {
     VolumeUp: SpeakerWaveIcon,
+    VolumeUpBookUI: MuiVolumeUpIcon,
     GivingHand: GivingHandIcon,
     BookOpen: BookOpenIcon,
     Bookmark: BookmarkIcon,
@@ -525,6 +557,7 @@ const ICONS: ForumOptions<Record<ForumIconName, IconComponent>> = {
     List: ListIcon,
     SoftUpArrow: SoftUpArrowIcon,
     ArrowLeft: ArrowLeftIcon,
+    ArrowForward: MuiArrowForwardIcon,
     ArrowRight: ArrowRightIcon,
     ArrowRightOutline: ArrowRightOutlineIcon,
     ArrowCircle: ArrowCircleIcon,
@@ -542,6 +575,7 @@ const ICONS: ForumOptions<Record<ForumIconName, IconComponent>> = {
     CloseMenu: CloseMenuIcon,
     Q: QIcon,
     BarChart: ChartBarOutlineIcon,
+    Insights: MuiInsightsIcon,
     Funnel: FunnelIcon,
     FilterBars: FilterBarsIcon,
     Voted: VotedIcon,
@@ -570,12 +604,19 @@ const ICONS: ForumOptions<Record<ForumIconName, IconComponent>> = {
     TickReaction: TickReactionIcon,
     CrossReaction: CrossReactionIcon,
     CrossReactionCap: CrossReactionCapIcon,
+    Add: MuiAddIcon,
+    Copy: CopyIcon,
+    Book: BookIcon,
     Dictionary: DictionaryIcon,
     ArrowDownRight: ArrowDownRightIcon,
     DragIndicator: MuiDragIndicatorIcon,
     NoteAdd: MuiNoteAddOutlinedIcon,
     ThumbUp: ThumbsUpIcon,
     ThumbUpOutline: ThumbUpOutlineIcon,
+    Post: DocumentTextIcon,
+    ModDashboardComment: CommentIcon,
+    Snooze: MuiSnoozeIcon,
+    Flag: FlagIcon,
   },
 };
 

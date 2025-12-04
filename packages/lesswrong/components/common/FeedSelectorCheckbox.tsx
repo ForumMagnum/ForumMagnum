@@ -3,8 +3,6 @@ import { defineStyles, useStyles } from '../hooks/useStyles';
 import { useCurrentUser } from './withUser';
 import { useCookiesWithConsent } from '../hooks/useCookiesWithConsent';
 import { ULTRA_FEED_ENABLED_COOKIE, ULTRA_FEED_PAGE_VISITED_COOKIE } from '../../lib/cookies/cookies';
-import { useUpdateCurrentUser } from '../hooks/useUpdateCurrentUser';
-import { ultraFeedABTest } from '../../lib/abTests';
 import { ultraFeedEnabledSetting } from '../../lib/instanceSettings';
 import SectionFooterCheckbox from "../form-components/SectionFooterCheckbox";
 
@@ -38,7 +36,6 @@ interface FeedSelectorCheckboxProps {
 const FeedSelectorCheckbox = ({ currentFeedType }: FeedSelectorCheckboxProps) => {
   const classes = useStyles(styles);
   const currentUser = useCurrentUser();
-  const updateCurrentUser = useUpdateCurrentUser();
   const [cookies, setCookie] = useCookiesWithConsent([ULTRA_FEED_ENABLED_COOKIE, ULTRA_FEED_PAGE_VISITED_COOKIE]);
   
   if (!ultraFeedEnabledSetting.get() || !currentUser) {
@@ -47,18 +44,9 @@ const FeedSelectorCheckbox = ({ currentFeedType }: FeedSelectorCheckboxProps) =>
   
   const checkboxChecked = currentFeedType === 'new';
   
-  const handleToggle = async () => {
+  const handleToggle = () => {
     const newValue = checkboxChecked ? 'classic' : 'new';
     setCookie(ULTRA_FEED_ENABLED_COOKIE, newValue === 'new' ? 'true' : 'false', { path: "/" });
-    
-    // Update A/B test override to match the user's choice
-    const newTestGroup = newValue === 'new' ? 'ultraFeed' : 'control';
-    await updateCurrentUser({
-      abTestOverrides: {
-        ...currentUser.abTestOverrides,
-        [ultraFeedABTest.name]: newTestGroup,
-      },
-    });
   };
 
   return (

@@ -142,12 +142,12 @@ const UltraFeedThreadItem = ({thread, index, settings = DEFAULT_SETTINGS, startR
 }) => {
   const classes = useStyles(styles);
   
-  const { comments, commentMetaInfos, isOnReadPost, postSources, post: preloadedPost } = thread;
+  const { comments, commentMetaInfos, postSources, post: preloadedPost, postMetaInfo } = thread;
   const {captureEvent} = useTracking();
-  const { feedType } = useUltraFeedContext();
 
+  const isParentPostRead = commentMetaInfos?.[comments[0]?._id]?.isParentPostRead ?? false;
   const isShortform = comments[0].shortform
-  const postInitiallyExpanded = !forceParentPostCollapsed && !isOnReadPost && !isShortform;
+  const postInitiallyExpanded = !forceParentPostCollapsed && !isParentPostRead && !isShortform;
   const [ postExpanded, setPostExpanded ] = useState(postInitiallyExpanded);
   const [animatingCommentIds, setAnimatingCommentIds] = useState<Set<string>>(new Set());
   const [postIsAnimating, setPostIsAnimating] = useState(false);
@@ -163,14 +163,14 @@ const UltraFeedThreadItem = ({thread, index, settings = DEFAULT_SETTINGS, startR
     skip: !shouldLoadPost,
   });
   const post = preloadedPost ?? data?.post?.result;
-
-  const postMetaInfo: FeedPostMetaInfo = {
+  
+  const effectivePostMetaInfo = postMetaInfo ?? {
     sources: postSources ?? commentMetaInfos?.[comments[0]._id]?.sources ?? [],
     displayStatus: "expanded" as FeedItemDisplayStatus,
     servedEventId: commentMetaInfos?.[comments[0]._id]?.servedEventId ?? '',
-    highlight: !isOnReadPost,
-    isRead: !!isOnReadPost,
-  }
+    highlight: !isParentPostRead,
+    isRead: !!isParentPostRead,
+  };
 
   const postSettings = {
     ...settings,
@@ -398,7 +398,7 @@ const UltraFeedThreadItem = ({thread, index, settings = DEFAULT_SETTINGS, startR
       <UltraFeedPostItem 
         post={post} 
         index={-1} 
-        postMetaInfo={postMetaInfo} 
+        postMetaInfo={effectivePostMetaInfo} 
         settings={postSettings}
         isHighlightAnimating={postIsAnimating}
       />

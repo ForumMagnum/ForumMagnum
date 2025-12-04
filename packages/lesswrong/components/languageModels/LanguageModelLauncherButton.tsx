@@ -1,10 +1,8 @@
 import React, { useCallback, useEffect } from 'react';
 import { registerComponent } from '../../lib/vulcan-lib/components';
 import { useTracking } from "../../lib/analyticsEvents";
-import { useDialog } from '../common/withDialog';
 import { useCookiesWithConsent } from '../hooks/useCookiesWithConsent';
 import { SHOW_LLM_CHAT_COOKIE } from '@/lib/cookies/cookies';
-import PopupLanguageModelChat from "./PopupLanguageModelChat";
 import ForumIcon from "../common/ForumIcon";
 import { isE2E } from '@/lib/executionEnvironment';
 
@@ -43,27 +41,23 @@ const styles = (theme: ThemeType) => ({
   }
 });
 
-export const LanguageModelLauncherButton = ({classes}: {
+export const LanguageModelLauncherButton = ({classes, onClick}: {
   classes: ClassesType<typeof styles>,
+  onClick: () => void,
 }) => {
   const { captureEvent } = useTracking(); //it is virtuous to add analytics tracking to new components
-  const { openDialog } = useDialog();
   const [cookies, setCookie] = useCookiesWithConsent([SHOW_LLM_CHAT_COOKIE]);
 
   const openLlmChat = useCallback(() => {
     captureEvent("languageModelLauncherButtonClicked");
-    openDialog({
-      name: "PopupLanguageModelChat",
-      contents: ({onClose}) => <PopupLanguageModelChat onClose={onClose}/>,
-    })
+    onClick();
     setCookie(SHOW_LLM_CHAT_COOKIE, "true", { path: "/" });
-  },[openDialog, captureEvent, setCookie]);
+  },[captureEvent, setCookie, onClick]);
 
   useEffect(() => {
-    if (cookies[SHOW_LLM_CHAT_COOKIE]==="false" || isE2E) {
-      return;
+    if (cookies[SHOW_LLM_CHAT_COOKIE]==="true" && !isE2E) {
+      openLlmChat();
     }
-    openLlmChat();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 

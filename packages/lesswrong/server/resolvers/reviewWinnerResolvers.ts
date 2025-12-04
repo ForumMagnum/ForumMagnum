@@ -1,25 +1,18 @@
-import { restrictViewableFieldsSingle } from '@/lib/vulcan-users/restrictViewableFields';
 import { splashArtCoordinateCache } from "@/server/review/splashArtCoordinatesCache";
-import { reviewWinnerCache, ReviewWinnerWithPost } from "@/server/review/reviewWinnersCache";
+import { reviewWinnerPostsCache } from "@/server/review/reviewWinnersCache";
 import { isLWorAF } from "../../lib/instanceSettings";
 import gql from "graphql-tag";
-import { createAdminContext, createAnonymousContext } from "../vulcan-lib/createContexts";
+import { createAnonymousContext } from "../vulcan-lib/createContexts";
 import { backgroundTask } from "../utils/backgroundTask";
+import { accessFilterMultiple } from '@/lib/utils/schemaUtils';
 
 
 export async function initReviewWinnerCache() {
   if (isLWorAF()) {
     const context = createAnonymousContext();
-    backgroundTask(reviewWinnerCache.get(context));
+    backgroundTask(reviewWinnerPostsCache.get());
     backgroundTask(splashArtCoordinateCache.get(context));
   }
-}
-
-async function restrictReviewWinnerPostFields(reviewWinners: ReviewWinnerWithPost[], context: ResolverContext) {
-  return Promise.all(reviewWinners.map(async ({ reviewWinner, ...post }) => ({
-    ...(await restrictViewableFieldsSingle(context.currentUser, context.Posts, post)),
-    reviewWinner
-  })));
 }
 
 export const reviewWinnerGraphQLTypeDefs = gql`
@@ -30,7 +23,7 @@ export const reviewWinnerGraphQLTypeDefs = gql`
 
 export const reviewWinnerGraphQLQueries = {
   GetAllReviewWinners: async (root: void, args: void, context: ResolverContext) => {
-    const { reviewWinners } = await reviewWinnerCache.get(context);
-    return restrictReviewWinnerPostFields(reviewWinners, context);
+    const { reviewWinners } = await reviewWinnerPostsCache.get();
+    return accessFilterMultiple(context.currentUser, "Posts", reviewWinners, context);
   }
 };

@@ -7,7 +7,7 @@ import { startupSanityChecks } from './startupSanityChecks';
 import { refreshKarmaInflationCache } from './karmaInflation/cron';
 // import { addLegacyRssRoutes } from './legacy-redirects/routes';
 // import { initReviewWinnerCache } from './resolvers/reviewWinnerResolvers';
-import { startAnalyticsWriter, serverCaptureEvent as captureEvent } from '@/server/analytics/serverAnalyticsWriter';
+import { serverCaptureEvent as captureEvent } from '@/server/analytics/serverAnalyticsWriter';
 import { startSyncedCron } from './cron/startCron';
 import { isAnyTest, isMigrations } from '@/lib/executionEnvironment';
 import chokidar from 'chokidar';
@@ -40,7 +40,6 @@ import { backgroundTask } from './utils/backgroundTask';
 // }
 
 export async function runServerOnStartupFunctions() {
-  startAnalyticsWriter();
   scheduleQueueProcessing();
   initRenderQueueLogging();
   startMemoryUsageMonitor();

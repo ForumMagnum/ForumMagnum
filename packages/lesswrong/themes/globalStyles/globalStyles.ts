@@ -20,8 +20,6 @@ const clearStyle = (theme: ThemeType) => ({
   },
   body: {
     margin: 0,
-    background: theme.palette.background.default,
-    
     "@media print": {
       background: theme.palette.panelBackground.default,
     },
@@ -167,7 +165,6 @@ const commentsStyle = (theme: ThemeType) => ({
   
   ".comments-edit-form": {
     position: "relative",
-    paddingBottom: 12,
     "& .form-submit": {
       textAlign: "right",
       marginRight: 10,

@@ -42,7 +42,7 @@ const PinToProfileDropdownItem = ({comment, post, classes}: {
 
   const isCommentAuthor = currentUser?._id === comment.userId
   const userCanPin = isCommentAuthor || currentUser?.isAdmin;
-  if (!userCanPin || !post) {
+  if (!userCanPin || !post || comment.draft) {
     return null;
   }
 

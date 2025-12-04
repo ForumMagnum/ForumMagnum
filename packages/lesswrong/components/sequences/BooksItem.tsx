@@ -14,6 +14,7 @@ import ContentStyles from "../common/ContentStyles";
 import SequencesGrid from "./SequencesGrid";
 import { useQuery } from "@/lib/crud/useQuery";
 import { gql } from "@/lib/generated/gql-codegen";
+import { SuspenseWrapper } from '../common/SuspenseWrapper';
 
 const BookEditQuery = gql(`
   query BooksItem($documentId: String) {
@@ -87,9 +88,11 @@ const BooksItem = ({ book, canEdit, classes }: {
         </SectionTitle>
         {book.subtitle && <div className={classes.subtitle}>{book.subtitle}</div>}
 
-        <AnalyticsContext pageElementContext="booksProgressBar">
-          <BooksProgressBar book={book} />
-        </AnalyticsContext>
+        <SuspenseWrapper name="BooksItemProgressBar">
+          <AnalyticsContext pageElementContext="booksProgressBar">
+            <BooksProgressBar book={book} />
+          </AnalyticsContext>
+        </SuspenseWrapper>
 
         {html  && <ContentStyles contentType="post" className={classes.description}>
           <ContentItemBody
@@ -103,9 +106,11 @@ const BooksItem = ({ book, canEdit, classes }: {
         </div>}
 
         {book.displaySequencesAsGrid && <SequencesGrid sequences={book.sequences}/>}
-        {!book.displaySequencesAsGrid && book.sequences.map(sequence =>
-          <LargeSequencesItem key={sequence._id} sequence={sequence} showChapters={book.showChapters ?? undefined} />
-        )}
+        <SuspenseWrapper name="BooksItemSequences">
+          {!book.displaySequencesAsGrid && book.sequences.map(sequence =>
+            <LargeSequencesItem key={sequence._id} sequence={sequence} showChapters={book.showChapters ?? undefined} />
+          )}
+        </SuspenseWrapper>
     </div>
   }
 }

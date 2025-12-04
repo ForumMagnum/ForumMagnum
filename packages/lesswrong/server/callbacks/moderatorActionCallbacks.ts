@@ -1,19 +1,18 @@
-import { isActionActive } from '../../lib/collections/moderatorActions/newSchema';
-import { MODERATOR_ACTION_TYPES, RECEIVED_SENIOR_DOWNVOTES_ALERT } from "@/lib/collections/moderatorActions/constants";
+import { isActionActive } from "@/lib/collections/moderatorActions/helpers";
+import { MODERATOR_ACTION_TYPES, reviewTriggerModeratorActions } from "@/lib/collections/moderatorActions/constants";
 import { appendToSunshineNotes } from '../../lib/collections/users/helpers';
 import { loggerConstructor } from '../../lib/utils/logging';
 import { AfterCreateCallbackProperties } from '../mutationCallbacks';
 import { triggerReview } from './helpers';
-import { backgroundTask } from '../utils/backgroundTask';
 
 export async function triggerReviewAfterModeration({ newDocument, currentUser, context }: AfterCreateCallbackProperties<'ModeratorActions'>) {
   const moderatorAction = newDocument;
   const moderatedUserId = newDocument.userId;
   const logger = loggerConstructor('callbacks-moderatoractions');
   logger('ModeratorAction created, triggering review if necessary')
-  if (isActionActive(moderatorAction) || moderatorAction.type === RECEIVED_SENIOR_DOWNVOTES_ALERT) {
+  if (reviewTriggerModeratorActions.has(moderatorAction.type) && isActionActive(moderatorAction)) {
     logger('isActionActive truthy')
-    backgroundTask(triggerReview(moderatedUserId, context));
+    await triggerReview(moderatedUserId, context);
   }
 
   // In the case where there isn't a currentUser, that means that the moderator action was created using automod (via callback) rather than being manually applied

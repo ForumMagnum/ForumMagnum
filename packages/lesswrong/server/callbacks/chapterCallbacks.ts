@@ -72,7 +72,6 @@ export async function notifyUsersOfNewPosts({oldDocument, newDocument, context}:
   const posts = await Posts.find({
     _id: {$in: newPostIds},
     draft: {$ne: true},
-    deletedDraft: {$ne: true},
   }).fetch()
   if (!posts.length) {
     return

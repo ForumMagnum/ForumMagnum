@@ -4,39 +4,38 @@ import React from 'react';
 import { registerComponent } from '../../lib/vulcan-lib/components';
 import { useLocation } from '../../lib/routeUtil';
 import { useCurrentUser } from '../common/withUser';
-import { isFriendlyUI } from '../../themes/forumTheme';
-import InboxNavigation from "./InboxNavigation";
 import FriendlyInbox from "./FriendlyInbox";
+import { userCanDo, userIsAdmin } from '@/lib/vulcan-users/permissions';
 
 export type InboxComponentProps = {
-  terms: ConversationsViewTerms;
-  currentUser: UsersCurrent;
+  currentUserId: string;
   title?: React.JSX.Element | string;
   isModInbox?: boolean;
+  userCanViewModInbox?: boolean;
+  isAdmin?: boolean;
+  showArchive?: boolean;
+  view?: ConversationsViewName;
 };
 
 const InboxWrapper = () => {
   const currentUser = useCurrentUser();
-  const { query, params } = useLocation();
+  const { query } = useLocation();
   if (!currentUser) {
     return <div>Log in to access private messages.</div>
   }
 
-  const conversationId = params._id;
+  const conversationId = query.conversation;
+  const showArchive = query.showArchive === "true";
+  const userCanViewModInbox = userCanDo(currentUser, 'conversations.view.all');
+  const isAdmin = userIsAdmin(currentUser);
 
-  const showArchive = query.showArchive === "true"
-  const terms: ConversationsViewTerms = {
-    view: "userConversations",
-    userId: currentUser._id,
-    showArchive,
-  };
-
-  if (conversationId) {
-    return <FriendlyInbox terms={terms} currentUser={currentUser} conversationId={conversationId} />
-  }
-
-  const InboxComponent = isFriendlyUI() ? FriendlyInbox : InboxNavigation;
-  return <InboxComponent terms={terms} currentUser={currentUser}/>
+  return <FriendlyInbox
+    currentUserId={currentUser._id}
+    conversationId={conversationId}
+    showArchive={showArchive}
+    userCanViewModInbox={userCanViewModInbox}
+    isAdmin={isAdmin}
+  />
 }
 
 export default registerComponent('InboxWrapper', InboxWrapper);

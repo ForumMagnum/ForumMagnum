@@ -101,6 +101,7 @@ export const allViews = {
   LlmConversations: LlmConversationsViews,
   LlmMessages: new CollectionViewSet('LlmMessages', {}),
   Localgroups: LocalgroupsViews,
+  LoginTokens: new CollectionViewSet('LoginTokens', {}),
   LWEvents: LWEventsViews,
   ManifoldProbabilitiesCaches: new CollectionViewSet('ManifoldProbabilitiesCaches', {}),
   Messages: MessagesViews,

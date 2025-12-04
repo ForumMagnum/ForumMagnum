@@ -3,7 +3,7 @@ import { userIsAllowedToComment } from "@/lib/collections/users/helpers";
 import { isElasticEnabled } from "@/lib/instanceSettings";
 import { accessFilterSingle } from "@/lib/utils/schemaUtils";
 import { userCanDo, userOwns } from "@/lib/vulcan-users/permissions";
-import { addReferrerToComment, assignPostVersion, checkCommentForSpamWithAkismet, checkModGPTOnCommentCreate, checkModGPTOnCommentUpdate, commentsAlignmentEdit, commentsAlignmentNew, commentsEditSoftDeleteCallback, commentsNewNotifications, commentsNewOperations, commentsNewUserApprovedStatus, commentsPublishedNotifications, createShortformPost, handleForumEventMetadataEdit, handleForumEventMetadataNew, handleReplyToAnswer, invalidatePostOnCommentCreate, invalidatePostOnCommentUpdate, lwCommentsNewUpvoteOwnComment, moveToAnswers, newCommentsEmptyCheck, newCommentsPollResponseCheck, newCommentsRateLimit, newCommentTriggerReview, handleDraftState, setTopLevelCommentId, trackCommentRateLimitHit, updatedCommentMaybeTriggerReview, updateDescendentCommentCountsOnCreate, updateDescendentCommentCountsOnEdit, updatePostLastCommentPromotedAt, updateUserNotesOnCommentRejection, validateDeleteOperations } from "@/server/callbacks/commentCallbackFunctions";
+import { addReferrerToComment, assignPostVersion, checkModGPTOnCommentCreate, checkModGPTOnCommentUpdate, commentsAlignmentEdit, commentsAlignmentNew, commentsEditSoftDeleteCallback, commentsNewNotifications, commentsNewOperations, commentsNewUserApprovedStatus, commentsPublishedNotifications, createShortformPost, handleForumEventMetadataEdit, handleForumEventMetadataNew, handleReplyToAnswer, invalidatePostOnCommentCreate, invalidatePostOnCommentUpdate, lwCommentsNewUpvoteOwnComment, moveToAnswers, newCommentsEmptyCheck, newCommentsPollResponseCheck, newCommentsRateLimit, newCommentTriggerReview, handleDraftState, setTopLevelCommentId, trackCommentRateLimitHit, updatedCommentMaybeTriggerReview, updateDescendentCommentCountsOnCreate, updateDescendentCommentCountsOnEdit, updatePostLastCommentPromotedAt, updateUserNotesOnCommentRejection, validateDeleteOperations } from "@/server/callbacks/commentCallbackFunctions";
 import { updateCountOfReferencesOnOtherCollectionsAfterCreate, updateCountOfReferencesOnOtherCollectionsAfterUpdate } from "@/server/callbacks/countOfReferenceCallbacks";
 import { upsertPolls } from "@/server/callbacks/forumEventCallbacks";
 import { sendAlignmentSubmissionApprovalNotifications } from "@/server/callbacks/sharedCallbackFunctions";
@@ -44,7 +44,10 @@ async function editCheck(user: DbUser | null, document: DbComment | null, contex
       userCanDo(user, 'comments.alignment.suggest')) {
     return true
   }
-  return userOwns(user, document) ? userCanDo(user, 'comments.edit.own') : userCanDo(user, `comments.edit.all`)
+  
+  return userOwns(user, document)
+    ? !document.rejected && userCanDo(user, 'comments.edit.own')
+    : userCanDo(user, `comments.edit.all`)
 }
 
 export async function createComment({ data }: CreateCommentInput, context: ResolverContext) {
@@ -102,7 +105,6 @@ export async function createComment({ data }: CreateCommentInput, context: Resol
   await updateCountOfReferencesOnOtherCollectionsAfterCreate('Comments', documentWithId);
 
   documentWithId = await lwCommentsNewUpvoteOwnComment(documentWithId, currentUser, afterCreateProperties);
-  documentWithId = await checkCommentForSpamWithAkismet(documentWithId, currentUser, afterCreateProperties);
 
   const asyncProperties = {
     ...afterCreateProperties,

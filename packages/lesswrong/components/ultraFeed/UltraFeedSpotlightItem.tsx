@@ -10,8 +10,6 @@ import { useUltraFeedObserver } from './UltraFeedObserver';
 import { AnalyticsContext } from '@/lib/analyticsEvents';
 import FeedContentBody from "./FeedContentBody";
 import CloudinaryImage2 from "../common/CloudinaryImage2";
-import { useDialog } from '../common/withDialog';
-import UltraFeedPostDialog from './UltraFeedPostDialog';
 import UltraFeedItemFooter from './UltraFeedItemFooter';
 import ForumIcon from '../common/ForumIcon';
 import LWTooltip from '../common/LWTooltip';
@@ -368,21 +366,13 @@ const useUltraFeedSpotlightItemStyles = defineStyles(
 );
 
 
-const SpotlightContentWrapper = ({ isPost, url, handleContentClick, children }: {
+const SpotlightContentWrapper = ({ isPost, url, children }: {
   isPost: boolean;
   url: string;
-  handleContentClick: (event: React.MouseEvent) => void;
   children: React.ReactNode;
 }) => {
   const classes = useStyles(useUltraFeedSpotlightItemStyles);
   
-  if (isPost) {
-    return (
-      <div className={classes.descriptionWrapper} onClick={handleContentClick}>
-        {children}
-      </div>
-    );
-  }
   return (
     <Link to={url} className={classes.descriptionWrapper}>
       {children}
@@ -390,11 +380,9 @@ const SpotlightContentWrapper = ({ isPost, url, handleContentClick, children }: 
   );
 };
 
-const SpotlightTitle = ({ spotlight, isPost, url, handleContentClick, className }: {
+const SpotlightTitle = ({ spotlight, url, className }: {
   spotlight: SpotlightDisplay;
-  isPost: boolean;
   url: string;
-  handleContentClick: (event: React.MouseEvent) => void;
   className?: string;
 }) => {
   const classes = useStyles(useUltraFeedSpotlightItemStyles);
@@ -402,19 +390,9 @@ const SpotlightTitle = ({ spotlight, isPost, url, handleContentClick, className 
   return (
     <div className={className}>
       <div className={classes.titleContainer}>
-        {isPost ? (
-          <a 
-            href={url} 
-            onClick={handleContentClick}
-            className={classes.title}
-          >
-            {getSpotlightDisplayTitle(spotlight)}
-          </a>
-        ) : (
-          <Link to={url} className={classes.title}>
-            {getSpotlightDisplayTitle(spotlight)}
-          </Link>
-        )}
+        <Link to={url} className={classes.title}>
+          {getSpotlightDisplayTitle(spotlight)}
+        </Link>
       </div>
     </div>
   );
@@ -519,7 +497,6 @@ const UltraFeedSpotlightItem = ({
 }) => {
   const classes = useStyles(useUltraFeedSpotlightItemStyles);
   const { observe } = useUltraFeedObserver();
-  const { openDialog } = useDialog();
   const elementRef = useRef<HTMLDivElement | null>(null);
   const [isReplying, setIsReplying] = useState(false);
   const currentTime = useCurrentTime();
@@ -531,24 +508,9 @@ const UltraFeedSpotlightItem = ({
     lastServed: currentTime,
     lastViewed: null,
     lastInteracted: null,
-  }), [currentTime]);
+    rankingMetadata: spotlightMetaInfo?.rankingMetadata,
+  }), [currentTime, spotlightMetaInfo?.rankingMetadata]);
 
-  const handleContentClick = useCallback((event: React.MouseEvent) => {
-    if (isRegularClick(event) && post) {
-      event.preventDefault();
-      openDialog({
-        name: "UltraFeedPostDialog",
-        closeOnNavigate: true,
-        contents: ({ onClose }) => (
-          <UltraFeedPostDialog
-            partialPost={post}
-            postMetaInfo={postMetaInfo}
-            onClose={onClose}
-          />
-        )
-      });
-    }
-  }, [openDialog, post, postMetaInfo]);
 
   useEffect(() => {
     const currentElement = elementRef.current;
@@ -598,9 +560,7 @@ const UltraFeedSpotlightItem = ({
             })}>
               <SpotlightTitle
                 spotlight={spotlight}
-                isPost={isPost}
                 url={url}
-                handleContentClick={handleContentClick}
                 className={classes.header}
               />
               
@@ -619,7 +579,7 @@ const UltraFeedSpotlightItem = ({
               />
               
               <div className={classes.descriptionArea}>
-                <SpotlightContentWrapper isPost={isPost} url={url} handleContentClick={handleContentClick}>
+                <SpotlightContentWrapper isPost={isPost} url={url}>
                   <FeedContentBody
                     html={spotlight.description?.html ?? ''}
                     initialWordCount={SHOW_ALL_BREAKPOINT_VALUE}

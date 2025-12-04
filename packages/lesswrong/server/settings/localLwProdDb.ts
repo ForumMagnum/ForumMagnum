@@ -84,5 +84,6 @@ export const localLwProdDb = merge({
         disabled: true
       }
     ]
-  }
+  },
+  ultraFeedEnabled: true,
 }, sharedSettings);

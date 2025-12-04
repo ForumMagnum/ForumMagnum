@@ -1,4 +1,4 @@
-import React, { useRef, useState, useEffect, useContext } from 'react'
+import React, { useRef, useState, useEffect, useContext, useCallback } from 'react'
 import { ckEditorBundleVersion, getCkPostEditor } from '../../lib/wrapCkEditor';
 import { getCKEditorDocumentId, useGetCkEditorToken} from '../../lib/ckEditorUtils'
 import { CollaborativeEditingAccessLevel, accessLevelCan } from '../../lib/collections/posts/collabEditingPermissions';
@@ -15,7 +15,7 @@ import { filterNonnull } from '../../lib/utils/typeGuardUtils';
 import { useMutation } from "@apollo/client/react";
 import { useQuery } from "@/lib/crud/useQuery"
 import { gql } from "@/lib/generated/gql-codegen";
-import type { Editor } from '@ckeditor/ckeditor5-core';
+import type { Command, Editor } from '@ckeditor/ckeditor5-core';
 import type { Node, RootElement, Writer, Element as CKElement, Selection, DocumentFragment } from '@ckeditor/ckeditor5-engine';
 import { EditorContext } from '../posts/EditorContext';
 import { isFriendlyUI } from '../../themes/forumTheme';
@@ -32,6 +32,20 @@ import DialogueEditorGuidelines from "../posts/dialogues/DialogueEditorGuideline
 import DialogueEditorFeedback from "../posts/dialogues/DialogueEditorFeedback";
 import { useStyles } from '../hooks/useStyles';
 import { ckEditorPluginStyles } from './ckEditorStyles';
+import classNames from 'classnames';
+import { sleep } from '@/lib/helpers';
+import { useEditorCommands } from './EditorCommandsContext';
+import { CkEditorShortcut, augmentEditor } from './editorAugmentations';
+import { useCommandPalette } from '../hooks/useCommandPalette';
+
+// If any custom commands' execute methods change their signatures, we need to update this declaration
+declare module '@ckeditor/ckeditor5-core' {
+  interface CommandsMap {
+    getLLMFeedback: Command & {
+      execute: ({ userPrompt, afterLlmRequestCallback }: { userPrompt: string, afterLlmRequestCallback: () => Promise<void> }) => { abort: () => void, request: Promise<void> };
+    };
+  }
+}
 
 const PostsMinimumInfoMultiQuery = gql(`
   query multiPostCKPostEditorQuery($selector: PostSelector, $limit: Int, $enableTotal: Boolean) {
@@ -321,6 +335,7 @@ export type ConnectedUserInfo = {
 }
 
 const readOnlyPermissionsLock = Symbol("ckEditorReadOnlyPermissions");
+const readOnlyLlmFeedbackLoadingLock = Symbol("ckEditorReadOnlyLlmFeedbackLoading");
 
 const getPostEditorToolbarConfig = () => ({
   blockToolbar: {
@@ -431,6 +446,9 @@ const CKPostEditor = ({
   const [collaborationMode,setCollaborationMode] = useState<CollaborationMode>(initialCollaborationMode);
   const collaborationModeRef = useRef(collaborationMode)
   const [connectedUsers,setConnectedUsers] = useState<ConnectedUserInfo[]>([]);
+  const loadingLlmFeedbackAbortControllerRef = useRef<(() => void) | null>(null);
+
+  const { setGetLlmFeedbackCommand, setCancelLlmFeedbackCommand, llmFeedbackCommandLoadingSourceId, setLlmFeedbackCommandLoadingSourceId } = useEditorCommands();
 
   // Get the linkSharingKey, if it exists
   const { query : { key } } = useSubscribedLocation();
@@ -575,7 +593,66 @@ const CKPostEditor = ({
   useSyncCkEditorPlaceholder(editorObject, actualPlaceholder);
   useCkEditorInspector(editorRef);
 
-  return <div className={classes.ckWrapper}>
+  const getLlmFeedback = useCallback(async (userPrompt: string, sourceId: string) => {
+    if (!editorObject || loadingLlmFeedbackAbortControllerRef.current) return Promise.resolve();
+
+    // We pass this in as a callback because we want to re-enable the editor after the LLM request is complete
+    // Otherwise the editor will still be disabled when we try to apply the suggestions
+    const afterLlmRequestCallback = async () => {
+      loadingLlmFeedbackAbortControllerRef.current = null;
+      setLlmFeedbackCommandLoadingSourceId(null);
+
+      // Sleep a bit to make sure the editor is re-enabled
+      await sleep(50);
+
+      // Focus the editor so that the window.find hack works
+      editorObject.editing.view.focus();
+
+      // Sleep a bit more in case something desperately needs it
+      await sleep(50);
+    };
+
+    const { abort, request } = editorObject.execute('getLLMFeedback', { userPrompt, afterLlmRequestCallback });
+    loadingLlmFeedbackAbortControllerRef.current = abort;
+    setLlmFeedbackCommandLoadingSourceId(sourceId);
+
+    await request;
+  }, [editorObject, setLlmFeedbackCommandLoadingSourceId]);
+
+  const cancelLlmFeedback = useCallback(() => {
+    if (loadingLlmFeedbackAbortControllerRef.current) {
+      loadingLlmFeedbackAbortControllerRef.current();
+      loadingLlmFeedbackAbortControllerRef.current = null;
+      setLlmFeedbackCommandLoadingSourceId(null);
+    }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [editorObject, setLlmFeedbackCommandLoadingSourceId]);
+
+  useEffect(() => {
+    if (isCollaborative) {
+      setGetLlmFeedbackCommand(() => (userPrompt: string, sourceId: string) => getLlmFeedback(userPrompt, sourceId));
+      setCancelLlmFeedbackCommand(() => () => cancelLlmFeedback());
+    }
+
+    return () => {
+      setGetLlmFeedbackCommand(null);
+      setCancelLlmFeedbackCommand(null);
+    };
+  }, [getLlmFeedback, cancelLlmFeedback, isCollaborative, setGetLlmFeedbackCommand, setCancelLlmFeedbackCommand]);
+
+  useEffect(() => {
+    if (!editorObject) return;
+
+    if (llmFeedbackCommandLoadingSourceId) {
+      editorObject.enableReadOnlyMode(readOnlyLlmFeedbackLoadingLock);
+    } else {
+      editorObject.disableReadOnlyMode(readOnlyLlmFeedbackLoadingLock);
+    }
+  }, [editorObject, llmFeedbackCommandLoadingSourceId]);
+
+  const openCommandPalette = useCommandPalette();
+
+  return <div className={classNames(classes.ckWrapper, {[classes.loadingState]: !!llmFeedbackCommandLoadingSourceId})}>
     {isBlockOwnershipMode && <>
      {!hasEverDialoguedBefore && <DialogueEditorGuidelines />}
      <style>
@@ -615,7 +692,7 @@ const CKPostEditor = ({
       isCollaborative={!!isCollaborative}
       onReady={(editor: Editor) => {
         setEditorObject(editor);
-
+        
         if (isCollaborative) {
           // Uncomment this line and the import above to activate the CKEditor debugger
           // CKEditorInspector.attach(editor)
@@ -626,8 +703,6 @@ const CKPostEditor = ({
           refreshDisplayMode(editor, sidebarRef.current);
           
           applyCollabModeToCkEditor(editor, collaborationMode);
-          
-          editor.keystrokes.set('CTRL+ALT+M', 'addCommentThread');
 
           (editorRef.current as AnyBecauseHard)?.domContainer?.current?.addEventListener('keydown', (event: KeyboardEvent) => {
             handleSubmitWithoutNewline(editor, currentUser, event);
@@ -749,6 +824,25 @@ const CKPostEditor = ({
             }
           });
         }
+
+        const additionalShortcuts: CkEditorShortcut[] = [];
+        if (isCollaborative) {
+          additionalShortcuts.push({
+            // On macos, this collides with the "minimize all windows of the foregrounded app to the dock" shortcut,
+            // which I expect nobody cares about, and Google Docs also uses this keybinding for leaving a comment, so whatever.
+            keystroke: 'CTRL+ALT+M',
+            label: 'Inline Comment',
+            commandName: 'addCommentThread',
+            disabledHelperText: 'You must have some text selected to add a comment',
+          });
+        }
+
+        augmentEditor({
+          editorInstance: editor,
+          editorElementRef: editorRef,
+          openCommandPalette,
+          additionalShortcuts,
+        });
 
         onReady(editor)
       }}

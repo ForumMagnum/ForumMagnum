@@ -32,7 +32,7 @@ const styles = (theme: ThemeType) => ({
     marginBottom: 8,
   } : {
     display: 'flex',
-    gap: '4px',
+    gap: 4,
     flexWrap: 'wrap',
     justifyContent: 'flex-start',
     alignItems: 'center',
@@ -357,9 +357,7 @@ const FooterTagList = ({
     <>
       {!tagRight && currentUserId && !hideAddTag && addTagButton}
       {showCoreTags && (
-        <div>
-          <CoreTagsChecklist existingTagIds={tagIds} onTagSelected={onTagSelected} />
-        </div>
+        <CoreTagsChecklist existingTagIds={tagIds} onTagSelected={onTagSelected} />
       )}
       {sortedTagInfo.map(
         ({ tagRel, tag }) =>

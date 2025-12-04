@@ -3,6 +3,52 @@
 export const feedTypes = ["following", "ultraFeed", "userContent", "bookmarksFeed"] as const;
 export type FeedType = typeof feedTypes[number];
 
+export interface PostScoreBreakdownTerms extends Record<string, number> {
+  subscribedBonus: number;
+  karmaBonus: number;
+  topicAffinityBonus: number;
+}
+
+export interface ThreadScoreBreakdownTerms extends Record<string, number> {
+  unreadSubscribedCommentBonus: number;
+  engagementContinuationBonus: number;
+  repliesToYouBonus: number;
+  yourPostActivityBonus: number;
+  overallKarmaBonus: number;
+  topicAffinityBonus: number;
+  quicktakeBonus: number;
+  readPostContextBonus: number;
+}
+
+export interface PostScoreBreakdown {
+  total: number;
+  terms: PostScoreBreakdownTerms;
+  typeMultiplier: number;
+}
+
+export interface ThreadScoreBreakdown {
+  total: number;
+  terms: ThreadScoreBreakdownTerms;
+  repetitionPenaltyMultiplier: number;
+  typeMultiplier: number;
+}
+
+export type ScoreBreakdown = PostScoreBreakdown | ThreadScoreBreakdown;
+
+export type RankedItemMetadata = 
+  | {
+      rankedItemType: 'post';
+      scoreBreakdown: PostScoreBreakdown;
+      selectionConstraints: string[];
+      position: number;
+    }
+  | {
+      rankedItemType: 'commentThread';
+      scoreBreakdown: ThreadScoreBreakdown;
+      selectionConstraints: string[];
+      position: number;
+    };
+
 export const feedPostSourceTypesArray = [ 'hacker-news', 'recombee-lesswrong-custom', 'bookmarks', 'subscriptionsPosts' ] as const;
 export const feedCommentSourceTypesArray = ['quicktakes', 'recentComments', 'subscriptionsComments', 'bookmarks'] as const;
 export const feedSpotlightSourceTypesArray = ['spotlights'] as const;
@@ -21,7 +67,7 @@ export type FeedSpotlightSourceType = typeof feedSpotlightSourceTypesArray[numbe
 export type FeedItemSourceType = FeedPostSourceType | FeedCommentSourceType | FeedSpotlightSourceType;
 
 // Define render types
-export const feedItemRenderTypes = ["feedCommentThread", "feedPost", "feedSpotlight", "feedSubscriptionSuggestions"] as const;
+export const feedItemRenderTypes = ["feedCommentThread", "feedPost", "feedSpotlight", "feedSubscriptionSuggestions", "feedMarker"] as const;
 export type FeedItemRenderType = typeof feedItemRenderTypes[number];
 
 export type FeedItemType = FeedItemRenderType | "feedComment";
@@ -42,6 +88,7 @@ export interface FeedPostMetaInfo {
   displayStatus: FeedItemDisplayStatus;
   servedEventId?: string;
   isRead?: boolean;
+  rankingMetadata?: RankedItemMetadata;
 }
 export interface FeedCommentMetaInfo {
   sources: FeedItemSourceType[];
@@ -57,11 +104,14 @@ export interface FeedCommentMetaInfo {
   servedEventId?: string;
   fromSubscribedUser?: boolean;
   isRead?: boolean;
+  isParentPostRead?: boolean;
+  rankingMetadata?: RankedItemMetadata;
 }
 
 export interface FeedSpotlightMetaInfo {
   sources: FeedItemSourceType[];
   servedEventId: string;
+  rankingMetadata?: RankedItemMetadata;
 }
 
 export interface FeedCommentFromDb {
@@ -97,8 +147,8 @@ export type PreDisplayFeedCommentThread = PreDisplayFeedComment[];
 export interface FeedCommentsThread {
   comments: PreDisplayFeedComment[];
   primarySource?: FeedItemSourceType;
-  isOnReadPost?: boolean | null;
   postSources?: FeedItemSourceType[];
+  rankingMetadata?: RankedItemMetadata;
 }
 
 export interface FeedPostStub {
@@ -115,6 +165,7 @@ export interface FeedSpotlight {
   spotlightId: string;
   documentType: string;
   documentId: string;
+  rankingMetadata?: RankedItemMetadata;
 }
 
 export type FeedItem = FeedCommentsThread | FeedSpotlight | FeedFullPost;
@@ -123,9 +174,9 @@ export interface FeedCommentsThreadResolverType {
   _id: string;
   comments: DbComment[];
   commentMetaInfos: {[commentId: string]: FeedCommentMetaInfo};
-  isOnReadPost?: boolean | null;
   postSources?: FeedItemSourceType[];
   post?: DbPost | null;
+  postMetaInfo?: FeedPostMetaInfo;
 }
 
 export interface FeedPostResolverType {
@@ -139,6 +190,7 @@ export interface FeedSpotlightResolverType {
   spotlight: DbSpotlight;
   post?: DbPost;
   spotlightMetaInfo: FeedSpotlightMetaInfo;
+  rankingMetadata?: RankedItemMetadata;
 }
 
 export interface FeedSubscriptionSuggestionsResolverType {
@@ -146,7 +198,18 @@ export interface FeedSubscriptionSuggestionsResolverType {
   suggestedUsers: DbUser[];
 }
 
-export type FeedItemResolverType = FeedPostResolverType | FeedCommentsThreadResolverType | FeedSpotlightResolverType | FeedSubscriptionSuggestionsResolverType;
+export interface FeedMarkerResolverType {
+  _id: string;
+  markerType: string;
+  timestamp: Date;
+}
+
+export type FeedItemResolverType =
+  | FeedPostResolverType
+  | FeedCommentsThreadResolverType
+  | FeedSpotlightResolverType
+  | FeedSubscriptionSuggestionsResolverType
+  | FeedMarkerResolverType;
 
 export type UserOrClientId =
   | { type: 'user'; id: string }
@@ -158,15 +221,16 @@ export interface UltraFeedResolverType {
   feedCommentThread?: FeedCommentsThreadResolverType;
   feedSpotlight?: FeedSpotlightResolverType;
   feedSubscriptionSuggestions?: FeedSubscriptionSuggestionsResolverType;
+  feedMarker?: FeedMarkerResolverType;
 }
 
 export interface DisplayFeedCommentThread {
   _id: string;
   comments: UltraFeedComment[];
   commentMetaInfos: {[commentId: string]: FeedCommentMetaInfo};
-  isOnReadPost?: boolean | null;
   postSources?: FeedItemSourceType[] | null;
   post?: PostsListWithVotes | null;
+  postMetaInfo?: FeedPostMetaInfo;
 }
 
 export interface DisplayFeedPost {

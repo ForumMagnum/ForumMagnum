@@ -404,7 +404,7 @@ async function insertIntoInitGraphQL(collectionName: string) {
   // Find where to insert the imported typeDefs alphabetically in the CRUD Query typedefs section
   let insertTypeDefsIndex = crudQueryTypeDefsIndex + 1;
   while (insertTypeDefsIndex < lines.length && 
-         lines[insertTypeDefsIndex].trim().startsWith('${graphql') && 
+         lines[insertTypeDefsIndex].trim().startsWith('${graphql') && //}
          lines[insertTypeDefsIndex].localeCompare(crudTypeDefsLine) < 0) {
     insertTypeDefsIndex++;
   }

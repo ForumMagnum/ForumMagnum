@@ -8,6 +8,11 @@ import { PostsViews } from "@/lib/collections/posts/views";
 export const graphqlPostQueryTypeDefs = gql`
   type Post ${ getAllGraphQLFields(schema) }
 
+  type FrontpageClassification {
+    isFrontpage: Boolean!
+    probability: Float!
+  }
+
   enum PostCategory {
     post
     linkpost
@@ -45,6 +50,8 @@ export const graphqlPostQueryTypeDefs = gql`
     before: String
     timeField: String
     curatedAfter: String
+    requiredUnnominated: Boolean
+    requiredFrontpage: Boolean
   }
   
   input PostsUserPostsInput {
@@ -214,6 +221,8 @@ export const graphqlPostQueryTypeDefs = gql`
     timeField: String
     curatedAfter: String
     limit: Int
+    requiredUnnominated: Boolean
+    requiredFrontpage: Boolean
   }
   
   input PostsDailyInput {

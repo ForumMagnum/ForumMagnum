@@ -1,5 +1,5 @@
 import React from "react";
-import { commentIsHiddenPendingReview, commentIsNotPublicForAnyReason } from "@/lib/collections/comments/helpers";
+import { commentIsNotPublicForAnyReason } from "@/lib/collections/comments/helpers";
 import { ForumEventCommentMetadata } from "@/lib/collections/forumEvents/types";
 import { REJECTED_COMMENT } from "@/lib/collections/moderatorActions/constants";
 import { tagGetDiscussionUrl, EA_FORUM_COMMUNITY_TOPIC_ID } from "@/lib/collections/tags/helpers";
@@ -18,8 +18,7 @@ import { recombeeApi } from "../recombee/client";
 import { getCommentAncestorIds, getCommentSubtree } from "../utils/commentTreeUtils";
 import { triggerReviewIfNeeded } from "./sunshineCallbackUtils";
 import { serverCaptureEvent as captureEvent } from "@/server/analytics/serverAnalyticsWriter";
-import { akismetKeySetting, commentAncestorsToNotifySetting } from "../databaseSettings";
-import { checkForAkismetSpam } from "../akismet";
+import { commentAncestorsToNotifySetting } from "../databaseSettings";
 import { getUsersToNotifyAboutEvent } from "../notificationCallbacks";
 import { postGetPageUrl } from "@/lib/collections/posts/helpers";
 import { wrapAndSendEmail } from "../emails/renderEmail";
@@ -41,7 +40,6 @@ import { getRejectionMessage } from "./helpers";
 import { createModeratorAction } from "../collections/moderatorActions/mutations";
 import { createAnonymousContext } from "@/server/vulcan-lib/createContexts";
 import { updateUser } from "../collections/users/mutations";
-import { updateComment } from "../collections/comments/mutations";
 import { EmailComment } from "../emailComponents/EmailComment";
 import { PostsOriginalContents, PostsRevision } from "@/lib/collections/posts/fragments";
 import { backgroundTask } from "../utils/backgroundTask";
@@ -56,7 +54,6 @@ interface SendModerationPMParams {
   context: ResolverContext
 }
 
-const MINIMUM_APPROVAL_KARMA = 5;
 const SPAM_KARMA_THRESHOLD = 10; //Threshold after which you are no longer affected by spam detection
 
 export async function recalculateAFCommentMetadata(postId: string|null, context: ResolverContext) {
@@ -406,7 +403,8 @@ const utils = {
     const { loaders } = context;
   
     const commentDeletedByAnotherUser =
-      (!comment.deletedByUserId || comment.deletedByUserId !== comment.userId)
+      comment.deletedByUserId
+      && comment.deletedByUserId !== comment.userId
       && comment.deleted
       && comment.contents?.html;
   
@@ -428,7 +426,7 @@ const utils = {
   
       let messageContents =
           `<div>
-            <p>One of your comments on "${contentTitle}" has been removed by ${(moderatingUser?.displayName) || "the Akismet spam integration"}. We've sent you another PM with the content. If this deletion seems wrong to you, please send us a message on Intercom (the icon in the bottom-right of the page); we will not see replies to this conversation.</p>
+            <p>One of your comments on "${contentTitle}" has been removed by ${(moderatingUser?.displayName) || "our automated spam detection"}. We've sent you another PM with the content. If this deletion seems wrong to you, please send us a message on Intercom (the icon in the bottom-right of the page); we will not see replies to this conversation.</p>
             <p>The contents of your message are here:</p>
             <blockquote>
               ${comment.contents?.html}
@@ -744,7 +742,7 @@ export async function commentsNewUserApprovedStatus(comment: CreateCommentDataIn
   const { Users } = context;
 
   const commentAuthor = await Users.findOne(comment.userId);
-  if (!commentAuthor?.reviewedByUserId && (commentAuthor?.karma || 0) < MINIMUM_APPROVAL_KARMA) {
+  if (!commentAuthor?.reviewedByUserId) {
     return {...comment, authorIsUnreviewed: true}
   }
   return comment;
@@ -804,54 +802,9 @@ export async function lwCommentsNewUpvoteOwnComment(comment: DbComment, currentU
   return {...comment, ...votedComment} as DbComment;
 }
 
-export async function checkCommentForSpamWithAkismet(comment: DbComment, currentUser: DbUser|null, properties: AfterCreateCallbackProperties<'Comments'>) {
-  const { context } = properties;
-  const { Comments } = context;
-  if (!currentUser) throw new Error("Submitted comment has no associated user");
-  
-  // Don't spam-check imported comments
-  if (comment.legacyData?.arbitalPageId) {
-    return comment;
-  }
-
-  const unreviewedUser = !currentUser.reviewedByUserId;
-  
-  if (unreviewedUser && akismetKeySetting.get()) {
-    const start = Date.now();
-
-    const spam = await checkForAkismetSpam({document: comment, type: "comment", context})
-
-    const timeElapsed = Date.now() - start;
-    captureEvent('checkForAkismetSpamCompleted', {
-      commentId: comment._id,
-      timeElapsed
-    }, true);
-
-    if (spam) {
-      if (((currentUser.karma || 0) < SPAM_KARMA_THRESHOLD) && !currentUser.reviewedByUserId) {
-        // eslint-disable-next-line no-console
-        console.log("Deleting comment from user below spam threshold", comment)
-        await updateComment({
-          data: {
-            deleted: true,
-            deletedDate: new Date(),
-            deletedReason: "This comment has been marked as spam by the Akismet spam integration. We've sent the poster a PM with the content. If this deletion seems wrong to you, please send us a message on Intercom (the icon in the bottom-right of the page)."
-          },
-          selector: { _id: comment._id }
-        }, createAnonymousContext());
-      }
-    } else {
-      //eslint-disable-next-line no-console
-      console.log('Comment marked as not spam', comment._id);
-    }
-  }
-  return comment
-}
-
-
 /* CREATE ASYNC */
 export async function newCommentTriggerReview({document, context}: AfterCreateCallbackProperties<'Comments'>) {
-  await triggerReviewIfNeeded(document.userId, context);
+  await triggerReviewIfNeeded(document.userId, 'newComment', context);
 }
 
 export async function trackCommentRateLimitHit({document, context}: AfterCreateCallbackProperties<'Comments'>) {
@@ -1069,12 +1022,15 @@ export async function updateDescendentCommentCountsOnEdit(comment: DbComment, pr
 
 /* UPDATE ASYNC */
 export async function updatedCommentMaybeTriggerReview({ currentUser, context }: UpdateCallbackProperties<"Comments">) {
-  const { Users } = context;
   if (!currentUser) return;
-  currentUser.snoozedUntilContentCount && await updateUser({ data: {
-        snoozedUntilContentCount: currentUser.snoozedUntilContentCount - 1,
-      }, selector: { _id: currentUser._id } }, createAnonymousContext())
-  await triggerReviewIfNeeded(currentUser._id, context)
+  if (isEAForum()) {
+    currentUser.snoozedUntilContentCount && await updateUser({ data: {
+      snoozedUntilContentCount: currentUser.snoozedUntilContentCount - 1,
+    }, selector: { _id: currentUser._id } }, createAnonymousContext());
+    // This might create multiple redundant moderator actions if the user is in a state where they'd trigger review
+    // and then update a comment multiple times.
+    await triggerReviewIfNeeded(currentUser._id, 'updatedComment', context)
+  }
 }
 
 export async function updateUserNotesOnCommentRejection({ newDocument, oldDocument, currentUser, context }: UpdateCallbackProperties<"Comments">) {

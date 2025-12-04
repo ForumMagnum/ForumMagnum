@@ -4,7 +4,7 @@ import { getDefaultMetadata, getMetadataDescriptionFields, getPageTitleFields } 
 import type { Metadata } from "next";
 import merge from "lodash/merge";
 import { siteNameWithArticleSetting } from "@/lib/instanceSettings";
-import RouteRoot from "@/components/next/RouteRoot";
+import RouteRoot from "@/components/layout/RouteRoot";
 
 export async function generateMetadata(): Promise<Metadata> {
   return merge(

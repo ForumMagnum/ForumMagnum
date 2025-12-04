@@ -6,7 +6,7 @@ import CommentIcon from '@/lib/vendor/@material-ui/icons/src/ModeComment';
 import classNames from 'classnames';
 import { Badge } from "@/components/widgets/Badge";
 import some from 'lodash/some';
-import { useIsMobile } from '../hooks/useScreenWidth';
+import { useIsAboveBreakpoint } from '../hooks/useScreenWidth';
 import { useDialog } from '../common/withDialog';
 import { useApolloClient } from '@apollo/client/react';
 import { useQuery } from "@/lib/crud/useQuery";
@@ -104,7 +104,7 @@ export const SideCommentIcon = ({commentIds, post}: {
   commentIds: string[]
   post: PostsList
 }) => {
-  const isMobile = useIsMobile();
+  const isMobile = !useIsAboveBreakpoint("sm");
   if (isMobile) {
     return <SideCommentIconMobile commentIds={commentIds} post={post} />;
   } else {

@@ -10,6 +10,7 @@ const styles = (theme: ThemeType) => ({
   },
   icon: {
     height: 13,
+    width: 13,
     position: "relative",
     top: 1
   },

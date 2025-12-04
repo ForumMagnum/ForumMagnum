@@ -90,6 +90,30 @@ const styles = defineStyles('TabNavigationItem', (theme: ThemeType) => ({
       opacity: 1,
     }),
   },
+  iconOnlyIcon: {
+    marginRight: 0,
+    marginLeft: 17,
+    width: "100%",
+    display: "flex",
+    justifyContent: "center",
+  },
+  iconOnlyMode: {
+    width: "100%",
+    minWidth: 0,
+    height: "auto",
+    whiteSpace: "normal",
+    overflow: "visible",
+    textOverflow: "unset",
+    justifyContent: "center",
+    paddingLeft: 0,
+    paddingRight: 0,
+    flexDirection: "column",
+    gap: 3,
+    textAlign: "center",
+    '&:hover': {
+      backgroundColor: 'transparent',
+    }
+  },
   selectedIcon: {
     "& svg": {
       color: theme.isFriendlyUI ? theme.palette.grey[1000] : undefined,
@@ -102,6 +126,13 @@ const styles = defineStyles('TabNavigationItem', (theme: ThemeType) => ({
       color: theme.palette.text.bannerAdOverlay,
     }),
     textTransform: "none !important",
+  },
+  iconOnlyNavText: {
+    fontSize: 10,
+    color: theme.palette.grey[600],
+    marginBottom: 8,
+    marginLeft: 17,
+    textAlign: "center",
   },
   homeIcon: {
     '& svg': {
@@ -131,6 +162,7 @@ export type TabNavigationItemProps = {
   tab: MenuTabRegular,
   onClick?: (event: React.MouseEvent<HTMLAnchorElement>) => void,
   className?: string,
+  iconOnlyNavigationEnabled?: boolean,
 }
 
 const parseCookie = (
@@ -189,11 +221,14 @@ const useFlag = (tab: MenuTabRegular): {
   return {flag};
 }
 
-const TabNavigationItem = ({tab, onClick, className}: TabNavigationItemProps) => {
+const TabNavigationItem = ({tab, onClick, className, iconOnlyNavigationEnabled}: TabNavigationItemProps) => {
   const classes = useStyles(styles);
   const {pathname} = useLocation();
   const currentUser = useCurrentUser();
   const {flag, onClickFlag} = useFlag(tab);
+  const iconOnlyMode = !!iconOnlyNavigationEnabled;
+  const navTitle = iconOnlyMode ? (tab.mobileTitle ?? tab.title) : tab.title;
+  const tooltipTitle = tab.tooltip || navTitle;
 
   // Due to an issue with using anchor tags, we use react-router links, even for
   // external links, we just use window.open to actuate the link.
@@ -213,13 +248,17 @@ const TabNavigationItem = ({tab, onClick, className}: TabNavigationItemProps) =>
   }
 
   const isSelected = pathname === tab.link;
-  const hasIcon = tab.icon || tab.iconComponent || tab.selectedIconComponent;
-  const IconComponent = isSelected
-    ? tab.selectedIconComponent ?? tab.iconComponent
-    : tab.iconComponent;
+  
+  // when we're in renderIconOnlyNavigation (see Layout.tsx), display the compressed version
+  const IconComponent = (iconOnlyMode && tab.compressedIconComponent) 
+    || (isSelected && tab.selectedIconComponent) 
+    || tab.iconComponent;
+    
+  const iconElement = IconComponent ? <IconComponent /> : tab.icon;
+  
   return <LWTooltip
     placement='right-start'
-    title={tab.tooltip || ''}
+    title={tooltipTitle}
     className={classes.tooltip}
   >
     <MenuItemLink
@@ -230,28 +269,38 @@ const TabNavigationItem = ({tab, onClick, className}: TabNavigationItemProps) =>
       to={tab.link}
       className={classNames(classes.menuItem, className, {
         [classes.navButton]: !tab.subItem,
-        [classes.subItemOverride]: tab.subItem,
         [classes.selected]: isSelected,
         [classes.desktopOnly]: tab.desktopOnly,
+        [classes.subItemOverride]: tab.subItem && !iconOnlyMode,
+        [classes.iconOnlyMode]: iconOnlyMode,
       })}
       disableTouchRipple
     >
-      {hasIcon && <span className={classNames(classes.icon, {
+      {iconElement && <span className={classNames(classes.icon, {
+        [classes.iconOnlyIcon]: iconOnlyMode,
         [classes.selectedIcon]: isSelected,
         [classes.homeIcon]: tab.id === 'home',
       })}>
-        {IconComponent && <IconComponent />}
-        {tab.icon && tab.icon}
+        {iconElement}
       </span>}
-      {tab.subItem ?
-        <TabNavigationSubItem>
-          {tab.title}
-        </TabNavigationSubItem> :
-        <span className={classes.navText}>
-          {tab.title}
+      {tab.subItem ? (
+        iconOnlyMode ? (
+          <span className={classNames(classes.navText, classes.iconOnlyNavText)}>
+            {navTitle}
+          </span>
+        ) : (
+          <TabNavigationSubItem>
+            {tab.title}
+          </TabNavigationSubItem>
+        )
+      ) : (
+        <span className={classNames(classes.navText, {
+          [classes.iconOnlyNavText]: iconOnlyMode,
+        })}>
+          {navTitle}
         </span>
-      }
-      {flag && <span className={classes.flag}>{flag}</span>}
+      )}
+      {!iconOnlyMode && flag && <span className={classes.flag}>{flag}</span>}
     </MenuItemLink>
   </LWTooltip>
 }

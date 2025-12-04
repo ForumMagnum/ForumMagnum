@@ -37,7 +37,8 @@ const ShortformFrontpageDropdownItem = ({comment}: {comment: CommentsList}) => {
   if (
     !comment.shortform ||
     !currentUser ||
-    !(userCanDo(currentUser, "comments.edit.all") || userOwns(currentUser, comment))
+    !(userCanDo(currentUser, "comments.edit.all") || userOwns(currentUser, comment)) ||
+    comment.draft
   ) {
     return null;
   }

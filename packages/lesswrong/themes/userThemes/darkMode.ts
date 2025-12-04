@@ -62,7 +62,7 @@ const inverseGreyAlpha = (alpha: number) => {
 // We handle this in ContentItemBody with transformStylesForDarkMode. The
 // colors below have dedicated color-mappings; all other colors use `parseColor`
 // and `invertColor` from `colorUtil.ts`.
-export const getColorReplacements = (): Record<string,string> => ({
+const getManualColorReplacements = () => ({
   "initial":            "rgba(255,255,255,.87)",
   "rgba(255,255,255,.5)": "rgba(0,0,0.5)",
   "hsl(0, 0%, 90%)":    "hsl(0, 0%, 10%)",
@@ -74,6 +74,8 @@ export const getColorReplacements = (): Record<string,string> => ({
   "rgb(255, 238, 187)": colorToString(invertColor([255/255.0,238/255.0,187/255.0,1])),
   "rgb(230, 230, 230)": colorToString(invertColor([230/255.0,230/255.0,230/255.0,1])),
 } as const);
+const colorReplacementsCache = getManualColorReplacements();
+export const getColorReplacementsCache = (): Record<string,string> => colorReplacementsCache;
 
 const forumComponentPalette = (shadePalette: ThemeShadePalette) =>
   forumSelect({
@@ -213,6 +215,12 @@ export const getDarkModeTheme = (): UserThemeSpecification => ({
       bannerAdTranslucentStrong: "rgba(0,0,0,0.6)",
       recentDiscussionThread: 'rgba(0,0,0,0.4)',
       appBarDarkBackground: 'rgba(255,255,255,0.1)',
+      sunshineNewContentGroup: "linear-gradient(135deg, rgba(0,80,0,.50) 0%, rgba(0,80,0,0) 100%)",
+      sunshineHighContextGroup: "linear-gradient(135deg, rgba(120,120,0,.50) 0%, rgba(36, 36, 9, 0) 100%)",
+      sunshineMaybeSpamGroup: "linear-gradient(135deg, rgba(120,0,120,.50) 0%, rgba(120,0,120,0) 100%)",
+      sunshineAutomodGroup: "linear-gradient(135deg, rgba(120,120,0,.50) 0%, rgba(120,120,0,0) 100%)",
+      sunshineSnoozeExpiredGroup: "linear-gradient(135deg, rgba(120,120,0,.50) 0%, rgba(120,120,0,0) 100%)",
+      sunshineUnknownGroup: "linear-gradient(135deg, rgba(120,120,120,.50) 0%, rgba(120,120,120,0) 100%)",
     },
     background: {
       default: shadePalette.grey[100],
@@ -256,6 +264,7 @@ export const getDarkModeTheme = (): UserThemeSpecification => ({
         background: shadePalette.grey[600],
         hoverBackground: shadePalette.grey[700],
       },
+      messageReaction: "opacity(0.35)",
     },
     intercom: {
       buttonBackground: `${shadePalette.grey[400]} !important`,

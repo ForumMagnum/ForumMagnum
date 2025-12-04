@@ -22,9 +22,14 @@ const styles = (theme: ThemeType) => ({
   },
 });
 
+interface PostFields {
+  _id: string;
+  isRead: boolean | null;
+}
+
 export const PostReadCheckbox = ({classes, post, width=12}: {
   classes: ClassesType<typeof styles>,
-  post: PostsBase,
+  post: PostFields,
   width?: number
 }) => {
   const {postsRead, setPostRead} = useItemsRead();
