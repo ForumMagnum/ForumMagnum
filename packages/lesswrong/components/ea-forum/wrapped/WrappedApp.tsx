@@ -64,10 +64,10 @@ const styles = (theme: ThemeType) => ({
     },
   },
   navSection: {
-    width: 8,
-    height: 8,
+    width: 20,
+    height: theme.borderRadius.default,
+    borderRadius: theme.borderRadius.default,
     background: theme.palette.text.alwaysWhite,
-    borderRadius: "50%",
   },
   navSectionInactive: {
     opacity: 0.3,
@@ -139,7 +139,7 @@ const WrappedApp = ({classes}: {
             {range(1, totalSections).map((i) => (
               <div key={i} className={classNames(
                 classes.navSection,
-                i !== currentSection && classes.navSectionInactive,
+                i > currentSection && classes.navSectionInactive,
               )} />
             ))}
             <div className={classes.navButton} onClick={goToNextSection}>
@@ -157,5 +157,3 @@ export default registerComponent(
   WrappedApp,
   {styles},
 );
-
-
