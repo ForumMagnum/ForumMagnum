@@ -33,6 +33,7 @@ interface Query {
   DigestPlannerData: Array<DigestPlannerPost>;
   DigestPosts: Array<Post> | null;
   HomepageCommunityEvents: HomepageCommunityEventMarkersResult;
+  HomepageCommunityEventPosts: HomepageCommunityEventPostsResult;
   DigestHighlights: DigestHighlightsResult | null;
   DigestPostsThisWeek: DigestPostsThisWeekResult | null;
   CuratedAndPopularThisWeek: CuratedAndPopularThisWeekResult | null;
@@ -46,7 +47,6 @@ interface Query {
   PostsWithApprovedJargon: PostsWithApprovedJargonResult | null;
   AllTagsActivityFeed: AllTagsActivityFeedQueryResults;
   RecentDiscussionFeed: RecentDiscussionFeedQueryResults;
-  SubscribedFeed: SubscribedFeedQueryResults;
   TagHistoryFeed: TagHistoryFeedQueryResults;
   SubforumMagicFeed: SubforumMagicFeedQueryResults;
   SubforumTopFeed: SubforumTopFeedQueryResults;
@@ -78,6 +78,8 @@ interface Query {
   RevisionsDiff: string | null;
   UltraFeed: UltraFeedQueryResults;
   UltraFeedSubscriptions: UltraFeedQueryResults;
+  getBookWordCount: number | null;
+  getSequenceStats: SequenceStats | null;
   advisorRequest: SingleAdvisorRequestOutput | null;
   advisorRequests: MultiAdvisorRequestOutput | null;
   arbitalTagContentRel: SingleArbitalTagContentRelOutput | null;
@@ -269,6 +271,7 @@ interface Mutation {
   unlockThread: boolean;
   rejectContentAndRemoveUserFromQueue: boolean;
   approveUserCurrentContentOnly: boolean;
+  rerunSaplingCheck: AutomatedContentEvaluation;
   reorderSummaries: boolean | null;
   publishAndDeDuplicateSpotlight: Spotlight | null;
   toggleBookmark: ToggleBookmarkOutput | null;
@@ -887,6 +890,10 @@ interface HomepageCommunityEventMarkersResult {
   events: Array<HomepageCommunityEventMarker>;
 }
 
+interface HomepageCommunityEventPostsResult {
+  posts: Array<Post>;
+}
+
 interface DigestHighlightsResult {
   results: Array<Post>;
 }
@@ -957,25 +964,6 @@ interface RecentDiscussionFeedEntry {
   shortformCommented: Post | null;
   tagDiscussed: Tag | null;
   tagRevised: Revision | null;
-}
-
-interface SubscribedPostAndComments {
-  _id: string;
-  post: Post;
-  comments: Array<Comment> | null;
-  expandCommentIds: Array<string> | null;
-  postIsFromSubscribedUser: boolean;
-}
-
-interface SubscribedFeedQueryResults {
-  cutoff: Date | null;
-  endOffset: number;
-  results: Array<SubscribedFeedEntry> | null;
-}
-
-interface SubscribedFeedEntry {
-  type: SubscribedFeedEntryType;
-  postCommented: SubscribedPostAndComments | null;
 }
 
 interface TagHistoryFeedQueryResults {
@@ -1248,6 +1236,7 @@ interface RssPostChangeInfo {
 interface FeedSpotlightMetaInfo {
   sources: Array<string>;
   servedEventId: string;
+  rankingMetadata: any;
 }
 
 interface FeedPost {
@@ -1261,8 +1250,8 @@ interface FeedCommentThread {
   commentMetaInfos: any;
   comments: Array<Comment>;
   post: Post | null;
-  isOnReadPost: boolean | null;
   postSources: Array<string> | null;
+  postMetaInfo: any;
 }
 
 interface FeedSpotlightItem {
@@ -1275,6 +1264,12 @@ interface FeedSpotlightItem {
 interface FeedSubscriptionSuggestions {
   _id: string;
   suggestedUsers: Array<User>;
+}
+
+interface FeedMarker {
+  _id: string;
+  markerType: string;
+  timestamp: Date;
 }
 
 interface UltraFeedQueryResults {
@@ -1290,6 +1285,7 @@ interface UltraFeedEntry {
   feedPost: FeedPost | null;
   feedSpotlight: FeedSpotlightItem | null;
   feedSubscriptionSuggestions: FeedSubscriptionSuggestions | null;
+  feedMarker: FeedMarker | null;
 }
 
 interface ElicitQuestionPredictionCreator {
@@ -1297,6 +1293,11 @@ interface ElicitQuestionPredictionCreator {
   displayName: string;
   isQuestionCreator: boolean;
   sourceUserId: string | null;
+}
+
+interface SequenceStats {
+  totalWordCount: number | null;
+  totalReadTime: number | null;
 }
 
 interface AdvisorRequest {
@@ -4080,6 +4081,7 @@ interface Post {
   tagRel: TagRel | null;
   tags: Array<Tag>;
   tagRelevance: any;
+  tagRels: Array<TagRel>;
   lastPromotedComment: Comment | null;
   bestAnswer: Comment | null;
   noIndex: boolean;
@@ -4277,6 +4279,8 @@ interface PostDefaultViewInput {
   before?: string | null;
   timeField?: string | null;
   curatedAfter?: string | null;
+  requiredUnnominated?: boolean | null;
+  requiredFrontpage?: boolean | null;
 }
 
 interface PostsUserPostsInput {
@@ -4446,6 +4450,8 @@ interface PostsTimeframeInput {
   timeField?: string | null;
   curatedAfter?: string | null;
   limit?: number | null;
+  requiredUnnominated?: boolean | null;
+  requiredFrontpage?: boolean | null;
 }
 
 interface PostsDailyInput {
@@ -7507,6 +7513,7 @@ interface User {
   recommendationSettings: any;
   lastRemovedFromReviewQueueAt: Date | null;
   rejectedContentCount: number | null;
+  userRateLimits: Array<UserRateLimit> | null;
 }
 
 interface UserSelectorUniqueInput {
@@ -9863,6 +9870,7 @@ interface GraphQLTypeMap {
   PostWithApprovedJargon: PostWithApprovedJargon;
   HomepageCommunityEventMarker: HomepageCommunityEventMarker;
   HomepageCommunityEventMarkersResult: HomepageCommunityEventMarkersResult;
+  HomepageCommunityEventPostsResult: HomepageCommunityEventPostsResult;
   DigestHighlightsResult: DigestHighlightsResult;
   DigestPostsThisWeekResult: DigestPostsThisWeekResult;
   CuratedAndPopularThisWeekResult: CuratedAndPopularThisWeekResult;
@@ -9878,9 +9886,6 @@ interface GraphQLTypeMap {
   AllTagsActivityFeedEntry: AllTagsActivityFeedEntry;
   RecentDiscussionFeedQueryResults: RecentDiscussionFeedQueryResults;
   RecentDiscussionFeedEntry: RecentDiscussionFeedEntry;
-  SubscribedPostAndComments: SubscribedPostAndComments;
-  SubscribedFeedQueryResults: SubscribedFeedQueryResults;
-  SubscribedFeedEntry: SubscribedFeedEntry;
   TagHistoryFeedQueryResults: TagHistoryFeedQueryResults;
   TagHistoryFeedEntry: TagHistoryFeedEntry;
   SubforumMagicFeedQueryResults: SubforumMagicFeedQueryResults;
@@ -9923,9 +9928,11 @@ interface GraphQLTypeMap {
   FeedCommentThread: FeedCommentThread;
   FeedSpotlightItem: FeedSpotlightItem;
   FeedSubscriptionSuggestions: FeedSubscriptionSuggestions;
+  FeedMarker: FeedMarker;
   UltraFeedQueryResults: UltraFeedQueryResults;
   UltraFeedEntry: UltraFeedEntry;
   ElicitQuestionPredictionCreator: ElicitQuestionPredictionCreator;
+  SequenceStats: SequenceStats;
   AdvisorRequest: AdvisorRequest;
   SingleAdvisorRequestInput: SingleAdvisorRequestInput;
   SingleAdvisorRequestOutput: SingleAdvisorRequestOutput;
@@ -10863,6 +10870,7 @@ interface CreateInputsByCollectionName {
   LegacyData: never;
   LlmConversations: never;
   LlmMessages: never;
+  LoginTokens: never;
   ManifoldProbabilitiesCaches: never;
   Migrations: never;
   Notifications: never;
@@ -10955,6 +10963,7 @@ interface UpdateInputsByCollectionName {
   LWEvents: never;
   LegacyData: never;
   LlmMessages: never;
+  LoginTokens: never;
   ManifoldProbabilitiesCaches: never;
   Migrations: never;
   PageCache: never;

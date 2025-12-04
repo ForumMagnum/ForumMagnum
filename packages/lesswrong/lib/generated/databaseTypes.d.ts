@@ -726,6 +726,16 @@ interface DbLocalgroup extends DbObject {
   website: string | null
 }
 
+type LoginTokensCollection = PgCollection<"LoginTokens">;
+
+interface DbLoginToken extends DbObject {
+  __collectionName?: "LoginTokens"
+  createdAt: Date
+  hashedToken: string
+  loggedOutAt: Date | null
+  userId: string
+}
+
 type ManifoldProbabilitiesCachesCollection = PgCollection<"ManifoldProbabilitiesCaches">;
 
 interface DbManifoldProbabilitiesCache extends DbObject {
@@ -2360,6 +2370,7 @@ interface CollectionsByName {
   LlmConversations: LlmConversationsCollection
   LlmMessages: LlmMessagesCollection
   Localgroups: LocalgroupsCollection
+  LoginTokens: LoginTokensCollection
   ManifoldProbabilitiesCaches: ManifoldProbabilitiesCachesCollection
   Messages: MessagesCollection
   Migrations: MigrationsCollection
@@ -2455,6 +2466,7 @@ interface ObjectsByCollectionName {
   LlmConversations: DbLlmConversation
   LlmMessages: DbLlmMessage
   Localgroups: DbLocalgroup
+  LoginTokens: DbLoginToken
   ManifoldProbabilitiesCaches: DbManifoldProbabilitiesCache
   Messages: DbMessage
   Migrations: DbMigration
@@ -2550,6 +2562,7 @@ interface ObjectsByTypeName {
   LlmConversation: DbLlmConversation
   LlmMessage: DbLlmMessage
   Localgroup: DbLocalgroup
+  LoginToken: DbLoginToken
   ManifoldProbabilitiesCache: DbManifoldProbabilitiesCache
   Message: DbMessage
   Migration: DbMigration

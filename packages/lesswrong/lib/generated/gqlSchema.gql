@@ -621,6 +621,7 @@ extend type Query {
   DigestPlannerData(digestId: String, startDate: Date, endDate: Date): [DigestPlannerPost!]!
   DigestPosts(num: Int): [Post!]
   HomepageCommunityEvents(limit: Int!): HomepageCommunityEventMarkersResult!
+  HomepageCommunityEventPosts(eventType: String!): HomepageCommunityEventPostsResult!
 }
 
 extend type Mutation {
@@ -680,6 +681,10 @@ type HomepageCommunityEventMarker {
 
 type HomepageCommunityEventMarkersResult {
   events: [HomepageCommunityEventMarker!]!
+}
+
+type HomepageCommunityEventPostsResult {
+  posts: [Post!]!
 }
 
 type DigestHighlightsResult {
@@ -824,33 +829,6 @@ type RecentDiscussionFeedEntry {
 
 extend type Query {
   RecentDiscussionFeed(limit: Int, cutoff: Date, offset: Int, af: Boolean): RecentDiscussionFeedQueryResults!
-}
-
-type SubscribedPostAndComments {
-  _id: String!
-  post: Post!
-  comments: [Comment!]
-  expandCommentIds: [String!]
-  postIsFromSubscribedUser: Boolean!
-}
-
-type SubscribedFeedQueryResults {
-  cutoff: Date
-  endOffset: Int!
-  results: [SubscribedFeedEntry!]
-}
-
-enum SubscribedFeedEntryType {
-  postCommented
-}
-
-type SubscribedFeedEntry {
-  type: SubscribedFeedEntryType!
-  postCommented: SubscribedPostAndComments
-}
-
-extend type Query {
-  SubscribedFeed(limit: Int, cutoff: Date, offset: Int, af: Boolean): SubscribedFeedQueryResults!
 }
 
 type TagHistoryFeedQueryResults {
@@ -1280,8 +1258,9 @@ extend type Query {
 extend type Mutation {
   lockThread(commentId: String!, until: String): Boolean!
   unlockThread(commentId: String!): Boolean!
-  rejectContentAndRemoveUserFromQueue(userId: String!, documentId: String!, collectionName: ContentCollectionName!): Boolean!
+  rejectContentAndRemoveUserFromQueue(userId: String!, documentId: String!, collectionName: ContentCollectionName!, rejectedReason: String!, messageContent: String): Boolean!
   approveUserCurrentContentOnly(userId: String!): Boolean!
+  rerunSaplingCheck(postId: String!): AutomatedContentEvaluation!
 }
 
 extend type Mutation {
@@ -1399,6 +1378,7 @@ extend type Mutation {
 type FeedSpotlightMetaInfo {
   sources: [String!]!
   servedEventId: String!
+  rankingMetadata: JSON
 }
 
 type FeedPost {
@@ -1412,8 +1392,8 @@ type FeedCommentThread {
   commentMetaInfos: JSON
   comments: [Comment!]!
   post: Post
-  isOnReadPost: Boolean
   postSources: [String!]
+  postMetaInfo: JSON
 }
 
 type FeedSpotlightItem {
@@ -1428,6 +1408,12 @@ type FeedSubscriptionSuggestions {
   suggestedUsers: [User!]!
 }
 
+type FeedMarker {
+  _id: String!
+  markerType: String!
+  timestamp: Date!
+}
+
 type UltraFeedQueryResults {
   cutoff: Date
   endOffset: Int!
@@ -1440,6 +1426,7 @@ enum UltraFeedEntryType {
   feedPost
   feedSpotlight
   feedSubscriptionSuggestions
+  feedMarker
 }
 
 type UltraFeedEntry {
@@ -1448,6 +1435,7 @@ type UltraFeedEntry {
   feedPost: FeedPost
   feedSpotlight: FeedSpotlightItem
   feedSubscriptionSuggestions: FeedSubscriptionSuggestions
+  feedMarker: FeedMarker
 }
 
 extend type Query {
@@ -1471,6 +1459,19 @@ type ElicitQuestionPredictionCreator {
   displayName: String!
   isQuestionCreator: Boolean!
   sourceUserId: String
+}
+
+extend type Query {
+  getBookWordCount(bookId: String!): Float
+}
+
+type SequenceStats {
+  totalWordCount: Float
+  totalReadTime: Float
+}
+
+extend type Query {
+  getSequenceStats(sequenceId: String!): SequenceStats
 }
 
 type AdvisorRequest {
@@ -4539,6 +4540,7 @@ type Post {
   tagRel(tagId: String): TagRel
   tags: [Tag!]!
   tagRelevance: JSON
+  tagRels: [TagRel!]!
   lastPromotedComment: Comment
   bestAnswer: Comment
   noIndex: Boolean!
@@ -4742,6 +4744,8 @@ input PostDefaultViewInput {
   before: String
   timeField: String
   curatedAfter: String
+  requiredUnnominated: Boolean
+  requiredFrontpage: Boolean
 }
 
 input PostsUserPostsInput {
@@ -4911,6 +4915,8 @@ input PostsTimeframeInput {
   timeField: String
   curatedAfter: String
   limit: Int
+  requiredUnnominated: Boolean
+  requiredFrontpage: Boolean
 }
 
 input PostsDailyInput {
@@ -8127,6 +8133,7 @@ type User {
   recommendationSettings: JSON
   lastRemovedFromReviewQueueAt: Date
   rejectedContentCount: Int
+  userRateLimits: [UserRateLimit!]
 }
 
 enum ReactPaletteStyle {

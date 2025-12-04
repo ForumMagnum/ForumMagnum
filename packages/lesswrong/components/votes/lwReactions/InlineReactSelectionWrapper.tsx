@@ -147,23 +147,21 @@ const SelectedTextToolbarWrapper = ({
         placement="right"
         allowOverflow={true}
       >
-        <PushIntoViewport>
-          <span ref={popupRef} className={classes.textToolbar}
-            style={{position:"relative", top: yOffset+buttonOffsetTop, marginLeft: buttonOffsetLeft}}
-          >
-            <SelectedTextToolbar
-              quote={quote}
-              quoteIsNotDistinct={quoteIsNotDistinct}
-              voteProps={voteProps}
-              documentId={documentId}
-              collectionName={collectionName}
-              enableCommentOnSelection={!!enableCommentOnSelection}
-              enableInlineReacts={!!enableInlineReacts}
-              enableInlinePredictions={!!enableInlinePredictions}
-              inlinePredictionOps={inlinePredictionOps}
-            />
-          </span>
-        </PushIntoViewport>
+        <span ref={popupRef} className={classes.textToolbar}
+          style={{position:"relative", top: yOffset+buttonOffsetTop, marginLeft: buttonOffsetLeft}}
+        >
+          <SelectedTextToolbar
+            quote={quote}
+            quoteIsNotDistinct={quoteIsNotDistinct}
+            voteProps={voteProps}
+            documentId={documentId}
+            collectionName={collectionName}
+            enableCommentOnSelection={!!enableCommentOnSelection}
+            enableInlineReacts={!!enableInlineReacts}
+            enableInlinePredictions={!!enableInlinePredictions}
+            inlinePredictionOps={inlinePredictionOps}
+          />
+        </span>
       </LWPopper>}
 
       {children}
@@ -213,16 +211,18 @@ const SelectedTextToolbar = ({ enableCommentOnSelection, enableInlineReacts, ena
       />
     case "probability":
       if (!inlinePredictionOps) return null;
-      return <AddClaimDialog
-        documentId={documentId}
-        collectionName={collectionName}
-        quote={quote}
-        inlinePredictionOps={inlinePredictionOps}
-        onClose={() => {
-          setState("closed")
-          clearTextSelection();
-        }}
-      />
+      return <PushIntoViewport>
+        <AddClaimDialog
+          documentId={documentId}
+          collectionName={collectionName}
+          quote={quote}
+          inlinePredictionOps={inlinePredictionOps}
+          onClose={() => {
+            setState("closed")
+            clearTextSelection();
+          }}
+        />
+      </PushIntoViewport>
   }
 }
 
