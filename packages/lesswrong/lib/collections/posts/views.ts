@@ -1205,7 +1205,8 @@ function nominatablePostsByVote(terms: PostsViewTerms, _: ApolloClient, context?
       userId: {$ne: context?.currentUser?._id,},
       ...frontpageFilter,
       ...nominationFilter,
-      isEvent: false
+      isEvent: false,
+      _id: { $nin: reviewExcludedPostIds }
     },
     options: {
       sort: {
@@ -1266,7 +1267,8 @@ function reviewQuickPage(terms: PostsViewTerms) {
     selector: {
       reviewCount: 0,
       positiveReviewVoteCount: { $gte: REVIEW_AND_VOTING_PHASE_VOTECOUNT_THRESHOLD },
-      reviewVoteScoreAllKarma: { $gte: QUICK_REVIEW_SCORE_THRESHOLD }
+      reviewVoteScoreAllKarma: { $gte: QUICK_REVIEW_SCORE_THRESHOLD },
+      _id: { $nin: reviewExcludedPostIds }
     },
     options: {
       sort: {
