@@ -7716,6 +7716,7 @@ export type Query = {
   rSSFeeds: Maybe<MultiRSSFeedOutput>;
   report: Maybe<SingleReportOutput>;
   reports: Maybe<MultiReportOutput>;
+  reviewPredictionPosts: Array<Post>;
   reviewVote: Maybe<SingleReviewVoteOutput>;
   reviewVotes: Maybe<MultiReviewVoteOutput>;
   reviewWinner: Maybe<SingleReviewWinnerOutput>;
@@ -8793,6 +8794,12 @@ export type QueryreportsArgs = {
   limit?: InputMaybe<Scalars['Int']['input']>;
   offset?: InputMaybe<Scalars['Int']['input']>;
   selector?: InputMaybe<ReportSelector>;
+};
+
+
+export type QueryreviewPredictionPostsArgs = {
+  limit?: InputMaybe<Scalars['Int']['input']>;
+  year: Scalars['Int']['input'];
 };
 
 
@@ -16761,6 +16768,17 @@ export type getPostsUserCommentedOnQuery = { __typename?: 'Query', PostsUserComm
       & PostsListWithVotes
     )> | null } | null };
 
+export type ReviewPredictionPostsQueryVariables = Exact<{
+  year: Scalars['Int']['input'];
+  limit?: InputMaybe<Scalars['Int']['input']>;
+}>;
+
+
+export type ReviewPredictionPostsQuery = { __typename?: 'Query', reviewPredictionPosts: Array<(
+    { __typename?: 'Post', annualReviewMarketProbability: number | null, annualReviewMarketUrl: string | null }
+    & PostsListWithVotes
+  )> };
+
 export type multiPostQuickReviewPageQueryQueryVariables = Exact<{
   selector?: InputMaybe<PostSelector>;
   limit?: InputMaybe<Scalars['Int']['input']>;
@@ -22305,6 +22323,7 @@ export const RemoveForumEventStickerDocument = {"kind":"Document","definitions":
 export const RemoveForumEventVoteDocument = {"kind":"Document","definitions":[{"kind":"OperationDefinition","operation":"mutation","name":{"kind":"Name","value":"RemoveForumEventVote"},"variableDefinitions":[{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"forumEventId"}},"type":{"kind":"NonNullType","type":{"kind":"NamedType","name":{"kind":"Name","value":"String"}}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"RemoveForumEventVote"},"arguments":[{"kind":"Argument","name":{"kind":"Name","value":"forumEventId"},"value":{"kind":"Variable","name":{"kind":"Name","value":"forumEventId"}}}]}]}}]} as unknown as DocumentNode<RemoveForumEventVoteMutation, RemoveForumEventVoteMutationVariables>;
 export const RemoveGivingSeasonHeartDocument = {"kind":"Document","definitions":[{"kind":"OperationDefinition","operation":"mutation","name":{"kind":"Name","value":"RemoveGivingSeasonHeart"},"variableDefinitions":[{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"electionName"}},"type":{"kind":"NonNullType","type":{"kind":"NamedType","name":{"kind":"Name","value":"String"}}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"RemoveGivingSeasonHeart"},"arguments":[{"kind":"Argument","name":{"kind":"Name","value":"electionName"},"value":{"kind":"Variable","name":{"kind":"Name","value":"electionName"}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"userId"}},{"kind":"Field","name":{"kind":"Name","value":"displayName"}},{"kind":"Field","name":{"kind":"Name","value":"x"}},{"kind":"Field","name":{"kind":"Name","value":"y"}},{"kind":"Field","name":{"kind":"Name","value":"theta"}}]}}]}}]} as unknown as DocumentNode<RemoveGivingSeasonHeartMutation, RemoveGivingSeasonHeartMutationVariables>;
 export const RerunSaplingCheckHookDocument = {"kind":"Document","definitions":[{"kind":"OperationDefinition","operation":"mutation","name":{"kind":"Name","value":"RerunSaplingCheckHook"},"variableDefinitions":[{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"postId"}},"type":{"kind":"NonNullType","type":{"kind":"NamedType","name":{"kind":"Name","value":"String"}}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"rerunSaplingCheck"},"arguments":[{"kind":"Argument","name":{"kind":"Name","value":"postId"},"value":{"kind":"Variable","name":{"kind":"Name","value":"postId"}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"FragmentSpread","name":{"kind":"Name","value":"AutomatedContentEvaluationsFragment"}}]}}]}},AutomatedContentEvaluationsFragmentFragmentDef]} as unknown as DocumentNode<RerunSaplingCheckHookMutation, RerunSaplingCheckHookMutationVariables>;
+export const ReviewPredictionPostsDocument = {"kind":"Document","definitions":[{"kind":"OperationDefinition","operation":"query","name":{"kind":"Name","value":"ReviewPredictionPosts"},"variableDefinitions":[{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"year"}},"type":{"kind":"NonNullType","type":{"kind":"NamedType","name":{"kind":"Name","value":"Int"}}}},{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"limit"}},"type":{"kind":"NamedType","name":{"kind":"Name","value":"Int"}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"reviewPredictionPosts"},"arguments":[{"kind":"Argument","name":{"kind":"Name","value":"year"},"value":{"kind":"Variable","name":{"kind":"Name","value":"year"}}},{"kind":"Argument","name":{"kind":"Name","value":"limit"},"value":{"kind":"Variable","name":{"kind":"Name","value":"limit"}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"FragmentSpread","name":{"kind":"Name","value":"PostsListWithVotes"}},{"kind":"Field","name":{"kind":"Name","value":"annualReviewMarketProbability"}},{"kind":"Field","name":{"kind":"Name","value":"annualReviewMarketUrl"}}]}}]}},PostsListWithVotesFragmentDef,PostsListFragmentDef,PostsListBaseFragmentDef,PostsBaseFragmentDef,PostsMinimumInfoFragmentDef,PostsAuthorsFragmentDef,UsersMinimumInfoFragmentDef,CommentsListFragmentDef,TagPreviewFragmentFragmentDef,TagBasicInfoFragmentDef,PostPodcastEpisodeFragmentDef]} as unknown as DocumentNode<ReviewPredictionPostsQuery, ReviewPredictionPostsQueryVariables>;
 export const ReviewVotingExpandedPostDocument = {"kind":"Document","definitions":[{"kind":"OperationDefinition","operation":"query","name":{"kind":"Name","value":"ReviewVotingExpandedPost"},"variableDefinitions":[{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"documentId"}},"type":{"kind":"NamedType","name":{"kind":"Name","value":"String"}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"post"},"arguments":[{"kind":"Argument","name":{"kind":"Name","value":"input"},"value":{"kind":"ObjectValue","fields":[{"kind":"ObjectField","name":{"kind":"Name","value":"selector"},"value":{"kind":"ObjectValue","fields":[{"kind":"ObjectField","name":{"kind":"Name","value":"documentId"},"value":{"kind":"Variable","name":{"kind":"Name","value":"documentId"}}}]}}]}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"result"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"FragmentSpread","name":{"kind":"Name","value":"PostsList"}}]}}]}}]}},PostsListFragmentDef,PostsListBaseFragmentDef,PostsBaseFragmentDef,PostsMinimumInfoFragmentDef,PostsAuthorsFragmentDef,UsersMinimumInfoFragmentDef,CommentsListFragmentDef,TagPreviewFragmentFragmentDef,TagBasicInfoFragmentDef]} as unknown as DocumentNode<ReviewVotingExpandedPostQuery, ReviewVotingExpandedPostQueryVariables>;
 export const ReviewWinnerAllDoc = {"kind":"Document","definitions":[ReviewWinnerAllFragmentDef,ReviewWinnerArtImagesFragmentDef,SplashArtCoordinatesEditFragmentDef,SplashArtCoordinatesFragmentDef]} as unknown as DocumentNode<ReviewWinnerAll, unknown>;
 export const ReviewWinnerAnnouncementDoc = {"kind":"Document","definitions":[ReviewWinnerAnnouncementFragmentDef]} as unknown as DocumentNode<ReviewWinnerAnnouncement, unknown>;

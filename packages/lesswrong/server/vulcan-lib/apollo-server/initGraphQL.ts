@@ -68,6 +68,7 @@ import { generateCoverImagesForPostGraphQLMutations, generateCoverImagesForPostG
 import { elicitQuestionPredictionsGraphQLTypeDefs } from '@/lib/collections/elicitQuestionPredictions/newSchema';
 import { booksResolversTypeDefs, booksResolversQueries } from '@/server/resolvers/booksResolvers';
 import { sequencesResolversTypeDefs, sequencesResolversQueries } from '@/server/resolvers/sequencesResolvers';
+import { reviewPredictionGraphQLTypeDefs, reviewPredictionGraphQLQueries } from '@/server/resolvers/reviewPredictionResolvers';
 
 // Collection imports
 import { graphqlAdvisorRequestQueryTypeDefs, advisorRequestGqlQueryHandlers, advisorRequestGqlFieldResolvers } from "@/server/collections/advisorRequests/queries";
@@ -321,6 +322,7 @@ export const getTypeDefs = () => gql`
   ${elicitQuestionPredictionsGraphQLTypeDefs}
   ${booksResolversTypeDefs}
   ${sequencesResolversTypeDefs}
+  ${reviewPredictionGraphQLTypeDefs}
   ## CRUD Query typedefs
   ${graphqlAdvisorRequestQueryTypeDefs}
   ${graphqlArbitalCachesQueryTypeDefs}
@@ -504,6 +506,7 @@ const getResolvers = () => ({
     ...spotlightGqlQueries,
     ...booksResolversQueries,
     ...sequencesResolversQueries,
+    ...reviewPredictionGraphQLQueries,
 
     // CRUD Query Handlers
     ...advisorRequestGqlQueryHandlers,

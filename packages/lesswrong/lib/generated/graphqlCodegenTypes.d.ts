@@ -7713,6 +7713,7 @@ type Query = {
   rSSFeeds?: Maybe<MultiRSSFeedOutput>;
   report?: Maybe<SingleReportOutput>;
   reports?: Maybe<MultiReportOutput>;
+  reviewPredictionPosts: Array<Post>;
   reviewVote?: Maybe<SingleReviewVoteOutput>;
   reviewVotes?: Maybe<MultiReviewVoteOutput>;
   reviewWinner?: Maybe<SingleReviewWinnerOutput>;
@@ -8790,6 +8791,12 @@ type QueryreportsArgs = {
   limit?: InputMaybe<Scalars['Int']['input']>;
   offset?: InputMaybe<Scalars['Int']['input']>;
   selector?: InputMaybe<ReportSelector>;
+};
+
+
+type QueryreviewPredictionPostsArgs = {
+  limit?: InputMaybe<Scalars['Int']['input']>;
+  year: Scalars['Int']['input'];
 };
 
 
@@ -19135,6 +19142,22 @@ type getPostsUserCommentedOnQueryVariables = Exact<{
 
 
 type getPostsUserCommentedOnQuery = getPostsUserCommentedOnQuery_Query;
+
+type ReviewPredictionPostsQuery_reviewPredictionPosts_Post = (
+  { __typename?: 'Post', annualReviewMarketProbability: number | null, annualReviewMarketUrl: string | null }
+  & PostsListWithVotes
+);
+
+type ReviewPredictionPostsQuery_Query = { __typename?: 'Query', reviewPredictionPosts: Array<ReviewPredictionPostsQuery_reviewPredictionPosts_Post> };
+
+
+type ReviewPredictionPostsQueryVariables = Exact<{
+  year: Scalars['Int']['input'];
+  limit: InputMaybe<Scalars['Int']['input']>;
+}>;
+
+
+type ReviewPredictionPostsQuery = ReviewPredictionPostsQuery_Query;
 
 type multiPostQuickReviewPageQueryQuery_posts_MultiPostOutput_results_Post = (
   { __typename?: 'Post' }

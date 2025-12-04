@@ -1474,6 +1474,10 @@ extend type Query {
   getSequenceStats(sequenceId: String!): SequenceStats
 }
 
+extend type Query {
+  reviewPredictionPosts(year: Int!, limit: Int = 50): [Post!]!
+}
+
 type AdvisorRequest {
   _id: String!
   schemaVersion: Float!

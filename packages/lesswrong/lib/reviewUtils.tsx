@@ -38,10 +38,13 @@ export const REVIEW_YEAR = 2024
 export const BEST_OF_LESSWRONG_PUBLISH_YEAR: PublishedReviewYear = 2023
 
 const publishedReviewYearsArray = [2018, 2019, 2020, 2021, 2022, 2023] as const;
+const predictedReviewYearsArray = [2024, 2025] as const;
 export const publishedReviewYears = new TupleSet(publishedReviewYearsArray);
 export const reviewYears = new TupleSet([...publishedReviewYears, REVIEW_YEAR] as const);
+export const predictedReviewYears = new TupleSet(predictedReviewYearsArray);
 
 export type ReviewYear = UnionOf<typeof reviewYears>;
+export type PredictedReviewYear = UnionOf<typeof predictedReviewYears>;
 export type PublishedReviewYear = UnionOf<typeof publishedReviewYears>;
 
 export function getReviewYearFromString(yearParam: string): ReviewYear {

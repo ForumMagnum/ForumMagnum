@@ -57,6 +57,7 @@ export type PostsItemConfig = {
   showIcons?: boolean,
   showPostedAt?: boolean,
   defaultToShowUnreadComments?: boolean,
+  showCommentsIcon?: boolean,
   /** dense: (bool) Slightly reduce margins to make this denser. Used on the AllPosts page.*/
   dense?: boolean,
   /** bookmark: (bool) Whether this is a bookmark. Adds a clickable bookmark icon.*/
@@ -133,6 +134,7 @@ export const usePostsItem = ({
   isVoteable = false,
   recombeeRecommId,
   emphasizeIfNew = false,
+  showCommentsIcon = true,
   className,
 }: PostsItemConfig) => {
   const [showComments, setShowComments] = useState(defaultToShowComments);
@@ -238,6 +240,7 @@ export const usePostsItem = ({
     showBottomBorder,
     showDismissButton,
     showArchiveButton,
+    showCommentsIcon,
     onDismiss: dismissRecommendation,
     onArchive,
     hasUnreadComments,
