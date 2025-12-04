@@ -430,17 +430,31 @@ export async function buildRevision({ originalContents, currentUser, dataWithDis
   dataWithDiscardedSuggestions?: string,
   context: ResolverContext,
 }) {
-
+  return await buildRevisionWithUser({
+    originalContents,
+    user: currentUser,
+    isAdmin: currentUser.isAdmin,
+    dataWithDiscardedSuggestions,
+    context,
+  });
+}
+export async function buildRevisionWithUser({ originalContents, user, isAdmin, dataWithDiscardedSuggestions, context }: {
+  originalContents: DbRevision["originalContents"],
+  user: DbUser,
+  isAdmin: boolean,
+  dataWithDiscardedSuggestions?: string,
+  context: ResolverContext,
+}) {
   if (!originalContents) throw new Error ("Can't build revision without originalContents")
 
   const { data, type } = originalContents;
   const readerVisibleData = dataWithDiscardedSuggestions ?? data
-  const html = await dataToHTML(readerVisibleData, type, context, { sanitize: !currentUser.isAdmin })
+  const html = await dataToHTML(readerVisibleData, type, context, { sanitize: !isAdmin })
   const wordCount = await dataToWordCount(readerVisibleData, type, context)
 
   return {
     html, wordCount, originalContents,
     editedAt: new Date(),
-    userId: currentUser._id,
+    userId: user._id,
   };
 }
