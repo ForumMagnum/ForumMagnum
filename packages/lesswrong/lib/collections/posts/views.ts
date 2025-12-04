@@ -203,6 +203,13 @@ function defaultView(terms: PostsViewTerms, _: ApolloClient, context?: ResolverC
     }
   }
   
+  if (terms.requiredUnnominated) {
+    params.selector.positiveReviewVoteCount = { $lt: REVIEW_AND_VOTING_PHASE_VOTECOUNT_THRESHOLD }
+  }
+  if (terms.requiredFrontpage) {
+    params.selector.frontpageDate = {$exists: true}
+  }
+
   if (terms.after || terms.before) {
     let postedAt: any = {};
 
