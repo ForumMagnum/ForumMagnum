@@ -170,10 +170,10 @@ export async function saveDocumentRevision(userId: string, documentId: string, h
 // admins are allowed to bypass some sanitization, and we don't want non-admin
 // users editing posts shared by admins to be able to do that, so we return an
 // isAdmin flag separately.
-async function getUserForSavedPost(postId: string, userId: string): {
+async function getUserForSavedPost(postId: string, userId: string): Promise<{
   user: DbUser
   isAdmin: boolean
-} {
+}> {
   const originalUser = await Users.findOne(userId);
   if (originalUser) {
     return {user: originalUser, isAdmin: originalUser.isAdmin};
