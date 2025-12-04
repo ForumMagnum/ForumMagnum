@@ -83,17 +83,16 @@ const styles = (theme: ThemeType) => ({
   },
 });
 
-// This is the data for the next EA Connect: https://eaconnect.effectivealtruism.org/
-// Note: Please change "Register now" back to "Apply now" if setting this up for a non-open conference
-const eagName = 'EA Connect'
-// const eagLocation = {
-//   lat: 1.293200,
-//   lng: 103.857109,
-// }
-// const eagCountry = 'SG'
-const eagPostLink = "/posts/L9ixhGCji9zhH7XjB/ea-connect-2025-c-ea-s-largest-event-ever-is-in-two-weeks"
-const eagLink = "https://eaconnect.effectivealtruism.org/"
-const applicationDeadline = moment.utc('2025-12-03', 'YYYY-MM-DD')
+// This is the data for the next EAGx (Singapore)
+const eagName = 'EAGxSingapore'
+const eagLocation = {
+  lat: 1.293200,
+  lng: 103.857109,
+}
+const eagCountry = 'SG'
+const eagPostLink = "/posts/ygKf2PhKAFdaogHJy/apply-by-nov-30-eagxsingapore-in-december"
+const eagLink = "https://www.effectivealtruism.org/ea-global/events/eagxsingapore-2024"
+const applicationDeadline = moment.utc('2024-11-30', 'YYYY-MM-DD')
 
 
 /**
@@ -110,12 +109,12 @@ const EAGBanner = ({classes}: {classes: ClassesType<typeof styles>}) => {
   // 1. (logged in user) user settings
   // 2. (logged out user) browser's local storage
   // 3. country code in local storage, which is also used by the cookie banner
-  // const userLocation = useUserLocation(currentUser, true)
-  // const [countryCode, setCountryCode] = useState<string|null>(null)
-  // useEffect(() => {
-  //   // Get the country code from local storage
-  //   setCountryCode(getCachedUserCountryCode())
-  // }, [])
+  const userLocation = useUserLocation(currentUser, true)
+  const [countryCode, setCountryCode] = useState<string|null>(null)
+  useEffect(() => {
+    // Get the country code from local storage
+    setCountryCode(getCachedUserCountryCode())
+  }, [])
 
   const hideBanner = useCallback(() => {
     setCookie(HIDE_EAG_BANNER_COOKIE, "true", {
@@ -131,10 +130,11 @@ const EAGBanner = ({classes}: {classes: ClassesType<typeof styles>}) => {
 
   // This EAG(x) is relevant to the user if they are within 500 miles of it,
   // or they live in relevant/nearby countries.
-  // const userLocationNearby = userLocation.known && (distance(eagLocation, userLocation, 'mi') < 500)
-  // const userInCountry = countryCode === eagCountry
-  // const isRelevant = userLocationNearby || userInCountry
+  const userLocationNearby = userLocation.known && (distance(eagLocation, userLocation, 'mi') < 500)
+  const userInCountry = countryCode === eagCountry
+  const isRelevant = userLocationNearby || userInCountry
   if (
+    !isRelevant ||
     moment.utc().isAfter(applicationDeadline, 'day') ||
     cookies[HIDE_EAG_BANNER_COOKIE] === "true"
   ) {
@@ -142,7 +142,7 @@ const EAGBanner = ({classes}: {classes: ClassesType<typeof styles>}) => {
   }
   const inViewEventProps = {
     inViewType: `${eagName}Banner`,
-    // reason: userLocationNearby && userInCountry ? 'both' : userLocationNearby ? 'nearby' : 'country'
+    reason: userLocationNearby && userInCountry ? 'both' : userLocationNearby ? 'nearby' : 'country'
   }
 
   return (
@@ -153,8 +153,8 @@ const EAGBanner = ({classes}: {classes: ClassesType<typeof styles>}) => {
             <div className={classes.lightbulb}>{lightbulbIcon}</div>
             <div className={classes.content}>
               <div className={classes.topRow}>
-                Upcoming virtual conference
-                {/* <LWTooltip title={
+                Upcoming conference near you
+                <LWTooltip title={
                     <>
                       You're seeing this recommendation because of your location.{" "}
                       {userLocationNearby && <>
@@ -168,7 +168,7 @@ const EAGBanner = ({classes}: {classes: ClassesType<typeof styles>}) => {
                   clickable={userLocationNearby}
                 >
                   <ForumIcon icon="QuestionMarkCircle" className={classes.infoIcon} />
-                </LWTooltip> */}
+                </LWTooltip>
               </div>
               <div>
                 <HoverPreviewLink href={eagPostLink}>
@@ -176,7 +176,7 @@ const EAGBanner = ({classes}: {classes: ClassesType<typeof styles>}) => {
                 </HoverPreviewLink>{" "}
                 applications close on {applicationDeadline.format('ddd MMMM D')}.{" "}
                 <Link to={eagLink} className={classes.applyLink}>
-                  Register now
+                  Apply now
                 </Link>
               </div>
             </div>
