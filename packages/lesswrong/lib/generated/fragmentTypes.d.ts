@@ -151,6 +151,7 @@ interface FragmentTypes {
   SuggestAlignmentComment: SuggestAlignmentComment
   SuggestAlignmentPost: SuggestAlignmentPost
   SuggestAlignmentUser: SuggestAlignmentUser
+  SunshineCommentsList: SunshineCommentsList
   SunshineCurationPostsList: SunshineCurationPostsList
   SunshinePostsList: SunshinePostsList
   SunshineTagFragment: SunshineTagFragment
@@ -250,7 +251,7 @@ interface FragmentTypesByCollection {
   CkEditorUserSessions: "CkEditorUserSessionInfo"
   ClientIds: "ModeratorClientIDInfo"
   Collections: "CollectionContinueReadingFragment"|"CollectionsBestOfFragment"|"CollectionsEditFragment"|"CollectionsPageFragment"
-  Comments: "CommentEdit"|"CommentWithRepliesFragment"|"CommentsForAutocomplete"|"CommentsForAutocompleteWithParents"|"CommentsList"|"CommentsListWithModGPTAnalysis"|"CommentsListWithParentMetadata"|"CommentsListWithTopLevelComment"|"DeletedCommentsMetaData"|"DeletedCommentsModerationLog"|"DraftComments"|"FrontpageShortformComments"|"ShortformComments"|"StickySubforumCommentFragment"|"SuggestAlignmentComment"|"UltraFeedComment"|"WithVoteComment"
+  Comments: "CommentEdit"|"CommentWithRepliesFragment"|"CommentsForAutocomplete"|"CommentsForAutocompleteWithParents"|"CommentsList"|"CommentsListWithModGPTAnalysis"|"CommentsListWithParentMetadata"|"CommentsListWithTopLevelComment"|"DeletedCommentsMetaData"|"DeletedCommentsModerationLog"|"DraftComments"|"FrontpageShortformComments"|"ShortformComments"|"StickySubforumCommentFragment"|"SuggestAlignmentComment"|"SunshineCommentsList"|"UltraFeedComment"|"WithVoteComment"
   Conversations: "ConversationsList"|"ConversationsListWithReadStatus"|"ConversationsMinimumInfo"
   CurationNotices: "CurationNoticesFragment"
   DigestPosts: "DigestPostsMinimumInfo"
@@ -451,6 +452,7 @@ interface CollectionNamesByFragmentName {
   SuggestAlignmentComment: "Comments"
   SuggestAlignmentPost: "Posts"
   SuggestAlignmentUser: "Users"
+  SunshineCommentsList: "Comments"
   SunshineCurationPostsList: "Posts"
   SunshinePostsList: "Posts"
   SunshineTagFragment: "Tags"

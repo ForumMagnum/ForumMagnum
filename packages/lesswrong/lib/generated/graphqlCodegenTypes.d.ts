@@ -378,6 +378,7 @@ type Comment = {
   answer: Scalars['Boolean']['output'];
   author?: Maybe<Scalars['String']['output']>;
   authorIsUnreviewed: Scalars['Boolean']['output'];
+  automatedContentEvaluations?: Maybe<AutomatedContentEvaluation>;
   baseScore?: Maybe<Scalars['Float']['output']>;
   contents?: Maybe<Revision>;
   contents_latest?: Maybe<Scalars['String']['output']>;
@@ -4974,7 +4975,8 @@ type MutationreorderSummariesArgs = {
 
 
 type MutationrerunSaplingCheckArgs = {
-  postId: Scalars['String']['input'];
+  collectionName: ContentCollectionName;
+  documentId: Scalars['String']['input'];
 };
 
 
@@ -16393,7 +16395,7 @@ type markConversationReadMutation = markConversationReadMutation_Mutation;
 
 type multiCommentModerationSidebarQueryQuery_comments_MultiCommentOutput_results_Comment = (
   { __typename?: 'Comment' }
-  & CommentsListWithParentMetadata
+  & SunshineCommentsList
 );
 
 type multiCommentModerationSidebarQueryQuery_comments_MultiCommentOutput = { __typename?: 'MultiCommentOutput', totalCount: number | null, results: Array<multiCommentModerationSidebarQueryQuery_comments_MultiCommentOutput_results_Comment> };
@@ -21821,7 +21823,8 @@ type RerunSaplingCheckHookMutation_Mutation = { __typename?: 'Mutation', rerunSa
 
 
 type RerunSaplingCheckHookMutationVariables = Exact<{
-  postId: Scalars['String']['input'];
+  documentId: Scalars['String']['input'];
+  collectionName: ContentCollectionName;
 }>;
 
 
@@ -24764,6 +24767,16 @@ type CommentsListWithParentMetadata_Comment_tag_Tag = (
 type CommentsListWithParentMetadata = (
   { __typename?: 'Comment', post: CommentsListWithParentMetadata_Comment_post_Post | null, tag: CommentsListWithParentMetadata_Comment_tag_Tag | null }
   & CommentsList
+);
+
+type SunshineCommentsList_Comment_automatedContentEvaluations_AutomatedContentEvaluation = (
+  { __typename?: 'AutomatedContentEvaluation' }
+  & AutomatedContentEvaluationsFragment
+);
+
+type SunshineCommentsList = (
+  { __typename?: 'Comment', automatedContentEvaluations: SunshineCommentsList_Comment_automatedContentEvaluations_AutomatedContentEvaluation | null }
+  & CommentsListWithParentMetadata
 );
 
 type StickySubforumCommentFragment_Comment_tag_Tag = (

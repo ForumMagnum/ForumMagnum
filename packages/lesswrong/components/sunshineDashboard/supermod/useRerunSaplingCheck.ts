@@ -5,33 +5,34 @@ import { useMessages } from '@/components/common/withMessages';
 import type { InboxAction } from './inboxReducer';
 
 const RerunSaplingCheckMutation = gql(`
-  mutation RerunSaplingCheckHook($postId: String!) {
-    rerunSaplingCheck(postId: $postId) {
+  mutation RerunSaplingCheckHook($documentId: String!, $collectionName: ContentCollectionName!) {
+    rerunSaplingCheck(documentId: $documentId, collectionName: $collectionName) {
       ...AutomatedContentEvaluationsFragment
     }
   }
 `);
 
 export function useRerunSaplingCheck(
-  postId: string | null,
+  documentId: string | null,
+  collectionName: 'Posts' | 'Comments',
   dispatch: React.Dispatch<InboxAction>
 ) {
   const { flash } = useMessages();
   const [rerunSaplingCheck, { loading }] = useMutation(RerunSaplingCheckMutation);
 
   const handleRerunSaplingCheck = useCallback(async () => {
-    if (!postId || loading) return;
+    if (!documentId || loading) return;
 
     try {
       const result = await rerunSaplingCheck({
-        variables: { postId },
+        variables: { documentId, collectionName },
         update: (cache, { data }) => {
           if (!data?.rerunSaplingCheck) return;
           
-          // Update the Apollo cache directly for the post
-          // This will update all places where this post is displayed
+          // Update the Apollo cache directly
+          const typename = collectionName === 'Posts' ? 'Post' : 'Comment';
           cache.modify({
-            id: cache.identify({ __typename: 'Post', _id: postId }),
+            id: cache.identify({ __typename: typename, _id: documentId }),
             fields: {
               automatedContentEvaluations: () => data.rerunSaplingCheck,
             },
@@ -40,11 +41,11 @@ export function useRerunSaplingCheck(
       });
 
       const newAce = result.data?.rerunSaplingCheck;
-      // Also update the reducer for components that use it
-      if (newAce) {
+      // For posts, also update the reducer since posts are stored in reducer state
+      if (newAce && collectionName === 'Posts') {
         dispatch({
           type: 'UPDATE_POST',
-          postId,
+          postId: documentId,
           fields: { automatedContentEvaluations: newAce },
         });
       }
@@ -54,11 +55,10 @@ export function useRerunSaplingCheck(
       const errorMessage = error instanceof Error ? error.message : 'Unknown error';
       flash({ messageString: `Sapling check failed: ${errorMessage}`, type: 'error' });
     }
-  }, [postId, loading, rerunSaplingCheck, dispatch, flash]);
+  }, [documentId, collectionName, loading, rerunSaplingCheck, dispatch, flash]);
 
   return {
     handleRerunSaplingCheck,
     isRunningSaplingCheck: loading,
   };
 }
-
