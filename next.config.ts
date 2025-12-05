@@ -45,6 +45,7 @@ const nextConfig: NextConfig = {
     define: {
       ...(process.env.E2E === 'true' ? { 'process.env.E2E': 'true' } : {}),
       'process.env.FORUM_TYPE': process.env.FORUM_TYPE ?? 'LessWrong',
+      ...(process.env.VERCEL_DEPLOYMENT_ID ? { 'process.env.VERCEL_DEPLOYMENT_ID': 'true' } : {}),
     },
   },
   productionBrowserSourceMaps: true,
