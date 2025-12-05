@@ -7,9 +7,8 @@ import { getAllCollections } from './collections/allCollections';
 import { isAnyTest } from '../lib/executionEnvironment';
 import { PublicInstanceSetting } from "../lib/instanceSettings";
 import { refreshSettingsCaches } from './loadDatabaseSettings';
-import { CommandLineArguments, getCommandLineArguments } from './commandLine';
+import { CommandLineArguments, getCommandLineArguments, setCommandLineArguments } from './commandLine';
 import { getBranchDbName } from "./branchDb";
-import { dropAndCreatePg } from './testingSqlClient';
 import process from 'process';
 import { filterConsoleLogSpam, wrapConsoleLogFunctions } from '../lib/consoleFilters';
 import cluster from 'node:cluster';
@@ -93,6 +92,7 @@ export const initServer = async (commandLineArguments: CommandLineArguments) => 
   if (!commandLineArguments.postgresUrl) {
     panic("Missing postgresUrl");
   }
+  setCommandLineArguments(commandLineArguments);
   await initDatabases(commandLineArguments);
   await initSettings();
   importAllServerFiles();

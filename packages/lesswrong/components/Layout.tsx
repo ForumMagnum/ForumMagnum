@@ -25,7 +25,6 @@ import { useCookiePreferences } from './hooks/useCookiesWithConsent';
 import { useHeaderVisible } from './hooks/useHeaderVisible';
 import StickyBox from '../lib/vendor/react-sticky-box';
 import { isFriendlyUI } from '../themes/forumTheme';
-import { requireCssVar } from '../themes/cssVars';
 import { UnreadNotificationsContextProvider } from './hooks/useUnreadNotifications';
 import { CurrentAndRecentForumEventsProvider } from './hooks/useCurrentForumEvent';
 export const petrovBeforeTime = new DatabasePublicSetting<number>('petrov.beforeTime', 0)
@@ -232,8 +231,6 @@ const styles = defineStyles("Layout", (theme: ThemeType) => ({
   },
 }));
 
-const wrappedBackgroundColor = requireCssVar("palette", "wrapped", "background")
-
 const StickyWrapper = ({children}: {
   children: ReactNode,
 }) => {
@@ -334,9 +331,8 @@ const Layout = ({currentUser, children}: {
   const isWrapped = pathname.startsWith('/wrapped');
 
   let headerBackgroundColor: ColorString;
-  // For the EAF Wrapped page, we change the header's background color to a dark blue.
   if (isWrapped) {
-    headerBackgroundColor = wrappedBackgroundColor;
+    headerBackgroundColor = "transparent";
   } else if (blackBarTitle.get()) {
     headerBackgroundColor = 'rgba(0, 0, 0, 0.7)';
   }

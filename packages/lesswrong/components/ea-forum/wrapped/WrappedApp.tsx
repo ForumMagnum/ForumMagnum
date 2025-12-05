@@ -6,6 +6,7 @@ import { Helmet } from "@/lib/utils/componentsWithChildren";
 import range from "lodash/range";
 import classNames from "classnames";
 import ForumIcon from "../../common/ForumIcon";
+import DeferRender from "@/components/common/DeferRender";
 
 const styles = (theme: ThemeType) => ({
   root: {
@@ -64,10 +65,10 @@ const styles = (theme: ThemeType) => ({
     },
   },
   navSection: {
-    width: 8,
-    height: 8,
+    width: 20,
+    height: theme.borderRadius.default,
+    borderRadius: theme.borderRadius.default,
     background: theme.palette.text.alwaysWhite,
-    borderRadius: "50%",
   },
   navSectionInactive: {
     opacity: 0.3,
@@ -111,23 +112,25 @@ const WrappedApp = ({classes}: {
         <link rel="prefetch" href={personalityVideo.frame} crossOrigin="anonymous" />
       </Helmet>
       <div className={classes.app}>
-        <div className={classes.offscreenVideos}>
-          {/* Preload videos offscreen so they'll be ready when we need them */}
-          <video
-            src={thinkingVideo.src}
-            ref={thinkingVideoRef}
-            muted
-            playsInline
-            preload="auto"
-          />
-          <video
-            src={personalityVideo.src}
-            ref={personalityVideoRef}
-            muted
-            playsInline
-            preload="auto"
-          />
-        </div>
+        <DeferRender ssr={false}>
+          <div className={classes.offscreenVideos}>
+            {/* Preload videos offscreen so they'll be ready when we need them */}
+            <video
+              src={thinkingVideo.src}
+              ref={thinkingVideoRef}
+              muted
+              playsInline
+              preload="auto"
+            />
+            <video
+              src={personalityVideo.src}
+              ref={personalityVideoRef}
+              muted
+              playsInline
+              preload="auto"
+            />
+          </div>
+        </DeferRender>
         <CurrentSection />
       </div>
       {currentSection > 0 &&
@@ -139,7 +142,7 @@ const WrappedApp = ({classes}: {
             {range(1, totalSections).map((i) => (
               <div key={i} className={classNames(
                 classes.navSection,
-                i !== currentSection && classes.navSectionInactive,
+                i > currentSection && classes.navSectionInactive,
               )} />
             ))}
             <div className={classes.navButton} onClick={goToNextSection}>
@@ -157,5 +160,3 @@ export default registerComponent(
   WrappedApp,
   {styles},
 );
-
-

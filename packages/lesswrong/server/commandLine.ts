@@ -67,6 +67,10 @@ const parseCommandLine = (argv: Array<string>): CommandLineArguments => {
 }
 
 let parsedCommandLine: CommandLineArguments|null = null;
+
+export const setCommandLineArguments = (args: CommandLineArguments) =>
+  parsedCommandLine = args;
+
 export const getCommandLineArguments = () => {
   if (!parsedCommandLine) {
     parsedCommandLine = parseCommandLine(process.argv);

@@ -19,6 +19,7 @@ import FormatDate from "../common/FormatDate";
 import PostsItemDate from "../posts/PostsItemDate";
 import ForumIcon from "../common/ForumIcon";
 import SidebarDigestAd from "./digestAd/SidebarDigestAd";
+import WrappedAd from './wrapped/WrappedAd';
 
 /**
  * The max screen width where the Home RHS is visible
@@ -238,8 +239,9 @@ export const EAHomeRightHandSide = ({classes}: {
   return <AnalyticsContext pageSectionContext="homeRhs">
     {!!currentUser && sidebarToggleNode}
     <div className={classes.root}>
+      <WrappedAd />
       {digestAdNode}
-      
+
       {!!opportunityPosts?.length && <AnalyticsContext pageSubSectionContext="opportunities">
         <div className={classes.section}>
           <LWTooltip

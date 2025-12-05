@@ -34,13 +34,16 @@ import WrappedThankYouSection from "./WrappedThankYouSection";
 
 // When adding a new year you'll need to run the server command to update the
 // analytics views:
-//   yarn repl dev packages/lesswrong/server/wrapped/triggerWrappedRefresh.ts "triggerWrappedRefresh()"
-const wrappedYears = new TupleSet([2022, 2023, 2024] as const)
+//   yarn repl prod packages/lesswrong/server/wrapped/triggerWrappedRefresh.ts "triggerWrappedRefresh()"
+const wrappedYears = new TupleSet([2022, 2023, 2024, 2025] as const)
 
 export type WrappedYear = UnionOf<typeof wrappedYears>
 
 export const isWrappedYear = (year: number): year is WrappedYear =>
   wrappedYears.has(year);
+
+export const currentWrappedYear = (): WrappedYear =>
+  Array.from(wrappedYears).pop()!;
 
 export type WrappedMostReadTopic = {
   name: string;
@@ -282,10 +285,10 @@ const getAllSections = (): WrappedSection[] => ([
     component: WrappedReceivedReactsSection,
     predicate: (data) => getTotalReactsReceived(data) > 5,
   },
+  {component: WrappedThankYouSection},
   {component: WrappedSummarySection},
   {component: WrappedRecommendationsSection},
   {component: WrappedMostValuablePostsSection},
-  {component: WrappedThankYouSection},
 ]);
 
 type ForumWrappedContext = {

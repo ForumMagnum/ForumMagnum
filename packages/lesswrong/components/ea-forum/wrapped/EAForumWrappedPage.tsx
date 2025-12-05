@@ -31,13 +31,11 @@ const styles = (theme: ThemeType) => ({
     // Compensate for the padding added in Layout.tsx and the site header, so
     // that section starts at the top of the page
     marginTop: -HEADER_HEIGHT - theme.spacing.mainLayoutPaddingTop,
-    paddingTop: HEADER_HEIGHT,
     [theme.breakpoints.down("md")]: {
       marginTop: -HEADER_HEIGHT,
     },
     [theme.breakpoints.down("xs")]: {
       marginTop: -MOBILE_HEADER_HEIGHT,
-      paddingTop: MOBILE_HEADER_HEIGHT,
     },
     [theme.breakpoints.down("sm")]: {
       marginLeft: -8,
@@ -51,7 +49,7 @@ const EAForumWrappedPage = ({classes}: {classes: ClassesType<typeof styles>}) =>
   const currentUser = useCurrentUser();
 
   const rawYear = parseInt(params.year);
-  const year = isWrappedYear(rawYear) ? rawYear : 2024;
+  const year = isWrappedYear(rawYear) ? rawYear : 2025;
 
   const {data} = useForumWrapped({
     userId: currentUser?._id,

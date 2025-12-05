@@ -1,6 +1,7 @@
 import React, { ReactNode } from "react";
 import { registerComponent } from "@/lib/vulcan-lib/components";
 import { AnalyticsContext } from "@/lib/analyticsEvents";
+import { HEADER_HEIGHT, MOBILE_HEADER_HEIGHT } from "@/components/common/Header";
 import classNames from "classnames";
 
 const styles = (theme: ThemeType) => ({
@@ -10,6 +11,11 @@ const styles = (theme: ThemeType) => ({
     flexDirection: "column",
     justifyContent: "flex-start",
     width: "100%",
+    minHeight: "100%",
+    paddingTop: HEADER_HEIGHT,
+    [theme.breakpoints.down("xs")]: {
+      paddingTop: MOBILE_HEADER_HEIGHT,
+    },
   },
   container: {
     maxWidth: "100%",
@@ -74,7 +80,6 @@ const WrappedSection = ({
       <section className={classNames(
         classes.root,
         className,
-        !noPadding && classes.padding,
         align === "left" && classes.left,
         align === "center" && classes.center,
         fullHeight && classes.fullHeight,
@@ -82,6 +87,7 @@ const WrappedSection = ({
         <div className={classNames(
           classes.container,
           !fullWidth && classes.maxWidth,
+          !noPadding && classes.padding,
         )}>
           {children}
         </div>

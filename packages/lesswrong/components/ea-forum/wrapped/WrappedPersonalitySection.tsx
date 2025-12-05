@@ -208,10 +208,7 @@ const WrappedPersonalitySection = ({classes}: {
           }
           {!isThinking && personalityTitle}
         </div>
-        <div
-          style={{filter: `brightness(${video.brightness})`}}
-          className={classes.videoContainer}
-        >
+        <div className={classes.videoContainer}>
           <video
             ref={videoDisplayRef}
             src={src}
@@ -255,5 +252,3 @@ export default registerComponent(
   WrappedPersonalitySection,
   {styles},
 );
-
-

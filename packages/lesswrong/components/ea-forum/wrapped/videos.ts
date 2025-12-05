@@ -1,3 +1,35 @@
+import { browserProperties } from "@/lib/utils/browserProperties";
+
+/*
+ * We generate animations for each different personality. The background color
+ * is separate and depends on the user's other stats. To be able to display
+ * these videos on different coloured backgrounds we must ensure they have
+ * transparent backgrounds which, it turns out, is ridiculously complicated
+ * to do in a cross-browser way (I'm looking at you, Safari).
+ *
+ * For Safari we need a video encoded with HEVC with alpha and saved as a .mov.
+ * For every other browser we need a video encoded with VP9 and saved as a .webm.
+ *
+ * Agnes' sister (who makes the animations) is able to supply us with a suitable
+ * webm. If our webm is called "output.webm", we can run the following ffmpeg
+ * command to convert to a format for Safari can understand:
+ *   ffmpeg -c:v libvpx-vp9 -i output.webm -vf "scale=1080:1920" -c:v prores_ks -profile:v 4444 -pix_fmt yuva444p10le -q:v 64 output.mov
+ * That command also includes some pretty aggressive compression because the
+ * mov file will be _significantly_ larger than the webm.
+ *
+ * Since we don't know which file to use until we're on the client, anything
+ * that embeds the video src in the DOM should be no-SSR'd.
+ *
+ * (NB: In the past we pre-rendered each personality with each different
+ * background colour. This was a bad idea. Apart from requiring annoyingly many
+ * different files, we ran into a problem where the background colour of the
+ * videos didn't quite match the background of the site because the videos
+ * were encoded in the bt709 colour space but the browser expected sRGB so the
+ * gamma was all messed up. My ffmpeg-foo wasn't up to the job of fixing it so
+ * we ended up hard-coding a custom "brightness" number to apply to each video
+ * using CSS to offset the gamma. That was a bad day.)
+ */
+
 type WrappedAnimation =
   "thinking" |
   "lurker" |
@@ -8,22 +40,25 @@ type WrappedAnimation =
   "one-hit";
 
 const chooseAnimation = (personality: string): WrappedAnimation => {
-  if (personality.indexOf("lurker") >= 0) {
-    return "lurker";
-  }
-  if (personality.indexOf("farmer") >= 0) {
-    return "Karma-farmer";
-  }
-  if (personality.indexOf("conversation") >= 0) {
-    return "convstarter";
-  }
-  if (personality.indexOf("contrarian") >= 0) {
-    return "contrarian";
-  }
-  if (personality.indexOf("visitor") >= 0) {
-    return "Visitor";
-  }
-  return "one-hit";
+  // TODO: Add updated files for all the other personalities
+  void personality;
+  return "convstarter";
+  // if (personality.indexOf("lurker") >= 0) {
+  //   return "lurker";
+  // }
+  // if (personality.indexOf("farmer") >= 0) {
+  //   return "Karma-farmer";
+  // }
+  // if (personality.indexOf("conversation") >= 0) {
+  //   return "convstarter";
+  // }
+  // if (personality.indexOf("contrarian") >= 0) {
+  //   return "contrarian";
+  // }
+  // if (personality.indexOf("visitor") >= 0) {
+  //   return "Visitor";
+  // }
+  // return "one-hit";
 }
 
 type WrappedColor = "grey" | "red" | "blue" | "green" | "transparent";
@@ -41,47 +76,11 @@ const chooseColor = (personality: string): WrappedColor => {
   return "green";
 }
 
-// The videos are encoded in the bt709 color space but the browser expects sRGB.
-// I don't want to talk about it.
-const brightnesses: Record<WrappedColor, Partial<Record<WrappedAnimation, number>>> = {
-  grey: {
-    lurker: 0.985,
-    "Karma-farmer": 0.985,
-    convstarter: 0.985,
-    contrarian: 0.985,
-    Visitor: 0.985,
-    "one-hit": 0.985,
-  },
-  red: {
-    lurker: 0.92,
-    "Karma-farmer": 0.995,
-    convstarter: 0.92,
-    contrarian: 1.068,
-    Visitor: 1.068,
-    "one-hit": 0.985,
-  },
-  blue: {
-    lurker: 0.94,
-    "Karma-farmer": 0.99,
-    convstarter: 0.97,
-    contrarian: 0.995,
-    Visitor: 0.998,
-    "one-hit": 0.998,
-  },
-  green: {
-    lurker: 0.98,
-    "Karma-farmer": 0.995,
-    convstarter: 0.995,
-    contrarian: 0.9955,
-    Visitor: 1.01,
-    "one-hit": 0.999,
-  },
-  transparent: {},
-};
-
-
-const prefix = (file: string, type: "video" | "image") =>
-  `https://res.cloudinary.com/cea/${type}/upload/v1734615259/wrapped-2024/${file}`;
+const prefix = (
+  file: string, type: "video" | "image",
+  year: number = 2024,
+) =>
+  `https://res.cloudinary.com/cea/${type}/upload/v1734615259/wrapped-${year}/${file}`;
 
 type WrappedVideo = {
   /** The name of the animation */
@@ -96,7 +95,6 @@ type WrappedVideo = {
    * Static image with a transparent background for use on the summary page
    */
   frame: string,
-  brightness: number,
 }
 
 export const getWrappedVideo = (personality: string): WrappedVideo => {
@@ -106,17 +104,17 @@ export const getWrappedVideo = (personality: string): WrappedVideo => {
       color: "transparent",
       src: prefix("Bulby-thinking-151515-short.mp4", "video"),
       frame: prefix("Bulbythinking-frame.png", "image"),
-      brightness: 1,
     };
   }
   personality = personality.toLowerCase();
   const animation = chooseAnimation(personality);
   const color = chooseColor(personality);
+  const properties = browserProperties();
+  const videoFormat = properties?.safari ? "mov" : "webm";
   return {
     animation,
     color,
-    src: prefix(`${animation}-${color}.mp4`, "video"),
+    src: prefix(`${animation}-${videoFormat}.${videoFormat}`, "video", 2025),
     frame: prefix(`${animation}-alpha.png`, "image"),
-    brightness: brightnesses[color]?.[animation] ?? 1,
   };
 }

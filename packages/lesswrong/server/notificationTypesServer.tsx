@@ -32,6 +32,7 @@ import { EventUpdatedEmail } from './emailComponents/EventUpdatedEmail';
 import { EmailUsernameByID } from './emailComponents/EmailUsernameByID';
 import { KeywordAlert, fetchContentForKeyword } from './keywordAlerts/keywordSearch';
 import { htmlToTextDefault } from '@/lib/htmlToText';
+import { currentWrappedYear } from '@/components/ea-forum/wrapped/hooks';
 
 interface ServerNotificationType {
   name: string,
@@ -508,7 +509,7 @@ export const WrappedNotification = createServerNotificationType({
       <p>
         Thanks for being part of our community this year!{' '}
         <a href={`${combineUrls(getSiteUrl(), 'wrapped')}?utm_medium=email`}>
-          Check out your 2024 EA Forum Wrapped.
+          Check out your {currentWrappedYear()} EA Forum Wrapped.
         </a>{' '}
         🎁
       </p>
