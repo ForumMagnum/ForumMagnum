@@ -1819,6 +1819,21 @@ CREATE TABLE "Posts" (
   "afVoteCount" DOUBLE PRECISION
 );
 
+-- Index "idx_posts_manifold_predictions_optimized"
+CREATE INDEX IF NOT EXISTS "idx_posts_manifold_predictions_optimized" ON "Posts" USING btree ("manifoldReviewMarketId", "postedAt")
+WHERE
+  (
+    "status" = 2 AND
+    "draft" IS FALSE AND
+    "shortform" IS FALSE AND
+    "unlisted" IS FALSE AND
+    "isEvent" IS FALSE AND
+    "manifoldReviewMarketId" IS NOT NULL
+  );
+
+-- Index "idx_posts_manifoldReviewMarketId"
+CREATE INDEX IF NOT EXISTS "idx_posts_manifoldReviewMarketId" ON "Posts" USING btree ("manifoldReviewMarketId");
+
 -- Index "idx_posts_coauthorStatuses_postedAt"
 CREATE INDEX IF NOT EXISTS "idx_posts_coauthorStatuses_postedAt" ON "Posts" USING gin (
   "status",

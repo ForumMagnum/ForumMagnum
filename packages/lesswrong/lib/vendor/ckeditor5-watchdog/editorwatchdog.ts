@@ -24,15 +24,13 @@ type RootAttributes = any
 import areConnectedThroughProperties from './utils/areconnectedthroughproperties';
 import Watchdog, { WatchdogConfig } from './watchdog';
 
-//import { throttle, cloneDeepWith, isElement, type DebouncedFunc } from 'lodash-es';
 // eslint-disable-next-line no-restricted-imports
 import type { DebouncedFunc } from 'lodash';
 import throttle from 'lodash/throttle';
 import cloneDeepWith from 'lodash/cloneDeepWith';
 import isElement from 'lodash/isElement';
 
-//import type { Node, Text, Element, Writer } from 'ckeditor5/src/engine';
-import type { Node, Text, Element, Writer } from '@ckeditor/ckeditor5-engine';
+import type { ModelElement as Node, ModelText as Text, ModelElement as Element, ModelWriter as Writer } from '@ckeditor/ckeditor5-engine';
 
 /**
  * A watchdog for CKEditor 5 editors.

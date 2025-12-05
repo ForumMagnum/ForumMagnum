@@ -80,6 +80,7 @@ interface Query {
   UltraFeedSubscriptions: UltraFeedQueryResults;
   getBookWordCount: number | null;
   getSequenceStats: SequenceStats | null;
+  reviewPredictionPosts: Array<Post>;
   advisorRequest: SingleAdvisorRequestOutput | null;
   advisorRequests: MultiAdvisorRequestOutput | null;
   arbitalTagContentRel: SingleArbitalTagContentRelOutput | null;
@@ -269,6 +270,7 @@ interface Mutation {
   unlockThread: boolean;
   rejectContentAndRemoveUserFromQueue: boolean;
   approveUserCurrentContentOnly: boolean;
+  rerunSaplingCheck: AutomatedContentEvaluation;
   reorderSummaries: boolean | null;
   publishAndDeDuplicateSpotlight: Spotlight | null;
   toggleBookmark: ToggleBookmarkOutput | null;

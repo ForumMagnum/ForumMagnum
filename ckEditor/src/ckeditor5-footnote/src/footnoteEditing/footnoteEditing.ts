@@ -5,18 +5,18 @@
  *  * Upcasting is converting to the platonic ckeditor version.
  *  * Downcasting is converting to the output version.
  */
-import Plugin from '@ckeditor/ckeditor5-core/src/plugin';
+import { Plugin } from '@ckeditor/ckeditor5-core/src/plugin';
 import { viewToModelPositionOutsideModelElement } from '@ckeditor/ckeditor5-widget/src/utils';
-import Widget from '@ckeditor/ckeditor5-widget/src/widget';
+import { Widget } from '@ckeditor/ckeditor5-widget/src/widget';
 import InsertFootnoteCommand from '../insertfootnotecommand';
 import '../../theme/placeholder.css';
 import '../../theme/footnote.css';
-import ModelElement from '@ckeditor/ckeditor5-engine/src/model/element';
-import type ModelWriter from '@ckeditor/ckeditor5-engine/src/model/writer';
-import type Batch from '@ckeditor/ckeditor5-engine/src/model/batch';
-import type RootElement from '@ckeditor/ckeditor5-engine/src/model/rootelement';
+import { ModelElement } from '@ckeditor/ckeditor5-engine/src/model/element';
+import type { ModelWriter } from '@ckeditor/ckeditor5-engine/src/model/writer';
+import type { Batch } from '@ckeditor/ckeditor5-engine/src/model/batch';
+import type { ModelRootElement as RootElement } from '@ckeditor/ckeditor5-engine/src/model/rootelement';
 import { modelQueryElementsAll, modelQueryElement } from '../utils';
-import Autoformat from '@ckeditor/ckeditor5-autoformat/src/autoformat';
+import { Autoformat } from '@ckeditor/ckeditor5-autoformat/src/autoformat';
 
 import { defineSchema } from './schema';
 import { defineConverters } from './converters';

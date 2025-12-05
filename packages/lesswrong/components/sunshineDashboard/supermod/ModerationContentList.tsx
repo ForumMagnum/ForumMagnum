@@ -77,6 +77,7 @@ const ModerationContentList = ({
               item={item}
               isFocused={item._id === focusedItemId}
               onOpen={() => dispatch({ type: 'OPEN_CONTENT', contentIndex: idx })}
+              dispatch={dispatch}
             />
           ))}
         </div>

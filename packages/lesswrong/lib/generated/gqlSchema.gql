@@ -1260,6 +1260,7 @@ extend type Mutation {
   unlockThread(commentId: String!): Boolean!
   rejectContentAndRemoveUserFromQueue(userId: String!, documentId: String!, collectionName: ContentCollectionName!, rejectedReason: String!, messageContent: String): Boolean!
   approveUserCurrentContentOnly(userId: String!): Boolean!
+  rerunSaplingCheck(postId: String!): AutomatedContentEvaluation!
 }
 
 extend type Mutation {
@@ -1471,6 +1472,10 @@ type SequenceStats {
 
 extend type Query {
   getSequenceStats(sequenceId: String!): SequenceStats
+}
+
+extend type Query {
+  reviewPredictionPosts(year: Int!, limit: Int = 50): [Post!]!
 }
 
 type AdvisorRequest {

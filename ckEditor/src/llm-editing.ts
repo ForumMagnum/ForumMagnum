@@ -1,5 +1,5 @@
-import Command from '@ckeditor/ckeditor5-core/src/command';
-import Plugin from '@ckeditor/ckeditor5-core/src/plugin';
+import { Command } from '@ckeditor/ckeditor5-core/src/command';
+import { Plugin } from '@ckeditor/ckeditor5-core/src/plugin';
 import TurndownService from 'turndown';
 
 interface FeedbackResponse {

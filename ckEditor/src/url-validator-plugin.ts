@@ -1,6 +1,6 @@
-import Plugin from '@ckeditor/ckeditor5-core/src/plugin';
+import { Plugin } from '@ckeditor/ckeditor5-core/src/plugin';
 import { validateUrl } from "./url-validator-utils";
-import type Document from "@ckeditor/ckeditor5-engine/src/model/document";
+import type { ModelDocument as Document } from "@ckeditor/ckeditor5-engine/src/model/document";
 import type { Batch } from '@ckeditor/ckeditor5-engine';
 
 /**

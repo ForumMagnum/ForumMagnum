@@ -1,9 +1,9 @@
-import UpcastWriter from '@ckeditor/ckeditor5-engine/src/view/upcastwriter';
-import Matcher from '@ckeditor/ckeditor5-engine/src/view/matcher';
+import { ViewUpcastWriter as UpcastWriter } from '@ckeditor/ckeditor5-engine/src/view/upcastwriter';
+import { Matcher } from '@ckeditor/ckeditor5-engine/src/view/matcher';
 import { ATTRIBUTES } from '../constants';
-import type Range from '@ckeditor/ckeditor5-engine/src/view/range';
-import type Element from '@ckeditor/ckeditor5-engine/src/view/element';
-import type Document from '@ckeditor/ckeditor5-engine/src/view/document';
+import type { ViewRange as Range } from '@ckeditor/ckeditor5-engine/src/view/range';
+import type { ViewElement as Element } from '@ckeditor/ckeditor5-engine/src/view/element';
+import type { ViewDocument as Document } from '@ckeditor/ckeditor5-engine/src/view/document';
 
 /**
  * IMPORTANT: Any changes here must be mirrored in `googleDocConvertFootnotes` in conversionUtils.ts

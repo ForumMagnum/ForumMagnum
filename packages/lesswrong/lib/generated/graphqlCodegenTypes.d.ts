@@ -4368,6 +4368,7 @@ type Mutation = {
   publishAndDeDuplicateSpotlight?: Maybe<Spotlight>;
   rejectContentAndRemoveUserFromQueue: Scalars['Boolean']['output'];
   reorderSummaries?: Maybe<Scalars['Boolean']['output']>;
+  rerunSaplingCheck: AutomatedContentEvaluation;
   resetPassword?: Maybe<Scalars['String']['output']>;
   resyncRssFeed: Scalars['Boolean']['output'];
   revertPostToRevision?: Maybe<Post>;
@@ -4969,6 +4970,11 @@ type MutationreorderSummariesArgs = {
   parentDocumentCollectionName: Scalars['String']['input'];
   parentDocumentId: Scalars['String']['input'];
   summaryIds: Array<Scalars['String']['input']>;
+};
+
+
+type MutationrerunSaplingCheckArgs = {
+  postId: Scalars['String']['input'];
 };
 
 
@@ -7707,6 +7713,7 @@ type Query = {
   rSSFeeds?: Maybe<MultiRSSFeedOutput>;
   report?: Maybe<SingleReportOutput>;
   reports?: Maybe<MultiReportOutput>;
+  reviewPredictionPosts: Array<Post>;
   reviewVote?: Maybe<SingleReviewVoteOutput>;
   reviewVotes?: Maybe<MultiReviewVoteOutput>;
   reviewWinner?: Maybe<SingleReviewWinnerOutput>;
@@ -8784,6 +8791,12 @@ type QueryreportsArgs = {
   limit?: InputMaybe<Scalars['Int']['input']>;
   offset?: InputMaybe<Scalars['Int']['input']>;
   selector?: InputMaybe<ReportSelector>;
+};
+
+
+type QueryreviewPredictionPostsArgs = {
+  limit?: InputMaybe<Scalars['Int']['input']>;
+  year: Scalars['Int']['input'];
 };
 
 
@@ -19130,6 +19143,22 @@ type getPostsUserCommentedOnQueryVariables = Exact<{
 
 type getPostsUserCommentedOnQuery = getPostsUserCommentedOnQuery_Query;
 
+type ReviewPredictionPostsQuery_reviewPredictionPosts_Post = (
+  { __typename?: 'Post', annualReviewMarketProbability: number | null, annualReviewMarketUrl: string | null }
+  & PostsListWithVotes
+);
+
+type ReviewPredictionPostsQuery_Query = { __typename?: 'Query', reviewPredictionPosts: Array<ReviewPredictionPostsQuery_reviewPredictionPosts_Post> };
+
+
+type ReviewPredictionPostsQueryVariables = Exact<{
+  year: Scalars['Int']['input'];
+  limit: InputMaybe<Scalars['Int']['input']>;
+}>;
+
+
+type ReviewPredictionPostsQuery = ReviewPredictionPostsQuery_Query;
+
 type multiPostQuickReviewPageQueryQuery_posts_MultiPostOutput_results_Post = (
   { __typename?: 'Post' }
   & PostsReviewVotingList
@@ -21782,6 +21811,21 @@ type createModeratorActionPostReviewActionsMutationVariables = Exact<{
 
 
 type createModeratorActionPostReviewActionsMutation = createModeratorActionPostReviewActionsMutation_Mutation;
+
+type RerunSaplingCheckHookMutation_rerunSaplingCheck_AutomatedContentEvaluation = (
+  { __typename?: 'AutomatedContentEvaluation' }
+  & AutomatedContentEvaluationsFragment
+);
+
+type RerunSaplingCheckHookMutation_Mutation = { __typename?: 'Mutation', rerunSaplingCheck: RerunSaplingCheckHookMutation_rerunSaplingCheck_AutomatedContentEvaluation };
+
+
+type RerunSaplingCheckHookMutationVariables = Exact<{
+  postId: Scalars['String']['input'];
+}>;
+
+
+type RerunSaplingCheckHookMutation = RerunSaplingCheckHookMutation_Mutation;
 
 type updateUserContentPermissionsMutation_updateUser_UserOutput_data_User = (
   { __typename?: 'User' }

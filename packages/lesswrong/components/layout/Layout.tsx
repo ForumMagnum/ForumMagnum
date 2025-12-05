@@ -316,8 +316,8 @@ const Layout = ({children}: {
       <CommentOnSelectionPageWrapper>
       <CurrentAndRecentForumEventsProvider>
       <LlmSidebarWrapper>
-        <PageBackgroundWrapper>
         <HeaderHeightProvider>
+        <PageBackgroundWrapper>
           {buttonBurstSetting.get() && <GlobalButtonBurst />}
           <DialogManager>
             <CommentBoxManager>
@@ -406,8 +406,8 @@ const Layout = ({children}: {
             </CommentBoxManager>
           </DialogManager>
           <NavigationEventSender />
-        </HeaderHeightProvider>
         </PageBackgroundWrapper>
+        </HeaderHeightProvider>
       </LlmSidebarWrapper>
       </CurrentAndRecentForumEventsProvider>
       </CommentOnSelectionPageWrapper>
