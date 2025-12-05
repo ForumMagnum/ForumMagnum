@@ -1,14 +1,14 @@
-import Plugin from "@ckeditor/ckeditor5-core/src/plugin";
-import ButtonView from "@ckeditor/ckeditor5-ui/src/button/buttonview";
+import { Plugin } from "@ckeditor/ckeditor5-core/src/plugin";
+import { ButtonView } from "@ckeditor/ckeditor5-ui/src/button/buttonview";
 import { toWidget } from "@ckeditor/ckeditor5-widget/src/utils";
-import Widget from "@ckeditor/ckeditor5-widget/src/widget";
+import { Widget } from "@ckeditor/ckeditor5-widget/src/widget";
 import PollForm, { POLL_COLOR_SCHEMES } from "./poll-form";
 import pollIcon from "./poll-icon.svg";
 import { randomId } from "../random";
 import { POLL_CLASS, PollProps } from "./constants";
-import ModelElement from '@ckeditor/ckeditor5-engine/src/model/element';
-import ViewElement from '@ckeditor/ckeditor5-engine/src/view/element';
-import { DowncastWriter } from "@ckeditor/ckeditor5-engine";
+import { ModelElement } from '@ckeditor/ckeditor5-engine/src/model/element';
+import { ViewElement } from '@ckeditor/ckeditor5-engine/src/view/element';
+import { ViewDowncastWriter } from "@ckeditor/ckeditor5-engine";
 
 const DEFAULT_PROPS: PollProps = {
   question: "Ask a question",
@@ -20,7 +20,7 @@ const DEFAULT_PROPS: PollProps = {
 
 /** Helper function to update a text value in the editor view */
 function updateViewElementText(
-  viewWriter: DowncastWriter,
+  viewWriter: ViewDowncastWriter,
   rootViewElement: ViewElement,
   classPath: string[],
   newText: string

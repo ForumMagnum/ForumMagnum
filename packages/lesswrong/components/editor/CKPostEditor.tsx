@@ -16,7 +16,7 @@ import { useMutation } from "@apollo/client/react";
 import { useQuery } from "@/lib/crud/useQuery"
 import { gql } from "@/lib/generated/gql-codegen";
 import type { Command, Editor } from '@ckeditor/ckeditor5-core';
-import type { Node, RootElement, Writer, Element as CKElement, Selection, DocumentFragment } from '@ckeditor/ckeditor5-engine';
+import type { ModelNode as Node, ModelRootElement as RootElement, ModelWriter as Writer, ModelElement as CKElement, ModelSelection as Selection, ModelDocumentFragment as DocumentFragment } from '@ckeditor/ckeditor5-engine';
 import { EditorContext } from '../posts/EditorContext';
 import { isFriendlyUI } from '../../themes/forumTheme';
 import { cloudinaryConfig } from '../../lib/editor/cloudinaryConfig'

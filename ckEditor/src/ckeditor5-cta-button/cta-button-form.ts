@@ -1,22 +1,22 @@
-import Plugin from "@ckeditor/ckeditor5-core/src/plugin";
-import ClickObserver from "@ckeditor/ckeditor5-engine/src/view/observer/clickobserver";
-import ContextualBalloon from "@ckeditor/ckeditor5-ui/src/panel/balloon/contextualballoon";
-import clickOutsideHandler from "@ckeditor/ckeditor5-ui/src/bindings/clickoutsidehandler";
+import { Plugin } from "@ckeditor/ckeditor5-core/src/plugin";
+import { ClickObserver } from "@ckeditor/ckeditor5-engine/src/view/observer/clickobserver";
+import { ContextualBalloon } from "@ckeditor/ckeditor5-ui/src/panel/balloon/contextualballoon";
+import { clickOutsideHandler } from "@ckeditor/ckeditor5-ui/src/bindings/clickoutsidehandler";
 
-import View from "@ckeditor/ckeditor5-ui/src/view";
-import ViewCollection from "@ckeditor/ckeditor5-ui/src/viewcollection";
-import InputTextView from "@ckeditor/ckeditor5-ui/src/inputtext/inputtextview";
+import { View } from "@ckeditor/ckeditor5-ui/src/view";
+import { ViewCollection } from "@ckeditor/ckeditor5-ui/src/viewcollection";
+import { InputTextView } from "@ckeditor/ckeditor5-ui/src/inputtext/inputtextview";
 
-import KeystrokeHandler from "@ckeditor/ckeditor5-utils/src/keystrokehandler";
-import FocusTracker from "@ckeditor/ckeditor5-utils/src/focustracker";
-import FocusCycler from "@ckeditor/ckeditor5-ui/src/focuscycler";
+import { KeystrokeHandler } from "@ckeditor/ckeditor5-utils/src/keystrokehandler";
+import { FocusTracker } from "@ckeditor/ckeditor5-utils/src/focustracker";
+import { FocusCycler } from "@ckeditor/ckeditor5-ui/src/focuscycler";
 
 import type { Editor } from "@ckeditor/ckeditor5-core";
 import type { Locale } from "@ckeditor/ckeditor5-utils";
-import type { Element } from "@ckeditor/ckeditor5-engine";
-import type Writer from "@ckeditor/ckeditor5-engine/src/model/writer";
+import type { ModelElement as Element } from "@ckeditor/ckeditor5-engine";
+import type { ModelWriter as Writer } from "@ckeditor/ckeditor5-engine/src/model/writer";
 
-import submitHandler from "@ckeditor/ckeditor5-ui/src/bindings/submithandler";
+import { submitHandler } from "@ckeditor/ckeditor5-ui/src/bindings/submithandler";
 
 import './ctaform.css';
 import { validateUrl } from "../url-validator-utils";
