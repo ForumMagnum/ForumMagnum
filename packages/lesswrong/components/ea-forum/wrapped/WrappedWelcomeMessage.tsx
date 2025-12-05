@@ -1,9 +1,15 @@
 import React, { ReactNode } from "react";
 import { registerComponent } from "@/lib/vulcan-lib/components";
-import { WrappedYear } from "./hooks";
+import type { WrappedYear } from "./hooks";
 import WrappedSection from "./WrappedSection";
 
 const styles = (theme: ThemeType) => ({
+  background: {
+    backgroundImage: "url(https://res.cloudinary.com/cea/image/upload/w_800,h_1000,dpr_2,c_auto,g_south_east/wrapped-2025/background.jpg)",
+    backgroundRepeat: "no-repeat",
+    backgroundSize: "cover",
+  backgroundPosition: "left bottom",
+  },
   container: {
     margin: "40px auto 0",
     [theme.breakpoints.up("sm")]: {
@@ -41,7 +47,11 @@ const WrappedWelcomeMessage = ({currentUser, year, children, classes}: {
   classes: ClassesType<typeof styles>,
 }) => {
   return (
-    <WrappedSection pageSectionContext="top" align="left">
+    <WrappedSection
+      pageSectionContext="top"
+      align="left"
+      className={classes.background}
+    >
       <div className={classes.container}>
         <h1 className={classes.heading}>
           Hi {currentUser.displayName}, this is your {year} EA Forum{" "}

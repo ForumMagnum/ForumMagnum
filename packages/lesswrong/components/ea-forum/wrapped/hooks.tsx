@@ -285,10 +285,10 @@ const getAllSections = (): WrappedSection[] => ([
     component: WrappedReceivedReactsSection,
     predicate: (data) => getTotalReactsReceived(data) > 5,
   },
+  {component: WrappedThankYouSection},
   {component: WrappedSummarySection},
   {component: WrappedRecommendationsSection},
   {component: WrappedMostValuablePostsSection},
-  {component: WrappedThankYouSection},
 ]);
 
 type ForumWrappedContext = {

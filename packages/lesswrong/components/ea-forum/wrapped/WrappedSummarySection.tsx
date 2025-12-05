@@ -22,7 +22,7 @@ const MOBILE_GAP = "20px";
 
 const styles = (theme: ThemeType) => ({
   root: {
-    paddingTop: 10,
+    paddingTop: 80,
   },
   container: {
     width: "100%",
