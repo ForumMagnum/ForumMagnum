@@ -34,10 +34,12 @@ export function getSharingKeyFromContext(context: ResolverContext|null) {
   return '';
 }
 
-export async function getCollaborativeEditorAccess({formType, post, user, context, useAdminPowers}: {
+export async function getCollaborativeEditorAccess({formType, post, user, linkSharingKey, context, useAdminPowers}: {
   formType: "new"|"edit"|null,
   post: DbPost|null,
   user: DbUser|null,
+
+  linkSharingKey?: string|null,
   context: ResolverContext,
   
   // If true and the user is a moderator/admin, take their admin powers into
@@ -75,7 +77,7 @@ export async function getCollaborativeEditorAccess({formType, post, user, contex
   } 
   
   const canonicalLinkSharingKey = post.linkSharingKey;
-  const unvalidatedLinkSharingKey = getSharingKeyFromContext(context);
+  const unvalidatedLinkSharingKey = linkSharingKey ?? getSharingKeyFromContext(context);
   const keysMatch = !!canonicalLinkSharingKey && constantTimeCompare({ correctValue: canonicalLinkSharingKey, unknownValue: unvalidatedLinkSharingKey });
   if (keysMatch) {
     accessLevel = strongerAccessLevel(accessLevel, post.sharingSettings?.anyoneWithLinkCan);
