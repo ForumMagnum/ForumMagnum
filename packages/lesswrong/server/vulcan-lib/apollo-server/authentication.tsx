@@ -5,7 +5,7 @@ import GraphQLLocalStrategy from "./graphQLLocalStrategy";
 import sha1 from 'crypto-js/sha1';
 import { getClientIP } from '@/server/utils/getClientIP';
 import Users from "../../../server/collections/users/collection";
-import { hashLoginToken, userIsBanned } from "../../loginTokens";
+import { hashLoginToken } from "../../loginTokens";
 import { LegacyData } from '../../../server/collections/legacyData/collection';
 import { AuthenticationError } from 'apollo-server'
 import { emailTokenTypesByName } from "../../emails/emailTokens";
@@ -23,6 +23,7 @@ import { computeContextFromUser } from './context';
 import { createUser } from '@/server/collections/users/mutations';
 import { createDisplayName } from '@/lib/collections/users/newSchema';
 import { comparePasswords, createPasswordHash, validatePassword } from './passwordHelpers';
+import { userIsBanned } from '@/lib/collections/users/helpers';
 
 const passwordAuthStrategy = new GraphQLLocalStrategy(async function getUserPassport(username, password, done) {
   const user = await new UsersRepo().getUserByUsernameOrEmail(username);
