@@ -16,6 +16,7 @@ import { isEAForum } from "../instanceSettings";
 import gql from "graphql-tag";
 import { userIsAdmin } from "../vulcan-users/permissions";
 import { IRPossibleVoteCounts } from "./instantRunoff";
+import { userIsBanned } from "../collections/users/helpers";
 
 export const GIVING_SEASON_INFO_HREF = "/posts/RzdKnBYe3jumrZxkB/giving-season-2025-announcement";
 export const ELECTION_INFO_HREF = "/posts/RzdKnBYe3jumrZxkB/giving-season-2025-announcement#November_24th_to_December_7th_";
@@ -51,7 +52,7 @@ export function userIsAllowedToVoteInDonationElection(
     return { allowed: false, reason: "You must be logged in to vote" };
   }
 
-  if (currentUser.banned) {
+  if (userIsBanned(currentUser)) {
     return { allowed: false, reason: "Banned users cannot vote" };
   }
 
