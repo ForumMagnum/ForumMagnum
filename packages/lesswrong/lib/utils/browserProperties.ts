@@ -1,7 +1,7 @@
 import bowser from "bowser";
 import { isClient } from '../executionEnvironment';
 
-export const browserProperties = (): {} => {
+export const browserProperties = () => {
   if (!isClient) return {};
   
   const userAgentInfo = (window?.navigator?.userAgent) ? {

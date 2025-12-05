@@ -6,6 +6,7 @@ import { Helmet } from "@/lib/utils/componentsWithChildren";
 import range from "lodash/range";
 import classNames from "classnames";
 import ForumIcon from "../../common/ForumIcon";
+import DeferRender from "@/components/common/DeferRender";
 
 const styles = (theme: ThemeType) => ({
   root: {
@@ -111,23 +112,25 @@ const WrappedApp = ({classes}: {
         <link rel="prefetch" href={personalityVideo.frame} crossOrigin="anonymous" />
       </Helmet>
       <div className={classes.app}>
-        <div className={classes.offscreenVideos}>
-          {/* Preload videos offscreen so they'll be ready when we need them */}
-          <video
-            src={thinkingVideo.src}
-            ref={thinkingVideoRef}
-            muted
-            playsInline
-            preload="auto"
-          />
-          <video
-            src={personalityVideo.src}
-            ref={personalityVideoRef}
-            muted
-            playsInline
-            preload="auto"
-          />
-        </div>
+        <DeferRender ssr={false}>
+          <div className={classes.offscreenVideos}>
+            {/* Preload videos offscreen so they'll be ready when we need them */}
+            <video
+              src={thinkingVideo.src}
+              ref={thinkingVideoRef}
+              muted
+              playsInline
+              preload="auto"
+            />
+            <video
+              src={personalityVideo.src}
+              ref={personalityVideoRef}
+              muted
+              playsInline
+              preload="auto"
+            />
+          </div>
+        </DeferRender>
         <CurrentSection />
       </div>
       {currentSection > 0 &&

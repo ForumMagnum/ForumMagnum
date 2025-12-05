@@ -4,6 +4,7 @@ import html2canvas from "html2canvas";
 import classNames from "classnames";
 import { isMobile } from "@/lib/utils/isMobile";
 import { captureException } from "@sentry/core";
+import { useForumWrappedContext } from "./hooks";
 import ForumIcon from "../../common/ForumIcon";
 
 export const WRAPPED_SHARE_BUTTON_WIDTH = 100;
@@ -37,10 +38,11 @@ const WrappedShareButton = ({name, screenshotRef, onRendered, className, classes
   className?: string,
   classes: ClassesType<typeof styles>,
 }) => {
+  const {year} = useForumWrappedContext();
   const onClick = useCallback(async () => {
     const target = screenshotRef.current;
     if (target) {
-      const fileName = `My2024EAForumWrapped-${name}.png`;
+      const fileName = `My${year}EAForumWrapped-${name}.png`;
       const canvasElement = await html2canvas(target, {
         allowTaint: true,
         useCORS: true,
@@ -71,7 +73,7 @@ const WrappedShareButton = ({name, screenshotRef, onRendered, className, classes
       link.href = dataUrl;
       link.click();
     }
-  }, [name, screenshotRef, onRendered]);
+  }, [year, name, screenshotRef, onRendered]);
   return (
     <button className={classNames(classes.root, className)} onClick={onClick}>
       <ForumIcon icon="Share" className={classes.icon} /> Share
