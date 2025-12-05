@@ -4,6 +4,8 @@ import classNames from "classnames";
 
 const styles = (theme: ThemeType) => ({
   root: {
+    width: 800,
+    maxWidth: "100%",
     fontFamily: theme.palette.fonts.sansSerifStack,
     color: theme.palette.text.alwaysWhite,
     fontSize: 40,
@@ -38,5 +40,3 @@ export default registerComponent(
   WrappedHeading,
   {styles},
 );
-
-
