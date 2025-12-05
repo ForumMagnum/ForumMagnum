@@ -177,7 +177,7 @@ export const LargeSequencesItem = ({sequence, showAuthor=false, showChapters=fal
         <Link className={classes.imageLink} to={`/s/${sequence._id}`}>
           <div className={classes.sequenceImage}>
             <img className={classes.sequenceImageImg}
-              src={`https://res.cloudinary.com/${cloudinaryCloudName}/image/upload/c_fill,dpr_2.0,g_custom,h_96,q_auto,w_292/v1/${
+              src={`https://res.cloudinary.com/${cloudinaryCloudName}/image/upload/c_fill,dpr_2.0,g_custom,h_96,q_auto,f_auto,w_292/v1/${
                 sequence.gridImageId || "sequences/vnyzzznenju0hzdv6pqb.jpg"
               }`}
               />

@@ -98,7 +98,7 @@ const getImageUrl = (post: PostsListWithVotes) => {
   const url = post.socialPreviewData.imageUrl;
   if (url) {
     const base = `${cloudinaryCloudNameSetting.get()}/image/upload/`;
-    return url.replace(base, `${base}c_fill,w_500,dpr_2,`);
+    return url.replace(base, `${base}q_auto,f_auto,c_fill,w_500,dpr_2,`);
   }
   return "https://res.cloudinary.com/cea/image/upload/v1761927213/ForumImagePlaceholder.jpg";
 }

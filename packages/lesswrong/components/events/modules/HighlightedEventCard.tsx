@@ -119,7 +119,7 @@ const HighlightedEventCard = ({event, loading, classes}: {
   const cloudinaryCloudName = cloudinaryCloudNameSetting.get()
   // the default img and color here should probably be forum-dependent
   const eventImg = event?.eventImageId ?
-    `https://res.cloudinary.com/${cloudinaryCloudName}/image/upload/c_fill,g_custom,h_350,w_800,e_blur:500/${event.eventImageId}` :
+    `https://res.cloudinary.com/${cloudinaryCloudName}/image/upload/q_auto,f_auto,c_fill,g_custom,h_350,w_800,e_blur:500/${event.eventImageId}` :
     getDefaultEventImg(800, true)
   
   const cardBackground = {

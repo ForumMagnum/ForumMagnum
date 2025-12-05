@@ -36,8 +36,8 @@ const EventBanner = ({ classes }: {
   const desktopImageId = eventBannerDesktopImageSetting.get()
   const featuredPost = eventBannerLinkSetting.get()
 
-  const mobileImage = `https://res.cloudinary.com/${container}/image/upload/w_${SECTION_WIDTH*2},h_${bannerHeight*2}/${mobileImageId}`
-  const desktopImage = `https://res.cloudinary.com/${container}/image/upload/w_${SECTION_WIDTH*2},h_${bannerHeight*2}/${desktopImageId}`
+  const mobileImage = `https://res.cloudinary.com/${container}/image/upload/w_${SECTION_WIDTH*2},h_${bannerHeight*2},q_auto,f_auto/${mobileImageId}`
+  const desktopImage = `https://res.cloudinary.com/${container}/image/upload/w_${SECTION_WIDTH*2},h_${bannerHeight*2},q_auto,f_auto/${desktopImageId}`
   
   return <SingleColumnSection>
     <Link to={featuredPost} className={classes.link}>
