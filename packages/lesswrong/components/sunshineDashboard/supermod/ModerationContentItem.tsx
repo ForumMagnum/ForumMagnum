@@ -208,11 +208,13 @@ const isPost = (item: ContentItem): item is SunshinePostsList => {
 const ModerationContentItem = ({
   item,
   isFocused,
+  isRunningSaplingCheck,
   onOpen,
   dispatch,
 }: {
   item: ContentItem;
   isFocused: boolean;
+  isRunningSaplingCheck: boolean;
   onOpen: () => void;
   dispatch: React.Dispatch<InboxAction>;
 }) => {
@@ -237,7 +239,7 @@ const ModerationContentItem = ({
   const showRerunButton = !automatedContentEvaluations || automatedContentEvaluations.score === null;
 
   const collectionName = itemIsPost ? 'Posts' as const : 'Comments' as const;
-  const { handleRerunSaplingCheck, isRunningSaplingCheck } = useRerunSaplingCheck(
+  const { handleRerunSaplingCheck } = useRerunSaplingCheck(
     item._id,
     collectionName,
     dispatch

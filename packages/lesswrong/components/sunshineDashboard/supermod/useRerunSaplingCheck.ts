@@ -23,6 +23,9 @@ export function useRerunSaplingCheck(
   const handleRerunSaplingCheck = useCallback(async () => {
     if (!documentId || loading) return;
 
+    // Set loading state in reducer so all components can see it
+    dispatch({ type: 'SET_SAPLING_CHECK_RUNNING', documentId });
+
     try {
       const result = await rerunSaplingCheck({
         variables: { documentId, collectionName },
@@ -54,6 +57,9 @@ export function useRerunSaplingCheck(
     } catch (error) {
       const errorMessage = error instanceof Error ? error.message : 'Unknown error';
       flash({ messageString: `Sapling check failed: ${errorMessage}`, type: 'error' });
+    } finally {
+      // Clear loading state
+      dispatch({ type: 'SET_SAPLING_CHECK_RUNNING', documentId: null });
     }
   }, [documentId, collectionName, loading, rerunSaplingCheck, dispatch, flash]);
 
