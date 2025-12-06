@@ -45,7 +45,7 @@ function canRejectCurrentlySelectedContent(selectedContent?: ContentItem) {
 }
 
 function canRerunSaplingCheck(selectedContent?: ContentItem) {
-  if (!selectedContent || !isPost(selectedContent)) return false;
+  if (!selectedContent) return false;
   const ace = selectedContent.automatedContentEvaluations;
   return !ace || ace.score === null;
 }
