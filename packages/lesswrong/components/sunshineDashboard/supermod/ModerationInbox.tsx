@@ -106,7 +106,7 @@ const ModerationInboxInner = ({ users, posts, initialOpenedUserId, currentUser }
 
   const [state, dispatch] = useReducer(
     inboxStateReducer,
-    { users: [], posts: [], activeTab: 'all', focusedUserId: null, openedUserId: initialOpenedUserId, focusedPostId: null, focusedContentIndex: 0, undoQueue: [], history: [] },
+    { users: [], posts: [], activeTab: 'all', focusedUserId: null, openedUserId: initialOpenedUserId, focusedPostId: null, focusedContentIndex: 0, undoQueue: [], history: [], runningSaplingCheckId: null },
     (): InboxState => {
       if (users.length === 0 && posts.length === 0) {
         return {
@@ -119,6 +119,7 @@ const ModerationInboxInner = ({ users, posts, initialOpenedUserId, currentUser }
           focusedContentIndex: 0,
           undoQueue: [],
           history: [],
+          runningSaplingCheckId: null,
         };
       }
 
@@ -140,6 +141,7 @@ const ModerationInboxInner = ({ users, posts, initialOpenedUserId, currentUser }
           focusedContentIndex: 0,
           undoQueue: [],
           history: [],
+          runningSaplingCheckId: null,
         };
       }
 
@@ -156,6 +158,7 @@ const ModerationInboxInner = ({ users, posts, initialOpenedUserId, currentUser }
         focusedContentIndex: 0,
         undoQueue: [],
         history: [],
+        runningSaplingCheckId: null,
       };
     }
   );
@@ -311,6 +314,7 @@ const ModerationInboxInner = ({ users, posts, initialOpenedUserId, currentUser }
             <ModerationDetailView 
               user={openedUser}
               focusedContentIndex={state.focusedContentIndex}
+              runningSaplingCheckId={state.runningSaplingCheckId}
               dispatch={dispatch}
             />
           ) : (

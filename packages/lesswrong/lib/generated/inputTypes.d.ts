@@ -1860,6 +1860,7 @@ interface Comment {
   afBaseScore: number | null;
   afExtendedScore: any;
   afVoteCount: number | null;
+  automatedContentEvaluations: AutomatedContentEvaluation | null;
 }
 
 interface SingleCommentInput {

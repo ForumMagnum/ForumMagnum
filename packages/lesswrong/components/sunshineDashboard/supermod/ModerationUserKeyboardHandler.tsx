@@ -45,7 +45,7 @@ function canRejectCurrentlySelectedContent(selectedContent?: ContentItem) {
 }
 
 function canRerunSaplingCheck(selectedContent?: ContentItem) {
-  if (!selectedContent || !isPost(selectedContent)) return false;
+  if (!selectedContent) return false;
   const ace = selectedContent.automatedContentEvaluations;
   return !ace || ace.score === null;
 }
@@ -126,8 +126,9 @@ const ModerationUserKeyboardHandler = ({
 
   const selectedContent = useMemo<ContentItem | undefined>(() => allContent[selectedContentIndex], [allContent, selectedContentIndex]);
 
-  const selectedPostId = selectedContent && isPost(selectedContent) ? selectedContent._id : null;
-  const { handleRerunSaplingCheck, isRunningSaplingCheck } = useRerunSaplingCheck(selectedPostId, dispatch);
+  const selectedContentId = selectedContent?._id ?? null;
+  const selectedContentCollectionName = selectedContent ? (isPost(selectedContent) ? 'Posts' as const : 'Comments' as const) : 'Posts' as const;
+  const { handleRerunSaplingCheck, isRunningSaplingCheck } = useRerunSaplingCheck(selectedContentId, selectedContentCollectionName, dispatch);
 
   const getModSignatureWithNote = useCallback(
     (note: string) => getSignatureWithNote(currentUser.displayName, note),

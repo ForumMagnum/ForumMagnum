@@ -1260,7 +1260,7 @@ extend type Mutation {
   unlockThread(commentId: String!): Boolean!
   rejectContentAndRemoveUserFromQueue(userId: String!, documentId: String!, collectionName: ContentCollectionName!, rejectedReason: String!, messageContent: String): Boolean!
   approveUserCurrentContentOnly(userId: String!): Boolean!
-  rerunSaplingCheck(postId: String!): AutomatedContentEvaluation!
+  rerunSaplingCheck(documentId: String!, collectionName: ContentCollectionName!): AutomatedContentEvaluation!
 }
 
 extend type Mutation {
@@ -2091,6 +2091,7 @@ type Comment {
   afBaseScore: Float
   afExtendedScore: JSON
   afVoteCount: Float
+  automatedContentEvaluations: AutomatedContentEvaluation
 }
 
 enum TagCommentType {

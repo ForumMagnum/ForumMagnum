@@ -4,11 +4,11 @@ import { gql } from "@/lib/generated/gql-codegen";
 import { useMemo } from "react";
 import { useHydrateModerationPostCache } from "./useHydrateModerationPostCache";
 
-const CommentsListWithParentMetadataMultiQuery = gql(`
+const SunshineCommentsListMultiQuery = gql(`
   query multiCommentModerationSidebarQuery($selector: CommentSelector, $limit: Int, $enableTotal: Boolean) {
     comments(selector: $selector, limit: $limit, enableTotal: $enableTotal) {
       results {
-        ...CommentsListWithParentMetadata
+        ...SunshineCommentsList
       }
       totalCount
     }
@@ -17,7 +17,7 @@ const CommentsListWithParentMetadataMultiQuery = gql(`
 
 export function useModeratedUserContents(userId: string, contentLimit = 20) {
   const { posts = [] } = usePublishedPosts(userId, contentLimit, false);
-  const { data: commentsData } = useQuery(CommentsListWithParentMetadataMultiQuery, {
+  const { data: commentsData } = useQuery(SunshineCommentsListMultiQuery, {
     variables: {
       selector: { sunshineNewUsersComments: { userId } },
       limit: contentLimit,
