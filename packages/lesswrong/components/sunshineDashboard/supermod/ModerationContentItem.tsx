@@ -199,7 +199,7 @@ const styles = defineStyles('ModerationContentItem', (theme: ThemeType) => ({
   },
 }));
 
-type ContentItem = SunshinePostsList | CommentsListWithParentMetadata;
+type ContentItem = SunshinePostsList | SunshineCommentsList;
 
 const isPost = (item: ContentItem): item is SunshinePostsList => {
   return 'title' in item && item.title !== null;
@@ -208,11 +208,13 @@ const isPost = (item: ContentItem): item is SunshinePostsList => {
 const ModerationContentItem = ({
   item,
   isFocused,
+  isRunningSaplingCheck,
   onOpen,
   dispatch,
 }: {
   item: ContentItem;
   isFocused: boolean;
+  isRunningSaplingCheck: boolean;
   onOpen: () => void;
   dispatch: React.Dispatch<InboxAction>;
 }) => {
@@ -233,14 +235,13 @@ const ModerationContentItem = ({
 
   const automatedContentEvaluations = 'automatedContentEvaluations' in item ? item.automatedContentEvaluations : null;
 
-  // Show the rerun button for posts when there's no ACE or when ACE is missing the Sapling score
-  const showRerunButton = itemIsPost && (
-    !automatedContentEvaluations ||
-    automatedContentEvaluations.score === null
-  );
+  // Show the rerun button when there's no ACE or when ACE is missing the Sapling score
+  const showRerunButton = !automatedContentEvaluations || automatedContentEvaluations.score === null;
 
-  const { handleRerunSaplingCheck, isRunningSaplingCheck } = useRerunSaplingCheck(
-    itemIsPost ? item._id : null,
+  const collectionName = itemIsPost ? 'Posts' as const : 'Comments' as const;
+  const { handleRerunSaplingCheck } = useRerunSaplingCheck(
+    item._id,
+    collectionName,
     dispatch
   );
 
@@ -264,14 +265,14 @@ const ModerationContentItem = ({
           <DialogContent>
             <div>
               <p>LLM Score: {automatedContentEvaluations.score}</p>
-              <p>Post with highlighted sentences:</p>
+              <p>{itemIsPost ? 'Post' : 'Comment'} with highlighted sentences:</p>
               <div dangerouslySetInnerHTML={{ __html: highlightedHtml }} />
             </div>
           </DialogContent>
         </LWDialog>
       ),
     });
-  }, [automatedContentEvaluations, contentHtml, openDialog]);
+  }, [automatedContentEvaluations, contentHtml, openDialog, itemIsPost]);
 
   const score = automatedContentEvaluations?.score;
 

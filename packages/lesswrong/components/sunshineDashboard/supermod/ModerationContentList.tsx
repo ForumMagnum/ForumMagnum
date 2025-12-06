@@ -42,17 +42,19 @@ const styles = defineStyles('ModerationContentList', (theme: ThemeType) => ({
   },
 }));
 
-type ContentItem = SunshinePostsList | CommentsListWithParentMetadata;
+type ContentItem = SunshinePostsList | SunshineCommentsList;
 
 const ModerationContentList = ({
   items,
   title,
   focusedItemId,
+  runningSaplingCheckId,
   dispatch,
 }: {
   items: ContentItem[];
   title: string;
   focusedItemId: string | null;
+  runningSaplingCheckId: string | null;
   dispatch: React.ActionDispatch<[action: InboxAction]>;
 }) => {
   const classes = useStyles(styles);
@@ -76,6 +78,7 @@ const ModerationContentList = ({
               key={item._id}
               item={item}
               isFocused={item._id === focusedItemId}
+              isRunningSaplingCheck={item._id === runningSaplingCheckId}
               onOpen={() => dispatch({ type: 'OPEN_CONTENT', contentIndex: idx })}
               dispatch={dispatch}
             />

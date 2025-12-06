@@ -5,7 +5,7 @@ import { REJECTED_COMMENT } from "@/lib/collections/moderatorActions/constants";
 import { tagGetDiscussionUrl, EA_FORUM_COMMUNITY_TOPIC_ID } from "@/lib/collections/tags/helpers";
 import { userShortformPostTitle } from "@/lib/collections/users/helpers";
 import { isAnyTest } from "@/lib/executionEnvironment";
-import { isEAForum, recombeeEnabledSetting } from '@/lib/instanceSettings';
+import { isEAForum, isLW, recombeeEnabledSetting } from '@/lib/instanceSettings';
 import { randomId } from "@/lib/random";
 import { userCanDo, userIsAdminOrMod } from "@/lib/vulcan-users/permissions";
 import { noDeletionPmReason } from "@/lib/collections/comments/constants";
@@ -43,6 +43,7 @@ import { updateUser } from "../collections/users/mutations";
 import { EmailComment } from "../emailComponents/EmailComment";
 import { PostsOriginalContents, PostsRevision } from "@/lib/collections/posts/fragments";
 import { backgroundTask } from "../utils/backgroundTask";
+import { createAutomatedContentEvaluation } from "@/server/collections/automatedContentEvaluations/helpers";
 
 interface SendModerationPMParams {
   action: 'deleted' | 'rejected',
@@ -1110,5 +1111,37 @@ export async function commentsEditSoftDeleteCallback(comment: DbComment, oldComm
 export async function commentsPublishedNotifications(comment: DbComment, oldComment: DbComment, context: ResolverContext) {
   if (commentIsNotPublicForAnyReason(oldComment) && !commentIsNotPublicForAnyReason(comment)) {
     backgroundTask(utils.sendNewCommentNotifications(comment, context))
+  }
+}
+
+/**
+ * Create an automated content evaluation for a comment when it transitions from draft to published.
+ * Only runs on LessWrong for unreviewed users.
+ */
+export async function maybeCreateAutomatedContentEvaluationForComment(
+  comment: DbComment,
+  oldComment: DbComment | null,
+  context: ResolverContext
+) {
+  // Only run on LessWrong and for unreviewed users
+  if (!isLW() || context.currentUser?.reviewedByUserId) {
+    return;
+  }
+
+  // For updates: check if the comment was undrafted
+  // For creates: oldComment will be null, so check if the comment is not a draft
+  const wasUndrafted = oldComment ? (!comment.draft && oldComment.draft) : !comment.draft;
+  
+  if (!wasUndrafted) {
+    return;
+  }
+
+  const { Revisions } = context;
+  const revision = comment.contents_latest
+    ? await Revisions.findOne({ _id: comment.contents_latest })
+    : null;
+
+  if (revision) {
+    await createAutomatedContentEvaluation(revision, context);
   }
 }
