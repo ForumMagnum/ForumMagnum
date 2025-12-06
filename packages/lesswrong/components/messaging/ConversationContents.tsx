@@ -174,7 +174,7 @@ const ConversationContents = ({
         {renderMessages()}
         <div className={classes.editor}>
           <MessagesNewForm
-            key={`sendMessage-${messageSentCount}`}
+            key={`sendMessage-${conversation._id}-${messageSentCount}`}
             conversationId={conversation._id}
             templateQueries={{ templateId: query.templateId, displayName: query.displayName }}
             formStyle="minimalist"
