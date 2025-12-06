@@ -13,6 +13,7 @@ import { Typography } from "../common/Typography";
 import Loading from "../vulcan-core/Loading";
 import { gql } from "@/lib/generated/gql-codegen";
 import { maybeDate } from '@/lib/utils/dateUtils';
+import { makeEditorConfig } from '../editor/editorConfigs';
 
 const PostsListUpdateMutation = gql(`
   mutation updatePostExternalPostImporter($selector: SelectorInput!, $data: UpdatePostDataInput!) {
@@ -168,9 +169,9 @@ const ImportedPostEditor = ({
           editor={getCkPostEditor(false)}
           data={editorValue}
           ref={ckEditorRef}
-          config={{
+          config={makeEditorConfig({
             // Other configurations as needed
-          }}
+          })}
           onReady={(editor: any) => {
             editorRef.current = editor;
           }}
@@ -206,9 +207,9 @@ const CommentEditor = ({
           editor={getCkCommentEditor()}
           data={commentValue}
           ref={ckEditorRef}
-          config={{
+          config={makeEditorConfig({
             placeholder: 'Write a review about the imported post...',
-          }}
+          })}
           onReady={(editor: any) => {
             editorRef.current = editor;
           }}

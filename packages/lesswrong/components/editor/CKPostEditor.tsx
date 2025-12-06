@@ -37,6 +37,7 @@ import { sleep } from '@/lib/helpers';
 import { useEditorCommands } from './EditorCommandsContext';
 import { CkEditorShortcut, augmentEditor } from './editorAugmentations';
 import { useCommandPalette } from '../hooks/useCommandPalette';
+import { makeEditorConfig } from './editorConfigs';
 
 // If any custom commands' execute methods change their signatures, we need to update this declaration
 declare module '@ckeditor/ckeditor5-core' {
@@ -552,7 +553,7 @@ const CKPostEditor = ({
   // This is AnyBecauseHard because it contains plugin-specific configs that are
   // added to the EditorConfig type via augmentations, but we don't get those
   // augmentations because we're only importing those in the CkEditor bundle.
-  const editorConfig = {
+  const editorConfig = makeEditorConfig({
     ...getPostEditorToolbarConfig(),
     autosave: {
       save (editor: any) {
@@ -586,7 +587,7 @@ const CKPostEditor = ({
     conditionalVisibility: conditionalVisibilityPluginConfiguration,
     ...cloudinaryConfig,
     claims: claimsConfig(portalContext, openDialog),
-  };
+  });
 
   useSyncCkEditorPlaceholder(editorObject, actualPlaceholder);
   useCkEditorInspector(editorRef);
