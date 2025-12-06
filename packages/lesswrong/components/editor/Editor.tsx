@@ -525,8 +525,8 @@ export class Editor extends Component<EditorProps,EditorComponentState> {
       document,
       _classes: classes,
     } = this.props;
-    const CKEditor = commentEditor ? CKCommentEditor : CKPostEditor;
-    if (!CKEditor) {
+    const PostOrCommentEditor = commentEditor ? CKCommentEditor : CKPostEditor;
+    if (!PostOrCommentEditor) {
       return <Loading />
     } else {
       const editorProps = {
@@ -574,7 +574,7 @@ export class Editor extends Component<EditorProps,EditorComponentState> {
               isCollaborative={true}
               accessLevel={this.props.accessLevel}
             />
-          : <CKEditor key="ck-default" { ...editorProps } />}
+          : <PostOrCommentEditor key="ck-default" { ...editorProps } />}
       </div>
     }
   }

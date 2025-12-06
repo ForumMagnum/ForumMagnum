@@ -16,6 +16,7 @@ import { useStyles } from '../hooks/useStyles';
 import { ckEditorPluginStyles } from './ckEditorStyles';
 import { augmentEditor } from './editorAugmentations';
 import { useCommandPalette } from '../hooks/useCommandPalette';
+import { makeEditorConfig } from './editorConfigs';
 
 // Uncomment the import and the line below to activate the debugger
 // import CKEditorInspector from '@ckeditor/ckeditor5-inspector';
@@ -77,7 +78,7 @@ const CKCommentEditor = ({
 
   const openCommandPalette = useCommandPalette();
 
-  const editorConfig = {
+  const editorConfig = makeEditorConfig({
     ...getCommentEditorToolbarConfig(),
     cloudServices: ckEditorCloudConfigured ? {
       // A tokenUrl token is needed here in order for image upload to work.
@@ -100,7 +101,7 @@ const CKCommentEditor = ({
     mention: mentionPluginConfiguration(portalContext),
     ...cloudinaryConfig,
     claims: claimsConfig(portalContext, openDialog),
-  };
+  });
 
   useSyncCkEditorPlaceholder(editorObject, actualPlaceholder);
 

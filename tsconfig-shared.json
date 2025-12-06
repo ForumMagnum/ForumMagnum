@@ -29,6 +29,7 @@
   "include": [
     "packages/lesswrong",
     "ckEditor/src/editorConfigs.js",
+    "ckEditor/src/augmentation.ts",
     "playwright",
     "./build.ts",
     ".next/types/**/*.ts",
