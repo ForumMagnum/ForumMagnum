@@ -6,6 +6,7 @@ function getCkEditorLicenseKey() {
   if (!process.env.VERCEL_DEPLOYMENT_ID) {
     const devLicenseKey = process.env.NEXT_PUBLIC_CKEDITOR_DEV_LICENSE_KEY;
     if (!devLicenseKey) {
+      // eslint-disable-next-line no-console
       console.warn('NEXT_PUBLIC_CKEDITOR_DEV_LICENSE_KEY is not set');
       return 'GPL';
     }
@@ -14,6 +15,7 @@ function getCkEditorLicenseKey() {
   
   const licenseKey = process.env.NEXT_PUBLIC_CKEDITOR_LICENSE_KEY;
   if (!licenseKey) {
+    // eslint-disable-next-line no-console
     console.warn('NEXT_PUBLIC_CKEDITOR_LICENSE_KEY is not set');
     return 'GPL';
   }
