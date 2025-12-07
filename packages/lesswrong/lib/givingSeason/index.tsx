@@ -36,7 +36,7 @@ export const DONATION_ELECTION_SHOW_LEADERBOARD_CUTOFF = 100;
 export const DONATION_ELECTION_ACCOUNT_AGE_CUTOFF = new Date("2025-10-24T00:00:00.000Z"); // Based on the time of https://forum.effectivealtruism.org/posts/RzdKnBYe3jumrZxkB/giving-season-2025-announcement
 export const DONATION_ELECTION_APPROX_CLOSING_DATE = 'Dec 7th';
 export const DONATION_ELECTION_START = new Date("2025-11-24T10:00:00.000Z");
-export const DONATION_ELECTION_END = new Date("2025-12-08T00:00:00.000Z");
+export const DONATION_ELECTION_END = new Date("2025-12-07T12:00:00.000Z");
 export const DONATION_ELECTION_CANDIDATES_HREF = "/posts/YqYSGpRbLa7ppkuWs/meet-the-candidates-donation-election-2025";
 export const DONATION_ELECTION_WINNERS_HREF = null;
 
