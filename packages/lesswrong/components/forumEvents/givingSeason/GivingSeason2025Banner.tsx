@@ -505,31 +505,33 @@ export const GivingSeason2025Banner: FC = () => {
               />
             </div>
           )}
-          <div className={classes.mobileButtonRow}>
-            {!isVotingOpen && <Link
-              to={ELECTION_LEARN_MORE_HREF}
-              onClick={onLinkClick.bind(null, "learnMore", ELECTION_LEARN_MORE_HREF)}
-              className={classNames(classes.feedButton, classes.feedButtonSecondary)}
-            >
-              Learn more
-            </Link>}
-            {!isVotingEnded && <a
-              href={ELECTION_DONATE_HREF}
-              onClick={onLinkClick.bind(null, "donate", ELECTION_DONATE_HREF)}
-              className={classNames(classes.feedButton, classes.feedButtonPrimary)}
-              target="_blank"
-              rel="noopener noreferrer"
-            >
-              Donate
-            </a>}
-            {isVotingOpen && <Link
-              to={ELECTION_VOTE_HREF}
-              onClick={onLinkClick.bind(null, "vote", ELECTION_VOTE_HREF)}
-              className={classNames(classes.feedButton, classes.feedButtonSecondary)}
-            >
-              Vote in the election
-            </Link>}
-          </div>
+          {currentEvent.name === "Donation election" && (
+            <div className={classes.mobileButtonRow}>
+              {!isVotingOpen && <Link
+                to={ELECTION_LEARN_MORE_HREF}
+                onClick={onLinkClick.bind(null, "learnMore", ELECTION_LEARN_MORE_HREF)}
+                className={classNames(classes.feedButton, classes.feedButtonSecondary)}
+              >
+                Learn more
+              </Link>}
+              {!isVotingEnded && <a
+                href={ELECTION_DONATE_HREF}
+                onClick={onLinkClick.bind(null, "donate", ELECTION_DONATE_HREF)}
+                className={classNames(classes.feedButton, classes.feedButtonPrimary)}
+                target="_blank"
+                rel="noopener noreferrer"
+              >
+                Donate
+              </a>}
+              {isVotingOpen && <Link
+                to={ELECTION_VOTE_HREF}
+                onClick={onLinkClick.bind(null, "vote", ELECTION_VOTE_HREF)}
+                className={classNames(classes.feedButton, classes.feedButtonSecondary)}
+              >
+                Vote in the election
+              </Link>}
+            </div>
+          )}
           <div className={classes.feed}>
             <div className={classes.feedPostsList}>
               {!isLeaderboardDisplayed && currentEvent?.tag && selectedEvent === currentEvent && (
