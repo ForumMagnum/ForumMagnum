@@ -86,6 +86,8 @@ ${postGetLink(post, true, false)}
   return `mailto:?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
 };
 
+export const SOCIAL_PREVIEW_IMAGE_WIDTH = 1200;
+
 /**
  * Get the Cloudinary prefix for a social media preview image - this can be
  * concatenated with a Cloudinary ID to form a valid URL. We apply auto-quality
@@ -96,7 +98,7 @@ ${postGetLink(post, true, false)}
  * size, it won't be scaled up.
  */
 const getSocialImagePreviewPrefix = () =>
-  `https://res.cloudinary.com/${cloudinaryCloudNameSetting.get()}/image/upload/q_auto,f_auto,c_lfill,w_1200,ar_1.91,g_auto/`;
+  `https://res.cloudinary.com/${cloudinaryCloudNameSetting.get()}/image/upload/q_auto,f_auto,c_lfill,w_${SOCIAL_PREVIEW_IMAGE_WIDTH},ar_1.9,g_auto/`;
 
 // Select the social preview image for the post.
 // For events, we use their event image if that is set.
