@@ -18,6 +18,7 @@ import { useModerateComment } from "../dropdowns/comments/withModerateComment";
 import { useMessages } from "../common/withMessages";
 import ForumEventCommentForm from "./ForumEventCommentForm";
 import ForumEventSticker from "./ForumEventSticker";
+import type { ForumIconName } from "../common/ForumIcon";
 
 const styles = (theme: ThemeType) => ({
   stickersContainer: {
@@ -57,8 +58,10 @@ const styles = (theme: ThemeType) => ({
 });
 
 const ForumEventStickers: FC<{
+  icon?: ForumIconName,
+  iconClassName?: string,
   classes: ClassesType<typeof styles>;
-}> = ({ classes }) => {
+}> = ({ icon, iconClassName, classes }) => {
   const { currentForumEvent, refetch } = useCurrentAndRecentForumEvents();
   const { onSignup } = useLoginPopoverContext();
   const currentUser = useCurrentUser();
@@ -200,7 +203,7 @@ const ForumEventStickers: FC<{
       await navigator.clipboard.writeText(commentGetPageUrlFromIds({ postId: currentForumEvent.postId, commentId: sticker.commentId, isAbsolute: true }));
       flash("Sticker and comment deleted. The comment link has been copied to your clipboard in case you want to un–delete it.");
 
-      await refetch?.();
+      refetch?.();
     }
 
   }, [currentForumEvent, flash, moderateCommentMutation, refetch, removeSticker])
@@ -255,12 +258,21 @@ const ForumEventStickers: FC<{
           onClick={saveDraftSticker} // Required for mobile, where the hover icon doesn't show
         >
           {isPlacingSticker && hoverPos && (
-            <ForumEventSticker x={hoverPos.x} y={hoverPos.y} theta={hoverTheta} saveDraftSticker={saveDraftSticker} />
+            <ForumEventSticker
+              x={hoverPos.x}
+              y={hoverPos.y}
+              theta={hoverTheta}
+              saveDraftSticker={saveDraftSticker}
+              icon={icon}
+              iconClassName={iconClassName}
+            />
           )}
         </div>
         {draftSticker && (
           <ForumEventSticker
             {...draftSticker}
+            icon={icon}
+            iconClassName={iconClassName}
             tooltipDisabled={commentFormOpen}
             setUserVoteRef={setUserVoteRef}
             onClear={() => clearSticker(null)}
@@ -270,6 +282,8 @@ const ForumEventStickers: FC<{
           <ForumEventSticker
             key={index}
             {...sticker}
+            icon={icon}
+            iconClassName={iconClassName}
             onClear={sticker.userId === currentUser?._id ? () => clearSticker(sticker) : undefined}
             user={usersById[sticker.userId]}
             comment={(sticker.commentId && commentsById[sticker.commentId]) || undefined}
@@ -321,6 +335,4 @@ const ForumEventStickers: FC<{
   );
 };
 
-export default registerComponent( 'ForumEventStickers', ForumEventStickers, {styles});
-
-
+export default registerComponent('ForumEventStickers', ForumEventStickers, {styles});

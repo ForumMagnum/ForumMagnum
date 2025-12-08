@@ -22,6 +22,7 @@ import {
 } from "@/lib/givingSeason";
 import classNames from "classnames";
 import moment from "moment";
+import ForumEventStickers from "../ForumEventStickers";
 import GivingSeasonFeedItem from "./GivingSeasonFeedItem";
 import GivingSeasonTopPosts from "./GivingSeasonTopPosts";
 import CloudinaryImage2 from "@/components/common/CloudinaryImage2";
@@ -390,6 +391,9 @@ const styles = defineStyles("GivingSeason2025Banner", (theme: ThemeType) => ({
       color: theme.palette.text.alwaysBlack,
     },
   },
+  stickerIcon: {
+    color: "var(--event-color)",
+  },
 }))
 
 export const GivingSeason2025Banner: FC = () => {
@@ -461,6 +465,10 @@ export const GivingSeason2025Banner: FC = () => {
           </Link>
         </div>
         <div className={classes.main}>
+          {currentEvent.name === "Donation celebration" &&
+              currentEvent === selectedEvent && (
+            <ForumEventStickers icon="Heart" iconClassName={classes.stickerIcon} />
+          )}
           <div className={classes.events}>
             {givingSeasonEvents.map((event) => {
               const shouldHideOnMobile = isMobileLeaderboardAllowed && event.end > currentEvent.end;
@@ -536,7 +544,7 @@ export const GivingSeason2025Banner: FC = () => {
             <div className={classes.feedPostsList}>
               {!isLeaderboardDisplayed && currentEvent?.tag && selectedEvent === currentEvent && (
                 <>
-                <MixedTypeFeed
+                  <MixedTypeFeed
                     firstPageSize={selectedEvent?.feedCount}
                     hideLoading
                     disableLoadMore
