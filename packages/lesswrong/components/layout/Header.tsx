@@ -642,7 +642,7 @@ export const HeaderHeightProvider = ({ children }: { children: React.ReactNode }
   const hideFundraiserBanner = cookies[HIDE_FUNDRAISER_BANNER_COOKIE] === "true";
   const pathname = usePrerenderablePathname();
   const isFrontPage = isHomeRoute(pathname);
-  const showFundraiserBanner = !hideFundraiserBanner && isFrontPage;
+  const showFundraiserBanner = false; // !hideFundraiserBanner && isFrontPage;
   const value = useMemo<HeaderHeightContextValue>(() => ({ showFundraiserBanner, }), [showFundraiserBanner]);
 
   return (

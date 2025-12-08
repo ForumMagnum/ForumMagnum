@@ -346,7 +346,7 @@ const FundraisingThermometer: React.FC<
   const displayedStageNumber = currentAmount < goal1 ? 1 : currentAmount < goal2 ? 2 : 3;
 
   // End at 23:59 AoE (UTC-12) on Jan 13th
-  const fundraiserEndDate = new Date('2025-01-14T11:59:00Z');
+  const fundraiserEndDate = new Date('2026-01-14T11:59:00Z');
   const currentTime = useCurrentTime();
   const timeRemainingMs = fundraiserEndDate.getTime() - currentTime.getTime();
   const fundraiserEnded = timeRemainingMs <= 0;
