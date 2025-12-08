@@ -19,14 +19,21 @@ import { useMessages } from "../common/withMessages";
 import ForumEventCommentForm from "./ForumEventCommentForm";
 import ForumEventSticker from "./ForumEventSticker";
 import type { ForumIconName } from "../common/ForumIcon";
+import DeferRender from "../common/DeferRender";
+import classNames from "classnames";
 
 const styles = (theme: ThemeType) => ({
-  stickersContainer: {
+  root: {
     width: "100%",
     height: "100%",
     position: "absolute",
     top: 0,
     left: 0
+  },
+  isPlacing: {
+    // Hide the cursor over the entire container when placing - this prevents
+    // the mouse from "escaping" the draft emoji when moving fast
+    cursor: "none",
   },
   mobileOverlay: {
     pointerEvents: "none",
@@ -60,8 +67,9 @@ const styles = (theme: ThemeType) => ({
 const ForumEventStickers: FC<{
   icon?: ForumIconName,
   iconClassName?: string,
+  noMobileOverlay?: boolean,
   classes: ClassesType<typeof styles>;
-}> = ({ icon, iconClassName, classes }) => {
+}> = ({ icon, iconClassName, noMobileOverlay, classes }) => {
   const { currentForumEvent, refetch } = useCurrentAndRecentForumEvents();
   const { onSignup } = useLoginPopoverContext();
   const currentUser = useCurrentUser();
@@ -249,7 +257,10 @@ const ForumEventStickers: FC<{
 
   return (
     <AnalyticsContext pageElementContext="forumEventStickers">
-      <div className={classes.stickersContainer}>
+      <div className={classNames(
+        classes.root,
+        isPlacingSticker && hoverPos && classes.isPlacing,
+      )}>
         <div
           className={classes.hoverContainer}
           ref={containerRef}
@@ -323,13 +334,21 @@ const ForumEventStickers: FC<{
           )}
         />
       )}
-      <div className={classes.mobileOverlay} />
+      {!noMobileOverlay && <div className={classes.mobileOverlay} />}
       {!isDesktop && allowAddingSticker && (
-        <InteractionWrapper>
-          <div className={classes.placeStickerButton} onClick={() => setMobilePlacingSticker(!mobilePlacingSticker)}>
-            {mobilePlacingSticker ? "Place your sticker, or tap here to cancel" : "+ Add sticker"}
-          </div>
-        </InteractionWrapper>
+        <DeferRender ssr={false}>
+          <InteractionWrapper>
+            <div
+              className={classes.placeStickerButton}
+              onClick={() => setMobilePlacingSticker(!mobilePlacingSticker)}
+            >
+              {mobilePlacingSticker
+                ? "Place your sticker, or tap here to cancel"
+                : "+ Add sticker"
+              }
+            </div>
+          </InteractionWrapper>
+        </DeferRender>
       )}
     </AnalyticsContext>
   );

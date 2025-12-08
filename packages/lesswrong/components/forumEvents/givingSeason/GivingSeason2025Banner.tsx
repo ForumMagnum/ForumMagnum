@@ -118,6 +118,8 @@ const styles = defineStyles("GivingSeason2025Banner", (theme: ThemeType) => ({
     [theme.breakpoints.down("sm")]: {
       display: "block",
       maxWidth: "calc(min(500px, 100%))",
+      // Leave some room at the bottom for adding stickers on mobile
+      paddingBottom: 120,
     },
   },
   events: {
@@ -466,9 +468,13 @@ export const GivingSeason2025Banner: FC = () => {
         </div>
         <div className={classes.main}>
           {currentEvent.name === "Donation celebration" &&
-              currentEvent === selectedEvent && (
-            <ForumEventStickers icon="Heart" iconClassName={classes.stickerIcon} />
-          )}
+            currentEvent === selectedEvent && (
+              <ForumEventStickers
+                icon="Heart"
+                iconClassName={classes.stickerIcon}
+                noMobileOverlay
+              />
+            )}
           <div className={classes.events}>
             {givingSeasonEvents.map((event) => {
               const shouldHideOnMobile = isMobileLeaderboardAllowed && event.end > currentEvent.end;
