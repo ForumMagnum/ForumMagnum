@@ -71,8 +71,24 @@ const styles = (theme: ThemeType) => ({
   backgroundIsCurrent: {
     backgroundColor: theme.palette.grey[700],
     color: theme.palette.inverseGreyAlpha(.87),
-    '& *, & li::marker': {
+    // Use && to increase specificity and override messageBody styles
+    '&& p, && li, && li::marker, && blockquote, && h1, && h2, && h3, && h4, && h5, && h6, && a, && div, && td, && th, && span': {
       color: theme.palette.inverseGreyAlpha(.87),
+    },
+    '&& a:visited': {
+      color: theme.palette.inverseGreyAlpha(.7),
+    },
+    '&& code': {
+      color: theme.palette.text.normal,
+      backgroundColor: theme.palette.grey[100],
+    },
+    '&& pre': {
+      color: theme.palette.text.normal,
+      backgroundColor: theme.palette.grey[100],
+    },
+    '&& pre code': {
+      // Code inside pre blocks shouldn't have double background
+      backgroundColor: 'transparent',
     },
     marginLeft:theme.spacing.unit*1.5,
   },
