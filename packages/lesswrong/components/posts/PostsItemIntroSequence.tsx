@@ -202,7 +202,7 @@ const PostsItemIntroSequence = ({
 
           {withImage && sequence?.gridImageId && <div className={classes.sequenceImage}>
             <img className={classes.sequenceImageImg}
-              src={`https://res.cloudinary.com/${cloudinaryCloudName}/image/upload/c_fill,dpr_2.0,g_custom,h_${IMAGE_HEIGHT},q_auto,w_${IMAGE_WIDTH}/v1/${
+              src={`https://res.cloudinary.com/${cloudinaryCloudName}/image/upload/c_fill,dpr_2.0,g_custom,h_${IMAGE_HEIGHT},q_auto,f_auto,w_${IMAGE_WIDTH}/v1/${
                 sequence.gridImageId
               }`}
             />

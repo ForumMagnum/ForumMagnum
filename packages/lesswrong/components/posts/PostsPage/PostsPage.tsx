@@ -680,7 +680,7 @@ const PostsPage = ({fullPost, postPreload, eagerPostComments, refetch, classes}:
   // For imageless posts this will be an empty string
   let socialPreviewImageUrl = post.socialPreviewData?.imageUrl ?? "";
   if (post.isEvent && post.eventImageId) {
-    socialPreviewImageUrl = `https://res.cloudinary.com/${cloudinaryCloudNameSetting.get()}/image/upload/c_fill,g_auto,ar_191:100/${post.eventImageId}`
+    socialPreviewImageUrl = `https://res.cloudinary.com/${cloudinaryCloudNameSetting.get()}/image/upload/q_auto,f_auto,c_fill,g_auto,ar_191:100/${post.eventImageId}`
   }
 
   const debateResponseIds = new Set((debateResponses ?? []).map(response => response._id));
