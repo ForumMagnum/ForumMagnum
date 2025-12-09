@@ -68,8 +68,9 @@ const ForumEventStickers: FC<{
   icon?: ForumIconName,
   iconClassName?: string,
   noMobileOverlay?: boolean,
+  className?: string,
   classes: ClassesType<typeof styles>;
-}> = ({ icon, iconClassName, noMobileOverlay, classes }) => {
+}> = ({ icon, iconClassName, noMobileOverlay, className, classes }) => {
   const { currentForumEvent, refetch } = useCurrentAndRecentForumEvents();
   const { onSignup } = useLoginPopoverContext();
   const currentUser = useCurrentUser();
@@ -260,6 +261,7 @@ const ForumEventStickers: FC<{
       <div className={classNames(
         classes.root,
         isPlacingSticker && hoverPos && classes.isPlacing,
+        className,
       )}>
         <div
           className={classes.hoverContainer}

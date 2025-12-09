@@ -122,7 +122,12 @@ const styles = defineStyles("GivingSeason2025Banner", (theme: ThemeType) => ({
       paddingBottom: 120,
     },
   },
+  stickers: {
+    zIndex: 2,
+  },
   events: {
+    position: "relative",
+    zIndex: 3,
     display: "grid",
     gridTemplateColumns: "min-content 1fr",
     marginBottom: "auto", // Don't expand based on RHS content
@@ -473,6 +478,7 @@ export const GivingSeason2025Banner: FC = () => {
                 icon="Heart"
                 iconClassName={classes.stickerIcon}
                 noMobileOverlay
+                className={classes.stickers}
               />
             )}
           <div className={classes.events}>
