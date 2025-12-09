@@ -109,9 +109,10 @@ const styles = (theme: ThemeType) => ({
     },
   },
   personality: {
+    fontFamily: theme.palette.wrapped.fontFamily,
     fontSize: 22,
     lineHeight: "28px",
-    fontWeight: 700,
+    fontWeight: 400,
     letterSpacing: "-0.48px",
     [theme.breakpoints.up("md")]: {
       fontSize: 32,

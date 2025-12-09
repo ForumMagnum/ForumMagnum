@@ -6,10 +6,10 @@ const styles = (theme: ThemeType) => ({
   root: {
     width: 800,
     maxWidth: "100%",
-    fontFamily: theme.palette.fonts.sansSerifStack,
+    fontFamily: theme.palette.wrapped.fontFamily,
     color: theme.palette.text.alwaysWhite,
     fontSize: 40,
-    fontWeight: 700,
+    fontWeight: 400,
     lineHeight: "110%",
     textWrap: 'pretty',
     letterSpacing: "-1.6px",

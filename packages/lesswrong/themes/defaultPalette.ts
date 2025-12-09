@@ -589,10 +589,11 @@ export const defaultComponentPalette = (shades: ThemeShadePalette): ThemeCompone
     candidateBorder: "rgba(7, 6, 5, 0.4)",
   },
   wrapped: {
+    fontFamily: `"Charis SIL", Inter, Helvetica, Arial, sans-serif`,
     background: '#151515',
     darkBackground: "#000",
-    highlightText: '#F09554',
-    secondaryText: '#008DAC',
+    highlightText: '#0E879C',
+    secondaryText: '#F09554',
     tertiaryText: "rgba(255, 255, 255, 0.50)",
     black: '#212121',
     darkDot: "rgba(255, 255, 255, 0.40)",

@@ -6,6 +6,7 @@ import { HEADER_HEIGHT, MOBILE_HEADER_HEIGHT } from "@/components/common/Header"
 import { useCurrentUser } from "@/components/common/withUser";
 import { makeCloudinaryImageUrl } from "@/components/common/CloudinaryImage2";
 import { ForumWrappedProvider, isWrappedYear, useForumWrapped } from "./hooks";
+import { Helmet } from "@/lib/utils/componentsWithChildren";
 import moment from "moment";
 import HeadTags from "../../common/HeadTags";
 import WrappedSection from "./WrappedSection";
@@ -63,6 +64,12 @@ const EAForumWrappedPage = ({classes}: {classes: ClassesType<typeof styles>}) =>
   return (
     <AnalyticsContext pageContext="eaYearWrapped" reviewYear={String(year)}>
       <main className={classes.root}>
+        <Helmet>
+          <link
+            href="https://fonts.googleapis.com/css2?family=Charis+SIL:wght@400&display=swap"
+            rel="stylesheet"
+          />
+        </Helmet>
         <HeadTags
           title={`${year} EA Forum Wrapped`}
           image={makeCloudinaryImageUrl("wrapped-2024/2024_wrapped", {

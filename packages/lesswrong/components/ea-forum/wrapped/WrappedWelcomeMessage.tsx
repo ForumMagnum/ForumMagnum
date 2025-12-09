@@ -18,7 +18,8 @@ const styles = (theme: ThemeType) => ({
   },
   heading: {
     fontSize: 54,
-    fontWeight: 700,
+    fontFamily: theme.palette.wrapped.fontFamily,
+    fontWeight: 400,
     lineHeight: "110%",
     letterSpacing: "-2.7px",
     textAlign: "left",

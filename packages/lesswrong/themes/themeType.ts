@@ -565,6 +565,7 @@ declare global {
       candidateBorder: ColorString,
     },
     wrapped: {
+      fontFamily: string,
       background: ColorString,
       darkBackground: ColorString,
       highlightText: ColorString,
