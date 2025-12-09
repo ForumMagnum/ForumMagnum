@@ -16,9 +16,9 @@ import { getAllCollections, getAllCollectionsByName } from '../../collections/al
 import findByIds from '../findbyids';
 import { getHeaderLocale } from '../intl';
 import * as _ from 'underscore';
-import { hashLoginToken, tokenExpiration, userIsBanned } from '../../loginTokens';
+import { hashLoginToken, tokenExpiration } from '../../loginTokens';
 import type { Request, Response } from 'express';
-import {getUserEmail} from "../../../lib/collections/users/helpers";
+import {getUserEmail, userIsBanned} from "../../../lib/collections/users/helpers";
 import { getAllRepos } from '../../repos';
 import UsersRepo from '../../repos/UsersRepo';
 import UserActivities from '../../../server/collections/useractivities/collection';
