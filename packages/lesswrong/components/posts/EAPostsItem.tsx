@@ -7,7 +7,7 @@ import { SECTION_WIDTH } from "../common/SingleColumnSection";
 import withErrorBoundary from "../common/withErrorBoundary";
 import classNames from "classnames";
 import { InteractionWrapper, useClickableCell } from "../common/useClickableCell";
-import { cloudinaryCloudNameSetting } from "../../lib/publicSettings";
+import { SOCIAL_PREVIEW_IMAGE_WIDTH } from "@/lib/collections/posts/helpers";
 import { usePostsListView } from "../hooks/usePostsListView";
 import PostsTitle from "./PostsTitle";
 import ForumIcon from "../common/ForumIcon";
@@ -259,10 +259,8 @@ export const styles = (theme: ThemeType) => ({
   },
 });
 
-const cloudinaryBase = `${cloudinaryCloudNameSetting.get()}/image/upload/`;
-
 const formatImageUrl = (url: string) =>
-  url.replace(cloudinaryBase, `${cloudinaryBase}c_fill,w_${CARD_IMG_WIDTH},h_${CARD_IMG_HEIGHT},dpr_2,q_auto,f_auto,`);
+  url.replace(`w_${SOCIAL_PREVIEW_IMAGE_WIDTH}`, `w_${CARD_IMG_WIDTH},dpr_2`);
 
 export type EAPostsItemProps = PostsItemConfig & {
   openInNewTab?: boolean,
