@@ -300,20 +300,6 @@ export const postGqlQueries = {
       }
     })
   },
-  /**
-   * Legacy query for old client bundles during switchover to new public-docs-only approach.
-   * Returns true if a valid Google Doc ID can be extracted from the URL. If the doc is not
-   * actually public is will fail when they try to import, but it at least won't throw an unhandled error.
-   */
-  async CanAccessGoogleDoc(root: void, { fileUrl }: { fileUrl: string }, context: ResolverContext) {
-    const { currentUser } = context
-    if (!currentUser) {
-      return null;
-    }
-
-    const fileId = extractGoogleDocId(fileUrl);
-    return !!fileId;
-  },
   ...DigestHighlightsQuery,
   ...DigestPostsThisWeekQuery,
   ...CuratedAndPopularThisWeekQuery,
@@ -488,8 +474,6 @@ export const postGqlTypeDefs = gql`
     PostIsCriticism(args: JSON): Boolean
     DigestPlannerData(digestId: String, startDate: Date, endDate: Date): [DigestPlannerPost]
     DigestPosts(num: Int): [Post]
-
-    CanAccessGoogleDoc(fileUrl: String!): Boolean
   }
 
   extend type Mutation {
