@@ -6,19 +6,33 @@ function datesDifference(a: Date, b: Date): number {
   return (a as any)-(b as any);
 }
 
-type UseHoverProps = {
+
+/**
+ * Returns a set of event handlers for implementing a hover effect. Spread
+ * eventHandlers into the props of a DOM element; the component that used this
+ * hook will rerender whenever that element is hovered or unhovered.
+ */
+export const useHover = <EventType extends {currentTarget: HTMLElement}=React.MouseEvent<HTMLElement>>(options?: {
+  /**
+   * Information attached to analytics events for this hover
+   */
   eventProps?: EventProps,
   onEnter?: () => void,
   onLeave?: () => void,
+  /**
+   * Getter for whether the hover is enabled (checked when a hover event occurs,
+   * if this returns false the hover is ignored). Given as a function rather
+   * than a boolean so that it can do things like check the screen width,
+   * without having to set up any change-listeners or worry about SSR mismatch.
+   */
+  getIsEnabled?: () => boolean,
+  /**
+   * Whether to disable this hover on touch devices (note, it's specifically
+   * about whether it's a touch device, _not_ about screen size). Equivalent to
+   * passing getIsEnabled={() => !isMobile()}.
+   */
   disabledOnMobile?: boolean,
-}
-
-export type UseHoverEventHandlers = {
-  onMouseOver: (ev: React.MouseEvent) => void,
-  onMouseLeave: (ev: React.MouseEvent) => void,
-}
-
-export const useHover = <EventType extends {currentTarget: HTMLElement}=React.MouseEvent<HTMLElement>>({eventProps, onEnter, onLeave, disabledOnMobile}: UseHoverProps = {}): {
+}): {
   eventHandlers: {
     onMouseOver: (ev: EventType) => void,
     onMouseLeave: (ev: EventType) => void,
@@ -28,6 +42,7 @@ export const useHover = <EventType extends {currentTarget: HTMLElement}=React.Mo
   anchorEl: HTMLElement | null,
   forceUnHover: () => void,
 } => {
+  const {eventProps, onEnter, onLeave, disabledOnMobile, getIsEnabled} = options ?? {};
   const [hover, setHover] = useState(false)
   const [everHovered, setEverHovered] = useState(false)
   const [anchorEl, setAnchorEl] = useState<HTMLElement | null>(null)
@@ -58,7 +73,7 @@ export const useHover = <EventType extends {currentTarget: HTMLElement}=React.Mo
   }, [captureEvent])
 
   const handleMouseOver = useCallback((event: EventType) => {
-    if (disabledOnMobile && isMobile()) {
+    if ((disabledOnMobile && isMobile()) || (getIsEnabled && !getIsEnabled())) {
       return;
     }
 
