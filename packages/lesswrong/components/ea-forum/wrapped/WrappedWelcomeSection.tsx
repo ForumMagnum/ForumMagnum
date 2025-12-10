@@ -17,7 +17,8 @@ const styles = (theme: ThemeType) => ({
     fontSize: 16,
     fontWeight: 500,
     padding: "12px 24px",
-    borderRadius: 100,
+    borderRadius: theme.borderRadius.default,
+    width: "100%",
     transition: "all ease-in-out 0.2s",
     "&:hover": {
       color: theme.palette.text.alwaysBlack,
@@ -41,7 +42,7 @@ const WrappedWelcomeSection = ({classes}: {
   return (
     <WrappedWelcomeMessage currentUser={currentUser} year={year}>
       <button onClick={goToNextSection} className={classes.button}>
-        View your year <ForumIcon icon="ChevronRight" />
+        Get started <ForumIcon icon="ChevronRight" />
       </button>
     </WrappedWelcomeMessage>
   );
@@ -52,5 +53,3 @@ export default registerComponent(
   WrappedWelcomeSection,
   {styles},
 );
-
-

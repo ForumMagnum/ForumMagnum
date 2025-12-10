@@ -22,6 +22,8 @@ const styles = (theme: ThemeType) => ({
     minHeight: "100%",
     margin: "0 auto",
     overflow: "hidden auto",
+    display: "flex",
+    flexDirection: "column",
   },
   maxWidth: {
     width: 700,

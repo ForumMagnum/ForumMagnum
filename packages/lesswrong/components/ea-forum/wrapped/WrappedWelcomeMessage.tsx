@@ -11,12 +11,16 @@ const styles = (theme: ThemeType) => ({
     backgroundPosition: "left bottom",
   },
   container: {
+    flexGrow: 1,
+    display: "flex",
+    flexDirection: "column",
     margin: "40px auto 0",
     [theme.breakpoints.up("sm")]: {
       width: 600,
     },
   },
   heading: {
+    flexGrow: 1,
     fontSize: 54,
     fontFamily: theme.palette.wrapped.fontFamily,
     fontWeight: 400,
@@ -28,9 +32,6 @@ const styles = (theme: ThemeType) => ({
   },
   wrapped: {
     color: theme.palette.wrapped.highlightText,
-  },
-  children: {
-    marginBottom: 40,
   },
 });
 
@@ -59,7 +60,7 @@ const WrappedWelcomeMessage = ({currentUser, year, children, classes}: {
           <span className={classes.wrapped}>Wrapped</span>
         </h1>
         {children &&
-          <div className={classes.children}>
+          <div>
             {children}
           </div>
         }
