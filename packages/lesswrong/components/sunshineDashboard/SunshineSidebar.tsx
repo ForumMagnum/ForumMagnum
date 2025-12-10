@@ -15,7 +15,6 @@ import SunshineCuratedSuggestionsList from "./SunshineCuratedSuggestionsList";
 import AFSuggestUsersList from "./AFSuggestUsersList";
 import AFSuggestPostsList from "./AFSuggestPostsList";
 import AFSuggestCommentsList from "./AFSuggestCommentsList";
-import SunshineGoogleServiceAccount from "./SunshineGoogleServiceAccount";
 
 const styles = (theme: ThemeType) => ({
   root: {
@@ -61,7 +60,6 @@ const SunshineSidebar = ({classes}: {classes: ClassesType<typeof styles>}) => {
   return (
     <div className={classes.root}>
       {showInitialSidebar && <div className={classes.background}>
-        <SunshineGoogleServiceAccount />
         <SunshineCuratedSuggestionsList terms={{view:"sunshineCuratedSuggestions", limit: 7}}/>
         <SunshineNewPostsList terms={{view:"sunshineNewPosts"}}/>
         <SunshineNewUsersList terms={{view:"sunshineNewUsers", limit: 10}} currentUser={currentUser}/>

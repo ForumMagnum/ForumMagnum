@@ -593,7 +593,6 @@ extend type Query {
   PostIsCriticism(args: JSON): Boolean
   DigestPlannerData(digestId: String, startDate: Date, endDate: Date): [DigestPlannerPost]
   DigestPosts(num: Int): [Post]
-  CanAccessGoogleDoc(fileUrl: String!): Boolean
 }
 
 extend type Mutation {
@@ -738,10 +737,6 @@ type PostsWithApprovedJargonResult {
 
 extend type Query {
   PostsWithApprovedJargon(limit: Int): PostsWithApprovedJargonResult
-}
-
-extend type Mutation {
-  revokeGoogleServiceAccountTokens: Boolean!
 }
 
 extend type Mutation {
