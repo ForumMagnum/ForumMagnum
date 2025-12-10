@@ -1,6 +1,6 @@
 import React, { RefObject, useCallback } from "react";
 import { registerComponent } from "@/lib/vulcan-lib/components";
-import html2canvas from "html2canvas";
+import html2canvas from "html2canvas-pro";
 import classNames from "classnames";
 import { isMobile } from "@/lib/utils/isMobile";
 import { captureException } from "@sentry/core";
