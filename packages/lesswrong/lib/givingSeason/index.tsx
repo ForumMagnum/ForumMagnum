@@ -172,7 +172,6 @@ export const givingSeasonEvents: GivingSeasonEvent[] = [
 ];
 
 export const useCurrentGivingSeasonEvent = (): GivingSeasonEvent | null => {
-  return givingSeasonEvents[4];
   const currentTime = useCurrentTime();
   if (!isEAForum) {
     return null;
