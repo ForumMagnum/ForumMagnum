@@ -197,7 +197,7 @@ const ForumEventStickers: FC<{
     void refetchAll();
     setDraftSticker(null);
     setCommentFormOpen(false);
-  }, [currentForumEvent, draftSticker, refetchAll]);
+  }, [currentForumEvent, refetchAll]);
 
   const clearSticker = useCallback(async (sticker: typeof stickers[number] | null) => {
     if (!currentForumEvent) return;
