@@ -214,7 +214,7 @@ interface DbComment extends DbObject {
       x: number,
       y: number,
       theta: number,
-      emoji: string,
+      emoji: string | null,
     } | null,
     poll: {
       voteWhenPublished: number,

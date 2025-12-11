@@ -111,7 +111,7 @@ const ForumEventStickers: FC<{
   const usersById = keyBy(users, "_id")
   const commentsById = keyBy(comments, "_id")
 
-  const [draftSticker, setDraftSticker] = useState<{_id: string, x: number, y: number, theta: number, emoji?: string} | null>(null);
+  const [draftSticker, setDraftSticker] = useState<ForumEventStickerInput | null>(null);
 
   const [commentFormOpen, setCommentFormOpen] = useState(false);
   const [hoverPos, setHoverPos] = useState<{ x: number; y: number } | null>(
@@ -181,6 +181,7 @@ const ForumEventStickers: FC<{
         _id: randomId(),
         ...coords,
         theta: hoverTheta,
+        emoji: null,
       });
 
       setMobilePlacingSticker(false);
@@ -189,7 +190,9 @@ const ForumEventStickers: FC<{
   );
 
   const onSuccess = useCallback(async () => {
-    if (!currentForumEvent || !draftSticker?.emoji) return;
+    if (!currentForumEvent) {
+      return;
+    }
 
     void refetchAll();
     setDraftSticker(null);
@@ -202,17 +205,24 @@ const ForumEventStickers: FC<{
     if (!sticker) {
       setDraftSticker(null);
     } else {
-      await removeSticker({ variables: { forumEventId: currentForumEvent!._id, stickerId: sticker._id } });
-      await moderateCommentMutation({
-        commentId: sticker.commentId,
-        deleted: true,
-        deletedPublic: true,
-        deletedReason: "",
-      });
+      await Promise.all([
+        removeSticker({
+          variables: {
+            forumEventId: currentForumEvent!._id,
+            stickerId: sticker._id,
+          },
+        }),
+        moderateCommentMutation({
+          commentId: sticker.commentId,
+          deleted: true,
+          deletedPublic: true,
+          deletedReason: "",
+        }),
+      ]);
       await navigator.clipboard.writeText(commentGetPageUrlFromIds({ postId: currentForumEvent.postId, commentId: sticker.commentId, isAbsolute: true }));
       flash("Sticker and comment deleted. The comment link has been copied to your clipboard in case you want to un–delete it.");
 
-      refetch?.();
+      await refetch?.();
     }
 
   }, [currentForumEvent, flash, moderateCommentMutation, refetch, removeSticker])
@@ -249,7 +259,7 @@ const ForumEventStickers: FC<{
   const prefilledProps: Partial<DbComment> = {
     forumEventMetadata: {
       eventFormat: "STICKERS",
-      sticker: draftSticker as ForumEventStickerInput, // Validated on the server
+      sticker: draftSticker,
       poll: null
     },
   };
@@ -310,7 +320,7 @@ const ForumEventStickers: FC<{
           forumEvent={currentForumEvent}
           cancelCallback={onCloseCommentForm}
           successCallback={onSuccess}
-          setEmoji={setEmoji}
+          setEmoji={icon ? undefined : setEmoji}
           anchorEl={userVoteRef}
           post={currentForumEvent.post}
           prefilledProps={prefilledProps}

@@ -248,6 +248,7 @@ export const CommentForm = ({
   onSuccess,
   onCancel,
   onError,
+  hideControls,
 }: {
   initialData?: UpdateCommentDataInput & { _id: string; tagCommentType: TagCommentType };
   prefilledProps?: {
@@ -278,6 +279,7 @@ export const CommentForm = ({
   onSuccess: (doc: CommentsList) => void;
   onCancel: () => void;
   onError?: () => void;
+  hideControls?: boolean,
 }) => {
   const { captureEvent } = useTracking();
   const classes = useStyles(formStyles);
@@ -464,7 +466,7 @@ export const CommentForm = ({
                 collectionName="Comments"
                 commentEditor={true}
                 commentStyles={true}
-                hideControls={false}
+                hideControls={hideControls}
                 editorHintText={editorHintText}
                 commentMinimalistStyle={commentMinimalistStyle}
                 maxHeight={maxHeight}
