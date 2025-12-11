@@ -42,7 +42,7 @@ export class WrappedPersonality {
   }) {
     // Choose the first adjective based on reacts
     const totalReactsReceived = sum(Object.values(reactsReceived));
-    const totalReactsGiven = sum(Object.values(reactsReceived));
+    const totalReactsGiven = sum(Object.values(reactsGiven));
     if (totalReactsReceived === 0 && totalReactsGiven === 0) {
       if (agreements.agree && agreements.agree > agreements.disagree) {
         this.parts.push("Agreeable");
