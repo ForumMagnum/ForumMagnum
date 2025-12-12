@@ -152,7 +152,7 @@ export const givingSeasonEvents: GivingSeasonEvent[] = [
       slug: "why-i-donate-week-2025",
     },
     start: new Date("2025-12-08"),
-    end: new Date("2025-12-15"),
+    end: new Date("2025-12-15T08:59:59.000Z"),
     color: "#63C5D5",
     desktopCloudinaryId: "week1_desktop_toao8n",
     mobileCloudinaryId: "week1_mobile_fwltv9",
@@ -162,7 +162,7 @@ export const givingSeasonEvents: GivingSeasonEvent[] = [
     name: "Donation celebration",
     description: "When you’ve finished making your giving season donations, add a heart to the banner and celebrate with us!",
     readMoreHref: "/posts/RzdKnBYe3jumrZxkB/giving-season-2025-announcement#December_15th_to_the_end_of_the_year",
-    start: new Date("2025-12-15"),
+    start: new Date("2025-12-15T09:00:00.000Z"),
     end: new Date("2025-12-31"),
     color: "#F59469",
     desktopCloudinaryId: "week5_desktop_bqdvi3",
@@ -172,6 +172,7 @@ export const givingSeasonEvents: GivingSeasonEvent[] = [
 ];
 
 export const useCurrentGivingSeasonEvent = (): GivingSeasonEvent | null => {
+  return givingSeasonEvents[4];
   const currentTime = useCurrentTime();
   if (!isEAForum) {
     return null;

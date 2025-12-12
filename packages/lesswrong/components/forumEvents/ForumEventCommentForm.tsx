@@ -199,6 +199,7 @@ const ForumEventCommentForm = ({
                 interactionType="reply"
                 post={post}
                 enableGuidelines={false}
+                hideControls
                 cancelCallback={() => cancelCallback()}
                 successCallback={onSubmit}
                 prefilledProps={prefilledProps}
@@ -222,6 +223,7 @@ const ForumEventCommentForm = ({
                   await successCallback();
                 }}
                 prefilledProps={prefilledProps}
+                hideControls
                 className={classes.commentForm}
               />
             )}
@@ -237,5 +239,3 @@ export default registerComponent(
   ForumEventCommentForm,
   { styles, stylePriority: 1 }
 );
-
-
