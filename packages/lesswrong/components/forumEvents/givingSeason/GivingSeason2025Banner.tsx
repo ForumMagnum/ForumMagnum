@@ -646,64 +646,66 @@ export const GivingSeason2025Banner: FC = () => {
             )}
           </div>
         </div>
-        <div className={classNames(classes.election, currentEvent.name === "Donation election" && classes.electionExpanded)}>
-          <div className={classes.electionStatus}>
-            <div className={classNames(
-              classes.amountRaised,
-              classes.amountRaisedDesktop,
-            )}>
-              ${formatStat(amountRaised)} raised{" "}
-              <span>to the Donation Election Fund</span>
+        {!isVotingEnded && (
+          <div className={classNames(classes.election, currentEvent.name === "Donation election" && classes.electionExpanded)}>
+            <div className={classes.electionStatus}>
+              <div className={classNames(
+                classes.amountRaised,
+                classes.amountRaisedDesktop,
+              )}>
+                ${formatStat(amountRaised)} raised{" "}
+                <span>to the Donation Election Fund</span>
+              </div>
+              <div className={classNames(
+                classes.amountRaised,
+                classes.amountRaisedMobile,
+              )}>
+                <span>Donation Election Fund</span>
+                <div>${formatStat(amountRaised)}</div>
+              </div>
+              <div className={classes.progress} aria-hidden>
+                <div className={classes.progressBackground} />
+                <div
+                  style={{width: `${amountRaised / amountTarget * 100}%`}}
+                  className={classes.progressBar}
+                />
+              </div>
+              <div className={classes.match}>
+                Includes our match on the first $5000
+              </div>
             </div>
-            <div className={classNames(
-              classes.amountRaised,
-              classes.amountRaisedMobile,
-            )}>
-              <span>Donation Election Fund</span>
-              <div>${formatStat(amountRaised)}</div>
-            </div>
-            <div className={classes.progress} aria-hidden>
-              <div className={classes.progressBackground} />
-              <div
-                style={{width: `${amountRaised / amountTarget * 100}%`}}
-                className={classes.progressBar}
-              />
-            </div>
-            <div className={classes.match}>
-              Includes our match on the first $5000
+            <div className={classes.electionButtons}>
+              {!isVotingOpen && <Link
+                to={ELECTION_LEARN_MORE_HREF}
+                onClick={onLinkClick.bind(null, "learnMore", ELECTION_LEARN_MORE_HREF)}
+                className={classes.buttonOutlined}
+              >
+                Learn more
+              </Link>}
+              {!isVotingEnded && <a
+                href={ELECTION_DONATE_HREF}
+                onClick={onLinkClick.bind(null, "donate", ELECTION_DONATE_HREF)}
+                className={classes.buttonBlack}
+                target="_blank"
+                rel="noopener noreferrer"
+              >
+                Donate
+              </a>}
+              {isVotingOpen && <Link
+                to={ELECTION_VOTE_HREF}
+                onClick={onLinkClick.bind(null, "vote", ELECTION_VOTE_HREF)}
+                className={classes.buttonOutlined}
+              >
+                Vote in the election
+              </Link>}
+              {isVotingEnded && <div
+                className={classes.buttonOutlinedDisabled}
+              >
+                You can no longer vote or donate
+              </div>}
             </div>
           </div>
-          <div className={classes.electionButtons}>
-            {!isVotingOpen && <Link
-              to={ELECTION_LEARN_MORE_HREF}
-              onClick={onLinkClick.bind(null, "learnMore", ELECTION_LEARN_MORE_HREF)}
-              className={classes.buttonOutlined}
-            >
-              Learn more
-            </Link>}
-            {!isVotingEnded && <a
-              href={ELECTION_DONATE_HREF}
-              onClick={onLinkClick.bind(null, "donate", ELECTION_DONATE_HREF)}
-              className={classes.buttonBlack}
-              target="_blank"
-              rel="noopener noreferrer"
-            >
-              Donate
-            </a>}
-            {isVotingOpen && <Link
-              to={ELECTION_VOTE_HREF}
-              onClick={onLinkClick.bind(null, "vote", ELECTION_VOTE_HREF)}
-              className={classes.buttonOutlined}
-            >
-              Vote in the election
-            </Link>}
-            {isVotingEnded && <div
-              className={classes.buttonOutlinedDisabled}
-            >
-              You can no longer vote or donate
-            </div>}
-          </div>
-        </div>
+        )}
       </div>
     </AnalyticsContext>
   );

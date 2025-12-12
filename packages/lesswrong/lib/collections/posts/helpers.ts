@@ -86,8 +86,19 @@ ${postGetLink(post, true, false)}
   return `mailto:?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
 };
 
+export const SOCIAL_PREVIEW_IMAGE_WIDTH = 1200;
+
+/**
+ * Get the Cloudinary prefix for a social media preview image - this can be
+ * concatenated with a Cloudinary ID to form a valid URL. We apply auto-quality
+ * and auto-filetype detection to reduce the file size. We add a width of 1200px
+ * with a 1.91 aspect ratio as this is the most common format preferred by
+ * social media sites. Using "lfill" (limit fill) means Cloudinary will only
+ * ever scale the image _down_ - if the source file is smaller than the requested
+ * size, it won't be scaled up.
+ */
 const getSocialImagePreviewPrefix = () =>
-  `https://res.cloudinary.com/${cloudinaryCloudNameSetting.get()}/image/upload/c_fill,ar_1.91,g_auto/`;
+  `https://res.cloudinary.com/${cloudinaryCloudNameSetting.get()}/image/upload/q_auto,f_auto,c_lfill,w_${SOCIAL_PREVIEW_IMAGE_WIDTH},ar_1.9,g_auto/`;
 
 // Select the social preview image for the post.
 // For events, we use their event image if that is set.
