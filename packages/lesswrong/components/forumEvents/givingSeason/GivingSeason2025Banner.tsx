@@ -118,7 +118,12 @@ const styles = defineStyles("GivingSeason2025Banner", (theme: ThemeType) => ({
     [theme.breakpoints.down("sm")]: {
       display: "block",
       maxWidth: "calc(min(500px, 100%))",
-      // Leave some room at the bottom for adding stickers on mobile
+    },
+  },
+  // Leave some room at the bottom for adding stickers
+  mainStickers: {
+    paddingBottom: 100,
+    [theme.breakpoints.down("sm")]: {
       paddingBottom: 120,
     },
   },
@@ -434,6 +439,9 @@ export const GivingSeason2025Banner: FC = () => {
   const isMobileLeaderboardAllowed = currentEvent.name === "Donation election";
   const isMobileLeaderboardDisplayed = isMobileLeaderboardAllowed && isLeaderboardDisplayed;
 
+  const showStickers = currentEvent.name === "Donation celebration" &&
+    currentEvent === selectedEvent;
+
   return (
     <AnalyticsContext pageSectionContext="GivingSeason2025Banner">
       <div
@@ -471,9 +479,11 @@ export const GivingSeason2025Banner: FC = () => {
             Giving season <span>2025</span>
           </Link>
         </div>
-        <div className={classes.main}>
-          {currentEvent.name === "Donation celebration" &&
-            currentEvent === selectedEvent && (
+        <div className={classNames(
+          classes.main,
+          showStickers && classes.mainStickers,
+        )}>
+          {showStickers && (
               <ForumEventStickers
                 icon="Heart"
                 iconClassName={classes.stickerIcon}
