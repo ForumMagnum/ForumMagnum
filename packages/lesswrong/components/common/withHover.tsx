@@ -6,13 +6,17 @@ function datesDifference(a: Date, b: Date): number {
   return (a as any)-(b as any);
 }
 
+export interface UseHoverEventHandlers {
+  onMouseOver: (ev: MouseEvent|React.MouseEvent) => void,
+  onMouseLeave: (ev: MouseEvent|React.MouseEvent) => void,
+};
 
 /**
  * Returns a set of event handlers for implementing a hover effect. Spread
  * eventHandlers into the props of a DOM element; the component that used this
  * hook will rerender whenever that element is hovered or unhovered.
  */
-export const useHover = <EventType extends {currentTarget: HTMLElement}=React.MouseEvent<HTMLElement>>(options?: {
+export const useHover = (options?: {
   /**
    * Information attached to analytics events for this hover
    */
@@ -33,10 +37,7 @@ export const useHover = <EventType extends {currentTarget: HTMLElement}=React.Mo
    */
   disabledOnMobile?: boolean,
 }): {
-  eventHandlers: {
-    onMouseOver: (ev: EventType) => void,
-    onMouseLeave: (ev: EventType) => void,
-  }
+  eventHandlers: UseHoverEventHandlers,
   hover: boolean,
   everHovered: boolean,
   anchorEl: HTMLElement | null,
@@ -72,7 +73,7 @@ export const useHover = <EventType extends {currentTarget: HTMLElement}=React.Mo
     clearTimeout(delayTimer.current)
   }, [captureEvent])
 
-  const handleMouseOver = useCallback((event: EventType) => {
+  const handleMouseOver = useCallback((event: MouseEvent|React.MouseEvent) => {
     if ((disabledOnMobile && isMobile()) || (getIsEnabled && !getIsEnabled())) {
       return;
     }
@@ -88,11 +89,11 @@ export const useHover = <EventType extends {currentTarget: HTMLElement}=React.Mo
       return true;
     });
     setEverHovered(true);
-    setAnchorEl(event.currentTarget);
+    setAnchorEl(event.currentTarget as HTMLElement);
     mouseOverStart.current = new Date()
     clearTimeout(delayTimer.current)
     delayTimer.current = setTimeout(captureHoverEvent,500)
-  }, [captureHoverEvent, onEnter, disabledOnMobile])
+  }, [captureHoverEvent, onEnter, disabledOnMobile, getIsEnabled])
 
   const handleMouseLeave = useCallback(() => {
     setHover((currentValue) => {

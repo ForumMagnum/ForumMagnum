@@ -206,7 +206,7 @@ const FootnotePreview = ({classes, href, id, rel, contentStyleType="postHighligh
     } else {
       window.dispatchEvent(new CustomEvent(EXPAND_FOOTNOTES_EVENT, {detail: href}));
     }
-  }, [href, footnoteHTML, openDialog]);
+  }, [href, footnoteHTML, openDialog, minScreenWidthForTooltips]);
   
   const postPageContext = usePostsPageContext();
   const post = postPageContext?.fullPost ?? postPageContext?.postPreload;
