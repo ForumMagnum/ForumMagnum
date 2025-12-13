@@ -417,7 +417,7 @@ const FundraisingThermometer: React.FC<
             <span className={classes.raisedGoalNumber}>
               ${Math.round(currentAmount).toLocaleString()}
             </span>{" "}
-            {!fundraiserEnded && `of ${displayGoal.toLocaleString()}`}
+            {!fundraiserEnded && `of $${displayGoal.toLocaleString()}`}
           </span>
         </div>
 
