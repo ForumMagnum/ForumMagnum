@@ -8,7 +8,7 @@ import { tagGetCommentLink } from "../../../lib/collections/tags/helpers";
 import { AnalyticsContext } from "../../../lib/analyticsEvents";
 import type { CommentTreeOptions } from '../commentTree';
 import { commentAllowTitle as commentAllowTitle, commentGetPageUrlFromIds } from '../../../lib/collections/comments/helpers';
-import { getReviewNameInSitu, REVIEW_YEAR, reviewIsActive, eligibleToNominate } from '../../../lib/reviewUtils';
+import { eligibleToNominate, getReviewNameInSitu, shouldShowReviewVotePrompt } from '../../../lib/reviewUtils';
 import startCase from 'lodash/startCase';
 import FlagIcon from '@/lib/vendor/@material-ui/icons/src/Flag';
 import CommentsItemMeta from './CommentsItemMeta';
@@ -314,13 +314,14 @@ export const CommentsItem = ({
   const votingSystemName = comment.votingSystem || "default";
   const votingSystem = getVotingSystemByName(votingSystemName);
 
-  const displayReviewVoting = 
-    !hideReviewVoteButtons &&
-    reviewIsActive() &&
-    comment.reviewingForReview === REVIEW_YEAR+"" &&
-    post &&
-    currentUserId !== post.userId &&
-    currentUserEligibleToNominate;
+  const displayReviewVoting =
+    !hideReviewVoteButtons
+    && shouldShowReviewVotePrompt({
+      reviewingForReview: comment.reviewingForReview,
+      postAuthorUserId: post?.userId ?? null,
+      currentUserId,
+      isEligibleToNominate: currentUserEligibleToNominate,
+    });
 
   const voteProps = useVote(comment, "Comments", votingSystem);
   const showInlineCancel = replyFormIsOpen && isMinimalist

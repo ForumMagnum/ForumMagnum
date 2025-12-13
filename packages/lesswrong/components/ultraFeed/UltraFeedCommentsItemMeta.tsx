@@ -17,6 +17,9 @@ import DebateIcon from "@/lib/vendor/@material-ui/icons/src/Forum";
 import { FeedCommentMetaInfo } from "./ultraFeedTypes";
 import UltraFeedMetaInfoPill from "./UltraFeedMetaInfoPill";
 import { useUltraFeedContext } from "./UltraFeedContextProvider";
+import { Link } from "@/lib/reactRouterWrapper";
+import { metaNoticeStyles } from "../comments/CommentsItem/metaNoticeStyles";
+import { getReviewLink } from "@/lib/reviewUtils";
 
 const styles = defineStyles("UltraFeedCommentsItemMeta", (theme: ThemeType) => ({
   root: {
@@ -114,6 +117,14 @@ const styles = defineStyles("UltraFeedCommentsItemMeta", (theme: ThemeType) => (
   moderatorHat: {
     marginRight: 12,
     whiteSpace: "nowrap",
+  },
+  metaNotice: {
+    ...metaNoticeStyles(theme),
+  },
+  reviewForNotice: {
+    marginRight: 8,
+    fontSize: "inherit",
+    whiteSpace: 'nowrap',
   },
   newContentDateStyling: {
   },
@@ -428,6 +439,14 @@ const UltraFeedCommentsItemMeta = ({
         {!hideDate && post && <span className={classNames({[classes.newContentDateStyling]: isNewContent})}>
           <CommentsItemDate comment={comment} post={post} className={classes.date}/>
         </span>}
+        {comment.reviewingForReview &&
+          <Link
+            to={getReviewLink(comment.reviewingForReview)}
+            className={classNames(classes.metaNotice, classes.reviewForNotice)}
+          >
+            {`Review for ${comment.reviewingForReview} Review`}
+          </Link>
+        }
         {post.shortform && isTopLevelComment && <UltraFeedMetaInfoPill type="quickTake" readStyles={isRead} />}
         {showModeratorCommentAnnotation &&
           <span className={classes.moderatorHat}>

@@ -18,6 +18,10 @@ import { userIsAdmin, userOwns } from "../../lib/vulcan-users/permissions";
 import CommentsEditForm from "../comments/CommentsEditForm";
 import { useUltraFeedContext } from "./UltraFeedContextProvider";
 import { commentGetPageUrlFromIds } from "@/lib/collections/comments/helpers";
+import { eligibleToNominate, getReviewNameInSitu, shouldShowReviewVotePrompt } from "@/lib/reviewUtils";
+import LWTooltip from "../common/LWTooltip";
+import LWHelpIcon from "../common/LWHelpIcon";
+import ReviewVotingWidget from "../review/ReviewVotingWidget";
 
 
 const commentHeaderPaddingDesktop = 12;
@@ -162,6 +166,26 @@ const styles = defineStyles("UltraFeedCommentItem", (theme: ThemeType) => ({
   },
   branchNavText: {
     fontStyle: 'italic',
+  },
+  reviewVotingButtons: {
+    display: "flex",
+    justifyContent: "space-between",
+    alignItems: "center",
+    paddingTop: 6,
+    paddingBottom: 6,
+    gap: 12,
+    [theme.breakpoints.down('sm')]: {
+      paddingTop: 0,
+    },
+  },
+  updateVoteMessage: {
+    ...theme.typography.body2,
+    color: theme.palette.grey[600],
+    fontSize: 13,
+    flex: "1 1 auto",
+    minWidth: 220,
+    position: 'relative',
+    bottom: 4,
   },
 }));
 
@@ -427,6 +451,16 @@ export const UltraFeedCommentItem = ({
     commentId: comment._id,
   });
 
+  const displayReviewVoting = shouldShowReviewVotePrompt({
+    reviewingForReview: comment.reviewingForReview,
+    postAuthorUserId: comment.post?.userId ?? null,
+    currentUserId: currentUser?._id,
+    isEligibleToNominate: eligibleToNominate(currentUser),
+    isSeeLessMode,
+    isEditing: showEditState,
+    isCollapsedOrHidden: displayStatus === "collapsed" || displayStatus === "hidden",
+  });
+
   return (
     <AnalyticsContext ultraFeedElementType="feedComment" commentId={comment._id} postId={comment.postId ?? undefined} ultraFeedSources={metaInfo.sources}>
     <div className={classNames(classes.root, {
@@ -486,6 +520,17 @@ export const UltraFeedCommentItem = ({
                   isRead={isRead}
                 />
               )}
+            </div>
+          )}
+          {displayReviewVoting && comment.post && (
+            <div className={classes.reviewVotingButtons}>
+              <div className={classes.updateVoteMessage}>
+                <LWTooltip title={`If this review changed your mind, update your ${getReviewNameInSitu()} vote for the original post `}>
+                  Update your {getReviewNameInSitu()} vote for this post.
+                  <LWHelpIcon/>
+                </LWTooltip>
+              </div>
+              <ReviewVotingWidget post={comment.post} showTitle={false} />
             </div>
           )}
           {!showEditState && <UltraFeedItemFooter
