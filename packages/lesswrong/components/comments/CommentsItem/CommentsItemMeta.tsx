@@ -24,6 +24,7 @@ import UserCommentMarkers from "../../users/UserCommentMarkers";
 import CommentPollVote from "./CommentPollVote";
 import { metaNoticeStyles } from "./metaNoticeStyles";
 import { defineStyles, useStyles } from "@/components/hooks/useStyles";
+import { getReviewLink } from "@/lib/reviewUtils";
 
 const styles = defineStyles("CommentsItemMeta", (theme: ThemeType) => ({
   root: {
@@ -208,15 +209,6 @@ export const CommentsItemMeta = ({
   const moderatorCommentAnnotation = comment.hideModeratorHat
     ? "Moderator Comment (Invisible)"
     : "Moderator Comment";
-
-  const getReviewLink = (year: string) => {
-    // We changed our review page in 2018 and 2019. In 2020 we came up with a page
-    // that we'll hopefully stick with for awhile.
-    if (year === "2018" || year === "2019") {
-      return `/reviews/${year}`;
-    }
-    return `/reviewVoting/${year}`;
-  }
 
   const reviewingForReview = isEAForum() && comment.reviewingForReview === "2020"
     ? "the Decade"
