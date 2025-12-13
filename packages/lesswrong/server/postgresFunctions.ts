@@ -263,40 +263,6 @@ export const postgresFunctions: PostgresFunction[] = [
     `,
   },
   {
-    // LEGACY: After migration, this postgres function will be unused and
-    // droppable. This looks up a user from the UserLoginTokens materialized
-    // view, with fallback to the services field on Users. Post-migration
-    // there's a LoginTokens table, which won't require a fallback, so it's
-    // queried directly without a stored procedure being involved.
-    // Fetches user by hashed login token. First attempts to read from the cached
-    // version in the `UserLoginTokens` materialized view, otherwise falls back
-    // to reading directly from the user object (which is slower).
-    source: `
-      CREATE OR REPLACE FUNCTION fm_get_user_by_login_token(hashed_token TEXT)
-        RETURNS SETOF "Users" LANGUAGE plpgsql AS $$
-        DECLARE
-        BEGIN
-          RETURN QUERY
-            SELECT u.*
-            FROM "Users" u
-            JOIN "UserLoginTokens" lt ON lt."userId" = u."_id"
-            WHERE lt."hashedToken" = hashed_token;
-          IF (FOUND = FALSE) THEN
-            RETURN QUERY
-              SELECT *
-              FROM "Users"
-              WHERE "services"->'resume'->'loginTokens' @>
-                ('[{"hashedToken": "' || hashed_token || '"}]')::JSONB;
-          END IF;
-        END
-      $$
-    `,
-    dependencies: [
-      {type: "collection", name: "Users"},
-      {type: "view", name: "UserLoginTokens"},
-    ],
-  },
-  {
     // Calculate the last date user updated their profile. This may be slow (it
     // used to use LWEvents, but now uses FieldChanges). You should generally
     // use the denormalized value in the user's `profileUpdatedAt` field. This
