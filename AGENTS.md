@@ -1,39 +1,32 @@
 # AGENTS.md: ForumMagnum Codebase Patterns
 
-This document explains non-standard patterns, conventions, and abstractions used in the ForumMagnum codebase. ForumMagnum is a large web application built on NextJS with Apollo GraphQL and PostgreSQL, which is used to run both LessWrong and the EA Forum.  You should use that context to inform your understanding of what features are likely to exist, of the likely relationships between different abstractions, etc.
+This document explains non-standard patterns, conventions, and abstractions used in the ForumMagnum codebase. ForumMagnum is a large web application built on NextJS with Apollo GraphQL and PostgreSQL, which is used to run LessWrong, the Alignment Forum, and the EA Forum. You should use that context to inform your understanding of what features are likely to exist, of the likely relationships between different abstractions, etc.
 
 Reminder: after you finish making changes, go over them again to check whether any of them violated the style guide, and fix those violations if so.
 
-## Table of Contents
-1. [Collections & Schemas](#collections--schemas)
-2. [Collection-Specific Queries & Views](#collection-specific-queries--views)
-3. [Client-Side GraphQL Queries](#client-side-graphql-queries)
-4. [Client-Side GraphQL Mutations](#client-side-graphql-mutations)
-5. [Collection-Based Querying](#collection-based-querying)
-6. [Collection-Based Writes](#collection-based-writes)
-7. [Background Tasks](#background-tasks)
-8. [Code Generation](#code-generation)
-9. [Additional Patterns](#additional-patterns)
-10. [Style Guide](#style-guide--conventions)
-
----
-
 ## Collections & Schemas
 
-**Purpose**: Collections are our abstraction over database tables and GraphQL types. Each collection has a schema that defines both the database structure and GraphQL interface in a unified way.
+Collections are our abstraction over database tables and GraphQL types. Each collection has a schema that defines a database table. Most (but not all) collections have associated GraphQL types and interfaces.
 
-**Location**: 
+Collections must have:
 - Schema definitions: `packages/lesswrong/lib/collections/{collectionName}/newSchema.ts`
 - Collection registration: `packages/lesswrong/server/collections/{collectionName}/collection.ts`
+- A usage in `packages/lesswrong/server/collections/allCollections.ts`
+- A usage in `packages/lesswrong/lib/schema/allSchemas.ts`
 
-**Key Concepts**:
-- Each field can have a `database` spec (for PostgreSQL) and/or `graphql` spec (for the GraphQL API)
-- Database fields are typed with PostgreSQL types (`VARCHAR(27)`, `TEXT`, `BOOL`, `JSONB`, `TIMESTAMPTZ`, etc.)
-- GraphQL fields include permissions (`canRead`, `canUpdate`, `canCreate`) and optional resolvers
-- Custom resolvers can be defined inline for computed fields
-- `sqlResolver` allows for SQL-level computation of fields when going through default collection-level resolvers
+Collections may have:
+- GraphQL queries: `packages/lesswrong/server/collections/{collectionName}/queries.ts`
+- GraphQL mutations: `packages/lesswrong/server/collections/{collectionName}/mutations.ts`
+- Fragments: `packages/lesswrong/lib/collections/{collectionName}/fragments.ts`
+- Views: `packages/lesswrong/lib/collections/{collectionName}/views.ts`
 
-### Example: Adding a Field with Custom Resolver and sqlResolver
+Each field can have a `database` spec (for PostgreSQL) and/or `graphql` spec (for the GraphQL API). If a field has a `database` section but no `graphql` section, it is not accesible via the graphql API. If a field has a graphql section but no database section, it must have a `resolver` function.
+
+Database fields are typed with PostgreSQL types (`VARCHAR(27)`, `TEXT`, `BOOL`, `JSONB`, `TIMESTAMPTZ`, etc.)
+GraphQL fields include permissions (`canRead`, `canUpdate`, `canCreate`) and optional resolvers
+Custom resolvers can be defined inline for computed fields
+
+### Example: Adding a Field with Custom Resolver
 
 ```typescript
 // In packages/lesswrong/lib/collections/posts/newSchema.ts
@@ -72,10 +65,7 @@ const schema = {
     },
   },
   
-  // Field with both resolver and sqlResolver
-  // `sqlResolver` is used when execution routes through `SelectFragmentQuery`, which is primarily when going through a "default" resolver.
-  // Otherwise, `resolver` is used.  Therefore, `resolver` is required even if `sqlResolver` is provided.
-  // Most `sqlResolvers` are much simpler than the example here and often just have something like `resolver: (commentsField) => commentsField('*')` inside of them, when doing a basic join to get all matching records.
+  // Field with resolver
   popularComments: {
     graphql: {
       outputType: "[Comment!]!",
@@ -86,27 +76,6 @@ const schema = {
           { sort: { baseScore: -1 }, limit: 5 }
         ).fetch();
       },
-      sqlResolver: ({ field, join }) => {
-        // Join with Comments table for efficient SQL-level computation
-        return join({
-          table: "Comments",
-          type: "left",
-          on: { postId: field("_id") },
-          resolver: (commentField) => `
-            COALESCE(
-              (
-                SELECT jsonb_agg(row_to_json(c.*))
-                FROM "Comments" c
-                WHERE c."postId" = ${field("_id")}
-                AND c."baseScore" > 10
-                ORDER BY c."baseScore" DESC
-                LIMIT 5
-              ),
-              '[]'::jsonb
-            )
-          `,
-        });
-      },
     },
   },
 } satisfies Record<string, CollectionFieldSpecification<"Posts">>;
@@ -116,8 +85,9 @@ export default schema;
 
 **See Also**:
 - `packages/lesswrong/lib/types/schemaTypes.ts` - Type definitions for schema specifications
-- `packages/lesswrong/lib/collections/collections/newSchema.ts` - A complete example schema
-- `packages/lesswrong/server/collections/comments/mutations.ts` - Example mutation file (attached)
+- `packages/lesswrong/lib/collections/{collectionName}/newSchema.ts` - A complete example schema
+- `packages/lesswrong/server/collections/{collectionName}/queries.ts` - Example queries file
+- `packages/lesswrong/server/collections/{collectionName}/mutations.ts` - Example mutation file
 
 ---
 
@@ -260,6 +230,7 @@ const MyComponent = () => {
 - `codegen.ts` - GraphQL codegen configuration
 
 ---
+
 
 ## Client-Side GraphQL Mutations
 
@@ -466,6 +437,7 @@ const postsWithComments = await context.repos.posts.getPostsWithTopComments(10);
 
 ---
 
+
 ## Collection-Based Writes
 
 **Purpose**: Insert and update records in the database from server-side code.
@@ -671,65 +643,13 @@ export async function updateComment(
 
 ## Background Tasks
 
-**Purpose**: Defer execution of slow operations without blocking the HTTP response.
+In server-side code, it is not safe to `void` a promise because the serverless environment may halt a server process after the conclusion of the current request. If you run asynchronous server-side code where you don't wish `await` a result, wrap the promise in `backgroundTask(p)`. This guarantees that the server will not terminate before the promise resolves (other than during timeouts or severe crashes) by awaiting it from inside `next/server/after`.
 
-**Location**: `packages/lesswrong/server/utils/backgroundTask.ts`
+There are no other guarantees about the code inside the promise; it may start immediately, or may be deferred util a later stage of processing the request, or may start after the request has finished. On the client, `backgroundTask(p)` is equivalent to `void p`.
 
-**Key Concepts**:
-- Wraps a promise to execute asynchronously
-- In serverless (Vercel), ensures the function doesn't exit until background tasks complete
-- In local dev, tasks complete normally but don't block the response
-- Errors in background tasks are caught and logged to Sentry
-- Use for: search indexing, embeddings, notifications, analytics, etc.
+Background tasks are typically used for mutations that do not affect the current request, such as updating search indexes, creating notifications, analytics, etc.
 
-### Example: Using backgroundTask
-
-```typescript
-import { backgroundTask } from "@/server/utils/backgroundTask";
-import { elasticSyncDocument } from "@/server/search/elastic/elasticCallbacks";
-import { updateCommentEmbeddings } from "@/server/voyage/client";
-import { logFieldChanges } from "@/server/fieldChanges";
-
-export async function createComment({ data }: CreateCommentInput, context: ResolverContext) {
-  // ... synchronous creation logic ...
-  
-  const documentWithId = await insertAndReturnCreateAfterProps(data, 'Comments', callbackProps);
-  
-  // These operations happen asynchronously without blocking the response
-  // Elasticsearch sync - not critical for user experience
-  if (isElasticEnabled()) {
-    backgroundTask(elasticSyncDocument('Comments', documentWithId._id));
-  }
-  
-  // Generate embeddings - slow ML operation
-  backgroundTask(updateCommentEmbeddings(documentWithId._id));
-  
-  // Analytics/logging - not user-facing
-  backgroundTask(logFieldChanges({
-    currentUser: context.currentUser,
-    collection: context.Comments,
-    oldDocument: null,
-    data: data,
-  }));
-  
-  // Image uploads - can happen async
-  backgroundTask(uploadImagesInEditableFields({
-    newDoc: documentWithId,
-    props: afterCreateProperties,
-  }));
-  
-  // Return immediately, background tasks continue
-  return documentWithId;
-}
-```
-
-**Important Notes**:
-- They may execute after the user has received their response
-- Errors are logged but won't affect the user's request
-- Don't use for operations critical to data consistency
-
-**See Also**:
-- `packages/lesswrong/server/utils/backgroundTask.ts` - Implementation
+Implementation: `packages/lesswrong/server/utils/backgroundTask.ts`
 
 ---
 
@@ -783,14 +703,30 @@ yarn generate
 
 ---
 
-## Additional Patterns
+## Migrations
 
-### Fragments
+A migration is required for any change that modifies the database schema. Automatic migrations are at `packages/lesswrong/server/migrations/yyyymmddThhmmss.migrationName.ts`; these are run automatically when a new version is deployed, inside a github action runner. Migrations are created from a template by running `yarn migrate create migrationName`. There are also "manual migrations", which are run manually by developers with `yarn repl`. Manual migrations are used when a migration performs operations that could time out if run inside a github action runner.
 
-Fragments are reusable field selections that can be shared across queries. They're defined in `packages/lesswrong/lib/collections/{collectionName}/newSchema.ts` and typed after `yarn generate`.
+Migrations are run before the new version is deployed, without downtime, so if a migration modifies the database schema it must be backwards-compatible with the immediately preceding deployment. Eg, if a new column is added it must have a default value, and if a column is deleted it must have already been unused. If a schema change can't be made backwards-compatible, this might require using a manual migration that will be run after deployment finishes, or splitting a PR into two stages that will be deployed separately.
 
+---
+
+## Server and Client Code
+
+Files in app/ are React server components and route handlers.
+Files in packages/lesswrong/components are mostly client components (but may be server components on unusual occasions) and are used on the client and during SSR. If a component is used directly from a page in app/, it should have "use client" (or "use server") at the top.
+Files in packages/lesswrong/server are server-side-only.
+Files in packages/lesswrong/lib and packages/lesswrong/themes are shared between client and server.
+If a server-only or client-only file is imported from the wrong context, and the import uses a path starting with @ like @/server or @/client, it will be redirected to a stub file in packages/lesswrong/stubs. This allows shared code, eg in schema files, to import server-only code safely. Stub files typically export the same functions, but throw exceptions if you call any of them. In some cases the stub file may contain an implementation of the same functionality, but using browser APIs. If a file may have some of its imports redirected to stubs, it must typecheck both with and without the redirection.
+
+---
+
+## Fragments
+
+Fragments are reusable field selections that can be shared across queries. They're typically defined in `packages/lesswrong/lib/collections/{collectionName}/fragments.ts`. Fragment names correspond to Typescript types with the same name, which are created by `yarn generate`. A fragment can be used inside any graphql query by writing `...FragmentName`. These are expanded at codegen time by `yarn generate`.
+
+Example:
 ```typescript
-// Fragments are defined with gql and can be used in queries.  The variable name should, by convention, be the same as the fragment name.
 const PostsListBase = gql(`
   fragment PostsListBase on Post {
     _id
@@ -802,7 +738,6 @@ const PostsListBase = gql(`
   }
 `);
 
-// Use in queries
 const POSTS_LIST_QUERY = gql(`
   query PostsList {
     posts(selector: { frontpage: {} }, limit: 20) {
@@ -816,6 +751,10 @@ const POSTS_LIST_QUERY = gql(`
   }
 `);
 ```
+
+Fragments can inherit from other fragments using `...ParentFragmentName`. 
+If a fragment corresponds to a database object, it must have (or inherit a fragment that has) an `_id` field to be stored correctly in the apollo-client cache.
+If a query will load many results or is on a performance-sensitive page such as the front page, try to use the smallest suitable fragment to minimize loading time. When adding a field to existing fragments, try to add it to the most specific suitable fragment, to avoid downloading that field on pages that do not need it.
 
 ### Loading Patterns
 
@@ -848,7 +787,9 @@ async resolver(root, args, context: ResolverContext) {
 }
 ```
 
-### Permissions
+---
+
+## Permissions
 
 Permissions are checked at the GraphQL field level using the `canRead`, `canUpdate`, `canCreate` specifications in schemas. Important helper function:
 - `accessFilter{Single,Multiple}` - Used on the server to run both document-level and field-level access filters on one or multiple collection-shaped documents.  Important to use when defining a custom field `resolver` (automatically applied to the outputs of `sqlResolver` executions) or a custom query resolver that returns collection-shaped objects, or data derived from collection-shaped objects.
@@ -857,14 +798,17 @@ Helper functions used on both the client and server:
 - `userIsAdmin(user)` - Check admin status
 - `userOwns(user, document)` - Check ownership
 
-### Components
+---
+
+## Component Styling
+
 We use jss for styling.  Define styles like so:
 ```typescript
 import { defineStyles, useStyles } from '@/components/hooks/useStyles';
 const styles = defineStyles('ComponentName', (theme: ThemeType) => {
   root: {
     width: '100%',
-    background: theme.palette.grey[100],
+    background: theme.palette.greyAlpha(0.1)
   },
 });
 ```
@@ -876,8 +820,17 @@ const TestComponent = () => {
   return <div className={classes.root}>Foobar!</div>;
 };
 ```
+If an element has multiple classes or conditional classes, combine them them with the `classNames` function.
+If a component needs HoCs or memoization applied, use `export default registerComponent("TestComponent", TestComponent, {})`, but only wrap components this way if an HoC or memoization is used.
+The registerComponent wrapper can take a {styles} option, in which case it calls defineStyles and useStyles in an HoC and passes the result as a prop named `classes`. This method is deprecated; when writing new components you should use `defineStyles` and `useStyles` directly.
 
-We have some legacy instances of `registerComponent` lying around.  Do not use this unless you need custom memoization behavior for your component.  Just do `export default TestComponent;`.
+Colors are defined as part of the theme, as `theme.palette.colorName`; see `packages/lesswrong/themes/defaultPalette.ts`. If you use a palette color, it will be automatically inverted in dark mode. If you use a color that does not come from the palette, use either `light-dark(lightModeColor,darkModeColor)`, or, if the component is used in an always-light or always-dark component so that it doesn't need to be inverted, add `allowNonThemeColors:true` as an option in the second argument of `defineStyles`.
+
+`theme.spacing.unit` is deprecated and has the value 8.
+
+---
+
+## Paths and Navigation
 
 Use `useLocation` if you need to get anything related to the current client-side location, i.e. pathname, query parameters, hash, etc.  This is the interface of the object it returns:
 ```typescript
@@ -895,7 +848,9 @@ See `packages/lesswrong/components/next/ClientAppGenerator.tsx` for more details
 
 Use `useNavigate` for performing client-side navigations.  You need to preserve all parts of the path that you don't want changed, i.e. just providing a hash will delete any query parameters if they aren't also provided.  See `packages/lesswrong/lib/routeUtil.tsx` for more details if needed.
 
-## Style Guide / Conventions
+---
+
+## Style / Conventions
 Never apply `as any` type casts, and try very hard to avoid any other type casts.  Consider whether you are applying a type cast because you've forgotten to run `yarn generate`.  If you absolutely must apply a type cast somewhere, always leave the following comment above it:
 ```typescript
 // TODO: I AM AN INSTANCE OF ${MODEL_NAME} AND HAVE APPLIED A TYPE CAST HERE BECAUSE I COULDN'T MAKE IT WORK OTHERWISE, PLEASE FIX THIS
@@ -909,4 +864,3 @@ Prefer interfaces to types where possible.
 
 Reminder: after you finish making changes, go over them again to check whether any of them violated the style guide, and fix those violations if so.
 
-(end of file)

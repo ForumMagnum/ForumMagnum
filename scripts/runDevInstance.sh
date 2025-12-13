@@ -16,9 +16,9 @@ while [[ "$#" != 0 ]]; do
   ARG="$1"; shift
   case "$ARG" in
     -h|--help)
-	    print_help
-	    exit 1
-	    ;;
+        print_help
+        exit 1
+        ;;
     dev|development)
       VERCEL_ENV_NAME=development
       break
@@ -42,7 +42,9 @@ pull_envvars () {
   # The 2>&1 here merges stdout and stderr. Unfortunately "vercel env pull"
   # outputs everything (including non-error spammy status information) to
   # stderr, so the customary "redirect stdout but show stderr" doesn't work.
-  VERCEL_PULL_OUTPUT=$(vercel env pull .env.local --environment="$VERCEL_ENV_NAME" 2>&1)
+  if [[ "$SKIP_VERCEL_ENV_PULL" != true ]]; then
+    VERCEL_PULL_OUTPUT=$(vercel env pull .env.local --environment="$VERCEL_ENV_NAME" 2>&1)
+  fi
   VERCEL_PULL_EXIT_STATUS="$?"
   
   if [[ "$VERCEL_PULL_EXIT_STATUS" != 0 ]]; then
@@ -55,10 +57,10 @@ pull_envvars () {
 }
 
 run_dev_server () {
-	# We use node directly rather than going through yarn so that we can use some
-	# flags to silence spammy console logs on start.
-	#
-	# Node flags used:
+  # We use node directly rather than going through yarn so that we can use some
+  # flags to silence spammy console logs on start.
+  #
+  # Node flags used:
   #   --inspect: Enable debugging
   #   --inspect-publish-uid=http: Suppress message about how to connect to the debugger
   #   --no-deprecation: Suppress deprecation warnings about punycode
