@@ -607,7 +607,7 @@ const PostsPage = ({fullPost, postPreload, refetch, embedded}: {
             toggleEmbeddedPlayer={toggleEmbeddedPlayer}
             dialogueResponses={debateResponses} 
             annualReviewMarketInfo={marketInfo}/>}
-          {(post._id === '5n2ZQcbc7r4R8mvqc') &&
+          {(post._id === 'eKGdCNdKjvTBG9i6y') &&
             <FundraisingThermometer onPost />}
         </div>
       </div>
