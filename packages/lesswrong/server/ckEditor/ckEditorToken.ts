@@ -114,7 +114,7 @@ async function getCkEditorToken({collectionName, documentId, formType, linkShari
 }): {
   success: boolean
   errorMessage?: string
-  tokenPayload :any
+  tokenPayload: any
 } {
   const environmentId = getCkEditorEnvironmentId();
   const user = context.currentUser;
