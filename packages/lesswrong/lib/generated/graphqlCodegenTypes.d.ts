@@ -7578,6 +7578,7 @@ type Query = {
   HomepageCommunityEvents: HomepageCommunityEventMarkersResult;
   IsDisplayNameTaken: Scalars['Boolean']['output'];
   Lightcone2024FundraiserStripeAmounts?: Maybe<Array<Scalars['Int']['output']>>;
+  Lightcone2025FundraiserAirtableAmounts: Scalars['Int']['output'];
   MigrationsDashboard?: Maybe<MigrationsDashboardData>;
   MultiPostAnalytics: MultiPostAnalyticsResult;
   MyDialogues?: Maybe<MyDialoguesResult>;
@@ -26675,6 +26676,14 @@ type Lightcone2024FundraiserStripeAmountsQueryVariables = Exact<{ [key: string]:
 
 
 type Lightcone2024FundraiserStripeAmountsQuery = Lightcone2024FundraiserStripeAmountsQuery_Query;
+
+type Lightcone2025FundraiserAirtableAmountsQuery_Query = { __typename?: 'Query', Lightcone2025FundraiserAirtableAmounts: number };
+
+
+type Lightcone2025FundraiserAirtableAmountsQueryVariables = Exact<{ [key: string]: never; }>;
+
+
+type Lightcone2025FundraiserAirtableAmountsQuery = Lightcone2025FundraiserAirtableAmountsQuery_Query;
 
 type FeedPostFragment_FeedPost_post_Post = (
   { __typename?: 'Post' }

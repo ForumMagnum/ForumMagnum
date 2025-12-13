@@ -23,6 +23,7 @@ import DeferRender from './DeferRender';
 
 import dynamic from 'next/dynamic';
 import { IsReturningVisitorContextProvider } from '@/components/layout/IsReturningVisitorContextProvider';
+import FundraisingThermometer from './FundraisingThermometer';
 const RecentDiscussionFeed = dynamic(() => import("../recentDiscussion/RecentDiscussionFeed"), { ssr: false });
 
 const getStructuredData = () => ({
@@ -65,6 +66,9 @@ const LWHome = () => {
             </SuspenseWrapper>
           </SingleColumnSection>}
         </>}
+        {lightconeFundraiserActive.get() && <SingleColumnSection>
+          <FundraisingThermometer />
+        </SingleColumnSection>}
         {(!reviewIsActive() || getReviewPhase() === "RESULTS" || !showReviewOnFrontPageIfActive.get()) && !lightconeFundraiserActive.get() && <SingleColumnSection>
           <DismissibleSpotlightItem loadingStyle="placeholder" />
         </SingleColumnSection>}

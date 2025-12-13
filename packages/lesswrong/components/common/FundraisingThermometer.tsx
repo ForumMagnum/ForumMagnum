@@ -13,11 +13,11 @@ import LWTooltip from "./LWTooltip";
 
 // Second thermometer background image:
 const lightconeFundraiserThermometerBgUrl2 =
-  'https://res.cloudinary.com/lesswrong-2-0/image/upload/f_auto,w_1530,h_200,c_limit/v1735085464/Fundraiser_2_wttlis.png';
+  'https://res.cloudinary.com/lesswrong-2-0/image/upload/v1765607802/fundraiserTest2_weie7h.png';
 
 // Third thermometer background image:
 const lightconeFundraiserThermometerBgUrl3 =
-  'https://res.cloudinary.com/lesswrong-2-0/image/upload/f_auto,w_1530,h_200,c_limit/v1736822993/wgfexpdeikepryhu1und_uz6lap.png';
+  'https://res.cloudinary.com/lesswrong-2-0/image/upload/v1765607802/fundraiserTest2_weie7h.png';
 
 interface FundraisingThermometerProps {
   onPost?: boolean;
@@ -346,7 +346,7 @@ const FundraisingThermometer: React.FC<
   const displayedStageNumber = currentAmount < goal1 ? 1 : currentAmount < goal2 ? 2 : 3;
 
   // End at 23:59 AoE (UTC-12) on Jan 13th
-  const fundraiserEndDate = new Date('2025-01-14T11:59:00Z');
+  const fundraiserEndDate = new Date('2026-01-14T11:59:00Z');
   const currentTime = useCurrentTime();
   const timeRemainingMs = fundraiserEndDate.getTime() - currentTime.getTime();
   const fundraiserEnded = timeRemainingMs <= 0;
