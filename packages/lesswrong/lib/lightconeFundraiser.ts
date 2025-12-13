@@ -33,7 +33,7 @@ export const useFundraiserAirtableTotal = () => {
 }
 
 export const useFundraiserProgress = (goalAmount: number) => {
-  const stripeTotal = useFundraiserAirtableTotal();
+  const stripeTotal = 0; // useFundraiserAirtableTotal() commented out for now
   const unsyncedAmount = lightconeFundraiserUnsyncedAmount.get();
   const currentAmount = unsyncedAmount + stripeTotal;
   const percentage = Math.min((currentAmount / goalAmount) * 100, 100);
