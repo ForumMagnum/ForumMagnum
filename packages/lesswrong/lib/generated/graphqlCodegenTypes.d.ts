@@ -17376,6 +17376,23 @@ type multiMessageConversationPreviewQueryQueryVariables = Exact<{
 
 type multiMessageConversationPreviewQueryQuery = multiMessageConversationPreviewQueryQuery_Query;
 
+type singleMessageConversationPreviewQueryQuery_message_SingleMessageOutput_result_Message = (
+  { __typename?: 'Message' }
+  & messageListFragment
+);
+
+type singleMessageConversationPreviewQueryQuery_message_SingleMessageOutput = { __typename?: 'SingleMessageOutput', result: singleMessageConversationPreviewQueryQuery_message_SingleMessageOutput_result_Message | null };
+
+type singleMessageConversationPreviewQueryQuery_Query = { __typename?: 'Query', message: singleMessageConversationPreviewQueryQuery_message_SingleMessageOutput | null };
+
+
+type singleMessageConversationPreviewQueryQueryVariables = Exact<{
+  documentId: InputMaybe<Scalars['String']['input']>;
+}>;
+
+
+type singleMessageConversationPreviewQueryQuery = singleMessageConversationPreviewQueryQuery_Query;
+
 type ConversationPreviewQuery_conversation_SingleConversationOutput_result_Conversation = (
   { __typename?: 'Conversation' }
   & ConversationsList

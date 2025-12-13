@@ -58,6 +58,9 @@ const styles = (theme: ThemeType) => ({
   },
   message: {
     backgroundColor: theme.palette.grey[200],
+    "&$highlighted": {
+      backgroundColor: theme.palette.grey[500],
+    },
     paddingTop: theme.spacing.unit,
     paddingBottom: theme.spacing.unit,
     paddingLeft: theme.spacing.unit*1.5,
@@ -68,11 +71,15 @@ const styles = (theme: ThemeType) => ({
     whiteSpace: "normal",
     flexGrow: 1,
   },
+  highlighted: {},
   backgroundIsCurrent: {
     backgroundColor: theme.palette.grey[700],
     color: theme.palette.inverseGreyAlpha(.87),
     '& *, & li::marker': {
       color: theme.palette.inverseGreyAlpha(.87),
+    },
+    "&$highlighted": {
+      backgroundColor: theme.palette.grey[500],
     },
     marginLeft:theme.spacing.unit*1.5,
   },
@@ -121,8 +128,9 @@ const styles = (theme: ThemeType) => ({
 /**
  * Display of a single message in the Conversation Wrapper
 */
-const MessageItem = ({message, showFullWidth=false, classes}: {
+const MessageItem = ({message, highlight=false, showFullWidth=false, classes}: {
   message: messageListFragment,
+  highlight?: boolean,
   showFullWidth?: boolean,
   classes: ClassesType<typeof styles>,
 }) => {
@@ -178,7 +186,10 @@ const MessageItem = ({message, showFullWidth=false, classes}: {
       {profilePhoto}
       <HoveredReactionContextProvider voteProps={voteProps}>
         <div className={classes.messageWrapper}>
-          <Typography variant="body2" className={classNames(classes.message, {[classes.backgroundIsCurrent]: isCurrentUser})}>
+          <Typography variant="body2" className={classNames(classes.message, {
+            [classes.backgroundIsCurrent]: isCurrentUser,
+            [classes.highlighted]: highlight,
+          })}>
             <div className={classes.meta}>
               {message.user && <span className={classes.username}>
                 <span className={colorClassName}><UsersName user={message.user}/></span>
