@@ -9,7 +9,7 @@ import Users from '../../server/collections/users/collection';
 import { userGetDisplayName } from '../../lib/collections/users/helpers';
 import { filterNonnull } from '../../lib/utils/typeGuardUtils';
 import { ckEditorBundleVersion } from '../../lib/wrapCkEditor';
-import { buildRevision } from '../editor/conversionUtils';
+import { buildRevisionWithUser } from '../editor/conversionUtils';
 import { CkEditorUser, CreateDocumentPayload, DocumentResponse, DocumentResponseSchema, UserSchema } from './ckEditorApiValidators';
 import { getCkEditorApiPrefix, getCkEditorApiSecretKey } from './ckEditorServerConfig';
 import { getPostEditorConfig } from './postEditorConfig';
@@ -88,7 +88,7 @@ function logAndThrow(message: string) {
   throw new Error(message);
 }
 
-async function fetchCkEditorRestAPI<T extends boolean = false>(method: string, uri: string, body?: any, returnRawResponse?: T): Promise<T extends true ? Response : string> {
+export async function fetchCkEditorRestAPI<T extends boolean = false>(method: string, uri: string, body?: any, returnRawResponse?: T): Promise<T extends true ? Response : string> {
   const apiPrefix = getCkEditorApiPrefix()!;
   // See: https://ckeditor.com/docs/cs/latest/guides/security/request-signature.html
   const timestamp = new Date().getTime();
@@ -132,7 +132,7 @@ export function ckEditorDocumentIdToPostId(ckEditorId: string) {
 export async function saveDocumentRevision(userId: string, documentId: string, html: string) {
   const context = createAdminContext();
   const fieldName = "contents";
-  const user = await Users.findOne(userId);
+  const {user, isAdmin} = await getUserForSavedPost(documentId, userId);
   const previousRev = await getLatestRev(documentId, fieldName, context);
   
   const newOriginalContents = {
@@ -140,14 +140,12 @@ export async function saveDocumentRevision(userId: string, documentId: string, h
     type: "ckEditorMarkup",
   }
   
-  if (!user) {
-    throw Error("no user found for userId in saveDocumentRevision")
-  }
   if (!previousRev || !isEqual(newOriginalContents, previousRev.originalContents)) {
     const newRevision: Partial<DbRevision> = {
-      ...await buildRevision({
+      ...await buildRevisionWithUser({
         originalContents: newOriginalContents,
-        currentUser: user,
+        user,
+        isAdmin,
         context,
       }),
       documentId,
@@ -162,6 +160,37 @@ export async function saveDocumentRevision(userId: string, documentId: string, h
     
     await createRevision({ data: newRevision }, context);
   }
+}
+
+// When saving a CkEditor collab editor post, we get a "user ID", but if the
+// post has link-sharing it might actually be being edited by a logged out
+// user, in which case the user ID is not a user ID but rather an editor
+// session token. However the revision that we save still needs to have user ID
+// associated, so we attribute it to the original post author. However saves by
+// admins are allowed to bypass some sanitization, and we don't want non-admin
+// users editing posts shared by admins to be able to do that, so we return an
+// isAdmin flag separately.
+async function getUserForSavedPost(postId: string, userId: string): Promise<{
+  user: DbUser
+  isAdmin: boolean
+}> {
+  const originalUser = await Users.findOne(userId);
+  if (originalUser) {
+    return {user: originalUser, isAdmin: originalUser.isAdmin};
+  }
+
+  const post = await Posts.findOne(postId);
+  if (!post) {
+    throw new Error("Invalid postId in getUserForSavedPost");
+  }
+  const primaryAuthorUser = await Users.findOne(post.userId);
+  if (!primaryAuthorUser ) {
+    throw new Error("Invalid post.userId in getUserForSavedPost");
+  }
+  return {
+    user: primaryAuthorUser,
+    isAdmin: false,
+  };
 }
 
 export async function saveOrUpdateDocumentRevision(postId: string, html: string) {

@@ -566,6 +566,7 @@ extend type Query {
 
 extend type Query {
   Lightcone2024FundraiserStripeAmounts: [Int!]
+  Lightcone2025FundraiserAirtableAmounts: Int!
 }
 
 type PetrovDay2024CheckNumberOfIncomingData {

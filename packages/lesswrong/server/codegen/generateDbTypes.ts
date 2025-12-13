@@ -44,6 +44,8 @@ function databaseTypeToTypescriptType(databaseType: DatabaseBaseType | `${Databa
       return 'any';
     case 'TIMESTAMPTZ':
       return 'Date';
+    default:
+      throw new Error(`Unrecognized database type: ${databaseType}`);
   }
 }
 

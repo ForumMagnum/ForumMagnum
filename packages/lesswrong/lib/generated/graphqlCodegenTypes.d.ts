@@ -7578,6 +7578,7 @@ type Query = {
   HomepageCommunityEvents: HomepageCommunityEventMarkersResult;
   IsDisplayNameTaken: Scalars['Boolean']['output'];
   Lightcone2024FundraiserStripeAmounts?: Maybe<Array<Scalars['Int']['output']>>;
+  Lightcone2025FundraiserAirtableAmounts: Scalars['Int']['output'];
   MigrationsDashboard?: Maybe<MigrationsDashboardData>;
   MultiPostAnalytics: MultiPostAnalyticsResult;
   MyDialogues?: Maybe<MyDialoguesResult>;
@@ -17376,6 +17377,23 @@ type multiMessageConversationPreviewQueryQueryVariables = Exact<{
 
 type multiMessageConversationPreviewQueryQuery = multiMessageConversationPreviewQueryQuery_Query;
 
+type singleMessageConversationPreviewQueryQuery_message_SingleMessageOutput_result_Message = (
+  { __typename?: 'Message' }
+  & messageListFragment
+);
+
+type singleMessageConversationPreviewQueryQuery_message_SingleMessageOutput = { __typename?: 'SingleMessageOutput', result: singleMessageConversationPreviewQueryQuery_message_SingleMessageOutput_result_Message | null };
+
+type singleMessageConversationPreviewQueryQuery_Query = { __typename?: 'Query', message: singleMessageConversationPreviewQueryQuery_message_SingleMessageOutput | null };
+
+
+type singleMessageConversationPreviewQueryQueryVariables = Exact<{
+  documentId: InputMaybe<Scalars['String']['input']>;
+}>;
+
+
+type singleMessageConversationPreviewQueryQuery = singleMessageConversationPreviewQueryQuery_Query;
+
 type ConversationPreviewQuery_conversation_SingleConversationOutput_result_Conversation = (
   { __typename?: 'Conversation' }
   & ConversationsList
@@ -26658,6 +26676,14 @@ type Lightcone2024FundraiserStripeAmountsQueryVariables = Exact<{ [key: string]:
 
 
 type Lightcone2024FundraiserStripeAmountsQuery = Lightcone2024FundraiserStripeAmountsQuery_Query;
+
+type Lightcone2025FundraiserAirtableAmountsQuery_Query = { __typename?: 'Query', Lightcone2025FundraiserAirtableAmounts: number };
+
+
+type Lightcone2025FundraiserAirtableAmountsQueryVariables = Exact<{ [key: string]: never; }>;
+
+
+type Lightcone2025FundraiserAirtableAmountsQuery = Lightcone2025FundraiserAirtableAmountsQuery_Query;
 
 type FeedPostFragment_FeedPost_post_Post = (
   { __typename?: 'Post' }

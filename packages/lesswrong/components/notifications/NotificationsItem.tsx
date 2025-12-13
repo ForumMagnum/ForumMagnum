@@ -180,7 +180,7 @@ const NotificationsItem = ({notification, lastNotificationsCheck, classes}: {
       case "message":
         return (
           <TooltipWrapper
-            title={<ConversationPreview conversationId={parsedPath?.query?.conversation} count={1} />}
+            title={<ConversationPreview conversationId={parsedPath?.query?.conversation} messageId={documentId} count={1} />}
             classes={classes}
           >
             {children}

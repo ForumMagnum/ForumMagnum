@@ -257,6 +257,7 @@ type Documents = {
     "\n  query multiMessageConversationContentsQuery($selector: MessageSelector, $limit: Int, $enableTotal: Boolean) {\n    messages(selector: $selector, limit: $limit, enableTotal: $enableTotal) {\n      results {\n        ...messageListFragment\n      }\n      totalCount\n    }\n  }\n": typeof types.multiMessageConversationContentsQueryDocument,
     "\n  mutation updateConversationInboxNavigation($selector: SelectorInput!, $data: UpdateConversationDataInput!) {\n    updateConversation(selector: $selector, data: $data) {\n      data {\n        ...ConversationsList\n      }\n    }\n  }\n": typeof types.updateConversationInboxNavigationDocument,
     "\n  query multiMessageConversationPreviewQuery($selector: MessageSelector, $limit: Int, $enableTotal: Boolean) {\n    messages(selector: $selector, limit: $limit, enableTotal: $enableTotal) {\n      results {\n        ...messageListFragment\n      }\n      totalCount\n    }\n  }\n": typeof types.multiMessageConversationPreviewQueryDocument,
+    "\n  query singleMessageConversationPreviewQuery($documentId: String) {\n    message(selector: { documentId: $documentId }) {\n      result {\n        ...messageListFragment\n      }\n    }\n  }\n": typeof types.singleMessageConversationPreviewQueryDocument,
     "\n  query ConversationPreview($documentId: String) {\n    conversation(input: { selector: { documentId: $documentId } }) {\n      result {\n        ...ConversationsList\n      }\n    }\n  }\n": typeof types.ConversationPreviewDocument,
     "\n  mutation updateConversationConversationTitleEditForm($selector: SelectorInput!, $data: UpdateConversationDataInput!) {\n    updateConversation(selector: $selector, data: $data) {\n      data {\n        ...ConversationsList\n      }\n    }\n  }\n": typeof types.updateConversationConversationTitleEditFormDocument,
     "\n  query multiConversationFriendlyInboxQuery($selector: ConversationSelector, $limit: Int, $enableTotal: Boolean) {\n    conversations(selector: $selector, limit: $limit, enableTotal: $enableTotal) {\n      results {\n        ...ConversationsListWithReadStatus\n      }\n      totalCount\n    }\n  }\n": typeof types.multiConversationFriendlyInboxQueryDocument,
@@ -894,6 +895,7 @@ type Documents = {
     "\n  query getCurrentUser {\n    currentUser {\n      ...UsersCurrent\n    }\n  }\n": typeof types.getCurrentUserDocument,
     "\n  mutation createLWEventwithNewEvents($data: CreateLWEventDataInput!) {\n    createLWEvent(data: $data) {\n      data {\n        ...newEventFragment\n      }\n    }\n  }\n": typeof types.createLWEventwithNewEventsDocument,
     "\n    query Lightcone2024FundraiserStripeAmounts {\n      Lightcone2024FundraiserStripeAmounts\n    }\n  ": typeof types.Lightcone2024FundraiserStripeAmountsDocument,
+    "\n    query Lightcone2025FundraiserAirtableAmounts {\n      Lightcone2025FundraiserAirtableAmounts\n    }\n  ": typeof types.Lightcone2025FundraiserAirtableAmountsDocument,
     "\n  fragment FeedPostFragment on FeedPost {\n    _id\n    postMetaInfo\n    post {\n      ...PostsListWithVotes\n    }\n  }\n": typeof types.FeedPostFragmentDoc,
     "\n  fragment FeedCommentThreadFragment on FeedCommentThread {\n    _id\n    commentMetaInfos\n    postSources\n    postMetaInfo\n    post {\n      ...PostsListWithVotes\n    }\n    comments {\n      ...UltraFeedComment\n    }\n  }\n": typeof types.FeedCommentThreadFragmentDoc,
     "\n  fragment FeedSpotlightFragment on FeedSpotlightItem {\n    _id\n    spotlight {\n      ...SpotlightDisplay\n    }\n    post {\n      ...PostsListWithVotes\n    }\n    spotlightMetaInfo {\n      sources\n      servedEventId\n      rankingMetadata\n    }\n  }\n": typeof types.FeedSpotlightFragmentDoc,
@@ -1171,6 +1173,7 @@ const documents: Documents = {
     "\n  query multiMessageConversationContentsQuery($selector: MessageSelector, $limit: Int, $enableTotal: Boolean) {\n    messages(selector: $selector, limit: $limit, enableTotal: $enableTotal) {\n      results {\n        ...messageListFragment\n      }\n      totalCount\n    }\n  }\n": types.multiMessageConversationContentsQueryDocument,
     "\n  mutation updateConversationInboxNavigation($selector: SelectorInput!, $data: UpdateConversationDataInput!) {\n    updateConversation(selector: $selector, data: $data) {\n      data {\n        ...ConversationsList\n      }\n    }\n  }\n": types.updateConversationInboxNavigationDocument,
     "\n  query multiMessageConversationPreviewQuery($selector: MessageSelector, $limit: Int, $enableTotal: Boolean) {\n    messages(selector: $selector, limit: $limit, enableTotal: $enableTotal) {\n      results {\n        ...messageListFragment\n      }\n      totalCount\n    }\n  }\n": types.multiMessageConversationPreviewQueryDocument,
+    "\n  query singleMessageConversationPreviewQuery($documentId: String) {\n    message(selector: { documentId: $documentId }) {\n      result {\n        ...messageListFragment\n      }\n    }\n  }\n": types.singleMessageConversationPreviewQueryDocument,
     "\n  query ConversationPreview($documentId: String) {\n    conversation(input: { selector: { documentId: $documentId } }) {\n      result {\n        ...ConversationsList\n      }\n    }\n  }\n": types.ConversationPreviewDocument,
     "\n  mutation updateConversationConversationTitleEditForm($selector: SelectorInput!, $data: UpdateConversationDataInput!) {\n    updateConversation(selector: $selector, data: $data) {\n      data {\n        ...ConversationsList\n      }\n    }\n  }\n": types.updateConversationConversationTitleEditFormDocument,
     "\n  query multiConversationFriendlyInboxQuery($selector: ConversationSelector, $limit: Int, $enableTotal: Boolean) {\n    conversations(selector: $selector, limit: $limit, enableTotal: $enableTotal) {\n      results {\n        ...ConversationsListWithReadStatus\n      }\n      totalCount\n    }\n  }\n": types.multiConversationFriendlyInboxQueryDocument,
@@ -1808,6 +1811,7 @@ const documents: Documents = {
     "\n  query getCurrentUser {\n    currentUser {\n      ...UsersCurrent\n    }\n  }\n": types.getCurrentUserDocument,
     "\n  mutation createLWEventwithNewEvents($data: CreateLWEventDataInput!) {\n    createLWEvent(data: $data) {\n      data {\n        ...newEventFragment\n      }\n    }\n  }\n": types.createLWEventwithNewEventsDocument,
     "\n    query Lightcone2024FundraiserStripeAmounts {\n      Lightcone2024FundraiserStripeAmounts\n    }\n  ": types.Lightcone2024FundraiserStripeAmountsDocument,
+    "\n    query Lightcone2025FundraiserAirtableAmounts {\n      Lightcone2025FundraiserAirtableAmounts\n    }\n  ": types.Lightcone2025FundraiserAirtableAmountsDocument,
     "\n  fragment FeedPostFragment on FeedPost {\n    _id\n    postMetaInfo\n    post {\n      ...PostsListWithVotes\n    }\n  }\n": types.FeedPostFragmentDoc,
     "\n  fragment FeedCommentThreadFragment on FeedCommentThread {\n    _id\n    commentMetaInfos\n    postSources\n    postMetaInfo\n    post {\n      ...PostsListWithVotes\n    }\n    comments {\n      ...UltraFeedComment\n    }\n  }\n": types.FeedCommentThreadFragmentDoc,
     "\n  fragment FeedSpotlightFragment on FeedSpotlightItem {\n    _id\n    spotlight {\n      ...SpotlightDisplay\n    }\n    post {\n      ...PostsListWithVotes\n    }\n    spotlightMetaInfo {\n      sources\n      servedEventId\n      rankingMetadata\n    }\n  }\n": types.FeedSpotlightFragmentDoc,
@@ -2828,6 +2832,10 @@ export function gql(source: "\n  mutation updateConversationInboxNavigation($sel
  * The gql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
  */
 export function gql(source: "\n  query multiMessageConversationPreviewQuery($selector: MessageSelector, $limit: Int, $enableTotal: Boolean) {\n    messages(selector: $selector, limit: $limit, enableTotal: $enableTotal) {\n      results {\n        ...messageListFragment\n      }\n      totalCount\n    }\n  }\n"): (typeof documents)["\n  query multiMessageConversationPreviewQuery($selector: MessageSelector, $limit: Int, $enableTotal: Boolean) {\n    messages(selector: $selector, limit: $limit, enableTotal: $enableTotal) {\n      results {\n        ...messageListFragment\n      }\n      totalCount\n    }\n  }\n"];
+/**
+ * The gql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
+ */
+export function gql(source: "\n  query singleMessageConversationPreviewQuery($documentId: String) {\n    message(selector: { documentId: $documentId }) {\n      result {\n        ...messageListFragment\n      }\n    }\n  }\n"): (typeof documents)["\n  query singleMessageConversationPreviewQuery($documentId: String) {\n    message(selector: { documentId: $documentId }) {\n      result {\n        ...messageListFragment\n      }\n    }\n  }\n"];
 /**
  * The gql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
  */
@@ -5376,6 +5384,10 @@ export function gql(source: "\n  mutation createLWEventwithNewEvents($data: Crea
  * The gql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
  */
 export function gql(source: "\n    query Lightcone2024FundraiserStripeAmounts {\n      Lightcone2024FundraiserStripeAmounts\n    }\n  "): (typeof documents)["\n    query Lightcone2024FundraiserStripeAmounts {\n      Lightcone2024FundraiserStripeAmounts\n    }\n  "];
+/**
+ * The gql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
+ */
+export function gql(source: "\n    query Lightcone2025FundraiserAirtableAmounts {\n      Lightcone2025FundraiserAirtableAmounts\n    }\n  "): (typeof documents)["\n    query Lightcone2025FundraiserAirtableAmounts {\n      Lightcone2025FundraiserAirtableAmounts\n    }\n  "];
 /**
  * The gql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
  */
