@@ -831,33 +831,6 @@ extend type Query {
   RecentDiscussionFeed(limit: Int, cutoff: Date, offset: Int, af: Boolean): RecentDiscussionFeedQueryResults!
 }
 
-type SubscribedPostAndComments {
-  _id: String!
-  post: Post!
-  comments: [Comment!]
-  expandCommentIds: [String!]
-  postIsFromSubscribedUser: Boolean!
-}
-
-type SubscribedFeedQueryResults {
-  cutoff: Date
-  endOffset: Int!
-  results: [SubscribedFeedEntry!]
-}
-
-enum SubscribedFeedEntryType {
-  postCommented
-}
-
-type SubscribedFeedEntry {
-  type: SubscribedFeedEntryType!
-  postCommented: SubscribedPostAndComments
-}
-
-extend type Query {
-  SubscribedFeed(limit: Int, cutoff: Date, offset: Int, af: Boolean): SubscribedFeedQueryResults!
-}
-
 type TagHistoryFeedQueryResults {
   cutoff: Date
   endOffset: Int!
@@ -1287,6 +1260,7 @@ extend type Mutation {
   unlockThread(commentId: String!): Boolean!
   rejectContentAndRemoveUserFromQueue(userId: String!, documentId: String!, collectionName: ContentCollectionName!, rejectedReason: String!, messageContent: String): Boolean!
   approveUserCurrentContentOnly(userId: String!): Boolean!
+  rerunSaplingCheck(documentId: String!, collectionName: ContentCollectionName!): AutomatedContentEvaluation!
 }
 
 extend type Mutation {
@@ -1434,6 +1408,12 @@ type FeedSubscriptionSuggestions {
   suggestedUsers: [User!]!
 }
 
+type FeedMarker {
+  _id: String!
+  markerType: String!
+  timestamp: Date!
+}
+
 type UltraFeedQueryResults {
   cutoff: Date
   endOffset: Int!
@@ -1446,6 +1426,7 @@ enum UltraFeedEntryType {
   feedPost
   feedSpotlight
   feedSubscriptionSuggestions
+  feedMarker
 }
 
 type UltraFeedEntry {
@@ -1454,6 +1435,7 @@ type UltraFeedEntry {
   feedPost: FeedPost
   feedSpotlight: FeedSpotlightItem
   feedSubscriptionSuggestions: FeedSubscriptionSuggestions
+  feedMarker: FeedMarker
 }
 
 extend type Query {
@@ -1477,6 +1459,23 @@ type ElicitQuestionPredictionCreator {
   displayName: String!
   isQuestionCreator: Boolean!
   sourceUserId: String
+}
+
+extend type Query {
+  getBookWordCount(bookId: String!): Float
+}
+
+type SequenceStats {
+  totalWordCount: Float
+  totalReadTime: Float
+}
+
+extend type Query {
+  getSequenceStats(sequenceId: String!): SequenceStats
+}
+
+extend type Query {
+  reviewPredictionPosts(year: Int!, limit: Int = 50): [Post!]!
 }
 
 type AdvisorRequest {
@@ -2092,6 +2091,7 @@ type Comment {
   afBaseScore: Float
   afExtendedScore: JSON
   afVoteCount: Float
+  automatedContentEvaluations: AutomatedContentEvaluation
 }
 
 enum TagCommentType {
@@ -4702,6 +4702,8 @@ input PostDefaultViewInput {
   before: String
   timeField: String
   curatedAfter: String
+  requiredUnnominated: Boolean
+  requiredFrontpage: Boolean
 }
 
 input PostsUserPostsInput {
@@ -4871,6 +4873,8 @@ input PostsTimeframeInput {
   timeField: String
   curatedAfter: String
   limit: Int
+  requiredUnnominated: Boolean
+  requiredFrontpage: Boolean
 }
 
 input PostsDailyInput {

@@ -884,3 +884,12 @@ export const SuggestAlignmentPost = gql(`
     }
   }
 `)
+
+export const ChapterPostSlim = gql(`
+  fragment ChapterPostSlim on Post {
+    _id
+    title
+    slug
+    isRead
+  }
+`)

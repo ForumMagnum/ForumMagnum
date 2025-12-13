@@ -10,7 +10,7 @@ import {
   getDenormalizedFieldOnUpdate
 } from "../../utils/schemaUtils";
 import { userGetDisplayNameById } from "../../vulcan-users/helpers";
-import { isEAForum } from "../../instanceSettings";
+import { isEAForum, isLWorAF } from "../../instanceSettings";
 import { commentGetPageUrlFromDB, getVotingSystemNameForDocument } from "./helpers";
 import { viewTermsToQuery } from "../../utils/viewUtils";
 import { ForumEventCommentMetadataSchema } from "../forumEvents/types";
@@ -1418,6 +1418,28 @@ const schema = {
     },
   },
   afVoteCount: DEFAULT_AF_VOTE_COUNT_FIELD,
+  automatedContentEvaluations: {
+    graphql: {
+      outputType: "AutomatedContentEvaluation",
+      canRead: ["sunshineRegiment", "admins"],
+      resolver: async (comment, args, context) => {
+        if (!isLWorAF()) return null;
+        const { AutomatedContentEvaluations, Revisions } = context;
+        const revisionIds = (await Revisions.find({
+          documentId: comment._id,
+          fieldName: "contents",
+        }, {
+          sort: { editedAt: -1 },
+        }, { _id: 1 }).fetch()).map(r => r._id);
+
+        return AutomatedContentEvaluations.findOne({
+          revisionId: { $in: revisionIds },
+        }, {
+          sort: { createdAt: -1 },
+        });
+      }
+    }
+  },
 } satisfies Record<string, CollectionFieldSpecification<"Comments">>;
 
 export default schema;

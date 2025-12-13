@@ -384,9 +384,13 @@ class ElasticQuery {
     };
 
     if (must.length) {
+      const advancedHighlight = this.getAdvancedHighlightQuery(
+        must[0].multi_match!.query,
+      );
       return {
+        ...advancedHighlight,
         searchQuery,
-        ...this.getAdvancedHighlightQuery(must[0].multi_match!.query),
+        tokens,
       };
     }
 
@@ -489,7 +493,7 @@ class ElasticQuery {
     return sort;
   }
 
-  compile(): SearchRequestInfo | SearchRequestBody {
+  compile() {
     const {
       preTag,
       postTag,

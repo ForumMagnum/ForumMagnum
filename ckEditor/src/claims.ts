@@ -2,7 +2,7 @@ import { Command, Plugin } from '@ckeditor/ckeditor5-core';
 import { ButtonView } from '@ckeditor/ckeditor5-ui';
 import insertClaimIcon from './ckeditor5-insert-claim-icon.svg';
 import type { ClaimsPluginConfiguration } from "../../packages/lesswrong/components/editor/claims/claimsConfigType";
-import type { Element, DowncastConversionApi } from '@ckeditor/ckeditor5-engine';
+import type { ModelElement as Element, DowncastConversionApi } from '@ckeditor/ckeditor5-engine';
 import { toWidget } from "@ckeditor/ckeditor5-widget/src/utils";
 
 export class ClaimsPlugin extends Plugin {

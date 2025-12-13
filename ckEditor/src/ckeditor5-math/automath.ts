@@ -1,9 +1,9 @@
-import Plugin from '@ckeditor/ckeditor5-core/src/plugin';
-import Clipboard from '@ckeditor/ckeditor5-clipboard/src/clipboard';
-import Undo from '@ckeditor/ckeditor5-undo/src/undo';
-import LiveRange from '@ckeditor/ckeditor5-engine/src/model/liverange';
-import LivePosition from '@ckeditor/ckeditor5-engine/src/model/liveposition';
-import global from '@ckeditor/ckeditor5-utils/src/dom/global';
+import { Plugin } from '@ckeditor/ckeditor5-core/src/plugin';
+import { Clipboard } from '@ckeditor/ckeditor5-clipboard/src/clipboard';
+import { Undo } from '@ckeditor/ckeditor5-undo/src/undo';
+import { ModelLiveRange as LiveRange } from '@ckeditor/ckeditor5-engine/src/model/liverange';
+import { ModelLivePosition as LivePosition } from '@ckeditor/ckeditor5-engine/src/model/liveposition';
+import { global } from '@ckeditor/ckeditor5-utils/src/dom/global';
 import type { Editor } from '@ckeditor/ckeditor5-core';
 
 import { defaultConfig, extractDelimiters, hasDelimiters, delimitersCounts } from './utils';

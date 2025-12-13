@@ -21,6 +21,7 @@ import { Card } from '@/components/widgets/Paper';
 import classNames from 'classnames';
 import KeystrokeDisplay from './KeystrokeDisplay';
 import { useGlobalKeydown } from '@/components/common/withGlobalKeydown';
+import { makeEditorConfig } from '@/components/editor/editorConfigs';
 
 const ModerationTemplateFragmentMultiQuery = gql(`
   query multiModerationTemplateRestrictAndNotifyModalQuery($selector: ModerationTemplateSelector, $limit: Int, $enableTotal: Boolean) {
@@ -250,7 +251,7 @@ const RestrictAndNotifyModal = ({
 
   const CommentEditor = getCkCommentEditor();
 
-  const editorConfig = {
+  const editorConfig = makeEditorConfig({
     toolbar: [
       'bold',
       'italic',
@@ -263,7 +264,7 @@ const RestrictAndNotifyModal = ({
       'blockQuote',
     ],
     placeholder: 'Edit message to user...',
-  };
+  });
 
   return (
     <LWDialog open onClose={onClose} maxWidth="md">

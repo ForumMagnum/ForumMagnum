@@ -19,6 +19,7 @@ import { useCurrentUser } from '../common/withUser';
 import { defineStyles, useStyles } from '../hooks/useStyles';
 import KeystrokeDisplay from './supermod/KeystrokeDisplay';
 import { useGlobalKeydown } from '../common/withGlobalKeydown';
+import { makeEditorConfig } from '../editor/editorConfigs';
 
 const styles = defineStyles('RejectContentDialog', (theme: ThemeType) => ({
   dialogContent: {
@@ -425,7 +426,7 @@ const RejectContentDialog = ({rejectionTemplates, onClose, rejectContent}: {
 
   const CommentEditor = getCkCommentEditor();
 
-  const editorConfig = {
+  const editorConfig = makeEditorConfig({
     toolbar: [
       'bold',
       'italic',
@@ -438,7 +439,7 @@ const RejectContentDialog = ({rejectionTemplates, onClose, rejectContent}: {
       'blockQuote',
     ],
     placeholder: 'Enter rejection reason...',
-  };
+  });
 
   // Standard rejection intro that will be prepended to the message
   const standardIntroHtml = `

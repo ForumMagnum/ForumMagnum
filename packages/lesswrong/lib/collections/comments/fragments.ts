@@ -208,6 +208,15 @@ export const CommentsListWithParentMetadata = gql(`
   }
 `)
 
+export const SunshineCommentsList = gql(`
+  fragment SunshineCommentsList on Comment {
+    ...CommentsListWithParentMetadata
+    automatedContentEvaluations {
+      ...AutomatedContentEvaluationsFragment
+    }
+  }
+`)
+
 // TODO: This is now the same as CommentWithRepliesFragment, now that said
 // fragment gets the tag field
 export const StickySubforumCommentFragment = gql(`

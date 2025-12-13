@@ -8,6 +8,7 @@ import { DialogTitle } from '../../widgets/DialogTitle';
 import Button from '@/lib/vendor/@material-ui/core/src/Button';
 import TextField from '@/lib/vendor/@material-ui/core/src/TextField';
 import LWDialog from "../../common/LWDialog";
+import { useCurrentUser } from '../../common/withUser';
 
 const styles = (theme: ThemeType) => ({
   subtitle: {
@@ -29,6 +30,9 @@ const DeleteCommentDialog = ({comment, onClose, classes}: {
   const [deletedReason, setDeletedReason] = useState("");
   const {moderateCommentMutation} = useModerateComment();
   const { flash } = useMessages();
+  const currentUser = useCurrentUser();
+  
+  const isDeletingOwnComment = currentUser?._id === comment.userId;
 
   const handleDelete = (event: React.MouseEvent) => {
     event.preventDefault();
@@ -67,9 +71,11 @@ const DeleteCommentDialog = ({comment, onClose, classes}: {
         </DialogTitle>
         <DialogContent>
           <p className={classes.subtitle}><em>
-            (If you delete without a trace, the reason will be sent to the
-            author of the comment privately. Otherwise it will be publicly
-            displayed below the comment.)
+            {isDeletingOwnComment ? (
+              "(If you delete publicly, the reason will be displayed below the comment. If you delete without a trace, the comment will be removed without any public indication.)"
+            ) : (
+              "(If you delete without a trace, the reason will be sent to the author of the comment privately. Otherwise it will be publicly displayed below the comment.)"
+            )}
           </em></p>
           <br/>
           <TextField

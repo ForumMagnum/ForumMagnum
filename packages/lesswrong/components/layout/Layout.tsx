@@ -18,7 +18,7 @@ import { Helmet } from "@/components/layout/Helmet";
 import { AutosaveEditorStateContextProvider, DisableNoKibitzContextProvider } from '@/components/common/sharedContexts';
 // enable during ACX Everywhere
 // import { HIDE_MAP_COOKIE } from '@/lib/cookies/cookies';
-import Header, { getHeaderHeight } from '@/components/layout/Header';
+import Header, { HeaderHeightProvider } from '@/components/layout/Header';
 import { useCookiePreferences, useCookiesWithConsent } from '@/components/hooks/useCookiesWithConsent';
 import { useHeaderVisible } from '@/components/hooks/useHeaderVisible';
 import StickyBox from '@/lib/vendor/react-sticky-box';
@@ -200,7 +200,7 @@ const styles = defineStyles("Layout", (theme: ThemeType) => ({
     marginBottom: 20,
   },
   stickyWrapperHeaderVisible: {
-    transform: `translateY(${getHeaderHeight() + STICKY_SECTION_TOP_MARGIN}px)`,
+    transform: `translateY(calc(var(--header-height) + ${STICKY_SECTION_TOP_MARGIN}px))`,
   },
 }));
 
@@ -316,6 +316,7 @@ const Layout = ({children}: {
       <CommentOnSelectionPageWrapper>
       <CurrentAndRecentForumEventsProvider>
       <LlmSidebarWrapper>
+        <HeaderHeightProvider>
         <PageBackgroundWrapper>
           {buttonBurstSetting.get() && <GlobalButtonBurst />}
           <DialogManager>
@@ -406,6 +407,7 @@ const Layout = ({children}: {
           </DialogManager>
           <NavigationEventSender />
         </PageBackgroundWrapper>
+        </HeaderHeightProvider>
       </LlmSidebarWrapper>
       </CurrentAndRecentForumEventsProvider>
       </CommentOnSelectionPageWrapper>

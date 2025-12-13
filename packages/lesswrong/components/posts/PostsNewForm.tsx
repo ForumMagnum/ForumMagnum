@@ -20,6 +20,7 @@ import SingleColumnSection from "../common/SingleColumnSection";
 import { Typography } from "../common/Typography";
 import Loading from "../vulcan-core/Loading";
 import { getMeetupMonthInfo } from '../seasonal/meetupMonth/meetupMonthEventUtils';
+import { getUserDefaultEditor } from '../editor/Editor';
 
 const PostsEditMutation = gql(`
   mutation createPostPostsNewForm($data: CreatePostDataInput!) {
@@ -202,8 +203,12 @@ const PostsNewForm = () => {
   });
   const currentUserWithModGuidelines = dataUser?.user?.result;
 
-  const types = (['IFANYONE', 'PETROV', 'SOLSTICE'] as const).filter(type => query[type])
-  const { data, title } = getMeetupMonthInfo(types)
+  const types = (['IFANYONE', 'PETROV', 'SOLSTICE'] as const).filter(type => query[type]);
+  const { data: meetupMonthData, title } = getMeetupMonthInfo(types)
+  
+  const defaultContents = meetupMonthData
+    ? { originalContents: { type: "ckEditorMarkup", data: meetupMonthData } }
+    : { originalContents: { type: getUserDefaultEditor(currentUser), data: "" }};
 
   let prefilledProps: PrefilledPost = templateDocument ? prefillFromTemplate(templateDocument, currentUser) : {
     isEvent: query && !!query.eventForm,
@@ -218,7 +223,7 @@ const PostsNewForm = () => {
     moderationStyle: currentUser && currentUser.moderationStyle,
     generateDraftJargon: currentUser?.generateJargonForDrafts,
     postCategory,
-    contents: { originalContents: { type: "ckEditorMarkup", data } }
+    contents: defaultContents,
   }
 
   if (userIsMemberOf(currentUser, 'alignmentForum')) {

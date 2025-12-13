@@ -34,14 +34,17 @@ export const reviewWinnerCategories = new TupleSet(['rationality', 'modeling', '
 export type ReviewWinnerCategory = UnionOf<typeof reviewWinnerCategories>;
 
 /** Review year is the year under review, not the year in which the review takes place. */
-export const REVIEW_YEAR = 2023
+export const REVIEW_YEAR = 2024
 export const BEST_OF_LESSWRONG_PUBLISH_YEAR: PublishedReviewYear = 2023
 
 const publishedReviewYearsArray = [2018, 2019, 2020, 2021, 2022, 2023] as const;
+const predictedReviewYearsArray = [2024, 2025] as const;
 export const publishedReviewYears = new TupleSet(publishedReviewYearsArray);
 export const reviewYears = new TupleSet([...publishedReviewYears, REVIEW_YEAR] as const);
+export const predictedReviewYears = new TupleSet(predictedReviewYearsArray);
 
 export type ReviewYear = UnionOf<typeof reviewYears>;
+export type PredictedReviewYear = UnionOf<typeof predictedReviewYears>;
 export type PublishedReviewYear = UnionOf<typeof publishedReviewYears>;
 
 export function getReviewYearFromString(yearParam: string): ReviewYear {
@@ -69,9 +72,9 @@ export function getReviewShortTitle(reviewYear: ReviewYear): string {
   return `${reviewYear} Review`
 }
 
-export const reviewPostPath = "/posts/pudQtkre7f9GLmb2b/the-2023-lesswrong-review-the-basic-ask"
+export const reviewPostPath = "/posts/ZpRzTr5QBT6C3Faor/the-2024-lesswrong-review"
 export const reviewResultsPostPath = "/posts/sHvByGZRCsFuxtTKr/voting-results-for-the-2023-review"
-export const longformReviewTagId = "aRnXghESsn4HDm872"
+export const longformReviewTagId = "iAmF7peh3Trtdxobd"
 
 const reviewPhases = new TupleSet(['UNSTARTED', 'NOMINATIONS', 'REVIEWS', 'VOTING', 'RESULTS', 'COMPLETE'] as const);
 export type ReviewPhase = UnionOf<typeof reviewPhases>;
@@ -97,7 +100,7 @@ export function getReviewPeriodEnd(reviewYear: ReviewYear = REVIEW_YEAR) {
   return moment.utc(`${reviewYear+1}-01-01`).add(TIMEZONE_OFFSET, 'hours')
 }
 
-export const getReviewStart = (reviewYear: ReviewYear) => moment.utc(`${reviewYear+1}-12-02`).add(TIMEZONE_OFFSET, 'hours')
+export const getReviewStart = (reviewYear: ReviewYear) => moment.utc(`${reviewYear+1}-12-01`).add(TIMEZONE_OFFSET, 'hours')
 export const getNominationPhaseEnd = (reviewYear: ReviewYear) => moment.utc(`${reviewYear+1}-12-16`).add(TIMEZONE_OFFSET, 'hours')
 export const getReviewPhaseEnd = (reviewYear: ReviewYear) => moment.utc(`${reviewYear+2}-01-16`).add(TIMEZONE_OFFSET, 'hours')
 export const getVotingPhaseEnd = (reviewYear: ReviewYear) => moment.utc(`${reviewYear+2}-02-06`).add(TIMEZONE_OFFSET, 'hours')
@@ -109,7 +112,13 @@ export const getNominationPhaseEndDisplay = (reviewYear: ReviewYear) => getNomin
 export const getReviewPhaseEndDisplay = (reviewYear: ReviewYear) => getReviewPhaseEnd(reviewYear).subtract(1, 'days')
 export const getVotingPhaseEndDisplay = (reviewYear: ReviewYear) => getVotingPhaseEnd(reviewYear).subtract(1, 'days')
 
+const DEBUG_REVIEW_PHASE_OVERRIDE: ReviewPhase | null = null;
+
+
+
 function recomputeReviewPhase(reviewYear?: ReviewYear): ReviewPhase {
+  if (DEBUG_REVIEW_PHASE_OVERRIDE) return DEBUG_REVIEW_PHASE_OVERRIDE;
+  
   if (reviewYear && reviewYear !== REVIEW_YEAR) {
     return "COMPLETE"
   }
@@ -168,7 +177,11 @@ export function eligibleToNominate (currentUser: UsersCurrent|DbUser|null) {
   return true
 }
 
+// Exclude IDs that should not be included in the review, e.g. were republished and postedAt date isn't actually in current review, fundraising posts, etc.
+export const reviewExcludedPostIds = ['MquvZCGWyYinsN49c', '5n2ZQcbc7r4R8mvqc'];
+
 export function postEligibleForReview (post: PostsBase) {
+  if (reviewExcludedPostIds.includes(post._id)) return false
   if (moment.utc(post.postedAt) > moment.utc(`${REVIEW_YEAR+1}-01-01`)) return false
   if (isLWorAF() && moment.utc(post.postedAt) < moment.utc(`${REVIEW_YEAR}-01-01`)) return false
   if (post.shortform) return false

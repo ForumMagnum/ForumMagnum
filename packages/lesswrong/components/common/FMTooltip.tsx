@@ -69,7 +69,7 @@ export const TooltipRef = <T extends HTMLElement>({
     }
   }, []);
 
-  const { eventHandlers, hover, everHovered, anchorEl } = useHover<any>({
+  const { eventHandlers, hover, everHovered, anchorEl } = useHover({
     eventProps: {
       pageElementContext: "tooltipHovered", // Can be overwritten by analyticsProps
       title: typeof title === "string" ? title : undefined,

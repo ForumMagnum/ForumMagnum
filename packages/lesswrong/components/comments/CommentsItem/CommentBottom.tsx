@@ -24,8 +24,17 @@ const styles = (theme: ThemeType) => ({
     minHeight: 12,
     ...(theme.isFriendlyUI ? {} : {fontSize: 12}),
   },
-  bottomWithReacts: {
-    justifyContent: "space-between"
+  leftSection: {
+    display: "flex",
+    alignItems: "center",
+    columnGap: theme.spacing.unit,
+    flexWrap: "wrap",
+  },
+  rightSection: {
+    display: "flex",
+    alignItems: "center",
+    columnGap: theme.spacing.unit,
+    marginLeft: "auto",
   },
   answer: {
     display: "flex",
@@ -35,7 +44,7 @@ const styles = (theme: ThemeType) => ({
     ...theme.typography.body2,
     fontWeight: 450,
     color: theme.palette.lwTertiary.main,
-    marginLeft: "auto"
+    marginLeft: theme.spacing.unit,
   },
 })
 
@@ -77,28 +86,36 @@ const CommentBottom = ({comment, treeOptions, votingSystem, voteProps, commentBo
   )
   const showEditInContext = treeOptions.showEditInContext;
 
+  const showVoteBottom = !!VoteBottomComponent && !treeOptions.hideVoteBottom;
+  const showRightSection = showVoteBottom || showEditInContext;
+
   return (
     <div className={classNames(
       classes.bottom,
       comment.answer && classes.answer,
-      !!VoteBottomComponent && classes.bottomWithReacts,
     )}>
-      <CommentBottomCaveats comment={comment} />
-      {showReplyButton && replyButton}
-      {VoteBottomComponent && !treeOptions.hideVoteBottom && <VoteBottomComponent
-        document={comment}
-        hideKarma={treeOptions.post?.hideCommentKarma}
-        collectionName="Comments"
-        votingSystem={votingSystem}
-        commentBodyRef={commentBodyRef}
-        voteProps={voteProps}
-      />}
-      {showEditInContext && <Link
-        to={commentGetPageUrlFromIds({commentId: comment._id, postId: comment.postId})}
-        target="_blank" rel="noopener noreferrer"
-        className={classes.editInContext}>
-          Edit in context
-      </Link>}
+      <div className={classes.leftSection}>
+        <CommentBottomCaveats comment={comment} />
+        {showReplyButton && replyButton}
+      </div>
+      {showRightSection && (
+        <div className={classes.rightSection}>
+          {showVoteBottom && <VoteBottomComponent
+            document={comment}
+            hideKarma={treeOptions.post?.hideCommentKarma}
+            collectionName="Comments"
+            votingSystem={votingSystem}
+            commentBodyRef={commentBodyRef}
+            voteProps={voteProps}
+          />}
+          {showEditInContext && <Link
+            to={commentGetPageUrlFromIds({commentId: comment._id, postId: comment.postId})}
+            target="_blank" rel="noopener noreferrer"
+            className={classes.editInContext}>
+              Edit in context
+          </Link>}
+        </div>
+      )}
     </div>
   );
 }
