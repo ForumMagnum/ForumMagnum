@@ -348,9 +348,9 @@ export const sharedSettings = {
   karmaRewarderId1000: "mBBmKWkmw8bgJmGiG",
   lightconeFundraiser: {
     active: true,
-    postId: "94e98XARfAeriWC2A",
+    postId: "eKGdCNdKjvTBG9i6y",
     paymentLinkId: "plink_1QPdGLBlb9vL5IMTvkJ3LZ6v",
-    unsyncedAmount: 250000,
+    unsyncedAmount: 61_351 + 233_362,
     thermometerBgUrl: "https://res.cloudinary.com/lesswrong-2-0/image/upload/v1765607802/fundraiserTest2_weie7h.png",
     thermometerGoalAmount: 1000000,
     thermometerGoal2Amount: 2000000
