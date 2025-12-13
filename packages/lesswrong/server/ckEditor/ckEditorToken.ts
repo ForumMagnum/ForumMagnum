@@ -111,11 +111,11 @@ async function getCkEditorToken({collectionName, documentId, formType, linkShari
   formType: "edit"|"new",
   linkSharingKey?: string|null,
   context: ResolverContext,
-}): {
+}): Promise<{
   success: boolean
   errorMessage?: string
   tokenPayload: any
-} {
+}> {
   const environmentId = getCkEditorEnvironmentId();
   const user = context.currentUser;
   const userId = user?._id;
@@ -195,7 +195,7 @@ export const ckEditorTokenGraphQLQueries = {
       const result = jwt.sign( tokenPayload, secretKey, { algorithm: 'HS256' } );
       return result;
     } else {
-      return new Response(errorMessage, { status: 403 });
+      throw new Error(errorMessage);
     }
   }
 };
