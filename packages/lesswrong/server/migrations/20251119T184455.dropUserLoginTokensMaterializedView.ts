@@ -2,8 +2,8 @@ import Users from "../collections/users/collection";
 import { dropIndex, dropIndexByName } from "./meta/utils";
 
 export const up = async ({db}: MigrationContext) => {
-  await db.none(`DROP MATERIALIZED VIEW "UserLoginTokens"`);
-  await db.none(`DROP FUNCTION fm_get_user_by_login_token`);
+  await db.none(`DROP MATERIALIZED VIEW IF EXISTS "UserLoginTokens"`);
+  await db.none(`DROP FUNCTION IF EXISTS fm_get_user_by_login_token`);
   await dropIndexByName(db, Users, "idx_Users_services__resume__haveLoginTokensToDelete");
   await dropIndexByName(db, Users, "idx_Users_services__resume__loginTokens");
   await dropIndexByName(db, Users, "idx_Users_services__resume__loginTokens__hashedToken");
