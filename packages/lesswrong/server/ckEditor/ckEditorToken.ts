@@ -111,7 +111,11 @@ async function getCkEditorToken({collectionName, documentId, formType, linkShari
   formType: "edit"|"new",
   linkSharingKey?: string|null,
   context: ResolverContext,
-}) {
+}): {
+  success: boolean
+  errorMessage?: string
+  tokenPayload :any
+} {
   const environmentId = getCkEditorEnvironmentId();
   const user = context.currentUser;
   const userId = user?._id;
@@ -122,7 +126,11 @@ async function getCkEditorToken({collectionName, documentId, formType, linkShari
     const access = documentId ? await getCollaborativeEditorAccess({ formType, post, user, linkSharingKey, context, useAdminPowers: true }) : "edit";
   
     if (access === "none") {
-      return new Response("Access denied", { status: 403 });
+      return {
+        success: false,
+        errorMessage: "Access denied",
+        tokenPayload: null,
+      };
     }
     
     const payload = {
@@ -138,7 +146,10 @@ async function getCkEditorToken({collectionName, documentId, formType, linkShari
         },
       },
     };
-    return payload;
+    return {
+      success: true,
+      tokenPayload: payload,
+    };
   } else {
     const payload = {
       aud: environmentId,
@@ -148,7 +159,10 @@ async function getCkEditorToken({collectionName, documentId, formType, linkShari
         name: userGetDisplayName(user)
       } : null,
     };
-    return payload;
+    return {
+      success: true,
+      tokenPayload: payload,
+    };
   }
 }
 
@@ -169,15 +183,19 @@ export const ckEditorTokenGraphQLQueries = {
   getCkEditorToken: async (_root: void, args: {options: GetCkEditorTokenOptions}, context: ResolverContext): Promise<string> => {
     const { currentUser } = context;
     const { collectionName, fieldName, documentId, formType, linkSharingKey } = args.options;
-    const tokenPayload = await getCkEditorToken({
+    const {success, errorMessage, tokenPayload} = await getCkEditorToken({
       collectionName, fieldName,
       documentId: documentId ?? undefined,
       formType: formType as "edit"|"new",
       linkSharingKey: linkSharingKey ?? null,
       context
     });
-    const secretKey = getCkEditorSecretKey()!; // Assume nonnull; causes lack of encryption in development
-    const result = jwt.sign( tokenPayload, secretKey, { algorithm: 'HS256' } );
-    return result;
+    if (success) {
+      const secretKey = getCkEditorSecretKey()!; // Assume nonnull; causes lack of encryption in development
+      const result = jwt.sign( tokenPayload, secretKey, { algorithm: 'HS256' } );
+      return result;
+    } else {
+      return new Response(errorMessage, { status: 403 });
+    }
   }
 };

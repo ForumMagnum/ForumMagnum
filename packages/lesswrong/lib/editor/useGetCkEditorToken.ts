@@ -34,7 +34,9 @@ export const useGetCkEditorToken = () => {
       },
     });
     const token = response.data?.getCkEditorToken ?? null;
-    console.log(`getCkEditorToken returning ${token}`);
+    if (token) {
+      cache.set(cacheKey, token);
+    }
     return token;
   }
   
