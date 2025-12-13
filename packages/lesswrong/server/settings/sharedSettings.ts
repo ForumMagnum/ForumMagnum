@@ -350,8 +350,8 @@ export const sharedSettings = {
     active: true,
     postId: "94e98XARfAeriWC2A",
     paymentLinkId: "plink_1QPdGLBlb9vL5IMTvkJ3LZ6v",
-    unsyncedAmount: 1,
-    thermometerBgUrl: "https://res.cloudinary.com/lesswrong-2-0/image/upload/q_auto,f_auto,h_400/v1732869999/Group_1_b4ap4h.png",
+    unsyncedAmount: 250000,
+    thermometerBgUrl: "https://res.cloudinary.com/lesswrong-2-0/image/upload/v1765607802/fundraiserTest2_weie7h.png",
     thermometerGoalAmount: 1000000,
     thermometerGoal2Amount: 2000000
   },
