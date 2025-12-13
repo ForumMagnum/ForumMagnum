@@ -20,6 +20,7 @@ import LWPopper from "../common/LWPopper";
 import { ContentItemBody } from "../contents/ContentItemBody";
 import { InteractionWrapper } from '../common/useClickableCell';
 import type { ContentStyleType } from '@/components/common/ContentStylesValues';
+import { useTheme } from '../themes/useTheme';
 
 const footnotePreviewStyles = (theme: ThemeType) => ({
   hovercard: {
@@ -153,11 +154,16 @@ const FootnotePreview = ({classes, href, id, rel, contentStyleType="postHighligh
 }) => {
   const { openDialog } = useDialog();
   const [disableHover, setDisableHover] = useState(false);
+  const theme = useTheme();
+  const minScreenWidthForTooltips = theme.breakpoints.values.sm;
   const { eventHandlers: anchorEventHandlers, hover: anchorHovered, anchorEl } = useHover({
     eventProps: {
       pageElementContext: "linkPreview",
       hoverPreviewType: "DefaultPreview",
       href,
+    },
+    getIsEnabled: () => {
+      return !isMobile() && window.innerWidth >= minScreenWidthForTooltips;
     },
   });
   const { eventHandlers: sidenoteEventHandlers, hover: sidenoteHovered } = useHover();
@@ -185,7 +191,9 @@ const FootnotePreview = ({classes, href, id, rel, contentStyleType="postHighligh
   // information isn't wired to pass through the hover-preview system.
 
   const onClick = useCallback((ev: React.MouseEvent) => {
-    if (isRegularClick(ev) && isMobile() && footnoteHTML !== null) {
+    const isWideEnoughForTooltips = window.innerWidth >= minScreenWidthForTooltips;
+    const openModalOnClick = isMobile() || !isWideEnoughForTooltips;
+    if (isRegularClick(ev) && openModalOnClick && footnoteHTML !== null) {
       setDisableHover(true);
       openDialog({
         name: "FootnoteDialog",
@@ -198,7 +206,7 @@ const FootnotePreview = ({classes, href, id, rel, contentStyleType="postHighligh
     } else {
       window.dispatchEvent(new CustomEvent(EXPAND_FOOTNOTES_EVENT, {detail: href}));
     }
-  }, [href, footnoteHTML, openDialog]);
+  }, [href, footnoteHTML, openDialog, minScreenWidthForTooltips]);
   
   const postPageContext = usePostsPageContext();
   const post = postPageContext?.fullPost ?? postPageContext?.postPreload;
@@ -247,6 +255,7 @@ const FootnotePreview = ({classes, href, id, rel, contentStyleType="postHighligh
           anchorEl={anchorEl}
           placement="bottom-start"
           allowOverflow
+          flip
           clickable
         >
           <InteractionWrapper>
