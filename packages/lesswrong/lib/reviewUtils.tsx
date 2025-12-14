@@ -55,6 +55,15 @@ export function getReviewYearFromString(yearParam: string): ReviewYear {
   throw Error("Not a valid Review Year")
 }
 
+export function getReviewLink(year: string): string {
+  // We changed our review page in 2018 and 2019. In 2020 we came up with a page
+  // that we'll hopefully stick with for awhile.
+  if (year === "2018" || year === "2019") {
+    return `/reviews/${year}`;
+  }
+  return `/reviewVoting/${year}`;
+}
+
 
 // Deprecated in favor of getReviewTitle and getReviewShortTitle 
 export const getReviewNameInSitu = () => isEAForum() ? 'Decade Review' : `${REVIEW_YEAR} Review`
@@ -175,6 +184,33 @@ export function eligibleToNominate (currentUser: UsersCurrent|DbUser|null) {
   if (isLWorAF() && moment.utc(currentUser.createdAt).isAfter(moment.utc(`${REVIEW_YEAR}-01-01`))) return false
   if (isEAForum() && moment.utc(currentUser.createdAt).isAfter(getReviewStart(REVIEW_YEAR))) return false
   return true
+}
+
+export function shouldShowReviewVotePrompt({
+  reviewingForReview,
+  postAuthorUserId,
+  currentUserId,
+  isEligibleToNominate,
+  isSeeLessMode = false,
+  isEditing = false,
+  isCollapsedOrHidden = false,
+}: {
+  reviewingForReview?: string | null,
+  postAuthorUserId?: string | null,
+  currentUserId?: string | null,
+  isEligibleToNominate: boolean,
+  isSeeLessMode?: boolean,
+  isEditing?: boolean,
+  isCollapsedOrHidden?: boolean,
+}): boolean {
+  return reviewIsActive()
+    && reviewingForReview === REVIEW_YEAR.toString()
+    && !!postAuthorUserId
+    && postAuthorUserId !== currentUserId
+    && isEligibleToNominate
+    && !isSeeLessMode
+    && !isEditing
+    && !isCollapsedOrHidden;
 }
 
 // Exclude IDs that should not be included in the review, e.g. were republished and postedAt date isn't actually in current review, fundraising posts, etc.
