@@ -22,8 +22,8 @@ import { browserProperties } from "@/lib/utils/browserProperties";
  *
  * There is a script at "ForumMagnum/scripts/process-wrapped-videos.sh" which,
  * when copied into a directory containing the webm files, will automatically
- * convert all of them to suitable mov files, and export the first frames as
- * pngs.
+ * convert all of them to suitable mov files, and export the final frames as
+ * pngs for sharing.
  *
  * (NB: In the past we pre-rendered each personality with each different
  * background colour. This was a bad idea. Apart from requiring annoyingly many

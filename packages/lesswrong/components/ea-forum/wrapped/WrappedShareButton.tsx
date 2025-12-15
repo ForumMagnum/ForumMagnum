@@ -1,8 +1,11 @@
 import React, { RefObject, useCallback } from "react";
 import { registerComponent } from "@/lib/vulcan-lib/components";
+import { useMessages } from "@/components/common/withMessages";
+import { useTracking } from "@/lib/analyticsEvents";
 import html2canvas from "html2canvas-pro";
 import classNames from "classnames";
 import { isMobile } from "@/lib/utils/isMobile";
+import { makeAbsolute } from "@/lib/vulcan-lib/utils";
 import { captureException } from "@sentry/core";
 import { useForumWrappedContext } from "./hooks";
 import ForumIcon from "../../common/ForumIcon";
@@ -38,10 +41,17 @@ const WrappedShareButton = ({name, screenshotRef, onRendered, className, classes
   className?: string,
   classes: ClassesType<typeof styles>,
 }) => {
+  const {captureEvent} = useTracking();
+  const {flash} = useMessages();
   const {year} = useForumWrappedContext();
+
   const onClick = useCallback(async () => {
-    const target = screenshotRef.current;
-    if (target) {
+    try {
+      const target = screenshotRef.current;
+      if (!target) {
+        throw new Error("Failed to create sharing image");
+      }
+
       const fileName = `My${year}EAForumWrapped-${name}.png`;
       const canvasElement = await html2canvas(target, {
         allowTaint: true,
@@ -49,33 +59,55 @@ const WrappedShareButton = ({name, screenshotRef, onRendered, className, classes
       });
       onRendered?.(canvasElement);
       const dataUrl = canvasElement.toDataURL("image/png");
+
       if (isMobile() && !!navigator.canShare) {
-        try {
-          const data = await fetch(dataUrl);
-          const blob = await data.blob();
-          const file = new File([blob], fileName, {
-            type: blob.type,
-            lastModified: new Date().getTime(),
+        const data = await fetch(dataUrl);
+        const blob = await data.blob();
+        const file = new File([blob], fileName, {
+          type: blob.type,
+          lastModified: new Date().getTime(),
+        });
+        const sharingOptions = {
+          title: `My EA Forum Wrapped ${year}`,
+          url: makeAbsolute("/wrapped"),
+          files: [file],
+        };
+        if (navigator.canShare(sharingOptions)) {
+          await navigator.share(sharingOptions);
+          captureEvent("wrappedShare", {
+            method: "navigator.share",
+            year,
           });
-          const sharingOptions = {files: [file]};
-          if (navigator.canShare(sharingOptions)) {
-            await navigator.share(sharingOptions);
-            return;
-          }
-        } catch (e) {
-          captureException(e, {tags: {wrappedName: name}});
-          // eslint-disable-next-line no-console
-          console.error("Error sharing wrapped:", e);
+          return;
         }
       }
+
       const link = document.createElement("a");
       link.download = fileName;
       link.href = dataUrl;
       link.click();
+      captureEvent("wrappedShare", {
+        method: "downloadImage",
+        year,
+      });
+    } catch (e) {
+      captureException(e, {tags: {
+        wrappedName: name,
+        wrappedYear: String(year),
+      }});
+      // eslint-disable-next-line no-console
+      console.error("Error sharing wrapped:", e);
+      if (e instanceof Error) {
+        flash(`Error: ${e.message}`);
+      }
     }
-  }, [year, name, screenshotRef, onRendered]);
+  }, [captureEvent, flash, year, name, screenshotRef, onRendered]);
+
   return (
-    <button className={classNames(classes.root, className)} onClick={onClick}>
+    <button
+      onClick={onClick}
+      className={classNames(classes.root, className)}
+    >
       <ForumIcon icon="Share" className={classes.icon} /> Share
     </button>
   );
@@ -86,5 +118,3 @@ export default registerComponent(
   WrappedShareButton,
   {styles},
 );
-
-
