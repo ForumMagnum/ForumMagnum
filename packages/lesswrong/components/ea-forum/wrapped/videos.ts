@@ -20,6 +20,11 @@ import { browserProperties } from "@/lib/utils/browserProperties";
  * Since we don't know which file to use until we're on the client, anything
  * that embeds the video src in the DOM should be no-SSR'd.
  *
+ * There is a script at "ForumMagnum/scripts/process-wrapped-videos.sh" which,
+ * when copied into a directory containing the webm files, will automatically
+ * convert all of them to suitable mov files, and export the first frames as
+ * pngs.
+ *
  * (NB: In the past we pre-rendered each personality with each different
  * background colour. This was a bad idea. Apart from requiring annoyingly many
  * different files, we ran into a problem where the background colour of the
@@ -30,40 +35,37 @@ import { browserProperties } from "@/lib/utils/browserProperties";
  * using CSS to offset the gamma. That was a bad day.)
  */
 
-type WrappedAnimation =
-  "thinking" |
-  "lurker" |
-  "Karma-farmer" |
-  "convstarter" |
-  "contrarian" |
-  "Visitor" |
-  "one-hit";
+const wrappedAnimations = [
+  "AISafetyist",
+  "AnimalWelfarist",
+  "Biosecuritarian",
+  "EABuilder",
+  "FirstResponder",
+  "GlobalHealther",
+  "Intro",
+  "KarmaCharmer",
+  "Newbie",
+  "Philosopher",
+] as const;
+
+type WrappedAnimation = typeof wrappedAnimations[number];
 
 const chooseAnimation = (personality: string): WrappedAnimation => {
-  // TODO: Add updated files for all the other personalities
-  void personality;
-  return "convstarter";
-  // if (personality.indexOf("lurker") >= 0) {
-  //   return "lurker";
-  // }
-  // if (personality.indexOf("farmer") >= 0) {
-  //   return "Karma-farmer";
-  // }
-  // if (personality.indexOf("conversation") >= 0) {
-  //   return "convstarter";
-  // }
-  // if (personality.indexOf("contrarian") >= 0) {
-  //   return "contrarian";
-  // }
-  // if (personality.indexOf("visitor") >= 0) {
-  //   return "Visitor";
-  // }
-  // return "one-hit";
+  personality = personality.replace(/ /g, "")
+  for (const animation of wrappedAnimations) {
+    if (personality.indexOf(animation) >= 0) {
+      return animation;
+    }
+  }
+  return "Intro";
 }
 
 type WrappedColor = "grey" | "red" | "blue" | "green" | "transparent";
 
 const chooseColor = (personality: string): WrappedColor => {
+  if (personality === "thinking") {
+    return "transparent";
+  }
   if (personality.indexOf("stoic") >= 0 || personality.indexOf("agreeable") >= 0) {
     return "grey";
   }
@@ -76,11 +78,8 @@ const chooseColor = (personality: string): WrappedColor => {
   return "green";
 }
 
-const prefix = (
-  file: string, type: "video" | "image",
-  year: number = 2024,
-) =>
-  `https://res.cloudinary.com/cea/${type}/upload/v1734615259/wrapped-${year}/${file}`;
+const prefix = (file: string, type: "video" | "image") =>
+  `https://res.cloudinary.com/cea/${type}/upload/v1734615259/wrapped-2025/${file}`;
 
 type WrappedVideo = {
   /** The name of the animation */
@@ -98,15 +97,6 @@ type WrappedVideo = {
 }
 
 export const getWrappedVideo = (personality: string): WrappedVideo => {
-  if (personality === "thinking") {
-    return {
-      animation: "thinking",
-      color: "transparent",
-      src: prefix("Bulby-thinking-151515-short.mp4", "video"),
-      frame: prefix("Bulbythinking-frame.png", "image"),
-    };
-  }
-  personality = personality.toLowerCase();
   const animation = chooseAnimation(personality);
   const color = chooseColor(personality);
   const properties = browserProperties();
@@ -114,7 +104,7 @@ export const getWrappedVideo = (personality: string): WrappedVideo => {
   return {
     animation,
     color,
-    src: prefix(`${animation}-${videoFormat}.${videoFormat}`, "video", 2025),
-    frame: prefix(`${animation}-alpha.png`, "image"),
+    src: prefix(`${animation}-${videoFormat}.${videoFormat}`, "video"),
+    frame: prefix(`${animation}-png.png`, "image"),
   };
 }

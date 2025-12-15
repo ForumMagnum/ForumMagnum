@@ -108,7 +108,7 @@ const WrappedPersonalitySection = ({classes}: {
   const screenshotRef = useRef<HTMLDivElement>(null);
   const theme = useTheme();
 
-  const isThinking = video.animation === "thinking";
+  const isThinking = video.animation === "Intro";
   const videoRef = isThinking ? thinkingVideoRef : personalityVideoRef;
 
   useEffect(() => {
