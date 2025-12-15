@@ -97,13 +97,6 @@ export const forumEventGqlMutations = {
       throw new Error("Forum event not found");
     }
 
-    // Check sticker limit
-    const existingStickers = (forumEvent.publicData as any)?.data ?? [];
-    const userStickerCount = existingStickers.filter((s: any) => s.userId === currentUser._id).length;
-    if (userStickerCount >= (forumEvent.maxStickersPerUser ?? 0)) {
-      throw new Error("You have reached the maximum number of stickers for this event");
-    }
-
     await repos.forumEvents.upsertSticker({
       forumEventId,
       stickerData: {
@@ -113,7 +106,8 @@ export const forumEventGqlMutations = {
         theta,
         emoji: emoji ?? null,
         userId: currentUser._id,
-      }
+      },
+      maxStickersPerUser: forumEvent.maxStickersPerUser,
     });
 
     captureEvent("addForumEventSticker", {

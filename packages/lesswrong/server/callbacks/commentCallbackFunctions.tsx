@@ -115,7 +115,7 @@ const utils = {
    * Run side effects based on the `forumEventMetadata` that is submitted.
    */
   forumEventSideEffects: async ({ comment, forumEventMetadata, context }: { comment: DbComment; forumEventMetadata: ForumEventCommentMetadata; context: ResolverContext; }) => {
-    const { repos } = context;
+    const { repos, loaders } = context;
     if (forumEventMetadata.eventFormat === "STICKERS") {
       const sticker = forumEventMetadata.sticker
 
@@ -130,6 +130,8 @@ const utils = {
       }
 
       const forumEventId = comment.forumEventId;
+      const forumEvent = await loaders.ForumEvents.load(forumEventId);
+
       const stickerData = {
         _id,
         ...(x !== undefined && { x }),
@@ -140,7 +142,11 @@ const utils = {
         userId: comment.userId,
       };
 
-      await repos.forumEvents.upsertSticker({ forumEventId, stickerData });
+      await repos.forumEvents.upsertSticker({
+        forumEventId,
+        stickerData,
+        maxStickersPerUser: forumEvent?.maxStickersPerUser,
+      });
       captureEvent("upsertForumEventSticker", {
         forumEventId,
         stickerData,

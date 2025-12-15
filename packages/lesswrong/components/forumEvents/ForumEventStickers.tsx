@@ -192,16 +192,22 @@ const ForumEventStickers: FC<{
 
       // If comment is not required, save sticker immediately then optionally show comment form
       if (!stickerRequiresComment) {
-        await addSticker({
-          variables: {
-            forumEventId: currentForumEvent._id,
-            stickerId,
-            x: coords.x,
-            y: coords.y,
-            theta: hoverTheta,
-            emoji: null,
-          },
-        });
+        try {
+          await addSticker({
+            variables: {
+              forumEventId: currentForumEvent._id,
+              stickerId,
+              x: coords.x,
+              y: coords.y,
+              theta: hoverTheta,
+              emoji: null,
+            },
+          });
+        } catch (e) {
+          setDraftSticker(null);
+          // eslint-disable-next-line no-console
+          console.error(e);
+        }
         void refetch?.()
       }
 

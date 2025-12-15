@@ -65,7 +65,11 @@ class ForumEventsRepo extends AbstractRepo<"ForumEvents"> {
   /**
    * Upsert a sticker. If it exists (by _id), merge the new data, otherwise create it.
    */
-  async upsertSticker({ forumEventId, stickerData }: { forumEventId: string; stickerData: Partial<ForumEventSticker> & { _id: string; userId: string } }) {
+  async upsertSticker({ forumEventId, stickerData, maxStickersPerUser }: {
+    forumEventId: string;
+    stickerData: Partial<ForumEventSticker> & { _id: string; userId: string };
+    maxStickersPerUser?: number | null;
+  }) {
     await this.ensureFormatMatches({forumEventId, format: FORUM_EVENT_STICKER_VERSION});
 
     // Check if the sticker already exists
@@ -81,6 +85,11 @@ class ForumEventsRepo extends AbstractRepo<"ForumEvents"> {
     const existingSticker = existingStickers.find((sticker) => sticker._id === stickerData._id);
 
     if (existingSticker) {
+      // Verify the sticker belongs to this user
+      if (existingSticker.userId !== stickerData.userId) {
+        throw new Error("Cannot update another user's sticker");
+      }
+
       // Update existing sticker by merging new data
       return this.none(
         `
@@ -103,6 +112,13 @@ class ForumEventsRepo extends AbstractRepo<"ForumEvents"> {
         [stickerData._id, JSON.stringify(stickerData), forumEventId]
       );
     } else {
+      if (maxStickersPerUser !== undefined && maxStickersPerUser !== null) {
+        const userStickerCount = existingStickers.filter(s => s.userId === stickerData.userId).length;
+        if (userStickerCount >= maxStickersPerUser) {
+          throw new Error("You have reached the maximum number of stickers for this event");
+        }
+      }
+
       // Add new sticker
       return this.none(
         `
