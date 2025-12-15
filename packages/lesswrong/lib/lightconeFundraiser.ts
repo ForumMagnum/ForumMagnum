@@ -33,8 +33,9 @@ export const useFundraiserAirtableTotal = () => {
 
 export const useFundraiserProgress = (goalAmount: number) => {
   const airtableTotal = useFundraiserAirtableTotal();
-  const percentage = Math.min((airtableTotal / goalAmount) * 100, 100);
-  return [percentage, airtableTotal];
+  const withMatching = airtableTotal * 1.125
+  const percentage = Math.min((withMatching / goalAmount) * 100, 100);
+  return [percentage, withMatching];
 }
 
 // userful for testing
