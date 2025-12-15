@@ -25633,12 +25633,7 @@ type HighlightWithHash = { __typename?: 'Post', _id: string, contents: Highlight
 
 type PostWithDialogueMessage = { __typename?: 'Post', _id: string, dialogueMessageContents: string | null };
 
-type PostSideComments_Post_sideCommentsCache_SideCommentCache = (
-  { __typename?: 'SideCommentCache' }
-  & SideCommentCacheMinimumInfo
-);
-
-type PostSideComments = { __typename?: 'Post', _id: string, sideComments: any | null, sideCommentsCache: PostSideComments_Post_sideCommentsCache_SideCommentCache | null };
+type PostSideComments = { __typename?: 'Post', _id: string, sideComments: any | null };
 
 type PostWithGeneratedSummary = { __typename?: 'Post', _id: string, languageModelSummary: string | null };
 

@@ -779,7 +779,7 @@ type Documents = {
     "\n  fragment WithVotePost on Post {\n    __typename\n    _id\n    currentUserVote\n    currentUserExtendedVote\n    baseScore\n    extendedScore\n    score\n    afBaseScore\n    afExtendedScore\n    voteCount\n  }\n": typeof types.WithVotePostDoc,
     "\n  fragment HighlightWithHash on Post {\n    _id\n    contents {\n      _id\n      htmlHighlightStartingAtHash(hash: $hash)\n    }\n  }\n": typeof types.HighlightWithHashDoc,
     "\n  fragment PostWithDialogueMessage on Post {\n    _id\n    dialogueMessageContents(dialogueMessageId: $dialogueMessageId)\n  }\n": typeof types.PostWithDialogueMessageDoc,
-    "\n  fragment PostSideComments on Post {\n    _id\n    sideComments\n    sideCommentsCache {\n      ...SideCommentCacheMinimumInfo\n    }\n  }\n": typeof types.PostSideCommentsDoc,
+    "\n  fragment PostSideComments on Post {\n    _id\n    sideComments\n  }\n": typeof types.PostSideCommentsDoc,
     "\n  fragment PostWithGeneratedSummary on Post {\n    _id\n    languageModelSummary\n  }\n": typeof types.PostWithGeneratedSummaryDoc,
     "\n  fragment PostsBestOfList on Post {\n    ...PostsListWithVotes\n    podcastEpisode {\n      _id\n      title\n      podcast {\n        _id\n        title\n        applePodcastLink\n        spotifyPodcastLink\n      }\n      episodeLink\n      externalEpisodeId\n    }\n    socialPreviewData {\n      _id\n      text\n      imageUrl\n    }\n    firstVideoAttribsForPreview\n  }\n": typeof types.PostsBestOfListDoc,
     "\n  fragment PostsRSSFeed on Post {\n    ...PostsPage\n    scoreExceeded2Date\n    scoreExceeded30Date\n    scoreExceeded45Date\n    scoreExceeded75Date\n    scoreExceeded125Date\n    scoreExceeded200Date\n    metaDate\n  }\n": typeof types.PostsRSSFeedDoc,
@@ -1695,7 +1695,7 @@ const documents: Documents = {
     "\n  fragment WithVotePost on Post {\n    __typename\n    _id\n    currentUserVote\n    currentUserExtendedVote\n    baseScore\n    extendedScore\n    score\n    afBaseScore\n    afExtendedScore\n    voteCount\n  }\n": types.WithVotePostDoc,
     "\n  fragment HighlightWithHash on Post {\n    _id\n    contents {\n      _id\n      htmlHighlightStartingAtHash(hash: $hash)\n    }\n  }\n": types.HighlightWithHashDoc,
     "\n  fragment PostWithDialogueMessage on Post {\n    _id\n    dialogueMessageContents(dialogueMessageId: $dialogueMessageId)\n  }\n": types.PostWithDialogueMessageDoc,
-    "\n  fragment PostSideComments on Post {\n    _id\n    sideComments\n    sideCommentsCache {\n      ...SideCommentCacheMinimumInfo\n    }\n  }\n": types.PostSideCommentsDoc,
+    "\n  fragment PostSideComments on Post {\n    _id\n    sideComments\n  }\n": types.PostSideCommentsDoc,
     "\n  fragment PostWithGeneratedSummary on Post {\n    _id\n    languageModelSummary\n  }\n": types.PostWithGeneratedSummaryDoc,
     "\n  fragment PostsBestOfList on Post {\n    ...PostsListWithVotes\n    podcastEpisode {\n      _id\n      title\n      podcast {\n        _id\n        title\n        applePodcastLink\n        spotifyPodcastLink\n      }\n      episodeLink\n      externalEpisodeId\n    }\n    socialPreviewData {\n      _id\n      text\n      imageUrl\n    }\n    firstVideoAttribsForPreview\n  }\n": types.PostsBestOfListDoc,
     "\n  fragment PostsRSSFeed on Post {\n    ...PostsPage\n    scoreExceeded2Date\n    scoreExceeded30Date\n    scoreExceeded45Date\n    scoreExceeded75Date\n    scoreExceeded125Date\n    scoreExceeded200Date\n    metaDate\n  }\n": types.PostsRSSFeedDoc,
@@ -4923,7 +4923,7 @@ export function gql(source: "\n  fragment PostWithDialogueMessage on Post {\n   
 /**
  * The gql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
  */
-export function gql(source: "\n  fragment PostSideComments on Post {\n    _id\n    sideComments\n    sideCommentsCache {\n      ...SideCommentCacheMinimumInfo\n    }\n  }\n"): (typeof documents)["\n  fragment PostSideComments on Post {\n    _id\n    sideComments\n    sideCommentsCache {\n      ...SideCommentCacheMinimumInfo\n    }\n  }\n"];
+export function gql(source: "\n  fragment PostSideComments on Post {\n    _id\n    sideComments\n  }\n"): (typeof documents)["\n  fragment PostSideComments on Post {\n    _id\n    sideComments\n  }\n"];
 /**
  * The gql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
  */

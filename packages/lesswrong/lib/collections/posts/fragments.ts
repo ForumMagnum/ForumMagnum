@@ -775,9 +775,6 @@ export const PostSideComments = gql(`
   fragment PostSideComments on Post {
     _id
     sideComments
-    sideCommentsCache {
-      ...SideCommentCacheMinimumInfo
-    }
   }
 `)
 
