@@ -520,6 +520,7 @@ export const ForumEventsDefaultFragment = `
     pollAgreeWording
     pollDisagreeWording
     maxStickersPerUser
+    stickerRequiresComment
     customComponent
     commentPrompt
     publicData

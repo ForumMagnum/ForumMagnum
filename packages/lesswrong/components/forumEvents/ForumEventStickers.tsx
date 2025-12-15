@@ -83,7 +83,7 @@ const ForumEventStickers: FC<{
   const stickers = Array.isArray(stickerData) ? stickerData : [];
 
   const uniqueUserIds = Array.from(new Set(stickers.map(sticker => sticker.userId).filter(id => id)));
-  const uniqueCommentIds = Array.from(new Set(stickers.map(sticker => sticker.commentId).filter(id => id)));
+  const uniqueCommentIds = Array.from(new Set(stickers.map(sticker => sticker.commentId).filter((id): id is string => !!id)));
 
   const { results: users } = useMulti({
     terms: {
@@ -149,6 +149,11 @@ const ForumEventStickers: FC<{
       RemoveForumEventSticker(forumEventId: $forumEventId, stickerId: $stickerId)
     }
   `);
+  const [addSticker] = useMutation(gql`
+    mutation AddForumEventSticker($forumEventId: String!, $stickerId: String!, $x: Float!, $y: Float!, $theta: Float!, $emoji: String) {
+      AddForumEventSticker(forumEventId: $forumEventId, stickerId: $stickerId, x: $x, y: $y, theta: $theta, emoji: $emoji)
+    }
+  `);
   const {moderateCommentMutation} = useModerateComment({fragmentName: "CommentsList"});
 
   const currentUserStickerCount = stickers.filter(s => s.userId === currentUser?._id).length
@@ -159,6 +164,8 @@ const ForumEventStickers: FC<{
     void refetch?.();
     void refetchComments?.();
   }, [refetch, refetchComments]);
+
+  const stickerRequiresComment = currentForumEvent?.stickerRequiresComment ?? true;
 
   const saveDraftSticker = useCallback(
     async (event: React.MouseEvent) => {
@@ -173,20 +180,43 @@ const ForumEventStickers: FC<{
 
       if (!coords) return;
 
-      if (currentForumEvent.post) {
-        setCommentFormOpen(true);
-      }
-
-      setDraftSticker({
-        _id: randomId(),
+      const stickerId = randomId();
+      const newDraftSticker = {
+        _id: stickerId,
         ...coords,
         theta: hoverTheta,
         emoji: null,
-      });
+      };
 
+      setDraftSticker(newDraftSticker);
+
+      // If comment is not required, save sticker immediately then optionally show comment form
+      if (!stickerRequiresComment) {
+        try {
+          await addSticker({
+            variables: {
+              forumEventId: currentForumEvent._id,
+              stickerId,
+              x: coords.x,
+              y: coords.y,
+              theta: hoverTheta,
+              emoji: null,
+            },
+          });
+        } catch (e) {
+          setDraftSticker(null);
+          // eslint-disable-next-line no-console
+          console.error(e);
+        }
+        void refetch?.()
+      }
+
+      if (currentForumEvent.post) {
+        setCommentFormOpen(true);
+      }
       setMobilePlacingSticker(false);
     },
-    [currentForumEvent, isPlacingSticker, currentUser, normalizeCoords, hoverTheta, onSignup]
+    [currentForumEvent, isPlacingSticker, currentUser, normalizeCoords, hoverTheta, onSignup, stickerRequiresComment, addSticker, refetch]
   );
 
   const onSuccess = useCallback(async () => {
@@ -205,22 +235,24 @@ const ForumEventStickers: FC<{
     if (!sticker) {
       setDraftSticker(null);
     } else {
-      await Promise.all([
-        removeSticker({
-          variables: {
-            forumEventId: currentForumEvent!._id,
-            stickerId: sticker._id,
-          },
-        }),
-        moderateCommentMutation({
+      await removeSticker({
+        variables: {
+          forumEventId: currentForumEvent!._id,
+          stickerId: sticker._id,
+        },
+      });
+
+      // If there's an associated comment, delete it too
+      if (sticker.commentId) {
+        await moderateCommentMutation({
           commentId: sticker.commentId,
           deleted: true,
           deletedPublic: true,
           deletedReason: "",
-        }),
-      ]);
-      await navigator.clipboard.writeText(commentGetPageUrlFromIds({ postId: currentForumEvent.postId, commentId: sticker.commentId, isAbsolute: true }));
-      flash("Sticker and comment deleted. The comment link has been copied to your clipboard in case you want to un–delete it.");
+        });
+        await navigator.clipboard.writeText(commentGetPageUrlFromIds({ postId: currentForumEvent.postId, commentId: sticker.commentId, isAbsolute: true }));
+        flash("Sticker and comment deleted. The comment link has been copied to your clipboard in case you want to un–delete it.");
+      }
 
       await refetch?.();
     }
@@ -324,6 +356,7 @@ const ForumEventStickers: FC<{
           anchorEl={userVoteRef}
           post={currentForumEvent.post}
           prefilledProps={prefilledProps}
+          cancelLabel={stickerRequiresComment ? undefined : "Skip"}
           title={currentForumEvent.commentPrompt ?? "Add your comment"}
           subtitle={(post, comment) => (
             <>

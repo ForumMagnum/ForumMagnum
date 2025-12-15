@@ -118,6 +118,7 @@ const ForumEventCommentForm = ({
   title,
   subtitle,
   successMessage="Comment posted",
+  cancelLabel,
   prefilledProps: extraPrefilledProps,
   className,
   classes,
@@ -133,6 +134,7 @@ const ForumEventCommentForm = ({
   title: ((post: PostsMinimumInfo, comment: ShortformComments | null) => React.ReactNode) | React.ReactNode;
   subtitle: ((post: PostsMinimumInfo, comment: ShortformComments | null) => React.ReactNode) | React.ReactNode;
   successMessage?: string;
+  cancelLabel?: string;
   prefilledProps?: PartialDeep<DbComment>;
   className?: string;
   classes: ClassesType<typeof styles>;
@@ -201,6 +203,7 @@ const ForumEventCommentForm = ({
                 enableGuidelines={false}
                 hideControls
                 cancelCallback={() => cancelCallback()}
+                cancelLabel={cancelLabel}
                 successCallback={onSubmit}
                 prefilledProps={prefilledProps}
                 className={classes.commentForm}

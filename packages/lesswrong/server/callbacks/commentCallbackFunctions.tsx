@@ -115,7 +115,7 @@ const utils = {
    * Run side effects based on the `forumEventMetadata` that is submitted.
    */
   forumEventSideEffects: async ({ comment, forumEventMetadata, context }: { comment: DbComment; forumEventMetadata: ForumEventCommentMetadata; context: ResolverContext; }) => {
-    const { repos } = context;
+    const { repos, loaders } = context;
     if (forumEventMetadata.eventFormat === "STICKERS") {
       const sticker = forumEventMetadata.sticker
 
@@ -125,23 +125,29 @@ const utils = {
 
       const {_id, x, y, theta, emoji} = sticker ?? {};
 
-      if (!sticker || !_id || !x || !y || !theta) {
+      if (!sticker || !_id) {
         throw new Error("Must include sticker")
       }
 
       const forumEventId = comment.forumEventId;
+      const forumEvent = await loaders.ForumEvents.load(forumEventId);
+
       const stickerData = {
         _id,
-        x,
-        y,
-        theta,
-        emoji: emoji ?? null,
+        ...(x !== undefined && { x }),
+        ...(y !== undefined && { y }),
+        ...(theta !== undefined && { theta }),
+        ...(emoji !== undefined && { emoji }),
         commentId: comment._id,
         userId: comment.userId,
       };
 
-      await repos.forumEvents.addSticker({ forumEventId, stickerData });
-      captureEvent("addForumEventSticker", {
+      await repos.forumEvents.upsertSticker({
+        forumEventId,
+        stickerData,
+        maxStickersPerUser: forumEvent?.maxStickersPerUser,
+      });
+      captureEvent("upsertForumEventSticker", {
         forumEventId,
         stickerData,
       });

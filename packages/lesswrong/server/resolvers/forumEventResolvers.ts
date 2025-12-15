@@ -83,6 +83,40 @@ export const forumEventGqlMutations = {
     })
     return true;
   },
+  AddForumEventSticker: async (
+    _root: void,
+    {forumEventId, stickerId, x, y, theta, emoji}: {forumEventId: string, stickerId: string, x: number, y: number, theta: number, emoji?: string},
+    {currentUser, repos, loaders}: ResolverContext,
+  ) => {
+    if (!currentUser) {
+      throw new Error("Permission denied");
+    }
+
+    const forumEvent = await loaders.ForumEvents.load(forumEventId);
+    if (!forumEvent) {
+      throw new Error("Forum event not found");
+    }
+
+    await repos.forumEvents.upsertSticker({
+      forumEventId,
+      stickerData: {
+        _id: stickerId,
+        x,
+        y,
+        theta,
+        emoji: emoji ?? null,
+        userId: currentUser._id,
+      },
+      maxStickersPerUser: forumEvent.maxStickersPerUser,
+    });
+
+    captureEvent("addForumEventSticker", {
+      forumEventId,
+      userId: currentUser._id,
+      stickerId,
+    });
+    return true;
+  },
 }
 
 export const forumEventGqlTypeDefs = gql`
@@ -90,5 +124,6 @@ export const forumEventGqlTypeDefs = gql`
     AddForumEventVote(forumEventId: String!, x: Float!, delta: Float, postIds: [String]): Boolean
     RemoveForumEventVote(forumEventId: String!): Boolean
     RemoveForumEventSticker(forumEventId: String!, stickerId: String!): Boolean
+    AddForumEventSticker(forumEventId: String!, stickerId: String!, x: Float!, y: Float!, theta: Float!, emoji: String): Boolean
   }
 `
