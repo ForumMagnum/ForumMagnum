@@ -4,12 +4,6 @@ import type { WrappedYear } from "./hooks";
 import WrappedSection from "./WrappedSection";
 
 const styles = (theme: ThemeType) => ({
-  background: {
-    backgroundImage: "url(https://res.cloudinary.com/cea/image/upload/q_auto,f_auto,w_800,h_1000,dpr_2,c_auto,g_south_east/wrapped-2025/background)",
-    backgroundRepeat: "no-repeat",
-    backgroundSize: "cover",
-    backgroundPosition: "left bottom",
-  },
   container: {
     flexGrow: 1,
     display: "flex",
@@ -20,7 +14,6 @@ const styles = (theme: ThemeType) => ({
     },
   },
   heading: {
-    flexGrow: 1,
     fontSize: 54,
     fontFamily: theme.palette.wrapped.fontFamily,
     fontWeight: 400,
@@ -29,6 +22,9 @@ const styles = (theme: ThemeType) => ({
     textAlign: "left",
     marginTop: 0,
     wordBreak: "break-word",
+    [theme.breakpoints.down("sm")]: {
+      flexGrow: 1,
+    },
   },
   wrapped: {
     color: theme.palette.wrapped.highlightText,
@@ -49,11 +45,7 @@ const WrappedWelcomeMessage = ({currentUser, year, children, classes}: {
   classes: ClassesType<typeof styles>,
 }) => {
   return (
-    <WrappedSection
-      pageSectionContext="top"
-      align="left"
-      className={classes.background}
-    >
+    <WrappedSection pageSectionContext="top" align="left">
       <div className={classes.container}>
         <h1 className={classes.heading}>
           Hi {currentUser.displayName}, this is your {year} EA Forum{" "}

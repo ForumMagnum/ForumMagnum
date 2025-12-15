@@ -121,9 +121,10 @@ const styles = (theme: ThemeType) => ({
     },
   },
   stat: {
+    fontFamily: theme.palette.wrapped.fontFamily,
     fontSize: 22,
     lineHeight: "22px",
-    fontWeight: 700,
+    fontWeight: 400,
     letterSpacing: "-0.48px",
     [theme.breakpoints.up("md")]: {
       fontSize: 32,
@@ -249,7 +250,7 @@ const WrappedSummarySection = ({classes}: {
           </div>
           <div className={classes.info}>
             <div>
-              <div className={classes.heading}>EA Forum personality</div>
+              <div className={classes.heading}>EA Forum personality {year}</div>
               <div className={classes.personality}>{personality}</div>
             </div>
             <div className={classes.row}>

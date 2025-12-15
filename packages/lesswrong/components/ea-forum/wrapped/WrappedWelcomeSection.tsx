@@ -18,7 +18,6 @@ const styles = (theme: ThemeType) => ({
     fontWeight: 500,
     padding: "12px 24px",
     borderRadius: theme.borderRadius.default,
-    width: "100%",
     transition: "all ease-in-out 0.2s",
     "&:hover": {
       color: theme.palette.text.alwaysBlack,
@@ -31,6 +30,9 @@ const styles = (theme: ThemeType) => ({
       transition: "all ease-in-out 0.2s",
       width: 15,
       height: 15,
+    },
+    [theme.breakpoints.down("sm")]: {
+      width: "100%",
     },
   },
 });

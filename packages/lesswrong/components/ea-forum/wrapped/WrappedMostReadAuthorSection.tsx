@@ -20,7 +20,7 @@ const styles = (theme: ThemeType) => ({
   author: {
     display: "flex",
     gap: "16px",
-    background: theme.palette.wrapped.panelBackground,
+    background: theme.palette.wrapped.black,
     fontSize: 14,
     fontWeight: 400,
     lineHeight: "20px",

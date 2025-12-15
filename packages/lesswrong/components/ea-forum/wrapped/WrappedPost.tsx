@@ -17,7 +17,7 @@ const styles = (theme: ThemeType) => ({
     gap: "12px",
     width: "100%",
     minHeight: 50,
-    background: theme.palette.wrapped.panelBackground,
+    background: theme.palette.wrapped.black,
     color: theme.palette.text.alwaysWhite,
     fontSize: 14,
     lineHeight: "normal",
@@ -148,5 +148,3 @@ export default registerComponent(
   WrappedPost,
   {styles},
 );
-
-

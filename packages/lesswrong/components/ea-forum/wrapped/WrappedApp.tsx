@@ -1,5 +1,6 @@
 import React, { useEffect } from "react";
 import { registerComponent } from "@/lib/vulcan-lib/components";
+import { makeCloudinaryImageUrl } from "@/components/common/CloudinaryImage2";
 import { useForumWrappedContext } from "./hooks";
 import { getWrappedVideo } from "./videos";
 import { Helmet } from "@/lib/utils/componentsWithChildren";
@@ -12,6 +13,12 @@ const styles = (theme: ThemeType) => ({
   root: {
     width: "100%",
     height: "100%",
+  },
+  background: {
+    backgroundImage: `url(${makeCloudinaryImageUrl("wrapped-2025/bg", {g: "south"})})`,
+    backgroundRepeat: "no-repeat",
+    backgroundSize: "cover",
+    backgroundPosition: "center bottom",
   },
   app: {
     position: "relative",
@@ -85,6 +92,7 @@ const WrappedApp = ({classes}: {
     goToPreviousSection,
     goToNextSection,
     CurrentSection,
+    plainBackground,
     thinkingVideoRef,
     personalityVideoRef,
   } = useForumWrappedContext();
@@ -107,7 +115,10 @@ const WrappedApp = ({classes}: {
   const thinkingVideo = getWrappedVideo("thinking");
   const personalityVideo = getWrappedVideo(personality);
   return (
-    <div className={classes.root}>
+    <div className={classNames(
+      classes.root,
+      !plainBackground && classes.background,
+    )}>
       <Helmet>
         <link rel="prefetch" href={personalityVideo.frame} crossOrigin="anonymous" />
       </Helmet>

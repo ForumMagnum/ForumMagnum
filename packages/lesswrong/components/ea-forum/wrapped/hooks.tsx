@@ -220,7 +220,12 @@ export const useForumWrapped = ({ userId, year }: { userId?: string | null; year
 
 type WrappedSection = {
   component: ComponentType,
-  predicate?: (data: WrappedDataByYear, currentUser: UsersCurrent) => boolean,
+  plainBackground?: boolean,
+  predicate?: (
+    data: WrappedDataByYear,
+    mostValuablePosts: PostsListWithVotes[],
+    currentUser: UsersCurrent,
+  ) => boolean,
 };
 
 const getAllSections = (): WrappedSection[] => ([
@@ -247,7 +252,7 @@ const getAllSections = (): WrappedSection[] => ([
   },
   {
     component: WrappedThankAuthorSection,
-    predicate: (data, currentUser) => {
+    predicate: (data, _mostValuablePosts, currentUser) => {
       const {
         topAuthorByEngagementPercentile,
         topAuthorPercentByEngagementPercentile,
@@ -257,7 +262,10 @@ const getAllSections = (): WrappedSection[] => ([
         userCanStartConversations(currentUser);
     },
   },
-  {component: WrappedPersonalitySection},
+  {
+    component: WrappedPersonalitySection,
+    plainBackground: true,
+  },
   {
     component: WrappedTopPostSection,
     predicate: (data) =>
@@ -288,7 +296,10 @@ const getAllSections = (): WrappedSection[] => ([
   {component: WrappedThankYouSection},
   {component: WrappedSummarySection},
   {component: WrappedRecommendationsSection},
-  {component: WrappedMostValuablePostsSection},
+  {
+    component: WrappedMostValuablePostsSection,
+    predicate: (_data, mostValuablePosts) => mostValuablePosts.length > 0,
+  },
 ]);
 
 type ForumWrappedContext = {
@@ -297,6 +308,7 @@ type ForumWrappedContext = {
   currentUser: UsersCurrent,
   totalSections: number,
   currentSection: number,
+  plainBackground: boolean,
   goToPreviousSection: () => void,
   goToNextSection: () => void,
   CurrentSection: ComponentType,
@@ -338,28 +350,6 @@ export const ForumWrappedProvider = ({
   currentUser: UsersCurrent,
   children: ReactNode,
 }) => {
-  const [currentSection, setCurrentSection] = useState(0);
-
-  const sections = getAllSections().filter((section) => {
-    return section.predicate ? section.predicate(data, currentUser) : true;
-  });
-
-  const lastSectionIndex = sections.length - 1;
-  const goToPreviousSection = useCallback(() => {
-    setCurrentSection((current) => Math.max(current - 1, 0));
-  }, []);
-  const goToNextSection = useCallback(() => {
-    setCurrentSection((current) => Math.min(current + 1, lastSectionIndex));
-  }, [lastSectionIndex]);
-
-  const {recommendations} = useRecommendations({
-    algorithm: {
-      strategy: {name: "wrapped", year, postId: ""},
-      count: 5,
-    },
-    ssr: false,
-  });
-
   const bigUpvotePostIds = useVotes(year, "bigUpvote");
   const smallUpvotePostIds = useVotes(year, "smallUpvote");
 
@@ -378,6 +368,30 @@ export const ForumWrappedProvider = ({
     itemsPerPage: 40,
   });
 
+  const [currentSection, setCurrentSection] = useState(0);
+
+  const sections = getAllSections().filter((section) => {
+    return section.predicate
+      ? section.predicate(data, mostValuablePosts, currentUser)
+      : true;
+  });
+
+  const lastSectionIndex = sections.length - 1;
+  const goToPreviousSection = useCallback(() => {
+    setCurrentSection((current) => Math.max(current - 1, 0));
+  }, []);
+  const goToNextSection = useCallback(() => {
+    setCurrentSection((current) => Math.min(current + 1, lastSectionIndex));
+  }, [lastSectionIndex]);
+
+  const {recommendations} = useRecommendations({
+    algorithm: {
+      strategy: {name: "wrapped", year, postId: ""},
+      count: 5,
+    },
+    ssr: false,
+  });
+
   const thinkingVideoRef = useRef<HTMLVideoElement>(null);
   const personalityVideoRef = useRef<HTMLVideoElement>(null);
 
@@ -391,6 +405,7 @@ export const ForumWrappedProvider = ({
       goToPreviousSection,
       goToNextSection,
       CurrentSection: sections[currentSection].component,
+      plainBackground: sections[currentSection].plainBackground ?? false,
       recommendations: recommendations ?? [],
       mostValuablePosts,
       mostValuablePostsLoading,
