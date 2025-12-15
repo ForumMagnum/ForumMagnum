@@ -35,7 +35,7 @@ async function fetchAirtableDonationRecords(): Promise<number> {
   const data = await response.json();
   const records: AnyBecauseIsInput[] = data.records ?? [];
 
-  const recordsWithAmount = records.map((record: AnyBecauseIsInput) => ({...record, amount: parseInt(record.fields["Amount"])}));
+  const recordsWithAmount = records.map((record: AnyBecauseIsInput) => ({...record, amount: parseInt(record.fields["Amount"] ?? 0)}));
 
   const incompleteEveryorg = recordsWithAmount.filter((record: AnyBecauseIsInput) => record.fields["Platform"] === "Every.org (Incomplete)");
   const completeEveryorg = recordsWithAmount.filter((record: AnyBecauseIsInput) => record.fields["Platform"] === "Every.org");
