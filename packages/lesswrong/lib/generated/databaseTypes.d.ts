@@ -558,6 +558,7 @@ interface DbForumEvent extends DbObject {
   postPageDescription_latest: string | null
   publicData: any | null
   startDate: Date
+  stickerRequiresComment: boolean
   tagId: string | null
   title: string
 }

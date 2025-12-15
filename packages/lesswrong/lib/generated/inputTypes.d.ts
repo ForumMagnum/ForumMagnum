@@ -1935,6 +1935,7 @@ interface ForumEvent {
   pollAgreeWording: string | null;
   pollDisagreeWording: string | null;
   maxStickersPerUser: number;
+  stickerRequiresComment: boolean;
   customComponent: string | null;
   commentPrompt: string | null;
   publicData: any;
@@ -4850,6 +4851,7 @@ interface CreateForumEventDataInput {
   pollAgreeWording?: string | null;
   pollDisagreeWording?: string | null;
   maxStickersPerUser?: number | null;
+  stickerRequiresComment?: boolean | null;
   customComponent?: string | null;
   commentPrompt?: string | null;
   publicData?: any;
@@ -4883,6 +4885,7 @@ interface UpdateForumEventDataInput {
   pollAgreeWording?: string | null;
   pollDisagreeWording?: string | null;
   maxStickersPerUser?: number | null;
+  stickerRequiresComment?: boolean | null;
   customComponent?: string | null;
   commentPrompt?: string | null;
   publicData?: any;

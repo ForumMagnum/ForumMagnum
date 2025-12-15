@@ -14,7 +14,7 @@ export type ForumEventStickerInput = {
 }
 
 export type ForumEventSticker = ForumEventStickerInput & {
-  commentId: string;
+  commentId?: string;
   userId: string;
 }
 

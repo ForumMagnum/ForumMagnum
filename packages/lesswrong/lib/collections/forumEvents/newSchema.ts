@@ -396,6 +396,24 @@ const schema = {
       },
     },
   },
+  stickerRequiresComment: {
+    database: {
+      type: "BOOL",
+      defaultValue: true,
+      canAutofillDefault: true,
+      nullable: false,
+    },
+    graphql: {
+      outputType: "Boolean!",
+      inputType: "Boolean",
+      canRead: ["guests"],
+      canUpdate: ["members"],
+      canCreate: ["members"],
+      validation: {
+        optional: true,
+      },
+    },
+  },
   customComponent: {
     database: {
       type: "TEXT",

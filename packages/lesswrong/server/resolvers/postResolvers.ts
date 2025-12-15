@@ -3,11 +3,8 @@ import { accessFilterMultiple } from '../../lib/utils/schemaUtils';
 import { canUserEditPostMetadata, extractGoogleDocId } from '../../lib/collections/posts/helpers';
 import { buildRevision } from '../editor/conversionUtils';
 import { isAF, twitterBotKarmaThresholdSetting } from '../../lib/instanceSettings';
-import { drive } from "@googleapis/drive";
 import { randomId } from '../../lib/random';
 import { getLatestRev, getNextVersion, htmlToChangeMetrics } from '../editor/utils';
-import { canAccessGoogleDoc, getGoogleDocImportOAuthClient } from '../posts/googleDocImport';
-import { GoogleDocMetadata } from '../collections/revisions/helpers';
 import { recombeeApi, recombeeRequestHelpers } from '../recombee/client';
 import { RecommendedPost } from '@/lib/recombee/types';
 import { HybridRecombeeConfiguration, RecombeeRecommendationArgs } from '../../lib/collections/users/recommendationSettings';
@@ -303,13 +300,19 @@ export const postGqlQueries = {
       }
     })
   },
+  /**
+   * Legacy query for old client bundles during switchover to new public-docs-only approach.
+   * Returns true if a valid Google Doc ID can be extracted from the URL. If the doc is not
+   * actually public is will fail when they try to import, but it at least won't throw an unhandled error.
+   */
   async CanAccessGoogleDoc(root: void, { fileUrl }: { fileUrl: string }, context: ResolverContext) {
     const { currentUser } = context
     if (!currentUser) {
       return null;
     }
 
-    return canAccessGoogleDoc(fileUrl)
+    const fileId = extractGoogleDocId(fileUrl);
+    return !!fileId;
   },
   ...DigestHighlightsQuery,
   ...DigestPostsThisWeekQuery,
@@ -353,33 +356,43 @@ export const postGqlMutations = {
       }
     }
 
-    const oauth2Client = await getGoogleDocImportOAuthClient();
+    // Fetch the HTML directly from the public export URL
+    const exportUrl = `https://docs.google.com/document/d/${fileId}/export?format=html`;
 
-    const googleDrive = drive({
-      version: "v3",
-      auth: oauth2Client,
-    });
+    let html: string;
 
-    // Retrieve the file's metadata to get the name
-    const fileMetadata = await googleDrive.files.get({
-      fileId,
-      fields: 'id, name, description, version, createdTime, modifiedTime, size'
-    });
+    try {
+      const response = await fetch(exportUrl, {
+        signal: AbortSignal.timeout(30000),
+        headers: {
+          'User-Agent': 'Mozilla/5.0 (compatible; ForumMagnum/1.0)'
+        }
+      });
 
-    const docMetadata = fileMetadata.data as GoogleDocMetadata;
+      if (!response.ok) {
+        if (response.status === 404) {
+          throw new Error("Document not found. Please ensure the document exists and is publicly accessible (set to 'Anyone with the link can view')");
+        } else if (response.status === 403 || response.status === 401) {
+          throw new Error("Access denied. Please ensure the document is publicly accessible (set to 'Anyone with the link can view')");
+        } else {
+          throw new Error(`Failed to fetch document: HTTP ${response.status}`);
+        }
+      }
 
-    const fileContents = await googleDrive.files.export(
-      {
-        fileId,
-        mimeType: "text/html",
-      },
-      { responseType: "text" }
-    );
+      html = await response.text();
 
-    const html = fileContents.data as string;
-
-    if (!html || !docMetadata) {
-      throw new Error("Unable to import google doc")
+      if (!html || html.length === 0) {
+        throw new Error("Received empty HTML from Google Docs");
+      }
+    } catch (error: any) {
+      if (error.name === 'TimeoutError' || error.code === 'ETIMEDOUT') {
+        throw new Error("Request timed out while fetching document. Please try again.");
+      }
+      // Re-throw if it's already a formatted error message
+      if (error.message) {
+        throw error;
+      }
+      throw new Error(`Failed to import Google Doc: ${error}`);
     }
 
     const finalPostId = postId ?? randomId()
@@ -387,7 +400,7 @@ export const postGqlMutations = {
     // the result, so we always want to do this first before converting to whatever format the user
     // is using
     const ckEditorMarkup = await convertImportedGoogleDoc({ html, postId: finalPostId })
-    const commitMessage = `[Google Doc import] Last modified: ${docMetadata.modifiedTime}, Name: "${docMetadata.name}"`
+    const commitMessage = `[Google Doc import]`
     const originalContents = {type: "ckEditorMarkup", data: ckEditorMarkup}
 
     if (postId) {
@@ -419,7 +432,6 @@ export const postGqlMutations = {
         updateType: revisionType,
         commitMessage,
         changeMetrics,
-        googleDocMetadata: docMetadata
       };
 
       await createRevision({ data: newRevision }, context);
@@ -438,14 +450,13 @@ export const postGqlMutations = {
         data: {
           _id: finalPostId,
           userId: currentUser._id,
-          title: docMetadata.name,
+          title: 'Untitled Draft',
           ...({
             // Contents is a resolver only field, but there is handling for it
             // in `createMutator`/`updateMutator`
             contents: {
               originalContents,
               commitMessage,
-              googleDocMetadata: docMetadata
             },
           }),
           draft: true,

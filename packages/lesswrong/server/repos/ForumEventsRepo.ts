@@ -62,7 +62,14 @@ class ForumEventsRepo extends AbstractRepo<"ForumEvents"> {
     }
   }
 
-  async addSticker({ forumEventId, stickerData }: { forumEventId: string; stickerData: ForumEventSticker; }) {
+  /**
+   * Upsert a sticker. If it exists (by _id), merge the new data, otherwise create it.
+   */
+  async upsertSticker({ forumEventId, stickerData, maxStickersPerUser }: {
+    forumEventId: string;
+    stickerData: Partial<ForumEventSticker> & { _id: string; userId: string };
+    maxStickersPerUser?: number | null;
+  }) {
     await this.ensureFormatMatches({forumEventId, format: FORUM_EVENT_STICKER_VERSION});
 
     // Check if the sticker already exists
@@ -75,25 +82,58 @@ class ForumEventsRepo extends AbstractRepo<"ForumEvents"> {
       [forumEventId]
     ))?.stickers ?? [];
 
-    const stickerExists = existingStickers.some((sticker) => sticker._id === stickerData._id);
+    const existingSticker = existingStickers.find((sticker) => sticker._id === stickerData._id);
 
-    if (stickerExists) {
-      throw new Error(`Sticker with _id ${stickerData._id} already exists.`);
+    if (existingSticker) {
+      // Verify the sticker belongs to this user
+      if (existingSticker.userId !== stickerData.userId) {
+        throw new Error("Cannot update another user's sticker");
+      }
+
+      // Update existing sticker by merging new data
+      return this.none(
+        `
+        -- ForumEventsRepo.upsertSticker (update)
+        UPDATE "ForumEvents"
+        SET "publicData" = jsonb_set(
+          "publicData",
+          '{data}',
+          (SELECT jsonb_agg(
+            CASE 
+              WHEN elem->>'_id' = $1
+              THEN elem || $2::jsonb
+              ELSE elem
+            END
+          )
+          FROM jsonb_array_elements("publicData"->'data') elem)
+        )
+        WHERE "_id" = $3
+        `,
+        [stickerData._id, JSON.stringify(stickerData), forumEventId]
+      );
+    } else {
+      if (maxStickersPerUser !== undefined && maxStickersPerUser !== null) {
+        const userStickerCount = existingStickers.filter(s => s.userId === stickerData.userId).length;
+        if (userStickerCount >= maxStickersPerUser) {
+          throw new Error("You have reached the maximum number of stickers for this event");
+        }
+      }
+
+      // Add new sticker
+      return this.none(
+        `
+        -- ForumEventsRepo.upsertSticker (insert)
+        UPDATE "ForumEvents"
+        SET "publicData" = fm_add_to_set(
+          "publicData",
+          ARRAY['data'],
+          $1::jsonb
+        )
+        WHERE "_id" = $2
+        `,
+        [JSON.stringify(stickerData), forumEventId]
+      );
     }
-
-    return this.none(
-      `
-      -- ForumEventsRepo.addSticker
-      UPDATE "ForumEvents"
-      SET "publicData" = fm_add_to_set(
-        "publicData",
-        ARRAY['data'],
-        $1::jsonb
-      )
-      WHERE "_id" = $2
-      `,
-      [JSON.stringify(stickerData), forumEventId]
-    );
   }
 
   async removeSticker({ forumEventId, stickerId, userId }: { forumEventId: string; stickerId: string; userId: string }) {
