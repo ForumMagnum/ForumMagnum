@@ -1372,7 +1372,7 @@ class PostsRepo extends AbstractRepo<"Posts"> {
   ): Promise<number> {
     const result = await this.getRawDb().oneOrNone<{firstCommentCount: number}>(`
       -- CommentsRepo.countPostsWhereIsFirstCommenter
-      SELECT COUNT(*) AS first_comment_count
+      SELECT COUNT(*) AS "firstCommentCount"
       FROM "Comments" c
       JOIN (
         SELECT "postId", MIN("postedAt") AS "minPostedAt"
