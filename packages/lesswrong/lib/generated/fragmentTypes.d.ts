@@ -1057,6 +1057,7 @@ interface ForumEventsDefaultFragment { // fragment on ForumEvents
   readonly pollAgreeWording: string|null,
   readonly pollDisagreeWording: string|null,
   readonly maxStickersPerUser: number,
+  readonly stickerRequiresComment: boolean,
   readonly customComponent: string|null,
   readonly commentPrompt: string|null,
   readonly publicData: any,
@@ -1122,6 +1123,7 @@ interface ForumEventsMinimumInfo { // fragment on ForumEvents
   readonly pollAgreeWording: string|null,
   readonly pollDisagreeWording: string|null,
   readonly maxStickersPerUser: number,
+  readonly stickerRequiresComment: boolean,
 }
 
 interface GardenCodeFragment { // fragment on GardenCodes

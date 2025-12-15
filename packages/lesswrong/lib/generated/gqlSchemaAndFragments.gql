@@ -1111,6 +1111,8 @@ extend type Mutation {
   AddForumEventVote(forumEventId: String!, x: Float!, delta: Float, postIds: [String]): Boolean
   RemoveForumEventVote(forumEventId: String!): Boolean
   RemoveForumEventSticker(forumEventId: String!, stickerId: String!): Boolean
+  AddForumEventSticker(forumEventId: String!, stickerId: String!, x: Float!, y: Float!, theta: Float!, emoji: String): Boolean
+  UpdateForumEventStickerComment(forumEventId: String!, stickerId: String!, commentId: String!): Boolean
 }
 
 type KeywordAlert {
@@ -2528,6 +2530,7 @@ type ForumEvent {
   pollAgreeWording: String
   pollDisagreeWording: String
   maxStickersPerUser: Float!
+  stickerRequiresComment: Boolean!
   customComponent: String
   commentPrompt: String
   publicData: JSON
@@ -5719,6 +5722,7 @@ input CreateForumEventDataInput {
   pollAgreeWording: String
   pollDisagreeWording: String
   maxStickersPerUser: Float
+  stickerRequiresComment: Boolean
   customComponent: String
   commentPrompt: String
   publicData: JSON
@@ -5752,6 +5756,7 @@ input UpdateForumEventDataInput {
   pollAgreeWording: String
   pollDisagreeWording: String
   maxStickersPerUser: Float
+  stickerRequiresComment: Boolean
   customComponent: String
   commentPrompt: String
   publicData: JSON
@@ -8637,6 +8642,7 @@ fragment ForumEventsDefaultFragment on ForumEvent {
   pollAgreeWording
   pollDisagreeWording
   maxStickersPerUser
+  stickerRequiresComment
   customComponent
   commentPrompt
   publicData
@@ -8711,6 +8717,7 @@ fragment ForumEventsMinimumInfo on ForumEvent {
   pollDisagreeWording
 
   maxStickersPerUser
+  stickerRequiresComment
 }
 
 fragment GardenCodeFragment on GardenCode {

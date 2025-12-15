@@ -115,6 +115,31 @@ class ForumEventsRepo extends AbstractRepo<"ForumEvents"> {
       [stickerId, userId, forumEventId]
     );
   }
+
+  async updateStickerComment({ forumEventId, stickerId, commentId, userId }: { forumEventId: string; stickerId: string; commentId: string; userId: string }) {
+    await this.ensureFormatMatches({forumEventId, format: FORUM_EVENT_STICKER_VERSION});
+
+    return this.none(
+      `
+      -- ForumEventsRepo.updateStickerComment
+      UPDATE "ForumEvents"
+      SET "publicData" = jsonb_set(
+        "publicData",
+        '{data}',
+        (SELECT jsonb_agg(
+          CASE 
+            WHEN elem->>'_id' = $1 AND elem->>'userId' = $3
+            THEN elem || jsonb_build_object('commentId', $2)
+            ELSE elem
+          END
+        )
+        FROM jsonb_array_elements("publicData"->'data') elem)
+      )
+      WHERE "_id" = $4
+      `,
+      [stickerId, commentId, userId, forumEventId]
+    );
+  }
 }
 
 recordPerfMetrics(ForumEventsRepo);

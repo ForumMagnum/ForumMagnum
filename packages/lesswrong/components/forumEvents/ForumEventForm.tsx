@@ -431,6 +431,16 @@ const InnerForumEventForm = ({
             )}
           </form.Field>
         </div>
+        <div className={classes.fieldWrapper}>
+          <form.Field name="stickerRequiresComment">
+            {(field) => (
+              <FormComponentCheckbox
+                field={field}
+                label="Sticker requires comment"
+              />
+            )}
+          </form.Field>
+        </div>
       </LegacyFormGroupLayout >
 
       < div className="form-submit" >

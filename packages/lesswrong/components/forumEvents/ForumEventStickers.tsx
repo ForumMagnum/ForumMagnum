@@ -15,7 +15,6 @@ import type { ForumEventStickerInput, ForumEventStickerData } from "@/lib/collec
 import { randomId } from "@/lib/random";
 import keyBy from "lodash/keyBy";
 import { useModerateComment } from "../dropdowns/comments/withModerateComment";
-import { useMessages } from "../common/withMessages";
 import ForumEventCommentForm from "./ForumEventCommentForm";
 import ForumEventSticker from "./ForumEventSticker";
 import type { ForumIconName } from "../common/ForumIcon";
@@ -74,7 +73,6 @@ const ForumEventStickers: FC<{
   const { currentForumEvent, refetch } = useCurrentAndRecentForumEvents();
   const { onSignup } = useLoginPopoverContext();
   const currentUser = useCurrentUser();
-  const { flash } = useMessages();
 
   const isDesktop = useIsAboveBreakpoint("sm");
   const [mobilePlacingSticker, setMobilePlacingSticker] = useState(false)
@@ -83,7 +81,7 @@ const ForumEventStickers: FC<{
   const stickers = Array.isArray(stickerData) ? stickerData : [];
 
   const uniqueUserIds = Array.from(new Set(stickers.map(sticker => sticker.userId).filter(id => id)));
-  const uniqueCommentIds = Array.from(new Set(stickers.map(sticker => sticker.commentId).filter(id => id)));
+  const uniqueCommentIds = Array.from(new Set(stickers.map(sticker => sticker.commentId).filter((id): id is string => !!id)));
 
   const { results: users } = useMulti({
     terms: {
@@ -149,7 +147,15 @@ const ForumEventStickers: FC<{
       RemoveForumEventSticker(forumEventId: $forumEventId, stickerId: $stickerId)
     }
   `);
+  const [addSticker] = useMutation(gql`
+    mutation AddForumEventSticker($forumEventId: String!, $stickerId: String!, $x: Float!, $y: Float!, $theta: Float!, $emoji: String) {
+      AddForumEventSticker(forumEventId: $forumEventId, stickerId: $stickerId, x: $x, y: $y, theta: $theta, emoji: $emoji)
+    }
+  `);
   const {moderateCommentMutation} = useModerateComment({fragmentName: "CommentsList"});
+  
+  // Track the sticker ID when we save it before showing the comment form
+  const [savedStickerId, setSavedStickerId] = useState<string | null>(null);
 
   const currentUserStickerCount = stickers.filter(s => s.userId === currentUser?._id).length
   const allowAddingSticker = currentUserStickerCount < (currentForumEvent?.maxStickersPerUser ?? 0)
@@ -159,6 +165,8 @@ const ForumEventStickers: FC<{
     void refetch?.();
     void refetchComments?.();
   }, [refetch, refetchComments]);
+
+  const stickerRequiresComment = currentForumEvent?.stickerRequiresComment ?? true;
 
   const saveDraftSticker = useCallback(
     async (event: React.MouseEvent) => {
@@ -173,12 +181,46 @@ const ForumEventStickers: FC<{
 
       if (!coords) return;
 
+      const stickerId = randomId();
+
+      // If comment is not required, save sticker immediately then optionally show comment form
+      if (!stickerRequiresComment) {
+        // Set draft sticker for the anchor element, then save in background
+        setDraftSticker({
+          _id: stickerId,
+          ...coords,
+          theta: hoverTheta,
+          emoji: null,
+        });
+        setSavedStickerId(stickerId);
+        
+        // Save sticker (don't await - let it happen in background)
+        void addSticker({
+          variables: {
+            forumEventId: currentForumEvent._id,
+            stickerId,
+            x: coords.x,
+            y: coords.y,
+            theta: hoverTheta,
+            emoji: null,
+          },
+        }).then(() => refetch?.());
+        
+        // Show comment form if there's a post
+        if (currentForumEvent.post) {
+          setCommentFormOpen(true);
+        }
+        setMobilePlacingSticker(false);
+        return;
+      }
+
+      // Otherwise, show draft sticker and open comment form (original behavior)
       if (currentForumEvent.post) {
         setCommentFormOpen(true);
       }
 
       setDraftSticker({
-        _id: randomId(),
+        _id: stickerId,
         ...coords,
         theta: hoverTheta,
         emoji: null,
@@ -186,7 +228,7 @@ const ForumEventStickers: FC<{
 
       setMobilePlacingSticker(false);
     },
-    [currentForumEvent, isPlacingSticker, currentUser, normalizeCoords, hoverTheta, onSignup]
+    [currentForumEvent, isPlacingSticker, currentUser, normalizeCoords, hoverTheta, onSignup, stickerRequiresComment, addSticker, refetch]
   );
 
   const onSuccess = useCallback(async () => {
@@ -197,6 +239,7 @@ const ForumEventStickers: FC<{
     void refetchAll();
     setDraftSticker(null);
     setCommentFormOpen(false);
+    setSavedStickerId(null);
   }, [currentForumEvent, refetchAll]);
 
   const clearSticker = useCallback(async (sticker: typeof stickers[number] | null) => {
@@ -204,32 +247,34 @@ const ForumEventStickers: FC<{
 
     if (!sticker) {
       setDraftSticker(null);
+      setSavedStickerId(null);
     } else {
-      await Promise.all([
-        removeSticker({
-          variables: {
-            forumEventId: currentForumEvent!._id,
-            stickerId: sticker._id,
-          },
-        }),
-        moderateCommentMutation({
+      await removeSticker({
+        variables: {
+          forumEventId: currentForumEvent!._id,
+          stickerId: sticker._id,
+        },
+      });
+
+      // If there's an associated comment, delete it too
+      if (sticker.commentId) {
+        await moderateCommentMutation({
           commentId: sticker.commentId,
           deleted: true,
           deletedPublic: true,
           deletedReason: "",
-        }),
-      ]);
-      await navigator.clipboard.writeText(commentGetPageUrlFromIds({ postId: currentForumEvent.postId, commentId: sticker.commentId, isAbsolute: true }));
-      flash("Sticker and comment deleted. The comment link has been copied to your clipboard in case you want to un–delete it.");
+        });
+      }
 
       await refetch?.();
     }
 
-  }, [currentForumEvent, flash, moderateCommentMutation, refetch, removeSticker])
+  }, [currentForumEvent, moderateCommentMutation, refetch, removeSticker])
 
   const onCloseCommentForm = useCallback(async () => {
     setCommentFormOpen(false);
     setDraftSticker(null);
+    setSavedStickerId(null);
   }, [])
 
   const setEmoji = useCallback((emoji: string) => {
@@ -256,10 +301,12 @@ const ForumEventStickers: FC<{
     setHoverPos(null);
   }, [isPlacingSticker]);
 
+  // When savedStickerId is set, the sticker was already saved directly,
+  // so only include the _id (backend will link instead of create)
   const prefilledProps: Partial<DbComment> = {
     forumEventMetadata: {
       eventFormat: "STICKERS",
-      sticker: draftSticker,
+      sticker: savedStickerId ? { _id: savedStickerId } : draftSticker,
       poll: null
     },
   };

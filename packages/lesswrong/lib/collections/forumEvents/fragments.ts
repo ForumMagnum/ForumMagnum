@@ -24,6 +24,7 @@ export const ForumEventsMinimumInfo = () => frag`
     pollDisagreeWording
 
     maxStickersPerUser
+    stickerRequiresComment
   }
 `
 

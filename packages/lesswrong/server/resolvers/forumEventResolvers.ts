@@ -83,6 +83,70 @@ export const forumEventGqlMutations = {
     })
     return true;
   },
+  AddForumEventSticker: async (
+    _root: void,
+    {forumEventId, stickerId, x, y, theta, emoji}: {forumEventId: string, stickerId: string, x: number, y: number, theta: number, emoji?: string},
+    {currentUser, repos, loaders}: ResolverContext,
+  ) => {
+    if (!currentUser) {
+      throw new Error("Permission denied");
+    }
+
+    const forumEvent = await loaders.ForumEvents.load(forumEventId);
+    if (!forumEvent) {
+      throw new Error("Forum event not found");
+    }
+
+    // Check sticker limit
+    const stickerData = (forumEvent.publicData as any)?.data ?? [];
+    const userStickerCount = stickerData.filter((s: any) => s.userId === currentUser._id).length;
+    if (userStickerCount >= (forumEvent.maxStickersPerUser ?? 0)) {
+      throw new Error("You have reached the maximum number of stickers for this event");
+    }
+
+    await repos.forumEvents.addSticker({
+      forumEventId,
+      stickerData: {
+        _id: stickerId,
+        x,
+        y,
+        theta,
+        emoji: emoji ?? null,
+        userId: currentUser._id,
+      }
+    });
+
+    captureEvent("addForumEventSticker", {
+      forumEventId,
+      userId: currentUser._id,
+      stickerId,
+    });
+    return true;
+  },
+  UpdateForumEventStickerComment: async (
+    _root: void,
+    {forumEventId, stickerId, commentId}: {forumEventId: string, stickerId: string, commentId: string},
+    {currentUser, repos}: ResolverContext,
+  ) => {
+    if (!currentUser) {
+      throw new Error("Permission denied");
+    }
+
+    await repos.forumEvents.updateStickerComment({
+      forumEventId,
+      stickerId,
+      commentId,
+      userId: currentUser._id,
+    });
+
+    captureEvent("updateForumEventStickerComment", {
+      forumEventId,
+      userId: currentUser._id,
+      stickerId,
+      commentId,
+    });
+    return true;
+  },
 }
 
 export const forumEventGqlTypeDefs = gql`
@@ -90,5 +154,7 @@ export const forumEventGqlTypeDefs = gql`
     AddForumEventVote(forumEventId: String!, x: Float!, delta: Float, postIds: [String]): Boolean
     RemoveForumEventVote(forumEventId: String!): Boolean
     RemoveForumEventSticker(forumEventId: String!, stickerId: String!): Boolean
+    AddForumEventSticker(forumEventId: String!, stickerId: String!, x: Float!, y: Float!, theta: Float!, emoji: String): Boolean
+    UpdateForumEventStickerComment(forumEventId: String!, stickerId: String!, commentId: String!): Boolean
   }
 `

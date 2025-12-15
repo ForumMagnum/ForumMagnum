@@ -125,26 +125,43 @@ const utils = {
 
       const {_id, x, y, theta, emoji} = sticker ?? {};
 
-      if (!sticker || !_id || !x || !y || !theta) {
-        throw new Error("Must include sticker")
+      if (!sticker || !_id) {
+        throw new Error("Must include sticker with _id")
       }
 
       const forumEventId = comment.forumEventId;
-      const stickerData = {
-        _id,
-        x,
-        y,
-        theta,
-        emoji: emoji ?? null,
-        commentId: comment._id,
-        userId: comment.userId,
-      };
 
-      await repos.forumEvents.addSticker({ forumEventId, stickerData });
-      captureEvent("addForumEventSticker", {
-        forumEventId,
-        stickerData,
-      });
+      // If sticker has coordinates, create it. Otherwise, just link an existing sticker.
+      if (x !== undefined && y !== undefined && theta !== undefined) {
+        const stickerData = {
+          _id,
+          x,
+          y,
+          theta,
+          emoji: emoji ?? null,
+          commentId: comment._id,
+          userId: comment.userId,
+        };
+
+        await repos.forumEvents.addSticker({ forumEventId, stickerData });
+        captureEvent("addForumEventSticker", {
+          forumEventId,
+          stickerData,
+        });
+      } else {
+        // Sticker already exists, just link the comment to it
+        await repos.forumEvents.updateStickerComment({
+          forumEventId,
+          stickerId: _id,
+          commentId: comment._id,
+          userId: comment.userId,
+        });
+        captureEvent("linkForumEventStickerComment", {
+          forumEventId,
+          stickerId: _id,
+          commentId: comment._id,
+        });
+      }
     }
   },
 

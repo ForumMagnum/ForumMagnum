@@ -484,13 +484,13 @@ export const GivingSeason2025Banner: FC = () => {
           showStickers && classes.mainStickers,
         )}>
           {showStickers && (
-              <ForumEventStickers
-                icon="Heart"
-                iconClassName={classes.stickerIcon}
-                noMobileOverlay
-                className={classes.stickers}
-              />
-            )}
+            <ForumEventStickers
+              icon="Heart"
+              iconClassName={classes.stickerIcon}
+              noMobileOverlay
+              className={classes.stickers}
+            />
+          )}
           <div className={classes.events}>
             {givingSeasonEvents.map((event) => {
               const shouldHideOnMobile = isMobileLeaderboardAllowed && event.end > currentEvent.end;

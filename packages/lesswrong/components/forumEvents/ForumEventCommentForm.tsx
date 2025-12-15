@@ -103,7 +103,7 @@ const styles = (theme: ThemeType) => ({
     '&:hover': {
       opacity: 0.7
     }
-  }
+  },
 });
 
 const ForumEventCommentForm = ({

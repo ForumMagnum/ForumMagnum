@@ -985,6 +985,7 @@ CREATE TABLE "ForumEvents" (
   "pollAgreeWording" TEXT,
   "pollDisagreeWording" TEXT,
   "maxStickersPerUser" DOUBLE PRECISION NOT NULL DEFAULT 1,
+  "stickerRequiresComment" BOOL NOT NULL DEFAULT TRUE,
   "customComponent" TEXT,
   "commentPrompt" TEXT,
   "publicData" JSONB
