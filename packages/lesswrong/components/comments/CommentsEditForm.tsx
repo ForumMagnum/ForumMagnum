@@ -5,13 +5,20 @@ import { CommentForm } from './CommentForm';
 import { useSingle } from '@/lib/crud/withSingle';
 import Loading from "../vulcan-core/Loading";
 
-const CommentsEditForm = ({ comment, successCallback, cancelCallback, className, formProps = {}, prefilledProps }: {
+const CommentsEditForm = ({
+  comment,
+  successCallback,
+  cancelCallback,
+  prefilledProps,
+  hideControls,
+  className,
+}: {
   comment: CommentsList | CommentsListWithParentMetadata,
   successCallback?: any,
   cancelCallback?: any,
-  className?: string,
-  formProps?: Record<string, any>,
   prefilledProps?: AnyBecauseTodo
+  hideControls?: boolean,
+  className?: string,
 }) => {
   const { document: editableComment, loading } = useSingle({
     collectionName: 'Comments',
@@ -33,12 +40,10 @@ const CommentsEditForm = ({ comment, successCallback, cancelCallback, className,
         onCancel={cancelCallback}
         submitLabel={comment.draft ? "Publish" : "Save"}
         disableSubmitDropdown={!comment.draft}
+        hideControls={hideControls}
       />
     </div>
   )
 }
 
 export default registerComponent('CommentsEditForm', CommentsEditForm);
-
-
-

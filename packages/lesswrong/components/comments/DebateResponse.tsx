@@ -143,7 +143,6 @@ export const DebateResponse = ({classes, comment, replies, idx, responseCount, o
         successCallback={() => setShowEdit(false)}
         cancelCallback={() => setShowEdit(false)}
         className={classes.editForm}
-        formProps={{ post }}
       />
     : <div>
         <CommentBody comment={comment} voteProps={voteProps} commentBodyRef={commentBodyRef}/>

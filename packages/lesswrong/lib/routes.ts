@@ -26,7 +26,6 @@ import { PostsPageHeaderTitle } from '@/components/titles/PostsPageHeaderTitle';
 import { CommentLinkPreviewLegacy, PostCommentLinkPreviewGreaterWrong, PostLinkPreview, PostLinkPreviewLegacy, PostLinkPreviewSequencePost, PostLinkPreviewSlug, SequencePreview } from '@/components/linkPreview/PostLinkPreview';
 import { eaLegacyRedirects } from "./eaLegacyRedirects";
 import { TagHoverPreview } from '@/components/tagging/TagHoverPreview';
-import AdminGoogleServiceAccount from '@/components/admin/AdminGoogleServiceAccount';
 import AdminHome from '@/components/admin/AdminHome';
 import AdminSynonymsPage from '@/components/admin/AdminSynonymsPage';
 import AdminViewOnboarding from '@/components/admin/AdminViewOnboarding';
@@ -1780,13 +1779,6 @@ addRoute(
     path: '/admin/tagMerge',
     component: TagMergePage,
     title: `${taggingNameCapitalSetting.get()} merging tool`,
-    isAdmin: true,
-  },
-  {
-    name: 'googleServiceAccount',
-    path: '/admin/googleServiceAccount',
-    component: AdminGoogleServiceAccount,
-    title: `Google Doc import service account`,
     isAdmin: true,
   },
   {

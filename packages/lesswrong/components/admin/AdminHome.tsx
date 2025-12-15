@@ -82,7 +82,6 @@ const AdminHome = ({ classes }: {
         <li><Link className={classes.link} to="/admin/migrations">Migrations</Link></li>
         <li><Link className={classes.link} to="/admin/synonyms">Search Synonyms</Link></li>
         <li><Link className={classes.link} to="/admin/tagMerge">{taggingNameCapitalSetting.get()} Merging Tool</Link></li>
-        <li><Link className={classes.link} to="/admin/googleServiceAccount">Google Doc import service account</Link></li>
         <li><span className={classes.link} onClick={refreshDbSettings}>Refresh DB Settings</span></li>
         {isRefreshingDbSettings && <Loading />}
       </ul>
