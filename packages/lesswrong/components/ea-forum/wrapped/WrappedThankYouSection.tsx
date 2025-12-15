@@ -1,6 +1,5 @@
 import React from "react";
 import { registerComponent } from "@/lib/vulcan-lib/components";
-import { HeartReactionIcon } from "@/components/icons/reactions/HeartReactionIcon";
 import WrappedSection from "./WrappedSection";
 import WrappedHeading from "./WrappedHeading";
 
