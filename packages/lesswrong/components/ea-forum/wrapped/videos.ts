@@ -78,8 +78,10 @@ const chooseColor = (personality: string): WrappedColor => {
   return "green";
 }
 
-const prefix = (file: string, type: "video" | "image") =>
-  `https://res.cloudinary.com/cea/${type}/upload/v1734615259/wrapped-2025/${file}`;
+const prefix = (file: string, type: "video" | "image") => {
+  const params = type === "image" ? "/q_auto,w_600" : "";
+  return `https://res.cloudinary.com/cea/${type}/upload${params}/wrapped-2025/${file}`;
+}
 
 type WrappedVideo = {
   /** The name of the animation */
