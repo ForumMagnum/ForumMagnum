@@ -9,17 +9,11 @@ const styles = (_theme: ThemeType) => ({
     maxWidth: "calc(min(480px, 100%))",
     margin: "60px auto 0",
   },
-  heartIcon: {
-    marginLeft: 6,
-    '& svg': {
-      width: 32,
-      height: 30
-    },
-  },
   textRow: {
-    maxWidth: 400,
+    maxWidth: 500,
     textWrap: 'pretty',
     margin: '0 auto',
+    fontSize: 18,
   },
 });
 
@@ -30,7 +24,7 @@ const WrappedThankYouSection = ({classes}: {
     <WrappedSection pageSectionContext="thankYou">
       <div className={classes.root}>
         <WrappedHeading>
-          Thank you! <span className={classes.heartIcon}><HeartReactionIcon /></span>
+          Thank you
         </WrappedHeading>
         <div className={classes.textRow}>
           Thanks for joining us on the EA Forum and helping us think about how
