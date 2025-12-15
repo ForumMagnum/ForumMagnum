@@ -9,6 +9,9 @@ const styles = (_theme: ThemeType) => ({
     maxWidth: "calc(min(480px, 100%))",
     margin: "60px auto 0",
   },
+  heading: {
+    fontSize: 54,
+  },
   heartIcon: {
     marginLeft: 6,
     '& svg': {
@@ -29,7 +32,7 @@ const WrappedThankYouSection = ({classes}: {
   return (
     <WrappedSection pageSectionContext="thankYou">
       <div className={classes.root}>
-        <WrappedHeading>
+        <WrappedHeading className={classes.heading}>
           Thank you! <span className={classes.heartIcon}><HeartReactionIcon /></span>
         </WrappedHeading>
         <div className={classes.textRow}>

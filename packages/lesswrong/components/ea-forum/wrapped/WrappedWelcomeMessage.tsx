@@ -18,7 +18,7 @@ const styles = (theme: ThemeType) => ({
     fontFamily: theme.palette.wrapped.fontFamily,
     fontWeight: 400,
     lineHeight: "110%",
-    letterSpacing: "-2.7px",
+    letterSpacing: "-1.6px",
     textAlign: "left",
     marginTop: 0,
     wordBreak: "break-word",
