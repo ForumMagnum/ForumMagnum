@@ -7,6 +7,7 @@ import Link, { type LinkProps } from 'next/link';
 import { useNavigate } from '@/lib/routeUtil';
 import { isClient } from '@/lib/executionEnvironment';
 import bowser from 'bowser';
+import { isSpecialClick } from '@/lib/utils/eventUtils';
 
 type ScrollFunction = ((el: HTMLElement) => void);
 
@@ -71,10 +72,6 @@ function hashLinkScroll() {
       }, 10000);
     }
   }, 0);
-}
-
-function isSpecialClick(ev: React.MouseEvent<HTMLAnchorElement>) {
-  return ev.metaKey || ev.altKey || ev.ctrlKey || ev.shiftKey || ev.button !== 0;
 }
 
 export function HashLink(props: HashLinkProps) {

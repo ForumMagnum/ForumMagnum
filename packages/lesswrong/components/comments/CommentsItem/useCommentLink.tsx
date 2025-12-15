@@ -6,6 +6,7 @@ import { commentPermalinkStyleSetting } from '@/lib/instanceSettings';
 import { EnvironmentOverrideContext } from "@/lib/utils/timeUtil";
 import { Link } from "../../../lib/reactRouterWrapper";
 import { useNavigate, useSubscribedLocation } from "../../../lib/routeUtil";
+import { isSpecialClick } from "@/lib/utils/eventUtils";
 
 export type UseCommentLinkProps = {
   comment: Pick<CommentsList, "_id" | "tagCommentType">,
@@ -44,6 +45,9 @@ export const useCommentLink = ({
       buttonPressed: event.button,
       furtherContext,
     });
+    if (isSpecialClick(event)) {
+      return;
+    }
 
     // If the current location is not the same as the link's location (e.g. if a
     // comment on a post is showing on the frontpage), fall back to just following

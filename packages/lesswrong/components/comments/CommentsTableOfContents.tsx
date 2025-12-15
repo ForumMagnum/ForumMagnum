@@ -13,6 +13,7 @@ import TableOfContentsDivider from "../posts/TableOfContents/TableOfContentsDivi
 import UsersNameDisplay from "../users/UsersNameDisplay";
 import TableOfContentsRow from "../posts/TableOfContents/TableOfContentsRow";
 import { defineStyles, useStyles } from '../hooks/useStyles';
+import { isSpecialClick } from '@/lib/utils/eventUtils';
 const COMMENTS_TITLE_CLASS_NAME = 'CommentsTableOfContentsTitle';
 
 const styles = defineStyles("CommentsTableOfContents", (theme: ThemeType) => ({
