@@ -11,6 +11,7 @@ import { getCityName } from '../localGroups/TabNavigationEventsList';
 import { userHasEAHomeRHS } from '../../lib/betas';
 import { useRecentOpportunities } from '../hooks/useRecentOpportunities';
 import { useEAVirtualPrograms } from '../hooks/useEAVirtualPrograms';
+import { showHomepageWrappedAd } from '@/lib/publicSettings';
 import DeferRender from '../common/DeferRender';
 import LWTooltip from "../common/LWTooltip";
 import SectionTitle from "../common/SectionTitle";
@@ -239,7 +240,7 @@ export const EAHomeRightHandSide = ({classes}: {
   return <AnalyticsContext pageSectionContext="homeRhs">
     {!!currentUser && sidebarToggleNode}
     <div className={classes.root}>
-      <WrappedAd />
+      {showHomepageWrappedAd.get() && <WrappedAd />}
       {digestAdNode}
 
       {!!opportunityPosts?.length && <AnalyticsContext pageSubSectionContext="opportunities">
