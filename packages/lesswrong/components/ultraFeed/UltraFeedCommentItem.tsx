@@ -175,7 +175,13 @@ const styles = defineStyles("UltraFeedCommentItem", (theme: ThemeType) => ({
     paddingBottom: 6,
     gap: 12,
     [theme.breakpoints.down('sm')]: {
+      flexDirection: 'column',
+      alignItems: 'flex-start',
       paddingTop: 0,
+      gap: 0,
+      '& > div': {
+        paddingLeft: 0,
+      },
     },
   },
   updateVoteMessage: {
@@ -186,6 +192,10 @@ const styles = defineStyles("UltraFeedCommentItem", (theme: ThemeType) => ({
     minWidth: 220,
     position: 'relative',
     bottom: 4,
+    [theme.breakpoints.down('sm')]: {
+      minWidth: 'unset',
+      bottom: 0,
+    },
   },
 }));
 
