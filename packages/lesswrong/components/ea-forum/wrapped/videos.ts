@@ -66,13 +66,13 @@ const chooseColor = (personality: string): WrappedColor => {
   if (personality === "thinking") {
     return "transparent";
   }
-  if (personality.indexOf("stoic") >= 0 || personality.indexOf("agreeable") >= 0) {
+  if (personality.indexOf("Stoic") >= 0 || personality.indexOf("Agreeable") >= 0) {
     return "grey";
   }
-  if (personality.indexOf("beloved") >= 0 || personality.indexOf("loving") >= 0) {
+  if (personality.indexOf("Beloved") >= 0 || personality.indexOf("Loving") >= 0) {
     return "red";
   }
-  if (personality.indexOf("insightful") >= 0 || personality.indexOf("curious") >= 0) {
+  if (personality.indexOf("Insightful") >= 0 || personality.indexOf("Curious") >= 0) {
     return "blue";
   }
   return "green";
