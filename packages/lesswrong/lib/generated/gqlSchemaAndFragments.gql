@@ -1112,7 +1112,6 @@ extend type Mutation {
   RemoveForumEventVote(forumEventId: String!): Boolean
   RemoveForumEventSticker(forumEventId: String!, stickerId: String!): Boolean
   AddForumEventSticker(forumEventId: String!, stickerId: String!, x: Float!, y: Float!, theta: Float!, emoji: String): Boolean
-  UpdateForumEventStickerComment(forumEventId: String!, stickerId: String!, commentId: String!): Boolean
 }
 
 type KeywordAlert {

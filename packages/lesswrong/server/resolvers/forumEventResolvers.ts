@@ -98,13 +98,13 @@ export const forumEventGqlMutations = {
     }
 
     // Check sticker limit
-    const stickerData = (forumEvent.publicData as any)?.data ?? [];
-    const userStickerCount = stickerData.filter((s: any) => s.userId === currentUser._id).length;
+    const existingStickers = (forumEvent.publicData as any)?.data ?? [];
+    const userStickerCount = existingStickers.filter((s: any) => s.userId === currentUser._id).length;
     if (userStickerCount >= (forumEvent.maxStickersPerUser ?? 0)) {
       throw new Error("You have reached the maximum number of stickers for this event");
     }
 
-    await repos.forumEvents.addSticker({
+    await repos.forumEvents.upsertSticker({
       forumEventId,
       stickerData: {
         _id: stickerId,
@@ -123,30 +123,6 @@ export const forumEventGqlMutations = {
     });
     return true;
   },
-  UpdateForumEventStickerComment: async (
-    _root: void,
-    {forumEventId, stickerId, commentId}: {forumEventId: string, stickerId: string, commentId: string},
-    {currentUser, repos}: ResolverContext,
-  ) => {
-    if (!currentUser) {
-      throw new Error("Permission denied");
-    }
-
-    await repos.forumEvents.updateStickerComment({
-      forumEventId,
-      stickerId,
-      commentId,
-      userId: currentUser._id,
-    });
-
-    captureEvent("updateForumEventStickerComment", {
-      forumEventId,
-      userId: currentUser._id,
-      stickerId,
-      commentId,
-    });
-    return true;
-  },
 }
 
 export const forumEventGqlTypeDefs = gql`
@@ -155,6 +131,5 @@ export const forumEventGqlTypeDefs = gql`
     RemoveForumEventVote(forumEventId: String!): Boolean
     RemoveForumEventSticker(forumEventId: String!, stickerId: String!): Boolean
     AddForumEventSticker(forumEventId: String!, stickerId: String!, x: Float!, y: Float!, theta: Float!, emoji: String): Boolean
-    UpdateForumEventStickerComment(forumEventId: String!, stickerId: String!, commentId: String!): Boolean
   }
 `
