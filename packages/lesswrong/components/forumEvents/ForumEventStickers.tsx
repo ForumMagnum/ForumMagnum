@@ -18,14 +18,22 @@ import { useModerateComment } from "../dropdowns/comments/withModerateComment";
 import { useMessages } from "../common/withMessages";
 import ForumEventCommentForm from "./ForumEventCommentForm";
 import ForumEventSticker from "./ForumEventSticker";
+import type { ForumIconName } from "../common/ForumIcon";
+import DeferRender from "../common/DeferRender";
+import classNames from "classnames";
 
 const styles = (theme: ThemeType) => ({
-  stickersContainer: {
+  root: {
     width: "100%",
     height: "100%",
     position: "absolute",
     top: 0,
     left: 0
+  },
+  isPlacing: {
+    // Hide the cursor over the entire container when placing - this prevents
+    // the mouse from "escaping" the draft emoji when moving fast
+    cursor: "none",
   },
   mobileOverlay: {
     pointerEvents: "none",
@@ -57,8 +65,12 @@ const styles = (theme: ThemeType) => ({
 });
 
 const ForumEventStickers: FC<{
+  icon?: ForumIconName,
+  iconClassName?: string,
+  noMobileOverlay?: boolean,
+  className?: string,
   classes: ClassesType<typeof styles>;
-}> = ({ classes }) => {
+}> = ({ icon, iconClassName, noMobileOverlay, className, classes }) => {
   const { currentForumEvent, refetch } = useCurrentAndRecentForumEvents();
   const { onSignup } = useLoginPopoverContext();
   const currentUser = useCurrentUser();
@@ -99,7 +111,7 @@ const ForumEventStickers: FC<{
   const usersById = keyBy(users, "_id")
   const commentsById = keyBy(comments, "_id")
 
-  const [draftSticker, setDraftSticker] = useState<{_id: string, x: number, y: number, theta: number, emoji?: string} | null>(null);
+  const [draftSticker, setDraftSticker] = useState<ForumEventStickerInput | null>(null);
 
   const [commentFormOpen, setCommentFormOpen] = useState(false);
   const [hoverPos, setHoverPos] = useState<{ x: number; y: number } | null>(
@@ -169,6 +181,7 @@ const ForumEventStickers: FC<{
         _id: randomId(),
         ...coords,
         theta: hoverTheta,
+        emoji: null,
       });
 
       setMobilePlacingSticker(false);
@@ -177,12 +190,14 @@ const ForumEventStickers: FC<{
   );
 
   const onSuccess = useCallback(async () => {
-    if (!currentForumEvent || !draftSticker?.emoji) return;
+    if (!currentForumEvent) {
+      return;
+    }
 
     void refetchAll();
     setDraftSticker(null);
     setCommentFormOpen(false);
-  }, [currentForumEvent, draftSticker, refetchAll]);
+  }, [currentForumEvent, refetchAll]);
 
   const clearSticker = useCallback(async (sticker: typeof stickers[number] | null) => {
     if (!currentForumEvent) return;
@@ -190,13 +205,20 @@ const ForumEventStickers: FC<{
     if (!sticker) {
       setDraftSticker(null);
     } else {
-      await removeSticker({ variables: { forumEventId: currentForumEvent!._id, stickerId: sticker._id } });
-      await moderateCommentMutation({
-        commentId: sticker.commentId,
-        deleted: true,
-        deletedPublic: true,
-        deletedReason: "",
-      });
+      await Promise.all([
+        removeSticker({
+          variables: {
+            forumEventId: currentForumEvent!._id,
+            stickerId: sticker._id,
+          },
+        }),
+        moderateCommentMutation({
+          commentId: sticker.commentId,
+          deleted: true,
+          deletedPublic: true,
+          deletedReason: "",
+        }),
+      ]);
       await navigator.clipboard.writeText(commentGetPageUrlFromIds({ postId: currentForumEvent.postId, commentId: sticker.commentId, isAbsolute: true }));
       flash("Sticker and comment deleted. The comment link has been copied to your clipboard in case you want to un–delete it.");
 
@@ -237,7 +259,7 @@ const ForumEventStickers: FC<{
   const prefilledProps: Partial<DbComment> = {
     forumEventMetadata: {
       eventFormat: "STICKERS",
-      sticker: draftSticker as ForumEventStickerInput, // Validated on the server
+      sticker: draftSticker,
       poll: null
     },
   };
@@ -246,7 +268,11 @@ const ForumEventStickers: FC<{
 
   return (
     <AnalyticsContext pageElementContext="forumEventStickers">
-      <div className={classes.stickersContainer}>
+      <div className={classNames(
+        classes.root,
+        isPlacingSticker && hoverPos && classes.isPlacing,
+        className,
+      )}>
         <div
           className={classes.hoverContainer}
           ref={containerRef}
@@ -255,12 +281,21 @@ const ForumEventStickers: FC<{
           onClick={saveDraftSticker} // Required for mobile, where the hover icon doesn't show
         >
           {isPlacingSticker && hoverPos && (
-            <ForumEventSticker x={hoverPos.x} y={hoverPos.y} theta={hoverTheta} saveDraftSticker={saveDraftSticker} />
+            <ForumEventSticker
+              x={hoverPos.x}
+              y={hoverPos.y}
+              theta={hoverTheta}
+              saveDraftSticker={saveDraftSticker}
+              icon={icon}
+              iconClassName={iconClassName}
+            />
           )}
         </div>
         {draftSticker && (
           <ForumEventSticker
             {...draftSticker}
+            icon={icon}
+            iconClassName={iconClassName}
             tooltipDisabled={commentFormOpen}
             setUserVoteRef={setUserVoteRef}
             onClear={() => clearSticker(null)}
@@ -270,6 +305,8 @@ const ForumEventStickers: FC<{
           <ForumEventSticker
             key={index}
             {...sticker}
+            icon={icon}
+            iconClassName={iconClassName}
             onClear={sticker.userId === currentUser?._id ? () => clearSticker(sticker) : undefined}
             user={usersById[sticker.userId]}
             comment={(sticker.commentId && commentsById[sticker.commentId]) || undefined}
@@ -283,7 +320,7 @@ const ForumEventStickers: FC<{
           forumEvent={currentForumEvent}
           cancelCallback={onCloseCommentForm}
           successCallback={onSuccess}
-          setEmoji={setEmoji}
+          setEmoji={icon ? undefined : setEmoji}
           anchorEl={userVoteRef}
           post={currentForumEvent.post}
           prefilledProps={prefilledProps}
@@ -309,18 +346,24 @@ const ForumEventStickers: FC<{
           )}
         />
       )}
-      <div className={classes.mobileOverlay} />
+      {!noMobileOverlay && <div className={classes.mobileOverlay} />}
       {!isDesktop && allowAddingSticker && (
-        <InteractionWrapper>
-          <div className={classes.placeStickerButton} onClick={() => setMobilePlacingSticker(!mobilePlacingSticker)}>
-            {mobilePlacingSticker ? "Place your sticker, or tap here to cancel" : "+ Add sticker"}
-          </div>
-        </InteractionWrapper>
+        <DeferRender ssr={false}>
+          <InteractionWrapper>
+            <div
+              className={classes.placeStickerButton}
+              onClick={() => setMobilePlacingSticker(!mobilePlacingSticker)}
+            >
+              {mobilePlacingSticker
+                ? "Place your sticker, or tap here to cancel"
+                : "+ Add sticker"
+              }
+            </div>
+          </InteractionWrapper>
+        </DeferRender>
       )}
     </AnalyticsContext>
   );
 };
 
-export default registerComponent( 'ForumEventStickers', ForumEventStickers, {styles});
-
-
+export default registerComponent('ForumEventStickers', ForumEventStickers, {styles});

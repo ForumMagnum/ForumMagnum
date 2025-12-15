@@ -129,12 +129,16 @@ const utils = {
         throw new Error("Must include sticker")
       }
 
-      if (!emoji) {
-        throw new Error("No emoji selected")
-      }
-
       const forumEventId = comment.forumEventId;
-      const stickerData = {_id, x, y, theta, emoji, commentId: comment._id, userId: comment.userId};
+      const stickerData = {
+        _id,
+        x,
+        y,
+        theta,
+        emoji: emoji ?? null,
+        commentId: comment._id,
+        userId: comment.userId,
+      };
 
       await repos.forumEvents.addSticker({ forumEventId, stickerData });
       captureEvent("addForumEventSticker", {

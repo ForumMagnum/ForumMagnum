@@ -22,6 +22,7 @@ import {
 } from "@/lib/givingSeason";
 import classNames from "classnames";
 import moment from "moment";
+import ForumEventStickers from "../ForumEventStickers";
 import GivingSeasonFeedItem from "./GivingSeasonFeedItem";
 import GivingSeasonTopPosts from "./GivingSeasonTopPosts";
 import CloudinaryImage2 from "@/components/common/CloudinaryImage2";
@@ -119,7 +120,19 @@ const styles = defineStyles("GivingSeason2025Banner", (theme: ThemeType) => ({
       maxWidth: "calc(min(500px, 100%))",
     },
   },
+  // Leave some room at the bottom for adding stickers
+  mainStickers: {
+    paddingBottom: 100,
+    [theme.breakpoints.down("sm")]: {
+      paddingBottom: 120,
+    },
+  },
+  stickers: {
+    zIndex: 2,
+  },
   events: {
+    position: "relative",
+    zIndex: 3,
     display: "grid",
     gridTemplateColumns: "min-content 1fr",
     marginBottom: "auto", // Don't expand based on RHS content
@@ -390,6 +403,9 @@ const styles = defineStyles("GivingSeason2025Banner", (theme: ThemeType) => ({
       color: theme.palette.text.alwaysBlack,
     },
   },
+  stickerIcon: {
+    color: "var(--event-color)",
+  },
 }))
 
 export const GivingSeason2025Banner: FC = () => {
@@ -422,6 +438,9 @@ export const GivingSeason2025Banner: FC = () => {
 
   const isMobileLeaderboardAllowed = currentEvent.name === "Donation election";
   const isMobileLeaderboardDisplayed = isMobileLeaderboardAllowed && isLeaderboardDisplayed;
+
+  const showStickers = currentEvent.name === "Donation celebration" &&
+    currentEvent === selectedEvent;
 
   return (
     <AnalyticsContext pageSectionContext="GivingSeason2025Banner">
@@ -460,7 +479,18 @@ export const GivingSeason2025Banner: FC = () => {
             Giving season <span>2025</span>
           </Link>
         </div>
-        <div className={classes.main}>
+        <div className={classNames(
+          classes.main,
+          showStickers && classes.mainStickers,
+        )}>
+          {showStickers && (
+              <ForumEventStickers
+                icon="Heart"
+                iconClassName={classes.stickerIcon}
+                noMobileOverlay
+                className={classes.stickers}
+              />
+            )}
           <div className={classes.events}>
             {givingSeasonEvents.map((event) => {
               const shouldHideOnMobile = isMobileLeaderboardAllowed && event.end > currentEvent.end;
@@ -536,7 +566,7 @@ export const GivingSeason2025Banner: FC = () => {
             <div className={classes.feedPostsList}>
               {!isLeaderboardDisplayed && currentEvent?.tag && selectedEvent === currentEvent && (
                 <>
-                <MixedTypeFeed
+                  <MixedTypeFeed
                     firstPageSize={selectedEvent?.feedCount}
                     hideLoading
                     disableLoadMore

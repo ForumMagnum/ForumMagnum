@@ -339,7 +339,7 @@ interface CommentsDefaultFragment { // fragment on Comments
       x: number,
       y: number,
       theta: number,
-      emoji: string,
+      emoji: string | null,
     } | null,
     poll: {
       voteWhenPublished: number,
@@ -537,7 +537,7 @@ interface CommentsList { // fragment on Comments
       x: number,
       y: number,
       theta: number,
-      emoji: string,
+      emoji: string | null,
     } | null,
     poll: {
       voteWhenPublished: number,
