@@ -6,7 +6,12 @@ import WrappedHeading from "./WrappedHeading";
 const styles = (_theme: ThemeType) => ({
   root: {
     maxWidth: "calc(min(480px, 100%))",
-    margin: "60px auto 0",
+    margin: "0 auto",
+    height: "100%",
+    display: "flex",
+    flexDirection: "column",
+    justifyContent: "center",
+    paddingBottom: 200,
   },
   heading: {
     fontSize: 54,
