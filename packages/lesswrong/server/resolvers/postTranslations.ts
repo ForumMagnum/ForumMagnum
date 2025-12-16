@@ -1,12 +1,16 @@
 import { crosspostUserAgent } from "@/lib/apollo/links";
+import { z } from "zod";
 
-export interface PostTranslation {
-  url: string;
-  title: string;
-  language: string;
-}
+const postTranslationSchema = z.object({
+  url: z.string(),
+  title: z.string(),
+  language: z.string(),
+}).passthrough();
 
-type TranslationsData = Record<string, PostTranslation[]>;
+const translationsDataSchema = z.record(z.string(), z.array(postTranslationSchema));
+
+export type PostTranslation = z.infer<typeof postTranslationSchema>;
+type TranslationsData = z.infer<typeof translationsDataSchema>;
 
 const TRANSLATIONS_API_URL = "https://ea.international/api/translations/forummagnum";
 const CACHE_TTL_MS = 1000 * 60 * 60 * 24 * 7; // 1 week
@@ -15,20 +19,35 @@ let cachedTranslationsData: TranslationsData | null = null;
 let cacheExpiry = 0;
 
 async function fetchTranslationsData(): Promise<TranslationsData | null> {
+  const controller = new AbortController();
+  const timeoutId = setTimeout(() => controller.abort(), 15_000); // 15s timeout
   try {
     const response = await fetch(TRANSLATIONS_API_URL, {
       headers: { "User-Agent": crosspostUserAgent },
+      signal: controller.signal,
     });
+
     if (!response.ok) {
       // eslint-disable-next-line no-console
       console.error(`Post translations API returned ${response.status}`);
       return null;
     }
-    return await response.json() as TranslationsData;
+
+    const json = await response.json();
+    const parsed = translationsDataSchema.safeParse(json);
+    if (!parsed.success) {
+      // eslint-disable-next-line no-console
+      console.error("Post translations API returned invalid data:", parsed.error);
+      return null;
+    }
+
+    return parsed.data;
   } catch (error) {
     // eslint-disable-next-line no-console
     console.error("Error fetching post translations:", error);
     return null;
+  } finally {
+    clearTimeout(timeoutId);
   }
 }
 

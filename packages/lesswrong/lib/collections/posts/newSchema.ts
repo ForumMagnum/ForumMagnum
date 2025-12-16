@@ -4459,7 +4459,14 @@ const schema = {
         if (!isEAForum) {
           return [];
         }
-        return await getPostTranslations(post._id);
+
+        try {
+          return await getPostTranslations(post._id);
+        } catch (e) {
+          // eslint-disable-next-line no-console
+          console.error("Error fetching post translations:", e);
+          return [];
+        }
       },
     },
   },

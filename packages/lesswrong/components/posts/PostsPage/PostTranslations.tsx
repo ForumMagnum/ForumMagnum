@@ -13,7 +13,7 @@ const styles = (theme: ThemeType) => ({
     lineHeight: "1rem",
   },
   list: {
-    marginTop: 8,
+    margin: "8px 0 0 4px",
   },
   item: {
     marginBottom: 2,
