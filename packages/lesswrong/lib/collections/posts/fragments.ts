@@ -458,6 +458,9 @@ export const PostsDetails = () => frag`
     glossary {
       ...JargonTermsPost
     }
+
+    # Translations (EA Forum only, from ea.international)
+    translations
   }
 `
 

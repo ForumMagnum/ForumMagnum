@@ -49,6 +49,7 @@ import { getDefaultViewSelector } from "../../utils/viewUtils";
 import { hasSideComments, userCanViewJargonTerms } from "../../betas";
 import { stableSortTags } from "../tags/helpers";
 import { getLatestContentsRevision } from "../../../server/collections/revisions/helpers";
+import { getPostTranslations } from "../../../server/resolvers/postTranslations";
 import { marketInfoLoader } from "./annualReviewMarkets";
 import mapValues from "lodash/mapValues";
 import groupBy from "lodash/groupBy";
@@ -4447,6 +4448,18 @@ const schema = {
           context.repos.comments.getPostReviews(postIds, 2, 10)
         );
         return await accessFilterMultiple(currentUser, "Comments", reviews, context);
+      },
+    },
+  },
+  translations: {
+    graphql: {
+      outputType: "JSON",
+      canRead: ["guests"],
+      resolver: async (post) => {
+        if (!isEAForum) {
+          return [];
+        }
+        return await getPostTranslations(post._id);
       },
     },
   },

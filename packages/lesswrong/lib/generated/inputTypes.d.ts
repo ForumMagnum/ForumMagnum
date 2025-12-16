@@ -2860,6 +2860,7 @@ interface Post {
   generateDraftJargon: boolean | null;
   curationNotices: Array<CurationNotice | null> | null;
   reviews: Array<Comment | null> | null;
+  translations: any;
   currentUserVote: string | null;
   currentUserExtendedVote: any;
   voteCount: number;

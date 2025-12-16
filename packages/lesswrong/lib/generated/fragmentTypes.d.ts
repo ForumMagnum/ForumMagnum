@@ -2091,6 +2091,7 @@ interface PostsDetails extends PostsListBase { // fragment on Posts
   readonly activateRSVPs: boolean|null,
   readonly fmCrosspost: CrosspostOutput,
   readonly glossary: Array<JargonTermsPost>,
+  readonly translations: any,
 }
 
 interface PostsDetails_canonicalSequence { // fragment on Sequences
