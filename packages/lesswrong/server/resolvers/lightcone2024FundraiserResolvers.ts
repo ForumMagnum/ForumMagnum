@@ -14,7 +14,7 @@ export const lightcone2024FundraiserGraphQLTypeDefs = gql`
 async function fetchAirtableDonationRecords(): Promise<number> {
   const baseId = "appUepxJdxacpehZz";
   const tableName = "Donations";
-  const viewName = "Every.org";
+  const viewName = "To Sync 2025";
 
   const apiKey = airtableApiKeySetting.get();
   if (!apiKey) {
@@ -35,14 +35,21 @@ async function fetchAirtableDonationRecords(): Promise<number> {
   const data = await response.json();
   const records: AnyBecauseIsInput[] = data.records ?? [];
 
-  return records
-    .filter((record: AnyBecauseIsInput) => {
-      if (!record.fields?.["Date"]) return false;
-      const date = new Date(record.fields["Date"]);
-      return date > new Date('2025-12-02');
-    })
-    .map((record: AnyBecauseIsInput) => parseInt(record.fields["Amount"]))
-    .reduce((acc, curr) => acc + curr, 0);
+  const recordsWithAmount = records.map((record: AnyBecauseIsInput) => ({...record, amount: parseInt(record.fields["Amount"] ?? 0)}));
+
+  const incompleteEveryorg = recordsWithAmount.filter((record: AnyBecauseIsInput) => record.fields["Platform"] === "Every.org (Incomplete)");
+  const completeEveryorg = recordsWithAmount.filter((record: AnyBecauseIsInput) => record.fields["Platform"] === "Every.org");
+  const nonEveryorg = recordsWithAmount.filter((record: AnyBecauseIsInput) => record.fields["Platform"] !== "Every.org" && record.fields["Platform"] !== "Every.org (Incomplete)");
+
+  const unmatchedIncompleteEveryorg = incompleteEveryorg
+    .filter((record: AnyBecauseIsInput) =>
+        !completeEveryorg.some((completeRecord: AnyBecauseIsInput) =>
+          completeRecord.fields["Name"] === record.fields["Name"]
+          && Math.abs(completeRecord.amount - record.amount)/completeRecord.amount < 0.2
+        )
+    );
+
+  return [...unmatchedIncompleteEveryorg, ...completeEveryorg, ...nonEveryorg].reduce((acc, {amount}) => acc + amount, 0);
 }
 
 const fetchCachedAirtableDonationRecords = unstable_cache(fetchAirtableDonationRecords, undefined, { revalidate: 60 * 10 });

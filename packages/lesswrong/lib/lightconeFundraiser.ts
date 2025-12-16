@@ -1,5 +1,4 @@
 import { useQuery } from "@/lib/crud/useQuery";
-import { lightconeFundraiserUnsyncedAmount } from './instanceSettings';
 import { useEffect, useState } from "react";
 import { gql } from "./generated/gql-codegen";
 
@@ -33,11 +32,10 @@ export const useFundraiserAirtableTotal = () => {
 }
 
 export const useFundraiserProgress = (goalAmount: number) => {
-  const stripeTotal = 0; // useFundraiserAirtableTotal() commented out for now
-  const unsyncedAmount = lightconeFundraiserUnsyncedAmount.get();
-  const currentAmount = unsyncedAmount + stripeTotal;
-  const percentage = Math.min((currentAmount / goalAmount) * 100, 100);
-  return [percentage, currentAmount];
+  const airtableTotal = useFundraiserAirtableTotal();
+  const withMatching = airtableTotal * 1.125
+  const percentage = Math.min((withMatching / goalAmount) * 100, 100);
+  return [percentage, withMatching];
 }
 
 // userful for testing
