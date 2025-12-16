@@ -17,55 +17,72 @@ import { useStyles } from '../hooks/useStyles';
  *   left        | center   | right
  *   bottom-left | bottom   | bottom-right
  * 
- * For PopperJS placements like 'right-start' (element to the right, aligned to top),
- * we use combinations that approximate this behavior:
+ * For PopperJS placements:
  * - 'right' family → positioned to the right of anchor
  * - 'left' family → positioned to the left of anchor
  * - 'top' family → positioned above anchor
  * - 'bottom' family → positioned below anchor
  * 
- * The '-start'/'-end' alignment is handled via span keywords to extend the
- * positioning area toward the desired edge.
+ * We use simple position-area values and rely on align-self/justify-self
+ * for the -start/-end alignment variants.
  */
 function getPositionAreaForPlacement(placement: PopperPlacementType): string {
   switch (placement) {
-    // Top placements: element above anchor
     case 'top':
-      return 'top';
     case 'top-start':
-      return 'top span-left'; // Above, extending toward left
     case 'top-end':
-      return 'top span-right'; // Above, extending toward right
+      return 'top';
       
-    // Bottom placements: element below anchor  
     case 'bottom':
-      return 'bottom';
     case 'bottom-start':
-      return 'bottom span-left'; // Below, extending toward left
     case 'bottom-end':
-      return 'bottom span-right'; // Below, extending toward right
+      return 'bottom';
       
-    // Left placements: element to the left of anchor
     case 'left':
-      return 'left';
     case 'left-start':
-      return 'left span-top'; // To the left, extending toward top
     case 'left-end':
-      return 'left span-bottom'; // To the left, extending toward bottom
+      return 'left';
       
-    // Right placements: element to the right of anchor
     case 'right':
-      return 'right';
     case 'right-start':
-      return 'right span-top'; // To the right, extending toward top
     case 'right-end':
-      return 'right span-bottom'; // To the right, extending toward bottom
+      return 'right';
       
     case 'auto':
     case 'auto-start':
     case 'auto-end':
     default:
       return 'bottom';
+  }
+}
+
+/**
+ * Returns alignment styles for -start/-end placement variants.
+ * 
+ * For horizontal placements (left/right), align-self controls vertical alignment:
+ *   - start = top-aligned
+ *   - end = bottom-aligned
+ * 
+ * For vertical placements (top/bottom), justify-self controls horizontal alignment:
+ *   - start = left-aligned (in LTR)
+ *   - end = right-aligned (in LTR)
+ */
+function getAlignmentStylesForPlacement(placement: PopperPlacementType): { alignSelf?: string; justifySelf?: string } {
+  const isHorizontal = placement.startsWith('left') || placement.startsWith('right');
+  const isStart = placement.endsWith('-start');
+  const isEnd = placement.endsWith('-end');
+  
+  if (!isStart && !isEnd) {
+    // Center alignment (default)
+    return {};
+  }
+  
+  if (isHorizontal) {
+    // For left/right placements, align-self controls vertical position
+    return { alignSelf: isStart ? 'start' : 'end' };
+  } else {
+    // For top/bottom placements, justify-self controls horizontal position
+    return { justifySelf: isStart ? 'start' : 'end' };
   }
 }
 
@@ -107,13 +124,6 @@ const styles = defineStyles("LWPopper", (theme: ThemeType) => ({
     zIndex: theme.zIndexes.lwPopper,
   },
   popover: {
-    // Native popover styles
-    margin: 0,
-    padding: 0,
-    border: 'none',
-    background: 'transparent',
-    overflow: 'visible',
-    
     // Use fixed positioning for anchor positioning to work
     position: 'fixed',
     zIndex: theme.zIndexes.lwPopper,
@@ -121,12 +131,6 @@ const styles = defineStyles("LWPopper", (theme: ThemeType) => ({
     // Ensure the popover doesn't exceed viewport
     maxWidth: 'calc(100vw - 16px)',
     maxHeight: 'calc(100vh - 16px)',
-    
-    // Ensure the popover is rendered in the top layer
-    '&::backdrop': {
-      background: 'transparent',
-      pointerEvents: 'none',
-    },
   },
   allowOverflow: {
     maxWidth: 'none',
@@ -213,12 +217,21 @@ const LWPopper = ({
     const popoverElement = popoverRef.current;
     if (!popoverElement || !open) return;
     
-    const positionArea = placement ? getPositionAreaForPlacement(placement) : 'bottom center';
+    const positionArea = placement ? getPositionAreaForPlacement(placement) : 'bottom';
     const positionTryFallbacks = placement ? getPositionTryFallbacks(placement) : 'flip-block, flip-inline';
+    const alignmentStyles = placement ? getAlignmentStylesForPlacement(placement) : {};
     
     // Set anchor positioning CSS properties
     popoverElement.style.setProperty('position-anchor', anchorName);
     popoverElement.style.setProperty('position-area', positionArea);
+    
+    // Apply alignment for -start/-end variants
+    if (alignmentStyles.alignSelf) {
+      popoverElement.style.setProperty('align-self', alignmentStyles.alignSelf);
+    }
+    if (alignmentStyles.justifySelf) {
+      popoverElement.style.setProperty('justify-self', alignmentStyles.justifySelf);
+    }
     
     // Enable position fallbacks unless flip is explicitly disabled
     if (flip !== false && !allowOverflow) {
@@ -241,6 +254,8 @@ const LWPopper = ({
     return () => {
       popoverElement.style.removeProperty('position-anchor');
       popoverElement.style.removeProperty('position-area');
+      popoverElement.style.removeProperty('align-self');
+      popoverElement.style.removeProperty('justify-self');
       popoverElement.style.removeProperty('position-try-fallbacks');
       popoverElement.style.marginTop = '';
       popoverElement.style.marginBottom = '';
@@ -249,31 +264,6 @@ const LWPopper = ({
     };
   }, [anchorName, placement, flip, allowOverflow, distance, open]);
 
-  // Handle popover open/close state
-  useLayoutEffect(() => {
-    const popoverElement = popoverRef.current;
-    if (!popoverElement) return;
-    
-    if (open) {
-      // Check if the popover is already open to avoid errors
-      if (!popoverElement.matches(':popover-open')) {
-        try {
-          popoverElement.showPopover();
-        } catch {
-          // Popover API might not be supported or element might already be showing
-          // Silently fail - the content will still be visible via the portal
-        }
-      }
-    } else {
-      if (popoverElement.matches(':popover-open')) {
-        try {
-          popoverElement.hidePopover();
-        } catch {
-          // Silently fail
-        }
-      }
-    }
-  }, [open]);
 
   // Provide a no-op update function for compatibility
   if (updateRef) {
@@ -302,8 +292,6 @@ const LWPopper = ({
     createPortal(
       <div
         ref={popoverRef}
-        // eslint-disable-next-line react/no-unknown-property
-        popover="manual"
         className={classNames(
           classes.popover,
           {
