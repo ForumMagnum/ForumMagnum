@@ -72,7 +72,7 @@ const EAForumWrappedPage = ({classes}: {classes: ClassesType<typeof styles>}) =>
         </Helmet>
         <HeadTags
           title={`${year} EA Forum Wrapped`}
-          image={makeCloudinaryImageUrl("wrapped-2024/2024_wrapped", {
+          image={makeCloudinaryImageUrl("wrapped-2025/wrapped-og-25", {
             dpr: "auto",
             ar: "16:9",
             w: "1200",
