@@ -1,41 +1,41 @@
 import React from "react";
 import { registerComponent } from "@/lib/vulcan-lib/components";
-import { useForumWrappedContext } from "./hooks";
-import { HeartReactionIcon } from "@/components/icons/reactions/HeartReactionIcon";
 import WrappedSection from "./WrappedSection";
 import WrappedHeading from "./WrappedHeading";
 
 const styles = (_theme: ThemeType) => ({
   root: {
-    maxWidth: 480,
-    margin: "60px auto 0",
+    maxWidth: "calc(min(480px, 100%))",
+    margin: "0 auto",
+    height: "100%",
+    display: "flex",
+    flexDirection: "column",
+    justifyContent: "center",
+    paddingBottom: 200,
   },
-  heartIcon: {
-    marginLeft: 6,
-    '& svg': {
-      width: 32,
-      height: 30
-    }
+  heading: {
+    fontSize: 54,
   },
   textRow: {
-    maxWidth: 400,
+    maxWidth: 500,
     textWrap: 'pretty',
     margin: '0 auto',
+    fontSize: 18,
   },
 });
 
 const WrappedThankYouSection = ({classes}: {
   classes: ClassesType<typeof styles>,
 }) => {
-  const {currentUser} = useForumWrappedContext();
   return (
     <WrappedSection pageSectionContext="thankYou">
       <div className={classes.root}>
-        <WrappedHeading>
-          Thank you! <span className={classes.heartIcon}><HeartReactionIcon /></span>
+        <WrappedHeading className={classes.heading}>
+          Thank you
         </WrappedHeading>
         <div className={classes.textRow}>
-          Thanks for joining us on the EA Forum and helping us think about how to improve the world.
+          Thanks for joining us on the EA Forum and helping us think about how
+          to improve the world.
         </div>
       </div>
     </WrappedSection>
@@ -47,5 +47,3 @@ export default registerComponent(
   WrappedThankYouSection,
   {styles},
 );
-
-

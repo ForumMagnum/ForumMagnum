@@ -11508,10 +11508,10 @@ html-to-text@^9.0.3:
     htmlparser2 "^8.0.1"
     selderee "^0.10.0"
 
-html2canvas@^1.4.1:
-  version "1.4.1"
-  resolved "https://registry.npmjs.org/html2canvas/-/html2canvas-1.4.1.tgz"
-  integrity sha512-fPU6BHNpsyIhr8yyMpTLLxAbkaK8ArIBcmZIRiBLiDhjeqvXolaEmDGmELFuX9I4xDcaKKcJl+TKZLqruBbmWA==
+html2canvas-pro@^1.5.13:
+  version "1.5.13"
+  resolved "https://registry.yarnpkg.com/html2canvas-pro/-/html2canvas-pro-1.5.13.tgz#40af06c3c4eb037dd04e2eb6d85610cf2c109da5"
+  integrity sha512-//ksb3JLA+ewSxFODyb5YH6xqRLpe6Kt1i7Zyr5eqHmfcNt0bm8MpzSQjOK2qu6cCv13wqWtOZrCOpA+//EhaA==
   dependencies:
     css-line-break "^2.1.0"
     text-segmentation "^1.0.3"

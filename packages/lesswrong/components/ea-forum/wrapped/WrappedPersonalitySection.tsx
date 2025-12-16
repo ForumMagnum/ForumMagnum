@@ -70,7 +70,7 @@ const styles = (theme: ThemeType) => ({
   },
   share: {
     position: "fixed",
-    bottom: 50,
+    bottom: 72,
     left: `calc(50% - ${WRAPPED_SHARE_BUTTON_WIDTH / 2}px)`,
     transition: "opacity 0.5s ease-in-out",
   },
@@ -98,6 +98,7 @@ const WrappedPersonalitySection = ({classes}: {
   classes: ClassesType<typeof styles>,
 }) => {
   const {
+    year,
     data: {personality},
     thinkingVideoRef,
     personalityVideoRef,
@@ -108,7 +109,7 @@ const WrappedPersonalitySection = ({classes}: {
   const screenshotRef = useRef<HTMLDivElement>(null);
   const theme = useTheme();
 
-  const isThinking = video.animation === "thinking";
+  const isThinking = video.animation === "Intro";
   const videoRef = isThinking ? thinkingVideoRef : personalityVideoRef;
 
   useEffect(() => {
@@ -185,7 +186,7 @@ const WrappedPersonalitySection = ({classes}: {
   const personalityTitle = (
     <>
       <div className={classes.bottomMargin}>
-        Your EA Forum personality is
+        Your EA Forum personality {year} is
       </div>
       <WrappedHeading className={classes.personalityText}>
         {personality}
@@ -203,15 +204,12 @@ const WrappedPersonalitySection = ({classes}: {
         <div className={classes.content}>
           {isThinking &&
             <WrappedHeading>
-              Your EA Forum personality is...
+              Your EA Forum personality {year} is...
             </WrappedHeading>
           }
           {!isThinking && personalityTitle}
         </div>
-        <div
-          style={{filter: `brightness(${video.brightness})`}}
-          className={classes.videoContainer}
-        >
+        <div className={classes.videoContainer}>
           <video
             ref={videoDisplayRef}
             src={src}
@@ -255,5 +253,3 @@ export default registerComponent(
   WrappedPersonalitySection,
   {styles},
 );
-
-

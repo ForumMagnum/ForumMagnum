@@ -6,6 +6,7 @@ import { HEADER_HEIGHT, MOBILE_HEADER_HEIGHT } from "@/components/common/Header"
 import { useCurrentUser } from "@/components/common/withUser";
 import { makeCloudinaryImageUrl } from "@/components/common/CloudinaryImage2";
 import { ForumWrappedProvider, isWrappedYear, useForumWrapped } from "./hooks";
+import { Helmet } from "@/lib/utils/componentsWithChildren";
 import moment from "moment";
 import HeadTags from "../../common/HeadTags";
 import WrappedSection from "./WrappedSection";
@@ -31,13 +32,11 @@ const styles = (theme: ThemeType) => ({
     // Compensate for the padding added in Layout.tsx and the site header, so
     // that section starts at the top of the page
     marginTop: -HEADER_HEIGHT - theme.spacing.mainLayoutPaddingTop,
-    paddingTop: HEADER_HEIGHT,
     [theme.breakpoints.down("md")]: {
       marginTop: -HEADER_HEIGHT,
     },
     [theme.breakpoints.down("xs")]: {
       marginTop: -MOBILE_HEADER_HEIGHT,
-      paddingTop: MOBILE_HEADER_HEIGHT,
     },
     [theme.breakpoints.down("sm")]: {
       marginLeft: -8,
@@ -51,7 +50,7 @@ const EAForumWrappedPage = ({classes}: {classes: ClassesType<typeof styles>}) =>
   const currentUser = useCurrentUser();
 
   const rawYear = parseInt(params.year);
-  const year = isWrappedYear(rawYear) ? rawYear : 2024;
+  const year = isWrappedYear(rawYear) ? rawYear : 2025;
 
   const {data} = useForumWrapped({
     userId: currentUser?._id,
@@ -65,6 +64,12 @@ const EAForumWrappedPage = ({classes}: {classes: ClassesType<typeof styles>}) =>
   return (
     <AnalyticsContext pageContext="eaYearWrapped" reviewYear={String(year)}>
       <main className={classes.root}>
+        <Helmet>
+          <link
+            href="https://fonts.googleapis.com/css2?family=Charis+SIL:wght@400&display=swap"
+            rel="stylesheet"
+          />
+        </Helmet>
         <HeadTags
           title={`${year} EA Forum Wrapped`}
           image={makeCloudinaryImageUrl("wrapped-2024/2024_wrapped", {

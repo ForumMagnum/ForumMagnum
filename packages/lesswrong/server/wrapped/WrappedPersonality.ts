@@ -2,36 +2,49 @@ import entries from "lodash/fp/entries";
 import sortBy from "lodash/sortBy";
 import last from "lodash/fp/last";
 import sum from "lodash/sum";
+import pick from "lodash/pick";
+import maxBy from "lodash/maxBy";
+import toPairs from "lodash/toPairs";
+
+const relevantTags = {
+  "animal-welfare": "Animal Welfarist",
+  "philosophy": "Philosopher",
+  "building-effective-altruism": "EA Builder",
+  "biosecurity": "Biosecuritarian",
+  "pandemic-preparedness": "Biosecuritarian",
+  "global-health-and-development": "Global Healther",
+  "ai-safety": "AI Safetyist",
+} as const;
+
+type RelevantTagSlug = keyof typeof relevantTags;
 
 export class WrappedPersonality {
   private parts: string[] = [];
 
   constructor({
+    year,
     reactsReceived,
     reactsGiven,
     agreements,
     engagementPercentile,
     totalKarmaChange,
-    postsWritten,
-    commentsWritten,
-    topPost,
-    topComment,
-    discussionsStarted,
+    postsFirstCommented,
+    joinedAt,
+    upvotedPostsTagRelevance,
   }: {
+    year: number,
     reactsReceived: Record<string, number>,
     reactsGiven: Record<string, number>,
     agreements: Record<"agree" | "disagree", number>,
     engagementPercentile: number,
     totalKarmaChange: number,
-    postsWritten: number,
-    commentsWritten: number,
-    topPost: DbPost | null,
-    topComment: DbComment | null,
-    discussionsStarted: number,
+    postsFirstCommented: number,
+    joinedAt: Date,
+    upvotedPostsTagRelevance: Record<string, number>,
   }) {
     // Choose the first adjective based on reacts
     const totalReactsReceived = sum(Object.values(reactsReceived));
-    const totalReactsGiven = sum(Object.values(reactsReceived));
+    const totalReactsGiven = sum(Object.values(reactsGiven));
     if (totalReactsReceived === 0 && totalReactsGiven === 0) {
       if (agreements.agree && agreements.agree > agreements.disagree) {
         this.parts.push("Agreeable");
@@ -64,31 +77,22 @@ export class WrappedPersonality {
     }
 
     // Choose the noun
-    if (totalKarmaChange >= 500) {
-      this.parts.push("Karma Farmer");
-    } else if (discussionsStarted >= 3) {
-      this.parts.push("Conversation Starter");
-    } else if (
-      agreements.disagree &&
-      agreements.disagree >= agreements.agree * 2
-    ) {
-      this.parts.push("Contrarian");
-    } else if (
-      totalKarmaChange > 0 &&
-      (
-        (topPost?.baseScore ?? 0) >= 0.75 * totalKarmaChange ||
-        (topComment?.baseScore ?? 0) >= 0.75 * totalKarmaChange
-      )
-    ) {
-      this.parts.push("One-Hit Wonder");
-    } else if (
-      engagementPercentile >= 0.9 &&
-      postsWritten === 0 &&
-      commentsWritten < 5
-    ) {
-      this.parts.push("Lurker");
+    if (totalKarmaChange >= 1000) {
+      this.parts.push("Karma Charmer");
+    } else if (postsFirstCommented > 1) {
+      this.parts.push("First Responder");
+    } else if (joinedAt >= new Date(`${year}-11-01`)) {
+      this.parts.push("Newbie");
     } else {
-      this.parts.push("Visitor");
+      const tags = pick(
+        upvotedPostsTagRelevance,
+        Object.keys(relevantTags),
+      ) as Record<RelevantTagSlug, number>;
+      const bestTag = maxBy(
+        toPairs(tags),
+        (tag) => tag[1],
+      )?.[0] as RelevantTagSlug | undefined;
+      this.parts.push(bestTag ? relevantTags[bestTag] : "Newbie");
     }
   }
 

@@ -127,7 +127,8 @@ export const getWrappedDataByYear = async (
     reactsReceived,
     reactsGiven,
     agreements,
-    discussionsStarted,
+    postsFirstCommented,
+    upvotedPostsTagRelevance,
   ] = await Promise.all([
     Users.find(
       {
@@ -192,7 +193,8 @@ export const getWrappedDataByYear = async (
     repos.votes.getEAReactsReceived(userId, start, end),
     repos.votes.getEAReactsGiven(userId, start, end),
     repos.votes.getEAAgreements(userId, start, end),
-    repos.comments.getEAWrappedDiscussionsStarted(userId, start, end),
+    repos.posts.countPostsWhereIsFirstCommenter(userId, start, end),
+    repos.posts.countUpvotedPostsTagRelevance(userId, start, end),
   ]);
 
   const [postKarmaChanges, commentKarmaChanges] = await Promise.all([
@@ -302,16 +304,15 @@ export const getWrappedDataByYear = async (
   }
 
   const personality = new WrappedPersonality({
+    year,
     reactsReceived,
     reactsGiven,
     agreements,
     engagementPercentile,
     totalKarmaChange,
-    postsWritten: postAuthorshipStats.totalCount,
-    commentsWritten: commentAuthorshipStats.totalCount,
-    topPost: userPosts[0] ?? null,
-    topComment,
-    discussionsStarted,
+    postsFirstCommented,
+    joinedAt: user.createdAt,
+    upvotedPostsTagRelevance,
   });
 
   const results: AnyBecauseTodo = {
