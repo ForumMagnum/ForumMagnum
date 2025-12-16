@@ -27,7 +27,7 @@ export const useFundraiserAirtableTotal = () => {
     ssr: true,
   });
 
-  const airtableTotal = data?.Lightcone2025FundraiserAirtableAmounts ?? 0;
+  const airtableTotal = data?.Lightcone2025FundraiserAirtableAmounts ?? 0.01;
   return airtableTotal;
 }
 
