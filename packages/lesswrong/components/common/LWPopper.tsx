@@ -124,6 +124,13 @@ const styles = defineStyles("LWPopper", (theme: ThemeType) => ({
     zIndex: theme.zIndexes.lwPopper,
   },
   popover: {
+    // Native popover styles
+    margin: 0,
+    padding: 0,
+    border: 'none',
+    background: 'transparent',
+    overflow: 'visible',
+    
     // Use fixed positioning for anchor positioning to work
     position: 'fixed',
     zIndex: theme.zIndexes.lwPopper,
@@ -131,6 +138,12 @@ const styles = defineStyles("LWPopper", (theme: ThemeType) => ({
     // Ensure the popover doesn't exceed viewport
     maxWidth: 'calc(100vw - 16px)',
     maxHeight: 'calc(100vh - 16px)',
+    
+    // Ensure the popover is rendered in the top layer
+    '&::backdrop': {
+      background: 'transparent',
+      pointerEvents: 'none',
+    },
   },
   allowOverflow: {
     maxWidth: 'none',
@@ -264,6 +277,31 @@ const LWPopper = ({
     };
   }, [anchorName, placement, flip, allowOverflow, distance, open]);
 
+  // Handle popover open/close state using native Popover API
+  useLayoutEffect(() => {
+    const popoverElement = popoverRef.current;
+    if (!popoverElement) return;
+    
+    if (open) {
+      // Check if the popover is already open to avoid errors
+      if (!popoverElement.matches(':popover-open')) {
+        try {
+          popoverElement.showPopover();
+        } catch {
+          // Popover API might not be supported or element might already be showing
+          // Silently fail - the content will still be visible via the portal
+        }
+      }
+    } else {
+      if (popoverElement.matches(':popover-open')) {
+        try {
+          popoverElement.hidePopover();
+        } catch {
+          // Silently fail
+        }
+      }
+    }
+  }, [open]);
 
   // Provide a no-op update function for compatibility
   if (updateRef) {
@@ -292,6 +330,8 @@ const LWPopper = ({
     createPortal(
       <div
         ref={popoverRef}
+        // eslint-disable-next-line react/no-unknown-property
+        popover="manual"
         className={classNames(
           classes.popover,
           {
