@@ -20,10 +20,6 @@ import { Request, Response, NextFunction, json } from "express";
 import { AUTH0_SCOPE, ProfileFromAccessToken, loginAuth0User, signupAuth0User } from './authentication/auth0';
 import { IdFromProfile, UserDataFromProfile, getOrCreateForumUser } from './authentication/getOrCreateForumUser';
 import { promisify } from 'util';
-import { OAuth2Client as GoogleOAuth2Client } from 'google-auth-library';
-import { oauth2 } from '@googleapis/oauth2';
-import { googleDocImportClientIdSetting, googleDocImportClientSecretSetting, updateActiveServiceAccount } from './posts/googleDocImport';
-import { userIsAdmin } from '../lib/vulcan-users/permissions';
 import { isE2E } from '../lib/executionEnvironment';
 import { getUnusedSlugByCollectionName } from './utils/slugUtil';
 import { slugify } from '@/lib/utils/slugify';
@@ -189,81 +185,6 @@ async function deserializeUserPassport(id: AnyBecauseTodo, done: AnyBecauseTodo)
   done(null, user)
 }
 
-
-/**
- * Add routes for handling linking the service account required to import google docs
- */
-const addGoogleDriveLinkMiddleware = (addConnectHandler: AddMiddlewareType) => {
-  const googleClientId = googleDocImportClientIdSetting.get();
-  const googleOAuthSecret = googleDocImportClientSecretSetting.get()
-
-  if (!googleClientId || !googleOAuthSecret) {
-    return;
-  }
-
-  const callbackUrl = "google_oauth2callback"
-  const oauth2Client = new GoogleOAuth2Client(googleClientId, googleOAuthSecret, combineUrls(getSiteUrl(), callbackUrl));
-
-  addConnectHandler('/auth/linkgdrive', (req: Request, res: Response) => {
-    if (!req.user?._id || !userIsAdmin(req.user)) {
-      res.status(400).send("User is not authenticated or not an admin");
-      return;
-    }
-
-    const url = oauth2Client.generateAuthUrl({
-      access_type: 'offline', // offline => get a refresh token that persists for 6 months
-      scope: [
-        'https://www.googleapis.com/auth/drive.readonly',
-        'https://www.googleapis.com/auth/userinfo.profile',
-        'https://www.googleapis.com/auth/userinfo.email'
-      ],
-      redirect_uri: combineUrls(getSiteUrl(), callbackUrl)
-    });
-    res.redirect(url);
-  });
-
-  addConnectHandler(`/${callbackUrl}`, async (req: Request, res: Response) => {
-    const code = req.query.code as string;
-    const user = req.user
-
-    if (!user?._id || !userIsAdmin(user)) {
-      res.status(400).send("User is not authenticated or not an admin");
-      return;
-    }
-
-    try {
-      const { tokens } = await oauth2Client.getToken(code);
-
-      if (!tokens.refresh_token) {
-        throw new Error("Failed to create refresh_token")
-      }
-
-      oauth2Client.setCredentials(tokens);
-
-      const userInfo = await oauth2({
-        auth: oauth2Client,
-        version: 'v2'
-      }).userinfo.get();
-
-      const email = userInfo?.data?.email
-
-      if (!email) {
-        throw new Error("Failed to get email")
-      }
-
-      await updateActiveServiceAccount({
-        email,
-        refreshToken: tokens.refresh_token
-      })
-
-      res.redirect('/admin/googleServiceAccount');
-    } catch (error) {
-      // eslint-disable-next-line no-console
-      console.error('Error retrieving access token', error);
-      res.redirect('/admin/googleServiceAccount');
-    }
-  });
-};
 
 const handleAuthenticate = (
   req: Request,
@@ -597,6 +518,4 @@ export const addAuthMiddlewares = (addConnectHandler: AddMiddlewareType) => {
     saveReturnTo(req)
     passport.authenticate('github', { scope: ['user:email']})(req, res, next)
   })
-
-  addGoogleDriveLinkMiddleware(addConnectHandler)
 }

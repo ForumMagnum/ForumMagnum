@@ -26,6 +26,7 @@ import {
   ELECTION_DONATE_HREF,
   userIsAllowedToVoteInDonationElection,
   useGivingSeason,
+  ELECTION_HOW_TO_VOTE_HREF,
 } from "@/lib/givingSeason";
 import { useElectionCandidates } from "./hooks";
 import { formatStat } from "@/components/users/EAUserTooltipContent";
@@ -50,7 +51,6 @@ import FormatDate from "@/components/common/FormatDate";
 import { useCurrentTime } from "@/lib/utils/timeUtil";
 
 const BACKGROUND_HREF = "https://res.cloudinary.com/cea/image/upload/v1763548915/Banner/voting-portal-2025-background.png"
-const VOTING_HREF = "/posts/GyjtmSuQviTngRtjn/donation-election-2025-how-to-vote";
 const FRAUD_HREF = "/posts/GyjtmSuQviTngRtjn/donation-election-2025-how-to-vote#What_s_not_allowed";
 const THREAD_HREF = "/posts/prnkA8BksF7Bbobfc/donation-election-discussion-thread-1";
 const COMMENT_POST_ID = "prnkA8BksF7Bbobfc";
@@ -336,6 +336,9 @@ const styles = (theme: ThemeType) => ({
     flexGrow: 1,
     background: theme.palette.text.alwaysWhite,
     borderRadius: theme.borderRadius.default,
+    "& .ContentStyles-commentBody": {
+      color: theme.palette.text.alwaysBlack
+    },
     "& .EditorTypeSelect-select": {
       display: "none",
     },
@@ -596,7 +599,7 @@ const WelcomeScreen = ({onNext, currentUser, classes}: {
         <div className={classes.welcomeDescription}>
           The <Link to={ELECTION_DONATE_HREF}>Donation Election Fund</Link> will be
           distributed to the top 3 candidates<sup>1</sup>. We&apos;re
-          using <Link to={VOTING_HREF}>ranked-choice voting</Link>. You can change
+          using <Link to={ELECTION_HOW_TO_VOTE_HREF}>ranked-choice voting</Link>. You can change
           your vote<sup>2</sup> as many times as you like until the deadline.
         </div>
         <div className={classes.welcomeButtons}>
@@ -697,7 +700,7 @@ const RankingScreen = ({items, setItems, classes}: {
         </div>
         <div className={classes.rankingDescription}>
           Click a candidate to rank it, drag to reorder. Unranked get no
-          points. <Link to={VOTING_HREF}>Learn more</Link>.
+          points. <Link to={ELECTION_HOW_TO_VOTE_HREF}>Learn more</Link>.
         </div>
         <div className={classes.rankingSubDescription}>
           If you’re unsure about your ranking: vote, read more, and change your
@@ -849,9 +852,7 @@ const ThankYouScreen = ({
 }) => {
   const updateCurrentUser = useUpdateCurrentUser();
   const {captureEvent} = useTracking();
-  const [addFlair, setAddFlair] = useState(
-    false,
-  );
+  const [addFlair, setAddFlair] = useState(true);
   const [confetti, setConfetti] = useState(true);
   const {width, height} = useWindowSize();
 
@@ -868,6 +869,13 @@ const ThankYouScreen = ({
   }, [updateCurrentUser, captureEvent]);
 
   const fundPercent = Math.round((amountRaised / amountTarget) * 100);
+
+  // Turn on the flair by default
+  useEffect(() => {
+    void updateCurrentUser({
+      givingSeason2025VotedFlair: true,
+    });
+  }, [updateCurrentUser]);
 
   return (
     <div className={classes.thankYouRoot}>

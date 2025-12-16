@@ -741,10 +741,6 @@ extend type Query {
 }
 
 extend type Mutation {
-  revokeGoogleServiceAccountTokens: Boolean!
-}
-
-extend type Mutation {
   alignmentComment(commentId: String, af: Boolean): Comment
   alignmentPost(postId: String, af: Boolean): Post
 }

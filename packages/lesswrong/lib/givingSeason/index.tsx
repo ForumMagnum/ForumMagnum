@@ -16,11 +16,13 @@ import { isEAForum } from "../instanceSettings";
 import gql from "graphql-tag";
 import { userIsAdmin } from "../vulcan-users/permissions";
 import { IRPossibleVoteCounts } from "./instantRunoff";
+import { userIsBanned } from "../collections/users/helpers";
 
 export const GIVING_SEASON_INFO_HREF = "/posts/RzdKnBYe3jumrZxkB/giving-season-2025-announcement";
 export const ELECTION_INFO_HREF = "/posts/RzdKnBYe3jumrZxkB/giving-season-2025-announcement#November_24th_to_December_7th_";
 export const ELECTION_LEARN_MORE_HREF = "/posts/93KvQDDQfaZEBTP7t/donation-election-fund-rewards-and-matching";
 export const ELECTION_DONATE_HREF = "https://www.every.org/ea-forum-donation-election-2025";
+export const ELECTION_HOW_TO_VOTE_HREF = "/posts/GyjtmSuQviTngRtjn/donation-election-2025-how-to-vote";
 export const ELECTION_VOTE_HREF = "/voting-portal";
 export const ELECTION_2025_MATCHED_AMOUNT = 5000;
 export const MARGINAL_FUNDING_SEQUENCE_ID = "jTAPdwYry3zTyifkZ";
@@ -34,7 +36,7 @@ export const DONATION_ELECTION_SHOW_LEADERBOARD_CUTOFF = 100;
 export const DONATION_ELECTION_ACCOUNT_AGE_CUTOFF = new Date("2025-10-24T00:00:00.000Z"); // Based on the time of https://forum.effectivealtruism.org/posts/RzdKnBYe3jumrZxkB/giving-season-2025-announcement
 export const DONATION_ELECTION_APPROX_CLOSING_DATE = 'Dec 7th';
 export const DONATION_ELECTION_START = new Date("2025-11-24T10:00:00.000Z");
-export const DONATION_ELECTION_END = new Date("2025-12-08T00:00:00.000Z");
+export const DONATION_ELECTION_END = new Date("2025-12-07T12:00:00.000Z");
 export const DONATION_ELECTION_CANDIDATES_HREF = "/posts/YqYSGpRbLa7ppkuWs/meet-the-candidates-donation-election-2025";
 export const DONATION_ELECTION_WINNERS_HREF = null;
 
@@ -50,7 +52,7 @@ export function userIsAllowedToVoteInDonationElection(
     return { allowed: false, reason: "You must be logged in to vote" };
   }
 
-  if (currentUser.banned) {
+  if (userIsBanned(currentUser)) {
     return { allowed: false, reason: "Banned users cannot vote" };
   }
 
@@ -150,7 +152,7 @@ export const givingSeasonEvents: GivingSeasonEvent[] = [
       slug: "why-i-donate-week-2025",
     },
     start: new Date("2025-12-08"),
-    end: new Date("2025-12-15"),
+    end: new Date("2025-12-15T08:59:59.000Z"),
     color: "#63C5D5",
     desktopCloudinaryId: "week1_desktop_toao8n",
     mobileCloudinaryId: "week1_mobile_fwltv9",
@@ -160,7 +162,7 @@ export const givingSeasonEvents: GivingSeasonEvent[] = [
     name: "Donation celebration",
     description: "When you’ve finished making your giving season donations, add a heart to the banner and celebrate with us!",
     readMoreHref: "/posts/RzdKnBYe3jumrZxkB/giving-season-2025-announcement#December_15th_to_the_end_of_the_year",
-    start: new Date("2025-12-15"),
+    start: new Date("2025-12-15T09:00:00.000Z"),
     end: new Date("2025-12-31"),
     color: "#F59469",
     desktopCloudinaryId: "week5_desktop_bqdvi3",

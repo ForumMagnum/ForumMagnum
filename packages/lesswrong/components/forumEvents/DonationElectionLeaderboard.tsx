@@ -1,6 +1,6 @@
 import React, { useMemo, useState } from "react";
 import { IRPossibleVoteCounts } from "@/lib/givingSeason/instantRunoff";
-import { ACTIVE_DONATION_ELECTION, DONATION_ELECTION_END, DONATION_ELECTION_NUM_WINNERS } from "@/lib/givingSeason";
+import { ACTIVE_DONATION_ELECTION, DONATION_ELECTION_END, DONATION_ELECTION_NUM_WINNERS, ELECTION_HOW_TO_VOTE_HREF } from "@/lib/givingSeason";
 import { useMulti } from "@/lib/crud/withMulti";
 import classNames from "classnames";
 import { Link } from "@/lib/reactRouterWrapper";
@@ -222,11 +222,11 @@ export const DonationElectionLeaderboard = ({
               title={
                 <>
                   To get down to 3 winners, candidates are eliminated one by one and votes are reallocated according to{" "}
-                  <Link to="/posts/j6fmnYM5ZRu9fJyrq/donation-election-how-to-vote" target="_blank" rel="noopener noreferrer">instant-runoff rules</Link>.
+                  <Link to={ELECTION_HOW_TO_VOTE_HREF} target="_blank" rel="noopener noreferrer">instant-runoff rules</Link>.
                   Clicking "show one more" here un-eliminates the next best candidate, which results in votes being
                   removed from higher scoring candidates and allocated back to this one. This is intended for
                   illustration/tactical voting purposes.{" "}
-                  <Link to="/posts/j6fmnYM5ZRu9fJyrq/donation-election-how-to-vote" target="_blank" rel="noopener noreferrer">Learn more here</Link>.
+                  <Link to={ELECTION_HOW_TO_VOTE_HREF} target="_blank" rel="noopener noreferrer">Learn more here</Link>.
                 </>
               }
               popperClassName={classes.infoTooltipPopper}

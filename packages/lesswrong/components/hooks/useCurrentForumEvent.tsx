@@ -7,7 +7,7 @@ type ForumEventsContext = {
   currentForumEvent: ForumEventsDisplay | null,
   activeForumEvents: ForumEventsDisplay[],
   isEventPost: (post: PostsBase, options?: { includeRecent?: boolean }) => ForumEventsDisplay | null,
-  refetch?: () => void
+  refetch?: () => Promise<void>,
 };
 
 const defaultValue: ForumEventsContext = {

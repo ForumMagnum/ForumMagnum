@@ -10,7 +10,7 @@ export type ForumEventStickerInput = {
   x: number;
   y: number;
   theta: number;
-  emoji: string;
+  emoji: string | null;
 }
 
 export type ForumEventSticker = ForumEventStickerInput & {
@@ -70,6 +70,7 @@ export const ForumEventCommentMetadataSchema = new SimpleSchema({
       emoji: {
         type: String,
         optional: true,
+        nullable: true,
       }
     }),
     optional: true,

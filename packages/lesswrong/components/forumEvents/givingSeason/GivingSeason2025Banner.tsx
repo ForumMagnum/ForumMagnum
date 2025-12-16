@@ -14,7 +14,6 @@ import {
   DONATION_ELECTION_START,
   DONATION_ELECTION_WINNERS_HREF,
   ELECTION_DONATE_HREF,
-  ELECTION_INFO_HREF,
   ELECTION_LEARN_MORE_HREF,
   ELECTION_VOTE_HREF,
   GIVING_SEASON_INFO_HREF,
@@ -23,6 +22,7 @@ import {
 } from "@/lib/givingSeason";
 import classNames from "classnames";
 import moment from "moment";
+import ForumEventStickers from "../ForumEventStickers";
 import GivingSeasonFeedItem from "./GivingSeasonFeedItem";
 import GivingSeasonTopPosts from "./GivingSeasonTopPosts";
 import CloudinaryImage2 from "@/components/common/CloudinaryImage2";
@@ -120,7 +120,19 @@ const styles = defineStyles("GivingSeason2025Banner", (theme: ThemeType) => ({
       maxWidth: "calc(min(500px, 100%))",
     },
   },
+  // Leave some room at the bottom for adding stickers
+  mainStickers: {
+    paddingBottom: 100,
+    [theme.breakpoints.down("sm")]: {
+      paddingBottom: 120,
+    },
+  },
+  stickers: {
+    zIndex: 2,
+  },
   events: {
+    position: "relative",
+    zIndex: 3,
     display: "grid",
     gridTemplateColumns: "min-content 1fr",
     marginBottom: "auto", // Don't expand based on RHS content
@@ -189,13 +201,14 @@ const styles = defineStyles("GivingSeason2025Banner", (theme: ThemeType) => ({
   },
   feedButton: {
     borderRadius: theme.borderRadius.default,
-    padding: "8px 24px",
+    padding: "12px 24px",
     fontSize: 14,
     fontWeight: 500,
     marginTop: 10,
     display: "inline-flex",
     alignItems: "center",
     justifyContent: "center",
+    textAlign: "center",
     gap: 8,
     transition: "opacity ease 0.2s",
     "& svg": {
@@ -203,6 +216,12 @@ const styles = defineStyles("GivingSeason2025Banner", (theme: ThemeType) => ({
     },
     "&:hover": {
       opacity: 0.8,
+    },
+    [theme.breakpoints.down("sm")]: {
+      padding: "8px 12px",
+    },
+    [theme.breakpoints.down("xs")]: {
+      padding: 8,
     },
   },
   feedButtonPrimary: {
@@ -241,7 +260,10 @@ const styles = defineStyles("GivingSeason2025Banner", (theme: ThemeType) => ({
     padding: "24px 50px !important",
     "& .GivingSeason2025Banner-electionStatus": {
       gap: "6px !important"
-    }
+    },
+    [theme.breakpoints.down("md")]: {
+      padding: "16px !important",
+    },
   },
   election: {
     backgroundColor: "var(--event-color)",
@@ -381,6 +403,9 @@ const styles = defineStyles("GivingSeason2025Banner", (theme: ThemeType) => ({
       color: theme.palette.text.alwaysBlack,
     },
   },
+  stickerIcon: {
+    color: "var(--event-color)",
+  },
 }))
 
 export const GivingSeason2025Banner: FC = () => {
@@ -413,6 +438,9 @@ export const GivingSeason2025Banner: FC = () => {
 
   const isMobileLeaderboardAllowed = currentEvent.name === "Donation election";
   const isMobileLeaderboardDisplayed = isMobileLeaderboardAllowed && isLeaderboardDisplayed;
+
+  const showStickers = currentEvent.name === "Donation celebration" &&
+    currentEvent === selectedEvent;
 
   return (
     <AnalyticsContext pageSectionContext="GivingSeason2025Banner">
@@ -451,7 +479,18 @@ export const GivingSeason2025Banner: FC = () => {
             Giving season <span>2025</span>
           </Link>
         </div>
-        <div className={classes.main}>
+        <div className={classNames(
+          classes.main,
+          showStickers && classes.mainStickers,
+        )}>
+          {showStickers && (
+              <ForumEventStickers
+                icon="Heart"
+                iconClassName={classes.stickerIcon}
+                noMobileOverlay
+                className={classes.stickers}
+              />
+            )}
           <div className={classes.events}>
             {givingSeasonEvents.map((event) => {
               const shouldHideOnMobile = isMobileLeaderboardAllowed && event.end > currentEvent.end;
@@ -496,36 +535,38 @@ export const GivingSeason2025Banner: FC = () => {
               />
             </div>
           )}
-          <div className={classes.mobileButtonRow}>
-            {!isVotingOpen && <Link
-              to={ELECTION_LEARN_MORE_HREF}
-              onClick={onLinkClick.bind(null, "learnMore", ELECTION_LEARN_MORE_HREF)}
-              className={classNames(classes.feedButton, classes.feedButtonSecondary)}
-            >
-              Learn more
-            </Link>}
-            {!isVotingEnded && <a
-              href={ELECTION_DONATE_HREF}
-              onClick={onLinkClick.bind(null, "donate", ELECTION_DONATE_HREF)}
-              className={classNames(classes.feedButton, classes.feedButtonPrimary)}
-              target="_blank"
-              rel="noopener noreferrer"
-            >
-              Donate
-            </a>}
-            {isVotingOpen && <Link
-              to={ELECTION_VOTE_HREF}
-              onClick={onLinkClick.bind(null, "vote", ELECTION_VOTE_HREF)}
-              className={classNames(classes.feedButton, classes.feedButtonSecondary)}
-            >
-              Vote in the election
-            </Link>}
-          </div>
+          {currentEvent.name === "Donation election" && (
+            <div className={classes.mobileButtonRow}>
+              {!isVotingOpen && <Link
+                to={ELECTION_LEARN_MORE_HREF}
+                onClick={onLinkClick.bind(null, "learnMore", ELECTION_LEARN_MORE_HREF)}
+                className={classNames(classes.feedButton, classes.feedButtonSecondary)}
+              >
+                Learn more
+              </Link>}
+              {!isVotingEnded && <a
+                href={ELECTION_DONATE_HREF}
+                onClick={onLinkClick.bind(null, "donate", ELECTION_DONATE_HREF)}
+                className={classNames(classes.feedButton, classes.feedButtonPrimary)}
+                target="_blank"
+                rel="noopener noreferrer"
+              >
+                Donate
+              </a>}
+              {isVotingOpen && <Link
+                to={ELECTION_VOTE_HREF}
+                onClick={onLinkClick.bind(null, "vote", ELECTION_VOTE_HREF)}
+                className={classNames(classes.feedButton, classes.feedButtonSecondary)}
+              >
+                Vote in the election
+              </Link>}
+            </div>
+          )}
           <div className={classes.feed}>
             <div className={classes.feedPostsList}>
               {!isLeaderboardDisplayed && currentEvent?.tag && selectedEvent === currentEvent && (
                 <>
-                <MixedTypeFeed
+                  <MixedTypeFeed
                     firstPageSize={selectedEvent?.feedCount}
                     hideLoading
                     disableLoadMore
@@ -615,64 +656,66 @@ export const GivingSeason2025Banner: FC = () => {
             )}
           </div>
         </div>
-        <div className={classNames(classes.election, currentEvent.name === "Donation election" && classes.electionExpanded)}>
-          <div className={classes.electionStatus}>
-            <div className={classNames(
-              classes.amountRaised,
-              classes.amountRaisedDesktop,
-            )}>
-              ${formatStat(amountRaised)} raised{" "}
-              <span>to the Donation Election Fund</span>
+        {!isVotingEnded && (
+          <div className={classNames(classes.election, currentEvent.name === "Donation election" && classes.electionExpanded)}>
+            <div className={classes.electionStatus}>
+              <div className={classNames(
+                classes.amountRaised,
+                classes.amountRaisedDesktop,
+              )}>
+                ${formatStat(amountRaised)} raised{" "}
+                <span>to the Donation Election Fund</span>
+              </div>
+              <div className={classNames(
+                classes.amountRaised,
+                classes.amountRaisedMobile,
+              )}>
+                <span>Donation Election Fund</span>
+                <div>${formatStat(amountRaised)}</div>
+              </div>
+              <div className={classes.progress} aria-hidden>
+                <div className={classes.progressBackground} />
+                <div
+                  style={{width: `${amountRaised / amountTarget * 100}%`}}
+                  className={classes.progressBar}
+                />
+              </div>
+              <div className={classes.match}>
+                Includes our match on the first $5000
+              </div>
             </div>
-            <div className={classNames(
-              classes.amountRaised,
-              classes.amountRaisedMobile,
-            )}>
-              <span>Donation Election Fund</span>
-              <div>${formatStat(amountRaised)}</div>
-            </div>
-            <div className={classes.progress} aria-hidden>
-              <div className={classes.progressBackground} />
-              <div
-                style={{width: `${amountRaised / amountTarget * 100}%`}}
-                className={classes.progressBar}
-              />
-            </div>
-            <div className={classes.match}>
-              Includes our match on the first $5000
+            <div className={classes.electionButtons}>
+              {!isVotingOpen && <Link
+                to={ELECTION_LEARN_MORE_HREF}
+                onClick={onLinkClick.bind(null, "learnMore", ELECTION_LEARN_MORE_HREF)}
+                className={classes.buttonOutlined}
+              >
+                Learn more
+              </Link>}
+              {!isVotingEnded && <a
+                href={ELECTION_DONATE_HREF}
+                onClick={onLinkClick.bind(null, "donate", ELECTION_DONATE_HREF)}
+                className={classes.buttonBlack}
+                target="_blank"
+                rel="noopener noreferrer"
+              >
+                Donate
+              </a>}
+              {isVotingOpen && <Link
+                to={ELECTION_VOTE_HREF}
+                onClick={onLinkClick.bind(null, "vote", ELECTION_VOTE_HREF)}
+                className={classes.buttonOutlined}
+              >
+                Vote in the election
+              </Link>}
+              {isVotingEnded && <div
+                className={classes.buttonOutlinedDisabled}
+              >
+                You can no longer vote or donate
+              </div>}
             </div>
           </div>
-          <div className={classes.electionButtons}>
-            {!isVotingOpen && <Link
-              to={ELECTION_LEARN_MORE_HREF}
-              onClick={onLinkClick.bind(null, "learnMore", ELECTION_LEARN_MORE_HREF)}
-              className={classes.buttonOutlined}
-            >
-              Learn more
-            </Link>}
-            {!isVotingEnded && <a
-              href={ELECTION_DONATE_HREF}
-              onClick={onLinkClick.bind(null, "donate", ELECTION_DONATE_HREF)}
-              className={classes.buttonBlack}
-              target="_blank"
-              rel="noopener noreferrer"
-            >
-              Donate
-            </a>}
-            {isVotingOpen && <Link
-              to={ELECTION_VOTE_HREF}
-              onClick={onLinkClick.bind(null, "vote", ELECTION_VOTE_HREF)}
-              className={classes.buttonOutlined}
-            >
-              Vote in the election
-            </Link>}
-            {isVotingEnded && <div
-              className={classes.buttonOutlinedDisabled}
-            >
-              You can no longer vote or donate
-            </div>}
-          </div>
-        </div>
+        )}
       </div>
     </AnalyticsContext>
   );

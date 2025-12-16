@@ -122,9 +122,6 @@ export type CommentsNewFormProps = {
   successCallback?: CommentSuccessCallback,
   cancelCallback?: CommentCancelCallback,
   interactionType: CommentInteractionType,
-  // RM: this no longer does anything; it's used in two places to remove the `af` field
-  // but I don't think it really matters.
-  removeFields?: any,
   formProps?: {
     post?: PostsDetails;
     maxHeight?: boolean;
@@ -137,6 +134,7 @@ export type CommentsNewFormProps = {
   quickTakesSubmitButtonAtBottom?: boolean,
   isAnswer?: boolean,
   cancelLabel?: string,
+  hideControls?: boolean,
   className?: string,
   classes: ClassesType<typeof styles>,
 }
@@ -150,7 +148,6 @@ const CommentsNewForm = ({
   successCallback,
   interactionType,
   cancelCallback,
-  removeFields,
   formProps,
   enableGuidelines=true,
   padding=true,
@@ -159,6 +156,7 @@ const CommentsNewForm = ({
   quickTakesSubmitButtonAtBottom,
   isAnswer,
   cancelLabel,
+  hideControls,
   className,
   classes,
 }: CommentsNewFormProps) => {
@@ -384,6 +382,7 @@ const CommentsNewForm = ({
               onError={() => {
                 setLoading(false)
               }}
+              hideControls={hideControls}
             />
           </div>
         </div>
@@ -402,6 +401,3 @@ export default registerComponent('CommentsNewForm', CommentsNewForm, {
   styles,
   hocs: [withErrorBoundary]
 });
-
-
-

@@ -205,6 +205,9 @@ export const userCanCommentLock = (user: UsersCurrent|DbUser|null, post: PostsBa
   )
 }
 
+export const userIsBanned = (user: Pick<DbUser, "banned">) =>
+  user.banned && new Date(user.banned) > new Date();
+
 export const userIsBannedFromPost = (user: UsersMinimumInfo|DbUser, post: PostsDetails|DbPost, postAuthor: PostsAuthors_user|DbUser|null): boolean => {
   if (!post) return false;
   return !!(

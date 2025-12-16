@@ -64,7 +64,6 @@ const ReviewPostForm = ({classes, post, onClose}: {
     onClose={onClose}
     commentFormProps={{
       post: post,
-      removeFields: ['af'],
       prefilledProps: {
         reviewingForReview: REVIEW_YEAR.toString()
       },

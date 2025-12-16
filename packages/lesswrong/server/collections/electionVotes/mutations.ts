@@ -1,15 +1,23 @@
-
-import { isPastVotingDeadline, userCanVoteInDonationElection } from "@/lib/collections/electionVotes/helpers";
+import { userCanVoteInDonationElection } from "@/lib/collections/electionVotes/helpers";
 import schema from "@/lib/collections/electionVotes/newSchema";
 import { accessFilterSingle } from "@/lib/utils/schemaUtils";
 import { isAdmin, userIsAdmin, userOwns } from "@/lib/vulcan-users/permissions";
 import { updateCountOfReferencesOnOtherCollectionsAfterCreate, updateCountOfReferencesOnOtherCollectionsAfterUpdate } from "@/server/callbacks/countOfReferenceCallbacks";
+import { DatabaseServerSetting } from "@/server/databaseSettings";
 import { logFieldChanges } from "@/server/fieldChanges";
 import { getCreatableGraphQLFields, getUpdatableGraphQLFields } from "@/server/vulcan-lib/apollo-server/graphqlTemplates";
 import { makeGqlCreateMutation, makeGqlUpdateMutation } from "@/server/vulcan-lib/apollo-server/helpers";
 import { getLegacyCreateCallbackProps, getLegacyUpdateCallbackProps, insertAndReturnCreateAfterProps, runFieldOnCreateCallbacks, runFieldOnUpdateCallbacks, updateAndReturnDocument, assignUserIdToData } from "@/server/vulcan-lib/mutators";
 import gql from "graphql-tag";
 import cloneDeep from "lodash/cloneDeep";
+
+const electionDeadlineSetting = new DatabaseServerSetting<string>(
+  "givingSeason.electionDonationDeadline",
+  "2023-12-15T23:59:59-12:00",
+);
+
+const isPastVotingDeadline = () =>
+  new Date() > new Date(electionDeadlineSetting.get());
 
 function newCheck(user: DbUser | null) {
   if (!user) return false;

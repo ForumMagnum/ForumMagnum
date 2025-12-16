@@ -62,7 +62,21 @@ const styles = (theme: ThemeType) => ({
   },
 });
 
-const ForumEventSticker = ({ x, y, theta, user, comment, emoji, icon = "AddEmoji", tooltipDisabled, onClear, saveDraftSticker, setUserVoteRef, classes }: {
+const ForumEventSticker = ({
+  x,
+  y,
+  theta,
+  user,
+  comment,
+  emoji,
+  icon = "AddEmoji",
+  iconClassName,
+  tooltipDisabled,
+  onClear,
+  saveDraftSticker,
+  setUserVoteRef,
+  classes,
+}: {
   x: number;
   y: number;
   theta: number;
@@ -70,6 +84,7 @@ const ForumEventSticker = ({ x, y, theta, user, comment, emoji, icon = "AddEmoji
   comment?: ShortformComments | null;
   emoji?: React.ReactNode
   icon?: ForumIconName;
+  iconClassName?: string,
   tooltipDisabled?: boolean;
   onClear?: () => void;
   saveDraftSticker?: (event: React.MouseEvent) => void;
@@ -107,7 +122,7 @@ const ForumEventSticker = ({ x, y, theta, user, comment, emoji, icon = "AddEmoji
               <div className={classes.cross}>&times;</div>
             </div>
           )}
-          {emoji ?? <ForumIcon icon={icon} />}
+          {emoji ?? <ForumIcon icon={icon} className={iconClassName} />}
         </LWTooltip>
         {!isHoverSticker && !tooltipDisabled && user && comment && popperOpen && (
           <ForumEventResultPopper
