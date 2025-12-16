@@ -504,7 +504,6 @@ const LlmSidebarWrapper = ({children}: {
 const pageBackgroundWrapperStyles = defineStyles("PageBackgroundWrapper", (theme: ThemeType) => ({
   wrapper: {
     position: 'relative',
-    overflowX: 'clip'
   },
   fullscreen: {
     // The min height of 600px here is so that the page doesn't shrink down completely when the keyboard is open on mobile.

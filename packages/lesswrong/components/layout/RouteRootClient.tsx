@@ -5,9 +5,11 @@ import classNames from 'classnames';
 import { DelayedLoading } from '../common/DelayedLoading';
 import ErrorBoundary from '../common/ErrorBoundary';
 import { SuspenseWrapper } from '../common/SuspenseWrapper';
+import { PopperPortalProvider } from '../common/LWPopper';
 
 const styles = defineStyles("RouteRootClient", (theme: ThemeType) => ({
   main: {
+    overflowX: 'clip',
     paddingTop: theme.spacing.mainLayoutPaddingTop,
     marginLeft: "auto",
     marginRight: "auto",
@@ -36,19 +38,21 @@ export const RouteRootClient = ({children, fullscreen}: {
 }) => {
   const classes = useStyles(styles);
 
-  return <div className={classNames(classes.main, {
-    [classes.mainFullscreen]: fullscreen,
-  })}>
-    <ErrorBoundary>
-      <SuspenseWrapper name="Route" fallback={<DelayedLoading/>}>
-        {children}
-      </SuspenseWrapper>
-
-      {/* ea-forum-look-here We've commented out some EAForum-specific components for bundle size reasons */}
-      {/* <SuspenseWrapper name="OnboardingFlow">
-        {!isIncompletePath && isEAForum() ? <EAOnboardingFlow/> : <BasicOnboardingFlow/>}
-      </SuspenseWrapper> */}
-    </ErrorBoundary>
-  </div>
+  return <PopperPortalProvider>
+    <div className={classNames(classes.main, {
+      [classes.mainFullscreen]: fullscreen,
+    })}>
+      <ErrorBoundary>
+        <SuspenseWrapper name="Route" fallback={<DelayedLoading/>}>
+          {children}
+        </SuspenseWrapper>
+  
+        {/* ea-forum-look-here We've commented out some EAForum-specific components for bundle size reasons */}
+        {/* <SuspenseWrapper name="OnboardingFlow">
+          {!isIncompletePath && isEAForum() ? <EAOnboardingFlow/> : <BasicOnboardingFlow/>}
+        </SuspenseWrapper> */}
+      </ErrorBoundary>
+    </div>
+  </PopperPortalProvider>
 }
 
