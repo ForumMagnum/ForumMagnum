@@ -38,9 +38,9 @@ const styles = (theme: ThemeType) => ({
     color: theme.palette.text.alwaysWhite,
   },
   newMessageForm: {
-    background: theme.palette.wrapped.panelBackground,
+    background: theme.palette.wrapped.black,
     borderRadius: theme.borderRadius.default,
-    padding: "0 16px 16px",
+    padding: "8px 16px 16px",
     "& .ck-placeholder": {
       "--ck-color-engine-placeholder-text": theme.palette.wrapped.tertiaryText,
     },

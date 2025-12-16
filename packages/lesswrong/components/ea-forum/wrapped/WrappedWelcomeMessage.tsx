@@ -1,10 +1,13 @@
 import React, { ReactNode } from "react";
 import { registerComponent } from "@/lib/vulcan-lib/components";
-import { WrappedYear } from "./hooks";
+import type { WrappedYear } from "./hooks";
 import WrappedSection from "./WrappedSection";
 
 const styles = (theme: ThemeType) => ({
   container: {
+    flexGrow: 1,
+    display: "flex",
+    flexDirection: "column",
     margin: "40px auto 0",
     [theme.breakpoints.up("sm")]: {
       width: 600,
@@ -12,18 +15,19 @@ const styles = (theme: ThemeType) => ({
   },
   heading: {
     fontSize: 54,
-    fontWeight: 700,
+    fontFamily: theme.palette.wrapped.fontFamily,
+    fontWeight: 400,
     lineHeight: "110%",
-    letterSpacing: "-2.7px",
+    letterSpacing: "-1.6px",
     textAlign: "left",
     marginTop: 0,
     wordBreak: "break-word",
+    [theme.breakpoints.down("sm")]: {
+      flexGrow: 1,
+    },
   },
   wrapped: {
     color: theme.palette.wrapped.highlightText,
-  },
-  children: {
-    marginBottom: 40,
   },
 });
 
@@ -48,7 +52,7 @@ const WrappedWelcomeMessage = ({currentUser, year, children, classes}: {
           <span className={classes.wrapped}>Wrapped</span>
         </h1>
         {children &&
-          <div className={classes.children}>
+          <div>
             {children}
           </div>
         }
@@ -62,5 +66,3 @@ export default registerComponent(
   WrappedWelcomeMessage,
   {styles},
 );
-
-

@@ -11,6 +11,7 @@ import { getCityName } from '../localGroups/TabNavigationEventsList';
 import { userHasEAHomeRHS } from '../../lib/betas';
 import { useRecentOpportunities } from '../hooks/useRecentOpportunities';
 import { useEAVirtualPrograms } from '../hooks/useEAVirtualPrograms';
+import { showHomepageWrappedAd } from '@/lib/publicSettings';
 import DeferRender from '../common/DeferRender';
 import LWTooltip from "../common/LWTooltip";
 import SectionTitle from "../common/SectionTitle";
@@ -19,6 +20,7 @@ import FormatDate from "../common/FormatDate";
 import PostsItemDate from "../posts/PostsItemDate";
 import ForumIcon from "../common/ForumIcon";
 import SidebarDigestAd from "./digestAd/SidebarDigestAd";
+import WrappedAd from './wrapped/WrappedAd';
 
 /**
  * The max screen width where the Home RHS is visible
@@ -238,8 +240,9 @@ export const EAHomeRightHandSide = ({classes}: {
   return <AnalyticsContext pageSectionContext="homeRhs">
     {!!currentUser && sidebarToggleNode}
     <div className={classes.root}>
+      {showHomepageWrappedAd.get() && <WrappedAd />}
       {digestAdNode}
-      
+
       {!!opportunityPosts?.length && <AnalyticsContext pageSubSectionContext="opportunities">
         <div className={classes.section}>
           <LWTooltip

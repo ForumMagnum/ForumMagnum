@@ -2,7 +2,7 @@ import Posts from "../../server/collections/posts/collection";
 import AbstractRepo from "./AbstractRepo";
 import { eaPublicEmojiNames } from "../../lib/voting/eaEmojiPalette";
 import LRU from "lru-cache";
-import { getViewablePostsSelector } from "./helpers";
+import { getViewableCommentsSelector, getViewablePostsSelector } from "./helpers";
 import { EA_FORUM_COMMUNITY_TOPIC_ID } from "../../lib/collections/tags/helpers";
 import { recordPerfMetrics } from "./perfMetricWrapper";
 import { isAF } from "../../lib/instanceSettings";
@@ -685,7 +685,7 @@ class PostsRepo extends AbstractRepo<"Posts"> {
             visible_posts)
         UNION ALL (
           SELECT
-            "coauthorUserIds" AS "userId"
+            UNNEST("coauthorUserIds") AS "userId"
           FROM
             visible_posts)
       ),
@@ -1360,6 +1360,77 @@ class PostsRepo extends AbstractRepo<"Posts"> {
     `, [sequenceId, postId]);
 
     return result?.exists ?? false;
+  }
+
+  /**
+   * Returns the number of posts where the user was the first commenter.
+   */
+  async countPostsWhereIsFirstCommenter(
+    userId: string,
+    start: Date,
+    end: Date,
+  ): Promise<number> {
+    const result = await this.getRawDb().oneOrNone<{firstCommentCount: number}>(`
+      -- CommentsRepo.countPostsWhereIsFirstCommenter
+      SELECT COUNT(*) AS "firstCommentCount"
+      FROM "Comments" c
+      JOIN (
+        SELECT "postId", MIN("postedAt") AS "minPostedAt"
+        FROM "Comments"
+        WHERE
+          "postId" IS NOT NULL AND
+          "deleted" IS NOT TRUE AND
+          "draft" IS NOT TRUE AND
+          "postedAt" >= $2 AND
+          "postedAt" < $3 AND
+          ${getViewableCommentsSelector()}
+        GROUP BY "postId"
+      ) m
+      ON m."postId" = c."postId" AND m."minPostedAt" = c."postedAt"
+      WHERE c."userId" = $1
+    `, [userId, start, end]);
+    return result?.firstCommentCount ?? 0;
+  }
+
+  /**
+   * Returns a Record<string, number> where the keys are the tag slugs of all
+   * the posts that the user upvoted and the value is the number of posts the
+   * user upvoted with that tag applied.
+   */
+  async countUpvotedPostsTagRelevance(
+    userId: string,
+    start: Date,
+    end: Date,
+  ): Promise<Record<string, number>> {
+    const result = await this.getRawDb().any<{tagSlug: string, count: string}>(`
+      -- CommentsRepo.countUpvotedPostsTagRelevance
+      SELECT t."slug" "tagSlug", COUNT(*) "count"
+      FROM (
+        SELECT "_id" "postId", "tagRelevance"
+        FROM "Posts"
+        WHERE "_id" IN (
+          SELECT DISTINCT "documentId"
+          FROM "Votes"
+          WHERE
+            "userId" = $1
+            AND "votedAt" >= $2
+            AND "votedAt" < $3
+            AND "collectionName" = 'Posts'
+            AND NOT "cancelled"
+            AND NOT "isUnvote"
+            AND "power" > 0
+        )
+      ) p
+      CROSS JOIN LATERAL JSONB_EACH(p."tagRelevance") AS tr(key, value)
+      INNER JOIN "Tags" t ON t."_id" = tr.key::TEXT
+      WHERE tr.value::INT >= 1
+      GROUP BY t."slug"
+    `, [userId, start, end]);
+    const aggregated: Record<string, number> = {};
+    for (const row of result) {
+      aggregated[row.tagSlug] = parseInt(row.count);
+    }
+    return aggregated;
   }
 }
 
