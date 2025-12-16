@@ -25,7 +25,7 @@ export const CommentsSortBySelector = ({setRestoreScrollPos}: {
     const currentQuery = isEmpty(query) ? {} : query
     const newQuery = {...currentQuery, commentsSortBy: sortBy}
     setRestoreScrollPos?.(window.scrollY);
-    navigate({...location.location, search: `?${qs.stringify(newQuery)}`})
+    navigate({...location.location, search: `?${qs.stringify(newQuery)}`}, { scroll: false })
   };
 
   const currentSortBy: string = query?.commentsSortBy || "new"
