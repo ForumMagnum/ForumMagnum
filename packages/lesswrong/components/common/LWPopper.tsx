@@ -18,13 +18,14 @@ import { useStyles } from '../hooks/useStyles';
  *   bottom-left | bottom   | bottom-right
  * 
  * For PopperJS placements:
- * - 'right' family → positioned to the right of anchor
- * - 'left' family → positioned to the left of anchor
- * - 'top' family → positioned above anchor
- * - 'bottom' family → positioned below anchor
+ * - 'right' family → positioned to the right of anchor (centered vertically)
+ * - 'left' family → positioned to the left of anchor (centered vertically)
+ * - 'top' family → positioned above anchor (centered horizontally)
+ * - 'bottom' family → positioned below anchor (centered horizontally)
  * 
- * We use simple position-area values and rely on align-self/justify-self
- * for the -start/-end alignment variants.
+ * Note: The -start/-end variants currently use the same positioning as the
+ * centered variants. Full alignment support would require explicit anchor()
+ * positioning which is more complex.
  */
 function getPositionAreaForPlacement(placement: PopperPlacementType): string {
   switch (placement) {
@@ -53,36 +54,6 @@ function getPositionAreaForPlacement(placement: PopperPlacementType): string {
     case 'auto-end':
     default:
       return 'bottom';
-  }
-}
-
-/**
- * Returns alignment styles for -start/-end placement variants.
- * 
- * For horizontal placements (left/right), align-self controls vertical alignment:
- *   - start = top-aligned
- *   - end = bottom-aligned
- * 
- * For vertical placements (top/bottom), justify-self controls horizontal alignment:
- *   - start = left-aligned (in LTR)
- *   - end = right-aligned (in LTR)
- */
-function getAlignmentStylesForPlacement(placement: PopperPlacementType): { alignSelf?: string; justifySelf?: string } {
-  const isHorizontal = placement.startsWith('left') || placement.startsWith('right');
-  const isStart = placement.endsWith('-start');
-  const isEnd = placement.endsWith('-end');
-  
-  if (!isStart && !isEnd) {
-    // Center alignment (default)
-    return {};
-  }
-  
-  if (isHorizontal) {
-    // For left/right placements, align-self controls vertical position
-    return { alignSelf: isStart ? 'start' : 'end' };
-  } else {
-    // For top/bottom placements, justify-self controls horizontal position
-    return { justifySelf: isStart ? 'start' : 'end' };
   }
 }
 
@@ -232,19 +203,10 @@ const LWPopper = ({
     
     const positionArea = placement ? getPositionAreaForPlacement(placement) : 'bottom';
     const positionTryFallbacks = placement ? getPositionTryFallbacks(placement) : 'flip-block, flip-inline';
-    const alignmentStyles = placement ? getAlignmentStylesForPlacement(placement) : {};
     
     // Set anchor positioning CSS properties
     popoverElement.style.setProperty('position-anchor', anchorName);
     popoverElement.style.setProperty('position-area', positionArea);
-    
-    // Apply alignment for -start/-end variants
-    if (alignmentStyles.alignSelf) {
-      popoverElement.style.setProperty('align-self', alignmentStyles.alignSelf);
-    }
-    if (alignmentStyles.justifySelf) {
-      popoverElement.style.setProperty('justify-self', alignmentStyles.justifySelf);
-    }
     
     // Enable position fallbacks unless flip is explicitly disabled
     if (flip !== false && !allowOverflow) {
@@ -267,8 +229,6 @@ const LWPopper = ({
     return () => {
       popoverElement.style.removeProperty('position-anchor');
       popoverElement.style.removeProperty('position-area');
-      popoverElement.style.removeProperty('align-self');
-      popoverElement.style.removeProperty('justify-self');
       popoverElement.style.removeProperty('position-try-fallbacks');
       popoverElement.style.marginTop = '';
       popoverElement.style.marginBottom = '';
