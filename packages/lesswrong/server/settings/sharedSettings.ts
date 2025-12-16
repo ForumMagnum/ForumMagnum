@@ -347,11 +347,11 @@ export const sharedSettings = {
   frontpageScoreBonus: 0,
   karmaRewarderId1000: "mBBmKWkmw8bgJmGiG",
   lightconeFundraiser: {
-    active: false,
-    postId: "5n2ZQcbc7r4R8mvqc",
+    active: true,
+    postId: "eKGdCNdKjvTBG9i6y",
     paymentLinkId: "plink_1QPdGLBlb9vL5IMTvkJ3LZ6v",
-    unsyncedAmount: 2082623.2,
-    thermometerBgUrl: "https://res.cloudinary.com/lesswrong-2-0/image/upload/q_auto,f_auto,h_400/v1732869999/Group_1_b4ap4h.png",
+    unsyncedAmount: 321_213,
+    thermometerBgUrl: "https://res.cloudinary.com/lesswrong-2-0/image/upload/f_auto,q_auto/v1765607802/fundraiserTest2_weie7h.webp",
     thermometerGoalAmount: 1000000,
     thermometerGoal2Amount: 2000000
   },

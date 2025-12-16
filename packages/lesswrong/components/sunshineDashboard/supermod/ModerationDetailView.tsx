@@ -262,10 +262,12 @@ const MAX_BIO_WORDCOUNT = 10000;
 const ModerationDetailView = ({ 
   user,
   focusedContentIndex,
+  runningSaplingCheckId,
   dispatch,
 }: {
   user: SunshineUsersList;
   focusedContentIndex: number;
+  runningSaplingCheckId: string | null;
   dispatch: React.ActionDispatch<[action: InboxAction]>;
 }) => {
   const classes = useStyles(styles);
@@ -455,6 +457,7 @@ const ModerationDetailView = ({
               items={allContent}
               title="Posts & Comments"
               focusedItemId={allContent[focusedContentIndex]?._id ?? null}
+              runningSaplingCheckId={runningSaplingCheckId}
               dispatch={dispatch}
             />
           </div>

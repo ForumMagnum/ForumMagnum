@@ -166,3 +166,6 @@ export const stickiedPostTerms = {
   forum: true
 } satisfies PostsViewTerms;
 
+// TODO: This disagrees with the value used for the book progress bar
+export const READ_WORDS_PER_MINUTE = 250;
+

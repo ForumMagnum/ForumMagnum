@@ -32,7 +32,7 @@ export type LiteMarket = {
   mechanism: string // dpm-2, cpmm-1, or cpmm-multi-1
 
   probability: number
-  pool: { outcome: number } // For CPMM markets, the number of shares in the liquidity pool. For DPM markets, the amount of mana invested in each answer.
+  pool: { [outcome: string]: number } // For CPMM markets, the number of shares in the liquidity pool. For DPM markets, the amount of mana invested in each answer.
   p?: number // CPMM markets only, probability constant in y^p * n^(1-p) = k
   totalLiquidity?: number // CPMM markets only, the amount of mana deposited into the liquidity pool
 
@@ -105,8 +105,13 @@ export const postGetMarketInfoFromManifold = async (marketId: string, year: numb
   }
 
   const fullMarket = await result.json()
-  
-  return { probability: fullMarket.probability, isResolved: fullMarket.isResolved, year, url: fullMarket.url }
+
+  return {
+    probability: fullMarket.probability,
+    isResolved: fullMarket.isResolved,
+    year,
+    url: fullMarket.url,
+  }
 }
 
 export const createManifoldMarket = async (question: string, descriptionMarkdown: string, closeTime: Date, visibility: string, initialProb: number, idKey: string): Promise<LiteMarket | undefined> => {
@@ -199,7 +204,12 @@ export const getPostMarketInfo = async (post: DbPost, context: ResolverContext):
     backgroundTask(refreshMarketInfoInCache(marketId, year, context));
   }
 
-  return { probability: cacheItem.probability, isResolved: cacheItem.isResolved, year: cacheItem.year, url: cacheItem.url ?? '' };
+  return {
+    probability: cacheItem.probability,
+    isResolved: cacheItem.isResolved,
+    year: cacheItem.year,
+    url: cacheItem.url ?? '',
+  };
 }
 
 /**

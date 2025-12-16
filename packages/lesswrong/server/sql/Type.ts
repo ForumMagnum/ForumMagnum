@@ -41,6 +41,8 @@ function getBaseTypeInstance(type: DatabaseBaseType, foreignKey?: DatabaseFieldS
       return new JsonType();
     case 'TIMESTAMPTZ':
       return new DateType();
+    default:
+      throw new Error(`Invalid type: ${type}`);
   }
 }
 
