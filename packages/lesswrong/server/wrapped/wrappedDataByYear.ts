@@ -304,6 +304,7 @@ export const getWrappedDataByYear = async (
   }
 
   const personality = new WrappedPersonality({
+    year,
     reactsReceived,
     reactsGiven,
     agreements,

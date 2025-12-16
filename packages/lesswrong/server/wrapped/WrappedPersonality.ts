@@ -22,6 +22,7 @@ export class WrappedPersonality {
   private parts: string[] = [];
 
   constructor({
+    year,
     reactsReceived,
     reactsGiven,
     agreements,
@@ -31,6 +32,7 @@ export class WrappedPersonality {
     joinedAt,
     upvotedPostsTagRelevance,
   }: {
+    year: number,
     reactsReceived: Record<string, number>,
     reactsGiven: Record<string, number>,
     agreements: Record<"agree" | "disagree", number>,
@@ -75,13 +77,11 @@ export class WrappedPersonality {
     }
 
     // Choose the noun
-    const oneMonthAgo = new Date();
-    oneMonthAgo.setMonth(new Date().getMonth() - 1);
     if (totalKarmaChange >= 1000) {
       this.parts.push("Karma Charmer");
     } else if (postsFirstCommented > 1) {
       this.parts.push("First Responder");
-    } else if (joinedAt >= oneMonthAgo) {
+    } else if (joinedAt >= new Date(`${year}-11-01`)) {
       this.parts.push("Newbie");
     } else {
       const tags = pick(
