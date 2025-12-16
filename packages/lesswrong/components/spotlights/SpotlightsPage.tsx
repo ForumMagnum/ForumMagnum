@@ -77,8 +77,8 @@ function sortSpotlightsInDisplayOrder(spotlights: SpotlightDisplay[], sortBy: 'l
     }
     return 0;
   });
-  
-  const upcomingSpotlights = spotlights.filter(spotlight => spotlight.position > currentSpotlight.position).sort((a, b) => {
+
+  const sortedSpotlights = [...spotlights].sort((a, b) => {
     if (sortBy === 'position') {
       return a.position - b.position; // Ascending position
     } else {
@@ -88,17 +88,7 @@ function sortSpotlightsInDisplayOrder(spotlights: SpotlightDisplay[], sortBy: 'l
     }
   });
   
-  const recycledSpotlights = spotlights.filter(spotlight => spotlight.position < currentSpotlight.position).sort((a, b) => {
-    if (sortBy === 'position') {
-      return a.position - b.position; // Ascending position
-    } else {
-      const aTime = new Date(a.lastPromotedAt).getTime();
-      const bTime = new Date(b.lastPromotedAt).getTime();
-      return bTime - aTime; // Descending lastPromotedAt
-    }
-  });
-  
-  return [currentSpotlight, ...upcomingSpotlights, ...recycledSpotlights];
+  return [currentSpotlight, ...sortedSpotlights];
 }
 
 export const SpotlightsPage = ({classes}: {
