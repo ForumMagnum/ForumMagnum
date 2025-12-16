@@ -10,6 +10,7 @@ import { PopperPortalProvider } from '../common/LWPopper';
 const styles = defineStyles("RouteRootClient", (theme: ThemeType) => ({
   main: {
     overflowX: 'clip',
+    maxWidth: "100%",
     paddingTop: theme.spacing.mainLayoutPaddingTop,
     marginLeft: "auto",
     marginRight: "auto",
