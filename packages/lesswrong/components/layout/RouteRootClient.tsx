@@ -8,6 +8,7 @@ import { SuspenseWrapper } from '../common/SuspenseWrapper';
 
 const styles = defineStyles("RouteRootClient", (theme: ThemeType) => ({
   main: {
+    overflowX: 'clip',
     paddingTop: theme.spacing.mainLayoutPaddingTop,
     marginLeft: "auto",
     marginRight: "auto",
