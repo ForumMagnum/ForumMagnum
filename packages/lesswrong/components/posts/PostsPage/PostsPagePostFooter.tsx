@@ -4,7 +4,7 @@ import { userHasPingbacks } from '../../../lib/betas';
 import { AnalyticsContext } from "../../../lib/analyticsEvents";
 import { useCurrentUser } from '../../common/withUser';
 import { MAX_COLUMN_WIDTH } from './constants';
-import { isLW, isLWorAF } from '../../../lib/instanceSettings';
+import { isLW, isLWorAF, isEAForum } from '../../../lib/instanceSettings';
 import { getVotingSystemByName } from '../../../lib/voting/getVotingSystem';
 import { isFriendlyUI } from '../../../themes/forumTheme';
 import classNames from 'classnames';
@@ -15,6 +15,7 @@ import PostActionsButton from "../../dropdowns/posts/PostActionsButton";
 import BottomNavigation from "../../sequences/BottomNavigation";
 import PingbacksList from "../PingbacksList";
 import FooterTagList from "../../tagging/FooterTagList";
+import PostTranslations from "./PostTranslations";
 
 const styles = (theme: ThemeType) => ({
   footerSection: {
@@ -137,6 +138,12 @@ const PostsPagePostFooter = ({post, sequenceId, classes}: {
     {userHasPingbacks(currentUser) && <AnalyticsContext pageSectionContext="pingbacks">
       <PingbacksList postId={post._id}/>
     </AnalyticsContext>}
+
+    {isEAForum && 'translations' in post && post.translations && post.translations.length > 0 && (
+      <AnalyticsContext pageSectionContext="translations">
+        <PostTranslations translations={post.translations} />
+      </AnalyticsContext>
+    )}
   </>
 }
 

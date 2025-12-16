@@ -3534,6 +3534,7 @@ type Post {
   generateDraftJargon: Boolean
   curationNotices: [CurationNotice]
   reviews: [Comment]
+  translations: JSON
   currentUserVote: String
   currentUserExtendedVote: JSON
   voteCount: Float!
@@ -9828,6 +9829,9 @@ fragment PostsDetails on Post {
   glossary {
     ...JargonTermsPost
   }
+
+  # Translations (EA Forum only, from ea.international)
+  translations
 }
 
 fragment PostsEdit on Post {

@@ -8,6 +8,7 @@ import { refreshKarmaInflationCache } from './karmaInflation/cron';
 import { initGoogleVertex } from './google-vertex/client';
 import { addLegacyRssRoutes } from './legacy-redirects/routes';
 import { initReviewWinnerCache } from './resolvers/reviewWinnerResolvers';
+import { initPostTranslationsCache } from './resolvers/postTranslations';
 import { startAnalyticsWriter } from './analytics/serverAnalyticsWriter';
 import { startSyncedCron } from './cron/startCron';
 import { isAnyTest, isMigrations } from '@/lib/executionEnvironment';
@@ -53,6 +54,7 @@ export async function runServerOnStartupFunctions() {
   addLegacyRssRoutes();
   void initReviewWinnerCache();
   void updateStripeIntentsCache();
+  void initPostTranslationsCache();
 
   startSyncedCron();
   captureEvent("serverStarted", {});
