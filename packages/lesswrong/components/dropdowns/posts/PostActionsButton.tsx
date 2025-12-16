@@ -60,11 +60,18 @@ const PostActionsButton = ({post, vertical, popperGap, autoPlace, flip, includeB
 
   // This is fine with SSR because the popper will only be rendered after use
   // interaction
-  const isDesktopWatched = useIsAboveBreakpoint('xl');
+  const isDesktop = useIsAboveBreakpoint('xl');
+  const isMobile = !useIsAboveBreakpoint('sm');
 
-  const popperPlacement: PopperPlacementType = isDesktopWatched || !autoPlace
-    ? 'right-start'
-    : 'left-start';
+  // On mobile, use 'bottom-start' which works better when the button is
+  // in the middle of the screen. CSS anchor positioning will flip to 'top-start'
+  // if there's not enough space below.
+  // On tablet (sm to xl), use left-start when autoPlace is enabled.
+  // On desktop (xl+), always use right-start.
+  const popperPlacement: PopperPlacementType = 
+    isMobile ? 'bottom-start' :
+    (isDesktop || !autoPlace) ? 'right-start' : 'left-start';
+    
   let gapStyle: CSSProperties | undefined
   if (popperGap) {
     switch (popperPlacement) {
@@ -73,6 +80,9 @@ const PostActionsButton = ({post, vertical, popperGap, autoPlace, flip, includeB
         break;
       case 'left-start':
         gapStyle = {marginRight: popperGap}
+        break;
+      case 'bottom-start':
+        gapStyle = {marginTop: popperGap}
         break;
     }
   }
