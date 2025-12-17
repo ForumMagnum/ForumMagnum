@@ -29,7 +29,7 @@ const styles = (theme: ThemeType) => ({
     display: 'flex',
     flexDirection: 'column',
     alignItems: 'center',
-    padding: '40px 0 90px',
+    padding: '60px 8px 90px 8px',
   },
   transparent: {},
   grey: {
@@ -48,13 +48,9 @@ const styles = (theme: ThemeType) => ({
     overflow: "hidden",
   },
   video: {
-    maxWidth: "calc(min(100%, 400px))",
-    width: "auto",
-    height: "auto",
+    maxWidth: "100%",
+    height: "100%",
     margin: "0 auto",
-    [theme.breakpoints.down("sm")]: {
-      maxWidth: "calc(min(100%, 300px))",
-    },
   },
   videoThinking: {
     marginTop: -80,
@@ -64,9 +60,10 @@ const styles = (theme: ThemeType) => ({
   },
   personalityText: {
     fontSize: 38,
+    marginBottom: 8,
   },
   bottomMargin: {
-    marginBottom: 2,
+    marginBottom: 8,
   },
   share: {
     position: "fixed",
@@ -92,6 +89,15 @@ const styles = (theme: ThemeType) => ({
     width: "100%",
     marginTop: 8,
   },
+  fallbackImage: {
+    width: "100%",
+    height: "100%",
+    "& img": {
+      width: "100%",
+      height: "100%",
+      objectFit: "contain",
+    },
+  },
 });
 
 const WrappedPersonalitySection = ({classes}: {
@@ -105,6 +111,7 @@ const WrappedPersonalitySection = ({classes}: {
   } = useForumWrappedContext();
   const [video, setVideo] = useState(() => getWrappedVideo("thinking"));
   const [isFinished, setIsFinished] = useState(false);
+  const [hasVideoError, setHasVideoError] = useState(false);
   const videoDisplayRef = useRef<HTMLVideoElement>(null);
   const screenshotRef = useRef<HTMLDivElement>(null);
   const theme = useTheme();
@@ -157,13 +164,20 @@ const WrappedPersonalitySection = ({classes}: {
   }, []);
 
   const onError = useCallback((e: SyntheticEvent<HTMLVideoElement, Event>) => {
+    setHasVideoError(true);
+    if (isThinking) {
+      setTimeout(() => {
+        setVideo(getWrappedVideo(personality));
+        setIsFinished(true);
+      }, 2000);
+    }
     const err = new Error("Wrapped video callback error", {
       cause: e as AnyBecauseHard,
     });
     captureException(err);
     // eslint-disable-next-line no-console
     console.error(err);
-  }, []);
+  }, [isThinking, personality]);
 
   const personalityVideo = getWrappedVideo(personality);
 
@@ -183,6 +197,7 @@ const WrappedPersonalitySection = ({classes}: {
       console.error(e);
     }
   }, [personalityVideo.color, theme]);
+
   const personalityTitle = (
     <>
       <div className={classes.bottomMargin}>
@@ -210,21 +225,30 @@ const WrappedPersonalitySection = ({classes}: {
           {!isThinking && personalityTitle}
         </div>
         <div className={classes.videoContainer}>
-          <video
-            ref={videoDisplayRef}
-            src={src}
-            loop={!isThinking}
-            onContextMenu={onContextMenu}
-            onError={onError}
-            muted
-            playsInline
-            autoPlay
-            preload="auto"
-            className={classNames(
-              classes.video,
-              isThinking && classes.videoThinking,
-            )}
-          />
+          {hasVideoError
+            ? (
+              <div className={classes.fallbackImage}>
+                <img src={video.frame} alt={personality} crossOrigin="anonymous" />
+              </div>
+            )
+            : (
+              <video
+                ref={videoDisplayRef}
+                src={src}
+                loop={!isThinking}
+                onContextMenu={onContextMenu}
+                onError={onError}
+                muted
+                playsInline
+                autoPlay
+                preload="auto"
+                className={classNames(
+                  classes.video,
+                  isThinking && classes.videoThinking,
+                )}
+              />
+            )
+          }
         </div>
       </div>
       <WrappedShareButton
