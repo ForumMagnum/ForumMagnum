@@ -6,6 +6,7 @@ import * as _ from 'underscore';
 import { userCanDo } from '../../lib/vulcan-users/permissions';
 import { CONTENT_LIMIT, DEFAULT_BIO_WORDCOUNT, MAX_BIO_WORDCOUNT } from './UsersReviewInfoCard';
 import { truncate } from '../../lib/editor/ellipsize';
+import SunshineNewUserExternalLinks from './SunshineNewUserExternalLinks';
 import { usePublishedPosts } from '../hooks/usePublishedPosts';
 import MetaInfo from "../common/MetaInfo";
 import SunshineNewUserPostsList from "./SunshineNewUserPostsList";
@@ -86,9 +87,6 @@ const styles = (theme: ThemeType) => ({
       color: theme.palette.primary.main,
     },
   },
-  website: {
-    color: theme.palette.primary.main,
-  },
   info: {
     '& > * + *': {
       marginTop: 8,
@@ -116,7 +114,7 @@ const SunshineNewUsersInfo = ({ user, classes, refetch, currentUser }: {
   });
   if (!userCanDo(currentUser, "posts.moderate.all")) return null
   const bioHtml = truncate(user.htmlBio, bioWordcount, "words")
-  
+
   // All elements in this component should also appar in UsersReviewInfoCard
   return (
       <div className={classes.root}>
@@ -131,9 +129,9 @@ const SunshineNewUsersInfo = ({ user, classes, refetch, currentUser }: {
                   <ModeratorMessageCount userId={user._id} />
                   <SunshineSendMessageWithDefaults user={user}/>
                 </div>
-              </div>              
+              </div>
               <div dangerouslySetInnerHTML={{__html: bioHtml}} className={classes.bio} onClick={() => setBioWordcount(MAX_BIO_WORDCOUNT)}/>
-              {user.website && <div>Website: <a href={`https://${user.website}`} target="_blank" rel="noopener noreferrer" className={classes.website}>{user.website}</a></div>}
+              <SunshineNewUserExternalLinks user={user} />
             </div>
             <ModeratorActions user={user} currentUser={currentUser} comments={comments} posts={posts} refetch={refetch}/>
             <hr className={classes.hr}/>
