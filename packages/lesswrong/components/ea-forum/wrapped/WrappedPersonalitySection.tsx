@@ -100,7 +100,7 @@ const styles = (theme: ThemeType) => ({
     },
   },
   shareHeading: {
-    marginBottom: 24,
+    margin: "24px 0",
     fontSize: 20,
   },
   footer: {
@@ -110,7 +110,7 @@ const styles = (theme: ThemeType) => ({
     alignItems: "center",
     justifyContent: "center",
     textTransform: "uppercase",
-    fontSize: 11,
+    fontSize: 16,
     fontWeight: 400,
     lineHeight: "110%",
     letterSpacing: "0.39px",
@@ -142,7 +142,7 @@ const WrappedPersonalitySection = ({classes}: {
   useEffect(() => {
     setTimeout(() => {
       setIsFinished(true);
-    }, 8000);
+    }, 7000);
   }, []);
 
   useEffect(() => {
