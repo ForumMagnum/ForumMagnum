@@ -66,31 +66,6 @@ const styles = (theme: ThemeType) => ({
   }
 });
 
-function sortSpotlightsInDisplayOrder(spotlights: SpotlightDisplay[], sortBy: 'lastPromotedAt' | 'position' = 'position'): SpotlightDisplay[] {
-  if (!spotlights.length) return spotlights;
-  
-  const [currentSpotlight] = [...spotlights].filter(spotlight => spotlight.draft === false).sort((a, b) => {
-    const aTime = new Date(a.lastPromotedAt).getTime();
-    const bTime = new Date(b.lastPromotedAt).getTime();
-    if (aTime && bTime) {
-      return bTime - aTime; // Sort descending to get most recent first
-    }
-    return 0;
-  });
-
-  const sortedSpotlights = [...spotlights].sort((a, b) => {
-    if (sortBy === 'position') {
-      return a.position - b.position; // Ascending position
-    } else {
-      const aTime = new Date(a.lastPromotedAt).getTime();
-      const bTime = new Date(b.lastPromotedAt).getTime();
-      return bTime - aTime; // Ascending lastPromotedAt
-    }
-  });
-  
-  return [currentSpotlight, ...sortedSpotlights];
-}
-
 export const SpotlightsPage = ({classes}: {
   classes: ClassesType<typeof styles>,
 }) => {
@@ -117,9 +92,7 @@ export const SpotlightsPage = ({classes}: {
 
   const spotlights = useMemo(() => data?.spotlights?.results ?? [], [data?.spotlights?.results]);
 
-  const spotlightsInDisplayOrder = useMemo(() => sortSpotlightsInDisplayOrder(spotlights), [spotlights]);
-
-  const allNonDraftSpotlights = spotlightsInDisplayOrder.filter(spotlight => !spotlight.draft);
+  const allNonDraftSpotlights = useMemo(() => spotlights.filter(spotlight => !spotlight.draft), [spotlights]);
   
   // Find the current spotlight (most recently promoted)
   const currentSpotlight = useMemo(() => {
@@ -130,15 +103,24 @@ export const SpotlightsPage = ({classes}: {
     })[0];
   }, [allNonDraftSpotlights]);
 
-  // Split into upcoming (position > current) and past (position < current)
+  // Upcoming: current + higher positions, sorted by position ascending (next to appear first)
   const upcomingSpotlights = useMemo(() => {
-    if (!currentSpotlight) return allNonDraftSpotlights;
-    return [currentSpotlight, ...allNonDraftSpotlights.filter(s => s.position > currentSpotlight.position)];
+    if (!currentSpotlight) {
+      return [...allNonDraftSpotlights].sort((a, b) => a.position - b.position);
+    }
+    const upcoming = allNonDraftSpotlights.filter(s => s.position >= currentSpotlight.position);
+    return upcoming.sort((a, b) => a.position - b.position);
   }, [allNonDraftSpotlights, currentSpotlight]);
 
+  // Past: previous spotlights, sorted by lastPromotedAt descending (most recently shown first)
   const pastSpotlights = useMemo(() => {
     if (!currentSpotlight) return [];
-    return allNonDraftSpotlights.filter(s => s.position < currentSpotlight.position);
+    const past = allNonDraftSpotlights.filter(s => s.position < currentSpotlight.position);
+    return past.sort((a, b) => {
+      const aTime = new Date(a.lastPromotedAt).getTime();
+      const bTime = new Date(b.lastPromotedAt).getTime();
+      return bTime - aTime;
+    });
   }, [allNonDraftSpotlights, currentSpotlight]);
 
   const displayedSpotlights = sortBy === 'upcoming' ? upcomingSpotlights : pastSpotlights;
