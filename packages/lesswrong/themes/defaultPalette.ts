@@ -601,6 +601,7 @@ export const defaultComponentPalette = (shades: ThemeShadePalette): ThemeCompone
     panelBackgroundDark: "rgba(255, 255, 255, 0.05)",
     postScore: '#BCBCBC',
     notification: "#e05200",
+    notificationShimmer: "#F09554",
     emptyPath: "#494949",
     metaText: "#b3b3b3",
     personality: {
