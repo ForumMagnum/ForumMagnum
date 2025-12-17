@@ -2,7 +2,6 @@ import React from 'react';
 import { registerComponent } from '../../../lib/vulcan-lib/components';
 import MetaInfo from "../../common/MetaInfo";
 import FormatDate from "../../common/FormatDate";
-import { getReasonForReview } from '@/lib/collections/moderatorActions/helpers';
 
 const styles = (theme: ThemeType) => ({
   root: {
@@ -21,8 +20,6 @@ export const UserReviewMetadata = ({classes, user}: {
   user: SunshineUsersList
   classes: ClassesType<typeof styles>,
 }) => {
-  const {needsReview, reason: reviewReason} = getReasonForReview(user)
-
   return <div className={classes.root}>
     <MetaInfo>
       {user.email}
@@ -33,15 +30,7 @@ export const UserReviewMetadata = ({classes, user}: {
     <MetaInfo>
       { user.karma || 0 } karma
     </MetaInfo>
-    {needsReview && (
-      <MetaInfo>
-        Reason:&nbsp;{reviewReason}
-      </MetaInfo>
-    )}
   </div>
 }
 
 export default registerComponent('UserReviewMetadata', UserReviewMetadata, {styles});
-
-
-

@@ -23,6 +23,7 @@ import NewUserDMSummary from "./ModeratorUserInfo/NewUserDMSummary";
 import SunshineUserMessages from "./SunshineUserMessages";
 import FirstContentIcons from "./FirstContentIcons";
 import UserAutoRateLimitsDisplay from "./ModeratorUserInfo/UserAutoRateLimitsDisplay";
+import UsersProfileImage from '../users/UsersProfileImage';
 
 export const CONTENT_LIMIT = 20
 
@@ -35,6 +36,9 @@ const styles = (theme: ThemeType) => ({
     fontSize: "1rem"
   },
   displayName: {
+    display: "flex",
+    alignItems: "center",
+    gap: "8px",
     fontSize: theme.typography.body1.fontSize,
     marginBottom: 4
   },
@@ -189,15 +193,17 @@ const UsersReviewInfoCard = ({ user, refetch, currentUser, classes }: {
   });
 
   const {needsReview: showReviewTrigger, reason: reviewTrigger} = getReasonForReview(user)
-  
+
   if (!userCanDo(currentUser, "posts.moderate.all")) return null
   
   const basicInfoRow = <div className={classes.basicInfoRow}>
     <div>
       <div className={classes.displayName}>
+        <UsersProfileImage size={32} user={user} />
         <UsersName user={user}/>
         <FirstContentIcons user={user}/>
         {user.sunshineFlagged && <FlagIcon className={classes.icon}/>}
+        {showReviewTrigger && <MetaInfo className={classes.legacyReviewTrigger}>Reason: {reviewTrigger}</MetaInfo>}
       </div>
       <UserReviewStatus user={user}/>
       <UserReviewMetadata user={user}/>

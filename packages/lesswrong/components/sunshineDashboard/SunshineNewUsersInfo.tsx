@@ -21,10 +21,17 @@ import ModeratorMessageCount from "./ModeratorMessageCount";
 import UserReviewMetadata from "./ModeratorUserInfo/UserReviewMetadata";
 import ModeratorActions from "./ModeratorActions";
 import NewUserDMSummary from "./ModeratorUserInfo/NewUserDMSummary";
+import { getReasonForReview } from '@/lib/collections/moderatorActions/helpers';
+import UsersProfileImage from '../users/UsersProfileImage';
 
 const styles = (theme: ThemeType) => ({
   root: {
     backgroundColor: theme.palette.grey[50]
+  },
+  userBasicInfo: {
+    display: "flex",
+    gap: "8px",
+    marginBottom: 4
   },
   topRow: {
     display: "flex",
@@ -115,12 +122,22 @@ const SunshineNewUsersInfo = ({ user, classes, refetch, currentUser }: {
   if (!userCanDo(currentUser, "posts.moderate.all")) return null
   const bioHtml = truncate(user.htmlBio, bioWordcount, "words")
 
+  const {needsReview, reason: reviewReason} = getReasonForReview(user)
+
   // All elements in this component should also appar in UsersReviewInfoCard
   return (
       <div className={classes.root}>
         <Typography variant="body2">
           <MetaInfo>
-            <UserReviewMetadata user={user}/>
+            <div className={classes.userBasicInfo}>
+              <UsersProfileImage size={32} user={user} />
+              <UserReviewMetadata user={user}/>
+            </div>
+            {needsReview && (
+              <MetaInfo>
+                Reason:&nbsp;{reviewReason}
+              </MetaInfo>
+            )}
             <UserAutoRateLimitsDisplay user={user} showKarmaMeta/>
             <div className={classes.info}>
               <div className={classes.topRow}>
