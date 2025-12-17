@@ -3,7 +3,7 @@ import { registerComponent } from "@/lib/vulcan-lib/components";
 import WrappedSection from "./WrappedSection";
 import WrappedHeading from "./WrappedHeading";
 
-const styles = (_theme: ThemeType) => ({
+const styles = (theme: ThemeType) => ({
   root: {
     maxWidth: "calc(min(480px, 100%))",
     margin: "0 auto",
@@ -21,6 +21,9 @@ const styles = (_theme: ThemeType) => ({
     textWrap: 'pretty',
     margin: '0 auto',
     fontSize: 18,
+    [theme.breakpoints.down("sm")]: {
+      maxWidth: 350,
+    },
   },
 });
 

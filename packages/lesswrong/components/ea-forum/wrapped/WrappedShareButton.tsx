@@ -51,13 +51,13 @@ const WrappedShareButton = ({name, screenshotRef, onRendered, className, classes
         throw new Error("Failed to create sharing image");
       }
 
-      const fileName = `My${year}EAForumWrapped-${name}.png`;
+      const fileName = `My${year}EAForumWrapped-${name}.jpeg`;
       const canvasElement = await html2canvas(target, {
         allowTaint: true,
         useCORS: true,
       });
       onRendered?.(canvasElement);
-      const dataUrl = canvasElement.toDataURL("image/png");
+      const dataUrl = canvasElement.toDataURL("image/jpeg");
 
       if (isMobile() && !!navigator.canShare) {
         const data = await fetch(dataUrl);

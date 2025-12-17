@@ -18,6 +18,32 @@ import { WrappedPersonality } from "./WrappedPersonality";
 import { eaEmojiPalette } from "@/lib/voting/eaEmojiPalette";
 import { getWrappedEngagement } from "./wrappedEngagment";
 
+const MS_PER_DAY = 86400000;
+
+const isLeapYear = (year: number) =>
+  year % 4 === 0 && (year % 100 !== 0 || year % 400 === 0);
+
+const daysInYear = (year: number) => isLeapYear(year) ? 366 : 365;
+
+/**
+ * Get the number of days to calculate karma for. If this is a previous year
+ * this will always be the number of days in that year. If this is the current
+ * year then it will be the index of today's date as an offset from 1st January.
+ */
+const getKarmaDays = (year: WrappedYear) => {
+  const now = new Date();
+  const currentYear = now.getFullYear();
+  if (year < currentYear) {
+    return daysInYear(year);
+  }
+  if (year > currentYear) {
+    return 0;
+  }
+  const start = Date.UTC(year, 0, 1);
+  const today = Date.UTC(year, now.getUTCMonth(), now.getUTCDate());
+  return Math.floor((today - start) / MS_PER_DAY);
+}
+
 /**
  * When making changes here you must also update:
  *  - The backend GraphQL schema in server/resolvers/wrappedResolvers.ts
@@ -206,7 +232,7 @@ export const getWrappedDataByYear = async (
   // to display it as a stacked area chart that goes up and to the right.
   let postKarma = 0
   let commentKarma = 0
-  const combinedKarmaVals = range(1, 366).map(i => {
+  const combinedKarmaVals = range(1, getKarmaDays(year)).map(i => {
     const day = moment(year, 'YYYY').dayOfYear(i)
     if (postKarmaChanges?.length && moment(postKarmaChanges[0].window_start_key).isSame(day, 'date')) {
       try {
