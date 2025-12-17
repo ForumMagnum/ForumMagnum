@@ -57,6 +57,10 @@ interface DbAutomatedContentEvaluation extends DbObject {
   aiCoT: string | null
   aiReasoning: string | null
   createdAt: Date
+  pangramMaxScore: number | null
+  pangramPrediction: "AI" | "Human" | "Mixed" | null
+  pangramScore: number | null
+  pangramWindowScores: { text: string; score: number; startIndex: number; endIndex: number; }[] | null
   revisionId: string
   score: number | null
   sentenceScores: { sentence: string; score: number; }[] | null

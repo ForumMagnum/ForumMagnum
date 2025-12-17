@@ -16,7 +16,8 @@ import { createConversation } from '../collections/conversations/mutations';
 import { createMessage } from '../collections/messages/mutations';
 import { createModeratorAction } from '../collections/moderatorActions/mutations';
 import { VOTING_DISABLED } from '../../lib/collections/moderatorActions/constants';
-import { rerunSaplingCheck } from '../collections/automatedContentEvaluations/helpers';
+import { rerunSaplingCheck, runPangramCheck } from '../collections/automatedContentEvaluations/helpers';
+import type { AIDetectionComparisonItemRaw } from '../repos/AutomatedContentEvaluationsRepo';
 
 export const moderationGqlTypeDefs = gql`
   type ModeratorIPAddressInfo {
@@ -259,7 +260,43 @@ export const moderationGqlMutations = {
 
     const { documentId, collectionName } = args;
     return await rerunSaplingCheck(documentId, collectionName, context);
+  },
+
+  async runPangramCheck(_root: void, args: { documentId: string, collectionName: ContentCollectionName }, context: ResolverContext) {
+    const { currentUser } = context;
+    if (!currentUser || !userIsAdminOrMod(currentUser)) {
+      throw new Error("Only admins and moderators can run Pangram checks");
+    }
+
+    const { documentId, collectionName } = args;
+    return await runPangramCheck(documentId, collectionName, context);
   }
+}
+
+function transformComparisonItem(raw: AIDetectionComparisonItemRaw) {
+  return {
+    documentId: raw.documentId,
+    collectionName: raw.collectionName,
+    title: raw.title,
+    htmlPreview: raw.htmlPreview,
+    postedAt: raw.postedAt,
+    baseScore: raw.baseScore,
+    authorDisplayName: raw.authorDisplayName,
+    authorSlug: raw.authorSlug,
+    rejected: raw.rejected,
+    automatedContentEvaluation: raw.aceId ? {
+      _id: raw.aceId,
+      score: raw.aceScore,
+      sentenceScores: raw.aceSentenceScores,
+      aiChoice: raw.aceAiChoice,
+      aiReasoning: raw.aceAiReasoning,
+      aiCoT: raw.aceAiCoT,
+      pangramScore: raw.acePangramScore,
+      pangramMaxScore: raw.acePangramMaxScore,
+      pangramPrediction: raw.acePangramPrediction,
+      pangramWindowScores: raw.acePangramWindowScores,
+    } : null,
+  };
 }
 
 export const moderationGqlQueries = {
@@ -268,16 +305,38 @@ export const moderationGqlQueries = {
     const { ipAddress } = args;
     if (!currentUser || !currentUser.isAdmin)
       throw new Error("Only admins can see IP address information");
-    
+
     const loginEvents = await LWEvents.find({
       name: "login",
       "properties.ip": ipAddress,
     }, {limit: 100}).fetch();
-    
+
     const userIds = uniq(loginEvents.map(loginEvent => loginEvent.userId));
     return {
       ip: ipAddress,
       userIds,
     };
+  },
+
+  async getAIDetectionComparisonItems(
+    _root: void,
+    args: {
+      limit?: number,
+      offset?: number
+    },
+    context: ResolverContext
+  ) {
+    const { currentUser, repos } = context;
+    if (!currentUser || !userIsAdminOrMod(currentUser)) {
+      throw new Error("Only admins and moderators can view AI detection comparison items");
+    }
+
+    const { limit = 50, offset = 0 } = args;
+    const rawItems = await repos.automatedContentEvaluations.getComparisonItems(
+      limit,
+      offset
+    );
+
+    return rawItems.map(transformComparisonItem);
   }
 }

@@ -17,6 +17,20 @@ type Scalars = {
   JSON: { input: any; output: any; }
 };
 
+type AIDetectionComparisonItem = {
+  __typename?: 'AIDetectionComparisonItem';
+  authorDisplayName?: Maybe<Scalars['String']['output']>;
+  authorSlug?: Maybe<Scalars['String']['output']>;
+  automatedContentEvaluation?: Maybe<AutomatedContentEvaluation>;
+  baseScore: Scalars['Int']['output'];
+  collectionName: Scalars['String']['output'];
+  documentId: Scalars['String']['output'];
+  htmlPreview: Scalars['String']['output'];
+  postedAt: Scalars['Date']['output'];
+  rejected: Scalars['Boolean']['output'];
+  title?: Maybe<Scalars['String']['output']>;
+};
+
 type AdvisorRequest = {
   __typename?: 'AdvisorRequest';
   _id: Scalars['String']['output'];
@@ -137,6 +151,10 @@ type AutomatedContentEvaluation = {
   aiCoT?: Maybe<Scalars['String']['output']>;
   aiReasoning?: Maybe<Scalars['String']['output']>;
   createdAt: Scalars['Date']['output'];
+  pangramMaxScore?: Maybe<Scalars['Float']['output']>;
+  pangramPrediction?: Maybe<Scalars['String']['output']>;
+  pangramScore?: Maybe<Scalars['Float']['output']>;
+  pangramWindowScores?: Maybe<Array<PangramWindowScore>>;
   revisionId: Scalars['String']['output'];
   score?: Maybe<Scalars['Float']['output']>;
   sentenceScores?: Maybe<Array<SentenceScore>>;
@@ -4374,6 +4392,7 @@ type Mutation = {
   resyncRssFeed: Scalars['Boolean']['output'];
   revertPostToRevision?: Maybe<Post>;
   revertTagToRevision?: Maybe<Tag>;
+  runPangramCheck: AutomatedContentEvaluation;
   sendEventTriggeredDM: Scalars['Boolean']['output'];
   sendNewDialogueMessageNotification: Scalars['Boolean']['output'];
   setIsHidden: User;
@@ -5002,6 +5021,12 @@ type MutationrevertTagToRevisionArgs = {
 };
 
 
+type MutationrunPangramCheckArgs = {
+  collectionName: ContentCollectionName;
+  documentId: Scalars['String']['input'];
+};
+
+
 type MutationsendEventTriggeredDMArgs = {
   eventType: Scalars['String']['input'];
 };
@@ -5457,6 +5482,14 @@ type PageCacheEntry = {
   createdAt: Scalars['Date']['output'];
   legacyData?: Maybe<Scalars['JSON']['output']>;
   schemaVersion: Scalars['Float']['output'];
+};
+
+type PangramWindowScore = {
+  __typename?: 'PangramWindowScore';
+  endIndex: Scalars['Int']['output'];
+  score: Scalars['Float']['output'];
+  startIndex: Scalars['Int']['output'];
+  text: Scalars['String']['output'];
 };
 
 type PartiallyReadSequenceItemInput = {
@@ -7674,6 +7707,7 @@ type Query = {
   forumEvents?: Maybe<MultiForumEventOutput>;
   gardenCode?: Maybe<SingleGardenCodeOutput>;
   gardenCodes?: Maybe<MultiGardenCodeOutput>;
+  getAIDetectionComparisonItems: Array<AIDetectionComparisonItem>;
   getBookWordCount?: Maybe<Scalars['Float']['output']>;
   getCrosspost?: Maybe<Scalars['JSON']['output']>;
   getLinkSharedPost?: Maybe<Post>;
@@ -8499,6 +8533,12 @@ type QuerygardenCodesArgs = {
   limit?: InputMaybe<Scalars['Int']['input']>;
   offset?: InputMaybe<Scalars['Int']['input']>;
   selector?: InputMaybe<GardenCodeSelector>;
+};
+
+
+type QuerygetAIDetectionComparisonItemsArgs = {
+  limit?: InputMaybe<Scalars['Int']['input']>;
+  offset?: InputMaybe<Scalars['Int']['input']>;
 };
 
 
@@ -13025,6 +13065,57 @@ type SequenceMetadataQueryVariables = Exact<{
 
 
 type SequenceMetadataQuery = SequenceMetadataQuery_Query;
+
+type AIDetectionComparisonQueryQuery_getAIDetectionComparisonItems_AIDetectionComparisonItem_automatedContentEvaluation_AutomatedContentEvaluation_sentenceScores_SentenceScore = { __typename?: 'SentenceScore', sentence: string, score: number };
+
+type AIDetectionComparisonQueryQuery_getAIDetectionComparisonItems_AIDetectionComparisonItem_automatedContentEvaluation_AutomatedContentEvaluation_pangramWindowScores_PangramWindowScore = { __typename?: 'PangramWindowScore', text: string, score: number, startIndex: number, endIndex: number };
+
+type AIDetectionComparisonQueryQuery_getAIDetectionComparisonItems_AIDetectionComparisonItem_automatedContentEvaluation_AutomatedContentEvaluation = { __typename?: 'AutomatedContentEvaluation', _id: string, score: number | null, aiChoice: string | null, aiReasoning: string | null, pangramScore: number | null, pangramMaxScore: number | null, pangramPrediction: string | null, sentenceScores: Array<AIDetectionComparisonQueryQuery_getAIDetectionComparisonItems_AIDetectionComparisonItem_automatedContentEvaluation_AutomatedContentEvaluation_sentenceScores_SentenceScore> | null, pangramWindowScores: Array<AIDetectionComparisonQueryQuery_getAIDetectionComparisonItems_AIDetectionComparisonItem_automatedContentEvaluation_AutomatedContentEvaluation_pangramWindowScores_PangramWindowScore> | null };
+
+type AIDetectionComparisonQueryQuery_getAIDetectionComparisonItems_AIDetectionComparisonItem = { __typename?: 'AIDetectionComparisonItem', documentId: string, collectionName: string, title: string | null, htmlPreview: string, postedAt: string, baseScore: number, authorDisplayName: string | null, authorSlug: string | null, rejected: boolean, automatedContentEvaluation: AIDetectionComparisonQueryQuery_getAIDetectionComparisonItems_AIDetectionComparisonItem_automatedContentEvaluation_AutomatedContentEvaluation | null };
+
+type AIDetectionComparisonQueryQuery_Query = { __typename?: 'Query', getAIDetectionComparisonItems: Array<AIDetectionComparisonQueryQuery_getAIDetectionComparisonItems_AIDetectionComparisonItem> };
+
+
+type AIDetectionComparisonQueryQueryVariables = Exact<{
+  limit: InputMaybe<Scalars['Int']['input']>;
+  offset: InputMaybe<Scalars['Int']['input']>;
+}>;
+
+
+type AIDetectionComparisonQueryQuery = AIDetectionComparisonQueryQuery_Query;
+
+type CommentForDetailQueryQuery_comment_SingleCommentOutput_result_Comment = (
+  { __typename?: 'Comment' }
+  & CommentsListWithParentMetadata
+);
+
+type CommentForDetailQueryQuery_comment_SingleCommentOutput = { __typename?: 'SingleCommentOutput', result: CommentForDetailQueryQuery_comment_SingleCommentOutput_result_Comment | null };
+
+type CommentForDetailQueryQuery_Query = { __typename?: 'Query', comment: CommentForDetailQueryQuery_comment_SingleCommentOutput | null };
+
+
+type CommentForDetailQueryQueryVariables = Exact<{
+  commentId: Scalars['String']['input'];
+}>;
+
+
+type CommentForDetailQueryQuery = CommentForDetailQueryQuery_Query;
+
+type RunPangramCheckMutationMutation_runPangramCheck_AutomatedContentEvaluation_pangramWindowScores_PangramWindowScore = { __typename?: 'PangramWindowScore', text: string, score: number, startIndex: number, endIndex: number };
+
+type RunPangramCheckMutationMutation_runPangramCheck_AutomatedContentEvaluation = { __typename?: 'AutomatedContentEvaluation', _id: string, pangramScore: number | null, pangramMaxScore: number | null, pangramPrediction: string | null, pangramWindowScores: Array<RunPangramCheckMutationMutation_runPangramCheck_AutomatedContentEvaluation_pangramWindowScores_PangramWindowScore> | null };
+
+type RunPangramCheckMutationMutation_Mutation = { __typename?: 'Mutation', runPangramCheck: RunPangramCheckMutationMutation_runPangramCheck_AutomatedContentEvaluation };
+
+
+type RunPangramCheckMutationMutationVariables = Exact<{
+  documentId: Scalars['String']['input'];
+  collectionName: ContentCollectionName;
+}>;
+
+
+type RunPangramCheckMutationMutation = RunPangramCheckMutationMutation_Mutation;
 
 type AdminMetadataQueryQuery_Query = { __typename?: 'Query', AdminMetadata: string | null };
 

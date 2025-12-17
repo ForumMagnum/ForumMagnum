@@ -74,6 +74,55 @@ const schema = {
       canRead: ["guests"],
     },
   },
+
+  // Pangram AI detection fields (separate from Sapling fields above)
+  pangramScore: {
+    database: {
+      type: "DOUBLE PRECISION",
+      nullable: true,
+    },
+    graphql: {
+      outputType: "Float",
+      canRead: ["sunshineRegiment", "admins"],
+    },
+  },
+
+  pangramMaxScore: {
+    database: {
+      type: "DOUBLE PRECISION",
+      nullable: true,
+    },
+    graphql: {
+      outputType: "Float",
+      canRead: ["sunshineRegiment", "admins"],
+    },
+  },
+
+  pangramPrediction: {
+    database: {
+      type: "TEXT",
+      nullable: true,
+    },
+    graphql: {
+      outputType: "String",
+      canRead: ["sunshineRegiment", "admins"],
+      validation: {
+        allowedValues: ["AI", "Human", "Mixed"],
+      },
+    },
+  },
+
+  pangramWindowScores: {
+    database: {
+      type: "JSONB",
+      nullable: true,
+      typescriptType: "{ text: string; score: number; startIndex: number; endIndex: number; }[]",
+    },
+    graphql: {
+      outputType: "[PangramWindowScore!]",
+      canRead: ["sunshineRegiment", "admins"],
+    },
+  },
 } satisfies Record<string, CollectionFieldSpecification<"AutomatedContentEvaluations">>;
 
 export default schema;

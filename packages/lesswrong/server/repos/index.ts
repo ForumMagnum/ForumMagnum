@@ -1,3 +1,4 @@
+import AutomatedContentEvaluationsRepo from "./AutomatedContentEvaluationsRepo";
 import BookmarksRepo from "./BookmarksRepo";
 import BooksRepo from "./BooksRepo";
 import CollectionsRepo from "./CollectionsRepo";
@@ -50,6 +51,7 @@ declare global {
 }
 
 const allRepos = {
+  automatedContentEvaluations: AutomatedContentEvaluationsRepo,
   bookmarks: BookmarksRepo,
   books: BooksRepo,
   clientIds: ClientIdsRepo,
