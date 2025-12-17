@@ -33,6 +33,7 @@ const styles = (theme: ThemeType) => ({
     },
     [theme.breakpoints.down("sm")]: {
       width: "100%",
+      marginBottom: 40,
     },
   },
 });
