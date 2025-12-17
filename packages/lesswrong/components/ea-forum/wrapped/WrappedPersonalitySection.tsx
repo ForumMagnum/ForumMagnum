@@ -29,7 +29,7 @@ const styles = (theme: ThemeType) => ({
     display: 'flex',
     flexDirection: 'column',
     alignItems: 'center',
-    padding: '40px 8px 90px 8px',
+    padding: '60px 8px 90px 8px',
   },
   transparent: {},
   grey: {
@@ -48,13 +48,9 @@ const styles = (theme: ThemeType) => ({
     overflow: "hidden",
   },
   video: {
-    maxWidth: "calc(min(100%, 400px))",
-    width: "auto",
-    height: "auto",
+    maxWidth: "100%",
+    height: "100%",
     margin: "0 auto",
-    [theme.breakpoints.down("sm")]: {
-      maxWidth: "calc(min(100%, 300px))",
-    },
   },
   videoThinking: {
     marginTop: -80,
@@ -64,6 +60,7 @@ const styles = (theme: ThemeType) => ({
   },
   personalityText: {
     fontSize: 38,
+    marginBottom: 8,
   },
   bottomMargin: {
     marginBottom: 8,
@@ -231,7 +228,7 @@ const WrappedPersonalitySection = ({classes}: {
           {hasVideoError
             ? (
               <div className={classes.fallbackImage}>
-                <img src={video.frame} alt={personality} />
+                <img src={video.frame} alt={personality} crossOrigin="anonymous" />
               </div>
             )
             : (
