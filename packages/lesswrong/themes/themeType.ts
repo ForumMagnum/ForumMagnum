@@ -577,6 +577,7 @@ declare global {
       panelBackgroundDark: ColorString,
       postScore: ColorString,
       notification: ColorString,
+      notificationShimmer: ColorString,
       emptyPath: ColorString,
       metaText: ColorString,
       personality: {
