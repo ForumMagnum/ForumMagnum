@@ -34,3 +34,6 @@ export const UserReviewMetadata = ({classes, user}: {
 }
 
 export default registerComponent('UserReviewMetadata', UserReviewMetadata, {styles});
+
+
+
