@@ -29,7 +29,7 @@ const styles = (theme: ThemeType) => ({
     display: 'flex',
     flexDirection: 'column',
     alignItems: 'center',
-    padding: '40px 0 90px',
+    padding: '40px 8px 90px 8px',
   },
   transparent: {},
   grey: {
@@ -66,7 +66,7 @@ const styles = (theme: ThemeType) => ({
     fontSize: 38,
   },
   bottomMargin: {
-    marginBottom: 2,
+    marginBottom: 8,
   },
   share: {
     position: "fixed",
@@ -183,6 +183,7 @@ const WrappedPersonalitySection = ({classes}: {
       console.error(e);
     }
   }, [personalityVideo.color, theme]);
+
   const personalityTitle = (
     <>
       <div className={classes.bottomMargin}>

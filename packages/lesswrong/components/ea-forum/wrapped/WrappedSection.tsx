@@ -34,6 +34,7 @@ const styles = (theme: ThemeType) => ({
     paddingRight: 40,
     paddingBottom: 60,
     [theme.breakpoints.down("sm")]: {
+      paddingTop: theme.spacing.mainLayoutPaddingTop,
       paddingLeft: 20,
       paddingRight: 20,
     },
