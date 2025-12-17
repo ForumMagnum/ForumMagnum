@@ -76,12 +76,17 @@ const WrappedShareButton = ({name, screenshotRef, onRendered, className, classes
             });
             return;
           } catch (e) {
+            // AbortError means the user cancelled the request - nothing went wrong
+            if (e.name === "AbortError") {
+              return;
+            }
             captureException(e, {tags: {
               wrappedName: name,
               wrappedYear: String(year),
             }});
             // eslint-disable-next-line no-console
             console.error("Error sharing wrapped via navigator:", e);
+            // Fallthrough to just download the image
           }
         }
       }
