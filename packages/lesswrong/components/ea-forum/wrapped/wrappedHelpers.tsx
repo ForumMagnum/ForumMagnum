@@ -28,9 +28,9 @@ export const getTotalReactsReceived = (data: WrappedDataByYear) =>
   data.mostReceivedReacts.reduce((prev, next) => prev + next.count, 0);
 
 export const getTopAuthor = (data: WrappedDataByYear) => {
-  const topAuthorByEngagementPercentile = [...data.mostReadAuthors].sort(
-    (a, b) => b.engagementPercentile - a.engagementPercentile,
-  )[0];
+  const topAuthorByEngagementPercentile = [...data.mostReadAuthors]
+    .filter(Boolean)
+    .sort((a, b) => b.engagementPercentile - a.engagementPercentile)[0];
   const topAuthorPercentByEngagementPercentile = (
     topAuthorByEngagementPercentile &&
     Math.ceil(100 * (1 - topAuthorByEngagementPercentile.engagementPercentile))

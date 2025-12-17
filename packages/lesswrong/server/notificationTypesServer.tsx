@@ -499,7 +499,7 @@ export const NewMessageNotification = createServerNotificationType({
 export const WrappedNotification = createServerNotificationType({
   name: "wrapped",
   emailSubject: async function() {
-    return 'Your 2024 EA Forum Wrapped';
+    return `Your ${currentWrappedYear()} EA Forum Wrapped`;
   },
   emailBody: async function({ user }: {user: DbUser}) {
     return <div>
