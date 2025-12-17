@@ -65,7 +65,7 @@ const styles = (theme: ThemeType) => ({
     background: `linear-gradient(
       -75deg,
       ${theme.palette.wrapped.notification} 33%,
-      ${theme.palette.wrapped.highlightText} 50%,
+      ${theme.palette.wrapped.notificationShimmer} 50%,
       ${theme.palette.wrapped.notification} 66%
     ) ${theme.palette.wrapped.notification}`,
     backgroundSize: "300% 100%",
