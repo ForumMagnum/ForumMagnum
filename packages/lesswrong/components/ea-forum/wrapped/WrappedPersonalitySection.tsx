@@ -12,6 +12,7 @@ import { useTheme } from "@/components/themes/useTheme";
 import WrappedShareButton, { WRAPPED_SHARE_BUTTON_WIDTH } from "./WrappedShareButton";
 import { useForumWrappedContext } from "./hooks";
 import { getWrappedVideo } from "./videos";
+import { lightbulbIcon } from "@/components/icons/lightbulbIcon";
 import classNames from "classnames";
 import WrappedSection from "./WrappedSection";
 import WrappedHeading from "./WrappedHeading";
@@ -97,6 +98,25 @@ const styles = (theme: ThemeType) => ({
       height: "100%",
       objectFit: "contain",
     },
+  },
+  shareHeading: {
+    marginBottom: 24,
+    fontSize: 20,
+  },
+  footer: {
+    display: "flex",
+    flexDirection: "row",
+    gap: "4px",
+    alignItems: "center",
+    justifyContent: "center",
+    textTransform: "uppercase",
+    fontSize: 11,
+    fontWeight: 400,
+    lineHeight: "110%",
+    letterSpacing: "0.39px",
+  },
+  footerLightbulb: {
+    width: 22,
   },
 });
 
@@ -198,17 +218,6 @@ const WrappedPersonalitySection = ({classes}: {
     }
   }, [personalityVideo.color, theme]);
 
-  const personalityTitle = (
-    <>
-      <div className={classes.bottomMargin}>
-        Your EA Forum personality {year} is
-      </div>
-      <WrappedHeading className={classes.personalityText}>
-        {personality}
-      </WrappedHeading>
-    </>
-  );
-
   return (
     <WrappedSection
       pageSectionContext="personality"
@@ -222,7 +231,16 @@ const WrappedPersonalitySection = ({classes}: {
               Your EA Forum personality {year} is...
             </WrappedHeading>
           }
-          {!isThinking && personalityTitle}
+          {!isThinking &&
+            <>
+              <div className={classes.bottomMargin}>
+                Your EA Forum personality {year} is
+              </div>
+              <WrappedHeading className={classes.personalityText}>
+                {personality}
+              </WrappedHeading>
+            </>
+          }
         </div>
         <div className={classes.videoContainer}>
           {hasVideoError
@@ -261,12 +279,21 @@ const WrappedPersonalitySection = ({classes}: {
         ref={screenshotRef}
         className={classNames(classes.screenshotContainer, classes[video.color])}
       >
-        {personalityTitle}
+        <div className={classes.shareHeading}>
+          My EA Forum personality {year} is
+        </div>
+        <WrappedHeading className={classes.personalityText}>
+          {personality}
+        </WrappedHeading>
         <img
           src={personalityVideo.frame}
           crossOrigin="anonymous"
           className={classes.screenshotImage}
         />
+        <div className={classes.footer}>
+          <div className={classes.footerLightbulb}>{lightbulbIcon}</div>
+          <div>forum.effectivealtruism.org/wrapped</div>
+        </div>
       </div>
     </WrappedSection>
   );
