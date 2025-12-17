@@ -4,46 +4,46 @@ import { gql } from '@/lib/generated/gql-codegen';
 import { useMessages } from '@/components/common/withMessages';
 import type { InboxAction } from './inboxReducer';
 
-const RerunSaplingCheckMutation = gql(`
-  mutation RerunSaplingCheckHook($documentId: String!, $collectionName: ContentCollectionName!) {
-    rerunSaplingCheck(documentId: $documentId, collectionName: $collectionName) {
+const RerunLlmCheckMutation = gql(`
+  mutation RerunLlmCheckHook($documentId: String!, $collectionName: ContentCollectionName!) {
+    rerunLlmCheck(documentId: $documentId, collectionName: $collectionName) {
       ...AutomatedContentEvaluationsFragment
     }
   }
 `);
 
-export function useRerunSaplingCheck(
+export function useRerunLlmCheck(
   documentId: string | null,
   collectionName: 'Posts' | 'Comments',
   dispatch: React.Dispatch<InboxAction>
 ) {
   const { flash } = useMessages();
-  const [rerunSaplingCheck, { loading }] = useMutation(RerunSaplingCheckMutation);
+  const [rerunLlmCheck, { loading }] = useMutation(RerunLlmCheckMutation);
 
-  const handleRerunSaplingCheck = useCallback(async () => {
+  const handleRerunLlmCheck = useCallback(async () => {
     if (!documentId || loading) return;
 
     // Set loading state in reducer so all components can see it
-    dispatch({ type: 'SET_SAPLING_CHECK_RUNNING', documentId });
+    dispatch({ type: 'SET_LLM_CHECK_RUNNING', documentId });
 
     try {
-      const result = await rerunSaplingCheck({
+      const result = await rerunLlmCheck({
         variables: { documentId, collectionName },
         update: (cache, { data }) => {
-          if (!data?.rerunSaplingCheck) return;
+          if (!data?.rerunLlmCheck) return;
           
           // Update the Apollo cache directly
           const typename = collectionName === 'Posts' ? 'Post' : 'Comment';
           cache.modify({
             id: cache.identify({ __typename: typename, _id: documentId }),
             fields: {
-              automatedContentEvaluations: () => data.rerunSaplingCheck,
+              automatedContentEvaluations: () => data.rerunLlmCheck,
             },
           });
         },
       });
 
-      const newAce = result.data?.rerunSaplingCheck;
+      const newAce = result.data?.rerunLlmCheck;
       // For posts, also update the reducer since posts are stored in reducer state
       if (newAce && collectionName === 'Posts') {
         dispatch({
@@ -53,18 +53,18 @@ export function useRerunSaplingCheck(
         });
       }
 
-      flash({ messageString: 'Sapling check completed successfully' });
+      flash({ messageString: 'LLM check completed successfully' });
     } catch (error) {
       const errorMessage = error instanceof Error ? error.message : 'Unknown error';
-      flash({ messageString: `Sapling check failed: ${errorMessage}`, type: 'error' });
+      flash({ messageString: `LLM check failed: ${errorMessage}`, type: 'error' });
     } finally {
       // Clear loading state
-      dispatch({ type: 'SET_SAPLING_CHECK_RUNNING', documentId: null });
+      dispatch({ type: 'SET_LLM_CHECK_RUNNING', documentId: null });
     }
-  }, [documentId, collectionName, loading, rerunSaplingCheck, dispatch, flash]);
+  }, [documentId, collectionName, loading, rerunLlmCheck, dispatch, flash]);
 
   return {
-    handleRerunSaplingCheck,
-    isRunningSaplingCheck: loading,
+    handleRerunLlmCheck,
+    isRunningLlmCheck: loading,
   };
 }

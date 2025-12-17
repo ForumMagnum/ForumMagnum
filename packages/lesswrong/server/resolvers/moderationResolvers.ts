@@ -16,7 +16,7 @@ import { createConversation } from '../collections/conversations/mutations';
 import { createMessage } from '../collections/messages/mutations';
 import { createModeratorAction } from '../collections/moderatorActions/mutations';
 import { VOTING_DISABLED } from '../../lib/collections/moderatorActions/constants';
-import { rerunSaplingCheck, runPangramCheck } from '../collections/automatedContentEvaluations/helpers';
+import { rerunLlmCheck, runPangramCheck } from '../collections/automatedContentEvaluations/helpers';
 import type { AIDetectionComparisonItemRaw } from '../repos/AutomatedContentEvaluationsRepo';
 
 export const moderationGqlTypeDefs = gql`
@@ -39,7 +39,7 @@ export const moderationGqlTypeDefs = gql`
     unlockThread(commentId: String!): Boolean!
     rejectContentAndRemoveUserFromQueue(userId: String!, documentId: String!, collectionName: ContentCollectionName!, rejectedReason: String!, messageContent: String): Boolean!
     approveUserCurrentContentOnly(userId: String!): Boolean!
-    rerunSaplingCheck(documentId: String!, collectionName: ContentCollectionName!): AutomatedContentEvaluation!
+    rerunLlmCheck(documentId: String!, collectionName: ContentCollectionName!): AutomatedContentEvaluation!
   }
 `
 
@@ -252,14 +252,14 @@ export const moderationGqlMutations = {
 
     return true;
   },
-  async rerunSaplingCheck(_root: void, args: { documentId: string, collectionName: ContentCollectionName }, context: ResolverContext) {
+  async rerunLlmCheck(_root: void, args: { documentId: string, collectionName: ContentCollectionName }, context: ResolverContext) {
     const { currentUser } = context;
     if (!currentUser || !userIsAdminOrMod(currentUser)) {
-      throw new Error("Only admins and moderators can rerun Sapling checks");
+      throw new Error("Only admins and moderators can rerun LLM detection checks");
     }
 
     const { documentId, collectionName } = args;
-    return await rerunSaplingCheck(documentId, collectionName, context);
+    return await rerunLlmCheck(documentId, collectionName, context);
   },
 
   async runPangramCheck(_root: void, args: { documentId: string, collectionName: ContentCollectionName }, context: ResolverContext) {

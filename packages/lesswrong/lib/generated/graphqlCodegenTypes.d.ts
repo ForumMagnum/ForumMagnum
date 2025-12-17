@@ -4387,7 +4387,7 @@ type Mutation = {
   publishAndDeDuplicateSpotlight?: Maybe<Spotlight>;
   rejectContentAndRemoveUserFromQueue: Scalars['Boolean']['output'];
   reorderSummaries?: Maybe<Scalars['Boolean']['output']>;
-  rerunSaplingCheck: AutomatedContentEvaluation;
+  rerunLlmCheck: AutomatedContentEvaluation;
   resetPassword?: Maybe<Scalars['String']['output']>;
   resyncRssFeed: Scalars['Boolean']['output'];
   revertPostToRevision?: Maybe<Post>;
@@ -4993,7 +4993,7 @@ type MutationreorderSummariesArgs = {
 };
 
 
-type MutationrerunSaplingCheckArgs = {
+type MutationrerunLlmCheckArgs = {
   collectionName: ContentCollectionName;
   documentId: Scalars['String']['input'];
 };
@@ -21923,21 +21923,21 @@ type createModeratorActionPostReviewActionsMutationVariables = Exact<{
 
 type createModeratorActionPostReviewActionsMutation = createModeratorActionPostReviewActionsMutation_Mutation;
 
-type RerunSaplingCheckHookMutation_rerunSaplingCheck_AutomatedContentEvaluation = (
+type RerunLlmCheckHookMutation_rerunLlmCheck_AutomatedContentEvaluation = (
   { __typename?: 'AutomatedContentEvaluation' }
   & AutomatedContentEvaluationsFragment
 );
 
-type RerunSaplingCheckHookMutation_Mutation = { __typename?: 'Mutation', rerunSaplingCheck: RerunSaplingCheckHookMutation_rerunSaplingCheck_AutomatedContentEvaluation };
+type RerunLlmCheckHookMutation_Mutation = { __typename?: 'Mutation', rerunLlmCheck: RerunLlmCheckHookMutation_rerunLlmCheck_AutomatedContentEvaluation };
 
 
-type RerunSaplingCheckHookMutationVariables = Exact<{
+type RerunLlmCheckHookMutationVariables = Exact<{
   documentId: Scalars['String']['input'];
   collectionName: ContentCollectionName;
 }>;
 
 
-type RerunSaplingCheckHookMutation = RerunSaplingCheckHookMutation_Mutation;
+type RerunLlmCheckHookMutation = RerunLlmCheckHookMutation_Mutation;
 
 type updateUserContentPermissionsMutation_updateUser_UserOutput_data_User = (
   { __typename?: 'User' }
@@ -24595,7 +24595,9 @@ type updatePostPostsEditFormMutation = updatePostPostsEditFormMutation_Mutation;
 
 type AutomatedContentEvaluationsFragment_AutomatedContentEvaluation_sentenceScores_SentenceScore = { __typename?: 'SentenceScore', sentence: string, score: number };
 
-type AutomatedContentEvaluationsFragment = { __typename?: 'AutomatedContentEvaluation', _id: string, score: number | null, aiChoice: string | null, aiReasoning: string | null, aiCoT: string | null, sentenceScores: Array<AutomatedContentEvaluationsFragment_AutomatedContentEvaluation_sentenceScores_SentenceScore> | null };
+type AutomatedContentEvaluationsFragment_AutomatedContentEvaluation_pangramWindowScores_PangramWindowScore = { __typename?: 'PangramWindowScore', text: string, score: number, startIndex: number, endIndex: number };
+
+type AutomatedContentEvaluationsFragment = { __typename?: 'AutomatedContentEvaluation', _id: string, score: number | null, aiChoice: string | null, aiReasoning: string | null, aiCoT: string | null, pangramScore: number | null, pangramMaxScore: number | null, pangramPrediction: string | null, sentenceScores: Array<AutomatedContentEvaluationsFragment_AutomatedContentEvaluation_sentenceScores_SentenceScore> | null, pangramWindowScores: Array<AutomatedContentEvaluationsFragment_AutomatedContentEvaluation_pangramWindowScores_PangramWindowScore> | null };
 
 type BookmarksMinimumInfoFragment = { __typename?: 'Bookmark', _id: string, active: boolean };
 

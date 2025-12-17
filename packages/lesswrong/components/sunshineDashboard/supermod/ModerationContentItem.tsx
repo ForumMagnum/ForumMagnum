@@ -11,11 +11,11 @@ import RejectContentButton from '../RejectContentButton';
 import { useDialog } from '@/components/common/withDialog';
 import { DialogContent } from '@/components/widgets/DialogContent';
 import LWDialog from '@/components/common/LWDialog';
-import { highlightHtmlWithLlmDetectionScores } from '../helpers';
+import { highlightHtmlWithPangramWindowScores } from '../helpers';
 import KeystrokeDisplay from './KeystrokeDisplay';
 import HoverOver from '@/components/common/HoverOver';
 import type { InboxAction } from './inboxReducer';
-import { useRerunSaplingCheck } from './useRerunSaplingCheck';
+import { useRerunLlmCheck } from './useRerunLlmCheck';
 
 const styles = defineStyles('ModerationContentItem', (theme: ThemeType) => ({
   root: {
@@ -208,13 +208,13 @@ const isPost = (item: ContentItem): item is SunshinePostsList => {
 const ModerationContentItem = ({
   item,
   isFocused,
-  isRunningSaplingCheck,
+  isRunningLlmCheck,
   onOpen,
   dispatch,
 }: {
   item: ContentItem;
   isFocused: boolean;
-  isRunningSaplingCheck: boolean;
+  isRunningLlmCheck: boolean;
   onOpen: () => void;
   dispatch: React.Dispatch<InboxAction>;
 }) => {
@@ -235,11 +235,11 @@ const ModerationContentItem = ({
 
   const automatedContentEvaluations = 'automatedContentEvaluations' in item ? item.automatedContentEvaluations : null;
 
-  // Show the rerun button when there's no ACE or when ACE is missing the Sapling score
-  const showRerunButton = !automatedContentEvaluations || automatedContentEvaluations.score === null;
+  // Show the rerun button when there's no ACE or when ACE is missing the Pangram score
+  const showRerunButton = !automatedContentEvaluations || automatedContentEvaluations.pangramScore === null;
 
   const collectionName = itemIsPost ? 'Posts' as const : 'Comments' as const;
-  const { handleRerunSaplingCheck } = useRerunSaplingCheck(
+  const { handleRerunLlmCheck } = useRerunLlmCheck(
     item._id,
     collectionName,
     dispatch
@@ -247,15 +247,15 @@ const ModerationContentItem = ({
 
   const onRerunClick = useCallback((e: React.MouseEvent) => {
     e.stopPropagation();
-    void handleRerunSaplingCheck();
-  }, [handleRerunSaplingCheck]);
+    void handleRerunLlmCheck();
+  }, [handleRerunLlmCheck]);
 
   const handleLLMScoreClick = useCallback((e: React.MouseEvent) => {
     e.stopPropagation();
     if (!automatedContentEvaluations) return;
-    const highlightedHtml = highlightHtmlWithLlmDetectionScores(
+    const highlightedHtml = highlightHtmlWithPangramWindowScores(
       contentHtml,
-      automatedContentEvaluations.sentenceScores || []
+      automatedContentEvaluations.pangramWindowScores || []
     );
 
     openDialog({
@@ -264,8 +264,11 @@ const ModerationContentItem = ({
         <LWDialog open={true} onClose={onClose}>
           <DialogContent>
             <div>
-              <p>LLM Score: {automatedContentEvaluations.score}</p>
-              <p>{itemIsPost ? 'Post' : 'Comment'} with highlighted sentences:</p>
+              <p>LLM Score: {automatedContentEvaluations.pangramScore?.toFixed(2) ?? 'N/A'}</p>
+              {automatedContentEvaluations.pangramPrediction && (
+                <p>Prediction: {automatedContentEvaluations.pangramPrediction}</p>
+              )}
+              <p>{itemIsPost ? 'Post' : 'Comment'} with highlighted windows:</p>
               <div dangerouslySetInnerHTML={{ __html: highlightedHtml }} />
             </div>
           </DialogContent>
@@ -274,7 +277,7 @@ const ModerationContentItem = ({
     });
   }, [automatedContentEvaluations, contentHtml, openDialog, itemIsPost]);
 
-  const score = automatedContentEvaluations?.score;
+  const score = automatedContentEvaluations?.pangramScore;
 
   const rejectedReasonText = item.rejectedReason 
     ? truncate(htmlToTextDefault(item.rejectedReason), 80, 'characters')
@@ -346,15 +349,15 @@ const ModerationContentItem = ({
         </div>
       )}
 
-      {!item.rejected && showRerunButton && (
+      {showRerunButton && (
         <button
           className={classes.rerunButton}
           onClick={onRerunClick}
-          disabled={isRunningSaplingCheck}
-          title={automatedContentEvaluations ? "Re-run Sapling check (score missing)" : "Run Sapling check"}
+          disabled={isRunningLlmCheck}
+          title={automatedContentEvaluations ? "Re-run LLM check (score missing)" : "Run LLM check"}
         >
-          <ReplayIcon className={classNames(classes.rerunIcon, { [classes.rerunIconSpinning]: isRunningSaplingCheck })} />
-          {isRunningSaplingCheck ? 'Checking...' : 'Sapling'}
+          <ReplayIcon className={classNames(classes.rerunIcon, { [classes.rerunIconSpinning]: isRunningLlmCheck })} />
+          {isRunningLlmCheck ? 'Checking...' : 'LLM'}
         </button>
       )}
 
