@@ -11,7 +11,7 @@ const styles = (theme: ThemeType) => ({
     flexDirection: "column",
     justifyContent: "flex-start",
     width: "100%",
-    minHeight: "100%",
+    minHeight: "100vh",
     paddingTop: HEADER_HEIGHT,
     [theme.breakpoints.down("xs")]: {
       paddingTop: MOBILE_HEADER_HEIGHT,
@@ -34,6 +34,7 @@ const styles = (theme: ThemeType) => ({
     paddingRight: 40,
     paddingBottom: 60,
     [theme.breakpoints.down("sm")]: {
+      paddingTop: theme.spacing.mainLayoutPaddingTop,
       paddingLeft: 20,
       paddingRight: 20,
     },

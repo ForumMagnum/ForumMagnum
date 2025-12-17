@@ -12,6 +12,9 @@ const styles = (theme: ThemeType) => ({
     [theme.breakpoints.up("sm")]: {
       width: 600,
     },
+    [theme.breakpoints.down("sm")]: {
+      marginTop: 0,
+    },
   },
   heading: {
     fontSize: 54,

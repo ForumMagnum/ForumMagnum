@@ -5,7 +5,6 @@ import { useTracking } from "@/lib/analyticsEvents";
 import html2canvas from "html2canvas-pro";
 import classNames from "classnames";
 import { isMobile } from "@/lib/utils/isMobile";
-import { makeAbsolute } from "@/lib/vulcan-lib/utils";
 import { captureException } from "@sentry/core";
 import { useForumWrappedContext } from "./hooks";
 import ForumIcon from "../../common/ForumIcon";
@@ -67,18 +66,23 @@ const WrappedShareButton = ({name, screenshotRef, onRendered, className, classes
           type: blob.type,
           lastModified: new Date().getTime(),
         });
-        const sharingOptions = {
-          title: `My EA Forum Wrapped ${year}`,
-          url: makeAbsolute("/wrapped"),
-          files: [file],
-        };
+        const sharingOptions = {files: [file]};
         if (navigator.canShare(sharingOptions)) {
-          await navigator.share(sharingOptions);
-          captureEvent("wrappedShare", {
-            method: "navigator.share",
-            year,
-          });
-          return;
+          try {
+            await navigator.share(sharingOptions);
+            captureEvent("wrappedShare", {
+              method: "navigator.share",
+              year,
+            });
+            return;
+          } catch (e) {
+            captureException(e, {tags: {
+              wrappedName: name,
+              wrappedYear: String(year),
+            }});
+            // eslint-disable-next-line no-console
+            console.error("Error sharing wrapped via navigator:", e);
+          }
         }
       }
 
