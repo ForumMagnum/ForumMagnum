@@ -102,7 +102,9 @@ export const getWrappedVideo = (personality: string): WrappedVideo => {
   const animation = chooseAnimation(personality);
   const color = chooseColor(personality);
   const properties = browserProperties();
-  const videoFormat = properties?.safari ? "mov" : "webm";
+  const videoFormat = properties.safari || /iPhone/.test(properties.userAgent ?? "")
+    ? "mov"
+    : "webm";
   return {
     animation,
     color,
