@@ -47,7 +47,10 @@ export async function getPangramEvaluation(revision: DbRevision): Promise<Pangra
   }
 
   const markdown = dataToMarkdown(revision.html, "html");
-  const textToCheck = markdown.slice(0, 10000);
+  // This should get the first 4-5k words.  There are longer posts but
+  // it doesn't seem like it'll often be useful to check them in their
+  // entirety, and every 1k words is more $$$.
+  const textToCheck = markdown.slice(0, 30_000);
 
   const response = await fetch('https://text-extended.api.pangram.com', {
     method: 'POST',
