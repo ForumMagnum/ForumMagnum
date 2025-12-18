@@ -63,7 +63,11 @@ const styles = (theme: ThemeType) => ({
     '&:hover': {
       borderColor: theme.palette.grey[400],
     },
-  }
+  },
+  sectionTitleContent: {
+    display: 'flex',
+    alignItems: 'center',
+  },
 });
 
 export const SpotlightsPage = ({classes}: {
@@ -183,7 +187,7 @@ export const SpotlightsPage = ({classes}: {
       </div>
       {loading && !onlyDrafts && <Loading/>}
       <SectionTitle title={sectionTitle}>
-        <div style={{ display: 'flex', alignItems: 'center' }}>
+        <div className={classes.sectionTitleContent}>
           <div>Total: {totalDisplayedDuration} days, {displayedSpotlights.length} spotlights</div>
           <div className={classes.sortByToggle}>
             <span className={classes.sortByLabel}>Sort by:</span>
