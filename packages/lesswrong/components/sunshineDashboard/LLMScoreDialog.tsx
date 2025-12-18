@@ -9,6 +9,13 @@ import { defineStyles, useStyles } from '@/components/hooks/useStyles';
 import { useMessages } from '@/components/common/withMessages';
 
 const styles = defineStyles('LLMScoreDialog', (theme: ThemeType) => ({
+  contentContainer: {
+    // Constrain images to prevent horizontal scrolling
+    '& img': {
+      maxWidth: '100%',
+      height: 'auto',
+    },
+  },
   runCheckContainer: {
     display: 'flex',
     flexDirection: 'column',
@@ -107,7 +114,7 @@ function LLMScoreDialog({
     <LWDialog open={true} onClose={onClose}>
       <DialogContent>
         {aceData ? (
-          <div>
+          <div className={classes.contentContainer}>
             <p>LLM Score Average: {score?.toFixed(2) ?? 'N/A'}, Max: {maxScore?.toFixed(2) ?? 'N/A'}</p>
             {aceData.pangramPrediction && (
               <p>Prediction: <strong>{aceData.pangramPrediction}</strong></p>
