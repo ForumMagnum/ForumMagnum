@@ -16,6 +16,7 @@ const RouteRoot = ({delayedStatusCode=false, metadata, fullscreen, children}: {
     {metadata && <RouteMetadataSetter metadata={metadata}/>}
     
     <RouteRootClient
+      hasLeftNavigationColumn={!!metadata?.hasLeftNavigationColumn}
       fullscreen={!!fullscreen}
     >
       {children}
