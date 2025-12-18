@@ -36,6 +36,7 @@ const styles = defineStyles("LWBackgroundImage", (theme: ThemeType) => ({
     [theme.breakpoints.down('sm')]: {
       display: 'none'
     },
+    overflowX: 'clip',
   },
   showSolsticeButton: {
     position: 'fixed',
@@ -86,24 +87,25 @@ export const LWBackgroundImage = ({standaloneNavigation}: {
     />
   </div> : null
 
-  // TODO: clean up related code in FundraiserThermometer when we disable/remove solstice season.
-  let homePageImage = (standaloneNavigation && isHomePage && !hideGlobeCookie) ? <SolsticeSeasonBanner /> : defaultImage
+  // TODO: clean up related code in FundraisingThermometer when we disable/remove solstice season.
+  // let homePageImage = (standaloneNavigation && isHomePage && !hideGlobeCookie) ? <SolsticeSeasonBanner /> : defaultImage
+  const homePageImage = defaultImage;
   // if (reviewIsActive() && standaloneNavigation && isHomePage) {
   //   homePageImage = <AnnualReviewSidebarBanner />
   // }
 
-  const showSolsticeButton = standaloneNavigation && isHomePage && hideGlobeCookie
+  // const showSolsticeButton = standaloneNavigation && isHomePage && hideGlobeCookie
 
   return <div className={classes.root}>
     {homePageImage}
-    {showSolsticeButton && (
+    {/* {showSolsticeButton && (
       <button
         className={classes.showSolsticeButton}
         onClick={() => setCookie(HIDE_SOLSTICE_GLOBE_COOKIE, "false")}
       >
         Show Solstice Season
       </button>
-    )}
+    )} */}
   </div>;
 }
 
