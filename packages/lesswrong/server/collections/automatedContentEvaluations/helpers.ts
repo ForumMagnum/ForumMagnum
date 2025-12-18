@@ -350,7 +350,18 @@ async function rejectContentForLLM(
   }
 }
 
-export async function createAutomatedContentEvaluation(revision: DbRevision, context: ResolverContext) {
+interface CreateAutomatedContentEvaluationOptions {
+  /** Whether to auto-reject content that fails the LLM check. */
+  autoreject?: boolean;
+}
+
+export async function createAutomatedContentEvaluation(
+  revision: DbRevision,
+  context: ResolverContext,
+  options: CreateAutomatedContentEvaluationOptions = {}
+) {
+  const { autoreject } = options;
+  
   // we shouldn't be ending up running this on revisions where draft is true (which is for autosaves) but if we did we'd want to return early.
   if (revision.draft) return;
   const documentId = revision.documentId;
@@ -377,7 +388,7 @@ export async function createAutomatedContentEvaluation(revision: DbRevision, con
     return;
   }
 
-  await AutomatedContentEvaluations.rawInsert({
+  const aceId = await AutomatedContentEvaluations.rawInsert({
     createdAt: new Date(),
     revisionId: revision._id,
     score: null,
@@ -392,12 +403,14 @@ export async function createAutomatedContentEvaluation(revision: DbRevision, con
   });
 
   // Auto-reject if Pangram score is high AND there's either no LLM evaluation (comments) or the LLM says review (posts)
-  if ((!llmEvaluation || llmEvaluation.decision === "review") && (pangramEvaluation?.pangramScore ?? 0) > .5) {
-    const collectionName = revision.collectionName as "Posts" | "Comments";
+  if (autoreject && (!llmEvaluation || llmEvaluation.decision === "review") && (pangramEvaluation?.pangramScore ?? 0) > .5) {
+    const collectionName = revision.collectionName;
     if (collectionName === "Posts" || collectionName === "Comments") {
       await rejectContentForLLM(documentId, collectionName, context);
     }
   }
+  
+  return aceId;
 }
 
 /**
