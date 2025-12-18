@@ -83,6 +83,8 @@ const WrappedThankAuthorSection = ({classes}: {
   const {captureEvent} = useTracking();
   const [messageSent, setMessageSent] = useState(false);
 
+  // These are technically nullable, but here we know they exist otherwise we
+  // wouldn't have rendered this section
   const {
     topAuthorByEngagementPercentile,
     topAuthorPercentByEngagementPercentile,
@@ -90,7 +92,7 @@ const WrappedThankAuthorSection = ({classes}: {
 
   const {conversation, initiateConversation} = useInitiateConversation();
   useEffect(() => {
-    initiateConversation([topAuthorByEngagementPercentile._id]);
+    initiateConversation([topAuthorByEngagementPercentile!._id]);
   }, [initiateConversation, topAuthorByEngagementPercentile]);
 
   const onSuccess = useCallback(() => {
@@ -106,7 +108,7 @@ const WrappedThankAuthorSection = ({classes}: {
     }
   }, [captureEvent, conversation, currentUser, year]);
 
-  const {displayName, slug} = topAuthorByEngagementPercentile;
+  const {displayName, slug} = topAuthorByEngagementPercentile!;
   const messageNode = conversation ? (
     <div className={classes.newMessageForm}>
       <MessagesNewForm

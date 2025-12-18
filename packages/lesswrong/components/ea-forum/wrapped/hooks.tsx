@@ -106,7 +106,12 @@ export type WrappedDataByYear = {
   daysVisited: string[];
   mostReadTopics: WrappedMostReadTopic[];
   relativeMostReadCoreTopics: WrappedRelativeMostReadCoreTopic[];
-  mostReadAuthors: WrappedMostReadAuthor[];
+  /**
+   * Note 2026-12-18: The server code looks like the authors should never be null
+   * but empirically there are bugs in prod where they sometimes are. For now
+   * I'm wallpapering over this because it's quicker.
+   */
+  mostReadAuthors: (WrappedMostReadAuthor | null)[];
   topPosts: WrappedTopPost[];
   postCount: number;
   authorPercentile: number;
