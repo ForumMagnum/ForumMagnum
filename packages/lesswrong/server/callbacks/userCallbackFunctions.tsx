@@ -162,8 +162,6 @@ const utils = {
       throw new Error(`You do not have permission to update this user`)
     }
   
-    if (!isEAForum()) return;
-  
     const sinceDaysAgo = sinceDaysAgoSetting.get();
     const MS_PER_DAY = 24*60*60*1000;
     const sinceDate = new Date(new Date().getTime() - (sinceDaysAgo*MS_PER_DAY))
@@ -673,13 +671,7 @@ export async function userEditChangeDisplayNameCallbacksAsync(user: DbUser, oldU
   // we don't want this action to count toward their one username change
   const isSettingUsername = oldUser.usernameUnset && !user.usernameUnset
   if (user.displayName !== oldUser.displayName && !isSettingUsername) {
-    await updateUser({ 
-      data: {
-        previousDisplayName: oldUser.displayName,
-        lastDisplayNameChangeAt: new Date()
-      }, 
-      selector: { _id: user._id } 
-    }, context);
+    await updateUser({ data: {previousDisplayName: oldUser.displayName}, selector: { _id: user._id } }, context);
   }
 }
 

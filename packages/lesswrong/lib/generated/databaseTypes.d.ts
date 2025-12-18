@@ -1795,7 +1795,6 @@ interface DbUser extends DbObject {
     dayOfWeekGMT: "Monday" | "Tuesday" | "Wednesday" | "Thursday" | "Friday" | "Saturday" | "Sunday",
     showNegativeKarma: boolean,
   }
-  lastDisplayNameChangeAt: Date | null
   lastNotificationsCheck: Date | null
   lastUsedTimezone: string | null
   legacy: boolean

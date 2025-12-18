@@ -174,16 +174,6 @@ export const userHasntChangedName = (user: Partial<Pick<UsersProfile|DbUser, 'pr
   return !user.previousDisplayName
 }
 
-export const canChangeDisplayName = (user: Partial<Pick<UsersProfile|DbUser, 'lastDisplayNameChangeAt'>> | null): boolean => {
-  if (!user) return false
-  if (!user.lastDisplayNameChangeAt) return true
-  
-  const oneWeekAgo = new Date()
-  oneWeekAgo.setDate(oneWeekAgo.getDate() - 7)
-  
-  return new Date(user.lastDisplayNameChangeAt) < oneWeekAgo
-}
-
 // Check if a user is an admin
 export const userIsAdmin = function <T extends UsersMinimumInfo|DbUser|null>(user: T): user is Exclude<T, null> & { isAdmin: true } {
   if (!user) return false;

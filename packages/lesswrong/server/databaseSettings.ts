@@ -243,7 +243,7 @@ export const sslSetting = new ParsedServerSetting<SSLSettings | null>(
 export const commentAncestorsToNotifySetting = new ParsedServerSetting<number>('commentAncestorsToNotifySetting', 1);
 
 export const changesAllowedSetting = new ParsedServerSetting<number>('displayNameRateLimit.changesAllowed', 1);
-export const sinceDaysAgoSetting = new ParsedServerSetting<number>('displayNameRateLimit.sinceDaysAgo', 60);
+export const sinceDaysAgoSetting = new ParsedServerSetting<number>('displayNameRateLimit.sinceDaysAgo', 7);
 
 // Anti-DDoS measure
 export const botProtectionCommentRedirectSetting = new ParsedServerSetting<boolean>("botProtectionCommentRedirect", false);

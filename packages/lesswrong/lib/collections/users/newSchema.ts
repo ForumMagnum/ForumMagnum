@@ -7,7 +7,7 @@ import {
   karmaChangeUpdateFrequencies,
 } from "./helpers";
 import { userGetEditUrl } from "../../vulcan-users/helpers";
-import { userOwns, userIsAdmin, userHasntChangedName, canChangeDisplayName, userIsMemberOf } from "../../vulcan-users/permissions";
+import { userOwns, userIsAdmin, userHasntChangedName, userIsMemberOf } from "../../vulcan-users/permissions";
 import { isAF, isEAForum } from "../../instanceSettings";
 import {
   accessFilterMultiple, arrayOfForeignKeysOnCreate, generateIdResolverMulti,
@@ -73,7 +73,9 @@ const ownsOrIsMod = (user: DbUser | null, document: any) => {
 };
 
 const canUpdateName = (user: DbUser | null) => {
-  return isEAForum() ? userIsMemberOf(user, 'members') : canChangeDisplayName(user);
+  // For EA Forum, any member can update their name (rate limit is checked server-side)
+  // For LW/AF, users can only update if they haven't changed it before (legacy behavior)
+  return isEAForum() ? userIsMemberOf(user, 'members') : userHasntChangedName(user);
 };
 
 const DEFAULT_NOTIFICATION_GRAPHQL_OPTIONS = {
@@ -463,20 +465,25 @@ const schema = {
     },
   },
   /**
-   Timestamp of when the user last changed their displayName
-   Used for rate limiting displayName changes (once per week)
+   * Last time the user changed their displayName (computed from FieldChanges)
+   * Used to show users when they can change their name again
    */
-  lastDisplayNameChangeAt: {
-    database: {
-      type: "TIMESTAMPTZ",
-    },
+  lastDisplayNameChangeDate: {
     graphql: {
       outputType: "Date",
       canRead: [userOwns, "sunshineRegiment", "admins"],
-      canUpdate: ["sunshineRegiment", "admins"],
-      canCreate: ["sunshineRegiment", "admins"],
-      validation: {
-        optional: true,
+      resolver: async (user: DbUser, args: void, context: ResolverContext) => {
+        const { FieldChanges } = context;
+        const recentChange = await FieldChanges.findOne(
+          {
+            userId: user._id,
+            fieldName: 'displayName',
+          },
+          {
+            sort: { createdAt: -1 }
+          }
+        );
+        return recentChange?.createdAt ?? null;
       },
     },
   },

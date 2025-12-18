@@ -7857,7 +7857,7 @@ type User {
   hasAuth0Id: Boolean
   displayName: String!
   previousDisplayName: String
-  lastDisplayNameChangeAt: Date
+  lastDisplayNameChangeDate: Date
   email: String
   noindex: Boolean!
   groups: [String!]
@@ -10322,7 +10322,6 @@ input CreateUserDataInput {
   isAdmin: Boolean
   displayName: String!
   previousDisplayName: String
-  lastDisplayNameChangeAt: Date
   email: String
   groups: [String!]
   theme: JSON
@@ -10484,7 +10483,6 @@ input UpdateUserDataInput {
   isAdmin: Boolean
   displayName: String
   previousDisplayName: String
-  lastDisplayNameChangeAt: Date
   email: String
   noindex: Boolean
   groups: [String!]
