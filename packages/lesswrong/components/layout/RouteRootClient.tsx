@@ -6,6 +6,8 @@ import { DelayedLoading } from '../common/DelayedLoading';
 import ErrorBoundary from '../common/ErrorBoundary';
 import { SuspenseWrapper } from '../common/SuspenseWrapper';
 import { PopperPortalProvider } from '../common/LWPopper';
+import { usePrerenderablePathname } from '../next/usePrerenderablePathname';
+import { isHomeRoute } from '@/lib/routeChecks';
 
 const styles = defineStyles("RouteRootClient", (theme: ThemeType) => ({
   main: {
@@ -27,6 +29,9 @@ const styles = defineStyles("RouteRootClient", (theme: ThemeType) => ({
       paddingRight: 8,
     },
   },
+  mainFrontPage: {
+    overflowX: 'visible',
+  },
   mainFullscreen: {
     height: "100%",
     padding: 0,
@@ -38,10 +43,13 @@ export const RouteRootClient = ({children, fullscreen}: {
   fullscreen: boolean
 }) => {
   const classes = useStyles(styles);
+  const pathname = usePrerenderablePathname();
+  const isFrontPage = isHomeRoute(pathname);
 
   return <PopperPortalProvider>
     <div className={classNames(classes.main, {
       [classes.mainFullscreen]: fullscreen,
+      [classes.mainFrontPage]: isFrontPage,
     })}>
       <ErrorBoundary>
         <SuspenseWrapper name="Route" fallback={<DelayedLoading/>}>
