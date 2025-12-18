@@ -17,20 +17,6 @@ type Scalars = {
   JSON: { input: any; output: any; }
 };
 
-type AIDetectionComparisonItem = {
-  __typename?: 'AIDetectionComparisonItem';
-  authorDisplayName?: Maybe<Scalars['String']['output']>;
-  authorSlug?: Maybe<Scalars['String']['output']>;
-  automatedContentEvaluation?: Maybe<AutomatedContentEvaluation>;
-  baseScore: Scalars['Int']['output'];
-  collectionName: Scalars['String']['output'];
-  documentId: Scalars['String']['output'];
-  htmlPreview: Scalars['String']['output'];
-  postedAt: Scalars['Date']['output'];
-  rejected: Scalars['Boolean']['output'];
-  title?: Maybe<Scalars['String']['output']>;
-};
-
 type AdvisorRequest = {
   __typename?: 'AdvisorRequest';
   _id: Scalars['String']['output'];
@@ -4392,7 +4378,6 @@ type Mutation = {
   resyncRssFeed: Scalars['Boolean']['output'];
   revertPostToRevision?: Maybe<Post>;
   revertTagToRevision?: Maybe<Tag>;
-  runPangramCheck: AutomatedContentEvaluation;
   sendEventTriggeredDM: Scalars['Boolean']['output'];
   sendNewDialogueMessageNotification: Scalars['Boolean']['output'];
   setIsHidden: User;
@@ -5018,12 +5003,6 @@ type MutationrevertPostToRevisionArgs = {
 type MutationrevertTagToRevisionArgs = {
   revertToRevisionId: Scalars['String']['input'];
   tagId: Scalars['String']['input'];
-};
-
-
-type MutationrunPangramCheckArgs = {
-  collectionName: ContentCollectionName;
-  documentId: Scalars['String']['input'];
 };
 
 
@@ -7707,7 +7686,6 @@ type Query = {
   forumEvents?: Maybe<MultiForumEventOutput>;
   gardenCode?: Maybe<SingleGardenCodeOutput>;
   gardenCodes?: Maybe<MultiGardenCodeOutput>;
-  getAIDetectionComparisonItems: Array<AIDetectionComparisonItem>;
   getBookWordCount?: Maybe<Scalars['Float']['output']>;
   getCrosspost?: Maybe<Scalars['JSON']['output']>;
   getLinkSharedPost?: Maybe<Post>;
@@ -8533,12 +8511,6 @@ type QuerygardenCodesArgs = {
   limit?: InputMaybe<Scalars['Int']['input']>;
   offset?: InputMaybe<Scalars['Int']['input']>;
   selector?: InputMaybe<GardenCodeSelector>;
-};
-
-
-type QuerygetAIDetectionComparisonItemsArgs = {
-  limit?: InputMaybe<Scalars['Int']['input']>;
-  offset?: InputMaybe<Scalars['Int']['input']>;
 };
 
 

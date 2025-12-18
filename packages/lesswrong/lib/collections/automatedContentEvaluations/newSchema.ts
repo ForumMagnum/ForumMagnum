@@ -16,6 +16,7 @@ const schema = {
     }
   },
 
+  // score & sentenceScores are Sapling fields
   score: {
     database: {
       type: "DOUBLE PRECISION",
@@ -39,6 +40,7 @@ const schema = {
     },
   },
 
+  // aiChoice, aiReasoning, and aiCoT are the results of calling an LLM for a qualitative judgment based on specified criteria
   aiChoice: {
     database: {
       type: "TEXT",
@@ -75,7 +77,7 @@ const schema = {
     },
   },
 
-  // Pangram AI detection fields (separate from Sapling fields above)
+  // Pangram AI detection fields
   pangramScore: {
     database: {
       type: "DOUBLE PRECISION",

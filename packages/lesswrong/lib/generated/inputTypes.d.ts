@@ -86,7 +86,6 @@ interface Query {
   advisorRequests: MultiAdvisorRequestOutput | null;
   arbitalTagContentRel: SingleArbitalTagContentRelOutput | null;
   arbitalTagContentRels: MultiArbitalTagContentRelOutput | null;
-  getAIDetectionComparisonItems: Array<AIDetectionComparisonItem>;
   ban: SingleBanOutput | null;
   bans: MultiBanOutput | null;
   bookmark: SingleBookmarkOutput | null;
@@ -296,7 +295,6 @@ interface Mutation {
   increasePostViewCount: number | null;
   generateCoverImagesForPost: Array<ReviewWinnerArt | null> | null;
   flipSplashArtImage: boolean | null;
-  runPangramCheck: AutomatedContentEvaluation;
   createAdvisorRequest: AdvisorRequestOutput | null;
   updateAdvisorRequest: AdvisorRequestOutput | null;
   createBook: BookOutput | null;
@@ -1412,19 +1410,6 @@ interface PangramWindowScore {
   score: number;
   startIndex: number;
   endIndex: number;
-}
-
-interface AIDetectionComparisonItem {
-  documentId: string;
-  collectionName: string;
-  title: string | null;
-  htmlPreview: string;
-  postedAt: Date;
-  baseScore: number;
-  authorDisplayName: string | null;
-  authorSlug: string | null;
-  rejected: boolean;
-  automatedContentEvaluation: AutomatedContentEvaluation | null;
 }
 
 interface Ban {
@@ -9938,7 +9923,6 @@ interface GraphQLTypeMap {
   AutomatedContentEvaluation: AutomatedContentEvaluation;
   SentenceScore: SentenceScore;
   PangramWindowScore: PangramWindowScore;
-  AIDetectionComparisonItem: AIDetectionComparisonItem;
   Ban: Ban;
   SingleBanInput: SingleBanInput;
   SingleBanOutput: SingleBanOutput;

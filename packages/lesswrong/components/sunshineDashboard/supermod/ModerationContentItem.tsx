@@ -234,6 +234,8 @@ const ModerationContentItem = ({
     : { collectionName: 'Comments' as const, document: item };
 
   const automatedContentEvaluations = 'automatedContentEvaluations' in item ? item.automatedContentEvaluations : null;
+  const score = automatedContentEvaluations?.pangramScore;
+  const maxScore = automatedContentEvaluations?.pangramMaxScore;
 
   // Show the rerun button when there's no ACE or when ACE is missing the Pangram score
   const showRerunButton = !automatedContentEvaluations || automatedContentEvaluations.pangramScore === null;
@@ -255,7 +257,7 @@ const ModerationContentItem = ({
     if (!automatedContentEvaluations) return;
     const highlightedHtml = highlightHtmlWithPangramWindowScores(
       contentHtml,
-      automatedContentEvaluations.pangramWindowScores || []
+      automatedContentEvaluations.pangramWindowScores ?? []
     );
 
     openDialog({
@@ -264,7 +266,7 @@ const ModerationContentItem = ({
         <LWDialog open={true} onClose={onClose}>
           <DialogContent>
             <div>
-              <p>LLM Score Average: {automatedContentEvaluations.pangramScore?.toFixed(2) ?? 'N/A'}, Max: {automatedContentEvaluations.pangramMaxScore?.toFixed(2) ?? 'N/A'}</p>
+              <p>LLM Score Average: {score?.toFixed(2) ?? 'N/A'}, Max: {maxScore?.toFixed(2) ?? 'N/A'}</p>
               {automatedContentEvaluations.pangramPrediction && (
                 <p>Prediction: <strong>{automatedContentEvaluations.pangramPrediction}</strong></p>
               )}
@@ -275,10 +277,7 @@ const ModerationContentItem = ({
         </LWDialog>
       ),
     });
-  }, [automatedContentEvaluations, contentHtml, openDialog, itemIsPost]);
-
-  const score = automatedContentEvaluations?.pangramScore;
-  const maxScore = automatedContentEvaluations?.pangramMaxScore;
+  }, [automatedContentEvaluations, contentHtml, openDialog, itemIsPost, score, maxScore]);
 
   const evaluationBadge = typeof score === 'number' ? (
     <HoverOver title={<p>Average: {score.toFixed(2)}, Max: {maxScore?.toFixed(2) ?? 'N/A'}</p>}>
