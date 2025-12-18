@@ -149,13 +149,11 @@ const styles = defineStyles('ModerationContentItem', (theme: ThemeType) => ({
     gap: 4,
     flexShrink: 0,
     maxWidth: 168,
-    // justifySelf: 'flex-end',
   },
   rejectionTopRow: {
     display: 'flex',
     gap: 6,
     alignItems: 'center',
-    
   },
   rejectionReasonPreview: {
     marginLeft: 8,
