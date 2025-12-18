@@ -10,6 +10,11 @@ import DeferRender from './DeferRender';
 import { isClient } from '@/lib/executionEnvironment';
 import Confetti from 'react-confetti';
 import LWTooltip from "./LWTooltip";
+import { useRouteMetadata } from '../layout/ClientRouteMetadataContext';
+import { useSubscribedLocation } from '@/lib/routeUtil';
+import { isHomeRoute } from '@/lib/routeChecks';
+import { useCookiesWithConsent } from '../hooks/useCookiesWithConsent';
+import { HIDE_SOLSTICE_GLOBE_COOKIE } from '@/lib/cookies/cookies';
 
 // Second thermometer background image:
 const lightconeFundraiserThermometerBgUrl2 =
@@ -149,7 +154,6 @@ const styles = (theme: ThemeType) => ({
     fontFamily: theme.typography.body2.fontFamily,
     fontSize: '1.2rem',
     paddingBottom: 6,
-    textShadow: `0px 0px 20px ${theme.palette.background.default}, 0px 0px 30px ${theme.palette.background.default}, 0px 0px 40px ${theme.palette.background.default}, 0px 0px 50px ${theme.palette.background.default}`,
     alignItems: 'flex-end',
     backdropFilter: 'blur(3px)',
     [theme.breakpoints.down('xs')]: {
@@ -182,6 +186,9 @@ const styles = (theme: ThemeType) => ({
     [theme.breakpoints.down('xs')]: {
       display: 'none',
     }
+  },
+  goalText: {
+    color: `light-dark(${theme.palette.background.default}, ${theme.palette.greyAlpha(0.9)})`,
   },
   goalTextBold: {
     fontWeight: 'bold',
@@ -323,6 +330,15 @@ const styles = (theme: ThemeType) => ({
 const FundraisingThermometer: React.FC<
   FundraisingThermometerProps & { classes: ClassesType<typeof styles> }
 > = ({ classes, onPost = false }) => {
+
+  const { metadata: { hasLeftNavigationColumn } } = useRouteMetadata();
+  const { pathname } = useSubscribedLocation();
+  const isHomePage = isHomeRoute(pathname);
+  const [cookies] = useCookiesWithConsent([HIDE_SOLSTICE_GLOBE_COOKIE]);
+  const hideGlobeCookie = cookies[HIDE_SOLSTICE_GLOBE_COOKIE] === "true";
+
+  const showingSolsticeBackground = hasLeftNavigationColumn && isHomePage && !hideGlobeCookie;
+
   // First, second, and third goal amounts
   const goal1 = lightconeFundraiserThermometerGoalAmount.get();
   const goal2 = lightconeFundraiserThermometerGoal2Amount.get();
@@ -409,7 +425,7 @@ const FundraisingThermometer: React.FC<
               </Link>
             </LWTooltip>
           )}
-          <span>
+          <span className={classNames(showingSolsticeBackground && classes.goalText)}>
             {/* If fundraiser ended, show 'Total raised'; otherwise still show 'Goal' */}
             <span className={classes.goalTextBold}>
               {fundraiserEnded ? 'Total raised:' : `Goal ${displayedStageNumber}:`}
