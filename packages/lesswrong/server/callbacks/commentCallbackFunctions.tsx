@@ -1123,7 +1123,10 @@ export async function maybeCreateAutomatedContentEvaluationForComment(
   oldComment: DbComment | null,
   context: ResolverContext
 ) {
-  if (!isLW()) {
+  // Skip running this by default for reviewed users for now,
+  // since comments are much higher volume than posts and there
+  // isn't any UI for looking at the results yet anyways.
+  if (!isLW() || context.currentUser?.reviewedByUserId) {
     return;
   }
 
