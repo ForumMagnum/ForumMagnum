@@ -3347,7 +3347,6 @@ CREATE TABLE "Users" (
   "profile" JSONB,
   "services" JSONB,
   "displayName" TEXT NOT NULL,
-  "previousDisplayName" TEXT,
   "email" TEXT,
   "noindex" BOOL NOT NULL DEFAULT FALSE,
   "groups" TEXT[],

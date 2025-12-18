@@ -7239,7 +7239,6 @@ interface User {
   services: any;
   hasAuth0Id: boolean | null;
   displayName: string;
-  previousDisplayName: string | null;
   email: string | null;
   noindex: boolean;
   groups: Array<string> | null;
@@ -9408,7 +9407,6 @@ interface CreateUserDataInput {
   username?: string | null;
   isAdmin?: boolean | null;
   displayName: string;
-  previousDisplayName?: string | null;
   email?: string | null;
   groups?: Array<string> | null;
   theme?: any;
@@ -9569,7 +9567,6 @@ interface UpdateUserDataInput {
   username?: string | null;
   isAdmin?: boolean | null;
   displayName?: string | null;
-  previousDisplayName?: string | null;
   email?: string | null;
   noindex?: boolean | null;
   groups?: Array<string> | null;

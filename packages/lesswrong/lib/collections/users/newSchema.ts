@@ -7,7 +7,7 @@ import {
   karmaChangeUpdateFrequencies,
 } from "./helpers";
 import { userGetEditUrl } from "../../vulcan-users/helpers";
-import { userOwns, userIsAdmin, userHasntChangedName, userIsMemberOf } from "../../vulcan-users/permissions";
+import { userOwns, userIsAdmin, userIsMemberOf } from "../../vulcan-users/permissions";
 import { isAF, isEAForum } from "../../instanceSettings";
 import {
   accessFilterMultiple, arrayOfForeignKeysOnCreate, generateIdResolverMulti,
@@ -73,7 +73,8 @@ const ownsOrIsMod = (user: DbUser | null, document: any) => {
 };
 
 const canUpdateName = (user: DbUser | null) => {
-  return isEAForum() ? userIsMemberOf(user, 'members') : userHasntChangedName(user);
+  // Rate limiting is enforced server-side in enforceDisplayNameRateLimit
+  return userIsMemberOf(user, 'members');
 };
 
 const DEFAULT_NOTIFICATION_GRAPHQL_OPTIONS = {
@@ -440,23 +441,6 @@ const schema = {
       onCreate: ({ document: user }) => {
         return user.displayName || createDisplayName(user);
       },
-      validation: {
-        optional: true,
-      },
-    },
-  },
-  /**
-   Used for tracking changes of displayName
-   */
-  previousDisplayName: {
-    database: {
-      type: "TEXT",
-    },
-    graphql: {
-      outputType: "String",
-      canRead: [userOwns, "sunshineRegiment", "admins"],
-      canUpdate: ["sunshineRegiment", "admins"],
-      canCreate: ["sunshineRegiment", "admins"],
       validation: {
         optional: true,
       },

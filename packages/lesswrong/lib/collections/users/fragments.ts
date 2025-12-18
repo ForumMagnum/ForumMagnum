@@ -39,7 +39,6 @@ export const UsersProfile = gql(`
   fragment UsersProfile on User {
     ...UsersMinimumInfo
     fullName
-    previousDisplayName
     oldSlugs
     groups
     jobTitle
