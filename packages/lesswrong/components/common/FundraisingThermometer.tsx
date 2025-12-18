@@ -1,5 +1,5 @@
 import { registerComponent } from '@/lib/vulcan-lib/components';
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import ReactDOM from 'react-dom';
 import { lightconeFundraiserPostId, lightconeFundraiserThermometerBgUrl, lightconeFundraiserThermometerGoalAmount, lightconeFundraiserThermometerGoal2Amount, lightconeFundraiserThermometerGoal3Amount } from '@/lib/instanceSettings';
 import { Link } from '@/lib/reactRouterWrapper';
@@ -336,8 +336,11 @@ const FundraisingThermometer: React.FC<
   const isHomePage = isHomeRoute(pathname);
   const [cookies] = useCookiesWithConsent([HIDE_SOLSTICE_GLOBE_COOKIE]);
   const hideGlobeCookie = cookies[HIDE_SOLSTICE_GLOBE_COOKIE] === "true";
-
-  const showingSolsticeBackground = hasLeftNavigationColumn && isHomePage && !hideGlobeCookie;
+  const [showingSolsticeBackground, setShowingSolsticeBackground] = useState(hasLeftNavigationColumn && isHomePage && !hideGlobeCookie);
+  
+  useEffect(() => {
+    setShowingSolsticeBackground(hasLeftNavigationColumn && isHomePage && !hideGlobeCookie && window.innerWidth >= 1100);
+  }, [hasLeftNavigationColumn, isHomePage, hideGlobeCookie]);
 
   // First, second, and third goal amounts
   const goal1 = lightconeFundraiserThermometerGoalAmount.get();
