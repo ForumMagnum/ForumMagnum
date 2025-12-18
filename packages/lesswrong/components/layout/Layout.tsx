@@ -88,51 +88,11 @@ const STICKY_SECTION_TOP_MARGIN = 20;
 const allowedIncompletePaths: string[] = ["termsOfUse"];
 
 const styles = defineStyles("Layout", (theme: ThemeType) => ({
-  fullscreenBodyWrapper: {
-    flexBasis: 0,
-    flexGrow: 1,
-    overflow: "auto",
-    [theme.breakpoints.down('xs')]: {
-      overflow: "visible",
-    },
-  },
-  spacedGridActivated: {
-    '@supports (grid-template-areas: "title")': {
-      display: 'grid',
-      gridTemplateAreas: `
-        "navSidebar ... main imageGap sunshine"
-      `,
-      gridTemplateColumns: `
-        minmax(0, min-content)
-        minmax(0, 1fr)
-        minmax(0, min-content)
-        minmax(0, ${isLWorAF() ? 7 : 1}fr)
-        minmax(0, min-content)
-      `,
-    },
-  },
-  gridBreakpointMd: {
-    [theme.breakpoints.down('md')]: {
-      display: 'block'
-    }
-  },
-  gridBreakpointSm: {
-    [theme.breakpoints.down('sm')]: {
-      display: 'block'
-    }
-  },
-  eaHomeLayout: {
-    display: "flex",
-    alignItems: "start",
-    [theme.breakpoints.down('md')]: {
-      display: 'block'
-    }
-  },
   navSidebar: {
     gridArea: 'navSidebar'
   },
-  sunshine: {
-    gridArea: 'sunshine'
+  rightSidebar: {
+    gridArea: 'rightSidebar'
   },
   languageModelLauncher: {
     position: 'absolute',
@@ -359,50 +319,49 @@ const Layout = ({children}: {
               </ErrorBoundary>
               {isFriendlyUI() && !isWrapped && <AdminToggle />}
 
-              <div className={classNames({
-                [classes.spacedGridActivated]: shouldUseGridLayout,
-                [classes.gridBreakpointMd]: !renderIconOnlyNavigation && shouldUseGridLayout,
-                [classes.gridBreakpointSm]: renderIconOnlyNavigation && shouldUseGridLayout,
-                [classes.eaHomeLayout]: friendlyHomeLayout && !renderSunshineSidebar,
-                [classes.fullscreenBodyWrapper]: isFullscreenRoute(pathname),
-              }
-              )}>
-                {standaloneNavigation && <SuspenseWrapper fallback={<span/>} name="NavigationStandalone" >
-                  <MaybeStickyWrapper sticky={friendlyHomeLayout}>
-                    <DeferRender ssr={true} clientTiming='mobile-aware'>
-                      <SuspenseWrapper name="NavigationStandalone">
-                        <NavigationStandalone
-                          sidebarHidden={hideNavigationSidebar}
-                          noTopMargin={friendlyHomeLayout}
-                          iconOnlyNavigationEnabled={iconOnlyNavigationEnabled}
-                        />
+              {isLW() && <LWBackgroundImage standaloneNavigation={standaloneNavigation} />}
+              <div ref={searchResultsAreaRef} className={classes.searchResultsArea} />
+
+              <LeftAndRightSidebarsWrapper
+                sidebarsEnabled={shouldUseGridLayout}
+                fullscreen={isFullscreenRoute(pathname)}
+                leftSidebar={
+                  standaloneNavigation && <SuspenseWrapper fallback={<span/>} name="NavigationStandalone" >
+                    <MaybeStickyWrapper sticky={friendlyHomeLayout}>
+                      <DeferRender ssr={true} clientTiming='mobile-aware'>
+                        <SuspenseWrapper name="NavigationStandalone">
+                          <NavigationStandalone
+                            sidebarHidden={hideNavigationSidebar}
+                            noTopMargin={friendlyHomeLayout}
+                            iconOnlyNavigationEnabled={iconOnlyNavigationEnabled}
+                          />
+                        </SuspenseWrapper>
+                      </DeferRender>
+                    </MaybeStickyWrapper>
+                  </SuspenseWrapper>
+                }
+                rightSidebar={
+                  /* {!renderSunshineSidebar &&
+                    friendlyHomeLayout &&
+                    <MaybeStickyWrapper sticky={friendlyHomeLayout}>
+                      <DeferRender ssr={true} clientTiming='mobile-aware'>
+                        <SuspenseWrapper name="EAHomeRightHandSide">
+                          <EAHomeRightHandSide />
+                        </SuspenseWrapper>
+                      </DeferRender>
+                    </MaybeStickyWrapper>
+                  } */
+                  renderSunshineSidebar && <div className={classes.rightSidebar}>
+                    <DeferRender ssr={false}>
+                      <SuspenseWrapper name="SunshineSidebar">
+                        <SunshineSidebar/>
                       </SuspenseWrapper>
                     </DeferRender>
-                  </MaybeStickyWrapper>
-                </SuspenseWrapper>}
-                <div ref={searchResultsAreaRef} className={classes.searchResultsArea} />
-                
+                  </div>
+                }
+              >
                 {children}
-                
-                {isLW() && <LWBackgroundImage standaloneNavigation={standaloneNavigation} />}
-                {/* {!renderSunshineSidebar &&
-                  friendlyHomeLayout &&
-                  <MaybeStickyWrapper sticky={friendlyHomeLayout}>
-                    <DeferRender ssr={true} clientTiming='mobile-aware'>
-                      <SuspenseWrapper name="EAHomeRightHandSide">
-                        <EAHomeRightHandSide />
-                      </SuspenseWrapper>
-                    </DeferRender>
-                  </MaybeStickyWrapper>
-                } */}
-                {renderSunshineSidebar && <div className={classes.sunshine}>
-                  <DeferRender ssr={false}>
-                    <SuspenseWrapper name="SunshineSidebar">
-                      <SunshineSidebar/>
-                    </SuspenseWrapper>
-                  </DeferRender>
-                </div>}
-              </div>
+              </LeftAndRightSidebarsWrapper>
             </CommentBoxManager>
           </DialogManager>
           <NavigationEventSender />
@@ -425,6 +384,67 @@ const Layout = ({children}: {
     )
   };
   return render();
+}
+
+
+const sidebarsWrapperStyles = defineStyles("LeftAndRightSidebarsWrapper", theme => ({
+  spacedGridActivated: {
+    '@supports (grid-template-areas: "title")': {
+      display: 'grid',
+      gridTemplateAreas: `
+        "navSidebar ... main imageGap rightSidebar"
+      `,
+      gridTemplateColumns: `
+        minmax(0, min-content)
+        minmax(0, 1fr)
+        minmax(0, min-content)
+        minmax(0, ${isLWorAF() ? 7 : 1}fr)
+        minmax(0, min-content)
+      `,
+    },
+  },
+  gridBreakpointMd: {
+    [theme.breakpoints.down('md')]: {
+      display: 'block'
+    }
+  },
+  gridBreakpointSm: {
+    [theme.breakpoints.down('sm')]: {
+      display: 'block'
+    }
+  },
+  fullscreenBodyWrapper: {
+    flexBasis: 0,
+    flexGrow: 1,
+    overflow: "auto",
+    [theme.breakpoints.down('xs')]: {
+      overflow: "visible",
+    },
+  },
+}));
+
+function LeftAndRightSidebarsWrapper({sidebarsEnabled, fullscreen, leftSidebar, rightSidebar, children}: {
+  sidebarsEnabled: boolean
+  fullscreen: boolean
+  leftSidebar: React.ReactNode
+  rightSidebar: React.ReactNode
+  children: React.ReactNode
+}) {
+  const classes = useStyles(sidebarsWrapperStyles);
+  // ea-forum-look-here There used to be a column-sizing special case for the EA Forum front page here, which is no present.
+  const navigationHasIconOnlyVersion = isLW();
+
+  return <div className={classNames({
+    [classes.spacedGridActivated]: sidebarsEnabled,
+    [classes.gridBreakpointMd]: !navigationHasIconOnlyVersion && sidebarsEnabled,
+    [classes.gridBreakpointSm]: navigationHasIconOnlyVersion && sidebarsEnabled,
+    [classes.fullscreenBodyWrapper]: fullscreen,
+  }
+  )}>
+    {leftSidebar}
+    {children}
+    {rightSidebar}
+  </div>
 }
 
 function MaybeCookieBanner({ hideIntercomButton }: { hideIntercomButton: boolean }) {
