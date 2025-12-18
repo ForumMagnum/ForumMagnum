@@ -86,6 +86,7 @@ export const LWBackgroundImage = ({standaloneNavigation}: {
     />
   </div> : null
 
+  // TODO: clean up related code in FundraiserThermometer when we disable/remove solstice season.
   let homePageImage = (standaloneNavigation && isHomePage && !hideGlobeCookie) ? <SolsticeSeasonBanner /> : defaultImage
   // if (reviewIsActive() && standaloneNavigation && isHomePage) {
   //   homePageImage = <AnnualReviewSidebarBanner />
