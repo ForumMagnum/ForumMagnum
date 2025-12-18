@@ -25,7 +25,7 @@ import { useForm } from '@tanstack/react-form';
 import classNames from 'classnames';
 import { getCommentViewOptions } from '@/lib/commentViewOptions';
 import { FormComponentSelect } from '@/components/form-components/FormComponentSelect';
-import { getAllUserGroups, userHasntChangedName, userIsAdmin, userIsAdminOrMod, userIsMemberOf } from '@/lib/vulcan-users/permissions';
+import { getAllUserGroups, userHasntChangedName, canChangeDisplayName, userIsAdmin, userIsAdminOrMod, userIsMemberOf } from '@/lib/vulcan-users/permissions';
 import { FormComponentDatePicker } from '@/components/form-components/FormComponentDateTime';
 import { allowSubscribeToSequencePosts, hasAccountDeletionFlow, hasAuthorModeration, hasPostRecommendations, hasSurveys, userCanViewJargonTerms } from '@/lib/betas';
 import { ThemeSelect } from '@/components/form-components/ThemeSelect';
@@ -238,13 +238,21 @@ const UsersForm = ({
     }}>
       {displayedErrorComponent}
       <div className={classes.defaultGroup}>
-        {!isFriendlyUI() && (userHasntChangedName(form.state.values) || userIsAdminOrMod(currentUser)) && <div className={classes.fieldWrapper}>
+        {!isFriendlyUI() && (canChangeDisplayName(form.state.values) || userIsAdminOrMod(currentUser)) && <div className={classes.fieldWrapper}>
           <form.Field name="displayName">
             {(field) => (
-              <MuiTextField
-                field={field}
-                label="Display name"
-              />
+              <LWTooltip 
+                title={!userIsAdminOrMod(currentUser) && form.state.values.lastDisplayNameChangeAt 
+                  ? `You can change your display name once per week. Last changed on ${new Date(form.state.values.lastDisplayNameChangeAt).toLocaleDateString()}.` 
+                  : ""}
+                placement="top-start"
+                inlineBlock={false}
+              >
+                <MuiTextField
+                  field={field}
+                  label="Display name"
+                />
+              </LWTooltip>
             )}
           </form.Field>
         </div>}

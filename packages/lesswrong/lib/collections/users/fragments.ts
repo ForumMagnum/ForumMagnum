@@ -585,6 +585,7 @@ export const UsersEdit = gql(`
     username
     displayName
     fullName
+    lastDisplayNameChangeAt
 
     # Location
     mongoLocation

@@ -3348,6 +3348,7 @@ CREATE TABLE "Users" (
   "services" JSONB,
   "displayName" TEXT NOT NULL,
   "previousDisplayName" TEXT,
+  "lastDisplayNameChangeAt" TIMESTAMPTZ,
   "email" TEXT,
   "noindex" BOOL NOT NULL DEFAULT FALSE,
   "groups" TEXT[],

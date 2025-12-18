@@ -7,7 +7,7 @@ import {
   karmaChangeUpdateFrequencies,
 } from "./helpers";
 import { userGetEditUrl } from "../../vulcan-users/helpers";
-import { userOwns, userIsAdmin, userHasntChangedName, userIsMemberOf } from "../../vulcan-users/permissions";
+import { userOwns, userIsAdmin, userHasntChangedName, canChangeDisplayName, userIsMemberOf } from "../../vulcan-users/permissions";
 import { isAF, isEAForum } from "../../instanceSettings";
 import {
   accessFilterMultiple, arrayOfForeignKeysOnCreate, generateIdResolverMulti,
@@ -73,7 +73,7 @@ const ownsOrIsMod = (user: DbUser | null, document: any) => {
 };
 
 const canUpdateName = (user: DbUser | null) => {
-  return isEAForum() ? userIsMemberOf(user, 'members') : userHasntChangedName(user);
+  return isEAForum() ? userIsMemberOf(user, 'members') : canChangeDisplayName(user);
 };
 
 const DEFAULT_NOTIFICATION_GRAPHQL_OPTIONS = {
@@ -454,6 +454,24 @@ const schema = {
     },
     graphql: {
       outputType: "String",
+      canRead: [userOwns, "sunshineRegiment", "admins"],
+      canUpdate: ["sunshineRegiment", "admins"],
+      canCreate: ["sunshineRegiment", "admins"],
+      validation: {
+        optional: true,
+      },
+    },
+  },
+  /**
+   Timestamp of when the user last changed their displayName
+   Used for rate limiting displayName changes (once per week)
+   */
+  lastDisplayNameChangeAt: {
+    database: {
+      type: "TIMESTAMPTZ",
+    },
+    graphql: {
+      outputType: "Date",
       canRead: [userOwns, "sunshineRegiment", "admins"],
       canUpdate: ["sunshineRegiment", "admins"],
       canCreate: ["sunshineRegiment", "admins"],
