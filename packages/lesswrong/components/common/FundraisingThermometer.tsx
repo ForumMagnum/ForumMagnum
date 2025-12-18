@@ -10,11 +10,6 @@ import DeferRender from './DeferRender';
 import { isClient } from '@/lib/executionEnvironment';
 import Confetti from 'react-confetti';
 import LWTooltip from "./LWTooltip";
-import { useRouteMetadata } from '../layout/ClientRouteMetadataContext';
-import { useSubscribedLocation } from '@/lib/routeUtil';
-import { isHomeRoute } from '@/lib/routeChecks';
-import { useCookiesWithConsent } from '../hooks/useCookiesWithConsent';
-import { HIDE_SOLSTICE_GLOBE_COOKIE } from '@/lib/cookies/cookies';
 
 // Second thermometer background image:
 const lightconeFundraiserThermometerBgUrl2 =
@@ -187,9 +182,6 @@ const styles = (theme: ThemeType) => ({
       display: 'none',
     }
   },
-  goalText: {
-    color: `light-dark(${theme.palette.background.default}, ${theme.palette.greyAlpha(0.9)})`,
-  },
   goalTextBold: {
     fontWeight: 'bold',
     fontFamily: theme.typography.headerStyle.fontFamily,
@@ -331,17 +323,6 @@ const FundraisingThermometer: React.FC<
   FundraisingThermometerProps & { classes: ClassesType<typeof styles> }
 > = ({ classes, onPost = false }) => {
 
-  const { metadata: { hasLeftNavigationColumn } } = useRouteMetadata();
-  const { pathname } = useSubscribedLocation();
-  const isHomePage = isHomeRoute(pathname);
-  const [cookies] = useCookiesWithConsent([HIDE_SOLSTICE_GLOBE_COOKIE]);
-  const hideGlobeCookie = cookies[HIDE_SOLSTICE_GLOBE_COOKIE] === "true";
-  const [showingSolsticeBackground, setShowingSolsticeBackground] = useState(hasLeftNavigationColumn && isHomePage && !hideGlobeCookie);
-  
-  useEffect(() => {
-    setShowingSolsticeBackground(hasLeftNavigationColumn && isHomePage && !hideGlobeCookie && window.innerWidth >= 1100);
-  }, [hasLeftNavigationColumn, isHomePage, hideGlobeCookie]);
-
   // First, second, and third goal amounts
   const goal1 = lightconeFundraiserThermometerGoalAmount.get();
   const goal2 = lightconeFundraiserThermometerGoal2Amount.get();
@@ -428,7 +409,7 @@ const FundraisingThermometer: React.FC<
               </Link>
             </LWTooltip>
           )}
-          <span className={classNames(showingSolsticeBackground && classes.goalText)}>
+          <span>
             {/* If fundraiser ended, show 'Total raised'; otherwise still show 'Goal' */}
             <span className={classes.goalTextBold}>
               {fundraiserEnded ? 'Total raised:' : `Goal ${displayedStageNumber}:`}
