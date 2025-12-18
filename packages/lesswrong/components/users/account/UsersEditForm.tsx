@@ -249,6 +249,17 @@ const UsersForm = ({
           </form.Field>
         </div>}
 
+        {userIsAdminOrMod(currentUser) && <div className={classes.fieldWrapper}>
+          <form.Field name="previousDisplayName">
+            {(field) => (
+              <MuiTextField
+                field={field}
+                label="Previous display name"
+              />
+            )}
+          </form.Field>
+        </div>}
+
         <div className={classes.fieldWrapper}>
           <form.Field name="email">
             {(field) => (
