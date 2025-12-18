@@ -3,6 +3,7 @@ import { registerComponent } from "@/lib/vulcan-lib/components";
 import { Link } from "@/lib/reactRouterWrapper";
 import { getUserProfileLink } from "./wrappedHelpers";
 import { useForumWrappedContext } from "./hooks";
+import { filterNonnull } from "@/lib/utils/typeGuardUtils";
 import UsersProfileImage from "../../users/UsersProfileImage";
 import WrappedSection from "./WrappedSection";
 import WrappedHeading from "./WrappedHeading";
@@ -42,18 +43,19 @@ const WrappedMostReadAuthorSection = ({classes}: {
   classes: ClassesType<typeof styles>,
 }) => {
   const {year, data: {mostReadAuthors, postsReadCount}} = useForumWrappedContext();
+  const authors = filterNonnull(mostReadAuthors);
   return (
     <WrappedSection pageSectionContext="mostReadAuthors">
       <WrappedHeading>
         You read <em>{postsReadCount}</em> post{postsReadCount === 1 ? '' : 's'} this year
       </WrappedHeading>
-      {mostReadAuthors[0]?.displayName &&
+      {authors[0]?.displayName &&
         <div>
-          Your most read author was {mostReadAuthors[0].displayName}
+          Your most read author was {authors[0].displayName}
         </div>
       }
       <div className={classes.authors}>
-        {mostReadAuthors.map((author) => {
+        {authors.map((author) => {
           return <article key={author.slug} className={classes.author}>
             <UsersProfileImage size={40} user={author} />
             <div>
@@ -78,5 +80,3 @@ export default registerComponent(
   WrappedMostReadAuthorSection,
   {styles},
 );
-
-

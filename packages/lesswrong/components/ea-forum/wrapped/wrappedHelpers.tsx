@@ -30,7 +30,7 @@ export const getTotalReactsReceived = (data: WrappedDataByYear) =>
 export const getTopAuthor = (data: WrappedDataByYear) => {
   const topAuthorByEngagementPercentile = [...data.mostReadAuthors]
     .filter(Boolean)
-    .sort((a, b) => b.engagementPercentile - a.engagementPercentile)[0];
+    .sort((a, b) => b!.engagementPercentile - a!.engagementPercentile)[0];
   const topAuthorPercentByEngagementPercentile = (
     topAuthorByEngagementPercentile &&
     Math.ceil(100 * (1 - topAuthorByEngagementPercentile.engagementPercentile))

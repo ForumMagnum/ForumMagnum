@@ -8,7 +8,7 @@ import React, {
   useRef,
   useState,
 } from "react";
-import { TupleSet, UnionOf } from "@/lib/utils/typeGuardUtils";
+import { filterNonnull, TupleSet, UnionOf } from "@/lib/utils/typeGuardUtils";
 import { gql, useQuery } from "@apollo/client";
 import { useRecommendations } from "@/components/recommendations/withRecommendations";
 import { getTopAuthor, getTotalReactsReceived } from "./wrappedHelpers";
@@ -106,7 +106,12 @@ export type WrappedDataByYear = {
   daysVisited: string[];
   mostReadTopics: WrappedMostReadTopic[];
   relativeMostReadCoreTopics: WrappedRelativeMostReadCoreTopic[];
-  mostReadAuthors: WrappedMostReadAuthor[];
+  /**
+   * Note 2026-12-18: The server code looks like the authors should never be null
+   * but empirically there are bugs in prod where they sometimes are. For now
+   * I'm wallpapering over this because it's quicker.
+   */
+  mostReadAuthors: (WrappedMostReadAuthor | null)[];
   topPosts: WrappedTopPost[];
   postCount: number;
   authorPercentile: number;
@@ -248,7 +253,8 @@ const getAllSections = (): WrappedSection[] => ([
   },
   {
     component: WrappedMostReadAuthorSection,
-    predicate: (data) => data.postsReadCount > 0 && data.mostReadAuthors.length > 0,
+    predicate: (data) => data.postsReadCount > 0 &&
+      filterNonnull(data.mostReadAuthors).length > 0,
   },
   {
     component: WrappedThankAuthorSection,
