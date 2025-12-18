@@ -3,7 +3,7 @@ import { useCurrentUser } from '../common/withUser';
 
 interface HideNavigationSidebarContextType {
   hideNavigationSidebar: boolean
-  setHideNavigationSidebar: (v: boolean)=>void
+  setHideNavigationSidebar: (v: boolean) => void
 }
 export const HideNavigationSidebarContext = createContext<HideNavigationSidebarContextType|null>(null);
 export const HideNavigationSidebarContextProvider = ({children}: {

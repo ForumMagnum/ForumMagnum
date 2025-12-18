@@ -412,7 +412,7 @@ const Header = ({
       })
     }
     setHideNavigationSidebar(!hideNavigationSidebar);
-  }, [updateUserNoCache, currentUserId, hideNavigationSidebar]);
+  }, [updateUserNoCache, currentUserId, setHideNavigationSidebar, hideNavigationSidebar]);
 
 
   useEffect(() => {
