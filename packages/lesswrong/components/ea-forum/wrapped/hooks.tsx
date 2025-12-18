@@ -8,7 +8,7 @@ import React, {
   useRef,
   useState,
 } from "react";
-import { TupleSet, UnionOf } from "@/lib/utils/typeGuardUtils";
+import { filterNonnull, TupleSet, UnionOf } from "@/lib/utils/typeGuardUtils";
 import { gql, useQuery } from "@apollo/client";
 import { useRecommendations } from "@/components/recommendations/withRecommendations";
 import { getTopAuthor, getTotalReactsReceived } from "./wrappedHelpers";
@@ -253,7 +253,8 @@ const getAllSections = (): WrappedSection[] => ([
   },
   {
     component: WrappedMostReadAuthorSection,
-    predicate: (data) => data.postsReadCount > 0 && data.mostReadAuthors.length > 0,
+    predicate: (data) => data.postsReadCount > 0 &&
+      filterNonnull(data.mostReadAuthors).length > 0,
   },
   {
     component: WrappedThankAuthorSection,
