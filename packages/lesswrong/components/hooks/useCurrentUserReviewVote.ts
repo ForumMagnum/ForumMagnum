@@ -2,7 +2,7 @@ import { gql } from "@/lib/generated/gql-codegen";
 import { useCurrentUserId } from "../common/withUser";
 import { useQuery } from "@/lib/crud/useQuery";
 
-const reviewVotesForPostAndUserQuery = gql(`
+export const reviewVotesForPostAndUserQuery = gql(`
   query reviewVotesForPostAndUser($postId: String!, $userId: String!) {
     reviewVotes(selector: { reviewVotesForPostAndUser: { postId: $postId, userId: $userId } }, limit: 1) {
       results {
@@ -16,10 +16,10 @@ const reviewVotesForPostAndUserQuery = gql(`
 
 export function useCurrentUserReviewVote(postId: string, skip?: boolean) {
   const currentUserId = useCurrentUserId();
-  const { data } = useQuery(reviewVotesForPostAndUserQuery, {
+  const { data, loading } = useQuery(reviewVotesForPostAndUserQuery, {
     variables: { postId, userId: currentUserId! },
     skip: !currentUserId || skip,
   });
 
-  return data?.reviewVotes?.results?.[0] ?? null;
+  return { vote: data?.reviewVotes?.results?.[0] ?? null, loading };
 }
