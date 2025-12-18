@@ -1,6 +1,6 @@
 'use client';
 
-import React, {useRef, useState, useCallback, FC, ReactNode, createContext} from 'react';
+import React, {useRef, useState, useCallback, createContext} from 'react';
 import classNames from 'classnames'
 import { useTheme, useThemeColor } from '@/components/themes/useTheme';
 import { useLocation } from '@/lib/routeUtil';
@@ -13,24 +13,19 @@ import { ItemsReadContextWrapper } from '@/components/hooks/useRecordPostView';
 import { pBodyStyle } from '../../themes/stylePiping';
 import { googleTagManagerIdSetting, isLW, isLWorAF, buttonBurstSetting, isAF } from '@/lib/instanceSettings';
 import { globalStyles } from '../../themes/globalStyles/globalStyles';
-import { userCanDo, userIsAdmin } from '@/lib/vulcan-users/permissions';
 import { Helmet } from "@/components/layout/Helmet";
 import { AutosaveEditorStateContextProvider, DisableNoKibitzContextProvider } from '@/components/common/sharedContexts';
 // enable during ACX Everywhere
 // import { HIDE_MAP_COOKIE } from '@/lib/cookies/cookies';
 import Header, { HeaderHeightProvider } from '@/components/layout/Header';
 import { useCookiePreferences, useCookiesWithConsent } from '@/components/hooks/useCookiesWithConsent';
-import { useHeaderVisible } from '@/components/hooks/useHeaderVisible';
-import StickyBox from '@/lib/vendor/react-sticky-box';
 import { isFriendlyUI } from '../../themes/forumTheme';
 import { UnreadNotificationsContextProvider } from '@/components/hooks/useUnreadNotifications';
 import { CurrentAndRecentForumEventsProvider } from '@/components/hooks/useCurrentForumEvent';
 import { LoginPopoverContextProvider } from '@/components/hooks/useLoginPopoverContext';
 import DeferRender from '@/components/common/DeferRender';
 import { userHasLlmChat } from '@/lib/betas';
-
 import GlobalButtonBurst from '@/components/ea-forum/GlobalButtonBurst';
-import NavigationStandalone from "@/components/common/TabNavigationMenu/NavigationStandalone";
 import ErrorBoundary from "@/components/common/ErrorBoundary";
 import FlashMessages from "@/components/layout/FlashMessages";
 import AnalyticsClient from "@/components/common/AnalyticsClient";
@@ -49,35 +44,21 @@ import IntercomWrapper from "@/components/layout/IntercomWrapper";
 import CookieBanner from "@/components/common/CookieBanner/CookieBanner";
 import NavigationEventSender from '@/components/hooks/useOnNavigate';
 import { defineStyles, useStyles } from '@/components/hooks/useStyles';
-import { useMutationNoCache } from '@/lib/crud/useMutationNoCache';
 import { gql } from "@/lib/generated/gql-codegen";
-import { DelayedLoading } from '@/components/common/DelayedLoading';
 import { SuspenseWrapper } from '@/components/common/SuspenseWrapper';
 import { useRouteMetadata } from './ClientRouteMetadataContext';
-import { isFullscreenRoute, isHomeRoute, isStandaloneRoute, isStaticHeaderRoute, isSunshineSidebarRoute } from '@/lib/routeChecks';
+import { isFullscreenRoute, isStandaloneRoute, isStaticHeaderRoute } from '@/lib/routeChecks';
 import { EditorCommandsContextProvider } from '@/components/editor/EditorCommandsContext';
-import { NO_ADMIN_NEXT_REDIRECT_COOKIE, SHOW_LLM_CHAT_COOKIE } from '@/lib/cookies/cookies';
+import { SHOW_LLM_CHAT_COOKIE } from '@/lib/cookies/cookies';
 
 import dynamic from 'next/dynamic';
 import { isBlackBarTitle } from '@/components/seasonal/petrovDay/petrov-day-story/petrovConsts';
 import { usePrerenderablePathname } from '../next/usePrerenderablePathname';
 import { PopperPortalProvider } from '../common/LWPopper';
+import { HideNavigationSidebarContextProvider } from './HideNavigationSidebarContextProvider';
 
-const SunshineSidebar = dynamic(() => import("../sunshineDashboard/SunshineSidebar"), { ssr: false });
 const LanguageModelLauncherButton = dynamic(() => import("../languageModels/LanguageModelLauncherButton"), { ssr: false });
 const SidebarLanguageModelChat = dynamic(() => import("../languageModels/SidebarLanguageModelChat"), { ssr: false });
-
-const UsersCurrentUpdateMutation = gql(`
-  mutation updateUserLayout($selector: SelectorInput!, $data: UpdateUserDataInput!) {
-    updateUser(selector: $selector, data: $data) {
-      data {
-        ...UsersCurrent
-      }
-    }
-  }
-`);
-
-const STICKY_SECTION_TOP_MARGIN = 20;
 
 /**
  * When a new user signs up, their profile is 'incomplete' (ie; without a display name)
@@ -90,9 +71,6 @@ const allowedIncompletePaths: string[] = ["termsOfUse"];
 const styles = defineStyles("Layout", (theme: ThemeType) => ({
   navSidebar: {
     gridArea: 'navSidebar'
-  },
-  rightSidebar: {
-    gridArea: 'rightSidebar'
   },
   languageModelLauncher: {
     position: 'absolute',
@@ -154,39 +132,7 @@ const styles = defineStyles("Layout", (theme: ThemeType) => ({
       display: "none"
     }
   },
-  stickyWrapper: {
-    transition: "transform 200ms ease-in-out",
-    transform: `translateY(${STICKY_SECTION_TOP_MARGIN}px)`,
-    marginBottom: 20,
-  },
-  stickyWrapperHeaderVisible: {
-    transform: `translateY(calc(var(--header-height) + ${STICKY_SECTION_TOP_MARGIN}px))`,
-  },
 }));
-
-const StickyWrapper = ({children}: {
-  children: ReactNode,
-}) => {
-  const classes = useStyles(styles);
-  const {headerVisible, headerAtTop} = useHeaderVisible();
-
-  return <StickyBox offsetTop={0} offsetBottom={20}>
-    <div className={classNames(classes.stickyWrapper, {
-      [classes.stickyWrapperHeaderVisible]: headerVisible && !headerAtTop,
-    })}>
-      {children}
-    </div>
-  </StickyBox>
-}
-
-const MaybeStickyWrapper: FC<{
-  sticky: boolean,
-  children: ReactNode,
-}> = ({sticky, children}) => {
-  return sticky
-    ? <StickyWrapper>{children}</StickyWrapper>
-    : <>{children}</>;
-}
 
 const Layout = ({children}: {
   children?: React.ReactNode,
@@ -195,8 +141,6 @@ const Layout = ({children}: {
   const currentUser = useCurrentUser();
   const currentUserId = currentUser?._id;
   const searchResultsAreaRef = useRef<HTMLDivElement|null>(null);
-  const hideNavigationSidebarDefault = currentUser ? !!(currentUser?.hideNavigationSidebar) : false
-  const [hideNavigationSidebar,setHideNavigationSidebar] = useState(hideNavigationSidebarDefault);
   // TODO: figure out if using usePathname directly is safe or better (concerns about unnecessary rerendering, idk; my guess is that with Next if the pathname changes we're rerendering everything anyways?)
   const { pathname, query } = useLocation();
   // const pathname = usePathname();
@@ -210,22 +154,6 @@ const Layout = ({children}: {
   const renderCommunityMap = false
   // (isLW()) && isHomeRoute(pathname) && (!currentUser?.hideFrontpageMap) && !cookies[HIDE_MAP_COOKIE]
   
-  const [updateUserNoCache] = useMutationNoCache(UsersCurrentUpdateMutation);
-  
-  const toggleStandaloneNavigation = useCallback(() => {
-    if (currentUserId) {
-      void updateUserNoCache({
-        variables: {
-          selector: { _id: currentUserId },
-          data: {
-            hideNavigationSidebar: !hideNavigationSidebar
-          }
-        }
-      })
-    }
-    setHideNavigationSidebar(!hideNavigationSidebar);
-  }, [updateUserNoCache, currentUserId, hideNavigationSidebar]);
-
   const isInbox = pathname.startsWith('/inbox');
   const isWrapped = pathname.startsWith('/wrapped');
 
@@ -241,25 +169,10 @@ const Layout = ({children}: {
   }
 
   const render = () => {
-    const renderSunshineSidebar = isSunshineSidebarRoute(pathname) && !!(userCanDo(currentUser, 'posts.moderate.all') || currentUser?.groups?.includes('alignmentForumAdmins')) && !currentUser?.hideSunshineSidebar;
-    
     // Check whether the current route is one which should have standalone
     // navigation on the side. If there is no current route (ie, a 404 page),
     // then it should.
-    // FIXME: This is using route names, but it would be better if this was
-    // a property on routes themselves.
     const standaloneNavigation = !!routeMetadata.hasLeftNavigationColumn;
-    const shouldUseGridLayout = !!routeMetadata.hasLeftNavigationColumn;
-
-    // The friendly home page has a unique grid layout, to account for the right hand side column.
-    const friendlyHomeLayout = isFriendlyUI() && isHomeRoute(pathname);
-
-    // an optional mode for displaying the side navigation, for when we want the right banner
-    // to be displayed on medium screens
-    const renderIconOnlyNavigation = isLW()
-    const iconOnlyNavigationEnabled = renderIconOnlyNavigation && standaloneNavigation
-
-    const isIncompletePath = allowedIncompletePaths.some(path => pathname.startsWith(`/${path}`));
     
     return (
       <AnalyticsContext path={pathname}>
@@ -269,6 +182,7 @@ const Layout = ({children}: {
       <ItemsReadContextWrapper>
       <LoginPopoverContextProvider>
       <SidebarsWrapper>
+      <HideNavigationSidebarContextProvider>
       <EditorCommandsContextProvider>
       <AutosaveEditorStateContextProvider>
       <LlmChatWrapper>
@@ -298,8 +212,6 @@ const Layout = ({children}: {
                 <Header
                   searchResultsArea={searchResultsAreaRef}
                   standaloneNavigationPresent={standaloneNavigation}
-                  sidebarHidden={hideNavigationSidebar}
-                  toggleStandaloneNavigation={toggleStandaloneNavigation}
                   stayAtTop={isStaticHeaderRoute(pathname)}
                   backgroundColor={headerBackgroundColor}
                 />
@@ -322,46 +234,7 @@ const Layout = ({children}: {
               {isLW() && <LWBackgroundImage standaloneNavigation={standaloneNavigation} />}
               <div ref={searchResultsAreaRef} className={classes.searchResultsArea} />
 
-              <LeftAndRightSidebarsWrapper
-                sidebarsEnabled={shouldUseGridLayout}
-                fullscreen={isFullscreenRoute(pathname)}
-                leftSidebar={
-                  standaloneNavigation && <SuspenseWrapper fallback={<span/>} name="NavigationStandalone" >
-                    <MaybeStickyWrapper sticky={friendlyHomeLayout}>
-                      <DeferRender ssr={true} clientTiming='mobile-aware'>
-                        <SuspenseWrapper name="NavigationStandalone">
-                          <NavigationStandalone
-                            sidebarHidden={hideNavigationSidebar}
-                            noTopMargin={friendlyHomeLayout}
-                            iconOnlyNavigationEnabled={iconOnlyNavigationEnabled}
-                          />
-                        </SuspenseWrapper>
-                      </DeferRender>
-                    </MaybeStickyWrapper>
-                  </SuspenseWrapper>
-                }
-                rightSidebar={
-                  /* {!renderSunshineSidebar &&
-                    friendlyHomeLayout &&
-                    <MaybeStickyWrapper sticky={friendlyHomeLayout}>
-                      <DeferRender ssr={true} clientTiming='mobile-aware'>
-                        <SuspenseWrapper name="EAHomeRightHandSide">
-                          <EAHomeRightHandSide />
-                        </SuspenseWrapper>
-                      </DeferRender>
-                    </MaybeStickyWrapper>
-                  } */
-                  renderSunshineSidebar && <div className={classes.rightSidebar}>
-                    <DeferRender ssr={false}>
-                      <SuspenseWrapper name="SunshineSidebar">
-                        <SunshineSidebar/>
-                      </SuspenseWrapper>
-                    </DeferRender>
-                  </div>
-                }
-              >
-                {children}
-              </LeftAndRightSidebarsWrapper>
+              {children}
             </CommentBoxManager>
           </DialogManager>
           <NavigationEventSender />
@@ -374,6 +247,7 @@ const Layout = ({children}: {
       </LlmChatWrapper>
       </AutosaveEditorStateContextProvider>
       </EditorCommandsContextProvider>
+      </HideNavigationSidebarContextProvider>
       </SidebarsWrapper>
       </LoginPopoverContextProvider>
       </ItemsReadContextWrapper>
@@ -386,66 +260,6 @@ const Layout = ({children}: {
   return render();
 }
 
-
-const sidebarsWrapperStyles = defineStyles("LeftAndRightSidebarsWrapper", theme => ({
-  spacedGridActivated: {
-    '@supports (grid-template-areas: "title")': {
-      display: 'grid',
-      gridTemplateAreas: `
-        "navSidebar ... main imageGap rightSidebar"
-      `,
-      gridTemplateColumns: `
-        minmax(0, min-content)
-        minmax(0, 1fr)
-        minmax(0, min-content)
-        minmax(0, ${isLWorAF() ? 7 : 1}fr)
-        minmax(0, min-content)
-      `,
-    },
-  },
-  gridBreakpointMd: {
-    [theme.breakpoints.down('md')]: {
-      display: 'block'
-    }
-  },
-  gridBreakpointSm: {
-    [theme.breakpoints.down('sm')]: {
-      display: 'block'
-    }
-  },
-  fullscreenBodyWrapper: {
-    flexBasis: 0,
-    flexGrow: 1,
-    overflow: "auto",
-    [theme.breakpoints.down('xs')]: {
-      overflow: "visible",
-    },
-  },
-}));
-
-function LeftAndRightSidebarsWrapper({sidebarsEnabled, fullscreen, leftSidebar, rightSidebar, children}: {
-  sidebarsEnabled: boolean
-  fullscreen: boolean
-  leftSidebar: React.ReactNode
-  rightSidebar: React.ReactNode
-  children: React.ReactNode
-}) {
-  const classes = useStyles(sidebarsWrapperStyles);
-  // ea-forum-look-here There used to be a column-sizing special case for the EA Forum front page here, which is no present.
-  const navigationHasIconOnlyVersion = isLW();
-
-  return <div className={classNames({
-    [classes.spacedGridActivated]: sidebarsEnabled,
-    [classes.gridBreakpointMd]: !navigationHasIconOnlyVersion && sidebarsEnabled,
-    [classes.gridBreakpointSm]: navigationHasIconOnlyVersion && sidebarsEnabled,
-    [classes.fullscreenBodyWrapper]: fullscreen,
-  }
-  )}>
-    {leftSidebar}
-    {children}
-    {rightSidebar}
-  </div>
-}
 
 function MaybeCookieBanner({ hideIntercomButton }: { hideIntercomButton: boolean }) {
   const { explicitConsentGiven: cookieConsentGiven, explicitConsentRequired: cookieConsentRequired } = useCookiePreferences();

@@ -1,4 +1,4 @@
-import React, { createContext, useContext, useState, useCallback, useEffect, useMemo } from 'react';
+import React, { use, createContext, useContext, useState, useCallback, useEffect, useMemo } from 'react';
 import { registerComponent } from '../../lib/vulcan-lib/components';
 import { Link } from '../../lib/reactRouterWrapper';
 import Headroom from '../../lib/react-headroom'
@@ -40,6 +40,9 @@ import { useCookiesWithConsent } from '../hooks/useCookiesWithConsent';
 import { HIDE_FUNDRAISER_BANNER_COOKIE } from '@/lib/cookies/cookies';
 import { useStyles, defineStyles } from '../hooks/useStyles';
 import { usePrerenderablePathname } from '../next/usePrerenderablePathname';
+import { HideNavigationSidebarContext } from './HideNavigationSidebarContextProvider';
+import { useMutationNoCache } from '@/lib/crud/useMutationNoCache';
+import { gql } from '@/lib/generated/gql-codegen';
 
 /** Height of the fundraiser banner */
 export const FUNDRAISER_BANNER_HEIGHT = 34;
@@ -355,17 +358,23 @@ function getForumEventBackgroundStyle(currentForumEvent: ForumEventsDisplay, ban
   })})${darkColor ? `, ${darkColor}` : ''}`;
 }
 
+const UsersCurrentUpdateMutation = gql(`
+  mutation updateUserLayout($selector: SelectorInput!, $data: UpdateUserDataInput!) {
+    updateUser(selector: $selector, data: $data) {
+      data {
+        ...UsersCurrent
+      }
+    }
+  }
+`);
+
 const Header = ({
   standaloneNavigationPresent,
-  sidebarHidden,
-  toggleStandaloneNavigation,
   stayAtTop=false,
   searchResultsArea,
   backgroundColor,
 }: {
   standaloneNavigationPresent: boolean,
-  sidebarHidden: boolean,
-  toggleStandaloneNavigation: () => void,
   stayAtTop?: boolean,
   searchResultsArea: React.RefObject<HTMLDivElement|null>,
   // CSS var corresponding to the background color you want to apply (see also appBarDarkBackground above)
@@ -379,7 +388,8 @@ const Header = ({
   const [unFixed, setUnFixed] = useState(true);
   const { showFundraiserBanner } = useContext(HeaderHeightContext);
   const getCurrentUser = useGetCurrentUser();
-  const isLoggedIn = !!useCurrentUserId();
+  const currentUserId = useCurrentUserId();
+  const isLoggedIn = !!currentUserId;
   const usernameUnset = useFilteredCurrentUser(u => !!u?.usernameUnset);
   const {toc} = useContext(SidebarsContext)!;
   const { captureEvent } = useTracking()
@@ -387,6 +397,23 @@ const Header = ({
   const { pathname, hash } = useLocation();
   const {currentForumEvent} = useCurrentAndRecentForumEvents();
   let headerStyle = { ...(backgroundColor ? { backgroundColor } : {}) };
+
+  const { hideNavigationSidebar, setHideNavigationSidebar } = use(HideNavigationSidebarContext)!;
+  const [updateUserNoCache] = useMutationNoCache(UsersCurrentUpdateMutation);
+  const toggleStandaloneNavigation = useCallback(() => {
+    if (currentUserId) {
+      void updateUserNoCache({
+        variables: {
+          selector: { _id: currentUserId },
+          data: {
+            hideNavigationSidebar: !hideNavigationSidebar
+          }
+        }
+      })
+    }
+    setHideNavigationSidebar(!hideNavigationSidebar);
+  }, [updateUserNoCache, currentUserId, hideNavigationSidebar]);
+
 
   useEffect(() => {
     // When we move to a different page we will be positioned at the top of
@@ -501,7 +528,7 @@ const Header = ({
         aria-label="Menu"
         onClick={toggleStandaloneNavigation}
       >
-        {(isFriendlyUI() && !sidebarHidden)
+        {(isFriendlyUI() && !hideNavigationSidebar)
           ? <ForumIcon icon="CloseMenu" className={classes.icon} />
           : <ForumIcon icon="Menu" className={classes.icon} />}
       </IconButton>}
