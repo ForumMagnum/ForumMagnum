@@ -7856,6 +7856,7 @@ type User {
   services: JSON
   hasAuth0Id: Boolean
   displayName: String!
+  previousDisplayName: String
   email: String
   noindex: Boolean!
   groups: [String!]
@@ -10319,6 +10320,7 @@ input CreateUserDataInput {
   username: String
   isAdmin: Boolean
   displayName: String!
+  previousDisplayName: String
   email: String
   groups: [String!]
   theme: JSON
@@ -10479,6 +10481,7 @@ input UpdateUserDataInput {
   username: String
   isAdmin: Boolean
   displayName: String
+  previousDisplayName: String
   email: String
   noindex: Boolean
   groups: [String!]

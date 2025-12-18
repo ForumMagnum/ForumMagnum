@@ -2234,6 +2234,7 @@ interface DbUser extends DbObject {
   postCount: number
   postGlossariesPinned: boolean
   postingDisabled: boolean | null
+  previousDisplayName: string | null
   profile: any | null
   profileImageId: string | null
   profileTagIds: Array<string>

@@ -445,6 +445,23 @@ const schema = {
       },
     },
   },
+  /**
+   * Used for tracking changes of displayName
+   */
+  previousDisplayName: {
+    database: {
+      type: "TEXT",
+    },
+    graphql: {
+      outputType: "String",
+      canRead: [userOwns, "sunshineRegiment", "admins"],
+      canUpdate: ["sunshineRegiment", "admins"],
+      canCreate: ["sunshineRegiment", "admins"],
+      validation: {
+        optional: true,
+      },
+    },
+  },
   email: {
     database: {
       type: "TEXT",
