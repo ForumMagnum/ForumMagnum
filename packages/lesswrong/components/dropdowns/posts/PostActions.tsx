@@ -27,6 +27,7 @@ import SharePostSubmenu from "./SharePostSubmenu";
 import { PostSubscriptionsDropdownItem } from "./PostSubscriptionsDropdownItem";
 import DislikeRecommendationDropdownItem from "./DislikeRecommendationDropdownItem";
 import HideFrontPageButton from './HideFrontpagePostDropdownItem';
+import LLMScoreDropdownItem from "./LLMScoreDropdownItem";
 
 // We use a context here vs. passing in a boolean prop because we'd need to pass
 // through ~4 layers of hierarchy
@@ -65,6 +66,7 @@ const PostActions = ({post, closeMenu, includeBookmark=true, classes}: {
 
   return (
     <DropdownMenu className={classes.root} >
+      <LLMScoreDropdownItem post={post} closeMenu={closeMenu} />
       <EditPostDropdownItem post={post} />
       <ResyncRssDropdownItem post={post} closeMenu={closeMenu} />
       {isBookUI() && <SharePostSubmenu post={post} closeMenu={closeMenu} />}

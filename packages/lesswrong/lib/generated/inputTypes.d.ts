@@ -272,6 +272,7 @@ interface Mutation {
   rejectContentAndRemoveUserFromQueue: boolean;
   approveUserCurrentContentOnly: boolean;
   rerunLlmCheck: AutomatedContentEvaluation;
+  runLlmCheckForDocument: AutomatedContentEvaluation;
   reorderSummaries: boolean | null;
   publishAndDeDuplicateSpotlight: Spotlight | null;
   toggleBookmark: ToggleBookmarkOutput | null;

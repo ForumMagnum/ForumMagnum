@@ -1262,6 +1262,7 @@ extend type Mutation {
   rejectContentAndRemoveUserFromQueue(userId: String!, documentId: String!, collectionName: ContentCollectionName!, rejectedReason: String!, messageContent: String): Boolean!
   approveUserCurrentContentOnly(userId: String!): Boolean!
   rerunLlmCheck(documentId: String!, collectionName: ContentCollectionName!): AutomatedContentEvaluation!
+  runLlmCheckForDocument(documentId: String!, collectionName: ContentCollectionName!): AutomatedContentEvaluation!
 }
 
 extend type Mutation {
