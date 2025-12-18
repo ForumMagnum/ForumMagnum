@@ -24,9 +24,6 @@ export const routeTrie = {
     },
     "admin": {
       "staticChildren": {
-        "aiDetectionComparison": {
-          "hasPage": true
-        },
         "commentEmbeddings": {
           "hasPage": true
         },
@@ -71,7 +68,6 @@ export const routeTrie = {
         }
       },
       "lowerCase": {
-        "aidetectioncomparison": "aiDetectionComparison",
         "commentembeddings": "commentEmbeddings",
         "curation": "curation",
         "debugheaders": "debugHeaders",

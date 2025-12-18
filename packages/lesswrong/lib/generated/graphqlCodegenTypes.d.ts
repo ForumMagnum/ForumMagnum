@@ -13066,57 +13066,6 @@ type SequenceMetadataQueryVariables = Exact<{
 
 type SequenceMetadataQuery = SequenceMetadataQuery_Query;
 
-type AIDetectionComparisonQueryQuery_getAIDetectionComparisonItems_AIDetectionComparisonItem_automatedContentEvaluation_AutomatedContentEvaluation_sentenceScores_SentenceScore = { __typename?: 'SentenceScore', sentence: string, score: number };
-
-type AIDetectionComparisonQueryQuery_getAIDetectionComparisonItems_AIDetectionComparisonItem_automatedContentEvaluation_AutomatedContentEvaluation_pangramWindowScores_PangramWindowScore = { __typename?: 'PangramWindowScore', text: string, score: number, startIndex: number, endIndex: number };
-
-type AIDetectionComparisonQueryQuery_getAIDetectionComparisonItems_AIDetectionComparisonItem_automatedContentEvaluation_AutomatedContentEvaluation = { __typename?: 'AutomatedContentEvaluation', _id: string, score: number | null, aiChoice: string | null, aiReasoning: string | null, pangramScore: number | null, pangramMaxScore: number | null, pangramPrediction: string | null, sentenceScores: Array<AIDetectionComparisonQueryQuery_getAIDetectionComparisonItems_AIDetectionComparisonItem_automatedContentEvaluation_AutomatedContentEvaluation_sentenceScores_SentenceScore> | null, pangramWindowScores: Array<AIDetectionComparisonQueryQuery_getAIDetectionComparisonItems_AIDetectionComparisonItem_automatedContentEvaluation_AutomatedContentEvaluation_pangramWindowScores_PangramWindowScore> | null };
-
-type AIDetectionComparisonQueryQuery_getAIDetectionComparisonItems_AIDetectionComparisonItem = { __typename?: 'AIDetectionComparisonItem', documentId: string, collectionName: string, title: string | null, htmlPreview: string, postedAt: string, baseScore: number, authorDisplayName: string | null, authorSlug: string | null, rejected: boolean, automatedContentEvaluation: AIDetectionComparisonQueryQuery_getAIDetectionComparisonItems_AIDetectionComparisonItem_automatedContentEvaluation_AutomatedContentEvaluation | null };
-
-type AIDetectionComparisonQueryQuery_Query = { __typename?: 'Query', getAIDetectionComparisonItems: Array<AIDetectionComparisonQueryQuery_getAIDetectionComparisonItems_AIDetectionComparisonItem> };
-
-
-type AIDetectionComparisonQueryQueryVariables = Exact<{
-  limit: InputMaybe<Scalars['Int']['input']>;
-  offset: InputMaybe<Scalars['Int']['input']>;
-}>;
-
-
-type AIDetectionComparisonQueryQuery = AIDetectionComparisonQueryQuery_Query;
-
-type CommentForDetailQueryQuery_comment_SingleCommentOutput_result_Comment = (
-  { __typename?: 'Comment' }
-  & CommentsListWithParentMetadata
-);
-
-type CommentForDetailQueryQuery_comment_SingleCommentOutput = { __typename?: 'SingleCommentOutput', result: CommentForDetailQueryQuery_comment_SingleCommentOutput_result_Comment | null };
-
-type CommentForDetailQueryQuery_Query = { __typename?: 'Query', comment: CommentForDetailQueryQuery_comment_SingleCommentOutput | null };
-
-
-type CommentForDetailQueryQueryVariables = Exact<{
-  commentId: Scalars['String']['input'];
-}>;
-
-
-type CommentForDetailQueryQuery = CommentForDetailQueryQuery_Query;
-
-type RunPangramCheckMutationMutation_runPangramCheck_AutomatedContentEvaluation_pangramWindowScores_PangramWindowScore = { __typename?: 'PangramWindowScore', text: string, score: number, startIndex: number, endIndex: number };
-
-type RunPangramCheckMutationMutation_runPangramCheck_AutomatedContentEvaluation = { __typename?: 'AutomatedContentEvaluation', _id: string, pangramScore: number | null, pangramMaxScore: number | null, pangramPrediction: string | null, pangramWindowScores: Array<RunPangramCheckMutationMutation_runPangramCheck_AutomatedContentEvaluation_pangramWindowScores_PangramWindowScore> | null };
-
-type RunPangramCheckMutationMutation_Mutation = { __typename?: 'Mutation', runPangramCheck: RunPangramCheckMutationMutation_runPangramCheck_AutomatedContentEvaluation };
-
-
-type RunPangramCheckMutationMutationVariables = Exact<{
-  documentId: Scalars['String']['input'];
-  collectionName: ContentCollectionName;
-}>;
-
-
-type RunPangramCheckMutationMutation = RunPangramCheckMutationMutation_Mutation;
-
 type AdminMetadataQueryQuery_Query = { __typename?: 'Query', AdminMetadata: string | null };
 
 
