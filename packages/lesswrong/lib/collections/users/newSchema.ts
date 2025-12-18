@@ -73,7 +73,6 @@ const ownsOrIsMod = (user: DbUser | null, document: any) => {
 };
 
 const canUpdateName = (user: DbUser | null) => {
-  // Rate limiting is enforced server-side in enforceDisplayNameRateLimit
   return userIsMemberOf(user, 'members');
 };
 
