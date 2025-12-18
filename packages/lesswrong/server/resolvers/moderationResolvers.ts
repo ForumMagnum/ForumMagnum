@@ -16,7 +16,7 @@ import { createConversation } from '../collections/conversations/mutations';
 import { createMessage } from '../collections/messages/mutations';
 import { createModeratorAction } from '../collections/moderatorActions/mutations';
 import { VOTING_DISABLED } from '../../lib/collections/moderatorActions/constants';
-import { rerunSaplingCheck } from '../collections/automatedContentEvaluations/helpers';
+import { rerunLlmCheck } from '../collections/automatedContentEvaluations/helpers';
 
 export const moderationGqlTypeDefs = gql`
   type ModeratorIPAddressInfo {
@@ -38,7 +38,7 @@ export const moderationGqlTypeDefs = gql`
     unlockThread(commentId: String!): Boolean!
     rejectContentAndRemoveUserFromQueue(userId: String!, documentId: String!, collectionName: ContentCollectionName!, rejectedReason: String!, messageContent: String): Boolean!
     approveUserCurrentContentOnly(userId: String!): Boolean!
-    rerunSaplingCheck(documentId: String!, collectionName: ContentCollectionName!): AutomatedContentEvaluation!
+    rerunLlmCheck(documentId: String!, collectionName: ContentCollectionName!): AutomatedContentEvaluation!
   }
 `
 
@@ -251,15 +251,15 @@ export const moderationGqlMutations = {
 
     return true;
   },
-  async rerunSaplingCheck(_root: void, args: { documentId: string, collectionName: ContentCollectionName }, context: ResolverContext) {
+  async rerunLlmCheck(_root: void, args: { documentId: string, collectionName: ContentCollectionName }, context: ResolverContext) {
     const { currentUser } = context;
     if (!currentUser || !userIsAdminOrMod(currentUser)) {
-      throw new Error("Only admins and moderators can rerun Sapling checks");
+      throw new Error("Only admins and moderators can rerun LLM detection checks");
     }
 
     const { documentId, collectionName } = args;
-    return await rerunSaplingCheck(documentId, collectionName, context);
-  }
+    return await rerunLlmCheck(documentId, collectionName, context);
+  },
 }
 
 export const moderationGqlQueries = {
@@ -268,16 +268,16 @@ export const moderationGqlQueries = {
     const { ipAddress } = args;
     if (!currentUser || !currentUser.isAdmin)
       throw new Error("Only admins can see IP address information");
-    
+
     const loginEvents = await LWEvents.find({
       name: "login",
       "properties.ip": ipAddress,
     }, {limit: 100}).fetch();
-    
+
     const userIds = uniq(loginEvents.map(loginEvent => loginEvent.userId));
     return {
       ip: ipAddress,
       userIds,
     };
-  }
+  },
 }

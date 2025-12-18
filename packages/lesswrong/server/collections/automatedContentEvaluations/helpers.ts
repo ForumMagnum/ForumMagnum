@@ -21,6 +21,81 @@ const saplingResponseSchema = z.object({
   )
 });
 
+const pangramResponseSchema = z.object({
+  avg_ai_likelihood: z.number(),
+  max_ai_likelihood: z.number().optional(),
+  prediction_short: z.enum(["AI", "Human", "Mixed"]).optional(),
+  windows: z.array(z.object({
+    text: z.string(),
+    ai_likelihood: z.number(),
+    start_index: z.number(),
+    end_index: z.number(),
+  })).optional(),
+});
+
+export interface PangramEvaluationResult {
+  pangramScore: number;
+  pangramMaxScore: number | null;
+  pangramPrediction: "AI" | "Human" | "Mixed" | null;
+  pangramWindowScores: { text: string; score: number; startIndex: number; endIndex: number; }[] | null;
+}
+
+export async function getPangramEvaluation(revision: DbRevision): Promise<PangramEvaluationResult> {
+  const key = process.env.PANGRAM_API_KEY;
+  if (!key) {
+    throw new Error("PANGRAM_API_KEY is not configured");
+  }
+
+  const markdown = dataToMarkdown(revision.html, "html");
+  const textToCheck = markdown.slice(0, 10000);
+
+  const response = await fetch('https://text-extended.api.pangram.com', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      'x-api-key': key,
+    },
+    body: JSON.stringify({ text: textToCheck }),
+  });
+
+  if (!response.ok) {
+    const errorText = await response.text().catch(() => 'Unable to read error response');
+    const error = new Error(`Pangram API request failed with status ${response.status}: ${errorText}`);
+    captureException(error);
+    throw error;
+  }
+
+  let pangramResponse;
+  try {
+    pangramResponse = await response.json();
+  } catch (e) {
+    const error = new Error(`Failed to parse Pangram API response: ${e instanceof Error ? e.message : 'Unknown error'}`);
+    captureException(error);
+    throw error;
+  }
+
+  const validatedResponse = pangramResponseSchema.safeParse(pangramResponse);
+  if (!validatedResponse.success) {
+    const error = new Error(`Invalid Pangram API response: ${validatedResponse.error.message}`);
+    // eslint-disable-next-line no-console
+    console.error(`Pangram validation failed. Original response: ${JSON.stringify(pangramResponse)}`);
+    captureException(error);
+    throw error;
+  }
+
+  return {
+    pangramScore: validatedResponse.data.avg_ai_likelihood,
+    pangramMaxScore: validatedResponse.data.max_ai_likelihood ?? null,
+    pangramPrediction: validatedResponse.data.prediction_short ?? null,
+    pangramWindowScores: validatedResponse.data.windows?.map(w => ({
+      text: w.text,
+      score: w.ai_likelihood,
+      startIndex: w.start_index,
+      endIndex: w.end_index,
+    })) ?? null,
+  };
+}
+
 export async function getSaplingEvaluation(revision: DbRevision) {
   const key = process.env.SAPLING_API_KEY;
   if (!key) {
@@ -281,10 +356,10 @@ export async function createAutomatedContentEvaluation(revision: DbRevision, con
   const documentId = revision.documentId;
   if (!documentId) return;
 
-  const [validatedEvaluation, llmEvaluation] = await Promise.all([
-    getSaplingEvaluation(revision).catch((err) => {
+  const [pangramEvaluation, llmEvaluation] = await Promise.all([
+    getPangramEvaluation(revision).catch((err) => {
       // eslint-disable-next-line no-console
-      console.error("Sapling evaluation failed: ", err);
+      console.error("Pangram evaluation failed: ", err);
       captureException(err);
       return null;
     }),
@@ -296,7 +371,7 @@ export async function createAutomatedContentEvaluation(revision: DbRevision, con
     }),
   ]);
 
-  if (!validatedEvaluation && !llmEvaluation) {
+  if (!pangramEvaluation && !llmEvaluation) {
     // eslint-disable-next-line no-console
     console.error("No evaluation returned");
     return;
@@ -305,15 +380,19 @@ export async function createAutomatedContentEvaluation(revision: DbRevision, con
   await AutomatedContentEvaluations.rawInsert({
     createdAt: new Date(),
     revisionId: revision._id,
-    score: validatedEvaluation?.score ?? null,
-    sentenceScores: validatedEvaluation?.sentence_scores ?? null,
+    score: null,
+    sentenceScores: null,
     aiChoice: llmEvaluation?.decision,
     aiReasoning: llmEvaluation?.reasoning,
     aiCoT: llmEvaluation?.cot ?? null,
+    pangramScore: pangramEvaluation?.pangramScore ?? null,
+    pangramMaxScore: pangramEvaluation?.pangramMaxScore ?? null,
+    pangramPrediction: pangramEvaluation?.pangramPrediction ?? null,
+    pangramWindowScores: pangramEvaluation?.pangramWindowScores ?? null,
   });
 
-  // Auto-reject if Sapling score is high AND there's either no LLM evaluation (comments) or the LLM says review (posts)
-  if ((!llmEvaluation || llmEvaluation.decision === "review") && (validatedEvaluation?.score ?? 0) > .5) {
+  // Auto-reject if Pangram score is high AND there's either no LLM evaluation (comments) or the LLM says review (posts)
+  if ((!llmEvaluation || llmEvaluation.decision === "review") && (pangramEvaluation?.pangramScore ?? 0) > .5) {
     const collectionName = revision.collectionName as "Posts" | "Comments";
     if (collectionName === "Posts" || collectionName === "Comments") {
       await rejectContentForLLM(documentId, collectionName, context);
@@ -322,11 +401,11 @@ export async function createAutomatedContentEvaluation(revision: DbRevision, con
 }
 
 /**
- * Re-run the Sapling LLM detection check for a post or comment and update/create the ACE record.
- * This is called from the moderation UI when a moderator wants to retry a failed Sapling check.
+ * Re-run the LLM detection check (using Pangram) for a post or comment and update/create the ACE record.
+ * This is called from the moderation UI when a moderator wants to retry a failed check.
  * Returns the updated AutomatedContentEvaluation record.
  */
-export async function rerunSaplingCheck(
+export async function rerunLlmCheck(
   documentId: string,
   collectionName: "Posts" | "Comments",
   context: ResolverContext
@@ -358,20 +437,22 @@ export async function rerunSaplingCheck(
     throw new Error(`No published revision found for ${collectionName === "Posts" ? "post" : "comment"}`);
   }
 
-  // Run the Sapling evaluation - errors will propagate to the client with descriptive messages
-  const saplingResult = await getSaplingEvaluation(revision);
+  // Run the Pangram evaluation - errors will propagate to the client with descriptive messages
+  const pangramResult = await getPangramEvaluation(revision);
 
   // Check if there's an existing ACE record for this revision
   const existingAce = await AutomatedContentEvaluations.findOne({ revisionId: revision._id });
 
   if (existingAce) {
-    // Update the existing record with the new Sapling results
+    // Update the existing record with the new Pangram results
     await AutomatedContentEvaluations.rawUpdateOne(
       { _id: existingAce._id },
       {
         $set: {
-          score: saplingResult.score,
-          sentenceScores: saplingResult.sentence_scores,
+          pangramScore: pangramResult.pangramScore,
+          pangramMaxScore: pangramResult.pangramMaxScore,
+          pangramPrediction: pangramResult.pangramPrediction,
+          pangramWindowScores: pangramResult.pangramWindowScores,
         },
       }
     );
@@ -383,15 +464,19 @@ export async function rerunSaplingCheck(
     }
     return updatedAce;
   } else {
-    // Create a new ACE record with just the Sapling results
+    // Create a new ACE record with just the Pangram results
     const newAceId = await AutomatedContentEvaluations.rawInsert({
       createdAt: new Date(),
       revisionId: revision._id,
-      score: saplingResult.score,
-      sentenceScores: saplingResult.sentence_scores,
+      score: null,
+      sentenceScores: null,
       aiChoice: null,
       aiReasoning: null,
       aiCoT: null,
+      pangramScore: pangramResult.pangramScore,
+      pangramMaxScore: pangramResult.pangramMaxScore,
+      pangramPrediction: pangramResult.pangramPrediction,
+      pangramWindowScores: pangramResult.pangramWindowScores,
     });
 
     const newAce = await AutomatedContentEvaluations.findOne({ _id: newAceId });

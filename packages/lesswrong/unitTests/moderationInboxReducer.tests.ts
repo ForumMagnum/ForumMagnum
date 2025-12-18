@@ -77,7 +77,7 @@ describe('Moderation Inbox Reducer', () => {
         focusedContentIndex: 0,
         undoQueue: [],
         history: [],
-        runningSaplingCheckId: null,
+        runningLlmCheckId: null,
       };
 
       const newState = inboxStateReducer(state, { type: 'CLOSE_DETAIL' });
@@ -106,7 +106,7 @@ describe('Moderation Inbox Reducer', () => {
         focusedContentIndex: 0,
         undoQueue: [],
         history: [],
-        runningSaplingCheckId: null,
+        runningLlmCheckId: null,
       };
 
       // Next from last user should wrap to first
@@ -131,7 +131,7 @@ describe('Moderation Inbox Reducer', () => {
         focusedContentIndex: 0,
         undoQueue: [],
         history: [],
-        runningSaplingCheckId: null,
+        runningLlmCheckId: null,
       };
 
       // Prev from first user should wrap to last
@@ -158,7 +158,7 @@ describe('Moderation Inbox Reducer', () => {
         focusedContentIndex: 0,
         undoQueue: [],
         history: [],
-        runningSaplingCheckId: null,
+        runningLlmCheckId: null,
       };
 
       // Start at newContent (highest priority)
@@ -197,7 +197,7 @@ describe('Moderation Inbox Reducer', () => {
         focusedContentIndex: 0,
         undoQueue: [],
         history: [],
-        runningSaplingCheckId: null,
+        runningLlmCheckId: null,
       };
 
       // Start at newContent (highest priority)
@@ -232,7 +232,7 @@ describe('Moderation Inbox Reducer', () => {
         focusedContentIndex: 0,
         undoQueue: [],
         history: [],
-        runningSaplingCheckId: null,
+        runningLlmCheckId: null,
       };
 
       state = inboxStateReducer(state, { type: 'REMOVE_USER', userId: 'user2' });
@@ -260,7 +260,7 @@ describe('Moderation Inbox Reducer', () => {
         focusedContentIndex: 0,
         undoQueue: [],
         history: [],
-        runningSaplingCheckId: null,
+        runningLlmCheckId: null,
       };
 
       state = inboxStateReducer(state, { type: 'REMOVE_USER', userId: 'user1' });
@@ -286,7 +286,7 @@ describe('Moderation Inbox Reducer', () => {
         focusedContentIndex: 0,
         undoQueue: [],
         history: [],
-        runningSaplingCheckId: null,
+        runningLlmCheckId: null,
       };
 
       state = inboxStateReducer(state, { type: 'REMOVE_USER', userId: 'user1' });
@@ -316,7 +316,7 @@ describe('Moderation Inbox Reducer', () => {
         focusedContentIndex: 0,
         undoQueue: [],
         history: [],
-        runningSaplingCheckId: null,
+        runningLlmCheckId: null,
       };
 
       state = inboxStateReducer(state, { type: 'REMOVE_USER', userId: 'user2' });
@@ -344,7 +344,7 @@ describe('Moderation Inbox Reducer', () => {
         focusedContentIndex: 0,
         undoQueue: [],
         history: [],
-        runningSaplingCheckId: null,
+        runningLlmCheckId: null,
       };
 
       state = inboxStateReducer(state, { type: 'REMOVE_USER', userId: 'user1' });
@@ -371,7 +371,7 @@ describe('Moderation Inbox Reducer', () => {
         focusedContentIndex: 0,
         undoQueue: [],
         history: [],
-        runningSaplingCheckId: null,
+        runningLlmCheckId: null,
       };
 
       state = inboxStateReducer(state, { type: 'REMOVE_USER', userId: 'user1' });
@@ -400,7 +400,7 @@ describe('Moderation Inbox Reducer', () => {
         focusedContentIndex: 0,
         undoQueue: [],
         history: [],
-        runningSaplingCheckId: null,
+        runningLlmCheckId: null,
       };
 
       // Try to change tabs

@@ -9,7 +9,8 @@ import { registerComponent } from "../../lib/vulcan-lib/components";
 import ReviewVotingButtons from "./ReviewVotingButtons";
 import ErrorBoundary from "../common/ErrorBoundary";
 import LWTooltip from "../common/LWTooltip";
-import { useCurrentUserReviewVote } from "../hooks/useCurrentUserReviewVote";
+import { reviewVotesForPostAndUserQuery, useCurrentUserReviewVote } from "../hooks/useCurrentUserReviewVote";
+import Loading from "../vulcan-core/Loading";
 
 const styles = (theme: ThemeType) => ({
   root: {
@@ -24,11 +25,10 @@ const styles = (theme: ThemeType) => ({
   }
 })
 
-const ReviewVotingWidget = ({classes, post, setNewVote, showTitle=true}: {
+const ReviewVotingWidget = ({classes, post, showTitle=true}: {
   classes: ClassesType<typeof styles>,
   post: PostsMinimumInfo,
   showTitle?: boolean,
-  setNewVote?: (newVote: VoteIndex) => void
 }) => {
   const currentUser = useCurrentUser()
 
@@ -46,15 +46,18 @@ const ReviewVotingWidget = ({classes, post, setNewVote, showTitle=true}: {
     postId: string,
     score: VoteIndex
   }) => {
-    if (setNewVote) setNewVote(score)
-    return await submitVote({variables: {postId, qualitativeScore: score, year: REVIEW_YEAR.toString(), dummy: false}})
-  }, [submitVote, setNewVote]);
+    return await submitVote({
+      variables: {postId, qualitativeScore: score, year: REVIEW_YEAR.toString(), dummy: false},
+      refetchQueries: [{ query: reviewVotesForPostAndUserQuery, variables: { postId, userId: currentUser?._id } }],
+    })
+  }, [submitVote, currentUser?._id]);
 
   const skip = !eligibleToNominate(currentUser);
 
-  const currentUserReviewVote = useCurrentUserReviewVote(post._id, skip);
-
+  const { vote: currentUserReviewVote, loading } = useCurrentUserReviewVote(post._id, skip);
+  
   if (skip) return null
+  if (loading) return <Loading />
 
   const currentUserVote = currentUserReviewVote !== null ? {
     _id: currentUserReviewVote._id,

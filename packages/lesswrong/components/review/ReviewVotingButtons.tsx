@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { registerComponent } from '../../lib/vulcan-lib/components';
 import classNames from 'classnames';
 import { DEFAULT_QUALITATIVE_VOTE } from "@/lib/collections/posts/helpers";
@@ -71,6 +71,13 @@ const ReviewVotingButtons = ({classes, post, dispatch, currentUserVote, costTota
       dispatch({_id: currentUserVote?._id, postId: post._id, score: index})
     }
   }
+
+  useEffect(() => {
+    if (currentUserVote?.score) {
+      setSelection(currentUserVote.score)
+      setIsDefaultVote(false)
+    }
+  }, [currentUserVote?.score])
 
   if (!reviewIsActive()) return <div className={classes.root}>Voting period is over.</div>
 

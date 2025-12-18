@@ -65,7 +65,7 @@ export const ReviewPhaseInformation = ({classes, reviewYear, reviewPhase}: {
       <p>Posts need at least 1 review to enter the Final Voting Phase</p>
       <p>If you write 3 reviews, you've done your civic duty.</p>
       <p>Reviews with 10+ karma will appear on the Best of LessWrong page.</p>
-      <p><em>Moderators will upvote reviews that are share novel information, such as specific flaws that hadn't been mentioned before, or specific ways the post has proven valuable.</em></p>
+      <p><em>Moderators will upvote reviews that share novel information, such as specific flaws that hadn't been mentioned before, or specific ways the post has proven valuable.</em></p>
       <ReviewProgressReviews reviewYear={reviewYear} />
       <p>
         <Link to={reviewPostPath}>Learn more</Link>
