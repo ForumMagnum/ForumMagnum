@@ -16,7 +16,7 @@ import RejectContentDialog from '../RejectContentDialog';
 import { useRejectContent } from '@/components/hooks/useRejectContent';
 import { ContentItem, isPost } from './helpers';
 import { useMessages } from '@/components/common/withMessages';
-import { useRerunSaplingCheck } from './useRerunSaplingCheck';
+import { useRerunLlmCheck } from './useRerunLlmCheck';
 
 const SunshineUsersListUpdateMutation = gql(`
   mutation updateUserModerationKeyboard($selector: SelectorInput!, $data: UpdateUserDataInput!) {
@@ -44,10 +44,10 @@ function canRejectCurrentlySelectedContent(selectedContent?: ContentItem) {
   return selectedContent && !selectedContent.rejected && selectedContent.authorIsUnreviewed;
 }
 
-function canRerunSaplingCheck(selectedContent?: ContentItem) {
+function canRerunLlmCheck(selectedContent?: ContentItem) {
   if (!selectedContent) return false;
   const ace = selectedContent.automatedContentEvaluations;
-  return !ace || ace.score === null;
+  return !ace || ace.pangramScore === null;
 }
 
 function getMostRecentUnapprovedContent(posts: SunshinePostsList[], comments: CommentsListWithParentMetadata[]) {
@@ -128,7 +128,7 @@ const ModerationUserKeyboardHandler = ({
 
   const selectedContentId = selectedContent?._id ?? null;
   const selectedContentCollectionName = selectedContent ? (isPost(selectedContent) ? 'Posts' as const : 'Comments' as const) : 'Posts' as const;
-  const { handleRerunSaplingCheck, isRunningSaplingCheck } = useRerunSaplingCheck(selectedContentId, selectedContentCollectionName, dispatch);
+  const { handleRerunLlmCheck, isRunningLlmCheck } = useRerunLlmCheck(selectedContentId, selectedContentCollectionName, dispatch);
 
   const getModSignatureWithNote = useCallback(
     (note: string) => getSignatureWithNote(currentUser.displayName, note),
@@ -407,12 +407,12 @@ const ModerationUserKeyboardHandler = ({
     });
   }, [selectedUser, posts, comments, handleAction, rejectContentAndRemoveFromQueue, openDialog, rejectionTemplates]);
 
-  const rerunSaplingCheckCommand: CommandPaletteItem = useMemo(() => ({
-    label: 'Rerun Sapling Check',
+  const rerunLlmCheckCommand: CommandPaletteItem = useMemo(() => ({
+    label: 'Rerun LLM Check',
     keystroke: 'L',
-    isDisabled: () => !isDetailView || !selectedContent || !canRerunSaplingCheck(selectedContent) || isRunningSaplingCheck,
-    execute: handleRerunSaplingCheck,
-  }), [isDetailView, selectedContent, isRunningSaplingCheck, handleRerunSaplingCheck]);
+    isDisabled: () => !isDetailView || !selectedContent || !canRerunLlmCheck(selectedContent) || isRunningLlmCheck,
+    execute: handleRerunLlmCheck,
+  }), [isDetailView, selectedContent, isRunningLlmCheck, handleRerunLlmCheck]);
 
   const approveCommand: CommandPaletteItem = useMemo(() => ({
     label: 'Approve',
@@ -585,7 +585,7 @@ const ModerationUserKeyboardHandler = ({
   }), [handleUndoMostRecent, undoQueue.length]);
 
   const commands: CommandPaletteItem[] = useMemo(() => [
-    rerunSaplingCheckCommand,
+    rerunLlmCheckCommand,
     approveCommand, approveCurrentOnlyCommand,
     snooze10Command, snoozeCustomCommand,
     removeCommand,
@@ -597,7 +597,7 @@ const ModerationUserKeyboardHandler = ({
     nextContentOrUserCommand, previousContentOrUserCommand, nextUserOrTabCommand, previousUserOrTabCommand,
     openOrCloseDetailViewCommand, undoMostRecentActionCommand,
     ban3moCommand,
-  ], [rerunSaplingCheckCommand, approveCommand, approveCurrentOnlyCommand, snooze10Command, snoozeCustomCommand, removeCommand, ban3moCommand, purgeCommand, flagCommand, copyUserIdCommand, rejectOrUnrejectCommand, rejectLatestAndRemoveCommand, restrictAndNotifyCommand, disablePostingCommand, disableCommentingCommand, disableMessagingCommand, disableVotingCommand, nextContentOrUserCommand, previousContentOrUserCommand, nextUserOrTabCommand, previousUserOrTabCommand, openOrCloseDetailViewCommand, undoMostRecentActionCommand]);
+  ], [rerunLlmCheckCommand, approveCommand, approveCurrentOnlyCommand, snooze10Command, snoozeCustomCommand, removeCommand, ban3moCommand, purgeCommand, flagCommand, copyUserIdCommand, rejectOrUnrejectCommand, rejectLatestAndRemoveCommand, restrictAndNotifyCommand, disablePostingCommand, disableCommentingCommand, disableMessagingCommand, disableVotingCommand, nextContentOrUserCommand, previousContentOrUserCommand, nextUserOrTabCommand, previousUserOrTabCommand, openOrCloseDetailViewCommand, undoMostRecentActionCommand]);
 
   useSupermodKeyboardCommands({
     commands,

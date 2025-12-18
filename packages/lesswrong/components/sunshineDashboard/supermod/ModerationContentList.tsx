@@ -48,13 +48,13 @@ const ModerationContentList = ({
   items,
   title,
   focusedItemId,
-  runningSaplingCheckId,
+  runningLlmCheckId,
   dispatch,
 }: {
   items: ContentItem[];
   title: string;
   focusedItemId: string | null;
-  runningSaplingCheckId: string | null;
+  runningLlmCheckId: string | null;
   dispatch: React.ActionDispatch<[action: InboxAction]>;
 }) => {
   const classes = useStyles(styles);
@@ -78,7 +78,7 @@ const ModerationContentList = ({
               key={item._id}
               item={item}
               isFocused={item._id === focusedItemId}
-              isRunningSaplingCheck={item._id === runningSaplingCheckId}
+              isRunningLlmCheck={item._id === runningLlmCheckId}
               onOpen={() => dispatch({ type: 'OPEN_CONTENT', contentIndex: idx })}
               dispatch={dispatch}
             />

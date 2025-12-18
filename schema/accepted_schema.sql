@@ -82,7 +82,11 @@ CREATE TABLE "AutomatedContentEvaluations" (
   "sentenceScores" JSONB,
   "aiChoice" TEXT,
   "aiReasoning" TEXT,
-  "aiCoT" TEXT
+  "aiCoT" TEXT,
+  "pangramScore" DOUBLE PRECISION,
+  "pangramMaxScore" DOUBLE PRECISION,
+  "pangramPrediction" TEXT,
+  "pangramWindowScores" JSONB
 );
 
 -- Index "idx_AutomatedContentEvaluations_revisionId"

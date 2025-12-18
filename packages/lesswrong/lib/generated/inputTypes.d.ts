@@ -271,7 +271,7 @@ interface Mutation {
   unlockThread: boolean;
   rejectContentAndRemoveUserFromQueue: boolean;
   approveUserCurrentContentOnly: boolean;
-  rerunSaplingCheck: AutomatedContentEvaluation;
+  rerunLlmCheck: AutomatedContentEvaluation;
   reorderSummaries: boolean | null;
   publishAndDeDuplicateSpotlight: Spotlight | null;
   toggleBookmark: ToggleBookmarkOutput | null;
@@ -1394,11 +1394,22 @@ interface AutomatedContentEvaluation {
   aiChoice: string | null;
   aiReasoning: string | null;
   aiCoT: string | null;
+  pangramScore: number | null;
+  pangramMaxScore: number | null;
+  pangramPrediction: string | null;
+  pangramWindowScores: Array<PangramWindowScore> | null;
 }
 
 interface SentenceScore {
   sentence: string;
   score: number;
+}
+
+interface PangramWindowScore {
+  text: string;
+  score: number;
+  startIndex: number;
+  endIndex: number;
 }
 
 interface Ban {
@@ -9911,6 +9922,7 @@ interface GraphQLTypeMap {
   MultiArbitalTagContentRelOutput: MultiArbitalTagContentRelOutput;
   AutomatedContentEvaluation: AutomatedContentEvaluation;
   SentenceScore: SentenceScore;
+  PangramWindowScore: PangramWindowScore;
   Ban: Ban;
   SingleBanInput: SingleBanInput;
   SingleBanOutput: SingleBanOutput;

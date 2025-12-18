@@ -1261,7 +1261,7 @@ extend type Mutation {
   unlockThread(commentId: String!): Boolean!
   rejectContentAndRemoveUserFromQueue(userId: String!, documentId: String!, collectionName: ContentCollectionName!, rejectedReason: String!, messageContent: String): Boolean!
   approveUserCurrentContentOnly(userId: String!): Boolean!
-  rerunSaplingCheck(documentId: String!, collectionName: ContentCollectionName!): AutomatedContentEvaluation!
+  rerunLlmCheck(documentId: String!, collectionName: ContentCollectionName!): AutomatedContentEvaluation!
 }
 
 extend type Mutation {
@@ -1585,11 +1585,22 @@ type AutomatedContentEvaluation {
   aiChoice: String
   aiReasoning: String
   aiCoT: String
+  pangramScore: Float
+  pangramMaxScore: Float
+  pangramPrediction: String
+  pangramWindowScores: [PangramWindowScore!]
 }
 
 type SentenceScore {
   sentence: String!
   score: Float!
+}
+
+type PangramWindowScore {
+  text: String!
+  score: Float!
+  startIndex: Int!
+  endIndex: Int!
 }
 
 type Ban {

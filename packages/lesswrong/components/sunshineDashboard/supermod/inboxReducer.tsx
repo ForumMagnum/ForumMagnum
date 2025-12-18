@@ -40,8 +40,8 @@ export type InboxState = {
   undoQueue: UndoHistoryItem[];
   // History - expired actions that can't be undone - only for users
   history: HistoryItem[];
-  // Document ID for which a Sapling check is currently running
-  runningSaplingCheckId: string | null;
+  // Document ID for which an LLM detection check is currently running
+  runningLlmCheckId: string | null;
 };
 
 export type InboxAction =
@@ -65,7 +65,7 @@ export type InboxAction =
   | { type: 'ADD_TO_UNDO_QUEUE'; item: UndoHistoryItem; }
   | { type: 'UNDO_ACTION'; userId: string; }
   | { type: 'EXPIRE_UNDO_ITEM'; userId: string; }
-  | { type: 'SET_SAPLING_CHECK_RUNNING'; documentId: string | null; };
+  | { type: 'SET_LLM_CHECK_RUNNING'; documentId: string | null; };
 
 
 
@@ -522,10 +522,10 @@ export function inboxStateReducer(state: InboxState, action: InboxAction): Inbox
       };
     }
 
-    case 'SET_SAPLING_CHECK_RUNNING': {
+    case 'SET_LLM_CHECK_RUNNING': {
       return {
         ...state,
-        runningSaplingCheckId: action.documentId,
+        runningLlmCheckId: action.documentId,
       };
     }
 
