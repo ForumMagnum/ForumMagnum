@@ -7,6 +7,7 @@ import { lightbulbIcon } from "@/components/icons/lightbulbIcon";
 import { formatPercentile, getUserProfileLink } from "./wrappedHelpers";
 import { useForumWrappedContext } from "./hooks";
 import { getWrappedVideo } from "./videos";
+import { filterNonnull } from "@/lib/utils/typeGuardUtils";
 import classNames from "classnames";
 import WrappedSection from "./WrappedSection";
 import UsersProfileImage from "../../users/UsersProfileImage";
@@ -208,6 +209,7 @@ const WrappedSummarySection = ({classes}: {
   const imageRef = useRef<HTMLImageElement>(null);
   const formattedPercentile = formatPercentile(engagementPercentile);
   const theme = useTheme();
+  const authors = filterNonnull(mostReadAuthors);
 
   // There's a horrible line of white background at the bottom of the image
   // because of a bug in html2canvas - cover it up
@@ -269,13 +271,13 @@ const WrappedSummarySection = ({classes}: {
                 </div>
               )}
             </div>
-            {(mostReadAuthors.length > 0 || mostReadTopics.length > 0) &&
+            {(authors.length > 0 || mostReadTopics.length > 0) &&
               <div className={classes.lists}>
-                {mostReadAuthors.length > 0 &&
+                {authors.length > 0 &&
                   <div>
                     <div className={classes.heading}>Most-read authors</div>
                     <div className={classes.list}>
-                      {mostReadAuthors.slice(0,3).map((author) => (
+                      {authors.slice(0,3).map((author) => (
                         <div key={author.slug} className={classes.listItem}>
                           <UsersProfileImage size={20} user={author} />
                           <Link to={getUserProfileLink(author.slug, year)} target="_blank">
