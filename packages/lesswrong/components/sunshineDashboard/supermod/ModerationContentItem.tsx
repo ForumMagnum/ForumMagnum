@@ -70,7 +70,7 @@ const styles = defineStyles('ModerationContentItem', (theme: ThemeType) => ({
   },
   contentPreview: {
     flex: 1,
-    minWidth: 0,
+    minWidth: 220,
     overflow: 'hidden',
     marginRight: 12,
   },
@@ -148,12 +148,14 @@ const styles = defineStyles('ModerationContentItem', (theme: ThemeType) => ({
     flexDirection: 'column',
     gap: 4,
     flexShrink: 0,
-    maxWidth: 140,
+    maxWidth: 168,
+    // justifySelf: 'flex-end',
   },
   rejectionTopRow: {
     display: 'flex',
     gap: 6,
     alignItems: 'center',
+    
   },
   rejectionReasonPreview: {
     marginLeft: 8,
@@ -264,9 +266,9 @@ const ModerationContentItem = ({
         <LWDialog open={true} onClose={onClose}>
           <DialogContent>
             <div>
-              <p>LLM Score: {automatedContentEvaluations.pangramScore?.toFixed(2) ?? 'N/A'}</p>
+              <p>LLM Score Average: {automatedContentEvaluations.pangramScore?.toFixed(2) ?? 'N/A'}, Max: {automatedContentEvaluations.pangramMaxScore?.toFixed(2) ?? 'N/A'}</p>
               {automatedContentEvaluations.pangramPrediction && (
-                <p>Prediction: {automatedContentEvaluations.pangramPrediction}</p>
+                <p>Prediction: <strong>{automatedContentEvaluations.pangramPrediction}</strong></p>
               )}
               <p>{itemIsPost ? 'Post' : 'Comment'} with highlighted windows:</p>
               <div dangerouslySetInnerHTML={{ __html: highlightedHtml }} />
@@ -278,6 +280,15 @@ const ModerationContentItem = ({
   }, [automatedContentEvaluations, contentHtml, openDialog, itemIsPost]);
 
   const score = automatedContentEvaluations?.pangramScore;
+  const maxScore = automatedContentEvaluations?.pangramMaxScore;
+
+  const evaluationBadge = typeof score === 'number' ? (
+    <HoverOver title={<p>Average: {score.toFixed(2)}, Max: {maxScore?.toFixed(2) ?? 'N/A'}</p>}>
+      <span className={classes.evaluationBadge} onClick={handleLLMScoreClick}>
+        LLM: {score.toFixed(2)}
+      </span>
+    </HoverOver>
+  ) : null;
 
   const rejectedReasonText = item.rejectedReason 
     ? truncate(htmlToTextDefault(item.rejectedReason), 80, 'characters')
@@ -329,11 +340,7 @@ const ModerationContentItem = ({
                 {score && score >= 0.5 ? 'Autorejected' : 'Rejected'}
               </div>
             </HoverOver>
-            {typeof score === 'number' && (
-              <span className={classes.evaluationBadge} onClick={handleLLMScoreClick}>
-                LLM: {score.toFixed(2)}
-              </span>
-            )}
+            {evaluationBadge}
           </div>
           <div className={classes.rejectionReasonPreview}>{rejectedReasonText}</div>
         </div>
@@ -341,15 +348,11 @@ const ModerationContentItem = ({
 
       {!item.rejected && automatedContentEvaluations && (
         <div className={classes.automatedEvaluations}>
-          {typeof score === 'number' && (
-            <span className={classes.evaluationBadge} onClick={handleLLMScoreClick}>
-              LLM: {score.toFixed(2)}
-            </span>
-          )}
+          {evaluationBadge}
         </div>
       )}
 
-      {showRerunButton && (
+      {!item.rejected && showRerunButton && (
         <button
           className={classes.rerunButton}
           onClick={onRerunClick}
