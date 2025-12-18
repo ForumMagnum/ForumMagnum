@@ -79,6 +79,7 @@ interface Query {
   RevisionsDiff: string | null;
   UltraFeed: UltraFeedQueryResults;
   UltraFeedSubscriptions: UltraFeedQueryResults;
+  getCkEditorToken: string;
   getBookWordCount: number | null;
   getSequenceStats: SequenceStats | null;
   reviewPredictionPosts: Array<Post>;
@@ -1291,6 +1292,14 @@ interface ElicitQuestionPredictionCreator {
   displayName: string;
   isQuestionCreator: boolean;
   sourceUserId: string | null;
+}
+
+interface GetCkEditorTokenOptions {
+  collectionName: string;
+  fieldName: string;
+  documentId: string | null;
+  formType: string;
+  linkSharingKey: string | null;
 }
 
 interface SequenceStats {
@@ -9894,6 +9903,7 @@ interface GraphQLTypeMap {
   UltraFeedQueryResults: UltraFeedQueryResults;
   UltraFeedEntry: UltraFeedEntry;
   ElicitQuestionPredictionCreator: ElicitQuestionPredictionCreator;
+  GetCkEditorTokenOptions: GetCkEditorTokenOptions;
   SequenceStats: SequenceStats;
   AdvisorRequest: AdvisorRequest;
   SingleAdvisorRequestInput: SingleAdvisorRequestInput;

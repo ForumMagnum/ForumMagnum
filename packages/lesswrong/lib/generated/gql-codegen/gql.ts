@@ -665,6 +665,7 @@ type Documents = {
     "\n  query emailstests($documentId: String, $version: String) {\n    post(input: { selector: { documentId: $documentId } }) {\n      result {\n        ...PostsRevision\n      }\n    }\n  }\n": typeof types.emailstestsDocument,
     "\n  mutation updateCommentCommentsNewForm($selector: SelectorInput!, $data: UpdateCommentDataInput!) {\n    updateComment(selector: $selector, data: $data) {\n      data {\n        ...SuggestAlignmentComment\n      }\n    }\n  }\n": typeof types.updateCommentCommentsNewFormDocument,
     "\n  mutation updatePostPostsEditForm($selector: SelectorInput!, $data: UpdatePostDataInput!) {\n    updatePost(selector: $selector, data: $data) {\n      data {\n        ...SuggestAlignmentPost\n      }\n    }\n  }\n": typeof types.updatePostPostsEditFormDocument,
+    "\n  query getCkEditorToken($options: GetCkEditorTokenOptions!) {\n    getCkEditorToken(options: $options)\n  }\n": typeof types.getCkEditorTokenDocument,
     "\n  fragment AutomatedContentEvaluationsFragment on AutomatedContentEvaluation {\n    _id\n    score\n    sentenceScores {\n      sentence\n      score\n    }\n    aiChoice\n    aiReasoning\n    aiCoT\n  }\n": typeof types.AutomatedContentEvaluationsFragmentDoc,
     "\n  fragment BookmarksMinimumInfoFragment on Bookmark {\n    _id\n    active\n  }\n": typeof types.BookmarksMinimumInfoFragmentDoc,
     "\n  fragment BookmarksWithDocumentFragment on Bookmark {\n    ...BookmarksMinimumInfoFragment\n    post {\n      ...PostsListWithVotes\n    }\n  }\n": typeof types.BookmarksWithDocumentFragmentDoc,
@@ -1581,6 +1582,7 @@ const documents: Documents = {
     "\n  query emailstests($documentId: String, $version: String) {\n    post(input: { selector: { documentId: $documentId } }) {\n      result {\n        ...PostsRevision\n      }\n    }\n  }\n": types.emailstestsDocument,
     "\n  mutation updateCommentCommentsNewForm($selector: SelectorInput!, $data: UpdateCommentDataInput!) {\n    updateComment(selector: $selector, data: $data) {\n      data {\n        ...SuggestAlignmentComment\n      }\n    }\n  }\n": types.updateCommentCommentsNewFormDocument,
     "\n  mutation updatePostPostsEditForm($selector: SelectorInput!, $data: UpdatePostDataInput!) {\n    updatePost(selector: $selector, data: $data) {\n      data {\n        ...SuggestAlignmentPost\n      }\n    }\n  }\n": types.updatePostPostsEditFormDocument,
+    "\n  query getCkEditorToken($options: GetCkEditorTokenOptions!) {\n    getCkEditorToken(options: $options)\n  }\n": types.getCkEditorTokenDocument,
     "\n  fragment AutomatedContentEvaluationsFragment on AutomatedContentEvaluation {\n    _id\n    score\n    sentenceScores {\n      sentence\n      score\n    }\n    aiChoice\n    aiReasoning\n    aiCoT\n  }\n": types.AutomatedContentEvaluationsFragmentDoc,
     "\n  fragment BookmarksMinimumInfoFragment on Bookmark {\n    _id\n    active\n  }\n": types.BookmarksMinimumInfoFragmentDoc,
     "\n  fragment BookmarksWithDocumentFragment on Bookmark {\n    ...BookmarksMinimumInfoFragment\n    post {\n      ...PostsListWithVotes\n    }\n  }\n": types.BookmarksWithDocumentFragmentDoc,
@@ -4464,6 +4466,10 @@ export function gql(source: "\n  mutation updateCommentCommentsNewForm($selector
  * The gql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
  */
 export function gql(source: "\n  mutation updatePostPostsEditForm($selector: SelectorInput!, $data: UpdatePostDataInput!) {\n    updatePost(selector: $selector, data: $data) {\n      data {\n        ...SuggestAlignmentPost\n      }\n    }\n  }\n"): (typeof documents)["\n  mutation updatePostPostsEditForm($selector: SelectorInput!, $data: UpdatePostDataInput!) {\n    updatePost(selector: $selector, data: $data) {\n      data {\n        ...SuggestAlignmentPost\n      }\n    }\n  }\n"];
+/**
+ * The gql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
+ */
+export function gql(source: "\n  query getCkEditorToken($options: GetCkEditorTokenOptions!) {\n    getCkEditorToken(options: $options)\n  }\n"): (typeof documents)["\n  query getCkEditorToken($options: GetCkEditorTokenOptions!) {\n    getCkEditorToken(options: $options)\n  }\n"];
 /**
  * The gql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
  */

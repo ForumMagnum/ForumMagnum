@@ -1462,6 +1462,18 @@ type ElicitQuestionPredictionCreator {
   sourceUserId: String
 }
 
+input GetCkEditorTokenOptions {
+  collectionName: String!
+  fieldName: String!
+  documentId: String
+  formType: String!
+  linkSharingKey: String
+}
+
+extend type Query {
+  getCkEditorToken(options: GetCkEditorTokenOptions!): String!
+}
+
 extend type Query {
   getBookWordCount(bookId: String!): Float
 }
