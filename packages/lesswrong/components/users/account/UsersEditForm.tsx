@@ -240,12 +240,25 @@ const UsersForm = ({
       <div className={classes.defaultGroup}>
         {!isFriendlyUI() && (userHasntChangedName(form.state.values) || userIsAdminOrMod(currentUser)) && <div className={classes.fieldWrapper}>
           <form.Field name="displayName">
-            {(field) => (
-              <MuiTextField
-                field={field}
-                label="Display name"
-              />
-            )}
+            {(field) => {
+              const lastChange = form.state.values.lastDisplayNameChangeDate;
+              const hasRecentChange = lastChange && (new Date().getTime() - new Date(lastChange).getTime()) < (7 * 24 * 60 * 60 * 1000);
+              
+              return (
+                <LWTooltip 
+                  title={!userIsAdminOrMod(currentUser) && hasRecentChange
+                    ? `You can change your display name once per week. Last changed on ${new Date(lastChange).toLocaleDateString()}.` 
+                    : ""}
+                  placement="top-start"
+                  inlineBlock={false}
+                >
+                  <MuiTextField
+                    field={field}
+                    label="Display name"
+                  />
+                </LWTooltip>
+              );
+            }}
           </form.Field>
         </div>}
 

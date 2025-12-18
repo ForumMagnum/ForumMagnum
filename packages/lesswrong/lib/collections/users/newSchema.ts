@@ -73,6 +73,8 @@ const ownsOrIsMod = (user: DbUser | null, document: any) => {
 };
 
 const canUpdateName = (user: DbUser | null) => {
+  // For EA Forum, any member can update their name (rate limit is checked server-side)
+  // For LW/AF, users can only update if they haven't changed it before (legacy behavior)
   return isEAForum() ? userIsMemberOf(user, 'members') : userHasntChangedName(user);
 };
 
@@ -459,6 +461,29 @@ const schema = {
       canCreate: ["sunshineRegiment", "admins"],
       validation: {
         optional: true,
+      },
+    },
+  },
+  /**
+   * Last time the user changed their displayName (computed from FieldChanges)
+   * Used to show users when they can change their name again
+   */
+  lastDisplayNameChangeDate: {
+    graphql: {
+      outputType: "Date",
+      canRead: [userOwns, "sunshineRegiment", "admins"],
+      resolver: async (user: DbUser, args: void, context: ResolverContext) => {
+        const { FieldChanges } = context;
+        const recentChange = await FieldChanges.findOne(
+          {
+            userId: user._id,
+            fieldName: 'displayName',
+          },
+          {
+            sort: { createdAt: -1 }
+          }
+        );
+        return recentChange?.createdAt ?? null;
       },
     },
   },

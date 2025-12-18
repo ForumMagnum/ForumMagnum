@@ -162,8 +162,6 @@ const utils = {
       throw new Error(`You do not have permission to update this user`)
     }
   
-    if (!isEAForum()) return;
-  
     const sinceDaysAgo = sinceDaysAgoSetting.get();
     const MS_PER_DAY = 24*60*60*1000;
     const sinceDate = new Date(new Date().getTime() - (sinceDaysAgo*MS_PER_DAY))

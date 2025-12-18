@@ -7240,6 +7240,7 @@ interface User {
   hasAuth0Id: boolean | null;
   displayName: string;
   previousDisplayName: string | null;
+  lastDisplayNameChangeDate: Date | null;
   email: string | null;
   noindex: boolean;
   groups: Array<string> | null;

@@ -7857,6 +7857,7 @@ type User {
   hasAuth0Id: Boolean
   displayName: String!
   previousDisplayName: String
+  lastDisplayNameChangeDate: Date
   email: String
   noindex: Boolean!
   groups: [String!]
