@@ -42,7 +42,7 @@ pull_envvars () {
   # The 2>&1 here merges stdout and stderr. Unfortunately "vercel env pull"
   # outputs everything (including non-error spammy status information) to
   # stderr, so the customary "redirect stdout but show stderr" doesn't work.
-  if [[ "$SKIP_VERCEL_ENV_PULL" != true ]]; then
+  if [[ "$SKIP_VERCEL_CODE_PULL" != true ]]; then
     VERCEL_PULL_OUTPUT=$(vercel env pull .env.local --environment="$VERCEL_ENV_NAME" 2>&1)
   fi
   VERCEL_PULL_EXIT_STATUS="$?"
