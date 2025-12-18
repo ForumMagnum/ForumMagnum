@@ -1,14 +1,12 @@
 import React from 'react';
 import { registerComponent } from '@/lib/vulcan-lib/components';
 import { useSubscribedLocation } from '@/lib/routeUtil';
-import { reviewIsActive } from '@/lib/reviewUtils';
 import { defineStyles, useStyles } from '@/components/hooks/useStyles';
 import CloudinaryImage2 from "@/components/common/CloudinaryImage2";
 import { isHomeRoute } from '@/lib/routeChecks';
 import { useCookiesWithConsent } from '../hooks/useCookiesWithConsent';
 import { HIDE_SOLSTICE_GLOBE_COOKIE } from '@/lib/cookies/cookies';
 import { SolsticeSeasonBanner } from '../seasonal/solsticeSeason/SolsticeSeasonBanner';
-import { AnnualReviewSidebarBanner } from '../seasonal/annualReview/AnnualReviewSidebarBanner';
 import withErrorBoundary from '@/components/common/withErrorBoundary';
 
 const styles = defineStyles("LWBackgroundImage", (theme: ThemeType) => ({
@@ -89,9 +87,9 @@ export const LWBackgroundImage = ({standaloneNavigation}: {
   </div> : null
 
   let homePageImage = (standaloneNavigation && isHomePage && !hideGlobeCookie) ? <SolsticeSeasonBanner /> : defaultImage
-  if (reviewIsActive() && standaloneNavigation && isHomePage) {
-    homePageImage = <AnnualReviewSidebarBanner />
-  }
+  // if (reviewIsActive() && standaloneNavigation && isHomePage) {
+  //   homePageImage = <AnnualReviewSidebarBanner />
+  // }
 
   const showSolsticeButton = standaloneNavigation && isHomePage && hideGlobeCookie
 
