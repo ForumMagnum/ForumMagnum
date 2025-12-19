@@ -3,9 +3,7 @@ import PostEmbeddings from '../collections/postEmbeddings/collection';
 import { frontpageClassifierModel, type FrontpageClassifierModel } from '../../lib/frontpageClassifier/model';
 import { getSqlClientOrThrow } from '../sql/sqlClient';
 import { postStatuses } from '../../lib/collections/posts/constants';
-import Posts from '../collections/posts/collection';
 import { isLW, requireReviewToFrontpagePostsSetting } from '../../lib/instanceSettings';
-import { getAdminTeamAccountId } from '../utils/adminTeamAccount';
 
 export type ClassifierModel = FrontpageClassifierModel;
 
@@ -135,6 +133,7 @@ interface PostWithPrediction {
  * This function should only be called after embeddings are generated for a post.
  */
 export async function maybeAutoFrontpagePost(postId: string, context: ResolverContext): Promise<void> {
+  const { Posts } = context;
   if (!isLW()) {
     return;
   }
@@ -172,6 +171,7 @@ export async function maybeAutoFrontpagePost(postId: string, context: ResolverCo
     return;
   }
 
+  const { getAdminTeamAccountId } = await import('../utils/adminTeamAccount');
   const adminTeamAccountId = await getAdminTeamAccountId(context);
   if (!adminTeamAccountId) {
     return;
