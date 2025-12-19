@@ -12,6 +12,7 @@ import { addLinkSharingKey, addReferrerToPost, applyNewPostTags, assertPostTitle
 import { sendAlignmentSubmissionApprovalNotifications } from "@/server/callbacks/sharedCallbackFunctions";
 import { createInitialRevisionsForEditableFields, reuploadImagesIfEditableFieldsChanged, uploadImagesInEditableFields, notifyUsersOfNewPingbackMentions, createRevisionsForEditableFields, updateRevisionsDocumentIds, notifyUsersOfPingbackMentions } from "@/server/editor/make_editable_callbacks";
 import { hasEmbeddingsForRecommendations } from "@/server/embeddings";
+import { maybeAutoFrontpagePost } from "@/server/frontpageClassifier/predictions";
 import { logFieldChanges } from "@/server/fieldChanges";
 import { handleCrosspostUpdate } from "@/server/fmCrosspost/crosspost";
 import { rehostPostMetaImages } from "@/server/scripts/convertImagesToCloudinary";
@@ -146,6 +147,10 @@ export async function createPost({ data }: { data: CreatePostDataInput & { _id?:
   await sendUsersSharedOnPostNotifications(documentWithId);
   if (hasEmbeddingsForRecommendations()) {
     await updatePostEmbeddingsOnChange(documentWithId, undefined);
+
+    if (!documentWithId.draft) {
+      await maybeAutoFrontpagePost(documentWithId._id, context);
+    }
   }
 
   await rehostPostMetaImages(documentWithId);

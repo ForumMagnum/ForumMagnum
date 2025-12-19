@@ -54,6 +54,7 @@ import { PostsHTML } from "@/lib/collections/posts/fragments";
 import { backgroundTask } from "../utils/backgroundTask";
 import { createAutomatedContentEvaluation } from "../collections/automatedContentEvaluations/helpers";
 import CurationEmails from "../collections/curationEmails/collection";
+import { maybeAutoFrontpagePost } from "../frontpageClassifier/predictions";
 
 
 /**
@@ -166,7 +167,8 @@ export async function onPostPublished(post: DbPost, context: ResolverContext) {
   const { updateScoreOnPostPublish } = await import("./votingCallbacks");
   await updateScoreOnPostPublish(post, context);
   await onPublishUtils.ensureNonzeroRevisionVersionsAfterUndraft(post, context);
-  await triggerReviewIfNeeded(post.userId, 'publishedPost', context)
+  await triggerReviewIfNeeded(post.userId, 'publishedPost', context);
+  await maybeAutoFrontpagePost(post._id, context);
 }
 
 const utils = {
