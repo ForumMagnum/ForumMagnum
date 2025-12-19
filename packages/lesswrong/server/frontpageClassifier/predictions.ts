@@ -142,10 +142,6 @@ export async function maybeAutoFrontpagePost(postId: string, context: ResolverCo
     return;
   }
 
-  if (requireReviewToFrontpagePostsSetting.get()) {
-    return;
-  }
-
   const post = await Posts.findOne({
     _id: postId,
     frontpageDate: null,
