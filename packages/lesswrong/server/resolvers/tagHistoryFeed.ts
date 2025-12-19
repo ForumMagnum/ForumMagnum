@@ -2,12 +2,13 @@ import { Comments } from '../../server/collections/comments/collection';
 import { Tags } from '../../server/collections/tags/collection';
 import { TagRels } from '../../server/collections/tagRels/collection';
 import { Revisions } from '../../server/collections/revisions/collection';
-import { accessFilterSingle } from '../../lib/utils/schemaUtils';
+import { accessFilterSingle, accessFilterMultiple } from '../../lib/utils/schemaUtils';
 import { mergeFeedQueries, fixedResultSubquery, viewBasedSubquery, fieldChangesSubquery } from '../utils/feedUtil';
 import { MultiDocuments } from '@/server/collections/multiDocuments/collection';
 import type { TagHistorySettings } from '@/components/tagging/history/TagHistoryPage';
 import { defaultTagHistorySettings } from '@/lib/collections/tags/helpers';
 import { MAIN_TAB_ID } from "@/lib/collections/tags/constants";
+import { postStatuses } from '@/lib/collections/posts/constants';
 import gql from 'graphql-tag';
 
 
@@ -89,15 +90,40 @@ export const tagHistoryFeedGraphQLQueries = {
           result: tag,
           sortKey: tag.createdAt,
         }),
-        // Tag applications
-        (historyOptions.showTagging ? viewBasedSubquery({
+        // Tag applications (excluding rejected/draft/inaccessible posts)
+        (historyOptions.showTagging ? {
           type: "tagApplied",
-          collection: TagRels,
-          sortField: "createdAt",
-          context,
-          includeDefaultSelector: false,
-          selector: {tagId},
-        }) : null),
+          getSortKey: (tagRel: DbTagRel) => tagRel.createdAt,
+          doQuery: async (limit: number, cutoff: Date|null): Promise<Partial<DbTagRel>[]> => {
+            // Query TagRels with a join to Posts to exclude rejected/inaccessible posts
+            const tagRels = await TagRels.find({
+              tagId,
+              deleted: false,
+              ...(cutoff ? {createdAt: {$lt: cutoff}} : {}),
+            }, {
+              sort: {createdAt: -1},
+              limit: limit * 2, // Fetch extra to account for filtering
+            }).fetch();
+            
+            // Filter out TagRels where the post is rejected, draft, or from an unreviewed author
+            const Posts = context.Posts;
+            const filteredTagRels: DbTagRel[] = [];
+            
+            for (const tagRel of tagRels) {
+              const post = await Posts.findOne({_id: tagRel.postId});
+              if (post && 
+                  !post.rejected && 
+                  !post.draft && 
+                  !post.authorIsUnreviewed &&
+                  post.status === postStatuses.STATUS_APPROVED) {
+                filteredTagRels.push(tagRel);
+              }
+              if (filteredTagRels.length >= limit) break;
+            }
+            
+            return await accessFilterMultiple(context.currentUser, 'TagRels', filteredTagRels, context);
+          },
+        } : null),
         // Tag revisions
         (historyOptions.showEdits && (!historyOptions.lensId || historyOptions.lensId === "all" || historyOptions.lensId === MAIN_TAB_ID) ? viewBasedSubquery({
           type: "tagRevision",
