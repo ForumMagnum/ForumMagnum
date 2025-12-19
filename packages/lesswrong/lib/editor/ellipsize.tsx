@@ -1,4 +1,5 @@
 import { truncatise } from '../truncatise';
+import uniq from 'lodash/uniq';
 
 export const highlightMaxChars = 2400;
 export const GTP2_TRUNCATION_CHAR_COUNT = 400;
@@ -10,7 +11,8 @@ export const highlightFromHTML = (html: string | null): string => {
   if (!html) return ""
   const styles: string[]|null = html.match(/<style[\s\S]*?<\/style>/g);
   const htmlWithoutStyles = styles ? html.replace(/<style[\s\S]*?<\/style>/g, '') : html;
-  const suffix = styles ? `... ${styles}` : '... ';
+  const uniqueStyles = uniq(styles);
+  const suffix = !!styles ? `... ${uniqueStyles.join("")}` : '... ';
 
   return truncatise(htmlWithoutStyles, {
     TruncateLength: highlightMaxChars,
@@ -31,6 +33,7 @@ export const truncate = (
 
   if(!html) return ""
   const styles = html.match(/<style[\s\S]*?<\/style>/g) || ""
+  const uniqueStyles = uniq(styles);
   const htmlRemovedStyles = html.replace(/<style[\s\S]*?<\/style>/g, '');
 
   const truncatedHtml = truncatise(htmlRemovedStyles, {
@@ -39,7 +42,7 @@ export const truncate = (
     Suffix: `${newSuffix}`,
     Strict: allowTruncationMidWord,
   });
-  return styles + truncatedHtml;
+  return uniqueStyles.join("") + truncatedHtml;
 }
 
 export const calculateTruncationStatus = (

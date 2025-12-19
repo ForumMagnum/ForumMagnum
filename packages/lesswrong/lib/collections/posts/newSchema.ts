@@ -3516,19 +3516,10 @@ const schema = {
         if (!hasSideComments() || isNotHostedHere(post)) {
           return null;
         }
-        // If the post was fetched with a SQL resolver then we will already
-        // have the side comments cache available (even though the type system
-        // doesn't know about it), otherwise we have to fetch it from the DB.
-        const sqlFetchedPost = post as unknown as PostSideComments;
-        // `undefined` means we didn't run a SQL resolver. `null` means we ran
-        // a SQL resolver, but no relevant cache record was found.
-        const cache =
-          sqlFetchedPost.sideCommentsCache === undefined
-            ? await SideCommentCaches.findOne({
-                postId: post._id,
-                version: sideCommentCacheVersion,
-              })
-            : sqlFetchedPost.sideCommentsCache;
+        const cache = await SideCommentCaches.findOne({
+          postId: post._id,
+          version: sideCommentCacheVersion,
+        })
 
         const cachedAt = new Date(cache?.createdAt ?? 0);
         const editedAt = new Date(post.modifiedAt ?? 0);
