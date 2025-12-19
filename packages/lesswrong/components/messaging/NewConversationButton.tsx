@@ -1,4 +1,4 @@
-import React, { MouseEvent, ReactNode, useCallback, useEffect } from 'react';
+import React, { MouseEvent, ReactNode, useCallback, useEffect, useRef } from 'react';
 import { registerComponent } from '../../lib/vulcan-lib/components';
 import qs from 'qs';
 import { useDialog } from '../common/withDialog';
@@ -37,6 +37,12 @@ const NewConversationButton = ({
   const navigate = useNavigate();
   const { openDialog } = useDialog()
   const { conversation, initiateConversation } = useInitiateConversation({ includeModerators })
+  
+  // Track whether we're waiting to navigate after a user-initiated action.
+  // This prevents re-navigation when the page is restored from React Activity
+  // (cacheComponents). Without this, pressing Back after clicking Message would
+  // immediately bounce back to the inbox because `conversation` is still set.
+  const pendingNavigationRef = useRef(false);
 
   const getTemplateParams = useCallback(() => {
     let templateParams: Array<string> = []
@@ -52,6 +58,9 @@ const NewConversationButton = ({
   // Navigate to the conversation that is created
   useEffect(() => {
     if (!conversation) return;
+    // Only navigate if this was triggered by a user click (not a page restoration)
+    if (!pendingNavigationRef.current) return;
+    pendingNavigationRef.current = false;
 
     if (embedConversation) {
       embedConversation(conversation._id, templateQueries)
@@ -65,6 +74,7 @@ const NewConversationButton = ({
 
   const handleClick = currentUser
     ? (e: MouseEvent) => {
+        pendingNavigationRef.current = true;
         initiateConversation([user._id])
         e.stopPropagation()
       }
