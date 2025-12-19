@@ -4,3 +4,7 @@
 **/LessWrong-Credentials/
 **/.env*
 
+# Database credentials and MCP configuration (in case they end up in workspace)
+**/credentials.json
+**/mcp.json
+
