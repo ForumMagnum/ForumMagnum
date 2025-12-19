@@ -72,7 +72,9 @@ const RejectionNotice = ({rejectedReason}: {rejectedReason?: string | null}) => 
   const [expanded, setExpanded] = useState(false);
   const summarySentences = useMemo(() => rejectedReason ? extractSummary(rejectedReason) : [], [rejectedReason]);
 
-  if (!rejectedReason || (!expanded && !summarySentences.length)) return null;
+  if (!rejectedReason) return <div className={classes.root}>This post was rejected.</div>;
+    
+  if (!expanded && !summarySentences.length) return null;
 
   return (
     <div className={classes.root} onClick={() => setExpanded(true)}>
