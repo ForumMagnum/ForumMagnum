@@ -47,7 +47,10 @@ export async function getPangramEvaluation(revision: DbRevision): Promise<Pangra
   }
 
   const markdown = dataToMarkdown(revision.html, "html");
-  const textToCheck = markdown.slice(0, 10000);
+  // This should get the first 4-5k words.  There are longer posts but
+  // it doesn't seem like it'll often be useful to check them in their
+  // entirety, and every 1k words is more $$$.
+  const textToCheck = markdown.slice(0, 30_000);
 
   const response = await fetch('https://text-extended.api.pangram.com', {
     method: 'POST',
@@ -350,7 +353,18 @@ async function rejectContentForLLM(
   }
 }
 
-export async function createAutomatedContentEvaluation(revision: DbRevision, context: ResolverContext) {
+interface CreateAutomatedContentEvaluationOptions {
+  /** Whether to auto-reject content that fails the LLM check. */
+  autoreject?: boolean;
+}
+
+export async function createAutomatedContentEvaluation(
+  revision: DbRevision,
+  context: ResolverContext,
+  options: CreateAutomatedContentEvaluationOptions = {}
+) {
+  const { autoreject } = options;
+  
   // we shouldn't be ending up running this on revisions where draft is true (which is for autosaves) but if we did we'd want to return early.
   if (revision.draft) return;
   const documentId = revision.documentId;
@@ -377,7 +391,7 @@ export async function createAutomatedContentEvaluation(revision: DbRevision, con
     return;
   }
 
-  await AutomatedContentEvaluations.rawInsert({
+  const aceId = await AutomatedContentEvaluations.rawInsert({
     createdAt: new Date(),
     revisionId: revision._id,
     score: null,
@@ -392,12 +406,14 @@ export async function createAutomatedContentEvaluation(revision: DbRevision, con
   });
 
   // Auto-reject if Pangram score is high AND there's either no LLM evaluation (comments) or the LLM says review (posts)
-  if ((!llmEvaluation || llmEvaluation.decision === "review") && (pangramEvaluation?.pangramScore ?? 0) > .5) {
-    const collectionName = revision.collectionName as "Posts" | "Comments";
+  if (autoreject && (!llmEvaluation || llmEvaluation.decision === "review") && (pangramEvaluation?.pangramScore ?? 0) > .5) {
+    const collectionName = revision.collectionName;
     if (collectionName === "Posts" || collectionName === "Comments") {
       await rejectContentForLLM(documentId, collectionName, context);
     }
   }
+  
+  return aceId;
 }
 
 /**

@@ -4378,6 +4378,7 @@ type Mutation = {
   resyncRssFeed: Scalars['Boolean']['output'];
   revertPostToRevision?: Maybe<Post>;
   revertTagToRevision?: Maybe<Tag>;
+  runLlmCheckForDocument: AutomatedContentEvaluation;
   sendEventTriggeredDM: Scalars['Boolean']['output'];
   sendNewDialogueMessageNotification: Scalars['Boolean']['output'];
   setIsHidden: User;
@@ -5003,6 +5004,12 @@ type MutationrevertPostToRevisionArgs = {
 type MutationrevertTagToRevisionArgs = {
   revertToRevisionId: Scalars['String']['input'];
   tagId: Scalars['String']['input'];
+};
+
+
+type MutationrunLlmCheckForDocumentArgs = {
+  collectionName: ContentCollectionName;
+  documentId: Scalars['String']['input'];
 };
 
 
@@ -14788,6 +14795,27 @@ type updatePostExcludeFromRecommendationsDropdownItemMutationVariables = Exact<{
 
 type updatePostExcludeFromRecommendationsDropdownItemMutation = updatePostExcludeFromRecommendationsDropdownItemMutation_Mutation;
 
+type PostLLMScoreQueryQuery_post_SinglePostOutput_result_Post_contents_Revision = { __typename?: 'Revision', _id: string, html: string | null };
+
+type PostLLMScoreQueryQuery_post_SinglePostOutput_result_Post_automatedContentEvaluations_AutomatedContentEvaluation = (
+  { __typename?: 'AutomatedContentEvaluation' }
+  & AutomatedContentEvaluationsFragment
+);
+
+type PostLLMScoreQueryQuery_post_SinglePostOutput_result_Post = { __typename?: 'Post', _id: string, contents: PostLLMScoreQueryQuery_post_SinglePostOutput_result_Post_contents_Revision | null, automatedContentEvaluations: PostLLMScoreQueryQuery_post_SinglePostOutput_result_Post_automatedContentEvaluations_AutomatedContentEvaluation | null };
+
+type PostLLMScoreQueryQuery_post_SinglePostOutput = { __typename?: 'SinglePostOutput', result: PostLLMScoreQueryQuery_post_SinglePostOutput_result_Post | null };
+
+type PostLLMScoreQueryQuery_Query = { __typename?: 'Query', post: PostLLMScoreQueryQuery_post_SinglePostOutput | null };
+
+
+type PostLLMScoreQueryQueryVariables = Exact<{
+  postId: Scalars['String']['input'];
+}>;
+
+
+type PostLLMScoreQueryQuery = PostLLMScoreQueryQuery_Query;
+
 type markAsReadOrUnreadMutation_Mutation = { __typename?: 'Mutation', markAsReadOrUnread: boolean | null };
 
 
@@ -20758,6 +20786,22 @@ type multiLWEventEmailHistoryQueryQueryVariables = Exact<{
 
 
 type multiLWEventEmailHistoryQueryQuery = multiLWEventEmailHistoryQueryQuery_Query;
+
+type RunLlmCheckForDocumentMutation_runLlmCheckForDocument_AutomatedContentEvaluation = (
+  { __typename?: 'AutomatedContentEvaluation' }
+  & AutomatedContentEvaluationsFragment
+);
+
+type RunLlmCheckForDocumentMutation_Mutation = { __typename?: 'Mutation', runLlmCheckForDocument: RunLlmCheckForDocumentMutation_runLlmCheckForDocument_AutomatedContentEvaluation };
+
+
+type RunLlmCheckForDocumentMutationVariables = Exact<{
+  documentId: Scalars['String']['input'];
+  collectionName: ContentCollectionName;
+}>;
+
+
+type RunLlmCheckForDocumentMutation = RunLlmCheckForDocumentMutation_Mutation;
 
 type ModGPTDashboardQueryQuery_comments_MultiCommentOutput_results_Comment = (
   { __typename?: 'Comment' }

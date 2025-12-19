@@ -9,9 +9,7 @@ import { htmlToTextDefault } from '@/lib/htmlToText';
 import { truncate } from '@/lib/editor/ellipsize';
 import RejectContentButton from '../RejectContentButton';
 import { useDialog } from '@/components/common/withDialog';
-import { DialogContent } from '@/components/widgets/DialogContent';
-import LWDialog from '@/components/common/LWDialog';
-import { highlightHtmlWithPangramWindowScores } from '../helpers';
+import LLMScoreDialog from '../LLMScoreDialog';
 import KeystrokeDisplay from './KeystrokeDisplay';
 import HoverOver from '@/components/common/HoverOver';
 import type { InboxAction } from './inboxReducer';
@@ -255,29 +253,20 @@ const ModerationContentItem = ({
   const handleLLMScoreClick = useCallback((e: React.MouseEvent) => {
     e.stopPropagation();
     if (!automatedContentEvaluations) return;
-    const highlightedHtml = highlightHtmlWithPangramWindowScores(
-      contentHtml,
-      automatedContentEvaluations.pangramWindowScores ?? []
-    );
 
     openDialog({
       name: 'LLMScoreDialog',
       contents: ({ onClose }) => (
-        <LWDialog open={true} onClose={onClose}>
-          <DialogContent>
-            <div>
-              <p>LLM Score Average: {score?.toFixed(2) ?? 'N/A'}, Max: {maxScore?.toFixed(2) ?? 'N/A'}</p>
-              {automatedContentEvaluations.pangramPrediction && (
-                <p>Prediction: <strong>{automatedContentEvaluations.pangramPrediction}</strong></p>
-              )}
-              <p>{itemIsPost ? 'Post' : 'Comment'} with highlighted windows:</p>
-              <div dangerouslySetInnerHTML={{ __html: highlightedHtml }} />
-            </div>
-          </DialogContent>
-        </LWDialog>
+        <LLMScoreDialog
+          onClose={onClose}
+          documentId={item._id}
+          automatedContentEvaluations={automatedContentEvaluations}
+          contentHtml={contentHtml}
+          contentType={itemIsPost ? 'Post' : 'Comment'}
+        />
       ),
     });
-  }, [automatedContentEvaluations, contentHtml, openDialog, itemIsPost, score, maxScore]);
+  }, [automatedContentEvaluations, contentHtml, openDialog, itemIsPost, item._id]);
 
   const evaluationBadge = typeof score === 'number' ? (
     <HoverOver title={<p>Average: {score.toFixed(2)}, Max: {maxScore?.toFixed(2) ?? 'N/A'}</p>}>
