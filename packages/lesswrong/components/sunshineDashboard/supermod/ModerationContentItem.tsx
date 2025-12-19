@@ -296,7 +296,7 @@ const ModerationContentItem = ({
       className={classNames(classes.root, {
         [classes.focused]: isFocused,
       })}
-      onClick={onOpen}
+      onClick={e => { e.stopPropagation(); onOpen(); }}
     >
       {itemIsPost ? (
         <DescriptionIcon className={classes.icon} />

@@ -11,6 +11,7 @@ import LWTooltip from '@/components/common/LWTooltip';
 import UserAutoRateLimitsDisplay from '../ModeratorUserInfo/UserAutoRateLimitsDisplay';
 import ModerationContentList from './ModerationContentList';
 import ModerationContentDetail from './ModerationContentDetail';
+import ModerationDefaultOptions from './ModerationDefaultOptions';
 import type { InboxAction } from './inboxReducer';
 import FormatDate from '@/components/common/FormatDate';
 import AltAccountInfo from '../ModeratorUserInfo/AltAccountInfo';
@@ -261,12 +262,12 @@ const MAX_BIO_WORDCOUNT = 10000;
 
 const ModerationDetailView = ({ 
   user,
-  focusedContentIndex,
+  focusedContentIndex = null,
   runningLlmCheckId,
   dispatch,
 }: {
   user: SunshineUsersList;
-  focusedContentIndex: number;
+  focusedContentIndex?: number | null;
   runningLlmCheckId: string | null;
   dispatch: React.ActionDispatch<[action: InboxAction]>;
 }) => {
@@ -280,7 +281,7 @@ const ModerationDetailView = ({
   ), [posts, comments]);
 
   const focusedContent = useMemo(() => 
-    allContent[focusedContentIndex] || null,
+    focusedContentIndex !== null ? allContent[focusedContentIndex] ?? null : null,
     [allContent, focusedContentIndex]
   );
 
@@ -452,18 +453,20 @@ const ModerationDetailView = ({
 
       {allContent.length > 0 && (
         <div className={classes.contentSection}>
-          <div className={classes.contentListContainer}>
+          <div className={classes.contentListContainer} onClick={() => dispatch({ type: 'OPEN_CONTENT', contentIndex: null })}>
             <ModerationContentList
               items={allContent}
               title="Posts & Comments"
-              focusedItemId={allContent[focusedContentIndex]?._id ?? null}
+              focusedItemId={focusedContentIndex !== null ? allContent[focusedContentIndex]?._id ?? null : null}
               runningLlmCheckId={runningLlmCheckId}
               dispatch={dispatch}
             />
           </div>
-          <ModerationContentDetail
-            item={focusedContent}
-          />
+          {focusedContent ? (
+            <ModerationContentDetail item={focusedContent} />
+          ) : (
+            <ModerationDefaultOptions />
+          )}
         </div>
       )}
     </div>

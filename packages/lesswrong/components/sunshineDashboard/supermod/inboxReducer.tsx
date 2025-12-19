@@ -59,7 +59,7 @@ export type InboxAction =
   | { type: 'REMOVE_POST'; postId: string; }
   | { type: 'NEXT_CONTENT'; contentLength: number; }
   | { type: 'PREV_CONTENT'; contentLength: number; }
-  | { type: 'OPEN_CONTENT'; contentIndex: number; }
+  | { type: 'OPEN_CONTENT'; contentIndex: number | null; }
   | { type: 'UPDATE_USER'; userId: string; fields: Partial<SunshineUsersList>; }
   | { type: 'UPDATE_POST'; postId: string; fields: Partial<SunshinePostsList>; }
   | { type: 'ADD_TO_UNDO_QUEUE'; item: UndoHistoryItem; }
