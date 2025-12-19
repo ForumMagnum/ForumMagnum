@@ -15,8 +15,7 @@ export type ClassifierModel = FrontpageClassifierModel;
  * subject to manual review only.
  */
 const EXCLUDED_USER_IDS: string[] = [
-  // Add user IDs here as needed, e.g.:
-  // "abc123", // Username - reason for exclusion
+  "N9zj5qpTfqmbn9dro", // Many newsletters/timeful posts which are covering frontpage-y topics :(
 ];
 
 export interface PredictionResult {
