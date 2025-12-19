@@ -812,6 +812,9 @@ export const ckEditorStyles = (theme: ThemeType) => {
       "--ck-color-comment-marker": theme.palette.editor.commentMarker,
       "--ck-color-comment-marker-active": theme.palette.editor.commentMarkerActive,
       '--ck-color-widget-editable-focus-background': theme.palette.panelBackground.default,
+      // Text colors for CKEditor sidebar comments (ensures readability in dark mode)
+      "--ck-color-text": theme.palette.text.maxIntensity,
+      "--ck-color-input-text": theme.palette.text.maxIntensity,
     }
   }
 }
