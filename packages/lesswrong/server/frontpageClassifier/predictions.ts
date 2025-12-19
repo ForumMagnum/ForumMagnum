@@ -160,6 +160,10 @@ export async function maybeAutoFrontpagePost(postId: string, context: ResolverCo
     // difficult but a bit gnarly/circular, so punting to later.
     authorIsUnreviewed: false,
     userId: { $nin: EXCLUDED_USER_IDS },
+    status: postStatuses.STATUS_APPROVED,
+    isFuture: false,
+    unlisted: false,
+    rejected: false,
   });
 
   if (!post) {
