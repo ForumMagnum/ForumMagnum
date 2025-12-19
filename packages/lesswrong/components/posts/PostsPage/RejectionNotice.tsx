@@ -20,6 +20,8 @@ const styles = defineStyles('RejectionNotice', (theme: ThemeType) => ({
     color: theme.palette.grey[900],
   },
   summaryContent: {
+    ...theme.typography.commentStyle,
+    ...theme.typography.body2,
     '& li': {
       ...theme.typography.commentStyle,
       ...theme.typography.body2,
@@ -39,6 +41,11 @@ const styles = defineStyles('RejectionNotice', (theme: ThemeType) => ({
   },
 }));
 
+// Extracts a summary from HTML rejection reasons:
+// - For lists (<ul>/<ol>): extracts text from each <li> item
+// - For paragraphs: extracts the first <p> content
+// - Text extraction includes multiple sentences if they are all bold, or just the first sentence if they are not. (Since we often use bold to convey multi-sentence-summaries)
+
 function extractLeadingText(html: string): string {
   const trimmed = html.trim();
   const boldMatch = trimmed.match(/^<(strong|b)>([\s\S]*?)<\/\1>/i);
@@ -46,10 +53,6 @@ function extractLeadingText(html: string): string {
   const plainText = trimmed.replace(/<[^>]*>/g, ' ').replace(/\s+/g, ' ').trim();
   const sentenceMatch = plainText.match(/^[^.!?]*[.!?]/);
   return sentenceMatch ? sentenceMatch[0].trim() : plainText;
-}
-
-function htmlWordCount(html: string): number {
-  return html.replace(/<[^>]*>/g, ' ').trim().split(/\s+/g).filter(Boolean).length;
 }
 
 function extractSummary(html: string): string[] {
