@@ -16,6 +16,7 @@ type AudienceFilter = {
   requireMailgunValid: boolean;
   excludeUnsubscribed: boolean;
   excludeDeleted: boolean;
+  onlyAdmins: boolean;
   maxMailgunRisk?: MailgunRiskLevel | null;
   includeUnknownRisk: boolean;
 };
@@ -43,6 +44,7 @@ function buildAudienceWhereSql(filter: AudienceFilter) {
   const where: string[] = [];
   if (filter.excludeDeleted) where.push(`u."deleted" IS NOT TRUE`);
   if (filter.excludeUnsubscribed) where.push(`u."unsubscribeFromAll" IS NOT TRUE`);
+  if (filter.onlyAdmins) where.push(`u."isAdmin" IS TRUE`);
   where.push(`u."email" IS NOT NULL AND btrim(u."email") <> ''`);
 
   if (filter.verifiedEmailOnly) {
@@ -217,6 +219,7 @@ export const graphqlTypeDefs = gql`
     requireMailgunValid: Boolean!
     excludeUnsubscribed: Boolean!
     excludeDeleted: Boolean!
+    onlyAdmins: Boolean!
     maxMailgunRisk: MailgunRiskLevel
     includeUnknownRisk: Boolean!
   }

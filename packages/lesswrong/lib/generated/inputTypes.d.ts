@@ -1307,6 +1307,7 @@ interface AdminEmailAudienceFilterInput {
   requireMailgunValid: boolean;
   excludeUnsubscribed: boolean;
   excludeDeleted: boolean;
+  onlyAdmins: boolean;
   maxMailgunRisk?: MailgunRiskLevel | null;
   includeUnknownRisk: boolean;
 }

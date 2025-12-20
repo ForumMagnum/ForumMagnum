@@ -25,6 +25,7 @@ export type AdminEmailAudienceFilterInput = {
   excludeUnsubscribed: Scalars['Boolean']['input'];
   includeUnknownRisk: Scalars['Boolean']['input'];
   maxMailgunRisk?: InputMaybe<MailgunRiskLevel>;
+  onlyAdmins: Scalars['Boolean']['input'];
   requireMailgunValid: Scalars['Boolean']['input'];
   verifiedEmailOnly: Scalars['Boolean']['input'];
 };

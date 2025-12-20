@@ -1491,6 +1491,7 @@ input AdminEmailAudienceFilterInput {
   requireMailgunValid: Boolean!
   excludeUnsubscribed: Boolean!
   excludeDeleted: Boolean!
+  onlyAdmins: Boolean!
   maxMailgunRisk: MailgunRiskLevel
   includeUnknownRisk: Boolean!
 }

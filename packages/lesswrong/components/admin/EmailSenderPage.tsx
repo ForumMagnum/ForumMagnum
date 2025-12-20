@@ -251,6 +251,7 @@ const EmailSenderPage = () => {
   const [requireMailgunValid, setRequireMailgunValid] = useState(false);
   const [excludeUnsubscribed, setExcludeUnsubscribed] = useState(true);
   const [excludeDeleted, setExcludeDeleted] = useState(true);
+  const [onlyAdmins, setOnlyAdmins] = useState(false);
   const [maxMailgunRisk, setMaxMailgunRisk] = useState<MailgunRiskLevel | "any">("any");
   const [includeUnknownRisk, setIncludeUnknownRisk] = useState(true);
 
@@ -267,6 +268,7 @@ const EmailSenderPage = () => {
     requireMailgunValid,
     excludeUnsubscribed,
     excludeDeleted,
+    onlyAdmins,
     maxMailgunRisk: maxMailgunRisk === "any" ? null : maxMailgunRisk,
     includeUnknownRisk,
   }), [
@@ -274,6 +276,7 @@ const EmailSenderPage = () => {
     requireMailgunValid,
     excludeUnsubscribed,
     excludeDeleted,
+    onlyAdmins,
     maxMailgunRisk,
     includeUnknownRisk,
   ]);
@@ -394,6 +397,10 @@ const EmailSenderPage = () => {
           <label className={classes.checkboxRow}>
             <input className={classes.checkbox} type="checkbox" checked={excludeDeleted} onChange={(e) => setExcludeDeleted(e.target.checked)} />
             Exclude deleted
+          </label>
+          <label className={classes.checkboxRow}>
+            <input className={classes.checkbox} type="checkbox" checked={onlyAdmins} onChange={(e) => setOnlyAdmins(e.target.checked)} />
+            Only admins
           </label>
         </div>
         <div className={classes.row} style={{ marginTop: 12 }}>
