@@ -53,29 +53,21 @@ function extractLeadingText(element: Element): string {
     return (firstChild.textContent ?? '').trim();
   }
   const plainText = (element.textContent ?? '').replace(/\s+/g, ' ').trim();
-  const sentenceMatch = plainText.match(/^[^.!?]*[.!?]/);
-  return sentenceMatch ? sentenceMatch[0].trim() : plainText;
+  return plainText.match(/^[^.!?]*[.!?]/)?.[0]?.trim() ?? plainText;
 }
 
 function extractSummary(html: string): string[] {
   const { document } = parseDocumentFromString(html);
   const body = document.body;
-  let firstSignificantElement: Element | null = null;
-  for (const child of Array.from(body.children)) {
-    if (child.tagName === 'P' && !(child.textContent ?? '').trim()) continue;
-    firstSignificantElement = child;
-    break;
-  }
+  const firstSignificantElement = Array.from(body.children).find(
+    child => child.tagName !== 'P' || (child.textContent ?? '').trim()
+  );
   if (!firstSignificantElement) return [];
   if (firstSignificantElement.tagName === 'UL' || firstSignificantElement.tagName === 'OL') {
-    const listItems = firstSignificantElement.querySelectorAll('li');
-    return Array.from(listItems).map(li => extractLeadingText(li)).filter(Boolean);
+    return Array.from(firstSignificantElement.querySelectorAll('li')).map(li => extractLeadingText(li)).filter(Boolean);
   }
-  if (firstSignificantElement.tagName === 'P') {
-    const leading = extractLeadingText(firstSignificantElement);
-    return leading ? [leading] : [];
-  }
-  const leading = extractLeadingText(body);
+  const target = firstSignificantElement.tagName === 'P' ? firstSignificantElement : body;
+  const leading = extractLeadingText(target);
   return leading ? [leading] : [];
 }
 
