@@ -38,6 +38,7 @@ type AdminSendBulkEmailInput = {
   from?: InputMaybe<Scalars['String']['input']>;
   html?: InputMaybe<Scalars['String']['input']>;
   maxRecipients?: InputMaybe<Scalars['Int']['input']>;
+  runId?: InputMaybe<Scalars['String']['input']>;
   subject: Scalars['String']['input'];
   text?: InputMaybe<Scalars['String']['input']>;
 };

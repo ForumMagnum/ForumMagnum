@@ -1517,6 +1517,7 @@ input AdminSendBulkEmailInput {
   maxRecipients: Int
   batchSize: Int
   concurrency: Int
+  runId: String
 }
 
 extend type Query {

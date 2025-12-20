@@ -1333,6 +1333,7 @@ interface AdminSendBulkEmailInput {
   maxRecipients?: number | null;
   batchSize?: number | null;
   concurrency?: number | null;
+  runId?: string | null;
 }
 
 interface AdvisorRequest {

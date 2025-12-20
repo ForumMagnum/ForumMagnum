@@ -2,6 +2,7 @@ import gql from "graphql-tag";
 import { userIsAdmin } from "@/lib/vulcan-users/permissions";
 import { getSqlClientOrThrow } from "@/server/sql/sqlClient";
 import { EmailTokens } from "@/server/collections/emailTokens/collection";
+import { LWEvents } from "@/server/collections/lwevents/collection";
 import { randomId, randomSecret } from "@/lib/random";
 import chunk from "lodash/chunk";
 import { executePromiseQueue } from "@/lib/utils/asyncUtils";
@@ -23,6 +24,7 @@ type AudienceFilter = {
 
 const DEFAULT_BATCH_SIZE = 1000;
 const DEFAULT_CONCURRENCY = 20;
+const EMAIL_SEND_EVENT_NAME = "adminEmailSend";
 
 function assertAdmin(context: ResolverContext) {
   if (!userIsAdmin(context.currentUser)) {
@@ -66,9 +68,10 @@ async function fetchAudienceBatch(args: {
   filter: AudienceFilter;
   limit: number;
   afterUserId?: string | null;
+  runId?: string | null;
 }): Promise<AudienceRow[]> {
   const db = getSqlClientOrThrow();
-  const { filter, limit, afterUserId } = args;
+  const { filter, limit, afterUserId, runId } = args;
 
   const whereSql = buildAudienceWhereSql(filter);
   const afterSql = afterUserId ? `AND u._id > $2` : "";
@@ -110,6 +113,21 @@ async function fetchAudienceBatch(args: {
   params.push(limit);
   if (afterUserId) params.push(afterUserId);
   if (filter.maxMailgunRisk) params.push(allowedRisksForMax(filter.maxMailgunRisk));
+  const runIdParam = runId ? `$${params.length + 1}` : null;
+  if (runId) params.push(runId);
+
+  const skipAlreadySentSql = runIdParam
+    ? `
+      AND NOT EXISTS (
+        SELECT 1
+        FROM "LWEvents" e
+        WHERE e.name = '${EMAIL_SEND_EVENT_NAME}'
+          AND e."documentId" = ${runIdParam}
+          AND e."userId" = u._id
+          AND (e."properties"->>'status') = 'sent'
+      )
+    `
+    : "";
 
   const sql = `
     -- adminEmailSenderResolvers.fetchAudienceBatch
@@ -119,6 +137,7 @@ async function fetchAudienceBatch(args: {
     ${whereSql}
     ${afterSql}
     ${mailgunWhereSql}
+    ${skipAlreadySentSql}
     ORDER BY u._id
     LIMIT $1
   `;
@@ -207,6 +226,40 @@ async function bulkCreateUnsubscribeAllTokens(args: {
   return mapping;
 }
 
+async function recordBulkEmailSentEvents(args: {
+  runId: string;
+  subject: string;
+  userRows: AudienceRow[];
+  batch: number;
+}): Promise<void> {
+  const now = new Date();
+  const ops = args.userRows.map((r) => ({
+    insertOne: {
+      document: {
+        _id: randomId(),
+        schemaVersion: 1,
+        legacyData: null,
+        createdAt: now,
+        name: EMAIL_SEND_EVENT_NAME,
+        documentId: args.runId,
+        userId: r.userId,
+        important: false,
+        intercom: false,
+        properties: {
+          status: "sent",
+          email: r.email,
+          batch: args.batch,
+          subject: args.subject,
+        },
+      },
+    },
+  }));
+
+  for (const batchOps of chunk(ops, 1000)) {
+    await LWEvents.rawCollection().bulkWrite(batchOps);
+  }
+}
+
 export const graphqlTypeDefs = gql`
   enum MailgunRiskLevel {
     low
@@ -245,6 +298,7 @@ export const graphqlTypeDefs = gql`
     maxRecipients: Int
     batchSize: Int
     concurrency: Int
+    runId: String
   }
 
   extend type Query {
@@ -312,6 +366,7 @@ export const graphqlMutations = {
         maxRecipients?: number | null;
         batchSize?: number | null;
         concurrency?: number | null;
+        runId?: string | null;
       };
     },
     context: ResolverContext,
@@ -321,6 +376,7 @@ export const graphqlMutations = {
     const batchSize = input.batchSize ?? DEFAULT_BATCH_SIZE;
     const concurrency = input.concurrency ?? DEFAULT_CONCURRENCY;
     const maxRecipients = input.maxRecipients ?? 100_000;
+    const runId = input.runId ?? randomId();
 
     const htmlTemplate = input.html ? renderUnsubscribeLinkTemplateForBulk(input.html) : null;
     const textTemplate = input.text ? renderUnsubscribeLinkTemplateForBulk(input.text) : null;
@@ -338,6 +394,7 @@ export const graphqlMutations = {
         filter: input.filter,
         limit: fetchLimit,
         afterUserId,
+        runId,
       });
       if (rows.length === 0) break;
 
@@ -373,6 +430,13 @@ export const graphqlMutations = {
             return;
           }
 
+          await recordBulkEmailSentEvents({
+            runId,
+            subject: input.subject,
+            userRows: batchRows,
+            batch: thisBatchIndex,
+          });
+
           processed += batchRows.length;
         }),
         Math.max(1, concurrency),
@@ -381,6 +445,7 @@ export const graphqlMutations = {
 
     return {
       ok: errors.length === 0,
+      runId,
       processed,
       batches,
       errors: errors.slice(0, 5),

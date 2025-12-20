@@ -307,6 +307,7 @@ const EmailSenderPage = () => {
   const [maxRecipients, setMaxRecipients] = useState("100000");
   const [batchSize, setBatchSize] = useState("1000");
   const [concurrency, setConcurrency] = useState("20");
+  const [runId, setRunId] = useState("");
 
   const [previewEnabled, setPreviewEnabled] = useState(false);
   const [previewTab, setPreviewTab] = useState<"html" | "text">("html");
@@ -570,6 +571,10 @@ const EmailSenderPage = () => {
         <h4 style={{ margin: 0 }}>Bulk send</h4>
         <div className={classes.row} style={{ marginTop: 8 }}>
           <div>
+            <label className={classes.label}>Run ID (optional, for resume)</label>
+            <input className={classes.input} value={runId} onChange={(e) => setRunId(e.target.value)} />
+          </div>
+          <div>
             <label className={classes.label}>Max recipients (safety)</label>
             <input className={classes.input} value={maxRecipients} onChange={(e) => setMaxRecipients(e.target.value)} />
           </div>
@@ -602,6 +607,7 @@ const EmailSenderPage = () => {
                     maxRecipients: maxRecipientsN,
                     batchSize: batchSizeN,
                     concurrency: concurrencyN,
+                    runId: runId.trim() || null,
                   },
                 },
               });
