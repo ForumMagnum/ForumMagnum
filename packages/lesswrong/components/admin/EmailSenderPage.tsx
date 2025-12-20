@@ -9,6 +9,7 @@ import { gql } from "@/lib/generated/gql-codegen";
 import { useQuery } from "@/lib/crud/useQuery";
 import { useMutation } from "@apollo/client/react";
 import { defineStyles, useStyles } from "@/components/hooks/useStyles";
+import { extractGoogleDocId } from "@/lib/collections/posts/helpers";
 
 type MailgunRiskLevel = "low" | "medium" | "high";
 
@@ -213,6 +214,7 @@ const SEND_BULK_MUTATION = gql(`
 `);
 
 const SAMPLE_UNSUBSCRIBE_URL = "https://www.lesswrong.com/emailToken/EXAMPLE_TOKEN";
+const GOOGLE_DOC_EXPORT_FORMAT = "html";
 
 function renderPreviewHtml(html: string): string {
   // Provide a basic standalone HTML doc for iframe preview.
@@ -239,6 +241,50 @@ function parsePositiveIntOrNull(value: string): number | null {
   return Math.floor(n);
 }
 
+function googleDocIdToExportUrl(docId: string): string {
+  return `https://docs.google.com/document/d/${encodeURIComponent(docId)}/export?format=${GOOGLE_DOC_EXPORT_FORMAT}`;
+}
+
+function htmlToPlainText(html: string): string {
+  const doc = new DOMParser().parseFromString(html, "text/html");
+  const body = doc.body;
+  if (!body) return "";
+  const text = body.textContent ?? "";
+  // Normalize whitespace a bit for emails.
+  return text
+    .replace(/\r\n/g, "\n")
+    .replace(/\n{3,}/g, "\n\n")
+    .trim();
+}
+
+function parseGoogleDocExportHtml(exportHtml: string): { html: string; text: string } {
+  const doc = new DOMParser().parseFromString(exportHtml, "text/html");
+  const body = doc.body;
+  if (!body) throw new Error("Google Doc export did not include a body");
+
+  // Remove tags we never want in an email body.
+  body.querySelectorAll("script, style, meta, link").forEach((n) => n.remove());
+
+  // For now, drop all images. Google Docs exports often inline/redirect images in a way
+  // that doesn't translate well to email clients, and we'd rather ship no images than broken ones.
+  body.querySelectorAll("img, svg").forEach((n) => n.remove());
+  // Remove empty wrappers that commonly remain after stripping images.
+  body.querySelectorAll("figure").forEach((n) => {
+    const el = n as HTMLElement;
+    if (!el.textContent?.trim() && !el.querySelector("*")) {
+      el.remove();
+    }
+  });
+
+  const html = (body.innerHTML ?? "").trim();
+  if (!html) {
+    throw new Error("Google Doc export body was empty (is the doc public?)");
+  }
+
+  const text = (body.textContent ?? "").trim() || htmlToPlainText(html);
+  return { html, text };
+}
+
 const EmailSenderPage = () => {
   const classes = useStyles(styles);
   const currentUser = useCurrentUser();
@@ -246,6 +292,9 @@ const EmailSenderPage = () => {
   const [from, setFrom] = useState("");
   const [html, setHtml] = useState("<p>Hello!</p><p><a href=\"{{unsubscribeUrl}}\">Unsubscribe</a></p>");
   const [text, setText] = useState("Hello!\n\nUnsubscribe: {{unsubscribeUrl}}\n");
+  const [googleDocUrl, setGoogleDocUrl] = useState("");
+  const [googleDocImportLoading, setGoogleDocImportLoading] = useState(false);
+  const [googleDocImportError, setGoogleDocImportError] = useState<string | null>(null);
 
   const [verifiedEmailOnly, setVerifiedEmailOnly] = useState(true);
   const [requireMailgunValid, setRequireMailgunValid] = useState(false);
@@ -331,6 +380,56 @@ const EmailSenderPage = () => {
           <div style={{ height: 12 }} />
           <label className={classes.label}>From (optional; defaults to no-reply@lesserwrong.com)</label>
           <input className={classes.input} value={from} onChange={(e) => setFrom(e.target.value)} />
+          <div style={{ height: 12 }} />
+          <label className={classes.label}>Import from Google Doc (share link)</label>
+          <div className={classes.row}>
+            <input
+              className={classes.input}
+              style={{ flex: "1 1 420px" }}
+              placeholder="https://docs.google.com/document/d/…/edit?usp=sharing"
+              value={googleDocUrl}
+              onChange={(e) => setGoogleDocUrl(e.target.value)}
+            />
+            <button
+              type="button"
+              className={`${classes.button} ${classes.primaryButton} ${googleDocImportLoading ? classes.buttonDisabled : ""}`}
+              disabled={googleDocImportLoading}
+              onClick={async () => {
+                setGoogleDocImportError(null);
+                const docId = extractGoogleDocId(googleDocUrl);
+                if (!docId) {
+                  setGoogleDocImportError("Could not extract a Google Doc ID from that URL.");
+                  return;
+                }
+
+                setGoogleDocImportLoading(true);
+                try {
+                  const exportUrl = googleDocIdToExportUrl(docId);
+                  const res = await fetch(exportUrl, { method: "GET" });
+                  const exportHtml = await res.text();
+                  if (!res.ok) {
+                    throw new Error(`Google Docs export failed (HTTP ${res.status})`);
+                  }
+
+                  const parsed = parseGoogleDocExportHtml(exportHtml);
+                  setHtml(parsed.html);
+                  setText(parsed.text);
+                  setPreviewTab("html");
+                } catch (e) {
+                  const msg = e instanceof Error ? e.message : String(e);
+                  // Common failure: CORS or non-public doc; give a more actionable hint.
+                  setGoogleDocImportError(
+                    `${msg}. Make sure the doc is shared as "Anyone with the link can view". If your browser blocks the request (CORS), open the export URL in a tab, save the HTML, and paste it here.`,
+                  );
+                } finally {
+                  setGoogleDocImportLoading(false);
+                }
+              }}
+            >
+              {googleDocImportLoading ? "Importing…" : "Import"}
+            </button>
+          </div>
+          {googleDocImportError ? <div className={classes.errorBox}>{googleDocImportError}</div> : null}
           <div style={{ height: 12 }} />
           <label className={classes.label}>HTML</label>
           <textarea className={classes.textareaEl} rows={10} value={html} onChange={(e) => setHtml(e.target.value)} />
