@@ -75,7 +75,7 @@ function applyMarkdownFootnoteRules(mdi: markdownIt) {
 
     const footnoteIndex = Number(tokens[idx].meta.id + 1).toString()
     return `<span data-footnote-reference="" data-footnote-index="${footnoteIndex}" data-footnote-id="${id}" role="doc-noteref" id="fnref${id}" class="footnote-reference">
-      <sup><a href="#fn${id}" class="">[${caption}]</a></sup>
+      <sup><a href="#fn${id}" class="">${caption}</a></sup>
     </span>`
   };
   mdi.renderer.rules.footnote_block_open = (tokens, idx, options) => {
