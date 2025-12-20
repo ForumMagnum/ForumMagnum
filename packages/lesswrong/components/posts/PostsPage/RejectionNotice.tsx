@@ -2,6 +2,7 @@ import React, { useState, useMemo } from 'react';
 import { defineStyles, useStyles } from '@/components/hooks/useStyles';
 import { ContentItemBody } from "../../contents/ContentItemBody";
 import ContentStyles from "../../common/ContentStyles";
+import { parseDocumentFromString } from '@/lib/domParser';
 
 const styles = defineStyles('RejectionNotice', (theme: ThemeType) => ({
   root: {
@@ -46,24 +47,35 @@ const styles = defineStyles('RejectionNotice', (theme: ThemeType) => ({
 // - For paragraphs: extracts the first <p> content
 // - Text extraction includes multiple sentences if they are all bold, or just the first sentence if they are not. (Since we often use bold to convey multi-sentence-summaries)
 
-function extractLeadingText(html: string): string {
-  const trimmed = html.trim();
-  const boldMatch = trimmed.match(/^<(strong|b)>([\s\S]*?)<\/\1>/i);
-  if (boldMatch) return boldMatch[2].replace(/<[^>]*>/g, '').trim();
-  const plainText = trimmed.replace(/<[^>]*>/g, ' ').replace(/\s+/g, ' ').trim();
+function extractLeadingText(element: Element): string {
+  const firstChild = element.firstElementChild;
+  if (firstChild && (firstChild.tagName === 'STRONG' || firstChild.tagName === 'B')) {
+    return (firstChild.textContent ?? '').trim();
+  }
+  const plainText = (element.textContent ?? '').replace(/\s+/g, ' ').trim();
   const sentenceMatch = plainText.match(/^[^.!?]*[.!?]/);
   return sentenceMatch ? sentenceMatch[0].trim() : plainText;
 }
 
 function extractSummary(html: string): string[] {
-  const trimmedHtml = html.trim().replace(/^<p>\s*<\/p>/gi, '');
-  if (/^<[ou]l/i.test(trimmedHtml)) {
-    return (trimmedHtml.match(/<li[^>]*>([\s\S]*?)<\/li>/gi) || [])
-      .map(li => extractLeadingText(li.replace(/<\/?li[^>]*>/gi, '')))
-      .filter(Boolean);
+  const { document } = parseDocumentFromString(html);
+  const body = document.body;
+  let firstSignificantElement: Element | null = null;
+  for (const child of Array.from(body.children)) {
+    if (child.tagName === 'P' && !(child.textContent ?? '').trim()) continue;
+    firstSignificantElement = child;
+    break;
   }
-  const firstParagraph = trimmedHtml.match(/<p[^>]*>([\s\S]*?)<\/p>/i);
-  const leading = extractLeadingText(firstParagraph ? firstParagraph[1] : trimmedHtml);
+  if (!firstSignificantElement) return [];
+  if (firstSignificantElement.tagName === 'UL' || firstSignificantElement.tagName === 'OL') {
+    const listItems = firstSignificantElement.querySelectorAll('li');
+    return Array.from(listItems).map(li => extractLeadingText(li)).filter(Boolean);
+  }
+  if (firstSignificantElement.tagName === 'P') {
+    const leading = extractLeadingText(firstSignificantElement);
+    return leading ? [leading] : [];
+  }
+  const leading = extractLeadingText(body);
   return leading ? [leading] : [];
 }
 
