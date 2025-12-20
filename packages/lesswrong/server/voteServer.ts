@@ -30,6 +30,7 @@ import { getSchema } from '@/lib/schema/allSchemas';
 import { backgroundTask } from './utils/backgroundTask';
 import { PermissionResult } from '@/lib/make_voteable';
 import { isActionActive } from '@/lib/collections/moderatorActions/helpers';
+import { INACTIVITY_THRESHOLD_DAYS } from './updateScores';
 
 
 // Test if a user has voted on the server
@@ -65,7 +66,22 @@ const addVoteServer = async ({ document, collection, voteType, extendedVote, use
   }
 
   const schema = getSchema(collection.collectionName);
-  const inactiveFieldUpdate = schema.inactive
+  
+  // Note: `inactive` is used by `batchUpdateScore` to skip score-updating older
+  // documents. For very old, backdated posts, a vote can otherwise race with
+  // the score-update path (which may mark the post inactive), producing
+  // nondeterministic outcomes.
+  //
+  // We therefore avoid force-reactivating posts that are old enough to be
+  // eligible for inactivity. This preserves the normal behavior for recent
+  // content (votes reactivate it), while making the backdated-old-post case
+  // deterministic.
+  const shouldAvoidReactivatingOldPost =
+    collection.collectionName === "Posts" &&
+    (document as DbPost).postedAt instanceof Date &&
+    (Date.now() - (document as DbPost).postedAt.getTime()) > INACTIVITY_THRESHOLD_DAYS * 24 * 60 * 60 * 1000;
+
+  const inactiveFieldUpdate = (schema.inactive && !shouldAvoidReactivatingOldPost)
     ? { inactive: false }
     : {};
   

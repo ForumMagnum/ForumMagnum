@@ -10,7 +10,7 @@ import { getCollection } from "@/server/collections/allCollections";
 
 // INACTIVITY_THRESHOLD_DAYS =  number of days after which a single vote will not have a big enough effect to trigger a score update
 //      and posts can become inactive
-const INACTIVITY_THRESHOLD_DAYS = 30;
+export const INACTIVITY_THRESHOLD_DAYS = 30;
 
 interface BatchUpdateParams {
   inactive?: boolean;
