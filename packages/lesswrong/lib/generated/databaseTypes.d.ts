@@ -727,6 +727,27 @@ interface DbLoginToken extends DbObject {
   userId: string
 }
 
+type MailgunValidationsCollection = PgCollection<"MailgunValidations">;
+
+interface DbMailgunValidation extends DbObject {
+  __collectionName?: "MailgunValidations"
+  createdAt: Date
+  didYouMean: string | null
+  email: string
+  error: string | null
+  httpStatus: number | null
+  isDisposableAddress: boolean | null
+  isRoleAddress: boolean | null
+  isValid: boolean | null
+  mailboxVerification: boolean
+  reason: string | null
+  result: any
+  risk: string | null
+  sourceUserId: string | null
+  status: string
+  validatedAt: Date
+}
+
 type ManifoldProbabilitiesCachesCollection = PgCollection<"ManifoldProbabilitiesCaches">;
 
 interface DbManifoldProbabilitiesCache extends DbObject {
@@ -2361,6 +2382,7 @@ interface CollectionsByName {
   LlmMessages: LlmMessagesCollection
   Localgroups: LocalgroupsCollection
   LoginTokens: LoginTokensCollection
+  MailgunValidations: MailgunValidationsCollection
   ManifoldProbabilitiesCaches: ManifoldProbabilitiesCachesCollection
   Messages: MessagesCollection
   Migrations: MigrationsCollection
@@ -2456,6 +2478,7 @@ interface ObjectsByCollectionName {
   LlmMessages: DbLlmMessage
   Localgroups: DbLocalgroup
   LoginTokens: DbLoginToken
+  MailgunValidations: DbMailgunValidation
   ManifoldProbabilitiesCaches: DbManifoldProbabilitiesCache
   Messages: DbMessage
   Migrations: DbMigration
@@ -2551,6 +2574,7 @@ interface ObjectsByTypeName {
   LlmMessage: DbLlmMessage
   Localgroup: DbLocalgroup
   LoginToken: DbLoginToken
+  MailgunValidation: DbMailgunValidation
   ManifoldProbabilitiesCache: DbManifoldProbabilitiesCache
   Message: DbMessage
   Migration: DbMigration

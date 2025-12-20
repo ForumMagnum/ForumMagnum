@@ -21,6 +21,37 @@ import NewUserDMSummary from "./ModeratorUserInfo/NewUserDMSummary";
 import { useQuery } from "@/lib/crud/useQuery";
 import { gql } from "@/lib/generated/gql-codegen";
 
+function formatMailgunValidationSummary(validation: any): string {
+  if (!validation) return "not validated";
+  const status = validation.status as string | undefined;
+  const isValid = validation.isValid as boolean | null | undefined;
+  const risk = validation.risk as string | null | undefined;
+  const reason = validation.reason as string | null | undefined;
+  const validatedAt = validation.validatedAt as string | null | undefined;
+  const httpStatus = validation.httpStatus as number | null | undefined;
+  const err = validation.error as string | null | undefined;
+  const result = validation.result as any;
+
+  const resultMessage =
+    result && typeof result === "object"
+      ? (typeof result.message === "string" ? result.message : null) ??
+        (typeof result.error === "string" ? result.error : null) ??
+        (typeof result.details === "string" ? result.details : null)
+      : null;
+
+  const parts: string[] = [];
+  if (typeof isValid === "boolean") parts.push(isValid ? "valid" : "invalid");
+  else if (status) parts.push(status);
+  if (httpStatus != null) parts.push(`http=${httpStatus}`);
+  if (risk) parts.push(`risk=${risk}`);
+  if (reason) parts.push(`reason=${reason}`);
+  if (validatedAt) parts.push(`at=${validatedAt}`);
+  if (resultMessage) parts.push(`msg=${resultMessage}`);
+  if (err) parts.push(`error=${err}`);
+
+  return parts.join(" · ") || "validated";
+}
+
 const CommentsListWithParentMetadataMultiQuery = gql(`
   query multiCommentSunshineNewUsersInfoQuery($selector: CommentSelector, $limit: Int, $enableTotal: Boolean) {
     comments(selector: $selector, limit: $limit, enableTotal: $enableTotal) {
@@ -131,6 +162,9 @@ const SunshineNewUsersInfo = ({ user, classes, refetch, currentUser }: {
   const comments = data?.comments?.results ?? [];
   if (!userCanDo(currentUser, "posts.moderate.all")) return null
   const bioHtml = truncate(user.htmlBio, bioWordcount, "words")
+  const mailgunValidationSummary = currentUser.isAdmin
+    ? formatMailgunValidationSummary((user as any).mailgunValidation)
+    : null;
   
   // All elements in this component should also appar in UsersReviewInfoCard
   return (
@@ -148,6 +182,7 @@ const SunshineNewUsersInfo = ({ user, classes, refetch, currentUser }: {
                 </div>
               </div>              
               <div dangerouslySetInnerHTML={{__html: bioHtml}} className={classes.bio} onClick={() => setBioWordcount(MAX_BIO_WORDCOUNT)}/>
+              {currentUser.isAdmin && <div>Mailgun: {mailgunValidationSummary}</div>}
               {user.website && <div>Website: <a href={`https://${user.website}`} target="_blank" rel="noopener noreferrer" className={classes.website}>{user.website}</a></div>}
             </div>
             <ModeratorActions user={user} currentUser={currentUser} comments={comments} posts={posts} refetch={refetch}/>

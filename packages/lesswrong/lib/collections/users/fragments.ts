@@ -446,6 +446,7 @@ export const SunshineUsersList = gql(`
     createdAt
     email
     emails
+    mailgunValidation
     commentCount
     maxCommentCount
     postCount

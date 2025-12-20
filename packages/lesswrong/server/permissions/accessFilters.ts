@@ -416,6 +416,7 @@ const accessFilters = {
   LoginTokens: denyAll,
   LWEvents: lweventCheckAccess,
   ManifoldProbabilitiesCaches: allowAccess,
+  MailgunValidations: allowAccess,
   Messages: messageCheckAccess,
   Migrations: allowAccess,
   ModerationTemplates: allowAccess,

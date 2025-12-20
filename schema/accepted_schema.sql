@@ -1254,6 +1254,32 @@ CREATE UNIQUE INDEX IF NOT EXISTS "idx_LoginTokens_hashedToken" ON "LoginTokens"
 -- Index "idx_LoginTokens_userId"
 CREATE INDEX IF NOT EXISTS "idx_LoginTokens_userId" ON "LoginTokens" USING btree ("userId");
 
+-- Table "MailgunValidations"
+CREATE TABLE "MailgunValidations" (
+  _id VARCHAR(27) PRIMARY KEY,
+  "createdAt" TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP NOT NULL,
+  "email" TEXT NOT NULL,
+  "mailboxVerification" BOOL NOT NULL DEFAULT FALSE,
+  "validatedAt" TIMESTAMPTZ NOT NULL,
+  "httpStatus" INTEGER,
+  "status" TEXT NOT NULL,
+  "error" TEXT,
+  "result" JSONB,
+  "isValid" BOOL,
+  "risk" TEXT,
+  "reason" TEXT,
+  "didYouMean" TEXT,
+  "isDisposableAddress" BOOL,
+  "isRoleAddress" BOOL,
+  "sourceUserId" VARCHAR(27)
+);
+
+-- Index "idx_MailgunValidations_email_mailboxVerification"
+CREATE UNIQUE INDEX IF NOT EXISTS "idx_MailgunValidations_email_mailboxVerification" ON "MailgunValidations" USING btree ("email", "mailboxVerification");
+
+-- Index "idx_MailgunValidations_validatedAt_email"
+CREATE INDEX IF NOT EXISTS "idx_MailgunValidations_validatedAt_email" ON "MailgunValidations" USING btree ("validatedAt", "email");
+
 -- Table "ManifoldProbabilitiesCaches"
 CREATE UNLOGGED TABLE "ManifoldProbabilitiesCaches" (
   _id VARCHAR(27) PRIMARY KEY,

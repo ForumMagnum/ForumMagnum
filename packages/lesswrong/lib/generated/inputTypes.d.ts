@@ -7480,6 +7480,7 @@ interface User {
   rateLimitNextAbleToComment: any;
   rateLimitNextAbleToPost: any;
   recentKarmaInfo: any;
+  mailgunValidation: any;
   hideSunshineSidebar: boolean | null;
   inactiveSurveyEmailSentAt: Date | null;
   userSurveyEmailSentAt: Date | null;
@@ -10840,6 +10841,7 @@ interface CreateInputsByCollectionName {
   LlmConversations: never;
   LlmMessages: never;
   LoginTokens: never;
+  MailgunValidations: never;
   ManifoldProbabilitiesCaches: never;
   Migrations: never;
   Notifications: never;
@@ -10932,6 +10934,7 @@ interface UpdateInputsByCollectionName {
   LegacyData: never;
   LlmMessages: never;
   LoginTokens: never;
+  MailgunValidations: never;
   ManifoldProbabilitiesCaches: never;
   Migrations: never;
   PageCache: never;

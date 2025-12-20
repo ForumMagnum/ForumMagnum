@@ -8097,6 +8097,7 @@ type User {
   rateLimitNextAbleToComment(postId: String): JSON
   rateLimitNextAbleToPost(eventForm: Boolean): JSON
   recentKarmaInfo: JSON
+  mailgunValidation: JSON
   hideSunshineSidebar: Boolean
   inactiveSurveyEmailSentAt: Date
   userSurveyEmailSentAt: Date
