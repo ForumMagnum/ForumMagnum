@@ -26,6 +26,9 @@ type Documents = {
     "\n  mutation updateCurationNoticeCurationNoticesItem($selector: SelectorInput!, $data: UpdateCurationNoticeDataInput!) {\n    updateCurationNotice(selector: $selector, data: $data) {\n      data {\n        ...CurationNoticesFragment\n      }\n    }\n  }\n": typeof types.updateCurationNoticeCurationNoticesItemDocument,
     "\n  mutation createCommentCurationNoticesItem($data: CreateCommentDataInput!) {\n    createComment(data: $data) {\n      data {\n        ...CommentsList\n      }\n    }\n  }\n": typeof types.createCommentCurationNoticesItemDocument,
     "\n  query multiCurationNoticeCurationPageQuery($selector: CurationNoticeSelector, $limit: Int, $enableTotal: Boolean) {\n    curationNotices(selector: $selector, limit: $limit, enableTotal: $enableTotal) {\n      results {\n        ...CurationNoticesFragment\n      }\n      totalCount\n    }\n  }\n": typeof types.multiCurationNoticeCurationPageQueryDocument,
+    "\n  query AdminEmailPreviewAudience($input: AdminEmailPreviewAudienceInput!) {\n    adminEmailPreviewAudience(input: $input)\n  }\n": typeof types.AdminEmailPreviewAudienceDocument,
+    "\n  mutation AdminSendTestEmail($input: AdminSendTestEmailInput!) {\n    adminSendTestEmail(input: $input)\n  }\n": typeof types.AdminSendTestEmailDocument,
+    "\n  mutation AdminSendBulkEmail($input: AdminSendBulkEmailInput!) {\n    adminSendBulkEmail(input: $input)\n  }\n": typeof types.AdminSendBulkEmailDocument,
     "\n    query randomUser($userIsAuthor: String!) {\n      GetRandomUser(userIsAuthor: $userIsAuthor) {\n        ...UsersMinimumInfo\n      }\n    }\n  ": typeof types.randomUserDocument,
     "\n    query CrossedKarmaThreshold($limit: Int!) {\n      CrossedKarmaThreshold(limit: $limit) {\n        results {\n          ...PostsTwitterAdmin\n        }\n      }\n    }\n  ": typeof types.CrossedKarmaThresholdDocument,
     "\n    query MigrationsDashboardQuery {\n      MigrationsDashboard {\n        migrations {\n          name\n          dateWritten\n          runs { name started finished succeeded }\n          lastRun\n        }\n      }\n    }\n  ": typeof types.MigrationsDashboardQueryDocument,
@@ -944,6 +947,9 @@ const documents: Documents = {
     "\n  mutation updateCurationNoticeCurationNoticesItem($selector: SelectorInput!, $data: UpdateCurationNoticeDataInput!) {\n    updateCurationNotice(selector: $selector, data: $data) {\n      data {\n        ...CurationNoticesFragment\n      }\n    }\n  }\n": types.updateCurationNoticeCurationNoticesItemDocument,
     "\n  mutation createCommentCurationNoticesItem($data: CreateCommentDataInput!) {\n    createComment(data: $data) {\n      data {\n        ...CommentsList\n      }\n    }\n  }\n": types.createCommentCurationNoticesItemDocument,
     "\n  query multiCurationNoticeCurationPageQuery($selector: CurationNoticeSelector, $limit: Int, $enableTotal: Boolean) {\n    curationNotices(selector: $selector, limit: $limit, enableTotal: $enableTotal) {\n      results {\n        ...CurationNoticesFragment\n      }\n      totalCount\n    }\n  }\n": types.multiCurationNoticeCurationPageQueryDocument,
+    "\n  query AdminEmailPreviewAudience($input: AdminEmailPreviewAudienceInput!) {\n    adminEmailPreviewAudience(input: $input)\n  }\n": types.AdminEmailPreviewAudienceDocument,
+    "\n  mutation AdminSendTestEmail($input: AdminSendTestEmailInput!) {\n    adminSendTestEmail(input: $input)\n  }\n": types.AdminSendTestEmailDocument,
+    "\n  mutation AdminSendBulkEmail($input: AdminSendBulkEmailInput!) {\n    adminSendBulkEmail(input: $input)\n  }\n": types.AdminSendBulkEmailDocument,
     "\n    query randomUser($userIsAuthor: String!) {\n      GetRandomUser(userIsAuthor: $userIsAuthor) {\n        ...UsersMinimumInfo\n      }\n    }\n  ": types.randomUserDocument,
     "\n    query CrossedKarmaThreshold($limit: Int!) {\n      CrossedKarmaThreshold(limit: $limit) {\n        results {\n          ...PostsTwitterAdmin\n        }\n      }\n    }\n  ": types.CrossedKarmaThresholdDocument,
     "\n    query MigrationsDashboardQuery {\n      MigrationsDashboard {\n        migrations {\n          name\n          dateWritten\n          runs { name started finished succeeded }\n          lastRun\n        }\n      }\n    }\n  ": types.MigrationsDashboardQueryDocument,
@@ -1912,6 +1918,18 @@ export function gql(source: "\n  mutation createCommentCurationNoticesItem($data
  * The gql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
  */
 export function gql(source: "\n  query multiCurationNoticeCurationPageQuery($selector: CurationNoticeSelector, $limit: Int, $enableTotal: Boolean) {\n    curationNotices(selector: $selector, limit: $limit, enableTotal: $enableTotal) {\n      results {\n        ...CurationNoticesFragment\n      }\n      totalCount\n    }\n  }\n"): (typeof documents)["\n  query multiCurationNoticeCurationPageQuery($selector: CurationNoticeSelector, $limit: Int, $enableTotal: Boolean) {\n    curationNotices(selector: $selector, limit: $limit, enableTotal: $enableTotal) {\n      results {\n        ...CurationNoticesFragment\n      }\n      totalCount\n    }\n  }\n"];
+/**
+ * The gql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
+ */
+export function gql(source: "\n  query AdminEmailPreviewAudience($input: AdminEmailPreviewAudienceInput!) {\n    adminEmailPreviewAudience(input: $input)\n  }\n"): (typeof documents)["\n  query AdminEmailPreviewAudience($input: AdminEmailPreviewAudienceInput!) {\n    adminEmailPreviewAudience(input: $input)\n  }\n"];
+/**
+ * The gql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
+ */
+export function gql(source: "\n  mutation AdminSendTestEmail($input: AdminSendTestEmailInput!) {\n    adminSendTestEmail(input: $input)\n  }\n"): (typeof documents)["\n  mutation AdminSendTestEmail($input: AdminSendTestEmailInput!) {\n    adminSendTestEmail(input: $input)\n  }\n"];
+/**
+ * The gql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
+ */
+export function gql(source: "\n  mutation AdminSendBulkEmail($input: AdminSendBulkEmailInput!) {\n    adminSendBulkEmail(input: $input)\n  }\n"): (typeof documents)["\n  mutation AdminSendBulkEmail($input: AdminSendBulkEmailInput!) {\n    adminSendBulkEmail(input: $input)\n  }\n"];
 /**
  * The gql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
  */

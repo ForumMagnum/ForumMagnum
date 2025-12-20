@@ -1,0 +1,389 @@
+import gql from "graphql-tag";
+import { userIsAdmin } from "@/lib/vulcan-users/permissions";
+import { getSqlClientOrThrow } from "@/server/sql/sqlClient";
+import { EmailTokens } from "@/server/collections/emailTokens/collection";
+import { randomId, randomSecret } from "@/lib/random";
+import chunk from "lodash/chunk";
+import { executePromiseQueue } from "@/lib/utils/asyncUtils";
+import { getUnsubscribeAllUrlFromToken, renderUnsubscribeLinkTemplateForBulk, sendMailgunBatchEmail } from "@/server/mailgun/mailgunSend";
+
+type AudienceRow = { userId: string; email: string };
+
+type MailgunRiskLevel = "low" | "medium" | "high";
+
+type AudienceFilter = {
+  verifiedEmailOnly: boolean;
+  requireMailgunValid: boolean;
+  excludeUnsubscribed: boolean;
+  excludeDeleted: boolean;
+  maxMailgunRisk?: MailgunRiskLevel | null;
+  includeUnknownRisk: boolean;
+};
+
+const DEFAULT_BATCH_SIZE = 1000;
+const DEFAULT_CONCURRENCY = 20;
+
+function assertAdmin(context: ResolverContext) {
+  if (!userIsAdmin(context.currentUser)) {
+    throw new Error("You must be an admin to do this.");
+  }
+}
+
+function normalizeEmail(email: string): string {
+  return email.trim().toLowerCase();
+}
+
+function allowedRisksForMax(maxRisk: MailgunRiskLevel): string[] {
+  if (maxRisk === "low") return ["low"];
+  if (maxRisk === "medium") return ["low", "medium"];
+  return ["low", "medium", "high"];
+}
+
+function buildAudienceWhereSql(filter: AudienceFilter) {
+  const where: string[] = [];
+  if (filter.excludeDeleted) where.push(`u."deleted" IS NOT TRUE`);
+  if (filter.excludeUnsubscribed) where.push(`u."unsubscribeFromAll" IS NOT TRUE`);
+  where.push(`u."email" IS NOT NULL AND btrim(u."email") <> ''`);
+
+  if (filter.verifiedEmailOnly) {
+    // Require that the primary email (u.email) appears in u.emails[] as verified=true.
+    where.push(`
+      EXISTS (
+        SELECT 1
+        FROM unnest(coalesce(u."emails", array[]::jsonb[])) e
+        WHERE coalesce((e->>'verified')::boolean, false) IS TRUE
+          AND lower(btrim(e->>'address')) = lower(btrim(u."email"))
+      )
+    `);
+  }
+
+  return where.length ? `WHERE ${where.join(" AND ")}` : "";
+}
+
+async function fetchAudienceBatch(args: {
+  filter: AudienceFilter;
+  limit: number;
+  afterUserId?: string | null;
+}): Promise<AudienceRow[]> {
+  const db = getSqlClientOrThrow();
+  const { filter, limit, afterUserId } = args;
+
+  const whereSql = buildAudienceWhereSql(filter);
+  const afterSql = afterUserId ? `AND u._id > $2` : "";
+
+  // Latest mailgun validation (optional join depending on filters)
+  const joinMailgun = filter.requireMailgunValid || !!filter.maxMailgunRisk || !filter.includeUnknownRisk;
+  const mailgunJoinSql = joinMailgun
+    ? `
+      LEFT JOIN LATERAL (
+        SELECT mv.*
+        FROM "MailgunValidations" mv
+        WHERE lower(mv.email) = lower(btrim(u."email"))
+          AND mv."mailboxVerification" IS NOT TRUE
+        ORDER BY mv."validatedAt" DESC
+        LIMIT 1
+      ) mv ON TRUE
+    `
+    : "";
+
+  const mailgunWhere: string[] = [];
+  if (filter.requireMailgunValid) mailgunWhere.push(`mv."isValid" IS TRUE`);
+  if (filter.maxMailgunRisk) {
+    // risk is stored as text, so we explicitly map "max risk" to an allowlist.
+    // If includeUnknownRisk is false, require a known risk value.
+    if (filter.includeUnknownRisk) {
+      mailgunWhere.push(`(mv.risk IS NULL OR mv.risk = 'unknown' OR mv.risk = ANY($3))`);
+    } else {
+      mailgunWhere.push(`(mv.risk IS NOT NULL AND mv.risk <> 'unknown' AND mv.risk = ANY($3))`);
+    }
+  }
+  // If the caller explicitly excludes unknown, enforce presence of a known risk.
+  // This makes the checkbox meaningful even when maxMailgunRisk is unset ("Any").
+  if (!filter.includeUnknownRisk && !filter.maxMailgunRisk) {
+    mailgunWhere.push(`(mv.risk IS NOT NULL AND mv.risk <> 'unknown')`);
+  }
+  const mailgunWhereSql = mailgunWhere.length ? `AND ${mailgunWhere.join(" AND ")}` : "";
+
+  const params: any[] = [];
+  params.push(limit);
+  if (afterUserId) params.push(afterUserId);
+  if (filter.maxMailgunRisk) params.push(allowedRisksForMax(filter.maxMailgunRisk));
+
+  const sql = `
+    -- adminEmailSenderResolvers.fetchAudienceBatch
+    SELECT u._id AS "userId", lower(btrim(u."email")) AS email
+    FROM "Users" u
+    ${mailgunJoinSql}
+    ${whereSql}
+    ${afterSql}
+    ${mailgunWhereSql}
+    ORDER BY u._id
+    LIMIT $1
+  `;
+
+  return db.any<AudienceRow>(sql, params);
+}
+
+async function countAudience(filter: AudienceFilter): Promise<number> {
+  const db = getSqlClientOrThrow();
+  const whereSql = buildAudienceWhereSql(filter);
+  const joinMailgun = filter.requireMailgunValid || !!filter.maxMailgunRisk || !filter.includeUnknownRisk;
+  const mailgunJoinSql = joinMailgun
+    ? `
+      LEFT JOIN LATERAL (
+        SELECT mv.*
+        FROM "MailgunValidations" mv
+        WHERE lower(mv.email) = lower(btrim(u."email"))
+          AND mv."mailboxVerification" IS NOT TRUE
+        ORDER BY mv."validatedAt" DESC
+        LIMIT 1
+      ) mv ON TRUE
+    `
+    : "";
+
+  const mailgunWhere: string[] = [];
+  if (filter.requireMailgunValid) mailgunWhere.push(`mv."isValid" IS TRUE`);
+  if (filter.maxMailgunRisk) {
+    if (filter.includeUnknownRisk) {
+      mailgunWhere.push(`(mv.risk IS NULL OR mv.risk = 'unknown' OR mv.risk = ANY($1))`);
+    } else {
+      mailgunWhere.push(`(mv.risk IS NOT NULL AND mv.risk <> 'unknown' AND mv.risk = ANY($1))`);
+    }
+  }
+  if (!filter.includeUnknownRisk && !filter.maxMailgunRisk) {
+    mailgunWhere.push(`(mv.risk IS NOT NULL AND mv.risk <> 'unknown')`);
+  }
+  const mailgunWhereSql = mailgunWhere.length ? `AND ${mailgunWhere.join(" AND ")}` : "";
+
+  const params: any[] = [];
+  if (filter.maxMailgunRisk) params.push(allowedRisksForMax(filter.maxMailgunRisk));
+
+  const row = await db.one<{ count: string }>(
+    `
+      -- adminEmailSenderResolvers.countAudience
+      SELECT COUNT(*)::text AS count
+      FROM "Users" u
+      ${mailgunJoinSql}
+      ${whereSql}
+      ${mailgunWhereSql}
+    `,
+    params,
+  );
+  return Number(row.count);
+}
+
+async function bulkCreateUnsubscribeAllTokens(args: {
+  userIds: string[];
+}): Promise<Record<string, string>> {
+  const now = new Date();
+  const mapping: Record<string, string> = {};
+
+  const ops = args.userIds.map((userId) => {
+    const token = randomSecret();
+    mapping[userId] = token;
+    return {
+      insertOne: {
+        document: {
+          _id: randomId(),
+          schemaVersion: 1,
+          legacyData: null,
+          createdAt: now,
+          token,
+          tokenType: "unsubscribeAll" as const,
+          userId,
+          usedAt: null,
+          params: null,
+        },
+      },
+    };
+  });
+
+  for (const batch of chunk(ops, 1000)) {
+    await EmailTokens.rawCollection().bulkWrite(batch);
+  }
+
+  return mapping;
+}
+
+export const graphqlTypeDefs = gql`
+  enum MailgunRiskLevel {
+    low
+    medium
+    high
+  }
+
+  input AdminEmailAudienceFilterInput {
+    verifiedEmailOnly: Boolean!
+    requireMailgunValid: Boolean!
+    excludeUnsubscribed: Boolean!
+    excludeDeleted: Boolean!
+    maxMailgunRisk: MailgunRiskLevel
+    includeUnknownRisk: Boolean!
+  }
+
+  input AdminEmailPreviewAudienceInput {
+    filter: AdminEmailAudienceFilterInput!
+  }
+
+  input AdminSendTestEmailInput {
+    userId: String!
+    subject: String!
+    from: String
+    html: String
+    text: String
+  }
+
+  input AdminSendBulkEmailInput {
+    filter: AdminEmailAudienceFilterInput!
+    subject: String!
+    from: String
+    html: String
+    text: String
+    maxRecipients: Int
+    batchSize: Int
+    concurrency: Int
+  }
+
+  extend type Query {
+    adminEmailPreviewAudience(input: AdminEmailPreviewAudienceInput!): JSON
+  }
+
+  extend type Mutation {
+    adminSendTestEmail(input: AdminSendTestEmailInput!): JSON
+    adminSendBulkEmail(input: AdminSendBulkEmailInput!): JSON
+  }
+`;
+
+export const graphqlQueries = {
+  async adminEmailPreviewAudience(
+    _root: void,
+    { input }: { input: { filter: AudienceFilter } },
+    context: ResolverContext,
+  ) {
+    assertAdmin(context);
+    const totalCount = await countAudience(input.filter);
+    const sample = await fetchAudienceBatch({ filter: input.filter, limit: 20, afterUserId: null });
+    return { totalCount, sample };
+  },
+};
+
+export const graphqlMutations = {
+  async adminSendTestEmail(
+    _root: void,
+    { input }: { input: { userId: string; subject: string; from?: string | null; html?: string | null; text?: string | null } },
+    context: ResolverContext,
+  ) {
+    assertAdmin(context);
+    const user = await context.Users.findOne({ _id: input.userId });
+    if (!user) throw new Error("User not found");
+    const email = user.email ? normalizeEmail(user.email) : null;
+    if (!email) throw new Error("User has no email");
+
+    const tokenMap = await bulkCreateUnsubscribeAllTokens({ userIds: [user._id] });
+    const unsubscribeUrl = getUnsubscribeAllUrlFromToken(tokenMap[user._id]);
+
+    const html = input.html ? input.html.replaceAll("{{unsubscribeUrl}}", unsubscribeUrl) : null;
+    const text = input.text ? input.text.replaceAll("{{unsubscribeUrl}}", unsubscribeUrl) : null;
+
+    const { ok, status, json } = await sendMailgunBatchEmail({
+      subject: input.subject,
+      from: input.from ?? undefined,
+      to: [email],
+      html,
+      text,
+      recipientVariables: { [email]: { unsubscribeUrl } },
+    });
+
+    return { ok, status, json, email, unsubscribeUrl };
+  },
+
+  async adminSendBulkEmail(
+    _root: void,
+    { input }: {
+      input: {
+        filter: AudienceFilter;
+        subject: string;
+        from?: string | null;
+        html?: string | null;
+        text?: string | null;
+        maxRecipients?: number | null;
+        batchSize?: number | null;
+        concurrency?: number | null;
+      };
+    },
+    context: ResolverContext,
+  ) {
+    assertAdmin(context);
+
+    const batchSize = input.batchSize ?? DEFAULT_BATCH_SIZE;
+    const concurrency = input.concurrency ?? DEFAULT_CONCURRENCY;
+    const maxRecipients = input.maxRecipients ?? 100_000;
+
+    const htmlTemplate = input.html ? renderUnsubscribeLinkTemplateForBulk(input.html) : null;
+    const textTemplate = input.text ? renderUnsubscribeLinkTemplateForBulk(input.text) : null;
+
+    let afterUserId: string | null = null;
+    let processed = 0;
+    let batches = 0;
+    const errors: any[] = [];
+
+    // We prefetch up to (batchSize * concurrency) recipients at a time and then
+    // send each batch concurrently. This keeps throughput high without a full queue.
+    while (processed < maxRecipients && errors.length === 0) {
+      const fetchLimit = Math.min(batchSize * Math.max(1, concurrency), maxRecipients - processed);
+      const rows = await fetchAudienceBatch({
+        filter: input.filter,
+        limit: fetchLimit,
+        afterUserId,
+      });
+      if (rows.length === 0) break;
+
+      afterUserId = rows[rows.length - 1].userId;
+      const rowBatches = chunk(rows, batchSize);
+
+      await executePromiseQueue(
+        rowBatches.map((batchRows) => async () => {
+          const thisBatchIndex = (batches += 1);
+          const userIds = batchRows.map((r) => r.userId);
+          const tokenByUserId = await bulkCreateUnsubscribeAllTokens({ userIds });
+
+          const recipientVariables: Record<string, { unsubscribeUrl: string }> = {};
+          const to: string[] = [];
+          for (const r of batchRows) {
+            const token = tokenByUserId[r.userId];
+            const unsubscribeUrl = getUnsubscribeAllUrlFromToken(token);
+            to.push(r.email);
+            recipientVariables[r.email] = { unsubscribeUrl };
+          }
+
+          const { ok, status, json } = await sendMailgunBatchEmail({
+            subject: input.subject,
+            from: input.from ?? undefined,
+            to,
+            html: htmlTemplate,
+            text: textTemplate,
+            recipientVariables,
+          });
+
+          if (!ok) {
+            errors.push({ batch: thisBatchIndex, status, json });
+            return;
+          }
+
+          processed += batchRows.length;
+        }),
+        Math.max(1, concurrency),
+      );
+    }
+
+    return {
+      ok: errors.length === 0,
+      processed,
+      batches,
+      errors: errors.slice(0, 5),
+      lastAfterUserId: afterUserId,
+    };
+  },
+};
+
+

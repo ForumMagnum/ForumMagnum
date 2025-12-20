@@ -17,6 +17,38 @@ type Scalars = {
   JSON: { input: any; output: any; }
 };
 
+type AdminEmailAudienceFilterInput = {
+  excludeDeleted: Scalars['Boolean']['input'];
+  excludeUnsubscribed: Scalars['Boolean']['input'];
+  includeUnknownRisk: Scalars['Boolean']['input'];
+  maxMailgunRisk?: InputMaybe<MailgunRiskLevel>;
+  requireMailgunValid: Scalars['Boolean']['input'];
+  verifiedEmailOnly: Scalars['Boolean']['input'];
+};
+
+type AdminEmailPreviewAudienceInput = {
+  filter: AdminEmailAudienceFilterInput;
+};
+
+type AdminSendBulkEmailInput = {
+  batchSize?: InputMaybe<Scalars['Int']['input']>;
+  concurrency?: InputMaybe<Scalars['Int']['input']>;
+  filter: AdminEmailAudienceFilterInput;
+  from?: InputMaybe<Scalars['String']['input']>;
+  html?: InputMaybe<Scalars['String']['input']>;
+  maxRecipients?: InputMaybe<Scalars['Int']['input']>;
+  subject: Scalars['String']['input'];
+  text?: InputMaybe<Scalars['String']['input']>;
+};
+
+type AdminSendTestEmailInput = {
+  from?: InputMaybe<Scalars['String']['input']>;
+  html?: InputMaybe<Scalars['String']['input']>;
+  subject: Scalars['String']['input'];
+  text?: InputMaybe<Scalars['String']['input']>;
+  userId: Scalars['String']['input'];
+};
+
 type AdvisorRequest = {
   __typename?: 'AdvisorRequest';
   _id: Scalars['String']['output'];
@@ -3087,6 +3119,11 @@ type LoginReturnData = {
   token?: Maybe<Scalars['String']['output']>;
 };
 
+type MailgunRiskLevel =
+  | 'high'
+  | 'low'
+  | 'medium';
+
 type ManifoldProbabilitiesCache = {
   __typename?: 'ManifoldProbabilitiesCache';
   _id: Scalars['String']['output'];
@@ -4294,6 +4331,8 @@ type Mutation = {
   UserUpdateSubforumMembership?: Maybe<User>;
   addOrUpvoteTag?: Maybe<TagRel>;
   addTags?: Maybe<Scalars['Boolean']['output']>;
+  adminSendBulkEmail?: Maybe<Scalars['JSON']['output']>;
+  adminSendTestEmail?: Maybe<Scalars['JSON']['output']>;
   alignmentComment?: Maybe<Comment>;
   alignmentPost?: Maybe<Post>;
   analyticsEvent?: Maybe<Scalars['Boolean']['output']>;
@@ -4541,6 +4580,16 @@ type MutationaddOrUpvoteTagArgs = {
 type MutationaddTagsArgs = {
   postId?: InputMaybe<Scalars['String']['input']>;
   tagIds?: InputMaybe<Array<InputMaybe<Scalars['String']['input']>>>;
+};
+
+
+type MutationadminSendBulkEmailArgs = {
+  input: AdminSendBulkEmailInput;
+};
+
+
+type MutationadminSendTestEmailArgs = {
+  input: AdminSendTestEmailInput;
 };
 
 
@@ -7640,6 +7689,7 @@ type Query = {
   UserReadsPerCoreTag: Array<UserCoreTagReads>;
   UserWrappedDataByYear?: Maybe<WrappedDataByYear>;
   UsersReadPostsOfTargetUser?: Maybe<Array<Post>>;
+  adminEmailPreviewAudience?: Maybe<Scalars['JSON']['output']>;
   advisorRequest?: Maybe<SingleAdvisorRequestOutput>;
   advisorRequests?: Maybe<MultiAdvisorRequestOutput>;
   arbitalTagContentRel?: Maybe<SingleArbitalTagContentRelOutput>;
@@ -8136,6 +8186,11 @@ type QueryUsersReadPostsOfTargetUserArgs = {
   limit?: InputMaybe<Scalars['Int']['input']>;
   targetUserId: Scalars['String']['input'];
   userId: Scalars['String']['input'];
+};
+
+
+type QueryadminEmailPreviewAudienceArgs = {
+  input: AdminEmailPreviewAudienceInput;
 };
 
 
@@ -13178,6 +13233,36 @@ type multiCurationNoticeCurationPageQueryQueryVariables = Exact<{
 
 
 type multiCurationNoticeCurationPageQueryQuery = multiCurationNoticeCurationPageQueryQuery_Query;
+
+type AdminEmailPreviewAudienceQuery_Query = { __typename?: 'Query', adminEmailPreviewAudience: any | null };
+
+
+type AdminEmailPreviewAudienceQueryVariables = Exact<{
+  input: AdminEmailPreviewAudienceInput;
+}>;
+
+
+type AdminEmailPreviewAudienceQuery = AdminEmailPreviewAudienceQuery_Query;
+
+type AdminSendTestEmailMutation_Mutation = { __typename?: 'Mutation', adminSendTestEmail: any | null };
+
+
+type AdminSendTestEmailMutationVariables = Exact<{
+  input: AdminSendTestEmailInput;
+}>;
+
+
+type AdminSendTestEmailMutation = AdminSendTestEmailMutation_Mutation;
+
+type AdminSendBulkEmailMutation_Mutation = { __typename?: 'Mutation', adminSendBulkEmail: any | null };
+
+
+type AdminSendBulkEmailMutationVariables = Exact<{
+  input: AdminSendBulkEmailInput;
+}>;
+
+
+type AdminSendBulkEmailMutation = AdminSendBulkEmailMutation_Mutation;
 
 type randomUserQuery_GetRandomUser_User = (
   { __typename?: 'User' }

@@ -82,6 +82,7 @@ interface Query {
   getBookWordCount: number | null;
   getSequenceStats: SequenceStats | null;
   reviewPredictionPosts: Array<Post>;
+  adminEmailPreviewAudience: any;
   advisorRequest: SingleAdvisorRequestOutput | null;
   advisorRequests: MultiAdvisorRequestOutput | null;
   arbitalTagContentRel: SingleArbitalTagContentRelOutput | null;
@@ -296,6 +297,8 @@ interface Mutation {
   increasePostViewCount: number | null;
   generateCoverImagesForPost: Array<ReviewWinnerArt | null> | null;
   flipSplashArtImage: boolean | null;
+  adminSendTestEmail: any;
+  adminSendBulkEmail: any;
   createAdvisorRequest: AdvisorRequestOutput | null;
   updateAdvisorRequest: AdvisorRequestOutput | null;
   createBook: BookOutput | null;
@@ -1297,6 +1300,38 @@ interface ElicitQuestionPredictionCreator {
 interface SequenceStats {
   totalWordCount: number | null;
   totalReadTime: number | null;
+}
+
+interface AdminEmailAudienceFilterInput {
+  verifiedEmailOnly: boolean;
+  requireMailgunValid: boolean;
+  excludeUnsubscribed: boolean;
+  excludeDeleted: boolean;
+  maxMailgunRisk?: MailgunRiskLevel | null;
+  includeUnknownRisk: boolean;
+}
+
+interface AdminEmailPreviewAudienceInput {
+  filter: AdminEmailAudienceFilterInput;
+}
+
+interface AdminSendTestEmailInput {
+  userId: string;
+  subject: string;
+  from?: string | null;
+  html?: string | null;
+  text?: string | null;
+}
+
+interface AdminSendBulkEmailInput {
+  filter: AdminEmailAudienceFilterInput;
+  subject: string;
+  from?: string | null;
+  html?: string | null;
+  text?: string | null;
+  maxRecipients?: number | null;
+  batchSize?: number | null;
+  concurrency?: number | null;
 }
 
 interface AdvisorRequest {
@@ -9908,6 +9943,10 @@ interface GraphQLTypeMap {
   UltraFeedEntry: UltraFeedEntry;
   ElicitQuestionPredictionCreator: ElicitQuestionPredictionCreator;
   SequenceStats: SequenceStats;
+  AdminEmailAudienceFilterInput: AdminEmailAudienceFilterInput;
+  AdminEmailPreviewAudienceInput: AdminEmailPreviewAudienceInput;
+  AdminSendTestEmailInput: AdminSendTestEmailInput;
+  AdminSendBulkEmailInput: AdminSendBulkEmailInput;
   AdvisorRequest: AdvisorRequest;
   SingleAdvisorRequestInput: SingleAdvisorRequestInput;
   SingleAdvisorRequestOutput: SingleAdvisorRequestOutput;

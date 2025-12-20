@@ -1480,6 +1480,53 @@ extend type Query {
   reviewPredictionPosts(year: Int!, limit: Int = 50): [Post!]!
 }
 
+enum MailgunRiskLevel {
+  low
+  medium
+  high
+}
+
+input AdminEmailAudienceFilterInput {
+  verifiedEmailOnly: Boolean!
+  requireMailgunValid: Boolean!
+  excludeUnsubscribed: Boolean!
+  excludeDeleted: Boolean!
+  maxMailgunRisk: MailgunRiskLevel
+  includeUnknownRisk: Boolean!
+}
+
+input AdminEmailPreviewAudienceInput {
+  filter: AdminEmailAudienceFilterInput!
+}
+
+input AdminSendTestEmailInput {
+  userId: String!
+  subject: String!
+  from: String
+  html: String
+  text: String
+}
+
+input AdminSendBulkEmailInput {
+  filter: AdminEmailAudienceFilterInput!
+  subject: String!
+  from: String
+  html: String
+  text: String
+  maxRecipients: Int
+  batchSize: Int
+  concurrency: Int
+}
+
+extend type Query {
+  adminEmailPreviewAudience(input: AdminEmailPreviewAudienceInput!): JSON
+}
+
+extend type Mutation {
+  adminSendTestEmail(input: AdminSendTestEmailInput!): JSON
+  adminSendBulkEmail(input: AdminSendBulkEmailInput!): JSON
+}
+
 type AdvisorRequest {
   _id: String!
   schemaVersion: Float!
