@@ -17,6 +17,76 @@ type Scalars = {
   JSON: { input: any; output: any; }
 };
 
+type AdminEmailAudienceFilterInput = {
+  excludeDeleted: Scalars['Boolean']['input'];
+  excludeUnsubscribed: Scalars['Boolean']['input'];
+  includeUnknownRisk: Scalars['Boolean']['input'];
+  maxMailgunRisk?: InputMaybe<MailgunRiskLevel>;
+  onlyAdmins: Scalars['Boolean']['input'];
+  requireMailgunValid: Scalars['Boolean']['input'];
+  verifiedEmailOnly: Scalars['Boolean']['input'];
+};
+
+type AdminEmailAudiencePreview = {
+  __typename?: 'AdminEmailAudiencePreview';
+  sample: Array<AdminEmailAudienceRow>;
+  totalCount: Scalars['Int']['output'];
+};
+
+type AdminEmailAudienceRow = {
+  __typename?: 'AdminEmailAudienceRow';
+  email: Scalars['String']['output'];
+  userId: Scalars['String']['output'];
+};
+
+type AdminEmailPreviewAudienceInput = {
+  filter: AdminEmailAudienceFilterInput;
+};
+
+type AdminSendBulkEmailError = {
+  __typename?: 'AdminSendBulkEmailError';
+  batch: Scalars['Int']['output'];
+  status?: Maybe<Scalars['Int']['output']>;
+};
+
+type AdminSendBulkEmailInput = {
+  batchSize?: InputMaybe<Scalars['Int']['input']>;
+  concurrency?: InputMaybe<Scalars['Int']['input']>;
+  filter: AdminEmailAudienceFilterInput;
+  from?: InputMaybe<Scalars['String']['input']>;
+  html?: InputMaybe<Scalars['String']['input']>;
+  maxRecipients?: InputMaybe<Scalars['Int']['input']>;
+  runId?: InputMaybe<Scalars['String']['input']>;
+  subject: Scalars['String']['input'];
+  text?: InputMaybe<Scalars['String']['input']>;
+};
+
+type AdminSendBulkEmailResult = {
+  __typename?: 'AdminSendBulkEmailResult';
+  batches: Scalars['Int']['output'];
+  errors: Array<AdminSendBulkEmailError>;
+  lastAfterUserId?: Maybe<Scalars['String']['output']>;
+  ok: Scalars['Boolean']['output'];
+  processed: Scalars['Int']['output'];
+  runId: Scalars['String']['output'];
+};
+
+type AdminSendTestEmailInput = {
+  from?: InputMaybe<Scalars['String']['input']>;
+  html?: InputMaybe<Scalars['String']['input']>;
+  subject: Scalars['String']['input'];
+  text?: InputMaybe<Scalars['String']['input']>;
+  userId: Scalars['String']['input'];
+};
+
+type AdminSendTestEmailResult = {
+  __typename?: 'AdminSendTestEmailResult';
+  email: Scalars['String']['output'];
+  ok: Scalars['Boolean']['output'];
+  status?: Maybe<Scalars['Int']['output']>;
+  unsubscribeUrl: Scalars['String']['output'];
+};
+
 type AdvisorRequest = {
   __typename?: 'AdvisorRequest';
   _id: Scalars['String']['output'];
@@ -3087,6 +3157,27 @@ type LoginReturnData = {
   token?: Maybe<Scalars['String']['output']>;
 };
 
+type MailgunRiskLevel =
+  | 'high'
+  | 'low'
+  | 'medium';
+
+type MailgunValidationResult = {
+  __typename?: 'MailgunValidationResult';
+  didYouMean?: Maybe<Scalars['String']['output']>;
+  email?: Maybe<Scalars['String']['output']>;
+  error?: Maybe<Scalars['String']['output']>;
+  httpStatus?: Maybe<Scalars['Int']['output']>;
+  isDisposableAddress?: Maybe<Scalars['Boolean']['output']>;
+  isRoleAddress?: Maybe<Scalars['Boolean']['output']>;
+  isValid?: Maybe<Scalars['Boolean']['output']>;
+  reason?: Maybe<Scalars['String']['output']>;
+  risk?: Maybe<Scalars['String']['output']>;
+  sourceUserId?: Maybe<Scalars['String']['output']>;
+  status?: Maybe<Scalars['String']['output']>;
+  validatedAt?: Maybe<Scalars['Date']['output']>;
+};
+
 type ManifoldProbabilitiesCache = {
   __typename?: 'ManifoldProbabilitiesCache';
   _id: Scalars['String']['output'];
@@ -4294,6 +4385,8 @@ type Mutation = {
   UserUpdateSubforumMembership?: Maybe<User>;
   addOrUpvoteTag?: Maybe<TagRel>;
   addTags?: Maybe<Scalars['Boolean']['output']>;
+  adminSendBulkEmail: AdminSendBulkEmailResult;
+  adminSendTestEmail: AdminSendTestEmailResult;
   alignmentComment?: Maybe<Comment>;
   alignmentPost?: Maybe<Post>;
   analyticsEvent?: Maybe<Scalars['Boolean']['output']>;
@@ -4541,6 +4634,16 @@ type MutationaddOrUpvoteTagArgs = {
 type MutationaddTagsArgs = {
   postId?: InputMaybe<Scalars['String']['input']>;
   tagIds?: InputMaybe<Array<InputMaybe<Scalars['String']['input']>>>;
+};
+
+
+type MutationadminSendBulkEmailArgs = {
+  input: AdminSendBulkEmailInput;
+};
+
+
+type MutationadminSendTestEmailArgs = {
+  input: AdminSendTestEmailInput;
 };
 
 
@@ -7640,6 +7743,7 @@ type Query = {
   UserReadsPerCoreTag: Array<UserCoreTagReads>;
   UserWrappedDataByYear?: Maybe<WrappedDataByYear>;
   UsersReadPostsOfTargetUser?: Maybe<Array<Post>>;
+  adminEmailPreviewAudience: AdminEmailAudiencePreview;
   advisorRequest?: Maybe<SingleAdvisorRequestOutput>;
   advisorRequests?: Maybe<MultiAdvisorRequestOutput>;
   arbitalTagContentRel?: Maybe<SingleArbitalTagContentRelOutput>;
@@ -8136,6 +8240,11 @@ type QueryUsersReadPostsOfTargetUserArgs = {
   limit?: InputMaybe<Scalars['Int']['input']>;
   targetUserId: Scalars['String']['input'];
   userId: Scalars['String']['input'];
+};
+
+
+type QueryadminEmailPreviewAudienceArgs = {
+  input: AdminEmailPreviewAudienceInput;
 };
 
 
@@ -12431,6 +12540,7 @@ type User = {
   linkedinProfileURL?: Maybe<Scalars['String']['output']>;
   location?: Maybe<Scalars['String']['output']>;
   lwWikiImport?: Maybe<Scalars['Boolean']['output']>;
+  mailgunValidation?: Maybe<MailgunValidationResult>;
   mapLocation?: Maybe<Scalars['JSON']['output']>;
   mapLocationLatLng?: Maybe<LatLng>;
   mapLocationSet?: Maybe<Scalars['Boolean']['output']>;
@@ -13177,6 +13287,46 @@ type multiCurationNoticeCurationPageQueryQueryVariables = Exact<{
 
 
 type multiCurationNoticeCurationPageQueryQuery = multiCurationNoticeCurationPageQueryQuery_Query;
+
+type AdminEmailPreviewAudienceQuery_adminEmailPreviewAudience_AdminEmailAudiencePreview_sample_AdminEmailAudienceRow = { __typename?: 'AdminEmailAudienceRow', userId: string, email: string };
+
+type AdminEmailPreviewAudienceQuery_adminEmailPreviewAudience_AdminEmailAudiencePreview = { __typename?: 'AdminEmailAudiencePreview', totalCount: number, sample: Array<AdminEmailPreviewAudienceQuery_adminEmailPreviewAudience_AdminEmailAudiencePreview_sample_AdminEmailAudienceRow> };
+
+type AdminEmailPreviewAudienceQuery_Query = { __typename?: 'Query', adminEmailPreviewAudience: AdminEmailPreviewAudienceQuery_adminEmailPreviewAudience_AdminEmailAudiencePreview };
+
+
+type AdminEmailPreviewAudienceQueryVariables = Exact<{
+  input: AdminEmailPreviewAudienceInput;
+}>;
+
+
+type AdminEmailPreviewAudienceQuery = AdminEmailPreviewAudienceQuery_Query;
+
+type AdminSendTestEmailMutation_adminSendTestEmail_AdminSendTestEmailResult = { __typename?: 'AdminSendTestEmailResult', ok: boolean, status: number | null, email: string, unsubscribeUrl: string };
+
+type AdminSendTestEmailMutation_Mutation = { __typename?: 'Mutation', adminSendTestEmail: AdminSendTestEmailMutation_adminSendTestEmail_AdminSendTestEmailResult };
+
+
+type AdminSendTestEmailMutationVariables = Exact<{
+  input: AdminSendTestEmailInput;
+}>;
+
+
+type AdminSendTestEmailMutation = AdminSendTestEmailMutation_Mutation;
+
+type AdminSendBulkEmailMutation_adminSendBulkEmail_AdminSendBulkEmailResult_errors_AdminSendBulkEmailError = { __typename?: 'AdminSendBulkEmailError', batch: number, status: number | null };
+
+type AdminSendBulkEmailMutation_adminSendBulkEmail_AdminSendBulkEmailResult = { __typename?: 'AdminSendBulkEmailResult', ok: boolean, runId: string, processed: number, batches: number, lastAfterUserId: string | null, errors: Array<AdminSendBulkEmailMutation_adminSendBulkEmail_AdminSendBulkEmailResult_errors_AdminSendBulkEmailError> };
+
+type AdminSendBulkEmailMutation_Mutation = { __typename?: 'Mutation', adminSendBulkEmail: AdminSendBulkEmailMutation_adminSendBulkEmail_AdminSendBulkEmailResult };
+
+
+type AdminSendBulkEmailMutationVariables = Exact<{
+  input: AdminSendBulkEmailInput;
+}>;
+
+
+type AdminSendBulkEmailMutation = AdminSendBulkEmailMutation_Mutation;
 
 type randomUserQuery_GetRandomUser_User = (
   { __typename?: 'User' }
@@ -26575,6 +26725,8 @@ type UserKarmaChanges = { __typename?: 'User', _id: string, karmaChanges: UserKa
 
 type UsersBannedFromUsersModerationLog = { __typename?: 'User', _id: string, slug: string, displayName: string, bannedUserIds: Array<string> | null, bannedPersonalUserIds: Array<string> | null };
 
+type SunshineUsersList_User_mailgunValidation_MailgunValidationResult = { __typename?: 'MailgunValidationResult', email: string | null, status: string | null, validatedAt: string | null, httpStatus: number | null, error: string | null, isValid: boolean | null, risk: string | null, reason: string | null, didYouMean: string | null, isDisposableAddress: boolean | null, isRoleAddress: boolean | null, sourceUserId: string | null };
+
 type SunshineUsersList_User_moderatorActions_ModeratorAction = (
   { __typename?: 'ModeratorAction' }
   & ModeratorActionDisplay
@@ -26588,7 +26740,7 @@ type SunshineUsersList_User_userRateLimits_UserRateLimit = (
 );
 
 type SunshineUsersList = (
-  { __typename?: 'User', karma: number, htmlBio: string, website: string | null, createdAt: string, email: string | null, emails: Array<any> | null, commentCount: number, maxCommentCount: number, postCount: number, maxPostCount: number, shortformFeedId: string | null, voteCount: number | null, smallUpvoteCount: number | null, bigUpvoteCount: number | null, smallDownvoteCount: number | null, bigDownvoteCount: number | null, banned: string | null, reviewedByUserId: string | null, reviewedAt: string | null, signUpReCaptchaRating: number | null, mapLocation: any | null, needsReview: boolean | null, sunshineNotes: string | null, sunshineFlagged: boolean | null, postingDisabled: boolean | null, allCommentingDisabled: boolean | null, commentingOnOtherUsersDisabled: boolean | null, conversationsDisabled: boolean | null, votingDisabled: boolean, snoozedUntilContentCount: number | null, nullifyVotes: boolean | null, deleteContent: boolean | null, usersContactedBeforeReview: Array<string> | null, altAccountsDetected: boolean | null, voteReceivedCount: number | null, smallUpvoteReceivedCount: number | null, bigUpvoteReceivedCount: number | null, smallDownvoteReceivedCount: number | null, bigDownvoteReceivedCount: number | null, recentKarmaInfo: any | null, lastNotificationsCheck: string | null, lastRemovedFromReviewQueueAt: string | null, rejectedContentCount: number | null, moderatorActions: Array<SunshineUsersList_User_moderatorActions_ModeratorAction> | null, associatedClientIds: Array<SunshineUsersList_User_associatedClientIds_ClientId> | null, userRateLimits: Array<SunshineUsersList_User_userRateLimits_UserRateLimit> | null }
+  { __typename?: 'User', karma: number, htmlBio: string, website: string | null, createdAt: string, email: string | null, emails: Array<any> | null, commentCount: number, maxCommentCount: number, postCount: number, maxPostCount: number, shortformFeedId: string | null, voteCount: number | null, smallUpvoteCount: number | null, bigUpvoteCount: number | null, smallDownvoteCount: number | null, bigDownvoteCount: number | null, banned: string | null, reviewedByUserId: string | null, reviewedAt: string | null, signUpReCaptchaRating: number | null, mapLocation: any | null, needsReview: boolean | null, sunshineNotes: string | null, sunshineFlagged: boolean | null, postingDisabled: boolean | null, allCommentingDisabled: boolean | null, commentingOnOtherUsersDisabled: boolean | null, conversationsDisabled: boolean | null, votingDisabled: boolean, snoozedUntilContentCount: number | null, nullifyVotes: boolean | null, deleteContent: boolean | null, usersContactedBeforeReview: Array<string> | null, altAccountsDetected: boolean | null, voteReceivedCount: number | null, smallUpvoteReceivedCount: number | null, bigUpvoteReceivedCount: number | null, smallDownvoteReceivedCount: number | null, bigDownvoteReceivedCount: number | null, recentKarmaInfo: any | null, lastNotificationsCheck: string | null, lastRemovedFromReviewQueueAt: string | null, rejectedContentCount: number | null, mailgunValidation: SunshineUsersList_User_mailgunValidation_MailgunValidationResult | null, moderatorActions: Array<SunshineUsersList_User_moderatorActions_ModeratorAction> | null, associatedClientIds: Array<SunshineUsersList_User_associatedClientIds_ClientId> | null, userRateLimits: Array<SunshineUsersList_User_userRateLimits_UserRateLimit> | null }
   & UsersMinimumInfo
 );
 

@@ -177,6 +177,21 @@ input RecommendationSettingsInput {
   recommendationspage: RecommendationAlgorithmSettingsInput!
 }
 
+type MailgunValidationResult {
+  email: String
+  status: String
+  validatedAt: Date
+  httpStatus: Int
+  error: String
+  isValid: Boolean
+  risk: String
+  reason: String
+  didYouMean: String
+  isDisposableAddress: Boolean
+  isRoleAddress: Boolean
+  sourceUserId: String
+}
+
 type RecommendResumeSequence {
   sequence: Sequence
   collection: Collection
@@ -1478,6 +1493,86 @@ extend type Query {
 
 extend type Query {
   reviewPredictionPosts(year: Int!, limit: Int = 50): [Post!]!
+}
+
+enum MailgunRiskLevel {
+  low
+  medium
+  high
+}
+
+input AdminEmailAudienceFilterInput {
+  verifiedEmailOnly: Boolean!
+  requireMailgunValid: Boolean!
+  excludeUnsubscribed: Boolean!
+  excludeDeleted: Boolean!
+  onlyAdmins: Boolean!
+  maxMailgunRisk: MailgunRiskLevel
+  includeUnknownRisk: Boolean!
+}
+
+input AdminEmailPreviewAudienceInput {
+  filter: AdminEmailAudienceFilterInput!
+}
+
+input AdminSendTestEmailInput {
+  userId: String!
+  subject: String!
+  from: String
+  html: String
+  text: String
+}
+
+input AdminSendBulkEmailInput {
+  filter: AdminEmailAudienceFilterInput!
+  subject: String!
+  from: String
+  html: String
+  text: String
+  maxRecipients: Int
+  batchSize: Int
+  concurrency: Int
+  runId: String
+}
+
+type AdminEmailAudienceRow {
+  userId: String!
+  email: String!
+}
+
+type AdminEmailAudiencePreview {
+  totalCount: Int!
+  sample: [AdminEmailAudienceRow!]!
+}
+
+type AdminSendTestEmailResult {
+  ok: Boolean!
+  status: Int
+  email: String!
+  unsubscribeUrl: String!
+}
+
+type AdminSendBulkEmailError {
+  batch: Int!
+  status: Int
+}
+
+type AdminSendBulkEmailResult {
+  ok: Boolean!
+  runId: String!
+  processed: Int!
+  batches: Int!
+  errors: [AdminSendBulkEmailError!]!
+  lastAfterUserId: String
+}
+
+extend type Query {
+  adminEmailPreviewAudience(input: AdminEmailPreviewAudienceInput!): AdminEmailAudiencePreview!
+}
+
+extend type Mutation {
+  adminSendTestEmail(input: AdminSendTestEmailInput!): AdminSendTestEmailResult!
+  adminSendBulkEmail(input: AdminSendBulkEmailInput!): AdminSendBulkEmailResult!
 }
 
 type AdvisorRequest {
@@ -8097,6 +8192,7 @@ type User {
   rateLimitNextAbleToComment(postId: String): JSON
   rateLimitNextAbleToPost(eventForm: Boolean): JSON
   recentKarmaInfo: JSON
+  mailgunValidation: MailgunValidationResult
   hideSunshineSidebar: Boolean
   inactiveSurveyEmailSentAt: Date
   userSurveyEmailSentAt: Date

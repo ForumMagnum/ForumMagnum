@@ -82,6 +82,7 @@ interface Query {
   getBookWordCount: number | null;
   getSequenceStats: SequenceStats | null;
   reviewPredictionPosts: Array<Post>;
+  adminEmailPreviewAudience: AdminEmailAudiencePreview;
   advisorRequest: SingleAdvisorRequestOutput | null;
   advisorRequests: MultiAdvisorRequestOutput | null;
   arbitalTagContentRel: SingleArbitalTagContentRelOutput | null;
@@ -296,6 +297,8 @@ interface Mutation {
   increasePostViewCount: number | null;
   generateCoverImagesForPost: Array<ReviewWinnerArt | null> | null;
   flipSplashArtImage: boolean | null;
+  adminSendTestEmail: AdminSendTestEmailResult;
+  adminSendBulkEmail: AdminSendBulkEmailResult;
   createAdvisorRequest: AdvisorRequestOutput | null;
   updateAdvisorRequest: AdvisorRequestOutput | null;
   createBook: BookOutput | null;
@@ -543,6 +546,21 @@ interface RecommendationSettingsInput {
   frontpage: RecommendationAlgorithmSettingsInput;
   frontpageEA: RecommendationAlgorithmSettingsInput;
   recommendationspage: RecommendationAlgorithmSettingsInput;
+}
+
+interface MailgunValidationResult {
+  email: string | null;
+  status: string | null;
+  validatedAt: Date | null;
+  httpStatus: number | null;
+  error: string | null;
+  isValid: boolean | null;
+  risk: string | null;
+  reason: string | null;
+  didYouMean: string | null;
+  isDisposableAddress: boolean | null;
+  isRoleAddress: boolean | null;
+  sourceUserId: string | null;
 }
 
 interface RecommendResumeSequence {
@@ -1297,6 +1315,71 @@ interface ElicitQuestionPredictionCreator {
 interface SequenceStats {
   totalWordCount: number | null;
   totalReadTime: number | null;
+}
+
+interface AdminEmailAudienceFilterInput {
+  verifiedEmailOnly: boolean;
+  requireMailgunValid: boolean;
+  excludeUnsubscribed: boolean;
+  excludeDeleted: boolean;
+  onlyAdmins: boolean;
+  maxMailgunRisk?: MailgunRiskLevel | null;
+  includeUnknownRisk: boolean;
+}
+
+interface AdminEmailPreviewAudienceInput {
+  filter: AdminEmailAudienceFilterInput;
+}
+
+interface AdminSendTestEmailInput {
+  userId: string;
+  subject: string;
+  from?: string | null;
+  html?: string | null;
+  text?: string | null;
+}
+
+interface AdminSendBulkEmailInput {
+  filter: AdminEmailAudienceFilterInput;
+  subject: string;
+  from?: string | null;
+  html?: string | null;
+  text?: string | null;
+  maxRecipients?: number | null;
+  batchSize?: number | null;
+  concurrency?: number | null;
+  runId?: string | null;
+}
+
+interface AdminEmailAudienceRow {
+  userId: string;
+  email: string;
+}
+
+interface AdminEmailAudiencePreview {
+  totalCount: number;
+  sample: Array<AdminEmailAudienceRow>;
+}
+
+interface AdminSendTestEmailResult {
+  ok: boolean;
+  status: number | null;
+  email: string;
+  unsubscribeUrl: string;
+}
+
+interface AdminSendBulkEmailError {
+  batch: number;
+  status: number | null;
+}
+
+interface AdminSendBulkEmailResult {
+  ok: boolean;
+  runId: string;
+  processed: number;
+  batches: number;
+  errors: Array<AdminSendBulkEmailError>;
+  lastAfterUserId: string | null;
 }
 
 interface AdvisorRequest {
@@ -7480,6 +7563,7 @@ interface User {
   rateLimitNextAbleToComment: any;
   rateLimitNextAbleToPost: any;
   recentKarmaInfo: any;
+  mailgunValidation: MailgunValidationResult | null;
   hideSunshineSidebar: boolean | null;
   inactiveSurveyEmailSentAt: Date | null;
   userSurveyEmailSentAt: Date | null;
@@ -9792,6 +9876,7 @@ interface GraphQLTypeMap {
   PostMetadataOutput: PostMetadataOutput;
   RecommendationAlgorithmSettingsInput: RecommendationAlgorithmSettingsInput;
   RecommendationSettingsInput: RecommendationSettingsInput;
+  MailgunValidationResult: MailgunValidationResult;
   RecommendResumeSequence: RecommendResumeSequence;
   CommentCountTag: CommentCountTag;
   TopCommentedTagUser: TopCommentedTagUser;
@@ -9907,6 +9992,15 @@ interface GraphQLTypeMap {
   UltraFeedEntry: UltraFeedEntry;
   ElicitQuestionPredictionCreator: ElicitQuestionPredictionCreator;
   SequenceStats: SequenceStats;
+  AdminEmailAudienceFilterInput: AdminEmailAudienceFilterInput;
+  AdminEmailPreviewAudienceInput: AdminEmailPreviewAudienceInput;
+  AdminSendTestEmailInput: AdminSendTestEmailInput;
+  AdminSendBulkEmailInput: AdminSendBulkEmailInput;
+  AdminEmailAudienceRow: AdminEmailAudienceRow;
+  AdminEmailAudiencePreview: AdminEmailAudiencePreview;
+  AdminSendTestEmailResult: AdminSendTestEmailResult;
+  AdminSendBulkEmailError: AdminSendBulkEmailError;
+  AdminSendBulkEmailResult: AdminSendBulkEmailResult;
   AdvisorRequest: AdvisorRequest;
   SingleAdvisorRequestInput: SingleAdvisorRequestInput;
   SingleAdvisorRequestOutput: SingleAdvisorRequestOutput;
@@ -10840,6 +10934,7 @@ interface CreateInputsByCollectionName {
   LlmConversations: never;
   LlmMessages: never;
   LoginTokens: never;
+  MailgunValidations: never;
   ManifoldProbabilitiesCaches: never;
   Migrations: never;
   Notifications: never;
@@ -10932,6 +11027,7 @@ interface UpdateInputsByCollectionName {
   LegacyData: never;
   LlmMessages: never;
   LoginTokens: never;
+  MailgunValidations: never;
   ManifoldProbabilitiesCaches: never;
   Migrations: never;
   PageCache: never;

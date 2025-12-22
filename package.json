@@ -222,6 +222,7 @@
     "linkedom": "^0.16.11",
     "lolex": "^3.0.0",
     "lru-cache": "^5.1.1",
+    "mailgun.js": "^12.4.0",
     "markdown-it": "^12.3.2",
     "markdown-it-container": "^2.0.0",
     "markdown-it-footnote": "^3.0.1",

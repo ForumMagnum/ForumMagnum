@@ -50,6 +50,7 @@ import { Localgroups } from './localgroups/collection';
 import { LoginTokens } from './loginTokens/collection';
 import { LWEvents } from './lwevents/collection';
 import { ManifoldProbabilitiesCaches } from './manifoldProbabilitiesCaches/collection';
+import { MailgunValidations } from './mailgunValidations/collection';
 import { Messages } from './messages/collection';
 import { Migrations } from './migrations/collection';
 import { ModerationTemplates } from './moderationTemplates/collection';
@@ -121,7 +122,7 @@ const allCollections = {
   Collections, CommentEmbeddings, CommentModeratorActions, Comments, Conversations, CronHistories, CurationEmails, CurationNotices, DatabaseMetadata, DebouncerEvents,
   DialogueChecks, DialogueMatchPreferences, DigestPosts, Digests, ElectionCandidates, ElectionVotes, ElicitQuestionPredictions, ElicitQuestions, EmailTokens, FeaturedResources,
   FieldChanges, ForumEvents, GardenCodes, GoogleServiceAccountSessions, Images, JargonTerms, LWEvents, LegacyData, LlmConversations, LlmMessages,
-  Localgroups, LoginTokens, ManifoldProbabilitiesCaches, Messages, Migrations, ModerationTemplates, ModeratorActions, MultiDocuments, Notifications, PageCache, PetrovDayActions,
+  Localgroups, LoginTokens, ManifoldProbabilitiesCaches, MailgunValidations, Messages, Migrations, ModerationTemplates, ModeratorActions, MultiDocuments, Notifications, PageCache, PetrovDayActions,
   PetrovDayLaunchs, PodcastEpisodes, Podcasts, PostEmbeddings, PostRecommendations, PostRelations, PostViewTimes, PostViews, Posts, RSSFeeds,
   ReadStatuses, RecommendationsCaches, Reports, ReviewVotes, ReviewWinnerArts, ReviewWinners, Revisions, Sequences, Sessions, SideCommentCaches,
   SplashArtCoordinates, Spotlights, Subscriptions, SurveyQuestions, SurveyResponses, SurveySchedules, Surveys, TagFlags, TagRels, Tags,

@@ -40,6 +40,7 @@ type LlmConversationsViewName = "llmConversationsAll"|"llmConversationsWithUser"
 type LlmMessagesViewName = never
 type LocalgroupsViewName = "all"|"local"|"nearby"|"online"|"single"|"userActiveGroups"|"userInactiveGroups"|"userOrganizesGroups";
 type LoginTokensViewName = never
+type MailgunValidationsViewName = never
 type ManifoldProbabilitiesCachesViewName = never
 type MessagesViewName = "conversationPreview"|"messagesConversation";
 type MigrationsViewName = never
@@ -134,6 +135,7 @@ interface ViewTermsByCollectionName {
   LlmMessages: ViewTermsBase
   Localgroups: LocalgroupsViewTerms
   LoginTokens: ViewTermsBase
+  MailgunValidations: ViewTermsBase
   ManifoldProbabilitiesCaches: ViewTermsBase
   Messages: MessagesViewTerms
   Migrations: ViewTermsBase
