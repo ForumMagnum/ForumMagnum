@@ -1,8 +1,5 @@
 import { getSiteUrl } from "@/lib/vulcan-lib/utils";
 
-// Keep this intentionally simple for now:
-// - Reuse the existing Mailgun API key env var already used for validation.
-// - Avoid introducing more env vars until we actually need them.
 const MAILGUN_API_KEY_ENV_VAR = "MAILGUN_VALIDATION_API_KEY";
 
 // TODO: If/when we need multi-domain support, revisit this (and possibly reintroduce configuration).
