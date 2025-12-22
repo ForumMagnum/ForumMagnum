@@ -255,7 +255,10 @@ export async function validateAndStoreMailgunValidation(args: {
   email: string;
   sourceUserId?: string | null;
 }): Promise<void> {
-  if (!getMailgunClient()) return;
+  if (!getMailgunClient()) {
+    logger("MAILGUN_VALIDATION_API_KEY is not set, skipping validating email");
+    return;
+  };
 
   const normalizedEmail = args.email.trim().toLowerCase();
   if (!normalizedEmail) return;
