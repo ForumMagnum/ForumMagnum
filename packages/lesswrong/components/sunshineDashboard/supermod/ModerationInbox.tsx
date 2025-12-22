@@ -189,14 +189,13 @@ const ModerationInboxInner = ({ users, posts, initialOpenedUserId, currentUser }
   const actionsExecutedRef = useRef(false);
 
   useEffect(() => {
-    const handleBeforeUnload = (e: BeforeUnloadEvent) => {
+    const handleBeforeUnload = () => {
       if (undoQueueRef.current.length > 0) {
         for (const item of undoQueueRef.current) {
           clearTimeout(item.timeoutId);
           void item.executeAction();
         }
         actionsExecutedRef.current = true;
-        e.preventDefault();
       }
     };
 
