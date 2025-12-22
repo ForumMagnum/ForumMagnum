@@ -132,7 +132,9 @@ async function validateEmailWithMailgun(email: string): Promise<MailgunValidatio
       let responseSnippet = "(unstringifiable)";
       try {
         responseSnippet = JSON.stringify(json).slice(0, 2_000);
-      } catch {}
+      } catch {
+        // Ignore stringify errors, keep default message
+      }
       // eslint-disable-next-line no-console
       console.error(
         `[mailgunValidations] validate failed httpStatus=${status} email=${email} response=${responseSnippet}`,

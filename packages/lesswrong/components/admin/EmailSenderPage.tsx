@@ -504,23 +504,23 @@ const EmailSenderPage = () => {
         </div>
         <div className={classes.row}>
           <label className={classes.checkboxRow}>
-            <input className={classes.checkbox} type="checkbox" checked={verifiedEmailOnly} onChange={(e) => setVerifiedEmailOnly(e.target.checked)} />
+            <input className={classes.checkbox} type="checkbox" checked={verifiedEmailOnly} onChange={(e) => setVerifiedEmailOnly(e.target.checked)} />{" "}
             Verified primary email only
           </label>
           <label className={classes.checkboxRow}>
-            <input className={classes.checkbox} type="checkbox" checked={requireMailgunValid} onChange={(e) => setRequireMailgunValid(e.target.checked)} />
+            <input className={classes.checkbox} type="checkbox" checked={requireMailgunValid} onChange={(e) => setRequireMailgunValid(e.target.checked)} />{" "}
             Require Mailgun isValid=true
           </label>
           <label className={classes.checkboxRow}>
-            <input className={classes.checkbox} type="checkbox" checked={excludeUnsubscribed} onChange={(e) => setExcludeUnsubscribed(e.target.checked)} />
+            <input className={classes.checkbox} type="checkbox" checked={excludeUnsubscribed} onChange={(e) => setExcludeUnsubscribed(e.target.checked)} />{" "}
             Exclude unsubscribeFromAll
           </label>
           <label className={classes.checkboxRow}>
-            <input className={classes.checkbox} type="checkbox" checked={excludeDeleted} onChange={(e) => setExcludeDeleted(e.target.checked)} />
+            <input className={classes.checkbox} type="checkbox" checked={excludeDeleted} onChange={(e) => setExcludeDeleted(e.target.checked)} />{" "}
             Exclude deleted
           </label>
           <label className={classes.checkboxRow}>
-            <input className={classes.checkbox} type="checkbox" checked={onlyAdmins} onChange={(e) => setOnlyAdmins(e.target.checked)} />
+            <input className={classes.checkbox} type="checkbox" checked={onlyAdmins} onChange={(e) => setOnlyAdmins(e.target.checked)} />{" "}
             Only admins
           </label>
         </div>
@@ -539,7 +539,7 @@ const EmailSenderPage = () => {
             </select>
           </div>
           <label className={classes.checkboxRow}>
-            <input className={classes.checkbox} type="checkbox" checked={includeUnknownRisk} onChange={(e) => setIncludeUnknownRisk(e.target.checked)} />
+            <input className={classes.checkbox} type="checkbox" checked={includeUnknownRisk} onChange={(e) => setIncludeUnknownRisk(e.target.checked)} />{" "}
             Include risk=unknown / missing Mailgun validation
           </label>
           <div className={classes.grow} />
@@ -609,7 +609,7 @@ const EmailSenderPage = () => {
           </div>
         </div>
         <label className={classes.checkboxRow} style={{ marginTop: 10 }}>
-          <input className={classes.checkbox} type="checkbox" checked={confirmBulk} onChange={(e) => setConfirmBulk(e.target.checked)} />
+          <input className={classes.checkbox} type="checkbox" checked={confirmBulk} onChange={(e) => setConfirmBulk(e.target.checked)} />{" "}
           I understand this can email many users
         </label>
         <div className={classes.row}>
