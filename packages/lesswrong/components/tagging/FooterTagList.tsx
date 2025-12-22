@@ -17,7 +17,6 @@ import stringify from 'json-stringify-deterministic';
 import { FRIENDLY_HOVER_OVER_WIDTH } from '../common/FriendlyHoverOver';
 import { AnnualReviewMarketInfo } from '../../lib/collections/posts/annualReviewMarkets';
 import { stableSortTags } from '../../lib/collections/tags/helpers';
-import { registerComponent } from "../../lib/vulcan-lib/components";
 import HoverOver from "../common/HoverOver";
 import ContentStyles from "../common/ContentStyles";
 import Loading from "../vulcan-core/Loading";
@@ -131,22 +130,17 @@ type FooterTagListPost = Pick<PostsList, '_id'|'tags'|'curatedDate'|'frontpageDa
 
 const autoClassifiedIconStyles = defineStyles('AutoClassifiedIcon', (theme: ThemeType) => ({
   robotIcon: {
-    display: 'flex',
-    alignItems: 'center',
     marginLeft: -4,
-    "& svg": {
-      height: 12,
-      opacity: 0.7,
-    },
+    height: 12,
+    opacity: 0.7,
   },
 }));
 
 const AutoClassifiedIcon = () => {
   const classes = useStyles(autoClassifiedIconStyles);
-
   return (
     <HoverOver title="This post was classified by our experimental auto-classifier (not an LLM). It will be reviewed by an admin within ~24 hours.">
-      <span className={classes.robotIcon}><ForumIcon icon="Robot" /></span>
+      <ForumIcon icon="Robot" className={classes.robotIcon} />
     </HoverOver>
   );
 }
