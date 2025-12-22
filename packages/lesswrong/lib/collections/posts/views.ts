@@ -1058,7 +1058,7 @@ function sunshineAutoClassifiedPosts() {
     },
     options: {
       sort: {
-        createdAt: -1,
+        frontpageDate: -1,
       }
     }
   };
