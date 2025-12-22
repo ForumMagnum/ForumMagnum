@@ -38,7 +38,10 @@ const styles = defineStyles("EmailSenderPage", (theme: ThemeType) => ({
     },
   },
   section: {
-    padding: 16,
+    paddingTop: 16,
+    paddingBottom: 16,
+    paddingLeft: 0,
+    paddingRight: 8,
     borderTop: theme.palette.border.faint,
   },
   sectionTitle: {
