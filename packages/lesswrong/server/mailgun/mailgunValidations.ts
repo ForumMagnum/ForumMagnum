@@ -2,31 +2,30 @@ import { getSqlClientOrThrow } from "@/server/sql/sqlClient";
 import { loggerConstructor } from "@/lib/utils/logging";
 import { randomId } from "@/lib/random";
 import { executePromiseQueue } from "@/lib/utils/asyncUtils";
-import { z } from "zod";
+import type { ValidationResult } from "mailgun.js/definitions";
+import { getMailgunClient } from "./mailgunClient";
 
 const logger = loggerConstructor("mailgunValidations");
 
-const MAILGUN_API_KEY_ENV_VAR = "MAILGUN_VALIDATION_API_KEY";
-const MAILGUN_VALIDATE_URL = "https://api.mailgun.net/v4/address/validate";
-
 const BATCH_SIZE = 250;
 const CONCURRENCY = 8;
-const REQUEST_TIMEOUT_MS = 15_000;
 
-interface MailgunValidationResult {
+interface ParsedValidationResult {
+  isValid?: boolean;
+  risk?: string;
+  reason?: string;
+  didYouMean?: string;
+  isDisposableAddress?: boolean;
+  isRoleAddress?: boolean;
+}
+
+interface MailgunValidationStorageResult {
   status: "success" | "error";
   validatedAt: Date;
   httpStatus?: number;
   error?: string;
   result?: unknown;
-  parsed?: {
-    isValid?: boolean;
-    risk?: string;
-    reason?: string;
-    didYouMean?: string;
-    isDisposableAddress?: boolean;
-    isRoleAddress?: boolean;
-  };
+  parsed?: ParsedValidationResult;
 }
 
 type NextEmailRow = {
@@ -34,136 +33,65 @@ type NextEmailRow = {
   sourceUserId: string | null;
 };
 
-function getMailgunApiKey(): string | null {
-  return process.env[MAILGUN_API_KEY_ENV_VAR] ?? null;
-}
-
-function buildMailgunAuthHeader(apiKey: string): string {
-  const token = Buffer.from(`api:${apiKey}`, "utf8").toString("base64");
-  return `Basic ${token}`;
-}
-
-async function fetchJsonWithTimeout(
-  url: string,
-  options: RequestInit,
-  timeoutMs: number,
-): Promise<{ ok: boolean; status: number; json: unknown }> {
-  const controller = new AbortController();
-  const timeout = setTimeout(() => controller.abort(), timeoutMs);
-  try {
-    const res = await fetch(url, { ...options, signal: controller.signal });
-    const status = res.status;
-    const text = await res.text();
-    let json: unknown = null;
-    try {
-      json = text ? JSON.parse(text) : null;
-    } catch {
-      json = { rawText: text };
-    }
-    return { ok: res.ok, status, json };
-  } finally {
-    clearTimeout(timeout);
-  }
-}
-
-// Mailgun v4 API response schema
-// See: https://documentation.mailgun.com/docs/inboxready/mailgun-validate/single-validation-v4/
-const mailgunResponseSchema = z.object({
-  // "deliverable" | "undeliverable" | "risky" | "unknown" | "catch_all" | "do_not_send"
-  result: z.string().optional(),
-  risk: z.string().optional(),
-  // reason is an array of strings in v4 API
-  reason: z.array(z.string()).optional(),
-  did_you_mean: z.string().nullable().optional(),
-  is_disposable_address: z.boolean().optional(),
-  is_role_address: z.boolean().optional(),
-}).passthrough();
-
-function parseMailgunResponse(json: unknown): MailgunValidationResult["parsed"] {
-  const parsed = mailgunResponseSchema.safeParse(json);
-  if (!parsed.success) return {};
-  const data = parsed.data;
-
+function parseValidationResult(result: ValidationResult): ParsedValidationResult {
   // Convert "result" to boolean isValid
   // "deliverable" and "catch_all" are considered valid
-  const isValid = data.result
-    ? data.result === "deliverable" || data.result === "catch_all"
+  const isValid = result.result
+    ? result.result === "deliverable" || result.result === "catch_all"
     : undefined;
 
   // Join reason array into a single string
-  const reason = data.reason?.length ? data.reason.join("; ") : undefined;
+  const reason = result.reason?.length ? result.reason.join("; ") : undefined;
+
+  // The SDK types don't include did_you_mean but the API may return it
+  const rawResult = result as ValidationResult & { did_you_mean?: string | null };
 
   return {
     isValid,
-    risk: data.risk,
+    risk: result.risk,
     reason,
-    didYouMean: data.did_you_mean ?? undefined,
-    isDisposableAddress: data.is_disposable_address,
-    isRoleAddress: data.is_role_address,
+    didYouMean: rawResult.did_you_mean ?? undefined,
+    isDisposableAddress: result.is_disposable_address,
+    isRoleAddress: result.is_role_address,
   };
 }
 
-async function validateEmailWithMailgun(email: string): Promise<MailgunValidationResult> {
-  const apiKey = getMailgunApiKey();
-  if (!apiKey) {
+async function validateEmailWithMailgun(email: string): Promise<MailgunValidationStorageResult> {
+  const client = getMailgunClient();
+  if (!client) {
     return {
       status: "error",
       validatedAt: new Date(),
-      error: `${MAILGUN_API_KEY_ENV_VAR} is not set`,
+      error: "MAILGUN_VALIDATION_API_KEY is not set",
     };
   }
 
-  const url = new URL(MAILGUN_VALIDATE_URL);
-  url.searchParams.set("address", email);
-
   try {
-    const { ok, status, json } = await fetchJsonWithTimeout(
-      url.toString(),
-      {
-        method: "GET",
-        headers: {
-          Authorization: buildMailgunAuthHeader(apiKey),
-        },
-      },
-      REQUEST_TIMEOUT_MS,
-    );
-
-    if (!ok) {
-      let responseSnippet = "(unstringifiable)";
-      try {
-        responseSnippet = JSON.stringify(json).slice(0, 2_000);
-      } catch {
-        // Ignore stringify errors, keep default message
-      }
-      // eslint-disable-next-line no-console
-      console.error(
-        `[mailgunValidations] validate failed httpStatus=${status} email=${email} response=${responseSnippet}`,
-      );
-      logger(`validate failed httpStatus=${status} email=${email} response=${responseSnippet}`);
-      return {
-        status: "error",
-        validatedAt: new Date(),
-        httpStatus: status,
-        error: `Mailgun validation request failed (HTTP ${status})`,
-        result: json,
-      };
-    }
+    const result = await client.validate.get(email);
 
     return {
       status: "success",
       validatedAt: new Date(),
-      httpStatus: status,
-      result: json,
-      parsed: parseMailgunResponse(json),
+      httpStatus: 200,
+      result,
+      parsed: parseValidationResult(result),
     };
   } catch (e) {
     const message = e instanceof Error ? e.message : String(e);
     // eslint-disable-next-line no-console
     console.error(`[mailgunValidations] validate request error email=${email} err=${message}`);
     logger(`validate request error email=${email} err=${message}`);
+
+    // Try to extract HTTP status if available
+    let httpStatus: number | undefined;
+    if (e && typeof e === "object" && "status" in e && typeof e.status === "number") {
+      httpStatus = e.status;
+    }
+
     return {
       status: "error",
       validatedAt: new Date(),
+      httpStatus,
       error: `Mailgun validation request error: ${message}`,
     };
   }
@@ -176,7 +104,7 @@ async function upsertMailgunValidation(args: {
   httpStatus?: number;
   error?: string;
   result?: unknown;
-  parsed?: MailgunValidationResult["parsed"];
+  parsed?: ParsedValidationResult;
   sourceUserId: string | null;
 }): Promise<void> {
   const db = getSqlClientOrThrow();
@@ -213,21 +141,21 @@ async function upsertMailgunValidation(args: {
         "isRoleAddress",
         "sourceUserId"
       ) VALUES (
-        $1,
-        $2,
-        $3,
-        $4,
-        $5,
-        $6,
-        $7,
-        $8::jsonb,
-        $9,
-        $10,
-        $11,
-        $12,
-        $13,
-        $14,
-        $15
+        $(id),
+        $(createdAt),
+        $(email),
+        $(validatedAt),
+        $(httpStatus),
+        $(status),
+        $(error),
+        $(result)::jsonb,
+        $(isValid),
+        $(risk),
+        $(reason),
+        $(didYouMean),
+        $(isDisposableAddress),
+        $(isRoleAddress),
+        $(sourceUserId)
       )
       ON CONFLICT (email)
       DO UPDATE SET
@@ -244,23 +172,23 @@ async function upsertMailgunValidation(args: {
         "isRoleAddress" = EXCLUDED."isRoleAddress",
         "sourceUserId" = EXCLUDED."sourceUserId"
     `,
-    [
-      _id,
-      new Date(),
+    {
+      id: _id,
+      createdAt: new Date(),
       email,
       validatedAt,
-      httpStatus ?? null,
+      httpStatus: httpStatus ?? null,
       status,
-      error ?? null,
-      result ? JSON.stringify(result) : null,
-      parsed?.isValid ?? null,
-      parsed?.risk ?? null,
-      parsed?.reason ?? null,
-      parsed?.didYouMean ?? null,
-      parsed?.isDisposableAddress ?? null,
-      parsed?.isRoleAddress ?? null,
+      error: error ?? null,
+      result: result ? JSON.stringify(result) : null,
+      isValid: parsed?.isValid ?? null,
+      risk: parsed?.risk ?? null,
+      reason: parsed?.reason ?? null,
+      didYouMean: parsed?.didYouMean ?? null,
+      isDisposableAddress: parsed?.isDisposableAddress ?? null,
+      isRoleAddress: parsed?.isRoleAddress ?? null,
       sourceUserId,
-    ],
+    },
   );
 }
 
@@ -312,9 +240,9 @@ async function getNextEmailsToValidate(limit: number): Promise<NextEmailRow[]> {
         ON lower(mv.email) = d.email_lc
       WHERE mv._id IS NULL
       ORDER BY d.email
-      LIMIT $1
+      LIMIT $(limit)
     `,
-    [limit],
+    { limit },
   );
 }
 
@@ -327,7 +255,7 @@ export async function validateAndStoreMailgunValidation(args: {
   email: string;
   sourceUserId?: string | null;
 }): Promise<void> {
-  if (!getMailgunApiKey()) return;
+  if (!getMailgunClient()) return;
 
   const normalizedEmail = args.email.trim().toLowerCase();
   if (!normalizedEmail) return;
@@ -363,8 +291,8 @@ export async function runMailgunValidationsBatch(args?: {
 }): Promise<{ processed: number; succeeded: number; failed: number }> {
   const logger = loggerConstructor("script-mailgunValidationsBatch");
 
-  if (!getMailgunApiKey()) {
-    logger(`${MAILGUN_API_KEY_ENV_VAR} is not set, skipping`);
+  if (!getMailgunClient()) {
+    logger("MAILGUN_VALIDATION_API_KEY is not set, skipping");
     return { processed: 0, succeeded: 0, failed: 0 };
   }
 
@@ -407,5 +335,3 @@ export async function runMailgunValidationsBatch(args?: {
   logger(`Done. processed=${rows.length} succeeded=${succeeded} failed=${failed}`);
   return { processed: rows.length, succeeded, failed };
 }
-
-

@@ -1,23 +1,6 @@
 import { getSiteUrl } from "@/lib/vulcan-lib/utils";
-
-const MAILGUN_API_KEY_ENV_VAR = "MAILGUN_VALIDATION_API_KEY";
-
-// TODO: If/when we need multi-domain support, revisit this (and possibly reintroduce configuration).
-const MAILGUN_DOMAIN = "lesserwrong.com";
-const DEFAULT_FROM_ADDRESS = "no-reply@lesserwrong.com";
-
-function buildMailgunAuthHeader(apiKey: string): string {
-  const token = Buffer.from(`api:${apiKey}`, "utf8").toString("base64");
-  return `Basic ${token}`;
-}
-
-function getMailgunApiKeyOrThrow() {
-  const apiKey = process.env[MAILGUN_API_KEY_ENV_VAR] ?? null;
-  if (!apiKey) {
-    throw new Error(`Missing Mailgun API key env var: ${MAILGUN_API_KEY_ENV_VAR}`);
-  }
-  return apiKey;
-}
+import type { MailgunMessageData } from "mailgun.js/definitions";
+import { getMailgunClient, MAILGUN_DOMAIN, DEFAULT_FROM_ADDRESS } from "./mailgunClient";
 
 export function renderUnsubscribeLinkTemplateForBulk(htmlOrText: string): string {
   return htmlOrText.replaceAll("{{unsubscribeUrl}}", "%recipient.unsubscribeUrl%");
@@ -36,42 +19,46 @@ export async function sendMailgunBatchEmail(args: {
   recipientVariables: Record<string, { unsubscribeUrl: string }>;
   from?: string;
 }): Promise<{ ok: boolean; status: number; json: unknown }> {
-  const apiKey = getMailgunApiKeyOrThrow();
+  const client = getMailgunClient();
+  if (!client) {
+    throw new Error("MAILGUN_VALIDATION_API_KEY is not set");
+  }
   const from = args.from ?? DEFAULT_FROM_ADDRESS;
 
-  const url = `https://api.mailgun.net/v3/${MAILGUN_DOMAIN}/messages`;
-  const body = new URLSearchParams();
-  body.set("from", from);
-  body.set("subject", args.subject);
-
-  if (args.text) body.set("text", args.text);
-  if (args.html) body.set("html", args.html);
-
-  // Mailgun supports either repeated `to` params or comma-separated; repeated is safer.
-  for (const email of args.to) {
-    body.append("to", email);
-  }
-
-  body.set("recipient-variables", JSON.stringify(args.recipientVariables));
-
-  const res = await fetch(url, {
-    method: "POST",
-    headers: {
-      Authorization: buildMailgunAuthHeader(apiKey),
-      "Content-Type": "application/x-www-form-urlencoded",
-    },
-    body,
-  });
-
-  const text = await res.text();
-  let json: unknown = null;
   try {
-    json = text ? JSON.parse(text) : null;
-  } catch {
-    json = { rawText: text };
+    // At least one of text or html must be provided
+    if (!args.text && !args.html) {
+      throw new Error("Either text or html must be provided");
+    }
+
+    // Build the message data with at least text or html
+    // The MailgunMessageData type requires at least one content field, which we guarantee above
+    const messageData = {
+      from,
+      to: args.to,
+      subject: args.subject,
+      ...(args.text ? { text: args.text } : {}),
+      ...(args.html ? { html: args.html } : {}),
+      "recipient-variables": JSON.stringify(args.recipientVariables),
+    } as MailgunMessageData;
+
+    const result = await client.messages.create(MAILGUN_DOMAIN, messageData);
+
+    return { ok: true, status: result.status, json: result };
+  } catch (e) {
+    // Extract status and response from the error if available
+    let status = 500;
+    let json: unknown = null;
+
+    if (e && typeof e === "object") {
+      if ("status" in e && typeof e.status === "number") {
+        status = e.status;
+      }
+      if ("message" in e) {
+        json = { error: e.message };
+      }
+    }
+
+    return { ok: false, status, json };
   }
-
-  return { ok: res.ok, status: res.status, json };
 }
-
-
