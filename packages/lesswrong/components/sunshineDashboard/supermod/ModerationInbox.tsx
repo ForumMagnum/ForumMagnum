@@ -189,7 +189,8 @@ const ModerationInboxInner = ({ users, posts, initialOpenedUserId, currentUser }
   const actionsExecutedRef = useRef(false);
 
   useEffect(() => {
-    const handleBeforeUnload = () => {
+    const executeAllPendingActions = () => {
+      if (actionsExecutedRef.current) return;
       if (undoQueueRef.current.length > 0) {
         for (const item of undoQueueRef.current) {
           clearTimeout(item.timeoutId);
@@ -199,15 +200,18 @@ const ModerationInboxInner = ({ users, posts, initialOpenedUserId, currentUser }
       }
     };
 
-    window.addEventListener('beforeunload', handleBeforeUnload);
-    return () => {
-      window.removeEventListener('beforeunload', handleBeforeUnload);
-      if (!actionsExecutedRef.current) {
-        for (const item of undoQueueRef.current) {
-          clearTimeout(item.timeoutId);
-          void item.executeAction();
-        }
+    const handleVisibilityChange = () => {
+      if (document.visibilityState === 'hidden') {
+        executeAllPendingActions();
       }
+    };
+
+    document.addEventListener('visibilitychange', handleVisibilityChange);
+    window.addEventListener('beforeunload', executeAllPendingActions);
+    return () => {
+      document.removeEventListener('visibilitychange', handleVisibilityChange);
+      window.removeEventListener('beforeunload', executeAllPendingActions);
+      executeAllPendingActions();
     };
   }, []);
 
