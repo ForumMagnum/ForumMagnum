@@ -15,7 +15,7 @@ const styles = defineStyles('ModerationTabs', (theme: ThemeType) => ({
     zIndex: 2,
   },
   tab: {
-    padding: '12px 16px',
+    padding: '12px 8px',
     cursor: 'pointer',
     fontSize: 14,
     fontWeight: 500,
@@ -27,6 +27,12 @@ const styles = defineStyles('ModerationTabs', (theme: ThemeType) => ({
       backgroundColor: theme.palette.grey[50],
       color: theme.palette.grey[900],
     },
+  },
+  firstTab: {
+    paddingLeft: '16px',
+  },
+  lastTab: {
+    paddingRight: '16px',
   },
   activeTab: {
     color: theme.palette.primary.main,
@@ -65,11 +71,13 @@ const ModerationTabs = ({
 
   return (
     <div className={classes.root}>
-      {tabs.map((tab) => (
+      {tabs.map((tab, index) => (
         <div
           key={tab.group}
           className={classNames(classes.tab, {
             [classes.activeTab]: activeTab === tab.group,
+            [classes.firstTab]: index === 0,
+            [classes.lastTab]: index === tabs.length - 1,
           })}
           onClick={() => onTabChange(tab.group)}
         >

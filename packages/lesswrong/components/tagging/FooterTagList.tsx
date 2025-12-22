@@ -12,7 +12,7 @@ import { Card } from "@/components/widgets/Paper";
 import { Link } from '../../lib/reactRouterWrapper';
 import { forumSelect } from '../../lib/forumTypeUtils';
 import { useMessages } from '../common/withMessages';
-import { isLWorAF, taggingNamePluralSetting } from '../../lib/instanceSettings';
+import { adminAccountSetting, isLWorAF, taggingNamePluralSetting } from '../../lib/instanceSettings';
 import stringify from 'json-stringify-deterministic';
 import { FRIENDLY_HOVER_OVER_WIDTH } from '../common/FriendlyHoverOver';
 import { AnnualReviewMarketInfo } from '../../lib/collections/posts/annualReviewMarkets';
@@ -25,8 +25,11 @@ import AddTagButton from "./AddTagButton";
 import CoreTagsChecklist from "./CoreTagsChecklist";
 import PostsAnnualReviewMarketTag from "../posts/PostsAnnualReviewMarketTag";
 import { apolloSSRFlag } from "@/lib/helpers";
+import ForumIcon from '../common/ForumIcon';
+import { defineStyles } from '../hooks/defineStyles';
+import { useStyles } from '../hooks/useStyles';
 
-const styles = (theme: ThemeType) => ({
+const styles = defineStyles('FooterTagList', (theme: ThemeType) => ({
   root: theme.isFriendlyUI ? {
     marginTop: 8,
     marginBottom: 8,
@@ -120,7 +123,33 @@ const styles = (theme: ThemeType) => ({
     cursor: "pointer",
     border: theme.palette.tag.border
   },
-});
+}));
+
+type FooterTagListPost = Pick<PostsList, '_id'|'tags'|'curatedDate'|'frontpageDate'|'reviewedByUserId'|'isEvent'|'postCategory'> & {
+  postedAt?: string
+}
+
+const autoClassifiedIconStyles = defineStyles('AutoClassifiedIcon', (theme: ThemeType) => ({
+  robotIcon: {
+    display: 'flex',
+    alignItems: 'center',
+    marginLeft: -4,
+    "& svg": {
+      height: 12,
+      opacity: 0.7,
+    },
+  },
+}));
+
+const AutoClassifiedIcon = () => {
+  const classes = useStyles(autoClassifiedIconStyles);
+
+  return (
+    <HoverOver title="This post was classified by our experimental auto-classifier (not an LLM). It will be reviewed by an admin within ~24 hours.">
+      <span className={classes.robotIcon}><ForumIcon icon="Robot" /></span>
+    </HoverOver>
+  );
+}
 
 const FooterTagList = ({
   post,
@@ -137,15 +166,12 @@ const FooterTagList = ({
   overrideMargins=false,
   appendElement,
   annualReviewMarketInfo,
-  classes,
   align = "left",
   noBackground = false,
   neverCoreStyling = false,
   tagRight = true,
 }: {
-  post: Pick<PostsList, '_id'|'tags'|'curatedDate'|'frontpageDate'|'reviewedByUserId'|'isEvent'|'postCategory'> & {
-    postedAt?: string
-  },
+  post: FooterTagListPost,
   hideScore?: boolean,
   hideAddTag?: boolean,
   useAltAddTagButton?: boolean,
@@ -159,11 +185,11 @@ const FooterTagList = ({
   appendElement?: ReactNode,
   annualReviewMarketInfo?: AnnualReviewMarketInfo,
   align?: "left" | "right",
-  classes: ClassesType<typeof styles>,
   noBackground?: boolean,
   neverCoreStyling?: boolean,
   tagRight?: boolean,
 }) => {
+  const classes = useStyles(styles);
   const [isAwaiting, setIsAwaiting] = useState(false);
   const rootRef = useRef<HTMLSpanElement>(null);
   const [showAll, setShowAll] = useState(!allowTruncate);
@@ -335,6 +361,8 @@ const FooterTagList = ({
         : null
       )
     )
+  
+  const showAutoClassifiedIcon = !post.curatedDate && post.reviewedByUserId && post.reviewedByUserId === adminAccountSetting.get()?._id;
 
   const eventTag = contentTypeInfo.event && post.isEvent ? <MaybeLink to={contentTypeInfo.event.linkTarget} className={classes.postTypeLink}>
     <PostTypeTag label="Event" tooltipBody={contentTypeInfo.event.tooltipBody} neverCoreStyling={neverCoreStyling}/>
@@ -377,6 +405,7 @@ const FooterTagList = ({
           )
       )}
       {!hidePostTypeTag && postType}
+      {!hidePostTypeTag && showAutoClassifiedIcon && <AutoClassifiedIcon />}
       {eventTag}
       {isLWorAF() && annualReviewMarketInfo && isRecent && (
         <PostsAnnualReviewMarketTag annualReviewMarketInfo={annualReviewMarketInfo} />
@@ -398,6 +427,4 @@ const FooterTagList = ({
   </>
 };
 
-export default registerComponent("FooterTagList", FooterTagList, {styles});
-
-
+export default FooterTagList;
