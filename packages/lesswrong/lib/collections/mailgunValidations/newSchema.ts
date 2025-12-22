@@ -10,7 +10,7 @@ const schema = {
       nullable: false,
     },
     graphql: {
-      outputType: "String!",
+      outputType: "String",
       canRead: ["admins"],
     },
   },
@@ -24,7 +24,7 @@ const schema = {
       nullable: false,
     },
     graphql: {
-      outputType: "Date!",
+      outputType: "Date",
       canRead: ["admins"],
     },
   },
@@ -52,7 +52,7 @@ const schema = {
       nullable: false,
     },
     graphql: {
-      outputType: "String!",
+      outputType: "String",
       canRead: ["admins"],
     },
   },
