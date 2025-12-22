@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useCallback, useEffect, useMemo, useReducer } from 'react';
+import React, { useCallback, useEffect, useMemo, useReducer, useRef } from 'react';
 import { defineStyles, useStyles } from '@/components/hooks/useStyles';
 import { useCurrentUser } from '@/components/common/withUser';
 import { userIsAdminOrMod } from '@/lib/vulcan-users/permissions';
@@ -167,7 +167,7 @@ const ModerationInboxInner = ({ users, posts, initialOpenedUserId, currentUser }
   useEffect(() => {
     const currentUrlUser = query.user;
     const stateUser = state.openedUserId;
-    
+
     if (stateUser && stateUser !== currentUrlUser) {
       navigate({
         ...location,
@@ -180,6 +180,37 @@ const ModerationInboxInner = ({ users, posts, initialOpenedUserId, currentUser }
       }, { replace: true, skipRouter: true });
     }
   }, [state.openedUserId, query.user, location, navigate]);
+
+  // Keep a ref to the undo queue so we can access it in beforeunload and unmount handlers
+  const undoQueueRef = useRef(state.undoQueue);
+  useEffect(() => {
+    undoQueueRef.current = state.undoQueue;
+  }, [state.undoQueue]);
+
+  // Warn user and execute pending actions when navigating away or closing tab
+  useEffect(() => {
+    const handleBeforeUnload = (e: BeforeUnloadEvent) => {
+      if (undoQueueRef.current.length > 0) {
+        // Execute all pending actions immediately
+        for (const item of undoQueueRef.current) {
+          clearTimeout(item.timeoutId);
+          void item.executeAction();
+        }
+        // Show browser warning (most browsers will show a generic message)
+        e.preventDefault();
+      }
+    };
+
+    window.addEventListener('beforeunload', handleBeforeUnload);
+    return () => {
+      window.removeEventListener('beforeunload', handleBeforeUnload);
+      // On unmount (e.g., client-side navigation), execute all pending actions
+      for (const item of undoQueueRef.current) {
+        clearTimeout(item.timeoutId);
+        void item.executeAction();
+      }
+    };
+  }, []);
 
   const groupedUsers = useMemo(() => groupBy(state.users, user => getUserReviewGroup(user)), [state.users]);
 
