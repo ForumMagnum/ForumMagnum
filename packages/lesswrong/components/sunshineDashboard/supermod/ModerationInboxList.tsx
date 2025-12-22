@@ -59,8 +59,8 @@ const ModerationInboxList = ({
   onOpenUser: (userId: string) => void;
   onFocusPost: (postId: string) => void;
   visibleTabs: TabInfo[];
-  activeTab: ReviewGroup | 'all' | 'posts';
-  onTabChange: (tab: ReviewGroup | 'all' | 'posts') => void;
+  activeTab: ReviewGroup | 'all' | 'posts' | 'classifiedPosts';
+  onTabChange: (tab: ReviewGroup | 'all' | 'posts' | 'classifiedPosts') => void;
 }) => {
   const classes = useStyles(styles);
 
@@ -73,10 +73,10 @@ const ModerationInboxList = ({
         activeTab={activeTab}
         onTabChange={onTabChange}
       />
-      {activeTab === 'posts' ? (
+      {(activeTab === 'posts' || activeTab === 'classifiedPosts') ? (
         posts.length === 0 ? (
           <div className={classes.empty}>
-            No posts to review
+            {activeTab === 'classifiedPosts' ? 'No auto-classified posts to review' : 'No posts to review'}
           </div>
         ) : (
           <div className={classes.list}>

@@ -96,6 +96,7 @@ export const sharedSettings = {
     apiKey: "AIzaSyA3C48rl26gynG3qIuNuS-3Bh_Zz9jFXkY"
   },
   adminAccount: {
+    _id: "AgwWRYMJRutPtkjds",
     email: "team@lesswrong.com",
     username: "LessWrong"
   },

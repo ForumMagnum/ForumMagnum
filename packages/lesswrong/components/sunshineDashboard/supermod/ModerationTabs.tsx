@@ -48,7 +48,7 @@ const styles = defineStyles('ModerationTabs', (theme: ThemeType) => ({
 }));
 
 export type TabInfo = {
-  group: ReviewGroup | 'all' | 'posts';
+  group: ReviewGroup | 'all' | 'posts' | 'classifiedPosts';
   count: number;
 };
 
@@ -58,8 +58,8 @@ const ModerationTabs = ({
   onTabChange,
 }: {
   tabs: TabInfo[];
-  activeTab: ReviewGroup | 'all' | 'posts';
-  onTabChange: (tab: ReviewGroup | 'all' | 'posts') => void;
+  activeTab: ReviewGroup | 'all' | 'posts' | 'classifiedPosts';
+  onTabChange: (tab: ReviewGroup | 'all' | 'posts' | 'classifiedPosts') => void;
 }) => {
   const classes = useStyles(styles);
 
