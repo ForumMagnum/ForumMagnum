@@ -186,6 +186,8 @@ const ModerationInboxInner = ({ users, posts, initialOpenedUserId, currentUser }
     undoQueueRef.current = state.undoQueue;
   }, [state.undoQueue]);
 
+  const actionsExecutedRef = useRef(false);
+
   useEffect(() => {
     const handleBeforeUnload = (e: BeforeUnloadEvent) => {
       if (undoQueueRef.current.length > 0) {
@@ -193,6 +195,7 @@ const ModerationInboxInner = ({ users, posts, initialOpenedUserId, currentUser }
           clearTimeout(item.timeoutId);
           void item.executeAction();
         }
+        actionsExecutedRef.current = true;
         e.preventDefault();
       }
     };
@@ -200,9 +203,11 @@ const ModerationInboxInner = ({ users, posts, initialOpenedUserId, currentUser }
     window.addEventListener('beforeunload', handleBeforeUnload);
     return () => {
       window.removeEventListener('beforeunload', handleBeforeUnload);
-      for (const item of undoQueueRef.current) {
-        clearTimeout(item.timeoutId);
-        void item.executeAction();
+      if (!actionsExecutedRef.current) {
+        for (const item of undoQueueRef.current) {
+          clearTimeout(item.timeoutId);
+          void item.executeAction();
+        }
       }
     };
   }, []);
