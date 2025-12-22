@@ -9,14 +9,23 @@ import classNames from 'classnames';
 const styles = defineStyles('ModerationInboxList', (theme: ThemeType) => ({
   root: {
     backgroundColor: theme.palette.background.paper,
+    height: '100%',
+    display: 'flex',
+    flexDirection: 'column',
+    overflow: 'hidden',
   },
-  list: {},
+  scrollContainer: {
+    flex: 1,
+    minHeight: 0, // Required for flex child to shrink below content height
+    overflowY: 'auto',
+  },
   empty: {
     padding: 40,
     textAlign: 'center',
     color: theme.palette.grey[600],
     fontSize: 16,
   },
+  group: {},
   newContent: {
     background: theme.palette.panelBackground.sunshineNewContentGroup,
   },
@@ -79,7 +88,7 @@ const ModerationInboxList = ({
             {activeTab === 'classifiedPosts' ? 'No auto-classified posts to review' : 'No posts to review'}
           </div>
         ) : (
-          <div className={classes.list}>
+          <div className={classes.scrollContainer}>
             {posts.map((post) => (
               <ModerationPostItem
                 key={post._id}
@@ -96,20 +105,22 @@ const ModerationInboxList = ({
             No users to review
           </div>
         ) : (
-          userGroups.map(([group, users]) => {
-            const groupStyling = activeTab === 'all' ? classes[group] : undefined;
-            return <div key={group} className={classNames(classes.list, groupStyling)}>
-              {users.map((user) => (
-                <ModerationInboxItem
-                  key={user._id}
-                  user={user}
-                  reviewGroup={group}
-                  isFocused={user._id === focusedUserId}
-                  onOpen={() => onOpenUser(user._id)}
-                />
-              ))}
-            </div>
-          })
+          <div className={classes.scrollContainer}>
+            {userGroups.map(([group, users]) => {
+              const groupStyling = activeTab === 'all' ? classes[group] : undefined;
+              return <div key={group} className={classNames(classes.group, groupStyling)}>
+                {users.map((user) => (
+                  <ModerationInboxItem
+                    key={user._id}
+                    user={user}
+                    reviewGroup={group}
+                    isFocused={user._id === focusedUserId}
+                    onOpen={() => onOpenUser(user._id)}
+                  />
+                ))}
+              </div>
+            })}
+          </div>
         )
       )}
     </div>
